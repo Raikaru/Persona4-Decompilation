@@ -10,10 +10,12 @@ only the boot executable and its loadable image.
 
 ## Current status
 
-The complete retail executable now has a byte-identical assembly baseline. One
-C translation unit containing two functions is linked through MWCC/MWLD as real
-code; the resulting loadable image and full ELF both reproduce the retail
-SHA-1.
+The complete retail executable now has a byte-identical assembly baseline.
+Fifteen C translation units containing sixteen functions are linked through
+MWCC/MWLD as real code; the resulting loadable image and full ELF both reproduce
+the retail SHA-1. Fourteen functions—six `k_clump` routines and eight `h_cdvd`
+routines—were ported from uniquely corresponding, verifier-matched Persona 3
+FES implementations.
 
 | Artifact | Verified value |
 | --- | --- |
@@ -22,7 +24,7 @@ SHA-1.
 | Executable PT_LOAD image | `0x838a00` bytes at VRAM `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Entry point / global pointer | `0x00100008` / `0x007690f0` |
 | Canonical function windows | 13,080 |
-| Decompiled and matching | 2 functions in 1 C-linked translation unit |
+| Decompiled and matching | 16 functions in 15 C-linked translation units |
 
 The ELF comment is `MW MIPS C Compiler (2.4.1.01)`, but this is linker
 provenance rather than proof that the C compiler was MWCC 2.4. Direct probes
@@ -102,6 +104,37 @@ python tools/reconcile_function_boundaries.py
 The raw Ghidra export is `tools/slus21782_functions.ghidra.json`; the canonical
 map consumed by the verifier is `tools/slus21782_functions.json`.
 
+## Shared-code mapping from Persona 3 FES
+
+`tools/map_shared_p3.py` compares the two canonical function maps and retail
+load images without copying either game's executable into this repository. It
+requires a separately set up Persona 3 FES decompilation checkout containing
+its own gitignored `image.bin`:
+
+```sh
+make shared-p3 P3_ROOT="../Persona3-FES-Decompilation"
+```
+
+Equivalent direct invocation:
+
+```sh
+python tools/map_shared_p3.py \
+  --p3-root "../Persona3-FES-Decompilation" \
+  --with-source-evidence
+```
+
+The deterministic, gitignored report is written to `build/shared_p3.json`. It
+contains raw-identical and address-normalized function matches, unique versus
+ambiguous P3 candidates, decoded direct-call and relocated-address mappings,
+and—when `--with-source-evidence` is used—P3 verifier status and source paths.
+The report records SHA-1 hashes for both images, both function maps, and the P3
+metrics input.
+
+Address normalization masks only MIPS fields controlled by executable layout:
+J/JAL targets, LUI immediates, GP-relative immediates, and low halves paired
+with a recent LUI. Opcodes, register operands, ordinary constants, branch
+displacements, and instruction order must still match exactly.
+
 ## Build and verification
 
 Put machine-local paths in the gitignored configuration files:
@@ -127,8 +160,8 @@ make test        # deterministic parser/reconciliation tests
 A successful build currently reports:
 
 ```text
-eligible C objects: 1  (runtime_callback.c)
-C objects linked from source: 1
+eligible C objects: 15  (runtime_callback.c, six k_clump objects, eight h_cdvd objects)
+C objects linked from source: 15
 loadable image sha1: 3d1d3d2b9d6ccb60836db239ab49674223025a78  OK
 SLUS_217.82 sha1: 4eeec0360cf2715535d9f7e52eb69d786fb0158c  OK
 ```
