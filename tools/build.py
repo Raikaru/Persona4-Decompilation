@@ -356,6 +356,42 @@ def recover_section_bases(obj, real, retail, gp):
     return {idx: c.most_common(1)[0][0] for idx, c in votes.items() if len(c) == 1}
 
 
+def recover_concatenated_layout(sections, recovered_bases):
+    """Recover an absolute mwld section-group layout from section addresses."""
+    sections = sorted(sections, key=lambda section: section["idx"])
+    max_align = max(section["addralign"] or 1 for section in sections)
+
+    def layout(candidate_base):
+        offsets = []
+        off = 0
+        for section in sections:
+            align = section["addralign"] or 1
+            absolute = (candidate_base + off + align - 1) & ~(align - 1)
+            off = absolute - candidate_base
+            offsets.append(off)
+            off += section["size"]
+        return offsets, off
+
+    candidates = set()
+    for position, section in enumerate(sections):
+        if section["idx"] not in recovered_bases:
+            continue
+        for residue in range(max_align):
+            trial_offsets, _total = layout(residue)
+            candidates.add(recovered_bases[section["idx"]] - trial_offsets[position])
+
+    valid = []
+    for candidate in candidates:
+        offsets, total = layout(candidate)
+        if offsets[0] == 0 and all(
+            section["idx"] not in recovered_bases
+            or recovered_bases[section["idx"]] == candidate + offset
+            for section, offset in zip(sections, offsets)
+        ):
+            valid.append((candidate, offsets, total))
+    return valid[0] if len(valid) == 1 else None
+
+
 def plan_data_sections(obj, real, retail, gp, resolvable):
     """Decide whether all of a TU's owned data sections can be placed byte-exact.
     Returns (ok, {section_name: (base, size)}).
@@ -377,21 +413,10 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
     per_name = {}
     for name, secs in by_name.items():
         secs.sort(key=lambda s: s["idx"])  # mwld concatenates same-name sections in shndx order
-        offsets = []
-        off = 0
-        for s in secs:
-            align = s["addralign"] or 1
-            off = (off + align - 1) & ~(align - 1)
-            offsets.append(off)
-            off += s["size"]
-        total = off
-        base = None
-        for s, o in zip(secs, offsets):
-            if s["idx"] in bases:
-                base = bases[s["idx"]] - o
-                break
-        if base is None:
+        layout = recover_concatenated_layout(secs, bases)
+        if layout is None:
             return False, {}
+        base, offsets, total = layout
         for s, o in zip(secs, offsets):
             addr = base + o
             # a recovered address that disagrees with the concat layout means the
