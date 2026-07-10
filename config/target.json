@@ -1,0 +1,28 @@
+{
+  "title": "Shin Megami Tensei: Persona 4",
+  "region": "USA",
+  "version": "1.00",
+  "serial": "SLUS_217.82",
+  "disc": {
+    "size": 4405952512,
+    "sha1": "179381f67a412dc56e9b7ae40dbc1c00a0beea59",
+    "redump_url": "http://redump.org/disc/5576/"
+  },
+  "elf": {
+    "filename": "SLUS_217.82",
+    "size": 8621084,
+    "sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
+    "entry": "0x00100008",
+    "gp": "0x007690f0",
+    "compiler_comment": "MW MIPS C Compiler (2.4.1.01)",
+    "load_offset": "0x80",
+    "load_vram": "0x00100000",
+    "load_size": "0x838a00",
+    "main_section_size": "0x664280"
+  },
+  "image": {
+    "filename": "image.bin",
+    "size": 8620544,
+    "sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78"
+  }
+}

@@ -1,0 +1,22 @@
+# Copyrighted retail inputs and extracted bytes: supply your own.
+/orig/
+/image.bin
+/SLUS_217.82
+/*.iso
+
+# Generated split/build output.
+/build/
+/assets/
+/asm/*.s
+/asm/*.o
+/asm/data/
+/include/macro.inc
+/undefined_funcs_auto.txt
+/undefined_syms_auto.txt
+
+# Local tool configuration and caches.
+/tools/verify_config.local.json
+/tools/__pycache__/
+__pycache__/
+/.vscode/
+*.pyc
