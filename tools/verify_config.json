@@ -1,0 +1,6 @@
+{
+  "_comment": "Committed verifier defaults. Do NOT put machine-local absolute paths here; override via tools/verify_config.local.json (gitignored) or the P4_MWCC / P4_RETAIL_ELF environment variables.",
+  "mwcc": null,
+  "retail_elf": null,
+  "compile_flags": ["-O2", "-Iinclude"]
+}

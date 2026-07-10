@@ -1,0 +1,6 @@
+{
+  "_comment": "Committed defaults only. Put machine-local absolute tool and retail paths in tools/build_config.local.json (gitignored), or use P4_MWCC/P4_RETAIL_ELF/P4_AS/P4_OBJCOPY.",
+  "mwcc": null,
+  "retail_elf": null,
+  "ld_exe": null
+}
