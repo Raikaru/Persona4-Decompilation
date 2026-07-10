@@ -1,0 +1,53 @@
+name: Publish progress metrics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "progress/**"
+      - "tools/progress.py"
+      - "tools/slus21782_functions.json"
+      - ".github/workflows/progress-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: progress-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate committed progress endpoints
+        run: python tools/progress.py --validate-dir progress
+      - name: Stage validated progress data
+        run: |
+          test -f progress/metrics.json
+          test -f progress/matching.json
+          test -f progress/linked.json
+          mkdir -p _site/progress
+          cp progress/metrics.json progress/matching.json progress/linked.json _site/progress/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
