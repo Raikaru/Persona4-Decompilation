@@ -1,0 +1,80 @@
+{
+  "build_succeeded": true,
+  "hashes": {
+    "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
+    "retail_sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c"
+  },
+  "linked": {
+    "addresses": [
+      "00100dd0",
+      "00100e00",
+      "00176c20",
+      "00177a10",
+      "00177d10",
+      "00177e20",
+      "00178970",
+      "0025d100",
+      "00299400",
+      "00454570",
+      "004553c0",
+      "004556f0",
+      "00455720",
+      "00456150",
+      "004561a0",
+      "004562e0",
+      "00456be0",
+      "004578b0",
+      "00457c90",
+      "00457e00",
+      "00458090",
+      "004582c0",
+      "00462e80"
+    ],
+    "count": 23,
+    "percent": 0.176
+  },
+  "matching": {
+    "addresses": [
+      "00100dd0",
+      "00100e00",
+      "00176c20",
+      "00177a10",
+      "00177d10",
+      "00177e20",
+      "00178970",
+      "0025d100",
+      "00299400",
+      "00454570",
+      "004553c0",
+      "004556f0",
+      "00455720",
+      "00456150",
+      "004561a0",
+      "004562e0",
+      "00456be0",
+      "004578b0",
+      "00457c90",
+      "00457e00",
+      "00458090",
+      "004582c0",
+      "00462e80"
+    ],
+    "count": 23,
+    "duplicate_rows": 0,
+    "known_rows": 23,
+    "matched_body_bytes": 3128,
+    "percent": 0.176,
+    "unique_known_addresses": 23
+  },
+  "schema_version": 1,
+  "source": {
+    "ignored_unknown_rows": 0,
+    "linked_report": "build\\progress_report.json",
+    "raw_rows": 23,
+    "verifier_report": "build\\verify_report.json"
+  },
+  "status_counts": {
+    "MATCH": 23
+  },
+  "total": 13080
+}

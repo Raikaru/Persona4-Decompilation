@@ -1,7 +1,7 @@
 PYTHON ?= python
 SPLAT_CONFIG := config/slus21782.yaml
 
-.PHONY: all setup split reconcile shared-p3 build verify check test clean distclean
+.PHONY: all setup split reconcile shared-p3 build verify check test progress progress-validate clean distclean
 
 all: build verify
 
@@ -27,6 +27,12 @@ verify check:
 
 test:
 	$(PYTHON) -m unittest discover -s tests -v
+
+progress:
+	$(PYTHON) tools/progress.py
+
+progress-validate:
+	$(PYTHON) tools/progress.py --validate-dir progress
 
 clean:
 	-rm -rf build assets asm/data
