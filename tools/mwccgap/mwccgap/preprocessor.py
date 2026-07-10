@@ -1,0 +1,254 @@
+import re
+import ast
+
+from pathlib import Path
+from typing import Dict, Optional, TextIO
+from dataclasses import dataclass
+
+from .constants import (
+    SYMBOL_AT,
+    SYMBOL_DOLLAR,
+    DOLLAR_SIGN,
+    FUNCTION_PREFIX,
+    INCLUDE_ASM,
+    INCLUDE_ASM_REGEX,
+    INCLUDE_RODATA,
+    INCLUDE_RODATA_REGEX,
+    BLOCK_COMMENT_REGEX,
+    LOCAL_SUFFIX,
+)
+
+
+C_MACRO_START = """
+#ifdef __cplusplus
+extern "C" {
+#endif
+""".splitlines()
+
+C_MACRO_END = """
+#ifdef __cplusplus
+}
+#endif
+""".splitlines()
+
+
+@dataclass
+class Symbol:
+    name: str
+    size: int = 0
+    local: bool = False
+
+
+class Preprocessor:
+    def __init__(
+        self,
+        asm_dir_prefix: Optional[Path] = None,
+    ):
+        self.asm_dir_prefix = asm_dir_prefix
+
+    @staticmethod
+    def preprocess_s_file(
+        function_name: str,
+        textio: TextIO,
+    ) -> tuple[list[str], Dict[str, Symbol]]:
+        # mwcc creates a .rodata section per rodata symbol so we need to track them individually
+        rodata_entries: Dict[str, Symbol] = {}
+        c_lines: list[str] = []
+        nops_needed = 0
+
+        in_rodata = False
+        for i, line in enumerate(textio):
+            line = line.strip()
+            if not line:
+                # skip empty lines
+                continue
+
+            if line.startswith(".section"):
+                section_name = line.split(None, 1)[1].split(",", 1)[0].strip()
+                if section_name == ".text":
+                    in_rodata = False
+                    continue
+                if section_name in (".rodata", ".rdata"):
+                    in_rodata = True
+                    continue
+
+                raise Exception(f"Unsupported .section found at line {i+1}: {line}")
+
+            if in_rodata:
+                if line.startswith(".align"):
+                    continue
+                if line.startswith(".size"):
+                    continue
+                if line.startswith("enddlabel") or line.startswith("nmlabel"):
+                    continue
+
+                if line.startswith("glabel") or line.startswith("dlabel"):
+                    _, current_symbol = line.removesuffix(LOCAL_SUFFIX).split(" ")
+                    is_local = (
+                        line.endswith(LOCAL_SUFFIX) or DOLLAR_SIGN in current_symbol
+                    )
+                    rodata_entries[current_symbol] = Symbol(
+                        current_symbol, local=is_local
+                    )
+                    continue
+
+                if " .byte " in line:
+                    rodata_entries[current_symbol].size += 1
+                    continue
+                if " .short " in line:
+                    rodata_entries[current_symbol].size += 2
+                    continue
+                if " .word " in line or " .long " in line:
+                    rodata_entries[current_symbol].size += 4
+                    continue
+
+                if " .float " in line:
+                    rodata_entries[current_symbol].size += 4
+                    continue
+                if " .double " in line:
+                    rodata_entries[current_symbol].size += 8
+                    continue
+
+                if " .ascii " in line:
+                    *_, text = line.split(" .ascii ")
+                    text = text.strip()
+                    rodata_entries[current_symbol].size += len(
+                        ast.literal_eval(text)
+                    )  # no NUL terminator
+                    continue
+                if " .asciz " in line:
+                    *_, text = line.split(" .asciz ")
+                    text = text.strip()
+                    rodata_entries[current_symbol].size += (
+                        len(ast.literal_eval(text)) + 1
+                    )  # NUL terminator
+                    continue
+
+                raise ValueError(
+                    f"Unexpected entry in .rodata section at line {i+1}: {line}"
+                )
+
+            if line.startswith(".set"):
+                # ignore set
+                continue
+            if line.startswith(".include"):
+                # ignore include
+                continue
+            if line.startswith(".size"):
+                # ignore size
+                continue
+            if line.startswith(".align") or line.startswith(".balign"):
+                # ignore alignment
+                continue
+            if (
+                line.startswith("glabel")
+                or line.startswith("jlabel")
+                or line.startswith("alabel")
+            ):
+                # ignore function / jumptable labels
+                continue
+            if line.startswith("endlabel") or line.startswith("enddlabel"):
+                # ignore function / symbol ends
+                continue
+            if line.startswith("nonmatching"):
+                # ignore non matching marker
+                continue
+            if line.startswith(".L") and line.endswith(":"):
+                # ignore labels
+                continue
+            if line.startswith("/* Generated by spimdisasm"):
+                # ignore spim
+                continue
+            if line.startswith("/* Handwritten function"):
+                # ignore handwritten comment
+                continue
+            if (
+                line.startswith("/*")
+                and re.sub(BLOCK_COMMENT_REGEX, "", line).strip() == ""
+            ):
+                # ignore multi-line comments
+                continue
+            if line.startswith("#"):
+                # ignore comment lines
+                continue
+
+            nops_needed += 1
+
+        if nops_needed > 0:
+            nops = nops_needed * ["nop"]
+            c_lines.extend([f"asm void {function_name}() {{", *nops, "}"])
+
+        for symbol in rodata_entries.values():
+            static = "static " if symbol.local else ""
+
+            if symbol.name.startswith('"@') and symbol.name.endswith('"'):
+                symbol.name = SYMBOL_AT + symbol.name.removeprefix('"@').removesuffix(
+                    '"'
+                )
+            elif DOLLAR_SIGN in symbol.name:
+                symbol.name = symbol.name.replace(DOLLAR_SIGN, SYMBOL_DOLLAR)
+
+            c_lines.append(
+                f"{static}const unsigned char {symbol.name}[{symbol.size}] = {{"
+                + symbol.size * "0, "
+                + "};",
+            )
+
+        return (c_lines, rodata_entries)
+
+    def preprocess_c_file(
+        self,
+        textio: TextIO,
+    ) -> tuple[list[str], list[tuple[Path, int]]]:
+        out_lines: list[str] = []
+        asm_files: list[tuple[Path, int]] = []
+
+        for i, line in enumerate(textio):
+            line = line.rstrip()
+
+            if line.startswith(INCLUDE_ASM) or line.startswith(INCLUDE_RODATA):
+                if line.startswith(INCLUDE_ASM):
+                    macro = INCLUDE_ASM
+                    regex = INCLUDE_ASM_REGEX
+                else:
+                    macro = INCLUDE_RODATA
+                    regex = INCLUDE_RODATA_REGEX
+
+                if not (match := re.match(regex, line)):
+                    raise ValueError(
+                        f"File contains invalid {macro} macro on line {i+1}: {line}"
+                    )
+                try:
+                    asm_dir = Path(match.group(1))
+                    asm_function = match.group(2)
+                except Exception:
+                    raise ValueError(
+                        f"File contains invalid {macro} macro on line {i+1}: {line}"
+                    ) from None
+
+                asm_file: Path = asm_dir / f"{asm_function}.s"
+                if self.asm_dir_prefix is not None:
+                    asm_file = self.asm_dir_prefix / asm_file
+
+                if not asm_file.is_file():
+                    raise ValueError(
+                        f"File includes ASM {asm_file} that does not exist on line {i+1}: {line}"
+                    )
+
+                try:
+                    with asm_file.open("r", encoding="utf-8") as f:
+                        new_lines, rodata_entries = Preprocessor.preprocess_s_file(
+                            f"{FUNCTION_PREFIX}{asm_file.stem}",
+                            f,
+                        )
+                except Exception as e:
+                    raise Exception(f"Failed to preprocess {asm_file}: {e}") from None
+
+                asm_files.append((asm_file, len(rodata_entries)))
+                out_lines += C_MACRO_START
+                out_lines += new_lines
+                out_lines += C_MACRO_END
+            else:
+                out_lines.append(line)
+
+        return (out_lines, asm_files)

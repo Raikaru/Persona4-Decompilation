@@ -22,10 +22,12 @@ segments:
     start: 0x0
     vram: 0x100000
     subsegments:
-      # The ELF's named `main` section. Refine this into code/data boundaries
-      # after Ghidra analysis; treating it as assembly is conservative.
-      - [0x0, asm, main]
-      # PT_LOAD's remaining bytes are all zero. The startup clears this same
-      # 0x764280-0x938a00 virtual range before entering the game.
+      - [0x0, asm, code1]
+      - [0x42da00, bin, data1]
+      # Shared PS2 SDK/kernel blob. It matches Persona 3 FES's code2 layout
+      # (0x18f0 bytes) apart from ten absolute call/address words.
+      - [0x60c850, asm, code2]
+      - [0x60e140, bin, data2]
+      # Startup clears virtual 0x764280-0x938a00; these file bytes are all zero.
       - [0x664280, bin, zero_fill]
   - [0x838a00]

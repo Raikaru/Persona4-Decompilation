@@ -10,12 +10,14 @@
 /asm/*.s
 /asm/*.o
 /asm/data/
+/asm/chunks/
 /include/macro.inc
 /undefined_funcs_auto.txt
 /undefined_syms_auto.txt
 
 # Local tool configuration and caches.
 /tools/verify_config.local.json
+/tools/build_config.local.json
 /tools/__pycache__/
 __pycache__/
 /.vscode/

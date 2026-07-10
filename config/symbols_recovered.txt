@@ -1,0 +1,3 @@
+// Recovered symbols required by the current C-linked subset.
+_gp = 0x007690f0; // type:gp
+D_00761690 = 0x00761690; // type:data

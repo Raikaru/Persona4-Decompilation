@@ -13,6 +13,7 @@
     "size": 8621084,
     "sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
     "entry": "0x00100008",
+    "entry_symbol": "_start",
     "gp": "0x007690f0",
     "compiler_comment": "MW MIPS C Compiler (2.4.1.01)",
     "load_offset": "0x80",
@@ -20,9 +21,34 @@
     "load_size": "0x838a00",
     "main_section_size": "0x664280"
   },
+  "compiler": {
+    "default_id": "mwcps2-3.0.1b210-060308",
+    "codegen_compatible_builds": [
+      "mwcps2-3.0.1b198-051011",
+      "mwcps2-3.0.1b205-051227",
+      "mwcps2-3.0.1b210-060308"
+    ],
+    "optimization": "-O2",
+    "optimization_confidence": "high",
+    "exact_build_confidence": "medium",
+    "evidence": [
+      "Direct P4-shaped probes compiled by builds 198, 205, and 210 produce identical -O2 codegen matching retail control flow and unscheduled delay slots",
+      "Build 151 produces a different inverted-branch trampoline and is disfavored",
+      "-O3 schedules branch and return delay slots unlike representative P4 retail functions",
+      "The ELF comment MW MIPS C Compiler (2.4.1.01) is linker provenance and is not C compiler evidence",
+      "Build 210 is the default because Persona 3 FES independently validates the same late-3.0.1 codegen family"
+    ]
+  },
   "image": {
     "filename": "image.bin",
     "size": 8620544,
     "sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78"
-  }
+  },
+  "segments": [
+    {"name": "code1", "start": "0x00100000", "end": "0x0052da00"},
+    {"name": "data1", "start": "0x0052da00", "end": "0x0070c850"},
+    {"name": "code2", "start": "0x0070c850", "end": "0x0070e140"},
+    {"name": "data2", "start": "0x0070e140", "end": "0x00764280"},
+    {"name": "zero_fill", "start": "0x00764280", "end": "0x00938a00"}
+  ]
 }
