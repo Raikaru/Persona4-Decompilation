@@ -1,0 +1,3 @@
+// Preliminary Persona 4 USA function symbols.
+// Format: name = 0xADDR; // type:func
+_start = 0x00100008; // type:func

@@ -1,0 +1,31 @@
+name: Shin Megami Tensei - Persona 4 (USA) (SLUS_217.82)
+sha1: 3d1d3d2b9d6ccb60836db239ab49674223025a78
+options:
+  platform: ps2
+  basename: slus21782
+  base_path: ..
+  target_path: image.bin
+  asm_path: asm
+  src_path: src
+  asset_path: assets
+  ld_script_path: build/slus21782.ld
+  symbol_addrs_path: config/symbol_addrs.txt
+  mips_abi_gpr: numeric
+  mips_abi_float_regs: numeric
+  find_file_boundaries: True
+  use_legacy_include_asm: False
+  disasm_unknown: True
+  asm_inc_header: ""
+segments:
+  - name: main
+    type: code
+    start: 0x0
+    vram: 0x100000
+    subsegments:
+      # The ELF's named `main` section. Refine this into code/data boundaries
+      # after Ghidra analysis; treating it as assembly is conservative.
+      - [0x0, asm, main]
+      # PT_LOAD's remaining bytes are all zero. The startup clears this same
+      # 0x764280-0x938a00 virtual range before entering the game.
+      - [0x664280, bin, zero_fill]
+  - [0x838a00]
