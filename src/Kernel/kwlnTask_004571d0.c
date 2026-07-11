@@ -70,8 +70,8 @@ void func_004571d0(Camera* camera, CameraView* requestedView, f32 scale,
         view = &D_008D1F00;
         D_008D1F08[0] = camera->frameBuffer->width;
         D_008D1F0C[0] = camera->frameBuffer->height;
-        D_008D1F00.offsetX = 0;
         D_008D1F04[0] = 0;
+        D_008D1F00.offsetX = 0;
     }
     else
     {
