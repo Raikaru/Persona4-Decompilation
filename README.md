@@ -6,6 +6,9 @@ Preliminary matching-decompilation work for **Shin Megami Tensei: Persona 4**
 [![Matching progress](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Fmatching.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/matching.json)
 [![C-linked progress](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 
+See [`ROADMAP.md`](ROADMAP.md) for the P3 completion sequence and the parallel
+P4 synchronization backlog.
+
 This repository intentionally contains no game executable, disc image, or
 extracted game data. Supply a disc image from a copy you legally own. The setup
 tool validates the disc against the confirmed Redump record before extracting
