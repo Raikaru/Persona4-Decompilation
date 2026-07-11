@@ -358,7 +358,7 @@ Actions:
 ## Continuous P4 synchronization backlog
 
 P4 synchronization runs during every P3 milestone rather than after P3 is
-finished. The current ready-but-unported backlog is 398 functions / 25,216 bytes.
+finished. The current ready-but-unported backlog is 386 functions / 25,024 bytes.
 The first source clusters by reusable byte volume are:
 
 | P3 source cluster | Ready P4 functions | P4 bytes |
