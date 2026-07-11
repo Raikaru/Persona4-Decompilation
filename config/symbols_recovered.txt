@@ -13,3 +13,7 @@ D_00764580 = 0x00764580; // type:data
 D_00764584 = 0x00764584; // type:data
 D_00764588 = 0x00764588; // type:data
 D_0076458C = 0x0076458C; // type:data
+D_00764B9C = 0x00764B9C; // type:data
+D_00764BA4 = 0x00764BA4; // type:data
+D_008E4B20 = 0x008E4B20; // type:data
+D_008E4B24 = 0x008E4B24; // type:data
