@@ -627,17 +627,21 @@ def compile_c(c, src, obj):
 
 # ---------------------------------------------------------------- link
 
+def lcf_placements(entries):
+    placed = []
+    for start, obj, sec in sorted(entries, key=lambda entry: entry[0]):
+        placed.append(f"        . = {start:#010x};")
+        placed.append(f"        {obj.name} ({sec})")
+    return placed
+
+
 def write_lcf(entries, gp, defs):
     body = []
     if gp is not None:
         body.append(f"    _gp = {gp:#010x};")
     for nm, addr in sorted(defs.items(), key=lambda kv: kv[1]):
         body.append(f"    {nm} = {addr:#010x};")
-    placed = []
-    for start, obj, sec in sorted(entries, key=lambda e: e[0]):
-        if sec == ".text":
-            placed.append("        . = ALIGN(0x10);")
-        placed.append(f"        {obj.name} ({sec})")
+    placed = lcf_placements(entries)
     lcf = (
         "MEMORY {\n"
         f"    image : ORIGIN = {VRAM:#x}, LENGTH = {IMAGE_SIZE:#x}\n"
@@ -825,6 +829,7 @@ def main():
     for o in cobjs:
         cobj = OBJ / (o["src"].relative_to(REPO / "src").as_posix().replace("/", "_") + ".o")
         compile_c(c, o["src"], cobj)
+        patch_align1(cobj, ".text")
         o["obj"] = cobj
         entries.append((o["start"], cobj, ".text"))
         c_text_ranges.append((o["start"], o["end"], o))
