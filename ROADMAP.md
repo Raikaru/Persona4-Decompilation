@@ -55,9 +55,9 @@ verifier proves that a particular C body matches.
 | Metric | Current |
 | --- | ---: |
 | Canonical functions | 13,591 |
-| Exact `MATCH` | 3,035 (22.331%) |
-| `NONMATCHING` | 10,556 |
-| Matched body bytes | 265,080 |
+| Exact `MATCH` | 3,040 (22.368%) |
+| `NONMATCHING` | 10,551 |
+| Matched body bytes | 266,584 |
 | C-linked functions | 55 |
 | C-linked translation units selected by the latest build | 14 |
 
@@ -69,10 +69,10 @@ and zero markers without definitions. The full verifier and matching build pass.
 | Metric | Current |
 | --- | ---: |
 | Canonical functions | 13,080 |
-| Exact `MATCH` | 142 (1.086%) |
-| C-linked functions | 142 (1.086%) |
-| C-linked translation units | 141 |
-| P3-derived matching functions | 142 |
+| Exact `MATCH` | 164 (1.254%) |
+| C-linked functions | 164 (1.254%) |
+| C-linked translation units | 163 |
+| P3-derived matching functions | 164 |
 
 The current P3-derived P4 set spans runtime, Kernel, Kosaka, Scene, gameplay,
 CRI, and RenderWare helpers. Both P4 retail hashes and all progress endpoints
@@ -358,7 +358,7 @@ Actions:
 ## Continuous P4 synchronization backlog
 
 P4 synchronization runs during every P3 milestone rather than after P3 is
-finished. The current ready-but-unported backlog is 385 functions / 25,008 bytes.
+finished. The current ready-but-unported backlog is 363 functions / 24,656 bytes.
 The first source clusters by reusable byte volume are:
 
 | P3 source cluster | Ready P4 functions | P4 bytes |
