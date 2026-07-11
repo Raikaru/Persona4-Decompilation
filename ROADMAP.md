@@ -13,7 +13,7 @@ criteria. Generated progress JSON remains the authoritative live measurement.
 
 Persona 3 FES is complete only when all of the following are true:
 
-1. **Canonical coverage:** every one of the 13,586 function windows has an
+1. **Canonical coverage:** every one of the 13,591 function windows has an
    intentional source owner, a stable boundary, and no duplicate or nameless
    marker.
 2. **Maintainable source:** functions use typed structures, meaningful names
@@ -54,12 +54,12 @@ verifier proves that a particular C body matches.
 
 | Metric | Current |
 | --- | ---: |
-| Canonical functions | 13,586 |
-| Exact `MATCH` | 2,914 (21.449%) |
-| `NONMATCHING` | 10,672 |
-| Matched body bytes | 246,720 |
-| C-linked functions | 38 |
-| C-linked translation units selected by the latest build | 13 |
+| Canonical functions | 13,591 |
+| Exact `MATCH` | 3,033 (22.316%) |
+| `NONMATCHING` | 10,558 |
+| Matched body bytes | 264,612 |
+| C-linked functions | 55 |
+| C-linked translation units selected by the latest build | 14 |
 
 The source-marker reconciliation gate currently reports zero duplicate addresses
 and zero markers without definitions. The full verifier and matching build pass.
@@ -69,13 +69,13 @@ and zero markers without definitions. The full verifier and matching build pass.
 | Metric | Current |
 | --- | ---: |
 | Canonical functions | 13,080 |
-| Exact `MATCH` | 23 (0.176%) |
-| C-linked functions | 23 (0.176%) |
-| C-linked translation units | 22 |
-| P3-derived matching functions | 21 |
+| Exact `MATCH` | 140 (1.070%) |
+| C-linked functions | 140 (1.070%) |
+| C-linked translation units | 139 |
+| P3-derived matching functions | 140 |
 
-The current P3-derived P4 set consists of six `k_clump`, eight `h_cdvd`, and
-seven `k_command` functions. Both P4 retail hashes and all progress endpoints
+The current P3-derived P4 set spans runtime, Kernel, Kosaka, Scene, gameplay,
+CRI, and RenderWare helpers. Both P4 retail hashes and all progress endpoints
 are verified.
 
 ### Cross-game opportunity map
@@ -84,11 +84,11 @@ The reproducible binary mapper currently reports:
 
 | Mapping class | Functions | P4 code bytes |
 | --- | ---: | ---: |
-| Raw-byte identical | 1,301 | 117,864 |
-| Address-normalized identical | 6,439 | 1,186,696 |
-| Unique address-normalized mappings | 4,397 | — |
-| Unique mappings with verifier-matched P3 source | 498 | 29,360 |
-| Ready but not yet P4-matched | 475 | 26,096 |
+| Raw-byte identical | 1,302 | 117,896 |
+| Address-normalized identical | 6,445 | 1,187,448 |
+| Unique address-normalized mappings | 4,401 | — |
+| Unique mappings with verifier-matched P3 source | 525 | 32,240 |
+| Ready but not yet P4-matched | 385 | 25,008 |
 
 Address normalization masks only executable-layout fields: J/JAL targets, LUI
 immediates, GP-relative immediates, and low halves paired with recent LUI
@@ -331,7 +331,7 @@ Actions:
    unavoidable exact assembly shim must be isolated, explained, and tracked as
    an exception until removed.
 
-**Exit gate:** the complete P3 verifier reports 13,586 `MATCH` rows and no other
+**Exit gate:** the complete P3 verifier reports 13,591 `MATCH` rows and no other
 status.
 
 ## Milestone 6 — Finish C linkage and release verification
