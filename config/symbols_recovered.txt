@@ -4,3 +4,7 @@ D_00761690 = 0x00761690; // type:data
 D_007117a0 = 0x007117A0; // type:data
 D_008873ec = 0x008873EC; // type:data
 D_008c8780 = 0x008C8780; // type:data
+D_00713e7c = 0x00713E7C; // type:data
+D_00713e80 = 0x00713E80; // type:data
+D_00713f1c = 0x00713F1C; // type:data
+D_00713f20 = 0x00713F20; // type:data
