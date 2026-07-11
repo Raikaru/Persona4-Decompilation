@@ -358,7 +358,7 @@ Actions:
 ## Continuous P4 synchronization backlog
 
 P4 synchronization runs during every P3 milestone rather than after P3 is
-finished. The current ready-but-unported backlog is 416 functions / 25,504 bytes.
+finished. The current ready-but-unported backlog is 409 functions / 25,392 bytes.
 The first source clusters by reusable byte volume are:
 
 | P3 source cluster | Ready P4 functions | P4 bytes |
@@ -397,6 +397,11 @@ Current direct-port blockers:
   the project compiler settings allocates the intermediate directly to `$v0`;
   the object remains 12 bytes but differs in two register fields. Keep this
   unported until a source-level register-allocation lever is verified.
+- P4 `005179e8` ← P3 `0058bd58`: retail preserves `object += 0x1fc`
+  and uses the adjusted base for two zero stores. Both `-O1` and `-O3` fold the
+  source back into independent `0x200`/`0x1fc` stores, changing the delay slot
+  and base register lifetime. Keep it unported until that address-update shape
+  is source-reachable.
 
 Each P4 port batch must end with:
 
