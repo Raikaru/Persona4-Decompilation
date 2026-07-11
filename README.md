@@ -16,11 +16,11 @@ only the boot executable and its loadable image.
 
 ## Current status
 
-The complete retail executable now has a byte-identical assembly baseline.
-Twenty-two C translation units containing twenty-three functions are linked
-through MWCC/MWLD as real code; the resulting loadable image and full ELF both
-reproduce the retail SHA-1. Twenty-one functions—six `k_clump` routines, eight
-`h_cdvd` routines, and seven `k_command` routines—were ported from uniquely
+The complete retail executable has a byte-identical assembly baseline. The
+matching build now selects 189 C translation units containing 190 exact-match
+functions; the resulting loadable image and full ELF both reproduce the retail
+SHA-1. The recovered set spans runtime, Kernel, Event, Scene, battle, gameplay,
+CRI, model, and RenderWare helpers, including functions ported from uniquely
 corresponding, verifier-matched Persona 3 FES implementations.
 
 | Artifact | Verified value |
@@ -30,7 +30,7 @@ corresponding, verifier-matched Persona 3 FES implementations.
 | Executable PT_LOAD image | `0x838a00` bytes at VRAM `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Entry point / global pointer | `0x00100008` / `0x007690f0` |
 | Canonical function windows | 13,080 |
-| Decompiled and matching | 23 functions in 22 C-linked translation units |
+| Decompiled and matching | 190 functions in 189 C-linked translation units |
 
 The ELF comment is `MW MIPS C Compiler (2.4.1.01)`, but this is linker
 provenance rather than proof that the C compiler was MWCC 2.4. Direct probes
@@ -166,8 +166,8 @@ make test        # deterministic parser/reconciliation tests
 A successful build currently reports:
 
 ```text
-eligible C objects: 22  (runtime_callback.c, six k_clump, eight h_cdvd, seven k_command)
-C objects linked from source: 22
+eligible C objects: 189
+C objects linked from source: 189
 loadable image sha1: 3d1d3d2b9d6ccb60836db239ab49674223025a78  OK
 SLUS_217.82 sha1: 4eeec0360cf2715535d9f7e52eb69d786fb0158c  OK
 ```
