@@ -9,3 +9,7 @@ D_00713e80 = 0x00713E80; // type:data
 D_00713f1c = 0x00713F1C; // type:data
 D_00713f20 = 0x00713F20; // type:data
 PTR_DAT_00762ea0 = 0x00762EA0; // type:data
+D_00764580 = 0x00764580; // type:data
+D_00764584 = 0x00764584; // type:data
+D_00764588 = 0x00764588; // type:data
+D_0076458C = 0x0076458C; // type:data
