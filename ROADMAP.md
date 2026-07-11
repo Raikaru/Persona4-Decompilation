@@ -358,7 +358,7 @@ Actions:
 ## Continuous P4 synchronization backlog
 
 P4 synchronization runs during every P3 milestone rather than after P3 is
-finished. The current ready-but-unported backlog is 475 functions / 26,096 bytes.
+finished. The current ready-but-unported backlog is 416 functions / 25,504 bytes.
 The first source clusters by reusable byte volume are:
 
 | P3 source cluster | Ready P4 functions | P4 bytes |
@@ -389,6 +389,14 @@ objects without claiming unrelated retail data. A recommended order is:
 4. Model and field-shadow clusters after graphics structures stabilize.
 5. CRI and RenderWare batches after their P3 source is cleaned and library
    provenance is established.
+
+Current direct-port blockers:
+
+- P4 `004d31d8` ← P3 `00547548`: the retail three-instruction nested getter keeps
+  the intermediate pointer in `$v1` and the loaded result in `$v0`. Natural C at
+  the project compiler settings allocates the intermediate directly to `$v0`;
+  the object remains 12 bytes but differs in two register fields. Keep this
+  unported until a source-level register-allocation lever is verified.
 
 Each P4 port batch must end with:
 
