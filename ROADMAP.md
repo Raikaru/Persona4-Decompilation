@@ -55,9 +55,9 @@ verifier proves that a particular C body matches.
 | Metric | Current |
 | --- | ---: |
 | Canonical functions | 13,591 |
-| Exact `MATCH` | 3,033 (22.316%) |
-| `NONMATCHING` | 10,558 |
-| Matched body bytes | 264,612 |
+| Exact `MATCH` | 3,035 (22.331%) |
+| `NONMATCHING` | 10,556 |
+| Matched body bytes | 265,080 |
 | C-linked functions | 55 |
 | C-linked translation units selected by the latest build | 14 |
 
@@ -69,10 +69,10 @@ and zero markers without definitions. The full verifier and matching build pass.
 | Metric | Current |
 | --- | ---: |
 | Canonical functions | 13,080 |
-| Exact `MATCH` | 140 (1.070%) |
-| C-linked functions | 140 (1.070%) |
-| C-linked translation units | 139 |
-| P3-derived matching functions | 140 |
+| Exact `MATCH` | 142 (1.086%) |
+| C-linked functions | 142 (1.086%) |
+| C-linked translation units | 141 |
+| P3-derived matching functions | 142 |
 
 The current P3-derived P4 set spans runtime, Kernel, Kosaka, Scene, gameplay,
 CRI, and RenderWare helpers. Both P4 retail hashes and all progress endpoints
@@ -87,7 +87,7 @@ The reproducible binary mapper currently reports:
 | Raw-byte identical | 1,302 | 117,896 |
 | Address-normalized identical | 6,445 | 1,187,448 |
 | Unique address-normalized mappings | 4,401 | — |
-| Unique mappings with verifier-matched P3 source | 525 | 32,240 |
+| Unique mappings with verifier-matched P3 source | 527 | 32,720 |
 | Ready but not yet P4-matched | 385 | 25,008 |
 
 Address normalization masks only executable-layout fields: J/JAL targets, LUI
