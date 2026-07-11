@@ -37,6 +37,21 @@ class SectionLayoutTests(unittest.TestCase):
             )
         )
 
+    def test_lcf_places_unaligned_functions_at_exact_addresses(self) -> None:
+        entries = [
+            (0x004C1000, Path("first.o"), ".text"),
+            (0x004C1008, Path("second.o"), ".text"),
+        ]
+        self.assertEqual(
+            build.lcf_placements(entries),
+            [
+                "        . = 0x004c1000;",
+                "        first.o (.text)",
+                "        . = 0x004c1008;",
+                "        second.o (.text)",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
