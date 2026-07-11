@@ -661,8 +661,11 @@ def link(c, entries):
             seen.add(str(obj))
             objs.append(str(obj))
     entry_symbol = ELF_TARGET.get("entry_symbol", f"func_{parse_int(ELF_TARGET['entry']):08x}")
-    sh([c["ld_exe"], "-nostdlib", "-nodeadstrip", "-m", entry_symbol,
-        "-o", str(BUILD / "slus21782.elf"), str(BUILD / "slus21782.lcf")] + objs)
+    args = [c["ld_exe"], "-nostdlib", "-nodeadstrip", "-m", entry_symbol,
+            "-o", str(BUILD / "slus21782.elf"), str(BUILD / "slus21782.lcf"), *objs]
+    response = BUILD / "slus21782.rsp"
+    response.write_text(subprocess.list2cmdline(args[1:]), encoding="utf-8")
+    sh([args[0], f"@{response}"])
 
 
 
