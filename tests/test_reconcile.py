@@ -34,6 +34,35 @@ class ReconciliationHelpersTests(unittest.TestCase):
             reconcile.make_windows([0x1008, 0x1019], 0x1008, 0x1020)
 
 
+    def test_function_map_rows_assign_sources_and_grouped_c_assembly(self) -> None:
+        source_path = Path("src") / "Battle" / "example.c"
+        assembly_path = Path("build") / "function_sources" / "code1_0010.c"
+        windows = {0x1000: 0x10, 0x1010: 0x20}
+        markers = {
+            0x1000: [(source_path, {"line": 7, "name": "FUN_00001000"})],
+        }
+        assembly_owners = {0x1010: assembly_path}
+        self.assertEqual(
+            reconcile.function_map_rows(windows, markers, assembly_owners),
+            [
+                f"00001000 {0x10:>6} MAPPED   {source_path}",
+                f"00001010     32 MAPPED   {assembly_path}",
+            ],
+        )
+
+    def test_assembly_words_select_exact_window(self) -> None:
+        assembly = """glabel func_00001000
+    /* 0 00001000 00000000 */ nop
+    /* 4 00001004 00000000 */ nop
+    /* 8 00001008 00000000 */ nop
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "code.s"
+            path.write_text(assembly, encoding="utf-8")
+            self.assertEqual(
+                reconcile.assembly_words(path, 0x1000, 0x8),
+                ["00000000", "00000000"],
+            )
 class CanonicalMapTests(unittest.TestCase):
     def test_committed_map_covers_both_code_segments(self) -> None:
         target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
@@ -65,6 +94,30 @@ class CanonicalMapTests(unittest.TestCase):
             0x0070D968: 0x7D8,
         }
         self.assertEqual({address: windows[address] for address in expected}, expected)
+
+    def test_source_markers_are_unique_and_canonical(self) -> None:
+        markers = reconcile.source_markers()
+        function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
+        windows = {int(address, 16): size for address, size in function_map["windows"].items()}
+
+        self.assertTrue(markers)
+        self.assertTrue(all(len(entries) == 1 for entries in markers.values()))
+        self.assertTrue(set(markers).issubset(windows))
+
+    def test_every_canonical_boundary_gets_an_owner(self) -> None:
+        target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
+        function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
+        windows = {int(address, 16): size for address, size in function_map["windows"].items()}
+        markers = reconcile.source_markers()
+        code2_start, _code2_end = reconcile.segment_bounds(target, "code2")
+
+        assembly_owners = reconcile.assembly_owner_paths(windows, markers, code2_start, write=False)
+        rows = reconcile.function_map_rows(windows, markers, assembly_owners)
+        self.assertEqual(len(rows), len(windows))
+        self.assertEqual(set(assembly_owners), set(windows) - set(markers))
+        self.assertTrue(all(owner.suffix == ".c" for owner in assembly_owners.values()))
+        self.assertLess(len(set(assembly_owners.values())), len(assembly_owners))
+        self.assertTrue(all(" MAPPED   " in row for row in rows))
 
 
 if __name__ == "__main__":

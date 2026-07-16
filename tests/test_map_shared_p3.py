@@ -35,6 +35,25 @@ class NormalizationTests(unittest.TestCase):
         )
         self.assertEqual(mapper.normalize_mips(first), mapper.normalize_mips(relocated))
 
+    def test_load_kills_address_state_before_semantic_immediate(self) -> None:
+        baseline = pack(
+            0x3C03003F,  # lui v1, 0x3f
+            0xAC830094,  # sw v1, 0x94(a0)
+            0x94830000,  # lhu v1, 0(a0): replaces the address-bearing value
+            0x3063FFFD,  # andi v1, v1, semantic flag mask
+        )
+        changed_mask = pack(
+            0x3C03003F,
+            0xAC830094,
+            0x94830000,
+            0x3063FFF5,
+        )
+        self.assertNotEqual(
+            mapper.normalize_mips(baseline),
+            mapper.normalize_mips(changed_mask),
+        )
+
+
     def test_preserves_registers_constants_and_branches(self) -> None:
         baseline = pack(0x24020001, 0x10400003)  # addiu v0, zero, 1; beq v0, zero, +3
         changed_constant = pack(0x24020002, 0x10400003)

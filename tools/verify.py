@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Repo-wide match verifier for the Persona 4 USA decompilation.
 
-For every ``// FUN_xxxxxxxx`` marker in ``src/**/*.c`` this tool compiles the
-containing translation unit with the configured MWCC compiler, extracts the marked function and
-its MIPS relocations from the relocatable object, masks relocated fields, and
+For every ``// FUN_xxxxxxxx`` marker in ``src/**/*.c`` this tool selects the
+containing source unit (or compiles the ordinary translation unit) with the
+configured MWCC compiler, extracts the marked function and its MIPS relocations
+from the relocatable object, masks relocated fields, and
 compares the remaining bytes with retail ``SLUS_217.82``.
 
 Configuration precedence (highest first): ``P4_MWCC`` / ``P4_RETAIL_ELF``
@@ -38,8 +39,44 @@ R_MIPS_NAMES = {
 }
 # Relocated fields are linker-owned and therefore not a compiler-match signal.
 RELOC_MASK_SIZE = {2: 4, 4: 4, 5: 2, 6: 2, 7: 2}
-MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))")
+MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))", re.MULTILINE)
 NAME_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
+UNIT_GUARD_RE = re.compile(r"^\s*#if\s+defined\(P4_UNIT_([0-9a-fA-F]{8})\)\s*$")
+
+def is_generated(path: Path) -> bool:
+    try:
+        relative = path.relative_to(REPO / "src")
+    except ValueError:
+        relative = path
+    return (
+        path.name.endswith(".match.c")
+        or path.name.startswith(".permute_")
+        or any(part.startswith("generated") for part in relative.parts)
+    )
+
+
+def source_units(cpath: Path) -> list[int]:
+    """Return selectable function addresses for a consolidated C source."""
+    lines = cpath.read_text(errors="replace").splitlines()
+    units: list[int] = []
+    for index, line in enumerate(lines):
+        guard = UNIT_GUARD_RE.match(line)
+        if not guard:
+            continue
+        address = int(guard.group(1), 16)
+        end = next(
+            (cursor for cursor in range(index + 1, len(lines))
+             if re.match(r"^\s*#endif\b", lines[cursor])),
+            None,
+        )
+        if end is None:
+            raise ValueError(f"unterminated P4_UNIT guard in {cpath}")
+        body = "\n".join(lines[index + 1:end])
+        markers = MARKER_RE.findall(body)
+        if not markers or int(markers[0][1], 16) != address:
+            raise ValueError(f"invalid P4_UNIT body in {cpath} at {address:08x}")
+        units.append(address)
+    return units
 
 
 def _die(message: str) -> None:
@@ -256,8 +293,23 @@ def sanitize_c_lines(lines: list[str]) -> list[str]:
     return output
 
 
-def scan_markers(cpath: Path) -> list[dict]:
+def scan_markers(cpath: Path, unit: int | None = None) -> list[dict]:
     lines = cpath.read_text(errors="replace").splitlines()
+    if unit is not None:
+        selected: list[str] = []
+        active = False
+        for line in lines:
+            guard = UNIT_GUARD_RE.match(line)
+            if guard:
+                active = int(guard.group(1), 16) == unit
+                selected.append(line if active else "")
+                continue
+            if active and re.match(r"^\s*#endif\b", line):
+                selected.append(line)
+                active = False
+                continue
+            selected.append(line if active else "")
+        lines = selected
     code_lines, markers, index = sanitize_c_lines(lines), [], 0
     while index < len(lines):
         marker = MARKER_RE.match(lines[index])
@@ -271,8 +323,14 @@ def scan_markers(cpath: Path) -> list[dict]:
                 header += " " + code
                 if "{" in header: break
             cursor += 1
-        found = NAME_RE.search(header.split("{", 1)[0])
-        if found: name = found.group(1)
+        address_name = re.search(
+            rf"\b(?:func|FUN)_{address:08x}\s*\(", header, flags=re.IGNORECASE
+        )
+        if address_name:
+            name = address_name.group(0).split("(", 1)[0].strip()
+        if not address_name:
+            found = NAME_RE.search(header.split("{", 1)[0])
+            if found: name = found.group(1)
         stub, end = False, cursor
         if name is not None:
             depth, body = 0, []
@@ -322,28 +380,46 @@ def window_for(address: int, boundaries: list[int]) -> int | None:
     return boundaries[index] - address if index < len(boundaries) else None
 
 
-def _compile(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
-    command = [cfg["mwcc"], *cfg["compile_flags"], "-c", str(cpath), "-o", str(output)]
+def _unit_suffix(unit: int | None) -> str:
+    return "" if unit is None else f"_unit_{unit:08x}"
+
+
+def _compile(cpath: Path, cfg: dict, output: Path, unit: int | None = None) -> tuple[bool, str]:
+    defines = [] if unit is None else [f"-DP4_UNIT_{unit:08X}"]
+    command = [cfg["mwcc"], *cfg["compile_flags"], *defines, "-c", str(cpath), "-o", str(output)]
     process = subprocess.run(command, cwd=REPO, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT, text=True)
     return process.returncode == 0 and output.is_file(), process.stdout
 
-def compile_object(cpath: Path, cfg: dict, objdir: Path | None = None) -> tuple[ObjectFile | None, str]:
-    """Compile one source file for build eligibility checks."""
+
+def compile_object(
+    cpath: Path,
+    cfg: dict,
+    objdir: Path | None = None,
+    unit: int | None = None,
+) -> tuple[ObjectFile | None, str]:
+    """Compile one source file or one selectable consolidated source unit."""
     if objdir is None:
         objdir = Path(tempfile.mkdtemp(prefix="p4-verify-"))
     relative = cpath.relative_to(REPO)
-    output = objdir / (relative.as_posix().replace("/", "_") + ".o")
+    output = objdir / (relative.as_posix().replace("/", "_") + _unit_suffix(unit) + ".o")
     output.parent.mkdir(parents=True, exist_ok=True)
-    compiled, log = _compile(cpath, cfg, output)
+    compiled, log = _compile(cpath, cfg, output, unit)
     return (ObjectFile(output) if compiled else None), log
 
 
-def verify_file(cpath: Path, cfg: dict, retail: RetailElf, boundaries: list[int], objdir: Path) -> list[dict]:
-    relative, markers = cpath.relative_to(REPO), scan_markers(cpath)
+def verify_file(
+    cpath: Path,
+    cfg: dict,
+    retail: RetailElf,
+    boundaries: list[int],
+    objdir: Path,
+    unit: int | None = None,
+) -> list[dict]:
+    relative, markers = cpath.relative_to(REPO), scan_markers(cpath, unit)
     if not markers: return []
-    output = objdir / (relative.as_posix().replace("/", "_") + ".o")
-    compiled, log = _compile(cpath, cfg, output)
+    output = objdir / (relative.as_posix().replace("/", "_") + _unit_suffix(unit) + ".o")
+    compiled, log = _compile(cpath, cfg, output, unit)
     if not compiled:
         return [dict(file=str(relative), **marker, status="COMPILE_ERROR", detail=log.strip()[:400]) for marker in markers]
     obj, results = ObjectFile(output), []
@@ -373,27 +449,40 @@ def verify_file(cpath: Path, cfg: dict, retail: RetailElf, boundaries: list[int]
         results.append(entry)
     return results
 
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("files", nargs="*", help="specific .c files (default: all of src/)")
     parser.add_argument("--json", metavar="PATH", help="write full JSON report")
     parser.add_argument("--show-mismatches", action="store_true", help="print non-MATCH/non-STUB detail")
+    parser.add_argument("--include-generated", action="store_true",
+                        help="include src/generated candidate files in the scan")
     args = parser.parse_args()
     cfg, target, windows = load_config(), _read_json(TARGET), _read_json(FUNCTION_WINDOWS)
     if windows.get("program") != "SLUS_217.82" or windows.get("sha1") != target["elf"]["sha1"]:
         _die("slus21782_functions.json does not describe the configured P4 USA target")
     retail = RetailElf(cfg["retail_elf"], target, windows["sha1"])
-    def generated(path: Path) -> bool: return path.name.endswith(".match.c") or path.name.startswith(".permute_")
-    source_files = sorted(path for path in (REPO / "src").rglob("*.c") if not generated(path))
-    files = [Path(file).resolve() for file in args.files] if args.files else source_files
+
+    source_files = sorted(
+        path for path in (REPO / "src").rglob("*.c")
+        if args.include_generated or not is_generated(path)
+    )
+    requested = [Path(file).resolve() for file in args.files] if args.files else source_files
+    files: list[tuple[Path, int | None]] = []
+    for path in requested:
+        units = source_units(path)
+        if units:
+            files.extend((path, unit) for unit in units)
+        else:
+            files.append((path, None))
+
     bounds = {int(address, 16) for address in windows["windows"]}
     bounds.update(int(address, 16) + size for address, size in windows["windows"].items() if size)
     for path in source_files:
         bounds.update(marker["addr"] for marker in scan_markers(path))
     results: list[dict] = []
     with tempfile.TemporaryDirectory(prefix="p4verify_") as directory:
-        for path in files: results.extend(verify_file(path, cfg, retail, sorted(bounds), Path(directory)))
+        for path, unit in files:
+            results.extend(verify_file(path, cfg, retail, sorted(bounds), Path(directory), unit))
     counts: dict[str, int] = {}
     for result in results: counts[result["status"]] = counts.get(result["status"], 0) + 1
     print(f"functions scanned: {len(results)}")

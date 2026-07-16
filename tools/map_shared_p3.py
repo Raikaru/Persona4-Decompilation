@@ -27,9 +27,14 @@ P3_PROGRAM = "SLUS_216.21"
 P4_PROGRAM = "SLUS_217.82"
 MARKER_RE = re.compile(r"^\s*//\s*FUN_([0-9A-Fa-f]{8})\b", re.MULTILINE)
 GP_RE = re.compile(r"^\s*_gp\s*=\s*(0x[0-9A-Fa-f]+|\d+)\s*;", re.MULTILINE)
+ADDRESS_IMMEDIATE_OPS = {
+    8, 9, 13, 24, 25, 26, 27,
+    *range(32, 64),
+}
 NON_WRITING_RT_OPS = {
-    9, 13, 15, 25, 32, 33, 35, 36, 37, 39,
-    40, 41, 43, 49, 53, 55, 57, 61, 63,
+    9, 13, 15, 25,
+    40, 41, 42, 43, 44, 45, 46, 47,
+    49, 50, 51, 53, 54, 57, 58, 61, 62, 63,
 }
 
 
@@ -117,7 +122,7 @@ def normalize_mips(data: bytes) -> bytes:
         elif opcode == 15:
             normalized = word & 0xFFFF0000
             active_hi[target] = 0
-        elif opcode != 0 and (source == 28 or source in active_hi):
+        elif opcode in ADDRESS_IMMEDIATE_OPS and (source == 28 or source in active_hi):
             normalized = word & 0xFFFF0000
         output.append(normalized)
 
