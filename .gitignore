@@ -18,6 +18,8 @@
 # Local tool configuration and caches.
 /tools/verify_config.local.json
 /tools/build_config.local.json
+/tools/vendor/m2c/
+*.m2c
 /tools/__pycache__/
 __pycache__/
 /.vscode/

@@ -31,6 +31,7 @@ TARGET_PATH = REPO / "config" / "target.json"
 sys.path.insert(0, str(REPO / "tools"))
 import verify as V  # noqa: E402
 import asm as A  # noqa: E402
+import build_cache as BC  # noqa: E402
 
 
 def parse_int(value):
@@ -280,16 +281,45 @@ def c_object_exports(obj_path):
     return {s["name"] for s in obj.symbols
             if s["name"] and s.get("shndx", 0) != 0}
 
+def c_object_undefineds(obj_path):
+    """Named undefined symbols referenced by a compiled C object."""
+    obj = V.ObjectFile(obj_path)
+    return {s["name"] for s in obj.symbols
+            if s["name"] and s.get("shndx", 0) == 0}
 
-def load_windows():
+
+def complete_missing_definitions(defs, unresolved, exported, addresses):
+    """Define referenced symbols whose bytes are present but labels were carved.
+
+    Some SDK regions are emitted as unlabeled baseline bytes inside a neighboring
+    assembly block. A C caller still needs an absolute linker symbol for that
+    retail address. Never define a symbol that a linked object already exports.
+    """
+    for name in sorted(unresolved - exported - set(defs)):
+        if name in addresses:
+            defs[name] = addresses[name]
+
+
+def _load_window_data():
     path = REPO / "tools" / "slus21782_functions.json"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         if data["sha1"] != RETAIL_SHA1:
             raise ValueError("retail SHA-1 mismatch")
-        return sorted(int(address, 16) for address in data["windows"])
+        return data["windows"]
     except (OSError, ValueError, KeyError, TypeError) as exc:
         sys.exit(f"build: invalid authoritative function windows {path.name}: {exc}")
+
+
+def load_windows():
+    return sorted(int(address, 16) for address in _load_window_data())
+
+
+def load_window_sizes():
+    return {
+        int(address, 16): int(size)
+        for address, size in _load_window_data().items()
+    }
 
 
 # ---------------------------------------------------------------- C-object choice
@@ -439,58 +469,67 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
     return True, per_name
 
 
-def eligible_c_objects(c, resolvable, boundaries, gp):
-    """Select decompiled TUs to link as real C objects: all markers match,
-    contiguous function range, every external ref resolvable, and every owned
-    data section placeable byte-exact. Returns dicts with .text range + data
-    section placements, sorted by function start address."""
+def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None):
+    """Select matching C source units that can be placed byte-exact."""
     import bisect
     retail = V.RetailElf(c["retail_elf"], TARGET, RETAIL_SHA1)
     out = []
     for cpath in sorted((REPO / "src").rglob("*.c")):
-        markers = V.scan_markers(cpath)
-        real = [m for m in markers if m["name"]]
-        if not real or any(m["stub"] or m["nonmatching"] for m in real):
-            continue
-        obj, _ = V.compile_object(cpath, c)
-        if obj is None:
-            continue
-        symtab = {s["name"]: s.get("shndx", 0) for s in obj.symbols}
-        ok = True
-        addrs = []
-        for m in real:
-            try:
-                body, rels = obj.function(m["name"])
-            except KeyError:
-                ok = False
-                break
-            i = bisect.bisect_right(boundaries, m["addr"])
-            win = boundaries[i] - m["addr"] if i < len(boundaries) else None
-            if not win or win > 0x10000:
-                ok = False
-                break
-            wb = retail.bytes_at(m["addr"], win)
-            if V.compare(body, rels, wb[:len(body)])[0] != 0 or len(body) > win or any(wb[len(body):]):
-                ok = False
-                break
-            for r in rels:
-                nm = r["symbol"]
-                if nm and symtab.get(nm, 0) == 0 and nm not in resolvable:
+        units = V.source_units(cpath) or [None]
+        for unit in units:
+            markers = V.scan_markers(cpath, unit)
+            real = [m for m in markers if m["name"]]
+            if not real or any(m["stub"] or m["nonmatching"] for m in real):
+                continue
+            obj = compile_eligibility(c, cpath, cache, unit)
+            if obj is None:
+                continue
+            symtab = {s["name"]: s.get("shndx", 0) for s in obj.symbols}
+            ok = True
+            addrs = []
+            for m in real:
+                try:
+                    body, rels = obj.function(m["name"])
+                except KeyError:
                     ok = False
                     break
-            if not ok:
-                break
-            addrs.append((m["addr"], win))
-        if not ok or not addrs:
-            continue
-        addrs.sort()
-        if not all(addrs[k][0] + addrs[k][1] == addrs[k + 1][0] for k in range(len(addrs) - 1)):
-            continue
-        data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable)
-        if not data_ok:
-            continue
-        out.append(dict(src=cpath, start=addrs[0][0], end=addrs[-1][0] + addrs[-1][1],
-                        funcs=real, sections=sections))
+                i = bisect.bisect_right(boundaries, m["addr"])
+                win = (
+                    boundaries[i] - m["addr"]
+                    if i < len(boundaries)
+                    else (window_sizes or {}).get(m["addr"])
+                )
+                if not win or win > 0x10000:
+                    ok = False
+                    break
+                wb = retail.bytes_at(m["addr"], win)
+                if V.compare(body, rels, wb[:len(body)])[0] != 0 or len(body) > win or any(wb[len(body):]):
+                    ok = False
+                    break
+                for r in rels:
+                    nm = r["symbol"]
+                    if nm and symtab.get(nm, 0) == 0 and nm not in resolvable:
+                        ok = False
+                        break
+                if not ok:
+                    break
+                addrs.append((m["addr"], win))
+            if not ok or not addrs:
+                continue
+            addrs.sort()
+            if not all(addrs[k][0] + addrs[k][1] == addrs[k + 1][0] for k in range(len(addrs) - 1)):
+                continue
+            data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable)
+            if not data_ok:
+                continue
+            out.append(dict(
+                src=cpath,
+                unit=unit,
+                start=addrs[0][0],
+                end=addrs[-1][0] + addrs[-1][1],
+                funcs=real,
+                sections=sections,
+            ))
     out.sort(key=lambda d: d["start"])
     return out
 
@@ -537,18 +576,32 @@ def build_code_carved(c, name, lo, hi, cobjs, entries):
     starts = [r[0] for r in ranges]
     import bisect
     chunks = {}  # chunk index -> list of block lines (order preserved)
-    cur_idx = None
-    for addr, blk in blocks:
-        if addr is None:
-            # carry address-less fragment forward with the current chunk
-            tgt = cur_idx if cur_idx is not None else 0
-            chunks.setdefault(tgt, []).extend(blk)
-            continue
-        if any(s <= addr < e for s, e, _ in ranges):
-            continue  # carved: provided by a C object
-        idx = bisect.bisect_right(starts, addr)
-        cur_idx = idx
-        chunks.setdefault(idx, []).extend(blk)
+    for _addr, blk in blocks:
+        pending = []
+        current_idx = None
+        last_carved = False
+        for ln in blk:
+            match = BYTES_RE.search(ln)
+            if match:
+                addr = int(match.group(1), 16)
+                carved = any(s <= addr < e for s, e, _ in ranges)
+                if carved:
+                    pending.clear()
+                else:
+                    idx = bisect.bisect_right(starts, addr)
+                    chunks.setdefault(idx, []).extend(pending)
+                    pending.clear()
+                    chunks[idx].append(ln)
+                    current_idx = idx
+                last_carved = carved
+                continue
+            if ln.strip().startswith("endlabel"):
+                if not last_carved and current_idx is not None:
+                    chunks[current_idx].append(ln)
+                continue
+            pending.append(ln)
+        if pending and not last_carved and current_idx is not None:
+            chunks[current_idx].extend(pending)
     # emit + assemble each chunk, compute its start address
     chunk_dir = ASM / "chunks"
     chunk_dir.mkdir(parents=True, exist_ok=True)
@@ -615,14 +668,93 @@ def build_data_carved(name, lo, hi, data_carves, entries):
         entries.append((VRAM + a, obj, f".{name}"))
 
 
-def compile_c(c, src, obj):
-    obj.parent.mkdir(parents=True, exist_ok=True)
+def _include_dirs(flags):
+    directories = []
+    index = 0
+    while index < len(flags):
+        flag = flags[index]
+        if flag == "-I" and index + 1 < len(flags):
+            index += 1
+            value = flags[index]
+        elif flag.startswith("-I") and len(flag) > 2:
+            value = flag[2:]
+        else:
+            index += 1
+            continue
+        path = Path(value)
+        directories.append(path if path.is_absolute() else REPO / path)
+        index += 1
+    return directories
+
+
+def _cache_inputs(mode):
+    inputs = [Path(__file__), Path(BC.__file__)]
+    if mode == "eligibility":
+        inputs.append(Path(V.__file__))
+    else:
+        inputs.extend(sorted((REPO / "tools" / "mwccgap").rglob("*.py")))
+        inputs.append(ASM / "macro.inc")
+    return inputs
+
+
+def _cache_tools(c, mode):
+    tools = {"mwcc": c["mwcc"]}
+    if mode == "link":
+        tools.update({
+            "assembler": AS_TOOL.argv,
+            "objcopy": OBJCOPY_TOOL.argv,
+        })
+    return tools
+
+def compile_eligibility(c, src, cache, unit=None):
+    relative = src.relative_to(REPO)
+    suffix = V._unit_suffix(unit)
+    obj = OBJ / "eligibility" / (relative.as_posix().replace("/", "_") + suffix + ".o")
+    flags = [*c["compile_flags"], *([] if unit is None else [f"-DP4_UNIT_{unit:08X}"])]
+    compiled, _log = cache.build(
+        mode="eligibility",
+        output=obj,
+        source=src,
+        include_dirs=_include_dirs(c["compile_flags"]),
+        flags=flags,
+        tools=_cache_tools(c, "eligibility"),
+        inputs=_cache_inputs("eligibility"),
+        producer=lambda temporary: V._compile(src, c, temporary, unit),
+    )
+    return V.ObjectFile(obj) if compiled else None
+
+
+def compile_c(c, src, obj, cache, unit=None):
     mwccgap = REPO / "tools" / "mwccgap" / "mwccgap.py"
-    sh([sys.executable, str(mwccgap), str(src), str(obj),
+    command_flags = [
         "--mwcc-path", c["mwcc"], "--macro-inc-path", str(ASM / "macro.inc"),
-        "--as-march", "r5900", "--as-mabi", "eabi", *c["cflags"], "-Iinclude"],
-       cwd=str(REPO))
-    progbitsify(obj)
+        "--as-march", "r5900", "--as-mabi", "eabi", *c["cflags"], "-Iinclude",
+    ]
+    if unit is not None:
+        command_flags.append(f"-DP4_UNIT_{unit:08X}")
+    if not AS_TOOL.wsl and len(AS_TOOL.argv) == 1:
+        command_flags[0:0] = ["--as-path", AS_TOOL.argv[0]]
+
+    def produce(temporary):
+        sh([sys.executable, str(mwccgap), str(src), str(temporary), *command_flags], cwd=str(REPO))
+        progbitsify(temporary)
+        return True, ""
+
+    compiled, log = cache.build(
+        mode="link",
+        output=obj,
+        source=src,
+        include_dirs=_include_dirs(c["compile_flags"]),
+        flags=command_flags,
+        tools=_cache_tools(c, "link"),
+        inputs=_cache_inputs("link"),
+        values=CACHE_TOOL_VERSIONS,
+        producer=produce,
+    )
+    if not compiled:
+        if log:
+            sys.stderr.write(log)
+        sys.exit(f"build: failed to compile {src.relative_to(REPO)}")
 
 
 # ---------------------------------------------------------------- link
@@ -695,7 +827,8 @@ def linked_function_records(cobjs, windows):
                     f"build: marker address {address:#010x} for {func['name']} "
                     f"in {source} is not an authoritative function window"
                 )
-            record = (func["name"], source)
+            unit = obj.get("unit")
+            record = (func["name"], source, unit)
             previous = by_address.get(address)
             if previous is not None and previous != record:
                 sys.exit(
@@ -704,8 +837,9 @@ def linked_function_records(cobjs, windows):
                 )
             by_address[address] = record
     return [
-        {"address": f"{address:08x}", "name": name, "file": source}
-        for address, (name, source) in sorted(by_address.items())
+        {"address": f"{address:08x}", "name": name, "file": source,
+         "unit": None if unit is None else f"{unit:08x}"}
+        for address, (name, source, unit) in sorted(by_address.items())
     ]
 
 
@@ -783,10 +917,11 @@ def build_matching_elf(c, n_cobj):
 
 AS_TOOL = None
 OBJCOPY_TOOL = None
+CACHE_TOOL_VERSIONS = {}
 
 
 def main():
-    global AS_TOOL, OBJCOPY_TOOL
+    global AS_TOOL, OBJCOPY_TOOL, CACHE_TOOL_VERSIONS
     parser = argparse.ArgumentParser()
     parser.add_argument("--progress-report", type=Path, metavar="PATH")
     parser.add_argument("--setup-only", action="store_true")
@@ -815,11 +950,25 @@ def main():
         sys.exit("build: matched C sources require mwcc in tools/build_config.local.json or P4_MWCC")
     AS_TOOL = A.find_gnu_tool("mipsel-linux-gnu-as", "P4_AS")
     OBJCOPY_TOOL = A.find_gnu_tool("mipsel-linux-gnu-objcopy", "P4_OBJCOPY")
+    CACHE_TOOL_VERSIONS = {
+        "assembler": BC.tool_version_identity(AS_TOOL.argv),
+        "objcopy": BC.tool_version_identity(OBJCOPY_TOOL.argv),
+        "python": {
+            "implementation": sys.implementation.name,
+            "cache_tag": sys.implementation.cache_tag,
+            "version": list(sys.version_info[:3]),
+        },
+    }
+    cache = BC.ObjectCache(BUILD / "cache" / "c", REPO)
 
     gp, defs = load_lcf_symbols()
     resolvable = set(defs) | load_symbol_names()
     boundaries = load_windows()
-    cobjs = eligible_c_objects(c, resolvable, boundaries, gp) if c.get("retail_elf") else []
+    window_sizes = load_window_sizes()
+    cobjs = (
+        eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes)
+        if c.get("retail_elf") else []
+    )
     print(f"eligible C objects: {len(cobjs)}  "
           f"({', '.join(o['src'].name for o in cobjs) if cobjs else 'none'})")
     linked_functions = linked_function_records(cobjs, boundaries)
@@ -830,8 +979,12 @@ def main():
     c_text_ranges = []
     data_carves = []
     for o in cobjs:
-        cobj = OBJ / (o["src"].relative_to(REPO / "src").as_posix().replace("/", "_") + ".o")
-        compile_c(c, o["src"], cobj)
+        suffix = V._unit_suffix(o.get("unit"))
+        cobj = OBJ / (
+            o["src"].relative_to(REPO / "src").as_posix().replace("/", "_")
+            + suffix + ".o"
+        )
+        compile_c(c, o["src"], cobj, cache, o.get("unit"))
         patch_align1(cobj, ".text")
         o["obj"] = cobj
         entries.append((o["start"], cobj, ".text"))
@@ -839,16 +992,24 @@ def main():
         for sname, (base, size) in o["sections"].items():
             entries.append((base, cobj, sname))
             data_carves.append((base, base + size))
+    print(cache.summary(("eligibility", "link")))
 
     # Splat asm references carved functions by their symbol_addrs names; when a
     # C object exports a canonical name instead, define the splat name as an
     # absolute address (the C object is placed byte-exact at retail).
+    symbol_addresses = load_symbol_addr_map()
+    for o in cobjs:
+        for marker in o["funcs"]:
+            address = marker["addr"]
+            if isinstance(address, str):
+                address = int(address, 16)
+            symbol_addresses.setdefault(f"func_{address:08x}", address)
     if c_text_ranges:
-        exported = set()
+        c_exports = set()
         for o in cobjs:
-            exported |= c_object_exports(o["obj"])
-        for nm, addr in load_symbol_addr_map().items():
-            if nm in exported or nm in defs:
+            c_exports |= c_object_exports(o["obj"])
+        for nm, addr in symbol_addresses.items():
+            if nm in c_exports or nm in defs:
                 continue
             if any(s <= addr < e for s, e, _o in c_text_ranges):
                 defs[nm] = addr
@@ -861,6 +1022,18 @@ def main():
                 build_code_plain(c, name, lo, hi, entries)
         else:
             build_data_carved(name, lo, hi, data_carves, entries)
+
+    unresolved = set()
+    for o in cobjs:
+        unresolved |= c_object_undefineds(o["obj"])
+    exported = set()
+    seen_objects = set()
+    for _address, obj, _section in entries:
+        if obj in seen_objects:
+            continue
+        seen_objects.add(obj)
+        exported |= c_object_exports(obj)
+    complete_missing_definitions(defs, unresolved, exported, symbol_addresses)
     write_lcf(entries, gp, defs)
     link(c, entries)
     status = build_matching_elf(c, len(cobjs))
