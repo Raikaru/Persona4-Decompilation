@@ -55,9 +55,12 @@ void func_00100010(void) { }
             if not consolidate.is_generated(path)
         ]
         self.assertFalse(any(consolidate.ADDRESS_SUFFIX.search(path.name) for path in sources))
+        # Tripwire against accidentally dropped or duplicated markers. Bump this
+        # deliberately when functions are genuinely added, and never to silence a
+        # drop you did not intend.
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            873,
+            880,
         )
 
 

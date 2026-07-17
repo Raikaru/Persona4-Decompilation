@@ -1,0 +1,22 @@
+# Repository metadata and CI files are not needed in the image.
+.git/
+.github/
+
+# Build products, extracted game data, and disc images are non-source inputs.
+build/
+orig/
+image.bin
+*.iso
+*.img
+*.elf
+*.bin
+*.exe
+
+# Machine-local configuration may contain absolute proprietary paths.
+tools/*_config.local.json
+
+# Python and local tooling caches.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
