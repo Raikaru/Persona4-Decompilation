@@ -42,6 +42,10 @@ RELOC_MASK_SIZE = {2: 4, 4: 4, 5: 2, 6: 2, 7: 2}
 MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))", re.MULTILINE)
 NAME_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 UNIT_GUARD_RE = re.compile(r"^\s*#if\s+defined\(P4_UNIT_([0-9a-fA-F]{8})\)\s*$")
+INCLUDE_MARKER_RE = re.compile(
+    r'^\s*INCLUDE_(?:ASM|RODATA)\s*\(\s*"[^"]*"\s*,\s*'
+    r"([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;?\s*$"
+)
 
 def is_generated(path: Path) -> bool:
     try:
@@ -316,6 +320,17 @@ def scan_markers(cpath: Path, unit: int | None = None) -> list[dict]:
         if not marker:
             index += 1; continue
         address, name, cursor, header = int(marker.group(2), 16), None, index + 1, ""
+        if index + 1 < len(lines):
+            asm_line = lines[index + 1].split("//", 1)[0].rstrip()
+            asm_marker = INCLUDE_MARKER_RE.match(asm_line)
+            if asm_marker:
+                markers.append(dict(
+                    addr=address, name=asm_marker.group(1), line=index + 1,
+                    stub=False, nonmatching="NONMATCHING" in lines[index],
+                    asm=True,
+                ))
+                index += 2
+                continue
         while cursor < len(lines) and cursor < index + 12:
             if MARKER_RE.match(lines[cursor]): break
             code = code_lines[cursor].strip()
@@ -384,12 +399,33 @@ def _unit_suffix(unit: int | None) -> str:
     return "" if unit is None else f"_unit_{unit:08x}"
 
 
+def _mwccgap_command(cpath: Path, cfg: dict, output: Path, unit: int | None = None) -> list[str]:
+    mwccgap = TOOLS / "mwccgap" / "mwccgap.py"
+    flags = [
+        "--mwcc-path", cfg["mwcc"],
+        "--asm-dir-prefix", str(REPO),
+        "--macro-inc-path", str(REPO / "asm" / "macro.inc"),
+        "--as-march", "r5900", "--as-mabi", "eabi",
+        *cfg["compile_flags"],
+    ]
+    as_path = cfg.get("as_path") or os.environ.get("P4_AS")
+    if as_path:
+        flags[0:0] = ["--as-path", str(as_path)]
+    if unit is not None:
+        flags.append(f"-DP4_UNIT_{unit:08X}")
+    return [sys.executable, str(mwccgap), str(cpath), str(output), *flags]
+
+
 def _compile(cpath: Path, cfg: dict, output: Path, unit: int | None = None) -> tuple[bool, str]:
-    defines = [] if unit is None else [f"-DP4_UNIT_{unit:08X}"]
-    command = [cfg["mwcc"], *cfg["compile_flags"], *defines, "-c", str(cpath), "-o", str(output)]
-    process = subprocess.run(command, cwd=REPO, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, text=True)
+    process = subprocess.run(
+        _mwccgap_command(cpath, cfg, output, unit),
+        cwd=REPO,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
     return process.returncode == 0 and output.is_file(), process.stdout
+
 
 
 def compile_object(
@@ -444,6 +480,12 @@ def verify_file(
                         if difference: entry["first_diffs"] = first
                     elif marker["nonmatching"]:
                         entry.update(status="STALE_NONMATCHING", detail="function now matches; remove the NONMATCHING tag")
+                    elif marker.get("asm"):
+                        # An INCLUDE_ASM stub reproduces retail by construction: it
+                        # IS the extracted assembly. It is tracked and byte-correct,
+                        # but it is NOT decompiled C, so it must never be counted as
+                        # MATCH or the progress metric becomes meaningless.
+                        entry.update(status="ASM", detail="assembly fallback; not yet decompiled to C")
                     else: entry["status"] = "MATCH"
                     entry["relocations"] = decode_reloc_values(relocs, target)
         results.append(entry)
@@ -486,9 +528,11 @@ def main() -> None:
     counts: dict[str, int] = {}
     for result in results: counts[result["status"]] = counts.get(result["status"], 0) + 1
     print(f"functions scanned: {len(results)}")
-    for status in ("MATCH", "STUB", "NONMATCHING", "STALE_NONMATCHING", "MISMATCH", "SIZE_MISMATCH", "NO_SYMBOL", "COMPILE_ERROR", "UNKNOWN_ADDR"):
+    for status in ("MATCH", "ASM", "STUB", "NONMATCHING", "STALE_NONMATCHING", "MISMATCH", "SIZE_MISMATCH", "NO_SYMBOL", "COMPILE_ERROR", "UNKNOWN_ADDR"):
         if counts.get(status): print(f"  {status:<18} {counts[status]}")
-    bad = [result for result in results if result["status"] not in ("MATCH", "STUB", "NONMATCHING")]
+    # ASM is a healthy in-progress state (byte-correct assembly fallback), so it
+    # does not fail the run -- but it is deliberately excluded from MATCH above.
+    bad = [result for result in results if result["status"] not in ("MATCH", "ASM", "STUB", "NONMATCHING")]
     if args.show_mismatches:
         for result in bad:
             print(f"\n{result['status']}: {result['file']}:{result.get('line', '?')} {result.get('name')} @ {result.get('addr')}")

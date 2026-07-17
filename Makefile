@@ -1,7 +1,7 @@
 PYTHON ?= python
 SPLAT_CONFIG := config/slus21782.yaml
 
-.PHONY: all setup split consolidate reconcile m2c-bulk m2c-promote shared-p3 build verify check test progress progress-validate m2c-setup m2c clean distclean
+.PHONY: all setup split consolidate reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors ctx objdiff objdiff-objects progress progress-validate m2c-setup m2c clean distclean
 
 all: build verify
 
@@ -34,9 +34,13 @@ consolidate:
 reconcile: consolidate
 	$(PYTHON) tools/reconcile_function_boundaries.py
 
+# Map functions shared with the Persona 3 FES decomp. Prefer passing a FRESH
+# verifier report via P3_REPORT: without it the mapper falls back to P3's
+# committed progress/metrics.json snapshot, which only refreshes on a full link
+# build and therefore UNDERCOUNTS the portable set as P3 advances.
 shared-p3:
-	@test -n "$(P3_ROOT)" || (echo "usage: make shared-p3 P3_ROOT=/path/to/Persona3-FES-Decompilation" && exit 2)
-	$(PYTHON) tools/map_shared_p3.py --p3-root "$(P3_ROOT)" --with-source-evidence
+	@test -n "$(P3_ROOT)" || (echo "usage: make shared-p3 P3_ROOT=/path/to/Persona3-FES-Decompilation [P3_REPORT=/path/to/verify.json]" && exit 2)
+	$(PYTHON) tools/map_shared_p3.py --p3-root "$(P3_ROOT)" --with-source-evidence $(if $(P3_REPORT),--p3-report "$(P3_REPORT)",)
 
 build:
 	$(PYTHON) tools/build.py
@@ -46,6 +50,31 @@ verify check:
 
 test:
 	$(PYTHON) -m unittest discover -s tests -v
+
+# Source-honesty lint. `lint` fails on any error-severity finding; `lint-errors`
+# additionally suppresses warnings from the report.
+lint:
+	$(PYTHON) tools/decomp_lint.py
+
+lint-errors:
+	$(PYTHON) tools/decomp_lint.py --errors-only
+
+# Flattened context for a decomp.me scratch or decomp-permuter run:
+#   make ctx CTX_SRC=src/Battle/btlTarget.c CTX_UNIT=001EC630
+ctx:
+	@test -n "$(CTX_SRC)" || (echo "usage: make ctx CTX_SRC=src/path.c [CTX_UNIT=ADDR8]" && exit 2)
+	$(PYTHON) tools/m2ctx.py "$(CTX_SRC)" $(if $(CTX_UNIT),--unit "$(CTX_UNIT)",) --decompme
+
+# Regenerate objdiff.json from a fresh verifier report.
+objdiff:
+	$(PYTHON) tools/verify.py --json build/objdiff_report.json
+	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json
+
+# Emit the per-unit target/base objects that objdiff.json references.
+# ONLY=<substring> restricts emission to matching units.
+objdiff-objects:
+	$(PYTHON) tools/verify.py --json build/objdiff_report.json
+	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json --emit-objects $(if $(ONLY),--only "$(ONLY)",)
 
 progress:
 	$(PYTHON) tools/progress.py
