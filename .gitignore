@@ -9,6 +9,9 @@
 /assets/
 /asm/*.s
 /asm/*.o
+# asm/nonmatchings/ is HAND-AUTHORED INCLUDE_ASM fallback code, not splat output.
+# It must stay tracked or a fresh checkout cannot reproduce the build.
+!/asm/nonmatchings/
 /asm/data/
 /asm/chunks/
 /include/macro.inc

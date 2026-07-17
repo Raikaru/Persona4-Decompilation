@@ -15,6 +15,7 @@ import hashlib
 import json
 import re
 import struct
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -248,13 +249,55 @@ def load_gp(path: Path) -> int | None:
     return int(match.group(1), 0) if match else None
 
 
-def load_source_evidence(p3_root: Path) -> tuple[set[int], dict[int, list[str]], str]:
+def matched_from_verify_report(report_path: Path) -> set[int]:
+    """Read MATCH addresses straight from a live `verify.py --json` report."""
+    report = load_json(report_path)
+    rows = report.get("results")
+    if not isinstance(rows, list):
+        raise MappingError(f"malformed verify report (no 'results' list): {report_path}")
+    matched: set[int] = set()
+    for row in rows:
+        if not isinstance(row, dict) or row.get("status") != "MATCH":
+            continue
+        try:
+            matched.add(int(row["addr"], 16))
+        except (KeyError, TypeError, ValueError) as error:
+            raise MappingError(f"malformed MATCH row in {report_path}: {error}") from error
+    if not matched:
+        raise MappingError(f"verify report contains no MATCH rows: {report_path}")
+    return matched
+
+
+def warn_snapshot_evidence(metrics_path: Path, matched: set[int]) -> None:
+    """progress/metrics.json is a committed snapshot that only a full link build
+    refreshes, so it goes stale silently as src/ advances and this report then
+    UNDERCOUNTS portable functions. mtime is not a reliable staleness signal
+    (any checkout rewrites it), so always say which snapshot was used."""
+    print(
+        f"NOTE: using the committed {metrics_path.name} snapshot as the matched-function\n"
+        f"      set ({len(matched)} MATCH addresses). That file only refreshes on a full\n"
+        f"      link build, so if P3 has advanced since, this report UNDERCOUNTS the\n"
+        f"      portable set. Prefer --p3-report <verify.json> from a fresh\n"
+        f"      `python tools/verify.py --json <path>` run in the P3 checkout.",
+        file=sys.stderr,
+    )
+
+
+def load_source_evidence(
+    p3_root: Path, report_path: Path | None = None
+) -> tuple[set[int], dict[int, list[str]], str]:
     metrics_path = p3_root / "progress" / "metrics.json"
-    metrics = load_json(metrics_path)
-    try:
-        matched = {int(address, 16) for address in metrics["matching"]["addresses"]}
-    except (KeyError, TypeError, ValueError) as error:
-        raise MappingError(f"invalid matching addresses in {metrics_path}: {error}") from error
+    if report_path is not None:
+        matched = matched_from_verify_report(report_path)
+        evidence_source = sha1_file(report_path)
+    else:
+        metrics = load_json(metrics_path)
+        try:
+            matched = {int(address, 16) for address in metrics["matching"]["addresses"]}
+        except (KeyError, TypeError, ValueError) as error:
+            raise MappingError(f"invalid matching addresses in {metrics_path}: {error}") from error
+        warn_snapshot_evidence(metrics_path, matched)
+        evidence_source = sha1_file(metrics_path)
 
     sources: dict[int, set[str]] = defaultdict(set)
     source_root = p3_root / "src"
@@ -267,7 +310,7 @@ def load_source_evidence(p3_root: Path) -> tuple[set[int], dict[int, list[str]],
             address = int(match.group(1), 16)
             if address in matched:
                 sources[address].add(relative)
-    return matched, {address: sorted(paths) for address, paths in sources.items()}, sha1_file(metrics_path)
+    return matched, {address: sorted(paths) for address, paths in sources.items()}, evidence_source
 
 
 def compare_functions(
@@ -410,11 +453,15 @@ def build_report(args: argparse.Namespace) -> dict:
     sources: dict[int, list[str]] = {}
     metrics_sha1: str | None = None
     if args.with_source_evidence:
-        verified, sources, metrics_sha1 = load_source_evidence(p3_root)
-        metrics = load_json(p3_root / "progress" / "metrics.json")
-        expected_image_sha1 = metrics.get("hashes", {}).get("image_sha1")
-        if expected_image_sha1 and sha1_bytes(p3_image) != expected_image_sha1:
-            raise MappingError("P3 image.bin SHA-1 does not match progress/metrics.json")
+        report_path = getattr(args, "p3_report", None)
+        verified, sources, metrics_sha1 = load_source_evidence(p3_root, report_path)
+        # The image-hash cross-check only means something against the snapshot
+        # that recorded it; a live verify report carries no image hash.
+        if report_path is None:
+            metrics = load_json(p3_root / "progress" / "metrics.json")
+            expected_image_sha1 = metrics.get("hashes", {}).get("image_sha1")
+            if expected_image_sha1 and sha1_bytes(p3_image) != expected_image_sha1:
+                raise MappingError("P3 image.bin SHA-1 does not match progress/metrics.json")
 
     p3_base, p4_base = args.p3_base, int(target["elf"]["load_vram"], 0)
     p3_gp = load_gp(p3_symbols_path)
@@ -489,7 +536,16 @@ def main() -> int:
     parser.add_argument(
         "--with-source-evidence",
         action="store_true",
-        help="annotate P3 verifier matches and source locations from progress/metrics.json and src/",
+        help="annotate P3 verifier matches and source locations from src/ plus either "
+        "--p3-report or, as a fallback, the committed progress/metrics.json snapshot",
+    )
+    parser.add_argument(
+        "--p3-report",
+        type=Path,
+        default=None,
+        help="live `verify.py --json` report from the P3 checkout, used instead of the "
+        "committed progress/metrics.json snapshot for the matched-function set; "
+        "strongly preferred, since the snapshot only refreshes on a full link build",
     )
     parser.add_argument(
         "--output",

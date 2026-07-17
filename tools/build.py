@@ -687,30 +687,77 @@ def _include_dirs(flags):
     return directories
 
 
-def _cache_inputs(mode):
+def _mwccgap_flags(c, unit=None):
+    """Return the compiler/assembler flags shared by every C compile path."""
+    flags = [
+        "--mwcc-path", c["mwcc"],
+        "--asm-dir-prefix", str(REPO),
+        "--macro-inc-path", str(ASM / "macro.inc"),
+        "--as-march", "r5900", "--as-mabi", "eabi",
+        *c["cflags"], "-Iinclude",
+    ]
+    if unit is not None:
+        flags.append(f"-DP4_UNIT_{unit:08X}")
+    if AS_TOOL is not None and not AS_TOOL.wsl and len(AS_TOOL.argv) == 1:
+        flags[0:0] = ["--as-path", AS_TOOL.argv[0]]
+    return flags
+
+
+def _compile_with_mwccgap(c, src, output, unit=None):
+    mwccgap = REPO / "tools" / "mwccgap" / "mwccgap.py"
+    sh(
+        [sys.executable, str(mwccgap), str(src), str(output),
+         *_mwccgap_flags(c, unit)],
+        cwd=str(REPO),
+    )
+
+
+INCLUDE_ASM_CACHE_RE = re.compile(
+    r'^\s*INCLUDE_(?:ASM|RODATA)\s*\(\s*"([^"]*)"\s*,\s*'
+    r"([A-Za-z_][A-Za-z0-9_]*)"
+)
+
+
+def _cache_asm_inputs(source):
+    if source is None:
+        return []
+    paths = []
+    for line in source.read_text(errors="replace").splitlines():
+        match = INCLUDE_ASM_CACHE_RE.match(line)
+        if match:
+            paths.append(REPO / match.group(1) / f"{match.group(2)}.s")
+    return paths
+
+
+def _cache_inputs(mode, source=None):
     inputs = [Path(__file__), Path(BC.__file__)]
+    inputs.extend(sorted((REPO / "tools" / "mwccgap").rglob("*.py")))
+    inputs.append(ASM / "macro.inc")
+    inputs.extend(_cache_asm_inputs(source))
     if mode == "eligibility":
         inputs.append(Path(V.__file__))
-    else:
-        inputs.extend(sorted((REPO / "tools" / "mwccgap").rglob("*.py")))
-        inputs.append(ASM / "macro.inc")
     return inputs
 
 
 def _cache_tools(c, mode):
     tools = {"mwcc": c["mwcc"]}
+    if AS_TOOL is not None:
+        tools["assembler"] = AS_TOOL.argv
     if mode == "link":
-        tools.update({
-            "assembler": AS_TOOL.argv,
-            "objcopy": OBJCOPY_TOOL.argv,
-        })
+        tools["objcopy"] = OBJCOPY_TOOL.argv
     return tools
+
 
 def compile_eligibility(c, src, cache, unit=None):
     relative = src.relative_to(REPO)
     suffix = V._unit_suffix(unit)
     obj = OBJ / "eligibility" / (relative.as_posix().replace("/", "_") + suffix + ".o")
     flags = [*c["compile_flags"], *([] if unit is None else [f"-DP4_UNIT_{unit:08X}"])]
+
+    def produce(temporary):
+        _compile_with_mwccgap(c, src, temporary, unit)
+        return True, ""
+
     compiled, _log = cache.build(
         mode="eligibility",
         output=obj,
@@ -718,25 +765,14 @@ def compile_eligibility(c, src, cache, unit=None):
         include_dirs=_include_dirs(c["compile_flags"]),
         flags=flags,
         tools=_cache_tools(c, "eligibility"),
-        inputs=_cache_inputs("eligibility"),
-        producer=lambda temporary: V._compile(src, c, temporary, unit),
+        inputs=_cache_inputs("eligibility", src),
     )
     return V.ObjectFile(obj) if compiled else None
 
 
 def compile_c(c, src, obj, cache, unit=None):
-    mwccgap = REPO / "tools" / "mwccgap" / "mwccgap.py"
-    command_flags = [
-        "--mwcc-path", c["mwcc"], "--macro-inc-path", str(ASM / "macro.inc"),
-        "--as-march", "r5900", "--as-mabi", "eabi", *c["cflags"], "-Iinclude",
-    ]
-    if unit is not None:
-        command_flags.append(f"-DP4_UNIT_{unit:08X}")
-    if not AS_TOOL.wsl and len(AS_TOOL.argv) == 1:
-        command_flags[0:0] = ["--as-path", AS_TOOL.argv[0]]
-
     def produce(temporary):
-        sh([sys.executable, str(mwccgap), str(src), str(temporary), *command_flags], cwd=str(REPO))
+        _compile_with_mwccgap(c, src, temporary, unit)
         progbitsify(temporary)
         return True, ""
 
@@ -745,10 +781,9 @@ def compile_c(c, src, obj, cache, unit=None):
         output=obj,
         source=src,
         include_dirs=_include_dirs(c["compile_flags"]),
-        flags=command_flags,
+        flags=_mwccgap_flags(c, unit),
         tools=_cache_tools(c, "link"),
-        inputs=_cache_inputs("link"),
-        values=CACHE_TOOL_VERSIONS,
+        inputs=_cache_inputs("link", src),
         producer=produce,
     )
     if not compiled:

@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Free checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-python.txt
+
+      - name: Byte-compile Python tools
+        run: python -m compileall -q tools
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Validate JSON and YAML configuration
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import yaml
+
+          paths = (
+              sorted(Path("config").glob("*.json"))
+              + sorted(Path("config").glob("*.yaml"))
+              + sorted(Path("config").glob("*.yml"))
+              + sorted(Path("tools").glob("*_config.json"))
+          )
+          if not paths:
+              raise SystemExit("no JSON/YAML configuration files found")
+          for path in paths:
+              with path.open(encoding="utf-8") as stream:
+                  if path.suffix == ".json":
+                      json.load(stream)
+                  else:
+                      yaml.safe_load(stream)
+              print(f"{path}: ok")
+          PY
+
+      - name: Validate committed progress snapshots
+        run: python tools/progress.py --validate-dir progress
+
+      - name: Validate CI workflow YAML
+        run: python -c "import yaml,sys; yaml.safe_load(open('.github/workflows/ci.yml'))"
+
+  # This detector keeps the proprietary job skipped unless the opt-in variable,
+  # private dependency repository, and access token are all present.  Secrets
+  # are checked in a step (rather than a job-level if), because GitHub does not
+  # expose the secrets context to job conditionals.
+  proprietary-inputs:
+    name: Detect proprietary build inputs
+    runs-on: ubuntu-latest
+    outputs:
+      available: ${{ steps.detect.outputs.available }}
+    steps:
+      - id: detect
+        name: Check opt-in and private dependency access
+        env:
+          P4_PROPRIETARY_BUILD: ${{ vars.P4_PROPRIETARY_BUILD }}
+          P4_PRIVATE_DEPS_REPO: ${{ vars.P4_PRIVATE_DEPS_REPO }}
+          P4_PRIVATE_DEPS_TOKEN: ${{ secrets.P4_PRIVATE_DEPS_TOKEN }}
+        run: |
+          if [ "$P4_PROPRIETARY_BUILD" = "true" ] \
+              && [ -n "$P4_PRIVATE_DEPS_REPO" ] \
+              && [ -n "$P4_PRIVATE_DEPS_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "proprietary inputs enabled"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "proprietary inputs absent or disabled; build job will be skipped"
+          fi
+
+  # Full build and byte verification.  This is intentionally dormant on public
+  # runners.  To enable it, put MWCCPS2/MWLDPS2 and SLUS_217.82 in a private
+  # dependencies repository, set P4_PROPRIETARY_BUILD=true and
+  # P4_PRIVATE_DEPS_REPO, add P4_PRIVATE_DEPS_TOKEN, and require approval for
+  # the p4-proprietary environment.  The private repository should contain the
+  # compiler files and ELF at the paths configured by the variables below.
+  build-and-verify:
+    name: Proprietary build and verify
+    needs: [checks, proprietary-inputs]
+    if: ${{ needs.proprietary-inputs.outputs.available == 'true' }}
+    environment:
+      name: p4-proprietary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch private compiler and retail ELF
+        env:
+          P4_PRIVATE_DEPS_REPO: ${{ vars.P4_PRIVATE_DEPS_REPO }}
+          P4_PRIVATE_DEPS_TOKEN: ${{ secrets.P4_PRIVATE_DEPS_TOKEN }}
+          P4_PRIVATE_MWCC_PATH: ${{ vars.P4_PRIVATE_MWCC_PATH || 'mwccps2.exe' }}
+          P4_PRIVATE_MWLD_PATH: ${{ vars.P4_PRIVATE_MWLD_PATH || 'mwldps2.exe' }}
+          P4_PRIVATE_RETAIL_ELF_PATH: ${{ vars.P4_PRIVATE_RETAIL_ELF_PATH || 'SLUS_217.82' }}
+        run: |
+          set -eu
+          private_root="$RUNNER_TEMP/p4-private"
+          git clone --depth=1 \
+            "https://x-access-token:${P4_PRIVATE_DEPS_TOKEN}@github.com/${P4_PRIVATE_DEPS_REPO}.git" \
+            "$private_root"
+          test -f "$private_root/$P4_PRIVATE_MWCC_PATH"
+          test -f "$private_root/$P4_PRIVATE_MWLD_PATH"
+          test -f "$private_root/$P4_PRIVATE_RETAIL_ELF_PATH"
+          echo "P4_PRIVATE_ROOT=$private_root" >> "$GITHUB_ENV"
+          echo "P4_PRIVATE_MWCC_PATH=$P4_PRIVATE_MWCC_PATH" >> "$GITHUB_ENV"
+          echo "P4_PRIVATE_MWLD_PATH=$P4_PRIVATE_MWLD_PATH" >> "$GITHUB_ENV"
+          echo "P4_PRIVATE_RETAIL_ELF_PATH=$P4_PRIVATE_RETAIL_ELF_PATH" >> "$GITHUB_ENV"
+
+      - name: Build Linux container
+        run: docker build --tag p4-decomp-ci .
+
+      - name: Setup, build, and verify with mounted proprietary inputs
+        run: |
+          set -eu
+          docker run --rm \
+            --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/work" \
+            --mount "type=bind,src=$P4_PRIVATE_ROOT,dst=/opt/p4,readonly" \
+            --env "P4_MWCC_BINARY=/opt/p4/$P4_PRIVATE_MWCC_PATH" \
+            --env "P4_MWLD_BINARY=/opt/p4/$P4_PRIVATE_MWLD_PATH" \
+            --env "P4_RETAIL_ELF=/opt/p4/$P4_PRIVATE_RETAIL_ELF_PATH" \
+            --workdir /work \
+            p4-decomp-ci \
+            sh -c 'python tools/build.py --setup-only && make split && make && make verify'
