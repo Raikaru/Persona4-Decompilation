@@ -14,14 +14,14 @@ typedef struct Resrc
 
 #define SCENEDRAW_RESRC_FLAG_VISIBLE 0x00000002
 
-extern Resrc* func_00145270(u16 resTypeId);
+extern Resrc* MT_Scene_GetRes(u16 resTypeId);
 
 // FUN_0014A0F0
 void func_0014a0f0(u16 resTypeId, u32 visible)
 {
     Resrc* res;
 
-    res = func_00145270(resTypeId);
+    res = MT_Scene_GetRes(resTypeId);
     if (res != NULL)
     {
         if (visible == 1)

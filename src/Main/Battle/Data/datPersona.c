@@ -113,8 +113,8 @@ void func_0010d490(u8* param_1, u8* param_2)
 #include "type.h"
 
 extern void FUN_0043f9c8(void* destination, s32 value, u32 size);
-extern u32 func_0043f810();
-extern u32 func_00442088();
+extern u32 memcpy();
+extern u32 sprintf();
 extern u8 DAT_00796de0[];
 extern u8 DAT_00796e00[];
 extern u8 DAT_00796e20[];
@@ -128,8 +128,8 @@ void func_0010d560(void)
     FUN_0043f9c8(DAT_00796de0, 0, 0x12);
     FUN_0043f9c8(DAT_00796e00, 0, 0x12);
     FUN_0043f9c8(DAT_00796e20, 0, 0x24);
-    func_0043f810(DAT_00796de0, DAT_007973a0, 0x12);
-    func_0043f810(DAT_00796e00, DAT_007973b2, 0x12);
-    func_00442088(DAT_00796e20, &DAT_00762ca0, DAT_00796e00, DAT_00796de0);
+    memcpy(DAT_00796de0, DAT_007973a0, 0x12);
+    memcpy(DAT_00796e00, DAT_007973b2, 0x12);
+    sprintf(DAT_00796e20, &DAT_00762ca0, DAT_00796e00, DAT_00796de0);
 }
 #endif /* P4_UNIT_0010D560 */

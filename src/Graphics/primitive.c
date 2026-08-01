@@ -213,7 +213,7 @@ static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
 
 extern RwCamera* func_00457120(void);           // kwlnGetMainCamera
 extern void func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
-extern int func_003f6440(int nState, void* pParam); // RpSkyRenderStateSet
+extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
 
 // FUN_0045F0B0
 void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestoreRenderState)
@@ -269,8 +269,8 @@ void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestor
 
             (*setRenderState)(rwRENDERSTATEZTESTENABLE, NULL);
             (*setRenderState)(rwRENDERSTATETEXTURERASTER, NULL);
-            func_003f6440(rpSKYRENDERSTATEALPHA_1, (void*)0x48);    // SCE_GS_SET_ALPHA_1(0, 2, 0, 1, 0)
-            func_003f6440(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
+            RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void*)0x48);    // SCE_GS_SET_ALPHA_1(0, 2, 0, 1, 0)
+            RpSkyRenderStateSet(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
         }
 
         vertices[0].scrVertex.x = screenX - size;
@@ -477,7 +477,7 @@ static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
 extern RwRenderStateSetFunc D_00887300[4];      // device.setRenderState
 extern RwRenderStateGetFunc D_00887304[4];      // device.getRenderState
 
-extern int func_003f6440(int nState, void* pParam); // RpSkyRenderStateSet
+extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
 extern void func_00410420(RwIm3DVertex* pVerts, u32 numVerts, RwMatrix* ltm, u32 flags); // RwIm3DTransform
 extern int func_00410930(int vert1, int vert2); // RwIm3DRenderLine
 
@@ -504,8 +504,8 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
 
         D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
 
-        func_003f6440(rpSKYRENDERSTATEALPHA_1, (void*)0x48);    // SCE_GS_SET_ALPHA_1(0, 2, 0, 1, 0)
-        func_003f6440(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
+        RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void*)0x48);    // SCE_GS_SET_ALPHA_1(0, 2, 0, 1, 0)
+        RpSkyRenderStateSet(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
     }
 
     RwMatrixSetIdentity(&identity);
@@ -637,7 +637,7 @@ static const RwRGBA sAxisColors[3] =
 extern RwRenderStateSetFunc D_00887300[4];      // device.setRenderState
 extern RwRenderStateGetFunc D_00887304[4];      // device.getRenderState
 
-extern int func_003f6440(int nState, void* pParam); // RpSkyRenderStateSet
+extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
 extern void func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
 extern void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState);
 
@@ -663,8 +663,8 @@ void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderSta
 
         D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
 
-        func_003f6440(rpSKYRENDERSTATEALPHA_1, (void*)0x48);    // SCE_GS_SET_ALPHA_1(0, 2, 0, 1, 0)
-        func_003f6440(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
+        RpSkyRenderStateSet(rpSKYRENDERSTATEALPHA_1, (void*)0x48);    // SCE_GS_SET_ALPHA_1(0, 2, 0, 1, 0)
+        RpSkyRenderStateSet(rpSKYRENDERSTATEATEST_1, (void*)0x71801); // SCE_GS_SET_TEST_1(1, 0, 128, 1, 0, 0, 1, 3)
     }
 
     for (j = 0; j < 3; j++)
@@ -713,8 +713,8 @@ typedef struct
     u32 pad4;
 } PrimMatrixData;
 
-extern void* func_003e0a90(void* matrix, const void* scale, int combineOp); // RwMatrixScale
-extern void func_003e05f0(int dst, u8* a, float* b);                        // RwMatrixMultiply
+extern void* RwMatrixScale(void* matrix, const void* scale, int combineOp); // RwMatrixScale
+extern void RwMatrixMultiply(int dst, u8* a, float* b);                        // RwMatrixMultiply
 
 // FUN_00480940
 void func_00480940(int param_1, int param_2)
@@ -767,8 +767,8 @@ void func_00480940(int param_1, int param_2)
     matrix.pad4 = 0;
     matrix.mode = 3;
 
-    func_003e0a90((void*)buffer, (const void*)((u8*)param_2 + 0x24), 0);
-    func_003e05f0(param_1, buffer, (f32*)&matrix);
+    RwMatrixScale((void*)buffer, (const void*)((u8*)param_2 + 0x24), 0);
+    RwMatrixMultiply(param_1, buffer, (f32*)&matrix);
 
     value30 = *(volatile /* Removing this function's qualifier batch loses func_00480940 (MATCH nd0 -> MISMATCH nd6, size 348 -> 348) - measured W170. */ f32*)(param_2 + 0x18);
     value34 = *(volatile /* Removing this function's qualifier batch loses func_00480940 (MATCH nd0 -> MISMATCH nd6, size 348 -> 348) - measured W170. */ f32*)(param_2 + 0x1c);
@@ -801,7 +801,7 @@ typedef struct
 // retail data at 0x00761118 (gp-relative float, P3 name fGpffff8028)
 extern float fGpffff8028;
 extern f32 func_0044b920(f32 param_1); // P3 FUN_0052e9e8 (acosf)
-extern f32 func_0044b7b0(f32 angle);   // P3 FUN_0052e878 (sinf)
+extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
 
 // FUN_00480AA0
 void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1)
@@ -833,9 +833,9 @@ void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1)
     if (dot < fGpffff8028)
     {
         angle = func_0044b920(dot);
-        invSin = 1.0f / func_0044b7b0(angle);
-        firstWeight = invSin * func_0044b7b0(firstWeight * angle);
-        secondWeight = invSin * func_0044b7b0(secondWeight * angle);
+        invSin = 1.0f / sinf(angle);
+        firstWeight = invSin * sinf(firstWeight * angle);
+        secondWeight = invSin * sinf(secondWeight * angle);
     }
 
     out->quat.x = firstWeight * first->quat.x + secondWeight * second->quat.x;

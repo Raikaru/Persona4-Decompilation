@@ -10,7 +10,7 @@
 
 typedef struct Resrc Resrc;
 
-extern u32 func_00145270(void);
+extern u32 MT_Scene_GetRes(void);
 extern u32 func_00269190(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
 
 // FUN_002692D0
@@ -19,7 +19,7 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
     u32 lVar1;
     u32 uVar2;
 
-    lVar1 = func_00145270();
+    lVar1 = MT_Scene_GetRes();
     if (lVar1 != 0)
     {
         uVar2 = func_00269190((Resrc*)lVar1, param_2, param_3, param_4);
@@ -39,7 +39,7 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
 /* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b8e10 (verified MATCH
  * there). 003b5d10 -> func_00145270, 003b8ce0 -> func_002694f0. */
 
-extern u32 func_00145270(void);
+extern u32 MT_Scene_GetRes(void);
 extern u64 func_002694f0(u32 param_1, u64 param_2, u64 param_3, u64 param_4);
 
 // FUN_00269620
@@ -48,7 +48,7 @@ u64 func_00269620(u64 param_1, u64 param_2, u64 param_3, u64 param_4)
     u32 lVar1;
     u64 uVar2;
 
-    lVar1 = func_00145270();
+    lVar1 = MT_Scene_GetRes();
     if (lVar1 != 0)
     {
         uVar2 = func_002694f0(lVar1, param_2, param_3, param_4);
@@ -264,7 +264,7 @@ typedef struct RwV3d
 } RwV3d;
 
 extern void func_0026c960(float param_1, ...);
-extern f32 func_003e4180(const RwV3d *vector);
+extern f32 RwV3dLength(const RwV3d *vector);
 
 // FUN_0026CCA0
 float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4,
@@ -284,7 +284,7 @@ float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4
     delta.x = second_x - first_x;
     delta.y = second_y - first_y;
     delta.z = second_z - first_z;
-    first_len = func_003e4180(&delta);
+    first_len = RwV3dLength(&delta);
     *param_6 = first_x;
     param_6[1] = first_y;
     param_6[2] = first_z;
@@ -379,7 +379,7 @@ void func_0026d810(void)
  * there). 003b5d10 -> func_00145270, 003b8ff0 -> func_00269820,
  * 003b9260 -> func_002699d0. */
 
-extern u32 func_00145270();
+extern u32 MT_Scene_GetRes();
 extern u32 func_00269820(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, float param_7);
 extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
@@ -399,21 +399,21 @@ void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
 
     uVar3 = (u32)param_4;
     if (uVar3 == -1) {
-        lVar2 = func_00145270(uVar1);
+        lVar2 = MT_Scene_GetRes(uVar1);
         if (lVar2 != 0) {
             func_00269820(lVar2, 0, param_2, param_3, 1, 0, 1.0f);
         }
         goto end;
     }
 
-    lVar4 = func_00145270(uVar1);
+    lVar4 = MT_Scene_GetRes(uVar1);
     if (lVar4 == 0) {
         goto second_done;
     }
     func_00269820(lVar4, 0, param_2, param_3, 0, 0, 1.0f);
 
 second_done:
-    lVar2 = func_00145270(uVar1);
+    lVar2 = MT_Scene_GetRes(uVar1);
     if (lVar2 != 0) {
         func_002699d0((u32 *)lVar2, 0, uVar3, param_5, 1, 0, 1.0f);
     }
@@ -440,7 +440,7 @@ typedef struct SceneVecBits
 
 extern SceneVecBits D_0063b1a0[];
 extern float D_0063b1a8[];
-extern float func_003e40b0(float *dst, const float *src);
+extern float RwV3dNormalize(float *dst, const float *src);
 extern u32 func_0044dcd8(float param_1);
 extern u32 func_0044b8d8(u32 value);
 extern float func_0044e7d8(u32 value);
@@ -467,7 +467,7 @@ void func_0026c860(const float *param_1, float *param_2)
     *(volatile u64 *)&source.xy = txy;
     *(volatile float *)&source.z = tz;
 
-    fVar2 = func_003e40b0(afStack_20, param_1);
+    fVar2 = RwV3dNormalize(afStack_20, param_1);
     if (fVar2 == 0.0f) {
         param_2[0] = 0.0f;
         param_2[1] = 0.0f;

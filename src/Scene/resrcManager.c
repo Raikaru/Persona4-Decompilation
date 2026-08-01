@@ -20,7 +20,7 @@ typedef int (*code)(...);
 #pragma alias DAT_008873ec_abs DAT_008873ec
 extern code DAT_008873ec_abs[];
 
-extern Resrc* func_00147500(ResrcManager* resManager, u8 resType);
+extern Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType);
 extern void func_00147430(ResrcManager* resManager, Resrc* res);
 
 /* Ported from P3FES src/Scene/resrcManager.c FUN_003b5020 (verified MATCH
@@ -28,7 +28,7 @@ extern void func_00147430(ResrcManager* resManager, Resrc* res);
  * RwFree (rwGlobals.memFuncs.RwFree slot 0096017c) -> DAT_008873ec. */
 
 // FUN_001470E0
-void func_001470e0(ResrcManager* resManager)
+void resrcMngDestroy(ResrcManager* resManager)
 {
     s32 i;
     Resrc* currList;
@@ -37,13 +37,13 @@ void func_001470e0(ResrcManager* resManager)
     {
         for (i = 0; i < RESRC_TYPE_MAX; i++)
         {
-            currList = func_00147500(resManager, i);
+            currList = resrcMngGetListHead(resManager, i);
 
             while (currList != NULL)
             {
                 func_00147430(resManager, currList);
 
-                currList = func_00147500(resManager, i);
+                currList = resrcMngGetListHead(resManager, i);
             }
         }
 
@@ -71,7 +71,7 @@ typedef struct ResrcManager
  * there). */
 
 // FUN_00147500
-Resrc* func_00147500(ResrcManager* resManager, u8 resType)
+Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType)
 {
     if (resType >= RESRC_TYPE_MAX)
     {

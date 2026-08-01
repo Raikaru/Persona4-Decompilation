@@ -105,11 +105,11 @@ typedef struct RwMatrix {
 extern void* func_00457120(void);
 extern void* func_003e89c0(void);
 extern void func_003e8970(void* viewport, void* cameraData);
-extern void func_003e0a90(RwMatrix* matrix, const RwV3d* scale, u32 combine);
+extern void RwMatrixScale(RwMatrix* matrix, const RwV3d* scale, u32 combine);
 extern void* func_003e0f80(void);
 extern void func_003e0e20(void* matrix, void* source, s32 mode);
 extern void func_003e0f40(void* matrix);
-extern void func_003e0c90(RwMatrix* matrix, const RwV3d* translation, u32 combine);
+extern void RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, u32 combine);
 extern void* func_003e9700(void* model);
 
 // FUN_0036ABD0
@@ -146,7 +146,7 @@ void func_0036abd0(PanelMatrix* output, const PanelTransform* transform)
     scale.x = transform->scale.x;
     scale.y = aspectRatio * transform->scale.y;
     scale.z = transform->scale.z;
-    func_003e0a90((RwMatrix*)output, (const RwV3d*)&scale, 0);
+    RwMatrixScale((RwMatrix*)output, (const RwV3d*)&scale, 0);
 
     rotation = (PanelMatrix*)func_003e0f80();
     factor = 2.0f /
@@ -183,7 +183,7 @@ void func_0036abd0(PanelMatrix* output, const PanelTransform* transform)
 
     func_003e0e20(output, rotation, 2);
     func_003e0f40(rotation);
-    func_003e0c90((RwMatrix*)output, (const RwV3d*)&transform->translation, 2);
+    RwMatrixTranslate((RwMatrix*)output, (const RwV3d*)&transform->translation, 2);
     if (transform->model != NULL)
     {
         func_003e0e20(output, func_003e9700(transform->model), 2);
@@ -213,7 +213,7 @@ typedef struct RwMatrix {
 
 extern const RwV3d D_0064E4D0;
 extern void* func_003e0f80(void);
-extern RwMatrix* func_003e0870(RwMatrix* matrix, const RwV3d* axis, f32 angle, u32 combine);
+extern RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, u32 combine);
 extern void func_00410420(void* vertices, u32 count, void* matrix, u32 stride);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern u16 D_00884690[];
@@ -247,7 +247,7 @@ void func_0036b470(u32* work, const f32* vertices)
             destination[1] = y;
             destination += 2;
         } while (count > 0);
-        func_003e0870(matrix, &axis, 180.0f, 1);
+        RwMatrixRotate(matrix, &axis, 180.0f, 1);
     } else {
         matrix = (RwMatrix*)vertices;
     }

@@ -27,12 +27,12 @@ typedef struct RwMatrix
 // P3 counterpart sDegreesPerRadian (gp -0x7D00); P4 retail uses gp -0x7D00,
 // i.e. absolute 0x007690f0 - 0x7d00 = 0x007613f0.
 extern f32 fGpffff7d00;
-extern f32 func_003e40b0(RwV3d* out, const RwV3d* in);
+extern f32 RwV3dNormalize(RwV3d* out, const RwV3d* in);
 extern f32 func_0044b920(f32 x);
 
 #pragma push
 // FUN_0014BFF0
-u32 func_0014bff0(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov)
+u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov)
 {
     u32 isWithinFov;
     RwV3d viewDir;
@@ -45,12 +45,12 @@ u32 func_0014bff0(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov)
     isWithinFov = 0;
     halfFov = fov / 2.0f;
 
-    func_003e40b0(&viewDir, &viewerMat->at);
+    RwV3dNormalize(&viewDir, &viewerMat->at);
 
     targetDir.x = targetPos->x - viewerMat->pos.x;
     targetDir.y = targetPos->y - viewerMat->pos.y;
     targetDir.z = targetPos->z - viewerMat->pos.z;
-    func_003e40b0(&targetDir, &targetDir);
+    RwV3dNormalize(&targetDir, &targetDir);
 
     viewAngle = fGpffff7d00 * func_0044b920((viewDir.x * forward.x) +
                                             (viewDir.y * forward.y) +
@@ -120,8 +120,8 @@ typedef struct RwMatrix
     u32 pad3;       // 0x3c
 } RwMatrix;
 
-extern u32 func_0014bff0(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov);
-extern f32 func_003e4180(const RwV3d* vector);
+extern u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov);
+extern f32 RwV3dLength(const RwV3d* vector);
 extern u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst);
 
 #pragma push
@@ -138,14 +138,14 @@ u32 func_0014c240(const RwMatrix* viewerMat,
     u32 rayResult;
 
     result = 0;
-    if (func_0014bff0(viewerMat, targetPos, fov) != 1)
+    if (K_FldEvent_IsPosWithinFov(viewerMat, targetPos, fov) != 1)
     {
         goto done;
     }
     delta.x = targetPos->x - viewerMat->pos.x;
     delta.y = targetPos->y - viewerMat->pos.y;
     delta.z = targetPos->z - viewerMat->pos.z;
-    if (func_003e4180(&delta) >= maxDist)
+    if (RwV3dLength(&delta) >= maxDist)
     {
         goto done;
     }
@@ -186,11 +186,11 @@ typedef struct RwV3d
     f32 z;
 } RwV3d;
 
-extern f32 func_003e4180(const RwV3d* vector);
+extern f32 RwV3dLength(const RwV3d* vector);
 
 #pragma push
 // FUN_0014C4C0
-u32 func_0014c4c0(const RwV3d* posA, const RwV3d* posB, f32 maxDist)
+u32 K_FldEvent_ArePosWithinDist(const RwV3d* posA, const RwV3d* posB, f32 maxDist)
 {
     RwV3d diff;
     u32 withinDist;
@@ -201,7 +201,7 @@ u32 func_0014c4c0(const RwV3d* posA, const RwV3d* posB, f32 maxDist)
     diff.y = posA->y - posB->y;
     diff.z = posA->z - posB->z;
 
-    if (func_003e4180(&diff) < maxDist)
+    if (RwV3dLength(&diff) < maxDist)
     {
         withinDist = 1;
     }

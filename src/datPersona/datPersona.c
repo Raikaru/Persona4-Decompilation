@@ -6,7 +6,7 @@
 #include "type.h"
 
 // FUN_00109390
-u8 func_00109390(int persona)
+u8 datPersonaGetLevel(int persona)
 {
     return *(u8*)(persona + 4);
 }
@@ -25,7 +25,7 @@ typedef struct PersonaWork {
 extern PersonaWork* func_0010a900(u16 pcId);
 
 // FUN_00109400
-u8 func_00109400(u16 pcId)
+u8 datPersonaGetLevelByPcId(u16 pcId)
 {
     PersonaWork* persona = func_0010a900(pcId);
     return persona->level;
@@ -37,7 +37,7 @@ u8 func_00109400(u16 pcId)
 #include "type.h"
 
 // FUN_00109430
-u32 func_00109430(int persona)
+u32 datPersonaGetNextExp(int persona)
 {
     return *(u32*)(persona + 8);
 }
@@ -67,7 +67,7 @@ void func_00109440(PersonaWork* persona)
 #include "type.h"
 
 // FUN_001094D0
-u16* func_001094d0(int persona)
+u16* datPersonaGetSkills(int persona)
 {
     return (u16*)(persona + 0xc);
 }
@@ -89,7 +89,7 @@ typedef struct PersonaWork {
 extern PersonaWork* func_0010a900(u16 pcId);
 
 // FUN_001094E0
-u16* func_001094e0(u16 pcId)
+u16* datPersonaGetSkillsByPcId(u16 pcId)
 {
     PersonaWork* persona = func_0010a900(pcId);
 
@@ -115,7 +115,7 @@ typedef struct PersonaWork {
 extern PersonaWork* func_0010a900(u16 pcId);
 
 // FUN_00109D80
-void func_00109d80(u16 pcId, u16 statId, s8 amount)
+void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 {
     PersonaWork* persona = func_0010a900(pcId);
 

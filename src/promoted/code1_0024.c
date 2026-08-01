@@ -55,7 +55,7 @@ s32 func_0024ad70(void)
 
 extern s32 func_001090e0(void);
 extern void func_0029cf50(s32 arg0);
-extern void func_001090f0(void);
+extern void datResetTotalBtl(void);
 extern void func_00106020(s32 arg0);
 
 // FUN_0024ADB0
@@ -65,7 +65,7 @@ s32 func_0024adb0(void)
 
     temp_2 = func_001090e0();
     func_0029cf50(temp_2);
-    func_001090f0();
+    datResetTotalBtl();
     func_00106020(temp_2);
     return 1;
 }

@@ -51,7 +51,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029BEB0
-u32 func_0029BEB0(ScrData* scr)
+u32 CodeFunc_Add(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_ADD);
     scr->pc++;
@@ -90,7 +90,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029BEF0
-u32 func_0029BEF0(ScrData* scr)
+u32 CodeFunc_Sub(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_SUB);
     scr->pc++;
@@ -168,7 +168,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029BF70
-u32 func_0029BF70(ScrData* scr)
+u32 CodeFunc_Div(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_DIV);
     scr->pc++;
@@ -207,7 +207,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C550
-u32 func_0029C550(ScrData* scr)
+u32 CodeFunc_Or(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_OR);
     scr->pc++;
@@ -246,7 +246,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C590
-u32 func_0029C590(ScrData* scr)
+u32 CodeFunc_And(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_AND);
     scr->pc++;
@@ -285,7 +285,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C5D0
-u32 func_0029C5D0(ScrData* scr)
+u32 CodeFunc_Eq(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_EQ);
     scr->pc++;
@@ -324,7 +324,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C610
-u32 func_0029C610(ScrData* scr)
+u32 CodeFunc_Neq(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_NEQ);
     scr->pc++;
@@ -363,7 +363,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C650
-u32 func_0029C650(ScrData* scr)
+u32 CodeFunc_S(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_S);
     scr->pc++;
@@ -402,7 +402,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C690
-u32 func_0029C690(ScrData* scr)
+u32 CodeFunc_L(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_L);
     scr->pc++;
@@ -441,7 +441,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C6D0
-u32 func_0029C6D0(ScrData* scr)
+u32 CodeFunc_SE(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_SE);
     scr->pc++;
@@ -480,7 +480,7 @@ enum ScrOperation
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
 // FUN_0029C710
-u32 func_0029C710(ScrData* scr)
+u32 CodeFunc_LE(ScrData* scr)
 {
     func_0029b1b0(scr, SCR_OPERATION_LE);
     scr->pc++;

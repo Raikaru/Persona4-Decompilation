@@ -6,7 +6,7 @@
 #include "h_cdvd_internal.h"
 
 // FUN_00454570
-u32 func_00454570(const char* path)
+u32 H_Cdvd_FileExists(const char* path)
 {
     char unusedUppercasePath[256];
     char fileName[256];
@@ -15,8 +15,8 @@ u32 func_00454570(const char* path)
     ADXF adxf;
 
     func_00440b68(" Exist %s\n", path);
-    func_00454d20(path, unusedUppercasePath);
-    func_00454d20(path, uppercasePath);
+    H_Cdvd_BuildPathUppercase(path, unusedUppercasePath);
+    H_Cdvd_BuildPathUppercase(path, uppercasePath);
     func_00454e10(uppercasePath, fileName, directory);
     func_00455230(directory);
 
@@ -38,7 +38,7 @@ u32 func_00454570(const char* path)
 #include "h_cdvd_internal.h"
 
 // FUN_004553C0
-u32 func_004553c0(HCdvd* cdvd)
+u32 H_Cdvd_IsFileLoaded(HCdvd* cdvd)
 {
     return cdvd->readState == 4;
 }
@@ -48,7 +48,7 @@ u32 func_004553c0(HCdvd* cdvd)
 /* Source unit: src/h_cdvd/h_cdvd_00455520.c (1 function markers) */
 #include "h_cdvd_internal.h"
 
-extern void func_0043f810(void* destination, const void* source, u32 size);
+extern void memcpy(void* destination, const void* source, u32 size);
 
 // FUN_00455520
 u32 func_00455520(void* slotData, void* dst, u32 size)
@@ -77,7 +77,7 @@ read_file:
     {
         amount = available;
     }
-    func_0043f810(dst, data->fileMemory + data->fileOffset, amount);
+    memcpy(dst, data->fileMemory + data->fileOffset, amount);
     data->fileOffset += amount;
     return amount;
 }
@@ -120,14 +120,14 @@ s32 func_00455720(void* unused, const char* path)
     s32 i;
 
     (void)unused;
-    func_00454d20(path, uppercasePath);
-    func_00455100(uppercasePath, normalizedPath);
+    H_Cdvd_BuildPathUppercase(path, uppercasePath);
+    H_Cdvd_NormalizePath(uppercasePath, normalizedPath);
     for (i = 0; i < 256; i++)
     {
         if (D_008c8780[i].isValid)
         {
-            func_00455100(D_008c8780[i].path, cachePath);
-            if (func_004426e8(cachePath, normalizedPath) == 0)
+            H_Cdvd_NormalizePath(D_008c8780[i].path, cachePath);
+            if (strcmp(cachePath, normalizedPath) == 0)
             {
                 return 1;
             }
@@ -142,11 +142,11 @@ s32 func_00455720(void* unused, const char* path)
 #include "h_cdvd_internal.h"
 
 // FUN_00456150
-void func_00456150(HCdvd* cdvd)
+void H_Cdvd_ReadSync(HCdvd* cdvd)
 {
     while (true)
     {
-        if (!func_004553c0(cdvd))
+        if (!H_Cdvd_IsFileLoaded(cdvd))
         {
             func_00454640();
         }
@@ -169,7 +169,7 @@ void func_004561a0(void* handle, const char* path, s32 synchronous)
     static char fileName[256];
     static char directory[256];
 
-    func_00454d20(path, uppercasePath);
+    H_Cdvd_BuildPathUppercase(path, uppercasePath);
     func_00454e10(uppercasePath, fileName, directory);
     func_00455230(directory);
     if (synchronous)
@@ -196,7 +196,7 @@ void func_004562e0(void* handle, const char* path)
     void* stream;
 
     stream = func_004d9020();
-    func_00454d20(path, uppercasePath);
+    H_Cdvd_BuildPathUppercase(path, uppercasePath);
     func_00454e10(uppercasePath, fileName, directory);
     func_00455230(directory);
     func_004d6f78(stream, fileName);
@@ -292,7 +292,7 @@ void func_00456be0(void* contextData)
 /* Removing this loses FUN_00455100 (MATCH nd0 -> MISMATCH nd216) - measured W161. */
 #pragma opt_loop_invariants on
 // FUN_00455100
-void func_00455100(const char* src, char* dst)
+void H_Cdvd_NormalizePath(const char* src, char* dst)
 {
     s32 scanIndex;
     s32 readIndex;
@@ -372,7 +372,7 @@ typedef struct ArchiveEntryHeader
     u32 fileSize;
 } ArchiveEntryHeader;
 
-extern void func_0043f810(void* destination, const void* source, u32 size);
+extern void memcpy(void* destination, const void* source, u32 size);
 
 // FUN_00456090
 const char* func_00456090(HCdvd* cdvd, s32 entryIndex)
@@ -384,7 +384,7 @@ const char* func_00456090(HCdvd* cdvd, s32 entryIndex)
     entry = (u8*)cdvd->fileMemory;
     for (i = 0; i < entryIndex; i++)
     {
-        func_0043f810(&header, entry, sizeof(header));
+        memcpy(&header, entry, sizeof(header));
         if (header.fileName[0] == '\0')
         {
             return NULL;
@@ -404,14 +404,14 @@ const char* func_00456090(HCdvd* cdvd, s32 entryIndex)
 /* Source unit: src/h_cdvd/h_cdvd_00454d20.c (1 function markers) */
 #include "h_cdvd_internal.h"
 
-extern void func_00442830(char* destination, const char* source);
-extern u32 func_00442948(const char* text);
+extern void strcpy(char* destination, const char* source);
+extern u32 strlen(const char* text);
 
 #pragma push
 /* Removing this loses FUN_00454D20 (MATCH nd0 -> MISMATCH nd58) - measured W161. */
 #pragma opt_loop_invariants on
 // FUN_00454D20
-void func_00454d20(const char* src, char* dst)
+void H_Cdvd_BuildPathUppercase(const char* src, char* dst)
 {
     char currChar;
     char* pathBase;
@@ -422,8 +422,8 @@ void func_00454d20(const char* src, char* dst)
     s32 backslash;
 
     pathBase = "VOL:\\";
-    func_00442830(dst, pathBase);
-    basePathLen = func_00442948(pathBase);
+    strcpy(dst, pathBase);
+    basePathLen = strlen(pathBase);
     i = 0;
     dstPtr = dst + basePathLen;
     slash = 0x2f;
@@ -539,7 +539,7 @@ common:
 /* Removing this loses FUN_00454BD0 (MATCH nd0 -> MISMATCH nd122) - measured W161. */
 #pragma opt_loop_invariants on
 // FUN_00454BD0
-u32 func_00454bd0(HCdvd* cdvd)
+u32 H_Cdvd_Destroy(HCdvd* cdvd)
 {
     HCdvd* prev;
     HCdvd* next;
@@ -597,7 +597,7 @@ u32 func_00454bd0(HCdvd* cdvd)
 /* Source unit: src/h_cdvd/h_cdvd_004553e0.c (1 function markers) */
 #include "h_cdvd_internal.h"
 
-extern void func_0043f810(void* destination, const void* source, u32 size);
+extern void memcpy(void* destination, const void* source, u32 size);
 
 // FUN_004553E0
 s32 func_004553e0(void* unused, void* slotData, uintptr_t pathOrMode)
@@ -613,18 +613,18 @@ s32 func_004553e0(void* unused, void* slotData, uintptr_t pathOrMode)
         return 2;
     }
 
-    func_00454d20((const char*)pathOrMode, uppercasePath);
-    func_00455100(uppercasePath, normalizedPath);
+    H_Cdvd_BuildPathUppercase((const char*)pathOrMode, uppercasePath);
+    H_Cdvd_NormalizePath(uppercasePath, normalizedPath);
     for (i = 0; i < 256; i++)
     {
         if (!D_008c8780[i].isValid)
         {
             continue;
         }
-        func_00455100(D_008c8780[i].path, cachePath);
-        if (func_004426e8(cachePath, normalizedPath) == 0)
+        H_Cdvd_NormalizePath(D_008c8780[i].path, cachePath);
+        if (strcmp(cachePath, normalizedPath) == 0)
         {
-            func_0043f810((u8*)slotData + 0x70, &D_008c8780[i], sizeof(HCdvdCache));
+            memcpy((u8*)slotData + 0x70, &D_008c8780[i], sizeof(HCdvdCache));
             *(u32*)((u8*)slotData + 0x100) = 0;
             *(u64*)((u8*)slotData + 0x00) = *(s32*)((u8*)slotData + 0xfc);
             *(u64*)((u8*)slotData + 0x20) = 0;
@@ -657,8 +657,8 @@ typedef struct HCdvdRequestView
     s16 archiveFileCount;
 } HCdvdRequestView;
 
-extern void func_0043f810(void* destination, const void* source, u32 size);
-extern char* func_00442428(char* destination, const char* source);
+extern void memcpy(void* destination, const void* source, u32 size);
+extern char* strcat(char* destination, const char* source);
 extern void func_00455d70(void* requestData, void* fileMemory, u32 fileSize,
                           const char* path);
 
@@ -731,17 +731,17 @@ outer_check:
     offset = 0;
     while (true)
     {
-        func_0043f810(work.directory, work.entryPath, 0xfc);
-        func_0043f810(work.fileName, (u8*)request->fileMemory + offset, 0xfc);
+        memcpy(work.directory, work.entryPath, 0xfc);
+        memcpy(work.fileName, (u8*)request->fileMemory + offset, 0xfc);
         if (work.fileName[0] == '\0')
         {
             return;
         }
         request->archiveFileCount++;
         entryOffset = offset + 0xfc;
-        func_0043f810(&fileSize, (u8*)request->fileMemory + entryOffset, 4);
+        memcpy(&fileSize, (u8*)request->fileMemory + entryOffset, 4);
         offset += 0x100;
-        func_00442428(work.directory, work.fileName);
+        strcat(work.directory, work.fileName);
         {
             char d;
             char* cursor2;
@@ -787,8 +787,8 @@ outer_check:
 
 static const char* sCdvdVolumePrefix = "VOL:";
 
-extern void func_00442830(char* destination, const char* source);
-extern u32 func_00442948(const char* text);
+extern void strcpy(char* destination, const char* source);
+extern u32 strlen(const char* text);
 
 #pragma push
 /* Removing this loses FUN_00454E10 (MATCH nd0 -> MISMATCH nd29) - measured W161. */
@@ -803,9 +803,9 @@ void func_00454e10(const char* path, char* fileNameDst, char* dirDst)
     u32 outputIndex;
     char current;
 
-    func_00442830(fileNameDst, sCdvdVolumePrefix);
-    func_00442830(dirDst, path);
-    pathLength = func_00442948(dirDst);
+    strcpy(fileNameDst, sCdvdVolumePrefix);
+    strcpy(dirDst, path);
+    pathLength = strlen(dirDst);
     for (reverseIndex = 1; reverseIndex < pathLength; reverseIndex++)
     {
         current = dirDst[pathLength - reverseIndex];
@@ -818,13 +818,13 @@ void func_00454e10(const char* path, char* fileNameDst, char* dirDst)
         reversedName[reverseIndex - 1] = current;
     }
 
-    nameLength = func_00442948(reversedName);
+    nameLength = strlen(reversedName);
     for (outputIndex = 0; outputIndex < nameLength; outputIndex++)
     {
-        fileNameDst[func_00442948(sCdvdVolumePrefix) + nameLength - outputIndex - 1] =
+        fileNameDst[strlen(sCdvdVolumePrefix) + nameLength - outputIndex - 1] =
             reversedName[outputIndex];
     }
-    fileNameDst[func_00442948(sCdvdVolumePrefix) + nameLength] = '\0';
+    fileNameDst[strlen(sCdvdVolumePrefix) + nameLength] = '\0';
 }
 #pragma pop
 #endif /* P4_UNIT_00454E10 */
@@ -843,7 +843,7 @@ void func_00456370(void* handle, const char* path)
     static char directory[256];
 
     func_004d9020();
-    func_00454d20(path, uppercasePath);
+    H_Cdvd_BuildPathUppercase(path, uppercasePath);
     func_00454e10(uppercasePath, fileName, directory);
     func_00455230(directory);
     func_004d8d30(handle, fileName);
@@ -886,14 +886,14 @@ static const char* sCdvdBtlDirectories[] = {
     ""
 };
 
-extern void func_00442830(char* destination, const char* source);
-extern u32 func_00442948(const char* text);
+extern void strcpy(char* destination, const char* source);
+extern u32 strlen(const char* text);
 
 #pragma push
 /* Removing this loses FUN_00454F50 (MATCH nd0 -> MISMATCH nd29) - measured W161. */
 #pragma opt_loop_invariants on
 // FUN_00454F50
-s32 func_00454f50(const char* path, char* fileNameDst, char* dirDst)
+s32 H_Cdvd_BuildVolumePaths(const char* path, char* fileNameDst, char* dirDst)
 {
     char reverseFileName[256];
     char normalizedDir[256];
@@ -904,8 +904,8 @@ s32 func_00454f50(const char* path, char* fileNameDst, char* dirDst)
     u32 outputIndex;
     char current;
 
-    func_00442830(dirDst, path);
-    pathLength = func_00442948(dirDst);
+    strcpy(dirDst, path);
+    pathLength = strlen(dirDst);
     for (reverseIndex = 1; reverseIndex < pathLength; reverseIndex++)
     {
         current = dirDst[pathLength - reverseIndex];
@@ -918,27 +918,27 @@ s32 func_00454f50(const char* path, char* fileNameDst, char* dirDst)
         reverseFileName[reverseIndex - 1] = current;
     }
 
-    func_00455100(dirDst, normalizedDir);
-    func_00442830(fileNameDst, sCdvdVolumePrefix);
+    H_Cdvd_NormalizePath(dirDst, normalizedDir);
+    strcpy(fileNameDst, sCdvdVolumePrefix);
     for (directoryIndex = 0; directoryIndex < 0xc8; directoryIndex++)
     {
         if (sCdvdBtlDirectories[directoryIndex][0] == '\0')
         {
             break;
         }
-        if (func_004426e8(sCdvdBtlDirectories[directoryIndex], &normalizedDir[4]) == 0)
+        if (strcmp(sCdvdBtlDirectories[directoryIndex], &normalizedDir[4]) == 0)
         {
-            func_00442830(fileNameDst, sCdvdBattlePrefix);
+            strcpy(fileNameDst, sCdvdBattlePrefix);
         }
     }
 
-    fileNameLength = func_00442948(reverseFileName);
+    fileNameLength = strlen(reverseFileName);
     for (outputIndex = 0; outputIndex < fileNameLength; outputIndex++)
     {
-        fileNameDst[func_00442948(sCdvdVolumePrefix) + fileNameLength - outputIndex - 1] =
+        fileNameDst[strlen(sCdvdVolumePrefix) + fileNameLength - outputIndex - 1] =
             reverseFileName[outputIndex];
     }
-    fileNameDst[func_00442948(sCdvdVolumePrefix) + fileNameLength] = '\0';
+    fileNameDst[strlen(sCdvdVolumePrefix) + fileNameLength] = '\0';
     return 0;
 }
 #pragma pop
@@ -967,7 +967,7 @@ void func_00455230(const char* dir)
     const char* source;
     const char** command;
 
-    func_00455100(dir, normalized);
+    H_Cdvd_NormalizePath(dir, normalized);
     i = 0;
     while (i < 300)
     {
@@ -976,7 +976,7 @@ void func_00455230(const char* dir)
         {
             goto secondTable;
         }
-        if (func_004426e8(source, normalized + 4) == 0)
+        if (strcmp(source, normalized + 4) == 0)
         {
             command = &D_00710800[i];
             do
@@ -997,7 +997,7 @@ secondTable:
             func_00440b68(D_00711630, normalized + 4);
             return;
         }
-        if (func_004426e8(source, normalized + 4) == 0)
+        if (strcmp(source, normalized + 4) == 0)
         {
             command = &D_007113e0[i];
             while (true)

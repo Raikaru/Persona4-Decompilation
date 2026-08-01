@@ -115,9 +115,9 @@ void func_0014d9e0(u8 *arg0, u8 *arg1) {
 
 typedef struct { f32 x, y, z; } SVec3;
 
-extern s32 func_003e0380();
-extern s32 func_003e03e0();
-extern s32 func_003e05d0();
+extern s32 RwEngineGetMatrixTolerances();
+extern s32 RwMatrixOptimize();
+extern s32 RwMatrixUpdate();
 
 // FUN_0014DD10
 void func_0014dd10(u8 *arg0, u8 *arg1) {
@@ -126,9 +126,9 @@ void func_0014dd10(u8 *arg0, u8 *arg1) {
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     *(SVec3 *)(temp_16 + 0x30) = *(SVec3 *)arg1;
-    func_003e0380(&sp20[0]);
-    func_003e03e0(temp_16, &sp20[0]);
-    func_003e05d0(temp_16);
+    RwEngineGetMatrixTolerances(&sp20[0]);
+    RwMatrixOptimize(temp_16, &sp20[0]);
+    RwMatrixUpdate(temp_16);
 }
 #endif /* P4_UNIT_0014DD10 */
 

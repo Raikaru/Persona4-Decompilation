@@ -198,7 +198,7 @@ extern u32 func_001f7d90(void* work);
 extern u32 func_001f7e30(void* work);
 
 // FUN_001F8000
-BtlPacket* func_001f8000(u16 skillId, u16 flags)
+BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 {
     BtlPacket* packet;
     BtlSoundPacketSkillSE* work;
@@ -262,10 +262,10 @@ struct BtlPacket
     void* workData;
 };
 
-extern u32 func_00442948(const char* text);
+extern u32 strlen(const char* text);
 extern BtlPacket* func_00194470(u32 type, u32 workSize);
 extern u32 func_001f8190(void* work);
-extern void func_00442830(char* destination, const char* source);
+extern void strcpy(char* destination, const char* source);
 
 // FUN_001F81F0
 BtlPacket* func_001f81f0(u16 channel, const char* streamName)
@@ -274,13 +274,13 @@ BtlPacket* func_001f81f0(u16 channel, const char* streamName)
     BtlPacket* packet;
     u8* work;
 
-    length = func_00442948(streamName);
+    length = strlen(streamName);
     packet = func_00194470(0x905, length + 8);
     packet->updateFunc = func_001f8190;
     work = (u8*)packet->workData;
     *(u16*)work = channel;
     *(char**)(work + 4) = (char*)(work + 8);
-    func_00442830((char*)work + 8, streamName);
+    strcpy((char*)work + 8, streamName);
     return packet;
 }
 #endif /* P4_UNIT_001F81F0 */
@@ -388,7 +388,7 @@ void func_001f97b0(void)
 /* Source unit: src/Battle/btlSound_001f8190.c */
 #include "type.h"
 
-extern u32 func_00442088(void* buffer, const void* format, ...);
+extern u32 sprintf(void* buffer, const void* format, ...);
 extern char sGpffffa500[5];
 extern char DAT_00624F40[15];
 extern u8 func_0045aeb0(s16 channelIndex, const char* name);
@@ -398,7 +398,7 @@ u32 func_001f8190(u16* work)
 {
     char path[512];
 
-    func_00442088(path, sGpffffa500, DAT_00624F40, *(u32*)(work + 2));
+    sprintf(path, sGpffffa500, DAT_00624F40, *(u32*)(work + 2));
     func_0045aeb0((s16)*work, path);
     return 1;
 }
