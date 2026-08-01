@@ -6,7 +6,7 @@
 #include "type.h"
 
 // FUN_00452540
-u32 func_00452540(void* task)
+u32 kwlnTaskGetTimer(void* task)
 {
     return *(u32*)((u8*)task + 0x28);
 }
@@ -54,7 +54,7 @@ extern const void* func_003e89c0(void);
 extern void func_003e8970(u32* output, const void* descriptor);
 extern Raster* func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
 extern void func_003ec330(Raster* raster);
-extern Camera* func_003e83a0(Camera* camera, const f32* viewWindow);
+extern Camera* RwCameraSetViewWindow(Camera* camera, const f32* viewWindow);
 
 // FUN_004571D0
 void func_004571d0(Camera* camera, CameraView* requestedView, f32 scale,
@@ -178,7 +178,7 @@ update_view_window:
         }
     }
 
-    func_003e83a0(camera, viewWindow);
+    RwCameraSetViewWindow(camera, viewWindow);
 }
 #endif /* P4_UNIT_004571D0 */
 

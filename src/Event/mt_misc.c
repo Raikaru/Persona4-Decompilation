@@ -107,7 +107,7 @@ u64 func_00298190(s16 param_1, int param_2)
 #include "type.h"
 
 extern void *func_00145250(void);
-extern void *func_00145270(u16);
+extern void *MT_Scene_GetRes(u16);
 extern void func_00146630(u16);
 extern u16 func_001459b0(u32, int, u64);
 extern void func_00440b68(...);
@@ -129,7 +129,7 @@ void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
         puVar5 = (u16 *)(iVar4 + 0x170);
         sVar1 = *(u16 *)(iVar4 + 0x170);
         if (sVar1 != 0) {
-            if (func_00145270(sVar1) != 0) {
+            if (MT_Scene_GetRes(sVar1) != 0) {
                 func_00146630(sVar1);
             }
             *puVar5 = 0;
@@ -156,7 +156,7 @@ void func_00291220(int param_1, int param_2, int param_3, u64 param_4)
 #include "type.h"
 
 extern int func_00145250();
-extern int func_00145270();
+extern int MT_Scene_GetRes();
 extern int func_00146630();
 extern void func_00440b68(...);
 extern char DAT_0063c8c0[];
@@ -174,7 +174,7 @@ void func_002913d0(int param_1, int param_2)
         puVar5 = (u16 *)(iVar4 + 0x170);
         sVar1 = *(u16 *)(iVar4 + 0x170);
         if (sVar1 != 0) {
-            if (func_00145270(sVar1) != 0) {
+            if (MT_Scene_GetRes(sVar1) != 0) {
                 func_00146630(sVar1);
                 func_00440b68(DAT_0063c8c0);
             }
@@ -190,7 +190,7 @@ void func_002913d0(int param_1, int param_2)
 #include "type.h"
 
 extern int func_00145250();
-extern int func_00145270();
+extern int MT_Scene_GetRes();
 extern int func_00146630();
 extern void func_00440b68(...);
 extern char DAT_0063c8c0[];
@@ -209,7 +209,7 @@ void func_00291470(int param_1)
             puVar5 = (u16 *)(iVar3 + 0x170);
             sVar1 = *(u16 *)(iVar3 + 0x170);
             if (sVar1 != 0) {
-                if (func_00145270(sVar1) != 0) {
+                if (MT_Scene_GetRes(sVar1) != 0) {
                     func_00146630(sVar1);
                     func_00440b68(DAT_0063c8c0);
                 }

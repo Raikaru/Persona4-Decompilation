@@ -78,13 +78,13 @@ s32 func_001e7d70(void) {
 #include "type.h"
 
 extern u8 *func_001b0cc0();
-extern s32 func_00231ed0();
+extern s32 datCalcGetHp();
 extern s64 func_0029cc00();
 extern void func_0029cf50();
 
 // FUN_001E7DD0
 s32 func_001e7dd0(void) {
-    func_0029cf50(func_00231ed0(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    func_0029cf50(datCalcGetHp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 #endif /* P4_UNIT_001E7DD0 */
@@ -108,13 +108,13 @@ s32 func_001e7ef0(void) {
 #include "type.h"
 
 extern u8 *func_001b0cc0();
-extern s32 func_00231ee0();
+extern s32 datCalcGetSp();
 extern s64 func_0029cc00();
 extern void func_0029cf50();
 
 // FUN_001E7F50
 s32 func_001e7f50(void) {
-    func_0029cf50(func_00231ee0(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
+    func_0029cf50(datCalcGetSp(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
     return 1;
 }
 #endif /* P4_UNIT_001E7F50 */
@@ -136,10 +136,10 @@ s32 func_001e8d80(void) {
 #if defined(P4_UNIT_001EB380)
 #include "type.h"
 
-extern void func_0043f9c8(void *destination, s32 value, u32 size);
+extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_001EB380
 void func_001eb380(u8 *arg0) {
-    func_0043f9c8(arg0, 0, 0x5C);
+    memset(arg0, 0, 0x5C);
 }
 #endif /* P4_UNIT_001EB380 */

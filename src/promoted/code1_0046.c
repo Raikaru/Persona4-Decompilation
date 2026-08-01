@@ -4,7 +4,7 @@
 #if defined(P4_UNIT_004688D0)
 #include "type.h"
 
-extern void func_00442830(s8 *arg0, s32 *arg1);
+extern void strcpy(s8 *arg0, s32 *arg1);
 extern void func_00452080(u8 *arg0);
 
 // FUN_004688D0
@@ -12,7 +12,7 @@ s32 func_004688d0(u8 *arg0, s8 *arg1)
 {
     s32 *temp_16 = *(s32 **)(arg0 + 0x38);
 
-    func_00442830(arg1, (s32 *)((u8 *)temp_16 + 0x10));
+    strcpy(arg1, (s32 *)((u8 *)temp_16 + 0x10));
     if (*temp_16 == 2) {
         func_00452080(arg0);
         return 1;
@@ -75,7 +75,7 @@ void func_0046d6b0(s32 arg0)
 #include "type.h"
 
 extern u8 *(*D_008873F8[])(s32, s32);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 extern s32 D_00724B88;
 
 // FUN_00460990
@@ -83,7 +83,7 @@ u8 *func_00460990(void)
 {
     u8 *temp_2 = D_008873F8[0](D_00724B88, 0x41002);
 
-    func_0043f9c8(temp_2, 0, 0x30);
+    memset(temp_2, 0, 0x30);
     return temp_2;
 }
 #endif /* P4_UNIT_00460990 */
@@ -92,7 +92,7 @@ u8 *func_00460990(void)
 #include "type.h"
 
 extern u8 *(*D_008873F8[])(s32, s32);
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 extern s32 D_00724B8C;
 
 // FUN_004609F0
@@ -100,7 +100,7 @@ u8 *func_004609f0(void)
 {
     u8 *temp_2 = D_008873F8[0](D_00724B8C, 0x41003);
 
-    func_0043f9c8(temp_2, 0, 0x30);
+    memset(temp_2, 0, 0x30);
     return temp_2;
 }
 #endif /* P4_UNIT_004609F0 */
@@ -122,14 +122,14 @@ void func_0046a2d0(s32 arg0, s32 arg1)
 #if defined(P4_UNIT_00460A80)
 #include "type.h"
 
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 extern void func_00452730(s32 arg0);
 extern s32 D_00724B88;
 
 // FUN_00460A80
 void func_00460a80(s32 arg0, s32 arg1)
 {
-    func_0043f9c8((void *)arg0, 0, arg1 * 0x30);
+    memset((void *)arg0, 0, arg1 * 0x30);
     func_00452730(D_00724B88);
 }
 #endif /* P4_UNIT_00460A80 */

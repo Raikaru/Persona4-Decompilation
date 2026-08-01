@@ -65,7 +65,7 @@ typedef RwSky2DVertex RwIm2DVertex;
     (*(u32 (**)(u32, void*, u32))0x00887310)((primType), (vertices), (numVertices))
 
 // FUN_00178C20
-u32 func_00178c20(f32 xLeft, f32 yTop,
+u32 K_FldShadow_Draw(f32 xLeft, f32 yTop,
                   f32 xRight, f32 yBot,
                   f32 zBufferNear, f32 recipZ,
                   const RwRGBA* topColor, const RwRGBA* botColor)

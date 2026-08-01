@@ -8,7 +8,7 @@
 static u64 iGpffffa090 = 1;
 
 // FUN_00192560
-u64 func_00192560(void)
+u64 btlGetUID(void)
 {
     iGpffffa090++;
 
@@ -25,12 +25,12 @@ u64 func_00192560(void)
 /* Source unit: src/Battle/battle_001925b0.c */
 #include "type.h"
 
-extern void* func_00145270(u16 resTypeId);
+extern void* MT_Scene_GetRes(u16 resTypeId);
 
 static u16 iGpffffa098 = 0x100;
 
 // FUN_001925B0
-u16 func_001925b0(void)
+u16 btlFindFreeCharResId(void)
 {
     do
     {
@@ -38,7 +38,7 @@ u16 func_001925b0(void)
         {
             iGpffffa098 = 0x100;
         }
-    } while (func_00145270((iGpffffa098 & 0x3ff) | 0x400) != NULL);
+    } while (MT_Scene_GetRes((iGpffffa098 & 0x3ff) | 0x400) != NULL);
 
     return iGpffffa098;
 }
@@ -52,7 +52,7 @@ extern void func_001949d0(u32 layer);
 extern void func_001b6ab0(void);
 
 // FUN_00192790
-void* func_00192790(void* task)
+void* btlUpdateDraw3DFrontTask(void* task)
 {
     func_001949d0(3);
     func_001b6ab0();
@@ -133,7 +133,7 @@ extern BtlPacket* func_00194470(u32 type, u32 workSize);
 extern u32 func_00193750(void* work);
 
 // FUN_00193770
-BtlPacket* func_00193770(u32 flags)
+BtlPacket* btlCreateSetFlagsPacket(u32 flags)
 {
     BtlPacket* packet;
 
@@ -203,7 +203,7 @@ extern BtlPacket* func_00194470(u32 type, u32 workSize);
 extern u32 func_001937c0(void* work);
 
 // FUN_001937F0
-BtlPacket* func_001937f0(u32 flags)
+BtlPacket* btlCreateRemoveFlagsPacket(u32 flags)
 {
     BtlPacket* packet;
 

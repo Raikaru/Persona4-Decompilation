@@ -223,7 +223,7 @@ u32 func_0026e170(int param_1)
 /* Source unit: src/fmGslCont_0026e1e0.c */
 #include "type.h"
 
-extern u64 func_0043f810();
+extern u64 memcpy();
 extern u32 DAT_00764590;
 
 // FUN_0026E1E0
@@ -243,8 +243,8 @@ int func_0026e1e0(int param_1, int param_2, u64 param_3, int* param_4)
 
     iVar1 = *param_4;
     iVar7 = 0;
-    func_0043f810(&uStack_4, param_4[1] + param_2 * 4, 4);
-    func_0043f810(&iStack_8, param_4[1] + (param_2 + 1) * 4, 4);
+    memcpy(&uStack_4, param_4[1] + param_2 * 4, 4);
+    memcpy(&iStack_8, param_4[1] + (param_2 + 1) * 4, 4);
     iVar5 = iVar1 + 2;
     iVar3 = iVar5;
     iVar2 = param_4[2];
@@ -255,7 +255,7 @@ int func_0026e1e0(int param_1, int param_2, u64 param_3, int* param_4)
         iVar4 = iVar1 + (u32)*(u16*)(iVar3 + (uVar8 & 1) * 2) * 6;
         iVar3 = iVar4 + 2;
         if (*(u16*)(iVar4 + 2) == 0) {
-            func_0043f810(param_1 + iVar7, iVar3 + 2, 1);
+            memcpy(param_1 + iVar7, iVar3 + 2, 1);
             iVar7 = iVar7 + 1;
             iVar3 = iVar5;
         }

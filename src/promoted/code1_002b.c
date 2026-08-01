@@ -125,7 +125,7 @@ void func_002bd3e0(void) {
 #if defined(P4_UNIT_002BE160)
 #include "type.h"
 
-extern s32 func_00110830(void);
+extern s32 clndGetMoonPhase(void);
 
 // FUN_002BE160
 s32 func_002be160(u8 *arg0, s32 arg1) {
@@ -133,6 +133,6 @@ s32 func_002be160(u8 *arg0, s32 arg1) {
     if (n == 0) {
         return 1;
     }
-    return (func_00110830() & 0xFF) >= n;
+    return (clndGetMoonPhase() & 0xFF) >= n;
 }
 #endif /* P4_UNIT_002BE160 */

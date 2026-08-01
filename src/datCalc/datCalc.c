@@ -8,7 +8,7 @@
 extern u16 func_00231f80(int unit);
 
 // FUN_00242930
-u32 func_00242930(int unit)
+u32 datCalcIsLowHp(int unit)
 {
     u16 hp;
 

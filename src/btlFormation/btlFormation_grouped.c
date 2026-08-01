@@ -16,7 +16,7 @@ void func_001d4490(s32 param_1, u32 param_2);
 s16 func_001d7130(s32 param_1);
 void func_001d8be0(s32 param_1, u64* param_2);
 void func_001d8bf0(s32 param_1, s32 param_2);
-u32 func_001da9f0(s32 param_1);
+u32 btlCond_MORE(s32 param_1);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
 
@@ -165,7 +165,7 @@ void func_001d8bf0(s32 param_1, s32 param_2)
 /* Source unit: src/btlFormation/btlFormation_001da9f0.c (1 function markers) */
 
 // FUN_001DA9F0
-u32 func_001da9f0(s32 param_1)
+u32 btlCond_MORE(s32 param_1)
 {
     return *(u8*)(param_1 + 0x28) > 0;
 }

@@ -136,12 +136,12 @@ typedef struct EffRandState
     u32 x[4]; // 0x00
 } EffRandState;
 
-extern u32 func_004bd050(EffRandState* state);
+extern u32 effMiscRand(EffRandState* state);
 
 // FUN_004BD0B0
 f32 effMiscRandFloat(EffRandState* state)
 {
-    return (f32)(func_004bd050(state) & 0xFFFFFF) / 16777216.0f;
+    return (f32)(effMiscRand(state) & 0xFFFFFF) / 16777216.0f;
 }
 #endif /* P4_UNIT_004BD0B0 */
 
@@ -204,8 +204,8 @@ typedef struct RwMatrix
     u32 pad3;       // 0x3c
 } RwMatrix;
 
-extern f32 func_0044b610(f32 x);
-extern f32 func_0044b7b0(f32 x);
+extern f32 cosf(f32 x);
+extern f32 sinf(f32 x);
 
 // FUN_004BD1A0
 void func_004bd1a0(f32 angle)
@@ -214,8 +214,8 @@ void func_004bd1a0(f32 angle)
     f32 cosine;
     f32 sine;
 
-    cosine = func_0044b610(angle);
-    sine = func_0044b7b0(angle);
+    cosine = cosf(angle);
+    sine = sinf(angle);
 
     __asm__ volatile (
         ".set noreorder          \n"
@@ -319,8 +319,8 @@ typedef struct RwMatrix
     u32 pad3;       // 0x3c
 } RwMatrix;
 
-extern f32 func_0044b610(f32 x);
-extern f32 func_0044b7b0(f32 x);
+extern f32 cosf(f32 x);
+extern f32 sinf(f32 x);
 
 // FUN_004BD3C0
 void func_004bd3c0(f32 angle)
@@ -329,8 +329,8 @@ void func_004bd3c0(f32 angle)
     f32 cosine;
     f32 sine;
 
-    cosine = func_0044b610(angle);
-    sine = func_0044b7b0(angle);
+    cosine = cosf(angle);
+    sine = sinf(angle);
 
     __asm__ volatile (
         ".set noreorder          \n"
@@ -378,8 +378,8 @@ typedef struct RwV4d
     f32 w;
 } RwV4d;
 
-extern f32 func_0044b610(f32 x);
-extern f32 func_0044b7b0(f32 x);
+extern f32 cosf(f32 x);
+extern f32 sinf(f32 x);
 
 // FUN_004BCF20
 void func_004bcf20(f32 angleX, f32 angleY, f32 angleZ)
@@ -394,14 +394,14 @@ void func_004bcf20(f32 angleX, f32 angleY, f32 angleZ)
     f32 sinZ;
 
     halfAngle = -angleX * 0.5f;
-    cosX = func_0044b610(halfAngle);
-    sinX = func_0044b7b0(halfAngle);
+    cosX = cosf(halfAngle);
+    sinX = sinf(halfAngle);
     halfAngle = -angleY * 0.5f;
-    cosY = func_0044b610(halfAngle);
-    sinY = func_0044b7b0(halfAngle);
+    cosY = cosf(halfAngle);
+    sinY = sinf(halfAngle);
     halfAngle = -angleZ * 0.5f;
-    cosZ = func_0044b610(halfAngle);
-    sinZ = func_0044b7b0(halfAngle);
+    cosZ = cosf(halfAngle);
+    sinZ = sinf(halfAngle);
     quaternion.x = cosX * (sinZ * sinY) + sinX * (cosZ * cosY);
     quaternion.y = cosX * (cosZ * sinY) - sinX * (sinZ * cosY);
     quaternion.z = cosX * (sinZ * cosY) + sinX * (cosZ * sinY);
@@ -436,7 +436,7 @@ typedef struct EffRandState
 extern EffRandState sRandState; // 00922de0
 
 // FUN_004BD050
-u32 func_004bd050(EffRandState* state)
+u32 effMiscRand(EffRandState* state)
 {
     u32 x0;
     u32 x1;

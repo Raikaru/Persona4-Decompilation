@@ -138,7 +138,7 @@ struct BtlUnitPacketMoveToUnit
 };
 
 BtlPacket* func_00194470(u32 id, s32 workDataSize);
-RwV3d* func_003dcb40(RwV3d* vectorsOut, const RwV3d* vectorsIn,
+RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
 void func_001ec1c0(RwV3d* dst, const RwV3d* from, const RwV3d* to);
 void func_00196ce0(BtlUnitPacketMove* work);
@@ -149,7 +149,7 @@ u32 func_001974f0(void* work);
 void func_001979c0(BtlUnitPacketCountRef* work);
 
 // FUN_001979E0
-BtlPacket* func_001979e0(BtlUnit* unit, BtlUnit* targetUnit, f32 param, f32 speed, u32 flags)
+BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32 param, f32 speed, u32 flags)
 {
     BtlPacket* packet;
     BtlUnitPacketMoveToUnit* work;
@@ -186,7 +186,7 @@ void func_00197f30(BtlUnitPacketCountRef* work);
 extern RwV3d D_00881430;
 
 // FUN_00197F50
-BtlPacket* func_00197f50(BtlUnit* unit, const RwV3d* rot, u32 flags)
+BtlPacket* btlUnitCreateRotatePacket(BtlUnit* unit, const RwV3d* rot, u32 flags)
 {
     BtlPacket* packet;
     BtlUnitPacketRotate* work;
@@ -222,15 +222,15 @@ struct BtlUnitPacketAnim
     u16 mode;
 };
 
-BtlPacket* func_0019a2e0(BtlUnit* unit, f32 param);
+BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
 BtlPacket* func_0019a5e0(BtlUnit* unit, s32 param);
-BtlPacket* func_0019a860(BtlUnit* unit, s32 param);
+BtlPacket* btlUnitCreateEnmDodgeAnimPacket(BtlUnit* unit, s32 param);
 void func_00199e50(BtlUnitPacketCountRef* work);
 u32 func_00199e70(void* work);
 void func_00199ec0(BtlUnitPacketCountRef* work);
 
 // FUN_00199EE0
-BtlPacket* func_00199ee0(BtlUnit* unit, u16 id, u16 blendFrameCount, f32 speed, u16 mode)
+BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, u16 id, u16 blendFrameCount, f32 speed, u16 mode)
 {
     BtlPacket* packet;
     BtlUnitPacketAnim* work;
@@ -239,9 +239,9 @@ BtlPacket* func_00199ee0(BtlUnit* unit, u16 id, u16 blendFrameCount, f32 speed, 
     _id = id;
     switch (_id)
     {
-        case -2: return func_0019a2e0(unit, 32.0f);
+        case -2: return btlUnitCreateResNullifiedAnimPacket(unit, 32.0f);
         case -3: return func_0019a5e0(unit, 6);
-        case -4: return func_0019a860(unit, 6);
+        case -4: return btlUnitCreateEnmDodgeAnimPacket(unit, 6);
     }
 
     packet = func_00194470(0x100, sizeof(BtlUnitPacketAnim));
@@ -280,7 +280,7 @@ u32 func_0019df20(void* work);
 void func_0019e130(BtlUnitPacketCountRef* work);
 
 // FUN_0019E150
-BtlPacket* func_0019e150(BtlUnit* unit, const RwV3d* targetPos, u16 flags)
+BtlPacket* btlUnitCreateLookAtPacket(BtlUnit* unit, const RwV3d* targetPos, u16 flags)
 {
     BtlPacket* packet;
     BtlUnitPacketLookAt* work;
@@ -301,14 +301,14 @@ BtlPacket* func_0019e150(BtlUnit* unit, const RwV3d* targetPos, u16 flags)
 }
 
 // FUN_00194EE0
-void func_00194ee0(BtlUnit* unit, const RwV3d* pos)
+void btlUnitSetPos(BtlUnit* unit, const RwV3d* pos)
 {
     unit->pos = *pos;
     unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
 }
 
 // FUN_00194F10
-void func_00194f10(BtlUnit* unit, const RtQuat* rot)
+void btlUnitSetRot(BtlUnit* unit, const RtQuat* rot)
 {
     if (!(unit->flags3 & BTLUNIT_FLAG3_NOROT))
     {
@@ -318,21 +318,21 @@ void func_00194f10(BtlUnit* unit, const RtQuat* rot)
 }
 
 // FUN_00194F60
-void func_00194f60(BtlUnit* unit, RwRGBA col)
+void btlUnitSetColor(BtlUnit* unit, RwRGBA col)
 {
     unit->cols[0] = col;
     unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
 }
 
 // FUN_00194FA0
-void func_00194fa0(BtlUnit* unit, u16 flags)
+void btlUnitSetFlags(BtlUnit* unit, u16 flags)
 {
     unit->flags |= flags;
     unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
 }
 
 // FUN_00194FC0
-void func_00194fc0(BtlUnit* unit, u16 flags)
+void btlUnitClearFlags(BtlUnit* unit, u16 flags)
 {
     unit->flags &= ~flags;
     unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
@@ -368,7 +368,7 @@ u32 func_00195630(BtlUnitPacketPosRotCol* packet)
 }
 
 // FUN_00195850
-void func_00195850(BtlUnit* unit, RwV3d* dst)
+void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst)
 {
     RwV3d scaledCenter;
     RwV3d rotatedCenter;
@@ -377,7 +377,7 @@ void func_00195850(BtlUnit* unit, RwV3d* dst)
     scaledCenter.y = unit->sphereCenter.y * unit->scale;
     scaledCenter.z = unit->sphereCenter.z * unit->scale;
 
-    func_003dcb40(&rotatedCenter, &scaledCenter, 1, &unit->rot);
+    RtQuatTransformVectors(&rotatedCenter, &scaledCenter, 1, &unit->rot);
 
     dst->x = rotatedCenter.x + unit->pos.x;
     dst->y = rotatedCenter.y + unit->pos.y;
@@ -394,7 +394,7 @@ void func_001958f0(BtlUnit* unit, RwV3d* dst)
     scaledCenter.y = unit->sphereCenter.y * unit->scale;
     scaledCenter.z = unit->sphereCenter.z * unit->scale;
 
-    func_003dcb40(&rotatedCenter, &scaledCenter, 1, &unit->rot);
+    RtQuatTransformVectors(&rotatedCenter, &scaledCenter, 1, &unit->rot);
 
     dst->x = rotatedCenter.x + (unit->unk_94 * 25 - 0x6d6);
     dst->y = rotatedCenter.y + unit->pos.y;
@@ -412,20 +412,20 @@ void func_00195c50(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
     scaled.x = unit->sphereCenter.x * unit->scale;
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
-    func_003dcb40(&transformed, &scaled, 1, &rotation);
+    RtQuatTransformVectors(&transformed, &scaled, 1, &rotation);
     param_3->x = transformed.x + (unit->unk_94 * 25 - 0x6d6);
     param_3->y = transformed.y + unit->pos.y;
     param_3->z = transformed.z + (unit->unk_96 * 25 - 0x6d6);
 }
 
 // FUN_00196B50
-u32 func_00196b50(BtlUnit* unit)
+u32 btlUnitIsMoving(BtlUnit* unit)
 {
     return (unit->movementFlags & 0x1) != 0;
 }
 
 // FUN_001973F0
-BtlPacket* func_001973f0(BtlUnit* unit, const RwV3d* targetPos, f32 speed, u32 flags)
+BtlPacket* btlUnitCreateMovePacket(BtlUnit* unit, const RwV3d* targetPos, f32 speed, u32 flags)
 {
     BtlPacket* packet;
     BtlUnitPacketMove* work;
@@ -589,7 +589,7 @@ void func_001959d0(BtlUnit* unit, RwV3d* param_2)
     scaled.x = centerX * unit->scale;
     scaled.y = centerY * unit->scale;
     scaled.z = centerZ * unit->scale;
-    func_003dcb40(&transformed, &scaled, 1, &unit->rot);
+    RtQuatTransformVectors(&transformed, &scaled, 1, &unit->rot);
     param_2->x = transformed.x + unit->pos.x;
     param_2->y = transformed.y + unit->pos.y;
     param_2->z = transformed.z + unit->pos.z;
@@ -606,7 +606,7 @@ void func_00195aa0(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
     scaled.x = unit->sphereCenter.x * unit->scale;
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
-    func_003dcb40(&transformed, &scaled, 1, &rotation);
+    RtQuatTransformVectors(&transformed, &scaled, 1, &rotation);
     param_3->x = transformed.x + unit->pos.x;
     param_3->y = transformed.y + unit->pos.y;
     param_3->z = transformed.z + unit->pos.z;
@@ -621,7 +621,7 @@ void func_00195ea0(BtlUnit* unit, RwV3d* param_2)
     scaled.x = unit->sphereCenter.x * unit->scale;
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
-    func_003dcb40(&transformed, &scaled, 1, &unit->rot);
+    RtQuatTransformVectors(&transformed, &scaled, 1, &unit->rot);
     param_2->x = transformed.x + unit->pos.x;
     param_2->y = transformed.y + unit->pos.y;
     param_2->z = transformed.z + unit->pos.z;
@@ -637,7 +637,7 @@ void func_00195f70(BtlUnit* unit, RwV3d* param_2)
     scaled.x = unit->sphereCenter.x * unit->scale;
     scaled.y = unit->sphereCenter.y * unit->scale;
     scaled.z = unit->sphereCenter.z * unit->scale;
-    func_003dcb40(&transformed, &scaled, 1, &unit->rot);
+    RtQuatTransformVectors(&transformed, &scaled, 1, &unit->rot);
     param_2->x = transformed.x + unit->pos.x;
     param_2->y = transformed.y + unit->pos.y;
     param_2->z = transformed.z + unit->pos.z;
@@ -682,7 +682,7 @@ u32 func_0019a370(void* work)
     packet->phase = phase;
     arcScale = 2.0f * (((-1.0f + (-2.0f * phase * phase)) + (4.0f * phase)) - 0.5f);
 
-    func_003dcb40(&direction, &D_0060a0d0, 1, &unit->rot);
+    RtQuatTransformVectors(&direction, &D_0060a0d0, 1, &unit->rot);
     magnitude = unit->sphereRadius * unit->scale * 1.25f;
     if (magnitude < 75.0f)
     {

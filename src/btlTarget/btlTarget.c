@@ -24,7 +24,7 @@ typedef struct RwV3d
     f32 z;
 } RwV3d;
 
-extern f32 func_003e4180(const RwV3d* vector);
+extern f32 RwV3dLength(const RwV3d* vector);
 
 // FUN_001EC250
 f32 func_001ec250(const RwV3d* first, const RwV3d* second)
@@ -35,7 +35,7 @@ f32 func_001ec250(const RwV3d* first, const RwV3d* second)
     delta.y = first->y - second->y;
     delta.z = first->z - second->z;
     delta.y = 0.0f;
-    return func_003e4180(&delta);
+    return RwV3dLength(&delta);
 }
 #endif /* P4_UNIT_001EC250 */
 

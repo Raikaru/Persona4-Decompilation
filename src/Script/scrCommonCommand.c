@@ -85,7 +85,7 @@ typedef struct KwlnTask KwlnTask;
 extern s32 func_0029cc00(s32 paramIdx);
 extern u32 func_00452490(KwlnTask* task);
 extern void func_0029cf50(s32 retVal);
-extern u32 func_00452540(KwlnTask* task);
+extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
 // FUN_00299660
 u32 scrCommand_SCR_GET_TIMER()
@@ -100,7 +100,7 @@ u32 scrCommand_SCR_GET_TIMER()
     }
     else
     {
-        func_0029cf50(func_00452540(task));
+        func_0029cf50(kwlnTaskGetTimer(task));
     }
 
     return 1;

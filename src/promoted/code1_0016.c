@@ -61,13 +61,13 @@ void func_001673f0(u8 *arg0)
 #if defined(P4_UNIT_00167530)
 #include "type.h"
 
-extern void func_0043f9c8(void *destination, s32 value, u32 size);
+extern void memset(void *destination, s32 value, u32 size);
 extern u8 D_007E8020[];
 
 // FUN_00167530
 void func_00167530(void)
 {
-    func_0043f9c8(D_007E8020, 0, 0x40);
+    memset(D_007E8020, 0, 0x40);
 }
 #endif /* P4_UNIT_00167530 */
 

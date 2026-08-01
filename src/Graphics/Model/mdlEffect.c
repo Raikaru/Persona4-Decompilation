@@ -365,12 +365,12 @@ void func_00482700(int param_1, float *param_2)
 /* Source unit: src/Graphics/Model/mdlEffect_00486710.c */
 #include "type.h"
 
-extern u64 func_0043f810();
+extern u64 memcpy();
 
 // FUN_00486710
 void func_00486710(u64 param_1, u64 param_2)
 {
-  func_0043f810(param_1, param_2, 0x90);
+  memcpy(param_1, param_2, 0x90);
   return;
 }
 #endif /* P4_UNIT_00486710 */

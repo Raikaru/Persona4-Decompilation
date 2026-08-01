@@ -35,12 +35,12 @@ void func_003642a0(u8 *arg0)
 #if defined(P4_UNIT_003671D0)
 #include "type.h"
 
-extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void memset(void *dst, s32 value, s32 size);
 
 // FUN_003671D0
 void func_003671d0(s16 *arg0)
 {
-    func_0043f9c8((u8 *)arg0 + 4, 0, 0x18);
+    memset((u8 *)arg0 + 4, 0, 0x18);
     *arg0 = 0;
 }
 #endif /* P4_UNIT_003671D0 */

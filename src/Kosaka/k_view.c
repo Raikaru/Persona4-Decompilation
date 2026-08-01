@@ -27,7 +27,7 @@ extern f32 tanf(f32 x);
 extern RwCamera* RwCameraSetViewWindow(RwCamera* camera, const RwV2d* viewWindow);
 
 // FUN_004577D0
-void func_004577d0(RwCamera* camera, f32 fov)
+void K_View_SetFov(RwCamera* camera, f32 fov)
 {
     RwV2d viewWindow;
 
@@ -62,7 +62,7 @@ extern f32 gRadToDegFactor;
 extern f32 atanf(f32 x);
 
 // FUN_00457850
-f32 func_00457850(RwCamera* camera)
+f32 K_View_GetFov(RwCamera* camera)
 {
     f32 x;
     RwV2d* viewWindow;

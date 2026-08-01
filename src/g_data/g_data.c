@@ -68,7 +68,7 @@ u32 datGetFlag(s32 bit)
 extern u8 D_00797560[];
 
 // FUN_001090F0
-void func_001090f0(void)
+void datResetTotalBtl(void)
 {
     *(u32*)D_00797560 = 0;
 }

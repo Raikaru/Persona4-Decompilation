@@ -38,7 +38,7 @@ u32 func_001d8df0(int param_1)
 typedef u8 bool;
 
 // FUN_001DA6F0
-bool func_001da6f0(int param_1, int param_2)
+bool btlCond_MYUSESKIL(int param_1, int param_2)
 {
     bool result;
 
@@ -63,7 +63,7 @@ bool func_001da6f0(int param_1, int param_2)
 typedef u8 bool;
 
 // FUN_001DA8F0
-bool func_001da8f0(int param_1, u32 param_2)
+bool btlCond_TURN(int param_1, u32 param_2)
 {
     return param_2 >= *(u32*)(param_1 + 0x20);
 }
@@ -76,7 +76,7 @@ bool func_001da8f0(int param_1, u32 param_2)
 typedef u8 bool;
 
 // FUN_001DA910
-bool func_001da910(int param_1, u32 param_2)
+bool btlCond_TURN_O(int param_1, u32 param_2)
 {
     return param_2 <= *(u32*)(param_1 + 0x20);
 }
@@ -89,7 +89,7 @@ bool func_001da910(int param_1, u32 param_2)
 typedef u8 bool;
 
 // FUN_001DACC0
-bool func_001dacc0(int param_1, int param_2)
+bool btlCond_MYID(int param_1, int param_2)
 {
     return *(u16*)(*(s32*)(param_1 + 0x30) + 0xa4) == param_2;
 }
@@ -369,7 +369,7 @@ typedef u8 bool;
 extern u32 func_001ef4d0();
 
 // FUN_001D99E0
-bool func_001d99e0(int param_1, u32 param_2)
+bool btlCond_FRLV_O(int param_1, u32 param_2)
 {
   u32 uVar1 = 0;
 
@@ -389,7 +389,7 @@ extern u32 func_001ef4d0();
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001D9A30 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
 // FUN_001D9A30
-bool func_001d9a30(int param_1, u32 param_2)
+bool btlCond_ENLV_O(int param_1, u32 param_2)
 {
   u32 uVar1 = 0;
   u16 genus;
@@ -417,7 +417,7 @@ typedef u8 bool;
 extern u32 func_001ef720();
 
 // FUN_001D9AA0
-bool func_001d9aa0(int param_1, u32 param_2)
+bool btlCond_FRCNT(int param_1, u32 param_2)
 {
   u32 uVar1 = 0;
 
@@ -437,7 +437,7 @@ extern u32 func_001ef720();
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001D9AF0 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
 // FUN_001D9AF0
-bool func_001d9af0(int param_1, u32 param_2)
+bool btlCond_ENCNT(int param_1, u32 param_2)
 {
   u32 uVar1 = 0;
   u16 genus;
@@ -467,7 +467,7 @@ typedef u8 bool;
 extern u16 func_001d7f10(u32 param_1, u32 param_2, u16 param_3, u32 param_4);
 
 // FUN_001DA7E0
-u32 func_001da7e0(int param_1)
+u32 btlCond_MYGROUP(int param_1)
 {
   u16 result;
 
@@ -490,12 +490,12 @@ typedef u8 bool;
 typedef int (*code)(...);
 
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
-extern bool func_001da2f0(int param_1, short param_2);
+extern bool btlCond_MYWEAK(int param_1, short param_2);
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB100 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 // FUN_001DB100
-void func_001db100(int param_1, u32 param_2)
+void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
 {
   u32 shift;
 
@@ -510,7 +510,7 @@ void func_001db100(int param_1, u32 param_2)
       ;
   }
   func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
-                 (code *)&func_001da2f0);
+                 (code *)&btlCond_MYWEAK);
   return;
 }
 #pragma opt_rebuildconditionals on
@@ -523,12 +523,12 @@ void func_001db100(int param_1, u32 param_2)
 typedef int (*code)(...);
 
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
-extern void func_001db580(int param_1, u16 param_2);
+extern void btlCond_MYNOMAL(int param_1, u16 param_2);
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB6E0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 // FUN_001DB6E0
-void func_001db6e0(int param_1, u32 param_2)
+void btlCond_ENNOMAL_DW(int param_1, u32 param_2)
 {
   u32 shift;
 
@@ -543,7 +543,7 @@ void func_001db6e0(int param_1, u32 param_2)
       ;
   }
   func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
-                 (code *)&func_001db580);
+                 (code *)&btlCond_MYNOMAL);
   return;
 }
 #pragma opt_rebuildconditionals on
@@ -558,7 +558,7 @@ typedef u8 bool;
 extern u64 func_0010f460();
 
 // FUN_001DB740
-bool func_001db740(int param_1)
+bool btlCond_ANALYZE(int param_1)
 {
   long lVar2 = 0;
   if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 1) {

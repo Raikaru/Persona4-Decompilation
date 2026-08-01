@@ -166,15 +166,15 @@ void func_001441a0(u32* out, u32 value)
 #include "type.h"
 
 extern void* func_0046a430(size_t size);
-extern void func_0043f9c8(void* dst, u32 value, u32 size);
+extern void memset(void* dst, u32 value, u32 size);
 
 // FUN_0046A6F0
-void* func_0046a6f0(u32 count, size_t size)
+void* H_Calloc(u32 count, size_t size)
 {
     void* memory;
 
     memory = func_0046a430(size * count);
-    func_0043f9c8(memory, 0, size * count);
+    memset(memory, 0, size * count);
 
     return memory;
 }

@@ -10,18 +10,18 @@ extern char D_00609570[];
 extern char D_00609588[];
 extern u8 D_00763388;
 
-void func_00442088(u64 context, const char* format, ...);
+void sprintf(u64 context, const char* format, ...);
 
 // FUN_001D69F0
 void func_001d69f0(u16 value, u64 context)
 {
     if ((*(u32*)(DAT_0076449c + 0x14) & 1) != 0)
     {
-        func_00442088(context, D_00609570);
+        sprintf(context, D_00609570);
     }
     else
     {
-        func_00442088(context, D_00609588, &D_00763388, value);
+        sprintf(context, D_00609588, &D_00763388, value);
     }
 }
 #endif /* P4_UNIT_001D69F0 */
@@ -47,7 +47,7 @@ u32 func_001d7bb0(u32* args)
 s32 func_001db360(u64 formation, u16 index, s32 enabled);
 
 // FUN_001DB580
-void func_001db580(u64 formation, u16 index)
+void btlCond_MYNOMAL(u64 formation, u16 index)
 {
     func_001db360(formation, index, 1);
 }
@@ -73,12 +73,12 @@ void func_001db5b0(u64 formation, u16 index)
 typedef void (*FormationCallback)(void);
 
 void func_001dbba0(u64 formation, u32 flags, s32 arg2, s32 arg3, s32 variant, FormationCallback callback);
-void func_001d9b60(void);
+void btlCond_MYBAD(void);
 
 // FUN_001DCB50
 void func_001dcb50(u64 formation)
 {
-    func_001dbba0(formation, 0x100000, 0, 0, 0, func_001d9b60);
+    func_001dbba0(formation, 0x100000, 0, 0, 0, btlCond_MYBAD);
 }
 #endif /* P4_UNIT_001DCB50 */
 
@@ -89,12 +89,12 @@ void func_001dcb50(u64 formation)
 typedef void (*FormationCallback)(void);
 
 void func_001dbba0(u64 formation, u32 flags, s32 arg2, s32 arg3, s32 variant, FormationCallback callback);
-void func_001d9b60(void);
+void btlCond_MYBAD(void);
 
 // FUN_001DCB90
 void func_001dcb90(u64 formation)
 {
-    func_001dbba0(formation, 0x100000, 0, 0, 1, func_001d9b60);
+    func_001dbba0(formation, 0x100000, 0, 0, 1, btlCond_MYBAD);
 }
 #endif /* P4_UNIT_001DCB90 */
 
@@ -202,7 +202,7 @@ void func_001d3e00(u32 param_1)
 /* Source unit: src/Battle/btlFormation_001d3ea0.c */
 #include "type.h"
 
-extern u64 func_0043f810();
+extern u64 memcpy();
 extern u32 func_00485c80(u32 param_1);
 extern u32 func_00484bb0(u32 param_1);
 
@@ -219,7 +219,7 @@ void func_001d3ea0(int destination, u32 source)
     u32 resource;
     u32 continueLoop;
 
-    func_0043f810(destination, source, 0x630);
+    memcpy(destination, source, 0x630);
     outer = 0;
     while ((s32)(continueLoop = outer) < 2) {
         block = destination + (outer & 0xffff) * 0x314;
@@ -509,8 +509,8 @@ typedef struct BtlPacket {
 } BtlPacket;
 
 BtlPacket* func_00194470(u32 type, u32 workSize);
-extern u32 func_00442948();
-extern u32 func_00442830();
+extern u32 strlen();
+extern u32 strcpy();
 extern void func_001d5ca0(u32 *param_1);
 extern u32 func_001d5d60(u32 *param_1);
 
@@ -527,7 +527,7 @@ u32 func_001d5eb0(u32 param_1, u32 param_2, u16 param_3)
     BtlPacket *packet;
     FormationStringWork *work;
 
-    packet = func_00194470(0x400, func_00442948(param_2) + sizeof(FormationStringWork));
+    packet = func_00194470(0x400, strlen(param_2) + sizeof(FormationStringWork));
     packet->flags &= 0xfe;
     packet->initFunc = (BtlPacketInitFunc)func_001d5ca0;
     packet->updateFunc = (BtlPacketUpdateFunc)func_001d5d60;
@@ -535,7 +535,7 @@ u32 func_001d5eb0(u32 param_1, u32 param_2, u16 param_3)
     work->value = param_1;
     work->text = (char *)(work + 1);
     work->field = param_3;
-    func_00442830(work->text, param_2);
+    strcpy(work->text, param_2);
     return (u32)packet;
 }
 #endif /* P4_UNIT_001D5EB0 */

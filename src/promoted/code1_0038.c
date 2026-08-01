@@ -82,11 +82,11 @@ s32 func_00389330(u8 *arg0) {
 #if defined(P4_UNIT_0038EE10)
 #include "type.h"
 
-s32 func_00106330(u32 arg0);
+s32 datGetFlag(u32 arg0);
 
 // FUN_0038EE10
 s32 func_0038ee10(void) {
-    return !func_00106330(0x1472);
+    return !datGetFlag(0x1472);
 }
 #endif /* P4_UNIT_0038EE10 */
 

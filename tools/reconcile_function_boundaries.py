@@ -217,6 +217,55 @@ DATA_REACHABLE_ENTRIES = {
 }
 
 
+CURATED_NAMES = REPO / "config" / "symbol_names.txt"
+
+# A recovered name must be a C identifier that cannot collide with the generated
+# placeholder space (func_<hex> / FUN_<hex>), so a stale curated entry can never
+# silently shadow a different address's placeholder.
+NAME_LINE = re.compile(
+    r"^\s*(?P<name>[A-Za-z_]\w*)\s*=\s*0x(?P<addr>[0-9A-Fa-f]{8})\s*;"
+    r"\s*//\s*type:func\b(?P<rest>.*)$"
+)
+PLACEHOLDER = re.compile(r"^(?:FUN|func)_[0-9A-Fa-f]+$")
+
+
+def curated_names(canonical: set[int]) -> dict[int, str]:
+    """Read evidence-backed function names, rejecting anything unverifiable.
+
+    Every entry must name a canonical boundary and carry an ``evidence:`` note.
+    Duplicate names or addresses are hard errors: two functions sharing a symbol
+    would silently break the link, and a duplicated address hides one of them.
+    """
+    names: dict[int, str] = {}
+    seen: dict[str, int] = {}
+    # config/symbol_names.txt is the hand-curated set; symbol_names.<source>.txt
+    # files are written by individual recovery tools so they can be regenerated
+    # independently without one producer clobbering another's provenance.
+    for path in sorted(CURATED_NAMES.parent.glob("symbol_names*.txt")):
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            stripped = line.strip()
+            if not stripped or stripped.startswith("//"):
+                continue
+            match = NAME_LINE.match(line)
+            where = f"{path.name}:{number}"
+            if not match:
+                raise RuntimeError(f"{where}: expected `name = 0xADDR; // type:func  evidence: ...`")
+            name, address = match["name"], int(match["addr"], 16)
+            if PLACEHOLDER.match(name):
+                raise RuntimeError(f"{where}: {name!r} is a placeholder, not a recovered name")
+            if "evidence:" not in match["rest"]:
+                raise RuntimeError(f"{where}: {name} has no `evidence:` note")
+            if address not in canonical:
+                raise RuntimeError(f"{where}: {address:#010x} is not a canonical boundary")
+            if address in names:
+                raise RuntimeError(f"{where}: duplicate address {address:#010x}")
+            if name in seen:
+                raise RuntimeError(f"{where}: name {name!r} already used for {seen[name]:#010x}")
+            names[address] = name
+            seen[name] = address
+    return names
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -300,12 +349,15 @@ def main() -> int:
     }
     OUTPUT_MAP.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
+    curated = curated_names(set(windows))
     lines = [
         "// Canonical Persona 4 USA function symbols.",
-        "// Address names are placeholders until evidence supports semantic names.",
+        "// Generated: placeholder func_<address> names, overridden by the",
+        f"// evidence-backed names curated in {CURATED_NAMES.relative_to(REPO).as_posix()}.",
+        f"// {len(curated)} of {len(windows)} symbols carry a recovered name.",
     ]
     for address in windows:
-        name = "_start" if address == entry else f"func_{address:08x}"
+        name = curated.get(address) or ("_start" if address == entry else f"func_{address:08x}")
         lines.append(f"{name} = 0x{address:08X}; // type:func")
     SYMBOLS.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

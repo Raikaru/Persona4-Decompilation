@@ -18,7 +18,7 @@ extern u32 func_001f6290(void);
 extern void func_001f75b0(void);
 
 // FUN_001B5E60
-u32 func_001b5e60(void* work)
+u32 btlMainUpdateStateExit(void* work)
 {
     BtlMain* btl;
 

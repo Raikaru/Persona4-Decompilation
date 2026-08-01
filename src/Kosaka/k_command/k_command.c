@@ -20,12 +20,12 @@ u32 func_00176c20()
 /* Source unit: src/Kosaka/k_command/k_command_00177a10.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
 
-extern char* func_00442830(char* destination, const char* source);
-extern s32 func_00442088(char* destination, const char* format, ...);
-extern char* func_00442428(char* destination, const char* source);
+extern char* strcpy(char* destination, const char* source);
+extern s32 sprintf(char* destination, const char* format, ...);
+extern char* strcat(char* destination, const char* source);
 
 // FUN_00177A10
-u32 func_00177a10()
+u32 K_Cmd_CREATE_FLD_MDL()
 {
     char path[64];
     char buff[64];
@@ -38,19 +38,19 @@ u32 func_00177a10()
 
     if (majorId > -1)
     {
-        func_00442830(path, "field/rmd/m");
+        strcpy(path, "field/rmd/m");
 
-        func_00442088(buff, "%03d_", majorId);
-        func_00442428(path, buff);
+        sprintf(buff, "%03d_", majorId);
+        strcat(path, buff);
 
-        func_00442088(buff, "%03d.RMD", minorId);
-        func_00442428(path, buff);
+        sprintf(buff, "%03d.RMD", minorId);
+        strcat(path, buff);
     }
     else
     {
-        func_00442830(path, "field/grmd/fobj");
-        func_00442088(buff, "%03d.RMD", minorId);
-        func_00442428(path, buff);
+        strcpy(path, "field/grmd/fobj");
+        sprintf(buff, "%03d.RMD", minorId);
+        strcat(path, buff);
     }
 
     mdl = func_00477e80(4, minorId, path, 0);
@@ -90,7 +90,7 @@ u32 func_00177d10()
 #include "Kosaka/k_command_internal.h"
 
 // FUN_00177E20
-u32 func_00177e20()
+u32 K_Cmd_CREATE_MDL()
 {
     s32 type;
     s32 id;

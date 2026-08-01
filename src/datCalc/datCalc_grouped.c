@@ -3,23 +3,23 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-u16 func_00231ed0(int unit);
-u16 func_00231ee0(int unit);
-void func_00231f20(int unit, u16 hp);
-void func_00231f50(int unit, u16 sp);
-u32 func_00232680(int unit, u32 badStatus);
-u32 func_002326c0(int unit);
-u32 func_002326e0(int unit);
-u32 func_002326f0(int unit, u32 badStatus);
-u32 func_00232710(int unit, u32 badStatus);
+u16 datCalcGetHp(int unit);
+u16 datCalcGetSp(int unit);
+void datCalcSetHp(int unit, u16 hp);
+void datCalcSetSp(int unit, u16 sp);
+u32 datCalcSetBadStatus(int unit, u32 badStatus);
+u32 datCalcGetBadStatusNoDown(int unit);
+u32 datCalcGetBadStatus(int unit);
+u32 datCalcClearBadStatus(int unit, u32 badStatus);
+u32 datCalcChkBadStatus(int unit, u32 badStatus);
 void func_00233bb0(int object);
 u32 func_0023e130(void);
-u32 func_002428f0(int unit, s32 hpDelta);
+u32 datCalcIsDead(int unit, s32 hpDelta);
 
 /* Source unit: src/datCalc/datCalc_00231ed0.c (1 function markers) */
 
 // FUN_00231ED0
-u16 func_00231ed0(int unit)
+u16 datCalcGetHp(int unit)
 {
     return *(u16*)(unit + 8);
 }
@@ -27,7 +27,7 @@ u16 func_00231ed0(int unit)
 /* Source unit: src/datCalc/datCalc_00231ee0.c (1 function markers) */
 
 // FUN_00231EE0
-u16 func_00231ee0(int unit)
+u16 datCalcGetSp(int unit)
 {
     return *(u16*)(unit + 0xa);
 }
@@ -35,7 +35,7 @@ u16 func_00231ee0(int unit)
 /* Source unit: src/datCalc/datCalc_00231f20.c (1 function markers) */
 
 // FUN_00231F20
-void func_00231f20(int unit, u16 hp)
+void datCalcSetHp(int unit, u16 hp)
 {
     if (hp > 999 && !(*(u16*)unit & 4))
     {
@@ -48,7 +48,7 @@ void func_00231f20(int unit, u16 hp)
 /* Source unit: src/datCalc/datCalc_00231f50.c (1 function markers) */
 
 // FUN_00231F50
-void func_00231f50(int unit, u16 sp)
+void datCalcSetSp(int unit, u16 sp)
 {
     if (sp > 999 && !(*(u16*)unit & 4))
     {
@@ -61,7 +61,7 @@ void func_00231f50(int unit, u16 sp)
 /* Source unit: src/datCalc/datCalc_00232680.c (1 function markers) */
 
 // FUN_00232680
-u32 func_00232680(int unit, u32 badStatus)
+u32 datCalcSetBadStatus(int unit, u32 badStatus)
 {
     u32 low;
 
@@ -77,7 +77,7 @@ u32 func_00232680(int unit, u32 badStatus)
 /* Source unit: src/datCalc/datCalc_002326c0.c (1 function markers) */
 
 // FUN_002326C0
-u32 func_002326c0(int unit)
+u32 datCalcGetBadStatusNoDown(int unit)
 {
     return *(u32*)(unit + 0xc) & 0x000fffff;
 }
@@ -85,7 +85,7 @@ u32 func_002326c0(int unit)
 /* Source unit: src/datCalc/datCalc_002326e0.c (1 function markers) */
 
 // FUN_002326E0
-u32 func_002326e0(int unit)
+u32 datCalcGetBadStatus(int unit)
 {
     return *(u32*)(unit + 0xc);
 }
@@ -93,7 +93,7 @@ u32 func_002326e0(int unit)
 /* Source unit: src/datCalc/datCalc_002326f0.c (1 function markers) */
 
 // FUN_002326F0
-u32 func_002326f0(int unit, u32 badStatus)
+u32 datCalcClearBadStatus(int unit, u32 badStatus)
 {
     return *(u32*)(unit + 0xc) &= ~badStatus;
 }
@@ -101,7 +101,7 @@ u32 func_002326f0(int unit, u32 badStatus)
 /* Source unit: src/datCalc/datCalc_00232710.c (1 function markers) */
 
 // FUN_00232710
-u32 func_00232710(int unit, u32 badStatus)
+u32 datCalcChkBadStatus(int unit, u32 badStatus)
 {
     return (*(u32*)(unit + 0xc) & badStatus) != 0;
 }
@@ -149,7 +149,7 @@ u32 func_0023e130(void)
 /* Source unit: src/datCalc/datCalc_002428f0.c (1 function markers) */
 
 // FUN_002428F0
-u32 func_002428f0(int unit, s32 hpDelta)
+u32 datCalcIsDead(int unit, s32 hpDelta)
 {
     if (*(u32*)(unit + 0xc) & 0x80000 ? 1 : 0)
     {

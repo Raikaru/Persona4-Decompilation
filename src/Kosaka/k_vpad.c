@@ -306,7 +306,7 @@ typedef struct RuntimeDistanceWork
 } RuntimeDistanceWork;
 
 extern s32 func_004b7800(const RuntimeWork* work, s32 index);
-extern f32 func_003e4180(RuntimeVec3* vector);
+extern f32 RwV3dLength(RuntimeVec3* vector);
 
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001E7E30 (verified MATCH there).
  * Honest C: result = total + length; result *= *(f32*)(config[0] + 0x2c).
@@ -334,7 +334,7 @@ f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
               work->firstVectors[firstIndex].y;
     delta.z = work->firstVectors[nextIndex].z -
               work->firstVectors[firstIndex].z;
-    total += func_003e4180(&delta);
+    total += RwV3dLength(&delta);
 
     delta.x = work->secondVectors[nextIndex].x -
               work->secondVectors[firstIndex].x;
@@ -342,7 +342,7 @@ f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
               work->secondVectors[firstIndex].y;
     delta.z = work->secondVectors[nextIndex].z -
               work->secondVectors[firstIndex].z;
-    length = func_003e4180(&delta);
+    length = RwV3dLength(&delta);
     result = total + length;
     result *= *(f32*)((u8*)work->config[0] + 0x2c);
     return result;
@@ -440,7 +440,7 @@ typedef struct RuntimeMatrix
 
 extern RuntimeMatrix* func_003e0f80(void);
 extern RuntimeVec3 D_005F10F8;
-extern void func_003e0870(RuntimeMatrix* matrix, const RuntimeVec3* axis,
+extern void RwMatrixRotate(RuntimeMatrix* matrix, const RuntimeVec3* axis,
                           f32 angle, u32 mode);
 extern void func_003e42e0(RuntimeVec3* destination,
                           const RuntimeVec3* source, s32 count,
@@ -488,7 +488,7 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
     matrix->values[12] = 0.0f;
     *(u32*)&matrix->values[3] |= 0x20003;
 
-    func_003e0870(matrix, &axis, angle, 2);
+    RwMatrixRotate(matrix, &axis, angle, 2);
     func_003e42e0(vertices, vertices, 4, matrix);
     func_003e0f40(matrix);
     for (i = 0; i < 4; i++)

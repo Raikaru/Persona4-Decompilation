@@ -30,27 +30,27 @@ struct BtlAction
     void* unit;
 };
 
-extern u32 func_00196b50(void* unit);
+extern u32 btlUnitIsMoving(void* unit);
 extern void func_00194ff0(void* unit, void* arg1, void* arg2, RwV3d* rot);
-extern BtlPacket* func_00197f50(void* unit, const RwV3d* rot, u32 flags);
+extern BtlPacket* btlUnitCreateRotatePacket(void* unit, const RwV3d* rot, u32 flags);
 extern void func_00194590(BtlPacket* packet, u32 type);
-extern void func_001b0800(BtlAction* action, u16 state);
+extern void btlActionSetState(BtlAction* action, u16 state);
 
 // FUN_001A1100
-void func_001a1100(BtlAction* action)
+void btlActionUpdateStateStartHome(BtlAction* action)
 {
     RwV3d rot;
     BtlPacket* packet;
 
-    if (func_00196b50(action->unit) == 0)
+    if (btlUnitIsMoving(action->unit) == 0)
     {
         func_00194ff0(action->unit, NULL, NULL, &rot);
 
-        packet = func_00197f50(action->unit, &rot, 0);
+        packet = btlUnitCreateRotatePacket(action->unit, &rot, 0);
         packet->actionUID = action->uid;
         func_00194590(packet, 1);
 
-        func_001b0800(action, action->state);
+        btlActionSetState(action, action->state);
     }
 }
 #endif /* P4_UNIT_001A1100 */
@@ -174,7 +174,7 @@ void func_001b08f0(void* action)
 #include "type.h"
 
 // FUN_001B0910
-void func_001b0910(void* action, void* unit)
+void btlActionSetUnit(void* action, void* unit)
 {
     *(void**)((u8*)action + 0x30) = unit;
     *(u16*)((u8*)action + 0x1A) |= 1;
