@@ -482,6 +482,94 @@ class ExclusionTests(unittest.TestCase):
                 lint.ROOT = old_root
 
 
+class ThirdPartyScopeTests(unittest.TestCase):
+    """Default runs are first-party-only; third-party middleware (rw/, cri/,
+    sce/, C runtime) is linted only with --include-third-party and never
+    drives the exit code."""
+
+    def _write_tree(self, root: Path) -> None:
+        third = root / "src" / "rw"
+        third.mkdir(parents=True)
+        (third / "rwcore.c").write_text(
+            "#pragma optimization_level 3\nvoid rwcore(void) { }\n", encoding="utf-8")
+        first = root / "src" / "Battle"
+        first.mkdir(parents=True)
+        (first / "btlMain.c").write_text(
+            "#pragma schedule off\nvoid btlMain(void) { }\n", encoding="utf-8")
+
+    def test_default_mode_excludes_third_party_path(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            old_root = lint.ROOT
+            lint.ROOT = Path(directory)
+            try:
+                root = Path(directory)
+                self._write_tree(root)
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    self.assertEqual(lint.main([str(root / "src")]), 1)
+                text = out.getvalue()
+                self.assertIn("[H003]", text)
+                self.assertIn("btlMain.c", text)   # first-party finding reported
+                self.assertNotIn("rwcore.c", text)  # third-party finding absent
+            finally:
+                lint.ROOT = old_root
+
+    def test_include_third_party_includes_it(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            old_root = lint.ROOT
+            lint.ROOT = Path(directory)
+            try:
+                root = Path(directory)
+                self._write_tree(root)
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    # First-party error is still present, so the run still fails.
+                    self.assertEqual(lint.main(["--include-third-party", str(root / "src")]), 1)
+                text = out.getvalue()
+                self.assertIn("btlMain.c", text)
+                self.assertIn("rwcore.c", text)     # now visible on request
+            finally:
+                lint.ROOT = old_root
+
+    def test_exit_code_ignores_third_party_errors_in_default_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            old_root = lint.ROOT
+            lint.ROOT = Path(directory)
+            try:
+                root = Path(directory)
+                third = root / "src" / "rw"
+                third.mkdir(parents=True)
+                (third / "rwcore.c").write_text(
+                    "#pragma optimization_level 3\nvoid rwcore(void) { }\n", encoding="utf-8")
+                clean = root / "src" / "game.c"
+                clean.write_text("void game(void) { }\n", encoding="utf-8")
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(lint.main([str(root / "src")]), 0)
+                # Even with --include-third-party the exit code stays
+                # first-party-driven: middleware errors are reported, not fatal.
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    self.assertEqual(lint.main(["--include-third-party", str(root / "src")]), 0)
+                self.assertIn("rwcore.c", out.getvalue())
+            finally:
+                lint.ROOT = old_root
+
+    def test_classification_reused_from_verify_py(self) -> None:
+        """The linter must not drift from verify.py's first/third-party split."""
+        spec = importlib.util.spec_from_file_location(
+            "p4_verify_for_lint_test", REPO / "tools" / "verify.py")
+        assert spec is not None and spec.loader is not None
+        verify = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(verify)
+        self.assertEqual(lint.THIRD_PARTY_PREFIXES, verify.THIRD_PARTY_PREFIXES)
+        self.assertEqual(lint.THIRD_PARTY_FILES, verify.THIRD_PARTY_FILES)
+        for rel in ("src/rw/a.c", "src/cri/b.c", "src/sce/c.c", "src/crt0.c",
+                    "crt0.c", "src/libc_core.c", "src/libcdvd.c",
+                    "src/Battle/btlMain.c", "src/main.c", "include/foo.h"):
+            with self.subTest(path=rel):
+                self.assertEqual(lint.is_third_party(rel), verify.is_third_party(rel))
+
+
 class CliTests(unittest.TestCase):
     def test_exit_codes_and_errors_only(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
