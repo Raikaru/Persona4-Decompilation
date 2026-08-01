@@ -1,5 +1,5 @@
 /* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
+/* Whole-file translation unit (functions contiguous in retail). */
 
 /* PS2 kernel syscall trampolines: load the syscall number into $v1, then
  * execute the `syscall` instruction.  There is no C expression for this,
@@ -7,7 +7,6 @@
  * syscall convention, cf. tools/decomp_lint.py H009 allowance).  Encoded
  * as .word literals because MWCC's assembler rejects the syscall mnemonic. */
 
-#if defined(P4_UNIT_004213C0)
 #include "type.h"
 
 // FUN_004213C0
@@ -19,10 +18,6 @@ asm void func_004213c0(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_004213C0 */
-
-#if defined(P4_UNIT_004213D0)
-#include "type.h"
 
 // FUN_004213D0
 asm void func_004213d0(void)
@@ -33,10 +28,6 @@ asm void func_004213d0(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_004213D0 */
-
-#if defined(P4_UNIT_004213E0)
-#include "type.h"
 
 // FUN_004213E0
 asm void func_004213e0(void)
@@ -47,10 +38,6 @@ asm void func_004213e0(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_004213E0 */
-
-#if defined(P4_UNIT_004213F0)
-#include "type.h"
 
 // FUN_004213F0
 asm void func_004213f0(void)
@@ -61,10 +48,6 @@ asm void func_004213f0(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_004213F0 */
-
-#if defined(P4_UNIT_00421400)
-#include "type.h"
 
 // FUN_00421400
 asm void func_00421400(void)
@@ -75,10 +58,6 @@ asm void func_00421400(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_00421400 */
-
-#if defined(P4_UNIT_00421410)
-#include "type.h"
 
 // FUN_00421410
 asm void func_00421410(void)
@@ -89,10 +68,6 @@ asm void func_00421410(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_00421410 */
-
-#if defined(P4_UNIT_00421420)
-#include "type.h"
 
 // FUN_00421420
 asm void func_00421420(void)
@@ -103,10 +78,6 @@ asm void func_00421420(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_00421420 */
-
-#if defined(P4_UNIT_00421430)
-#include "type.h"
 
 // FUN_00421430
 asm void func_00421430(void)
@@ -117,10 +88,6 @@ asm void func_00421430(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_00421430 */
-
-#if defined(P4_UNIT_00421440)
-#include "type.h"
 
 // FUN_00421440
 asm void func_00421440(void)
@@ -131,4 +98,3 @@ asm void func_00421440(void)
     .word 0x03E00008 /* jr $ra */
     .word 0x00000000 /* nop */
 }
-#endif /* P4_UNIT_00421440 */

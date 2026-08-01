@@ -1,0 +1,208 @@
+/* Consolidated Persona 4 source units. */
+/* Build with -DP4_UNIT_<address> to select one original source unit. */
+
+#if defined(P4_UNIT_0025C310)
+#include "type.h"
+
+s32 func_00452380(void *arg0);
+extern s32 D_006367C0[];
+
+// FUN_0025C310
+void func_0025c310(void) {
+    func_00452380(D_006367C0);
+}
+#endif /* P4_UNIT_0025C310 */
+
+#if defined(P4_UNIT_0025C340)
+#include "type.h"
+
+s16 func_001060b0(void);
+void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
+void func_0029cf50(s32 arg0);
+
+// FUN_0025C340
+s32 func_0025c340(void) {
+    s32 sp1C;
+    s32 sp18;
+
+    sp1C = 0;
+    sp18 = 0;
+    func_001104d0(func_001060b0(), &sp1C, &sp18);
+    func_0029cf50(sp1C);
+    return 1;
+}
+#endif /* P4_UNIT_0025C340 */
+
+#if defined(P4_UNIT_0025C390)
+#include "type.h"
+
+s16 func_001060b0(void);
+void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
+void func_0029cf50(s32 arg0);
+
+// FUN_0025C390
+s32 func_0025c390(void) {
+    s32 sp1C;
+    s32 sp18;
+
+    sp1C = 0;
+    sp18 = 0;
+    func_001104d0(func_001060b0(), &sp1C, &sp18);
+    func_0029cf50(sp18);
+    return 1;
+}
+#endif /* P4_UNIT_0025C390 */
+
+#if defined(P4_UNIT_0025C3E0)
+#include "type.h"
+
+s16 func_001060b0(void);
+s32 func_00110580(s64 arg0);
+void func_0029cf50(s32 arg0);
+
+// FUN_0025C3E0
+s32 func_0025c3e0(void) {
+    func_0029cf50(func_00110580(func_001060b0()));
+    return 1;
+}
+#endif /* P4_UNIT_0025C3E0 */
+
+#if defined(P4_UNIT_0025C4B0)
+#include "type.h"
+
+s32 func_0029cc00(s32 arg0);
+s16 func_001060b0(void);
+void func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
+void func_0029cf50(s32 arg0);
+
+// FUN_0025C4B0
+s32 func_0025c4b0(void) {
+    s32 sp3C;
+    s32 sp38;
+    s32 temp_16;
+    s32 temp_17;
+
+    sp3C = 0;
+    sp38 = 0;
+    temp_17 = func_0029cc00(0);
+    temp_16 = func_0029cc00(1);
+    func_001104d0(func_001060b0(), &sp3C, &sp38);
+    if ((sp3C == temp_17) && (sp38 == temp_16)) {
+        func_0029cf50(1);
+    } else {
+        func_0029cf50(0);
+    }
+    return 1;
+}
+#endif /* P4_UNIT_0025C4B0 */
+
+#if defined(P4_UNIT_0025C560)
+#include "type.h"
+
+s32 func_0029cc00(s32 arg0);
+s16 func_00110600(s32 arg0, s32 arg1);
+void func_00106300(s64 arg0);
+void func_00106310(s32 arg0);
+void func_00106320(s32 arg0);
+
+// FUN_0025C560
+s32 func_0025c560(void) {
+    s32 temp_18;
+    s32 temp_17;
+    s32 temp_16;
+
+    temp_18 = func_0029cc00(0);
+    temp_17 = func_0029cc00(1);
+    temp_16 = func_0029cc00(2);
+    func_00106300(func_00110600(temp_18, temp_17));
+    func_00106310(temp_16 & 0xFF);
+    func_00106320(1);
+    return 1;
+}
+#endif /* P4_UNIT_0025C560 */
+
+#if defined(P4_UNIT_0025C600)
+#include "type.h"
+
+s32 func_0029cc00(s32 arg0);
+s16 func_001060b0(void);
+s32 func_001106f0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void func_0029cf50(s32 arg0);
+
+// FUN_0025C600
+s32 func_0025c600(void) {
+    s32 temp_19;
+    s32 temp_18;
+    s32 temp_17;
+    s32 temp_16;
+
+    temp_19 = func_0029cc00(0);
+    temp_18 = func_0029cc00(1);
+    temp_17 = func_0029cc00(2);
+    temp_16 = func_0029cc00(3);
+    if (func_001106f0(func_001060b0(), temp_19, temp_18, temp_17, temp_16) == 1) {
+        func_0029cf50(1);
+    } else {
+        func_0029cf50(0);
+    }
+    return 1;
+}
+#endif /* P4_UNIT_0025C600 */
+
+#if defined(P4_UNIT_0025C730)
+#include "type.h"
+
+s32 func_0029cc00(s32 arg0);
+void func_0026bc10(s32 arg0, s32 arg1);
+
+// FUN_0025C730
+s32 func_0025c730(void) {
+    s32 temp_16;
+    s32 temp_17;
+
+    temp_16 = func_0029cc00(0);
+    temp_17 = func_0029cc00(1);
+    func_0026bc10(((temp_16 & 0x3FF) | 0xC00) & 0xFFFF, temp_17 & 0xFF);
+    return 1;
+}
+#endif /* P4_UNIT_0025C730 */
+
+#if defined(P4_UNIT_0025CF70)
+#include "type.h"
+
+s32 func_0029cc00(s32 arg0);
+s32 func_00109bf0(s32 arg0, s32 arg1);
+void func_0029cf50(s32 arg0);
+
+// FUN_0025CF70
+s32 func_0025cf70(void) {
+    s32 temp_16;
+    s32 temp_17;
+
+    temp_16 = func_0029cc00(0);
+    temp_17 = func_0029cc00(1);
+    func_0029cf50(func_00109bf0(temp_16 & 0xFFFF, temp_17 & 0xFFFF) & 0xFF);
+    return 1;
+}
+#endif /* P4_UNIT_0025CF70 */
+
+#if defined(P4_UNIT_0025D7E0)
+#include "type.h"
+
+s32 func_0029d020(void);
+void func_001227d0(void);
+s32 func_001227f0(void);
+
+// FUN_0025D7E0 NONMATCHING
+s32 func_0025d7e0(void) {
+    if (func_0029d020() == 0xA) {
+        func_001227d0();
+        goto block_5;
+    }
+    if ((func_0029d020() >= 0xB) && (func_001227f0() != 0)) {
+        return 1;
+    }
+block_5:
+    return 0;
+}
+#endif /* P4_UNIT_0025D7E0 */

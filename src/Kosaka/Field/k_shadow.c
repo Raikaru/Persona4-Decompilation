@@ -1,8 +1,5 @@
 /* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001026B0)
-/* Source unit: src/Kosaka/Field/k_shadow.c */
+/* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 
 // FUN_001026B0
@@ -35,11 +32,6 @@ s32 func_001026b0(void)
     );
     return 0;
 }
-#endif /* P4_UNIT_001026B0 */
-
-#if defined(P4_UNIT_001026F0)
-/* Source unit: src/Kosaka/Field/k_shadow.c */
-#include "type.h"
 
 // P3 donor: AddIntcHandler/EnableIntc/RemoveIntcHandler (00502e40/00503ca8/00502e60),
 // DAT_007cc148 -> D_007616AC, DAT_007ce13c -> D_00764294 per map_shared_p3.py.
@@ -73,4 +65,3 @@ s32 func_001026f0(void)
 
     return 1;
 }
-#endif /* P4_UNIT_001026F0 */
