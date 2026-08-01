@@ -1,8 +1,5 @@
 /* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00367FB0)
-/* Source unit: src/Main/Battle/Panel/sfl_data_00367fb0.c */
+/* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 
 typedef struct PanelVec3 {
@@ -430,23 +427,6 @@ void func_00367fb0(void* work)
     *(u32*)(panel + 0x5d0) = 0x3f800000;
     *(u32*)(panel + 0x5f4) = 0x3f800000;
 }
-#endif /* P4_UNIT_00367FB0 */
-
-#if defined(P4_UNIT_003688B0)
-/* Source unit: src/Main/Battle/Panel/sfl_data_003688b0.c */
-#include "type.h"
-
-typedef struct PanelVec3 {
-    f32 x;
-    f32 y;
-    f32 z;
-} PanelVec3;
-
-extern void func_00367f50(u8* work);
-extern void func_0036a900(u8* work);
-
-extern f32 D_00761480;
-extern f32 D_00761484;
 
 // FUN_003688B0
 void func_003688b0(void* work)
@@ -601,23 +581,6 @@ void func_003688b0(void* work)
     *(f32*)(panel + 0x300) = 1.0f;
     *(f32*)(panel + 0x324) = 1.0f;
 }
-#endif /* P4_UNIT_003688B0 */
-
-#if defined(P4_UNIT_00368BE0)
-/* Source unit: src/Main/Battle/Panel/sfl_data_00368be0.c */
-#include "type.h"
-
-typedef struct PanelVec3 {
-    f32 x;
-    f32 y;
-    f32 z;
-} PanelVec3;
-
-extern void func_00367f50(u8* work);
-extern void func_0036a900(u8* work);
-
-extern f32 D_00761480;
-extern f32 D_00761484;
 
 // FUN_00368BE0
 void func_00368be0(void* work)
@@ -679,4 +642,3 @@ void func_00368be0(void* work)
     *(f32*)(panel + 0x1d8) = 0.63671875f;
     *(f32*)(panel + 0x1fc) = 0.63671875f;
 }
-#endif /* P4_UNIT_00368BE0 */

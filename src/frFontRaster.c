@@ -1,8 +1,5 @@
 /* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_002761F0)
-/* Source unit: src/frFontRaster_002761f0.c */
+/* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 
 // Ported from P3FES FUN_003b3d60 (verified MATCH there). Calls use the
@@ -24,11 +21,6 @@ u32 func_002761f0(u32 param_1, u32 param_2, u32 param_3)
 
     return result;
 }
-#endif /* P4_UNIT_002761F0 */
-
-#if defined(P4_UNIT_00276260)
-/* Source unit: src/frFontRaster_00276260.c */
-#include "type.h"
 
 // Ported from P3FES FUN_003b3dd0 (verified MATCH there). Call uses the
 // donor's implicit old-style declaration (FUN_003b3e00_typed).
@@ -45,11 +37,6 @@ u32 func_00276260(u32 param_1, int param_2)
 
     return result;
 }
-#endif /* P4_UNIT_00276260 */
-
-#if defined(P4_UNIT_00276290)
-/* Source unit: src/frFontRaster_00276290.c */
-#include "type.h"
 
 // Ported from P3FES FUN_003b3e00 (verified MATCH there). The goto shape is
 // the donor's exact loop layout: test entry!=0 first, then walk entry[6].
@@ -84,4 +71,3 @@ check:
 done:
     return (u32)entry;
 }
-#endif /* P4_UNIT_00276290 */

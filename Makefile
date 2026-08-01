@@ -42,6 +42,19 @@ shared-p3:
 	@test -n "$(P3_ROOT)" || (echo "usage: make shared-p3 P3_ROOT=/path/to/Persona3-FES-Decompilation [P3_REPORT=/path/to/verify.json]" && exit 2)
 	$(PYTHON) tools/map_shared_p3.py --p3-root "$(P3_ROOT)" --with-source-evidence $(if $(P3_REPORT),--p3-report "$(P3_REPORT)",)
 
+# Propose original translation-unit boundaries from measured evidence. Signal
+# weights are calibrated against P3 ground truth (adjacent-pair same-file rate);
+# the scheduler-flag signal measured at base rate and therefore carries weight 0.
+# Needs a FRESH P3 verifier report -- a scoped/partial run silently weakens the
+# strongest signal, so the tool prints a NOTE and upgrades if it detects one.
+tu-audit:
+	@test -n "$(P3_ROOT)" || (echo "usage: make tu-audit P3_ROOT=/path/to/Persona3-FES-Decompilation [P3_REPORT=/path/to/verify.json]" && exit 2)
+	$(PYTHON) tools/tu_audit.py --p3-root "$(P3_ROOT)" $(if $(P3_REPORT),--p3-report "$(P3_REPORT)",)
+
+tu-audit-json:
+	@test -n "$(P3_ROOT)" || (echo "usage: make tu-audit-json P3_ROOT=/path/to/Persona3-FES-Decompilation [P3_REPORT=/path/to/verify.json]" && exit 2)
+	$(PYTHON) tools/tu_audit.py --p3-root "$(P3_ROOT)" $(if $(P3_REPORT),--p3-report "$(P3_REPORT)",) --json build/tu_audit.json
+
 build:
 	$(PYTHON) tools/build.py
 
