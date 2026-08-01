@@ -248,3 +248,75 @@ void func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
     func_002745c0(param_1, param_2, 0, param_3, param_4, param_5, param_6, param_7, param_8);
 }
 #endif /* P4_UNIT_00274570 */
+
+#if defined(P4_UNIT_00271BD0)
+/* Source unit: src/frFont_00271bd0.c */
+#include "type.h"
+
+#pragma alias DAT_00881750_abs DAT_00881750
+extern u32 DAT_00881750_abs[];
+#pragma alias DAT_00881754_abs DAT_00881754
+extern u32 DAT_00881754_abs[];
+#pragma alias DAT_00881758_abs DAT_00881758
+extern u32 DAT_00881758_abs[];
+#pragma alias DAT_0088175c_abs DAT_0088175c
+extern u32 DAT_0088175c_abs[];
+#pragma alias DAT_00881760_abs DAT_00881760
+extern u8 DAT_00881760_abs[];
+
+// func_0026e120 and func_00271310 are intentionally left undeclared
+// (implicit old-style calls, as in the P3 donor FUN_003b0030); a typed
+// prototype would force an int->pointer cast mwcc rejects, and the P3
+// retail form is the implicit call.
+
+// FUN_00271BD0
+u32 func_00271bd0(int param_1)
+{
+    int iVar4;
+    int iVar1;
+    int next_list;
+    int iVar2;
+    u32 *puVar3;
+
+    if (param_1 == 0) {
+        return param_1;
+    }
+
+    while (param_1 != 0) {
+        iVar4 = *(int *)(param_1 + 0x1c);
+
+        while (iVar4 != 0) {
+            iVar1 = *(int *)(iVar4 + 0x28);
+
+            if (*(int *)(iVar4 + 0x20) == 0) {
+                *(u16 *)(*(int *)(iVar4 + 0x1c) + 4) =
+                    *(u16 *)(*(int *)(iVar4 + 0x1c) + 4) + -1;
+                iVar2 = *(int *)(iVar4 + 0x1c);
+
+                if ((iVar2 != 0) && (*(u16 *)(iVar2 + 4) == 0)) {
+                    puVar3 = *(u32 **)(iVar2 + 0xc);
+
+                    if (puVar3 != (u32 *)0x0) {
+                        *puVar3 = *puVar3 & 0xfffffffe;
+                        puVar3[4] = 0;
+                    }
+
+                    func_00271310(*(u32 *)(iVar2 + 8));
+                    DAT_00881750_abs[0] = DAT_00881750_abs[0] + -1;
+                }
+            }
+
+            func_0026e120(iVar4, DAT_0088175c_abs[0]);
+            iVar4 = iVar1;
+            DAT_00881754_abs[0] = DAT_00881754_abs[0] + -1;
+        }
+
+        next_list = *(int *)(param_1 + 0x24);
+        func_0026e120(param_1, *(u32 *)DAT_00881760_abs);
+        param_1 = next_list;
+        DAT_00881758_abs[0] = DAT_00881758_abs[0] + -1;
+    }
+
+    return 0;
+}
+#endif /* P4_UNIT_00271BD0 */

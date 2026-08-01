@@ -160,3 +160,22 @@ void func_001441a0(u32* out, u32 value)
     out[3] = 0;
 }
 #endif /* P4_UNIT_001441A0 */
+
+#if defined(P4_UNIT_0046A6F0)
+/* Source unit: src/Kernel/h_malloc_0046a6f0.c (1 function markers) */
+#include "type.h"
+
+extern void* func_0046a430(size_t size);
+extern void func_0043f9c8(void* dst, u32 value, u32 size);
+
+// FUN_0046A6F0
+void* func_0046a6f0(u32 count, size_t size)
+{
+    void* memory;
+
+    memory = func_0046a430(size * count);
+    func_0043f9c8(memory, 0, size * count);
+
+    return memory;
+}
+#endif /* P4_UNIT_0046A6F0 */

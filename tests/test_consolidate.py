@@ -60,8 +60,28 @@ void func_00100010(void) { }
         # drop you did not intend.
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            1036,
+            1317,
         )
+
+    def test_no_marker_is_orphaned_outside_its_unit_guard(self) -> None:
+        """A file that has ANY P4_UNIT guard is compiled per-unit, so a marker
+        sitting outside every guard is silently dropped from verification --
+        it reports no status at all rather than failing. Catch that here."""
+        orphaned: dict[str, list[str]] = {}
+        for path in sorted((REPO / "src").rglob("*.c")):
+            if consolidate.is_generated(path):
+                continue
+            units = verify.source_units(path)
+            if not units:
+                continue  # unguarded file: the whole TU compiles, nothing to orphan
+            guarded: set[int] = set()
+            for unit in units:
+                guarded |= {m["addr"] for m in verify.scan_markers(path, unit)}
+            missing = {m["addr"] for m in verify.scan_markers(path)} - guarded
+            if missing:
+                key = path.relative_to(REPO).as_posix()
+                orphaned[key] = sorted(f"{addr:08X}" for addr in missing)
+        self.assertEqual(orphaned, {})
 
 
 if __name__ == "__main__":

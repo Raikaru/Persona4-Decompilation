@@ -131,6 +131,203 @@ class RegisterLocalTests(unittest.TestCase):
         self.assertNotIn("H008", codes(findings))
 
 
+class AsmBarrierTests(unittest.TestCase):
+    """H002: an empty asm template emits nothing."""
+
+    def test_fires_on_empty_template_with_operand(self) -> None:
+        findings = lint_text("""void func_00100000(void)
+{
+    asm ("" : "+r"(width));
+}
+""")
+        self.assertIn("H002", codes(findings))
+        self.assertNotIn("H009", codes(findings))
+
+    def test_fires_on_volatile_empty_template_with_memory_clobber(self) -> None:
+        findings = lint_text("""void func_00100000(void)
+{
+    asm volatile ("" ::: "memory");
+}
+""")
+        self.assertIn("H002", codes(findings))
+
+    def test_fires_on_whitespace_only_template(self) -> None:
+        # raw string: the C source must contain a real \n\t escape sequence.
+        findings = lint_text(r"""void func_00100000(void)
+{
+    asm ("\n\t" ::: "memory");
+}
+""")
+        self.assertIn("H002", codes(findings))
+
+    def test_silent_on_template_with_a_real_instruction(self) -> None:
+        findings = lint_text("""void func_00100000(void)
+{
+    asm ("sync");
+}
+""")
+        self.assertNotIn("H002", codes(findings))
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_when_asm_only_appears_in_a_comment(self) -> None:
+        findings = lint_text("""/* asm ("" : "+r"(x)) would be cheating, but this is a comment */
+void func_00100000(void) { }
+""")
+        self.assertNotIn("H002", codes(findings))
+
+
+class InlineAsmTests(unittest.TestCase):
+    """H009: inline asm forcing codegen for ordinary computation."""
+
+    def test_fires_on_fpu_arithmetic_template(self) -> None:
+        # The exact k_vpad.c shape: adjacent string literals, \n\t separators.
+        findings = lint_text(r"""void func_00100000(f32 a, f32 b)
+{
+    __asm__ volatile (
+        "add.s $f2, %2, %3\n\t"
+        "mtc1 $zero, $f1\n\t"
+        "lw $v0, 0(%1)\n\t"
+        :
+        : "r"(a), "r"(b)
+    );
+}
+""")
+        self.assertIn("H009", codes(findings))
+        self.assertNotIn("H002", codes(findings))
+
+    def test_fires_on_load_shift_template(self) -> None:
+        findings = lint_text(r"""void func_00100000(void)
+{
+    __asm__ volatile ("lw %1, 4(%2)\n\tsll %0, %3, 3"
+                      : "=r"(offset), "=r"(request)
+                      : "r"(work), "r"(i)
+                      : "memory");
+}
+""")
+        self.assertIn("H009", codes(findings))
+
+    def test_fires_on_single_line_plain_asm(self) -> None:
+        findings = lint_text("""void func_00100000(f32 a, f32 b)
+{
+    asm ("mul.s $f2, %0, %1" : : "f"(a), "f"(b));
+}
+""")
+        self.assertIn("H009", codes(findings))
+
+    def test_silent_on_privileged_sync_ei(self) -> None:
+        findings = lint_text(r"""void func_00100000(void)
+{
+    __asm__ volatile (
+        ".set noreorder\n"
+        "sync\n"
+        "ei\n"
+        ".set reorder"
+        :
+        :
+        : "memory"
+    );
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_on_syscall_trampoline(self) -> None:
+        findings = lint_text(r"""void func_00100000(void)
+{
+    asm volatile (
+        "addiu $v1, $zero, 0x41\n"
+        "syscall"
+    );
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_on_cop2_moves(self) -> None:
+        findings = lint_text(r"""void func_00100000(void)
+{
+    asm volatile (
+        "qmtc2 $v0, $vf1\n"
+        "qmfc2 $v1, $vf2"
+    );
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_on_vu_ops(self) -> None:
+        findings = lint_text(r"""void func_00100000(void)
+{
+    asm volatile (
+        "vmul.xyzw vf2, vf10, vf11\n"
+        "vopmula.xyz ACC, vf10, vf11\n"
+        "vadd.xyzw vf10, vf10, vf12"
+    );
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_on_cop2_statement_with_gpr_plumbing(self) -> None:
+        # mdlEffect.c shape: addiu address setup feeding lqc2/sqc2 is part
+        # of the COP2 idiom, not ordinary computation.
+        findings = lint_text(r"""void func_00100000(void)
+{
+    asm volatile (
+        "addiu $v1, $sp, 0x40\n"
+        "lqc2 $vf11, 0x0($v1)\n"
+        "sqc2 $vf10, 0x0($a2)"
+    );
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_on_qmfc2_statement_with_extract_plumbing(self) -> None:
+        # effMisc.c shape: pextuw/sq unwrap a qmfc2 result; the statement is
+        # a VU0 extraction idiom.
+        findings = lint_text(r"""void func_00100000(void)
+{
+    asm volatile (
+        "qmfc2.ni $5, $vf0\n"
+        "pextuw $4, $0, $5\n"
+        "sq $4, 32(%0)"
+        :
+        : "r" (matrix)
+        : "$4", "$5", "memory"
+    );
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_allowlist_classification(self) -> None:
+        """Positive control: the silent tests above are not vacuous."""
+        allowed = {"sync", "ei", "di", "syscall", "cache", "mfc0", "mtc0",
+                   "eret", "tlbwi", "qmtc2", "qmfc2", "lqc2", "sqc2",
+                   "cfc2", "ctc2"}
+        for base in ("vmul", "vadd", "vsub", "vmove", "vftoi", "vitof",
+                     "vclip", "vopmula", "vmulax", "vmadday"):
+            self.assertTrue(base.startswith("v"))
+        for base in ("add", "mul", "lw", "sw", "sll", "move", "mtc1",
+                     "addiu", "pextuw", "sq", "bltzl", "lui"):
+            self.assertNotIn(base, allowed)
+            self.assertFalse(base.startswith("v"))
+
+    def test_silent_on_whole_function_asm_body(self) -> None:
+        # rw/rwcore_grouped.c shape: asm-qualified function definition with
+        # raw retail bytes is not an asm statement and is not policed here.
+        findings = lint_text("""// FUN_004222B0
+asm u32 QueryIntrContext(void)
+{
+    .set noreorder
+    mfc0 $v0, $12
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+        self.assertNotIn("H002", codes(findings))
+
+    def test_silent_when_asm_only_appears_in_a_comment(self) -> None:
+        findings = lint_text("""/* asm ("add.s $f2, %0, %1") quoted in prose, not real */
+void func_00100000(void) { }
+""")
+        self.assertNotIn("H009", codes(findings))
+
+
 class MarkerHygieneTests(unittest.TestCase):
     def test_fires_on_malformed_address(self) -> None:
         for marker in ("// FUN_00123", "// FUN_", "// FUN_001234567"):
@@ -228,6 +425,43 @@ void func_00123456(void)
 void func_00123456(void) { }
 """)
         self.assertIn("H003", codes(findings))
+
+    def test_measured_above_site_suppresses_h002(self) -> None:
+        findings = lint_text("""void func_00463740(void)
+{
+    // measured: removing this barrier loses FUN_00463740 (nd10).
+    asm ("" : "+r"(width));
+}
+""")
+        self.assertNotIn("H002", codes(findings))
+
+    def test_lint_allow_suppresses_h009(self) -> None:
+        findings = lint_text("""void func_00123456(f32 a, f32 b)
+{
+    // lint: allow H009
+    asm ("add.s $f2, %0, %1" : : "f"(a), "f"(b));
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_lint_allow_other_code_leaves_h009_firing(self) -> None:
+        findings = lint_text("""void func_00123456(f32 a, f32 b)
+{
+    // lint: allow H002
+    asm ("add.s $f2, %0, %1" : : "f"(a), "f"(b));
+}
+""")
+        self.assertIn("H009", codes(findings))
+
+    def test_measured_above_enclosing_marker_suppresses_h009(self) -> None:
+        findings = lint_text(r"""// measured nd 5: the lw/sll pair is load-bearing here.
+// FUN_004B5800
+void func_004b5800(void)
+{
+    asm ("lw %0, 4(%1)\n\tsll %2, %3, 3" : : "r"(a), "r"(b), "r"(c), "r"(d));
+}
+""")
+        self.assertNotIn("H009", codes(findings))
 
 
 class ExclusionTests(unittest.TestCase):

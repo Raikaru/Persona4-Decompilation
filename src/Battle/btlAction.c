@@ -180,3 +180,30 @@ void func_001b0910(void* action, void* unit)
     *(u16*)((u8*)action + 0x1A) |= 1;
 }
 #endif /* P4_UNIT_001B0910 */
+
+#if defined(P4_UNIT_001A13E0)
+/* Source unit: src/Battle/btlAction_001a13e0.c */
+#include "type.h"
+
+typedef struct BtlPacket BtlPacket;
+typedef struct BtlAction BtlAction;
+struct BtlAction
+{
+    u64 uid; // 0x00
+};
+
+#define BTL_UIDMAX 0x3FFFFFFFFFFFFFFF
+#define BTLACTION_STATE_START 2
+
+extern BtlPacket* btlPacketFindFirstByActionUID(u64 actionUID, u64 mask);
+extern void btlActionSetState(BtlAction* action, u16 state);
+
+// FUN_001A13E0
+void btlActionUpdateStateChangeFormation(BtlAction* action)
+{
+    if (btlPacketFindFirstByActionUID(action->uid, BTL_UIDMAX) == NULL)
+    {
+        btlActionSetState(action, BTLACTION_STATE_START);
+    }
+}
+#endif /* P4_UNIT_001A13E0 */

@@ -370,3 +370,122 @@ void func_0026d810(void)
     return;
 }
 #endif /* P4_UNIT_0026D810 */
+
+#if defined(P4_UNIT_00269A90)
+/* Source unit: src/Scene/mt_sceneFunc_00269a90.c */
+#include "type.h"
+
+/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b93c0 (verified MATCH
+ * there). 003b5d10 -> func_00145270, 003b8ff0 -> func_00269820,
+ * 003b9260 -> func_002699d0. */
+
+extern u32 func_00145270();
+extern u32 func_00269820(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+                         u32 param_5, u32 param_6, float param_7);
+extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
+                         u32 param_5, u32 param_6, float param_7);
+
+// FUN_00269A90
+void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
+                   short param_5)
+{
+    u32 uVar1;
+    u32 uVar3;
+    u32 lVar2;
+    u32 lVar4;
+
+    uVar1 = (u16)param_1;
+    uVar1 = (u16)(uVar1 & 0x3ff | 0xc00);
+
+    uVar3 = (u32)param_4;
+    if (uVar3 == -1) {
+        lVar2 = func_00145270(uVar1);
+        if (lVar2 != 0) {
+            func_00269820(lVar2, 0, param_2, param_3, 1, 0, 1.0f);
+        }
+        goto end;
+    }
+
+    lVar4 = func_00145270(uVar1);
+    if (lVar4 == 0) {
+        goto second_done;
+    }
+    func_00269820(lVar4, 0, param_2, param_3, 0, 0, 1.0f);
+
+second_done:
+    lVar2 = func_00145270(uVar1);
+    if (lVar2 != 0) {
+        func_002699d0((u32 *)lVar2, 0, uVar3, param_5, 1, 0, 1.0f);
+    }
+
+end:
+    return;
+}
+#endif /* P4_UNIT_00269A90 */
+
+#if defined(P4_UNIT_0026C860)
+/* Source unit: src/Scene/mt_sceneFunc_0026c860.c */
+#include "type.h"
+
+/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbb90 (verified MATCH
+ * there). 006a2f48 -> D_0063b1a0, 006a2f50 -> D_0063b1a8, 004c69f0 ->
+ * func_003e40b0, 00530da0 -> func_0044dcd8, 0052e9a0 -> func_0044b8d8,
+ * 005318a0 -> func_0044e7d8, 007caf18 -> fGpffff8428 (gp 0x007690f0 - 0x7bd8). */
+
+typedef struct SceneVecBits
+{
+    u64 xy;
+    float z;
+} __attribute__((packed)) SceneVecBits;
+
+extern SceneVecBits D_0063b1a0[];
+extern float D_0063b1a8[];
+extern float func_003e40b0(float *dst, const float *src);
+extern u32 func_0044dcd8(float param_1);
+extern u32 func_0044b8d8(u32 value);
+extern float func_0044e7d8(u32 value);
+extern float fGpffff8428;
+
+/* The volatile-qualified staging of the D_0063b1a0/D_0063b1a8 header into the
+ * local SceneVecBits is carried from the P3 donor (FUN_003bbb90), which is
+ * MATCH nd0 there with the same construct. measured in P4: removing the four
+ * volatile qualifiers regressed 0026c860 MATCH nd0 -> MISMATCH nd10 (object
+ * 256/256 both ways); retained to reproduce retail's load/store sequence. */
+
+// FUN_0026C860
+void func_0026c860(const float *param_1, float *param_2)
+{
+    u32 uVar1;
+    float fVar2;
+    u64 txy;
+    float tz;
+    SceneVecBits source;
+    float afStack_20[4];
+
+    txy = ((volatile SceneVecBits *)D_0063b1a0)->xy;
+    tz = *(volatile float *)D_0063b1a8;
+    *(volatile u64 *)&source.xy = txy;
+    *(volatile float *)&source.z = tz;
+
+    fVar2 = func_003e40b0(afStack_20, param_1);
+    if (fVar2 == 0.0f) {
+        param_2[0] = 0.0f;
+        param_2[1] = 0.0f;
+        param_2[2] = 0.0f;
+    }
+    else {
+        afStack_20[1] = 0.0f;
+        uVar1 = func_0044dcd8(afStack_20[0] * ((float *)&source.xy)[0] +
+                              afStack_20[1] * ((float *)&source.xy)[1] +
+                              afStack_20[2] * source.z);
+        uVar1 = func_0044b8d8(uVar1);
+        fVar2 = fGpffff8428 * func_0044e7d8(uVar1);
+        if (afStack_20[0] < 0.0f) {
+            fVar2 = fVar2 * -1.0f;
+        }
+        param_2[1] = fVar2;
+        param_2[0] = 0.0f;
+        param_2[2] = 0.0f;
+    }
+}
+#endif /* P4_UNIT_0026C860 */

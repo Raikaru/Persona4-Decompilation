@@ -187,7 +187,11 @@ typedef struct HSfdImage
     u8* palette;
 } HSfdImage;
 
-// FUN_00463740
+/* The zero-instruction optimizer barrier that forced width's load before
+ * height's is banned (policy); without it MWCC hoists the height load and
+ * the y init above width's load - measured nd 10 (verify) / 3 words
+ * (fndiff). Accepted compiler floor. */
+// FUN_00463740 NONMATCHING
 void func_00463740(HSfdImage* image, const u8* source)
 {
     u8* dst;
@@ -199,8 +203,6 @@ void func_00463740(HSfdImage* image, const u8* source)
 
     dst = image->pixels;
     width = image->width;
-    /* Removing this barrier loses func_00463740 (MATCH nd0 -> MISMATCH nd10) - measured W164. */
-    asm ("" : "+r"(width));
     height = image->height;
     y = 0;
     count = width >> 1;

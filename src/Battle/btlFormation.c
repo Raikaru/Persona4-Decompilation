@@ -461,3 +461,114 @@ void func_001d61e0(u32 *param_1)
     *(u16 *)(param_1[2] + 0xa0) = *(u16 *)(param_1[2] + 0xa0) + -1;
 }
 #endif /* P4_UNIT_001D61E0 */
+
+#if defined(P4_UNIT_001D3000)
+/* Source unit: src/Battle/btlFormation_001d3000.c */
+#include "type.h"
+
+typedef int (*code)(...);
+
+extern u32 func_00194470(u32 taskId, u32 size);
+extern void func_001d2e00(u32 *work);
+extern u32 func_001d2e20(u32 *param_1);
+extern void func_001d2fe0(u32 *work);
+
+// FUN_001D3000
+void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = func_00194470(0xb02, 0x10);
+    *(code **)(packet + 0x68) = (code *)func_001d2e00;
+    *(code **)(packet + 0x6c) = (code *)func_001d2e20;
+    *(code **)(packet + 0x70) = (code *)func_001d2fe0;
+    work = *(u32 **)(packet + 0x78);
+    work[0] = param_1;
+    work[1] = param_2;
+    work[2] = param_3;
+    *(u16 *)(work + 3) = param_4;
+}
+#endif /* P4_UNIT_001D3000 */
+
+#if defined(P4_UNIT_001D5EB0)
+/* Source unit: src/Battle/btlFormation_001d5eb0.c */
+#include "type.h"
+
+typedef void (*BtlPacketInitFunc)(void* work);
+typedef u32 (*BtlPacketUpdateFunc)(void* work);
+
+typedef struct BtlPacket {
+    u8 padding_00[0x47];
+    u8 flags;
+    u8 padding_48[0x20];
+    BtlPacketInitFunc initFunc;
+    BtlPacketUpdateFunc updateFunc;
+    u8 padding_70[8];
+    void* workData;
+} BtlPacket;
+
+BtlPacket* func_00194470(u32 type, u32 workSize);
+extern u32 func_00442948();
+extern u32 func_00442830();
+extern void func_001d5ca0(u32 *param_1);
+extern u32 func_001d5d60(u32 *param_1);
+
+// FUN_001D5EB0
+u32 func_001d5eb0(u32 param_1, u32 param_2, u16 param_3)
+{
+    typedef struct FormationStringWork {
+        u32 value;
+        u32 unused;
+        char *text;
+        u16 field;
+        u16 padding;
+    } FormationStringWork;
+    BtlPacket *packet;
+    FormationStringWork *work;
+
+    packet = func_00194470(0x400, func_00442948(param_2) + sizeof(FormationStringWork));
+    packet->flags &= 0xfe;
+    packet->initFunc = (BtlPacketInitFunc)func_001d5ca0;
+    packet->updateFunc = (BtlPacketUpdateFunc)func_001d5d60;
+    work = packet->workData;
+    work->value = param_1;
+    work->text = (char *)(work + 1);
+    work->field = param_3;
+    func_00442830(work->text, param_2);
+    return (u32)packet;
+}
+#endif /* P4_UNIT_001D5EB0 */
+
+#if defined(P4_UNIT_001D6240)
+/* Source unit: src/Battle/btlFormation_001d6240.c */
+#include "type.h"
+
+typedef int (*code)(...);
+
+extern u32 func_00194470(u32 taskId, u32 size);
+extern void func_001d5f60(u32 *param_1);
+extern u32 func_001d6010(u32 *param_1);
+extern u8 func_001d6170(u32 *param_1);
+extern void func_001d61e0(u32 *param_1);
+
+// FUN_001D6240
+void func_001d6240(u32 param_1, u32 param_2, u32 param_3, u16 param_4, u32 param_5)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = func_00194470(0x301, 0x20);
+    *(u8 *)(packet + 0x47) = *(u8 *)(packet + 0x47) & 0xef;
+    *(code *)(packet + 0x68) = (code)func_001d5f60;
+    *(code *)(packet + 0x6c) = (code)func_001d6010;
+    *(code *)(packet + 0x74) = (code)func_001d6170;
+    *(code *)(packet + 0x70) = (code)func_001d61e0;
+    work = *(u32 **)(packet + 0x78);
+    work[0] = param_1;
+    work[1] = param_2;
+    work[2] = param_3;
+    *(u16 *)(work + 3) = param_4;
+    work[7] = param_5;
+}
+#endif /* P4_UNIT_001D6240 */
