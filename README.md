@@ -92,13 +92,14 @@ python tools/verify.py --include-generated --json build/m2c_verify_report.json
 ```
 
 Generated candidates under `src/generated/` support ongoing work and are not
-authoritative source. Exact-retail assembly bodies preserve ownership where
-semantic C has not yet been recovered.
+authoritative source: each file is a whole translation unit holding many
+`// FUN_xxxxxxxx M2C_CANDIDATE` functions, exactly like authoritative files
+(no per-function guards). Exact-retail assembly bodies preserve ownership
+where semantic C has not yet been recovered.
 
 ## Tools
 
 ```sh
-make consolidate
 make reconcile
 make shared-p3 P3_ROOT=../Persona3-FES-Decompilation
 python tools/progress.py

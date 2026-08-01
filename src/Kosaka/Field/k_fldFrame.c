@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00169200)
 /* Source unit: src/Kosaka/Field/k_fldFrame.c */
 #include "type.h"
 
@@ -11,6 +7,34 @@ typedef struct RwV3d
     f32 y;
     f32 z;
 } RwV3d;
+
+extern void func_00394e70(void* collision, void* state,
+                          void* callback, void* param);
+extern void* func_00169a30(const RwV3d* point, const void* triangle,
+                           void* collector);
+
+// 44 bytes. Callback state passed through RenderWare field raycasts.
+typedef struct FldFrameRaycast
+{
+    RwV3d* hitPointDst;    // 0x00
+    u32 didHit;            // 0x04
+    RwV3d line[2];         // 0x08
+    u32 intersectionType;  // 0x20. RpIntersection line type.
+    f32 nearestFraction;   // 0x24
+    void* hitObject;       // 0x28
+} FldFrameRaycast;
+extern void* func_0016b350(f32 fraction, const RwV3d* line,
+                           void* unused, FldFrameRaycast* raycast);
+
+// P3 counterpart fGpffff820c (gp -0x7DF4); P4 retail uses gp -0x7D4C,
+// i.e. absolute 0x007690f0 - 0x7d4c = 0x007613a4.
+extern f32 fGpffff82b4;
+extern void func_003bff30(void* collisionWorld, void* callback, void* param);
+extern void* func_0016b430(void* collisionWorld, FldFrameRaycast* raycast);
+extern void* func_0016b770(f32 fraction, const RwV3d* line,
+                           void* unused, FldFrameRaycast* raycast);
+
+
 
 // FUN_00169200
 RwV3d* func_00169200(RwV3d* dst, const RwV3d* point,
@@ -52,23 +76,8 @@ RwV3d* func_00169200(RwV3d* dst, const RwV3d* point,
 
     return dst;
 }
-#endif /* P4_UNIT_00169200 */
 
-#if defined(P4_UNIT_0016A0C0)
-/* Source unit: src/Kosaka/Field/k_fldFrame.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-extern void func_00394e70(void* collision, void* state,
-                          void* callback, void* param);
-extern void* func_00169a30(const RwV3d* point, const void* triangle,
-                           void* collector);
 
 // FUN_0016A0C0
 void* func_0016a0c0(void* collisionWorld, void* state)
@@ -78,29 +87,8 @@ void* func_0016a0c0(void* collisionWorld, void* state)
                   func_00169a30, state);
     return collisionWorld;
 }
-#endif /* P4_UNIT_0016A0C0 */
 
-#if defined(P4_UNIT_0016B350)
-/* Source unit: src/Kosaka/Field/k_fldFrame.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-// 44 bytes. Callback state passed through RenderWare field raycasts.
-typedef struct FldFrameRaycast
-{
-    RwV3d* hitPointDst;    // 0x00
-    u32 didHit;            // 0x04
-    RwV3d line[2];         // 0x08
-    u32 intersectionType;  // 0x20. RpIntersection line type.
-    f32 nearestFraction;   // 0x24
-    void* hitObject;       // 0x28
-} FldFrameRaycast;
 
 // FUN_0016B350
 void* func_0016b350(f32 fraction, const RwV3d* line,
@@ -131,34 +119,8 @@ void* func_0016b350(f32 fraction, const RwV3d* line,
     }
     return unused;
 }
-#endif /* P4_UNIT_0016B350 */
 
-#if defined(P4_UNIT_0016B430)
-/* Source unit: src/Kosaka/Field/k_fldFrame.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-// 44 bytes. Callback state passed through RenderWare field raycasts.
-typedef struct FldFrameRaycast
-{
-    RwV3d* hitPointDst;    // 0x00
-    u32 didHit;            // 0x04
-    RwV3d line[2];         // 0x08
-    u32 intersectionType;  // 0x20. RpIntersection line type.
-    f32 nearestFraction;   // 0x24
-    void* hitObject;       // 0x28
-} FldFrameRaycast;
-
-extern void func_00394e70(void* collision, void* state,
-                          void* callback, void* param);
-extern void* func_0016b350(f32 fraction, const RwV3d* line,
-                           void* unused, FldFrameRaycast* raycast);
 
 // FUN_0016B430
 void* func_0016b430(void* collisionWorld, FldFrameRaycast* raycast)
@@ -168,35 +130,8 @@ void* func_0016b430(void* collisionWorld, FldFrameRaycast* raycast)
                   func_0016b350, raycast);
     return collisionWorld;
 }
-#endif /* P4_UNIT_0016B430 */
 
-#if defined(P4_UNIT_0016B480)
-/* Source unit: src/Kosaka/Field/k_fldFrame.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-// 44 bytes. Callback state passed through RenderWare field raycasts.
-typedef struct FldFrameRaycast
-{
-    RwV3d* hitPointDst;    // 0x00
-    u32 didHit;            // 0x04
-    RwV3d line[2];         // 0x08
-    u32 intersectionType;  // 0x20. RpIntersection line type.
-    f32 nearestFraction;   // 0x24
-    void* hitObject;       // 0x28
-} FldFrameRaycast;
-
-// P3 counterpart fGpffff820c (gp -0x7DF4); P4 retail uses gp -0x7D4C,
-// i.e. absolute 0x007690f0 - 0x7d4c = 0x007613a4.
-extern f32 fGpffff82b4;
-extern void func_003bff30(void* collisionWorld, void* callback, void* param);
-extern void* func_0016b430(void* collisionWorld, FldFrameRaycast* raycast);
 
 // FUN_0016B480
 u32 func_0016b480(void* collisionWorld, const RwV3d* line,
@@ -230,29 +165,8 @@ u32 func_0016b480(void* collisionWorld, const RwV3d* line,
     func_003bff30(collisionWorld, func_0016b430, &raycast);
     return raycast.didHit;
 }
-#endif /* P4_UNIT_0016B480 */
 
-#if defined(P4_UNIT_0016B770)
-/* Source unit: src/Kosaka/Field/k_fldFrame.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-// 44 bytes. Callback state passed through RenderWare field raycasts.
-typedef struct FldFrameRaycast
-{
-    RwV3d* hitPointDst;    // 0x00
-    u32 didHit;            // 0x04
-    RwV3d line[2];         // 0x08
-    u32 intersectionType;  // 0x20. RpIntersection line type.
-    f32 nearestFraction;   // 0x24
-    void* hitObject;       // 0x28
-} FldFrameRaycast;
 
 // FUN_0016B770
 void* func_0016b770(f32 fraction, const RwV3d* line,
@@ -283,34 +197,8 @@ void* func_0016b770(f32 fraction, const RwV3d* line,
     }
     return unused;
 }
-#endif /* P4_UNIT_0016B770 */
 
-#if defined(P4_UNIT_0016B850)
-/* Source unit: src/Kosaka/Field/k_fldFrame.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-// 44 bytes. Callback state passed through RenderWare field raycasts.
-typedef struct FldFrameRaycast
-{
-    RwV3d* hitPointDst;    // 0x00
-    u32 didHit;            // 0x04
-    RwV3d line[2];         // 0x08
-    u32 intersectionType;  // 0x20. RpIntersection line type.
-    f32 nearestFraction;   // 0x24
-    void* hitObject;       // 0x28
-} FldFrameRaycast;
-
-extern void func_00394e70(void* collision, void* state,
-                          void* callback, void* param);
-extern void* func_0016b770(f32 fraction, const RwV3d* line,
-                           void* unused, FldFrameRaycast* raycast);
 
 // FUN_0016B850
 void* func_0016b850(void* collisionWorld, FldFrameRaycast* raycast)
@@ -320,4 +208,3 @@ void* func_0016b850(void* collisionWorld, FldFrameRaycast* raycast)
                   func_0016b770, raycast);
     return collisionWorld;
 }
-#endif /* P4_UNIT_0016B850 */

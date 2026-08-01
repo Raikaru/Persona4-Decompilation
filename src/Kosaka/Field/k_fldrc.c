@@ -1,22 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00102E70)
-/* Source unit: src/Kosaka/Field/k_fldrc.c */
-#include "type.h"
-
-extern void func_00192e90(void);
-extern void func_00193730(void);
-
-// FUN_00102E70
-void K_Fldrc_DestroyArchives(void)
-{
-    func_00192e90();
-    func_00193730();
-}
-#endif /* P4_UNIT_00102E70 */
-
-#if defined(P4_UNIT_00150890)
 /* Source unit: src/Kosaka/Field/k_fldrc.c */
 #include "type.h"
 
@@ -39,6 +20,8 @@ extern u32 strcat();
 extern u32 strcpy();
 extern void* func_00150970(char* path);
 
+
+
 // FUN_00150890
 void* func_00150890(s16 majorId, s16 minorId)
 {
@@ -60,4 +43,3 @@ void* func_00150890(s16 majorId, s16 minorId)
     strcat(path, (const char*)&gp0xffff9e08 - 0x61f8);
     return func_00150970(path);
 }
-#endif /* P4_UNIT_00150890 */

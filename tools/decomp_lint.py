@@ -19,7 +19,7 @@ Rules are grouped by prefix:
                         the program: `volatile` on non-hardware data, banned
                         optimization pragmas, dead stores, `register` locals,
                         inline asm that forces codegen for ordinary computation
-  M  marker hygiene     the `// FUN_xxxxxxxx` / `P4_UNIT_xxxxxxxx` contract
+  M  marker hygiene     the `// FUN_xxxxxxxx` marker contract
                         verify.py relies on
   P  pragma balance     on/off brackets that never close within a file
 
@@ -112,7 +112,7 @@ RULES = {
     "H008": ("error", "`register` storage class on an ordinary local"),
     "H009": ("error", "inline asm emitting ordinary instructions (not syscall/privileged/COP2/VU0); use honest C"),
     # ---- M: marker hygiene -------------------------------------------------
-    "M001": ("error", "marker hygiene: malformed FUN_ address, duplicate address in one file, or P4_UNIT guard that disagrees with the marker beneath it"),
+    "M001": ("error", "marker hygiene: malformed FUN_ address or duplicate address in one file"),
     # ---- P: pragma balance -------------------------------------------------
     "P001": ("error", "unbalanced pragma on/off pairs within a file"),
 }
@@ -122,8 +122,6 @@ SEVERITY_ORDER = {"info": 0, "warn": 1, "error": 2}
 MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))(.*)$")
 # Any `// FUN_...` line, including ones whose address part is malformed.
 MARKER_LINE_RE = re.compile(r"^\s*//\s*FUN_([0-9a-fA-F]*)(.*)$")
-# The guard verify.py uses to select one consolidated translation unit.
-UNIT_GUARD_RE = re.compile(r"^\s*#if\s+defined\(P4_UNIT_([0-9a-fA-F]{8})\)\s*$")
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
@@ -599,12 +597,10 @@ def check_asm_instructions(src):
 # ------------------------------------------------------------ marker hygiene
 
 def check_markers(src):
-    """M001: malformed addresses, duplicates within one file, guard mismatch.
+    """M001: malformed addresses and duplicates within one file.
 
     The contract verify.py relies on: every tracked function carries a
-    `// FUN_<8 hex digits>` marker, no address appears twice in one file, and
-    every `#if defined(P4_UNIT_xxxxxxxx)` guard contains a marker for exactly
-    that address as its first function.
+    `// FUN_<8 hex digits>` marker, and no address appears twice in one file.
     """
     markers = []          # (idx, addr)
     seen = defaultdict(list)
@@ -627,24 +623,6 @@ def check_markers(src):
             yield Finding("M001", src.rel(), lines[0],
                           f"marker FUN_{addr} appears {len(lines)} times "
                           f"(lines {', '.join(map(str, lines))})")
-    for i, line in enumerate(src.lines):
-        g = UNIT_GUARD_RE.match(line)
-        if not g:
-            continue
-        guard_addr = g.group(1).lower()
-        end = next((c for c in range(i + 1, len(src.lines))
-                    if re.match(r"^\s*#endif\b", src.lines[c])), None)
-        body = src.lines[i + 1:end]
-        first = next((MARKER_RE.match(l) for l in body if MARKER_RE.match(l)), None)
-        if first is None:
-            yield Finding("M001", src.rel(), i + 1,
-                          f"P4_UNIT_{guard_addr} guard has no FUN_ marker beneath it",
-                          src.lines[i].strip())
-        elif first.group(2).lower() != guard_addr:
-            yield Finding("M001", src.rel(), i + 1,
-                          f"P4_UNIT_{guard_addr} guard disagrees with the marker "
-                          f"FUN_{first.group(2)} beneath it",
-                          src.lines[i].strip())
 
 
 # ------------------------------------------------------------ pragma balance
@@ -715,10 +693,38 @@ CHECKS = (
 )
 
 
+def non_matching_lines(src):
+    """Line indices inside `#ifdef NON_MATCHING` reference blocks.
+
+    A function that could not be matched keeps its near-miss C behind
+    `#ifdef NON_MATCHING`, with an `INCLUDE_ASM` fallback in the `#else` arm.
+    That C is NEVER compiled -- it is preserved so whoever finishes the function
+    does not have to start over. Linting it produces false positives by
+    construction: a faithful reconstruction reproduces stores retail makes even
+    where the reconstruction itself does not consume them, which reads as a dead
+    store. Style rules apply to code that ships, so skip these blocks.
+    """
+    skip, depth = set(), 0
+    for index, line in enumerate(src.lines):
+        stripped = line.strip()
+        if stripped.startswith("#ifdef NON_MATCHING") or (depth and stripped.startswith("#if")):
+            depth += 1
+        elif depth:
+            if stripped.startswith("#endif"):
+                depth -= 1
+            elif depth == 1 and stripped.startswith("#else"):
+                depth = 0          # the #else arm is the INCLUDE_ASM that DOES build
+                continue
+        if depth:
+            skip.add(index)
+    return skip
+
+
 def lint_source(src):
     out = []
+    skip = non_matching_lines(src)
     for check in CHECKS:
-        out.extend(check(src))
+        out.extend(f for f in check(src) if (f.line - 1) not in skip)
     out.sort(key=lambda f: (f.line, f.code))
     return out
 

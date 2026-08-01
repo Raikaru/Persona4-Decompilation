@@ -1,9 +1,50 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
+/* Whole-file translation unit: src/Graphics/Effect/effMisc.c */
 
-#if defined(P4_UNIT_004BCE50)
 /* Source unit: src/Graphics/Effect/effMisc_004bce50.c */
 #include "type.h"
+
+typedef struct RwV4d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} RwV4d;
+
+extern f32 cosf(f32 x);
+extern f32 sinf(f32 x);
+
+typedef struct EffRandState
+{
+    u32 x[4]; // 0x00
+} EffRandState;
+
+extern u32 effMiscRand(EffRandState* state);
+
+static EffRandState sRandState; // 00922de0
+
+typedef struct RwV3d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} RwV3d;
+
+typedef struct RwMatrix
+{
+    RwV3d right;    // 0x00
+    u32 flags;      // 0x0c
+    RwV3d up;       // 0x10
+    u32 pad1;       // 0x1c
+    RwV3d at;       // 0x20
+    u32 pad2;       // 0x2c
+    RwV3d pos;      // 0x30
+    u32 pad3;       // 0x3c
+} RwMatrix;
+
+extern void func_004bd230(const RwV3d* axis, RwMatrix* matrix, f32 angle);
+
+
 
 // FUN_004BCE50
 void effMiscQuatMultiplyVU(void)
@@ -25,11 +66,8 @@ void effMiscQuatMultiplyVU(void)
         : "vf2", "ACC", "memory"
     );
 }
-#endif /* P4_UNIT_004BCE50 */
 
-#if defined(P4_UNIT_004BCE80)
-/* Source unit: src/Graphics/Effect/effMisc_004bce80.c */
-#include "type.h"
+
 
 // FUN_004BCE80
 void effMiscNormalizeVU(void)
@@ -49,11 +87,8 @@ void effMiscNormalizeVU(void)
         : "vf2", "vf3", "ACC", "Q", "memory"
     );
 }
-#endif /* P4_UNIT_004BCE80 */
 
-#if defined(P4_UNIT_004BCEB0)
-/* Source unit: src/Graphics/Effect/effMisc_004bceb0.c */
-#include "type.h"
+
 
 // FUN_004BCEB0
 void func_004bceb0(void)
@@ -92,69 +127,85 @@ void func_004bceb0(void)
         : "vf1", "vf2", "vf3", "vf4", "vf5", "vf6", "vf28", "vf29", "vf30", "vf31", "ACC", "memory"
     );
 }
-#endif /* P4_UNIT_004BCEB0 */
 
-#if defined(P4_UNIT_004BD450)
-/* Source unit: src/Graphics/Effect/effMisc_004bd450.c */
-#include "type.h"
 
-// FUN_004BD450
-void func_004bd450(void)
+
+// FUN_004BCF20
+void func_004bcf20(f32 angleX, f32 angleY, f32 angleZ)
 {
+    RwV4d quaternion;
+    f32 halfAngle;
+    f32 cosY;
+    f32 sinY;
+    f32 cosZ;
+    f32 cosX;
+    f32 sinX;
+    f32 sinZ;
+
+    halfAngle = -angleX * 0.5f;
+    cosX = cosf(halfAngle);
+    sinX = sinf(halfAngle);
+    halfAngle = -angleY * 0.5f;
+    cosY = cosf(halfAngle);
+    sinY = sinf(halfAngle);
+    halfAngle = -angleZ * 0.5f;
+    cosZ = cosf(halfAngle);
+    sinZ = sinf(halfAngle);
+    quaternion.x = cosX * (sinZ * sinY) + sinX * (cosZ * cosY);
+    quaternion.y = cosX * (cosZ * sinY) - sinX * (sinZ * cosY);
+    quaternion.z = cosX * (sinZ * cosY) + sinX * (cosZ * sinY);
+    quaternion.w = cosX * (cosZ * cosY) - sinX * (sinZ * sinY);
+
     __asm__ volatile (
-        ".set noreorder                              \n"
-        "vmulax.xyzw ACC, vf24, vf28x                \n"
-        "vmadday.xyzw ACC, vf25, vf28y               \n"
-        "vmaddaz.xyzw ACC, vf26, vf28z               \n"
-        "vmaddw.xyzw vf28, vf27, vf28w               \n"
-        "vmulax.xyzw ACC, vf24, vf29x                \n"
-        "vmadday.xyzw ACC, vf25, vf29y               \n"
-        "vmaddaz.xyzw ACC, vf26, vf29z               \n"
-        "vmaddw.xyzw vf29, vf27, vf29w               \n"
-        "vmulax.xyzw ACC, vf24, vf30x                \n"
-        "vmadday.xyzw ACC, vf25, vf30y               \n"
-        "vmaddaz.xyzw ACC, vf26, vf30z               \n"
-        "vmaddw.xyzw vf30, vf27, vf30w               \n"
-        "vmulax.xyzw ACC, vf24, vf31x                \n"
-        "vmadday.xyzw ACC, vf25, vf31y               \n"
-        "vmaddaz.xyzw ACC, vf26, vf31z               \n"
-        "vmaddw.xyzw vf31, vf27, vf31w               \n"
+        ".set noreorder          \n"
+        "lqc2 vf10, 0(%0)        \n"
         ".set reorder"
         :
-        :
-        : "vf28", "vf29", "vf30", "vf31", "ACC", "memory"
+        : "r" (&quaternion)
+        : "vf10", "memory"
     );
 }
-#endif /* P4_UNIT_004BD450 */
 
-#if defined(P4_UNIT_004BD0B0)
-/* Source unit: src/Graphics/Effect/effMisc_004bd0b0.c */
-#include "type.h"
 
-typedef struct EffRandState
+
+// FUN_004BD050
+u32 effMiscRand(EffRandState* state)
 {
-    u32 x[4]; // 0x00
-} EffRandState;
+    u32 x0;
+    u32 x1;
+    u32 x2;
+    u32 x3;
+    u32 rand;
 
-extern u32 effMiscRand(EffRandState* state);
+    if (state == NULL)
+    {
+        state = &sRandState;
+    }
+
+    x0 = state->x[0];
+    x1 = state->x[1];
+    x2 = state->x[2];
+    x3 = state->x[3];
+
+    rand = ((x1 << 0x02) | (((x0 >> 0x1e)) % 4)) ^ ((x3 << 0x01) | (((x2 >> 0x1f)) % 2));
+
+    state->x[0] = rand;
+    state->x[1] = x0;
+    state->x[2] = x1;
+    state->x[3] = x2;
+
+    return rand;
+}
+
+
 
 // FUN_004BD0B0
 f32 effMiscRandFloat(EffRandState* state)
 {
     return (f32)(effMiscRand(state) & 0xFFFFFF) / 16777216.0f;
 }
-#endif /* P4_UNIT_004BD0B0 */
 
-#if defined(P4_UNIT_004BD130)
-/* Source unit: src/Graphics/Effect/effMisc_004bd130.c */
-#include "type.h"
 
-typedef struct EffRandState
-{
-    u32 x[4]; // 0x00
-} EffRandState;
-
-static EffRandState sRandState; // 00922de0
 
 // FUN_004BD130
 void effMiscRandInit(EffRandState* state, u32 seed)
@@ -179,33 +230,8 @@ void effMiscRandInit(EffRandState* state, u32 seed)
     x = x ^ 0x11BE81C7;
     state->x[3] = (x << 0x18) | (x >> 0x08);
 }
-#endif /* P4_UNIT_004BD130 */
 
-#if defined(P4_UNIT_004BD1A0)
-/* Source unit: src/Graphics/Effect/effMisc_004bd1a0.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-typedef struct RwMatrix
-{
-    RwV3d right;    // 0x00
-    u32 flags;      // 0x0c
-    RwV3d up;       // 0x10
-    u32 pad1;       // 0x1c
-    RwV3d at;       // 0x20
-    u32 pad2;       // 0x2c
-    RwV3d pos;      // 0x30
-    u32 pad3;       // 0x3c
-} RwMatrix;
-
-extern f32 cosf(f32 x);
-extern f32 sinf(f32 x);
 
 // FUN_004BD1A0
 void func_004bd1a0(f32 angle)
@@ -249,32 +275,8 @@ void func_004bd1a0(f32 angle)
         : "vf28", "vf29", "vf30", "vf31", "memory"
     );
 }
-#endif /* P4_UNIT_004BD1A0 */
 
-#if defined(P4_UNIT_004BD380)
-/* Source unit: src/Graphics/Effect/effMisc_004bd380.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-typedef struct RwMatrix
-{
-    RwV3d right;    // 0x00
-    u32 flags;      // 0x0c
-    RwV3d up;       // 0x10
-    u32 pad1;       // 0x1c
-    RwV3d at;       // 0x20
-    u32 pad2;       // 0x2c
-    RwV3d pos;      // 0x30
-    u32 pad3;       // 0x3c
-} RwMatrix;
-
-extern void func_004bd230(const RwV3d* axis, RwMatrix* matrix, f32 angle);
 
 // FUN_004BD380
 void func_004bd380(const RwV3d* axis, f32 angle)
@@ -294,33 +296,8 @@ void func_004bd380(const RwV3d* axis, f32 angle)
         : "vf28", "vf29", "vf30", "vf31", "memory"
     );
 }
-#endif /* P4_UNIT_004BD380 */
 
-#if defined(P4_UNIT_004BD3C0)
-/* Source unit: src/Graphics/Effect/effMisc_004bd3c0.c */
-#include "type.h"
 
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-typedef struct RwMatrix
-{
-    RwV3d right;    // 0x00
-    u32 flags;      // 0x0c
-    RwV3d up;       // 0x10
-    u32 pad1;       // 0x1c
-    RwV3d at;       // 0x20
-    u32 pad2;       // 0x2c
-    RwV3d pos;      // 0x30
-    u32 pad3;       // 0x3c
-} RwMatrix;
-
-extern f32 cosf(f32 x);
-extern f32 sinf(f32 x);
 
 // FUN_004BD3C0
 void func_004bd3c0(f32 angle)
@@ -364,103 +341,33 @@ void func_004bd3c0(f32 angle)
         : "vf24", "vf25", "vf26", "vf27", "memory"
     );
 }
-#endif /* P4_UNIT_004BD3C0 */
 
-#if defined(P4_UNIT_004BCF20)
-/* Source unit: src/Graphics/Effect/effMisc_004bcf20.c */
-#include "type.h"
 
-typedef struct RwV4d
+
+// FUN_004BD450
+void func_004bd450(void)
 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} RwV4d;
-
-extern f32 cosf(f32 x);
-extern f32 sinf(f32 x);
-
-// FUN_004BCF20
-void func_004bcf20(f32 angleX, f32 angleY, f32 angleZ)
-{
-    RwV4d quaternion;
-    f32 halfAngle;
-    f32 cosY;
-    f32 sinY;
-    f32 cosZ;
-    f32 cosX;
-    f32 sinX;
-    f32 sinZ;
-
-    halfAngle = -angleX * 0.5f;
-    cosX = cosf(halfAngle);
-    sinX = sinf(halfAngle);
-    halfAngle = -angleY * 0.5f;
-    cosY = cosf(halfAngle);
-    sinY = sinf(halfAngle);
-    halfAngle = -angleZ * 0.5f;
-    cosZ = cosf(halfAngle);
-    sinZ = sinf(halfAngle);
-    quaternion.x = cosX * (sinZ * sinY) + sinX * (cosZ * cosY);
-    quaternion.y = cosX * (cosZ * sinY) - sinX * (sinZ * cosY);
-    quaternion.z = cosX * (sinZ * cosY) + sinX * (cosZ * sinY);
-    quaternion.w = cosX * (cosZ * cosY) - sinX * (sinZ * sinY);
-
     __asm__ volatile (
-        ".set noreorder          \n"
-        "lqc2 vf10, 0(%0)        \n"
+        ".set noreorder                              \n"
+        "vmulax.xyzw ACC, vf24, vf28x                \n"
+        "vmadday.xyzw ACC, vf25, vf28y               \n"
+        "vmaddaz.xyzw ACC, vf26, vf28z               \n"
+        "vmaddw.xyzw vf28, vf27, vf28w               \n"
+        "vmulax.xyzw ACC, vf24, vf29x                \n"
+        "vmadday.xyzw ACC, vf25, vf29y               \n"
+        "vmaddaz.xyzw ACC, vf26, vf29z               \n"
+        "vmaddw.xyzw vf29, vf27, vf29w               \n"
+        "vmulax.xyzw ACC, vf24, vf30x                \n"
+        "vmadday.xyzw ACC, vf25, vf30y               \n"
+        "vmaddaz.xyzw ACC, vf26, vf30z               \n"
+        "vmaddw.xyzw vf30, vf27, vf30w               \n"
+        "vmulax.xyzw ACC, vf24, vf31x                \n"
+        "vmadday.xyzw ACC, vf25, vf31y               \n"
+        "vmaddaz.xyzw ACC, vf26, vf31z               \n"
+        "vmaddw.xyzw vf31, vf27, vf31w               \n"
         ".set reorder"
         :
-        : "r" (&quaternion)
-        : "vf10", "memory"
+        :
+        : "vf28", "vf29", "vf30", "vf31", "ACC", "memory"
     );
 }
-#endif /* P4_UNIT_004BCF20 */
-
-#if defined(P4_UNIT_004BD050)
-/* Source unit: src/Graphics/Effect/effMisc_004bd050.c */
-#include "type.h"
-
-typedef struct EffRandState
-{
-    u32 x[4]; // 0x00
-} EffRandState;
-
-/* Storage is DEFINED by the P4_UNIT_004BD130 block above (effMiscRandInit).
- * Each P4_UNIT compiles as its own translation unit, so defining the same
- * static in both makes each object emit a .bss placed at 0x00922de0 and the
- * linker command file moves its location counter backward (measured: mwldps2
- * "Linker command file error ... move current location backward"). Reference
- * it here instead of redefining it. */
-extern EffRandState sRandState; // 00922de0
-
-// FUN_004BD050
-u32 effMiscRand(EffRandState* state)
-{
-    u32 x0;
-    u32 x1;
-    u32 x2;
-    u32 x3;
-    u32 rand;
-
-    if (state == NULL)
-    {
-        state = &sRandState;
-    }
-
-    x0 = state->x[0];
-    x1 = state->x[1];
-    x2 = state->x[2];
-    x3 = state->x[3];
-
-    rand = ((x1 << 0x02) | (((x0 >> 0x1e)) % 4)) ^ ((x3 << 0x01) | (((x2 >> 0x1f)) % 2));
-
-    state->x[0] = rand;
-    state->x[1] = x0;
-    state->x[2] = x1;
-    state->x[3] = x2;
-
-    return rand;
-}
-#endif /* P4_UNIT_004BD050 */

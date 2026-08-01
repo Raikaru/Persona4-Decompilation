@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00298FC0)
 /* Source unit: src/Script/scrCommonCommand_00298fc0.c */
 #include "type.h"
 
@@ -9,6 +5,15 @@ typedef struct KwlnTask KwlnTask;
 
 extern s32 func_0029cc00(s32 paramIdx);
 extern u32 func_0029d020(void);
+
+void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
+/* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
+#include "Kosaka/k_command_internal.h"
+extern u32 func_00452490(KwlnTask* task);
+extern void func_0029cf50(s32 retVal);
+extern u32 kwlnTaskGetTimer(KwlnTask* task);
+
+
 
 // FUN_00298FC0
 u32 scrCommand_WAIT()
@@ -24,16 +29,29 @@ u32 scrCommand_WAIT()
 
     return func_0029cc00(0) <= cmdTimer;
 }
-#endif /* P4_UNIT_00298FC0 */
 
-#if defined(P4_UNIT_002995C0)
-/* Source unit: src/Script/scrCommonCommand_002995c0.c */
-#include "type.h"
 
-typedef struct KwlnTask KwlnTask;
 
-extern s32 func_0029cc00(s32 paramIdx);
-extern u32 func_00452490(KwlnTask* task);
+// FUN_00299170
+s32 func_00299170(void) {
+    s16 sp1C[2]; /* measured: 2-element form required for retail slot at 0x1c */
+
+    sp1C[0] = func_0029cc00(0);
+    func_001029a0(0x1D, sp1C, 2, 0xA);
+    return 1;
+}
+
+
+
+// FUN_00299400
+u32 func_00299400()
+{
+    func_00106550(func_0029cc00(0), func_0029cc00(1));
+
+    return true;
+}
+
+
 
 // FUN_002995C0
 u32 scrCommand_SCR_KILL_SYNC()
@@ -44,17 +62,8 @@ u32 scrCommand_SCR_KILL_SYNC()
 
     return func_00452490(task) == 0;
 }
-#endif /* P4_UNIT_002995C0 */
 
-#if defined(P4_UNIT_00299600)
-/* Source unit: src/Script/scrCommonCommand_00299600.c */
-#include "type.h"
 
-typedef struct KwlnTask KwlnTask;
-
-extern s32 func_0029cc00(s32 paramIdx);
-extern u32 func_00452490(KwlnTask* task);
-extern void func_0029cf50(s32 retVal);
 
 // FUN_00299600
 u32 scrCommand_SCR_EXISTS()
@@ -74,18 +83,8 @@ u32 scrCommand_SCR_EXISTS()
 
     return 1;
 }
-#endif /* P4_UNIT_00299600 */
 
-#if defined(P4_UNIT_00299660)
-/* Source unit: src/Script/scrCommonCommand_00299660.c */
-#include "type.h"
 
-typedef struct KwlnTask KwlnTask;
-
-extern s32 func_0029cc00(s32 paramIdx);
-extern u32 func_00452490(KwlnTask* task);
-extern void func_0029cf50(s32 retVal);
-extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
 // FUN_00299660
 u32 scrCommand_SCR_GET_TIMER()
@@ -105,4 +104,3 @@ u32 scrCommand_SCR_GET_TIMER()
 
     return 1;
 }
-#endif /* P4_UNIT_00299660 */

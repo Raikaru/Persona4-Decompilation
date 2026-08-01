@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001059E0)
 /* Source unit: src/Main/g_data_001059e0.c */
 #include "type.h"
 
@@ -23,6 +19,8 @@ static const u32 sPlayerExpThreshold[MAX_CHARACTER_LEVEL] =
  * MATCH nd0 -> MISMATCH nd19 (table address no longer hoisted out of the
  * loop into the preheader). */
 #pragma opt_loop_invariants on
+
+
 // FUN_001059E0
 u8 func_001059e0(s32 exp)
 {
@@ -42,4 +40,3 @@ u8 func_001059e0(s32 exp)
     return MAX_CHARACTER_LEVEL;
 }
 #pragma opt_loop_invariants off
-#endif /* P4_UNIT_001059E0 */

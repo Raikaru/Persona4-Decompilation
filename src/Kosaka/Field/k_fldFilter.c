@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00161460)
 /* Source unit: src/Kosaka/Field/k_fldFilter.c */
 #include "type.h"
 
@@ -12,6 +8,8 @@ extern s32 D_007643A8;
 extern s32 D_007643AC;
 extern f32 D_007643B0;
 extern f32 D_007643B4;
+
+
 
 // FUN_00161460
 void FUN_00161460(s32 index, u32 type, s32 duration)
@@ -31,4 +29,3 @@ void FUN_00161460(s32 index, u32 type, s32 duration)
     D_007643A8 = index;
     *(u32*)((u8*)D_007643A0 + index * 0x124) = type;
 }
-#endif /* P4_UNIT_00161460 */

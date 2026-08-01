@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00194C60)
 /* Source unit: src/Battle/btlPacket.c */
 #include "type.h"
 
@@ -13,17 +9,6 @@ struct BtlPacketCallbackWork
     BtlPacketCallback callback;
     void* data;
 };
-
-// FUN_00194C60
-void func_00194c60(BtlPacketCallbackWork* work)
-{
-    work->callback(work->data);
-}
-#endif /* P4_UNIT_00194C60 */
-
-#if defined(P4_UNIT_00194DC0)
-/* Source unit: src/Battle/btlPacket.c */
-#include "type.h"
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -68,6 +53,16 @@ struct BtlUnit
 
 extern RwV3d D_00881430;
 
+
+
+// FUN_00194C60
+void func_00194c60(BtlPacketCallbackWork* work)
+{
+    work->callback(work->data);
+}
+
+
+
 // FUN_00194DC0
 void func_00194dc0(BtlUnit* unit)
 {
@@ -95,4 +90,3 @@ void func_00194dc0(BtlUnit* unit)
     unit->unk_70.imag.z = 0.0f;
     unit->unk_70.real = 0.5f;
 }
-#endif /* P4_UNIT_00194DC0 */

@@ -1,14 +1,12 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001F99C0)
 /* Source unit: src/Battle/btlVoice_001f99c0.c */
 #include "type.h"
 
 typedef u32 (*BtlPacketUpdateFunc)(void* work);
 
 typedef struct BtlPacket {
-    u8 padding_00[0x6c];
+    u8 padding_00[0x47];
+    u8 unk_47;
+    u8 padding_48[0x24];
     BtlPacketUpdateFunc updateFunc;
     u8 padding_70[8];
     void* workData;
@@ -30,6 +28,33 @@ typedef struct BtlVoicePacket001f99c0 {
 BtlPacket* func_00194470(u32 type, s32 workSize);
 u32 func_001f9800(void* work);
 
+typedef struct BtlVoicePacketA03Work {
+    u32 result;
+    u32 state;
+    u16 voiceId;
+} BtlVoicePacketA03Work;
+u32 func_001f9ac0(BtlVoicePacketA03Work* work);
+
+typedef struct BtlUnit {
+    u8 padding_00[0xa2];
+    u8 genus;
+} BtlUnit;
+struct BtlAction {
+    u8 padding_00[0x1a];
+    u16 unk_1a;
+    u8 padding_1c[0x14];
+    BtlUnit* unit;
+};
+
+typedef struct BtlCamera {
+    u8 padding_00[0xe0];
+    BtlAction* action;
+} BtlCamera;
+
+void func_00225740(BtlCamera* camera);
+
+
+
 // FUN_001F99C0
 BtlPacket* btlVoiceCreatePacket(BtlAction* action, s32 param_2, s32 param_3,
                                 s32 param_4, s32 param_5)
@@ -48,31 +73,8 @@ BtlPacket* btlVoiceCreatePacket(BtlAction* action, s32 param_2, s32 param_3,
     work->unk_14 = 0;
     return packet;
 }
-#endif /* P4_UNIT_001F99C0 */
 
-#if defined(P4_UNIT_001F9B80)
-/* Source unit: src/Battle/btlVoice_001f9b80.c */
-#include "type.h"
 
-typedef u32 (*BtlPacketUpdateFunc)(void* work);
-
-typedef struct BtlPacket {
-    u8 padding_00[0x47];
-    u8 unk_47;
-    u8 padding_48[0x24];
-    BtlPacketUpdateFunc updateFunc;
-    u8 padding_70[8];
-    void* workData;
-} BtlPacket;
-
-typedef struct BtlVoicePacketA03Work {
-    u32 result;
-    u32 state;
-    u16 voiceId;
-} BtlVoicePacketA03Work;
-
-BtlPacket* func_00194470(u32 type, s32 workSize);
-u32 func_001f9ac0(BtlVoicePacketA03Work* work);
 
 // FUN_001F9B80
 BtlPacket* func_001f9b80(u16 voiceId)
@@ -89,30 +91,8 @@ BtlPacket* func_001f9b80(u16 voiceId)
     work->state = 0;
     return packet;
 }
-#endif /* P4_UNIT_001F9B80 */
 
-#if defined(P4_UNIT_00225E00)
-/* Source unit: src/Battle/btlVoice_00225e00.c */
-#include "type.h"
 
-typedef struct BtlUnit {
-    u8 padding_00[0xa2];
-    u8 genus;
-} BtlUnit;
-
-typedef struct BtlAction {
-    u8 padding_00[0x1a];
-    u16 unk_1a;
-    u8 padding_1c[0x14];
-    BtlUnit* unit;
-} BtlAction;
-
-typedef struct BtlCamera {
-    u8 padding_00[0xe0];
-    BtlAction* action;
-} BtlCamera;
-
-void func_00225740(BtlCamera* camera);
 
 // FUN_00225E00
 void func_00225e00(BtlCamera* camera)
@@ -126,4 +106,3 @@ void func_00225e00(BtlCamera* camera)
     }
     return;
 }
-#endif /* P4_UNIT_00225E00 */

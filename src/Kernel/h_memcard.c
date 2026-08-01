@@ -1,9 +1,12 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00465400)
-/* Source unit: src/Kernel/h_memcard_00465400.c (1 function markers) */
+/* Source unit: src/Kernel/h_memcard_00464650.c (1 function markers) */
 #include "type.h"
+
+extern s32 D_00764BBC; /* sMemcardMode */
+extern s32 D_00764BA0; /* sMemcardAsync */
+extern s32 D_00764BB8; /* sMemcardFile */
+extern void* D_00764BAC; /* sMemcardBuffer */
+extern s32 D_00764BB4; /* sMemcardBufferSize */
+extern s32 D_00764BC0; /* sMemcardSeqMode */
 
 extern s32 func_00464670(s32* mode, u32* result, s32* error);
 extern s32 sceMc2GetInfoAsync(s32 socket, s32* status);
@@ -11,6 +14,22 @@ extern s32 D_00764B9C;
 extern s32 D_00764BA4;
 extern s32 D_008E4B20[];
 extern s32 D_008E4B24[];
+extern s32 D_00764BB0; /* sMemcardBufferSize */
+
+
+
+// FUN_00464650
+void func_00464650(s32 file, void* buffer, s32 size)
+{
+    D_00764BBC = 0;
+    D_00764BA0 = 0;
+    D_00764BB8 = file;
+    D_00764BAC = buffer;
+    D_00764BB4 = size;
+    D_00764BC0 = 0;
+}
+
+
 
 // FUN_00465400
 s32 func_00465400(void)
@@ -83,75 +102,8 @@ card_state:
 card_done:
     return 0;
 }
-#endif /* P4_UNIT_00465400 */
 
-#if defined(P4_UNIT_00465F20)
-/* Source unit: src/Kernel/h_memcard_00465f20.c (1 function markers) */
-#include "type.h"
 
-extern s32 D_00764BC0; /* sMemcardSeqMode */
-extern s32 D_00764BBC; /* sMemcardMode */
-extern s32 D_00764BB8; /* sMemcardFile */
-
-// FUN_00465F20
-void func_00465F20(void)
-{
-    D_00764BC0 = 0;
-    D_00764BBC = 0;
-    D_00764BB8 = 0;
-}
-#endif /* P4_UNIT_00465F20 */
-
-#if defined(P4_UNIT_00466260)
-/* Source unit: src/Kernel/h_memcard_00466260.c (1 function markers) */
-#include "type.h"
-
-extern s32 D_00764BC0; /* sMemcardSeqMode */
-extern s32 D_00764BBC; /* sMemcardMode */
-extern s32 D_00764BB8; /* sMemcardFile */
-
-// FUN_00466260
-void func_00466260(s32 slot)
-{
-    D_00764BC0 = 0;
-    D_00764BBC = 0;
-    D_00764BB8 = slot;
-}
-#endif /* P4_UNIT_00466260 */
-
-#if defined(P4_UNIT_00464650)
-/* Source unit: src/Kernel/h_memcard_00464650.c (1 function markers) */
-#include "type.h"
-
-extern s32 D_00764BBC; /* sMemcardMode */
-extern s32 D_00764BA0; /* sMemcardAsync */
-extern s32 D_00764BB8; /* sMemcardFile */
-extern void* D_00764BAC; /* sMemcardBuffer */
-extern s32 D_00764BB4; /* sMemcardBufferSize */
-extern s32 D_00764BC0; /* sMemcardSeqMode */
-
-// FUN_00464650
-void func_00464650(s32 file, void* buffer, s32 size)
-{
-    D_00764BBC = 0;
-    D_00764BA0 = 0;
-    D_00764BB8 = file;
-    D_00764BAC = buffer;
-    D_00764BB4 = size;
-    D_00764BC0 = 0;
-}
-#endif /* P4_UNIT_00464650 */
-
-#if defined(P4_UNIT_00465570)
-/* Source unit: src/Kernel/h_memcard_00465570.c (1 function markers) */
-#include "type.h"
-
-extern s32 D_00764BBC; /* sMemcardMode */
-extern s32 D_00764BA0; /* sMemcardAsync */
-extern s32 D_00764BB8; /* sMemcardFile */
-extern void* D_00764BAC; /* sMemcardBuffer */
-extern s32 D_00764BB0; /* sMemcardBufferSize */
-extern s32 D_00764BC0; /* sMemcardSeqMode */
 
 // FUN_00465570
 void func_00465570(s32 file, void* buffer, s32 size)
@@ -163,4 +115,23 @@ void func_00465570(s32 file, void* buffer, s32 size)
     D_00764BB0 = size;
     D_00764BC0 = 0;
 }
-#endif /* P4_UNIT_00465570 */
+
+
+
+// FUN_00465F20
+void func_00465F20(void)
+{
+    D_00764BC0 = 0;
+    D_00764BBC = 0;
+    D_00764BB8 = 0;
+}
+
+
+
+// FUN_00466260
+void func_00466260(s32 slot)
+{
+    D_00764BC0 = 0;
+    D_00764BBC = 0;
+    D_00764BB8 = slot;
+}

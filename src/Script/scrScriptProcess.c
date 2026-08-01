@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_0029D900)
 /* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
 
@@ -11,25 +7,6 @@ typedef struct ScrData ScrData;
 void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
 void scrReleaseScript(ScrData* scr);
-
-// FUN_0029D900
-void scrDestroyTask(KwlnTask* scrTask)
-{
-    ScrData* scr;
-
-    scr = (ScrData*)dds3GetProcessWorkData(scrTask);
-    if (scr != NULL)
-    {
-        scrReleaseScript(scr);
-    }
-
-    dds3SetProcessWorkData(scrTask, NULL);
-}
-#endif /* P4_UNIT_0029D900 */
-
-#if defined(P4_UNIT_0029DE20)
-/* Source unit: src/Script/scrScriptProcess_0029de20.c */
-#include "type.h"
 
 typedef enum
 {
@@ -74,6 +51,24 @@ typedef struct
 } ScrLblPrcd;
 
 int strcmp(const char* s1, const char* s2);
+
+
+
+// FUN_0029D900
+void scrDestroyTask(KwlnTask* scrTask)
+{
+    ScrData* scr;
+
+    scr = (ScrData*)dds3GetProcessWorkData(scrTask);
+    if (scr != NULL)
+    {
+        scrReleaseScript(scr);
+    }
+
+    dds3SetProcessWorkData(scrTask, NULL);
+}
+
+
 
 // FUN_0029DE20
 s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
@@ -123,4 +118,3 @@ s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
 
     return -1;
 }
-#endif /* P4_UNIT_0029DE20 */

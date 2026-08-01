@@ -1,57 +1,5 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
+/* Whole-file translation unit: src/Graphics/primitive.c */
 
-#if defined(P4_UNIT_00278C60)
-/* Source unit: src/Graphics/primitive_00278c60.c (donor P3 FUN_0035ac90) */
-#include "type.h"
-
-// FUN_00278C60
-void func_00278c60(int *param_1, int param_2, u8 *param_3, int param_4)
-{
-  u8 bVar1;
-  u8 *pbVar3;
-  int iVar4;
-  int iVar5;
-  int updateOffset;
-
-  pbVar3 = param_3;
-  goto check;
-  do {
-    bVar1 = *pbVar3;
-    pbVar3 = pbVar3 + 1;
-    if ((bVar1 & 1) == 0) {
-      updateOffset = (int)(u32)bVar1 >> 1;
-      goto update;
-    }
-    if ((bVar1 & 2) == 0) {
-      updateOffset = (bVar1 | ((int)*pbVar3 << 8)) >> 2;
-      pbVar3 = pbVar3 + 1;
-      goto update;
-    }
-    if ((bVar1 & 4) == 0) {
-      updateOffset = ((bVar1 | ((int)*pbVar3 << 8)) | ((int)pbVar3[1] << 16)) >> 3;
-      pbVar3 = pbVar3 + 2;
-      goto update;
-    }
-    iVar5 = ((int)(u32)bVar1 >> 3) + 2;
-    for (iVar4 = 0; iVar4 < iVar5; iVar4 = iVar4 + 1) {
-      param_1 = param_1 + 1;
-      *param_1 = *param_1 + param_2;
-    }
-    goto check;
-update:
-    param_1 = param_1 + updateOffset;
-    *param_1 = *param_1 + param_2;
-check:
-    updateOffset = ((int)pbVar3 - (int)param_3 < param_4);
-    if (updateOffset == 0) {
-      return;
-    }
-  } while (1);
-}
-#endif /* P4_UNIT_00278C60 */
-
-#if defined(P4_UNIT_0045F0B0)
 /* Source unit: src/Graphics/primitive_0045f0b0.c (donor P3 FUN_00358a30 primQuad3D) */
 #include "type.h"
 
@@ -215,6 +163,173 @@ extern RwCamera* func_00457120(void);           // kwlnGetMainCamera
 extern void func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
 extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
 
+// 36 bytes
+typedef struct
+{
+    RwV3d objVertex; // 0x00
+    union
+    {
+        RwRGBA preLitColor;
+        RwRGBA color;
+    } c;             // 0x0c
+    RwV3d objNormal; // 0x10
+    f32 u;           // 0x1c
+    f32 v;           // 0x20
+} RwIm3DVertex;
+
+enum
+{
+    rwIM3D_VERTEXUV = 1,
+    rwIM3D_ALLOPAQUE = 2,
+    rwIM3D_NOCLIP = 4,
+    rwIM3D_VERTEXXYZ = 8,
+    rwIM3D_VERTEXRGBA = 16
+};
+
+#define rwMATRIXINTERNALIDENTITY 0x00020000
+#define rwMATRIXTYPEORTHONORMAL 0x00000003
+
+#define rwMatrixSetFlags(m, flagsbit) ((m)->flags = (flagsbit))
+#define rwMatrixGetFlags(m)           ((m)->flags)
+
+#define RwMatrixSetIdentity(m)                                  \
+do                                                              \
+{                                                               \
+    (m)->right.x = (m)->up.y    = (m)->at.z  = 1.0f;            \
+    (m)->right.y = (m)->right.z = (m)->up.x  = 0.0f;            \
+    (m)->up.z    = (m)->at.x    = (m)->at.y  = 0.0f;            \
+    (m)->pos.x   = (m)->pos.y   = (m)->pos.z = 0.0f;            \
+    rwMatrixSetFlags((m),                                       \
+                     rwMatrixGetFlags(m) |                      \
+                     (rwMATRIXINTERNALIDENTITY |                \
+                      rwMATRIXTYPEORTHONORMAL));                \
+} while(0)
+
+#define RwIm3DVertexSetPos(_vert, _imx, _imy, _imz) \
+    do                                              \
+    {                                               \
+        RwV3d _packed;                              \
+        _packed.x = _imx;                           \
+        _packed.y = _imy;                           \
+        _packed.z = _imz;                           \
+        (_vert)->objVertex = _packed;               \
+    } while (0)
+
+#define RwIm3DVertexSetRGBA(_vert, _r, _g, _b, _a) \
+    do                                             \
+    {                                              \
+        RwRGBA * const _col = &(_vert)->c.color;   \
+        _col->r = (_r);                            \
+        _col->g = (_g);                            \
+        _col->b = (_b);                            \
+        _col->a = (_a);                            \
+    } while(0)
+
+typedef int (*RwRenderStateSetFunc)(RwRenderState renderState, void* val);
+
+// rwGlobals.device fields at their P4 retail addresses
+extern RwRenderStateSetFunc D_00887300[4];      // device.setRenderState
+extern RwRenderStateGetFunc D_00887304[4];      // device.getRenderState
+extern void func_00410420(RwIm3DVertex* pVerts, u32 numVerts, RwMatrix* ltm, u32 flags); // RwIm3DTransform
+extern int func_00410930(int vert1, int vert2); // RwIm3DRenderLine
+
+// retail data at 0x007124d0
+static const RwV3d sAxisDirs[3] =
+{
+    {1.0f, 0.0f, 0.0f}, // X
+    {0.0f, 1.0f, 0.0f}, // Y
+    {0.0f, 0.0f, 1.0f}  // Z
+};
+
+// retail data at 0x007124f8
+static const RwRGBA sAxisColors[3] =
+{
+    {255, 0, 0, 255}, // X (red)
+    {0, 255, 0, 255}, // Y (green)
+    {0, 0, 255, 255}  // Z (blue)
+};
+extern void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState);
+
+typedef struct
+{
+    f32 m00;
+    f32 m01;
+    f32 m02;
+    u32 mode;
+    f32 m10;
+    f32 m11;
+    f32 m12;
+    u32 pad1;
+    f32 m20;
+    f32 m21;
+    f32 m22;
+    u32 unused;
+    u32 pad2;
+    u32 pad3;
+    u32 pad4;
+} PrimMatrixData;
+
+extern void* RwMatrixScale(void* matrix, const void* scale, int combineOp); // RwMatrixScale
+extern void RwMatrixMultiply(int dst, u8* a, float* b);                        // RwMatrixMultiply
+
+typedef struct
+{
+    u8 pad0[8];
+    struct
+    {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    } quat;
+    f32 values[6];
+    f32 value30;
+} PrimInterpData;
+
+// retail data at 0x00761118 (gp-relative float, P3 name fGpffff8028)
+extern float fGpffff8028;
+extern f32 func_0044b920(f32 param_1); // P3 FUN_0052e9e8 (acosf)
+extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
+
+extern void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1);
+
+extern int func_003df1a0(u64 stream, void* buf, int size); // P3 FUN_004c1750
+extern int func_003df240(u64 stream, void* buf, int size); // P3 FUN_004c17f0
+
+typedef void (*PrimFuncB)(void*, void*, void*, f32);
+typedef void (*PrimFuncA)(int, int);
+typedef u32 (*PrimFuncC)(int, u64);
+typedef u64 (*PrimFuncD)(u64, u64);
+typedef void (*PrimFuncE)(void*, void*);
+typedef void (*PrimFuncStub)(void);
+
+typedef struct
+{
+    u32 hash;
+    u32 size0;
+    u32 size1;
+    PrimFuncA funcA;
+    PrimFuncB funcB;
+    PrimFuncB funcB2;
+    PrimFuncStub funcC;
+    PrimFuncE funcD;
+    PrimFuncD funcE;
+    PrimFuncC funcF;
+    PrimFuncStub funcG;
+    u32 zero;
+} PrimDesc;
+
+extern void func_00480940(int param_1, int param_2);
+extern void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1);
+extern void func_004810c0(void);
+extern void func_00480f20(void* param_1, void* param_2);
+extern void* func_00480e20(void* param_1, void* param_2);
+extern u32 func_00480d50(int param_1, u64 param_2);
+extern u32 func_00480f00(void* param_1);
+extern int func_003d5000(void* desc); // P3 FUN_004b6680
+
+
+
 // FUN_0045F0B0
 void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestoreRenderState)
 {
@@ -320,166 +435,8 @@ void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestor
         }
     }
 }
-#endif /* P4_UNIT_0045F0B0 */
 
-#if defined(P4_UNIT_0045F790)
-/* Source unit: src/Graphics/primitive_0045f790.c (donor P3 FUN_00359110 primLine3D) */
-#include "type.h"
 
-typedef struct
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-typedef struct
-{
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-} RwRGBA;
-
-// 64 bytes
-typedef struct
-{
-    RwV3d right;   // 0x00
-    u32 flags;     // 0x0c
-    RwV3d up;      // 0x10
-    u32 pad1;      // 0x1c
-    RwV3d at;      // 0x20
-    u32 pad2;      // 0x2c
-    RwV3d pos;     // 0x30
-    u32 pad3;      // 0x3c
-} RwMatrix;
-
-// 36 bytes
-typedef struct
-{
-    RwV3d objVertex; // 0x00
-    union
-    {
-        RwRGBA preLitColor;
-        RwRGBA color;
-    } c;             // 0x0c
-    RwV3d objNormal; // 0x10
-    f32 u;           // 0x1c
-    f32 v;           // 0x20
-} RwIm3DVertex;
-
-typedef enum
-{
-    rwRENDERSTATETEXTURERASTER = 1,
-    rwRENDERSTATEZTESTENABLE = 6,
-    rwRENDERSTATESHADEMODE = 7,
-    rwRENDERSTATEZWRITEENABLE = 8,
-    rwRENDERSTATEVERTEXALPHAENABLE = 12,
-    rwRENDERSTATEFOGENABLE = 14,
-    rwRENDERSTATECULLMODE = 20,
-} RwRenderState;
-
-typedef enum
-{
-    rwSHADEMODENASHADEMODE,
-    rwSHADEMODEFLAT,
-    rwSHADEMODEGOURAUD
-} RwShadeMode;
-
-typedef enum
-{
-    rwCULLMODENACULLMODE,
-    rwCULLMODECULLNONE,
-    rwCULLMODECULLBACK,
-    rwCULLMODECULLFRONT
-} RwCullMode;
-
-typedef enum
-{
-    rpSKYRENDERSTATENARENDERSTATE = 0,
-    rpSKYRENDERSTATEDITHER,
-    rpSKYRENDERSTATEALPHA_1,
-    rpSKYRENDERSTATEATEST_1,
-} RpSkyRenderState;
-
-enum
-{
-    rwIM3D_VERTEXUV = 1,
-    rwIM3D_ALLOPAQUE = 2,
-    rwIM3D_NOCLIP = 4,
-    rwIM3D_VERTEXXYZ = 8,
-    rwIM3D_VERTEXRGBA = 16
-};
-
-#define rwMATRIXINTERNALIDENTITY 0x00020000
-#define rwMATRIXTYPEORTHONORMAL 0x00000003
-
-#define rwMatrixSetFlags(m, flagsbit) ((m)->flags = (flagsbit))
-#define rwMatrixGetFlags(m)           ((m)->flags)
-
-#define RwMatrixSetIdentity(m)                                  \
-do                                                              \
-{                                                               \
-    (m)->right.x = (m)->up.y    = (m)->at.z  = 1.0f;            \
-    (m)->right.y = (m)->right.z = (m)->up.x  = 0.0f;            \
-    (m)->up.z    = (m)->at.x    = (m)->at.y  = 0.0f;            \
-    (m)->pos.x   = (m)->pos.y   = (m)->pos.z = 0.0f;            \
-    rwMatrixSetFlags((m),                                       \
-                     rwMatrixGetFlags(m) |                      \
-                     (rwMATRIXINTERNALIDENTITY |                \
-                      rwMATRIXTYPEORTHONORMAL));                \
-} while(0)
-
-#define RwIm3DVertexSetPos(_vert, _imx, _imy, _imz) \
-    do                                              \
-    {                                               \
-        RwV3d _packed;                              \
-        _packed.x = _imx;                           \
-        _packed.y = _imy;                           \
-        _packed.z = _imz;                           \
-        (_vert)->objVertex = _packed;               \
-    } while (0)
-
-#define RwIm3DVertexSetRGBA(_vert, _r, _g, _b, _a) \
-    do                                             \
-    {                                              \
-        RwRGBA * const _col = &(_vert)->c.color;   \
-        _col->r = (_r);                            \
-        _col->g = (_g);                            \
-        _col->b = (_b);                            \
-        _col->a = (_a);                            \
-    } while(0)
-
-typedef int (*RwRenderStateSetFunc)(RwRenderState renderState, void* val);
-typedef int (*RwRenderStateGetFunc)(RwRenderState renderState, void* val);
-
-#define PRIM_RENDERSTATE_COUNT 6
-
-// 8 bytes
-typedef struct
-{
-    RwRenderState renderState; // 0x00
-    u32 val;                   // 0x04
-} PrimRenderState;
-
-// retail data at 0x00712490
-static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
-{
-    {rwRENDERSTATEFOGENABLE, 0},
-    {rwRENDERSTATEVERTEXALPHAENABLE, 1},
-    {rwRENDERSTATESHADEMODE, rwSHADEMODEGOURAUD},
-    {rwRENDERSTATECULLMODE, rwCULLMODECULLNONE},
-    {rwRENDERSTATEZTESTENABLE, 1},
-    {rwRENDERSTATEZWRITEENABLE, 0}
-};
-
-// rwGlobals.device fields at their P4 retail addresses
-extern RwRenderStateSetFunc D_00887300[4];      // device.setRenderState
-extern RwRenderStateGetFunc D_00887304[4];      // device.getRenderState
-
-extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
-extern void func_00410420(RwIm3DVertex* pVerts, u32 numVerts, RwMatrix* ltm, u32 flags); // RwIm3DTransform
-extern int func_00410930(int vert1, int vert2); // RwIm3DRenderLine
 
 // FUN_0045F790
 void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState)
@@ -526,120 +483,8 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
         }
     }
 }
-#endif /* P4_UNIT_0045F790 */
 
-#if defined(P4_UNIT_0045FA00)
-/* Source unit: src/Graphics/primitive_0045fa00.c (donor P3 FUN_00359380 primAxisLine3D) */
-#include "type.h"
 
-typedef struct
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-typedef struct
-{
-    u8 r;
-    u8 g;
-    u8 b;
-    u8 a;
-} RwRGBA;
-
-// 64 bytes
-typedef struct
-{
-    RwV3d right;   // 0x00
-    u32 flags;     // 0x0c
-    RwV3d up;      // 0x10
-    u32 pad1;      // 0x1c
-    RwV3d at;      // 0x20
-    u32 pad2;      // 0x2c
-    RwV3d pos;     // 0x30
-    u32 pad3;      // 0x3c
-} RwMatrix;
-
-typedef enum
-{
-    rwRENDERSTATETEXTURERASTER = 1,
-    rwRENDERSTATEZTESTENABLE = 6,
-    rwRENDERSTATESHADEMODE = 7,
-    rwRENDERSTATEZWRITEENABLE = 8,
-    rwRENDERSTATEVERTEXALPHAENABLE = 12,
-    rwRENDERSTATEFOGENABLE = 14,
-    rwRENDERSTATECULLMODE = 20,
-} RwRenderState;
-
-typedef enum
-{
-    rwSHADEMODENASHADEMODE,
-    rwSHADEMODEFLAT,
-    rwSHADEMODEGOURAUD
-} RwShadeMode;
-
-typedef enum
-{
-    rwCULLMODENACULLMODE,
-    rwCULLMODECULLNONE,
-    rwCULLMODECULLBACK,
-    rwCULLMODECULLFRONT
-} RwCullMode;
-
-typedef enum
-{
-    rpSKYRENDERSTATENARENDERSTATE = 0,
-    rpSKYRENDERSTATEDITHER,
-    rpSKYRENDERSTATEALPHA_1,
-    rpSKYRENDERSTATEATEST_1,
-} RpSkyRenderState;
-
-typedef int (*RwRenderStateSetFunc)(RwRenderState renderState, void* val);
-typedef int (*RwRenderStateGetFunc)(RwRenderState renderState, void* val);
-
-#define PRIM_RENDERSTATE_COUNT 6
-
-// 8 bytes
-typedef struct
-{
-    RwRenderState renderState; // 0x00
-    u32 val;                   // 0x04
-} PrimRenderState;
-
-// retail data at 0x00712490
-static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
-{
-    {rwRENDERSTATEFOGENABLE, 0},
-    {rwRENDERSTATEVERTEXALPHAENABLE, 1},
-    {rwRENDERSTATESHADEMODE, rwSHADEMODEGOURAUD},
-    {rwRENDERSTATECULLMODE, rwCULLMODECULLNONE},
-    {rwRENDERSTATEZTESTENABLE, 1},
-    {rwRENDERSTATEZWRITEENABLE, 0}
-};
-
-// retail data at 0x007124d0
-static const RwV3d sAxisDirs[3] =
-{
-    {1.0f, 0.0f, 0.0f}, // X
-    {0.0f, 1.0f, 0.0f}, // Y
-    {0.0f, 0.0f, 1.0f}  // Z
-};
-
-// retail data at 0x007124f8
-static const RwRGBA sAxisColors[3] =
-{
-    {255, 0, 0, 255}, // X (red)
-    {0, 255, 0, 255}, // Y (green)
-    {0, 0, 255, 255}  // Z (blue)
-};
-
-// rwGlobals.device fields at their P4 retail addresses
-extern RwRenderStateSetFunc D_00887300[4];      // device.setRenderState
-extern RwRenderStateGetFunc D_00887304[4];      // device.getRenderState
-
-extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
-extern void func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
-extern void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState);
 
 // FUN_0045FA00
 void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderState)
@@ -688,33 +533,8 @@ void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderSta
         }
     }
 }
-#endif /* P4_UNIT_0045FA00 */
 
-#if defined(P4_UNIT_00480940)
-/* Source unit: src/Graphics/primitive_00480940.c (donor P3 FUN_0035a290) */
-#include "type.h"
 
-typedef struct
-{
-    f32 m00;
-    f32 m01;
-    f32 m02;
-    u32 mode;
-    f32 m10;
-    f32 m11;
-    f32 m12;
-    u32 pad1;
-    f32 m20;
-    f32 m21;
-    f32 m22;
-    u32 unused;
-    u32 pad2;
-    u32 pad3;
-    u32 pad4;
-} PrimMatrixData;
-
-extern void* RwMatrixScale(void* matrix, const void* scale, int combineOp); // RwMatrixScale
-extern void RwMatrixMultiply(int dst, u8* a, float* b);                        // RwMatrixMultiply
 
 // FUN_00480940
 void func_00480940(int param_1, int param_2)
@@ -778,30 +598,8 @@ void func_00480940(int param_1, int param_2)
     *(f32*)((int)param_1 + 0x38) = value38;
     *(u32*)((int)param_1 + 0xc) = *(u32*)((int)param_1 + 0xc) & 0xfffdffff;
 }
-#endif /* P4_UNIT_00480940 */
 
-#if defined(P4_UNIT_00480AA0)
-/* Source unit: src/Graphics/primitive_00480aa0.c (donor P3 FUN_0035a3f0) */
-#include "type.h"
 
-typedef struct
-{
-    u8 pad0[8];
-    struct
-    {
-        f32 x;
-        f32 y;
-        f32 z;
-        f32 w;
-    } quat;
-    f32 values[6];
-    f32 value30;
-} PrimInterpData;
-
-// retail data at 0x00761118 (gp-relative float, P3 name fGpffff8028)
-extern float fGpffff8028;
-extern f32 func_0044b920(f32 param_1); // P3 FUN_0052e9e8 (acosf)
-extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
 
 // FUN_00480AA0
 void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1)
@@ -850,27 +648,8 @@ void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1)
     out->values[4] = secondWeight * (second->values[4] - first->values[4]) + first->values[4];
     out->values[5] = secondWeight * (second->values[5] - first->values[5]) + first->values[5];
 }
-#endif /* P4_UNIT_00480AA0 */
 
-#if defined(P4_UNIT_00480CD0)
-/* Source unit: src/Graphics/primitive_00480cd0.c (donor P3 FUN_0035a620) */
-#include "type.h"
 
-typedef struct
-{
-    u8 pad0[8];
-    struct
-    {
-        f32 x;
-        f32 y;
-        f32 z;
-        f32 w;
-    } quat;
-    f32 values[6];
-    f32 value30;
-} PrimInterpData;
-
-extern void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1);
 
 // FUN_00480CD0
 void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1)
@@ -888,14 +667,8 @@ void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1)
     func_00480aa0(out, (void*)first, (void*)second, t);
     out->value30 = first->value30 * second->value30;
 }
-#endif /* P4_UNIT_00480CD0 */
 
-#if defined(P4_UNIT_00480D50)
-/* Source unit: src/Graphics/primitive_00480d50.c (donor P3 FUN_0035a6a0) */
-#include "type.h"
 
-extern int func_003df1a0(u64 stream, void* buf, int size); // P3 FUN_004c1750
-extern int func_003df240(u64 stream, void* buf, int size); // P3 FUN_004c17f0
 
 // FUN_00480D50
 u32 func_00480d50(int param_1, u64 param_2)
@@ -921,44 +694,8 @@ u32 func_00480d50(int param_1, u64 param_2)
     }
     return 1;
 }
-#endif /* P4_UNIT_00480D50 */
 
-#if defined(P4_UNIT_00481250)
-/* Source unit: src/Graphics/primitive_00481250.c (donor P3 FUN_0035aba0) */
-#include "type.h"
 
-typedef void (*PrimFuncB)(void*, void*, void*, f32);
-typedef void (*PrimFuncA)(int, int);
-typedef u32 (*PrimFuncC)(int, u64);
-typedef u64 (*PrimFuncD)(u64, u64);
-typedef void (*PrimFuncE)(void*, void*);
-typedef void (*PrimFuncStub)(void);
-
-typedef struct
-{
-    u32 hash;
-    u32 size0;
-    u32 size1;
-    PrimFuncA funcA;
-    PrimFuncB funcB;
-    PrimFuncB funcB2;
-    PrimFuncStub funcC;
-    PrimFuncE funcD;
-    PrimFuncD funcE;
-    PrimFuncC funcF;
-    PrimFuncStub funcG;
-    u32 zero;
-} PrimDesc;
-
-extern void func_00480940(int param_1, int param_2);
-extern void func_00480aa0(void* param_2, void* param_3, void* param_4, f32 param_1);
-extern void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1);
-extern void func_004810c0(void);
-extern void func_00480f20(void* param_1, void* param_2);
-extern void* func_00480e20(void* param_1, void* param_2);
-extern u32 func_00480d50(int param_1, u64 param_2);
-extern u32 func_00480f00(void* param_1);
-extern int func_003d5000(void* desc); // P3 FUN_004b6680
 
 // FUN_00481250
 u32 func_00481250(void)
@@ -982,4 +719,3 @@ u32 func_00481250(void)
     result = func_003d5000(&desc);
     return result != 0;
 }
-#endif /* P4_UNIT_00481250 */

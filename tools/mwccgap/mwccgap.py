@@ -53,6 +53,9 @@ def main() -> None:
     add_argument("--macro-inc-path", type=Path)
     add_argument("--target-encoding", type=str)
     add_argument("--src-dir", type=Path)
+    add_argument("--skip-asm", action="store_true",
+                 help="do not splice INCLUDE_ASM/INCLUDE_RODATA assembly; "
+                      "emit only what the C source compiles to")
 
     argv = [arg.replace("--", "~~") for arg in sys.argv[1:]]
     args, c_flags = parser.parse_known_args(argv)
@@ -78,6 +81,7 @@ def main() -> None:
                 asm_dir_prefix=args.asm_dir_prefix,
                 macro_inc_path=args.macro_inc_path,
                 c_file_encoding=args.target_encoding,
+                skip_asm=args.skip_asm,
             )
 
     except Exception as e:

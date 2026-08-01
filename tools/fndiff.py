@@ -5,7 +5,7 @@ Usage:
   python tools/fndiff.py src/foo.c FunctionName
   python tools/fndiff.py src/foo.c FunctionName --addr 00100008
 
-The selected source unit is compiled with the same configured command and flags
+The selected source file is compiled with the same configured command and flags
 as ``verify.py``. Object relocations are annotated and their linker-owned fields
 """
 from __future__ import annotations
@@ -18,7 +18,7 @@ import tempfile
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from verify import (FUNCTION_WINDOWS, REPO, TARGET, ObjectFile, RetailElf,
                     _compile, _die, _read_json, load_config, mask_bytes,
-                    scan_markers, source_units, window_for)
+                    scan_markers, window_for)
 
 try:
     from capstone import Cs, CS_ARCH_MIPS, CS_MODE_LITTLE_ENDIAN, CS_MODE_MIPS64
@@ -47,8 +47,6 @@ def main() -> None:
     source = Path(args.file).resolve()
     if not source.is_file():
         _die(f"source file does not exist: {args.file}")
-    unit = None
-    units = source_units(source)
     if args.addr:
         try:
             address = int(args.addr, 16)
@@ -59,11 +57,6 @@ def main() -> None:
         if marker is None:
             _die(f"no // FUN_ marker found for {args.function} in {args.file}; use --addr to override")
         address = marker["addr"]
-    for candidate in units:
-        if any(marker["addr"] == address or marker["name"] == args.function
-               for marker in scan_markers(source, candidate)):
-            unit = candidate
-            break
 
     boundaries = {int(item, 16) for item in windows["windows"]}
     boundaries.update(int(item, 16) + size for item, size in windows["windows"].items() if size)
@@ -75,7 +68,7 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory(prefix="p4fndiff_") as directory:
         output = Path(directory) / "out.o"
-        compiled, log = _compile(source, cfg, output, unit)
+        compiled, log = _compile(source, cfg, output)
         if not compiled:
             _die(log.strip() or "compiler did not produce an object")
         try:

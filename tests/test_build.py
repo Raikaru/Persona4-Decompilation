@@ -46,6 +46,65 @@ class LinkResponseFileTests(unittest.TestCase):
             sh.assert_called_once_with(["mwldps2.exe", f"@{output / 'slus21782.rsp'}"])
 
 
+class ObjectLayoutTests(unittest.TestCase):
+    """One `. = addr; obj (.text)` per object means sections concatenate.
+
+    Retail's inter-function alignment padding cannot survive between two
+    concatenated sections, so a short function silently drags every later
+    function in the same object off its address.
+    """
+
+    def test_single_function_object_may_be_shorter_than_its_window(self) -> None:
+        # The LCF places this object directly, so trailing padding is harmless.
+        self.assertTrue(build.object_layout_is_placeable([(0x1000, 0x20, 0x14, 1)]))
+
+    def test_exactly_filled_functions_are_placeable(self) -> None:
+        self.assertTrue(
+            build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 1), (0x1020, 0x30, 0x30, 2)])
+        )
+
+    def test_trailing_padding_on_the_last_function_is_allowed(self) -> None:
+        self.assertTrue(
+            build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 1), (0x1020, 0x30, 0x24, 2)])
+        )
+
+    def test_short_function_is_placeable_when_alignment_supplies_the_padding(self) -> None:
+        """The 0x2769b8 case: 100 bytes into a 112-byte window, next addr 16-aligned.
+
+        patch_text_alignment gives the second function align 16, so the linker
+        pads 0x1064 up to 0x1070 on its own and no source change is needed.
+        """
+        self.assertTrue(
+            build.object_layout_is_placeable([(0x1000, 0x70, 0x64, 1), (0x1070, 0x70, 0x70, 2)])
+        )
+
+    def test_short_function_is_rejected_when_alignment_cannot_reach_the_gap(self) -> None:
+        """A 12-byte pad in front of a merely 4-aligned address is unreachable."""
+        self.assertFalse(
+            build.object_layout_is_placeable([(0x1000, 0x6C, 0x60, 1), (0x106C, 0x10, 0x10, 2)])
+        )
+
+    def test_overlong_function_is_rejected(self) -> None:
+        self.assertFalse(
+            build.object_layout_is_placeable([(0x1000, 0x20, 0x28, 1), (0x1020, 0x30, 0x30, 2)])
+        )
+
+    def test_alignment_for_address_matches_retail_boundaries(self) -> None:
+        self.assertEqual(build.text_alignment_for(0x1070), 16)
+        self.assertEqual(build.text_alignment_for(0x106C), 4)
+        self.assertEqual(build.text_alignment_for(0x1002), 2)
+
+    def test_non_contiguous_windows_are_rejected(self) -> None:
+        self.assertFalse(
+            build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 1), (0x1040, 0x30, 0x30, 2)])
+        )
+
+    def test_sections_emitted_out_of_address_order_are_rejected(self) -> None:
+        self.assertFalse(
+            build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 2), (0x1020, 0x30, 0x30, 1)])
+        )
+
+
 class SectionLayoutTests(unittest.TestCase):
     def test_alignment_uses_absolute_addresses(self) -> None:
         sections = [
@@ -151,13 +210,13 @@ class CompileCacheIntegrationTests(unittest.TestCase):
             )
             with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6]:
                 first = build.BC.ObjectCache(root / "build" / "cache" / "c", root)
-                build.compile_c(config, source, output, first, 0x00100000)
+                build.compile_c(config, source, output, first)
                 output.unlink()
                 second = build.BC.ObjectCache(root / "build" / "cache" / "c", root)
-                build.compile_c(config, source, output, second, 0x00100000)
+                build.compile_c(config, source, output, second)
 
             self.assertEqual(len(invocations), 1)
-            self.assertIn("-DP4_UNIT_00100000", invocations[0])
+            self.assertFalse([a for a in invocations[0] if a.startswith("-D")])
             self.assertEqual(output.read_bytes(), b"linked-object")
             self.assertEqual(second.stats["link"], {"hits": 1, "misses": 0})
 

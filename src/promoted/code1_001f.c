@@ -1,8 +1,15 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001F0260)
 #include "type.h"
+
+extern void memset(void *destination, s32 value, u32 size);
+
+extern s32 func_001ef720(s32 arg0, s32 arg1);
+
+extern u32 func_00231d70(s32 arg0);
+
+extern u8 *iGpfffb3ac;
+extern void func_0045ae10(u16 arg0, u16 arg1, u16 arg2);
+
+
 
 // FUN_001F0260
 s64 func_001f0260(s32 arg0) {
@@ -88,23 +95,15 @@ s64 func_001f0260(s32 arg0) {
         return 0;
     }
 }
-#endif /* P4_UNIT_001F0260 */
 
-#if defined(P4_UNIT_001F0A10)
-#include "type.h"
 
-extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_001F0A10
 void func_001f0a10(u8 *arg0) {
     memset(arg0, 0, 0x20);
 }
-#endif /* P4_UNIT_001F0A10 */
 
-#if defined(P4_UNIT_001F41E0)
-#include "type.h"
 
-extern s32 func_001ef720(s32 arg0, s32 arg1);
 
 // FUN_001F41E0
 s32 func_001f41e0(void) {
@@ -119,12 +118,8 @@ s32 func_001f41e0(void) {
     }
     return 0x5E - temp_3;
 }
-#endif /* P4_UNIT_001F41E0 */
 
-#if defined(P4_UNIT_001F4430)
-#include "type.h"
 
-extern s32 func_001ef720(s32 arg0, s32 arg1);
 
 // FUN_001F4430
 s32 func_001f4430(u8 *arg0, s32 arg1) {
@@ -161,12 +156,8 @@ s32 func_001f4430(u8 *arg0, s32 arg1) {
         return -1;
     }
 }
-#endif /* P4_UNIT_001F4430 */
 
-#if defined(P4_UNIT_001F4810)
-#include "type.h"
 
-extern u32 func_00231d70(s32 arg0);
 
 // FUN_001F4810
 s32 func_001f4810(u8 *arg0, s32 arg1, s32 arg2) {
@@ -268,69 +259,25 @@ s32 func_001f4810(u8 *arg0, s32 arg1, s32 arg2) {
         return -1;
     }
 }
-#endif /* P4_UNIT_001F4810 */
 
-#if defined(P4_UNIT_001F5EA0)
-#include "type.h"
 
-extern u8 *iGpfffb3ac;
 
 // FUN_001F5EA0
 s32 func_001f5ea0(s32 arg0) {
     return (s32)((*(u16 *)((u8 *)iGpfffb3ac + 0xA48) & (1 << (arg0 & 0xFFFF))) != 0);
 }
-#endif /* P4_UNIT_001F5EA0 */
 
-#if defined(P4_UNIT_001F6290)
-#include "type.h"
 
-extern u8 *iGpfffb3ac;
 
 // FUN_001F6290
 s32 func_001f6290(void) {
     return (s32)((*(u16 *)((u8 *)iGpfffb3ac + 0xA4E) & 1) != 0);
 }
-#endif /* P4_UNIT_001F6290 */
 
-#if defined(P4_UNIT_001F9A50)
-#include "type.h"
 
-extern u8 *iGpfffb3ac;
-extern void func_0045ae10(u16 arg0, u16 arg1, u16 arg2);
 
 // FUN_001F9A50
 void func_001f9a50(s32 arg0, s32 arg1) {
     s32 f = *(u16 *)((u8 *)iGpfffb3ac + 0xB3A);
     func_0045ae10((u16)f, (u16)arg1, (u16)arg0);
 }
-#endif /* P4_UNIT_001F9A50 */
-
-#if defined(P4_UNIT_001FC5E0)
-#include "type.h"
-
-extern void func_004abd60(s32 arg0);
-extern void (*jtbl_008873EC[])(void *);
-
-// FUN_001FC5E0
-void func_001fc5e0(s32 *arg0) {
-    if (*arg0 != 0) {
-        func_004abd60(*arg0);
-    }
-    jtbl_008873EC[0](arg0);
-}
-#endif /* P4_UNIT_001FC5E0 */
-
-#if defined(P4_UNIT_001FF440)
-#include "type.h"
-
-extern void func_004abd60(s32 arg0);
-extern void (*jtbl_008873EC[])(void *);
-
-// FUN_001FF440
-void func_001ff440(s32 *arg0) {
-    if (*arg0 != 0) {
-        func_004abd60(*arg0);
-    }
-    jtbl_008873EC[0](arg0);
-}
-#endif /* P4_UNIT_001FF440 */

@@ -1,9 +1,46 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_002A2780)
-/* Source unit: src/Yajima/y_timeLimit_002a2780.c */
+/* Source unit: src/Yajima/y_timeLimit_002a2340.c */
 #include "type.h"
+
+extern u32 D_00882F08[];
+extern u32 D_00882F0C[];
+extern u32 D_00882F10[];
+extern u32 D_00764630;
+extern u8 D_00882EF0[];
+extern u8 D_00882ED0[];
+extern u32 D_007638D8;
+extern u32 D_0076462C;
+extern u32 D_00764628;
+extern u32 D_00764624;
+extern void *memset(void *dst, int value, u32 size);
+extern char *strcat(char *dst, const char *src);
+
+
+
+// FUN_002A2340
+void func_002A2340(void)
+
+{
+  int i;
+
+  D_00882F08[0] = 0;
+  D_00882F0C[0] = 0;
+  D_00882F10[0] = 0;
+  D_00764630 = 0;
+  memset(D_00882EF0, 0, 0x12);
+  memset(D_00882ED0, 0, 0x12);
+  for (i = 0; i < 8; i = i + 1) {
+    strcat((char *)D_00882EF0, (char *)&D_007638D8);
+  }
+  for (i = 0; i < 8; i = i + 1) {
+    strcat((char *)D_00882ED0, (char *)&D_007638D8);
+  }
+  D_0076462C = 0;
+  D_00764628 = 0;
+  D_00764624 = 0;
+  return;
+}
+
+
 
 // FUN_002A2780
 u8 func_002A2780(int param_1)
@@ -20,11 +57,8 @@ clear:
   *(u32 *)(param_1 + 0x94) = 0;
   return 0;
 }
-#endif /* P4_UNIT_002A2780 */
 
-#if defined(P4_UNIT_002A27C0)
-/* Source unit: src/Yajima/y_timeLimit_002a27c0.c */
-#include "type.h"
+
 
 // FUN_002A27C0
 u32
@@ -103,11 +137,8 @@ func_002A27C0(float param_1,int param_2,int param_3,int param_4,int param_5,int 
   state->flags &= 0xfffffffd;
   return 0;
 }
-#endif /* P4_UNIT_002A27C0 */
 
-#if defined(P4_UNIT_002A2C10)
-/* Source unit: src/Yajima/y_timeLimit_002a2c10.c */
-#include "type.h"
+
 
 // FUN_002A2C10
 u32 func_002A2C10(int param_1,float *param_2)
@@ -127,11 +158,8 @@ u32 func_002A2C10(int param_1,float *param_2)
   *puVar2 = *puVar1;
   return 0;
 }
-#endif /* P4_UNIT_002A2C10 */
 
-#if defined(P4_UNIT_002A2C70)
-/* Source unit: src/Yajima/y_timeLimit_002a2c70.c */
-#include "type.h"
+
 
 // FUN_002A2C70
 int func_002A2C70(int param_1)
@@ -147,11 +175,8 @@ int func_002A2C70(int param_1)
   }
   return bVar1;
 }
-#endif /* P4_UNIT_002A2C70 */
 
-#if defined(P4_UNIT_002A2CA0)
-/* Source unit: src/Yajima/y_timeLimit_002a2ca0.c */
-#include "type.h"
+
 
 // FUN_002A2CA0
 int func_002A2CA0(int param_1)
@@ -167,11 +192,8 @@ int func_002A2CA0(int param_1)
   }
   return bVar1;
 }
-#endif /* P4_UNIT_002A2CA0 */
 
-#if defined(P4_UNIT_002A2CD0)
-/* Source unit: src/Yajima/y_timeLimit_002a2cd0.c */
-#include "type.h"
+
 
 // FUN_002A2CD0
 float func_002A2CD0(int param_1)
@@ -224,46 +246,3 @@ float func_002A2CD0(int param_1)
   }
   return progress;
 }
-#endif /* P4_UNIT_002A2CD0 */
-
-#if defined(P4_UNIT_002A2340)
-/* Source unit: src/Yajima/y_timeLimit_002a2340.c */
-#include "type.h"
-
-extern u32 D_00882F08[];
-extern u32 D_00882F0C[];
-extern u32 D_00882F10[];
-extern u32 D_00764630;
-extern u8 D_00882EF0[];
-extern u8 D_00882ED0[];
-extern u32 D_007638D8;
-extern u32 D_0076462C;
-extern u32 D_00764628;
-extern u32 D_00764624;
-extern void *memset(void *dst, int value, u32 size);
-extern char *strcat(char *dst, const char *src);
-
-// FUN_002A2340
-void func_002A2340(void)
-
-{
-  int i;
-
-  D_00882F08[0] = 0;
-  D_00882F0C[0] = 0;
-  D_00882F10[0] = 0;
-  D_00764630 = 0;
-  memset(D_00882EF0, 0, 0x12);
-  memset(D_00882ED0, 0, 0x12);
-  for (i = 0; i < 8; i = i + 1) {
-    strcat((char *)D_00882EF0, (char *)&D_007638D8);
-  }
-  for (i = 0; i < 8; i = i + 1) {
-    strcat((char *)D_00882ED0, (char *)&D_007638D8);
-  }
-  D_0076462C = 0;
-  D_00764628 = 0;
-  D_00764624 = 0;
-  return;
-}
-#endif /* P4_UNIT_002A2340 */

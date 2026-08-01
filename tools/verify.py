@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Repo-wide match verifier for the Persona 4 USA decompilation.
 
-For every ``// FUN_xxxxxxxx`` marker in ``src/**/*.c`` this tool selects the
-containing source unit (or compiles the ordinary translation unit) with the
-configured MWCC compiler, extracts the marked function and its MIPS relocations
-from the relocatable object, masks relocated fields, and
-compares the remaining bytes with retail ``SLUS_217.82``.
+For every ``// FUN_xxxxxxxx`` marker in ``src/**/*.c`` this tool compiles the
+containing translation unit (one C file == one unit) with the configured MWCC
+compiler, extracts the marked function and its MIPS relocations from the
+relocatable object, masks relocated fields, and compares the remaining bytes
+with retail ``SLUS_217.82``.
 
 Configuration precedence (highest first): ``P4_MWCC`` / ``P4_RETAIL_ELF``
 environment variables, ``tools/verify_config.local.json`` (gitignored), then
@@ -41,7 +41,6 @@ R_MIPS_NAMES = {
 RELOC_MASK_SIZE = {2: 4, 4: 4, 5: 2, 6: 2, 7: 2}
 MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))", re.MULTILINE)
 NAME_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
-UNIT_GUARD_RE = re.compile(r"^\s*#if\s+defined\(P4_UNIT_([0-9a-fA-F]{8})\)\s*$")
 INCLUDE_MARKER_RE = re.compile(
     r'^\s*INCLUDE_(?:ASM|RODATA)\s*\(\s*"[^"]*"\s*,\s*'
     r"([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;?\s*$"
@@ -71,30 +70,6 @@ def is_third_party(rel_file: str) -> bool:
     if norm.startswith("src/"):
         norm = norm[len("src/"):]
     return norm in THIRD_PARTY_FILES or norm.startswith(THIRD_PARTY_PREFIXES)
-
-
-def source_units(cpath: Path) -> list[int]:
-    """Return selectable function addresses for a consolidated C source."""
-    lines = cpath.read_text(errors="replace").splitlines()
-    units: list[int] = []
-    for index, line in enumerate(lines):
-        guard = UNIT_GUARD_RE.match(line)
-        if not guard:
-            continue
-        address = int(guard.group(1), 16)
-        end = next(
-            (cursor for cursor in range(index + 1, len(lines))
-             if re.match(r"^\s*#endif\b", lines[cursor])),
-            None,
-        )
-        if end is None:
-            raise ValueError(f"unterminated P4_UNIT guard in {cpath}")
-        body = "\n".join(lines[index + 1:end])
-        markers = MARKER_RE.findall(body)
-        if not markers or int(markers[0][1], 16) != address:
-            raise ValueError(f"invalid P4_UNIT body in {cpath} at {address:08x}")
-        units.append(address)
-    return units
 
 
 def _die(message: str) -> None:
@@ -311,23 +286,8 @@ def sanitize_c_lines(lines: list[str]) -> list[str]:
     return output
 
 
-def scan_markers(cpath: Path, unit: int | None = None) -> list[dict]:
+def scan_markers(cpath: Path) -> list[dict]:
     lines = cpath.read_text(errors="replace").splitlines()
-    if unit is not None:
-        selected: list[str] = []
-        active = False
-        for line in lines:
-            guard = UNIT_GUARD_RE.match(line)
-            if guard:
-                active = int(guard.group(1), 16) == unit
-                selected.append(line if active else "")
-                continue
-            if active and re.match(r"^\s*#endif\b", line):
-                selected.append(line)
-                active = False
-                continue
-            selected.append(line if active else "")
-        lines = selected
     code_lines, markers, index = sanitize_c_lines(lines), [], 0
     while index < len(lines):
         marker = MARKER_RE.match(lines[index])
@@ -345,6 +305,42 @@ def scan_markers(cpath: Path, unit: int | None = None) -> list[dict]:
                 ))
                 index += 2
                 continue
+            # A function kept as near-miss C behind `#ifdef NON_MATCHING` with an
+            # INCLUDE_ASM fallback in the `#else` arm. The object gets the exact
+            # retail bytes, so a byte comparison always succeeds and would score
+            # the row MATCH (or STALE_NONMATCHING, inviting someone to drop the
+            # tag and inflate progress). What is actually true is that this
+            # function is NOT yet matching C, so classify it as the assembly
+            # fallback it is and keep the C body findable for whoever finishes it.
+            # The floor explanation sits between the marker and the `#ifdef`, in
+            # either comment style, and a scoped `#pragma` for the function may
+            # sit there too, so skip blanks, comments and pragmas first. Use the
+            # comment-stripped view so a `/* ... */` block is handled as well.
+            probe = index + 1
+            while probe < len(lines) and (
+                not code_lines[probe].strip()
+                or code_lines[probe].lstrip().startswith("#pragma")
+            ):
+                probe += 1
+            if probe < len(lines) and code_lines[probe].strip().startswith("#ifdef NON_MATCHING"):
+                # Search to the NEXT marker rather than a fixed window: the C body
+                # being preserved can be arbitrarily long (one is 435 lines).
+                fallback, end = None, probe
+                for look in range(probe + 1, len(lines)):
+                    if MARKER_RE.match(lines[look]):
+                        break
+                    end = look
+                    found = INCLUDE_MARKER_RE.match(lines[look].split("//", 1)[0].rstrip())
+                    if found:
+                        fallback = found
+                        break
+                if fallback:
+                    markers.append(dict(
+                        addr=address, name=fallback.group(1), line=index + 1,
+                        stub=False, nonmatching=True, asm=True,
+                    ))
+                    index = end + 1
+                    continue
         while cursor < len(lines) and cursor < index + 12:
             if MARKER_RE.match(lines[cursor]): break
             code = code_lines[cursor].strip()
@@ -409,11 +405,7 @@ def window_for(address: int, boundaries: list[int]) -> int | None:
     return boundaries[index] - address if index < len(boundaries) else None
 
 
-def _unit_suffix(unit: int | None) -> str:
-    return "" if unit is None else f"_unit_{unit:08x}"
-
-
-def _mwccgap_command(cpath: Path, cfg: dict, output: Path, unit: int | None = None) -> list[str]:
+def _mwccgap_command(cpath: Path, cfg: dict, output: Path) -> list[str]:
     mwccgap = TOOLS / "mwccgap" / "mwccgap.py"
     flags = [
         "--mwcc-path", cfg["mwcc"],
@@ -425,14 +417,12 @@ def _mwccgap_command(cpath: Path, cfg: dict, output: Path, unit: int | None = No
     as_path = cfg.get("as_path") or os.environ.get("P4_AS")
     if as_path:
         flags[0:0] = ["--as-path", str(as_path)]
-    if unit is not None:
-        flags.append(f"-DP4_UNIT_{unit:08X}")
     return [sys.executable, str(mwccgap), str(cpath), str(output), *flags]
 
 
-def _compile(cpath: Path, cfg: dict, output: Path, unit: int | None = None) -> tuple[bool, str]:
+def _compile(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
     process = subprocess.run(
-        _mwccgap_command(cpath, cfg, output, unit),
+        _mwccgap_command(cpath, cfg, output),
         cwd=REPO,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -446,15 +436,14 @@ def compile_object(
     cpath: Path,
     cfg: dict,
     objdir: Path | None = None,
-    unit: int | None = None,
 ) -> tuple[ObjectFile | None, str]:
-    """Compile one source file or one selectable consolidated source unit."""
+    """Compile one source file (one translation unit)."""
     if objdir is None:
         objdir = Path(tempfile.mkdtemp(prefix="p4-verify-"))
     relative = cpath.relative_to(REPO)
-    output = objdir / (relative.as_posix().replace("/", "_") + _unit_suffix(unit) + ".o")
+    output = objdir / (relative.as_posix().replace("/", "_") + ".o")
     output.parent.mkdir(parents=True, exist_ok=True)
-    compiled, log = _compile(cpath, cfg, output, unit)
+    compiled, log = _compile(cpath, cfg, output)
     return (ObjectFile(output) if compiled else None), log
 
 
@@ -464,12 +453,11 @@ def verify_file(
     retail: RetailElf,
     boundaries: list[int],
     objdir: Path,
-    unit: int | None = None,
 ) -> list[dict]:
-    relative, markers = cpath.relative_to(REPO), scan_markers(cpath, unit)
+    relative, markers = cpath.relative_to(REPO), scan_markers(cpath)
     if not markers: return []
-    output = objdir / (relative.as_posix().replace("/", "_") + _unit_suffix(unit) + ".o")
-    compiled, log = _compile(cpath, cfg, output, unit)
+    output = objdir / (relative.as_posix().replace("/", "_") + ".o")
+    compiled, log = _compile(cpath, cfg, output)
     if not compiled:
         return [dict(file=str(relative), **marker, status="COMPILE_ERROR", detail=log.strip()[:400]) for marker in markers]
     obj, results = ObjectFile(output), []
@@ -492,14 +480,18 @@ def verify_file(
                     if difference or len(body) > window or any(tail):
                         entry["status"] = "NONMATCHING" if marker["nonmatching"] else ("SIZE_MISMATCH" if not difference else "MISMATCH")
                         if difference: entry["first_diffs"] = first
+                    elif marker.get("asm"):
+                        # An INCLUDE_ASM fallback reproduces retail by construction:
+                        # it IS the extracted assembly. It is tracked and byte-correct,
+                        # but it is NOT decompiled C, so it must never be counted as
+                        # MATCH or the progress metric becomes meaningless. This is
+                        # checked BEFORE the stale-tag branch: such a row always
+                        # compares equal, so otherwise it would read as
+                        # STALE_NONMATCHING and invite someone to drop a tag that is
+                        # still true.
+                        entry.update(status="ASM", detail="assembly fallback; not yet decompiled to C")
                     elif marker["nonmatching"]:
                         entry.update(status="STALE_NONMATCHING", detail="function now matches; remove the NONMATCHING tag")
-                    elif marker.get("asm"):
-                        # An INCLUDE_ASM stub reproduces retail by construction: it
-                        # IS the extracted assembly. It is tracked and byte-correct,
-                        # but it is NOT decompiled C, so it must never be counted as
-                        # MATCH or the progress metric becomes meaningless.
-                        entry.update(status="ASM", detail="assembly fallback; not yet decompiled to C")
                     else: entry["status"] = "MATCH"
                     entry["relocations"] = decode_reloc_values(relocs, target)
         results.append(entry)
@@ -523,13 +515,7 @@ def main() -> None:
         if args.include_generated or not is_generated(path)
     )
     requested = [Path(file).resolve() for file in args.files] if args.files else source_files
-    files: list[tuple[Path, int | None]] = []
-    for path in requested:
-        units = source_units(path)
-        if units:
-            files.extend((path, unit) for unit in units)
-        else:
-            files.append((path, None))
+    files: list[Path] = list(requested)
 
     bounds = {int(address, 16) for address in windows["windows"]}
     bounds.update(int(address, 16) + size for address, size in windows["windows"].items() if size)
@@ -537,8 +523,8 @@ def main() -> None:
         bounds.update(marker["addr"] for marker in scan_markers(path))
     results: list[dict] = []
     with tempfile.TemporaryDirectory(prefix="p4verify_") as directory:
-        for path, unit in files:
-            results.extend(verify_file(path, cfg, retail, sorted(bounds), Path(directory), unit))
+        for path in files:
+            results.extend(verify_file(path, cfg, retail, sorted(bounds), Path(directory)))
     counts: dict[str, int] = {}
     for result in results: counts[result["status"]] = counts.get(result["status"], 0) + 1
     first_party = [r for r in results if not is_third_party(r["file"])]

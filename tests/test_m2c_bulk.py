@@ -451,10 +451,10 @@ endlabel func_00100010
             )
             self.assertEqual([path.name for path in files], ["code1_0010.c"])
             text = files[0].read_text(encoding="utf-8")
-            self.assertIn("P4_UNIT_00100000", text)
-            self.assertIn("P4_UNIT_00100010", text)
-            self.assertIn("M2C_CANDIDATE", text)
-            self.assertIn("EXACT_RETAIL_FALLBACK", text)
+            self.assertNotIn("#if defined", text)
+            self.assertIn("/* Candidate status: M2C; boundary 0x00100000. */", text)
+            self.assertIn("// FUN_00100000 M2C_CANDIDATE", text)
+            self.assertIn("/* Candidate status: EXACT_RETAIL_FALLBACK; boundary 0x00100010. */", text)
             self.assertIn("M2C_UNK func_00400020();", text)
             source_output = output / "source"
             source_files = bulk.render_candidates(
@@ -474,19 +474,17 @@ endlabel func_00100010
         source_text = """#include "include/type.h"
 
 /* Grouped m2c candidates; not authoritative matching-C sources. */
-#if defined(P4_UNIT_00100000)
+/* Candidate status: M2C; boundary 0x00100000. */
 // FUN_00100000 NONMATCHING
 void func_00100000(void) {
     return;
 }
-#endif /* P4_UNIT_00100000 */
 
-#if defined(P4_UNIT_00100010)
+/* Candidate status: M2C; boundary 0x00100010. */
 // FUN_00100010 NONMATCHING
 void func_00100010(void) {
     return;
 }
-#endif /* P4_UNIT_00100010 */
 """
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -517,7 +515,7 @@ void func_00100010(void) {
             )
             self.assertEqual((files, units), (1, 1))
             grouped_text = (grouped / "code1_0010.c").read_text(encoding="utf-8")
-            self.assertNotIn("#if defined(P4_UNIT_", grouped_text)
+            self.assertNotIn("#if defined", grouped_text)
             self.assertIn("// FUN_00100000 NONMATCHING", grouped_text)
 
             grouped_report = root / "grouped.json"
@@ -541,8 +539,8 @@ void func_00100010(void) {
             )
             self.assertEqual((applied_files, applied_units), (1, 1))
             remaining = source_path.read_text(encoding="utf-8")
-            self.assertNotIn("P4_UNIT_00100000", remaining)
-            self.assertIn("P4_UNIT_00100010", remaining)
+            self.assertNotIn("FUN_00100000", remaining)
+            self.assertIn("// FUN_00100010 NONMATCHING", remaining)
 
     def test_rewrites_retail_words_for_mwcc_inline_asm(self) -> None:
         body = (
