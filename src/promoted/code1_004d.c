@@ -1,0 +1,153 @@
+/* Consolidated Persona 4 source units. */
+/* Build with -DP4_UNIT_<address> to select one original source unit. */
+
+#if defined(P4_UNIT_004D12A0)
+#include "type.h"
+
+/* measured: #pragma schedule on is load-bearing -- retail sinks the second
+ * sw into the jr return delay slot; O2 alone emits sw/sw/jr/nop (nd 6). */
+#pragma schedule on
+// FUN_004D12A0
+void func_004d12a0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x60) = arg1;
+    *(s32 *)(arg0 + 0x3C) = arg1;
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D12A0 */
+
+#if defined(P4_UNIT_004D18D8)
+#include "type.h"
+
+extern s32 D_00723F10[];
+
+/* measured: b210 O2 emits lui/sw/jr/nop (v1 scratch, unfilled return delay
+ * slot); retail is lui $v0 / jr $ra / sw-in-delay-slot / nop. #pragma
+ * schedule on is load-bearing for the delay-slot fill; address color stays
+ * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
+#pragma schedule on
+// FUN_004D18D8 NONMATCHING
+void func_004d18d8(s32 arg0)
+{
+    D_00723F10[0] = arg0;
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D18D8 */
+
+#if defined(P4_UNIT_004D3148)
+#include "type.h"
+
+extern s32 D_00723F20[];
+
+/* measured: all void shapes color the address scratch $v1 (nd 2); pointer-
+ * return re-materializes (nd 9, 20B > window); opt1/opt3 unchanged. Pure
+ * $v0/$v1 swap vs retail = allocator floor (same residual in sibling files
+ * code1_004e/code1_0052). NONMATCHING */
+#pragma schedule on
+// FUN_004D3148 NONMATCHING
+void func_004d3148(s32 arg0)
+{
+    D_00723F20[0] = arg0;
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D3148 */
+
+#if defined(P4_UNIT_004D3190)
+#include "type.h"
+
+extern s32 D_00723F20[];
+
+/* measured: O2/schedule/opt3/static/const/volatile all reuse $v0 for the
+ * address (nd 2); retail keeps it in $v1. Pure $v1/$v0 swap = allocator
+ * floor (same residual in sibling files code1_004e/code1_0052). NONMATCHING */
+#pragma schedule on
+// FUN_004D3190 NONMATCHING
+s32 func_004d3190(void)
+{
+    return D_00723F20[0];
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D3190 */
+
+#if defined(P4_UNIT_004D3678)
+#include "type.h"
+
+extern s32 D_00724E58[];
+
+/* measured: #pragma schedule on is load-bearing for the sw-in-return-delay-
+ * slot placement; address colors $v1 vs retail $v0 (nd 2, allocator
+ * floor). NONMATCHING */
+#pragma schedule on
+// FUN_004D3678 NONMATCHING
+void func_004d3678(s32 arg0)
+{
+    D_00724E58[0] = arg0;
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D3678 */
+
+#if defined(P4_UNIT_004D3688)
+#include "type.h"
+
+extern s32 D_00724E58[];
+
+/* measured: #pragma schedule on is load-bearing for the lw-in-return-delay-
+ * slot placement; address reuses $v0 vs retail $v1 (nd 2, allocator
+ * floor). NONMATCHING */
+#pragma schedule on
+// FUN_004D3688 NONMATCHING
+s32 func_004d3688(void)
+{
+    return D_00724E58[0];
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D3688 */
+
+#if defined(P4_UNIT_004D3698)
+#include "type.h"
+
+extern s32 D_00724E60[];
+
+/* measured: #pragma schedule on is load-bearing for the lw-in-return-delay-
+ * slot placement; address reuses $v0 vs retail $v1 (nd 2, allocator
+ * floor). NONMATCHING */
+#pragma schedule on
+// FUN_004D3698 NONMATCHING
+s32 func_004d3698(void)
+{
+    return D_00724E60[0];
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D3698 */
+
+#if defined(P4_UNIT_004D36A8)
+#include "type.h"
+
+extern s32 D_00724E60[];
+
+/* measured: #pragma schedule on is load-bearing for the sw-in-return-delay-
+ * slot placement; address colors $v1 vs retail $v0 (nd 2, allocator
+ * floor). NONMATCHING */
+#pragma schedule on
+// FUN_004D36A8 NONMATCHING
+void func_004d36a8(s32 arg0)
+{
+    D_00724E60[0] = arg0;
+}
+#pragma schedule off
+#endif /* P4_UNIT_004D36A8 */
+
+#if defined(P4_UNIT_004DE2B0)
+#include "type.h"
+
+/* measured: #pragma schedule on is load-bearing for the sw-in-return-delay-
+ * slot placement; constant materializes in $v1 vs retail $v0 (nd 2,
+ * allocator floor). NONMATCHING */
+#pragma schedule on
+// FUN_004DE2B0 NONMATCHING
+void func_004de2b0(u8 *arg0)
+{
+    *(s32 *)(arg0 + 8) = 1;
+}
+#pragma schedule off
+#endif /* P4_UNIT_004DE2B0 */
