@@ -18,7 +18,7 @@ extracting the files required for the build.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,080; all mapped to C or owned retail assembly |
-| Authoritative matching C | 1,035 functions; **417 first-party** (99.8% of first-party tracked). The rest is rw/cri/sce middleware. Plus 1 `INCLUDE_ASM` fallback, not counted as matching. |
+| Authoritative matching C | 1,314 functions; **696 first-party** (99.6% of first-party tracked, 3 parked at measured compiler floors). The remainder is rw/cri/sce middleware. |
 
 The matching build uses MWCCPS2/MWLDPS2 and reproduces the retail load image and
 ELF byte-for-byte. See [`ROADMAP.md`](ROADMAP.md) for current priorities.

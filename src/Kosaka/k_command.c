@@ -22,3 +22,20 @@ u32 func_0025c6d0(void)
     return 1;
 }
 #endif /* P4_UNIT_0025C6D0 */
+
+#if defined(P4_UNIT_00299FD0)
+/* Source unit: src/Kosaka/k_command_00299fd0.c (1 function markers) */
+#include "type.h"
+
+extern s32 func_0029cc00(s32 index);
+extern u8 func_00104c70(s16 value);
+extern void func_0029cf50(s32 value);
+
+// FUN_00299FD0
+u32 func_00299fd0(void)
+{
+    func_0029cf50(func_00104c70(func_0029cc00(0)));
+
+    return 1;
+}
+#endif /* P4_UNIT_00299FD0 */

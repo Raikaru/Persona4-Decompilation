@@ -365,3 +365,96 @@ void func_004bd3c0(f32 angle)
     );
 }
 #endif /* P4_UNIT_004BD3C0 */
+
+#if defined(P4_UNIT_004BCF20)
+/* Source unit: src/Graphics/Effect/effMisc_004bcf20.c */
+#include "type.h"
+
+typedef struct RwV4d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} RwV4d;
+
+extern f32 func_0044b610(f32 x);
+extern f32 func_0044b7b0(f32 x);
+
+// FUN_004BCF20
+void func_004bcf20(f32 angleX, f32 angleY, f32 angleZ)
+{
+    RwV4d quaternion;
+    f32 halfAngle;
+    f32 cosY;
+    f32 sinY;
+    f32 cosZ;
+    f32 cosX;
+    f32 sinX;
+    f32 sinZ;
+
+    halfAngle = -angleX * 0.5f;
+    cosX = func_0044b610(halfAngle);
+    sinX = func_0044b7b0(halfAngle);
+    halfAngle = -angleY * 0.5f;
+    cosY = func_0044b610(halfAngle);
+    sinY = func_0044b7b0(halfAngle);
+    halfAngle = -angleZ * 0.5f;
+    cosZ = func_0044b610(halfAngle);
+    sinZ = func_0044b7b0(halfAngle);
+    quaternion.x = cosX * (sinZ * sinY) + sinX * (cosZ * cosY);
+    quaternion.y = cosX * (cosZ * sinY) - sinX * (sinZ * cosY);
+    quaternion.z = cosX * (sinZ * cosY) + sinX * (cosZ * sinY);
+    quaternion.w = cosX * (cosZ * cosY) - sinX * (sinZ * sinY);
+
+    __asm__ volatile (
+        ".set noreorder          \n"
+        "lqc2 vf10, 0(%0)        \n"
+        ".set reorder"
+        :
+        : "r" (&quaternion)
+        : "vf10", "memory"
+    );
+}
+#endif /* P4_UNIT_004BCF20 */
+
+#if defined(P4_UNIT_004BD050)
+/* Source unit: src/Graphics/Effect/effMisc_004bd050.c */
+#include "type.h"
+
+typedef struct EffRandState
+{
+    u32 x[4]; // 0x00
+} EffRandState;
+
+static EffRandState sRandState; // 00922de0
+
+// FUN_004BD050
+u32 func_004bd050(EffRandState* state)
+{
+    u32 x0;
+    u32 x1;
+    u32 x2;
+    u32 x3;
+    u32 rand;
+
+    if (state == NULL)
+    {
+        state = &sRandState;
+    }
+
+    x0 = state->x[0];
+    x1 = state->x[1];
+    x2 = state->x[2];
+    x3 = state->x[3];
+
+    rand = ((x1 << 0x02) | (((x0 >> 0x1e)) % 4)) ^ ((x3 << 0x01) | (((x2 >> 0x1f)) % 2));
+
+    state->x[0] = rand;
+    state->x[1] = x0;
+    state->x[2] = x1;
+    state->x[3] = x2;
+
+    return rand;
+}
+#endif /* P4_UNIT_004BD050 */

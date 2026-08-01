@@ -383,3 +383,23 @@ void func_001f97b0(void)
     work[1] = 0;
 }
 #endif /* P4_UNIT_001F97B0 */
+
+#if defined(P4_UNIT_001F8190)
+/* Source unit: src/Battle/btlSound_001f8190.c */
+#include "type.h"
+
+extern u32 func_00442088(void* buffer, const void* format, ...);
+extern char sGpffffa500[5];
+extern char DAT_00624F40[15];
+extern u8 func_0045aeb0(s16 channelIndex, const char* name);
+
+// FUN_001F8190
+u32 func_001f8190(u16* work)
+{
+    char path[512];
+
+    func_00442088(path, sGpffffa500, DAT_00624F40, *(u32*)(work + 2));
+    func_0045aeb0((s16)*work, path);
+    return 1;
+}
+#endif /* P4_UNIT_001F8190 */

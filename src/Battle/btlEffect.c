@@ -359,3 +359,337 @@ void func_001d7ab0(u8 *param_1,u16 param_2)
   return;
 }
 #endif /* P4_UNIT_001D7AB0 */
+
+#if defined(P4_UNIT_001D99E0)
+/* Source unit: src/Battle/btlEffect_001d99e0.c */
+#include "type.h"
+
+typedef u8 bool;
+
+extern u32 func_001ef4d0();
+
+// FUN_001D99E0
+bool func_001d99e0(int param_1, u32 param_2)
+{
+  u32 uVar1 = 0;
+
+  uVar1 = func_001ef4d0(1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000);
+  return param_2 <= (uVar1 & 0xffff);
+}
+#endif /* P4_UNIT_001D99E0 */
+
+#if defined(P4_UNIT_001D9A30)
+/* Source unit: src/Battle/btlEffect_001d9a30.c */
+#include "type.h"
+
+typedef u8 bool;
+
+extern u32 func_001ef4d0();
+
+#pragma opt_rebuildconditionals off
+/* Removing this loses FUN_001D9A30 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
+// FUN_001D9A30
+bool func_001d9a30(int param_1, u32 param_2)
+{
+  u32 uVar1 = 0;
+  u16 genus;
+  u32 shift;
+  if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+    goto nonzero;
+  shift = 1;
+  goto done;
+nonzero:
+  shift = 0;
+done:
+  genus = shift;
+  uVar1 = func_001ef4d0(1 << genus & 0xffff, 0x80000);
+  return param_2 <= (uVar1 & 0xffff);
+}
+#pragma opt_rebuildconditionals on
+#endif /* P4_UNIT_001D9A30 */
+
+#if defined(P4_UNIT_001D9AA0)
+/* Source unit: src/Battle/btlEffect_001d9aa0.c */
+#include "type.h"
+
+typedef u8 bool;
+
+extern u32 func_001ef720();
+
+// FUN_001D9AA0
+bool func_001d9aa0(int param_1, u32 param_2)
+{
+  u32 uVar1 = 0;
+
+  uVar1 = func_001ef720(1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000);
+  return (uVar1 & 0xffff) <= param_2;
+}
+#endif /* P4_UNIT_001D9AA0 */
+
+#if defined(P4_UNIT_001D9AF0)
+/* Source unit: src/Battle/btlEffect_001d9af0.c */
+#include "type.h"
+
+typedef u8 bool;
+
+extern u32 func_001ef720();
+
+#pragma opt_rebuildconditionals off
+/* Removing this loses FUN_001D9AF0 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
+// FUN_001D9AF0
+bool func_001d9af0(int param_1, u32 param_2)
+{
+  u32 uVar1 = 0;
+  u16 genus;
+  {
+    u32 shift;
+    if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+      goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    genus = shift;
+  }
+  uVar1 = func_001ef720(1 << genus & 0xffff, 0x80000);
+  return (uVar1 & 0xffff) <= param_2;
+}
+#pragma opt_rebuildconditionals on
+#endif /* P4_UNIT_001D9AF0 */
+
+#if defined(P4_UNIT_001DA7E0)
+/* Source unit: src/Battle/btlEffect_001da7e0.c */
+#include "type.h"
+
+typedef u8 bool;
+
+extern u16 func_001d7f10(u32 param_1, u32 param_2, u16 param_3, u32 param_4);
+
+// FUN_001DA7E0
+u32 func_001da7e0(int param_1)
+{
+  u16 result;
+
+  result = func_001d7f10(param_1, 0, *(u16 *)(param_1 + 0x7e), 0);
+  switch (result) {
+  case 1:
+  case 2:
+    return 1;
+  default:
+    return 0;
+  }
+}
+#endif /* P4_UNIT_001DA7E0 */
+
+#if defined(P4_UNIT_001DB100)
+/* Source unit: src/Battle/btlEffect_001db100.c */
+#include "type.h"
+
+typedef u8 bool;
+typedef int (*code)(...);
+
+extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
+extern bool func_001da2f0(int param_1, short param_2);
+
+#pragma opt_rebuildconditionals off
+/* Removing this loses FUN_001DB100 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
+// FUN_001DB100
+void func_001db100(int param_1, u32 param_2)
+{
+  u32 shift;
+
+  {
+      if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+          goto nonzero;
+      shift = 1;
+      goto done;
+  nonzero:
+      shift = 0;
+  done:
+      ;
+  }
+  func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
+                 (code *)&func_001da2f0);
+  return;
+}
+#pragma opt_rebuildconditionals on
+#endif /* P4_UNIT_001DB100 */
+
+#if defined(P4_UNIT_001DB6E0)
+/* Source unit: src/Battle/btlEffect_001db6e0.c */
+#include "type.h"
+
+typedef int (*code)(...);
+
+extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
+extern void func_001db580(int param_1, u16 param_2);
+
+#pragma opt_rebuildconditionals off
+/* Removing this loses FUN_001DB6E0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
+// FUN_001DB6E0
+void func_001db6e0(int param_1, u32 param_2)
+{
+  u32 shift;
+
+  {
+      if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+          goto nonzero;
+      shift = 1;
+      goto done;
+  nonzero:
+      shift = 0;
+  done:
+      ;
+  }
+  func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
+                 (code *)&func_001db580);
+  return;
+}
+#pragma opt_rebuildconditionals on
+#endif /* P4_UNIT_001DB6E0 */
+
+#if defined(P4_UNIT_001DB740)
+/* Source unit: src/Battle/btlEffect_001db740.c */
+#include "type.h"
+
+typedef u8 bool;
+
+extern u64 func_0010f460();
+
+// FUN_001DB740
+bool func_001db740(int param_1)
+{
+  long lVar2 = 0;
+  if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 1) {
+    return 0;
+  }
+  lVar2 = func_0010f460(*(u16 *)(*(int *)(param_1 + 0x30) + 0xa4));
+  return lVar2 != 0;
+}
+#endif /* P4_UNIT_001DB740 */
+
+#if defined(P4_UNIT_001DEEE0)
+/* Source unit: src/Battle/btlEffect_001deee0.c */
+#include "type.h"
+
+extern u64 func_00452490();
+
+// FUN_001DEEE0
+u32 func_001deee0(int param_1)
+{
+  u32 uVar1 = 0;
+  long lVar2 = 0;
+
+  if (*(u8 *)(param_1 + 0x30) == 0) {
+    uVar1 = 1;
+  }
+  else if (*(int *)(param_1 + 0x4c) == 0) {
+    uVar1 = 1;
+  }
+  else {
+    lVar2 = func_00452490(*(int *)(param_1 + 0x4c));
+    if (lVar2 == 0) {
+      *(u8 *)(param_1 + 0x30) = 0;
+      *(u32 *)(param_1 + 0x4c) = 0;
+      uVar1 = 1;
+    }
+    else {
+      uVar1 = 0;
+    }
+  }
+  return uVar1;
+}
+#endif /* P4_UNIT_001DEEE0 */
+
+#if defined(P4_UNIT_001DEF60)
+/* Source unit: src/Battle/btlEffect_001def60.c */
+#include "type.h"
+
+// FUN_001DEF60
+u32 func_001def60(void)
+{
+  extern u32 func_0029d050(void);
+  extern void func_001de640(void *, void *, u16);
+  char *pVar1 = (char *)func_0029d050();
+
+  func_001de640(pVar1, pVar1 + 0x38, 0x8000);
+  return 1;
+}
+#endif /* P4_UNIT_001DEF60 */
+
+#if defined(P4_UNIT_001DF0C0)
+/* Source unit: src/Battle/btlEffect_001df0c0.c */
+#include "type.h"
+
+// FUN_001DF0C0
+u32 func_001df0c0(void)
+{
+  extern u32 func_0029d050(void);
+  extern void func_001de640(void *, void *, u16);
+  char *pVar1 = 0;
+
+  pVar1 = (char *)func_0029d050();
+  func_001de640(pVar1, pVar1 + 0x38, 0x8001);
+  return 1;
+}
+#endif /* P4_UNIT_001DF0C0 */
+
+#if defined(P4_UNIT_001DF100)
+/* Source unit: src/Battle/btlEffect_001df100.c */
+#include "type.h"
+
+// FUN_001DF100
+u32 func_001df100(void)
+{
+  extern u32 func_0029d050(void);
+  extern void func_001de640(void *, void *, u16);
+  char *pVar1 = 0;
+
+  pVar1 = (char *)func_0029d050();
+  func_001de640(pVar1, pVar1 + 0x38, 0x8002);
+  return 1;
+}
+#endif /* P4_UNIT_001DF100 */
+
+#if defined(P4_UNIT_001DF2D0)
+/* Source unit: src/Battle/btlEffect_001df2d0.c */
+#include "type.h"
+
+// FUN_001DF2D0
+u32 func_001df2d0(void)
+{
+  extern u32 func_0029d050(void);
+  extern void func_001de640(void *, void *, u16);
+  char *pVar1 = 0;
+
+  pVar1 = (char *)func_0029d050();
+  func_001de640(pVar1, pVar1 + 0x38, 0x8007);
+  return 1;
+}
+#endif /* P4_UNIT_001DF2D0 */
+
+#if defined(P4_UNIT_00202010)
+/* Source unit: src/Battle/btlEffect_00202010.c */
+#include "type.h"
+
+typedef int (*code)(...);
+
+extern u32 func_00194470();
+extern u32 func_00201f60(int param_1);
+
+// FUN_00202010
+void func_00202010(u32 param_1, u16 param_2)
+{
+  u32 *puVar1;
+  int iVar2 = 0;
+
+  iVar2 = func_00194470(0x504, 0xc);
+  *(code *)(iVar2 + 0x6c) = (code)func_00201f60;
+  puVar1 = *(u32 **)(iVar2 + 0x78);
+  *puVar1 = param_1;
+  *(u16 *)(puVar1 + 1) = param_2;
+  puVar1[2] = 0;
+  return;
+}
+#endif /* P4_UNIT_00202010 */

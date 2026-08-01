@@ -526,3 +526,194 @@ void func_0019e520(BtlUnitPacketTwoUnits* packet)
     }
     packet->second->packetCount--;
 }
+
+#define BTLUNIT_FLAG3_UNK400 (1 << 10)
+
+typedef struct BtlUnitAnimBounds BtlUnitAnimBounds;
+struct BtlUnitAnimBounds
+{
+    s16 centerX;
+    s16 centerY;
+    s16 centerZ;
+    u16 unk_6;
+    u16 radius;
+};
+
+typedef struct BtlUnitPacket00284900 BtlUnitPacket00284900;
+struct BtlUnitPacket00284900
+{
+    RwV3d pos;
+    BtlUnit* unit;
+    u16 unk_10;
+    u16 unk_12;
+    f32 phase;
+};
+
+void func_0019dea0(BtlUnit* unit);
+const BtlUnitAnimBounds* func_0019eda0(BtlUnit* unit, s32 id);
+s16 func_00199500(BtlUnit* unit, u16 id, f32 scale);
+s16 func_00198810(BtlUnit* unit);
+u16 func_00231d70(u32 max);
+void func_00199890(BtlUnit* unit, s32 param_2);
+extern RwV3d D_0060a0d0;
+extern f32 DAT_007613f8;
+
+// FUN_00195590
+void func_00195590(BtlUnit* unit, const RwV3d* target)
+{
+    RtQuat rotation;
+
+    func_001ec1c0((RwV3d*)&rotation, &unit->pos, target);
+    if ((unit->flags3 & BTLUNIT_FLAG3_NOROT) == 0)
+    {
+        unit->rot = rotation;
+        unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
+    }
+    func_0019dea0(unit);
+}
+
+// FUN_001959D0
+void func_001959d0(BtlUnit* unit, RwV3d* param_2)
+{
+    const BtlUnitAnimBounds* bounds;
+    RwV3d scaled;
+    RwV3d transformed;
+    f32 centerY;
+    f32 centerZ;
+    f32 centerX;
+
+    bounds = func_0019eda0(unit, 0);
+    centerY = bounds->centerY;
+    centerZ = bounds->centerZ;
+    centerX = bounds->centerX;
+    scaled.x = centerX * unit->scale;
+    scaled.y = centerY * unit->scale;
+    scaled.z = centerZ * unit->scale;
+    func_003dcb40(&transformed, &scaled, 1, &unit->rot);
+    param_2->x = transformed.x + unit->pos.x;
+    param_2->y = transformed.y + unit->pos.y;
+    param_2->z = transformed.z + unit->pos.z;
+}
+
+// FUN_00195AA0
+void func_00195aa0(BtlUnit* unit, BtlUnit* target, RwV3d* param_3)
+{
+    RtQuat rotation;
+    RwV3d scaled;
+    RwV3d transformed;
+
+    func_001ec1c0((RwV3d*)&rotation, &unit->pos, &target->pos);
+    scaled.x = unit->sphereCenter.x * unit->scale;
+    scaled.y = unit->sphereCenter.y * unit->scale;
+    scaled.z = unit->sphereCenter.z * unit->scale;
+    func_003dcb40(&transformed, &scaled, 1, &rotation);
+    param_3->x = transformed.x + unit->pos.x;
+    param_3->y = transformed.y + unit->pos.y;
+    param_3->z = transformed.z + unit->pos.z;
+}
+
+// FUN_00195EA0
+void func_00195ea0(BtlUnit* unit, RwV3d* param_2)
+{
+    RwV3d scaled;
+    RwV3d transformed;
+
+    scaled.x = unit->sphereCenter.x * unit->scale;
+    scaled.y = unit->sphereCenter.y * unit->scale;
+    scaled.z = unit->sphereCenter.z * unit->scale;
+    func_003dcb40(&transformed, &scaled, 1, &unit->rot);
+    param_2->x = transformed.x + unit->pos.x;
+    param_2->y = transformed.y + unit->pos.y;
+    param_2->z = transformed.z + unit->pos.z;
+    param_2->y += unit->unk_8c * unit->scale * DAT_007613f8;
+}
+
+// FUN_00195F70
+void func_00195f70(BtlUnit* unit, RwV3d* param_2)
+{
+    RwV3d scaled;
+    RwV3d transformed;
+
+    scaled.x = unit->sphereCenter.x * unit->scale;
+    scaled.y = unit->sphereCenter.y * unit->scale;
+    scaled.z = unit->sphereCenter.z * unit->scale;
+    func_003dcb40(&transformed, &scaled, 1, &unit->rot);
+    param_2->x = transformed.x + unit->pos.x;
+    param_2->y = transformed.y + unit->pos.y;
+    param_2->z = transformed.z + unit->pos.z;
+    param_2->y += unit->unk_8c * unit->scale * 0.25f;
+}
+
+// FUN_001987A0
+void func_001987a0(BtlUnit* unit)
+{
+    s16 animation;
+
+    animation = (s16)func_00199500(
+        unit, (u16)(s32)func_00198810(unit), 1.0f);
+    animation = (s16)func_00231d70(animation);
+    func_00199890(unit, animation);
+}
+
+// FUN_0019A370
+u32 func_0019a370(void* work)
+{
+    static f32 one = 1.0f;
+    BtlUnitPacket00284900* packet;
+    BtlUnit* unit;
+    RwV3d position;
+    RwV3d direction;
+    f32 phase;
+    f32 magnitude;
+    f32 arcScale;
+    u32 result;
+
+    packet = (BtlUnitPacket00284900*)work;
+    unit = packet->unit;
+    unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
+
+    if (packet->unk_12 == 0)
+    {
+        packet->phase = 0.5f;
+        packet->pos = unit->pos;
+    }
+
+    phase = packet->phase + 1.0f / (2.0f * (f32)packet->unk_10);
+    packet->phase = phase;
+    arcScale = 2.0f * (((-1.0f + (-2.0f * phase * phase)) + (4.0f * phase)) - 0.5f);
+
+    func_003dcb40(&direction, &D_0060a0d0, 1, &unit->rot);
+    magnitude = unit->sphereRadius * unit->scale * 1.25f;
+    if (magnitude < 75.0f)
+    {
+        magnitude = 75.0f;
+    }
+
+    if (arcScale < one)
+    {
+        magnitude *= arcScale;
+        direction.x *= magnitude;
+        direction.y *= magnitude;
+        direction.z *= magnitude;
+        result = 0;
+        goto update;
+    }
+
+    direction.x *= magnitude;
+    direction.y *= magnitude;
+    direction.z *= magnitude;
+
+    result = 1;
+update:
+    if (!(unit->flags3 & BTLUNIT_FLAG3_UNK400))
+    {
+        position.x = packet->pos.x + direction.x;
+        position.y = packet->pos.y + direction.y;
+        position.z = packet->pos.z + direction.z;
+        unit->pos = position;
+        unit->flags2 |= BTLUNIT_FLAG2_DIRTY;
+    }
+
+    packet->unk_12++;
+    return result;
+}

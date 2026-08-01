@@ -752,7 +752,10 @@ def compile_eligibility(c, src, cache, unit=None):
     relative = src.relative_to(REPO)
     suffix = V._unit_suffix(unit)
     obj = OBJ / "eligibility" / (relative.as_posix().replace("/", "_") + suffix + ".o")
-    flags = [*c["compile_flags"], *([] if unit is None else [f"-DP4_UNIT_{unit:08X}"])]
+    # Both the eligibility and link paths now compile through mwccgap, so the
+    # cache key must record the mwccgap flags actually used -- keying on the
+    # bare compile_flags would miss an assembler/prefix change.
+    flags = _mwccgap_flags(c, unit)
 
     def produce(temporary):
         _compile_with_mwccgap(c, src, temporary, unit)
@@ -766,6 +769,7 @@ def compile_eligibility(c, src, cache, unit=None):
         flags=flags,
         tools=_cache_tools(c, "eligibility"),
         inputs=_cache_inputs("eligibility", src),
+        producer=produce,
     )
     return V.ObjectFile(obj) if compiled else None
 

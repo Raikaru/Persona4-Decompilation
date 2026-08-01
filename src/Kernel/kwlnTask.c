@@ -254,3 +254,27 @@ Camera* func_004574d0(u32 width, u32 height, u32 createZBuffer)
     return NULL;
 }
 #endif /* P4_UNIT_004574D0 */
+
+#if defined(P4_UNIT_00452040)
+/* Source unit: src/Kernel/kwlnTask_00452040.c (1 function markers) */
+#include "type.h"
+
+typedef struct KwlnTask KwlnTask;
+
+extern KwlnTask* kwlnTaskGetTaskByName(const char* name);
+extern u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
+
+// FUN_00452040
+u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
+{
+    KwlnTask* task;
+
+    task = kwlnTaskGetTaskByName(name);
+    if (task == NULL)
+    {
+        return 0;
+    }
+
+    return kwlnTaskDestroyWithHierarchy(task);
+}
+#endif /* P4_UNIT_00452040 */

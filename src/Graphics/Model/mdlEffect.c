@@ -347,3 +347,221 @@ void func_004946f0(int param_1, u32 param_2)
 
 }
 #endif /* P4_UNIT_004946F0 */
+
+#if defined(P4_UNIT_00482700)
+/* Source unit: src/Graphics/Model/mdlEffect_00482700.c */
+#include "type.h"
+
+extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
+
+// FUN_00482700
+void func_00482700(int param_1, float *param_2)
+{
+  func_004824a0((int *)(u32)param_1, (u8 *)(u32)*(u32 *)(param_1 + 0x10), param_2);
+}
+#endif /* P4_UNIT_00482700 */
+
+#if defined(P4_UNIT_00486710)
+/* Source unit: src/Graphics/Model/mdlEffect_00486710.c */
+#include "type.h"
+
+extern u64 func_0043f810();
+
+// FUN_00486710
+void func_00486710(u64 param_1, u64 param_2)
+{
+  func_0043f810(param_1, param_2, 0x90);
+  return;
+}
+#endif /* P4_UNIT_00486710 */
+
+#if defined(P4_UNIT_00487C00)
+/* Source unit: src/Graphics/Model/mdlEffect_00487c00.c */
+#include "type.h"
+
+extern void func_00492d00(int param_1);
+
+// FUN_00487C00
+void func_00487c00(int param_1)
+{
+  if (*(int *)(param_1 + 0x4c) != 0) {
+    func_00492d00(*(int *)(param_1 + 0x4c));
+  }
+  return;
+}
+#endif /* P4_UNIT_00487C00 */
+
+#if defined(P4_UNIT_00489E50)
+/* Source unit: src/Graphics/Model/mdlEffect_00489e50.c */
+#include "type.h"
+
+extern void func_00487fb0(float param_1, int param_2);
+#pragma alias func_00487fb0_evt func_00487fb0
+extern void func_00487fb0_evt(float param_1);
+
+// FUN_00489E50
+void func_00489e50(void)
+{
+  func_00487fb0_evt(1.0f);
+}
+#endif /* P4_UNIT_00489E50 */
+
+#if defined(P4_UNIT_00489F50)
+/* Source unit: src/Graphics/Model/mdlEffect_00489f50.c */
+#include "type.h"
+
+extern void func_00492e30(u16 *param_1);
+
+// FUN_00489F50
+void func_00489f50(f32 param_1, int param_2)
+{
+  *(f32 *)(param_2 + 8) = param_1;
+  func_00492e30((u16 *)*(u32 *)(param_2 + 0x4c));
+  return;
+}
+#endif /* P4_UNIT_00489F50 */
+
+#if defined(P4_UNIT_00494710)
+/* Source unit: src/Graphics/Model/mdlEffect_00494710.c */
+#include "type.h"
+
+// FUN_00494710
+u8 func_00494710(int param_1, u32 param_2)
+{
+  u32 index;
+  u8 *base;
+  s16 value;
+
+  index = (param_2 & 0xffff) * 2;
+  base = *(u8 **)(param_1 + 0x18);
+  value = *(s16 *)(base + index);
+
+  return value == -1;
+}
+#endif /* P4_UNIT_00494710 */
+
+#if defined(P4_UNIT_004A6E50)
+/* Source unit: src/Graphics/Model/mdlEffect_004a6e50.c */
+#include "type.h"
+
+// FUN_004A6E50
+void func_004a6e50(int param_1)
+{
+  *(u32 *)(param_1 + 0x10) = *(u32 *)(param_1 + 0x10) + 1;
+}
+#endif /* P4_UNIT_004A6E50 */
+
+#if defined(P4_UNIT_004A77A0)
+/* Source unit: src/Graphics/Model/mdlEffect_004a77a0.c */
+#include "type.h"
+
+// FUN_004A77A0
+void func_004a77a0(u32 *param_1, u32 param_2)
+{
+  param_1[5] = param_2;
+}
+#endif /* P4_UNIT_004A77A0 */
+
+#if defined(P4_UNIT_004AC2C0)
+/* Source unit: src/Graphics/Model/mdlEffect_004ac2c0.c */
+#include "type.h"
+
+// FUN_004AC2C0
+void func_004ac2c0(u32 *param_1)
+{
+  if ((param_1[0x23] >= param_1[0x26]) || (param_1[0x23] == 0)) {
+    *(f32 *)(param_1 + 9) = 1.0f;
+    param_1[0x26] = param_1[0x26] + 1;
+  }
+}
+#endif /* P4_UNIT_004AC2C0 */
+
+#if defined(P4_UNIT_004AC620)
+/* Source unit: src/Graphics/Model/mdlEffect_004ac620.c */
+#include "type.h"
+
+// FUN_004AC620
+void func_004ac620(int param_1, int param_2)
+{
+  *(int *)(param_1 + 0x28) = param_2;
+}
+#endif /* P4_UNIT_004AC620 */
+
+#if defined(P4_UNIT_004AE020)
+/* Source unit: src/Graphics/Model/mdlEffect_004ae020.c */
+#include "type.h"
+
+// FUN_004AE020
+u32 *func_004ae020(u32 *param_1, u8 *param_2)
+{
+  u32 *t2;
+  int t1;
+  int t3;
+  u8 *t0;
+
+  u8 c0;
+  u8 c1;
+  u8 c2;
+  u8 c3;
+
+  t2 = *(u32 **)((u8 *)param_1 + 0x18);
+  t1 = t2[9];
+  t3 = 0;
+  goto check;
+loop:
+  t0 = *(u8 **)(t2[8] + t3 * 4);
+  c0 = param_2[0];
+  c1 = param_2[1];
+  c2 = param_2[2];
+  c3 = param_2[3];
+  c0 = c0;
+  c1 = c1;
+  c2 = c2;
+  c3 = c3;
+  t0[4] = c0;
+  t0[5] = c1;
+  t0[6] = c2;
+  t0[7] = c3;
+  t3 = t3 + 1;
+check:
+  if (t3 < t1) goto loop;
+  return param_1;
+}
+#endif /* P4_UNIT_004AE020 */
+
+#if defined(P4_UNIT_004AE080)
+/* Source unit: src/Graphics/Model/mdlEffect_004ae080.c */
+#include "type.h"
+
+// FUN_004AE080
+u32 *func_004ae080(u32 *param_1)
+{
+  u32 *p;
+
+  p = *(u32 **)((u8 *)param_1 + 0x18);
+  p[2] = p[2] | 0x40;
+  return param_1;
+}
+#endif /* P4_UNIT_004AE080 */
+
+#if defined(P4_UNIT_004B1580)
+/* Source unit: src/Graphics/Model/mdlEffect_004b1580.c */
+#include "type.h"
+
+// FUN_004B1580
+u32 func_004b1580(int param_1)
+{
+  return *(u32 *)(param_1 + 0x84);
+}
+#endif /* P4_UNIT_004B1580 */
+
+#if defined(P4_UNIT_004B2770)
+/* Source unit: src/Graphics/Model/mdlEffect_004b2770.c */
+#include "type.h"
+
+// FUN_004B2770
+void func_004b2770(u32 *param_1, u32 param_2)
+{
+  *param_1 = param_2;
+}
+#endif /* P4_UNIT_004B2770 */

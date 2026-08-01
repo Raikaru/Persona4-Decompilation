@@ -225,3 +225,45 @@ float func_002A2CD0(int param_1)
   return progress;
 }
 #endif /* P4_UNIT_002A2CD0 */
+
+#if defined(P4_UNIT_002A2340)
+/* Source unit: src/Yajima/y_timeLimit_002a2340.c */
+#include "type.h"
+
+extern u32 D_00882F08[];
+extern u32 D_00882F0C[];
+extern u32 D_00882F10[];
+extern u32 D_00764630;
+extern u8 D_00882EF0[];
+extern u8 D_00882ED0[];
+extern u32 D_007638D8;
+extern u32 D_0076462C;
+extern u32 D_00764628;
+extern u32 D_00764624;
+extern void *func_0043f9c8(void *dst, int value, u32 size);
+extern char *func_00442428(char *dst, const char *src);
+
+// FUN_002A2340
+void func_002A2340(void)
+
+{
+  int i;
+
+  D_00882F08[0] = 0;
+  D_00882F0C[0] = 0;
+  D_00882F10[0] = 0;
+  D_00764630 = 0;
+  func_0043f9c8(D_00882EF0, 0, 0x12);
+  func_0043f9c8(D_00882ED0, 0, 0x12);
+  for (i = 0; i < 8; i = i + 1) {
+    func_00442428((char *)D_00882EF0, (char *)&D_007638D8);
+  }
+  for (i = 0; i < 8; i = i + 1) {
+    func_00442428((char *)D_00882ED0, (char *)&D_007638D8);
+  }
+  D_0076462C = 0;
+  D_00764628 = 0;
+  D_00764624 = 0;
+  return;
+}
+#endif /* P4_UNIT_002A2340 */

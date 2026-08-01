@@ -17,7 +17,8 @@ Rules are grouped by prefix:
 
   H  source honesty     constructs that steer codegen instead of expressing
                         the program: `volatile` on non-hardware data, banned
-                        optimization pragmas, dead stores, `register` locals
+                        optimization pragmas, dead stores, `register` locals,
+                        inline asm that forces codegen for ordinary computation
   M  marker hygiene     the `// FUN_xxxxxxxx` / `P4_UNIT_xxxxxxxx` contract
                         verify.py relies on
   P  pragma balance     on/off brackets that never close within a file
@@ -75,10 +76,12 @@ HARDWARE_RANGES = (
 RULES = {
     # ---- H: source honesty -------------------------------------------------
     "H001": ("error", "`volatile` on non-hardware data (compiler-steering, not a device access)"),
+    "H002": ("error", "zero-instruction asm barrier: empty template emits nothing and exists only to perturb the optimizer"),
     "H003": ("error", "banned optimization pragma (optimization_level 0/1/3, schedule off, opt_common_subs off, opt_loop_invariants)"),
     "H003W": ("warn", "redundant `#pragma optimization_level 2` (that is the documented -O2 baseline)"),
     "H007": ("warn", "dead store: local is assigned once and never read"),
     "H008": ("error", "`register` storage class on an ordinary local"),
+    "H009": ("error", "inline asm emitting ordinary instructions (not syscall/privileged/COP2/VU0); use honest C"),
     # ---- M: marker hygiene -------------------------------------------------
     "M001": ("error", "marker hygiene: malformed FUN_ address, duplicate address in one file, or P4_UNIT guard that disagrees with the marker beneath it"),
     # ---- P: pragma balance -------------------------------------------------
@@ -420,6 +423,150 @@ def check_register_local(src):
                       src.lines[i].strip())
 
 
+# ----------------------------------------------------------------- inline asm
+# Inline asm is permitted ONLY where there is genuinely no C expression for
+# the operation: PS2 kernel syscall trampolines, privileged instructions,
+# and COP2/VU0 register moves.  Using it to force register allocation,
+# instruction selection, or scheduling for ordinary arithmetic, loads,
+# stores, or control flow is banned even when it matches byte-for-byte.
+#
+# H002 catches the zero-instruction barrier (`asm ("" : "+r"(x))`): it emits
+# nothing and exists only to perturb the optimizer.
+#
+# H009 catches statements whose template emits real instructions.  The
+# allowlist below is the hardware vocabulary with no C expression.  A
+# statement that contains ANY allowlisted instruction is treated as one
+# hardware idiom: its GPR plumbing -- an `addiu` computing an address fed to
+# `lqc2`/`sqc2`, a `pextuw` unwrapping a `qmfc2` result -- rides along with
+# the COP2 move.  Only statements made up SOLELY of ordinary mnemonics are
+# optimizer-steering and flagged.
+
+ASM_KEYWORD_RE = re.compile(
+    r"\b(?:__asm__|__asm|asm)\b(?:\s+(?:volatile|inline|goto))*\s*\(")
+
+# Instructions with no C expression.  VU0 ops are any mnemonic base starting
+# with `v` (`vmul`, `vadd`, `vsub`, `vmove`, `vftoi`, `vitof`, `vclip`,
+# `vopmula`, ...), including their `.xyzw`/`.x`/`ACC` suffix forms.  `sync`
+# covers `sync.l`/`sync.p`; the base strips the suffix before lookup.
+ASM_ALLOWED = frozenset({
+    "syscall", "sync", "ei", "di", "cache",
+    "mfc0", "mtc0", "eret", "tlbwi",
+    "qmtc2", "qmfc2", "lqc2", "sqc2", "cfc2", "ctc2",
+})
+
+_ASM_ESCAPES = {"n": "\n", "t": "\t", "r": "\r", "\\": "\\", '"': '"'}
+
+
+def _asm_template(src, line_idx, col):
+    """Concatenated template of the asm statement whose opening paren sits at
+    (line_idx, col) in the raw text; None if the statement is malformed.
+
+    The template is the run of adjacent C string literals before the first
+    `:` (operand separator) or `)` (close), so multi-line statements with
+    `\n\t` separators are scanned as one template, not line by line.
+    """
+    i = line_idx
+    line = src.lines[i]
+    # `col` points just past the opening `(` of the asm statement, i.e. at
+    # the first template character (or whitespace before it).
+    parts = []
+    while True:
+        n = len(line)
+        while col < n and line[col] in " \t":
+            col += 1
+        if col >= n:
+            i += 1
+            if i >= len(src.lines):
+                return None
+            line = src.lines[i]
+            col = 0
+            continue
+        ch = line[col]
+        if ch == '"':
+            col += 1
+            buf = []
+            while True:
+                if col >= n:
+                    return None          # unterminated string literal
+                c = line[col]
+                col += 1
+                if c == "\\":
+                    if col >= n:
+                        return None
+                    esc = line[col]
+                    col += 1
+                    buf.append(_ASM_ESCAPES.get(esc, "\\" + esc))
+                elif c == '"':
+                    break
+                else:
+                    buf.append(c)
+            parts.append("".join(buf))
+            continue
+        if ch in ":)":
+            return "".join(parts)
+        return None                      # template must be a string literal
+
+
+def _asm_mnemonics(template):
+    """Base mnemonics of the real instructions in an asm template.
+
+    Assembler directives (`.set`, `.word`, ...), `#` comments, labels, and
+    empty chunks are skipped; `add.s` -> `add`, `vsub.xyzw` -> `vsub`.
+    """
+    out = []
+    for chunk in re.split(r"[\n;]", template):
+        chunk = chunk.strip()
+        if not chunk or chunk[0] in ".#":
+            continue
+        tok = chunk.split(None, 1)[0]
+        if tok.endswith(":"):
+            continue                      # label, e.g. `1:`
+        out.append(tok.split(".", 1)[0])
+    return out
+
+
+def check_asm_barrier(src):
+    """H002: an asm statement whose template is empty or whitespace-only."""
+    for i, line in enumerate(src.code):
+        for m in ASM_KEYWORD_RE.finditer(line):
+            template = _asm_template(src, i, m.end())
+            if template is None or template.strip():
+                continue
+            if waived(src, i, "H002"):
+                continue
+            yield Finding("H002", src.rel(), i + 1,
+                          "empty asm template emits no instructions; it exists only to perturb the optimizer",
+                          src.lines[i].strip())
+
+
+def check_asm_instructions(src):
+    """H009: inline asm emitting real instructions for ordinary computation."""
+    for i, line in enumerate(src.code):
+        for m in ASM_KEYWORD_RE.finditer(line):
+            template = _asm_template(src, i, m.end())
+            if template is None or not template.strip():
+                continue                  # H002 owns the empty case
+            mnemonics = _asm_mnemonics(template)
+            if not mnemonics:
+                continue                  # directives only: nothing to flag
+            ordinary = []
+            hardware = False
+            for base in mnemonics:
+                if base.startswith("v") or base in ASM_ALLOWED:
+                    hardware = True
+                else:
+                    ordinary.append(base)
+            if hardware or not ordinary:
+                continue
+            if waived(src, i, "H009"):
+                continue
+            yield Finding("H009", src.rel(), i + 1,
+                          "inline asm emits ordinary instructions ("
+                          + ", ".join(sorted(set(ordinary)))
+                          + ") with no privileged/COP2/VU0 op; use honest C",
+                          src.lines[i].strip())
+
+
 # ------------------------------------------------------------ marker hygiene
 
 def check_markers(src):
@@ -532,6 +679,8 @@ CHECKS = (
     check_banned_pragma,
     check_dead_store,
     check_register_local,
+    check_asm_barrier,
+    check_asm_instructions,
     check_markers,
     check_pragma_balance,
 )
