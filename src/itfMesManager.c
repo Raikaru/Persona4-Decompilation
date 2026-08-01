@@ -277,3 +277,90 @@ void func_0027a6c0(int param_1)
   return;
 }
 #endif /* P4_UNIT_0027A6C0 */
+
+#if defined(P4_UNIT_0027B620)
+/* Source unit: src/itfMesManager_0027b620.c */
+#include "type.h"
+
+#pragma alias DAT_008817EC_abs DAT_008817EC
+#pragma alias DAT_008817E4_abs DAT_008817E4
+extern u8 DAT_008817EC_abs[];
+extern u8 DAT_008817E4_abs[];
+void func_0027b310(u32 param_1);
+
+// FUN_0027B620
+u64 func_0027b620(void)
+{
+    int current;
+    u32 count;
+
+    current = *(int*)DAT_008817EC_abs;
+    while (current != 0) {
+        func_0027b310(*(u32*)(current + 0xc));
+        current = *(int*)(current + 4);
+    }
+    count = *(u32*)DAT_008817E4_abs;
+    *(u32*)DAT_008817E4_abs = count + 1;
+    return 0;
+}
+#endif /* P4_UNIT_0027B620 */
+
+#if defined(P4_UNIT_00277450)
+/* Source unit: src/itfMesManager_00277450.c */
+#include "type.h"
+
+s32 func_0029d030(void);
+s32 func_0029cc00(s32 index);
+u32 func_002786c0(int param_1,int param_2,int param_3);
+
+// FUN_00277450
+u32 func_00277450(void)
+{
+  s32 lVar1;
+  u32 uVar2;
+  u32 uVar3;
+
+  lVar1 = func_0029d030();
+  if (lVar1 < 0) {
+    return 1;
+  }
+  uVar2 = func_0029cc00(0);
+  uVar3 = func_0029cc00(1);
+  func_002786c0(lVar1,uVar2,uVar3);
+  return 1;
+}
+#endif /* P4_UNIT_00277450 */
+
+#if defined(P4_UNIT_00277370)
+/* Source unit: src/itfMesManager_00277370.c */
+#include "type.h"
+
+s32 func_0029d030(void);
+s32 func_0029cc00(s32 index);
+void func_00440b68();
+extern char D_0063BE20[];
+void func_002782c0(int param_1,int param_2,int param_3,u32 param_4);
+
+// FUN_00277370
+u32 func_00277370(void)
+{
+  int lVar1;
+  u32 uVar2;
+  u32 uVar3;
+  u32 uVar4;
+
+  lVar1 = func_0029d030();
+  if (lVar1 < 0) {
+    return 1;
+  }
+  uVar2 = func_0029cc00(0);
+  uVar3 = func_0029cc00(1);
+  uVar4 = func_0029cc00(2);
+  func_00440b68(D_0063BE20,uVar2,uVar3,uVar4);
+  uVar2 = func_0029cc00(0);
+  uVar3 = func_0029cc00(1);
+  uVar4 = func_0029cc00(2);
+  func_002782c0(lVar1,uVar2,uVar3,uVar4);
+  return 1;
+}
+#endif /* P4_UNIT_00277370 */

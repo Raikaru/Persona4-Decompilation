@@ -449,3 +449,42 @@ u32 func_0029C6D0(ScrData* scr)
     return 1;
 }
 #endif /* P4_UNIT_0029C6D0 */
+
+#if defined(P4_UNIT_0029C710)
+/* Source unit: src/Script/scrTraceCode_0029c710.c */
+#include "type.h"
+
+/* Minimal view of ScrData; only pc (offset 0x18) is accessed. */
+typedef struct ScrData
+{
+    u8 padding_00[0x18];
+    s32 pc;
+} ScrData;
+
+enum ScrOperation
+{
+    SCR_OPERATION_ADD,
+    SCR_OPERATION_SUB,
+    SCR_OPERATION_MUL,
+    SCR_OPERATION_DIV,
+    SCR_OPERATION_OR,
+    SCR_OPERATION_AND,
+    SCR_OPERATION_EQ,
+    SCR_OPERATION_NEQ,
+    SCR_OPERATION_S,
+    SCR_OPERATION_L,
+    SCR_OPERATION_SE,
+    SCR_OPERATION_LE
+};
+
+u32 func_0029b1b0(ScrData* scr, u32 type);
+
+// FUN_0029C710
+u32 func_0029C710(ScrData* scr)
+{
+    func_0029b1b0(scr, SCR_OPERATION_LE);
+    scr->pc++;
+
+    return 1;
+}
+#endif /* P4_UNIT_0029C710 */
