@@ -209,6 +209,7 @@ void func_0026c740(s32 object)
 
 extern u32 D_00764580;
 
+/* measured: removing this pragma takes func_0026d400 nd 0 -> nd 17 (object 60 -> 56, window 64). */
 #pragma optimization_level 1
 // FUN_0026D400
 u8 func_0026d400(float* param_1)
@@ -218,8 +219,8 @@ u8 func_0026d400(float* param_1)
         return 0;
     }
 
-    param_1[0] = *(volatile float*)(uintptr_t)0x00881500;
-    param_1[1] = *(volatile float*)(uintptr_t)0x00881504;
+    param_1[0] = *(float*)(uintptr_t)0x00881500;
+    param_1[1] = *(float*)(uintptr_t)0x00881504;
     return 1;
 }
 #pragma optimization_level 2
