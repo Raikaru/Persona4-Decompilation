@@ -1,7 +1,7 @@
 PYTHON ?= python
 SPLAT_CONFIG := config/slus21782.yaml
 
-.PHONY: all setup split consolidate reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors ctx objdiff objdiff-objects progress progress-validate m2c-setup m2c clean distclean
+.PHONY: all setup split consolidate reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects progress progress-validate m2c-setup m2c clean distclean
 
 all: build verify
 
@@ -51,13 +51,17 @@ verify check:
 test:
 	$(PYTHON) -m unittest discover -s tests -v
 
-# Source-honesty lint. `lint` fails on any error-severity finding; `lint-errors`
-# additionally suppresses warnings from the report.
+# Source-honesty lint. Scoped to FIRST-PARTY code by default, so the exit code
+# is a usable CI gate; rw/cri/sce middleware is reported only on request.
+# `lint-errors` additionally suppresses warning lines from the report.
 lint:
 	$(PYTHON) tools/decomp_lint.py
 
 lint-errors:
 	$(PYTHON) tools/decomp_lint.py --errors-only
+
+lint-full:
+	$(PYTHON) tools/decomp_lint.py --include-third-party
 
 # Flattened context for a decomp.me scratch or decomp-permuter run:
 #   make ctx CTX_SRC=src/Battle/btlTarget.c CTX_UNIT=001EC630

@@ -8,7 +8,6 @@ void func_0011b9f0(int task, u32 value);
 
 /* Source unit: src/Kosaka/k_footstep_0011b9e0.c (1 function markers) */
 
-#pragma schedule off
 // FUN_0011B9E0
 void func_0011b9e0(int task, u32 value)
 {
@@ -17,7 +16,6 @@ void func_0011b9e0(int task, u32 value)
 
 /* Source unit: src/Kosaka/k_footstep_0011b9f0.c (1 function markers) */
 
-#pragma schedule off
 // FUN_0011B9F0
 void func_0011b9f0(int task, u32 value)
 {

@@ -163,6 +163,7 @@ struct BtlBattleFlagPacket
 };
 extern Battle* iGpfffb3ac;
 
+/* measured: removing this pragma takes func_001937c0 nd 0 -> nd 13. */
 #pragma optimization_level 1
 // FUN_001937C0
 u32 func_001937c0(void* work)

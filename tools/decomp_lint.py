@@ -35,20 +35,32 @@ An unannotated instance of the same construct is a finding, which is the
 point: the rule is not "never use this", it is "never use this without paying
 for it in measurement".
 
+The tree is split like verify.py splits it: first-party code is what this
+project wrote and polices; third-party middleware (RenderWare under `rw/`,
+CRI under `cri/`, the Sony SDK under `sce/`, and the C runtime files) is
+retail-tracked but nobody's to restyle.  By default only first-party sources
+are linted; `--include-third-party` scans everything and reports both
+populations separately in the summary.  The exit status is always driven by
+FIRST-PARTY `error` findings alone, so the tool can gate CI honestly no
+matter how much middleware noise is present.
+
 Usage:
-    python tools/decomp_lint.py                     # lint src/ and include/
+    python tools/decomp_lint.py                     # lint first-party src/ and include/
+    python tools/decomp_lint.py --include-third-party   # also lint rw/ cri/ sce/ + C runtime
     python tools/decomp_lint.py src/Battle          # lint a subtree
-    python tools/decomp_lint.py --errors-only       # errors only, exit 1 on any
+    python tools/decomp_lint.py --errors-only       # errors only, exit 1 on any first-party error
     python tools/decomp_lint.py src/foo.c --json r.json
     python tools/decomp_lint.py --select H          # only honesty rules
     python tools/decomp_lint.py --ignore H003W      # drop the noisy warning
     python tools/decomp_lint.py --list              # describe every rule
 
-Exit status is 1 if any `error` finding survives filtering, else 0.
-`src/generated/` is never linted.
+Exit status is 1 if any first-party `error` finding survives filtering,
+else 0.  Third-party findings (visible with `--include-third-party`) never
+fail the run.  `src/generated/` is never linted.
 """
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -60,6 +72,23 @@ ROOT = Path(__file__).resolve().parent.parent
 # Directories that are generated or otherwise not ours to police.
 # `src/generated/` is raw m2c candidate output and is ALWAYS excluded.
 DEFAULT_EXCLUDES = ("src/generated/",)
+
+# Third-party classification is owned by verify.py: the `rw/`, `cri/`, `sce/`
+# prefixes plus the C runtime files.  We reuse that exact classification so
+# the match verifier and this linter can never disagree about what is
+# middleware.  verify.py has no import-time side effects (it only defines
+# constants and functions), so executing it here is safe.  If it ever grows
+# an import-time side effect, mirror the three definitions below instead
+# and keep them in sync with verify.py.
+_VERIFY_SPEC = importlib.util.spec_from_file_location(
+    "p4_verify_classification", Path(__file__).resolve().parent / "verify.py")
+assert _VERIFY_SPEC is not None and _VERIFY_SPEC.loader is not None
+_VERIFY = importlib.util.module_from_spec(_VERIFY_SPEC)
+_VERIFY_SPEC.loader.exec_module(_VERIFY)
+
+THIRD_PARTY_PREFIXES = _VERIFY.THIRD_PARTY_PREFIXES
+THIRD_PARTY_FILES = _VERIFY.THIRD_PARTY_FILES
+is_third_party = _VERIFY.is_third_party
 
 # PS2 hardware register windows.  `volatile` is legitimate here and nowhere
 # else: EE core/peripheral MMIO, VU memory, GS privileged registers,
@@ -723,6 +752,9 @@ def main(argv=None):
         description=__doc__.splitlines()[0],
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("paths", nargs="*", help="files or directories (default: src include)")
+    ap.add_argument("--include-third-party", action="store_true",
+                    help="also lint third-party middleware (rw/, cri/, sce/ and the C runtime "
+                         "files); default is first-party only")
     ap.add_argument("--errors-only", action="store_true",
                     help="report only error-severity findings (suppress warnings)")
     ap.add_argument("--json", metavar="OUT", help="write findings as JSON")
@@ -755,39 +787,76 @@ def main(argv=None):
         return True
 
     files = gather(paths, excludes)
-    findings = []
+    # Split by ownership, like verify.py: default mode reads only first-party
+    # sources; third-party files are linted only when explicitly requested.
+    first_srcs, third_srcs = [], []
     for f in files:
         try:
             src = Source(f, f.read_bytes())
         except OSError as exc:
             sys.stderr.write(f"decomp_lint: cannot read {f}: {exc}\n")
             continue
-        findings.extend(x for x in lint_source(src) if keep(x.code))
+        (third_srcs if is_third_party(src.rel()) else first_srcs).append(src)
 
-    by_code = Counter(f.code for f in findings)
-    by_sev = Counter(f.severity for f in findings)
+    findings = []
+    for src in first_srcs:
+        findings.extend(x for x in lint_source(src) if keep(x.code))
+    third_findings = []
+    if args.include_third_party:
+        for src in third_srcs:
+            third_findings.extend(x for x in lint_source(src) if keep(x.code))
+    all_findings = findings + third_findings
+
+    by_code = Counter(f.code for f in all_findings)
+    by_sev = Counter(f.severity for f in all_findings)
+    fp_sev = Counter(f.severity for f in findings)
+    tp_sev = Counter(f.severity for f in third_findings)
 
     if not args.summary:
-        for f in sorted(findings, key=lambda x: (x.file, x.line, x.code)):
+        for f in sorted(all_findings, key=lambda x: (x.file, x.line, x.code)):
             print(f"{f.file}:{f.line}: {f.severity}: [{f.code}] {f.message}")
             if f.text:
                 print(f"    {f.text}")
 
-    print(f"\ndecomp_lint: {len(files)} files, {len(findings)} findings "
-          f"({by_sev['error']} error, {by_sev['warn']} warn)")
+    if args.include_third_party:
+        print(f"\ndecomp_lint: {len(first_srcs) + len(third_srcs)} files, "
+              f"{len(all_findings)} findings "
+              f"({by_sev['error']} error, {by_sev['warn']} warn)")
+        print(f"  first-party: {len(first_srcs)} files, {len(findings)} findings "
+              f"({fp_sev['error']} error, {fp_sev['warn']} warn)")
+        print(f"  third-party: {len(third_srcs)} files, {len(third_findings)} findings "
+              f"({tp_sev['error']} error, {tp_sev['warn']} warn)")
+    else:
+        print(f"\ndecomp_lint: {len(first_srcs)} first-party files, "
+              f"{len(findings)} findings "
+              f"({fp_sev['error']} error, {fp_sev['warn']} warn)")
+        if third_srcs:
+            print(f"  (skipped {len(third_srcs)} third-party files; "
+                  f"use --include-third-party to lint them)")
     for code, n in sorted(by_code.items()):
         print(f"  {code}  {RULES[code][0]:<5} {n:>7}  {RULES[code][1]}")
 
     if args.json:
         Path(args.json).write_text(json.dumps(dict(
             files=len(files),
+            include_third_party=args.include_third_party,
+            first_party_files=len(first_srcs),
+            third_party_files=len(third_srcs),
             summary_by_code={c: n for c, n in sorted(by_code.items())},
             summary_by_severity=dict(by_sev),
+            first_party=dict(
+                summary_by_code={c: n for c, n in sorted(Counter(f.code for f in findings).items())},
+                summary_by_severity=dict(fp_sev)),
+            third_party=dict(
+                summary_by_code={c: n for c, n in sorted(Counter(f.code for f in third_findings).items())},
+                summary_by_severity=dict(tp_sev)),
             rules={c: dict(severity=s, description=d) for c, (s, d) in RULES.items()},
-            findings=[f.as_dict() for f in findings]), indent=1))
+            findings=[f.as_dict() for f in all_findings]), indent=1))
         print(f"report: {args.json}")
 
-    return 1 if by_sev["error"] else 0
+    # The exit status is driven by FIRST-PARTY errors only: middleware noise
+    # must never fail a run that gates CI on first-party honesty.
+    return 1 if fp_sev["error"] else 0
 
 
 if __name__ == "__main__":

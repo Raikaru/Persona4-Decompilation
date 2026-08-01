@@ -10,7 +10,6 @@
 extern u32 DAT_00881440_abs[];
 extern u32 DAT_00881444_abs[];
 
-#pragma schedule off
 // FUN_001FC2C0
 void func_001fc2c0(u32 first, u32 second)
 {
@@ -30,7 +29,6 @@ extern u32 DAT_00881448_abs[];
 extern u32 DAT_0088144c_abs[];
 extern u32 DAT_00881450_abs[];
 
-#pragma schedule off
 // FUN_001FC2E0
 void func_001fc2e0(u32 first, u32 second, u32 third)
 {
