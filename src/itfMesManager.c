@@ -122,7 +122,11 @@ int func_00279fd0(int param_1,u32 param_2)
 #include "type.h"
 
 // FUN_0027A370
-static int func_0027a370(param_1,param_2,param_3,param_4)
+/* Not `static`: each P4_UNIT compiles as its own translation unit, so a local
+ * symbol here is invisible to the linker and the retail asm blob's jal to this
+ * address cannot resolve (measured: mwldps2 reports Undefined "func_0027a370").
+ * The K&R parameter list below is the donor's form and is load-bearing. */
+int func_0027a370(param_1,param_2,param_3,param_4)
 int param_1;
 int param_2;
 int param_3;

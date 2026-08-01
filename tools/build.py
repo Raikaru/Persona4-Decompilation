@@ -469,12 +469,20 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
     return True, per_name
 
 
-def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None):
+def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
+                       include_generated=False):
     """Select matching C source units that can be placed byte-exact."""
     import bisect
     retail = V.RetailElf(c["retail_elf"], TARGET, RETAIL_SHA1)
     out = []
-    for cpath in sorted((REPO / "src").rglob("*.c")):
+    # src/generated/ holds ~12,000 raw m2c CANDIDATE units that are not part of
+    # the authoritative tree; verify.py excludes them the same way. Compiling
+    # them here made a cold build ~13,000 units instead of ~1,300 and dominated
+    # the runtime. The candidate-promotion flow drives them separately through
+    # build/m2c_verify_report.json, so they are opt-in here.
+    sources = sorted(p for p in (REPO / "src").rglob("*.c")
+                     if include_generated or not V.is_generated(p))
+    for cpath in sources:
         units = V.source_units(cpath) or [None]
         for unit in units:
             markers = V.scan_markers(cpath, unit)
@@ -964,6 +972,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--progress-report", type=Path, metavar="PATH")
     parser.add_argument("--setup-only", action="store_true")
+    parser.add_argument("--include-generated", action="store_true",
+                        help="also evaluate src/generated candidate units for placement "
+                             "(off by default: ~12,000 extra units, dominates build time)")
     args, _unknown = parser.parse_known_args()
     c = cfg()
     BUILD.mkdir(exist_ok=True)
@@ -1005,7 +1016,8 @@ def main():
     boundaries = load_windows()
     window_sizes = load_window_sizes()
     cobjs = (
-        eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes)
+        eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes,
+                           include_generated=args.include_generated)
         if c.get("retail_elf") else []
     )
     print(f"eligible C objects: {len(cobjs)}  "
