@@ -106,13 +106,13 @@ s32 func_00278fd0(s32 arg0)
 #if defined(P4_UNIT_0027A5E0)
 #include "type.h"
 
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_0027bf10(s32 arg0);
 
 // FUN_0027A5E0
 void func_0027a5e0(s32 *arg0, s32 arg1)
 {
-    func_0043f9c8(arg0, 0, 0x1C);
+    memset(arg0, 0, 0x1C);
     *arg0 = func_0027bf10(arg1);
 }
 #endif /* P4_UNIT_0027A5E0 */

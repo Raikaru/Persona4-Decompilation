@@ -24,7 +24,7 @@ struct RtQuat
 
 extern f32 fabsf(f32 x);
 extern RwV3d D_0060A0F0;
-RwV3d* func_003dcb40(RwV3d* vectorsOut, const RwV3d* vectorsIn,
+RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
 
 // FUN_001BC3A0
@@ -40,7 +40,7 @@ u32 func_001bc3a0(float *param_1,float *param_2)
   if (a > 1500) {
     if (param_2 != 0) {
       t = a - 1500;
-      func_003dcb40((RwV3d*)tmp,&D_0060A0F0,1,(RtQuat*)(param_1 + 3));
+      RtQuatTransformVectors((RwV3d*)tmp,&D_0060A0F0,1,(RtQuat*)(param_1 + 3));
       if (tmp[0] != 0.0f) {
         a = fabsf(tmp[0]);
         t = t / a;
@@ -58,7 +58,7 @@ u32 func_001bc3a0(float *param_1,float *param_2)
   if (a > 1500) {
     if (param_2 != 0) {
       t = a - 1500;
-      func_003dcb40((RwV3d*)tmp,&D_0060A0F0,1,(RtQuat*)(param_1 + 3));
+      RtQuatTransformVectors((RwV3d*)tmp,&D_0060A0F0,1,(RtQuat*)(param_1 + 3));
       if (tmp[2] != 0.0f) {
         a = fabsf(tmp[2]);
         t = t / a;
@@ -131,7 +131,7 @@ typedef struct BtlCameraPacketSetState
 void func_001bc660(u16 state, BtlAction* action, u32 param_3);
 
 // FUN_001BC8E0
-u32 func_001bc8e0(void* work)
+u32 btlCameraUpdateSetStatePacket(void* work)
 {
     BtlCameraPacketSetState* packet;
 
@@ -168,17 +168,17 @@ typedef struct BtlCameraPacketSetState
 } BtlCameraPacketSetState;
 
 BtlPacket* func_00194470(u32 id, s32 workDataSize);
-u32 func_001bc8e0(void* work);
+u32 btlCameraUpdateSetStatePacket(void* work);
 
 // FUN_001BC920
-BtlPacket* func_001bc920(BtlAction* action, u16 state)
+BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state)
 {
     BtlPacket* packet;
     BtlCameraPacketSetState* work;
 
     packet = func_00194470(0x200, 8);
 
-    packet->updateFunc = func_001bc8e0;
+    packet->updateFunc = btlCameraUpdateSetStatePacket;
 
     work = (BtlCameraPacketSetState*)packet->workData;
 
@@ -204,7 +204,7 @@ struct RwV3d
 // FUN_001BD620
 void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4)
 {
-  extern float func_003e40b0();
+  extern float RwV3dNormalize();
   RwV3d diff;
   RwV3d cross1;
   RwV3d cross2;
@@ -213,12 +213,12 @@ void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4)
   diff.x = *param_2 - *param_3;
   diff.y = param_2[1] - param_3[1];
   diff.z = param_2[2] - param_3[2];
-  func_003e40b0(&diff,&diff);
+  RwV3dNormalize(&diff,&diff);
   *(RwV3d*)(param_1 + 8) = diff;
   cross1.x = param_4[1] * diff.z - param_4[2] * diff.y;
   cross1.y = param_4[2] * diff.x - *param_4 * diff.z;
   cross1.z = *param_4 * diff.y - param_4[1] * diff.x;
-  func_003e40b0(&cross1,&cross1);
+  RwV3dNormalize(&cross1,&cross1);
   *(RwV3d*)param_1 = cross1;
   cross2.x = diff.y * cross1.z - diff.z * cross1.y;
   cross2.y = diff.z * cross1.x - diff.x * cross1.z;
@@ -233,7 +233,7 @@ void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4)
 #include "type.h"
 
 void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4);
-void func_003dc610(void* out, void* in);
+void RtQuatConvertFromMatrix(void* out, void* in);
 
 // FUN_001BD780
 void func_001bd780(void* out, const void* first, const void* second, const void* config)
@@ -242,7 +242,7 @@ void func_001bd780(void* out, const void* first, const void* second, const void*
 
   func_001bd620((float*)auStack_40, (float*)second, (float*)first,
                (float*)config);
-  func_003dc610(out, auStack_40);
+  RtQuatConvertFromMatrix(out, auStack_40);
 }
 #endif /* P4_UNIT_001BD780 */
 
@@ -326,12 +326,12 @@ extern RwV3d D_0060A0F0;
 extern RwV3d D_0060A0E0;
 extern f32 DAT_00761200;
 extern f32 DAT_0076112c;
-void func_00195850(BtlUnit* unit, RwV3d* dst);
-f32 func_0044b868(f32 x);
-RwV3d* func_003dcb40(RwV3d* vectorsOut, const RwV3d* vectorsIn,
+void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
+f32 tanf(f32 x);
+RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
-f32 func_003e40b0(RwV3d* out, RwV3d* in);
-RwMatrix* func_003e0870(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
+f32 RwV3dNormalize(RwV3d* out, RwV3d* in);
+RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
 RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
 void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
@@ -368,7 +368,7 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
 
   cameraAddress = (int)camera;
   unitBytes = (u8 *)(uintptr_t)*(int *)(*(int *)(cameraAddress + 0xe0) + 0x30);
-  func_00195850((BtlUnit *)unitBytes, &scratch.sphereCenter.value);
+  btlUnitGetSphereWorldCenter((BtlUnit *)unitBytes, &scratch.sphereCenter.value);
   radius = *(float *)(unitBytes + 0x90) * *(float *)(unitBytes + 0x2c);
   halfHeight = *(float *)(unitBytes + 0x8c) * *(float *)(unitBytes + 0x2c) * 0.5f;
   centerXY = *(volatile /* Removing this function's qualifier batch loses func_001c6760 (MATCH nd0 -> MISMATCH nd6, size 936 -> 936) - measured W170. */ u64 *)&scratch.sphereCenter.value;
@@ -378,15 +378,15 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   scratch.center.value.y = halfHeight * heightScale + scratch.center.value.y;
   if (radius > halfHeight) {
     requiredDistance = (radius * distanceScale) /
-      func_0044b868(DAT_00761200 * (*(float *)(cameraAddress + 0xb8) * 0.5f));
+      tanf(DAT_00761200 * (*(float *)(cameraAddress + 0xb8) * 0.5f));
   } else {
     requiredDistance = (halfHeight * distanceScale) /
-      func_0044b868(*(float *)(cameraAddress + 0xb8) * 0.5f);
+      tanf(*(float *)(cameraAddress + 0xb8) * 0.5f);
   }
   if (requiredDistance < minimumDistance) {
     requiredDistance = minimumDistance;
   }
-  func_003dcb40(&scratch.forward.value, &D_0060A0F0, 1, (void *)(unitBytes + 0x1c));
+  RtQuatTransformVectors(&scratch.forward.value, &D_0060A0F0, 1, (void *)(unitBytes + 0x1c));
   scratch.scaledOffset.value.x = scratch.forward.value.x * radius;
   scratch.scaledOffset.value.y = scratch.forward.value.y * radius;
   scratch.scaledOffset.value.z = scratch.forward.value.z * radius;
@@ -397,11 +397,11 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   scratch.direction.value.x = scratch.candidate.value.x - scratch.center.value.x;
   scratch.direction.value.y = scratch.candidate.value.y - scratch.center.value.y;
   scratch.direction.value.z = scratch.candidate.value.z - scratch.center.value.z;
-  func_003e40b0(&scratch.direction.value, &scratch.direction.value);
+  RwV3dNormalize(&scratch.direction.value, &scratch.direction.value);
   scratch.scaledOffset.value.x = scratch.direction.value.x * requiredDistance;
   scratch.scaledOffset.value.y = scratch.direction.value.y * requiredDistance;
   scratch.scaledOffset.value.z = scratch.direction.value.z * requiredDistance;
-  func_003e0870(&scratch.rotation, &D_0060A0E0, angle, 0);
+  RwMatrixRotate(&scratch.rotation, &D_0060A0E0, angle, 0);
   func_003e4320(&scratch.direction.value, &scratch.scaledOffset.value, &scratch.rotation);
   scratch.candidate.value.x = scratch.center.value.x + scratch.direction.value.x;
   scratch.candidate.value.y = scratch.center.value.y + scratch.direction.value.y;
@@ -410,7 +410,7 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   scratch.firstPosition.x = scratch.center.value.x + scratch.direction.value.x;
   scratch.firstPosition.y = scratch.center.value.y + scratch.direction.value.y;
   scratch.firstPosition.z = scratch.center.value.z + scratch.direction.value.z;
-  func_003e0870(&scratch.rotation, &D_0060A0E0, -angle, 0);
+  RwMatrixRotate(&scratch.rotation, &D_0060A0E0, -angle, 0);
   func_003e4320(&scratch.direction.value, &scratch.scaledOffset.value, &scratch.rotation);
   scratch.candidate.value.x = scratch.center.value.x + scratch.direction.value.x;
   scratch.candidate.value.y = scratch.center.value.y + scratch.direction.value.y;
@@ -498,9 +498,9 @@ struct BtlCamera
 extern RwV3d D_0060A0F0;
 extern RwV3d D_0060A0E0;
 extern f32 DAT_00761200;
-void func_00195850(BtlUnit* unit, RwV3d* dst);
-f32 func_0044b868(f32 x);
-RwV3d* func_003dcb40(RwV3d* vectorsOut, const RwV3d* vectorsIn,
+void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
+f32 tanf(f32 x);
+RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
 void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
@@ -522,19 +522,19 @@ void func_001c7510(BtlCamera* camera)
   f32 fVar7;
 
   unit = camera->action->unit;
-  func_00195850(unit, (RwV3d *)(buf + 24));
+  btlUnitGetSphereWorldCenter(unit, (RwV3d *)(buf + 24));
   fVar20 = unit->sphereRadius * unit->scale;
   fVar21 = unit->unk_8c * unit->scale * 0.5f;
   buf[25] = fVar21 * 0.25f + buf[25];
   if (fVar20 > fVar21) {
     fVar20 = (1.25f * fVar20) /
-      func_0044b868(DAT_00761200 * (camera->fovRad * 0.5f));
+      tanf(DAT_00761200 * (camera->fovRad * 0.5f));
   }
   else {
     fVar20 = (1.25f * fVar21) /
-      func_0044b868(camera->fovRad * 0.5f);
+      tanf(camera->fovRad * 0.5f);
   }
-  func_003dcb40((RwV3d *)(buf + 20), &D_0060A0F0, 1, &unit->rot);
+  RtQuatTransformVectors((RwV3d *)(buf + 20), &D_0060A0F0, 1, &unit->rot);
   fVar4 = fVar20 + 125.0f;
   fVar23 = buf[20] * fVar4;
   fVar22 = buf[21] * fVar4;
@@ -618,9 +618,9 @@ struct BtlCamera
 extern RwV3d D_0060A0F0;
 extern RwV3d D_0060A0E0;
 extern f32 DAT_00761200;
-void func_00195850(BtlUnit* unit, RwV3d* dst);
-f32 func_0044b868(f32 x);
-RwV3d* func_003dcb40(RwV3d* vectorsOut, const RwV3d* vectorsIn,
+void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
+f32 tanf(f32 x);
+RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
 void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
@@ -642,19 +642,19 @@ void func_001c7780(BtlCamera* camera)
   f32 fVar7;
 
   unit = camera->action->unit;
-  func_00195850(unit, (RwV3d *)(buf + 24));
+  btlUnitGetSphereWorldCenter(unit, (RwV3d *)(buf + 24));
   fVar20 = unit->sphereRadius * unit->scale;
   fVar21 = unit->unk_8c * unit->scale * 0.5f;
   buf[25] = fVar21 * 0.25f + buf[25];
   if (fVar20 > fVar21) {
     fVar20 = (1.5f * fVar20) /
-      func_0044b868(DAT_00761200 * (camera->fovRad * 0.5f));
+      tanf(DAT_00761200 * (camera->fovRad * 0.5f));
   }
   else {
     fVar20 = (1.5f * fVar21) /
-      func_0044b868(camera->fovRad * 0.5f);
+      tanf(camera->fovRad * 0.5f);
   }
-  func_003dcb40((RwV3d *)(buf + 20), &D_0060A0F0, 1, &unit->rot);
+  RtQuatTransformVectors((RwV3d *)(buf + 20), &D_0060A0F0, 1, &unit->rot);
   fVar4 = fVar20 + 125.0f;
   fVar23 = buf[20] * fVar4;
   fVar22 = buf[21] * fVar4;
@@ -783,11 +783,11 @@ extern RwV3d D_0060A0E0;
 extern f32 DAT_00761200;
 extern f32 DAT_0076112c;
 extern f32 tanf(f32 x);
-void func_00195850(BtlUnit* unit, RwV3d* dst);
-RwV3d* func_003dcb40(RwV3d* vectorsOut, const RwV3d* vectorsIn,
+void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
+RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
-f32 func_003e40b0(RwV3d* out, RwV3d* in);
-RwMatrix* func_003e0870(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
+f32 RwV3dNormalize(RwV3d* out, RwV3d* in);
+RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
 RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
 void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
@@ -795,7 +795,7 @@ void func_001bb3d0(void* camera, void* first, void* second, void* third, void* f
 void func_001bbef0(u8* camera, f32 step);
 
 // FUN_001CD7D0
-void func_001cd7d0(BtlCamera* camera)
+void btlAct_WIN_P(BtlCamera* camera)
 {
   RwV3d center;
   RwV3d transformed;
@@ -814,11 +814,11 @@ void func_001cd7d0(BtlCamera* camera)
   s32 i;
 
   unit = camera->action->unit;
-  func_00195850(unit, &center);
+  btlUnitGetSphereWorldCenter(unit, &center);
   radius = unit->sphereRadius * unit->scale;
   halfHeight = 0.5f * (unit->unk_8c * unit->scale);
   center.y = 0.0f + center.y + DAT_0076112c * halfHeight;
-  func_003dcb40(&transformed, &D_0060A0F0, 1, &unit->rot);
+  RtQuatTransformVectors(&transformed, &D_0060A0F0, 1, &unit->rot);
   scratch.directionX = 350.0f * transformed.x;
   scratch.directionY = 350.0f * transformed.y;
   scratch.directionZ = 350.0f * transformed.z;
@@ -826,7 +826,7 @@ void func_001cd7d0(BtlCamera* camera)
   transformed.x = (center.x + scratch.directionX) - center.x;
   transformed.y = distance - center.y;
   transformed.z = (center.z + scratch.directionZ) - center.z;
-  func_003e40b0(&transformed, &transformed);
+  RwV3dNormalize(&transformed, &transformed);
   if (!(radius < halfHeight))
   {
     distance = 1.75f * radius /
@@ -841,7 +841,7 @@ void func_001cd7d0(BtlCamera* camera)
   i = 0;
   while ((i & 0xffff) < 4)
   {
-    func_003e0870(&scratch.matrix, &D_0060A0E0, angle, 0);
+    RwMatrixRotate(&scratch.matrix, &D_0060A0E0, angle, 0);
     func_003e4320((RwV3d*)&scratch.directionX, &transformed,
                  &scratch.matrix);
     ((BtlCameraKeyFrame*)scratch.frameBytes)[(u16)i].pos.x =

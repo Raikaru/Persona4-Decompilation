@@ -82,7 +82,7 @@ void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 #if defined(P4_UNIT_002865E0)
 #include "type.h"
 
-void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
 
 typedef struct {
@@ -114,7 +114,7 @@ void func_002865e0(UnkStruct_002865E0 *arg0) {
         var_4++;
     } while (var_3 > 0);
     temp_17 = *(s32 *)((u8 *)arg0 + 0);
-    func_0043f9c8(arg0, 0, 0x7B0);
+    memset(arg0, 0, 0x7B0);
     var_5_2 = sp30;
     var_4_2 = (s32 *)((u8 *)arg0 + 0x76C);
     var_3_2 = 0xF;

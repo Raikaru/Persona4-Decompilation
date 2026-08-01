@@ -33,7 +33,7 @@ extern u8 *D_0076449C;
 extern u8 D_005F7000[];
 
 void func_00194590(u8 *arg0, u32 arg1);
-u8 *func_001bc920(u8 *arg0, u32 arg1);
+u8 *btlCameraCreateSetStatePacket(u8 *arg0, u32 arg1);
 u8 *func_001d3700(u32 arg0, u32 arg1);
 void func_002baac0(void *arg0);
 void func_002bad10(u32 arg0);
@@ -52,7 +52,7 @@ void func_001b3f00(void) {
     t = func_001d3700(3, 0xFFF);
     *(s64 *)(t + 0x60) = *p;
     func_00194590(t, 0);
-    func_00194590(func_001bc920(NULL, 0x2B), 0);
+    func_00194590(btlCameraCreateSetStatePacket(NULL, 0x2B), 0);
 }
 #endif /* P4_UNIT_001B3F00 */
 
@@ -110,24 +110,24 @@ s32 func_001bcc80(u8 *arg0) {
 #if defined(P4_UNIT_001BD4F0)
 #include "type.h"
 
-void func_00194fa0(u8 *arg0, u32 arg1);
-void func_00194fc0(u8 *arg0, u32 arg1);
+void btlUnitSetFlags(u8 *arg0, u32 arg1);
+void btlUnitClearFlags(u8 *arg0, u32 arg1);
 
 // FUN_001BD4F0
 void func_001bd4f0(u8 *arg0) {
-    func_00194fa0(arg0, 0xA);
-    func_00194fc0(arg0, 4);
+    btlUnitSetFlags(arg0, 0xA);
+    btlUnitClearFlags(arg0, 4);
 }
 #endif /* P4_UNIT_001BD4F0 */
 
 #if defined(P4_UNIT_001BD530)
 #include "type.h"
 
-void func_00194fc0(u8 *arg0, u32 arg1);
+void btlUnitClearFlags(u8 *arg0, u32 arg1);
 
 // FUN_001BD530
 void func_001bd530(u32 arg0) {
-    func_00194fc0((u8 *)arg0, 0xA);
+    btlUnitClearFlags((u8 *)arg0, 0xA);
 }
 #endif /* P4_UNIT_001BD530 */
 

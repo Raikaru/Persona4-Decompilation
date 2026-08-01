@@ -9,7 +9,7 @@
    baseline -O2 emits lw; lui; ori; and; sw; move; jr; nop. */
 #pragma optimization_level 3
 // FUN_003E05D0
-u8 *func_003e05d0(u8 *arg0) {
+u8 *RwMatrixUpdate(u8 *arg0) {
     *(s32 *)(arg0 + 0xC) &= 0xFFFDFFFC;
     return arg0;
 }

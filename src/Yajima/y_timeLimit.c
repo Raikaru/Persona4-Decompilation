@@ -240,8 +240,8 @@ extern u32 D_007638D8;
 extern u32 D_0076462C;
 extern u32 D_00764628;
 extern u32 D_00764624;
-extern void *func_0043f9c8(void *dst, int value, u32 size);
-extern char *func_00442428(char *dst, const char *src);
+extern void *memset(void *dst, int value, u32 size);
+extern char *strcat(char *dst, const char *src);
 
 // FUN_002A2340
 void func_002A2340(void)
@@ -253,13 +253,13 @@ void func_002A2340(void)
   D_00882F0C[0] = 0;
   D_00882F10[0] = 0;
   D_00764630 = 0;
-  func_0043f9c8(D_00882EF0, 0, 0x12);
-  func_0043f9c8(D_00882ED0, 0, 0x12);
+  memset(D_00882EF0, 0, 0x12);
+  memset(D_00882ED0, 0, 0x12);
   for (i = 0; i < 8; i = i + 1) {
-    func_00442428((char *)D_00882EF0, (char *)&D_007638D8);
+    strcat((char *)D_00882EF0, (char *)&D_007638D8);
   }
   for (i = 0; i < 8; i = i + 1) {
-    func_00442428((char *)D_00882ED0, (char *)&D_007638D8);
+    strcat((char *)D_00882ED0, (char *)&D_007638D8);
   }
   D_0076462C = 0;
   D_00764628 = 0;

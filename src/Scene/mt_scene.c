@@ -22,7 +22,7 @@ extern MtScene* gMtScene;
 extern Resrc* func_00147530(ResrcManager* resManager, u16 resTypeId);
 
 // FUN_00145270
-Resrc* func_00145270(u16 resTypeId)
+Resrc* MT_Scene_GetRes(u16 resTypeId)
 {
     if (gMtScene->resManager == NULL)
     {
@@ -55,7 +55,7 @@ extern MtScene* gMtScene;
 extern u32 func_001475c0(ResrcManager* resManager, u8 resType);
 
 // FUN_00145300
-u32 func_00145300(u32 resType)
+u32 MT_Scene_GetTotalResInList(u32 resType)
 {
     s32 i;
     s32 total;
@@ -110,7 +110,7 @@ extern int func_00440b68(const char* format, ...);
 extern Resrc* func_00147190(ResrcManager* resManager, u16 resTypeId);
 
 // FUN_001458B0
-u16 func_001458b0(u16 resId)
+u16 MT_Scene_CreateResLightChar(u16 resId)
 {
     ResrcManager* resManager;
     u16 resTypeId;
@@ -160,7 +160,7 @@ extern int func_00440b68(const char* format, ...);
 extern Resrc* func_00147190(ResrcManager* resManager, u16 resTypeId);
 
 // FUN_00145930
-u16 func_00145930(u16 resId)
+u16 MT_Scene_CreateResLightNpc(u16 resId)
 {
     ResrcManager* resManager;
     u16 resTypeId;
@@ -207,8 +207,8 @@ typedef struct RwMatrix
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
 extern u8 D_005EFA30[];
-extern void func_003e0870(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
-extern void func_003e0c90(RwMatrix* matrix, u64 param_2, s32 mode);
+extern void RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
+extern void RwMatrixTranslate(RwMatrix* matrix, u64 param_2, s32 mode);
 
 // FUN_00146F50
 void func_00146f50(u32* param_1, u64 param_2, u32* param_3)
@@ -235,10 +235,10 @@ void func_00146f50(u32* param_1, u64 param_2, u32* param_3)
     auStack_40[3] = auStack_40[3] | 0x20003;
 
     pfParam3 = (f32*)param_3;
-    func_003e0870((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA20, pfParam3[1], 1);
-    func_003e0870((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA10, pfParam3[0], 1);
-    func_003e0870((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA30, pfParam3[2], 1);
-    func_003e0c90((RwMatrix*)auStack_40, param_2, 2);
+    RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA20, pfParam3[1], 1);
+    RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA10, pfParam3[0], 1);
+    RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA30, pfParam3[2], 1);
+    RwMatrixTranslate((RwMatrix*)auStack_40, param_2, 2);
 
     puVar4 = auStack_40;
     iVar3 = 8;

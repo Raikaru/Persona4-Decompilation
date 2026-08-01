@@ -4,11 +4,11 @@
 #if defined(P4_UNIT_00211950)
 #include "type.h"
 
-extern void func_0043f9c8(void *destination, s32 value, u32 size);
+extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_00211950
 void func_00211950(u8 *arg0, s32 arg1) {
-    func_0043f9c8(arg0, 0, 0x20);
+    memset(arg0, 0, 0x20);
     *(s32 *)(arg0 + 4) = arg1;
     *(s32 *)(arg0 + 0x10) = 1;
 }
@@ -48,11 +48,11 @@ void func_00212240(u8 *arg0, s32 arg1) {
 #if defined(P4_UNIT_00213CD0)
 #include "type.h"
 
-extern void func_0043f9c8(void *destination, s32 value, u32 size);
+extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_00213CD0
 void func_00213cd0(u8 *arg0, s32 arg1) {
-    func_0043f9c8(arg0, 0, 0x10);
+    memset(arg0, 0, 0x10);
     *(s32 *)(arg0 + 0xC) = arg1;
     *(s32 *)(arg0 + 0) |= 0x100;
 }
@@ -116,11 +116,11 @@ void func_00216d70(u8 *arg0, s32 arg1) {
 #if defined(P4_UNIT_00216DF0)
 #include "type.h"
 
-extern void func_0043f9c8(void *destination, s32 value, u32 size);
+extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_00216DF0
 void func_00216df0(u8 *arg0, s32 arg1) {
-    func_0043f9c8(arg0, 0, 0x40);
+    memset(arg0, 0, 0x40);
     *(s32 *)(arg0 + 0x18) = -1;
     *(s32 *)(arg0 + 0x3C) = arg1;
     *(s16 *)(arg0 + 0x28) = -1;

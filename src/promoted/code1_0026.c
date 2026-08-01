@@ -35,12 +35,12 @@ void func_00266b70(void) {
 
 typedef struct { f32 x, y, z; } SVec3;
 
-extern u8 *func_00145270(void);
+extern u8 *MT_Scene_GetRes(void);
 
 // FUN_00268E60
 s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
     s32 temp_4;
-    u8 *temp_2 = func_00145270();
+    u8 *temp_2 = MT_Scene_GetRes();
 
     if (temp_2 == NULL) {
         return 0;
@@ -100,11 +100,11 @@ s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s8 arg4, f32 fparg0, f
 
 typedef struct { f32 x, y, z; } SVec3;
 
-extern u8 *func_00145270(void);
+extern u8 *MT_Scene_GetRes(void);
 
 // FUN_00269440
 s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
-    u8 *temp_2 = func_00145270();
+    u8 *temp_2 = MT_Scene_GetRes();
 
     if (temp_2 == NULL) {
         return 0;
@@ -124,11 +124,11 @@ s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
 #if defined(P4_UNIT_00269690)
 #include "type.h"
 
-extern u8 *func_00145270(void);
+extern u8 *MT_Scene_GetRes(void);
 
 // FUN_00269690
 s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
-    u8 *temp_2 = func_00145270();
+    u8 *temp_2 = MT_Scene_GetRes();
 
     if (temp_2 == NULL) {
         return 0;
@@ -151,12 +151,12 @@ s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
 #if defined(P4_UNIT_00269C20)
 #include "type.h"
 
-extern u8 *func_00145270(void);
+extern u8 *MT_Scene_GetRes(void);
 extern s32 func_00269bd0(u8 *arg0, s32 arg1);
 
 // FUN_00269C20
 s32 func_00269c20(u32 unk, s32 arg1) {
-    u8 *temp_2 = func_00145270();
+    u8 *temp_2 = MT_Scene_GetRes();
 
     if (temp_2 != NULL) {
         return func_00269bd0(temp_2, arg1);
@@ -168,12 +168,12 @@ s32 func_00269c20(u32 unk, s32 arg1) {
 #if defined(P4_UNIT_0026BD50)
 #include "type.h"
 
-extern u8 *func_00145270(void);
+extern u8 *MT_Scene_GetRes(void);
 extern s32 func_0026bc90(u8 *arg0, s32 arg1);
 
 // FUN_0026BD50
 s32 func_0026bd50(u32 unk, s32 arg1) {
-    u8 *temp_2 = func_00145270();
+    u8 *temp_2 = MT_Scene_GetRes();
 
     if (temp_2 != NULL) {
         return func_0026bc90(temp_2, arg1);

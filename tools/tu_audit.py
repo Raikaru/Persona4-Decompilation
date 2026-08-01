@@ -19,34 +19,50 @@ boundaries must come from other evidence.
 
 Evidence signals (strongest first)
 ----------------------------------
-1. P3 cross-reference.  ``map_shared_p3.py`` maps P4 functions to byte-identical
+1. Embedded __FILE__ strings.  The retail image carries every assert's source
+   filename (NUL-terminated, in the data1/data2 regions), and the functions
+   referencing each string were compiled from that original file -- so a
+   recovered span names the original translation unit outright.  Adjacent
+   pairs inside a kept span (both asserting, or one asserting and the other a
+   silent span member, or two silent members) are joined.  Calibrated on P3
+   ground truth (13,898 decompiled adjacent pairs; base rate of an adjacent
+   pair being same-file 97.86%): every variant scores 100% on the subset
+   where the P3 tree is trustworthy (functions still in a file literally
+   named F), and the raw-proxy shortfall is entirely P3 module-reorg
+   artifacts, not signal errors.  Weighted like p3_file.
+2. P3 cross-reference.  ``map_shared_p3.py`` maps P4 functions to byte-identical
    Persona 3 FES counterparts, and P3's source files ARE real translation
    units.  Adjacent P4 functions whose P3 counterparts live in the same P3 file
    are almost certainly the same original TU.  This tool runs ``map_shared_p3``
    in-process (no writes) with a fresh P3 ``verify.py --json`` report.
-2. Owned data.  Functions referencing the same ``.rodata``/``.bss``/``.sdata``
+3. Owned data.  Functions referencing the same ``.rodata``/``.bss``/``.sdata``
    address (decoded directly from retail: ``lui``/``addiu`` pairs and
    GP-relative accesses) belong together.  Shared references that are rare
    (few functions use them) are stronger evidence than hot shared globals.
-3. Codegen-flag homogeneity.  MWCC compiled with the instruction scheduler on
+4. Codegen-flag homogeneity.  MWCC compiled with the instruction scheduler on
    fills ``jr $ra`` delay slots; with it off the delay slot is a ``nop``.  The
    flag was per-file, so a maximal stretch sharing it is TU evidence -- but
    calibration against P3 (whose files are real TUs) shows it carries almost no
    discriminative power at pair level (98%+ of adjacent pairs share the flag
    whether or not they are one file), so it is weighted weakly and also
    reported separately as "scheduler stretches".
-4. Call locality.  A function called only from a tight address neighbourhood is
+5. Call locality.  A function called only from a tight address neighbourhood is
    likely file-local to it.  Reported as a per-group support statistic
    (fraction of members whose direct callers all lie within the group's span
    plus a margin), not as a merge criterion.
 
-Pair-level calibration (measured on P3 ground truth, 13,890 adjacent pairs
+Pair-level calibration (measured on P3 ground truth, 13,898 adjacent pairs
 where both functions are decompiled): the base rate of an adjacent pair being
-same-file is ~98.4%; a direct call between the pair raises it to 99.2%; a
+same-file is ~97.9%; a direct call between the pair raises it to 99.2%; a
 shared *rare* data reference (used by <= 4 functions) to 99.6%; a shared hot
 global is 97.9% (below base rate) and a shared scheduler flag is 98.3%
-(indistinguishable from base rate).  The P3-file signal is the workhorse; call
-plus rare-data is the only non-P3 combination that earns a HIGH tier.
+(indistinguishable from base rate).  The __FILE__ signal measures 100% on
+the trustworthy subset for all three variants (both-assert 714/714,
+asserter+silent 224/224, silent+silent 1046/1046; raw 96.6% / 94.3% / 98.5%
+-- every raw miss is a P3 module-reorg artifact where the original TU was
+split across files, not a signal error).  The P3-file signal is the other
+workhorse; call plus rare-data is the only non-P3 combination that earns a
+HIGH tier.
 
 Conservative by design: a boundary is closed only on evidence (never on
 absence of evidence), and the default report lists only HIGH-confidence groups
@@ -92,10 +108,12 @@ MIN_GROUP_SIZE = 2
 
 # Per-signal boundary scores.  A boundary (adjacent pair of functions) closes
 # when its score reaches MEDIUM_MIN; tiers are HIGH / MEDIUM by the weakest
-# internal boundary.  Weights come from P3 ground-truth calibration (13,890
+# internal boundary.  Weights come from P3 ground-truth calibration (13,898
 # adjacent pairs where both functions are decompiled; base rate of an adjacent
-# pair being same-file is 98.4%):
+# pair being same-file is 97.9%):
 #   p3_file     5  P3 counterparts in one P3 file -- near-certain
+#   file_strings 5  embedded __FILE__ asserts name the original TU outright;
+#                   measured 100% on P3's trustworthy subset (see module docs)
 #   call        2  direct jal between the pair -- 99.2% same-file on P3
 #   data_rare   2  shared data address referenced by <= 4 functions -- 99.6%
 #   data_common 0  hot shared globals -- 97.9%, *below* base rate, so it is
@@ -103,6 +121,7 @@ MIN_GROUP_SIZE = 2
 #   sched       0  same scheduler flag -- 98.3%, indistinguishable from base
 #                  rate; reported separately as scheduler stretches
 SCORE_P3_FILE = 5
+SCORE_FILE_STRINGS = 5
 SCORE_CALL = 2
 SCORE_DATA_RARE = 2
 SCORE_DATA_COMMON = 0
@@ -216,6 +235,47 @@ def decode_functions(
     return decoded
 
 
+def _file_strings_evidence(report: dict | None, order: list[int]) -> dict | None:
+    """Turn a file_strings.extract report into boundary-scoring evidence.
+
+    Returns {asserters: name -> window indexes, spans: name -> (first, last)
+    window index, names_at: window index -> asserted names} restricted to
+    kept spans (single-asserter names are rejected upstream), or None when
+    the report is absent.
+    """
+    if not report:
+        return None
+    index_of = {address: index for index, address in enumerate(order)}
+    asserters: dict[str, set[int]] = {}
+    spans: dict[str, tuple[int, int]] = {}
+    names_at: dict[int, set[str]] = collections.defaultdict(set)
+    for record in report.get("files", []):
+        if not record.get("kept"):
+            continue
+        name = record["file"]
+        indexes = {index_of[int(a, 16)] for a in record["asserting_functions"]}
+        asserters[name] = indexes
+        spans[name] = (record["span_first_index"], record["span_last_index"])
+        for index in indexes:
+            names_at[index].add(name)
+    return {
+        "asserters": asserters,
+        "spans": spans,
+        "names_at": dict(names_at),
+    }
+
+
+def _load_file_strings_evidence(
+    windows: dict[int, int], image: bytes, gp: int, base: int = BASE
+) -> tuple[dict, dict | None]:
+    """Run the embedded-__FILE__ extraction in-process; return (report, evidence)."""
+    sys.path.insert(0, str(TOOLS))
+    import file_strings  # noqa: PLC0415  (stdlib-only module; reused for consistency)
+
+    report = file_strings.extract(image, windows, gp, base=base)
+    return report, _file_strings_evidence(report, sorted(windows))
+
+
 def compute_callers(decoded: dict[int, dict]) -> dict[int, set[int]]:
     """Invert the call graph: target -> set of caller addresses."""
     callers: dict[int, set[int]] = collections.defaultdict(set)
@@ -229,6 +289,7 @@ def build_pair_evidence(
     order: list[int],
     decoded: dict[int, dict],
     p3_files: dict[int, set[str]],
+    file_evidence: dict | None = None,
 ) -> tuple[list[dict], dict[int, int]]:
     """Score every adjacent boundary.
 
@@ -241,6 +302,10 @@ def build_pair_evidence(
     for info in decoded.values():
         for ref in info["refs"]:
             frequency[ref] += 1
+
+    names_at = (file_evidence or {}).get("names_at", {})
+    spans = (file_evidence or {}).get("spans", {})
+    asserters = (file_evidence or {}).get("asserters", {})
 
     boundaries: list[dict] = []
     for index in range(len(order) - 1):
@@ -287,6 +352,57 @@ def build_pair_evidence(
         if da["sched"] is not None and da["sched"] == db["sched"]:
             signals["sched"] = da["sched"]
             score += SCORE_SCHED
+
+        if names_at:
+            names_a = names_at.get(index, set())
+            names_b = names_at.get(index + 1, set())
+            shared_names = names_a & names_b
+            if shared_names:
+                name = min(shared_names)  # deterministic tie-break
+                signals["file_strings"] = {
+                    "name": name,
+                    "kind": "both",
+                    "asserters": len(asserters[name]),
+                }
+                score += SCORE_FILE_STRINGS
+                if conflict:
+                    # The __FILE__ strings say one TU; the P3 cross-reference
+                    # says both sides map to *different* P3 files.  The P3
+                    # veto is kept (conservative) and the contradiction is
+                    # reported -- these are the interesting disagreements.
+                    signals["fs_vs_p3"] = True
+            else:
+                if "p3_file" in signals and names_a and names_b:
+                    # Both sides assert, but different filenames: the __FILE__
+                    # strings contradict a same-P3-file join.
+                    signals["p3_vs_fs"] = True
+                # A silent member inside a kept span still belongs to that TU
+                # (one TU is one contiguous .text region), so any in-span
+                # pair closes.  Prefer a span whose name one side asserts;
+                # fall back to any span containing the pair (overlapping
+                # spans of different names are common).
+                name = None
+                for candidate in sorted(names_a | names_b):
+                    first, last = spans[candidate]
+                    if first <= index and index + 1 <= last:
+                        name = candidate
+                        break
+                if name is None:
+                    for candidate, (first, last) in spans.items():
+                        if first <= index and index + 1 <= last:
+                            name = candidate
+                            break
+                if name is not None:
+                    signals["file_strings"] = {
+                        "name": name,
+                        "kind": "span"
+                        if (names_a or names_b)
+                        else "silent",
+                        "asserters": len(asserters[name]),
+                    }
+                    score += SCORE_FILE_STRINGS
+                    if conflict:
+                        signals["fs_vs_p3"] = True
 
         closed = (not conflict) and score >= MEDIUM_MIN
         boundaries.append(
@@ -357,8 +473,14 @@ def annotate_groups(
     callers: dict[int, set[int]],
     current_files: dict[int, list[str]],
     p3_files: dict[int, set[str]],
+    file_evidence: dict | None = None,
+    order: list[int] | None = None,
 ) -> list[dict]:
     """Attach per-group reporting fields (current files, call locality, P3 files)."""
+    if file_evidence and order:
+        index_of = {address: index for index, address in enumerate(order)}
+    else:
+        index_of = None
     for group in groups:
         members = group["members"]
         span_start = members[0]
@@ -386,6 +508,18 @@ def annotate_groups(
             if target in member_set
         )
         group["p3_files"] = group_p3_files(group, p3_files)
+
+        if file_evidence and index_of:
+            member_indexes = {index_of[m] for m in members}
+            first, last = min(member_indexes), max(member_indexes)
+            candidates: list[tuple[int, int, str]] = []
+            for name, (span_first, span_last) in file_evidence["spans"].items():
+                if span_first <= first and last <= span_last:
+                    inside = len(member_indexes & file_evidence["asserters"][name])
+                    if inside:
+                        candidates.append((inside, -(span_last - span_first), name))
+            if candidates:
+                group["file_strings_name"] = max(candidates)[2]
     return groups
 
 
@@ -614,16 +748,54 @@ def build_audit(
     p3_files: dict[int, set[str]],
     current_files: dict[int, list[str]],
     base: int = BASE,
+    file_evidence: dict | None = None,
 ) -> dict:
-    """Assemble the full audit from raw inputs (pure; unit-testable)."""
+    """Assemble the full audit from raw inputs (pure; unit-testable).
+
+    ``file_evidence`` may be precomputed by ``_file_strings_evidence``; when
+    None the embedded-__FILE__ extraction runs in-process (imports
+    tools/file_strings.py, writes nothing).
+    """
     order = sorted(windows)
+    if file_evidence is None:
+        file_report, file_evidence = _load_file_strings_evidence(
+            windows, image, gp, base
+        )
+    else:
+        file_report = {}
     decoded = decode_functions(image, windows, gp, base)
     callers = compute_callers(decoded)
-    boundaries, frequency = build_pair_evidence(order, decoded, p3_files)
+    boundaries, frequency = build_pair_evidence(order, decoded, p3_files, file_evidence)
     groups = extract_groups(order, boundaries)
-    annotate_groups(groups, decoded, callers, current_files, p3_files)
+    annotate_groups(
+        groups, decoded, callers, current_files, p3_files, file_evidence, order
+    )
     stretches = scheduler_stretches(order, decoded)
     summary = summarize(groups, order, current_files, boundaries, stretches)
+
+    fs_vs_p3 = [
+        b
+        for b in boundaries
+        if b["signals"].get("fs_vs_p3") and not b["signals"].get("gap")
+    ]
+    p3_vs_fs = [
+        b
+        for b in boundaries
+        if b["signals"].get("p3_vs_fs") and not b["signals"].get("gap")
+    ]
+
+    def _conflict_detail(boundary: dict) -> dict:
+        p3_sides = boundary["signals"].get("p3_conflict") or [[], []]
+        return {
+            "a": f"{boundary['a']:08x}",
+            "b": f"{boundary['b']:08x}",
+            "file": boundary["signals"]["file_strings"]["name"],
+            "kind": boundary["signals"]["file_strings"]["kind"],
+            "p3_a": p3_sides[0],
+            "p3_b": p3_sides[1],
+        }
+
+    groups_named = [g for g in groups if g.get("file_strings_name")]
 
     p3_member_count = sum(1 for m in order if p3_files.get(m))
     first_party_p3 = sum(
@@ -637,6 +809,24 @@ def build_audit(
         "p3_evidence": {
             "functions_with_sources": p3_member_count,
             "first_party_functions_with_sources": first_party_p3,
+        },
+        "file_strings": {
+            "named_tus": file_report.get("named_tus", 0),
+            "functions_covered": file_report.get("functions_covered", 0),
+            "strings_found": file_report.get("strings_found", 0),
+            "rejected_spans": len(file_report.get("trimmed_or_rejected", [])),
+            "groups_named": len(groups_named),
+            "fs_vs_p3_conflicts": len(fs_vs_p3),
+            "fs_vs_p3_details": [_conflict_detail(b) for b in fs_vs_p3],
+            "p3_vs_fs_conflicts": len(p3_vs_fs),
+            "p3_vs_fs_details": [
+                {
+                    "a": f"{b['a']:08x}",
+                    "b": f"{b['b']:08x}",
+                    "p3_file": b["signals"].get("p3_file", []),
+                }
+                for b in p3_vs_fs
+            ],
         },
         "summary": summary,
         "groups": groups,
@@ -661,6 +851,22 @@ def render_text(audit: dict, min_score: int) -> str:
         f"inherit a P3 source file "
         f"({audit['p3_evidence']['first_party_functions_with_sources']} first-party)"
     )
+    fs_info = audit["file_strings"]
+    add(
+        f"Embedded __FILE__ strings: {fs_info['named_tus']} named TUs covering "
+        f"{fs_info['functions_covered']} functions "
+        f"({fs_info['strings_found']} strings; {fs_info['rejected_spans']} spans "
+        f"rejected); {fs_info['groups_named']} proposed groups named by a "
+        f"recovered filename; {fs_info['fs_vs_p3_conflicts']} boundary "
+        f"contradictions with the P3 signal, {fs_info['p3_vs_fs_conflicts']} "
+        f"reverse"
+    )
+    for detail in fs_info.get("fs_vs_p3_details", []):
+        add(
+            f"  FS-vs-P3 conflict: {detail['a']}-{detail['b']} inside "
+            f"{detail['file']} (kind={detail['kind']}) but P3 maps the pair to "
+            f"disjoint files; boundary vetoed (conservative)"
+        )
     add("")
     groups = summary["groups"]
     listed = [g for g in audit["groups"] if g["min_score"] >= min_score]
@@ -679,10 +885,13 @@ def render_text(audit: dict, min_score: int) -> str:
         ) or "(no decompiled source)"
         p3 = ", ".join(f"{source} x{count}" for source, count in group["p3_files"][:2]) or "-"
         signals = " ".join(sorted(group["boundaries"][0]["signals"])) or "-"
+        fs_name = group.get("file_strings_name")
+        named = f"  fs=[{fs_name}]" if fs_name else ""
         add(
             f"  {rank:>4}  {group['start']:08x}-{group['span_end']:08x}  "
             f"n={group['size']:>3}  {group['tier']:<6} score={group['min_score']}  "
-            f"p3=[{p3}]  signals={signals}  callers_local={group['callers_local']}  "
+            f"p3=[{p3}]  signals={signals}{named}  "
+            f"callers_local={group['callers_local']}  "
             f"internal_calls={group['internal_calls']}"
         )
         add(f"       current files: {files}")

@@ -28,7 +28,7 @@ cont2:
 #if defined(P4_UNIT_001A0670)
 #include "type.h"
 
-void func_001b0800(u8 *arg0, s32 arg1);
+void btlActionSetState(u8 *arg0, s32 arg1);
 
 // FUN_001A0670
 void func_001a0670(u8 *arg0) {
@@ -37,11 +37,11 @@ void func_001a0670(u8 *arg0) {
     temp_5 = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C);
     if (temp_5 & 0x10) {
         *(s16 *)(arg0 + 0x430) = 1;
-        func_001b0800(arg0, 0x18);
+        btlActionSetState(arg0, 0x18);
         return;
     }
     if (temp_5 & 1) {
-        func_001b0800(arg0, 0x23);
+        btlActionSetState(arg0, 0x23);
     }
 }
 #endif /* P4_UNIT_001A0670 */
@@ -64,12 +64,12 @@ void func_001a2c10(s64 *arg0) {
 #if defined(P4_UNIT_001AC6A0)
 #include "type.h"
 
-void func_001b0800(u8 *arg0, u16 arg1);
+void btlActionSetState(u8 *arg0, u16 arg1);
 
 // FUN_001AC6A0
 void func_001ac6a0(u8 *arg0) {
     if ((*(s32 (**)(void))(arg0 + 0x440))() == 0) {
-        func_001b0800(arg0, *(u16 *)(arg0 + 0x43C));
+        btlActionSetState(arg0, *(u16 *)(arg0 + 0x43C));
     }
 }
 #endif /* P4_UNIT_001AC6A0 */
@@ -77,14 +77,14 @@ void func_001ac6a0(u8 *arg0) {
 #if defined(P4_UNIT_001A55A0)
 #include "type.h"
 
-s32 func_00196b50(u8 *arg0);
-void func_001b0800(u8 *arg0, u16 arg1);
+s32 btlUnitIsMoving(u8 *arg0);
+void btlActionSetState(u8 *arg0, u16 arg1);
 
 // FUN_001A55A0
 void func_001a55a0(s64 *arg0) {
     u16 var_5;
 
-    if (func_00196b50(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
+    if (btlUnitIsMoving(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
         switch (*(u16 *)((u8 *)arg0 + 0x6C)) {
         case 1:
             var_5 = 0x12;
@@ -100,7 +100,7 @@ void func_001a55a0(s64 *arg0) {
             var_5 = 0;
             break;
         }
-        func_001b0800((u8 *)arg0, var_5);
+        btlActionSetState((u8 *)arg0, var_5);
     }
 }
 #endif /* P4_UNIT_001A55A0 */
@@ -108,14 +108,14 @@ void func_001a55a0(s64 *arg0) {
 #if defined(P4_UNIT_001A58E0)
 #include "type.h"
 
-s32 func_00196b50(u8 *arg0);
-void func_001b0800(u8 *arg0, u16 arg1);
+s32 btlUnitIsMoving(u8 *arg0);
+void btlActionSetState(u8 *arg0, u16 arg1);
 
 // FUN_001A58E0
 void func_001a58e0(s64 *arg0) {
     u16 var_5;
 
-    if (func_00196b50(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
+    if (btlUnitIsMoving(*(u8 **)((u8 *)arg0 + 0x30)) == 0) {
         switch (*(u16 *)((u8 *)arg0 + 0x6C)) {
         case 1:
             var_5 = 0x12;
@@ -131,7 +131,7 @@ void func_001a58e0(s64 *arg0) {
             var_5 = 0;
             break;
         }
-        func_001b0800((u8 *)arg0, var_5);
+        btlActionSetState((u8 *)arg0, var_5);
     }
 }
 #endif /* P4_UNIT_001A58E0 */
@@ -144,7 +144,7 @@ void func_001eb3b0(void *arg0);
 void func_001dbf20(void *arg0, s32 arg1);
 u8 *func_001d3700(s32 arg0, s32 arg1);
 void func_00194590(u8 *arg0, s32 arg1);
-u8 *func_001bc920(void *arg0, s32 arg1);
+u8 *btlCameraCreateSetStatePacket(void *arg0, s32 arg1);
 
 // FUN_001AC500
 void func_001ac500(s64 *arg0) {
@@ -158,7 +158,7 @@ void func_001ac500(s64 *arg0) {
     temp_2 = func_001d3700(3, 0xFFF);
     *(s64 *)(temp_2 + 0x60) = *arg0;
     func_00194590(temp_2, 0);
-    temp_2_2 = func_001bc920(arg0, 0x2C);
+    temp_2_2 = btlCameraCreateSetStatePacket(arg0, 0x2C);
     *(s64 *)(temp_2_2 + 0x60) = *arg0;
     func_00194590(temp_2_2, 0);
     *(u16 *)((u8 *)arg0 + 0x18) |= 2;

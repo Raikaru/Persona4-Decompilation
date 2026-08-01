@@ -45,7 +45,7 @@ void func_002319c0(void)
 #if defined(P4_UNIT_00231D70)
 #include "type.h"
 
-extern u32 func_003b7060(void);
+extern u32 RpRandom(void);
 extern void func_0046d730(u8 *arg0, s32 arg1);
 extern u8 D_00635938[];
 
@@ -55,19 +55,19 @@ u32 func_00231d70(u32 arg0)
     if (arg0 == 0) {
         func_0046d730(D_00635938, 0x17);
     }
-    return func_003b7060() % arg0;
+    return RpRandom() % arg0;
 }
 #endif /* P4_UNIT_00231D70 */
 
 #if defined(P4_UNIT_00231DC0)
 #include "type.h"
 
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 
 // FUN_00231DC0
 void func_00231dc0(u8 *arg0, s16 arg1)
 {
-    func_0043f9c8(arg0, 0, 0x30);
+    memset(arg0, 0, 0x30);
     *(s16 *)(arg0 + 2) = arg1;
     *(s8 *)(arg0 + 6) = 1;
     *(s16 *)(arg0 + 8) = 1;

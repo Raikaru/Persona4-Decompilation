@@ -93,11 +93,11 @@ s64 func_001f0260(s32 arg0) {
 #if defined(P4_UNIT_001F0A10)
 #include "type.h"
 
-extern void func_0043f9c8(void *destination, s32 value, u32 size);
+extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_001F0A10
 void func_001f0a10(u8 *arg0) {
-    func_0043f9c8(arg0, 0, 0x20);
+    memset(arg0, 0, 0x20);
 }
 #endif /* P4_UNIT_001F0A10 */
 

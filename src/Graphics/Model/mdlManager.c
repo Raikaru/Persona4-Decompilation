@@ -390,7 +390,7 @@ typedef struct Model
 } Model;
 
 // FUN_0047A220
-void func_0047a220(Model* mdl, const RwRGBA* color)
+void mdlSetColor(Model* mdl, const RwRGBA* color)
 {
     mdl->color = *color;
 }
@@ -448,7 +448,7 @@ extern u8 DAT_00922ba4_abs[];
 extern u8 DAT_00922ba8_abs[];
 extern u8 DAT_00922bac_abs[];
 
-extern void func_003e0a90(void* matrix, const RwV3d* scale, int combineOp);
+extern void RwMatrixScale(void* matrix, const RwV3d* scale, int combineOp);
 
 // FUN_00472F30
 void func_00472f30(u8* param_1, int param_2)
@@ -460,7 +460,7 @@ void func_00472f30(u8* param_1, int param_2)
     }
     (*DAT_00922ba0_abs)(param_1, param_2);
     if (*(s32*)DAT_00922ba4_abs == param_2) {
-        func_003e0a90((void*)param_1, (const RwV3d*)*(float**)DAT_00922bac_abs, 1);
+        RwMatrixScale((void*)param_1, (const RwV3d*)*(float**)DAT_00922bac_abs, 1);
     }
     return;
 }
@@ -782,7 +782,7 @@ void func_00477260(u64 param_1, u32* param_2, u16 param_3)
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_00316360 (verified MATCH there). */
 #include "type.h"
 
-extern s32 func_004578b0();
+extern s32 K_Clump_MatUsrDataGetInt();
 
 // FUN_004772A0
 u32 func_004772a0(void* param_1, u32* param_2)
@@ -798,7 +798,7 @@ u32 func_004772a0(void* param_1, u32* param_2)
     uVar4 = 0;
     while (uVar4 < uVar2) {
         entries = *(u32**)(iVar1 + 0x20);
-        uVar3 = func_004578b0(entries[uVar4], "per3modelMatColor");
+        uVar3 = K_Clump_MatUsrDataGetInt(entries[uVar4], "per3modelMatColor");
         if (uVar3 >> 0x18 != 0) {
             *param_2 = 0;
             return 0;
@@ -844,7 +844,7 @@ typedef struct Model
     void* clump;          // 0xdc
 } Model;
 
-extern void* func_003e05f0(void* dst, void* left, void* right);
+extern void* RwMatrixMultiply(void* dst, void* left, void* right);
 extern void func_003e9cb0(void* frame, void* matrix, u32 flags);
 extern void func_0047aee0(void* mdl, void* matrix);
 
@@ -855,7 +855,7 @@ void func_004789c0(Model* mdl)
     void* frame;
 
     frame = *(void**)((u8*)mdl->clump + 4);
-    func_003e05f0(&matrix, &mdl->identityMat, (void*)mdl);
+    RwMatrixMultiply(&matrix, &mdl->identityMat, (void*)mdl);
     func_003e9cb0(frame, &matrix, 0);
     func_0047aee0(mdl, &matrix);
 }
@@ -894,12 +894,12 @@ typedef struct Model
     RwV3d scale;          // 0x80
 } Model;
 
-extern void func_003e0a90(void* matrix, const RwV3d* scale, int combineOp);
+extern void RwMatrixScale(void* matrix, const RwV3d* scale, int combineOp);
 
 // FUN_0047A1E0
-void func_0047a1e0(Model* mdl, const RwV3d* scale, int combineOp)
+void mdlScale(Model* mdl, const RwV3d* scale, int combineOp)
 {
     mdl->scale = *scale;
-    func_003e0a90(&mdl->mat, scale, combineOp);
+    RwMatrixScale(&mdl->mat, scale, combineOp);
 }
 #endif /* P4_UNIT_0047A1E0 */

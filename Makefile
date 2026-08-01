@@ -55,6 +55,24 @@ tu-audit-json:
 	@test -n "$(P3_ROOT)" || (echo "usage: make tu-audit-json P3_ROOT=/path/to/Persona3-FES-Decompilation [P3_REPORT=/path/to/verify.json]" && exit 2)
 	$(PYTHON) tools/tu_audit.py --p3-root "$(P3_ROOT)" $(if $(P3_REPORT),--p3-report "$(P3_REPORT)",) --json build/tu_audit.json
 
+# Recover original translation-unit boundaries from embedded __FILE__ assert
+# strings. Unlike tu-audit's anonymous groups these carry the real filename.
+file-strings:
+	$(PYTHON) tools/file_strings.py
+
+# Function-name recovery. Each producer owns one config/symbol_names.<source>.txt
+# so they can be regenerated independently; reconcile merges them over the
+# generated func_<address> placeholders and hard-fails on unevidenced entries.
+names:
+	$(PYTHON) tools/port_p3_names.py
+	$(PYTHON) tools/mine_name_strings.py
+	$(PYTHON) tools/reconcile_function_boundaries.py
+	$(PYTHON) tools/apply_symbol_names.py
+
+# CI gate: fails when a recovered name has not been applied to the sources.
+names-check:
+	$(PYTHON) tools/apply_symbol_names.py --check
+
 build:
 	$(PYTHON) tools/build.py
 

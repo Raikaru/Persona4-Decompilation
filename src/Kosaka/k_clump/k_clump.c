@@ -6,7 +6,7 @@
 #include "Kosaka/k_clump_internal.h"
 
 // FUN_004578B0
-s32 func_004578b0(const RpMaterial* material, const char* name)
+s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name)
 {
     s32 i;
     s32 value;
@@ -16,7 +16,7 @@ s32 func_004578b0(const RpMaterial* material, const char* name)
     for (i = 0; i < func_003bcfb0(material); i++)
     {
         userData = func_003bd000(material, i);
-        if (func_004426e8(func_003bd040(userData), name) == 0 &&
+        if (strcmp(func_003bd040(userData), name) == 0 &&
             func_003bd050(userData) == rpINTUSERDATA)
         {
             value = func_003bd070(userData, 0);
@@ -41,7 +41,7 @@ u32 func_00457c90(void* clump, const char* name)
     } context;
 
     context.found = 0;
-    func_00442830(context.copiedName, name);
+    strcpy(context.copiedName, name);
     func_003bff30(clump, (KClumpCallback)func_00457b60, &context);
     return context.found;
 }
@@ -63,7 +63,7 @@ void* func_00457e00(void* object, u32* context)
     for (resourceIndex = 0; resourceIndex < func_003bcf10(object); resourceIndex++)
     {
         material = func_003bcf60(object, resourceIndex);
-        if (func_004426e8(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
@@ -96,7 +96,7 @@ void* func_00458090(void* object, u32* context)
     for (resourceIndex = 0; resourceIndex < func_003bcf10(object); resourceIndex++)
     {
         material = func_003bcf60(object, resourceIndex);
-        if (func_004426e8(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
@@ -130,7 +130,7 @@ void* func_004582c0(void* object, u32* context)
     for (resourceIndex = 0; resourceIndex < func_003bcf10(object); resourceIndex++)
     {
         material = func_003bcf60(object, resourceIndex);
-        if (func_004426e8(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
@@ -172,7 +172,7 @@ u32 func_00462e80(const u32* state)
 #include "Kosaka/k_clump_internal.h"
 
 // FUN_00457A90
-u32 func_00457a90(const RpMaterial* material, const char* name)
+u32 K_Clump_MatUsrDataHasData(const RpMaterial* material, const char* name)
 {
     s32 i;
     u32 result;
@@ -184,7 +184,7 @@ u32 func_00457a90(const RpMaterial* material, const char* name)
         userData = func_003bd000(material, i);
         /* The retail function performs the accessor twice. */
         func_003bd040(userData);
-        if (func_004426e8(func_003bd040(userData), name) == 0)
+        if (strcmp(func_003bd040(userData), name) == 0)
         {
             result = 1;
             break;
@@ -224,7 +224,7 @@ void* func_00457b60(void* geometry, void* data)
         {
             userData = func_003bd000((RpMaterial*)material, materialIndex);
             func_003bd040(userData);
-            if (func_004426e8(func_003bd040(userData), (const char*)((const char**)data + 1)) == 0)
+            if (strcmp(func_003bd040(userData), (const char*)((const char**)data + 1)) == 0)
             {
                 found = 1;
                 break;
@@ -261,7 +261,7 @@ u32 func_00457ce0(void* geometry, const char* name)
         {
             userData = func_003bd000((RpMaterial*)material, materialIndex);
             func_003bd040(userData);
-            if (func_004426e8(func_003bd040(userData), name) == 0)
+            if (strcmp(func_003bd040(userData), name) == 0)
             {
                 result = 1;
                 break;
@@ -295,13 +295,13 @@ void* func_00457f40(void* object, const char* name, s32 value)
     void* material;
 
     geometry = *(void**)((u8*)object + 4);
-    func_00442830(context.nameCopy, name);
+    strcpy(context.nameCopy, name);
     context.result = NULL;
     context.inputValue = value;
     for (resourceIndex = 0; resourceIndex < func_003bcf10(geometry); resourceIndex++)
     {
         material = func_003bcf60(geometry, resourceIndex);
-        if (func_004426e8(func_003bd040((RpUserDataArray*)material), context.nameCopy) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), context.nameCopy) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
@@ -339,12 +339,12 @@ s32 func_004581a0(void* object, const char* name)
     void* material;
 
     clump = *(void**)((u8*)object + 4);
-    func_00442830(context.name, name);
+    strcpy(context.name, name);
     context.count = 0;
     for (resourceIndex = 0; resourceIndex < func_003bcf10(clump); resourceIndex++)
     {
         material = func_003bcf60(clump, resourceIndex);
-        if (func_004426e8(func_003bd040((RpUserDataArray*)material), context.name) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), context.name) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
@@ -370,7 +370,7 @@ typedef struct
     f32 y;
 } RwV2d;
 
-extern void func_0043f9c8(void* destination, s32 value, u32 size);
+extern void memset(void* destination, s32 value, u32 size);
 
 // FUN_00458430
 void func_00458430(f32* result, void* object, const char* name, s32 index)
@@ -390,13 +390,13 @@ void func_00458430(f32* result, void* object, const char* name, s32 index)
     void* material;
 
     geometry = *(void**)((u8*)object + 4);
-    func_0043f9c8(&context, 0, 0x54);
-    func_00442830(context.nameCopy, name);
+    memset(&context, 0, 0x54);
+    strcpy(context.nameCopy, name);
     context.targetIndex = index;
     for (resourceIndex = 0; resourceIndex < func_003bcf10(geometry); resourceIndex++)
     {
         material = func_003bcf60(geometry, resourceIndex);
-        if (func_004426e8(func_003bd040((RpUserDataArray*)material), context.nameCopy) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), context.nameCopy) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
@@ -432,11 +432,11 @@ typedef struct
 } RwSphere;
 
 extern void* func_003bfae0(void* object);
-extern s32 func_003e8200(void* camera, void* sphere);
+extern s32 RwCameraFrustumTestSphere(void* camera, void* sphere);
 extern void* D_008872E0[];
 extern u32 D_00764068;
 extern f32 D_00764b80;
-extern void func_004601c0(void* center, f32 radius, void* color, u32 saveAndRestoreRenderState);
+extern void primSphereLine3D(void* center, f32 radius, void* color, u32 saveAndRestoreRenderState);
 
 // FUN_00462170
 void* func_00462170(void* item)
@@ -452,7 +452,7 @@ process:
     if (*(u32*)((u8*)item + 0x18) != 0)
     {
         sphere = func_003bfae0(item);
-        if (func_003e8200(*(void**)D_008872E0, sphere) != 0)
+        if (RwCameraFrustumTestSphere(*(void**)D_008872E0, sphere) != 0)
         {
             (*(void (**)(void*))((u8*)item + 0x48))(item);
             if (D_00764068 == 1)
@@ -462,7 +462,7 @@ process:
 
                 debugValue = D_00764b80;
                 sphere2 = func_003bfae0(item);
-                func_004601c0(sphere2, sphere2->radius, &debugValue, 0);
+                primSphereLine3D(sphere2, sphere2->radius, &debugValue, 0);
             }
         }
     }

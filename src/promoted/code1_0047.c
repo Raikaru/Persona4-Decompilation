@@ -61,14 +61,14 @@ void func_00478e70(u8 *arg0)
 #include "type.h"
 
 extern void func_00478ec0(u8 *arg0);
-extern void func_003f6440(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 
 // FUN_00479030
 void func_00479030(u8 *arg0, u8 *arg1)
 {
     func_00478ec0(arg0);
-    func_003f6440(2, *(s32 *)(arg1 + 0xE4));
-    func_003f6440(3, *(s32 *)(arg1 + 0xE8));
+    RpSkyRenderStateSet(2, *(s32 *)(arg1 + 0xE4));
+    RpSkyRenderStateSet(3, *(s32 *)(arg1 + 0xE8));
 }
 #endif /* P4_UNIT_00479030 */
 

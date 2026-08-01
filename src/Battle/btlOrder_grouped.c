@@ -4,12 +4,12 @@
 typedef struct BtlAction BtlAction;
 
 /* Canonical grouped function declarations. */
-u32 func_001b0d00(BtlAction** actions, u32 arrSize, BtlAction* action);
+u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* action);
 
 /* Source unit: src/Battle/btlOrder_001b0d00.c */
 
 // FUN_001B0D00
-u32 func_001b0d00(BtlAction** actions, u32 arrSize, BtlAction* action)
+u32 btlOrderRemoveAction(BtlAction** actions, u32 arrSize, BtlAction* action)
 {
     BtlAction* curr;
     s32 i;

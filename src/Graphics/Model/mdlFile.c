@@ -9,7 +9,7 @@
 #define MODEL_TYPE_ENEMY 2
 
 // FUN_00230BC0
-u8 func_00230bc0(u16 type)
+u8 mdlFileIsTypePac(u16 type)
 {
     switch (type)
     {
@@ -440,8 +440,8 @@ void func_004808b0(int param_1)
 /* Source unit: src/Graphics/Model/mdlFile_0047f2c0.c (1 function markers) */
 #include "type.h"
 
-#pragma alias func_004578b0_ptr func_004578b0
-extern u32 func_004578b0();
+#pragma alias func_004578b0_ptr K_Clump_MatUsrDataGetInt
+extern u32 K_Clump_MatUsrDataGetInt();
 extern u32 func_004578b0_ptr(u32 param_1,u8 *param_2);
 #pragma alias DAT_00713200_abs DAT_00713200
 extern u8 DAT_00713200[];
@@ -589,7 +589,7 @@ extern s32 func_003bd040();
 extern s32 func_003bd050();
 extern s32 func_003bd060();
 extern s32 func_003bd0b0();
-extern s32 func_004426e8();
+extern s32 strcmp();
 extern void func_00480910(int *param_1,u32 param_2);
 extern u8 DAT_007641e0;
 
@@ -609,13 +609,13 @@ u32 func_00480430(u32 param_1,u32 *param_2)
   while (arrayIndex < arrayCount) {
     userData = (void *)func_003bd000(param_1,arrayIndex);
     name = (char *)func_003bd040((u32)userData);
-    if (func_004426e8(name,(char *)&DAT_007641e0) == 0) {
+    if (strcmp(name,(char *)&DAT_007641e0) == 0) {
       dataCount = func_003bd060((u32)userData);
       dataIndex = 0;
       while (dataIndex < dataCount) {
         if (func_003bd050((u32)userData) == 3) {
           data = (char *)func_003bd0b0((u32)userData,dataIndex);
-          if (func_004426e8((char *)param_2[1],data) == 0) {
+          if (strcmp((char *)param_2[1],data) == 0) {
             func_00480910((int *)*param_2,param_1);
             return 0;
           }
