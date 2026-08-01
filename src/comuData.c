@@ -1,8 +1,5 @@
 /* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_002E2240)
-/* Source unit: src/comuData_002e2240.c */
+/* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 
 typedef int (*code)(...);
@@ -21,6 +18,9 @@ typedef struct NmlistList {
 
 extern NmlistNode *func_002e2080(int *param_1, int *param_2);
 extern void FUN_0043f9c8(u32 dest, int value, u32 size);
+
+#pragma alias DAT_008873ec_abs DAT_008873ec
+extern code DAT_008873ec_abs[];
 
 // FUN_002E2240
 NmlistNode *func_002e2240(NmlistList *param_1, NmlistList *param_2, int *param_3)
@@ -44,29 +44,6 @@ NmlistNode *func_002e2240(NmlistList *param_1, NmlistList *param_2, int *param_3
     }
     return next;
 }
-#endif /* P4_UNIT_002E2240 */
-
-#if defined(P4_UNIT_002E22F0)
-/* Source unit: src/comuData_002e22f0.c */
-#include "type.h"
-
-typedef int (*code)(...);
-
-typedef struct NmlistNode {
-    u32 unk0[3];
-    struct NmlistNode *prev;
-    struct NmlistNode *next;
-} NmlistNode;
-typedef struct NmlistList {
-    NmlistNode *head;
-    NmlistNode *tail;
-    NmlistNode *cursor;
-    u16 count;
-} NmlistList;
-
-#pragma alias DAT_008873ec_abs DAT_008873ec
-extern code DAT_008873ec_abs[];
-extern void FUN_0043f9c8(u32 dest, int value, u32 size);
 
 // FUN_002E22F0
 void func_002e22f0(int param_1, int param_2)
@@ -96,4 +73,3 @@ void func_002e22f0(int param_1, int param_2)
         list->head = 0;
     }
 }
-#endif /* P4_UNIT_002E22F0 */

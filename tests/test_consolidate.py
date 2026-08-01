@@ -60,7 +60,7 @@ void func_00100010(void) { }
         # drop you did not intend.
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            1461,
+            1859,
         )
 
     def test_no_marker_is_orphaned_outside_its_unit_guard(self) -> None:

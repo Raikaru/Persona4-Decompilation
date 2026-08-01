@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import tempfile
+import sys
 import unittest
 from pathlib import Path
 
@@ -69,9 +70,13 @@ class CanonicalMapTests(unittest.TestCase):
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
         windows = {int(address, 16): size for address, size in function_map["windows"].items()}
 
-        self.assertEqual(function_map["function_count"], 13080)
-        self.assertEqual(len(windows), 13080)
-        for segment_name, expected_count in (("code1", 13071), ("code2", 9)):
+        # 13,080 boundaries from Splat control flow + Ghidra, plus four curated
+        # DATA_REACHABLE_ENTRIES overrides that no control-flow scan can reach
+        # (each backed by a retail pointer site checked below). Bump these only
+        # alongside a documented pointer-site entry.
+        self.assertEqual(function_map["function_count"], 13084)
+        self.assertEqual(len(windows), 13084)
+        for segment_name, expected_count in (("code1", 13075), ("code2", 9)):
             start, end = reconcile.segment_bounds(target, segment_name)
             selected = {address: size for address, size in windows.items() if start <= address < end}
             if segment_name == "code1":
@@ -102,7 +107,41 @@ class CanonicalMapTests(unittest.TestCase):
 
         self.assertTrue(markers)
         self.assertTrue(all(len(entries) == 1 for entries in markers.values()))
-        self.assertTrue(set(markers).issubset(windows))
+        orphans = sorted(f"{address:08X}" for address in set(markers) - set(windows))
+        self.assertEqual(orphans, [], f"markers outside the canonical map: {orphans}")
+
+    def test_data_reachable_entries_are_backed_by_a_retail_pointer(self) -> None:
+        """Each curated override must be a real entry the control-flow scan cannot see.
+
+        Guards two distinct failure modes: a mistyped pointer site (the address
+        recorded in the tool does not actually hold the entry), and an override
+        that has become redundant because Splat now finds the entry itself.
+        """
+        import struct
+
+        target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
+        function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
+        windows = {int(address, 16): size for address, size in function_map["windows"].items()}
+        elf = REPO / "orig" / target["elf"]["filename"]
+        if not elf.exists():
+            self.skipTest(f"retail ELF not present at {elf}")
+
+        sys.path.insert(0, str(REPO / "tools"))
+        import verify
+
+        retail = verify.RetailElf(str(elf), target, function_map["sha1"])
+        splat = reconcile.splat_entries(REPO / "asm" / "code1.s")
+
+        for address, evidence in reconcile.DATA_REACHABLE_ENTRIES.items():
+            with self.subTest(address=f"{address:08X}"):
+                word = struct.unpack("<I", retail.bytes_at(evidence["pointer"], 4))[0]
+                self.assertEqual(
+                    word,
+                    address,
+                    f"pointer site {evidence['pointer']:08X} holds {word:08X}, not {address:08X}",
+                )
+                self.assertNotIn(address, splat, "override is redundant; Splat finds this entry")
+                self.assertIn(address, windows, "override did not reach the canonical map")
 
     def test_every_canonical_boundary_gets_an_owner(self) -> None:
         target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))

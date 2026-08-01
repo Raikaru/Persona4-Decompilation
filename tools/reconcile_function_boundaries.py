@@ -198,6 +198,25 @@ def make_windows(boundaries: list[int], start: int, end: int) -> dict[int, int]:
     return windows
 
 
+# Entries reachable ONLY through a data pointer table. spimdisasm's control-flow
+# scan follows jal/branch edges, so a function whose address is merely stored in
+# a table is invisible to it and silently folds into the preceding window. Each
+# entry below is justified by a retail word that holds the address; the
+# ``pointer`` site is re-checked against the retail ELF by tests/test_reconcile.py
+# so a wrong or drifting address fails the suite instead of corrupting the map.
+DATA_REACHABLE_ENTRIES = {
+    # nullsub (jr $ra; nop) between func_004a7da0 (ends 004a7ddc) and
+    # func_004a7df0; the only reference in the image is the table word below.
+    0x004A7DE0: {"pointer": 0x007139CC},
+    # Trailing `jr $ra; nop` nullsubs folded into the preceding window. Each is
+    # referenced from a structured data record whose neighbouring field already
+    # points at a known function, so the word is a callback slot, not a constant.
+    0x001CA580: {"pointer": 0x005F75B4},  # follows a 001CA550 pointer at 005F75B0
+    0x0047F840: {"pointer": 0x0071324C},  # 12-byte {fn,0,0} records; prior holds 0047F830
+    0x005072D0: {"pointer": 0x0075DDA8},  # {0,2,7FFFFFFF,fn,...} record, appears twice
+}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -217,6 +236,10 @@ def main() -> int:
     code1 = splat_entries(CODE1_ASM)
     code1.discard(code1_start)  # two padding nops precede the ELF entry point
     code1 = {address for address in code1 if entry <= address < code1_end}
+    for address in DATA_REACHABLE_ENTRIES:
+        if not entry <= address < code1_end:
+            raise RuntimeError(f"data-reachable entry {address:#x} is outside code1")
+        code1.add(address)
     code2 = {address for address in ghidra_addresses if code2_start <= address < code2_end}
 
     # The shared blob has nine functions in both Persona 4 Ghidra analysis and
