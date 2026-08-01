@@ -1,11 +1,211 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00482730)
-/* Source unit: src/Graphics/Model/mdlEffect_00482730.c */
+/* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
 
+typedef int (*code)(...);
+extern code DAT_008873ec_abs[];
+extern void func_0047d990(u32 *param_1);
+
+extern void func_004b11d0(s32 arg0, s32 arg1);
+
+extern void func_004b1170();
+
+extern void func_004b13f0(s32 arg0, s32 arg1);
+
+extern void func_004b13d0(float param_1, u8 param_2[][16]);
+extern void func_0047dae0(u32 *param_1);
+extern void func_004b1150_i(int param_1);
+extern u32 func_004b1130_u32(u32 param_1);
+extern u32 func_004b11b0();
+
+extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
+
+extern u64 memcpy();
+
+extern void func_00487fb0(float param_1, int param_2);
+extern void func_00487fb0_evt(float param_1);
+
+extern void func_00492e30(u16 *param_1);
+
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+
+#pragma alias DAT_008873ec_abs DAT_008873ec
+
+
+// FUN_0047D2D0
+void func_0047d2d0(u32 *param_1)
+{
+  func_0047d990(param_1);
+
+  DAT_008873ec_abs[0](param_1);
+}
+
+
+
+// FUN_0047D7E0
+void func_0047d7e0(s32 arg0, u8 **arg1)
+{
+    s32 temp_5;
+    u8 *var_16;
+
+    var_16 = *arg1;
+    while (var_16 != NULL) {
+        temp_5 = *(s32 *)(var_16 + 8);
+        if (temp_5 != 0) {
+            func_004b11d0(arg0, temp_5);
+        }
+        var_16 = *(u8 **)(var_16 + 0x10);
+    }
+}
+
+
+
+// FUN_0047D840
+void func_0047d840(u32 *param_1)
+{
+  int *piVar1;
+
+  for (piVar1 = (int *)*param_1; piVar1 != (int *)0x0; piVar1 = (int *)piVar1[4]) {
+
+    if ((piVar1[2] != 0) && ((*(u32 *)(*piVar1 + 0xc) & 1) != 0)) {
+
+      func_004b1170(piVar1[2]);
+    }
+
+
+  }
+
+  return;
+
+}
+
+
+
+// FUN_0047D8A0
+void func_0047d8a0(u8 **arg0, s32 arg1)
+{
+    s32 temp_4;
+    u8 *var_16;
+
+    var_16 = *arg0;
+    while (var_16 != NULL) {
+        temp_4 = *(s32 *)(var_16 + 8);
+        if (temp_4 != 0) {
+            func_004b13f0(temp_4, arg1);
+        }
+        var_16 = *(u8 **)(var_16 + 0x10);
+    }
+}
+
+
+
+// FUN_0047D900
+void func_0047d900(int *param_1,float *param_2)
+{
+    int current;
+    float average;
+
+    average = (param_2[0] + param_2[1] + param_2[2]) / 3.0f;
+    for (current = *param_1; current != 0; current = *(int*)(current + 0x10)) {
+        if (*(int*)(current + 8) != 0) {
+            func_004b13d0(average,(u8 (*)[16])*(u32*)(current + 8));
+        }
+    }
+}
+
+#pragma alias DAT_008873ec_abs DAT_008873ec
+
+
+// FUN_0047D990
+void func_0047d990(u32 *param_1)
+{
+    int *current;
+    int *next;
+
+    func_0047dae0(param_1);
+    current = (int*)*param_1;
+    while (current != 0) {
+        next = (int*)current[4];
+        *(int*)(*current + 8) = *(int*)(*current + 8) - 1;
+        if (*(int*)(*current + 8) == 0) {
+            ((void (*)(...))DAT_008873ec_abs[0])(*current);
+        }
+        ((void (*)(...))DAT_008873ec_abs[0])(current);
+        current = next;
+    }
+    *param_1 = 0;
+}
+
+
+#pragma alias func_004b1150_i func_004b1150
+#pragma alias func_004b1130_u32 func_004b1130
+
+
+// FUN_0047DA30
+void func_0047da30(u32 *param_1)
+{
+    int *current;
+    u32 value;
+
+    for (current = (int*)*param_1; current != 0; current = (int*)current[4]) {
+        if (current[2] != 0) {
+            if (current[2] == *(int*)(*current + 4)) {
+                *(u32*)(*current + 4) = 0;
+            }
+            func_004b1150_i(current[2]);
+        }
+        if (((u32*)*current)[1] == 0) {
+            value = func_004b1130_u32(*(u32*)*current);
+            current[2] = value;
+            *(u32*)(*current + 4) = value;
+        } else {
+            value = func_004b11b0((u64*)((u32*)*current)[1]);
+            current[2] = value;
+        }
+    }
+}
+
+
+#pragma alias func_004b1150_i func_004b1150
+
+
+// FUN_0047DAE0
+void func_0047dae0(u32 *param_1)
+{
+  int *piVar1;
+
+  for (piVar1 = (int *)*param_1; piVar1 != (int *)0x0; piVar1 = (int *)piVar1[4]) {
+
+    if (piVar1[2] != 0) {
+
+      if (piVar1[2] == *(int *)(*piVar1 + 4)) {
+
+        *(u32 *)(*piVar1 + 4) = 0;
+
+      }
+
+      func_004b1150_i(piVar1[2]);
+
+      piVar1[2] = 0;
+
+    }
+
+  }
+
+  return;
+
+}
+
+
+
+// FUN_00482700
+void func_00482700(int param_1, float *param_2)
+{
+  func_004824a0((int *)(u32)param_1, (u8 *)(u32)*(u32 *)(param_1 + 0x10), param_2);
+}
+
+
 /* Removing this loses FUN_00482730 (MATCH nd0 -> MISMATCH nd45) - measured W161. */
+
 // FUN_00482730
 #pragma opt_loop_invariants on
 void func_00482730(int param_1, u32 param_2)
@@ -22,35 +222,9 @@ void func_00482730(int param_1, u32 param_2)
   }
   return;
 }
+
+
 #pragma opt_loop_invariants off
-#endif /* P4_UNIT_00482730 */
-
-#if defined(P4_UNIT_004839D0)
-/* Source unit: src/Graphics/Model/mdlEffect_004839d0.c */
-#include "type.h"
-
-// FUN_004839D0
-void func_004839d0(int param_1, u32 *param_2)
-{
-  int *piVar1;
-  int iVar2;
-
-  piVar1 = (int *)**(int **)(param_1 + 0x14);
-  param_2[2] = (u32)piVar1;
-
-  if (piVar1 != (int *)0x0) {
-    iVar2 = *piVar1;
-    *param_2 = *(u32 *)(iVar2 + 0xc);
-    param_2[1] = *(u32 *)(iVar2 + 0x10);
-  }
-
-  return;
-}
-#endif /* P4_UNIT_004839D0 */
-
-#if defined(P4_UNIT_00484490)
-/* Source unit: src/Graphics/Model/mdlEffect_00484490.c */
-#include "type.h"
 
 // FUN_00484490
 int func_00484490(int param_1)
@@ -76,11 +250,8 @@ zero:
 done:
   return value;
 }
-#endif /* P4_UNIT_00484490 */
 
-#if defined(P4_UNIT_004844D0)
-/* Source unit: src/Graphics/Model/mdlEffect_004844d0.c */
-#include "type.h"
+
 
 // FUN_004844D0
 int func_004844d0(int param_1)
@@ -106,14 +277,19 @@ zero:
 done:
   return value;
 }
-#endif /* P4_UNIT_004844D0 */
 
-#if defined(P4_UNIT_00486740)
-/* Source unit: src/Graphics/Model/mdlEffect_00486740.c */
-#include "type.h"
+
+
+// FUN_00486710
+void func_00486710(u64 param_1, u64 param_2)
+{
+  memcpy(param_1, param_2, 0x90);
+  return;
+}
+
+
 
 // FUN_00486740
-#pragma push
 int func_00486740(int param_1, int param_2)
 {
   int iVar1;
@@ -128,14 +304,29 @@ int func_00486740(int param_1, int param_2)
 
   return 0;
 }
-#pragma pop
-#endif /* P4_UNIT_00486740 */
 
-#if defined(P4_UNIT_0048A810)
-/* Source unit: src/Graphics/Model/mdlEffect_0048a810.c */
-#include "type.h"
+#pragma alias func_00487fb0_evt func_00487fb0
+
+
+// FUN_00489E50
+void func_00489e50(void)
+{
+  func_00487fb0_evt(1.0f);
+}
+
+
+
+// FUN_00489F50
+void func_00489f50(f32 param_1, int param_2)
+{
+  *(f32 *)(param_2 + 8) = param_1;
+  func_00492e30((u16 *)*(u32 *)(param_2 + 0x4c));
+  return;
+}
+
 
 /* Retail's 368-byte Catmull-Rom interpolator builds tangents and returns its VU0 vector in vf10. */
+
 // FUN_0048A810
 void func_0048a810(float param_1, u8 (*param_2)[16])
 {
@@ -234,13 +425,8 @@ void func_0048a810(float param_1, u8 (*param_2)[16])
       : "memory"
   );
 }
-#endif /* P4_UNIT_0048A810 */
 
-#if defined(P4_UNIT_00492DB0)
-/* Source unit: src/Graphics/Model/mdlEffect_00492db0.c */
-#include "type.h"
 
-typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 // FUN_00492DB0
 u_long128 func_00492db0(int param_1, u32 *param_2)
@@ -249,16 +435,10 @@ u_long128 func_00492db0(int param_1, u32 *param_2)
   *(u_long128 *)param_2 = value;
   return value;
 }
-#endif /* P4_UNIT_00492DB0 */
 
-#if defined(P4_UNIT_00492DD0)
-/* Source unit: src/Graphics/Model/mdlEffect_00492dd0.c */
-#include "type.h"
 
-typedef unsigned int u_long128 __attribute__((mode(TI)));
-
-#pragma push
 #pragma opt_propagation off
+
 // FUN_00492DD0
 u_long128 func_00492dd0(int param_1, u32 *param_2)
 {
@@ -270,14 +450,9 @@ u_long128 func_00492dd0(int param_1, u32 *param_2)
   *dst = value;
   return value;
 }
-#pragma pop
-#endif /* P4_UNIT_00492DD0 */
 
-#if defined(P4_UNIT_00492DF0)
-/* Source unit: src/Graphics/Model/mdlEffect_00492df0.c */
-#include "type.h"
+#pragma opt_propagation on
 
-typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 // FUN_00492DF0
 u_long128 func_00492df0(int param_1, u32 *param_2)
@@ -285,16 +460,10 @@ u_long128 func_00492df0(int param_1, u32 *param_2)
   return *(u_long128 *)param_2 =
       *(u_long128 *)(*(int *)(param_1 + 0x20) + 0x10);
 }
-#endif /* P4_UNIT_00492DF0 */
 
-#if defined(P4_UNIT_00492E10)
-/* Source unit: src/Graphics/Model/mdlEffect_00492e10.c */
-#include "type.h"
 
-typedef unsigned int u_long128 __attribute__((mode(TI)));
-
-#pragma push
 #pragma opt_propagation off
+
 // FUN_00492E10
 u_long128 func_00492e10(int param_1, u32 *param_2)
 {
@@ -306,12 +475,9 @@ u_long128 func_00492e10(int param_1, u32 *param_2)
   *dst = value;
   return value;
 }
-#pragma pop
-#endif /* P4_UNIT_00492E10 */
+#pragma opt_propagation on
 
-#if defined(P4_UNIT_004946D0)
-/* Source unit: src/Graphics/Model/mdlEffect_004946d0.c */
-#include "type.h"
+
 
 // FUN_004946D0
 void func_004946d0(int param_1, u32 param_2)
@@ -325,11 +491,8 @@ void func_004946d0(int param_1, u32 param_2)
 
   return;
 }
-#endif /* P4_UNIT_004946D0 */
 
-#if defined(P4_UNIT_004946F0)
-/* Source unit: src/Graphics/Model/mdlEffect_004946f0.c */
-#include "type.h"
+
 
 // FUN_004946F0
 void func_004946f0(int param_1, u32 param_2)
@@ -346,84 +509,8 @@ void func_004946f0(int param_1, u32 param_2)
   return;
 
 }
-#endif /* P4_UNIT_004946F0 */
 
-#if defined(P4_UNIT_00482700)
-/* Source unit: src/Graphics/Model/mdlEffect_00482700.c */
-#include "type.h"
 
-extern void func_004824a0(int *param_1, u8 *param_2, float *param_3);
-
-// FUN_00482700
-void func_00482700(int param_1, float *param_2)
-{
-  func_004824a0((int *)(u32)param_1, (u8 *)(u32)*(u32 *)(param_1 + 0x10), param_2);
-}
-#endif /* P4_UNIT_00482700 */
-
-#if defined(P4_UNIT_00486710)
-/* Source unit: src/Graphics/Model/mdlEffect_00486710.c */
-#include "type.h"
-
-extern u64 memcpy();
-
-// FUN_00486710
-void func_00486710(u64 param_1, u64 param_2)
-{
-  memcpy(param_1, param_2, 0x90);
-  return;
-}
-#endif /* P4_UNIT_00486710 */
-
-#if defined(P4_UNIT_00487C00)
-/* Source unit: src/Graphics/Model/mdlEffect_00487c00.c */
-#include "type.h"
-
-extern void func_00492d00(int param_1);
-
-// FUN_00487C00
-void func_00487c00(int param_1)
-{
-  if (*(int *)(param_1 + 0x4c) != 0) {
-    func_00492d00(*(int *)(param_1 + 0x4c));
-  }
-  return;
-}
-#endif /* P4_UNIT_00487C00 */
-
-#if defined(P4_UNIT_00489E50)
-/* Source unit: src/Graphics/Model/mdlEffect_00489e50.c */
-#include "type.h"
-
-extern void func_00487fb0(float param_1, int param_2);
-#pragma alias func_00487fb0_evt func_00487fb0
-extern void func_00487fb0_evt(float param_1);
-
-// FUN_00489E50
-void func_00489e50(void)
-{
-  func_00487fb0_evt(1.0f);
-}
-#endif /* P4_UNIT_00489E50 */
-
-#if defined(P4_UNIT_00489F50)
-/* Source unit: src/Graphics/Model/mdlEffect_00489f50.c */
-#include "type.h"
-
-extern void func_00492e30(u16 *param_1);
-
-// FUN_00489F50
-void func_00489f50(f32 param_1, int param_2)
-{
-  *(f32 *)(param_2 + 8) = param_1;
-  func_00492e30((u16 *)*(u32 *)(param_2 + 0x4c));
-  return;
-}
-#endif /* P4_UNIT_00489F50 */
-
-#if defined(P4_UNIT_00494710)
-/* Source unit: src/Graphics/Model/mdlEffect_00494710.c */
-#include "type.h"
 
 // FUN_00494710
 u8 func_00494710(int param_1, u32 param_2)
@@ -438,58 +525,24 @@ u8 func_00494710(int param_1, u32 param_2)
 
   return value == -1;
 }
-#endif /* P4_UNIT_00494710 */
 
-#if defined(P4_UNIT_004A6E50)
-/* Source unit: src/Graphics/Model/mdlEffect_004a6e50.c */
-#include "type.h"
+
 
 // FUN_004A6E50
 void func_004a6e50(int param_1)
 {
   *(u32 *)(param_1 + 0x10) = *(u32 *)(param_1 + 0x10) + 1;
 }
-#endif /* P4_UNIT_004A6E50 */
 
-#if defined(P4_UNIT_004A77A0)
-/* Source unit: src/Graphics/Model/mdlEffect_004a77a0.c */
-#include "type.h"
+
 
 // FUN_004A77A0
 void func_004a77a0(u32 *param_1, u32 param_2)
 {
   param_1[5] = param_2;
 }
-#endif /* P4_UNIT_004A77A0 */
 
-#if defined(P4_UNIT_004AC2C0)
-/* Source unit: src/Graphics/Model/mdlEffect_004ac2c0.c */
-#include "type.h"
 
-// FUN_004AC2C0
-void func_004ac2c0(u32 *param_1)
-{
-  if ((param_1[0x23] >= param_1[0x26]) || (param_1[0x23] == 0)) {
-    *(f32 *)(param_1 + 9) = 1.0f;
-    param_1[0x26] = param_1[0x26] + 1;
-  }
-}
-#endif /* P4_UNIT_004AC2C0 */
-
-#if defined(P4_UNIT_004AC620)
-/* Source unit: src/Graphics/Model/mdlEffect_004ac620.c */
-#include "type.h"
-
-// FUN_004AC620
-void func_004ac620(int param_1, int param_2)
-{
-  *(int *)(param_1 + 0x28) = param_2;
-}
-#endif /* P4_UNIT_004AC620 */
-
-#if defined(P4_UNIT_004AE020)
-/* Source unit: src/Graphics/Model/mdlEffect_004ae020.c */
-#include "type.h"
 
 // FUN_004AE020
 u32 *func_004ae020(u32 *param_1, u8 *param_2)
@@ -527,11 +580,8 @@ check:
   if (t3 < t1) goto loop;
   return param_1;
 }
-#endif /* P4_UNIT_004AE020 */
 
-#if defined(P4_UNIT_004AE080)
-/* Source unit: src/Graphics/Model/mdlEffect_004ae080.c */
-#include "type.h"
+
 
 // FUN_004AE080
 u32 *func_004ae080(u32 *param_1)
@@ -542,26 +592,19 @@ u32 *func_004ae080(u32 *param_1)
   p[2] = p[2] | 0x40;
   return param_1;
 }
-#endif /* P4_UNIT_004AE080 */
 
-#if defined(P4_UNIT_004B1580)
-/* Source unit: src/Graphics/Model/mdlEffect_004b1580.c */
-#include "type.h"
+
 
 // FUN_004B1580
 u32 func_004b1580(int param_1)
 {
   return *(u32 *)(param_1 + 0x84);
 }
-#endif /* P4_UNIT_004B1580 */
 
-#if defined(P4_UNIT_004B2770)
-/* Source unit: src/Graphics/Model/mdlEffect_004b2770.c */
-#include "type.h"
+
 
 // FUN_004B2770
 void func_004b2770(u32 *param_1, u32 param_2)
 {
   *param_1 = param_2;
 }
-#endif /* P4_UNIT_004B2770 */

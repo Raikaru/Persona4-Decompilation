@@ -136,9 +136,8 @@ class LoadNamesTests(unittest.TestCase):
 
 def sample_source() -> str:
     return (
-        "/* Consolidated Persona 4 source units. */\n"
+        "/* Source unit: src/g_data_001059e0.c */\n"
         "\n"
-        "#if defined(P4_UNIT_001059E0)\n"
         "#include \"type.h\"\n"
         "\n"
         "// FUN_001059E0\n"
@@ -147,7 +146,6 @@ def sample_source() -> str:
         "    const char* note = \"func_001059e0 string\";\n"
         "    return func_001059e0 ? (u8)func_001059e0(exp) : 0;\n"
         "}\n"
-        "#endif /* P4_UNIT_001059E0 */\n"
     )
 
 
@@ -164,15 +162,15 @@ class PlanAndRewriteTests(unittest.TestCase):
             self.assertEqual(apply_names.rewrite(path, changes), 3)
             lines = path.read_bytes().decode("utf-8").split("\n")
             # marker line untouched, definition renamed
-            self.assertEqual(lines[5], "// FUN_001059E0")
-            self.assertTrue(lines[6].startswith("u8 btlLevelFromExp(s32 exp)"))
+            self.assertEqual(lines[4], "// FUN_001059E0")
+            self.assertTrue(lines[5].startswith("u8 btlLevelFromExp(s32 exp)"))
             # trailing comment on the definition line untouched
-            self.assertTrue(lines[6].endswith("// func_001059e0 trailing comment"))
+            self.assertTrue(lines[5].endswith("// func_001059e0 trailing comment"))
             # string literal untouched, code occurrences renamed
             self.assertIn('"func_001059e0 string"', "\n".join(lines))
             self.assertIn("return btlLevelFromExp ? (u8)btlLevelFromExp(exp) : 0;", "\n".join(lines))
-            # marker and P4_UNIT guard remain address-form
-            self.assertIn("#if defined(P4_UNIT_001059E0)", "\n".join(lines))
+            # marker line remains address-form, no guard wrapper remains
+            self.assertNotIn("#if defined", "\n".join(lines))
 
     def test_marker_line_with_nonmatching_suffix_survives(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

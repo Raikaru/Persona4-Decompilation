@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_0014BFF0)
 /* Source unit: src/Kosaka/Field/k_event.c */
 #include "type.h"
 
@@ -30,7 +26,13 @@ extern f32 fGpffff7d00;
 extern f32 RwV3dNormalize(RwV3d* out, const RwV3d* in);
 extern f32 func_0044b920(f32 x);
 
+extern u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov);
+extern f32 RwV3dLength(const RwV3d* vector);
+extern u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst);
+
+
 #pragma push
+
 // FUN_0014BFF0
 u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov)
 {
@@ -95,36 +97,10 @@ u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos,
     return isWithinFov;
 }
 #pragma pop
-#endif /* P4_UNIT_0014BFF0 */
 
-#if defined(P4_UNIT_0014C240)
-/* Source unit: src/Kosaka/Field/k_event.c */
-#include "type.h"
-
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-typedef struct RwMatrix
-{
-    RwV3d right;    // 0x00
-    u32 flags;      // 0x0c
-    RwV3d up;       // 0x10
-    u32 pad1;       // 0x1c
-    RwV3d at;       // 0x20
-    u32 pad2;       // 0x2c
-    RwV3d pos;      // 0x30
-    u32 pad3;       // 0x3c
-} RwMatrix;
-
-extern u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov);
-extern f32 RwV3dLength(const RwV3d* vector);
-extern u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst);
 
 #pragma push
+
 // FUN_0014C240
 u32 func_0014c240(const RwMatrix* viewerMat,
                   const RwV3d* targetPos,
@@ -173,22 +149,10 @@ done:
     return result;
 }
 #pragma pop
-#endif /* P4_UNIT_0014C240 */
 
-#if defined(P4_UNIT_0014C4C0)
-/* Source unit: src/Kosaka/Field/k_event.c */
-#include "type.h"
-
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-extern f32 RwV3dLength(const RwV3d* vector);
 
 #pragma push
+
 // FUN_0014C4C0
 u32 K_FldEvent_ArePosWithinDist(const RwV3d* posA, const RwV3d* posB, f32 maxDist)
 {
@@ -209,4 +173,3 @@ u32 K_FldEvent_ArePosWithinDist(const RwV3d* posA, const RwV3d* posB, f32 maxDis
     return withinDist;
 }
 #pragma pop
-#endif /* P4_UNIT_0014C4C0 */

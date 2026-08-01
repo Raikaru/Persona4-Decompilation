@@ -1,24 +1,28 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00201280)
 #include "type.h"
 
 extern void func_00213ab0();
 extern void func_0021ae60(u8 *arg0, u8 *arg1);
+
+extern void memset(void *destination, s32 value, u32 size);
+extern void func_00202e00(u8 *arg0, s16 *arg1);
+
+typedef struct {
+    f32 x;
+    f32 y;
+} Vec2f;
+
+extern u8 *func_00452560();
+extern void func_002119a0(u8 *arg0);
+
+
 
 // FUN_00201280
 void func_00201280(u8 *arg0, u8 *arg1) {
     func_00213ab0();
     func_0021ae60(arg0, arg1 + 0x18);
 }
-#endif /* P4_UNIT_00201280 */
 
-#if defined(P4_UNIT_00202C60)
-#include "type.h"
 
-extern void memset(void *destination, s32 value, u32 size);
-extern void func_00202e00(u8 *arg0, s16 *arg1);
 
 // FUN_00202C60
 void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {
@@ -33,10 +37,8 @@ void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *a
     *(u16 *)(arg0 + 0) |= 8;
     func_00202e00(arg0, NULL);
 }
-#endif /* P4_UNIT_00202C60 */
 
-#if defined(P4_UNIT_00203360)
-#include "type.h"
+
 
 // FUN_00203360
 void func_00203360(u8 *arg0, u8 *arg1) {
@@ -55,10 +57,8 @@ void func_00203360(u8 *arg0, u8 *arg1) {
         var_4 = temp_16;
     }
 }
-#endif /* P4_UNIT_00203360 */
 
-#if defined(P4_UNIT_002033C0)
-#include "type.h"
+
 
 // FUN_002033C0
 void func_002033c0(u8 *arg0) {
@@ -73,10 +73,8 @@ void func_002033c0(u8 *arg0) {
     }
     *(u8 **)(arg0 + 8) = NULL;
 }
-#endif /* P4_UNIT_002033C0 */
 
-#if defined(P4_UNIT_002035A0)
-#include "type.h"
+
 
 // FUN_002035A0
 void func_002035a0(u8 *arg0) {
@@ -88,10 +86,8 @@ void func_002035a0(u8 *arg0) {
         var_16 = *(u8 **)(var_16 + 0x24);
     }
 }
-#endif /* P4_UNIT_002035A0 */
 
-#if defined(P4_UNIT_00203600)
-#include "type.h"
+
 
 // FUN_00203600
 void func_00203600(u8 *arg0) {
@@ -106,12 +102,8 @@ void func_00203600(u8 *arg0) {
         var_16 = *(u8 **)(var_16 + 0x24);
     }
 }
-#endif /* P4_UNIT_00203600 */
 
-#if defined(P4_UNIT_0020AD80)
-#include "type.h"
 
-extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_0020AD80
 void func_0020ad80(u8 *arg0, s32 arg1) {
@@ -120,12 +112,8 @@ void func_0020ad80(u8 *arg0, s32 arg1) {
     *(s16 *)(arg0 + 0) = 0;
     *(s16 *)(arg0 + 0x5AC) = -1;
 }
-#endif /* P4_UNIT_0020AD80 */
 
-#if defined(P4_UNIT_0020BB20)
-#include "type.h"
 
-extern void memset(void *destination, s32 value, u32 size);
 
 // FUN_0020BB20
 void func_0020bb20(u8 *arg0, s32 arg1) {
@@ -133,15 +121,8 @@ void func_0020bb20(u8 *arg0, s32 arg1) {
     *(s32 *)(arg0 + 0x18) = arg1;
     *(s16 *)(arg0 + 2) = 3;
 }
-#endif /* P4_UNIT_0020BB20 */
 
-#if defined(P4_UNIT_0020E1D0)
-#include "type.h"
 
-typedef struct {
-    f32 x;
-    f32 y;
-} Vec2f;
 
 // FUN_0020E1D0
 void func_0020e1d0(u8 *arg0, u8 *arg1) {
@@ -157,16 +138,10 @@ void func_0020e1d0(u8 *arg0, u8 *arg1) {
     *(u16 *)(arg1 + 0x10) |= 1;
     *(Vec2f *)(arg1 + 8) = *(Vec2f *)(arg0 + 8);
 }
-#endif /* P4_UNIT_0020E1D0 */
 
-#if defined(P4_UNIT_0020E3F0)
-#include "type.h"
 
-extern u8 *func_00452560();
-extern void func_002119a0(u8 *arg0);
 
 // FUN_0020E3F0
 void func_0020e3f0(void) {
     func_002119a0(func_00452560() + 0x75C);
 }
-#endif /* P4_UNIT_0020E3F0 */

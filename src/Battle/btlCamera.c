@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001BC3A0)
 /* Source unit: src/Battle/btlCamera_001bc3a0.c */
 #include "type.h"
 
@@ -26,6 +22,117 @@ extern f32 fabsf(f32 x);
 extern RwV3d D_0060A0F0;
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
+
+typedef struct BtlUnit BtlUnit;
+typedef struct BtlCamera BtlCamera;
+
+s16 func_00198810(BtlUnit* unit);
+s16 func_001991c0(BtlUnit* unit, u16 id, f32 scale);
+s16 func_00199830(BtlUnit* unit);
+
+typedef struct BtlAction BtlAction;
+
+typedef struct BtlCameraPacketSetState
+{
+    BtlAction* action; // 0x00
+    u16 state;         // 0x04
+} BtlCameraPacketSetState;
+
+void func_001bc660(u16 state, BtlAction* action, u32 param_3);
+
+typedef u32 (*BtlPacketFunc)(void* work);
+
+typedef struct BtlPacket
+{
+    u8 _pad00[0x68];
+    BtlPacketFunc initFunc;    // 0x68
+    BtlPacketFunc updateFunc;  // 0x6c
+    BtlPacketFunc destroyFunc; // 0x70
+    u8 _pad74[4];
+    void* workData;            // 0x78
+} BtlPacket;
+
+BtlPacket* func_00194470(u32 id, s32 workDataSize);
+u32 btlCameraUpdateSetStatePacket(void* work);
+
+void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4);
+void RtQuatConvertFromMatrix(void* out, void* in);
+
+u16 func_001c0e50(void* camera);
+void func_001be050(void* camera, f32 angle, f32 distance);
+void func_001c5500(void* camera, s32 arg);
+void func_001c5b80(void* camera, s32 arg);
+void func_001c1040(void* camera, u32 arg);
+
+typedef struct RwMatrix RwMatrix;
+struct RwMatrix
+{
+    RwV3d right;    // 0x00
+    u32 flags;      // 0x0c
+    RwV3d up;       // 0x10
+    u32 pad1;       // 0x1c
+    RwV3d at;       // 0x20
+    u32 pad2;       // 0x2c
+    RwV3d pos;      // 0x30
+    u32 pad3;       // 0x3c
+};
+extern RwV3d D_0060A0E0;
+extern f32 DAT_00761200;
+extern f32 DAT_0076112c;
+void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
+f32 tanf(f32 x);
+f32 RwV3dNormalize(RwV3d* out, RwV3d* in);
+RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
+RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
+void func_001bd780(void* out, const void* first, const void* second, const void* config);
+void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
+void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
+void func_001bbef0(u8* camera, f32 step);
+
+void func_001c6760(void *camera, float angle, float distanceScale, float heightScale, float minimumDistance);
+
+typedef struct F32Vec4
+{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} F32Vec4;
+struct BtlUnit
+{
+    u8 _pad00[0x1c];
+    RtQuat rot;        // 0x1c
+    f32 scale;         // 0x2c
+    u8 _pad30[0x5c];
+    f32 unk_8c;        // 0x8c
+    f32 sphereRadius;  // 0x90
+};
+struct BtlAction
+{
+    u8 _pad00[0x30];
+    BtlUnit* unit; // 0x30
+};
+struct BtlCamera
+{
+    u8 _pad00[0xb8];
+    f32 fovRad;        // 0xb8
+    u8 _padbc[0x24];
+    BtlAction* action; // 0xe0
+};
+
+extern f32 DAT_00761254;
+extern f32 DAT_00761188;
+extern f32 DAT_00761258;
+void func_001cb970(void* camera, f32 speed, int param_3);
+
+typedef struct BtlCameraKeyFrame
+{
+    RwV3d pos;  // 0x00
+    RtQuat rot; // 0x0c
+} BtlCameraKeyFrame;
+void func_001bb3d0(void* camera, void* first, void* second, void* third, void* fourth, u16 mode);
+
+
 
 // FUN_001BC3A0
 u32 func_001bc3a0(float *param_1,float *param_2)
@@ -74,18 +181,8 @@ u32 func_001bc3a0(float *param_1,float *param_2)
   }
   return ret;
 }
-#endif /* P4_UNIT_001BC3A0 */
 
-#if defined(P4_UNIT_001BC560)
-/* Source unit: src/Battle/btlCamera_001bc560.c */
-#include "type.h"
 
-typedef struct BtlUnit BtlUnit;
-typedef struct BtlCamera BtlCamera;
-
-s16 func_00198810(BtlUnit* unit);
-s16 func_001991c0(BtlUnit* unit, u16 id, f32 scale);
-s16 func_00199830(BtlUnit* unit);
 
 // FUN_001BC560
 s32 func_001bc560(BtlCamera* camera, u32 unit)
@@ -114,21 +211,8 @@ s32 func_001bc560(BtlCamera* camera, u32 unit)
   }
   return result;
 }
-#endif /* P4_UNIT_001BC560 */
 
-#if defined(P4_UNIT_001BC8E0)
-/* Source unit: src/Battle/btlCamera_001bc8e0.c */
-#include "type.h"
 
-typedef struct BtlAction BtlAction;
-
-typedef struct BtlCameraPacketSetState
-{
-    BtlAction* action; // 0x00
-    u16 state;         // 0x04
-} BtlCameraPacketSetState;
-
-void func_001bc660(u16 state, BtlAction* action, u32 param_3);
 
 // FUN_001BC8E0
 u32 btlCameraUpdateSetStatePacket(void* work)
@@ -141,34 +225,8 @@ u32 btlCameraUpdateSetStatePacket(void* work)
 
     return 1;
 }
-#endif /* P4_UNIT_001BC8E0 */
 
-#if defined(P4_UNIT_001BC920)
-/* Source unit: src/Battle/btlCamera_001bc920.c */
-#include "type.h"
 
-typedef struct BtlAction BtlAction;
-
-typedef u32 (*BtlPacketFunc)(void* work);
-
-typedef struct BtlPacket
-{
-    u8 _pad00[0x68];
-    BtlPacketFunc initFunc;    // 0x68
-    BtlPacketFunc updateFunc;  // 0x6c
-    BtlPacketFunc destroyFunc; // 0x70
-    u8 _pad74[4];
-    void* workData;            // 0x78
-} BtlPacket;
-
-typedef struct BtlCameraPacketSetState
-{
-    BtlAction* action; // 0x00
-    u16 state;         // 0x04
-} BtlCameraPacketSetState;
-
-BtlPacket* func_00194470(u32 id, s32 workDataSize);
-u32 btlCameraUpdateSetStatePacket(void* work);
 
 // FUN_001BC920
 BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state)
@@ -187,19 +245,8 @@ BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state)
 
     return packet;
 }
-#endif /* P4_UNIT_001BC920 */
 
-#if defined(P4_UNIT_001BD620)
-/* Source unit: src/Battle/btlCamera_001bd620.c */
-#include "type.h"
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
 
 // FUN_001BD620
 void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4)
@@ -226,14 +273,8 @@ void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4)
   *(RwV3d*)(param_1 + 4) = cross2;
   return;
 }
-#endif /* P4_UNIT_001BD620 */
 
-#if defined(P4_UNIT_001BD780)
-/* Source unit: src/Battle/btlCamera_001bd780.c */
-#include "type.h"
 
-void func_001bd620(float *param_1,float *param_2,float *param_3,float *param_4);
-void RtQuatConvertFromMatrix(void* out, void* in);
 
 // FUN_001BD780
 void func_001bd780(void* out, const void* first, const void* second, const void* config)
@@ -244,17 +285,8 @@ void func_001bd780(void* out, const void* first, const void* second, const void*
                (float*)config);
   RtQuatConvertFromMatrix(out, auStack_40);
 }
-#endif /* P4_UNIT_001BD780 */
 
-#if defined(P4_UNIT_001C6560)
-/* Source unit: src/Battle/btlCamera_001c6560.c */
-#include "type.h"
 
-u16 func_001c0e50(void* camera);
-void func_001be050(void* camera, f32 angle, f32 distance);
-void func_001c5500(void* camera, s32 arg);
-void func_001c5b80(void* camera, s32 arg);
-void func_001c1040(void* camera, u32 arg);
 
 // FUN_001C6560
 void func_001c6560(void* camera)
@@ -284,59 +316,8 @@ void func_001c6560(void* camera)
   }
   return;
 }
-#endif /* P4_UNIT_001C6560 */
 
-#if defined(P4_UNIT_001C6760)
-/* Source unit: src/Battle/btlCamera_001c6760.c */
-#include "type.h"
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-typedef struct RwMatrix RwMatrix;
-struct RwMatrix
-{
-    RwV3d right;    // 0x00
-    u32 flags;      // 0x0c
-    RwV3d up;       // 0x10
-    u32 pad1;       // 0x1c
-    RwV3d at;       // 0x20
-    u32 pad2;       // 0x2c
-    RwV3d pos;      // 0x30
-    u32 pad3;       // 0x3c
-};
-
-typedef struct BtlUnit BtlUnit;
-
-extern RwV3d D_0060A0F0;
-extern RwV3d D_0060A0E0;
-extern f32 DAT_00761200;
-extern f32 DAT_0076112c;
-void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
-f32 tanf(f32 x);
-RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
-                     s32 numPoints, const RtQuat* quat);
-f32 RwV3dNormalize(RwV3d* out, RwV3d* in);
-RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
-RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
-void func_001bd780(void* out, const void* first, const void* second, const void* config);
-void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
-void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
-void func_001bbef0(u8* camera, f32 step);
 
 // FUN_001C6760
 void func_001c6760(void *camera, float angle, float distanceScale, float heightScale, float minimumDistance)
@@ -423,13 +404,8 @@ void func_001c6760(void *camera, float angle, float distanceScale, float heightS
   func_001bac20((u8 *)camera, &scratch.firstPosition, &scratch.secondPosition, 1);
   func_001bbef0((u8 *)camera, 3.5f);
 }
-#endif /* P4_UNIT_001C6760 */
 
-#if defined(P4_UNIT_001C6B10)
-/* Source unit: src/Battle/btlCamera_001c6b10.c */
-#include "type.h"
 
-void func_001c6760(void *camera, float angle, float distanceScale, float heightScale, float minimumDistance);
 
 // FUN_001C6B10
 void func_001c6b10(void* camera)
@@ -437,75 +413,8 @@ void func_001c6b10(void* camera)
   func_001c6760(camera,10.0f,2.0f,0.0f,250.0f);
   return;
 }
-#endif /* P4_UNIT_001C6B10 */
 
-#if defined(P4_UNIT_001C7510)
-/* Source unit: src/Battle/btlCamera_001c7510.c */
-#include "type.h"
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-typedef struct F32Vec4
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} F32Vec4;
-
-typedef struct BtlUnit BtlUnit;
-struct BtlUnit
-{
-    u8 _pad00[0x1c];
-    RtQuat rot;        // 0x1c
-    f32 scale;         // 0x2c
-    u8 _pad30[0x5c];
-    f32 unk_8c;        // 0x8c
-    f32 sphereRadius;  // 0x90
-};
-
-typedef struct BtlAction BtlAction;
-struct BtlAction
-{
-    u8 _pad00[0x30];
-    BtlUnit* unit; // 0x30
-};
-
-typedef struct BtlCamera BtlCamera;
-struct BtlCamera
-{
-    u8 _pad00[0xb8];
-    f32 fovRad;        // 0xb8
-    u8 _padbc[0x24];
-    BtlAction* action; // 0xe0
-};
-
-extern RwV3d D_0060A0F0;
-extern RwV3d D_0060A0E0;
-extern f32 DAT_00761200;
-void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
-f32 tanf(f32 x);
-RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
-                     s32 numPoints, const RtQuat* quat);
-void func_001bd780(void* out, const void* first, const void* second, const void* config);
-void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
-void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
-void func_001bbef0(u8* camera, f32 step);
 
 // FUN_001C7510
 void func_001c7510(BtlCamera* camera)
@@ -557,75 +466,8 @@ void func_001c7510(BtlCamera* camera)
   func_001bac20((u8 *)camera, (RwV3d *)buf, (RwV3d *)(buf + 7), 1);
   func_001bbef0((u8 *)camera, 2.5f);
 }
-#endif /* P4_UNIT_001C7510 */
 
-#if defined(P4_UNIT_001C7780)
-/* Source unit: src/Battle/btlCamera_001c7780.c */
-#include "type.h"
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-typedef struct F32Vec4
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} F32Vec4;
-
-typedef struct BtlUnit BtlUnit;
-struct BtlUnit
-{
-    u8 _pad00[0x1c];
-    RtQuat rot;        // 0x1c
-    f32 scale;         // 0x2c
-    u8 _pad30[0x5c];
-    f32 unk_8c;        // 0x8c
-    f32 sphereRadius;  // 0x90
-};
-
-typedef struct BtlAction BtlAction;
-struct BtlAction
-{
-    u8 _pad00[0x30];
-    BtlUnit* unit; // 0x30
-};
-
-typedef struct BtlCamera BtlCamera;
-struct BtlCamera
-{
-    u8 _pad00[0xb8];
-    f32 fovRad;        // 0xb8
-    u8 _padbc[0x24];
-    BtlAction* action; // 0xe0
-};
-
-extern RwV3d D_0060A0F0;
-extern RwV3d D_0060A0E0;
-extern f32 DAT_00761200;
-void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
-f32 tanf(f32 x);
-RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
-                     s32 numPoints, const RtQuat* quat);
-void func_001bd780(void* out, const void* first, const void* second, const void* config);
-void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
-void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
-void func_001bbef0(u8* camera, f32 step);
 
 // FUN_001C7780
 void func_001c7780(BtlCamera* camera)
@@ -677,16 +519,8 @@ void func_001c7780(BtlCamera* camera)
   func_001bac20((u8 *)camera, (RwV3d *)(buf + 7), (RwV3d *)buf, 1);
   func_001bbef0((u8 *)camera, 2.5f);
 }
-#endif /* P4_UNIT_001C7780 */
 
-#if defined(P4_UNIT_001CBFE0)
-/* Source unit: src/Battle/btlCamera_001cbfe0.c */
-#include "type.h"
 
-extern f32 DAT_00761254;
-extern f32 DAT_00761188;
-extern f32 DAT_00761258;
-void func_001cb970(void* camera, f32 speed, int param_3);
 
 // FUN_001CBFE0
 void func_001cbfe0(int param_1)
@@ -709,90 +543,8 @@ void func_001cbfe0(int param_1)
   }
   return;
 }
-#endif /* P4_UNIT_001CBFE0 */
 
-#if defined(P4_UNIT_001CD7D0)
-/* Source unit: src/Battle/btlCamera_001cd7d0.c */
-#include "type.h"
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-typedef struct RwMatrix RwMatrix;
-struct RwMatrix
-{
-    RwV3d right;    // 0x00
-    u32 flags;      // 0x0c
-    RwV3d up;       // 0x10
-    u32 pad1;       // 0x1c
-    RwV3d at;       // 0x20
-    u32 pad2;       // 0x2c
-    RwV3d pos;      // 0x30
-    u32 pad3;       // 0x3c
-};
-
-typedef struct BtlUnit BtlUnit;
-struct BtlUnit
-{
-    u8 _pad00[0x1c];
-    RtQuat rot;        // 0x1c
-    f32 scale;         // 0x2c
-    u8 _pad30[0x5c];
-    f32 unk_8c;        // 0x8c
-    f32 sphereRadius;  // 0x90
-};
-
-typedef struct BtlAction BtlAction;
-struct BtlAction
-{
-    u8 _pad00[0x30];
-    BtlUnit* unit; // 0x30
-};
-
-typedef struct BtlCamera BtlCamera;
-struct BtlCamera
-{
-    u8 _pad00[0xb8];
-    f32 fovRad;        // 0xb8
-    u8 _padbc[0x24];
-    BtlAction* action; // 0xe0
-};
-
-typedef struct BtlCameraKeyFrame
-{
-    RwV3d pos;  // 0x00
-    RtQuat rot; // 0x0c
-} BtlCameraKeyFrame;
-
-extern RwV3d D_0060A0F0;
-extern RwV3d D_0060A0E0;
-extern f32 DAT_00761200;
-extern f32 DAT_0076112c;
-extern f32 tanf(f32 x);
-void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst);
-RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
-                     s32 numPoints, const RtQuat* quat);
-f32 RwV3dNormalize(RwV3d* out, RwV3d* in);
-RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
-RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
-void func_001bd780(void* out, const void* first, const void* second, const void* config);
-void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
-void func_001bb3d0(void* camera, void* first, void* second, void* third, void* fourth, u16 mode);
-void func_001bbef0(u8* camera, f32 step);
 
 // FUN_001CD7D0
 void btlAct_WIN_P(BtlCamera* camera)
@@ -868,17 +620,11 @@ void btlAct_WIN_P(BtlCamera* camera)
                &scratch.frameBytes[0x54], 1);
   func_001bbef0((u8*)camera, 10.0f);
 }
-#endif /* P4_UNIT_001CD7D0 */
 
-#if defined(P4_UNIT_001CE430)
-/* Source unit: src/Battle/btlCamera_001ce430.c */
-#include "type.h"
 
-void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
 
 // FUN_001CE430
 void func_001ce430(int param_1)
 {
   func_001bcd40(0.0f, (u8 *)(uintptr_t)*(int *)(param_1 + 0xe0), 0, 0, 0);
 }
-#endif /* P4_UNIT_001CE430 */

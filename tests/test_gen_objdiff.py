@@ -117,27 +117,9 @@ class SliceTests(unittest.TestCase):
 
 
 class UnitBuildingTests(unittest.TestCase):
-    def test_guard_unit_naming_matches_config_layout(self) -> None:
-        cpath = REPO / "src" / "Battle" / "battle.c"
-        guards = gen.unit_guards(cpath)
-        self.assertTrue(guards, "test requires a P4_UNIT guard in src/Battle/battle.c")
-        guard = guards[0]
-        units = gen.build_units([dict(
-            file="src/Battle/battle.c", addr=f"{guard['addr']:08x}",
-            line=guard["start"] + 1, status="MATCH", name="func_test")])
-        self.assertEqual(len(units), 1)
-        unit = units[0]
-        self.assertEqual(unit["name"], f"Battle/battle:{guard['addr']:08X}")
-        self.assertEqual(unit["target_path"],
-                         f"build/objdiff/target/Battle/battle_unit_{guard['addr']:08x}.o")
-        self.assertEqual(unit["base_path"],
-                         f"build/objdiff/base/Battle/battle_unit_{guard['addr']:08x}.o")
-        self.assertTrue(unit["metadata"]["complete"])
-        self.assertEqual(unit["unit"], guard["addr"])
-        self.assertEqual(unit["symbol"], "func_test")
-
     def test_plain_file_unit_naming(self) -> None:
-        # Any src file without P4_UNIT guards and with a FUN marker works.
+        # Any src file with a FUN marker works: every file is a whole
+        # translation unit, so each function gets a per-function slice object.
         import verify
         candidate = None
         for path in sorted((REPO / "src").rglob("*.c")):
@@ -145,10 +127,10 @@ class UnitBuildingTests(unittest.TestCase):
                 continue
             if "generated" in path.parts:
                 continue
-            if not gen.unit_guards(path) and verify.scan_markers(path):
+            if verify.scan_markers(path):
                 candidate = path
                 break
-        self.assertIsNotNone(candidate, "test requires a guard-free src file with a FUN marker")
+        self.assertIsNotNone(candidate, "test requires a src file with a FUN marker")
         markers = verify.scan_markers(candidate)
         self.assertTrue(markers, f"test requires a FUN marker in {candidate}")
         marker = markers[0]
@@ -163,7 +145,6 @@ class UnitBuildingTests(unittest.TestCase):
                          f"build/objdiff/base/{stem}/{marker['addr']:08x}.o")
         self.assertEqual(unit["target_path"],
                          f"build/objdiff/target/{stem}/{marker['addr']:08x}.o")
-        self.assertIsNone(unit["unit"])
 
     def test_config_units_have_exactly_the_schema_keys(self) -> None:
         units = gen.build_units([dict(
@@ -172,11 +153,80 @@ class UnitBuildingTests(unittest.TestCase):
         unit = units[0]
         self.assertEqual(sorted(unit.keys()),
                          sorted(("name", "target_path", "base_path", "metadata",
-                                 "file", "addr", "symbol", "unit", "window")))
+                                 "file", "addr", "symbol", "window",
+                                 "status")))
         config_unit = {key: unit[key] for key in gen.CONFIG_UNIT_KEYS}
         self.assertEqual(sorted(config_unit.keys()),
                          sorted(("name", "target_path", "base_path", "metadata")))
         self.assertFalse(config_unit["metadata"]["complete"])
+
+    def test_sourceless_function_still_gets_a_unit(self) -> None:
+        # A canonical function with no C source must still appear in the config:
+        # base_path null (nothing to build), complete false (never matched), and
+        # a target_path so objdiff counts its code in the denominator.
+        windows = {"00100008": 528, "00100218": 512, "00100220": 48}
+        units = gen.build_canonical_units(windows, covered=set())
+        self.assertEqual(len(units), 3)
+        unit = units[0]
+        self.assertEqual(unit["name"], "nonmatchings:00100008")
+        self.assertEqual(unit["target_path"],
+                         "build/objdiff/target/nonmatchings/00100008.o")
+        self.assertIsNone(unit["base_path"])
+        self.assertFalse(unit["metadata"]["complete"])
+        self.assertEqual(unit["window"], 528)
+        self.assertIsNone(unit["file"])
+        self.assertIsNone(unit["symbol"])
+
+    def test_canonical_units_complete_the_coverage(self) -> None:
+        # Merging report units with canonical units must yield exactly one unit
+        # per canonical function, with source-less ones base_path null.
+        windows = {"00100008": 528, "00100218": 512}
+        reported = gen.build_units([dict(
+            file="src/Battle/battle.c", addr="00100218", line=10,
+            status="MATCH", name="func_00100218")])
+        covered = {unit["addr"] for unit in reported}
+        merged = reported + gen.build_canonical_units(windows, covered)
+        self.assertEqual(len(merged), len(windows))
+        by_addr = {unit["addr"]: unit for unit in merged}
+        self.assertIsNone(by_addr[0x00100008]["base_path"])
+        self.assertEqual(by_addr[0x00100218]["base_path"],
+                         "build/objdiff/base/Battle/battle/00100218.o")
+
+    def test_asm_function_is_not_counted_as_matched(self) -> None:
+        # An INCLUDE_ASM fallback is byte-correct by construction; if it were
+        # marked complete, objdiff would score it 100% matched and progress
+        # would be inflated by assembly that is not decompiled C.
+        units = gen.build_units([dict(
+            file="src/Kosaka/k_vpad.c", addr="004b5800", line=164,
+            status="ASM", name="func_004b5800")])
+        unit = units[0]
+        self.assertFalse(unit["metadata"]["complete"])
+        self.assertEqual(unit["status"], "ASM")
+        matched = gen.build_units([dict(
+            file="src/Kosaka/k_vpad.c", addr="004b5c20", line=10,
+            status="MATCH", name="func_004b5c20")])
+        self.assertTrue(matched[0]["metadata"]["complete"])
+
+    def test_progress_categories_split_first_and_third_party(self) -> None:
+        self.assertEqual(gen.PROGRESS_CATEGORIES,
+                         [{"id": "main", "name": "First-party code"},
+                          {"id": "third_party", "name": "Third-party middleware"}])
+        self.assertEqual(gen.progress_category("src/Battle/btlTarget.c"), "main")
+        self.assertEqual(gen.progress_category("src/rw/rwcore.c"), "third_party")
+        self.assertEqual(gen.progress_category("src/cri/cri_adx.c"), "third_party")
+        self.assertEqual(gen.progress_category("src/sce/libcdvd.c"), "third_party")
+        # Source-less units have no file attribution; conservative first-party
+        # default so the first-party denominator never shrinks.
+        self.assertEqual(gen.progress_category(None), "main")
+        # The config carries the categories and every unit is tagged.
+        units = gen.build_units([dict(
+            file="src/rw/rwcore.c", addr="0038fb10", line=10,
+            status="NONMATCHING", name="func_0038fb10")])
+        units.extend(gen.build_canonical_units({"00100008": 528}, set()))
+        for unit in units:
+            unit["metadata"]["progress_categories"] = [gen.progress_category(unit["file"])]
+        self.assertEqual(units[0]["metadata"]["progress_categories"], ["third_party"])
+        self.assertEqual(units[1]["metadata"]["progress_categories"], ["main"])
 
 
 class TrimWindowPaddingTests(unittest.TestCase):

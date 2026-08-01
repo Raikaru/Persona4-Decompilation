@@ -1,8 +1,6 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_004460F0)
+#include "include_asm.h"
 #include "type.h"
+
 
 s32 func_00446108();
 
@@ -13,18 +11,20 @@ s32 func_00446108();
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_004460F0 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_004460F0 NONMATCHING
+#ifdef NON_MATCHING
 void func_004460f0(void) {
     func_00446108();
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004460f0);
+#endif
 #pragma pop
-#endif /* P4_UNIT_004460F0 */
 
-#if defined(P4_UNIT_0044B8D8)
-#include "type.h"
 
 s64 func_004470f0(s64 arg0);
 
@@ -35,18 +35,20 @@ s64 func_004470f0(s64 arg0);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B8D8 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B8D8 NONMATCHING
+#ifdef NON_MATCHING
 s64 func_0044b8d8(s64 arg0) {
     return func_004470f0(arg0);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b8d8);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B8D8 */
 
-#if defined(P4_UNIT_0044B8F0)
-#include "type.h"
 
 s32 func_00447b88(s64 arg0);
 
@@ -57,18 +59,20 @@ s32 func_00447b88(s64 arg0);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B8F0 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B8F0 NONMATCHING
+#ifdef NON_MATCHING
 s32 func_0044b8f0(s64 arg0) {
     return func_00447b88(arg0);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b8f0);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B8F0 */
 
-#if defined(P4_UNIT_0044B908)
-#include "type.h"
 
 s32 func_00447d00(s64 arg0, s32 arg1);
 
@@ -79,18 +83,20 @@ s32 func_00447d00(s64 arg0, s32 arg1);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B908 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B908 NONMATCHING
+#ifdef NON_MATCHING
 s32 func_0044b908(s64 arg0, s32 arg1) {
     return func_00447d00(arg0, arg1);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b908);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B908 */
 
-#if defined(P4_UNIT_0044B920)
-#include "type.h"
 
 f32 func_00448d10(f32 arg0);
 
@@ -101,18 +107,20 @@ f32 func_00448d10(f32 arg0);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B920 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B920 NONMATCHING
+#ifdef NON_MATCHING
 f32 func_0044b920(f32 arg0) {
     return func_00448d10(arg0);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b920);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B920 */
 
-#if defined(P4_UNIT_0044B938)
-#include "type.h"
 
 f32 func_00449120(f32 arg0);
 
@@ -123,18 +131,20 @@ f32 func_00449120(f32 arg0);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B938 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B938 NONMATCHING
+#ifdef NON_MATCHING
 f32 func_0044b938(f32 arg0) {
     return func_00449120(arg0);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b938);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B938 */
 
-#if defined(P4_UNIT_0044B950)
-#include "type.h"
 
 f32 func_004494b8(f32 arg0, f32 arg1);
 
@@ -145,18 +155,20 @@ f32 func_004494b8(f32 arg0, f32 arg1);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B950 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B950 NONMATCHING
+#ifdef NON_MATCHING
 f32 func_0044b950(f32 arg0, f32 arg1) {
     return func_004494b8(arg0, arg1);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b950);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B950 */
 
-#if defined(P4_UNIT_0044B968)
-#include "type.h"
 
 f32 func_00449680(f32 arg0);
 
@@ -167,18 +179,20 @@ f32 func_00449680(f32 arg0);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B968 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B968 NONMATCHING
+#ifdef NON_MATCHING
 f32 func_0044b968(f32 arg0) {
     return func_00449680(arg0);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b968);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B968 */
 
-#if defined(P4_UNIT_0044B980)
-#include "type.h"
 
 f32 func_00449938(f32 arg0, f32 arg1);
 
@@ -189,18 +203,20 @@ f32 func_00449938(f32 arg0, f32 arg1);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B980 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B980 NONMATCHING
+#ifdef NON_MATCHING
 f32 func_0044b980(f32 arg0, f32 arg1) {
     return func_00449938(arg0, arg1);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b980);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B980 */
 
-#if defined(P4_UNIT_0044B998)
-#include "type.h"
 
 f32 func_0044a4d0(f32 arg0);
 
@@ -211,12 +227,16 @@ f32 func_0044a4d0(f32 arg0);
  * reproduces the frame'd shape (probed O2/O3/O4, schedule, tailcall,
  * opt_* pragmas, forced-frame locals, conditional/loop/goto variants).
  * Best achievable: bare tail jump, nd 18 -> 2 -> NONMATCHING floor. */
-// FUN_0044B998 NONMATCHING
+
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_0044B998 NONMATCHING
+#ifdef NON_MATCHING
 f32 func_0044b998(f32 arg0) {
     return func_0044a4d0(arg0);
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b998);
+#endif
 #pragma pop
-#endif /* P4_UNIT_0044B998 */

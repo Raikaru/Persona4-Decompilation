@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001B5E60)
 /* Source unit: src/Battle/btlMain_001b5e60.c */
 #include "type.h"
 
@@ -17,6 +13,62 @@ extern u32 func_00193c70(void);
 extern u32 func_001f6290(void);
 extern void func_001f75b0(void);
 
+typedef int (*code)(...);
+typedef u32 (*BtlPacketFunc)(void* work);
+typedef struct BtlPacket {
+    u8 padding_00[0x68];
+    BtlPacketFunc initFunc;
+    BtlPacketFunc updateFunc;
+    BtlPacketFunc destroyFunc;
+    u8 padding_74[4];
+    void* workData;
+} BtlPacket;
+
+BtlPacket* func_00194470(u32 type, u32 workSize);
+extern u32 func_001b7520(float* param_1);
+extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
+u32 func_001b7b30(void* work);
+typedef struct BtlMainColorWork BtlMainColorWork;
+extern u32 func_001b7e70(BtlMainColorWork* param_1); /* retail update target */
+u32 func_001b87e0(void* work);
+typedef struct BtlMainLerpWork BtlMainLerpWork;
+extern u8 func_001b93c0(BtlMainLerpWork* param_1);
+u32 func_001b96e0(void* work);
+u32 func_001b99f0(void* work);
+u32 func_001b9e50(void* work);
+
+extern u32 func_003bb4a0(); /* old-style, matches donor call shape */
+
+typedef struct RwV3d RwV3d;
+struct RwV3d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+};
+
+typedef struct RwV4d RwV4d;
+struct RwV4d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+};
+extern void func_001ba790(f32* out, f32* first, f32* second, f32 weight);
+extern f32 fGpffff80c0; /* P4 gp -0x7f40 */
+extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
+
+extern f32 fGpffff8434; /* P4 gp -0x7bcc */
+
+extern void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1);
+extern void func_001bb790(u8* param_2, f32* param_3, f32 param_1);
+extern void func_003bb5b0(void* curve, s32 mode, f32 time, RwV3d* dst, void* aux);
+extern void func_001bb9b0(u8* param_2, f32* param_3, f32 param_1);
+extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
+
+
+
 // FUN_001B5E60
 u32 btlMainUpdateStateExit(void* work)
 {
@@ -31,170 +83,8 @@ u32 btlMainUpdateStateExit(void* work)
 
     return 0;
 }
-#endif /* P4_UNIT_001B5E60 */
 
-#if defined(P4_UNIT_001B7E20)
-/* Source unit: src/Battle/btlMain_001b7e20.c */
-#include "type.h"
 
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x6c];
-    BtlPacketFunc updateFunc;
-    u8 padding_70[8];
-    void* workData;
-} BtlPacket;
-
-BtlPacket* func_00194470(u32 type, u32 workSize);
-u32 func_001b7b30(void* work);
-
-// FUN_001B7E20
-void func_001b7e20(u32 value)
-{
-    BtlPacket* packet;
-
-    packet = func_00194470(0x601, 0x28);
-    packet->updateFunc = func_001b7b30;
-    *(u32*)((u8*)packet->workData + 0x20) = value;
-}
-#endif /* P4_UNIT_001B7E20 */
-
-#if defined(P4_UNIT_001B9360)
-/* Source unit: src/Battle/btlMain_001b9360.c */
-#include "type.h"
-
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x6c];
-    BtlPacketFunc updateFunc;
-    u8 padding_70[8];
-    void* workData;
-} BtlPacket;
-
-BtlPacket* func_00194470(u32 type, u32 workSize);
-u32 func_001b87e0(void* work);
-
-// FUN_001B9360
-void func_001b9360(s32 arg, s16 mode)
-{
-    BtlPacket* packet;
-    u8* work;
-
-    packet = func_00194470(0x603, 0x5c);
-    packet->updateFunc = func_001b87e0;
-    work = (u8*)packet->workData;
-    *(s32*)(work + 0x50) = arg;
-    *(s16*)(work + 0x58) = mode;
-}
-#endif /* P4_UNIT_001B9360 */
-
-#if defined(P4_UNIT_001B99A0)
-/* Source unit: src/Battle/btlMain_001b99a0.c */
-#include "type.h"
-
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x6c];
-    BtlPacketFunc updateFunc;
-    u8 padding_70[8];
-    void* workData;
-} BtlPacket;
-
-BtlPacket* func_00194470(u32 type, u32 workSize);
-u32 func_001b96e0(void* work);
-
-// FUN_001B99A0
-void func_001b99a0(s32 arg)
-{
-    BtlPacket* packet;
-
-    packet = func_00194470(0x605, 0x18);
-    packet->updateFunc = func_001b96e0;
-    *(s32*)((u8*)packet->workData + 0x10) = arg;
-}
-#endif /* P4_UNIT_001B99A0 */
-
-#if defined(P4_UNIT_001B9DE0)
-/* Source unit: src/Battle/btlMain_001b9de0.c */
-#include "type.h"
-
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x6c];
-    BtlPacketFunc updateFunc;
-    u8 padding_70[8];
-    void* workData;
-} BtlPacket;
-
-BtlPacket* func_00194470(u32 type, u32 workSize);
-u32 func_001b99f0(void* work);
-
-// FUN_001B9DE0
-void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
-{
-    BtlPacket* packet;
-    u8* work;
-
-    packet = func_00194470(0x606, 0x10);
-    packet->updateFunc = func_001b99f0;
-    work = (u8*)packet->workData;
-    *(s32*)(work + 0) = arg1;
-    *(s32*)(work + 4) = arg3;
-    *(s16*)(work + 0xc) = arg2;
-    *(s32*)(work + 8) = 0;
-}
-#endif /* P4_UNIT_001B9DE0 */
-
-#if defined(P4_UNIT_001BA090)
-/* Source unit: src/Battle/btlMain_001ba090.c */
-#include "type.h"
-
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x6c];
-    BtlPacketFunc updateFunc;
-    u8 padding_70[8];
-    void* workData;
-} BtlPacket;
-
-BtlPacket* func_00194470(u32 type, u32 workSize);
-u32 func_001b9e50(void* work);
-
-// FUN_001BA090
-void func_001ba090(s32 arg)
-{
-    BtlPacket* packet;
-
-    packet = func_00194470(0x607, 8);
-    packet->updateFunc = func_001b9e50;
-    *(s32*)packet->workData = arg;
-}
-#endif /* P4_UNIT_001BA090 */
-
-#if defined(P4_UNIT_001BBEF0)
-/* Source unit: src/Battle/btlMain_001bbef0.c */
-#include "type.h"
-
-// FUN_001BBEF0
-void func_001bbef0(u8* work, f32 value)
-{
-    *(f32*)(work + 0x84) = (value * 2.0f * 60.0f) / 2.0f;
-    *(u32*)(work + 0x94) = 0x3f000000;
-    *(u16*)work = *(u16*)work & 0xfff5;
-    *(u16*)work = *(u16*)work | 4;
-}
-#endif /* P4_UNIT_001BBEF0 */
-
-#if defined(P4_UNIT_001B7880)
-/* Source unit: src/Battle/btlMain_001b7880.c */
-#include "type.h"
-
-typedef int (*code)(...);
-typedef struct BtlPacket BtlPacket;
-
-extern int func_00194470(); /* old-style, matches donor call shape */
-extern u32 func_001b7520(float* param_1);
-extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
 
 // FUN_001B7880
 BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
@@ -203,7 +93,7 @@ BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
     int packet;
     union { u32 value; u8 bytes[4]; } packed;
 
-    packet = func_00194470(0x600, 0x68);
+    packet = (int)func_00194470(0x600, 0x68);
     *(code **)(packet + 0x6c) = (code *)func_001b7520;
     color = *(float **)(packet + 0x78);
     packed.value = param_1;
@@ -219,19 +109,20 @@ BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
     *(u32*)((u8*)color + 0x60) = param_3;
     return (BtlPacket*)packet;
 }
-#endif /* P4_UNIT_001B7880 */
 
-#if defined(P4_UNIT_001B83F0)
-/* Source unit: src/Battle/btlMain_001b83f0.c */
-#include "type.h"
 
-typedef int (*code)(...);
-typedef struct BtlPacket BtlPacket;
-typedef struct BtlMainColorWork BtlMainColorWork;
 
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
-extern u32 func_001b7e70(BtlMainColorWork* param_1); /* retail update target */
-extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
+// FUN_001B7E20
+void func_001b7e20(u32 value)
+{
+    BtlPacket* packet;
+
+    packet = func_00194470(0x601, 0x28);
+    packet->updateFunc = func_001b7b30;
+    *(u32*)((u8*)packet->workData + 0x20) = value;
+}
+
+
 
 // FUN_001B83F0
 BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5)
@@ -266,19 +157,23 @@ BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16
     *(u16 *)(pfVar1 + 0x1a) = param_5;
     return (BtlPacket*)iVar2;
 }
-#endif /* P4_UNIT_001B83F0 */
 
-#if defined(P4_UNIT_001B9560)
-/* Source unit: src/Battle/btlMain_001b9560.c */
-#include "type.h"
 
-typedef int (*code)(...);
-typedef struct BtlPacket BtlPacket;
-typedef struct BtlMainLerpWork BtlMainLerpWork;
 
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
-extern u8 func_001b93c0(BtlMainLerpWork* param_1);
-extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
+// FUN_001B9360
+void func_001b9360(s32 arg, s16 mode)
+{
+    BtlPacket* packet;
+    u8* work;
+
+    packet = func_00194470(0x603, 0x5c);
+    packet->updateFunc = func_001b87e0;
+    work = (u8*)packet->workData;
+    *(s32*)(work + 0x50) = arg;
+    *(s16*)(work + 0x58) = mode;
+}
+
+
 
 // FUN_001B9560
 BtlPacket* func_001b9560(u32 param_1, u32 param_2)
@@ -297,13 +192,49 @@ BtlPacket* func_001b9560(u32 param_1, u32 param_2)
     *(u32*)((u8*)color + 0x20) = param_2;
     return (BtlPacket*)packet;
 }
-#endif /* P4_UNIT_001B9560 */
 
-#if defined(P4_UNIT_001BA9E0)
-/* Source unit: src/Battle/btlMain_001ba9e0.c */
-#include "type.h"
 
-extern u32 func_003bb4a0(); /* old-style, matches donor call shape */
+
+// FUN_001B99A0
+void func_001b99a0(s32 arg)
+{
+    BtlPacket* packet;
+
+    packet = func_00194470(0x605, 0x18);
+    packet->updateFunc = func_001b96e0;
+    *(s32*)((u8*)packet->workData + 0x10) = arg;
+}
+
+
+
+// FUN_001B9DE0
+void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
+{
+    BtlPacket* packet;
+    u8* work;
+
+    packet = func_00194470(0x606, 0x10);
+    packet->updateFunc = func_001b99f0;
+    work = (u8*)packet->workData;
+    *(s32*)(work + 0) = arg1;
+    *(s32*)(work + 4) = arg3;
+    *(s16*)(work + 0xc) = arg2;
+    *(s32*)(work + 8) = 0;
+}
+
+
+
+// FUN_001BA090
+void func_001ba090(s32 arg)
+{
+    BtlPacket* packet;
+
+    packet = func_00194470(0x607, 8);
+    packet->updateFunc = func_001b9e50;
+    *(s32*)packet->workData = arg;
+}
+
+
 
 // FUN_001BA9E0
 u32 func_001ba9e0(u16 *param_1, f32 *param_2, f32 *param_3)
@@ -359,13 +290,8 @@ u32 func_001ba9e0(u16 *param_1, f32 *param_2, f32 *param_3)
     param_1[0x3b]++;
     return 1;
 }
-#endif /* P4_UNIT_001BA9E0 */
 
-#if defined(P4_UNIT_001BAB00)
-/* Source unit: src/Battle/btlMain_001bab00.c */
-#include "type.h"
 
-extern u32 func_003bb4a0(); /* old-style, matches donor call shape */
 
 // FUN_001BAB00
 void func_001bab00(u16 *param_1, f32 *param_2)
@@ -427,33 +353,8 @@ void func_001bab00(u16 *param_1, f32 *param_2)
         param_1[0x3b]++;
     }
 }
-#endif /* P4_UNIT_001BAB00 */
 
-#if defined(P4_UNIT_001BAC20)
-/* Source unit: src/Battle/btlMain_001bac20.c */
-#include "type.h"
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RwV4d RwV4d;
-struct RwV4d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-extern u32 func_003bb4a0(); /* old-style, matches donor call shape */
-extern void func_001ba790(f32* out, f32* first, f32* second, f32 weight);
-extern f32 fGpffff80c0; /* P4 gp -0x7f40 */
-extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
 
 // FUN_001BAC20
 void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
@@ -624,13 +525,8 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
         param_1[0x3b]++;
     }
 }
-#endif /* P4_UNIT_001BAC20 */
 
-#if defined(P4_UNIT_001BB8C0)
-/* Source unit: src/Battle/btlMain_001bb8c0.c */
-#include "type.h"
 
-extern f32 fGpffff8434; /* P4 gp -0x7bcc */
 
 // FUN_001BB8C0
 void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
@@ -683,33 +579,8 @@ void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
     param_3[1] = currentY + nextY;
     param_3[2] = currentZ + nextZ;
 }
-#endif /* P4_UNIT_001BB8C0 */
 
-#if defined(P4_UNIT_001BBC40)
-/* Source unit: src/Battle/btlMain_001bbc40.c */
-#include "type.h"
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RwV4d RwV4d;
-struct RwV4d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
-
-extern void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1);
-extern void func_001bb790(u8* param_2, f32* param_3, f32 param_1);
-extern void func_003bb5b0(void* curve, s32 mode, f32 time, RwV3d* dst, void* aux);
-extern void func_001bb9b0(u8* param_2, f32* param_3, f32 param_1);
 
 // FUN_001BBC40
 u32 func_001bbc40(u8* param_1, f32* param_2, f32* param_3)
@@ -755,15 +626,8 @@ has_frame:
     func_001bb9b0(param_1, param_3, *(f32*)(param_1 + 0x7c));
     return 1;
 }
-#endif /* P4_UNIT_001BBC40 */
 
-#if defined(P4_UNIT_001BBD80)
-/* Source unit: src/Battle/btlMain_001bbd80.c */
-#include "type.h"
 
-extern f32 fGpffff8434; /* P4 gp -0x7bcc */
-extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
-extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
 // FUN_001BBD80
 u32 func_001bbd80(u8* param_2, f32 param_1)
@@ -812,4 +676,14 @@ u32 func_001bbd80(u8* param_2, f32 param_1)
     result = 1;
     return result;
 }
-#endif /* P4_UNIT_001BBD80 */
+
+
+
+// FUN_001BBEF0
+void func_001bbef0(u8* work, f32 value)
+{
+    *(f32*)(work + 0x84) = (value * 2.0f * 60.0f) / 2.0f;
+    *(u32*)(work + 0x94) = 0x3f000000;
+    *(u16*)work = *(u16*)work & 0xfff5;
+    *(u16*)work = *(u16*)work | 4;
+}

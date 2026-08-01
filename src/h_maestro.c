@@ -1,9 +1,33 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00463570)
-/* Source unit: src/h_maestro_00463570.c */
+#include "include_asm.h"
+/* Source unit: src/h_maestro_0045c390.c */
 #include "type.h"
+
+typedef struct HCdvd HCdvd;
+
+typedef struct HSfdDecodeSlot
+{
+    s16 state;
+    s16 padding02;
+    HCdvd* request;
+    s16 fileIndex;
+    s16 index;
+    s32 queueHandle;       // 0x0C
+    s32 outputHandle;      // 0x10
+    s32 decodeHandle;      // 0x14
+    s32 status;            // 0x18
+    void* input;           // 0x1C
+    u32 inputSize;         // 0x20
+    void* intermediate;    // 0x24
+    u32 intermediateSize;  // 0x28
+    void* output;          // 0x2C
+    u32 outputSize;        // 0x30
+    void* resource;        // 0x34
+    void* aux;             // 0x38
+    void* sourceData;      // 0x3C
+    void* completion;      // 0x40
+} HSfdDecodeSlot;
+
+extern HSfdDecodeSlot sSfdDecodeSlots_abs[];
 
 typedef struct HSfdImage
 {
@@ -16,9 +40,16 @@ typedef struct HSfdImage
     u8* palette;
 } HSfdImage;
 
+extern void* func_003e2f60(s32 source, s32 mode, void* stream);
+
+
+
+
+
 /* W318 measured: opt_loop_invariants on changes 00463570 nd67->0,
  * 00463620 nd48->0, 004636a0 nd79->0 (port of the P3 scoped pragma). */
 #pragma opt_loop_invariants on
+
 
 // FUN_00463570
 void func_00463570(HSfdImage* image, const u8* source)
@@ -62,26 +93,12 @@ void func_00463570(HSfdImage* image, const u8* source)
     }
 }
 #pragma opt_loop_invariants off
-#endif /* P4_UNIT_00463570 */
 
-#if defined(P4_UNIT_00463620)
-/* Source unit: src/h_maestro_00463620.c */
-#include "type.h"
-
-typedef struct HSfdImage
-{
-    u32 type;
-    u32 width;
-    u32 height;
-    u32 depth;
-    u32 stride;
-    u8* pixels;
-    u8* palette;
-} HSfdImage;
 
 /* W318 measured: opt_loop_invariants on changes 00463620 nd48->0
  * (port of the P3 scoped pragma). */
 #pragma opt_loop_invariants on
+
 
 // FUN_00463620
 void func_00463620(HSfdImage* image, const u8* source)
@@ -114,26 +131,12 @@ void func_00463620(HSfdImage* image, const u8* source)
     }
 }
 #pragma opt_loop_invariants off
-#endif /* P4_UNIT_00463620 */
 
-#if defined(P4_UNIT_004636A0)
-/* Source unit: src/h_maestro_004636a0.c */
-#include "type.h"
-
-typedef struct HSfdImage
-{
-    u32 type;
-    u32 width;
-    u32 height;
-    u32 depth;
-    u32 stride;
-    u8* pixels;
-    u8* palette;
-} HSfdImage;
 
 /* W318 measured: opt_loop_invariants on changes 004636a0 nd79->0
  * (port of the P3 scoped pragma). */
 #pragma opt_loop_invariants on
+
 
 // FUN_004636A0
 void func_004636a0(HSfdImage* image, const u8* source)
@@ -170,28 +173,15 @@ void func_004636a0(HSfdImage* image, const u8* source)
     }
 }
 #pragma opt_loop_invariants off
-#endif /* P4_UNIT_004636A0 */
 
-#if defined(P4_UNIT_00463740)
-/* Source unit: src/h_maestro_00463740.c */
-#include "type.h"
-
-typedef struct HSfdImage
-{
-    u32 type;
-    u32 width;
-    u32 height;
-    u32 depth;
-    u32 stride;
-    u8* pixels;
-    u8* palette;
-} HSfdImage;
 
 /* The zero-instruction optimizer barrier that forced width's load before
  * height's is banned (policy); without it MWCC hoists the height load and
  * the y init above width's load - measured nd 10 (verify) / 3 words
  * (fndiff). Accepted compiler floor. */
+
 // FUN_00463740 NONMATCHING
+#ifdef NON_MATCHING
 void func_00463740(HSfdImage* image, const u8* source)
 {
     u8* dst;
@@ -222,28 +212,17 @@ void func_00463740(HSfdImage* image, const u8* source)
         y++;
     }
 }
-#endif /* P4_UNIT_00463740 */
+#else
+INCLUDE_ASM("asm/nonmatchings/h_maestro", func_00463740);
+#endif
 
-#if defined(P4_UNIT_004637C0)
-/* Source unit: src/h_maestro_004637c0.c */
-#include "type.h"
-
-typedef struct HSfdImage
-{
-    u32 type;
-    u32 width;
-    u32 height;
-    u32 depth;
-    u32 stride;
-    u8* pixels;
-    u8* palette;
-} HSfdImage;
 
 /* W414: hidden-return scan found no h_maestro candidate; materializing
  * depth in count, then initializing i before the shift, reached nd14 -> 0
  * (obj 168/176).  W318 measured: opt_loop_invariants on changes 004637c0
  * nd69->14; object stays 168/176. */
 #pragma opt_loop_invariants on
+
 
 // FUN_004637C0
 void func_004637c0(HSfdImage* image, const u8* source)
@@ -277,22 +256,8 @@ void func_004637c0(HSfdImage* image, const u8* source)
     }
 }
 #pragma opt_loop_invariants off
-#endif /* P4_UNIT_004637C0 */
 
-#if defined(P4_UNIT_00463870)
-/* Source unit: src/h_maestro_00463870.c */
-#include "type.h"
 
-typedef struct HSfdImage
-{
-    u32 type;
-    u32 width;
-    u32 height;
-    u32 depth;
-    u32 stride;
-    u8* pixels;
-    u8* palette;
-} HSfdImage;
 
 // FUN_00463870
 void func_00463870(HSfdImage* image, s32 bitDepth)
@@ -330,13 +295,8 @@ void func_00463870(HSfdImage* image, s32 bitDepth)
         i++;
     }
 }
-#endif /* P4_UNIT_00463870 */
 
-#if defined(P4_UNIT_00463E60)
-/* Source unit: src/h_maestro_00463e60.c */
-#include "type.h"
 
-extern void* func_003e2f60(s32 source, s32 mode, void* stream);
 
 // FUN_00463E60
 void* func_00463e60(void* stream, void* output)
@@ -344,53 +304,11 @@ void* func_00463e60(void* stream, void* output)
     func_003e2f60(2, 1, output);
     return stream;
 }
-#endif /* P4_UNIT_00463E60 */
 
-#if defined(P4_UNIT_0045C390)
-/* Source unit: src/h_maestro_0045c390.c */
-#include "type.h"
 
-typedef struct HCdvd HCdvd;
-
-typedef struct HSfdDecodeSlot
-{
-    s16 state;
-    s16 padding02;
-    HCdvd* request;
-    s16 fileIndex;
-    s16 index;
-    s32 queueHandle;       // 0x0C
-    s32 outputHandle;      // 0x10
-    s32 decodeHandle;      // 0x14
-    s32 status;            // 0x18
-    void* input;           // 0x1C
-    u32 inputSize;         // 0x20
-    void* intermediate;    // 0x24
-    u32 intermediateSize;  // 0x28
-    void* output;          // 0x2C
-    u32 outputSize;        // 0x30
-    void* resource;        // 0x34
-    void* aux;             // 0x38
-    void* sourceData;      // 0x3C
-    void* completion;      // 0x40
-} HSfdDecodeSlot;
-
-extern HSfdDecodeSlot sSfdDecodeSlots_abs[];
-
-// FUN_0045C390
-u32 func_0045c390(s16 index)
-{
-    return sSfdDecodeSlots_abs[index].state == 1;
-}
-#endif /* P4_UNIT_0045C390 */
-
-#if defined(P4_UNIT_0046A750)
-/* Source unit: src/h_maestro_0046a750.c */
-#include "type.h"
 
 // FUN_0046A750
 u32 func_0046a750(s16* param_1)
 {
     return *param_1 == 5;
 }
-#endif /* P4_UNIT_0046A750 */

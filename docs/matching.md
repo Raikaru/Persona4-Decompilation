@@ -251,10 +251,10 @@ variants is wasted time.
   its unharvested neighbours (getters, flag-checks, cleanups, copy-loops,
   loaders, destroys). These accessors match far more reliably than update or
   render functions.
-- **Grep before writing a new file.** Consolidated units are named after their
-  original translation unit (`src/Battle/btlTarget_001ec630.c`); check for an
-  existing unit or file that already owns your function's addresses before
-  creating anything. A made-up file causes duplicate definitions.
+- **Grep before writing a new file.** Files are whole translation units named
+  after their module or original TU; check for an existing file that already
+owns your function's addresses before creating anything. A made-up file causes
+duplicate definitions.
 - **Record waivers per `docs/STYLE.md`** when a steering construct is
   load-bearing: annotation above the marker, containing the word `measured`
   and the measured cost of removal.

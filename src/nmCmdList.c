@@ -1,11 +1,24 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_002BAA90)
 /* Source unit: src/nmCmdList_002baa90.c */
 #include "type.h"
 
+extern u8 DAT_00882F60_abs[];
+extern u8 DAT_00882F64_abs[];
+extern u8 DAT_00882F65_abs[];
+extern u32 DAT_00882F68_abs[];
+extern u8 DAT_00882F6C_abs[];
+extern u8 DAT_00882F6D_abs[];
+extern u8 *func_002bbf70(void);
+extern u64 func_002bbf80(s32* param_1, int param_2);
+extern u32 func_00277070(int param_1);
+extern void func_002bbdd0(int param_1);
+extern int func_00276fb0(int param_1);
+
+extern u32 DAT_0063F2B0_abs[];
+extern void func_002777f0(s32 param_1);
+
+
 #pragma push
+
 
 // FUN_002BAA90
 void func_002baa90(int param_1)
@@ -39,22 +52,10 @@ void func_002baa90(int param_1)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BAA90 */
 
-#if defined(P4_UNIT_002BAAC0)
-/* Source unit: src/nmCmdList_002baac0.c */
-#include "type.h"
-
-extern u8 DAT_00882F60_abs[];
-extern u8 DAT_00882F64_abs[];
-extern u8 DAT_00882F65_abs[];
-extern u32 DAT_00882F68_abs[];
-extern u8 DAT_00882F6C_abs[];
-extern u8 DAT_00882F6D_abs[];
-extern u8 *func_002bbf70(void);
-extern u64 func_002bbf80(s32* param_1, int param_2);
 
 #pragma push
+
 
 // FUN_002BAAC0
 u8 func_002baac0(u64 param_1)
@@ -83,15 +84,10 @@ u8 func_002baac0(u64 param_1)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BAAC0 */
 
-#if defined(P4_UNIT_002BB050)
-/* Source unit: src/nmCmdList_002bb050.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
 
 #pragma push
+
 
 // FUN_002BB050
 void func_002bb050(u8 param_1)
@@ -117,16 +113,10 @@ void func_002bb050(u8 param_1)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BB050 */
 
-#if defined(P4_UNIT_002BB0E0)
-/* Source unit: src/nmCmdList_002bb0e0.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
-extern u32 func_00277070(int param_1);
 
 #pragma push
+
 
 // FUN_002BB0E0
 u32 func_002bb0e0(void)
@@ -148,15 +138,10 @@ u32 func_002bb0e0(void)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BB0E0 */
 
-#if defined(P4_UNIT_002BB140)
-/* Source unit: src/nmCmdList_002bb140.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
 
 #pragma push
+
 
 // FUN_002BB140
 s8 func_002bb140(void)
@@ -186,16 +171,10 @@ s8 func_002bb140(void)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BB140 */
 
-#if defined(P4_UNIT_002BB1E0)
-/* Source unit: src/nmCmdList_002bb1e0.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
-extern void func_002bbdd0(int param_1);
 
 #pragma push
+
 
 // FUN_002BB1E0
 u32 func_002bb1e0(int param_1)
@@ -255,16 +234,10 @@ u32 func_002bb1e0(int param_1)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BB1E0 */
 
-#if defined(P4_UNIT_002BB380)
-/* Source unit: src/nmCmdList_002bb380.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
-extern void func_002bbdd0(int param_1);
 
 #pragma push
+
 
 // FUN_002BB380
 u32 func_002bb380(void)
@@ -320,15 +293,10 @@ u32 func_002bb380(void)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BB380 */
 
-#if defined(P4_UNIT_002BB600)
-/* Source unit: src/nmCmdList_002bb600.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
 
 #pragma push
+
 
 // FUN_002BB600
 s8 func_002bb600(void)
@@ -365,17 +333,10 @@ done:
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BB600 */
 
-#if defined(P4_UNIT_002BB700)
-/* Source unit: src/nmCmdList_002bb700.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
-extern int func_00276fb0(int param_1);
-extern u32 func_00277070(int param_1);
 
 #pragma push
+
 
 // FUN_002BB700
 u32 func_002bb700(void)
@@ -451,15 +412,10 @@ u32 func_002bb700(void)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BB700 */
 
-#if defined(P4_UNIT_002BBD20)
-/* Source unit: src/nmCmdList_002bbd20.c */
-#include "type.h"
-
-extern u8 *func_002bbf70(void);
 
 #pragma push
+
 
 // FUN_002BBD20
 void func_002bbd20(u64 param_1,u64 param_2)
@@ -483,26 +439,24 @@ void func_002bbd20(u64 param_1,u64 param_2)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BBD20 */
 
-#if defined(P4_UNIT_002BBDD0)
-/* Source unit: src/nmCmdList_002bbdd0.c */
-#include "type.h"
 
 #pragma push
+
 
 // FUN_002BBDD0
 void func_002bbdd0(int param_1)
 
 {
 
+  extern u8 *func_002bbf70(void);
   u32 lVar1;
 
   u32 *puVar2;
 
   
 
-  lVar1 = func_002bbf70();
+  lVar1 = (u32)func_002bbf70();
 
   if (lVar1 != 0) {
 
@@ -539,15 +493,10 @@ void func_002bbdd0(int param_1)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BBDD0 */
 
-#if defined(P4_UNIT_002BC010)
-/* Source unit: src/nmCmdList_002bc010.c */
-#include "type.h"
-
-extern u32 DAT_0063F2B0_abs[];
 
 #pragma push
+
 
 // FUN_002BC010
 void func_002bc010(int param_1,u64 param_2)
@@ -567,16 +516,10 @@ void func_002bc010(int param_1,u64 param_2)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BC010 */
 
-#if defined(P4_UNIT_002BC060)
-/* Source unit: src/nmCmdList_002bc060.c */
-#include "type.h"
-
-extern u32 DAT_0063F2B0_abs[];
-extern void func_002777f0(s32 param_1);
 
 #pragma push
+
 
 // FUN_002BC060
 void func_002bc060(int param_1)
@@ -591,4 +534,3 @@ void func_002bc060(int param_1)
 }
 
 #pragma pop
-#endif /* P4_UNIT_002BC060 */

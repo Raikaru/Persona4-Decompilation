@@ -6,28 +6,35 @@ objects - functions AND data - which tools/verify.py cannot (it never
 compares function-owned .rodata jump tables).  This generator turns a
 ``tools/verify.py --json`` report into one objdiff unit per tracked function:
 
-  * functions inside a P4_UNIT guard compile as their own translation unit
-    (``-DP4_UNIT_<ADDR>``), so they get one unit named after the guard, e.g.
-    ``Battle/btlTarget:001EC630`` with base object
-    ``build/objdiff/base/Battle/btlTarget_unit_001ec630.o`` (the whole unit
-    object IS the function);
-  * functions in unguarded files are one unit each, named after the function,
+  * every function in a source file is one unit, named after the function,
     e.g. ``Battle/btlUnit:00195850`` with base object
     ``build/objdiff/base/Battle/btlUnit/00195850.o`` (a per-function slice of
-    the compiled translation unit).
+    the compiled translation unit);
+  * every OTHER canonical function in tools/slus21782_functions.json - the
+    ones with no C source yet - gets a unit named ``nonmatchings:<ADDR>`` with
+    ``base_path`` null and ``metadata.complete`` false, so objdiff's report
+    counts the whole game as its denominator instead of only the functions we
+    have already touched.  (This is decomp.dev's guidance for not-yet-ported
+    functions; emitting objects for them is on-demand via --emit-objects.)
 
 ``metadata.complete`` is true exactly when verify.py reports that function
 MATCH.  Match state comes solely from the report, and sources are read only
-to classify each function as guard-unit or plain-file (mirroring
-tools/verify.py's P4_UNIT guard parsing).
+to know which functions each file owns.  Each unit also carries a
+``progress_categories`` tag ("main" first-party vs "third_party" middleware,
+via tools/verify.py's is_third_party) so the published progress can be
+reported per category.
 
 With ``--emit-objects`` the generator also produces the objects the config
 names, reusing tools/verify.py's compile path:
 
-  * the base object (build/objdiff/base/...) is our compiled code: for guard
-    units the P4_UNIT compile itself, for plain-file units a minimal .o
-    sliced down to the one function (its .text bytes, its .rel.text entries
-    with offsets adjusted, and the referenced symbols as undefined globals);
+  * the base object (build/objdiff/base/...) is our compiled code: a minimal
+    .o sliced down to the one function (its .text bytes, its .rel.text entries
+    with offsets adjusted, and the referenced symbols as undefined globals),
+    compiled once per source file as a whole translation unit; for source-less
+    units there is no base.  With ``--skip-asm`` the base objects are compiled
+    without INCLUDE_ASM splicing (decomp.dev's SKIP_ASM convention), so
+    assembly-fallback functions are absent from the base and can never score
+    as matched code;
   * the target object (build/objdiff/target/...) is synthesised from the
     retail ELF: a minimal ELF32 little-endian MIPS ET_REL object whose .text
     holds the function's retail window bytes under a single global symbol
@@ -67,14 +74,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 TOOLS = REPO / "tools"
 
-# Mirrors tools/verify.py's guard parsing (UNIT_GUARD_RE / #endif scan).
-UNIT_GUARD_RE = re.compile(r"^\s*#if\s+defined\(P4_UNIT_([0-9a-fA-F]{8})\)\s*$")
-ENDIF_RE = re.compile(r"^\s*#endif\b")
-
 SCHEMA_URL = "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json"
 MIN_VERSION = "2.0.0"
 BASE_DIR = "build/objdiff/base"
 TARGET_DIR = "build/objdiff/target"
+# Standard PS2 EABI flags (EF_MIPS_ABI_EABI32 | EF_MIPS_ARCH_64R2, as produced
+# by the toolchain).  Target objects normally mirror their base object's flags;
+# source-less units have no base, so this is the default for their targets.
+DEFAULT_ELF_FLAGS = 0x20924001
 WATCH_PATTERNS = [
     "*.c", "*.cc", "*.cp", "*.cpp", "*.cxx", "*.c++",
     "*.h", "*.hh", "*.hp", "*.hpp", "*.hxx", "*.h++",
@@ -89,39 +96,11 @@ def _align(value: int, alignment: int) -> int:
     return (value + alignment - 1) & ~(alignment - 1)
 
 
-def unit_guards(cpath: Path) -> list[dict]:
-    """Return P4_UNIT guard ranges as [{start, end, addr}] with 1-based lines
-    (start = guard line, end = one past the matching #endif line)."""
-    lines = cpath.read_text(errors="replace").splitlines()
-    guards: list[dict] = []
-    for index, line in enumerate(lines):
-        guard = UNIT_GUARD_RE.match(line)
-        if not guard:
-            continue
-        end = next(
-            (cursor for cursor in range(index + 1, len(lines))
-             if ENDIF_RE.match(lines[cursor])),
-            None,
-        )
-        if end is None:
-            raise ValueError(f"unterminated P4_UNIT guard in {cpath}")
-        guards.append(dict(start=index + 1, end=end + 1, addr=int(guard.group(1), 16)))
-    return guards
-
-
-def guard_for_line(guards: list[dict], line: int) -> dict | None:
-    """Return the guard whose body contains the given 1-based source line."""
-    for guard in guards:
-        if guard["start"] <= line < guard["end"]:
-            return guard
-    return None
-
-
 def build_units(results: list[dict]) -> list[dict]:
     """Derive one objdiff unit dict per report entry.
 
     Each unit carries the four config keys plus emission metadata
-    (``file``, ``addr``, ``symbol``, ``unit``, ``window``).
+    (``file``, ``addr``, ``symbol``, ``window``, ``status``).
     """
     by_file: dict[str, list[dict]] = {}
     for entry in results:
@@ -132,27 +111,17 @@ def build_units(results: list[dict]) -> list[dict]:
         cpath = REPO / file_rel
         if not cpath.is_file():
             sys.exit(f"gen_objdiff: report file not found: {file_rel}")
-        guards = unit_guards(cpath)
         stem = file_rel
         if stem.startswith("src/"):
             stem = stem[len("src/"):]
         if stem.endswith(".c"):
             stem = stem[:-2]
         for entry in sorted(by_file[file_rel], key=lambda e: e["line"]):
-            guard = guard_for_line(guards, entry["line"]) if guards else None
-            if guards and guard is None:
-                sys.exit(f"gen_objdiff: {file_rel}: function at line {entry['line']} "
-                         f"is not inside a P4_UNIT guard (stale report?)")
             address = int(entry["addr"], 16) if re.fullmatch(r"[0-9a-fA-F]{8}", entry["addr"]) else None
             if address is None:
                 sys.exit(f"gen_objdiff: {file_rel}: bad function address {entry['addr']!r}")
-            if guard is not None:
-                name = f"{stem}:{guard['addr']:08X}"
-                suffix = f"_unit_{guard['addr']:08x}"
-                object_rel = f"{stem}{suffix}.o"
-            else:
-                name = f"{stem}:{address:08X}"
-                object_rel = f"{stem}/{address:08x}.o"
+            name = f"{stem}:{address:08X}"
+            object_rel = f"{stem}/{address:08x}.o"
             units.append(dict(
                 name=name,
                 target_path=f"{TARGET_DIR}/{object_rel}",
@@ -161,12 +130,61 @@ def build_units(results: list[dict]) -> list[dict]:
                 file=file_rel,
                 addr=address,
                 symbol=entry.get("name"),
-                unit=guard["addr"] if guard is not None else None,
                 window=entry.get("window"),
+                status=entry.get("status"),
             ))
 
     units.sort(key=lambda unit: unit["name"])
     return units
+
+
+def build_canonical_units(windows: dict, covered: set[int]) -> list[dict]:
+    """One unit per canonical function that has no report entry (no C source).
+
+    These keep the denominator honest: ``target_path`` points at a synthesised
+    retail object so objdiff counts the function's code toward ``total_code``,
+    while ``base_path`` is null (there is no source to build) and
+    ``metadata.complete`` is false, so it can never score as matched.
+    """
+    units: list[dict] = []
+    for address_text, size in sorted(windows.items()):
+        address = int(address_text, 16)
+        if address in covered:
+            continue
+        object_rel = f"nonmatchings/{address:08x}.o"
+        units.append(dict(
+            name=f"nonmatchings:{address:08X}",
+            target_path=f"{TARGET_DIR}/{object_rel}",
+            base_path=None,
+            metadata={"complete": False},
+            file=None,
+            addr=address,
+            symbol=None,
+            window=size,
+            status=None,
+        ))
+    return units
+
+
+# Progress categories, reported per-unit through objdiff's report command.
+# Middleware we did not write (rw/, cri/, sce/, the C runtime) is tracked only
+# because it occupies retail windows, so it is reported separately from the
+# first-party code the project actually cares about.
+PROGRESS_CATEGORIES = [
+    {"id": "main", "name": "First-party code"},
+    {"id": "third_party", "name": "Third-party middleware"},
+]
+
+
+def progress_category(file_rel: str | None) -> str:
+    """Category id for a unit, delegating to verify.is_third_party."""
+    if file_rel is None:
+        # Source-less functions have no file attribution in the canonical map;
+        # default to first-party so the first-party denominator never excludes
+        # middleware that has not been ported yet (conservative, never
+        # overstates first-party progress).
+        return "main"
+    return "third_party" if _verify().is_third_party(file_rel) else "main"
 
 
 def _verify():
@@ -329,10 +347,34 @@ def _install_bytes(data: bytes, path: Path) -> None:
         raise
 
 
+def _compile(cpath: Path, cfg: dict, output: Path, skip_asm: bool) -> tuple[bool, str]:
+    """Compile ``cpath`` with the same command verify.py would use.
+
+    With ``skip_asm`` an extra ``--skip-asm`` flag is appended so mwccgap
+    leaves INCLUDE_ASM functions out of the object entirely (the honest base
+    for progress: an assembly fallback can then never score as matched).
+    """
+    import subprocess
+
+    command = _verify()._mwccgap_command(cpath, cfg, output)
+    if skip_asm:
+        command.append("--skip-asm")
+    process = subprocess.run(
+        command,
+        cwd=REPO,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    return process.returncode == 0 and output.is_file(), process.stdout
+
+
 def select_units(units: list[dict], needle: str) -> list[dict]:
     """Subset of units whose name, base path, or target path contains ``needle``."""
     return [unit for unit in units
-            if needle in unit["name"] or needle in unit["target_path"] or needle in unit["base_path"]]
+            if needle in unit["name"]
+            or needle in unit["target_path"]
+            or needle in (unit["base_path"] or "")]
 
 
 def emit_objects(units: list[dict], args: argparse.Namespace) -> int:
@@ -376,42 +418,45 @@ def emit_objects(units: list[dict], args: argparse.Namespace) -> int:
             default=0))
 
     emitted = skipped = failed = 0
-    by_file: dict[str, list[dict]] = {}
+    by_file: dict[str | None, list[dict]] = {}
     for unit in units:
         by_file.setdefault(unit["file"], []).append(unit)
 
     with tempfile.TemporaryDirectory(prefix="p4objdiff_") as directory:
         scratch = Path(directory)
         for file_rel, file_units in by_file.items():
-            cpath = REPO / file_rel
-            cpath_mtime = cpath.stat().st_mtime
+            cpath = REPO / file_rel if file_rel is not None else None
+            cpath_mtime = cpath.stat().st_mtime if cpath is not None else 0.0
             unit_base_dep = max(base_dep, cpath_mtime, report_mtime)
             unit_target_dep = max(cpath_mtime, report_mtime, retail_mtime, windows_mtime)
 
-            plain = [unit for unit in file_units if unit["unit"] is None]
             tu_obj = None
             tu_log = ""
-            if plain and (args.force or any(not _current(unit["base_path"], unit_base_dep)
-                                            for unit in plain)):
-                compiled, tu_log = verify._compile(cpath, cfg, scratch / "tu.o", None)
+            if cpath is not None and (args.force or any(
+                    not _current(unit["base_path"], unit_base_dep) for unit in file_units)):
+                compiled, tu_log = _compile(cpath, cfg, scratch / "tu.o", args.skip_asm)
                 if compiled:
                     tu_obj = verify.ObjectFile(scratch / "tu.o")
 
             for unit in file_units:
                 try:
-                    base_needed = args.force or not _current(unit["base_path"], unit_base_dep)
+                    base_needed = (unit["base_path"] is not None
+                                   and (args.force or not _current(unit["base_path"], unit_base_dep)))
                     target_needed = args.force or not _current(unit["target_path"], unit_target_dep)
                     if not base_needed and not target_needed:
                         skipped += 1
                         continue
                     base_bytes: bytes | None = None
                     if base_needed:
-                        if unit["unit"] is not None:
-                            compiled, log = verify._compile(cpath, cfg, scratch / "unit.o",
-                                                            unit["unit"])
-                            if not compiled:
-                                raise RuntimeError(f"compile failed: {log.strip()[:300]}")
-                            base_bytes = (scratch / "unit.o").read_bytes()
+                        if unit["status"] == "ASM" and args.skip_asm:
+                            # INCLUDE_ASM fallback built with --skip-asm: the
+                            # function does not exist in the compiled object.
+                            # Emit an empty object so the unit still has a base
+                            # file (objdiff fails on missing bases) whose
+                            # zero-size symbol can never match retail code.
+                            base_bytes = build_elf_object(
+                                b"", [], unit["symbol"] or f"func_{unit['addr']:08x}",
+                                DEFAULT_ELF_FLAGS)
                         else:
                             if tu_obj is None:
                                 raise RuntimeError(
@@ -429,7 +474,12 @@ def emit_objects(units: list[dict], args: argparse.Namespace) -> int:
                                   f"no retail window at {unit['addr']:#010x}")
                             continue
                         retail_bytes = retail.bytes_at(unit["addr"], window)
-                        source = base_bytes if base_bytes is not None else Path(unit["base_path"]).read_bytes()
+                        if base_bytes is not None:
+                            source = base_bytes
+                        elif unit["base_path"] is not None:
+                            source = Path(unit["base_path"]).read_bytes()
+                        else:
+                            source = b""
                         symbol = unit["symbol"] or f"func_{unit['addr']:08x}"
                         if unit["metadata"]["complete"] and unit["symbol"]:
                             # Mirror verify.py's function body extent so the
@@ -445,7 +495,7 @@ def emit_objects(units: list[dict], args: argparse.Namespace) -> int:
                                       f"window trim ({error}); keeping full window")
                         target_bytes = build_elf_object(
                             retail_bytes, [], symbol,
-                            _elf_flags(source))
+                            _elf_flags(source) if source else DEFAULT_ELF_FLAGS)
                         _install_bytes(target_bytes, Path(unit["target_path"]))
                         emitted += 1
                 except Exception as error:
@@ -471,6 +521,10 @@ def main() -> None:
                              "contains SUBSTRING")
     parser.add_argument("--force", action="store_true",
                         help="with --emit-objects, rebuild even when outputs are up to date")
+    parser.add_argument("--skip-asm", action="store_true",
+                        help="with --emit-objects, build base objects without splicing "
+                             "INCLUDE_ASM assembly (decomp.dev SKIP_ASM): assembly "
+                             "fallbacks then contribute zero matched code")
     args = parser.parse_args()
 
     report_path = Path(args.report)
@@ -492,17 +546,40 @@ def main() -> None:
             sys.exit(f"gen_objdiff: malformed report entry: {entry!r}")
 
     units = build_units(results)
+
+    # Complete coverage: every canonical function gets a unit, so objdiff's
+    # denominator is the whole game, not just what we have already touched.
+    # Functions with no report entry (no C source) get base_path null and are
+    # never complete; they still carry a target_path so their code counts
+    # toward total_code.
+    verify = _verify()
+    target_json = verify._read_json(verify.TARGET)
+    windows = verify._read_json(verify.FUNCTION_WINDOWS)
+    if windows.get("program") != "SLUS_217.82" or windows.get("sha1") != target_json["elf"]["sha1"]:
+        verify._die("slus21782_functions.json does not describe the configured P4 USA target")
+    canonical = windows["windows"]
+    covered = {unit["addr"] for unit in units}
+    units.extend(build_canonical_units(canonical, covered))
+    units.sort(key=lambda unit: unit["name"])
+
+    for unit in units:
+        unit["metadata"]["progress_categories"] = [progress_category(unit["file"])]
+
     config = {
         "$schema": SCHEMA_URL,
         "min_version": MIN_VERSION,
         "custom_make": "make",
-        "custom_args": [],
+        # The objdiff GUI's "build base" action runs this; the target emits the
+        # per-unit base objects (with SKIP_ASM, so INCLUDE_ASM fallbacks do not
+        # score as matched), which is also what the report needs.
+        "custom_args": ["objdiff-objects"],
         "build_target": False,
         "build_base": True,
         # Retail bytes are linked, so target objects carry no relocations;
         # objdiff only treats a base relocation against a target constant as
         # equal in this relaxed mode.
         "options": {"functionRelocDiffs": "none"},
+        "progress_categories": PROGRESS_CATEGORIES,
         "watch_patterns": WATCH_PATTERNS,
         "ignore_patterns": IGNORE_PATTERNS,
         "units": [{key: unit[key] for key in CONFIG_UNIT_KEYS} for unit in units],

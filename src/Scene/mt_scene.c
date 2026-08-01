@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00145270)
 /* Source unit: src/Scene/mt_scene_00145270.c */
 #include "type.h"
 
@@ -21,6 +17,48 @@ typedef struct MtScene
 extern MtScene* gMtScene;
 extern Resrc* func_00147530(ResrcManager* resManager, u16 resTypeId);
 
+/* Ported from P3FES src/Scene/mt_scene.c FUN_003b5df0 (verified MATCH there).
+ * 007cd540 -> PTR_DAT_00762ea0, 003b5550 -> func_001475c0. */
+
+#define RESRC_TYPE_MAX 22
+extern u32 func_001475c0(ResrcManager* resManager, u8 resType);
+
+/* Ported from P3FES src/Scene/mt_scene.c FUN_003b63c0 (verified MATCH there).
+ * 007cd540 -> PTR_DAT_00762ea0, 006a2bb0 -> D_005EF820, 005225a8 ->
+ * func_00440b68, 003b50d0 -> func_00147190. */
+
+#define RESRC_ID_MASK 0x3ff
+#define RESRC_MAKE_TYPEID(resId, resType) (((resId) & RESRC_ID_MASK) | ((resType) << 10))
+#define RESRC_TYPE_LIGHTCHAR 4
+extern int func_00440b68(const char* format, ...);
+extern Resrc* func_00147190(ResrcManager* resManager, u16 resTypeId);
+#define RESRC_TYPE_LIGHTNPC 5
+
+/* Ported from P3FES src/Scene/mt_scene.c FUN_003b79a0 (verified MATCH there).
+ * 006a2a60 -> D_005EFA10, 006a2a70 -> D_005EFA20, 006a2a80 -> D_005EFA30,
+ * 004c31b0 -> func_003e0870, 004c35d0 -> func_003e0c90. */
+
+typedef struct RwV3d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} RwV3d;
+
+typedef struct RwMatrix
+{
+    u32 flags; // 0x00
+    u32 pad[15];
+} RwMatrix;
+
+extern u8 D_005EFA10[];
+extern u8 D_005EFA20[];
+extern u8 D_005EFA30[];
+extern void RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
+extern void RwMatrixTranslate(RwMatrix* matrix, u64 param_2, s32 mode);
+
+
+
 // FUN_00145270
 Resrc* MT_Scene_GetRes(u16 resTypeId)
 {
@@ -31,28 +69,8 @@ Resrc* MT_Scene_GetRes(u16 resTypeId)
 
     return func_00147530(gMtScene->resManager, resTypeId);
 }
-#endif /* P4_UNIT_00145270 */
 
-#if defined(P4_UNIT_00145300)
-/* Source unit: src/Scene/mt_scene_00145300.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b5df0 (verified MATCH there).
- * 007cd540 -> PTR_DAT_00762ea0, 003b5550 -> func_001475c0. */
-
-#define RESRC_TYPE_MAX 22
-
-typedef struct ResrcManager ResrcManager;
-
-typedef struct MtScene
-{
-    s32 fldMajorId;           // 0x00
-    s32 fldMinorId;           // 0x04
-    ResrcManager* resManager; // 0x08
-} MtScene;
-
-extern MtScene* gMtScene;
-extern u32 func_001475c0(ResrcManager* resManager, u8 resType);
 
 // FUN_00145300
 u32 MT_Scene_GetTotalResInList(u32 resType)
@@ -81,33 +99,8 @@ u32 MT_Scene_GetTotalResInList(u32 resType)
 
     return total;
 }
-#endif /* P4_UNIT_00145300 */
 
-#if defined(P4_UNIT_001458B0)
-/* Source unit: src/Scene/mt_scene_001458b0.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b63c0 (verified MATCH there).
- * 007cd540 -> PTR_DAT_00762ea0, 006a2bb0 -> D_005EF820, 005225a8 ->
- * func_00440b68, 003b50d0 -> func_00147190. */
-
-#define RESRC_ID_MASK 0x3ff
-#define RESRC_MAKE_TYPEID(resId, resType) (((resId) & RESRC_ID_MASK) | ((resType) << 10))
-#define RESRC_TYPE_LIGHTCHAR 4
-
-typedef struct Resrc Resrc;
-typedef struct ResrcManager ResrcManager;
-
-typedef struct MtScene
-{
-    s32 fldMajorId;           // 0x00
-    s32 fldMinorId;           // 0x04
-    ResrcManager* resManager; // 0x08
-} MtScene;
-
-extern MtScene* gMtScene;
-extern int func_00440b68(const char* format, ...);
-extern Resrc* func_00147190(ResrcManager* resManager, u16 resTypeId);
 
 // FUN_001458B0
 u16 MT_Scene_CreateResLightChar(u16 resId)
@@ -131,33 +124,8 @@ u16 MT_Scene_CreateResLightChar(u16 resId)
 
     return resTypeId;
 }
-#endif /* P4_UNIT_001458B0 */
 
-#if defined(P4_UNIT_00145930)
-/* Source unit: src/Scene/mt_scene_00145930.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b6440 (verified MATCH there).
- * 007cd540 -> PTR_DAT_00762ea0, 006a2bb0 -> D_005EF820, 005225a8 ->
- * func_00440b68, 003b50d0 -> func_00147190. */
-
-#define RESRC_ID_MASK 0x3ff
-#define RESRC_MAKE_TYPEID(resId, resType) (((resId) & RESRC_ID_MASK) | ((resType) << 10))
-#define RESRC_TYPE_LIGHTNPC 5
-
-typedef struct Resrc Resrc;
-typedef struct ResrcManager ResrcManager;
-
-typedef struct MtScene
-{
-    s32 fldMajorId;           // 0x00
-    s32 fldMinorId;           // 0x04
-    ResrcManager* resManager; // 0x08
-} MtScene;
-
-extern MtScene* gMtScene;
-extern int func_00440b68(const char* format, ...);
-extern Resrc* func_00147190(ResrcManager* resManager, u16 resTypeId);
 
 // FUN_00145930
 u16 MT_Scene_CreateResLightNpc(u16 resId)
@@ -181,34 +149,8 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
 
     return resTypeId;
 }
-#endif /* P4_UNIT_00145930 */
 
-#if defined(P4_UNIT_00146F50)
-/* Source unit: src/Scene/mt_scene_00146f50.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_scene.c FUN_003b79a0 (verified MATCH there).
- * 006a2a60 -> D_005EFA10, 006a2a70 -> D_005EFA20, 006a2a80 -> D_005EFA30,
- * 004c31b0 -> func_003e0870, 004c35d0 -> func_003e0c90. */
-
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-typedef struct RwMatrix
-{
-    u32 flags; // 0x00
-    u32 pad[15];
-} RwMatrix;
-
-extern u8 D_005EFA10[];
-extern u8 D_005EFA20[];
-extern u8 D_005EFA30[];
-extern void RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mode);
-extern void RwMatrixTranslate(RwMatrix* matrix, u64 param_2, s32 mode);
 
 // FUN_00146F50
 void func_00146f50(u32* param_1, u64 param_2, u32* param_3)
@@ -255,4 +197,3 @@ void func_00146f50(u32* param_1, u64 param_2, u32* param_3)
 
     return;
 }
-#endif /* P4_UNIT_00146F50 */

@@ -1,96 +1,36 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00285170)
-/* Source unit: src/fmGslCont_00285170.c */
+/* Source unit: src/fmGslCont_0026e0e0.c */
 #include "type.h"
 
-// FUN_00285170
-int* func_00285170(int* param_1)
+typedef int (*code)(...);
+extern code DAT_008873ec_abs[];
+
+extern u64 memcpy();
+extern u32 DAT_00764590;
+
+
+
+// FUN_0026E0E0
+int* func_0026e0e0(int param_1)
 {
-    u32* puVar1;
+    int* piVar1;
     int* piVar2;
 
-    piVar2 = (int*)param_1[2];
+    piVar2 = (int*)param_1;
+    piVar1 = (int*)piVar2[1];
 
-    if (piVar2 == (int*)0x0) {
-        piVar2 = (int*)0x0;
+    if (*piVar1 == 0) {
+        piVar1 = (int*)0x0;
     }
     else {
-        puVar1 = (u32*)piVar2[1];
-
-        if (*param_1 != 0) {
-            *piVar2 = param_1[1];
-            *(int**)(param_1[1] + 4) = piVar2;
-        }
-        else {
-            *piVar2 = 0;
-            *param_1 = (int)piVar2;
-        }
-
-        piVar2[1] = 0;
-        param_1[1] = (int)piVar2;
-
-        if (puVar1 != (u32*)0x0) {
-            *puVar1 = 0;
-        }
-        else {
-            param_1[3] = 0;
-        }
-
-        param_1[2] = (int)puVar1;
+        piVar2[1] = piVar1[1];
+        piVar1[1] = 0;
+        piVar1 = piVar1 + 2;
     }
 
-    return piVar2;
+    return piVar1;
 }
-#endif /* P4_UNIT_00285170 */
 
-#if defined(P4_UNIT_002851F0)
-/* Source unit: src/fmGslCont_002851f0.c */
-#include "type.h"
 
-// FUN_002851F0
-void func_002851f0(int* param_1, u32* param_2)
-{
-    int iVar1;
-    int* piVar2;
-
-    iVar1 = *param_1;
-    piVar2 = (int*)param_1[1];
-
-    if (iVar1 != 0) {
-        *(int**)(iVar1 + 4) = piVar2;
-    }
-    else {
-        *param_2 = (u32)piVar2;
-    }
-
-    if (piVar2 != (int*)0x0) {
-        *piVar2 = iVar1;
-    }
-    else {
-        param_2[1] = iVar1;
-    }
-
-    param_1[1] = 0;
-    iVar1 = param_2[3];
-    *param_1 = iVar1;
-
-    if (iVar1 != 0) {
-        *(int**)(iVar1 + 4) = param_1;
-    }
-
-    param_2[3] = (u32)param_1;
-
-    if (param_2[2] == 0) {
-        param_2[2] = (u32)param_1;
-    }
-}
-#endif /* P4_UNIT_002851F0 */
-
-#if defined(P4_UNIT_0026E120)
-/* Source unit: src/fmGslCont_0026e120.c */
-#include "type.h"
 
 // FUN_0026E120
 u32 func_0026e120(int* param_1, int param_2)
@@ -116,37 +56,19 @@ u32 func_0026e120(int* param_1, int param_2)
 
     return uVar1;
 }
-#endif /* P4_UNIT_0026E120 */
 
-#if defined(P4_UNIT_0026E0E0)
-/* Source unit: src/fmGslCont_0026e0e0.c */
-#include "type.h"
 
-// FUN_0026E0E0
-int* func_0026e0e0(int param_1)
+#pragma alias DAT_008873ec_abs DAT_008873ec
+
+
+// FUN_0026E170
+u32 func_0026e170(int param_1)
 {
-    int* piVar1;
-    int* piVar2;
-
-    piVar2 = (int*)param_1;
-    piVar1 = (int*)piVar2[1];
-
-    if (*piVar1 == 0) {
-        piVar1 = (int*)0x0;
-    }
-    else {
-        piVar2[1] = piVar1[1];
-        piVar1[1] = 0;
-        piVar1 = piVar1 + 2;
-    }
-
-    return piVar1;
+    DAT_008873ec_abs[0](*(u32*)(param_1 + -4));
+    return 1;
 }
-#endif /* P4_UNIT_0026E0E0 */
 
-#if defined(P4_UNIT_0026E1A0)
-/* Source unit: src/fmGslCont_0026e1a0.c */
-#include "type.h"
+
 
 // FUN_0026E1A0
 void func_0026e1a0(int* param_1, int* param_2)
@@ -163,68 +85,8 @@ void func_0026e1a0(int* param_1, int* param_2)
     param_2[1] = (int)param_1 + iVar2;
     param_2[2] = (int)param_1 + iVar3;
 }
-#endif /* P4_UNIT_0026E1A0 */
 
-#if defined(P4_UNIT_002850F0)
-/* Source unit: src/fmGslCont_002850f0.c */
-#include "type.h"
 
-// FUN_002850F0
-void func_002850f0(u32* param_1, u32* param_2, int param_3, int param_4)
-{
-    int cVar4;
-    u32* puVar1;
-    u32* puVar2;
-    u32* puVar3;
-
-    cVar4 = '\0';
-    puVar2 = (u32*)0x0;
-    puVar1 = param_2;
-
-    do {
-        *puVar1 = (u32)puVar2;
-        puVar3 = (u32*)((int)puVar1 + param_4);
-        puVar1[1] = (u32)puVar3;
-        puVar1[2] = (int)(s8)cVar4;
-        puVar2 = puVar1;
-        puVar1 = puVar3;
-        param_3 = param_3 + -1;
-        cVar4 = (s8)(cVar4 + 1);
-    } while (1 < param_3);
-
-    *puVar1 = (u32)puVar2;
-    puVar1[1] = 0;
-    puVar1[2] = (int)(s8)cVar4;
-    *param_1 = 0;
-    param_1[1] = 0;
-    param_1[2] = (u32)param_2;
-    param_1[3] = (u32)puVar1;
-}
-#endif /* P4_UNIT_002850F0 */
-
-#if defined(P4_UNIT_0026E170)
-/* Source unit: src/fmGslCont_0026e170.c */
-#include "type.h"
-
-typedef int (*code)(...);
-
-#pragma alias DAT_008873ec_abs DAT_008873ec
-extern code DAT_008873ec_abs[];
-
-// FUN_0026E170
-u32 func_0026e170(int param_1)
-{
-    DAT_008873ec_abs[0](*(u32*)(param_1 + -4));
-    return 1;
-}
-#endif /* P4_UNIT_0026E170 */
-
-#if defined(P4_UNIT_0026E1E0)
-/* Source unit: src/fmGslCont_0026e1e0.c */
-#include "type.h"
-
-extern u64 memcpy();
-extern u32 DAT_00764590;
 
 // FUN_0026E1E0
 int func_0026e1e0(int param_1, int param_2, u64 param_3, int* param_4)
@@ -270,4 +132,118 @@ int func_0026e1e0(int param_1, int param_2, u64 param_3, int* param_4)
     DAT_00764590 = iVar7;
     return iVar7;
 }
-#endif /* P4_UNIT_0026E1E0 */
+
+
+
+// FUN_002850F0
+void func_002850f0(u32* param_1, u32* param_2, int param_3, int param_4)
+{
+    int cVar4;
+    u32* puVar1;
+    u32* puVar2;
+    u32* puVar3;
+
+    cVar4 = '\0';
+    puVar2 = (u32*)0x0;
+    puVar1 = param_2;
+
+    do {
+        *puVar1 = (u32)puVar2;
+        puVar3 = (u32*)((int)puVar1 + param_4);
+        puVar1[1] = (u32)puVar3;
+        puVar1[2] = (int)(s8)cVar4;
+        puVar2 = puVar1;
+        puVar1 = puVar3;
+        param_3 = param_3 + -1;
+        cVar4 = (s8)(cVar4 + 1);
+    } while (1 < param_3);
+
+    *puVar1 = (u32)puVar2;
+    puVar1[1] = 0;
+    puVar1[2] = (int)(s8)cVar4;
+    *param_1 = 0;
+    param_1[1] = 0;
+    param_1[2] = (u32)param_2;
+    param_1[3] = (u32)puVar1;
+}
+
+
+
+// FUN_00285170
+int* func_00285170(int* param_1)
+{
+    u32* puVar1;
+    int* piVar2;
+
+    piVar2 = (int*)param_1[2];
+
+    if (piVar2 == (int*)0x0) {
+        piVar2 = (int*)0x0;
+    }
+    else {
+        puVar1 = (u32*)piVar2[1];
+
+        if (*param_1 != 0) {
+            *piVar2 = param_1[1];
+            *(int**)(param_1[1] + 4) = piVar2;
+        }
+        else {
+            *piVar2 = 0;
+            *param_1 = (int)piVar2;
+        }
+
+        piVar2[1] = 0;
+        param_1[1] = (int)piVar2;
+
+        if (puVar1 != (u32*)0x0) {
+            *puVar1 = 0;
+        }
+        else {
+            param_1[3] = 0;
+        }
+
+        param_1[2] = (int)puVar1;
+    }
+
+    return piVar2;
+}
+
+
+
+// FUN_002851F0
+void func_002851f0(int* param_1, u32* param_2)
+{
+    int iVar1;
+    int* piVar2;
+
+    iVar1 = *param_1;
+    piVar2 = (int*)param_1[1];
+
+    if (iVar1 != 0) {
+        *(int**)(iVar1 + 4) = piVar2;
+    }
+    else {
+        *param_2 = (u32)piVar2;
+    }
+
+    if (piVar2 != (int*)0x0) {
+        *piVar2 = iVar1;
+    }
+    else {
+        param_2[1] = iVar1;
+    }
+
+    param_1[1] = 0;
+    iVar1 = param_2[3];
+    *param_1 = iVar1;
+
+    if (iVar1 != 0) {
+        *(int**)(iVar1 + 4) = param_1;
+    }
+
+    param_2[3] = (u32)param_1;
+
+    if (param_2[2] == 0) {
+        param_2[2] = (u32)param_1;
+    }
+}

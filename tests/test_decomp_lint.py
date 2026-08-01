@@ -349,22 +349,6 @@ void func_00123457(void) { }
 """)
         self.assertEqual(codes(findings), ["M001"])
 
-    def test_fires_when_guard_disagrees_with_marker(self) -> None:
-        findings = lint_text("""#if defined(P4_UNIT_00100000)
-// FUN_00100010
-void func_00100010(void) { }
-#endif /* P4_UNIT_00100000 */
-""")
-        self.assertEqual(codes(findings), ["M001"])
-
-    def test_silent_when_guard_agrees_with_marker(self) -> None:
-        findings = lint_text("""#if defined(P4_UNIT_00100000)
-// FUN_00100000
-void func_00100000(void) { }
-#endif /* P4_UNIT_00100000 */
-""")
-        self.assertNotIn("M001", codes(findings))
-
 
 class PragmaBalanceTests(unittest.TestCase):
     def test_fires_on_unmatched_off(self) -> None:
@@ -615,3 +599,75 @@ class CliTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NonMatchingBlockTests(unittest.TestCase):
+    """`#ifdef NON_MATCHING` holds preserved reference C that never compiles.
+
+    Skipping it must not blind the linter to the `#else` arm, which DOES build,
+    or to anything after the `#endif`.
+    """
+
+    BODY = (
+        "// FUN_00100010 NONMATCHING\n"
+        "#ifdef NON_MATCHING\n"
+        "s32 func_00100010(void)\n"
+        "{\n"
+        "    s32 unused = compute();\n"
+        "    return 0;\n"
+        "}\n"
+        "#else\n"
+        'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+        "#endif\n"
+    )
+
+    def test_dead_store_in_reference_block_is_not_reported(self) -> None:
+        self.assertNotIn("H007", codes(lint_text(self.BODY)))
+
+    def test_violation_in_the_else_arm_is_still_reported(self) -> None:
+        """The #else arm is what actually compiles, so it stays linted."""
+        text = self.BODY.replace(
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);',
+            "#pragma optimization_level 3\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);',
+        )
+        self.assertIn("H003", codes(lint_text(text)))
+
+    def test_violation_after_the_endif_is_still_reported(self) -> None:
+        text = self.BODY + (
+            "\n// FUN_00100020\n"
+            "void func_00100020(void)\n"
+            "{\n"
+            "    register s32 pinned;\n"
+            "    pinned = 1;\n"
+            "    use(pinned);\n"
+            "}\n"
+        )
+        self.assertIn("H008", codes(lint_text(text)))
+
+    def test_nested_ifdef_inside_the_block_does_not_leak(self) -> None:
+        """A nested #if must not end the skip early at its own #endif."""
+        text = (
+            "// FUN_00100010 NONMATCHING\n"
+            "#ifdef NON_MATCHING\n"
+            "s32 func_00100010(void)\n"
+            "{\n"
+            "#if 1\n"
+            "    s32 unused = compute();\n"
+            "#endif\n"
+            "    return 0;\n"
+            "}\n"
+            "#else\n"
+            'INCLUDE_ASM("asm/nonmatchings/thing", func_00100010);\n'
+            "#endif\n"
+            "\n// FUN_00100020\n"
+            "void func_00100020(void)\n"
+            "{\n"
+            "    register s32 pinned;\n"
+            "    pinned = 1;\n"
+            "    use(pinned);\n"
+            "}\n"
+        )
+        found = codes(lint_text(text))
+        self.assertNotIn("H007", found)
+        self.assertIn("H008", found, "the function after #endif must still be linted")

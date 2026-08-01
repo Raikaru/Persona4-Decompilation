@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00291900)
 /* Source unit: src/Event/mt_evtCustomEvent_00291900.c */
 #include "type.h"
 
@@ -10,6 +6,8 @@
 
 extern u32 MT_Scene_GetRes(u32);
 extern void func_00146630(u32);
+
+
 
 // FUN_00291900
 void func_00291900(void)
@@ -27,4 +25,3 @@ void func_00291900(void)
     }
     return;
 }
-#endif /* P4_UNIT_00291900 */

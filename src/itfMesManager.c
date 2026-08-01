@@ -1,13 +1,31 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_002770D0)
 /* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
 
 s32 func_0029d030(void);
 s32 func_0029cc00(s32 index);
 void func_00277f70(s32 mesHandleIdx, u32 param_2);
+void func_00440b68();
+extern char D_0063BE20[];
+void func_002782c0(int param_1,int param_2,int param_3,u32 param_4);
+u32 func_002786c0(int param_1,int param_2,int param_3);
+
+extern void func_00278640(s32 arg0, s16 arg1, s32 arg2);
+
+typedef struct {
+    u8 *unk0;
+    u8 pad[28];
+} D_00881808_t;
+
+extern D_00881808_t D_00881808[];
+
+void func_002746c0(int param_1, u32 param_2);
+
+void func_002727f0(int param_1);
+extern u8 DAT_008817EC_abs[];
+extern u8 DAT_008817E4_abs[];
+void func_0027b310(u32 param_1);
+
+
 
 // FUN_002770D0
 u32 func_002770d0(void)
@@ -23,11 +41,108 @@ u32 func_002770d0(void)
   func_00277f70(value, other);
   return 1;
 }
-#endif /* P4_UNIT_002770D0 */
 
-#if defined(P4_UNIT_00278DE0)
-/* Source unit: src/itfMesManager_00278de0.c */
-#include "type.h"
+
+
+// FUN_00277370
+u32 func_00277370(void)
+{
+  int lVar1;
+  u32 uVar2;
+  u32 uVar3;
+  u32 uVar4;
+
+  lVar1 = func_0029d030();
+  if (lVar1 < 0) {
+    return 1;
+  }
+  uVar2 = func_0029cc00(0);
+  uVar3 = func_0029cc00(1);
+  uVar4 = func_0029cc00(2);
+  func_00440b68(D_0063BE20,uVar2,uVar3,uVar4);
+  uVar2 = func_0029cc00(0);
+  uVar3 = func_0029cc00(1);
+  uVar4 = func_0029cc00(2);
+  func_002782c0(lVar1,uVar2,uVar3,uVar4);
+  return 1;
+}
+
+
+
+// FUN_00277450
+u32 func_00277450(void)
+{
+  s32 lVar1;
+  u32 uVar2;
+  u32 uVar3;
+
+  lVar1 = func_0029d030();
+  if (lVar1 < 0) {
+    return 1;
+  }
+  uVar2 = func_0029cc00(0);
+  uVar3 = func_0029cc00(1);
+  func_002786c0(lVar1,uVar2,uVar3);
+  return 1;
+}
+
+
+
+// FUN_00278610
+s32 func_00278610(s32 arg0, s16 arg1)
+{
+    func_00278640(arg0, arg1, 0);
+    return 0;
+}
+
+
+
+// FUN_00278C60
+void func_00278c60(int *param_1, int param_2, u8 *param_3, int param_4)
+{
+  u8 bVar1;
+  u8 *pbVar3;
+  int iVar4;
+  int iVar5;
+  int updateOffset;
+
+  pbVar3 = param_3;
+  goto check;
+  do {
+    bVar1 = *pbVar3;
+    pbVar3 = pbVar3 + 1;
+    if ((bVar1 & 1) == 0) {
+      updateOffset = (int)(u32)bVar1 >> 1;
+      goto update;
+    }
+    if ((bVar1 & 2) == 0) {
+      updateOffset = (bVar1 | ((int)*pbVar3 << 8)) >> 2;
+      pbVar3 = pbVar3 + 1;
+      goto update;
+    }
+    if ((bVar1 & 4) == 0) {
+      updateOffset = ((bVar1 | ((int)*pbVar3 << 8)) | ((int)pbVar3[1] << 16)) >> 3;
+      pbVar3 = pbVar3 + 2;
+      goto update;
+    }
+    iVar5 = ((int)(u32)bVar1 >> 3) + 2;
+    for (iVar4 = 0; iVar4 < iVar5; iVar4 = iVar4 + 1) {
+      param_1 = param_1 + 1;
+      *param_1 = *param_1 + param_2;
+    }
+    goto check;
+update:
+    param_1 = param_1 + updateOffset;
+    *param_1 = *param_1 + param_2;
+check:
+    updateOffset = ((int)pbVar3 - (int)param_3 < param_4);
+    if (updateOffset == 0) {
+      return;
+    }
+  } while (1);
+}
+
+
 
 // FUN_00278DE0
 int func_00278de0(int param_1,int param_2)
@@ -39,11 +154,8 @@ int func_00278de0(int param_1,int param_2)
   index = param_2 * 8;
   return index + base + 0x20;
 }
-#endif /* P4_UNIT_00278DE0 */
 
-#if defined(P4_UNIT_00278E00)
-/* Source unit: src/itfMesManager_00278e00.c */
-#include "type.h"
+
 
 // FUN_00278E00
 int func_00278e00(int param_1)
@@ -53,11 +165,24 @@ int func_00278e00(int param_1)
   iVar1 = *(int *)(param_1 + 0x18) * 8;
   return iVar1 + param_1 + 0x20;
 }
-#endif /* P4_UNIT_00278E00 */
 
-#if defined(P4_UNIT_00279740)
-/* Source unit: src/itfMesManager_00279740.c */
-#include "type.h"
+
+
+// FUN_00278FB0
+s32 func_00278fb0(s32 arg0)
+{
+    return *(s32 *)(D_00881808[arg0].unk0 + 0x20);
+}
+
+
+
+// FUN_00278FD0
+s32 func_00278fd0(s32 arg0)
+{
+    return *(s32 *)(D_00881808[arg0].unk0 + 0x14);
+}
+
+
 
 // FUN_00279740
 u32 func_00279740(int param_1,int param_2)
@@ -75,13 +200,8 @@ u32 func_00279740(int param_1,int param_2)
   }
   return uVar1;
 }
-#endif /* P4_UNIT_00279740 */
 
-#if defined(P4_UNIT_00279CE0)
-/* Source unit: src/itfMesManager_00279ce0.c */
-#include "type.h"
 
-void func_002746c0(int param_1, u32 param_2);
 
 // FUN_00279CE0
 void func_00279ce0(int param_1)
@@ -94,11 +214,8 @@ void func_00279ce0(int param_1)
 
   return;
 }
-#endif /* P4_UNIT_00279CE0 */
 
-#if defined(P4_UNIT_00279FD0)
-/* Source unit: src/itfMesManager_00279fd0.c */
-#include "type.h"
+
 
 // FUN_00279FD0
 int func_00279fd0(int param_1,u32 param_2)
@@ -115,16 +232,13 @@ int func_00279fd0(int param_1,u32 param_2)
   }
   return iVar1;
 }
-#endif /* P4_UNIT_00279FD0 */
 
-#if defined(P4_UNIT_0027A370)
-/* Source unit: src/itfMesManager_0027a370.c */
-#include "type.h"
+
 
 // FUN_0027A370
-/* Not `static`: each P4_UNIT compiles as its own translation unit, so a local
- * symbol here is invisible to the linker and the retail asm blob's jal to this
- * address cannot resolve (measured: mwldps2 reports Undefined "func_0027a370").
+/* Not `static`: the symbol must stay global so the linker can resolve the
+ * retail asm blob's jal to this address (measured: mwldps2 reports Undefined
+ * "func_0027a370" if local).
  * The K&R parameter list below is the donor's form and is load-bearing. */
 int func_0027a370(param_1,param_2,param_3,param_4)
 int param_1;
@@ -188,15 +302,11 @@ set_check:
 done:
   return;
 }
-#endif /* P4_UNIT_0027A370 */
 
-#if defined(P4_UNIT_0027A4D0)
-/* Source unit: src/itfMesManager_0027a4d0.c */
-#include "type.h"
 
-#pragma push
 /* Removing this loses FUN_0027A4D0 (MATCH nd0 -> MISMATCH nd24) - measured W161. */
 #pragma opt_loop_invariants on
+
 // FUN_0027A4D0
 void func_0027a4d0(int param_1,u32 param_2)
 {
@@ -209,12 +319,9 @@ void func_0027a4d0(int param_1,u32 param_2)
   }
   return;
 }
-#pragma pop
-#endif /* P4_UNIT_0027A4D0 */
+#pragma opt_loop_invariants off
 
-#if defined(P4_UNIT_0027A520)
-/* Source unit: src/itfMesManager_0027a520.c */
-#include "type.h"
+
 
 // FUN_0027A520
 int func_0027a520(int param_1)
@@ -244,13 +351,8 @@ outer_test:
   }
   return iVar3 << 4;
 }
-#endif /* P4_UNIT_0027A520 */
 
-#if defined(P4_UNIT_0027A580)
-/* Source unit: src/itfMesManager_0027a580.c */
-#include "type.h"
 
-void func_002727f0(int param_1);
 
 // FUN_0027A580
 void func_0027a580(int param_1)
@@ -263,11 +365,8 @@ void func_0027a580(int param_1)
 
   return;
 }
-#endif /* P4_UNIT_0027A580 */
 
-#if defined(P4_UNIT_0027A6C0)
-/* Source unit: src/itfMesManager_0027a6c0.c */
-#include "type.h"
+
 
 // FUN_0027A6C0
 void func_0027a6c0(int param_1)
@@ -280,17 +379,11 @@ void func_0027a6c0(int param_1)
 
   return;
 }
-#endif /* P4_UNIT_0027A6C0 */
 
-#if defined(P4_UNIT_0027B620)
-/* Source unit: src/itfMesManager_0027b620.c */
-#include "type.h"
 
 #pragma alias DAT_008817EC_abs DAT_008817EC
 #pragma alias DAT_008817E4_abs DAT_008817E4
-extern u8 DAT_008817EC_abs[];
-extern u8 DAT_008817E4_abs[];
-void func_0027b310(u32 param_1);
+
 
 // FUN_0027B620
 u64 func_0027b620(void)
@@ -307,64 +400,3 @@ u64 func_0027b620(void)
     *(u32*)DAT_008817E4_abs = count + 1;
     return 0;
 }
-#endif /* P4_UNIT_0027B620 */
-
-#if defined(P4_UNIT_00277450)
-/* Source unit: src/itfMesManager_00277450.c */
-#include "type.h"
-
-s32 func_0029d030(void);
-s32 func_0029cc00(s32 index);
-u32 func_002786c0(int param_1,int param_2,int param_3);
-
-// FUN_00277450
-u32 func_00277450(void)
-{
-  s32 lVar1;
-  u32 uVar2;
-  u32 uVar3;
-
-  lVar1 = func_0029d030();
-  if (lVar1 < 0) {
-    return 1;
-  }
-  uVar2 = func_0029cc00(0);
-  uVar3 = func_0029cc00(1);
-  func_002786c0(lVar1,uVar2,uVar3);
-  return 1;
-}
-#endif /* P4_UNIT_00277450 */
-
-#if defined(P4_UNIT_00277370)
-/* Source unit: src/itfMesManager_00277370.c */
-#include "type.h"
-
-s32 func_0029d030(void);
-s32 func_0029cc00(s32 index);
-void func_00440b68();
-extern char D_0063BE20[];
-void func_002782c0(int param_1,int param_2,int param_3,u32 param_4);
-
-// FUN_00277370
-u32 func_00277370(void)
-{
-  int lVar1;
-  u32 uVar2;
-  u32 uVar3;
-  u32 uVar4;
-
-  lVar1 = func_0029d030();
-  if (lVar1 < 0) {
-    return 1;
-  }
-  uVar2 = func_0029cc00(0);
-  uVar3 = func_0029cc00(1);
-  uVar4 = func_0029cc00(2);
-  func_00440b68(D_0063BE20,uVar2,uVar3,uVar4);
-  uVar2 = func_0029cc00(0);
-  uVar3 = func_0029cc00(1);
-  uVar4 = func_0029cc00(2);
-  func_002782c0(lVar1,uVar2,uVar3,uVar4);
-  return 1;
-}
-#endif /* P4_UNIT_00277370 */

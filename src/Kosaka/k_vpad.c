@@ -1,63 +1,170 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_004B7800)
-/* Source unit: src/Kosaka/k_vpad_004b7800.c */
+#include "include_asm.h"
+/* Source unit: src/Kosaka/k_vpad_0015f720.c */
 #include "type.h"
 
+typedef struct RuntimeVec3
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} RuntimeVec3;
+typedef struct RuntimeMatrix
+{
+    f32 values[16];
+} RuntimeMatrix;
+
+extern RuntimeMatrix* func_003e0f80(void);
+extern RuntimeVec3 D_005F10F8;
+extern void RwMatrixRotate(RuntimeMatrix* matrix, const RuntimeVec3* axis,
+                          f32 angle, u32 mode);
+extern void func_003e42e0(RuntimeVec3* destination,
+                          const RuntimeVec3* source, s32 count,
+                          RuntimeMatrix* matrix);
+extern void func_003e0f40(void* matrix);
+
+/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001E6AF0 (verified MATCH there).
+ * The P3 donor builds the quad vertices with inline machine code; under MWCC
+ * the plain C below compiles to the same div.s-by-2.0 sequence, so none is
+ * needed. */
+typedef struct RuntimeListNode RuntimeListNode;
 typedef struct RuntimeWork
 {
     u32 flags;
     u32 requestFlags;
     u32 completedFlags;
     u32 state;
-} RuntimeWork;
-
-// FUN_004B7800. Translate a logical sample index into the ring buffer.
-s32 func_004b7800(const RuntimeWork* work, s32 index)
-{
-    s32 result;
-
-    result = (s32)work->state - 1 - index;
-    if (result < 0)
-    {
-        result += (s32)work->completedFlags;
-    }
-    return result;
-}
-#endif /* P4_UNIT_004B7800 */
-
-#if defined(P4_UNIT_004BCE30)
-/* Source unit: src/Kosaka/k_vpad_004bce30.c */
-#include "type.h"
-
-typedef struct RuntimeWork
-{
-    u32 flags;
-    u32 requestFlags;
-} RuntimeWork;
-
-// FUN_004BCE30. Check whether the field resource contains any entries.
-s32 func_004bce30(void* workData)
-{
-    RuntimeWork* work;
-
-    work = (RuntimeWork*)workData;
-    return *(u16*)(uintptr_t)work->requestFlags != 0;
-}
-#endif /* P4_UNIT_004BCE30 */
-
-#if defined(P4_UNIT_004B5C20)
-/* Source unit: src/Kosaka/k_vpad_004b5c20.c */
-#include "type.h"
-
-typedef struct RuntimeListNode RuntimeListNode;
-typedef struct RuntimeWork
-{
-    u32 flags;
+    u32 phase;
+    u32 selection;
 } RuntimeWork;
 
 extern s32 func_004b6de0(RuntimeListNode* node);
+extern void func_0047a510(void* context, void* object, RuntimeMatrix* matrix);
+
+/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
+ * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
+ * call sites. Retail emits the loop's per-entry lw/sll pair load-first;
+ * MWCC schedules the sll ahead of the reload - measured nd 5 (fndiff) /
+ * nd 8 (verify). Accepted compiler floor. */
+extern void func_004b7140(void* owner);
+typedef struct RuntimeDistanceWork
+{
+    void** config;
+    u8 reserved04[4];
+    s32 count;
+    u8 reserved0c[4];
+    RuntimeVec3* firstVectors;
+    RuntimeVec3* secondVectors;
+} RuntimeDistanceWork;
+
+extern s32 func_004b7800(const RuntimeWork* work, s32 index);
+extern f32 RwV3dLength(RuntimeVec3* vector);
+typedef struct RuntimeCommandWork
+{
+    u32 flags;
+    u16* cursor;
+    u8 reserved08[8];
+    RuntimeWork* target;
+    u32 elapsed;
+    u16 delay;
+    u16 reserved1a;
+    u32 duration;
+} RuntimeCommandWork;
+
+extern void func_004bc4d0(f32 value, RuntimeWork* work);
+
+
+// FUN_0015F720. Build, rotate, and translate a four-vertex field quad.
+void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
+                   f32 width, f32 depth, f32 angle)
+{
+    RuntimeMatrix* matrix;
+    RuntimeVec3 axis;
+    s32 i;
+
+    matrix = func_003e0f80();
+    axis = D_005F10F8;
+    vertices[0].x = -width / 2.0f;
+    vertices[0].y = 0.0f;
+    vertices[0].z = -depth / 2.0f;
+    vertices[1].x = width / 2.0f;
+    vertices[1].y = 0.0f;
+    vertices[1].z = -depth / 2.0f;
+    vertices[2].x = -width / 2.0f;
+    vertices[2].y = 0.0f;
+    vertices[2].z = depth / 2.0f;
+    vertices[3].x = width / 2.0f;
+    vertices[3].y = 0.0f;
+    vertices[3].z = depth / 2.0f;
+
+    matrix->values[10] = 1.0f;
+    matrix->values[5] = 1.0f;
+    matrix->values[0] = 1.0f;
+    matrix->values[4] = 0.0f;
+    matrix->values[2] = 0.0f;
+    matrix->values[1] = 0.0f;
+    matrix->values[9] = 0.0f;
+    matrix->values[8] = 0.0f;
+    matrix->values[6] = 0.0f;
+    matrix->values[14] = 0.0f;
+    matrix->values[13] = 0.0f;
+    matrix->values[12] = 0.0f;
+    *(u32*)&matrix->values[3] |= 0x20003;
+
+    RwMatrixRotate(matrix, &axis, angle, 2);
+    func_003e42e0(vertices, vertices, 4, matrix);
+    func_003e0f40(matrix);
+    for (i = 0; i < 4; i++)
+    {
+        vertices[i].x += translation->x;
+        vertices[i].y += translation->y;
+        vertices[i].z += translation->z;
+    }
+}
+
+
+// FUN_004B5800 NONMATCHING. Update linked render matrices and cache their translations.
+#ifdef NON_MATCHING
+void func_004b5800(RuntimeWork* work)
+{
+    s32 i;
+    RuntimeMatrix* firstMatrix;
+    RuntimeMatrix* secondMatrix;
+
+    if (func_004b6de0((RuntimeListNode*)work) == 0)
+    {
+        return;
+    }
+
+    firstMatrix = func_003e0f80();
+    secondMatrix = func_003e0f80();
+    i = 0;
+    while (i < *(s16*)((u8*)(uintptr_t)work->requestFlags + 4))
+    {
+        func_0047a510(
+            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
+            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) + i * 8),
+            firstMatrix);
+        func_0047a510(
+            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
+            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
+                      i * 8 + 4),
+            secondMatrix);
+        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =
+            *(RuntimeVec3*)((u8*)firstMatrix + 0x30);
+        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2 + 1] =
+            *(RuntimeVec3*)((u8*)secondMatrix + 0x30);
+        i++;
+    }
+
+    work->flags |= 2;
+    func_003e0f40(firstMatrix);
+    func_003e0f40(secondMatrix);
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5800);
+#endif
+
+
 
 // FUN_004B5C20. Mark an active field runtime node for processing.
 void func_004b5c20(RuntimeWork* work)
@@ -67,21 +174,8 @@ void func_004b5c20(RuntimeWork* work)
         work->flags |= 4;
     }
 }
-#endif /* P4_UNIT_004B5C20 */
 
-#if defined(P4_UNIT_004B5F20)
-/* Source unit: src/Kosaka/k_vpad_004b5f20.c */
-#include "type.h"
 
-typedef struct RuntimeListNode RuntimeListNode;
-typedef struct RuntimeWork
-{
-    u32 flags;
-    u32 requestFlags;
-} RuntimeWork;
-
-extern s32 func_004b6de0(RuntimeListNode* node);
-extern void func_004b7140(void* owner);
 
 // FUN_004B5F20. Activate a field runtime node and its owner.
 void func_004b5f20(RuntimeWork* work)
@@ -92,19 +186,8 @@ void func_004b5f20(RuntimeWork* work)
         func_004b7140(*(void**)((u8*)(uintptr_t)work->requestFlags + 0x20));
     }
 }
-#endif /* P4_UNIT_004B5F20 */
 
-#if defined(P4_UNIT_004B5F80)
-/* Source unit: src/Kosaka/k_vpad_004b5f80.c */
-#include "type.h"
 
-typedef struct RuntimeListNode RuntimeListNode;
-typedef struct RuntimeWork
-{
-    u32 flags;
-} RuntimeWork;
-
-extern s32 func_004b6de0(RuntimeListNode* node);
 
 // FUN_004B5F80. Update the render color and mark it dirty.
 void func_004b5f80(RuntimeWork* work, const u8* color)
@@ -141,32 +224,62 @@ void func_004b5f80(RuntimeWork* work, const u8* color)
         colorWork->flags |= 0x10;
     }
 }
-#endif /* P4_UNIT_004B5F80 */
 
-#if defined(P4_UNIT_004BAED0)
-/* Source unit: src/Kosaka/k_vpad_004baed0.c */
-#include "type.h"
 
-typedef struct RuntimeWork
+// FUN_004B7300 NONMATCHING. Measure both path-edge distances for one section.
+#ifdef NON_MATCHING
+f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
 {
-    u32 flags;
-    u32 requestFlags;
-    u32 completedFlags;
-    u32 state;
-} RuntimeWork;
-typedef struct RuntimeCommandWork
-{
-    u32 flags;
-    u16* cursor;
-    u8 reserved08[8];
-    RuntimeWork* target;
-    u32 elapsed;
-    u16 delay;
-    u16 reserved1a;
-    u32 duration;
-} RuntimeCommandWork;
+    s32 firstIndex;
+    s32 nextIndex;
+    RuntimeVec3 delta;
+    f32 total;
+    f32 result;
+    f32 length;
 
-extern void func_004bc4d0(f32 value, RuntimeWork* work);
+    firstIndex = func_004b7800((const RuntimeWork*)work, index);
+    nextIndex = func_004b7800((const RuntimeWork*)work, index + 1);
+    total = 0.0f;
+
+    delta.x = work->firstVectors[nextIndex].x -
+              work->firstVectors[firstIndex].x;
+    delta.y = work->firstVectors[nextIndex].y -
+              work->firstVectors[firstIndex].y;
+    delta.z = work->firstVectors[nextIndex].z -
+              work->firstVectors[firstIndex].z;
+    total += RwV3dLength(&delta);
+
+    delta.x = work->secondVectors[nextIndex].x -
+              work->secondVectors[firstIndex].x;
+    delta.y = work->secondVectors[nextIndex].y -
+              work->secondVectors[firstIndex].y;
+    delta.z = work->secondVectors[nextIndex].z -
+              work->secondVectors[firstIndex].z;
+    length = RwV3dLength(&delta);
+    result = total + length;
+    result *= *(f32*)((u8*)work->config[0] + 0x2c);
+    return result;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b7300);
+#endif
+
+
+
+// FUN_004B7800. Translate a logical sample index into the ring buffer.
+s32 func_004b7800(const RuntimeWork* work, s32 index)
+{
+    s32 result;
+
+    result = (s32)work->state - 1 - index;
+    if (result < 0)
+    {
+        result += (s32)work->completedFlags;
+    }
+    return result;
+}
+
+
 
 // FUN_004BAED0
 void func_004baed0(RuntimeCommandWork* work, u32* unused)
@@ -276,226 +389,14 @@ void func_004baed0(RuntimeCommandWork* work, u32* unused)
     } while ((u32)(stop != 0) ^ 1);
     work->cursor = cursor;
 }
-#endif /* P4_UNIT_004BAED0 */
 
-#if defined(P4_UNIT_004B7300)
-/* Source unit: src/Kosaka/k_vpad_004b7300.c */
-#include "type.h"
 
-typedef struct RuntimeVec3
+
+// FUN_004BCE30. Check whether the field resource contains any entries.
+s32 func_004bce30(void* workData)
 {
-    f32 x;
-    f32 y;
-    f32 z;
-} RuntimeVec3;
-typedef struct RuntimeWork
-{
-    u32 flags;
-    u32 requestFlags;
-    u32 completedFlags;
-    u32 state;
-} RuntimeWork;
-typedef struct RuntimeDistanceWork
-{
-    void** config;
-    u8 reserved04[4];
-    s32 count;
-    u8 reserved0c[4];
-    RuntimeVec3* firstVectors;
-    RuntimeVec3* secondVectors;
-} RuntimeDistanceWork;
+    RuntimeWork* work;
 
-extern s32 func_004b7800(const RuntimeWork* work, s32 index);
-extern f32 RwV3dLength(RuntimeVec3* vector);
-
-/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001E7E30 (verified MATCH there).
- * Honest C: result = total + length; result *= *(f32*)(config[0] + 0x2c).
- * Retail emits a fused adda.s/madd.s accumulator sequence (with mtc1 $zero
- * accumulator zeroing) and schedules add.s before the config loads; MWCC
- * compiles the plain C to a mul.s with the loads hoisted ahead - measured
- * nd 37 (verify) / 17 words (fndiff). Accepted compiler floor. */
-// FUN_004B7300 NONMATCHING. Measure both path-edge distances for one section.
-f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
-{
-    s32 firstIndex;
-    s32 nextIndex;
-    RuntimeVec3 delta;
-    f32 total;
-    f32 result;
-    f32 length;
-
-    firstIndex = func_004b7800((const RuntimeWork*)work, index);
-    nextIndex = func_004b7800((const RuntimeWork*)work, index + 1);
-    total = 0.0f;
-
-    delta.x = work->firstVectors[nextIndex].x -
-              work->firstVectors[firstIndex].x;
-    delta.y = work->firstVectors[nextIndex].y -
-              work->firstVectors[firstIndex].y;
-    delta.z = work->firstVectors[nextIndex].z -
-              work->firstVectors[firstIndex].z;
-    total += RwV3dLength(&delta);
-
-    delta.x = work->secondVectors[nextIndex].x -
-              work->secondVectors[firstIndex].x;
-    delta.y = work->secondVectors[nextIndex].y -
-              work->secondVectors[firstIndex].y;
-    delta.z = work->secondVectors[nextIndex].z -
-              work->secondVectors[firstIndex].z;
-    length = RwV3dLength(&delta);
-    result = total + length;
-    result *= *(f32*)((u8*)work->config[0] + 0x2c);
-    return result;
+    work = (RuntimeWork*)workData;
+    return *(u16*)(uintptr_t)work->requestFlags != 0;
 }
-#endif /* P4_UNIT_004B7300 */
-
-#if defined(P4_UNIT_004B5800)
-/* Source unit: src/Kosaka/k_vpad_004b5800.c */
-#include "type.h"
-
-typedef struct RuntimeVec3
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RuntimeVec3;
-typedef struct RuntimeMatrix
-{
-    f32 values[16];
-} RuntimeMatrix;
-typedef struct RuntimeListNode RuntimeListNode;
-typedef struct RuntimeWork
-{
-    u32 flags;
-    u32 requestFlags;
-    u32 completedFlags;
-    u32 state;
-    u32 phase;
-    u32 selection;
-} RuntimeWork;
-
-extern s32 func_004b6de0(RuntimeListNode* node);
-extern RuntimeMatrix* func_003e0f80(void);
-extern void func_0047a510(void* context, void* object, RuntimeMatrix* matrix);
-extern void func_003e0f40(void* matrix);
-
-/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
- * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
- * call sites. Retail emits the loop's per-entry lw/sll pair load-first;
- * MWCC schedules the sll ahead of the reload - measured nd 5 (fndiff) /
- * nd 8 (verify). Accepted compiler floor. */
-// FUN_004B5800 NONMATCHING. Update linked render matrices and cache their translations.
-void func_004b5800(RuntimeWork* work)
-{
-    s32 i;
-    RuntimeMatrix* firstMatrix;
-    RuntimeMatrix* secondMatrix;
-
-    if (func_004b6de0((RuntimeListNode*)work) == 0)
-    {
-        return;
-    }
-
-    firstMatrix = func_003e0f80();
-    secondMatrix = func_003e0f80();
-    i = 0;
-    while (i < *(s16*)((u8*)(uintptr_t)work->requestFlags + 4))
-    {
-        func_0047a510(
-            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
-            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) + i * 8),
-            firstMatrix);
-        func_0047a510(
-            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
-            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
-                      i * 8 + 4),
-            secondMatrix);
-        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =
-            *(RuntimeVec3*)((u8*)firstMatrix + 0x30);
-        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2 + 1] =
-            *(RuntimeVec3*)((u8*)secondMatrix + 0x30);
-        i++;
-    }
-
-    work->flags |= 2;
-    func_003e0f40(firstMatrix);
-    func_003e0f40(secondMatrix);
-}
-#endif /* P4_UNIT_004B5800 */
-
-#if defined(P4_UNIT_0015F720)
-/* Source unit: src/Kosaka/k_vpad_0015f720.c */
-#include "type.h"
-
-typedef struct RuntimeVec3
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RuntimeVec3;
-typedef struct RuntimeMatrix
-{
-    f32 values[16];
-} RuntimeMatrix;
-
-extern RuntimeMatrix* func_003e0f80(void);
-extern RuntimeVec3 D_005F10F8;
-extern void RwMatrixRotate(RuntimeMatrix* matrix, const RuntimeVec3* axis,
-                          f32 angle, u32 mode);
-extern void func_003e42e0(RuntimeVec3* destination,
-                          const RuntimeVec3* source, s32 count,
-                          RuntimeMatrix* matrix);
-extern void func_003e0f40(void* matrix);
-
-/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001E6AF0 (verified MATCH there).
- * The P3 donor builds the quad vertices with inline machine code; under MWCC
- * the plain C below compiles to the same div.s-by-2.0 sequence, so none is
- * needed. */
-// FUN_0015F720. Build, rotate, and translate a four-vertex field quad.
-void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
-                   f32 width, f32 depth, f32 angle)
-{
-    RuntimeMatrix* matrix;
-    RuntimeVec3 axis;
-    s32 i;
-
-    matrix = func_003e0f80();
-    axis = D_005F10F8;
-    vertices[0].x = -width / 2.0f;
-    vertices[0].y = 0.0f;
-    vertices[0].z = -depth / 2.0f;
-    vertices[1].x = width / 2.0f;
-    vertices[1].y = 0.0f;
-    vertices[1].z = -depth / 2.0f;
-    vertices[2].x = -width / 2.0f;
-    vertices[2].y = 0.0f;
-    vertices[2].z = depth / 2.0f;
-    vertices[3].x = width / 2.0f;
-    vertices[3].y = 0.0f;
-    vertices[3].z = depth / 2.0f;
-
-    matrix->values[10] = 1.0f;
-    matrix->values[5] = 1.0f;
-    matrix->values[0] = 1.0f;
-    matrix->values[4] = 0.0f;
-    matrix->values[2] = 0.0f;
-    matrix->values[1] = 0.0f;
-    matrix->values[9] = 0.0f;
-    matrix->values[8] = 0.0f;
-    matrix->values[6] = 0.0f;
-    matrix->values[14] = 0.0f;
-    matrix->values[13] = 0.0f;
-    matrix->values[12] = 0.0f;
-    *(u32*)&matrix->values[3] |= 0x20003;
-
-    RwMatrixRotate(matrix, &axis, angle, 2);
-    func_003e42e0(vertices, vertices, 4, matrix);
-    func_003e0f40(matrix);
-    for (i = 0; i < 4; i++)
-    {
-        vertices[i].x += translation->x;
-        vertices[i].y += translation->y;
-        vertices[i].z += translation->z;
-    }
-}
-#endif /* P4_UNIT_0015F720 */

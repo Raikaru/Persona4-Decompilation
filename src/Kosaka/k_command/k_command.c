@@ -1,9 +1,18 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00176C20)
 /* Source unit: src/Kosaka/k_command/k_command_00176c20.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
+
+extern char* strcpy(char* destination, const char* source);
+extern s32 sprintf(char* destination, const char* format, ...);
+extern char* strcat(char* destination, const char* source);
+#include "type.h"
+
+extern s32 func_0029cc00(s32 arg0);
+extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+
+extern f32 func_0029cd50(s32 arg0);
+extern f32 D_00764B5C;
+
+
 
 // FUN_00176C20
 u32 func_00176c20()
@@ -14,15 +23,8 @@ u32 func_00176c20()
     func_0014a0f0((u16)resourceId, func_0029cc00(1));
     return true;
 }
-#endif /* P4_UNIT_00176C20 */
 
-#if defined(P4_UNIT_00177A10)
-/* Source unit: src/Kosaka/k_command/k_command_00177a10.c (1 function markers) */
-#include "Kosaka/k_command_internal.h"
 
-extern char* strcpy(char* destination, const char* source);
-extern s32 sprintf(char* destination, const char* format, ...);
-extern char* strcat(char* destination, const char* source);
 
 // FUN_00177A10
 u32 K_Cmd_CREATE_FLD_MDL()
@@ -58,11 +60,8 @@ u32 K_Cmd_CREATE_FLD_MDL()
 
     return true;
 }
-#endif /* P4_UNIT_00177A10 */
 
-#if defined(P4_UNIT_00177D10)
-/* Source unit: src/Kosaka/k_command/k_command_00177d10.c (1 function markers) */
-#include "Kosaka/k_command_internal.h"
+
 
 // FUN_00177D10
 u32 func_00177d10()
@@ -83,11 +82,8 @@ u32 func_00177d10()
 
     return created;
 }
-#endif /* P4_UNIT_00177D10 */
 
-#if defined(P4_UNIT_00177E20)
-/* Source unit: src/Kosaka/k_command/k_command_00177e20.c (1 function markers) */
-#include "Kosaka/k_command_internal.h"
+
 
 // FUN_00177E20
 u32 K_Cmd_CREATE_MDL()
@@ -105,11 +101,31 @@ u32 K_Cmd_CREATE_MDL()
 
     return true;
 }
-#endif /* P4_UNIT_00177E20 */
 
-#if defined(P4_UNIT_00178970)
-/* Source unit: src/Kosaka/k_command/k_command_00178970.c (1 function markers) */
-#include "Kosaka/k_command_internal.h"
+
+
+// FUN_001783B0
+s32 func_001783b0(void)
+{
+    s32 temp_17;
+    s32 temp_16;
+
+    temp_17 = func_0029cc00(0) & 0xFF;
+    temp_16 = func_0029cc00(1) & 0xFF;
+    func_00457140(temp_17, temp_16, func_0029cc00(2) & 0xFF, 0);
+    return 1;
+}
+
+
+
+// FUN_00178470
+s32 func_00178470(void)
+{
+    D_00764B5C = func_0029cd50(0);
+    return 1;
+}
+
+
 
 // FUN_00178970
 u32 func_00178970()
@@ -122,11 +138,8 @@ u32 func_00178970()
 
     return func_002bd360(resourceId, value) == 0;
 }
-#endif /* P4_UNIT_00178970 */
 
-#if defined(P4_UNIT_0025D100)
-/* Source unit: src/Kosaka/k_command/k_command_0025d100.c (1 function markers) */
-#include "Kosaka/k_command_internal.h"
+
 
 // FUN_0025D100
 u32 func_0025d100()
@@ -135,17 +148,3 @@ u32 func_0025d100()
 
     return true;
 }
-#endif /* P4_UNIT_0025D100 */
-
-#if defined(P4_UNIT_00299400)
-/* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
-#include "Kosaka/k_command_internal.h"
-
-// FUN_00299400
-u32 func_00299400()
-{
-    func_00106550(func_0029cc00(0), func_0029cc00(1));
-
-    return true;
-}
-#endif /* P4_UNIT_00299400 */

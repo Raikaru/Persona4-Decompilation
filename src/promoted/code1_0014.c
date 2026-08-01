@@ -1,8 +1,20 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00142130)
 #include "type.h"
+
+extern s32 D_00762EA0;
+
+extern s32 func_00145540(s32 arg0, s32 arg1, s32 arg2);
+
+extern s32 D_007642E4;
+
+typedef struct { f32 x, y, z; } SVec3;
+
+extern s32 RwEngineGetMatrixTolerances();
+extern s32 RwMatrixOptimize();
+extern s32 RwMatrixUpdate();
+
+extern s32 D_007642F0;
+
+
 
 // FUN_00142130
 void func_00142130(u8 *arg0) {
@@ -26,10 +38,8 @@ void func_00142130(u8 *arg0) {
     *(u8 *)(arg0 + 0x7A8) = 0xFF;
     *(s16 *)(arg0 + 0x20) = 0;
 }
-#endif /* P4_UNIT_00142130 */
 
-#if defined(P4_UNIT_001421B0)
-#include "type.h"
+
 
 // FUN_001421B0
 void func_001421b0(u8 *arg0) {
@@ -53,71 +63,43 @@ void func_001421b0(u8 *arg0) {
     *(u8 *)(arg0 + 0x7A8) = 0xFF;
     *(s16 *)(arg0 + 0x20) = 0;
 }
-#endif /* P4_UNIT_001421B0 */
 
-#if defined(P4_UNIT_00145250)
-#include "type.h"
 
-extern s32 D_00762EA0;
 
 // FUN_00145250
 s32 func_00145250(void) {
     return D_00762EA0;
 }
-#endif /* P4_UNIT_00145250 */
 
-#if defined(P4_UNIT_00145510)
-#include "type.h"
 
-extern s32 func_00145540(s32 arg0, s32 arg1, s32 arg2);
 
 // FUN_00145510
 void func_00145510(s32 arg0, s32 arg1) {
     func_00145540(arg0, 0, arg1);
 }
-#endif /* P4_UNIT_00145510 */
 
-#if defined(P4_UNIT_00149680)
-#include "type.h"
 
-extern s32 D_007642E4;
 
 // FUN_00149680
 void func_00149680(s32 arg0) {
     D_007642E4 = arg0;
 }
-#endif /* P4_UNIT_00149680 */
 
-#if defined(P4_UNIT_0014D7D0)
-#include "type.h"
 
-typedef struct { f32 x, y, z; } SVec3;
 
 // FUN_0014D7D0
 void func_0014d7d0(u8 *arg0, u8 *arg1) {
     *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
 }
-#endif /* P4_UNIT_0014D7D0 */
 
-#if defined(P4_UNIT_0014D9E0)
-#include "type.h"
 
-typedef struct { f32 x, y, z; } SVec3;
 
 // FUN_0014D9E0
 void func_0014d9e0(u8 *arg0, u8 *arg1) {
     *(SVec3 *)(*(u8 **)(arg0 + 0x38) + 4) = *(SVec3 *)arg1;
 }
-#endif /* P4_UNIT_0014D9E0 */
 
-#if defined(P4_UNIT_0014DD10)
-#include "type.h"
 
-typedef struct { f32 x, y, z; } SVec3;
-
-extern s32 RwEngineGetMatrixTolerances();
-extern s32 RwMatrixOptimize();
-extern s32 RwMatrixUpdate();
 
 // FUN_0014DD10
 void func_0014dd10(u8 *arg0, u8 *arg1) {
@@ -130,15 +112,10 @@ void func_0014dd10(u8 *arg0, u8 *arg1) {
     RwMatrixOptimize(temp_16, &sp20[0]);
     RwMatrixUpdate(temp_16);
 }
-#endif /* P4_UNIT_0014DD10 */
 
-#if defined(P4_UNIT_0014EEC0)
-#include "type.h"
 
-extern s32 D_007642F0;
 
 // FUN_0014EEC0
 s32 func_0014eec0(void) {
     return D_007642F0;
 }
-#endif /* P4_UNIT_0014EEC0 */

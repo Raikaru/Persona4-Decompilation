@@ -1,12 +1,11 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_004D12A0)
+#include "include_asm.h"
 #include "type.h"
+
 
 /* measured: #pragma schedule on is load-bearing -- retail sinks the second
  * sw into the jr return delay slot; O2 alone emits sw/sw/jr/nop (nd 6). */
 #pragma schedule on
+
 // FUN_004D12A0
 void func_004d12a0(u8 *arg0, s32 arg1)
 {
@@ -14,10 +13,7 @@ void func_004d12a0(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x3C) = arg1;
 }
 #pragma schedule off
-#endif /* P4_UNIT_004D12A0 */
 
-#if defined(P4_UNIT_004D18D8)
-#include "type.h"
 
 extern s32 D_00723F10[];
 
@@ -26,16 +22,18 @@ extern s32 D_00723F10[];
  * schedule on is load-bearing for the delay-slot fill; address color stays
  * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
 #pragma schedule on
+
 // FUN_004D18D8 NONMATCHING
+#ifdef NON_MATCHING
 void func_004d18d8(s32 arg0)
 {
     D_00723F10[0] = arg0;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d18d8);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004D18D8 */
 
-#if defined(P4_UNIT_004D3148)
-#include "type.h"
 
 extern s32 D_00723F20[];
 
@@ -44,16 +42,18 @@ extern s32 D_00723F20[];
  * $v0/$v1 swap vs retail = allocator floor (same residual in sibling files
  * code1_004e/code1_0052). NONMATCHING */
 #pragma schedule on
+
 // FUN_004D3148 NONMATCHING
+#ifdef NON_MATCHING
 void func_004d3148(s32 arg0)
 {
     D_00723F20[0] = arg0;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3148);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004D3148 */
 
-#if defined(P4_UNIT_004D3190)
-#include "type.h"
 
 extern s32 D_00723F20[];
 
@@ -61,16 +61,18 @@ extern s32 D_00723F20[];
  * address (nd 2); retail keeps it in $v1. Pure $v1/$v0 swap = allocator
  * floor (same residual in sibling files code1_004e/code1_0052). NONMATCHING */
 #pragma schedule on
+
 // FUN_004D3190 NONMATCHING
+#ifdef NON_MATCHING
 s32 func_004d3190(void)
 {
     return D_00723F20[0];
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3190);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004D3190 */
 
-#if defined(P4_UNIT_004D3678)
-#include "type.h"
 
 extern s32 D_00724E58[];
 
@@ -78,16 +80,18 @@ extern s32 D_00724E58[];
  * slot placement; address colors $v1 vs retail $v0 (nd 2, allocator
  * floor). NONMATCHING */
 #pragma schedule on
+
 // FUN_004D3678 NONMATCHING
+#ifdef NON_MATCHING
 void func_004d3678(s32 arg0)
 {
     D_00724E58[0] = arg0;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3678);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004D3678 */
 
-#if defined(P4_UNIT_004D3688)
-#include "type.h"
 
 extern s32 D_00724E58[];
 
@@ -95,16 +99,18 @@ extern s32 D_00724E58[];
  * slot placement; address reuses $v0 vs retail $v1 (nd 2, allocator
  * floor). NONMATCHING */
 #pragma schedule on
+
 // FUN_004D3688 NONMATCHING
+#ifdef NON_MATCHING
 s32 func_004d3688(void)
 {
     return D_00724E58[0];
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3688);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004D3688 */
 
-#if defined(P4_UNIT_004D3698)
-#include "type.h"
 
 extern s32 D_00724E60[];
 
@@ -112,16 +118,18 @@ extern s32 D_00724E60[];
  * slot placement; address reuses $v0 vs retail $v1 (nd 2, allocator
  * floor). NONMATCHING */
 #pragma schedule on
+
 // FUN_004D3698 NONMATCHING
+#ifdef NON_MATCHING
 s32 func_004d3698(void)
 {
     return D_00724E60[0];
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3698);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004D3698 */
 
-#if defined(P4_UNIT_004D36A8)
-#include "type.h"
 
 extern s32 D_00724E60[];
 
@@ -129,25 +137,31 @@ extern s32 D_00724E60[];
  * slot placement; address colors $v1 vs retail $v0 (nd 2, allocator
  * floor). NONMATCHING */
 #pragma schedule on
+
 // FUN_004D36A8 NONMATCHING
+#ifdef NON_MATCHING
 void func_004d36a8(s32 arg0)
 {
     D_00724E60[0] = arg0;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d36a8);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004D36A8 */
 
-#if defined(P4_UNIT_004DE2B0)
-#include "type.h"
 
 /* measured: #pragma schedule on is load-bearing for the sw-in-return-delay-
  * slot placement; constant materializes in $v1 vs retail $v0 (nd 2,
  * allocator floor). NONMATCHING */
 #pragma schedule on
+
 // FUN_004DE2B0 NONMATCHING
+#ifdef NON_MATCHING
 void func_004de2b0(u8 *arg0)
 {
     *(s32 *)(arg0 + 8) = 1;
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de2b0);
+#endif
 #pragma schedule off
-#endif /* P4_UNIT_004DE2B0 */

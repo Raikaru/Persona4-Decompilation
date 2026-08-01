@@ -1,12 +1,10 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00285260)
 /* Source unit: src/Event/mt_evtMenu_00285260.c */
 #include "type.h"
+extern u32 DAT_00882170_abs[];
+
 
 #pragma alias DAT_00882170_abs DAT_00882170
-extern u32 DAT_00882170_abs[];
+
 
 // FUN_00285260
 void func_00285260(void)
@@ -23,4 +21,3 @@ void func_00285260(void)
         iVar1 = iVar1 + 1;
     }
 }
-#endif /* P4_UNIT_00285260 */

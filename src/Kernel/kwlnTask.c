@@ -1,18 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00452540)
-/* Source unit: src/Kernel/kwlnTask_00452540.c (1 function markers) */
-#include "type.h"
-
-// FUN_00452540
-u32 kwlnTaskGetTimer(void* task)
-{
-    return *(u32*)((u8*)task + 0x28);
-}
-#endif /* P4_UNIT_00452540 */
-
-#if defined(P4_UNIT_004571D0)
 /* Source unit: src/Kernel/kwlnTask_004571d0.c (1 function markers) */
 #include "type.h"
 
@@ -27,7 +12,9 @@ struct Raster
 typedef struct Camera Camera;
 struct Camera
 {
-    u8 _pad0[0x60];
+    u8 objectType[4];
+    void* frame;
+    u8 cameraData[0x58];
     Raster* frameBuffer;
     Raster* zBuffer;
 };
@@ -55,6 +42,14 @@ extern void func_003e8970(u32* output, const void* descriptor);
 extern Raster* func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
 extern void func_003ec330(Raster* raster);
 extern Camera* RwCameraSetViewWindow(Camera* camera, const f32* viewWindow);
+
+extern Camera* func_003e84a0(void);
+extern void* func_003e9320(void);
+extern void func_003efd20(Camera* camera, void* frame);
+extern void func_003e9390(void* frame);
+extern void func_003e8440(Camera* camera);
+
+
 
 // FUN_004571D0
 void func_004571d0(Camera* camera, CameraView* requestedView, f32 scale,
@@ -180,29 +175,8 @@ update_view_window:
 
     RwCameraSetViewWindow(camera, viewWindow);
 }
-#endif /* P4_UNIT_004571D0 */
 
-#if defined(P4_UNIT_004574D0)
-/* Source unit: src/Kernel/kwlnTask_004574d0.c (1 function markers) */
-#include "type.h"
 
-typedef struct Camera Camera;
-struct Camera
-{
-    u8 objectType[4];
-    void* frame;
-    u8 cameraData[0x58];
-    void* frameBuffer;
-    void* zBuffer;
-};
-
-extern Camera* func_003e84a0(void);
-extern void* func_003e9320(void);
-extern void func_003efd20(Camera* camera, void* frame);
-extern void* func_003ec590(u32 width, u32 height, u32 depth, u32 flags);
-extern void func_003e9390(void* frame);
-extern void func_003ec330(void* raster);
-extern void func_003e8440(Camera* camera);
 
 // FUN_004574D0
 Camera* func_004574d0(u32 width, u32 height, u32 createZBuffer)
@@ -253,28 +227,3 @@ Camera* func_004574d0(u32 width, u32 height, u32 createZBuffer)
 
     return NULL;
 }
-#endif /* P4_UNIT_004574D0 */
-
-#if defined(P4_UNIT_00452040)
-/* Source unit: src/Kernel/kwlnTask_00452040.c (1 function markers) */
-#include "type.h"
-
-typedef struct KwlnTask KwlnTask;
-
-extern KwlnTask* kwlnTaskGetTaskByName(const char* name);
-extern u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
-
-// FUN_00452040
-u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
-{
-    KwlnTask* task;
-
-    task = kwlnTaskGetTaskByName(name);
-    if (task == NULL)
-    {
-        return 0;
-    }
-
-    return kwlnTaskDestroyWithHierarchy(task);
-}
-#endif /* P4_UNIT_00452040 */

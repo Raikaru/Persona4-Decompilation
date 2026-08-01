@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00453570)
 /* Source unit: src/h_pad_00453570.c */
 #include "type.h"
 
@@ -65,6 +61,8 @@ static s16 sRumbleOnFrames;  // 00764b14
 static s16 sRumbleCadence;   // 00764b10
 static s16 sRumbleDuration;  // 00764b0c
 
+
+
 // FUN_00453570
 void H_Pad_StopRumble(void)
 {
@@ -78,4 +76,3 @@ void H_Pad_StopRumble(void)
     gWorkPads[HPAD_PORT_1].actuator0 = 0;
     gWorkPads[HPAD_PORT_1].actuator1 = 0;
 }
-#endif /* P4_UNIT_00453570 */

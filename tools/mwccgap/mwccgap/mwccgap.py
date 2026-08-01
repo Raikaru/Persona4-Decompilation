@@ -32,6 +32,7 @@ def process_c_file(
     asm_dir_prefix: Optional[Path] = None,
     macro_inc_path: Optional[Path] = None,
     c_file_encoding: Optional[str] = None,
+    skip_asm: bool = False,
 ):
     # 1. compile file as-is, any INCLUDE_ASM'd functions will be missing from the object
     compiler = Compiler(c_flags, mwcc_path, use_wibo, wibo_path)
@@ -48,6 +49,15 @@ def process_c_file(
                 temp_c_file_path.unlink(missing_ok=True)
     else:
         obj_bytes = compiler.compile_file(c_file)
+
+    if skip_asm:
+        # Honest base for progress purposes: INCLUDE_ASM expands to nothing, so
+        # assembly-fallback functions do not exist in the object and can never
+        # score a byte-perfect match (decomp.dev's SKIP_ASM approach).  The
+        # functions that DO compile are identical to the spliced build's.
+        o_file.parent.mkdir(exist_ok=True, parents=True)
+        o_file.write_bytes(obj_bytes)
+        return
 
     precompiled_elf = Elf(obj_bytes)
     # for now we only care about the names of the functions that exist
