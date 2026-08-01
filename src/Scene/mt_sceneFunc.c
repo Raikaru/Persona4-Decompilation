@@ -1,17 +1,210 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_002692D0)
-/* Source unit: src/Scene/mt_sceneFunc_002692d0.c */
+/* Source unit: src/mt_scene/mt_scene_00268bd0.c (1 function markers) */
 #include "type.h"
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b89f0 (verified MATCH
- * there). 003b5d10 -> func_00145270, 003b88c0 -> func_00269190. */
+typedef struct Resrc {
+    u8 data[0x28];
+    u32 flags;
+} Resrc;
 
-typedef struct Resrc Resrc;
+extern Resrc* MT_Scene_GetRes();
 
-extern u32 MT_Scene_GetRes(void);
+u32 func_00268ce0(float* first, float* second, float* output, float* third);
+
+typedef struct { f32 x, y, z; } SVec3;
 extern u32 func_00269190(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
+extern u64 func_002694f0(u32 param_1, u64 param_2, u64 param_3, u64 param_4);
+extern u32 func_00269820(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+                         u32 param_5, u32 param_6, float param_7);
+extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
+                         u32 param_5, u32 param_6, float param_7);
+extern u32 func_00269bd0(void* resource, s32 enabled);
+extern s32 func_0026bc90(u8 *arg0, s32 arg1);
+
+extern u8 *func_001452b0(s32 arg0);
+
+extern void func_0026c680(float *param_1);
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbb90 (verified MATCH
+// there). 006a2f48 -> D_0063b1a0, 006a2f50 -> D_0063b1a8, 004c69f0 ->
+// func_003e40b0, 00530da0 -> func_0044dcd8, 0052e9a0 -> func_0044b8d8,
+// 005318a0 -> func_0044e7d8, 007caf18 -> fGpffff8428 (gp 0x007690f0 - 0x7bd8).
+
+typedef struct SceneVecBits
+{
+    u64 xy;
+    float z;
+} __attribute__((packed)) SceneVecBits;
+
+extern SceneVecBits D_0063b1a0[];
+extern float D_0063b1a8[];
+extern float RwV3dNormalize(float *dst, const float *src);
+extern u32 func_0044dcd8(float param_1);
+extern u32 func_0044b8d8(u32 value);
+extern float func_0044e7d8(u32 value);
+extern float fGpffff8428;
+
+/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbc90 (verified MATCH there). */
+
+typedef struct RwV3d
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} RwV3d;
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbd40 (verified MATCH
+// there). 003bbc90 -> func_0026c960.
+
+extern void func_0026c960(float param_1, float *param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
+extern f32 RwV3dLength(const RwV3d *vector);
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bc0e0 (verified MATCH
+// there). 007cb0b8 -> D_007614c0, 003bbfd0 -> func_0026cca0.
+
+extern f32 D_007614c0;
+extern float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bcc80 (verified MATCH
+// there). 007ce658 -> D_00764580, 003500e0 -> func_004b15d0.
+
+extern u16 D_00764580;
+extern void func_004b15d0(void);
+
+
+
+// FUN_00268BD0
+u32 func_00268bd0(Resrc* resource, s32 enabled)
+{
+    if (resource == NULL)
+    {
+        return 0;
+    }
+
+    if (enabled == 1)
+    {
+        resource->flags |= 8;
+    }
+    else
+    {
+        resource->flags &= ~8;
+    }
+
+    return 1;
+}
+
+
+
+// FUN_00268C20
+u32 func_00268c20(u32 resTypeId, s32 enabled)
+{
+    Resrc* res;
+
+    res = MT_Scene_GetRes(resTypeId);
+    if (res == NULL)
+    {
+        return 0;
+    }
+    else if (res == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        if (enabled == 1)
+        {
+            res->flags |= 8;
+        }
+        else
+        {
+            res->flags &= ~8;
+        }
+
+        return 1;
+    }
+}
+
+
+
+// FUN_00268CB0
+u8 func_00268cb0(Resrc* resource)
+{
+    if (resource == NULL)
+    {
+        return 0;
+    }
+
+    return (resource->flags & 8) != 0;
+}
+
+
+
+// FUN_00268E30
+u32 func_00268e30(float* first, float* second, float* third)
+{
+    float output[4];
+
+    return func_00268ce0(first, second, output, third);
+}
+
+
+
+// FUN_00268E60
+s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
+    s32 temp_4;
+    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    temp_4 = *(s32 *)(temp_2 + 0x28) | 1;
+    *(s32 *)(temp_2 + 0x28) = temp_4;
+    *(s32 *)(temp_2 + 0x28) = temp_4 & ~0x40;
+    *(SVec3 *)(temp_2 + 0x30) = *(SVec3 *)(temp_2 + 4);
+    *(SVec3 *)(temp_2 + 0x3C) = *(SVec3 *)arg1;
+    *(f32 *)(temp_2 + 0x5C) = fparg0;
+    *(s8 *)(temp_2 + 0x54) = 0;
+    return 1;
+}
+
+
+
+// FUN_00269000
+s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s8 arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5) {
+    s32 temp_3;
+    s32 temp_3_2;
+    s32 temp_3_3;
+
+    if (arg0 == NULL) {
+        return 0;
+    }
+    temp_3 = *(s32 *)(arg0 + 0x28) | 0x10;
+    *(s32 *)(arg0 + 0x28) = temp_3;
+    temp_3_2 = temp_3 & ~1;
+    *(s32 *)(arg0 + 0x28) = temp_3_2;
+    temp_3_3 = temp_3_2 & ~4;
+    *(s32 *)(arg0 + 0x28) = temp_3_3;
+    *(s32 *)(arg0 + 0x28) = temp_3_3 & ~0x40;
+    *(SVec3 *)(arg0 + 0x90) = *(SVec3 *)arg1;
+    *(SVec3 *)(arg0 + 0x9C) = *(SVec3 *)arg2;
+    *(f32 *)(arg0 + 0xA8) = fparg0;
+    *(f32 *)(arg0 + 0xAC) = fparg1;
+    *(f32 *)(arg0 + 0xB0) = fparg2;
+    *(f32 *)(arg0 + 0xB4) = fparg3;
+    *(f32 *)(arg0 + 0xB8) = fparg4;
+    *(f32 *)(arg0 + 0xBC) = fparg5;
+    *(s32 *)(arg0 + 0xC0) = arg3;
+    *(s8 *)(arg0 + 0x8C) = arg4;
+    *(s32 *)(arg0 + 0xC4) = 0;
+    return 1;
+}
+
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b89f0 (verified MATCH
+// there). 003b5d10 -> func_00145270, 003b88c0 -> func_00269190.
+
 
 // FUN_002692D0
 u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
@@ -19,7 +212,7 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
     u32 lVar1;
     u32 uVar2;
 
-    lVar1 = MT_Scene_GetRes();
+    lVar1 = (u32)MT_Scene_GetRes();
     if (lVar1 != 0)
     {
         uVar2 = func_00269190((Resrc*)lVar1, param_2, param_3, param_4);
@@ -30,17 +223,31 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
     }
     return uVar2;
 }
-#endif /* P4_UNIT_002692D0 */
 
-#if defined(P4_UNIT_00269620)
-/* Source unit: src/Scene/mt_sceneFunc_00269620.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b8e10 (verified MATCH
- * there). 003b5d10 -> func_00145270, 003b8ce0 -> func_002694f0. */
 
-extern u32 MT_Scene_GetRes(void);
-extern u64 func_002694f0(u32 param_1, u64 param_2, u64 param_3, u64 param_4);
+// FUN_00269440
+s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
+    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    *(s32 *)(temp_2 + 0x28) |= 0x8000;
+    *(SVec3 *)(temp_2 + 0xC8) = *(SVec3 *)(temp_2 + 0x1C);
+    *(SVec3 *)(temp_2 + 0xD4) = *(SVec3 *)arg1;
+    *(s32 *)(temp_2 + 0xE0) = arg2;
+    *(s32 *)(temp_2 + 0xE4) = 0;
+    return 1;
+}
+
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b8e10 (verified MATCH
+// there). 003b5d10 -> func_00145270, 003b8ce0 -> func_002694f0.
+
 
 // FUN_00269620
 u64 func_00269620(u64 param_1, u64 param_2, u64 param_3, u64 param_4)
@@ -48,7 +255,7 @@ u64 func_00269620(u64 param_1, u64 param_2, u64 param_3, u64 param_4)
     u32 lVar1;
     u64 uVar2;
 
-    lVar1 = MT_Scene_GetRes();
+    lVar1 = (u32)MT_Scene_GetRes();
     if (lVar1 != 0)
     {
         uVar2 = func_002694f0(lVar1, param_2, param_3, param_4);
@@ -59,16 +266,143 @@ u64 func_00269620(u64 param_1, u64 param_2, u64 param_3, u64 param_4)
     }
     return uVar2;
 }
-#endif /* P4_UNIT_00269620 */
 
-#if defined(P4_UNIT_0026C680)
-/* Source unit: src/Scene/mt_sceneFunc_0026c680.c */
-#include "type.h"
+
+
+// FUN_00269690
+s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
+    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    if (((*(u16 *)temp_2 & 0xFFC00) >> 0xA) != 7) {
+        return 0;
+    }
+    *(s32 *)(temp_2 + 0x28) |= 0x400;
+    *(f32 *)(temp_2 + 0x104) = *(f32 *)(temp_2 + 0x140);
+    *(f32 *)(temp_2 + 0x108) = fparg0;
+    *(s32 *)(temp_2 + 0x10C) = arg1;
+    *(s32 *)(temp_2 + 0x110) = 0;
+    return 1;
+}
+
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b93c0 (verified MATCH
+// there). 003b5d10 -> func_00145270, 003b8ff0 -> func_00269820,
+// 003b9260 -> func_002699d0.
+
+
+// FUN_00269A90
+void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
+                   short param_5)
+{
+    u32 uVar1;
+    u32 uVar3;
+    u32 lVar2;
+    u32 lVar4;
+
+    uVar1 = (u16)param_1;
+    uVar1 = (u16)(uVar1 & 0x3ff | 0xc00);
+
+    uVar3 = (u32)param_4;
+    if (uVar3 == -1) {
+        lVar2 = (u32)MT_Scene_GetRes(uVar1);
+        if (lVar2 != 0) {
+            func_00269820(lVar2, 0, param_2, param_3, 1, 0, 1.0f);
+        }
+        goto end;
+    }
+
+    lVar4 = (u32)MT_Scene_GetRes(uVar1);
+    if (lVar4 == 0) {
+        goto second_done;
+    }
+    func_00269820(lVar4, 0, param_2, param_3, 0, 0, 1.0f);
+
+second_done:
+    lVar2 = (u32)MT_Scene_GetRes(uVar1);
+    if (lVar2 != 0) {
+        func_002699d0((u32 *)lVar2, 0, uVar3, param_5, 1, 0, 1.0f);
+    }
+
+end:
+    return;
+}
+
+
+
+// FUN_00269BD0
+u32 func_00269bd0(void* resource, s32 enabled)
+{
+    u32 result;
+    s32 address;
+
+    address = (s32)resource;
+    if (resource == NULL)
+    {
+        result = 0;
+    }
+    else
+    {
+        if (enabled == 1)
+        {
+            *(u32*)(address + 0x28) |= 2;
+        }
+        else
+        {
+            *(u32*)(address + 0x28) &= 0xfffffffd;
+        }
+        result = 1;
+    }
+
+    return result;
+}
+
+
+
+// FUN_00269C20
+s32 func_00269c20(u32 unk, s32 arg1) {
+    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+
+    if (temp_2 != NULL) {
+        return func_00269bd0(temp_2, arg1);
+    }
+    return 0;
+}
+
+
+
+// FUN_0026BD50
+s32 func_0026bd50(u32 unk, s32 arg1) {
+    u8 *temp_2 = (u8*)MT_Scene_GetRes();
+
+    if (temp_2 != NULL) {
+        return func_0026bc90(temp_2, arg1);
+    }
+    return 0;
+}
+
+
+
+// FUN_0026BF20
+void func_0026bf20(void) {
+    u8 *var_3 = func_001452b0(7);
+
+    while (var_3 != NULL) {
+        *(s32 *)(var_3 + 0x148) = 0;
+        var_3 = *(u8 **)(var_3 + 0x138);
+    }
+}
+
 
 /* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bb9b0 (verified MATCH there). */
-#pragma push
 /* Removing this loses FUN_003bb9b0 (MATCH nd0 -> MISMATCH nd143) - measured W161. */
 #pragma opt_loop_invariants on
+
 // FUN_0026C680
 void func_0026c680(float *param_1)
 {
@@ -92,21 +426,23 @@ void func_0026c680(float *param_1)
     param_1[2] = afStack_10[2];
     return;
 }
-#pragma pop
-#endif /* P4_UNIT_0026C680 */
+#pragma opt_loop_invariants off
 
-#if defined(P4_UNIT_0026C770)
-/* Source unit: src/Scene/mt_sceneFunc_0026c770.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbaa0 (verified MATCH
- * there). 003bb9b0 -> func_0026c680. */
 
-extern void func_0026c680(float *param_1);
+// FUN_0026C740
+void func_0026c740(s32 object)
+{
+    (func_0026c680)((float*)(object + 0x10));
+}
 
-#pragma push
+
+// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbaa0 (verified MATCH
+// there). 003bb9b0 -> func_0026c680.
+
 /* opt_loop_invariants on: measured off nd 95, object 236/240; on nd 0, object 228/240 (MATCH); retain on. */
 #pragma opt_loop_invariants on
+
 // FUN_0026C770
 void func_0026c770(float *param_1, float *param_2, float *param_3)
 {
@@ -133,21 +469,54 @@ void func_0026c770(float *param_1, float *param_2, float *param_3)
     param_3[1] = adjusted[1];
     param_3[2] = adjusted[2];
 }
-#pragma pop
-#endif /* P4_UNIT_0026C770 */
+#pragma opt_loop_invariants off
 
-#if defined(P4_UNIT_0026C960)
-/* Source unit: src/Scene/mt_sceneFunc_0026c960.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbc90 (verified MATCH there). */
+// The volatile-qualified staging of the D_0063b1a0/D_0063b1a8 header into the
+// local SceneVecBits is carried from the P3 donor (FUN_003bbb90), which is
+// MATCH nd0 there with the same construct. measured in P4: removing the four
+// volatile qualifiers regressed 0026c860 MATCH nd0 -> MISMATCH nd10 (object
+// 256/256 both ways); retained to reproduce retail's load/store sequence.
 
-typedef struct RwV3d
+
+// FUN_0026C860
+void func_0026c860(const float *param_1, float *param_2)
 {
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
+    u32 uVar1;
+    float fVar2;
+    u64 txy;
+    float tz;
+    SceneVecBits source;
+    float afStack_20[4];
+
+    txy = ((volatile SceneVecBits *)D_0063b1a0)->xy;
+    tz = *(volatile float *)D_0063b1a8;
+    *(volatile u64 *)&source.xy = txy;
+    *(volatile float *)&source.z = tz;
+
+    fVar2 = RwV3dNormalize(afStack_20, param_1);
+    if (fVar2 == 0.0f) {
+        param_2[0] = 0.0f;
+        param_2[1] = 0.0f;
+        param_2[2] = 0.0f;
+    }
+    else {
+        afStack_20[1] = 0.0f;
+        uVar1 = func_0044dcd8(afStack_20[0] * ((float *)&source.xy)[0] +
+                              afStack_20[1] * ((float *)&source.xy)[1] +
+                              afStack_20[2] * source.z);
+        uVar1 = func_0044b8d8(uVar1);
+        fVar2 = fGpffff8428 * func_0044e7d8(uVar1);
+        if (afStack_20[0] < 0.0f) {
+            fVar2 = fVar2 * -1.0f;
+        }
+        param_2[1] = fVar2;
+        param_2[0] = 0.0f;
+        param_2[2] = 0.0f;
+    }
+}
+
+
 
 // FUN_0026C960
 void func_0026c960(float t, float *x, float *y, float *z, float *outX,
@@ -188,19 +557,11 @@ void func_0026c960(float t, float *x, float *y, float *z, float *outX,
     *outY = result.y;
     *outZ = result.z;
 }
-#endif /* P4_UNIT_0026C960 */
 
-#if defined(P4_UNIT_0026CA10)
-/* Source unit: src/Scene/mt_sceneFunc_0026ca10.c */
-#include "type.h"
-
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbd40 (verified MATCH
- * there). 003bbc90 -> func_0026c960. */
-
-extern void func_0026c960(float param_1, ...);
 
 /* opt_lifetimes on: measured nd 62 -> 0, object 400/400 -> 400/400. */
 #pragma opt_lifetimes on
+
 // FUN_0026CA10
 void func_0026ca10(float param_1, char *param_2, float *param_3)
 {
@@ -247,24 +608,8 @@ void func_0026ca10(float param_1, char *param_2, float *param_3)
     return;
 }
 #pragma opt_lifetimes off
-#endif /* P4_UNIT_0026CA10 */
 
-#if defined(P4_UNIT_0026CCA0)
-/* Source unit: src/Scene/mt_sceneFunc_0026cca0.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbfd0 (verified MATCH
- * there). 003bbc90 -> func_0026c960, 004c6ac0 -> func_003e4180. */
-
-typedef struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-
-extern void func_0026c960(float param_1, ...);
-extern f32 RwV3dLength(const RwV3d *vector);
 
 // FUN_0026CCA0
 float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4,
@@ -293,17 +638,8 @@ float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4
     param_7[2] = second_z;
     return first_len;
 }
-#endif /* P4_UNIT_0026CCA0 */
 
-#if defined(P4_UNIT_0026CDB0)
-/* Source unit: src/Scene/mt_sceneFunc_0026cdb0.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bc0e0 (verified MATCH
- * there). 007cb0b8 -> D_007614c0, 003bbfd0 -> func_0026cca0. */
-
-extern f32 D_007614c0;
-extern float func_0026cca0(float param_1, float param_2, ...);
 
 // FUN_0026CDB0
 float func_0026cdb0(char *param_1)
@@ -350,17 +686,8 @@ float func_0026cdb0(char *param_1)
     }
     return fVar5;
 }
-#endif /* P4_UNIT_0026CDB0 */
 
-#if defined(P4_UNIT_0026D810)
-/* Source unit: src/Scene/mt_sceneFunc_0026d810.c */
-#include "type.h"
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bcc80 (verified MATCH
- * there). 007ce658 -> D_00764580, 003500e0 -> func_004b15d0. */
-
-extern u16 D_00764580;
-extern void func_004b15d0(void);
 
 // FUN_0026D810
 void func_0026d810(void)
@@ -369,123 +696,3 @@ void func_0026d810(void)
     func_004b15d0();
     return;
 }
-#endif /* P4_UNIT_0026D810 */
-
-#if defined(P4_UNIT_00269A90)
-/* Source unit: src/Scene/mt_sceneFunc_00269a90.c */
-#include "type.h"
-
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b93c0 (verified MATCH
- * there). 003b5d10 -> func_00145270, 003b8ff0 -> func_00269820,
- * 003b9260 -> func_002699d0. */
-
-extern u32 MT_Scene_GetRes();
-extern u32 func_00269820(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
-                         u32 param_5, u32 param_6, float param_7);
-extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
-                         u32 param_5, u32 param_6, float param_7);
-
-// FUN_00269A90
-void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
-                   short param_5)
-{
-    u32 uVar1;
-    u32 uVar3;
-    u32 lVar2;
-    u32 lVar4;
-
-    uVar1 = (u16)param_1;
-    uVar1 = (u16)(uVar1 & 0x3ff | 0xc00);
-
-    uVar3 = (u32)param_4;
-    if (uVar3 == -1) {
-        lVar2 = MT_Scene_GetRes(uVar1);
-        if (lVar2 != 0) {
-            func_00269820(lVar2, 0, param_2, param_3, 1, 0, 1.0f);
-        }
-        goto end;
-    }
-
-    lVar4 = MT_Scene_GetRes(uVar1);
-    if (lVar4 == 0) {
-        goto second_done;
-    }
-    func_00269820(lVar4, 0, param_2, param_3, 0, 0, 1.0f);
-
-second_done:
-    lVar2 = MT_Scene_GetRes(uVar1);
-    if (lVar2 != 0) {
-        func_002699d0((u32 *)lVar2, 0, uVar3, param_5, 1, 0, 1.0f);
-    }
-
-end:
-    return;
-}
-#endif /* P4_UNIT_00269A90 */
-
-#if defined(P4_UNIT_0026C860)
-/* Source unit: src/Scene/mt_sceneFunc_0026c860.c */
-#include "type.h"
-
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbb90 (verified MATCH
- * there). 006a2f48 -> D_0063b1a0, 006a2f50 -> D_0063b1a8, 004c69f0 ->
- * func_003e40b0, 00530da0 -> func_0044dcd8, 0052e9a0 -> func_0044b8d8,
- * 005318a0 -> func_0044e7d8, 007caf18 -> fGpffff8428 (gp 0x007690f0 - 0x7bd8). */
-
-typedef struct SceneVecBits
-{
-    u64 xy;
-    float z;
-} __attribute__((packed)) SceneVecBits;
-
-extern SceneVecBits D_0063b1a0[];
-extern float D_0063b1a8[];
-extern float RwV3dNormalize(float *dst, const float *src);
-extern u32 func_0044dcd8(float param_1);
-extern u32 func_0044b8d8(u32 value);
-extern float func_0044e7d8(u32 value);
-extern float fGpffff8428;
-
-/* The volatile-qualified staging of the D_0063b1a0/D_0063b1a8 header into the
- * local SceneVecBits is carried from the P3 donor (FUN_003bbb90), which is
- * MATCH nd0 there with the same construct. measured in P4: removing the four
- * volatile qualifiers regressed 0026c860 MATCH nd0 -> MISMATCH nd10 (object
- * 256/256 both ways); retained to reproduce retail's load/store sequence. */
-
-// FUN_0026C860
-void func_0026c860(const float *param_1, float *param_2)
-{
-    u32 uVar1;
-    float fVar2;
-    u64 txy;
-    float tz;
-    SceneVecBits source;
-    float afStack_20[4];
-
-    txy = ((volatile SceneVecBits *)D_0063b1a0)->xy;
-    tz = *(volatile float *)D_0063b1a8;
-    *(volatile u64 *)&source.xy = txy;
-    *(volatile float *)&source.z = tz;
-
-    fVar2 = RwV3dNormalize(afStack_20, param_1);
-    if (fVar2 == 0.0f) {
-        param_2[0] = 0.0f;
-        param_2[1] = 0.0f;
-        param_2[2] = 0.0f;
-    }
-    else {
-        afStack_20[1] = 0.0f;
-        uVar1 = func_0044dcd8(afStack_20[0] * ((float *)&source.xy)[0] +
-                              afStack_20[1] * ((float *)&source.xy)[1] +
-                              afStack_20[2] * source.z);
-        uVar1 = func_0044b8d8(uVar1);
-        fVar2 = fGpffff8428 * func_0044e7d8(uVar1);
-        if (afStack_20[0] < 0.0f) {
-            fVar2 = fVar2 * -1.0f;
-        }
-        param_2[1] = fVar2;
-        param_2[0] = 0.0f;
-        param_2[2] = 0.0f;
-    }
-}
-#endif /* P4_UNIT_0026C860 */

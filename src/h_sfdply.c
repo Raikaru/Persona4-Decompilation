@@ -1,7 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00466580)
 /* Source unit: src/h_sfdply_00466580.c */
 #include "type.h"
 
@@ -18,32 +14,6 @@ extern void func_00421750(s32 threadId);
 
 static s32 sSfdResumePending;
 static s32 sSfdResumeThreadId;
-
-// FUN_00466580
-void func_00466580(void)
-{
-    s32 wasEnabled;
-    EeThreadStatus threadStatus;
-
-    wasEnabled = func_0042ba70();
-    if (sSfdResumePending != 0)
-    {
-        func_004216e0(sSfdResumeThreadId, &threadStatus);
-        if ((threadStatus.status != 0xc) && (threadStatus.status != 8))
-        {
-            func_00421750(sSfdResumeThreadId);
-        }
-    }
-    if (wasEnabled == 0)
-    {
-        func_0042ba20();
-    }
-}
-#endif /* P4_UNIT_00466580 */
-
-#if defined(P4_UNIT_00466680)
-/* Source unit: src/h_sfdply_00466680.c */
-#include "type.h"
 
 #define HSFD_ENTRY_COUNT 256
 #define HSFD_QUEUE_COUNT 1
@@ -105,10 +75,35 @@ extern u8 D_00902930[];
 extern u32 D_007690F0;
 extern s32 uGpffffb230;
 
-static HSfdQueueEntry sSfdQueueEntries[HSFD_QUEUE_COUNT];
-static s32 sSfdThreadIds[HSFD_QUEUE_COUNT];
-static HSfdQueueSlot sSfdQueue[HSFD_QUEUE_COUNT];
+static HSfdQueueEntry sSfdQueueEntries[1];
+static s32 sSfdThreadIds[1];
+static HSfdQueueSlot sSfdQueue[1];
 static HSfdAsyncEntry sSfdEntries[HSFD_ENTRY_COUNT];
+
+
+
+// FUN_00466580
+void func_00466580(void)
+{
+    s32 wasEnabled;
+    EeThreadStatus threadStatus;
+
+    wasEnabled = func_0042ba70();
+    if (sSfdResumePending != 0)
+    {
+        func_004216e0(sSfdResumeThreadId, &threadStatus);
+        if ((threadStatus.status != 0xc) && (threadStatus.status != 8))
+        {
+            func_00421750(sSfdResumeThreadId);
+        }
+    }
+    if (wasEnabled == 0)
+    {
+        func_0042ba20();
+    }
+}
+
+
 
 // FUN_00466680
 void func_00466680(void)
@@ -157,4 +152,3 @@ void func_00466680(void)
     }
     uGpffffb230 = 1;
 }
-#endif /* P4_UNIT_00466680 */

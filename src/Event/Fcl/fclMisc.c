@@ -1,34 +1,31 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
+/* Whole-file translation unit: src/Event/Fcl/fclMisc.c */
 
-#if defined(P4_UNIT_002BD610)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
-
-// FUN_002BD610
-s8 func_002bd610(int *param_1)
-{
-    s8 result;
-
-    if (*param_1 < 0) {
-        result = 0;
-    }
-    else if ((*(s8 *)((u8 *)param_1 + 5) != 0) && (*(s8 *)((u8 *)param_1 + 4) == 2)) {
-        result = 0;
-    }
-    else {
-        result = *(s8 *)((u8 *)param_1 + 4);
-    }
-    return result;
-}
-#endif /* P4_UNIT_002BD610 */
-
-#if defined(P4_UNIT_0027BE90)
 /* Source unit: src/Event/Fcl/fclMisc.c */
 #include "type.h"
 
 // Donor calls this implicitly (no prototype), so keep the old-style form.
 extern s32 func_00277840();
+
+extern int *func_002e2240(int *, int *, int *);
+
+// P3 counterpart iGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
+// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
+extern int iGpffffb57c;
+
+// P3 counterpart piGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
+// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
+extern int *piGpffffb57c;
+extern u32 func_002bd730();
+extern void func_002777f0();
+
+extern s32 func_00276e10(s32);
+
+// Donor calls these implicitly (no prototypes), so keep old-style forms.
+extern void func_00276e70();
+extern void func_00277250();
+extern void func_00277ad0();
+
+
 
 // FUN_0027BE90
 void func_0027be90(u64 param_1, u32 param_2)
@@ -38,13 +35,8 @@ void func_0027be90(u64 param_1, u32 param_2)
     iVar1 = func_00277840();
     *(u32 *)(iVar1 + 0x18) = param_2;
 }
-#endif /* P4_UNIT_0027BE90 */
 
-#if defined(P4_UNIT_002BCC60)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-extern int *func_002e2240(int *, int *, int *);
 
 // FUN_002BCC60
 u64 func_002bcc60(int *param_1)
@@ -74,60 +66,32 @@ u64 func_002bcc60(int *param_1)
     }
     return 0;
 }
-#endif /* P4_UNIT_002BCC60 */
 
-#if defined(P4_UNIT_002BD220)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-// P3 counterpart iGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
-extern int iGpffffb57c;
 
 // FUN_002BD220
 u8 func_002bd220(void)
 {
     return *(int *)(*(int *)(iGpffffb57c + 0x18) + 4) == 0;
 }
-#endif /* P4_UNIT_002BD220 */
 
-#if defined(P4_UNIT_002BD240)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-// P3 counterpart iGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
-extern int iGpffffb57c;
 
 // FUN_002BD240
 void func_002bd240(u32 param_1)
 {
     *(u32 *)(iGpffffb57c + 0x14) = *(u32 *)(iGpffffb57c + 0x14) | param_1;
 }
-#endif /* P4_UNIT_002BD240 */
 
-#if defined(P4_UNIT_002BD340)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-// P3 counterpart piGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
-extern int *piGpffffb57c;
 
 // FUN_002BD340
 u16 func_002bd340(void)
 {
     return *(u16 *)(*piGpffffb57c + 0x10);
 }
-#endif /* P4_UNIT_002BD340 */
 
-#if defined(P4_UNIT_002BD360)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-// P3 counterpart piGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
-extern int *piGpffffb57c;
 
 // FUN_002BD360
 u32 func_002bd360(int param_1, int param_2)
@@ -144,31 +108,16 @@ u32 func_002bd360(int param_1, int param_2)
     }
     return 0;
 }
-#endif /* P4_UNIT_002BD360 */
 
-#if defined(P4_UNIT_002BD3C0)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-// P3 counterpart iGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
-extern int iGpffffb57c;
 
 // FUN_002BD3C0
 void func_002bd3c0(void)
 {
     *(u32 *)(iGpffffb57c + 4) = *(u32 *)(iGpffffb57c + 4) | 2;
 }
-#endif /* P4_UNIT_002BD3C0 */
 
-#if defined(P4_UNIT_002BD440)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-// P3 counterpart piGpffffb98c (gp -0x4674, absolute 0x007ce67c); P4 retail
-// uses gp -0x4A84, i.e. absolute 0x007690f0 - 0x4a84 = 0x0076466c.
-extern int *piGpffffb57c;
-extern u32 func_002bd730();
 
 // FUN_002BD440
 void func_002bd440(void)
@@ -183,14 +132,8 @@ void func_002bd440(void)
         }
     }
 }
-#endif /* P4_UNIT_002BD440 */
 
-#if defined(P4_UNIT_002BD530)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-extern u32 func_002bd730();
-extern void func_002777f0();
 
 // FUN_002BD530
 void func_002bd530(int *param_1)
@@ -204,14 +147,27 @@ void func_002bd530(int *param_1)
         *(u8 *)((int)param_1 + 5) = 0;
     }
 }
-#endif /* P4_UNIT_002BD530 */
 
-#if defined(P4_UNIT_002BD660)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-extern s32 func_00276e10(s32);
-extern u32 func_002bd730(u32 *);
+
+// FUN_002BD610
+s8 func_002bd610(int *param_1)
+{
+    s8 result;
+
+    if (*param_1 < 0) {
+        result = 0;
+    }
+    else if ((*(s8 *)((u8 *)param_1 + 5) != 0) && (*(s8 *)((u8 *)param_1 + 4) == 2)) {
+        result = 0;
+    }
+    else {
+        result = *(s8 *)((u8 *)param_1 + 4);
+    }
+    return result;
+}
+
+
 
 // FUN_002BD660
 void func_002bd660(int *param_1)
@@ -245,16 +201,8 @@ void func_002bd660(int *param_1)
         break;
     }
 }
-#endif /* P4_UNIT_002BD660 */
 
-#if defined(P4_UNIT_002BD730)
-/* Source unit: src/Event/Fcl/fclMisc.c */
-#include "type.h"
 
-// Donor calls these implicitly (no prototypes), so keep old-style forms.
-extern void func_00276e70();
-extern void func_00277250();
-extern void func_00277ad0();
 
 // FUN_002BD730
 u32 func_002bd730(u32 *param_1)
@@ -276,4 +224,3 @@ u32 func_002bd730(u32 *param_1)
     }
     return result;
 }
-#endif /* P4_UNIT_002BD730 */

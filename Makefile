@@ -1,7 +1,8 @@
 PYTHON ?= python
 SPLAT_CONFIG := config/slus21782.yaml
+OBJDIFF_CLI ?= objdiff-cli
 
-.PHONY: all setup split consolidate reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects progress progress-validate m2c-setup m2c clean distclean
+.PHONY: all setup split reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects objdiff-report progress progress-validate m2c-setup m2c clean distclean
 
 all: build verify
 
@@ -28,10 +29,7 @@ m2c-promote:
 	@test -f build/m2c_verify_report.json || (echo "run candidate verifier first: build/m2c_verify_report.json is missing" && exit 2)
 	$(PYTHON) tools/m2c_bulk.py --promote-report build/m2c_verify_report.json
 
-consolidate:
-	$(PYTHON) tools/consolidate_sources.py
-
-reconcile: consolidate
+reconcile:
 	$(PYTHON) tools/reconcile_function_boundaries.py
 
 # Map functions shared with the Persona 3 FES decomp. Prefer passing a FRESH
@@ -95,21 +93,33 @@ lint-full:
 	$(PYTHON) tools/decomp_lint.py --include-third-party
 
 # Flattened context for a decomp.me scratch or decomp-permuter run:
-#   make ctx CTX_SRC=src/Battle/btlTarget.c CTX_UNIT=001EC630
+#   make ctx CTX_SRC=src/Battle/btlTarget.c
 ctx:
-	@test -n "$(CTX_SRC)" || (echo "usage: make ctx CTX_SRC=src/path.c [CTX_UNIT=ADDR8]" && exit 2)
-	$(PYTHON) tools/m2ctx.py "$(CTX_SRC)" $(if $(CTX_UNIT),--unit "$(CTX_UNIT)",) --decompme
+	@test -n "$(CTX_SRC)" || (echo "usage: make ctx CTX_SRC=src/path.c" && exit 2)
+	$(PYTHON) tools/m2ctx.py "$(CTX_SRC)" --decompme
 
-# Regenerate objdiff.json from a fresh verifier report.
+# Regenerate objdiff.json from a fresh verifier report.  The config now lists
+# one unit per canonical function (tools/slus21782_functions.json), so it can
+# only be regenerated from a FULL verify run.
 objdiff:
 	$(PYTHON) tools/verify.py --json build/objdiff_report.json
 	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json
 
 # Emit the per-unit target/base objects that objdiff.json references.
-# ONLY=<substring> restricts emission to matching units.
-objdiff-objects:
-	$(PYTHON) tools/verify.py --json build/objdiff_report.json
-	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json --emit-objects $(if $(ONLY),--only "$(ONLY)",)
+# ONLY=<substring> restricts emission to matching units.  Base objects are
+# built with --skip-asm (decomp.dev's SKIP_ASM convention): INCLUDE_ASM
+# fallbacks then contribute zero matched code instead of scoring 100%% by
+# splicing the retail bytes.  Set SKIP_ASM=0 to emit the spliced bases
+# instead (handy for visually diffing an assembly fallback in the objdiff UI).
+objdiff-objects: objdiff
+	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json --emit-objects $(if $(filter 0,$(SKIP_ASM)),,--skip-asm) $(if $(ONLY),--only "$(ONLY)",)
+
+# Progress report for decomp.dev.  Requires every target object the config
+# names to have been emitted (objdiff-objects).  OBJDIFF_CLI=/path/to/objdiff-cli
+# overrides the binary; -c functionRelocDiffs=none matches the project option
+# for one-shot diffs.
+objdiff-report: objdiff-objects
+	$(OBJDIFF_CLI) report generate -o build/report.json -c functionRelocDiffs=none
 
 progress:
 	$(PYTHON) tools/progress.py

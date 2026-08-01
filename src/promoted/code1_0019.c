@@ -1,32 +1,24 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001905D0)
-#include "type.h"
-
-extern void (*jtbl_008873EC[])(u8 *);
-
-// FUN_001905D0
-void func_001905d0(u8 *arg0) {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
-}
-#endif /* P4_UNIT_001905D0 */
-
-#if defined(P4_UNIT_00191D60)
-#include "type.h"
-
-extern void (*jtbl_008873EC[])(u8 *);
-
-// FUN_00191D60
-void func_00191d60(u8 *arg0) {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
-}
-#endif /* P4_UNIT_00191D60 */
-
-#if defined(P4_UNIT_00192B20)
 #include "type.h"
 
 extern void func_00106390(s32 arg0, s32 arg1);
+
+extern s64 func_0029cc00(s32 arg0);
+extern u8 *func_00105510(s16 arg0);
+extern void func_00243ec0(u8 *arg0, s16 arg1);
+extern s64 func_00243e90(u8 *arg0);
+extern void func_0029cf50(s32 arg0);
+
+extern u8 *D_0076449C;
+
+extern f32 func_0047a080(s32 arg0, s32 arg1);
+
+extern void func_0019d990(u8 *arg0, s32 arg1);
+extern void func_0014b0c0(s32 arg0, s32 arg1);
+
+extern u8 *func_0019d210(s32 arg0);
+extern void func_0019ea60(u8 *arg0, u16 arg1);
+
+
 
 // FUN_00192B20
 void func_00192b20(void) {
@@ -38,14 +30,8 @@ void func_00192b20(void) {
     func_00106390(0x1435, 0);
     func_00106390(0x1438, 0);
 }
-#endif /* P4_UNIT_00192B20 */
 
-#if defined(P4_UNIT_00193630)
-#include "type.h"
 
-extern s64 func_0029cc00(s32 arg0);
-extern u8 *func_00105510(s16 arg0);
-extern void func_00243ec0(u8 *arg0, s16 arg1);
 
 // FUN_00193630
 s32 func_00193630(void) {
@@ -57,38 +43,23 @@ s32 func_00193630(void) {
     func_00243ec0(func_00105510((s16)temp_17), (s16)temp_16);
     return 1;
 }
-#endif /* P4_UNIT_00193630 */
 
-#if defined(P4_UNIT_001936A0)
-#include "type.h"
 
-extern s64 func_0029cc00(s32 arg0);
-extern u8 *func_00105510(s16 arg0);
-extern s64 func_00243e90(u8 *arg0);
-extern void func_0029cf50(s32 arg0);
 
 // FUN_001936A0
 s32 func_001936a0(void) {
     func_0029cf50((s16)func_00243e90(func_00105510((s16)func_0029cc00(0))));
     return 1;
 }
-#endif /* P4_UNIT_001936A0 */
 
-#if defined(P4_UNIT_00193730)
-#include "type.h"
 
-extern u8 *D_0076449C;
 
 // FUN_00193730
 void func_00193730(void) {
     *(s32 *)(D_0076449C + 0xC) |= 0x4000;
 }
-#endif /* P4_UNIT_00193730 */
 
-#if defined(P4_UNIT_00199830)
-#include "type.h"
 
-extern f32 func_0047a080(s32 arg0, s32 arg1);
 
 // FUN_00199830
 s64 func_00199830(u8 *arg0) {
@@ -97,13 +68,8 @@ s64 func_00199830(u8 *arg0) {
     }
     return 0;
 }
-#endif /* P4_UNIT_00199830 */
 
-#if defined(P4_UNIT_0019D040)
-#include "type.h"
 
-extern void func_0019d990(u8 *arg0, s32 arg1);
-extern void func_0014b0c0(s32 arg0, s32 arg1);
 
 // FUN_0019D040
 void func_0019d040(u8 *arg0) {
@@ -116,13 +82,8 @@ void func_0019d040(u8 *arg0) {
     }
     *(s32 *)(arg0 + 0x9C) |= 2;
 }
-#endif /* P4_UNIT_0019D040 */
 
-#if defined(P4_UNIT_0019D0C0)
-#include "type.h"
 
-extern void func_0019d990(u8 *arg0, s32 arg1);
-extern void func_0014b0c0(s32 arg0, s32 arg1);
 
 // FUN_0019D0C0
 void func_0019d0c0(u8 *arg0) {
@@ -133,13 +94,8 @@ void func_0019d0c0(u8 *arg0) {
     }
     *(s32 *)(arg0 + 0x9C) &= ~2;
 }
-#endif /* P4_UNIT_0019D0C0 */
 
-#if defined(P4_UNIT_0019EF30)
-#include "type.h"
 
-extern u8 *func_0019d210(s32 arg0);
-extern void func_0019ea60(u8 *arg0, u16 arg1);
 
 // FUN_0019EF30
 void func_0019ef30(u8 *arg0, u16 arg1) {
@@ -148,4 +104,3 @@ void func_0019ef30(u8 *arg0, u16 arg1) {
     }
     func_0019ea60(*(u8 **)(arg0 + 0xA0C), arg1);
 }
-#endif /* P4_UNIT_0019EF30 */

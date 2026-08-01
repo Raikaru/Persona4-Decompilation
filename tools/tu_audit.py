@@ -4,14 +4,13 @@
 Why this exists
 ---------------
 The P4 source tree groups functions by MODULE NAME, not by the original
-translation unit: ``tools/verify.py`` can compile each function as its own
-unit via ``#if defined(P4_UNIT_<addr>)`` guards (mwccgap is blind to them, so
-``INCLUDE_ASM`` and cross-unit inlining break under that scheme), and the
-per-unit scheme is currently load-bearing.  A real translation unit emits one
-contiguous ``.text`` region, so recovering the original boundaries matters for
-two reasons: (1) it tells us which existing module files could be re-arranged
-into true TUs, and (2) it quantifies how much of the per-unit scheme is
-actually needed.
+translation unit: every ``src/**/*.c`` file is now one real translation unit
+compiled whole (one C file == one object), and the link build places it
+together with the functions that were originally its neighbours.  A real
+translation unit emits one contiguous ``.text`` region, so recovering the
+original boundaries matters for two reasons: (1) it tells us which existing
+module files could be re-arranged into true TUs, and (2) it quantifies how
+much of the whole-file model is actually needed.
 
 Address gaps carry almost no signal here: the canonical function map is a
 single contiguous run (one real ~1.9 MB hole at 0x52da00-0x70c850), so

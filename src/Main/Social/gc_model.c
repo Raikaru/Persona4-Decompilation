@@ -1,52 +1,3 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_0036A6B0)
-/* Source unit: src/Main/Social/gc_model_0036a6b0.c (1 function markers) */
-#include "type.h"
-
-extern void* func_00457120(void);
-extern void* func_003e89c0(void);
-extern void func_003e8970(void* viewport, void* cameraData);
-
-// FUN_0036A6B0
-void func_0036a6b0(s32 unused, const f32* source, f32 scale, void* viewport)
-{
-    s32 size[8];
-    f32* camera;
-    f32 panelScale = scale;
-    f32* out = viewport;
-
-    camera = (f32*)((u8*)func_00457120() + 0x68);
-    func_003e8970(size, func_003e89c0());
-    out[0] = panelScale * (camera[0] * (1.0f + (-source[0] / (f32)(size[0] >> 1))));
-    out[1] = panelScale * (camera[1] * (1.0f + (-source[1] / (f32)(size[1] >> 1))));
-    out[2] = panelScale;
-}
-#endif /* P4_UNIT_0036A6B0 */
-
-#if defined(P4_UNIT_0036A790)
-/* Source unit: src/Main/Social/gc_model_0036a790.c (1 function markers) */
-#include "type.h"
-
-extern void* func_00457120(void);
-extern void* func_003e89c0(void);
-extern void func_003e8970(void* viewport, void* cameraData);
-
-// FUN_0036A790
-f32 func_0036a790(const f32* value, f32 scale)
-{
-    s32 size[8];
-    f32* camera;
-    f32 panelScale = scale;
-
-    camera = (f32*)((u8*)func_00457120() + 0x68);
-    func_003e8970(size, func_003e89c0());
-    return (6.0f * value[11] * (f32)(size[0] >> 1)) / (panelScale * camera[0]);
-}
-#endif /* P4_UNIT_0036A790 */
-
-#if defined(P4_UNIT_0036ABD0)
 /* Source unit: src/Main/Social/gc_model_0036abd0.c (1 function markers) */
 #include "type.h"
 
@@ -111,6 +62,16 @@ extern void func_003e0e20(void* matrix, void* source, s32 mode);
 extern void func_003e0f40(void* matrix);
 extern void RwMatrixTranslate(RwMatrix* matrix, const RwV3d* translation, u32 combine);
 extern void* func_003e9700(void* model);
+
+extern const RwV3d D_0064E4D0;
+extern RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, u32 combine);
+extern void func_00410420(void* vertices, u32 count, void* matrix, u32 stride);
+extern void (*D_00887300[])(u32 state, u32 value);
+extern u16 D_00884690[];
+extern void func_00410520(u32 primitive, void* indices, u32 count);
+extern void func_004104d0(void);
+
+
 
 // FUN_0036ABD0
 void func_0036abd0(PanelMatrix* output, const PanelTransform* transform)
@@ -189,37 +150,8 @@ void func_0036abd0(PanelMatrix* output, const PanelTransform* transform)
         func_003e0e20(output, func_003e9700(transform->model), 2);
     }
 }
-#endif /* P4_UNIT_0036ABD0 */
 
-#if defined(P4_UNIT_0036B470)
-/* Source unit: src/Main/Social/gc_model_0036b470.c (1 function markers) */
-#include "type.h"
 
-typedef struct RwV3d {
-    f32 x;
-    f32 y;
-    f32 z;
-} RwV3d;
-typedef struct RwMatrix {
-    RwV3d right;
-    u32 flags;
-    RwV3d up;
-    u32 pad1;
-    RwV3d at;
-    u32 pad2;
-    RwV3d pos;
-    u32 pad3;
-} RwMatrix;
-
-extern const RwV3d D_0064E4D0;
-extern void* func_003e0f80(void);
-extern RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, u32 combine);
-extern void func_00410420(void* vertices, u32 count, void* matrix, u32 stride);
-extern void (*D_00887300[])(u32 state, u32 value);
-extern u16 D_00884690[];
-extern void func_00410520(u32 primitive, void* indices, u32 count);
-extern void func_004104d0(void);
-extern void func_003e0f40(void* matrix);
 
 // FUN_0036B470
 void func_0036b470(u32* work, const f32* vertices)
@@ -259,4 +191,3 @@ void func_0036b470(u32* work, const f32* vertices)
         func_003e0f40(matrix);
     }
 }
-#endif /* P4_UNIT_0036B470 */

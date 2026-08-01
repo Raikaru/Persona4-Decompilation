@@ -160,7 +160,7 @@ def validate_linked_report(report: Any, windows: dict[int, int | None]) -> dict[
     functions = report["linked_functions"]
     if not isinstance(functions, list):
         raise ProgressError("malformed linked report: linked_functions must be a list")
-    addresses, units = set(), set()
+    addresses, files = set(), set()
     for row in functions:
         if not isinstance(row, dict):
             raise ProgressError("malformed linked report: linked_functions entries must be objects")
@@ -173,21 +173,12 @@ def validate_linked_report(report: Any, windows: dict[int, int | None]) -> dict[
             raise ProgressError("malformed linked report: linked function name must be a non-empty string")
         if not isinstance(row.get("file"), str) or not row["file"]:
             raise ProgressError("malformed linked report: linked function file must be a non-empty string")
-        unit = row.get("unit")
-        if unit is not None and (
-            not isinstance(unit, str) or len(unit) != 8
-            or any(c not in "0123456789abcdef" for c in unit)
-        ):
-            raise ProgressError(
-                "malformed linked report: linked function unit must be an 8-digit "
-                "lowercase hexadecimal string or null"
-            )
         addresses.add(address)
-        units.add((row["file"], unit))
+        files.add(row["file"])
     if report["linked_function_count"] != len(addresses):
         raise ProgressError("linked report linked_function_count does not agree with linked_functions")
-    if report["linked_tu_count"] != len(units):
-        raise ProgressError("linked report linked_tu_count does not agree with linked function units")
+    if report["linked_tu_count"] != len(files):
+        raise ProgressError("linked report linked_tu_count does not agree with linked function files")
     return report
 
 

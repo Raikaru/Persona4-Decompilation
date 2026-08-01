@@ -85,7 +85,7 @@ annotation. A waiver that cannot point at a measured regression is a violation.
 This file contains both a `volatile` and a `#pragma opt_loop_invariants`,
 each annotated with its measured removal cost.
 
-The `volatile` (unit `P4_UNIT_001EC630`), annotation directly above the marker:
+The `volatile` annotation directly above the marker:
 
 ```c
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d21e0 (verified MATCH there).
@@ -101,7 +101,7 @@ normalized diff, `nd0 -> nd6`), the sizes (148-byte object in a 160-byte
 window), and the provenance (carried over from the verified P3 donor, whose
 own recorded measurement agrees).
 
-The pragma (unit `P4_UNIT_001EB440`), annotation above the marker:
+The pragma annotation above the marker:
 
 ```c
 /* Ported from the P3FES btlTarget donor at 002d1600 (verified MATCH there),
@@ -120,9 +120,9 @@ operand order).
 
 ## Comments and provenance
 
-- Keep the consolidated-unit header (`/* Consolidated Persona 4 source
-  units. */`, the `-DP4_UNIT_<address>` build note) and the per-unit
-  `/* Source unit: <original.c> */` comment intact.
+- Keep the `/* Source unit: <original.c> */` provenance comment at the top of
+  files that carry it; it records the original retail translation unit the
+  file was recovered from.
 - Ported functions record their donor: the P3 file/function and that it was
   verified `MATCH` there, plus any steering carried over (as in the examples
   above).

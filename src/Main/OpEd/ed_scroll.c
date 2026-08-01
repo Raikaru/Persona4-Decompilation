@@ -1,11 +1,14 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_0038E6D0)
 /* Source unit: src/Main/OpEd/ed_scroll_0038e6d0.c */
 #include "type.h"
 
 extern void func_00271b70(u32 resource);
+
+extern void func_00272950(u32 resource, s32 x, s32 y);
+extern void func_00274a20(u32 resource, f32 angle);
+
+extern void func_00272ba0(u32 resource, u32 color);
+
+
 
 // FUN_0038E6D0
 void func_0038e6d0(u32* record)
@@ -17,14 +20,8 @@ void func_0038e6d0(u32* record)
     }
     record[0] &= ~1u;
 }
-#endif /* P4_UNIT_0038E6D0 */
 
-#if defined(P4_UNIT_0038EAE0)
-/* Source unit: src/Main/OpEd/ed_scroll_0038eae0.c */
-#include "type.h"
 
-extern void func_00272950(u32 resource, s32 x, s32 y);
-extern void func_00274a20(u32 resource, f32 angle);
 
 // FUN_0038EAE0
 void func_0038eae0(u32* work, const f32* pos)
@@ -38,13 +35,8 @@ void func_0038eae0(u32* work, const f32* pos)
         func_00274a20(*(u32*)(entry + 1), 0.0f);
     }
 }
-#endif /* P4_UNIT_0038EAE0 */
 
-#if defined(P4_UNIT_0038EBB0)
-/* Source unit: src/Main/OpEd/ed_scroll_0038ebb0.c */
-#include "type.h"
 
-extern void func_00272ba0(u32 resource, u32 color);
 
 // FUN_0038EBB0
 void func_0038ebb0(u32* work, const u8* color)
@@ -58,4 +50,3 @@ void func_0038ebb0(u32* work, const u8* color)
         func_00272ba0(*(u32*)((u8*)work + i * 8 + 8), packed);
     }
 }
-#endif /* P4_UNIT_0038EBB0 */

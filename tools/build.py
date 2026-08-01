@@ -195,6 +195,71 @@ def patch_align1(path, sec):
     path.write_bytes(d)
 
 
+def patch_text_alignment(path, addresses):
+    """Give each function's .text section the alignment its retail address implies.
+
+    write_lcf places an OBJECT, not a function: `. = start; obj (.text)` gathers
+    every .text section in the object and the linker lays them out back to back,
+    honouring each section's own alignment. MWCC emits one .text per function at
+    align 16.
+
+    Forcing every section to align 1 (patch_align1) is right for the FIRST
+    function, whose address is arbitrary and must land exactly where `. =` puts
+    it, but it also erases the padding the linker would insert before each later
+    function -- so a function that emits fewer bytes than its window drags every
+    following function off its address.
+
+    Setting each section's alignment to the largest power of two (up to 16) that
+    divides its own retail address reproduces retail's inter-function padding
+    exactly, while still letting an unaligned first function be placed verbatim.
+
+    ``addresses`` maps function symbol name -> retail address.
+    """
+    data = bytearray(path.read_bytes())
+    shoff = struct.unpack_from("<I", data, 0x20)[0]
+    entsize, count, stridx = struct.unpack_from("<HHH", data, 0x2e)
+    shstr = struct.unpack_from("<IIIIII", data, shoff + stridx * entsize)[4]
+
+    def section_name(offset):
+        end = data.find(b"\0", shstr + offset)
+        return data[shstr + offset:end].decode()
+
+    symtab = strtab = None
+    for index in range(count):
+        header = shoff + index * entsize
+        if struct.unpack_from("<I", data, header + 4)[0] == 2:  # SHT_SYMTAB
+            symtab = struct.unpack_from("<IIIIIIIIII", data, header)
+            strtab = struct.unpack_from("<IIIIII", data, shoff + symtab[6] * entsize)[4]
+            break
+    if symtab is None:
+        return
+
+    # Alignment is a property of the section, so a section holding several
+    # symbols must satisfy the strictest address among them.
+    wanted: dict[int, int] = {}
+    offset, size = symtab[4], symtab[5]
+    for k in range(size // 16):
+        entry = offset + k * 16
+        nameoff, _value, _size, _info, shndx = struct.unpack_from("<IIIBBH", data, entry)
+        end = data.find(b"\0", strtab + nameoff)
+        name = data[strtab + nameoff:end].decode(errors="replace")
+        address = addresses.get(name)
+        if address is None or not shndx or shndx >= count:
+            continue
+        if section_name(struct.unpack_from("<I", data, shoff + shndx * entsize)[0]) != ".text":
+            continue
+        align = 16
+        while align > 1 and address % align:
+            align //= 2
+        wanted[shndx] = min(wanted.get(shndx, 16), align)
+
+    for index in range(count):
+        header = shoff + index * entsize
+        if section_name(struct.unpack_from("<I", data, header)[0]) == ".text":
+            struct.pack_into("<I", data, header + 0x20, wanted.get(index, 1))
+    path.write_bytes(data)
+
+
 def progbitsify(path, names=(".sbss", ".bss")):
     """Convert a compiled object's NOBITS data sections (.sbss/.bss) to PROGBITS
     backed by real zero bytes. Retail keeps these small-bss regions inside the
@@ -260,6 +325,23 @@ def load_symbol_names():
             m = re.match(r"\s*([A-Za-z_.$][\w.$]*)\s*=", line)
             if m:
                 names.add(m.group(1))
+    return names
+
+
+def source_marker_names():
+    """Function names defined by C sources anywhere in the tree.
+
+    These are link-resolvable by definition: whichever object owns the marker
+    emits the symbol. Collected across all of src/ because a translation unit
+    may legitimately call into a sibling unit.
+    """
+    names = set()
+    for path in (REPO / "src").rglob("*.c"):
+        if V.is_generated(path):
+            continue
+        for marker in V.scan_markers(path):
+            if marker.get("name"):
+                names.add(marker["name"])
     return names
 
 
@@ -469,6 +551,46 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
     return True, per_name
 
 
+def text_alignment_for(address):
+    """Largest power-of-two alignment up to 16 that the retail address satisfies."""
+    align = 16
+    while align > 1 and address % align:
+        align //= 2
+    return align
+
+
+def object_layout_is_placeable(addrs):
+    """Can this object's functions land at their retail addresses?
+
+    ``addrs`` is ``(address, window, emitted_size, section_index)`` sorted by
+    address. write_lcf places an OBJECT, not a function: `. = start; obj (.text)`
+    gathers every .text section and lays them out consecutively, honouring each
+    section's alignment. patch_text_alignment gives each function the alignment
+    its own retail address implies, which is what reproduces retail's
+    inter-function padding.
+
+    Alignment cannot manufacture an arbitrary gap, though -- a 12-byte pad in
+    front of a merely 4-aligned address is unreachable -- so rather than
+    approximate the rule, walk the layout the linker will actually produce and
+    require every function to land on its retail address. A single-function
+    object is always placeable: the LCF places it directly.
+    """
+    if len(addrs) < 2:
+        return True
+    # Concatenation follows section order, not address order.
+    sections = [section for _address, _window, _size, section in addrs]
+    if sections != sorted(sections):
+        return False
+    cursor = addrs[0][0]
+    for address, _window, size, _section in addrs:
+        align = text_alignment_for(address)
+        cursor = (cursor + align - 1) & ~(align - 1)
+        if cursor != address:
+            return False
+        cursor += size
+    return True
+
+
 def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
                        include_generated=False):
     """Select matching C source units that can be placed byte-exact."""
@@ -483,61 +605,66 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
                      if include_generated or not V.is_generated(p))
     for cpath in sources:
-        units = V.source_units(cpath) or [None]
-        for unit in units:
-            markers = V.scan_markers(cpath, unit)
-            real = [m for m in markers if m["name"]]
-            if not real or any(m["stub"] or m["nonmatching"] for m in real):
-                continue
-            obj = compile_eligibility(c, cpath, cache, unit)
-            if obj is None:
-                continue
-            symtab = {s["name"]: s.get("shndx", 0) for s in obj.symbols}
-            ok = True
-            addrs = []
-            for m in real:
-                try:
-                    body, rels = obj.function(m["name"])
-                except KeyError:
+        markers = V.scan_markers(cpath)
+        real = [m for m in markers if m["name"]]
+        # A stub is a placeholder with no real body, so it can never be placed.
+        # A NONMATCHING function whose body is real-but-wrong C would corrupt the
+        # image, so it blocks the object too -- EXCEPT when it carries an
+        # INCLUDE_ASM fallback. That fallback is the extracted retail assembly:
+        # it reproduces the window byte-for-byte by construction and fills it
+        # exactly, which is precisely what lets a translation unit containing an
+        # unmatched function still link as one object. Rejecting those would
+        # reinstate the per-unit guard scheme's whole reason for existing.
+        if not real or any(m["stub"] or (m["nonmatching"] and not m.get("asm")) for m in real):
+            continue
+        obj = compile_eligibility(c, cpath, cache)
+        if obj is None:
+            continue
+        symtab = {s["name"]: s.get("shndx", 0) for s in obj.symbols}
+        ok = True
+        addrs = []
+        for m in real:
+            try:
+                body, rels = obj.function(m["name"])
+            except KeyError:
+                ok = False
+                break
+            i = bisect.bisect_right(boundaries, m["addr"])
+            win = (
+                boundaries[i] - m["addr"]
+                if i < len(boundaries)
+                else (window_sizes or {}).get(m["addr"])
+            )
+            if not win or win > 0x10000:
+                ok = False
+                break
+            wb = retail.bytes_at(m["addr"], win)
+            if V.compare(body, rels, wb[:len(body)])[0] != 0 or len(body) > win or any(wb[len(body):]):
+                ok = False
+                break
+            for r in rels:
+                nm = r["symbol"]
+                if nm and symtab.get(nm, 0) == 0 and nm not in resolvable:
                     ok = False
                     break
-                i = bisect.bisect_right(boundaries, m["addr"])
-                win = (
-                    boundaries[i] - m["addr"]
-                    if i < len(boundaries)
-                    else (window_sizes or {}).get(m["addr"])
-                )
-                if not win or win > 0x10000:
-                    ok = False
-                    break
-                wb = retail.bytes_at(m["addr"], win)
-                if V.compare(body, rels, wb[:len(body)])[0] != 0 or len(body) > win or any(wb[len(body):]):
-                    ok = False
-                    break
-                for r in rels:
-                    nm = r["symbol"]
-                    if nm and symtab.get(nm, 0) == 0 and nm not in resolvable:
-                        ok = False
-                        break
-                if not ok:
-                    break
-                addrs.append((m["addr"], win))
-            if not ok or not addrs:
-                continue
-            addrs.sort()
-            if not all(addrs[k][0] + addrs[k][1] == addrs[k + 1][0] for k in range(len(addrs) - 1)):
-                continue
-            data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable)
-            if not data_ok:
-                continue
-            out.append(dict(
-                src=cpath,
-                unit=unit,
-                start=addrs[0][0],
-                end=addrs[-1][0] + addrs[-1][1],
-                funcs=real,
-                sections=sections,
-            ))
+            if not ok:
+                break
+            addrs.append((m["addr"], win, len(body), symtab.get(m["name"], 0)))
+        if not ok or not addrs:
+            continue
+        addrs.sort()
+        if not object_layout_is_placeable(addrs):
+            continue
+        data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable)
+        if not data_ok:
+            continue
+        out.append(dict(
+            src=cpath,
+            start=addrs[0][0],
+            end=addrs[-1][0] + addrs[-1][1],
+            funcs=real,
+            sections=sections,
+        ))
     out.sort(key=lambda d: d["start"])
     return out
 
@@ -695,7 +822,7 @@ def _include_dirs(flags):
     return directories
 
 
-def _mwccgap_flags(c, unit=None):
+def _mwccgap_flags(c):
     """Return the compiler/assembler flags shared by every C compile path."""
     flags = [
         "--mwcc-path", c["mwcc"],
@@ -704,18 +831,16 @@ def _mwccgap_flags(c, unit=None):
         "--as-march", "r5900", "--as-mabi", "eabi",
         *c["cflags"], "-Iinclude",
     ]
-    if unit is not None:
-        flags.append(f"-DP4_UNIT_{unit:08X}")
     if AS_TOOL is not None and not AS_TOOL.wsl and len(AS_TOOL.argv) == 1:
         flags[0:0] = ["--as-path", AS_TOOL.argv[0]]
     return flags
 
 
-def _compile_with_mwccgap(c, src, output, unit=None):
+def _compile_with_mwccgap(c, src, output):
     mwccgap = REPO / "tools" / "mwccgap" / "mwccgap.py"
     sh(
         [sys.executable, str(mwccgap), str(src), str(output),
-         *_mwccgap_flags(c, unit)],
+         *_mwccgap_flags(c)],
         cwd=str(REPO),
     )
 
@@ -756,17 +881,16 @@ def _cache_tools(c, mode):
     return tools
 
 
-def compile_eligibility(c, src, cache, unit=None):
+def compile_eligibility(c, src, cache):
     relative = src.relative_to(REPO)
-    suffix = V._unit_suffix(unit)
-    obj = OBJ / "eligibility" / (relative.as_posix().replace("/", "_") + suffix + ".o")
+    obj = OBJ / "eligibility" / (relative.as_posix().replace("/", "_") + ".o")
     # Both the eligibility and link paths now compile through mwccgap, so the
     # cache key must record the mwccgap flags actually used -- keying on the
     # bare compile_flags would miss an assembler/prefix change.
-    flags = _mwccgap_flags(c, unit)
+    flags = _mwccgap_flags(c)
 
     def produce(temporary):
-        _compile_with_mwccgap(c, src, temporary, unit)
+        _compile_with_mwccgap(c, src, temporary)
         return True, ""
 
     compiled, _log = cache.build(
@@ -782,9 +906,9 @@ def compile_eligibility(c, src, cache, unit=None):
     return V.ObjectFile(obj) if compiled else None
 
 
-def compile_c(c, src, obj, cache, unit=None):
+def compile_c(c, src, obj, cache):
     def produce(temporary):
-        _compile_with_mwccgap(c, src, temporary, unit)
+        _compile_with_mwccgap(c, src, temporary)
         progbitsify(temporary)
         return True, ""
 
@@ -793,7 +917,7 @@ def compile_c(c, src, obj, cache, unit=None):
         output=obj,
         source=src,
         include_dirs=_include_dirs(c["compile_flags"]),
-        flags=_mwccgap_flags(c, unit),
+        flags=_mwccgap_flags(c),
         tools=_cache_tools(c, "link"),
         inputs=_cache_inputs("link", src),
         producer=produce,
@@ -874,8 +998,7 @@ def linked_function_records(cobjs, windows):
                     f"build: marker address {address:#010x} for {func['name']} "
                     f"in {source} is not an authoritative function window"
                 )
-            unit = obj.get("unit")
-            record = (func["name"], source, unit)
+            record = (func["name"], source)
             previous = by_address.get(address)
             if previous is not None and previous != record:
                 sys.exit(
@@ -884,9 +1007,8 @@ def linked_function_records(cobjs, windows):
                 )
             by_address[address] = record
     return [
-        {"address": f"{address:08x}", "name": name, "file": source,
-         "unit": None if unit is None else f"{unit:08x}"}
-        for address, (name, source, unit) in sorted(by_address.items())
+        {"address": f"{address:08x}", "name": name, "file": source}
+        for address, (name, source) in sorted(by_address.items())
     ]
 
 
@@ -1012,7 +1134,13 @@ def main():
     cache = BC.ObjectCache(BUILD / "cache" / "c", REPO)
 
     gp, defs = load_lcf_symbols()
-    resolvable = set(defs) | load_symbol_names()
+    # Whole-file translation units reference each other's functions by name, and
+    # a symbol DEFINED by a sibling C object resolves at link time without any
+    # LCF help. Under the old per-unit scheme those references were rare because
+    # each unit carried only what it used; now that a TU is a real TU, treating
+    # only LCF-defined symbols as resolvable rejects perfectly linkable objects.
+    # Every marker name in the tree is defined by some object, so trust them.
+    resolvable = set(defs) | load_symbol_names() | source_marker_names()
     boundaries = load_windows()
     window_sizes = load_window_sizes()
     cobjs = (
@@ -1030,13 +1158,17 @@ def main():
     c_text_ranges = []
     data_carves = []
     for o in cobjs:
-        suffix = V._unit_suffix(o.get("unit"))
         cobj = OBJ / (
             o["src"].relative_to(REPO / "src").as_posix().replace("/", "_")
-            + suffix + ".o"
+            + ".o"
         )
-        compile_c(c, o["src"], cobj, cache, o.get("unit"))
-        patch_align1(cobj, ".text")
+        compile_c(c, o["src"], cobj, cache)
+        patch_text_alignment(cobj, {
+            marker["name"]: (
+                marker["addr"] if isinstance(marker["addr"], int) else int(marker["addr"], 16)
+            )
+            for marker in o["funcs"] if marker.get("name")
+        })
         o["obj"] = cobj
         entries.append((o["start"], cobj, ".text"))
         c_text_ranges.append((o["start"], o["end"], o))

@@ -1,11 +1,46 @@
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_00192560)
 /* Source unit: src/Battle/battle_00192560.c */
 #include "type.h"
 
 static u64 iGpffffa090 = 1;
+
+extern void* MT_Scene_GetRes(u16 resTypeId);
+
+static u16 iGpffffa098 = 0x100;
+
+extern void func_001949d0(u32 layer);
+extern void func_001b6ab0(void);
+
+extern s32 func_0029d020(void);
+extern u32 func_001fc270(void);
+
+typedef struct Battle Battle;
+struct Battle
+{
+    u8 _pad00[0xc];
+    u32 flags;
+};
+
+typedef struct BtlBattleFlagPacket BtlBattleFlagPacket;
+struct BtlBattleFlagPacket
+{
+    u32 flags;
+};
+extern Battle* iGpfffb3ac;
+
+typedef struct BtlPacket BtlPacket;
+struct BtlPacket
+{
+    u8 _pad00[0x6c];
+    u32 (*updateFunc)(void* work);
+    u8 _pad70[8];
+    void* workData;
+};
+
+extern BtlPacket* func_00194470(u32 type, u32 workSize);
+extern u32 func_00193750(void* work);
+extern u32 func_001937c0(void* work);
+
+
 
 // FUN_00192560
 u64 btlGetUID(void)
@@ -19,15 +54,8 @@ u64 btlGetUID(void)
 
     return iGpffffa090;
 }
-#endif /* P4_UNIT_00192560 */
 
-#if defined(P4_UNIT_001925B0)
-/* Source unit: src/Battle/battle_001925b0.c */
-#include "type.h"
 
-extern void* MT_Scene_GetRes(u16 resTypeId);
-
-static u16 iGpffffa098 = 0x100;
 
 // FUN_001925B0
 u16 btlFindFreeCharResId(void)
@@ -42,14 +70,8 @@ u16 btlFindFreeCharResId(void)
 
     return iGpffffa098;
 }
-#endif /* P4_UNIT_001925B0 */
 
-#if defined(P4_UNIT_00192790)
-/* Source unit: src/Battle/battle_00192790.c */
-#include "type.h"
 
-extern void func_001949d0(u32 layer);
-extern void func_001b6ab0(void);
 
 // FUN_00192790
 void* btlUpdateDraw3DFrontTask(void* task)
@@ -59,14 +81,8 @@ void* btlUpdateDraw3DFrontTask(void* task)
 
     return 0;
 }
-#endif /* P4_UNIT_00192790 */
 
-#if defined(P4_UNIT_001935F0)
-/* Source unit: src/Battle/battle_001935f0.c */
-#include "type.h"
 
-extern s32 func_0029d020(void);
-extern u32 func_001fc270(void);
 
 // FUN_001935F0
 u32 func_001935f0(void)
@@ -78,25 +94,8 @@ u32 func_001935f0(void)
 
     return 0;
 }
-#endif /* P4_UNIT_001935F0 */
 
-#if defined(P4_UNIT_00193750)
-/* Source unit: src/Battle/battle_00193750.c */
-#include "type.h"
 
-typedef struct Battle Battle;
-struct Battle
-{
-    u8 _pad00[0xc];
-    u32 flags;
-};
-
-typedef struct BtlBattleFlagPacket BtlBattleFlagPacket;
-struct BtlBattleFlagPacket
-{
-    u32 flags;
-};
-extern Battle* iGpfffb3ac;
 
 // FUN_00193750
 u32 func_00193750(void* work)
@@ -108,29 +107,8 @@ u32 func_00193750(void* work)
 
     return 1;
 }
-#endif /* P4_UNIT_00193750 */
 
-#if defined(P4_UNIT_00193770)
-/* Source unit: src/Battle/battle_00193770.c */
-#include "type.h"
 
-typedef struct BtlPacket BtlPacket;
-struct BtlPacket
-{
-    u8 _pad00[0x6c];
-    u32 (*updateFunc)(void* work);
-    u8 _pad70[8];
-    void* workData;
-};
-
-typedef struct BtlBattleFlagPacket BtlBattleFlagPacket;
-struct BtlBattleFlagPacket
-{
-    u32 flags;
-};
-
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
-extern u32 func_00193750(void* work);
 
 // FUN_00193770
 BtlPacket* btlCreateSetFlagsPacket(u32 flags)
@@ -143,28 +121,11 @@ BtlPacket* btlCreateSetFlagsPacket(u32 flags)
 
     return packet;
 }
-#endif /* P4_UNIT_00193770 */
 
-#if defined(P4_UNIT_001937C0)
-/* Source unit: src/Battle/battle_001937c0.c */
-#include "type.h"
-
-typedef struct Battle Battle;
-struct Battle
-{
-    u8 _pad00[0xc];
-    u32 flags;
-};
-
-typedef struct BtlBattleFlagPacket BtlBattleFlagPacket;
-struct BtlBattleFlagPacket
-{
-    u32 flags;
-};
-extern Battle* iGpfffb3ac;
 
 /* measured: removing this pragma takes func_001937c0 nd 0 -> nd 13. */
 #pragma optimization_level 1
+
 // FUN_001937C0
 u32 func_001937c0(void* work)
 {
@@ -178,29 +139,8 @@ u32 func_001937c0(void* work)
     return 1;
 }
 #pragma optimization_level 2
-#endif /* P4_UNIT_001937C0 */
 
-#if defined(P4_UNIT_001937F0)
-/* Source unit: src/Battle/battle_001937f0.c */
-#include "type.h"
 
-typedef struct BtlPacket BtlPacket;
-struct BtlPacket
-{
-    u8 _pad00[0x6c];
-    u32 (*updateFunc)(void* work);
-    u8 _pad70[8];
-    void* workData;
-};
-
-typedef struct BtlBattleFlagPacket BtlBattleFlagPacket;
-struct BtlBattleFlagPacket
-{
-    u32 flags;
-};
-
-extern BtlPacket* func_00194470(u32 type, u32 workSize);
-extern u32 func_001937c0(void* work);
 
 // FUN_001937F0
 BtlPacket* btlCreateRemoveFlagsPacket(u32 flags)
@@ -213,4 +153,3 @@ BtlPacket* btlCreateRemoveFlagsPacket(u32 flags)
 
     return packet;
 }
-#endif /* P4_UNIT_001937F0 */

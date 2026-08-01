@@ -125,7 +125,7 @@ python tools/verify.py src/Battle/btlTarget.c
    python tools/verify.py
    ```
 
-   The current baseline is **880 functions scanned, 879 `MATCH` + 1 `ASM`**.
+   The current baseline is **1942 functions scanned, 1843 `MATCH` + 99 `ASM`**.
    Your change must not introduce any unexpected status.
 
 **Exit codes.** `verify.py` exits non-zero only when a row has an unexpected
@@ -173,8 +173,8 @@ correct, an asm fallback is not a decompiled match.
 | `ASM` | The function is an `INCLUDE_ASM` stub: byte-correct by construction, because it *is* the extracted retail assembly. Tracked and accepted by the exit code, but deliberately **not** counted as `MATCH`. | This is the normal starting state for undecompiled work. Replace the `INCLUDE_ASM` line with real C, then iterate until the verifier reports `MATCH`. Never report an `ASM` row as decompiled progress. |
 | `MISMATCH` | Body bytes differ (`normalized_diff > 0`); the marker line is not tagged `NONMATCHING`. | `fndiff.py` the function, classify the difference, apply `docs/matching.md` levers. If it is a proven compiler floor, tag the marker `NONMATCHING` so the row becomes a parked `NONMATCHING` instead of a failing one. |
 | `SIZE_MISMATCH` | No differing bytes, but the object is longer than the window, or retail has nonzero bytes after the object's end. | Object longer than window: check the window boundaries and for duplicate/overlapping markers. Nonzero retail tail: the window extends past your function (owned data, or an unmarked sibling function); do not pad — fix the boundary or give the sibling its own marker. |
-| `NO_SYMBOL` | The verifier could not find the function name in the compiled object. | The C identifier after the marker does not match any emitted symbol: check the name, the `P4_UNIT` guard it sits in, and that the definition is actually inside that guard (each unit compiles in isolation with `-DP4_UNIT_<addr>`). |
-| `COMPILE_ERROR` | The selected unit failed to compile (`detail` holds the start of the compiler log). | Fix the C (missing include, bad type, undeclared extern). Remember consolidated files compile per unit — an error may only appear when a specific `P4_UNIT` guard is selected. |
+| `NO_SYMBOL` | The verifier could not find the function name in the compiled object. | The C identifier after the marker does not match any emitted symbol: check the name and that the definition actually compiles into the file's translation unit. |
+| `COMPILE_ERROR` | The file failed to compile (`detail` holds the start of the compiler log). | Fix the C (missing include, bad type, undeclared extern). The whole file is one translation unit, so any error anywhere in it fails every function in the file. |
 | `STALE_NONMATCHING` | The marker is tagged `NONMATCHING` but the function now matches. | Remove the `NONMATCHING` tag from the marker line and re-verify. |
 | `STUB` | The marker body is a TODO shell with no real code. | Implement the function. |
 | `NONMATCHING` | Deliberately parked (marker line carries the `NONMATCHING` tag). This is how proven compiler walls are recorded; the exit code treats it as acceptable. | Leave parked functions alone unless you have a new lever from `docs/matching.md`. Remove the tag only when the verifier reports `MATCH`. |
@@ -182,29 +182,19 @@ correct, an asm fallback is not a decompiled match.
 
 ## Conventions you must follow
 
-### Consolidated source units and `P4_UNIT` guards
+### Translation units and function markers
 
-Several `src/**/*.c` files consolidate multiple original translation units.
-Each unit is wrapped:
+Each `src/**/*.c` file is one real translation unit: it is compiled whole
+(one C file == one object) by `verify.py` and the matching build, so it can
+carry one shared `#include`, typedef block, and set of externs for all the
+functions it owns. Add new functions to the file that owns their addresses;
+the `/* Source unit: <original.c> */` comment at the top of many files names
+the original retail translation unit the file was recovered from.
 
-```c
-/* Consolidated Persona 4 source units. */
-/* Build with -DP4_UNIT_<address> to select one original source unit. */
-
-#if defined(P4_UNIT_001EC630)
-/* Source unit: src/Battle/btlTarget_001ec630.c */
-#include "type.h"
-
-// FUN_001EC630
-f32 func_001ec630(f32 value, volatile f32* state)
-{ ... }
-#endif /* P4_UNIT_001EC630 */
-```
-
-`verify.py` compiles each unit as an isolated translation unit with
-`-DP4_UNIT_<addr>`, so each unit carries its own `#include`, typedefs, and
-externs. Add new functions to the unit that owns them (the `/* Source unit:
-... */` comment names the original file), never across guards.
+A function that is deliberately parked on a compiler floor keeps its C body
+behind `#ifdef NON_MATCHING` with an `INCLUDE_ASM` fallback in the `#else`
+arm, so the object still carries the exact retail bytes while the C stays
+findable for whoever finishes it:
 
 ### `// FUN_XXXXXXXX` markers
 
@@ -233,17 +223,18 @@ A contribution lands when it satisfies the integration gate in
   `SIZE_MISMATCH`, `NO_SYMBOL`, or `COMPILE_ERROR`.
 - **No banned constructs** per `docs/STYLE.md`, and a `measured`-annotated
   waiver for any genuinely load-bearing steering construct.
-- **Marker and boundary hygiene**: correct `// FUN_` markers, correct `P4_UNIT`
-  placement, no duplicate addresses, no markers without definitions. The
-  consolidation/reconciliation tools are documented in `README.md`; the
-  integration gate validates markers and boundaries.
+- **Marker and boundary hygiene**: correct `// FUN_` markers, no duplicate
+  addresses, no markers without definitions. The reconciliation tools are
+  documented in `README.md`; the integration gate validates markers and
+  boundaries.
 - **Tests for tooling changes**: `make test` for the deterministic unit tests,
   and `make progress-validate` whenever `progress/` files or `tools/progress.py`
   change (this is also what CI runs on push). `make test` is green — treat any
-  failure as a real regression. `test_consolidate.py` asserts the exact total
-  marker count as a tripwire against silently dropped or duplicated markers;
-  when you genuinely add functions, bump it deliberately and say so, and never
-  bump it to silence a drop you did not intend.
+  failure as a real regression. `tests/test_marker_tripwire.py` asserts the
+  exact total marker count as a tripwire against silently dropped or duplicated
+  markers, and that no first-party file regresses to the old per-function guard
+  scheme; when you genuinely add functions, bump the count deliberately and say
+  so, and never bump it to silence a drop you did not intend.
 - **No junk in the tree**: no retail files, compiler outputs, or local scratch
   data in commits; minimal diffs — never reformat unrelated code.
 - **Full-build ownership stays with the integration lane.** Byte-identical

@@ -38,11 +38,13 @@ ADDRESS_COMMENT_RE = re.compile(
     r"/\*\s+(?:[0-9A-Fa-f]+\s+)?([0-9A-Fa-f]{8})(?:\s|:)"
 )
 LABEL_RE = re.compile(r"^\s*(?:glabel|alabel|dlabel)\s+\S+\s*$", re.MULTILINE)
-GUARD_RE = re.compile(r"^\s*#if\s+defined\(P4_UNIT_([0-9A-Fa-f]{8})\)\s*$", re.MULTILINE)
 CANDIDATE_MARKER_RE = re.compile(
     r"^\s*//\s*FUN_([0-9A-Fa-f]{8})\b[^\n]*$",
     re.MULTILINE,
 )
+# Each candidate block in an unguarded generated file is headed by a status
+# comment; block boundaries are derived from these (see candidate_regions).
+STATUS_COMMENT_RE = re.compile(r"^\s*/\*\s*Candidate status:.*$\n?", re.MULTILINE)
 JTBL_SYMBOL_RE = re.compile(r"\bjtbl_[0-9A-Fa-f]{8}\b")
 JTBL_ROW_RE = re.compile(
     r"^\s*(jtbl_[0-9A-Fa-f]{8})\s*=\s*(0x[0-9A-Fa-f]+)\s*;\s*$"
@@ -5347,12 +5349,7 @@ def render_candidates(
         for address in sorted(addresses):
             candidate = generated.get(address)
             status = "M2C" if candidate is not None else "EXACT_RETAIL_FALLBACK"
-            lines.extend(
-                [
-                    f"#if defined(P4_UNIT_{address:08X})",
-                    f"/* Candidate status: {status}; boundary 0x{address:08x}. */",
-                ]
-            )
+            lines.append(f"/* Candidate status: {status}; boundary 0x{address:08x}. */")
             if candidate is not None:
                 declarations = declaration_subset(candidate, fallback_addresses)
                 lines.extend(declarations)
@@ -5374,13 +5371,41 @@ def render_candidates(
                         flags=re.MULTILINE,
                     )
                 lines.append(body)
-            lines.extend([f"#endif /* P4_UNIT_{address:08X} */", ""])
+            lines.append("")
         path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
         written.append(path)
     return written
 
 
-def validate_guard_coverage(output: Path, expected: set[int]) -> tuple[int, int]:
+def candidate_regions(text: str) -> list[tuple[int, int, int]]:
+    """[(start, end, address)] for each candidate block in an unguarded
+    candidate file.  A block runs from its `/* Candidate status: ... */`
+    comment (or, failing that, its `// FUN_...` marker line) to just before
+    the next block's status comment (or EOF)."""
+    markers = [
+        (match.start(), int(match.group(1), 16))
+        for match in CANDIDATE_MARKER_RE.finditer(text)
+    ]
+    statuses = [match.start() for match in STATUS_COMMENT_RE.finditer(text)]
+    regions: list[tuple[int, int, int]] = []
+    for marker_start, address in markers:
+        start = marker_start
+        for status in reversed(statuses):
+            if status <= marker_start:
+                start = status
+                break
+        end = len(text)
+        for status in statuses:
+            if status > marker_start:
+                end = status
+                break
+        if regions and start < regions[-1][0]:
+            continue  # marker already covered by an earlier block's span
+        regions.append((start, end, address))
+    return regions
+
+
+def validate_candidate_coverage(output: Path, expected: set[int]) -> tuple[int, int]:
     if not output.is_dir():
         raise SystemExit(f"m2c candidate directory is missing: {output}")
     c_files = sorted(output.rglob("*.c"))
@@ -5389,32 +5414,28 @@ def validate_guard_coverage(output: Path, expected: set[int]) -> tuple[int, int]
     all_addresses: list[int] = []
     for path in c_files:
         text = path.read_text(encoding="utf-8", errors="replace")
-        guards = list(GUARD_RE.finditer(text))
-        all_addresses.extend(int(match.group(1), 16) for match in guards)
-        if not guards:
-            all_addresses.extend(
-                int(match.group(1), 16)
-                for match in CANDIDATE_MARKER_RE.finditer(text)
-            )
+        all_addresses.extend(
+            int(match.group(1), 16) for match in CANDIDATE_MARKER_RE.finditer(text)
+        )
     counts = Counter(all_addresses)
     duplicates = {address for address, count in counts.items() if count > 1}
     actual = set(all_addresses)
     if duplicates:
         raise SystemExit(
-            "duplicate candidate guards: "
+            "duplicate candidate markers: "
             + ", ".join(f"{address:08x}" for address in sorted(duplicates)[:10])
         )
     if actual != expected:
         missing = sorted(expected - actual)
         extra = sorted(actual - expected)
         raise SystemExit(
-            f"candidate guard coverage mismatch: missing={len(missing)} extra={len(extra)}"
+            f"candidate marker coverage mismatch: missing={len(missing)} extra={len(extra)}"
         )
     return len(actual), len(c_files)
 
 
 def validate_output(output: Path, expected: set[int]) -> None:
-    actual, file_count = validate_guard_coverage(output, expected)
+    actual, file_count = validate_candidate_coverage(output, expected)
     report_path = output / "report.json"
     try:
         report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -5516,26 +5537,16 @@ def replace_reported_residuals(
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         replacements: list[tuple[int, int, str]] = []
-        for guard in GUARD_RE.finditer(text):
-            address = int(guard.group(1), 16)
+        for start, end, address in candidate_regions(text):
             if address not in addresses:
                 continue
-            end_match = re.search(
-                r"^\s*#endif\b[^\n]*$",
-                text[guard.end():],
-                re.MULTILINE,
-            )
-            if end_match is None:
-                raise SystemExit(f"unterminated candidate guard in {path}: {address:08x}")
             retail_body = retail_bodies.get(address)
             if retail_body is None:
                 raise SystemExit(f"missing retail fallback body for {address:08x}")
             replacement = (
-                f"\n/* Candidate status: RETAIL_ASM; boundary 0x{address:08x}. */\n"
-                f"{prepare_retail_asm_candidate_for_address(retail_body, address)}\n"
+                f"/* Candidate status: RETAIL_ASM; boundary 0x{address:08x}. */\n"
+                f"{prepare_retail_asm_candidate_for_address(retail_body, address).rstrip(chr(10))}\n\n"
             )
-            start = guard.end()
-            end = start + end_match.start()
             replacements.append((start, end, replacement))
             changed_units += 1
         if replacements:
@@ -5580,15 +5591,9 @@ def normalize_reported_compile_errors(
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         replacements: list[tuple[int, int, str]] = []
-        for guard in GUARD_RE.finditer(text):
-            address = int(guard.group(1), 16)
+        for start, end, address in candidate_regions(text):
             if address not in error_details:
                 continue
-            end_match = re.search(r"^\s*#endif\b[^\n]*$", text[guard.end():], re.MULTILINE)
-            if end_match is None:
-                raise SystemExit(f"unterminated candidate guard in {path}: {address:08x}")
-            start = guard.end()
-            end = start + end_match.start()
             block = text[start:end].strip("\n")
             marker = re.search(
                 r"^\s*//\s*FUN_[0-9A-Fa-f]{8}\b[^\n]*$",
@@ -5622,7 +5627,7 @@ def normalize_reported_compile_errors(
                 error_details.get(address, ""),
             )
             if normalized != block:
-                replacements.append((start, end, "\n" + normalized + "\n"))
+                replacements.append((start, end, normalized.strip("\n") + "\n\n"))
                 changed_units += 1
         if replacements:
             for start, end, replacement in reversed(replacements):
@@ -5729,7 +5734,7 @@ def main() -> int:
     if args.check:
         expected = set(fallbacks)
         validate_output(args.output.resolve(), expected)
-        source_actual, source_files = validate_guard_coverage(
+        source_actual, source_files = validate_candidate_coverage(
             args.source_output.resolve(), expected
         )
         print(
@@ -5804,7 +5809,7 @@ def main() -> int:
         retail_bodies,
         source_mode=True,
     )
-    validate_guard_coverage(source_output, set(fallbacks))
+    validate_candidate_coverage(source_output, set(fallbacks))
     prepared_count = sum(
         bool(indirect_jump_table_names(assembly[address]))
         and address not in preparation_failures
@@ -5868,27 +5873,15 @@ def _group_block_texts(
     addresses: set[int],
 ) -> tuple[str, list[str]]:
     text = source_path.read_text(encoding="utf-8", errors="replace")
-    first_guard = GUARD_RE.search(text)
-    if first_guard is None:
+    regions = candidate_regions(text)
+    if not regions:
         return text, []
-    header = text[: first_guard.start()]
+    header = text[: regions[0][0]]
     blocks: list[str] = []
-    for guard in GUARD_RE.finditer(text):
-        address = int(guard.group(1), 16)
+    for start, end, address in regions:
         if address not in addresses:
             continue
-        end_match = re.search(
-            r"^\s*#endif\b[^\n]*$",
-            text[guard.end() :],
-            re.MULTILINE,
-        )
-        if end_match is None:
-            raise SystemExit(
-                f"unterminated candidate guard in {source_path}: {address:08x}"
-            )
-        blocks.append(
-            text[guard.end() : guard.end() + end_match.start()].strip("\n")
-        )
+        blocks.append(text[start:end].strip("\n"))
     return header, blocks
 
 
@@ -6029,20 +6022,10 @@ def apply_verified_groups(
             grouped_path.unlink()
         text = source_path.read_text(encoding="utf-8", errors="replace")
         replacements: list[tuple[int, int]] = []
-        for guard in GUARD_RE.finditer(text):
-            address = int(guard.group(1), 16)
+        for start, end, address in candidate_regions(text):
             if address not in addresses:
                 continue
-            end_match = re.search(
-                r"^\s*#endif\b[^\n]*$",
-                text[guard.end() :],
-                re.MULTILINE,
-            )
-            if end_match is not None:
-                end = guard.end() + end_match.end()
-                if end < len(text) and text[end] == "\n":
-                    end += 1
-                replacements.append((guard.start(), end))
+            replacements.append((start, end))
         for start, end in reversed(replacements):
             text = text[:start] + text[end:]
         if replacements:
