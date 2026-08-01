@@ -279,8 +279,10 @@ def check_volatile(src):
     for i, line in enumerate(src.code):
         if not VOLATILE_RE.search(line):
             continue
-        if re.search(r"\basm\b", line):
-            continue  # asm volatile is out of scope for this rule
+        # `asm`, `__asm`, `__asm__` are all inline-assembly spellings MWCC/GCC
+        # accept; none is the compiler-steering `volatile` this rule targets.
+        if re.search(r"\b_{0,2}asm_{0,2}\b", line):
+            continue
         if _is_hardware_line(line):
             continue
         if waived(src, i, "H001"):
