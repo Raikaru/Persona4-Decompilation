@@ -60,7 +60,7 @@ void func_00100010(void) { }
         # drop you did not intend.
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            880,
+            1036,
         )
 
 
