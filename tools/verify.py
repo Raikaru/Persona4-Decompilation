@@ -565,6 +565,12 @@ def main() -> None:
     # per-function verification and broke the byte-exact image.
     wrong_callees = []
     for result in results:
+        # Only meaningful where our layout already agrees with retail. On a
+        # NONMATCHING function the instruction at the same offset need not be a
+        # call at all, so `retail_target` decodes to a garbage address and the
+        # comparison would cry wolf.
+        if result["status"] != "MATCH":
+            continue
         for reloc in result.get("relocations", []):
             target = reloc.get("retail_target")
             named = re.fullmatch(r"(?:func|FUN)_([0-9a-fA-F]{8})", reloc.get("symbol", "") or "")
