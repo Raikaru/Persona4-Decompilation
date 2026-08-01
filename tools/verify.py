@@ -59,6 +59,20 @@ def is_generated(path: Path) -> bool:
     )
 
 
+# Middleware and platform code we did not write: RenderWare, CRI, the Sony SDK,
+# and the C runtime. It is tracked because it occupies retail windows, but it is
+# not the decompilation's goal, so progress is reported separately for it.
+THIRD_PARTY_PREFIXES = ("rw/", "cri/", "sce/")
+THIRD_PARTY_FILES = {"crt0.c", "libc_core.c", "libcdvd.c"}
+
+
+def is_third_party(rel_file: str) -> bool:
+    norm = str(rel_file).replace("\\", "/")
+    if norm.startswith("src/"):
+        norm = norm[len("src/"):]
+    return norm in THIRD_PARTY_FILES or norm.startswith(THIRD_PARTY_PREFIXES)
+
+
 def source_units(cpath: Path) -> list[int]:
     """Return selectable function addresses for a consolidated C source."""
     lines = cpath.read_text(errors="replace").splitlines()
@@ -527,9 +541,21 @@ def main() -> None:
             results.extend(verify_file(path, cfg, retail, sorted(bounds), Path(directory), unit))
     counts: dict[str, int] = {}
     for result in results: counts[result["status"]] = counts.get(result["status"], 0) + 1
+    first_party = [r for r in results if not is_third_party(r["file"])]
+    fp_counts: dict[str, int] = {}
+    for result in first_party: fp_counts[result["status"]] = fp_counts.get(result["status"], 0) + 1
+    order = ("MATCH", "ASM", "STUB", "NONMATCHING", "STALE_NONMATCHING", "MISMATCH", "SIZE_MISMATCH", "NO_SYMBOL", "COMPILE_ERROR", "UNKNOWN_ADDR")
     print(f"functions scanned: {len(results)}")
-    for status in ("MATCH", "ASM", "STUB", "NONMATCHING", "STALE_NONMATCHING", "MISMATCH", "SIZE_MISMATCH", "NO_SYMBOL", "COMPILE_ERROR", "UNKNOWN_ADDR"):
+    for status in order:
         if counts.get(status): print(f"  {status:<18} {counts[status]}")
+    # First-party is the decomp's actual goal; rw/cri/sce and the C runtime are
+    # middleware we did not write, tracked only because they occupy retail windows.
+    fp_match = fp_counts.get("MATCH", 0)
+    fp_pct = f" ({100 * fp_match / len(first_party):.1f}%)" if first_party else ""
+    print(f"first-party functions scanned: {len(first_party)}")
+    print(f"  {'MATCH':<18} {fp_match}{fp_pct}")
+    for status in order[1:]:
+        if fp_counts.get(status): print(f"  {status:<18} {fp_counts[status]}")
     # ASM is a healthy in-progress state (byte-correct assembly fallback), so it
     # does not fail the run -- but it is deliberately excluded from MATCH above.
     bad = [result for result in results if result["status"] not in ("MATCH", "ASM", "STUB", "NONMATCHING")]
@@ -539,7 +565,7 @@ def main() -> None:
             if "normalized_diff" in result: print(f"  obj {result['object_size']}B window {result['window']}B normalized_diff {result['normalized_diff']} first {result.get('first_diffs', [])}")
             if result.get("detail"): print(f"  {result['detail']}")
     if args.json:
-        Path(args.json).write_text(json.dumps(dict(summary=counts, results=results), indent=1) + "\n", encoding="utf-8")
+        Path(args.json).write_text(json.dumps(dict(summary=counts, summary_first_party=fp_counts, results=results), indent=1) + "\n", encoding="utf-8")
         print(f"report: {args.json}")
     raise SystemExit(1 if bad else 0)
 
