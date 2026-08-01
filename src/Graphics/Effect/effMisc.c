@@ -427,7 +427,13 @@ typedef struct EffRandState
     u32 x[4]; // 0x00
 } EffRandState;
 
-static EffRandState sRandState; // 00922de0
+/* Storage is DEFINED by the P4_UNIT_004BD130 block above (effMiscRandInit).
+ * Each P4_UNIT compiles as its own translation unit, so defining the same
+ * static in both makes each object emit a .bss placed at 0x00922de0 and the
+ * linker command file moves its location counter backward (measured: mwldps2
+ * "Linker command file error ... move current location backward"). Reference
+ * it here instead of redefining it. */
+extern EffRandState sRandState; // 00922de0
 
 // FUN_004BD050
 u32 func_004bd050(EffRandState* state)

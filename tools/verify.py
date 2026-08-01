@@ -556,9 +556,34 @@ def main() -> None:
     print(f"  {'MATCH':<18} {fp_match}{fp_pct}")
     for status in order[1:]:
         if fp_counts.get(status): print(f"  {status:<18} {fp_counts[status]}")
+    # Relocation TARGETS are masked by the byte comparison, so a call to the
+    # wrong function is invisible to `normalized_diff` -- it matches per-function
+    # and then corrupts the linked image by exactly that one jal word. Where the
+    # callee's symbol name encodes an address, cross-check it against the target
+    # retail actually calls. This caught a real defect (nmCmdList func_002bbdd0
+    # calling func_00278170 where retail calls func_002781e0) that had passed
+    # per-function verification and broke the byte-exact image.
+    wrong_callees = []
+    for result in results:
+        for reloc in result.get("relocations", []):
+            target = reloc.get("retail_target")
+            named = re.fullmatch(r"(?:func|FUN)_([0-9a-fA-F]{8})", reloc.get("symbol", "") or "")
+            if not target or not named:
+                continue
+            if int(named.group(1), 16) != int(target, 16):
+                wrong_callees.append((result, reloc))
+    if wrong_callees:
+        print(f"WRONG CALLEE: {len(wrong_callees)} relocation(s) name a function other than the one retail calls")
+        for result, reloc in wrong_callees:
+            print(f"  {result['file']}:{result.get('line', '?')} {result.get('name')} "
+                  f"+{reloc['offset']}: calls {reloc['symbol']}, retail calls {reloc['retail_target']}")
+
     # ASM is a healthy in-progress state (byte-correct assembly fallback), so it
     # does not fail the run -- but it is deliberately excluded from MATCH above.
+    # A wrong callee is a hard failure: it silently breaks the linked image.
     bad = [result for result in results if result["status"] not in ("MATCH", "ASM", "STUB", "NONMATCHING")]
+    if wrong_callees:
+        bad.append({"status": "WRONG_CALLEE", "file": "", "name": None, "addr": None})
     if args.show_mismatches:
         for result in bad:
             print(f"\n{result['status']}: {result['file']}:{result.get('line', '?')} {result.get('name')} @ {result.get('addr')}")

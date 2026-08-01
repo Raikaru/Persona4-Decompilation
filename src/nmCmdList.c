@@ -512,7 +512,7 @@ void func_002bbdd0(int param_1)
 
       func_002781e0(*puVar2,0x800000);
 
-      func_00278170(*puVar2,0x100000);
+      func_002781e0(*puVar2,0x100000);
 
       *(u8 *)((int)puVar2 + 5) = 0;
 
