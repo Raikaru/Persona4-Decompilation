@@ -25,7 +25,15 @@ INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afaa0);
 INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afb10);
 
 // FUN_004AFC50
-INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afc50);
+void func_004afc50(u8 *arg0)
+{
+    u32 temp_4;
+
+    temp_4 = *(u32 *)(arg0 + 0x5C);
+    if (temp_4 != 0) {
+        func_00492d00(temp_4);
+    }
+}
 
 // FUN_004AFC80
 INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afc80);

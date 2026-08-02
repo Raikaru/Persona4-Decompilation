@@ -3,6 +3,10 @@
 #include "type.h"
 #include "include_asm.h"
 
+extern u8 *func_00484490();
+extern void func_0046d730();
+extern u8 *func_0049a370();
+extern u8 D_00713EF0[];
 extern void func_004833f0(void *arg0);
 extern void (*jtbl_008873EC[])(void *);
 extern void func_0049a570(void *arg0);
@@ -69,4 +73,16 @@ INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a1a0);
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a370);
 
 // FUN_0049A4E0
-INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a4e0);
+u8 *func_0049a4e0(u8 *arg0) {
+    u8 *p;
+
+    p = func_00484490(arg0);
+    if (p == NULL) {
+        func_0046d730(D_00713EF0, 0x2E5);
+    }
+    p = func_0049a370(*(u16 *)(arg0 + 0xC), p);
+    if (p == NULL) {
+        func_0046d730(D_00713EF0, 0x2E7);
+    }
+    return p;
+}
