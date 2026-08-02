@@ -13,7 +13,7 @@ u32 func_00268ce0(float* first, float* second, float* output, float* third);
 
 typedef struct { f32 x, y, z; } SVec3;
 extern u32 func_00269190(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
-extern u64 func_002694f0(u32 param_1, u64 param_2, u64 param_3, u64 param_4);
+extern u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
 extern u32 func_00269820(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, float param_7);
 extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
@@ -71,10 +71,69 @@ extern float func_0026cca0(float param_1, float param_2, float *param_3, float *
 extern u16 D_00764580;
 extern void func_004b15d0(void);
 
-
+extern u8 *func_00145270();
+extern void func_0026c740(s32 object);
+extern float func_0026cdb0(char *param_1);
+extern s32 func_0026da30(u16 arg0, s32 arg1);
+extern s32 func_0017b990(s32 arg0, s32 arg1, s32 arg2);
+extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern f32 func_003e40b0();
+extern void func_003e0870(void *dst, void *src, s32 mode, f32 angle);
+extern void func_003e4320(void *dst, void *src, void *mat);
+extern s32 func_003e05d0(void *arg0);
+extern s32 func_00168ec0(u16 *arg0, void *arg1, void *arg2);
+extern s32 func_00479dd0(u32 arg0, u16 arg1, s16 arg2);
+extern void func_0047a0e0(u32 arg0, u16 arg1, f32 arg2);
+extern s32 func_00479940(u32 arg0, u16 arg1, s16 arg2, u16 arg3, u16 arg4);
+extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
+extern u8 *func_0047a250(u32 arg0);
+extern void func_004b14f0(u32 arg0, void *arg1);
+extern void func_0044ea90(const void *msg, u32 id);
+extern s32 func_00451fc0(s32 arg0, char *arg1, s32 arg2, s32 arg3, s32 arg4,
+                         void (*arg5)(u8 *), void (*arg6)(u8 *), u8 *arg7);
+extern void func_0046d730(const void *msg, u32 line);
+extern void func_00440b68(const void *msg, u32 value);
+extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern u32 *jtbl_008873E8[];
+extern s32 func_004577d0(void *arg0, f32 arg1);
+extern s32 func_00457120(void);
+extern u8 *func_003e0f80(void);
+extern void func_003e0c90(void *dst, void *src, s32 mode);
+extern s32 func_0026d400(void *arg0);
+extern void func_003e9df0(void *arg0);
+extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
+extern void func_003e0f40(void *arg0);
+extern void func_00146f50(void *arg0, void *arg1, void *arg2);
+extern u8 *func_00147620(u32 arg0);
+extern f32 func_0044b610(f32 arg0);
+extern f32 func_0044b938(f32 arg0);
+extern f32 func_0044b950(f32 arg0, f32 arg1);
+extern u32 PTR_DAT_00762ea0;
+extern u32 D_005F08B0[];
+extern u8 D_0063B090[];
+extern u8 D_0063B0A0[];
+extern u8 D_0063B0D0[];
+extern s64 D_0063B080;
+extern f32 D_0063B088;
+extern s64 D_0063B0F0;
+extern f32 D_0063B0F8;
+extern s64 D_0063B100;
+extern f32 D_0063B108;
+extern void func_00268a70(u8 *arg0);
+extern void func_00268ad0(u8 *arg0);
 
 // FUN_00268B20
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00268b20);
+void func_00268b20(u32 arg0)
+{
+    u8 *p;
+
+    func_0044ea90(D_0063B090, 0x31);
+    p = D_008873F4[0](1, 8, 0x40000);
+    if (func_00451fc0(0, (char *)D_0063B0A0, 0, 1, 1, func_00268a70, func_00268ad0, p) != 0) {
+        *(u32 *)(p + 0) = 2;
+        *(u32 *)(p + 4) = arg0;
+    }
+}
 
 // FUN_00268BD0
 u32 func_00268bd0(Resrc* resource, s32 enabled)
@@ -179,10 +238,33 @@ s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
 
 
 // FUN_00268F20
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00268f20);
+s32 func_00268f20(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
+{
+    s32 result;
+    u8 *p = func_00145270(arg0);
+
+    if (p == NULL) return 0;
+    if (p == NULL) {
+        result = 0;
+    } else {
+        *(u32 *)(p + 0x28) |= 1;
+        *(u32 *)(p + 0x28) &= ~0x40;
+        *(u32 *)(p + 0x28) &= ~0x10;
+        *(SVec3 *)(p + 0x30) = *(SVec3 *)(p + 4);
+        *(SVec3 *)(p + 0x3C) = *(SVec3 *)(arg1);
+        *(u32 *)(p + 0x64) = arg2;
+        result = 1;
+        *(u8 *)(p + 0x54) = result;
+        *(u8 *)(p + 0x2C) = arg3;
+        *(u32 *)(p + 0x60) = 0;
+    }
+    return result;
+}
 
 // FUN_00269000
-s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s8 arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5) {
+s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
+                  f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, s32 arg3,
+                  s8 arg4) {
     s32 temp_3;
     s32 temp_3_2;
     s32 temp_3_3;
@@ -217,10 +299,71 @@ s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s8 arg4, f32 fparg0, f
 
 
 // FUN_002690B0
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_002690b0);
+s32 func_002690b0(u32 arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1,
+                  f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, s32 arg3,
+                  s8 arg4)
+{
+    u8 *p = func_00145270(arg0);
+    s32 result;
+
+    if (p != NULL) {
+        result = func_00269000(p, arg1, arg2, fparg0, fparg1, fparg2, fparg3, fparg4, fparg5, arg3, arg4);
+    } else {
+        result = 0;
+    }
+    return result;
+}
 
 // FUN_00269190
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269190);
+u32 func_00269190(Resrc *param_1, u32 param_2, float param_3, u32 param_4)
+{
+    u32 uVar1;
+    u32 uVar2;
+    u32 *puVar4;
+    int iVar3;
+    int iVar5;
+
+    if (param_1 == 0) return 0;
+    iVar3 = (int)param_1;
+    uVar1 = param_1->flags;
+    uVar1 = uVar1 | 1;
+    param_1->flags = uVar1;
+    uVar1 = uVar1 & 0xFFFFFFBF;
+    param_1->flags = uVar1;
+    if (param_4 == 1) {
+        param_1->flags = param_1->flags | 0x40;
+    }
+    *(float *)(iVar3 + 0x5C) = param_3;
+    *(u8 *)(iVar3 + 0x54) = 2;
+    *(u32 *)(iVar3 + 0x60) = 0;
+    if (*(u32 *)(iVar3 + 0x58) == 0) {
+        func_0044ea90(D_0063B090, 0x269);
+        uVar2 = (u32)((u32(*)(u32, u32))jtbl_008873E8[0])(0x130, 0x40000);
+        *(u32 *)(iVar3 + 0x58) = uVar2;
+        if (uVar2 == 0) {
+            func_0046d730(D_0063B090, 0x26A);
+        }
+    }
+    puVar4 = *(u32 **)(iVar3 + 0x58);
+    iVar5 = 0x26;
+    do {
+        uVar1 = *(u32 *)param_2;
+        uVar2 = *((u32 *)param_2 + 1);
+        param_2 = (u32)((u32 *)param_2 + 2);
+        iVar5--;
+        *puVar4 = uVar1;
+        puVar4[1] = uVar2;
+        puVar4 += 2;
+    } while (0 < iVar5);
+    {
+        float fVar6;
+        fVar6 = func_0026cdb0((char *)*(u32 *)(iVar3 + 0x58));
+        *(float *)(iVar3 + 0x64) = fVar6;
+        func_00440b68(D_0063B0D0, func_0044dcd8(fVar6));
+    }
+    return 1;
+}
+
 
 // FUN_002692D0
 u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
@@ -243,7 +386,25 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
 
 
 // FUN_00269340
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269340);
+s32 func_00269340(u32 arg0, SVec3 *arg1, u32 arg2, u8 arg3)
+{
+    SVec3 values;
+    u8 *p = func_00145270(arg0);
+
+    if (p == NULL) return 0;
+    values = *arg1;
+    if (p == NULL) return 0;
+    func_0026c740((s32)p);
+    func_0026c680((float *)&values);
+    *(u32 *)(p + 0x28) |= 4;
+    *(SVec3 *)(p + 0x68) = *(SVec3 *)(p + 0x10);
+    *(SVec3 *)(p + 0x74) = values;
+    *(u8 *)(p + 0x80) = 0;
+    *(u8 *)(p + 0x81) = arg3;
+    *(u32 *)(p + 0x84) = arg2;
+    *(u32 *)(p + 0x88) = 0;
+    return 1;
+}
 
 // FUN_00269440
 s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
@@ -269,13 +430,53 @@ s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
 
 
 // FUN_002694F0
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_002694f0);
+u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
+{
+    u8 tmp[8];
+    u8 bVar;
+
+    if (param_1 == 0) return 0;
+    switch (((s32)(*(u16 *)param_1 & 0xFFC00)) >> 10) {
+    case 3:
+    {
+        u8 *tp = func_0047a250(*(u32 *)((u8 *)param_1 + 0x164));
+        u8 b0 = *tp++;
+        u8 b1 = *tp++;
+        u8 b2 = *tp++;
+        u8 b3 = *tp++;
+
+        tmp[4] = b0;
+        tmp[5] = b1;
+        tmp[6] = b2;
+        tmp[7] = b3;
+        bVar = tmp[7];
+        if (param_4 == 1) {
+            *(u8 *)((u8 *)param_1 + 0x100) = 1;
+        } else {
+            *(u8 *)((u8 *)param_1 + 0x100) = 0;
+        }
+        break;
+    }
+    case 6:
+        func_004b14f0(*(u32 *)((u8 *)param_1 + 0x144), tmp);
+        bVar = tmp[3];
+        break;
+    default:
+        return 0;
+    }
+    *(u32 *)((u8 *)param_1 + 0x28) |= 0x4000;
+    *(u8 *)((u8 *)param_1 + 0xF4) = bVar;
+    *(u8 *)((u8 *)param_1 + 0xF5) = param_2;
+    *(u32 *)((u8 *)param_1 + 0xF8) = param_3;
+    *(u32 *)((u8 *)param_1 + 0xFC) = 0;
+    return 1;
+}
 
 // FUN_00269620
-u64 func_00269620(u64 param_1, u64 param_2, u64 param_3, u64 param_4)
+u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4)
 {
     u32 lVar1;
-    u64 uVar2;
+    u32 uVar2;
 
     lVar1 = (u32)MT_Scene_GetRes();
     if (lVar1 != 0)
@@ -319,13 +520,57 @@ s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
 
 
 // FUN_00269740
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269740);
+s32 func_00269740(void)
+{
+    u8 *p = func_00145270();
+
+    if (p == NULL) return 0;
+    if (p == NULL) return 0;
+    *(u32 *)(p + 0x28) &= ~1;
+    *(u32 *)(p + 0x28) &= ~4;
+    *(u32 *)(p + 0x28) &= 0xFFFF7FFF;
+    *(u32 *)(p + 0x28) &= ~0x40;
+    *(u32 *)(p + 0x28) &= ~0x400;
+    *(u32 *)(p + 0x28) &= ~0x800;
+    *(u32 *)(p + 0x28) &= ~0x1000;
+    *(u32 *)(p + 0x28) &= ~0x2000;
+    *(u32 *)(p + 0x28) &= ~0x4000;
+    *(u32 *)(p + 0x28) &= ~0x10;
+    *(u32 *)(p + 0x28) &= 0xF7FFFFFF;
+    return 1;
+}
 
 // FUN_00269820
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269820);
 
 // FUN_002699D0
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_002699d0);
+u32 func_002699d0(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0)
+{
+    u8 *dst;
+
+    if (arg0 == NULL) return 0;
+    switch (((s32)(*(u16 *)arg0 & 0xFFC00)) >> 10) {
+    case 1:
+        dst = (u8 *)arg0 + 0x14C;
+        break;
+    case 2:
+        dst = (u8 *)arg0 + 0x140;
+        break;
+    case 3:
+        dst = (u8 *)arg0 + 0x14C;
+        break;
+    default:
+        return 0;
+    }
+    *(u32 *)((u8 *)arg0 + 0x28) |= 0x2000;
+    *(u32 *)(dst + 0) = arg1;
+    *(u32 *)(dst + 4) = arg2;
+    *(u32 *)(dst + 8) = arg3;
+    *(u32 *)(dst + 0xC) = arg4;
+    *(u32 *)(dst + 0x10) = arg5;
+    *(f32 *)(dst + 0x14) = fparg0;
+    return 1;
+}
 
 // FUN_00269A90
 void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
@@ -420,10 +665,42 @@ INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026a020);
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026ba60);
 
 // FUN_0026BC10
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bc10);
+s32 func_0026bc10(u32 arg0, u32 arg1)
+{
+    u8 *p = func_00145270(arg0);
+
+    if (p == NULL) return 0;
+    if (p == NULL) return 0;
+    if (func_0026da30(*(u16 *)p, arg1 & 0xFF) != 0) goto done;
+    return 0;
+done:
+    return 1;
+}
 
 // FUN_0026BC90
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bc90);
+s32 func_0026bc90(u8 *arg0, s32 arg1)
+{
+    s32 var_6 = 0;
+
+    if (arg0 == NULL) return 0;
+    switch (((s32)(*(u16 *)arg0 & 0xFFC00)) >> 10) {
+    case 1:
+        var_6 = *(s32 *)((u8 *)arg0 + 0x224);
+        break;
+    case 3:
+        var_6 = *(s32 *)((u8 *)arg0 + 0x230);
+        break;
+    default:
+        break;
+    }
+    if (var_6 == 0) return 0;
+    if (arg1 == 1) {
+        func_0017b990(var_6, 0, var_6);
+    } else {
+        func_0017b990(var_6, 1, var_6);
+    }
+    return 1;
+}
 
 // FUN_0026BD50
 s32 func_0026bd50(u32 unk, s32 arg1) {
@@ -438,10 +715,44 @@ s32 func_0026bd50(u32 unk, s32 arg1) {
 
 
 // FUN_0026BDA0
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bda0);
+s32 func_0026bda0(u32 arg0, s8 arg1, s8 arg2, s16 arg3, s16 arg4, s8 arg5)
+{
+    u8 *p = func_00145270(arg0);
+
+    if (p == NULL) return 0;
+    if (p == NULL) return 0;
+    {
+        u8 *q = p + 0xE8;
+        func_0043f9c8(q, 0, 0xA);
+        *(u8 *)(q + 0) = arg1;
+        *(u8 *)(q + 1) = 0;
+        *(u8 *)(q + 3) = arg2;
+        *(u16 *)(q + 6) = arg3;
+        *(u16 *)(q + 8) = arg4;
+        *(u8 *)(q + 2) = arg5;
+    }
+    return 1;
+}
 
 // FUN_0026BE60
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026be60);
+s32 func_0026be60(void)
+{
+    u8 *p = func_00145270();
+
+    if (p == NULL) return 0;
+    if (p == NULL) return 0;
+    if ((((s32)(*(u16 *)p & 0xFFC00)) >> 10) != 7) return 0;
+    {
+        u8 *v = func_001452b0(7);
+
+        while (v != NULL) {
+            *(s32 *)(v + 0x148) = 0;
+            v = *(u8 **)(v + 0x138);
+        }
+        *(s32 *)(p + 0x148) = 1;
+    }
+    return 1;
+}
 
 // FUN_0026BF20
 void func_0026bf20(void) {
@@ -455,7 +766,16 @@ void func_0026bf20(void) {
 
 
 // FUN_0026BF70
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bf70);
+void func_0026bf70(u32 arg0)
+{
+    if (((s32)((u16)arg0 & 0xFFC00) >> 10) == 7) {
+        u8 *p = func_00145270(arg0);
+        if (p != NULL) {
+            *(u16 *)(p + 0x14C) = 0;
+            *(u32 *)(p + 0x144) = 0;
+        }
+    }
+}
 
 // FUN_0026BFC0
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
@@ -680,7 +1000,6 @@ void func_0026ca10(float param_1, char *param_2, float *param_3)
 
 // FUN_0026CBA0
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026cba0);
-
 // FUN_0026CCA0
 float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4,
                     float *param_5, float *param_6, float *param_7)

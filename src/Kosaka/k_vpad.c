@@ -123,6 +123,14 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
 
 
 // FUN_004B5800 NONMATCHING. Update linked render matrices and cache their translations.
+/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
+ * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
+ * call sites. Retail emits the loop's per-entry lw/sll pair load-first;
+ * MWCC always schedules the sll ahead of the reload: measured nd 5 (fndiff,
+ * = 2 real swapped words + 3 zero-padding tail words) for the while-loop
+ * inline form and the for-loop form; request/offset locals 61; pragma
+ * schedule on 72; optimization_level 3 72. Inline asm would force it but is
+ * banned. Accepted compiler floor (instruction scheduling). */
 #ifdef NON_MATCHING
 void func_004b5800(RuntimeWork* work)
 {
@@ -163,7 +171,6 @@ void func_004b5800(RuntimeWork* work)
 #else
 INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5800);
 #endif
-
 
 
 // FUN_004B5C20. Mark an active field runtime node for processing.

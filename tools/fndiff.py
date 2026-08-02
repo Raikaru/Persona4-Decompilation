@@ -61,7 +61,15 @@ def main() -> None:
     boundaries = {int(item, 16) for item in windows["windows"]}
     boundaries.update(int(item, 16) + size for item, size in windows["windows"].items() if size)
     for path in (REPO / "src").rglob("*.c"):
-        boundaries.update(marker["addr"] for marker in scan_markers(path))
+        # These markers are only extra window-boundary hints, and the scan races
+        # with anything else writing under src/ (parallel agents, editors saving
+        # through a temp file).  A path that vanishes between rglob and the read
+        # contributes no hints; it must not abort the diff.
+        try:
+            markers = scan_markers(path)
+        except OSError:
+            continue
+        boundaries.update(marker["addr"] for marker in markers)
     window = window_for(address, sorted(boundaries))
     if window is None or window > 0x10000:
         _die(f"no plausible function window at {address:#010x}")

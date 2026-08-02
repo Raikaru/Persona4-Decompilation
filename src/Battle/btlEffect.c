@@ -52,6 +52,26 @@ extern u32 func_001ef720();
 extern u16 func_001d7f10(u32 param_1, u32 param_2, u16 param_3, u32 param_4);
 extern u32 func_00201f60(int param_1);
 
+extern void func_00440b68();
+extern u8* func_00454a60(u8* param, s32 mode);
+extern s32 func_004553c0(u8* ptr);
+extern void* func_00455ea0(void* handle, s32 index, void* out);
+extern void func_00456150(void* handle);
+extern void func_0044ea90(void* msg, s32 id);
+extern void func_0043f810(void* dst, void* src, u32 size);
+extern void func_00454bd0(u8* ptr);
+extern u32 func_001d3d50(u16 param_1);
+extern void func_001d4490(int param_1, u32 param_2);
+extern void* (*jtbl_008873E8[])(u32 size, u32 align);
+
+extern u8* D_0076449C;
+extern char iGpffffa290;
+extern char iGpffffa2a0;
+extern char iGpffffb450;
+extern char D_00609548[];
+extern char D_00609558[];
+extern char D_006095C0[];
+
 
 
 // FUN_001D6880
@@ -157,7 +177,28 @@ u32 func_001d6de0(int param_1, u16 *entry)
 
 
 // FUN_001D7760
-INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001d7760);
+u32 func_001d7760(void)
+{
+  u32 firstIndex = 0;
+  u32 firstValue = 0;
+  u32 firstOffset = 0;
+  u32 auStack_4;
+
+  if (*(int *)(D_0076449C + 0xDC4) == 0) {
+    func_00440b68(&iGpffffa290, D_00609548, 0x4AB);
+    *(u32 *)(D_0076449C + 0xDC4) = (u32)func_00454a60((u8 *)D_006095C0, 1);
+  } else if (func_004553c0(*(u8 **)(D_0076449C + 0xDC4)) != 0) {
+    for (firstIndex = 0; firstIndex < 0x30; firstIndex++) {
+      firstValue = (u32)func_00455ea0(*(void **)(D_0076449C + 0xDC4), firstIndex, (void *)&auStack_4);
+      firstOffset = firstIndex * 4;
+      *(u32 *)(D_0076449C + firstOffset + 0xD04) = func_001d3d50(2);
+      func_001d4490(*(u32 *)(D_0076449C + firstOffset + 0xD04), firstValue);
+    }
+    *(u32 *)(D_0076449C + 0xC) |= 0x40000;
+    return 1;
+  }
+  return 0;
+}
 
 // FUN_001D7880
 void func_001d7880(void)

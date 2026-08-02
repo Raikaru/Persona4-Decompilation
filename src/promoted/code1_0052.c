@@ -14,39 +14,37 @@ extern s32 D_00745C6C[];
 extern s32 D_0074613C[];
 
 
-/* measured: b210 O2 emits lui/sw/jr/nop (v1 scratch, unfilled return delay
- * slot); retail is lui $v0 / jr $ra / sw-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; address color stays
- * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
+/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
+ * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
+ * the base doubling as the returned segment. Returned-base local (segment +
+ * 0x5AF8 store, return segment) forces $v0; #pragma schedule on fills slot. */
 #pragma schedule on
 
-// FUN_005207F8 NONMATCHING
-#ifdef NON_MATCHING
-void func_005207f8(s32 arg0)
+// FUN_005207F8
+u32 func_005207f8(u32 arg0)
 {
-    D_00745AF8[0] = arg0;
+    u32 segment = 0x00740000;
+
+    *(u32 *)(segment + 0x5AF8) = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005207f8);
-#endif
 #pragma schedule off
 
 
-/* measured: b210 O2 emits lui/sw/jr/nop (v1 scratch, unfilled return delay
- * slot); retail is lui $v0 / jr $ra / sw-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; address color stays
- * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
+/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
+ * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
+ * the base doubling as the returned segment. Returned-base local (segment +
+ * 0x5ABC store, return segment) forces $v0; #pragma schedule on fills slot. */
 #pragma schedule on
 
-// FUN_005230B8 NONMATCHING
-#ifdef NON_MATCHING
-void func_005230b8(s32 arg0)
+// FUN_005230B8
+u32 func_005230b8(u32 arg0)
 {
-    D_00745ABC[0] = arg0;
+    u32 segment = 0x00740000;
+
+    *(u32 *)(segment + 0x5ABC) = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005230b8);
-#endif
 #pragma schedule off
 
 
@@ -81,21 +79,20 @@ s32 *func_00528c30(void)
 #pragma schedule off
 
 
-/* measured: b210 O2 emits lui/sw/jr/nop (v1 scratch, unfilled return delay
- * slot); retail is lui $v0 / jr $ra / sw-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; address color stays
- * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
+/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
+ * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
+ * the base doubling as the returned segment. Returned-base local (segment +
+ * 0x5C84 store, return segment) forces $v0; #pragma schedule on fills slot. */
 #pragma schedule on
 
-// FUN_0052B9E0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0052b9e0(s32 arg0)
+// FUN_0052B9E0
+u32 func_0052b9e0(u32 arg0)
 {
-    D_00745C84[0] = arg0;
+    u32 segment = 0x00740000;
+
+    *(u32 *)(segment + 0x5C84) = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b9e0);
-#endif
 #pragma schedule off
 
 
@@ -117,21 +114,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b9f0);
 #pragma schedule off
 
 
-/* measured: b210 O2 emits lui/sw/jr/nop (v1 scratch, unfilled return delay
- * slot); retail is lui $v0 / jr $ra / sw-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; address color stays
- * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
+/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
+ * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
+ * the base doubling as the returned segment. Returned-base local (segment +
+ * 0x5C6C store, return segment) forces $v0; #pragma schedule on fills slot. */
 #pragma schedule on
 
-// FUN_0052BA00 NONMATCHING
-#ifdef NON_MATCHING
-void func_0052ba00(s32 arg0)
+// FUN_0052BA00
+u32 func_0052ba00(u32 arg0)
 {
-    D_00745C6C[0] = arg0;
+    u32 segment = 0x00740000;
+
+    *(u32 *)(segment + 0x5C6C) = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052ba00);
-#endif
 #pragma schedule off
 
 
@@ -153,19 +149,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052ba10);
 #pragma schedule off
 
 
-/* measured: b210 O2 emits lui/sw/jr/nop (v1 scratch, unfilled return delay
- * slot); retail is lui $v0 / jr $ra / sw-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; address color stays
- * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
+/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
+ * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
+ * the base doubling as the returned segment. Returned-base local (segment +
+ * 0x613C store, return segment) forces $v0; #pragma schedule on fills slot. */
 #pragma schedule on
 
-// FUN_0052C870 NONMATCHING
-#ifdef NON_MATCHING
-void func_0052c870(s32 arg0)
+// FUN_0052C870
+u32 func_0052c870(u32 arg0)
 {
-    D_0074613C[0] = arg0;
+    u32 segment = 0x00740000;
+
+    *(u32 *)(segment + 0x613C) = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052c870);
-#endif
 #pragma schedule off

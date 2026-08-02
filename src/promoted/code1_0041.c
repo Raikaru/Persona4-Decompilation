@@ -75,8 +75,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2d0);
 #endif
 /* measured: see the annotation above the matching `on` pragma (func_0041f2d0). */
 #pragma schedule off
-
-
 // FUN_0041F550
 /* measured: see the annotation above the matching `on` pragma (func_0041f550). */
 #pragma opt_common_subs off
