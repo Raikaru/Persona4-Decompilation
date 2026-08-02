@@ -1359,7 +1359,15 @@ u8* func_0010fcb0(s32 arg0)
 }
 
 // FUN_0010FD40
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010fd40);
+void func_0010fd40(u8* src)
+{
+    s32 index;
+
+    K_ASSERT(src != 0, 0xF27);
+    index = *(u16*)(src + 2);
+    K_ASSERT(index >= 0 && index < 0x100, 0xF28);
+    func_0043f810((u8*)DAT_007973a0 + *(u16*)(src + 2) * 48 + 0xE2C, src, 0x30);
+}
 
 // FUN_0010FDE0
 INCLUDE_ASM("asm/nonmatchings/g_data", func_0010fde0);

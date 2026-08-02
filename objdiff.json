@@ -35510,7 +35510,7 @@
       "target_path": "build/objdiff/target/g_data/g_data/0010fd40.o",
       "base_path": "build/objdiff/base/g_data/g_data/0010fd40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142848,7 +142848,7 @@
       "target_path": "build/objdiff/target/sdkOt/00460ac0.o",
       "base_path": "build/objdiff/base/sdkOt/00460ac0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
