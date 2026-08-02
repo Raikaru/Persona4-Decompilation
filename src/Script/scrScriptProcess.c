@@ -654,7 +654,39 @@ s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
 }
 
 // FUN_0029DF30
-INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029df30);
+u8* func_0029df30(u8* arg0, s32 arg1)
+{
+    u8* found;
+    u8* entries;
+    s32 count;
+    s32 i;
+    s32 off;
+
+    found = NULL;
+    if (arg0 == NULL) {
+        return NULL;
+    }
+    entries = arg0 + 0x20;
+    /* i is zeroed before the count load: a for-init lands in the loop
+       preheader, after it. */
+    i = 0;
+    count = *(s32*)(arg0 + 0x10);
+    while (i < count) {
+        if (*(s32*)(entries + i * 16) == 0) {
+            found = arg0 + *(s32*)(entries + i * 16 + 0xC);
+            break;
+        }
+        i++;
+    }
+    if (found == NULL) {
+        return NULL;
+    }
+    off = i * 16;
+    if (*(s32*)((u8*)(off + (s32)entries) + 8) < arg1) {
+        return NULL;
+    }
+    return found + arg1 * 32;
+}
 
 // FUN_0029DFE0
 void func_0029dfe0(void* arg0, u8* proc)
