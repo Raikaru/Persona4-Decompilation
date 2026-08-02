@@ -2,6 +2,8 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "include_asm.h"
 #include "type.h"
+extern void func_004604d0();
+extern u8 iGpffff9dd4;
 typedef struct { u8 c[4]; } Rgba8;
 
 typedef struct RwV3d
@@ -168,6 +170,10 @@ void func_0014d800(u8 *arg0, u8 *arg1) {
     *(Rgba8 *)(p + 0x10) = *(Rgba8 *)arg1;
 }
 
+/* measured: retail computes $a0 = arg1 + 4, reads both floats from arg1, then overwrites
+   $a1 with the gp address. mwcc b210 sets the integer arguments first, so it must copy
+   arg1 into $v0 to survive. Naming the floats or the pointer in locals first does not
+   change the order; both spellings give the identical nd 12. Evaluation-order floor. */
 // FUN_0014D830
 INCLUDE_ASM("asm/nonmatchings/k_draw", func_0014d830);
 
