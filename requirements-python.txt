@@ -1,1 +1,19 @@
-splat64>=0.39
+# Pinned exactly (==, never >=) on purpose.
+#
+# splat's disassembly output is an input to the byte-exact build: tools/split
+# produces the asm that tools/extract_nonmatching_asm.py slices into the
+# INCLUDE_ASM fallbacks, so a silent upstream bump can change emitted bytes.
+# These are the versions the verified byte-exact build was produced with
+# (loadable image sha1 3d1d3d2b9d6ccb60836db239ab49674223025a78).
+#
+# The [mips] extra is REQUIRED.  splat64 declares spimdisasm and rabbitizer as
+# OPTIONAL extras rather than hard dependencies, so a bare `pip install
+# splat64` installs neither and `python -m splat split` dies at import time
+# with "ModuleNotFoundError: No module named 'spimdisasm'".  An unpinned
+# `splat64>=0.39` previously resolved to 0.50.0 in CI and did exactly that.
+splat64[mips]==0.39.1
+spimdisasm==1.40.2
+rabbitizer==1.14.3
+n64img==0.3.3
+crunch64==0.6.2
+pygfxd==1.0.5
