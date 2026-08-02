@@ -12,6 +12,9 @@ extern s32 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
 extern s32 func_00247c20(s32 arg0);
 extern void *func_00246b80(void);
+extern u8 *func_00246ba0(void);
+extern s32 func_00104f50(s16 arg0, s16 arg1);
+extern s16 D_007973F4[];
 extern u32 D_0079B1CC[];
 extern u8 D_007973A0[];
 extern void *func_002467b0(s32 arg0);
@@ -467,4 +470,17 @@ s32 func_001090e0(void)
 }
 
 // FUN_00109100
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00109100);
+s32 func_00109100(void)
+{
+    u8 *work;
+    s16 id;
+    s32 index;
+
+    work = func_00246ba0();
+    id = *(s16 *)work;
+    index = (s16)func_00104f50(id, D_007973F4[id]);
+    if (index <= 0) {
+        func_0046d730(D_005E42C8, 0x2F6);
+    }
+    return *(s32 *)(work + index * 4);
+}
