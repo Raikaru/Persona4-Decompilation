@@ -358,6 +358,8 @@ s32 func_00100010(void) {
                 "// FUN_00100000\n// FUN_00100010 NONMATCHING\n",
             )
 
+    @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
+                         "needs splat output (make split); absent on toolchain-free CI")
     def test_loads_code2_alabel_boundaries(self) -> None:
         blocks = bulk.load_assembly_blocks()
         self.assertIn(0x0070C850, blocks)
@@ -396,6 +398,8 @@ s32 func_00100010(void) {
         self.assertIsNone(error)
         self.assertIn(".L00100010:", prepared.text)
         self.assertEqual(prepared.tables, ((table.name, (0x00100010,)),))
+    @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
+                         "needs splat output (make split); absent on toolchain-free CI")
     def test_specializes_ambiguous_jump_table_setup(self) -> None:
         blocks = bulk.load_assembly_blocks()
         tables = bulk.load_jump_tables()
