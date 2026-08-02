@@ -17173,7 +17173,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/0014ef40.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/0014ef40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21056,7 +21056,7 @@
       "target_path": "build/objdiff/target/Main/Social/pscModel/0036a880.o",
       "base_path": "build/objdiff/base/Main/Social/pscModel/0036a880.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
