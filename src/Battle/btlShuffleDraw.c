@@ -2,6 +2,9 @@
 /* Original translation unit btlShuffleDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+extern void func_003549d0();
+extern void (*jtbl_008873EC[])(void *ptr);
+extern s32 func_00354830();
 
 extern void func_0036df30(u8 *arg0);
 extern void func_0036d8b0(void);
@@ -316,11 +319,23 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
 
 
 // FUN_00377E10
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377e10);
+s32 func_00377e10(u8 *arg0) {
+    s32 *p = *(s32 **)(arg0 + 0x38);
+
+    if (func_00378220() == 0) {
+        *p = func_00354830((u8 *)p + 8);
+    }
+    return 0;
+}
 
 
 // FUN_00377E60
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377e60);
+void func_00377e60(u8 *arg0) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    func_003549d0(p + 8);
+    jtbl_008873EC[0](p);
+}
 
 
 // FUN_00377EB0

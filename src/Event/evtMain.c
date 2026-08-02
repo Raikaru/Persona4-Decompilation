@@ -5,7 +5,7 @@
 
 extern u32 DAT_007645D8;
 void func_00285260(void);
-void func_002871a0(int, int);
+void func_002871a0();
 u8 *func_00145270(s32 arg0);
 extern void func_0046d730(const void *file, u32 line);
 extern void *func_00457120(void);
@@ -154,7 +154,13 @@ INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287060);
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_002871a0);
 
 // FUN_00287310
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287310);
+void func_00287310(u8 *arg0) {
+    if (*(s32 *)(arg0 + 0x5D4) == 1) {
+        func_002871a0(0, *(u8 **)(arg0 + 0x14), arg0);
+        return;
+    }
+    func_002871a0(1, *(u8 **)(arg0 + 0x14), arg0);
+}
 
 // FUN_00287360
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287360);

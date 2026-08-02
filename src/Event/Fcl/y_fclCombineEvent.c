@@ -2,6 +2,7 @@
 /* Original translation unit y_fclCombineEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+extern void func_0045aac0();
 extern void (*jtbl_008873EC[])(void *ptr);
 
 
@@ -14,7 +15,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineEvent", func_0033dd40);
 
 
 // FUN_0033DE40
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineEvent", func_0033de40);
+void func_0033de40(u8 *arg0) {
+    func_0045aac0(2, 0, 0);
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
 
 
 // FUN_0033DE90
