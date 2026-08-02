@@ -164,7 +164,20 @@ void func_0013aa90(void *arg0)
 }
 
 // FUN_0013AB30
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013ab30);
+void func_0013ab30(u8 *arg0)
+{
+    s32 i;
+    s32 *slot;
+
+    for (i = 0; i < 0x3C; i++) {
+        slot = (s32 *)(arg0 + i * 4 + 0x1244);
+        if (*slot != 0) {
+            func_0046d280((void *)*slot);
+            *slot = 0;
+        }
+    }
+    *(s32 *)(arg0 + 0x1C) = 0;
+}
 
 // FUN_0013ABB0
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013abb0);
