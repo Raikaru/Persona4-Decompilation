@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdktask.h"
 #include "include_asm.h"
 
 typedef struct {
@@ -204,7 +205,7 @@ f32 func_001174a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 // FUN_00117580
 void func_00117580(u8 *arg0, s32 arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (!((arg1 & 0xFFFF) < 0xD8)) {
         func_0046d730(D_005E4868, 0x595);
     }
@@ -226,7 +227,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117780);
 // FUN_001178A0
 s32 func_001178a0(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     s32 off;
     *(s32 *)(b + 0x540) = 0;
     *(s32 *)(b + 0x544) = 0;
@@ -313,7 +314,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
 // FUN_0011B2D0
 void func_0011b2d0(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     s32 v = *(s32 *)(b + 0x52C);
     if (!(v == 1 || v == 4 || v == 3 || v == 2 || v == 0)) {
         func_0046d730(D_005E4868, 0xB59);
@@ -326,7 +327,7 @@ void func_0011b2d0(u8 *arg0)
 // FUN_0011B360
 void func_0011b360(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if ((*(s32 *)(b + 0x534) & 1) != 0 && *(s32 *)(b + 0x538) == 2) {
         func_0011bc70(arg0);
     } else {
@@ -377,7 +378,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b8f0);
 // FUN_0011BA00
 s32 func_0011ba00(u8 *arg0)
 {
-    s32 flags = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x534);
+    s32 flags = *(s32 *)(((SdkTask *)arg0)->work + 0x534);
     if ((flags & 2) || (flags & 4)) {
         return 1;
     }
@@ -394,7 +395,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ba40);
 // FUN_0011BB90
 void func_0011bb90(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (!(*(s32 *)(b + 0x534) & 2) && *(u8 *)(b + 0x505) != 0xFF) {
         f32 t;
         f32 u;
@@ -451,7 +452,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c3e0);
 // FUN_0011C610
 u32 func_0011c610(u8 *arg0)
 {
-    return (*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x534) & 0x800) != 0;
+    return (*(s32 *)(((SdkTask *)arg0)->work + 0x534) & 0x800) != 0;
 }
 
 
@@ -459,7 +460,7 @@ u32 func_0011c610(u8 *arg0)
 // FUN_0011C630
 void func_0011c630(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     s32 v = *(s32 *)(b + 0x534);
     if ((v & 0x20) != 0 && (v & 0x4000) == 0 && (v & 0x1000) == 0 && ((v & 0x800) == 0 || (v & 0x2000) != 0)) {
         *(f32 *)(b + 0x434) = *(f32 *)(b + 0x444);
@@ -479,7 +480,7 @@ void func_0011c630(u8 *arg0)
 // FUN_0011C6E0
 void func_0011c6e0(u8 *arg0, s32 arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     s32 v = *(s32 *)(b + 0x534);
     if ((v & 0x20) != 0 && (v & 0x800) != 0 && (v & 0x2000) == 0) {
         *(f32 *)(b + 0x434) = *(f32 *)(b + 0x444);
@@ -521,7 +522,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
 // FUN_0011CB70
 s32 func_0011cb70(u8 *arg0, u8 *arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b == 0) {
         func_0046d730(D_005E4868, 0xE21);
     }
@@ -537,7 +538,7 @@ s32 func_0011cb70(u8 *arg0, u8 *arg1)
 // FUN_0011CC00
 s32 func_0011cc00(u8 *arg0, s16 arg1, u8 *arg2)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b == 0) {
         func_0046d730(D_005E4868, 0xE45);
     }
@@ -582,7 +583,7 @@ void func_0011cd20(u8 *arg0)
 // FUN_0011CDD0
 void func_0011cdd0(u8 *arg0, s32 arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0x534) |= 0x100000;
     func_0043f9c8(b + 0x4F0, 0, 6);
     *(u16 *)(b + 0x4F4) = arg1;
@@ -593,7 +594,7 @@ void func_0011cdd0(u8 *arg0, s32 arg1)
 // FUN_0011CE30
 void func_0011ce30(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     *(u16 *)(b + 0x4F2) = 0;
     *(u16 *)(b + 0x4F0) |= 2;
 }
@@ -625,7 +626,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011cee0);
 // FUN_0011D080
 void func_0011d080(u8 *arg0, s32 arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0x534) |= arg1;
 }
 
@@ -634,7 +635,7 @@ void func_0011d080(u8 *arg0, s32 arg1)
 // FUN_0011D0A0
 void func_0011d0a0(u8 *arg0, s32 arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0x534) &= ~arg1;
 }
 
@@ -643,7 +644,7 @@ void func_0011d0a0(u8 *arg0, s32 arg1)
 // FUN_0011D0C0
 u8 func_0011d0c0(u8 *arg0)
 {
-    return *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x505);
+    return *(u8 *)(((SdkTask *)arg0)->work + 0x505);
 }
 
 
@@ -651,7 +652,7 @@ u8 func_0011d0c0(u8 *arg0)
 // FUN_0011D0D0
 void func_0011d0d0(u8 *arg0)
 {
-    func_0011e240(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8));
+    func_0011e240(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
 }
 
 // FUN_0011D100
@@ -659,7 +660,7 @@ void func_0011d100(u8 *arg0, f32 *arg1)
 {
     u8 *temp_3;
 
-    temp_3 = *(u8 **)(arg0 + 0x38);
+    temp_3 = ((SdkTask *)arg0)->work;
     if (arg1 == NULL) {
         *(f32 *)(temp_3 + 0x4FC) = 0.0f;
         *(f32 *)(temp_3 + 0x500) = 0.0f;
@@ -676,10 +677,13 @@ void func_0011d100(u8 *arg0, f32 *arg1)
 // FUN_0011D140
 void func_0011d140(u8 *arg0)
 {
-    func_0011e230(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8));
+    func_0011e230(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
 }
 
 // FUN_0011D170
+/* Kept as a raw deref on purpose: through SdkTask::work mwcc hoists arg0 + 0x38
+   into a saved register and reuses it, where retail re-issues lw 0x38 for each
+   of the two reads. The typed form is not codegen-neutral here. */
 void func_0011d170(u8 *arg0, s32 arg1, s32 arg2)
 {
     func_0011e230(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8));
@@ -693,7 +697,7 @@ void func_0011d170(u8 *arg0, s32 arg1, s32 arg2)
 // FUN_0011D1D0
 void func_0011d1d0(u8 *arg0, f32 arg1)
 {
-    *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x53C) = arg1;
+    *(f32 *)(((SdkTask *)arg0)->work + 0x53C) = arg1;
 }
 
 
@@ -701,7 +705,7 @@ void func_0011d1d0(u8 *arg0, f32 arg1)
 // FUN_0011D1E0
 s32 func_0011d1e0(u8 *arg0)
 {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8);
+    return *(s32 *)(((SdkTask *)arg0)->work + 0x4F8);
 }
 
 
@@ -714,7 +718,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011d1f0);
 // FUN_0011D3C0
 void func_0011d3c0(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)(b + 0x48) != 0) {
         func_0011dfc0(*(s32 *)(b + 0x48), *(s32 *)(b + 0x4C), D_005E4E40);
         *(s32 *)(b + 0x48) = 0;
@@ -758,7 +762,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dd50);
 // FUN_0011DE40
 void func_0011de40(u8 *arg0, s32 arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     s32 v = arg1 & 0xFF;
     *(s32 *)(b + 8) = (*(s32 *)(b + 8) & ~0xFF) | v;
     *(s32 *)(b + 0xC) = (*(s32 *)(b + 0xC) & ~0xFF) | v;
@@ -769,7 +773,7 @@ f32 func_0011de80(u8 *arg0, Vec2f *arg1)
 {
     u8 *temp_2;
 
-    temp_2 = *(u8 **)(arg0 + 0x38);
+    temp_2 = ((SdkTask *)arg0)->work;
     *arg1 = *(Vec2f *)(temp_2 + 0x28);
     return (f32)(*(s32 *)(temp_2 + 0x10)) / 10.0f;
 }
@@ -781,7 +785,7 @@ f32 func_0011de80(u8 *arg0, Vec2f *arg1)
 // FUN_0011DEC0
 s32 func_0011dec0(u8 *arg0)
 {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 8);
+    return *(s32 *)(((SdkTask *)arg0)->work + 8);
 }
 
 
@@ -798,7 +802,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ded0);
 // FUN_0011DF90
 void func_0011df90(u8 *arg0)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((SdkTask *)arg0)->work);
 }
 
 
@@ -818,7 +822,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e0c0);
 // FUN_0011E230
 void func_0011e230(u8 *arg0, s32 arg1)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 8) = arg1;
+    *(s32 *)(((SdkTask *)arg0)->work + 8) = arg1;
 }
 
 
@@ -826,7 +830,7 @@ void func_0011e230(u8 *arg0, s32 arg1)
 // FUN_0011E240
 void func_0011e240(u8 *arg0, u8 *arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     f32 v0;
     f32 v1;
     if (arg1 != NULL) {
@@ -850,7 +854,7 @@ void func_0011e240(u8 *arg0, u8 *arg1)
 // FUN_0011E2B0
 void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (arg1 == NULL) {
         func_0046d730(D_005E4868, 0x120A);
     }
@@ -868,7 +872,7 @@ void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2)
 // FUN_0011E360
 void func_0011e360(u8 *arg0, s32 arg1)
 {
-    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x14) = arg1;
+    *(s32 *)(((SdkTask *)arg0)->work + 0x14) = arg1;
 }
 
 
@@ -876,7 +880,7 @@ void func_0011e360(u8 *arg0, s32 arg1)
 // FUN_0011E370
 void func_0011e370(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     *(f32 *)(b + 0x40) = *(f32 *)(b + 0x28);
     *(f32 *)(b + 0x44) = *(f32 *)(b + 0x2C);
 }
@@ -896,7 +900,7 @@ void func_0011e390(u8 *arg0, Vec2f arg1)
 // FUN_0011E3C0
 void func_0011e3c0(s32 arg0, s32 arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     *(s32 *)(b + 0xC) = (arg1 & 0xFFFFFF00) | *(u8 *)(b + 8);
 }
 
@@ -905,7 +909,7 @@ void func_0011e3c0(s32 arg0, s32 arg1)
 // FUN_0011E3E0
 u32 func_0011e3e0(u8 *arg0)
 {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0) == 3;
+    return *(s32 *)(((SdkTask *)arg0)->work + 0) == 3;
 }
 
 
@@ -913,7 +917,7 @@ u32 func_0011e3e0(u8 *arg0)
 // FUN_0011E400
 void func_0011e400(u8 *arg0, u8 *arg1)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (arg1 == NULL) {
         func_0046d730(D_005E4868, 0x124F);
     }
@@ -925,7 +929,7 @@ void func_0011e400(u8 *arg0, u8 *arg1)
 // FUN_0011E460
 s32 func_0011e460(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)b != 3) {
         return 0;
     }
@@ -952,7 +956,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e8e0);
 // FUN_0011F3C0
 void func_0011f3c0(u8 *arg0)
 {
-    u8 *b = *(u8 **)(arg0 + 0x38);
+    u8 *b = ((SdkTask *)arg0)->work;
     if (*(s32 *)(b + 0x18) != 0) {
         func_0011fd10(*(s32 *)(b + 0x18));
         *(s32 *)(b + 0x18) = 0;
@@ -970,7 +974,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011f410);
 // FUN_0011F560
 u32 func_0011f560(u8 *arg0)
 {
-    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x14) == 0xE;
+    return *(s32 *)(((SdkTask *)arg0)->work + 0x14) == 0xE;
 }
 
 
@@ -989,7 +993,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011f5a0);
 // FUN_0011FB90
 void func_0011fb90(u8 *arg0)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((SdkTask *)arg0)->work);
 }
 
 
