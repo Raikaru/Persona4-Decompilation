@@ -310,3 +310,37 @@ class EmitHelpersTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TranslationUnitCategoryTests(unittest.TestCase):
+    """A source-less function can still be categorised from its __FILE__ TU.
+
+    The compiler left an assert-macro filename in the image naming the original
+    translation unit. That attribution exists for functions nobody has
+    decompiled yet, which is exactly the population that would otherwise sit in
+    `unclassified` and make both published percentages meaningless.
+    """
+
+    def test_name_matching_a_first_party_file_resolves_to_main(self) -> None:
+        self.assertEqual(gen.progress_category(None, "btlTarget.c"), "main")
+
+    def test_name_matching_a_middleware_file_resolves_to_third_party(self) -> None:
+        self.assertEqual(gen.progress_category(None, "rwcore.c"), "third_party")
+
+    def test_path_escaping_the_repository_is_middleware(self) -> None:
+        """`../../rofs_mai.c` came from an SDK include outside the game sources."""
+        self.assertEqual(gen.progress_category(None, "../../rofs_mai.c"), "third_party")
+
+    def test_unresolvable_name_stays_unclassified(self) -> None:
+        """Guessing from the look of a name is what this category prevents."""
+        self.assertIsNone(gen.resolve_tu_name("definitelyNotAFileInEitherTree.c"))
+        self.assertEqual(
+            gen.progress_category(None, "definitelyNotAFileInEitherTree.c"), "unclassified")
+
+    def test_no_tu_name_stays_unclassified(self) -> None:
+        self.assertEqual(gen.progress_category(None, None), "unclassified")
+
+    def test_own_source_file_wins_over_the_tu_name(self) -> None:
+        """A unit with real source is classified by that source, not the span."""
+        self.assertEqual(gen.progress_category("src/rw/rwcore.c", "btlTarget.c"),
+                         "third_party")
