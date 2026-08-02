@@ -26,6 +26,17 @@ typedef struct BtlPacket {
 BtlPacket* func_00194470(u32 type, u32 workSize);
 u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
+s32 func_001ef9a0(void);
+void func_0022c430(void);
+void func_00440b68();
+void func_00442088();
+extern u8* func_00454a60(u8* param, s32 mode);
+s32 func_004553c0(u8* ptr);
+extern char iGpffffa5e8;
+extern char D_00635620[];
+extern char D_00635638[];
+extern char D_00635650[];
+extern char D_00635668[];
 
 
 
@@ -71,12 +82,34 @@ u32 func_0022fce0(s32 first, s32 second)
 
 
 // FUN_002303E0
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_002303e0);
+u32 func_002303e0(void* work)
+{
+    u8 buf[0x80];
+
+    func_00442088(buf, D_00635620, func_001ef9a0());
+    func_00440b68(&iGpffffa5e8, D_00635638, 0x997);
+    *(u32*)(DAT_0076449c + 0xB90) = (u32)func_00454a60(buf, 1);
+}
 
 
 
 // FUN_00230450
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230450);
+u32 func_00230450(void* work)
+{
+    u32 handle;
+
+    handle = *(u32*)(DAT_0076449c + 0xB90);
+    if (handle == 0)
+    {
+        return 1;
+    }
+    if (func_004553c0((u8*)handle) != 0)
+    {
+        func_0022c430();
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_002304B0
 BtlPacket* btlBossCreateLoadPakPacket(void)
@@ -93,5 +126,28 @@ BtlPacket* btlBossCreateLoadPakPacket(void)
 
 
 
+typedef struct BtlBossEndBgmWork {
+    u32 encountId; // 0x00
+    u32 loaded;    // 0x04
+} BtlBossEndBgmWork;
+
 // FUN_00230500
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230500);
+u32 func_00230500(BtlBossEndBgmWork* work)
+{
+    u8 buf[0x80];
+
+    if (work->loaded == 0)
+    {
+        func_00442088(buf, D_00635650, D_00635668, work->encountId);
+        func_00440b68(&iGpffffa5e8, D_00635638, 0x9C6);
+        *(u32*)(DAT_0076449c + 0xB94) = (u32)func_00454a60(buf, 0);
+        work->loaded = 1;
+        goto done;
+    }
+    if (func_004553c0((u8*)*(u32*)(DAT_0076449c + 0xB94)) != 0)
+    {
+        return 1;
+    }
+done:
+    return 0;
+}

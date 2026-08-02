@@ -8,6 +8,99 @@ extern void func_003753f0(u8 *arg0);
 
 extern void func_003757f0(u8 *arg0);
 
+extern u16 *func_00452560();
+
+extern s32 func_00452380(void *arg0);
+
+extern u32 func_00231d70(u32 max);
+
+extern void func_0046d730(const void *file, s32 line);
+
+extern u8 D_0064E5D0[];
+
+extern u8 D_0064E610[];
+
+extern u8 D_0064E790[];
+
+extern void func_0044ea90(const void *file, s32 line);
+
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+
+extern void func_0043f9c8(void *dst, s32 value, s32 size);
+
+extern s32 func_00451fc0(u8 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
+
+extern void func_0036d860(u8 *arg0, s32 arg1);
+
+extern void func_00373e10(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+
+extern void func_0036f410(u8 *arg0, u8 *arg1);
+
+extern u8 D_0064E7A0[];
+
+extern void func_0036e140(u8 *arg0);
+
+extern void func_0036e600(void);
+
+extern u32 func_00104dc0();
+
+extern u32 func_001056e0();
+
+extern s32 func_00105610(s16 param);
+
+extern s32 func_00105ee0();
+
+extern s32 func_00104e30();
+
+extern s32 func_00104d50();
+
+extern void func_00105730();
+
+extern u8 D_0064E5F0[];
+
+extern u8 D_0064E5F1[];
+
+extern s32 func_003b7060();
+
+extern s32 func_0010b5b0();
+
+extern s32 func_0010b510();
+
+extern s32 func_0010abd0();
+
+extern u8 *func_0010ace0();
+
+extern s32 func_0010aa80();
+
+extern s32 func_00109390();
+
+extern void func_0010ad80();
+
+extern void func_0010b010();
+
+extern u8 *iGpffffb3c0;
+
+extern s32 D_0064E7B0[];
+
+extern u16 D_0064E7B4[];
+
+extern u16 D_0064E7B6[];
+
+extern s32 D_0064E7B8[];
+
+extern void func_00106550(s32 arg0, u32 arg1);
+
+extern s32 func_00106330(s32 id);
+
+extern void func_00106390(s32 a, s32 b);
+
+extern void func_0036d940(u8 *arg0);
+
+extern void func_00374610(u8 *arg0);
+
+extern void (*jtbl_008873EC[])(void *ptr);
+
+extern u8 D_0064E780[];
 
 
 
@@ -33,46 +126,215 @@ void func_0036e5c0(u8 *arg0, u16 *arg1)
 }
 
 // FUN_0036E600
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e600);
+void func_0036e600(void)
+{
+    u8 *work = (u8 *)func_00452560();
+
+    if (func_00106330(0x1430) == 0) {
+        func_00106390(0x1430, 1);
+    }
+    func_0036d940(work + 0x1F384);
+    func_00374610(work + 0x70);
+    jtbl_008873EC[0](work);
+}
 
 // FUN_0036E690
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e690);
+s32 func_0036e690(u8 *arg0, u8 *arg1)
+{
+    u8 *work;
+    s32 handle;
+    s32 tmp;
+
+    func_0044ea90(D_0064E7A0, 0x3A);
+    work = (u8 *)(*jtbl_008873E8)(0x21ABC, 0x40000);
+    func_0043f9c8(work, 0, 0x21ABC);
+    handle = func_00451fc0(arg0, D_0064E780, 0x12, 0, 0, (void *)func_0036e140,
+                           (void *)func_0036e600, work);
+    tmp = (s32)func_00452560(arg0);
+    *(s32 *)(work + 8) = 0;
+    *(s32 *)(work + 0x6C) = tmp;
+    *(s32 *)(work + 0x14) = (s32)(void *)func_0036e580;
+    *(s32 *)(work + 0x1C) = (s32)work;
+    *(s32 *)(work + 0x44) = (s32)(void *)func_0036e5c0;
+    *(s32 *)(work + 0x4C) = (s32)work;
+    func_0036d860(work + 0x1F384, 0);
+    func_00373e10(work + 0x70, handle, *(s32 *)(arg1 + 0xC),
+                  *(s32 *)(arg1 + 0x10), *(s32 *)(arg1 + 0x14));
+    func_0036f410(work + 0x1F2C0, arg1);
+    return handle;
+}
 
 // FUN_0036E7E0
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e7e0);
+void func_0036e7e0(void)
+{
+    u16 *work = func_00452560();
+
+    *work |= 1;
+}
 
 // FUN_0036E810
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e810);
+void func_0036e810(void)
+{
+    u16 *work = func_00452560();
+
+    work[1] = 0;
+    *(u32 *)(work + 4) = 5;
+}
 
 // FUN_0036E840
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e840);
+u32 func_0036e840(void)
+{
+    return func_00452560()[0] & 1;
+}
 
 // FUN_0036E870
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e870);
+void func_0036e870(void)
+{
+    u16 *work = func_00452560();
+
+    *work |= 4;
+}
 
 // FUN_0036E8A0
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e8a0);
+u32 func_0036e8a0(void)
+{
+    return (func_00452560()[0] & 4) != 0;
+}
 
 // FUN_0036E8D0
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e8d0);
+s32 func_0036e8d0(void)
+{
+    return func_00452380(D_0064E780) != 0;
+}
 
 // FUN_0036E900
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e900);
+void *func_0036e900(void *arg0)
+{
+    return *(void **)(*(u32 *)((u8 *)arg0 + 0x38) + 0x6C);
+}
 
 // FUN_0036E910
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e910);
+void *func_0036e910(void *arg0)
+{
+    return (u8 *)*(void **)((u8 *)arg0 + 0x38) + 0x70;
+}
 
 // FUN_0036E920
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e920);
+/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
+ * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
+ * with it the preheader hoist matches retail. */
+#pragma opt_loop_invariants on
+s32 func_0036e920(u32 arg0)
+{
+    s32 x = arg0 & 0xFF;
+    s32 q;
+    s32 sum;
+    s32 i;
+    s32 r;
+
+    if (x == 0) {
+        x = 1;
+    } else if (x > 0x63) {
+        x = 0x63;
+    }
+    q = (x - 1) / 10;
+    r = func_00231d70(0x64);
+    sum = 0;
+    for (i = 0; i < 5; i++) {
+        sum += D_0064E610[q * 5 + i];
+        if (r < sum) {
+            break;
+        }
+    }
+    if (i >= 5) {
+        func_0046d730(D_0064E790, 0x26C);
+    }
+    return i;
+}
+/* measured: see annotation above (func_0036e920). */
+#pragma opt_loop_invariants off
 
 // FUN_0036EA00
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ea00);
+s32 func_0036ea00(s32 arg0, s32 arg1)
+{
+    s32 x = arg1 & 0xFF;
+    s32 q;
+    s32 lo;
+    s32 hi;
+    s32 result;
 
+    if (x == 0) {
+        x = 1;
+    } else if (x > 0x63) {
+        x = 0x63;
+    }
+    q = (x - 1) / 10;
+    lo = D_0064E5F0[q * 2];
+    hi = D_0064E5F1[q * 2];
+    if (hi == lo) {
+        return hi;
+    }
+    result = lo + func_00231d70((u32)(hi - lo + 1));
+    switch (arg0) {
+    case 0:
+        break;
+    case 1:
+        if (result < 4) {
+            result = 4;
+            break;
+        }
+        if (result & 1) {
+            result += 1;
+        }
+        break;
+    case 2:
+        if (result < 5) {
+            result = 3;
+            break;
+        }
+        result = 6;
+        break;
+    case 3:
+        if (result > 6) {
+            result = 6;
+        }
+        break;
+    case 4:
+        break;
+    default:
+        break;
+    }
+    return result;
+}
 // FUN_0036EB50
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036eb50);
 
 // FUN_0036EDA0
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036eda0);
+s32 func_0036eda0(s32 arg0)
+{
+    s32 i;
+    s32 v = arg0 - 3;
+    s32 r;
+    u8 *tbl;
+
+    if (v < 0) {
+        v = 0;
+    } else if ((u32)v >= 6) {
+        v = 5;
+    }
+    r = func_00231d70(0x64);
+    i = 3;
+    tbl = D_0064E5D0 + v * 4;
+    for (; i > 0; i--) {
+        if (tbl[i] > r) {
+            break;
+        }
+    }
+    if (i < 0) {
+        func_0046d730(D_0064E790, 0x307);
+    }
+    return i + 1;
+}
 
 // FUN_0036EE60
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
@@ -81,7 +343,13 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f410);
 
 // FUN_0036F620
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f620);
+void func_0036f620(u8 *arg0)
+{
+    *(u32 *)(arg0 + 0xC) = 0;
+    *(u32 *)(arg0 + 0x10) = 0;
+    *(u32 *)(arg0 + 0x38) = 0;
+    *(u16 *)(arg0 + 8) |= 4;
+}
 
 // FUN_0036F640
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f640);

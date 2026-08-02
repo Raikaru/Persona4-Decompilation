@@ -175,13 +175,15 @@ void func_004636a0(HSfdImage* image, const u8* source)
 #pragma opt_loop_invariants off
 
 
-/* The zero-instruction optimizer barrier that forced width's load before
- * height's is banned (policy); without it MWCC hoists the height load and
- * the y init above width's load - measured nd 10 (verify) / 3 words
- * (fndiff). Accepted compiler floor. */
+/* W318 measured: opt_loop_invariants on hoists the inner-loop width>>1
+ * into the preheader at retail's position.  Off, MWCC sinks the lw of
+ * image->width next to a prologue sra (nd 3 fndiff / 10 verify); with the
+ * shift written inline in the inner condition and the pragma on, the load
+ * stays at source position (width is loop-used) and the hoisted sra lands
+ * after the y init - nd 0. */
 
-// FUN_00463740 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00463740
+#pragma opt_loop_invariants on
 void func_00463740(HSfdImage* image, const u8* source)
 {
     u8* dst;
@@ -189,17 +191,15 @@ void func_00463740(HSfdImage* image, const u8* source)
     s32 width;
     s32 x;
     s32 y;
-    s32 count;
 
     dst = image->pixels;
     width = image->width;
     height = image->height;
     y = 0;
-    count = width >> 1;
     while (y < height)
     {
         x = 0;
-        while (x < count)
+        while (x < (width >> 1))
         {
             u8* pixel = dst + (x * 2);
 
@@ -212,9 +212,7 @@ void func_00463740(HSfdImage* image, const u8* source)
         y++;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/h_maestro", func_00463740);
-#endif
+#pragma opt_loop_invariants off
 
 
 /* W414: hidden-return scan found no h_maestro candidate; materializing

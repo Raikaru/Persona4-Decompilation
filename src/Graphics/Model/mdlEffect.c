@@ -29,12 +29,33 @@ extern void func_00492e30(u16 *param_1);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
+extern void func_0044ea90(u8 *file, s32 line);
+extern u8 D_007131E8[];
+/* Defined below in this file; called at line 54, above its definition. */
+extern void func_0047d310(u32 *param_1);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void func_0043f9c8(void *dest, s32 value, s32 size);
+extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
+extern void func_003e0670(void *matrixOut, void *matrixIn);
+extern void func_003dc610(void *arg0, void *arg1);
+extern void func_004b12e0(s32 arg0, void *arg1);
+extern void func_004b1190(s32 arg0);
+
 #pragma alias DAT_008873ec_abs DAT_008873ec
 
 
 
 // FUN_0047D1A0
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d1a0);
+u32 func_0047d1a0(void)
+{
+    u32 temp_2;
+
+    func_0044ea90(D_007131E8, 0x2D);
+    temp_2 = (u32)(*jtbl_008873E8)(4, 0x40000);
+    func_0047d310((u32 *)temp_2);
+    return temp_2;
+}
 
 // FUN_0047D200
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d200);
@@ -50,7 +71,10 @@ void func_0047d2d0(u32 *param_1)
 
 
 // FUN_0047D310
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d310);
+void func_0047d310(u32 *param_1)
+{
+    *param_1 = 0;
+}
 
 // FUN_0047D320
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d320);

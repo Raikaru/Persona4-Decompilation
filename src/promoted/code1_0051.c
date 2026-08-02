@@ -133,17 +133,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_0051f5e8);
 #pragma schedule off
 
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final store (nd 7 -> 2). */
+/* measured: without #pragma schedule on, the sw does not fill the jr $ra
+   delay slot (nd 2 -> 0); the function returns the loaded pointer, which is
+   what keeps it in $v0. */
 
+// FUN_0051F5F8
 #pragma schedule on
-// FUN_0051F5F8 NONMATCHING
-#ifdef NON_MATCHING
-void func_0051f5f8(u8 *arg0, s32 arg1) {
+u8 *func_0051f5f8(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x1FC0);
     *(s32 *)(p + 0x80) = arg1;
+    return p;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_0051f5f8);
-#endif
 #pragma schedule off

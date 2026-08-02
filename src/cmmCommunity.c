@@ -3,26 +3,227 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 
+extern void *func_0043f9c8(void *dest, s32 value, s32 size);
+extern s32 func_00452380(void *path);
+extern u32 func_00452560(s32 task);
+extern void func_0046d730(const void *file, u32 line);
+extern void func_0044ea90(void *arg0, s32 arg1);
+extern s32 func_00248760(s32 arg0);
+extern s32 func_00247dd0(s32 arg0);
+extern s32 func_00247c20(s32 arg0);
+extern void *func_00246b80(void);
+extern u32 D_0079B1CC[];
+extern u8 D_007973A0[];
+extern void *func_002467b0(s32 arg0);
+extern void func_001076e0(s32 arg0);
+extern void func_00106390(s32 a, s32 b);
+extern void func_00106db0(s32 a, s32 b);
+extern void func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern void func_00108d80(void);
+extern void func_00108cb0(void);
+extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern u16 D_0079740C[];
+extern u8 D_00797410[];
+extern s32 D_00797560[];
+extern char D_005E42C8[];
+extern char D_005E4308[];
+
 // FUN_00106DB0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00106db0);
+void func_00106db0(s32 a, s32 b)
+{
+    s32 id = a & 0xFFFF;
+    s32 i;
+
+    if (id <= 0)
+    {
+        func_0046d730(D_005E42C8, 0x31);
+    }
+    if (b < 4 || b > 0xC)
+    {
+        if (b == 1)
+        {
+            goto bpath;
+        }
+        goto cpath;
+    }
+bpath:
+    i = 4;
+    while (i <= 0xC)
+    {
+        if (id <= 0)
+        {
+            func_0046d730(D_005E42C8, 0x1E);
+        }
+        func_00106390(id + ((i << 5) + 0x3FF), 0);
+        i++;
+    }
+    if (id <= 0)
+    {
+        func_0046d730(D_005E42C8, 0x1E);
+    }
+    func_00106390(id + 0x41F, 0);
+    goto end;
+cpath:
+    if ((u32)(b - 2) >= 2)
+    {
+        goto end;
+    }
+    if (id <= 0)
+    {
+        func_0046d730(D_005E42C8, 0x1E);
+    }
+    func_00106390((a & 0xFFFF) + 0x43F, 0);
+    if ((a & 0xFFFF) <= 0)
+    {
+        func_0046d730(D_005E42C8, 0x1E);
+    }
+    func_00106390(id + 0x45F, 0);
+end:
+    func_00106390(id + ((b << 5) + 0x3FF), 1);
+}
 
 // FUN_00106F40
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00106f40);
 
 // FUN_001070B0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001070b0);
+void func_001070b0(void)
+{
+    func_0043f9c8(D_0079740C, 0, 0x158);
+}
 
 // FUN_001070E0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001070e0);
+s32 func_001070e0(arg0)
+s32 arg0;
+{
+    s32 id = arg0 & 0xFFFF;
+    s32 ptr;
+    s32 i;
+
+    if (id >= 0x1F)
+    {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (id == 0)
+    {
+        return 0;
+    }
+    ptr = (s32)D_00797410;
+    i = 0;
+    while (i < 0x15)
+    {
+        if (*(u16 *)(ptr + 4) == id)
+        {
+            return ptr;
+        }
+        ptr += 0x10;
+        i++;
+    }
+    return 0;
+}
 
 // FUN_00107180
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107180);
 
 // FUN_00107240
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107240);
+s16 func_00107240(s32 arg0)
+{
+    u32 id = arg0 & 0xFFFF;
+
+    switch (id)
+    {
+    case 3:
+        return 4;
+    case 4:
+        return 3;
+    case 5:
+        return 6;
+    case 6:
+        return 5;
+    case 0xB:
+        return 0xC;
+    case 0xC:
+        return 0xB;
+    case 0xE:
+        return 0xF;
+    case 0xF:
+        return 0xE;
+    case 0x15:
+        return 0x16;
+    case 0x16:
+        return 0x15;
+    case 0x19:
+        return 0x1A;
+    case 0x1B:
+        return 0x1C;
+    }
+    return (s16)arg0;
+}
 
 // FUN_00107370
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107370);
+void func_00107370(s32 arg0)
+{
+    u32 id = arg0 & 0xFFFF;
+
+    switch (id)
+    {
+    case 3:
+        func_001076e0(4);
+        break;
+    case 4:
+        func_001076e0(3);
+        break;
+    case 5:
+        func_001076e0(6);
+        break;
+    case 6:
+        func_001076e0(5);
+        break;
+    case 0xB:
+        func_001076e0(0xC);
+        break;
+    case 0xC:
+        func_001076e0(0xB);
+        break;
+    case 0xE:
+        func_001076e0(0xF);
+        break;
+    case 0xF:
+        func_001076e0(0xE);
+        break;
+    case 0x15:
+        func_001076e0(0x16);
+        break;
+    case 0x16:
+        func_001076e0(0x15);
+        break;
+    case 0x19:
+        func_001076e0(0x1A);
+        func_001076e0(0x1C);
+        func_001076e0(0x1B);
+        break;
+    case 0x1A:
+        func_001076e0(0x19);
+        func_001076e0(0x1C);
+        func_001076e0(0x1B);
+        break;
+    case 0x1B:
+        func_001076e0(0x1C);
+        func_001076e0(0x1A);
+        func_001076e0(0x19);
+        break;
+    case 0x1C:
+        func_001076e0(0x1B);
+        func_001076e0(0x1A);
+        func_001076e0(0x19);
+        break;
+    case 0x10:
+        func_001076e0(0x11);
+        break;
+    case 0x11:
+        func_001076e0(0x10);
+        break;
+    }
+}
 
 // FUN_001075D0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001075d0);
@@ -37,7 +238,35 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001077f0);
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107890);
 
 // FUN_00107930
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107930);
+s32 func_00107930(s32 arg0)
+{
+    switch (arg0)
+    {
+    case 0:
+        if (func_00247dd0(1) & 0xFFFF)
+        {
+            return 1;
+        }
+        if (func_00247dd0(2) & 0xFFFF)
+        {
+            return 2;
+        }
+        break;
+    case 1:
+        if (func_00247dd0(3) & 0xFFFF)
+        {
+            return 3;
+        }
+        if (func_00247dd0(4) & 0xFFFF)
+        {
+            return 4;
+        }
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
 
 // FUN_00107A00
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107a00);
@@ -46,13 +275,45 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107a00);
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ac0);
 
 // FUN_00107B70
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107b70);
+s32 func_00107b70(void)
+{
+    s32 r = func_001070e0();
+    if (r == 0)
+    {
+        r = 0;
+    }
+    else
+    {
+        r = *(s32 *)r & 4;
+    }
+    if (r != 0)
+    {
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_00107BD0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107bd0);
 
 // FUN_00107C80
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107c80);
+s32 func_00107c80(void)
+{
+    s32 r = func_001070e0();
+    if (r == 0)
+    {
+        r = 0;
+    }
+    else
+    {
+        r = *(s32 *)r & 1;
+    }
+    if (r != 0)
+    {
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_00107CE0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ce0);
@@ -61,7 +322,23 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ce0);
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107dc0);
 
 // FUN_00107EA0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ea0);
+s32 func_00107ea0(void)
+{
+    s32 r = func_001070e0();
+    if (r == 0)
+    {
+        r = 0;
+    }
+    else
+    {
+        r = *(s32 *)r & 2;
+    }
+    if (r != 0)
+    {
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_00107F00
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107f00);
@@ -88,34 +365,106 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108950);
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108b60);
 
 // FUN_00108CA0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108ca0);
+s32 func_00108ca0(void)
+{
+    return 0;
+}
 
 // FUN_00108CF0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108cf0);
+void func_00108cf0(s32 arg0)
+{
+    void *temp_2;
+
+    func_00108d80();
+    func_0044ea90(D_005E42C8, 0x271);
+    temp_2 = D_008873F4[0](1, 0x20, 0x40000);
+    *(s16 *)temp_2 = arg0;
+    func_00451de0(D_005E4308, 0xF, 0, 0, (void *)func_00108ca0, (void *)func_00108cb0, temp_2);
+}
 
 // FUN_00108DC0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108dc0);
+s32 func_00108dc0(void)
+{
+    s32 ret = func_00452380(D_005E4308);
+    if (ret != 0)
+    {
+        return (s32)func_00452560(ret);
+    }
+    return 0;
+}
 
 // FUN_00108E10
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108e10);
+s32 func_00108e10(void)
+{
+    s32 r = func_00452380(D_005E4308);
+    if (r != 0)
+    {
+        r = (s32)func_00452560(r);
+    }
+    else
+    {
+        r = 0;
+    }
+    if (r == 0)
+    {
+        r = 0;
+    }
+    else
+    {
+        r = *(u16 *)r;
+    }
+    return r;
+}
 
 // FUN_00108E70
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108e70);
+s32 func_00108e70(void)
+{
+    s32 r = func_00452380(D_005E4308);
+    if (r != 0)
+    {
+        r = (s32)func_00452560(r);
+    }
+    else
+    {
+        r = 0;
+    }
+    if (r == 0)
+    {
+        r = 0;
+    }
+    else
+    {
+        r = *(u16 *)(r + 0x10);
+    }
+    return r;
+}
 
 // FUN_00108ED0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108ed0);
+void func_00108ed0(u16 arg0)
+{
+    D_0079740C[0] = arg0;
+}
 
 // FUN_00108EE0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108ee0);
+u16 func_00108ee0(void)
+{
+    return D_0079740C[0];
+}
 
 // FUN_00108EF0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108ef0);
 
 // FUN_001090C0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001090c0);
+void func_001090c0(s32 arg0)
+{
+    D_00797560[0] += arg0;
+}
 
 // FUN_001090E0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001090e0);
+s32 func_001090e0(void)
+{
+    return D_00797560[0];
+}
 
 // FUN_00109100
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00109100);

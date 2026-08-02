@@ -50,14 +50,26 @@ struct BtlSoundPacketSkillSE
     u16 flags;
     u8 _pad0e[2];
 };
-extern u32 func_001f7d90(void* work);
+extern void func_001f7d90(void* work);
 extern u32 func_001f7e30(void* work);
 extern u32 func_001f8070(void* work);
 
 extern u32 sprintf(void* buffer, const void* format, ...);
 extern char sGpffffa500[5];
+extern char sGpffffa4F0[7];
+extern char sGpffffa4F8[7];
 extern char DAT_00624F40[15];
+extern char D_00624F20[];
+extern char D_00624F30[];
 extern u8 func_0045aeb0(s16 channelIndex, const char* name);
+
+extern void func_00440b68(const char* fmt, const char* file, s32 line);
+extern void* func_00454a60(const char* path, s32 flags);
+extern s32 func_004553c0(void* handle);
+extern void func_00454bd0(void* handle);
+extern void* func_00455ea0(void* handle, s32 index, void* out);
+extern void func_0045a570(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
+extern s32 func_0045a890(s32 bank);
 
 extern u32 strlen(const char* text);
 extern u32 func_001f8190(u16* work);
@@ -150,10 +162,81 @@ void func_001f7d10(u16 channel, u16 cue, u16 variant)
 
 
 // FUN_001F7D90
-INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f7d90);
+void func_001f7d90(void* work)
+{
+    BtlSoundPacketSkillSE* packet;
+    char buffer[128];
+
+    packet = (BtlSoundPacketSkillSE*)work;
+
+    if (!(packet->flags & 1))
+    {
+        sprintf(buffer, D_00624F30, sGpffffa4F8, packet->skillId);
+        func_00440b68(sGpffffa4F0, D_00624F20, 0x274);
+        packet->cdvd = func_00454a60(buffer, 0);
+    }
+    else
+    {
+        packet->cdvd = NULL;
+    }
+
+    packet->state = 1;
+    packet->timer = 0;
+}
 
 // FUN_001F7E30
-INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f7e30);
+u32 func_001f7e30(void* work)
+{
+    BtlSoundPacketSkillSE* packet = (BtlSoundPacketSkillSE*)work;
+    char buffer[128];
+    void* file1;
+    void* file2;
+    void* file3;
+    u32 file1Size;
+    u32 file2Size;
+    u32 file3Size;
+    s32 i;
+
+    if (packet->cdvd == NULL)
+    {
+        sprintf(buffer, D_00624F30, sGpffffa4F8, packet->skillId);
+        func_00440b68(sGpffffa4F0, D_00624F20, 0x2AA);
+        packet->cdvd = func_00454a60(buffer, 0);
+    }
+
+    switch (packet->state)
+    {
+    case 1:
+        if (!func_004553c0(packet->cdvd))
+        {
+            return 0;
+        }
+
+        func_0045aa90(2, 4);
+        for (i = 5; i <= 9; i++)
+        {
+            func_0045aa90(2, (s16)i);
+        }
+
+        file1 = func_00455ea0(packet->cdvd, 0, &file1Size);
+        file2 = func_00455ea0(packet->cdvd, 1, &file2Size);
+        file3 = func_00455ea0(packet->cdvd, 2, &file3Size);
+        func_0045a570(2, file1, file1Size, file2, file2Size, file3, file3Size);
+        packet->state = 2;
+        break;
+    case 2:
+        if (!func_0045a890(2))
+        {
+            return 0;
+        }
+
+        func_00454bd0(packet->cdvd);
+        return 1;
+    }
+
+    packet->timer++;
+    return 0;
+}
 // FUN_001F8000
 BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 {
@@ -162,7 +245,7 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 
     packet = func_00194470(0x903, sizeof(BtlSoundPacketSkillSE));
     packet->unk_47 &= ~(1 << 0);
-    packet->initFunc = func_001f7d90;
+    packet->initFunc = (BtlPacketFunc)func_001f7d90;
     packet->updateFunc = func_001f7e30;
     work = (BtlSoundPacketSkillSE*)packet->workData;
     work->skillId = skillId;

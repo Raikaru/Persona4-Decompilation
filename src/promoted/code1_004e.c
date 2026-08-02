@@ -28,29 +28,25 @@ s8 *func_004e1c20(void) {
 
 #pragma schedule on
 
-// FUN_004E3D88 NONMATCHING
-#ifdef NON_MATCHING
-void func_004e3d88(u8 arg0) {
-    D_00731C7C[0] = arg0;
+// FUN_004E3D88
+u8 *func_004e3d88(u8 arg0) {
+    u8 *segment = (u8 *)0x00730000;
+    segment[0x1C7C] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3d88);
-#endif
-/* measured: retail puts the sb in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: sb uses $v0 base because zero-lo segment is the live return (void store colors $v1, nd 2; returning 0x00731C7C adds ori, nd 3); schedule on fills the jr delay slot (nd 3 -> 0, tail nop is padding) */
 #pragma schedule off
 
 
 #pragma schedule on
 
-// FUN_004E3D98 NONMATCHING
-#ifdef NON_MATCHING
-void func_004e3d98(s32 arg0) {
-    D_00731C78[0] = arg0;
+// FUN_004E3D98
+s32 *func_004e3d98(s32 arg0) {
+    s32 *segment = (s32 *)0x00730000;
+    segment[0x71E] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3d98);
-#endif
-/* measured: retail puts the sw in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: sw uses $v0 base because zero-lo segment is the live return (void store colors $v1, nd 2; returning 0x00731C78 adds ori, nd 3); schedule on fills the jr delay slot (nd 3 -> 0, tail nop is padding) */
 #pragma schedule off
 
 
@@ -64,7 +60,7 @@ u8 func_004e3da8(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3da8);
 #endif
-/* measured: retail puts the lbu in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: schedule on fills the lbu jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 in every shape tried (literal, pointer, segment, volatile, const) vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
@@ -78,7 +74,7 @@ s32 func_004e3db8(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3db8);
 #endif
-/* measured: retail puts the lw in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 in every shape tried (literal, pointer, segment, volatile, const) vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
@@ -92,7 +88,7 @@ s32 func_004e4180(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4180);
 #endif
-/* measured: retail puts the lw in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
@@ -106,7 +102,7 @@ s8 func_004e4280(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4280);
 #endif
-/* measured: retail puts the lb in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: schedule on fills the lb jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
@@ -120,7 +116,7 @@ s32 func_004e4290(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4290);
 #endif
-/* measured: retail puts the lw in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
@@ -134,5 +130,5 @@ s32 func_004e4688(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4688);
 #endif
-/* measured: retail puts the lw in the jr $ra delay slot; only scheduling reproduces it */
+/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
