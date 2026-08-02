@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "type.h"
 
 // FUN_001138C0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_001138c0);
@@ -40,7 +41,9 @@ INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115500);
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
 
 // FUN_00115750
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115750);
+u16 func_00115750(u8 *arg0) {
+    return *(u16 *)(arg0 + 0x66);
+}
 
 // FUN_00115760
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115760);

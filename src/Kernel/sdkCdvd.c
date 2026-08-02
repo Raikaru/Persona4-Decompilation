@@ -9,7 +9,8 @@ INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00454640);
 INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00454a60);
 
 // FUN_00455510
-INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00455510);
+void func_00455510(void) {
+}
 
 // FUN_004555D0
 INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_004555d0);

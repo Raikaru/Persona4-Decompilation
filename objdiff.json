@@ -6998,7 +6998,7 @@
       "target_path": "build/objdiff/target/Camp/cmpEquip/001344b0.o",
       "base_path": "build/objdiff/base/Camp/cmpEquip/001344b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -13114,7 +13114,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/effModel/004ac600.o",
       "base_path": "build/objdiff/base/Graphics/Model/effModel/004ac600.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -13125,7 +13125,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/effModel/004ac610.o",
       "base_path": "build/objdiff/base/Graphics/Model/effModel/004ac610.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15347,7 +15347,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlSE/0047e440.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlSE/0047e440.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16095,7 +16095,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkCdvd/00455510.o",
       "base_path": "build/objdiff/base/Kernel/sdkCdvd/00455510.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16304,7 +16304,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkLbox/004703c0.o",
       "base_path": "build/objdiff/base/Kernel/sdkLbox/004703c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16920,7 +16920,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldAI/0017e980.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldAI/0017e980.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16931,7 +16931,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldAI/0017e990.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldAI/0017e990.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143871,7 +143871,7 @@
       "target_path": "build/objdiff/target/shdSkill/00115750.o",
       "base_path": "build/objdiff/base/shdSkill/00115750.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

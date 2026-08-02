@@ -3,6 +3,10 @@
 /* Original translation unit effModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+/* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit retail's lq/sq
+   quadword copy, with no inline asm. */
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+
 extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 
 extern void func_004813f0(void);
@@ -152,10 +156,14 @@ void func_004ac590(u32 *param_1)
 }
 
 // FUN_004AC600
-INCLUDE_ASM("asm/nonmatchings/effModel", func_004ac600);
+u_long128 func_004ac600(u_long128 *dst, u_long128 *src) {
+    return *dst = *src;
+}
 
 // FUN_004AC610
-INCLUDE_ASM("asm/nonmatchings/effModel", func_004ac610);
+u_long128 func_004ac610(u_long128 *dst, u_long128 *src) {
+    return dst[1] = *src;
+}
 
 // FUN_004AC630
 void func_004ac630(void *arg0, f32 arg1)

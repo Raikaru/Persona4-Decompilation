@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "type.h"
 
 // FUN_0017D3C0
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017d3c0);
@@ -10,10 +11,14 @@ INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017e840);
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017e890);
 
 // FUN_0017E980
-INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017e980);
+s32 func_0017e980(u8 *arg0) {
+    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x48);
+}
 
 // FUN_0017E990
-INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017e990);
+void func_0017e990(u8 *arg0) {
+    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xC) = 1;
+}
 
 // FUN_0017E9B0
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017e9b0);
