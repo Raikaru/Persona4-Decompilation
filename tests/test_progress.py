@@ -54,13 +54,32 @@ class ProgressTests(unittest.TestCase):
         self.assertEqual(metrics["matching"]["duplicate_rows"], 1)
         self.assertEqual(metrics["source"]["ignored_unknown_rows"], 1)
 
-    def test_rejects_linked_function_outside_matching_set(self) -> None:
-        report = {"results": [{"addr": "00100008", "status": "MATCH"}]}
+    def test_linked_asm_fallback_is_counted_separately_not_as_progress(self) -> None:
+        """A TU links as one object even when some members are INCLUDE_ASM.
+
+        Those bytes are identical to what the assembly carve path would place,
+        so counting them as linked progress would credit work nobody has done.
+        They are excluded from the linked set and reported on their own.
+        """
+        report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
         linked = copy.deepcopy(LINKED_REPORT)
-        linked["linked_functions"][0]["address"] = "00100018"
+        linked["linked_functions"][0]["address"] = "00100018"   # linked, not matching
         linked = progress.validate_linked_report(linked, WINDOWS)
-        with self.assertRaisesRegex(progress.ProgressError, "not in the matching"):
-            progress.make_metrics(report, WINDOWS, linked, "verify.json", "build.json")
+        metrics, _matching, linked_badge = progress.make_metrics(
+            report, WINDOWS, linked, "verify.json", "build.json")
+        self.assertEqual(metrics["linked"]["addresses"], [])
+        self.assertEqual(metrics["linked"]["count"], 0)
+        self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 1)
+        self.assertIn("0/", linked_badge["message"])
+
+    def test_linked_matching_function_still_counts(self) -> None:
+        """The exclusion must not swallow genuinely decompiled linked code."""
+        report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
+        linked = progress.validate_linked_report(copy.deepcopy(LINKED_REPORT), WINDOWS)
+        metrics, _matching, _badge = progress.make_metrics(
+            report, WINDOWS, linked, "verify.json", "build.json")
+        self.assertEqual(metrics["linked"]["addresses"], ["00100008"])
+        self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 0)
 
     def test_validates_generated_endpoints_and_rejects_non_subset(self) -> None:
         report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}

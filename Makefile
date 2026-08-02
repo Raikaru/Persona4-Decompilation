@@ -121,8 +121,22 @@ objdiff-objects: objdiff
 objdiff-report: objdiff-objects
 	$(OBJDIFF_CLI) report generate -o build/report.json -c functionRelocDiffs=none
 
+# Regenerate the committed progress endpoints. Without --write-dir the tool only
+# PRINTS a summary, which is why `make progress` used to leave progress/ stale
+# and CI's progress-validate then failed on a total that no longer matched the
+# canonical map. The linked report comes from a successful byte-exact build, so
+# run `make build-progress` first (or point LINKED_REPORT at an existing one).
+VERIFY_REPORT ?= build/verify_report.json
+LINKED_REPORT ?= build/linked_report.json
+
+build-progress:
+	$(PYTHON) tools/build.py --progress-report $(LINKED_REPORT)
+
 progress:
-	$(PYTHON) tools/progress.py
+	$(PYTHON) tools/verify.py --json $(VERIFY_REPORT)
+	$(PYTHON) tools/progress.py --report $(VERIFY_REPORT) \
+	    --linked-report $(LINKED_REPORT) --write-dir progress
+	$(PYTHON) tools/progress.py --validate-dir progress
 
 progress-validate:
 	$(PYTHON) tools/progress.py --validate-dir progress
