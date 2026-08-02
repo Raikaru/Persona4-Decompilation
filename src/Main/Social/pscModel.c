@@ -4,6 +4,8 @@
 #include "type.h"
 
 extern void* func_00457120(void);
+extern void func_0046d730(u8 *file, s32 line);
+extern u8 D_0064E480[];
 extern void* func_003e89c0(void);
 extern void func_003e8970(void* viewport, void* cameraData);
 
@@ -43,7 +45,14 @@ f32 func_0036a790(const f32* value, f32 scale)
 }
 
 // FUN_0036A820
-INCLUDE_ASM("asm/nonmatchings/pscModel", func_0036a820);
+void func_0036a820(u8 *arg0, s16 arg1)
+{
+    if (*(s32 *)(arg0 + 4) != 0) {
+        func_0046d730(D_0064E480, 0x524);
+    }
+    *(u16 *)(arg0 + 0x174) = arg1;
+}
+
 // FUN_0036A880
 INCLUDE_ASM("asm/nonmatchings/pscModel", func_0036a880);
 // FUN_0036A900
