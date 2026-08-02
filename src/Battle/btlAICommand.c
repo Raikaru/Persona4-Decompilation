@@ -1463,12 +1463,24 @@ s32 func_001e1480(void) {
     return 1;
 }
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1530
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1530);
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1620
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1620);
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1710
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1710);
 
@@ -1488,21 +1500,45 @@ s32 func_001e1940(void) {
     return 1;
 }
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E19F0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e19f0);
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1AE0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1ae0);
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1BD0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1bd0);
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1CC0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1cc0);
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1DB0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1db0);
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E1EA0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1ea0);
 
@@ -2005,6 +2041,10 @@ s32 func_001e4210(void) {
     return 1;
 }
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E42E0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e42e0);
 
@@ -2015,6 +2055,10 @@ s32 func_001e43d0(void) {
     return 1;
 }
 
+/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
+   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
+   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
+   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
 // FUN_001E4430
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e4430);
 
