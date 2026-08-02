@@ -2,6 +2,8 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+extern s32 func_00481460();
+extern void func_00460ac0();
 
 typedef struct RwV3d
 {
@@ -49,7 +51,13 @@ INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483270);
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_004833f0);
 
 // FUN_00483490
-INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483490);
+void func_00483490(u8 *arg0, s32 arg1) {
+    s32 h = func_00481460(arg1);
+
+    *(s32 *)(arg0 + 0x18) = 0;
+    *(s32 *)(arg0 + 0x1C) = 0;
+    func_00460ac0(h, arg0 + 0x18);
+}
 
 // FUN_004834E0
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_004834e0);

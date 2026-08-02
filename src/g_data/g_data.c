@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+extern u8 D_007973A0[];
 
 extern s16 D_00797F88[];
 
@@ -1250,7 +1251,14 @@ void func_0010f4c0(void)
 }
 
 // FUN_0010F4F0
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010f4f0);
+u8 *func_0010f4f0(s32 arg0) {
+    s32 v = (s16)arg0;
+
+    if ((v == 0) || (v >= 0xB)) {
+        return NULL;
+    }
+    return (u8 *)(((s32)D_007973A0 + ((v - 1) * 0x14)) + 0x4A8C);
+}
 
 // FUN_0010F540
 void func_0010f540(void)

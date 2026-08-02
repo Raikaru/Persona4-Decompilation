@@ -950,7 +950,10 @@ INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279030);
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002791f0);
 
 // FUN_00279300
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279300);
+void func_00279300(u8 *arg0, s32 arg1) {
+    func_00273170(arg1, 1, 0);
+    func_00271b70(arg1);
+}
 
 // FUN_00279350
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279350);

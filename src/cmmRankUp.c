@@ -2,6 +2,10 @@
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+extern u8 *func_00460990();
+extern void func_00251d80();
+extern u8 D_007963D0[];
+extern void func_00460ac0();
 
 typedef int (*code)(...);
 extern code DAT_008873ec_abs[];
@@ -22,7 +26,16 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00251d80);
 
 
 // FUN_00251E60
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00251e60);
+s32 func_00251e60(s32 arg0) {
+    u8 *p;
+
+    func_00452560();
+    p = func_00460990();
+    *(void **)(p + 0x8) = (void *)func_00251d80;
+    *(s32 *)(p + 0x10) = arg0;
+    func_00460ac0(D_007963D0, p);
+    return 0;
+}
 
 // FUN_00251EC0
 void func_00251ec0(void)
