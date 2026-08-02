@@ -1002,7 +1002,19 @@ void func_00279ce0(int param_1)
 
 
 // FUN_00279D40
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279d40);
+void func_00279d40(s32 arg0)
+{
+    u8 *entry;
+    s32 i;
+
+    entry = D_00881808[arg0].unk0;
+    if (entry == 0) {
+        func_0046d730(D_0063BE10, 0xD76);
+    }
+    for (i = 0; i < 0x20; i++) {
+        func_002746c0(i, *(u32 *)(entry + i * 4 + 0x94));
+    }
+}
 
 // FUN_00279DD0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279dd0);
