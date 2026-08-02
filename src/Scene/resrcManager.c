@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Source unit: src/Scene/resrcManager_001470e0.c */
 #include "type.h"
 
@@ -25,6 +26,9 @@ extern void func_00147430(ResrcManager* resManager, Resrc* res);
 
 #pragma alias DAT_008873ec_abs DAT_008873ec
 
+// FUN_00147070
+INCLUDE_ASM("asm/nonmatchings/resrcManager", func_00147070);
+
 // FUN_001470E0
 void resrcMngDestroy(ResrcManager* resManager)
 {
@@ -49,6 +53,9 @@ void resrcMngDestroy(ResrcManager* resManager)
     }
 }
 
+
+// FUN_00147190
+INCLUDE_ASM("asm/nonmatchings/resrcManager", func_00147190);
 
 // FUN_00147500
 Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType)

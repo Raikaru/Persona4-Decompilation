@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdSprite.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "include_asm.h"
 
 typedef int (*code)(...);
 extern code DAT_008873ec_abs[];
@@ -13,6 +14,11 @@ extern code DAT_008873ec_abs[];
 // emit andi zero-extensions the retail never has.
 
 
+// FUN_0025EF20
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
+
+// FUN_0025F110
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f110);
 // FUN_0025F230
 void func_0025f230(u32 param_1)
 {
@@ -25,3 +31,27 @@ void func_0025f230(u32 param_1)
         DAT_008873ec_abs[0](param_1);
     }
 }
+
+// FUN_0025F2C0
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f2c0);
+
+// FUN_0025F360
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f360);
+
+// FUN_0025F3F0
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f3f0);
+
+// FUN_0025F430
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f430);
+
+// FUN_0025F500
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f500);
+
+// FUN_0025F540
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f540);
+
+// FUN_0025F620
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f620);
+
+// FUN_0025F6B0
+INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f6b0);

@@ -1,5 +1,7 @@
 /* Source unit: src/Battle/btlEffect_001d6880.c */
 #include "type.h"
+#include "include_asm.h"
+
 
 typedef struct BtlFormationWork {
   u32 state;
@@ -153,6 +155,10 @@ u32 func_001d6de0(int param_1, u16 *entry)
 
 
 
+
+// FUN_001D7760
+INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001d7760);
+
 // FUN_001D7880
 void func_001d7880(void)
 
@@ -167,6 +173,10 @@ void func_001d7880(void)
 }
 
 
+
+
+// FUN_001D78D0
+INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001d78d0);
 
 // FUN_001D7A10
 void func_001d7a10(u16 param_1)

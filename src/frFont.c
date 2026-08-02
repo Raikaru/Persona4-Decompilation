@@ -1,4 +1,5 @@
 #include "type.h"
+#include "include_asm.h"
 
 extern void func_002716b0(s32 arg0, u64 arg1, u8 *arg2);
 
@@ -39,6 +40,11 @@ extern u32 DAT_00881634_abs[];
 
 
 
+// FUN_00270FB0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
+
+// FUN_00271310
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00271310);
 // FUN_00271380
 void func_00271380(s32 arg0, u8 *arg1)
 {
@@ -50,6 +56,14 @@ void func_00271380(s32 arg0, u8 *arg1)
 #pragma alias DAT_008873ec_abs DAT_008873ec
 
 
+// FUN_002713B0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
+
+// FUN_002715C0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002715c0);
+
+// FUN_002716B0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002716b0);
 // FUN_00271820
 void func_00271820(u32 param_1)
 {
@@ -69,6 +83,14 @@ void func_00271820(u32 param_1)
 // retail form is the implicit call.
 
 
+// FUN_00271860
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00271860);
+
+// FUN_00271A40
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00271a40);
+
+// FUN_00271B70
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00271b70);
 // FUN_00271BD0
 u32 func_00271bd0(int param_1)
 {
@@ -122,6 +144,59 @@ u32 func_00271bd0(int param_1)
 
 
 
+// FUN_00271D10
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00271d10);
+
+// FUN_00271F50
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00271f50);
+
+// FUN_00272170
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272170);
+
+// FUN_00272390
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272390);
+
+// FUN_002724D0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002724d0);
+
+// FUN_00272730
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272730);
+
+// FUN_002727A0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002727a0);
+
+// FUN_002727F0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002727f0);
+
+// FUN_00272860
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272860);
+
+// FUN_002728C0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002728c0);
+
+// FUN_00272950
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272950);
+
+// FUN_00272A10
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272a10);
+
+// FUN_00272B00
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272b00);
+
+// FUN_00272B34
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272b34);
+
+// FUN_00272B50
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272b50);
+
+// FUN_00272BA0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272ba0);
+
+// FUN_00272BD4
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272bd4);
+
+// FUN_00272BF0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272bf0);
 // FUN_00272C60
 u16 func_00272c60(s16 param_1)
 {
@@ -194,6 +269,11 @@ u32 func_00272cb0(int list)
 
 
 
+// FUN_00272D40
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272d40);
+
+// FUN_00272E10
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00272e10);
 // FUN_00273110
 void func_00273110(s32 arg0)
 {
@@ -210,6 +290,14 @@ void func_00273140(void *param_1, u32 param_2)
 
 
 
+// FUN_00273170
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
+
+// FUN_002734B0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002734b0);
+
+// FUN_00273610
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00273610);
 // FUN_00273650
 int func_00273650(int param_1, int param_2, int param_3)
 {
@@ -242,6 +330,8 @@ body:
 
 
 
+// FUN_002736D0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002736d0);
 // FUN_002738A0
 void func_002738a0(u64 param_1)
 {
@@ -292,9 +382,48 @@ u16 func_00273940(u32 param_1)
 // as in the P3 donor): a typed u8 prototype makes mwcc emit andi
 // zero-extensions the retail never has.
 
+// FUN_00273970
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00273970);
+
+// FUN_002739E0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002739e0);
+
+// FUN_00273CC0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00273cc0);
+
+// FUN_00273F70
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00273f70);
+
+// FUN_002740B0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002740b0);
 // FUN_00274570
 void func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                    u32 param_5, u32 param_6, u32 param_7, u32 param_8)
 {
     func_002745c0(param_1, param_2, 0, param_3, param_4, param_5, param_6, param_7, param_8);
 }
+
+// FUN_002745C0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002745c0);
+
+// FUN_00274640
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00274640);
+
+// FUN_00274660
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00274660);
+
+// FUN_002746A0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002746a0);
+
+// FUN_002746B0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002746b0);
+
+// FUN_002746E0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002746e0);
+
+// FUN_002748E0
+INCLUDE_ASM("asm/nonmatchings/frFont", func_002748e0);
+
+// FUN_00274970
+INCLUDE_ASM("asm/nonmatchings/frFont", func_00274970);
+

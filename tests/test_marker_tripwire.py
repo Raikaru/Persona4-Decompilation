@@ -39,11 +39,16 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """1942 tracked markers across first-party src/.  Bump deliberately."""
+        """4865 tracked markers across first-party src/.  Bump deliberately.
+
+        1,843 are decompiled C; the rest are INCLUDE_ASM fallbacks placed by the
+        __FILE__-driven translation-unit recovery, which gave every function a
+        real source file to live in.
+        """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            1942,
+            4865,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

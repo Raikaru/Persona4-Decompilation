@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit sdkSndcom.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "include_asm.h"
 
 typedef struct HCdvd HCdvd;
 
@@ -31,8 +32,28 @@ extern HSfdDecodeSlot sSfdDecodeSlots_abs[];
 
 
 
+// FUN_0045B650
+INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045b650);
+
+// FUN_0045B7C0
+INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045b7c0);
+
+// FUN_0045C130
+INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045c130);
+
+// FUN_0045C210
+INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045c210);
 // FUN_0045C390
 u32 func_0045c390(s16 index)
 {
     return sSfdDecodeSlots_abs[index].state == 1;
 }
+
+// FUN_0045C3D0
+INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045c3d0);
+
+// FUN_0045C510
+INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045c510);
+
+// FUN_0045C640
+INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045c640);
