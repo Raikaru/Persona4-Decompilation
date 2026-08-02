@@ -16,6 +16,10 @@ typedef struct RuntimeListNode
     struct RuntimeListNode* next;
 } RuntimeListNode;
 
+extern void* D_00764C98;
+extern s32 D_00922DB0[];
+extern s32 D_00922DB4[];
+extern void func_00460ac0(void* arg0, s32* arg1);
 extern void* D_00764C9C;
 extern RuntimeListNode* D_00764CA0;
 
@@ -72,7 +76,13 @@ void func_004b6da0(void* node)
     D_00764C9C = node;
 }
 // FUN_004B6E40
-INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6e40);
+s32 func_004b6e40(void)
+{
+    D_00922DB0[0] = 0;
+    D_00922DB4[0] = 0;
+    func_00460ac0(D_00764C98, D_00922DB0);
+    return 0;
+}
 
 // FUN_004B6E80
 INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6e80);

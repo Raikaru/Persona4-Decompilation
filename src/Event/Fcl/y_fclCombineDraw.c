@@ -144,6 +144,7 @@ void func_003146c0(u8 *arg0) {
 
 // FUN_003146F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
+
 // FUN_00314740
 void func_00314740(u8 *arg0, s8 arg1) {
     *(s8 *)(*(u8 **)(arg0 + 0x38) + 0xD) = arg1;
