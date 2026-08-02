@@ -6,6 +6,7 @@
 extern void func_00442088(char *dst, char *fmt, u16 a, u16 b);
 extern void func_00440b68(u8 *msg, u8 *file, s32 line);
 extern s32 func_00454a60(char *path, s32 mode);
+extern s32 func_004553c0(s32 handle);
 extern char D_005EFC60[];
 extern u8 D_005EFC80[];
 extern s32 iGpffffb200;   /* gp - 0x4E00 = 0x007642F0 */
@@ -24,7 +25,13 @@ void func_0014eed0(s32 arg0, s32 arg1)
 }
 
 // FUN_0014EF40
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014ef40);
+s32 func_0014ef40(void)
+{
+    if (iGpffffb200 == 0) {
+        return 1;
+    }
+    return func_004553c0(iGpffffb200) != 0;
+}
 
 // FUN_0014EF80
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014ef80);

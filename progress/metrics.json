@@ -1030,6 +1030,7 @@
       "0014dd10",
       "0014eec0",
       "0014eed0",
+      "0014ef40",
       "00150890",
       "00153a30",
       "00153b60",
@@ -2431,6 +2432,7 @@
       "0036a6b0",
       "0036a790",
       "0036a820",
+      "0036a880",
       "0036a8f0",
       "0036abd0",
       "0036adc0",
@@ -3781,11 +3783,11 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 3107,
+    "count": 3109,
     "duplicate_rows": 0,
     "known_rows": 4862,
-    "matched_body_bytes": 335536,
-    "percent": 23.747,
+    "matched_body_bytes": 335700,
+    "percent": 23.762,
     "unique_known_addresses": 4862
   },
   "schema_version": 1,
@@ -3793,11 +3795,11 @@
     "ignored_unknown_rows": 0,
     "linked_report": "build\\linked_report.json",
     "raw_rows": 4862,
-    "verifier_report": "C:\\tmp\\p4_f7.json"
+    "verifier_report": "C:\\tmp\\p4_f8.json"
   },
   "status_counts": {
-    "ASM": 1755,
-    "MATCH": 3107
+    "ASM": 1753,
+    "MATCH": 3109
   },
   "total": 13084
 }
