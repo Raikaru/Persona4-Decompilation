@@ -330,7 +330,15 @@ void func_0010bd90(s16 arg0)
 }
 
 // FUN_0010BE20
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010be20);
+s32 func_0010be20(u32 arg0)
+{
+    u16 v = *(u16 *)(arg0 + 2);
+
+    if (v >= 0xC0 && v < 0xD8) {
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_0010BE60
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010be60);
