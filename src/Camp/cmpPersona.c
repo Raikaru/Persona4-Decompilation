@@ -55,7 +55,18 @@ void func_00135c10(u8* arg0) {
 }
 
 // FUN_00135CB0
-INCLUDE_ASM("asm/nonmatchings/cmpPersona", func_00135cb0);
+s32 func_00135cb0(u8 *arg0) {
+    s32 v = *(s32 *)(arg0 + 0x14);
+
+    switch (v) {
+    case 0:
+        v += 1;
+        *(s32 *)(arg0 + 0x14) = v;
+        return 1;
+    default:
+        return 1;
+    }
+}
 
 // FUN_00135CF0
 /* measured: without opt_common_subs off, mwcc CSEs (u8*)arg0 + 0x20 into a
