@@ -14,7 +14,11 @@
 #   docker run --rm -it -v "$PWD:/work" -v "/path/to/private-p4:/opt/p4:ro" \
 #     p4-decomp
 #
-FROM python:3.11-slim-bookworm
+# Trixie (Debian 13, glibc 2.41), NOT bookworm (glibc 2.36): the prebuilt
+# decompals binutils below is linked against GLIBC_2.38, so on bookworm the
+# assembler dies with "version `GLIBC_2.38' not found" and the r5900 probe at
+# the end of this file fails the image build.
+FROM python:3.11-slim-trixie
 
 ARG BINUTILS_VERSION=0.7
 ARG WIBO_VERSION=0.6.13
