@@ -151,17 +151,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d36a8);
 
 
 /* measured: #pragma schedule on is load-bearing for the sw-in-return-delay-
- * slot placement; constant materializes in $v1 vs retail $v0 (nd 2,
- * allocator floor). NONMATCHING */
+ * slot placement (without it mwcc emits addiu/sw/jr/nop, nd 3). Returning
+ * the stored constant 1 makes mwcc materialize it in $v0 (a void return
+ * colors it $v1, nd 2), so the stored value doubles as the return value
+ * and no extra instruction is needed. */
 #pragma schedule on
 
-// FUN_004DE2B0 NONMATCHING
-#ifdef NON_MATCHING
-void func_004de2b0(u8 *arg0)
+// FUN_004DE2B0
+s32 func_004de2b0(u8 *arg0)
 {
     *(s32 *)(arg0 + 8) = 1;
+    return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de2b0);
-#endif
 #pragma schedule off
