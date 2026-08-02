@@ -7537,7 +7537,7 @@
       "target_path": "build/objdiff/target/Camp/cmpSkill/0013abb0.o",
       "base_path": "build/objdiff/base/Camp/cmpSkill/0013abb0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15303,7 +15303,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlMatAnim/00480840.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlMatAnim/00480840.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36896,7 +36896,7 @@
       "target_path": "build/objdiff/target/itfMesManager/0027a2d0.o",
       "base_path": "build/objdiff/base/itfMesManager/0027a2d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
