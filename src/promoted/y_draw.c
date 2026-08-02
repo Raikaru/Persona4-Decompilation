@@ -2,6 +2,7 @@
 /* Original translation unit y_draw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+extern u8 *iGpffffb574;
 
 typedef struct {
     f32 x, y;
@@ -170,9 +171,15 @@ void func_002b6ac0(u8 *arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg
     func_002b8300(base + 0x10, arg1, arg2, ext, fparg0, fparg1, fparg2, fparg3);
 }
 
+/* measured: retail issues both indirections up front (lw gp, then lw 0x38) before touching
+   arg0; mwcc b210 sinks the 0x38 load past the shift, which also flips the addu operand
+   order. Hoisting the base into a local first does not move it (nd 9 either way). This is
+   the load-sinking wall documented in docs/matching.md. */
 // FUN_002B6AF0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6af0);
 
+/* measured: same load-sinking wall as func_002b6af0 - retail loads the table base before
+   using arg0, mwcc sinks it to its use. nd 9 with and without a hoisted base local. */
 // FUN_002B6B40
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b40);
 
