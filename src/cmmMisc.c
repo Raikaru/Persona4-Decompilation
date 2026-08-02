@@ -116,13 +116,23 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246ba0);
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246c20);
 
 // FUN_00246C90
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246c90);
+u8 *func_00246c90(u32 arg0) {
+    if (arg0 >= *(u32 *)(D_008814D4[0] + 4)) {
+        return NULL;
+    }
+    return (u8 *)((arg0 << 6) + (u32)D_008814D4[0] + 8);
+}
 
 // FUN_00246CD0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246cd0);
 
 // FUN_00246D50
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246d50);
+u8 *func_00246d50(u32 arg0) {
+    if (arg0 >= *(u32 *)(D_008814D8[0] + 4)) {
+        return NULL;
+    }
+    return (u8 *)((arg0 << 6) + (u32)D_008814D8[0] + 8);
+}
 
 // FUN_00246D90
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246d90);
