@@ -84,7 +84,20 @@ INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00137fb0);
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138490);
 
 // FUN_00138AD0
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138ad0);
+s32 func_00138ad0(u8 *arg0) {
+    s32 v = *(s32 *)(arg0 + 0x14);
+
+    switch (v) {
+    case 0:
+        v += 1;
+        *(s32 *)(arg0 + 0x14) = v;
+        return 1;
+    case 1:
+        return 1;
+    default:
+        return 0;
+    }
+}
 
 // FUN_00138B20
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138b20);

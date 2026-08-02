@@ -1,6 +1,8 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mainDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "type.h"
+extern void (*jtbl_008873EC[])(void *ptr);
 
 
 // FUN_001014B0
@@ -31,7 +33,9 @@ INCLUDE_ASM("asm/nonmatchings/mainDraw", func_00102490);
 INCLUDE_ASM("asm/nonmatchings/mainDraw", func_00102550);
 
 // FUN_001025E0
-INCLUDE_ASM("asm/nonmatchings/mainDraw", func_001025e0);
+void func_001025e0(void *arg0) {
+    jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
+}
 
 // FUN_00102610
 INCLUDE_ASM("asm/nonmatchings/mainDraw", func_00102610);
