@@ -7526,7 +7526,7 @@
       "target_path": "build/objdiff/target/Camp/cmpSkill/0013ab30.o",
       "base_path": "build/objdiff/base/Camp/cmpSkill/0013ab30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17184,7 +17184,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/0014ef80.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/0014ef80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

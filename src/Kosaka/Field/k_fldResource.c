@@ -10,6 +10,7 @@ extern s32 func_004553c0(s32 handle);
 extern char D_005EFC60[];
 extern u8 D_005EFC80[];
 extern s32 iGpffffb200;   /* gp - 0x4E00 = 0x007642F0 */
+extern s32 iGpffffb204;   /* gp - 0x4DFC = 0x007642F4 */
 extern u8 iGpffff9df0;    /* gp - 0x6210 = 0x00762EE0 */
 
 // FUN_0014EED0
@@ -34,7 +35,13 @@ s32 func_0014ef40(void)
 }
 
 // FUN_0014EF80
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014ef80);
+s32 func_0014ef80(void)
+{
+    if (iGpffffb204 == 0) {
+        return 1;
+    }
+    return func_004553c0(iGpffffb204) != 0;
+}
 
 // FUN_0014EFC0
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014efc0);
