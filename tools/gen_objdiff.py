@@ -170,20 +170,27 @@ def build_canonical_units(windows: dict, covered: set[int]) -> list[dict]:
 # Middleware we did not write (rw/, cri/, sce/, the C runtime) is tracked only
 # because it occupies retail windows, so it is reported separately from the
 # first-party code the project actually cares about.
+#
+# A function with no source file yet cannot be attributed to either, and
+# guessing corrupts BOTH published numbers: folding ~11,000 unattributed
+# functions into "main" inflates the first-party denominator with untouched
+# middleware, while "third_party" then contains only the middleware we happen
+# to have finished and reads 100% complete. Address-range clustering and the
+# P3 cross-reference were both measured as classifiers and neither covers the
+# bulk (the densest middleware run is only 15% attributed; P3 evidence adds
+# 144 of ~12,000), so unattributed functions get their own category and the
+# other two stay meaningful.
 PROGRESS_CATEGORIES = [
     {"id": "main", "name": "First-party code"},
     {"id": "third_party", "name": "Third-party middleware"},
+    {"id": "unclassified", "name": "Not yet attributed to a source file"},
 ]
 
 
 def progress_category(file_rel: str | None) -> str:
     """Category id for a unit, delegating to verify.is_third_party."""
     if file_rel is None:
-        # Source-less functions have no file attribution in the canonical map;
-        # default to first-party so the first-party denominator never excludes
-        # middleware that has not been ported yet (conservative, never
-        # overstates first-party progress).
-        return "main"
+        return "unclassified"
     return "third_party" if _verify().is_third_party(file_rel) else "main"
 
 

@@ -47,15 +47,15 @@ class LinkResponseFileTests(unittest.TestCase):
 
 
 class ObjectLayoutTests(unittest.TestCase):
-    """One `. = addr; obj (.text)` per object means sections concatenate.
-
-    Retail's inter-function alignment padding cannot survive between two
-    concatenated sections, so a short function silently drags every later
-    function in the same object off its address.
+    """One `. = addr; obj (.text.<func>)` per function places each function
+    individually, so any inter-function gap is expressible and zero-filled.
+    Only overlong bodies, non-contiguous windows (a foreign function between
+    two of this object's own), and two functions sharing one section are
+    genuinely impossible.
     """
 
     def test_single_function_object_may_be_shorter_than_its_window(self) -> None:
-        # The LCF places this object directly, so trailing padding is harmless.
+        # The LCF places this function directly, so trailing padding is harmless.
         self.assertTrue(build.object_layout_is_placeable([(0x1000, 0x20, 0x14, 1)]))
 
     def test_exactly_filled_functions_are_placeable(self) -> None:
@@ -68,19 +68,24 @@ class ObjectLayoutTests(unittest.TestCase):
             build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 1), (0x1020, 0x30, 0x24, 2)])
         )
 
-    def test_short_function_is_placeable_when_alignment_supplies_the_padding(self) -> None:
+    def test_short_function_is_placeable_when_gap_is_a_power_of_two(self) -> None:
         """The 0x2769b8 case: 100 bytes into a 112-byte window, next addr 16-aligned.
 
-        patch_text_alignment gives the second function align 16, so the linker
-        pads 0x1064 up to 0x1070 on its own and no source change is needed.
+        The second function is placed at 0x1070 directly and the linker
+        zero-fills the 12 bytes before it; no source change is needed.
         """
         self.assertTrue(
             build.object_layout_is_placeable([(0x1000, 0x70, 0x64, 1), (0x1070, 0x70, 0x70, 2)])
         )
 
-    def test_short_function_is_rejected_when_alignment_cannot_reach_the_gap(self) -> None:
-        """A 12-byte pad in front of a merely 4-aligned address is unreachable."""
-        self.assertFalse(
+    def test_gap_no_alignment_can_express_is_now_placeable(self) -> None:
+        """A 12-byte pad in front of a merely 4-aligned address used to be
+        unreachable: alignment cannot manufacture an arbitrary gap, so the
+        object-level `. = start; obj (.text)` scheme rejected it. Per-function
+        placement puts the second function exactly on 0x106C and the linker
+        zero-fills the pad.
+        """
+        self.assertTrue(
             build.object_layout_is_placeable([(0x1000, 0x6C, 0x60, 1), (0x106C, 0x10, 0x10, 2)])
         )
 
@@ -89,20 +94,89 @@ class ObjectLayoutTests(unittest.TestCase):
             build.object_layout_is_placeable([(0x1000, 0x20, 0x28, 1), (0x1020, 0x30, 0x30, 2)])
         )
 
-    def test_alignment_for_address_matches_retail_boundaries(self) -> None:
-        self.assertEqual(build.text_alignment_for(0x1070), 16)
-        self.assertEqual(build.text_alignment_for(0x106C), 4)
-        self.assertEqual(build.text_alignment_for(0x1002), 2)
-
     def test_non_contiguous_windows_are_rejected(self) -> None:
+        """A window start between two of this object's functions belongs to a
+        foreign function; the code-carving step would drop its bytes from the
+        splat asm without any object emitting them."""
         self.assertFalse(
             build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 1), (0x1040, 0x30, 0x30, 2)])
         )
 
-    def test_sections_emitted_out_of_address_order_are_rejected(self) -> None:
-        self.assertFalse(
+    def test_sections_emitted_out_of_address_order_are_placeable(self) -> None:
+        """Per-function placement is by name, so the object's section order no
+        longer constrains the layout."""
+        self.assertTrue(
             build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 2), (0x1020, 0x30, 0x30, 1)])
         )
+
+    def test_two_functions_sharing_a_section_are_rejected(self) -> None:
+        """rename_text_sections gives a whole .text section one name; two
+        functions in one section cannot be split apart."""
+        self.assertFalse(
+            build.object_layout_is_placeable([(0x1000, 0x20, 0x20, 1), (0x1020, 0x30, 0x30, 1)])
+        )
+
+
+class RenameTextSectionsTests(unittest.TestCase):
+    """rename_text_sections rewrites .shstrtab and the section headers so each
+    function's .text section gets a unique name and align 1."""
+
+    @staticmethod
+    def _two_function_object() -> bytes:
+        """Minimal ELF32 REL: .text (idx 1), .symtab (idx 2), .strtab (idx 3),
+        .shstrtab (idx 4); one global STT_FUNC symbol `foo` of size 8 in .text.
+        """
+        import struct as _struct
+
+        text = b"\x01\x02\x03\x04\x05\x06\x07\x08"
+        strtab = b"\0foo\0"
+        shstrtab = b"\0.text\0.symtab\0.strtab\0.shstrtab\0"
+        symtab = b"\0" * 16 + _struct.pack("<IIIBBH", 1, 0, 8, 0x12, 0, 1)
+        text_off = 52
+        strtab_off = text_off + len(text)
+        shstrtab_off = strtab_off + len(strtab)
+        symtab_off = shstrtab_off + len(shstrtab)
+        shoff = symtab_off + len(symtab)
+        headers = [
+            (0, 0, 0, 0, 0, 0, 0, 0, 0, 0),                     # null
+            (1, 1, 0, 0, text_off, len(text), 0, 0, 16, 0),     # .text
+            (7, 2, 0, 0, symtab_off, len(symtab), 3, 1, 4, 16),  # .symtab
+            (15, 3, 0, 0, strtab_off, len(strtab), 0, 0, 1, 0),  # .strtab
+            (23, 3, 0, 0, shstrtab_off, len(shstrtab), 0, 0, 1, 0),  # .shstrtab
+        ]
+        header = _struct.pack(
+            "<16sHHIIIIIHHHHHH",
+            b"\x7fELF" + bytes([1, 1, 1]) + b"\0" * 9, 1, 8, 1, 0, 0,
+            shoff, 0, 52, 0, 0, 40, len(headers), 4,
+        )
+        return header + text + strtab + shstrtab + symtab + b"".join(
+            _struct.pack("<IIIIIIIIII", *h) for h in headers
+        )
+
+    def test_renames_section_and_grows_shstrtab(self) -> None:
+        import struct as _struct
+
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "unit.o"
+            path.write_bytes(self._two_function_object())
+            build.rename_text_sections(path, {"foo": 0x1000})
+            obj = build.V.ObjectFile(path)
+        self.assertEqual(obj.sections[1]["name"], ".text.foo")
+        self.assertEqual(obj.sections[1]["addralign"], 1)
+        # The table spans from its original offset to the end of the file, so
+        # the appended names are inside its data.
+        self.assertEqual(obj.sections[4]["size"], len(obj.data) - obj.sections[4]["offset"])
+        blob = obj.data[obj.sections[4]["offset"]:obj.sections[4]["offset"] + obj.sections[4]["size"]]
+        self.assertIn(b".text.foo\0", blob)
+        self.assertEqual(len(obj.function("foo")[0]), 8)
+
+    def test_unlisted_symbols_leave_the_object_untouched(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "unit.o"
+            original = self._two_function_object()
+            path.write_bytes(original)
+            build.rename_text_sections(path, {"bar": 0x2000})
+            self.assertEqual(path.read_bytes(), original)
 
 
 class SectionLayoutTests(unittest.TestCase):
