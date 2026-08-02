@@ -76,6 +76,7 @@ INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049aa30);
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b2b0);
 // FUN_0049B470
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b470);
+
 // FUN_0049B560
 void *func_0049b560(u8 *arg0, s32 arg1)
 {
