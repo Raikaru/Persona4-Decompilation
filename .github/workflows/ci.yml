@@ -151,12 +151,29 @@ jobs:
         run: |
           set -eu
           private_root="$RUNNER_TEMP/p4-private"
+          # Probe the API first: git's clone failure is a bare 403 that does not
+          # say WHICH of the several possible causes applies, and the token is
+          # masked in logs so it cannot be inspected after the fact.
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${P4_PRIVATE_DEPS_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${P4_PRIVATE_DEPS_REPO}")
+          case "$status" in
+            200) : ;;
+            401) echo "::error::P4_PRIVATE_DEPS_TOKEN was rejected (401). The secret is empty, mistyped, or the token has expired/been revoked." ; exit 1 ;;
+            403) echo "::error::Token authenticated but is FORBIDDEN (403) for ${P4_PRIVATE_DEPS_REPO}. For a fine-grained PAT check: Repository access = 'Only select repositories' WITH this repo selected (not 'Public repositories only'), and Permissions -> Repository -> Contents = Read-only. For a classic PAT it needs the 'repo' scope." ; exit 1 ;;
+            404) echo "::error::${P4_PRIVATE_DEPS_REPO} not found (404). Either P4_PRIVATE_DEPS_REPO is wrong, or the token cannot see the repo at all - a fine-grained PAT scoped to other repositories reports 404 rather than 403." ; exit 1 ;;
+            *)   echo "::error::Unexpected HTTP $status querying ${P4_PRIVATE_DEPS_REPO}." ; exit 1 ;;
+          esac
           git clone --depth=1 \
             "https://x-access-token:${P4_PRIVATE_DEPS_TOKEN}@github.com/${P4_PRIVATE_DEPS_REPO}.git" \
             "$private_root"
-          test -f "$private_root/$P4_PRIVATE_MWCC_PATH"
-          test -f "$private_root/$P4_PRIVATE_MWLD_PATH"
-          test -f "$private_root/$P4_PRIVATE_RETAIL_ELF_PATH"
+          for f in "$P4_PRIVATE_MWCC_PATH" "$P4_PRIVATE_MWLD_PATH" "$P4_PRIVATE_RETAIL_ELF_PATH"; do
+            if [ ! -f "$private_root/$f" ]; then
+              echo "::error::${P4_PRIVATE_DEPS_REPO} is readable but does not contain '$f'. Repo root holds: $(ls -A "$private_root" | tr '\n' ' ')"
+              exit 1
+            fi
+          done
           echo "P4_PRIVATE_ROOT=$private_root" >> "$GITHUB_ENV"
           echo "P4_PRIVATE_MWCC_PATH=$P4_PRIVATE_MWCC_PATH" >> "$GITHUB_ENV"
           echo "P4_PRIVATE_MWLD_PATH=$P4_PRIVATE_MWLD_PATH" >> "$GITHUB_ENV"
