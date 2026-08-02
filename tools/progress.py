@@ -196,11 +196,17 @@ def make_metrics(report: Any, windows: dict[int, int | None], linked_report: dic
     linked_addresses: list[str] = []
     hashes: dict[str, str | None] = {"retail_sha1": None, "image_sha1": None}
     build_succeeded = False
+    asm_fallback_linked = 0
     if linked_report is not None:
         linked = {canonical_linked_address(row["address"]) for row in linked_report["linked_functions"]}
-        for address in linked:
-            if address not in matched:
-                raise ProgressError(f"linked address {address:08x} is not in the matching address set")
+        # A translation unit links as one object even when some of its functions
+        # are INCLUDE_ASM fallbacks, so `linked` now contains addresses that are
+        # NOT decompiled C. Those bytes are identical to what the assembly carve
+        # path would have placed, so counting them as linked progress would
+        # inflate the metric with work nobody has done. Keep the intersection
+        # and report the remainder separately.
+        asm_fallback_linked = len(linked - matched)
+        linked &= matched
         linked_addresses = [f"{address:08x}" for address in sorted(linked)]
         hashes = {"retail_sha1": linked_report["retail_sha1"], "image_sha1": linked_report["image_sha1"]}
         build_succeeded = True
@@ -212,7 +218,9 @@ def make_metrics(report: Any, windows: dict[int, int | None], linked_report: dic
                "matching": {"count": len(matching_addresses), "percent": percentage(len(matching_addresses), total),
                             "addresses": matching_addresses, "matched_body_bytes": sum(sizes.values()),
                             "known_rows": known_rows, "unique_known_addresses": unique_known, "duplicate_rows": duplicate_rows},
-               "linked": {"count": len(linked_addresses), "percent": percentage(len(linked_addresses), total), "addresses": linked_addresses},
+               "linked": {"count": len(linked_addresses), "percent": percentage(len(linked_addresses), total),
+                          "addresses": linked_addresses,
+                          "asm_fallbacks_in_linked_objects": asm_fallback_linked},
                "status_counts": status_counts, "hashes": hashes, "build_succeeded": build_succeeded}
     return metrics, badge("matching", len(matching_addresses), total), badge("linked", len(linked_addresses), total)
 
