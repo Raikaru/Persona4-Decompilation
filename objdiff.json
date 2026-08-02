@@ -20946,7 +20946,7 @@
       "target_path": "build/objdiff/target/Main/OpEd/ed_sr/0038f160.o",
       "base_path": "build/objdiff/base/Main/OpEd/ed_sr/0038f160.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25203,7 +25203,7 @@
       "target_path": "build/objdiff/target/cmmMisc/00246c90.o",
       "base_path": "build/objdiff/base/cmmMisc/00246c90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25225,7 +25225,7 @@
       "target_path": "build/objdiff/target/cmmMisc/00246d50.o",
       "base_path": "build/objdiff/base/cmmMisc/00246d50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
