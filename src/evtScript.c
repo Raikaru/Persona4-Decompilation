@@ -2,6 +2,8 @@
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+extern void func_00106390();
+extern void (*jtbl_008873EC[])(void *ptr);
 
 typedef int (*code)(...);
 extern code DAT_008873ec_abs[];
@@ -41,7 +43,12 @@ INCLUDE_ASM("asm/nonmatchings/evtScript", func_00298990);
 INCLUDE_ASM("asm/nonmatchings/evtScript", func_00298b80);
 
 // FUN_00298C10
-INCLUDE_ASM("asm/nonmatchings/evtScript", func_00298c10);
+void func_00298c10(void) {
+    u8 *p = (u8 *)func_00452560();
+
+    func_00106390(0x1211, 0);
+    jtbl_008873EC[0](p);
+}
 
 // FUN_00298C60
 INCLUDE_ASM("asm/nonmatchings/evtScript", func_00298c60);

@@ -142,6 +142,10 @@ void func_003146c0(u8 *arg0) {
     func_0011b9e0(*(u8 **)(*(u8 **)(arg0 + 0x38) + 4));
 }
 
+/* measured: retail copies arg2 into $v1 up front and sign-extends it into $a3 last, right
+   before the call; mwcc b210 sign-extends into $a3 first and then reuses $a2 for the load.
+   Same instructions, different order. A named s8 local and an explicit (s8) cast at the
+   callsite both give the identical nd 17. Argument-scheduling floor. */
 // FUN_003146F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
 
