@@ -143,6 +143,8 @@ class CanonicalMapTests(unittest.TestCase):
                 self.assertNotIn(address, splat, "override is redundant; Splat finds this entry")
                 self.assertIn(address, windows, "override did not reach the canonical map")
 
+    @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
+                         "needs splat output (make split); absent on toolchain-free CI")
     def test_every_canonical_boundary_gets_an_owner(self) -> None:
         target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
