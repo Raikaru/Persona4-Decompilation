@@ -10749,7 +10749,7 @@
       "target_path": "build/objdiff/target/Event/evtMessage/00290e50.o",
       "base_path": "build/objdiff/base/Event/evtMessage/00290e50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20627,7 +20627,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datPersona/0010cf40.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datPersona/0010cf40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
