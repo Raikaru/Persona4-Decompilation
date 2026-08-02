@@ -1,6 +1,8 @@
 /* Original translation unit y_fclItemShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 
 #include "include_asm.h"
+#include "type.h"
+extern void (*jtbl_008873EC[])(void *ptr);
 
 // FUN_00332BB0
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_00332bb0);
@@ -24,7 +26,9 @@ INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033cbc0);
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033cc40);
 
 // FUN_0033D100
-INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033d100);
+void func_0033d100(void *arg0) {
+    jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
+}
 
 // FUN_0033D130
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033d130);

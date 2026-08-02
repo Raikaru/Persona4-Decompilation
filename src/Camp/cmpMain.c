@@ -1,6 +1,7 @@
 /* Original translation unit cmpMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+extern void (*jtbl_008873EC[])(void *ptr);
 
 /* gp - 0x4E14 = 0x007642DC. */
 extern u8 *iGpffffb1ec;
@@ -23,7 +24,9 @@ void func_0012d140(void) {
 }
 
 // FUN_0012D160
-INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012d160);
+void func_0012d160(void *arg0) {
+    jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
+}
 
 // FUN_0012D190
 INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012d190);

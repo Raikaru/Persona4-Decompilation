@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit eff_after.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+extern void (*jtbl_008873EC[])(void *ptr);
 
 // FUN_004B7460
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b7460);
@@ -19,7 +20,9 @@ INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8350);
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8df0);
 
 // FUN_004B8F10
-INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f10);
+void func_004b8f10(void *arg0) {
+    jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x10));
+}
 
 // FUN_004B8F40
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);

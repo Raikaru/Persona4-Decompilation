@@ -2,12 +2,20 @@
 /* Persona 4 USA decompilation - cldDayChange.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+extern u8 iGpffffa6c8;
+extern u8 D_006376B0[];
+extern u8 D_006376D0[];
+extern s32 func_00454a60();
 
 // FUN_00264D90
 INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00264d90);
 
 // FUN_00264E70
-INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00264e70);
+void func_00264e70(void)
+{
+    func_00440b68(&iGpffffa6c8, D_006376B0, 0x464);
+    func_00456150(func_00454a60(D_006376D0, 1));
+}
 
 // FUN_00264EC0
 INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00264ec0);

@@ -1,4 +1,5 @@
 #include "include_asm.h"
+#include "type.h"
 
 // FUN_004AE460
 INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004ae460);
@@ -19,7 +20,15 @@ INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004ae930);
 INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aea70);
 
 // FUN_004AEC50
-INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aec50);
+void func_004aec50(u8 *arg0)
+{
+    u32 temp_4;
+
+    temp_4 = *(u32 *)(arg0 + 0x58);
+    if (temp_4 != 0) {
+        func_00492d00(temp_4);
+    }
+}
 
 // FUN_004AEC80
 INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aec80);
