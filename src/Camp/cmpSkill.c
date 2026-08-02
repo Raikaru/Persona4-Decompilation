@@ -29,7 +29,7 @@ s32 func_00113520(s32, s32, s32, void *);
 s32 func_0010a900(u16);
 u16 *func_001094d0(s32);
 void func_0010fa80(s32, s32, u16, s32, s32 *, s32, s32);
-void func_001437b0(void *, s16, s32);
+void func_001437b0(void *, s32, s32);
 void func_0046d280(void *);
 s32 func_0034c210(void);
 s32 func_003b7060(void);
@@ -100,8 +100,30 @@ s32 func_00138ad0(u8 *arg0) {
 }
 
 // FUN_00138B20
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138b20);
+s32 func_00138b20(u8 *arg0)
+{
+    s32 i;
+    s32 result = 1;
+    u8 *p;
+    s32 v;
 
+    v = *(s16 *)(arg0 + 0x20);
+    if (v < 0x64) {
+        *(s16 *)(arg0 + 0x20) = v + 1;
+    }
+    for (i = 0; i < 0x26; i++) {
+        p = arg0 + i * 0x30;
+        v = *(s16 *)(arg0 + 0x20);
+        func_001437b0(p + 0x584, v, 0);
+        if (*(u8 *)(p + 0x59E) != 0) {
+            result = 0;
+        }
+    }
+    func_0013a060(arg0);
+    func_0013a4a0(arg0);
+    func_00138bf0(arg0);
+    return result;
+}
 // FUN_00138BF0
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138bf0);
 
@@ -116,15 +138,61 @@ s32 func_0013a040(s16 *arg0, s32 arg1, s16 arg2)
 // FUN_0013A060
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a060);
 
+/* measured: without #pragma opt_common_subs off, mwcc b210 CSEs the
+   (u8*)arg0 + 0x22 address into a callee-saved pointer (nd 34); with it off
+   each access keeps base+offset like retail (nd 3 = 3 padding words only).
+   Same call-site trick as the cmpPersona sibling func_00135cf0. */
 // FUN_0013A4A0
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a4a0);
+#pragma opt_common_subs off
+void func_0013a4a0(void *arg0)
+{
+    s32 i;
+    u8 *p;
+    s32 v;
+
+    v = *(s16 *)((u8 *)arg0 + 0x22);
+    if (v < 0x64) {
+        *(s16 *)((u8 *)arg0 + 0x22) = v + 1;
+    }
+    for (i = 0; i < 2; i++) {
+        p = (u8 *)arg0 + i * 0x30 + 0x11E4;
+        func_001437b0(p, *(s16 *)((u8 *)arg0 + 0x22), 0);
+    }
+}
+#pragma opt_common_subs on
 
 // FUN_0013A530
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a530);
 
+/* measured: retail hoists the lui 0x41c8 (25.0f constant) into the loop
+   preheader; mwcc b210 sinks the materialization into the if-branch unless
+   #pragma opt_loop_invariants on is active. Tried s32/u32/f32 locals, register,
+   ternary, chained-assign, while-loop spellings — all nd 30 without the pragma. */
 // FUN_0013A8A0
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a8a0);
+#pragma opt_loop_invariants on
+void func_0013a8a0(u8 *arg0)
+{
+    s32 i;
 
+    for (i = 0; i < 4; i++) {
+        u8 *q = arg0 + i * 0x30;
+        *(f32 *)(q + 0x5B4) = *(f32 *)(q + 0x5C4);
+        *(f32 *)(q + 0x5B8) = *(f32 *)(q + 0x5C8);
+        *(u8 *)(q + 0x5CC) = *(u8 *)(q + 0x5CE);
+        *(f32 *)(q + 0x674) = *(f32 *)(q + 0x684);
+        *(f32 *)(q + 0x678) = *(f32 *)(q + 0x688);
+        *(u8 *)(q + 0x68C) = *(u8 *)(q + 0x68E);
+        if (*(s16 *)(arg0 + 0x5C) == i) {
+            *(s32 *)(q + 0x5BC) = 0x41C80000;
+            *(s32 *)(q + 0x67C) = 0x41C80000;
+        } else {
+            *(s32 *)(q + 0x5BC) = 0;
+            *(s32 *)(q + 0x67C) = 0;
+        }
+    }
+    *(s16 *)(arg0 + 0x20) = 0;
+}
+#pragma opt_loop_invariants off
 // FUN_0013A930
 void func_0013a930(void *arg0)
 {
@@ -154,8 +222,34 @@ void func_0013a930(void *arg0)
     *(s16 *)((u8 *)arg0 + 0x22) = 0;
 }
 
+/* measured: same lui-hoist floor as func_0013a8a0 (constant 0x41C80000 into
+   preheader); without #pragma opt_loop_invariants on mwcc b210 sinks the lui
+   into the branch — identical nd 30 on every spelling tried. */
 // FUN_0013AA00
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013aa00);
+#pragma opt_loop_invariants on
+void func_0013aa00(u8 *arg0)
+{
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        u8 *q = arg0 + i * 0x30;
+        *(f32 *)(q + 0xA04) = *(f32 *)(q + 0xA14);
+        *(f32 *)(q + 0xA08) = *(f32 *)(q + 0xA18);
+        *(u8 *)(q + 0xA1C) = *(u8 *)(q + 0xA1E);
+        *(f32 *)(q + 0xAC4) = *(f32 *)(q + 0xAD4);
+        *(f32 *)(q + 0xAC8) = *(f32 *)(q + 0xAD8);
+        *(u8 *)(q + 0xADC) = *(u8 *)(q + 0xADE);
+        if (*(s16 *)(arg0 + 0x62) == i) {
+            *(s32 *)(q + 0xA0C) = 0x41C80000;
+            *(s32 *)(q + 0xACC) = 0x41C80000;
+        } else {
+            *(s32 *)(q + 0xA0C) = 0;
+            *(s32 *)(q + 0xACC) = 0;
+        }
+    }
+    *(s16 *)(arg0 + 0x20) = 0;
+}
+#pragma opt_loop_invariants off
 
 // FUN_0013AA90
 void func_0013aa90(void *arg0)
@@ -213,6 +307,13 @@ s32 func_0013abb0(u8 *arg0)
     return result & func_0034c210();
 }
 
+/* measured: retail fills the switch dispatch `jr $v0` delay slot with the
+   first case body (addiu $v0, 0x2b) and the table points at the following b;
+   mwcc b210 leaves the delay slot as nop for every spelling tried (s32/s64
+   switch value, direct-call vs local, return-in-case vs break+result,
+   #pragma schedule on / optimization_level 3). Real defect is exactly 1 word:
+   nd 2 (1 real + 1 padding) with the correct s32-arg0 + s32-second-param
+   prototypes (func_0023d8e0's second param is s32 per its own m2c body). */
 // FUN_0013AC30
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013ac30);
 

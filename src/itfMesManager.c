@@ -24,9 +24,33 @@ void func_002746c0(int param_1, u32 param_2);
 void func_002727f0(int param_1);
 extern u8 DAT_008817EC_abs[];
 extern u8 DAT_008817E4_abs[];
+extern u16 D_008817E8_abs[];
+extern u8 *D_008817F4_abs[];
+extern u8 D_008817FC_abs[];
 void func_0027b310(u32 param_1);
 extern char D_0063BE10[];
 void func_0046d730(const char *file, s32 line);
+void func_002850f0();
+void func_00451de0();
+void func_0027b500();
+void func_0027b690();
+extern char D_0063BF10[];
+extern char D_0063BF20[];
+void func_0027a710();
+void func_0046a340();
+void func_0046a2d0();
+void *func_0046a430();
+void func_0043f9c8();
+void func_0027a690();
+void func_0027a6c0();
+void func_00279ce0();
+void func_002728c0();
+void func_00273140();
+u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+void func_00279300(u8 *arg0, s32 arg1);
+void *func_00460990();
+void func_00460ac0();
+u8 *func_00278570(u8 *arg0, u8 *arg1);
 s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2);
 s32 func_00278610(s32 arg0, s16 arg1);
 void func_00277250(s32 arg0);
@@ -40,7 +64,7 @@ void func_00277be0(s32 arg0, s32 arg1);
 void func_00277e80(s32 arg0);
 void func_0029cf50(s32 arg0);
 void func_00278a70(s32 arg0);
-s32 func_00278da0(void);
+s32 func_00278da0(u8 *arg0);
 extern u8 DAT_008817E0_abs[];
 void func_00271b70(s32 arg0);
 void func_0027a630(void *arg0, s32 arg1);
@@ -511,12 +535,32 @@ u32 func_00277450(void)
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002774d0);
 
 // FUN_002776A0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002776a0);
+u8 *func_002776a0(u8 *arg0)
+{
+    u8 *obj;
+
+    if (func_00278da0(arg0) != 1)
+        func_0046d730(D_0063BE10, 0x55A);
+    func_0046a2d0(D_0063BE10, 0x567);
+    obj = func_0046a430(0x130);
+    func_0043f9c8(obj, 0, 0x130);
+    *(s32 *)(obj + 4) = 0;
+    func_00278570(obj, arg0);
+    *(s32 *)obj = 0;
+    *(s32 *)(obj + 0xC) = 0;
+    *(s32 *)(obj + 0x10) = 0;
+    func_0027a5e0(obj + 0x114, 0);
+    func_0027a630(obj + 0x14, 1);
+    func_0027a650(obj + 0x1C, 1);
+    func_0027a690(obj + 0x3C);
+    func_0027a6c0(obj + 0x94);
+    return obj;
+}
 
 // FUN_002777A0
 s32 func_002777a0(u8 *arg0)
 {
-    if (func_00278da0() != 1)
+    if (func_00278da0(arg0) != 1)
         func_0046d730(D_0063BE10, 0x589);
     return *(s32 *)(arg0 + 0x18);
 }
@@ -824,13 +868,55 @@ void func_00278940(void)
 }
 
 // FUN_002789A0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002789a0);
+void func_002789a0(void)
+{
+    u8 *entry;
+
+    *(u32 *)DAT_008817E0_abs = 0;
+    *(u32 *)DAT_008817E4_abs = 0;
+    *(u16 *)D_008817E8_abs = 0;
+    func_002850f0(DAT_008817EC_abs, D_008817FC_abs, 0x40, 0x20);
+    entry = D_008817F4_abs[0];
+    while (entry != NULL) {
+        *(s32 *)(entry + 0xC) = 0;
+        entry = *(u8 **)(entry + 4);
+    }
+    func_00451de0(D_0063BF10, 0xF, 0, 0, &func_0027b500, &func_0027b690, 0);
+    func_00440b68(D_0063BF20, D_0063BE10);
+}
 
 // FUN_00278A70
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278a70);
 
 // FUN_00278B80
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278b80);
+void func_00278b80(u8 *arg0)
+{
+    u8 *base;
+    s32 v;
+
+    if (arg0 != NULL) {
+        func_00277b10(arg0, 1);
+        if (arg0 == NULL)
+            func_0046d730(D_0063BE10, 0x6F0);
+        base = arg0 + 0x3C;
+        if (*(s32 *)(arg0 + 0x40) != 0) {
+            func_00271b70(*(s32 *)(arg0 + 0x40));
+            *(s32 *)(base + 4) = 0;
+        }
+        *(s16 *)(base + 0xC) = 0;
+        *(s16 *)(base + 0x12) = 0;
+        *(s16 *)(base + 0xE) = -1;
+        *(s32 *)(base + 8) = 0;
+        v = *(s32 *)arg0 & ~0x38;
+        *(s32 *)arg0 = v;
+        v = v & ~0xC00;
+        *(s32 *)arg0 = v;
+        *(s32 *)arg0 = v & 0xFFFBFFFF;
+        func_0027a710(arg0 + 0x94);
+        *(s32 *)arg0 = 0;
+        func_0046a340(arg0);
+    }
+}
 // FUN_00278C60
 void func_00278c60(int *param_1, int param_2, u8 *param_3, int param_4)
 {
@@ -878,11 +964,29 @@ check:
 
 
 
+/* measured: retail keeps arg0 in $t3 across the jal to func_00278c60 with a
+   -0x10 frame (lbu reads via $a0, post-call sb via $t3); mwcc b210 -O2 always
+   allocates $s0 for the live-across-call pointer and grows the frame to -0x20
+   (sq $s0). Tried: direct arg0 access, u8 *p local at function scope and inside
+   the branch, flag preloaded into a local, fields preloaded into s32 locals,
+   K&R-style definition, -O1 — all emit the $s0/-0x20 shape, identical nd 19
+   (obj 84B vs window 80B). Register-allocation floor, not source-drivable. */
 // FUN_00278D50
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
 
 // FUN_00278DA0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278da0);
+s32 func_00278da0(u8 *arg0)
+{
+    s32 tag;
+    s32 result;
+
+    result = 1;
+    tag = *(s32 *)(arg0 + 8);
+    if ((tag != 0x3047534D) && (tag != 0x3147534D)) {
+        result = 0;
+    }
+    return result != 0;
+}
 // FUN_00278DE0
 int func_00278de0(int param_1,int param_2)
 {
@@ -908,13 +1012,48 @@ int func_00278e00(int param_1)
 
 
 // FUN_00278E20
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278e20);
+s32 func_00278e20(s32 arg0, s32 arg1)
+{
+    u8 *object;
+    s32 off;
+
+    object = D_00881808[arg0].unk0;
+    if (object == NULL)
+        func_0046d730(D_0063BE10, 0xB3E);
+    off = arg1 * 8;
+    return *(s32 *)(off + (s32)(*(s32 *)(object + 4)) + 0x20);
+}
 
 // FUN_00278E90
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278e90);
+s32 func_00278e90(s32 arg0)
+{
+    u8 *object;
+
+    object = D_00881808[arg0].unk0;
+    if (object == NULL)
+        func_0046d730(D_0063BE10, 0xB55);
+    return *(s32 *)(*(s32 *)(object + 4) + 0x18);
+}
 
 // FUN_00278EF0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278ef0);
+void func_00278ef0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s64 arg4)
+{
+    u8 *object;
+    u8 *tmp;
+
+    object = D_00881808[arg0].unk0;
+    tmp = *(u8 **)(object + 0x20);
+    if (tmp != NULL) {
+        func_00272730(tmp, arg3 & 0xFF);
+        func_002727a0(tmp, (s64)(s16)arg4);
+        func_002728c0(tmp, arg1);
+        func_00272b00(tmp, arg2 & 0xFF);
+        return;
+    }
+    *(s8 *)(object + 0x26) = arg1;
+    *(s8 *)(object + 0x27) = arg2;
+    *(s8 *)(object + 0x29) = arg3;
+}
 // FUN_00278FB0
 s32 func_00278fb0(s32 arg0)
 {
@@ -947,7 +1086,17 @@ s32 func_00279010(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279030);
 
 // FUN_002791F0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002791f0);
+s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
+{
+    u8 *obj;
+
+    func_00279ce0(D_00881808[arg4].unk0 + 0x94);
+    obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
+    func_002728c0(obj, arg1);
+    func_00273140(obj, 1);
+    func_00271b70((s32)obj);
+    return 0;
+}
 
 // FUN_00279300
 void func_00279300(u8 *arg0, s32 arg1) {
@@ -956,7 +1105,20 @@ void func_00279300(u8 *arg0, s32 arg1) {
 }
 
 // FUN_00279350
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279350);
+s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6)
+{
+    u8 *obj;
+    u8 *cb;
+
+    func_00279ce0(D_00881808[arg4].unk0 + 0x94);
+    obj = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
+    func_002728c0(obj, arg1);
+    cb = func_00460990();
+    *(void (**)(void))(cb + 8) = (void (*)(void))func_00279300;
+    *(u8 **)(cb + 0x10) = obj;
+    func_00460ac0(arg6, cb);
+    return 0;
+}
 
 // FUN_00279470
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279470);
@@ -988,6 +1150,15 @@ INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
 // FUN_00279A80
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279a80);
 
+/* measured: retail keeps `base` (arg0+0x94) live across the func_0046a2d0/
+   func_0046a430 calls in $s2 and RE-materializes the slot address after the
+   calls (sll $v1,$s3,2; addu $v1,$s2,$v1), while mwcc b210 -O2 CSEs the
+   pre-call `base + arg1*4` slot value into one register and reuses it for the
+   post-call store, killing base's liveness (base ends up in scratch $v1); the
+   arg->$s register mapping also shifts (retail $s1/$s3/$s0 vs candidate
+   $s2/$s0/$s1). Tried: slot local vs bare expression, `arg1 << 2` vs `arg1*4`
+   post-call, s32 base arithmetic, s32-star vs u8-star lvalue casts to defeat
+   CSE — all identical nd 51 (obj 204B vs window 224B). CSE/allocator floor. */
 // FUN_00279C00
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279c00);
 // FUN_00279CE0
@@ -1219,6 +1390,9 @@ void func_0027a6c0(int param_1)
 #pragma alias DAT_008817EC_abs DAT_008817EC
 #pragma alias DAT_008817E4_abs DAT_008817E4
 #pragma alias DAT_008817E0_abs D_008817E0
+#pragma alias D_008817E8_abs D_008817E8
+#pragma alias D_008817F4_abs D_008817F4
+#pragma alias D_008817FC_abs D_008817FC
 
 
 // FUN_0027B620

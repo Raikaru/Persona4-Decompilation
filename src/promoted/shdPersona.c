@@ -3,8 +3,17 @@
 #include "type.h"
 #include "include_asm.h"
 
+typedef struct {
+    f32 x;
+    f32 y;
+} Vec2f;
+
 void func_0011e230();
 void func_0011e240();
+void func_0046d4c0(s32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
+void func_0011e2b0(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
+void func_0011aaa0();
+void func_0011ba40();
 void func_0011e3c0(s32, s32);
 void func_0011fd10(s32);
 void func_00452080();
@@ -12,9 +21,9 @@ void func_0011bc70();
 s32 func_00115020();
 void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 s32 func_001152b0();
-void func_00115cb0();
-void func_00115dc0();
-void func_00115e90();
+void func_00115cb0(Vec2f, s32, s16 *);
+void func_00115dc0(Vec2f, s32, s16 *);
+void func_00115e90(Vec2f, s32, s16 *);
 void func_0046d730(const char *file, s32 line);
 void func_0043f9c8(void *dst, s32 value, s32 size);
 s32 func_0010cc20();
@@ -39,11 +48,7 @@ void func_0045aeb0(s16 channelIndex, const char *name);
 extern char D_005E4868[];
 extern char D_005E4E20[];
 extern char D_005E4E40[];
-
-typedef struct {
-    f32 x;
-    f32 y;
-} Vec2f;
+extern u8 D_00793E80[];
 
 extern void (*jtbl_008873EC[])(u8 *);
 
@@ -92,7 +97,20 @@ void func_00115c00(u8 *arg0, u8 *arg1)
 
 
 // FUN_00115C40
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115c40);
+void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2)
+{
+    switch (*arg2) {
+    case 0:
+        func_00115dc0(arg0, arg1, arg2);
+        break;
+    case 1:
+        func_00115e90(arg0, arg1, arg2);
+        break;
+    case 2:
+        func_00115cb0(arg0, arg1, arg2);
+        break;
+    }
+}
 
 
 
@@ -116,6 +134,13 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116190);
 
 
 
+/* measured: everything matches except the mask fold — retail keeps the raw
+   `0xFF - (arg1 & 0xFF)` subu in $s0 and re-applies `andi $a3, $s0, 0xff` at
+   each of the two func_0046d4c0 call sites; mwcc b210 always folds the & 0xFF
+   into the CSE'd def (andi $s0) and emits plain move $a3, $s0, which also
+   collapses retail's FPU/GPR call-site interleave into sequential order (nd 33).
+   Tried: s32 mask local, u8 mask local, inline expr at calls, u8 arg1, and a
+   static inline helper — all fold identically. AND-fold scheduling floor. */
 // FUN_001162F0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001162f0);
 
@@ -199,7 +224,34 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117780);
 
 
 // FUN_001178A0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001178a0);
+s32 func_001178a0(u8 *arg0)
+{
+    u8 *b = *(u8 **)(arg0 + 0x38);
+    s32 off;
+    *(s32 *)(b + 0x540) = 0;
+    *(s32 *)(b + 0x544) = 0;
+    off = 0x30 * *(u16 *)(b + 0x570);
+    func_00460ac0(D_00793E80 + off, b + 0x540);
+    switch (*(s32 *)(b + 0x538)) {
+    case 0:
+        *(s32 *)(b + 0x538) = 1;
+        /* fallthrough */
+    case 1:
+        if (*(s32 *)(b + 0) != 0) {
+            *(s32 *)(b + 0x538) = 2;
+            *(s32 *)(b + 0x534) |= 8;
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        if (!(*(s32 *)(b + 0x534) & 1)) {
+            return -1;
+        }
+        break;
+    }
+    return 0;
+}
 
 
 
@@ -323,7 +375,14 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b8f0);
 
 
 // FUN_0011BA00
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ba00);
+s32 func_0011ba00(u8 *arg0)
+{
+    s32 flags = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x534);
+    if ((flags & 2) || (flags & 4)) {
+        return 1;
+    }
+    return 0;
+}
 
 
 
@@ -333,7 +392,29 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ba40);
 
 
 // FUN_0011BB90
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bb90);
+void func_0011bb90(u8 *arg0)
+{
+    u8 *b = *(u8 **)(arg0 + 0x38);
+    if (!(*(s32 *)(b + 0x534) & 2) && *(u8 *)(b + 0x505) != 0xFF) {
+        f32 t;
+        f32 u;
+        Vec2f src;
+        Vec2f dst;
+        func_0011ba40(b);
+        *(u16 *)(b + 0x508) = 0;
+        *(u8 *)(b + 0x504) = *(u8 *)(b + 0x505);
+        *(u8 *)(b + 0x506) = 0xFF;
+        t = 131.0f + *(f32 *)(b + 0x4FC);
+        src.x = t;
+        u = -59.0f + *(f32 *)(b + 0x500);
+        src.y = u;
+        dst.x = 640.0f + t;
+        dst.y = u;
+        func_0011e2b0(*(u8 **)(b + 0x4F8), &dst, &src);
+        func_0011e240(*(u8 **)(b + 0x4F8), 0);
+        func_0011aaa0(b, 0);
+    }
+}
 
 
 
@@ -425,6 +506,13 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
 
 
 
+/* measured: retail booleanizes the (flags & 0x800) != 0 test with sltu and routes
+   both early-outs through a shared `b` trampoline (beqz->L20, fallthrough->L20,
+   L20: b end); mwcc b210 emits andi+beqz straight to the join and skips the
+   trampoline. Tried: inline &&, nested ifs, early returns, bool locals,
+   masked-variable comparisons, and cond = A && B assignment (which sltu-izes the
+   first operand but also not/sltu-izes the byte test) — all nd 25. Branch-to-
+   branch sharing + booleanize floors. */
 // FUN_0011CAF0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
 
@@ -698,6 +786,12 @@ s32 func_0011dec0(u8 *arg0)
 
 
 
+/* measured: retail materialises the D_005E4ED0 address (lui+addiu $a0) BEFORE the
+   addiu $a1, $v0, 0x10 at the func_00440b68 call; mwcc b210 always emits the
+   computed operand first and the constant global address last (nd 3, the three
+   swapped words). Tried: hoisting arg1 to a local, hoisting the address to a
+   char* local, inverting the if/else (nd 5) — constant-vs-computed argument
+   materialisation order floor per operand-order skill. */
 // FUN_0011DED0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ded0);
 

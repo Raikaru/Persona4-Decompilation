@@ -119,6 +119,8 @@ extern s64 D_0063B0F0;
 extern f32 D_0063B0F8;
 extern s64 D_0063B100;
 extern f32 D_0063B108;
+extern s64 D_0063B0B8[];
+extern f32 D_0063B0C0[];
 extern void func_00268a70(u8 *arg0);
 extern void func_00268ad0(u8 *arg0);
 
@@ -201,8 +203,47 @@ u8 func_00268cb0(Resrc* resource)
 
 
 
+/* measured: volatile casts on the D_0063B0B8/D_0063B0C0 global loads and the
+   source-local stores force mwcc b210 to batch both loads before both stores
+   (retail: lui+ld, lui+lwc1, sd, swc1) and to emit the exact FPU
+   mul.s/adda.s/madd.s dot chain with the zero term in $f5; the plain form
+   emits load-store-load-store. Same pattern as the matched P3FES port
+   FUN_0026C860. */
 // FUN_00268CE0
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00268ce0);
+u32 func_00268ce0(float *first, float *second, float *output, float *third)
+{
+    u32 uVar1;
+    float fVar2;
+    u64 txy;
+    float tz;
+    float dif[3];
+    float afStack_20[4];
+    SceneVecBits source;
+
+    txy = ((volatile SceneVecBits *)D_0063B0B8)->xy;
+    tz = *(volatile float *)D_0063B0C0;
+    *(volatile u64 *)&source.xy = txy;
+    *(volatile float *)&source.z = tz;
+    dif[0] = second[0] - first[0];
+    dif[1] = second[1] - first[1];
+    dif[2] = second[2] - first[2];
+    fVar2 = func_003e40b0(afStack_20, dif);
+    if (fVar2 == 0.0f) {
+        return 0;
+    }
+    afStack_20[1] = 0.0f;
+    uVar1 = func_0044dcd8(afStack_20[0] * ((float *)&source.xy)[0] +
+                          afStack_20[1] * ((float *)&source.xy)[1] +
+                          afStack_20[2] * source.z);
+    uVar1 = func_0044b8d8(uVar1);
+    fVar2 = fGpffff8428 * func_0044e7d8(uVar1);
+    if (afStack_20[0] < 0.0f) {
+        fVar2 = fVar2 * -1.0f;
+    }
+    *third = fVar2;
+    *(RwV3d *)output = *(RwV3d *)dif;
+    return 1;
+}
 
 // FUN_00268E30
 u32 func_00268e30(float* first, float* second, float* third)
@@ -652,6 +693,15 @@ s32 func_00269c20(u32 unk, s32 arg1) {
 
 
 
+/* measured: retail batches each group's two global loads (ld D_0063B0F0 + lwc1
+   D_0063B0F8) before both stores, hoists the first call's src-pointer addiu
+   between the groups, and emits mov.s $f12 before move $a2 in the second
+   func_003e0870 call; mwcc b210 emits load-store-load-store per element, the
+   pointer addiu last, and move $a2 before mov.s $f12. Tried: direct stores,
+   temp locals (optimized away), struct-temp copies (extra stack traffic),
+   array-vs-scalar global spellings (array form fixed addressing, kept the
+   layout/frame exact). All give identical nd 13. Load-sinking + argument-
+   evaluation-order floors. */
 // FUN_00269C70
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269c70);
 
@@ -950,7 +1000,7 @@ void func_0026c960(float t, float *x, float *y, float *z, float *outX,
 #pragma opt_lifetimes on
 
 // FUN_0026CA10
-void func_0026ca10(float param_1, char *param_2, float *param_3)
+void func_0026ca10(char *param_2, float param_1, float *param_3)
 {
     char cVar1;
     int iVar2;
@@ -999,7 +1049,37 @@ void func_0026ca10(float param_1, char *param_2, float *param_3)
 
 
 // FUN_0026CBA0
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026cba0);
+float func_0026cba0(u32 arg0, float param_2, float param_3)
+{
+    u8 *p;
+    u8 auStack[0x138];
+
+    if (arg0 >= 6) {
+        func_0046d730(D_0063B090, 0xA24);
+    }
+    if (param_2 == 0.0f) {
+        param_3 = 1.0f;
+    }
+    else {
+        param_3 = param_3 / param_2;
+    }
+    auStack[0] = 1;
+    *(u32 *)(auStack + 4) = 0;
+    *(u32 *)(auStack + 8) = 0;
+    *(u32 *)(auStack + 0xC) = 0;
+    p = func_00147620(arg0);
+    *(f32 *)(auStack + 0x10) = *(f32 *)(p + 0);
+    *(f32 *)(auStack + 0x14) = *(f32 *)(p + 8);
+    *(u32 *)(auStack + 0x18) = 0;
+    *(f32 *)(auStack + 0x1C) = *(f32 *)(p + 4);
+    *(f32 *)(auStack + 0x20) = *(f32 *)(p + 0xC);
+    *(u32 *)(auStack + 0x24) = 0;
+    *(u32 *)(auStack + 0x28) = 0x3F800000;
+    *(u32 *)(auStack + 0x2C) = 0x3F800000;
+    *(u32 *)(auStack + 0x30) = 0;
+    func_0026ca10((char *)auStack, param_3, (f32 *)(auStack + 0x130));
+    return *(f32 *)(auStack + 0x134) * param_2;
+}
 // FUN_0026CCA0
 float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4,
                     float *param_5, float *param_6, float *param_7)

@@ -74,6 +74,13 @@ void func_0049a9e0(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049aa30);
 // FUN_0049B2B0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b2b0);
+/* measured: with #pragma opt_loop_invariants on, the fill loop matches retail
+ * exactly (including the preheader -1 hoist and the slt/nop/bnez tail); the
+ * residual is 8 words in the func_0043f9c8 argument block: retail completes
+ * the four-load chain (p18->0x10->0x18->0x5C->0x14) before computing the size
+ * operand, mwcc b210 splits the chain around the size computation (chain1-3,
+ * size, chain4) regardless of spelling (inline chain, explicit temps, locals,
+ * opt_propagation off). Argument-evaluation-order/scheduling floor. */
 // FUN_0049B470
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b470);
 
@@ -629,7 +636,40 @@ INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a0c00);
 // FUN_004A14A0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a14a0);
 // FUN_004A1660
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a1660);
+/* measured: without opt_propagation off, mwcc folds the %lo of D_00713CE0
+ * into the lq offset (lui+lq); retail materializes lui+addiu+lq. */
+#pragma opt_propagation off
+void *func_004a1660(s32 arg0, void *arg1)
+{
+    u8 *p18;
+    u_long128 *quadSrc;
+    u_long128 quad;
+    s32 temp_16;
+    s32 temp_17;
+
+    if ((u16)arg0 >= 0xA) {
+        func_0046d730(D_00713FF0, 0xCD2);
+    }
+    temp_16 = arg0 & 0xFFFF;
+    temp_17 = *(s32 *)(D_00714028 + temp_16 * 0x1C);
+    func_0044ea90(D_00713FF0, 0xCD6);
+    p18 = jtbl_008873E8[0](temp_17 + 0x50, 0x40000);
+    if (p18 == NULL) {
+        func_0046d730(D_00713FF0, 0xCD7);
+    }
+    *(u32 *)(p18 + 0x40) = (u32)(p18 + 0x50);
+    *(u32 *)(p18 + 0x34) = 0;
+    *(u32 *)(p18 + 0x38) = (u32)temp_16;
+    *(u32 *)(p18 + 0x30) = -1;
+    quadSrc = (u_long128 *)D_00713CE0;
+    quad = *quadSrc;
+    *(u_long128 *)(p18 + 0x20) = quad;
+    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(p18) : "memory");
+    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(p18) : "memory");
+    func_0043f810(*(void **)(p18 + 0x40), arg1, (void *)temp_17);
+    return p18;
+}
+#pragma opt_propagation on
 
 // FUN_004A1780
 void *func_004a1780(u8 *arg0)
