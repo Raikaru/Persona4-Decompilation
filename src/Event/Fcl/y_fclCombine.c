@@ -40,6 +40,17 @@ extern u8 *iGpffffb594;
 extern void func_0010fd40(void *);
 extern void func_00106620(s16, s32);
 extern void func_00106390(s32, s32);
+extern void func_0044ea90(const void *, s32);
+extern void func_0043f9c8(void *, s32, u32);
+extern void func_0043f810(void *, void *, u32);
+extern u8 *func_0010fcb0();
+extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern u8 D_00641B00[];
+extern s32 func_0010b460(void);
+extern void func_0010ad80(s32);
+extern void func_0010b190(s16 *);
+extern void func_0010b300(s32);
+extern void func_0010b7f0(void);
 
 
 // FUN_002E8410
@@ -72,6 +83,12 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9d90);
 // FUN_002FBEA0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002fbea0);
 
+/* measured: retail re-emits the s8->s32 promotion of the loop counter in
+   place (dsll32/dsra32 $s2,24) right after func_002badc0 and uses it for
+   (s16)(i + 0x464); mwcc b210 CSEs the loop-head extension into $s3 and
+   skips the redundant re-promotion (2 words shorter, nd 36). Tried: natural
+   C, explicit s32 iv local, schedule on (70), opt_propagation off (36),
+   opt_common_subs off (74), declaration order p,key,i (40). */
 // FUN_00302570
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302570);
 
@@ -130,6 +147,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304410);
 // FUN_00304580
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304580);
 
+/* measured: same stack-lookup-table floor as func_00308e50 — retail loads
+   tbl[i] via sll/addu($sp)/addiu(0x48)/lh ($v0); mwcc b210 folds the 0x48
+   into the load displacement in every spelling (array-index nd 42,
+   byte-offset arithmetic nd 42), shifting all following words by one. */
 // FUN_00308CC0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308cc0);
 
@@ -151,8 +172,14 @@ s32 func_00308dc0(void)
     }
     return 5;
 }
+/* measured: retail loads the stack lookup table via sll/addu($sp)/addiu(0x48)
+   then lh ($v0); mwcc b210 folds the 0x48 into the load displacement
+   (sll/addu/lh 0x48($v0)) no matter the spelling — probed array-index,
+   named pointer, byte-offset arithmetic, for-loop, initializer-list, and
+   #pragma schedule on (nd 56); best nd 40. Same floor family as func_00308f40. */
 // FUN_00308E50
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308e50);
+
 /* floor (above marker kept clear for the verifier): the array-address
    sequence sll/addu(sp)/addiu(0x48) vs mwcc's sll/addiu/addu with swapped
    $v0/$v1 coloring — probed array, pointer, named-temp, separate-locals,
@@ -215,7 +242,31 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f650);
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00310480);
 
 // FUN_00310700
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00310700);
+void func_00310700(void)
+{
+    s16 i;
+    s16 j;
+
+    func_0044ea90(&D_00641B00[0], 0x2ABD);
+    iGpffffb594 = D_008873F4[0](1, 0x3004, 0x40000);
+    func_0043f9c8(iGpffffb594, 0, 0x3000);
+    i = 0;
+    while (i < 0x100) {
+        if (func_0010fcb0(i) != 0) {
+            j = (s16)i;
+            func_0043f810(iGpffffb594 + (s32)j * 0x30, func_0010fcb0(j), 0x30);
+        }
+        i++;
+    }
+    i = 0;
+    while (i < 4) {
+        *(u8 *)(iGpffffb594 + (s16)i + 0x3000) = 0;
+        if (func_00106330((s16)i + 0x1309) != 0) {
+            *(u8 *)(iGpffffb594 + (s16)i + 0x3000) = 1;
+        }
+        i++;
+    }
+}
 
 // FUN_00310850
 void func_00310850(void)

@@ -4,11 +4,11 @@
 
 extern void func_0046d730(const void *file, u32 line);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern void func_0023a620(s32 arg0, s32 arg1);
+extern void func_0023a620();
 extern char D_005E4318[];
 extern s16 D_00797F88[];
 extern s16 D_00797F8C[];
-extern s16 D_0079819C;
+extern s16 D_0079819C[];
 extern u8 D_00796E50[];
 extern u8 D_007973A0[];
 extern u8 D_00797F8E[];
@@ -17,6 +17,14 @@ extern u8 *DAT_007644c8;
 extern u8 *DAT_007644c4;
 extern u8 *DAT_007644cc;
 extern u8 *DAT_007644d4;
+extern u8 *iGpffffb3d8; /* gp -0x4C28 */
+extern u8 *iGpffffb3d4; /* gp -0x4C2C */
+extern u8 *iGpffffb3dc; /* gp -0x4C24 */
+extern u8 *iGpffffb3e4; /* gp -0x4C1C */
+
+extern void func_0043f810(void *dst, void *src, u32 size);
+extern void func_0010c9e0(void *arg0);
+extern void func_0010fde0(u8 *arg0);
 
 extern s32 func_0010be20(u32 arg0);
 extern void func_0010fde0(u8 *arg0);
@@ -24,7 +32,10 @@ void func_0010cad0(); /* old-style: callers pass args raw */
 
 extern u16 *func_0010ace0(s16 arg0);
 extern s32 func_0010b5b0(void);
-extern void func_0023a620(s32 arg0, s32 arg1);
+extern void func_0023a620();
+extern s32 func_0010ae30(s32 arg0);
+extern s32 func_0010b3b0(s32 arg0);
+extern u16 func_0010b460(void);
 
 s8 func_00109d20(u8 *arg0, s32 arg1);
 s8 func_00109dd0(u8 *arg0, s32 arg1);
@@ -82,6 +93,9 @@ INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109510);
 // FUN_001097C0
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_001097c0);
 
+/* measured: same func_0023a620(0, value) move-vs-lhu order swap as
+   func_001097c0; all six spellings give identical nd 5. Argument
+   evaluation-order floor. */
 // FUN_00109870
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109870);
 
@@ -106,7 +120,24 @@ s32 func_00109980(s32 arg0, s32 arg1)
 }
 
 // FUN_001099F0
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_001099f0);
+u8 func_001099f0(u8 *arg0, s32 arg1)
+{
+    s16 a;
+    s16 b;
+    s8 c;
+    s16 sum;
+    if ((arg1 & 0xFFFF) >= 5) {
+        func_0046d730(D_005E4318, 0x1DE);
+    }
+    a = (s16)arg0[(u16)arg1 + 0x1C];
+    b = (s8)func_00109d20(arg0, arg1);
+    c = (s8)func_00109dd0(arg0, arg1);
+    sum = (s16)(a + b + c);
+    if (sum >= 0x63) {
+        sum = 0x63;
+    }
+    return (u8)sum;
+}
 
 // FUN_00109AD0
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109ad0);
@@ -185,7 +216,21 @@ s32 func_0010a9b0(s32 arg0)
 }
 
 // FUN_0010AA80
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010aa80);
+s32 func_0010aa80(s32 arg0)
+{
+    s32 count = func_0010b5b0() & 0xFFFF;
+    s32 i = 0;
+    s32 id = (s16)arg0;
+    u8 *base = D_007973A0;
+    s32 off;
+    for (; (u16)i < count; i = (u16)(i + 1)) {
+        off = (i & 0xFFFF) * 0x30;
+        if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+            return (s16)i;
+        }
+    }
+    return -1;
+}
 
 // FUN_0010AB30
 s32 func_0010ab30(void)
@@ -225,7 +270,25 @@ u16 *func_0010ace0(s16 arg0)
 }
 
 // FUN_0010AD80
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010ad80);
+s32 func_0010ad80(s32 arg0)
+{
+    s32 count = func_0010b5b0() & 0xFFFF;
+    s32 i = 0;
+    s32 arg;
+    s32 id = (s16)arg0;
+    u8 *base = D_007973A0;
+    s32 off;
+    for (; (u16)i < count; i = (u16)(i + 1)) {
+        off = (i & 0xFFFF) * 0x30;
+        if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+            arg = (s16)i;
+            goto done;
+        }
+    }
+    arg = -1;
+done:
+    return func_0010ae30(arg);
+}
 
 // FUN_0010AE30
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010ae30);
@@ -247,10 +310,39 @@ INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b060);
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b190);
 
 // FUN_0010B300
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b300);
+s32 func_0010b300(s32 arg0)
+{
+    s32 count = func_0010b5b0() & 0xFFFF;
+    s32 i = 0;
+    s32 arg;
+    s32 id = (s16)arg0;
+    u8 *base = D_007973A0;
+    s32 off;
+    for (; (u16)i < count; i = (u16)(i + 1)) {
+        off = (i & 0xFFFF) * 0x30;
+        if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+            arg = (s16)i;
+            goto done;
+        }
+    }
+    arg = -1;
+done:
+    return func_0010b3b0(arg);
+}
 
 // FUN_0010B3B0
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b3b0);
+s32 func_0010b3b0(s32 arg0)
+{
+    s32 idx = (s16)arg0;
+    if (idx < 0 || idx >= (u16)func_0010b5b0()) {
+        func_0046d730(D_005E4318, 0x47E);
+    }
+    if ((*(u16 *)((u8 *)D_00797F8C + idx * 0x30) & 1) == 0) {
+        return 0;
+    }
+    D_00797F88[0] = (s16)arg0;
+    return 1;
+}
 
 // FUN_0010B460
 u16 func_0010b460(void)

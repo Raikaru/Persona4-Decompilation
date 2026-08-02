@@ -6,6 +6,21 @@
 extern void (*DAT_008873EC[])(void *);
 extern s32 (*DAT_008873F4[])(s32, s32, s32);
 
+extern s32 iGpffffb4e8;
+extern s32 iGpffffb260;
+extern s32 iGpffffb4e4;
+extern u8 *iGpffff9db0;
+extern s32 func_0014b870(s32 arg0, s32 arg1);
+extern void func_002319c0(s32 arg0);
+extern s32 func_0047ae90(s32 arg0, s32 arg1);
+extern s32 func_004553c0(s32 arg0);
+extern void func_00454bd0(s32 arg0);
+extern void func_0043f810(void *arg0, void *arg1, void *arg2);
+extern s32 func_001619b0(u16 arg0, u16 arg1, u16 arg2);
+extern s32 func_00161a70(u16 arg0, u16 arg1, u16 arg2);
+extern void func_00182310(s32 arg0);
+extern s32 func_00164570(u32 arg0, s32 arg1);
+
 extern void memset(void *destination, s32 value, u32 size);
 extern u8 D_007E8020[];
 extern u8 D_007E8C00[];
@@ -32,6 +47,10 @@ static f32 D_007613EC;
 typedef struct {
     u8 b[4];
 } S4;
+
+typedef struct {
+    u32 h[2];
+} S8;
 
 s32 func_00163c90(s32 arg0);
 void func_00164020(u8 *arg0);
@@ -72,6 +91,11 @@ s32 func_00451fc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4, void (*arg5)
 
 
 
+/* measured: retail schedules the three arg loads of func_0043f810 (arg3 0x118
+   first, then arg1 0x734, then arg2 0x110); mwcc b210 always emits them in
+   source order (0x734, 0x110, 0x118). Tried: inline loads, preloaded t-local,
+   void-star / u32 / s32 prototypes, pointer casts — all give the identical nd 6
+   (3 rows). Argument-evaluation-order floor. */
 // FUN_00162C30
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162c30);
 
@@ -107,7 +131,50 @@ s32 func_00163fc0(void)
 
 
 // FUN_00164020
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164020);
+void func_00164020(u8 *arg0)
+{
+    s32 i;
+    s32 t48;
+    u16 *t54;
+
+    t48 = *(s32 *)(arg0 + 0x48);
+    if (t48 != 0) {
+        func_002319c0(t48);
+        t54 = *(u16 **)(arg0 + 0x54);
+        if (t54 != NULL) {
+            func_00146630(*t54);
+        }
+        if ((*(s32 *)(arg0 + 0x50) != 0) &&
+            ((*(u16 *)(arg0 + 0x728) == 0) || (*(s32 *)(arg0 + 0x44) == 1))) {
+            for (i = 0; i < 5; i++) {
+                *(u8 *)(*(s32 *)(arg0 + 0x50) + i * 0xC + 0x28C) |= 1;
+            }
+            func_0014b870(*(s32 *)(arg0 + 0x50), 0);
+        }
+        if (*(s32 *)(arg0 + 0x1B0) != 0) {
+            func_00452080(*(s32 *)(arg0 + 0x1B0));
+        }
+        if (*(s32 *)(arg0 + 0x734) != 0) {
+            DAT_008873EC[0](*(void **)(arg0 + 0x734));
+        }
+        if (*(s32 *)(arg0 + 0x1B4) != 0) {
+            func_00452080(*(s32 *)(arg0 + 0x1B4));
+        }
+        if (*(s32 *)(arg0 + 0x1B8) != 0) {
+            func_00452080(*(s32 *)(arg0 + 0x1B8));
+        }
+        *(s32 *)(arg0 + 0x48) = 0;
+        *(s32 *)(arg0 + 0x50) = 0;
+        *(s32 *)(arg0 + 0x54) = 0;
+        *(s32 *)(arg0 + 0x1B0) = 0;
+        *(s32 *)(arg0 + 0x734) = 0;
+        *(s32 *)(arg0 + 0x1B4) = 0;
+        *(s32 *)(arg0 + 0x1B8) = 0;
+        if (*(u16 *)(arg0 + 0x1C8) != 0) {
+            iGpffffb4e8 -= 1;
+        }
+    }
+}
 
 
 
@@ -317,7 +384,74 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165fb0);
 
 
 // FUN_001662D0
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001662d0);
+void func_001662d0(void)
+{
+    u32 sp6C;
+    u32 t17;
+    u8 *src;
+    u8 *s19;
+    u8 *p;
+    u8 *slotp;
+    s32 i;
+    s32 j;
+    u16 h0;
+    u16 h4;
+    u8 *dp;
+    u8 *s;
+    u8 *d;
+    s32 k;
+
+    t17 = func_0015a160();
+    if (iGpffffb260 == 1) {
+        return;
+    }
+    func_0043f9c8(D_007E80A0, 0, 0xB40);
+    iGpffffb4e4 = 0;
+    h0 = *(u16 *)iGpffff9db0;
+    h4 = *(u16 *)(iGpffff9db0 + 4);
+    s19 = (u8 *)func_00161b10(h0, h4, t17);
+    if (s19 == 0) {
+        return;
+    }
+    if (func_0015a320() == 0) {
+        return;
+    }
+    i = 0;
+    while ((src = func_00166600(s19, &sp6C, i)) != NULL) {
+        h0 = *(u16 *)iGpffff9db0;
+        h4 = *(u16 *)(iGpffff9db0 + 4);
+        p = func_00161c80(h0, h4, t17, 2);
+        if (p == NULL) {
+            func_0046d730(D_005F1500, 0xA63);
+        }
+        slotp = NULL;
+        j = 0;
+        dp = D_007E80A0;
+        for (; j < 8; j++) {
+            if (*(s32 *)(dp + j * 0x168) == 0) {
+                slotp = dp + j * 0x168;
+                break;
+            }
+        }
+        *(s32 *)slotp = 1;
+        *(s32 *)(slotp + 0x160) = (s32)p;
+        *(s16 *)(slotp + 0xE) = (s16)sp6C;
+        d = slotp + 0x10;
+        k = 0x2A;
+        s = src;
+        do {
+            u32 w0 = *(u32 *)s;
+            u32 w1 = *(u32 *)(s + 4);
+            s += 8;
+            k--;
+            *(u32 *)d = w0;
+            *(u32 *)(d + 4) = w1;
+            d += 8;
+        } while (k > 0);
+        func_00165fb0(slotp, src, 0x3FE - i);
+        i++;
+    }
+}
 
 // FUN_001664A0
 void func_001664a0(void)

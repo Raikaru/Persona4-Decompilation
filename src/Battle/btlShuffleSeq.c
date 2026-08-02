@@ -23,7 +23,7 @@ extern void func_00375dd0(u8 *ctx, s32 idx, f32 *a, f32 *b, f32 c, f32 d);
 extern void func_00375fa0(u8 *a, s32 b, s32 c, f32 *d, f32 *e, f32 *f, f32 g, f32 h);
 extern void func_003760f0(u8 *ctx, s32 a, s32 b, s32 c, f32 *d, f32 *e);
 extern void func_00376290(u8 *ctx, s32 a, s32 b, s32 c, s32 d);
-extern void func_003dc740(f32 *dst, f32 *src, s32 c, f32 d);
+extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern s32 func_0036de60(u8 *a);
 extern u16 func_0036dee0(u8 *a);
 extern s32 func_00378530(s32 a, s32 b);
@@ -67,6 +67,8 @@ extern void func_0036d990(u8 *a, u8 *b);
 extern void func_0036db60(u8 *a);
 
 extern char D_0064EAA0[];
+extern s64 D_0064EAB0[];
+extern f32 D_0064EAB8[];
 extern s32 D_00763AD0;
 extern s32 D_00763AD4;
 
@@ -199,17 +201,41 @@ void func_00378ec0(u8 *arg0, s32 arg1) {
     func_003760f0(arg0, arg1, 0, 0xF, NULL, sp30);
 }
 
+/* measured: retail's else path emits `or $v1,$v1,$v0; mtc1 $v1,$f0; cvt.s.w
+   $f13,$f0; add.s $f13,$f13,$f13` (conversion into the destination, self-add
+   doubling); mwcc b210 always converts the doubled operand into a temp
+   (`or $v0; mtc1 $v0,$f0; cvt.s.w $f0,$f0; add.s $f13,$f0,$f0`) and `2.0f * x`
+   compiles to mul.s against a constant, never add.s. Tried: inline expr and
+   s32/u32 local, `(f32)t + (f32)t`, `(f32)t; +=`, `* 2.0f`, declaration
+   orders; all give the identical nd 42 (4 real words). FPU register
+   allocation floor. */
 // FUN_00378F90
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00378f90);
-
-
 // FUN_00379090
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379090);
-
 // FUN_00379150
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379150);
+s32 func_00379150(u8 *arg0, s32 arg1, s32 arg2) {
+    u8 *p1;
+    u8 *p2;
+    s32 v;
+    u16 a;
+    u16 b;
 
-
+    p1 = arg0 + arg1 * 0xFB0;
+    v = func_0036de60(p1);
+    p2 = arg0 + arg2 * 0xFB0;
+    if (v == func_0036de60(p2)) {
+        if (v == 0) {
+            a = func_0036dee0(p1);
+            b = func_0036dee0(p2);
+            if (a != b) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+    return 0;
+}
 // FUN_00379240
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379240);
 

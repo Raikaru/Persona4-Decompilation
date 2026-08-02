@@ -41,7 +41,8 @@ extern s32 func_002b6970(s16, s32);
 extern void func_002b7750(s32, s16);
 extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
 extern f32 iGpffff8360;
-extern s32 func_00331560(u8 *arg0);
+extern s64 func_00331560();
+extern void func_002b77d0(s32, s64, s32, s32, s32, s64, s32, s32, f32, s32, s64);
 extern void func_0025ecd0(s32, s32, s16, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
@@ -50,11 +51,29 @@ extern void func_00454bd0(u8 *arg0);
 extern u8 *(*D_008873EC[])(u8 *);
 extern char D_00644D30[];
 extern char D_00644D50[];
+extern char D_00644DB0[];
+extern char D_00644DD0[];
+extern char D_00644DF0[];
+extern char D_00644E10[];
+extern char D_00644E30[];
+extern char D_00644E48[];
+extern char D_00644E60[];
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 extern f32 D_00644C90[];
+extern f32 D_00644020[];
+extern f32 D_00644098[];
+extern f32 D_00644AD0[];
+extern f32 D_00644B00[];
 extern s8 D_00749530[];
 extern s64 iGpffffa900;
 extern s64 iGpffffa908;
+extern s32 iGpffffa910;
+extern s32 iGpffffb598;
+extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern void func_00440b68();
+extern u8 *func_00454a60(u8 *param, s32 mode);
+extern void func_00330f20(u8 *);
+extern void func_003312e0(u8 *);
 
 // FUN_00314320
 s32 func_00314320(s32 arg0) {
@@ -84,8 +103,19 @@ void func_00314400(u8 *arg0, s8 arg1) {
     }
 }
 
+/* measured: retail keeps the deref'd object pointer in $a0 (reusing the dead param
+   register) and the zero-loop buffer pointer in $v1; mwcc b210 always allocates
+the object to $v1 and the buffer to $a0, swapping 9 words with identical
+instruction order/semantics. Tried: local t, arg0 reassignment, local declaration
+order, statement order, u8 pointers, &buf[0], hoisted call-arg local, m2c scalar
+locals (worse). All give the identical nd 9. $v0/$v1-family allocation floor. */
 // FUN_00314450
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314450);
+/* measured: same $a0/$v1 allocation swap as func_00314450 above; retail keeps the
+   object pointer in $a0 across the loop and stores, mwcc b210 forces it into $v1
+   with the buffer pointer in $a0. Same 12 words swapped, all spellings tried
+   (incl. u8 pointers, declaration-order and statement-order variants) give the
+   identical nd 12. $v0/$v1-family allocation floor. */
 // FUN_003144D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003144d0);
 // FUN_00314560
@@ -193,8 +223,16 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00316470);
 // FUN_00316E80
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00316e80);
 
+/* measured: retail materializes the constant first arg (addiu $a0, 0x1E4) BEFORE
+the lbu of the second arg; mwcc b210 evaluates call args right-to-left and always
+emits the lbu first. Tried inline call, hoisted b local, hoisted v local, hoisted
+id local — all give the identical nd 3 (same 2-word swap). Argument evaluation
+order floor. */
 // FUN_00317240
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317240);
+/* measured: same constant-vs-load arg order swap as func_00317240; mwcc b210
+emits lbu $a1 before addiu $a0, retail the reverse. All spellings give nd 5
+(2 swapped words + 3 window padding). Argument evaluation order floor. */
 // FUN_00317320
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317320);
 // FUN_00317410
@@ -412,4 +450,28 @@ void func_003312e0(u8 *arg0) {
 }
 
 // FUN_00331390
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00331390);
+void func_00331390(void) {
+    u8 *p;
+
+    if (iGpffffb598 != 0) {
+        iGpffffb598 = 0;
+    }
+    func_0044ea90(D_00644D30, 0x16A4);
+    p = D_008873F4[0](1, 0x48, 0x40000);
+    iGpffffb598 = func_00451de0(D_00644E48, 0xF, 0, 0, (void *)func_00330f20, (void *)func_003312e0, p);
+    *(s8 *)(p + 0) = 0;
+    *(s8 *)(p + 0x45) = 0;
+    func_00440b68(&iGpffffa910, D_00644D30, 0x16B2);
+    *(s32 *)(p + 0xC) = (s32)func_00454a60((u8 *)D_00644DB0, 0);
+    func_00440b68(&iGpffffa910, D_00644D30, 0x16B3);
+    *(s32 *)(p + 0x10) = (s32)func_00454a60((u8 *)D_00644DD0, 0);
+    func_00440b68(&iGpffffa910, D_00644D30, 0x16B4);
+    *(s32 *)(p + 0x14) = (s32)func_00454a60((u8 *)D_00644DF0, 0);
+    func_00440b68(&iGpffffa910, D_00644D30, 0x16B5);
+    *(s32 *)(p + 0x18) = (s32)func_00454a60((u8 *)D_00644E10, 0);
+    func_00440b68(&iGpffffa910, D_00644D30, 0x16B7);
+    *(s32 *)(p + 0x1C) = (s32)func_00454a60((u8 *)D_00644E30, 0);
+    *(s8 *)(p + 0x44) = -1;
+    func_00440b68(&iGpffffa910, D_00644D30, 0x16B9);
+    *(s32 *)(p + 0x20) = (s32)func_00454a60((u8 *)D_00644E60, 0);
+}

@@ -17,6 +17,17 @@ extern char D_00713E50[];
 extern u32 D_00713E70[];
 extern u32 D_00713E74[];
 extern u32 D_00713E84[];
+extern f32 iGpffff8044;
+
+/* 4-byte color, copied field-by-field by retail. */
+typedef struct
+{
+    u8 c[4];
+} Color4;
+extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
+extern void func_00483700(void *dst, void *obj, void *src, f32 arg3);
+extern void func_003e9cb0(void *a, void *b, s32 c);
+extern void func_00483490(void *a, u16 b, void *c, u8 d);
 u8 *func_004988c0(u16 arg0, u8 *arg1);
 
 
@@ -48,8 +59,140 @@ void func_00495620(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_004956b0);
 
 
-// FUN_00495F80
+// FUN_00495F80 NONMATCHING
+#ifdef NON_MATCHING
+void func_00495f80(u8 *arg0)
+{
+    u8 *obj;
+    u8 *ctrl;
+    u8 *list;
+    s32 n;
+    s32 count;
+    s32 spDC;
+    s32 spD8;
+    s32 spD4;
+    s32 spD0;
+    s32 spCC;
+    f32 spB0[4];
+    s32 tmp;
+    f32 scale;
+    s32 i;
+    u8 *e0;
+    s32 out;
+    f32 sp70[4];
+
+    obj = *(u8 **)(arg0 + 0x30);
+    ctrl = *(u8 **)(arg0 + 0x34);
+    list = *(u8 **)obj;
+    n = *(s32 *)(arg0 + 0x28);
+    count = *(s32 *)(ctrl + 0x34);
+    if ((count >= n) || (count == 0))
+    {
+        s32 *pt;
+
+        count = *(s32 *)(ctrl + 0x38);
+        tmp = (s32)func_0048abd0(ctrl, ctrl + 0x24, n, *(s32 *)(ctrl + 0x34));
+        spD8 = *(s32 *)(arg0 + 0x24);
+        pt = &spD8;
+        scale = iGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        spD4 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            :
+            : "r"(&spD4), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(spB0) : "memory");
+        func_00483700(&sp70[0], arg0, 0, *(f32 *)(arg0 + 0x20));
+        i = 0;
+        while (i < count)
+        {
+            if (*(s32 *)(list + 4) > 0)
+            {
+                e0 = *(u8 **)list;
+                func_003e9cb0(*(void **)(e0 + 0xC), &sp70[0], 0);
+                spD0 = *(s32 *)(list + 8);
+                __asm__ volatile(
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, %1           \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    :
+                    : "r"(&spD0), "f"(scale)
+                    : "$2", "$vf2", "$vf10", "memory");
+                __asm__ volatile(
+                    "lqc2 $vf11, 0(%1)     \n"
+                    "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                    "lui $2, 0x437F        \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vftoi0.xyzw $vf10, $vf10 \n"
+                    "qmfc2.ni $2, $vf10    \n"
+                    "ppach $2, $0, $2      \n"
+                    "ppacb %0, $0, %0      \n"
+                    : "=r"(spCC)
+                    : "r"(spB0)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                spDC = *(s32 *)&spCC;
+                if (((Color4 *)&spDC)->c[3] != 0xFF)
+                {
+                    u8 *dst = *(u8 **)(e0 + 0x14);
+                    *(Color4 *)(dst + 4) = *(Color4 *)&spDC;
+                }
+                else
+                {
+                    ((Color4 *)&spDC)->c[3] = 0xFE;
+                    {
+                        u8 *dst = *(u8 **)(e0 + 0x14);
+                        *(Color4 *)(dst + 4) = *(Color4 *)&spDC;
+                    }
+                    ((Color4 *)&spDC)->c[3] = 0xFF;
+                }
+                if (*(u8 *)(ctrl + 0x5C) != 0)
+                {
+                    *(u16 *)e0 = *(u16 *)e0 | 1;
+                }
+                else
+                {
+                    *(u16 *)e0 = *(u16 *)e0 & 0xFFFE;
+                }
+                func_00483490(e0, *(u16 *)(ctrl + 0x28), *(u8 **)(e0 + 0x14), 0xFF);
+            }
+            i++;
+            list += 0x10;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00495f80);
+#endif
 
 
 // FUN_004961F0

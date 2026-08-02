@@ -2972,7 +2972,7 @@
       "target_path": "build/objdiff/target/Battle/btlAICommand/001e6740.o",
       "base_path": "build/objdiff/base/Battle/btlAICommand/001e6740.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -3027,7 +3027,7 @@
       "target_path": "build/objdiff/target/Battle/btlAICommand/001e6a50.o",
       "base_path": "build/objdiff/base/Battle/btlAICommand/001e6a50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4193,7 +4193,7 @@
       "target_path": "build/objdiff/target/Battle/btlPanelAnalyze/00218c60.o",
       "base_path": "build/objdiff/base/Battle/btlPanelAnalyze/00218c60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4226,7 +4226,7 @@
       "target_path": "build/objdiff/target/Battle/btlPanelAnalyze/00219060.o",
       "base_path": "build/objdiff/base/Battle/btlPanelAnalyze/00219060.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4424,7 +4424,7 @@
       "target_path": "build/objdiff/target/Battle/btlResultSimple/002215c0.o",
       "base_path": "build/objdiff/base/Battle/btlResultSimple/002215c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4699,7 +4699,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/00372c30.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/00372c30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4853,7 +4853,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleDraw/003741f0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleDraw/003741f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5227,7 +5227,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleDraw/00376800.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleDraw/00376800.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5304,7 +5304,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleDraw/003781d0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleDraw/003781d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5381,7 +5381,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleDraw/00378530.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleDraw/00378530.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5392,7 +5392,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleEff/0038d6c0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleEff/0038d6c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5403,7 +5403,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleEff/0038d790.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleEff/0038d790.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5414,7 +5414,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleEff/0038d890.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleEff/0038d890.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5425,7 +5425,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleEff/0038d970.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleEff/0038d970.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5436,7 +5436,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleEff/0038d9f0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleEff/0038d9f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5447,7 +5447,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleEff/0038daf0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleEff/0038daf0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5579,7 +5579,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleSeq/00379150.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleSeq/00379150.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5711,7 +5711,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleSeqShuffle4/0037d270.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleSeqShuffle4/0037d270.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5722,7 +5722,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleSeqShuffle4/0037d460.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleSeqShuffle4/0037d460.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5733,7 +5733,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleSeqShuffle4/0037d630.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleSeqShuffle4/0037d630.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -6745,7 +6745,7 @@
       "target_path": "build/objdiff/target/Camp/cmpConfig/0035c690.o",
       "base_path": "build/objdiff/base/Camp/cmpConfig/0035c690.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -6855,7 +6855,7 @@
       "target_path": "build/objdiff/target/Camp/cmpConfig/0035d000.o",
       "base_path": "build/objdiff/base/Camp/cmpConfig/0035d000.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7416,7 +7416,7 @@
       "target_path": "build/objdiff/target/Camp/cmpSkill/00138b20.o",
       "base_path": "build/objdiff/base/Camp/cmpSkill/00138b20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7460,7 +7460,7 @@
       "target_path": "build/objdiff/target/Camp/cmpSkill/0013a4a0.o",
       "base_path": "build/objdiff/base/Camp/cmpSkill/0013a4a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7482,7 +7482,7 @@
       "target_path": "build/objdiff/target/Camp/cmpSkill/0013a8a0.o",
       "base_path": "build/objdiff/base/Camp/cmpSkill/0013a8a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7504,7 +7504,7 @@
       "target_path": "build/objdiff/target/Camp/cmpSkill/0013aa00.o",
       "base_path": "build/objdiff/base/Camp/cmpSkill/0013aa00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7625,7 +7625,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/fclCombineMisc/003127e0.o",
       "base_path": "build/objdiff/base/Event/Fcl/fclCombineMisc/003127e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7636,7 +7636,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/fclCombineMisc/003129b0.o",
       "base_path": "build/objdiff/base/Event/Fcl/fclCombineMisc/003129b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7658,7 +7658,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/fclCombineMisc/00312b90.o",
       "base_path": "build/objdiff/base/Event/Fcl/fclCombineMisc/00312b90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7669,7 +7669,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/fclCombineMisc/00312bc0.o",
       "base_path": "build/objdiff/base/Event/Fcl/fclCombineMisc/00312bc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -8373,7 +8373,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclCombine/00310700.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclCombine/00310700.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -9209,7 +9209,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclCombineDraw/00331390.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclCombineDraw/00331390.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -9308,7 +9308,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclItemShopDraw/0033bdc0.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclItemShopDraw/0033bdc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -9352,7 +9352,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclItemShopDraw/0033cbc0.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclItemShopDraw/0033cbc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -9385,7 +9385,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclItemShopDraw/0033d130.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclItemShopDraw/0033d130.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -9770,7 +9770,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclShopDraw/002dd230.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclShopDraw/002dd230.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10056,7 +10056,7 @@
       "target_path": "build/objdiff/target/Event/evtLoadSave/00294a90.o",
       "base_path": "build/objdiff/base/Event/evtLoadSave/00294a90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10100,7 +10100,7 @@
       "target_path": "build/objdiff/target/Event/evtLoadSave/00295740.o",
       "base_path": "build/objdiff/base/Event/evtLoadSave/00295740.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10111,7 +10111,7 @@
       "target_path": "build/objdiff/target/Event/evtLoadSave/00295910.o",
       "base_path": "build/objdiff/base/Event/evtLoadSave/00295910.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10155,7 +10155,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/00286c60.o",
       "base_path": "build/objdiff/base/Event/evtMain/00286c60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10210,7 +10210,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/00287060.o",
       "base_path": "build/objdiff/base/Event/evtMain/00287060.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10265,7 +10265,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/00287cc0.o",
       "base_path": "build/objdiff/base/Event/evtMain/00287cc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10331,7 +10331,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/002890b0.o",
       "base_path": "build/objdiff/base/Event/evtMain/002890b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10364,7 +10364,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/00289780.o",
       "base_path": "build/objdiff/base/Event/evtMain/00289780.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10452,7 +10452,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/0028a2a0.o",
       "base_path": "build/objdiff/base/Event/evtMain/0028a2a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10617,7 +10617,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/0028b320.o",
       "base_path": "build/objdiff/base/Event/evtMain/0028b320.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10793,7 +10793,7 @@
       "target_path": "build/objdiff/target/Event/evtModel/00292ef0.o",
       "base_path": "build/objdiff/base/Event/evtModel/00292ef0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10804,7 +10804,7 @@
       "target_path": "build/objdiff/target/Event/evtModel/002930e0.o",
       "base_path": "build/objdiff/base/Event/evtModel/002930e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10815,7 +10815,7 @@
       "target_path": "build/objdiff/target/Event/evtModel/002931a0.o",
       "base_path": "build/objdiff/base/Event/evtModel/002931a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10837,7 +10837,7 @@
       "target_path": "build/objdiff/target/Event/evtModel/002932b0.o",
       "base_path": "build/objdiff/base/Event/evtModel/002932b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10848,7 +10848,7 @@
       "target_path": "build/objdiff/target/Event/evtModel/002933a0.o",
       "base_path": "build/objdiff/base/Event/evtModel/002933a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10859,7 +10859,7 @@
       "target_path": "build/objdiff/target/Event/evtModel/00293550.o",
       "base_path": "build/objdiff/base/Event/evtModel/00293550.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10914,7 +10914,7 @@
       "target_path": "build/objdiff/target/Event/evtPMFileReader/00294040.o",
       "base_path": "build/objdiff/base/Event/evtPMFileReader/00294040.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10936,7 +10936,7 @@
       "target_path": "build/objdiff/target/Event/evtPolygonMovie/0028f990.o",
       "base_path": "build/objdiff/base/Event/evtPolygonMovie/0028f990.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10947,7 +10947,7 @@
       "target_path": "build/objdiff/target/Event/evtPolygonMovie/0028fb90.o",
       "base_path": "build/objdiff/base/Event/evtPolygonMovie/0028fb90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10969,7 +10969,7 @@
       "target_path": "build/objdiff/target/Event/evtPolygonMovie/00290470.o",
       "base_path": "build/objdiff/base/Event/evtPolygonMovie/00290470.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10980,7 +10980,7 @@
       "target_path": "build/objdiff/target/Event/evtPolygonMovie/002904f0.o",
       "base_path": "build/objdiff/base/Event/evtPolygonMovie/002904f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10991,7 +10991,7 @@
       "target_path": "build/objdiff/target/Event/evtPolygonMovie/002905a0.o",
       "base_path": "build/objdiff/base/Event/evtPolygonMovie/002905a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11002,7 +11002,7 @@
       "target_path": "build/objdiff/target/Event/evtPolygonMovie/00290660.o",
       "base_path": "build/objdiff/base/Event/evtPolygonMovie/00290660.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11013,7 +11013,7 @@
       "target_path": "build/objdiff/target/Event/evtPolygonMovie/00290710.o",
       "base_path": "build/objdiff/base/Event/evtPolygonMovie/00290710.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11277,7 +11277,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effBlurFilter/004a9aa0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effBlurFilter/004a9aa0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11310,7 +11310,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effBlurFilter/004a9dd0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effBlurFilter/004a9dd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11387,7 +11387,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effBlurFilter/004aa560.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effBlurFilter/004aa560.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11420,7 +11420,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effBlurFilter/004aa890.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effBlurFilter/004aa890.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11816,7 +11816,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004af680.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004af680.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11827,7 +11827,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004af740.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004af740.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11838,7 +11838,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004af8a0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004af8a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11849,7 +11849,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004af920.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004af920.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11871,7 +11871,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004afaa0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004afaa0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11882,7 +11882,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004afb10.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004afb10.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11904,7 +11904,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004afc80.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004afc80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11926,7 +11926,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004b0a80.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004b0a80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11937,7 +11937,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004b0ce0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004b0ce0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12256,7 +12256,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effObjectParticle/004ae460.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effObjectParticle/004ae460.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12267,7 +12267,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effObjectParticle/004ae650.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effObjectParticle/004ae650.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12278,7 +12278,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effObjectParticle/004ae6d0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effObjectParticle/004ae6d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12289,7 +12289,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effObjectParticle/004ae880.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effObjectParticle/004ae880.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12300,7 +12300,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effObjectParticle/004ae930.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effObjectParticle/004ae930.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12333,7 +12333,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effObjectParticle/004aec80.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effObjectParticle/004aec80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12531,7 +12531,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a20b0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a20b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12542,7 +12542,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a21e0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a21e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12575,7 +12575,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a3010.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a3010.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12597,7 +12597,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a33e0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a33e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12608,7 +12608,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a3510.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a3510.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12641,7 +12641,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a4380.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a4380.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12663,7 +12663,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a4790.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a4790.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12674,7 +12674,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a48d0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a48d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12707,7 +12707,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effPolygonWind/004a5630.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effPolygonWind/004a5630.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12916,7 +12916,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/eff_after/004b8df0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/eff_after/004b8df0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14577,7 +14577,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/00479ca0.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/00479ca0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14621,7 +14621,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/00479f60.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/00479f60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14632,7 +14632,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/0047a000.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/0047a000.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14643,7 +14643,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/0047a080.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/0047a080.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15017,7 +15017,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/0047aaa0.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/0047aaa0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15732,7 +15732,7 @@
       "target_path": "build/objdiff/target/Kernel/mc/002a2e50.o",
       "base_path": "build/objdiff/base/Kernel/mc/002a2e50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15908,7 +15908,7 @@
       "target_path": "build/objdiff/target/Kernel/mc/002a6960.o",
       "base_path": "build/objdiff/base/Kernel/mc/002a6960.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15941,7 +15941,7 @@
       "target_path": "build/objdiff/target/Kernel/mc/002a6b60.o",
       "base_path": "build/objdiff/base/Kernel/mc/002a6b60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15952,7 +15952,7 @@
       "target_path": "build/objdiff/target/Kernel/mc/002a6c30.o",
       "base_path": "build/objdiff/base/Kernel/mc/002a6c30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15963,7 +15963,7 @@
       "target_path": "build/objdiff/target/Kernel/mc/002a6e30.o",
       "base_path": "build/objdiff/base/Kernel/mc/002a6e30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -15996,7 +15996,7 @@
       "target_path": "build/objdiff/target/Kernel/mc/002a7710.o",
       "base_path": "build/objdiff/base/Kernel/mc/002a7710.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16139,7 +16139,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkCdvd/00455d70.o",
       "base_path": "build/objdiff/base/Kernel/sdkCdvd/00455d70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16161,7 +16161,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkCdvd/00455f70.o",
       "base_path": "build/objdiff/base/Kernel/sdkCdvd/00455f70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16172,7 +16172,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkCdvd/00456250.o",
       "base_path": "build/objdiff/base/Kernel/sdkCdvd/00456250.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16315,7 +16315,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkLbox/004703d0.o",
       "base_path": "build/objdiff/base/Kernel/sdkLbox/004703d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16326,7 +16326,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkLbox/00470430.o",
       "base_path": "build/objdiff/base/Kernel/sdkLbox/00470430.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16942,7 +16942,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldAI/0017e9b0.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldAI/0017e9b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17228,7 +17228,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/00150c80.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/00150c80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17261,7 +17261,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/00151580.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/00151580.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17294,7 +17294,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/00151f80.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/00151f80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17316,7 +17316,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/00152630.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/00152630.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17327,7 +17327,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/00152930.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/00152930.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17338,7 +17338,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/00152bb0.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/00152bb0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17349,7 +17349,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/00152cd0.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/00152cd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20154,7 +20154,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datPersona/001099f0.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datPersona/001099f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20264,7 +20264,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datPersona/0010aa80.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datPersona/0010aa80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20319,7 +20319,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datPersona/0010ad80.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datPersona/0010ad80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20374,7 +20374,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datPersona/0010b300.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datPersona/0010b300.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20385,7 +20385,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datPersona/0010b3b0.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datPersona/0010b3b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21639,7 +21639,7 @@
       "target_path": "build/objdiff/target/Main/mainDraw/00101bb0.o",
       "base_path": "build/objdiff/base/Main/mainDraw/00101bb0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21650,7 +21650,7 @@
       "target_path": "build/objdiff/target/Main/mainDraw/00102490.o",
       "base_path": "build/objdiff/base/Main/mainDraw/00102490.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21661,7 +21661,7 @@
       "target_path": "build/objdiff/target/Main/mainDraw/00102550.o",
       "base_path": "build/objdiff/base/Main/mainDraw/00102550.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21683,7 +21683,7 @@
       "target_path": "build/objdiff/target/Main/mainDraw/00102610.o",
       "base_path": "build/objdiff/base/Main/mainDraw/00102610.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21892,7 +21892,7 @@
       "target_path": "build/objdiff/target/Scene/mt_sceneFunc/00268ce0.o",
       "base_path": "build/objdiff/base/Scene/mt_sceneFunc/00268ce0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -22321,7 +22321,7 @@
       "target_path": "build/objdiff/target/Scene/mt_sceneFunc/0026cba0.o",
       "base_path": "build/objdiff/base/Scene/mt_sceneFunc/0026cba0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -23575,7 +23575,7 @@
       "target_path": "build/objdiff/target/Yajima/y_list/002e4610.o",
       "base_path": "build/objdiff/base/Yajima/y_list/002e4610.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -23663,7 +23663,7 @@
       "target_path": "build/objdiff/target/Yajima/y_list/002e5270.o",
       "base_path": "build/objdiff/base/Yajima/y_list/002e5270.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24433,7 +24433,7 @@
       "target_path": "build/objdiff/target/cldDayChange/00264d90.o",
       "base_path": "build/objdiff/base/cldDayChange/00264d90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24455,7 +24455,7 @@
       "target_path": "build/objdiff/target/cldDayChange/00264ec0.o",
       "base_path": "build/objdiff/base/cldDayChange/00264ec0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24466,7 +24466,7 @@
       "target_path": "build/objdiff/target/cldDayChange/00265110.o",
       "base_path": "build/objdiff/base/cldDayChange/00265110.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24510,7 +24510,7 @@
       "target_path": "build/objdiff/target/cldDayChange/00266890.o",
       "base_path": "build/objdiff/base/cldDayChange/00266890.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24521,7 +24521,7 @@
       "target_path": "build/objdiff/target/cldDayChange/002668f0.o",
       "base_path": "build/objdiff/base/cldDayChange/002668f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24532,7 +24532,7 @@
       "target_path": "build/objdiff/target/cldDayChange/00266950.o",
       "base_path": "build/objdiff/base/cldDayChange/00266950.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24675,7 +24675,7 @@
       "target_path": "build/objdiff/target/cmmCommunity/00107180.o",
       "base_path": "build/objdiff/base/cmmCommunity/00107180.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24741,7 +24741,7 @@
       "target_path": "build/objdiff/target/cmmCommunity/00107890.o",
       "base_path": "build/objdiff/base/cmmCommunity/00107890.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25687,7 +25687,7 @@
       "target_path": "build/objdiff/target/cmmRankUp/00251d80.o",
       "base_path": "build/objdiff/base/cmmRankUp/00251d80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25720,7 +25720,7 @@
       "target_path": "build/objdiff/target/cmmRankUp/00251f00.o",
       "base_path": "build/objdiff/base/cmmRankUp/00251f00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25731,7 +25731,7 @@
       "target_path": "build/objdiff/target/cmmRankUp/00251fc0.o",
       "base_path": "build/objdiff/base/cmmRankUp/00251fc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25808,7 +25808,7 @@
       "target_path": "build/objdiff/target/cmmRankUp/00255b00.o",
       "base_path": "build/objdiff/base/cmmRankUp/00255b00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25962,7 +25962,7 @@
       "target_path": "build/objdiff/target/cmmRankUp/0025c230.o",
       "base_path": "build/objdiff/base/cmmRankUp/0025c230.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33871,7 +33871,7 @@
       "target_path": "build/objdiff/target/frFontEx/00274cd0.o",
       "base_path": "build/objdiff/base/frFontEx/00274cd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33882,7 +33882,7 @@
       "target_path": "build/objdiff/target/frFontEx/00274ed0.o",
       "base_path": "build/objdiff/base/frFontEx/00274ed0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33893,7 +33893,7 @@
       "target_path": "build/objdiff/target/frFontEx/00275020.o",
       "base_path": "build/objdiff/base/frFontEx/00275020.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33904,7 +33904,7 @@
       "target_path": "build/objdiff/target/frFontEx/002751a0.o",
       "base_path": "build/objdiff/base/frFontEx/002751a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33915,7 +33915,7 @@
       "target_path": "build/objdiff/target/frFontEx/00275330.o",
       "base_path": "build/objdiff/base/frFontEx/00275330.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33937,7 +33937,7 @@
       "target_path": "build/objdiff/target/frFontEx/00275520.o",
       "base_path": "build/objdiff/base/frFontEx/00275520.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33948,7 +33948,7 @@
       "target_path": "build/objdiff/target/frFontEx/00275680.o",
       "base_path": "build/objdiff/base/frFontEx/00275680.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33959,7 +33959,7 @@
       "target_path": "build/objdiff/target/frFontEx/00275820.o",
       "base_path": "build/objdiff/base/frFontEx/00275820.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33970,7 +33970,7 @@
       "target_path": "build/objdiff/target/frFontEx/00275980.o",
       "base_path": "build/objdiff/base/frFontEx/00275980.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -34223,7 +34223,7 @@
       "target_path": "build/objdiff/target/g_data/g_data/00104f50.o",
       "base_path": "build/objdiff/base/g_data/g_data/00104f50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -34388,7 +34388,7 @@
       "target_path": "build/objdiff/target/g_data/g_data/00105780.o",
       "base_path": "build/objdiff/base/g_data/g_data/00105780.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36247,7 +36247,7 @@
       "target_path": "build/objdiff/target/itfMesManager/002776a0.o",
       "base_path": "build/objdiff/base/itfMesManager/002776a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36533,7 +36533,7 @@
       "target_path": "build/objdiff/target/itfMesManager/002789a0.o",
       "base_path": "build/objdiff/base/itfMesManager/002789a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36555,7 +36555,7 @@
       "target_path": "build/objdiff/target/itfMesManager/00278b80.o",
       "base_path": "build/objdiff/base/itfMesManager/00278b80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36588,7 +36588,7 @@
       "target_path": "build/objdiff/target/itfMesManager/00278da0.o",
       "base_path": "build/objdiff/base/itfMesManager/00278da0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36621,7 +36621,7 @@
       "target_path": "build/objdiff/target/itfMesManager/00278e20.o",
       "base_path": "build/objdiff/base/itfMesManager/00278e20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36632,7 +36632,7 @@
       "target_path": "build/objdiff/target/itfMesManager/00278e90.o",
       "base_path": "build/objdiff/base/itfMesManager/00278e90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36643,7 +36643,7 @@
       "target_path": "build/objdiff/target/itfMesManager/00278ef0.o",
       "base_path": "build/objdiff/base/itfMesManager/00278ef0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36709,7 +36709,7 @@
       "target_path": "build/objdiff/target/itfMesManager/002791f0.o",
       "base_path": "build/objdiff/base/itfMesManager/002791f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36731,7 +36731,7 @@
       "target_path": "build/objdiff/target/itfMesManager/00279350.o",
       "base_path": "build/objdiff/base/itfMesManager/00279350.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -128460,7 +128460,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffle/0036f410.o",
       "base_path": "build/objdiff/base/promoted/btlShuffle/0036f410.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -128482,7 +128482,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffle/0036f640.o",
       "base_path": "build/objdiff/base/promoted/btlShuffle/0036f640.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -128515,7 +128515,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffle/0036fd00.o",
       "base_path": "build/objdiff/base/promoted/btlShuffle/0036fd00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -128526,7 +128526,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffle/0036fed0.o",
       "base_path": "build/objdiff/base/promoted/btlShuffle/0036fed0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -128768,7 +128768,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffleResult/003816e0.o",
       "base_path": "build/objdiff/base/promoted/btlShuffleResult/003816e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -128856,7 +128856,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffleResult/00383ae0.o",
       "base_path": "build/objdiff/base/promoted/btlShuffleResult/00383ae0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -129285,7 +129285,7 @@
       "target_path": "build/objdiff/target/promoted/cmmScript/0024b870.o",
       "base_path": "build/objdiff/base/promoted/cmmScript/0024b870.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134169,7 +134169,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00482c40.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00482c40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134202,7 +134202,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/004830f0.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/004830f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134224,7 +134224,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/004833f0.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/004833f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134246,7 +134246,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/004834e0.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/004834e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134279,7 +134279,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00483700.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00483700.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134290,7 +134290,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00483810.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00483810.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134301,7 +134301,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00483970.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00483970.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134356,7 +134356,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/00486a50.o",
       "base_path": "build/objdiff/base/promoted/effParticle/00486a50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134378,7 +134378,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/00486e10.o",
       "base_path": "build/objdiff/base/promoted/effParticle/00486e10.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134389,7 +134389,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/00486fb0.o",
       "base_path": "build/objdiff/base/promoted/effParticle/00486fb0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134411,7 +134411,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/004875d0.o",
       "base_path": "build/objdiff/base/promoted/effParticle/004875d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134433,7 +134433,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/00487710.o",
       "base_path": "build/objdiff/base/promoted/effParticle/00487710.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134444,7 +134444,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/004877b0.o",
       "base_path": "build/objdiff/base/promoted/effParticle/004877b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134466,7 +134466,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/004878c0.o",
       "base_path": "build/objdiff/base/promoted/effParticle/004878c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134477,7 +134477,7 @@
       "target_path": "build/objdiff/target/promoted/effParticle/00487a30.o",
       "base_path": "build/objdiff/base/promoted/effParticle/00487a30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135060,7 +135060,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/004a1660.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/004a1660.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135082,7 +135082,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonRing/00498da0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonRing/00498da0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135126,7 +135126,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonRing/00499470.o",
       "base_path": "build/objdiff/base/promoted/effPolygonRing/00499470.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135137,7 +135137,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonRing/00499510.o",
       "base_path": "build/objdiff/base/promoted/effPolygonRing/00499510.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135181,7 +135181,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonRing/00499c50.o",
       "base_path": "build/objdiff/base/promoted/effPolygonRing/00499c50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135192,7 +135192,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonRing/00499cd0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonRing/00499cd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135269,7 +135269,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonTrack/00492f20.o",
       "base_path": "build/objdiff/base/promoted/effPolygonTrack/00492f20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135291,7 +135291,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonTrack/00493200.o",
       "base_path": "build/objdiff/base/promoted/effPolygonTrack/00493200.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135313,7 +135313,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonTrack/004933a0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonTrack/004933a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135324,7 +135324,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonTrack/00493530.o",
       "base_path": "build/objdiff/base/promoted/effPolygonTrack/00493530.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135390,7 +135390,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonTrack/00493b90.o",
       "base_path": "build/objdiff/base/promoted/effPolygonTrack/00493b90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135401,7 +135401,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonTrack/00493c90.o",
       "base_path": "build/objdiff/base/promoted/effPolygonTrack/00493c90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135566,7 +135566,7 @@
       "target_path": "build/objdiff/target/promoted/fclBankManager/002e0dd0.o",
       "base_path": "build/objdiff/base/promoted/fclBankManager/002e0dd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135577,7 +135577,7 @@
       "target_path": "build/objdiff/target/promoted/fclBankManager/002e0ea0.o",
       "base_path": "build/objdiff/base/promoted/fclBankManager/002e0ea0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135588,7 +135588,7 @@
       "target_path": "build/objdiff/target/promoted/fclBankManager/002e0f20.o",
       "base_path": "build/objdiff/base/promoted/fclBankManager/002e0f20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135610,7 +135610,7 @@
       "target_path": "build/objdiff/target/promoted/fclBankManager/002e0fb0.o",
       "base_path": "build/objdiff/base/promoted/fclBankManager/002e0fb0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135632,7 +135632,7 @@
       "target_path": "build/objdiff/target/promoted/fclBankManager/002e1230.o",
       "base_path": "build/objdiff/base/promoted/fclBankManager/002e1230.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136127,7 +136127,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEvent/00171fe0.o",
       "base_path": "build/objdiff/base/promoted/k_fldEvent/00171fe0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136160,7 +136160,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEvent/00172ba0.o",
       "base_path": "build/objdiff/base/promoted/k_fldEvent/00172ba0.o",
       "metadata": {
-        "complete": true,
+        "complete": false,
         "progress_categories": [
           "main"
         ]
@@ -136171,7 +136171,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEvent/00172cb0.o",
       "base_path": "build/objdiff/base/promoted/k_fldEvent/00172cb0.o",
       "metadata": {
-        "complete": true,
+        "complete": false,
         "progress_categories": [
           "main"
         ]
@@ -136182,7 +136182,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEvent/00172d80.o",
       "base_path": "build/objdiff/base/promoted/k_fldEvent/00172d80.o",
       "metadata": {
-        "complete": true,
+        "complete": false,
         "progress_categories": [
           "main"
         ]
@@ -136215,7 +136215,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEvent/001747d0.o",
       "base_path": "build/objdiff/base/promoted/k_fldEvent/001747d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136281,7 +136281,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEvent/00174c20.o",
       "base_path": "build/objdiff/base/promoted/k_fldEvent/00174c20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136446,7 +136446,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldLmap/00186a60.o",
       "base_path": "build/objdiff/base/promoted/k_fldLmap/00186a60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136479,7 +136479,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldLmap/00186cc0.o",
       "base_path": "build/objdiff/base/promoted/k_fldLmap/00186cc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136512,7 +136512,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldLmap/00187da0.o",
       "base_path": "build/objdiff/base/promoted/k_fldLmap/00187da0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136523,7 +136523,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldLmap/00187e80.o",
       "base_path": "build/objdiff/base/promoted/k_fldLmap/00187e80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136655,7 +136655,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldLmap/00188f20.o",
       "base_path": "build/objdiff/base/promoted/k_fldLmap/00188f20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136699,7 +136699,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldLmap/00189550.o",
       "base_path": "build/objdiff/base/promoted/k_fldLmap/00189550.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136930,7 +136930,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldUnit/00164020.o",
       "base_path": "build/objdiff/base/promoted/k_fldUnit/00164020.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -137139,7 +137139,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldUnit/001662d0.o",
       "base_path": "build/objdiff/base/promoted/k_fldUnit/001662d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -137777,7 +137777,7 @@
       "target_path": "build/objdiff/target/promoted/nLine/0034b970.o",
       "base_path": "build/objdiff/base/promoted/nLine/0034b970.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -137821,7 +137821,7 @@
       "target_path": "build/objdiff/target/promoted/nLine/0034bb20.o",
       "base_path": "build/objdiff/base/promoted/nLine/0034bb20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138063,7 +138063,7 @@
       "target_path": "build/objdiff/target/promoted/nLine/0034e290.o",
       "base_path": "build/objdiff/base/promoted/nLine/0034e290.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138481,7 +138481,7 @@
       "target_path": "build/objdiff/target/promoted/shdPersona/00115c40.o",
       "base_path": "build/objdiff/base/promoted/shdPersona/00115c40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138657,7 +138657,7 @@
       "target_path": "build/objdiff/target/promoted/shdPersona/001178a0.o",
       "base_path": "build/objdiff/base/promoted/shdPersona/001178a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138855,7 +138855,7 @@
       "target_path": "build/objdiff/target/promoted/shdPersona/0011ba00.o",
       "base_path": "build/objdiff/base/promoted/shdPersona/0011ba00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138877,7 +138877,7 @@
       "target_path": "build/objdiff/target/promoted/shdPersona/0011bb90.o",
       "base_path": "build/objdiff/base/promoted/shdPersona/0011bb90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -139944,7 +139944,7 @@
       "target_path": "build/objdiff/target/promoted/y_CmbCardEff/00347940.o",
       "base_path": "build/objdiff/base/promoted/y_CmbCardEff/00347940.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -139988,7 +139988,7 @@
       "target_path": "build/objdiff/target/promoted/y_CmbCardEff/00348160.o",
       "base_path": "build/objdiff/base/promoted/y_CmbCardEff/00348160.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140175,7 +140175,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b5db0.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b5db0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140197,7 +140197,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b5e30.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b5e30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140219,7 +140219,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b5ef0.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b5ef0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140230,7 +140230,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b5fd0.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b5fd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140296,7 +140296,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b6180.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b6180.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140307,7 +140307,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b6260.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b6260.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140351,7 +140351,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b67a0.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b67a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140527,7 +140527,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b6da0.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b6da0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140637,7 +140637,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b8150.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b8150.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140659,7 +140659,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b8200.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b8200.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140780,7 +140780,7 @@
       "target_path": "build/objdiff/target/promoted/y_draw/002b9f90.o",
       "base_path": "build/objdiff/base/promoted/y_draw/002b9f90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142980,7 +142980,7 @@
       "target_path": "build/objdiff/target/sdkPrimitive/0045da40.o",
       "base_path": "build/objdiff/base/sdkPrimitive/0045da40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143827,7 +143827,7 @@
       "target_path": "build/objdiff/target/shdSkill/00115380.o",
       "base_path": "build/objdiff/base/shdSkill/00115380.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143882,7 +143882,7 @@
       "target_path": "build/objdiff/target/shdSkill/00115760.o",
       "base_path": "build/objdiff/base/shdSkill/00115760.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

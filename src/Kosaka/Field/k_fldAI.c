@@ -1,5 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
+extern void func_00479940();
+extern s32 func_0016fd00();
 extern void func_003e0f40();
 extern void (*jtbl_008873EC[])(void *ptr);
 
@@ -30,7 +32,13 @@ void func_0017e990(u8 *arg0) {
 }
 
 // FUN_0017E9B0
-INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017e9b0);
+void func_0017e9b0(u8 *arg0) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    func_00479940(*(u8 **)(*(u8 **)(p + 0x10) + 0x50), 0,
+                  (s16)func_0016fd00(*(u16 *)(*(u8 **)(p + 0x10) + 0x728)), 0, 1);
+    *(s32 *)(p + 0xC) = 0;
+}
 
 // FUN_0017EA10
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017ea10);

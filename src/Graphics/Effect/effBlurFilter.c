@@ -53,8 +53,8 @@ extern u8 D_00714390[];
 extern u8 D_007143A4[];
 extern u8 D_00714460[];
 extern u8 D_00714474[];
-extern u8 *func_004aaee0(u16 arg0, s32 arg1);
-extern u8 *func_004ab420(u16 arg0, s32 arg1);
+extern u8 *func_004aaee0(u32 arg0, s32 arg1);
+extern u8 *func_004ab420(u32 arg0, s32 arg1);
 
 typedef struct BlurRefObj {
     s32 f0;
@@ -118,7 +118,26 @@ typedef struct BlurGsQuad {
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a98d0);
 
 // FUN_004A9AA0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9aa0);
+u8 *func_004a9aa0(u8 *arg0) {
+    s32 i;
+    u8 *alloc;
+    u8 *base;
+    u32 count;
+
+    base = arg0 + 0xC0;
+    if (!(*(u32 *)base <= 0x64)) {
+        func_0046d730(D_00714380, 0x169);
+    }
+    count = *(u32 *)base;
+    func_0044ea90(D_00714380, 0x16F);
+    alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
+    for (i = 0; i < (s32)count; i++) {
+        u8 *item = alloc + i * 0x34;
+        func_004a8a50(base, item);
+        *(f32 *)(item + 4) = fGpffff80f8;
+    }
+    return alloc;
+}
 
 // FUN_004A9BA0
 void func_004a9ba0(void *param_1) {
@@ -129,7 +148,31 @@ void func_004a9ba0(void *param_1) {
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9bd0);
 
 // FUN_004A9DD0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9dd0);
+void func_004a9dd0(u8 *arg0) {
+    u8 *list;
+    u8 *obj;
+    u8 *base;
+    s32 count;
+    s32 *table;
+    s32 i;
+
+    list = *(u8 **)(arg0 + 0x20);
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    if (*(s32 *)(obj + 0xCC) & 0xFF000000) {
+        table = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
+        count = *(s32 *)base;
+        if (!(count <= 0x64)) {
+            func_0046d730(D_00714380, 0x1BA);
+        }
+        for (i = 0; i < count; i++) {
+            if (*(s32 *)list == 0 && *(u8 *)(list + 0xF) > 0) {
+                func_004a8890(list + 8, table);
+            }
+            list += 0x34;
+        }
+    }
+}
 
 // FUN_004A9EA0
 void func_004a9ea0(u8 *arg0) {
@@ -212,7 +255,26 @@ void func_004aa460(u8 *arg0) {
     }
 }
 // FUN_004AA560
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aa560);
+u8 *func_004aa560(u8 *arg0) {
+    s32 i;
+    u8 *alloc;
+    u8 *base;
+    u32 count;
+
+    base = arg0 + 0xC0;
+    if (!(*(u32 *)base <= 0x64)) {
+        func_0046d730(D_00714380, 0x218);
+    }
+    count = *(u32 *)base;
+    func_0044ea90(D_00714380, 0x21E);
+    alloc = (u8 *)(*jtbl_008873E8)(count * 0x34, 0x40000);
+    for (i = 0; i < (s32)count; i++) {
+        u8 *item = alloc + i * 0x34;
+        func_004a8da0(base, item);
+        *(f32 *)(item + 4) = fGpffff80f8;
+    }
+    return alloc;
+}
 
 // FUN_004AA660
 void func_004aa660(void *param_1) {
@@ -223,7 +285,31 @@ void func_004aa660(void *param_1) {
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aa690);
 
 // FUN_004AA890
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aa890);
+void func_004aa890(u8 *arg0) {
+    u8 *list;
+    u8 *obj;
+    u8 *base;
+    s32 count;
+    s32 *table;
+    s32 i;
+
+    list = *(u8 **)(arg0 + 0x20);
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    if (*(s32 *)(obj + 0xCC) & 0xFF000000) {
+        table = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
+        count = *(s32 *)base;
+        if (!(count <= 0x64)) {
+            func_0046d730(D_00714380, 0x269);
+        }
+        for (i = 0; i < count; i++) {
+            if (*(s32 *)list == 0 && *(u8 *)(list + 0xF) > 0) {
+                func_004a8890(list + 8, table);
+            }
+            list += 0x34;
+        }
+    }
+}
 
 // FUN_004AA960
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aa960);
@@ -256,6 +342,13 @@ INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aaee0);
 
 // FUN_004AB060
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab060);
+
+/* measured: same arg-materialisation floor as func_004ab060: retail emits
+   `daddu $a0,$v0` before `lhu $a1,0x1c($s1)` before the jal func_004ab960;
+   mwcc b210 emits the load first, nd 4 (2 rows). Same 8 source spellings
+   tried, identical result. */
+// FUN_004AB5A0
+INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab5a0);
 
 // FUN_004AB140
 void func_004ab140(void *param_1) {
@@ -338,11 +431,12 @@ void func_004ab410(void *param_1, f32 param_2) {
     *(f32 *)((char *)param_1 + 0x14) = param_2;
 }
 
+/* measured: identical constant-hoist floor to func_004aaee0: retail hoists
+   0x60 into $s1 for the data addu and re-masks arg0 with a fresh andi; mwcc
+   hoists 0xFFFF instead, nd 6 (3 rows). Same spellings tried, identical
+   result. */
 // FUN_004AB420
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab420);
-
-// FUN_004AB5A0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab5a0);
 
 // FUN_004AB680
 void func_004ab680(void *param_1) {

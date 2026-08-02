@@ -60,7 +60,7 @@ extern u8 D_0064E5F0[];
 
 extern u8 D_0064E5F1[];
 
-extern s32 func_003b7060();
+extern u32 func_003b7060();
 
 extern s32 func_0010b5b0();
 
@@ -79,6 +79,8 @@ extern void func_0010ad80();
 extern void func_0010b010();
 
 extern u8 *iGpffffb3c0;
+
+extern u8 *iGpffffb3f0;
 
 extern s32 D_0064E7B0[];
 
@@ -339,9 +341,46 @@ s32 func_0036eda0(s32 arg0)
 // FUN_0036EE60
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
 
-// FUN_0036F410
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f410);
+typedef struct {
+    f32 a;
+    f32 b;
+} ShuffleCard2;
 
+// FUN_0036F410
+void func_0036f410(u8 *arg0, u8 *arg1)
+{
+    s32 i;
+    u32 v;
+    s32 idx;
+    f32 f;
+    ShuffleCard2 tmp;
+
+    for (i = 0; i < *(s32 *)(arg1 + 0xC); i++) {
+        if (i < *(s32 *)(arg1 + 8)) {
+            *(s32 *)(arg0 + i * 8) = 0;
+            *(u16 *)(arg0 + i * 8 + 4) = *(u16 *)(arg1 + i * 2);
+            *(u16 *)(arg0 + i * 8 + 6) = 0;
+        } else {
+            v = func_003b7060() & 0xFFF;
+            f = (f32)v;
+            if (100.0f * (f / 4096.0f) < 30.0f) {
+                *(s32 *)(arg0 + i * 8) = 3;
+            } else {
+                *(s32 *)(arg0 + i * 8) = 2;
+            }
+            *(u16 *)(arg0 + i * 8 + 4) = 0;
+            *(u16 *)(arg0 + i * 8 + 6) = 0;
+        }
+    }
+    for (i = *(s32 *)(arg1 + 0xC) - 1; i > 0; i--) {
+        v = func_003b7060() & 0xFFF;
+        f = (f32)v / 4096.0f;
+        idx = (s32)((f32)i * f);
+        tmp = ((ShuffleCard2 *)arg0)[i];
+        ((ShuffleCard2 *)arg0)[i] = ((ShuffleCard2 *)arg0)[idx];
+        ((ShuffleCard2 *)arg0)[idx] = tmp;
+    }
+}
 // FUN_0036F620
 void func_0036f620(u8 *arg0)
 {
@@ -352,19 +391,135 @@ void func_0036f620(u8 *arg0)
 }
 
 // FUN_0036F640
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f640);
+s32 func_0036f640(s32 arg0, s32 *arg1)
+{
+    u32 idx;
+    u16 a;
+    u16 b;
+    u32 result;
+    u32 idx2;
+    u8 *p;
+    s32 (*fn)(s32, s32 *);
 
+    func_0043f9c8(arg1, 0, 0xC);
+    if (func_00106330(0x1403) != 0) {
+        a = 0;
+        b = 0;
+        for (idx = 0; idx < 0x2C; idx++) {
+            p = (u8 *)D_0064E7B0 + idx * 12;
+            if (func_00106330(*(s32 *)p) != 0) {
+                a = *(u16 *)((u8 *)D_0064E7B4 + idx * 12);
+                b = *(u16 *)((u8 *)D_0064E7B6 + idx * 12);
+                func_00106390(*(s32 *)p, 0);
+                break;
+            }
+        }
+        result = (u32)b | ((u32)a << 16);
+        func_00106390(0x1403, 0);
+    } else {
+        result = 0;
+    }
+    for (idx2 = 0; idx2 < 0x2C; idx2++) {
+        p = (u8 *)D_0064E7B0 + idx2 * 12;
+        if (arg0 == (s32)(*(u16 *)(p + 6) | (*(u16 *)(p + 4) << 16))) {
+            fn = (s32 (*)(s32, s32 *))*(s32 *)((u8 *)D_0064E7B8 + idx2 * 12);
+            if (fn == NULL) {
+                *arg1 = 1;
+                func_00106390(*(s32 *)p, 1);
+                func_00106390(0x1403, 1);
+            } else {
+                *arg1 = fn(arg0, arg1);
+                func_00106390(*(s32 *)p, 0);
+                func_00106390(0x1403, 0);
+            }
+            func_00106550(0x10, 0);
+            break;
+        }
+        if (idx2 == 0x2C) {
+            func_0046d730(D_0064E790, 0x4A1);
+        }
+    }
+    return result;
+}
 // FUN_0036F880
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
 
+/* measured: retail keeps u16 r in $s0, flag in $s1, s16 s in $s2, u16 counter
+ * in $s3, and re-sign-extends r inside the if(arg0) branch while reusing the
+ * hoisted s in the else branch. mwcc b210 always colors flag=$s0, counter=$s1,
+ * s=$s2, r=$s3 and instead re-materializes (s16)r from the CSE'd s in the
+ * ELSE branch (if-branch uses the CSE temp directly), giving nd 37. Tried
+ * s32/u16 param, every declaration order (r,flag,s,i permutations), s/s2
+ * separate locals, inline (s16)r in both branches, mirrored branch args, and
+ * pre-branch s2 assignment: all plateau at nd 37 or regress to 60. Saved-
+ * register coloring + branch re-materialization scheduling floor. */
 // FUN_0036FBE0
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036fbe0);
-
 // FUN_0036FD00
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036fd00);
+s32 func_0036fd00(s32 arg0, u8 *arg1)
+{
+    s32 flag = arg0 & 0xFFFF;
+    s32 count = (u16)func_0010b5b0();
+    u8 *p;
+    u8 *best = NULL;
+    u16 i;
+    u16 min = 0x64;
+    s32 bestFlag = 0;
+    u16 t;
+
+    for (i = 0; i < count; i++) {
+        if (i == (s16)func_0010b510()) {
+            continue;
+        }
+        if (func_0010abd0((s16)i) == 0) {
+            continue;
+        }
+        p = func_0010ace0((s16)i);
+        if (flag != 0) {
+            t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4 + 2);
+        } else {
+            t = *(u16 *)((u8 *)iGpffffb3f0 + *(u16 *)(p + 2) * 4);
+        }
+        if (t != 0 && (s16)func_0010aa80((s16)t) == -1 && (func_00109390(p) & 0xFF) < min) {
+            best = p;
+            min = func_00109390(p) & 0xFF;
+            bestFlag = t & 0xFFFF;
+        }
+    }
+    if (best == NULL) {
+        return 0;
+    }
+    *(u16 *)(arg1 + 4) = *(u16 *)(best + 2);
+    *(s16 *)(arg1 + 8) = bestFlag;
+    func_0010ad80(*(u16 *)(best + 2));
+    func_0010b010(bestFlag);
+    return 1;
+}
 
 // FUN_0036FED0
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036fed0);
+s32 func_0036fed0(s32 arg0)
+{
+    u16 flag = (u16)arg0;
+    u16 i;
+    u16 r;
+
+    if (flag != 0) {
+        func_00105730(1, (s16)func_00104e30(1));
+    } else {
+        func_00105730(1, (s16)((u32)((u16)func_00104d50(1)) >> 1));
+    }
+    for (i = 0; i < 4; i++) {
+        r = (u16)func_00105ee0(i);
+        if (r != 0 && func_00105610((s16)r) == 0) {
+            if (flag != 0) {
+                func_00105730((s16)r, (s16)func_00104e30((s16)r));
+            } else {
+                func_00105730((s16)r, (s16)((u32)((u16)func_00104d50((s16)r)) >> 1));
+            }
+        }
+    }
+    return 1;
+}
 
 // FUN_00370020
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_00370020);

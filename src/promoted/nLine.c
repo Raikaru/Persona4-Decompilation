@@ -39,10 +39,10 @@ void func_0034b8d0(void);
 void func_0034b950(void);
 void func_0034ba20(void);
 void func_0034ba30(void);
-void func_0034c500(s32 *arg0, s64 arg1, s32 arg2);
+void func_0034c500(u8 *arg0, s64 arg1, s32 arg2);
 void func_0034c6c0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void func_0034c820(u8 *arg0);
-void func_0034c860(s32 *arg0, s64 arg1, s32 arg2);
+void func_0034c860(u8 *arg0, s64 arg1, s32 arg2);
 void func_0034cef0(u8 *arg0);
 s16 func_0034e290(u8 *arg0, s32 arg1);
 s16 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
@@ -55,7 +55,7 @@ void func_003f6440(s32 arg0, s32 arg1);
 u8 *func_00457120(void);
 f32 func_0044b7b0(f32 arg0);
 f32 func_0044b610(f32 arg0);
-void *func_00451de0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6);
+s32 func_00451de0();
 void func_0046d730(const char *file, s32 line);
 void func_0043f9c8(void *dest, s32 value, s32 size);
 void func_0034edc0(void);
@@ -66,13 +66,32 @@ void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 
 
 // FUN_0034B970
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034b970);
+s32 func_0034b970(void) {
+    s32 temp_2;
+
+    temp_2 = func_00451de0(&iGpffffa958, 0xC7, 0, 0, func_0034b8d0, 0, 0);
+    if (temp_2 == 0) {
+        func_0046d730(&iGpffffa950, 0x168);
+    }
+    func_0043f9c8(D_00882FC0, 0, 0x30);
+    D_00882FC8[0] = func_0034b950;
+    D_00882FD0[0] = 0;
+    func_0034ba20();
+    func_0034ba30();
+    return temp_2;
+}
 
 // FUN_0034BA20
 void func_0034ba20(void) {
     iGpffffb5a4 = 0xB0;
 }
 
+/* measured: retail colors the D_00882FF0 base $a2 and D_00749B30 base $a0
+   (loop dst-temp in $a1); mwcc b210 always colors the second preheader base
+   load $a1 and the dst-temp $a0, cascading through every store, nd 25. Tried
+   named pointer locals, inline expressions, f32* pointers, s32 base/offset
+   locals, m2c goto shape, and src/dst declaration+assignment order swaps —
+   best identical nd 25. Register-coloring floor. */
 // FUN_0034BA30
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ba30);
 
@@ -82,7 +101,71 @@ s32 func_0034bb10(void) {
 }
 
 // FUN_0034BB20
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034bb20);
+s32 func_0034bb20(s32 arg0) {
+    s32 i;
+    s32 temp_16;
+    u8 *srcBase;
+    u8 *dstBase;
+    f32 temp_f2;
+    f32 temp_f0;
+    f32 temp_f1;
+    u8 *dst;
+    u8 *src;
+
+    if (D_00884670[0] != arg0) {
+        if (arg0 == 0) {
+            D_00884670[0] = arg0;
+            D_00884674[0] = 0;
+            D_00884678[0] = *(f32 *)(D_007523C4 + arg0 * 0x10);
+            D_00884680[0] = 0;
+            return 1;
+        }
+        if ((arg0 >= 0) && (arg0 < 0x24)) {
+            i = 0;
+            temp_16 = arg0 * 0x10;
+            srcBase = D_00749CC0 + arg0 * 0x3C0;
+            temp_f2 = *(f32 *)(D_007523C0 + temp_16 + 4);
+            dstBase = D_00882FF0;
+            for (; i < 0x14; i++) {
+                dst = dstBase + i * 0x54;
+                src = srcBase + i * 0x30;
+                *(f32 *)(dst + 0) = *(f32 *)(src + 8);
+                *(f32 *)(dst + 4) = *(f32 *)(src + 0xC);
+                temp_f0 = *(f32 *)(src + 0);
+                *(f32 *)(dst + 0x18) = temp_f0;
+                *(f32 *)(dst + 8) = temp_f0;
+                temp_f0 = *(f32 *)(src + 4);
+                *(f32 *)(dst + 0x1C) = temp_f0;
+                *(f32 *)(dst + 0xC) = temp_f0;
+                *(f32 *)(dst + 0x10) = *(f32 *)(dst + 0) - *(f32 *)(dst + 0x18);
+                *(f32 *)(dst + 0x14) = *(f32 *)(dst + 4) - *(f32 *)(dst + 0x1C);
+                *(f32 *)(dst + 0x3C) = *(f32 *)(src + 0x10);
+                temp_f1 = *(f32 *)(src + 0x14);
+                *(f32 *)(dst + 0x40) = temp_f1;
+                *(f32 *)(dst + 0x38) = temp_f1 - *(f32 *)(dst + 0x3C);
+                *(f32 *)(dst + 0x30) = *(f32 *)(src + 0x18);
+                *(s32 *)(dst + 0x44) = 0;
+                *(s16 *)(dst + 0x48) = *(s16 *)(src + 0x1C);
+                *(f32 *)(dst + 0x20) = *(f32 *)(src + 0x24);
+                temp_f0 = *(f32 *)(src + 0x20);
+                *(f32 *)(dst + 0x24) = temp_f0;
+                *(f32 *)(dst + 0x2C) = temp_f0;
+                *(f32 *)(dst + 0x28) = *(f32 *)(dst + 0x20) - *(f32 *)(dst + 0x2C);
+                *(f32 *)(dst + 0x4C) = temp_f2 * *(f32 *)(src + 0x28);
+                *(f32 *)(dst + 0x50) = temp_f2 * *(f32 *)(src + 0x2C);
+            }
+            D_00884660[0] = 0;
+            D_00883988[0] = func_0034e290(D_00882FF0, arg0);
+            D_00884670[0] = arg0;
+            D_00884674[0] = 0;
+            D_00884678[0] = *(f32 *)(D_007523C4 + temp_16);
+            D_00884680[0] = 0;
+            return 1;
+        }
+        func_0046d730(&iGpffffa950, 0x1F2);
+    }
+    return 0;
+}
 
 // FUN_0034BD60
 /* measured: without opt_loop_invariants, mwcc rematerializes the 5.0f constant
@@ -200,12 +283,28 @@ void func_0034c4a0(void) {
             n--;
         } while (n != 0);
     }
-    func_0034c500((s32 *)D_00882FF0, sp18, 0xFF);
+    func_0034c500(D_00882FF0, sp18, 0xFF);
 }
 
+/* measured: three compounding mwcc b210 defects vs retail, nd 105. (1) The
+   s64 arg1 is kept in $s1 across the edc0 call instead of spilled to 0x38
+   (retail sd/ld $5, 0x38), pushing arg0 to $s2 and cascading through every
+   address — tried passing arg1 directly, s64 local, and 1-element s64 array,
+   all identical. (2) cvt.w.s if/else: only `temp_f1 < 2.1474836e9f` gives
+   retail's layout (cvt inline, sub out of line, shared sb join) but mwcc then
+   encodes c.olt.s $f1,$f0 + bc1f where retail has c.ole.s $f0,$f1 + bc1t; the
+   c.ole.s form only compiles with the inverted (wrong) layout. (3) byte-clamp
+   values land in $a0/$v1/$v0 vs retail's $a1/$v1/$v0. */
 // FUN_0034C500
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c500);
 
+/* measured: retail emits each call's args in source order (move $a0, mov.s
+   $f12-$f15, then lbu $a1-$t0) and saves $a1 to $s0 after the four float-arg
+   mov.s's; mwcc b210 always hoists the four independent lbu argument loads
+   ahead of the FP moves and spills $a1 before the float saves, nd 17 (16
+   argument-order words + 1 prologue). Tried both prototype class orders
+   (ptr,f,f,f,f,i,i,i,i and ptr,i,i,i,i,f,f,f,f) and both C arg orders —
+   identical nd. Argument-materialization scheduling floor. */
 // FUN_0034C6C0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c6c0);
 
@@ -274,11 +373,34 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
 // FUN_0034DDF0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
 
+/* measured: retail colors temp_f21/f22/f20/f26 to $f21/$f22/$f20/$f26 and
+   arg0/$byte to $s0/$s1; mwcc b210 permutes the temps to $f21/$f20/$f22/$f27
+   (extra $f27 save), swaps $s0/$s1, and hoists call-arg constant materialization
+   ahead of the FP mov.s's, nd 101. Tried declaration orders f20,f21,f22,f26 /
+   f21,f22,f20,f26 and both arg spellings — identical nd 101. Register-coloring
+   + argument-materialization scheduling floor. */
 // FUN_0034E0B0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e0b0);
 
 // FUN_0034E290
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e290);
+s16 func_0034e290(u8 *arg0, s32 arg1) {
+    s16 val;
+    s32 r;
+    s32 t;
+
+    val = *(s16 *)(D_007523CE + arg1 * 0x10);
+    switch (val) {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+        r = func_003b7060() & 0xFFF;
+        t = *(s16 *)(D_007525D4 + val * 0x2C) + 1;
+        *(s16 *)(arg0 + 0x99A) = (s16)((u32)(t * r) >> 12);
+        return val;
+    }
+    return val;
+}
 
 // FUN_0034E360
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e360);

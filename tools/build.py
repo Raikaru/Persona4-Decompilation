@@ -599,6 +599,23 @@ def object_layout_is_placeable(addrs):
     return True
 
 
+def merge_symbol_sections(symbols):
+    """Map each symbol name to its section index, preferring a real definition.
+
+    A function with an ``INCLUDE_ASM`` fallback in this unit that the unit's own
+    C also references by name -- a callback stored into a dispatch table -- lands
+    in the symbol table TWICE: defined by the spliced assembly (a real section
+    index) and undefined by the C ``extern`` (index 0). Keeping whichever came
+    last would call a genuinely defined function undefined and silently drop the
+    entire object from the link, so any defined index wins over a later 0.
+    """
+    sections: dict[str, int] = {}
+    for symbol in symbols:
+        name = symbol["name"]
+        sections[name] = sections.get(name, 0) or symbol.get("shndx", 0)
+    return sections
+
+
 def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
                        include_generated=False):
     """Select matching C source units that can be placed byte-exact."""
@@ -628,7 +645,7 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
         obj = compile_eligibility(c, cpath, cache)
         if obj is None:
             continue
-        symtab = {s["name"]: s.get("shndx", 0) for s in obj.symbols}
+        symtab = merge_symbol_sections(obj.symbols)
         ok = True
         addrs = []
         for m in real:

@@ -8,8 +8,25 @@ extern s32 func_00452380(void *path);
 extern u32 func_00452560(s32 task);
 extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *arg0, s32 arg1);
-extern s32 func_00248760(s32 arg0);
+extern s8 func_00248760(s32 arg0);
 extern s32 func_00247dd0(s32 arg0);
+extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
+extern void func_0026bc10(u16 resourceId, u8 value);
+extern s32 func_001077f0(s32 arg0);
+extern u16 func_00107ac0(s32 arg0);
+extern s32 func_00107c80();
+extern s32 func_00107ea0();
+extern void func_00108b60(s32 arg0, s16 arg1);
+extern s32 func_00108e10(void);
+extern f32 D_005E42D8;
+extern f32 D_005E42DC;
+extern f32 D_005E42E0;
+extern f32 D_005E42E8;
+extern f32 D_005E42EC;
+extern f32 D_005E42F0;
+extern f32 D_005E42F8;
+extern f32 D_005E42FC;
+extern f32 D_005E4300;
 extern s32 func_00247c20(s32 arg0);
 extern void *func_00246b80(void);
 extern u8 *func_00246ba0(void);
@@ -125,7 +142,29 @@ s32 arg0;
 }
 
 // FUN_00107180
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107180);
+s32 func_00107180(s16 arg0)
+{
+    s32 i;
+    s32 result;
+
+    result = 0;
+    if (arg0 >= 0x15)
+    {
+        func_0046d730(D_005E42C8, 0x77);
+    }
+    for (i = 1; i < 0x1F; i++)
+    {
+        if (arg0 == *(s32 *)func_002467b0(i & 0xFFFF))
+        {
+            if (func_001077f0((u16)i) != 0)
+            {
+                result = i;
+                break;
+            }
+        }
+    }
+    return result & 0xFFFF;
+}
 
 // FUN_00107240
 s16 func_00107240(s32 arg0)
@@ -238,7 +277,23 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001076e0);
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001077f0);
 
 // FUN_00107890
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107890);
+s32 func_00107890(s32 arg0)
+{
+    s32 i;
+    s32 id;
+
+    i = 0;
+    id = arg0 & 0xFFFF;
+    while (i < 0x1F)
+    {
+        if ((id == func_00248760(i & 0xFFFF)) && (func_001070e0(i & 0xFFFFu) != 0))
+        {
+            return func_00107ac0((u16)i) & 0xFFFF;
+        }
+        i++;
+    }
+    return 0;
+}
 
 // FUN_00107930
 s32 func_00107930(s32 arg0)

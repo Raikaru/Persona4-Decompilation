@@ -6,6 +6,9 @@ extern u32 RpRandom(void);
 extern void func_0046d730(u8 *arg0, s32 arg1);
 extern u8 D_00635938[];
 
+extern u32 func_003b7060(void);
+extern u32 func_0023e130(void);
+
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 
 typedef struct DatUnit
@@ -743,3 +746,9 @@ void func_00243f20(u16 characterId)
 // FUN_00243FA0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243fa0);
 
+/* NOTE: retail has an unmarked nullsub at 0x00244100 (jr $ra; nop, then two
+   nops of padding) inside func_00243fa0's window, which ends at 002440FC.
+   It is reachable only through the function-pointer word at 0x00635950 -
+   there is no jal to it anywhere in the image. Splitting it out needs a new
+   boundary in tools/slus21782_functions.json, and that file has no generator
+   in-tree, so it is left folded rather than hand-edited. */

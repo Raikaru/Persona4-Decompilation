@@ -12,6 +12,10 @@ typedef struct {
     u8 c0, c1, c2, c3;
 } u4;
 
+typedef struct {
+    f32 f[4];
+} f4;
+
 
 extern void func_002b82d0(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s16 arg5);
 
@@ -30,6 +34,50 @@ extern void func_002b8340(u8 *arg0, u8 arg1, s16 arg2, s16 arg3, f32 fparg0, f32
 extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5);
 
 
+extern void func_0044ea90(const void *msg, s32 id);
+extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern s32 func_00451fc0(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
+                        void (*init)(u8 *), void (*close)(u8 *), u8 *arg7);
+extern void func_003f6440(s32, s32);
+extern void (*D_00887300[])(u32 state, u32 value);
+
+extern s32 func_002b52a0(u8 *arg0);
+extern void func_002b5c60(u8 *arg0);
+extern s32 func_002b6340(u8 *arg0);
+extern void func_002b6560(u8 *arg0);
+extern s32 func_002b7f20(u8 *arg0);
+extern s32 func_002b9e10(u8 *arg0);
+extern void func_002b9f60(u8 *arg0);
+extern s32 func_002b6ec0(u8 *arg0);
+extern void func_002b74c0(u8 *arg0);
+extern s32 func_002b9ab0(u8 *arg0);
+
+extern u8 D_0063F178[];
+extern u8 D_0063F188[];
+extern u8 D_0063F1A0[];
+extern u8 D_0063F1B0[];
+extern u8 D_0063F1D0[];
+extern u8 D_0063F1E0[];
+void func_002b60f0(u8 *arg0, u8 arg1, u8 arg2, u32 arg3);
+
+extern void func_00489f80(void);
+extern u8 *func_00457120(void);
+extern void func_0043f810(void *, s32, s32);
+extern void *func_00460990(void);
+extern void func_00460ac0(void *, void *);
+extern void *func_00461390(void *, s32, void *, s32);
+extern f32 fGpffff8504;
+extern f32 D_008872F8[];
+extern u8 D_00793E80[];
+
+
+/* measured: retail hoists the loop's 0xFF constant into the preheader (addiu before
+   the entry branch) and emits base-first addu; mwcc b210 sinks the constant
+   materialization into the loop body and emits index-first addu (8 differing words
+   reloc-masked). Tried inline p[0x110 + i*4] literal, a pre-loop u8 val local, an
+   s32 off local with plain assignment, and a u8 *q = p + off pointer local - all
+   keep the sunk constant; best (8) is the inline literal form. Constant-sinking
+   floor, cousin of the load-sinking wall. */
 // FUN_002B5C90
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b5c90);
 
@@ -39,7 +87,14 @@ u8 *func_002b5da0(u8 *arg0) {
 }
 
 // FUN_002B5DB0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b5db0);
+void func_002b5db0(u8 *arg0, f2 p1, f32 *p2) {
+    f4 t;
+    u8 *base;
+    t = *(f4 *)p2;
+    base = *(u8 **)(arg0 + 0x38);
+    *(f2 *)(base + 0x134) = p1;
+    *(f4 *)(base + 0x120) = t;
+}
 
 // FUN_002B5E20
 void func_002b5e20(u8 *arg0, f32 fparg0) {
@@ -47,7 +102,13 @@ void func_002b5e20(u8 *arg0, f32 fparg0) {
 }
 
 // FUN_002B5E30
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b5e30);
+void func_002b5e30(u8 *arg0, u4 arg1) {
+    u8 *base = *(u8 **)(arg0 + 0x38);
+    s32 i;
+    for (i = 0; i < 4; i++) {
+        *(u4 *)(base + 0x110 + i * 4) = arg1;
+    }
+}
 // FUN_002B5E90
 void func_002b5e90(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
     u8 *base = *(u8 **)(arg0 + 0x38);
@@ -61,10 +122,40 @@ void func_002b5e90(u8 *arg0, f2 p1, f2 p2, u32 arg3) {
 }
 
 // FUN_002B5EF0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b5ef0);
+void func_002b5ef0(u8 *arg0, f2 p1, f2 p2, f32 *p3, f32 *p4, u32 arg5) {
+    f4 a = *(f4 *)p3;
+    f4 b = *(f4 *)p4;
+    u8 *base = *(u8 **)(arg0 + 0x38);
+    *(s16 *)(base + 0x14C) = 0;
+    *(u32 *)(base + 0x150) = arg5;
+    *(f2 *)(base + 0x13C) = p1;
+    *(f2 *)(base + 0x144) = p2;
+    *(f4 *)(base + 0x158) = a;
+    *(f4 *)(base + 0x168) = b;
+    *(s16 *)(base + 0x156) = 3;
+    base[0x154] = 0;
+    base[0x0] = 2;
+}
 
 // FUN_002B5FD0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b5fd0);
+void func_002b5fd0(u8 *arg0, f2 p1, f2 p2, f32 *p3, f32 *p4, u32 arg5, s16 arg6) {
+    f4 a = *(f4 *)p3;
+    f4 b = *(f4 *)p4;
+    u8 *base = *(u8 **)(arg0 + 0x38);
+    *(s16 *)(base + 0x14C) = 0;
+    *(u32 *)(base + 0x150) = arg5;
+    *(f2 *)(base + 0x13C) = p1;
+    *(f2 *)(base + 0x144) = p2;
+    *(f4 *)(base + 0x158) = a;
+    *(f4 *)(base + 0x168) = b;
+    *(s16 *)(base + 0x156) = 4;
+    func_002b60f0(arg0, 0x80, 0, arg5);
+    base[0x154] = 0;
+    base[0x0] = 2;
+    base[0x184] = 1;
+    base[0x18C] = 1;
+    *(s16 *)(base + 0x182) = arg6;
+}
 
 // FUN_002B60F0
 void func_002b60f0(u8 *arg0, u8 arg1, u8 arg2, u32 arg3) {
@@ -96,10 +187,32 @@ u8 *func_002b6150(s16 arg0) {
     return (u8 *)((u32)(*(u8 **)(D_0076DB7C + 0x38)) + (u32)((s32)arg0 << 8) + 4);
 }
 // FUN_002B6180
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6180);
+void func_002b6180(void) {
+    void (*const *tbl)(u32, u32) = D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x71009);
+}
 
 // FUN_002B6260
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6260);
+void func_002b6260(void) {
+    void (*const *tbl)(u32, u32) = D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x7C003);
+}
 
 // FUN_002B6340
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6340);
@@ -114,7 +227,17 @@ void func_002b6560(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
 
 // FUN_002B67A0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b67a0);
+void func_002b67a0(u8 *arg0, u32 arg1, s8 arg2) {
+    u8 *base = *(u8 **)(arg0 + 0x38);
+    if (arg2 == 0) {
+        *(s16 *)(base + 0x10) |= (s16)((1 << (arg1 & 0xFFFF)) & 0xFFFF);
+        return;
+    }
+    if (arg2 == 1) {
+        *(s16 *)(base + 0x10) &= (s16)((1 << (arg1 & 0xFFFF)) ^ 0xFFFF);
+        return;
+    }
+}
 
 // FUN_002B6820
 s8 func_002b6820(u8 *arg0, u32 arg1) {
@@ -135,6 +258,12 @@ s32 func_002b6850(u8 *arg0) {
     return 1;
 }
 
+/* measured: restructured with a p4 = p + 4 store pointer, s32 v for the loaded s16,
+   and (s16) casts on the or/and masks - the entire body then matches retail exactly;
+   the only residual is the prologue load-sinking wall: retail loads iGpffffb574 then
+   the 0x38 table base before sign-extending arg0, mwcc sinks the 0x38 load below the
+   shift and flips the addu operands (7 differing words reloc-masked). Same wall as
+   func_002b6af0/002b6b40. */
 // FUN_002B68D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b68d0);
 
@@ -148,6 +277,12 @@ void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
     func_002b8270(*(u8 **)(arg0 + 0x38) + 0x10, p1, p2, arg3, arg4, arg5);
 }
 
+/* measured: argument-forwarding wrapper that must repeat func_002b8270's full
+   parameter list (retail sets only $a0, sign-extends arg0/s16 and arg5/s16 in
+   place); residual is the load-sinking wall - retail loads iGpffffb574 then the
+   0x38 table base before touching arg0, mwcc sinks the 0x38 load below the shift
+   and flips the addu operands (7 differing words reloc-masked, identical with the
+   base hoisted into a local). Same wall as func_002b6af0/002b6b40. */
 // FUN_002B69F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b69f0);
 
@@ -161,6 +296,11 @@ void func_002b6a40(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
 
 
 
+/* measured: argument-forwarding wrapper around func_002b82d0 (full parameter list
+   repeated; retail sets only $a0, sign-extends arg0 and arg5 in place). Residual is
+   the load-sinking wall: retail loads iGpffffb574 then the 0x38 table base before
+   sign-extending arg0, mwcc sinks the 0x38 load below the shift and flips the addu
+   operands (17 differing words reloc-masked). Same wall as func_002b6af0/002b6b40. */
 // FUN_002B6A70
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6a70);
 
@@ -183,6 +323,12 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6af0);
 // FUN_002B6B40
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b40);
 
+/* measured: argument-forwarding wrapper around func_002b8370 (full parameter list
+   repeated with u4 struct args; retail sets only $a0, sign-extends arg0 and arg5 in
+   place). Residual is the load-sinking wall: retail loads iGpffffb574 then the 0x38
+   table base before sign-extending arg0, mwcc sinks the 0x38 load below the shift
+   and flips the addu operands (7 differing words reloc-masked). Same wall as
+   func_002b6af0/002b6b40. */
 // FUN_002B6B90
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b90);
 
@@ -198,11 +344,29 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
 // FUN_002B6C30
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
 
+/* measured: retail loads iGpffffb574 and the 0x38 table base before sign-extending
+   arg0, hoists the 1.0f constant before the addu, and re-loads the table for the
+   third store; mwcc b210 sinks both table loads below the shift and reorders the
+   constant (12 differing words reloc-masked, identical with a hoisted base local).
+   Load-sinking wall, same family as func_002b6af0/002b6b40. */
 // FUN_002B6D60
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6d60);
 
 // FUN_002B6DA0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6da0);
+void func_002b6da0(void) {
+    void (*const *tbl)(u32, u32) = D_00887300;
+    tbl[0](6, 1);
+    tbl[0](7, 2);
+    tbl[0](8, 1);
+    tbl[0](0xA, 5);
+    tbl[0](0xB, 6);
+    tbl[0](9, 2);
+    tbl[0](0xC, 1);
+    tbl[0](1, 0);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    func_00489f80();
+}
 
 // FUN_002B6EA0
 void func_002b6ea0(void) {
@@ -221,6 +385,11 @@ void func_002b74c0(u8 *arg0) {
 // FUN_002B74F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
 
+/* measured: retail loads iGpffffb574 and the 0x38 table base before sign-extending
+   arg0, and re-loads the table for every one of the six stores; mwcc b210 sinks the
+   loads below the shift (9 differing words reloc-masked with the full-dereference
+   spelling; 31 with the base hoisted into one local). Load-sinking wall, same
+   family as func_002b6af0/002b6b40. */
 // FUN_002B7750
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7750);
 
@@ -240,7 +409,15 @@ void func_002b8120(u8 *arg0) {
 }
 
 // FUN_002B8150
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b8150);
+void func_002b8150(s32 arg0) {
+    u8 *p;
+    func_0044ea90(&D_0063F178, 0x4A2);
+    p = D_008873F4[0](1, 0x130, 0x40000);
+    func_00451fc0(arg0, D_0063F1D0, 0xF, 0, 0, (void (*)(u8 *))func_002b7f20,
+                   (void (*)(u8 *))func_002b8120, p);
+    p[0x124] = 1;
+    p[0x125] = 0;
+}
 
 // FUN_002B81F0
 u8 *func_002b81f0(u8 *arg0) {
@@ -248,7 +425,16 @@ u8 *func_002b81f0(u8 *arg0) {
 }
 
 // FUN_002B8200
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b8200);
+void func_002b8200(u8 *arg0, f2 p1, u4 arg2, f32 fparg0, f32 fparg1, f32 fparg2) {
+    *(f2 *)(arg0 + 0x28) = p1;
+    *(f32 *)(arg0 + 0x9C) = fparg0;
+    *(f32 *)(arg0 + 0x90) = fparg0;
+    arg0[0x5E] = arg2.c3;
+    *(u4 *)(arg0 + 0x75) = arg2;
+    *(f32 *)(arg0 + 0xC0) = fparg1;
+    *(f32 *)(arg0 + 0x4) = fparg2;
+    *(s16 *)(arg0 + 0x0) |= 1;
+}
 
 // FUN_002B8270
 void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5) {
@@ -341,5 +527,17 @@ void func_002b9f60(u8 *arg0) {
 }
 
 // FUN_002B9F90
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9f90);
+void func_002b9f90(s32 arg0, s16 arg1, s32 arg2) {
+    u8 *p;
+    s32 i;
+    func_0044ea90(&D_0063F178, 0x693);
+    p = D_008873F4[0](1, 0x6610, 0x40000);
+    func_00451fc0(arg0, D_0063F1E0, 0xF, 0, 0, (void (*)(u8 *))func_002b9e10,
+                  (void (*)(u8 *))func_002b9f60, p);
+    for (i = 0; i < 0x30; i++) {
+        *(s16 *)(p + i * 0x220 + 0x104) = 0;
+        *(u32 *)(p + i * 0x220 + 0x214) = arg2;
+    }
+    *(s16 *)(p + 0x6600) = arg1;
+}
 

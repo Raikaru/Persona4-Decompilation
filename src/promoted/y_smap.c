@@ -407,9 +407,17 @@ void func_002b2500(void) {
     ((void (**)(s32, s32))fp)[0](1, 0);
 }
 
+/* measured: retail hoists the `lui %hi(D_008872F8)` global-address into the loop
+   preheader and allocates $a2/$a1/$v1 for counter/q/byte; mwcc b210 keeps the
+   lui inside the loop body and shifts every loop register down by one
+   ($a1/$a0/$v0), with the sub.s operand registers (f0/f1) swapped to match —
+   48 reloc-masked differing words. Tried: u8/u32/s32/s8 byte locals, `(s32)b>=
+   0` vs bare `>=0` compares, named-temp `t+t` vs `2.0f*` doubling, g-temp and
+   v-temp statement orderings for the subtract, inline-address stores, `s32 off`
+   addu lever, cached `f32 *gp` pointer (121), nested-block and 3 declaration
+   orders (all 48). Loop-invariant-address-hoist/allocation floor. */
 // FUN_002B25D0
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b25d0);
-
 // FUN_002B2830
 void func_002b2830(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
     u8 *p;

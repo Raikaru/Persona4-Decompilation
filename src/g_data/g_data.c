@@ -76,19 +76,33 @@ extern u32 D_0079BCD8[];
 
 extern u32 D_005E4480[];
 
-extern void func_00104f50(s16 arg0, s16 arg1);
+extern s32 D_005DD6E0[];
 
-extern s16 func_00246a50(s16 arg0, s16 arg1);
+extern s32 D_005DD6DC[];
+
+extern s16 func_00104f50(s16 arg0, s16 arg1);
+
+extern s32 func_00246a50(s16 arg0, s16 arg1);
+
+extern void func_0044ea90(void* msg, s32 id);
+
+extern u8 D_005E4298[];
+
+extern u8 D_005E42B0[];
+
+extern void* (*jtbl_008873E8[])(u32 size, u32 align);
+
+extern u32 D_00764298;
 
 extern u16 func_00107890(u8 arg0);
 
 extern void func_0043f810(void* arg0, void* arg1, u32 arg2);
 
 extern u8 func_00231e20(void* arg0);
-extern void func_00231ed0(void* arg0);
-extern void func_00231ee0(void* arg0);
-extern void func_00231f80(void* arg0);
-extern void func_00232290(void* arg0);
+extern u32 func_00231ed0(void* arg0);
+extern u32 func_00231ee0(void* arg0);
+extern u32 func_00231f80(void* arg0);
+extern u32 func_00232290(void* arg0);
 extern void func_002326c0(void* arg0);
 extern void func_00231dc0(void* arg0, s16 arg1);
 extern void func_00232680(void* arg0);
@@ -277,8 +291,39 @@ void func_00104f10(s16 arg0)
 }
 
 // FUN_00104F50
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00104f50);
+s16 func_00104f50(s16 arg0, s16 arg1)
+{
+    s32 sum = 0;
+    s32 i = 0;
+    s32 limit = arg1;
 
+    while (i < 5)
+    {
+        sum = (s16)(sum + func_00246a50(arg0, (s16)(i + 1)));
+        if (sum > limit)
+        {
+            break;
+        }
+        i++;
+    }
+    if (i >= 5)
+    {
+        return 5;
+    }
+    else
+    {
+        return (s16)(i + 1);
+    }
+}
+
+/* measured: retail colors the call-result local v5 into $a1 (the just-clobbered
+   arg2 slot) and emits the tail as [a-chain][b-chain][addu]; mwcc b210 always
+   colors v5 into $a0, reuses the slt's v17 extension for the subu, and
+   schedules the float division chain before the (i+1) chain. Tried: v17<v5 /
+   v5>v17 comparison forms, all local declaration orders, named s32 locals for
+   the tail subexpressions, explicit (s16)/(s32) casts, if/else-break
+   restructure, named arg temp, x-copy of v17 — all give the identical nd 31.
+   Register-coloring + scheduling floor. */
 // FUN_00105010
 INCLUDE_ASM("asm/nonmatchings/g_data", func_00105010);
 
@@ -476,7 +521,73 @@ void func_00105730(s16 arg0, s16 arg1)
 }
 
 // FUN_00105780
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00105780);
+void func_00105780(s16 arg0)
+{
+    u32 r;
+    u16 v1;
+    u16 v2;
+
+    if (arg0 == 1)
+    {
+        r = func_00231ed0(D_007973C4);
+    }
+    else
+    {
+        r = func_00231ed0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+    }
+    v1 = (u16)r;
+    if (arg0 == 1)
+    {
+        r = func_00231f80(D_007973C4);
+    }
+    else
+    {
+        r = func_00231f80((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+    }
+    v2 = (u16)r;
+    if (v2 < v1)
+    {
+        s16 t = (s16)v2;
+        if (arg0 == 1)
+        {
+            D_007973CC[0] = t;
+        }
+        else
+        {
+            *(s16*)((u8*)D_00796D4C + (s32)arg0 * 0x88) = t;
+        }
+    }
+    if (arg0 == 1)
+    {
+        r = func_00231ee0(D_007973C4);
+    }
+    else
+    {
+        r = func_00231ee0((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+    }
+    v1 = (u16)r;
+    if (arg0 == 1)
+    {
+        r = func_00232290(D_007973C4);
+    }
+    else
+    {
+        r = func_00232290((u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4);
+    }
+    v2 = (u16)r;
+    if (v2 < v1)
+    {
+        s16 t = (s16)v2;
+        if (arg0 == 1)
+        {
+            D_007973CE[0] = t;
+        }
+        else
+        {
+            *(s16*)((u8*)D_00796D4E + (s32)arg0 * 0x88) = t;
+        }
+    }
+}
 
 // FUN_00105990
 void func_00105990(s16 arg0, u32 arg1)

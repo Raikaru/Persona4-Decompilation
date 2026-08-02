@@ -84,6 +84,12 @@ extern void *D_00609D78[];
 extern void *D_00609D80[];
 extern void *D_00609DF0[];
 extern void *D_00609E18[];
+extern s32 func_001dbf20(u8 *arg0, u32 arg1);
+extern char D_006095E0[];
+extern void func_0046d730(const char *file, s32 line);
+extern s32 func_00232710(u32 arg0, u32 arg1);
+extern s32 func_00232730(u32 arg0, u32 arg1);
+extern s32 func_0023ddc0(u32 arg0, u32 arg1);
 
 
 // FUN_001DAF40
@@ -525,6 +531,13 @@ void func_001dced0(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, func_001dacc0);
 }
 
+/* measured: retail keeps the u16 loop counter raw in $a0 and zero-extends into
+   scratch $v0 per use (andi $v0,$a0,0xffff; sll $v0,$v0,2) while mwcc b210 masks the
+   counter register in place (andi $a0,$a0,0xffff; sll $v0,$a0,2) in the loop body,
+   exactly 2 words. Tried: u16 counter with pointer local, inline ptr arithmetic,
+   s32 offset local + plain-assignment addu, (u32)<<2, s32 counter with (u16) casts
+   (nd 25), declaration-order swaps, explicit u16 idx local — all identical nd 4.
+   $v0/$v1-style coloring floor. */
 // FUN_001DCF10
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dcf10);
 
@@ -2664,7 +2677,19 @@ s32 func_001e66c0(void) {
 }
 
 // FUN_001E6740
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e6740);
+s32 func_001e6740(void) {
+    u8 *p = func_0029d050();
+    u8 *q = func_001b0cc0(func_0029cc00(0) & 0xFFFFFFF);
+    s32 x = func_00235520(0, *(u32 *)(*(u8 **)(p + 0x30) + 0xA64), *(u32 *)(*(u8 **)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+    s32 off;
+    s32 sum;
+    func_00233bb0(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64));
+    func_00233bb0(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64));
+    off = (s32)(func_00231ed0(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64)) & 0xFFFF);
+    sum = off + x;
+    func_0029cf50(sum <= 0);
+    return 1;
+}
 
 // FUN_001E6820
 s32 func_001e6820(void) {
@@ -2718,5 +2743,33 @@ s32 func_001e6a00(void) {
     return 1;
 }
 // FUN_001E6A50
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e6a50);
+s32 func_001e6a50(void) {
+    s32 r0 = func_0029cc00(0);
+    s32 r1 = func_0029cc00(1);
+    u8 *q = func_001b0cc0(r0 & 0xFFFFFFF);
+    s32 idx = r1 & 0xFFFF;
+    s32 x;
+    if (idx >= 0x240)
+        func_0046d730(D_006095E0, 0x45F);
+    q = *(u8 **)(q + 0x30);
+    if (idx < 0x1B8) {
+        if (func_00232710(*(u32 *)(q + 0xA64), 0x80008) != 0)
+            x = 0;
+        else if (func_00232730(*(u32 *)(q + 0xA64), idx) == 0)
+            x = 0;
+        else if (func_0023ddc0(*(u32 *)(q + 0xA64), idx) != 0)
+            x = 0;
+        else
+            goto one;
+    } else if (func_00232730(*(u32 *)(q + 0xA64), idx) != 0)
+        goto one;
+    else
+        x = 0;
+    goto done;
+one:
+    x = 1;
+done:
+    func_0029cf50(x != 0);
+    return 1;
+}
 
