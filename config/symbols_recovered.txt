@@ -3084,6 +3084,7 @@ D_007636e8 = 0x007636e8; // type:data
 D_007636F0 = 0x007636f0; // type:data
 D_007636F8 = 0x007636f8; // type:data
 D_00763798 = 0x00763798; // type:data
+iGpffffa6f8 = 0x007637e8; // type:data
 D_007637F8 = 0x007637f8; // type:data
 D_00763808 = 0x00763808; // type:data
 D_00763810 = 0x00763810; // type:data
