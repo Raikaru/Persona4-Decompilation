@@ -4,6 +4,10 @@
 #include "type.h"
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
+extern void func_0046d730(u8 *file, s32 line);
+extern u8 D_0063C820[];
+extern void func_00278e20(s32 arg0, s32 arg1);
+
 extern void func_00276e70();
 extern void func_00277250();
 extern void func_00277ad0();
@@ -104,4 +108,10 @@ nonzero:
 }
 
 // FUN_00290E50
-INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290e50);
+void func_00290e50(u8 *arg0, s32 arg1)
+{
+    if (!(u8)(*(u32 *)arg0 != 0)) {
+        func_0046d730(D_0063C820, 0x122);
+    }
+    func_00278e20(*(s32 *)(arg0 + 8), arg1);
+}

@@ -442,8 +442,17 @@ s32 func_0010ceb0(u8 *arg0)
 }
 
 // FUN_0010CF40
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010cf40);
+u16 func_0010cf40(u8 *arg0, s16 arg1)
+{
+    s32 index = arg1;
+    s32 off;
 
+    if (index >= 8) {
+        func_0046d730(D_005E4318, 0x723);
+    }
+    off = index * 2;
+    return *(u16 *)(off + (s32)arg0 + 0xC);
+}
 // FUN_0010CFA0
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010cfa0);
 
