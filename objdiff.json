@@ -3467,7 +3467,7 @@
       "target_path": "build/objdiff/target/Battle/btlCutin/001fa320.o",
       "base_path": "build/objdiff/base/Battle/btlCutin/001fa320.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -3478,7 +3478,7 @@
       "target_path": "build/objdiff/target/Battle/btlCutin/001fa370.o",
       "base_path": "build/objdiff/base/Battle/btlCutin/001fa370.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14654,7 +14654,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/0047a0e0.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/0047a0e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16337,7 +16337,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkLbox/00470490.o",
       "base_path": "build/objdiff/base/Kernel/sdkLbox/00470490.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135951,7 +135951,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEnvironment/00153b20.o",
       "base_path": "build/objdiff/base/promoted/k_fldEnvironment/00153b20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143706,7 +143706,7 @@
       "target_path": "build/objdiff/target/shdScript/0025cc70.o",
       "base_path": "build/objdiff/base/shdScript/0025cc70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143959,7 +143959,7 @@
       "target_path": "build/objdiff/target/shdWindow/0025e8b0.o",
       "base_path": "build/objdiff/base/shdWindow/0025e8b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

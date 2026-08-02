@@ -17,7 +17,12 @@ extern void func_00154720(u16 arg0, u16 arg1, s64 arg2);
 INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00153a60);
 
 // FUN_00153B20
-INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00153b20);
+void func_00153b20(u8 *arg0, s32 arg1) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    *(s32 *)(p + 0x4) = arg1;
+    func_00161460(arg1, *(s32 *)(p + 0x8), *(s32 *)(p + 0x10));
+}
 // FUN_00153B60
 void func_00153b60(u8 *arg0, s32 arg1)
 {

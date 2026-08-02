@@ -38,7 +38,14 @@ void func_0025e7c0(void)
 INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025e800);
 
 // FUN_0025E8B0
-INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025e8b0);
+void func_0025e8b0(void) {
+    u8 *p = (u8 *)func_00452560();
+    s32 v = *(s32 *)(p + 0x4);
+
+    if (!(v & 4)) {
+        *(s32 *)(p + 0x4) = v | 4;
+    }
+}
 
 // FUN_0025E8F0
 INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025e8f0);
