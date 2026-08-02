@@ -1106,7 +1106,15 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a000);
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a080);
 
 // FUN_0047A0E0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a0e0);
+void func_0047a0e0(u8 *arg0, s32 arg1, f32 fparg0) {
+    s32 i = arg1 & 0xFFFF;
+    s32 off = i * 0xA4;
+
+    *(f32 *)((off + (s32)arg0) + 0xF4) = fparg0;
+    if (i == 0) {
+        *(f32 *)(arg0 + 0x244) = fparg0;
+    }
+}
 
 // FUN_0047A120
 void func_0047a120(void* param_1)
