@@ -4,6 +4,8 @@
 #include "type.h"
 
 s32 func_00383720(u8 *arg0);
+extern void func_002bb4e0(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *ptr);
 
 
 
@@ -42,7 +44,12 @@ s32 func_00383a40(u8 *arg0) {
 }
 
 // FUN_00383AA0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00383aa0);
+void func_00383aa0(u8 *arg0) {
+    u8 *work = *(u8 **)(arg0 + 0x38);
+
+    func_002bb4e0(arg0);
+    jtbl_008873EC[0](work);
+}
 
 // FUN_00383AE0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00383ae0);
