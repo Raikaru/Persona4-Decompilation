@@ -1,5 +1,7 @@
 #include "type.h"
 #include "include_asm.h"
+extern s32 func_00452380();
+extern u8 iGpffffa7a8;
 
 /* Old-style declaration: the donor source called this without a prototype, and
  * several call sites below pass an argument (a0 is set by the caller), which a
@@ -200,6 +202,9 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
                   (void (*)(u8 *))func_0028f360, p);
 }
 
+/* measured: retail moves the handle to $a0 and then branches on $v0; mwcc b210 coalesces
+   the handle into $a0 and branches on that instead. Same instruction sequence, one word
+   apart. Early-return and pointer-typed spellings both give the identical nd 3. */
 // FUN_0028F4F0
 INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028f4f0);
 

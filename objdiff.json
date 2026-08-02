@@ -3489,7 +3489,7 @@
       "target_path": "build/objdiff/target/Battle/btlCutin/001fa450.o",
       "base_path": "build/objdiff/base/Battle/btlCutin/001fa450.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7218,7 +7218,7 @@
       "target_path": "build/objdiff/target/Camp/cmpPersona/00135cb0.o",
       "base_path": "build/objdiff/base/Camp/cmpPersona/00135cb0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7647,7 +7647,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/fclCombineMisc/00312b60.o",
       "base_path": "build/objdiff/base/Event/Fcl/fclCombineMisc/00312b60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10826,7 +10826,7 @@
       "target_path": "build/objdiff/target/Event/evtModel/00293270.o",
       "base_path": "build/objdiff/base/Event/evtModel/00293270.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11860,7 +11860,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effDistortParticle/004afa60.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effDistortParticle/004afa60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -18482,7 +18482,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_draw/0014d5f0.o",
       "base_path": "build/objdiff/base/Kosaka/k_draw/0014d5f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -18548,7 +18548,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_draw/0014d800.o",
       "base_path": "build/objdiff/base/Kosaka/k_draw/0014d800.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

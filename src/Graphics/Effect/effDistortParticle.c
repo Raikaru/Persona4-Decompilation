@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - effDistortParticle.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+extern s32 func_00481390();
 
 // FUN_004AF680
 INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004af680);
@@ -16,7 +17,9 @@ INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004af8a0);
 INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004af920);
 
 // FUN_004AFA60
-INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afa60);
+void func_004afa60(u8 *arg0, s32 arg1) {
+    *(s32 *)(arg0 + 0x60) = func_00481390(arg1);
+}
 
 // FUN_004AFAA0
 INCLUDE_ASM("asm/nonmatchings/effDistortParticle", func_004afaa0);

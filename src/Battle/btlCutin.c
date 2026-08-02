@@ -1,6 +1,9 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlCutin.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
+#include "type.h"
+extern u8 *func_00194470();
+extern void func_001fa370();
 
 
 // FUN_001F9CF0
@@ -22,7 +25,12 @@ INCLUDE_ASM("asm/nonmatchings/btlCutin", func_001fa320);
 INCLUDE_ASM("asm/nonmatchings/btlCutin", func_001fa370);
 
 // FUN_001FA450
-INCLUDE_ASM("asm/nonmatchings/btlCutin", func_001fa450);
+void func_001fa450(void) {
+    u8 *p = func_00194470(0xC02, 0);
+
+    *(u8 *)(p + 0x47) &= 0xEE;
+    *(void **)(p + 0x6C) = (void *)func_001fa370;
+}
 
 // FUN_001FA490
 INCLUDE_ASM("asm/nonmatchings/btlCutin", func_001fa490);

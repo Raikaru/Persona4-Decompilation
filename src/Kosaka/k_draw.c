@@ -2,6 +2,7 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "include_asm.h"
 #include "type.h"
+typedef struct { u8 c[4]; } Rgba8;
 
 typedef struct RwV3d
 {
@@ -103,7 +104,11 @@ void func_0014d5e0(u8 *arg0, u32 arg1)
 }
 
 // FUN_0014D5F0
-INCLUDE_ASM("asm/nonmatchings/k_draw", func_0014d5f0);
+void func_0014d5f0(u8 *arg0, u8 *arg1) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    *(Rgba8 *)(p + 0x8) = *(Rgba8 *)arg1;
+}
 
 // FUN_0014D620
 void func_0014d620(u8 *arg0, u8 *arg1)
@@ -157,7 +162,11 @@ void func_0014d7c0(u8 *arg0, u32 arg1)
 }
 
 // FUN_0014D800
-INCLUDE_ASM("asm/nonmatchings/k_draw", func_0014d800);
+void func_0014d800(u8 *arg0, u8 *arg1) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    *(Rgba8 *)(p + 0x10) = *(Rgba8 *)arg1;
+}
 
 // FUN_0014D830
 INCLUDE_ASM("asm/nonmatchings/k_draw", func_0014d830);
