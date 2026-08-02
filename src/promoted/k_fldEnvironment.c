@@ -30,7 +30,14 @@ void func_00153b60(u8 *arg0, s32 arg1)
 
 
 // FUN_00153B90
-INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00153b90);
+void func_00153b90(u8 *arg0, s32 arg1)
+{
+    u8 *work;
+
+    work = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(work + 0x10) = arg1;
+    func_00161460(*(s32 *)(work + 4), *(s32 *)(work + 8), arg1);
+}
 
 // FUN_00153BD0
 INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00153bd0);

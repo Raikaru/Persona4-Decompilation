@@ -12839,7 +12839,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/eff_afpack/004b6e40.o",
       "base_path": "build/objdiff/base/Graphics/Effect/eff_afpack/004b6e40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14775,7 +14775,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/0047a4a0.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/0047a4a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135973,7 +135973,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEnvironment/00153b90.o",
       "base_path": "build/objdiff/base/promoted/k_fldEnvironment/00153b90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
