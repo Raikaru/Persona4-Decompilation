@@ -87,16 +87,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0047", func_00479c30);
 #endif
 
 
-// FUN_0047ADF0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0047adf0(s32 arg0, s32 arg1, s32 arg2)
-{
-    *(s32 *)(((arg1 & 0xFFFF) * 0xC) + arg0 + 0x294) = arg2;
-}
-#else
+// FUN_0047ADF0
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047adf0);
-#endif
-
 
 // FUN_0047AE90 NONMATCHING
 #ifdef NON_MATCHING

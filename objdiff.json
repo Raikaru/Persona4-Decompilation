@@ -4435,7 +4435,7 @@
       "target_path": "build/objdiff/target/Battle/btlResultSimple/002216b0.o",
       "base_path": "build/objdiff/base/Battle/btlResultSimple/002216b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4446,7 +4446,7 @@
       "target_path": "build/objdiff/target/Battle/btlResultSimple/002216e0.o",
       "base_path": "build/objdiff/base/Battle/btlResultSimple/002216e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4457,7 +4457,7 @@
       "target_path": "build/objdiff/target/Battle/btlResultSimple/00221740.o",
       "base_path": "build/objdiff/base/Battle/btlResultSimple/00221740.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16205,7 +16205,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkChkmem/0044ec30.o",
       "base_path": "build/objdiff/base/Kernel/sdkChkmem/0044ec30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16216,7 +16216,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkChkmem/0044ec40.o",
       "base_path": "build/objdiff/base/Kernel/sdkChkmem/0044ec40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16227,7 +16227,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkChkmem/0044ec50.o",
       "base_path": "build/objdiff/base/Kernel/sdkChkmem/0044ec50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20495,7 +20495,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datPersona/0010be20.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datPersona/0010be20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
