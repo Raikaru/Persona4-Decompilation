@@ -1,5 +1,7 @@
 /* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
+#include "include_asm.h"
+
 
 typedef struct KwlnTask KwlnTask;
 typedef struct ScrData ScrData;
@@ -54,6 +56,31 @@ int strcmp(const char* s1, const char* s2);
 
 
 
+
+// FUN_0029D060
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d060);
+
+// FUN_0029D120
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d120);
+
+// FUN_0029D1C0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d1c0);
+
+// FUN_0029D270
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d270);
+
+// FUN_0029D2E0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d2e0);
+
+// FUN_0029D2F0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d2f0);
+
+// FUN_0029D660
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d660);
+
+// FUN_0029D870
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d870);
+
 // FUN_0029D900
 void scrDestroyTask(KwlnTask* scrTask)
 {
@@ -69,6 +96,25 @@ void scrDestroyTask(KwlnTask* scrTask)
 }
 
 
+
+
+// FUN_0029D950
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d950);
+
+// FUN_0029D9B0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d9b0);
+
+// FUN_0029DA90
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029da90);
+
+// FUN_0029DB50
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029db50);
+
+// FUN_0029DC80
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029dc80);
+
+// FUN_0029DDB0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029ddb0);
 
 // FUN_0029DE20
 s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
@@ -118,3 +164,22 @@ s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
 
     return -1;
 }
+
+// FUN_0029DF30
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029df30);
+
+// FUN_0029DFE0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029dfe0);
+
+// FUN_0029E040
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e040);
+
+// FUN_0029E550
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e550);
+
+// FUN_0029E7B0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e7b0);
+
+// FUN_0029E8D0
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e8d0);
+

@@ -1,4 +1,5 @@
 /* Source unit: src/Script/scrTraceCode_0029ad20.c */
+#include "include_asm.h"
 #include "type.h"
 
 /* Minimal view of ScrData; only pc (offset 0x18) is accessed. */
@@ -26,6 +27,34 @@ enum ScrOperation
 
 u32 func_0029b1b0(ScrData* scr, u32 type);
 
+// FUN_0029A050
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a050);
+// FUN_0029A100
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a100);
+// FUN_0029A1B0
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a1b0);
+// FUN_0029A260
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a260);
+// FUN_0029A320
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a320);
+// FUN_0029A3E0
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a3e0);
+// FUN_0029A4A0
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a4a0);
+// FUN_0029A560
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a560);
+// FUN_0029A610
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a610);
+// FUN_0029A6A0
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a6a0);
+// FUN_0029A820
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a820);
+// FUN_0029A9C0
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029a9c0);
+// FUN_0029AB80
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029ab80);
+
+
 
 
 // FUN_0029AD20
@@ -35,6 +64,22 @@ u32 func_0029AD20(ScrData* scr)
 
     return 1;
 }
+
+// FUN_0029AD40
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029ad40);
+// FUN_0029AE90
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029ae90);
+// FUN_0029B020
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029b020);
+// FUN_0029B060
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029b060);
+// FUN_0029B120
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029b120);
+// FUN_0029B170
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029b170);
+// FUN_0029B1B0
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029b1b0);
+
 
 
 
@@ -79,6 +124,12 @@ u32 CodeFunc_Div(ScrData* scr)
 
     return 1;
 }
+
+// FUN_0029BFB0
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029bfb0);
+// FUN_0029C130
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029c130);
+
 
 
 
@@ -167,3 +218,20 @@ u32 CodeFunc_LE(ScrData* scr)
 
     return 1;
 }
+
+// FUN_0029C750
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029c750);
+// FUN_0029CB00
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029cb00);
+// FUN_0029CC00
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029cc00);
+// FUN_0029CD50
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029cd50);
+// FUN_0029CE90
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029ce90);
+// FUN_0029CF50
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029cf50);
+// FUN_0029CF70
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029cf70);
+// FUN_0029CF90
+INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029cf90);

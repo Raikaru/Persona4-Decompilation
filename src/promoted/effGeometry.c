@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -29,6 +30,30 @@ void func_00483810();
 
 
 
+// FUN_00482C40
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00482c40);
+
+// FUN_00482DC0
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00482dc0);
+
+// FUN_00482F70
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00482f70);
+
+// FUN_004830F0
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_004830f0);
+
+// FUN_00483270
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483270);
+
+// FUN_004833F0
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_004833f0);
+
+// FUN_00483490
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483490);
+
+// FUN_004834E0
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_004834e0);
+
 // FUN_00483660
 void func_00483660(u8 *arg0)
 {
@@ -51,6 +76,15 @@ void func_004836b0(u8 *arg0)
 
 
 
+// FUN_00483700
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483700);
+
+// FUN_00483810
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483810);
+
+// FUN_00483970
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483970);
+
 // FUN_004839D0
 void func_004839d0(int param_1, u32 *param_2)
 {
@@ -68,3 +102,12 @@ void func_004839d0(int param_1, u32 *param_2)
 
   return;
 }
+
+// FUN_00483A00
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483a00);
+
+// FUN_00483C40
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483c40);
+
+// FUN_00483E10
+INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483e10);

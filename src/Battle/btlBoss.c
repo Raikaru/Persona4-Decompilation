@@ -1,5 +1,6 @@
 /* Source unit: src/Battle/btlBoss_0022fb90.c */
 #include "type.h"
+#include "include_asm.h"
 
 /* Partial view of BtlUnit: genus lives at 0xa2 (see P3 include/Battle/btlUnit.h). */
 typedef struct BtlUnit {
@@ -67,6 +68,16 @@ u32 func_0022fce0(s32 first, s32 second)
 
 
 
+
+
+// FUN_002303E0
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_002303e0);
+
+
+
+// FUN_00230450
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230450);
+
 // FUN_002304B0
 BtlPacket* btlBossCreateLoadPakPacket(void)
 {
@@ -79,3 +90,8 @@ BtlPacket* btlBossCreateLoadPakPacket(void)
 
     return packet;
 }
+
+
+
+// FUN_00230500
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230500);

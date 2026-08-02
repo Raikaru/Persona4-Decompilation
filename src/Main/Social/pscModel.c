@@ -1,10 +1,15 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit pscModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "include_asm.h"
 #include "type.h"
 
 extern void* func_00457120(void);
 extern void* func_003e89c0(void);
 extern void func_003e8970(void* viewport, void* cameraData);
+
+// FUN_003694D0
+INCLUDE_ASM("asm/nonmatchings/pscModel", func_003694d0);
+
 
 
 
@@ -36,3 +41,12 @@ f32 func_0036a790(const f32* value, f32 scale)
     func_003e8970(size, func_003e89c0());
     return (6.0f * value[11] * (f32)(size[0] >> 1)) / (panelScale * camera[0]);
 }
+
+// FUN_0036A820
+INCLUDE_ASM("asm/nonmatchings/pscModel", func_0036a820);
+// FUN_0036A880
+INCLUDE_ASM("asm/nonmatchings/pscModel", func_0036a880);
+// FUN_0036A900
+INCLUDE_ASM("asm/nonmatchings/pscModel", func_0036a900);
+// FUN_0036AA20
+INCLUDE_ASM("asm/nonmatchings/pscModel", func_0036aa20);

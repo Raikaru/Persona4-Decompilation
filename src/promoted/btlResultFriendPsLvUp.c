@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlResultFriendPsLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -32,3 +33,6 @@ s32 func_002238f0(s64 arg0)
         return 0;
     }
 }
+
+// FUN_002239A0
+INCLUDE_ASM("asm/nonmatchings/btlResultFriendPsLvUp", func_002239a0);

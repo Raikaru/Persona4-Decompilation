@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
+#include "include_asm.h"
 
 typedef struct RuntimeWork RuntimeWork;
 
@@ -17,6 +18,18 @@ typedef struct RuntimeListNode
 
 extern void* D_00764C9C;
 extern RuntimeListNode* D_00764CA0;
+
+// FUN_004B6030
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6030);
+
+// FUN_004B6900
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6900);
+
+// FUN_004B6BB0
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6bb0);
+
+// FUN_004B6C90
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6c90);
 
 // FUN_004B6DE0
 s32 func_004b6de0(RuntimeListNode* node)
@@ -58,3 +71,12 @@ void func_004b6da0(void* node)
     }
     D_00764C9C = node;
 }
+// FUN_004B6E40
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6e40);
+
+// FUN_004B6E80
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6e80);
+
+// FUN_004B7140
+INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b7140);
+

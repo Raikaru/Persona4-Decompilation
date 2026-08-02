@@ -1,11 +1,26 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit sdkFiler.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "include_asm.h"
+
 
 extern void strcpy(s8 *arg0, s32 *arg1);
 extern void func_00452080(u8 *arg0);
 
 
+
+
+// FUN_00468170
+INCLUDE_ASM("asm/nonmatchings/sdkFiler", func_00468170);
+
+// FUN_00468260
+INCLUDE_ASM("asm/nonmatchings/sdkFiler", func_00468260);
+
+// FUN_004685C0
+INCLUDE_ASM("asm/nonmatchings/sdkFiler", func_004685c0);
+
+// FUN_004688A0
+INCLUDE_ASM("asm/nonmatchings/sdkFiler", func_004688a0);
 
 // FUN_004688D0
 s32 func_004688d0(u8 *arg0, s8 *arg1)
@@ -19,3 +34,7 @@ s32 func_004688d0(u8 *arg0, s8 *arg1)
     }
     return 0;
 }
+
+// FUN_00468940
+INCLUDE_ASM("asm/nonmatchings/sdkFiler", func_00468940);
+

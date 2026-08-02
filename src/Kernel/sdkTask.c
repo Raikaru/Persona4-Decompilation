@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit sdkTask.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -14,6 +15,32 @@ extern u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
 
 
 
+// FUN_00450F20
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00450f20);
+
+// FUN_00451110
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451110);
+
+// FUN_00451430
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451430);
+
+// FUN_004515B0
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_004515b0);
+
+// FUN_004516B0
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_004516b0);
+
+// FUN_00451770
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451770);
+
+// FUN_004518E0
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_004518e0);
+
+// FUN_00451A10
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451a10);
+
+// FUN_00451B70
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451b70);
 // FUN_00451CA0
 void func_00451ca0(s32 arg0)
 {
@@ -22,6 +49,14 @@ void func_00451ca0(s32 arg0)
 
 
 
+// FUN_00451CF0
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451cf0);
+
+// FUN_00451DE0
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451de0);
+
+// FUN_00451FC0
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00451fc0);
 // FUN_00452040
 u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
 {
@@ -38,8 +73,28 @@ u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
 
 
 
+// FUN_00452080
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452080);
+
+// FUN_004522D0
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_004522d0);
+
+// FUN_00452380
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452380);
+
+// FUN_00452490
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452490);
 // FUN_00452540
 u32 kwlnTaskGetTimer(void* task)
 {
     return *(u32*)((u8*)task + 0x28);
 }
+
+// FUN_00452560
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452560);
+
+// FUN_00452570
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452570);
+
+// FUN_00452600
+INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452600);

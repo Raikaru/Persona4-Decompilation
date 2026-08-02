@@ -1,4 +1,5 @@
 #include "type.h"
+#include "include_asm.h"
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
 
@@ -279,6 +280,11 @@ void func_0019df00(BtlUnitPacketCountRef* work);
 u32 func_0019df20(void* work);
 void func_0019e130(BtlUnitPacketCountRef* work);
 
+// FUN_0019ACD0
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019acd0);
+
+// FUN_0019AE20
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019ae20);
 // FUN_0019E150
 BtlPacket* btlUnitCreateLookAtPacket(BtlUnit* unit, const RwV3d* targetPos, u16 flags)
 {
