@@ -6,6 +6,10 @@
 typedef int (*code)(...);
 extern code DAT_008873ec_abs[];
 extern void func_004808b0(int param_1);
+extern void func_0044ea90(u8 *file, s32 line);
+extern u8 D_00713260[];
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void func_0043f9c8(void *dest, s32 value, s32 size);
 
 extern s32 func_003bcfb0();
 extern s32 func_003bd000();
@@ -31,7 +35,16 @@ extern void func_003bff30_typed(u64 param_1,void *param_2,void *param_3);
 
 
 // FUN_0047F9F0
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047f9f0);
+s32 *func_0047f9f0(void)
+{
+    s32 *anim;
+
+    func_0044ea90(D_00713260, 0x22C);
+    anim = (s32 *)jtbl_008873E8[0](4, 0x40000);
+    func_0043f9c8(anim, 0, 4);
+    *anim = 0;
+    return anim;
+}
 
 // FUN_0047FA60
 void func_0047fa60(int param_1)
