@@ -108,6 +108,22 @@ Rules of engagement:
   `*(T*)((int)base + i*4 + off)` computes `base + index` (left-assoc),
   matching retail's `addu base,index`, where the `arr[i+off]` form emits
   `index + base`.
+- **...and the mirror image: name the offset in a local to get
+  `addu index,base`.** When retail has `addu $v1,$v0,$a0` (index first) but
+  mwcc emits `addu $v1,$a0,$v0`, writing `base + i * n` is the problem: mwcc
+  canonicalizes the pointer operand to the left. Compute the scaled offset
+  into its own `s32` first and add the base to *it*, casting so the addition
+  is integer rather than pointer arithmetic:
+
+  ```c
+  s32 off = index * 12;
+  u8 *p = (u8 *)(off + (s32)base);
+  ```
+
+  Verified on `cmpEquip.c` func_001344b0 and `code1_0047.c` func_0047adf0,
+  both nd 1 -> 0. The plain `(s16 *)base + index` subscript form does *not*
+  do it. This is the one commutative-`addu` case that is source-reachable;
+  when both operands are already live in fixed registers it stays a floor.
 
 ## Register allocation and caching
 

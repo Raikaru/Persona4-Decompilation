@@ -88,7 +88,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0047", func_00479c30);
 
 
 // FUN_0047ADF0
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047adf0);
+void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2) {
+    /* Offset added to the base, not the other way round: `arg0 + off` makes
+       mwcc emit `addu $v1,$a0,$v1` where retail has `addu $v1,$v1,$a0`. */
+    s32 off = arg1 * 12;
+    u8 *p = (u8 *)(off + (s32)arg0);
+
+    *(s32 *)(p + 0x294) = arg2;
+}
 
 // FUN_0047AE90 NONMATCHING
 #ifdef NON_MATCHING

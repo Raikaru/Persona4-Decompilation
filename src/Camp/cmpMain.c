@@ -2,6 +2,9 @@
 #include "include_asm.h"
 #include "type.h"
 
+/* gp - 0x4E14 = 0x007642DC. */
+extern u8 *iGpffffb1ec;
+
 // FUN_0012C510
 INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012c510);
 
@@ -15,7 +18,9 @@ INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012cd90);
 INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012d000);
 
 // FUN_0012D140
-INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012d140);
+void func_0012d140(void) {
+    *(u16 *)(iGpffffb1ec + 0x973C) = 0xB1;
+}
 
 // FUN_0012D160
 INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012d160);

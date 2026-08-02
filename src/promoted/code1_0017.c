@@ -52,16 +52,15 @@ s32 func_001788e0(void)
 
 
 
-// FUN_00178C00 NONMATCHING
-#ifdef NON_MATCHING
-void func_00178c00(void)
+// FUN_00178C00
+/* Returns the stored constant: retail materializes the 1 in $v0 and stores
+   from there, which only happens when it is also the return value. */
+s32 func_00178c00(void)
 {
     *(s32 *)(D_007643D0 + 8) = 1;
     D_007643D0 = 0;
+    return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178c00);
-#endif
 
 
 
