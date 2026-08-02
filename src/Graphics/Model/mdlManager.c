@@ -124,7 +124,6 @@ extern void func_003bff30();
 extern void* func_00477350(void*, void*);
 extern void* func_00477430(void*);
 extern void* func_00479880(void*);
-extern void func_0047a4a0(void);
 extern void func_004776c0(void);
 extern void* func_00474a10(void* param_1, u32* param_2);
 extern u32 func_00474ce0(void* param_1);
@@ -1197,7 +1196,15 @@ void func_0047a2a0(u32* param_1)
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a320);
 
 // FUN_0047A4A0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a4a0);
+u8 *func_0047a4a0(u8 *arg0, s32 *arg1) {
+    /* arg1 is reassigned rather than using a fresh local: retail reuses the
+       $a1 argument register for the node pointer once the mask is loaded. */
+    s32 mask = *arg1;
+
+    arg1 = (s32 *)*(u8 **)(arg0 + 0x18);
+    *(s32 *)((u8 *)arg1 + 8) &= ~mask;
+    return arg0;
+}
 
 // FUN_0047A4D0
 void func_0047a4d0(void* param_1, int param_2)

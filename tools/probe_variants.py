@@ -97,6 +97,14 @@ def main() -> int:
             raise SystemExit(f"--candidate wants NAME=PATH, got {spec!r}")
         candidates.append((name, Path(path).read_text(encoding="utf-8")))
 
+    # "Restore" means "put back what was here when I started", not "put back the
+    # INCLUDE_ASM fallback". Starting from a half-finished body therefore
+    # restores that body, leaving a MISMATCH behind if every candidate fails.
+    # Say so loudly rather than let the caller discover it in a later verify.
+    if "INCLUDE_ASM" not in candidates[0][1]:
+        print(f"  NOTE: {source} does not currently hold an INCLUDE_ASM fallback for\n"
+              f"        {args.function}; if no candidate matches, the file is restored to\n"
+              f"        that same non-fallback text and may still be a MISMATCH.\n")
     results: list[tuple[str, int | None]] = []
     winner: str | None = None
     try:
