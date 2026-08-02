@@ -4,6 +4,7 @@
 #include "type.h"
 
 extern void func_00161460(s32 arg0, s32 arg1, s32 arg2);
+extern void func_00161500(s32 arg0);
 
 extern s16 func_001060b0(void);
 extern s32 func_001060c0(void);
@@ -40,7 +41,14 @@ void func_00153b90(u8 *arg0, s32 arg1)
 }
 
 // FUN_00153BD0
-INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00153bd0);
+void func_00153bd0(u8 *arg0, s32 arg1)
+{
+    u8 *work;
+
+    work = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(work + 0xC) = arg1;
+    func_00161500(arg1);
+}
 
 // FUN_00153C00
 INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00153c00);

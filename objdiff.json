@@ -128845,7 +128845,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffleResult/00383aa0.o",
       "base_path": "build/objdiff/base/promoted/btlShuffleResult/00383aa0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135984,7 +135984,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEnvironment/00153bd0.o",
       "base_path": "build/objdiff/base/promoted/k_fldEnvironment/00153bd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
