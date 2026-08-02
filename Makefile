@@ -2,7 +2,7 @@ PYTHON ?= python
 SPLAT_CONFIG := config/slus21782.yaml
 OBJDIFF_CLI ?= objdiff-cli
 
-.PHONY: all setup split reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects objdiff-report progress progress-validate m2c-setup m2c clean distclean
+.PHONY: all setup split reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects objdiff-report progress recovery progress-validate m2c-setup m2c clean distclean
 
 all: build verify
 
@@ -134,9 +134,17 @@ build-progress:
 
 progress:
 	$(PYTHON) tools/verify.py --json $(VERIFY_REPORT)
+	$(PYTHON) tools/recovery_quality.py --report $(VERIFY_REPORT) \
+	    --json build/recovery.json
 	$(PYTHON) tools/progress.py --report $(VERIFY_REPORT) \
-	    --linked-report $(LINKED_REPORT) --write-dir progress
+	    --linked-report $(LINKED_REPORT) --write-dir progress \
+	    --recovery-report build/recovery.json --update-readme README.md
 	$(PYTHON) tools/progress.py --validate-dir progress
+
+# Which matched functions still read like decompiler output, worst files first.
+recovery:
+	$(PYTHON) tools/verify.py --json $(VERIFY_REPORT)
+	$(PYTHON) tools/recovery_quality.py --report $(VERIFY_REPORT) --worst 25
 
 progress-validate:
 	$(PYTHON) tools/progress.py --validate-dir progress

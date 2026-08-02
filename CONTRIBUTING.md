@@ -240,3 +240,58 @@ A contribution lands when it satisfies the integration gate in
 - **Full-build ownership stays with the integration lane.** Byte-identical
   load-image/ELF verification, commits, and pushes are the lane's job; your PR
   proves per-function `MATCH` and leaves the whole-image gate to it.
+- **The owning object must stay link-eligible.** A per-function `MATCH` is not
+  the finish line. `tools/verify.py` masks relocations, so a wrong or missing
+  symbol passes every per-function check and only shows up at link time, as a
+  fall in `C objects linked from source` while both retail hashes still verify.
+  If the count drops after your change, the cause is almost always a symbol your
+  new C references that the object cannot resolve, and the fix is to resolve it
+  (or to match the still-unresolved sibling), never to accept the loss. Run
+  `python tools/explain_ineligible.py --reason unresolved` to see which units are
+  blocked and on what symbol.
+- **Boundary confidence for suspicious functions.** Before writing C for an empty
+  body, a one-instruction body, or an address suspiciously close to its
+  neighbour, prove the boundary is real:
+  - If the function's `.s` begins with a raw `.word ... /* data */`, it is not a
+    function. A backward-branch word means Ghidra split the tail off the previous
+    function's loop; a forward-branch word means it split the head. Leave the
+    `INCLUDE_ASM` in place and say so — do not invent a function that does not
+    exist.
+  - For a bare `jr $ra; nop`, decide whether it is padding or a real nullsub by
+    looking for a reference: a `jal` to it, or a pointer word holding its address
+    (a callback slot). No reference means it is padding inside the preceding
+    window and must not get its own marker.
+  - A genuinely data-reachable entry belongs in `DATA_REACHABLE_ENTRIES` in
+    `tools/reconcile_function_boundaries.py`, with the pointer site recorded, so
+    the canonical map and `tests/test_reconcile.py` agree. Never hand-edit
+    `tools/slus21782_functions.json`.
+
+## Matching is not the finish line
+
+A byte-identical function can still be unreadable: `func_00123456` for a name,
+`D_007973A0` for a global, `u8 *` for an object pointer, numeric field offsets,
+`temp_3`/`uVar1` locals, and unexplained masks. The README status table therefore
+reports matching and recovery separately, and
+`python tools/recovery_quality.py --report <verify.json>` scores every matched
+first-party function on three axes that have nothing to do with byte equality:
+
+- **NAMED** — the identifier is not a `func_<address>` placeholder. A neutral
+  descriptive name recovered from behaviour is far better than an address, and
+  better than an overconfident guess at the original Atlus identifier. Keep the
+  address discoverable in symbol metadata, not in the function name.
+- **TYPED** — the body reaches its data through named fields rather than
+  cast-and-offset arithmetic or `M2C_FIELD`. Raw offsets are a legitimate
+  *starting* point; they are not a finished one.
+- **DOCUMENTED** — anything non-trivial explains what it does, and any
+  non-obvious constant explains why it is that value.
+
+`tools/recovery_quality.py --worst 20` lists the files with the most
+matched-but-untyped functions. Improving those is real work on the same footing
+as converting a new fallback, and a PR that only does cleanup is welcome.
+
+`src/promoted/` is transitional. It mixes recovered translation-unit names such
+as `calendar.c` and `cmmScript.c` with generic `code1_00NN.c` buckets that exist
+only because the owning unit was not known when the function was matched. Moving
+a function from a generic bucket into its evidence-backed unit is an improvement;
+splitting a real translation unit for tidiness is not, because unit boundaries
+affect section layout and the link.

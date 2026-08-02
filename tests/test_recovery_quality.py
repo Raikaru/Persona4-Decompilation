@@ -1,0 +1,247 @@
+"""The recovery score must not flatter decompiler output.
+
+A byte-identical function can still be unreadable: an address for a name, raw
+field offsets, `M2C_FIELD`, `temp_3`/`uVar1` locals. Reporting only MATCH hides
+that, so `tools/recovery_quality.py` scores matched functions on NAMED, TYPED and
+DOCUMENTED independently of matching. These tests pin the classification, because
+a scorer that is generous by accident is worse than no scorer at all: it would
+report the tree as recovered while it still reads like m2c output.
+"""
+
+import json
+import sys
+import textwrap
+import unittest
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "tools"))
+
+import progress  # noqa: E402
+import recovery_quality as rq  # noqa: E402
+
+
+def score(body, name="func_00123456", before=()):
+    return rq.score(name, list(before), textwrap.dedent(body).strip())
+
+
+class NamedTests(unittest.TestCase):
+    def test_address_placeholder_is_not_named(self) -> None:
+        self.assertFalse(score("void func_00123456(void) { return; }")["named"])
+
+    def test_uppercase_placeholder_is_not_named(self) -> None:
+        self.assertFalse(
+            score("void FUN_00123456(void) { return; }", name="FUN_00123456")["named"]
+        )
+
+    def test_recovered_name_is_named(self) -> None:
+        self.assertTrue(
+            score("void Scr_JumpToProcedure(void) { return; }",
+                  name="Scr_JumpToProcedure")["named"]
+        )
+
+    def test_name_merely_containing_hex_is_still_named(self) -> None:
+        """`crc32_00` is a real name, not a `func_<address>` placeholder."""
+        self.assertTrue(score("void crc32_00(void) { return; }", name="crc32_00")["named"])
+
+
+class TypedTests(unittest.TestCase):
+    def test_cast_and_offset_read_is_not_typed(self) -> None:
+        body = """
+        s32 f(u8 *p) {
+            return *(s32 *)(p + 0x18);
+        }
+        """
+        self.assertFalse(score(body)["typed"])
+
+    def test_cast_and_offset_write_is_not_typed(self) -> None:
+        body = """
+        void f(u8 *p, s32 v) {
+            *(s32 *)(p + 0x18) = v;
+        }
+        """
+        self.assertFalse(score(body)["typed"])
+
+    def test_m2c_macro_is_not_typed(self) -> None:
+        body = """
+        s32 f(u8 *p) {
+            return M2C_FIELD(p, s32 *, 0x18);
+        }
+        """
+        self.assertFalse(score(body)["typed"])
+
+    def test_named_field_access_is_typed(self) -> None:
+        body = """
+        s32 ScrStackDepth(ScrData *scr) {
+            return scr->stackDepth;
+        }
+        """
+        self.assertTrue(score(body, name="ScrStackDepth")["typed"])
+
+    def test_raw_offset_inside_a_comment_does_not_disqualify(self) -> None:
+        """Comments are stripped before scoring, so documentation is free."""
+        body = """
+        s32 ScrStackDepth(ScrData *scr) {
+            /* retail reads *(s32 *)(scr + 0x18) here */
+            return scr->stackDepth;
+        }
+        """
+        self.assertTrue(score(body, name="ScrStackDepth")["typed"])
+
+
+class ResidueTests(unittest.TestCase):
+    def test_m2c_temp_names_are_residue(self) -> None:
+        flags = score("s32 f(void) { s32 temp_3 = 1; return temp_3; }")
+        self.assertTrue(flags["residue"])
+        self.assertFalse(flags["typed"])
+
+    def test_ghidra_names_are_residue(self) -> None:
+        for local in ("uVar1", "iVar1", "bVar1", "param_1", "spA0"):
+            with self.subTest(local=local):
+                body = "s32 f(void) { s32 %s = 1; return %s; }" % (local, local)
+                self.assertTrue(score(body)["residue"], local)
+
+    def test_ordinary_names_are_not_residue(self) -> None:
+        body = "s32 f(void) { s32 depth = 1; return depth; }"
+        self.assertFalse(score(body)["residue"])
+
+    def test_a_name_merely_containing_var_is_not_residue(self) -> None:
+        """`variance` and `sprite` must not be mistaken for `var_1`/`spNN`."""
+        body = "s32 f(void) { s32 variance = 1; s32 sprite = 2; return variance + sprite; }"
+        self.assertFalse(score(body)["residue"])
+
+
+class DocumentedTests(unittest.TestCase):
+    def test_trivial_body_needs_no_prose(self) -> None:
+        body = """
+        s32 ScrStackDepth(ScrData *scr) {
+            return scr->stackDepth;
+        }
+        """
+        self.assertTrue(score(body, name="ScrStackDepth")["documented"])
+
+    def test_nontrivial_body_without_prose_is_undocumented(self) -> None:
+        body = """
+        s32 f(ScrData *scr) {
+            s32 a = scr->stackDepth;
+            s32 b = scr->pc;
+            s32 c = a + b;
+            if (c > 4) {
+                c = 4;
+            }
+            return c;
+        }
+        """
+        self.assertFalse(score(body)["documented"])
+
+    def test_prose_above_the_marker_counts(self) -> None:
+        body = """
+        s32 f(ScrData *scr) {
+            s32 a = scr->stackDepth;
+            s32 b = scr->pc;
+            s32 c = a + b;
+            if (c > 4) {
+                c = 4;
+            }
+            return c;
+        }
+        """
+        before = ["/* Clamp the combined stack depth to the four hardware slots. */"]
+        self.assertTrue(score(body, before=before)["documented"])
+
+    def test_the_marker_line_is_not_prose(self) -> None:
+        body = """
+        s32 f(ScrData *scr) {
+            s32 a = scr->stackDepth;
+            s32 b = scr->pc;
+            s32 c = a + b;
+            if (c > 4) {
+                c = 4;
+            }
+            return c;
+        }
+        """
+        self.assertFalse(score(body, before=["// FUN_00123456"])["documented"])
+
+
+class StatusTableTests(unittest.TestCase):
+    """The README table drifted to 1,314 matches when the truth was 3,419."""
+
+    METRICS = {
+        "total": 13084,
+        "hashes": {"retail_sha1": "aa", "image_sha1": "bb"},
+        "matching": {"count": 3419, "percent": 26.131},
+        "linked": {"count": 977, "percent": 7.467,
+                   "asm_fallbacks_in_linked_objects": 814},
+    }
+    RECOVERY = {
+        "matched_first_party": 2801, "named": 155, "typed": 1163,
+        "documented": 1651, "decompiler_residue": 600,
+        "named_percent": 5.534, "typed_percent": 41.521,
+        "documented_percent": 58.943, "residue_percent": 21.421,
+    }
+
+    def test_table_reports_the_metrics_it_was_given(self) -> None:
+        body = progress.render_status(self.METRICS, self.RECOVERY)
+        for expected in ("13,084", "3,419", "977", "814", "2,801", "155", "1,163"):
+            self.assertIn(expected, body)
+
+    def test_table_separates_matching_from_recovery(self) -> None:
+        body = progress.render_status(self.METRICS, self.RECOVERY)
+        self.assertIn("Byte-identical is not the same as recovered", body)
+        self.assertIn("NAMED", body)
+        self.assertIn("TYPED", body)
+
+    def test_recovery_rows_are_optional(self) -> None:
+        body = progress.render_status(self.METRICS, None)
+        self.assertIn("3,419", body)
+        self.assertNotIn("NAMED", body)
+
+    def test_update_readme_replaces_only_the_marked_block(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "README.md"
+            path.write_text(
+                "# Title\n\nkeep me above\n"
+                f"{progress.STATUS_BEGIN}\nstale garbage\n{progress.STATUS_END}\n"
+                "keep me below\n",
+                encoding="utf-8",
+            )
+            progress.update_readme(path, "fresh table\n")
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("keep me above", text)
+            self.assertIn("keep me below", text)
+            self.assertIn("fresh table", text)
+            self.assertNotIn("stale garbage", text)
+
+    def test_missing_markers_is_an_error_not_a_silent_skip(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "README.md"
+            path.write_text("# Title\n\nno markers here\n", encoding="utf-8")
+            with self.assertRaises(progress.ProgressError):
+                progress.update_readme(path, "fresh table\n")
+
+
+class CommittedReadmeTests(unittest.TestCase):
+    def test_readme_status_block_is_generated_not_handwritten(self) -> None:
+        text = (REPO / "README.md").read_text(encoding="utf-8")
+        self.assertIn(progress.STATUS_BEGIN, text)
+        self.assertIn(progress.STATUS_END, text)
+
+    def test_readme_agrees_with_the_committed_metrics(self) -> None:
+        """Catches the drift that let the README claim 1,314 for months."""
+        metrics = json.loads(
+            (REPO / "progress" / "metrics.json").read_text(encoding="utf-8")
+        )
+        text = (REPO / "README.md").read_text(encoding="utf-8")
+        block = text.split(progress.STATUS_BEGIN, 1)[1].split(progress.STATUS_END, 1)[0]
+        self.assertIn(f"{metrics['matching']['count']:,}", block)
+        self.assertIn(f"{metrics['linked']['count']:,}", block)
+        self.assertIn(f"{metrics['total']:,}", block)
+
+
+if __name__ == "__main__":
+    unittest.main()

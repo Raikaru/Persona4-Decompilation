@@ -4,6 +4,9 @@
 /SLUS_217.82
 /*.iso
 
+# Scratch probes from codegen experiments; build/ is already ignored.
+/.probe/
+
 # Generated split/build output.
 /build/
 /assets/
