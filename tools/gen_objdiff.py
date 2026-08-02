@@ -69,7 +69,8 @@ import struct
 import sys
 import tempfile
 import time
-from pathlib import Path
+from functools import lru_cache
+from pathlib import Path, PurePosixPath
 
 REPO = Path(__file__).resolve().parents[1]
 TOOLS = REPO / "tools"
@@ -187,11 +188,93 @@ PROGRESS_CATEGORIES = [
 ]
 
 
-def progress_category(file_rel: str | None) -> str:
-    """Category id for a unit, delegating to verify.is_third_party."""
-    if file_rel is None:
+def progress_category(file_rel: str | None, tu_name: str | None = None) -> str:
+    """Category id for a unit.
+
+    A unit with a source file is classified by that file. A source-less unit can
+    still be classified when the compiler left its ``__FILE__`` assert string in
+    the image: that string names the original translation unit, and the name is
+    resolvable to a side when the file exists in this tree or in the P3 FES
+    tree, or when the recorded path escapes the repository (an SDK/middleware
+    header included from outside the game's own sources).
+
+    A name we cannot resolve stays unclassified. Guessing from the look of a
+    name would put its functions in a bucket on no evidence, which is the
+    failure this category exists to prevent.
+    """
+    if file_rel is not None:
+        return "third_party" if _verify().is_third_party(file_rel) else "main"
+    resolved = resolve_tu_name(tu_name)
+    if resolved is None:
         return "unclassified"
-    return "third_party" if _verify().is_third_party(file_rel) else "main"
+    return "third_party" if resolved else "main"
+
+
+@lru_cache(maxsize=None)
+def _basename_index() -> tuple[dict, dict]:
+    """basename -> path, for this tree and for the P3 FES donor tree."""
+    here = {}
+    for path in (REPO / "src").rglob("*.c"):
+        if not _verify().is_generated(path):
+            here.setdefault(path.name, path.relative_to(REPO).as_posix())
+    donor = {}
+    p3 = REPO.parent / "Persona3-FES-Decompilation" / "src"
+    if p3.is_dir():
+        for path in p3.rglob("*.c"):
+            donor.setdefault(path.name, path.relative_to(p3.parent).as_posix())
+    return here, donor
+
+
+def resolve_tu_name(tu_name: str | None):
+    """True if the named TU is middleware, False if first-party, None if unknown."""
+    if not tu_name:
+        return None
+    if tu_name.startswith(".."):
+        # The compiler recorded a path outside the game's source tree, so the
+        # unit came from an SDK/middleware include (rofs_*, pfs_*, ...).
+        return True
+    here, donor = _basename_index()
+    name = PurePosixPath(tu_name).name
+    for index in (here, donor):
+        if name in index:
+            return _verify().is_third_party(index[name])
+    return None
+
+def tu_name_by_address(windows: dict) -> dict:
+    """address text -> original TU filename, from the embedded __FILE__ strings.
+
+    tools/file_strings.py recovers which translation unit each function belongs
+    to by decoding the assert-macro filenames the compiler left in the image.
+    That attribution exists for functions we have not decompiled yet, which is
+    exactly the population that would otherwise be uncategorised. Returns an
+    empty map if the retail image is unavailable, so config generation never
+    hard-depends on it.
+    """
+    try:
+        sys.path.insert(0, str(TOOLS))
+        import file_strings  # noqa: PLC0415  (intentional lazy import)
+
+        target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
+        elf = REPO / "orig" / target["elf"]["filename"]
+        if not elf.is_file():
+            return {}
+        retail = _verify().RetailElf(str(elf), target, target["elf"]["sha1"])
+        base = int(target["elf"]["load_vram"], 16)
+        image = retail.bytes_at(base, int(target["elf"]["load_size"], 16))
+        numeric = {int(a, 16): s for a, s in windows.items()}
+        report = file_strings.extract(image, numeric, int(target["elf"]["gp"], 16), base=base)
+    except Exception:
+        return {}
+    order = sorted(numeric)
+    out = {}
+    for entry in report.get("files", []):
+        if not entry.get("kept"):
+            continue
+        span = order[entry["span_first_index"]:entry["span_last_index"] + 1]
+        for address in span:
+            out.setdefault(address, entry["file"])
+    return out
+
 
 
 def _verify():
@@ -569,8 +652,16 @@ def main() -> None:
     units.extend(build_canonical_units(canonical, covered))
     units.sort(key=lambda unit: unit["name"])
 
+    # Units carry `addr` as an int (canonical, source-less) or a hex string
+    # (report-derived), so normalise before looking up the recovered TU.
+    tu_names = tu_name_by_address(canonical)
     for unit in units:
-        unit["metadata"]["progress_categories"] = [progress_category(unit["file"])]
+        address = unit["addr"]
+        if isinstance(address, str):
+            address = int(address, 16)
+        unit["metadata"]["progress_categories"] = [
+            progress_category(unit["file"], tu_names.get(address))
+        ]
 
     config = {
         "$schema": SCHEMA_URL,
