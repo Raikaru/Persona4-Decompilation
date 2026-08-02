@@ -1214,6 +1214,7 @@ func_00286780 = 0x00286780; // type:data
 func_00286f00 = 0x00286f00; // type:data
 func_00286ff0 = 0x00286ff0; // type:data
 func_00287060 = 0x00287060; // type:data
+func_002871a0 = 0x002871a0; // type:data
 func_00287310 = 0x00287310; // type:data
 func_00287bf0 = 0x00287bf0; // type:data
 func_0028aaf0 = 0x0028aaf0; // type:data
