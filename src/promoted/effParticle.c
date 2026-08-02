@@ -1,5 +1,6 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit effParticle.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "include_asm.h"
 #include "type.h"
 
 void func_004833f0(s32 arg0);
@@ -12,6 +13,20 @@ void func_004829c0(s32 arg0);
 s32 func_00482800(s32 *arg0);
 
 extern void func_00492d00(int param_1);
+
+// FUN_00486A50
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486a50);
+// FUN_00486B00
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486b00);
+// FUN_00486E10
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486e10);
+// FUN_00486FB0
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486fb0);
+// FUN_00487160
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487160);
+// FUN_004875D0
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_004875d0);
+
 
 
 
@@ -36,6 +51,12 @@ void func_00487650(u8 *arg0, s32 arg1, s32 arg2)
     }
 }
 
+// FUN_00487710
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487710);
+// FUN_004877B0
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_004877b0);
+
+
 
 
 // FUN_00487860
@@ -48,6 +69,12 @@ void func_00487860(u8 *arg0, s32 *arg1)
     }
     *(s32 *)(arg0 + 0x44) = func_00481d80(arg1);
 }
+
+// FUN_004878C0
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_004878c0);
+// FUN_00487A30
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487a30);
+
 
 
 
@@ -72,3 +99,10 @@ void func_00487c00(int param_1)
   }
   return;
 }
+
+// FUN_00487C30
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487c30);
+// FUN_00487FB0
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487fb0);
+// FUN_00488D70
+INCLUDE_ASM("asm/nonmatchings/effParticle", func_00488d70);

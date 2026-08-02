@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
 #include "type.h"
@@ -167,6 +168,12 @@ extern void func_0047aee0(void* mdl, void* matrix);
 
 
 
+
+// FUN_00470E90
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00470e90);
+
+// FUN_00471010
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471010);
 // FUN_004711E0
 u32 func_004711e0(void* param_1, u32* param_2)
 {
@@ -232,6 +239,9 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 #pragma alias DAT_00922bac_abs DAT_00922bac
 
 
+
+// FUN_00471370
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
 // FUN_00472F30
 void func_00472f30(u8* param_1, int param_2)
 {
@@ -249,6 +259,9 @@ void func_00472f30(u8* param_1, int param_2)
 
 
 
+
+// FUN_00473000
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473000);
 // FUN_00473140
 void func_00473140(int param_1)
 {
@@ -334,6 +347,27 @@ u32 func_00473250(u32 param_1)
 
 
 
+
+// FUN_00473350
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473350);
+
+// FUN_00473520
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473520);
+
+// FUN_004735B0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004735b0);
+
+// FUN_00473710
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
+
+// FUN_00473870
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
+
+// FUN_00473B20
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
+
+// FUN_004740C0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004740c0);
 // FUN_004745F0
 void func_004745f0(MdlAnimEntryTable* table)
 {
@@ -358,6 +392,9 @@ void func_004745f0(MdlAnimEntryTable* table)
 
 
 
+
+// FUN_004746B0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004746b0);
 // FUN_00474890
 void func_00474890(void* param_1)
 {
@@ -431,6 +468,18 @@ void* func_00474a10(void* param_1, u32* param_2)
 #pragma alias func_003d5e40_typed func_003d5e40
 
 
+
+// FUN_00474A50
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474a50);
+
+// FUN_00474A90
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474a90);
+
+// FUN_00474AD0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ad0);
+
+// FUN_00474AE0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ae0);
 // FUN_00474AF0
 void* func_00474af0(void* param_1, u16* param_2)
 {
@@ -457,6 +506,9 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 
 
+
+// FUN_00474BA0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
 // FUN_00474CE0
 u32 func_00474ce0(void* param_1)
 {
@@ -538,6 +590,9 @@ void func_00474df0(u8* param_1, void* param_2)
 
 
 
+
+// FUN_00474F40
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474f40);
 // FUN_00475090
 u32 func_00475090(u32 param_1)
 {
@@ -572,6 +627,15 @@ u32 func_00475090(u32 param_1)
 
 
 
+
+// FUN_00475170
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475170);
+
+// FUN_00475350
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475350);
+
+// FUN_00475820
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475820);
 // FUN_00475B10
 void* func_00475b10(void* object, void* data)
 {
@@ -586,6 +650,15 @@ void* func_00475b10(void* object, void* data)
 
 
 
+
+// FUN_00475B90
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475b90);
+
+// FUN_00475CD0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
+
+// FUN_00476C70
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476c70);
 // FUN_00476E10
 void* func_00476e10(void* param_1)
 {
@@ -604,6 +677,9 @@ void* func_00476e10(void* param_1)
 
 
 
+
+// FUN_00476E90
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476e90);
 // FUN_00477260
 void func_00477260(u64 param_1, u32* param_2, u16 param_3)
 {
@@ -645,6 +721,33 @@ u32 func_004772a0(void* param_1, u32* param_2)
 }
 
 
+
+// FUN_00477350
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477350);
+
+// FUN_00477400
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477400);
+
+// FUN_00477430
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477430);
+
+// FUN_004774E0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004774e0);
+
+// FUN_00477510
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477510);
+
+// FUN_00477660
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477660);
+
+// FUN_004776C0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004776c0);
+
+// FUN_004777D0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004777d0);
+
+// FUN_00477810
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477810);
 /* Removing this loses FUN_00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
 #pragma opt_loop_invariants on
 
@@ -706,6 +809,39 @@ done:
 
 
 
+
+// FUN_004779B0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004779b0);
+
+// FUN_00477C40
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477c40);
+
+// FUN_00477CA0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477ca0);
+
+// FUN_00477E80
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477e80);
+
+// FUN_00477F10
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477f10);
+
+// FUN_00477FB0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477fb0);
+
+// FUN_00478140
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478140);
+
+// FUN_004782B0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004782b0);
+
+// FUN_00478410
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478410);
+
+// FUN_00478750
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478750);
+
+// FUN_004787E0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004787e0);
 // FUN_004789C0
 void func_004789c0(Model* mdl)
 {
@@ -720,6 +856,72 @@ void func_004789c0(Model* mdl)
 
 
 
+
+// FUN_00478A30
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478a30);
+
+// FUN_00478EA0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478ea0);
+
+// FUN_00478EB0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478eb0);
+
+// FUN_00478EC0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478ec0);
+
+// FUN_00479080
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479080);
+
+// FUN_00479100
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
+
+// FUN_00479880
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479880);
+
+// FUN_00479910
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479910);
+
+// FUN_00479940
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479940);
+
+// FUN_00479CA0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479ca0);
+
+// FUN_00479D10
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479d10);
+
+// FUN_00479DD0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
+
+// FUN_00479E60
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479e60);
+
+// FUN_00479F60
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479f60);
+
+// FUN_0047A000
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a000);
+
+// FUN_0047A080
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a080);
+
+// FUN_0047A0E0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a0e0);
+
+// FUN_0047A120
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a120);
+
+// FUN_0047A150
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a150);
+
+// FUN_0047A180
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a180);
+
+// FUN_0047A1A0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a1a0);
+
+// FUN_0047A1C0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a1c0);
 // FUN_0047A1E0
 void mdlScale(Model* mdl, const RwV3d* scale, int combineOp)
 {
@@ -737,6 +939,9 @@ void mdlSetColor(Model* mdl, const RwRGBA* color)
 
 
 
+
+// FUN_0047A260
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a260);
 // FUN_0047A2A0
 void func_0047a2a0(u32* param_1)
 {
@@ -755,3 +960,108 @@ void func_0047a2a0(u32* param_1)
     param_1[3] = param_1[3] | 0x20003;
     return;
 }
+
+// FUN_0047A320
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a320);
+
+// FUN_0047A4A0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a4a0);
+
+// FUN_0047A4D0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a4d0);
+
+// FUN_0047A510
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a510);
+
+// FUN_0047A6D0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a6d0);
+
+// FUN_0047A7C0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a7c0);
+
+// FUN_0047A810
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a810);
+
+// FUN_0047A830
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a830);
+
+// FUN_0047A850
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a850);
+
+// FUN_0047A870
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a870);
+
+// FUN_0047A890
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a890);
+
+// FUN_0047A8A0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a8a0);
+
+// FUN_0047A8B0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a8b0);
+
+// FUN_0047A900
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a900);
+
+// FUN_0047A950
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a950);
+
+// FUN_0047A980
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a980);
+
+// FUN_0047A990
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a990);
+
+// FUN_0047A9B0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a9b0);
+
+// FUN_0047A9D0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a9d0);
+
+// FUN_0047A9F0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a9f0);
+
+// FUN_0047AA00
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aa00);
+
+// FUN_0047AA10
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aa10);
+
+// FUN_0047AA30
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aa30);
+
+// FUN_0047AAA0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aaa0);
+
+// FUN_0047AB90
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ab90);
+
+// FUN_0047AC90
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ac90);
+
+// FUN_0047AE10
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ae10);
+
+// FUN_0047AEE0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aee0);
+
+// FUN_0047AF60
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047af60);
+
+// FUN_0047AFD0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047afd0);
+
+// FUN_0047AFF0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aff0);
+
+// FUN_0047B050
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b050);
+
+// FUN_0047B060
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b060);
+
+// FUN_0047B0C0
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
+
+// FUN_0047C660
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047c660);

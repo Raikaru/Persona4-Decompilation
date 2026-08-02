@@ -1,4 +1,6 @@
 #include "type.h"
+#include "include_asm.h"
+
 
 extern u32 RpRandom(void);
 extern void func_0046d730(u8 *arg0, s32 arg1);
@@ -66,6 +68,19 @@ void func_00231dc0(u8 *arg0, s16 arg1)
 
 /* Ported from P3FES src/Main/Battle/Data/datCalc.c FUN_00300410 (verified MATCH there). */
 
+
+// FUN_00231E20
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231e20);
+
+// FUN_00231EF0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231ef0);
+
+// FUN_00231F80
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231f80);
+
+// FUN_00232290
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232290);
+
 // FUN_002325A0
 s32 func_002325a0(DatUnit* unit, s32 hpDelta)
 {
@@ -107,6 +122,10 @@ s32 func_00232610(DatUnit* unit, s32 spDelta)
 
 
 
+
+// FUN_00232730
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232730);
+
 // FUN_00232830
 s32 func_00232830(u16 *arg0, s64 arg1)
 {
@@ -117,6 +136,91 @@ s32 func_00232830(u16 *arg0, s64 arg1)
 }
 
 
+
+
+// FUN_00232880
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232880);
+
+// FUN_00232950
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232950);
+
+// FUN_00232A40
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232a40);
+
+// FUN_00232AA0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232aa0);
+
+// FUN_00232B40
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
+
+// FUN_00232C70
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
+
+// FUN_00232D80
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
+
+// FUN_002332A0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002332a0);
+
+// FUN_00233370
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233370);
+
+// FUN_00233490
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233490);
+
+// FUN_00233570
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233570);
+
+// FUN_00233880
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233880);
+
+// FUN_002339D0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002339d0);
+
+// FUN_00233A90
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233a90);
+
+// FUN_00233BC0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233bc0);
+
+// FUN_002340C0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002340c0);
+
+// FUN_00234830
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00234830);
+
+// FUN_00235020
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235020);
+
+// FUN_00235110
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235110);
+
+// FUN_00235320
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235320);
+
+// FUN_00235520
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235520);
+
+// FUN_002384B0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002384b0);
+
+// FUN_00238940
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00238940);
+
+// FUN_002397D0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002397d0);
+
+// FUN_00239E40
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00239e40);
+
+// FUN_00239F50
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00239f50);
+
+// FUN_0023A1E0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a1e0);
+
+// FUN_0023A490
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a490);
 
 // FUN_0023A620
 s32 func_0023a620(s32 arg0, s32 arg1)
@@ -137,6 +241,10 @@ s32 func_0023a620(s32 arg0, s32 arg1)
 
 
 
+
+// FUN_0023A6B0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a6b0);
+
 // FUN_0023D6E0
 s32 func_0023d6e0(s16 arg0)
 {
@@ -148,6 +256,16 @@ s32 func_0023d6e0(s16 arg0)
 
 
 
+
+// FUN_0023D740
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d740);
+
+// FUN_0023D8E0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d8e0);
+
+// FUN_0023D9B0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d9b0);
+
 // FUN_0023DD90
 u8 func_0023dd90(u8 *arg0, s32 arg1)
 {
@@ -156,6 +274,22 @@ u8 func_0023dd90(u8 *arg0, s32 arg1)
 }
 
 
+
+
+// FUN_0023DDC0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023ddc0);
+
+// FUN_0023DF70
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023df70);
+
+// FUN_0023DFE0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023dfe0);
+
+// FUN_0023DFF0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023dff0);
+
+// FUN_0023E140
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e140);
 
 // FUN_0023E1F0
 u8 func_0023e1f0(u8 *arg0)
@@ -173,6 +307,52 @@ u8 func_0023e1f0(u8 *arg0)
 
 
 
+
+// FUN_0023E270
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e270);
+
+// FUN_0023E2F0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e2f0);
+
+// FUN_0023E3E0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e3e0);
+
+// FUN_0023E5B0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e5b0);
+
+// FUN_0023E6F0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
+
+// FUN_002411A0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
+
+// FUN_00241BC0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
+
+// FUN_00241DE0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
+
+// FUN_00241F00
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241f00);
+
+// FUN_00242360
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242360);
+
+// FUN_00242800
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242800);
+
+// FUN_00242990
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242990);
+
+// FUN_00243650
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243650);
+
+// FUN_00243840
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243840);
+
+// FUN_002438B0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002438b0);
+
 // FUN_00243920
 u16 func_00243920(s64 arg0)
 {
@@ -181,6 +361,37 @@ u16 func_00243920(s64 arg0)
 
 
 /* Ported from P3FES src/Main/Battle/Data/datCalc.c FUN_0030c490 (verified MATCH there). */
+
+
+// FUN_00243950
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243950);
+
+// FUN_002439C0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_002439c0);
+
+// FUN_00243A30
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243a30);
+
+// FUN_00243CE0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243ce0);
+
+// FUN_00243D80
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243d80);
+
+// FUN_00243E30
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243e30);
+
+// FUN_00243E50
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243e50);
+
+// FUN_00243E70
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243e70);
+
+// FUN_00243E90
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243e90);
+
+// FUN_00243EC0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243ec0);
 
 // FUN_00243F20
 void func_00243f20(u16 characterId)
@@ -195,3 +406,7 @@ void func_00243f20(u16 characterId)
     func_00105730(id, value);
     func_00105d50(id, -1);
 }
+
+// FUN_00243FA0
+INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243fa0);
+

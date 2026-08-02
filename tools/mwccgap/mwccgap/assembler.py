@@ -1,3 +1,4 @@
+import hashlib
 import os
 import shutil
 import subprocess
@@ -51,7 +52,51 @@ class Assembler:
         self.as_flags = as_flags
         self.macro_inc_path = macro_inc_path
 
+    def _cache_key(self, asm_filepath: Path, source: bytes) -> str:
+        """Content address for an assembled object.
+
+        Covers the assembly text and every input that changes the output, so a
+        stale entry cannot survive a toolchain or macro.inc change.
+        """
+        digest = hashlib.sha256()
+        digest.update(source)
+        digest.update(repr((str(self.as_path), self.as_march, self.as_mabi,
+                            tuple(self.as_flags))).encode())
+        if self.macro_inc_path and Path(self.macro_inc_path).is_file():
+            digest.update(Path(self.macro_inc_path).read_bytes())
+        return digest.hexdigest()
+
     def assemble_file(
+        self,
+        asm_filepath: Path,
+    ) -> bytes:
+        # INCLUDE_ASM fallbacks are immutable: each is sliced from splat output
+        # and never edited. Without a cache every compile re-assembles all of
+        # them, and each invocation costs ~130 ms because the assembler runs
+        # through WSL on Windows. With thousands of fallbacks in the tree that
+        # dominates every verify and build, so cache on content.
+        cache_dir = Path(os.environ.get("MWCCGAP_ASM_CACHE",
+                                        Path(tempfile.gettempdir()) / "mwccgap-asm-cache"))
+        entry = None
+        try:
+            source = Path(asm_filepath).read_bytes()
+            entry = cache_dir / f"{self._cache_key(asm_filepath, source)}.o"
+            if entry.is_file():
+                return entry.read_bytes()
+        except OSError:
+            entry = None
+        obj_bytes = self._assemble_uncached(asm_filepath)
+        if entry is not None:
+            try:
+                cache_dir.mkdir(parents=True, exist_ok=True)
+                temp = entry.with_suffix(f".{os.getpid()}.tmp")
+                temp.write_bytes(obj_bytes)
+                os.replace(temp, entry)  # atomic: concurrent builds share the cache
+            except OSError:
+                pass
+        return obj_bytes
+
+    def _assemble_uncached(
         self,
         asm_filepath: Path,
     ) -> bytes:

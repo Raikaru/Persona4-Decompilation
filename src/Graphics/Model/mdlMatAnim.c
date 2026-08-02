@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mdlMatAnim.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "include_asm.h"
 
 typedef int (*code)(...);
 extern code DAT_008873ec_abs[];
@@ -26,6 +27,11 @@ extern void func_003bff30_typed(u64 param_1,void *param_2,void *param_3);
 
 #pragma alias DAT_008873ec_abs DAT_008873ec
 
+
+
+
+// FUN_0047F9F0
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047f9f0);
 
 // FUN_0047FA60
 void func_0047fa60(int param_1)
@@ -57,6 +63,26 @@ void func_0047fa60(int param_1)
 }
 
 
+
+
+
+// FUN_0047FB50
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fb50);
+
+
+
+// FUN_0047FBF0
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fbf0);
+
+
+
+// FUN_0047FD10
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fd10);
+
+
+
+// FUN_0047FE90
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fe90);
 
 // FUN_0047FFC0
 void func_0047ffc0(int *param_1)
@@ -118,6 +144,16 @@ void func_0047ffc0(int *param_1)
 }
 
 
+
+
+
+// FUN_00480060
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_00480060);
+
+
+
+// FUN_004800D0
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_004800d0);
 
 // FUN_00480430
 u32 func_00480430(u32 param_1,u32 *param_2)
@@ -197,6 +233,11 @@ u64 func_00480630(u64 param_1,u64 param_2)
 #pragma alias func_003bff30_typed func_003bff30
 
 
+
+
+// FUN_00480670
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_00480670);
+
 // FUN_00480800
 u16 func_00480800(u64 param_1,u32 param_2)
 {
@@ -210,3 +251,8 @@ u16 func_00480800(u64 param_1,u32 param_2)
   func_003bff30_typed(param_1,(void *)&func_00480670,&stack);
   return stack.output;
 }
+
+
+
+// FUN_00480840
+INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_00480840);

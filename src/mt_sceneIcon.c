@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mt_sceneIcon.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
@@ -13,6 +14,11 @@ extern code DAT_008873ec_abs[];
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
+// FUN_0026D840
+INCLUDE_ASM("asm/nonmatchings/mt_sceneIcon", func_0026d840);
+
+// FUN_0026D890
+INCLUDE_ASM("asm/nonmatchings/mt_sceneIcon", func_0026d890);
 // FUN_0026D9F0
 void func_0026d9f0(void)
 {
@@ -21,3 +27,6 @@ void func_0026d9f0(void)
     iVar1 = func_00452560();
     DAT_008873ec_abs[0](iVar1);
 }
+
+// FUN_0026DA30
+INCLUDE_ASM("asm/nonmatchings/mt_sceneIcon", func_0026da30);

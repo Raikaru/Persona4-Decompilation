@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
 
@@ -31,6 +32,12 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 #pragma alias DAT_008873ec_abs DAT_008873ec
 
 
+
+// FUN_0047D1A0
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d1a0);
+
+// FUN_0047D200
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d200);
 // FUN_0047D2D0
 void func_0047d2d0(u32 *param_1)
 {
@@ -41,6 +48,18 @@ void func_0047d2d0(u32 *param_1)
 
 
 
+
+// FUN_0047D310
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d310);
+
+// FUN_0047D320
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d320);
+
+// FUN_0047D460
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d460);
+
+// FUN_0047D540
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d540);
 // FUN_0047D7E0
 void func_0047d7e0(s32 arg0, u8 **arg1)
 {
@@ -197,6 +216,12 @@ void func_0047dae0(u32 *param_1)
 
 
 
+
+// FUN_0047DB50
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047db50);
+
+// FUN_0047DC30
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047dc30);
 // FUN_00482700
 void func_00482700(int param_1, float *param_2)
 {

@@ -9,11 +9,29 @@ extern u32 func_0029d020(void);
 void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 /* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
+#include "include_asm.h"
+
 extern u32 func_00452490(KwlnTask* task);
 extern void func_0029cf50(s32 retVal);
 extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
 
+
+
+// FUN_00298DB0
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00298db0);
+
+// FUN_00298E20
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00298e20);
+
+// FUN_00298E90
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00298e90);
+
+// FUN_00298F40
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00298f40);
+
+// FUN_00298F90
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00298f90);
 
 // FUN_00298FC0
 u32 scrCommand_WAIT()
@@ -32,6 +50,22 @@ u32 scrCommand_WAIT()
 
 
 
+
+// FUN_00299020
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00299020);
+
+// FUN_00299060
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00299060);
+
+// FUN_002990A0
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_002990a0);
+
+// FUN_002990E0
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_002990e0);
+
+// FUN_00299140
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00299140);
+
 // FUN_00299170
 s32 func_00299170(void) {
     s16 sp1C[2]; /* measured: 2-element form required for retail slot at 0x1c */
@@ -43,6 +77,25 @@ s32 func_00299170(void) {
 
 
 
+
+// FUN_002991C0
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_002991c0);
+
+// FUN_002991F0
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_002991f0);
+
+// FUN_00299290
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00299290);
+
+// FUN_002992D0
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_002992d0);
+
+// FUN_00299310
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00299310);
+
+// FUN_002993C0
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_002993c0);
+
 // FUN_00299400
 u32 func_00299400()
 {
@@ -52,6 +105,10 @@ u32 func_00299400()
 }
 
 
+
+
+// FUN_00299450
+INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00299450);
 
 // FUN_002995C0
 u32 scrCommand_SCR_KILL_SYNC()

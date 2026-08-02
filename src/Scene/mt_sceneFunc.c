@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Source unit: src/mt_scene/mt_scene_00268bd0.c (1 function markers) */
 #include "type.h"
 
@@ -72,6 +73,9 @@ extern void func_004b15d0(void);
 
 
 
+// FUN_00268B20
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00268b20);
+
 // FUN_00268BD0
 u32 func_00268bd0(Resrc* resource, s32 enabled)
 {
@@ -138,6 +142,9 @@ u8 func_00268cb0(Resrc* resource)
 
 
 
+// FUN_00268CE0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00268ce0);
+
 // FUN_00268E30
 u32 func_00268e30(float* first, float* second, float* third)
 {
@@ -170,6 +177,9 @@ s32 func_00268e60(u32 unk, u8 *arg1, f32 fparg0) {
 }
 
 
+
+// FUN_00268F20
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00268f20);
 
 // FUN_00269000
 s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s8 arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5) {
@@ -206,6 +216,12 @@ s32 func_00269000(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s8 arg4, f32 fparg0, f
 // there). 003b5d10 -> func_00145270, 003b88c0 -> func_00269190.
 
 
+// FUN_002690B0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_002690b0);
+
+// FUN_00269190
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269190);
+
 // FUN_002692D0
 u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
 {
@@ -225,6 +241,9 @@ u32 func_002692d0(u32 param_1, u32 param_2, float param_3, u32 param_4)
 }
 
 
+
+// FUN_00269340
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269340);
 
 // FUN_00269440
 s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
@@ -248,6 +267,9 @@ s32 func_00269440(u32 unk, u8 *arg1, s32 arg2) {
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b8e10 (verified MATCH
 // there). 003b5d10 -> func_00145270, 003b8ce0 -> func_002694f0.
 
+
+// FUN_002694F0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_002694f0);
 
 // FUN_00269620
 u64 func_00269620(u64 param_1, u64 param_2, u64 param_3, u64 param_4)
@@ -295,6 +317,15 @@ s32 func_00269690(u32 unk, f32 fparg0, s32 arg1) {
 // there). 003b5d10 -> func_00145270, 003b8ff0 -> func_00269820,
 // 003b9260 -> func_002699d0.
 
+
+// FUN_00269740
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269740);
+
+// FUN_00269820
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269820);
+
+// FUN_002699D0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_002699d0);
 
 // FUN_00269A90
 void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
@@ -376,6 +407,24 @@ s32 func_00269c20(u32 unk, s32 arg1) {
 
 
 
+// FUN_00269C70
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269c70);
+
+// FUN_00269DB0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269db0);
+
+// FUN_0026A020
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026a020);
+
+// FUN_0026BA60
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026ba60);
+
+// FUN_0026BC10
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bc10);
+
+// FUN_0026BC90
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bc90);
+
 // FUN_0026BD50
 s32 func_0026bd50(u32 unk, s32 arg1) {
     u8 *temp_2 = (u8*)MT_Scene_GetRes();
@@ -388,6 +437,12 @@ s32 func_0026bd50(u32 unk, s32 arg1) {
 
 
 
+// FUN_0026BDA0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bda0);
+
+// FUN_0026BE60
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026be60);
+
 // FUN_0026BF20
 void func_0026bf20(void) {
     u8 *var_3 = func_001452b0(7);
@@ -398,6 +453,18 @@ void func_0026bf20(void) {
     }
 }
 
+
+// FUN_0026BF70
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bf70);
+
+// FUN_0026BFC0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
+
+// FUN_0026C190
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026c190);
+
+// FUN_0026C310
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026c310);
 
 /* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bb9b0 (verified MATCH there). */
 /* Removing this loses FUN_003bb9b0 (MATCH nd0 -> MISMATCH nd143) - measured W161. */
@@ -610,6 +677,9 @@ void func_0026ca10(float param_1, char *param_2, float *param_3)
 #pragma opt_lifetimes off
 
 
+
+// FUN_0026CBA0
+INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026cba0);
 
 // FUN_0026CCA0
 float func_0026cca0(float param_1, float param_2, float *param_3, float *param_4,

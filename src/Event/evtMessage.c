@@ -1,5 +1,6 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit evtMessage.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "include_asm.h"
 #include "type.h"
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
@@ -14,6 +15,14 @@ extern void func_002781e0_typed(s32, u32);
 /* Source unit: src/Event/mt_evtMessage_00290e10.c (donor FUN_0039f710) */
 
 extern u32 func_00278e90(int param_1);
+
+// FUN_00290880
+INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290880);
+// FUN_00290940
+INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290940);
+// FUN_002909B0
+INCLUDE_ASM("asm/nonmatchings/evtMessage", func_002909b0);
+
 
 
 
@@ -65,6 +74,10 @@ void func_00290b00(int *param_1)
   return;
 }
 
+// FUN_00290BC0
+INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290bc0);
+
+
 /* Source unit: src/Event/mt_evtMessage_00290de0.c (donor FUN_0039f6e0) */
 
 
@@ -89,3 +102,6 @@ u32 func_00290e10(int *param_1)
 nonzero:
   return func_00278e90(param_1[2]);
 }
+
+// FUN_00290E50
+INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290e50);

@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Source unit: src/Battle/btlSound_001f7530.c */
 #include "type.h"
 
@@ -148,6 +149,11 @@ void func_001f7d10(u16 channel, u16 cue, u16 variant)
 
 
 
+// FUN_001F7D90
+INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f7d90);
+
+// FUN_001F7E30
+INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f7e30);
 // FUN_001F8000
 BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 {

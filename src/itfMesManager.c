@@ -1,5 +1,6 @@
 /* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
+#include "include_asm.h"
 
 s32 func_0029d030(void);
 s32 func_0029cc00(s32 index);
@@ -27,6 +28,38 @@ void func_0027b310(u32 param_1);
 
 
 
+// FUN_00276630
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276630);
+
+// FUN_00276730
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276730);
+
+// FUN_002768E0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002768e0);
+
+// FUN_00276AC0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276ac0);
+
+// FUN_00276C60
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276c60);
+
+// FUN_00276E10
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276e10);
+
+// FUN_00276E70
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276e70);
+
+// FUN_00276ED0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276ed0);
+
+// FUN_00276FB0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00276fb0);
+
+// FUN_00277010
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277010);
+
+// FUN_00277070
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277070);
 // FUN_002770D0
 u32 func_002770d0(void)
 {
@@ -44,6 +77,14 @@ u32 func_002770d0(void)
 
 
 
+// FUN_00277130
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277130);
+
+// FUN_002771A0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002771a0);
+
+// FUN_00277250
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277250);
 // FUN_00277370
 u32 func_00277370(void)
 {
@@ -88,6 +129,71 @@ u32 func_00277450(void)
 
 
 
+// FUN_002774D0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002774d0);
+
+// FUN_002776A0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002776a0);
+
+// FUN_002777A0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002777a0);
+
+// FUN_002777F0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002777f0);
+
+// FUN_00277840
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277840);
+
+// FUN_002778C0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002778c0);
+
+// FUN_00277AD0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277ad0);
+
+// FUN_00277B10
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277b10);
+
+// FUN_00277BE0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277be0);
+
+// FUN_00277E80
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277e80);
+
+// FUN_00277EC0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277ec0);
+
+// FUN_00277F70
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277f70);
+
+// FUN_00277FD0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277fd0);
+
+// FUN_00278090
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278090);
+
+// FUN_00278110
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278110);
+
+// FUN_00278170
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278170);
+
+// FUN_002781E0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002781e0);
+
+// FUN_00278260
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278260);
+
+// FUN_002782C0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002782c0);
+
+// FUN_00278450
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278450);
+
+// FUN_002784E0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002784e0);
+
+// FUN_00278570
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278570);
 // FUN_00278610
 s32 func_00278610(s32 arg0, s16 arg1)
 {
@@ -97,6 +203,26 @@ s32 func_00278610(s32 arg0, s16 arg1)
 
 
 
+// FUN_00278640
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278640);
+
+// FUN_002786C0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002786c0);
+
+// FUN_002787D0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002787d0);
+
+// FUN_00278940
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278940);
+
+// FUN_002789A0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002789a0);
+
+// FUN_00278A70
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278a70);
+
+// FUN_00278B80
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278b80);
 // FUN_00278C60
 void func_00278c60(int *param_1, int param_2, u8 *param_3, int param_4)
 {
@@ -144,6 +270,11 @@ check:
 
 
 
+// FUN_00278D50
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
+
+// FUN_00278DA0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278da0);
 // FUN_00278DE0
 int func_00278de0(int param_1,int param_2)
 {
@@ -168,6 +299,14 @@ int func_00278e00(int param_1)
 
 
 
+// FUN_00278E20
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278e20);
+
+// FUN_00278E90
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278e90);
+
+// FUN_00278EF0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278ef0);
 // FUN_00278FB0
 s32 func_00278fb0(s32 arg0)
 {
@@ -184,6 +323,29 @@ s32 func_00278fd0(s32 arg0)
 
 
 
+// FUN_00278FF0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278ff0);
+
+// FUN_00279010
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279010);
+
+// FUN_00279030
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279030);
+
+// FUN_002791F0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002791f0);
+
+// FUN_00279300
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279300);
+
+// FUN_00279350
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279350);
+
+// FUN_00279470
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279470);
+
+// FUN_00279690
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279690);
 // FUN_00279740
 u32 func_00279740(int param_1,int param_2)
 {
@@ -203,6 +365,14 @@ u32 func_00279740(int param_1,int param_2)
 
 
 
+// FUN_00279780
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
+
+// FUN_00279A80
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279a80);
+
+// FUN_00279C00
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279c00);
 // FUN_00279CE0
 void func_00279ce0(int param_1)
 {
@@ -217,6 +387,14 @@ void func_00279ce0(int param_1)
 
 
 
+// FUN_00279D40
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279d40);
+
+// FUN_00279DD0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279dd0);
+
+// FUN_00279E90
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279e90);
 // FUN_00279FD0
 int func_00279fd0(int param_1,u32 param_2)
 {
@@ -235,6 +413,17 @@ int func_00279fd0(int param_1,u32 param_2)
 
 
 
+// FUN_0027A010
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a010);
+
+// FUN_0027A150
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a150);
+
+// FUN_0027A2A0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a2a0);
+
+// FUN_0027A2D0
+INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a2d0);
 // FUN_0027A370
 /* Not `static`: the symbol must stay global so the linker can resolve the
  * retail asm blob's jal to this address (measured: mwldps2 reports Undefined

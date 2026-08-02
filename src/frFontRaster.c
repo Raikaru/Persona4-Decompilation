@@ -1,3 +1,4 @@
+#include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
@@ -6,6 +7,17 @@
 // donor's implicit old-style declarations (FUN_003b3e00_raw/FUN_003b3e60_raw)
 // so the arguments are passed without prototype-driven zero-extension.
 
+// FUN_00275A60
+INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275a60);
+
+// FUN_00275BD0
+INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275bd0);
+
+// FUN_00275C00
+INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275c00);
+
+// FUN_00275D80
+INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275d80);
 // FUN_002761F0
 u32 func_002761f0(u32 param_1, u32 param_2, u32 param_3)
 {
@@ -71,3 +83,9 @@ check:
 done:
     return (u32)entry;
 }
+
+// FUN_002762F0
+INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_002762f0);
+
+// FUN_00276420
+INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00276420);
