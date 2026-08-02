@@ -195,6 +195,26 @@ jobs:
             p4-decomp-ci \
             sh -c 'python tools/build.py --setup-only && make split && make && make verify && make objdiff-objects'
 
+      # The build runs as root inside the container; objdiff-cli runs on the
+      # host as the unprivileged runner user.  Several build outputs are
+      # produced by atomic write (mkstemp + rename), so they land as mode 0600
+      # owned by root and the host cannot even read them:
+      #   Failed to open ./build/objdiff/target/nonmatchings/003dd290.o
+      #   Caused by: Permission denied (os error 13)
+      # Ownership is corrected here rather than by running the container with
+      # --user, deliberately: the build above is byte-exact in this exact
+      # configuration and changing the build UID could perturb it.
+      - name: Take ownership of container-written build output
+        run: |
+          set -eu
+          sudo chown -R "$(id -u):$(id -g)" build
+          # Prove the file objdiff-cli tripped on is now readable by this user.
+          unreadable=$(find build -type f ! -readable | head -5)
+          if [ -n "$unreadable" ]; then
+            echo "::error::still unreadable after chown:"; echo "$unreadable"
+            exit 1
+          fi
+
       - name: Download objdiff-cli
         run: |
           curl -sL -o objdiff-cli https://github.com/encounter/objdiff/releases/download/v3.7.3/objdiff-cli-linux-x86_64
