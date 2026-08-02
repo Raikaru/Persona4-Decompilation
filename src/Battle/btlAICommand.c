@@ -726,58 +726,274 @@ u32 func_001df2d0(void)
 
 
 // FUN_001DF310
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df310);
+s32 func_001df310(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x1000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF3C0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df3c0);
+s32 func_001df3c0(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x2000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF470
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df470);
+s32 func_001df470(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x3000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF520
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df520);
+s32 func_001df520(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x4000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF5D0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df5d0);
+s32 func_001df5d0(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x5000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF680
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df680);
+s32 func_001df680(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x6000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF730
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df730);
+s32 func_001df730(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x7000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF7E0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df7e0);
+s32 func_001df7e0(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x8000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF890
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df890);
+s32 func_001df890(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x9000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF940
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df940);
+s32 func_001df940(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0xA000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DF9F0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001df9f0);
+s32 func_001df9f0(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0xB000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFAA0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dfaa0);
+s32 func_001dfaa0(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0xC000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFB50
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dfb50);
+s32 func_001dfb50(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0xD000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFC00
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dfc00);
+s32 func_001dfc00(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0xE000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFCB0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dfcb0);
+s32 func_001dfcb0(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0xF000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFD60
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dfd60);
+s32 func_001dfd60(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x10000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFE10
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dfe10);
+s32 func_001dfe10(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x11000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFEC0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dfec0);
+s32 func_001dfec0(void) {
+    u32 v = (func_0029cc00(0) & 0xFFFFFF) | 0x12000000;
+    u8 *p = func_0029d050();
+    u32 cmd = (v & 0xFF000000) >> 24;
+    u32 arg = v & 0xFFFFFF;
+    s32 x;
+    if (cmd == 0)
+        x = 0;
+    else
+        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
+    func_0029cf50(x != 0);
+    return 1;
+}
 
 // FUN_001DFF70
 s32 func_001dff70(void) {
