@@ -2,6 +2,9 @@
 #include "include_asm.h"
 #include "type.h"
 
+/* gp - 0x5418 = 0x00763CD8, accessed as a 64-bit word (ld/sd). */
+extern s64 iGpffffabe8;
+
 // FUN_00364320
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364320);
 
@@ -12,10 +15,14 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_003645c0);
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364680);
 
 // FUN_00364C50
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364c50);
+void func_00364c50(void) {
+    iGpffffabe8 |= 0x80;
+}
 
 // FUN_00364C70
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364c70);
+void func_00364c70(void) {
+    iGpffffabe8 &= ~0x80;
+}
 
 // FUN_00364C90
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364c90);

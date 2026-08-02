@@ -11,7 +11,11 @@ extern void (*jtbl_008873EC[])(void *);
 INCLUDE_ASM("asm/nonmatchings/y_fclCmbBall", func_0034ad70);
 
 // FUN_0034AE50
-INCLUDE_ASM("asm/nonmatchings/y_fclCmbBall", func_0034ae50);
+u8 *func_0034ae50(u8 *arg0, s8 arg1) {
+    s32 off = arg1 * 0x200;
+
+    return *(u8 **)(arg0 + 0x38) + off + 0x104;
+}
 
 // FUN_0034AE70
 INCLUDE_ASM("asm/nonmatchings/y_fclCmbBall", func_0034ae70);
