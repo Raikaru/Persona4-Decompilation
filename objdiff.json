@@ -10001,7 +10001,7 @@
       "target_path": "build/objdiff/target/Event/evtEffect/00290f00.o",
       "base_path": "build/objdiff/base/Event/evtEffect/00290f00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -22860,7 +22860,7 @@
       "target_path": "build/objdiff/target/Script/scrScriptProcess/0029df30.o",
       "base_path": "build/objdiff/base/Script/scrScriptProcess/0029df30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
