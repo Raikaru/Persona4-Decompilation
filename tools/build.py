@@ -195,34 +195,35 @@ def patch_align1(path, sec):
     path.write_bytes(d)
 
 
-def patch_text_alignment(path, addresses):
-    """Give each function's .text section the alignment its retail address implies.
+def rename_text_sections(path, addresses):
+    """Give every placed function's .text section a unique name and align 1.
 
-    write_lcf places an OBJECT, not a function: `. = start; obj (.text)` gathers
-    every .text section in the object and the linker lays them out back to back,
-    honouring each section's own alignment. MWCC emits one .text per function at
-    align 16.
+    write_lcf previously placed one OBJECT per directive: `. = start; obj (.text)`
+    gathered every .text section and the linker laid them out back to back,
+    honouring each section's alignment. That reproduces retail's inter-function
+    padding only when the padding is exactly the alignment the retail address
+    implies; an arbitrary gap (a 12-byte pad in front of a merely 4-aligned
+    address) is unreachable, so the whole object was rejected.
 
-    Forcing every section to align 1 (patch_align1) is right for the FIRST
-    function, whose address is arbitrary and must land exactly where `. =` puts
-    it, but it also erases the padding the linker would insert before each later
-    function -- so a function that emits fewer bytes than its window drags every
-    following function off its address.
+    Placing every FUNCTION individually lets the LCF express any gap: each
+    section is renamed to a unique `.text.<symbol>` and its alignment is forced
+    to 1 so mwldps2 lands it exactly on its `. = <address>` directive instead of
+    rounding the placement up to the section's old power-of-two alignment.
 
-    Setting each section's alignment to the largest power of two (up to 16) that
-    divides its own retail address reproduces retail's inter-function padding
-    exactly, while still letting an unaligned first function be placed verbatim.
-
-    ``addresses`` maps function symbol name -> retail address.
+    Section names live in .shstrtab; the new strings are appended at the end of
+    the file and the section's size field is extended to cover them. ``addresses``
+    maps function symbol name -> retail address; only .text sections whose owning
+    function is listed are renamed. A .text section left over is not placed by
+    anything, so callers must treat any leftover as unplaceable.
     """
     data = bytearray(path.read_bytes())
     shoff = struct.unpack_from("<I", data, 0x20)[0]
     entsize, count, stridx = struct.unpack_from("<HHH", data, 0x2e)
-    shstr = struct.unpack_from("<IIIIII", data, shoff + stridx * entsize)[4]
+    str_off = struct.unpack_from("<IIIIII", data, shoff + stridx * entsize)[4]
 
     def section_name(offset):
-        end = data.find(b"\0", shstr + offset)
-        return data[shstr + offset:end].decode()
+        end = data.find(b"\0", str_off + offset)
+        return data[str_off + offset:end].decode()
 
     symtab = strtab = None
     for index in range(count):
@@ -234,29 +235,45 @@ def patch_text_alignment(path, addresses):
     if symtab is None:
         return
 
-    # Alignment is a property of the section, so a section holding several
-    # symbols must satisfy the strictest address among them.
-    wanted: dict[int, int] = {}
+    # MWCC emits one function symbol per .text section; take the largest placed
+    # symbol as the section's owner (a section holding two placed functions is
+    # rejected by object_layout_is_placeable before this ever runs).
+    owner: dict[int, tuple[str, int]] = {}
     offset, size = symtab[4], symtab[5]
     for k in range(size // 16):
         entry = offset + k * 16
-        nameoff, _value, _size, _info, shndx = struct.unpack_from("<IIIBBH", data, entry)
+        nameoff, _value, sym_size, info, _other, shndx = struct.unpack_from("<IIIBBH", data, entry)
+        if not shndx or shndx >= count or (info & 0xF) != 2:
+            continue
         end = data.find(b"\0", strtab + nameoff)
         name = data[strtab + nameoff:end].decode(errors="replace")
-        address = addresses.get(name)
-        if address is None or not shndx or shndx >= count:
+        if name not in addresses:
             continue
         if section_name(struct.unpack_from("<I", data, shoff + shndx * entsize)[0]) != ".text":
             continue
-        align = 16
-        while align > 1 and address % align:
-            align //= 2
-        wanted[shndx] = min(wanted.get(shndx, 16), align)
+        if shndx not in owner or sym_size > owner[shndx][1]:
+            owner[shndx] = (name, sym_size)
+    if not owner:
+        return
 
-    for index in range(count):
-        header = shoff + index * entsize
-        if section_name(struct.unpack_from("<I", data, header)[0]) == ".text":
-            struct.pack_into("<I", data, header + 0x20, wanted.get(index, 1))
+    # The new strings are appended at the end of the file, so their shstrtab
+    # offsets are relative to the table's own file offset, not to its size.
+    appended = bytearray()
+    offsets = {}
+    append_base = len(data) - str_off
+    for shndx, (name, _size) in sorted(owner.items()):
+        offsets[shndx] = append_base + len(appended)
+        appended += f".text.{name}".encode() + b"\0"
+    if appended:
+        data += appended
+        # The table now spans from its original offset to the end of the file,
+        # covering both the original strings and the appended ones.
+        struct.pack_into("<I", data, shoff + stridx * entsize + 0x14,
+                         len(data) - str_off)
+        for shndx, nameoff in offsets.items():
+            header = shoff + shndx * entsize
+            struct.pack_into("<I", data, header, nameoff)     # sh_name
+            struct.pack_into("<I", data, header + 0x20, 1)    # sh_addralign
     path.write_bytes(data)
 
 
@@ -551,43 +568,34 @@ def plan_data_sections(obj, real, retail, gp, resolvable):
     return True, per_name
 
 
-def text_alignment_for(address):
-    """Largest power-of-two alignment up to 16 that the retail address satisfies."""
-    align = 16
-    while align > 1 and address % align:
-        align //= 2
-    return align
-
-
 def object_layout_is_placeable(addrs):
     """Can this object's functions land at their retail addresses?
 
     ``addrs`` is ``(address, window, emitted_size, section_index)`` sorted by
-    address. write_lcf places an OBJECT, not a function: `. = start; obj (.text)`
-    gathers every .text section and lays them out consecutively, honouring each
-    section's alignment. patch_text_alignment gives each function the alignment
-    its own retail address implies, which is what reproduces retail's
-    inter-function padding.
+    address. Every function is now placed individually: rename_text_sections
+    gives each one a unique .text section name and the LCF emits one
+    `. = <address>; obj (.text.<name>)` directive per function, so the linker
+    expresses any inter-function gap directly and zero-fills it. Only genuinely
+    impossible shapes remain:
 
-    Alignment cannot manufacture an arbitrary gap, though -- a 12-byte pad in
-    front of a merely 4-aligned address is unreachable -- so rather than
-    approximate the rule, walk the layout the linker will actually produce and
-    require every function to land on its retail address. A single-function
-    object is always placeable: the LCF places it directly.
+    * a function whose body is longer than its retail window would run into the
+      following function's bytes;
+    * an object whose windows are not contiguous has some other function living
+      between two of its own -- the code-carving step would drop that function's
+      bytes from the splat asm without any object emitting them;
+    * two functions sharing one .text section cannot be split apart, because the
+      rename gives the whole section a single name.
     """
-    if len(addrs) < 2:
-        return True
-    # Concatenation follows section order, not address order.
-    sections = [section for _address, _window, _size, section in addrs]
-    if sections != sorted(sections):
+    sections = {section for _address, _window, _size, section in addrs}
+    if len(sections) != len(addrs):
         return False
-    cursor = addrs[0][0]
-    for address, _window, size, _section in addrs:
-        align = text_alignment_for(address)
-        cursor = (cursor + align - 1) & ~(align - 1)
-        if cursor != address:
+    previous_end = None
+    for address, window, size, _section in addrs:
+        if size > window:
             return False
-        cursor += size
+        if previous_end is not None and address != previous_end:
+            return False
+        previous_end = address + window
     return True
 
 
@@ -1163,14 +1171,22 @@ def main():
             + ".o"
         )
         compile_c(c, o["src"], cobj, cache)
-        patch_text_alignment(cobj, {
+        rename_text_sections(cobj, {
             marker["name"]: (
                 marker["addr"] if isinstance(marker["addr"], int) else int(marker["addr"], 16)
             )
             for marker in o["funcs"] if marker.get("name")
         })
+        leftover = [s for s in V.ObjectFile(cobj).sections if s["name"] == ".text"]
+        if leftover:
+            sys.exit(f"build: {cobj.name} has .text sections no placed marker owns; "
+                     "cannot lay it out per function")
         o["obj"] = cobj
-        entries.append((o["start"], cobj, ".text"))
+        for marker in o["funcs"]:
+            address = marker["addr"]
+            if isinstance(address, str):
+                address = int(address, 16)
+            entries.append((address, cobj, f".text.{marker['name']}"))
         c_text_ranges.append((o["start"], o["end"], o))
         for sname, (base, size) in o["sections"].items():
             entries.append((base, cobj, sname))

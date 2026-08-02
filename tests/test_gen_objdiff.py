@@ -208,16 +208,19 @@ class UnitBuildingTests(unittest.TestCase):
         self.assertTrue(matched[0]["metadata"]["complete"])
 
     def test_progress_categories_split_first_and_third_party(self) -> None:
-        self.assertEqual(gen.PROGRESS_CATEGORIES,
-                         [{"id": "main", "name": "First-party code"},
-                          {"id": "third_party", "name": "Third-party middleware"}])
+        self.assertEqual(
+            [c["id"] for c in gen.PROGRESS_CATEGORIES],
+            ["main", "third_party", "unclassified"])
         self.assertEqual(gen.progress_category("src/Battle/btlTarget.c"), "main")
         self.assertEqual(gen.progress_category("src/rw/rwcore.c"), "third_party")
         self.assertEqual(gen.progress_category("src/cri/cri_adx.c"), "third_party")
         self.assertEqual(gen.progress_category("src/sce/libcdvd.c"), "third_party")
-        # Source-less units have no file attribution; conservative first-party
-        # default so the first-party denominator never shrinks.
-        self.assertEqual(gen.progress_category(None), "main")
+        # A source-less unit cannot be attributed to either side. Folding it
+        # into "main" would inflate the first-party denominator with ~11,000
+        # untouched middleware functions AND leave "third_party" containing
+        # only the middleware already finished, reading 100% complete. Both
+        # published numbers stay meaningful only if these get their own bucket.
+        self.assertEqual(gen.progress_category(None), "unclassified")
         # The config carries the categories and every unit is tagged.
         units = gen.build_units([dict(
             file="src/rw/rwcore.c", addr="0038fb10", line=10,
@@ -226,7 +229,9 @@ class UnitBuildingTests(unittest.TestCase):
         for unit in units:
             unit["metadata"]["progress_categories"] = [gen.progress_category(unit["file"])]
         self.assertEqual(units[0]["metadata"]["progress_categories"], ["third_party"])
-        self.assertEqual(units[1]["metadata"]["progress_categories"], ["main"])
+        # build_canonical_units emits the source-less remainder, which is
+        # exactly the population that must not be silently counted as either.
+        self.assertEqual(units[1]["metadata"]["progress_categories"], ["unclassified"])
 
 
 class TrimWindowPaddingTests(unittest.TestCase):
