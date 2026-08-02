@@ -3,8 +3,25 @@
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+extern void func_00442088(char *dst, char *fmt, u16 a, u16 b);
+extern void func_00440b68(u8 *msg, u8 *file, s32 line);
+extern s32 func_00454a60(char *path, s32 mode);
+extern char D_005EFC60[];
+extern u8 D_005EFC80[];
+extern s32 iGpffffb200;   /* gp - 0x4E00 = 0x007642F0 */
+extern u8 iGpffff9df0;    /* gp - 0x6210 = 0x00762EE0 */
+
 // FUN_0014EED0
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014eed0);
+void func_0014eed0(s32 arg0, s32 arg1)
+{
+    char path[0x40];
+
+    if (iGpffffb200 == 0) {
+        func_00442088(path, D_005EFC60, (u16)arg0, (u16)arg1);
+        func_00440b68(&iGpffff9df0, D_005EFC80, 0x9E);
+        iGpffffb200 = func_00454a60(path, 1);
+    }
+}
 
 // FUN_0014EF40
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014ef40);

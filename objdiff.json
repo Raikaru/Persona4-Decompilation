@@ -15149,7 +15149,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlMatAnim/0047f9f0.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlMatAnim/0047f9f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17162,7 +17162,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldResource/0014eed0.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldResource/0014eed0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
