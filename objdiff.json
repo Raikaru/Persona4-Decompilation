@@ -21045,7 +21045,7 @@
       "target_path": "build/objdiff/target/Main/Social/pscModel/0036a820.o",
       "base_path": "build/objdiff/base/Main/Social/pscModel/0036a820.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -37193,7 +37193,7 @@
       "target_path": "build/objdiff/target/mt_sceneIcon/0026d840.o",
       "base_path": "build/objdiff/base/mt_sceneIcon/0026d840.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135467,7 +135467,7 @@
       "target_path": "build/objdiff/target/promoted/evtEvent/00285480.o",
       "base_path": "build/objdiff/base/promoted/evtEvent/00285480.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
