@@ -27,7 +27,12 @@ s32 func_00293fc0(s32 arg0) {
 }
 
 // FUN_00294040
-INCLUDE_ASM("asm/nonmatchings/evtPMFileReader", func_00294040);
+void func_00294040(s32 arg0) {
+    if (func_00452490(arg0) == 0) {
+        func_0046d730(D_0063C970, 0x131);
+    }
+    func_00452560(arg0);
+}
 
 // FUN_002940A0
 INCLUDE_ASM("asm/nonmatchings/evtPMFileReader", func_002940a0);

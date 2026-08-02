@@ -5,17 +5,43 @@
 
 typedef struct { f32 x, y; } Vec2f;
 typedef struct {
-    u8 pad0[0xCF];
+    u8 pad0[0x4];
+    u32 field_4;
+    f32 field_8;
+    u8 pad1[0x20];
+    f32 field_2C;
+    f32 field_30;
+    u8 pad2[0x2E];
+    u8 field_62;
+    u8 pad3[0x16];
+    u8 field_79;
+    u8 field_7A;
+    u8 field_7B;
+    u8 pad4[0x18];
+    f32 field_94;
+    u8 pad5[0x8];
+    f32 field_A0;
+    u8 pad6[0x20];
+    f32 field_C4;
+    u8 pad7[0x7];
     u8 field_CF;
-    u8 pad1[0x30];
+    u8 pad8[0x24];
+    u32 field_F4;
+    s16 field_F8;
+    u8 pad9[0x2];
+    u32 field_FC;
     s16 field_100;
     s16 field_102;
-    u8 pad2[0xD28];
+    u8 padA[0xC88];
+    void *field_D8C;
+    void *field_D90;
+    void *field_D94;
+    u8 padB[0x94];
     void *field_E2C;
     void *field_E30;
-    u8 pad3[0x2C];
+    u8 padC[0x2C];
     void *field_E60;
-    u8 pad4[0xC4];
+    u8 padD[0xC4];
     void *field_F28;
 } ShopWork;
 
@@ -36,7 +62,7 @@ s32 func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8
 void func_0043f810(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
-void func_00460ac0(void *);
+void func_00460ac0(void *, void *);
 s32 func_002b2a30(s32, s32, s32, s32);
 void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
 s8 func_002e0570(void *, s32);
@@ -197,7 +223,26 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002da0a0);
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002db400);
 
 // FUN_002DD230
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd230);
+void func_002dd230(void *arg0) {
+    u64 sp48;
+    u64 sp40;
+    u64 sp38;
+    ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
+    void *s1;
+
+    s1 = func_002e04e0(work->field_D90);
+    func_002b2970(&sp48, 311.0f, -17.0f);
+    func_002e0620(work->field_D90, *(u64 *)((u8 *)s1 + 0x2C), sp48, 0, 0xA, 0);
+    s1 = func_002e04e0(work->field_D94);
+    func_002b2970(&sp40, 564.0f, -17.0f);
+    func_002e0620(work->field_D94, *(u64 *)((u8 *)s1 + 0x2C), sp40, 0, 0xA, 0);
+    s1 = func_002e04e0(work->field_D8C);
+    func_002b2970(&sp38, -610.0f, -620.0f);
+    func_002e0620(work->field_D8C, *(u64 *)((u8 *)s1 + 0x2C), sp38, 0, 0xA, 0);
+    func_002e04f0(work->field_D8C, 3, 1);
+    func_002e0940(work->field_D8C, 0.0f, 360.0f, 0, 0x708, 0);
+    func_002e04f0(work->field_D8C, 6, 0);
+}
 
 // FUN_002DD3B0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
@@ -288,8 +333,6 @@ void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
 
 // FUN_002E0100
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002e0100);
-
-extern void (*jtbl_008873EC[])(void *ptr);
 
 // FUN_002E02D0
 void func_002e02d0(void *arg0) {

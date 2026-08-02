@@ -119,6 +119,7 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
 
 // FUN_00271310
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271310);
+
 // FUN_00271380
 void func_00271380(s32 arg0, u8 *arg1)
 {
@@ -135,6 +136,7 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
 
 // FUN_002715C0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002715c0);
+
 // FUN_002716B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002716b0);
 // FUN_00271820

@@ -63,7 +63,7 @@ extern void func_002483c0(s32 arg0);
 extern s32 func_00109220(s32 arg0);
 extern void func_0010d360(s32 arg0, void* arg1, s32* arg2);
 extern void func_001029a0(s32 arg0, void* arg1, s32 arg2, s32 arg3);
-extern s32 func_00102980(void);
+extern u32 func_00102980(void);
 extern s32 func_0029d030(void);
 extern s32 func_00243840(s32 arg0);
 extern void func_002782c0(s32 arg0, s32 arg1, s32 arg2, u32 arg3);
@@ -133,6 +133,15 @@ s32 func_0024a450(void)
 
 // FUN_0024A490
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024a490);
+/* measured: retail loads the iGpffffb3d4 base at the top of the
+   if-block, computes a*14 into $v0 (sll 3/subu/sll 1) and addu $v0,$v1;
+   mwcc b210 sinks the base load after the multiply, colors the multiply
+   result $v1 (sll $v1,$v0,1), and in the i<3 loop emits addiu $a2,gp
+   before move $a0,$s1 where retail emits the move first. Tried: named
+   base/off locals in both declaration orders, inline (a*14)+base,
+   base+a*14, 3+base+a*14, named pointer q = base + a*14, (u16)a, j=i+2
+   loop temp. All give the identical nd 6 (4 load-sink/coloring + 2 loop
+   arg order) — the documented load-sinking floor, same as FUN_0024A8B0. */
 // FUN_0024A710
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024a710);
 // FUN_0024A8B0
@@ -461,7 +470,44 @@ s32 func_0024b720(void)
     return 1;
 }
 // FUN_0024B870
-INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024b870);
+s32 func_0024b870(void)
+{
+    s32* s0;
+    s32 sp2c;
+    s32 temp;
+    s32 state;
+
+    s0 = (s32*)func_00452560();
+    state = s0[1];
+    switch (state) {
+    case 0:
+        s0[1] = 1;
+    case 1:
+        s0[1] = 2;
+        func_00440b68(&iGpffffa658, D_006359F0, 0x35D);
+        s0[2] = (s32)func_00454a60(D_00635A40, 1);
+    case 2:
+        if (func_004553c0((u8*)s0[2]) != 0) {
+            s0[1] = 3;
+            s0[0] |= 1;
+        }
+        break;
+    case 3:
+        s0[1] = 4;
+        temp = func_00455f70(D_00635A60, (u32*)&sp2c);
+        if (temp != 0) {
+            s0[9] = func_0046af60(temp);
+        }
+    case 4:
+        if (func_0046a750(s0[9]) != 0) {
+            s0[1] = 5;
+        }
+        break;
+    case 5:
+        break;
+    }
+    return 0;
+}
 // FUN_0024B990
 void func_0024b990(void)
 {

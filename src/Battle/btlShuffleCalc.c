@@ -17,12 +17,27 @@ f32 func_003716d0(f32 fparg0);
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
 typedef struct { f32 x, y, z; } ShuffleVec3;
 f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
+static inline f32 ShfMul(f32 left, f32 right) { return left * right; }
+static inline s32 ShfOr(s32 left, s32 right) { return left | right; }
 
 
+/* measured: retail's `mul.s $f1,$f0,$f1` (const × value) vs mwcc b210's
+   `mul.s $f1,$f1,$f0` (value × const) at the 60.0f*var_3 multiply — the ONLY
+   differing word (nd 2) once the source uses a value-first inline helper
+   ShfMul((f32)var_3, 60.0f) plus a hoisted `s32 w = sp30[0]` local (retail
+   re-issues `sra $v1,$a0,1` for the -320.0f divisor instead of CSE-ing the
+   shift). Flipping the helper to const-first, plain (60.0f*(f32)var_3), or a
+   pre-materialized f32 local makes the constant load hoist before the cvt and
+   re-colors var_3 from $v1 to $a1 (nd 51). Commutative FP-mul scheduling
+   floor; also tried ternary (nd 55) and two-return forms. nd 2. */
 // FUN_00371260
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371260);
 
 
+/* measured: identical to func_00371260 (same layout, 84.0f instead of
+   100.0f): single residual is the commutative `mul.s $f1,$f0,$f1` vs
+   `mul.s $f1,$f1,$f0` operand swap at 60.0f*var_3; same spellings tried as
+   the 00371260 note, all give nd 2 or worse. FP-mul scheduling floor. nd 2. */
 // FUN_003713B0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003713b0);
 
@@ -55,6 +70,12 @@ void func_003715e0(u8 *arg0, u8 *arg1, f32 fparg0) {
 }
 
 
+/* measured: retail keeps sp30[0] in $v1 and the rounded-half shift result in
+   $v0 (lw $v1/sra $v0/addiu $v0/sra $v0/mtc1 $v0), while mwcc b210 always
+   colors the load into $v0 and the result into $v1 (same 6 words differ).
+   Tried named locals (x/y), m2c if-form, inline two-return (object ballooned
+   to 220B, div duplicated), and u32/or spellings — identical nd 6. $v0/$v1
+   coalescing floor. */
 // FUN_003716D0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003716d0);
 
@@ -87,10 +108,24 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
 }
 
 
+/* measured: same u16-sign-test floor as func_00372200/00373610 — the
+   `lhu;bltz` half-scaler chains. mwcc b210 materializes any (s16) cast as
+   dsll32/dsra32 and (with a u16 local) duplicates the else block with two
+   redundant bltz tests; s16-typed locals give a single branch but still the
+   dsll/dsra pair and a WRONG negative path (srl of the sign-extended value
+   instead of the raw). Tried all cast forms; identical artifacts. Everything
+   else in the function (the +0.0f arg copy, 00373cb0 call, interpolation)
+   matches. s16-cast materialization floor. */
 // FUN_00371A60
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
 
 
+/* measured: retail computes the ceil-half trick as `or $t0,$t0,$v1` (dest = srl
+   result reg) in the FIRST negative branch, but mwcc b210 always folds the or
+   into $v1 (andi result reg) there while matching retail exactly in the second
+   branch; the same 2 words (or/mtc1) differ with every spelling tried:
+   ((u32)x>>1)|(x&1), (x&1)|((u32)x>>1), and a `u32 u; u|=…` local (which made
+   BOTH branches wrong, nd 4). $v1-register-coloring floor. nd 2. */
 // FUN_00371BA0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371ba0);
 
@@ -99,6 +134,13 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371ba0);
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371c70);
 
 
+/* measured: same $v1-fold floor as func_00371ba0 — retail `or $a2,$a2,$v1`
+   (dest = srl result reg) in the negative half-scaler branch; mwcc b210
+   always folds the or into $v1 (andi result reg): 2 words (or/mtc1) differ,
+   nd 4 (2 padding). Tried direct ((u32)x>>1)|(x&1), swapped operands
+   (nd 6), and an inline ShfOr helper (identical nd 4). Everything else — the
+   three struct copies, f0+f0 doubling, store order — matches. $v1
+   register-coloring floor. */
 // FUN_00371E50
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371e50);
 
@@ -110,10 +152,24 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371f40);
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
 
 
+/* measured: the two `lhu;bltz` half-scaler chains (the s16 sign test on a
+   u16 field, `(f32)x` conversion, `(f32)((u32)x>>1)|(x&1)` + x+x doubling) —
+   mwcc b210 materializes the (s16) cast as dsll32/dsra32 and then emits the
+   else-block TWICE with two redundant bltz tests (one on the sign-extended
+   value, one on the raw value), blowing the layout to nd 109+. Tried
+   (s32)(s16), plain (s16), test on a fresh load, s16-view local, and the
+   exact m2c masked form (temp_2_3 = x & 0xFFFF) — identical double-branch
+   artifact every time. Retail tests the raw register directly (bltz $v0),
+   which no spelling I tried produces. s16-cast materialization floor. */
 // FUN_00372200
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372200);
 
 
+/* measured: same $v1-or-fold floor as func_00371ba0/00371e50, both
+   half-scaler branches: retail `or $a0,$a0,$v1` (dest = srl result reg),
+   mwcc b210 folds into $v1 (andi result reg) — 4 words (or/mtc1 ×2) differ,
+   nd 6 (2 padding). Tried direct and swapped operand orders — identical.
+   Everything else (struct copies, assert, f20 store) matches. */
 // FUN_003723A0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003723a0);
 
@@ -149,7 +205,25 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372960);
 
 
 // FUN_00372C30
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372c30);
+void func_00372c30(u8 *arg0, s16 arg1, s16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
+    *(s16 *)(arg0 + 0) = 0;
+    *(s16 *)(arg0 + 2) = arg2;
+    *(s16 *)(arg0 + 4) = arg1;
+    if (arg3 != NULL) {
+        *(ShuffleVec4 *)(arg0 + 0x18) = *(ShuffleVec4 *)(arg3 + 0);
+        *(ShuffleVec4 *)(arg0 + 0x8) = *(ShuffleVec4 *)(arg3 + 0);
+    } else {
+        *(ShuffleVec4 *)(arg0 + 0x18) = *(ShuffleVec4 *)(arg0 + 0x8);
+    }
+    if (arg5 == NULL) {
+        func_0046d730(&D_0064E9C0, 0x2E0);
+    }
+    if (arg4 == NULL) {
+        func_0046d730(&D_0064E9C0, 0x2E1);
+    }
+    *(ShuffleVec4 *)(arg0 + 0x38) = *(ShuffleVec4 *)(arg5 + 0);
+    *(ShuffleVec4 *)(arg0 + 0x28) = *(ShuffleVec4 *)(arg4 + 0);
+}
 
 
 // FUN_00372D60
@@ -201,6 +275,15 @@ void func_00373590(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
 }
 
 
+/* measured: the counter increment chain `lhu;addiu;sh;andi` — retail orders
+   sh $v0 BEFORE andi $v1,$v0,0xffff (store raw, mask for the test); mwcc
+   b210 always hoists the andi above the sh (2 words differ, nd 4 = 2 real + 2
+   padding). Tried: (u16) cast, s32 v with &=0xFFFF in place, store-then-
+   reload (emits a real lhu instead), m2c's exact double-mask with named
+   temp_2_3, and inline (temp_2 & 0xFFFF) — identical andi-first schedule
+   every time. Everything else (the >= slt/bnez layout, descending beq
+   switch chain 4,3,2,1,0 with case 0 shared exit, assert 0x379, func_0045af60
+   calls) matches. Store/mask scheduling floor. */
 // FUN_00373610
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00373610);
 

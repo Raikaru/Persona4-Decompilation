@@ -28,6 +28,20 @@ extern void func_00373590(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 typedef struct { f32 x, y, z; } ShuffleVec3;
 
+extern s32 func_00442088(char *buf, const char *fmt, ...);
+extern char D_0064EA80[];
+extern void func_003547c0(s32 *arg0, u8 *arg1);
+extern char D_0064EA20[];
+extern void func_0046d730(const void *file, u32 line);
+extern f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
+extern s64 func_001060b0(void);
+extern s32 func_00110d60(s16 value);
+extern char iGpffffa9d0;
+extern s32 iGpffffa9c8;
+extern u8 *func_00454a60(u8 *param, s32 mode);
+extern void func_00440b68();
+extern void func_00371f40(u8 *arg0, u8 *arg1, f32 fparg0);
+
 
 // FUN_00373E10
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00373e10);
@@ -42,7 +56,19 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003740b0);
 
 
 // FUN_003741F0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003741f0);
+void func_003741f0(u8 *arg0) {
+    s32 temp_17;
+    s32 temp_2;
+
+    temp_17 = !(func_00110d60((s16)func_001060b0()) & 1);
+    func_00440b68(&iGpffffa9d0, D_0064EA20, 0xB5);
+    temp_2 = (s32)(func_00454a60(*(u8 **)((u8 *)&iGpffffa9c8 + temp_17 * 4), 1));
+    *(s32 *)(arg0 + 0x1F2E8) = temp_2;
+    if (temp_2 == 0) {
+        func_0046d730(D_0064EA20, 0xB6);
+    }
+    *(s32 *)(arg0 + 0x1F2EC) = 0;
+}
 
 
 // FUN_003742B0
@@ -173,6 +199,10 @@ s32 func_00375a50(u8 *arg0) {
 }
 
 
+/* measured: retail keeps idx in $a1 (arg1's dead register) and arg0 in $a0, recomputing
+   addu $v1,$a1,$a0 per load (nd 29); mwcc b210 CSEs the base add into $a0 across the
+   branch and keeps idx in $v0. Tried u16/u32 temps, s32/u8* arg0, inline vs named idx,
+   operand orderings — all nd 29. Base-address CSE scheduling floor. */
 // FUN_00375A70
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375a70);
 
@@ -218,6 +248,10 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 }
 
 
+/* measured: retail keeps arg0/s1, idx/s0, p/s2 in three saved registers, using p for all
+   four uses; mwcc b210 folds arg0+idx into one register (p/s0) and reads arg0 from a0
+   directly, needing only two saved registers (nd 38). All variants with idx/p/arg0
+   declaration permutations and operand orderings produce the same nd. */
 // FUN_00375F00
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375f00);
 
@@ -293,7 +327,6 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376330);
 // FUN_003764B0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003764b0);
 
-
 // FUN_00376590
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376590);
 
@@ -303,7 +336,18 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003766f0);
 
 
 // FUN_00376800
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376800);
+void func_00376800(u8 **arg0, s32 arg1) {
+    u8 *var_16;
+
+    var_16 = *arg0;
+    while (var_16 != NULL) {
+        (*(void (**)(s32))(var_16 + 4))(*(s32 *)(var_16 + 8));
+        var_16 = *(u8 **)(var_16 + 0xC);
+    }
+    if (arg1 != 0) {
+        func_00376880(arg0);
+    }
+}
 
 
 /* measured: retail re-loads *arg0 at the top of each iteration; mwcc b210 CSEs it with the
@@ -345,7 +389,15 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377eb0);
 
 
 // FUN_003781D0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003781d0);
+void func_003781d0(u8 *arg0, s32 arg1) {
+    char buf[0x100];
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    func_00442088(buf, D_0064EA80, arg1 & 0xFF);
+    func_003547c0((s32 *)(temp_16 + 8), (u8 *)buf);
+    *(s32 *)temp_16 = 0;
+}
 
 
 // FUN_00378220
@@ -391,4 +443,27 @@ s32 func_00378500(u8 *arg0) {
 
 
 // FUN_00378530
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00378530);
+s32 func_00378530(s32 arg0, s32 arg1) {
+    s32 var_2;
+
+    switch (arg1) {
+    case 0:
+        return arg0;
+    case 1:
+        return arg0;
+    case 2:
+        return arg0;
+    case 3:
+        return arg0 * 2;
+    case 4:
+        if (arg0 < 6) {
+            var_2 = arg0 * 6;
+        } else {
+            var_2 = arg0 * 3;
+        }
+        return var_2;
+    default:
+        func_0046d730(&D_0064EA20, 0x854);
+        return 0;
+    }
+}

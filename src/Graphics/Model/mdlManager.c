@@ -2,6 +2,7 @@
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
 #include "type.h"
+extern f32 iGpffff8040;
 
 extern u32 func_00397460(void);
 typedef void (*CallbackFn)(void);
@@ -67,6 +68,8 @@ extern code DAT_00922ba0_abs[];
 extern u8 DAT_00922ba4_abs[];
 extern u8 DAT_00922ba8_abs[];
 extern u8 DAT_00922bac_abs[];
+extern u8 D_00922BC0;
+extern u8 D_00922BC0_abs[];
 
 extern void RwMatrixScale(void* matrix, const RwV3d* scale, int combineOp);
 
@@ -153,7 +156,7 @@ extern void func_0044ea90(void* a, int b);
 extern void func_0043f9c8(void* a, int b, int c);
 extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
-extern void func_004787e0(void);
+extern void func_004787e0(void* a0);
 extern void func_0048a000(void);
 extern void* func_004779b0();
 extern void func_004782b0(void* a);
@@ -276,6 +279,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 #pragma alias DAT_00922ba4_abs DAT_00922ba4
 #pragma alias DAT_00922ba8_abs DAT_00922ba8
 #pragma alias DAT_00922bac_abs DAT_00922bac
+#pragma alias D_00922BC0_abs D_00922BC0
 
 
 
@@ -1085,11 +1089,40 @@ void func_00479910(void* param_1)
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479940);
 
 // FUN_00479CA0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479ca0);
+s32 func_00479ca0(void* param_1, s32 param_2)
+{
+    u16 mask = (u16)param_2;
+    s32 off;
+    void* ptr;
+    if (mask == 0) {
+        if (*(s32*)((u8*)param_1 + 0x120) == 0 && *(s32*)((u8*)param_1 + 0x234) == 0) {
+            return 0;
+        }
+    } else {
+        off = (s32)mask * 0xA4;
+        ptr = (void*)(off + (s32)param_1);
+        if (*(s32*)((u8*)ptr + 0x120) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
+/* measured: second block matches 100%; first block blocked by (1) retail reuses
+   $a3 (the dead s64 high-half reg, then the dead mask reg) for obj and keeps the
+   dsll32 idx in $t0, mwcc b210 allocates obj=$t0 / idx=$a3 (pure coloring swap;
+   tried with/without mask local, inline vs local obj — identical nd) and (2)
+   retail loads arr = *obj at the top of the body while mwcc sinks the load below
+   the idx*0x50 multiply chain. Load-sinking floor + register-coloring residual. */
 // FUN_00479D10
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479d10);
 
+/* measured: retail loads arr = *obj at the top of the flag body, then re-derives
+   idx via dsll32/dsra32 and multiplies; mwcc b210 sinks the arr load below the
+   idx re-derivation + multiply chain (7 words, all one reorder). Tried: idx as a
+   named s32 local (nd 22, single pair reused), inline (s16)param_3 casts with
+   `count > idx` comparison (nd 7), reversed expression orders. Load-sinking
+   floor (brief: hoisting into a local does not move it). */
 // FUN_00479DD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
 
@@ -1097,13 +1130,66 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479e60);
 
 // FUN_00479F60
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479f60);
+f32 func_00479f60(void* param_1, s32 param_2)
+{
+    f32 value;
+    s32 off;
+    void* ptr;
+    off = (s32)(param_2 & 0xFFFF) * 0xA4;
+    ptr = (void*)(off + (s32)param_1);
+    if (*(s16*)((u8*)ptr + 0xF0) < 0) {
+        value = 0.0f;
+    } else if (*(void**)((u8*)ptr + 0x10C) == 0 ||
+               *(void**)((u8*)*(void**)((u8*)ptr + 0x10C) + 0x20) == 0) {
+        value = 0.0f;
+    } else if (*(void**)((u8*)*(void**)((u8*)*(void**)((u8*)ptr + 0x10C) + 0x20)) == 0) {
+        value = 0.0f;
+    } else {
+        value = *(f32*)((u8*)*(void**)((u8*)*(void**)((u8*)*(void**)((u8*)ptr + 0x10C) + 0x20)) + 0xC);
+    }
+    return value / iGpffff8040;
+}
 
 // FUN_0047A000
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a000);
+f32 func_0047a000(void* param_1, s32 param_2, s64 param_3)
+{
+    f32 value;
+    u16 mask = (u16)param_2;
+    s32 off;
+    void* ptr;
+    void* base;
+    void* arr;
+    void* obj;
+    s32 idx;
+    s32 off2;
+    off = (s32)mask * 0xA4;
+    ptr = (void*)(off + (s32)param_1);
+    if (*(s32*)((u8*)ptr + 0x10C) == 0) {
+        value = 0.0f;
+    } else {
+        base = *(void**)((u8*)ptr + 0x120);
+        arr = *(void**)base;
+        idx = (s16)param_3;
+        off2 = idx * 0x50;
+        obj = (void*)(off2 + (s32)arr);
+        value = *(f32*)((u8*)*(void**)((u8*)obj + 0x40) + 0xC);
+    }
+    return value / iGpffff8040;
+}
 
 // FUN_0047A080
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a080);
+f32 func_0047a080(s32 arg0, s32 arg1) {
+    s32 off = (arg1 & 0xFFFF) * 0xA4;
+    u8 *p = (u8 *)(off + arg0);
+    f32 v;
+
+    if (*(s16 *)(p + 0xF0) < 0) {
+        v = 0.0f;
+    } else {
+        v = *(f32 *)(p + 0xF8);
+    }
+    return v / iGpffff8040;
+}
 
 // FUN_0047A0E0
 void func_0047a0e0(u8 *arg0, s32 arg1, f32 fparg0) {
@@ -1342,11 +1428,37 @@ void func_0047aa10(void* param_1, RwV3d* param_2)
     *(RwV3d*)((u8*)param_1 + 0x170) = *param_2;
 }
 
+/* measured: retail masks the u16 loop counter in the loop head (andi $v1,$a3,0xffff;
+   slti $v1,$v1,5) and AGAIN at the body top (andi $a2,$a3,0xffff) to derive the
+   entry index; mwcc b210 value-numbers the two masks as one value, carries the
+   check's masked register ($a2) across the back edge and emits a redundant
+   self-mask (andi $a2,$a2,0xffff) at the body top. Tried: plain u16 loop (nd 25),
+   explicit `i & 0xFFFF` body mask (nd 6), reversed mask operands (nd 6), s32
+   counter with explicit masks (nd 25), separate s32 chk var while-loop (nd 25),
+   separate u16 idx / s32 idx locals (nd 25). Loop-test-CSE floor. */
 // FUN_0047AA30
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aa30);
 
 // FUN_0047AAA0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aaa0);
+void func_0047aaa0(void* param_1, s32 param_2, void* param_3, void* param_4, void* param_5, u32 param_6)
+{
+    void* obj;
+    s32 off;
+    void* slot;
+    obj = func_004779b0(param_3, param_4);
+    if ((param_6 & 1) != 0) {
+        *(u32*)((u8*)obj + 0xD8) |= 0x4000;
+    }
+    func_0047af60(obj);
+    func_0047aff0(obj, param_5);
+    func_004782b0(obj);
+    off = (s32)(param_2 & 0xFFFF) * 0xC;
+    slot = (void*)(off + (s32)param_1);
+    *(void**)((u8*)slot + 0x290) = obj;
+    *(u32*)((u8*)obj + 0xD8) |= 0x4;
+    *(u32*)((u8*)*(void**)((u8*)slot + 0x290) + 0xD8) |= 0x8000;
+    *(u8*)((u8*)slot + 0x28C) |= 0x1;
+}
 
 // FUN_0047AB90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ab90);
@@ -1354,9 +1466,23 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ab90);
 // FUN_0047AC90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ac90);
 
+/* measured: retail saves THREE s-regs ($16=param_1, $18=scaled off, $17=ptr+0x290)
+   and recomputes ptr = off + param_1 before the post-call byte clear; mwcc b210
+   CSEs ptr into one saved register ($s1) plus $s0=ptr+0x290, giving a 0x30 frame
+   vs retail's 0x40 and an addu-free recompute. Tried: ptr local, slot local,
+   fully-inline off+param_1 expressions — all nd 30. Register-coloring/load-
+   lifetime floor (retail keeps the addu operands alive across the call). */
 // FUN_0047AE10
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ae10);
 
+/* measured: retail re-issues the u16 loop-counter mask in the body (andi $a3,$t3)
+   while mwcc self-masks the check's register (andi $a2,$a2), and retail hoists the
+   inner-loop constant 8 into $a2 at function top (copied per iteration) while mwcc
+   materializes it inside the body; the 8-byte inner copy is lw,lw,sw,sw with
+   loads-first in retail but mwcc interleaves or reverses the pair even with
+   w0/w1 locals, and t-register allocation is permuted vs retail. Tried: plain
+   pair copies, w0/w1 load locals, struct-copy probe (COMPILE ERROR via probe).
+   Loop-test-CSE + load-sinking floor combination. */
 // FUN_0047AEE0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aee0);
 

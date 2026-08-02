@@ -2,6 +2,8 @@
 /* Original translation unit evtMessage.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+extern void func_002777f0();
+extern void func_0043f9c8();
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
 extern void func_0046d730(u8 *file, s32 line);
@@ -22,6 +24,10 @@ extern u32 func_00278e90(int param_1);
 
 // FUN_00290880
 INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290880);
+/* measured: retail booleanises the test (sltu $v1,$0,$v1) and branches on the result;
+   mwcc b210 collapses it into a bare beqz. A named boolean local, a doubled != 0, and
+   #pragma opt_rebuildconditionals off all give the identical nd 16 - the pragma governs
+   the opposite direction (collapsing branches INTO booleans), so it has no effect here. */
 // FUN_00290940
 INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290940);
 // FUN_002909B0

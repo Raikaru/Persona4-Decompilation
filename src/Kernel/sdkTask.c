@@ -341,3 +341,4 @@ void func_00452570(KwlnTask* parent, KwlnTask* child)
 
 // FUN_00452600
 INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452600);
+

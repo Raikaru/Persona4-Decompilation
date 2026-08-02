@@ -25,8 +25,9 @@ extern void func_0045da40(float *a0, void *a1, float a2, s32 a3, void *a4);
 extern void func_0048a000(void);
 extern float func_0044b7b0(float angle);
 extern float func_0044b610(float angle);
-extern s32 func_0045eb20(void *a0, void *a1, float a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7, float a8, float a9, float a10, s32 a11);
+extern s32 func_0045eb20(void *a0, void *a1, float a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7, float a8, float a9, float a10, void *a11);
 extern float D_007612D0;
+extern f32 iGpffff81e0;
 
 typedef struct MsgProcWindowWork {
     s16 field0;
@@ -128,6 +129,16 @@ void func_0027d2f0(void *arg0)
     func_00451fc0(arg0, D_0063C018, 0xF, 0, 0, (void *)func_0027d230, (void *)0, (void *)0);
 }
 
+/* measured: d3c0's loop, madd chains, color packing and call args match retail
+   instruction-for-instruction; the ONLY defect is the frame: 0x2E0 vs retail
+   0x2D0 (the gap above the saved area is 0x24 vs 0x14). mwcc b210 reserves an
+   extra outgoing 0x10 whenever the func_0045eb20 call uses the full 12-arg
+   prototype (floats at positions 3/9/10/11); retail's compile of the same call
+   has no such reservation. Tried: 8-arg and 11-arg prototypes (arity errors /
+   8-arg gives the right frame but can't set f12-f15), old-style `()` (promotes
+   floats to double via fptodp, frame 0x300), s32 vs void* a11, all 6 local
+   declaration orders, arg6/arg7 direct vs s16 locals, u32 vs u8 spD0. nd 99
+   (u32) / 97 (u8, wrong stride). Frame-size floor. */
 // FUN_0027D3C0
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d3c0);
 
@@ -186,6 +197,16 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
     func_0048a000();
 }
 
+/* measured: d800's copy loop, float block, color packing and += loop all match
+   retail instruction-for-instruction in order; only REGISTER allocation differs.
+   Retail's countdown copy loop uses $t5/$t2/$t1/$t0/$v0, keeping $a0-$a3 alive for
+   the later mtc1 $a0/$a1 conversions and sll $a2 packing; mwcc b210 allocates my
+   loop $a0/$a1/$a2 (free after prologue moves) which cascades: conversions read
+   $t1/$t2, and the prologue copies land in $t1/$t2/$t3 vs retail $t4/$v1/$t3.
+   Tried: F2/U32Pair/u64 struct copies, pointer vs indexed loops, for vs do-while
+   countdown, two-local (lo/hi) copy, 4 declaration-order permutations, src/dst
+   statement order, and inline f32Add helpers (all fuse into adda.s/madd.s).
+   nd 66, all 66 words are register-name-only diffs. Register-coloring floor. */
 // FUN_0027D800
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d800);
 
