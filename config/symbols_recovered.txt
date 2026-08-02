@@ -989,6 +989,7 @@ func_002518d0 = 0x002518d0; // type:data
 func_002519e0 = 0x002519e0; // type:data
 func_00251ce0 = 0x00251ce0; // type:data
 func_00251d30 = 0x00251d30; // type:data
+func_00251d80 = 0x00251d80; // type:data
 func_0025c230 = 0x0025c230; // type:data
 func_0025c310 = 0x0025c310; // type:data
 func_0025cbc0 = 0x0025cbc0; // type:data

@@ -2,6 +2,7 @@
 /* Original translation unit evtEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+extern s32 func_00286350();
 
 void func_00452080(s32 arg0);
 /* Old-style: this unit calls it both with no argument (func_002856a0) and with
@@ -63,7 +64,14 @@ void func_00285af0(void) {
 }
 
 // FUN_00285B30
-INCLUDE_ASM("asm/nonmatchings/evtEvent", func_00285b30);
+s32 func_00285b30(void) {
+    s32 h = func_00286350();
+
+    if (h == 0) {
+        return -1;
+    }
+    return *(s32 *)((u8 *)func_00452560(h) + 0x14);
+}
 
 // FUN_00285B80
 INCLUDE_ASM("asm/nonmatchings/evtEvent", func_00285b80);

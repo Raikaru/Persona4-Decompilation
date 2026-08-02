@@ -306,6 +306,8 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003766f0);
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376800);
 
 
+/* measured: retail re-loads *arg0 at the top of each iteration; mwcc b210 CSEs it with the
+   loop test at the bottom and keeps it in $a0, so the body is one load short (nd 18). */
 // FUN_00376880
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376880);
 

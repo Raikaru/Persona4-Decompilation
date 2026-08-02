@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_smap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+extern void (*D_00887304[])(s32, s32);
 
 extern void (*D_00887300[])(s32 state, s32 value);
 
@@ -158,6 +159,9 @@ s64 func_002adcf0(u8 arg0) {
 /* Floor: call-argument setup order before JAL — mwcc hoists the
  * input-derived addiu $a1 ahead of the constant addiu $a0; retail
  * materializes $a0 first. Tried temp vars, arg typing, order swaps. */
+/* measured: retail materialises the constant first argument before computing the second;
+   mwcc b210 evaluates the arithmetic argument first. Caching the function pointer in a
+   local does not change the order (nd 4 either way). Argument-scheduling floor. */
 // FUN_002ADD10
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002add10);
 

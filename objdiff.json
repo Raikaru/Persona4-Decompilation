@@ -16898,7 +16898,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldAI/0017e840.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldAI/0017e840.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16986,7 +16986,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldAI/001821d0.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldAI/001821d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25698,7 +25698,7 @@
       "target_path": "build/objdiff/target/cmmRankUp/00251e60.o",
       "base_path": "build/objdiff/base/cmmRankUp/00251e60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -35378,7 +35378,7 @@
       "target_path": "build/objdiff/target/g_data/g_data/0010f4f0.o",
       "base_path": "build/objdiff/base/g_data/g_data/0010f4f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -36720,7 +36720,7 @@
       "target_path": "build/objdiff/target/itfMesManager/00279300.o",
       "base_path": "build/objdiff/base/itfMesManager/00279300.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134235,7 +134235,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00483490.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00483490.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135544,7 +135544,7 @@
       "target_path": "build/objdiff/target/promoted/evtEvent/00285b30.o",
       "base_path": "build/objdiff/base/promoted/evtEvent/00285b30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
