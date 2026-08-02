@@ -142881,7 +142881,7 @@
       "target_path": "build/objdiff/target/sdkOt/00460d80.o",
       "base_path": "build/objdiff/base/sdkOt/00460d80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142892,7 +142892,7 @@
       "target_path": "build/objdiff/target/sdkOt/00460e80.o",
       "base_path": "build/objdiff/base/sdkOt/00460e80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142903,7 +142903,7 @@
       "target_path": "build/objdiff/target/sdkOt/00460f80.o",
       "base_path": "build/objdiff/base/sdkOt/00460f80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142914,7 +142914,7 @@
       "target_path": "build/objdiff/target/sdkOt/00461080.o",
       "base_path": "build/objdiff/base/sdkOt/00461080.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142936,7 +142936,7 @@
       "target_path": "build/objdiff/target/sdkOt/00461290.o",
       "base_path": "build/objdiff/base/sdkOt/00461290.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
