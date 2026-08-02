@@ -23,7 +23,7 @@ extracting the files required for the build.
 | In byte-exact linked C objects | 977 (7.467% of windows), with 814 assembly fallbacks still inside those objects |
 | First-party matched, scored for recovery | 2,801 |
 | — NAMED (not a `func_<address>` placeholder) | 155 (5.534%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,163 (41.521%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,167 (41.664%) |
 | — DOCUMENTED (prose, or trivially self-evident) | 1,651 (58.943%) |
 | — still carrying decompiler local names | 600 (21.421%) |
 
