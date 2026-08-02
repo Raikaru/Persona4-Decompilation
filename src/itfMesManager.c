@@ -1046,7 +1046,15 @@ void func_0027a2a0(int param_1, int param_2)
 }
 
 // FUN_0027A2D0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a2d0);
+s32 func_0027a2d0(u8 *arg0, u8 *arg1)
+{
+    if (*(s16 *)(arg1 + 0x12) <= 0) {
+        func_0046d730(D_0063BE10, 0xE9F);
+    }
+    return ((*(s32 *)(arg1 + 8) - *(s32 *)(arg0 + 8)) >> 3) /
+               *(s16 *)(arg1 + 0x12) + 1;
+}
+
 // FUN_0027A370
 /* Not `static`: the symbol must stay global so the linker can resolve the
  * retail asm blob's jal to this address (measured: mwldps2 reports Undefined

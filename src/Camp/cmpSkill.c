@@ -180,7 +180,25 @@ void func_0013ab30(u8 *arg0)
 }
 
 // FUN_0013ABB0
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013abb0);
+s32 func_0013abb0(u8 *arg0)
+{
+    s32 result;
+    s32 i;
+    s32 threshold;
+
+    /* i is zeroed before the threshold load, and threshold is held as s32:
+       an s16 local makes mwcc re-sign-extend it on every iteration. */
+    result = 1;
+    i = 0;
+    threshold = *(s16 *)(arg0 + 0x20);
+    while (i < 0x26) {
+        if (threshold < *(s32 *)(arg0 + i * 48 + 0x5B0)) {
+            result = 0;
+        }
+        i++;
+    }
+    return result & func_0034c210();
+}
 
 // FUN_0013AC30
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013ac30);

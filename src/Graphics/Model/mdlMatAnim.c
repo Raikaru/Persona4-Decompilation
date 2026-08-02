@@ -268,4 +268,15 @@ u16 func_00480800(u64 param_1,u32 param_2)
 
 
 // FUN_00480840
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_00480840);
+u8 *func_00480840(s32 arg0)
+{
+    u8 *anim;
+
+    func_0044ea90(D_00713260, 0x3E1);
+    anim = (u8 *)jtbl_008873E8[0]((u16)arg0 * 4 + 0xC, 0x40000);
+    *(s32 *)anim = (s32)(anim + 0xC);
+    *(u16 *)(anim + 4) = 0;
+    *(u16 *)(anim + 8) = 1;
+    *(u16 *)(anim + 6) = arg0;
+    return anim;
+}
