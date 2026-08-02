@@ -26,11 +26,18 @@ REAL_WINDOW = 720
 
 
 def gnu_as_available() -> bool:
-    """True when the project's GNU assembler (possibly via WSL) is reachable."""
+    """True when the project's GNU assembler (possibly via WSL) is reachable.
+
+    Must never raise: this is evaluated at import time by @skipUnless
+    decorators, so an exception here turns the whole module into a collection
+    ERROR instead of a skip. On a Linux CI runner with no cross-assembler there
+    is no `wsl` binary at all, and probing for it raises FileNotFoundError
+    rather than the SystemExit find_gnu_tool uses for "not installed".
+    """
     try:
         tool.find_gnu_tool("mipsel-linux-gnu-as", "P4_AS")
         return True
-    except SystemExit:
+    except (SystemExit, OSError):
         return False
 
 
