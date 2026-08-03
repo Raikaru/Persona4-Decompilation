@@ -38,7 +38,7 @@ extern void func_0036f410(u8 *arg0, u8 *arg1);
 
 extern u8 D_0064E7A0[];
 
-extern void func_0036e140(u8 *arg0);
+extern s32 func_0036e140(void);
 
 extern void func_0036e600(void);
 
@@ -68,9 +68,9 @@ extern s32 func_0010b510();
 
 extern s32 func_0010abd0();
 
-extern u8 *func_0010ace0();
-
 extern s32 func_0010aa80();
+
+extern u8 *func_0010ace0();
 
 extern s32 func_00109390();
 
@@ -104,8 +104,24 @@ extern void (*jtbl_008873EC[])(void *ptr);
 
 extern u8 D_0064E780[];
 
+extern u8 D_0064E650[];
+
+extern u8 D_0064E670[];
+
+extern u8 D_0064E6A0[];
 
 
+
+/* measured: 10-state fallthrough switch machine; jump table jtbl_00752920
+ * decoded entry-by-entry (state 0->1f0, 1->200, 2->350, 3->364, 4->3ac,
+ * 5->408, 6->558, 7->430, 8->488, 9->504) and the case bodies + first loop
+ * reproduce retail's structure (obj 1072B vs 1088B). Residual nd 158:
+ * (1) iGpffffa9c0 as an array gives absolute lui/addiu where retail uses the
+ * GP-relative addiu $gp,-0x5640 (scalar &iGpffffa9c0 form was worse, nd 197);
+ * (2) the for-loop's i++ is scheduled as a separate instruction while retail
+ * puts addiu $s1,1 in the jal delay slot, shifting the whole object by 4 bytes;
+ * (3) the u16/s32 counter increments and the shared-return block land in
+ * different registers/offsets. Loop-scheduling + gp-relative-array floor. */
 // FUN_0036E140
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036e140);
 
@@ -309,7 +325,77 @@ s32 func_0036ea00(s32 arg0, s32 arg1)
     return result;
 }
 // FUN_0036EB50
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036eb50);
+/* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
+ * table base (lui/addiu/addu) inside the loop instead of hoisting it (nd 21);
+ * with it the preheader hoist matches retail. */
+#pragma opt_loop_invariants on
+s32 func_0036eb50(s32 arg0, s32 arg1)
+{
+    s32 x = arg1 & 0xFF;
+    s32 q;
+    s32 limit;
+    s32 i;
+    s32 sum;
+
+    if (x == 0) {
+        x = 1;
+    } else if (x > 0x63) {
+        x = 0x63;
+    }
+    q = (x - 1) / 10;
+    limit = func_00231d70(0x64);
+    sum = 0;
+    i = 0;
+    switch (arg0) {
+    case 0:
+    case 1:
+    case 2:
+        if (func_00106330(0x1431) != 0) {
+            while (i < 3) {
+                sum += D_0064E650[q * 3 + i];
+                if (limit < sum) {
+                    break;
+                }
+                i++;
+            }
+            if (i >= 3) {
+                func_0046d730(D_0064E790, 0x2CF);
+            }
+        }
+        break;
+    case 3:
+        if (func_00106330(0x1432) != 0) {
+            while (i < 4) {
+                sum += D_0064E670[q * 4 + i];
+                if (limit < sum) {
+                    break;
+                }
+                i++;
+            }
+            if (i >= 4) {
+                func_0046d730(D_0064E790, 0x2DB);
+            }
+        }
+        break;
+    case 4:
+        if (func_00106330(0x1433) != 0) {
+            while (i < 3) {
+                sum += D_0064E6A0[q * 3 + i];
+                if (limit < sum) {
+                    break;
+                }
+                i++;
+            }
+            if (i >= 3) {
+                func_0046d730(D_0064E790, 0x2E7);
+            }
+        }
+        break;
+    }
+    return i;
+}
+/* measured: see annotation above (func_0036eb50). */
+#pragma opt_loop_invariants off
 
 // FUN_0036EDA0
 s32 func_0036eda0(s32 arg0)
@@ -338,6 +424,13 @@ s32 func_0036eda0(s32 arg0)
     return i + 1;
 }
 
+/* measured: shuffle-state-machine; the three s16 lists (sp+0xF0/0x2F0/0x4F0)
+ * and four s128 locals (spD0/spC0/spB0/spA0) reproduce the m2c logic but the
+ * frame comes out 0x30 short (0x6C0 vs retail 0x6F0) and the object 96B short
+ * (obj 1360B vs 1456B): retail stores 32-bit values directly into the s128
+ * slots with sq (no widening pair), while b210 emits a dsll32/dsrl32 widening
+ * pair before each sq -- the documented quadword write-side floor. Frame and
+ * every s128 store/load sit at the wrong offset. Quadword-store floor. */
 // FUN_0036EE60
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036ee60);
 
@@ -441,6 +534,13 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
     }
     return result;
 }
+/* measured: body logic and u16 loop counters (andi masking + dsll32/dsra32
+ * sign-extension) reproduce retail's structure (obj 816B vs window 864B);
+ * residual nd ~191 is register allocation: mwcc b210 keeps arg0 flag in $s6
+ * (frame 0xD0) where retail uses $s5 (frame 0xC0), pushing the slots array to
+ * sp+0xA0 vs retail's 0x90 and rotating the loop registers. Named flag, all
+ * counter types, and declaration orders tried; the extra live value across the
+ * inner loop never coaders into $s0-$s5. Saved-register-count floor. */
 // FUN_0036F880
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
 
@@ -521,6 +621,12 @@ s32 func_0036fed0(s32 arg0)
     return 1;
 }
 
+/* measured: main body logic and switch dispatch (u32)(arg0 & 0xFFFF0000)>>16
+ * reproduce retail's lui/and/srl + beq chain; register coloring for p/v17/v16
+ * matches ($s2/$s1/$s0). Residual nd 132: retail sign-extends v16 with a
+ * dsll32/dsra32 pair at each use (s16 and s32 declarations both fail) and loads
+ * the v17 switch constants with daddiu (s32/s64 declarations both emit addiu).
+ * Re-extension + daddiu-constant scheduling floor. */
 // FUN_00370020
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_00370020);
 

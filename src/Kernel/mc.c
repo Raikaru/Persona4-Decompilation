@@ -44,7 +44,7 @@ extern s32 func_002a4570(u8 *);
 extern s32 func_002a4d10(s32);
 extern s32 func_002a73c0(s32, u8 *, u8 *, s32);
 extern s32 func_002a5630(s32);
-extern void func_002a5f00(s32);
+extern s32 func_002a5f00(s32);
 extern void func_00453670(void *, s32, s32, s32, s32);
 extern void func_004538e0(void *, s32, s32, s32, s32);
 extern void func_00453ff0(void *, s32);
@@ -68,6 +68,19 @@ typedef struct { u64 lo, hi; } Qword;
 extern Qword D_0063ED70;
 extern f32 D_00761184;
 extern f32 D_00761174;
+extern f32 iGpffff8214;
+extern f32 iGpffff8218;
+extern f32 iGpffff821c;
+extern f32 iGpffff8030;
+extern s32 func_0043c6a0(u32 arg0);
+extern void func_002a7920(s8, u8 *, s32, s32, u8 *, f32, f32, f32, f32);
+extern void func_002a9f50(s32, u8 *, s32, s32, u8 *, f32, f32, f32);
+extern void func_002a6b10(s32, s32, s32, void *);
+extern void func_002a7710(s32, u8 *);
+extern void func_002a6b60(s32, s32, s32, u8 *);
+extern void func_002a6c30(s32, s32, s32, u8 *);
+extern void func_002a6960(s32, s32, s32, s32, f32);
+extern void func_002a6e30(s32, s32, s32, u8 *);
 extern s32 D_0063ED80[];
 extern f32 func_0044b610(f32);
 extern f32 func_0044b7b0(f32);
@@ -105,8 +118,13 @@ extern void func_0010e710(s32, s32, s32);
 extern s32 func_0010e880(s32, s32, s32);
 extern u16 D_008C024E[];
 extern s32 func_00110580(s32);
-extern void func_00442088(void *, void *, s32);
-extern void func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, void *, void *, s32);
+extern void func_001104d0(s32 seed, s32 *month, s32 *day);
+extern s32 func_00110d30(s32 idx);
+extern s32 func_0025f2c0(s32, s32, u8 *);
+extern u8 *D_0063EA68;
+extern s32 D_0063EA60[];
+extern void func_00442088(void *, void *, s32, ...);
+extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, void *, s32);
 extern s32 func_00275020(s32, s32, s32, void *, s32, s32, f32, f32, f32);
 extern s16 D_0063EB30[];
 extern char iGpffffa824;
@@ -737,12 +755,30 @@ void func_002a4cb0(void) {
 // FUN_002A4D10
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4d10);
 
+/* measured: retail colors p->$s1, s16->$s0, s18->$s2, s19->$s3, s20(loop)->$s4,
+   s21->$s5, f21->$f21, f20->$f20, f23->$f23, f22->$f22; mwcc b210 graph-colors
+   a cyclic rotation (p->$s3, s16->$s4, s18->$s0, s19->$s1, s20->$s1, f21->$f22)
+   and merges s19/s20 into one register. Tried all six saved-reg declaration
+   orders and the mul.s operand-order split; all nd 332. Saved-register rotation
+   floor. */
 // FUN_002A4F20
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
 
+/* measured: the func_0025f430 call site materializes its args with FPU
+   accumulator instructions adda.s $f12,$f0 / madd.s $f13,$f1,$f21 (COP1 MAC
+   writing $f12/$f13), which mwcc b210 cannot emit from plain C; and the
+   surrounding body is the same item-loop family as func_002a4f20/5f00 which
+   both floor on saved-register rotation. FPU-accumulator idiom + rotation
+   floor. */
 // FUN_002A5630
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
 
+/* measured: retail colors p->$s0, s17->$s1, s18->$s2, s19->$s3, s20->$s4; mwcc
+   b210 graph-colors a cyclic rotation (p->$s2, s17->$s0, s18->$s1, s20->$s0,
+   loop-s18->$s4) and the loop's s18 = s17+s19-3 reuses a different register
+   than retail. Tried p first/last, all five saved-reg declaration orders, and
+   the two-statement mul.s (value-in-fs) fix (that one landed); best nd 81.
+   Saved-register rotation floor. */
 // FUN_002A5F00
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5f00);
 
@@ -1150,6 +1186,11 @@ void func_002a7710(s32 arg0, u8 *arg1) {
     }
 }
 
+/* measured: the float-to-arg0 color conversion uses the FPU accumulator idiom
+   adda.s $f1,$f2 / madd.s $f2,$f3,$f0 (COP1 MAC writing accumulator regs),
+   which mwcc b210 cannot emit from plain C; the overflow guard 0x4F000000
+   around the (f32)(s32) conversion is likewise not reproducible. Same
+   FPU-accumulator idiom as func_002a5630. FPU-accumulator floor. */
 // FUN_002A7920
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a7920);
 
@@ -1160,6 +1201,14 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a7920);
 // FUN_002A9100
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a9100);
 
+/* measured: retail frame is 0x140 with saved regs $s0-$s5 + f20-f23; mwcc b210
+   over-allocates the frame to 0x180, mis-allocates saved regs ($s6/$s7/$fp
+   garbage) and the D_00887300 render-vtable base is hoisted into two different
+   saved regs ($21 then $16) across the two call groups. Tried the parent
+   advisory's #pragma opt_propagation off + typed base local for the vtable
+   hoist, all callee arg orders (incl. func_0025f6b0/5f3f0 floats-first), and the
+   struct-field stack layout; best nd 657 with frame over-alloc. Frame +
+   saved-register rotation floor. */
 // FUN_002A95C0
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a95c0);
 

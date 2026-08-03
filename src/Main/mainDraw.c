@@ -4,6 +4,9 @@
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern void (*D_00887300[])(u32, u32);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_00481430(void *arg0);
 extern void func_003e8110(s32 arg0);
 extern s32 func_003e8120(s32 arg0);
 extern void func_003e82a0(s32 arg0, s32 arg1, s32 arg2);
@@ -217,19 +220,114 @@ extern void func_001025e0(void *arg0);
 INCLUDE_ASM("asm/nonmatchings/mainDraw", func_001014b0);
 
 // FUN_001015C0
-INCLUDE_ASM("asm/nonmatchings/mainDraw", func_001015c0);
+#pragma opt_propagation off
+void func_001015c0(void) {
+    void (**base)(u32, u32);
+
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](0x14, 1);
+    base[0](9, 2);
+    base[0](6, 1);
+    base[0](8, 0);
+    base[0](3, 1);
+    base[0](4, 1);
+    base[0](1, 0);
+    func_00481430(func_001015c0);
+}
+#pragma opt_propagation on
 
 // FUN_001016F0
-INCLUDE_ASM("asm/nonmatchings/mainDraw", func_001016f0);
+#pragma opt_propagation off
+void func_001016f0(void) {
+    void (**base)(u32, u32);
+
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x44);
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](0x14, 1);
+    base[0](9, 2);
+    base[0](6, 1);
+    base[0](8, 0);
+    base[0](3, 1);
+    base[0](4, 1);
+    base[0](1, 0);
+    func_00481430(func_001016f0);
+}
+#pragma opt_propagation on
 
 // FUN_00101820
-INCLUDE_ASM("asm/nonmatchings/mainDraw", func_00101820);
+#pragma opt_propagation off
+void func_00101820(void) {
+    void (**base)(u32, u32);
+
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x48);
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](0x14, 1);
+    base[0](9, 2);
+    base[0](6, 1);
+    base[0](8, 0);
+    base[0](3, 1);
+    base[0](4, 1);
+    base[0](1, 0);
+    func_00481430(func_00101820);
+}
+#pragma opt_propagation on
 
 // FUN_00101950
-INCLUDE_ASM("asm/nonmatchings/mainDraw", func_00101950);
+#pragma opt_propagation off
+void func_00101950(void) {
+    void (**base)(u32, u32);
+
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 0x42);
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](0x14, 1);
+    base[0](9, 2);
+    base[0](6, 1);
+    base[0](8, 0);
+    base[0](3, 1);
+    base[0](4, 1);
+    base[0](1, 0);
+    func_00481430(func_00101950);
+}
+#pragma opt_propagation on
 
 // FUN_00101A80
-INCLUDE_ASM("asm/nonmatchings/mainDraw", func_00101a80);
+#pragma opt_propagation off
+void func_00101a80(void) {
+    void (**base)(u32, u32);
+
+    func_003f6440(3, 0x71801);
+    func_003f6440(2, 6);
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](0x14, 1);
+    base[0](9, 2);
+    base[0](6, 1);
+    base[0](8, 0);
+    base[0](3, 1);
+    base[0](4, 1);
+    base[0](1, 0);
+    func_00481430(func_00101a80);
+}
+#pragma opt_propagation on
 
 // FUN_00101BB0
 s32 func_00101bb0(u8 *arg0) {

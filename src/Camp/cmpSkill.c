@@ -77,9 +77,22 @@ extern u8 D_005ED320[];
 extern u8 D_005ED790[];
 extern f32 DAT_00761640;
 
+/* measured: retail keeps arg0 in $s5 and hoists the D_005EBA00 base plus the
+   0x4F000000/0x80000000 float-conversion constants into pre-loop registers;
+   mwcc b210 rematerializes them per-iteration and runs the float->int guard
+   as c.olt.s where retail has c.ole.s. Tried (s16)(s32) cast, explicit
+   two-branch guard, srcbase pointer hoist, m2c declaration order, and
+   #pragma opt_propagation off — all nd 277-281 with fully divergent $s0..$s5
+   register allocation across all five loops. */
 // FUN_00137FB0
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00137fb0);
 
+/* measured: retail keeps var30 in $fp, var19 in $s3, temp20 in $s4 and uses
+   a 0x100 frame with 10 saved registers ($fp/$s7..$s0) across the nested
+   sort loops; mwcc b210 allocates a 0xD0 frame and different $s6/$s4/$s7
+   registers (nd 309). The m2c draft's s128/s64 stack values (sq 0xB0/0xA0/
+   0xC0) and the ld/sd swap collapse to different register coloring. Tried
+   the m2c body converted to C89 — frame/register allocation floor. */
 // FUN_00138490
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138490);
 
@@ -124,6 +137,9 @@ s32 func_00138b20(u8 *arg0)
     func_00138bf0(arg0);
     return result;
 }
+/* measured: retail uses VU0/COP2 FMAC (adda.s/madd.s) and raw .word COP2
+   opcodes in the skill-render loops; m2c emits M2C_ERROR for these. VU0/COP2
+   — not matchable in plain C, standard skip. */
 // FUN_00138BF0
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00138bf0);
 
@@ -135,6 +151,13 @@ s32 func_0013a040(s16 *arg0, s32 arg1, s16 arg2)
     return 1;
 }
 
+/* measured: the bltz int->float random conversion (srl/andi/or/cvt.s.w/
+   add.s) and the overall control flow match; the remaining 258 words are
+   retail's 10-saved-register allocation ($fp/$s7..$s0 holding the base,
+   CA4/CA8/CD0/CBE and counter pointers live across the func_003b7060 calls)
+   vs mwcc b210's own register coloring. Tried pointer hoisting of CD0/CA4/
+   CA8/CBE, m2c declaration order, s16/s32 counter — all nd 258. Register-
+   allocation floor. */
 // FUN_0013A060
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a060);
 
@@ -161,9 +184,16 @@ void func_0013a4a0(void *arg0)
 }
 #pragma opt_common_subs on
 
+/* measured: switch and both data-copy loops match; the final loop's
+   float->s16 conversion guard (c.ole.s 0x4F000000; bc1t; sub.s/cvt.w.s/or
+   0x80000000) is the documented cmpPersona floor -- mwcc b210 emits bc1f
+   (or c.olt.s) for the out-of-line sub branch and different mfc1/or
+   registers, no spelling reproduces retail's c.ole.s+bc1t. Tried (s32)&
+   0xFFFF, (s16)(s32), explicit if/else in both orders, constant-left
+   comparison, #pragma opt_loop_invariants on (hoists the constants, -17
+   words) -- nd 59 floor, plus register allocation in both loops. */
 // FUN_0013A530
 INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a530);
-
 /* measured: retail hoists the lui 0x41c8 (25.0f constant) into the loop
    preheader; mwcc b210 sinks the materialization into the if-branch unless
    #pragma opt_loop_invariants on is active. Tried s32/u32/f32 locals, register,

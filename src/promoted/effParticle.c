@@ -8,9 +8,11 @@ s32 func_004830f0(s32 arg0, s32 arg1);
 
 void func_00481ee0(s32 arg0);
 s32 func_00481d80(s32 *arg0);
+extern s32 func_00481e30(s32 arg0);
 
 void func_004829c0(s32 arg0);
 s32 func_00482800(s32 *arg0);
+extern s32 func_00482a70(s32 arg0);
 
 extern void func_00492d00(int param_1);
 extern void func_00492cd0(u8 *arg0);
@@ -36,7 +38,7 @@ extern u8 *func_00483270(void *arg0);
 extern u8 *func_00484490(u8 *arg0);
 extern u8 *func_004844d0(u8 *arg0);
 void func_004875d0(u8 *arg0, s32 arg1, void *arg2);
-void func_00487160(void *arg0, void *arg1);
+void func_00487160(u8 *arg0, u8 *arg1);
 void func_00487650(u8 *arg0, s32 arg1, s32 arg2);
 void func_004877b0(u8 *arg0, s32 arg1);
 void func_00487860(u8 *arg0, s32 *arg1);
@@ -44,6 +46,17 @@ void func_00487710(u8 *arg0, s32 arg1);
 void func_004878c0(u8 *arg0, void *arg1);
 void func_00487a30(u8 *arg0, void *arg1);
 void func_00487ba0(u8 *arg0, s32 *arg1);
+extern void func_00484970(s32 arg0);
+extern void func_00484a90(s32 arg0, f32 arg1);
+extern void func_00484a40(s32 arg0, void *arg1);
+extern void func_004849c0(s32 arg0);
+extern void func_00485fe0(s32 arg0);
+extern void func_00486400(s32 arg0, f32 arg1);
+extern void func_004861f0(s32 arg0, void *arg1);
+extern void func_00485630(s32 arg0);
+extern void func_00492df0(u8 *arg0, void *arg1);
+extern void func_00492db0(u8 *arg0, void *arg1);
+extern void func_004bceb0(void);
 
 // FUN_00486A50
 void *func_00486a50(s32 arg0)
@@ -61,6 +74,15 @@ void *func_00486a50(s32 arg0)
     *(s32 *)(p + 8) = 0x3F800000;
     return p;
 }
+/* measured: retail keeps the alloc result p in $s2 and reuses $s3 for both
+   var_19 and the func_004844d0 result (temp_2_3); mwcc b210 puts p in $s3 and
+   var_19/temp_2_3 in $s2. The base-hoist (jtbl_008873E8 -> $s1) and the switch
+   jump table match exactly; only this saved-register rotation differs (42
+   words). Tried declaration orders (p/var_19/temp_2_3 in every position), a
+   single shared variable, the comma-operator base form, and #pragma
+   opt_propagation off + typed base local -- all nd >= 42. The jtbl_008873E8
+   base-hoist spelling used here (u32 base = (u32)jtbl_008873E8;
+   ((void (*)(u32,u32))*(u32 *)base)(...)) is correct and matches retail. */
 // FUN_00486B00
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486b00);
 
@@ -155,8 +177,20 @@ void *func_00486fb0(u8 *arg0)
     func_00487160(p, arg0);
     return p;
 }
+/* measured: retail keeps the loop locals count/i in HIGH registers ($s2/$s3)
+   and the params arg0/arg1 in LOW ($s1/$s0) because the switch dispatches on
+   arg1+0xC and every case uses the params; mwcc b210 assigns count/i to $s0/$s1
+   and the params to $s3/$s2 (the same layout as the matched func_004878c0) and
+   nothing reorders it. The switch structure is byte-correct (jump table
+   jtbl_00756860 fully decoded: cases 1,2,4,5,6,7 + default, entries 0/3 -> the
+   0x16A error; case 1 and 4 share 0x004871AC; case 5/6 return early on
+   count==0 and on count*4==0, skipping the arg0[0xC] copy) -- only this
+   saved-register rotation differs (77 words). Tried declaration orders,
+   count>i vs i<count, s32/u32 counters, switch-index locals, #pragma
+   opt_propagation off: all nd >= 77. */
 // FUN_00487160
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487160);
+
 // FUN_004875D0
 void func_004875d0(u8 *arg0, s32 arg1, void *arg2)
 {

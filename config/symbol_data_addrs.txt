@@ -1,5 +1,6 @@
 D_0063EB30 = 0x0063eb30; // type:data evidence: retail func_002a9100 3x copy loops (lh s16 pairs, 6 iterations) at 0x2A922C/0x2A93F4/0x2A94D0; absolute lui/addiu base
 iGpffffa824 = 0x00763914; // type:data evidence: retail func_002a9100 addiu $28,-0x57DC as func_00442088 fmt arg (3 sites); gp base 0x007690F0 -> 0x00763914
+iGpffffa8d0 = 0x007639c0; // type:data evidence: retail func_00311ea0 addiu $9,$28,-0x5730 (0x007639C0) as the 3-pair s8 skill-table base; gp base 0x007690F0 -> 0x007639C0
 // Curated data addresses that tools/recover_symbols.py cannot derive.
 //
 // That tool infers addresses from relocations in MATCHED functions. Two cases
@@ -225,3 +226,28 @@ D_005EFE90 = 0x005EFE90; // type:data evidence: retail k_fldEnvironment func_001
 D_005EFED0 = 0x005EFED0; // type:data evidence: retail k_fldEnvironment func_00154b10 lui %hi(D_005EFED0)/addiu %lo as func_00442088 fmt arg; rodata string; absolute
 iGpffff9e18 = 0x00762f08; // type:data evidence: retail k_fldEnvironment func_00153c00/00154b10 addiu $28,-0x61E8 as func_00440b68 msg arg; gp base 0x007690F0 -> 0x00762F08
 iGpffffac30 = 0x00763d20; // type:data evidence: retail sdkChkmem func_0044ef70 addiu $28,-0x53D0 (0x00763D20) as func_0046d700 fmt arg; gp base 0x007690F0; rodata "%s %d"
+
+D_007241D8 = 0x007641d8; // type:data evidence: retail mdlSE func_0047dea0/0047e450/0047e6f0 gp-0x4F18 as func_0044ea90 file arg; gp base 0x007690F0 -> 0x007641D8
+
+iGpffff8214 = 0x00761304; // type:data evidence: retail mc func_002a4f20 lwc1 GPREL -0x7DEC($28); gp = 0x007690F0 from iGpffffb5a4; f32
+iGpffff8218 = 0x00761308; // type:data evidence: retail mc func_002a4f20 lwc1 GPREL -0x7DE8($28); gp = 0x007690F0 from iGpffffb5a4; f32
+iGpffff821c = 0x0076130C; // type:data evidence: retail mc func_002a4f20 lwc1 GPREL -0x7DE4($28); gp = 0x007690F0 from iGpffffb5a4; f32
+iGpffff8030 = 0x00761120; // type:data evidence: retail mc func_002a4f20 lwc1 GPREL -0x7FD0($28); gp = 0x007690F0 from iGpffffb5a4; f32
+
+D_007242B8 = 0x007642B8; // type:data evidence: retail calendar func_001211b0 sw $0,%gp_rel(-0x4E38)($28); gp base 0x007690F0 -> 0x007642B8
+
+iGpffffbb40 = 0x00764c30; // type:data evidence: retail mdlSE func_0047df40 lw/sw gp-0x44C0($28) as a 32-bit counter; gp base 0x007690F0 -> 0x00764C30
+
+// sdkCdvd.c func_004559b0 file-load buffers, addressed GPREL16 in retail
+// (addiu $4,$28,-0x45C0 etc. as func_003dea20/func_004557e0/D_008873AC args).
+// GP base 0x007690F0; each name encodes the 16-bit displacement.
+iGpffffba40 = 0x00764b30; // type:data evidence: retail func_004559b0 addiu $28,-0x45C0 (0x00764B30) as func_003dea20 arg4; gp base 0x007690F0
+iGpffffba38 = 0x00764b28; // type:data evidence: retail func_004559b0 addiu $28,-0x45C8 (0x00764B28) as func_003dea20 arg5; gp base 0x007690F0
+iGpffffad60 = 0x00763e50; // type:data evidence: retail func_004559b0 addiu $28,-0x52A0 (0x00763E50) as D_008873AC arg1; gp base 0x007690F0
+iGpffffad58 = 0x00763e48; // type:data evidence: retail func_004559b0 addiu $28,-0x52A8 (0x00763E48) as D_008873AC arg1; gp base 0x007690F0
+iGpffffad68 = 0x00763e58; // type:data evidence: retail func_004559b0 addiu $28,-0x5298 (0x00763E58) as D_008873AC arg1; gp base 0x007690F0
+iGpffffad70 = 0x00763e60; // type:data evidence: retail func_004559b0 addiu $28,-0x5290 (0x00763E60) as D_008873AC arg1; gp base 0x007690F0
+iGpffffad78 = 0x00763e68; // type:data evidence: retail func_004559b0 addiu $28,-0x5288 (0x00763E68) as D_008873AC arg1; gp base 0x007690F0
+iGpffffad80 = 0x00763e70; // type:data evidence: retail func_004559b0 addiu $28,-0x5280 (0x00763E70) as D_008873AC arg1; gp base 0x007690F0
+iGpffffbaa0 = 0x00764b90; // type:data evidence: retail func_004559b0 sw $1,-0x4560($28) (0x00764B90) at end; gp base 0x007690F0
+
