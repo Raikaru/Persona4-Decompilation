@@ -385,6 +385,13 @@ s32 func_00232aa0(s32 arg0)
 // FUN_00232B40
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 
+/* measured: retail guard `andi $v0,$s0,0xFFFF; bltz $v0` tests the MASKED value and
+   keeps the dead bltz; mwcc b210 deletes `(arg1&0xFFFF)<0` (proves non-negative) and
+   emits `bltz $s0` on the raw arg1 (tried masked-m, raw-arg1, s16 m, tip mask-order:
+   all nd >= 25). The `& 0x80` branch materializes a boolean `sltu $v1,$zero,$v1`
+   retail keeps (mine folds to beqz, even stored as a flag), and the `return 1` /
+   `0x63` consts load as `daddiu` retail-wide (mine `addiu`). Floor family: dead
+   masked-sign bltz + boolean-materialization + u8-const-daddiu. */
 // FUN_00232C70
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 
@@ -405,6 +412,13 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 // FUN_00232D80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
 
+/* measured: retail emits a byte nibble extraction (odd: sra >>4, even: andi 0xF) with
+   a REDUNDANT dsll32/dsra32 re-sign-extension at the merge point and keeps $s1 = arg1
+   raw (re-masking into a temp after the call). mwcc b210 CSEs the three `arg1 & 0xFF`
+   into a persistent masked $s1 (or spills into $s2 at 204B), and folds the redundant
+   merge sign-extension away (184B). Tried s8-only, s64 re-ext via (s32) and via
+   <<0x38>>0x38, with/without temp_4: all nd 46-51. Mask-CSE + redundant-merge-pair
+   floor family. */
 // FUN_002332A0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002332a0);
 
@@ -1411,6 +1425,13 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
 // FUN_00241BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
 
+/* measured: match reached nd 7 (of 64). All branch/return layout and the switch
+   (case 9/0xA in ascending declaration -> reversed test order) match exactly. The
+   only residual is the iGpffffb3b8 base-pointer load ORDER: retail loads it FIRST
+   into $a0 (lw $a0,-0x4c48($gp)) then computes the 0x28 stride index; mwcc b210
+   sinks the load to its use (loads last into $v0). Tried inline, hoisted base
+   local (frame grew to 0x70, nd 70), idx local, struct-field, decl-order swap:
+   all nd 7. Load-sinking floor family. */
 // FUN_00241DE0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
 

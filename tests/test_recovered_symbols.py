@@ -141,6 +141,31 @@ class CuratedDataAddressTests(unittest.TestCase):
                     f"{CURATED}:{number}: {name} = {addr:#010x} is not word "
                     "aligned and its evidence does not show a byte access")
 
+    # A gp-relative entry's note states the displacement it was read from, e.g.
+    # "GPREL -0x58A0($28)" or "gp-0x45B8". The address must equal gp minus that
+    # displacement, and it is easy to get wrong by hand: seven entries were
+    # committed with addresses off by 0x40000 or 0x60000 from their OWN notes.
+    # They never broke the build only because every function referencing them was
+    # still INCLUDE_ASM -- a spliced-assembly relocation does not consult these.
+    # The first one to match would have moved a load and changed the image.
+    GP_BASE = 0x007690F0
+    GP_OFFSET_RE = re.compile(r"(?:gp|GPREL|\$28|\$gp)\s*[-(]?\s*-?0x([0-9A-Fa-f]{3,5})")
+
+    def test_gp_relative_addresses_agree_with_their_own_evidence(self) -> None:
+        checked = 0
+        for number, name, addr, rest in entries():
+            m = self.GP_OFFSET_RE.search(rest)
+            if not m:
+                continue
+            checked += 1
+            expected = self.GP_BASE - int(m.group(1), 16)
+            with self.subTest(name=name):
+                self.assertEqual(
+                    addr, expected,
+                    f"{CURATED}:{number}: {name} = {addr:#010x} but its evidence "
+                    f"says gp-{m.group(1)}, which is {expected:#010x}")
+        self.assertGreater(checked, 30, "gp-relative evidence notes stopped parsing")
+
     def test_curated_entries_reach_the_generated_output(self) -> None:
         """The whole point: regeneration must not drop them again."""
         generated = GENERATED.read_text(encoding="utf-8")

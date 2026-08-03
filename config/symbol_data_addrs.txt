@@ -22,11 +22,11 @@ iGpffffa824 = 0x00763914; // type:data evidence: retail func_002a9100 addiu $28,
 gPI = 0x007613ec; // type:data evidence: retail word at 0x007613EC is 0x40490FDB == (f32)pi
 D_007613EC = 0x007613ec; // type:data evidence: same address as gPI; name encodes it
 
-iGpffffba48 = 0x007c4b38; // type:data evidence: retail func_00152170 compares gp-0x45B8 (0x007C4B38) to 1; name encodes the offset
-iGpffffba4c = 0x007c4b3c; // type:data evidence: retail func_00152170 lbu gp-0x45B4 (0x007C4B3C) into the 0xF state word
-iGpffffba50 = 0x007c4b40; // type:data evidence: retail func_00152170 lbu gp-0x45B0 (0x007C4B40) into the 0xF state word
-iGpffffba54 = 0x007c4b44; // type:data evidence: retail func_00152170 lbu gp-0x45AC (0x007C4B44) into the 0xF state word
-iGpffffba58 = 0x007c4b48; // type:data evidence: retail func_00152170 lbu gp-0x45A8 (0x007C4B48) into the 0xF state word
+iGpffffba48 = 0x00764b38; // type:data evidence: retail func_00152170 compares gp-0x45B8 (0x00764B38) to 1; name encodes the offset
+iGpffffba4c = 0x00764b3c; // type:data evidence: retail func_00152170 lbu gp-0x45B4 (0x00764B3C) into the 0xF state word
+iGpffffba50 = 0x00764b40; // type:data evidence: retail func_00152170 lbu gp-0x45B0 (0x00764B40) into the 0xF state word
+iGpffffba54 = 0x00764b44; // type:data evidence: retail func_00152170 lbu gp-0x45AC (0x00764B44) into the 0xF state word
+iGpffffba58 = 0x00764b48; // type:data evidence: retail func_00152170 lbu gp-0x45A8 (0x00764B48) into the 0xF state word
 iGpffffba6c = 0x00764b5c; // type:data evidence: retail func_00182220 lwc1 gp-0x4594 (0x00764B5C) into the 0x84 field of the task work; GP base 0x007690F0
 iGpffffb2c8 = 0x007643b8; // type:data evidence: retail func_0017ea10 lw gp-0x4D38 (0x007643B8) as the AI entry table base; GP base 0x007690F0
 iGpffffb25c = 0x0076434c; // type:data evidence: retail func_0017ea10 lw gp-0x4DA4 (0x0076434C) compared to 1; GP base 0x007690F0
@@ -56,8 +56,8 @@ iGpffff8220 = 0x00761310; // type:data evidence: retail func_0034ddf0 GPREL -0x7
 // func_002782c0 reads GPREL -0x58A0($28) and -0x4BBC($28); no matched function
 // references those addresses yet. GP base 0x007690f0 (see iGpffffb4b0 entry):
 // 0x7690f0-0x58a0 = 0x723850, 0x7690f0-0x4bbc = 0x724534.
-iGpffffa760 = 0x00723850; // type:data evidence: GPREL -0x58A0($28) in func_002782c0 against GP base 0x007690f0
-iGpffffb444 = 0x00724534; // type:data evidence: GPREL -0x4BBC($28) in func_002782c0 against GP base 0x007690f0
+iGpffffa760 = 0x00763850; // type:data evidence: GPREL -0x58A0($28) in func_002782c0 against GP base 0x007690f0
+iGpffffb444 = 0x00764534; // type:data evidence: GPREL -0x4BBC($28) in func_002782c0 against GP base 0x007690f0
 
 // y_fclShopDraw.c func_002d3ee0 loads lwc1 0x0/0x4 relative to lui %hi(D_0063F5xx)
 // bases (relocs only present in INCLUDE_ASM so far). Addresses verified against
@@ -147,6 +147,19 @@ D_00761434 = 0x00761434; // type:data evidence: retail func_00372960 lwc1 -0x7CB
 D_00761438 = 0x00761438; // type:data evidence: retail func_00372960 lwc1 -0x7CB8($gp) at 0x272B40; word 0xBE2AAAAB = -0.166666672f (Taylor coeff)
 D_007614E8 = 0x007614E8; // type:data evidence: retail func_00372960 lwc1 -0x7C08($gp) at 0x272B0C; word 0x2F2EC9D3 = 1.58969102e-10f (Taylor coeff)
 D_005E4DB0 = 0x005e4db0; // type:data evidence: name encodes the address; retail func_00119210 (0x19484) copies 0x50 bytes from it via lui/addiu %hi/%lo(D_005E4DB0)
+D_005EB590 = 0x005EB590; // type:data evidence: retail func_001370e0 (0x370F8) copies 25 s16 (0x32 bytes) from it via lui/addiu %hi/%lo(D_005EB590) into sp40
+D_005E9FD0 = 0x005E9FD0; // type:data evidence: retail func_001371a0 (0x37254) sets $16 base via lui/addiu %hi/%lo(D_005E9FD0); reads f32/u8/s32 fields at 0x0/0x4/0x8/0xC/0x10/0x14/0x18
+D_005EA2E0 = 0x005EA2E0; // type:data evidence: retail func_001371a0 (0x37270) sets $16 base via lui/addiu %hi/%lo(D_005EA2E0); reads f32/u8/s32 fields at 0x0..0x18
+D_005EA5F0 = 0x005EA5F0; // type:data evidence: retail func_001371a0 (0x37280) sets $16 base via lui/addiu %hi/%lo(D_005EA5F0); reads f32/u8/s32 fields at 0x0..0x18
+D_005EA900 = 0x005EA900; // type:data evidence: retail func_001371a0 (0x3729C) sets $16 base via lui/addiu %hi/%lo(D_005EA900); reads f32/u8/s32 fields at 0x0..0x18
+D_005EAC10 = 0x005EAC10; // type:data evidence: retail func_001371a0 (0x372BC) sets $16 base via lui/addiu %hi/%lo(D_005EAC10); reads f32/u8/s32 fields at 0x0..0x18
+D_005EAF20 = 0x005EAF20; // type:data evidence: retail func_001371a0 (0x372DC) sets $16 base via lui/addiu %hi/%lo(D_005EAF20); reads f32/u8/s32 fields at 0x0..0x18
+D_005EB230 = 0x005EB230; // type:data evidence: retail func_001371a0 (0x37320) sets $16 base via lui/addiu %hi/%lo(D_005EB230); reads f32/u8/s32 fields at 0x0..0x18
+D_005E57F0 = 0x005E57F0; // type:data evidence: retail func_001356d0 (0x35A28) passes &D_005E57F0 to func_0046a770 via lui/addiu %hi/%lo
+D_005E5830 = 0x005E5830; // type:data evidence: retail func_001356d0 (0x359C8) passes &D_005E5830 to func_0046a770 via lui/addiu %hi/%lo
+D_005E5850 = 0x005E5850; // type:data evidence: retail func_001356d0 (0x359F8) passes &D_005E5850 to func_0046a770 via lui/addiu %hi/%lo
+D_005E9FB0 = 0x005E9FB0; // type:data evidence: retail func_001356d0 (0x35A88) lbu reads D_005E9FB0[i] via lui/addiu %hi/%lo
+D_0064A790 = 0x0064A790; // type:data evidence: retail func_001356d0 (0x35B6C) passes &D_0064A790 to func_002baac0 via lui/addiu %hi/%lo
 iGpffff8394 = 0x00761458; // type:data evidence: retail func_00119810 lwc1 -0x7C98($28) as func_00274ed0's 7th arg; gp base 0x007690F0 -> 0x00761458
 D_00636210 = 0x00636210; // type:data evidence: retail func_00252a60 copies 4x8 bytes from it into sp110
 D_00636230 = 0x00636230; // type:data evidence: retail func_00252a60 copies 4x8 bytes from it into spF0
@@ -188,3 +201,27 @@ D_00794CF0 = 0x00794cf0; // type:data evidence: retail func_002afbc0 lui %hi(D_0
 iGpffffa840 = 0x00763930; // type:data evidence: retail func_002b1520 ld gp-0x57C0 (0x00763930) stored to 0x68($sp) prologue; gp base 0x007690F0
 iGpffffa848 = 0x00763938; // type:data evidence: retail func_002b1520 ld gp-0x57B8 (0x00763938) stored to 0x60($sp) prologue; gp base 0x007690F0
 iGpffff84f4 = 0x007615e4; // type:data evidence: retail func_002b1520 lwc1 gp-0x7B0C (0x007615E4) as func_002b2aa0 arg2 and the f21 compare; gp base 0x007690F0
+D_005DC8CC = 0x005dc8cc; // type:data evidence: retail btlCutin func_001fa190 lui %hi(D_005DC8CC)/addiu %lo(D_005DC8CC) as func_00481440 arg1 at 0x1FA1C0; absolute lui/addiu
+
+D_00625190 = 0x00625190; // type:data evidence: retail btlCutin func_001fa490 lui %hi(D_00625190)/addiu %lo(D_00625190) as func_00442088 fmt arg (case 1); rodata string "battle/cutin/syoudaku/BOKO_SD_%X_%s.EPL"
+D_00625090 = 0x00625090; // type:data evidence: retail btlCutin func_001fa490/func_001f9cf0 lui %hi(D_00625090)/addiu %lo(D_00625090) as func_00440b68 fmt arg; rodata string "btlCutin.c"
+D_006251C0 = 0x006251C0; // type:data evidence: retail btlCutin func_001fa490 lui %hi(D_006251C0)/addiu %lo(D_006251C0) as func_00442088 fmt arg (case 3); rodata string "battle/cutin/syoudaku/TUGK_SD_%X_%s.EPL"
+iGpffffa528 = 0x00763618; // type:data evidence: retail btlCutin func_001fa490 addiu $28,-0x5AD8 (0x00763618) as func_00440b68 arg0; gp base 0x007690F0; rodata "%s %d"
+iGpffffa530 = 0x00763620; // type:data evidence: retail btlCutin func_001fa490 addiu $28,-0x5AD0 (0x00763620) indexed by temp_5*4 as s32 lw into func_00442088 vararg; gp base 0x007690F0; pointer-array base
+iGpffffa520 = 0x00763610; // type:data evidence: retail btlCutin func_001f9cf0 addiu $28,-0x5AE0 (0x00763610) indexed by temp_5*4 into $18 base; gp base 0x007690F0; pointer-array base
+D_00625050 = 0x00625050; // type:data evidence: retail btlCutin func_001f9cf0 lui %hi(D_00625050)/addiu %lo(D_00625050) indexed by var_19*4 as s32 lw into func_00442088 vararg; pointer-array base (3 ptrs)
+D_00625060 = 0x00625060; // type:data evidence: retail btlCutin func_001f9cf0 lui %hi(D_00625060)/addiu %lo(D_00625060) as func_00442088 fmt arg; rodata string
+D_006250A0 = 0x006250A0; // type:data evidence: retail btlCutin func_001f9cf0 lui %hi(D_006250A0)/addiu %lo(D_006250A0) as func_00442088 fmt arg; rodata string
+D_006250D0 = 0x006250D0; // type:data evidence: retail btlCutin func_001f9cf0 lui %hi(D_006250D0)/addiu %lo(D_006250D0) as func_00442088 fmt arg; rodata string
+D_00625100 = 0x00625100; // type:data evidence: retail btlCutin func_001f9cf0 lui %hi(D_00625100)/addiu %lo(D_00625100) as func_00442088 fmt arg; rodata string
+D_00625130 = 0x00625130; // type:data evidence: retail btlCutin func_001f9cf0 lui %hi(D_00625130)/addiu %lo(D_00625130) as func_00442088 fmt arg; rodata string
+D_00625160 = 0x00625160; // type:data evidence: retail btlCutin func_001f9cf0 lui %hi(D_00625160)/addiu %lo(D_00625160) as func_00442088 fmt arg; rodata string
+
+
+D_005EFE50 = 0x005EFE50; // type:data evidence: retail k_fldEnvironment func_00153a60/00153c00/00154b10 lui %hi(D_005EFE50)/addiu %lo as func_0044ea90/00440b68 msg arg; rodata string; absolute
+D_005EFE68 = 0x005EFE68; // type:data evidence: retail k_fldEnvironment func_00153a60 lui %hi(D_005EFE68)/addiu %lo as func_00451fc0 data arg; absolute
+D_005EFE78 = 0x005EFE78; // type:data evidence: retail k_fldEnvironment func_00153c00/00154b10 lui %hi(D_005EFE78)/addiu %lo as func_00442830 arg; rodata string; absolute
+D_005EFE90 = 0x005EFE90; // type:data evidence: retail k_fldEnvironment func_00153c00 lui %hi(D_005EFE90)/addiu %lo as func_00442088 fmt arg; rodata string; absolute
+D_005EFED0 = 0x005EFED0; // type:data evidence: retail k_fldEnvironment func_00154b10 lui %hi(D_005EFED0)/addiu %lo as func_00442088 fmt arg; rodata string; absolute
+iGpffff9e18 = 0x00762f08; // type:data evidence: retail k_fldEnvironment func_00153c00/00154b10 addiu $28,-0x61E8 as func_00440b68 msg arg; gp base 0x007690F0 -> 0x00762F08
+iGpffffac30 = 0x00763d20; // type:data evidence: retail sdkChkmem func_0044ef70 addiu $28,-0x53D0 (0x00763D20) as func_0046d700 fmt arg; gp base 0x007690F0; rodata "%s %d"
