@@ -5,29 +5,13 @@
 [![code](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=code&measure=complete_code_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![byte-exact linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 
-The first three badges are served by [decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation),
-which ingests the objdiff report this repository publishes. They all report the
-`complete_*` measures, not the `matched_*` ones: this project counts a function
-only when it is byte-identical, whereas `matched_code_percent` is
-fuzzy-weighted and credits near misses, so the two disagree by nine functions
-today. `first-party functions` further selects the `main` category, the same one
-`tools/gen_objdiff.py` tags units with, and so counts only code the project
-actually wrote rather than the middleware and the 8,221 windows not yet
-attributed to a source file.
-
-The fourth badge is this repository's own stricter gate and has no decomp.dev
-equivalent: the share of windows sitting inside C objects that link
-byte-for-byte. It is far lower than the matched count because an object only
-qualifies once *every* function in it is C, so one assembly fallback withholds
-all of its neighbours.
-
 Matching decompilation of **Shin Megami Tensei: Persona 4** for PlayStation 2
-(USA, version 1.00, `SLUS_217.82`).
+(USA, version 1.00, `SLUS_217.82`). The build reproduces the retail load image
+and ELF byte-for-byte.
 
-This repository contains source and build tooling, not the game executable, disc
-image, or extracted game data. Use a copy you legally own. The setup tool checks
-the disc against the [Redump record](http://redump.org/disc/5576/) before
-extracting the files required for the build.
+Source and tooling only — no executable, disc image, or game data. `make setup`
+checks your disc against the [Redump record](http://redump.org/disc/5576/)
+before extracting what the build needs.
 
 ## Status
 
@@ -45,11 +29,10 @@ extracting the files required for the build.
 | — DOCUMENTED (prose, or trivially self-evident) | 1,773 (58.786%) |
 | — still carrying decompiler local names | 689 (22.845%) |
 
-Byte-identical is not the same as recovered. A matching function can still carry an address for a name, raw field offsets and generated local names, so the recovery rows above are tracked separately and are the current bottleneck. Run `tools/recovery_quality.py --worst 20` for the files that need it most.
+Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.
 <!-- STATUS:END -->
 
-The matching build uses MWCCPS2/MWLDPS2 and reproduces the retail load image and
-ELF byte-for-byte. See [`ROADMAP.md`](ROADMAP.md) for current priorities.
+See [`ROADMAP.md`](ROADMAP.md) for current priorities.
 
 ## Setup
 
@@ -119,11 +102,8 @@ python tools/m2c_bulk.py --check
 python tools/verify.py --include-generated --json build/m2c_verify_report.json
 ```
 
-Generated candidates under `src/generated/` support ongoing work and are not
-authoritative source: each file is a whole translation unit holding many
-`// FUN_xxxxxxxx M2C_CANDIDATE` functions, exactly like authoritative files
-(no per-function guards). Exact-retail assembly bodies preserve ownership
-where semantic C has not yet been recovered.
+`src/generated/` holds m2c candidates, not authoritative source: whole
+translation units of `// FUN_xxxxxxxx M2C_CANDIDATE` functions.
 
 ## Tools
 
@@ -133,7 +113,7 @@ make shared-p3 P3_ROOT=../Persona3-FES-Decompilation
 python tools/progress.py
 ```
 
-The shared-code mapper compares Persona 3 FES and Persona 4 without copying
+`make shared-p3` compares Persona 3 FES against Persona 4 without copying
 proprietary files into this repository.
 
 ## Layout
