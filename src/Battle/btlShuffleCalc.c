@@ -14,6 +14,9 @@ extern void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, f32 fparg0);
 extern void func_003e40b0(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern void func_003dcc70(void *a0, void *a1, void *a2);
+extern s32 func_003e0f80(void);
+extern void func_003e0870(s32 a0, void *a1, s32 a2, f32 fparg0);
+extern void func_003e0f40(s32 a0);
 extern f32 D_00761144;
 extern f32 D_00761148;
 extern f32 D_00761150;
@@ -158,21 +161,40 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371c70);
 // FUN_00371E50
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371e50);
 
+/* measured: best nd 48. Structure, sp50 diffs, call args, arg1 adds all
+   match; the lerp must be computed BEFORE the 003e0f80 call (inline-arg
+   form puts temp_2 across the call -> spurious saved $s3, frame 0x70).
+   Residuals: (1) saved-reg rotation arg0/arg1/temp_16 = s1/s0/s2 vs retail
+   s2/s1/s0 (decl orders tried; temp_16 is a plain int local used across
+   calls); (2) the half-scaler's recorded or-fold + cvt-scratch (4 words);
+   (3) mwcc emits `add.s $f1,$f20,$f0` and `madd.s $f20,$f1,$f2` with the
+   SECOND source operand in fs regardless of source order (fparg0-in-fs is
+   stable across both operand orders; the madd flip would reverse the
+   div/sub evaluation order). FP-add operand-order floor. */
 // FUN_00371F40
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371f40);
 
 
-/* measured: best nd 15. Half-scaler/increment/early-return all match via
-   the u32-local spelling, but the FP-acc lerp arg needs retail's UNfolded
-   `(converted + 0.0f) / w` (b210 folds x+0.0f in arithmetic; only direct
-   call-arg +0.0f survives) and the 2nd half-scaler colors $f1 vs retail $f0
-   (two-var spelling breaks int coloring). Commutative/add-fold floor. */
+/* measured: best nd 61. The FP-acc lerp arg and the inline 2nd half-scaler
+   (ternary, h+h doubling) match retail, and the or-fold/cvt-scratch floor
+   (cf. func_00372960 note) is confined to the 1st half-scaler - but the
+   increment's field read `(u16)(*(u16*)(arg0+0) + 1)` is CSE'd by b210 with
+   the 1st half-scaler's load (no intervening store), keeping that value
+   live across the whole half-scaler: retail re-loads (lhu) before the
+   addiu, so the candidate loses 1 word and the long-lived value gets
+   colored $a0 (retail $v0), cascading through srl/andi/or/mtc1 (9 words).
+   Local-based `(u16)(temp_2+1)` kills the reload (still $a0); inline field
+   reads in the half-scaler re-trigger the u16 always-true duplication.
+   Load-CSE-coloring floor. */
 // FUN_003720C0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
 
+/* measured: nd 121 with a full C body (wave 6 left this uncommitted and did not
+   report it). Object size already equals the 416-byte window, so the residual is
+   allocation/scheduling rather than missing work; it needs a fresh attempt with
+   the half-scaler recipe proven on func_00372960 in the same file. */
 // FUN_00372200
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372200);
-
 
 /* measured: same $v1-or-fold floor as func_00371ba0/00371e50, both
    half-scaler branches: retail `or $a0,$a0,$v1` (dest = srl result reg),
@@ -213,12 +235,18 @@ void func_00372870(u8 *arg0, s16 a1, s16 a2, u8 *arg3, ShuffleVec4 *arg4) {
 }
 
 
-/* measured: best nd 3 (2 real + 1 pad). Everything matches - half-scalers,
-   00373cb0/003dcc70 calls, the `1.0f <= temp_f20` compare, per-level Horner
-   with `0.0f + c + f3*temp` seeds and final-level temp_f1/temp_f2, GPREL
-   constants, v[3]/v[7] chains - except each polynomial's final madd operand
-   order (b210 emits temp-first; both spellings, parens, product-local tried
-   in 00372960/00372d60). Commutative FP-mul floor (cf. func_00371260). */
+/* measured: rule-2 transpose DOES fix the old residual (the two polynomial
+   final madd.s now emit retail's product-first order via `var_f0*var_f1` /
+   `var_f1*var_f2` source order) and the 00373cb0/003dcc70/vec4-copy/Horner/
+   add-back/mula-madd tail all match — but the half-scalers then dominate:
+   with the only clean-structure spelling (s32 lhu temp, `u=(u32)temp`,
+   `(f32)(s32)((u>>1)|(u&1))`, `var=var+var`; u16/u32 locals duplicate the
+   else block, s16/(s16) casts add dsll32/dsra32 or lh) mwcc b210 emits
+   `or $v0,$v1,$v0` (dest = andi-result reg; retail `or $v1,$v1,$v0` dest =
+   srl-result reg — the recorded or-fold) and converts through $f0
+   (`cvt.s.w $f0,$f0; add.s $f12,$f0,$f0` vs retail `cvt.s.w $f12,$f0;
+   add.s $f12,$f12,$f12`) — 4 words x 3 half-scalers, nd 13. or-fold /
+   cvt-scratch coloring floor. */
 // FUN_00372960
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372960);
 
@@ -244,11 +272,15 @@ void func_00372c30(u8 *arg0, s16 arg1, s16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
 }
 
 
-/* measured: best nd 3 (2 real + 1 pad) - identical floor to func_00372960:
-   both easing-polynomial final madd.s sites emit b210's (Horner-temp,
-   f3*f4-product) order vs retail's (product, temp); both source orders,
-   parens and a product local disproven there. Everything else matched on
-   the first attempt (0.5f-split head, ShuffleVec4 copies, 003dcc70). */
+/* measured: same half-scaler floor as func_00372960 (or-fold: mwcc emits
+   `or $v0,$v1,$v0` dest = andi-result reg vs retail `or $v1,$v1,$v0` dest =
+   srl-result reg, plus cvt through $f0 scratch + `add.s $f12,$f0,$f0` vs
+   retail cvt-to-$f12 + `add.s $f12,$f12,$f12`) - 4 words x 3 half-scalers,
+   nd 13 (1 pad). Everything else matches on the s32/u-local spelling:
+   0.5f head, out/B/A decl order (stack slots reverse), both 2.0f muls
+   (branch1 needs the two-statement `t = temp; t = t * 2.0f` form for
+   retail's fs=temp order; branch2 is one-statement), 00373cb0/003dcc70
+   calls, Horner with transposed final madds, mula/madd tail. */
 // FUN_00372D60
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372d60);
 
@@ -336,10 +368,18 @@ void func_003733d0(u8 *p, s16 a1, s8 a2, s8 a3) {
 }
 
 
-/* measured: best nd 13. Increment's sh/andi order + 2-reg split (recorded
-   00373610 store/mask floor); FP rotation of half-scaler3/diff/ratio
-   (f3/f1/f2 vs f1/f2/f3) with the 3rd half-scaler or-fold; s32 `a` fixes the
-   lbu hoist but breaks the neg-path shift (sra). Everything else matches. */
+/* measured: best nd 27 on the clean s32/u-local spelling. Everything else
+   matches (lhu heads, assert, div, lbu diff, adda/madd f3*f2, the
+   0x4F000000 guard bodies and store) except: (1) the three half-scalers'
+   recorded or-fold + cvt-through-$f0 scratch (4 words each, cf.
+   func_00372960 note); (2) the increment's recorded store/mask 2-reg
+   split (`andi $v0,$v1,0xffff; sh $v1` vs retail `sh; andi` on one reg,
+   cf. 00373610); (3) the guard's branch polarity: retail `c.ole.s
+   $f0,$f1; bc1t` to the out-of-line sub path, mwcc canonicalises the
+   negated compare by swapping the if/else bodies and emits bc1f — all
+   four spellings of the compare probed (`!(t>=C)` -> c.olt.s $f1,$f0,
+   `!(C<=t)` -> c.ole.s + body swap, `t<C` -> c.lt.s, `t<=C` -> c.ole.s
+   $f1,$f0). FP regs fixed via temp_f2-before-var_f1 decl order. */
 // FUN_003733F0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003733f0);
 

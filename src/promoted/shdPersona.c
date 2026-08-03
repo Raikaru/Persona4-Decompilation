@@ -28,14 +28,14 @@ void func_00275020(s32, s32, s32, u8 *, s32, s32, f32, f32, f32);
 void *func_00109220(u16 arg0);
 void func_00116190(s64, s32, u8 *, s32 *, f32);
 void func_00116610(s64, s32, u8 *, s32 *, f32);
-void func_001162f0(s64, s32, u8 *, s32 *, f32);
-void func_001163e0(s64, f32, s32, u8 *, s32 *);
+void func_001162f0(s64, f32, s32, u8 *, s32 *);
+void func_001163e0(s64, s32, u8 *, s32 *, f32);
 void func_00116820(s64, s32, u8 *, s32 *, f32);
 typedef struct {
     s32 lo;
     s32 hi;
 } I64;
-void func_00116d40(I64, f32, s32, u8, u8, s32, s32);
+void func_00116d40(I64, u8, u8, u8, s16, s32, f32);
 void func_0045d6e0(f32, u8 *, s32 *, s32);
 extern void (*D_00887300[])(u32, u32);
 extern char D_005E5810[];
@@ -69,7 +69,7 @@ s32 func_0011d1f0(u8 *);
 void func_0011d3c0(u8 *);
 u8 *func_0011d460(s32, s32, f32, s32, s32);
 void func_0011e390(u8 *, Vec2f);
-void func_00364680(s32, s32 *, s32, s32, f32, f32, f32, f32, f32, f32, f32);
+void func_00364680(s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, f32);
 void func_003f6440(s32, s32);
 s32 func_0011f5a0(u8 *);
 void func_0011fb90(u8 *);
@@ -307,17 +307,25 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116190);
 
 
 
-/* measured: nd 33. The right signature is (s64 arg0, s32 *arg3,
-   u8 *arg2, f32 fparg0) — the colour and its float bits ride in arg0's
-   HIGH WORD ($a1; the callers overwrite $a1 with the colour after their
-   8-byte ld), and the $7 arg3 (lw $s1, ($a3)) is the third GP param.
-   NOT tried with that shape: colour = ((s32 *)&arg0)[1] (pointer read;
-   with the s32/s32 5-arg model the &arg1 address-take floor above
-   applies: mwcc goes memory-only, lbu 0x4c + sw/sw pair). The s64 model
-   registerizes the high word (see func_00116610/001163e0 notes) but the
-   plain-move colour read still eludes mwcc (dsra32 or home read). */
 // FUN_001162F0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001162f0);
+void func_001162f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+{
+    s32 t17;
+    s32 c;
+    u8 m;
+    f32 hi;
+
+    c = arg1;
+    t17 = *arg3;
+    if (t17 == 0) {
+        func_0046d730(D_005E4868, 0x197);
+    }
+    m = c & 0xFF;
+    c = 0xFF - m;
+    hi = *((f32 *)&arg0 + 1);
+    func_0046d4c0(0, t17, 0x47, *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    func_0046d4c0(0, t17, 0x41, 126.0f + *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
+}
 
 
 
@@ -485,7 +493,7 @@ void func_00117580(u8 *arg0, s32 arg1)
 
 
 
-void func_00119e10(u8 *arg0);
+void func_00119e10(u8 *, u8 *);
 void func_00113750(u8 *arg0);
 extern char D_005E5810[];
 extern char D_005E5830[];
@@ -512,7 +520,7 @@ void func_001175e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
     *(s32 *)(b + 0x538) = 0;
     *(s32 *)(b + 0x534) = 0;
     func_0043f9c8(b + 0x540, 0, 0x30);
-    *(void (**)(u8 *))(b + 0x548) = func_00119e10;
+    *(void (**)(u8 *))(b + 0x548) = (void (*)(u8 *))func_00119e10;
     *(u8 **)(b + 0x550) = b;
     *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
     *(u8 **)(b + 0x4F8) = func_0011d460((s32)arg0, 0xF, 0, 0, -0x100);
@@ -593,6 +601,46 @@ s32 func_001178a0(u8 *arg0)
 
 
 
+extern u8 iGpffff9c10;
+extern u8 iGpffff9c11;
+extern u8 iGpffff9c12;
+extern u8 iGpffff9c13;
+extern f32 iGpffff81e0;
+extern f32 iGpffff8094;
+extern f32 iGpffff82fc;
+extern f32 D_005E4D70;
+extern f32 D_005E4D74;
+extern f32 D_005E4D78;
+extern f32 D_005E4D7C;
+extern f32 D_005E4D80;
+extern f32 D_005E4D84;
+extern f32 D_005E4D88;
+extern u8 D_005E4D90[];
+extern s16 D_005E4D58[];
+void func_003657d0(s64, s32, s32, s32, f32, f32);
+s32 func_003b7060();
+void func_0045dfd0(f32, void *, void *, s32, s32, s32);
+void func_0034f4a0(s32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, s64, s64);
+/* measured: fully decoded, best nd 858 (obj 2992B / window 3632B) at attempt 2.
+   The sp120-sp12B byte block and the spE0-spF4 float block must be ARRAYS
+   (`u8 sp120[16]; f32 spE0[6];`) or mwcc dead-store-eliminates all but the
+   address-taken element (frame drops to 0xD0 vs retail 0x140). Remaining
+   floors, all documented families: (1) the (u8)(s32) 0x4F000000 overflow
+   branches on `255.0f * (f/255.0f)` and `(f1/30.0f) * ((f*f)/255.0f)` style
+   products are eliminated by mwcc's float range analysis (the func_00119210
+   family — retail keeps them); the bltz abs-else on the raw lbu 0x505 DOES
+   survive; (2) the mula.s/msub.s accumulator pairs (the f21 = a*b - c*d
+   chains in the <5 branch and the sp134 = f - f21*f1 expressions) need the
+   exact product-operand order; (3) the D_00887300 base hoist (same as
+   19e10 — retail caches the base in a saved reg, mwcc rematerialises);
+   (4) the loop's adda.s/madd.s fusions for sp130/sp134 (91.0f/0x22D seeds
+   are mwcc's acc seeds — the source is `0.0f + seed + a*b` forms per the
+   func_00118a20 finding). func_0044b7b0 calls in the loop are ONE-arg
+   (m2c's 2-arg forms were hallucinations); func_00117980 is
+   (u8 *) single-arg (the m2c's 2-arg call in func_00119e10 was stale
+   registers); func_0045dfd0's first arg is the f32 0.0f. New symbols:
+   iGpffff9c10-13 = gp-0x63F0..-0x63ED = 0x00762D00..03, iGpffff81e0 =
+   gp-0x7E20 = 0x007612D0 (added to symbol_data_addrs). */
 // FUN_00117980
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
 
@@ -608,23 +656,83 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001187b0);
 
 
 
+void func_001187b0(u8 *, s64, u8, s64, f32);
+void func_0045dfd0(f32, void *, void *, s32, s32, s32);
+extern f32 iGpffff8364;
+extern f32 iGpffff8094;
+/* measured: best nd 221 (obj 1720B / window 1744B) at attempt 4. The FMA
+   blocks now match byte-for-byte once each fused value is a NAMED local
+   (e.g. `x = 135.0f + 516.0f * f25;` then store x twice + `516.0f + x`):
+   an inline repeated expression gets CSE'd and mwcc then emits mul.s+
+   add.s instead of adda.s/madd.s — probed directly against b210. The
+   multiplier is 516.0f (0x44010000), NOT 512.0f. Remaining residuals,
+   all documented scheduling/colouring rows: (1) arg0 saves $s2 vs retail
+   $s1 (and the loop counter k $s1 vs $s2) — a two-saved-register swap;
+   (2) the 0x522/0x524 increment: retail [addiu in place; sh; dsll32;
+   dsra32; slti], mwcc [addiu $v1; dsll32/dsra32 on a copy; sh $v1] — the
+   store lands after the sign-extend; (3) the -11.0f block: retail emits
+   [lui; mtc1 $f1; sw] with the mtc1 before the first sw, mwcc sinks the
+   mtc1; and `484.0f + -11.0f` must NOT be a literal pair — mwcc folds it
+   to (f32)473 via addiu+cvt — an untried `f32 m11 = -11.0f;` local shared
+   by the sw stores and the final add would reproduce the lui/mtc1/sw/add.s
+   sequence (retail's $-register reuse). The lerp chains need the temp
+   + join form (`if (v<0) x=0; else if (v<6) x=func(...); else x=1;
+   f25 = 1.0f - x;`) or the branches write the saved FP regs directly.
+   func_00364c50/70 are 0-arg (m2c's 3-arg call is a hallucination from
+   stale loop registers); func_001187b0 is (u8*, s64, u8, s64, f32);
+   iGpffff8364 = gp-0x7C9C = 0x00761454 (added to symbol_data_addrs). */
 // FUN_00118A20
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00118a20);
 
 
 
 void func_0045dfd0(f32, void *, void *, s32, s32, s32);
-/* measured: FP-colouring/preheader floor, same family as func_0011c3e0.
-   retail keeps the acc sum entirely in the FP accumulator (adda.s after
-   each lwc1, madd.s $f0,$f4/$f1,$f2, acc seed in $f3, 2.0f in $f4, cvt
-   results in $f2); mwcc b210 allocates acc to $f4 with add.s updates,
-   emits a stray mov.s $f2,$f4 acc-seed copy, swaps 2.0f into $f3, and
-   syncs ACC via adda.s $f2,$f4 — everything else (incl. the
-   #pragma opt_loop_invariants on hoist of all six loop constants, which
-   IS needed) matches. Tried acc+=x, acc=x+acc, and both add-operand
-   orders (probe batch, 4 spellings) — best nd 20, then 70. */
+/* measured: rule 2 applied — the madd.s operand order IS source-driven:
+   retail `madd.s $f0,$f4,$f2` (2.0f first) needs `arg0[0] + 2.0f * x` with
+   the CONSTANT first; the old probe batch only transposed the ADD operands
+   (acc += x / x + acc). The FMA fusion (adda.s $f3,$f0 + madd.s) requires
+   #pragma opt_loop_invariants on (the old note's "six loop constants" hoist:
+   2.0f/$f4, 0.0f/$f3, -450.0f/$f1, 0x5A/$7, 0xFF/$6, 1/$3).
+   Removing the pragma was measured at nd 0 -> nd 136: the accumulator seed
+   sinks into the loop and the fusion breaks into add.s + adda.s + madd.s. */
+#pragma opt_loop_invariants on
 // FUN_001190F0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001190f0);
+void func_001190f0(f32 *arg0, u8 arg1)
+{
+    f32 sp30[12];
+    u8 sp10[24];
+    f32 *dstf;
+    u8 *dstb;
+    s32 i;
+    s32 x;
+    s32 n2;
+    s32 n;
+
+    for (i = 0; i < 6; i++) {
+        dstf = &sp30[2 * i];
+        x = i & 1;
+        if (i < 0 && (i & 1)) {
+            x -= 2;
+        }
+        *dstf = arg0[0] + 2.0f * (f32)x;
+        n2 = i / 3;
+        *(dstf + 1) = arg0[1] + 450.0f * (f32)n2;
+        dstb = &sp10[4 * i];
+        dstb[0] = 0x5A;
+        dstb[1] = 0x5A;
+        dstb[2] = 0xFF;
+        n = i / 2;
+        if (n == 1) {
+            dstb[3] = arg1;
+        } else {
+            dstb[3] = 0;
+        }
+    }
+    func_0045dfd0(0.0f, sp10, sp30, 6, 4, 0);
+}
+/* Closes the measured opt_loop_invariants scope opened for func_001190f0 above.
+   It must stay scoped: leaving it on regresses the neighbouring functions. */
+#pragma opt_loop_invariants off
 
 
 
@@ -674,6 +782,47 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119810);
 
 
 
+void func_0011ac70(u8 *);
+void func_0011ae90(u8 *);
+void func_0011c780(u8 *);
+void func_0011c930(u8 *);
+void func_0011c3e0(u8 *);
+void func_0011cd20(u8 *);
+void func_0011ce50(u8 *);
+void func_0011b110(u8 *);
+void func_0011de40(u8 *, s32);
+void func_0011dd50(s32);
+void func_00118a20(u8 *);
+void func_0011dc50(u8 *);
+void func_0011e400(u8 *, u8 *);
+s32 func_0011e460(u8 *);
+s32 func_0011ccb0(u8 *);
+void func_00114e50(s64, u8, s32, s32);
+void func_00113ef0(s64, u8, u8 *, u8, s32, f32);
+void func_00114460(s64, u8, u8 *, s32, f32);
+void func_00119210(u8 *);
+void func_00119810(u8 *);
+void func_00117980(u8 *);
+void func_0034f9d0(s64, u8, s32, s32, s32);
+/* measured: fully decoded, best nd 830 (obj 3844B / window 3216B, frame 0xA0
+   vs 0x90) at attempt 3. The TRUE signature is `void func_00119e10(u8 *arg0,
+   u8 *arg1)` with the USED base in $5 (the m2c's arg1 — a leading param was
+   dropped; the vtable callers pass the work in $5). Fixed during the attempt:
+   func_00364680 is (s32,s32,s32,s32,f32,f32,f32,f32,f32,f32,f32) (2nd param a
+   value, not s32*), func_001163e0 is (s64,s32,u8*,s32*,f32) (fparg0 LAST — the
+   odd-register rule puts arg1 in $5), func_00116d40 is (I64,u8,u8,u8,s16,s32,
+   f32). Remaining allocation cascade: (1) the D_00887300 base — retail caches
+   it in $s1 (lazily lui'd at the first call, per-call `lw $v0,($s1)`), mwcc
+   without a local rematerialises lui/lw per call (~72B), and with the local
+   `tbl = D_00887300; tbl[N](0,0)` it hoists into $s0 with arg1 pushed to $s1
+   (retail: arg1 $s0, base $s1 — one register swap that shifts the whole body);
+   (2) the candidate needs ONE extra saved GP (5 vs retail's 4 — frame 0xA0);
+   (3) the sp88/sp8C pair homes land at 0x78 instead of 0x88 (layout order).
+   All the (f32)(s32) cvt pairs, the 0x4F guard on `(u8)(s32)(204.0f*(1-f20))`
+   (survives — the value mixes a call result), the sp78/sp70/sp68 s64 copies,
+   and the family calls (16610/163e0/16820/16d40/14e50/13ef0/14460/34f9d0)
+   decode per the draft; the `(u32)(b18 * 0xFF) / 255U` and
+   `*(*(u16 **)arg1) & 4` shapes reproduced. */
 // FUN_00119E10
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119e10);
 
@@ -1297,16 +1446,28 @@ void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
 
 
-/* measured: retail hoists all four loop constants (1.0f, 0.0f, 0x4F000000,
-   0x80000000) into $f3/$f4/$f1/$a1 BEFORE the initial branch to the loop test
-   and keeps the 0x2E8 ratio in $f5; mwcc b210 rematerialises 0.0f inside the
-   branch and shifts every FP temp register (nd 8+). Tried
-   #pragma opt_loop_invariants on (hoists 2.0f instead, nd 20) — same
-   preheader-hoist/FP-colouring floor as func_00117310. */
+/* measured: rule 2 confirmed for the FMA sites — with the multiplications
+   written ratio-first (`base + r * delta`, `f + r * diff`) AND
+   #pragma opt_loop_invariants on, the adda.s $f4,$f2 / madd.s $f0,$f5,$f0
+   pairs match retail byte-for-byte (without the pragma the acc seed lands
+   inside the loop and the fusion breaks into add.s+adda.s+madd.s, nd 136;
+   with the pragma the FMA block matches and the residual drops to ~15
+   naming/order rows). Best nd 112 (obj 540B / window 560B) at attempt 4,
+   still short of the old wave's 8. Remaining rows, all the documented
+   scheduling/colouring family: (1) statement order at the loop top — retail
+   [lh 0x516; i*36 math; lwc1 0x2E8; mtc1; cvt], the v-load must precede the
+   e1 computation (untried with the pragma); (2) the neg-path abs or-dest
+   $a2 vs $v1 (1 word); (3) the guard test encodes c.olt.s+bc1f where retail
+   has c.ole.s+bc1t (1 word, same as func_0011c930 — small-path-inline layout
+   is right either way); (4) prologue length: with the pragma the four loop
+   constants (1.0f/0.0f/0x4F000000/0x80000000) still do not all hoist. The
+   e1/e2 double address computation, `f += f` doubling, (u32)a >> 1,
+   `r = acc` sharing, and sign-in-$a1 (or $v1,$v1,$a1) all reproduced.
+   The function is back to INCLUDE_ASM, so no pragma is carried here: one
+   wrapped around an INCLUDE_ASM does nothing except risk leaking into a
+   neighbour. Re-add it with this note if the body is attempted again. */
 // FUN_0011C3E0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c3e0);
-
-
 
 // FUN_0011C610
 u32 func_0011c610(u8 *arg0)
@@ -1356,36 +1517,48 @@ void func_0011c6e0(u8 *arg0, s32 arg1)
 
 
 
-/* measured: retail interleaves the f2 load (lwc1 0x450) between the lh 0x514
-   and its mtc1/cvt.s.w, and colours the 0x44C byte into $a1 with the abs-else's
-   srl/or into $t0; mwcc b210 emits the cvt before the f2 load and colours the
-   byte into $v1 (nd 15, all instruction-order and register-name rows). Tried:
-   declaration orders, s16 temp, u8/s8 byte typing, if/else forms — identical.
-   Scheduling/colouring floor. */
+/* measured: rule 2 confirmed — with the multiplications written ratio-first
+   (`base + ratio * delta`, `f + ratio * delta`), the adda.s/madd.s pairs match
+   retail byte-for-byte (madd.s $f1,$f0,$f1 / $f1,$f0,$f3); the OLD floor note's
+   "scheduling/colouring" residual is now isolated to: (1) the top load
+   interleave — retail [lh 0x514; lwc1 0x450; mtc1; cvt], mwcc emits the lwc1
+   either before the lh (v-local + lo-local order) or after the cvt (inline
+   conversion), never in the lh→mtc1 slot; (2) FP temp register rotation after
+   the func_0044b7b0 call (diff lands $f2 vs retail $f3, f_abs $f1 vs $f2,
+   adda/madd dests shift); (3) the 0x4F000000 guard: the constant MUST be the
+   float literal 2147483648.0f (an int 0x4F000000 materialises 0x4E9E0000)
+   and the condition must be small-path-first (`if (f < 2147483648.0f)` with
+   `(s32)f & 0xFF` inline, big path out of line) — the explicit-if form DOES
+   survive here (unlike func_00119210) because the value mixes a loaded byte
+   and the call-result phi. The func_0044b7b0 call must sit INSIDE the
+   else-if (div) branch, not after the chain — otherwise the div-destination
+   register and the nop-after-div disappear. Best nd 29 (obj 428B / window
+   432B) at attempt 4; attempts 1-3 were 58-86 with earlier shapes. */
 // FUN_0011C780
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
 
 
 
-/* measured: identical residuals to func_0011c780 (same body shape): retail
-   interleaves the f2 load between lh 0x514 and its cvt, and colours the 0x44C
-   byte into $a1 with the abs-else's srl/or into $t0; mwcc b210 emits the cvt
-   before the f2 load and colours the byte $v1 (nd 15, instruction-order and
-   register-name rows only). Tried declaration orders and load orders —
-   identical. Same scheduling/colouring floor as func_0011c780. */
+/* measured: rule 2 confirmed — with the multiplications written ratio-first
+   (`base + ratio * delta`, `f + ratio * diff`), the adda.s/madd.s pairs match
+   retail byte-for-byte (madd.s $f1,$f0,$f3). Best nd 15 (obj 448B / window
+   448B) with `f32 diff;` declared FIRST (declaration order fixed the whole
+   post-jal FP rotation: diff→$f3, f_abs→$f2, acc→$f1). Remaining floor, all
+   documented scheduling/colouring rows: (1) the top load interleave — retail
+   [lh 0x514; lwc1 0x450; mtc1; nop; cvt], mwcc emits the lwc1 either before
+   the lh (v-local + lo-local order) or after the cvt (inline conversion),
+   never in the lh→mtc1 slot; (2) the neg-path abs: retail or-dest $a0 and
+   in-place cvt $f2/add $f2, mwcc emits or $v1 and cvt $f1/add.s $f2,$f1,$f1;
+   (3) the 0x4F000000 guard: `if (f < 2147483648.0f)` small-first gives
+   retail's layout (small inline, big out of line) but mwcc encodes c.olt.s+
+   bc1f where retail has c.ole.s+bc1t (1 word), and the n local colours $v1
+   vs retail $a0 (the big-first `f >= C` form flips the layout instead —
+   tried, nd 27); (4) the 0x88 store must be `*(s8 *)&0x88 = -1` (addiu -1,
+   not 0xff). The func_0044b7b0 call must sit INSIDE the else-if branch or the
+   div-destination register and the nop-after-div vanish. */
 // FUN_0011C930
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
 
-
-
-/* measured: retail booleanizes the first guard (andi $v1, 0x800 then
-   sltu $v1, $zero, $v1 before beqz) and lays the second return out as a
-   branch-to-branch node with bne-to-body; mwcc b210 emits plain
-   andi+beqz and an inverted beq-to-return. Tried !(x&0x800)||, a saved
-   bool local, two separate if-returns, nested if, switch-case -1 and
-   && forms (5 spellings, probe batch), all nd 25-26 — the single sltu
-   controls every other word via the shift. Condition-booleanization
-   floor. */
 // FUN_0011CAF0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
 
@@ -2093,6 +2266,72 @@ void func_0011e740(u8 *arg0)
 
 
 
+void func_0010a780(u8 *, u16, s8);
+s32 func_0010ceb0(u8 *);
+s32 func_0011fcf0(u8 *);
+u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
+u16 func_00115750();
+s16 func_00115380();
+void func_002baac0(s32);
+void func_002bb7c0();
+void func_002bb4e0();
+s32 func_002bb600(void);
+void func_002bb1e0(s32);
+s32 func_002bb140(void);
+s32 func_001092f0(u8 *);
+extern u16 D_008C024E;
+extern u16 D_008C024C;
+/* measured: fully decoded, best nd 566 (obj 2684B / window 2784B) at attempt 4.
+   The prologue saved-reg order matches retail (s->$s0, p->$s1, b->$s2, e->$s3
+   with the case-0 loop counter REUSING $s3) once the case-12 loop counter is a
+   SEPARATE local (the m2c's var_3 vs var_19) — with one i the allocator gives
+   e $s4. The ONE remaining structural difference: retail saves SIX GP regs
+   (frame 0x70) — e2 stays live across func_0011b3d0/func_00115c00 because the
+   final store re-derives e3 from e2 (`lw $2, 0x38($21); sw $19, 0x44($2)`), so
+   the source's last case-0 statement must be
+   `*(s32 *)(*(u8 **)(e2 + 0x38) + 0x44) = r;` (writing it via e3 kills e2's
+   live range and drops the frame to 0x60). Everything else reproduced:
+   the 16-case switch with the 0->1, 4->5->6, 9->0xA->0xB, 0xC->0xD
+   fallthroughs (case 0xE empty), the (s16) dsll32/dsra32 casts, the
+   `c = (u16)(*(u16 *)(b + 4) + 1)` comma-sequence in case 1's condition, the
+   inner 9-slot jump table switch, the u16 counter patterns, and the jtbl
+   relocs (masked). Casts needed for the shared (wrong-typed) declarations:
+   func_0010cd70(..., (u8 *)(u32)c) and func_00115500((s16)n, (u8 *)(u32)c, ...)
+   — mwcc rejects implicit ptr<->int both ways. func_0011e8e0 returns s32
+   (epilogue `daddu $2,$0,$0`); declaration fixed. */
+void func_0010a780(u8 *, u16, s8);
+s32 func_0010ceb0(u8 *);
+s32 func_0011fcf0(u8 *);
+u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
+u16 func_00115750();
+s16 func_00115380();
+void func_002baac0(s32);
+void func_002bb7c0();
+void func_002bb4e0();
+s32 func_002bb600(void);
+void func_002bb1e0(s32);
+s32 func_002bb140(void);
+s32 func_001092f0(u8 *);
+extern u16 D_008C024E;
+extern u16 D_008C024C;
+/* measured: fully decoded, best nd 566 (obj 2684B / window 2784B) at attempt 4.
+   The prologue saved-reg order matches retail (s->$s0, p->$s1, b->$s2, e->$s3
+   with the case-0 loop counter REUSING $s3) once the case-12 loop counter is a
+   SEPARATE local (the m2c's var_3 vs var_19) — with one i the allocator gives
+   e $s4. The ONE remaining structural difference: retail saves SIX GP regs
+   (frame 0x70) — e2 stays live across func_0011b3d0/func_00115c00 because the
+   final store re-derives e3 from e2 (`lw $2, 0x38($21); sw $19, 0x44($2)`), so
+   the source's last case-0 statement must be
+   `*(s32 *)(*(u8 **)(e2 + 0x38) + 0x44) = r;` (writing it via e3 kills e2's
+   live range and drops the frame to 0x60). Everything else reproduced:
+   the 16-case switch with the 0->1, 4->5->6, 9->0xA->0xB, 0xC->0xD
+   fallthroughs (case 0xE empty), the (s16) dsll32/dsra32 casts, the
+   `c = (u16)(*(u16 *)(b + 4) + 1)` comma-sequence in case 1's condition, the
+   inner 9-slot jump table switch, the u16 counter patterns, and the jtbl
+   relocs (masked). Casts needed for the shared (wrong-typed) declarations:
+   func_0010cd70(..., (u8 *)(u32)c) and func_00115500((s16)n, (u8 *)(u32)c, ...)
+   — mwcc rejects implicit ptr<->int both ways. func_0011e8e0 returns s32
+   (epilogue `daddu $2,$0,$0`); declaration fixed. */
 // FUN_0011E8E0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e8e0);
 
@@ -2112,7 +2351,7 @@ void func_0011f3c0(u8 *arg0)
 
 
 extern char D_005E4F30[];
-void func_0011e8e0(u8 *);
+s32 func_0011e8e0(u8 *);
 void func_0011f3c0(u8 *);
 // FUN_0011F410
 u8 *func_0011f410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)

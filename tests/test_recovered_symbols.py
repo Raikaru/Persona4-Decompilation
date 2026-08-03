@@ -124,10 +124,22 @@ class CuratedDataAddressTests(unittest.TestCase):
         finally:
             recover_symbols.CURATED_DATA = original
 
-    def test_addresses_are_word_aligned(self) -> None:
-        for _number, name, addr, _rest in entries():
+    # A byte load/store names a byte, and a u8 global has no reason to be
+    # word-aligned -- `iGpffff9c10`..`13` are four consecutive bytes copied one
+    # `lbu` at a time. So alignment is only required of entries whose evidence
+    # shows a word-or-wider access; requiring it of everything rejected six
+    # correctly-evidenced byte symbols.
+    BYTE_ACCESS = ("lbu", "lb ", "sb ", "byte")
+
+    def test_addresses_are_aligned_for_their_access_width(self) -> None:
+        for number, name, addr, rest in entries():
+            if addr % 4 == 0:
+                continue
             with self.subTest(name=name):
-                self.assertEqual(addr % 4, 0, f"{name} is not word aligned")
+                self.assertTrue(
+                    any(tok in rest.lower() for tok in self.BYTE_ACCESS),
+                    f"{CURATED}:{number}: {name} = {addr:#010x} is not word "
+                    "aligned and its evidence does not show a byte access")
 
     def test_curated_entries_reach_the_generated_output(self) -> None:
         """The whole point: regeneration must not drop them again."""

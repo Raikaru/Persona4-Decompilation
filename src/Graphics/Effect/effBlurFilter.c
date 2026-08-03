@@ -84,12 +84,14 @@ extern void func_004a8bb0(u8 *a, u8 *b);
 extern void func_004a8f90(u8 *a, u8 *b);
 extern void func_004a9180(u8 *a, u8 *b);
 
-/* measured: retail's byte->f32 doubling and alpha blocks keep their values in
-   $a0 and convert into $f20 (or-dest = the srl scratch); mwcc b210 recompiled
-   from equivalent C keeps them in $v1 and converts into $f0, nd 11 (6 rows,
-   3 blocks). Tried 5 declaration orders, single/multi-statement forms, temps,
-   ternaries, shift/and operand orders - identical result. Scratch-register
-   rotation floor. */
+/* measured: nd 18 (9 rows) with the closest spelling — constant-first
+   `if (2.1474836e9f <= temp_f1) { goto big; }` reproduces retail's c.ole.s
+   $f0,$f1 exactly, but mwcc b210 keeps the overflow (sub.s) body INLINE with
+   a bc1f to the cvt body placed out of line, while retail keeps the cvt body
+   inline with bc1t to the overflow body, and the byte value lands in $v1
+   instead of $a0. Tried if/else both polarities (nd 19), default-assignment
+   then single-if (nd 48), goto/label per evtModel precedent (nd 18) — the
+   body-placement + branch-polarity pair never flips. Branch-layout floor. */
 // FUN_004A8BB0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8bb0);
 
@@ -99,35 +101,127 @@ extern f32 func_0044b610(f32 param);
 extern f32 fGpffff80f4;
 extern f32 fGpffff80cc;
 
-/* measured: retail seeds the ACC with mula.s (0.5f*t2) for the second
-   var_f23 = cc*var_f20 + 0.5f*var_f23 update and keeps the second sub-chain
-   result in $f2; mwcc b210 recompiled from equivalent C precomputes 0.5f*t2
-   with mul.s, CSEs cc*var_f20, and fuses madd.s with the wrong multiplier
-   (0.5f*(0.5f*t2)), nd 19 (9 rows, one block). Tried summand orders, m2c
-   declaration order, explicit temps - identical result. Register/FMA-fusion
-   floor. */
+/* measured: re-measured this wave at nd 12 (6 rows, one block). Rule 2
+   applied: the f23 update is written `0.5f * t1 + fGpffff80cc * t20` (the
+   ACC-seeded product first) and the chain madds use retail's fs/ft order,
+   so the chain-1/2 and 4th/5th madd sites now match byte-for-byte, and the
+   reverse declaration order (t23..t1) fixed the f20-f23 mapping. Residual:
+   for `t21 = t21 + fcc*t20; t23 = 0.5f*t1 + fcc*t20;` mwcc b210 CSEs
+   fcc*t20 and seeds the ACC with the CSE'd value (adda.s 0+prod, then
+   madd.s with 0.5f*t1), while retail mula-seeds 0.5f*t1 first and
+   re-derives fcc*t20 in the madd; also the chain-2 sub-chain result lands
+   in $f1/$f3 instead of retail's $f2/$f1. Both statement orders tried.
+   FMA-CSE fusion floor. */
 // FUN_004A8DA0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
 
-/* measured: same byte->f32 doubling/alpha scratch-register floor as
-   func_004a8bb0: retail keeps the lbu byte, the srl/or scratch and the
-   clamp value in $a0 and converts into $f20 (or-dest = the srl scratch);
-   mwcc b210 recompiled from equivalent C uses $v1 and converts into $f0,
-   nd 11 (9 rows). Tried s32-lbu local, both branch orders, inline/temp
-   doubling, split statements, shared clamp local with & 0xFF - structure
-   matches except this rotation. Scratch-register rotation floor. */
+/* measured: re-measured this wave at nd 18 (9 rows). The GS doubled-alpha
+   block now matches exactly (u32 value + `value >= 0` + t+t doubling ->
+   lbu/bltz/srl/or/andi, cvt straight into $f20, add.s self-add); the madd
+   store matches (1.0f + x*ret, madd.s $f0,$f3,$f0). Residual is only the
+   0x4F000000 clamp: mwcc b210 always keeps the overflow (sub.s) body INLINE
+   with bc1f to the cvt body placed out of line, while retail keeps the cvt
+   body inline with bc1t to the overflow body, and the byte value lands in
+   $v1 instead of $a0. Tried if/else both polarities and operand orders,
+   default-assignment, goto/label, switch, ternary, 3 declaration orders -
+   all nd 18. Branch-layout + rotation floor. */
 // FUN_004A8F90
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8f90);
-
-/* measured: same byte-doubling floor as func_004a8bb0 (or-dest/cvt-into-f20)
-   plus the 1.0f-materialisation order in the madd store (mwcc hoists the x
-   load ahead of lui/mtc1 and gains an extra nop), nd 12 (6 rows). Tried
-   both summand orders and declaration swaps - identical result. */
+/* measured: re-measured this wave at nd 108 (fndiff count inflated by
+   alignment knock-ons; real residual ~28 words in 3 blocks). Rule 2 applied:
+   the madd store product order (1.0f + (1.0f-z)*(x*ret)) now reproduces
+   retail's madd.s $f0,$f1,$f3 exactly. Remaining: (1) the same 0x4F000000
+   clamp layout floor as func_004a8bb0/8f90 — mwcc b210 always keeps the
+   overflow (sub.s) arm inline and puts the cvt arm out of line with the
+   negated test, retail the opposite; verified with 6 clamp spellings
+   (all compile byte-identical, nd 108); (2) the madd store's 1.0f
+   materialisation order (z load hoisted before lui/mtc1, retail after);
+   (3) the z + arg0->4 add loads arg0->4 first in retail. Branch-layout +
+   load-order floor. */
 // FUN_004A9180
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9180);
 
 // FUN_004A93D0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a93d0);
+void func_004a93d0(u8 *arg0) {
+    s32 sp6C;
+    s32 sp68;
+    s32 sp64;
+    u8 *base;
+    u8 *obj;
+    s32 a;
+    s32 b;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (b == 0) {
+        *(s32 *)(base + 0x10) = 0x43A00000;
+        *(s32 *)(base + 0x14) = 0x43600000;
+        *(s32 *)(base + 0x18) = 0;
+        *(s32 *)(base + 0x1C) = 0;
+        *(s32 *)(base + 0x20) = 0x44200000;
+        *(s32 *)(base + 0x24) = 0x43E00000;
+        *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
+    }
+    if (a >= b) {
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp6C = *(s32 *)(arg0 + 0x10);
+        pt = &sp6C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp68 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x64($sp)      \n"
+            :
+            : "r"(&sp68), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+        *(s32 *)base = *(volatile s32 *)&sp64;
+        *(f32 *)(base + 0xC) = 1.0f + fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
+        *(f32 *)(base + 8) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        return;
+    }
+    *(s8 *)(base + 3) = 0;
+}
 
 // FUN_004A9590
 void func_004a9590(u8 *arg0) {

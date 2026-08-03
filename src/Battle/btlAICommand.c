@@ -438,9 +438,27 @@ s32 func_001dbb90(void) {
     return 1;
 }
 
+/* measured: three compounding blocks — (1) mwcc b210 CSEs the duplicated
+   arg3&0xFFFF into one register while retail keeps flags($17) and
+   flags16($23) separate; (2) assigning the s32 masks into u_long128 locals
+   makes mwcc emit dsll32/dsra32 widening pairs before each sq (retail stores
+   the andi result directly), 8 extra words; (3) the saved-register rotation
+   (arg1->$s6/arg2->$s7/arg4->$fp vs retail arg1->$s4/arg2->$fp/arg3->$s0)
+   then cascades through the whole body. The K&R signature is required (a
+   typed prototype errors on the heterogeneous u64/u32/... call sites) and
+   everything else — call shapes, loop, tail — compiles correctly. Tried
+   s32/s64 arg1 and u32/(u_long128) mask spellings; best nd 204. */
 // FUN_001DBBA0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
 
+/* measured: no 128-bit slots here, but three stacked walls: (1) the leading
+   func_001d7f10 copy loop has retail's load-first test (lhu $3,0xd0; andi
+   $2,$a0,0xffff) while mwcc b210 masks first — the same load-sinking
+   residual as FUN_001DC9A0 (nd 5 there); (2) the descending beq chain on the
+   lbu 0x11 value (0x10/0xE/0xD/0xC/0xA/0x8/0x4/0x3) compiles as an if/else-if
+   chain in the wrong order per the switch-linear-chain skill; (3) the FP tail
+   with f32 locals needs the prototype fixed (the m2c (u8*) signature dropped
+   the second arg the callers pass). Not attempted past the copy loop. */
 // FUN_001DBF20
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
 
@@ -533,6 +551,15 @@ void func_001dc960(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, func_001da2f0);
 }
 
+/* measured: retail hoists the loop-test count load before the (u16)i mask
+   (lhu $v1,0xd0($s0); andi $v0,$a0,0xffff) while mwcc b210 emits the mask
+   first under every operand order tried, and the else-path address addu comes
+   out base-first (addu $v0,$s0,$v0 vs retail addu $v0,$v0,$s0) no matter how
+   the scaled offset is named. nd 5 = those 3 words + reloc accounting; the
+   loop-body mask, increment, branch shape and everything else are
+   byte-identical with the (u16)i + while((count=load)>i)... spelling
+   (attempt 1; swapped compare order regressed to nd 8). Load-sinking floor,
+   same family as FUN_001DCA60. */
 // FUN_001DC9A0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc9a0);
 /* measured: same 2-word loop-body mask floor as FUN_001DCF10/FUN_001DC9A0 —
@@ -751,9 +778,23 @@ s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u32 u, s32 v) {
     func_00233bb0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
     return best;
 }
+/* measured: blocked by the 128-bit-slot conversion wall (probed against b210
+   directly, see FUN_001DD570 note): the sq/lq slots spC0/spB0/spA0 receive
+   andi'd 32-bit values raw in retail, but mwcc emits dsll32/dsra32 or
+   dsll32/dsrl32 conversion pairs for every 32-bit->u_long128 assignment and
+   every narrowing read at every -O level, spilled or register-resident.
+   The loop-test shape (andi idx into $3; lq $2; slt $2,$3,$2 with $3
+   surviving the lq) has no pair-free C spelling. */
 // FUN_001DD570
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd570);
 
+/* measured: same 128-bit-slot conversion wall as FUN_001DD570 — the limit
+   slot at 0xA0 (andi $2,$17,0xffff; sq) and its loop test (andi idx into $3;
+   lq $2; slt $2,$3,$2) need raw sq/lq without the dsll32/dsra32 pairs mwcc
+   b210 inserts for every 32-bit<->u_long128 conversion (probed: u_long128
+   locals, aligned u64, wide-return helpers, all -O levels). The pointer base
+   (from func_0023e140) is register-resident and fine; only the 0xA0 slot
+   pattern blocks it. */
 // FUN_001DD920
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd920);
 
@@ -1856,12 +1897,33 @@ s32 func_001e2030(void) {
    e*3 table call) all compile correctly when f is the only difference. */
 // FUN_001E20D0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e20d0);
+/* measured: the branchy shift set CAN be reproduced with the goto form under
+   #pragma opt_rebuildconditionals off (this overturns the fold-floor note on
+   FUN_001E20D0); the only remaining residual is 1 word: retail's x=0 path
+   jumps to the call-path tail jump (b 0x1e22b4; 0x1e22b4: b 0x1e22c0) while
+   mwcc b210 peepholes the branch-to-branch and jumps straight to 0x1e22c0.
+   Tried if/else, goto-out, explicit goto done / label materialization — all
+   collapse; nd 4 = that 1 word + 3 reloc words. Branch-to-branch sharing
+   floor. */
 // FUN_001E21E0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e21e0);
 
+/* measured: branchy shift set reproduces with the goto form under
+   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
+   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
+   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
+   same wall as FUN_001E21E0; switch(cond) dispatch form re-lays-out the
+   whole tail (nd 30) so if/else is the closer shape. */
 // FUN_001E22F0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e22f0);
 
+/* measured: everything matches (9280 if/else on 0x80000, dsll32/dsrl32
+   24-bit masks with the shared lui 0xb00, 2-arg table call) except 1 word:
+   retail's x=0 path jumps to the call-path tail jump (b 0x1e2518;
+   0x1e2518: b 0x1e2524) while mwcc b210 peepholes the branch-to-branch
+   straight to 0x1e2524. nd 2 = that word + 1 reloc word. Branch-to-branch
+   sharing floor, same as FUN_001E21E0; shift set kept by the goto form +
+   pragma. */
 // FUN_001E2400
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2400);
 
@@ -1909,6 +1971,14 @@ s32 func_001e2550(void) {
     return 1;
 }
 
+/* measured: the branchy shift set itself compiles, but mwcc b210 proves
+   shift in {0,1} and folds the `shift & 0xFFFF` andi retail keeps, AND sinks
+   the `1 << shift` sllv below the cc00 calls, forcing shift into a saved
+   register ($s4) and rotating the whole allocation (shift=$s4/m=$s5/c02=$s4,
+   n=$s2,k=$s1,node=$s0 vs retail shift=$2/m=$20/c02=$20,n=$17,k=$16,node=$18).
+   Tried decl orders (natural, m2c, shift-first) and (shift & 0xFFFF) — all
+   nd 75. Allocator+sink floor; the loop body, call shapes, and tail flag
+   logic compile correctly. */
 // FUN_001E26C0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e26c0);
 
@@ -1984,24 +2054,59 @@ s32 func_001e2910(void) {
     return 1;
 }
 
+/* measured: identical to FUN_001E26C0's allocator floor (only the last call
+   differs, func_002340c0 here) — mwcc b210 proves shift in {0,1}, folds the
+   shift andi retail keeps, and sinks the sllv below the cc00 calls, forcing
+   shift into $s4 and rotating the whole allocation (nd 75). The goto+pragma
+   branchy set is reproduced; decl-order variants all nd 75. */
 // FUN_001E2A80
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2a80);
 
+/* measured: branchy shift set reproduces with the goto form under
+   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
+   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
+   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
+   same wall as FUN_001E21E0. */
 // FUN_001E2C10
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2c10);
 
+/* measured: branchy shift set reproduces with the goto form under
+   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
+   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
+   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
+   same wall as FUN_001E21E0. */
 // FUN_001E2D20
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2d20);
 
+/* measured: branchy shift set reproduces with the goto form under
+   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
+   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
+   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
+   same wall as FUN_001E21E0. */
 // FUN_001E2E30
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2e30);
 
+/* measured: branchy shift set reproduces with the goto form under
+   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
+   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
+   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
+   same wall as FUN_001E21E0. */
 // FUN_001E2F40
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2f40);
 
+/* measured: branchy shift set reproduces with the goto form under
+   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
+   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
+   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
+   same wall as FUN_001E21E0. */
 // FUN_001E3050
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3050);
 
+/* measured: branchy shift set reproduces with the goto form under
+   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
+   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
+   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
+   same wall as FUN_001E21E0. */
 // FUN_001E3160
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3160);
 

@@ -132,7 +132,15 @@ typedef struct {
     void *field_ED8;
     void *field_EDC;
     void *field_EE0;
-    u8 padD2[0x34];
+    u8 padD2a[8];
+    void *field_EEC;
+    void *field_EF0;
+    void *field_EF4;
+    void *field_EF8;
+    void *field_EFC;
+    void *field_F00;
+    void *field_F04;
+    u8 padD2b2[0x10];
     void *field_F18[3];
     u8 padD2b[4];
     void *field_F28;
@@ -148,8 +156,8 @@ extern u8 D_0063FB70[];
 extern u8 D_0063F560[];
 extern u8 D_0063F9F0[];
 extern f32 fGpffff7afc;
-extern u8 D_0063F650[];
-extern u8 D_0063F658[];
+extern f32 D_0063F650[];
+extern f32 D_0063F658[];
 extern f32 D_0063F5B0[];
 extern f32 D_0063F5D0[];
 extern f32 D_0063F5D8[];
@@ -231,6 +239,16 @@ s64 func_00106b80(s64);
 void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
 void func_002e0ca0(s32, s64, s32, u8, s32, u8 *, f32);
 
+/* measured: rule 1 is NOT VU0 here - retail ldr 0x2C/ldl 0x33 (12 sites, all
+   on the func_002e04e0 result, e.g. 0x002C134C) is *(u64 *)(p + 0x2C): the
+   b210 probe of that exact read emits ldr 0x2C/ldl 0x33 (and +0x38 emits ld),
+   and func_002dd230 in this file already matches with the same idiom. Rule 2
+   FMA sites (adda.s/madd.s, msub.s pairs at 0x002D.../0x002E...) are acc +
+   a*b with preserved fs/ft order. Blocked by scale, not the rule: 0xC240
+   bytes, 1525 jals, m2c draft 3700 lines with 200+ M2C_UNK slots and 20+
+   M2C_ERROR sites across 3 shapes (saved-$s0 ldr base, temp_f20 madd, msub
+   pairs); sibling func_002cdf80 with the same rules fully adapted measured
+   nd 3325. Function-scale reconstruction floor. */
 // FUN_002BE530
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002be530);
 
@@ -312,6 +330,17 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
 // FUN_002CACD0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cacd0);
 
+/* measured: full body reconstructed (15 0a60/2970/0620/2a60 chains, u8[4]
+   color groups packed by mwcc exactly like retail lbu 0x11C-0x12F, struct
+   fields EEC-F04, func_002e0a60(void*, s32, f32) 3-arg shape); prologue and
+   all stack slots byte-match (frame 0x130, ra 0x20, s1/s0). Four variants,
+   best nd 414 (obj 2052B vs window 1968B, i.e. 10 words over window).
+   Residual: retail hoists the per-group D_0063F5xx base into $s1 once per
+   group (lui+addiu, then lwc1 0/4($s1) across the group's calls); mwcc b210
+   rematerialises lui+lwc1 per access even with named f32* base locals -
+   recorded D_00887300-family global-address-hoist floor (cf. func_002d6190/
+   func_002d7300 notes). Adding any extra local also flips the color-group
+   stack order (reverse-declaration allocation). Hoist + slot-order floor. */
 // FUN_002CAEF0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caef0);
 
@@ -320,12 +349,38 @@ s32 func_002cb6a0(void *arg0) {
     return *(s8 *)(*(u32 *)((u8 *)arg0 + 0x38) + 0xF30) == 1;
 }
 
+/* measured: full m2c draft adapted and compiles (rule 2 at all 3 FMA sites:
+   retail adda/madd at 0x1CB77C/0x1CCFA4/0x1CD038 = 142.0f + work[0xC] *
+   (f32)(field_2-field_4) and 78.0f + 35.0f * (f32)work[8], fs/ft order
+   preserved; 0-arg func_002e2670 (draft's 2-arg forms were phantom);
+   D_0063FA40/44/46 as real s16 symbols; 75680/0080 shapes fixed); nd 2429.
+   Residual: D_0063F778/F8C0/F5B8-style base hoists, 26f0/2670 result width
+   (retail uses raw 32-bit, s16 prototypes over-extend), and the usual
+   arg-order scrambling. Hoist + width floor. */
 // FUN_002CB6C0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cb6c0);
 
+/* measured: rule 1 applied at all 10 ldr/ldl sites (retail ldr 0x2C/ldl 0x33
+   of the func_002e04e0 result; probe of *(u64 *)(p + 0x2C) against b210 emits
+   exactly ldr 0x2C/ldl 0x33, and the candidate object does emit the pair) and
+   rule 2 at the adda.s/madd.s site (142.0f + work[0xC] * (f32)(w[2]-w[4]));
+   full 907-line m2c draft adapted (u64 sp slots, FMA, ldr sites, 2970/0620
+   chains, D_008C0276/7A/24E[0] flags, fGpffff7ae0/adc/ad8) compiles clean;
+   nd 3325, every stream word misaligned. Residual dominated by m2c draft's
+   arg-order scrambling (verified vs retail: 0940/0700/75680/09e0/26f0
+   phantom args and reordered fp args at ~30 sites fixed; ~30 more unverified)
+   plus M2C_UNK u32 slot typing. Function-scale arg-order floor, not the
+   ldr/ldl rule: the pair is byte-correct wherever the stream aligns. */
 // FUN_002CDF80
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cdf80);
 
+/* measured: full m2c draft adapted and compiles (rule 2 at the FMA site
+   0x1D2C58: 264.0f + work[0xC] * (f32)field_2 with madd fs/ft order
+   preserved, f12 = D_0063F620[0] - 1.0f; four 75680 calls reordered to the
+   (f32,f32,f32,...) prototype; 0080 Vec2f-by-value arg; func_002e2670 0-arg);
+   nd 2637. Residual: D_0063F620/F660/F628/F630/F638/F640/F648/F668 base
+   hoists per group, 26f0-width extension split, and 754f0/2a60 phantom-arg
+   and arg-order scrambling. Hoist + width floor. */
 // FUN_002D1590
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
 
@@ -399,6 +454,17 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
 // FUN_002D6190
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d6190);
 
+/* measured: full body reconstructed (45 u64 slots, 22 2970/0620 chains, 3-case
+   switch on work[7]) with D_0063F650/D_0063F658 redeclared f32[] and read via
+   `Vec2f *base = (Vec2f *)D_0063F658;` - this DOES reproduce retail's $s1 base
+   hoist (frame 0x1A0, ra/s1/s0, all slot offsets byte-match; the func_002d6190
+   note's d658/d650 hoist floor does not apply to this shape). Four variants,
+   best nd 70 (obj 2316B vs window 2320B): every func_002e0620 site loads
+   arg1/arg2 (ld sp198/sp190) BEFORE arg0 (lw 0xCE4($s0)) where retail loads
+   arg0 first - a 2-instruction pre-jal ordering swap at each of 22 sites.
+   func_002df4c0 (matched) has the identical call shape with u64 slots and
+   retail order lw-first, so the s64-vs-u64 slot type or slot offset likely
+   drives the scheduler; untested within budget. Pre-jal arg-order floor. */
 // FUN_002D7300
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d7300);
 
@@ -591,12 +657,36 @@ void func_002d8600(void *arg0) {
     *(s8 *)((u8 *)work + 0xC24) = 0;
 }
 
+/* measured: full m2c draft adapted (color-group chains, 46b260/2b2cb0/2a30
+   calls, phantom args dropped, D_0063F9C0/C8/D0 f32[2] bases - real symbols
+   here, unlike func_002da0a0 where they were mislabels) and compiles;
+   nd 1196. Residual: D_0063F9C0-family base hoist into $s0 (retail lui+addiu
+   once per group; mwcc rematerialises per access - cf. func_002d7300 note,
+   Vec2f cast may apply), (f32)(s32) round-trip casts m2c invented on the
+   temp_f2x values, and 46b260/26f0 result width handling. Hoist + cast
+   floor. */
 // FUN_002D8A60
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d8a60);
 
+/* measured: rule 2 applied at all 4 FMA sites (retail adda.s/madd.s at
+   0x1DA32C/1DA37C/1DA498/1DA4EC: 78.0f + 35.0f * (f32)work[8] with fs/ft order
+   preserved, two variants minus 450.0f; the -450.0f is sub.s after the madd,
+   i.e. (acc + a*b) - 450.0f). m2c draft adapted (D_0063F9C0/F9C8/F9D0 are
+   mislabels of the hoisted D_0063F5A0/D_0063F8C0 bases, FA40/44/46 are real
+   s16 symbols) and compiles; nd 1222. Residual: m2c's 0940/09b0/2970
+   arg-order scrambling across ~30 call sites (verified vs retail at the
+   D_0063FA48 group: lh D_0063FA46/D_0063FA44 with lui %hi + absolute) plus
+   D_0063F5A0/F8C0 base-hoist (retail keeps base in $s1, cf. func_002d7300
+   note - the Vec2f cast there may apply). Arg-order + hoist floor. */
 // FUN_002DA0A0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002da0a0);
 
+/* measured: full m2c draft adapted (40 2970 chains, 46b200/46b260/46b2f0/
+   46d280 handle calls, FA70-FA98 f32[2] bases, phantom args dropped) and
+   compiles; nd 1663. Residual: D_0063F5B8/F65x base hoist into $s1 per group
+   (retail lwc1 0/4($s1); mwcc lui+lwc1 per access - cf. func_002d7300 note),
+   plus m2c's (s64)(s32) return-width casts on 46b260/46b2f0 and the 26f0
+   sign-extension split. Hoist + width floor. */
 // FUN_002DB400
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002db400);
 
@@ -622,6 +712,17 @@ void func_002dd230(void *arg0) {
     func_002e04f0(work->field_D8C, 6, 0);
 }
 
+/* measured: full body reconstructed (FMA sites per rule 2: 146.0f +
+   work[0xC] * (f32)(field_2 - 1) and 146.0f + work[0xC] * (f32)field_2 with
+   madd fs/ft order preserved; 3-arg 2970 shapes; 75680/0b20/cacd0 chains;
+   f32[2] pair slots; phantom 2970 args dropped) and compiles; frame 0x170
+   matches but register allocation diverges: candidate saves s1-s3 + f20/f21
+   vs retail s0-s2 only (work+0x11 hoisted into $s2, fp pair kept in
+   registers), nd 1013-1016 across 3 variants. func_002e26f0's return is
+   sign-extended at SOME retail sites only (prototype s16 over-extends, s32
+   under-extends: 1013 vs 1015) - mixed per-site extension needs an
+   s32 prototype + explicit (s16) casts, unaudited within budget.
+   Register-allocation + mixed-sign-extension floor. */
 // FUN_002DD3B0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 

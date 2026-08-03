@@ -15,6 +15,8 @@ typedef struct {
     u8 b3;
 } FclByte4;
 
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+
 
 
 extern void func_0044ea90(const void *arg0, u32 arg1);
@@ -35,36 +37,39 @@ extern void func_0011bdc0(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
 extern void func_002b2970(s64 *out, f32 x, f32 y);
 extern void func_002b6c30(s32 a, s64 b, s32 c, f32 d);
-extern void func_002b6a70(s32, u8, u8, s32, s32, s32);
+extern void func_002b6a70(s16, u8, u8, s32, s32, s32);
 extern void func_002b6b40(s32, s32, s32, s32, f32, f32);
 extern u8 *func_002b6150(s16);
 extern s32 func_002b6970(s16, s32);
-extern void func_002b7750(s32, s16);
+extern void func_002b7750(s16, s16);
 extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
 extern u8 *func_002e4870(s8 arg0);
-extern u8 *func_002e48a0(s8 arg0, s16 arg1);
+extern u8 *func_002e48a0(s8 arg0, s32 arg1);
 extern u8 *func_0034ae50(u8 *arg0, s16 arg1);
 extern void func_002ba970(u8 *, s64, s32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
 extern s32 func_0010b5b0(void);
 extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
-extern void func_002b8370(s32, s32, s32, s32, s32, s32);
-extern void func_003191c0(u8 *, s64, s8, u16, u8, s32, s32, s8);
-extern void func_0031ac10(u8 *, s64, s8, u16, u8, s32, s32, s8, s8, u8);
+extern void func_002b8370(void *, s32, s32, s32, s32, s32);
+extern void func_003147e0(u8 *, s8, s64, s16, s32, s32);
+extern void func_0032fa30(u8 *, s16, u32, u32, u32);
+extern s8 func_0032fb60(s8);
+extern void func_003297f0(u8 *, s64, s32, f32, f32);
+extern void func_0031ac10(u8 *, s64, s8, u16, u16, s32, s32, s32, s8, u8);
 extern f32 D_006440F0[];
 extern f32 D_006440F8[];
 extern f32 D_00644290[];
 extern f32 D_00644298[];
 extern f32 D_00644350[];
-extern void func_002b83e0(u8 *, s64, s64, s64, u8, u8, f32, f32, s32, s32, s64, s64);
-extern void func_002b6af0(s32, s32, s32, s32, f32, f32, f32, f32);
-extern void func_002b69f0(s32, s64, s64, s32, s32, s32);
+extern void func_002b83e0(u8 *, s64, s64, s64, u8, u8, s32, s32, f32, f32, s64, s64);
+extern void func_002b6af0(s16, s32, s32, s32, f32, f32, f32, f32);
+extern void func_002b69f0(s16, s64, s64, s32, s32, s32);
 extern s32 func_0046d200(void *, s32);
 extern f32 func_0046b260(void *);
 extern f32 func_0046b2f0(void *);
 extern void func_0046d280(s32);
-extern void func_002b68d0(s32, s32, s32);
+extern void func_002b68d0(s16, s32, s32);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];
 extern void func_0045af60(s32, s32, s32, s32);
@@ -78,7 +83,7 @@ extern void func_002b2f90(s16, s16, s32, s8, s16 *, s16 *);
 extern f32 iGpffff8360;
 extern s64 func_00331560();
 extern void func_002b77d0(s32, s64, s32, s32, s32, s64, s32, s32, f32, s32, s64);
-extern void func_0025ecd0(s32, s32, s16, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+extern void func_0025ecd0(s32, s32, s16, s64, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void func_002777f0(s8 arg0);
@@ -476,16 +481,20 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031d630);
 // FUN_0031DDF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031ddf0);
 
-/* measured: nd 83 — pure saved-register rotation + one 2-word arg-order swap.
-   retail allocates [arg1->$s2, t->$s3, id->$s4] (ext->$s0, p->$s1); mwcc b210
-   always emits [id->$s2, arg1->$s3, t->$s4] regardless of local declaration
-   order (t/id swapped, both orders tried) or an s8 v=arg1 param-copy local
-   (coalesced away). Also retail materializes the 6b90 call args in order
-   (move $a0 first, then lwr/lwl $a1); mwcc schedules the unaligned load first.
-   Real fixes applied along the way: arg0 must be s16 (s32 re-normalizes id with
-   dsll32/dsra32 at each 6b90 call, nd 131), stack locals must be declared
-   sp7C..sp6C top-down, and the unaligned 4B loads must be written at 0x85/0x75.
-   Saved-register rotation + argument-order floor. */
+/* measured: nd 55 — everything (incl. the rule-1 lwr/lwl unaligned 4B reads at
+   0x85/0x75, all 5 blocks, the tail) matches except a pure saved-register
+   rotation + one 2-word order swap per 6b90/8370 call. Rule 1 confirmed: the
+   lwr/lwl pairs ARE plain *(u32 *)(p + 0x85)/*(u32 *)(p + 0x75) reads on u8*.
+   Retail allocates [v=$s0, t=$s1, arg1=$s2, p=$s3, id=$s4]; mwcc b210 always
+   emits [v=$s0, t=$s1, id=$s2, arg1=$s3, p=$s4] — 3-candidate decl-order probe
+   batch (v-first / t-first / inline (s8) cast), all nd 55. Also retail emits
+   the 6b90 a0 move (move $a0,$id) BEFORE the lwr/lwl pair, mwcc after (2 words
+   x 5 calls). Real fixes applied along the way vs the old nd-83 note: the
+   second func_0034ae50 call in the tail must be a named local BEFORE the 2a60
+   call (p5/p6, inline call moved the 2a60 block, nd 79), arg1 must be s16
+   (raw pass-through at the ae50 calls), sp7C..sp6C are u32 read back as lw.
+   Signature: void func_0031e320(u8 *arg0, s16 arg1). Saved-register rotation
+   + argument-scheduling floor. */
 // FUN_0031E320
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031e320);
 
@@ -521,6 +530,29 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 // FUN_003212E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 
+/* measured: nd 273 (3 attempts: 285, 285, 273) — rule 1 applied and confirmed:
+   the lwr/lwl 0x75/0x78 pairs ARE plain *(u32 *)(p + 0x75) reads on heap
+   func_0034ae50 results (base-alignment rule: heap base -> lwr/lwl even with
+   aligned displacements), and the sq/lq slots at 0x120..0xC0 are NOT source
+   u_long128 locals (int->mode(TI) assignment adds dsll32/dsra32 0 sign-extends
+   retail never makes) but mwcc's own 16-byte spills of s32 loop-invariant
+   locals under register pressure — plain s32 locals reproduce the sq/lq shapes.
+   Residuals, all one allocator cascade: (1) mwcc CSEs the loop-test (s16)i
+   normalize into the body's n = (s16)i (computes once at the loop bottom),
+   retail re-issues it at the body top AND the test; (2) mwcc keeps m2 (m+0x14E)
+   in a register where retail spills it to 0x110 (frame 0x160 vs retail 0x170,
+   every stack slot shifts -0x10, and the 83e0 a2/a3 lw's move before the f12/
+   f13 lui/mtc1 pair vs retail's after); (3) saved-register rotation
+   (arg1->$s6/t->$fp/v->$s7/i->$s5 vs retail $s5/$s7/$s6/$s2). Everything else
+   matches once the shape is right: s32 v = (s16)arg1 with arg1 passed raw to
+   6af0/69f0, sp16C..sp158 are s32 (u32 gives lwu for the s64 83e0 args; the
+   83e0 prototype's 7th/8th args are s32, 9th/10th f32 — the checked-in extern
+   had them swapped), 2a60 outputs copied to p+0x75 as FclByte4 byte chains,
+   the inner if/else with the 2e4870(0) + sp100 + (s16)j + 0x14 lb test, the
+   6-call 83e0 arg block (spE0 first word as a0, inline 6th ae50 for f13),
+   for(i=0;(s16)i<(u16)func_0010b5b0();i=(s16)(i+1)) with m=n*23, the 25E/14E/
+   7F constants, sq'd sp120 = v+3 reloaded as (s16) for the 6a70 6th arg.
+   Loop-CSE + spill-choice + rotation floor. */
 // FUN_003218A0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003218a0);
 
@@ -544,6 +576,25 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003233d0);
 // FUN_00323D00
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
 
+/* measured: nd 82 — the ONLY defect is the f20 = 20.0f + sp68.y block (1 word +
+   register swap), and its -4 shift cascades through every later branch target
+   and row. Retail: [lwc1 y, lui 20.0f, mtc1, nop, add.s f20,f0,f1] — the y load
+   FIRST, nop for the FPU delay; mwcc b210 always emits [lui, mtc1, lwc1,
+   add.s] with the load hiding the delay (1 word shorter), regardless of source
+   order (20.0f + y, y + 20.0f, or a named f32 y local — all nd 82). FP
+   materialization-scheduling floor, same family as func_00330e50. Everything
+   else matches exactly: sp68 is ONE FclVec2 struct (the field-wise f32 loads
+   interleave; the struct copy gives retail's lwc1/lwc1/swc1/swc1 batch),
+   read back as *(s64 *)&sp68 for the 69f0 arg; the switch's descending
+   dispatch (2, 1, 0, default) with ascending case labels; case 0 breaks early
+   on the 6970==1 check then falls through its own if/else into the shared
+   6af0/6a70/6150/sb-1 tail; the t+v17+0x294 address written
+   (u8 *)(v17 + (s32)t) + 0x294 gives retail's addu index+base order;
+   2970 args 280.0f + sp68.x. SIGNATURE FIXES (externs checked against the
+   retail prologues): func_002b6150's param is s16 (s32 breaks func_00318f30),
+   and func_002b7750/002b68d0/002b6af0/002b6a70/002b69f0 FIRST params are s16
+   (the checked-in s32 externs add a spurious CSE'd dsll32/dsra32 on the s16
+   arg1 at the first call). */
 // FUN_00324410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324410);
 
@@ -684,30 +735,51 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032a960);
 // FUN_0032B000
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
 
+/* measured: nd 5 (2-word load-sink swap + padding): retail loads the first
+   func_002e48a0 result's u16 at +2 IMMEDIATELY (lhu $s7, 2($v0) right after the
+   jal); mwcc b210 keeps the pointer in $s7 and sinks the lhu to the ac10 call
+   (lhu $t0, 2($s7)), regardless of spelling — inline, named u16 w, or named
+   pointer p1 (named locals rotate the allocation: nd 16/24). Load-sinking
+   floor. Everything else matches once the shape is right: func_0031ac10's
+   5th param is u16 (u8 truncates the read to lbu) and 8th param is s32 (an s8
+   extern adds a spurious dsll32/dsra32 on arg3) — both checked against the
+   ac10 prologue ($23 raw, $19 raw); func_003297f0's real signature is
+   (u8 *, s64, s32, f32, f32) with f12=(f32)0x1A1 + f13=220.0f (the checked-in
+   extern was wrong); func_002e48a0's 2nd param is s32 (s16 adds a normalize
+   at each call); the loop multiply is (s16)((s16)i * v1) — mult $s0,$s1 — NOT
+   a 0x99 constant (the 0x99 is only the ac10 10th arg; my first decode read
+   rs=0x02 but the true rs is 0x10); i=0 init precedes the v1/v2 (s16)
+   conversions; v1/v2 are s32 (s16 re-normalizes at the mult); the tail is the
+   same madd chain as func_0032c0c0 with the verified rule-2 spelling
+   (f21 = acc = the 0x124-load variable, f21 * f20). */
 // FUN_0032B770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 
 // FUN_0032B9D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
 
-/* measured: nd 4 (2-word swap + 1 padding word): case 4's r test — retail stores
-   sh $v0 first, then truncates $v0 IN PLACE (dsll32/dsra32) for the bnez; mwcc
-   b210 always precomputes the truncated value into $v1 before the sh, regardless
-   of spelling (inline (s16)r cast, s16/s32 r, inverted if/else, explicit
-   r = (s16)r statement). Everything else — all 5 case bodies, jump table, FMA
-   madd.s f20,f20,f21, v17 normalization at (s16)((s16)v17-1) — matches exactly.
-   $v0/$v1-family scheduling floor. */
+/* measured: nd 5 (4 word-swaps + 1 padding) — everything matches except case 4's
+   r test: retail stores the raw 2cb0 result (sh $v0) then truncates IN PLACE
+   (dsll32/dsra32 $v0) for the bnez; mwcc b210 always hoists the (s16) truncation
+   into $v1 before the sh, regardless of spelling (v4 s16/s32, inline (s16)v4
+   cast, if/else inverted, explicit (s16)v4 = v4 statement). $v0/$v1-family
+   scheduling floor — the old note's claim survives, but everything else in the
+   old note is superseded: rule 2 (FMA order) was NOT a floor here — the tail's
+   madd.s $f20,$f20,$f21 only fuses when the acc is the 0x124-load variable
+   (f21 under mwcc's swapped FP mapping) AND the multiplication is written
+   load*diff (f21 * f20); my first spelling (diff*load) emitted mul.s+add.s
+   (no fusion, nd 8+). Rule 3: no s128/quadword anywhere — the case-4 pair is
+   an (s16) narrowing, not a 128-bit cast artifact. Real shape discoveries:
+   case 0 is TWO statements (2cb0 store + 2d50 store with a1=lh 0x120, a4=1)
+   then break — NOT a fallthrough into case 1; case 4 needs a SEPARATE temp
+   (v4) for the 2cb0 result because the else-branch 2d50 passes the OLD r
+   ($17 = 8 or the pre-switch lh) — with r as the result variable mwcc keeps
+   it in a saved register (nd 108); r must be s32 (s16 adds (s16)r normalizes
+   at the two 2d50 a3 args); case 5's 2d00 is (…, 1, 0, (s16)(x-1), 2); the
+   pre-switch r is s32 r = 8; if (*(s32 *)(func_002e4870(0) + 8) < 8). */
 // FUN_0032C0C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
 
-/* measured: retail allocates p (func_002b2a30 result) to $s0 and t (the
-   *(u8 **)(arg0+0x38) load) to $s1; mwcc b210 always creates t first and gives it
-   $s0 / p $s1 regardless of declaration order (p,t / t,p) or statement order (t
-   load moves after the jal if p is assigned first, nd 93). Also: retail emits the
-   D_00796310 lui/addiu for func_00330e50's a5 AFTER the f13/f14 mov.s pair, mwcc
-   before; and retail evaluates func_0034a640's a0 load before a1, mwcc after. All
-   tried variants nd 28. Saved-register rotation + argument-evaluation-order
-   floors. */
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 
@@ -781,15 +853,32 @@ void func_0032f060(u8 *arg0, s32 arg1) {
     }
 }
 
-/* measured: nd 154 — one fixed saved-register rotation: retail allocates t to $s0
-   and the loop counter i to $s1 (v16 reuses $s0); mwcc b210 always gives t $s1 and
-   i $s0, cascading through ~150 words. All declaration orders and statement orders
-   tried. Everything else reproduces once the shape is right: the tbl is FclVec2[5]
-   at 0x50 (stores at b7=5/6 are out-of-bounds writes overlapping sp78/sp80), the
-   f20=-14.0f must be the LAST statement INSIDE the func_00106330(0x1306) if (else
-   mwcc DCEs the live-on-skip-path f20=0.0f), and the loop reads tbl[i] as
-   *(s64 *)&tbl[i] (mwcc proves alignment and emits ld, retail emits ldr/ldl —
-   the u8*-pointer spelling doesn't change it). Saved-register rotation floor. */
+/* measured: nd 130 — every instruction matches except three fixed residuals.
+   (1) Six sh-index addus: retail emits addu $v0,$v0,$s0 (scaled index + t),
+   mwcc b210 always emits addu $v0,$s0,$v0 (t + index) regardless of source
+   expression order — the ix-local lever (s32 ix = X*2; ix + t) FAILED here
+   (nd 151, also reordered the 0x169/0x16A/0x16E constant materialization).
+   (2) The loop: mwcc CSEs the (s16)i normalize (computes it once at the loop
+   bottom, feeding body and test) while retail re-issues it at the body top AND
+   the test (2 extra dsll32/dsra32 pairs per iteration, nd 800-904 region).
+   (3) Rule-1 loop read: retail ldr $a2,0x50($a3)/ldl 0x57 — probed EVERY
+   spelling (u32/u8/s64 pointer casts, scaled-index buf+n*2+0x14, pointer locals,
+   loop shapes): mwcc b210 proves the sp+n*8+0x50 address 8-aligned and emits
+   plain ld in every form. The ldr/ldl fires only for heap-pointer bases
+   (func_002b6150/34ae50 results), as in 297f0/2b000/2fbc0/21e60 — the
+   displacement is 8-aligned there too, so the brief's "4-mod-8 displacement"
+   rule is really a base-alignment rule and does not apply to this stack read.
+   Everything else reproduces exactly once the shape is right: spA0..sp78 are
+   s64 locals fed to 2970 and cast to FclVec2 for the tbl stores (tbl FclVec2[5]
+   at 0x50, stores at b7=5/6 out-of-bounds over sp78/sp80), the 0x1306 if is
+   NESTED inside the 0x1305 if (both beqz skip to block 6), there is a third
+   2970(&sp98) block before the 0x1305 if, t->0xB7 is re-read inline at every
+   use (never a named counter outside the loop), f20=-14.0f is the LAST
+   statement in the 0x1306 if, r must be s16 (s8 re-extends at the fa30 call),
+   loop is for(i=0;(s16)i<t->0xB7;i=(s16)(i+1)) with n=(s16)i and the
+   func_003147e0 6-arg call. Addu-order + loop-CSE + stack-read floors; the
+   old nd-154 note's saved-register-rotation claim is superseded — with the
+   correct shapes the allocation matches (the old body was missing block 3). */
 // FUN_0032F4D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032f4d0);
 
@@ -854,8 +943,23 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330060);
 // FUN_003307B0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003307b0);
 
+/* measured: nd 21 (17 arg-block + prologue-order words + padding) — a pure
+   argument-evaluation-order floor: retail materializes the 25ecd0 arg block as
+   [(s16)a0, f15=0, lwc1 f12/lwc1 f13 (arg1 words), mov.s f14 (fparg0), a0, a1,
+   a3(31560 raw), a4, a5=0, a6=0, mov.s f16/f17, a7] — the first float-arg group
+   EARLY; mwcc b210 always emits all int args (incl. a7) first, then f12/f13/f14,
+   then f16/f17, regardless of inline vs named r/lo/hi locals (both nd 21). The
+   prologue param copies follow first-use order, so the same swap cascades there
+   (retail [f22, s3, s2, s1, f21, f20, s0] vs candidate [s3, s2, s1, s0, f22, f21,
+   f20]). Real fixes applied: the 25ecd0 4th param must be s64 (retail passes the
+   func_00331560() result RAW — an s32 extern adds dsll32/dsra32 0, nd 36), the
+   8th param is a pointer (void*), arg1 is read word-wise via *(f32 *)&arg1 /
+   *((f32 *)&arg1 + 1) (the sd 0x78 + lwc1 0x78/0x7C pattern), arg0 is s32 with
+   (s16)arg0 at the call. Argument-evaluation-order floor, same family as the
+   func_002b2970 notes. */
 // FUN_00330E50
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330e50);
+
 // FUN_00330F20
 s32 func_00330f20(u8 *arg0) {
     s32 sp3C, sp38, sp34, sp30;

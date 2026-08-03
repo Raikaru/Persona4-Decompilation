@@ -613,6 +613,16 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004735b0);
 // FUN_00473710
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
 
+/* measured: 4 attempts, all nd 152. Structure, pointer math (3-op mult,
+   base/stride/count reloads), the func_003d5bc0 2-arg call and the c.ole.s
+   len2<=0 test all match. Residual: the fused mula/madda/madd.s chains (len2
+   and the rotation terms) get their PRODUCT ORDER and registers permuted by
+   b210 vs retail (e.g. mine mula t1*t0 where retail mula t0*t0, second chain
+   mula/madda pair swapped) - same family as btlEPL func_001fceb0/001fe090
+   mula/madd FP-scheduling floors; the p1 vec4 (retail swc1/lwc1 sp30-3C
+   spill+reload) stays in registers; the 1.0f/0.0f constants are not hoisted
+   out of the loop (opt_loop_invariants on at function scope and inline:
+   no effect); everything downstream rotates by one FP register. */
 // FUN_00473870
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
 
@@ -824,12 +834,15 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 /* measured: retail reloads t (lh) and obj (lw) at the second path and sign-
    extends t (dsll32/dsra32) BEFORE the first compare in both paths; mwcc b210
-   either CSEs the second-path t load across the branch when the condition's t
-   load precedes the obj short-circuit (t-first form, nd 20) or, with the obj
-   short-circuit first (m2c form), keeps the obj load CSE'd in $a0, emits the
-   dance after the compare, and swaps t/obj registers ($v0/$a0 vs $a0/$a2,
-   nd 50). Tried: t-first comma form, obj-first m2c form, s32/s16 t, separate
-   e/n locals. Load-CSE + sign-extension-placement floor. */
+   CSEs BOTH second-path loads across the branch in every spelling (goto
+   layout with inline p1 block matches retail's block order 1:1, best nd 48:
+   p2 re-dances the CSE'd $a2 and keeps obj in $a1 vs retail's lh $v1/lw $v0;
+   the dance is emitted lazily after the slt, retail eagerly before the count
+   load; comma forms booleanize != NULL / != 0 into sltu, nd 70; volatile u8*
+   param did not re-issue the loads - the (u8*) casts drop the qualifier).
+   Tried: t-first comma form, obj-first m2c form, s32/s16 t, separate e/n
+   locals, goto p1-inline form, volatile pointee. Load-CSE +
+   sign-extension-placement floor. */
 // FUN_00474BA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
 
@@ -1001,9 +1014,36 @@ u32 func_00475090(u32 param_1)
 // FUN_00475170
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475170);
 
+/* measured: 4 attempts (nd 245/253/252/248). Working spellings: the
+   type==6/5 dispatch must be switch(t){case 5: case 6:} to reproduce retail's
+   beq/beq/b with the body out of line (|| range-optimizes, if/else-if
+   duplicates the 9a700 call); the u_long128 spA0 read must be *(s32*)&spA0
+   (typed alias, wave rule 3) to keep the sq/lq at 0xA0($sp) - (s32)spA0 keeps
+   it in a register; arg3 must be u16 (s16 emits a dsll32/dsra32 dance before
+   the andi 0xFFFF); arg4 needs the explicit double mask `arg4 & 0xFFFF & 1`;
+   the (s64)(s16)arg2 dance is right (m2c's (arg2<<0x30)>>0x30 FOLDS TO ZERO
+   under b210 with narrow args - do not use). Residual: arg2 gets spilled to
+   the stack slot 0xAE instead of retail's $s1 (saved-register pressure), the
+   val*8 chain is re-derived per loop iteration where retail hoists
+   sll $s7,$v1,3 before the loop, and a general saved-register rotation
+   (mine arg0:$s5/arg1:$s0/iter:$s3/list:$s4/t:$s1/obj:$s2/t30:$s7 vs retail
+   arg0:$s5/arg1:$s2/arg2:$s1/iter:$s0/list:$s6/obj:$s3/t+e2:$s4/t30:$fp).
+   Saved-register-rotation + LICM floor. */
 // FUN_00475350
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475350);
 
+/* measured: 4 attempts (nd 174/173/173/174, obj 780B vs window 752B: over).
+   Logic and call sequence fully transcribed and matching; retail saves 4
+   s-regs ($16-19), b210 hoists the elem+0x40/0x44 STORE addresses into saved
+   regs $s4/$s5 (addiu $s5,$s0,0x40; sw ($s5)) across the func_003d5e40/
+   003d5990 calls where retail folds 0x40($s0) per store - the recorded
+   Address-CSE-into-s-reg floor family (79e60/776c0/73710/735b0) - plus the
+   type==6||type==5 dispatch compiles to a range test (addiu -5/sltiu 2) in
+   the || form and to beq+bne with the work block inline in the goto/&&/switch
+   forms (retail: beq 6; beq 5; b skip with the body out of line), and the
+   (arg0+2)==1 branch inverts (retail branches to the out-of-line ==1 block;
+   b210 inlines it under a negated skip in every if/else and switch spelling).
+   Branch-placement + address-CSE floor. */
 // FUN_00475820
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475820);
 // FUN_00475B10
@@ -1031,6 +1071,21 @@ void* func_00475b10(void* object, void* data)
    re-mask). Branch-placement + t-coloring floor, best nd 35. */
 // FUN_00475B90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475b90);
+/* measured: 1 transcription attempt (nd 889 of 0xFA0). The whole body is
+   readable C (byte-adjust 0x280/281/282, alpha conversion, quaternion dot +
+   acos + slerp-style polynomial interp with gp slots iGpffff8054/8058/805c/
+   8060/81cc/81fc, the 0xC0 identity matrix block, D_00887300/D_00887304
+   dispatch, 0x124/0x28C loops, 0x28C/0x290/0x294 slots) but the fused
+   mula/madda/madd.s chains and the 40+ stack f32 locals get reordered and
+   re-allocated by b210 vs retail (the same mula/madd FP-scheduling family as
+   func_00473870/btlEPL func_001fceb0 - never reproduced byte-for-byte), and
+   the frame/stack-slot layout diverges (retail spills the sp70-8C vec to
+   fixed slots 0x70-0x8C; b210 keeps them in registers and rotates). Fixes
+   verified while transcribing: func_00397c40 is 1-arg here (use
+   func_00397c40_1 alias); func_0047a2f0 is called with ONE arg (alias
+   func_0047a2f0_1); func_00477260's first arg wants an explicit (u64) cast;
+   D_00887300[] is an array (D_00887300[0](...)). FP-scheduling +
+   stack-layout floor. */
 // FUN_00475CD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
 
@@ -1679,16 +1734,18 @@ void func_00479080(void* param_1, void* param_2)
     }
 }
 
-/* measured: blocked by 8 instances of the lbu+bltz u8 sign test (0x379330,
-   0x379374, 0x3793B8, 0x3793FC, 0x379440, 0x379488, 0x3794D0, 0x379518):
-   retail does lbu;bltz;mtc1;cvt.s.w (neg path: srl/andi/or/doubling) per
-   byte; b210 emits andi-normalized double bltz with a duplicated negative
-   path in every if/else and neg-as-then spelling (probe-verified on u8 and
-   u16 loads, 16+ variants) — same family as func_00473b20/004740c0. The
-   rest is writable C: the madd.s byte chain (f = 0.5f + 255.0f * x;
-   (s32)f; sb) compiles from `255.0f * x + 0.5f` (b210 emits adda/madd),
-   g = iGpffff8044 multiplies, the 0x2CC/0x2FC blocks, loops 0x79624 and
-   0x79720. Not transcribed: 8 guaranteed sign-test mismatches dominate. */
+/* measured: 4 attempts (nd 432/388/388/409). The lbu+bltz+u32-neg-path byte
+   conversion IS reproducible: (f32)(u32)*(u8*) emits lbu;bltz;mtc1;cvt.s.w
+   (neg: srl/andi/or/doubling) exactly like retail, and iGpffff8044 must be
+   declared volatile (plain f32: b210 CSEs the 8 loads into one hoisted
+   lwc1). madd chain matches from `255.0f * x + 0.5f` (adda.s/madd.s). The
+   sp6C[4] bytes must be one array (separate s8 locals get dead-store-ELIM'd,
+   killing the w1/w2 chains). Residual at best nd 409: pre-chain register
+   allocation (obj/obj2 in $a1 vs retail $v0; the flags&0x8000 test re-issued
+   in $s0 instead of one beqz into the shared block; sp64/sp68/sp6C[4] stack
+   slot order 0x74/0x6C/0x64 vs retail 0x64/0x68/0x6C) and the madd-chain FP
+   regs (mine f1/f0/f6/f4 + 255=$f4,0.5=$f3,0.0=$f2 vs retail f2/f1/f0/f5 +
+   $f5/$f4/$f3). FP-coloring + slot-order floor. */
 // FUN_00479100
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
 
@@ -1751,12 +1808,18 @@ s32 func_00479ca0(void* param_1, s32 param_2)
 // FUN_00479D10
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479d10);
 
-/* measured: retail loads arr = *obj at the top of the flag body, then re-derives
-   idx via dsll32/dsra32 and multiplies; mwcc b210 sinks the arr load below the
-   idx re-derivation + multiply chain (7 words, all one reorder). Tried: idx as a
-   named s32 local (nd 22, single pair reused), inline (s16)param_3 casts with
-   `count > idx` comparison (nd 7), reversed expression orders. Load-sinking
-   floor (brief: hoisting into a local does not move it). */
+/* measured: 4 attempts (nd 33/36/36/36). Correct spellings found: the byte
+   chain wants 32-bit arithmetic on a byte base - *(void**)((u8*)arr +
+   idx*0x50 + 0x40) folds 0x40 into the lw (element form *0x50+0x10 emits an
+   extra sll 6 chain + daddiu, nd 33; (s16) param typing emits no dance at
+   all). Residual: (1) retail re-derives the s16 sign-extension (dsll32/
+   dsra32) at BOTH use sites; b210 CSEs the two conversions into one pair in
+   every spelling tried (s64 shifts, (s64)(s16) casts, s32 param + (s16)
+   narrowing, named s32 local nd 22); (2) retail loads arr = *elem at the top
+   of the flag body, b210 sinks it below the idx re-derivation + 0x50 chain
+   (load-sinking, brief-confirmed); (3) the return-1 path gets its own b to
+   the epilogue where retail falls through. Load-CSE +
+   sign-extension-reissue floor (same family as 79d10). */
 // FUN_00479DD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
 
@@ -2250,6 +2313,22 @@ void func_0047b060(void* param_1)
     m[0x30C / 4] = 0;
 }
 
+/* measured: 1 transcription attempt (nd 1237 of 0x15A0). The whole
+   switch-driven resource-loader is transcribed (cases 0x10/0x16/0x1B/0x23/
+   0x2B + the 0xF0F000xx family, the 0x30C slot table, 0x254/0x234/0x2CC
+   alloc blocks, the 8-word copy, 0x124/0x14/0x20 slot tables, func_004667d0
+   10-arg calls with (s64)&D_0070B610). Residual: b210's switch emits a
+   linear beq chain in source order with the case bodies INLINE where retail
+   uses the jump-table shape with bodies out of line (the m2c's "irregular"
+   switch - needs the mwccps2-switch-linear-chain-declaration-order levers),
+   plus the usual saved-register rotation across the ~30 temp loads. Verified
+   call shapes for retry: func_00397c40-style 1-arg sites use func_003e2ce0
+   (always 1-arg); func_00463100 is (void*); func_0047f9f0 returns u32;
+   func_004800d0 is (void*,void*,void*,void*); func_003d60e0 (void*,s32);
+   func_0047d200/7dc30 return void* (cast to s32); jtbl_008873E8 =
+   (void* (*)(int,int))DAT_008873e8[0]; D_0070B610 is an u8 extern; mwcc C89
+   rejects void*+int - cast derefs to u8* first. Switch-layout +
+   register-rotation floor. */
 // FUN_0047B0C0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
 
