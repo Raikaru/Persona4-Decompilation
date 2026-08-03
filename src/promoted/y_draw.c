@@ -47,10 +47,10 @@ extern s32 func_002b6340(u8 *arg0);
 extern void func_002b6560(u8 *arg0);
 extern s32 func_002b7f20(u8 *arg0);
 extern s32 func_002b9e10(u8 *arg0);
-extern void func_002b9f60(u8 *arg0);
+extern void func_002b9ab0(u8 *arg0, u8 *arg1);
 extern s32 func_002b6ec0(u8 *arg0);
 extern void func_002b74c0(u8 *arg0);
-extern s32 func_002b9ab0(u8 *arg0);
+extern void func_002b9f60(u8 *arg0);
 
 extern u8 D_0063F178[];
 extern u8 D_0063F188[];
@@ -214,6 +214,14 @@ void func_002b6260(void) {
     func_003f6440(3, 0x7C003);
 }
 
+/* measured: retail materializes func_002b2a30's args constant-first (a0=0xFF before
+   the lbu a1-a3) and func_0025ecd0's 14 args in a scrambled order [2, 7-addr,
+   f12-f14, 0, 1, 3, 4, 5, 6, f15-f17] with the GPR block interleaved with FP; mwcc
+   b210 always emits the b2a30 constant last and its own GPR-then-FPR order (nd 46,
+   identical with inline args or a hoisted tab local). Same argument-evaluation-
+   order floor documented in y_fclCombineDraw/y_fclItemShopDraw/y_fclShopDraw
+   (func_0025ecd0/func_002b2a30 notes); also the first compare's two independent
+   lwc1 loads swap (global first, nd 2, same family as func_002b9e10). */
 // FUN_002B6340
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6340);
 
@@ -223,6 +231,14 @@ void func_002b6560(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
+/* measured: retail anchors the loop's (s16)i sign-extend at the loop head into $s0
+   (before the func_002b2970 call, live across it), then scales it post-call, and
+   materializes func_0046d200's arg1 (dsll32/dsra32 of the s16 arg) before the arg0
+   lw; mwcc b210 instead folds the loop-head extension into the bottom loop-test
+   extension (slti on $s0) when written as a pre-call s32 ix statement (nd 85), or
+   sinks it to first use after the call into $v1 when written inline (nd 12: 9
+   words extension placement + 3 words arg-materialization order). Both residuals
+   are the s16-index/arg-order floor family documented in y_fclCombineDraw. */
 // FUN_002B6590
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
 
@@ -341,6 +357,14 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
     *(f2 *)(base + 0x38) = p1;
 }
 
+/* measured: retail emits the func_0046d200 call's arg1 chain (lw 0x38 base reload,
+   addu, lh 8($v0)) BEFORE the arg0 load (lw $a0, ($a3) from the prologue-hoisted
+   base, which retail keeps in $a3); mwcc b210 schedules the arg0 load first and
+   colors the hoisted base $a1, flipping the addu at the first store (9 differing
+   words reloc-masked). Tried full-deref stores, q = base+off+0x10 hoisted pre-call,
+   b = base hoisted pre-call, and a pre-call s32 v = lh load - all keep mwcc's
+   arg0-first order. Argument-materialization-order floor, cousin of the
+   load-sinking wall. */
 // FUN_002B6C30
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
 
@@ -382,23 +406,44 @@ void func_002b74c0(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
+/* measured: retail anchors the inner loop's (s16)j sign-extend at the loop head
+   into $s0 (before the func_002b2970 call, live across it) and re-issues the table
+   load before each store with the 0xFF constant between the loads and the addu;
+   mwcc b210 emits the j-extend at first use after the call (or sinks a pre-call
+   jx statement into the bottom test, nd 102) and materializes the constants before
+   the table loads (nd 91-95 across inline/jx/while/for spellings, ix-first addu,
+   and j=0-before-ix ordering). Same s16-index-extension family as func_002b6590's
+   measured note. */
 // FUN_002B74F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
 
-/* measured: retail loads iGpffffb574 and the 0x38 table base before sign-extending
-   arg0, and re-loads the table for every one of the six stores; mwcc b210 sinks the
-   loads below the shift (9 differing words reloc-masked with the full-dereference
-   spelling; 31 with the base hoisted into one local). Load-sinking wall, same
-   family as func_002b6af0/002b6b40. */
+
 // FUN_002B7750
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7750);
 
 // FUN_002B77D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
 
+/* measured: retail sinks found=0 into the loop's exit edge (test fall-through) and
+   CSEs the constant 1 from i's init ($a0 = i's 1) into both the sllv base and the
+   bne compare, keeping $a3=flags unextended (lh already sign-extends); mwcc b210
+   keeps found=0 before the loop (or folds it when written after: nd 133) and
+   rematerializes the 1 inside the body (nd 100-133 across s16/s32 flags and
+   per-iteration found=0 spellings). Also retail re-loads iGpffffb574's table per
+   compare and keeps $18 = arg2's sign-extend across calls. Loop-init-sinking +
+   constant-LICM floor, cousin of the load-sinking wall. */
 // FUN_002B7CD0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7cd0);
 
+/* measured: retail compiles the u8->float c-check (lbu 0x125 + bltz, round-to-even
+   trick via srl/andi/or, doubling via add.s) as a standard if/else - one bltz, direct
+   path inline, trick out of line, single join store; mwcc b210 duplicates the else
+   block and emits TWO bltz on the same lbu result for every spelling tried (>= / <
+   condition, u8/u32 c, v2 local or inline doubled expression, u32 shift casts; nd
+   111-129). Also retail hoists the D_008872F8 lui into the loop preheader and loads
+   the LHS operand first (sub.s $f1, $f0 order), mwcc keeps the lui in the body and
+   loads RHS first (nd 12 in the loop alone, same floor family as func_002b9e10's
+   operand-order note). Else-duplication + loop-operand-order floor. */
 // FUN_002B7F20
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7f20);
 
@@ -514,8 +559,17 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b83e0);
 // FUN_002B89A0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b89a0);
 
+/* measured: retail keeps the loop's (s16)i sign-extend at the loop head (separate
+   from the bottom test's extension), hoists the D_008872F8 lui into the preheader,
+   and loads the sub's LHS operand first (lwc1 D before lwc1 0x108); mwcc b210 merges
+   the loop-head extension into the test, keeps the lui in the body, and loads the
+   RHS first (nd 133-140 across inline (s32)i, an ix statement, a per-iteration
+   dv = D_008872F8[0] local, and cast-free u32 byte checks - the cast-free form does
+   fix the byte-conversion if/else duplication from nd 275 to the standard single
+   bltz shape). Same three walls as func_002b6590/func_002b74f0/func_002b7f20. */
 // FUN_002B9AB0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9ab0);
+
 
 // FUN_002B9E10
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9e10);

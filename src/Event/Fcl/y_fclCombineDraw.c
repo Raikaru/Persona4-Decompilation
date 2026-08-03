@@ -41,6 +41,30 @@ extern u8 *func_002b6150(s16);
 extern s32 func_002b6970(s16, s32);
 extern void func_002b7750(s32, s16);
 extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
+extern u8 *func_002e4870(s8 arg0);
+extern u8 *func_002e48a0(s8 arg0, s16 arg1);
+extern u8 *func_0034ae50(u8 *arg0, s16 arg1);
+extern void func_002ba970(u8 *, s64, s32);
+extern s32 func_002b2a30(s32, s32, s32, s32);
+extern s32 func_0010b5b0(void);
+extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);
+extern void func_003191c0(u8 *, s64, s8, s32, s32, s32, s32, s8);
+extern void func_002b83e0(u8 *, s64, s64, s64, u8, u8, f32, f32, s32, s32, s64, s64);
+extern void func_002b6af0(s32, s32, s32, s32, f32, f32, f32, f32);
+extern void func_002b69f0(s32, s64, s64, s32, s32, s32);
+extern s32 func_0046d200(void *, u8);
+extern f32 func_0046b2f0(void *);
+extern void func_0046d280(s32);
+extern void func_002b68d0(s32, s32, s32);
+extern f32 D_007495C0[];
+extern f32 D_00749600[];
+extern void func_0045af60(s32, s32, s32, s32);
+extern void func_002b6d60(s32);
+extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
+extern s16 func_002b2d00(s32, s32, s32, s32, s8);
+extern s16 func_002b2d50(s32, s32, s32, s32, s32);
+extern void func_002b2e70(s16, s16, s32, s8, s16 *, s16 *);
+extern void func_002b2f90(s16, s16, s32, s8, s16 *, s16 *);
 extern f32 iGpffff8360;
 extern s64 func_00331560();
 extern void func_002b77d0(s32, s64, s32, s32, s32, s64, s32, s32, f32, s32, s64);
@@ -263,7 +287,88 @@ emits lbu $a1 before addiu $a0, retail the reverse. All spellings give nd 5
 // FUN_00317320
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317320);
 // FUN_00317410
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317410);
+void func_00317410(u8 *arg0, s8 arg1) {
+    FclByte4 sp6C;
+    FclByte4 sp68;
+    FclByte4 sp64;
+    FclByte4 sp60;
+    FclByte4 sp5C;
+    FclByte4 sp58;
+    FclByte4 sp54;
+    FclByte4 sp50;
+    FclByte4 sp4C;
+    FclByte4 sp48;
+    FclByte4 sp44;
+    u8 *p;
+    u8 *t;
+    u8 *q;
+    s32 v;
+
+    t = *(u8 **)(arg0 + 0x38);
+    func_002b2a60(&sp6C, 0, 0, 0x66, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
+    *(FclByte4 *)(p + 0x85) = sp6C;
+    q = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
+    *(FclByte4 *)(q + 0x85) = *(FclByte4 *)(p + 0x85);
+    func_002b2a60(&sp68, 0xCC, 0xFF, 0xFF, 0xFF);
+    v = *(s8 *)(t + 0xB3) * 2;
+    p = func_002b6150((s16)*(s16 *)(v + (s32)t + 0xB8));
+    *(FclByte4 *)(p + 0x85) = sp68;
+    if (*(s8 *)(t + 0xB3) == 1) {
+        if (func_00106330(0x1305) != 0) {
+            func_002b2a60(&sp64, 0xCC, 0xFF, 0xFF, 0xFF);
+            p = func_002b6150(0x2EB);
+            *(FclByte4 *)(p + 0x85) = sp64;
+        }
+    }
+    if (*(s8 *)(t + 0xB3) == 2) {
+        func_002b2a60(&sp60, 0xCC, 0xFF, 0xFF, 0xFF);
+        p = func_002b6150(0x175);
+        *(FclByte4 *)(p + 0x85) = sp60;
+    }
+    func_002b2a60(&sp5C, 0x25, 0x2F, 0x94, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
+    *(FclByte4 *)(p + 0x85) = sp5C;
+    func_0045af60(0, 0, 0, 0);
+    switch (arg1) {
+    case 0:
+        *(s8 *)(t + 0xB3) = (s8)func_002b2cb0(*(s8 *)(t + 0xB3), 1, 2, 0, 2);
+        break;
+    case 1:
+        *(s8 *)(t + 0xB3) = (s8)func_002b2d00(*(s8 *)(t + 0xB3), 1, 0, 2, 2);
+        break;
+    case 2:
+    case 3:
+    default:
+        break;
+    }
+    func_002b2a60(&sp58, 0xC6, 0xEE, 1, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
+    *(FclByte4 *)(p + 0x85) = sp58;
+    func_002b2a60(&sp54, 0xC6, 0xEE, 1, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
+    *(FclByte4 *)(p + 0x85) = sp54;
+    func_002b2a60(&sp50, 0x2D, 0x2D, 0x2D, 0xFF);
+    v = *(s8 *)(t + 0xB3) * 2;
+    p = func_002b6150((s16)*(s16 *)(v + (s32)t + 0xB8));
+    *(FclByte4 *)(p + 0x85) = sp50;
+    if (*(s8 *)(t + 0xB3) == 1) {
+        if (func_00106330(0x1305) != 0) {
+            func_002b2a60(&sp4C, 0x2D, 0x2D, 0x2D, 0xFF);
+            p = func_002b6150(0x2EB);
+            *(FclByte4 *)(p + 0x85) = sp4C;
+        }
+    }
+    if (*(s8 *)(t + 0xB3) == 2) {
+        func_002b2a60(&sp48, 0x2D, 0x2D, 0x2D, 0xFF);
+        p = func_002b6150(0x175);
+        *(FclByte4 *)(p + 0x85) = sp48;
+    }
+    func_002b2a60(&sp44, 0x92, 0xC8, 7, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
+    *(FclByte4 *)(p + 0x85) = sp44;
+}
+
 
 // FUN_00317900
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317900);
@@ -331,15 +436,22 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031cce0);
 // FUN_0031D630
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031d630);
 
+/* measured: nd 194 — the whole body (both branches, all copy chains, call
+   shapes) matches except a fixed saved-register rotation (6-declaration-order
+   probe batch, all nd 194): retail allocates arg1->$s3, t->$s2, v17->$s1,
+   v16a->$s0, v22->$s6, v20->$s4, chain->$s5, arg3->$s7; mwcc b210 always emits
+   arg1->$s4, t->$s3, v17->$s2, v16a->$s1, v22->$s0, chain->$s5, arg3->$s6.
+   Also the v20=0xFF / v16b=0x66 constants: retail materializes addiu +0xFF,
+   normalizes with andi (u8 semantics) and keeps the value in a saved register
+   across the second 6150 jal; mwcc always emits addiu -1 and re-materializes
+   per use (the explicit &= 0xFF is DCE'd; (s8)(v20 & 0xFF) is constant-folded).
+   Everything else — the FclByte4 copy chains (0x75/0x85 offsets), the
+   (s8)arg1/(s16) casts, 2ba970/2a30/34ae50 calls, the andi after the first sb —
+   reproduces exactly. Saved-register rotation + constant-materialization
+   floor. */
 // FUN_0031DDF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031ddf0);
 
-/* measured: nd 50 (48 rotated words + 2 padding) — a 3-way saved-register
-   rotation: retail allocates arg1->$s2, id->$s4, p->$s3 (v16->$s0, t->$s1 match);
-   mwcc b210 always emits arg1->$s3, id->$s2, p->$s4 regardless of declaration
-   order (p/id swapped), s16 vs s32 param/local types, or inline vs hoisted casts.
-   Everything else (lwr/lwl unaligned loads, (s8) cast, per-iteration (s16) ids)
-   reproduces exactly. Saved-register rotation floor. */
 // FUN_0031E320
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031e320);
 
@@ -468,6 +580,22 @@ void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3) {
 // FUN_00325450
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00325450);
 
+/* measured: nd 259 — one large saved-register allocation cascade, decl-order
+   insensitive (6-candidate probe, all nd 259): retail reuses t's $s0 for v16 and
+   keeps arg2 in $s3, v23 in $s7, v30 in $fp, and the (s16)v17 test temp in $v1
+   (dies before the jal, slti reads it); mwcc b210 always keeps t in $s0, moves
+   v16 to $s3, spills arg2, puts v23 in $fp and spills v30, and CSEs the loop
+   increment onto the test temp (forcing $s1 saved) with the slti on the raw
+   value. Also: the spD8->spE8 FclVec2 copy compiles interleaved
+   (load-store-load-store) or merged/ld-sd instead of retail's
+   load-load-store-store lwc1/swc1 batch, and the f20 y-load is hoisted above
+   the 9.0f lui with an addiu+lwc1 pair instead of retail's lui/mtc1/lwc1
+   direct-offset order. Everything else reproduces exactly: both loops' shapes,
+   the v18==0x14B->0x14C adjust, 61*v21 and i2*3 strength reductions, the
+   (s16)((s16)x+0xF1)+0x1F4 double-truncation pattern, D_007495C0/D_00749600
+   absolute array addressing, the 3x func_002b77d0 11-arg calls with sp0/sp8
+   s64 stack args, the >=3 && !=12 if/else branch layout. Saved-register
+   rotation + load-scheduling floor. */
 // FUN_00329310
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
 
@@ -477,6 +605,19 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003297f0);
 // FUN_00329E40
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329e40);
 
+/* measured: nd 356 — the frame stays 0x60 vs retail 0x70 because mwcc b210
+   refuses two saved values: (1) the per-block 0x66 constant (sb p+0x6E + 6a70
+   arg) is sunk AFTER the second func_002b6150 jal into a dead temp ($a2), while
+   retail materializes addiu $s1,0x66 BEFORE the jal and keeps it in $17 across
+   it — tried named s32 local and inline 0x66, both sink; (2) the 11.0f+sp50.x
+   value used by both the 0x2E2 and 0x2E3 2970 calls is coalesced onto the dead
+   f21 register instead of retail's fresh $f22. Also the sp40->sp50 FclVec2 copy
+   never reproduces retail's batched lwc1/lwc1/swc1/swc1 (struct assignment gives
+   ld/sd, field-wise and cast forms give interleaved load-store-load-store).
+   Everything else reproduces exactly: all 6 if/else blocks' 6c30/2a60/6150/
+   FclByte4-copy/6a70 sequences, the (f32)0x125/(f32)0x11D cvt.s.w idiom, the
+   1.0f swc1s at 0xAC/0xA0, 7750(0x2E2,0x9E)/7750(0x2E3,0xA0), 6d60, else-branch
+   lbu p+0x6E args. Saved-register rotation + load-scheduling floor. */
 // FUN_0032A960
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032a960);
 
@@ -497,6 +638,13 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 // FUN_0032B9D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
 
+/* measured: nd 4 (2-word swap + 1 padding word): case 4's r test — retail stores
+   sh $v0 first, then truncates $v0 IN PLACE (dsll32/dsra32) for the bnez; mwcc
+   b210 always precomputes the truncated value into $v1 before the sh, regardless
+   of spelling (inline (s16)r cast, s16/s32 r, inverted if/else, explicit
+   r = (s16)r statement). Everything else — all 5 case bodies, jump table, FMA
+   madd.s f20,f20,f21, v17 normalization at (s16)((s16)v17-1) — matches exactly.
+   $v0/$v1-family scheduling floor. */
 // FUN_0032C0C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
 
@@ -620,6 +768,18 @@ s8 func_0032fb60(s8 arg0) {
     }
     return arg0;
 }
+/* measured: nd 176 — one fixed saved-register rotation: retail allocates t to $s7
+   and the six inner-loop func_0034ae50 results to $fp/$s0/$s5/$s6 (e4/e5 spill to
+   0xD0/0xC0, frame 0x110); mwcc b210 always gives t $fp and spills e0/e1 (frame
+   0x120). Declaration order has ZERO effect (6-order probe batch, all nd 178),
+   and the (s16)j loop-test temp lands in $s7 instead of reusing the dead e1 $s0.
+   Also the v11 lb $t3 arg-8 load is emitted after the (s8)i dsll (retail before),
+   and the inner pre-header emits sll/addu before the j=0 move (retail after).
+   Everything else reproduces exactly: func_003191c0 8th stack-arg-in-$t3 call,
+   p2 = t + (s16)i*4 hoist, ldr/ldl unaligned s64 args, lbu/lwc1 arg block,
+   sp0/sp8 s64 stack args, FMA madd.s f12,f3,f2 + cvt.s.w 329.0f, div.s /2.0f,
+   i2*23 strength-reduced mul, loop shapes. Saved-register rotation +
+   load-scheduling floor. */
 // FUN_0032FBC0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032fbc0);
 

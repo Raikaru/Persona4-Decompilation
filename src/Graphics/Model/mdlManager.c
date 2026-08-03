@@ -152,10 +152,15 @@ extern u8 LAB_00474a90;
 extern u8 LAB_00474a90_abs[];
 
 extern void* func_00397470(void);
+extern void* func_00397470_typed(void* a);
+#pragma alias func_00397470_typed func_00397470
 extern void func_003e05f0(void* a, void* b, void* c);
 
 extern void func_004585c0();
-extern u32 func_00476e90(void* param_1, u32* param_2);
+extern u8* func_00476e90(u8* a, u8** b);
+extern u32 func_004578b0();
+extern f32 iGpffff8044;
+extern u8 D_00713160[];
 extern u32 func_004581a0(void* object, void* data);
 extern u8 D_007131D8[];
 extern f32 DAT_00761130;
@@ -170,9 +175,7 @@ extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
 extern void func_004787e0(u8* a0);
 extern void func_0048a000(void);
-extern void* func_004779b0();
 extern s32 func_004782b0(u8* a);
-extern void func_00478410(void* a, void* b);
 extern void* func_003bfae0(void);
 extern int func_003e8200(void* a, void* b);
 extern void* D_008872E0[];
@@ -219,21 +222,68 @@ typedef struct Model
 extern void* RwMatrixMultiply(void* dst, void* left, void* right);
 extern void func_003e9cb0(void* frame, void* matrix, u32 flags);
 extern void func_0047aee0(void* mdl, void* matrix);
+extern void func_0047d840();
+extern void func_0047dda0();
+extern void func_0047ea70();
+extern void func_0047adf0();
+extern s32 iGpffffbb28;
+extern f32 iGpffff80cc;
+extern void* func_004779b0();
+extern s32 func_00479ca0(void* a, s32 b);
+extern s32 func_003971d0();
+extern s32 func_00462ae0();
+extern void func_0047da30();
+extern void* func_003c0520();
+extern void* func_0047d200();
+extern void* func_0047dc30();
+extern void func_0047ea40();
+extern s32 func_00479d10();
+extern void func_0047fe90();
+extern void func_0047eb20();
+extern s32 func_0047ae90();
+extern void func_00475350();
+extern void func_00478410(u8* a, u8* b);
 
 
 
 
+/* measured: mwcc b210 rematerializes the 1.0f and 0x20003 constants inside the
+   loop body; #pragma opt_loop_invariants on hoists both to function top to
+   match retail (nd 54 -> 0). */
 // FUN_00470E90
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00470e90);
+#pragma opt_loop_invariants on
+u8* func_00470e90(u16 arg0)
+{
+    s32 size;
+    u8* obj;
+    u32 i;
 
-/* measured: u8* params + plain i++/j++ (the (u16) casts double-mask the
-   increments, nd 31) leaves 26 words: the loop body self-masks the test's
-   register (andi $v1,$v1) instead of re-masking the counter (andi $v1,$s3 —
-   the aa30 loop-test-CSE family), the *param_1 base load schedules after the
-   i*0x50 chain vs retail's load-first, and arr/j s-regs rotate ($s2/$s1 vs
-   $s1/$s2... tried decl swaps). A named base local forces the load early but
-   CSEs base+chain into an extra s-reg (nd 81). Loop-test-CSE + load-order
-   floor. */
+    size = (s32)arg0 * 0x50 + 0x10;
+    func_0044ea90(D_00713138, 0x142);
+    obj = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
+    func_0043f9c8(obj, 0, size);
+    *(u8**)(obj + 0) = obj + 0x10;
+    *(u16*)(obj + 8) = arg0;
+    for (i = 0; i < *(u16*)(obj + 8); i++) {
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x28) = 0x3F800000;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x14) = 0x3F800000;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x00) = 0x3F800000;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x10) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x08) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x04) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x24) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x20) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x18) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x38) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x34) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x30) = 0;
+        *(s32*)(*(u8**)(obj + 0) + i * 0x50 + 0x0C) |= 0x20003;
+    }
+    *(s16*)(obj + 0xA) = 1;
+    return obj;
+}
+#pragma opt_loop_invariants off
+
 // FUN_00471010
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471010);
 // FUN_004711E0
@@ -452,7 +502,64 @@ u32 func_00473250(u32 param_1)
 
 
 // FUN_00473350
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473350);
+void* func_00473350(void* arg0, u8* arg1)
+{
+    s16 rawIndex;
+    s64 lVar2;
+    u16 count;
+    s32* t3;
+    s32 off;
+    u8* elem;
+    void* p38;
+    void* v;
+    void* t;
+    u8* p;
+    f32 c;
+
+    rawIndex = *(s16*)(arg1 + 4);
+    t3 = *(s32**)(arg1 + 0x34);
+    if (t3 != 0 &&
+        (lVar2 = (s64)rawIndex, count = *(u16*)((u8*)t3 + 8),
+         lVar2 < (s64)(u32)count) &&
+        (off = rawIndex * 0x50, elem = *(u8**)(*(s32*)((u8*)t3 + 0) + 0x40 + off)) != 0 &&
+        elem != D_00922BC0_abs) {
+        if (!(*(u16*)(arg1 + 0) & 1)) {
+            if (lVar2 < (s64)(u32)count && rawIndex >= 0) {
+                t = *(void**)((u8*)*(void**)(arg1 + 0x20) + 0x20);
+                func_003d5e40_typed(*(f32*)(elem + 0xC), t);
+                *(u8*)(arg1 + 2) = 1;
+            }
+        } else {
+            p38 = *(void**)(arg1 + 0x38);
+            if (p38 != 0) {
+                if (*(s32*)((u8*)p38 + 0x18) != 0) {
+                    func_0047d840(*(s32*)((u8*)p38 + 0x18), rawIndex);
+                }
+                if (*(s32*)((u8*)p38 + 0x24) != 0) {
+                    func_0047dda0(*(s32*)((u8*)p38 + 0x24));
+                }
+            }
+            t = *(void**)((u8*)*(void**)(arg1 + 0x20) + 0x20);
+            func_003d5990(t, 0, 0);
+            c = iGpffff8040;
+            *(f32*)(arg1 + 0xC) = c * *(f32*)(arg1 + 8);
+            p = (u8*)*(s32*)((u8*)*(s32**)(arg1 + 0x34) + 0);
+            p += 0x4C;
+            p += off;
+            v = *(void**)p;
+            if (v != 0) {
+                *(f32*)(arg1 + 0xC) = *(f32*)(arg1 + 0xC) + c * (f32)(s32)*(s32*)v;
+            }
+            t = *(void**)((u8*)*(void**)(arg1 + 0x20) + 0x20);
+            func_003d5e40_typed(*(f32*)(arg1 + 0xC), t);
+            t = *(void**)((u8*)*(void**)(arg1 + 0x20) + 0x20);
+            func_003d5990(t, func_00473350, arg1);
+        }
+    } else if (*(u16*)(arg1 + 0) & 1) {
+        *(f32*)(arg1 + 0xC) = 0.0f;
+    }
+    return arg0;
+}
 
 // FUN_00473520
 void func_00473520(void* param_1)
@@ -906,6 +1013,16 @@ void* func_00476e10(void* param_1)
 
 
 
+/* measured: the GS doubled-alpha conv works as `u8 x; if ((s32)x >= 0) {v=(f32)x;}
+   else {v=2.0f*(f32)((x>>1)|(x&1));}` (lbu+bltz, no dsll/dsra pair — the
+   (s8)-cast spellings add dsll32/dsra32, verified by isolated probes) BUT
+   in-function mwcc b210 then emits a 3-way CFG (double bltz + BOTH srl and
+   sra doubling copies, object 1344B vs 976B window, nd 306) when the u8
+   local is later reassigned (loop b0=(u8)t); retail keeps one clean
+   bltz->out-of-line doubling per site. The 0.5f+255.0f*x madd chains and
+   the batched lbu x4 / sb x4 tail match the planned C exactly. Conv-CFG
+   floor; retry with per-site fresh u8 locals or a helper that cannot be
+   reassigned. */
 // FUN_00476E90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476e90);
 // FUN_00477260
@@ -1130,13 +1247,110 @@ done:
 
 
 
+/* measured: volatile RwRGBA* color forces the four lbu color loads in source
+   order (removing it rotates/reorders them, nd 9) and the K&R parameter
+   definition keeps the file's heterogeneous 0-arg and void*-arg callers
+   compiling. */
 // FUN_004779B0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004779b0);
+void* func_004779b0(type, id)
+    u16 type;
+    u16 id;
+{
+    u8* obj;
+    u32 i;
+    void** head;
+    u8* prev;
+    volatile RwRGBA* color;
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
 
-extern s32 func_0047ce00(void);
-extern s32 func_0047e6f0(void* a);
-extern void func_00477ca0(void* a);
-extern void func_0047b060(void* a);
+    func_0044ea90(D_00713138, 0x108A);
+    obj = ((void* (*)(int, int))DAT_008873e8[0])(0x320, 0x40000);
+    func_0043f9c8(obj, 0, 0x320);
+    *(s32*)(obj + 0xD8) = 0x10118;
+    *(u8*)(obj + 0xD0) = 0xFF;
+    *(u8*)(obj + 0xD1) = 0xFF;
+    *(u8*)(obj + 0xD2) = 0xFF;
+    *(u8*)(obj + 0xD3) = 0xFF;
+    color = (RwRGBA*)(obj + 0xD0);
+    red = color->red;
+    green = color->green;
+    blue = color->blue;
+    alpha = color->alpha;
+    *(u8*)(obj + 0x300) = red;
+    *(u8*)(obj + 0x301) = green;
+    *(u8*)(obj + 0x302) = blue;
+    *(u8*)(obj + 0x303) = alpha;
+    *(u16*)(obj + 0xD4) = type;
+    *(u16*)(obj + 0xD6) = id;
+    *(s32*)(obj + 0xE4) = 0x44;
+    *(s32*)(obj + 0xE8) = 0x717FB;
+    *(s32*)(obj + 0x2FC) = iGpffffbb28;
+    *(s32*)(obj + 0x28) = 0x3F800000;
+    *(s32*)(obj + 0x14) = 0x3F800000;
+    *(s32*)(obj + 0x00) = 0x3F800000;
+    *(s32*)(obj + 0x10) = 0;
+    *(s32*)(obj + 0x08) = 0;
+    *(s32*)(obj + 0x04) = 0;
+    *(s32*)(obj + 0x24) = 0;
+    *(s32*)(obj + 0x20) = 0;
+    *(s32*)(obj + 0x18) = 0;
+    *(s32*)(obj + 0x38) = 0;
+    *(s32*)(obj + 0x34) = 0;
+    *(s32*)(obj + 0x30) = 0;
+    *(s32*)(obj + 0x0C) |= 0x20003;
+    *(s32*)(obj + 0x68) = 0x3F800000;
+    *(s32*)(obj + 0x54) = 0x3F800000;
+    *(s32*)(obj + 0x40) = 0x3F800000;
+    *(s32*)(obj + 0x50) = 0;
+    *(s32*)(obj + 0x48) = 0;
+    *(s32*)(obj + 0x44) = 0;
+    *(s32*)(obj + 0x64) = 0;
+    *(s32*)(obj + 0x60) = 0;
+    *(s32*)(obj + 0x58) = 0;
+    *(s32*)(obj + 0x78) = 0;
+    *(s32*)(obj + 0x74) = 0;
+    *(s32*)(obj + 0x70) = 0;
+    *(s32*)(obj + 0x4C) |= 0x20003;
+    *(s32*)(obj + 0x80) = 0x3F800000;
+    *(s32*)(obj + 0x84) = 0x3F800000;
+    *(s32*)(obj + 0x88) = 0x3F800000;
+    for (i = 0; i < 2; i++) {
+        func_00473520(obj + i * 0xA4 + 0xEC);
+    }
+    *(s32*)(obj + 0x238) = 0;
+    *(s8*)(obj + 0x23E) = 1;
+    *(s16*)(obj + 0x240) = -1;
+    *(s32*)(obj + 0x244) = 0x3F800000;
+    func_0043f9c8(obj + 0x258, 0, 8);
+    *(s8*)(obj + 0x25A) = 1;
+    *(s32*)(obj + 0x25C) = 0x3F800000;
+    *(s8*)(obj + 0x260) = 0;
+    *(s32*)(obj + 0x274) = 0;
+    *(s32*)(obj + 0x278) = 0;
+    *(s32*)(obj + 0x27C) = 0;
+    *(s8*)(obj + 0x280) = 0x70;
+    *(s8*)(obj + 0x281) = 0x70;
+    *(s8*)(obj + 0x282) = 0;
+    func_0047ea70(obj + 0x2D0);
+    for (i = 0; i < 5; i++) {
+        func_0047adf0(obj, i & 0xFFFF, -1);
+    }
+    head = &D_00922BE0[type];
+    prev = *head;
+    *(void**)(obj + 0x304) = 0;
+    if (prev != 0) {
+        *(void**)((u8*)prev + 0x304) = obj;
+        *(void**)(obj + 0x308) = prev;
+    } else {
+        *(void**)(obj + 0x308) = 0;
+    }
+    *head = obj;
+    return obj;
+}
+
 // FUN_00477C40
 void* func_00477c40(u32 param_1, u32 param_2, u32 param_3)
 {
@@ -1153,9 +1367,17 @@ void* func_00477c40(u32 param_1, u32 param_2, u32 param_3)
     return node;
 }
 
+extern void func_0047b060(void* a);
+/* measured: three floors block this: (1) retail re-masks the u16 loop counter
+   at the body top (andi $v1,$s1) while mwcc b210 carries the test's masked
+   value across the back edge (loop-test-CSE family, same as 47aa30; s32
+   counter + i=(u16)k copy gives the mask but loses the daddiu init and the
+   u16 test mask, nd 59); (2) retail's t==2||t==1 dispatch places BOTH arms
+   out of line (beq,beq then b) while mwcc inlines the then-arm (bne shape),
+   nd 57-59 in all of ||, && and switch(2,1,default) spellings; (3) the
+   func_003971d0 arg materialization order (load-first vs move-first). */
 // FUN_00477CA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477ca0);
-
 // FUN_00477E80
 void* func_00477e80(void* param_1, void* param_2, void* param_3, u32 param_4)
 {
@@ -1248,11 +1470,30 @@ s32 func_004782b0(u8* param_1)
     return 1;
 }
 
+/* measured: register-allocation mismatch across the whole body: retail saves
+   $16-$23 (0x90 frame; slot1/res share $s0, size and j share $s2, cnt=$s6,
+   off=$s7) while mwcc b210 needs 9-11 saved regs (0xB0-0xC0 frame, extra
+   $fp) in every spelling tried (locals for slot0/primary/secondary -> 0xC0
+   nd 168; fully inlined pointer re-derivation + scoped slot1 + v4/r locals
+   for the 971d0 call -> 0xB0 nd 190). Also the func_003971d0 arg loads
+   materialize move-first vs retail's load-first. Saved-register-count floor. */
 // FUN_00478410
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478410);
-
 // FUN_00478750
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478750);
+u32* func_00478750(u8* param_1)
+{
+    void* func_004779b0(u16, u16);
+    u32* obj;
+
+    obj = func_004779b0(*(u16*)(param_1 + 0xD4), *(u16*)(param_1 + 0xD6));
+    if ((*(s32*)(param_1 + 0xD8) & 0x1000) != 0) {
+        func_00478410(param_1, (u8*)obj);
+        *(s32*)((u8*)obj + 0xD8) |= 0x1000;
+    } else {
+        *(s32*)((u8*)obj + 0xD8) |= 0x2000;
+    }
+    return obj;
+}
 
 // FUN_004787E0
 void func_004787e0(u8* param_1)
@@ -1383,9 +1624,16 @@ void func_00479910(void* param_1)
     func_003bff30(param_1, func_00479880, 0);
 }
 
+/* measured: saved-register coalescing + t-reg rotation: retail keeps raw
+   arg1 in $s5 and the u16 mask t20 in $s4 (both live across the 740c0 call)
+   while mwcc b210 coalesces t20 into arg1's $s4 with a self-mask (all arg1
+   uses are &0xFFFF so the coalesce is legal), and every following temp
+   rotates ($a0/$v1 etc.) — nd 151-157 across compound-&& and comma
+   spellings (the &&-inside-comma booleanization was fixed by moving
+   `elem = ...) != 0 && elem != D` to top level; the 8-word copy loop and
+   identity-mat blocks then match 1:1). Saved-register rotation floor. */
 // FUN_00479940
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479940);
-
 // FUN_00479CA0
 s32 func_00479ca0(void* param_1, s32 param_2)
 {
@@ -1618,9 +1866,15 @@ void func_0047a4d0(void* param_1, int param_2)
     func_003bff30(*(void**)((u8*)param_1 + 0xDC), func_0047a4a0, &param_2);
 }
 
+/* measured: same floor family as 00475B90: retail places the
+   v17 != func_00397470(v18) setup block OUT OF LINE (bne -> setup, b -> join,
+   +8B) while mwcc b210 inlines it under a negated skip (beq -> join, nd 84);
+   the loop's t-regs rotate (t/clump/count/j/idm permutation) and the u16
+   counter body-mask is CSE'd into the loop test (count as s32 + jm local
+   regress to nd 92); the 8-word copy loop wants n-- before the stores
+   (do {lw,lw,q+=8,n--,sw,sw,dst+=8} while(n>0) shape). Branch-placement floor. */
 // FUN_0047A510
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a510);
-
 // FUN_0047A6D0
 s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
 {

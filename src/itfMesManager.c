@@ -43,6 +43,57 @@ void *func_0046a430();
 void func_0043f9c8();
 void func_0027a690();
 void func_0027a6c0();
+void func_0027a6f0(s32 arg0);
+void func_0027b830(s32 arg0);
+void func_002851f0();
+s8 func_002748e0(int param_1, int param_2, int param_3);
+s32 func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
+u32 func_00279740(int param_1, int param_2);
+void func_0027a340(u8 *arg0, s32 arg1);
+void func_0027a4d0(int param_1, u32 param_2);
+void func_00278450(s32 arg0, s32 arg1, s32 arg2);
+void func_002784e0(s32 arg0, s32 arg1, s32 arg2);
+s32 func_00442088(char *buf, const char *fmt, ...);
+s32 func_002438b0(s32 arg0);
+s32 func_00243840(s32 arg0);
+s32 func_0010d620(s64 arg0);
+s32 func_001067f0(s64 arg0);
+s32 func_00109220(s32 arg0);
+extern char iGpffffa760;
+extern s32 iGpffffb444;
+int func_00278de0(int param_1, int param_2);
+s32 func_0027a520(int param_1);
+void func_002738a0(s32 arg0);
+s32 func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
+void func_0043f810(void *arg0, void *arg1, u32 arg2);
+s32 func_00442948(const void *param_1);
+void func_00272b00(u8 *arg0, s32 arg1);
+void func_00272ba0(u8 *arg0, s32 arg1);
+void func_00274a20(u8 *arg0, f32 fparg0);
+void *func_00285170(void *arg0);
+extern char D_0063BE60[];
+void func_0027b7c0(s32 arg0);
+void func_00279e90(u8 *arg0, u8 *arg1);
+s32 func_00279780(u8 *arg0);
+s32 func_002738d0(u8 *arg0);
+u8 *func_00273650(u8 *arg0, u8 *arg1, s32 arg2);
+extern char D_0063BE80[];
+extern char D_0063BEA0[];
+typedef signed __int128 s128;
+s32 func_00274650(s32 arg0);
+s32 func_0027b6e0(s32 arg0, s32 arg1);
+void func_0027bb60(s32 arg0);
+void func_0027bbc0(s32 arg0);
+int func_00279fd0(int param_1, u32 param_2);
+u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+s32 func_00272bf0(int param_1);
+void func_0027bb00(s32 arg0);
+s32 func_0027a2d0(u8 *arg0, u8 *arg1);
+void func_0027a2a0(int param_1, int param_2);
+void func_0027a580(int param_1);
+extern u8 D_00881530[];
+void func_00279dd0(u8 *arg0, s32 arg1);
+extern s32 iGpffffb4b0;
 void func_00279ce0();
 void func_002728c0();
 void func_00273140();
@@ -64,7 +115,9 @@ void func_00277be0(s32 arg0, s32 arg1);
 void func_00277e80(s32 arg0);
 void func_0029cf50(s32 arg0);
 void func_00278a70(s32 arg0);
+void func_00278b80(u8 *arg0);
 s32 func_00278da0(u8 *arg0);
+u8 *func_002776a0(u8 *arg0);
 extern u8 DAT_008817E0_abs[];
 void func_00271b70(s32 arg0);
 void func_0027a630(void *arg0, s32 arg1);
@@ -531,6 +584,13 @@ u32 func_00277450(void)
 
 
 
+/* measured: retail keeps the t=i*4 temp in $s2 (i's dead register, live
+   across the func_0043f810 jal) and re-derives row+t+0x10 per use (addu
+   $v0,$s2,$s1; lw $v0,0x10($v0)), while mwcc b210 -O2 CSEs the full slot
+   address into $s2 (extra addiu $s2,$v0,0x10; obj 452B vs window 464B, nd
+   17). Tried: for+if(i==4), for+if(i>=4), goto-found fallthrough, t local
+   with OR-guard `i >= 0 || i < 4` (m2c-exact) - all hit the same address-CSE.
+   CSE/allocator floor, not source-drivable. */
 // FUN_002774D0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002774d0);
 
@@ -587,6 +647,14 @@ s32 func_00277840(s32 arg0)
     return (s32)object + 0x114;
 }
 
+/* measured: retail RE-issues the *obj load inside the bit-clear/else branch
+   (lw $v1,($s1); addiu -8; and) after the conditional stores of the inner
+   branch, while mwcc b210 -O2 CSEs the initial bits load into $a0 and
+   reuses it in the else branch (and $v0,$a0,$v0) - one fewer lw, obj 512B
+   vs window 528B, nd 11. Tried: inline masks, compound if (bits & 0x200000)
+   && (m == 0 || m == 0x300), named bits local, ~0x300 mask, v-load before
+   base addiu - all hit the same CSE. CSE-of-mask-load floor, not
+   source-drivable. */
 // FUN_002778C0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002778c0);
 
@@ -625,6 +693,12 @@ void func_00277b10(u8 *arg0, s32 arg1)
     }
 }
 
+/* measured: retail colors the loop-carried locals i=$s2, obj=$s3, ptr=$s5,
+   bits=$s6, flag=$s7 while mwcc b210 -O2 rotates them to obj=$s2,
+   bits=$s3, i=$s5, flag=$s6, ptr=$s7 (all other instructions match; nd 10
+   in fndiff, obj 668B vs window 672B). Tried: m2c if(bits&1){shift}else
+   loop form, 4 declaration permutations, named bits/flag/ptr locals -
+   allocation identical. Saved-register-rotation floor, not source-drivable. */
 // FUN_00277BE0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277be0);
 
@@ -759,6 +833,12 @@ s16 func_00278260(s32 arg0)
     return *(s16 *)(object + 0x4A);
 }
 
+/* measured: in switch case 0, retail materializes the second call's args as
+   move $a0,$s1; move $a1,$s0; addiu $a2,$sp,0x30 (address-of last), while
+   mwcc b210 -O2 always hoists the pure address-of addiu above the two moves
+   (addiu $a2,$sp,0x30; move $a0,$s1; move $a1,$s0). Tried: &buf[0], u32 buf[4],
+   struct local + s32 bufp preloaded, char* bufp0 - all nd 6 (obj 388B vs
+   window 400B). Address-of-in-argument-list scheduler floor, not source-drivable. */
 // FUN_002782C0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002782c0);
 
@@ -856,6 +936,13 @@ u32 func_002786c0(int arg0, int arg1, int arg2)
     return 1;
 }
 
+/* measured: retail keeps func_00279740's result in $v0 across the
+   iGpffffb4b0 read/0x7B-store block (bnez $v0 ... move $t3,$v0) and
+   materializes 0x7B in $v1; mwcc b210 -O2 reuses arg2's dead saved register
+   for the result (move $s2,$v0; bnez $s2 ... move $t3,$s2; addiu $v0,0x7B),
+   one extra instruction (obj 372B vs window 368B). Tried: if-block
+   restructure, u32 v, 5 declaration orders - all identical nd 38.
+   $v0/$v1-coalescing + saved-reg-reuse floor, not source-drivable. */
 // FUN_002787D0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002787d0);
 
@@ -886,7 +973,35 @@ void func_002789a0(void)
 }
 
 // FUN_00278A70
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278a70);
+void func_00278a70(s32 arg0)
+{
+    u8 *base;
+    u8 *row;
+    s32 i;
+    s32 v;
+
+    row = (u8 *)&DAT_008817E0_abs[arg0 * 0x20];
+    base = row + 0x1C;
+    if (*(s32 *)(row + 0x28) != 0)
+        func_0027a6f0(*(s32 *)(row + 0x28));
+    func_0027b830(arg0);
+    *(s32 *)(base + 0xC) = 0;
+    for (i = 0; i < 4; i++) {
+        if (base == NULL || i < 0 || i >= 4)
+            func_0046d730(D_0063BE10, 0x501);
+        v = *(s32 *)(base + i * 4 + 0x10);
+        if (v != 0) {
+            *(s32 *)(base + i * 4 + 0x10) = 0;
+        } else {
+            v = 0;
+        }
+        if (v != 0) {
+            func_00278b80((u8 *)v);
+        }
+    }
+    func_002851f0(base, DAT_008817EC_abs);
+    *(u32 *)DAT_008817E0_abs -= 1;
+}
 
 // FUN_00278B80
 void func_00278b80(u8 *arg0)
@@ -1082,6 +1197,14 @@ s32 func_00279010(s32 arg0)
     return *(s16 *)(D_00881808[arg0].unk0 + 0x4E);
 }
 
+/* measured: retail colors the 5 saved int params into a descending chain
+   arg0=$s4..arg5=$s0 with the obj local above at $s5 (frame -0x80) and
+   schedules the slot base load BEFORE the sll; mwcc b210 -O2 colors only
+   arg0=$s3..arg3=$s0, then obj=$s4, arg5=$s5 (sll hoisted above the load),
+   and with the slot statement moved before obj the frame drops to -0x70
+   (arg5 loses its saved reg). Tried: inline expr, base local, arg5*8 first,
+   slot-before-obj order - nd 46 / 46 / 46 / 44 (obj 452B vs window 448B).
+   Saved-register-chain + scheduler floor, not source-drivable. */
 // FUN_00279030
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279030);
 
@@ -1121,8 +1244,39 @@ s32 func_00279350(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
 }
 
 // FUN_00279470
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279470);
+s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
+{
+    u8 *obj;
+    u8 *r;
+    u8 *r2;
 
+    obj = D_00881808[arg4].unk0;
+    if (arg4 < 0)
+        func_0046d730(D_0063BE10, 0xC32);
+    if (arg6 < 0)
+        func_0046d730(D_0063BE10, 0xC33);
+    func_00279ce0(obj + 0x94);
+    r = func_00279030(fparg0, fparg1, fparg2, arg0, arg1, arg2, arg3, arg4, arg5);
+    if (arg7 != 0) {
+        if (*(s32 *)(r + 0x24) == 0) {
+            r2 = func_00279030(fparg0, 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
+        } else {
+            r2 = func_00279030(fparg0 + (f32)func_002738d0(r), 25.0f + fparg1, fparg2, arg0, arg1, arg2, arg3, arg6, arg7);
+        }
+        r = func_00273650(r, r2, 0);
+    }
+    func_002728c0(r, arg1);
+    func_00273140(r, 1);
+    func_00271b70((s32)r);
+    return 0;
+}
+
+/* measured: retail loads base (obj+4) into $v1 BEFORE computing arg1*8
+   (lw $v1,4($s3); sll $v0,$s2,3; addu), while mwcc b210 -O2 always schedules
+   the sll first (sll $v1,$s2,3; lw $v0,4($s3); addu) and then colors the
+   temps accordingly. Tried: inline m2c expression, s32 base local, u8* slot
+   local, arg1*8 first/last operand order, u8* base arithmetic - all nd 3
+   (obj 172B vs window 176B). Scheduling/coloring floor, not source-drivable. */
 // FUN_00279690
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279690);
 // FUN_00279740
@@ -1144,9 +1298,27 @@ u32 func_00279740(int param_1,int param_2)
 
 
 
+/* measured: mwcc b210 -O2 matches retail except for three independent
+   scheduling/order choices: (1) the i<0 test is emitted before the
+   node+0x18 lh (retail loads first), (2) the func_00274570 argument lbu
+   loads are hoisted above the a0/a1 zero moves and the func_00279dd0
+   argument lui $a1 comes before move $a0 (retail: args in order), (3) the
+   slot addu is node+scaled instead of scaled+node. nd 12 (obj 788B vs
+   window 768B). Tried: split id locals, inline ternary walk, scaled-first
+   expressions, inline func_00272bf0 result - allocation now matches
+   (arg0=$s2/base=$s1/node=$s0, frame -0x40) but the three orders persist.
+   Argument-evaluation-order/scheduler floor, not source-drivable. */
 // FUN_00279780
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
 
+/* measured: retail keeps func_0046a430's result in $v0 (sw $v0,($v1);
+   move $a0,$v0 - no saved register) and colors arg0=$s0 (mutated in place
+   to base, addiu $s0,$s0,0x94), arg1=$s4, arg2=$s3, arg3=$s2, size=$s1
+   (5 saved, frame -0x60); mwcc b210 -O2 always allocates a 6th saved
+   register for the allocation result local (frame -0x70, arg0 pushed to
+   $s5, obj 388B vs window 384B). Tried: arg0 += 0x94 in-place, slot/size
+   merged local, single vs split p1/p2 locals - all identical frame -0x70.
+   Saved-register-rotation floor, not source-drivable. */
 // FUN_00279A80
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279a80);
 
@@ -1191,8 +1363,32 @@ void func_00279d40(s32 arg0)
 }
 
 // FUN_00279DD0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279dd0);
+void func_00279dd0(u8 *arg0, s32 arg1)
+{
+    s32 global;
+    u8 *base;
 
+    if (arg0 == NULL)
+        func_0046d730(D_0063BE10, 0xD96);
+    base = arg0 + 0x14;
+    if (*(s32 *)(arg0 + 0x14) != 0)
+        func_00271b70(*(s32 *)(arg0 + 0x14));
+    global = iGpffffb4b0;
+    if (global == 0)
+        iGpffffb4b0 = 0x7B;
+    *(s32 *)(base + 0) = func_00274570(0, 0, 0, 2, 0, 0xFF, arg1, 0);
+    iGpffffb4b0 = global;
+    *(u16 *)(base + 4) = 0xFFFF;
+}
+
+/* measured: retail hoists the 7th argument's final lw $t2,($v0) above the
+   argument-zero moves (lw $t2,($v0); move $a0..$t0; addiu $t1,0xff) in the
+   else branch, while mwcc b210 -O2 always sinks it after the moves
+   (move $a0..; addiu $t1,0xff; lw $t2,($v0)) - the 0x8000 branch's equivalent
+   load schedules correctly, so it is not the expression itself. Tried: inline
+   m2c expression, hoisted p local, pointer-cast scaled offsets, precomputed
+   v local before the call - all nd 8 (obj 316B vs window 320B). Load-sinking/
+   scheduler floor. */
 // FUN_00279E90
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279e90);
 // FUN_00279FD0
@@ -1214,8 +1410,42 @@ int func_00279fd0(int param_1,u32 param_2)
 
 
 // FUN_0027A010
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a010);
+u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)
+{
+    s32 i;
+    u8 *result;
 
+    result = NULL;
+    i = 0;
+    while (i < arg1) {
+        if (arg2 & 1) {
+            arg2 >>= 1;
+        } else {
+            result = (u8 *)func_00274570(arg3, arg4, (u8)arg7, 5, 0, 0xFF, *arg0, (u32)result);
+            if (arg6 == 0)
+                arg4 += *(s16 *)(result + 0x12) * 8;
+            else
+                arg4 += arg6;
+            arg2 >>= 1;
+        }
+        i++;
+        arg0++;
+    }
+    if (result != NULL) {
+        func_0027a340(result, arg5);
+        func_0027a4d0((int)result, 0xFF);
+    }
+    return result;
+}
+
+/* measured: retail colors arg0=$s3, arg1=$s1, arg2=$s0 (cur=$s3, count=$s1,
+   tag=$s2, next/last=$s0) with register reuse across the three free passes;
+   mwcc b210 -O2 always needs a 5th saved register ($s4) plus a stack
+   slot for the split next/first/last locals and colors arg0=$s0/arg1=$s2
+   (obj 340B vs window 336B). Tried: 7 declaration orders (incl. split
+   nxt1/nxt2, first/last hoisting), cur=arg0 before/after null check -
+   best nd 37 (obj 332B vs window 336B). Saved-register-rotation floor, not
+   source-drivable. */
 // FUN_0027A150
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a150);
 
