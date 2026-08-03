@@ -73,6 +73,15 @@ extern s32 D_00763AD0;
 extern s32 D_00763AD4;
 
 
+/* measured: nd 146, ALL `!` rows are register-allocation (instruction seq
+   matches 1:1). Frame 0x1040, switch dispatch (4,3,2,1,0 descending) both
+   match after declaring the switch cases ASCENDING (0,1,2,3,4) so mwcc emits
+   the reversed test order. The 3 copy loops (0x1F6 x 8B: var_20->sp90,
+   var_19->var_20, sp90->var_19) and all comparisons match modulo register
+   names. Retail uses s1=temp_17,s4=var_20,s0=tempp,s2=tempp2,s3=var_19 down
+   to s7; candidate is shifted one register lower throughout. 8 saved regs
+   (s16-s23) + 0xFB0 sp90 buffer; exact original declaration order would be
+   needed to resolve (lever 1), impractical to reverse-engineer. 2 attempts. */
 // FUN_00378600
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00378600);
 
@@ -164,6 +173,16 @@ u16 func_00378bf0(void) {
     return (u16)x;
 }
 
+/* measured: nd 1 (ONE real word, an `!` row). Everything matches except the
+   temp-base `addu` operand order: retail 0x378d04 `addu $v1,$v0,$s2` (scaled
+   offset first) vs candidate `addu $v1,$s2,$v0`. Frame 0x70, all other bytes
+   byte-identical. Best body: `sp60/sp50/sp40` as f32[3], struct copies
+   `*(Vec3f *)&sp60[0] = *(Vec3f *)(arg0 + arg1*0xE8 + 0x1D6CC)` (3 per group,
+   lui/ori/addu base once + 3 lwc1/swc1), inline `arg0 + arg1*0xE8` (CSE'd into
+   a temp). Naming the offset in an s32 local (lever 10, incl. declared first)
+   fixes the operand order but re-grows the frame to 0x80 via a 4th saved reg
+   s3; parent's arg-order/struct-field lever does not apply (residual is
+   operand order, not arg materialization). 7 attempts. */
 // FUN_00378C80
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00378c80);
 
@@ -211,6 +230,15 @@ void func_00378ec0(u8 *arg0, s32 arg1) {
    allocation floor. */
 // FUN_00378F90
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00378f90);
+/* measured: best attempt nd 14 (all `!` rows, register-coloring residual).
+   Needed: sp40 as f32[4] (func_003dc740 writes 16B dst), sp50/sp58 as ONE
+   12-byte region (s64+f32 as separate locals drops the D_0064EAB8 store via
+   DSE; combined `f32 sp50[3]` + `*(s64 *)&sp50[0] = D_0064EAB0[0]` + array
+   decls for absolute lui/addiu gets frame 0x60 and every slot right).
+   Residual: var_4 colors $v1, retail materializes it into $a0 (4th-arg
+   register) directly; derived load uses $v0 vs $v1 and $a1 materializes at
+   the jal instead of after the branch. Ternary-inline hoists the D_0064EAB0
+   load above the blez; named local colors $v1. 4 attempts. */
 // FUN_00379090
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379090);
 // FUN_00379150
@@ -236,9 +264,29 @@ s32 func_00379150(u8 *arg0, s32 arg1, s32 arg2) {
     }
     return 0;
 }
+/* measured: frame floor. Object 496B vs window 480B (overflows). mwcc emits
+   frame -0x40 with sp30 at 0x3c; retail uses -0x70 with sp30 at 0x30 (0x30-0x70
+   unused slack). The loop counter colors $a0 (retail: $a1) with the `== 2`
+   constant reloaded as `addiu $v0,2` each iteration (retail hoists it into
+   $a0). `#pragma opt_loop_invariants on` does NOT hoist it and does not change
+   the frame. All other bytes (prologue, loop body, both 0x142A/0x142B branches)
+   match modulo the register shift. GP globals: -0x5620->D_00763AD0,
+   -0x561C->D_00763AD4 (GP base 0x007690F0). sp30 must be `char[...]` (s32* ->
+   char* is illegal in mwcc). 4 attempts. */
 // FUN_00379240
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379240);
 
+/* measured: nd 286, deep floor. Switch over *(u32*)(arg0+0x1F210) with jump
+   table jtbl_00752A00, 6 cases: [0]=0x379480,[1]=0x3794d4,[2]=0x3796cc,
+   [3]=0x3796f4,[4]=0x379748,[5]=0x379870 (case 2/5 are the func_003891e0
+   check, fallthrough from case 1/4). Frame -0x80 in retail (8 saved regs
+   s16-s23), candidate -0x70 with arg0 in s2 vs retail s0 and the whole body
+   shifted, so the object overflows the 1200B window (1256B). Structure
+   (switch cases, both loops, func_003891b0/00389200 color args) is right but
+   every register is off by one. Also needs jtbl symbol declared (m2c emits
+   `@213`). The case-1 float conversion is the brief's u16-sign-test pattern
+   on `func_003b7060() & 0xFFF`. 1 attempt, floored as not worth the register
+   grind. */
 // FUN_00379420
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379420);
 

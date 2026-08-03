@@ -3434,7 +3434,7 @@
       "target_path": "build/objdiff/target/Battle/btlCutin/001f9fa0.o",
       "base_path": "build/objdiff/base/Battle/btlCutin/001f9fa0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -3445,7 +3445,7 @@
       "target_path": "build/objdiff/target/Battle/btlCutin/001fa110.o",
       "base_path": "build/objdiff/base/Battle/btlCutin/001fa110.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -3456,7 +3456,7 @@
       "target_path": "build/objdiff/target/Battle/btlCutin/001fa190.o",
       "base_path": "build/objdiff/base/Battle/btlCutin/001fa190.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -3500,7 +3500,7 @@
       "target_path": "build/objdiff/target/Battle/btlCutin/001fa490.o",
       "base_path": "build/objdiff/base/Battle/btlCutin/001fa490.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4182,7 +4182,7 @@
       "target_path": "build/objdiff/target/Battle/btlPanelAnalyze/00218af0.o",
       "base_path": "build/objdiff/base/Battle/btlPanelAnalyze/00218af0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -7262,7 +7262,7 @@
       "target_path": "build/objdiff/target/Camp/cmpPersona/00136fc0.o",
       "base_path": "build/objdiff/base/Camp/cmpPersona/00136fc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20924,7 +20924,7 @@
       "target_path": "build/objdiff/target/Main/OpEd/ed_sr/0038ee40.o",
       "base_path": "build/objdiff/base/Main/OpEd/ed_sr/0038ee40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20935,7 +20935,7 @@
       "target_path": "build/objdiff/target/Main/OpEd/ed_sr/0038f010.o",
       "base_path": "build/objdiff/base/Main/OpEd/ed_sr/0038f010.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20946,7 +20946,7 @@
       "target_path": "build/objdiff/target/Main/OpEd/ed_sr/0038f0b0.o",
       "base_path": "build/objdiff/base/Main/OpEd/ed_sr/0038f0b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20968,7 +20968,7 @@
       "target_path": "build/objdiff/target/Main/OpEd/ed_sr/0038f1c0.o",
       "base_path": "build/objdiff/base/Main/OpEd/ed_sr/0038f1c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20979,7 +20979,7 @@
       "target_path": "build/objdiff/target/Main/OpEd/ed_sr/0038f220.o",
       "base_path": "build/objdiff/base/Main/OpEd/ed_sr/0038f220.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -20990,7 +20990,7 @@
       "target_path": "build/objdiff/target/Main/OpEd/ed_sr/0038f290.o",
       "base_path": "build/objdiff/base/Main/OpEd/ed_sr/0038f290.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -37424,7 +37424,7 @@
       "target_path": "build/objdiff/target/nmlist/002e1d00.o",
       "base_path": "build/objdiff/base/nmlist/002e1d00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -37435,7 +37435,7 @@
       "target_path": "build/objdiff/target/nmlist/002e1db0.o",
       "base_path": "build/objdiff/base/nmlist/002e1db0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -37446,7 +37446,7 @@
       "target_path": "build/objdiff/target/nmlist/002e1ef0.o",
       "base_path": "build/objdiff/base/nmlist/002e1ef0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -37457,7 +37457,7 @@
       "target_path": "build/objdiff/target/nmlist/002e1f70.o",
       "base_path": "build/objdiff/base/nmlist/002e1f70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -37468,7 +37468,7 @@
       "target_path": "build/objdiff/target/nmlist/002e2080.o",
       "base_path": "build/objdiff/base/nmlist/002e2080.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -37479,7 +37479,7 @@
       "target_path": "build/objdiff/target/nmlist/002e2170.o",
       "base_path": "build/objdiff/base/nmlist/002e2170.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134191,7 +134191,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00482f70.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00482f70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134334,7 +134334,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00483c40.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00483c40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135940,7 +135940,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEnvironment/00153a60.o",
       "base_path": "build/objdiff/base/promoted/k_fldEnvironment/00153a60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -135995,7 +135995,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEnvironment/00153c00.o",
       "base_path": "build/objdiff/base/promoted/k_fldEnvironment/00153c00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136039,7 +136039,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldEnvironment/00154b10.o",
       "base_path": "build/objdiff/base/promoted/k_fldEnvironment/00154b10.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142782,7 +142782,7 @@
       "target_path": "build/objdiff/target/sdkDbprt/0044f570.o",
       "base_path": "build/objdiff/base/sdkDbprt/0044f570.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142837,7 +142837,7 @@
       "target_path": "build/objdiff/target/sdkDbprt/004501f0.o",
       "base_path": "build/objdiff/base/sdkDbprt/004501f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142848,7 +142848,7 @@
       "target_path": "build/objdiff/target/sdkDbprt/00450340.o",
       "base_path": "build/objdiff/base/sdkDbprt/00450340.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143926,7 +143926,7 @@
       "target_path": "build/objdiff/target/shdWindow/0025e170.o",
       "base_path": "build/objdiff/base/shdWindow/0025e170.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143959,7 +143959,7 @@
       "target_path": "build/objdiff/target/shdWindow/0025e800.o",
       "base_path": "build/objdiff/base/shdWindow/0025e800.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143981,7 +143981,7 @@
       "target_path": "build/objdiff/target/shdWindow/0025e8f0.o",
       "base_path": "build/objdiff/base/shdWindow/0025e8f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
