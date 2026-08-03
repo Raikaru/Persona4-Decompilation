@@ -31,18 +31,18 @@ typedef struct { f32 x, y, z, w; } ShuffleVec4;
 typedef struct { f32 x, y, z; } ShuffleVec3;
 typedef struct { f32 v[9]; s32 flag; } ShuffleOut;
 f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
-static inline f32 ShfMul(f32 left, f32 right) { return left * right; }
-static inline s32 ShfOr(s32 left, s32 right) { return left | right; }
 
-/* measured: retail's `mul.s $f1,$f0,$f1` (const × value) vs mwcc b210's
+/* measured: re-tested this wave — nd 2 confirmed (1 real word + 1 pad).
+   retail's `mul.s $f1,$f0,$f1` (const × value) vs mwcc b210's
    `mul.s $f1,$f1,$f0` (value × const) at the 60.0f*var_3 multiply — the ONLY
-   differing word (nd 2) once the source uses a value-first inline helper
-   ShfMul((f32)var_3, 60.0f) plus a hoisted `s32 w = sp30[0]` local (retail
+   differing word once the source uses a value-first inline helper
+   a value-first inline multiply ((f32)var_3 * 60.0f) plus raw/temp_2=raw+0x68 base hoist (retail
    re-issues `sra $v1,$a0,1` for the -320.0f divisor instead of CSE-ing the
-   shift). Flipping the helper to const-first, plain (60.0f*(f32)var_3), or a
-   pre-materialized f32 local makes the constant load hoist before the cvt and
-   re-colors var_3 from $v1 to $a1 (nd 51). Commutative FP-mul scheduling
-   floor; also tried ternary (nd 55) and two-return forms. nd 2. */
+   shift; the assert mul needs a value-first inline multiply (value * 100.0f) to match, plain
+   `value*100.0f` swaps ITS operands). Flipping the helper to const-first,
+   plain (60.0f*(f32)var_3), a pre-materialized f32 local, or a two-statement
+   mul-then-div makes the constant load hoist before the cvt and re-colors
+   var_3 from $v1 to $a1 (nd 51). Commutative FP-mul scheduling floor. */
 // FUN_00371260
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371260);
 
@@ -87,9 +87,10 @@ void func_003715e0(u8 *arg0, u8 *arg1, f32 fparg0) {
    $v1/addiu $v0/sra $v0/mtc1 $v0); mwcc b210 always colors load->$v0,
    result->$v1 (6 words) — plus the return's evaluation order (5 words: b210
    hoists the divisor lwc1/mul above the numerator mtc1/cvt and transposes
-   the div.s operands; hoisting `f = (f32)var_2` does not move it). Tried
-   named locals, m2c if-form, inline two-return, u32/or spellings, hoisted
-   cvt — all nd >= 6. $v0/$v1 coalescing + FP-eval-order floor. */
+   the div.s operands; hoisting `f = (f32)var_2` and num/den locals does not
+   move it). Tried named locals, m2c if-form, inline two-return, u32/or
+   spellings, hoisted cvt, decl-order rotations — all nd 11.
+   $v0/$v1 coalescing + FP-eval-order floor. */
 // FUN_003716D0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003716d0);
 
@@ -138,36 +139,40 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
 // FUN_00371A60
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
 
-/* measured: retail computes the ceil-half trick as `or $t0,$t0,$v1` (dest = srl
-   result reg) in the FIRST negative branch, but mwcc b210 always folds the or
-   into $v1 (andi result reg) there while matching retail exactly in the second
-   branch; the same 2 words (or/mtc1) differ with every spelling tried:
-   ((u32)x>>1)|(x&1), (x&1)|((u32)x>>1), and a `u32 u; u|=…` local (which made
-   BOTH branches wrong, nd 4). $v1-register-coloring floor. nd 2. */
+/* measured: re-tested this wave (recipe A: (s32) cast on or-result + x+x
+   doubling + struct-copy loop). Best nd 5 = 4 real + 1 pad: mwcc b210 folds
+   the ceil-half `or` into the ANDI-result reg in BOTH negative branches
+   (`or $v1,$t0,$v1` / `or $v1,$a3,$v1` vs retail `or $t0,$t0,$v1` /
+   `or $a3,$a3,$v1`); without the (s32) cast b210 re-inserts the u32->f32
+   sign-test guard (duplicated bltz, nd 59); u32 locals and swapped operand
+   orders identical (nd 5); loop + everything else byte-identical.
+   $v1-register-coloring floor, nd 5 (was 2). */
 // FUN_00371BA0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371ba0);
 
-/* measured: full cubic-Bezier reconstruction (recipe A half-scalers,
-   00373cb0(var_f12,8,0,4), v = 1.0f - t, per-component f6/f5/f4/f3 terms and
-   `t*f3 + v*f4 + t*f5 + t*f6` mula/madda/madda/madd accumulation): components
-   1-2 are byte-identical to retail and component 3 differs only in register
-   numbers (b210 schedules its P1 chain before the P0 chain and reuses $f1 for
-   the P1 term where retail keeps P0 first with $f3/$f4; decl orders tried) —
-   on top of the recorded family: the increment's re-load `lhu` is CSE'd with
+/* measured: re-tested this wave. Full cubic-Bezier reconstruction (recipe A
+   half-scalers, 00373cb0(var_f12,field8,0,field4), v = 1.0f - t, per-
+   component f6/f5/f4/f3 terms and `t*f3 + v*f4 + t*f5 + t*f6`
+   mula/madda/madda/madd accumulation): nd 102 confirmed (~30 alignment-
+   shift noise from the 1-word Load-CSE gap). Components 1-2 are
+   byte-identical to retail and component 3 differs only in register numbers
+   (b210 schedules its P1 chain before the P0 chain and reuses $f1 for the
+   P1 term where retail keeps P0 first with $f3/$f4; decl orders tried) — on
+   top of the recorded family: the increment's re-load `lhu` is CSE'd with
    the 1st half-scaler's load (1 word missing, value colored $a0 vs retail
    $v0 — Load-CSE, cf. func_003720c0) and the or-fold/cvt-scratch in both
-   half-scalers (cf. func_00372960). nd 102, ~30 of it alignment-shift noise.
-   Load-CSE + $v1-coloring + FP-scheduling floor. */
+   half-scalers (cf. func_00372960). Load-CSE + $v1-coloring +
+   FP-scheduling floor. */
 // FUN_00371C70
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371c70);
 
-/* measured: same $v1-fold floor as func_00371ba0 — retail `or $a2,$a2,$v1`
-   (dest = srl result reg) in the negative half-scaler branch; mwcc b210
-   always folds the or into $v1 (andi result reg): 2 words (or/mtc1) differ,
-   nd 4 (2 padding). Tried direct ((u32)x>>1)|(x&1), swapped operands
-   (nd 6), and an inline ShfOr helper (identical nd 4). Everything else — the
-   three struct copies, f0+f0 doubling, store order — matches. $v1
-   register-coloring floor. */
+/* measured: re-tested this wave (recipe A, struct-copy prologue). Same
+   $v1-fold floor — retail `or $a2,$a2,$v1` (dest = srl result reg) in the
+   negative half-scaler branch; mwcc b210 always folds the or into $v1 (andi
+   result reg): 2 words (or/mtc1) differ, nd 4 (2 padding). Tried direct
+   ((u32)x>>1)|(x&1), swapped operands (nd 6, reverses srl/andi), and the
+   an inline-helper spelling for the or (identical nd 4). Everything else — the three struct copies,
+   f0+f0 doubling, store order — matches. $v1 register-coloring floor. */
 // FUN_00371E50
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371e50);
 
@@ -210,24 +215,27 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
 // FUN_00372200
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372200);
 
-/* measured: same $v1-or-fold floor as func_00371ba0/00371e50, both
-   half-scaler branches: retail `or $a0,$a0,$v1` (dest = srl result reg),
-   mwcc b210 folds into $v1 (andi result reg) — 4 words (or/mtc1 ×2) differ,
-   nd 6 (2 padding). Tried direct and swapped operand orders — identical.
-   Everything else (struct copies, assert, f20 store) matches. */
+/* measured: re-tested this wave (recipe A, struct-copy vec3 stores). Same
+   $v1-or-fold floor as func_00371ba0/00371e50, both half-scaler branches:
+   retail `or $a0,$a0,$v1` (dest = srl result reg), mwcc b210 folds into $v1
+   (andi result reg) — 4 words (or/mtc1 ×2) differ, nd 6 (2 padding). Tried
+   direct and swapped operand orders — identical. Everything else (struct
+   copies, assert, f20 store) matches. */
 // FUN_003723A0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003723a0);
 
-/* measured: full reconstruction (recipe A half-scalers, 00373cb0(0,var_f12,8,4),
-   f32 sp40[3]/sp30[4] stack slots at 0x40/0x30 reproducing retail's 0x3C gap
-   and 0x50 frame, func_003e40b0, per-component `f18 + (sp30*t - t*(t*(sp30+
-   sp40)))` mula/msub chains) — the ENTIRE tail (diffs, scales, all three
-   mula/msub components, epilogue) is byte-identical modulo a 1-word shift:
+/* measured: re-tested this wave (recipe A half-scalers, correct
+   00373cb0(var_f12,field8,0,field4) arg order, f32 sp40[3]/sp30[4] stack
+   slots at 0x40/0x30 reproducing retail's 0x3C gap and 0x50 frame,
+   func_003e40b0, per-component `f18 + (sp30*t - t*(t*(sp30+sp40)))`
+   mula/msub chains) — the ENTIRE tail (diffs, scales, all three mula/msub
+   components, epilogue) is byte-identical modulo a 1-word shift:
    b210 CSEs the increment's re-load `lhu` with the 1st half-scaler's load
    (no intervening store), losing 1 word and coloring the long-lived value
    $a0 (retail $v0), cascading through srl/andi/or/mtc1 (nd 91, ~30 of it
-   alignment-shift noise), on top of the recorded or-fold/cvt-scratch in both
-   half-scalers (cf. func_003720c0/00372960). Load-CSE + $v1-coloring floor. */
+   alignment-shift noise), on top of the recorded or-fold/cvt-scratch in
+   both half-scalers (cf. func_003720c0/00372960). Tried (u16) cast and
+   separate v/w locals — identical nd 91. Load-CSE + $v1-coloring floor. */
 // FUN_003724F0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003724f0);
 
@@ -424,15 +432,16 @@ void func_00373590(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
     *(s8 *)(arg0 + 1) = arg3;
 }
 
-/* measured: the counter increment chain `lhu;addiu;sh;andi` — retail orders
-   sh $v0 BEFORE andi $v1,$v0,0xffff (store raw, mask for the test); mwcc
-   b210 always hoists the andi above the sh (2 words differ, nd 4 = 2 real + 2
-   padding). Tried: (u16) cast, s32 v with &=0xFFFF in place, store-then-
-   reload (emits a real lhu instead), m2c's exact double-mask with named
+/* measured: re-tested this wave (fresh reconstruction). The counter
+   increment chain `lhu;addiu;sh;andi` — retail orders sh $v0 BEFORE andi
+   $v1,$v0,0xffff (store raw, mask for the test); mwcc b210 always hoists
+   the andi above the sh (2 words differ, nd 4 = 2 real + 2 padding).
+   Tried: (u16) cast, s32 v with &=0xFFFF in place, store-then-reload
+   (emits a real lhu instead), m2c's exact double-mask with named
    temp_2_3, and inline (temp_2 & 0xFFFF) — identical andi-first schedule
    every time. Everything else (the >= slt/bnez layout, descending beq
-   switch chain 4,3,2,1,0 with case 0 shared exit, assert 0x379, func_0045af60
-   calls) matches. Store/mask scheduling floor. */
+   switch chain 4,3,2,1,0 with case 0 shared exit, assert 0x379,
+   func_0045af60 calls) matches. Store/mask scheduling floor. */
 // FUN_00373610
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00373610);
 

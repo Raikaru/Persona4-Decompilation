@@ -142,6 +142,11 @@ extern f32 D_006440B8[];
 extern void func_002b6140(s32, s32);
 extern f32 D_00643D70[];
 extern f32 D_00644CA0[];
+extern f32 D_006441C8[];
+extern f32 D_006441D0[];
+extern f32 D_006441C0[];
+extern f32 D_006441E0[];
+extern f32 D_006441D8[];
 
 // FUN_00314320
 s32 func_00314320(s32 arg0) {
@@ -171,21 +176,26 @@ void func_00314400(u8 *arg0, s8 arg1) {
     }
 }
 
-/* measured: retail keeps the deref'd object pointer in $a0 (reusing the dead param
-   register) and the zero-loop buffer pointer in $v1; mwcc b210 always allocates
-the object to $v1 and the buffer to $a0, swapping 9 words with identical
-instruction order/semantics. Tried: local t, arg0 reassignment, local declaration
-order, statement order, u8 pointers, &buf[0], hoisted call-arg local, m2c scalar
-locals (worse). All give the identical nd 9. $v0/$v1-family allocation floor. */
+/* measured: nd 10 (re-measured this wave; prior note said 9) — retail keeps the
+   deref'd object pointer in $a0 (reusing the dead param register) and the zero-loop
+   buffer pointer in $v1; mwcc b210 ALWAYS colors the memory-load result $v1 here
+   (obj=$v1 is invariant across statement order, declaration order, arg0-reassign,
+   f32[2] buffer, u32 counter, indexed for-loop — probed 10 spellings, nd 10-23).
+   Counter CAN be coerced to $v0 (assign it before the buffer pointer; decl order
+   temp_4,var_3,var_2 — nd 10), leaving only the 5-word obj ($v1 vs $a0) + 5-word
+   buf ($a0 vs $v1) swap. The f32 must be written INTO the buffer (*(f32*)(sp18+4),
+   sp18[8]) or DSE removes the swc1 (nd 21). $v0/$v1-family allocation floor. */
 // FUN_00314450
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314450);
-/* measured: same $a0/$v1 allocation swap as func_00314450 above; retail keeps the
-   object pointer in $a0 across the loop and stores, mwcc b210 forces it into $v1
-   with the buffer pointer in $a0. Same 12 words swapped, all spellings tried
-   (incl. u8 pointers, declaration-order and statement-order variants) give the
-   identical nd 12. $v0/$v1-family allocation floor. */
+
+/* measured: nd 13 (re-measured this wave; prior note said 12) — same $a0/$v1
+   allocation swap as func_00314450 above (obj=$v1 invariant, buf=$a0, counter=$v0
+   achievable with counter-assigned-first statement order): 6 obj words (lw/sw/sb/sb/
+   sw/lw) + 5 buf words (addiu/beqz/sb/addiu/addiu) differ. arg0-reassign spelling
+   is worse (nd 15). $v0/$v1-family allocation floor. */
 // FUN_003144D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003144d0);
+
 // FUN_00314560
 void func_00314560(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {
     u8 *t;
@@ -306,27 +316,103 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00315600);
 // FUN_00316470
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00316470);
 
-/* measured: nd 12 (10 words + 2 padding) — the func_002b6a70 else-branch arg order:
-   retail materializes the constant a0 (addiu $a0, 0x8B) BEFORE the lbu of the
-   second arg; mwcc b210 always emits the lbu first (same family as the measured
-   func_00317240 note — hoisted b local also nd 12). The D_006441xx addresses DID
-   match once hoisted into f32 * pointer locals before the inner checks (5 blocks
-   otherwise byte-perfect). Argument-evaluation-order floor. */
 // FUN_00316E80
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00316e80);
+void func_00316e80(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s64 arg5, s64 arg6, s64 arg7, s8 arg8, s8 arg9, s8 arg10) {
+    s64 sp88;
+    s64 sp80;
+    s64 sp78;
+    s64 sp70;
+    s64 sp68;
+    f32 *b1;
+    f32 *b2;
+    f32 *b3;
+    f32 *b4;
+    f32 *b5;
 
-/* measured: retail materializes the constant first arg (addiu $a0, 0x1E4) BEFORE
-the lbu of the second arg; mwcc b210 evaluates call args right-to-left and always
-emits the lbu first. Tried inline call, hoisted b local, hoisted v local, hoisted
-id local — all give the identical nd 3 (same 2-word swap). Argument evaluation
-order floor. */
+    if ((s8)arg1 == 1) {
+        b1 = D_006441C8;
+        if ((s8)arg2 == 0) {
+            func_002b2970(&sp88, b1[0], b1[1]);
+            func_002b6c30(0x8B, sp88, 0xBC, 103.0f);
+            func_002b6a70(0x8B, 0, 0xFF, 0, 0xA, 0);
+        } else {
+            func_002b6a70(0x8B, *(u8 *)(func_002b6150(0x8B) + 0x6E), 0, 0, 0xA, 0);
+        }
+    }
+    if ((s8)arg3 == 1) {
+        b2 = D_006441D0;
+        if ((s8)arg4 == 0) {
+            func_002b2970(&sp80, b2[0], b2[1]);
+            func_002b6c30(0x8C, sp80, 0xBC, 103.0f);
+            func_002b6a70(0x8C, 0, 0xFF, 0, 0xA, 0);
+        } else {
+            func_002b6a70(0x8C, *(u8 *)(func_002b6150(0x8C) + 0x6E), 0, 0, 0xA, 0);
+        }
+    }
+    if ((s8)arg5 == 1) {
+        b3 = D_006441C0;
+        if ((s8)arg6 == 0) {
+            func_002b2970(&sp78, b3[0], b3[1]);
+            func_002b6c30(0x8A, sp78, 0xBC, 103.0f);
+            func_002b6a70(0x8A, 0, 0xFF, 0, 0xA, 0);
+        } else {
+            func_002b6a70(0x8A, *(u8 *)(func_002b6150(0x8A) + 0x6E), 0, 0, 0xA, 0);
+        }
+    }
+    if ((s8)arg7 == 1) {
+        b4 = D_006441E0;
+        if (arg8 == 0) {
+            func_002b2970(&sp70, b4[0], b4[1]);
+            func_002b6c30(0x8E, sp70, 0xBC, 103.0f);
+            func_002b6a70(0x8E, 0, 0xFF, 0, 0xA, 0);
+        } else {
+            func_002b6a70(0x8E, *(u8 *)(func_002b6150(0x8E) + 0x6E), 0, 0, 0xA, 0);
+        }
+    }
+    if (arg9 == 1) {
+        b5 = D_006441D8;
+        if (arg10 == 0) {
+            func_002b2970(&sp68, b5[0], b5[1]);
+            func_002b6c30(0x8D, sp68, 0xBC, 103.0f);
+            func_002b6a70(0x8D, 0, 0xFF, 0, 0xA, 0);
+            return;
+        }
+        func_002b6a70(0x8D, *(u8 *)(func_002b6150(0x8D) + 0x6E), 0, 0, 0xA, 0);
+    }
+}
+
 // FUN_00317240
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317240);
-/* measured: same constant-vs-load arg order swap as func_00317240; mwcc b210
-emits lbu $a1 before addiu $a0, retail the reverse. All spellings give nd 5
-(2 swapped words + 3 window padding). Argument evaluation order floor. */
+void func_00317240(u8 *arg0, s64 arg1, f32 fparg0) {
+    s64 sp18;
+    f32 *b;
+
+    b = D_00644C90;
+    if (((s64)(arg1 << 0x38) >> 0x38) == 0) {
+        func_002b2970(&sp18, b[0] + fparg0, b[1]);
+        func_002b6c30(0x1E4, sp18, 0xBC, 103.0f);
+        func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
+        func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
+        return;
+    }
+    func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+}
+
 // FUN_00317320
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317320);
+void func_00317320(u8 *arg0, s64 arg1, f32 fparg0) {
+    s64 sp18;
+    f32 *b;
+
+    b = D_00644C90;
+    if (((s64)(arg1 << 0x38) >> 0x38) == 0) {
+        func_002b2970(&sp18, 358.0f + fparg0, b[1]);
+        func_002b6c30(0x1E4, sp18, 0xBC, 103.0f);
+        func_002b6a70(0x1E4, 0, 0xFF, 0, 0xA, 0);
+        func_002b6b40(0x1E4, 0, 0, 0, 0.0f, 90.0f);
+        return;
+    }
+    func_002b6a70(0x1E4, *(u8 *)(func_002b6150(0x1E4) + 0x6E), 0, 0, 0xA, 0);
+}
+
 // FUN_00317410
 void func_00317410(u8 *arg0, s8 arg1) {
     FclByte4 sp6C;
@@ -815,50 +901,31 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
    rs=0x02 but the true rs is 0x10); i=0 init precedes the v1/v2 (s16)
    conversions; v1/v2 are s32 (s16 re-normalizes at the mult); the tail is the
    same madd chain as func_0032c0c0 with the verified rule-2 spelling
-   (f21 = acc = the 0x124-load variable, f21 * f20). */
+   (f21 = acc = the 0x124-load variable, f21 * f20). RE-MEASURED this wave
+   (nd 5 confirmed; inline spelling verified byte-perfect except the sink;
+   named-w probe gave nd 16/24 across 5 decl orders; FMA tail confirmed via
+   0.0f + rAA->3C + facc*fdiff). */
 // FUN_0032B770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 
 // FUN_0032B9D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
 
-/* measured: nd 5 (4 word-swaps + 1 padding) — everything matches except case 4's
-   r test: retail stores the raw 2cb0 result (sh $v0) then truncates IN PLACE
-   (dsll32/dsra32 $v0) for the bnez; mwcc b210 always hoists the (s16) truncation
-   into $v1 before the sh, regardless of spelling (v4 s16/s32, inline (s16)v4
-   cast, if/else inverted, explicit (s16)v4 = v4 statement). $v0/$v1-family
-   scheduling floor — the old note's claim survives, but everything else in the
-   old note is superseded: rule 2 (FMA order) was NOT a floor here — the tail's
-   madd.s $f20,$f20,$f21 only fuses when the acc is the 0x124-load variable
-   (f21 under mwcc's swapped FP mapping) AND the multiplication is written
-   load*diff (f21 * f20); my first spelling (diff*load) emitted mul.s+add.s
-   (no fusion, nd 8+). Rule 3: no s128/quadword anywhere — the case-4 pair is
-   an (s16) narrowing, not a 128-bit cast artifact. Real shape discoveries:
-   case 0 is TWO statements (2cb0 store + 2d50 store with a1=lh 0x120, a4=1)
-   then break — NOT a fallthrough into case 1; case 4 needs a SEPARATE temp
-   (v4) for the 2cb0 result because the else-branch 2d50 passes the OLD r
-   ($17 = 8 or the pre-switch lh) — with r as the result variable mwcc keeps
-   it in a saved register (nd 108); r must be s32 (s16 adds (s16)r normalizes
-   at the two 2d50 a3 args); case 5's 2d00 is (…, 1, 0, (s16)(x-1), 2); the
-   pre-switch r is s32 r = 8; if (*(s32 *)(func_002e4870(0) + 8) < 8). */
+/* measured: this function MATCHES byte-for-byte as C -- store the func_002cb0
+   result through a u16 alias (*(u16 *)(obj + 0x11E) = (u16)v4;) and test it with
+   (s16)v4, so the differently-typed truncations do not CSE and mwcc emits sh
+   before truncating in place; case 5 also needs (s16)((s16)r - 1).
+
+   It is kept as INCLUDE_ASM anyway, and NOT because of a compiler floor. Its
+   6-case switch makes mwcc emit a second anonymous .rodata jump table (@434 and
+   @563), and build.py's recover_concatenated_layout cannot anchor two anonymous
+   .rodata sections, so plan_data_sections refuses the whole translation unit --
+   costing all 21 of this file's linked functions to gain one match. Verified by
+   reverting only this function: .rodata drops to one section and the TU is
+   placeable again. Restore the body once the layout recovery can locate a
+   second anonymous rodata section by its referencing relocation. */
 // FUN_0032C0C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
-
-/* measured: nd 65 (4 attempts: 70, 65, 94, 65). Everything else byte-matches:
-   the 75820 11-arg call (iGpffffb440 GPREL lw + u16*17 sll/addu chain), the
-   30e50 9-arg call, the 79350 10-arg call, 48a0/109280/34a640/34a630/11d1d0
-   chains, D_00796310/370 absolute lui/addiu, all float constants. Residuals:
-   (1) a 2-register rotation — retail allocates obj to $17 and r (2a30 result,
-   reused by v16 after it dies) to $16; mwcc b210 always gives obj $s0 / r $s1
-   regardless of declaration order (r-first, obj-first, statement-order swaps —
-   all nd 65-94). (2) the v16 value: retail normalizes once (dsll32/dsra32 16)
-   and passes RAW to 30e50/79350; an s16 v16 local makes mwcc re-extend at
-   every call (pair per site), and the m2c (s64)<<0x30>>0x30 spelling emits 4
-   instructions. PROBED: `v16 = (s64)(s16)((x & 0xFF) + 0x1B);` gives the clean
-   dsll32/dsra32 16 + raw daddu to an s64 param (2 instr, no re-extend) —
-   untested in-function within budget. (3) the (s8)func_00331640() normalize
-   uses a temp register where retail extends $16 in place. Saved-register
-   rotation + normalization-placement floor. */
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 
