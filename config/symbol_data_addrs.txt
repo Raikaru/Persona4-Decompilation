@@ -78,3 +78,25 @@ iGpffff8170 = 0x00761260; // type:data evidence: GPREL -0x7E90($28) in retail fu
 // the relocation scanner has no symbol for.
 iGpffff8084 = 0x00761174; // type:data evidence: GP(0x007690F0) - 0x7F7C
 iGpffff809c = 0x0076118C; // type:data evidence: GP(0x007690F0) - 0x7F64
+
+// GPREL16 -0x6110($28) in k_fldHBN func_0015f8e0 / func_0015ff20 / func_001601e0 --
+// the per-file func_00440b68 assert-message buffer (sibling k_fldResource.c uses
+// its own at -0x61F0). GP is 0x007690F0 -> 0x00762FE0.
+iGpffff9ef0 = 0x00762fe0; // type:data evidence: GP(0x007690F0) - 0x6110 = 0x00762FE0, addiu $4,$28,-0x6110 in retail func_0015f8e0@0x5F958, func_0015ff20@0x5FFB0, func_001601e0@0x6024C
+
+// sdkSndcom.c's small-data format strings, addressed GPREL16 in retail
+// (func_00440b68 assert/status prints). GP is 0x007690F0; the image bytes at
+// these addresses are the literals themselves ("FLUSH\n", "que \n", "%s %d").
+D_00764020 = 0x00764020; // type:data evidence: GP(0x007690F0) - 0x50D0 = 0x00764020; retail func_0045b650 addiu $4,$28,-0x50D0; image bytes "FLUSH\n"
+D_00764028 = 0x00764028; // type:data evidence: GP(0x007690F0) - 0x50C8 = 0x00764028; retail func_0045b650 addiu $4,$28,-0x50C8; image bytes "que \n"
+D_00764030 = 0x00764030; // type:data evidence: GP(0x007690F0) - 0x50C0 = 0x00764030; retail func_0045b7c0 addiu $4,$28,-0x50C0; image bytes "%s %d"
+
+// btlEPL.c palette/blend family (func_001fc630/001fceb0/001fd790/001fe090/
+// 001fec00/001ff490/001fff40 — currently all INCLUDE_ASM floors, so the
+// relocation scanner cannot derive these). GP is 0x007690F0.
+D_0076129C = 0x0076129C; // type:data evidence: GP(0x007690F0) - 0x7E54; retail lwc1 -0x7E54($28) in func_001fc630/001ff490 etc.; image word 0x3B808081 = 1/255 (byte-to-float scale)
+D_00764C54 = 0x00764C54; // type:data evidence: GP(0x007690F0) - 0x449C; retail lbu -0x449C..-0x4499($28) (4 zero bytes) in func_001fc630 case 2
+D_00922CA0 = 0x00922CA0; // type:data evidence: retail func_001ff490 lui $3,0x92 + swc1 %lo(0x2CA0) absolute stores; 8 f32 palette slots; tnEffect.c already references it
+D_00922C60 = 0x00922C60; // type:data evidence: retail func_001ff490 lui $5,0x92 + addiu 0x2C60 (lq/sq 0x40-byte copy target)
+D_00922CC0 = 0x00922CC0; // type:data evidence: retail func_001ff490 lui $3,0x92 + sw %lo(0x2CC0) store of 1 (palette-dirty flag)
+D_007641F8 = 0x007641F8; // type:data evidence: GP(0x007690F0) - 0x4EF8; retail lbu -0x4EF8..-0x4EF5($28) (4 bytes) in func_001fec00 case 2 blend source

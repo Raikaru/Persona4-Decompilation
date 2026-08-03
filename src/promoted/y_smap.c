@@ -30,6 +30,19 @@ extern u8 *func_00457120(void);
 extern s32 func_00461390(void *a, s32 b, void *c, s32 d);
 extern s32 func_0046d200(s32 a, s32 b);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern char D_0063EFD8[];
+extern void func_003f6440(s32 a, s32 b);
+extern s32 func_00442088(void *dst, const char *fmt, s32 value);
+extern u8 *func_003ef6d0(void);
+extern s32 *func_003ef650(u8 *a, void *b);
+extern char D_0063EFF0[];
+extern char D_0063F010[];
+extern char D_0063F030[];
+extern char D_0063F050[];
+extern char D_0063F070[];
+extern char D_0063F090[];
+extern char D_0063F0B0[];
+extern char D_0063F0D0[];
 extern f32 D_008872F8[];
 extern u8 D_00794D50[];
 extern s32 func_002b1520(u8 *arg0);
@@ -218,8 +231,20 @@ void func_002afb70(u8 *arg0, s8 arg1) {
 
 
 
+/* measured: full structure reconstructed (nd 380 -> 354 -> 214 -> 214); all
+   idiom blocks, checks, and both func_0025ecd0/func_002b0b10 calls match
+   modulo five b210 canonicalization/scheduling residuals: (1) accumulate
+   add.s emitted as (f1,f0) where retail has (f0,f1) — b210 folds `x + f1`
+   into acc-first regardless of source order, same family as the msub.s
+   orientation floor; (2) the t=(s8)(...) else-t=1 join re-sign-extends at
+   the join in retail but b210 reuses the branch's extended register; (3)
+   func_0025ecd0's $t3 (D_00794DB0) materializes before mov.s $f17 vs after;
+   (4) the s64 arg loads via ld instead of retail's ldr/ldl unaligned pair;
+   (5) arg materialization order: b210 groups all GPR args before the FP
+   args where retail interleaves. */
 // FUN_002AFBC0
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002afbc0);
+
 // FUN_002B0220
 void func_002b0220(void *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
@@ -229,12 +254,108 @@ void func_002b0220(void *arg0) {
 #pragma push
 
 
+/* measured: 4 attempts (nd 284 -> 272 -> 180 -> 178) got everything but
+   four source-drivable residuals: (1) the case 13/14 dispatch — retail tests
+   (arg4&0xFF)==1 then !=3 with shared fallthrough body, mwcc b210 emits a
+   switch chain testing 2,3,1 (8B longer); (2) saved-reg order ret/$s7 vs
+   arg1/$s6 swapped; (3) the &f8/u8 stack locals land 4B higher; (4) the
+   (a7+j)<<8 loop-invariant needs the opt_loop_invariants pragma to hoist at
+   retail's position. All switch bodies, the v>=7/v==2/default chains, and
+   the nested byte-scan loop match when aligned. */
 // FUN_002B0250
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b0250);
 
 // FUN_002B07A0
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b07a0);
+void func_002b07a0(u8 *arg0, u8 *arg1) {
+    u8 *fp;
+    u8 buf[0x80];
+    u8 v;
 
+    fp = (u8 *)D_00887300;
+    ((void (**)(s32, s32))fp)[0](6, 1);
+    ((void (**)(s32, s32))fp)[0](7, 2);
+    ((void (**)(s32, s32))fp)[0](8, 1);
+    ((void (**)(s32, s32))fp)[0](9, 2);
+    ((void (**)(s32, s32))fp)[0](0xC, 1);
+    ((void (**)(s32, s32))fp)[0](2, 3);
+    ((void (**)(s32, s32))fp)[0](0xB, 6);
+    ((void (**)(s32, s32))fp)[0](0xA, 5);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+    if (*(u8 *)(arg1 + 5) == 3) {
+        *(f32 *)(arg1 + 0x50) = *(f32 *)(arg1 + 0x24);
+        *(f32 *)(arg1 + 0x54) = *(f32 *)(arg1 + 0x20);
+        *(f32 *)(arg1 + 0x90) = *(f32 *)(arg1 + 0x24);
+        *(f32 *)(arg1 + 0x94) = *(f32 *)(arg1 + 0x28);
+        *(f32 *)(arg1 + 0xD0) = *(f32 *)(arg1 + 0x1C);
+        *(f32 *)(arg1 + 0xD4) = *(f32 *)(arg1 + 0x20);
+        *(f32 *)(arg1 + 0x110) = *(f32 *)(arg1 + 0x1C);
+        *(f32 *)(arg1 + 0x114) = *(f32 *)(arg1 + 0x28);
+    } else {
+        *(f32 *)(arg1 + 0x50) = *(f32 *)(arg1 + 0x24);
+        *(f32 *)(arg1 + 0x54) = *(f32 *)(arg1 + 0x28);
+        *(f32 *)(arg1 + 0x90) = *(f32 *)(arg1 + 0x1C);
+        *(f32 *)(arg1 + 0x94) = *(f32 *)(arg1 + 0x28);
+        *(f32 *)(arg1 + 0xD0) = *(f32 *)(arg1 + 0x24);
+        *(f32 *)(arg1 + 0xD4) = *(f32 *)(arg1 + 0x20);
+        *(f32 *)(arg1 + 0x110) = *(f32 *)(arg1 + 0x1C);
+        *(f32 *)(arg1 + 0x114) = *(f32 *)(arg1 + 0x20);
+    }
+    v = *(u8 *)(arg1 + 4);
+    if (v >= 9) {
+        if (*(u8 *)(arg1 + 5) == 1) {
+            switch (v) {
+            case 9:
+            case 10:
+                func_00442088(buf, D_0063EFF0, v);
+                break;
+            case 11:
+            case 12:
+                func_00442088(buf, D_0063F010, v);
+                break;
+            case 13:
+            case 14:
+                func_00442088(buf, D_0063EFF0, v);
+                break;
+            }
+        } else if (*(u8 *)(arg1 + 5) == 3) {
+            func_00442088(buf, D_0063EFF0, v);
+        } else {
+            switch (v) {
+            case 9:
+            case 10:
+                func_00442088(buf, D_0063F030, v);
+                break;
+            case 11:
+            case 12:
+                func_00442088(buf, D_0063F050, v);
+                break;
+            case 13:
+            case 14:
+                func_00442088(buf, D_0063F070, v);
+                break;
+            }
+        }
+    } else if (v == 2) {
+        if (*(u8 *)(arg1 + 5) == 1) {
+            func_00442088(buf, D_0063F090, v);
+        } else {
+            func_00442088(buf, D_0063F0B0, v);
+        }
+    } else {
+        func_00442088(buf, D_0063F0D0, v);
+    }
+    ((void (**)(s32, s32))fp)[0](1, *(s32 *)func_003ef650(func_003ef6d0(), buf));
+}
+
+/* measured: full structure matches (nd 345 -> 99): the 4-case switch, all
+   mode sub-cases, the mask-first byte extraction, the byte-to-float idiom
+   loop, and the final func_00461390 call. Residuals: (1) the documented
+   D_008872F8 lui-hoist floor (retail hoists to the preheader, b210 keeps it
+   in the loop); (2) arg3/arg4 saved-register order swapped ($s2/$s3) with the
+   prologue move order (GPRs-then-FPs vs retail's interleave), which cascades
+   register names through the loop body. Tried param types u32/s32/s8 and
+   statement orders — all nd 99. Register-allocation + invariant-hoist floor. */
 // FUN_002B0B10
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b0b10);
 
@@ -390,6 +511,15 @@ void func_002b2240(u8 *arg0) {
     }
 }
 
+/* measured: retail computes z = -99.0f + 108.0f*j as mul.s+add.s with the
+   constant as the add's first operand (add.s $f20,$f0,$f1) and re-sign-extends
+   the s16 counter at the loop top (dsll32/dsra32 before sll); mwcc b210 fuses
+   the 1-statement `const + var*const` into adda.s/madd.s (nd 149) and for
+   statement-separated forms emits add.s with the product first (add.s
+   $f20,$f1,$f0) plus reuses the loop-test sign-extension across the back
+   edge, shrinking the body by 2 words (nd 97). Tried 1-statement both orders,
+   2-statement, +=, and variable addend — all nd 97. FPU-add-operand-order /
+   loop-sign-extend-lifetime floor. */
 // FUN_002B2290
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b2290);
 
