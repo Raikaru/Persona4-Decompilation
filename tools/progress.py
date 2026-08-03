@@ -342,10 +342,9 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
             f"({recovery['residue_percent']}%) |",
         ]
     note = (
-        "\nByte-identical is not the same as recovered. A matching function can still "
-        "carry an address for a name, raw field offsets and generated local names, so "
-        "the recovery rows above are tracked separately and are the current bottleneck. "
-        "Run `tools/recovery_quality.py --worst 20` for the files that need it most.\n"
+        "\nByte-identical is not recovered: a matching function can still have an "
+        "address for a name and raw field offsets. "
+        "`tools/recovery_quality.py --worst 20` ranks the files needing work.\n"
     )
     return "\n".join(rows) + "\n" + note
 
