@@ -35,7 +35,7 @@ f32 func_002b2aa0(s32, f32, f32, f32, f32);
 s16 func_002b2cb0(s32, s32, s32, s32, s32);
 u8 *func_00457120(void);
 u8 *func_00461390(void *a, s32 b, void *c, s32 d);
-void func_00347b30(u8 *arg0);
+void func_00347b30(u8 *arg0, u8 *arg1);
 extern f32 D_008872F8[];
 extern u8 D_00794F00[];
 s32 func_00106330(s32 id);
@@ -79,13 +79,17 @@ extern void (*D_00887300[])(s32, s32);
 
 
 
-/* measured: case-2 loop's address for the loop-test load (obj + i*2 + 2) is CSE'd with
-   the q pointer used in the second func_0036da40 call: mwcc hoists the addiu $16-equivalent
-   above the lhu/beqz and folds the +2 into the reload's displacement (nd 62 overall, all
-   in this loop + branch-target shifts). Tried inline duplicates, q locals, u32-cast trees,
-   shift-vs-mul scales, s16 copy (propagated back) — every spelling CSEs. The brief's
-   "CSE of a loop-test load that retail re-issues in the body" floor; also the second
-   call's pointer+0xE398 materialization is deferred past the lhu arg (fb90-style floor). */
+/* measured: re-tested recipe A (no u16->float conversion exists in this function —
+   N/A) and recipe B (no global base hoist; retail itself rematerializes the 0x19FD8
+   lui/addu twice). The recorded "loop-test load CSE" floor did NOT reproduce:
+   with the reload written as its own expression (q = (u16 *)(obj + i*2 + 2) inside
+   the if, reload `lhu $a1, ($q)`) mwcc emits retail's exact shape — test lhu at
+   disp 2, addiu q after the beqz, disp-0 reload, ori 0xE398 before the second jal
+   (nd 62 -> 39, obj 488B vs 512B window). Actual residual: (1) a 3-register saved
+   rotation obj=$s0/i=$s1/q=$s2 vs retail q=$s0/obj=$s1/i=$s2 (p=$s3 matches); tried
+   4 declaration orders incl. q-first — the allocator ignores decl order here;
+   (2) the q and p address computations in the loop body are swapped (mine p then
+   q, retail q then p) — a scheduler-order defect across the two call args. */
 // FUN_0033E5C0
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033e5c0);
 
@@ -111,12 +115,17 @@ void func_0033f660(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-/* measured: retail hoists the D_008873F4 allocator-table base into saved $20
-   (lui/addiu once, lw $2,0($20); jalr twice across the func_00451fc0 calls); mwcc b210
-   folds both the direct array spelling and a cached local (u8 *(**fp)(...)) back to
-   per-call lui/lw, which also reshuffles the saved-register allocation ($s0/$s2/$s4 vs
-   retail $s1/$s0/$s4). D_008873F4 vtable-base hoisting floor (same mechanism as the
-   confirmed D_00887300 floor). */
+/* measured: recipe B (u32 cast base: `u32 base = (u32)D_008873F4;` + per-call
+   `((u8 *(*)(s32,s32,s32))*(u32 *)base)(...)`) SOLVES the recorded base-hoist floor:
+   retail's saved-$20 lui/addiu once + lw $2,0($20)/jalr twice now compiles
+   byte-exact (the typed-pointer local and direct array spelling still fold to
+   per-call lui/lw). With ret2 declared FIRST, everything matches except the
+   first copy loop (arg1[i] -> blk2+2): a 3-register temp rotation (mine
+   ext=$v0/scale=$a0/lh=$v1/i=$a1 vs retail ext=$v1/scale=$a1/lh=$a0/i=$a2)
+   plus the `sw ret2,4(blk1)` after the loop reads $s1 where retail's surviving
+   $v0 copy feeds it — my loop clobbers $v0 so b210 kills ret2's $v0 copy
+   (nd 22, all 22 words in this loop + the store). Tried 4 decl orders (only
+   ret2-first gives the right saved map), s16/u32 index casts, pointer locals. */
 // FUN_0033F690
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033f690);
 
@@ -248,25 +257,44 @@ void func_00347940(u8 *arg0) {
     }
 }
 
-/* measured: retail hoists the D_00887300 render-vtable base into saved $16
-   (lui/addiu once, then lw $2,0($16) per call, frame 0x30 with sq $16/$17); mwcc b210
-   folds both the direct array spelling and a cached local back to per-call
-   lui/lw (frame 0x20, one saved reg) — measured nd vs the 0x30 frame layout.
-   D_00887300 vtable-base hoisting floor (confirmed by sibling wave). */
 // FUN_00347B30
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00347b30);
+void func_00347b30(u8 *arg0, u8 *arg1) {
+    u32 base = (u32)D_00887300;
 
-/* measured: MAC block (`obj->0x10 = obj->0x134 - 64.0f * obj->0x1A0` and 7 siblings)
-   compiles byte-exact (adda.s $f2,$f0 / msub|madd.s $f0,$f3,$f1, zero hoisted once) —
-   the b210 FMA chain is fully source-driven. The GS doubled-alpha conversion
-   (lbu + bltz + srl/andi/or + cvt.s.w + add.s x+x per byte site) is a real CFG
-   floor: u8/s32/u32 locals, both if/else orders, inline-vs-local stores, x+x vs
-   *2.0f, ternary, and per-site fresh locals ALL emit a 3-way CFG (double bltz +
-   dead sra+srl doubling copies, obj 1388B vs 1216B window, nd 312); only an s8
-   load (lb) gives retail's single-branch clean CFG (obj 1124B, nd 265) but is
-   1 byte off retail's lbu per site (6 sites) plus the 0x4F000000 guard on the
-   0x19B store is deleted (nd 265, best of 4). Same family as cmmScript
-   func_0024f160 / mdlManager doubled-alpha conv-CFG floors. */
+    ((void (*)(s32, s32))*(u32 *)base)(6, 1);
+    ((void (*)(s32, s32))*(u32 *)base)(7, 2);
+    ((void (*)(s32, s32))*(u32 *)base)(8, 1);
+    ((void (*)(s32, s32))*(u32 *)base)(9, 2);
+    ((void (*)(s32, s32))*(u32 *)base)(0xC, 1);
+    ((void (*)(s32, s32))*(u32 *)base)(2, 3);
+    ((void (*)(s32, s32))*(u32 *)base)(0xB, 6);
+    ((void (*)(s32, s32))*(u32 *)base)(0xA, 5);
+    func_003f6440(2, 0x48);
+    func_003f6440(3, 0x71801);
+    *(s32 *)(arg1 + 0x20) = 0;
+    *(s32 *)(arg1 + 0x24) = 0;
+    *(u32 *)(arg1 + 0x60) = 0x3F800000;
+    *(s32 *)(arg1 + 0x64) = 0;
+    *(s32 *)(arg1 + 0xA0) = 0;
+    *(u32 *)(arg1 + 0xA4) = 0x3F800000;
+    *(u32 *)(arg1 + 0xE0) = 0x3F800000;
+    *(u32 *)(arg1 + 0xE4) = 0x3F800000;
+    ((void (*)(s32, s32))*(u32 *)base)(1, *func_00331620());
+}
+
+/* measured: re-tested with recipe A (4-part bltz shape: s32 v = *(u8*)load, u32 c = v,
+   (f32)(s32)((c>>1)|(c&1)), x+x doubling) + recipe B (D_008872F8 base): the single
+   bare bltz guard, srl/andi/or, cvt.s.w and add.s x+x per site ALL now reproduce
+   retail byte-for-byte (nd 312 -> 263, obj 1216B = window). Two residuals remain:
+   (1) the or/mtc1 chain at each of the 6 conversion sites keeps its result in $v1
+   (or $v1,$a0,$v1) where retail coalesces into $a0 (or $a0,$a0,$v1) — tried both
+   if/else orders, j=(u32)i loop copies, per-site fresh locals, decl reorders: the
+   or-result register never moves; (2) mwcc b210 places the loop-invariant
+   `lui %hi(D_008872F8)` INSIDE the loop body (direct array spelling) or emits
+   lui+addiu at entry (pointer local) — retail hoists a lui-ONLY base into $v0 at
+   entry with %lo folded into the lwc1; no spelling reproduces the 1-word hoist.
+   Recipe A cracked the doubled-alpha CFG; the or-register coloring + lui hoist
+   remain compiler floors (same family as func_0024f160 / mdlManager conv-CFG). */
 // FUN_00347C70
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00347c70);
 // FUN_00348130

@@ -10,6 +10,11 @@ typedef struct {
     u8 b3;
 } FclByte4;
 
+typedef struct {
+    f32 x;
+    f32 y;
+} FclVec2f;
+
 extern u16 *func_001102e0(void);
 extern s32 func_00106330(s32);
 extern void func_00145080(void);
@@ -191,7 +196,11 @@ extern u8 D_00640790[];
 extern u8 D_0064079C[];
 extern u8 D_006407A8[];
 extern u8 D_006407C0[];
-extern u8 D_006407F0[];
+extern u16 func_001102d0(void);
+extern u16 func_00109470(u16);
+extern void func_00110270(u8 *, u16);
+extern void func_001102c0(s16);
+extern u8 D_00749350[];
 
 
 
@@ -229,30 +238,53 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
    and orders addiu $a0,sp first; retail materializes lui/addiu once before
    the stack arg (tried array reads, f32 locals, f32 *q, u32 base — all
    4 words off). addu-operand-order + base-rematerialization floor. */
+/* measured: re-tested with the global-base-hoist recipe (wave B): a struct
+   pointer local FclVec2f *base = (FclVec2f *)D_00641660 with base->x/base->y
+   DOES reproduce retail's single lui/addiu base + two lwc1s and the
+   base-before-stack-arg order (nd 31 -> 27; f32[] pointer local does NOT,
+   mwcc remats lui and folds %lo). Remaining 27 words: every entry-store
+   address adds addu $v1,$s0,$v1 (base-first) where retail has addu
+   $v1,$v1,$s0 (scaled-first); all source orders (inline idx, idx-term-first,
+   s32-local, constant-on-scaled) compile base-first. addu-operand-order
+   floor, mwcc re-associates the +0xC4 onto the base term. */
 // FUN_002ECFC0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ecfc0);
 
-/* measured: rule-1 applied via b210 probes — all 4 ldr/ldl pairs at
-   0x38/0x3F (0-mod-8); b210 emits plain ld, never the pair, at 0-mod-8
-   displacements (20+ probe spellings; ldr/ldl only for 4-mod-8). The
-   s64-at-0x38 read compiles 1 word short per site. Unreproducible. */
+/* measured (re-tested wave C): the old floor note was STALE — b210 DOES
+   emit the pair at a 0-mod-8 displacement when the value is an 8-byte
+   struct passed BY VALUE. Probe-verified with the real toolchain:
+   take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) compiles
+   ldr $a1,0x38 / ldl $a1,0x3F then ld $a2,(sp) — byte-identical to
+   retail's sequence at all 4 sites (func_002b69f0 arg2; the s64 spelling
+   gives plain ld, which is what the old note's 20+ probes found — they
+   never tried the struct form). Full body still INCLUDE_ASM: the 1000-line
+   m2c draft needs the 4 M2C_ERROR ldr sites replaced with struct-by-value
+   args, ~15 phantom &jtbl_00749110 second-args dropped, 10 gp-relative
+   saved_reg_gp loads verified per site against retail, and ~30 stack
+   locals landed on retail's frame layout; no full-body nd has ever been
+   measured for this function. */
 // FUN_002ED430
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
 
-/* measured: rule-1 applied via b210 probes — this function's 4 ldr/ldl pairs
-   are all at 0x38/0x3F (0x38 mod 8 == 0). Probe-verified this wave: b210
-   emits plain ld for ANY 0-mod-8 64-bit read (u8/u32/s64 structs, packed,
-   cast, computed-pointer and call-result spellings, 20+ probes) and emits
-   ldr/ldl ONLY for 4-mod-8 displacements (0x3C -> ldr 0x3c/ldl 0x43).
-   Retail's ldr/ldl at 0-mod-8 displacement is a retail-compiler behavior
-   b210 cannot reproduce; writing the s64 read makes the object 4 words
-   shorter and shifts the tail. Rule 1 does not apply to these sites. */
+/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
+   the pair at 0-mod-8 displacements when the value is an 8-byte struct passed
+   BY VALUE (mechanism 1): take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0)
+   compiles ldr $a1,0x38 / ldl $a1,0x3F, byte-identical to retail's 6 pairs
+   here (0x28/0x2F + 0x38/0x3F, all 8-aligned, feeding func_002b69f0-style
+   calls; the s64 spelling gives plain ld — the old note's 20+ probes never
+   tried the struct form). Full body still INCLUDE_ASM: ~6200-line asm state
+   machine; the m2c draft needs its M2C_ERROR ldr sites replaced with
+   struct-by-value args plus the usual m2c-noise cleanup; no full-body nd
+   measured. */
 // FUN_002F0F00
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
 
-/* measured: rule-1 applied via b210 probes — same as func_002f0f00: all
-   4 ldr/ldl pairs at 0x38/0x3F (0-mod-8); b210 emits ld, never the pair,
-   for 0-mod-8 displacements (20+ probe spellings). Unreproducible. */
+/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
+   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
+   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
+   ldl $a1,0x3F, byte-identical to retail's 4 pairs here, all 8-aligned at
+   0x38/0x3F; plain s64 gives ld). Full body still INCLUDE_ASM: ~3100-line
+   asm; no full-body nd measured. */
 // FUN_002F6CF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f6cf0);
 
@@ -288,18 +320,22 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
     *(func_002e4870(arg8) + arg9 + 0x2E4) = v;
 }
 
-/* measured: rule-1 applied via b210 probes — all 4 ldr/ldl pairs at
-   0x38/0x3F (0-mod-8). b210 emits plain ld for 0-mod-8 64-bit reads in
-   every spelling (20+ probes); ldr/ldl only appear for 4-mod-8
-   displacements. Retail's pair here is unreproducible; the s64-at-0x38
-   read compiles 1 word short per site. */
+/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
+   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
+   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
+   ldl $a1,0x3F, byte-identical to retail's 4 pairs here, all 8-aligned at
+   0x38/0x3F; plain s64 gives ld). Full body still INCLUDE_ASM: ~2200-line
+   asm; no full-body nd measured. */
 // FUN_002F9D90
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9d90);
 
-/* measured: rule-1 applied via b210 probes — all 8 ldr/ldl pairs at
-   0x38/0x3F (0-mod-8); b210 emits ld, never the pair, at 0-mod-8
-   displacements (20+ probe spellings). Retail's pairs unreproducible
-   (also carries adda.s/madd.s FPU-MAC chains). */
+/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
+   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
+   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
+   ldl $a1,0x3F, byte-identical to retail's 8 pairs here, all 8-aligned at
+   0x38/0x3F; plain s64 gives ld). Full body still INCLUDE_ASM: ~6800-line
+   asm state machine (also carries adda.s/madd.s FPU-MAC chains); no
+   full-body nd measured. */
 // FUN_002FBEA0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002fbea0);
 
@@ -342,10 +378,12 @@ s32 func_003026c0(s32 arg0, s32 arg1)
     return arg1;
 }
 
-/* measured: rule-1 applied via b210 probes — all 4 ldr/ldl pairs at
-   0x38/0x3F (0-mod-8) loading func_002b6150()+0x38 into func_002b69f0
-   args. b210 emits plain ld for 0-mod-8 64-bit reads in every spelling
-   (20+ probes); ldr/ldl only for 4-mod-8 displacements. Unreproducible. */
+/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
+   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
+   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
+   ldl $a1,0x3F, byte-identical to retail's 4 pairs here at 0x38/0x3F feeding
+   func_002b69f0; plain s64 gives ld). Full body still INCLUDE_ASM: ~950-line
+   asm state machine; no full-body nd measured. */
 // FUN_00302770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
 
@@ -406,15 +444,21 @@ void func_00303a20(u8 *arg0) {
     func_00303610(arg0, p[0x1A], buf);
 }
 
-/* measured: retail hoists the const 0x64 into loop2's preheader and keeps
-   the (s16) rand-result r raw across loop3's slt; mwcc b210 rematerializes
-   the 0x64 inside both loop bodies (opt_loop_invariants on makes no
-   difference, nd 127), re-extends the s16 r per iteration (declaring r
-   s32 drops 16 bytes from the object and shifts the tail), and rotates
-   saved registers (mine p=$s2,total=$s0,n=$s4,base1=$s1 vs retail
-   p=$s4,total=$s2,n=$s1,base1=$s3). Twin if/else loops, tables at
-   0x70/0x88, divu-in-delay-slot all verified identical. Const hoist +
-   saved-register rotation floor. */
+/* measured (re-tested wave B): the global-base-hoist recipe WORKS here —
+   s8 *baseA = (s8 *)D_0063FCA0 + p[0x2D4]*0x1C and s8 *baseB = (s8 *)
+   D_006406F0 + (s8)func_00110a60(...)*0x14 reproduce retail's single
+   lui/addiu base registers. Best nd 132 (obj 732B vs window 752B):
+   for-loops give retail's pre-jump + bottom-condition shape; inline
+   (s16)var_x casts in BOTH condition and body give retail's double
+   dsll32/dsra32 per iteration (a body s32 temp gets CSE'd into one ext);
+   #pragma opt_loop_invariants on DOES hoist the 0x64 consts into both
+   preheaders (nd 147 -> 132; the earlier note's "makes no difference"
+   applied to a different source shape). Residual: saved-register rotation
+   (p=$s0,n=$s2,total=$s1,baseA=$s4 vs retail p=$s4,n=$s1,total=$s2,
+   baseA=$s3, all decl orders probed) + the else-branch table store folds
+   addiu $x,0x70 into sw where retail keeps the addiu (stack-table fold
+   family); the earlier note's 0x64-remat/r-re-ext claims are both
+   source-drivable after all. */
 // FUN_00303DE0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303de0);
 
@@ -463,10 +507,14 @@ s32 func_003042f0(s32 arg0, s32 arg1)
    rotation + scheduling floor. */
 // FUN_00304410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304410);
-/* measured: rule-1 applied via b210 probes — 5 ldr/ldl pairs: 1 at
-   0x28/0x2F + 4 at 0x38/0x3F, all 0-mod-8. b210 emits plain ld at
-   0-mod-8 64-bit reads in every spelling (20+ probes); ldr/ldl only
-   for 4-mod-8 displacements. Unreproducible. */
+/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
+   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
+   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
+   ldl $a1,0x3F, byte-identical to retail's 0x38/0x3F pairs here; plain s64
+   gives ld). The lone 0x28/0x2F pair feeds func_002b83e0 along with lwr
+   0x75/lwl 0x78 32-bit unaligned loads (odd displacement — the 32-bit
+   lwr/lwl mechanism, separate from recipe C). Full body still INCLUDE_ASM:
+   ~4700-line asm; no full-body nd measured. */
 // FUN_00304580
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304580);
 
@@ -507,6 +555,23 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308e50);
    sequence sll/addu(sp)/addiu(0x48) vs mwcc's sll/addiu/addu with swapped
    $v0/$v1 coloring — probed array, pointer, named-temp, separate-locals,
    byte-offset forms and schedule/opt_* pragmas; best nd 4 (scheduling). */
+/* measured (wave C retest): full body adapted from the m2c draft — best
+   nd 182, obj 1712B == window, every residual row is a saved-register
+   swap except one: b210 drops the andi 0xF on the (s8)((x >> 0xC) & 0xF)
+   nibble extract (sra 12; dsll32/dsra32, no mask; the other three nibbles
+   keep theirs; two-statement and use-site-cast spellings both drop it —
+   recorded as a fold floor). Key spellings that DID land: func_00109470
+   declared u16-returning so b210 emits the andi 0xFFFF result mask before
+   the user's bit-test andi (s32 return folds the chain to one andi); u16
+   parameter so the var_20 & 0xFFFF arg mask lands at each call site (an
+   explicit & 0xFFFF arg gets CSE-hoisted into a saved register and grows
+   the frame to 0x80); (u8) store slots kill the (s8) sign-extension pair
+   after the 2b2cb0 andi. Residual rotation: mine temp_17=$s3,temp_16=$s2,
+   temp_19=$s0,var_18=$s4,var_20=$s1 vs retail temp_17=$s1,temp_16=$s0,
+   temp_19=$s3,var_18=$s2,var_20=$s4 — declaration orders probed, no
+   change. The earlier "best nd 4" note was wrong or belonged to another
+   source shape; the previous agent's note was inaccurate about the 0x48
+   stack table (none exists in this function). */
 // FUN_00308F40
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308f40);
 
@@ -609,6 +674,19 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
    n>i vs i<n, if/else vs ternary, opt_loop_invariants — all nd 64-68,
    obj 352-360B vs window 352B. Saved-register rotation + loop-invariant
    CSE floor. */
+/* measured: re-tested (wave B recipe; no global-address base exists in this
+   function, so the recipe does not apply). New best nd 47 (was 64): the
+   loop temps must be s32 not s64 — (s16)var_20 cast in the condition keeps
+   the per-iteration dsll32/dsra32 pair and s32 index math kills the
+   dsll/dsll32/dsra32 truncation junk (daddiu->addiu, 0x18->0x10 exts).
+   Residual: (1) loop shape — mwcc b210 hoists the first-iteration counter
+   extension before the loop and keeps the test at the top (ext;ext;beqz;
+   body; inc-ext; b-back = TWO exts/iteration), retail pre-jumps (b+nop)
+   to a bottom condition with ONE ext/iteration; do-while spellings emit
+   the pre-ext instead of the pre-jump. (2) saved-register rotation
+   p=$s2,id=$s4/$s1,n=$s0,count=$s3 vs retail p=$s0,id=$s3/$s2,n=$s1,
+   count=$s4 — every declaration order gives the same map. Saved-register
+   rotation + loop-shape floor. */
 // FUN_0030F4F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
 

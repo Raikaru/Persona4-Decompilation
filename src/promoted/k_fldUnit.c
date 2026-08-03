@@ -11,6 +11,7 @@ extern s32 iGpffffb260;
 extern s32 iGpffffb4e4;
 extern s32 iGpffffb274;
 extern s32 D_00764344;
+extern s32 D_00724504;
 extern u8 *iGpffff9db0;
 extern u8 iGpffff9f28;
 extern u8 iGpffff9f29;
@@ -22,7 +23,7 @@ extern void func_002319c0(s32 arg0);
 extern s32 func_0047ae90(s32 arg0, s32 arg1);
 extern s32 func_004553c0(s32 arg0);
 extern void func_00454bd0(s32 arg0);
-extern void func_0043f810(void *arg0, void *arg1, void *arg2);
+extern void func_0043f810(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_001619b0(u16 arg0, u16 arg1, u16 arg2);
 extern s32 func_00161a70(u16 arg0, u16 arg1, u16 arg2);
 extern void func_00182310(s32 arg0);
@@ -33,7 +34,7 @@ extern void func_00442088(void *dst, const void *fmt, s32 value);
 extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 func_003b7060(void);
 extern u8 *func_00145270(s32 arg0);
-extern s32 func_00145540(s32 arg0, s64 arg1, u8 *arg2);
+extern s32 func_00145540(s32 arg0, u8 arg1, u8 *arg2);
 extern void func_00479940(u8 *arg0, s32 arg1, s16 arg2, s32 arg3, s32 arg4);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
 extern s32 func_0014c780(void);
@@ -72,7 +73,7 @@ extern s32 func_00105ee0(s32 arg0);
 extern s32 func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
 extern u16 func_00145780(u16 arg0, s32 arg1, s32 arg2);
-extern void func_0047a1a0(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void func_0047a1a0(u8 *arg0, void *arg1, s32 arg2, f32 arg3);
 extern void func_0047a180(void *arg0, f32 *arg1, s32 arg2);
 extern s32 func_0018bb20(s32 arg0, void *arg1);
 
@@ -93,7 +94,8 @@ extern u8 D_00756510[];
 extern u8 D_005F1530[];
 extern u8 D_005F1550[];
 extern u8 D_005F1570[];
-extern s32 D_007E8BE8;
+extern s32 D_007E8BE8[];
+extern s32 D_00764364;
 extern u8 D_007EF9F8[];
 extern u8 D_007F16F0[];
 extern u8 D_007EFA00[];
@@ -160,6 +162,10 @@ u8 *func_001452b0(s32 arg0);
 void func_0046d730(u8 *arg0, s32 arg1);
 void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2);
+extern s64 func_001060b0(void);
+extern s32 func_001064f0(s32 arg0);
+extern s32 func_00110d60(s16 arg0);
+extern s32 D_007E8BF8[];
 void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 s32 func_00161b10(u16 arg0, u16 arg1, u16 arg2);
 s32 func_0015a320(void);
@@ -185,15 +191,19 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162e10);
 
 
 
-/* measured: nd 123 after four attempts. (1) Retail CSEs the slot count
-   (lhu off 0x48+2) once but re-issues the 0x48 pointer load inside the
-   average loop; mwcc b210 hoists that identical load out of the loop and
-   keeps it in $a1 — tried u8-star-star/u32/u16-star-star load spellings,
-   q-local, for/while forms, comparison order, all nd >= 122. (2) Retail's func_00231630 call
-   reuses the loop-hoisted 0x750 in $5; mwcc rematerializes addiu $a1,0x750 at
-   the call site even when 0x750 is a shared local. opt_loop_invariants on
-   fixes the search-loop hoist (that part matches). CSE-of-loop-test-load
-   floor + constant-materialization floor. */
+/* measured: nd 130 after four retries (recipe B + preheader reordering).
+   (1) Retail materialises 0x750 into $a1 ONCE in the search-loop preheader
+   (order: slot=NULL, i=0, step, base) and reuses it as func_00231630's arg1;
+   mwcc b210 always sinks the constant to the loop-entry block in $v0 and
+   rematerialises addiu $a1,0x750 at the call, shifting the whole tail by one
+   word — tried shared s32 local (with/without opt_loop_invariants, for/while,
+   every pre-loop placement) and inline literal; base hoists to $a0 correctly
+   either way (recipe B works for D_007E8C00). (2) The average loop: retail
+   re-issues lw 0x48(slot) per iteration (cnt in $a1); mwcc CSEs it out of the
+   loop (cnt in $a0) — all load spellings nd >= 122. (3) D_00724504's load
+   lands before the t21*0x18 scaling in mwcc, after it in retail, both operand
+   orders tried. Constant-materialization + CSE-of-loop-test-load floors.
+   Note this is the recipe-B retest: the base hoist itself is NOT the blocker. */
 // FUN_00163990
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163990);
 
@@ -451,6 +461,19 @@ s32 func_00165300(void)
 
 
 
+/* measured: nd 148 after four attempts. Locked in: frame 0x60 with saved
+   $16/$17/$18/$19, u8 var_5 gives the daddiu $5,0,3, and func_00145540's
+   true prototype (s32, u8, u8*) — the s64 arg1 in the old extern shifts
+   every arg (retail passes arg1 in $5, arg2 in $6; the u8 param kills the
+   andi re-mask mwcc emits for u8->s32 promotion). Field-pointer locals
+   (f1ca/f50/f54 = slot+offset) reproduce the $18/$19 re-pointing. The
+   blocker: mwccgap GVNs the D_007E8C00 + var_17*0x750 address into ONE
+   saved register held across the whole body (folded 0x50($s0)-style
+   offsets, no per-section mult+lui+addu), where retail re-materializes it
+   FOUR times (sections B/C, the 1CB read, func_00167420) — tried inline
+   expressions, separate locals, slot += 0x54 reassignment, expression-form
+   swaps; every spelling merges (~14 words short). Copy-loop load/store
+   batching order also differs (interleaved in retail). */
 // FUN_00165380
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165380);
 
@@ -533,6 +556,19 @@ void func_00165840(s32 arg0)
 
 
 
+/* measured: nd 63 after four attempts; only registers differ from here on.
+   (1) var_16 lands in $s2 and var_18 in $s0 where retail has $s0/$s2 — the
+   allocator's internal order is fixed ($s4=var_20, $s3=var_19, $s2=var_16,
+   $s1=var_17, $s0=var_18) under every declaration permutation tried, so the
+   whole body shows the 2-way swap (saved-register-rotation floor). (2) The
+   var_16*4 scale is GVN'd into ONE saved register ($s5) feeding both the
+   D_007643C8 slot pointer and the D_007643C0 store; retail computes it twice
+   (temp sll for the slot pointer + hoisted sll $s6 for the C0 store) — 1
+   word; explicit temp_22 = var_16*4 local still GVN's with the pointer
+   scale. Everything else matches byte-for-byte: absolute lui addressing via
+   array declarations for D_007E8BE8/D_007E8BF8, daddiu 0x80A/0x120A via the
+   u16 var_18_2, dsll32/dsra32 via (s16) of the s64 func_001060b0 result,
+   andi-then-bgez ordering, temp_21 in $s5/$s6 slot pair. */
 // FUN_001658B0
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001658b0);
 
@@ -556,15 +592,19 @@ void func_00165b00(void)
 
 
 
-/* measured: nd ~140 after many attempts. (1) Retail keeps var_17 in $s1 and
-   temp_18/temp_2 in $s2; mwcc b210 assigns them swapped in every spelling
-   tried (8 declaration orders, s32/u32 var_17, u16/s32 temp_18, single
-   merged variable) — saved-register-rotation floor. (2) The D_007E8BE0 scan
-   loop: opt_loop_invariants fixes the base hoist, but retail emits
-   addiu $v1,$a1,8 + lw/sw 0($v1) while mwcc folds the +8 into the load and
-   allocates $a2/$a1/$v1 vs retail's $a3/$a2/$a0 — 1 word + register shift.
-   Everything else (while-assignment loops, mfhi modulo, sp60[3], pragma
-   hoist) matches. */
+/* measured: nd 133 after four retries (recipe B retest). The D_007E8BE0
+   scan loop is now byte-identical in shape (base hoist + addiu $v1,$a1,8 +
+   sw 0($v1) reproduced via `*((s32 *)p + 2)` element addressing — the +8
+   materializes instead of folding); the ONLY scan-loop residual is retail
+   hoisting the ==1 compare constant into the preheader (register cascade:
+   retail a3/a2/a1/a0, mwcc b210 a2/a1/a0/$v0-with-const-in-body) — every
+   spelling (named local, literal, pragma on/off) sinks the constant to its
+   use inside the body; constant-materialization floor. (2) The big loop
+   keeps var_17_2 in $s2 / temp_18+temp_2 in $s1 where retail has them
+   swapped — declaration orders, limit local, merged variable, all nd >= 130.
+   (3) temp_19_2's address is materialized after the NULL check in retail,
+   before it in mwcc. Saved-register + constant-materialization floors;
+   recipe B itself (typed base pointer) works for the base hoist. */
 // FUN_00165BE0
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
 
@@ -986,6 +1026,20 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00166e30);
 
 
 
+/* measured: nd 164 after four attempts. The u8 sp buffer must be ONE array
+   (separate u8 locals get dead-store-eliminated — only the address-taken
+   byte aliases; cascades into the sp[9]/sp[10] conversions). The saturation
+   idiom from gc_model.c (if (x < 2.1474836e9f) {(u8)(s32)x} else {(u8)(s32)
+   (x - 2.1474836e9f)}) reproduces the cvt.w.s guard for VARIABLE values
+   (blocks 2/3), but: (1) block 1's 255.0f constant still folds the whole
+   compare+guard away under mwccgap (real b210 emitted c.ole.s/bc1t for it;
+   tried literal, single- and multi-assigned f32 locals — all fold); (2) the
+   guard comes out c.olt.s+bc1f with the normal arm inline where retail has
+   c.ole.s $f0,$f1 + bc1t with the saturate arm out of line — 2 words per
+   block; (3) temp_4_2 lands in $s2 (frame 0x60) where retail keeps it in a
+   caller-saved temp (frame 0x50). Everything else (FMA adda.s/madd.s
+   198+57*f20, mul.s 100*f20, the f20 spill at 0x0, byte copies, node loops,
+   func_0047a220 tail) matches. */
 // FUN_00167120
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167120);
 

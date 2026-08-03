@@ -67,9 +67,9 @@ extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
 extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 arg5, s32 arg6, u8 arg7);
 extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 func_00106330(s32 arg0);
-extern u32 func_00109980(u16 arg0, s32 arg1);
+extern s32 func_00109980(s32 arg0, s32 arg1);
 extern s64 func_00233570(u8 *arg0, s32 arg1, s64 arg2);
-extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_00244f60(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
 extern u16 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(u16 arg0);
@@ -77,6 +77,11 @@ extern u16 func_00107ac0(u16 arg0);
 extern u8 *func_0023e140(u8 *arg0);
 
 extern u8 *iGpffffb3b4;
+
+extern u8 *iGpffffb408;
+extern f32 iGpffff8110;
+
+extern s32 func_0010a9b0(s32 arg0);
 
 extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb448;
@@ -354,6 +359,19 @@ s32 func_00232aa0(s32 arg0)
    into $a0 BEFORE the *0x3C mul chain and masks the index last; mwcc
    b210 sinks the lw after the mul (index-first, base-first, base-local
    spellings all tried). */
+/* measured: recipe-A re-test 2026-08-03. The bltz guard works unchanged
+   (`(s32)((u32)arg1 & 0xFFFF)` keeps the single bare bltz; offsets 28-44
+   byte-match). New finding: the table index needs TWO separate andi's in
+   retail (one before the >=0x150/>=0xB error tests, one before the *0x3C
+   mul chain); spelling the tests `(u16)temp_16` and the mul
+   `(temp_16 & 0xFFFF)` defeats mwcc's mask CSE (a bare double `& 0xFFFF`
+   collapses to one in-place `andi $s0`). Also fixed the wrong extern:
+   func_00109980 is `s32 (s32, s32)` per datPersona.c (u16 param forced a
+   bogus pre-call andi). Tail fully matches (daddiu 1/0x63, slti-$at form).
+   Residual, best nd 9: the table-index load-sinking floor -- retail lw's
+   the iGpffffb3c4 base into $a0 BEFORE the *0x3C mul chain and adds arg1's
+   mask last; mwcc b210 sinks the lw after the mul (index-first, base-first,
+   base-local, draft-tree spellings all tried). */
 // FUN_00232B40
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 
@@ -369,18 +387,23 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 // FUN_00232C70
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 
-/* measured: loop-register rotation floor; retail keeps the compare constant
-   (0x1F9..0x1FE) hoisted pre-loop in $a0 with limit in $a1 and counter in
-   $a2 while mwcc puts the counter in $v1, limit in $a2 and re-materializes
-   the constant inside the body (nd 8, all 6 blocks). opt_loop_invariants on
-   hoists the constant but rotates the registers worse (nd 80). The goto/else
-   tail shape (0-def after the calls, bltz guard, sltu-free compares) all
-   match; tried while(1)-break and natural-while forms. */
+/* measured: recipe-A-family re-test 2026-08-03. The u16-table shape now
+   matches retail byte-for-byte outside the loop preheader (u16 loads, the
+   2-arg func_00106cd0 call, dsll32/dsra32 (s16) arg, goto-done tail with
+   the 0-def after the calls and the bltz guard). Residual is the
+   loop-register rotation floor: retail hoists the compare constant
+   (0x1F9..0x1FE) pre-loop in $a0 with limit in $a1 and counter in $a2;
+   mwcc b210 always puts the counter in $v1, limit in $a2 and
+   rematerializes the constant in the body. Measured: natural-while nd ~90,
+   opt_loop_invariants on nd 80 (hoists the constant but keeps counter
+   $v1/limit $a2/constant $a1), named constant locals nd 92 (assignment
+   sunk into the body), while(1)-break draft shape nd 302. The matched
+   twins func_00232730/func_00242360 allocate their 2-value loops to
+   $a1/$a0, so a third loop value shifts mwcc's pool to $v1/$a2/$a1; no
+   declaration order fixes it. */
 // FUN_00232D80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
 
-/* measured: merge-point s8 re-sign-extension lands in $v1 (retail $v0);
-   tried declaration orders, t4 form, and `v > 7` slti-$at form, nd 6. */
 // FUN_002332A0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002332a0);
 
@@ -522,9 +545,29 @@ void func_002339d0(u8 *arg0)
 // FUN_00233A90
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233a90);
 
+/* measured: recipe A applied across all 6 case bodies -- s32 temp_3 from
+   the raw lbu keeps the single bltz, the (u32) cast makes the shift srl,
+   `(f32)(s32)` on the OR result kills the duplicated-arm guard, doubling
+   is `var_f1 = var_f1 + var_f1` (add.s, not mul.s), and the per-case
+   mtc1/cvt.s.w/div.s/2.5f/0.75f/iGpffff8110 sequences compile in retail
+   shape. Also measured: arg1 must be s32 (an s16 param emits a spurious
+   dsll32/dsra32 at the save), and the second 0x4F5 error test needs
+   `temp_16 > 1` (not >= 2) for the slti-$at+bnez form. Best nd 290; the
+   residuals are five independent register/scheduling artifacts: the
+   call-path `(s64)(s32)func_002332a0(...)` emits an extra dsll32/dsra32-
+   by-24 pair where retail extends only at the merge (var_2 s64; a s32
+   var_2 rotates the saved registers and drops the call), the merge pair
+   splits as dsll32 $v0/dsra32 $s0 instead of retail's dsll32 $s0, the
+   else-path mask chain rotates (sllv/and dest), `(temp_2 != 0) & 0xFFFF`
+   folds the assignment andi, and the doubled-path OR lands in $v1 vs
+   retail $a0. */
 // FUN_00233BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233bc0);
 
+/* measured: nd 805 with a full C body, object 1880B against a 1904B window.
+   Wave 7 ran out of turns here and left it uncommitted, so this is a partial
+   adaptation rather than a floor: re-attempt from the m2c draft with the
+   wave's recipes before treating any of it as settled. */
 // FUN_002340C0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002340c0);
 
@@ -1310,13 +1353,22 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 // FUN_002411A0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
 
+/* measured: 4 attempts, best nd 58. Nearly everything now matches: the
+   u32-typed flag1 gives retail's sltu booleanization, `(s32)(u16)arg2`
+   defeats the mask CSE (raw arg2 stays in $s2, temp_6 in $a2),
+   `(u32)temp_4 + temp_5` defeats the commutative cross-block CSE so the
+   &2 check re-adds $a0+$a1 as retail, the entry reads are one addu into
+   $v1, the 1 constant lands in $a3, and the return-1 tail (addiu $v1,1
+   before addiu $v0,1, sllv, 0xE0001 mask) matches. Residual: the three
+   path values each need ONE dsll32/dsra32-by-16 pair in retail (lbu+pair,
+   jal+pair, lb with the pair only at the merge). `(s16)` casts fold into
+   the merge's (s16) extension (no path pairs); the s64-shift spelling
+   `(s32)((s64)x << 0x30) >> 0x30` keeps the path pairs but adds a
+   dsll32/dsra32-by-0 truncation pair per path (6 extra words, nd 58). The
+   merge itself ((s16)var_2_2 into $s0) matches. */
 // FUN_00241BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
 
-/* measured: load-sinking floor; retail hoists the iGpffffb3b8 lw above the
-   *0x28 mul (base in $a0, mul in $v0) while mwcc sinks it after the mul
-   regardless of statement order (base-first/index-first/int+int all tried,
-   nd ~20). (u16) guard and off-local did fix the mask CSE and frame. */
 // FUN_00241DE0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
 
@@ -1585,7 +1637,64 @@ s32 func_00242800(u8 *arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242990);
 
 // FUN_00243650
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243650);
+u8 func_00243650(u8 *arg0, s32 arg1, s32 arg2)
+{
+    s32 temp_2;
+    s32 temp_3_2;
+    s32 temp_4;
+    s32 temp_5;
+    u32 temp_17;
+    u8 temp_16;
+    u8 temp_17_2;
+    u8 var_2;
+    u8 *temp_3;
+
+    if ((u16)arg1 >= 0x1B8) {
+        func_0046d730(D_00635938, 0x14C5);
+    }
+    temp_3 = iGpffffb3b8 + (arg1 & 0xFFFF) * 0x28;
+    if (*(u8 *)temp_3 & 2) {
+        temp_2 = (s32)(*(u16 *)arg0 & 4);
+        if (temp_2 == 0) {
+            if (temp_2 != 0) {
+                if (*(u16 *)(arg0 + 2) >= 0x150) {
+                    func_0046d730(D_00635938, 0xFE2);
+                }
+                temp_4 = *(u16 *)(arg0 + 2) * 0xE8;
+                temp_5 = (s32)iGpffffb3cc;
+                var_2 = *(u8 *)(temp_4 + temp_5 + 0x1A);
+            } else {
+                if (*(u16 *)(arg0 + 2) >= 0xB) {
+                    func_0046d730(D_00635938, 0xFE6);
+                }
+                if ((u16)arg2 & 6) {
+                    temp_4 = *(u16 *)(arg0 + 2) * 0x14C;
+                    temp_5 = (s32)iGpffffb3c0;
+                    var_2 = *(u8 *)(temp_4 + temp_5 + 0x18);
+                } else {
+                    var_2 = 1;
+                }
+            }
+            return var_2;
+        }
+        return 1;
+    }
+    temp_16 = *(u8 *)(temp_3 + 0xF);
+    temp_17_2 = *(u8 *)(temp_3 + 0x10);
+    if ((s32)temp_16 <= 0 || (temp_17_2 & 0xFF) <= 0) {
+        func_0046d730(D_00635938, 0x14D3);
+    }
+    temp_3_2 = temp_17_2 & 0xFF;
+    if ((s32)temp_16 >= temp_3_2) {
+        return temp_16;
+    }
+    temp_17 = (temp_3_2 - temp_16) + 1;
+    if (temp_17 == 0) {
+        func_0046d730(D_00635938, 0x17);
+    }
+    temp_2 = temp_16 & 0xFF;
+    return (u8)(temp_2 + func_003b7060() % temp_17);
+}
 
 // FUN_00243840
 u8 *func_00243840(s32 arg0)

@@ -80,6 +80,7 @@ extern s32 D_007645BC;
 extern s32 D_008815B0[];
 extern s32 func_0026e010();
 extern void func_00275a60();
+extern void func_00271860(void);
 extern s32 func_00270fb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                         s32 arg5);
 
@@ -178,21 +179,32 @@ extern u32 DAT_00881634_abs[];
 
 
 
-/* measured: retail hoists &jtbl_008873E8 into $22 AND &jtbl_008873EC into $s0
-   (failure path), keeps both across calls, and runs the slot-link loops with
-   the global addresses hoisted in $v0/$v1; mwcc b210 hoists only the E8 base
-   (via a void *(**) local, nd161->nd159) and rematerializes the EC base per
-   call plus rotates the loop counters ($t0->$a2) when the extra locals exist
-   (nd159). Tried direct calls (nd205), void* (nd161), fptr** locals (nd159).
-   Render-vtable hoist + register rotation floor. */
+/* measured: recipe B retest 2026-08-03. The func_002715c0 dual-assignment
+   tab pattern ((void *(**) )DAT_008873ec_abs; ((code)tab[0])...) AND the
+   wave's u32-cast form (u32 b = (u32)jtbl_008873E8;
+   ((void *(*)(u32,u32))*(u32 *)b)(...)) BOTH hoist the vtable bases (E8 in
+   $22, EC in $s0 in the failure block) - the old EC-rematerialization claim
+   is stale; both forms measure nd122 with identical objects. Loop bodies
+   also color exactly as retail ($a2/$a3/$t0, load-first order) once the
+   value load is a named temp. Residual nd122: (1) the slot-link loops'
+   D_0088152C/D_00881528 bases - retail hoists a bare lui with the lo16
+   folded into each lw; a u32* pointer local materializes lui+addiu (2 extra
+   words per base) and the direct-global spelling rematerializes lui+lw per
+   iteration, (2) mwcc hoists the D_0088152C value load to the inner-loop
+   preheader where retail re-issues lw per iteration, (3) post-loop link
+   statements rotate registers ($a0/$a1 vs $v0/$v1). opt_loop_invariants
+   over-hoists (loads leave the loop, nd125). Base-hoist shape + load-CSE
+   scheduling floor. */
 // FUN_00270FB0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
-/* measured: retail keeps the list head temp in $v1 and reuses $v0 for the
-   scratch address base + second load (lui $v0; lw $v1; lw $v0); mwcc b210
-   colors head into $a0 with the lui base in $v1 at all four store sites and
-   rotates the counter addiu through $a0 (nd11). Tried u32 locals, swapped
-   declaration order, pointer locals, counter-local form - allocation never
-   changes. Temp-register rotation floor. */
+/* measured: recipe B retest 2026-08-03 - still nd11. retail colors the list
+   head load pair lui $v0/lw $v1 and reuses $v0 for the tail load; mwcc b210
+   always colors lui $v1/lw $a0 with the tail in $v1, and rotates the count
+   addiu through $a0 (lui $v1;lw $v1;addiu $a0;lui $v1;sw $a0 vs retail's
+   $v0-only). Re-tried this wave: m2c draft order, named u8* head/tail, u32
+   head/tail, store-head-before-tail-load - allocation never changes (4
+   spellings, all nd11). Temp-register rotation floor, same family as the
+   D_0088152C lui-base hoist but no base hoist exists here to fix. */
 // FUN_00271310
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271310);
 
@@ -206,13 +218,19 @@ void func_00271380(s32 arg0, u8 *arg1)
 #pragma alias DAT_00881630_abs DAT_00881630
 #pragma alias DAT_008873ec_abs DAT_008873ec
 
-/* measured: retail's bit-count while loops emit an entry guard
-   (bnez $v1,check; b exit) with the check block after the body; mwcc b210
-   emits [b check] when the condition is a provable constant and
-   [beqz exit; b check] otherwise - nd85 across three loops. Tried do-while+
-   if, while-in-if, plain while, m2c empty-if form, u32 vars, with and without
-   opt_loop_invariants (which did fix the &D_00881630/D_008815B0 base hoists).
-   Loop pre-test branch-layout floor. */
+/* measured: recipe B retest 2026-08-03 - best nd88. Pointer locals
+   (FrFontSlot4 *slots / s32 *bb0) DO hoist the &D_00881630/D_008815B0 bases
+   with NO pragma (old note's pragma no longer needed; pragma + locals = same
+   88), and naming the scaled offset in an s32 local fixes the addu operand
+   order in both loops. Residual: the three bit-count loops' entry guard -
+   retail emits [bnez $v1,check; b exit] with the check after the body; mwcc
+   b210 emits [b check] when the condition is provable (loop A: 0x200) and
+   [beqz exit; b check] otherwise (loops B/C, also $v0/$v1 counter colors
+   swapped). The double andi on the loop-exit adjust ((var_2-1)&0xFF then
+   var_2&0xFF at the store) is CSEd by mwcc to one andi per loop. Tried this
+   wave: while-in-if, switch(cond){case 0/default}, m2c empty-if, u32 vars,
+   statement-order swaps - guard shape never changes. Loop pre-test
+   branch-layout + mask-CSE floor. */
 // FUN_002713B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
 
@@ -406,13 +424,17 @@ void func_00271860(void)
     D_007645A0 = 0;
 }
 
-/* measured: retail re-issues the var_19&0xFF mask three times (andi $18/$17/$v0
-   from $19), keeping the store pointer in $s1 across the jal; mwcc b210 CSEs
-   every spelling tried (var_19&0xFF, (u8)var_19, (u8)(var_19&0xFF), %256 - all
-   lower to the same AND IR node) down to 2 andis and rematerializes the store
-   pointer after the jal (best nd29, nd42 with shared temp_17). CSE-of-mask
-   floor; pointer-element indexing + (u8) truncation fixed the offset folding
-   but could not fix the mask re-issue. */
+/* measured: recipe B retest 2026-08-03 - nd66..71 across four spellings
+   (u8* arithmetic, named storep local, struct-element indexing with
+   &slots[temp_17], mixed u8/s32 mask locals). Root cause confirmed: retail
+   re-issues var_19&0xFF three times (andi $18/$17/$v0) so FOUR values live
+   across the jals (frame 0x50, 4 saved regs); mwcc b210 CSEs every spelling
+   (var_19&0xFF, (u8)var_19, (u8)(var_19&0xFF), %256, type-split u8/s32 - all
+   one AND node) down to 2 andis, dropping to 3 saved regs (frame 0x40) and
+   rematerializing the store address after jal func_00454bd0 - the recorded
+   nd29 was not reproducible this wave. Struct indexing additionally folds
+   0x1C into the base addiu where retail keeps it in the lw. CSE-of-mask
+   floor. */
 
 // FUN_00271A40
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271a40);
@@ -957,13 +979,17 @@ extern code D_00887300_abs[];
 
 
 
-/* measured: nd131 - the void *(**) tab local DOES hoist &D_00887300 into a
-   saved register (all 8 vtable calls match); retail then colors
-   var_16=$16/tab=$17/var_18=$18/arg1=$19/arg0=$20/var_19+arg1s8=$21/
-   temp_22=$22/temp_23=$23, mwcc b210 colors tab=$16/arg0=$17/var_16=$18/
-   var_18=$19/arg1=$21 no matter the declaration order. Everything else
-   matches byte-for-byte (switch chain, func_00275d80 arg set, s8 casts).
-   Saved-register rotation floor. */
+/* measured: recipe B retest 2026-08-03 - nd194..195 (recorded 131 not
+   reproducible this wave). Tried the wave's u32-cast vtable form
+   (u32 base = (u32)D_00887300; ((void (*)(s32,s32))*(u32 *)base)(...)) -
+   nd195, the void *(**) local - nd195, named prologue s8 local, m2c-draft
+   mirror, ternary arg1 test + s32 temp_23 - nd194. The hoist itself works in
+   all forms (8 vtable calls match); the residual is: mwcc hoists the
+   loop-invariant arg1-s8 test out of the inner loop where retail re-tests
+   per iteration, re-extends the s8 temp_23 at its use (lb + dsll32/dsra32
+   vs retail's single lb into $23), and saves 7 registers (frame 0x80) vs
+   retail's 8 (frame 0x90) - same saved-register rotation family as the
+   recorded note, plus an invariant-if hoist. */
 // FUN_00273170
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
 /* measured: retail's 4-case dispatch emits an extra scheduler nop before the

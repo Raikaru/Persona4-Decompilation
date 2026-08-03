@@ -71,7 +71,7 @@ extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 fparg0);
 extern void func_0045e6a0(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4,
                           s16 arg5, s16 arg6, s32 arg7, f32 fparg0, f32 fparg1,
                           f32 fparg2, f32 fparg3);
-extern void func_00252230(void *arg0, void *arg1, void *arg2, f32 fparg0);
+extern void func_00252230(Sp120 *arg0, Sp120 *arg1, Sp120 *arg2, f32 fparg0);
 extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern u8 *func_00251570(s32 arg0, s32 arg1);
@@ -322,29 +322,25 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
 
 
 
-/* measured: everything matches except the 8 doubled-alpha sites' register
-   allocation (nd 25): retail ORs the doubling value into the SRL's dest
-   ($a3) and CVTs straight into fa's f-register with a self-add, mwcc b210
-   ORs into the ANDI's dest ($v1) and CVTs into a temp then adds (per-site
-   2-4 words). Tried: named h, h |= form, separate shift local, textual
-   (f32)h + (f32)h duplicate (fails CSE in this dense context, nd 424),
-   2.0f * (f32)h (real lui+mtc1+mul.s), swapped operands (flips emit
-   order), s32/u32 h. The float channels' adda.s/madd.s and the s16
-   channels match byte-for-byte; the doubled-alpha idiom per the
-   k_sceneDraw-family recipe (s32 native var, >= 0 polarity, u32 shifts,
-   srl+andi+or). Saved/f-register rotation floor. */
+/* measured: recipe A (s32 load local + u32 copy + (f32)(s32) cast on the
+   OR result + x+x doubling) applied; best nd 49. Float channels and s16
+   channels match byte-for-byte ONLY when written through the named locals
+   (fa = a->f4; fb = b->f4; out->f4 = fa + t * (fb - fa)) - bare expression
+   form rotates the FP regs (nd 144). s16 sites need (f32) casts on both
+   operands (bare b-a does integer subu). Clamp needs cvt-arm-then order
+   (if (2147483648.0f <= r) { w = (u8)(s32)r; } else { w = sub-arm; }) to put
+   the cvt arm inline. Residual 49 = recorded $v1-coloring floor: (1) 8
+   doubling sites: mwcc emits or into the ANDI-dest $v1 + cvt through $f0
+   scratch + add.s $f2,$f0,$f0 where retail ors into the SRL-dest $a3/$a1 and
+   CVTs straight into fa's $f2 with self-add (24 words); (2) clamp: mwcc
+   keeps the byte value in $v1 where retail uses $a3/$a1 (mfc1/andi/or/join
+   all follow), and emits bc1f where retail emits bc1t (24 words). Tried
+   u8/s32 w, ternary, single-statement if, both arm orders, both compare
+   polarities (c.ole.s $f0,$f1 vs c.olt.s $f1,$f0 - constant-left wins). */
 // FUN_00252230
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252230);
 
 
-/* measured: retail keeps the arg2 copy in $2 ACROSS the func_00252230
-   call (mwcc interprocedural register analysis - the callee is in the
-   same TU and provably never writes $2); with func_00252230 as an asm
-   fallback mwcc spills arg2 to a saved reg (nd 197, plus the whole
-   register map shifts). Blocked on the func_00252230 floor above: the
-   color-blend function must be C in this TU first, and its doubled-alpha
-   register allocation is itself a recorded floor (nd 25). The m2c body
-   here is complete and correct; convert after func_00252230 matches. */
 // FUN_00252710
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
 
@@ -685,6 +681,9 @@ s32 func_00257820(s32 arg0, void *arg1) {
 // FUN_00257900
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257900);
 
+/* measured: nd 94 with a full C body, object 320B against a 336B window (wave 7
+   ran out of turns here and left it uncommitted). The body is undersized, so work
+   is missing rather than merely mis-scheduled; re-attempt from the m2c draft. */
 // FUN_0025B0F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b0f0);
 
@@ -700,10 +699,39 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b240);
  * direct). Loop and all other calls match byte-for-byte. Same floor as the
  * confirmed D_00887300 vtable calls. */
 // FUN_0025C100
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025c100);
+void func_0025c100(void) {
+    void (**fp)(void *);
+    u8 *p;
+    u8 *list;
+    s32 i;
 
-
-
+    p = (u8 *)func_00452560();
+    if (*(s32 *)p & 1) {
+        func_00189ec0();
+    }
+    list = *(u8 **)(p + 0x40);
+    i = 0;
+    while (*(s32 *)(list + i * 0x10 + 8) != 0) {
+        if (*(s32 *)(list + i * 0x10 + 0xC) == 0) {
+            func_00268bd0(*(s32 *)(list + i * 0x10 + 8), 0);
+        }
+        func_0047a0e0(*(u8 **)(list + i * 0x10 + 4), 0, *(f32 *)(list + i * 0x10));
+        i++;
+    }
+    fp = (void (**)(void *))DAT_008873ec_abs;
+    (*fp)(list);
+    if (*(u32 *)(p + 0x50) != 0) {
+        func_0046d730(&D_00635CF8, 0xC2F);
+    }
+    if (*(u8 **)(p + 0x58) != NULL) {
+        (*fp)(*(u8 **)(p + 0x58));
+    }
+    if (*(u32 *)(p + 0x54) != 0) {
+        func_003ef3a0(*(u32 *)(p + 0x54));
+    }
+    func_00454bd0(*(u32 *)(p + 0x34));
+    (*fp)(p);
+}
 // FUN_0025C230
 void func_0025c230(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p;

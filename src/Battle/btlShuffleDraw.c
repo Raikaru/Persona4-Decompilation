@@ -27,6 +27,8 @@ extern void func_003733d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00373590(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 
 typedef struct { f32 x, y, z; } ShuffleVec3;
+typedef struct { f32 x, y, z, w; } ShuffleVec4;
+typedef struct { s64 a; f32 b; } ShuffleVec2s;
 
 extern s32 func_00442088(char *buf, const char *fmt, ...);
 extern char D_0064EA80[];
@@ -91,6 +93,35 @@ extern void func_00375d50(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, 
 extern void func_00375dd0(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, f32 fparg1);
 extern void func_003760f0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 *arg4, f32 *arg5);
 extern void func_00376290(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern f32 func_0036de70(u8 *arg0);
+extern f32 func_0036deb0(u8 *arg0);
+extern void *func_003e0f80(void);
+extern void func_003e0c90(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void func_003e42a0(void *arg0, void *arg1, void *arg2);
+extern void func_003717e0(void *arg0, void *arg1);
+extern void func_003e0f40(void *arg0);
+extern void func_00364c50(void);
+extern void func_00364c70(void);
+extern f32 D_008872F8[];
+extern void (*D_00887300[])(u32, u32);
+extern void (*D_00887310[])(s32, void *, s32);
+extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
+extern s64 D_0064EA48[];
+extern f32 D_0064EA50[];
+extern s64 D_0064EA38[];
+extern f32 D_0064EA40[];
+extern f32 iGpffff840c;
+extern f32 iGpffff81e0;
+extern void *func_003e9700(s32 arg0);
+extern void func_003e0e20(u8 *arg0, void *arg1, s32 arg2);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 func_0036be00(void);
+extern void func_00410420(s32 arg0, s32 arg1, void *arg2, s32 arg3);
+extern void func_004106a0(s32 arg0);
+extern void func_00378280(s32 arg0, s32 arg1);
+extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern f32 func_0044b610(f32 fparg0);
+extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
 
 
 // FUN_00373E10
@@ -184,19 +215,20 @@ void func_003741f0(u8 *arg0) {
 }
 
 
-/* measured: retail allocates arg0=$s0, r=$s1, i=$s2, idx=$s3, p=$s4 in the three
-   case-0 allocation loops and case 1's check loop; mwcc b210 swaps idx into $s2
-   and i into $s3 with otherwise identical instructions (nd 95, obj 848B). All
-   real structure is solved and verified: the irregular switch nests case 1's
-   label INSIDE case 0's if (so the if-true path falls through and the if-false
-   path hits default's shared return 0), case 2's return 1 sits before default,
-   idx continues across the 9/3/3-iteration loops (2 counters i/j per m2c names),
-   and the D_008873F4/sp6C/0x102/0x109/0x10F/0x110 call pattern is exact.
-   Saved-register rotation floor. */
+/* measured: re-tested the old \"saved-register rotation\" floor note -- that part is
+   SOLVED: declaring i first reproduces retail's exact allocation arg0=$s0, temp=$s1,
+   i=$s2, r=$s3, p=$s4 (nd 147 -> 133) and the loop-1/3 pointer form
+   lui/ori/addu + sw($s4) with full-address pointer locals all match. The real
+   residuals are two scheduling floors: (1) argument-materialisation order before
+   BOTH the D_008873F4[0] and func_0043f810 calls -- retail materialises the sp6C
+   stack load (lw $a1 / lw $a2) before the constant/register args, mwcc b210 emits
+   the constants first (arg reorderings tried, nd stuck); (2) loop 2's pointer
+   hoist: retail computes arg0+idx*4+0x1F2AC into $18 BEFORE both calls, mwcc sinks
+   it to the store and folds 0x1F2AC as lui $v1,2 / sw -0xd54($v1) (load-sinking
+   floor; hoisting into a pointer local did not move it). 4 attempts: m2c decl
+   order nd 108, reordered nd 147, probe batch best 133, final 133. */
 // FUN_003742B0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003742b0);
-
-
 // FUN_00374610
 void func_00374610(u8 *arg0) {
     s32 i;
@@ -357,20 +389,30 @@ void func_00374cf0(u8 *arg0) {
 }
 
 
+/* measured: reconstructed to nd 121 (obj 0x6A4, window 0x6D0). Most of the body
+   is byte-exact: frame/slots, the two vec struct copies, the full camera-matrix
+   chain (2.0f/dot + 9 products + 9 stores), func_003e0c90/003e0e20, the
+   D_00887300 base-hoist calls via the u32-cast recipe ((u32)D_00887300 + per-call
+   *(u32*)base jalr -- one lui/addiu in a saved reg, as retail), the
+   func_003f6440/00410420/004106a0 calls, the func_00373cb0 call and the
+   func_003e0a90 tail. Residuals (all scheduling/register-choice floors): (1) the
+   dot chain sorts to mula(x) where retail has mula(y) (same 2-word family as
+   func_00377930); (2) func_00378280's arg load is emitted before the a0 move
+   (2 words); (3) the D_0064EA38/D_0064EA40 12-byte input interleaves
+   ld;sd;lwc1;swc1 and materialises the a1 arg last, retail batches
+   a1;ld;lwc1;sd;swc1 (also seen in func_00375b40); (4) both alpha blocks'
+   else-arm or/mtc1/cvt use $v0/$f0 where retail uses $v1/$f1 (recipe-A
+   register residual, 8 words); (5) both 0x4F000000 float-to-byte guards emit
+   c.olt.s $f1,$f0 + bc1f where retail has c.ole.s $f0,$f1 + bc1t, plus mfc1
+   $v0 vs $v1 -- identical polarity floor as btlShuffleCalc func_003733f0
+   (nd 27, all four compare spellings probed there); (6) the &0x100 u16
+   increment block: mwcc keeps the +1 result in $a0 and hoists the andi before
+   the sh (retail: $v1, sh-then-andi; tried s32/u16 temp spellings).
+   New symbols: D_0064EA38/D_0064EA40/iGpffff840c (evidence in
+   config/symbol_data_addrs.txt). 4 attempts: 121, 126, 126, 132. */
 // FUN_00374D20
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00374d20);
 
-
-/* measured: retail allocates count=$s2, i=$s3, p16=$s0, p21=$s5, p22=$s6 with
-   the func_00374cf0 constant-address arg materialised AFTER the a0/a2 setup;
-   mwcc b210 rotates count to $s5/p16 to $s1 and hoists the lui/addiu of
-   func_00374cf0 before a0 (nd 194, obj 1092B). Everything else is solved: the
-   0x70-byte color buffer at 0xB0 with the 0xFF bytes at 0x6C-0x6E, alpha at
-   0x6F, arrA0[4] at 0xA0, the (s32)func_00374cf0 / (s32)&arrA0[i] casts the
-   prototype demands, the mode switch with goto common from cases 0/1/2 (n/2,
-   n/3, iGpffff8170), the u16 (x>>1)|(x&1) doubling for var_f20, and the
-   func_003768e0/00375a70 tail loop. Arg-materialisation + saved-register
-   rotation floor. */
 // FUN_003753F0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003753f0);
 
@@ -464,9 +506,23 @@ s32 func_00375a50(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375a70);
 
 
+/* measured: reconstructed to nd 88 (obj 504B, window 528B). The ACC-fused rotation
+   block IS emittable -- the chain (mula/madda/madd then mula/msub x3 then
+   adda/madd x6) compiles byte-for-byte from plain expressions, with the fixed
+   register pattern (f5,f11),(f6,f10),(f7,f9). The residuals are: (1) load order
+   of the 7 chain operands -- retail hoists them (B,A,C,D,G,E,F) = sp74,sp70,
+   sp78,sp7C,p7C,p74,p78; mwcc b210 sorts struct-field loads ascending and emits
+   (A,B,C,D,G,F,E) (sp70-7C as ShuffleVec4) or (B,C,D,G,E,F,A) (temp locals), so
+   every downstream register differs (~20 words; separate f32 locals instead make
+   mwcc register-allocate them across the func_003dc740 call, nd 127);
+   (2) the v==3||v==0 dispatch -- retail beq+beqz-to-shared-var1 + b-to-else;
+   mwcc emits beq-to-var1 + bnez-to-else (|| spelling) or separate var1 blocks
+   (else-if spelling); (3) the D_0064EA48/D_0064EA50 input: retail batches
+   ld;lwc1;sd;swc1, mwcc interleaves ld;sd;lwc1;swc1 (temp-load spelling tried).
+   4 attempts: 88, 88, 127, 88. New symbols D_0064EA48/D_0064EA50 added to
+   config/symbol_data_addrs.txt (ld/lwc1 evidence). */
 // FUN_00375B40
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375b40);
-
 
 // FUN_00375D50
 void func_00375d50(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, f32 fparg1) {
@@ -634,7 +690,39 @@ void func_00376330(u8 *arg0, s32 arg1, f32 *arg2) {
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003764b0);
 
 // FUN_00376590
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376590);
+s32 func_00376590(u8 *arg0, u8 *arg1) {
+    ShuffleVec3 sp80;
+    ShuffleVec3 sp70;
+    s32 i;
+    s32 count;
+    s32 best;
+    f32 bestf;
+    f32 f;
+
+    count = *(s32 *)(arg0 + 0x1F2FC);
+    if ((count < 0) || (count > 2)) {
+        func_0046d730(D_0064EA20, 0x516);
+    }
+    count = func_00378530(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
+    func_00376330(arg0, 0, (f32 *)&sp70);
+    bestf = func_00373c20((u8 *)&sp70);
+    i = 1;
+    best = 0;
+    while (i < count) {
+        func_00376330(arg0, i, (f32 *)&sp80);
+        f = func_00373c20((u8 *)&sp80);
+        if (f < bestf) {
+            bestf = f;
+            best = i;
+            sp70 = sp80;
+        }
+        i++;
+    }
+    if (arg1 != NULL) {
+        *(ShuffleVec3 *)arg1 = sp70;
+    }
+    return best;
+}
 
 
 // FUN_003766F0
@@ -693,20 +781,23 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376880);
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003768e0);
 
 
-/* measured: the camera-matrix normalisation block uses the FPU accumulator idiom
-   (mula.s $f4,$f4 / madda.s $f11,$f11 / madda.s $f12,$f12 / madd.s $f1,$f3,$f3
-   then 2.0f/... and the 9 rotation-matrix element products) which m2c marks
-   M2C_ERROR; no C float spelling reproduces the ACC-fused instructions
-   byte-for-byte (same floor as btlAICommand func_001de370, effBlurFilter
-   func_004a8da0, and sibling func_00378280/00374d20). The rest decodes cleanly:
-   arg2 vec or arg0+arg1*0xE8+0x1D6B8 vec into sp1B8, the sp70 vec, the
-   func_0036de70/0036deb0 half extents into sp80..spAC (with -f22/-f21 negations),
-   the 4-iteration loop storing rotated vecs and doubled-alpha colors
-   (u8 (x>>1)|(x&1) idiom) into sp+var_16*0x40+0xB0, and the D_00887300/
-   D_00887310/func_00364c50/00364c70 tail. FPU FMA-fusion floor. */
+/* measured: the old "FPU FMA-fusion floor" note is REFUTED -- b210 emits the exact
+   retail accumulator chain (mula/madda/madda/madd + 2.0f/div + the 9 rotation
+   products) from the plain spelling 2.0f / (y*y + x*x + z*z + w*w), verified
+   against a bare compile. Reconstructed the whole function to nd 15 (obj 1236B):
+   prologue, all stack slots (sp1B8v ShuffleVec3, sp1C8[2], spB0[0x40] at 0xB0,
+   sp80[12], sp70v ShuffleVec4 at 0x70), the f20-f23 saved-FP mapping
+   (declaration order alphaBase/halfW/halfH/scale), the alpha lbu/bltz/mtc1/cvt/
+   srl/andi/or/add.s recipe-A blocks and the D_00887300/D_00887310 tail all match
+   byte-for-byte. Remaining 3 residuals: (1) the two arg1*0xE8 chains emit
+   addu $v0,$s4,$v0 where retail has addu $v0,$v0,$s4 -- inline operand flips
+   (arg1*0xE8+arg0) did not change it, lever-10 named s32 local untested;
+   (2) the dot sum canonicalises to mula(x),madda(y) where retail has
+   mula(y),madda(x) -- survived direct-struct-field and 4-temp spellings;
+   (3) alpha else-arm or/mtc1 result register $v0 vs retail $v1 (scheduling
+   residual, 8 words). 4 attempts: nd 108->15->51. */
 // FUN_00377930
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377930);
-
 
 // FUN_00377E10
 s32 func_00377e10(u8 *arg0) {
