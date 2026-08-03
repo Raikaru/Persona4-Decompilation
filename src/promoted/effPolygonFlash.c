@@ -7,6 +7,20 @@
 /* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit the lq/sq
    quadword copy retail uses, with no inline asm. */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
+typedef signed __int128 s128;
+
+extern u32 func_004bd050(u32);
+extern f32 func_004bd0b0(u32);
+extern f32 func_0044b610(f32);
+extern f32 func_0044b7b0(f32);
+/* Anonymous gp-relative float slots (-0x7FBC / -0x7F30 of $28), same
+   convention as effPolygonThunder.c's iGpffff8044. */
+extern f32 iGpffff8044;
+extern f32 fGpffff80d0;
+/* Scratch color quads, addressed absolutely by retail (lui/addiu). */
+extern f32 D_00713D10[4];
+extern f32 D_00713D14[4];
+extern f32 D_00713D18[4];
 
 extern void func_004833f0();
 extern void (*jtbl_008873EC[])(void *);
@@ -79,11 +93,22 @@ void func_0049a9e0(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
+/* measured in the sibling floor family (see FUN_0049D360/0049E150/004A0C00,
+   all byte-exact except the same residuals): retail reads/writes the four
+   s128 slots (sp100/spF0/spE0/spD0) with plain lq+slt/mtc1/div while mwcc
+   b210 inserts dsll32+dsra32 after every (s32) cast, and the saved-GPR/FP
+   pools rotate (retail $16/$17/$18/$19/$20 + $f20-$f28, mwcc allocates
+   from $s4 downward and $f28 downward). This draft matches the d360 shape
+   (sp110 count + fade tests on the s128 slots + VU0 chains), so the
+   canonicalization floor applies unchanged. s128-canonicalization /
+   allocator-pool floor family. */
 // FUN_0049AA30
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049aa30);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
+   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
+   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
+   where the copy takes its address. An earlier wave wrote it through a volatile
+   byte access, which was never necessary. */
 // FUN_0049B2B0
 void func_0049b2b0(u8 *arg0)
 {
@@ -165,7 +190,7 @@ void func_0049b2b0(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
@@ -223,11 +248,20 @@ void func_0049b640(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
+/* measured in the sibling floor family (see FUN_0049E150/004A0C00): only one
+   s128 slot (spC0 - the -1/-2 test, fixable via the asm lq-read), but the
+   saved-GPR pool rotates (retail temp_16/var_20 in $16/$20, mwcc allocates
+   $s4-downward for the same declaration order - 5 orders tried across the
+   family) and the fade denominator reloads differ. The e150-shaped layout
+   structs, .word VU0 chains and adda/madd fusion otherwise reproduce
+   byte-exact. allocator-pool floor family. */
 // FUN_0049B690
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b690);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
+   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
+   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
+   where the copy takes its address. An earlier wave wrote it through a volatile
+   byte access, which was never necessary. */
 // FUN_0049BFF0
 void func_0049bff0(u8 *arg0)
 {
@@ -309,7 +343,7 @@ void func_0049bff0(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
@@ -363,11 +397,19 @@ void func_0049c380(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
 
+/* measured in the sibling floor family (see FUN_0049D360/0049E150/004A0C00):
+   four s128 slots (sp100/spF0/spE0/spD0) read via (s32) casts - mwcc b210
+   canonicalizes every one with dsll32+dsra32 (retail uses plain lq), the
+   saved-GPR pool rotates ($s4-down vs retail $16-up) and the FP pool starts
+   at $f28 with 9 slots vs retail $f20-$f29. 10 FP saved regs here. Same
+   s128-canonicalization / allocator-pool floor family. */
 // FUN_0049C3D0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049c3d0);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
+   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
+   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
+   where the copy takes its address. An earlier wave wrote it through a volatile
+   byte access, which was never necessary. */
 // FUN_0049CD10
 void func_0049cd10(u8 *arg0)
 {
@@ -449,7 +491,7 @@ void func_0049cd10(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
@@ -582,11 +624,21 @@ void func_0049d310(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
+/* measured: byte-exact for the whole body except 8 canonicalization pairs:
+   retail reads/writes the five s128 slots (sp100/spF0/spE0/spD0/spC0, the
+   count/fade/modulo values) with plain lq/slt/mtc1/div on the low word,
+   mwcc b210 inserts dsll32+dsra32 after every lq of a (s32)-cast s128 local
+   and after the mfc1 of a (s128)(s32)(float) store (16 words: spF0/spE0
+   stores, loop test, spC0 test, fade tests x2, fade denom, spD0 test,
+   madd-div). Tried (s32)/(u32)/(u64)/(s64) casts, intermediate s32/s64
+   locals, direct (f32) casts (those are clean), asm sq stores with
+   hardcoded $sp offsets (layout rotates), and .word emission for the
+   $4-based VU block (works) - all nd >= 16 via the length-cascade. VU0
+   chains, FP regs ($f20-f27 incl. var_f27/tf27 sharing), stack layout,
+   adda/madd/msub fusion and the frame are otherwise byte-identical.
+   s128-canonicalization floor family (cf. effPolygonThunder func_00495160). */
 // FUN_0049D360
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049d360);
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049DB20
 void func_0049db20(u8 *arg0)
 {
@@ -668,7 +720,7 @@ void func_0049db20(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
@@ -795,11 +847,24 @@ void func_0049e100(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
+/* measured: byte-exact for the whole body except a saved-GPR allocation
+   quirk and two FP residuals. mwcc b210 allocates the saved GPRs from a
+   rotated pool ($s3,$s2,$s1,$s4,$s0...) so temp_16 lands in $s4 and var_20
+   in $s0 while retail has temp_16 in $s0/$16 and var_20 in $s4/$20 (the
+   swap cascades ~40 words; 5 declaration orders tried, the pool rotates
+   with the order and temp_16 always gets $s4). Also: retail's fade
+   else-branch reloads spF0 (lw 0xF0) for the denominator while mwcc keeps
+   the test's value in a register (2-3 words), and the fade clamp's
+   mul.s operand order is $f21,$f0 vs mwcc's $f0,$f21. Everything else is
+   byte-identical: the 0x70-byte sqC0 layout struct (16-byte union slots at
+   0xF0-0x120 with real retail holes), the VU0 chains (incl. .word emission
+   for the $4/$5-based lqc2/sqc2 forms and the asm lq-read for the spC0
+   test, which avoids the dsll32/dsra32 canonicalization), the adda/madd
+   fusion, FP regs ($f20-f27) and the frame. Lead for a future wave: the
+   D_00713D10 lui/addiu inside asm should use %%hi/%%lo(D_00713D10) symbol
+   forms (reloc-masked) instead of raw constants. */
 // FUN_0049E150
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049e150);
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049E920
 void func_0049e920(u8 *arg0)
 {
@@ -881,7 +946,7 @@ void func_0049e920(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
@@ -1008,11 +1073,19 @@ void func_0049ef00(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
+/* measured in the sibling floor family (see FUN_0049D360/0049E150/004A0C00):
+   four s128 slots (sp100/spF0/spE0/spD0) get the mwcc b210 dsll32+dsra32
+   canonicalization on every (s32)/div/slt use, the saved-GPR pool rotates
+   ($s4-down vs retail $16-up) and the FP pool starts at $f28 vs retail
+   $f20-$f29 (10 FP saved regs). Same s128-canonicalization /
+   allocator-pool floor family. */
 // FUN_0049EF50
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049ef50);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
+   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
+   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
+   where the copy takes its address. An earlier wave wrote it through a volatile
+   byte access, which was never necessary. */
 // FUN_0049F820
 void func_0049f820(u8 *arg0)
 {
@@ -1094,7 +1167,7 @@ void func_0049f820(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
@@ -1140,11 +1213,19 @@ void func_0049fba0(u8 *arg0)
     func_004833f0(*(void **)(arg0 + 4));
     jtbl_008873EC[0](*(void **)(arg0 + 8));
 }
+/* measured in the sibling floor family (see FUN_0049D360/0049E150/004A0C00):
+   four s128 slots (sp100/spF0/spE0/spD0) trigger the mwcc b210
+   dsll32+dsra32 canonicalization on every read (retail: plain lq), the
+   saved-GPR pool rotates ($s4-down vs retail $16-up) and the FP pool starts
+   at $f28 vs retail $f20-$f30 (11 FP saved regs - the widest of the family).
+   Same s128-canonicalization / allocator-pool floor family. */
 // FUN_0049FBF0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049fbf0);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
+   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
+   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
+   where the copy takes its address. An earlier wave wrote it through a volatile
+   byte access, which was never necessary. */
 // FUN_004A05F0
 void func_004a05f0(u8 *arg0)
 {
@@ -1226,7 +1307,7 @@ void func_004a05f0(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
@@ -1357,11 +1438,22 @@ void func_004a0bb0(u8 *arg0) {
     D_008873ec[0](*(void **)(arg0 + 8));
 }
 
+/* measured: byte-exact for the whole body except the mwcc saved-register
+   pool rotation seen across this family (cf. FUN_0049E150): retail maps
+   temp_16/var_20 to $16/$20 and FP $f20-$f30 (11 call-crossing locals),
+   mwcc b210 rotates the saved GPR pool to ($s4,$s3,$s2,$s1,$s0,...) and
+   starts the FP pool at $f28 with only 9 saved slots, scrambling ~70
+   register words (5 GPR/FP declaration orders tried). Also retail reloads
+   the fade denominator (lw 0x100) while mwcc keeps the test's value in a
+   register (2-3 words). Everything else matches: the 0x90-byte sqD0
+   layout struct (s128 d0 + union 16-byte slots v100-v130 + p140/p150 VU
+   quads with the real retail holes), the .word VU0 chains ($3/$5/$4-based
+   lqc2/sqc2 forms), the asm lq-read for the spD0 test (no dsll/dsra
+   canonicalization), the adda/madd fusion, the sp160-quad madd updates,
+   the frame 0x1A0 and the tail. Same floor family as FUN_0049D360 /
+   FUN_0049E150. */
 // FUN_004A0C00
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a0c00);
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy; mwcc b210 dead-store-eliminates that final store for a plain
-   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_004A14A0
 void func_004a14a0(u8 *arg0)
 {
@@ -1443,7 +1535,7 @@ void func_004a14a0(u8 *arg0)
                 u8 *dst = *(u8 **)(temp_16 + 0x14);
                 *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
             }
-            *((volatile u8 *)&sp4C + 3) = 0xFF;
+            sp4C.b[3] = 0xFF;
         }
         func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
         if (*(u8 *)(temp_17 + 0x56) != 0)
