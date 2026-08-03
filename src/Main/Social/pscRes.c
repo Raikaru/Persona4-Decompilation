@@ -28,7 +28,7 @@ extern s32 func_0036ccc0(void);
 extern void func_00442830(char *dst, char *src);
 extern char D_0064E550[];
 extern char D_0064E570[];
-extern void *func_0036d3e0(void *arg0);
+extern s32 func_0036d3e0(u8 *arg0);
 extern void *func_003ec590(s32 a, s32 b, s32 c, s32 d);
 extern void *func_003ec3d0(void *a, s32 b);
 extern void func_003ec2e0(void *a);
@@ -36,6 +36,8 @@ extern void *func_003ec6a0(void *a, s32 b, s32 c);
 extern void func_003ec2a0(void *a);
 extern const u8 D_0064E4E0[];
 extern void *D_0072469C;
+extern s32 func_004553c0(void *arg0);
+extern void func_00454bd0(void *arg0);
 
 
 // FUN_0036B650
@@ -69,8 +71,105 @@ void func_0036b650(void *arg0) {
     D_0072469C = arg0;
 }
 
-// FUN_0036B750
+// FUN_0036B750 NONMATCHING
+// Measured floor (nd 239, obj 1048B/win 1040B): every dispatch, chain and call
+// matches; the sole defect is the p+0x10 constant-offset fold of the same CSE
+// family as 0036C450/0036C900/0036D230 — mwcc hoists addiu s0,s2,0x10 across
+// the assert+d3e0 calls in each of the three inner case bodies (for the
+// post-call `p->0x10 |= bit` RMW), rotating e/p/i down one saved register
+// (frame -0x50 vs -0x40) and pushing the object 8B over the window. Tried:
+// named base b local, inline i*0x124, u32* fl local for the RMW — all nd 239.
+#ifdef NON_MATCHING
+void func_0036b750(void) {
+    u8 *p;
+    u8 *e;
+    s32 i;
+    s32 t;
+    s32 t2;
+
+    if (D_0072469C == 0) {
+        func_0046d730(D_0064E4E0, 0x75);
+    }
+    p = D_0072469C;
+    for (i = 0; i < 0x20; i++) {
+        e = (u8 *)p + i * 0x124 + 0x294;
+        if (!(~*(u32 *)((u8 *)p + i * 0x124 + 0x294) & 1)) {
+            t = *(s32 *)(e + 4);
+            switch (t) {
+            case 0:
+                func_0046d730(D_0064E4E0, 0xBF);
+                break;
+            case 1:
+                if (func_004553c0(*(void **)(e + 8)) != 0) {
+                    t2 = *(s32 *)(e + 0x110);
+                    switch (t2) {
+                    case 2:
+                        switch (*(s32 *)(e + 0x114)) {
+                        case 0:
+                            if (!(~*(u32 *)((u8 *)p + 0x10) & 1)) {
+                                func_0046d730(D_0064E4E0, 0xCD);
+                            }
+                            *(s32 *)((u8 *)p + 4) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
+                            *(u32 *)((u8 *)p + 0x10) |= 1;
+                            func_00454bd0(*(void **)(e + 8));
+                            *(u32 *)e &= ~1;
+                            break;
+                        case 1:
+                            if (!(~*(u32 *)((u8 *)p + 0x10) & 2)) {
+                                func_0046d730(D_0064E4E0, 0xD4);
+                            }
+                            *(s32 *)((u8 *)p + 8) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
+                            *(u32 *)((u8 *)p + 0x10) |= 2;
+                            *(u32 *)((u8 *)p + 0) &= ~4;
+                            func_00454bd0(*(void **)(e + 8));
+                            *(u32 *)e &= ~1;
+                            break;
+                        case 2:
+                            if (!(~*(u32 *)((u8 *)p + 0x10) & 0x10)) {
+                                func_0046d730(D_0064E4E0, 0xE0);
+                            }
+                            *(s32 *)((u8 *)p + 0xC) = func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
+                            *(u32 *)((u8 *)p + 0x10) |= 0x10;
+                            *(u32 *)((u8 *)p + 0) &= ~0x10;
+                            func_00454bd0(*(void **)(e + 8));
+                            *(u32 *)e &= ~1;
+                            break;
+                        }
+                        break;
+                    case 0:
+                        if (!(~*(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x54) & 2)) {
+                            func_0046d730(D_0064E4E0, 0xEB);
+                        }
+                        *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x60) =
+                            func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
+                        *(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x14 + 0x54) |= 2;
+                        func_00454bd0(*(void **)(e + 8));
+                        *(u32 *)e &= ~1;
+                        break;
+                    case 1:
+                        if (!(~*(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x194) & 2)) {
+                            func_0046d730(D_0064E4E0, 0xF3);
+                        }
+                        *(s32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x19C) =
+                            func_0036d3e0((void *)*(u32 *)(*(u32 *)(e + 8) + 0x110));
+                        *(u32 *)((u8 *)p + *(s32 *)(e + 0x114) * 0x10 + 0x194) |= 2;
+                        func_00454bd0(*(void **)(e + 8));
+                        *(u32 *)e &= ~1;
+                        break;
+                    }
+                    *(s32 *)(e + 4) = 2;
+                }
+                break;
+            case 2:
+                func_0046d730(D_0064E4E0, 0x100);
+                break;
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036b750);
+#endif
 
 // FUN_0036BB60
 s32 func_0036bb60(void) {
@@ -175,10 +274,10 @@ s32 func_0036be70(void) {
 // FUN_0036BEE0 NONMATCHING
 // Measured floor (nd 16, obj 232B/win 272B): same allocator fold as sibling
 // function 0036BFF0 — mwcc keeps (p + i*0x14) folded in s0 across the 0x171
-// assert
-// call (sll->v0; addu s0,s0,v0; lw(s0); lw(s0)) where retail keeps i*0x14 in
-// s1 via in-place shift (sll s1,v0,2) and re-adds per access (addu v0,s1,s0;
-// lw(v0)). Loop and dispatch match byte-for-byte.
+// assert call (sll->v0; addu s0,s0,v0; lw(s0); lw(s0)) where retail keeps
+// i*0x14 in s1 via in-place shift (sll s1,v0,2) and re-adds per access
+// (addu v0,s1,s0; lw(v0)). Loop and dispatch match byte-for-byte. Tried also
+// a distinct `s32 scaled` local (sll->v0 still, fold into s0 persists).
 #ifdef NON_MATCHING
 s32 func_0036bee0(s32 arg0, s32 arg1) {
     s32 i;
@@ -218,7 +317,8 @@ INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036bee0);
 // addu->s0, lw(s0), lw(s0) where retail keeps p in s0 and i<<4 in s1 in place
 // and re-adds per access (sll s1,s1,4; addu v0,s1,s0; lw(v0); addu; lw(v0)).
 // Tried: inline i*0x10, i<<=4/i*=0x10, index-first operand order, u8* base,
-// volatile lvalues, declaration order, optimization_level 3 (nd 52) — all 12.
+// volatile lvalues, declaration order, optimization_level 3 (nd 52), named
+// u8* e local declared first (s0 still reused for the fold) — all 12.
 #ifdef NON_MATCHING
 s32 func_0036bff0(s32 arg0) {
     s32 i;
@@ -355,6 +455,8 @@ void func_0036c3b0(void) {
 // Measured floor (nd 51, obj 288B/win 288B): identical allocator behavior to
 // function 0036C900 — base pointer colored caller-saved, (p + 0x4C) folded into $s0
 // across the 0x212 assert instead of retail's p-in-$s0 with inline lw 0x4C.
+// Value-temp variant (v = p->4C; if (!v) assert; p->4C = v+1) forced v across
+// the call: nd 69, obj 296B. Same CSE family as 0036BFF0/0036BEE0.
 #ifdef NON_MATCHING
 void func_0036c450(void) {
     void *p;
@@ -387,13 +489,7 @@ void func_0036c450(void) {
 INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036c450);
 #endif
 
-// FUN_0036C570 NONMATCHING
-// Measured floor (nd 7, obj 620B/win 624B): switch selector `s` is colored
-// $v1 (lw $v1,8($s0); slti $at,$v1,0xb; beq $v1,$v0,...) where retail loads it
-// into $a3 ($7). Pure register-allocation difference; every other instruction
-// in the 624B function matches byte-for-byte (both switches, element-pointer
-// caching, s8 vararg extension, buffer calls).
-#ifdef NON_MATCHING
+// FUN_0036C570
 void func_0036c570(s32 arg0, s32 arg1) {
     char buf1[0x10];
     char buf2[0x100];
@@ -438,7 +534,7 @@ void func_0036c570(s32 arg0, s32 arg1) {
     }
     s = *(s32 *)(e + 8);
     if (s < 11) {
-        func_00442088(buf2, D_0064E510, buf1);
+        func_00442088(buf2, D_0064E510, buf1, s);
     } else {
         switch (s) {
         case 11:
@@ -461,10 +557,6 @@ void func_0036c570(s32 arg0, s32 arg1) {
     *(s32 *)((u8 *)q + 4) = 1;
     *(u32 *)((u8 *)q + 0) |= 1;
 }
-
-#else
-INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036c570);
-#endif
 // FUN_0036C7E0
 void func_0036c7e0(s32 arg0) {
     char buf[0x100];
@@ -500,9 +592,9 @@ void func_0036c7e0(s32 arg0) {
 // caller-saved ($a0) and folds (p + 0x50) into $s0 across the 0x29B assert,
 // emitting addiu s0,a0,0x50 + lw 0x50(a0) + post-call lw(s0), while retail
 // keeps p in $s0 throughout and uses inline lw 0x50($s0) before and after the
-// call (same allocator family as FUN_0036BFF0/FUN_0036BEE0). Tried: else-if
-// vs early-return shape, value temp, p reused for the d060 result (p in $a0
-// still) — all nd 49.
+// call (same allocator family as FUN_0036BFF0/FUN_0036BEE0/FUN_0036C450).
+// Tried: else-if vs early-return shape, value temp, p reused for the d060
+// result (p in $a0 still) — all nd 49.
 #ifdef NON_MATCHING
 void func_0036c900(void) {
     void *p;
@@ -785,7 +877,11 @@ s32 func_0036d1b0(s32 arg0) {
 // and colors arg0->s0/p->s2, while retail keeps p in s1 with inline
 // lw 0x10($s1) per assert and colors arg0->s3 (same allocator family as
 // function 0036BFF0/FUN_0036BEE0/FUN_0036C900/FUN_0036C450). Loops, call args and
-// the chained-OR tail are otherwise structurally identical.
+// the chained-OR tail are otherwise structurally identical. Load-count probes:
+// flags read once -> nd 75 obj 416B (1 lw, regs match retail but 2 loads lost);
+// flags read twice -> nd 85 obj 428B (addiu fold returns, not folded into the
+// flags reg); 3 reads -> fold + rotation. Retail's 3-lw/no-addiu shape is
+// unreachable: mwcc always either merges a load or materializes p+0x10.
 #ifdef NON_MATCHING
 void func_0036d230(u8 *arg0) {
     u8 *p;
@@ -828,6 +924,161 @@ void func_0036d230(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036d230);
 #endif
 
-// FUN_0036D3E0
-INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036d3e0);
+// FUN_0036D3E0 NONMATCHING
+// Measured floor (nd 273, obj 1144B/win 1152B): all five dispatch chains, the
+// i*0x124 loop scale, call sequences and copy loops match structurally; the
+// residual is pure callee-saved coloring. Retail colors arg0+src coalesced in
+// $16 (src = arg0+0x40 reuses the parameter register), keeps an arg0 copy in
+// $21 for the header reads, then var17=$17, src1=$18, var19=$19, temp20=$20;
+// mwcc b210 copy-propagates the arg0 read-copy away (reads stay on arg0's
+// register), never coalesces src into arg0 (src lands $s5, arg0 $s3), and
+// rotates the rest (var19=$s0, var17=$s2, src1=$s1, temp20=$s4). Tried: draft
+// declaration order, p0 copy + reads-via-p0, retail register order — all
+// nd 273. No declaration order moves mwcc's graph-coloring to retail's.
+#ifdef NON_MATCHING
+s32 func_0036d3e0(u8 *arg0) {
+    u8 *src;
+    s32 var_17;
+    u8 *src1;
+    s32 var_19;
+    void *temp_20;
+    u8 *p0;
+    u8 *dst;
+    u8 *dst2;
+    s32 var_20;
+    s32 i;
+    s32 i2;
+    s32 r;
+    s32 c;
+    s32 r2;
+    s32 c2;
+    s32 r3;
+    s32 c3;
+    s32 r4;
+    s32 c4;
 
+    p0 = arg0;
+    var_17 = 0;
+    var_19 = 0;
+    switch (arg0[0x16]) {
+    case 0:
+        var_19 = 0x20;
+        break;
+    case 1:
+        var_19 = 0x18;
+        break;
+    case 2:
+    case 10:
+        var_19 = 0x10;
+        break;
+    case 19:
+    case 27:
+        var_19 = 8;
+        break;
+    case 20:
+    case 36:
+    case 44:
+        var_19 = 4;
+        break;
+    }
+    if (var_19 == 0) {
+        func_0046d730(D_0064E4E0, 0x409);
+    }
+    src = arg0 + 0x40;
+    switch (var_19) {
+    case 8:
+        src1 = src;
+        src += (u32)p0[0x10] << 10;
+        var_17 |= 1;
+        break;
+    case 4:
+        src1 = src;
+        src += (u32)p0[0x10] << 6;
+        var_17 |= 1;
+        break;
+    }
+    var_20 = 0;
+    var_20 |= 4;
+    switch (var_19) {
+    case 0x20:
+        var_20 |= 0x500;
+        break;
+    case 0x18:
+        var_20 |= 0x600;
+        break;
+    case 8:
+        var_20 |= 0x2500;
+        break;
+    case 4:
+        var_20 |= 0x4500;
+        break;
+    default:
+        func_0046d730(D_0064E4E0, 0x431);
+        break;
+    }
+    temp_20 = func_003ec590(*(u16 *)(p0 + 0x12), *(u16 *)(p0 + 0x14), var_19, var_20);
+    if (var_17 & 1) {
+        dst = func_003ec3d0(temp_20, 1);
+        switch (var_19) {
+        case 8:
+            for (i = 0; i < 0x100; i++) {
+                *(s32 *)dst = *(s32 *)src1;
+                src1 += 4;
+                dst += 4;
+            }
+            break;
+        case 4:
+            for (i2 = 0; i2 < 0x10; i2++) {
+                *(s32 *)dst = *(s32 *)src1;
+                src1 += 4;
+                dst += 4;
+            }
+            break;
+        }
+        func_003ec2e0(temp_20);
+    }
+    dst2 = func_003ec6a0(temp_20, 0, 1);
+    switch (var_19) {
+    case 0x20:
+        for (r = 0; r < (s32)*(u16 *)(p0 + 0x14); r++) {
+            for (c = 0; c < (s32)*(u16 *)(p0 + 0x12); c++) {
+                *(s32 *)dst2 = *(s32 *)src;
+                src += 4;
+                dst2 += 4;
+            }
+        }
+        break;
+    case 0x18:
+        for (r2 = 0; r2 < (s32)*(u16 *)(p0 + 0x14); r2++) {
+            for (c2 = 0; c2 < (s32)*(u16 *)(p0 + 0x12) * 3; c2++) {
+                *dst2 = *src;
+                src += 1;
+                dst2 += 1;
+            }
+        }
+        break;
+    case 8:
+        for (r3 = 0; r3 < (s32)*(u16 *)(p0 + 0x14); r3++) {
+            for (c3 = 0; c3 < (s32)*(u16 *)(p0 + 0x12); c3++) {
+                *dst2 = *src;
+                src += 1;
+                dst2 += 1;
+            }
+        }
+        break;
+    case 4:
+        for (r4 = 0; r4 < (s32)*(u16 *)(p0 + 0x14); r4++) {
+            for (c4 = 0; c4 < (s32)*(u16 *)(p0 + 0x12) >> 3; c4++) {
+                *(s32 *)dst2 = *(s32 *)src;
+                src += 4;
+                dst2 += 4;
+            }
+        }
+        break;
+    }
+    func_003ec2a0(temp_20);
+    return (s32)temp_20;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/pscRes", func_0036d3e0);
+#endif

@@ -221,24 +221,25 @@ s8 func_002e2a00(void *arg0) {
     return *(s8 *)(*(void **)((u8 *)arg0 + 0x38));
 }
 
+/* measured: structure fully recovered (iGpffffb58c null-check, p=e+0x38 with
+   the four state stores, the descending-test switch on p->1 with the four
+   0x600 loops and 4-way ok-chains, the case-2 6b20/6b50/2be160/2bdff0/1462
+   chains, the 2b2cb0 count stores, the arg3==1 -1-init/compaction loops with
+   10830/10810 into arr[0x600], the arg3==2 sortbuf copy + 40bb8 sort +
+   re-store loops; case order 1,2,3,4 reproduces retail's descending test
+   chain and ascending body layout exactly) but mwcc b210 rotates the saved
+   registers: mine arg3=$s5 p=$s1 e2=$s2 i=$s0 (frame 0x3070 matches) vs
+   retail arg3=$s1 p=$s0 e2=$s2 i=$s3 j=$s4 n=$s5, so every instruction in
+   the six loops differs (nd 603). Tried 3 declaration orders, separate
+   m/k loop counters for the arg3==1/2 blocks, a shared loop variable;
+   all nd 603. Same saved-reg rotation floor as func_002e3560 (this file),
+   mdlManager func_0047c660 and mdlMatAnim func_00480670. */
 // FUN_002E2A10
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
 
 // FUN_002E3560
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e3560);
 
-/* measured: structure fully recovered at exact byte size (1360/1360B):
-   p[0]==1 early return, p->8=0, the 9-entry jump-table switch with cases
-   0/7/8 as the i=1..0xC/0xC0 cad0 loops using (i-1)*48, cases 1/5/6 as the
-   func_0010b5b0()-bounded abd0/ace0 loops (case 5 with the a900!=ace0
-   compare, case 6 with the buf1/buf2 compare via func_002e5270), case 2 as
-   the 0x100 fcb0 loop, and the trailing p[0]=1/return 0) but mwcc b210
-   colors the s16 loop counter i into $s2 and the shared cond-extension /
-   func_0010a900() temp into $s1 where retail has i in $s1 and the temp in
-   $s2; every spelling tried (a named void pointer / implicit temp, declared before/
-   after i at function scope or block-scoped, if(a!=b) vs if(a==b)continue)
-   gives the identical nd 62 of pure register renames. Saved-reg coloring
-   floor. */
 // FUN_002E4090
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4090);
 
@@ -348,21 +349,24 @@ u8 *func_002e48a0(s8 arg0, s16 arg1) {
 // FUN_002E4960
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4960);
 
+/* measured: structure fully recovered (p = D_00882F70[0]+0x38 with the
+   type 6/10/1 gate, a0/a1/offA1 prologue, nested i/j loops with the five
+   sq/lq 16-byte stack slots spE0/spD0/spC0/spB0/spA0 (i*12, p+i*12,
+   &D_00882F70[(s8)(i+1)], &D_00882F70[i], t5+0x14), the a0==0 path's three
+   jump-table switches (748BC0/748B90/748B60) + func_00312b60, the a0==1
+   path's four switches (748B30/748B00/748AD0/748AA0) + func_00312b90 with
+   the spE0+p2'+j q-store and the two w!=0/w==2 sb chains) but mwcc b210
+   emits a dsll32/dsrl32 widening pair before every sq and after every lq of
+   the slots (u32->u_long128 cast) where retail sq's/lq's the 32-bit values
+   directly, and u64 locals get 8-byte slots with sd/ld instead of sq/lq
+   (aligned(16) still sd). Tried u_long128/s128/u64/aligned-u64 locals with
+   (u64)/(u32)/direct casts and typed-alias reads; best nd 302 at 1352/1344B.
+   Mixed-width u_long128 floor (same family as mdlManager func_0047c660 and
+   mdlMatAnim func_00480670); the saved-reg assignments also rotate after
+   the type gate (bne vs retail's third beq). */
 // FUN_002E4AC0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 
-/* measured: structure fully recovered (outer i-loop with base=p+i*12 /
-   slot2=&D_00882F70[(s8)(i+1)] / off48=i*48 hoisted per iteration, inner
-   j-loop with the per-iteration D_00882F70[0]+0x38 count chain, three
-   jump-table switches on slot2's entry and the main entry with q2/q3
-   compare via func_003129b0 and the *dst=1 store) but mwcc b210
-   MISCOMPILES this shape: it CSEs the *slot2 deref with the main-list
-   D_00882F70[0] load (slot2's computation is deleted entirely and the
-   switch1 type/q read the main p) and swaps the (j*3)*0x10 and off48
-   offsets between switch1 and switch2, giving an undersized 480B object
-   (nd 151) no matter the spelling: slot2 as subscript / byte-arithmetic /
-   s32 nxt local, p2 as local or fully inline chain in the switch
-   condition, entry2 intermediate, u32-cast derefs. Load-VN/CSE floor. */
 // FUN_002E5000
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5000);
 
@@ -496,20 +500,19 @@ s16 func_002e54c0(s8 arg0, s16 arg1) {
    the 748D70 switch + func_0010cad0, else path with func_0010aa80 == -1
    check, three re-indexed D_00882F70[(s8)arg0]+0x38 chains with the 748D40 /
    748D10 / 748CE0 switches, q[4]=0 and the ac10/memcpy variants, and the
-   trailing count++ via slotp) but mwcc b210 assigns the saved registers in a
-   different order (mine arg0=$s0 slotp=$s1 arg1=$s2 vs retail slotp=$s0
-   arg1=$s1 arg0=$s2) and CSEs the third re-index's address computation
-   across the cad0 call into the freed arg0 register (retail rematerializes
-   the full dsll32/dsra32/sll/lui/addiu/addu chain, nd 6 in that region).
-   Tried: declaration orders, entry init vs assignment, nested ifs, inverted
-   if/else, subscript vs byte-arithmetic re-indexes (byte-arith keeps the
-   chains but the 3rd still CSEs), <<2 and 4*x and double-cast and
-   block-scoped off3 spellings (<<2 drops the sign extension, off3 loses the
-   scale chain), byte-arith slotp init (CSEs everything, 864B). Saved-reg
-   rotation + rematerialization floor, best nd 125 at 920/928B. */
+   trailing count++ via slotp) but mwcc b210 CSEs re-indexes 2 and 3 into the
+   freed arg0 register (byte-arith `(u8*)D_00882F70+(u32)(s8)arg0*4` keeps
+   re-index 1's full dsll32/dsra32/sll/lui/addiu/addu chain but the result
+   lands in $s0 and survives the cad0 calls, so 2/3 reload from it; retail
+   rematerializes from saved arg0 every time, nd 6 in that region) and the
+   saved registers are rotated (mine arg0=$s0 slotp=$s1 arg1=$s2 vs retail
+   slotp=$s0 arg1=$s1 arg0=$s2). The rotation is independent of declaration
+   order, block scoping, entry-init shape and `<<2`/`*4`/`&D[0]` spellings
+   (9 shapes, all nd 125); a shared slot local inflates the frame to 0x50,
+   per-path slot locals give 904B/nd 125 at a 928B window. Saved-reg
+   rotation + selective load-CSE floor, best nd 125. */
 // FUN_002E55C0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e55c0);
-
 // FUN_002E5960
 void func_002e5960(s8 arg0) {
     u8 *p;
@@ -547,6 +550,20 @@ void func_002e5960(s8 arg0) {
     *(s32 *)(p + 8) = 0;
 }
 
+/* measured: structure fully recovered (slotp/entry/p chain, func_002e5960
+   calls, the 0xC0 i-loop with the iGpffffb3d4+i*14 entry2 checks, the
+   311d00/311d60/2e6230 gates, the func_002e48a0 j-loop, the 311e40 gate,
+   the spE0/spD0 range compare and the two jump-table switches with
+   memset/cad0 + p->8++, the 0x3C tail gate and the 5-iteration do-loop with
+   spC0/spB0/spA0 slot writes) but the five 16-byte stack slots spE0/spD0/
+   spC0/spB0/spA0 hold s16-extended values: retail sq's the value directly
+   after its dsll32/dsra32 and lq's it into a raw 32-bit compare (slt), while
+   mwcc b210 emits a dsll32/dsrl32 widening pair before every sq and after
+   every lq of a u_long128 local holding a 32-bit value. Same mixed-width
+   u_long128 floor measured in this file at func_002e4ac0 (nd 302, best of
+   u_long128/s128/u64/aligned-u64 with direct/(u64)/(u32) casts and
+   typed-alias reads) and recorded in mdlManager func_0047c660 / mdlMatAnim
+   func_00480670 / P3 W414. Not transcribed further; floor. */
 // FUN_002E5AE0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5ae0);
 
@@ -580,6 +597,16 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
 // FUN_002E6280
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
 
+/* measured: structure fully recovered (a=*arg0/b=*arg1, p=*D_00882F70[0]+0x38,
+   four jump-table switches {0,2,7,8}->+0x14 / {1,5,6,10}->+0xA4 on *(p+4),
+   off1=a*0x30 / off2=b*0x30, g=iGpffffb3d4+2 with the u16*14 index and
+   u8*100 chain, v1 first then v2, slt/negu tail) but mwcc b210 CSEs the type
+   load into $a0 across all four dispatches (retail reloads lw 4(p) into
+   $v0/$v1/$a2/$a2 each time) and hoists p+off1 into $t0 for both slots where
+   retail keeps off1=$a3 and off2=$t0 live and re-derives p+off1 per slot;
+   obj 600B vs window 640B. Tried: decl orders, b-first load order, inline
+   (s16)*arg0 reads, signed (s32) type, explicit t locals; all nd 135. This is
+   the load-CSE/coloring floor (same family as func_002e6b20/6c90). */
 // FUN_002E6630
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6630);
 

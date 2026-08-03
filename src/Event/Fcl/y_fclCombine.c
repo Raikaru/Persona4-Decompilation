@@ -66,9 +66,9 @@ extern void func_0045af60(s32, s32, s32, s32);
 extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
 extern u8 *func_002b6150(s16);
 extern s32 func_002b6970(s16, s32);
-extern u16 D_008C0276;
-extern u16 D_008C027A;
-extern u16 D_008C024E;
+extern u16 D_008C0276[];
+extern u16 D_008C027A[];
+extern u16 D_008C024E[];
 extern f32 D_00640D78[];
 extern void func_00106390(s32, s32);
 extern void func_0044ea90(const void *, s32);
@@ -105,6 +105,14 @@ extern u8 D_006406F0[];
 extern s32 func_00110a60(u32 arg0, u32 arg1);
 extern s32 func_00303610(u8 *arg0, s8 arg1, u16 *arg2);
 extern f32 D_00641660[];
+extern u8 D_006417E0[];
+extern u8 D_00882FAE[];
+extern u8 D_00882FB0[];
+extern u8 D_00882FB1[];
+extern f32 func_00109190(void);
+extern void func_0032f060(u8 *arg0, s32 arg1);
+extern void func_0032f4d0(u8 *arg0);
+extern void func_003307b0(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_002b2970(s64 *out, f32 x, f32 y);
 extern void func_002b6c30(s32 a, s64 b, s32 c, f32 d);
 extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
@@ -212,21 +220,39 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e90d0);
 // FUN_002EB270
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
 
+/* measured: full body adapted — best nd 31 (obj 1136B == window). (1) All 27
+   entry stores: mwcc emits addu $v1,$s0,$v1 (base-first) for
+   p + idx*0xA + 0xC4 in every source spelling (inline idx, idx-term-first,
+   and the brief's s32-local addu-order recipe, which spilled and scored
+   173); retail is addu $v1,$v1,$s0 (scaled-offset-first, canonicalized by
+   the retail compiler). (2) D_00641660: mwcc rematerializes lui per lwc1
+   and orders addiu $a0,sp first; retail materializes lui/addiu once before
+   the stack arg (tried array reads, f32 locals, f32 *q, u32 base — all
+   4 words off). addu-operand-order + base-rematerialization floor. */
 // FUN_002ECFC0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ecfc0);
 
+/* measured: rule-1 applied via b210 probes — all 4 ldr/ldl pairs at
+   0x38/0x3F (0-mod-8); b210 emits plain ld, never the pair, at 0-mod-8
+   displacements (20+ probe spellings; ldr/ldl only for 4-mod-8). The
+   s64-at-0x38 read compiles 1 word short per site. Unreproducible. */
 // FUN_002ED430
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
 
-/* measured: no attempts made — m2c draft flags 12 M2C_ERROR sites
-   (ldr/ldl unaligned 8-byte loads); per wave brief, M2C_ERROR drafts
-   are skipped. */
+/* measured: rule-1 applied via b210 probes — this function's 4 ldr/ldl pairs
+   are all at 0x38/0x3F (0x38 mod 8 == 0). Probe-verified this wave: b210
+   emits plain ld for ANY 0-mod-8 64-bit read (u8/u32/s64 structs, packed,
+   cast, computed-pointer and call-result spellings, 20+ probes) and emits
+   ldr/ldl ONLY for 4-mod-8 displacements (0x3C -> ldr 0x3c/ldl 0x43).
+   Retail's ldr/ldl at 0-mod-8 displacement is a retail-compiler behavior
+   b210 cannot reproduce; writing the s64 read makes the object 4 words
+   shorter and shifts the tail. Rule 1 does not apply to these sites. */
 // FUN_002F0F00
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
 
-/* measured: no attempts made — m2c draft flags 8 M2C_ERROR sites
-   (ldr/ldl unaligned 8-byte loads into func_002b69f0 args); per wave
-   brief, M2C_ERROR drafts are skipped. */
+/* measured: rule-1 applied via b210 probes — same as func_002f0f00: all
+   4 ldr/ldl pairs at 0x38/0x3F (0-mod-8); b210 emits ld, never the pair,
+   for 0-mod-8 displacements (20+ probe spellings). Unreproducible. */
 // FUN_002F6CF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f6cf0);
 
@@ -262,26 +288,45 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
     *(func_002e4870(arg8) + arg9 + 0x2E4) = v;
 }
 
-/* measured: no attempts made — m2c draft flags 8 M2C_ERROR sites
-   (ldr/ldl unaligned 8-byte loads of struct+0x38 into func_002b69f0
-   args); per wave brief, M2C_ERROR drafts are skipped. */
+/* measured: rule-1 applied via b210 probes — all 4 ldr/ldl pairs at
+   0x38/0x3F (0-mod-8). b210 emits plain ld for 0-mod-8 64-bit reads in
+   every spelling (20+ probes); ldr/ldl only appear for 4-mod-8
+   displacements. Retail's pair here is unreproducible; the s64-at-0x38
+   read compiles 1 word short per site. */
 // FUN_002F9D90
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9d90);
 
-/* measured: no attempts made — m2c draft flags M2C_ERROR sites with
-   real VU0/COP2 FPU-MAC instructions (adda.s/madd.s) plus ldr/ldl
-   unaligned loads; per wave brief, M2C_ERROR drafts are skipped. */
+/* measured: rule-1 applied via b210 probes — all 8 ldr/ldl pairs at
+   0x38/0x3F (0-mod-8); b210 emits ld, never the pair, at 0-mod-8
+   displacements (20+ probe spellings). Retail's pairs unreproducible
+   (also carries adda.s/madd.s FPU-MAC chains). */
 // FUN_002FBEA0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002fbea0);
 
-/* measured: retail re-emits the s8->s32 promotion of the loop counter in
-   place (dsll32/dsra32 $s2,24) right after func_002badc0 and uses it for
-   (s16)(i + 0x464); mwcc b210 CSEs the loop-head extension into $s3 and
-   skips the redundant re-promotion (2 words shorter, nd 36). Tried: natural
-   C, explicit s32 iv local, schedule on (70), opt_propagation off (36),
-   opt_common_subs off (74), declaration order p,key,i (40). */
 // FUN_00302570
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302570);
+s32 func_00302570(u8 *arg0) {
+    u8 *p;
+    s32 idx;
+    s8 i;
+
+    p = *(u8 **)(arg0 + 0x38);
+    *(s8 *)(p + 0x130) = 0;
+    i = 0;
+    while ((s32)i < 4) {
+        if ((func_00106330((s32)i + 0x1309) == 0) && (func_00110140() >= D_00749100[(s32)i])) {
+            *(s8 *)(p + 0x130) = (s8)i;
+            *(s8 *)(p + 0xD) = func_002bab80((void *)func_00331660());
+            func_002bbd80(*(s8 *)(p + 0xD), 0, func_001067f0((s16)(*(s8 *)(p + 0x130) + 0x464)));
+            func_002badc0(*(s8 *)(p + 0xD), *(s8 *)(p + 0x130) + 0x17);
+            func_00106390((s32)i + 0x1309, 1);
+            func_00106620((s16)(i + 0x464), 1);
+            *(u8 *)(p + 1) = 0x97;
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
 
 // FUN_003026C0
 s32 func_003026c0(s32 arg0, s32 arg1)
@@ -297,9 +342,10 @@ s32 func_003026c0(s32 arg0, s32 arg1)
     return arg1;
 }
 
-/* measured: no attempts made — the m2c draft flags 8 M2C_ERROR sites
-   (ldr/ldl unaligned 8-byte loads of func_002b6150()+0x38 into
-   func_002b69f0 args); per wave brief, M2C_ERROR drafts are skipped. */
+/* measured: rule-1 applied via b210 probes — all 4 ldr/ldl pairs at
+   0x38/0x3F (0-mod-8) loading func_002b6150()+0x38 into func_002b69f0
+   args. b210 emits plain ld for 0-mod-8 64-bit reads in every spelling
+   (20+ probes); ldr/ldl only for 4-mod-8 displacements. Unreproducible. */
 // FUN_00302770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
 
@@ -372,6 +418,16 @@ void func_00303a20(u8 *arg0) {
 // FUN_00303DE0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303de0);
 
+/* measured: full m2c-adapted body tried (copy loop, both rand()%100 slots,
+   key loop, 2d00/2cb0 pair, c/j loop, func_003042f0 tail) — best nd 100.
+   (1) b210 constant-folds a post-loop `key = 4` across the loop's break path
+   (kills the break-path key=(s8)i, folds the call arg to addiu $a1,0,4); the
+   break-skipping spellings (key=4 inside the loop, pre-loop default, guarded
+   if) cost 110-114. (2) Saved-register rotation in the second half: retail
+   v20=$s4,c=$s3,v2=$s1,j=$s5,p=$s2,arg1=$s3 vs all decl-order variants
+   v20=$s5,c=$s4,v2=$s2,j=$s1,p=$s3,arg1=$s1. (3) First-loop temps r/v/i land
+   in $a1/$a0/$v1 vs retail $a0/$a1/$a2 (declaration swaps don't move them).
+   Saved-register rotation + const-propagation floor. */
 // FUN_003040D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003040d0);
 
@@ -407,6 +463,10 @@ s32 func_003042f0(s32 arg0, s32 arg1)
    rotation + scheduling floor. */
 // FUN_00304410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304410);
+/* measured: rule-1 applied via b210 probes — 5 ldr/ldl pairs: 1 at
+   0x28/0x2F + 4 at 0x38/0x3F, all 0-mod-8. b210 emits plain ld at
+   0-mod-8 64-bit reads in every spelling (20+ probes); ldr/ldl only
+   for 4-mod-8 displacements. Unreproducible. */
 // FUN_00304580
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304580);
 
@@ -519,6 +579,20 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
 // FUN_0030B060
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b060);
 
+/* measured: full m2c-adapted body — obj 3088B == window, best nd 295 (all
+   rows are register names + two scheduling patterns). Structural fixes that
+   DID land: (s16) cast on the func_002b6970 result (retail sign-extends it),
+   flag loads CSE'd into locals across the func_003307b0 calls (retail loads
+   D_008C0276/027A/024E once), shared te pointer in the case-0xC3 loop
+   (retail keeps &D_00882FB0[k*2] in a saved reg). Residuals: (1) saved-
+   register rotation arg0=$s2,k=$s1 vs retail arg0=$s1,k=$s4 — all
+   declaration orders probed, no change; (2) the (s8) increment narrowing
+   pair is emitted before the sb (5 sites) vs retail store-first — IR
+   ordering, schedule on/off and s32/s8 temps don't move it; (3) the 4-byte
+   colour copies interleave lbu/sb per byte vs retail load-all-store-all
+   (FclByte4 struct copies compile 10B larger); (4) retail materializes a
+   te+1 pointer for the [1] reads. Saved-register rotation + scheduling
+   floor. */
 // FUN_0030B7B0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b7b0);
 
