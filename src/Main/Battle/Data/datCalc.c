@@ -7,7 +7,7 @@ extern void func_0046d730(u8 *arg0, s32 arg1);
 extern u8 D_00635938[];
 
 extern u32 func_003b7060(void);
-extern u32 func_0023e130(void);
+extern u32 func_0023e130(u8 *arg0);
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 
@@ -25,6 +25,9 @@ typedef struct DatUnit
 } DatUnit;
 
 extern u16 func_00231f80(DatUnit* unit);
+extern u32 func_001053b0(s16 arg0);
+extern s32 func_00232730(u8 *arg0, s32 arg1);
+extern u16 func_00232950(u8 *arg0, s32 arg1);
 
 extern u32 func_00232290(DatUnit* unit);
 
@@ -55,7 +58,12 @@ extern s32 func_00106a30(s16 arg0);
 extern u32 func_001069a0(s16 arg0);
 
 extern s32 func_0023a6b0(u8 *arg0, s32 arg1);
-extern s32 func_00238940(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_00238940(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 arg5, s32 arg6, u8 arg7);
+extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
+extern u32 func_00106330(s32 arg0);
+extern u32 func_00109980(u16 arg0, s32 arg1);
+extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 /* Defined below in this file; used at line 184, before its definition. */
 extern u8 *func_0023e140(u8 *arg0);
 
@@ -68,6 +76,17 @@ extern u8 *iGpffffb3cc;
 
 extern void func_00233370(u8 *arg0, u8 arg1, s32 arg2);
 extern void func_00233490(u8 *arg0, u8 arg1, s8 arg2);
+
+extern u8 func_00232b40(u8 *arg0, s32 arg1);
+extern u32 func_00109bf0(u32 arg0, s32 arg1);
+extern s32 func_00106940(s16 arg0);
+extern s32 func_00106970(s16 arg0);
+extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
+extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
+extern s8 func_002332a0(u8 *arg0, s32 arg1);
+extern u16 func_001068b0(s16 arg0);
+extern u16 func_001068e0(s16 arg0);
+extern u8 func_00106910(s16 arg0);
 
 
 
@@ -128,6 +147,11 @@ void func_00231ef0(u8 *arg0, u8 arg1)
     arg0[6] = arg1;
 }
 
+/* measured: mwcc hoists the 0xFFFF mask constant into a saved register
+   (ori $s1, $zero, 0xffff) and masks temp_16 at its definition instead of
+   loading lhu raw into $s0 like retail; frame 0x50 vs 0x40, obj over
+   window. Tried s32 temp_16, (u16) cast at definition, (u16) cast at
+   uses; all nd 157-178. */
 // FUN_00231F80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231f80);
 
@@ -277,20 +301,58 @@ s32 func_00232aa0(s32 arg0)
     }
 }
 
+/* measured: 45 words — mwcc CSEs the id mask into $s0 across the 0x2F7
+   assert call (retail re-masks per use), sinks the iGpffffb3c4 lw below
+   the mul, emits addiu where retail daddiu's the return constants, and
+   reverses the final addu operands. u16/(u16)/s32 and 1U spellings
+   probed. bltz guard needed (s32)((u32)..) form. */
 // FUN_00232B40
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 
+/* measured: retail booleanizes the 0x80 bad-flag test (lw; andi; sltu; beqz)
+   but mwcc folds both `!= 0` and unsigned `> 0` to beqz; nd 6. */
 // FUN_00232C70
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 
 // FUN_00232D80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
 
+/* measured: merge-point s8 re-sign-extension lands in $v1 (retail $v0);
+   tried declaration orders, t4 form, and `v > 7` slti-$at form, nd 6. */
 // FUN_002332A0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002332a0);
 
 // FUN_00233370
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233370);
+void func_00233370(u8 *arg0, u8 arg1, s32 arg2)
+{
+    s32 temp_16;
+    s32 temp_4;
+    s8 temp_19;
+    s32 var_17;
+
+    var_17 = arg2;
+    temp_16 = arg1 & 0xFF;
+    if (temp_16 >= 0x18) {
+        func_0046d730(D_00635938, 0x441);
+    }
+    temp_19 = (s8)var_17;
+    if (temp_19 > 7 || temp_19 < -7) {
+        func_0046d730(D_00635938, 0x442);
+    }
+    temp_4 = (temp_16 >> 1) & 0xFFFF;
+    if (temp_19 < 0) {
+        var_17 = (s8)(temp_19 + 0xF);
+    }
+    if (temp_16 & 1) {
+        u8 *temp_5 = (u8 *)((temp_4 & 0xFFFF) + (s32)arg0);
+        temp_5[0x1C] = (u8)((temp_5[0x1C] & 0xF) | (((s8)var_17 & 0xF) << 4));
+        return;
+    }
+    {
+        u8 *temp_5 = (u8 *)((temp_4 & 0xFFFF) + (s32)arg0);
+        temp_5[0x1C] = (u8)((temp_5[0x1C] & 0xF0) | ((s8)var_17 & 0xF));
+    }
+}
 
 // FUN_00233490
 void func_00233490(u8 *arg0, u8 arg1, s8 arg2)
@@ -319,6 +381,9 @@ void func_00233490(u8 *arg0, u8 arg1, s8 arg2)
 // FUN_00233570
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233570);
 
+/* measured: mwcc CSEs `idx & 0xFFFF` into a saved reg across the 0x45E
+   assert call; retail re-issues the andi from saved idx each use. Tried
+   s32/u16 idx, (u16) cast vs mask, all nd 45-61. */
 // FUN_00233880
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233880);
 
@@ -341,6 +406,11 @@ void func_002339d0(u8 *arg0)
     }
 }
 
+/* measured: 4 words off — the else path's `(s8)` truncation of the sltu
+   boolean (dsll32/dsra32) is range-eliminated by mwcc (0/1 needs no
+   extension) while retail keeps it; tried inline cast and via s8 local.
+   The $a0 temp_4 allocation and mask order were fixed by cast/mask
+   split; merge re-extension lands in $v0 here (unlike func_002332a0). */
 // FUN_00233A90
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233a90);
 
@@ -379,6 +449,11 @@ void func_00235020(u8 *arg0)
     }
 }
 
+/* measured: retail emits a merge-point s8 re-truncation for the skill value
+   (paths leave $v1, .L002351A8 truncates into $s5) and re-derives
+   temp_17&0xFFFF from a saved temp_17; mwcc shares the path truncation and
+   saves the masked temp instead. Tried (u8) call args, s32 temp + post-if
+   assignment, pointer locals; best nd 93 (allocation cascade). */
 // FUN_00235110
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235110);
 
@@ -398,16 +473,77 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00238940);
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002397d0);
 
 // FUN_00239E40
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00239e40);
+s32 func_00239e40(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
+{
+    u8 *temp_4;
+    s32 off;
 
+    if ((u16)arg0 >= 0x1B8) {
+        func_0046d730(D_00635938, 0xB94);
+    }
+    if ((arg3 & 0xFFFF) != 1) {
+        return 0;
+    }
+    off = (arg0 & 0xFFFF) * 0x28;
+    temp_4 = (u8 *)(off + (s32)iGpffffb3b8);
+    if (temp_4[0x18] != 2) {
+        return 0;
+    }
+    if ((s32)temp_4[0x19] < 0x64) {
+        func_0046d730(D_00635938, 0xB9F);
+    }
+    return func_00238940(arg0, arg1, arg2, arg5);
+}
+
+/* measured: 5 words off — mwcc emits `addu $a0,$v0,$v1` (base-first) and
+   `or $v1,$a0,$v1` where retail has index-first addu and the high mask in
+   $a0. uVar6 one-statement (lw-first) vs two-statement (register $v1)
+   forms, s32-cast add, and swapped operand orders all probed; the shift-pair
+   extraction condition also DSE-eliminates the whole low-bits store, so
+   `(var_21 & 0xFFFFF) != 0` is required. */
 // FUN_00239F50
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00239f50);
 
+/* measured: retail places each `return 0` OUT OF LINE (bnez to it) and
+   re-masks the lhu'd sp/hp with andi at the compare; mwcc inlines the
+   return-0 (beqz skip) and eliminates the redundant mask via u16 range
+   tracking. sltu booleanize fixed via value-context; slt form fixed via
+   (s32) casts; block placement and the andi remain, nd ~28. */
 // FUN_0023A1E0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a1e0);
 
 // FUN_0023A490
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a490);
+s32 func_0023a490(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, s32 *arg6)
+{
+    s32 var_2;
+
+    if (arg1 != NULL && arg2 != NULL) {
+        if (arg4 != NULL) {
+            *arg4 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
+        }
+        if (arg5 != NULL) {
+            *arg5 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+        }
+        if (arg6 != NULL) {
+            if ((u16)arg0 >= 0x1B8) {
+                func_0046d730(D_00635938, 0xB94);
+            }
+            if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x18] != 2) {
+                var_2 = 0;
+            } else {
+                if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
+                    func_0046d730(D_00635938, 0xB9F);
+                }
+                var_2 = func_00238940(arg0, arg1, arg2, 0);
+            }
+            *arg6 = var_2;
+        }
+        *(s32 *)(arg1 + 0x18) = 0;
+        *(s32 *)(arg2 + 0x18) = 0;
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_0023A620
 s32 func_0023a620(s32 arg0, s32 arg1)
@@ -445,11 +581,68 @@ s32 func_0023d6e0(s16 arg0)
 
 
 // FUN_0023D740
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d740);
+s32 func_0023d740(s32 arg0, s32 arg1)
+{
+    s32 var_16;
 
+    if ((s16)arg0 != -1) {
+        var_16 = (s16)func_0023d8e0(NULL, arg0 & 0xFFFF);
+        if (var_16 == 6) {
+            return 6;
+        }
+    }
+    switch (arg1) {
+    case 0x2:
+        var_16 = 0xB;
+        break;
+    case 0x4:
+        var_16 = 0xA;
+        break;
+    case 0x8:
+        var_16 = 0xF;
+        break;
+    case 0x10:
+        var_16 = 8;
+        break;
+    case 0x1:
+        var_16 = 0xC;
+        break;
+    case 0x20:
+        var_16 = 9;
+        break;
+    case 0x40:
+        var_16 = 0xD;
+        break;
+    case 0x80:
+        var_16 = 0xE;
+        break;
+    case 0x100:
+        var_16 = 5;
+        break;
+    case 0x80000:
+        var_16 = 7;
+        break;
+    case 0x100000:
+        var_16 = 5;
+        break;
+    default:
+        func_0046d730(D_00635938, 0xE82);
+        break;
+    }
+    return var_16;
+}
+
+/* measured: branch-to-branch sharing; mwcc b210 chains the flags&4 path's
+   `b epilogue` onto the s16 path's identical branch (target 0x23d984 vs
+   retail 0x23d9a0). Tried if/else, single-return, and switch forms, all
+   nd 1..45. */
 // FUN_0023D8E0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d8e0);
 
+/* measured: saved-register allocation; retail assigns $s0=temp_16,
+   $s1=var_17, $s2=arg1, $s3=arg0 (first-def order) while mwcc assigns
+   arg0/arg1 first, frame 0x40 vs 0x50 and 16 instructions short. Tried
+   m2c declaration orders, nd 224 rows. */
 // FUN_0023D9B0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d9b0);
 
@@ -464,7 +657,45 @@ u8 func_0023dd90(u8 *arg0, s32 arg1)
 
 
 // FUN_0023DDC0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023ddc0);
+s32 func_0023ddc0(u8 *arg0, s32 arg1)
+{
+    s32 var_17;
+    s32 idx;
+    u32 v;
+
+    var_17 = 0;
+    if ((u16)arg1 >= 0x240) {
+        func_0046d730(D_00635938, 0xF1A);
+    }
+    idx = (arg1 & 0xFFFF) * 0x28;
+    if (iGpffffb3b8[idx + 0x11] == 0x10) {
+        return 0;
+    }
+    if ((s32)((*(s32 *)(arg0 + 0xC) & 8) != 0) != 0) {
+        return 4;
+    }
+    v = func_0023d9b0(arg0, arg1);
+    switch (iGpffffb3b8[idx + 3]) {
+    case 1:
+        if (!(iGpffffb3b8[idx] & 1)) {
+            if (*(u16 *)(arg0 + 8) > v) {
+            } else {
+                var_17 = 1;
+            }
+        } else {
+            if (*(u16 *)(arg0 + 8) < v) {
+                var_17 = 1;
+            }
+        }
+        break;
+    case 2:
+        if (*(u16 *)(arg0 + 0xA) < v) {
+            var_17 = 2;
+        }
+        break;
+    }
+    return var_17;
+}
 
 // FUN_0023DF70
 s32 func_0023df70(s32 arg0)
@@ -484,6 +715,9 @@ s32 func_0023dfe0(void)
     return 0;
 }
 
+/* measured: loop-invariant hoisting fixed via opt_loop_invariants, but mwcc
+   allocates var_4/var_3/temp_8 to $t1/$t2/$a1 where retail uses $a0/$v1/$t0
+   (systematic rotation; probe batch of 4 spelling variants all nd 61). */
 // FUN_0023DFF0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023dff0);
 
@@ -558,11 +792,50 @@ s32 func_0023e2f0(u8 *arg0, s32 arg1)
     return 1;
 }
 
+/* measured: case 0's lhu path compiles mul-before-base-lw while retail
+   hoists the iGpffffb3c4 load above the *0x3C (sibling lbu case 1 matches);
+   tried inline, offset-local, and pointer-cast spellings, nd 7. */
 // FUN_0023E3E0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e3e0);
 
 // FUN_0023E5B0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e5b0);
+s32 func_0023e5b0(u8 *arg0, s32 arg1)
+{
+    s32 temp_3;
+    u16 id;
+    s32 v;
+
+    if (*(u16 *)arg0 & 4) {
+        temp_3 = arg1 & 0xFF;
+        switch (temp_3) {
+        case 0:
+            return 0xA;
+        case 1:
+            return 0xA;
+        default:
+            func_0046d730(D_00635938, 0x1039);
+            goto ret0;
+        }
+    } else {
+        id = *(u16 *)(arg0 + 2);
+        if ((s32)id >= 0xB) {
+            func_0046d730(D_00635938, 0x103D);
+        }
+        v = func_00106cd0((s16)id, 1) & 0xFFFF;
+        temp_3 = arg1 & 0xFF;
+        switch (temp_3) {
+        case 0:
+            return func_00106970((s16)v);
+        case 1:
+            return func_00106940((s16)v);
+        default:
+            func_0046d730(D_00635938, 0x1046);
+            goto ret0;
+        }
+    }
+ret0:
+    return 0;
+}
 
 // FUN_0023E6F0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
@@ -570,14 +843,133 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 // FUN_002411A0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
 
+/* measured: 6 words off — mwcc emits `addu $a0,$a1` (base-first) where
+   retail has `addu $a1,$a0`, and schedules var_2=1 before the shift+1 addiu
+   (retail opposite). s32 temp_4 per m2c regressed to nd 82; shift local and
+   statement reorder did not move the two pairs. */
 // FUN_00241BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
 
+/* measured: load-sinking floor; retail hoists the iGpffffb3b8 lw above the
+   *0x28 mul (base in $a0, mul in $v0) while mwcc sinks it after the mul
+   regardless of statement order (base-first/index-first/int+int all tried,
+   nd ~20). (u16) guard and off-local did fix the mask CSE and frame. */
 // FUN_00241DE0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
 
 // FUN_00241F00
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241f00);
+s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
+{
+    u16 temp_3;
+    u8 var_2;
+    s32 temp_3_2;
+    s32 temp_3_3;
+    s32 var_2_2;
+    u16 var_16;
+    s32 var_2_3;
+    s32 var_2_4;
+    s32 var_2_5;
+    u16 temp_17;
+
+    if ((u16)arg2 >= 0x1B8) {
+        func_0046d730(D_00635938, 0x1360);
+    }
+    if (!(iGpffffb3b8[(arg2 & 0xFFFF) * 0x28] & 2)) {
+        return 0;
+    }
+    if ((s32)((*(s32 *)(arg1 + 0xC) & 0x100000) != 0) != 0) {
+        return 0;
+    }
+    temp_3 = *(u16 *)arg0;
+    if (temp_3 & 0x10) {
+        return 0;
+    }
+    if (!(temp_3 & 4)) {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0x1371);
+        }
+        if (*(u16 *)arg0 & 4) {
+            var_2 = 0;
+        } else {
+            if (*(u16 *)(arg0 + 2) >= 0xB) {
+                func_0046d730(D_00635938, 0xFBB);
+            }
+            var_2 = iGpffffb3c0[*(u16 *)(arg0 + 2) * 0x14C + 0x14A];
+        }
+        temp_3_2 = var_2 & 0xFF;
+        if (temp_3_2 == 3 || temp_3_2 == 5) {
+            return 0;
+        }
+    }
+    temp_3_3 = arg3 & 0xFFFF;
+    if (temp_3_3 != 4 && temp_3_3 != 2) {
+        return 0;
+    }
+    if (*(u16 *)arg0 & 4) {
+        var_2_2 = 0x64;
+    } else {
+        var_2_2 = 5;
+    }
+    var_16 = var_2_2 & 0xFFFF;
+    if (*(u16 *)arg0 & 4) {
+        var_2_3 = 0;
+    } else {
+        temp_17 = *(u16 *)(arg0 + 2);
+        if ((s32)temp_17 >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x71) {
+            var_2_3 = 1;
+        } else if ((func_001069d0(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x71) {
+            var_2_3 = 1;
+        } else {
+            var_2_3 = 0;
+        }
+    }
+    if (var_2_3 != 0) {
+        var_16 = 0x50;
+    }
+    if (*(u16 *)arg0 & 4) {
+        var_2_4 = 0;
+    } else {
+        temp_17 = *(u16 *)(arg0 + 2);
+        if ((s32)temp_17 >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x72) {
+            var_2_4 = 1;
+        } else if ((func_001069d0(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x72) {
+            var_2_4 = 1;
+        } else {
+            var_2_4 = 0;
+        }
+    }
+    if (var_2_4 != 0) {
+        var_16 = 0x32;
+    }
+    if (*(u16 *)arg0 & 4) {
+        var_2_5 = 0;
+    } else {
+        temp_17 = *(u16 *)(arg0 + 2);
+        if ((s32)temp_17 >= 0xB) {
+            func_0046d730(D_00635938, 0x23B);
+        }
+        if ((func_001069d0(func_00106cd0((s16)temp_17, 0)) & 0xFFFF) == 0x73) {
+            var_2_5 = 1;
+        } else if ((func_001069d0(func_00106cd0((s16)temp_17, 1)) & 0xFFFF) == 0x73) {
+            var_2_5 = 1;
+        } else {
+            var_2_5 = 0;
+        }
+    }
+    if (var_2_5 != 0) {
+        var_16 = 0;
+    }
+    if ((s32)(func_003b7060() % 100) < (s32)(var_16 & 0xFFFF)) {
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_00242360
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242360);
@@ -611,6 +1003,10 @@ s32 func_00242800(u8 *arg0, s32 arg1)
 // FUN_00242990
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242990);
 
+/* measured: load-sinking floor in the RNG tail; retail masks temp_16 & 0xFF
+   into $s0 before the rng jal (mfhi $v0, addu $v0,$s0,$v0), mwcc sinks the
+   andi after the jal into $v0 regardless of a hoisted local (mfhi $v1).
+   Tried explicit mask and lo-local spellings, nd 7. */
 // FUN_00243650
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243650);
 
@@ -660,6 +1056,11 @@ u16 func_002439c0(u8 *arg0)
     return *(u16 *)(iGpffffb3c4 + *(u16 *)(arg0 + 2) * 0x3C + 0x20);
 }
 
+/* measured: saved-register allocation; retail uses 7 saved regs incl. a
+   loop pointer hoisted to $s6 (addiu $22,$16,0x22 across the 0x106330
+   call) while mwcc reuses arg0's slot for var_21 and re-derives the
+   pointer, frame 0x70 vs 0x80, nd 156. Tried separate loop vars, top-level
+   pointer locals, m2c declaration order. */
 // FUN_00243A30
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243a30);
 

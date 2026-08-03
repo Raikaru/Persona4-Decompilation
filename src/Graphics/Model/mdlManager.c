@@ -3,6 +3,12 @@
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
 #include "type.h"
 extern f32 iGpffff8040;
+extern f32 fGpffff809c;
+extern u8 D_00713180[];
+extern u8 D_007131A0[];
+extern u8 D_007131C0[];
+extern s32 func_00457a90(void* a, u8* b);
+extern f32 func_004579a0(void* a, u8* b);
 
 extern u32 func_00397460(void);
 typedef void (*CallbackFn)(void);
@@ -68,6 +74,8 @@ extern code DAT_00922ba0_abs[];
 extern u8 DAT_00922ba4_abs[];
 extern u8 DAT_00922ba8_abs[];
 extern u8 DAT_00922bac_abs[];
+extern f32 D_00922BB0_abs[];
+extern f32 D_00922BB4_abs[];
 extern u8 D_00922BC0;
 extern u8 D_00922BC0_abs[];
 
@@ -77,6 +85,9 @@ extern u32 func_00399d80();
 extern u32 func_0039b6e0();
 
 extern u32 func_003b83f0(int object);
+extern u32 func_003b85b0(void* object);
+extern void func_003b8520(void* object, int value);
+extern void func_00399b10(void* object);
 extern u32 func_003b8500(int object);
 extern void func_00473140(int param_1);
 
@@ -127,7 +138,7 @@ extern void func_003bff30();
 extern void* func_00477350(void*, void*);
 extern void* func_00477430(void*);
 extern void* func_00479880(void*);
-extern void func_004776c0(void);
+extern void* func_004776c0(void* param_1, void* param_2);
 extern void* func_00474a10(void* param_1, u32* param_2);
 extern u32 func_00474ce0(void* param_1);
 extern int func_00442c30();
@@ -141,6 +152,7 @@ extern u8 LAB_00474a90;
 extern u8 LAB_00474a90_abs[];
 
 extern void* func_00397470(void);
+extern void func_003e05f0(void* a, void* b, void* c);
 
 extern void func_004585c0();
 extern u32 func_00476e90(void* param_1, u32* param_2);
@@ -156,10 +168,10 @@ extern void func_0044ea90(void* a, int b);
 extern void func_0043f9c8(void* a, int b, int c);
 extern void* DAT_008873e8[];
 extern s64 DAT_00723cd8;
-extern void func_004787e0(void* a0);
+extern void func_004787e0(u8* a0);
 extern void func_0048a000(void);
 extern void* func_004779b0();
-extern void func_004782b0(void* a);
+extern s32 func_004782b0(u8* a);
 extern void func_00478410(void* a, void* b);
 extern void* func_003bfae0(void);
 extern int func_003e8200(void* a, void* b);
@@ -214,6 +226,14 @@ extern void func_0047aee0(void* mdl, void* matrix);
 // FUN_00470E90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00470e90);
 
+/* measured: u8* params + plain i++/j++ (the (u16) casts double-mask the
+   increments, nd 31) leaves 26 words: the loop body self-masks the test's
+   register (andi $v1,$v1) instead of re-masking the counter (andi $v1,$s3 —
+   the aa30 loop-test-CSE family), the *param_1 base load schedules after the
+   i*0x50 chain vs retail's load-first, and arr/j s-regs rotate ($s2/$s1 vs
+   $s1/$s2... tried decl swaps). A named base local forces the load early but
+   CSEs base+chain into an extra s-reg (nd 81). Loop-test-CSE + load-order
+   floor. */
 // FUN_00471010
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471010);
 // FUN_004711E0
@@ -280,11 +300,15 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 #pragma alias DAT_00922ba8_abs DAT_00922ba8
 #pragma alias DAT_00922bac_abs DAT_00922bac
 #pragma alias D_00922BC0_abs D_00922BC0
+#pragma alias D_00922BB0_abs D_00922BB0
+#pragma alias D_00922BB4_abs D_00922BB4
 
 
 
 // FUN_00471370
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
+extern void func_00397c40(void* a, void* b);
+extern void func_00471370(void* a, void* b, void* c, void* d);
 // FUN_00472F30
 void func_00472f30(u8* param_1, int param_2)
 {
@@ -304,7 +328,43 @@ void func_00472f30(u8* param_1, int param_2)
 
 
 // FUN_00473000
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473000);
+void func_00473000(u8* arg0, u8* arg1)
+{
+    u8* p5;
+    u8* obj;
+    u8* obj2;
+    s32 count;
+    s32 base;
+
+    p5 = arg1 + 0x3C;
+    obj = *(u8**)(arg0 + 0x20);
+    if (obj != 0) {
+        *(s32*)DAT_00922ba0_abs = *(s32*)(obj + 0x3C);
+        *(s32*)(obj + 0x3C) = (s32)func_00472f30;
+        obj2 = *(u8**)(arg0 + 0x20);
+        count = *(s32*)(obj2 + 0x24);
+        base = (s32)obj2 + 0x4C;
+        *(s32*)DAT_00922ba4_abs = base;
+        base = base + count * *(s32*)(p5 + 0);
+        *(s32*)DAT_00922ba4_abs = base;
+        if (*(f32*)(arg1 + 8) != 0.0f) {
+            *(s32*)DAT_00922ba8_abs = base;
+        } else {
+            *(s32*)DAT_00922ba8_abs = 0;
+        }
+        *(float**)DAT_00922bac_abs = (float*)(p5 + 4);
+        *(f32*)D_00922BB0_abs = *(f32*)(p5 + 0x10);
+        *(f32*)D_00922BB4_abs = *(f32*)(p5 + 0x14);
+        if ((*(u16*)(arg1 + 0x54) & 0x81E0) != 0) {
+            func_00471370(arg0, arg1, arg1 + 0x54, 0);
+            *(u16*)(arg1 + 0x54) |= 0x4000;
+        } else {
+            func_00397c40(arg0, p5);
+            *(u16*)(arg1 + 0x54) &= 0xBFFF;
+        }
+        *(s32*)(*(u8**)(arg0 + 0x20) + 0x3C) = *(s32*)DAT_00922ba0_abs;
+    }
+}
 // FUN_00473140
 void func_00473140(int param_1)
 {
@@ -417,9 +477,20 @@ void func_00473520(void* param_1)
     *(f32*)((u8*)param_1 + 0x8C) = 1.0f;
 }
 
+/* measured: retail allocates q=$s0, i=$s1, arg0=$s2, i*4=$s3; mwcc b210
+   rotates to i*4=$s0, q=$s2, arg0=$s3 (25 words, all register names; u8*
+   param typing fixed the arg0+0x38 address-CSE frame growth, nd 81 -> 25).
+   Tried: q,i,idx and i,q,idx declaration orders (25/28), idx named local.
+   Saved-register rotation floor. */
 // FUN_004735B0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004735b0);
-
+/* measured: retail keeps arg0=$s0 and folds 0x20 into every reload
+   (lw $a0,0x20($s0) after each call); mwcc b210 materializes arg0+0x20 into an
+   s-reg (addiu $s0,$s2,0x20) and rotates the saved set (arg0 $s0->$s2,
+   arg2 $s2->$s1, p4 $s1->$s0), nd 57. Tried: u8* params (78), u8** loads
+   (78), s32 base locals (78), opt_propagation off (57). Address-CSE into
+   s-reg floor (same family as 79e60/776c0/73000 pre-fix; u8* typing did not
+   break it here). */
 // FUN_00473710
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
 
@@ -456,8 +527,18 @@ void func_004745f0(MdlAnimEntryTable* table)
 
 
 
+extern void func_0047ffc0(void* a);
+/* measured: u8* params fixed the param_2+0xC address-CSE (nd 106 -> 54) and
+   the func_0047fd10 call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
+   a1=$s0 move is deliberate, fixing it removes the shift). Residual
+   (nd 54-79): the s16 t lands in $a2 vs retail $a1, the f32 alpha local lands
+   in $f13 (arg reg, dead before calls) vs retail $f14 (forcing the
+   mov.s $f13,$f14 in the fe90 call), and the fd10 arg materialization order
+   (move/lwc1) swaps. Tried: one=1.0f local, alpha/one decl order, void*
+   params. FP/integer register-allocation floor. */
 // FUN_004746B0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004746b0);
+
 // FUN_00474890
 void func_00474890(void* param_1)
 {
@@ -586,6 +667,14 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 
 
+/* measured: retail reloads t (lh) and obj (lw) at the second path and sign-
+   extends t (dsll32/dsra32) BEFORE the first compare in both paths; mwcc b210
+   either CSEs the second-path t load across the branch when the condition's t
+   load precedes the obj short-circuit (t-first form, nd 20) or, with the obj
+   short-circuit first (m2c form), keeps the obj load CSE'd in $a0, emits the
+   dance after the compare, and swaps t/obj registers ($v0/$a0 vs $a0/$a2,
+   nd 50). Tried: t-first comma form, obj-first m2c form, s32/s16 t, separate
+   e/n locals. Load-CSE + sign-extension-placement floor. */
 // FUN_00474BA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
 
@@ -672,7 +761,48 @@ void func_00474df0(u8* param_1, void* param_2)
 
 
 // FUN_00474F40
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474f40);
+void* func_00474f40(void* arg0)
+{
+    void* obj;
+    s32 count;
+    s32 i;
+    s32 flag;
+    s32 t;
+
+    obj = *(void**)((u8*)arg0 + 0x18);
+    if (obj == 0) {
+        return arg0;
+    }
+    flag = 0;
+    count = *(s32*)((u8*)obj + 0x24);
+    i = 0;
+    while (i < count && flag == 0) {
+        if (func_00399d80(*(void**)((u8*)*(void**)((u8*)obj + 0x20) + i * 4)) != 0) {
+            flag = 1;
+        }
+        i++;
+    }
+    if (func_003b83f0((int)obj) != 0) {
+        t = func_003b85b0(arg0);
+        switch (t) {
+        case 0:
+        case 3:
+            break;
+        default:
+        case 1:
+        case 2:
+            if (flag != 0) {
+                func_003b8520(arg0, 2);
+            } else {
+                func_003b8520(arg0, 1);
+            }
+            break;
+        }
+    } else if (flag != 0) {
+        func_00399b10(arg0);
+    }
+    return arg0;
+}
 // FUN_00475090
 u32 func_00475090(u32 param_1)
 {
@@ -708,6 +838,11 @@ u32 func_00475090(u32 param_1)
 
 
 
+/* measured: retail folds 0x18 into the param_1 accesses (lw $v1,0x18($s3)) and
+   0x40/0x44 into the obj2 cb checks; mwcc b210 materializes param_1+0x18 into
+   $a1 and obj2+0x40 into an extra saved $s4 (frame 0x70 vs 0x60, nd 111;
+   u8* params nd 108). Tried: u8* typing. Address-CSE into s-reg floor (same
+   family as 79e60/776c0/73710/78ec0). */
 // FUN_00475170
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475170);
 
@@ -731,12 +866,25 @@ void* func_00475b10(void* object, void* data)
 
 
 
+/* measured: retail places the x != func_00397470(obj) setup block OUT OF LINE
+   (bne -> setup; fall-through b -> join, +8B); mwcc b210 inlines it under a
+   negated skip (beq -> join), and the switch lever materializes the boolean
+   (xor/sltiu/beqz, nd 35) instead of a branch. Loop t-regs permute too
+   (count $t1<->$t0, i $v1<->$t1) with the second-path mask self-masking
+   (andi $v1,$v1) vs retail re-masking the counter. Tried: if/else forms,
+   empty-then, switch case 0/1, i-init order, s32 count (fixed the u16
+   re-mask). Branch-placement + t-coloring floor, best nd 35. */
 // FUN_00475B90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475b90);
-
 // FUN_00475CD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
 
+/* measured: the D3/7000F branch condition is (f&0x200)!=0 && (f&0x400)==0
+   (the 0x400-beqz goes to the D3 part, not the 7000F). Residual: mwcc b210
+   materializes param_1+0xD8 into $s0 (frame 0x40 vs 0x50, retail keeps the
+   D_00887300 base in $s0) and mirrors the block layout (D3 inline + 7000F
+   out-of-line vs retail's 7000F inline + D3 out-of-line). Tried: u8* params
+   (94), condition flips. Address-CSE + if-placement floor. */
 // FUN_00476C70
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476c70);
 // FUN_00476E10
@@ -847,7 +995,33 @@ void func_004774e0(void* param_1)
 }
 
 // FUN_00477510
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477510);
+void* func_00477510(void* arg0)
+{
+    void* base;
+    u32 count;
+    u32 i;
+    void* item;
+    f32 buf[3];
+
+    base = *(void**)((u8*)arg0 + 0x18);
+    count = *(u32*)((u8*)base + 0x24);
+    for (i = 0; i < count; i++) {
+        item = *(void**)((u8*)*(void**)((u8*)base + 0x20) + i * 4);
+        if (func_00457a90(item, D_00713180) != 0 &&
+            func_00457a90(item, D_007131A0) != 0 &&
+            func_00457a90(item, D_007131C0) != 0) {
+            buf[0] = func_004579a0(item, D_00713180);
+            buf[2] = func_004579a0(item, D_007131A0);
+            buf[1] = func_004579a0(item, D_007131C0);
+        } else {
+            buf[0] = fGpffff809c;
+            buf[2] = fGpffff809c;
+            buf[1] = fGpffff809c;
+        }
+        *(RwV3d*)((u8*)item + 0xC) = *(RwV3d*)buf;
+    }
+    return arg0;
+}
 
 // FUN_00477660
 void* func_00477660(void* param_1, RwV3d* param_2)
@@ -863,6 +1037,13 @@ void* func_00477660(void* param_1, RwV3d* param_2)
     return param_1;
 }
 
+/* measured: retail folds the loop-invariant address arg1+4 into the in-loop
+   load (lw $a0,4($s4)); mwcc b210 hoists the address into an extra saved
+   register (addiu $s7,$s4,4 before the first jal) making the frame 0xA0 vs
+   retail 0x90 and shifting the stack buffer. Secondary: key/item s-regs swap
+   ($s1/$s3) and loop counter lands in $s1 vs retail $s2. Tried: v4 pre-loop
+   local, indexed ((void**)arg1)[1], reversed 4+ptr add, decl-order swaps,
+   opt_loop_invariants off — all nd 63. Loop-invariant-address hoist floor. */
 // FUN_004776C0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004776c0);
 
@@ -878,6 +1059,13 @@ void func_004777d0(void* param_1, int param_2, u8 param_3)
     func_003bff30(*(void**)((u8*)param_1 + 0xDC), func_004776c0, &s);
 }
 
+/* measured: retail hoists the 1.0f const (lui/mtc1 -> $f3) to function top and
+   allocates inv184=$f2, inv188=$f1, product=$f5; mwcc b210 materializes the
+   const at the use site into $f1 and lands the product in $f2; with
+   #pragma opt_loop_invariants on the const hoists but the whole allocation
+   permutes (counter $v1<->$a2, const $f4, nd 55). Integer t-regs are permuted
+   in both loops regardless (p8 $t0 vs $t1, mask regs). Tried: plain C (nd 45),
+   one=1.0f local (nd 45), pragma on (nd 55). Register-coloring floor. */
 // FUN_00477810
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477810);
 /* Removing this loses FUN_00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
@@ -945,6 +1133,10 @@ done:
 // FUN_004779B0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004779b0);
 
+extern s32 func_0047ce00(void);
+extern s32 func_0047e6f0(void* a);
+extern void func_00477ca0(void* a);
+extern void func_0047b060(void* a);
 // FUN_00477C40
 void* func_00477c40(u32 param_1, u32 param_2, u32 param_3)
 {
@@ -995,14 +1187,66 @@ void* func_00477f10(void* param_1, void* param_2, int param_3, int param_4, u32 
     return obj;
 }
 
+/* measured: the two paths are clean except an s-reg rotation: retail keeps
+   t1=$s1 and path-1 obj in $s3 (reusing the dead param_3 slot); mwcc b210
+   assigns obj=$s1 (first free) and t1=$s6 (last free) — 9 words, all
+   register names. Tried: obj-first and t2-first declaration orders (nd 9/9).
+   Saved-register rotation floor. */
 // FUN_00477FB0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477fb0);
 
+/* measured: loop matched only as an explicit-break while (while(node){if(D6==
+   id)break;node=next;} — the && form reorders the test block); the residual is
+   the same branch-to-branch redirect as func_0047ac90: retail keeps
+   beqz $v0,0x478240; ... ; 0x478240: b 0x47828c after the func_0047d0e0 test,
+   mwcc b210 redirects the beqz straight to the join (nd 1, the beqz imm).
+   Tried: result local, empty-else, if forms — identical nd 1.
+   Branch-to-branch sharing floor. */
 // FUN_00478140
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478140);
 
 // FUN_004782B0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004782b0);
+s32 func_004782b0(u8* param_1)
+{
+    s32 f;
+    void* node;
+    s32 id2;
+
+    f = *(s32*)(param_1 + 0xD8);
+    if ((f & 0x1000) != 0) {
+        return 1;
+    }
+    if ((f & 0x2000) == 0) {
+        if (func_0047ce00() == 0) {
+            return 0;
+        }
+        if (func_0047e6f0(param_1 + 0x2D0) == 0) {
+            return 0;
+        }
+        func_0047b060(param_1);
+        func_00477ca0(param_1);
+    } else {
+        if (func_0047e6f0(param_1 + 0x2D0) == 0) {
+            return 0;
+        }
+        id2 = *(u16*)(param_1 + 0xD6);
+        node = D_00922BE0[*(u16*)(param_1 + 0xD4)];
+        while (node != 0) {
+            if (*(u16*)((u8*)node + 0xD6) == id2 &&
+                (*(s32*)((u8*)node + 0xD8) & 0x1000) != 0) {
+                break;
+            }
+            node = *(void**)((u8*)node + 0x308);
+        }
+        if (node == 0) {
+            return 0;
+        }
+        func_00478410(node, param_1);
+        *(s32*)(param_1 + 0xD8) &= ~0x2000;
+    }
+    *(s32*)(param_1 + 0xD8) |= 0x1000;
+    return 1;
+}
 
 // FUN_00478410
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478410);
@@ -1011,7 +1255,56 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478410);
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478750);
 
 // FUN_004787E0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004787e0);
+void func_004787e0(u8* param_1)
+{
+    u32 i;
+    void* t;
+
+    if (*(void**)(param_1 + 0xDC) != 0) {
+        func_003c0700(*(void**)(param_1 + 0xDC));
+    }
+    for (i = 0; i < 2; i++) {
+        func_004735b0(param_1 + i * 0xA4 + 0xEC);
+    }
+    if (*(void**)(param_1 + 0x234) != 0) {
+        func_004745f0(*(void**)(param_1 + 0x234));
+        *(void**)(param_1 + 0x234) = 0;
+    }
+    if (*(void**)(param_1 + 0x254) != 0) {
+        func_00474890(*(void**)(param_1 + 0x254));
+        *(void**)(param_1 + 0x254) = 0;
+    }
+    t = *(void**)(param_1 + 0x2C8);
+    if (t != 0) {
+        *(u16*)((u8*)t + 2) = *(u16*)((u8*)t + 2) - 1;
+        if (*(u16*)((u8*)t + 2) == 0) {
+            DAT_008873ec[0](*(void**)((u8*)t + 4));
+        }
+    }
+    if (*(void**)(param_1 + 0xE0) != 0) {
+        func_00462bf0(*(void**)(param_1 + 0xE0));
+    }
+    for (i = 0; i < 5; i++) {
+        if ((*(u8*)(param_1 + i * 0xC + 0x28C) & 1) != 0 &&
+            *(void**)(param_1 + i * 0xC + 0x290) != 0) {
+            func_0047ae10(param_1, i & 0xFFFF);
+        }
+    }
+    func_004b7140(param_1);
+    if (*(void**)(param_1 + 0x2CC) != 0) {
+        func_0047d2d0(*(void**)(param_1 + 0x2CC));
+    }
+    func_0047eaa0(param_1 + 0x2D0);
+    if (*(void**)(param_1 + 0x308) != 0) {
+        *(void**)((u8*)*(void**)(param_1 + 0x308) + 0x304) = *(void**)(param_1 + 0x304);
+    }
+    if (*(void**)(param_1 + 0x304) != 0) {
+        *(void**)((u8*)*(void**)(param_1 + 0x304) + 0x308) = *(void**)(param_1 + 0x308);
+    } else {
+        D_00922BE0[*(u16*)(param_1 + 0xD4)] = *(void**)(param_1 + 0x308);
+    }
+    DAT_008873ec[0](param_1);
+}
 // FUN_004789C0
 void func_004789c0(Model* mdl)
 {
@@ -1023,7 +1316,6 @@ void func_004789c0(Model* mdl)
     func_003e9cb0(frame, &matrix, 0);
     func_0047aee0(mdl, &matrix);
 }
-
 
 
 
@@ -1044,6 +1336,12 @@ void func_00478eb0(void* param_1, int param_2, int param_3)
     *(int*)((u8*)param_1 + 0x31C) = param_3;
 }
 
+/* measured: retail folds 0xD8 into every reload (lw $v0,0xd8($s1) after each
+   D_00887300 jalr); mwcc b210 materializes arg1+0xD8 into an extra saved
+   register (addiu $s1,$s2,0xd8, frame 0x50 vs 0x40) and the whole allocation
+   cascades (nd 88). Tried: u8* param (86), explicit base local (86),
+   opt_propagation off (88). Address-CSE into s-reg floor (same family as
+   79e60/776c0/73710/735b0). */
 // FUN_00478EC0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478ec0);
 
@@ -1126,9 +1424,16 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479d10);
 // FUN_00479DD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
 
+/* measured: retail keeps the scaled offset in $s0 and re-derives the element
+   pointer (addu $a0,$s0,$s2) AFTER the func_003d5e40 call, so p lives in the
+   temp $a2 and dies at the call; mwcc b210 keeps p in $s0 across the call and
+   never rematerializes (nd 10, pure off/p saved-register rotation). Also: with
+   opt_propagation off (needed to fix the r-block load/chain schedule and t
+   coloring, nd 53 -> 18 -> 10) the (u16)arg1 test breaks the mask CSE (nd 36
+   without). Tried: inline call arg, p reassignment after call, decl-order
+   swaps, idx local — all nd 10. Saved-register rotation floor. */
 // FUN_00479E60
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479e60);
-
 // FUN_00479F60
 f32 func_00479f60(void* param_1, s32 param_2)
 {
@@ -1286,6 +1591,13 @@ void func_0047a2a0(u32* param_1)
     return;
 }
 
+/* measured: with goto-shared fail (fixes the duplicated return-0 blocks) and
+   the e-expression spelled `*a + (0x40 + idx)` (fixes the fold; the plain
+   `*a + 0x40 + idx` folds 0x40 into the load, nd 84), the residual is 20
+   words: outer block schedules [chain; addiu; lw] vs retail [chain; lw;
+   addiu], the inner block swaps t2/m2 registers and the *m2 load/chain order,
+   and the u16 loop counter's masked increment lands in $v0 instead of $s0.
+   Chain-vs-load scheduling + register-coloring floor. */
 // FUN_0047A320
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a320);
 
@@ -1310,8 +1622,44 @@ void func_0047a4d0(void* param_1, int param_2)
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a510);
 
 // FUN_0047A6D0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a6d0);
+s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
+{
+    s32 result;
+    u32 lo;
+    u32 hi;
+    u8* src;
+    u32* dst;
+    s32 count;
+    u32 buf[16];
 
+    if (*(void**)((u8*)arg0 + 0x2C8) != 0) {
+        result = func_00475b90(buf, *(void**)((u8*)arg0 + 0x2C8), arg1 & 0xFFFF, *(void**)((u8*)arg0 + 0xDC));
+    } else {
+        src = (u8*)func_00457f40(*(void**)((u8*)arg0 + 0xDC), D_007131D8, arg1);
+        if (src == 0) {
+            result = 0;
+        } else {
+            src = (u8*)func_003e9700(src);
+            dst = buf;
+            count = 8;
+            do {
+                lo = *(u32*)(src + 0);
+                hi = *(u32*)(src + 4);
+                src += 8;
+                count -= 1;
+                *(u32*)(dst + 0) = lo;
+                *(u32*)(dst + 1) = hi;
+                dst += 2;
+            } while (count > 0);
+            result = 1;
+        }
+    }
+    if (result == 0) {
+        return 0;
+    }
+    *(RwV3d*)((u8*)arg2) = *(RwV3d*)(buf + 12);
+    return 1;
+}
 // FUN_0047A7C0
 u32 func_0047a7c0(void* param_1)
 {
@@ -1461,8 +1809,37 @@ void func_0047aaa0(void* param_1, s32 param_2, void* param_3, void* param_4, voi
 }
 
 // FUN_0047AB90
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ab90);
+void func_0047ab90(void* param_1, s32 param_2, void* param_3, void* param_4, void* param_5, void* param_6, u32 param_7)
+{
+    void* obj;
+    s32 off;
+    void* slot;
 
+    obj = func_004779b0(param_3, param_4);
+    if ((param_7 & 1) != 0) {
+        *(u32*)((u8*)obj + 0xD8) |= 0x4000;
+    }
+    func_0047af60(obj);
+    {
+        int tmp[2];
+        tmp[0] = (s32)param_5;
+        tmp[1] = (s32)param_6;
+        func_0047afd0(obj, tmp);
+    }
+    func_004782b0(obj);
+    off = (s32)(param_2 & 0xFFFF) * 0xC;
+    slot = (void*)(off + (s32)param_1);
+    *(void**)((u8*)slot + 0x290) = obj;
+    *(u32*)((u8*)obj + 0xD8) |= 0x4;
+    *(u32*)((u8*)*(void**)((u8*)slot + 0x290) + 0xD8) |= 0x8000;
+    *(u8*)((u8*)slot + 0x28C) |= 0x1;
+}
+
+/* measured: retail keeps a branch-to-branch chain after the func_0047b050
+   call (beqz $v0,0x47ad38; ... ; 0x47ad38: b 0x47ad84); mwcc b210 redirects
+   the beqz straight to the join (nd 2, one differing word, the beqz imm).
+   Tried: if/else forms, empty-then, else-empty — identical nd 2.
+   Branch-to-branch sharing floor. */
 // FUN_0047AC90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ac90);
 

@@ -60,7 +60,7 @@ extern s32 func_001ef4d0(s32 arg0, s32 arg1);
 extern u32 func_00231ed0(u32 arg0);
 extern u32 func_002340c0();
 extern s32 func_00242800(u32 arg0, s32 arg1);
-extern void func_001de640();
+extern void func_001de640(u8 *a, u8 *b, u16 c);
 
 extern void *D_00609934[];
 extern void *D_00609940[];
@@ -90,10 +90,61 @@ extern void func_0046d730(const char *file, s32 line);
 extern s32 func_00232710(u32 arg0, u32 arg1);
 extern s32 func_00232730(u32 arg0, u32 arg1);
 extern s32 func_0023ddc0(u32 arg0, u32 arg1);
+extern u8 *iGpffffb3ac;
+extern u32 func_00231e20(u32 arg0);
+extern s32 func_002428f0(u32 arg0, u32 arg1);
+extern u8 *iGpffffb3d0;
+extern u8 iGpffffa2a8;
+extern u8 *iGpffffb444;
+extern void func_00442088(u8 *a, u8 *b, u32 c, u8 d);
+extern s32 func_0029de20(u32 a, u8 *b);
+extern s32 func_0029da90(u8 *a, u32 b, s32 c);
+extern void func_0029dfe0(u32 a, u8 *b);
+extern u8 *func_00452560(u32 a);
+extern s32 func_0010d740(s32 a);
+extern void func_00278450(s32 a, s32 b, u32 c);
+extern void func_00452570(u8 *a, u32 b);
+extern u8 D_00609E20[];
+extern u8 *iGpffffb428;
+extern u8 *iGpffffb42c;
+extern void func_001eb3b0(u8 *a);
+extern u8 func_001de800(u8 *p);
+extern u8 *func_001dea90(u8 *p, u32 arg1);
+extern s32 func_001debb0();
+extern u16 func_0023dfe0(u32 arg0);
+extern u16 func_0023dff0(u32 arg0);
+extern void func_001ebc00(u8 *a, u8 *b);
+extern s32 func_0023e130(u32 arg0);
+extern s32 func_0023e140(u32 arg0);
+extern u32 func_00231f80(u32 arg0);
+extern s32 func_0043c6a0(u32 arg0);
+extern u8 *iGpffffb3b8;
 
 
 // FUN_001DAF40
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001daf40);
+s32 func_001daf40(u8 *p, u32 arg1) {
+    s32 a;
+
+    a = arg1 & 0xFFFF;
+    if (a >= 0x240) {
+        func_0046d730(D_006095E0, 0x45F);
+    }
+    p = *(u8 **)(p + 0x30);
+    if (a < 0x1B8) {
+        if (func_00232710(*(u32 *)(p + 0xA64), 0x80008) != 0)
+            return 0;
+        if (func_00232730(*(u32 *)(p + 0xA64), a) == 0)
+            return 0;
+        if (func_0023ddc0(*(u32 *)(p + 0xA64), a) == 0)
+            goto ret1;
+        return 0;
+    }
+    if (func_00232730(*(u32 *)(p + 0xA64), a) != 0)
+        goto ret1;
+    return 0;
+ret1:
+    return 1;
+}
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
@@ -161,12 +212,24 @@ void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
 
 
 
+/* measured: saved-register coloring floor — retail allocates cnt=$16, n=$17,
+   t2=$18, i=$19, arg1=$20, p=$21, tab=$22 (use order), while mwcc b210 under
+   every declaration order tried (m2c order, forward, reverse) colors
+   i=$16, arg1=$17, p=$18, n=$21, cnt=$22, tab=$23 — the whole prologue and
+   every A64 load rotates by 5 registers (nd ~84). Control flow, the 3d8e0
+   sign-extend compares, the shared v=1 goto, and the reload pattern all
+   compile correctly. */
 // FUN_001DB160
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db160);
-
+/* measured: u64-parameter half-extraction floor — the callers pass a u64
+   formation ($4-$5) whose HIGH half is the s16 index, but mwcc b210 models the
+   u64 param as the low register only: formation >> 32 compiles to dsll32/dsra32
+   no-op pairs instead of retail's move $19,$5, and (u8*)formation gets a
+   dsll32/dsra32-0 pair instead of using $4 raw (nd ~112). The caller-side
+   declaration (u64,u16,s32) must stay for the matched callers, so the m2c
+   (u8*,s64,s32) signature is unreachable. */
 // FUN_001DB360
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db360);
-
 // FUN_001DB580
 void btlCond_MYNOMAL(u64 formation, u16 index)
 {
@@ -280,9 +343,14 @@ s32 btlCond_SLIP(u8 *arg0) {
 
 
 
+/* measured: f = (a == 0) boolean — retail emits a branchy set (bnez $v0,L;
+   addiu $v0,1; b; L: move $v0,0; andi $s0,$v0,0xffff) while mwcc b210 folds
+   every spelling (if/else, ternary, switch) into xor/sltiu booleanize; also
+   mwcc insists t0=$16/f=$17 (retail f=$16/t0=$17) under all declaration orders
+   and masks the u16 per-use in-loop instead of hoisting pre-loop. Best nd 45
+   (switch form). $v0/$v1-coloring + fold floor. */
 // FUN_001DB7D0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db7d0);
-
 // FUN_001DB8D0
 s32 func_001db8d0(u8 *arg0) {
     return (s32)(func_002340c0(*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)) != 0);
@@ -375,12 +443,22 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
 // FUN_001DBF20
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
 
+/* measured: only residual is the 2-word loop-body mask floor shared with
+   FUN_001DCF10/FUN_001DC9A0 (retail andi $v0,$a0,0xffff; sll $v0,$v0,2 vs mwcc
+   b210 in-place andi $a0,$a0,0xffff; sll $v0,$a0,2); the max-finding loop
+   matches with the FUN_001DD0D0 recipe (decl order best,j,bestScore,count,
+   explicit j = 0 before the hoisted count load, u32 bestScore/s, s < bestScore).
+   Tried (u32)i cast and inline-no-q body: still 5. */
 // FUN_001DC380
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc380);
 
+/* measured: only residual is the 2-word loop-body mask floor shared with
+   FUN_001DCF10/FUN_001DC9A0 (retail andi $v0,$a0,0xffff vs mwcc in-place
+   andi $a0,$a0,0xffff); the min-finding loop matches with j as s32 + (u16)j in
+   the body (breaks the mask CSE), bs/s as u16, bs = 0xFFFF init, and
+   s < bs compare. */
 // FUN_001DC480
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc480);
-
 // FUN_001DC5B0
 s32 func_001dc5b0(void) {
     return 0;
@@ -401,8 +479,18 @@ void func_001dc640(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, func_001dacc0);
 }
 
+/* measured: entire loop body and tail compile with mwcc b210's temp registers
+   rotated one slot off retail ($v1/$a0/$a1 where retail uses $v0/$v1/$a0),
+   starting from the gp load (lw $v1,($gp) vs lw $v0,-0x4c54($gp)) and cascading
+   through lhu/andi, the 0x30-chain, the arr store (andi $a0.. vs $v0..), the
+   (u16)i test (andi $v1 vs $a0) and the else path (extra move $a0,$s0 + andi on
+   the u16 return). Control flow, frame, saved regs, call shapes all match.
+   Tried: decl-order swaps, fl/np locals, inline exprs, g = iGpffffb3ac local,
+   for/while, node-chain compare order, t = (u16)i local, arr[14]/arr[16] —
+   all nd 40-56. $v0/$v1-coloring floor. */
 // FUN_001DC6A0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc6a0);
+
 
 // FUN_001DC7A0
 void func_001dc7a0(u64 formation, u32 flags) {
@@ -446,7 +534,11 @@ void func_001dc960(u64 formation, u32 flags) {
 
 // FUN_001DC9A0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc9a0);
-
+/* measured: same 2-word loop-body mask floor as FUN_001DCF10/FUN_001DC9A0 —
+   retail zero-extends the u16 counter into scratch $v0 (andi $v0,$a0,0xffff;
+   sll $v0,$v0,2), mwcc b210 masks in place (andi $a0,$a0,0xffff; sll $v0,$a0,2);
+   everything else in the function is byte-identical (nd 5 = those 2 words +
+   reloc accounting). Tried (u32)/(s32)/explicit-mask index spellings: nd >= 5. */
 // FUN_001DCA60
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dca60);
 
@@ -561,42 +653,166 @@ void func_001dd090(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYNOMAL);
 }
 
+/* measured: only residual is the 2-word loop-body mask floor shared with
+   FUN_001DCF10/FUN_001DC9A0 (retail andi $v0,$a0,0xffff; sll $v0,$v0,2 vs mwcc
+   b210 andi $a0,$a0,0xffff; sll $v0,$a0,2); the whole second loop matches with
+   declaration order best,j,bestScore,count + explicit j = 0 before the hoisted
+   count load + u32 bestScore (sltu). Tried inline no-q body and (u16)i casts:
+   still 2. */
 // FUN_001DD0D0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd0d0);
-
 // FUN_001DD1C0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd1c0);
+s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u32 u, u32 v) {
+    u32 s;
+    s32 bd;
+    s32 best;
+    s32 i;
+    u32 v2;
+    s32 u2;
+    u16 *e;
+    u16 w;
+    u8 b;
+    s32 d;
+    s32 d2;
 
+    s = func_00231ed0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
+    best = -1;
+    bd = 0xFFFFFF;
+    i = 0;
+    v2 = v & 0xFFFF;
+    u2 = u & 0xFFFF;
+    while ((i & 0xFFFF) < u2) {
+        e = t + (u16)i;
+        w = *(u16 *)e;
+        if (w == 0)
+            b = 0;
+        else
+            b = *(u8 *)(iGpffffb3b8 + w * 40 + 8);
+        if ((v2 != 0 || (b & 0xFF) == 1) && (v2 != 1 || (b & 0xFF) == 0)) {
+            d = func_00235520(w, *(u32 *)(*(u32 *)(p + 0x30) + 0xA64), *(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
+            d2 = s + d;
+            if (d2 > 0 && bd > 0) {
+                if (d2 < bd) {
+                    best = *(u16 *)e;
+                    bd = d2;
+                }
+                goto next;
+            }
+            if (d2 <= 0 && (bd > 0 || bd < d2)) {
+                best = *(u16 *)e;
+                bd = d2;
+            }
+        }
+    next:
+        i = (i + 1) & 0xFFFF;
+    }
+    func_00233bb0(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
+    func_00233bb0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
+    return best;
+}
 // FUN_001DD3A0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd3a0);
-
 // FUN_001DD570
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd570);
 
 // FUN_001DD920
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd920);
 
+/* measured: the func_001db360 call-site convention is unreachable in C — retail
+   calls it with ($4=q, $5=stale s16 from the 3d8e0 compare, $6=1) while the
+   matched callers need the typed (u64,u16,s32) declaration; an old-style extern
+   satisfies de000 but adds a u16 promotion andi to the matched callers
+   (MISMATCH), and the typed extern forces mwcc's broken u64 half-construction
+   (dsll32/dsra32 pairs + or) at this call site. Also the n2 = (n2+1) fold
+   (daddiu vs retail's addiu+andi) is a 1-word constant-propagation floor. */
 // FUN_001DE000
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de000);
-
+/* measured: the mid-loop float block uses the FPU accumulator idiom
+   (adda.s $f0,$f1 / msub.s $f0,$f1,$f2 / cvt.w.s after the signed-negative
+   (x>>1)|(x&1) conversion trick) which m2c marks M2C_ERROR and no C float
+   spelling reproduces byte-for-byte; the surrounding loops (D_00609600 u8
+   table, the list[] s16 entries, the bubble-sort pass, the weighted 31d70
+   pick) are all readable. */
 // FUN_001DE370
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de370);
-
 // FUN_001DE640
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de640);
-
 // FUN_001DE800
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de800);
+u8 func_001de800(u8 *p) {
+    u8 *base;
+    u8 *row;
+    s32 k;
+    s32 j;
+    u32 w;
+    u32 e;
+    u32 a2;
+    s32 x;
+    u32 arr[3];
 
+    base = iGpffffb3d0 + (*(u16 *)(*(u32 *)(p + 0x30) + 0xA4)) * 164;
+    k = 0;
+    while ((u16)k < 2) {
+        row = base + (k & 0xFFFF) * 20 + 4;
+        j = 0;
+        while ((u16)j < 3) {
+            w = *(s32 *)(row + (j & 0xFFFF) * 4);
+            e = (w & 0xFF000000) >> 24;
+            a2 = w & 0xFFFFFF;
+            if (e == 0)
+                x = 0;
+            else
+                x = ((s32 (*)(u8 *, u32))D_00609850[e * 3])(p, a2);
+            arr[j & 0xFFFF] = x;
+            j = (j + 1) & 0xFFFF;
+        }
+        if (arr[0] && arr[1] && arr[2] && *(u8 *)(row + 0xC) != 8)
+            return *(u8 *)(row + 0xC);
+        if (arr[0] && arr[1] && *(u8 *)(row + 0xD) != 8)
+            return *(u8 *)(row + 0xD);
+        if (arr[0] && arr[2] && *(u8 *)(row + 0xE) != 8)
+            return *(u8 *)(row + 0xE);
+        if (arr[1] && arr[2] && *(u8 *)(row + 0xF) != 8)
+            return *(u8 *)(row + 0xF);
+        if (arr[0] && *(u8 *)(row + 0x10) != 8)
+            return *(u8 *)(row + 0x10);
+        if (arr[1] && *(u8 *)(row + 0x11) != 8)
+            return *(u8 *)(row + 0x11);
+        if (arr[2] && *(u8 *)(row + 0x12) != 8)
+            return *(u8 *)(row + 0x12);
+        if (*(u8 *)(row + 0x13) != 8)
+            return *(u8 *)(row + 0x13);
+        k = (k + 1) & 0xFFFF;
+    }
+    return 0;
+}
+
+/* measured: preheader + loop-body coloring floor. Retail schedules the node
+   base addu ($4) BEFORE the sum/i inits and re-issues the (i & 0xFFFF) mask in
+   the loop body (andi $v0,$a3,0xffff; sll $v0,$v0,3), while mwcc b210 emits the
+   inits after the whole node expression and CSEs the test mask across the
+   branch (sll $v0,$v1,3), 1 word per iteration; the second loop's j2 counter
+   then colors into unsaved $18. Best 51 nd with node = ...; sum=0; i=0;
+   node += a*40. $v0/$v1-coloring floor. */
 // FUN_001DEA90
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dea90);
-
+/* measured: load-sinking floor on the func_00442088 4th arg — retail loads the
+   c byte right after the test (lbu $v0,0x10($v0); ...; move $a3,$v0) while mwcc
+   b210 sinks it into $a3 at the call site (lbu $a3,0x10($v0)), 1 word + 4-byte
+   shift of the else block. Hoisting c into a local made mwcc hoist the loads
+   ABOVE the a2 test instead (nd 10 head). Everything else matches: d declared
+   before t ($20/$19), buf[32], the case 0/1 switch, iGpffffb444 + x*21 chain. */
 // FUN_001DEBB0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001debb0);
-
+/* measured: three 1-2 word scheduler residuals. (1) case 1's chain: retail
+   loads iGpffffb3d0 FIRST (lw $a0,-0x4c30) then computes (a4&0xFFFF)*164 and
+   addu $v0,$v0,$a0, while mwcc b210 sinks the global load after the chain and
+   emits addu $v0,$v0,$v1 (base-first); (2) the v2 > 0 test's u16 mask lands in
+   $v0 instead of retail's $a3; (3) func_001de640's args materialize lhu-before-
+   moves instead of moves-then-lhu. Tried chain-first/global-first spellings and
+   a g = iGpffffb3d0 local inside the case — all identical 16. Load-sinking +
+   $v0/$v1-coloring floor. */
 // FUN_001DED30
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001ded30);
-
 // FUN_001DEEE0
 u32 func_001deee0(int param_1)
 {
@@ -1497,9 +1713,13 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1620);
 // FUN_001E1710
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1710);
 
+/* measured: only residual is the join-branch chain — retail's e==0 path does
+   b 0x1e1900 (jumping into the call block's own tail b 0x1e190c, branch-to-branch
+   sharing) while mwcc b210 always emits b 0x1e190c directly; tried if/else and
+   goto-done spellings, same 1 word. Everything else matches with m/a2 as u32
+   locals and the w/e/a2 chain computed before the e test. */
 // FUN_001E1800
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1800);
-
 // FUN_001E1940
 s32 func_001e1940(void) {
     u8 *p = func_0029d050();
@@ -1581,9 +1801,14 @@ s32 func_001e2030(void) {
     return 1;
 }
 
+/* measured: mwcc b210 folds f = (a == 0) into an xor/sltiu booleanize no matter
+   the spelling (if/else, ternary, inline in the shift, f = 0 first, switch,
+   goto) while retail keeps a branchy set (bnez $v0,L; addiu $v0,1; b; L: move
+   $v0,0), which then shifts the whole dispatch tail by 4 words; same fold floor
+   as FUN_001DB7D0. The rest (9280 arg order, dsll32/dsrl32 24-bit masks, the
+   e*3 table call) all compile correctly when f is the only difference. */
 // FUN_001E20D0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e20d0);
-
 // FUN_001E21E0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e21e0);
 
@@ -1594,7 +1819,48 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e22f0);
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2400);
 
 // FUN_001E2550
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2550);
+s32 func_001e2550(void) {
+    u32 v;
+    u32 m2;
+    u32 c02;
+    u32 m;
+    u32 c0;
+    u8 *node;
+    s32 n;
+    s32 k;
+    u8 *np;
+    u32 flag;
+
+    m = (1 << (*(u8 *)(*(u32 *)(func_0029d050() + 0x30) + 0xA2))) & 0xFFFF;
+    c0 = func_0029cc00(0) & 0xFFFF;
+    v = func_0029cc00(1);
+    n = 0;
+    k = 0;
+    node = *(u8 **)(iGpffffb3ac + 0x174);
+    m2 = m & 0xFFFF;
+    c02 = c0 & 0xFFFF;
+    while (node != 0) {
+        if ((*(u16 *)(node + 0x1A) & 1) && (*(u16 *)(node + 0x1A) & 8)) {
+            np = *(u8 **)(node + 0x30);
+            if ((m2 & (1 << (*(u8 *)(np + 0xA2)))) != 0) {
+                if (*(u16 *)(np + 0xA4) == c02) {
+                    if (func_002428f0(*(u32 *)(np + 0xA64), 0) == 0) {
+                        n = (n + 1) & 0xFFFF;
+                        if (func_00232710(*(u32 *)(np + 0xA64), v) != 0) {
+                            k = (k + 1) & 0xFFFF;
+                        }
+                    }
+                }
+            }
+        }
+        node = *(u8 **)(node + 0x450);
+    }
+    flag = 0;
+    if ((n & 0xFFFF) > 0 && (n & 0xFFFF) == (k & 0xFFFF))
+        flag = 1;
+    func_0029cf50(flag != 0);
+    return 1;
+}
 
 // FUN_001E26C0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e26c0);
@@ -1628,7 +1894,48 @@ s32 func_001e2850(void) {
 #pragma opt_rebuildconditionals on
 
 // FUN_001E2910
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2910);
+s32 func_001e2910(void) {
+    u32 v;
+    u32 m2;
+    u32 c02;
+    u32 m;
+    u32 c0;
+    u8 *node;
+    s32 n;
+    s32 k;
+    u8 *np;
+    u32 flag;
+
+    m = (1 << (*(u8 *)(*(u32 *)(func_0029d050() + 0x30) + 0xA2))) & 0xFFFF;
+    c0 = func_0029cc00(0) & 0xFFFF;
+    v = func_0029cc00(1);
+    n = 0;
+    k = 0;
+    node = *(u8 **)(iGpffffb3ac + 0x174);
+    m2 = m & 0xFFFF;
+    c02 = c0 & 0xFFFF;
+    while (node != 0) {
+        if ((*(u16 *)(node + 0x1A) & 1) && (*(u16 *)(node + 0x1A) & 8)) {
+            np = *(u8 **)(node + 0x30);
+            if ((m2 & (1 << (*(u8 *)(np + 0xA2)))) != 0) {
+                if (*(u16 *)(np + 0xA4) == c02) {
+                    if (func_002428f0(*(u32 *)(np + 0xA64), 0) == 0) {
+                        n = (n + 1) & 0xFFFF;
+                        if (func_002340c0(*(u32 *)(np + 0xA64), v) != 0) {
+                            k = (k + 1) & 0xFFFF;
+                        }
+                    }
+                }
+            }
+        }
+        node = *(u8 **)(node + 0x450);
+    }
+    flag = 0;
+    if ((n & 0xFFFF) > 0 && (n & 0xFFFF) == (k & 0xFFFF))
+        flag = 1;
+    func_0029cf50(flag != 0);
+    return 1;
+}
 
 // FUN_001E2A80
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2a80);
@@ -1931,9 +2238,13 @@ s32 func_001e3d30(void) {
     return 1;
 }
 
+/* measured: only residual is the join-branch chain — retail's e==0 path does
+   b 0x1e3ed4 (into the call block's tail b 0x1e3ee0, branch-to-branch sharing)
+   while mwcc b210 emits b 0x1e3ee0 directly; same floor as FUN_001E1800, 1 word.
+   Everything else matches: switch(c0) with ascending cases 0/1, c1 as u32, and
+   the a2 = w & 0xFFFFFF local computed before the e test. */
 // FUN_001E3DE0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3de0);
-
 // FUN_001E3F10
 s32 func_001e3f10(void) {
     u32 a = func_0029cc00(0) & 0xFFFF;

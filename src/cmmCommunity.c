@@ -8,25 +8,26 @@ extern s32 func_00452380(void *path);
 extern u32 func_00452560(s32 task);
 extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *arg0, s32 arg1);
-extern s8 func_00248760(s32 arg0);
+extern s8 func_00248760();
 extern s32 func_00247dd0(s32 arg0);
 extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_0026bc10(u16 resourceId, u8 value);
-extern s32 func_001077f0(s32 arg0);
+extern s32 func_001077f0();
 extern u16 func_00107ac0(s32 arg0);
 extern s32 func_00107c80();
 extern s32 func_00107ea0();
+extern s32 func_001070e0();
 extern void func_00108b60(s32 arg0, s16 arg1);
 extern s32 func_00108e10(void);
-extern f32 D_005E42D8;
-extern f32 D_005E42DC;
-extern f32 D_005E42E0;
-extern f32 D_005E42E8;
-extern f32 D_005E42EC;
-extern f32 D_005E42F0;
-extern f32 D_005E42F8;
-extern f32 D_005E42FC;
-extern f32 D_005E4300;
+extern f32 D_005E42D8[];
+extern f32 D_005E42DC[];
+extern f32 D_005E42E0[];
+extern f32 D_005E42E8[];
+extern f32 D_005E42EC[];
+extern f32 D_005E42F0[];
+extern f32 D_005E42F8[];
+extern f32 D_005E42FC[];
+extern f32 D_005E4300[];
 extern s32 func_00247c20(s32 arg0);
 extern void *func_00246b80(void);
 extern u8 *func_00246ba0(void);
@@ -102,9 +103,15 @@ end:
     func_00106390(id + ((b << 5) + 0x3FF), 1);
 }
 
+/* measured: retail keeps func_001070e0()'s result in $s0 and the arg0&0xFFFF
+   mask in $s1; mwcc b210 allocates the first-assigned local to $s1 and the
+   second to $s0, so return-first source gives the right instruction order
+   (jal;nop;move;andi) with the registers swapped, and mask-first source gives
+   the right registers with andi emitted before the jal. Tried all declaration
+   orders, inline-CSE mask, u16* result type (all nd 10), and mask-first source
+   order (best nd 6). Saved-register rotation floor. */
 // FUN_00106F40
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00106f40);
-
 // FUN_001070B0
 void func_001070b0(void)
 {
@@ -267,12 +274,37 @@ void func_00107370(s32 arg0)
     }
 }
 
+/* measured: retail's slot search keeps the found-exit as an inline
+   unconditional branch (bne->advance; b found; advance out-of-line), the same
+   shape mwcc b210 emits for `if (cond) return;` in func_001070e0. mwcc merges
+   `if (cond) goto found;` (any if/else polarity) into a single beqz->found with
+   the advance inline. Tried while+break+retest (re-test not folded), goto,
+   both if/else orders — all nd 10. Branch-shape floor. */
 // FUN_001075D0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001075d0);
 
+/* measured: retail's slot search emits the found-exit as an inline
+   unconditional branch (bne->advance; b found) exactly like func_001070e0's
+   `if (cond) return;`, but this is void with shared tail code. mwcc b210 merges
+   any single-goto if/else branch into a conditional branch to the target
+   (beq->found), and a post-loop NULL retest is only free (reuses the loop slti)
+   when kept off the found path via goto; ==/> retest forms regress. Best nd 10
+   (goto + >= retest); 4 attempts. Branch-shape + retest floor. */
 // FUN_001076E0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001076e0);
 
+/* measured: retail slot search emits found-exit as inline unconditional b
+   (bne->advance; b found) which mwcc b210 only produces for return-thens
+   (func_001070e0); goto/break/switch/continue/m2c-goto-loop spellings all
+   merge to a single conditional branch (best nd 14, m2c verbatim form has
+   test-at-top layout). Shared tail after the loop blocks the return idiom.
+   Branch-shape floor. */
+/* measured: retail's slot search found-exit (bne->advance; b found) is the
+   return-then shape: an in-loop `return var_4 != NULL;` reproduces the branch
+   pair exactly but duplicates the sltu value computation at the loop site
+   (nd 17); goto/break/switch forms merge into a single conditional branch
+   (best nd 14 m2c-goto form). The found path must jump to the shared return
+   block, which mwcc b210 only does for the merged goto. Branch-shape floor. */
 // FUN_001077F0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001077f0);
 
@@ -404,12 +436,24 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107f00);
 // FUN_00107FE0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107fe0);
 
+/* measured: retail booleanizes the variable-mask bit check (lw; and; sltu
+   $v0,$zero,$v0; beqz) and mwcc b210 folds `!= 0`, `(u32)x > 0`, boolean-local,
+   u32-typed and `0 < x` spellings into a direct and;beqz (2 missing sltu words
+   shift the whole tail; nd 64). Everything else matched on the first draft.
+   Booleanize floor. */
 // FUN_001080C0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001080c0);
 
 // FUN_00108290
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108290);
 
+/* measured: retail groups the three float-constant loads (lui/lwc1 f2,f1,f0)
+   before the three stack stores (swc1 0x70/74/78); mwcc b210's scheduler always
+   interleaves them into load/store pairs (one $f0 reused) whether written as
+   direct assignments, temp float locals, struct field stores, or struct
+   initializers (init also emits a zero-fill loop). Arg saved registers also
+   rotate ($s3=a1 vs retail $s3=a0). Tried 4+ spellings; nd 125. Scheduler
+   load-grouping floor. */
 // FUN_00108590
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108590);
 
