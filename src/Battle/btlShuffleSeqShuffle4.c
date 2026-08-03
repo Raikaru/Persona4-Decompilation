@@ -13,6 +13,45 @@ extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_00375dd0(u8 *ctx, s32 idx, f32 *a, f32 *b, f32 c, f32 d);
 extern void func_00376170(u8 *ctx, s32 a, s32 b, s32 c, s32 d, s32 *e, s32 *f);
 extern s32 func_0037d270(u8 *a, s64 b, s64 c);
+extern s32 func_00378a70(u8 *a, s32 b);
+extern s32 func_00379240(u8 *a);
+extern s32 func_00379420(u8 *a);
+extern void func_0038d060(s32 a);
+extern void func_0038d0d0(s32 a, s32 b);
+extern void func_0038d0a0(s32 a);
+extern void func_00375b40(u8 *a, s32 b, s32 c, s32 d);
+extern void func_003799d0(u8 *a);
+extern s32 func_003789d0(u8 *a, s32 b);
+extern void func_003713b0(f32 *a);
+extern s32 func_00378930(u8 *a, s32 b);
+extern void func_00375d50(u8 *a, s32 b, f32 *c, f32 *d, f32 e, f32 f);
+extern void func_003760f0(u8 *a, s32 b, s32 c, s32 d, s32 *e, s32 *f);
+extern void func_00376290(u8 *a, s32 b, s32 c, s32 d, s32 e);
+extern void func_0038d2c0(s32 a);
+extern void func_0036dc60(u8 *a, f32 *b, f32 *c, s32 d);
+extern void func_00375ec0(u8 *a, s32 b);
+extern s32 func_00106330(s32 a);
+extern void func_003798d0(u8 *a, s32 b);
+extern void func_00389110(s32 a);
+extern s32 func_00389160(s32 a);
+extern void func_0038d160(s32 a);
+extern void func_00388f20(s32 a);
+extern s32 func_00375910(u8 *a);
+extern s32 func_00379150(u8 *a, s32 b, s32 c);
+extern s32 func_0036de60(u8 *a);
+extern void func_0038d1d0(s32 a);
+extern void func_00388f40(s32 a);
+extern void func_00379c70(u8 *a, s32 b);
+extern void func_00378f90(u8 *a, s32 b, s32 c);
+extern void func_00375890(u8 *a, s32 b, s32 c);
+extern void func_00379090(u8 *a, s32 b, s32 c, s32 d);
+extern void func_00378ec0(u8 *a, s32 b);
+extern s32 func_00379d70(u8 *a);
+extern s32 func_00379a70(u8 *a);
+extern s32 func_00379920(u8 *a);
+extern void func_00106390(s32 a, s32 b);
+
+extern u16 D_008C024E;
 
 extern u32 D_0064EB20[];
 extern u16 D_008C027A[];
@@ -25,10 +64,30 @@ extern f32 iGpffff83f4;
 extern f32 iGpffff83e8;
 extern f32 iGpffff83ec;
 
-// FUN_0037C720
+// measured: retail computes the madd.s as `adda.s $f0,$f1; madd.s $f1,$f2,$f3`
+// (addend (f32)temp_19 in $f1, multiplier (f32)(temp_18-temp_19+1) in $f2);
+// mwcc b210 materializes (f32)temp_19 first into $f2 and the multiplier into
+// $f1, emitting `adda.s $f0,$f2; madd.s $f1,$f1,$f3` (nd 152). Tried: source
+// conversion order (sub-named local), declaration orders for f1/f2/f3, both
+// overflow comparison forms `2.1474836e9f > f1`/`<= f1` (nd 152-154), and the
+// fix2float named-shift spelling. FPU register-choice floor, same family as
+// func_0037d840; also a saved-register rotation ($s1..$s4) and `or $a0,$a0,$v1`
+// vs `or $v1,$a0,$v1` in the fix2float that untried declaration orders did not
+// move. reached 152 differing words, retail 832B.
+// FUN_0037C720 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037c720);
 
-// FUN_0037CA60
+// measured: retail spills the per-case sp48/sp4C results to the stack
+// (`swc1 $f0,0x48($sp)` / `sw $v1,0x4c($sp)` for the 74/174/274/374.0f consts)
+// and uses NO saved FP registers (prologue saves $s0-$s2 + $ra only). mwcc b210
+// keeps sp48/sp4C in $f20/$f21 (saved FP regs, `swc1 $f20,0($sp)`), enlarging
+// the frame layout and shrinking the object 84B (nd 486; also obj 1980B/win
+// 2064B). Tried sp48/sp4C as separate f32 locals and as a 2-element f32 array
+// (both have the same saved-FP-register allocation). The madd.s/adda.s FPU-MAC
+// family itself is source-drivable (the `base + coef * x` shape reproduces
+// `adda.s $f3,$f0; madd.s $f0,$f1,$f2`), but the spill-vs-saved-FP-register
+// choice is not. Same FPU register-choice floor as func_0037c720/func_0037d840.
+// FUN_0037CA60 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037ca60);
 
 // FUN_0037D270
@@ -276,6 +335,14 @@ void func_0037d840(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037d840);
 #endif
 
-// FUN_0037DA60
+// measured: retail hoists $f20 = 1.0f - ((0.5f*(f32)(temp_4-3))/5.0f) into the
+// prologue (mul.s/div.s/sub.s before the switch) and has a -0x120 frame with
+// sp90..sp118 stack locals; mwcc b210 computes that expression inline in the
+// case-6 loop and lays out a -0xb0 frame, producing an object 96B larger than
+// the 4912B window (nd 1108). The 22-entry jump table (jtbl_00752AE0, cases
+// 0-21) is byte-identical, but the fall-through switch state machine (cases
+// 4/6/5, 7/8/9/10/11, 14/15/16/17/18/19) plus ~30 external calls and the
+// prologue hoist make the frame/codegen too divergent to pursue within budget.
+// Tried: faithful m2c transcription with all extern decls. Kept INCLUDE_ASM.
+// FUN_0037DA60 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037da60);
-

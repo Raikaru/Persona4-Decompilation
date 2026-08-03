@@ -150,7 +150,7 @@ extern s32 func_0024f790(u8* arg0);
 extern s32 func_0024b870(void);
 extern void func_0024b990(void);
 extern s32 func_0024c0e0(u8* arg0, u8* arg1);
-extern s32 func_0024c460(void);
+extern s32 func_0024c460(u8 *arg0);
 extern s32 func_0024d1f0(void);
 typedef struct { f32 x, y, z, w; } Vec4f;
 
@@ -328,11 +328,49 @@ s32 func_0024a490(void)
    loop temp. All give the identical nd 6 (4 load-sink/coloring + 2 loop
    arg order) — the documented load-sinking floor, same as FUN_0024A8B0. */
 
+/* Closes the measured optimization_level 1 scope opened above; -O2 is the
+   baseline everywhere else in this translation unit. */
 #pragma optimization_level 2
 // FUN_0024A710
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024a710);
+/* measured: -O2 CSEs `temp_18 & 0xFFFF` into a callee-saved copy (andi $s0);
+   level 1 restores the per-site andi. The base hoist (u8 *base = iGpffffb3d4)
+   reproduces retail's load-first-into-$v1 and the integer-domain add
+   ((u32)off + (u32)base) reproduces the index-first addu $v0,$v0,$v1. */
 // FUN_0024A8B0
-INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024a8b0);
+#pragma optimization_level 1
+
+s32 func_0024a8b0(void)
+{
+    s32 sp5C;
+    u16 sp40[0xE];
+    s32 temp_18;
+    s32 temp_2;
+    s32 var_16;
+    s32 var_16_2;
+
+    temp_18 = func_0029cc00(0);
+    temp_2 = func_0029d030();
+    if (temp_2 < 0) {
+        func_0046d730(&D_006359F0, 0x190);
+    }
+    if (temp_18 != 0) {
+        u8 *base = iGpffffb3d4;
+        s32 off = temp_18 * 14;
+        func_002782c0(temp_2, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
+        func_00278450(temp_2, 1, func_00109220(temp_18 & 0xFFFF));
+        for (var_16 = 0; var_16 < 3; var_16++) {
+            func_00278450(temp_2, var_16 + 2, &iGpffffa62c);
+        }
+        func_0010d360(temp_18 & 0xFFFF, sp40, &sp5C);
+        for (var_16_2 = 0; var_16_2 < sp5C; var_16_2++) {
+            func_00278450(temp_2, var_16_2 + 2, func_00243840(sp40[var_16_2]));
+        }
+    }
+    func_0029cf50(temp_18);
+    return 1;
+}
+#pragma optimization_level 2
 // FUN_0024AA10
 s32 func_0024aa10(void)
 {
@@ -869,6 +907,14 @@ void func_0024ba60(s32 arg0)
    no further source lever. Scheduling/operand-order floor. */
 // FUN_0024BB00
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024bb00);
+/* measured: float conversion recipe works (single bltz per arm, c.ole.s for the
+   final (s32) conversion, (f32)(s32)((u32)x>>1|(x&1)) + doubling). But the
+   register allocation is stuck: my candidate needs 6 saved registers
+   ($s0-$s4: var_19_2 -> $s2 early, var_18 -> $s3, temp_19 -> $s4) while retail
+   reuses $s3 for temp_19 then var_19_2 then var_19 (5 regs, frame 0x60). Tried
+   6 declaration orders (m2c order, temp_19 first/last, var_19_2 after temp_19,
+   retail first-use order) -- all nd 127, frame 0x70 (obj 676B vs window 672B).
+   Saved-register rotation floor. */
 // FUN_0024BE40
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
 /* measured: the (u8)(s32)f1 colour conversion needs the explicit
@@ -881,8 +927,21 @@ INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
    it before) at all 3 call sites. Register/scheduling floor. */
 // FUN_0024C0E0
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c0e0);
+/* measured: the func_0025ecd0 calls use H1 FPU FMA chains (adda.s seeds the
+   accumulator, then msub.s f13 = ACC - f1*f20; e.g. arg10 = 139.0f - 5.0f*f20)
+   that m2c couldn't decode (M2C_ERROR). Writing the natural C
+   (139.0f - 5.0f*var_f20, 433.0f-60.0f*temp_f21, etc.) compiles to mul.s/sub.s
+   instead, and needs 4 saved FP regs ($f20-$f23) vs retail's 2 ($f20,$f21);
+   obj 3784B vs window 3472B. FMA + FP-register-pressure floor; the gp floats
+   were identified (iGpffff8094 = -0x7F6C, iGpffff809c = -0x7F64) and the
+   struct offsets (0x0/0x8/0xC/0xE/0x10) are confirmed. */
 // FUN_0024C460
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c460);
+/* measured: same H1 FPU FMA floor as FUN_0024C460 -- the func_0025ecd0 calls
+   here use adda.s/madd.s chains (m2c M2C_ERROR) inside a branching value-range
+   scan (0..5/5..0xF/0xF..0x14/0x14..0x1E). Not attempted: the FMA chain is
+   undecodable by m2c and the branch structure (7600 B window) multiplies the
+   register-pressure surface. Assessed as the same floor family. */
 // FUN_0024D1F0
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024d1f0);
 typedef struct cmmScriptEntry {
