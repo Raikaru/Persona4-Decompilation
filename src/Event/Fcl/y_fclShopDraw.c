@@ -4,9 +4,11 @@
 #include "type.h"
 
 typedef struct { f32 x, y; } Vec2f;
+typedef unsigned int u_long128 __attribute__((mode(TI)));
 static inline f32 shopAdd(f32 left, f32 right) { return left + right; }
 typedef struct {
-    u8 pad0[0x4];
+    u8 pad0a[2];
+    s16 field_2;
     u32 field_4;
     f32 field_8;
     u8 pad1a[5];
@@ -36,10 +38,24 @@ typedef struct {
     u32 field_FC;
     s16 field_100;
     s16 field_102;
-    u8 padA1a1[0xB40];
+    u8 padA1a1a[0xB20];
+    s8 field_C24;
+    u8 padA1a1b[0x1F];
     void *field_C44;
     void *field_C48;
-    u8 padA1a2[0x48];
+    u8 padA1a2a[0x14];
+    void *field_C60;
+    void *field_C64;
+    u8 padA1a2b[8];
+    void *field_C70;
+    void *field_C74;
+    void *field_C78;
+    u8 padA1a2c[4];
+    void *field_C80;
+    void *field_C84;
+    u8 padA1a2d[4];
+    void *field_C8C;
+    void *field_C90;
     void *field_C94;
     void *field_C98;
     void *field_C9C;
@@ -56,16 +72,27 @@ typedef struct {
     void *field_CC8;
     u8 padA2b1[4];
     void *field_CD0;
-    u8 padA2b2[0x10];
+    void *field_CD4;
+    void *field_CD8;
+    void *field_CDC;
+    void *field_CE0;
     void *field_CE4;
     void *field_CE8;
-    u8 padA2b3[0xA0];
+    u8 padA2b3a[0x80];
+    void *field_D6C;
+    void *field_D70;
+    u8 padA2b3b[8];
+    void *field_D7C;
+    u8 padA2b3c[0xC];
     void *field_D8C;
     void *field_D90;
     void *field_D94;
     u8 padB1[0x24];
     void *field_DBC[3];
-    u8 padB2a[0x14];
+    void *field_DC8;
+    u8 padB2a1[4];
+    void *field_DD0;
+    u8 padB2a2[8];
     void *field_DDC;
     void *field_DE0;
     void *field_DE4;
@@ -80,7 +107,8 @@ typedef struct {
     void *field_E58;
     void *field_E5C;
     void *field_E60;
-    u8 padD1a1[0x20];
+    u8 padD1a1[0x1C];
+    void *field_E80;
     void *field_E84;
     u8 padD1a2a[4];
     u8 padD1a2b[8];
@@ -103,7 +131,9 @@ typedef struct {
     void *field_ED8;
     void *field_EDC;
     void *field_EE0;
-    u8 padD2[0x44];
+    u8 padD2[0x34];
+    void *field_F18[3];
+    u8 padD2b[4];
     void *field_F28;
 } ShopWork;
 
@@ -119,6 +149,17 @@ extern u8 D_0063F9F0[];
 extern f32 fGpffff7afc;
 extern u8 D_0063F650[];
 extern u8 D_0063F658[];
+extern f32 D_0063F5B0[];
+extern f32 D_0063F5D0[];
+extern f32 D_0063F5D8[];
+extern f32 D_0063F5E0[];
+extern f32 D_0063F5F0[];
+extern f32 D_0063F5F8[];
+extern f32 D_0063F880[];
+extern f32 D_0063F890[];
+extern s8 D_00748908[];
+extern u8 D_00795E30[];
+extern u8 D_0063FB50[];
 
 void func_002be530(void);
 void func_002be3c0(void);
@@ -161,6 +202,25 @@ u32 func_003b7060(void);
 void func_0043f9c8(void *, s32, s32);
 void func_0025ec90(s32, s32, s32, s32, s32, void *, f32, f32, f32);
 void func_002e0700(void *, s32, f32, f32, s32, s32, s32);
+void func_002e09e0(void *, s32, f32);
+void func_002e0690(void *, s32, s32, s32, f32, f32);
+void func_002e0660(void *, u8, u8, u8, s16, s64);
+s16 func_002e26f0(void *);
+void func_002e06d0(void *, f32, f32, f32, f32, s32, s32, s32);
+void func_002e0b20(s32, u64, s32, s32, s32, void *, f32);
+s32 func_00275680(f32, f32, f32, s32, s32, s32, void *, s32, s32, void *, s32);
+void *func_001067f0(s32);
+s16 func_00106cd0(s16, s16);
+s32 func_002e2740(s32);
+u32 func_00106880(s16);
+u16 func_001068b0(s16);
+u16 func_001068e0(s16);
+u16 func_00106940(s16);
+u16 func_00106970(s16);
+s16 func_002b3170(s32);
+void func_002b2a60(void *, s32, s32, s32, s32);
+void func_002cacd0(u64, s32, s32, s32, u32, s32, s32, s32, f32, s64, s64);
+s32 func_0046a770(void *);
 
 // FUN_002BE530
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002be530);
@@ -219,6 +279,16 @@ void func_002caa00(void *arg0, s8 arg1) {
     *(s8 *)(*(u32 *)((u8 *)arg0 + 0x38)) = arg1;
 }
 
+/* measured: func_002caa10 is a digit-draw loop; four variants compiled with the
+   full body (s64 spB0/spC0 slots at 16-aligned offsets read via lq/sq, s16
+   arg3 sign-extension, s8 loop counter, func_0025ec90/func_002b2a30 arg
+   shapes) and every instruction family matches retail -- best nd 141. The
+   remaining deltas are stack-slot placement and saved-reg choice only: mwcc
+   b210 assigns stack slots in FIRST-USE order high-to-low (arg0's u64 slot
+   and the 0xDC color/arg1 struct must be ONE 0x20 struct starting at 0xD0,
+   with func_00442830's target at 0xE0 = &st.tail), and the loop counter wants
+   s32 with an (s8) truncation cast (addiu first, then dsll32/dsra32 by 24).
+   Four-attempt budget exhausted; layout+coloring floor. */
 // FUN_002CAA10
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
 
@@ -250,9 +320,28 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cdf80);
 // FUN_002D1590
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
 
+/* measured: func_002d3ee0's full body was reconstructed (all call shapes,
+   u64 slot pairs, switch, loops) and compiles; nd 462 with inline
+   D_0063F5xx[0]/[1] globals. Retail caches each absolute global base in $s0
+   across the func_002b2970/func_002e0620 groups; mwcc b210 rematerialises
+   lui/addiu per load (D_00887300-family global-address-hoist floor, cf.
+   func_002d7300 note). A Vec2f* base local makes mwcc cache the base but then
+   work moves to $s2 and the frame grows 0x10 (all 19 u64 slots shift +0x10),
+   nd ~470; tried both declaration orders and block-scoped i/t. Also: the
+   func_002e0660 colour-byte args need a u8 prototype for lbu/0xFF codegen.
+   Four-attempt budget exhausted. */
 // FUN_002D3EE0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d3ee0);
 
+/* measured: func_002d4760's full body was reconstructed (six 8-aligned stack
+   arrays f0/e0/d8/d0/c0/b8 at 0xF0..0xB8, arg1 spill at 0xB7, both loops, the
+   three-case switch with ascending case layout) and compiles; nd 417 in all
+   four variants. mwcc b210 allocates a phantom 16-byte slot at 0xB0 (sq in
+   the i==arg1 branch / lq at the loop head, value never truly used) which
+   pushes the array region up 0x10 (frame 0x110 vs retail 0x100), shifting
+   every store offset; also reloads the spilled arg1 byte per iteration
+   instead of sign-extending once at entry, and reads D_00748908[i] with lbu
+   vs retail's lb. Stack-slot + 16-byte-temp floor. */
 // FUN_002D4760
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d4760);
 
@@ -271,6 +360,18 @@ s32 func_002d4f30(s16 arg0) {
     return 0;
 }
 
+/* measured: func_002d5040's full body was reconstructed (the 2a30/0b20/75680
+   chain, the three-case switch on work[7], the eight func_002cacd0 digit
+   calls) and compiles; nd 814 after four variants, dominated by ONE missing
+   instruction per 75680 group: retail sign-extends the func_002e2740/
+   func_00106cd0 result (dsll32/dsra32 16) before func_001067f0, and mwcc b210
+   emits nothing for an (s16) cast passed straight into a call arg (tried s16
+   and s32 params on func_001067f0) -- the value must be assigned to an s32
+   local first, `s32 c16 = (s16)func_002e2740(...);` (the func_002caa10 t21
+   pattern, which does emit the pair), then passed. That one word per group
+   shifts the rest of the stream; the lbu-vs-lb on the work[8]/work[7] byte
+   reads should then fall out of the alignment. Four-attempt budget
+   exhausted; missing-sign-extension floor. */
 // FUN_002D5040
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
 
@@ -508,21 +609,105 @@ void func_002dd230(void *arg0) {
 // FUN_002DD3B0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 
+/* measured: func_002de5a0's full body was reconstructed (all six 2a30/0b20
+   groups, the three if/else dispatch pairs on work[7], the func_00275680
+   calls with the Vec2f copies) and compiles; nd 586 across four variants,
+   dominated by two mwcc b210 allocation gaps: (1) retail hoists the shared
+   constants (f32)0x177 and 70.0f into callee-saved f21/f22 at the first-if
+   branch tops for reuse in the second/third groups' 2970/0b20 calls, while
+   mwcc rematerialises them per call site, so the candidate saves only f20
+   (prologue 0x10 shorter, whole stream shifts 2 words); (2) work lands in
+   $s1 instead of $s0 once the byte-index sum is written as (u32) pointer
+   arithmetic. The byte-first addu ($v1,$v1,$s0) IS reproducible with
+   `*(s8 *)((u8 *)(*(s8 *)(w+8) + (u32)w) + 0xF7C)`. FP-constant-hoist +
+   register-coloring floor. */
 // FUN_002DE5A0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002de5a0);
 
-/* measured: retail coalesces four short-lived s32 temps (case-1 mask, 2a30
-   result, divu result, 4a770 result) into $s0 while keeping work in $s1;
-   mwcc b210 keeps a single long-lived v16 in $s1 (work->$s0) no matter the
-   declaration order, and spills the func_00275680 f12/f13 pair from sp88 to
-   0x68/0x6C only with inline reads (register CSE removes the spills otherwise,
-   shifting every stack slot by 0x10; 5 variants tried, best nd 28). Saved-reg
-   coalescing + spill-slot floor. */
 // FUN_002DF020
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002df020);
 
 // FUN_002DF4C0
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002df4c0);
+void func_002df4c0(void *arg0) {
+    u64 spA8;
+    u64 spA0;
+    u64 sp98;
+    u64 sp90;
+    u64 sp88;
+    u64 sp80;
+    u64 sp78;
+    u64 sp70;
+    u64 sp68;
+    u64 sp60;
+    u64 sp58;
+    u64 sp50;
+    u64 sp48;
+    u64 sp40;
+    u64 sp38;
+    u64 sp30;
+    ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
+    void *r;
+
+    if (work->field_C24 == 1) {
+        r = func_0046d200(work->field_F28, 0x2B);
+        func_002e06d0(work->field_CE4, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002b2970(&spA8, 67.0f, 140.0f);
+        func_002b2970(&spA0, 67.0f, 140.0f + 5.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CE4, spA8, spA0, 0, 5, 0);
+        func_002e0660(work->field_CE4, 0xFF, 0, 0, 5, 0);
+        func_0046d280((u8 *)r);
+        r = func_0046d200(work->field_F28, 0x2C);
+        func_002e06d0(work->field_CE8, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002b2970(&sp98, (f32)0x22F, 140.0f);
+        func_002b2970(&sp90, (f32)0x22F, 140.0f + 5.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CE8, sp98, sp90, 0, 5, 0);
+        func_002e0660(work->field_CE8, 0xFF, 0, 0, 5, 0);
+        func_0046d280((u8 *)r);
+        r = func_0046d200(work->field_F28, 0x28);
+        func_002e06d0(work->field_CD8, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002e0660(work->field_CD8, 0xFF, 0, 0, 5, 0);
+        func_002b2970(&sp88, 48.0f, 127.0f);
+        func_002b2970(&sp80, 48.0f, 127.0f + 2.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CD8, sp88, sp80, 0, 5, 0);
+        func_0046d280((u8 *)r);
+        r = func_0046d200(work->field_F28, 0x29);
+        func_002e06d0(work->field_CDC, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002e0660(work->field_CDC, 0xFF, 0, 0, 5, 0);
+        func_002b2970(&sp78, 584.0f, 127.0f);
+        func_002b2970(&sp70, 584.0f, 127.0f + 2.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CDC, sp78, sp70, 0, 5, 0);
+        func_0046d280((u8 *)r);
+    } else {
+        r = func_0046d200(work->field_F28, 0x2A);
+        func_002e06d0(work->field_CE0, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002b2970(&sp68, 63.0f, 148.0f);
+        func_002b2970(&sp60, 63.0f, 148.0f + 5.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CE0, sp68, sp60, 0, 5, 0);
+        func_002e0660(work->field_CE0, 0xFF, 0, 0, 5, 0);
+        func_0046d280((u8 *)r);
+        r = func_0046d200(work->field_F28, 0x2C);
+        func_002e06d0(work->field_CE8, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002b2970(&sp58, (f32)0x222, 148.0f);
+        func_002b2970(&sp50, (f32)0x222, 148.0f + 5.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CE8, sp58, sp50, 0, 5, 0);
+        func_002e0660(work->field_CE8, 0xFF, 0, 0, 5, 0);
+        func_0046d280((u8 *)r);
+        r = func_0046d200(work->field_F28, 0x27);
+        func_002e06d0(work->field_CD4, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002e0660(work->field_CD4, 0xFF, 0, 0, 5, 0);
+        func_002b2970(&sp48, 46.0f, 136.0f);
+        func_002b2970(&sp40, 46.0f, 136.0f + 2.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CD4, sp48, sp40, 0, 5, 0);
+        func_0046d280((u8 *)r);
+        r = func_0046d200(work->field_F28, 0x29);
+        func_002e06d0(work->field_CDC, 1.0f, 1.0f, 1.0f, 0.0f, 0, 5, 0);
+        func_002e0660(work->field_CDC, 0xFF, 0, 0, 5, 0);
+        func_002b2970(&sp38, (f32)0x232, 136.0f);
+        func_002b2970(&sp30, (f32)0x232, 136.0f + 2.0f * (func_0046b2f0((u8 *)r) / 10.0f));
+        func_002e0620(work->field_CDC, sp38, sp30, 0, 5, 0);
+        func_0046d280((u8 *)r);
+    }
+}
 
 // FUN_002DFD00
 s32 func_002dfd00(u16 arg0) {

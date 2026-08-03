@@ -87,6 +87,7 @@ extern s8 func_002332a0(u8 *arg0, s32 arg1);
 extern u16 func_001068b0(s16 arg0);
 extern u16 func_001068e0(s16 arg0);
 extern u8 func_00106910(s16 arg0);
+extern u16 func_00105460(s16 arg0);
 
 
 
@@ -155,9 +156,15 @@ void func_00231ef0(u8 *arg0, u8 arg1)
 // FUN_00231F80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231f80);
 
+/* measured: load-sinking floor in the table-index block; retail loads the
+   iGpffffb3c4 base (lw $a0,-0x4c3c($gp)) BEFORE the mask/mul chain while
+   mwcc sinks the lw after the *0x3C mul regardless of statement order
+   (inline, base-local, index-first all tried; nd 6). Everything else now
+   matches: mask-at-def was broken by mixing (u16) cast (asserts) with
+   & 0xFFFF (index) spellings, and the clamp needs `var_3 > 0x3E7` to get
+   the slti-$at form. */
 // FUN_00232290
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232290);
-
 // FUN_002325A0
 s32 func_002325a0(DatUnit* unit, s32 hpDelta)
 {
@@ -201,7 +208,36 @@ s32 func_00232610(DatUnit* unit, s32 spDelta)
 
 
 // FUN_00232730
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232730);
+s32 func_00232730(u8 *arg0, s32 arg1)
+{
+    s32 temp_16;
+    s32 temp_18;
+    s32 var_5;
+    u8 *base;
+    s32 result;
+    s32 limit;
+
+    temp_18 = func_0023e130(arg0) & 0xFFFF;
+    base = func_0023e140(arg0);
+    var_5 = 0;
+    temp_16 = arg1 & 0xFFFF;
+    limit = temp_18 & 0xFFFF;
+    while ((var_5 & 0xFFFF) < limit) {
+        if (temp_16 == *(u16 *)(base + ((u16)var_5 * 2))) {
+            return 1;
+        }
+        var_5 = (var_5 + 1) & 0xFFFF;
+    }
+    if (!(*(u16 *)arg0 & 4)) {
+        result = (s32)((u32)func_00106cd0(*(s16 *)(arg0 + 2), 2) & 0xFFFF);
+        if (result >= 0) {
+            if (temp_16 == func_001069a0((s16)result)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 // FUN_00232830
 s32 func_00232830(u16 *arg0, s64 arg1)
@@ -314,6 +350,13 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 // FUN_00232C70
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 
+/* measured: loop-register rotation floor; retail keeps the compare constant
+   (0x1F9..0x1FE) hoisted pre-loop in $a0 with limit in $a1 and counter in
+   $a2 while mwcc puts the counter in $v1, limit in $a2 and re-materializes
+   the constant inside the body (nd 8, all 6 blocks). opt_loop_invariants on
+   hoists the constant but rotates the registers worse (nd 80). The goto/else
+   tail shape (0-def after the calls, bltz guard, sltu-free compares) all
+   match; tried while(1)-break and natural-while forms. */
 // FUN_00232D80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
 
@@ -381,9 +424,6 @@ void func_00233490(u8 *arg0, u8 arg1, s8 arg2)
 // FUN_00233570
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233570);
 
-/* measured: mwcc CSEs `idx & 0xFFFF` into a saved reg across the 0x45E
-   assert call; retail re-issues the andi from saved idx each use. Tried
-   s32/u16 idx, (u16) cast vs mask, all nd 45-61. */
 // FUN_00233880
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233880);
 
@@ -457,6 +497,13 @@ void func_00235020(u8 *arg0)
 // FUN_00235110
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235110);
 
+/* measured: retail emits the full s8 ext/sll/ext dance for `var_17 = (s8)(var_17*2)`
+   (var_17 init 3) but mwcc b210 constant-folds it to `addiu 6` via SSA const-prop
+   (the s8->s32 conversion only materializes when the value is live across the
+   loop, e.g. the ext17 hoist). Tried literal/variable forms, s8/u16/s32
+   typings, and v17-temp materialization; all fold. Rest of the function
+   (u16 temp_18 vs cross-call mask CSE, merge-point (s8) casts, sltu
+   booleanize) now matches; nd 92 from the fold ripple. */
 // FUN_00235320
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235320);
 

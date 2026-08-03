@@ -19,8 +19,7 @@ extern s64 func_0023a6b0(s32 arg0, s64 arg1);
 
 typedef void (*FormationCallback)(void);
 
-void func_001dbba0(u64 formation, u32 flags, s32 arg2, s32 arg3, s32 variant, FormationCallback callback);
-extern void func_001dbba0();
+extern s32 func_001dbba0();
 void btlCond_MYBAD(void);
 
 extern u64 func_00452490();
@@ -84,6 +83,8 @@ extern void *D_00609D78[];
 extern void *D_00609D80[];
 extern void *D_00609DF0[];
 extern void *D_00609E18[];
+extern void func_001d7c60(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
+extern s32 func_001dd570(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_001dbf20(u8 *arg0, u32 arg1);
 extern char D_006095E0[];
 extern void func_0046d730(const char *file, s32 line);
@@ -711,7 +712,45 @@ s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u32 u, u32 v) {
     return best;
 }
 // FUN_001DD3A0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd3a0);
+s32 func_001dd3a0(u8 *p, u8 *q, u16 *t, u32 u, s32 v) {
+    u32 s1;
+    u32 s2;
+    s32 bd;
+    s32 best;
+    s32 i;
+    u32 v2;
+    s32 u2;
+    u16 *e;
+    u16 w;
+    u8 b;
+    s32 d;
+
+    s1 = func_00231ed0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
+    s2 = func_00231f80(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
+    best = -1;
+    bd = 0xFFFFFF;
+    i = 0;
+    v2 = v & 0xFFFF;
+    u2 = u & 0xFFFF;
+    while ((i & 0xFFFF) < u2) {
+        e = t + (u16)i;
+        w = *(u16 *)e;
+        if (w != 0 && w < 0x1B8) {
+            b = *(u8 *)(iGpffffb3b8 + w * 40 + 8);
+            if ((v2 != 0 || (b & 0xFF) == 1) && (v2 != 1 || (b & 0xFF) == 0)) {
+                d = func_0043c6a0(s2 - (s1 + func_00235520(w, *(u32 *)(*(u32 *)(p + 0x30) + 0xA64), *(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1)));
+                if (d < bd) {
+                    best = *(u16 *)e;
+                    bd = d;
+                }
+            }
+        }
+        i = (i + 1) & 0xFFFF;
+    }
+    func_00233bb0(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
+    func_00233bb0(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
+    return best;
+}
 // FUN_001DD570
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd570);
 

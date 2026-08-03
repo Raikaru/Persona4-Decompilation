@@ -20,7 +20,61 @@
 gPI = 0x007613ec; // type:data evidence: retail word at 0x007613EC is 0x40490FDB == (f32)pi
 D_007613EC = 0x007613ec; // type:data evidence: same address as gPI; name encodes it
 
+iGpffffba48 = 0x007c4b38; // type:data evidence: retail func_00152170 compares gp-0x45B8 (0x007C4B38) to 1; name encodes the offset
+iGpffffba4c = 0x007c4b3c; // type:data evidence: retail func_00152170 lbu gp-0x45B4 (0x007C4B3C) into the 0xF state word
+iGpffffba50 = 0x007c4b40; // type:data evidence: retail func_00152170 lbu gp-0x45B0 (0x007C4B40) into the 0xF state word
+iGpffffba54 = 0x007c4b44; // type:data evidence: retail func_00152170 lbu gp-0x45AC (0x007C4B44) into the 0xF state word
+iGpffffba58 = 0x007c4b48; // type:data evidence: retail func_00152170 lbu gp-0x45A8 (0x007C4B48) into the 0xF state word
+iGpffff9e10 = 0x00762f00; // type:data evidence: retail func_00151710 takes the format-string address gp-0x61F0 as addiu $5, $28, -0x61F0; GP base 0x007690f0 -> 0x00762F00 (relocation scan agrees)
+iGpffffb208 = 0x007642f8; // type:data evidence: retail func_0014efc0 stores func_0044ec30's result at gp-0x4DF8 (0x007642F8); name encodes the offset
+
 // The relocation scan places this at 0x007642A0, but the placeholder name encodes
 // 0x007242A0, so the name-versus-address check treats it as a conflict and drops
 // it. The scan is the authority: the name is a Ghidra placeholder, not evidence.
 D_007242A0 = 0x007642a0; // type:data evidence: relocation scan (reported in name_encoded_disagree)
+
+// func_00279dd0 does lw/sw at GPREL -0x4B50($28) and no other function
+// references the address yet (only INCLUDE_ASM left). GP base is 0x007690f0,
+// derived from recovered iGpffff8040=0x00761130 and iGpffff8360=0x00761450
+// (0x761130+0x7fc0 == 0x761450+0x7ca0 == 0x7690f0); 0x7690f0-0x4b50 = 0x7245a0.
+iGpffffb4b0 = 0x007645a0; // type:data evidence: GPREL -0x4B50($28) in func_00279dd0; 0x007690f0 - 0x4B50 = 0x007645A0 (relocation scan agrees)
+
+// nLine.c func_0034d890/func_0034db60 load lwc1 at GPREL -0x7F6C($28) and
+// func_0034ddf0 at GPREL -0x7DE0($28). gp = 0x007690F0 (iGpffffb5a4 = 0x00764694
+// = gp - 0x4A5C), so -0x7F6C = 0x00761184 and -0x7DE0 = 0x00761310; both fall
+// in the .sdata region spanned by recovered iGpffff8040/8360.
+iGpffff8094 = 0x00761184; // type:data evidence: retail func_0034d890 GPREL -0x7F6C($28); gp = 0x007690F0 from iGpffffb5a4
+iGpffff8220 = 0x00761310; // type:data evidence: retail func_0034ddf0 GPREL -0x7DE0($28); gp = 0x007690F0 from iGpffffb5a4
+
+// func_002782c0 reads GPREL -0x58A0($28) and -0x4BBC($28); no matched function
+// references those addresses yet. GP base 0x007690f0 (see iGpffffb4b0 entry):
+// 0x7690f0-0x58a0 = 0x723850, 0x7690f0-0x4bbc = 0x724534.
+iGpffffa760 = 0x00723850; // type:data evidence: GPREL -0x58A0($28) in func_002782c0 against GP base 0x007690f0
+iGpffffb444 = 0x00724534; // type:data evidence: GPREL -0x4BBC($28) in func_002782c0 against GP base 0x007690f0
+
+// y_fclShopDraw.c func_002d3ee0 loads lwc1 0x0/0x4 relative to lui %hi(D_0063F5xx)
+// bases (relocs only present in INCLUDE_ASM so far). Addresses verified against
+// the retail image: 0x0063F5B0 holds (62.0f, 78.0f, -67.0f, ...) screen coords.
+D_0063F5B0 = 0x0063f5b0; // type:data evidence: retail lui %hi(D_0063F5B0) in func_002d3ee0 at 0x002D3EF4; image word = 0x427C0000 (62.0f)
+D_0063F5D0 = 0x0063f5d0; // type:data evidence: func_002d3ee0 at 0x002D3FE8; image word = 0xC2860000 (-67.0f)
+D_0063F5D8 = 0x0063f5d8; // type:data evidence: func_002d3ee0 at 0x002D42E0; image word = 0x44400000 (575.0f)
+D_0063F5E0 = 0x0063f5e0; // type:data evidence: func_002d3ee0 at 0x002D4354; image word = 0xC3680000 (-233.0f)
+D_0063F5F0 = 0x0063f5f0; // type:data evidence: func_002d3ee0 at 0x002D3F70; image word = 0x00000000 (next Vec2f pair)
+D_0063F5F8 = 0x0063f5f8; // type:data evidence: func_002d3ee0 at 0x002D426C; image word = 0x00000000 (next Vec2f pair)
+D_0063F880 = 0x0063f880; // type:data evidence: func_002d3ee0 at 0x002D45A4; image word = 0x43070000 (135.0f)
+D_0063F890 = 0x0063f890; // type:data evidence: func_002d3ee0 at 0x002D465C; image word = 0x44030000 (524.0f)
+D_00748908 = 0x00748908; // type:data evidence: func_002d4760 lb D_00748908[i] (relocs only in INCLUDE_ASM); image bytes at 0x00748908 = [1, 0, 0, ...]
+
+// y_draw.c func_002b6340 loads lwc1 at GPREL -0x7B0C($28) (0x007615E4) against
+// gp base 0x007690F0 (from iGpffffb5a4 = 0x00764694 = gp - 0x4A5C).
+fGpffff84f4 = 0x007615e4; // type:data evidence: retail func_002b6340 GPREL -0x7B0C($28); gp = 0x007690F0
+iGpffff83e0 = 0x007614d0; // type:data evidence: GPREL -0x7C20($28) in retail func_00377eb0; adjacent recovered iGpffff83e8=0x007614d8 implies 0x007614d0; retail image bytes 9aa92242 (f32 40.6656) at that vaddr
+D_00795E30 = 0x00795e30; // type:data evidence: func_002de5a0 lui %hi(D_00795E30) at 0x002DE698 (relocs only in INCLUDE_ASM); image bytes at 0x00795E30 = [0x43, 0xBD, ...] font data near D_00795E60
+D_0063FB50 = 0x0063fb50; // type:data evidence: func_002d5040 lui %hi(D_0063FB50) at 0x002D53B8 (relocs only in INCLUDE_ASM); image bytes at 0x0063FB50 = "init/c_e..." string
+iGpffff8170 = 0x00761260; // type:data evidence: GPREL -0x7E90($28) in retail func_003753f0; GP base 0x007690f0 (derived from recovered iGpffffa9c8=0x00763ab8); retail image bytes 9a99193f (f32 0.6) at that vaddr
+
+// GPREL16 -0x7F7C / -0x7F64 in cmmScript func_0024f160/func_0024c0e0 --
+// GP is 0x007690F0 (derived from iGpffff8040 = 0x00761130), landing on slots
+// the relocation scanner has no symbol for.
+iGpffff8084 = 0x00761174; // type:data evidence: GP(0x007690F0) - 0x7F7C
+iGpffff809c = 0x0076118C; // type:data evidence: GP(0x007690F0) - 0x7F64

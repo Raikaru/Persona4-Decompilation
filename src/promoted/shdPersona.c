@@ -22,8 +22,27 @@ void func_0011bc70();
 s32 func_00115020();
 void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 s32 func_001152b0();
-void func_00115cb0(Vec2f, s32, s16 *);
-void func_00115e90(Vec2f, s32, s16 *);
+void func_00115cb0(Vec2f, s32, s16 *, f32);
+void func_00115e90(Vec2f, s32, s16 *, f32);
+void func_00275020(s32, s32, s32, u8 *, s32, s32, f32, f32, f32);
+void *func_00109220(u16 arg0);
+void func_00116190(s64, u8 *, s32 *, f32);
+void func_00116610(s64, u8 *, s32 *, f32);
+void func_001162f0(s64, u8 *, s32 *, f32);
+void func_001163e0(s64, u8 *, s32 *, f32);
+void func_00116820(s64, u8 *, s32 *, f32);
+typedef struct {
+    s32 lo;
+    s32 hi;
+} I64;
+void func_00116d40(I64, f32, u8, u8, s32, s32);
+void func_0045d6e0(f32, u8 *, s32 *, s32);
+extern void (*D_00887300[])(u32, u32);
+extern char D_005E5810[];
+extern char D_005E5830[];
+extern char D_005E5850[];
+extern char D_005E57F0[];
+
 void func_0046d730(const char *file, s32 line);
 void func_0043f9c8(void *dst, s32 value, s32 size);
 s32 func_0010cc20();
@@ -195,23 +214,35 @@ void func_00115c00(u8 *arg0, u8 *arg1)
 
 
 // FUN_00115C40
-void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2)
+void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
 {
     switch (*arg2) {
     case 0:
         func_00115dc0(arg0, arg1, arg2);
         break;
     case 1:
-        func_00115e90(arg0, arg1, arg2);
+        func_00115e90(arg0, arg1, arg2, farg3);
         break;
     case 2:
-        func_00115cb0(arg0, arg1, arg2);
+        func_00115cb0(arg0, arg1, arg2, farg3);
         break;
     }
 }
 
 
 
+/* measured: two known floor families. (1) retail reads the color from the
+   live register (andi $v1, $a1, 0xff) and emits mov.s $f20, $f12 before
+   move $s1, $a2; mwcc b210 marks the Vec2f param address-taken via
+   &arg0.y (needed for the (f32)(s32) float round-trips that read the
+   0x58/0x5C home) and emits lbu 0x5c + the GP move first — address-take
+   registerisation floor, same family as func_001162f0; the prologue move
+   order is the func_001171c0 scheduling family. (2) final-call arg
+   materialisation order (retail mov.s $f14, $f20 before the GP args).
+   Tried direct &arg0.y, struct-copy local (grew frame to 0x170), and
+   m2c statement order (frame 0x150) — best nd 20. Note: the ABI-faithful
+   4-param prototype + func_00115c40 farg3 pass-through are kept; the
+   func_00115cb0 call site's $f12 is genuinely uninitialised in retail. */
 // FUN_00115CB0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115cb0);
 
@@ -230,6 +261,19 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115dc0);
 
 
 
+/* measured: two documented floor families. (1) The D_00887300
+   render-vtable base hoist — retail keeps lui/addiu of the table base in
+   $s0 across all 8 jalr calls; mwcc b210 rematerialises lui/lw per call
+   (brief's vtable-hoist floor; nd contribution ~16 words). (2) The
+   &arg0.y address-take floor (func_00115cb0 family): retail keeps the
+   colour in $s2 (move $s2, $a1) plus the sd $a0, 0x58 pair home; mwcc
+   goes memory-only (frame 0x70 vs 0x80). Signature note: the s64-typed
+   definition (s64 arg0, u8 *arg2, f32 fparg0) is ABI-correct and is what
+   the family callees use, but mwcc b210 rejects both `()` and implicit
+   int declarations followed by a typed definition, and the caller
+   (matched func_00115c40) passes a Vec2f, so the definition must stay
+   Vec2f-typed here. The 4-param prototype + farg3 pass-through is kept
+   (ABI-faithful, func_00115c40 still matches). */
 // FUN_00115E90
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
@@ -247,16 +291,66 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116190);
 
 
 
+/* measured: nd 33. The right signature is (s64 arg0, s32 *arg3,
+   u8 *arg2, f32 fparg0) — the colour and its float bits ride in arg0's
+   HIGH WORD ($a1; the callers overwrite $a1 with the colour after their
+   8-byte ld), and the $7 arg3 (lw $s1, ($a3)) is the third GP param.
+   NOT tried with that shape: colour = ((s32 *)&arg0)[1] (pointer read;
+   with the s32/s32 5-arg model the &arg1 address-take floor above
+   applies: mwcc goes memory-only, lbu 0x4c + sw/sw pair). The s64 model
+   registerizes the high word (see func_00116610/001163e0 notes) but the
+   plain-move colour read still eludes mwcc (dsra32 or home read). */
 // FUN_001162F0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001162f0);
 
 
 
+s32 func_00109280();
+f32 func_0046b1f0(s32, s32);
+void func_001171c0(s32, s32, s32, s32, f32);
+/* measured: FP/GP colouring residual, nd 99. The family's real signature
+   IS (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) with the color and its
+   float bits coming from arg0's HIGH WORD (the callers clobber $a1 with
+   the color after the 8-byte ld) — this removed the func_001162f0
+   address-take floor entirely. What remains: (1) retail reads the high
+   word via a plain move ($s3 = $a1) while mwcc emits dsra32 for
+   (s32)(arg0 >> 32) — the untried spelling is c = ((s32 *)&arg0)[1]
+   (pointer read, no shift); (2) the b1 bits local lands in $f22 (3rd FP
+   saved reg, prologue swc1 $f22) instead of retail's $f20, and fparg0 in
+   $f20 instead of $f21 — FP colouring floor family; (3) sp90/sp94 stay
+   in registers instead of retail's store-and-reload (frame 0x90 vs
+   0xA0). Tried s32/s64 arg0 models, param orders, b1/c locals first,
+   inline bit-casts — best nd 99. */
 // FUN_001163E0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001163e0);
 
 
 
+void func_00117310(s32, s32, s32, s32, s32, f32);
+extern char iGpffff9c1c;
+/* measured: same param address-take registerisation floor as
+   func_001162f0 — retail keeps arg1 in $s1 across both asserts (move
+   $s1, $a1 in the prologue, sd $a0, 0x88 pairing the arg0/arg1 homes)
+   with the color math (andi/sll/subu/divu/mflo $s5) hoisted before the
+   first assert; mwcc b210 sees &arg1 (the *(f32 *)&arg1 bit reads for
+   sp194 and the final call) and goes memory-only (lbu/sw from the
+   home, two sw instead of the sd pair, frame 0x170 vs 0x1A0, nd 121).
+   Tried s32 and u8 arg1, a local copy, and a union-cast local (probe
+   batch) — identical. Note: func_00117310's real signature is
+   (s32, s32, s32, s32, s32, f32) — the caller's ld $4, 0x190 is an
+   over-read whose high word is clobbered by the sp19C arg in $a1. */
+/* measured: nd 121-124, FP/GP colouring + layout residual. The s64
+   signature (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) IS right — the
+   colour and its float bits ride in arg0's HIGH WORD (callers clobber
+   $a1 with the colour after their 8-byte ld) — and with it mwcc does
+   registerize the high word (move $s4, $a1, frame 0x190) instead of the
+   func_001162f0 address-take memory-only shape. What still differs:
+   retail reads the colour via a plain move into $s1 while mwcc needs
+   either dsra32 ((s32)(arg0 >> 32)) or a home read (((s32 *)&arg0)[1]);
+   the b1 bits local lands in $f21 and the sp190/sp194 locals stay in
+   registers (frame 0x190 vs 0x1A0, the sp90 buffer mis-laid-out). Best
+   of 4 attempts (s32/s64 arg0, local copies, bit-casts). Next wave:
+   try c via the low word of the colour expression or a union member. */
 // FUN_00116610
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116610);
 
@@ -267,6 +361,17 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116820);
 
 
 
+extern f32 iGpffff82fc;
+/* measured: nd 231, the family colouring catch-22 (same as func_001162f0 /
+   00116610): retail reads the colour once from the live register (move
+   $s4, $a1) and the high-word float bits from the sd home (lwc1 0x9C);
+   mwcc b210, once the arg0 pair is address-taken for the bit reads,
+   keeps a second colour copy from the home (lw $s0, 0x9c or dsra32
+   $s0, $a0, 0) and swaps the FP saved registers ($f20/$f21) plus the
+   GP colouring. Tried s64, I64 struct, (s32)(arg0 >> 32),
+   ((s32 *)&arg0)[1] and inline *(f32 *)&arg0 spellings (4 attempts) —
+   nd 231 flat. The rest of the function decodes cleanly (the abs-bltz
+   here is on the genuinely signed colour and survives). */
 // FUN_00116D40
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116d40);
 
@@ -462,6 +567,16 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00118a20);
 
 
 
+void func_0045dfd0(f32, void *, void *, s32, s32, s32);
+/* measured: FP-colouring/preheader floor, same family as func_0011c3e0.
+   retail keeps the acc sum entirely in the FP accumulator (adda.s after
+   each lwc1, madd.s $f0,$f4/$f1,$f2, acc seed in $f3, 2.0f in $f4, cvt
+   results in $f2); mwcc b210 allocates acc to $f4 with add.s updates,
+   emits a stray mov.s $f2,$f4 acc-seed copy, swaps 2.0f into $f3, and
+   syncs ACC via adda.s $f2,$f4 — everything else (incl. the
+   #pragma opt_loop_invariants on hoist of all six loop constants, which
+   IS needed) matches. Tried acc+=x, acc=x+acc, and both add-operand
+   orders (probe batch, 4 spellings) — best nd 20, then 70. */
 // FUN_001190F0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001190f0);
 
@@ -555,11 +670,35 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ac70);
 
 
 
+extern f32 iGpffff8094;
+/* measured: the documented a2-cache colouring floor (func_0011ac70 /
+   func_0011f5a0 family) — retail keeps the per-iteration element pointer
+   (arg0 + i*36) in a temp register across the func_0044b7b0 call and
+   saves only $s1=arg0/$s0=i (frame 0x30); mwcc b210 colours the element
+   pointer into a saved register (frame 0x40, whole body shifted, nd 158).
+   The if/else-if/else lerp chain additionally lays the else-if body
+   inline where retail places it out of line (bc1t to it after the 1.0f
+   branch). Logic itself decodes cleanly: per-element lerp with the
+   signed-byte abs construct, then the post-loop interpolate-or-clear
+   with the four chained mask clears. */
 // FUN_0011AE90
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ae90);
 
 
 
+void func_0034c270(s64, u8, s32, f32);
+/* measured: retail passes the zeroed 8-byte local as arg1 via a real
+   ld $a0, 0x20($sp) and loads the 0x505 byte DIRECTLY into the s64's high
+   word ($a1) at the func_0034c270 call (callee ABI (s64, u8, s32, f32) per
+   the nLine prologue: sd $a0 pair save + bltz/andi/mtc1 on $a1 + $a2 index);
+   mwcc b210 folds the zero local to `move $a0,$zero` when passed as
+   (s64)sp20 (nd 103) and, with &sp20 address-taken, emits dsll32+or or
+   unaligned ldr/ldl (nd 115); the s64 zero-init also compiles to one sd
+   vs retail's two sw. Tried (s64)sp20, *(s64 *)&sp20, (s32)*(s64 *)&sp20,
+   (x|b<<32) or-constructs, s64 vs s32-pair locals, 4 declaration orders
+   (probe batches) — all nd 103-116. Memory-load fold/scheduling floor.
+   The case-1 abs-style bltz construct survives here (unlike func_0011e490)
+   but its register allocation still differs. */
 // FUN_0011B110
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
 
@@ -1157,6 +1296,14 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
 
 
 
+/* measured: retail booleanizes the first guard (andi $v1, 0x800 then
+   sltu $v1, $zero, $v1 before beqz) and lays the second return out as a
+   branch-to-branch node with bne-to-body; mwcc b210 emits plain
+   andi+beqz and an inverted beq-to-return. Tried !(x&0x800)||, a saved
+   bool local, two separate if-returns, nested if, switch-case -1 and
+   && forms (5 spellings, probe batch), all nd 25-26 — the single sltu
+   controls every other word via the shift. Condition-booleanization
+   floor. */
 // FUN_0011CAF0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
 
@@ -1626,11 +1773,48 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dfc0);
 
 
 
+void func_0011ded0(u8 *arg0);
 // FUN_0011E0C0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e0c0);
+void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 *w = ((SdkTask *)arg0)->work;
+    s32 p48;
+    s32 p4c;
+    u8 *r;
 
-
-
+    if (*(s32 *)(w + 4) != arg1 || (*(s32 *)(w + 8) & ~0xFF) != (arg2 & ~0xFF)) {
+        p48 = *(s32 *)(w + 0x48);
+        if (p48 != 0) {
+            p4c = *(s32 *)(w + 0x4C);
+            func_0044ea90(D_005E4868, 0x11B2);
+            r = D_008873F4[0](1, 8, 0x40000);
+            if (r != 0 && func_00451de0(D_005E4E40, 0xF, 0, 0, func_0011ded0, func_0011df90, r) != 0) {
+                if (p4c != 0) {
+                    func_00440b68((s32)D_005E4F10, (s32)(p4c + 0x10));
+                }
+                *(s32 *)r = p48;
+                *(s32 *)(r + 4) = p4c;
+            }
+            *(s32 *)(w + 0x48) = 0;
+            *(s32 *)(w + 0x4C) = 0;
+            *(s32 *)(w + 0x50) = 0;
+        } else {
+            p4c = *(s32 *)(w + 0x4C);
+            if (p4c != 0) {
+                func_00454bd0(p4c);
+                *(s32 *)(w + 0x4C) = 0;
+            }
+            p4c = *(s32 *)(w + 0x50);
+            if (p4c != 0) {
+                func_003ef3a0(p4c);
+                *(s32 *)(w + 0x50) = 0;
+            }
+        }
+        *(s32 *)(w + 8) = arg2;
+        *(s32 *)(w + 4) = arg1;
+        *(s32 *)(w + 0) = 0;
+    }
+}
 // FUN_0011E230
 void func_0011e230(u8 *arg0, s32 arg1)
 {
