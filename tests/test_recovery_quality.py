@@ -191,7 +191,8 @@ class StatusTableTests(unittest.TestCase):
 
     def test_table_separates_matching_from_recovery(self) -> None:
         body = progress.render_status(self.METRICS, self.RECOVERY)
-        self.assertIn("Byte-identical is not the same as recovered", body)
+        self.assertIn("not recovered", body)
+        self.assertIn("recovery_quality.py", body)
         self.assertIn("NAMED", body)
         self.assertIn("TYPED", body)
 
