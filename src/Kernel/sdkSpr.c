@@ -145,15 +145,34 @@ void func_0046b0d0(u8 *node)
     jtbl_008873EC[0](node);
 }
 
+/* measured: negative-rounding tail of this leaf (srl/andi/or/mtc1/cvt.s.w/add.s)
+   is 2 words off: b210 always colors the OR result (and the mtc1 input) to the
+   ANDI temp register (or $v0,$v1,$v0) where retail keeps it in the SRL temp
+   register (or $v1,$v1,$v0). Tried ~12 spellings, all nd 2 with the identical
+   pair: named f32 local vs inline, (s32) cast on the OR result (REQUIRED to kill
+   b210's u32-conversion guard duplication; without it nd 8-18), u32 vs s32
+   locals, statement splitting, compound |=, operand order flip, if/else vs
+   early return, (f32)(s32)c + (f32)(s32)c CSE form. Every other word matches.
+   Register-coloring floor, not source-drivable in this leaf shape. */
 // FUN_0046B1F0
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b1f0);
-
+/* measured: identical residual to func_0046b1f0's floor. Whole body matches
+   (incl. the three-operand mult $2,$7,$2 and srl >>12) except the
+   negative-rounding tail: b210 colors the OR result + mtc1 input to the ANDI
+   temp register (or $v0,$v1,$v0 / mtc1 $v0) where retail keeps the SRL temp
+   register (or $v1,$v1,$v0 / mtc1 $v1). Tried s32-typed OR expressions
+   ((s32)((u32)v>>1)|(v&1)), assignment-back-to-v, named u32/s32 locals,
+   (f32)c with and without (s32) cast -- all nd 3 (2 real + 1 benign padding
+   nop). Register-coloring floor, same family as b1f0. */
 // FUN_0046B260
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b260);
-
+/* measured: same floor as func_0046b260 (offsets 0x60/0x58/0x76/0x22): entire
+   body byte-identical except the negative-rounding tail or/mtc1 register pair
+   (b210 colors OR result + mtc1 input to the ANDI temp; retail keeps the SRL
+   temp). nd 3 (2 real + 1 benign padding nop). Same register-coloring floor
+   family as b1f0/b260. */
 // FUN_0046B2F0
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b2f0);
-
 // FUN_0046B380
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b380);
 
@@ -242,6 +261,10 @@ void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg
     jtbl_008873EC[0](node);
 }
 
+/* measured: nd 53 with a full C body (object 172B against a 192B window).
+   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
+   adaptation rather than a settled floor -- re-attempt from the m2c draft with
+   the brief's recipes before treating any of it as established. */
 // FUN_0046D5F0
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046d5f0);
 

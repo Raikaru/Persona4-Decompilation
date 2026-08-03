@@ -4,6 +4,7 @@
 #include "type.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
+typedef int s128 __attribute__((mode(TI)));
 
 /* 4-byte color state at 0x00724C54..57, accessed gp-relative in retail. */
 typedef struct {
@@ -33,6 +34,23 @@ extern u_long128 D_00713CE0;
 extern void *func_004844d0(void);
 extern void *func_00484490(void *);
 extern void func_0046d730(void *, s32);
+extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
+extern void func_004843a0();
+extern void func_00484280();
+extern f32 func_004bd0b0(u32);
+extern u32 func_004bd050(u32);
+extern void func_0043f9c8(void *, s32, s32);
+extern void func_004bd1a0(u32, f32);
+extern void func_004bd3c0(f32);
+extern void func_004bd450(void);
+extern f32 func_0044b610(f32);
+extern f32 func_0044b7b0(f32);
+extern void func_003c22f0(void *);
+extern f32 D_00713D10[4];
+extern f32 D_00713D14[4];
+extern f32 D_00713D18[4];
+extern f32 iGpffff8084; /* 0x00761174 */
+extern f32 iGpffff8080; /* 0x00761170 */
 extern void *func_004a5630(s32, void *);
 extern char D_00714134[];
 extern char D_00714130[];
@@ -91,11 +109,175 @@ u8 *func_004a21e0(u8 *arg0)
     return work;
 }
 
+/* measured: same s128-canonicalization floor family as func_004A4A10 in
+   this file (and the floored effPolygonFlash FUN_0049AA30 family): retail
+   `sq $3,0x120($29)` (3A2390) stores a 32-bit value into a 16-byte slot
+   with a bare sq, and the loop re-reads the slots with bare lq + sltu;
+   mwcc b210 always inserts the dsll32/dsra32 pair on both sides
+   (probe-verified on this toolchain, 5 spellings - no bare sq is
+   reachable). Not attempted separately: the identical mechanism is
+   measured in func_004A4A10 (nd 1927 attempt) and the floor is provable
+   at the toolchain level. */
 // FUN_004A2310
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a2310);
 
 // FUN_004A2C90
-INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a2c90);
+void func_004a2c90(u8 *arg0)
+{
+    union {
+        s32 w;
+        u8 b[4];
+    } spAC;
+    s32 spA8;
+    s32 spA4;
+    s32 spA0;
+    s32 sp9C;
+    s32 sp98;
+    s32 sp94;
+    s32 temp_3_2;
+    u8 *temp_3;
+    u32 *var_19;
+    u8 *temp_18;
+    u32 var_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+    u32 temp_23;
+    u32 temp_21;
+    u32 temp_6_2;
+    u32 combined;
+
+    temp_3 = *(u8 **)(arg0 + 0x3C);
+    temp_18 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_3 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_18 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0)) {
+        s32 *pt;
+
+        var_19 = *(u32 **)temp_3;
+        temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
+        spA8 = *(s32 *)(arg0 + 0x30);
+        pt = &spA8;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        spA4 = temp_3_2;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0xA0($sp)      \n"
+            :
+            : "r"(&spA4)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        combined = *(s32 *)&spA0;
+        temp_23 = *(u32 *)(temp_18 + 0x38);
+        temp_21 = *(u32 *)(temp_18 + 0x80);
+        var_17 = 0;
+        while (var_17 < temp_23) {
+            temp_6_2 = *var_19;
+            if (temp_6_2 < temp_21) {
+                sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                __asm__ volatile(
+                    "lwc1 $f0, -0x7FBC($28)  \n"
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, $f0          \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vmove.xyzw $vf11, $vf10 \n"
+                    :
+                    : "r"(&sp9C)
+                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                sp98 = combined;
+                __asm__ volatile(
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, $f0          \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                    "lui $2, 0x437F        \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vftoi0.xyzw $vf10, $vf10 \n"
+                    "qmfc2.ni $2, $vf10    \n"
+                    "ppach $2, $0, $2      \n"
+                    "ppacb $2, $0, $2      \n"
+                    "sw $2, 0x94($sp)      \n"
+                    :
+                    : "r"(&sp98)
+                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                spAC.w = *(s32 *)&sp94;
+                if (spAC.b[3] != 0xFF) {
+                    u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                    *(PolygonWindColor *)(dst + 4) = *(PolygonWindColor *)&spAC;
+                } else {
+                    spAC.b[3] = 0xFE;
+                    {
+                        u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                        *(PolygonWindColor *)(dst + 4) = *(PolygonWindColor *)&spAC;
+                    }
+                    spAC.b[3] = 0xFF;
+                }
+            } else if (iGpffffbb64.c3 != 0xFF) {
+                u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+            } else {
+                iGpffffbb64.c3 = 0xFE;
+                {
+                    u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                    *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+                }
+                iGpffffbb64.c3 = 0xFF;
+            }
+            var_17 += 1;
+            var_19 += 0xC;
+        }
+        func_004843a0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_18 + 0xB9) != 0) {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        } else {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        func_00484280(temp_16, *(u16 *)(temp_18 + 0x28));
+    }
+}
 
 /* measured: without #pragma opt_loop_invariants on, mwcc rematerializes the
  * 0xFF/0xFE/-1 constants inside the loop instead of hoisting them to the
@@ -197,11 +379,174 @@ u8 *func_004a3510(u8 *arg0)
     return work;
 }
 
+/* measured: same s128-canonicalization floor family as func_004A4A10 in
+   this file (and the floored effPolygonFlash FUN_0049AA30 family): retail
+   `sq $3,0x110($29)` (3A36C0) stores a 32-bit value into a 16-byte slot
+   with a bare sq and re-reads it with bare lq + sltu; mwcc b210 always
+   inserts the dsll32/dsra32 pair on both sides (probe-verified on this
+   toolchain, 5 spellings - no bare sq is reachable). Not attempted
+   separately: the identical mechanism is measured in func_004A4A10
+   (nd 1927 attempt) and the floor is provable at the toolchain level. */
 // FUN_004A3640
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a3640);
 
 // FUN_004A4000
-INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a4000);
+void func_004a4000(u8 *arg0)
+{
+    union {
+        s32 w;
+        u8 b[4];
+    } spAC;
+    s32 spA8;
+    s32 spA4;
+    s32 spA0;
+    s32 sp9C;
+    s32 sp98;
+    s32 sp94;
+    s32 temp_3_2;
+    u8 *temp_3;
+    u32 *var_19;
+    u8 *temp_18;
+    u32 var_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+    u32 temp_23;
+    u32 temp_21;
+    u32 temp_6_2;
+    u32 combined;
+
+    temp_3 = *(u8 **)(arg0 + 0x3C);
+    temp_18 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_3 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_18 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0)) {
+        s32 *pt;
+
+        var_19 = *(u32 **)temp_3;
+        temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
+        spA8 = *(s32 *)(arg0 + 0x30);
+        pt = &spA8;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        spA4 = temp_3_2;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0xA0($sp)      \n"
+            :
+            : "r"(&spA4)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        combined = *(s32 *)&spA0;
+        temp_23 = *(u32 *)(temp_18 + 0x38);
+        temp_21 = *(u32 *)(temp_18 + 0x80);
+        var_17 = 0;
+        while (var_17 < temp_23) {
+            temp_6_2 = *var_19;
+            if (temp_6_2 < temp_21) {
+                sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                __asm__ volatile(
+                    "lwc1 $f0, -0x7FBC($28)  \n"
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, $f0          \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vmove.xyzw $vf11, $vf10 \n"
+                    :
+                    : "r"(&sp9C)
+                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                sp98 = combined;
+                __asm__ volatile(
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, $f0          \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                    "lui $2, 0x437F        \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vftoi0.xyzw $vf10, $vf10 \n"
+                    "qmfc2.ni $2, $vf10    \n"
+                    "ppach $2, $0, $2      \n"
+                    "ppacb $2, $0, $2      \n"
+                    "sw $2, 0x94($sp)      \n"
+                    :
+                    : "r"(&sp98)
+                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                spAC.w = *(s32 *)&sp94;
+                if (spAC.b[3] != 0xFF) {
+                    u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                    *(PolygonWindColor *)(dst + 4) = *(PolygonWindColor *)&spAC;
+                } else {
+                    spAC.b[3] = 0xFE;
+                    {
+                        u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                        *(PolygonWindColor *)(dst + 4) = *(PolygonWindColor *)&spAC;
+                    }
+                    spAC.b[3] = 0xFF;
+                }
+            } else if (iGpffffbb64.c3 != 0xFF) {
+                u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+            } else {
+                iGpffffbb64.c3 = 0xFE;
+                {
+                    u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                    *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+                }
+                iGpffffbb64.c3 = 0xFF;
+            }
+            var_17 += 1;
+            var_19 += 0xC;
+        }
+        func_004843a0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_18 + 0xB9) != 0) {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        } else {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        func_00484280(temp_16, *(u16 *)(temp_18 + 0x28));
+    }
+}
 
 /* measured: same loop-shape as func_004a3010; without #pragma
  * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
@@ -308,11 +653,186 @@ u8 *func_004a48d0(u8 *arg0)
     return work;
 }
 
+/* measured: s128-canonicalization floor family (same code as the floored
+   effPolygonFlash FUN_0049AA30/0049C3D0 etc.). retail stores 32-bit values
+   into three 16-byte slots with bare `sq` (sp100 at 0x100, spF0, spE0) and
+   re-reads them with bare `lq` + sltu/beqz; mwcc b210 always emits a
+   dsll32/dsra32 widening pair before the sq (probe-verified here on b210
+   with 5 spellings: (u_long128)cast, s128 cast, struct/union alias, u64
+   alias, u32-alias write - none produce a bare sq) and another pair after
+   every lq that feeds a comparison/zero-test (only the `if (q)` truthiness
+   form escapes the read canon). That is a minimum nd 11 (3 write + 2
+   compare sites + the one retail paddub for sp110) even with a perfect
+   reconstruction. Attempt 1 (full m2c-derived body incl. the VU0 lqc2/
+   vmulax/vrsqrt chain asm blocks and the (1.0f-x)+x*r FMA chains) measured
+   nd 1927 / obj 2580 vs win 2208: the frame came out 0x130 vs 0x140 and
+   the FP saved pool did not fill to retail's 12 registers, so the object
+   diverges well before the canon floor dominates. */
 // FUN_004A4A10
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a4a10);
 
 // FUN_004A52B0
-INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a52b0);
+void func_004a52b0(u8 *arg0)
+{
+    union {
+        s32 w;
+        u8 b[4];
+    } spAC;
+    s32 spA8;
+    s32 spA4;
+    s32 spA0;
+    s32 sp9C;
+    s32 sp98;
+    s32 sp94;
+    s32 temp_3_2;
+    u8 *temp_3;
+    u32 *var_19;
+    u8 *temp_18;
+    u32 var_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+    u32 temp_23;
+    u32 temp_21;
+    u32 temp_6_2;
+    u32 combined;
+
+    temp_3 = *(u8 **)(arg0 + 0x3C);
+    temp_18 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_3 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_18 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0)) {
+        s32 *pt;
+
+        var_19 = *(u32 **)temp_3;
+        temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
+        spA8 = *(s32 *)(arg0 + 0x30);
+        pt = &spA8;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        spA4 = temp_3_2;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0xA0($sp)      \n"
+            :
+            : "r"(&spA4)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        combined = *(s32 *)&spA0;
+        temp_23 = *(u32 *)(temp_18 + 0x38);
+        temp_21 = *(u32 *)(temp_18 + 0x80);
+        var_17 = 0;
+        while (var_17 < temp_23) {
+            temp_6_2 = *var_19;
+            if (temp_6_2 < temp_21) {
+                sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                __asm__ volatile(
+                    "lwc1 $f0, -0x7FBC($28)  \n"
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, $f0          \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vmove.xyzw $vf11, $vf10 \n"
+                    :
+                    : "r"(&sp9C)
+                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                sp98 = combined;
+                __asm__ volatile(
+                    "lw $2, 0(%0)          \n"
+                    "pextlb $2, $0, $2     \n"
+                    "pextlh $2, $0, $2     \n"
+                    "qmtc2.ni $2, $vf10    \n"
+                    "vitof0.xyzw $vf10, $vf10 \n"
+                    "mfc1 $2, $f0          \n"
+                    "nop                   \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                    "lui $2, 0x437F        \n"
+                    "qmtc2.ni $2, $vf2     \n"
+                    "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                    "vftoi0.xyzw $vf10, $vf10 \n"
+                    "qmfc2.ni $2, $vf10    \n"
+                    "ppach $2, $0, $2      \n"
+                    "ppacb $2, $0, $2      \n"
+                    "sw $2, 0x94($sp)      \n"
+                    :
+                    : "r"(&sp98)
+                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                spAC.w = *(s32 *)&sp94;
+                if (spAC.b[3] != 0xFF) {
+                    u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                    *(PolygonWindColor *)(dst + 4) = *(PolygonWindColor *)&spAC;
+                } else {
+                    spAC.b[3] = 0xFE;
+                    {
+                        u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                        *(PolygonWindColor *)(dst + 4) = *(PolygonWindColor *)&spAC;
+                    }
+                    spAC.b[3] = 0xFF;
+                }
+            } else if (iGpffffbb64.c3 != 0xFF) {
+                u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+            } else {
+                iGpffffbb64.c3 = 0xFE;
+                {
+                    u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
+                    *(PolygonWindColor *)(dst + 4) = iGpffffbb64;
+                }
+                iGpffffbb64.c3 = 0xFF;
+            }
+            var_17 += 1;
+            var_19 += 0xB;
+        }
+        func_004843a0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_18 + 0xB9) != 0) {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        } else {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        func_00484280(temp_16, *(u16 *)(temp_18 + 0x28));
+    }
+}
+
+/* measured: same loop-shape as func_004a3010; without #pragma
+ * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
+ * inside the loop instead of hoisting them to the preheader; with it the
+ * loop matches retail exactly (0x2C stride variant). */
 
 // FUN_004A5630
 #pragma opt_propagation off

@@ -69,8 +69,13 @@ extern Qword D_0063ED70;
 extern f32 D_00761184;
 extern f32 D_00761174;
 extern s32 D_0063ED80[];
+extern f32 func_0044b610(f32);
 extern f32 func_0044b7b0(f32);
-extern void func_002a66d0(s32, s32, s32, f32, f32, f32, f32, f32);
+extern f32 iGpffff81e0;
+extern void func_00364c50(void);
+extern void func_00364c70(void);
+extern void func_0045dfd0(void *, void *, f32, s32, s32, s32);
+extern void func_002a66d0(f32, f32, f32, f32, f32, s32, s32, s32);
 extern void func_0045ed60(void *, void *, s32, f32);
 typedef struct { s32 a, b, c, d; } Quad4;
 extern RwRenderStateSetFunc D_00887300[4];
@@ -99,7 +104,14 @@ extern s32 func_00465590(void);
 extern void func_0010e710(s32, s32, s32);
 extern s32 func_0010e880(s32, s32, s32);
 extern u16 D_008C024E[];
-extern void func_002a9100(s32, s32, s32, s32, u8 *, f32, f32, f32);
+extern s32 func_00110580(s32);
+extern void func_00442088(void *, void *, s32);
+extern void func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, void *, void *, s32);
+extern s32 func_00275020(s32, s32, s32, void *, s32, s32, f32, f32, f32);
+extern s16 D_0063EB30[];
+extern char iGpffffa824;
+extern void func_002a2e10(void);
+extern void func_002a9100(f32, f32, f32, s32, s32, s32, s32, u8 *);
 extern void func_002a95c0(s32, s32, s32, u8 *, u8 *, f32, f32, f32);
 extern s32 func_003b7060(s32);
 extern s32 D_0063EDB0[];
@@ -774,7 +786,65 @@ void func_002a6680(s32 arg0) {
 }
 
 // FUN_002A66D0
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a66d0);
+void func_002a66d0(f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4,
+                   s32 arg0, s32 arg1, s32 arg2) {
+    typedef struct { f32 a, b; } V2;
+    void *setState;
+    V2 arr[0x29];
+    u8 colors[0x29][4];
+    s32 i;
+    s32 p;
+    s32 m0, m1, m2, m3;
+    f32 f21, f20;
+    f32 x;
+    f32 *slot;
+    u8 *col;
+
+    arr[0].a = fparg0;
+    arr[0].b = fparg1;
+    p = (arg0 << 8) | arg1;
+    m0 = (p >> 24) & 0xFF;
+    colors[0][0] = p >> 24;
+    m1 = (p >> 16) & 0xFF;
+    colors[0][1] = p >> 16;
+    m2 = (p >> 8) & 0xFF;
+    colors[0][2] = p >> 8;
+    m3 = p & 0xFF;
+    colors[0][3] = p;
+    i = 1;
+    f21 = fparg3 / 2.0f;
+    f20 = fparg4 / 2.0f;
+    while (i < 0x28) {
+        x = iGpffff81e0 * (f32)(i - 1) / 39.0f;
+        slot = &arr[i].a;
+        slot[0] = fparg0 + f21 * func_0044b610(x);
+        slot[1] = fparg1 + f20 * -func_0044b7b0(x);
+        col = &colors[i][0];
+        col[0] = m0;
+        col[1] = m1;
+        col[2] = m2;
+        col[3] = m3;
+        i++;
+    }
+    arr[i] = arr[1];
+    colors[i][0] = m0;
+    colors[i][1] = m1;
+    colors[i][2] = m2;
+    colors[i][3] = m3;
+    setState = (void *)D_00887300;
+    (*(void (**)(u32, u32))setState)(1, 0);
+    if (arg1 == 0xFF && !(arg2 & 2)) {
+        func_00364c50();
+    }
+    if (!(arg2 & 4)) {
+        func_0045dfd0(&colors[0][0], &arr[0].a, fparg2, 0x29, 5, arg2 & 1);
+    } else {
+        func_0045dfd0(&colors[1][0], &arr[1].a, fparg2, 0x28, 2, arg2 & 1);
+    }
+    if (arg1 == 0xFF && !(arg2 & 2)) {
+        func_00364c70();
+    }
+}
 
 // FUN_002A6960
 void func_002a6960(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0) {
@@ -888,6 +958,7 @@ void func_002a6c30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 
 // FUN_002A6E30
 void func_002a6e30(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
+    void func_002a66d0(s32, s32, s32, f32, f32, f32, f32, f32);
     typedef struct { s32 a, b; } I8;
     f32 f1, f3;
     f32 f23, f22, f21, f20, f24;
@@ -1082,6 +1153,10 @@ void func_002a7710(s32 arg0, u8 *arg1) {
 // FUN_002A7920
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a7920);
 
+/* measured: nd 845 with a full C body (object 1232B against a 1216B window).
+   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
+   adaptation rather than a settled floor -- re-attempt from the m2c draft with
+   the brief's recipes before treating any of it as established. */
 // FUN_002A9100
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a9100);
 

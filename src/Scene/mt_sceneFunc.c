@@ -14,8 +14,8 @@ u32 func_00268ce0(float* first, float* second, float* output, float* third);
 typedef struct { f32 x, y, z; } SVec3;
 extern u32 func_00269190(Resrc* param_1, u32 param_2, float param_3, u32 param_4);
 extern u32 func_002694f0(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
-extern u32 func_00269820(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
-                         u32 param_5, u32 param_6, float param_7);
+extern u32 func_00269820(u16 *param_1, s32 param_2, s64 param_3, s64 param_4,
+                         s32 param_5, s32 param_6, float param_7);
 extern u32 func_002699d0(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, float param_7);
 extern u32 func_00269bd0(void* resource, s32 enabled);
@@ -78,6 +78,9 @@ extern s32 func_0026da30(u16 arg0, s32 arg1);
 extern s32 func_0017b990(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern f32 func_003e40b0();
+extern s64 D_0063B110;
+extern f32 D_0063B118;
+extern f32 fGpffff8048;
 extern void func_003e0870(void *dst, void *src, s32 mode, f32 angle);
 extern void func_003e4320(void *dst, void *src, void *mat);
 extern s32 func_003e05d0(void *arg0);
@@ -582,8 +585,43 @@ s32 func_00269740(void)
 }
 
 // FUN_00269820
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269820);
+u32 func_00269820(u16 *arg0, s32 arg1, s64 arg2, s64 arg3, s32 arg4, s32 arg5,
+                  float fparg0)
+{
+    s32 var_17;
+    s32 var_16;
 
+    if (arg0 == NULL) return 0;
+    switch (((s32)(arg0[0] & 0xFFC00)) >> 10) {
+    case 1:
+        var_16 = *(s32 *)((u8 *)arg0 + 0x164);
+        break;
+    case 2:
+        var_16 = *(s32 *)((u8 *)arg0 + 0x158);
+        break;
+    case 3:
+        var_16 = *(s32 *)((u8 *)arg0 + 0x164);
+        break;
+    case 10:
+        var_16 = *(s32 *)((u8 *)arg0 + 0x144);
+        break;
+    default:
+        return 0;
+    }
+    var_17 = 0;
+    if (arg4 == 1) {
+        var_17 |= 1;
+    }
+    if (func_00479dd0(var_16, arg1, (s16)arg2) == 0) {
+        func_0047a0e0(var_16, arg1, fparg0);
+        func_00479940(var_16, arg1, (s16)arg2, arg3 & 0xFFFF, var_17 & 0xFFFF);
+        if (arg5 > 0) {
+            func_00479e60(var_16, arg1, (f32)arg5);
+        }
+    }
+    *(s32 *)((u8 *)arg0 + 0x28) &= ~0x2000;
+    return 1;
+}
 // FUN_002699D0
 u32 func_002699d0(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0)
 {
@@ -629,7 +667,7 @@ void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
     if (uVar3 == -1) {
         lVar2 = (u32)MT_Scene_GetRes(uVar1);
         if (lVar2 != 0) {
-            func_00269820(lVar2, 0, param_2, param_3, 1, 0, 1.0f);
+            func_00269820((u16 *)lVar2, 0, param_2, param_3, 1, 0, 1.0f);
         }
         goto end;
     }
@@ -638,7 +676,7 @@ void func_00269a90(u32 param_1, short param_2, short param_3, short param_4,
     if (lVar4 == 0) {
         goto second_done;
     }
-    func_00269820(lVar4, 0, param_2, param_3, 0, 0, 1.0f);
+    func_00269820((u16 *)lVar4, 0, param_2, param_3, 0, 0, 1.0f);
 
 second_done:
     lVar2 = (u32)MT_Scene_GetRes(uVar1);
@@ -705,6 +743,10 @@ s32 func_00269c20(u32 unk, s32 arg1) {
 // FUN_00269C70
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269c70);
 
+/* measured: nd 337 with a full C body (object 604B against a 624B window).
+   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
+   adaptation rather than a settled floor -- re-attempt from the m2c draft with
+   the brief's recipes before treating any of it as established. */
 // FUN_00269DB0
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269db0);
 
