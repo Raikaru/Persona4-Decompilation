@@ -29,9 +29,43 @@ INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290880);
    #pragma opt_rebuildconditionals off all give the identical nd 16 - the pragma governs
    the opposite direction (collapsing branches INTO booleans), so it has no effect here. */
 // FUN_00290940
-INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290940);
+extern void func_00290b00_narg(void);
+#pragma alias func_00290b00_narg func_00290b00
+extern void func_00290a50_narg(void);
+#pragma alias func_00290a50_narg func_00290a50
+
+void func_00290940(int *param_1)
+{
+  int *piVar1;
+  u8 bVar1;
+
+  piVar1 = param_1;
+
+  bVar1 = *piVar1 != 0;
+  if (bVar1) {
+    func_00290b00_narg();
+    func_002777f0(piVar1[2]);
+    *piVar1 = 0;
+    func_0043f9c8(param_1, 0, 0x34);
+  }
+  return;
+}
 // FUN_002909B0
-INCLUDE_ASM("asm/nonmatchings/evtMessage", func_002909b0);
+void func_002909b0(int *param_1, int a2, int a3, int a4, int a5)
+{
+  if ((u8)(*param_1 != 0)) {
+    if (param_1[3] != 0) {
+      func_00290a50_narg();
+    }
+    param_1[3] = 1;
+    param_1[1] = a2;
+    param_1[4] = a3;
+    param_1[5] = a4;
+    param_1[6] = a5;
+    param_1[7] = -1;
+  }
+  return;
+}
 
 
 
@@ -85,7 +119,74 @@ void func_00290b00(int *param_1)
 }
 
 // FUN_00290BC0
-INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290bc0);
+void func_00290bc0(int *param_1)
+{
+  u32 bVar0;
+  int iVar2;
+  int lVar3;
+  u32 uVar4;
+  int iVar5;
+
+  bVar0 = *param_1 != 0;
+  if (bVar0) {
+    iVar2 = param_1[2];
+    switch (param_1[3]) {
+    case 0:
+      break;
+    case 1:
+      iVar5 = param_1[4];
+      if (iVar5 >= 0) {
+        func_00278610(param_1[2], param_1[1]);
+        func_00278170(param_1[2], 0x200000);
+        func_002778c0(param_1[2], param_1[4], 0);
+        func_00277010(param_1[2], -1);
+        param_1[3] = 2;
+      } else {
+        param_1[3] = 3;
+      }
+      break;
+    case 2:
+      lVar3 = func_00276e10(iVar2);
+      if (lVar3 < 0) {
+        param_1[3] = 3;
+      }
+      break;
+    case 3:
+      if (param_1[5] >= 0) {
+        func_00277fd0(iVar2, 0);
+        func_00277be0(iVar2, param_1[5]);
+        param_1[3] = 4;
+      } else {
+        param_1[3] = 5;
+      }
+      break;
+    case 4:
+      lVar3 = func_00276fb0(iVar2);
+      if (lVar3 < 0) {
+        uVar4 = func_00278260(iVar2);
+        iVar2 = param_1[6];
+        if ((iVar2 >= 0) && (iVar2 < 10)) {
+          func_0028d020(iVar2, uVar4);
+        }
+        param_1[7] = (int)uVar4;
+        param_1[3] = 5;
+      }
+      break;
+    case 5:
+      if (bVar0 && (param_1[3] != 0)) {
+        func_00276e70(iVar2, 0);
+        func_00277250(iVar2);
+        func_00277ad0(iVar2, 0);
+        func_002781e0(iVar2, 0x800000);
+        func_002781e0(iVar2, 0x100000);
+        func_00276e70(iVar2, 1);
+        param_1[3] = 0;
+      }
+      break;
+    }
+  }
+  return;
+}
 
 
 /* Source unit: src/Event/mt_evtMessage_00290de0.c (donor FUN_0039f6e0) */

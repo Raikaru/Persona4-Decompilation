@@ -114,21 +114,50 @@ class RestoreTests(unittest.TestCase):
 
     def test_no_match_restores_the_file_exactly(self) -> None:
         cand = self.candidate("a", "int func_00246940(void) { return 1; }\n")
-        status, seen = self.run_probe([7, 4], [cand])
+        # The INCLUDE_ASM baseline is not compiled, so `scores` covers the
+        # candidates only.
+        status, seen = self.run_probe([4], [cand])
         self.assertEqual(status, 1)
         self.assertEqual(self.path.read_bytes(), self.original)
         # The candidate really was compiled, so restoration is not a no-op.
-        self.assertIn("return 1", seen[1])
+        self.assertIn("return 1", seen[0])
 
     def test_compile_error_still_restores(self) -> None:
         cand = self.candidate("bad", "this is not C\n")
-        status, _ = self.run_probe([7, None], [cand])
+        status, _ = self.run_probe([None], [cand])
         self.assertEqual(status, 1)
         self.assertEqual(self.path.read_bytes(), self.original)
 
+    def test_include_asm_baseline_is_never_scored_or_crowned(self) -> None:
+        """The fallback assembles the retail bytes, so it would score a perfect
+        0 while matching nothing -- crowning it and burying every candidate."""
+        cand = self.candidate("a", "int func_00246940(void) { return 1; }\n")
+        status, seen = self.run_probe([6], [cand])
+        # One compile only: the candidate. The baseline was skipped.
+        self.assertEqual(len(seen), 1)
+        self.assertIn("return 1", seen[0])
+        # No candidate reached zero, so nothing is kept and the run reports failure.
+        self.assertEqual(status, 1)
+        self.assertEqual(self.path.read_bytes(), self.original)
+
+    def test_candidate_without_trailing_newline_keeps_the_next_marker(self) -> None:
+        """A body with no trailing newline used to splice onto the following
+        `// FUN_` marker, merging them so the next function lost its marker and
+        vanished from the file."""
+        path = Path(self.tmp.name) / "nonl.c"
+        with open(path, "wb") as handle:
+            handle.write(b"int func_00246940(void) { return 4; }")  # no newline
+        status, _ = self.run_probe([0], [("nonl", str(path))])
+        self.assertEqual(status, 0)
+        kept = self.path.read_text(encoding="utf-8")
+        self.assertIn("return 4", kept)
+        # The neighbour below still owns its own marker line.
+        self.assertRegex(kept, r"(?m)^//\s*FUN_00246970\b")
+        self.assertIn("func_00246970", kept)
+
     def test_zero_diff_candidate_is_kept(self) -> None:
         cand = self.candidate("win", "int func_00246940(void) { return 2; }\n")
-        status, _ = self.run_probe([7, 0], [cand])
+        status, _ = self.run_probe([0], [cand])
         self.assertEqual(status, 0)
         kept = self.path.read_text(encoding="utf-8")
         self.assertIn("return 2", kept)
@@ -140,7 +169,7 @@ class RestoreTests(unittest.TestCase):
 
     def test_keep_forces_a_non_matching_candidate_to_stay(self) -> None:
         cand = self.candidate("near", "int func_00246940(void) { return 3; }\n")
-        status, _ = self.run_probe([7, 5], [cand], keep="near")
+        status, _ = self.run_probe([5], [cand], keep="near")
         self.assertEqual(status, 1)
         self.assertIn("return 3", self.path.read_text(encoding="utf-8"))
 

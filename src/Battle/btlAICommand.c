@@ -53,7 +53,7 @@ extern void *D_00609850[];
 extern u32 func_001b1570(u16 arg0);
 extern u32 func_00233880(u32 arg0, u32 arg1);
 extern u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
-extern u16 func_00231d70(u16 arg0);
+extern u32 func_00231d70(u32 arg0);
 extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef4d0(s32 arg0, s32 arg1);
 extern u32 func_00231ed0(u32 arg0);
@@ -120,6 +120,8 @@ extern s32 func_0023e140(u32 arg0);
 extern u32 func_00231f80(u32 arg0);
 extern s32 func_0043c6a0(u32 arg0);
 extern u8 *iGpffffb3b8;
+extern u8 *iGpffffb3c8;
+extern u8 *iGpffffb3cc;
 
 
 // FUN_001DAF40
@@ -344,14 +346,55 @@ s32 btlCond_SLIP(u8 *arg0) {
 
 
 
-/* measured: f = (a == 0) boolean — retail emits a branchy set (bnez $v0,L;
-   addiu $v0,1; b; L: move $v0,0; andi $s0,$v0,0xffff) while mwcc b210 folds
-   every spelling (if/else, ternary, switch) into xor/sltiu booleanize; also
-   mwcc insists t0=$16/f=$17 (retail f=$16/t0=$17) under all declaration orders
-   and masks the u16 per-use in-loop instead of hoisting pre-loop. Best nd 45
-   (switch form). $v0/$v1-coloring + fold floor. */
+/* Ported from P3FES btlEffect.c func_002c3300 (genus-match loop).
+   func_002ffcc0->func_00231e20 (masked u8); iGpffffb6fc+0x14c->iGpffffb3ac+0x174;
+   offsets 0xa2c->0xa64, 0x4a8->0x450. Pragma disables the shift-fold. */
+#pragma opt_rebuildconditionals off
 // FUN_001DB7D0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db7d0);
+u32 func_001db7d0(int param_1, u32 param_2)
+{
+    u32 genusValue;
+
+    if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0) {
+        goto nonzero_genus;
+    }
+    genusValue = 1;
+    goto genus_done;
+nonzero_genus:
+    genusValue = 0;
+genus_done:
+    {
+        u32 genus = (u16)genusValue;
+        u32 current = (u8)func_00231e20(*(u32 *)(*(int *)(param_1 + 0x30) + 0xa64));
+        int unit = *(int *)(iGpffffb3ac + 0x174);
+        u32 candidate;
+        u32 comparison;
+
+        genus = (u16)genus;
+        while (unit != 0) {
+            if (((*(u16 *)(unit + 0x1a) & 1) != 0) &&
+                ((*(u16 *)(unit + 0x1a) & 8) != 0) &&
+                (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) == genus)) {
+                candidate = (u8)func_00231e20(*(u32 *)(*(int *)(unit + 0x30) + 0xa64));
+                comparison = candidate < current;
+                if (comparison != 0) {
+                    goto next_unit;
+                }
+                comparison = (candidate - current) < param_2;
+                if (comparison != 0) {
+                    goto next_unit;
+                }
+                return 1;
+            }
+next_unit:
+            unit = *(int *)(unit + 0x450);
+        }
+    }
+    return 0;
+}
+#pragma opt_rebuildconditionals on
+
+
 // FUN_001DB8D0
 s32 func_001db8d0(u8 *arg0) {
     return (s32)(func_002340c0(*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xA64)) != 0);
@@ -462,22 +505,96 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
 // FUN_001DBF20
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
 
-/* measured: only residual is the 2-word loop-body mask floor shared with
-   FUN_001DCF10/FUN_001DC9A0 (retail andi $v0,$a0,0xffff; sll $v0,$v0,2 vs mwcc
-   b210 in-place andi $a0,$a0,0xffff; sll $v0,$a0,2); the max-finding loop
-   matches with the FUN_001DD0D0 recipe (decl order best,j,bestScore,count,
-   explicit j = 0 before the hoisted count load, u32 bestScore/s, s < bestScore).
-   Tried (u32)i cast and inline-no-q body: still 5. */
+/* Ported from P3FES btlEffect.c func_002c3be0 (copy-all / min-stat select).
+   func_002bff60_u16->func_001d7f10; offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64;
+   lowest init 0xfffffff. */
 // FUN_001DC380
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc380);
+u32 func_001dc380(u32 param_1)
+{
+    u32 unit;
+    u16 available;
 
-/* measured: only residual is the 2-word loop-body mask floor shared with
-   FUN_001DCF10/FUN_001DC9A0 (retail andi $v0,$a0,0xffff vs mwcc in-place
-   andi $a0,$a0,0xffff); the min-finding loop matches with j as s32 + (u16)j in
-   the body (breaks the mask CSE), bs/s as u16, bs = 0xFFFF init, and
-   s < bs compare. */
+    unit = param_1;
+    available = func_001d7f10((u8 *)unit, (u8 *)(unit + 0x98), *(u16 *)(unit + 0x6e), 0);
+    if (available != 0) {
+        u16 index;
+        u16 count;
+        index = 0;
+        while ((count = *(u16 *)(unit + 0xd0)), (u16)index < count) {
+            *(u32 *)(unit + (index & 0xffff) * 4 + 0x38) =
+                *(u32 *)(unit + (index & 0xffff) * 4 + 0x98);
+            index++;
+        }
+        *(u16 *)(unit + 0x6a) = count;
+        return 1;
+    }
+    {
+        u32 selected;
+        u32 index;
+        u32 lowest;
+        u32 count;
+        u32 candidate;
+        u32 stat;
+        selected = 0;
+        lowest = 0xfffffff;
+        index = 0;
+        count = *(u16 *)(unit + 0xd0);
+        while (index < count) {
+            candidate = *(u32 *)(unit + index * 4 + 0x98);
+            stat = *(u16 *)(*(int *)(*(int *)(candidate + 0x30) + 0xa64) + 8);
+            if (stat < lowest) {
+                selected = candidate;
+                lowest = stat;
+            }
+            index++;
+        }
+        *(u32 *)(unit + 0x38) = selected;
+    }
+    *(u16 *)(unit + 0x6a) = 1;
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c func_002c3ce0 (target-choose min-score loop).
+   func_002bff60_u16->func_001d7f10, func_002ffcc0->func_00231e20 (score masked
+   (u8)); offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64. */
 // FUN_001DC480
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc480);
+u32 func_001dc480(u32 param_1)
+{
+    u16 result;
+    u16 copyIndex;
+    int unit;
+    int selected;
+    u16 index;
+    u16 best;
+    u16 score;
+    u32 idx32;
+
+    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    if (result != 0) {
+        for (copyIndex = 0; copyIndex < *(u16 *)(param_1 + 0xd0); copyIndex++) {
+            *(u32 *)(param_1 + copyIndex * 4 + 0x38) = *(u32 *)(param_1 + copyIndex * 4 + 0x98);
+        }
+        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        return 1;
+    }
+    selected = 0;
+    best = 0xffff;
+    for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
+        idx32 = index;
+        idx32 = idx32 & 0xffff;
+        unit = *(int *)(param_1 + idx32 * 4 + 0x98);
+        score = (u8)func_00231e20(*(u32 *)(*(int *)(unit + 0x30) + 0xa64));
+        if (score < best) {
+            selected = unit;
+            best = score;
+        }
+    }
+    *(int *)(param_1 + 0x38) = selected;
+    *(u16 *)(param_1 + 0x6a) = 1;
+    return 1;
+}
+
 // FUN_001DC5B0
 s32 func_001dc5b0(void) {
     return 0;
@@ -507,8 +624,40 @@ void func_001dc640(u64 formation, u32 flags) {
    Tried: decl-order swaps, fl/np locals, inline exprs, g = iGpffffb3ac local,
    for/while, node-chain compare order, t = (u16)i local, arr[14]/arr[16] —
    all nd 40-56. $v0/$v1-coloring floor. */
+/* Ported from P3FES btlEffect.c func_002c3f00 (btlAI target-select loop).
+   iGpffffb6fc+0x14c -> iGpffffb3ac+0x174; func_00300580 -> func_00232710;
+   func_002ffbc0 -> func_00231d70 (extern switched u16->u32 so the index
+   call doesn't re-mask the return); field 0xa2c -> 0xa64, 0x4a8 -> 0x450. */
 // FUN_001DC6A0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc6a0);
+u32 func_001dc6a0(int param_1)
+{
+    int iVar1;
+    u16 uVar3;
+    int aiStack_30[12];
+
+    uVar3 = 0;
+    for (iVar1 = *(int *)(iGpffffb3ac + 0x174); iVar1 != 0; iVar1 = *(int *)(iVar1 + 0x450)) {
+        if ((((param_1 != iVar1) && ((*(u16 *)(iVar1 + 0x1a) & 1) != 0)) &&
+            ((*(u16 *)(iVar1 + 0x1a) & 8) != 0)) &&
+           ((*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) == *(u8 *)(*(int *)(iVar1 + 0x30) + 0xa2) &&
+            (func_00232710(*(u32 *)(*(int *)(iVar1 + 0x30) + 0xa64), 0x80000) == 0))
+           )) {
+            aiStack_30[uVar3] = iVar1;
+            uVar3++;
+        }
+    }
+    if (uVar3 == 0) {
+        *(int *)(param_1 + 0x38) = param_1;
+        *(u16 *)(param_1 + 0x6a) = 1;
+        return 1;
+    }
+    else {
+        *(int *)(param_1 + 0x38) = aiStack_30[func_00231d70(uVar3)];
+        *(u16 *)(param_1 + 0x6a) = 1;
+        return 1;
+    }
+}
+
 
 
 // FUN_001DC7A0
@@ -560,20 +709,31 @@ void func_001dc960(u64 formation, u32 flags) {
    byte-identical with the (u16)i + while((count=load)>i)... spelling
    (attempt 1; swapped compare order regressed to nd 8). Load-sinking floor,
    same family as FUN_001DCA60. */
-/* measured: re-verified this wave with four spellings; best is nd 10 (i as
-   u16, while ((count = load) > i), pointer e = p + i*4 in the body). The
-   residual is four independent codegen gaps vs retail: (1) the loop-test
-   load order — retail lhu 0xd0 FIRST then andi (lhu $v1,0xd0($s0); andi
-   $v0,$a0,0xffff; slt $v0,$v0,$v1; bnez $v0), mwcc b210 always emits the
-   mask first (andi $v1; lhu $v0; slt $at) and keeps count in $v0 instead of
-   $v1 (sh $v0 vs sh $v1); (2) the loop-body mask is in-place (andi $a0,$a0)
-   vs retail's scratch (andi $v0,$a0; sll $v0,$v0,2); (3) the else-path
-   addu is base-first (addu $v0,$s0,$v0) vs retail index-first; (4) s32-i /
-   (u16)i / (i&0xFFFF) / m2c-exact spellings regress to nd 26-34 via mask
-   CSE. s32 count vs u16 count changes nothing. Load-sinking + mask-CSE +
-   addu-order floors, same family as FUN_001DCA60/FUN_001DCF10. */
+/* Ported from P3FES btlEffect.c func_002c4200 (copy-all / random-select).
+   func_002bff60_u16->func_001d7f10 (4th arg 1), func_002ffbc0_u16->func_00231d70;
+   offsets 0x88->0x98, 0xc0->0xd0. */
 // FUN_001DC9A0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc9a0);
+u32 func_001dc9a0(u32 param_1)
+{
+    u16 result;
+    u16 index;
+    u32 address;
+
+    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 1);
+    if (result != 0) {
+        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
+            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        }
+        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        return 1;
+    }
+    index = func_00231d70(*(u16 *)(param_1 + 0xd0));
+    address = (index & 0xffff) * 4;
+    *(u32 *)(param_1 + 0x38) = *(u32 *)(address + param_1 + 0x98);
+    *(u16 *)(param_1 + 0x6a) = 1;
+    return 1;
+}
+
 /* measured: same 2-word loop-body mask floor as FUN_001DCF10/FUN_001DC9A0 —
    retail zero-extends the u16 counter into scratch $v0 (andi $v0,$a0,0xffff;
    sll $v0,$v0,2), mwcc b210 masks in place (andi $a0,$a0,0xffff; sll $v0,$a0,2);
@@ -674,15 +834,31 @@ void func_001dced0(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 1, func_001dacc0);
 }
 
-/* measured: retail keeps the u16 loop counter raw in $a0 and zero-extends into
-   scratch $v0 per use (andi $v0,$a0,0xffff; sll $v0,$v0,2) while mwcc b210 masks the
-   counter register in place (andi $a0,$a0,0xffff; sll $v0,$a0,2) in the loop body,
-   exactly 2 words. Tried: u16 counter with pointer local, inline ptr arithmetic,
-   s32 offset local + plain-assignment addu, (u32)<<2, s32 counter with (u16) casts
-   (nd 25), declaration-order swaps, explicit u16 idx local — all identical nd 4.
-   $v0/$v1-style coloring floor. */
+/* Ported from P3FES btlEffect.c func_002c4760 (copy-all / random-select).
+   func_002bff60_u16->func_001d7f10 (4th arg 0), func_002ffbc0_u16->func_00231d70;
+   offsets 0x88->0x98, 0xc0->0xd0. */
 // FUN_001DCF10
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dcf10);
+u32 func_001dcf10(u32 param_1)
+{
+    u16 result;
+    u16 index;
+    u32 address;
+
+    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    if (result != 0) {
+        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
+            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        }
+        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        return 1;
+    }
+    index = func_00231d70(*(u16 *)(param_1 + 0xd0));
+    address = (index & 0xffff) * 4;
+    *(u32 *)(param_1 + 0x38) = *(u32 *)(address + param_1 + 0x98);
+    *(u16 *)(param_1 + 0x6a) = 1;
+    return 1;
+}
+
 
 // FUN_001DCFD0
 void func_001dcfd0(u64 formation, u32 flags) {
@@ -933,22 +1109,62 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001debb0);
    moves instead of moves-then-lhu. Tried chain-first/global-first spellings and
    a g = iGpffffb3d0 local inside the case — all identical 16. Load-sinking +
    $v0/$v1-coloring floor. */
-/* measured: re-verified this wave; best body nd 11 (recorded nd 10 / old note
-   16). Three earlier residuals are now FIXED: (1) saved-register rotation —
-   mwcc assigns saved regs in REVERSE declaration order, so declaring
-   [node, v2, v1, a4] gives retail's a4=$16/v1=$17/v2=$18; (2) the v2 > 0
-   test mask and func_001de640's move-then-lhu args now match; (3) the
-   andi $a1,$v0,0xffff vs 0xff fold — a nested `extern u32 func_001de800();`
-   declaration at the call site obscures the u8 return range so the explicit
-   & 0xFFFF no longer folds to 0xff. The one remaining real word: case 1's
-   chain loads iGpffffb3d0 AFTER the a4*164 chain (lw $v0,($gp) last, addu
-   $v0,$v1,$v0) while retail loads the base FIRST (lw $a0,-0x4c30($gp);
-   chain; addu $v0,$v0,$a0). The off-local s32 spelling fixes the addu
-   orientation but mwcc b210 still sinks the base load to its use; a
-   g = iGpffffb3d0 local first does not move it. Load-sinking floor (same
-   as FUN_001DEBB0's 42088 arg). */
+/* Ported from P3FES btlEffect.c func_002c70d0 (action dispatch, switch type 0/1).
+   func_002d15a0->func_001eb3b0, func_002c6f50->func_001debb0, func_002c6ba0->func_001de800,
+   func_002c6e30->func_001dea90, func_002c6a00->func_001de640, PTR_FUN_006975e0->D_00609CE0;
+   DAT_007ce41c->iGpffffb3d0 (integer-domain address forces the early base load),
+   DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb3c8. func_001de800 declared
+   locally as u32 to keep the &0xFFFF mask from folding to 0xff. */
 // FUN_001DED30
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001ded30);
+void func_001ded30(int param_1, int param_2)
+{
+    u8 type;
+    u16 baseActionId;
+    u16 actionId;
+    int entry;
+    u32 actionWord;
+    u32 data;
+    u32 result;
+
+    baseActionId = *(u16 *)(*(int *)(param_1 + 0x30) + 0xa4);
+    func_001eb3b0((u8 *)param_2);
+    type = *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2);
+    switch (type) {
+    case 0:
+        actionId = baseActionId;
+        data = (u32)iGpffffb3cc;
+        break;
+    case 1:
+        {
+            u8 *table;
+            u32 off;
+
+            /* measured: the integer-domain address spelling forces the early base load (retail lw $a0,-0x4c30($gp) first), ported from donor func_002c70d0 */
+            table = *(u8 **)((u32)&iGpffffb3d0);
+            off = ((u32)baseActionId * 0x28 + (u32)baseActionId) * 4;
+            table = (u8 *)(off) + (int)table;
+            actionId = *(u16 *)(table + 2);
+            data = (u32)iGpffffb3c8;
+        }
+        break;
+    }
+    if (actionId > 0) {
+        func_001debb0((u8 *)param_1, (u8 *)param_2, data, actionId);
+        *(u8 *)(param_2 + 0x30) = 1;
+    }
+    else {
+        extern u32 func_001de800(u8 *);
+        actionId = func_001de800((u8 *)param_1) & 0xFFFF;
+        entry = (int)func_001dea90((u8 *)param_1, actionId);
+        func_001de640((u8 *)param_1, (u8 *)param_2, *(u16 *)(entry + 2));
+        actionWord = *(u32 *)(entry + 4);
+        result = ((s32 (*)(u8 *, u32))D_00609CE0[((actionWord & 0xff000000) >> 0x18) * 2])((u8 *)param_1, actionWord & 0xffffff);
+        if (result == 0) {
+            ((s32 (*)(u8 *, u32))D_00609CE0[0])((u8 *)param_1, 0);
+        }
+    }
+}
+
 
 // FUN_001DEEE0
 u32 func_001deee0(int param_1)
@@ -1829,34 +2045,163 @@ s32 func_001e1480(void) {
     return 1;
 }
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1530
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1530);
+u32 func_001e1530(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x01000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1620
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1620);
+u32 func_001e1620(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x02000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1710
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1710);
+u32 func_001e1710(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: only residual is the join-branch chain — retail's e==0 path does
-   b 0x1e1900 (jumping into the call block's own tail b 0x1e190c, branch-to-branch
-   sharing) while mwcc b210 always emits b 0x1e190c directly; tried if/else and
-   goto-done spellings, same 1 word. Everything else matches with m/a2 as u32
-   locals and the w/e/a2 chain computed before the e test. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x06000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c func_002c9ba0 (argument sideMask dispatch,
+   selector tag 0x0b000000, inline shift). func_0035ed20->func_0029cc00,
+   func_0035f160->func_0029d050, func_002c0e30->func_001d9280,
+   func_0035f060->func_0029cf50, gFormationDispatchTable->D_00609850. */
 // FUN_001E1800
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1800);
+u32 func_001e1800(void)
+{
+    u16 id;
+    u8 *unit;
+    u32 argument;
+    u32 sideMask;
+    u8 *context;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    argument = func_0029cc00(1);
+    unit = func_0029d050();
+    sideMask = 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff;
+    if ((argument & 0x80000) != 0) {
+        id = func_0029cc00(0);
+        context = (u8 *)func_001d9280(id, sideMask, 0);
+    } else {
+        id = func_0029cc00(0);
+        context = (u8 *)func_001d9280(id, sideMask, 0x80000);
+    }
+    if (context != 0) {
+        dispatchType = (((argument & 0xffffff) | 0x0b000000) & 0xff000000) >> 24;
+        payload = (argument | 0x0b000000) & 0xffffff;
+        if (dispatchType == 0)
+            dispatchResult = 0;
+        else
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
 // FUN_001E1940
 s32 func_001e1940(void) {
     u8 *p = func_0029d050();
@@ -1870,47 +2215,227 @@ s32 func_001e1940(void) {
     return 1;
 }
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E19F0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e19f0);
+u32 func_001e19f0(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x16000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1AE0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1ae0);
+u32 func_001e1ae0(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x17000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1BD0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1bd0);
+u32 func_001e1bd0(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x18000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1CC0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1cc0);
+u32 func_001e1cc0(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x19000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1DB0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1db0);
+u32 func_001e1db0(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x22000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
+
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E1EA0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e1ea0);
+u32 func_001e1ea0(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x25000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
 
 // FUN_001E1F90
 s32 func_001e1f90(void) {
@@ -1944,8 +2469,53 @@ s32 func_001e2030(void) {
    $v0,0), which then shifts the whole dispatch tail by 4 words; same fold floor
    as FUN_001DB7D0. The rest (9280 arg order, dsll32/dsrl32 24-bit masks, the
    e*3 table call) all compile correctly when f is the only difference. */
+/* Ported from P3FES btlEffect.c func_002ca480 (dispatch handler, 8-alt clone
+   family). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850; selector tag 0x01000000. */
+#pragma opt_rebuildconditionals off
 // FUN_001E20D0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e20d0);
+u32 func_001e20d0(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x01000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 /* measured: re-verified this wave — the goto-form body compiles the whole
    function byte-identically except the inner-else branch: retail b 0x1e22b4
    (branch-to-branch through the outer tail jump) vs mwcc b210 b 0x1e22c0
@@ -1955,8 +2525,51 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e20d0);
    (nd 62), opt_common_subs off (nd 4), schedule off (nd 4). Still nd 4 =
    1 word + 3 reloc words; same wall as the previous wave. Branch-to-branch
    sharing floor (corroborated in mdlManager/datCalc). */
+/* Ported from P3FES btlEffect.c func_002ca590 (dispatch handler, 8-alt clone
+   family, selector tag 0x02000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E21E0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e21e0);
+u32 func_001e21e0(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x02000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
@@ -1968,18 +2581,105 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e21e0);
    shift set + pragma off); the sole residual is again the threaded branch:
    retail b 0x1e23c4 (branch-to-branch) vs mwcc b210 b 0x1e23d0. nd 4 = 1
    word + 3 reloc words. Branch-to-branch sharing floor. */
+/* Ported from P3FES btlEffect.c func_002ca6a0 (dispatch handler, 8-alt clone
+   family, selector tag 0x06000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E22F0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e22f0);
+u32 func_001e22f0(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
 
-/* measured: everything matches (9280 if/else on 0x80000, dsll32/dsrl32
-   24-bit masks with the shared lui 0xb00, 2-arg table call) except 1 word:
-   retail's x=0 path jumps to the call-path tail jump (b 0x1e2518;
-   0x1e2518: b 0x1e2524) while mwcc b210 peepholes the branch-to-branch
-   straight to 0x1e2524. nd 2 = that word + 1 reloc word. Branch-to-branch
-   sharing floor, same as FUN_001E21E0; shift set kept by the goto form +
-   pragma. */
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x06000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
+
+/* Ported from P3FES btlEffect.c func_002ca7b0 (argument sideMask dispatch,
+   selector tag 0x0b000000). func_0035ed20->func_0029cc00, func_0035f160->func_0029d050,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. Pragma for branchy shift set. */
+#pragma opt_rebuildconditionals off
 // FUN_001E2400
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2400);
+u32 func_001e2400(void)
+{
+    u16 id;
+    u8 *unit;
+    u32 argument;
+    u32 sideMask;
+    u32 shift;
+    u8 *context;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    argument = func_0029cc00(1);
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    sideMask = 1 << shift & 0xffff;
+    if ((argument & 0x80000) != 0) {
+        id = func_0029cc00(0);
+        context = (u8 *)func_001d9280(id, sideMask, 0);
+    } else {
+        id = func_0029cc00(0);
+        context = (u8 *)func_001d9280(id, sideMask, 0x80000);
+    }
+    if (context != 0) {
+        dispatchType = (((argument & 0xffffff) | 0x0b000000) & 0xff000000) >> 24;
+        payload = (argument | 0x0b000000) & 0xffffff;
+        if (dispatchType == 0)
+            dispatchResult = 0;
+        else
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 // FUN_001E2550
 s32 func_001e2550(void) {
@@ -2121,8 +2821,51 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2a80);
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
    b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
    same wall as FUN_001E21E0. */
+/* Ported from P3FES btlEffect.c func_002ca9d0 (dispatch handler, 8-alt clone
+   family, selector tag 0x16000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E2C10
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2c10);
+u32 func_001e2c10(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x16000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
@@ -2134,8 +2877,51 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2c10);
    branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
    straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
    sharing floor, same as FUN_001E21E0. */
+/* Ported from P3FES btlEffect.c func_002caae0 (dispatch handler, 8-alt clone
+   family, selector tag 0x17000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E2D20
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2d20);
+u32 func_001e2d20(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x17000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
@@ -2147,8 +2933,51 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2d20);
    branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
    straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
    sharing floor, same as FUN_001E21E0. */
+/* Ported from P3FES btlEffect.c func_002cabf0 (dispatch handler, 8-alt clone
+   family, selector tag 0x18000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E2E30
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2e30);
+u32 func_001e2e30(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x18000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
@@ -2160,8 +2989,51 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2e30);
    branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
    straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
    sharing floor, same as FUN_001E21E0. */
+/* Ported from P3FES btlEffect.c func_002cad00 (dispatch handler, 8-alt clone
+   family, selector tag 0x19000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E2F40
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2f40);
+u32 func_001e2f40(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x19000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
@@ -2173,8 +3045,51 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2f40);
    branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
    straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
    sharing floor, same as FUN_001E21E0. */
+/* Ported from P3FES btlEffect.c func_002cae10 (dispatch handler, 8-alt clone
+   family, selector tag 0x22000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E3050
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3050);
+u32 func_001e3050(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x22000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
@@ -2186,8 +3101,51 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3050);
    branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
    straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
    sharing floor, same as FUN_001E21E0. */
+/* Ported from P3FES btlEffect.c func_002caf20 (dispatch handler, 8-alt clone
+   family, selector tag 0x25000000). Same mapping as FUN_001E20D0. */
+#pragma opt_rebuildconditionals off
 // FUN_001E3160
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3160);
+u32 func_001e3160(void)
+{
+    u8 *unit;
+    u16 id;
+    u32 shift;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << shift & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x25000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+#pragma opt_rebuildconditionals on
+
+
 
 // FUN_001E3270
 #pragma opt_rebuildconditionals off
@@ -2469,13 +3427,50 @@ s32 func_001e3d30(void) {
     return 1;
 }
 
-/* measured: only residual is the join-branch chain — retail's e==0 path does
-   b 0x1e3ed4 (into the call block's tail b 0x1e3ee0, branch-to-branch sharing)
-   while mwcc b210 emits b 0x1e3ee0 directly; same floor as FUN_001E1800, 1 word.
-   Everything else matches: switch(c0) with ascending cases 0/1, c1 as u32, and
-   the a2 = w & 0xFFFFFF local computed before the e test. */
+/* Ported from P3FES btlEffect.c func_002cbba0 (side-switch dispatch, selector
+   tag 0x19000000). func_0035ed20->func_0029cc00, func_002c0e30->func_001d9280,
+   func_0035f060->func_0029cf50, gFormationDispatchTable->D_00609850. id is u32
+   (masked & 0xFFFF) because func_001d9280 takes s32. switch cases ascending 0/1. */
 // FUN_001E3DE0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3de0);
+u32 func_001e3de0(void)
+{
+    u8 *context;
+    u16 side;
+    u32 id;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    side = func_0029cc00(0);
+    id = func_0029cc00(1) & 0xFFFF;
+    context = 0;
+    switch (side) {
+    case 0:
+        context = (u8 *)func_001d9280(id, 1, 0x80000);
+        break;
+    case 1:
+        context = (u8 *)func_001d9280(id, 2, 0x80000);
+        break;
+    }
+    if (context != 0) {
+        selector = (func_0029cc00(2) & 0xffffff) | 0x19000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
 // FUN_001E3F10
 s32 func_001e3f10(void) {
     u32 a = func_0029cc00(0) & 0xFFFF;
@@ -2596,12 +3591,42 @@ s32 func_001e4210(void) {
     return 1;
 }
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E42E0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e42e0);
+u32 func_001e42e0(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x3a000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
 
 // FUN_001E43D0
 s32 func_001e43d0(void) {
@@ -2610,12 +3635,42 @@ s32 func_001e43d0(void) {
     return 1;
 }
 
-/* measured: retail routes the inner cmd == 0 path through the outer null path's branch;
-   mwcc b210 collapses that branch-to-branch and jumps straight to the join, leaving exactly
-   one differing word. Renesting as if (r == 0) first gives nd 28, hoisting the dispatch
-   locals gives nd 14, so the natural shape is already optimal. Layout floor, not a defect. */
+/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
+   shift). func_0035f160->func_0029d050, func_0035ed20->func_0029cc00,
+   func_002c0e30->func_001d9280, func_0035f060->func_0029cf50,
+   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
 // FUN_001E4430
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e4430);
+u32 func_001e4430(void)
+{
+    u8 *unit;
+    u16 id;
+    u8 *context;
+    u32 selector;
+    u32 dispatchType;
+    u32 payload;
+    int result;
+    int dispatchResult;
+
+    unit = func_0029d050();
+    id = func_0029cc00(0) & 0xFFFF;
+    context = (u8 *)func_001d9280(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    if (context != 0) {
+        selector = (func_0029cc00(1) & 0xffffff) | 0x3e000000;
+        dispatchType = (selector & 0xff000000) >> 24;
+        payload = selector & 0xffffff;
+        if (dispatchType == 0) {
+            dispatchResult = 0;
+        } else {
+            dispatchResult = ((s32 (*)(u8 *, u32))D_00609850[dispatchType * 3])(context, payload);
+        }
+        result = dispatchResult;
+    } else {
+        result = 0;
+    }
+    func_0029cf50(result != 0);
+    return 1;
+}
+
 
 // FUN_001E4520
 s32 func_001e4520(void) {

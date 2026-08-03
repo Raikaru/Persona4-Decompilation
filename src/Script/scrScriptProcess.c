@@ -452,7 +452,24 @@ ScrScriptWork* func_0029d660(ScrHeader* header, s32 index)
 #pragma opt_loop_invariants off
 
 // FUN_0029D870
-INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d870);
+s32 func_0029d870(void)
+{
+    s32 code;
+
+    code = func_0029cb00(func_00452560());
+    switch (code)
+    {
+    case 0:  // SCRTRACE_ERROR
+        func_0046d740(D_0063E520, D_0063E3D0, 0x1C2);
+        return -1;
+    case 1:  // SCRTRACE_YIELD
+    default:
+        break;
+    case 2:  // SCRTRACE_STOP
+        return -1;
+    }
+    return 0;
+}
 
 // FUN_0029D900
 void scrDestroyTask(KwlnTask* scrTask)
@@ -467,9 +484,6 @@ void scrDestroyTask(KwlnTask* scrTask)
 
     dds3SetProcessWorkData(scrTask, NULL);
 }
-
-
-
 
 // FUN_0029D950
 void func_0029d950(void)

@@ -94,6 +94,10 @@ extern char iGpffff9b18;
 
 extern u8* iGpffffb3d4; /* gp -0x4C2C */
 
+extern u8* iGpffffb3e4; /* gp -0x4C1C */
+
+extern u8* iGpffffb3dc; /* gp -0x4C24 */
+
 extern u8 D_005E4298[];
 
 extern u8 D_005E42B0[];
@@ -1396,13 +1400,42 @@ u8 func_0010c6f0(PersonaWork* persona)
 
 
 
-/* measured: retail colors n into $v1, i into $t2, entry into $t1 and masks
-   arg0 into $t0; mwcc b210 rotates the whole set (n->$a3, i->$v1, mask in the
-   param slot) no matter the declaration order (n/i/entry/p all tried), the
-   condition-temp registers, or p-inlined-vs-local form - best nd 57 with
-   identical instruction sequence throughout. Register-rotation floor. */
+static inline void datCollectValidSkills(u8* skillData, u16* skills,
+                                         s32* validSkills, s32 skillLimit)
+{
+    s32 skillIdx;
+
+    for (skillIdx = 0; skillIdx < skillLimit; skillIdx++)
+    {
+        if (skillData[skillIdx * 4] == 0 &&
+            ((s8*)skillData)[skillIdx * 4 + 1] == 1)
+        {
+            skills[*validSkills] = *(u16*)(skillData + skillIdx * 4 + 2);
+            (*validSkills)++;
+        }
+    }
+}
+
 // FUN_0010D360
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010d360);
+void func_0010d360(u16 personaId, u16* skills, s32* skillCount)
+{
+    u8* skillData;
+    s32 validSkills;
+
+    validSkills = 0;
+    if (personaId >= 0xc0 && personaId <= 0xd7)
+    {
+        skillData = (u8*)iGpffffb3e4 + (personaId - 0xc0) * 0x26e + 4;
+        datCollectValidSkills(skillData, skills, &validSkills, 0x20);
+    }
+    else
+    {
+        skillData = (u8*)iGpffffb3dc + (u32)personaId * 0x46 + 6;
+        datCollectValidSkills(skillData, skills, &validSkills, 0x10);
+    }
+
+    *skillCount = validSkills;
+}
 
 // FUN_0010D480
 void func_0010d480(void)

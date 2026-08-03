@@ -64,26 +64,17 @@ u8 **func_003d7cd0(u8 **arg0) {
 
 extern s32 D_0072483C;
 
-/* measured: schedule on is required for the final lw in the jr delay slot
-   (nd 12 -> 1).
-   NONMATCHING: residual is the final addu's commutative operand order
-   (ours addu $v0, $v1, $v0; retail addu $v0, $v0, $v1) -- probed 15+
-   expression orders and temp/pointer shapes; MWCC always emits rs=left
-   while retail's allocator put the sll result in $v0.  Floor. */
-
+// FUN_003D8130
 #pragma schedule on
-// FUN_003D8130 NONMATCHING
-#ifdef NON_MATCHING
 s32 func_003d8130(s32 arg0, s32 arg1) {
-    return *(s32 *)(arg0 + D_0072483C + arg1 * 4 + 8);
+    u32 *ptr;
+
+    ptr = (u32 *)(arg0 + D_0072483C);
+    return ptr[arg1 + 2];
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8130);
-#endif
 // measured: closing bracket for the schedule-on above; satisfies decomp_lint
 // P001 balance and restores the -O2 default for any following code.
 #pragma schedule off
-
 
 /* measured: schedule on is load-bearing (nd 18 -> 14; default keeps the
    b/exit structure but leaves its delay slot empty).  NONMATCHING: retail
@@ -152,7 +143,11 @@ s32 func_003df4b0(s32 arg0) {
    (lw 0xc; mult; lw 0; jr; addu).  #pragma schedule on fills the slot but
    hoists the independent base load above the mult and recolors the stride
    load to $v1 (nd 8 -> 9); every probed expression order/temp form does the
-   same, and default leaves the slot as nop (nd 8).  Floor. */
+   same, and default leaves the slot as nop (nd 8).  Floor.
+   P3FES donor FUN_004c21b0 (rwplcore.c:2337) is itself an inline-asm body
+   emitting the retail 3-operand mult $3,$2,$5 (0x00451818) -- a MIPS32r2
+   rd-form multiply MWCC cannot emit from C.  Blocked per wave rule; not a
+   matching gap.  Residual nd 8 (the mult word). */
 
 // FUN_003DF870 NONMATCHING
 #ifdef NON_MATCHING
@@ -168,7 +163,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df870);
    (lw 0xc; lw 4; mult; lw 0; jr; addu).  #pragma schedule on fills the slot
    but hoists the independent base load above the mult and recolors the
    stride load to $v1 (nd 8 -> 10); default leaves the slot as nop (nd 8).
-   Floor. */
+   Floor.
+   P3FES donor FUN_004c21e0 (rwplcore.c:2357) is itself an inline-asm body
+   emitting the retail 3-operand mult $3,$3,$2 (0x00621818) -- the same
+   MIPS32r2 rd-form multiply MWCC cannot emit from C.  Blocked per wave
+   rule; not a matching gap.  Residual nd 8 (the mult word). */
 
 // FUN_003DF8A0 NONMATCHING
 #ifdef NON_MATCHING

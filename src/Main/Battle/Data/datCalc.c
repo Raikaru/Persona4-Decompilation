@@ -103,6 +103,7 @@ extern u16 func_001068e0(s16 arg0);
 extern u8 func_00106910(s16 arg0);
 extern u16 func_00105460(s16 arg0);
 
+static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base) { return offset + base; }
 
 
 // FUN_00231D70
@@ -412,15 +413,29 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 // FUN_00232D80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
 
-/* measured: retail emits a byte nibble extraction (odd: sra >>4, even: andi 0xF) with
-   a REDUNDANT dsll32/dsra32 re-sign-extension at the merge point and keeps $s1 = arg1
-   raw (re-masking into a temp after the call). mwcc b210 CSEs the three `arg1 & 0xFF`
-   into a persistent masked $s1 (or spills into $s2 at 204B), and folds the redundant
-   merge sign-extension away (184B). Tried s8-only, s64 re-ext via (s32) and via
-   <<0x38>>0x38, with/without temp_4: all nd 46-51. Mask-CSE + redundant-merge-pair
-   floor family. */
 // FUN_002332A0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_002332a0);
+s8 func_002332a0(u8 *arg0, s32 arg1)
+{
+    s8 value;
+    u8 index;
+    u16 offset;
+
+    if ((s32)(arg1 & 0xff) >= 0x18) {
+        func_0046d730(D_00635938, 0x40F);
+    }
+    index = arg1;
+    offset = index >> 1;
+    if (index & 1) {
+        value = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)arg0) + 0x1c) >> 4;
+    }
+    else {
+        value = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)arg0) + 0x1c) & 0xf;
+    }
+    if (7 < value) {
+        value = (s8)(value - 0xf);
+    }
+    return value;
+}
 
 // FUN_00233370
 void func_00233370(u8 *arg0, u8 arg1, s32 arg2)
@@ -552,13 +567,39 @@ void func_002339d0(u8 *arg0)
     }
 }
 
-/* measured: 4 words off — the else path's `(s8)` truncation of the sltu
-   boolean (dsll32/dsra32) is range-eliminated by mwcc (0/1 needs no
-   extension) while retail keeps it; tried inline cast and via s8 local.
-   The $a0 temp_4 allocation and mask order were fixed by cast/mask
-   split; merge re-extension lands in $v0 here (unlike func_002332a0). */
 // FUN_00233A90
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233a90);
+s8 func_00233a90(u8 *arg0, s32 arg1)
+{
+    s8 nibble;
+    u8 result;
+    u8 index;
+    u16 offset;
+    s32 uVar3;
+
+    uVar3 = arg1 & 0xff;
+    if (uVar3 >= 0x18) {
+        func_0046d730(D_00635938, 0x4C1);
+    }
+    if (uVar3 < 0x10) {
+        if (uVar3 >= 0x18) {
+            func_0046d730(D_00635938, 0x40F);
+        }
+        index = arg1;
+        offset = index >> 1;
+        if (index & 1) {
+            nibble = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)arg0) + 0x1c) >> 4;
+        }
+        else {
+            nibble = *(u8 *)(PTDatCalcOffsetAdd(offset, (u32)arg0) + 0x1c) & 0xf;
+        }
+        if (7 < nibble) {
+            nibble = (s8)(nibble - 0xf);
+        }
+        return nibble;
+    }
+    result = (*(u32 *)(arg0 + 0x14) & 1 << uVar3) != 0;
+    return result;
+}
 
 /* measured: recipe A applied across all 6 case bodies -- s32 temp_3 from
    the raw lbu keeps the single bltz, the (u32) cast makes the shift srl,
