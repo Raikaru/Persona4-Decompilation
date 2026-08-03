@@ -62,6 +62,68 @@ class CuratedDataAddressTests(unittest.TestCase):
         names = [name for _n, name, _a, _r in entries()]
         self.assertEqual(len(names), len(set(names)))
 
+    def test_every_entry_is_inside_the_load_image(self) -> None:
+        """A wave read a materialized `lui 0x8000`/`ori 0x46` as `D_80000046`.
+
+        `recover_symbols.ABSOLUTE_RANGES` admits the KSEG0 mirror for the
+        relocation scan, so nothing rejected it, and the per-function verifier
+        masks relocations -- the only symptom would have been a quiet fall in
+        linked objects.
+        """
+        import recover_symbols
+
+        lo, hi = recover_symbols.IMAGE_BASE, recover_symbols.IMAGE_END
+        self.assertLess(lo, hi)
+        for number, name, addr, _rest in entries():
+            with self.subTest(name=name):
+                self.assertTrue(
+                    lo <= addr < hi,
+                    f"{CURATED}:{number}: {name} = {addr:#010x} outside "
+                    f"[{lo:#010x}, {hi:#010x})")
+
+    def test_image_bounds_come_from_the_target_config(self) -> None:
+        import recover_symbols
+
+        self.assertEqual(recover_symbols.IMAGE_BASE, 0x00100000)
+        self.assertEqual(recover_symbols.IMAGE_END, 0x00100000 + 0x838A00)
+
+    def test_out_of_image_entry_is_rejected_by_the_parser(self) -> None:
+        import tempfile
+        import recover_symbols
+
+        original = recover_symbols.CURATED_DATA
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                path = Path(tmp) / "curated.txt"
+                for addr in ("0x80000046", "0x00000046", "0x00940000"):
+                    path.write_text(
+                        f"D_probe = {addr}; // type:data evidence: probe\n",
+                        encoding="utf-8")
+                    recover_symbols.CURATED_DATA = path
+                    with self.subTest(addr=addr):
+                        with self.assertRaises(SystemExit):
+                            recover_symbols.curated_data_addresses()
+        finally:
+            recover_symbols.CURATED_DATA = original
+
+    def test_an_in_image_entry_still_parses(self) -> None:
+        import tempfile
+        import recover_symbols
+
+        original = recover_symbols.CURATED_DATA
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                path = Path(tmp) / "curated.txt"
+                path.write_text(
+                    "D_00636210 = 0x00636210; // type:data evidence: probe\n",
+                    encoding="utf-8")
+                recover_symbols.CURATED_DATA = path
+                self.assertEqual(
+                    recover_symbols.curated_data_addresses(),
+                    {"D_00636210": 0x00636210})
+        finally:
+            recover_symbols.CURATED_DATA = original
+
     def test_addresses_are_word_aligned(self) -> None:
         for _number, name, addr, _rest in entries():
             with self.subTest(name=name):

@@ -35,7 +35,7 @@ extern void func_0011bdc0(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
 extern void func_002b2970(s64 *out, f32 x, f32 y);
 extern void func_002b6c30(s32 a, s64 b, s32 c, f32 d);
-extern void func_002b6a70(s32, s32, s32, s32, s32, s32);
+extern void func_002b6a70(s32, u8, u8, s32, s32, s32);
 extern void func_002b6b40(s32, s32, s32, s32, f32, f32);
 extern u8 *func_002b6150(s16);
 extern s32 func_002b6970(s16, s32);
@@ -48,17 +48,27 @@ extern void func_002ba970(u8 *, s64, s32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
 extern s32 func_0010b5b0(void);
 extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);
-extern void func_003191c0(u8 *, s64, s8, s32, s32, s32, s32, s8);
+extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
+extern void func_002b8370(s32, s32, s32, s32, s32, s32);
+extern void func_003191c0(u8 *, s64, s8, u16, u8, s32, s32, s8);
+extern void func_0031ac10(u8 *, s64, s8, u16, u8, s32, s32, s8, s8, u8);
+extern f32 D_006440F0[];
+extern f32 D_006440F8[];
+extern f32 D_00644290[];
+extern f32 D_00644298[];
+extern f32 D_00644350[];
 extern void func_002b83e0(u8 *, s64, s64, s64, u8, u8, f32, f32, s32, s32, s64, s64);
 extern void func_002b6af0(s32, s32, s32, s32, f32, f32, f32, f32);
 extern void func_002b69f0(s32, s64, s64, s32, s32, s32);
-extern s32 func_0046d200(void *, u8);
+extern s32 func_0046d200(void *, s32);
+extern f32 func_0046b260(void *);
 extern f32 func_0046b2f0(void *);
 extern void func_0046d280(s32);
 extern void func_002b68d0(s32, s32, s32);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];
 extern void func_0045af60(s32, s32, s32, s32);
+extern s32 func_00110140(void);
 extern void func_002b6d60(s32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s16 func_002b2d00(s32, s32, s32, s32, s8);
@@ -104,6 +114,7 @@ extern f32 D_00644880[];
 extern f32 D_00644888[];
 extern f32 D_00644890[];
 extern f32 D_00644898[];
+extern f32 D_006440B8[];
 
 // FUN_00314320
 s32 func_00314320(s32 arg0) {
@@ -373,6 +384,19 @@ void func_00317410(u8 *arg0, s8 arg1) {
 // FUN_00317900
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317900);
 
+/* measured: nd 427 — the FP-saved-register allocation differs and nothing
+   source-shaped moves it. Retail spills the sp108 f32 local to its stack slot
+   (swc1 0x108) and assigns FP saved regs in def order to [sp10C->$f23, v2->$f22,
+   v1->$f21, v20->$f20, v24->$f24]; mwcc b210 keeps BOTH sp108/sp10C in saved FP
+   regs ($f24/$f25, frame 0x110 vs retail 0x120, one extra swc1) and assigns
+   [sp10C->$f25, sp108->$f24, v1->$f23, v2->$f22, v20->$f21, v24->$f20].
+   Tried: declaration-order permutations of the f32 locals (sp108/sp10C/v1/v2/
+   v20/v24 in all plausible orders), and fully inlining the 6.0f+sp108 /
+   62.0f+sp10C / 33.0f+sp108 / 20.0f+sp108 / sp10C-44.0f expressions at the six
+   2970 calls (mwcc CSEs them into the identical allocation) — all nd 427. The
+   rest of the function (if/else chains, 6150/2970/68d0/6c30 chains, the
+   adda.s/msub.s FPU-fusion expression (5.0f+sp108)-2.0f*(46b260(h)/10.0f), the
+   FclByte4 copies) matches. FP saved-register rotation floor. */
 // FUN_00318840
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00318840);
 
@@ -452,6 +476,16 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031d630);
 // FUN_0031DDF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031ddf0);
 
+/* measured: nd 83 — pure saved-register rotation + one 2-word arg-order swap.
+   retail allocates [arg1->$s2, t->$s3, id->$s4] (ext->$s0, p->$s1); mwcc b210
+   always emits [id->$s2, arg1->$s3, t->$s4] regardless of local declaration
+   order (t/id swapped, both orders tried) or an s8 v=arg1 param-copy local
+   (coalesced away). Also retail materializes the 6b90 call args in order
+   (move $a0 first, then lwr/lwl $a1); mwcc schedules the unaligned load first.
+   Real fixes applied along the way: arg0 must be s16 (s32 re-normalizes id with
+   dsll32/dsra32 at each 6b90 call, nd 131), stack locals must be declared
+   sp7C..sp6C top-down, and the unaligned 4B loads must be written at 0x85/0x75.
+   Saved-register rotation + argument-order floor. */
 // FUN_0031E320
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031e320);
 
@@ -496,17 +530,20 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00321e60);
 // FUN_003233D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003233d0);
 
+/* measured: nd 415 — two interlocked allocation defects; all call shapes (the
+   191c0 u16/u8 params, ac10 10-arg stack call, e5b0, the FclByte4 copies, the
+   loop conditions) match. (1) mask-CSE floor: mwcc b210 hoists the loop-invariant
+   v0&0xFF / v1&0xFF masks into saved registers ($s3/$s4 + raw copies in $s7/$fp,
+   frame 0x120 vs retail 0x100); retail re-issues andi per 6a70 call site. The
+   6a70 params are u8 (conversion per call) yet the CSE persists. (2) loop-counter
+   rotation: retail keeps i->$s2 with the (s16)i norm copy in $s0 and h->$s1;
+   mwcc always emits i->$s0, norm->$s1, h->$s2. Fixed along the way: arg2 must be
+   s32 (an s8 param makes mwcc pre-extend it into an extra saved reg for the e5b0
+   arg), 191c0/ac10 4th/5th params are u16/u8 (s32 params add andi conversions).
+   Mask-CSE + saved-reg rotation floor. */
 // FUN_00323D00
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
 
-/* measured: nd 83, all downstream -4 branch offsets trace to ONE block: retail
-   schedules the v298.y load BEFORE the 20.0f constant materialization and leaves
-   an unfillable mtc1-delay nop (lwc1 f1,0x6c; lui; mtc1 f0; nop; add.s f20,f0,f1),
-   mwcc b210 emits the constant first and fills the delay with the load (lui; mtc1
-   f1; lwc1 f0; add.s f20,f1,f0). Tried 20.0f+x, x+20.0f, and s16-param externs
-   (conversions fixed), FclVec2 struct copy (frame fixed) — the schedule is fixed.
-   Also retail's addu $v1,$s1,$v1 (arg2+t) is canonicalized by mwcc to $v1,$v1,$s1
-   regardless of source order. Load-scheduling floor. */
 // FUN_00324410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324410);
 
@@ -599,6 +636,17 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00325450);
 // FUN_00329310
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
 
+/* measured: nd 333 — two interlocked allocation defects, everything else (all
+   2970/6c30/6150/69f0 chains, ldr/ldl unaligned s64 loads, the switch) matches.
+   (1) D_006440B8[1] address: retail materializes lui/addiu into $s1 ONCE at the
+   top and reuses it across all ~12 sites; mwcc b210 rematerializes lui per use.
+   A f32 *q = D_006440B8 local makes mwcc keep q in a saved reg but it still
+   rematerializes the FIRST use and grows the frame 0xE0->0xF0 (5th saved reg),
+   nd 345. (2) the (s8)arg2 byte-extension: retail sign-extends IN PLACE on the
+   saved arg2 register ($s0); mwcc allocates a separate saved register for the
+   CSE'd extension (raw kept live) unless pressure forces coalescing. Tried
+   inline (s8)arg2 casts, bare arg2==0 (s8 param), and the q-local variants —
+   all nd >= 333. Constant-address rematerialization + saved-reg rotation floor. */
 // FUN_003297F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003297f0);
 
@@ -621,17 +669,21 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329e40);
 // FUN_0032A960
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032a960);
 
+/* measured: nd 395 — the f32-pair stack-slot placement is unmovable and breaks
+   the s64 recombination. Retail keeps the 2970 output copy as f32s at 0xD0/0xD4
+   (adjacent, read back as one s64 `ld $a1, 0xd0` for 6c30 and re-read as halves);
+   mwcc b210 places the two f32 locals at 0xD8 and 0xCC (non-adjacent, the
+   *(s64 *)&spD0 read then spans spDC, corrupting every downstream block ~20
+   words), regardless of declaration order. An f32 spD0[2] array grows the frame
+   0xE0->0xF0 (array placed at 0xE0); declaring the pair as one s64 adds a saved
+   register (digit value gets a fresh $s3 instead of reusing t's $s2, frame
+   0x100). Constants verified against retail during the attempts: 0x43850000 is
+   266.0f, 0x43570000 215.0f, 0x43540000 148.0f, 0x43550000 149.0f, 0x43530000
+   147.0f (my initial decode was off by one); the (s8)arg1 ext IS in-place on
+   $s0. Stack-slot placement floor. */
 // FUN_0032B000
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
 
-/* measured: everything matches (nd 18 = 16 rotated words + 2 padding) except a
-   saved-register rotation: retail allocates arg1 to $s1 (with the (s16)arg1
-   normalization in place: dsll32 $s1,$s1) and t to $s2; mwcc b210 always gives
-   arg1 $s2 (normalizing into a fresh $s6) and t $s1, and rotates the dead-mult
-   operands accordingly. Tried s32 params (nd 18), s64 params (nd 142), local v17
-   (nd 87), declaration/statement orders — all keep the rotation. Saved-register
-   rotation floor; note the dead mult (i*(s16)arg1) and the adda.s/madd.s FMA
-   pattern both reproduce exactly. */
 // FUN_0032B770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 
@@ -783,20 +835,25 @@ s8 func_0032fb60(s8 arg0) {
 // FUN_0032FBC0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032fbc0);
 
+/* measured: nd 126 — three interlocked register/scheduling rotations; all
+   logic (jtbl switch cases, both loops, the FclByte4 chains, the tail
+   adda.s/madd.s FPU-fusion store) matches. (1) p (the *(u8**)(arg0+0x38) load)
+   lands in $s4 in mwcc b210 vs $s3 in retail: mwcc gives the loop's (s16)j
+   normalized copy a fresh saved register ($s2) where retail reuses arg1's dead
+   $s1, shifting t18->$s3/p->$s4. (2) loop 22's counter: retail keeps the raw
+   counter in $s0 and normalizes into a temp per use; mwcc keeps the raw in a
+   temp and the normalized copy in $s0. (3) case stores: retail stores the raw
+   2cb0/2d00 result (sh $v0) BEFORE the (s16) normalize for the 2d50 arg; mwcc
+   always normalizes first. Tried: declaration orders, s16/s32 r and lim (lim
+   MUST be s32 — s16 adds a spurious normalize and grew nd to 243->126 cascade;
+   r s32/s16 no effect), named lim local (kills the per-iteration t18+6
+   recompute — big win, 414->243). Saved-register rotation + scheduling floor. */
 // FUN_00330060
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330060);
 
 // FUN_003307B0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003307b0);
 
-/* measured: retail evaluates func_0025ecd0's 14 args as [0.0f, f12-f14, a0,a1,a3,
-   t0,t1,t2, f16-f17, t3]; mwcc b210 always emits the GPR block (a0..t3) before the
-   FPR block (f12..f17) regardless of spelling. Prologue + everything else matches
-   exactly (nd 14 = the 12-word arg-materialization permutation + 2 padding): tried
-   direct call, hoisted float locals (nd 44), s64 param + union (nd 22), interleaved
-   declaration (nd 22), FclVec2 by-value param (fixes prologue, nd 14). Same
-   argument-evaluation-order family as the measured note on func_0033cc40 in
-   y_fclItemShopDraw.c. */
 // FUN_00330E50
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330e50);
 // FUN_00330F20

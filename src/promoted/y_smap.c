@@ -84,6 +84,8 @@ struct RwV3d
 
 
 
+
+
 // FUN_002AC400
 s32 func_002ac400(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
@@ -160,8 +162,23 @@ s32 func_002ac740(void) {
     return D_00764644;
 }
 
+/* measured: full transcription of the M2C_ERROR-free 574-line draft
+   (nd 1239 -> 1255). All branch structure, func_00155280 re-call sites,
+   func_002adcf0/002b2d00/002b2cb0 calls, the 0x58<7/<9/>=9 dispatch, the
+   0x59 sub-switches, and the search loops are right. Residuals:
+   (1) the prologue arg-save pattern — retail saves raw arg0/arg1 into
+   $s4/$s3 first and re-derives (arg0&0xFF)/(arg1&0xFF) at every later
+   site; mwcc CSEs my masked temps and rotates the saved registers
+   (t18=$s4 vs $s2, t17=$s1, t16=$s0, t20=$s3 vs $s0) — rotation floor
+   family; (2) the u16 bit-sets on D_00764658 — retail emits lhu/or/shu
+   with the &0xFFFF mask at the first use only, then re-masks per
+   later site; mwcc emits lh or adds dsll32/dsra32 extension dances
+   depending on the local's type (tried u16 and s32 forms, nd 1239 and
+   1255). Remaining ~1240 differing words are these two families
+   cascading through 1384 words. */
 // FUN_002AC750
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ac750);
+
 // FUN_002ADCF0
 s64 func_002adcf0(u8 arg0) {
     return (s64)(s8)((arg0 & 0xFF) >> 4);
@@ -185,6 +202,16 @@ void func_002add60(u8 *arg0, u8 *arg1) {
 
 
 
+/* measured: full state-machine structure reconstructed (nd 409 -> 327 ->
+   315; best 315 with 3 declaration orders, all identical). Residuals:
+   (1) pervasive saved-register rotation — p in $s2 vs retail $s1, arg0 in
+   $s7 vs $s5, x/$s4 vs $s2, y/$s3 vs $s4, t19/$s6 vs $s3, t16/$s1 vs $s0;
+   reordering locals 3 ways (incl. i-first) never moved a single register —
+   saved-register-rotation floor family; (2) the i-loop: retail materialises
+   q+0xD8 into a saved reg before func_002b4a10 and stores through it, mwcc
+   folds the displacement into lw/sw (loop body 1 word short; obj 1928B vs
+   window 1936B); forcing the address into a local made it worse (nd 347).
+   Stack layout, switch dispatch, and all call sites otherwise match. */
 // FUN_002ADD90
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002add90);
 
@@ -211,11 +238,31 @@ void func_002ae520(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
+/* measured: skipped — the m2c draft hits M2C_ERROR at the two FPU
+   multiply-accumulate sites in the D_007E80A0 loop (adda.s $f0,$f1;
+   madd.s $f20,$f12,$f2 wrapping the func_002b11c0/func_002b13e0 and
+   func_002b1210/func_002b1480 call pairs), so the operand structure of
+   those two sp1F8/sp1FC expressions is unrecoverable from the draft;
+   the madd.s family is the same canonicalization floor as func_002b13e0/
+   002b1480 (recorded above). Rest of the draft (func_002b0250 8-arg tile
+   loop, func_002b2970/2a60/2830/3990 calls, D_007E8C00/D_007E80A0 loops)
+   is intact but untestable without the two expressions. */
 // FUN_002AE630
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002ae630);
 
+/* measured: full structure reconstructed (nd 414 -> 405 -> 408 -> 408).
+   opt_loop_invariants + s32 arg1 + stack-slot order (w2,w4,w1,w3,w5,w6,
+   w7,w8,w9) made the prologue, frame, f20 hoist, and every func_002b2970/
+   69b0/6ac0/6a40/6be0/46d200 block byte-match. Residuals: (1) the j/k/row
+   saved-register rotation in both nested loops — mwcc allocates k=$s2,
+   j=$s3, row=$s4/$s5 while retail has row=$s0/$s2, k=$s3, j=$s4; hoisting
+   row to function level (decl before j/k) changed nothing — rotation
+   floor family; (2) the `ok == 1` test: retail booleanizes with
+   sltu $r,$0,$ok then bne vs 1; mwcc emits addiu/bne or folds (ok!=0)==1
+   to beqz (1 word). All other code matches modulo the rotation. */
 // FUN_002AF3E0
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002af3e0);
+
 // FUN_002AFB70
 void func_002afb70(u8 *arg0, s8 arg1) {
     u8 *temp_6;
@@ -422,12 +469,14 @@ int func_002B1210(RwV3d param_1)
 #pragma pop
 
 // FUN_002B1260 NONMATCHING
-// // Floor: mwcc hoists the 1200.0f lui/mtc1 into the post-call bubble
-// (after func_001687d0's jal) where retail emits mtc1 $v0/cvt.s.w first and
-// materializes 1200 after the conversion; plus the msub.s operand orientation
-// (f2*f3 vs retail f3*f2) which is a canonicalization floor. The u8 buf copy is
-// needed to reproduce retail's lwc1 x3/swc1 x3 12-byte copy (a typed local-to-
-// local copy compiles to ld/sd instead).
+/* measured: post-jal FPU scheduling + msub orientation floor. Retail emits
+   mtc1 $v0/cvt.s.w before materializing 1200.0f and pads the mtc1->mul.s
+   use with a nop; mwcc b210 hoists the 1200.0f lui/mtc1 into the post-jal
+   bubble, drops the nop, and canonicalizes msub.s $f0,$f2,$f3 vs retail's
+   $f0,$f3,$f2 — the 1-word-shorter schedule cascades to nd 29 (mostly
+   positional). Tried inline cast and separate f32 local (both nd 29).
+   The u8 buf copy is needed for retail's lwc1 x3/swc1 x3 12-byte copy
+   (a typed local-to-local copy compiles to ld/sd instead). */
 #ifdef NON_MATCHING
 f32 func_002b1260(void *arg0, f32 arg1) {
     YVec3f v2;
@@ -444,8 +493,9 @@ INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1260);
 #endif
 
 // FUN_002B1320 NONMATCHING
-// // Floor: same mwcc post-call constant hoist + msub.s operand orientation
-// as func_002b1260 (2 real differing words).
+/* measured: same post-jal FPU scheduling + msub orientation floor as
+   func_002b1260 (nd 29, mostly positional; inline cast and f32 local both
+   nd 29). */
 #ifdef NON_MATCHING
 f32 func_002b1320(void *arg0, f32 arg1) {
     YVec3f v2;
@@ -462,9 +512,11 @@ INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1320);
 #endif
 
 // FUN_002B13E0 NONMATCHING
-// // Floor: single residual msub.s operand orientation - retail msub.s
-// $f0,$f3,$f2 (sub result first), b210 canonicalizes to $f0,$f2,$f3 regardless
-// of source operand order (tried both multiply orders, temps, parens).
+/* measured: retail msub.s $f0,$f3,$f2 (sub-result first) vs b210's
+   msub.s $f0,$f2,$f3 with byte-identical scheduling/register assignment
+   (both orders of the product in source, temps, and parens all emit
+   $f0,$f2,$f3; nd 4 = 1 real word + padding). FPU msub fs/ft
+   canonicalization floor. */
 #ifdef NON_MATCHING
 f32 func_002b13e0(YVec3f *arg0, f32 arg1) {
     YVec3f v1, v2;
@@ -480,8 +532,9 @@ INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b13e0);
 #endif
 
 // FUN_002B1480 NONMATCHING
-// // Floor: same msub.s operand orientation floor as func_002b13e0 (1 real
-// differing word).
+/* measured: same msub.s fs/ft orientation floor as func_002b13e0 — retail
+   msub.s $f0,$f3,$f2, b210 msub.s $f0,$f2,$f3 (1 real differing word;
+   nd 2 = 1 word + padding). */
 #ifdef NON_MATCHING
 f32 func_002b1480(YVec3f *arg0, f32 arg1) {
     YVec3f v2, v3, v1;
@@ -497,6 +550,19 @@ f32 func_002b1480(YVec3f *arg0, f32 arg1) {
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1480);
 #endif
 
+/* measured: complete reconstruction from the m2c draft (nd 773 -> 773 ->
+   745). The prologue D_00887300 callback sequence, func_003f6440 calls,
+   the 7-case switch, all func_002b2aa0 arg orders (incl. (f32)0x147/0x1BB/
+   0x18B int->float paths and the fGpffff84f4/fGpffff84f8-style gp args),
+   the (u8)(s32) saturation-cast idiom, and the 3x6/4 loops are all right.
+   Residuals: (1) GPR/FP saved-register rotation — candidate arg1=$s2,
+   fp=$s0, i=$s1 vs retail arg1=$s0, fp=$s1, i=$s2, j=$s3, and f21/f20/f22
+   land in $f23/$f22/$f24 vs retail $f21/$f20/$f22; 3 declaration orders
+   moved nothing — rotation floor family; (2) mwcc keeps the case-2/3
+   u6C/u64 2aa0 results in FP registers (5 saved FP regs) where retail
+   stores them to 0x6C/0x64 immediately; (3) the two prologue s64
+   gp-relative loads (iGpffffa840/-0x57C0, iGpffffa848/-0x57B8) are dead in
+   retail yet kept there; mwcc b210 DCEs the ld/sd pair entirely. */
 // FUN_002B1520
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1520);
 

@@ -75,6 +75,15 @@ extern s64 fGpffff8018;
 extern s64 fGpffff8020;
 extern s64 fGpffff8010;
 
+extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
+extern f32 func_0048aff0(u8 *a, s32 b, s32 c);
+extern f32 func_0048a650(f32 a);
+extern f32 fGpffff8044;
+extern f32 fGpffff80f0;
+extern void func_004a8bb0(u8 *a, u8 *b);
+extern void func_004a8f90(u8 *a, u8 *b);
+extern void func_004a9180(u8 *a, u8 *b);
+
 /* measured: retail's byte->f32 doubling and alpha blocks keep their values in
    $a0 and convert into $f20 (or-dest = the srl scratch); mwcc b210 recompiled
    from equivalent C keeps them in $v1 and converts into $f0, nd 11 (6 rows,
@@ -142,7 +151,102 @@ void func_004a9590(u8 *arg0) {
 }
 
 // FUN_004A9690
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9690);
+void func_004a9690(u8 *arg0) {
+    f32 vec[4];
+    s32 sp7C;
+    s32 sp78;
+    s32 sp74;
+    u8 *base;
+    u8 *obj;
+    s32 b;
+    s32 a;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+    f32 f;
+    f32 g;
+    f32 prod;
+
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (a >= b) {
+        f = func_0048aff0(obj + 0x8C, b, a);
+        if (*(u8 *)(obj + 0xBC) != 0) {
+            *(f32 *)(base + 0x14) = 320.0f;
+            *(f32 *)(base + 0x18) = 224.0f;
+            *(f32 *)(base + 0x1C) = 320.0f - f;
+            *(f32 *)(base + 0x20) = 224.0f - f;
+            *(f32 *)(base + 0x24) = 320.0f + f;
+            *(f32 *)(base + 0x28) = 224.0f + f;
+        } else {
+            prod = f * *(f32 *)(arg0 + 0x14);
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+            g = func_0048a650(prod);
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
+            *(f32 *)(base + 0x14) = vec[0];
+            *(f32 *)(base + 0x18) = vec[1];
+            *(f32 *)(base + 0x1C) = vec[0] - g;
+            *(f32 *)(base + 0x20) = vec[1] - g;
+            *(f32 *)(base + 0x24) = vec[0] + g;
+            *(f32 *)(base + 0x28) = vec[1] + g;
+        }
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp7C = *(s32 *)(arg0 + 0x10);
+        pt = &sp7C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp78 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x74($sp)      \n"
+            :
+            : "r"(&sp78), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+*(s32 *)(base + 4) = *(volatile s32 *)&sp74;
+        *(f32 *)(base + 0x10) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a) + 1.0f;
+        *(f32 *)(base + 0xC) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(s32 *)(base + 8) = *(s32 *)(obj + 0x28);
+    } else {
+        *(s8 *)(base + 7) = 0;
+    }
+}
 
 typedef struct BlurGsQuad {
     f32 x, y;
@@ -192,8 +296,97 @@ void func_004a9ba0(void *param_1) {
 }
 
 // FUN_004A9BD0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9bd0);
+void func_004a9bd0(u8 *arg0) {
+    f32 vec[4];
+    s32 sp8C;
+    s32 sp88;
+    s32 sp84;
+    u8 *obj;
+    u8 *base;
+    s32 b;
+    s32 a;
+    u8 *list;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+    f32 f;
+    f32 prod;
 
+    list = *(u8 **)(arg0 + 0x20);
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (a >= b) {
+        f = func_0048aff0(obj + 0x8C, b, a);
+        if (*(u8 *)(obj + 0xBC) != 0) {
+            *(s32 *)(base + 0x1C) = 0x43A00000;
+            *(s32 *)(base + 0x20) = 0x43600000;
+            *(f32 *)(base + 0x24) = f;
+        } else {
+            prod = f * *(f32 *)(arg0 + 0x14);
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+            *(f32 *)(base + 0x24) = func_0048a650(prod);
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
+            *(f32 *)(base + 0x1C) = vec[0];
+            *(f32 *)(base + 0x20) = vec[1];
+        }
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp8C = *(s32 *)(arg0 + 0x10);
+        pt = &sp8C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp88 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x84($sp)      \n"
+            :
+            : "r"(&sp88), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+*(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
+        *(f32 *)(base + 0x18) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
+        *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+        func_004a8bb0(base, list);
+    } else {
+        *(s32 *)(base + 0xC) = 0;
+    }
+}
 // FUN_004A9DD0
 void func_004a9dd0(u8 *arg0) {
     u8 *list;
@@ -251,7 +444,97 @@ void func_004a9fa0(void *param_1) {
 }
 
 // FUN_004A9FD0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9fd0);
+void func_004a9fd0(u8 *arg0) {
+    f32 vec[4];
+    s32 sp8C;
+    s32 sp88;
+    s32 sp84;
+    u8 *obj;
+    u8 *base;
+    s32 b;
+    s32 a;
+    u8 *list;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+    f32 f;
+    f32 prod;
+
+    list = *(u8 **)(arg0 + 0x20);
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (a >= b) {
+        f = func_0048aff0(obj + 0x8C, b, a);
+        if (*(u8 *)(obj + 0xBC) != 0) {
+            *(s32 *)(base + 0x20) = 0x43A00000;
+            *(s32 *)(base + 0x24) = 0x43600000;
+            *(s32 *)(base + 0x28) = (s32)f;
+        } else {
+            prod = f * *(f32 *)(arg0 + 0x14);
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+            *(s32 *)(base + 0x28) = (s32)func_0048a650(prod);
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
+            *(f32 *)(base + 0x20) = vec[0];
+            *(f32 *)(base + 0x24) = vec[1];
+        }
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp8C = *(s32 *)(arg0 + 0x10);
+        pt = &sp8C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp88 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x84($sp)      \n"
+            :
+            : "r"(&sp88), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+*(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
+        *(f32 *)(base + 0x1C) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
+        *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+        func_004a9180(base, list);
+    } else {
+        *(s32 *)(base + 0xC) = 0;
+    }
+}
 
 // FUN_004AA1F0
 void func_004aa1f0(u8 *arg0) {
@@ -278,7 +561,86 @@ void func_004aa1f0(u8 *arg0) {
 }
 
 // FUN_004AA2B0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aa2b0);
+void func_004aa2b0(u8 *arg0) {
+    s32 sp6C;
+    s32 sp68;
+    s32 sp64;
+    u8 *base;
+    u8 *obj;
+    s32 a;
+    s32 b;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (b == 0) {
+        *(s32 *)(base + 0x10) = 0x43A00000;
+        *(s32 *)(base + 0x14) = 0x43600000;
+        *(s32 *)(base + 0x18) = 0;
+        *(s32 *)(base + 0x1C) = 0;
+        *(s32 *)(base + 0x20) = 0x44200000;
+        *(s32 *)(base + 0x24) = 0x43E00000;
+        *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
+    }
+    if (a >= b) {
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp6C = *(s32 *)(arg0 + 0x10);
+        pt = &sp6C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp68 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x64($sp)      \n"
+            :
+            : "r"(&sp68), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+*(s32 *)base = *(volatile s32 *)&sp64;
+        *(f32 *)(base + 0xC) = 1.0f + func_0048aff0(obj + 0x34, b, a);
+        *(f32 *)(base + 8) = func_0048aff0(obj + 0x60, b, a);
+    } else {
+        *(s8 *)(base + 3) = 0;
+    }
+}
 
 // FUN_004AA460
 void func_004aa460(u8 *arg0) {
@@ -329,7 +691,97 @@ void func_004aa660(void *param_1) {
 }
 
 // FUN_004AA690
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aa690);
+void func_004aa690(u8 *arg0) {
+    f32 vec[4];
+    s32 sp8C;
+    s32 sp88;
+    s32 sp84;
+    u8 *obj;
+    u8 *base;
+    s32 b;
+    s32 a;
+    u8 *list;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+    f32 f;
+    f32 prod;
+
+    list = *(u8 **)(arg0 + 0x20);
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (a >= b) {
+        f = func_0048aff0(obj + 0x8C, b, a);
+        if (*(u8 *)(obj + 0xBC) != 0) {
+            *(s32 *)(base + 0x1C) = 0x43A00000;
+            *(s32 *)(base + 0x20) = 0x43600000;
+            *(f32 *)(base + 0x24) = f;
+        } else {
+            prod = f * *(f32 *)(arg0 + 0x14);
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+            *(f32 *)(base + 0x24) = func_0048a650(prod);
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
+            *(f32 *)(base + 0x1C) = vec[0];
+            *(f32 *)(base + 0x20) = vec[1];
+        }
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp8C = *(s32 *)(arg0 + 0x10);
+        pt = &sp8C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp88 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x84($sp)      \n"
+            :
+            : "r"(&sp88), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+*(s32 *)(base + 0xC) = *(volatile s32 *)&sp84;
+        *(f32 *)(base + 0x18) = fGpffff80f0 * func_0048aff0(obj + 0x34, b, a);
+        *(f32 *)(base + 0x14) = fGpffff80f0 * func_0048aff0(obj + 0x60, b, a);
+        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+        func_004a8f90(base, list);
+    } else {
+        *(s32 *)(base + 0xC) = 0;
+    }
+}
 
 // FUN_004AA890
 void func_004aa890(u8 *arg0) {
@@ -359,8 +811,82 @@ void func_004aa890(u8 *arg0) {
 }
 
 // FUN_004AA960
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aa960);
+void func_004aa960(u8 *arg0) {
+    s32 sp3C;
+    s32 sp38;
+    s32 sp34;
+    u8 *obj;
+    u8 *base;
+    s32 a;
+    s32 b;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
 
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (b == 0) {
+        *(s32 *)(base + 8) = 0;
+        *(s32 *)(base + 0xC) = 0;
+        *(s32 *)(base + 0x10) = 0x44200000;
+        *(s32 *)(base + 0x14) = 0x43E00000;
+        *(s32 *)(base + 4) = *(s32 *)(obj + 0x28);
+    }
+    if (a >= b) {
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp3C = *(s32 *)(arg0 + 0x10);
+        pt = &sp3C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp38 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $3, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $3, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $3, 0x437F        \n"
+            "qmtc2.ni $3, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $3, $vf10    \n"
+            "ppach $3, $0, $3      \n"
+            "ppacb $3, $0, $3      \n"
+            "sw $3, 0x34($sp)      \n"
+            :
+            : "r"(&sp38), "f"(scale)
+            : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
+                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+*(s32 *)base = *(volatile s32 *)&sp34;
+    } else {
+        *(s8 *)(base + 3) = 0;
+    }
+}
 // FUN_004AAA90
 void func_004aaa90(u8 *arg0) {
     s32 sp12C;
@@ -379,12 +905,100 @@ void func_004aaa90(u8 *arg0) {
 }
 
 // FUN_004AAB50
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aab50);
+void func_004aab50(u8 *arg0) {
+    f32 vec[4];
+    s32 sp7C;
+    s32 sp78;
+    s32 sp74;
+    u8 *base;
+    u8 *obj;
+    s32 b;
+    s32 a;
+    s32 tmp;
+    s32 *pt;
+    f32 scale;
+    f32 f;
+    f32 g;
+    f32 prod;
 
-/* measured: same D_00887300 arg-order floor as func_004a98d0: retail emits
-   `addiu $a0,1` before `lw $a1,($s0)`; mwcc b210 hoists the register-indirect
-   load first, nd 3 (2 rows). Direct D_00887300[0]() spelling fixes the order
-   but drops the $s1 address hoist (frame -0x10). */
+    obj = *(u8 **)(arg0 + 0x24);
+    base = obj + 0xC0;
+    a = *(s32 *)(obj + 0xB8);
+    if (a == 0) {
+        b = 0;
+    } else {
+        b = *(s32 *)(arg0 + 0x1C);
+    }
+    if (a >= b) {
+        f = func_0048aff0(obj + 0x8C, b, a);
+        if (*(u8 *)(obj + 0xBC) != 0) {
+            *(f32 *)(base + 4) = 320.0f;
+            *(f32 *)(base + 8) = 224.0f;
+            *(f32 *)(base + 0x14) = 320.0f - f;
+            *(f32 *)(base + 0x18) = 224.0f - f;
+            *(f32 *)(base + 0x1C) = 320.0f + f;
+            *(f32 *)(base + 0x20) = 224.0f + f;
+        } else {
+            prod = f * *(f32 *)(arg0 + 0x14);
+            __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+            g = func_0048a650(prod);
+            __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(vec) : "$vf10", "memory");
+            *(f32 *)(base + 4) = vec[0];
+            *(f32 *)(base + 8) = vec[1];
+            *(f32 *)(base + 0x14) = vec[0] - g;
+            *(f32 *)(base + 0x18) = vec[1] - g;
+            *(f32 *)(base + 0x1C) = vec[0] + g;
+            *(f32 *)(base + 0x20) = vec[1] + g;
+        }
+        tmp = func_0048abd0(obj, obj + 0x24, b, a);
+        sp7C = *(s32 *)(arg0 + 0x10);
+        pt = &sp7C;
+        scale = fGpffff8044;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        sp78 = tmp;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $3, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $3, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $3, 0x437F        \n"
+            "qmtc2.ni $3, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $3, $vf10    \n"
+            "ppach $3, $0, $3      \n"
+            "ppacb $3, $0, $3      \n"
+            "sw $3, 0x74($sp)      \n"
+            :
+            : "r"(&sp78), "f"(scale)
+            : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
+                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
+           hoists the reload above the asm, so the read is volatile. */
+*(s32 *)(base + 0xC) = *(volatile s32 *)&sp74;
+        *(s32 *)(base + 0x10) = *(s32 *)(obj + 0x28);
+    } else {
+        *(s8 *)(base + 0xF) = 0;
+    }
+}
 // FUN_004AAD30
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aad30);
 

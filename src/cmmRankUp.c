@@ -13,6 +13,28 @@ extern void func_002516f0();
 extern u8 D_00635CF8[];
 extern u8 D_00635D18[];
 extern u8 D_006367C0[];
+extern u8 D_00636390[];
+extern u8 D_00636410[];
+extern u8 D_00636460[];
+extern u8 D_00636480[];
+extern u8 D_006364D0[];
+extern u8 D_006364F0[];
+extern u8 D_00636540[];
+extern u8 D_00636210[];
+extern u8 D_00636230[];
+extern s64 D_00636250[];
+extern f32 D_00636258[];
+extern u8 D_00636260[];
+extern u32 D_80000046[];
+extern u32 D_8000001E[];
+extern f32 D_00761184;
+extern f32 D_007613A0;
+extern f32 D_007612CC;
+extern f32 D_007612D0;
+extern f32 D_0076120C;
+extern f32 D_00761288;
+extern f32 D_0076122C;
+extern void (*D_00887300[])(u32, u32);
 extern void *(*D_008873F4[])(s32, s32, s32);
 
 void func_0044ea90(void *msg, s32 id);
@@ -28,8 +50,45 @@ extern void *memset(void *destination, s32 value, size_t count);
 
 /* 128-bit object copies (retail lq/sq). */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
+extern u_long128 D_00636560;
+extern u_long128 D_00636570;
+typedef struct { u32 w0; u32 w1; } CopyPair;
+
+typedef struct {
+    f32 f0;
+    f32 f4;
+    f32 f8;
+    f32 fC;
+    f32 f10;
+    f32 f14;
+    s32 f18;
+    f32 f1C;
+    s16 f20;
+    s16 f22;
+} Sp120;
 extern u_long128 D_00636730;
 extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void func_0045e6a0(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4,
+                          s16 arg5, s16 arg6, s32 arg7, f32 fparg0, f32 fparg1,
+                          f32 fparg2, f32 fparg3);
+extern void func_00252230(void *arg0, void *arg1, void *arg2, f32 fparg0);
+extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern u8 *func_00251570(s32 arg0, s32 arg1);
+extern void func_00251850(s32 arg0);
+extern s64 func_0025f360(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_0035afa0(s32 arg0);
+extern s32 func_003b7060();
+extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
+extern f32 func_0044b610(f32 fparg0);
+extern f32 func_0044b7b0(f32 fparg0);
+extern void func_00489f80(void);
+extern void func_0048a000(void);
+extern void func_0045db40(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4,
+                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+extern void func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                          s32 arg5, s32 arg6, s16 arg7, f32 fparg0, s16 arg_sp0,
+                          void *arg_sp8, s32 arg_sp10, void *arg_sp18);
 
 /* Old-style: the two callbacks passed here (func_00251e60 takes one s32,
  * func_00251ec0 takes none) do not share a signature, and a typed prototype
@@ -291,20 +350,37 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
 
 
 
+/* measured: nd 835 (frame -0x220 vs -0x240 shifts every stack offset); structure fully decompiled (copy loops,
+   func_00252230/003e0870/003e05f0/00366c70/003f6440/00887300 calls, u32-cast
+   doubled-alpha idiom, D_80000046/1E saturation fixups, sp218/sp230/sp238
+   block) but the frame/stack layout never converges: mwcc's slot allocator
+   OVERLAPS sp218 and sp230 (both s64, non-overlapping live ranges -> both at
+   0x218, frame -0x220) while retail keeps them at 0x218/0x230 (frame -0x240);
+   the 0x224 dead slot needs a 2-element f32 array (f32 sp220[2]); single
+   >=0x10 buffers get 0x10-aligned (0x220 instead of 0x218). Also var_21 lands
+   in $s7 (retail $s5) and the cvt.w.s saturation branch inlines (c.lt.s) where
+   retail's is out-of-line (c.le.s). Tried: struct vs buffer vs small-local
+   layouts for the 0x218-0x240 region, spC0[0x28]/[0x30], sp1F0[0x24]/[0x28].
+   Stack-slot-sharing floor; the (u32) cast for alpha sites and the
+   (s32)&D_80000046[0] fixup spelling are confirmed correct. */
 // FUN_00252A60
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
 
-
-
+/* measured: not attempted this wave (4640 B); m2c draft is structurally
+   complete; its msub.s/adda.s M2C_ERRORs in the func_0025f3f0 args are
+   `a - b*c` / `a + b*c` accumulator idioms (verified on mwcc b210 - msub.s/
+   madd.s), and the sp110 table reads feed the loop's func_0025f3f0 calls.
+   Same family walls as func_00252a60/002566d0/002570f0: (u32)-cast alpha
+   sites, D_00887300 base rematerialization, mwcc stack-slot overlap of
+   same-type locals + 0x10 alignment of buffers >= 0x10, FP saved-reg
+   rotation, and the D_00636290 copy loop + zero-fill loops need the m2c
+   two-temp/do-while spellings. gp-0x7F7C/-0x7F6C floats: 0x00761174/
+   0x00761184 (GP base 0x007690F0). */
 // FUN_00253850
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00253850);
 
-
-
 // FUN_00254A70
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00254a70);
-
-
 
 // FUN_00255B00
 s32 func_00255b00(s32 arg0, s32 *arg1) {
@@ -505,53 +581,110 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
 
 
 
+/* measured: structure fully understood (copy loop, 3-branch color store chain,
+   func_0045e6a0 call with (s16) narrowing on args 6/7), but mwcc b210's saved-
+   register allocation and FP scheduling never converge on retail's: retail
+   keeps temp_5's four bytes + the hoisted ==1 constant + the per-iteration
+   address temp in saved regs ($s4-$s0, $s5), hoists BOTH 255.0f muls to the
+   top, and folds sp70/spC0 offsets into addiu; mwcc instead saves temp_14 /
+   b2 / b3 / c0 / c1, keeps muls inline, and materializes the ==1 constant in
+   the loop (best nd 145). Tried: named byte locals in 3 declaration orders
+   (probe batch), m2c-exact inline-byte structure (nd 151), u8/u32 counters,
+   pointer locals for both loop addresses, sp70[0x50] frame fix. Saved-
+   register rotation + FP scheduling floor; m2c draft structurally correct. */
 // FUN_00256460
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256460);
 
 
 
+/* measured: nd 303 after four attempts; frame 0x150, prologue, both copy
+   loops, func_00252230/003e0870 call shapes and the func_00366c70 arg layout
+   (incl. s16 arg7 in $11, s16 stack args, msub.s alpha args) all match.
+   Residual: (1) FP saved-reg rotation - retail keeps fparg4/temp_f21/temp_f20
+   in $f22/$f21/$f20, mwcc allocates $f21/$f20/$f22 regardless of declaration
+   order (tried both orders); (2) the D_00887300 vtable base must be assigned
+   to a local JUST BEFORE its calls (retail lui/addiu into $s2 there); assigned
+   early mwcc hoists it to the top in $s1 and the whole mid-function shifts.
+   Tried: 6- and 9-param signatures (positional float regs confirmed: 3 unused
+   leading f32s needed to place fparg3/fparg4 at $f15/$f16), (s16)/(s64) arg
+   spellings, named vt local. FP-allocation floor + vtable-hoist placement. */
 // FUN_002566D0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002566d0);
 
-
-
+/* measured: nd 303 after four attempts; twin of func_002566d0 (same walls):
+   frame 0x150, prologue, copy loops and all call shapes match, but (1) FP
+   saved-reg rotation (fparg4/temp_f21/temp_f20 in $f22/$f21/$f20 retail vs
+   $f21/$f20/$f22 mwcc, both declaration orders tried), (2) GPR rotation: mwcc
+   saves the D_00887300 vt base in $s1 with arg2 in $s2 while retail uses $18
+   for vt and $s1/$s0 for arg2's halves (vt declared first/last both tried),
+   (3) the vt base must be assigned early to force a saved reg at all (late
+   assignment makes mwcc rematerialize lui/lw per call and the frame shrinks
+   to 0x140). Saved-register rotation + D_00887300 vtable-hoist floors; alpha
+   sites need the (u32) cast like func_002570f0. */
 // FUN_00256BE0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256be0);
 
-
-
+/* measured: nd 189 after four attempts; frame 0x1C0, all stack offsets, both
+   copy loops, all zero-fill loops, the struct stores/copies (lq/sq), and the
+   func_00252230/003e0870/0045d6e0/0048a000/0045db40 call shapes match. Two
+   unreachable residuals: (1) the D_00887300 render-vtable hoist floor - retail
+   keeps the base in $s0 and does lw 0($s0)/jalr per call; mwcc b210 emits a
+   dead lui/addiu $s0 and rematerializes lui+lw per call (7 calls per half).
+   (2) alpha sites: `x & 0xFF >= 0` on an s32 is provably true so mwcc drops
+   the branch - the (u32) cast (`(u32)x & 0xFF`) defeats the prover and emits
+   the retail andi/bltz exactly (verified on b210 after this was written).
+   Also: s16 arg7/stack s16s, s64 vs s32 arg_sp10 (s64 shifts every stack arg
+   and is worse). */
 // FUN_002570F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002570f0);
 
-
-
-/* measured: retail materializes the s64 size init as `daddiu $s1, $zero, 0x400`
- * BEFORE the first func_00145270 call and keeps the call arg as an independent
- * `addiu $a0, $zero, 0x400`; mwcc b210 always emits `addiu` for the size init
- * (even with 0x400LL / (s64)0x400 / u64) and schedules it AFTER the call's
- * delay slot. 12+ spellings tried (declaration init, init-before/after call,
- * s64/u64, LL literals, cast forms, pragma schedule on/off, optimization_level
- * 3): every variant bottoms out at the same nd 2 on exactly those two words.
- * Everything else in the function is byte-identical. */
 // FUN_00257820
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257820);
+s32 func_00257820(s32 arg0, void *arg1) {
+    s32 var_4;
+    u8 *var_2;
+    u16 var_17;
+
+    var_17 = 0x400;
+    var_2 = func_00145270(0x400);
+    if (var_2 == NULL) {
+        var_17 = ((arg0 & 0x3FF) | 0xC00) & 0xFFFF;
+        var_2 = func_00145270(var_17);
+    }
+    if (var_2 != NULL) {
+        var_4 = 0;
+        switch ((s32)((var_17 & 0xFFC00) >> 0xA)) {
+        case 1:
+            var_4 = *(s32 *)(var_2 + 0x164);
+            break;
+        case 3:
+            var_4 = *(s32 *)(var_2 + 0x164);
+            break;
+        }
+        if (var_4 != 0) {
+            func_0047a6d0(var_4, 2, arg1);
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
 
+/* measured: not attempted this wave (14320 B, the file's biggest); m2c draft
+   is complete apart from 6 M2C_ERRORs (VU0-free - check them against the
+   retail asm before writing). It drives func_00256460/002566d0/00256be0/
+   002570f0 and the func_0025f3f0 menu draws. Call-signature facts established
+   this wave and needed here: func_002566d0 takes (s32 arg0, s32 arg1, s64
+   arg2, s64 arg3, f32 fparg0..fparg4) with floats position-allocated from
+   $f12 (3 unused leading floats place fparg3/fparg4 at $f15/$f16);
+   func_002570f0 takes (s32, s32, s64, f32 x4); func_00366c70 is (s32 x7, s16,
+   f32, s16, void*, s32, void*) with the s16s sign-extended via dsll32/dsra32;
+   func_00256460 takes 8 ints + 5 floats (its 6th/7th params are passed to
+   func_0045e6a0 with (s16) narrowing). Family walls (see the sibling notes):
+   (u32)-cast alpha sites, vt-base rematerialization, stack-slot overlap. */
 // FUN_00257900
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257900);
 
-
-
-/* measured: retail hoists `addiu $a0, $sp, 0x5C` (the &sp5C arg for
-   func_0045d6e0) above the lwc1/swc1 float copy and `addiu $a1, $sp, 0x40`
-   between the two D_00636730 lq/sq stores; mwcc b210 sinks both address
-   materializations to just before the jal (nd 12, all twelve shifted
-   words are this scheduling). Tried: direct &sp5C/&sp3x[1], pointer
-   locals assigned at the store points, separate sp30/sp40 locals, the
-   sp40 = sp30 copy form, and a two-element u_long128 array. Same
-   load-sinking floor as the recorded mc.c FUN_002A4D10 func_0045d6e0
-   case (nd 62 there). */
 // FUN_0025B0F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b0f0);
 
