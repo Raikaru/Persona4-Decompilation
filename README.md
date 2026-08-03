@@ -1,7 +1,25 @@
 # Persona 4 PS2 Decompilation
 
-[![Matching progress](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Fmatching.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/matching.json)
-[![C-linked progress](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
+[![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=complete_units&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=complete_units)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![code](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=code&measure=complete_code_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![byte-exact linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
+
+The first three badges are served by [decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation),
+which ingests the objdiff report this repository publishes. They all report the
+`complete_*` measures, not the `matched_*` ones: this project counts a function
+only when it is byte-identical, whereas `matched_code_percent` is
+fuzzy-weighted and credits near misses, so the two disagree by nine functions
+today. `first-party functions` further selects the `main` category, the same one
+`tools/gen_objdiff.py` tags units with, and so counts only code the project
+actually wrote rather than the middleware and the 8,221 windows not yet
+attributed to a source file.
+
+The fourth badge is this repository's own stricter gate and has no decomp.dev
+equivalent: the share of windows sitting inside C objects that link
+byte-for-byte. It is far lower than the matched count because an object only
+qualifies once *every* function in it is C, so one assembly fallback withholds
+all of its neighbours.
 
 Matching decompilation of **Shin Megami Tensei: Persona 4** for PlayStation 2
 (USA, version 1.00, `SLUS_217.82`).
