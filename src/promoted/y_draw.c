@@ -42,6 +42,15 @@ extern void func_003f6440(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
 extern s32 func_002b52a0(u8 *arg0);
+extern void func_002b2970(void *, f32, f32);
+extern s32 func_002b2a30(s32, s32, s32, s32);
+extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern void func_002b7cd0(u8 *, s16, s16);
+extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
+extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
+extern s16 func_002b2d00(s32, s32, s32, s32, s8);
+extern void func_002b6180(void);
+extern void func_002b6260(void);
 extern void func_002b5c60(u8 *arg0);
 extern s32 func_002b6340(u8 *arg0);
 extern void func_002b6560(u8 *arg0);
@@ -299,6 +308,14 @@ void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
    0x38 table base before touching arg0, mwcc sinks the 0x38 load below the shift
    and flips the addu operands (7 differing words reloc-masked, identical with the
    base hoisted into a local). Same wall as func_002b6af0/002b6b40. */
+/* measured: re-tested recipe B (global-base hoist) with four spellings - typed
+   u8 *base local, two-step u8 *g = iGpffffb574 then base, fully inline
+   expression, and an s32 idx local for (s16)arg0 << 8 - all nd 7 reloc-masked,
+   byte-identical apart from the load-sinking wall: retail loads iGpffffb574
+   then the 0x38 table base BEFORE sign-extending arg0, mwcc b210 sinks the
+   0x38 load below the dsll32/dsra32/sll and flips the addu operands (base in
+   $v1, index in $v0 vs candidate index/base reversed). Same wall as
+   func_002b68d0/6a70/6af0/6b40/6b90; nothing source-side moves it. */
 // FUN_002B69F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b69f0);
 
@@ -365,6 +382,20 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
    b = base hoisted pre-call, and a pre-call s32 v = lh load - all keep mwcc's
    arg0-first order. Argument-materialization-order floor, cousin of the
    load-sinking wall. */
+/* measured: re-tested recipe B (base hoist) with four spellings. A single typed
+   u8 *p local keeps the base in $s0 across the calls (frame 0x40, nd 71);
+   full-deref stores re-derive the base per store but mwcc still keeps the
+   first base in $v0 and the pair reloads split (nd 70); the closest shape is
+   pre-call b = *(u8 **)(iGpffffb574 + 0x38) hoists before func_0046b260/2f0
+   plus full derefs elsewhere: frame 0x50, prologue through the 0xC store and
+   every post-call chain byte-identical, nd 46 of which ~6 are real - retail
+   CSEs the iGpffffb574 gp load between the p1 pair and the lh chain (lw $v1
+   once, 0x38 reloaded), mwcc reloads gp, and retail loads the p1 pair into
+   $f1/$f0 before both swc1s. A *(f2 *) struct assignment for the pair does
+   produce retail's batched loads, but hoisting g = iGpffffb574 into a local
+   for the CSE makes it live across the whole function ($s1, frame 0x60,
+   worse). Remaining levers: deferred g local scoped to the pair+chain only.
+   Same argument-materialization family as the old nd 9 note. */
 // FUN_002B6C30
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
 
@@ -397,6 +428,18 @@ void func_002b6ea0(void) {
     func_0048a000();
 }
 
+/* measured: three attempts (e-pointer local + full-deref re-derivations +
+   declaration reorders), best nd 350. Structure fully decompiled: outer s16
+   loop 0..0x30B, per-index clear at 0x30C06, flag-bit dispatch (0x4000 ->
+   func_002b6260 object, 0x2000 -> func_002b6180 object, else the 0x72/0xA4/
+   0xB0 spawn check), the 14-arg func_0025ecd0 call, and the count update.
+   Residual walls: (1) retail re-derives the iGpffffb574 base into a fresh
+   saved register after every call and keeps $s1 across the func_0043f810
+   call, mwcc keeps the loop-head e pointer live in $s2 across calls (nd
+   unchanged with full derefs - mwcc CSEs them); (2) the bit-scan loop
+   (found=0 exit-edge sink + constant-1 CSE) appears FOUR times - the same
+   wall as func_002b7cd0's measured nd 133 in isolation; (3) the func_0025ecd0
+   14-arg materialization order. Loop-register + bit-scan + arg-order floor. */
 // FUN_002B6EC0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6ec0);
 
@@ -418,9 +461,30 @@ void func_002b74c0(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
 
 
+/* measured: four spellings (s32 idx local, fully inline (s32)arg0 << 8,
+   first-store u8 *b base local, combined u8 *d = base + idx local) all nd 9
+   reloc-masked. Everything from the first sh onward is byte-identical - the
+   five subsequent base re-derivations (lw gp + lw 0x38 per store) match
+   exactly. The 9 words are the first store's preamble: retail loads the
+   iGpffffb574/0x38 chain into $v1/$a2 BEFORE the dsll32/dsra32/sll index
+   chain (addu $v1, $a2, $a0); mwcc b210 always emits the index chain first
+   and sinks the two loads below it (addu $v1, $v1, $a0). Load-sinking wall,
+   same family as func_002b69f0/6a70/6af0/6b40/6b90/6d60. */
 // FUN_002B7750
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7750);
 
+/* measured: both branches fully decompiled (retail's arg5==1 branch mirrors
+   func_002b6c30's store chain - |= 1, fparg0, (s16)arg4, p1 f2 pair, second
+   func_0046d200, /2.0f cvt chains, func_002b82d0/8300/2970/8270 calls with the
+   f2 out/t copy; the else branch adds func_002b7750's reset stores and the
+   arg3 u4 stores - every chain is understood and matches the floored sibling
+   patterns byte-for-byte in isolation). The block is mwcc b210 register
+   allocation: retail keeps 7 saved registers ($16=h, $17=arg5, $18=arg4 then
+   h2, $19=arg2, $20=arg0, $21=arg6, $22=arg7) with arg_sp0 re-loaded per
+   branch, frame 0xC0; mwcc keeps 8 saved + $fp with arg_sp0 saved across the
+   whole if/else (frame 0xF0, obj 1332B vs window 1280B, nd 295-299 across
+   base-local, full-deref and reordered declarations). Register-pressure wall
+   on top of the same load-sinking/base-reload walls as func_002b6c30/7750. */
 // FUN_002B77D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
 
@@ -432,6 +496,20 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
    per-iteration found=0 spellings). Also retail re-loads iGpffffb574's table per
    compare and keeps $18 = arg2's sign-extend across calls. Loop-init-sinking +
    constant-LICM floor, cousin of the load-sinking wall. */
+/* measured: re-tested recipe B (base hoist). Natural full-deref spelling
+   (flags = *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + idx + 0x14), per-compare
+   re-derivation) is nd 133; a typed u8 *tbl local hoisted for all uses is nd
+   132 - retail re-loads iGpffffb574's table per compare, so the hoist is the
+   wrong shape. The residual is the loop-init/constant wall: retail sinks
+   found=0 into the loop's exit edge (test fall-through), CSEs the constant 1
+   from i's init into the sllv base, the bne compare and the found value, and
+   extends (s16)i at both the body head and the bottom test; mwcc b210 keeps
+   found=0 before the loop, rematerializes the 1 inside the body, and merges
+   the loop-head extension into the test. Everything after the found-check
+   (func_0046d200 chain, v[] stack loop, four compare chains with the base
+   re-derived per compare, &= ~1, func_0046d280) is byte-identical. Same
+   loop-init-sinking + constant-LICM floor as recorded; cousin of the
+   load-sinking wall. */
 // FUN_002B7CD0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7cd0);
 
@@ -444,6 +522,22 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7cd0);
    the LHS operand first (sub.s $f1, $f0 order), mwcc keeps the lui in the body and
    loads RHS first (nd 12 in the loop alone, same floor family as func_002b9e10's
    operand-order note). Else-duplication + loop-operand-order floor. */
+/* measured: recipe A (s32 v = lbu load, u32 c copy, (f32)(s32)((c >> 1) | (c & 1)),
+   f = f + f doubling, direct-path-first if (v >= 0)) DOES fix the old bltz
+   duplication - mwcc now emits retail's single bare bltz, direct path inline,
+   trick out of line, byte-identical conversion (nd 111-129 before, 0 here).
+   Residual is the loop triple-wall: (1) retail re-sign-extends (s16)i at the
+   body head (dsll32/dsra32 before the sll) while mwcc b210 folds that extension
+   into the bottom test (2 words/iter x4); (2) retail hoists the D_008872F8 lui
+   alone into the preheader and reloads lwc1 %lo per iteration, mwcc either
+   rematerializes lui+addiu in the body (nd 59 best) or, with a typed f32 *dv
+   local, hoists the full address into $s1 growing the frame (nd 59), or, with
+   opt_loop_invariants on, hoists the whole lwc1 out of the loop (nd 106);
+   (3) sub.s operand order: retail loads the D LHS first, mwcc loads the RHS
+   (p+0x18) first - also survives (0.0f - x) + D reassociation (nd 108).
+   lb for the 0x124 check needs the (s8) cast (lbu otherwise). Tail after the
+   loop is byte-identical once aligned. Loop walls, s16-index-extension +
+   operand-order family, same as func_002b6590/002b9ab0/002b9e10 notes. */
 // FUN_002B7F20
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7f20);
 
@@ -553,24 +647,56 @@ void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
     *(s16 *)(arg0 + 0x0) |= 0x200;
 }
 
+/* measured: all four branches (sp0/sp8 combos) fully decompiled - every store
+   matches retail's semantics (0x88-0x9C 1.0f/fGpffff8504 pattern, the 2970 f2
+   result copied to 0x18/0x28 vs p2 to 0x20, the u4 a2/a3 copies at 0x6D-0x77,
+   the 0x7E arg6/2 sra pattern, the swapped 0x94/0x98 order and swapped
+   0x18/0x20 placement in the sp0!=0 branches, fparg1 to +4, |= 1 tail). The
+   block is mwcc b210's stack layout: retail allocates the per-branch f2/u4
+   locals (p2/t/out/a3/a2) at FRESH slots per branch (out@B8/B0/A8/A0, t@98/
+   88/70/60, p2@90/80/78/68, a3@D8/D0/C8/C0, a2@DC/D4/CC/C4 - the whole
+   0x60-0xDF band, frame 0xE0), while mwcc liveness-merges the mutually
+   exclusive branch slots into one 0x60-0x7F band (frame 0xD0, nd 327 across
+   function-level and block-scoped local spellings, with and without hoisted
+   x6/x7 s16 extensions - retail's arg6/arg7 extensions are hoisted temps
+   used only at 0x82/0xA0). No source spelling forces fresh per-branch slots. */
 // FUN_002B83E0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b83e0);
 
+/* measured: complete six-chain state machine decompiled (0x2/0x80/0x4/0x200/
+   0x10/8 flag dispatches, recipe-A byte conversions at 0x5C-0x77 - single bare
+   bltz, direct inline, doubled arm out of line, byte-exact - the (u8)(s32)tf
+   clamp, the 5-arg func_002b2aa0/2cb0/2d00 calls, the 0x100 special). The
+   prologue through the first 2aa0 call is byte-identical; nd 907 from there
+   (obj 3924B vs window 4368B, 111 instructions short). Residuals: (1) the
+   2aa0 argument-materialization order - retail computes the 0x32 cvt ($f14)
+   BEFORE the 0x30/2 sra chain ($f15), mwcc b210 always emits the long /2
+   chain first (same wall as func_002b6340's note); (2) my tf = f intermediate
+   for the conversion result adds mov.s where retail's $f12/$f13 flow directly
+   (m2c's var_f12/var_f13 are single assignments); (3) the size deficit
+   propagates through every branch's scheduling. Not reachable in the four-
+   attempt budget; arg-order + scheduling floor. */
 // FUN_002B89A0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b89a0);
 
-/* measured: retail keeps the loop's (s16)i sign-extend at the loop head (separate
-   from the bottom test's extension), hoists the D_008872F8 lui into the preheader,
-   and loads the sub's LHS operand first (lwc1 D before lwc1 0x108); mwcc b210 merges
-   the loop-head extension into the test, keeps the lui in the body, and loads the
-   RHS first (nd 133-140 across inline (s32)i, an ix statement, a per-iteration
-   dv = D_008872F8[0] local, and cast-free u32 byte checks - the cast-free form does
-   fix the byte-conversion if/else duplication from nd 275 to the standard single
-   bltz shape). Same three walls as func_002b6590/func_002b74f0/func_002b7f20. */
 // FUN_002B9AB0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9ab0);
 
 
+/* measured: four attempts, best nd 7 with only 6 real words - everything but
+   the first float-compare chain is byte-identical (declarations q,p,i,r,e
+   give retail's $s0..$s3 colors; the spawn's q recompute needs the inline
+   p + i * 0x220 spelling or mwcc reuses the loop-head q, nd 58). The residual:
+   retail loads lwc1 $f0, 0x194(q) then lwc1 $f1, fGpffff8504, c.ole.s
+   $f0,$f1, bc1t, and reuses $f0/$f1 for the 0x1A0 compare (lwc1 $f0, 0x1A0
+   after the branch - no speculative load). mwcc b210, with a/b member locals,
+   speculatively hoists the 0x1A0 load ABOVE the first compare and colors it
+   $f2 (c.ole.s $f2,$f1); with the members inline it loads fGpffff8504 first
+   (RHS-first). Both spellings nd 7. Likely fix (untried, budget): hoist only
+   a = *(f32 *)(q + 0x194) into a local and keep the 0x1A0 compare inline -
+   the a-statement should pull the 0x194 load above the global load while the
+   inline 0x1A0 load stays after the first branch. c.ole/bc1t need the
+   !(member <= global) form, NOT the >= flip (that gives c.olt + bc1f). */
 // FUN_002B9E10
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9e10);
 
