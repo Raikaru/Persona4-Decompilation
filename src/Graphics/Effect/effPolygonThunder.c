@@ -71,6 +71,13 @@ void func_00495620(u8 *arg0)
 }
 
 
+/* measured: VU0-heavy — 63 lqc2/sqc2/vmul/vopmula/vopmsub/vrsqrt/vmulq/vmove
+   instructions interleaved with madd.s/adda.s/mula.s/c1 0x4 FP math. The vector
+   normalize + cross-product + matrix-multiply chains cannot be expressed in C
+   (m2c emits M2C_ERROR for every one); the matched eff* VU0 functions only
+   cover the simple pextlb/pextlh/vitof0 color chain, not this class. Would need
+   ~50 inline-asm blocks with exact register allocation; not feasible in budget.
+   VU0-hard floor. */
 // FUN_004956B0
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_004956b0);
 
@@ -252,6 +259,14 @@ void func_004961f0(u8 *arg0)
 }
 
 
+/* measured: retail hoists the (f32)temp_30 conversion into $f8 and 0x4F000000/
+   0x80000000/1.0f constants plus $f4/$f2/$f1 (f32 of temp_22/16/17) before the
+   inner loop; mwcc b210 re-derives them per iteration and adds a sign-handling
+   branch for (f32)(s32)(0x3C+1), bloating the object to 1860B vs retail 1232B.
+   Quadword color slots (spD0/spC0/spB0) read back via lq+or+sw in retail but
+   mwcc forces lw and/or re-canonicalizes the (s32) truncation. Tried 3 spellings
+   (dsll32/dsrl32 shift pair, (u8) cast, (u64)(u8)), all nd ~398. Same-floor
+   family as func_00495160/func_00497750. */
 // FUN_00496340
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00496340);
 
@@ -278,6 +293,11 @@ void func_00496810(u8 *arg0)
 }
 
 
+/* measured: VU0-heavy — 107 lqc2/sqc2/vmulax/vmadday/vmaddz/vopmula/vopmsub/
+   vrsqrt/vmulq/vmove instructions (quadword color-slot normalizes, cross
+   products, matrix transforms) plus the same pre-loop FP hoist + 0x4F000000
+   overflow guard that floors func_00496340. m2c emits M2C_ERROR for every VU0
+   op; out of C's reach. VU0-hard floor, same family as func_004956b0. */
 // FUN_004968A0
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_004968a0);
 
@@ -438,6 +458,13 @@ void func_004976d0(u8 *arg0)
 }
 
 
+/* measured: structurally identical to func_00496340 (same quadword color slots,
+   same pre-loop hoist of cvt.s.w $f8 / 0x4F000000 / 0x80000000 / 1.0f and the
+   $f4/$f2/$f1 (f32) of temp_22/16/17, same 0x4F000000 overflow guard). mwcc b210
+   re-derives the constants per iteration and adds a sign branch for
+   (f32)(s32)(0x3C+1), exactly the func_00496340 floor (nd ~398 there). The only
+   diff is stride 0xC vs 0x30 and the (var_10&1)||(var_10==0) gate. Same-floor
+   family as func_00495160/func_00496340. */
 // FUN_00497750
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00497750);
 
@@ -464,6 +491,11 @@ void func_00497c50(u8 *arg0)
 }
 
 
+/* measured: VU0-heavy — 189 lqc2/sqc2/vmul/vopmula/vopmsub/vrsqrt/vmulq/vmove/
+   qmtc2/vmulx/vadd/vsub instructions (quadword color-slot normalize chains,
+   tile cross products, matrix transforms) plus the func_00496340 FP-hoist
+   floor. m2c emits M2C_ERROR for every VU0 op; extends beyond C's reach.
+   VU0-hard floor, same family as func_004956b0/func_004968a0. */
 // FUN_00497CE0
 INCLUDE_ASM("asm/nonmatchings/effPolygonThunder", func_00497ce0);
 

@@ -42,6 +42,9 @@ extern void func_00456150(void *handle);
 extern void func_00454bd0(void *handle);
 extern void func_00442428(void *dst, const void *src);
 extern void func_003ef1b0(s32 arg0);
+extern void func_003ef260(s32 arg0, s32 (*arg1)(s32, s32), s32 arg2);
+extern void func_003e6870(void *arg0, void *arg1);
+extern s32 func_00190920(s32 arg0, s32 arg1);
 extern char D_005F63F0[];
 extern char D_005F6430[];
 extern char D_005F6450[];
@@ -97,15 +100,51 @@ s32 func_00191850(u8 *arg0);
 
 
 
+// measured: nd 115 after 4 attempts (best). Spill-slot rule as func_001916a0: the four
+// func_003df3c0 spill slots MUST be `s32 spill[4]`. Switch `case 0x16 / case 0xF0F000E0 /
+// default` compiles the dispatch comparison in the correct order (0xF0F000E0 first, then 0x16)
+// and matches retail exactly. Residual nd 115 is dominated by register allocation: retail keeps
+// sp60/sp64/sp68 (the 0x14-byte func_003e2910 buffer + sp64/sp68) on the STACK at 0x60/0x64/
+// 0x68, but mwcc promotes sp64/sp68 to $s5/$s6 (sp68 folded with `sll $s6,2` / `addu $s0,$s6,$s6`)
+// adding a 5th/6th saved reg, so the whole allocation shifts (retail wants var_16->$s0, arg1/
+// temp_2->$s1, temp_18->$s2, temp_19->$s3, var_20->$s4). Making sp60/sp64/sp68 overlap via a
+// 5-word array (nd 138) or a 3-field struct (nd 141) is worse. Core regs are otherwise right.
 // FUN_00190680
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190680);
 
+// measured: nd 16 after 4 attempts (baseline edit-fndiff, hoisted-local probe, u8*-ptr probe, struct-field probe).
+// Residual is pure argument MATERIALIZATION order: retail emits the first arg (move $a0,$s0)
+// then the second (addiu $a1,$s1,0x10); mwcc b210 always emits the `addiu $s1,0x10` (last arg)
+// first. Call sites: func_003ef650(arg1, arg0+0x10), func_00440b68(str, arg0+0x10). The named
+// "argument order / struct field" recipe (mgr->size) does not apply: the second arg is an
+// ADDIU address computation, not a memory load, so reaching it through a struct field produces
+// a hoisted base local (nd 32+) and the u8* pointer spelling rotates the whole frame (nd 46).
+// Floor appears to be mwcc right-to-left arg scheduling for a computed address operand.
 // FUN_00190920
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190920);
 
+// measured: nd 102 after 5 attempts (best). Same spill-slot rule as func_001916a0: the four
+// func_003df3c0 spill slots MUST be `s32 spill[4]` (else sp74 promotes to a 5th saved reg).
+// Register order that works: declare temp_20,temp_19,temp_18,temp_4,var_17,var_16 (first-declared
+// -> highest saved reg) giving arg1->$s1, arg2->$s5, temp_20->$s4, temp_19->$s3, temp_18->$s2,
+// var_17->$s1, var_16->$s0 -- all matching retail. Residual nd 102 is three floors: (1) the
+// sp88/sp8C stack offset swap (arg0[0x110]->sp88 and [0x118]->sp8C land at 0x8C/0x88 reversed;
+// declaration order does not move it, same as sp68/sp6C in func_001916a0); (2) the case-0x16
+// dispatch: `if (spill[0]==0x16)` emits `bne` skip where retail emits `beq`+`b` (both the switch
+// form and the reversed `!=0x16` form are worse, nd 108/104); (3) the same argument-order floor
+// as func_00190920/func_001916a0 (func_003deff0/func_003e2910/func_003e2ab0 emit the last arg
+// first).
 // FUN_001909F0
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_001909f0);
 
+// measured: not attempted to a measured nd (m2c draft written but the measurement was lost to a
+// file-overwrite accident; reverted to INCLUDE_ASM). Largest function in the file (2480 B).
+// State machine dispatched by a jump table (jtbl_00746EC0) on *(u32*)(*arg0+0x38) with 9 cases
+// (0..8). gp-relative symbols verified: `saved_reg_gp - 0x5FB8/0x5FB4/0x5FB0/0x5FA8/0x5FA0/0x5FC0`
+// = 0x00763138/0x13C/0x140/0x148/0x150/0x130 = &D_00763138/3C/40/48/50/30, and `-0x4C58` = 0x00764498
+// = &D_00764498. Complex: nested loops over 0x254/0xA58 element lists, sceRead/sceWrite file I/O,
+// and the func_00190680/func_001909f0/func_00190c10 cross-call chain. High risk of the same
+// argument-order floor as the other four functions; left for a dedicated pass.
 // FUN_00190C10
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190c10);
 
@@ -137,6 +176,16 @@ s32 func_00191610(void)
                          func_001915c0, mem);
 }
 
+// measured: nd 80 after 7 attempts. Spill-slot fix: the four func_003df3c0 spill slots
+// (sp50/sp54/sp58/sp5C) MUST be a 4-element array `s32 spill[4]` passed as &spill[0] and read
+// as spill[1..3] -- naming them as separate s32 scalars promotes sp54 to a saved reg $s4 and
+// adds a 5th saved reg (nd 92). With the array they stay on the stack at 0x50-0x5C (nd 82).
+// Register order that reproduces retail: arg0[0x110]->sp68, arg0[0x118]->sp6C, arg1->$s1,
+// var_19->$s3, temp_18->$s2, temp_17->$s1, var_16->$s0. Remaining nd 80 is the SAME
+// argument-materialization floor as func_00190920 (mwcc emits the last arg first for calls
+// taking a computed address/lvalue, e.g. func_003deff0(temp_17,spill[0],spill[1],spill[2],
+// spill[3]) and func_003e2910(temp_18,var_16,spill[1])), plus a stubborn sp68/sp6C stack
+// offset swap (declaration order does not move it).
 // FUN_001916A0
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_001916a0);
 

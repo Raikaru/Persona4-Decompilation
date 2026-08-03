@@ -12,6 +12,7 @@ extern f32 func_003e4180(void *a0);
 extern void func_003e40b0(f32 *a, f32 *b);
 extern f32 func_004b7300(void *arg0, s32 arg1);
 extern s32 func_004b7800(void *arg0, s32 arg1);
+extern f32 func_004bc310(u8 *arg0, s32 arg1);
 extern void func_004bb1d0();
 
 /* 12-byte vector copy; mwcc emits all loads then all stores for a struct
@@ -27,12 +28,35 @@ typedef struct {
 // FUN_004B7460
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b7460);
 
+/* measured: quaternion-frame rotation; same family as func_004b7dc0 (which
+   floors at nd 10 on the v5 index register). nd 323: the arg2 switch selects
+   between A x C and B x A cross products and the spC/spB subtraction operands
+   (p1/p2) swap by arg2, plus the trailing madd/madda dot-product fold; the mwcc
+   b210 body does not reproduce the fp register save set or the cross-product
+   load order. Attempted one full m2c adaptation. */
 // FUN_004B7830
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b7830);
 
+/* measured: quaternion-frame vector rotation. Everything matches except the
+   second index v5 lands in $a2 (reusing t's register) where retail reuses the
+   freed v4*0xC register ($a1 in the arg1==n-1 branch, $v1 in the else branch).
+   nd 10, 5 words per branch. Tried declaration orders (v4/v5), v4/v5 reuse,
+   two-statement v5, named -2-arg1 accumulator, swapped addu operand order,
+   hoisted base/offset locals, comparison-form wrap: all compile to the same
+   $a2 reuse. Register-allocation floor in the index wrap. The mula/msub cross
+   products, the struct-assignment batched store, and the else-branch swapped
+   cross product (v2 x v1) all match byte-for-byte. */
 // FUN_004B7DC0
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b7dc0);
 
+/* measured: mesh-building with 4 switch statements and loops. The second
+   switch's case 1/2 loops store 32-bit indices (temp_2_2 = m+1, temp_2_3 = m+2)
+   into 128-bit quadword slots (spD0/spC0/spB0/spA0) via sq/lq and read them back
+   as u16; retail stores the value directly (sq $2,0xD0) but mwcc b210 emits a
+   dsll32/dsrl32 widening pair before each sq -- the documented 32-bit-into-128-bit
+   write floor. 4 such sites per path. Also the call argument order (retail
+   materializes caller offsets before the index args) differs. Quadword-slot
+   floor. */
 // FUN_004B8350
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8350);
 
@@ -69,6 +93,12 @@ void func_004b8f10(void *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x10));
 }
 
+/* measured: 7728B mesh-builder. Retail asm has 63 mula/madda/madd/msub FPU
+   sequences (the same multiply-accumulate family as func_004b7dc0/004b7830,
+   which floor on the v5 index register and fp-save set) plus 21 lq/sq quadword
+   ops and 3 large switch statements. M2C_ERROR in the m2c draft at every FPU
+   sequence; the mula/madda/madd dot-product folds cannot be reproduced in plain
+   C by b210. FPU-accumulate + quadword-slot floor. */
 // FUN_004B8F40
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);
 
@@ -83,21 +113,16 @@ INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);
 // FUN_004BAD70
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bad70);
 
+/* measured: vector-blend across 4 shadow paths (each calls func_004bc1e0 /
+   func_004bc310 / func_004b7830). nd 947 from the start: retail keeps 8 values
+   in fp saved registers f20-f27 (swc1 prologue) and lays the 4 loaded frame
+   weights at sp78/sp70/sp7C/sp74 with an (offset&1)*4 pair selection, while the
+   mwcc b210 body spills them to a different stack layout and rotates the fp
+   register save set. Fundamental stack/fp-save mismatch, not a local residual.
+   Attempted one full m2c adaptation. */
 // FUN_004BB1D0
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
 
-/* measured: everything matches except block 2's instruction order: retail
-   emits the var_3*0xC multiply chain first, then the arg2*4+arg0 address;
-   mwcc b210 always hoists the load-address computation (sll+addu) above the
-   multiply chain, whatever the spelling, and also emits the first v[i]-=p[i]
-   with the accumulator load before the source load (retail: source first).
-   nd 11. Tried 30+ spellings: inline vs s32-step local, off/off2 offset
-   locals, signed vs unsigned mult (arg2*4U + (u32)arg0 defeats the addu CSE
-   and fixed the operand order), (s32*)base+4 element arithmetic, shift vs
-   mul, addend reorders, statement reorders, #pragma schedule on (worse),
-   temp-per-component subtracts. Block 1 matches byte-for-byte with the off
-   local + (s32)arg0 cast; block 2's residual is a fixed address-hoisting
-   schedule, same family as the load-sinking floor. */
 // FUN_004BC1E0
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bc1e0);
 
