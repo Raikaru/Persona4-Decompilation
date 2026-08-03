@@ -560,6 +560,18 @@ void func_001dc960(u64 formation, u32 flags) {
    byte-identical with the (u16)i + while((count=load)>i)... spelling
    (attempt 1; swapped compare order regressed to nd 8). Load-sinking floor,
    same family as FUN_001DCA60. */
+/* measured: re-verified this wave with four spellings; best is nd 10 (i as
+   u16, while ((count = load) > i), pointer e = p + i*4 in the body). The
+   residual is four independent codegen gaps vs retail: (1) the loop-test
+   load order — retail lhu 0xd0 FIRST then andi (lhu $v1,0xd0($s0); andi
+   $v0,$a0,0xffff; slt $v0,$v0,$v1; bnez $v0), mwcc b210 always emits the
+   mask first (andi $v1; lhu $v0; slt $at) and keeps count in $v0 instead of
+   $v1 (sh $v0 vs sh $v1); (2) the loop-body mask is in-place (andi $a0,$a0)
+   vs retail's scratch (andi $v0,$a0; sll $v0,$v0,2); (3) the else-path
+   addu is base-first (addu $v0,$s0,$v0) vs retail index-first; (4) s32-i /
+   (u16)i / (i&0xFFFF) / m2c-exact spellings regress to nd 26-34 via mask
+   CSE. s32 count vs u16 count changes nothing. Load-sinking + mask-CSE +
+   addu-order floors, same family as FUN_001DCA60/FUN_001DCF10. */
 // FUN_001DC9A0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc9a0);
 /* measured: same 2-word loop-body mask floor as FUN_001DCF10/FUN_001DC9A0 —
@@ -567,6 +579,17 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dc9a0);
    sll $v0,$v0,2), mwcc b210 masks in place (andi $a0,$a0,0xffff; sll $v0,$a0,2);
    everything else in the function is byte-identical (nd 5 = those 2 words +
    reloc accounting). Tried (u32)/(s32)/explicit-mask index spellings: nd >= 5. */
+/* measured: re-verified this wave; best spelling is the u16-i body at nd 10
+   (i u16, while ((count = load) > i), pointer e = p + i*4). The residual is
+   the same four gaps as FUN_001DC9A0: (1) loop-body mask in-place
+   (andi $a0,$a0; sll $v0,$a0,2) vs retail scratch (andi $v0,$a0; sll
+   $v0,$v0,2); (2) loop-test order — retail lhu 0xd0 first (lhu $v1; andi
+   $v0; slt $v0,$v0,$v1), mwcc emits mask first and slt into $at; (3) the
+   post-loop sh uses $v0 instead of $v1; (4) s32-i/(u16)i/(i&0xFFFF)
+   spellings cascade the mask CSE to nd 42. Everything else (calls, else
+   path, epilogue) is byte-identical. Load-sinking + mask-CSE floor, same
+   family as FUN_001DC9A0/FUN_001DCF10; earlier nd 5 note not reproducible
+   this wave. */
 // FUN_001DCA60
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dca60);
 
@@ -889,6 +912,17 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dea90);
    shift of the else block. Hoisting c into a local made mwcc hoist the loads
    ABOVE the a2 test instead (nd 10 head). Everything else matches: d declared
    before t ($20/$19), buf[32], the case 0/1 switch, iGpffffb444 + x*21 chain. */
+/* measured: re-verified this wave; the body is byte-identical EXCEPT one
+   word: the func_00442088 4th-arg c load position. Retail: lbu $v0,0x10($v0)
+   right after the a2 test (then move $a3,$v0 with the other args); mwcc b210
+   sinks the lbu into $a3 at the call site under every spelling (inline
+   expression, block-scoped u8 c local, function-top local which instead
+   hoists it ABOVE the bnez) — the missing move shifts the whole else block
+   by 4 bytes, which inflates the raw reloc-masked count (74) with shift
+   shadow; the note's nd 10 was the same residual counted without the shift.
+   Also measured: the earlier note's "d declared before t" is wrong — mwcc
+   assigns saved registers in REVERSE declaration order, so t must be
+   declared BEFORE d to get retail's d=$19/t=$20. Load-sinking floor. */
 // FUN_001DEBB0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001debb0);
 /* measured: three 1-2 word scheduler residuals. (1) case 1's chain: retail
@@ -899,8 +933,23 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001debb0);
    moves instead of moves-then-lhu. Tried chain-first/global-first spellings and
    a g = iGpffffb3d0 local inside the case — all identical 16. Load-sinking +
    $v0/$v1-coloring floor. */
+/* measured: re-verified this wave; best body nd 11 (recorded nd 10 / old note
+   16). Three earlier residuals are now FIXED: (1) saved-register rotation —
+   mwcc assigns saved regs in REVERSE declaration order, so declaring
+   [node, v2, v1, a4] gives retail's a4=$16/v1=$17/v2=$18; (2) the v2 > 0
+   test mask and func_001de640's move-then-lhu args now match; (3) the
+   andi $a1,$v0,0xffff vs 0xff fold — a nested `extern u32 func_001de800();`
+   declaration at the call site obscures the u8 return range so the explicit
+   & 0xFFFF no longer folds to 0xff. The one remaining real word: case 1's
+   chain loads iGpffffb3d0 AFTER the a4*164 chain (lw $v0,($gp) last, addu
+   $v0,$v1,$v0) while retail loads the base FIRST (lw $a0,-0x4c30($gp);
+   chain; addu $v0,$v0,$a0). The off-local s32 spelling fixes the addu
+   orientation but mwcc b210 still sinks the base load to its use; a
+   g = iGpffffb3d0 local first does not move it. Load-sinking floor (same
+   as FUN_001DEBB0's 42088 arg). */
 // FUN_001DED30
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001ded30);
+
 // FUN_001DEEE0
 u32 func_001deee0(int param_1)
 {
@@ -1897,14 +1946,15 @@ s32 func_001e2030(void) {
    e*3 table call) all compile correctly when f is the only difference. */
 // FUN_001E20D0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e20d0);
-/* measured: the branchy shift set CAN be reproduced with the goto form under
-   #pragma opt_rebuildconditionals off (this overturns the fold-floor note on
-   FUN_001E20D0); the only remaining residual is 1 word: retail's x=0 path
-   jumps to the call-path tail jump (b 0x1e22b4; 0x1e22b4: b 0x1e22c0) while
-   mwcc b210 peepholes the branch-to-branch and jumps straight to 0x1e22c0.
-   Tried if/else, goto-out, explicit goto done / label materialization — all
-   collapse; nd 4 = that 1 word + 3 reloc words. Branch-to-branch sharing
-   floor. */
+/* measured: re-verified this wave — the goto-form body compiles the whole
+   function byte-identically except the inner-else branch: retail b 0x1e22b4
+   (branch-to-branch through the outer tail jump) vs mwcc b210 b 0x1e22c0
+   (threaded straight to the join). Tried this wave: double-goto both-paths
+   into the merge label (nd 4), explicit goto out2 closing the r!=0 block
+   (nd 4), label inside the block (nd 4), #pragma opt_propagation off
+   (nd 62), opt_common_subs off (nd 4), schedule off (nd 4). Still nd 4 =
+   1 word + 3 reloc words; same wall as the previous wave. Branch-to-branch
+   sharing floor (corroborated in mdlManager/datCalc). */
 // FUN_001E21E0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e21e0);
 
@@ -1914,6 +1964,10 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e21e0);
    b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
    same wall as FUN_001E21E0; switch(cond) dispatch form re-lays-out the
    whole tail (nd 30) so if/else is the closer shape. */
+/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
+   shift set + pragma off); the sole residual is again the threaded branch:
+   retail b 0x1e23c4 (branch-to-branch) vs mwcc b210 b 0x1e23d0. nd 4 = 1
+   word + 3 reloc words. Branch-to-branch sharing floor. */
 // FUN_001E22F0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e22f0);
 
@@ -2075,6 +2129,11 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2c10);
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
    b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
    same wall as FUN_001E21E0. */
+/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
+   shift set + pragma off, const 0x17000000); sole residual is the threaded
+   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
+   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
+   sharing floor, same as FUN_001E21E0. */
 // FUN_001E2D20
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2d20);
 
@@ -2083,6 +2142,11 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2d20);
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
    b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
    same wall as FUN_001E21E0. */
+/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
+   shift set + pragma off, const 0x18000000); sole residual is the threaded
+   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
+   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
+   sharing floor, same as FUN_001E21E0. */
 // FUN_001E2E30
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2e30);
 
@@ -2091,6 +2155,11 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2e30);
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
    b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
    same wall as FUN_001E21E0. */
+/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
+   shift set + pragma off, const 0x19000000); sole residual is the threaded
+   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
+   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
+   sharing floor, same as FUN_001E21E0. */
 // FUN_001E2F40
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2f40);
 
@@ -2099,6 +2168,11 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2f40);
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
    b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
    same wall as FUN_001E21E0. */
+/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
+   shift set + pragma off, const 0x22000000); sole residual is the threaded
+   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
+   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
+   sharing floor, same as FUN_001E21E0. */
 // FUN_001E3050
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3050);
 
@@ -2107,6 +2181,11 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3050);
    x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
    b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
    same wall as FUN_001E21E0. */
+/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
+   shift set + pragma off, const 0x25000000); sole residual is the threaded
+   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
+   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
+   sharing floor, same as FUN_001E21E0. */
 // FUN_001E3160
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e3160);
 

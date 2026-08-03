@@ -1381,19 +1381,26 @@ void func_0011e370(u8 *);
    addiu/mtc1/cvt.s.w materialisation of (f32)0x303 in the then-branch
    (cvt -> $f1, load -> $f0); mwcc b210 always emits the field load first and
    swaps the two FP temps (cvt -> $f0, load -> $f1), nd 6, all the same six
-   words. Tried: operand order both ways, cvt hoisted to a local, 0x303 as an
-   int local — identical. Load-scheduling floor. */
+   words at offsets 188-208. Tried: operand order both ways, cvt hoisted to a
+   local, 0x303 as an int local, static-inline faddF32 helper, and the Vec2f
+   struct shape (b,a declared b-first; all other 186 bytes byte-identical) —
+   identical. Load-scheduling floor. */
 // FUN_0011BDC0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bdc0);
 
 
 
 /* measured: retail materialises (f32)0x303 (addiu/mtc1/cvt.s.w into $f1) BEFORE
-   the lwc1 field load for sp20, and the (f32)(s32) round-trip casts m2c showed
-   for sp24/sp28/sp2C are hallucinated (plain float adds in retail); mwcc b210
-   emits the field load first and swaps the FP temps (nd 10+, obj over window).
-   Same load-order floor as func_0011bdc0. The 0xFF byte store needs a u8-typed
-   store or mwcc materialises -1. */
+   the lwc1 field load for sp20 (offsets 292-312); mwcc b210 emits the field
+   load first and swaps the FP temps — nd 7 (the same six words as
+   func_0011bdc0 plus one missing tail padding word). Same load-order floor as
+   func_0011bdc0, corroborated there across 6 spellings. The (f32)(s32)
+   round-trip casts m2c showed are hallucinated (plain float adds in retail).
+   Working recipe for the rest of the body (all other 614 bytes byte-identical):
+   Vec2f b,a declared b-first (slots 0x28/0x20); mask chain via distinct temps
+   t1..t5 (a single reassigned local makes mwcc fold the masks); switch cases
+   declared 0,1,3,2,4 to get retail's 4,2,3,1,0 test order; u8-typed 0xFF
+   stores (s8 materialises -1). */
 // FUN_0011BF10
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bf10);
 
@@ -2059,14 +2066,33 @@ s32 func_0011dec0(u8 *arg0)
 
 
 
-/* measured: retail materialises the D_005E4ED0 address (lui+addiu $a0) BEFORE the
-   addiu $a1, $v0, 0x10 at the func_00440b68 call; mwcc b210 always emits the
-   computed operand first and the constant global address last (nd 3, the three
-   swapped words). Tried: hoisting arg1 to a local, hoisting the address to a
-   char* local, inverting the if/else (nd 5) — constant-vs-computed argument
-   materialisation order floor per operand-order skill. */
 // FUN_0011DED0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ded0);
+s32 func_0011ded0(u8 *arg0)
+{
+    u8 *w;
+    s32 out;
+    s32 p4c;
+    s32 r;
+
+    w = *(u8 **)(arg0 + 0x38);
+    r = func_004669d0(*(s32 *)w, &out, 0);
+    if (out != 0) {
+        p4c = *(s32 *)(w + 4);
+        if (p4c != 0) {
+            func_00440b68((s32)D_005E4ED0, (s32)(p4c + 0x10));
+        } else {
+            func_00440b68((s32)D_005E4EF0);
+        }
+        if (r != 0) {
+            func_003ef3a0(r);
+        }
+        if (*(s32 *)(w + 4) != 0) {
+            func_00454bd0(*(s32 *)(w + 4));
+        }
+        return -1;
+    }
+    return 0;
+}
 
 // FUN_0011DF90
 void func_0011df90(u8 *arg0)
@@ -2078,18 +2104,32 @@ void func_0011df90(u8 *arg0)
 
 
 
-/* measured: retail materialises the D_005E4F10 address (lui+addiu $a0) BEFORE the
-   addiu $a1, $s0, 0x10 at the func_00440b68 call; mwcc b210 always emits the
-   computed operand first and the constant global address last (nd 5, three
-   swapped words plus their reloc pair). Tried: hoisting the address to a char*
-   local (nd 58), hoisting arg1+0x10 to a local (nd 61) — constant-vs-computed
-   argument materialisation order floor, same family as func_0011ded0. */
 // FUN_0011DFC0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dfc0);
+s32 func_0011dfc0(s32 arg0, s32 arg1, char *arg2)
+{
+    s32 r;
+    u8 *buf;
+
+    func_0044ea90(D_005E4868, 0x11B2);
+    buf = D_008873F4[0](1, 8, 0x40000);
+    if (buf == NULL) {
+        return 0;
+    }
+    r = func_00451de0(arg2, 0xF, 0, 0, func_0011ded0, func_0011df90, buf);
+    if (r == 0) {
+        return 0;
+    }
+    if (arg1 != 0) {
+        func_00440b68((s32)D_005E4F10, (s32)(arg1 + 0x10));
+    }
+    *(s32 *)buf = arg0;
+    *(s32 *)(buf + 4) = arg1;
+    return r;
+}
 
 
 
-void func_0011ded0(u8 *arg0);
+s32 func_0011ded0(u8 *arg0);
 // FUN_0011E0C0
 void func_0011e0c0(u8 *arg0, s32 arg1, s32 arg2)
 {

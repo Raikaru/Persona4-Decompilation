@@ -214,7 +214,27 @@ DATA_REACHABLE_ENTRIES = {
     0x001CA580: {"pointer": 0x005F75B4},  # follows a 001CA550 pointer at 005F75B0
     0x0047F840: {"pointer": 0x0071324C},  # 12-byte {fn,0,0} records; prior holds 0047F830
     0x005072D0: {"pointer": 0x0075DDA8},  # {0,2,7FFFFFFF,fn,...} record, appears twice
+    # `jr $ra; nop` at the head of a function-pointer table's callback slots:
+    # 00635950 holds 00244100, and the next two slots hold 00244110 and 00244540,
+    # both already canonical functions. Folding it left func_00243fa0 with a 368B
+    # window against a 352B body, so that function could never leave
+    # SIZE_MISMATCH; splitting it makes both match.
+    0x00244100: {"pointer": 0x00635950},
 }
+
+# Source markers that deliberately have NO canonical boundary. Ghidra split one
+# retail code region into two "functions" at a branch target: `func_00272b00`'s
+# entry `beq` jumps to `func_00272b34`, whose entry `bne` branches back into
+# `00272b00`'s body, and `func_00272ba0`/`00272bd4` are the same shape. Neither
+# second half is ever called, and the P3FES donor keeps the identical pairs as
+# assembly (FUN_003b0dd8/FUN_003b0e04). The markers must stay so the assembly has
+# an owner, but the control-flow scan is right not to call them entry points.
+#
+# Without this allowlist the reconciler exits 1 *before* writing
+# slus21782_functions.json, which meant the canonical map could not be
+# regenerated at all -- and that blocked splitting the 0x00244100 nullsub above.
+GHIDRA_FALSE_SPLITS = {0x00272B00, 0x00272BA0}
+
 
 
 CURATED_NAMES = REPO / "config" / "symbol_names.txt"
@@ -308,7 +328,7 @@ def main() -> int:
         for address, entries in markers.items()
         if any(marker["name"] is None for _path, marker in entries)
     }
-    source_only = set(markers) - canonical
+    source_only = set(markers) - canonical - GHIDRA_FALSE_SPLITS
 
     print(f"canonical boundaries: {len(canonical)}")
     print(f"unique C source markers: {len(markers)}")

@@ -100,18 +100,20 @@ extern f32 func_004bd0b0(u32 param);
 extern f32 func_0044b610(f32 param);
 extern f32 fGpffff80f4;
 extern f32 fGpffff80cc;
-
-/* measured: re-measured this wave at nd 12 (6 rows, one block). Rule 2
-   applied: the f23 update is written `0.5f * t1 + fGpffff80cc * t20` (the
-   ACC-seeded product first) and the chain madds use retail's fs/ft order,
-   so the chain-1/2 and 4th/5th madd sites now match byte-for-byte, and the
-   reverse declaration order (t23..t1) fixed the f20-f23 mapping. Residual:
-   for `t21 = t21 + fcc*t20; t23 = 0.5f*t1 + fcc*t20;` mwcc b210 CSEs
-   fcc*t20 and seeds the ACC with the CSE'd value (adda.s 0+prod, then
-   madd.s with 0.5f*t1), while retail mula-seeds 0.5f*t1 first and
-   re-derives fcc*t20 in the madd; also the chain-2 sub-chain result lands
-   in $f1/$f3 instead of retail's $f2/$f1. Both statement orders tried.
-   FMA-CSE fusion floor. */
+/* measured: re-measured this wave at nd 12 (6 rows, one block) with a full
+   candidate rebuilt from the m2c (int literals 810/650 -> addiu+mtc1+cvt,
+   reverse decl order t23..t1, chains written `t21 + (810 - t20 - t21) *
+   rand` with the product as the madd's fs operand). Chain 1, chain 2's
+   adda/madd, the 4th/5th madd sites and all stores match byte-for-byte.
+   Residual is exactly two coupled facts: (1) mwcc b210 CSEs fGpffff80cc*t20
+   across the `t21 = t21 + fcc*t20; t23 = 0.5f*t1 + fcc*t20;` pair - it
+   emits mul.s(prod); adda.s 0+prod; madd.s(0.5f,t1); add.s, where retail
+   mula-seeds 0.5f*t1 first, then mul.s(prod), add.s, madd.s(fcc,t20)
+   re-deriving the product; (2) the chain-2 sub-chain temps swap ($f1/$f2
+   vs retail $f2/$f1) as a knock-on of the CSE block's $f1 use. New
+   spellings this wave: f32 prod local (2 placements, nd 108-111), (f32)
+   cast on one product (folds, nd 12), &fGpffff80cc deref (nd 46). Both
+   statement orders tried. FMA-CSE fusion floor. */
 // FUN_004A8DA0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
 
@@ -353,15 +355,17 @@ typedef struct BlurGsQuad {
     u8 pad3[0x38];
 } BlurGsQuad;
 
-/* measured: retail materialises `addiu $a0,1` before `lw $a1,($s0)` for the
-   first D_00887300 vtable call; mwcc b210 hoists the register-indirect load
-   first (global-load args order fine), nd 3 (2 rows). Direct D_00887300[0]()
-   spelling loses the $s1 address hoist (frame -0x10); cached setState pointer
-   keeps the hoist but keeps the load-first order. Argument-evaluation-order
-   floor. */
+/* measured: re-measured this wave at nd 3 (2 rows). The func_004aa460
+   idiom (`void *setState = (void *)D_00887300;` + per-call
+   `(*(void (**)(u32,u32))setState)(...)`) keeps the $s1 base hoist AND
+   fixes the global-load call `(1, D_00922D90[0])` (the u32 integer-cast
+   and typed `void (**)` spellings both leave that call load-first, nd 6).
+   Residual is only the first call `(1, *temp_16)`: retail `addiu $a0,1`
+   before `lw $a1,($s0)`, mwcc b210 always emits the register-indirect load
+   first. Pre-loaded v1 local, all base spellings — identical 2 rows.
+   Literal-vs-load arg-order floor (same family as bpc 00245420, ab060). */
 // FUN_004A98D0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a98d0);
-
 // FUN_004A9AA0
 u8 *func_004a9aa0(u8 *arg0) {
     s32 i;
@@ -1104,17 +1108,27 @@ INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aad30);
    Saved-register rotation floor. */
 // FUN_004AAEE0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aaee0);
-/* measured: same arg-materialisation floor as func_004ab5a0: retail emits
-   `daddu $a0,$v0` before `lhu $a1,0x1c($s1)` before the jal func_004ab960;
-   mwcc b210 emits the load first, nd 4 (2 rows). Same spellings tried,
-   identical result. */
+/* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
+   body (separate obj/obj2 locals; rest of function byte-identical). The
+   only residual is the pre-jal arg-materialisation order: retail emits
+   `daddu $a0,$v0` (bare local) before `lhu $a1,0x1c($s1)` (load); mwcc
+   b210 always emits the load first — its complexity rule materialises
+   loaded/computed args early, bare locals late. Tried 8 prior spellings
+   plus this wave: load hoisted into a local pre-call, load before the
+   if-block (nd 24), obj2-first declaration order, s32 obj2 + cast,
+   nested-if, #pragma schedule on (nd 46) — all nd 4. Same shape as the
+   documented bpc 00245420 floor (retail move-before-load). */
 // FUN_004AB060
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab060);
 
-/* measured: same arg-materialisation floor as func_004ab060: retail emits
-   `daddu $a0,$v0` before `lhu $a1,0x1c($s1)` before the jal func_004ab960;
-   mwcc b210 emits the load first, nd 4 (2 rows). Same 8 source spellings
-   tried, identical result. */
+/* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
+   body — identical residual to func_004ab060 (same pre-jal
+   arg-materialisation order: retail `daddu $a0,$v0` before
+   `lhu $a1,0x1c($s1)`, mwcc b210 always emits the load first). New
+   spellings this wave: (u16*)(u32) cast on arg0, static-inline identity
+   helper around arg0 (file-scope, nd 4), helper around the load (compile
+   error in-region) — all nd 4. 11 spellings total across both siblings.
+   Complexity-ranking floor, same shape as bpc 00245420. */
 // FUN_004AB5A0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab5a0);
 
@@ -1199,13 +1213,21 @@ void func_004ab410(void *param_1, f32 param_2) {
     *(f32 *)((char *)param_1 + 0x14) = param_2;
 }
 
-/* measured: identical constant-hoist floor to func_004aaee0: retail hoists
-   0x60 into $s1 for the data addu and re-masks arg0 with a fresh andi; mwcc
-   hoists 0xFFFF instead, nd 6 (3 rows). Same spellings tried, identical
-   result. */
+/* measured: re-measured this wave at nd 6 (3 rows) — matches the recorded
+   floor exactly with a new best spelling. Two new insights got here from
+   nd 32: (1) writing the assert as `(u32)size + 0x60 >= 0x200U` (u32 add)
+   stops mwcc CSE-ing size+0x60 into a saved register across the two jals
+   (the CSE shifted the whole allocation); (2) declaring alloc BEFORE size
+   fixes the s2/s3 swap. Residual is one constant-cache choice: retail
+   hoists 0x60 into $s1 (used once as `addu $a0,$s3,$s1` at the data site,
+   immediates at the other 3 sites), mwcc b210 hoists 0xFFFF instead and
+   emits `and $v1,$s5,$s1` at the second mask (retail `andi $v1,$s5,0xffff`)
+   plus `addiu $a0,$s3,0x60` at the data site. Tried: u16/s32/u32 arg0,
+   `s32 off = 0x60` variable (4-site and 2-site, both nd 89 — register
+   pressure), modulo mask, decl orders — identical 3 rows. Constant-cache
+   floor, same family as func_004aaee0. */
 // FUN_004AB420
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab420);
-
 // FUN_004AB680
 void func_004ab680(void *param_1) {
     if (*(void **)((char *)param_1 + 0x20) != 0) {

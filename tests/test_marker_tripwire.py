@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """4863 tracked markers across first-party src/.  Bump deliberately.
+        """4864 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -58,11 +58,20 @@ class MarkerCountTripwireTests(unittest.TestCase):
         the scanner never saw it and func_00166600 was invisible to the
         verifier. Splitting it onto its own line exposes a function that was
         always there; nothing was added.
+
+        Raised to 4864 when the `jr $ra; nop` nullsub at 0x00244100 was given its
+        own marker. It is a real function -- 0x00635950 holds its address and the
+        next two slots of that table hold 0x00244110 and 0x00244540, both already
+        canonical -- and folding it into func_00243fa0's window left that function
+        with a 368-byte window against a 352-byte body, so it could never leave
+        SIZE_MISMATCH. Marking it shrinks the window and BOTH functions match.
+        This is the one case in the campaign where the count grew because a
+        function was genuinely added rather than uncovered.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            4863,
+            4864,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

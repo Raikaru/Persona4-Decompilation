@@ -207,12 +207,13 @@ s64 func_002adcf0(u8 arg0) {
 
 
 
-/* Floor: call-argument setup order before JAL — mwcc hoists the
- * input-derived addiu $a1 ahead of the constant addiu $a0; retail
- * materializes $a0 first. Tried temp vars, arg typing, order swaps. */
-/* measured: retail materialises the constant first argument before computing the second;
-   mwcc b210 evaluates the arithmetic argument first. Caching the function pointer in a
-   local does not change the order (nd 4 either way). Argument-scheduling floor. */
+/* measured: re-tested wave 4 (nd 4, unchanged) — call 1 arg setup is the
+   only diff: retail materialises addiu $a0,$0,0xE before the addiu
+   $a1,$a1,0xB4; mwcc b210 emits the arithmetic arg first (call 2 (0xE,0)
+   already matches). Tried old-style () fn-ptr local, dual s32 temps,
+   s32 arg1 typing, cached fn-ptr — all nd 4. Matched sibling
+   func_002add60 emits const-first because its 2nd arg is a load.
+   Argument-scheduling floor. */
 // FUN_002ADD10
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002add10);
 
@@ -493,26 +494,31 @@ int func_002B1210(RwV3d param_1)
 
 #pragma pop
 
-/* measured: named locals for the product operands fix the msub orientation
-   (retail msub.s $f0,$f3,$f2 now reproduced) and the post-jal schedule
-   (mtc1 $v0/nop/cvt.s.w before the 1200.0f lui/mtc1, 2 nops) — best nd 1:
-   the single real diff is mul.s $f1,$f0,$f2 (value in fs) vs retail's
-   mul.s $f1,$f2,$f0 (const in fs). The const-first spelling g=k*f reverts
-   to the 1-nop-short hoisted schedule (nd 27); the self-referential
-   f=f*1200.0f form gives retail's schedule but allocates const $f4/result
-   $f2 vs retail const $f2/result $f1 (nd 10). One-word mwcc mul fs/ft
-   canonicalization floor. */
+/* measured: re-tested wave 4 (nd 11, was recorded nd 1). The lwc1-copy
+   shape is the u8 buf[0xC] + `v2 = *(YVec3f *)buf` spelling (local-to-local
+   struct copies compile to ld/sd, pointer/buf-source copies to lwc1 x3);
+   with that copy the mul.s $f1,$f2,$f0 (const-in-fs) MATCHES retail — the
+   old note's "mul canonicalization floor" is wrong. The residual is the
+   p-load: retail lwc1 0x40($sp) sits after sub.s $f1,$f1,$f0, mwcc b210
+   hoists it into the post-cvt nop slot (obj 188B vs window 192B), which
+   also rotates the two subs (sub.s $f0,$f1,$f0 / sub.s $f3,$f3,$f0 vs
+   retail $f1/$f0). Tried 6 orderings (q-before-p, k-split, x-local,
+   reversed decls, buf-indexed read, computed ptr) — all nd 11-38.
+   Load-hoist/schedule floor. */
 // FUN_002B1260
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1260);
 
-/* measured: same as func_002b1260 — named product-operand locals fix the
-   msub orientation and the post-jal schedule; best nd 1, the single real
-   diff being mul.s $f1,$f0,$f2 vs retail's $f1,$f2,$f0 (const-in-fs), and
-   the const-first spelling reverts to the 1-nop-short schedule (nd 27).
-   One-word mwcc mul fs/ft canonicalization floor. */
+/* measured: re-tested wave 4 (nd 11, was recorded nd 1) — same result as
+   func_002b1260: u8 buf[0xC] + `v2 = *(YVec3f *)buf` reproduces the lwc1
+   copy and the mul.s $f1,$f2,$f0 (const-in-fs) matches retail; the residual
+   is mwcc b210 hoisting the p-load (lwc1 0x48($sp)) into the FP-latency
+   nop (obj 188B vs window 192B) with the two sub.s registers rotated
+   ($f0/$f3 vs retail $f1/$f0). Self-referential t = t*1200.0f sinks the
+   load to mid-chain but flips const to $f4/result $f2 (nd 10); const-first
+   and named-m variants stay nd 11. Load-hoist/schedule floor, same as
+   func_002b1260. */
 // FUN_002B1320
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1320);
-
 // FUN_002B13E0
 f32 func_002b13e0(YVec3f *arg0, f32 arg1) {
     YVec3f v1, v2;
@@ -596,15 +602,18 @@ void func_002b2500(void) {
     ((void (**)(s32, s32))fp)[0](1, 0);
 }
 
-/* measured: retail hoists the `lui %hi(D_008872F8)` global-address into the loop
-   preheader and allocates $a2/$a1/$v1 for counter/q/byte; mwcc b210 keeps the
-   lui inside the loop body and shifts every loop register down by one
-   ($a1/$a0/$v0), with the sub.s operand registers (f0/f1) swapped to match —
-   48 reloc-masked differing words. Tried: u8/u32/s32/s8 byte locals, `(s32)b>=
-   0` vs bare `>=0` compares, named-temp `t+t` vs `2.0f*` doubling, g-temp and
-   v-temp statement orderings for the subtract, inline-address stores, `s32 off`
-   addu lever, cached `f32 *gp` pointer (121), nested-block and 3 declaration
-   orders (all 48). Loop-invariant-address-hoist/allocation floor. */
+/* measured: re-tested wave 4 (nd 48 -> 45 with `#pragma opt_loop_invariants on`,
+   which hoists the lui %hi(D_008872F8) to the preheader as retail does, but
+   ALSO hoists the lwc1 itself — retail re-loads in the loop (lwc1 $f1,
+   %lo($v0) at loop top), keeping the base $v0 live across iterations, which
+   is what pushes its registers up to $a2/$a1/$v1/$a0; with the load hoisted
+   the base dies and mwcc packs the loop one register lower ($a1/$a0/$v0/$v1)
+   — ~40 words of pure rotation, and the count can never reach 0 while the
+   load is out of the loop. Manual bases (u32 gbase = (u32)D_008872F8;
+   f32 *gp = D_008872F8;) keep the reload but materialise lui+addiu into
+   $a1 instead of retail's lui-only $v0 (nd 121). Tried: 4 decl orders,
+   gbase/gp forms with and without the pragma. Load-hoist + register-
+   rotation floor (same family as func_002b0b10). */
 // FUN_002B25D0
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b25d0);
 // FUN_002B2830

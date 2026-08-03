@@ -316,6 +316,11 @@ void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
    0x38 load below the dsll32/dsra32/sll and flips the addu operands (base in
    $v1, index in $v0 vs candidate index/base reversed). Same wall as
    func_002b68d0/6a70/6af0/6b40/6b90; nothing source-side moves it. */
+/* measured: re-measured 2026-08-03 with the full-parameter-list forwarding
+   body (s16 arg0 + f2 p1/p2 + s16 arg5, inline base deref) - nd 7, same wall:
+   candidate emits lw $t2,-0x4A8C($gp) / dsll32/dsra32/sll / lw $v0,0x38($t2)
+   / addu $v0,$v0,$v1; retail interleaves lw $v1,0x38($v0) right after the gp
+   load and shifts after it. Load-sinking wall, corroborated. */
 // FUN_002B69F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b69f0);
 
@@ -348,11 +353,20 @@ void func_002b6ac0(u8 *arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg
    arg0; mwcc b210 sinks the 0x38 load past the shift, which also flips the addu operand
    order. Hoisting the base into a local first does not move it (nd 9 either way). This is
    the load-sinking wall documented in docs/matching.md. */
+/* measured: re-measured 2026-08-03 with the matched-sibling-6ac0 idiom (s32
+   arg3 + s16 ext = (s16)arg3, inline base deref) - nd 9, same wall: candidate
+   lw $t0,-0x4A8C($gp) / dsll32/dsra32/sll / lw $v0,0x38($t0) / addu
+   $v0,$v0,$v1 vs retail's lw $v1,0x38($v0) interleaved right after the gp
+   load. Load-sinking wall, corroborated. */
 // FUN_002B6AF0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6af0);
 
 /* measured: same load-sinking wall as func_002b6af0 - retail loads the table base before
    using arg0, mwcc sinks it to its use. nd 9 with and without a hoisted base local. */
+/* measured: re-measured 2026-08-03 (s16 arg0 + s32 arg3 with s16 ext =
+   (s16)arg3, inline base deref) - nd 9, identical wall: candidate emits the
+   dsll32/dsra32/sll chain before lw $v0,0x38($t0), retail interleaves the
+   0x38 load right after the gp load. Load-sinking wall, corroborated. */
 // FUN_002B6B40
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b40);
 
@@ -362,6 +376,11 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b40);
    table base before sign-extending arg0, mwcc sinks the 0x38 load below the shift
    and flips the addu operands (7 differing words reloc-masked). Same wall as
    func_002b6af0/002b6b40. */
+/* measured: re-measured 2026-08-03 (s16 arg0, u4 arg1/arg2, s16 arg4, s32
+   arg5 passed as (s16)arg5, inline base deref - sw $5/sw $6 struct stores
+   match) - nd 7, identical wall: candidate emits the dsll32/dsra32/sll chain
+   before lw $v0,0x38($t2), retail interleaves the 0x38 load right after the
+   gp load. Load-sinking wall, corroborated. */
 // FUN_002B6B90
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b90);
 
@@ -404,6 +423,13 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
    third store; mwcc b210 sinks both table loads below the shift and reorders the
    constant (12 differing words reloc-masked, identical with a hoisted base local).
    Load-sinking wall, same family as func_002b6af0/002b6b40. */
+/* measured: re-measured 2026-08-03 twice. Fully-inline six-deref spelling: nd
+   18 (mwcc refuses to CSE the first two base derefs, reloading gp+0x38 per
+   store). Hoisted u8 *e = base + idx local for the two 1.0f stores + inline
+   third store: nd 12, exactly the note's residual - candidate emits
+   idx-chain/lw gp/lw 0x38/addu then lui after the addu, retail is lw gp/lw
+   0x38/idx-chain/lui/addu with $v1 address/$a0 constant colors swapped.
+   Load-sinking wall, corroborated. */
 // FUN_002B6D60
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6d60);
 
@@ -440,6 +466,10 @@ void func_002b6ea0(void) {
    (found=0 exit-edge sink + constant-1 CSE) appears FOUR times - the same
    wall as func_002b7cd0's measured nd 133 in isolation; (3) the func_0025ecd0
    14-arg materialization order. Loop-register + bit-scan + arg-order floor. */
+/* measured: note re-confirmed 2026-08-03 - fndiff of the INCLUDE_ASM state
+   reads nd 0 by construction (the object IS the retail asm), which is why the
+   assignment list showed [nd 0]. The last C-body measurement is nd 350 (above);
+   do not treat this function as matched until a C body exists. */
 // FUN_002B6EC0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6ec0);
 
@@ -470,6 +500,11 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
    chain (addu $v1, $a2, $a0); mwcc b210 always emits the index chain first
    and sinks the two loads below it (addu $v1, $v1, $a0). Load-sinking wall,
    same family as func_002b69f0/6a70/6af0/6b40/6b90/6d60. */
+/* measured: re-measured 2026-08-03 with the fully-inline six-deref spelling -
+   nd 9, byte-identical apart from the first store's preamble (candidate
+   dsll32/dsra32/sll then lw gp/lw 0x38/addu $v1,$v1,$a0; retail lw gp/lw
+   0x38 then the index chain, addu $v1,$a2,$a0). All five subsequent
+   re-derivations match. Load-sinking wall, corroborated. */
 // FUN_002B7750
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7750);
 
@@ -538,6 +573,18 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7cd0);
    lb for the 0x124 check needs the (s8) cast (lbu otherwise). Tail after the
    loop is byte-identical once aligned. Loop walls, s16-index-extension +
    operand-order family, same as func_002b6590/002b9ab0/002b9e10 notes. */
+/* measured: re-measured 2026-08-03 with four fresh bodies (recipe-A
+   conversion + s16 i + inline D_008872F8[0] LHS + per-site q), best nd 107:
+   (s16)i cast at the body head does NOT force the extension (mwcc CSEs the
+   bottom-test extension across the back edge), the inline D read keeps
+   lui %hi(D_008872F8) in the body (lwc1 %lo folded - no addiu), the
+   conversion itself is byte-identical, but the q/i temp colors rotate
+   ($a0/$a1 vs retail $a1/$a2) and cascade through the trick path (or-result
+   in $v0 vs retail's $a0) so the whole tail misaligns. f32 *dv local hoists
+   the full address into the prologue (nd 113); while-loop + loop-scoped q
+   folds q into $s0-relative stores (nd 110). Walls corroborated in
+   y_CmbCardEff func_00347c70 (lui-hoist + or-register) and y_smap
+   func_002b0b10 (lui-hoist + register cascade). */
 // FUN_002B7F20
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7f20);
 
@@ -683,20 +730,20 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b89a0);
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9ab0);
 
 
-/* measured: four attempts, best nd 7 with only 6 real words - everything but
-   the first float-compare chain is byte-identical (declarations q,p,i,r,e
-   give retail's $s0..$s3 colors; the spawn's q recompute needs the inline
-   p + i * 0x220 spelling or mwcc reuses the loop-head q, nd 58). The residual:
-   retail loads lwc1 $f0, 0x194(q) then lwc1 $f1, fGpffff8504, c.ole.s
-   $f0,$f1, bc1t, and reuses $f0/$f1 for the 0x1A0 compare (lwc1 $f0, 0x1A0
-   after the branch - no speculative load). mwcc b210, with a/b member locals,
-   speculatively hoists the 0x1A0 load ABOVE the first compare and colors it
-   $f2 (c.ole.s $f2,$f1); with the members inline it loads fGpffff8504 first
-   (RHS-first). Both spellings nd 7. Likely fix (untried, budget): hoist only
-   a = *(f32 *)(q + 0x194) into a local and keep the 0x1A0 compare inline -
-   the a-statement should pull the 0x194 load above the global load while the
-   inline 0x1A0 load stays after the first branch. c.ole/bc1t need the
-   !(member <= global) form, NOT the >= flip (that gives c.olt + bc1f). */
+/* measured: retested 2026-08-03, nd 3 with only 2 real words. The old nd 7
+   residual is HALF fixed: hoisting only a = *(f32 *)(q + 0x194) into a local
+   (declarations q,p,r,i in that order for $s0..$s3; i must be declared after
+   r) plus the inline 0x1A0 compare kills the speculative 0x1A0 hoist - the
+   0x1A0 load now lands after the first bc1t exactly as retail. Everything
+   else is byte-identical. The remaining 2 words: compare1's two loads stay
+   swapped - mwcc b210 emits lwc1 $f1, fGpffff8504 (GPREL) BEFORE lwc1 $f0,
+   0x194(q), retail loads 0x194 first (c.ole.s $f0,$f1 identical either way).
+   Tried: f32 g = fGpffff8504; local (load order unchanged), !(g >= a) and
+   !(g < a) flips (both flip the compare to c.olt.s $f1,$f0 + bc1f, nd 4-7),
+   a/b member locals (speculative 0x1A0 hoist, $f2 coloring, nd 7). Only the
+   !(member <= global) form keeps c.ole/bc1t, and it always loads the GPREL
+   global first. mwcc RHS-load-first scheduling wall; the load pair order for
+   a member-vs-GPREL-global c.ole compare appears not source-drivable. */
 // FUN_002B9E10
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9e10);
 

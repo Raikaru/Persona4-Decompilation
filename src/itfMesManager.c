@@ -74,7 +74,7 @@ void *func_00285170(void *arg0);
 extern char D_0063BE60[];
 void func_0027b7c0(s32 arg0);
 void func_00279e90(u8 *arg0, u8 *arg1);
-s32 func_00279780(u8 *arg0);
+void func_00279780(u8 *arg0);
 s32 func_002738d0(u8 *arg0);
 u8 *func_00273650(u8 *arg0, u8 *arg1, s32 arg2);
 extern char D_0063BE80[];
@@ -647,16 +647,62 @@ s32 func_00277840(s32 arg0)
     return (s32)object + 0x114;
 }
 
-/* measured: retail RE-issues the *obj load inside the bit-clear/else branch
-   (lw $v1,($s1); addiu -8; and) after the conditional stores of the inner
-   branch, while mwcc b210 -O2 CSEs the initial bits load into $a0 and
-   reuses it in the else branch (and $v0,$a0,$v0) - one fewer lw, obj 512B
-   vs window 528B, nd 11. Tried: inline masks, compound if (bits & 0x200000)
-   && (m == 0 || m == 0x300), named bits local, ~0x300 mask, v-load before
-   base addiu - all hit the same CSE. CSE-of-mask-load floor, not
-   source-drivable. */
 // FUN_002778C0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002778c0);
+s32 func_002778c0(s32 arg0, s32 arg1, s32 arg2)
+{
+    s32 bits;
+    s32 m3;
+    s32 v;
+    u8 *base;
+    u8 *obj;
+    u8 *r;
+    u8 *r2;
+
+    if (arg0 < 0 || arg0 >= 0x40)
+        func_0046d730(D_0063BE10, 0x134);
+    obj = D_00881808[arg0].unk0;
+    if (obj == NULL)
+        func_0046d730(D_0063BE10, 0x5DE);
+    r = (u8 *)func_00278de0((s32)obj, arg1);
+    if (*(s32 *)r == 1) {
+        func_00277be0(arg0, arg1);
+        return 1;
+    }
+    r2 = *(u8 **)(r + 4);
+    base = obj + 0x1C;
+    *(u8 **)base = r2;
+    *(s16 *)(base + 0x10) = (s16)arg2;
+    *(s16 *)(base + 0x12) = *(s16 *)(r2 + 0x18);
+    if (*(s16 *)(r2 + 0x18) == 0)
+        return 0;
+    func_00279e90(obj, r2);
+    func_00279ce0(obj + 0x94);
+    v = *(s32 *)(obj + 8);
+    if (v != 0)
+        func_002738a0(v);
+    func_0027b7c0(arg0);
+    func_00279780(obj);
+    bits = *(s32 *)obj;
+    m3 = bits & 0x300;
+    if ((bits & 0x200000) && (m3 == 0 || m3 == 0x300)) {
+        func_00440b68(D_0063BE80);
+        v = *(s32 *)obj & ~0x300;
+        *(s32 *)obj = v;
+        v |= 0x100;
+        *(s32 *)obj = v;
+        v &= ~7;
+        *(s32 *)obj = v;
+        *(s32 *)obj = v | 2;
+    } else {
+        v = (s32)(*(u32 *)obj & ~7u);
+        *(s32 *)obj = v;
+        *(s32 *)obj = v | 3;
+    }
+    *(s8 *)(base + 8) = 1;
+    *(s32 *)obj |= 0x1000000;
+    func_00440b68(D_0063BEA0, *(s32 *)(obj + 0x10));
+    return 1;
+}
 
 // FUN_00277AD0
 void func_00277ad0(s32 arg0, s32 arg1)
@@ -693,15 +739,21 @@ void func_00277b10(u8 *arg0, s32 arg1)
     }
 }
 
-/* measured: retail colors the loop-carried locals i=$s2, obj=$s3, ptr=$s5,
-   bits=$s6, flag=$s7 while mwcc b210 -O2 rotates them to obj=$s2,
-   bits=$s3, i=$s5, flag=$s6, ptr=$s7 (all other instructions match; nd 10
-   in fndiff, obj 668B vs window 672B). Tried: m2c if(bits&1){shift}else
-   loop form, 4 declaration permutations, named bits/flag/ptr locals -
-   allocation identical. Saved-register-rotation floor, not source-drivable. */
+/* measured: re-measured 2026-08-03: the recorded nd-10 body could not be
+   reconstructed; all rebuilt bodies measure nd 89-94 (obj 668B vs window
+   672B). Findings: (1) mwcc b210 spills the loop-bound s64/s128 local with
+   SQ/LQ at 0xA0 exactly like retail - the count local IS 64/128-bit in the
+   source; (2) the loop compare i < count compiles with a dsll32/dsra32
+   widening/narrowing pair retail lacks (no source spelling tried - s128,
+   s64, (s32) cast, alias read, goto form - removes it); (3) saved-register
+   rotation persists: retail i=$s2,obj=$s3,elem=$s5,bits=$s6 vs candidate
+   obj=$s2,i=$s3,bits=$s5,elem=$s6 (best decl order i-before-obj, nd 89;
+   4+ permutations measured); (4) retail re-loads base17+8 for the post-loop
+   OR where mwcc keeps the loop bits live. Tried: while/for/goto forms, s128/
+   s64/u32 counts, masked locals, named scaled offsets - rotation and compare
+   pair are stable. Saved-register-rotation + s128-compare floor. */
 // FUN_00277BE0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277be0);
-
 // FUN_00277E80
 void func_00277e80(s32 arg0)
 {
@@ -833,12 +885,15 @@ s16 func_00278260(s32 arg0)
     return *(s16 *)(object + 0x4A);
 }
 
-/* measured: in switch case 0, retail materializes the second call's args as
-   move $a0,$s1; move $a1,$s0; addiu $a2,$sp,0x30 (address-of last), while
-   mwcc b210 -O2 always hoists the pure address-of addiu above the two moves
-   (addiu $a2,$sp,0x30; move $a0,$s1; move $a1,$s0). Tried: &buf[0], u32 buf[4],
-   struct local + s32 bufp preloaded, char* bufp0 - all nd 6 (obj 388B vs
-   window 400B). Address-of-in-argument-list scheduler floor, not source-drivable. */
+/* measured: re-measured 2026-08-03: nd 6 confirmed (verify normalized_diff
+   10, bytes 80-91 = the case-0 arg order only; everything else byte-identical
+   including the switch jtbl dispatch). New finding: the buf local must be
+   u32 buf[4] (16B) to land at $sp+0x30 like retail - char buf[4] lands at
+   0x3C (nd 7). The 3-word residual is unchanged from the floor: retail
+   move $a0,$s1; move $a1,$s0; addiu $a2,$sp,0x30 (address-of last), mwcc b210
+   always hoists the pure address-of addiu above the moves. Tried: (s32)buf,
+   &buf[0], char buf[4], u32 buf[4] - identical. Address-of-in-argument-list
+   scheduler floor (documented non-applicable case), not source-drivable. */
 // FUN_002782C0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002782c0);
 
@@ -1271,12 +1326,14 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     return 0;
 }
 
-/* measured: retail loads base (obj+4) into $v1 BEFORE computing arg1*8
-   (lw $v1,4($s3); sll $v0,$s2,3; addu), while mwcc b210 -O2 always schedules
-   the sll first (sll $v1,$s2,3; lw $v0,4($s3); addu) and then colors the
-   temps accordingly. Tried: inline m2c expression, s32 base local, u8* slot
-   local, arg1*8 first/last operand order, u8* base arithmetic - all nd 3
-   (obj 172B vs window 176B). Scheduling/coloring floor, not source-drivable. */
+/* measured: re-measured 2026-08-03: best nd 2 (recorded nd 3 was from a
+   misspelled expression - it loads the pointer VALUE at +0x24, not the
+   address). Correct body: func_002748e0(func_00279740(*(s32 *)((u8 *)(arg1 * 8
+   + *(s32 *)(obj + 4)) + 0x24), 0), arg2, arg3). Only residual: sll/lw order
+   swap at off 84/88 - retail lw $v1,4($s3); sll $v0,$s2,3; mwcc b210 -O2
+   always emits sll first, registers follow. Tried: inline expression (nd 2),
+   s32 base local, scaled-first/scaled-last - all nd 2-3 (obj 172B vs window
+   176B). Load-sinking floor, not source-drivable. */
 // FUN_00279690
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279690);
 // FUN_00279740
@@ -1298,27 +1355,22 @@ u32 func_00279740(int param_1,int param_2)
 
 
 
-/* measured: mwcc b210 -O2 matches retail except for three independent
-   scheduling/order choices: (1) the i<0 test is emitted before the
-   node+0x18 lh (retail loads first), (2) the func_00274570 argument lbu
-   loads are hoisted above the a0/a1 zero moves and the func_00279dd0
-   argument lui $a1 comes before move $a0 (retail: args in order), (3) the
-   slot addu is node+scaled instead of scaled+node. nd 12 (obj 788B vs
-   window 768B). Tried: split id locals, inline ternary walk, scaled-first
-   expressions, inline func_00272bf0 result - allocation now matches
-   (arg0=$s2/base=$s1/node=$s0, frame -0x40) but the three orders persist.
-   Argument-evaluation-order/scheduler floor, not source-drivable. */
+/* measured: re-measured 2026-08-03: best body nd 66 (recorded nd 12 not
+   reproducible; it implied a walk layout this wave could not reach). Frame
+   -0x40, arg0=$s2/base17=$s1/slot=$s0 allocation matches retail. Residuals:
+   (1) the D_008817EC walk compiles test-at-top (bnez e; addiu a0,-1; b end;
+   body; b back) where retail is bottom-test (b test; body; test: bnez e;
+   addiu a0,-1 in the DELAY SLOT) - the -1-in-delay-slot shape requires mwcc
+   to fold `if (e==NULL) found=-1` into the loop-exit, which it only does
+   when found is NOT live across the loop; while/goto/ternary/do variants
+   all fail (goto nd 67, while nd 176 - found spills to $s3, frame -0x50),
+   ~32 words incl. the 4B shift cascade; (2) bltz before lh count (3 words),
+   (3) func_00274570 lbu args hoisted above a0/a1 moves (6 words), (4)
+   func_00279dd0 lui $a1 before move $a0 (3 words) - the recorded three
+   orders persist. Named s32 scaled local fixes the slot addu order (66 vs
+   67). Loop-layout/scheduler floor, not source-drivable. */
 // FUN_00279780
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
-
-/* measured: retail keeps func_0046a430's result in $v0 (sw $v0,($v1);
-   move $a0,$v0 - no saved register) and colors arg0=$s0 (mutated in place
-   to base, addiu $s0,$s0,0x94), arg1=$s4, arg2=$s3, arg3=$s2, size=$s1
-   (5 saved, frame -0x60); mwcc b210 -O2 always allocates a 6th saved
-   register for the allocation result local (frame -0x70, arg0 pushed to
-   $s5, obj 388B vs window 384B). Tried: arg0 += 0x94 in-place, slot/size
-   merged local, single vs split p1/p2 locals - all identical frame -0x70.
-   Saved-register-rotation floor, not source-drivable. */
 // FUN_00279A80
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279a80);
 
@@ -1381,14 +1433,17 @@ void func_00279dd0(u8 *arg0, s32 arg1)
     *(u16 *)(base + 4) = 0xFFFF;
 }
 
-/* measured: retail hoists the 7th argument's final lw $t2,($v0) above the
-   argument-zero moves (lw $t2,($v0); move $a0..$t0; addiu $t1,0xff) in the
-   else branch, while mwcc b210 -O2 always sinks it after the moves
-   (move $a0..; addiu $t1,0xff; lw $t2,($v0)) - the 0x8000 branch's equivalent
-   load schedules correctly, so it is not the expression itself. Tried: inline
-   m2c expression, hoisted p local, pointer-cast scaled offsets, precomputed
-   v local before the call - all nd 8 (obj 316B vs window 320B). Load-sinking/
-   scheduler floor. */
+/* measured: re-measured 2026-08-03: nd 8 confirmed (obj 316B vs window
+   320B). This wave established the full correct body: base/arg0+0x14 declared
+   before id (register coloring), u32 masked = id & 0xFFFF local (retail
+   reuses $a0 for the 0x8000/0x7FFF tests), and the scaled offset in a named
+   s32 local fixes BOTH addu operand orders (retail addu $v0,$v0,$s3 and
+   addu $a0,$v0,$v1 - scaled first; inline expressions emit base first). The
+   ONLY remaining residual is the else-branch 7th-arg load position (off
+   220-244): retail lw $t2,($v0) BEFORE the arg-zero moves, mwcc b210 always
+   sinks it after move $a0..t0/addiu $t1,0xff; the 0x8000 branch's equivalent
+   load schedules correctly. Tried: inline expr, hoisted p local, precomputed
+   v local - all nd 8. Load-sinking/scheduler floor, not source-drivable. */
 // FUN_00279E90
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279e90);
 // FUN_00279FD0

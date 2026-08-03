@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import re
 import sys
 import tempfile
 
@@ -31,6 +32,17 @@ try:
 except ImportError:
     def disassemble(word: bytes, pc: int) -> str:
         return ""
+
+
+def _is_include_asm(source: Path, function: str) -> bool:
+    """True if `function` is still served by an INCLUDE_ASM fallback in `source`."""
+    pattern = re.compile(
+        r"^[ \t]*INCLUDE_ASM\s*\([^)]*\b" + re.escape(function) + r"\s*\)", re.MULTILINE
+    )
+    try:
+        return pattern.search(source.read_text(encoding="utf-8", errors="replace")) is not None
+    except OSError:
+        return False
 
 
 def main() -> None:
@@ -106,6 +118,18 @@ def main() -> None:
         retail_text = f"{retail_word.hex():<9} {disassemble(retail_word, address + offset)}" if len(retail_word) == 4 else retail_word.hex()
         print(f"{offset:6} {'!' if differs else ' '} {object_text:<34} {retail_text:<34} {','.join(reloc_at.get(offset, []))}")
     print(f"\ndiffering words (reloc-masked): {differing_words}")
+
+    # A function still on its INCLUDE_ASM fallback compiles to the spliced retail
+    # bytes, so this diff compares retail against itself and always reports 0.
+    # Waves repeatedly read that as "nd 0" and wrote it into floor notes, which
+    # then read as "this function almost matches" when it has no C body at all.
+    if _is_include_asm(source, args.function) and differing_words == 0:
+        print(
+            f"\nWARNING: {args.function} still has an INCLUDE_ASM fallback in "
+            f"{args.file}, so the object IS the retail assembly and this 0 means\n"
+            "         nothing. Write the C body first, or measure with "
+            "`tools/verify.py` which reports the real normalized_diff."
+        )
 
 
 if __name__ == "__main__":

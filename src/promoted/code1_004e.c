@@ -52,83 +52,47 @@ s32 *func_004e3d98(s32 arg0) {
 
 #pragma schedule on
 
-// FUN_004E3DA8 NONMATCHING
-#ifdef NON_MATCHING
-u8 func_004e3da8(void) {
-    return D_00731C7C[0];
-}
-#else
+/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lbu $2, b210 always lui $2 + lbu $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
+// FUN_004E3DA8
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3da8);
-#endif
-/* measured: schedule on fills the lbu jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 in every shape tried (literal, pointer, segment, volatile, const) vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
 #pragma schedule on
 
-// FUN_004E3DB8 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004e3db8(void) {
-    return D_00731C78[0];
-}
-#else
+/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
+// FUN_004E3DB8
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3db8);
-#endif
-/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 in every shape tried (literal, pointer, segment, volatile, const) vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
 #pragma schedule on
 
-// FUN_004E4180 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004e4180(void) {
-    return D_00731C3C[0];
-}
-#else
+/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
+// FUN_004E4180
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4180);
-#endif
-/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
 #pragma schedule on
 
-// FUN_004E4280 NONMATCHING
-#ifdef NON_MATCHING
-s8 func_004e4280(void) {
-    return D_00731C01[0];
-}
-#else
+/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lb $2, b210 always lui $2 + lb $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
+// FUN_004E4280
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4280);
-#endif
-/* measured: schedule on fills the lb jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
 #pragma schedule on
 
-// FUN_004E4290 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004e4290(void) {
-    return D_00731C34[0];
-}
-#else
+/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
+// FUN_004E4290
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4290);
-#endif
-/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
 
 
 #pragma schedule on
 
-// FUN_004E4688 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004e4688(void) {
-    return D_00731C70[0];
-}
-#else
+/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
+// FUN_004E4688
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4688);
-#endif
-/* measured: schedule on fills the lw jr delay slot; absolute-array form required (scalar extern compiles GPREL16, nd 4); address reuses $v0 vs retail $v1 - allocator floor, same residual in code1_004d/P3FES cri_adx.c */
 #pragma schedule off
