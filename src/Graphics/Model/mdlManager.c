@@ -207,6 +207,15 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
+// 12 bytes. attachedWpns slot layout from P4 retail (flags bit 0 at 0x00, wpnMdl at 0x04, unk_08 at 0x08).
+typedef struct MdlWpnSlot
+{
+    u8 flags;      // 0x00
+    u8 pad1[3];    // 0x01..0x03
+    void* wpnMdl; // 0x04
+    u8 unk_08;     // 0x08
+} MdlWpnSlot;
+
 // Model: mat 0x00, identityMat 0x40, scale 0x80, color 0xd0, clump 0xdc (layout from P3FES include/Graphics/Model/mdlManager.h).
 typedef struct Model
 {
@@ -217,11 +226,14 @@ typedef struct Model
     RwRGBA color;         // 0xd0
     u8 unkData1[8];       // 0xd4..0xdc
     void* clump;          // 0xdc
+    u8 unkData2[0x1AC];   // 0xe0..0x28c
+    MdlWpnSlot attachedWpns[5]; // 0x28c (stride 0xC)
 } Model;
 
 extern void* RwMatrixMultiply(void* dst, void* left, void* right);
 extern void func_003e9cb0(void* frame, void* matrix, u32 flags);
-extern void func_0047aee0(void* mdl, void* matrix);
+extern void func_0047aee0(Model* mdl, RwMatrix* matrix);
+extern void func_0047ae10(u8* mdl, u16 wpnIdx);
 extern void func_0047d840();
 extern void func_0047dda0();
 extern void func_0047ea70();
@@ -2430,25 +2442,56 @@ void func_0047ab90(void* param_1, s32 param_2, void* param_3, void* param_4, voi
 // FUN_0047AC90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ac90);
 
-/* measured: retail saves THREE s-regs ($16=param_1, $18=scaled off, $17=ptr+0x290)
-   and recomputes ptr = off + param_1 before the post-call byte clear; mwcc b210
-   CSEs ptr into one saved register ($s1) plus $s0=ptr+0x290, giving a 0x30 frame
-   vs retail's 0x40 and an addu-free recompute. Tried: ptr local, slot local,
-   fully-inline off+param_1 expressions — all nd 30. Register-coloring/load-
-   lifetime floor (retail keeps the addu operands alive across the call). */
+/* Ported from P3FES mdlManager.c func_003196f0 (verified MATCH there). Keep the
+   iVar1/iVar2/pWpnMdl local structure and the recompute of iVar2+param_1 before
+   the post-call byte clear exactly; P4 offsets are wpnMdl ptr 0x290, flags byte
+   0x28C, stride 0xC (donor used 0x3b8/0x3b4). */
 // FUN_0047AE10
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ae10);
+void func_0047ae10(u8* param_1, u16 param_2)
+{
+    int iVar1;
+    int iVar2;
+    int* pWpnMdl;
 
-/* measured: retail re-issues the u16 loop-counter mask in the body (andi $a3,$t3)
-   while mwcc self-masks the check's register (andi $a2,$a2), and retail hoists the
-   inner-loop constant 8 into $a2 at function top (copied per iteration) while mwcc
-   materializes it inside the body; the 8-byte inner copy is lw,lw,sw,sw with
-   loads-first in retail but mwcc interleaves or reverses the pair even with
-   w0/w1 locals, and t-register allocation is permuted vs retail. Tried: plain
-   pair copies, w0/w1 load locals, struct-copy probe (COMPILE ERROR via probe).
-   Loop-test-CSE + load-sinking floor combination. */
+    iVar1 = (int)(u8*)param_1;
+    iVar2 = (param_2 & 0xffff) * 0xc;
+    iVar1 = iVar2;
+    iVar1 += (int)(u8*)param_1;
+    pWpnMdl = (int*)(iVar1 + 0x290);
+    if (*pWpnMdl != 0)
+    {
+        func_004787e0((u8*)*pWpnMdl);
+        *pWpnMdl = 0;
+        iVar2 = iVar2 + (int)(u8*)param_1;
+        *(u8*)(iVar2 + 0x28C) = *(u8*)(iVar2 + 0x28C) & 0xfe;
+    }
+}
+
+/* Ported from P3FES mdlManager.c func_003197c0 (verified MATCH there).
+   P4 offsets: attachedWpns base 0x28C, wpnMdl ptr 0x290, stride 0xC (donor used
+   0x3b4/0x3b8). The RwMatrix copy at wpnMdl+0x90 is 8 words. */
+/* measured: removing the pragma regresses this MATCH (nd 0) to a re-mask/hoist
+   mismatch; the struct-access spelling needs it to reproduce retail's andi re-mask. */
+#pragma push
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 // FUN_0047AEE0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aee0);
+void func_0047aee0(Model* param_1, RwMatrix* param_2)
+{
+    u16 uVar6;
+    int iVar3;
+
+    uVar6 = 0;
+    for (; uVar6 < 5; uVar6++)
+    {
+        iVar3 = (int)param_1->attachedWpns[uVar6].wpnMdl;
+        if (iVar3 != 0)
+        {
+            *(RwMatrix*)((u8*)(u32)iVar3 + 0x90) = *param_2;
+        }
+    }
+}
+#pragma pop
 
 // FUN_0047AF60
 void func_0047af60(void* param_1)

@@ -73,18 +73,15 @@ void func_00479030(u8 *arg0, u8 *arg1)
 }
 
 
-// FUN_00479C30 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00479C30
 s16 func_00479c30(s32 arg0, s32 arg1)
 {
     if (func_00479ca0((u8 *)arg0, arg1) != 0) {
-        return *(s16 *)(arg0 + ((arg1 & 0xFFFF) * 0xA4) + 0xF0);
+        s32 off = (arg1 & 0xFFFF) * 0xA4;
+        return *(s16 *)(off + (s32)arg0 + 0xF0);
     }
     return -1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_00479c30);
-#endif
 
 
 // FUN_0047ADF0
@@ -97,21 +94,19 @@ void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2) {
     *(s32 *)(p + 0x294) = arg2;
 }
 
-// FUN_0047AE90 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0047ae90(s32 arg0, s32 arg1)
+// FUN_0047AE90
+s32 func_0047ae90(u8 *arg0, u16 arg1)
 {
+    s32 off = arg1 * 0xC;
+    u8 *p = (u8 *)(off + (s32)arg0);
     u8 *temp_4;
 
-    temp_4 = *(u8 **)(arg0 + ((arg1 & 0xFFFF) * 0xC) + 0x290);
+    temp_4 = *(u8 **)(p + 0x290);
     if (temp_4 == NULL) {
         return 1;
     }
     return func_004782b0(temp_4);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047ae90);
-#endif
 
 
 

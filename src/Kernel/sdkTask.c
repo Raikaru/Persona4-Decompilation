@@ -1016,5 +1016,39 @@ void func_00452570(KwlnTask* parent, KwlnTask* child)
 }
 
 // FUN_00452600
-INCLUDE_ASM("asm/nonmatchings/sdkTask", func_00452600);
+void func_00452600(KwlnTask* childTask)
+{
+    KwlnTask* parentTask;
+    KwlnTask* currSibling;
+    KwlnTask** childPtr;
+
+    parentTask = childTask->parent;
+    if (parentTask == NULL)
+    {
+        if (childTask->next != NULL)
+        {
+            func_0046d730(D_00710568, 0x657);
+        }
+        return;
+    }
+
+    childPtr = &parentTask->childList;
+    if (*childPtr == childTask)
+    {
+        *childPtr = childTask->next;
+    }
+    else
+    {
+        currSibling = *childPtr;
+        while (currSibling->next != childTask)
+        {
+            currSibling = currSibling->next;
+        }
+
+        currSibling->next = childTask->next;
+    }
+
+    childTask->parent = NULL;
+    childTask->next = NULL;
+}
 

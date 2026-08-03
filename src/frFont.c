@@ -197,16 +197,38 @@ extern u32 DAT_00881634_abs[];
    scheduling floor. */
 // FUN_00270FB0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
-/* measured: recipe B retest 2026-08-03 - still nd11. retail colors the list
-   head load pair lui $v0/lw $v1 and reuses $v0 for the tail load; mwcc b210
-   always colors lui $v1/lw $a0 with the tail in $v1, and rotates the count
-   addiu through $a0 (lui $v1;lw $v1;addiu $a0;lui $v1;sw $a0 vs retail's
-   $v0-only). Re-tried this wave: m2c draft order, named u8* head/tail, u32
-   head/tail, store-head-before-tail-load - allocation never changes (4
-   spellings, all nd11). Temp-register rotation floor, same family as the
-   D_0088152C lui-base hoist but no base hoist exists here to fix. */
+// Ported from P3FES FUN_003b4580 (verified MATCH there). The prior nd11
+// floor was the RETURN TYPE: retail leaves the incremented count live in $v0
+// at the jr, so every void spelling coloured the whole global-load chain
+// $v1/$a0 instead of retail's $v0/$v1. Returning s32 count fixes it. The
+// caller in this file passes a u8* node, so the param is u8* (not the donor's
+// int). Struct offsets prev=0x18/next=0x1C match the donor's data[6] layout.
 // FUN_00271310
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00271310);
+s32 func_00271310(u8 *param_1)
+{
+  typedef struct GslListNode {
+    int data[6];
+    struct GslListNode *prev;
+    struct GslListNode *next;
+  } GslListNode;
+  GslListNode *node = (GslListNode *)param_1;
+  GslListNode *head;
+  GslListNode *next;
+  s32 count;
+
+  if (node == 0) {
+    func_0046d730(D_0063BAE8, 0x1E9);
+  }
+  head = (GslListNode *)DAT_0088152C_abs[0];
+  next = head->next;
+  node->prev = head;
+  node->next = next;
+  head->next = node;
+  next->prev = node;
+  count = DAT_00881528_abs[0] + 1;
+  DAT_00881528_abs[0] = count;
+  return count;
+}
 
 // FUN_00271380
 void func_00271380(s32 arg0, u8 *arg1)
@@ -231,6 +253,7 @@ void func_00271380(s32 arg0, u8 *arg1)
    wave: while-in-if, switch(cond){case 0/default}, m2c empty-if, u32 vars,
    statement-order swaps - guard shape never changes. Loop pre-test
    branch-layout + mask-CSE floor. */
+
 // FUN_002713B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
 

@@ -14,6 +14,14 @@ typedef struct {
     u8 c3;
 } LineNovaColor;
 
+typedef struct RwRGBA
+{
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} RwRGBA;
+
 extern u8 *func_00484490();
 extern void func_0046d730();
 extern u8 *func_0049a370(u16 arg0, u8 *arg1);
@@ -29,7 +37,7 @@ extern f32 func_004bd0b0();
 extern u8 D_00713390[];
 extern s32 func_0048abd0();
 extern void func_004836b0(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void func_00483490(void *arg0, u16 arg1);
+extern void func_00483490(int arg0, int arg1);
 extern f32 iGpffff8044;
 extern void func_0049a610(void *arg0);
 extern u8 *func_00482dc0();
@@ -104,21 +112,94 @@ void func_00498ec0(void **arg0)
 // FUN_00498F10
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00498f10);
 
-/* measured: byte-identical through the two VU0 colour-chain asm blocks and
-   the sp40 sw; the residual is the post-block TEMP register pool. retail's
-   first temp after block2 is $v1 (lw $v1,0x40($sp); addiu $t0,0xff; dst $a3;
-   bytes $a2,$a1,$a0,$v1) while mwcc b210 always starts the pool at $v0
-   (lw $v0; const $a3; dst $a2; bytes $a1,$a0,$v1,$v0) - a one-register
-   offset that cascades 13 tail rows (nd 57). Tried: block2 clobber lists
-   ($2+$3 / $3-only / $2-only), dummy "=r" output (nd 93), struct vs
-   field-at-a-time color copy, load-order and declaration-order variants
-   (nd 57-93). The sibling effPolygonFlash func_0049b2b0 matches because its
-   block text uses $2 and retail there also pools from $v0; this function's
-   retail pools from $v1 with a $3-based block. allocator-pool floor family
-   (cf. effPolygonFlash FUN_0049D360/0049E150 notes). */
+/* Ported from P3FES mdlEffect.c FUN_00338360 (twin of func_0049a1a0).
+   The VU0 colour-modulate block is genuine hardware asm (Category B) ported
+   as inline asm with the pointer passed via a "r" constraint, not a bare
+   addiu block. MATCH. */
 // FUN_004992A0
-INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_004992a0);
+void func_004992a0(u8 *param_1)
+{
+  u8 *iVar5;
+  u8 *iVar1;
+  u16 *puVar2;
+  u8 colourStack[16];
+  int iVar3;
+  int iVar4;
+  int iVar6;
+  u8 *dest;
+  f32 scale;
+  u8 *cs8;
 
+  iVar5 = (u8 *)param_1;
+  iVar3 = *(int *)(iVar5 + 0x3c);
+  iVar1 = *(u8 **)(iVar5 + 0x40);
+  puVar2 = *(u16 **)iVar3;
+  iVar6 = *(int *)(iVar5 + 0x34);
+  iVar4 = *(int *)(iVar1 + 0x34);
+  if (((u32)iVar6 <= (u32)iVar4) || (iVar4 == 0)) {
+    iVar3 = func_0048abd0((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
+    *(u32 *)&colourStack[8] = *(u32 *)(iVar5 + 0x30);
+    cs8 = &colourStack[8];
+    scale = iGpffff8044;
+    __asm__ volatile (
+        ".set noreorder                  \n"
+        "lw          $2, 0(%0)           \n"
+        "pextlb      $2, $zero, $2       \n"
+        "pextlh      $2, $zero, $2       \n"
+        "qmtc2       $2, $vf10           \n"
+        "vitof0.xyzw $vf10, $vf10        \n"
+        "mfc1        $2, %2              \n"
+        "nop                               \n"
+        "qmtc2       $2, $vf2            \n"
+        "vmulx.xyzw  $vf10, $vf10, $vf2x \n"
+        "vmove.xyzw  $vf11, $vf10        \n"
+        "sw          %1, 0x44($sp)       \n"
+        "addiu       $2, $sp, 0x44       \n"
+        "lw          $2, 0($2)           \n"
+        "pextlb      $2, $zero, $2       \n"
+        "pextlh      $2, $zero, $2       \n"
+        "qmtc2       $2, $vf10           \n"
+        "vitof0.xyzw $vf10, $vf10        \n"
+        "mfc1        $3, %2              \n"
+        "nop                               \n"
+        "qmtc2       $3, $vf2            \n"
+        "vmulx.xyzw  $vf10, $vf10, $vf2x \n"
+        "vmul.xyzw   $vf10, $vf10, $vf11 \n"
+        "lui         $3, 0x437F          \n"
+        "qmtc2       $3, $vf2            \n"
+        "vmulx.xyzw  $vf10, $vf10, $vf2x \n"
+        "vftoi0.xyzw $vf10, $vf10        \n"
+        "qmfc2       $3, $vf10           \n"
+        "ppach       $3, $zero, $3       \n"
+        "ppacb       $3, $zero, $3       \n"
+        "sw          $3, 0x40($sp)       \n"
+        ".set reorder"
+        :
+        : "r"(cs8), "r"((u32)iVar3), "f"(scale)
+        : "$2", "$3", "memory");
+    *(u32 *)&colourStack[12] = *(u32 *)&colourStack[0];
+    if (colourStack[15] != 0xff) {
+      dest = *(u8 **)(puVar2 + 10);
+      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+    }
+    else {
+      colourStack[15] = 0xfe;
+      dest = *(u8 **)(puVar2 + 10);
+      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+      colourStack[15] = 0xff;
+    }
+    if (*(u8 *)(*(int *)(puVar2 + 10) + 7) != 0) {
+      func_004836b0(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
+      if (*(u8 *)(iVar1 + 0x3c) != 0) {
+        *puVar2 = *puVar2 | 1;
+      }
+      else {
+        *puVar2 = *puVar2 & 0xfffe;
+      }
+      func_00483490((int)puVar2, *(u16 *)(iVar1 + 0x28));
+    }
+  }
+}
 // FUN_00499470
 void func_00499470(u8 *arg0) {
     u8 *p8;
@@ -301,32 +382,92 @@ void func_00499df0(void **arg0)
 // FUN_00499E40
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499e40);
 
-/* measured: byte-identical through the two VU0 colour-chain asm blocks; the
-   residual is the same post-block TEMP pool offset as its twin
-   func_004992a0 (retail pools from $v1, mwcc b210 from $v0 - nd 57, all rows
-   same opcodes). Retested with memory-only asm clobbers (no register
-   clobbers at all): the pool still starts at $v0, so the offset is not
-   clobber-driven. allocator-pool floor family. */
+/* Ported from P3FES mdlEffect.c FUN_00338360 (twin of func_004992a0).
+   Same VU0 inline-asm + constraint-pointer shape as its twin. MATCH. */
 // FUN_0049A1A0
-INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a1a0);
+void func_0049a1a0(u8 *param_1)
+{
+  u8 *iVar5;
+  u8 *iVar1;
+  u16 *puVar2;
+  u8 colourStack[16];
+  int iVar3;
+  int iVar4;
+  int iVar6;
+  u8 *dest;
+  f32 scale;
+  u8 *cs8;
 
-/* measured: retail copies the 16-byte global D_00713CE0 with lui+addiu+lq+sq;
-   mwcc b210 folds the LO16 address into the lq (lui+lq %lo) whenever the copy
-   sits in a register-pressured function, shifting the whole tail by one word
-   (nd 39, all rows the same opcodes). Tried: array+direct deref, array+&+cast,
-   scalar u_long128+&, quadSrc/quad locals, dstq local, memcpy(...,0x10),
-   u64-pair, #pragma optimization_level 3, declaration reorders - every one
-   either folds identically (39) or gets worse (40/81/88). Wave-4 retest of the
-   rule-3 typed-alias read (*(u_long128 *)(dst) = *(u_long128 *)&D_00713CE0):
-   retail has no dsll32/dsra32 and the candidate has no narrowing cast, so no
-   canonicalization pair existed to remove; the typed-alias form folds exactly
-   the same way (nd 39, verified byte-identical up to the copy site). Register
-   allocation only settles on retail's 5-saved-GPR pool when the three masks
-   are spelled differently ((u16)arg0 >= 4 / arg0 & 0xFFFF / (u16)arg0 * 0x18)
-   to stop mwcc CSE-ing the mask constant into a 6th saved register (nd 74/80
-   otherwise). This is the load-sinking / address-fold family of floors; the
-   sibling effPolygonWind func_004a5630 has the identical retail shape and its
-   owner is blocked on the same fold. */
+  iVar5 = (u8 *)param_1;
+  iVar3 = *(int *)(iVar5 + 0x3c);
+  iVar1 = *(u8 **)(iVar5 + 0x40);
+  puVar2 = *(u16 **)iVar3;
+  iVar6 = *(int *)(iVar5 + 0x34);
+  iVar4 = *(int *)(iVar1 + 0x34);
+  if (((u32)iVar6 <= (u32)iVar4) || (iVar4 == 0)) {
+    iVar3 = func_0048abd0((char *)iVar1, (u32 *)(iVar1 + 0x24), iVar6, iVar4);
+    *(u32 *)&colourStack[8] = *(u32 *)(iVar5 + 0x30);
+    cs8 = &colourStack[8];
+    scale = iGpffff8044;
+    __asm__ volatile (
+        ".set noreorder                  \n"
+        "lw          $2, 0(%0)           \n"
+        "pextlb      $2, $zero, $2       \n"
+        "pextlh      $2, $zero, $2       \n"
+        "qmtc2       $2, $vf10           \n"
+        "vitof0.xyzw $vf10, $vf10        \n"
+        "mfc1        $2, %2              \n"
+        "nop                               \n"
+        "qmtc2       $2, $vf2            \n"
+        "vmulx.xyzw  $vf10, $vf10, $vf2x \n"
+        "vmove.xyzw  $vf11, $vf10        \n"
+        "sw          %1, 0x44($sp)       \n"
+        "addiu       $2, $sp, 0x44       \n"
+        "lw          $2, 0($2)           \n"
+        "pextlb      $2, $zero, $2       \n"
+        "pextlh      $2, $zero, $2       \n"
+        "qmtc2       $2, $vf10           \n"
+        "vitof0.xyzw $vf10, $vf10        \n"
+        "mfc1        $3, %2              \n"
+        "nop                               \n"
+        "qmtc2       $3, $vf2            \n"
+        "vmulx.xyzw  $vf10, $vf10, $vf2x \n"
+        "vmul.xyzw   $vf10, $vf10, $vf11 \n"
+        "lui         $3, 0x437F          \n"
+        "qmtc2       $3, $vf2            \n"
+        "vmulx.xyzw  $vf10, $vf10, $vf2x \n"
+        "vftoi0.xyzw $vf10, $vf10        \n"
+        "qmfc2       $3, $vf10           \n"
+        "ppach       $3, $zero, $3       \n"
+        "ppacb       $3, $zero, $3       \n"
+        "sw          $3, 0x40($sp)       \n"
+        ".set reorder"
+        :
+        : "r"(cs8), "r"((u32)iVar3), "f"(scale)
+        : "$2", "$3", "memory");
+    *(u32 *)&colourStack[12] = *(u32 *)&colourStack[0];
+    if (colourStack[15] != 0xff) {
+      dest = *(u8 **)(puVar2 + 10);
+      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+    }
+    else {
+      colourStack[15] = 0xfe;
+      dest = *(u8 **)(puVar2 + 10);
+      *(RwRGBA *)(dest + 4) = *(RwRGBA *)&colourStack[12];
+      colourStack[15] = 0xff;
+    }
+    if (*(u8 *)(*(int *)(puVar2 + 10) + 7) != 0) {
+      func_004836b0(puVar2, iVar5, iVar5 + 0x10, iVar5 + 0x20);
+      if (*(u8 *)(iVar1 + 0x3c) != 0) {
+        *puVar2 = *puVar2 | 1;
+      }
+      else {
+        *puVar2 = *puVar2 & 0xfffe;
+      }
+      func_00483490((int)puVar2, *(u16 *)(iVar1 + 0x28));
+    }
+  }
+}
 // FUN_0049A370
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a370);
 
