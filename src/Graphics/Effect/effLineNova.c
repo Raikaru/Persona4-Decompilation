@@ -62,6 +62,13 @@ void func_004b3420(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b3470);
 
 
+/* measured: VU0/COP2-heavy reconstruction. The retail body is dominated by VU0
+   vector ops: the color-prefix does pextlb/pextlh/qmtc2/vitof0/vmulx/vftoi0/
+   ppacb, and the whole loop body is lqc2/vsub/vmul/vmulax/vmadday/vmaddz/
+   vrsqrt/vmulq/vopmula/vopmsub/sqc2. Matching this requires the full inline-asm
+   VU0 recipe (p3fes-vu0-stub-macro-unlock) plus the adda.s/madd.s FPU MAC and
+   the u16 sign-test conversions; not reconstructed in this wave. Loop/prefix
+   VU0 floor family. */
 // FUN_004B36B0
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b36b0);
 
@@ -115,6 +122,17 @@ void func_004b3e40(u8 *arg0) {
 }
 
 
+/* measured: nd 119 with a full C body whose logic and structure are correct
+   (prologue, jtbl_008873E8 alloc, r[0]/r[8] init, func_00482f70, the u16 sign-
+   test byte->float conversion with f+f doubling, the 0x4F000000 guard, and the
+   loop stores all match). Residual is a load-schedule + register-coloring floor:
+   retail reloads 0x38(arg0) and r[4] before the chain (lw $v0,0x38($s2); lw
+   $v1,4($s1); then chain) and colors the loop limit $v0 / chain $v1 / counter
+   $a2 / packed $a1/$a3, while mwcc b210 chains off the cached p3 and colors
+   $v0/$a1/$a0/$a2. The byte conversion also lands in $f2 (retail $f1). Tried
+   chain-via-r[4] (nd 123), separate loop_limit (nd 123), 64-bit byte extraction
+   (nd 124), m2c variable scheme (nd 136), and separate float temps (nd 119) --
+   all nd >= 119. Load-schedule/register-coloring floor family. */
 // FUN_004B3ED0
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b3ed0);
 
@@ -125,10 +143,28 @@ void func_004b4170(u8 *arg0) {
 }
 
 
+/* measured: nd 18 (9 rows) with a full C body whose structure is 100% correct
+   (prologue, adda.s/madd.s FPU MAC, 0x4F000000 float->int guard with c.ole.s/
+   bc1t, in-range inline + overflow out of line, u16 andi 0xffff narrowing, and
+   the trailing 0x4C switch all match). The residual is a pure register-coloring
+   floor: mwcc b210 colors the 1st/2nd conversion result $v0 (retail $v1) and the
+   3rd $v1 (retail $a0), so the in-range mfc1 and the overflow `or` land in the
+   wrong TR register. Tried declaration order (3x), separate result vars, direct
+   store, s32-vs-u16 result, `& 0xFFFF`, `(f32)0xFFFF` constant spelling, separate
+   float temps, and both guard polarities -- all nd 18. Register-coloring floor
+   family. */
 // FUN_004B41C0
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b41c0);
 
 
+/* measured: VU0/COP2-heavy reconstruction. The retail body is dominated by VU0
+   vector ops: the color-prefix does pextlb/pextlh/qmtc2/vitof0/vmulx/vftoi0/
+   ppacb, and the whole loop body is lqc2/vsub/vmul/vmulax/vmadday/vmaddz/
+   vrsqrt/vmulq/sqc2. The non-VU0 prefix also has the adda.s/madd.s FPU MAC
+   pattern and the u16 sign-test byte->float conversions (self-contained and
+   matchable), but the full VU0 loop blocks a match without the inline-asm VU0
+   recipe (p3fes-vu0-stub-macro-unlock). Not reconstructed in this wave. Loop/
+   prefix VU0 floor family. */
 // FUN_004B4430
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b4430);
 
