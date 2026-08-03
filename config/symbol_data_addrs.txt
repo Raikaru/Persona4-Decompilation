@@ -72,6 +72,14 @@ iGpffff83e0 = 0x007614d0; // type:data evidence: GPREL -0x7C20($28) in retail fu
 D_00795E30 = 0x00795e30; // type:data evidence: func_002de5a0 lui %hi(D_00795E30) at 0x002DE698 (relocs only in INCLUDE_ASM); image bytes at 0x00795E30 = [0x43, 0xBD, ...] font data near D_00795E60
 D_0063FB50 = 0x0063fb50; // type:data evidence: func_002d5040 lui %hi(D_0063FB50) at 0x002D53B8 (relocs only in INCLUDE_ASM); image bytes at 0x0063FB50 = "init/c_e..." string
 iGpffff8170 = 0x00761260; // type:data evidence: GPREL -0x7E90($28) in retail func_003753f0; GP base 0x007690f0 (derived from recovered iGpffffa9c8=0x00763ab8); retail image bytes 9a99193f (f32 0.6) at that vaddr
+D_0064E6E0 = 0x0064e6e0; // type:data evidence: lui %hi(D_0064E6E0) + lbu in retail func_00382ea0 at 0x282FA8 / 0x282FE4 / 0x2832D8; u8 personality table (indexed by f()-result and (func_00107890(x) & 0xFF) * 2)
+D_0064E700 = 0x0064e700; // type:data evidence: lui %hi(D_0064E700) + lbu in retail func_00382ea0 at 0x2831B4 / 0x2834E4; u8 chance table (indexed by (x & 0xFF) + i * 2)
+iGpffffa9B8 = 0x00763aa8; // type:data evidence: GPREL -0x5648($28) in retail func_00382ea0 at 0x282FB8 / 0x282FEC / 0x2832E8; GP base 0x007690f0 (derived from recovered iGpffffa9c8=0x00763ab8); u8 per-argument table
+D_0064E72E = 0x0064e72e; // type:data evidence: lui %hi(D_0064E72E) + lbu in retail func_00381a70 at 0x281E54 / 0x282158; u8 personality table (indexed by (x & 0xFF) * 2 + f-result)
+D_0064EC88 = 0x0064ec88; // type:data evidence: ld %lo(D_0064EC88) in retail func_00381a70 at 0x282354; s64 loaded into local sp130
+D_0064EC90 = 0x0064ec90; // type:data evidence: lwc1 %lo(D_0064EC90) in retail func_00381a70 at 0x282360; f32 loaded into local sp138
+iGpffffa9E0 = 0x00763ad0; // type:data evidence: GPREL -0x5620($28) lw in retail func_00381a70 at 0x2824D0 / 0x282790 / 0x282874; GP base 0x007690f0; s32 assert-message selectors
+iGpffffa9E4 = 0x00763ad4; // type:data evidence: GPREL -0x561C($28) lw in retail func_00381a70 at 0x2824E8; GP base 0x007690f0; s32 assert-message selectors
 
 // GPREL16 -0x7F7C / -0x7F64 in cmmScript func_0024f160/func_0024c0e0 --
 // GP is 0x007690F0 (derived from iGpffff8040 = 0x00761130), landing on slots
@@ -137,3 +145,23 @@ D_007612CC = 0x007612CC; // type:data evidence: retail func_00252a60 lwc1 GPREL 
 D_007612D0 = 0x007612D0; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7E20($28); GP base 0x007690F0
 D_0076120C = 0x0076120C; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7EE4($28); GP base 0x007690F0
 D_00761288 = 0x00761288; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7E68($28); GP base 0x007690F0
+fGpffff7ae0 = 0x00761610; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7AE0($28) at 0x002D12F4; GP base 0x007690F0 - 0x7AE0 = 0x00761610
+fGpffff7adc = 0x00761614; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7ADC($28) at 0x002D140C; GP base 0x007690F0 - 0x7ADC = 0x00761614
+fGpffff7ad8 = 0x00761618; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7AD8($28) at 0x002D1504; GP base 0x007690F0 - 0x7AD8 = 0x00761618
+
+// func_00247900 loads the skill-record table pointer at GPREL -0x4C2C($28)
+// (lw at 0x2479E8 / 0x247A4C / 0x247B3C, 0xE-byte records); GP base
+// 0x007690F0 - 0x4C2C = 0x007644C4. Recovered placeholder name encodes the
+// displacement, same convention as iGpffffb444 etc.
+iGpffffb3d4 = 0x007644c4; // type:data evidence: GPREL -0x4C2C($28) in retail func_00247900; GP(0x007690F0) - 0x4C2C = 0x007644C4
+
+D_00882FB0 = 0x00882fb0; // type:data evidence: retail func_0030b7b0 lui %hi(D_00882FB0)/addiu 0x2FB0 (palette id table, 2-byte steps)
+D_00882FB1 = 0x00882fb1; // type:data evidence: retail func_0030b7b0 lui %hi(D_00882FB1)/addiu 0x2FB1 (adjacent byte of the same table)
+D_00882FAE = 0x00882fae; // type:data evidence: retail func_0030b7b0 lui %hi(D_00882FAE)/addiu 0x2FAE (2 bytes below the main table)
+D_006417E0 = 0x006417e0; // type:data evidence: retail func_0030b7b0 lui %hi(D_006417E0)/addiu 0x17E0 (voice-id table, 0xB-byte rows)
+iGpffff8364 = 0x00761454; // type:data evidence: retail func_00118a20 lwc1 gp-0x7C9C as func_001187b0's 5th arg; gp base 0x007690F0 -> 0x00761454
+iGpffff9c10 = 0x00762D00; // type:data evidence: retail func_00117980 lbu gp-0x63F0 into the sp13C byte; gp base 0x007690F0 -> 0x00762D00
+iGpffff9c11 = 0x00762D01; // type:data evidence: retail func_00117980 lbu gp-0x63EF into the sp13D byte
+iGpffff9c12 = 0x00762D02; // type:data evidence: retail func_00117980 lbu gp-0x63EE into the sp13E byte
+iGpffff9c13 = 0x00762D03; // type:data evidence: retail func_00117980 lbu gp-0x63ED into the sp13F byte
+iGpffff81e0 = 0x007612D0; // type:data evidence: retail func_00117980 lwc1 gp-0x7E20 as the f22 pre-scale; gp base 0x007690F0 -> 0x007612D0

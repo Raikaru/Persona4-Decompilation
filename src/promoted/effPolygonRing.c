@@ -36,7 +36,7 @@ extern u8 *func_00482dc0();
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00713330[];
 extern LineNovaColor iGpffffbb64;
-extern u_long128 D_00713CE0;
+extern u_long128 D_00713CE0[];
 extern s32 D_00713F24[];
 extern u32 D_00713F14[];
 extern u32 D_00713F10[];
@@ -89,9 +89,33 @@ void func_00498ec0(void **arg0)
 
 
 
+/* measured: FP side fully matched - the fade math, the FMA fusion (adda/madd),
+   the split VU0 asm blocks (lqc2/vmove/mfc1/qmtc2/vmulx + per-slot sqc2 so
+   the operand addiu interleaves like retail), the doubling ((f32)t + (f32)t,
+   never 2.0f * t which emits mul.s) and the FP saved/temp pools (declared
+   var_f5, temp_f0, temp_f4, temp_f3, var_f1 in that order - the FP temp pool
+   follows declaration order). The residual is the saved-GPR pool rotation:
+   mwcc b210 pins temp_17/temp_18 to $s0/$s1 and moves var_16 between $s2/$s3
+   with declaration order, while retail allocates var_16 to $s0, temp_17 $s1,
+   temp_18 $s2, arg0 $s3 - a one-slot rotation that cascades 46 words (nd 46).
+   Tried var_16 declared first/last/mid, pointer pair swapped - the pair never
+   leaves $s0/$s1. Same recorded allocator-pool floor family as
+   effPolygonFlash FUN_0049D360/0049E150 (5 declaration orders tried there). */
 // FUN_00498F10
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00498f10);
 
+/* measured: byte-identical through the two VU0 colour-chain asm blocks and
+   the sp40 sw; the residual is the post-block TEMP register pool. retail's
+   first temp after block2 is $v1 (lw $v1,0x40($sp); addiu $t0,0xff; dst $a3;
+   bytes $a2,$a1,$a0,$v1) while mwcc b210 always starts the pool at $v0
+   (lw $v0; const $a3; dst $a2; bytes $a1,$a0,$v1,$v0) - a one-register
+   offset that cascades 13 tail rows (nd 57). Tried: block2 clobber lists
+   ($2+$3 / $3-only / $2-only), dummy "=r" output (nd 93), struct vs
+   field-at-a-time color copy, load-order and declaration-order variants
+   (nd 57-93). The sibling effPolygonFlash func_0049b2b0 matches because its
+   block text uses $2 and retail there also pools from $v0; this function's
+   retail pools from $v1 with a $3-based block. allocator-pool floor family
+   (cf. effPolygonFlash FUN_0049D360/0049E150 notes). */
 // FUN_004992A0
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_004992a0);
 
@@ -174,9 +198,27 @@ void func_004996e0(u8 *arg0)
 
 
 
+/* measured: same saved-GPR pool rotation as the rest of this unit - retail
+   allocates temp_16 $s0, temp_17 $s1, var_18 $s2, temp_19 $s3, temp_20 $s4,
+   temp_21 $s5 while mwcc b210 pins temp_17 to $s0, var_18 $s1, temp_16 $s2
+   regardless of declaration order (nd 152, rotation cascades through the
+   8-saved-register loop). The 13 hoisted %hi D_00713D10/14/18 lui bases, the
+   vrsqrt chain (vmulax/vmadday/vmaddz/vrsqrt/vwaitq/vmulq as one asm block
+   with "$22"-clobber forcing the saved $22), the var_8==0 pointer math and
+   the tail all reproduce otherwise. allocator-pool floor family. */
 // FUN_00499730
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499730);
 
+/* measured: everything matches byte-for-byte except the LAST of the three
+   quadword copies (arg0+0x10): retail emits lw $v1,4($s0); lq $v0,0x10($s3);
+   sq $v0,0x10($v1) but mwcc b210 emits lq $v1,0x10($s3); lw $v0,4($s0);
+   sq $v0,0x10($v1) - the scheduler swaps the two independent loads of the
+   final copy only (copies 1-2 come out in retail order). nd 6, exactly 3
+   words. Tried: nested deref (nd 12, RHS-first eval), per-copy dest local
+   (nd 6), #pragma schedule off (no effect, nd 6), pointer-local dstq/srcq
+   (nd 9). The 0x30 sw copy, both colour-chain asm blocks, the s128-copy
+   lui/pool allocation and the tail all reproduce exactly. Lead: untested
+   s128 spelling for the copies. scheduler-reorder floor family. */
 // FUN_00499A30
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499a30);
 
@@ -241,9 +283,30 @@ void func_00499df0(void **arg0)
     jtbl_008873EC[0](arg0);
 }
 
+/* measured: the VU0 chains reproduce byte-exact when written as split asm
+   blocks (lqc2/vmove/mfc1/qmtc2/vmulx, then a separate sqc2 block per stack
+   slot so mwcc interleaves the operand addiu like retail) and the loop's
+   three 0.0f stores need a named `zero` variable (bare 0.0f stores compile
+   to sw $zero; retail keeps the float in saved $f20). The residual is the
+   allocator pools starting one register lower than retail: saved GPRs
+   temp_17/temp_18 land in $s0/$s1 (retail $s1/$s2, var_16 then wraps to the
+   top), the FP temp pool gives var_f5 $f3 / fabs $f5 (retail $f5/$f3), and
+   with the zero placed late the FP saved pool becomes {fade $f22, acc $f21,
+   step $f20, zero $f23} (retail {zero $f20, step $f21, acc $f22, fade
+   $f23}); early zero assignment fixes $f20 but hoists the mtc1 above the
+   guard (retail materializes it right before the loop). Declaration orders
+   tried rotate var_16 between $s2/$s3 but never below the pointer pair
+   (nd 100+ / 162 with var_16 first). allocator-pool floor family (same
+   rotation as the func_004992a0/0049a1a0 twins). */
 // FUN_00499E40
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499e40);
 
+/* measured: byte-identical through the two VU0 colour-chain asm blocks; the
+   residual is the same post-block TEMP pool offset as its twin
+   func_004992a0 (retail pools from $v1, mwcc b210 from $v0 - nd 57, all rows
+   same opcodes). Retested with memory-only asm clobbers (no register
+   clobbers at all): the pool still starts at $v0, so the offset is not
+   clobber-driven. allocator-pool floor family. */
 // FUN_0049A1A0
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a1a0);
 
@@ -253,10 +316,17 @@ INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a1a0);
    (nd 39, all rows the same opcodes). Tried: array+direct deref, array+&+cast,
    scalar u_long128+&, quadSrc/quad locals, dstq local, memcpy(...,0x10),
    u64-pair, #pragma optimization_level 3, declaration reorders - every one
-   either folds identically (39) or gets worse (40/81/88). This is the
-   load-sinking / address-fold family of floors; the sibling effPolygonWind
-   func_004a5630 has the identical retail shape and its owner is blocked on
-   the same fold. */
+   either folds identically (39) or gets worse (40/81/88). Wave-4 retest of the
+   rule-3 typed-alias read (*(u_long128 *)(dst) = *(u_long128 *)&D_00713CE0):
+   retail has no dsll32/dsra32 and the candidate has no narrowing cast, so no
+   canonicalization pair existed to remove; the typed-alias form folds exactly
+   the same way (nd 39, verified byte-identical up to the copy site). Register
+   allocation only settles on retail's 5-saved-GPR pool when the three masks
+   are spelled differently ((u16)arg0 >= 4 / arg0 & 0xFFFF / (u16)arg0 * 0x18)
+   to stop mwcc CSE-ing the mask constant into a 6th saved register (nd 74/80
+   otherwise). This is the load-sinking / address-fold family of floors; the
+   sibling effPolygonWind func_004a5630 has the identical retail shape and its
+   owner is blocked on the same fold. */
 // FUN_0049A370
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a370);
 

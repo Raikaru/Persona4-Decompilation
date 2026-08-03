@@ -187,6 +187,12 @@ extern u32 DAT_00881634_abs[];
    Render-vtable hoist + register rotation floor. */
 // FUN_00270FB0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
+/* measured: retail keeps the list head temp in $v1 and reuses $v0 for the
+   scratch address base + second load (lui $v0; lw $v1; lw $v0); mwcc b210
+   colors head into $a0 with the lui base in $v1 at all four store sites and
+   rotates the counter addiu through $a0 (nd11). Tried u32 locals, swapped
+   declaration order, pointer locals, counter-local form - allocation never
+   changes. Temp-register rotation floor. */
 // FUN_00271310
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271310);
 
@@ -211,7 +217,26 @@ void func_00271380(s32 arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
 
 // FUN_002715C0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_002715c0);
+void func_002715c0(void)
+{
+    void *(**tab);
+
+    func_00271a40();
+    func_00271bd0(DAT_0088179C_abs[0]);
+    func_00271bd0(DAT_008817A0_abs[0]);
+    func_0026e170(DAT_0088175c_abs[0]);
+    func_0026e170(*(u32 *)DAT_00881760_abs);
+    if (DAT_0088152C_abs[0] != 0) {
+        tab = (void *(**) )DAT_008873ec_abs;
+        ((code)tab[0])(DAT_00881510_abs[0]);
+        ((code)tab[0])(DAT_00881514_abs[0]);
+        DAT_0088152C_abs[0] = 0;
+    }
+    tab = (void *(**) )DAT_008873ec_abs;
+    ((code)tab[0])(DAT_00881764_abs[0]);
+    ((code)tab[0])(DAT_00881768_abs[0]);
+    func_00275bd0();
+}
 
 // FUN_002716B0
 void func_002716b0(s32 arg0, u8 *arg1, u8 *arg2)
@@ -470,7 +495,65 @@ extern char D_00763808;
 // FUN_00271D10
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271d10);
 // FUN_00271F50
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00271f50);
+extern char D_0063BC20[];
+extern u32 func_00276260(u32 param_1, int param_2);
+extern u32 func_002761f0(u32 param_1, u32 param_2, u32 param_3);
+extern u16 func_00273910(u32 param_1);
+extern u16 func_00273940(u32 param_1);
+
+u8 *func_00271f50(u8 *arg0, u32 arg1)
+{
+    u8 *var_18;
+    u8 *temp_17;
+    u8 *temp_2;
+    u8 *var_16;
+    u8 *temp_20;
+    u8 sp60[0x10];
+
+    if ((var_18 = (u8 *)(u32)func_00276260(arg1, arg0[0x14])) != NULL) {
+        temp_2 = *(u8 **)(var_18 + 0x10);
+        if (temp_2 != NULL) {
+            *(u16 *)(temp_2 + 4) += 1;
+            return temp_2;
+        }
+    }
+    if (var_18 == NULL) {
+        temp_17 = (u8 *)((u32)gFrFontManagerData_abs + (arg0[0x15] << 5));
+        func_0044ea90(D_0063BAE8, 0x526);
+        temp_20 = (u8 *)jtbl_008873E8[0](0x200, 0x40000);
+        func_0026e1a0(*(int **)(temp_17 + 0x1C), (int *)sp60);
+        func_0026e1e0((int)temp_20, (int)arg1, *(int *)(temp_17 + 0x1C), (int *)sp60);
+        var_18 = (u8 *)(u32)func_002761f0(arg1, (u32)temp_20, arg0[0x14]);
+        if (var_18 == NULL) {
+            func_0046d730(D_0063BAE8, 0x560);
+        }
+        DAT_008873ec_abs[0](temp_20);
+    }
+    func_00273910(arg0[0x15]);
+    func_00273940(arg0[0x15]);
+    var_16 = *(u8 **)(DAT_0088152C_abs[0] + 0x1C);
+    if (*(s32 *)var_16 == 0) {
+        var_16 = NULL;
+    } else {
+        *(u32 *)(*(u32 *)(var_16 + 0x18) + 0x1C) = *(u32 *)(var_16 + 0x1C);
+        *(u32 *)(*(u32 *)(var_16 + 0x1C) + 0x18) = *(u32 *)(var_16 + 0x18);
+        DAT_00881528_abs[0] -= 1;
+    }
+    if (var_16 == NULL) {
+        func_0046d740(D_0063BC20, D_0063BAE8, 0x508);
+    }
+    temp_17 = *(u8 **)(var_16 + 0x14);
+    if (temp_17 == NULL) {
+        func_0046d730(D_0063BAE8, 0x50D);
+    }
+    *(u16 *)(temp_17 + 4) = 1;
+    *(u32 *)(temp_17 + 8) = (u32)var_16;
+    *(u16 *)(temp_17 + 0) = (u16)arg1;
+    *(u32 *)(temp_17 + 0xC) = (u32)var_18;
+    *(u32 *)(var_18 + 0x10) = (u32)temp_17;
+    DAT_00881750_abs[0] += 1;
+    return temp_17;
+}
 extern char D_0063BC50[];
 extern u8 *func_0026e0e0(s32 param_1);
 
@@ -680,9 +763,18 @@ void func_00272a10(int param_1, float param_2, float param_3)
     }
 }
 
+/* measured: func_00272b00/00272b34 (and 00272ba0/00272bd4) are one retail
+   code region split by Ghidra at a branch target: b00's entry beq jumps to
+   b34's entry, whose bne branches back into b00's body. Portable C cannot
+   reproduce the cross-function branch (standalone compiles give b00 15 words
+   vs a 13-word window and b34 a full body vs a 7-word window). P3FES donor
+   keeps the same pair as asm functions (FUN_003b0dd8/FUN_003b0e04).
+   Ghidra split, not a compiler floor. */
 // FUN_00272B00
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272b00);
 
+/* measured: 00272b34 is the check half of the func_00272b00 split (its entry
+   bne branches back into 00272b00's body); see note above FUN_00272B00. */
 // FUN_00272B34
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272b34);
 
@@ -704,9 +796,15 @@ void func_00272b50(int param_1, u8 param_2, u8 param_3)
     }
 }
 
+/* measured: s32 twin of the func_00272b00/00272b34 split above (stores a
+   u32 at +0x10 instead of a u8 at +0x14); 00272bd4's entry bne branches back
+   into 00272ba0's body. Same Ghidra split, same impossibility for portable C
+   (see the note above FUN_00272B00). */
 // FUN_00272BA0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272ba0);
 
+/* measured: 00272bd4 is the check half of the func_00272ba0 split (its entry
+   bne branches back into 00272ba0's body); see note above FUN_00272BA0. */
 // FUN_00272BD4
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272bd4);
 
@@ -868,6 +966,13 @@ extern code D_00887300_abs[];
    Saved-register rotation floor. */
 // FUN_00273170
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
+/* measured: retail's 4-case dispatch emits an extra scheduler nop before the
+   default branch (beq;nop;nop;b vs mwcc b210's beq;nop;b), shifting the whole
+   tail by one word; every instruction's content otherwise matches (nd 82 =
+   the one-word shift across ~49 words). Tried switch with goto-to-default
+   NULL block (m2c block_18 shape), direct-deref switch, per-branch NULL
+   assignments, reversed case declarations - the nop never appears.
+   Branch-scheduling floor. */
 // FUN_002734B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002734b0);
 // FUN_00273610
@@ -995,6 +1100,15 @@ int func_00273970(int node)
     return result;
 }
 
+/* measured: nd132 at 704B vs 720B retail body. Two independent residuals:
+   (1) all three if(body with a call){func_002724d0/73650} sites compile
+   inline-with-negated-skip (beqz) in b210, retail places each out-of-line
+   with a positive bnez + skip-b (same floor as FUN_00273F70; 4 spellings
+   tried there); (2) saved-register permutation - retail colors arg1=$20/
+   temp_19=$19/var_18=$18/temp_17=$17, b210 colors arg1=$19/temp_19=$18/
+   var_18=$17/temp_17=$20 (var_16=$16, var_21=$21, temp_22=$22 match) and
+   no declaration order tried moved them. sp8C slot fixed with int+cast.
+   If-body placement + saved-register rotation floors. */
 // FUN_002739E0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002739e0);
 
@@ -1010,10 +1124,29 @@ extern s32 func_00442948(const void *param_1);
    retail's out-of-line - all layout/alloc floors (like FUN_00273F70). */
 // FUN_00273CC0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273cc0);
+/* measured: retail places the if(temp_5 != 0){func_00273650 call} body
+   OUT-OF-LINE with a positive branch (bnez $a1,Lbody; b Lafter; Lbody:
+   call; Lafter: sw) - nd49 with the whole tail shifted; mwcc b210 compiles
+   the same call inline-with-negated-skip (beqz) in every spelling tried
+   (plain if, switch case0/default in both declaration orders, empty-if +
+   else). The remaining 48 words are the resulting layout shift only.
+   If-body placement floor. */
 // FUN_00273F70
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273f70);
+/* measured: nd217 at 1208B vs 1216B window. Structure matches (first-if,
+   D_00763810 update, while loop with comma-condition); residual is (1) the
+   proven if-body-out-of-line floor at the func_002724d0/00273650 site (see
+   FUN_00273F70/FUN_002739E0 - b210 inlines the call block, retail branches
+   positively to it), which alone shifts the tail, and (2) a saved-register
+   map one register off - retail saves only $16-$19 (temp_16/temp_17/temp_18/
+   arg0, reusing $17 for var_17), b210 adds a 5th saved reg for the separate
+   var_17 local and masks temp_16 through $s0 (andi 0xFF) at the loop test.
+   Frame 0x70 vs retail 0x60. If-body placement + saved-register rotation
+   floors. */
 // FUN_002740B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002740b0);
+
+
 // FUN_00274570
 void func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                    u32 param_5, u32 param_6, u32 param_7, u32 param_8)
@@ -1058,6 +1191,7 @@ void func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
     func_002746b0(0);
     func_002740b0(&data);
 }
+
 
 // FUN_00274640
 void func_00274640(void)
