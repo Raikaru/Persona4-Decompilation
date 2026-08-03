@@ -95,7 +95,15 @@ def main() -> int:
         name, _, path = spec.partition("=")
         if not path:
             raise SystemExit(f"--candidate wants NAME=PATH, got {spec!r}")
-        candidates.append((name, Path(path).read_text(encoding="utf-8")))
+        body = Path(path).read_text(encoding="utf-8")
+        # The region runs up to the next `// FUN_` marker, so a candidate with no
+        # trailing newline splices its last line onto that marker, merging them.
+        # The following function then has no marker of its own and silently
+        # disappears from the file -- one lost function per probe, blamed on
+        # anything but the missing byte. Supply it.
+        if body and not body.endswith("\n"):
+            body += "\n"
+        candidates.append((name, body))
 
     # "Restore" means "put back what was here when I started", not "put back the
     # INCLUDE_ASM fallback". Starting from a half-finished body therefore
@@ -112,6 +120,14 @@ def main() -> int:
             # Byte-level write: Path.write_text would rewrite every newline.
             with open(source, "wb") as handle:
                 handle.write((text[:start] + body + text[end:]).encode("utf-8"))
+            # An INCLUDE_ASM body assembles the retail bytes themselves, so it
+            # scores a perfect 0 while matching nothing. Scoring it would crown
+            # the fallback as the winner and bury every real candidate beneath
+            # an unreachable target.
+            if "INCLUDE_ASM" in body:
+                results.append((name, None))
+                print(f"  {name:<18}     -- (INCLUDE_ASM fallback, not a score)", flush=True)
+                continue
             score = differing_words(source, args.function)
             results.append((name, score))
             shown = "COMPILE ERROR" if score is None else f"{score:5d}"

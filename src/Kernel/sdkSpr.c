@@ -25,6 +25,8 @@ extern u8 *iGpffffbb18;
 extern char iGpffffb038;
 extern char D_007130C8[];
 
+static inline u32 sdkAddOffset(u32 offset, u32 base) { return offset + base; }
+
 // FUN_0046AB90
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046ab90);
 
@@ -145,34 +147,81 @@ void func_0046b0d0(u8 *node)
     jtbl_008873EC[0](node);
 }
 
-/* measured: negative-rounding tail of this leaf (srl/andi/or/mtc1/cvt.s.w/add.s)
-   is 2 words off: b210 always colors the OR result (and the mtc1 input) to the
-   ANDI temp register (or $v0,$v1,$v0) where retail keeps it in the SRL temp
-   register (or $v1,$v1,$v0). Tried ~12 spellings, all nd 2 with the identical
-   pair: named f32 local vs inline, (s32) cast on the OR result (REQUIRED to kill
-   b210's u32-conversion guard duplication; without it nd 8-18), u32 vs s32
-   locals, statement splitting, compound |=, operand order flip, if/else vs
-   early return, (f32)(s32)c + (f32)(s32)c CSE form. Every other word matches.
-   Register-coloring floor, not source-drivable in this leaf shape. */
+/* Ported from P3FES h_maestro.c func_001126b0 (blob+index scale variant).
+   Donor struct fields map onto P4 offsets: output at 0x204, overrideX at 0x74,
+   right/left at 0x5c/0x54. The `sdkAddOffset` inline carries the offset-first
+   operand order retail emits (addu $v0,$a1,$a0). */
 // FUN_0046B1F0
-INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b1f0);
-/* measured: identical residual to func_0046b1f0's floor. Whole body matches
-   (incl. the three-operand mult $2,$7,$2 and srl >>12) except the
-   negative-rounding tail: b210 colors the OR result + mtc1 input to the ANDI
-   temp register (or $v0,$v1,$v0 / mtc1 $v0) where retail keeps the SRL temp
-   register (or $v1,$v1,$v0 / mtc1 $v1). Tried s32-typed OR expressions
-   ((s32)((u32)v>>1)|(v&1)), assignment-back-to-v, named u32/s32 locals,
-   (f32)c with and without (s32) cast -- all nd 3 (2 real + 1 benign padding
-   nop). Register-coloring floor, same family as b1f0. */
+f32 func_0046b1f0(u8 *blob, u32 index)
+{
+    u32 value;
+    u32 offset;
+    u8 *output;
+    u8 *overrideBase;
+
+    offset = index * 0x80;
+    output = *(u8 **)(blob + 0x204);
+    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5c) -
+            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
+    overrideBase = output + 0x74;
+    if (*(s16 *)(overrideBase + offset) != 0)
+    {
+        value = *(s16 *)(overrideBase + offset);
+    }
+    return (f32)value;
+}
 // FUN_0046B260
-INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b260);
-/* measured: same floor as func_0046b260 (offsets 0x60/0x58/0x76/0x22): entire
-   body byte-identical except the negative-rounding tail or/mtc1 register pair
-   (b210 colors OR result + mtc1 input to the ANDI temp; retail keeps the SRL
-   temp). nd 3 (2 real + 1 benign padding nop). Same register-coloring floor
-   family as b1f0/b260. */
+f32 func_0046b260(u8 *param_1)
+{
+    u32 value;
+    u32 offset;
+    u8 *output;
+    u8 *overrideBase;
+    u8 *sample;
+
+    sample = param_1;
+
+    offset = *(u32 *)(sample + 0x4) * 0x80;
+    output = *(u8 **)(*(u8 **)(sample + 0x0) + 0x204);
+    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x5c) -
+            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x54);
+    overrideBase = output + 0x74;
+    if (*(s16 *)(overrideBase + offset) != 0)
+    {
+        value = *(s16 *)(overrideBase + offset);
+    }
+    if (*(u16 *)(sample + 0x20) != 0)
+    {
+        value = (s32)(((u32)value * *(u16 *)(sample + 0x20)) >> 12);
+    }
+    return (f32)value;
+}
 // FUN_0046B2F0
-INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b2f0);
+f32 func_0046b2f0(u8 *param_1)
+{
+    u32 value;
+    u32 offset;
+    u8 *output;
+    u8 *overrideBase;
+    u8 *sample;
+
+    sample = (u8 *)param_1;
+
+    offset = *(u32 *)(sample + 0x4) * 0x80;
+    output = *(u8 **)(*(u8 **)(sample + 0x0) + 0x204);
+    value = *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x60) -
+            *(s32 *)(sdkAddOffset(offset, (u32)output) + 0x58);
+    overrideBase = output + 0x76;
+    if (*(s16 *)(overrideBase + offset) != 0)
+    {
+        value = *(s16 *)(overrideBase + offset);
+    }
+    if (*(u16 *)(sample + 0x22) != 0)
+    {
+        value = (s32)(((u32)value * *(u16 *)(sample + 0x22)) >> 12);
+    }
+    return (f32)value;
+}
 // FUN_0046B380
 INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046b380);
 

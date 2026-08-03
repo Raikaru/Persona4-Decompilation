@@ -2,6 +2,13 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit eff_after.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+
+/* 12-byte vector copy; mwcc emits all loads then all stores for a struct
+   assignment, matching retail, where per-element statements interleave. */
+typedef struct {
+    f32 c[3];
+} EffAfterVec;
+
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007146E0[];
@@ -13,50 +20,357 @@ extern void func_003e40b0(f32 *a, f32 *b);
 extern f32 func_004b7300(void *arg0, s32 arg1);
 extern s32 func_004b7800(void *arg0, s32 arg1);
 extern f32 func_004bc310(u8 *arg0, s32 arg1);
-extern void func_004bb1d0();
+extern void func_004bb1d0(void *arg0, s32 arg1);
+extern void func_004b7dc0(u8 *arg0, s32 arg1, EffAfterVec *arg2);
 
-/* 12-byte vector copy; mwcc emits all loads then all stores for a struct
-   assignment, matching retail, where per-element statements interleave. */
-typedef struct {
-    f32 c[3];
-} EffAfterVec;
-
-/* measured: nd 461 with a full C body (object 936B against a 928B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
 // FUN_004B7460
-INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b7460);
+void func_004b7460(u8 *data, f32 distance, u32 *section, f32 *fraction) {
+    EffAfterVec leadingDelta;
+    EffAfterVec trailingDelta;
+    u8 *vectorBase;
+    EffAfterVec *nextSample;
+    EffAfterVec *firstSample;
+    s32 firstOffset;
+    s32 nextOffset;
+    s32 leadingIndex;
+    s32 trailingIndex;
+    s32 firstIndex;
+    s32 nextIndex;
+    s32 totalIndex;
+    s32 currentSection;
+    f32 previous;
+    f32 cumulative;
+    f32 total;
+    f32 scaledLength;
+    f32 sectionLength;
+    f32 nextX;
+    f32 targetDistance = distance;
 
-/* measured: quaternion-frame rotation; same family as func_004b7dc0 (which
-   floors at nd 10 on the v5 index register). nd 323: the arg2 switch selects
-   between A x C and B x A cross products and the spC/spB subtraction operands
-   (p1/p2) swap by arg2, plus the trailing madd/madda dot-product fold; the mwcc
-   b210 body does not reproduce the fp register save set or the cross-product
-   load order. Attempted one full m2c adaptation. */
+    total = 0.0f;
+    for (totalIndex = 0; totalIndex < *(s32 *)(data + 8) - 1; totalIndex++) {
+        total += func_004b7300(data, totalIndex);
+    }
+    if (total <= 0.0f) {
+        *section = 0;
+        *fraction = 0.0f;
+        return;
+    }
+    currentSection = 0;
+    while (currentSection < *(s32 *)(data + 8) - 1) {
+        cumulative = 0.0f;
+        for (leadingIndex = 0; leadingIndex < currentSection + 1; leadingIndex++) {
+            firstIndex = func_004b7800(data, leadingIndex);
+            nextIndex = func_004b7800(data, leadingIndex + 1);
+            sectionLength = 0.0f;
+            vectorBase = (u8 *)*(s32 *)(data + 0x10);
+            firstOffset = firstIndex * 0xC;
+            nextOffset = nextIndex * 0xC;
+            nextSample = (EffAfterVec *)(vectorBase + nextOffset);
+            nextX = nextSample->c[0];
+            firstSample = (EffAfterVec *)(vectorBase + firstOffset);
+            leadingDelta.c[0] = nextX - firstSample->c[0];
+            leadingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
+            leadingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
+            sectionLength += func_003e4180(&leadingDelta.c[0]);
+            vectorBase = (u8 *)*(s32 *)(data + 0x14);
+            nextSample = (EffAfterVec *)(vectorBase + nextOffset);
+            nextX = nextSample->c[0];
+            firstSample = (EffAfterVec *)(vectorBase + firstOffset);
+            leadingDelta.c[0] = nextX - firstSample->c[0];
+            leadingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
+            leadingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
+            sectionLength += func_003e4180(&leadingDelta.c[0]);
+            scaledLength = 0.0f;
+            scaledLength += sectionLength * *(f32 *)((u8 *)*(void **)*(void **)data + 0x2C);
+            cumulative += scaledLength / total;
+        }
+        if (targetDistance < cumulative) {
+            break;
+        }
+        currentSection++;
+    }
+    if (currentSection == 0) {
+        previous = 0.0f;
+    } else {
+        previous = 0.0f;
+        for (trailingIndex = 0; trailingIndex < currentSection; trailingIndex++) {
+            firstIndex = func_004b7800(data, trailingIndex);
+            nextIndex = func_004b7800(data, trailingIndex + 1);
+            sectionLength = 0.0f;
+            vectorBase = (u8 *)*(s32 *)(data + 0x10);
+            firstOffset = firstIndex * 0xC;
+            nextOffset = nextIndex * 0xC;
+            nextSample = (EffAfterVec *)(vectorBase + nextOffset);
+            nextX = nextSample->c[0];
+            firstSample = (EffAfterVec *)(vectorBase + firstOffset);
+            trailingDelta.c[0] = nextX - firstSample->c[0];
+            trailingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
+            trailingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
+            sectionLength += func_003e4180(&trailingDelta.c[0]);
+            vectorBase = (u8 *)*(s32 *)(data + 0x14);
+            nextSample = (EffAfterVec *)(vectorBase + nextOffset);
+            nextX = nextSample->c[0];
+            firstSample = (EffAfterVec *)(vectorBase + firstOffset);
+            trailingDelta.c[0] = nextX - firstSample->c[0];
+            trailingDelta.c[1] = nextSample->c[1] - firstSample->c[1];
+            trailingDelta.c[2] = nextSample->c[2] - firstSample->c[2];
+            sectionLength += func_003e4180(&trailingDelta.c[0]);
+            scaledLength = 0.0f;
+            scaledLength += sectionLength * *(f32 *)((u8 *)*(void **)*(void **)data + 0x2C);
+            previous += scaledLength / total;
+        }
+    }
+    *section = currentSection;
+    sectionLength = cumulative - previous;
+    if (sectionLength <= 0.0f) {
+        func_0046d730(D_007146E0, 0x7E);
+    }
+    *fraction = (targetDistance - previous) / sectionLength;
+}
 // FUN_004B7830
-INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b7830);
+void func_004b7830(u8 *work, s32 section, s32 side, EffAfterVec *output) {
+    typedef struct {
+        u8 *config;
+        u32 state;
+        s32 count;
+        s32 cursor;
+        EffAfterVec *vectors[2];
+    } SurfaceWork;
+    SurfaceWork *data = (SurfaceWork *)work;
+    EffAfterVec *points[2][2];
+    EffAfterVec sideDelta;
+    EffAfterVec forward;
+    EffAfterVec normal;
+    EffAfterVec axis;
+    EffAfterVec frameNormal;
+    EffAfterVec *point;
+    EffAfterVec **pointRow;
+    s32 firstIndex;
+    u32 selected;
+    u32 other;
+    f32 projection;
 
-/* measured: quaternion-frame vector rotation. Everything matches except the
-   second index v5 lands in $a2 (reusing t's register) where retail reuses the
-   freed v4*0xC register ($a1 in the arg1==n-1 branch, $v1 in the else branch).
-   nd 10, 5 words per branch. Tried declaration orders (v4/v5), v4/v5 reuse,
-   two-statement v5, named -2-arg1 accumulator, swapped addu operand order,
-   hoisted base/offset locals, comparison-form wrap: all compile to the same
-   $a2 reuse. Register-allocation floor in the index wrap. The mula/msub cross
-   products, the struct-assignment batched store, and the else-branch swapped
-   cross product (v2 x v1) all match byte-for-byte. */
+    if (data->count < 2) {
+        func_0046d730(D_007146E0, 0xAA);
+    }
+    if (section == data->count - 1) {
+        s32 secondIndex;
+        secondIndex = data->cursor - 1 - section;
+        if (secondIndex < 0) {
+            secondIndex += data->count;
+        }
+        firstIndex = data->cursor - section;
+        if (firstIndex < 0) {
+            firstIndex += data->count;
+        }
+        func_004b7dc0(work, section, (EffAfterVec *)&frameNormal.c[0]);
+        points[0][0] = &data->vectors[(other = side & 1)][secondIndex];
+        selected = (side + 1) & 1;
+        points[0][1] = &data->vectors[selected][secondIndex];
+        points[1][0] = &data->vectors[other][firstIndex];
+        points[1][1] = &data->vectors[selected][firstIndex];
+        pointRow = points[other];
+        point = pointRow[selected];
+        sideDelta.c[0] = point->c[0] - points[0][0]->c[0];
+        sideDelta.c[1] = point->c[1] - points[0][0]->c[1];
+        sideDelta.c[2] = point->c[2] - points[0][0]->c[2];
+        func_003e40b0(&sideDelta.c[0], &sideDelta.c[0]);
+        pointRow = points[selected];
+        point = pointRow[other];
+        projection = point->c[0];
+        forward.c[0] = projection - points[0][0]->c[0];
+        forward.c[1] = point->c[1] - points[0][0]->c[1];
+        forward.c[2] = point->c[2] - points[0][0]->c[2];
+        func_003e40b0(&forward.c[0], &forward.c[0]);
+        normal.c[0] = sideDelta.c[1] * forward.c[2] - sideDelta.c[2] * forward.c[1];
+        normal.c[1] = sideDelta.c[2] * forward.c[0] - sideDelta.c[0] * forward.c[2];
+        normal.c[2] = sideDelta.c[0] * forward.c[1] - sideDelta.c[1] * forward.c[0];
+        func_003e40b0(&normal.c[0], &normal.c[0]);
+        switch (side) {
+        case 0:
+            axis.c[0] = normal.c[1] * sideDelta.c[2] - normal.c[2] * sideDelta.c[1];
+            axis.c[1] = normal.c[2] * sideDelta.c[0] - normal.c[0] * sideDelta.c[2];
+            axis.c[2] = normal.c[0] * sideDelta.c[1] - normal.c[1] * sideDelta.c[0];
+            break;
+        case 1:
+            axis.c[0] = forward.c[1] * normal.c[2] - forward.c[2] * normal.c[1];
+            axis.c[1] = forward.c[2] * normal.c[0] - forward.c[0] * normal.c[2];
+            axis.c[2] = forward.c[0] * normal.c[1] - forward.c[1] * normal.c[0];
+            break;
+        }
+        projection = axis.c[0] * frameNormal.c[0] + axis.c[1] * frameNormal.c[1] + axis.c[2] * frameNormal.c[2];
+        axis.c[0] *= projection;
+        axis.c[1] *= projection;
+        axis.c[2] *= projection;
+        func_003e40b0(&output->c[0], &axis.c[0]);
+    } else {
+        s32 secondIndex;
+        secondIndex = data->cursor - 1 - section;
+        if (secondIndex < 0) {
+            secondIndex += data->count;
+        }
+        firstIndex = -2 - section + data->cursor;
+        if (firstIndex < 0) {
+            firstIndex += data->count;
+        }
+        func_004b7dc0(work, section, (EffAfterVec *)&frameNormal.c[0]);
+        points[0][0] = &data->vectors[(other = side & 1)][secondIndex];
+        selected = (side + 1) & 1;
+        points[0][1] = &data->vectors[selected][secondIndex];
+        points[1][0] = &data->vectors[other][firstIndex];
+        points[1][1] = &data->vectors[selected][firstIndex];
+        pointRow = points[other];
+        point = pointRow[selected];
+        sideDelta.c[0] = point->c[0] - points[0][0]->c[0];
+        sideDelta.c[1] = point->c[1] - points[0][0]->c[1];
+        sideDelta.c[2] = point->c[2] - points[0][0]->c[2];
+        func_003e40b0(&sideDelta.c[0], &sideDelta.c[0]);
+        pointRow = points[selected];
+        point = pointRow[other];
+        projection = point->c[0];
+        forward.c[0] = projection - points[0][0]->c[0];
+        forward.c[1] = point->c[1] - points[0][0]->c[1];
+        forward.c[2] = point->c[2] - points[0][0]->c[2];
+        func_003e40b0(&forward.c[0], &forward.c[0]);
+        normal.c[0] = sideDelta.c[1] * forward.c[2] - sideDelta.c[2] * forward.c[1];
+        normal.c[1] = sideDelta.c[2] * forward.c[0] - sideDelta.c[0] * forward.c[2];
+        normal.c[2] = sideDelta.c[0] * forward.c[1] - sideDelta.c[1] * forward.c[0];
+        func_003e40b0(&normal.c[0], &normal.c[0]);
+        switch (side) {
+        case 0:
+            axis.c[0] = sideDelta.c[1] * normal.c[2] - sideDelta.c[2] * normal.c[1];
+            axis.c[1] = sideDelta.c[2] * normal.c[0] - sideDelta.c[0] * normal.c[2];
+            axis.c[2] = sideDelta.c[0] * normal.c[1] - sideDelta.c[1] * normal.c[0];
+            break;
+        case 1:
+            axis.c[0] = normal.c[1] * forward.c[2] - normal.c[2] * forward.c[1];
+            axis.c[1] = normal.c[2] * forward.c[0] - normal.c[0] * forward.c[2];
+            axis.c[2] = normal.c[0] * forward.c[1] - normal.c[1] * forward.c[0];
+            break;
+        }
+        projection = axis.c[0] * frameNormal.c[0] + axis.c[1] * frameNormal.c[1] + axis.c[2] * frameNormal.c[2];
+        axis.c[0] *= projection;
+        axis.c[1] *= projection;
+        axis.c[2] *= projection;
+        func_003e40b0(&output->c[0], &axis.c[0]);
+    }
+}
+
 // FUN_004B7DC0
-INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b7dc0);
+void func_004b7dc0(u8 *work, s32 section, EffAfterVec *output) {
+    typedef struct {
+        u8 *config;
+        u32 state;
+        s32 count;
+        s32 cursor;
+        EffAfterVec *firstVectors;
+        EffAfterVec *secondVectors;
+    } FrameWork;
+    FrameWork *data = (FrameWork *)work;
+    EffAfterVec *firstLeading;
+    EffAfterVec *firstTrailing;
+    EffAfterVec *secondLeading;
+    EffAfterVec *secondTrailing;
+    EffAfterVec leadingDelta;
+    EffAfterVec secondSide;
+    EffAfterVec normal;
+    s32 firstIndex;
+    f32 leadingLength;
+    f32 trailingLength;
 
-/* measured: mesh-building with 4 switch statements and loops. The second
-   switch's case 1/2 loops store 32-bit indices (temp_2_2 = m+1, temp_2_3 = m+2)
-   into 128-bit quadword slots (spD0/spC0/spB0/spA0) via sq/lq and read them back
-   as u16; retail stores the value directly (sq $2,0xD0) but mwcc b210 emits a
-   dsll32/dsrl32 widening pair before each sq -- the documented 32-bit-into-128-bit
-   write floor. 4 such sites per path. Also the call argument order (retail
-   materializes caller offsets before the index args) differs. Quadword-slot
-   floor. */
+    if (data->count < 2) {
+        func_0046d730(D_007146E0, 0xF7);
+    }
+    if (section == data->count - 1) {
+        s32 secondIndex;
+        firstIndex = data->cursor - 1 - section;
+        if (firstIndex < 0) {
+            firstIndex += data->count;
+        }
+        firstLeading = &data->firstVectors[firstIndex];
+        firstTrailing = &data->secondVectors[firstIndex];
+        secondIndex = data->cursor - section;
+        if (secondIndex < 0) {
+            secondIndex += data->count;
+        }
+        secondLeading = &data->firstVectors[secondIndex];
+        secondTrailing = &data->secondVectors[secondIndex];
+        leadingDelta.c[0] = firstLeading->c[0] - secondLeading->c[0];
+        leadingDelta.c[1] = firstLeading->c[1] - secondLeading->c[1];
+        leadingDelta.c[2] = firstLeading->c[2] - secondLeading->c[2];
+        leadingLength = func_003e4180(&leadingDelta.c[0]);
+        leadingDelta.c[0] = firstTrailing->c[0] - secondTrailing->c[0];
+        leadingDelta.c[1] = firstTrailing->c[1] - secondTrailing->c[1];
+        leadingDelta.c[2] = firstTrailing->c[2] - secondTrailing->c[2];
+        trailingLength = func_003e4180(&leadingDelta.c[0]);
+        leadingDelta.c[0] = firstTrailing->c[0] - firstLeading->c[0];
+        leadingDelta.c[1] = firstTrailing->c[1] - firstLeading->c[1];
+        leadingDelta.c[2] = firstTrailing->c[2] - firstLeading->c[2];
+        func_003e40b0(&leadingDelta.c[0], &leadingDelta.c[0]);
+        secondSide.c[0] = secondTrailing->c[0] - secondLeading->c[0];
+        secondSide.c[1] = secondTrailing->c[1] - secondLeading->c[1];
+        secondSide.c[2] = secondTrailing->c[2] - secondLeading->c[2];
+        func_003e40b0(&secondSide.c[0], &secondSide.c[0]);
+        normal.c[0] = leadingDelta.c[1] * secondSide.c[2] - leadingDelta.c[2] * secondSide.c[1];
+        normal.c[1] = leadingDelta.c[2] * secondSide.c[0] - leadingDelta.c[0] * secondSide.c[2];
+        normal.c[2] = leadingDelta.c[0] * secondSide.c[1] - leadingDelta.c[1] * secondSide.c[0];
+        func_003e40b0(&normal.c[0], &normal.c[0]);
+        *output = normal;
+        if (!(leadingLength <= trailingLength)) {
+            output->c[0] = leadingDelta.c[1] * normal.c[2] - leadingDelta.c[2] * normal.c[1];
+            output->c[1] = leadingDelta.c[2] * normal.c[0] - leadingDelta.c[0] * normal.c[2];
+            output->c[2] = leadingDelta.c[0] * normal.c[1] - leadingDelta.c[1] * normal.c[0];
+        } else {
+            output->c[0] = normal.c[1] * leadingDelta.c[2] - normal.c[2] * leadingDelta.c[1];
+            output->c[1] = normal.c[2] * leadingDelta.c[0] - normal.c[0] * leadingDelta.c[2];
+            output->c[2] = normal.c[0] * leadingDelta.c[1] - normal.c[1] * leadingDelta.c[0];
+        }
+    } else {
+        s32 secondIndex;
+        firstIndex = data->cursor - 1 - section;
+        if (firstIndex < 0) {
+            firstIndex += data->count;
+        }
+        firstLeading = &data->firstVectors[firstIndex];
+        firstTrailing = &data->secondVectors[firstIndex];
+        secondIndex = -2 - section + data->cursor;
+        if (secondIndex < 0) {
+            secondIndex += data->count;
+        }
+        secondLeading = &data->firstVectors[secondIndex];
+        secondTrailing = &data->secondVectors[secondIndex];
+        leadingDelta.c[0] = firstLeading->c[0] - secondLeading->c[0];
+        leadingDelta.c[1] = firstLeading->c[1] - secondLeading->c[1];
+        leadingDelta.c[2] = firstLeading->c[2] - secondLeading->c[2];
+        leadingLength = func_003e4180(&leadingDelta.c[0]);
+        leadingDelta.c[0] = firstTrailing->c[0] - secondTrailing->c[0];
+        leadingDelta.c[1] = firstTrailing->c[1] - secondTrailing->c[1];
+        leadingDelta.c[2] = firstTrailing->c[2] - secondTrailing->c[2];
+        trailingLength = func_003e4180(&leadingDelta.c[0]);
+        leadingDelta.c[0] = firstTrailing->c[0] - firstLeading->c[0];
+        leadingDelta.c[1] = firstTrailing->c[1] - firstLeading->c[1];
+        leadingDelta.c[2] = firstTrailing->c[2] - firstLeading->c[2];
+        func_003e40b0(&leadingDelta.c[0], &leadingDelta.c[0]);
+        secondSide.c[0] = secondTrailing->c[0] - secondLeading->c[0];
+        secondSide.c[1] = secondTrailing->c[1] - secondLeading->c[1];
+        secondSide.c[2] = secondTrailing->c[2] - secondLeading->c[2];
+        func_003e40b0(&secondSide.c[0], &secondSide.c[0]);
+        normal.c[0] = secondSide.c[1] * leadingDelta.c[2] - secondSide.c[2] * leadingDelta.c[1];
+        normal.c[1] = secondSide.c[2] * leadingDelta.c[0] - secondSide.c[0] * leadingDelta.c[2];
+        normal.c[2] = secondSide.c[0] * leadingDelta.c[1] - secondSide.c[1] * leadingDelta.c[0];
+        func_003e40b0(&normal.c[0], &normal.c[0]);
+        *output = normal;
+        if (!(leadingLength <= trailingLength)) {
+            output->c[0] = leadingDelta.c[1] * normal.c[2] - leadingDelta.c[2] * normal.c[1];
+            output->c[1] = leadingDelta.c[2] * normal.c[0] - leadingDelta.c[0] * normal.c[2];
+            output->c[2] = leadingDelta.c[0] * normal.c[1] - leadingDelta.c[1] * normal.c[0];
+        } else {
+            output->c[0] = normal.c[1] * leadingDelta.c[2] - normal.c[2] * leadingDelta.c[1];
+            output->c[1] = normal.c[2] * leadingDelta.c[0] - normal.c[0] * leadingDelta.c[2];
+            output->c[2] = normal.c[0] * leadingDelta.c[1] - normal.c[1] * leadingDelta.c[0];
+        }
+    }
+}
 // FUN_004B8350
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8350);
 
@@ -102,24 +416,43 @@ void func_004b8f10(void *arg0) {
 // FUN_004B8F40
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004b8f40);
 
-/* measured: retail materializes the case-1 comparison constant in $a1
-   (addiu $a1,$zero,1; beq $a0,$a1) while mwcc b210 reuses $v1 from the
-   case-2 test, leaving exactly 2 differing words (nd 2). Tried switch case
-   orders (0,1,2) (0,2,1) (2,1,0) (0,2,D,1), default first/last, case 1 as
-   break vs return, unsigned switch, named switch-value local, all-break +
-   trailing return, and an if/else-if chain: every spelling either compiles to
-   the identical $v1 reuse or breaks retail's test order/layout. Register-
-   coalescing floor in the linear switch comparison chain. */
 // FUN_004BAD70
-INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bad70);
+void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
+    typedef struct {
+        u8 *config;
+        u32 reserved;
+        s32 count;
+        s32 writeIndex;
+        EffAfterVec *positions;
+        EffAfterVec *normals;
+    } SampleQueue;
+    SampleQueue *queue;
+    s32 index;
 
-/* measured: vector-blend across 4 shadow paths (each calls func_004bc1e0 /
-   func_004bc310 / func_004b7830). nd 947 from the start: retail keeps 8 values
-   in fp saved registers f20-f27 (swc1 prologue) and lays the 4 loaded frame
-   weights at sp78/sp70/sp7C/sp74 with an (offset&1)*4 pair selection, while the
-   mwcc b210 body spills them to a different stack layout and rotates the fp
-   register save set. Fundamental stack/fp-save mismatch, not a local residual.
-   Attempted one full m2c adaptation. */
+    queue = (SampleQueue *)data;
+    index = queue->writeIndex;
+    queue->positions[index] = *position;
+    queue->normals[index] = *normal;
+    if (queue->count < *(s32 *)((u8 *)queue->config + 8)) {
+        queue->count++;
+    }
+    queue->writeIndex++;
+    queue->writeIndex %= *(s32 *)((u8 *)queue->config + 8);
+    switch (queue->count) {
+    case 0:
+        func_0046d730(D_007146E0, 0x5BB);
+        break;
+    case 1:
+        break;
+    case 2:
+        func_004bb1d0(queue, 0);
+        break;
+    default:
+        func_004bb1d0(queue, 1);
+        func_004bb1d0(queue, 0);
+        break;
+    }
+}
 // FUN_004BB1D0
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
 

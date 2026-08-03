@@ -213,7 +213,15 @@ void func_0049b2b0(u8 *arg0)
  * the four-load chain (p18->0x10->0x18->0x5C->0x14) before computing the size
  * operand, mwcc b210 splits the chain around the size computation (chain1-3,
  * size, chain4) regardless of spelling (inline chain, explicit temps, locals,
- * opt_propagation off). Argument-evaluation-order/scheduling floor. */
+ * opt_propagation off). Argument-evaluation-order/scheduling floor.
+ * measured: #pragma schedule was probed and does NOT move the residual (best
+ * stays 8 differing words): schedule off at function scope = 8 (no-op, it is
+ * the default), schedule on at function scope = 49, schedule off scoped around
+ * the memset call = 49, schedule on scoped around the call = 8 (no-op).
+ * optimization_level 3 = 49, optimization_level 1 = 46, opt_lifetimes on/off =
+ * 8 (no-op). The chain split is a register-allocation artifact (retail loads
+ * chain3 into $v0 and chain4 into $a0; mwcc reuses $a0 for both, forcing the
+ * chain4 load after the size arithmetic), not a scheduling toggle. */
 // FUN_0049B470
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b470);
 
@@ -363,7 +371,8 @@ void func_0049bff0(u8 *arg0)
 
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). See FUN_0049B470. */
+   splits around the size computation (8-word residual). schedule pragmas
+   measured, no help (see FUN_0049B470). */
 // FUN_0049C1B0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049c1b0);
 // FUN_0049C2A0
@@ -511,7 +520,8 @@ void func_0049cd10(u8 *arg0)
 
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). See FUN_0049B470. */
+   splits around the size computation (8-word residual). schedule pragmas
+   measured, no help (see FUN_0049B470). */
 // FUN_0049CED0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049ced0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
@@ -740,7 +750,8 @@ void func_0049db20(u8 *arg0)
 
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). See FUN_0049B470. */
+   splits around the size computation (8-word residual). schedule pragmas
+   measured, no help (see FUN_0049B470). */
 // FUN_0049DCE0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049dce0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
@@ -966,7 +977,8 @@ void func_0049e920(u8 *arg0)
 
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). See FUN_0049B470. */
+   splits around the size computation (8-word residual). schedule pragmas
+   measured, no help (see FUN_0049B470). */
 // FUN_0049EAE0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049eae0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
@@ -1187,7 +1199,8 @@ void func_0049f820(u8 *arg0)
 
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). See FUN_0049B470. */
+   splits around the size computation (8-word residual). schedule pragmas
+   measured, no help (see FUN_0049B470). */
 // FUN_0049F9E0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049f9e0);
 // FUN_0049FAD0
@@ -1327,7 +1340,8 @@ void func_004a05f0(u8 *arg0)
 
 /* measured: shares func_0049b470's recorded floor - the fill loop matches
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). See FUN_0049B470. */
+   splits around the size computation (8-word residual). schedule pragmas
+   measured, no help (see FUN_0049B470). */
 // FUN_004A07B0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a07b0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f

@@ -129,20 +129,65 @@ INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
    all nd 18. Branch-layout + rotation floor. */
 // FUN_004A8F90
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8f90);
-/* measured: re-measured this wave at nd 108 (fndiff count inflated by
-   alignment knock-ons; real residual ~28 words in 3 blocks). Rule 2 applied:
-   the madd store product order (1.0f + (1.0f-z)*(x*ret)) now reproduces
-   retail's madd.s $f0,$f1,$f3 exactly. Remaining: (1) the same 0x4F000000
-   clamp layout floor as func_004a8bb0/8f90 — mwcc b210 always keeps the
-   overflow (sub.s) arm inline and puts the cvt arm out of line with the
-   negated test, retail the opposite; verified with 6 clamp spellings
-   (all compile byte-identical, nd 108); (2) the madd store's 1.0f
-   materialisation order (z load hoisted before lui/mtc1, retail after);
-   (3) the z + arg0->4 add loads arg0->4 first in retail. Branch-layout +
-   load-order floor. */
 // FUN_004A9180
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9180);
+void func_004a9180(u8 *a, u8 *b) {
+    int *param_1 = (int *)a;
+    float *param_2 = (float *)b;
+    int iVar1;
+    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } uVar2;
+    int iVar4;
+    int iVar5;
+    float fVar6;
+    int iVar7;
+    float fVar8;
+    float alphaF;
+    int iVar9;
+    u32 alpha;
 
+    iVar1 = *param_1;
+    uVar2.packed = (u32)param_1[3];
+    alpha = (u32)uVar2.rgba.a;
+    if (alpha >= 0) {
+        alphaF = (float)alpha;
+    } else {
+        alpha = (alpha >> 1) | (alpha & 1);
+        alphaF = (float)alpha;
+        alphaF += alphaF;
+    }
+
+    for (iVar4 = 0; iVar4 < iVar1; iVar4 = iVar4 + 1) {
+        if (!(*param_2 < 0.0f)) {
+            fVar6 = func_0044b7b0(param_2[1]);
+            param_2[6] = ((float *)param_1)[6] * fVar6 * (1.0f - *param_2) + 1.0f;
+            ((int *)param_2)[3] = param_1[3];
+            fVar6 = alphaF * (1.0f - *param_2);
+            *((u8 *)param_2 + 0xf) = (u8)(u32)fVar6;
+            iVar7 = (int)((float)param_1[10] * *param_2);
+            iVar9 = (int)((float *)param_1)[8];
+            iVar5 = (int)((float *)param_1)[9];
+            param_2[7] = (float)iVar9;
+            param_2[8] = (float)iVar5;
+            param_2[9] = (float)(iVar9 - iVar7);
+            param_2[10] = (float)(iVar5 - iVar7);
+            param_2[0xb] = (float)(iVar9 + iVar7);
+            param_2[0xc] = (float)(iVar5 + iVar7);
+            param_2[1] = param_2[1] + ((float *)param_1)[7];
+            fVar6 = ((float *)param_1)[1];
+            fVar8 = *param_2;
+            *param_2 = fVar8 + fVar6;
+            if (!(fVar8 + fVar6 <= 1.0f)) {
+                param_2[1] = 0.0f;
+                *param_2 = 0.0f;
+                ((int *)param_2)[4] = param_1[4];
+                param_2[5] = ((float *)param_1)[5];
+            }
+        }
+        else {
+            *param_2 = *param_2 + ((float *)param_1)[1];
+        }
+        param_2 = param_2 + 0xd;
+    }
+}
 // FUN_004A93D0
 void func_004a93d0(u8 *arg0) {
     s32 sp6C;
@@ -364,8 +409,10 @@ typedef struct BlurGsQuad {
    before `lw $a1,($s0)`, mwcc b210 always emits the register-indirect load
    first. Pre-loaded v1 local, all base spellings — identical 2 rows.
    Literal-vs-load arg-order floor (same family as bpc 00245420, ab060). */
+
 // FUN_004A98D0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a98d0);
+
 // FUN_004A9AA0
 u8 *func_004a9aa0(u8 *arg0) {
     s32 i;

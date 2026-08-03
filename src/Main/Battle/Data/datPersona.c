@@ -4,7 +4,7 @@
 
 extern void func_0046d730(const void *file, u32 line);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern void func_0023a620();
+extern void func_0023a620(s32 arg0, u16 arg1);
 extern char D_005E4318[];
 extern s16 D_00797F88[];
 extern s16 D_00797F8C[];
@@ -32,7 +32,7 @@ void func_0010cad0(); /* old-style: callers pass args raw */
 
 extern u16 *func_0010ace0(s16 arg0);
 extern s32 func_0010b5b0(void);
-extern void func_0023a620();
+extern void func_0023a620(s32 arg0, u16 arg1);
 extern s32 func_0010ae30(s32 arg0);
 extern s32 func_0010b3b0(s32 arg0);
 extern u16 func_0010b460(void);
@@ -106,13 +106,34 @@ u16 func_00109470(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109510);
 
 // FUN_001097C0
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_001097c0);
+void func_001097c0(u8 *arg0, s32 arg1)
+{
+    u8 *skillTable;
 
-/* measured: same func_0023a620(0, value) move-vs-lhu order swap as
-   func_001097c0; all six spellings give identical nd 5. Argument
-   evaluation-order floor. */
+    if ((u16)*(u16 *)(arg0 + 2) >= 0x100) {
+        func_0046d730(D_005E4318, 0x1B7);
+    }
+    if ((arg1 & 0xFFFF) >= 0x10) {
+        func_0046d730(D_005E4318, 0x1B8);
+    }
+    skillTable = iGpffffb3d8 + (u16)*(u16 *)(arg0 + 2) * 0x20;
+    func_0023a620(0, *(u16 *)(skillTable + (u16)arg1 * 2));
+}
+
 // FUN_00109870
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109870);
+void func_00109870(s32 arg0, s32 arg1)
+{
+    u8 *persona;
+
+    persona = (u8 *)func_0010a900(arg0);
+    if ((u16)*(u16 *)(persona + 2) >= 0x100) {
+        func_0046d730(D_005E4318, 0x1B7);
+    }
+    if ((arg1 & 0xFFFF) >= 0x10) {
+        func_0046d730(D_005E4318, 0x1B8);
+    }
+    func_0023a620(0, *(u16 *)(iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20 + (u16)arg1 * 2));
+}
 
 // FUN_00109920
 u8 func_00109920(u8 *arg0, s32 arg1)
@@ -226,16 +247,33 @@ s8 func_00109dd0(u8 *arg0, s32 arg1)
 // FUN_00109E30
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_00109e30);
 
-/* measured: retail sign-extends the lbu load (dsll32/dsra32 0x10) before
-   adding the s8 arg2, and computes the addr addu index-first; mwcc b210
-   sinks the load, elides its s16 extension (raw + ext8 + trunc) and emits
-   base-first addu. Tried cast/local/array-index spellings, all nd 25-28.
-   Load-sinking/CSE floor. */
+/* Ported from the Persona 3 FES tree (datPersona.c
+   datPersonaAddToNaturalStat), which shares this source: two separate s16
+   locals with a (s16)(u16) widening load, and the clamped total stored back
+   through a pointer materialized once, is what keeps the s16 extension mwcc
+   otherwise elides. Prior local spellings all floored at nd 25-28. */
 // FUN_0010A780
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010a780);
+s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 *stat;
+    s16 naturalStat;
+    s16 statTotal;
 
-/* measured: same lbu-ext16-extension elision and addu order as func_0010a780;
-   all spellings nd 25+. Load-sinking/CSE floor. */
+    if ((arg1 & 0xFFFF) >= 5) {
+        func_0046d730(D_005E4318, 0x36C);
+    }
+
+    stat = (u8 *)((u32)(u16)arg1 + (u32)arg0) + 0x1C;
+    naturalStat = (s16)(u16)*stat;
+    statTotal = naturalStat + (s8)arg2;
+    if (statTotal > 0x63) {
+        statTotal = 0x63;
+    } else if (statTotal < 0) {
+        statTotal = 0;
+    }
+    *stat = statTotal;
+    return (u8)statTotal;
+}
 // FUN_0010A840
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010a840);
 
@@ -648,16 +686,18 @@ void func_0010c980(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 8) += arg1;
 }
 
-/* measured: retail hoists the beq's 8-constant to the preheader and
-   allocates i/j/addr one register higher ($a3/$a2/$a1); mwcc b210 keeps
-   8 at the use site and rotates i/j/addr down. Tried decl orders and
-   for-loop forms; nd 31-49. Temp-register rotation floor. */
+/* Ported from the Persona 3 FES tree (datPersona.c
+   datPersonaMoveValidSkillsOnTop), which shares this source: the skills
+   array lives at offset 0xC as u16 entries (SKILL_SLASH_ATTACK = 0).
+   Floor: retail hoists maxSkills=8 to the $a0 preheader and allocates
+   skillIdx/nextSkillIdx one register higher ($a3/$a2); mwcc b210 keeps
+   8 at the beq use site in $v1 and rotates the loop counters down. Tried
+   raw-offset, persona_p-local, exact-donor-structure and offset-first
+   spellings; all nd 35. The donor body is itself nonmatching in P3FES
+   (same allocation floor). Saved-register/hoisting floor. */
 // FUN_0010C9E0
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010c9e0);
 
-/* measured: retail loads the c750 second argument (lbu) before the arg0
-   move; mwcc b210 sinks the load after the move. Tried v3 locals and
-   inline forms; nd 2. Load-sinking floor. */
 // FUN_0010CAD0
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010cad0);
 
