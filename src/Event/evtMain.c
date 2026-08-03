@@ -129,6 +129,13 @@ extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
 void func_00113500(void);
 extern void func_00269c20(u16, int);
 
+/* measured: retail dispatches the 20-case switch (arg0->{0} 0..0x39) via a
+   jump table (range-check then sll/addu/lw/jr); mwcc b210 emits an if-chain
+   (addiu $v1,0x35 / beq chain) for this sparse case set, and separately
+   allocates saved registers arg0=$s4/arg1=$s3/arg2=$s2 with locals var_16=$s0
+   and r=$s1 where mwcc rotates to arg0=$s0/arg1=$s1/arg2=$s4, var_16=$s3,
+   r=$s2. Tried the complete m2c switch body + 1 declaration order; nd 324
+   (obj 1424B vs window 1248B). Jump-table-density + saved-register floor. */
 // FUN_00286780
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00286780);
 
@@ -427,6 +434,12 @@ u8 *func_00287cc0(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
    register allocation floor (locals beat late params). */
 // FUN_00287D90
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287d90);
+/* measured: retail holds the inner-loop linked-list walk in $a2 (p) and the
+   found-node in $v1 (first loop) / $a0 (second loop); mwcc b210 always puts
+   p in $a0 and found in $a2. Tried 3 declaration orders, separate node/node2
+   locals (gets register allocation right: arg0=$s1, arg1=$s0, node=$s2) and
+   inline-"use p directly" structure; all nd 17 with this residual. Temp-
+   register allocation floor (not a saved-register issue). */
 // FUN_00288020
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288020);
 // FUN_00288170
@@ -442,7 +455,62 @@ INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288170);
 // FUN_00288AF0
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288af0);
 // FUN_00288F20
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288f20);
+s32 func_00288f20(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
+    s32 v8;
+    s32 v6;
+    s32 v7;
+    s32 v9;
+    f32 f12;
+    u8 *t;
+
+    switch (arg0) {
+    case 0:
+        switch (D_008821E0[0]) {
+        default:
+            return 0;
+        case 1:
+            return 1;
+        }
+    case 1:
+        return 1;
+    case 2:
+        if (*(u16 *)arg4 == arg1) {
+            t = func_00145270(*(u16 *)(arg4 + 0x12));
+            if (t == 0) {
+                return 1;
+            }
+            if (*(u16 *)arg4 == arg1) {
+                switch (*(s8 *)(arg4 + 0x10)) {
+                case 0:
+                    if (*(s8 *)(arg4 + 0x14) == 0) {
+                        func_00269bd0(t, 1);
+                    } else {
+                        func_00269bd0(t, 0);
+                    }
+                    break;
+                case 1:
+                    v6 = *(s8 *)(arg4 + 0x14);
+                    v8 = 0;
+                    v9 = *(s16 *)(arg4 + 0x18);
+                    v7 = *(s16 *)(arg4 + 0x16);
+                    if (*(s8 *)(arg4 + 0x15) == 0) {
+                        v8 = 1;
+                    }
+                    if (*(s16 *)(arg4 + 0x1A) < 0) {
+                        f12 = 1.0f;
+                    } else {
+                        f12 = (f32)*(s16 *)(arg4 + 0x1A) / 100.0f;
+                    }
+                    func_00269820(t, 0, v6, v7, v8, v9, f12);
+                    break;
+                }
+            }
+            return 1;
+        }
+    default:
+        return 1;
+    }
+}
 // FUN_002890B0
 s32 func_002890b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     u16 t;
