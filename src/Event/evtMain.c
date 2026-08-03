@@ -16,11 +16,79 @@ extern u8 D_0063C3B0[];
 void func_0043f9c8(void *dst, s32 c, s32 n);
 s32 func_00286350(void);
 extern s32 D_008821E0[];
-void func_0028ad90(void);
+void func_0028ad90(u8 *arg0, s32 arg1);
 void func_0028b440(int, int);
 void func_0028b5d0(int);
 void func_0026bf20(void);
 void func_00452080(s32 handle);
+s32 func_00452490(s32 handle);
+s32 func_00186640();
+extern u8 D_0063C3C0[];
+extern u8 D_0063C3E0[];
+s32 func_00298130();
+u64 func_00298190(s16 param_1, int param_2);
+void func_00459880();
+void func_0045a3e0();
+void func_004599a0();
+void func_004598e0();
+void func_0045aac0();
+s32 func_002981f0();
+s32 func_00298220();
+extern u8 D_0063C5F0[];
+extern u8 D_0063C610[];
+extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);
+extern u8 D_0063C420[];
+void func_00287360();
+void func_00287bf0();
+void func_0028c370();
+void func_00288020();
+void func_00287d90();
+void func_0028f4f0();
+void func_00293270();
+void func_004577d0(void *arg0, f32 arg1);
+void func_0028be70();
+void func_0028b230(int param_1);
+void func_002e0dd0();
+void func_0028d0a0();
+void func_00290b00();
+void func_00291900();
+void func_002919e0();
+void func_00290fa0();
+void func_00286e90();
+void func_00290470();
+void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2);
+s32 func_0028d390();
+s32 func_0028dc30();
+void func_00291470();
+void func_00291220();
+s32 func_00291360();
+void func_002913d0();
+void func_00146e60();
+void func_00268f20();
+void func_00269340();
+u32 func_00269620(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
+void func_004b13d0(s32 arg0, f32 arg1);
+extern u8 D_0063C558[];
+extern u8 D_0063C568[];
+extern s32 D_008821E4[];
+extern s32 D_008821E8[];
+extern s32 D_008821EC[];
+extern s32 D_008821F0[];
+extern s32 D_008821F4[];
+extern u8 D_0063C580[];
+s32 func_0028bef0();
+s32 func_002909b0();
+s32 func_00290e50();
+void func_0026bf70(s32 arg0);
+void func_00269740(s32 arg0);
+void func_00269690(s32 arg0, s32 arg1, f32 arg2);
+void func_002690b0(s32 arg0, f32 *arg1, f32 *arg2, s32 arg3, s32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10);
+extern u8 D_0063C540[];
+s32 func_00479ca0(s32 res, s32 arg1);
+f32 func_00479f60(void *param_1, s32 param_2);
+u32 func_002699d0(u32 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, f32 fparg0);
+void func_00269820(void *res, s32 a, s32 b, s32 c, s32 d, s32 e, f32 f);
+void func_00269bd0(void *resource, s32 enabled);
 void func_0014a2f0(s32 arg0);
 s32 func_002852a0(s32 arg0, s32 arg1);
 s32 func_00285330(void);
@@ -28,6 +96,9 @@ extern void func_00440b68(char *fmt, ...);
 extern char D_0063C628[];
 extern void *DAT_008873EC[];
 s32 func_00286430(u8 *arg0);
+u32 func_00145260(void);
+u8 *func_001452b0(s32 arg0);
+void func_00268c20();
 void func_00161460(u8, u8, u8);
 void func_00161500(u8);
 extern void func_0044ea90(void *msg, s32 id);
@@ -42,7 +113,7 @@ extern u8 D_0063C5C0[];
 void func_00442088();
 s32 func_0028f770(s32 arg0);
 void func_0028f800();
-void func_0026d810(s32 arg0);
+void func_0026d810();
 void func_0026d780(u16 arg0, s16 arg1);
 extern u32 DAT_00764B38;
 extern u8 DAT_00764B3C;
@@ -225,8 +296,57 @@ void *func_00287060(s32 arg0, u8 *arg1, u16 arg2, s32 arg3) {
     return r;
 }
 
+/* measured: without opt_loop_invariants, MWCC rematerializes the 0x21 loop
+ * constant inside the loop body after the entry jump; retail hoists it to the
+ * preheader before the jump (same pattern as func_00287ad0). */
+#pragma opt_loop_invariants on
 // FUN_002871A0
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_002871a0);
+void func_002871a0(s32 arg0, u8 *arg1, u8 *arg2) {
+    u8 *node;
+    u8 *node2;
+    u8 *node3;
+    s32 i16;
+
+    if (func_00145260() != 0) {
+        node = *(u8 **)(arg2 + 0x4C);
+        while (node != NULL) {
+            if (*(u32 *)node == 1 || *(u32 *)node == 0x30) {
+                if (*(u16 *)(node + 0xC) != 0) {
+                    if (*(u32 *)(node + 0x60) == 1) {
+                        func_00268c20(*(u16 *)(node + 0xC), 0);
+                    } else if (arg0 == 0) {
+                        func_00268c20(*(u16 *)(node + 0xC), 1);
+                    } else {
+                        func_00268c20(*(u16 *)(node + 0xC), 0);
+                    }
+                }
+            }
+            node = *(u8 **)(node + 0x90);
+        }
+        i16 = 1;
+        node2 = *(u8 **)(arg2 + 0x4C);
+        while (node2 != NULL) {
+            if (*(u32 *)node2 == 0x21) {
+                if (*(u32 *)(node2 + 0x60) != 0) {
+                    i16 = 0;
+                }
+                break;
+            }
+            node2 = *(u8 **)(node2 + 0x90);
+        }
+        node3 = func_001452b0(7);
+        while (node3 != NULL) {
+            if (i16 != 0 && arg0 == 0) {
+                func_00268c20(*(u16 *)node3, 1);
+            } else {
+                func_00268c20(*(u16 *)node3, 0);
+            }
+            node3 = *(u8 **)(node3 + 0x138);
+        }
+    }
+}
+/* measured: see annotation above (func_002871a0). */
+#pragma opt_loop_invariants off
 
 // FUN_00287310
 void func_00287310(u8 *arg0) {
@@ -300,21 +420,29 @@ u8 *func_00287cc0(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
     return found;
 }
 
+/* measured: retail keeps the 4th arg in $30 ($fp) and v23 in $23; mwcc b210
+   always gives $30 to the v23 local first and spills arg3 to the stack
+   (+0x10 frame, sw $a3, 0xcc($sp)), cascading into every branch. Tried 4- and
+   5-param signatures and 3 local declaration orders; all nd 121. Saved-
+   register allocation floor (locals beat late params). */
 // FUN_00287D90
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287d90);
-
 // FUN_00288020
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288020);
-
 // FUN_00288170
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288170);
 
+/* measured: retail materializes func_00268f20/00269340/00269690/002690b0
+   arguments in the order arg3,arg1,arg2,arg4 (lhu 2 first, lb 0x30 last);
+   mwcc b210 always emits L-to-R (lhu 0xc first, addiu last), and for the
+   second func_00269690 it moves $a1 before loading $f12 where retail loads
+   $f12 first. Tried old-style and full real prototypes (u8 arg forces lbu
+   where retail uses lb); all nd 20. Argument-materialization scheduling
+   floor. */
 // FUN_00288AF0
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288af0);
-
 // FUN_00288F20
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288f20);
-
 // FUN_002890B0
 s32 func_002890b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     u16 t;
@@ -356,11 +484,94 @@ s32 func_002890b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
 }
 
 // FUN_002891D0
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_002891d0);
+s32 func_002891d0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    f32 sp70[3];
+    f32 sp60[3];
+    f32 sp50[3];
+    f32 sp40[3];
+    s32 t;
+    s32 v16;
+    s32 v17;
+    u8 *p;
 
+    switch (arg0) {
+    case 0:
+        switch (D_008821E0[0]) {
+        default:
+            return 0;
+        case 1:
+            break;
+        }
+        if (arg1 == *(u32 *)(arg2 + 0xC)) {
+            func_00291470(*(u32 *)(arg2 + 0x5D0));
+        }
+        return 1;
+    case 1:
+        return 1;
+    case 2:
+        if (*(u16 *)arg4 == arg1) {
+            if (*(u16 *)arg4 == arg1) {
+                v16 = *(s8 *)(arg4 + 0x11);
+                switch (*(s8 *)(arg4 + 0x10)) {
+                case 0:
+                    func_00291220(*(u32 *)(arg2 + 0x5D0), v16, *(s8 *)(arg4 + 0x12), *(s8 *)(arg4 + 0x13) != 0);
+                    t = func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF;
+                    if (t != 0) {
+                        sp70[0] = *(f32 *)(arg4 + 0x14);
+                        sp70[1] = *(f32 *)(arg4 + 0x18);
+                        sp70[2] = *(f32 *)(arg4 + 0x1C);
+                        sp60[0] = *(f32 *)(arg4 + 0x20);
+                        sp60[1] = *(f32 *)(arg4 + 0x24);
+                        sp60[2] = *(f32 *)(arg4 + 0x28);
+                        func_00146e60(t, sp70, sp60);
+                        func_00440b68((char *)D_0063C558);
+                    }
+                    break;
+                case 1:
+                    v16 = func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF;
+                    if (v16 != 0) {
+                        sp50[0] = *(f32 *)(arg4 + 0x14);
+                        sp50[1] = *(f32 *)(arg4 + 0x18);
+                        sp50[2] = *(f32 *)(arg4 + 0x1C);
+                        sp40[0] = *(f32 *)(arg4 + 0x20);
+                        sp40[1] = *(f32 *)(arg4 + 0x24);
+                        sp40[2] = *(f32 *)(arg4 + 0x28);
+                        v17 = *(s16 *)(arg4 + 0x12);
+                        func_00268f20(v16, sp50, v17, 0);
+                        func_00269340(v16, sp40, v17, 0);
+                        func_00440b68((char *)D_0063C568);
+                    }
+                    break;
+                case 2:
+                    func_002913d0(*(u32 *)(arg2 + 0x5D0), v16);
+                    break;
+                case 3:
+                    func_00269620(func_00291360(*(u32 *)(arg2 + 0x5D0), v16) & 0xFFFF, *(u8 *)(arg4 + 0x12), *(s16 *)(arg4 + 0x14), 0);
+                    break;
+                case 4:
+                    p = func_00145270(func_00291360(*(u32 *)(arg2 + 0x5D0), v16));
+                    if (p != NULL) {
+                        func_004b13d0(*(u32 *)(p + 0x144), (f32)*(s16 *)(arg4 + 0x34) / 100.0f);
+                    }
+                    break;
+                }
+            }
+            return 1;
+        }
+    default:
+        return 1;
+    }
+}
+
+/* measured: retail hoists all five D_008821E4..F4 loads to the top of case 1
+   (separate lui per global, in arg order) and in case 2 emits the mask test
+   as bne-to-body with the return inline plus dsll32/dsra32 before the sh.
+   mwcc b210 CSEs the shared lui base, evaluates the case-1 globals lazily in
+   condition order, and schedules the sign-extension ahead of the store.
+   Tried a-e locals and inline m2c forms; nd >= 100. Load-hoist + scheduling
+   floor. */
 // FUN_002894B0
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_002894b0);
-
 // FUN_00289780
 s32 func_00289780(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u8 sp30[0x100];
@@ -395,11 +606,53 @@ s32 func_00289780(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 
+/* measured: retail reuses arg2's dead register ($s1) for p2 with the addu
+   operand order rs=$v0 (scaled), and routes the default case's return through
+   the shared addiu block; mwcc b210 always gives p2 the earlier-freed $s2,
+   emits addu rs=$s1, and reuses the dispatch's $v0=1 by branching the default
+   straight to the epilogue. Tried goto-ret, b-local vs inline expression, and
+   4 declaration orders; all nd 8. Register-reuse + branch-target floor. */
 // FUN_002898B0
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_002898b0);
-
 // FUN_00289B10
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00289b10);
+s32 func_00289b10(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    u8 sp60[0x14];
+    s32 t;
+
+    t = func_00286350();
+    switch (arg0) {
+    case 0:
+        switch (D_008821E0[0]) {
+        default:
+            return 0;
+        case 1:
+            break;
+        }
+        if (arg1 == *(u32 *)(arg2 + 0xC)) {
+            func_0028b440((s32)arg2, 0);
+        }
+        return 1;
+    case 1:
+        return 1;
+    case 2:
+        if (*(u16 *)arg4 != arg1) {
+            goto ret;
+        }
+        func_0043f9c8(sp60, 0, 0x14);
+        if (*(u8 *)(arg4 + 0x10) != 0) {
+            *(u32 *)sp60 |= 1;
+        }
+        *(u32 *)(sp60 + 4) = (*(u8 *)(arg4 + 0x14) << 16) | (*(u8 *)(arg4 + 0x15) << 8) | *(u8 *)(arg4 + 0x16);
+        *(u32 *)(sp60 + 8) = (*(u8 *)(arg4 + 0x18) << 16) | (*(u8 *)(arg4 + 0x19) << 8) | *(u8 *)(arg4 + 0x1A);
+        *(f32 *)(sp60 + 0xC) = *(f32 *)(arg4 + 0x1C);
+        *(f32 *)(sp60 + 0x10) = *(f32 *)(arg4 + 0x20);
+        func_0028f3a0(t, (s32 *)sp60, *(u16 *)(arg4 + 2));
+        return 1;
+    default:
+    ret:
+        return 1;
+    }
+}
 
 // FUN_00289C90
 s32 func_00289c90(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
@@ -428,7 +681,41 @@ s32 func_00289c90(int param_1, int param_2, int param_3, int param_4, u16 *param
 }
 
 // FUN_00289D70
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00289d70);
+s32 func_00289d70(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    s32 t;
+
+    t = func_00286350();
+    switch (arg0) {
+    case 0:
+        switch (D_008821E0[0]) {
+        default:
+            return 0;
+        case 1:
+            return 1;
+        }
+    case 1:
+        return 1;
+    case 2:
+        if (*(u16 *)arg4 != arg1) {
+            goto ret;
+        }
+        if (*(u8 *)(arg4 + 0x10) != 0) {
+            if (*(u32 *)(arg2 + 0x768) != 0 && func_00452490(*(u32 *)(arg2 + 0x768)) != 0) {
+                func_00452080(*(u32 *)(arg2 + 0x768));
+            }
+            *(u32 *)(arg2 + 0x768) = func_00186640(t);
+        } else {
+            if (*(u32 *)(arg2 + 0x768) != 0 && func_00452490(*(u32 *)(arg2 + 0x768)) != 0) {
+                func_00452080(*(u32 *)(arg2 + 0x768));
+            }
+            *(u32 *)(arg2 + 0x768) = 0;
+        }
+        return 1;
+    default:
+    ret:
+        return 1;
+    }
+}
 
 // FUN_00289EC0
 s32 func_00289ec0(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
@@ -457,10 +744,78 @@ s32 func_00289ec0(int param_1, int param_2, int param_3, int param_4, u16 *param
 }
 
 // FUN_00289FB0
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00289fb0);
+s32 func_00289fb0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    s8 temp_3;
+    u32 t;
 
+    func_00286350();
+    switch (arg0) {
+    case 0:
+        switch (D_008821E0[0]) {
+        default:
+            return 0;
+        case 2:
+            return 1;
+        }
+    case 1:
+        return 1;
+    case 2:
+        if ((*(u16 *)arg4 == arg1) && (t = ((*(u32 *)arg2 & 0x10) != 0), t != 1)) {
+            func_00440b68((char *)D_0063C3C0, arg1);
+            temp_3 = *(s8 *)(arg4 + 0x12);
+            switch (temp_3) {
+            case 0:
+                func_00298130(*(u32 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x10), 2);
+                func_00440b68((char *)D_0063C3E0, *(s16 *)(arg4 + 0x10));
+                break;
+            case 1:
+                func_00298190(2, *(s16 *)(arg4 + 0x10));
+                break;
+            }
+            return 1;
+        }
+    default:
+        return 1;
+    }
+}
 // FUN_0028A100
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028a100);
+s32 func_0028a100(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    s8 temp_3;
+    u32 t;
+
+    func_00286350();
+    switch (arg0) {
+    case 0:
+        if (D_008821E0[0] != 2) {
+            return 0;
+        }
+        if ((*(u32 *)arg2 & 0x80000000) && (arg4 == NULL) && (arg1 == 0)) {
+            func_0045aac0(3, 0, 0);
+        }
+        return 1;
+    case 1:
+        return 1;
+    case 2:
+        if ((*(u16 *)arg4 == arg1) && (t = ((*(u32 *)arg2 & 0x10) != 0), t != 1)) {
+            func_00440b68((char *)D_0063C5F0, arg1);
+            temp_3 = *(s8 *)(arg4 + 0x12);
+            switch (temp_3) {
+            case 0:
+                break;
+            case 1:
+                func_002981f0(*(u32 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x10), 3);
+                func_00440b68((char *)D_0063C610, *(s16 *)(arg4 + 0x10));
+                break;
+            case 2:
+                func_00298220(3, *(s16 *)(arg4 + 0x10));
+                break;
+            }
+            return 1;
+        }
+    default:
+        return 1;
+    }
+}
 
 // FUN_0028A2A0
 s32 func_0028a2a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
@@ -493,8 +848,57 @@ s32 func_0028a2a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
 }
 
 // FUN_0028A3B0
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028a3b0);
+s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    u16 temp_3;
+    s16 temp_3_2;
+    u32 t;
 
+    func_00286350();
+    switch (arg0) {
+    case 0:
+        if (D_008821E0[0] != 2) {
+            return 0;
+        }
+        if ((*(u32 *)arg2 & 0x80000000) && (arg4 == NULL) && (arg1 == 0)) {
+            func_00459880(2);
+        }
+        return 1;
+    case 1:
+        return 1;
+    case 2:
+        temp_3 = *(u16 *)arg4;
+        if ((temp_3 == arg1) && (t = ((*(u32 *)arg2 & 0x10) != 0), t != 1) && (arg1 == temp_3)) {
+            temp_3_2 = *(s16 *)(arg4 + 0x10);
+            switch (temp_3_2) {
+            case 0:
+                func_0045a3e0(*(s16 *)(arg4 + 0x12), 1);
+                break;
+            case 1:
+                func_004599a0(*(s16 *)(arg2 + 0x78C), *(s16 *)(arg4 + 0x12));
+                break;
+            case 2:
+                func_004598e0(0x78, 1);
+                break;
+            case 3:
+                func_00459880(2, 1);
+                break;
+            default:
+                func_0046d730(D_0063C3B0, 0xE4C);
+                break;
+            }
+            return 1;
+        }
+    default:
+        return 1;
+    }
+}
+
+/* measured: retail reuses the condition's lhu $a0 (arg4[0], loaded at both
+   disjuncts) as the func_0026d810 call argument and for the else-if compare
+   (bne $s2,$a0, no andi, no reload). mwcc b210 always materializes a fresh
+   lhu $a0 in body1 before the jal, shifting every branch by one word.
+   Tried bare expressions (no temp var), u16 temp_4 in condition commas, and
+   m2c's exact spelling; all nd 30. Load hoisting/scheduling floor. */
 // FUN_0028A560
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028a560);
 
@@ -596,23 +1000,114 @@ s32 func_0028a8e0(s32 param_1) {
 }
 
 // FUN_0028A970
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028a970);
+s32 func_0028a970(s32 arg0, s32 arg1, u8 *arg2) {
+    u32 n;
+    s32 t;
+    u8 *node;
 
+    if (arg2 == NULL) {
+        func_0046d730(D_0063C3B0, 0xEDD);
+    }
+    n = *(u32 *)arg2;
+    if (n >= 0x3A) {
+        t = 0;
+    } else if (D_00882204[0][n] == 0) {
+        t = 0;
+    } else {
+        t = 1;
+    }
+    if (t != 0) {
+        if (D_00882204[0][n](0, arg0, arg1, arg2, 0) != 0) {
+            node = *(u8 **)(arg2 + 0x68);
+            while (node != NULL) {
+                if (func_00286430(node) != 0) {
+                    D_00882204[0][*(u32 *)arg2](2, arg0, arg1, arg2, node);
+                }
+                node = *(u8 **)(node + 0x4C);
+            }
+            D_00882204[0][*(u32 *)arg2](1, arg0, arg1, arg2, 0);
+        }
+    }
+}
+
+/* measured: retail assigns saved registers arg0=$s1, arg1=$s0, node=$s2,
+   node3=$s3, node2=$s4 (params low, locals high); mwcc b210 always emits
+   the mirror image (params $s4/$s3, locals $s0-$s2) regardless of local
+   declaration order (5 orders probed), extra unused params (3-5 probed),
+   or the slt register ($v0 vs $at). Instruction stream is identical; pure
+   saved-register rotation. nd 48. */
 // FUN_0028AAF0
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028aaf0);
 
+void func_00286c60();
+
+/* measured: retail keeps the inner while-loop's entry stub (b .L0028AF54 at
+   .L0028AF40, the outer back-edge targets it, two nops after the test lw).
+   mwcc b210 always folds the stub away by retargeting the outer back-edge
+   straight at the inner test (lw $v0 vs $a1), shifting every later branch.
+   Tried assignment-in-condition while, plain while + reload, for loops, and
+   single-statement bodies; all nd 35. Branch-to-branch layout floor. */
 // FUN_0028AD90
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028ad90);
 
 // FUN_0028AFE0
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028afe0);
+u8 *func_0028afe0(void) {
+    u32 sp30[15];
+    s32 v;
+    s32 t;
+    u8 *p;
+    u32 *src;
+    u32 *dst;
+    u32 tmp;
+    s32 i;
+
+    func_0044ea90(D_00748340, 0x52);
+    p = ((u8 *(*)(s32, s32, s32))D_008873F4[0])(1, 0x7B0, 0x40000);
+    func_002852a0(0, 0x7B0);
+    func_0043f9c8(p, 0, 0x7B0);
+    func_0028b230((s32)p);
+    src = (u32 *)(p + 0x76C);
+    dst = sp30;
+    i = 15;
+    do {
+        tmp = *src;
+        src++;
+        i--;
+        *dst = tmp;
+        dst++;
+    } while (i > 0);
+    v = *(u32 *)p;
+    func_0043f9c8(p, 0, 0x7B0);
+    src = sp30;
+    dst = (u32 *)(p + 0x76C);
+    i = 15;
+    do {
+        tmp = *src;
+        src++;
+        i--;
+        *dst = tmp;
+        dst++;
+    } while (i > 0);
+    *(u32 *)p = v;
+    func_00285260();
+    *(u32 *)p |= 1;
+    *(u32 *)(p + 8) = 0x21C;
+    *(u32 *)(p + 0x10) = *(u32 *)(p + 8) - 1;
+    if (*(u32 *)p & 0x80000000) {
+        *(u32 *)(p + 0x54) = 1;
+    }
+    func_004577d0(func_00457120(), 35.0f);
+    func_0014a2f0(1);
+    func_0028be70(p, 0);
+    return p;
+}
 
 // FUN_0028B160
+void func_0028ad90();
 void func_0028b160(int param_1) {
     u32 f77c;
     func_0028ad90();
-    func_0028b440(param_1, 0);
-    func_0028b5d0(param_1);
+    func_0028b440(param_1, 0);    func_0028b5d0(param_1);
     func_0026bf20();
     if ((*(u32 *)param_1 & 0x40000000) == 0) {
         f77c = *(u32 *)(param_1 + 0x77C);

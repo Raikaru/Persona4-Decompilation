@@ -86,6 +86,14 @@ extern s32 func_00246a50(s16 arg0, s16 arg1);
 
 extern void func_0044ea90(void* msg, s32 id);
 
+extern void func_00440b68(char *fmt, ...);
+
+extern u32 D_0079B1CC[];
+
+extern char iGpffff9b18;
+
+extern u8* iGpffffb3d4; /* gp -0x4C2C */
+
 extern u8 D_005E4298[];
 
 extern u8 D_005E42B0[];
@@ -145,6 +153,42 @@ extern u8* DAT_007644D0;
 
 extern void func_0023dd90(void* arg0, u8* arg1);
 
+extern void func_003e40b0(f32* a, f32* b);
+
+extern u8* func_00457120(void);
+
+extern u8* func_003e9700(s32 a0);
+
+extern void* func_003e4320(void* out, const void* in, const void* matrix);
+
+extern char D_005E45C0[];
+
+extern u32 D_0079B67C[];
+
+extern u32 iGpffffb19c; /* gp -0x4E64 */
+
+extern char iGpffff9b10; /* gp -0x64F0 */
+
+extern u8 iGpffff9bb0; /* gp -0x6450 */
+
+extern void func_00442088(void* dst, void* fmt, void* value, void* extra);
+
+extern void func_00456150(u8* ptr);
+
+extern u8* func_00454a60(u8* param, s32 mode);
+
+extern void func_00454bd0(u8* ptr);
+
+extern void func_00106390(s32 arg0, s32 arg1);
+
+extern u32 func_00110580(s32 arg0);
+
+extern s32 func_00110d30(s32 idx);
+
+extern void func_0010e9e0(s32 arg0, u32 arg1, u32 arg2, u8* arg3);
+
+extern s32 func_0023a1e0(s32 arg0, u8* arg1, u8* arg2, s32 arg3);
+
 extern void func_0023d9b0(void* arg0, u8* arg1);
 
 extern s16 D_00797B84[];
@@ -187,8 +231,29 @@ extern void FUN_0043f9c8(void* destination, s32 value, u32 size);
 extern void func_0010d560(void);
 extern u8 DAT_007973a0[0x24];
 
+static inline u8* idxFirst(u32 a, u8* b)
+{
+    return (u8*)(a + (u32)b);
+}
+
 // FUN_00104900
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00104900);
+void* func_00104900(s32 arg0)
+{
+    u8* new;
+    u32 size;
+    u32 idx;
+
+    func_0044ea90(D_005E4298, 0xB8);
+    idx = (arg0 & 0xFFFF) * 16;
+    size = *(u32*)((u8*)D_007242A0 + idx + 0) * 32 + 0x10 + *(u32*)((u8*)D_007242A0 + idx + 4) * 16;
+    new = jtbl_008873E8[0](size, 0x40000);
+    func_0043f810(new, (u8*)D_007242A0 + idx, 0x10);
+    *(u32*)(new + 8) = (u32)new + 0x10;
+    *(u32*)(new + 0xC) = *(u32*)(new + 8) + *(u32*)(new + 0) * 32;
+    func_0043f810(*(void**)(new + 8), *(void**)(idxFirst(idx, (u8*)D_007242A0) + 8), *(u32*)(new + 0) * 32);
+    func_0043f810(*(void**)(new + 0xC), *(void**)(idxFirst(idx, (u8*)D_007242A0) + 0xC), *(u32*)(new + 4) * 16);
+    return new;
+}
 
 // FUN_00104A00
 void func_00104a00(s32 arg0)
@@ -198,7 +263,37 @@ void func_00104a00(s32 arg0)
 }
 
 // FUN_00104A60
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00104a60);
+void func_00104a60(void)
+{
+    u8* obj;
+    u8* src;
+    u32 size;
+    u8* dst;
+
+    func_00440b68(&iGpffff9b10, D_005E4298, 0xCD);
+    obj = func_00454a60(D_005E42B0, 0);
+    func_00456150(obj);
+    src = *(u8**)(obj + 0x110);
+    size = (*(u32*)(src + 0) + *(u32*)(src + 0x10)) * 32 + 0x20 + (*(u32*)(src + 4) + *(u32*)(src + 0x14)) * 16;
+    func_0044ea90(D_005E4298, 0xD2);
+    D_007242A0 = (GDataEntry*)jtbl_008873E8[0](size, 0x40000);
+    *(u32*)((u8*)D_007242A0 + 0) = *(u32*)(src + 0);
+    *(u32*)((u8*)D_007242A0 + 4) = *(u32*)(src + 4);
+    *(u32*)((u8*)D_007242A0 + 8) = (u32)D_007242A0 + 0x20;
+    *(u32*)((u8*)D_007242A0 + 0xC) = *(u32*)((u8*)D_007242A0 + 8) + *(u32*)((u8*)D_007242A0 + 0) * 32;
+    dst = src + 0x20;
+    func_0043f810(*(void**)((u8*)D_007242A0 + 8), dst, *(u32*)((u8*)D_007242A0 + 0) * 32);
+    dst = dst + *(u32*)((u8*)D_007242A0 + 0) * 32;
+    func_0043f810(*(void**)((u8*)D_007242A0 + 0xC), dst, *(u32*)((u8*)D_007242A0 + 4) * 16);
+    *(u32*)((u8*)D_007242A0 + 0x10) = *(u32*)(src + 0x10);
+    *(u32*)((u8*)D_007242A0 + 0x14) = *(u32*)(src + 0x14);
+    *(u32*)((u8*)D_007242A0 + 0x18) = *(u32*)((u8*)D_007242A0 + 0xC) + *(u32*)((u8*)D_007242A0 + 4) * 16;
+    *(u32*)((u8*)D_007242A0 + 0x1C) = *(u32*)((u8*)D_007242A0 + 0x18) + *(u32*)((u8*)D_007242A0 + 0x10) * 32;
+    dst = dst + *(u32*)((u8*)D_007242A0 + 4) * 16;
+    func_0043f810(*(void**)((u8*)D_007242A0 + 0x18), dst, *(u32*)((u8*)D_007242A0 + 0x10) * 32);
+    func_0043f810(*(void**)((u8*)D_007242A0 + 0x1C), dst + *(u32*)((u8*)D_007242A0 + 0x10) * 32, *(u32*)((u8*)D_007242A0 + 0x14) * 16);
+    func_00454bd0(obj);
+}
 
 // FUN_00104C50
 void func_00104c50(void)
@@ -602,6 +697,12 @@ void func_00105990(s16 arg0, u32 arg1)
     }
 }
 
+/* measured: retail keeps the raw arg0 in $s1 (move $s1,$a0 before the
+   dsll32/dsra32 sign-extend) and colors j->$a1, k->$a2, v=0x63 as daddiu;
+   mwcc b210 folds the andi 0xFFFF into the sign-extended copy, swaps j/k
+   registers, and emits addiu - tried s16 param, s32 a local, m2c loop shapes
+   (top-test and bottom-test), s32/u8 jk, declaration orders - best nd 104.
+   Register-rotation + constant-width floor. */
 // FUN_00105A50
 INCLUDE_ASM("asm/nonmatchings/g_data", func_00105a50);
 
@@ -787,7 +888,53 @@ s32 func_001060f0(void)
 }
 
 // FUN_00106100
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00106100);
+void func_00106100(s16 arg0)
+{
+    u32 temp_2;
+
+    func_00106390(0xAD0, 0);
+    func_00106390(0xAD7, 0);
+    func_00106390(0xAD1, 0);
+    func_00106390(0xAD2, 0);
+    func_00106390(0xAD3, 0);
+    func_00106390(0xAD4, 0);
+    func_00106390(0xAD5, 0);
+    func_00106390(0xAD6, 0);
+    func_00106390(0xAD8, 0);
+    func_00106390(0xAD9, 0);
+    func_00106390(0xADA, 0);
+    func_00106390(0xADB, 0);
+    D_00797B7A[0] = arg0;
+    temp_2 = func_00110580(arg0);
+    switch (temp_2)
+    {
+    case 0:
+        func_00106390(0xAD7, 1);
+        break;
+    case 1:
+        func_00106390(0xAD1, 1);
+        break;
+    case 2:
+        func_00106390(0xAD2, 1);
+        break;
+    case 3:
+        func_00106390(0xAD3, 1);
+        break;
+    case 4:
+        func_00106390(0xAD4, 1);
+        break;
+    case 5:
+        func_00106390(0xAD5, 1);
+        break;
+    case 6:
+        func_00106390(0xAD6, 1);
+        break;
+    }
+    if (func_00110d30(D_00797B7A[0]) != 0)
+    {
+        func_00106390(0xAD0, 1);
+    }
+}
 
 // FUN_001062F0
 void func_001062f0(u8 arg0)
@@ -828,7 +975,30 @@ u32 datGetFlag(s32 bit)
 
 
 // FUN_00106390
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00106390);
+void func_00106390(s32 arg0, s32 arg1)
+{
+    s32 idx;
+    s32 bit;
+
+    if ((arg0 < 0) || (arg0 >= 0x1600))
+    {
+        FUN_0046d730(__FILE__, 0x471);
+    }
+    if (arg0 == 0x1576)
+    {
+        func_00440b68(&iGpffff9b18);
+    }
+    idx = arg0 / 32;
+    bit = 1 << (arg0 % 32);
+    if (arg1 != 0)
+    {
+        D_0079B1CC[idx] |= bit;
+    }
+    else
+    {
+        D_0079B1CC[idx] &= ~bit;
+    }
+}
 
 // FUN_00106480
 void func_00106480(void)
@@ -880,6 +1050,15 @@ u8 func_00106600(s16 arg0)
     return D_0079757A[arg0];
 }
 
+/* measured: retail reloads D_0079757A[arg0] (lbu) after the func_00106850
+   call and branches on it before computing id/bit/idx; mwcc b210 forwards the
+   earlier sb through both the array and a pointer local (and through an
+   old-style alias call) so the lbu/beqz never appears, and it rotates the
+   sign-ext/pointer registers ($s0/$s2 swapped) regardless of declaration
+   order. Tried: u8/s32 value, >0x63 vs >=0x64 forms, pointer vs array
+   reload, branch-order flips, bit/idx inside vs outside the if, old-style
+   extern and #pragma alias calls - best nd 30. Store-forwarding + register-
+   rotation floor. */
 // FUN_00106620
 INCLUDE_ASM("asm/nonmatchings/g_data", func_00106620);
 
@@ -1029,11 +1208,27 @@ s64 func_00106b80(s64 arg0)
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
+/* measured: retail loads D_007242A0[arg0].f30 into $a0 immediately after the
+   base addu, then computes 1 << (arg1+4); mwcc b210 always sinks the f30 load
+   to its use right before the and. Tried: one-liner, word local, mask-first
+   operand order, GDataEntry* + bit locals (best nd 11) - all sink the load.
+   Load-sinking floor. */
 // FUN_00106C30
 INCLUDE_ASM("asm/nonmatchings/g_data", func_00106c30);
 
 // FUN_00106C80
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00106c80);
+s32 func_00106c80(s16 arg0)
+{
+    if (arg0 < 0x100)
+    {
+        return 0;
+    }
+    if (arg0 < 0x200)
+    {
+        return 1;
+    }
+    return 2;
+}
 
 // FUN_00106CD0
 s16 func_00106cd0(s16 arg0, s16 arg1)
@@ -1094,6 +1289,12 @@ void datResetTotalBtl(void)
 
 
 
+/* measured: retail compiles the GS doubled-alpha loop with a single bltz and
+   one shared join (add.s $f1,$f1,$f0); mwcc b210 duplicates the whole loop
+   tail (join + increments + test) for the else path in every spelling, and
+   bloats the object past the 0x144 window. Tried: s32 value + >=0 (skill
+   recipe), (s16)/(s32) casts, f=f+f and *2.0f doubling, u32 shift cast -
+   best nd 37 with 188B object vs 144B window. Branch-duplication floor. */
 // FUN_00109190
 INCLUDE_ASM("asm/nonmatchings/g_data", func_00109190);
 
@@ -1195,6 +1396,11 @@ u8 func_0010c6f0(PersonaWork* persona)
 
 
 
+/* measured: retail colors n into $v1, i into $t2, entry into $t1 and masks
+   arg0 into $t0; mwcc b210 rotates the whole set (n->$a3, i->$v1, mask in the
+   param slot) no matter the declaration order (n/i/entry/p all tried), the
+   condition-temp registers, or p-inlined-vs-local form - best nd 57 with
+   identical instruction sequence throughout. Register-rotation floor. */
 // FUN_0010D360
 INCLUDE_ASM("asm/nonmatchings/g_data", func_0010d360);
 
@@ -1315,10 +1521,89 @@ void func_0010d7b0(void)
 INCLUDE_ASM("asm/nonmatchings/g_data", func_0010d7c0);
 
 // FUN_0010E710
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010e710);
+void func_0010e710(s32 arg0, s32 arg1, s32 arg2)
+{
+    u32 v1;
+    u32 v2;
+    u8* p = (u8*)arg1 + 0x34;
+
+    while (1)
+    {
+        func_0043f810(&v1, p, 4);
+        func_00440b68(D_005E45C0, v1);
+        if (v1 == -1 || v1 == 0x2000)
+        {
+            break;
+        }
+        func_0043f810(&v2, p + 4, 4);
+        p = p + 8;
+        func_0010e9e0(arg0, v1, v2, p);
+        p = p + v2;
+    }
+    iGpffffb19c = D_0079B67C[0];
+    func_0043f9c8(DAT_00796de0, 0, 0x12);
+    func_0043f9c8(DAT_00796e00, 0, 0x12);
+    func_0043f9c8(DAT_00796e20, 0, 0x24);
+    func_0043f810(DAT_00796de0, DAT_007973a0, 0x12);
+    func_0043f810(DAT_00796e00, DAT_007973b2, 0x12);
+    func_00442088(DAT_00796e20, &iGpffff9bb0, DAT_00796e00, DAT_00796de0);
+}
 
 // FUN_0010E880
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010e880);
+s32 func_0010e880(s32 arg0, s32 arg1, s32 arg2)
+{
+    u8 byte;
+    u32 v1;
+    u32 v2;
+    u32 limit;
+    u32 sum;
+    u8* p;
+    s32 checksum;
+    u32 i;
+
+    if (arg2 < 0x1000)
+    {
+        return 0;
+    }
+    p = (u8*)arg1 + 0x34;
+    sum = 0;
+    limit = (u32)(arg2 - 0x34);
+    while (1)
+    {
+        func_0043f810(&v1, p, 4);
+        if (v1 == -1)
+        {
+            break;
+        }
+        if (v1 == 0x2000)
+        {
+            checksum = 0;
+            i = 0;
+            while (i < sum)
+            {
+                checksum = (checksum + *(u8*)((u8*)arg1 + i + 0x34)) & 0xFF;
+                i = i + 1;
+            }
+            func_0043f810(&v2, p + 4, 4);
+            func_0043f810(&byte, p + 8, 1);
+            return (checksum & 0xFF) == byte;
+        }
+        func_0043f810(&v2, p + 4, 4);
+        if (v2 == 0)
+        {
+            return 0;
+        }
+        p = p + 8;
+        p = p + v2;
+        sum = sum + 8;
+        sum = sum + v2;
+        if (sum >= limit)
+        {
+            return 0;
+        }
+    }
+    return 0;
+}
 
 // FUN_0010E9E0
 INCLUDE_ASM("asm/nonmatchings/g_data", func_0010e9e0);
@@ -1352,8 +1637,34 @@ u32 func_0010f420(u32 arg0, u32 arg1)
 
     return *p & (1 << (bit & 0x1f));
 }
+
+static inline u32 bitAndFirst(u32 a, u32 b)
+{
+    return a & b;
+}
+
+/* measured: opt_loop_invariants on hoists the sllv constant 1 and keeps the
+   D_007973A0 base in $a3 like retail; without it mwcc rematerializes addiu
+   $v1,0,1 in the loop body (nd 18 -> 0). */
+#pragma opt_loop_invariants on
+
 // FUN_0010F460
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010f460);
+u32 func_0010f460(u16 arg0)
+{
+    u32 result = 0;
+    u32 j = (u32)arg0 * 8;
+    u32 i = 0;
+    u8* base = DAT_007973a0;
+
+    while (i < 8)
+    {
+        result |= bitAndFirst(*(u32*)(base + (j >> 5) * 4 + 0x4938), 1 << (j & 0x1F));
+        i = i + 1;
+        j = j + 1;
+    }
+    return result;
+}
+#pragma opt_loop_invariants off
 
 // FUN_0010F4C0
 void func_0010f4c0(void)
@@ -1412,10 +1723,52 @@ void func_0010f600(s16 arg0, u8* arg1)
 }
 
 // FUN_0010F6A0
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010f6a0);
+void func_0010f6a0(s16 arg0, u32 arg1)
+{
+    u8* ptr;
+    u16 v;
+
+    if (arg0 == 1)
+    {
+        ptr = D_007973C4;
+    }
+    else
+    {
+        K_ASSERT(arg0 < 0xB, 0x234);
+        ptr = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+    }
+    v = *(u16*)(ptr + 2);
+    K_ASSERT(v != 0 && v < 0xB, 0xE54);
+    func_0023ddc0((u32)ptr, arg1);
+}
 
 // FUN_0010F770
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010f770);
+void func_0010f770(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
+{
+    u8* ptr1;
+    u8* ptr2;
+
+    K_ASSERT(arg1 != 0 && arg1 < 0xB, 0xE6A);
+    if (arg0 == 1)
+    {
+        ptr1 = D_007973C4;
+    }
+    else
+    {
+        K_ASSERT(arg0 < 0xB, 0x234);
+        ptr1 = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+    }
+    if (arg1 == 1)
+    {
+        ptr2 = D_007973C4;
+    }
+    else
+    {
+        K_ASSERT(arg1 < 0xB, 0x234);
+        ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
+    }
+    func_00239f50(arg2, ptr1, ptr2, arg3);
+}
 
 // FUN_0010F8C0
 u8 func_0010f8c0(s32 arg0)
@@ -1430,10 +1783,59 @@ u8 func_0010f8c0(s32 arg0)
 }
 
 // FUN_0010F930
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010f930);
+void func_0010f930(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
+{
+    u8* ptr1;
+    u8* ptr2;
+
+    K_ASSERT(arg1 != 0 && arg1 < 0xB, 0xEAC);
+    if (arg0 == 1)
+    {
+        ptr1 = D_007973C4;
+    }
+    else
+    {
+        K_ASSERT(arg0 < 0xB, 0x234);
+        ptr1 = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+    }
+    if (arg1 == 1)
+    {
+        ptr2 = D_007973C4;
+    }
+    else
+    {
+        K_ASSERT(arg1 < 0xB, 0x234);
+        ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
+    }
+    func_0023a1e0(arg2, ptr1, ptr2, arg3);
+}
 
 // FUN_0010FA80
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010fa80);
+void func_0010fa80(s16 arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, u32 arg6)
+{
+    u8* ptr1;
+    u8* ptr2;
+
+    if (arg0 == 1)
+    {
+        ptr1 = D_007973C4;
+    }
+    else
+    {
+        K_ASSERT(arg0 < 0xB, 0x234);
+        ptr1 = (u8*)D_00796E50 + (arg0 - 2) * 0x88 + 4;
+    }
+    if (arg1 == 1)
+    {
+        ptr2 = D_007973C4;
+    }
+    else
+    {
+        K_ASSERT(arg1 < 0xB, 0x234);
+        ptr2 = (u8*)D_00796E50 + (arg1 - 2) * 0x88 + 4;
+    }
+    func_0023a490(arg2, ptr1, ptr2, arg3, (s32*)arg4, (s32*)arg5, (s32*)arg6);
+}
 
 // FUN_0010FBD0
 u32 func_0010fbd0(u32 arg0)
@@ -1489,13 +1891,116 @@ void func_0010fd40(u8* src)
 }
 
 // FUN_0010FDE0
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010fde0);
+u8* func_0010fde0(u8* arg0)
+{
+    s32 v;
+    u16 w;
+    u8* q;
 
+    if (arg0 == NULL)
+    {
+        FUN_0046d730(__FILE__, 0xF5D);
+    }
+    v = *(u16*)(arg0 + 2);
+    if ((v < 0) || (v >= 0x100))
+    {
+        FUN_0046d730(__FILE__, 0xF5E);
+    }
+    v = *(u16*)(arg0 + 2);
+    w = *(u16*)((u8*)iGpffffb3d4 + v * 14);
+    if (w & 8)
+    {
+        return arg0;
+    }
+    if (w & 0x20)
+    {
+        return arg0;
+    }
+    if ((v < 0) || (v >= 0x100))
+    {
+        FUN_0046d730(__FILE__, 0xF1D);
+    }
+    if (*(u16*)(D_007981CC + v * 0x30) & 1)
+    {
+        q = (u8*)D_007973A0 + v * 0x30 + 0xE2C;
+    }
+    else
+    {
+        q = NULL;
+    }
+    if (q != NULL)
+    {
+        return q;
+    }
+    if (arg0 == NULL)
+    {
+        FUN_0046d730(__FILE__, 0xF27);
+    }
+    v = *(u16*)(arg0 + 2);
+    if ((v < 0) || (v >= 0x100))
+    {
+        FUN_0046d730(__FILE__, 0xF28);
+    }
+    v = *(u16*)(arg0 + 2);
+    func_0043f810((u8*)D_007973A0 + v * 0x30 + 0xE2C, arg0, 0x30);
+    return NULL;
+}
+
+/* measured: retail loads the iGpffffb3d4 base pointer (lw -0x4c2c) between
+   the 0xF5E assert and the v reload, before the v*14 chain; mwcc b210 sinks
+   the base lw to its use after the chain in every spelling (inline expr,
+   (v=...) assignment, separate base local). Also rotates the assert temp
+   registers ($v1 vs $s0). Tried 4 forms, best nd 8 with identical logic.
+   Load-sinking floor. */
 // FUN_0010FFA0
 INCLUDE_ASM("asm/nonmatchings/g_data", func_0010ffa0);
 
 // FUN_00110140
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00110140);
+s32 func_00110140(void)
+{
+    s32 count1 = 0;
+    s32 i = 0;
+    s32 count2;
+    s32 j;
+    u8* q;
+    u16 v;
+    u8* p;
+
+    while (i < 0x100)
+    {
+        if ((i < 0) || (i >= 0x100))
+        {
+            FUN_0046d730(__FILE__, 0xF1D);
+        }
+        p = (u8*)DAT_007973a0 + i * 0x30;
+        if (*(u16*)(p + 0xE2C) & 1)
+        {
+            q = p + 0xE2C;
+        }
+        else
+        {
+            q = NULL;
+        }
+        if (q != NULL)
+        {
+            count1 = count1 + 1;
+        }
+        i = i + 1;
+    }
+    count2 = 0;
+    j = 0;
+    p = (u8*)iGpffffb3d4;
+    while (j < 0x100)
+    {
+        v = *(u16*)(p + j * 0xE);
+        if (!(v & 8) && !(v & 0x20))
+        {
+            count2 = count2 + 1;
+        }
+        j = j + 1;
+    }
+    return count1 * 0x64 / count2;
+}
 
 // FUN_00110270
 void func_00110270(u8* src, u16 arg1)
@@ -1523,4 +2028,28 @@ u8* func_001102e0(void)
 }
 
 // FUN_001102F0
-INCLUDE_ASM("asm/nonmatchings/g_data", func_001102f0);
+u8* func_001102f0(u8* arg0, s32 arg1, s32 arg2, f32 fparg0)
+{
+    f32 buf[3];
+    u8* obj;
+    u8* obj3;
+
+    if (arg0 == NULL)
+    {
+        FUN_0046d730(__FILE__, 0xFB8);
+    }
+    obj = func_00457120();
+    buf[0] = -((f32)arg1 - 320.0f) * *(f32*)(obj + 0x68) / 320.0f;
+    buf[1] = -((f32)arg2 - 224.0f) * *(f32*)(obj + 0x6C) / 224.0f;
+    buf[2] = 1.0f;
+    func_003e40b0(buf, buf);
+    obj3 = func_003e9700(*(s32*)(func_00457120() + 4));
+    func_003e4320(buf, buf, obj3);
+    buf[0] = buf[0] * fparg0;
+    buf[1] = buf[1] * fparg0;
+    buf[2] = buf[2] * fparg0;
+    *(f32*)(arg0 + 0) = *(f32*)(obj3 + 0x30) + buf[0];
+    *(f32*)(arg0 + 4) = *(f32*)(obj3 + 0x34) + buf[1];
+    *(f32*)(arg0 + 8) = *(f32*)(obj3 + 0x38) + buf[2];
+    return arg0;
+}
