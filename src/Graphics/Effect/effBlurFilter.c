@@ -100,6 +100,13 @@ extern f32 fGpffff80cc;
 // FUN_004A8DA0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
 
+/* measured: same byte->f32 doubling/alpha scratch-register floor as
+   func_004a8bb0: retail keeps the lbu byte, the srl/or scratch and the
+   clamp value in $a0 and converts into $f20 (or-dest = the srl scratch);
+   mwcc b210 recompiled from equivalent C uses $v1 and converts into $f0,
+   nd 11 (9 rows). Tried s32-lbu local, both branch orders, inline/temp
+   doubling, split statements, shared clamp local with & 0xFF - structure
+   matches except this rotation. Scratch-register rotation floor. */
 // FUN_004A8F90
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8f90);
 

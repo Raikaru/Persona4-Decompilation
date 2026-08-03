@@ -165,8 +165,8 @@ extern void *(*D_008873F4[])(s32, s32, u32);
 
 /* Shared SDK blob helpers. */
 extern void func_0043c0c0(s32, s32, s32, s32);
-extern void func_0043f9c8(s32, s32, s32);
-extern void func_0044ea90(s32 file, s32 line);
+extern void func_0043f9c8(void *, s32, s32);
+extern void func_0044ea90(char *file, s32 line);
 extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close,
                         void *buf);
 extern void func_00440b68(s32 fmt, ...);
@@ -182,9 +182,9 @@ extern s32 func_004c7ef8(s32);
 extern void func_004ccb50(void);
 extern void func_004d5440(s32);
 extern void func_004d8c78(void);
-extern s32 func_004d8cc0(s32, s32, s32);
+extern s32 func_004d8cc0(void *, s32, s32);
 extern s32 func_004d8cf0(s32);
-extern s32 func_004d8d10(s32);
+extern s32 func_004d8d10(void *);
 extern void func_004d8d30(s32, s32);
 extern void func_004d8d48(s32, s32, s32);
 extern void func_004d8d60(s32, s32, s32);
@@ -225,8 +225,116 @@ extern void func_0045b120(void *arg0);
 /* ================================================================== */
 
 // FUN_00458FA0
-INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_00458fa0);
+/* measured: retail hoists the loop bases/0x134/-1 constants to the
+   preheaders; mwcc rematerialises them, so the scoped pragma is required. */
+#pragma opt_loop_invariants on
+void func_00458fa0(void)
+{
+    s16 i, j;
+    s32 temp, p, h;
 
+    D_008D2B70[0] = D_00761124;
+    D_008D2B74[0] = 1;
+    D_008D2B78[0] = 1;
+    D_008D2B7C[0] = 0;
+    func_0050b3f8(D_008D2B70);
+    func_004d8c78();
+    func_004d90f8();
+    func_004d5440(0x1E);
+    func_0043f9c8(&D_008D2A60, 0, 0x28);
+    D_008D2A74[0] = 1;
+    LD32(D_008D2A78, 0) = 0;
+    LD32(D_008D2A80, 0) = 0;
+    LD32(D_008D2A7C, 0) = 0;
+    LD32(D_008D2A60, 0) = 4;
+    LD32(D_008D2A64, 0) = 2;
+    LD32(D_008D2A68, 0) = 0xBB80;
+    LD32(D_008D2A70, 0) = 1;
+    temp = func_004d8d10(&D_008D2A60);
+    func_0044ea90(D_00712238, 0x94);
+    p = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
+    D_008D2B50[0] = p;
+    D_008D2B30[0] = temp;
+    h = (s32)func_004d8cc0(&D_008D2A60, p, temp);
+    LD32(D_008D2BA0, 0) = h;
+    func_004d8ec8(h, 1);
+    func_004d8eb0(CH_HANDLE(0), 0x1E);
+    func_004d8f40(CH_HANDLE(0), 0x23);
+    func_004d8ee0(CH_HANDLE(0), 0xF);
+    func_004d91b8(0x3C);
+    func_004d9148(0xF);
+    func_004d9180(0xB4);
+    func_004d8f70(CH_HANDLE(0), 0xA);
+    func_00440b68((s32)D_00712250, temp);
+    func_0043f9c8(&D_008D2A88, 0, 0x28);
+    D_008D2A9C[0] = 2;
+    LD32(D_008D2AA0, 0) = 0;
+    LD32(D_008D2AA8, 0) = 0;
+    LD32(D_008D2AA4, 0) = 0;
+    LD32(D_008D2A88, 0) = 4;
+    LD32(D_008D2A8C, 0) = 1;
+    LD32(D_008D2A90, 0) = 0x5DC0;
+    LD32(D_008D2A98, 0) = 1;
+    temp = func_004d8d10(&D_008D2A88);
+    func_0044ea90(D_00712238, 0xAB);
+    D_008D2B54[0] = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
+    D_008D2B34[0] = temp;
+    LD32(D_008D2CD4, 0) = 0;
+    func_00440b68((s32)D_00712270, temp);
+    func_0043f9c8(&D_008D2AB0, 0, 0x28);
+    D_008D2AC4[0] = 3;
+    LD32(D_008D2AC8, 0) = 0;
+    LD32(D_008D2AD0, 0) = 0;
+    LD32(D_008D2ACC, 0) = 0;
+    LD32(D_008D2AB0, 0) = 4;
+    LD32(D_008D2AB4, 0) = 2;
+    LD32(D_008D2AB8, 0) = 0x5DC0;
+    LD32(D_008D2AC0, 0) = 1;
+    temp = func_004d8d10(&D_008D2AB0);
+    func_0044ea90(D_00712238, 0xBA);
+    D_008D2B58[0] = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
+    D_008D2B38[0] = temp;
+    LD32(D_008D2E08, 0) = 0;
+    func_00440b68((s32)D_00712290, temp);
+    func_0043f9c8(&D_008D2AD8, 0, 0x28);
+    D_008D2AEC[0] = 3;
+    LD32(D_008D2AF0, 0) = 0;
+    LD32(D_008D2AF8, 0) = 0;
+    LD32(D_008D2AF4, 0) = 0;
+    LD32(D_008D2AD8, 0) = 4;
+    LD32(D_008D2ADC, 0) = 2;
+    LD32(D_008D2AE0, 0) = 0x5DC0;
+    LD32(D_008D2AE8, 0) = 1;
+    temp = func_004d8d10(&D_008D2AD8);
+    func_0044ea90(D_00712238, 0xC9);
+    D_008D2B5C[0] = (s32)(*(void *(**)(u32, u32))(s32)jtbl_008873E8)(temp, 0x40000);
+    D_008D2B3C[0] = temp;
+    LD32(D_008D2F3C, 0) = 0;
+    func_00440b68((s32)D_007122B0, temp);
+    for (i = 0; i < 6; i++)
+    {
+        D_008D3ED0[i].state = 0;
+        D_008D3ED0[i].completed = 0;
+    }
+    for (j = 0; j < 0x10; j++)
+    {
+        D_008D2B90[j].f00 = 0;
+        D_008D2B90[j].f0A = 0;
+        D_008D2B90[j].f0C = 0;
+        D_008D2B90[j].f130 = -1;
+        D_008D2B90[j].f14 = -1;
+        D_008D2B90[j].f16 = -1;
+    }
+}
+/* measured: see the annotation above the matching `on` pragma (func_00458fa0). */
+#pragma opt_loop_invariants off
+
+/* measured: retail keeps the loop-2 channel pointer in $s2, the f10 field
+   pointer in $s1 and the counter in $s3; mwcc b210 swaps ch/counter to
+   $s3/$s2 for every spelling tried (ch local, f10 local, direct indexing,
+   decl orders) and also emits the D_008D2CC2 decrement store after the s16
+   truncation instead of before (nd 55, ~20 ! rows). Tried 4 shapes; all nd
+   55. Saved-register rotation + store-scheduling floor. */
 // FUN_004594C0
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_004594c0);
 
@@ -309,6 +417,13 @@ s32 func_00459a60(void)
 /* FUN_00459AD0                                                        */
 /* ================================================================== */
 
+/* measured: every case body, the dispatch table shape and the arg0==0
+   branch compile correctly (nd 448, obj 2216B vs window 2320B), but mwcc
+   b210 puts arg0 in $s0 where retail keeps it in $s1, cascading a saved
+   register rotation through the whole else-branch/switch (handle ptr,
+   switch-value ptr, A80 ptr all shift by one). Tried idx/idx28 locals,
+   inline SND_IDX/SLOT_IDX, SND_IDX in the ==0 branch; nd only moved 517
+   -> 448. Saved-register rotation floor. */
 // FUN_00459AD0
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_00459ad0);
 
@@ -363,6 +478,11 @@ s32 func_0045a3e0(s16 arg0)
 /* FUN_0045A570                                                        */
 /* ================================================================== */
 
+/* measured: retail allocates each branch's sign-ext/index/value temps to
+   $v1/$a0/$v1-$v0 while mwcc b210 shifts them to $a0/$a1/$a0-$v1 in all
+   three blocks of this 7-arg body (nd 28, ~20 ! rows); the same spelling
+   matches the 2-arg sibling func_0045a730. Tried nested else, call-result
+   local; identical output. Temp-register rotation floor. */
 // FUN_0045A570
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045a570);
 /* ================================================================== */
@@ -457,6 +577,12 @@ s32 func_0045aa90(void)
 /* FUN_0045AAC0                                                        */
 /* ================================================================== */
 
+/* measured: retail sign-extends the varargs arg1 (dsll32/dsra32 into $a2)
+   BEFORE loading the D_007122F0 format pointer; mwcc b210 always emits the
+   lui/addiu first for this call, swapping the two 2-instruction chains
+   (4 ! rows, nd 7). Tried inline args, pre-materialised a1 local, fmt local,
+   (s16) cast at call site; identical output. Argument-materialisation-order
+   floor. */
 // FUN_0045AAC0
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045aac0);
 
@@ -539,6 +665,11 @@ s32 func_0045ae10(s32 arg0, s32 arg1, s16 arg2)
 /* FUN_0045AEB0                                                        */
 /* ================================================================== */
 
+/* measured: retail keeps the slot index in $a3 and the channel pointer in
+   $a2; mwcc b210 always allocates them to $a2/$a1 for this body (mult rd,
+   five addu sites, final addiu), leaving 8 identical shifted words. Tried
+   inline SND_IDX, explicit idx local, ch local, both locals, ch-first
+   ordering; all nd 8. Temp-register rotation floor. */
 // FUN_0045AEB0
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045aeb0);
 /* ================================================================== */
@@ -581,6 +712,12 @@ s32 func_0045af90(s16 arg0)
 /* FUN_0045B030                                                        */
 /* ================================================================== */
 
+/* measured: switch dispatch, condition temp in $a3 (passed as 4th arg of
+   the else-branch call) all match; mwcc b210 emits the constant 3rd arg
+   `move $a2,$zero` AFTER the $a3 D_008D1F10 lui/addiu chain in the
+   then-branch, retail before it (3 ! words, nd 3). Tried inline args,
+   t/h locals, else-call passing t; all nd 3. Argument-materialisation
+   order floor. */
 // FUN_0045B030
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045b030);
 /* ================================================================== */
@@ -626,7 +763,7 @@ s32 func_0045b1c0(void *arg0, s32 arg1, s32 arg2, void *arg3)
     s32 h;
     u8 *p;
 
-    func_0044ea90((s32)D_00712238, 0x475);
+    func_0044ea90(D_00712238, 0x475);
     p = D_008873F4[0](1, 0x118, 0x40000);
     if (p == NULL)
     {
