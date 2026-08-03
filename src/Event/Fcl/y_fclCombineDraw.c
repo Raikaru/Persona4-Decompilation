@@ -82,13 +82,13 @@ extern void func_002b2f90(s16, s16, s32, s8, s16 *, s16 *);
 extern f32 iGpffff8360;
 extern f32 iGpffff8504;
 extern void func_003191c0(u8 *, s64, s32, u16, u8, s32, s32, s8);
-extern s64 func_00331560();
+extern s32 func_00331560();
 extern void func_002b77d0(s16, s64, s32, s32, s32, s64, s32, s32, f32, s64, s64);
 extern void func_002b29e0(f32 *, f32, f32);
 extern u8 *func_002b81f0(s32);
 extern f32 func_0046b260(s32);
 extern void func_00314ef0(u8 *, s64, s64, s32, s64, s32);
-extern void func_0025ecd0(s32, s32, s16, s64, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void func_002777f0(s8 arg0);
@@ -118,13 +118,13 @@ extern s32 iGpffffb440;
 extern u8 D_00796310[];
 extern u8 D_00796370[];
 extern void func_00275820(s32, s32, s32, s32, s32, s32, u8 *, s32, f32, f32, f32);
-extern void func_00279350(s32, s32, s32, s32, s64, u16, u8 *, f32, f32, f32);
+extern void func_00279350(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
 extern void func_0034a640(s32, u16, s32);
 extern u8 *func_0034a630(s32);
 extern s32 func_00109280(u16);
 extern void func_0011d1d0(s32, f32);
-extern s64 func_00331640(void);
-extern void func_00330e50(s64, s64, s32, s32, s32, f32, f32, f32, u8 *);
+extern s8 func_00331640(void);
+extern void func_00330e50(s32, s64, s32, s32, s32, void *, f32, f32, f32);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern void func_002b82d0(u8 *, u8, s32, s32, s32, s32);
 extern u8 D_00795E60[];
@@ -926,6 +926,15 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
    second anonymous rodata section by its referencing relocation. */
 // FUN_0032C0C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
+/* measured: nd 67 best (attempts: 67 cast-fix, 67 decl+hoist, ~65 n:s32+
+   decl-order, 98 c-first-statement — worse, mwcc sinks the t load below the
+   2a30 call and saves arg0). All call shapes and stack layout match; residual
+   is a fixed saved-register rotation (retail t->$s1/c->$s0/n reuses $s0, mwcc
+   always t->$s0/c->$s1 regardless of declaration or statement order) plus two
+   scheduling swaps: the func_002e48a0(0, s16) calls emit lh-before-move-a0
+   (retail move-a0-first) at all 3 sites, and the func_00330e50 call
+   materializes the D_00796310 address before mov.s f13/f14 (retail after).
+   Rotation + argument-scheduling floor. */
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 
@@ -1122,6 +1131,17 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330060);
    conversion. Addu-operand-order floor (4 words). */
 // FUN_003307B0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003307b0);
+/* measured: nd 20 (attempts: compile-fix, 49, 23, 20). Frame/prologue/epilogue
+   and every instruction match; residual is pure func_0025ecd0 14-arg
+   materialization scheduling (same family as y_draw func_002b6340 floor):
+   retail spills the s64 arg1 pair immediately (sd $a1,0x78) keeping only the
+   high word in $s3, then evaluates args [3,12,9,10,11,1,2,4,5,6,7,13,14,8]
+   (lwc1 pair hoisted before the GPR moves, a0/t3 last); mwcc b210 keeps the
+   whole pair in saved regs, spills late, and emits [1,3,11,2,4,5,6,7,8,9,10,
+   12,13,14] identically for inline, named-hi and ptr-last prototypes (ptr-last
+   fixed only the t3 slot, nd 23->20). True signature (s32, s64, s32, s32, s32,
+   void*, f32, f32, f32) proven from caller func_0032c480; call p8 = arg4 cast
+   to void*, p9/p10 = the two s64 arg1 words bitcast as f32, p12 = 0.0f. */
 // FUN_00330E50
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330e50);
 

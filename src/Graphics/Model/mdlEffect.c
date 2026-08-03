@@ -57,8 +57,31 @@ u32 func_0047d1a0(void)
     return temp_2;
 }
 
+/* Defined below in this file; called at line 61, above its definition. */
+extern u32 *func_0047d460(u32 *list, u32 *arg1, u16 arg2);
+
 // FUN_0047D200
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d200);
+u32 *func_0047d200(u32 **arg0)
+{
+    u32 *temp;
+    u32 *cur;
+
+    func_0044ea90(D_007131E8, 0x2D);
+    temp = (u32 *)(*jtbl_008873E8)(4, 0x40000);
+    func_0047d310(temp);
+    cur = (u32 *)*arg0;
+    if (cur == NULL) {
+        return temp;
+    }
+    while (cur[4] != 0) {
+        cur = (u32 *)cur[4];
+    }
+    while (cur != NULL) {
+        func_0047d460(temp, cur, *(u16 *)((u8 *)cur + 4));
+        cur = (u32 *)cur[3];
+    }
+    return temp;
+}
 // FUN_0047D2D0
 void func_0047d2d0(u32 *param_1)
 {
@@ -77,11 +100,80 @@ void func_0047d310(u32 *param_1)
 }
 
 // FUN_0047D320
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d320);
+u32 *func_0047d320(u32 **arg0, s32 arg1, u32 arg2, u16 arg3, u32 arg4)
+{
+    u32 base;
+    u32 head;
+    u32 *data;
+    u32 *node;
+
+    func_0044ea90(D_007131E8, 0x7F);
+    data = (u32 *)(base = (u32)jtbl_008873E8,
+                   ((void *(*)(u32, u32))*(u32 *)base)(arg2 + 0x10, 0x40000));
+    data[0] = (u32)((u8 *)data + 0x10);
+    data[1] = 0;
+    data[3] = arg4;
+    data[2] = 1;
+    func_0043f810((void *)data[0], (const void *)arg1, arg2);
+    func_0044ea90(D_007131E8, 0x66);
+    node = (u32 *)((void *(*)(u32, u32))*(u32 *)base)(0x14, 0x40000);
+    func_0043f9c8(node, 0, 0x14);
+    node[3] = 0;
+    head = (u32)*arg0;
+    if (head != 0) {
+        ((u32 *)head)[3] = (u32)node;
+        head = (u32)*arg0;
+        node[4] = head;
+    } else {
+        node[4] = 0;
+    }
+    *arg0 = node;
+    node[0] = (u32)data;
+    *(u16 *)((u8 *)node + 4) = arg3;
+    return node;
+}
 
 // FUN_0047D460
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d460);
+u32 *func_0047d460(u32 *list, u32 *arg1, u16 arg2)
+{
+    u32 head;
+    u32 *data;
+    u32 *node;
 
+    func_0044ea90(D_007131E8, 0x66);
+    node = (u32 *)(*jtbl_008873E8)(0x14, 0x40000);
+    func_0043f9c8(node, 0, 0x14);
+    node[3] = 0;
+    head = *list;
+    if (head != 0) {
+        ((u32 *)head)[3] = (u32)node;
+        head = *list;
+        node[4] = head;
+    } else {
+        node[4] = 0;
+    }
+    *list = (u32)node;
+    node[0] = arg1[0];
+    *(u16 *)((u8 *)node + 4) = arg2;
+    data = *(u32 **)arg1;
+    data[2] = data[2] + 1;
+    return node;
+}
+
+/* measured: nd 14 floor. ALL non-float code matches byte-for-byte, including
+   the MtxRow {f32 x,y,z; s32 flag;} out[4] layout (holes at 0x5C/0x6C/0x7C),
+   the 8x8-byte copy loop (t0/t1 temps, dst/count/src preheader), the identity
+   branch, sp4C |= 0x20003, and the in[12..14] -> f2/f1/f0 temp loads. Residual
+   is only the FP math: (1) BOTH sqrt/mula chains emit mula x, madda y where
+   retail has mula y, madda x -- same loads, same regs (x->f5, y->f6), and the
+   term order is compiler-canonical in my compile regardless of source
+   expression order (y*y + x*x + z*z + w*w) or decl order (tried x,y,z,w and
+   y,x,z,w); (2) block-2 reloads: mwcc loads y,z,w,x assigning x->f11, z->f12
+   where retail loads y,x,z,w with x->f12, z->f11 -- the fresh-reg assignment
+   order flips, cascading into 6 mul.s rows. Also tried id-local vs inline
+   node+8 loads, out as f32[16], and three copy-loop spellings; the retained
+   shapes are the best. mula/madda term-order floor, cf. btlShuffleDraw
+   func_00377930 note. */
 // FUN_0047D540
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d540);
 // FUN_0047D7E0
@@ -242,10 +334,38 @@ void func_0047dae0(u32 *param_1)
 
 
 // FUN_0047DB50
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047db50);
+u32 *func_0047db50(s32 arg0, s32 arg1)
+{
+    u32 *node;
+    u32 *wrap;
+    u32 base;
 
+    func_0044ea90(D_007131E8, 0x18A);
+    node = (u32 *)(base = (u32)jtbl_008873E8,
+                   ((void *(*)(u32, u32))*(u32 *)base)(arg1 + 0x10, 0x40000));
+    node[0] = (u32)((u8 *)node + 0x10);
+    node[1] = 1;
+    func_0043f810((void *)node[0], (void *)arg0, (u32)arg1);
+    func_0044ea90(D_007131E8, 0x17C);
+    wrap = (u32 *)((void *(*)(u32, u32))*(u32 *)base)(8, 0x40000);
+    func_0043f9c8(wrap, 0, 8);
+    wrap[0] = (u32)node;
+    return wrap;
+}
 // FUN_0047DC30
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047dc30);
+u32 *func_0047dc30(u32 **arg0)
+{
+    u32 *obj;
+    u32 *temp;
+
+    func_0044ea90(D_007131E8, 0x17C);
+    temp = (u32 *)(*jtbl_008873E8)(8, 0x40000);
+    func_0043f9c8(temp, 0, 8);
+    obj = *arg0;
+    temp[0] = (u32)obj;
+    obj[1] = obj[1] + 1;
+    return temp;
+}
 // FUN_00482700
 void func_00482700(int param_1, float *param_2)
 {

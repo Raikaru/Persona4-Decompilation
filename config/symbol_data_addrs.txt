@@ -1,3 +1,5 @@
+D_0063EB30 = 0x0063eb30; // type:data evidence: retail func_002a9100 3x copy loops (lh s16 pairs, 6 iterations) at 0x2A922C/0x2A93F4/0x2A94D0; absolute lui/addiu base
+iGpffffa824 = 0x00763914; // type:data evidence: retail func_002a9100 addiu $28,-0x57DC as func_00442088 fmt arg (3 sites); gp base 0x007690F0 -> 0x00763914
 // Curated data addresses that tools/recover_symbols.py cannot derive.
 //
 // That tool infers addresses from relocations in MATCHED functions. Two cases
@@ -25,6 +27,9 @@ iGpffffba4c = 0x007c4b3c; // type:data evidence: retail func_00152170 lbu gp-0x4
 iGpffffba50 = 0x007c4b40; // type:data evidence: retail func_00152170 lbu gp-0x45B0 (0x007C4B40) into the 0xF state word
 iGpffffba54 = 0x007c4b44; // type:data evidence: retail func_00152170 lbu gp-0x45AC (0x007C4B44) into the 0xF state word
 iGpffffba58 = 0x007c4b48; // type:data evidence: retail func_00152170 lbu gp-0x45A8 (0x007C4B48) into the 0xF state word
+iGpffffba6c = 0x00764b5c; // type:data evidence: retail func_00182220 lwc1 gp-0x4594 (0x00764B5C) into the 0x84 field of the task work; GP base 0x007690F0
+iGpffffb2c8 = 0x007643b8; // type:data evidence: retail func_0017ea10 lw gp-0x4D38 (0x007643B8) as the AI entry table base; GP base 0x007690F0
+iGpffffb25c = 0x0076434c; // type:data evidence: retail func_0017ea10 lw gp-0x4DA4 (0x0076434C) compared to 1; GP base 0x007690F0
 iGpffff9e10 = 0x00762f00; // type:data evidence: retail func_00151710 takes the format-string address gp-0x61F0 as addiu $5, $28, -0x61F0; GP base 0x007690f0 -> 0x00762F00 (relocation scan agrees)
 iGpffffb208 = 0x007642f8; // type:data evidence: retail func_0014efc0 stores func_0044ec30's result at gp-0x4DF8 (0x007642F8); name encodes the offset
 
@@ -92,6 +97,7 @@ iGpffffa9E4 = 0x00763ad4; // type:data evidence: GPREL -0x561C($28) lw in retail
 // GP is 0x007690F0 (derived from iGpffff8040 = 0x00761130), landing on slots
 // the relocation scanner has no symbol for.
 iGpffff8084 = 0x00761174; // type:data evidence: GP(0x007690F0) - 0x7F7C
+iGpffff8080 = 0x00761170; // type:data evidence: retail lwc1 GPREL -0x7F80($28) in effPolygonWind func_004a4a10; GP(0x007690F0) - 0x7F80
 iGpffff809c = 0x0076118C; // type:data evidence: GP(0x007690F0) - 0x7F64
 
 // GPREL16 -0x6110($28) in k_fldHBN func_0015f8e0 / func_0015ff20 / func_001601e0 --
@@ -127,6 +133,7 @@ fGpffff80f0 = 0x007611E0; // type:data evidence: retail lwc1 GPREL -0x7F10($28) 
 D_00636410 = 0x00636410; // type:data evidence: retail func_002566d0 copies 9x8 bytes from it (lui/addiu at 0x002566FC) into spD0
 D_00636460 = 0x00636460; // type:data evidence: retail func_002566d0 copies 4x8 bytes from it (lui/addiu at 0x00256730) into spB0
 D_0076122C = 0x0076122C; // type:data evidence: retail func_002566d0 lwc1 GPREL -0x7EC4($28) at 0x00256984; GP base 0x007690F0 - 0x7EC4 = 0x0076122C
+fGpffff8048 = 0x00761138; // type:data evidence: GP(0x007690F0) - 0x7FB8; retail lwc1 -0x7FB8($28) in mt_sceneFunc func_00269db0 at 0x169FB0
 D_00636480 = 0x00636480; // type:data evidence: retail func_00256be0 copies 9x8 bytes from it (lui/addiu at 0x00256C0C) into spD0
 D_006364D0 = 0x006364D0; // type:data evidence: retail func_00256be0 copies 4x8 bytes from it (lui/addiu at 0x00256C40) into spB0
 D_006364F0 = 0x006364F0; // type:data evidence: retail func_002570f0 copies 9x8 bytes from it (lui/addiu at 0x00257114) into sp130

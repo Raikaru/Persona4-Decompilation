@@ -13,6 +13,7 @@ u16 *func_00482f70(u32 arg0, u32 arg1, u32 arg2, void *arg3, u32 arg4);
 u8 *func_00484490(u8 *obj);
 void func_0043f810(void *dst, const void *src, u32 size);
 s32 func_004b4430(u8 *arg1);
+f32 func_004bd0b0(u32 param);
 
 extern u8 D_00713310[];
 extern u8 D_00714628[];
@@ -34,6 +35,16 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 
 
+/* measured: retail colors the 7 loop-carried temps count2=$a3 v8=$t0 v6=$a2
+   v5=$a1 v4=$a0 v3=$v1 i=$t1; mwcc b210 colors count2=$a1 v8=$a3 v6=$a0
+   v5=$t1 v4=$v1 v3=$t0 i=$a2 (nd 20, all rows pure register renaming; object
+   is otherwise byte-identical incl. hoisted count2 reload before the chain,
+   the `(u32)x << 8 >> 8` dsll32/dsrl32 byte extraction, and the i++,v8+=0x18
+   increment order). Tried declaration orders, s32/u32 counter+count2,
+   raw-memory loop bound (mwcc rematerializes at loop bottom instead of
+   hoisting to the preheader), loads-before-calls (adds a 4th saved reg),
+   u64 shift spellings (all add sext+canonicalize pairs). Saved-register
+   rotation floor family. */
 // FUN_004B32F0
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b32f0);
 // FUN_004B3420
@@ -43,6 +54,10 @@ void func_004b3420(u8 *arg0) {
 }
 
 
+/* measured: nd 10 with a full C body (object 576B against a 576B window).
+   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
+   adaptation rather than a settled floor -- re-attempt from the m2c draft with
+   the brief's recipes before treating any of it as established. */
 // FUN_004B3470
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b3470);
 
