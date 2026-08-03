@@ -17,9 +17,11 @@ u8 **func_00510e30(void) {
 
 extern u8 *D_00745888[];
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final load (nd 6 -> 2; residual
-   is v1/v0 coloring below). */
+/* measured: mwcc b210 coalesces the global base into $v0 (lui $v0 / lw $v0, 0($v0));
+   retail 2.4.1.01 keeps the base in $v1 (lui $v1 / lw $v0, %lo($v1)). nd 2 (the two
+   rt-register bytes). Tried typed pointer local, (u32) integer base, scalar-extern,
+   result locals, single-expression chains, no-pragma (nd 6); best nd 2. This is the
+   brief's corroborated "$v0/$v1 coalescing in tiny accessors" floor. */
 
 #pragma schedule on
 // FUN_00510E40 NONMATCHING
@@ -35,9 +37,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00510e40);
 
 extern u8 *D_00745AC0[];
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final load (nd 6 -> 2; residual
-   is v1/v0 coloring below). */
+/* measured: mwcc b210 coalesces the global base into $v0 (lui $v0 / lw $v0, 0($v0));
+   retail 2.4.1.01 keeps the base in $v1 (lui $v1 / lw $v0, %lo($v1)). nd 2 (the two
+   rt-register bytes). Tried typed pointer local, (u32) integer base, scalar-extern,
+   result locals, single-expression chains, no-pragma (nd 6); best nd 2. This is the
+   brief's corroborated "$v0/$v1 coalescing in tiny accessors" floor. */
 
 #pragma schedule on
 // FUN_00513790 NONMATCHING
@@ -53,10 +57,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513790);
 
 extern u8 *D_00745AC0[];
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final store and emits the return
-   move before it (nd 6 -> 7; residual is v1/v0 coloring plus move/sw
-   delay-slot choice). */
+/* measured: mwcc b210 emits lui $v0 / sw / jr / daddu $v0,$0,$0 (return const in
+   the delay slot), base in $v0; retail 2.4.1.01 emits lui $v1 / daddu $v0,$0,$0 /
+   jr / sw (store in the delay slot), base in $v1. nd 7 (rt byte + sw/daddu
+   ordering). Tried pointer-local, (u32)-base, return-local, no-pragma (nd 6);
+   best nd 7. $v0/$v1 coalescing floor (brief) + delay-slot preference. */
 
 #pragma schedule on
 // FUN_00513A40 NONMATCHING
@@ -101,8 +106,11 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
 #pragma schedule off
 
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final load (nd 7 -> 2). */
+/* measured: mwcc b210 loads the intermediate pointer into $v0 (lw $v0,0x1f7c($a0) /
+   lw $v0,0x20($v0)); retail 2.4.1.01 keeps it in $v1 (lw $v1,0x1f7c($a0) /
+   lw $v0,0x20($v1)). nd 2 (the two rt-register bytes). Tried s32/u32 locals,
+   result locals, single-expression chains, pointer-arithmetic variants, no-pragma
+   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief). */
 
 #pragma schedule on
 // FUN_00519EE0 NONMATCHING
@@ -117,8 +125,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ee0);
 #pragma schedule off
 
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final load (nd 7 -> 2). */
+/* measured: mwcc b210 loads the intermediate pointer into $v0 (lw $v0,0x1fc0($a0) /
+   lw $v0,0x7c($v0)); retail 2.4.1.01 keeps it in $v1 (lw $v1,0x1fc0($a0) /
+   lw $v0,0x7c($v1)). nd 2 (the two rt-register bytes). Tried s32/u32 locals,
+   result locals, single-expression chains, pointer-arithmetic variants, no-pragma
+   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief). */
 
 #pragma schedule on
 // FUN_0051F5E8 NONMATCHING

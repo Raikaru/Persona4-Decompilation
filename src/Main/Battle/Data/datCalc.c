@@ -372,18 +372,19 @@ s32 func_00232aa0(s32 arg0)
    the iGpffffb3c4 base into $a0 BEFORE the *0x3C mul chain and adds arg1's
    mask last; mwcc b210 sinks the lw after the mul (index-first, base-first,
    base-local, draft-tree spellings all tried). */
+/* measured 2026-08-03 (re-test): nd 9 confirmed with the s32-temp_16
+   combo (test `(u16)temp_16`, index `(temp_16 & 0xFFFF)`, arg1-index
+   `(u16)arg1` keep the three andis separate; u16 temp_16 collapses the
+   cast into the AND node and hoists one mask into s1, nd 72). Tail fully
+   matches: bltz guard, daddiu 1/0x63, slti-$at form, func_00109980 call.
+   Residual is the same load-sinking floor as func_0023e3e0's case 0:
+   retail lw's the iGpffffb3c4 base into $a0 BEFORE the *0x3C andi-chain
+   and masks arg1 last; mwcc b210 sinks the lw after the chain into $v0.
+   Tried: inline, base-local (`u8 *base = iGpffffb3c4;`), elem-pointer
+   local, chain-first/base-first addition order -- all nd 9. */
 // FUN_00232B40
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 
-/* measured: daddiu return constants ARE reachable (u8 var assignments
-   emit daddiu, verified) and the 0x80 test booleanizes via a value-
-   context local (lw; andi; sltu; beqz matches). Residual: retail's
-   shift is srl on a masked u32 value with NO pre-mask, but mwcc b210
-   re-normalizes a u8 var before the shift (andi; srl; andi — the extra
-   andi cascades +1 word over the whole tail); u32 var_2 makes the
-   shift clean but turns the 1/0x63 constants into addiu; u32+u8 out
-   split leaves a stray conversion andi or an extra b before the
-   epilogue (best nd 21). */
 // FUN_00232C70
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 
@@ -561,6 +562,18 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233a90);
    else-path mask chain rotates (sllv/and dest), `(temp_2 != 0) & 0xFFFF`
    folds the assignment andi, and the doubled-path OR lands in $v1 vs
    retail $a0. */
+/* measured 2026-08-03 (re-test): ported the m2c draft with recipe A
+   (s32 temp_3 from the raw lbu keeps the single bltz; (u32) cast for srl;
+   (f32)(s32) on the OR result; var_f1 + var_f1 doubling; arg1 s32;
+   temp_16 > 1 for the slti-$at 0x4F5 form) -> nd 276, confirming the
+   earlier 290. Residuals unchanged (five independent register/scheduling
+   artifacts): the call-path s8->s64 extension emits an extra
+   dsll32/dsra32 pair where retail extends only at the merge, the merge
+   pair splits as dsll32 $v0/dsra32 $s0 vs retail's dsll32 $s0, the
+   else-path mask chain rotates, (temp_2 != 0) & 0xFFFF folds the
+   assignment andi, and the doubled-path OR lands in $v1 vs retail $a0.
+   func_0010a9b0 is 1-arg (retail preps only $4); iGpffffb408/-0x4BF8
+   base; iGpffff8110/-0x7EF0 float. */
 // FUN_00233BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233bc0);
 
@@ -1134,20 +1147,39 @@ s32 func_0023d740(s32 arg0, s32 arg1)
     return var_16;
 }
 
-/* measured: branch-to-branch sharing; mwcc b210 chains the flags&4 path's
-   `b epilogue` onto the s16 path's identical branch (target 0x23d984 vs
-   retail 0x23d9a0). Tried if/else, single-return, and switch forms, all
-   nd 1..45. */
 // FUN_0023D8E0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d8e0);
+s32 func_0023d8e0(u8 *arg0, s32 arg1)
+{
+    s32 v;
 
-/* measured: saved-register allocation; retail assigns $s0=temp_16,
-   $s1=var_17, $s2=arg1, $s3=arg0 (first-def order) while mwcc assigns
-   arg0/arg1 first, frame 0x40 vs 0x50 and 16 instructions short. Tried
-   m2c declaration orders, nd 224 rows. */
+    if (arg0 != 0 && (arg1 & 0xFFFF) < 0x1B8 &&
+        (iGpffffb3b8[(arg1 & 0xFFFF) * 0x28] & 2)) {
+        if (*(u16 *)arg0 & 4) {
+            v = iGpffffb3c4[*(u16 *)(arg0 + 2) * 0x3C + 0x38];
+        } else {
+            v = (s16)func_00106a30((s16)(func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+        }
+    } else {
+        v = (s8)iGpffffb3b4[(arg1 & 0xFFFF) * 2];
+    }
+    return v;
+}
+/* measured 2026-08-03: full C body rebuilt from retail; frame -0x50,
+   saved regs s0=temp_16/s1=var_17/s2=arg1/s3=arg0, switch dispatch,
+   error calls, found-tail (srl + clamp to 1), case-2 lhu read and
+   if/else polarity all match. Best nd 132: mwcc b210 CSEs the
+   (u16)arg1 mask across the error call into s1 no matter the spelling
+   ((u16)arg1, (s32)(u16)arg1, (u16)(arg1 & 0xFFFF) all fold/CSE) while
+   retail re-masks fresh at every site (test, temp_16, case-1 chain,
+   case-2 else, case-2 mult = five separate andis); a 3rd distinct
+   spelling (u32)arg1 % 0x10000U bloats the object 24B. Also: the loop
+   compare constant 0x20B/0x20A is hoisted pre-loop into $a0 by retail
+   but materialized per-iteration by b210 (== form booleanizes to
+   xori/sltiu; != continue and goto-inc forms give nd 183-185), and
+   var_17 must be u32 for the srl shift while the /100 division stays
+   signed (s32 temps). */
 // FUN_0023D9B0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d9b0);
-
 // FUN_0023DD90
 u8 func_0023dd90(u8 *arg0, s32 arg1)
 {
@@ -1297,6 +1329,16 @@ s32 func_0023e2f0(u8 *arg0, s32 arg1)
 /* measured: case 0's lhu path compiles mul-before-base-lw while retail
    hoists the iGpffffb3c4 load above the *0x3C (sibling lbu case 1 matches);
    tried inline, offset-local, and pointer-cast spellings, nd 7. */
+/* measured 2026-08-03: full C body rebuilt; nd 7, only residual is the
+   case-0 lhu block. Everything else matches byte-for-byte (frame, both
+   switch dispatches (tests 2/1/0 desc, bodies asc), error calls, the
+   (s16) dsll32/dsra32 args, case-1 lbu with retail's hoisted base lw,
+   case-2, the shared return-0). Case 0 is a scheduler floor: retail
+   hoists the iGpffffb3c4 base lw above the *0x3C andi-chain into $a0;
+   mwcc b210 sinks it after the chain into $v0 regardless of spelling
+   (inline cast, &arr[u8], (u16) double cast, u16*-element index,
+   chain-first addition order, pointer local: all nd 7, &arr[u8] nd 83).
+   The sibling lbu case 1 hoists fine; only the lhu case does not. */
 // FUN_0023E3E0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e3e0);
 
@@ -1834,14 +1876,69 @@ void func_00243f20(u16 characterId)
    verify.py reports SIZE_MISMATCH: the window (368B, per
    tools/slus21782_functions.json) extends to 0x244110 and contains the
    unmarked nullsub at 0x244100 (jr $ra; nop; nop; nop), so the retail
-   tail beyond my 352B object is nonzero. Unmatchable without splitting
-   the boundary in slus21782_functions.json (no generator in-tree). */
+   tail beyond my 352B object is nonzero. Fixed 2026-08-03: the src
+   marker for the stub below IS a window boundary (per the
+   p3-window-nullsub-discovery Case A procedure), so splitting the
+   nullsub out in this file shrinks the window to 352B and this MATCHes. */
 // FUN_00243FA0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243fa0);
+s32 func_00243fa0(s32 arg0, s32 arg1)
+{
+    u16 var_17;
+    s32 temp_19;
+    s32 temp_3;
+    s32 var_16;
+    u32 temp_2;
 
-/* NOTE: retail has an unmarked nullsub at 0x00244100 (jr $ra; nop, then two
-   nops of padding) inside func_00243fa0's window, which ends at 002440FC.
-   It is reachable only through the function-pointer word at 0x00635950 -
-   there is no jal to it anywhere in the image. Splitting it out needs a new
-   boundary in tools/slus21782_functions.json, and that file has no generator
-   in-tree, so it is left folded rather than hand-edited. */
+    temp_19 = arg0 & 0xFFFF;
+    if ((s32)((u32)arg0 & 0xFFFF) < 0 || temp_19 >= 0x240) {
+        func_0046d730(D_00635938, 0x165A);
+    }
+    if (temp_19 >= 0x1B8) {
+        func_0046d730(D_00635938, 0x165B);
+    }
+    temp_3 = arg1 & 0xFF;
+    switch (temp_3) {
+    case 1:
+        var_17 = iGpffffb3b8[(u16)arg0 * 0x28 + 0x11];
+        break;
+    case 2:
+        var_17 = iGpffffb3b8[(u16)arg0 * 0x28 + 0x14];
+        break;
+    default:
+        func_0046d730(D_00635938, 0x1666);
+        break;
+    }
+    var_16 = 1;
+    temp_2 = (u16)var_17 & 0xFFFF;
+    switch (temp_2) {
+    case 0:
+    case 3:
+    case 4:
+    case 5:
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+    case 13:
+    case 15:
+        goto err1682;
+    case 1:
+    case 2:
+    case 6:
+    case 7:
+    case 12:
+    case 14:
+    case 16:
+        var_16 = 0;
+        break;
+    default:
+    err1682:
+        func_0046d730(D_00635938, 0x1682);
+        break;
+    }
+    return var_16;
+}
+// FUN_00244100
+void func_00244100(void)
+{
+}

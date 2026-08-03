@@ -9,7 +9,17 @@ extern char D_005E4800[];
 // FUN_001138C0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_001138c0);
 
-/* measured: retail prologue saves in order `sd $a0,0x48; mov.s $f20,$f12; move $s1,$a1; move $s0,$a2` and sets up the inner call's FP args contiguously (cvt pair then mov.s $f14 before any GPR arg moves). mwcc b210 emits the same four value-saves with the fparg0 instructions last (`sd; move $s1; move $s0; mov.s $f20`) and defers `mov.s $f14,$f20` until after the $a2/$a3/$t0/$t1 setup, for every spelling tried: &arg0 derefs direct, s64 sp48 local, `f32 z = fparg0` first and between, m2c's inline-nested call, and `#pragma schedule on` (which instead reorders the whole body). nd 5, all five words are these two fparg0-scheduling positions; prologue/FP-arg save-order floor. */
+/* measured: re-confirmed nd 5 this wave (reloc-masked; probe_variants reports
+   11 unmasked) with the m2c-faithful 9-arg 275020 spelling -- the only
+   residual is (a) prologue save order: retail `sd $a0,0x48; mov.s $f20,$f12;
+   move $s1,$a1; move $s0,$a2`, mwcc groups `[GPR callee-saves, FP
+   callee-saves, spills]` = `move $s1; move $s0; mov.s $f20; sd $a0` (same
+   grouping floor as func_00114dc0), and (b) `mov.s $f14,$f20` deferred past
+   the a2/a3/t0/t1 setup (retail emits it right after the lb $a1). Everything
+   else byte-identical (243840 nested call, cvt pairs into f12/f13, the
+   x*255/255U divu + |~0xFF chain, lh->sll->D_005E47F0 byte index). Probed
+   this wave: z/sp48 assignment orders, arg1/arg2 locals, lo/hi locals -- all
+   nd 5/11. prologue/FP-arg save-order floor. */
 // FUN_00113E30
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113e30);
 
@@ -20,21 +30,16 @@ INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113e30);
    var_19->$s3, temp_2->$s4, arg2->$s5, temp_22->$s6, arg1->$s7, temp_lo->$fp,
    hi->$f20, fparg0->$f21, fparg1->$f22]; mwcc b210 assigns arg1->$s0,
    arg3->$s4, fparg0->$f20, fparg1->$f21 for every declaration order tried
-   (with and without an explicit hi-word local). The guard-cvt color chains,
-   S3f struct copy, d4c0 calls and the s16 spC0 switch all compile
-   identically. nd 315; saved-reg/FP-reg rotation floor. */
+   (with and without an explicit hi-word local). Re-measured this wave: full
+   m2c-faithful body (with the FMA fix, guard-cvt chains, S3f copy, spC0
+   switch incl. the func_001138c0 (s64,f32,s32,s16*) case and the d4c0 calls
+   under the (s32,s32,s32,s32,u8,u8,u8,s32,f32,f32,f32) prototype) -> nd 313,
+   matching the recorded floor. The guard-cvt color chains, S3f struct copy,
+   d4c0 calls and the s16 spC0 switch all compile identically in isolation.
+   nd 313; saved-reg/FP-reg rotation floor. */
 // FUN_00113EF0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113ef0);
 
-/* measured: rule 2 (FMA operand order) applied: the same
-   `0.0f + 45.0f * fparg1 + 129.0f * (1.0f - fparg1)` shape emits the retail
-   adda.s/madd.s pair identically. But retail uses a 0x120 frame with FIVE
-   callee-saved FP regs ($f20-$f24, fparg0 in $f24) while mwcc b210 builds a
-   0x100 frame with four ($f20-$f23) and rotates every saved GPR, for the
-   m2c-faithful spelling with an explicit hi local. The S3f copy at 0xF8, the
-   mid-float u16 read at 0xFA, the constant-folded spF0 switch, the GPREL
-   iGpffff8368 load and all d4c0 call shapes compile identically in
-   isolation. nd 504; frame + saved-reg/FP-reg rotation floor. */
 // FUN_00114460
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114460);
 
@@ -83,32 +88,53 @@ s32 func_00114cb0(u16 arg0) {
     }
 }
 
-/* measured: retail emits its prologue value-saves as `sd $a0,0x30; mov.s $f20,$f12; sw $a1,0x3c; move $s0,$a3`, mwcc b210 emits a rotation of the same four independent saves (`move $s0` first or last, mov.s pinned at slot 2) for every source spelling tried: direct `*(f32 *)&arg0`/`*((u8 *)&arg1+n)` derefs, s64/sp3C locals with decl/assign combined and separated, `f32 z = fparg0` first, alpha split into `alpha = 0xFF; alpha -= byte;` (that split did fix the `subu $v0,$v1,$v0` operand order), and `#pragma schedule on` (which instead if-converts the blez). All give nd 4, all four words are this same rotation; prologue-save scheduling floor. */
+/* measured: retail prologue value-saves are `sd $a0,0x30; mov.s $f20,$f12; sw
+   $a1,0x3c; move $s0,$a3` (stack spills interleaved around the FP save, $s0
+   move LAST); mwcc b210 always groups `[callee-GPR move, mov.s $f20, stack
+   spills in assignment order]` with the $s0 move FIRST, whatever the source
+   ordering (re-measured this wave: 7 spellings incl. all decl/assign orders,
+   decl-initialised, lo/hi/z locals, inline derefs -> best nd 3 = assignment
+   `sp3C=arg1` before `sp30=arg0` which fixes the spill order to [a1,a0] but
+   leaves the $s0 move first vs retail last; every other spelling nd 4).
+   Everything after the prologue matches byte-for-byte (14cb0 call, blez,
+   alpha chain, 11-arg d4c0 setup with a3=alpha, f12/f13=arg0 halves,
+   t0-t2=arg1 bytes, f14=fparg0, t3=0). prologue-save scheduling floor. */
 // FUN_00114DC0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114dc0);
-
-/* measured: retail computes each d4c0 call's f32 args (1.0f+lo, hi-1.0f ...)
-   before the alpha/GPR setup and emits `andi $a3,$s0,0xff` at ALL three
-   calls; mwcc b210 emits the alpha chain first (argument evaluation order),
-   coalesces temp_17 into arg1's $s0 register (retail coalesces temp_16 there
-   instead), deletes the provably-redundant `temp_16 & 0xFF` masks at calls 1
-   and 3 (keeping call 2's), orders `mov.s $f14` after `move $t3` in the call
-   setups, and picks $f0 for the 2bc860 add (retail $f2). Tried: temp_16
-   local vs inline, (u8)arg1 cast (kept all masks but reordered the whole arg
-   setup, 73), x/y f32 locals before the calls (67), decl-order swaps,
-   `#pragma schedule on` (103). nd 73; arg-eval-order + reg-coalescing +
-   FP-arg-scheduling floor. */
+/* measured: best nd 38 (this wave, down from recorded 73) with an `s32 alpha
+   local` = temp_16 & 0xFF passed as the d4c0 arg4 (a3) -- without it the
+   masks are deleted and the arg setup reorders. Residual is five independent
+   families: (1) prologue save rotation (4w: retail `sd $a0; mov.s $f21; move
+   $s0; move $s3`, mwcc `move $s0; move $s3; mov.s $f21; sd $a0` -- same
+   floor as func_00114dc0); (2) retail computes each call's f32 args before
+   the alpha chain, mwcc emits the alpha chain first (8w, argument-evaluation
+   order; x/y-locals spellings hoist all FP work before call 1, worse);
+   (3) retail coalesces temp_16 into arg1's $s0 with `andi $a3,$s0,0xff` at
+   ALL three calls, mwcc keeps temp_17 in $s0 / temp_16 in $s1 and deletes
+   every mask (move $a3,$s1); (4) 2bc860 block: retail does both adds first
+   ($f2 then $f1) then both cvt pairs, mwcc interleaves add/cvt and picks
+   $f0; (5) mov.s $f14 before addiu $a1/$a2 vs retail after the or $a0.
+   Prologue + 0x68 slot, hi hoisted to $f20, 46a770/trap/d4c0 setups and the
+   beqz chain otherwise byte-identical. Tried: m2c-faithful (107), hi local
+   (76), x/y locals (76), alpha local (38), temp_16-first, decl swaps,
+   u8 alpha (79). arg-eval-order + reg-coalescing + FP-scheduling floor. */
 // FUN_00114E50
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114e50);
 
-/* measured: retail allocates temp_7 (s8) to $a3 and var_6 (the `arg1 != 0`
-   boolean) to $a2; mwcc b210 swaps them (temp_7 -> $a2, var_6 -> $a3) for
-   every spelling tried: all 8 declaration orders, all def orders of the
-   temp_7/count/var_6 loads, count local vs inline, `arg1 > 0` vs `arg1 != 0`
-   with u32/s32 params, temp_7 loaded at its first use in the branches (160,
-   no hoist). Everything else matches byte-for-byte (s8 sign-extension pairs,
-   signed %4 fixup chains, D_008C027A[0] absolute lhu, sb stores). nd 9, all
-   this a2/a3 rotation; temp-register rotation floor. */
+/* measured: re-measured this wave with a rebuilt body, best nd 45. The
+   working spelling: `u16 count = *(u16 *)(arg0 + 0x22C)` loaded BEFORE
+   `var_6 = arg1 != 0` (fixes retail's lhu-before-sltu order and the
+   `andi $v1,$v1,0xffff` promotion mask), s8 temp_2/var_8/temp_7, s32
+   temp_5/var_3 with the %4 fixup run in s32 BEFORE the trailing `(s8)`
+   conversion (an early (s8) cast breaks the fixup chain, nd 186), and
+   D_008C027A[0] array form for the absolute lhu. Residual: (1) temp_7 -> $a2
+   / var_6 -> $a3 swap vs retail $a3/$a2 (recorded floor, all decl+def orders
+   tried); (2) temp_5/var_3 rotate too: mwcc reuses t's $v1 for temp_5
+   (`addiu $v1,$v1,3`) and puts var_3 in $a1, retail gives temp_5 $a1 / var_3
+   $v1, in all six %4 fixup chains. The m2c (s64)<<0x38>>0x38 spelling
+   double-emits the dsll32/dsra32 pairs (nd 154). Everything else byte-
+   identical (s8 pairs, slti/beqz chains, sb stores, beq join). nd 45;
+   temp-register rotation floor. */
 // FUN_00115020
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115020);
 
@@ -207,13 +233,14 @@ void func_00115760(u8 *arg0) {
     *(u16 *)(arg0 + 0x224) -= 1;
 }
 
-/* measured: retail trap-skip `bnez $3,0x1156b0` targets the loop pre-jump
-   `b 0x1156f0`; mwcc b210 folds the chain and emits `bnez $3,0x1156f0`
-   directly for every spelling tried: for/while loop, `#pragma schedule on`,
-   and a `for(;;){if(i>=count-1)break;...}` break-loop (which instead keeps the
-   loop test at the top, 21 words). All other words match byte-for-byte
-   (i = (s16)arg1 dsll32/dsra32 pair, trap, S3f+u16 copies, stores). nd 1 real
-   word, always this one skip-target; branch-target sharing floor. */
+/* measured: retail trap-skip `bnez $v1,0x1156b0` targets the loop pre-jump
+   `b 0x1156f0` (the bottom test); mwcc b210 folds the branch-to-branch chain
+   and emits `bnez $v1,0x1156f0` directly. Re-measured this wave: sequential
+   `if (i >= count) trap; for(;i<count-1;i++)` -> nd 1, only this word;
+   explicit `goto test; body:...` prejump spelling -> nd 2; and
+   `if (i < count) { do {...} } else { trap; }` avoids the fold but breaks
+   regalloc (i stays $a1, arg0 $s0, frame 0x20) because i is not live across
+   the trap call in that shape. branch-target sharing floor. */
 // FUN_00115670
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
 

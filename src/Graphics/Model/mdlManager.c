@@ -1009,13 +1009,60 @@ u32 func_00475090(u32 param_1)
 
 
 
-/* measured: retail folds 0x18 into the param_1 accesses (lw $v1,0x18($s3)) and
-   0x40/0x44 into the obj2 cb checks; mwcc b210 materializes param_1+0x18 into
-   $a1 and obj2+0x40 into an extra saved $s4 (frame 0x70 vs 0x60, nd 111;
-   u8* params nd 108). Tried: u8* typing. Address-CSE into s-reg floor (same
-   family as 79e60/776c0/73710/78ec0). */
+/* measured: MATCHED this wave (nd 0) — the old note's nd 111 floor was an
+   artifact of the || / if-else-if dispatch spelling. Working spelling:
+   switch(func_00399d80(*it)){case 5: case 6:} reproduces retail's
+   beq 6/beq 5/b-skip with the body out of line; the cb checks must compare
+   and store *(void**)(obj2+0x40) against (void*)func_00474a50/00474a90
+   (u32 casts also work, void* keeps mwcc from adding conversions);
+   re-read arg0->0x18 fresh for `list` (retail re-issues the lw). */
 // FUN_00475170
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475170);
+void func_00475170(u8* arg0, f32 fparg0)
+{
+    u32* it;
+    u32 list;
+    u8* obj2;
+
+    obj2 = *(u8**)(arg0 + 0x18);
+    if (obj2 != 0 && *(u32*)(obj2 + 8) != 0) {
+        *(f32*)(arg0 + 0xC) = fparg0;
+        *(f32*)(arg0 + 0x10) = fparg0;
+        list = *(u32*)(*(u8**)(arg0 + 0x18) + 8);
+        it = (u32*)func_003df890(list);
+        while (it != (u32*)func_003df8a0(list)) {
+            switch (func_00399d80(*it)) {
+            case 5:
+            case 6:
+                obj2 = (u8*)func_003d8130(*it, 0);
+                if (obj2 != 0) {
+                    if (*(void**)(obj2 + 0x40) == (void*)func_00474a50 &&
+                        *(void**)(obj2 + 0x44) == (void*)func_00474a90) {
+                        func_003d5e40(obj2, fparg0);
+                        *(void**)(obj2 + 0x40) = (void*)func_00474a50;
+                        *(void**)(obj2 + 0x44) = (void*)func_00474a90;
+                    } else {
+                        func_003d5e40(obj2, fparg0);
+                    }
+                }
+                if (*(u8*)(arg0 + 2) != 1) {
+                    obj2 = (u8*)func_003d8130(*it, 1);
+                    if (obj2 != 0) {
+                        if (*(void**)(obj2 + 0x40) == (void*)func_00474a50 &&
+                            *(void**)(obj2 + 0x44) == (void*)func_00474a90) {
+                            func_003d5e40(obj2, fparg0);
+                            *(void**)(obj2 + 0x40) = (void*)func_00474a50;
+                            *(void**)(obj2 + 0x44) = (void*)func_00474a90;
+                        } else {
+                            func_003d5e40(obj2, fparg0);
+                        }
+                    }
+                }
+                break;
+            }
+            it++;
+        }
+    }
+}
 
 /* measured: 4 attempts (nd 245/253/252/248). Working spellings: the
    type==6/5 dispatch must be switch(t){case 5: case 6:} to reproduce retail's
@@ -1589,20 +1636,26 @@ void* func_00477f10(void* param_1, void* param_2, int param_3, int param_4, u32 
     return obj;
 }
 
-/* measured: the two paths are clean except an s-reg rotation: retail keeps
-   t1=$s1 and path-1 obj in $s3 (reusing the dead param_3 slot); mwcc b210
-   assigns obj=$s1 (first free) and t1=$s6 (last free) — 9 words, all
-   register names. Tried: obj-first and t2-first declaration orders (nd 9/9).
-   Saved-register rotation floor. */
+/* measured: re-measured this wave (5 spellings, best nd 74): retail layout is
+   sp9C/sp94/sp90/sp8C/sp88 five scalar slots with tmp values held in s-regs
+   across calls (out in $s6); mwcc b210 coalesces the never-read slots into
+   sp9C's slot pair and DSEs their stores (single tmp[2] nd 76, two tmp[2]
+   arrays nd 76 — disjoint arrays merged, four scalar locals nd 88, block-
+   scoped arrays nd 76, m2c-verbatim five-slot body nd 74), frame 0x90 vs
+   0xA0. The earlier nd-9 body (retail stack layout, only s-reg names differ:
+   retail t1=$s1/path-1 obj=$s3 vs mwcc obj=$s1/t1=$s6) is not reproducible
+   from any spelling found. Slot-coalescing + saved-register-rotation floor. */
 // FUN_00477FB0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477fb0);
 
 /* measured: loop matched only as an explicit-break while (while(node){if(D6==
-   id)break;node=next;} — the && form reorders the test block); the residual is
+   id)break;node=next;} — the && form reorders the test block) with u32 params
+   and an explicit `id = arg1 & 0xFFFF` local (u16 params re-mask into extra
+   s-regs, nd 80); buf[0x100] at sp+0x50 gives the 0x150 frame. The residual is
    the same branch-to-branch redirect as func_0047ac90: retail keeps
    beqz $v0,0x478240; ... ; 0x478240: b 0x47828c after the func_0047d0e0 test,
-   mwcc b210 redirects the beqz straight to the join (nd 1, the beqz imm).
-   Tried: result local, empty-else, if forms — identical nd 1.
+   mwcc b210 redirects the beqz straight to the join (re-measured nd 1, the
+   beqz imm). Tried: result local, empty-else, if forms — identical nd 1.
    Branch-to-branch sharing floor. */
 // FUN_00478140
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478140);
@@ -2367,11 +2420,13 @@ void func_0047ab90(void* param_1, s32 param_2, void* param_3, void* param_4, voi
     *(u8*)((u8*)slot + 0x28C) |= 0x1;
 }
 
-/* measured: retail keeps a branch-to-branch chain after the func_0047b050
-   call (beqz $v0,0x47ad38; ... ; 0x47ad38: b 0x47ad84); mwcc b210 redirects
-   the beqz straight to the join (nd 2, one differing word, the beqz imm).
-   Tried: if/else forms, empty-then, else-empty — identical nd 2.
-   Branch-to-branch sharing floor. */
+/* measured: working spelling confirmed this wave — void* params 3/4 (u32
+   needs casts at the func_00477e80 call), buf[0x100] at sp+0x70 for the 0x170
+   frame, tail as in func_0047ab90. Retail keeps a branch-to-branch chain
+   after the func_0047b050 call (beqz $v0,0x47ad38; ... ; 0x47ad38: b 0x47ad84);
+   mwcc b210 redirects the beqz straight to the join (re-measured nd 2, one
+   differing word, the beqz imm). Tried: if/else forms, empty-then,
+   else-empty — identical nd 2. Branch-to-branch sharing floor. */
 // FUN_0047AC90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ac90);
 

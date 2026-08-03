@@ -15,51 +15,51 @@ void func_004d12a0(u8 *arg0, s32 arg1)
 #pragma schedule off
 
 
-extern s32 D_00723F10[];
-
-/* measured: b210 O2 emits lui/sw/jr/nop (v1 scratch, unfilled return delay
- * slot); retail is lui $v0 / jr $ra / sw-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; address color stays
- * $v1 vs retail $v0 (nd 2, allocator floor). NONMATCHING */
+/* measured: #pragma schedule on is load-bearing (delay-slot fill, nd 3
+ * without it); retail's $v0 base is the live return value, so the store
+ * must return the zero-lo segment base: a void store colors the address
+ * $v1 (nd 2), returning the base folds the sw into 0x3F10($v0) and the
+ * object matches byte-for-byte (tail nop is all-zero window padding). */
 #pragma schedule on
 
-// FUN_004D18D8 NONMATCHING
-#ifdef NON_MATCHING
-void func_004d18d8(s32 arg0)
+// FUN_004D18D8
+s32 *func_004d18d8(s32 arg0)
 {
-    D_00723F10[0] = arg0;
+    s32 *segment = (s32 *)0x00720000;
+    segment[0xFC4] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d18d8);
-#endif
 #pragma schedule off
 
 
 extern s32 D_00723F20[];
 
-/* measured: all void shapes color the address scratch $v1 (nd 2); pointer-
- * return re-materializes (nd 9, 20B > window); opt1/opt3 unchanged. Pure
- * $v0/$v1 swap vs retail = allocator floor (same residual in sibling files
- * code1_004e/code1_0052). NONMATCHING */
+/* measured: #pragma schedule on is load-bearing (delay-slot fill);
+ * retail's $v0 base is the live return value, so the store returns the
+ * zero-lo segment base: a void store colors the address $v1 (nd 2),
+ * returning the base folds the sw into 0x3F20($v0) and the object
+ * matches byte-for-byte (tail nop is all-zero window padding). */
 #pragma schedule on
 
-// FUN_004D3148 NONMATCHING
-#ifdef NON_MATCHING
-void func_004d3148(s32 arg0)
+// FUN_004D3148
+s32 *func_004d3148(s32 arg0)
 {
-    D_00723F20[0] = arg0;
+    s32 *segment = (s32 *)0x00720000;
+    segment[0xFC8] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3148);
-#endif
 #pragma schedule off
 
 
 extern s32 D_00723F20[];
 
-/* measured: O2/schedule/opt3/static/const/volatile all reuse $v0 for the
- * address (nd 2); retail keeps it in $v1. Pure $v1/$v0 swap = allocator
- * floor (same residual in sibling files code1_004e/code1_0052). NONMATCHING */
+/* measured (2026-08-03): nd 2 (verify normalized_diff; fndiff reports 3
+ * including the all-zero padding nop) = global-address base register only:
+ * retail lui $v1 + lw $v0, b210 always lui $v0 + lw $v0 (base reuses
+ * $v0). Re-probed here today: old-style () prototype, #pragma peephole
+ * off, #pragma optimize_level 1 -- all nd 2. Same tree-wide floor as
+ * code1_004e func_004e3da8/3db8/4180/4280/4290/4688 (16 spellings tried
+ * there, all nd 2; 19 accessors tree-wide, none matched). NONMATCHING */
 #pragma schedule on
 
 // FUN_004D3190 NONMATCHING
@@ -71,33 +71,38 @@ s32 func_004d3190(void)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3190);
 #endif
+/* measured: schedule on keeps the lw in the jr delay slot (without it the
+ * delay slot is unfilled, nd 3). */
 #pragma schedule off
 
 
 extern s32 D_00724E58[];
 
-/* measured: #pragma schedule on is load-bearing for the sw-in-return-delay-
- * slot placement; address colors $v1 vs retail $v0 (nd 2, allocator
- * floor). NONMATCHING */
+/* measured: #pragma schedule on is load-bearing (delay-slot fill);
+ * retail's $v0 base is the live return value, so the store returns the
+ * zero-lo segment base: a void store colors the address $v1 (nd 2),
+ * returning the base folds the sw into 0x4E58($v0) and the object
+ * matches byte-for-byte (tail nop is all-zero window padding). */
 #pragma schedule on
 
-// FUN_004D3678 NONMATCHING
-#ifdef NON_MATCHING
-void func_004d3678(s32 arg0)
+// FUN_004D3678
+s32 *func_004d3678(s32 arg0)
 {
-    D_00724E58[0] = arg0;
+    s32 *segment = (s32 *)0x00720000;
+    segment[0x1396] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3678);
-#endif
 #pragma schedule off
 
 
 extern s32 D_00724E58[];
 
-/* measured: #pragma schedule on is load-bearing for the lw-in-return-delay-
- * slot placement; address reuses $v0 vs retail $v1 (nd 2, allocator
- * floor). NONMATCHING */
+/* measured (2026-08-03): nd 2 (verify normalized_diff; fndiff reports 3
+ * including the all-zero padding nop) = global-address base register only:
+ * retail lui $v1 + lw $v0, b210 always lui $v0 + lw $v0 (base reuses
+ * $v0). Same tree-wide floor as code1_004e func_004e3da8/3db8/4180/
+ * 4280/4290/4688 (16 spellings tried there, all nd 2; 19 accessors
+ * tree-wide, none matched). NONMATCHING */
 #pragma schedule on
 
 // FUN_004D3688 NONMATCHING
@@ -109,14 +114,19 @@ s32 func_004d3688(void)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3688);
 #endif
+/* measured: schedule on keeps the lw in the jr delay slot (without it the
+ * delay slot is unfilled, nd 3). */
 #pragma schedule off
 
 
 extern s32 D_00724E60[];
 
-/* measured: #pragma schedule on is load-bearing for the lw-in-return-delay-
- * slot placement; address reuses $v0 vs retail $v1 (nd 2, allocator
- * floor). NONMATCHING */
+/* measured (2026-08-03): nd 2 (verify normalized_diff; fndiff reports 3
+ * including the all-zero padding nop) = global-address base register only:
+ * retail lui $v1 + lw $v0, b210 always lui $v0 + lw $v0 (base reuses
+ * $v0). Same tree-wide floor as code1_004e func_004e3da8/3db8/4180/
+ * 4280/4290/4688 (16 spellings tried there, all nd 2; 19 accessors
+ * tree-wide, none matched). NONMATCHING */
 #pragma schedule on
 
 // FUN_004D3698 NONMATCHING
@@ -128,25 +138,27 @@ s32 func_004d3698(void)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3698);
 #endif
+/* measured: schedule on keeps the lw in the jr delay slot (without it the
+ * delay slot is unfilled, nd 3). */
 #pragma schedule off
 
 
 extern s32 D_00724E60[];
 
-/* measured: #pragma schedule on is load-bearing for the sw-in-return-delay-
- * slot placement; address colors $v1 vs retail $v0 (nd 2, allocator
- * floor). NONMATCHING */
+/* measured: #pragma schedule on is load-bearing (delay-slot fill);
+ * retail's $v0 base is the live return value, so the store returns the
+ * zero-lo segment base: a void store colors the address $v1 (nd 2),
+ * returning the base folds the sw into 0x4E60($v0) and the object
+ * matches byte-for-byte (tail nop is all-zero window padding). */
 #pragma schedule on
 
-// FUN_004D36A8 NONMATCHING
-#ifdef NON_MATCHING
-void func_004d36a8(s32 arg0)
+// FUN_004D36A8
+s32 *func_004d36a8(s32 arg0)
 {
-    D_00724E60[0] = arg0;
+    s32 *segment = (s32 *)0x00720000;
+    segment[0x1398] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d36a8);
-#endif
 #pragma schedule off
 
 

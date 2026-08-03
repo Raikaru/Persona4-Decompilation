@@ -5,8 +5,6 @@ extern s32 D_0075DDD8[];
 
 extern s32 D_0075DE40[];
 
-extern s32 D_0074428C[];
-
 extern s32 D_0075E8B0[];
 
 extern s32 D_007442A0[];
@@ -14,8 +12,6 @@ extern s32 D_007442A0[];
 extern s32 D_0074586C[];
 
 extern s32 D_00745878[];
-
-extern s32 D_00745884[];
 
 
 /* measured: -O2 emits lui/addiu before jr $ra; retail schedules the final
@@ -55,22 +51,21 @@ s32 *func_00506b88(void)
 #pragma optimization_level 2
 
 
-/* measured: -O2 emits lui $v1; sw; jr; nop; retail is lui $v0; jr; sw (store
-   in the delay slot).  -O3 reproduces the delay-slot shape but b210 still
-   colors the base $v1 where retail uses $v0 (residual nd 2, allocator
-   coloring floor; see mwccps2-debugger p3-allocation-explanation). */
-#pragma optimization_level 3
+/* measured: retail is lui $v0; jr; sw %lo(D_0074428C)($v0) -- the base is a
+   live return value, which is why the store folds into an offset off $v0
+   (same family as func_004d18d8/004d3148/004d3678/004d36a8). A void
+   spelling colors the base $v1 (nd 2); returning the segment pointer (lo
+   bits zero, so lui alone materializes it) gives nd 0. */
+#pragma schedule on
 
-// FUN_00509910 NONMATCHING
-#ifdef NON_MATCHING
-void func_00509910(s32 arg0)
+// FUN_00509910
+s32 *func_00509910(s32 arg0)
 {
-    D_0074428C[0] = arg0;
+    s32 *segment = (s32 *)0x00740000;
+    segment[0x10A3] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00509910);
-#endif
-#pragma optimization_level 2
+#pragma schedule off
 
 
 /* measured: -O2 emits lui/addiu before jr $ra; retail schedules the final
@@ -97,10 +92,12 @@ s32 *func_0050b3d0(void)
 #pragma optimization_level 2
 
 
-/* measured: -O2 emits lui $v0; lw $v0; jr; nop; retail is lui $v1; jr;
-   lw $v0 (load in the delay slot, separate base $v1).  -O3 reproduces the
-   delay-slot shape but b210 merges base and destination into $v0 (residual
-   nd 2, allocator coloring floor). */
+/* retail: lui $v1; jr; lw $v0, %lo(D)($v1) (separate base $v1); mwcc b210
+   merges the base into $v0 (lui $v0; jr; lw $v0, ($v0)), nd 2. Tried
+   schedule on/off, opt_regalloc on/off, u32, pointer local (*p and p[0]),
+   address-of, u8-cast; corroborated across 19 getters in code1_004c/004d/
+   004e/004f/0050/0051/0052 with 16+ spellings. measured allocator floor
+   ($v0/$v1 coalescing in tiny accessors; getters not reachable). */
 #pragma optimization_level 3
 
 // FUN_0050BCA0 NONMATCHING
@@ -115,10 +112,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bca0);
 #pragma optimization_level 2
 
 
-/* measured: -O2 emits lui $v0; lw $v0; jr; nop; retail is lui $v1; jr;
-   lw $v0 (load in the delay slot, separate base $v1).  -O3 reproduces the
-   delay-slot shape but b210 merges base and destination into $v0 (residual
-   nd 2, allocator coloring floor). */
+/* retail: lui $v1; jr; lw $v0, %lo(D)($v1) (separate base $v1); mwcc b210
+   merges the base into $v0 (lui $v0; jr; lw $v0, ($v0)), nd 2. Tried
+   schedule on/off, opt_regalloc on/off, u32, pointer local (*p and p[0]),
+   address-of, u8-cast; corroborated across 19 getters in code1_004c/004d/
+   004e/004f/0050/0051/0052 with 16+ spellings. measured allocator floor
+   ($v0/$v1 coalescing in tiny accessors; getters not reachable). */
 #pragma optimization_level 3
 
 // FUN_0050CA80 NONMATCHING
@@ -133,19 +132,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050ca80);
 #pragma optimization_level 2
 
 
-/* measured: -O2 emits lui $v1; sw; jr; nop; retail is lui $v0; jr; sw (store
-   in the delay slot).  -O3 reproduces the delay-slot shape but b210 still
-   colors the base $v1 where retail uses $v0 (residual nd 2, allocator
-   coloring floor). */
-#pragma optimization_level 3
+/* measured: retail is lui $v0; jr; sw %lo(D_00745884)($v0) -- the base is a
+   live return value, which is why the store folds into an offset off $v0
+   (same family as func_004d18d8/004d3148/004d3678/004d36a8). A void
+   spelling colors the base $v1 (nd 2); returning the segment pointer (lo
+   bits zero, so lui alone materializes it) gives nd 0. */
+#pragma schedule on
 
-// FUN_0050CCE0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0050cce0(s32 arg0)
+// FUN_0050CCE0
+s32 *func_0050cce0(s32 arg0)
 {
-    D_00745884[0] = arg0;
+    s32 *segment = (s32 *)0x00740000;
+    segment[0x1621] = arg0;
+    return segment;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cce0);
-#endif
-#pragma optimization_level 2
+#pragma schedule off

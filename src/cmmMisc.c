@@ -122,11 +122,13 @@ u8 *func_002468a0(u32 arg0) {
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
 
-/* measured: retail loads D_0088149C into $a1 FIRST (lui/lw), then
-   sign-extends the arg and multiplies; mwcc b210 sinks the global load to
-   its use after the sll/addu/sll multiply chain in every spelling tried
-   (flat expr, hoisted base local, separated statements, s16 vs s32 arg;
-   all nd 9). Load-sinking floor. */
+/* measured: re-measured nd 9 (flat expr, s16 arg). Retail loads
+   D_0088149C into $a1 FIRST (lui/lw), then sign-extends arg0 and runs the
+   sll/addu/sll x24 chain in $v0, final `addu $v0,$v0,$a1`. mwcc b210 always
+   sinks the lui/lw after the chain and holds the loaded value in $v0
+   (addu $v0,$v0,$v1). s64-arg m2c spelling: nd 13 + 4B oversize. Tried also
+   hoisted local, separated statements, both orders, s16/s32 args (prior
+   wave, all nd 9). Load-sinking floor (same family as FUN_00246940). */
 // FUN_00246910
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246910);
 
@@ -134,6 +136,11 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246910);
    multiplies; mwcc b210 sinks the load after the multiply chain in every
    spelling tried (flat expr, hoisted base local, separated statements, s16
    vs s32 arg; all nd 9). Load-sinking floor (same family as FUN_00246910). */
+/* measured: same load-sinking floor as FUN_00246910 (re-measured nd 9):
+   retail loads D_008814A0 into $a1 FIRST, then the x20 chain; mwcc b210
+   sinks the load after the chain and uses $v0 for the loaded value.
+   Tried flat expr, hoisted base local, separated statements, s16 vs s32
+   arg (all nd 9). Load-sinking floor. */
 // FUN_00246940
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246940);
 
@@ -155,10 +162,13 @@ s32 func_00246980(s16 arg0, s16 arg1) {
     return base + arg0 * 0x41 + (arg1 - 1) * 0xD;
 }
 
-/* measured: retail emits `addu $v1, $v0, $s2` (offset, base) for the
-   index add but mwcc b210 emits `addu $v1, $s2, $v0` in every spelling tried
-   (local s16 casts, inline casts, prod locals, flat expressions, both operand
-   orders, s32 vs u8* base); best nd 4. Addu-operand-order floor. */
+/* measured: retail emits `addu $v1, $v0, $s2` then `addu $v0, $v0, $v1`
+   (fresh sll results in rs, older value in rt). mwcc b210 puts fresh in rt.
+   Naming the offset in an s32 local (`mid = index + base`) flips the FIRST
+   addu to retail's order (nd 5 -> 4); also naming the second operand
+   (`tail = arg1 * 2`) rotates every saved register (nd 17). Best nd 4: only
+   residual is `addu $v0, $v1, $v0` vs retail `addu $v0, $v0, $v1`.
+   Addu-operand-order floor (same family as FUN_002487E0/FUN_00249670). */
 // FUN_00246A50
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246a50);
 // FUN_00246B10
@@ -259,16 +269,15 @@ s32 func_00246e10(s32 arg0) {
     return off + (u32)temp_16 - 0x40;
 }
 
-/* measured: retried under recipe A (bltz family); best nd 6, was 23. With
-   `arg0 < 0 || (arg0 & 0xFFFF) > 5` (the > form gives retail's slti $at),
-   everything is byte-identical except 4 words: retail masks first
-   (andi $v0,$s1,0xffff) then bltz $v0, mwcc b210 always folds `x < 0` on an
-   andi result and emits bltz on the raw arg0 with the andi after (tried
-   named s32/u16 temps, pointer-provenance masks, s16/s32 casts, <= -1:
-   fold or CSE the mask into a saved reg); and the *14 base add comes out
-   addu $v0,$s0,$v0 (rs=saved-reg operand) vs retail addu $v0,$v0,$s0,
-   unaffected by operand order in the source. Dead-comparison-elimination
-   floor (recipe A family); remaining words are addu-operand order. */
+/* measured: nd 6 -> 3 with two levers: (1) lever-10 named-offset local
+   (`off = (u16)arg0 * 14; mid = off + base;`) fixed the addu-operand-order
+   residual; (2) `m = arg0 & 0xFFFF;` as a STATEMENT before the if fixed
+   the andi/bltz order (`andi $v0,$s1` now precedes the branch, matching
+   retail's layout). Single remaining word: retail `bltz $v0` (tests the
+   MASKED value) vs mwcc `bltz $s1` (raw arg0) for `arg0 < 0`; the masked
+   spelling `(arg0 & 0xFFFF) < 0` folds to false and DELETES the bltz
+   (nd 23), `(s16)` casts materialize dsll32/dsra32 (nd 23), u16/s32 temps
+   fold or CSE. Dead-comparison-elimination floor (recipe A family). */
 // FUN_00246E90
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246e90);
 // FUN_00246F10
@@ -525,12 +534,38 @@ s8 func_00248760(s32 arg0) {
     return *(s8 *)(off + (u32)temp_16 + 0x10);
 }
 
-/* measured: retail emits `addu $v1, $v0, $v1` (offset, base) for the
-   temp_3 = a1*8 + base add; mwcc b210 always emits `addu $v1, $v1, $v0` in
-   every spelling tried (inline, +=, prod local, both operand orders; best nd
-   11). Addu-operand-order floor (same family as FUN_00246A50). */
 // FUN_002487E0
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002487e0);
+s8 func_002487e0(s32 arg0, s8 arg1) {
+    u8 *base;
+    s32 off;
+    s32 elem;
+    s32 idx;
+    s32 p;
+    u8 *q;
+    s32 v;
+
+    if (arg1 >= 8) {
+        func_0046d730(D_006359D0, 0x3A3);
+    }
+    base = D_00881480[0];
+    if ((u32)(arg0 & 0xFFFF) >= *(u32 *)(base + 4)) {
+        func_0046d730(D_006359D0, 0x4C);
+    }
+    off = (u16)arg0 * 100;
+    elem = off + (s32)base + 8;
+    if (elem != 0) {
+        idx = arg1 * 8;
+        p = idx + elem;
+        q = (u8 *)(p + 0x28);
+        if (*(u32 *)(p + 0x28) != 0) {
+            v = *(u32 *)(p + 0x24);
+            if ((v == 0) || (func_00106330(v) != 0)) {
+                return *(s8 *)q;
+            }
+        }
+    }
+    return 0;
+}
 // FUN_002488E0
 s32 func_002488e0(s32 arg0, s32 arg1) {
     s32 temp_3;
@@ -765,9 +800,14 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249370);
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002494c0);
 
 /* measured: retail emits `addu $s0, $v0, $s0` (call result, var) for
-   var_16 += func_001064f0(0x57); mwcc b210 always emits `addu $s0, $s0, $v0`
-   (best nd 5) in every spelling tried (+=, both operand orders, temp local).
-   Addu-operand-order floor (same family as FUN_00246A50/FUN_002487E0). */
+   var_16 = func_001064f0(0x57) + arg1; mwcc b210 only emits rs=result when
+   the call result is named in a fresh s32 local on the LEFT (`var_16 =
+   r + arg1`; nd 5 -> 4). Residual at nd 4 is 3 prologue words only: mwcc
+   saves $a1 before $a0 (`move $s0,$a1; move $s1,$a0`) where retail saves
+   $a0 first, and tests the raw $a0 in the first bnez where retail tests
+   $s1. Tried: +=, both operand orders, temp local, declaration init,
+   early `var_16 = arg1` (rotates + flips addu back, nd 5). Addu-ok;
+   prologue-save-order floor. */
 // FUN_00249670
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249670);
 // FUN_00249770
