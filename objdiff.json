@@ -5205,7 +5205,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleDraw/00376590.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleDraw/00376590.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14181,7 +14181,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/00476c70.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/00476c70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -14511,7 +14511,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/00478ec0.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/00478ec0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -19868,7 +19868,7 @@
       "target_path": "build/objdiff/target/Main/Battle/Data/datCalc/00243650.o",
       "base_path": "build/objdiff/base/Main/Battle/Data/datCalc/00243650.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -25951,7 +25951,7 @@
       "target_path": "build/objdiff/target/cmmRankUp/0025c100.o",
       "base_path": "build/objdiff/base/cmmRankUp/0025c100.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -139955,7 +139955,7 @@
       "target_path": "build/objdiff/target/promoted/y_CmbCardEff/00347b30.o",
       "base_path": "build/objdiff/base/promoted/y_CmbCardEff/00347b30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -141154,7 +141154,7 @@
       "target_path": "build/objdiff/target/promoted/y_smap/002b13e0.o",
       "base_path": "build/objdiff/base/promoted/y_smap/002b13e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -141165,7 +141165,7 @@
       "target_path": "build/objdiff/target/promoted/y_smap/002b1480.o",
       "base_path": "build/objdiff/base/promoted/y_smap/002b1480.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

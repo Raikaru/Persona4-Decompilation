@@ -36,7 +36,7 @@ typedef struct {
     s32 hi;
 } I64;
 void func_00116d40(I64, u8, u8, u8, s16, s32, f32);
-void func_0045d6e0(f32, u8 *, s32 *, s32);
+void func_0045d6e0(void *, void *, s32, f32);
 extern void (*D_00887300[])(u32, u32);
 extern char D_005E5810[];
 extern char D_005E5830[];
@@ -290,6 +290,25 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115dc0);
    (s64, s32 colour, u8 *, s32 *, f32) and func_00116d40 to
    (I64, f32, s32, u8, u8, s32, s32) — the 4-arg forms in the old notes were
    wrong (the colour IS a register argument). */
+/* measured: recipe B re-test OVERTURNED part of the old note — best nd 119
+   (was 168). A u32 *base = (u32 *)D_00887300 local DOES hoist: retail's
+   lui/addiu of the table base into $s0 with per-call lw $v0, ($s0) is
+   reproduced (the old `void (**tbl)` spelling folded; the DATA-pointer type
+   is the lever). FP saved regs also now match (y->$f20 via lwc1 0x5C,
+   fparg0->$f21 via mov.s). Remaining, all measured: (1) the 8 table calls
+   are D_00887300[0](N,M) — retail always loads the pointer at SLOT 0 (lw
+   $v0, ($s0)) and passes the index as arg0 (m2c's `D_00887300(6, 0)` direct
+   call shape); I used base[6] giving lw 0x18($s0) — write base[0] each
+   call (~8 words, unmeasured but mechanical); (2) prologue save order:
+   retail emits mov.s $f21 BEFORE the GP moves and materialises the base
+   lui/addiu AFTER the 4th func_0046a770 call (assign base = ... after the
+   sp60[0..3] stores); mwcc puts the moves first and hoists the base into
+   the prologue (~6 words); (3) the sp78/sp7C pair must be ONE 8-byte
+   object — separate f32 locals get slot-coalesced at 0x7C and the s64 read
+   becomes ldr/ldl with the sp7C store dead-eliminated (f32/s64 TBAA); an
+   f32 sp78[2] array read as *(s64 *)sp78 kept both stores. Layout 0x58
+   arg0 home / 0x60 sp60[4] / 0x78 pair matches retail with declarations
+   [base, y, sp78[2], sp60[4]]. Frame 0x80, all stores reproduce. */
 // FUN_00115E90
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
@@ -416,16 +435,25 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116820);
 
 
 extern f32 iGpffff82fc;
-/* measured: nd 231, the family colouring catch-22 (same as func_001162f0 /
-   00116610): retail reads the colour once from the live register (move
-   $s4, $a1) and the high-word float bits from the sd home (lwc1 0x9C);
-   mwcc b210, once the arg0 pair is address-taken for the bit reads,
-   keeps a second colour copy from the home (lw $s0, 0x9c or dsra32
-   $s0, $a0, 0) and swaps the FP saved registers ($f20/$f21) plus the
-   GP colouring. Tried s64, I64 struct, (s32)(arg0 >> 32),
-   ((s32 *)&arg0)[1] and inline *(f32 *)&arg0 spellings (4 attempts) —
-   nd 231 flat. The rest of the function decodes cleanly (the abs-bltz
-   here is on the genuinely signed colour and survives). */
+/* measured: recipe A re-test — nd 271 (was 231, so the re-test is WORSE;
+   the old note's spelling was structurally different). arg1 is the crux:
+   with u8 arg1 the if(arg1>=0) abs arm is DUPLICATED by mwcc's range
+   analysis (u8 params ARE analysed — bltz on var_22 + a second bltz on
+   arg1, two conversions, nd 271); with s8 arg1 the bltz survives but every
+   use (var_22 = arg1 & 0xFF, (f32)arg1) emits dsll32/dsra32 sign-extensions
+   that retail never makes (retail: plain andi + bltz on the raw $5 value).
+   Retail's original must have kept the raw register value — neither u8 nor
+   s8 reproduces it. Also measured: (1) the u32 base = (u32)D_00887300 +
+   *(u32 *)base per-call spelling DOES hoist the base into a saved register
+   (recipe B refinement), but mwcc keeps base separate from var_17 where
+   retail SHARES $17 (var_17 dies at the 3rd func_0046d4c0 call, base is
+   lazily lui'd at 0x17064) — +1 saved GP, frame 0xF0 vs 0xC0; (2) the byte
+   block spB8..spBF and the spA0..spAC s32 block need m2c's declaration
+   order (bytes first, then s32s) or the slots scatter; (3) the
+   func_0044b610/iGpffff82fc/func_0046d4c0/overflow-guard regions decode
+   cleanly (c.ole.s vs retail c.le.s on the 0x4F guard is the only fp row).
+   func_0046d4c0 11-arg call shapes and the odd-register arg mapping
+   (arg5 in $9) verified against retail. */
 // FUN_00116D40
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116d40);
 
@@ -741,42 +769,51 @@ void func_0046d2b0(s32, s32, s32, f32, f32, u8, f32, s32);
 void func_001190f0(f32 *, u8);
 extern u8 D_005E4DB0[];
 extern f32 iGpffff8394;
-/* measured: fully decompiled, best nd 358 (obj 1128B / window 1536B). All four
-   (f32)(s32) conversions of masked/loaded non-negative values (temp_21 & 0xFF
-   x2, func_003b7060() & 0xFFF, u16 table element) lose their `bltz` sign-check
-   AND their downstream (u8)/(u16)(s32) 0x4F000000 overflow branches to mwcc
-   b210's range analysis, while retail keeps all of them — the same documented
-   floor as func_0011e490. Tried s32/u8/s8 loads, (s8)/(s16) casts (those emit
-   lb/lh + dsll32/dsra32 sign-extension instead), explicit if/else, inline
-   masks — all eliminated. Everything else reproduced: the 10x8B D_005E4DB0
-   copy loop (lw/lw/sw/sw), the adda.s/madd.s and adda.s/msub.s FPU fusions
-   (1.0f+0.5f*(x/4096.0f), 448.0f-898*f), counter store order, call args.
-   Useful facts for the next attempt: func_0046d2b0's real signature is
-   (s32,s32,s32,f32,f32,u8,f32,s32) (matched in sdkSpr.c — the u8 param gives
-   the per-call andi), func_001190f0(f32 *, u8), func_00107890(s32)->s32,
-   D_005E4DB0 at 0x005e4db0 (declarations kept). */
+/* measured: recipe A re-test — nd 362-363 (vs recorded 358). PARTIAL
+   OVERTURN: with the exact retail spelling the four abs bltzs SURVIVE —
+   `s32 temp_5 = temp_21 & 0xFF;` (temp_21 a u8 lbu local — the mask of an
+   opaque u8 is NOT range-proven), `func_003b7060() & 0xFFF` inline, and the
+   u16 sp80 element — all keep their bltz + srl/andi/or/mtc1/cvt/add.s arms
+   (the old note's claim that they are eliminated was spelling-dependent).
+   What still dies: the (u8)/(u16)(s32) 0x4F000000 overflow guards — the abs
+   construct's own result is range-bounded [0,255] so the c.le.s/bc1t guard
+   is eliminated (same mechanism as func_00119810 re-test). NEW residual:
+   the TWO textually-identical abs constructs (var_f1/var_f1_2) get CSE'd to
+   ONE abs + one guard (retail emits both — ~30B missing); the explicit
+   if/else guard form (m2c's `if (!(var_f1 >= 2.1474836e9f))`) was NOT
+   retried within budget. Layout: u8 spD0[16]/s32 spE0[8] arrays keep the
+   byte/word stores live (separate s8/s32 locals dead-store-eliminate) but
+   the candidate saves 8 GP regs (temp_5 in $s2 etc.) vs retail's 6 — frame
+   0x130 vs 0x110; the previous nd-358 attempt's register structure was not
+   recovered. Everything else (the 10x8B copy loop, the adda.s/madd.s and
+   adda.s/msub.s fusions, the func_0046d2b0 8-arg calls with the u8 param's
+   per-call andi, the func_0045dfd0 f32-first call, the divu loop) verifies
+   against retail. */
 // FUN_00119210
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119210);
 
 
 
-/* measured: fully decompiled, best nd 197 (obj 1400B / window 1536B, attempt 3).
-   Four residuals vs retail. (1) The (u8)(s32) 0x4F000000 overflow branches on
-   `0.5f * (f32)lbu-0x505 * (1.0f - var_f22)` and `(f32)lbu-0x505 * var_f23` are
-   eliminated by mwcc's float range analysis (products proven < 2^31) while
-   retail keeps them; the (f32)(s32) bltz on the raw lbu is NOT eliminated
-   (loads are opaque to the sign analysis) - so unlike func_00119210, do NOT
-   mask the 0x505 byte, but the overflow checks are a separate, still-unbeaten
-   analysis. (2) FP saved-register rotation: retail var_f20->$f20, 1.0f->$f21,
-   var_f22->$f22, var_f23->$f23; mwcc assigns var_f21(1.0f)->$f20 first and
-   rotates the rest (declaration orders tried incl. [var_f23,var_f22,var_f21,
-   var_f20]). (3) the u16 counter read-back reloads (lhu) instead of retail's
-   forwarded andi after sh. (4) chain-1's (f32)v1 conversion keeps an extra
-   bltz (path-proven in retail). Fixed during the attempt: func_00274ed0's
-   caller-side 2nd param is s64 (matched def in cmpConfig.c declares s32 but
-   retail callers pass the s64 register with a plain move); func_0034f4a0's
-   11th param is f32 ($f14 via mtc1); iGpffff8394 = gp-0x7C98 = 0x00761458
-   (both prototypes and the symbol kept). */
+/* measured: recipe A re-test — nd 351-356, WORSE than the recorded 197
+   (my structural variants regressed the FP allocation; the old note's
+   exact spelling was not recovered). Measured facts: (1) the (f32)(s32)
+   bltz on the raw lbu 0x505 survives in BOTH spellings (u8 temp_2_5 and
+   recipe A's s32 v + u32 c locals); (2) the (u8)(s32) 0x4F000000 overflow
+   guards on `0.5f * (f32)lbu-0x505 * (1.0f - var_f22)` and `(f32)lbu-0x505
+   * var_f23` are eliminated in BOTH — the abs construct's own result is
+   range-bounded to [0,255] by mwcc, so the recipe's s32 local does NOT
+   keep the guard; residual (1) of the old note stands. (3) NEW: the FIRST
+   0x505 chain DUPLICATES the bltz arm (if-test bltz + conversion-guard
+   bltz) and allocates var_f1 to $f24 (extra saved FP, frame 0x80 vs 0x70)
+   while the SECOND chain emits a single bltz with a temp $f0 — asymmetry
+   unexplained, present in both spellings. (4) the FP rotation: mwcc
+   assigns [1.0f->$f20, var_f20->$f21, var_f23->$f22, var_f22->$f23] vs
+   retail [var_f20->$f20, 1.0f->$f21, var_f22->$f22, var_f23->$f23].
+   (5) chain-1's u16-counter (f32) conversion keeps an extra abs bltz
+   (chains 2/3 do not — the (temp-8) subtraction defeats it). The
+   func_00274ed0 9-arg s64-odd-register call, the func_0034f4a0 14-arg
+   call, var_18 = (s64)(8 << 0x38) >> 0x38 (dsll32/dsra32) and the
+   func_0046d4c0 11-arg calls all verify against retail. */
 // FUN_00119810
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119810);
 
@@ -918,18 +955,23 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ae90);
 
 
 void func_0034c270(s64, u8, s32, f32);
-/* measured: retail passes the zeroed 8-byte local as arg1 via a real
-   ld $a0, 0x20($sp) and loads the 0x505 byte DIRECTLY into the s64's high
-   word ($a1) at the func_0034c270 call (callee ABI (s64, u8, s32, f32) per
-   the nLine prologue: sd $a0 pair save + bltz/andi/mtc1 on $a1 + $a2 index);
-   mwcc b210 folds the zero local to `move $a0,$zero` when passed as
-   (s64)sp20 (nd 103) and, with &sp20 address-taken, emits dsll32+or or
-   unaligned ldr/ldl (nd 115); the s64 zero-init also compiles to one sd
-   vs retail's two sw. Tried (s64)sp20, *(s64 *)&sp20, (s32)*(s64 *)&sp20,
-   (x|b<<32) or-constructs, s64 vs s32-pair locals, 4 declaration orders
-   (probe batches) — all nd 103-116. Memory-load fold/scheduling floor.
-   The case-1 abs-style bltz construct survives here (unlike func_0011e490)
-   but its register allocation still differs. */
+/* measured: re-tested with recipe A (s32 local v, u32 copy c, (s32) cast on
+   the OR result, x+x doubling) — the single bare bltz survives and the
+   srl/andi/or/mtc1/cvt/add.s neg path decodes byte-identically in shape
+   (best nd 100, was 103). The residual is two documented families: (1) the
+   s64-zero fold — retail zeroes sp20/sp24 with two `sw $0,0x20/0x24` and
+   re-reads them as `ld $a0,0x20($sp)` at the func_0034c270 calls (high word
+   then overwritten by lbu 0x505 into $a1); mwcc b210 dead-store-eliminates
+   both sw and folds the arg to `move $a0,$zero`, shifting the whole body by
+   8B so every branch target differs (~80 words). Tried (s64)sp20,
+   *(s64 *)&sp20, s32-pair locals, or-constructs, 4 declaration orders —
+   all nd 100-116. (2) neg-path register allocation: mwcc converts into $f0
+   and doubles into $f1 (cvt.s.w $f0 / add.s $f1,$f0,$f0, or-result in $v0)
+   where retail converts into $f1 and doubles in place (cvt.s.w $f1 / add.s
+   $f1,$f1,$f1, or-result in $v1); also move $a3,$a0 vs retail move $a1,$a0.
+   Fixed during re-test: func_0045d6e0's real signature is (void *, void *,
+   s32, f32) (callee m2c draft code1_0045.c; old (f32,u8*,s32*,s32) was
+   wrong) and the FMA seed is 231.0f (0x43670000), not 230.0f. */
 // FUN_0011B110
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
 
@@ -2219,8 +2261,20 @@ extern u8 *iGpffffb3ec;
    conditional in every spelling (>=0/<0, if/else, ternary, s32/u32 locals,
    cast-to-s32 compare, macro form) — all eliminated. Also the ptr in $s0
    colouring differed. Range-analysis elimination floor. */
+/* measured: opt_loop_invariants hoists the per-iteration `andi (temp_4 &
+   0xFFFF)` and the `1` constant used for var_4=1/var_4_2=1 into the
+   preheader (retail keeps them in $6/$7 across the loop); without it they
+   are rematerialised in the body (nd 142 -> lower measured below). */
+#pragma opt_loop_invariants on
+/* measured: nd 364 with a full C body, object 596B against a 688B window, so work is still missing.
+   Wave 7 ran out of turns here and left it uncommitted, so this is a
+   partial adaptation rather than a floor: re-attempt from the m2c draft
+   with the wave's recipes before treating any of it as settled. */
 // FUN_0011E490
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e490);
+/* Closes the measured opt_loop_invariants scope opened for func_0011e490
+   above. It must stay scoped: leaving it on regresses neighbours. */
+#pragma opt_loop_invariants off
 
 
 

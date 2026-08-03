@@ -665,6 +665,9 @@ extern void func_003d59a0(void* a, void* b);
    chain's v1 load: retail computes idx*0x50 before the base load, b210 loads
    base first; (4) the 5840-1 address: retail loads base before the lh chain,
    b210 interleaves. */
+/* Wave 7 ran out of turns partway through adapting this body and left it
+   uncompilable (a func_003d5840 call with the wrong arity). Reverted; the
+   previously measured nd 237 note for this function stands. */
 // FUN_004740C0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004740c0);
 // FUN_004745F0
@@ -1095,8 +1098,70 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
    D_00887300 base in $s0) and mirrors the block layout (D3 inline + 7000F
    out-of-line vs retail's 7000F inline + D3 out-of-line). Tried: u8* params
    (94), condition flips. Address-CSE + if-placement floor. */
+typedef struct MdlFlags78ec0
+{
+    u8 pad0[0xD0];
+    void* d0;   /* 0xD0 */
+    u8 pad0b[4];
+    u32 d8;     /* 0xD8 */
+    void* dc;   /* 0xDC */
+    void* e0;   /* 0xE0 */
+    u8 pad1[0xEC - 0xE4];
+    u16 ec;     /* 0xEC */
+    u8 pad2[0x234 - 0xEE];
+    u8* p234;   /* 0x234 */
+    u8 pad3[0x310 - 0x238];
+    void* p310; /* 0x310 */
+    s32 p314;   /* 0x314 */
+} MdlFlags78ec0;
+extern void func_003f6440(s32 a, s32 b);
+extern void (*D_00887304[])(s32, void*);
+extern void func_00479910(void* a);
+extern void* func_003bfae0_1(void* a);
+#pragma alias func_003bfae0_1 func_003bfae0
+extern void (*D_00887300_abs[])(s32, s32);
+/* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
+   array address into per-call lui/lw (same measured fix as func_00478ec0). */
+#pragma opt_propagation off
+
 // FUN_00476C70
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476c70);
+void func_00476c70(MdlFlags78ec0* o)
+{
+    void (**base)(s32, s32);
+    void* node;
+    void* list;
+    void* elem;
+    s32 sp4C;
+
+    func_003f6440(2, 0x64);
+    if (!(o->d8 & 0x200) || (o->d8 & 0x400)) {
+        func_003f6440(3, 0x7000F);
+    } else if (*(u8*)((u8*)o + 0xD3) > 0xC8) {
+        func_003f6440(3, 0x704FD);
+    } else {
+        func_003f6440(3, 0x7008D);
+    }
+    base = D_00887300_abs;
+    base[0](6, 1);
+    D_00887304[0](0xE, &sp4C);
+    base[0](0xE, 0);
+    if (o->e0 == NULL || (o->d8 & 0x200)) {
+        func_00479910(o->dc);
+    } else {
+        list = D_008872E0[0];
+        node = *(void**)((u8*)o->e0 + 8);
+        while (node != NULL) {
+            if (func_003e8200(list, func_003bfae0_1(*(void**)((u8*)node + 0))) != 0) {
+                elem = *(void**)((u8*)node + 0);
+                ((void (*)(void*))*(void**)((u8*)elem + 0x48))(elem);
+            }
+            node = *(void**)((u8*)node + 0x24);
+        }
+    }
+    base[0](0xE, sp4C);
+}
+#pragma opt_propagation on
+
 // FUN_00476E10
 void* func_00476e10(void* param_1)
 {
@@ -1116,16 +1181,24 @@ void* func_00476e10(void* param_1)
 
 
 
-/* measured: the GS doubled-alpha conv works as `u8 x; if ((s32)x >= 0) {v=(f32)x;}
-   else {v=2.0f*(f32)((x>>1)|(x&1));}` (lbu+bltz, no dsll/dsra pair — the
-   (s8)-cast spellings add dsll32/dsra32, verified by isolated probes) BUT
-   in-function mwcc b210 then emits a 3-way CFG (double bltz + BOTH srl and
-   sra doubling copies, object 1344B vs 976B window, nd 306) when the u8
-   local is later reassigned (loop b0=(u8)t); retail keeps one clean
-   bltz->out-of-line doubling per site. The 0.5f+255.0f*x madd chains and
-   the batched lbu x4 / sb x4 tail match the planned C exactly. Conv-CFG
-   floor; retry with per-site fresh u8 locals or a helper that cannot be
-   reassigned. */
+/* measured (recipe A retest, 4 attempts nd 205/202/206/191): the per-site
+   recipe spelling `s32 v = *(u8*)(p+off); u32 c = v; if (v >= 0) { f = (f32)v; }
+   else { f = (f32)(s32)(c >> 1 | (c & 1)); f = f + f; }` fixes the recorded
+   3-way CFG - every site now emits retail's single lbu;bltz;mtc1;cvt.s.w
+   (srl/andi/or;add.s in the neg arm) byte-exactly, and the 0.5f+255.0f*x
+   adda/madd chains, the mask bnez->out-of-line mov.s f4=f20, and the tail
+   lbu x4/sb x4 all match. Residual nd 191: pure register allocation - (1)
+   the or-result lands in $v0 and the cvt result in $f0 (retail $v1/$f1) at
+   every site, cascading into the mul.s operand regs and the global lwc1
+   target; (2) saved-register rotation (mine $s0=param_2/$s1=param_1/$s2=
+   elem/$s3=count/$s4=obj/$s5=i vs retail $s0=elem/$s1=obj/$s2=i/$s3=param_2/
+   $s4=param_1/$s5=count), decl-order swaps did not move it; (3) the 0x8C-0x8F
+   byte block: retail spills each madd result byte to the stack (sb after each
+   mfc1) and lbu-reloads for the tail; mwcc keeps the bytes in GPRs even with
+   a byte-aliased u32 stack local (nd 191) - the t-byte sb order 0x8E/8D/8C/8F
+   matches. Andi-then-bltz ordering is not an issue here (lbu;bltz direct).
+   Recipe A conv-CFG floor lifted; residual is FP/GPR coloring + spill
+   placement. */
 // FUN_00476E90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476e90);
 // FUN_00477260
@@ -1710,14 +1783,57 @@ void func_00478eb0(void* param_1, int param_2, int param_3)
     *(int*)((u8*)param_1 + 0x31C) = param_3;
 }
 
-/* measured: retail folds 0xD8 into every reload (lw $v0,0xd8($s1) after each
-   D_00887300 jalr); mwcc b210 materializes arg1+0xD8 into an extra saved
-   register (addiu $s1,$s2,0xd8, frame 0x50 vs 0x40) and the whole allocation
-   cascades (nd 88). Tried: u8* param (86), explicit base local (86),
-   opt_propagation off (88). Address-CSE into s-reg floor (same family as
-   79e60/776c0/73710/735b0). */
+extern void func_004746b0(void* a, void* b);
+extern void func_00489f80(u32 a);
+extern s64 iGpffffabe8;
+
+/* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
+   array address into per-call lui/lw (measured: with it on, mid-function base
+   assignment rematerializes per use). */
+#pragma opt_propagation off
+
 // FUN_00478EC0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478ec0);
+void func_00478ec0(void* param_1, MdlFlags78ec0* o)
+{
+    struct {
+        void* p38;
+        u16 p3C;
+    } ctx;
+    void (**base)(s32, s32);
+    s32 flag;
+    void* dc;
+    s32 t;
+
+    if (o->d8 & 0x80000) {
+        func_004746b0((u8*)o + 0x234, (u8*)o + 0xEC);
+        o->d8 &= 0xFFF7FFFF;
+    }
+    dc = o->dc;
+    ctx.p38 = (u8*)o + 0xD0;
+    ctx.p3C = 0;
+    func_003bff30(dc, (void*)func_00476e90, &ctx);
+    t = (o->d8 & 8) != 0;
+    base = D_00887300_abs;
+    base[0](6, t);
+    base[0](8, (o->d8 & 0x10) != 0);
+    base[0](0xE, (o->d8 & 0x100) != 0);
+    if (o->d8 & 0x40) {
+        flag = 3;
+    } else {
+        flag = 2;
+    }
+    base[0](0x14, flag);
+    if (o->d8 & 0x40000) {
+        iGpffffabe8 |= 0x80;
+    }
+    if (o->d8 & 0x100000) {
+        func_00489f80(o->d8);
+    }
+    if (o->p310 != NULL) {
+        ((void (*)(void*))o->p310)((void*)o->p314);
+    }
+}
+#pragma opt_propagation on
 
 // FUN_00479080
 void func_00479080(void* param_1, void* param_2)
@@ -1823,14 +1939,18 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479d10);
 // FUN_00479DD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
 
-/* measured: retail keeps the scaled offset in $s0 and re-derives the element
-   pointer (addu $a0,$s0,$s2) AFTER the func_003d5e40 call, so p lives in the
-   temp $a2 and dies at the call; mwcc b210 keeps p in $s0 across the call and
-   never rematerializes (nd 10, pure off/p saved-register rotation). Also: with
-   opt_propagation off (needed to fix the r-block load/chain schedule and t
-   coloring, nd 53 -> 18 -> 10) the (u16)arg1 test breaks the mask CSE (nd 36
-   without). Tried: inline call arg, p reassignment after call, decl-order
-   swaps, idx local — all nd 10. Saved-register rotation floor. */
+/* measured: re-tested 4x this wave (nd 47/55/13/17; best spelling: (u16) cast
+   in the final test + `param_2 & 0xFFFF` in the off chain + elem as
+   `(u8*)*(void**)((u8*)arr) + (0x40 + v * 0x50)`, with opt_propagation off:
+   the mask CSE then breaks exactly as retail re-masks at .L479F24). Residual
+   nd 13 is the recorded p/off saved-register rotation: retail keeps off in
+   $s0 and derives p in temp $a2 (re-deriving addu $a0,$s0,$s2 AFTER the
+   func_003d5e40 call), mwcc b210 keeps p in $s0 across the call in every
+   spelling (inline store expr, p reassignment, fresh q, decl-order swaps)
+   and never rematerializes; plus the elem chain schedules addiu 0x40 before
+   the lw ($a1) where retail loads first (1-3 words). Recipe B (global base
+   hoist) does not apply - no global array base in this function. Saved-
+   register rotation floor. */
 // FUN_00479E60
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479e60);
 // FUN_00479F60
@@ -1990,13 +2110,20 @@ void func_0047a2a0(u32* param_1)
     return;
 }
 
-/* measured: with goto-shared fail (fixes the duplicated return-0 blocks) and
-   the e-expression spelled `*a + (0x40 + idx)` (fixes the fold; the plain
-   `*a + 0x40 + idx` folds 0x40 into the load, nd 84), the residual is 20
-   words: outer block schedules [chain; addiu; lw] vs retail [chain; lw;
-   addiu], the inner block swaps t2/m2 registers and the *m2 load/chain order,
-   and the u16 loop counter's masked increment lands in $v0 instead of $s0.
-   Chain-vs-load scheduling + register-coloring floor. */
+/* measured (recipe A retest, 4 attempts nd 82/67/63/6): no u16 sign-test in
+   this function - recipe A does not apply. Working spellings: goto-shared
+   fail (single move $v0,0 block), s32 loop counter with explicit (u16)
+   casts (increment andi $s0 + re-mask andi $v0 at the test, exactly retail),
+   p = arg0 + (i & 0xFFFF) * 0xC (the explicit mask keeps the andi at the
+   chain), nested ifs with t2 = p + 0x290 materialized between the 0x28C and
+   0x290 tests (retail's addiu $s2, $v1, 0x290 position), named mp for the
+   inner ptr load (load-before-chain order). Residual nd 6 is the recorded
+   outer-block schedule: [sll chain; addiu 0x40; lw ptr] vs retail [sll
+   chain; lw ptr; addiu 0x40] - the chain result lands in $v0 vs retail $v1
+   and the addiu applies to the chain instead of the loaded ptr; `*a + (0x40
+   + idx)` avoids the fold but keeps this order, plain `*a + 0x40 + idx`
+   folds 0x40 into the load (3 words, nd 84). Chain-vs-load schedule floor
+   (same as recorded). */
 // FUN_0047A320
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a320);
 

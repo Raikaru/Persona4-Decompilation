@@ -45,7 +45,7 @@ extern char D_0063F0B0[];
 extern char D_0063F0D0[];
 extern f32 D_008872F8[];
 extern u8 D_00794D50[];
-extern s32 func_002b1520(u8 *arg0);
+extern void func_002b1520(s32, u8 *);
 extern void func_0044ea90(void *msg, s32 id);
 extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
@@ -73,6 +73,27 @@ extern s32 func_001687e0(void *arg0);
 typedef struct YVec3f { f32 x, y, z; } YVec3f;
 typedef struct YVec2f { f32 x, y; } YVec2f;
 typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
+
+/* func_002afbc0 callees */
+extern s32 func_002b2a30(s32, s32, s32, s32);
+extern void func_002b2bd0(f32 *, s32, f32, f32, f32, f32);
+extern s32 func_00106330(s32);
+extern u8 *func_00155280(void);
+extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern void func_002b0b10(u8 *, YVec2f, u8, s32, s8, s32, f32, f32, f32, f32);
+extern u8 D_00794DB0[];
+extern u8 D_00794CF0[];
+extern u8 D_0076465C;   /* gp-relative, -0x4A94 */
+extern u8 D_00764660;   /* gp-relative, -0x4A90 */
+
+/* func_002b1520 callees */
+extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
+extern void func_0046b380(u8 *, s32);
+extern void func_002b3c60(s32, s32);
+extern u8 *func_002b2940(s32);
+extern s64 iGpffffa840;  /* gp-relative, -0x57C0 */
+extern s64 iGpffffa848;  /* gp-relative, -0x57B8 */
+extern f32 iGpffff84f4;  /* gp-relative, -0x7B0C */
 
 typedef struct RwV3d RwV3d;
 struct RwV3d
@@ -278,17 +299,21 @@ void func_002afb70(u8 *arg0, s8 arg1) {
 
 
 
-/* measured: full structure reconstructed (nd 380 -> 354 -> 214 -> 214); all
-   idiom blocks, checks, and both func_0025ecd0/func_002b0b10 calls match
-   modulo five b210 canonicalization/scheduling residuals: (1) accumulate
-   add.s emitted as (f1,f0) where retail has (f0,f1) — b210 folds `x + f1`
-   into acc-first regardless of source order, same family as the msub.s
-   orientation floor; (2) the t=(s8)(...) else-t=1 join re-sign-extends at
-   the join in retail but b210 reuses the branch's extended register; (3)
-   func_0025ecd0's $t3 (D_00794DB0) materializes before mov.s $f17 vs after;
-   (4) the s64 arg loads via ld instead of retail's ldr/ldl unaligned pair;
-   (5) arg materialization order: b210 groups all GPR args before the FP
-   args where retail interleaves. */
+/* measured: recipe C re-test (4 attempts, nd 333->349->352; best body below
+   is the if-chain variant, nd 349, obj 1644B/window 1632B). The ldr/ldl pair
+   IS reproduced by the 8-byte YVec2f-by-value arg (recipe C mechanism 1:
+   func_002b0b10(arg0, *(YVec2f *)(t17 + 8), ...) at 8-aligned disp 0x8), the
+   frame is 0x70 with retail's saved-reg set, and the recipe-A guard compiles
+   as a single bare bltz with the doubled arm out of line. Residuals, all
+   scheduling/allocation families: (1) the buf[2]=buf[0]/buf[3]=buf[1] copy
+   emits load-store-load-store (or with temps, loads 0x64-before-0x60 with
+   $f1/$f0 swapped) vs retail load-load-store-store; (2) the doubled arm
+   allocates or/mtc1/cvt into $v0/$f0 then add.s $f3,$f0,$f0 vs retail's
+   $v1/$f3 with add.s $f3,$f3,$f3 (4 words); (3) the if-chain dispatch adds a
+   move $v1,$v0 after the lb (a named s8 sw local instead spills $s0 and
+   emits dsll32/dsra32 — 2 words worse); (4) func_0025ecd0's $t3 (D_00794DB0)
+   materializes before mov.s $f17; (5) func_002b0b10's GPR args emit grouped
+   before the FP args where retail interleaves (f12,f13,a2,f15,a3,t0,t1). */
 // FUN_002AFBC0
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002afbc0);
 
@@ -468,101 +493,69 @@ int func_002B1210(RwV3d param_1)
 
 #pragma pop
 
-// FUN_002B1260 NONMATCHING
-/* measured: post-jal FPU scheduling + msub orientation floor. Retail emits
-   mtc1 $v0/cvt.s.w before materializing 1200.0f and pads the mtc1->mul.s
-   use with a nop; mwcc b210 hoists the 1200.0f lui/mtc1 into the post-jal
-   bubble, drops the nop, and canonicalizes msub.s $f0,$f2,$f3 vs retail's
-   $f0,$f3,$f2 — the 1-word-shorter schedule cascades to nd 29 (mostly
-   positional). Tried inline cast and separate f32 local (both nd 29).
-   The u8 buf copy is needed for retail's lwc1 x3/swc1 x3 12-byte copy
-   (a typed local-to-local copy compiles to ld/sd instead). */
-#ifdef NON_MATCHING
-f32 func_002b1260(void *arg0, f32 arg1) {
-    YVec3f v2;
-    u8 buf[0xC];
-    s32 r;
-
-    func_001687f0(buf, arg0);
-    v2 = *(YVec3f *)buf;
-    r = func_001687d0(arg0);
-    return arg1 / 2.0f - (v2.x - ((f32)r * 1200.0f - 600.0f)) * (arg1 / 1200.0f);
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1260);
-#endif
-
-// FUN_002B1320 NONMATCHING
-/* measured: same post-jal FPU scheduling + msub orientation floor as
-   func_002b1260 (nd 29, mostly positional; inline cast and f32 local both
-   nd 29). */
-#ifdef NON_MATCHING
-f32 func_002b1320(void *arg0, f32 arg1) {
-    YVec3f v2;
-    u8 buf[0xC];
-    s32 r;
-
-    func_001687f0(buf, arg0);
-    v2 = *(YVec3f *)buf;
-    r = func_001687e0(arg0);
-    return arg1 / 2.0f - (v2.z - ((f32)r * 1200.0f - 600.0f)) * (arg1 / 1200.0f);
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1320);
-#endif
-
-// FUN_002B13E0 NONMATCHING
-/* measured: retail msub.s $f0,$f3,$f2 (sub-result first) vs b210's
-   msub.s $f0,$f2,$f3 with byte-identical scheduling/register assignment
-   (both orders of the product in source, temps, and parens all emit
-   $f0,$f2,$f3; nd 4 = 1 real word + padding). FPU msub fs/ft
+/* measured: named locals for the product operands fix the msub orientation
+   (retail msub.s $f0,$f3,$f2 now reproduced) and the post-jal schedule
+   (mtc1 $v0/nop/cvt.s.w before the 1200.0f lui/mtc1, 2 nops) — best nd 1:
+   the single real diff is mul.s $f1,$f0,$f2 (value in fs) vs retail's
+   mul.s $f1,$f2,$f0 (const in fs). The const-first spelling g=k*f reverts
+   to the 1-nop-short hoisted schedule (nd 27); the self-referential
+   f=f*1200.0f form gives retail's schedule but allocates const $f4/result
+   $f2 vs retail const $f2/result $f1 (nd 10). One-word mwcc mul fs/ft
    canonicalization floor. */
-#ifdef NON_MATCHING
+// FUN_002B1260
+INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1260);
+
+/* measured: same as func_002b1260 — named product-operand locals fix the
+   msub orientation and the post-jal schedule; best nd 1, the single real
+   diff being mul.s $f1,$f0,$f2 vs retail's $f1,$f2,$f0 (const-in-fs), and
+   the const-first spelling reverts to the 1-nop-short schedule (nd 27).
+   One-word mwcc mul fs/ft canonicalization floor. */
+// FUN_002B1320
+INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1320);
+
+// FUN_002B13E0
 f32 func_002b13e0(YVec3f *arg0, f32 arg1) {
     YVec3f v1, v2;
-    f32 t;
+    f32 t, p, q;
 
     v1 = *arg0;
     v2 = v1;
     t = (s32)((v2.x + 600.0f) / 1200.0f);
-    return arg1 / 2.0f - (v1.x - (t * 1200.0f - 600.0f)) * (arg1 / 1200.0f);
+    p = v1.x - (t * 1200.0f - 600.0f);
+    q = arg1 / 1200.0f;
+    return arg1 / 2.0f - p * q;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b13e0);
-#endif
 
-// FUN_002B1480 NONMATCHING
-/* measured: same msub.s fs/ft orientation floor as func_002b13e0 — retail
-   msub.s $f0,$f3,$f2, b210 msub.s $f0,$f2,$f3 (1 real differing word;
-   nd 2 = 1 word + padding). */
-#ifdef NON_MATCHING
+// FUN_002B1480
 f32 func_002b1480(YVec3f *arg0, f32 arg1) {
     YVec3f v2, v3, v1;
-    f32 t;
+    f32 t, p, q;
 
     v1 = *arg0;
     v2 = v1;
     v3 = v1;
     t = (s32)((v3.z + 600.0f) / 1200.0f);
-    return arg1 / 2.0f - (v2.z - (t * 1200.0f - 600.0f)) * (arg1 / 1200.0f);
+    p = v2.z - (t * 1200.0f - 600.0f);
+    q = arg1 / 1200.0f;
+    return arg1 / 2.0f - p * q;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1480);
-#endif
 
-/* measured: complete reconstruction from the m2c draft (nd 773 -> 773 ->
-   745). The prologue D_00887300 callback sequence, func_003f6440 calls,
-   the 7-case switch, all func_002b2aa0 arg orders (incl. (f32)0x147/0x1BB/
-   0x18B int->float paths and the fGpffff84f4/fGpffff84f8-style gp args),
-   the (u8)(s32) saturation-cast idiom, and the 3x6/4 loops are all right.
-   Residuals: (1) GPR/FP saved-register rotation — candidate arg1=$s2,
-   fp=$s0, i=$s1 vs retail arg1=$s0, fp=$s1, i=$s2, j=$s3, and f21/f20/f22
-   land in $f23/$f22/$f24 vs retail $f21/$f20/$f22; 3 declaration orders
-   moved nothing — rotation floor family; (2) mwcc keeps the case-2/3
-   u6C/u64 2aa0 results in FP registers (5 saved FP regs) where retail
-   stores them to 0x6C/0x64 immediately; (3) the two prologue s64
-   gp-relative loads (iGpffffa840/-0x57C0, iGpffffa848/-0x57B8) are dead in
-   retail yet kept there; mwcc b210 DCEs the ld/sd pair entirely. */
+/* measured: recipe B re-test with the u32-cast base form (4 attempts, nd
+   699 -> 632 -> 612 -> 603; best body below, nd 603, obj 3320B/window 3360B).
+   The u32 base = (u32)D_00887300 + ((void (*)(s32,s32))*(u32 *)base)(a,b)
+   spelling reproduces retail's single lui/addiu hoist into $17 with lw/jalr
+   per call; the one-array sp[0x10] + cast accesses keep retail's two dead
+   prologue s64 gp-relative ld/sd pairs (separate s64 locals get DCE'd), and
+   the case-0/1 empty labels make mwcc emit the jtbl_007488A0 jump table
+   (sltiu 7/beqz/lui/addiu/sll/addu/lw/jr). The (u8)(s32) saturation guard
+   needs the explicit `if (2.1474836e9f > x) {plain} else {overflow}` spelling
+   to emit c.ole.s $f1,$f2 + bc1t (the plain (u8)(s32)x form alone lets the
+   range analysis drop the guard; `x < 2^31` emits c.olt.s + bc1f instead).
+   Residuals: (1) the guard conversions allocate mfc1 $v0/andi $v1,$v0 (and
+   or $v0,$v1,$v0) where retail uses $v1 throughout — 4 words per guard;
+   (2) the fill-loop guard (2^31 const + c.ole.s + lui 0x8000) is NOT hoisted
+   out of the loop by b210 here (retail hoists it before the loop-entry
+   branch); (3) the clear-loop counters land in $s2/$s1 vs retail $s3/$s2. */
 // FUN_002B1520
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1520);
 

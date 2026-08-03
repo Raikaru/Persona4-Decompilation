@@ -44,6 +44,8 @@ iGpffffb4b0 = 0x007645a0; // type:data evidence: GPREL -0x4B50($28) in func_0027
 // = gp - 0x4A5C), so -0x7F6C = 0x00761184 and -0x7DE0 = 0x00761310; both fall
 // in the .sdata region spanned by recovered iGpffff8040/8360.
 iGpffff8094 = 0x00761184; // type:data evidence: retail func_0034d890 GPREL -0x7F6C($28); gp = 0x007690F0 from iGpffffb5a4
+iGpffff8110 = 0x00761200; // type:data evidence: retail func_00233bc0 lwc1 GPREL -0x7EF0($28) into the f20 multiply; gp = 0x007690F0 -> 0x00761200 (same address as DAT_00761200 in symbols_recovered.txt)
+iGpffffb408 = 0x007644f8; // type:data evidence: retail func_00233bc0 lw GPREL -0x4BF8($28) as the datCalc table base; gp = 0x007690F0 -> 0x007644F8
 iGpffff8220 = 0x00761310; // type:data evidence: retail func_0034ddf0 GPREL -0x7DE0($28); gp = 0x007690F0 from iGpffffb5a4
 
 // func_002782c0 reads GPREL -0x58A0($28) and -0x4BBC($28); no matched function
@@ -77,6 +79,11 @@ D_0064E700 = 0x0064e700; // type:data evidence: lui %hi(D_0064E700) + lbu in ret
 iGpffffa9B8 = 0x00763aa8; // type:data evidence: GPREL -0x5648($28) in retail func_00382ea0 at 0x282FB8 / 0x282FEC / 0x2832E8; GP base 0x007690f0 (derived from recovered iGpffffa9c8=0x00763ab8); u8 per-argument table
 D_0064E72E = 0x0064e72e; // type:data evidence: lui %hi(D_0064E72E) + lbu in retail func_00381a70 at 0x281E54 / 0x282158; u8 personality table (indexed by (x & 0xFF) * 2 + f-result)
 D_0064EC88 = 0x0064ec88; // type:data evidence: ld %lo(D_0064EC88) in retail func_00381a70 at 0x282354; s64 loaded into local sp130
+D_0064EA48 = 0x0064ea48; // type:data evidence: ld %lo(D_0064EA48) in retail func_00375b40 at 0x275B70; s64 loaded into local sp80
+D_0064EA50 = 0x0064ea50; // type:data evidence: lwc1 %lo(D_0064EA50) in retail func_00375b40 at 0x275B78; f32 loaded into local sp88
+D_0064EA38 = 0x0064ea38; // type:data evidence: ld %lo(D_0064EA38) in retail func_00374d20 at 0x275030; s64 loaded into local spC0
+D_0064EA40 = 0x0064ea40; // type:data evidence: lwc1 %lo(D_0064EA40) in retail func_00374d20 at 0x275038; f32 loaded into local spC8
+iGpffff840c = 0x007614fc; // type:data evidence: lwc1 gp-0x7BF4 in retail func_00374d20 at 0x275348; gp base 0x007690F0 -> 0x007614FC
 D_0064EC90 = 0x0064ec90; // type:data evidence: lwc1 %lo(D_0064EC90) in retail func_00381a70 at 0x282360; f32 loaded into local sp138
 iGpffffa9E0 = 0x00763ad0; // type:data evidence: GPREL -0x5620($28) lw in retail func_00381a70 at 0x2824D0 / 0x282790 / 0x282874; GP base 0x007690f0; s32 assert-message selectors
 iGpffffa9E4 = 0x00763ad4; // type:data evidence: GPREL -0x561C($28) lw in retail func_00381a70 at 0x2824E8; GP base 0x007690f0; s32 assert-message selectors
@@ -165,3 +172,12 @@ iGpffff9c11 = 0x00762D01; // type:data evidence: retail func_00117980 lbu gp-0x6
 iGpffff9c12 = 0x00762D02; // type:data evidence: retail func_00117980 lbu gp-0x63EE into the sp13E byte
 iGpffff9c13 = 0x00762D03; // type:data evidence: retail func_00117980 lbu gp-0x63ED into the sp13F byte
 iGpffff81e0 = 0x007612D0; // type:data evidence: retail func_00117980 lwc1 gp-0x7E20 as the f22 pre-scale; gp base 0x007690F0 -> 0x007612D0
+D_00887304 = 0x00887304; // type:data evidence: retail func_00476c70 calls it via lui %hi(D_00887304)/lw %lo(D_00887304)/jalr with a0=0xE, a1=&sp4C
+D_00749350 = 0x00749350; // type:data evidence: func_00308f40 retail asm (0x209318/0x20936C) does lui %%hi(D_00749350)+addiu %%lo then addu + lbu 0x0($2) indexed byte reads; 16 zero bytes at 0x00749350 in SLUS_217.82
+D_0076465C = 0x0076465c; // type:data evidence: retail func_002afbc0 lbu gp-0x4A94 (0x0076465C) into the x18 integer scale; gp base 0x007690F0
+D_00764660 = 0x00764660; // type:data evidence: retail func_002afbc0 lbu gp-0x4A90 (0x00764660) into the x18 integer scale; gp base 0x007690F0
+D_00794DB0 = 0x00794db0; // type:data evidence: retail func_002afbc0 lui %hi(D_00794DB0)/addiu %lo(D_00794DB0) as func_0025ecd0 arg8 at 0x1AFF38
+D_00794CF0 = 0x00794cf0; // type:data evidence: retail func_002afbc0 lui %hi(D_00794CF0)/addiu %lo(D_00794CF0) as func_0025ecd0 arg8 at 0x1B01A0
+iGpffffa840 = 0x00763930; // type:data evidence: retail func_002b1520 ld gp-0x57C0 (0x00763930) stored to 0x68($sp) prologue; gp base 0x007690F0
+iGpffffa848 = 0x00763938; // type:data evidence: retail func_002b1520 ld gp-0x57B8 (0x00763938) stored to 0x60($sp) prologue; gp base 0x007690F0
+iGpffff84f4 = 0x007615e4; // type:data evidence: retail func_002b1520 lwc1 gp-0x7B0C (0x007615E4) as func_002b2aa0 arg2 and the f21 compare; gp base 0x007690F0

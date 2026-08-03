@@ -259,11 +259,16 @@ s32 func_00246e10(s32 arg0) {
     return off + (u32)temp_16 - 0x40;
 }
 
-/* measured: retail tests the arg0&0xFFFF mask with bltz (always-false at
-   runtime) before slti; mwcc b210's range analysis eliminates `x < 0` on the
-   masked value in every spelling tried (s32/u16 locals, inline masks, decimal
-   literals, s16/s32 casts, <= -1), collapsing the branch structure (nd 23).
-   Dead-comparison-elimination floor. */
+/* measured: retried under recipe A (bltz family); best nd 6, was 23. With
+   `arg0 < 0 || (arg0 & 0xFFFF) > 5` (the > form gives retail's slti $at),
+   everything is byte-identical except 4 words: retail masks first
+   (andi $v0,$s1,0xffff) then bltz $v0, mwcc b210 always folds `x < 0` on an
+   andi result and emits bltz on the raw arg0 with the andi after (tried
+   named s32/u16 temps, pointer-provenance masks, s16/s32 casts, <= -1:
+   fold or CSE the mask into a saved reg); and the *14 base add comes out
+   addu $v0,$s0,$v0 (rs=saved-reg operand) vs retail addu $v0,$v0,$s0,
+   unaffected by operand order in the source. Dead-comparison-elimination
+   floor (recipe A family); remaining words are addu-operand order. */
 // FUN_00246E90
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246e90);
 // FUN_00246F10
@@ -820,21 +825,30 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
     return 0;
 }
 
-/* measured: retail keeps a bltz on the arg0&0xFFFF mask (always-false at
-   runtime) before slti; mwcc b210's range analysis eliminates x < 0 on the
-   masked value in every spelling tried (s32 local, u16 mask, inline),
-   collapsing the error-branch structure (nd 56; srl-vs-sra and float-reg
-   details fixed, the bltz hole remains). Dead-comparison-elimination floor
-   (same family as FUN_00246E90). adda.s/madd.s here are COP1 FPU
-   accumulator, writable via acc+a*b -> madd.s; m2c's M2C_ERROR is not VU0. */
+/* measured: recipe A re-test — nd 56 -> 12. Recipe A half-scaler shape
+   (s32 z; u32 c=(u32)z; fz=(f32)(s32)((c>>1)|(c&1)); fz=fz+fz) + retail's
+   layout `if (z >= 0) {direct} else {half-scaler}` (direct path inline,
+   bltz to the out-of-line scaler) + naming the y-address `p = off+temp_16+8`
+   (reproduces addiu $s1,$v0,8 / lh $s0,8($v0) / lh $v0,2($s1)) made
+   everything through the join byte-identical. Residual 12 words: the
+   arg0&0xFFFF bltz dead-comparison (3, same family as FUN_00246E90); the
+   or-fold (mwcc or $v0,$v1,$v0 rd=rt vs retail or $v1,$v1,$v0 rd=rs + mtc1);
+   the half-scaler cvt into $f0 scratch then add.s into $f1 (retail cvt.s.w
+   $f1,$f0 directly); and mwcc hoists the x load+cvt above lui/mtc1/div.s
+   with FP temps x=$f3/t=$f2 (retail div first, x=$f2/t=$f3, cascading into
+   the madd.s operands). adda.s/madd.s are COP1 accumulator (acc+a*b). */
 // FUN_00249960
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249960);
 
-/* measured: retail keeps a bltz on the arg0&0xFFFF mask (always-false at
-   runtime) before slti; mwcc b210 eliminates x < 0 on the masked value,
-   collapsing the error-branch structure (best nd 37 with pointer local;
-   lh-displacement and s16 arg materialization otherwise match).
-   Dead-comparison-elimination floor (same family as FUN_00246E90 /
-   FUN_00249960). */
+/* measured: recipe A re-test — nd 37 -> 5. Key crack: temp_16 must be a
+   POINTER (u8 *) — as s32, mwcc folds the load offset 0xE into the *0xE as
+   (x+1)*14 (extra addiu, nd 29); pointer-typed address arithmetic keeps
+   retail's lh 0xE($v0). (s16) casts on the call args reproduce the
+   dsll32/dsra32 16-bit sign-extension pairs for the s64 params of
+   func_00113480; everything else is byte-identical. Residual 5 words:
+   arg0&0xFFFF bltz dead-comparison (3, same family as FUN_00246E90 /
+   FUN_00249960); addu rs/rt on the base add (mwcc addu $v0,$s0,$v0 vs retail
+   $v0,$v0,$s0, source operand order does not change it); and the or rs/rt
+   (or $v0,$v0,$v1 vs retail $v0,$v1,$v0 — or-fold family). */
 // FUN_00249A60
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249a60);
