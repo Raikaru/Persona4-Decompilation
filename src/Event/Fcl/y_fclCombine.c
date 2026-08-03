@@ -3,6 +3,13 @@
 #include "include_asm.h"
 #include "type.h"
 
+typedef struct {
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+} FclByte4;
+
 extern u16 *func_001102e0(void);
 extern s32 func_00106330(s32);
 extern void func_00145080(void);
@@ -127,34 +134,99 @@ extern s32 func_0014b450(void);
 extern void func_003e9cb0(s32, s32, s32);
 extern void func_00331390(void);
 extern s32 func_00331580(void);
+extern void func_002e7ac0(void);
+extern void func_002e82b0(void);
+extern void func_00313b50(s32);
+extern s32 func_0034a4f0(s32, s32);
+extern s32 func_0034ad70(s32, u32, s32);
+extern u8 *func_0034ae50(u8 *, s8);
+extern s32 func_002b74f0(s32, s32);
+extern void func_002b7750(s16, s16);
+extern s32 func_0034b740(s32);
+extern s32 func_002b8150(s32);
+extern void *func_002b5c90(void *, u64);
+extern void func_002b29e0(void *, f32, f32);
+extern void func_002b5db0(s32, s64, void *);
+extern void func_002b5e30(s32, u32);
+extern void func_002b5e20(s32, f32);
+extern void func_002b6130(s32, u32);
+extern void func_002b6140(s32, u8);
+extern void func_002b6120(s32, u8);
+extern s32 func_0033e3f0(s32);
+extern s32 func_002b9f90(s32, s16, s32);
+extern s32 func_00331600(void);
+extern u8 D_00641B10[];
+extern s32 func_003145e0(s32);
+extern s32 func_00285b30(u8);
+extern s8 *func_0034a630(s32);
+extern s8 func_00105f50(u32);
+extern s32 func_00452490(s32);
+extern void func_00452080(s32);
+extern s32 func_00459760(void);
+extern void func_0045a3e0(s32, s32);
+extern void func_0030f4f0(u8 *, u16 *);
+extern s32 func_00314320(u8 *);
+extern void func_00320970(u8 *, s32);
+extern void func_002b6c30(s32, s64, s32, f32);
+extern void func_002b6b40(s32, s32, s32, s32, s32, f32);
+extern void func_002b69f0(s32, s64, s64, s32, s32, s32);
+extern void func_00315600(u8 *, s32);
+extern void func_00316e80(s32, s32, s32, s32, s32, s32, s32, s32, s32, s32, s32);
+extern s32 func_00302570(u8 *);
+extern u8 *iGpffffb440;
+extern f32 D_00640C50[];
+extern f32 D_00640C58[];
+extern u8 D_00641BB0[];
+extern void func_00317900(u8 *, s64, s64, s8, s16, s16, s16);
+extern u8 D_00640760[];
+extern u8 D_00640790[];
+extern u8 D_0064079C[];
+extern u8 D_006407A8[];
+extern u8 D_006407C0[];
+extern u8 D_006407F0[];
 
 
+
+
+/* measured: best nd 12 (10 real + 2 padding). Structure is byte-identical
+   to retail except the argument-materialization order at the five
+   func_002b5c90 call sites: retail emits `move $a0,$s1` (temp_17) BEFORE
+   the `ld $a1, 0xNN($sp)` (s64 vector), mwcc b210 always schedules the
+   stack load first. Tried pointer/s32 temp_17, u64/s64 locals, explicit
+   (void *) casts, declaration orders — all nd 12. Argument-evaluation
+   order floor (also blocked the 0xB0 stack hole: retail frames the five
+   16-byte func_002b29e0 outputs at 0x60-0xA0 and the ten s64s at 0xB8+,
+   mwcc reproduces that exactly). */
 // FUN_002E8410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e8410);
 
 // FUN_002E90D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e90d0);
 
+/* measured: attempt aborted — a scripted m2c-draft transform of this
+   29.5KB state machine (72 s64 stack locals, ~30 func_00317900 7-arg
+   calls) produced 90+ mwcc parse errors; the checked-in draft's
+   (s64)(((...))-style paren/cast noise defeats mechanical adaptation and
+   no clean measured nd was reached (compile never succeeded). Left as
+   INCLUDE_ASM. */
 // FUN_002EB270
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
 
-/* measured: retail's record addressing keeps the addu as
-   addu $v1,$offset,$base and materializes D_00641660's base once before
-   func_002b2970's out-pointer; mwcc b210 canonicalizes every addu to
-   base-first (27 words; same floor family as y_fclCombineDraw's note) and
-   emits two lui/addiu base pairs with the out-pointer hoisted first
-   (4 words). Probed per-record s32 locals (breaks retail's per-field
-   p[0xB5] reloads, nd 245) and f32* base locals (no change). Rest of the
-   function byte-identical. Addu operand-order + base-CSE floor. */
 // FUN_002ECFC0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ecfc0);
 
 // FUN_002ED430
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
 
+/* measured: no attempts made — m2c draft flags 12 M2C_ERROR sites
+   (ldr/ldl unaligned 8-byte loads); per wave brief, M2C_ERROR drafts
+   are skipped. */
 // FUN_002F0F00
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f0f00);
 
+/* measured: no attempts made — m2c draft flags 8 M2C_ERROR sites
+   (ldr/ldl unaligned 8-byte loads into func_002b69f0 args); per wave
+   brief, M2C_ERROR drafts are skipped. */
 // FUN_002F6CF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f6cf0);
 
@@ -190,9 +262,15 @@ void func_002f9c30(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, u8 *arg4, u8 *arg5, 
     *(func_002e4870(arg8) + arg9 + 0x2E4) = v;
 }
 
+/* measured: no attempts made — m2c draft flags 8 M2C_ERROR sites
+   (ldr/ldl unaligned 8-byte loads of struct+0x38 into func_002b69f0
+   args); per wave brief, M2C_ERROR drafts are skipped. */
 // FUN_002F9D90
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002f9d90);
 
+/* measured: no attempts made — m2c draft flags M2C_ERROR sites with
+   real VU0/COP2 FPU-MAC instructions (adda.s/madd.s) plus ldr/ldl
+   unaligned loads; per wave brief, M2C_ERROR drafts are skipped. */
 // FUN_002FBEA0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002fbea0);
 
@@ -219,6 +297,9 @@ s32 func_003026c0(s32 arg0, s32 arg1)
     return arg1;
 }
 
+/* measured: no attempts made — the m2c draft flags 8 M2C_ERROR sites
+   (ldr/ldl unaligned 8-byte loads of func_002b6150()+0x38 into
+   func_002b69f0 args); per wave brief, M2C_ERROR drafts are skipped. */
 // FUN_00302770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
 
@@ -395,13 +476,35 @@ s32 func_00309630(u16 arg0)
     return 0;
 }
 // FUN_003096D0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003096d0);
-/* floor (above marker kept clear for the verifier): pure saved-register
-   coloring cycle — mwcc keeps the loop-head s16 mask in a 6th saved
-   register for the return, pushing rem to $s5 and swapping inner/outer vs
-   retail ($s4/$s3); probed declaration orders, do-while/while(1)+break
-   shapes, ret-local, explicit casts — all nd 61 (retail 5 saved regs). */
+s32 func_003096d0(void)
+{
+    u32 temp_16;
+    u16 *temp_17;
+    s32 var_20;
+    s32 var_19;
+    s16 temp_18;
+    u16 temp_16_2;
 
+    var_19 = 0;
+    var_20 = 0;
+    while ((s16)var_20 < 4) {
+        temp_16 = func_0010ceb0(func_001102e0());
+        temp_18 = (s16)(func_003b7060() % temp_16);
+    loop_2:
+        temp_17 = &iGpffffb3ec[(s16)var_19 * 2];
+        temp_16_2 = temp_17[0];
+        if (temp_16_2 == func_0010cf40(func_001102e0(), temp_18)) {
+            return var_19;
+        }
+        var_19 = (s16)(var_19 + 1);
+        if ((temp_16_2 == 0) || (temp_17[1] == 0)) {
+            var_20 = (s16)(var_20 + 1);
+        } else {
+            goto loop_2;
+        }
+    }
+    return -1;
+}
 // FUN_003097E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
 
@@ -435,6 +538,17 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
 // FUN_0030F4F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
 
+/* measured: best nd 654 (obj 3584B vs window 3632B). Complete faithful
+   reconstruction verified against retail: switch dispatch order, D2-D7/0x97
+   case bodies, nested jump-table switch (cases 2-7), the sp80[16] table,
+   all func_002b7750-style call sequences, the 0xC4/0xC6/0xC8 record stores
+   and the epilogue all match when aligned. Residual is purely
+   argument-materialization ORDER at ~15 call sites (retail loads $a1 before
+   $a0 on 2-arg calls and defers the (s8) arg casts to last; mwcc b210 emits
+   forward order) plus the D3 sh/dsll32 pair and D5 (s8)-cast placement —
+   tried s8-star/u8-star temp_18, (s8)/(u16) casts, pointer locals for the f32
+   arrays, declaration orders; all nd ~654. Argument-evaluation-order
+   scheduling floor. */
 // FUN_0030F650
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f650);
 

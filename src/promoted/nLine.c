@@ -26,6 +26,8 @@ extern f32 D_0088467C[];
 extern s32 D_00884680[];
 extern s32 D_00884684[];
 extern f32 D_008872F8[];
+extern u8 D_00752600[];
+extern u8 D_00749AC0[];
 extern u8 D_00749B30[];
 extern u8 D_00749CC0[];
 extern u8 D_00749840[];
@@ -59,7 +61,7 @@ void func_0034cef0(u8 *arg0);
 s16 func_0034e290(u8 *arg0, s32 arg1);
 s16 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u32 arg1, u32 arg2, u32 arg3, u32 arg4);
+void func_0034f0d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 u32 func_003b7060(void);
 void func_00364c50(void);
 void func_00364c70(void);
@@ -287,6 +289,14 @@ void func_0034c260(s32 arg0) {
     D_00884684[0] = arg0;
 }
 
+/* measured: retail hoists the loop-invariant pieces (mtc1 $a1->$f3, andi
+   $a1&1, 255.0f/2^31/0x80000000 constants) to the preheader and keeps the
+   counter in $v0; mwcc b210 either rematerializes everything inside the loop
+   (nd 52, best no-pragma attempt: prologue/frame/layout byte-identical via
+   &arg0 + s32 casts, but counter $v1, in-loop lui/mtc1, mtc1 not hoisted) or
+   over-hoists the whole arg1 if/else with opt_loop_invariants (nd 92), plus
+   the c.ole.s const,prod + bc1t vs c.olt.s prod,const + bc1f clamp floor
+   (same family as func_0034c500/d890/ddf0). Tried 4 spellings, best nd 52. */
 // FUN_0034C270
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c270);
 
@@ -338,6 +348,18 @@ void func_0034c820(u8 *arg0) {
 
 // FUN_0034C860
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c860);
+/* measured: four attempts (nd 352/367/352/354). Second-switch test order
+   fixed via ascending case labels (0,1,2,3,4 -> retail's 4,3,2,1,0); first
+   switch (jtbl) matches. Remaining mwcc b210 floors: (1) load-sinking — the
+   sp68-hi word `*((f32 *)&sp68 + 1)` is kept as a saved base pointer
+   (addiu $s0,$sp,0x7C) with lwc1 per call instead of retail's single lwc1
+   into $f23 + mov.s, pushing the frame to 0x80 vs 0x70 (4 GPR + 6 FP saved
+   vs retail's 3+5); hoisting into lo/hi locals at function top does not
+   move it. (2) saved-FP rotation: retail allocates temp_f20/f21/f22 to
+   $f20/$f21/$f22 in case bodies, mwcc permutes them ($f21/$f22/$f20) —
+   declaration orders tried. (3) `hi + 448.0f` repeated across calls 2+3 is
+   CSE'd into a 6th saved FP ($f25) where retail re-issues lui/mtc1/add.s
+   (same family as func_0034d890). */
 
 // FUN_0034CEF0
 void func_0034cef0(u8 *arg0) {
@@ -387,25 +409,47 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d280);
 // FUN_0034D490
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d490);
 
+/* measured: retail colors the loop counter $a2 (arg1/arg0 live across the
+   loops, address scratch $v0/$v1); mwcc b210 always colors the counter $v0
+   and the scratch $v1/$a2, swapping every loop word, nd 37. opt_loop_invariants
+   fixes the 448.0f preheader hoist (nd 110 -> 37); tried s32 and u32 counters
+   and decl orders — best identical nd 37. Same register-coloring floor as
+   func_0034d070/d280/d490. */
 // FUN_0034D690
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d690);
 
 // FUN_0034D890
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);
-/* measured: three compounding mwcc b210 defects vs retail, nd 159. (1) The
-   clamp comparison: only `prod < 2.1474836e9f` gives retail's layout (cvt
-   inline, sub out of line) but mwcc then encodes c.olt.s prod,const + bc1f
-   where retail has c.ole.s const,prod + bc1t (same family as func_0034c500).
-   (2) `y + 448.0f` repeated in calls 2+3 is CSE'd into a saved $f22 across
-   the calls (6 saved FP vs retail's 5, $f24/$f25 cascade); retail re-issues
-   lui/mtc1/add.s per call; operand reversal does not break mwcc's CSE.
-   (3) alpha/clamp byte chains color $v0 where retail uses $v1, plus the
-   bltz delay slot stays nop vs retail's mtc1. Register-coloring + CSE
-   + comparison-shape floor. */
+/* measured: re-tested after fixing this file's func_0034f0d0 prototype (the
+   phantom-conversion fix, nd 161). Three compounding mwcc b210 defects vs
+   retail, best nd 160. (1) The clamp comparison: only `prod < 2.1474836e9f`
+   gives retail's layout (cvt inline, sub out of line) but mwcc then encodes
+   c.olt.s prod,const + bc1f where retail has c.ole.s const,prod + bc1t (same
+   family as func_0034c500/ddf0). (2) `y + 448.0f` repeated in calls 2+3 is
+   CSE'd into a saved $f25 across the calls (6 saved FP vs retail's 5,
+   $f24/$f25 cascade); retail re-issues lui/mtc1/add.s per call; operand
+   reversal and hoisting the 0x9A0 load do not break mwcc's CSE. (3) the
+   saved-FP rotation: retail allocates by declaration order (164.0f*var_f0
+   -> $f21, 0x9A0 -> $f20, 1/x -> $f22), mwcc allocates by first-use
+   (164.0f*var_f0 -> $f20, 0x9A0 -> $f21, 1/x -> $f24) — both m2c and swapped
+   declaration orders give the same rotation. adda.s/msub.s (247.0f - 82.0f*
+   var_f0) and lbu now match. Register-coloring + CSE + comparison-shape
+   floor. */
 
 // FUN_0034DB60
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
 
+/* measured: four attempts (nd 278/276/256/102). The final 102 came only
+   after fixing this file's func_0034f0d0 prototype (retail is int,int,int,
+   int,float,float,float,float — it was floats-first, which made mwcc emit
+   phantom cvt.w.s/cvt.s.w clamp chains and blew the frame to 0x90). With the
+   correct prototype the frame/prologue/saved regs all match; remaining: FP
+   saved-reg swap (171.0f*var_f0 lands $f20 vs retail $f21, 0x9A0 sum $f21 vs
+   $f20, 1/x div $f24 vs $f22 — m2c declaration order tried, still swapped),
+   the 0x994 byte loads lb when retail lbu (s8 -> u32->f32 double bltz when
+   u8), the c.ole.s const,prod + bc1t vs c.olt.s prod,const + bc1f clamp
+   floor (func_0034c500/d890 family), and 171.0f*var_f0 CSE'd into a single
+   div.s $f20/2.0f where retail re-multiplies. */
 // FUN_0034DDF0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
 
@@ -438,5 +482,16 @@ s16 func_0034e290(u8 *arg0, s32 arg1) {
     return val;
 }
 
+/* measured: four attempts, best nd 592. With the corrected f0d0 prototype the
+   whole body compiles structurally correct (loop bodies, mult/div alpha
+   chains, sq/lq s128 sp110/sp100 at 0x110/0x100, spFC..spD4 slots, switch
+   dispatch 5,4,3,2,1 all match instruction-for-instruction) but mwcc b210
+   permutes the saved-GPR and saved-FP allocation: temp_16 lands $s2 and
+   temp_18 $s0 (retail $s0/$s2), the four float params rotate to
+   $f25/$f24/$f21/$f20 (retail $f21/$f20/$f23/$f22), f27/f26 to $f30/$f31,
+   and the coalescing cascade spills arg0 to 0x13C (frame 0x140 vs retail
+   0x120) instead of $s7 — tried m2c declaration order, temp_16 first, GPR
+   reorders, and all four params copied to named locals; identical nd 592.
+   Saved-register-rotation floor (same family as func_0034e0b0). */
 // FUN_0034E360
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e360);

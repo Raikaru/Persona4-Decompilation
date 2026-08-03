@@ -774,6 +774,14 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de000);
    pick) are all readable. */
 // FUN_001DE370
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de370);
+/* measured: switch-chain register-coloring floor — retail keeps v=$a2 (the
+   c param register) live across the whole dispatch, materializes t=$a1 in the
+   if/else, and promotes the switch value into $a3 (m's dead register) at the
+   join (andi $a3,$a1,0xffff). mwcc b210 instead folds t=v into $a2, re-colors
+   v to $v1 after q dies, and emits the whole 12-case beq chain comparing $a2;
+   every case body's registers cascade one slot off. Tried u16/s16 locals, all
+   declaration orders (v/t/q/m/sw), explicit sw local, ternary, switch(t):
+   nd 100-102. $a2/$v1-coloring floor. */
 // FUN_001DE640
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de640);
 // FUN_001DE800

@@ -66,6 +66,18 @@ CURATED_LINE = re.compile(
 )
 
 
+# The curated file exists to NAME addresses inside the retail load image that the
+# relocation scan cannot reach. An address outside it is never a symbol this file
+# should carry: ABSOLUTE_RANGES above deliberately admits the KSEG0/KSEG1 mirrors
+# and the I/O window for the *relocation* scan, and a wave once mistook a
+# materialized saturation constant (`lui 0x8000` / `ori 0x46` read as
+# `D_80000046`) for a data symbol on the strength of that. It cost nothing at
+# verify time -- the per-function check masks relocations -- and would only have
+# surfaced as a fall in linked objects.
+IMAGE_BASE = int(str(B.TARGET["elf"]["load_vram"]), 16)
+IMAGE_END = IMAGE_BASE + int(str(B.TARGET["elf"]["load_size"]), 16)
+
+
 def curated_data_addresses() -> dict[str, int]:
     """Read the curated data addresses, rejecting anything unevidenced."""
     out: dict[str, int] = {}
@@ -84,7 +96,13 @@ def curated_data_addresses() -> dict[str, int]:
         name = match.group("name")
         if name in out:
             raise SystemExit(f"{CURATED_DATA}:{number}: duplicate entry {name}")
-        out[name] = int(match.group("addr"), 16)
+        address = int(match.group("addr"), 16)
+        if not IMAGE_BASE <= address < IMAGE_END:
+            raise SystemExit(
+                f"{CURATED_DATA}:{number}: {name} = {address:#010x} is outside the "
+                f"load image [{IMAGE_BASE:#010x}, {IMAGE_END:#010x}); a materialized "
+                "constant or a hardware mirror is not a data symbol")
+        out[name] = address
     return out
 
 # MIPS ELF32 psABI relocation types used by mwccps2/mwldps2 output.

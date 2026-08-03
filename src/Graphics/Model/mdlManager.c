@@ -284,6 +284,13 @@ u8* func_00470e90(u16 arg0)
 }
 #pragma opt_loop_invariants off
 
+/* measured: retail re-issues andi $3,$19,0xffff on (u16)i in BOTH the loop
+   test (0x471188) and the loop body (0x47106c, feeding the *0x50 chain);
+   mwcc b210 CSEs the mask across the loop back-edge and reuses the test's
+   masked register, leaving the object exactly 1 word (4B) short of retail.
+   Tried (u16) casts on s32 counter, u16-width intermediate, base-load-first
+   statement order, unsigned compares; all nd ~6 with only that andi missing.
+   CSE-of-mask floor family. */
 // FUN_00471010
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471010);
 // FUN_004711E0
@@ -355,6 +362,11 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 
 
 
+/* measured: blocked by the same lhu+bltz u16 sign-test floor as func_00473b20/
+   004740c0/00479100 (retail: lhu;bltz on the raw register at 0x372BEC; b210
+   double-emits with a duplicated negative path in all 14 probed spellings).
+   Not transcribed: 7104B window with a guaranteed ~6-word mismatch at the
+   sign test cascading through the frame. */
 // FUN_00471370
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471370);
 extern void func_00397c40(void* a, void* b);
@@ -604,9 +616,45 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
 // FUN_00473870
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
 
+extern void func_00473870(void* a);
+extern void func_003d5e40(void* a, f32 b);
+extern void func_003d5e90(void* a, void* b, void* c, f32 d);
+extern void func_003d5bc0(void* a, void* b, f32 c);
+extern void func_00397c40_1(void* a);
+#pragma alias func_00397c40_1 func_00397c40
+/* measured: nd 244 after 4 attempts; registers/decl-order/chains/calls all
+   match (off16:$s0, idx:$s1, obj:$s4, arg1:$s3, arg2:$s2; dsll32/dsra32 sIdx
+   materializations; func_003d5e90/5840/5bc0/5e40 sites; 0x73E74 chain2 and
+   the 0x73F48 block; switch of 0x73E74 chain1+2 logic; sp[3]...). Remaining:
+   (1) the u16 v18 sign test (0x73D30/0x73E18): retail emits lhu;bltz on the
+   raw register; mwcc b210 emits andi 0xffff load-normalization + dsll32/
+   dsra32 (s16) cast materializations, or dead bgez/beqz folds when it range-
+   tracks the u16 load — probed 8 spellings (u16/u32/s32 locals, (s16)/(s32)
+   casts, inline loads, <0 and >=0 forms, -O2), none give lhu;bltz (2 blocks
+   x 3+ words); (2) single-use X+0x40 bases fold into the load displacement
+   (lw 0x40) where retail keeps addiu;addu;lw 0 — only two-use bases (CSE'd,
+   e.g. 0x73C80 chain) keep the addiu (3 sites, 1 word each); (3) the
+   adda/madd block: retail loads iGpffff8040 before the value and colors the
+   cvt result $f1 vs b210's value-load-first + $f2 rotation; (4) 0x73E74
+   chain2 loads the base before the sll chain, b210 emits chain-first. */
 // FUN_00473B20
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
-
+extern void* func_003d5790();
+extern void func_003d59a0(void* a, void* b);
+/* measured: nd 237 (object 1344B vs 1328B) after 1 attempt; registers,
+   chains, calls, 0x48-block re-derivations and tail all match (temp16:$s0,
+   temp20:$s4, obj:$s3, idx:$s2, a2:$s1; func_003d5790 5-arg/2-arg sites;
+   entry48 two-use first derivation keeps the addiu while the 5 re-derivation
+   stores fold 0x48 into the load, exactly like retail). Remaining: (1) the
+   u16 sign test at 0x74508 (lhu;bltz on the raw register): b210 emits
+   lhu;bltz;bltz with a duplicated negative path in every spelling — same
+   store-reload u16-sign-test floor as func_00473b20 (14 probe spellings);
+   (2) single-use X+C address bases fold into the load displacement (lw C)
+   where retail keeps addiu;addu;lw 0 — 5 sites (else-chain v1, p4C x2,
+   entry48, entry2); only the two-use base6 keeps its addiu; (3) the first
+   chain's v1 load: retail computes idx*0x50 before the base load, b210 loads
+   base first; (4) the 5840-1 address: retail loads base before the lh chain,
+   b210 interleaves. */
 // FUN_004740C0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004740c0);
 // FUN_004745F0
@@ -1368,14 +1416,18 @@ void* func_00477c40(u32 param_1, u32 param_2, u32 param_3)
 }
 
 extern void func_0047b060(void* a);
-/* measured: three floors block this: (1) retail re-masks the u16 loop counter
-   at the body top (andi $v1,$s1) while mwcc b210 carries the test's masked
-   value across the back edge (loop-test-CSE family, same as 47aa30; s32
-   counter + i=(u16)k copy gives the mask but loses the daddiu init and the
-   u16 test mask, nd 59); (2) retail's t==2||t==1 dispatch places BOTH arms
-   out of line (beq,beq then b) while mwcc inlines the then-arm (bne shape),
-   nd 57-59 in all of ||, && and switch(2,1,default) spellings; (3) the
-   func_003971d0 arg materialization order (load-first vs move-first). */
+/* measured: retry disproved the old daddiu floor: u8 var k with `k = 1;` DOES
+   emit daddiu $s1,$zero,1 (attempt 1), but only as a u8 loop counter, which
+   makes mwcc fold every (u16)k/&0xFFFF use to 0xFF or nothing (type-based
+   range fold). With an s32 counter the masks are right (test andi+slti, body
+   andi, increment addiu+andi all match retail) and all register/slot/switch
+   details match (entry:$s0, counter:$s1, obj:$s2; case 1/case 2 gives retail's
+   2-then-1 tests; sp[3] stores in order; iGpffff80cc/fGpffff809c GPREL), but
+   then the init propagates through k to plain addiu in every spelling
+   (k=1;i=k; i=(u8)k; i=(u8)1) and retail's BODY-top andi $v1,$s1 is CSE'd
+   with the loop-test mask (loop-test-CSE family, same as 47aa30; object lands
+   exactly 1 word short). Residual also: func_003971d0 args materialize
+   move-first vs retail's load-first (2 words). Best nd 76. */
 // FUN_00477CA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477ca0);
 // FUN_00477E80
@@ -1560,6 +1612,32 @@ void func_004789c0(Model* mdl)
 
 
 
+extern void func_00475820(void* a, void* b);
+extern u8* func_00473b20(u8* a, u8* b, s32 c);
+extern void func_0047a510(void* a, s32 b, void* c);
+extern s32 func_0047a2f0(void* a, void* b, void* c);
+extern void func_0047dae0(u32 a);
+extern void func_0047de50(u32 a);
+extern void func_0047de00(u32 a, void* b);
+extern void func_0047dd40(u32 a, void* b);
+extern void func_0047d900(u32 a, void* b);
+extern void func_0047d540(u32 a, void* b);
+extern void func_0047ed60(void* a);
+extern void func_0047a0e0(u8* a, s32 b, f32 c);
+extern void func_0047aa10(void* a, RwV3d* b);
+extern int func_0047a9d0(void* a);
+/* measured: nd 16 after 4 attempts (object 1080B, window 1088B); everything
+   matches: registers (arg1:$s0, obj:$s1, t18/loop1-j:$s2, i2/loops-2-3:$s3,
+   slot:$s4, v:$s5), all loops/calls, p290/p294 two-use address locals, the
+   8-word copy bodies. Remaining: (1) both copy-loop setups: retail hoists
+   the p290 load above the s1 addiu (lw;addiu s1;addiu d1;addiu k) while b210
+   emits statement order (addiu s1;lw;addiu d1;addiu k) — load-hoist
+   scheduling; (2) the copy-loop counter k lands in $a3 vs retail's $a0 and
+   the second loop's dest d2 in $a0 vs retail's $a1 — temp-register rotation
+   (recorded family); (3) func_0047a510's args materialize move-first
+   (move $a0;lw $a1) vs retail's load-first (lw $a1;move $a0). The loop-1
+   counter must be a variable SEPARATE from the i2 accumulator (retail reuses
+   t18's $s2 for loop 1 only; loops 2-3 reuse i2's $s3). */
 // FUN_00478A30
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478a30);
 
@@ -1601,6 +1679,16 @@ void func_00479080(void* param_1, void* param_2)
     }
 }
 
+/* measured: blocked by 8 instances of the lbu+bltz u8 sign test (0x379330,
+   0x379374, 0x3793B8, 0x3793FC, 0x379440, 0x379488, 0x3794D0, 0x379518):
+   retail does lbu;bltz;mtc1;cvt.s.w (neg path: srl/andi/or/doubling) per
+   byte; b210 emits andi-normalized double bltz with a duplicated negative
+   path in every if/else and neg-as-then spelling (probe-verified on u8 and
+   u16 loads, 16+ variants) — same family as func_00473b20/004740c0. The
+   rest is writable C: the madd.s byte chain (f = 0.5f + 255.0f * x;
+   (s32)f; sb) compiles from `255.0f * x + 0.5f` (b210 emits adda/madd),
+   g = iGpffff8044 multiplies, the 0x2CC/0x2FC blocks, loops 0x79624 and
+   0x79720. Not transcribed: 8 guaranteed sign-test mismatches dominate. */
 // FUN_00479100
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
 
@@ -2165,5 +2253,27 @@ void func_0047b060(void* param_1)
 // FUN_0047B0C0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047b0c0);
 
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+extern u32 func_004669d0(u32 a, u32* b, u32* c);
+extern void func_003ef260(void* a, void* b, void* c);
+extern void func_003ef1b0(void* a);
+extern void func_003e2e40(void* a, void* b);
+extern void func_003d60e0(void* a, s32 b);
+extern s32 func_004667d0();
+extern u32 func_0047f9f0(void* a);
+extern void func_004800d0(void* a, void* b, void* c, void* d);
+extern void func_00463100(void* a);
+extern u8 D_0070B610;
+/* measured: nd ~409 after 4 attempts; all structure transcribed (the three
+   alloc blocks, the 0xC list loop, the 0x234/0x254 slot tables, the 8-word
+   copy, the func_0047d200/7dc30 calls, the sq/lq u_long128 stack slots spE0/
+   spD0/spC0/spB0, the 0x667d0 10-arg call). Blocked by a 5-way saved-register
+   rotation: b210 pins t17:$s0, p:$s2, obj:$s4, v20:$s5, cnt:$s6, cnt2:$s7,
+   v30:$s8 in EVERY declaration order tried (incl. m2c-verbatim and inline
+   size expressions) while retail is sz:$s0, t17:$s1, p:$s2, v19:$s3, v20:$s4,
+   obj:$s5, cnt:$s6, cnt2:$s7, v30:$s8 — the {t17,sz} and {v19,v20,obj} groups
+   rotate together (saved-register-rotation floor family). Also: the spE0
+   u32->u_long128 cast emits dsll32/dsrl32 before sq where retail sq's
+   directly (mixed-width u_long128 floor, cf mdlMatAnim 0x480670). */
 // FUN_0047C660
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047c660);

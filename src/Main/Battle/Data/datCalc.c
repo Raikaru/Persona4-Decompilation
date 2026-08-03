@@ -52,6 +52,11 @@ extern u32 func_00105d50();
 extern u8 *func_001094e0(u16 arg0);
 extern s32 func_0010a900(u16 arg0);
 extern s32 func_00109390(s32 arg0);
+extern u32 func_00105ed0(void);
+extern u8 *func_00105510(s32 arg0);
+extern u32 func_00232c70(u8 *arg0, s32 arg1);
+/* Defined below in this file; used before its definition. */
+extern u16 func_002439c0(u8 *arg0);
 extern u32 func_00106cd0(s16 arg0, s32 arg1);
 extern u32 func_001069d0(u32 arg0);
 extern s32 func_00106a30(s16 arg0);
@@ -63,7 +68,11 @@ extern s32 func_00235520(s32 arg0, u8 *arg1, u8 *arg2, u16 arg3, u16 arg4, u16 a
 extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u32 func_00106330(s32 arg0);
 extern u32 func_00109980(u16 arg0, s32 arg1);
+extern s64 func_00233570(u8 *arg0, s32 arg1, s64 arg2);
 extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00244f60(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
+extern u16 func_00247cb0(s16 arg0);
+extern u16 func_00107ac0(u16 arg0);
 /* Defined below in this file; used at line 184, before its definition. */
 extern u8 *func_0023e140(u8 *arg0);
 
@@ -337,16 +346,26 @@ s32 func_00232aa0(s32 arg0)
     }
 }
 
-/* measured: 45 words — mwcc CSEs the id mask into $s0 across the 0x2F7
-   assert call (retail re-masks per use), sinks the iGpffffb3c4 lw below
-   the mul, emits addiu where retail daddiu's the return constants, and
-   reverses the final addu operands. u16/(u16)/s32 and 1U spellings
-   probed. bltz guard needed (s32)((u32)..) form. */
+/* measured: daddiu return constants ARE reachable — u8 var_2 with
+   `var_2 = 1;` / `var_2 = 0x63;` emits daddiu (s32 never does), the
+   (s32)((u32)arg1 & 0xFFFF) guard gives bltz, and `temp_3 > 0x63` the
+   slti-$at form; tail fully matches. Best nd 5: residual is the
+   table-index load-sinking floor — retail lw's the iGpffffb3c4 base
+   into $a0 BEFORE the *0x3C mul chain and masks the index last; mwcc
+   b210 sinks the lw after the mul (index-first, base-first, base-local
+   spellings all tried). */
 // FUN_00232B40
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 
-/* measured: retail booleanizes the 0x80 bad-flag test (lw; andi; sltu; beqz)
-   but mwcc folds both `!= 0` and unsigned `> 0` to beqz; nd 6. */
+/* measured: daddiu return constants ARE reachable (u8 var assignments
+   emit daddiu, verified) and the 0x80 test booleanizes via a value-
+   context local (lw; andi; sltu; beqz matches). Residual: retail's
+   shift is srl on a masked u32 value with NO pre-mask, but mwcc b210
+   re-normalizes a u8 var before the shift (andi; srl; andi — the extra
+   andi cascades +1 word over the whole tail); u32 var_2 makes the
+   shift clean but turns the 1/0x63 constants into addiu; u32+u8 out
+   split leaves a stray conversion andi or an extra b before the
+   epilogue (best nd 21). */
 // FUN_00232C70
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 
@@ -421,11 +440,60 @@ void func_00233490(u8 *arg0, u8 arg1, s8 arg2)
     }
 }
 
+/* measured: full logic in the right order but saved-register rotation
+   never stabilises: retail colors arg1=$s1/temp_18=$s2 and reuses $s1
+   for temp_17 (sra) and $s0 for temp_16, while mwcc b210 swaps
+   arg1/temp_18 (nd from the first move), keeps temp_17 in temps and
+   saves the masked values, and with separate mask vars (temp_2/
+   temp_3_3/temp_2_3) pushes temp_22 to $s7 (frame 0x90) and hoists
+   ori $0xffff. Tried m2c decl order, (u8)arg1 mask split, single-p
+   variants; best obj 756B. s8/s16 dsll32/dsra32 dance otherwise
+   matches. */
 // FUN_00233570
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233570);
 
 // FUN_00233880
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233880);
+void func_00233880(u8 *arg0, s32 arg1)
+{
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_18;
+    s32 temp_3;
+    s32 temp_3_2;
+    u8 *ptr;
+
+    temp_18 = arg1 & 0xFF;
+    if (temp_18 >= 0x18) {
+        func_0046d730(D_00635938, 0x4A2);
+    }
+    if (temp_18 < 0x10) {
+        if (temp_18 >= 0x18) {
+            func_0046d730(D_00635938, 0x441);
+        }
+        temp_17 = temp_18 >> 1;
+        temp_3 = temp_17 & 0xFFFF;
+        temp_16 = temp_18 & 1;
+        if (temp_16 != 0) {
+            ptr = (u8 *)((temp_3 & 0xFFFF) + (s32)arg0);
+            ptr[0x1C] = (u8)(ptr[0x1C] & 0xF);
+        } else {
+            ptr = (u8 *)((temp_3 & 0xFFFF) + (s32)arg0);
+            ptr[0x1C] = (u8)(ptr[0x1C] & 0xF0);
+        }
+        if (temp_18 >= 0x18) {
+            func_0046d730(D_00635938, 0x45E);
+        }
+        temp_3_2 = (u16)temp_17;
+        if (temp_16 != 0) {
+            ptr = (u8 *)((temp_3_2 & 0xFFFF) + (s32)arg0);
+            ptr[0x24] = (u8)(ptr[0x24] & 0xF);
+        } else {
+            ptr = (u8 *)((temp_3_2 & 0xFFFF) + (s32)arg0);
+            ptr[0x24] = (u8)(ptr[0x24] & 0xF0);
+        }
+    }
+    *(s32 *)(arg0 + 0x14) = *(s32 *)(arg0 + 0x14) & ~(1 << temp_18);
+}
 
 // FUN_002339D0
 void func_002339d0(u8 *arg0)
@@ -461,7 +529,152 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233bc0);
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002340c0);
 
 // FUN_00234830
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00234830);
+void func_00234830(u8 *arg0, s32 arg1, s64 arg2)
+{
+    if (arg1 != 0) {
+        if (arg1 & 1) {
+            func_00233570(arg0, 0, arg2);
+        }
+        if (arg1 & 2) {
+            func_00233570(arg0, 0, (s64)(s8)-(s8)arg2);
+        }
+        if (arg1 & 4) {
+            func_00233570(arg0, 1, arg2);
+        }
+        if (arg1 & 8) {
+            func_00233570(arg0, 1, (s64)(s8)-(s8)arg2);
+        }
+        if (arg1 & 0x10) {
+            func_00233570(arg0, 2, arg2);
+        }
+        if (arg1 & 0x20) {
+            func_00233570(arg0, 2, (s64)(s8)-(s8)arg2);
+        }
+        if (arg1 & 0x40) {
+            func_00233570(arg0, 3, arg2);
+        }
+        if (arg1 & 0x80) {
+            func_00233570(arg0, 3, (s64)(s8)-(s8)arg2);
+        }
+        if (arg1 & 0x100) {
+            func_00233570(arg0, 4, arg2);
+        }
+        if (arg1 & 0x200) {
+            func_00233570(arg0, 4, (s64)(s8)-(s8)arg2);
+        }
+        if (arg1 & 0x400) {
+            func_00233570(arg0, 0x12, arg2);
+        }
+        if (arg1 & 0x800) {
+            func_00233570(arg0, 0x13, arg2);
+        }
+        if (arg1 & 0x1000) {
+            if ((s8)func_002332a0(arg0, 0) > 0) {
+                func_00233370(arg0, 0, 0);
+                func_00233490(arg0, 0, 0);
+                *(s32 *)(arg0 + 0x14) &= ~1;
+            }
+            if ((s8)func_002332a0(arg0, 1) > 0) {
+                func_00233370(arg0, 1, 0);
+                func_00233490(arg0, 1, 0);
+                *(s32 *)(arg0 + 0x14) &= ~2;
+            }
+            if ((s8)func_002332a0(arg0, 2) > 0) {
+                func_00233370(arg0, 2, 0);
+                func_00233490(arg0, 2, 0);
+                *(s32 *)(arg0 + 0x14) &= ~4;
+            }
+            if ((s8)func_002332a0(arg0, 3) > 0) {
+                func_00233370(arg0, 3, 0);
+                func_00233490(arg0, 3, 0);
+                *(s32 *)(arg0 + 0x14) &= ~8;
+            }
+            if ((s8)func_002332a0(arg0, 4) > 0) {
+                func_00233370(arg0, 4, 0);
+                func_00233490(arg0, 4, 0);
+                *(s32 *)(arg0 + 0x14) &= ~0x10;
+            }
+        }
+        if (arg1 & 0x2000) {
+            if ((s8)func_002332a0(arg0, 0) < 0) {
+                func_00233370(arg0, 0, 0);
+                func_00233490(arg0, 0, 0);
+                *(s32 *)(arg0 + 0x14) &= ~1;
+            }
+            if ((s8)func_002332a0(arg0, 1) < 0) {
+                func_00233370(arg0, 1, 0);
+                func_00233490(arg0, 1, 0);
+                *(s32 *)(arg0 + 0x14) &= ~2;
+            }
+            if ((s8)func_002332a0(arg0, 2) < 0) {
+                func_00233370(arg0, 2, 0);
+                func_00233490(arg0, 2, 0);
+                *(s32 *)(arg0 + 0x14) &= ~4;
+            }
+            if ((s8)func_002332a0(arg0, 3) < 0) {
+                func_00233370(arg0, 3, 0);
+                func_00233490(arg0, 3, 0);
+                *(s32 *)(arg0 + 0x14) &= ~8;
+            }
+            if ((s8)func_002332a0(arg0, 4) < 0) {
+                func_00233370(arg0, 4, 0);
+                func_00233490(arg0, 4, 0);
+                *(s32 *)(arg0 + 0x14) &= ~0x10;
+            }
+        }
+        if (arg1 & 0x4000) {
+            func_00233570(arg0, 5, arg2);
+        }
+        if (arg1 & 0x8000) {
+            func_00233570(arg0, 6, arg2);
+        }
+        if (arg1 & 0x10000) {
+            func_00233570(arg0, 0x10, arg2);
+        }
+        if (arg1 & 0x20000) {
+            func_00233570(arg0, 0x11, arg2);
+        }
+        if (arg1 & 0x40000) {
+            func_00233570(arg0, 8, arg2);
+        }
+        if (arg1 & 0x80000) {
+            func_00233570(arg0, 9, arg2);
+        }
+        if (arg1 & 0x100000) {
+            func_00233570(arg0, 0xA, arg2);
+        }
+        if (arg1 & 0x200000) {
+            func_00233570(arg0, 0xB, arg2);
+        }
+        if (arg1 & 0x400000) {
+            func_00233570(arg0, 7, arg2);
+        }
+        if (arg1 & 0x800000) {
+            func_00233570(arg0, 0x14, arg2);
+        }
+        if (arg1 & 0x04000000) {
+            func_00233570(arg0, 0x17, arg2);
+        }
+        if (arg1 & 0x08000000) {
+            func_00233570(arg0, 0xC, arg2);
+        }
+        if (arg1 & 0x10000000) {
+            func_00233570(arg0, 0xD, arg2);
+        }
+        if (arg1 & 0x20000000) {
+            func_00233570(arg0, 0xE, arg2);
+        }
+        if (arg1 & 0x40000000) {
+            func_00233570(arg0, 0xF, arg2);
+        }
+        if (arg1 & 0x01000000) {
+            *(s32 *)(arg0 + 0x14) &= 0xFFFEFFFF;
+        }
+        if (arg1 & 0x02000000) {
+            *(s32 *)(arg0 + 0x14) &= 0xFFFDFFFF;
+        }
+    }
+}
 
 // FUN_00235020
 void func_00235020(u8 *arg0)
@@ -511,13 +724,212 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235320);
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235520);
 
 // FUN_002384B0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_002384b0);
+s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
+{
+    f32 var_2;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f0_3;
+    f32 var_f0_4;
+    f32 var_f1;
+    f32 var_f1_2;
+    f32 var_f1_3;
+    f32 var_f21;
+    f32 var_f20;
+    s32 temp;
+    u32 temp_2;
+    s32 temp_2_2;
+    u32 temp_2_3;
+    s32 temp_2_5;
+    u32 temp_2_6;
+    u16 temp_2_7;
+    u16 temp_4;
+    u16 temp_4_2;
+    u32 temp_hi;
+    u8 var_16;
+    u8 var_18;
+    u8 *temp_2_4;
 
+    if (iGpffffb448[(arg0 & 0xFFFF) * 0x28 + 0x24] != 6) {
+        return 0;
+    }
+    if (arg1 != (u8 *)arg2) {
+        func_0046d730(D_00635938, 0x9F9);
+    }
+    if (!(*(u16 *)arg1 & 4)) {
+        temp_2 = func_00105ed0();
+        var_f1 = (f32)temp_2;
+        var_f21 = var_f1 / 20.0f;
+        if ((*(u16 *)arg1 & 4) || (temp_4 = *(u16 *)(arg1 + 2), temp_4 == 1)) {
+            var_16 = *(u8 *)(arg1 + 6);
+        } else {
+            temp_2_2 = func_0010a900(temp_4);
+            if (temp_2_2 == 0) {
+                func_0046d730(D_00635938, 0x58);
+            }
+            var_16 = func_00109390(temp_2_2);
+        }
+        if ((var_16 & 0xFF) <= 0) {
+            func_0046d730(D_00635938, 0x5C);
+        }
+        var_f1_2 = (f32)var_16;
+        var_f20 = 4.0f + (var_f1_2 / 5.0f);
+        temp_2_3 = func_00232c70(arg1, 4);
+        var_f0 = (f32)temp_2_3;
+        var_f20 = var_f21 / (var_f0 / var_f20);
+    } else {
+        temp_2_4 = func_00105510(1);
+        if ((*(u16 *)temp_2_4 & 4) || (temp_4_2 = *(u16 *)(temp_2_4 + 2), temp_4_2 == 1)) {
+            var_18 = *(u8 *)(temp_2_4 + 6);
+        } else {
+            temp_2_5 = func_0010a900(temp_4_2);
+            if (temp_2_5 == 0) {
+                func_0046d730(D_00635938, 0x58);
+            }
+            var_18 = func_00109390(temp_2_5);
+        }
+        if ((var_18 & 0xFF) <= 0) {
+            func_0046d730(D_00635938, 0x5C);
+        }
+        var_f1_3 = (f32)var_18;
+        var_f20 = 4.0f + (var_f1_3 / 5.0f);
+        temp_2_6 = func_00232c70(temp_2_4, 4);
+        var_f0_2 = (f32)temp_2_6;
+        var_f20 = var_f0_2 / var_f20;
+        var_f0_3 = (f32)func_002439c0(arg1);
+        var_f20 = var_f20 * var_f0_3;
+    }
+    temp_hi = func_003b7060() % 21U;
+    var_f0_4 = (f32)temp_hi;
+    var_2 = var_f20 * (((100.0f + var_f0_4) - 10.0f) / 100.0f);
+    temp = (s32)var_2;
+    if (temp == 0) {
+        temp = 1;
+    }
+    if (*(u16 *)arg1 & 4) {
+        return temp;
+    }
+    return -temp;
+}
+
+/* measured: nd 792 after 1 full attempt. Head logic (0xA30 assert,
+   0x80000 early return, the 24-bit var_17 bitmask, the bit-scan loop
+   with the sp+0xA0 s16 array, the temp_3_2 1/3 gate, the 0xE-vs-switch
+   split, the case 1/7/8/9 returns, the 47-block with the
+   d740/a6b0/0x27000000/0x100000 checks) compiles in retail shape, but
+   the s16 arr[0x18] local lands the frame at 0xB0 vs retail 0xD0 (arr
+   at sp+0x90 instead of sp+0xA0) and mwcc saves 7 registers vs
+   retail's 9 ($s7 for the case-loop limits, $23) — every later
+   instruction shifts. The 9 jtbl cases each need their own temp_23/
+   temp_4 pair; temp_4 is reused as the 0xE-check pointer here, which
+   corrupts the case bodies. */
 // FUN_00238940
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00238940);
 
 // FUN_002397D0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_002397d0);
+u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
+{
+    s16 temp_17;
+    s32 temp_2;
+    s32 var_2_2;
+    u8 temp_3;
+    u32 var_2;
+    s32 off;
+    u8 *temp_4;
+
+    if ((u16)arg0 >= 0x1B8) {
+        func_0046d730(D_00635938, 0xB1D);
+    }
+    off = (arg0 & 0xFFFF) * 0x28;
+    temp_4 = (u8 *)(off + (s32)iGpffffb448);
+    if (temp_4[0x24] == 0xD) {
+        return 0x80000U;
+    }
+    if ((arg3 & 0xFFFF) != 1) {
+        return 0U;
+    }
+    temp_3 = temp_4[0x18];
+    if ((temp_3 != 1) && (temp_3 != 3)) {
+        if ((func_0023df70(arg0) != 0) &&
+            (((u64)((s64)(*(s32 *)(arg2 + 0xC)) << 0x2C) >> 0x2C) == 0)) {
+            if (*(u16 *)arg1 & 4) {
+                var_2_2 = 0;
+            } else {
+                temp_17 = *(s16 *)(arg1 + 2);
+                if (temp_17 >= 0xB) {
+                    func_0046d730(D_00635938, 0x291);
+                }
+                var_2_2 = func_001069d0(func_00106cd0(temp_17, 0)) & 0xFFFF;
+            }
+            temp_2 = var_2_2 & 0xFFFF;
+            switch (temp_2) {
+            case 0x24:
+                return func_00238940(0x190, arg1, arg2, arg5);
+            case 0x25:
+                return func_00238940(0x191, arg1, arg2, arg5);
+            case 0x26:
+                return func_00238940(0x192, arg1, arg2, arg5);
+            case 0x27:
+                return func_00238940(0x193, arg1, arg2, arg5);
+            case 0x28:
+                return func_00238940(0x194, arg1, arg2, arg5);
+            case 0x29:
+                return func_00238940(0x195, arg1, arg2, arg5);
+            case 0x2A:
+                return func_00238940(0x196, arg1, arg2, arg5);
+            case 0x2B:
+                return func_00238940(0x197, arg1, arg2, arg5);
+            case 0x2C:
+                return func_00238940(0x198, arg1, arg2, arg5);
+            case 0x2D:
+                return func_00238940(0x199, arg1, arg2, arg5);
+            case 0x2E:
+                return func_00238940(0x19A, arg1, arg2, arg5);
+            case 0x2F:
+                return func_00238940(0x19B, arg1, arg2, arg5);
+            case 0x30:
+                return func_00238940(0x19C, arg1, arg2, arg5);
+            case 0x31:
+                return func_00238940(0x19D, arg1, arg2, arg5);
+            case 0x32:
+                return func_00238940(0x19E, arg1, arg2, arg5);
+            case 0x33:
+                return func_00238940(0x19F, arg1, arg2, arg5);
+            case 0x34:
+                return func_00238940(0x1A0, arg1, arg2, arg5);
+            case 0x35:
+                return func_00238940(0x1A1, arg1, arg2, arg5);
+            case 0x36:
+                return func_00238940(0x1A2, arg1, arg2, arg5);
+            case 0x37:
+                return func_00238940(0x1A3, arg1, arg2, arg5);
+            case 0x38:
+                return func_00238940(0x1A4, arg1, arg2, arg5);
+            case 0x39:
+                return func_00238940(0x1A5, arg1, arg2, arg5);
+            case 0x3A:
+                return func_00238940(0x1A6, arg1, arg2, arg5);
+            case 0x3B:
+                return func_00238940(0x1A7, arg1, arg2, arg5);
+            case 0x5C:
+                return func_00238940(0x1A8, arg1, arg2, arg5);
+            case 0x5D:
+                return func_00238940(0x1A9, arg1, arg2, arg5);
+            case 0x5E:
+                return func_00238940(0x1AA, arg1, arg2, arg5);
+            }
+            goto zero;
+        }
+zero:
+        var_2 = 0;
+    } else {
+        var_2 = func_00238940(arg0, arg1, arg2, arg5);
+        if ((((u64)((s64)(*(s32 *)(arg2 + 0xC)) << 0x2C) >> 0x2C) != 0) && !(var_2 & 0x180000)) {
+            var_2 = 0;
+        }
+    }
+    return var_2;
+}
 
 // FUN_00239E40
 s32 func_00239e40(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
@@ -887,13 +1299,17 @@ ret0:
 // FUN_0023E6F0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
 
+/* measured: saved-register rotation on (arg2, temp_22) — retail colors
+   arg2=$s2/temp_22=$s6, mwcc b210 always colors arg2=$s6/temp_22=$s2
+   (first move on) regardless of declaration order, type (s32/u16), or
+   the || vs switch dispatch form, cascading into every later register
+   (nd 521). Structure otherwise verified: switch-dispatch (declared
+   0x200,0x400,0x100,2,4 reversed-test order) matches, the two loops,
+   the flag/0x3C-0x3E checks, the f20 dance, the shared ret1 via
+   goto-label all compile in retail shape. */
 // FUN_002411A0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
 
-/* measured: 6 words off — mwcc emits `addu $a0,$a1` (base-first) where
-   retail has `addu $a1,$a0`, and schedules var_2=1 before the shift+1 addiu
-   (retail opposite). s32 temp_4 per m2c regressed to nd 82; shift local and
-   statement reorder did not move the two pairs. */
 // FUN_00241BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
 
@@ -913,6 +1329,7 @@ s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
     s32 temp_3_3;
     s32 var_2_2;
     u16 var_16;
+    s32 temp_4;
     s32 var_2_3;
     s32 var_2_4;
     s32 var_2_5;
@@ -1019,7 +1436,115 @@ s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
 }
 
 // FUN_00242360
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242360);
+/* measured: loop-invariant 0x21C compare constant must be hoisted into
+   the preheader (retail addiu $a0,$zero,0x21c before the loop's initial
+   branch); mwcc b210 rematerialises it in the body without the pragma. */
+#pragma opt_loop_invariants on
+s32 func_00242360(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f1;
+    s32 temp_16;
+    s32 temp_16_2;
+    u32 temp_2_2;
+    s32 temp_3;
+    s32 var_2_2;
+    s32 var_3;
+    s32 var_3_2;
+    s32 var_5;
+    s32 temp_2;
+    u32 flag1;
+    u32 flag2;
+    u32 flag3;
+    u8 *var_2;
+    u16 var_17;
+
+    flag1 = (*(s32 *)(arg1 + 0xC) & 1) != 0;
+    if (flag1) {
+        return 0;
+    }
+    if ((arg3 & 0xFFFF) != 1) {
+        return 0;
+    }
+    temp_16 = arg2 & 0xFFFF;
+    if (temp_16 >= 0x1B8) {
+        func_0046d730(D_00635938, 0x13B6);
+    }
+    temp_2 = func_0023a6b0(arg1, 0xC);
+    if (temp_2 & 0x27000000) {
+        return 0;
+    }
+    var_17 = 0;
+    flag2 = (*(s32 *)(arg1 + 0xC) & 0x100000) != 0;
+    if (flag2) {
+        if (temp_16 >= 0x1B8) {
+            func_0046d730(D_00635938, 0xF5E);
+        }
+        flag3 = (iGpffffb448[(u16)arg2 * 0x28] & 2) != 0;
+        if (flag3) {
+            var_17 = 0x32;
+        }
+        temp_3 = arg4 & 0xFFFF;
+        if (temp_3 == 2 || temp_3 == 4) {
+            var_17 = 0x64;
+        }
+    } else {
+        var_17 = iGpffffb448[(u16)arg2 * 0x28 + 0x26];
+        if ((s32)var_17 > 0) {
+            temp_2_2 = temp_2 & 0xFFFF;
+            var_f1 = (f32)temp_2_2;
+            var_f1 = var_f1 / 100.0f;
+            var_f0 = (f32)var_17;
+            temp_f1 = var_f0 * var_f1;
+            var_17 = (u16)temp_f1;
+            if (!(*(u16 *)arg0 & 4)) {
+                if (*(u16 *)(arg0 + 2) >= 0xB) {
+                    func_0046d730(D_00635938, 0xFA5);
+                }
+                var_2 = func_001094e0(*(u16 *)(arg0 + 2));
+            } else {
+                if (*(u16 *)(arg0 + 2) >= 0x150) {
+                    func_0046d730(D_00635938, 0xFA8);
+                }
+                var_2 = *(u16 *)(arg0 + 2) * 0x3C + iGpffffb3c4 + 0xE;
+            }
+            var_5 = 0;
+            while ((var_5 & 0xFFFF) < 8) {
+                if (*(u16 *)(var_2 + (u16)var_5 * 2) == 0x21C) {
+                    var_2_2 = 1;
+                    goto done;
+                }
+                var_5 = (var_5 + 1) & 0xFFFF;
+            }
+            if (!(*(u16 *)arg0 & 4) && (temp_2_2 = func_00106cd0((s16)*(u16 *)(arg0 + 2), 2) & 0xFFFF, (s32)temp_2_2 >= 0) &&
+                (func_001069a0((s16)temp_2_2) == 0x21C)) {
+                var_2_2 = 1;
+            } else {
+                var_2_2 = 0;
+            }
+done:
+            if (var_2_2 != 0) {
+                var_f0_2 = (f32)var_17;
+                temp_f1_2 = 1.25f * var_f0_2;
+                var_17 = (u16)temp_f1_2;
+            }
+        }
+    }
+    temp_16_2 = var_17 & 0xFFFF;
+    if (temp_16_2 == 0) {
+        return 0;
+    }
+    if (temp_16_2 >= 0x64 || (s32)(func_003b7060() % 100U & 0xFFFF) < temp_16_2) {
+        return 1;
+    }
+    return 0;
+}
+/* Closes the measured opt_loop_invariants scope opened for func_00242360 above.
+   It must stay scoped: leaving it on regresses the neighbouring functions. */
+#pragma opt_loop_invariants off
 
 // FUN_00242800
 s32 func_00242800(u8 *arg0, s32 arg1)
@@ -1047,13 +1572,18 @@ s32 func_00242800(u8 *arg0, s32 arg1)
     return func_0023a6b0(arg0, arg1);
 }
 
+/* measured: nd 170 after 4 attempts. All 8 skill-search loops match
+   (while+goto-done form, opt_loop_invariants hoist, (u16)var_5 body
+   masks), the 0x231/0x232/0x210/0x20F/0x211-0x222 dispatch and the
+   func_00106600/0x3C-0x3E checks compile in retail shape, but the
+   0x210/0x20F block section lays out ~0x90 earlier (block_161 and the
+   &4-else goto target shifts, branch targets differ) and the
+   return-0x231/-1 early returns share the final move block instead of
+   retail's per-site moves. The (s16)var_17==-1 tests, 47cb0/107ac0 tail
+   and index-first addu need the off-local form. */
 // FUN_00242990
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242990);
 
-/* measured: load-sinking floor in the RNG tail; retail masks temp_16 & 0xFF
-   into $s0 before the rng jal (mfhi $v0, addu $v0,$s0,$v0), mwcc sinks the
-   andi after the jal into $v0 regardless of a hoisted local (mfhi $v1).
-   Tried explicit mask and lo-local spellings, nd 7. */
 // FUN_00243650
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243650);
 
@@ -1191,6 +1721,12 @@ void func_00243f20(u16 characterId)
     func_00105d50(id, -1);
 }
 
+/* measured: full body matches byte-for-byte (nd 0, no fndiff ! rows) but
+   verify.py reports SIZE_MISMATCH: the window (368B, per
+   tools/slus21782_functions.json) extends to 0x244110 and contains the
+   unmarked nullsub at 0x244100 (jr $ra; nop; nop; nop), so the retail
+   tail beyond my 352B object is nonzero. Unmatchable without splitting
+   the boundary in slus21782_functions.json (no generator in-tree). */
 // FUN_00243FA0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243fa0);
 

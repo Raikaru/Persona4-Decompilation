@@ -100,3 +100,40 @@ D_00922CA0 = 0x00922CA0; // type:data evidence: retail func_001ff490 lui $3,0x92
 D_00922C60 = 0x00922C60; // type:data evidence: retail func_001ff490 lui $5,0x92 + addiu 0x2C60 (lq/sq 0x40-byte copy target)
 D_00922CC0 = 0x00922CC0; // type:data evidence: retail func_001ff490 lui $3,0x92 + sw %lo(0x2CC0) store of 1 (palette-dirty flag)
 D_007641F8 = 0x007641F8; // type:data evidence: GP(0x007690F0) - 0x4EF8; retail lbu -0x4EF8..-0x4EF5($28) (4 bytes) in func_001fec00 case 2 blend source
+fGpffff80d0 = 0x007611c0; // type:data evidence: GP(0x007690F0) - 0x7F30; retail lwc1 -0x7F30($28) in effPolygonFlash func_0049d360 etc.; image f32 6.2831855 (2*pi) at that vaddr
+
+// effBlurFilter.c VU0 chains load the byte->f32 scale at GPREL -0x7FBC($28) and
+// the per-axis factor at GPREL -0x7F10($28). GP base 0x007690F0 (derived from
+// recovered fGpffff80f8=0x007611e8: 0x7611e8+0x7f08 == 0x7690f0); the name
+// encodes the 16-bit displacement, same convention as fGpffff80f8.
+fGpffff8044 = 0x00761134; // type:data evidence: retail lwc1 GPREL -0x7FBC($28) in effBlurFilter func_004aa960/004aa2b0/004a9bd0/004aa690/004a9fd0/004aab50/004a9690; 0x007690F0 - 0x7FBC = 0x00761134
+fGpffff80f0 = 0x007611E0; // type:data evidence: retail lwc1 GPREL -0x7F10($28) in effBlurFilter func_004a9690/004a9bd0/004aa690/004a9fd0; 0x007690F0 - 0x7F10 = 0x007611E0
+
+D_00636410 = 0x00636410; // type:data evidence: retail func_002566d0 copies 9x8 bytes from it (lui/addiu at 0x002566FC) into spD0
+D_00636460 = 0x00636460; // type:data evidence: retail func_002566d0 copies 4x8 bytes from it (lui/addiu at 0x00256730) into spB0
+D_0076122C = 0x0076122C; // type:data evidence: retail func_002566d0 lwc1 GPREL -0x7EC4($28) at 0x00256984; GP base 0x007690F0 - 0x7EC4 = 0x0076122C
+D_00636480 = 0x00636480; // type:data evidence: retail func_00256be0 copies 9x8 bytes from it (lui/addiu at 0x00256C0C) into spD0
+D_006364D0 = 0x006364D0; // type:data evidence: retail func_00256be0 copies 4x8 bytes from it (lui/addiu at 0x00256C40) into spB0
+D_006364F0 = 0x006364F0; // type:data evidence: retail func_002570f0 copies 9x8 bytes from it (lui/addiu at 0x00257114) into sp130
+D_00636540 = 0x00636540; // type:data evidence: retail func_002570f0 copies 4x8 bytes from it (lui/addiu at 0x00257148) into sp110
+D_00636560 = 0x00636560; // type:data evidence: retail func_002570f0 lq/sq copies it (lui/lq at 0x00257378) into spB0 and spC0
+D_00636570 = 0x00636570; // type:data evidence: retail func_002570f0 lq/sq copies it (lui/lq at 0x00257658) into spA0 and spC0
+D_00761144 = 0x00761144; // type:data evidence: retail func_00372960 lwc1 -0x7FAC($gp) at 0x272B10; word 0xB2D72F34 = -2.50507597e-08f (Taylor coeff)
+D_00761148 = 0x00761148; // type:data evidence: retail func_00372960 lwc1 -0x7FA8($gp) at 0x272B1C; word 0x3638EF1B = 2.75573143e-06f (Taylor coeff)
+D_00761150 = 0x00761150; // type:data evidence: retail func_00372960 lwc1 -0x7FA0($gp) at 0x272B34; word 0x3C088889 = 0.00833333377f (Taylor coeff)
+D_00761434 = 0x00761434; // type:data evidence: retail func_00372960 lwc1 -0x7CBC($gp) at 0x272B28; word 0xB9500D01 = -0.000198412701f (Taylor coeff)
+D_00761438 = 0x00761438; // type:data evidence: retail func_00372960 lwc1 -0x7CB8($gp) at 0x272B40; word 0xBE2AAAAB = -0.166666672f (Taylor coeff)
+D_007614E8 = 0x007614E8; // type:data evidence: retail func_00372960 lwc1 -0x7C08($gp) at 0x272B0C; word 0x2F2EC9D3 = 1.58969102e-10f (Taylor coeff)
+D_005E4DB0 = 0x005e4db0; // type:data evidence: name encodes the address; retail func_00119210 (0x19484) copies 0x50 bytes from it via lui/addiu %hi/%lo(D_005E4DB0)
+iGpffff8394 = 0x00761458; // type:data evidence: retail func_00119810 lwc1 -0x7C98($28) as func_00274ed0's 7th arg; gp base 0x007690F0 -> 0x00761458
+D_00636210 = 0x00636210; // type:data evidence: retail func_00252a60 copies 4x8 bytes from it into sp110
+D_00636230 = 0x00636230; // type:data evidence: retail func_00252a60 copies 4x8 bytes from it into spF0
+D_00636250 = 0x00636250; // type:data evidence: retail func_00252a60 ld copies it into sp218 (s64)
+D_00636258 = 0x00636258; // type:data evidence: retail func_00252a60 copies it (f32) into sp220/sp238
+D_00636260 = 0x00636260; // type:data evidence: retail func_00252a60 copies 5x8 bytes from it into spC0
+D_00761184 = 0x00761184; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7F6C($28); GP base 0x007690F0
+D_007613A0 = 0x007613A0; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7D50($28); GP base 0x007690F0
+D_007612CC = 0x007612CC; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7E24($28); GP base 0x007690F0
+D_007612D0 = 0x007612D0; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7E20($28); GP base 0x007690F0
+D_0076120C = 0x0076120C; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7EE4($28); GP base 0x007690F0
+D_00761288 = 0x00761288; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7E68($28); GP base 0x007690F0

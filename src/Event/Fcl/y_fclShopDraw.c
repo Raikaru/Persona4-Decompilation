@@ -4,6 +4,7 @@
 #include "type.h"
 
 typedef struct { f32 x, y; } Vec2f;
+typedef struct { u8 r, g, b, a; } RGBA;
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 static inline f32 shopAdd(f32 left, f32 right) { return left + right; }
 typedef struct {
@@ -159,6 +160,8 @@ extern f32 D_0063F880[];
 extern f32 D_0063F890[];
 extern s8 D_00748908[];
 extern u8 D_00795E30[];
+extern u8 D_00794EA0[];
+extern u8 D_00794ED0[];
 extern u8 D_0063FB50[];
 
 void func_002be530(void);
@@ -219,8 +222,14 @@ u16 func_00106940(s16);
 u16 func_00106970(s16);
 s16 func_002b3170(s32);
 void func_002b2a60(void *, s32, s32, s32, s32);
-void func_002cacd0(u64, s32, s32, s32, u32, s32, s32, s32, f32, s64, s64);
-s32 func_0046a770(void *);
+void func_002cacd0(u64, s32, s32, s32, u32, s64, s64, s64, f32, s64, s64);
+s64 func_0046a770(void *);
+s16 func_002e2830(void *, s32);
+u8 func_00106600(s64);
+u16 func_001069d0(s64);
+s64 func_00106b80(s64);
+void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
+void func_002e0ca0(s32, s64, s32, u8, s32, u8 *, f32);
 
 // FUN_002BE530
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002be530);
@@ -375,14 +384,21 @@ s32 func_002d4f30(s16 arg0) {
 // FUN_002D5040
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
 
+/* measured: full body reconstructed (19 RGBA color groups + 0a60/2a60/04e0/
+   2970/0620 chains, 48 u64 slots, 2 ifs + 3-case switch); frame 0x200 and all
+   slot offsets matched; best nd 895 (obj only 2 words over window). Three
+   residual families: (1) D_0063F658/D_0063F650 (f32[2]) base: retail hoists it
+   into $s0 across the group's calls (lwc1 ($s0)/4($s0)); mwcc b210
+   rematerialises lui+lwc1 per access even with named f32* base locals --
+   same D_00887300 family as the func_002d7300 note. (2) color bytes: retail
+   batches 4 lbu then 4 sb in address order into $a2/$a1/$a0/$v1; mwcc emits
+   scrambled load order (g,b,a,r) for every spelling tried (array, u8 scalars,
+   RGBA struct, explicit r/g/b/a temps). (3) work[7] if/switch: retail reloads
+   lb 7($s1) per site; mwcc hoists addiu $s0,$s1,7. Global-address-hoist +
+   scheduling floor. */
 // FUN_002D6190
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d6190);
 
-/* measured: retail hoists the D_0063F658/D_0063F650 base into $s1 across
-   the func_002b2970 calls; mwcc b210 rematerialises lui/addiu per call (tried
-   inline globals, u8-star/f32-star named base, #pragma opt_loop_invariants,
-   nd 495; the missing $s1 save shrinks the frame 0x10 and shifts all 46 u64
-   slots). Global-address-hoist floor (D_00887300 family). */
 // FUN_002D7300
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d7300);
 
@@ -624,6 +640,16 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 // FUN_002DE5A0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002de5a0);
 
+/* measured: full body reconstructed (3-case switch, all 2b2970/2a30/2a60/
+   46a770/2cacd0 call shapes, u64 slots + spA8 union + sp68/sp6C pair, frame
+   0xC0 matched via last-declared-highest-slot order); best nd 230. Retail
+   stores the sp88 f32 pair to stack slots 0x68/0x6C (lwc1 f1/f0 in the 2970
+   jal delay slot, swc1, reload after func_001067f0); mwcc b210 keeps the pair
+   in saved fp regs $f20/$f21 for every spelling (f32 locals, inline loads,
+   union) and rotates work ptr to $s0 vs retail $s1 across 3 declaration
+   orders. Also retail passes func_0046a770's result to s32/s64 args with plain
+   moves (pointer return; mwcc adds dsll32/dsra32 for both s32 and s64
+   declared returns). Saved-reg rotation + fp spill-vs-register floor. */
 // FUN_002DF020
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002df020);
 

@@ -24,7 +24,7 @@ extern void func_00145080();
 extern void func_003f6440(s32 param, s32 value);
 extern u8 *func_00460990();
 extern void func_00460ac0(void *param, u8 *work);
-extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
 extern f32 func_003e40b0(f32 *param, f32 *out);
 extern u8 *func_0047a2f0(s32 param);
 extern void func_0047a180();
@@ -329,10 +329,38 @@ u8 *func_00187e80(u8 *arg0, s32 arg1, s32 arg2)
 }
 
 // FUN_00187F50
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00187f50);
+void func_00187f50(void)
+{
+    void (**tbl)(s32, s32);
+
+    tbl = (void (**)(s32, s32))(u32)D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x71009);
+}
 
 // FUN_00188030
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188030);
+void func_00188030(void)
+{
+    void (**tbl)(s32, s32);
+
+    tbl = (void (**)(s32, s32))(u32)D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x7100D);
+}
 
 // FUN_00188110
 void func_00188110(void)
@@ -352,21 +380,66 @@ void func_00188110(void)
     func_003f6440(3, 0x72001);
 }
 
+/* measured: retail materialises the f12/f13 constants (lui+mtc1) BEFORE the
+   arg1 loads and interleaves f13's loads into f12's add->cvt latency; mwcc
+   b210 emits the loads first and does not interleave (nd 40 in the chains).
+   Retail also places the f14 = arg1[8] load after the f16 constant and before
+   the a0 lui; mwcc sinks it to just before the jal (load-sinking floor).
+   Tried inline, f32 locals, and pointer-last func_0025ecd0 prototype (that
+   one fixes the a7-last emission, kept in the file); all nd 56. */
 // FUN_00188200
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188200);
 
+/* measured: at 4 attempts. Progress: pragma opt_loop_invariants + decl order
+   (var_17 first) + 102.0f (0x42CC0000, not 100.0) fixed the frame (-0x60,
+   f20 save), the loop-counter registers, and the outer-loop mul hoist; the
+   madd.s/adda.s fused form compiles correctly. Remaining nd 135 is the
+   argument-evaluation-order family: retail materialises constants before
+   loads in every chain (e.g. f12 = -44.0f + arg1[0] uses 0xC2300000 = -44.0,
+   not -40.0) and interleaves f13's loads into f12's add->cvt latency; mwcc
+   emits load-first serialised chains and sinks the inner call's f14=arg1[8]
+   load. Also retail fills the post-jal delay slot with move $s1 while mwcc
+   emits nop (delay-slot-fill floor, see func_00186eb0). */
 // FUN_00188320
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188320);
 
+/* measured: retail hoists the f14 = arg1[8] load (lwc1 $f14, 8($s1)) up into
+   the float-arg cluster (right after the f16 materialisation, before the a0
+   lui); mwcc b210 always sinks it to just before the jal (after the a7 pair),
+   nd 14. Tried inline arg, hoisted f32 local (spills to f20), pre-call
+   assignment, and register f32 local - all identical. Load-sinking floor
+   (arg-evaluation-order family). */
 // FUN_00188590
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188590);
 
+/* measured: retail interleaves the f13 chain's loads between f12's add.s and
+   its cvt.w.s (sum in a fresh $f2), and places the f14 = arg1[8] load right
+   after the f16 constant; mwcc b210 serialises the chains (sum reused in $f0,
+   no interleave) and sinks the f14 load below the int args. Tried inline and
+   f32 locals for sx/sy; identical nd 29. Argument-evaluation-order +
+   load-sinking floor family (see also func_00188590/00188200 notes). */
 // FUN_00188690
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188690);
 
+/* measured: identical to func_00188690 - retail interleaves the f13 chain
+   into f12's add->cvt latency (sum in fresh $f2) and loads f14 = arg1[8]
+   right after the f16 constant; mwcc b210 serialises the chains and sinks the
+   f14 load below the int args. Tried inline spelling only; nd 27.
+   Argument-evaluation-order + load-sinking floor family. */
 // FUN_001887F0
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_001887f0);
 
+/* measured: at 4 attempts. s32 locals for the scaled offsets (sel/idx) fix
+   the two addu operand orders (retail addu $v0,$v0,$s2; lever #10 confirmed).
+   Remaining nd 120 is the standard family: (1) argument-evaluation order -
+   retail materialises the f12/f13 constants before the arg1 loads and
+   interleaves f13's chain into f12's add->cvt latency (sum in fresh $f2);
+   mwcc emits load-first serialised chains; (2) call 3's f13 = (f32)(s32)0.0f
+   FOLDS to mtc1 $0,$f13 in mwcc while retail emits the cvt.w.s/cvt.s.w chain
+   reusing the f15 zero - needs a runtime zero local, but a zero local assigned
+   before the call shifts the whole cluster (tried, nd 145); (3) call 4's
+   f14 = arg1[8] load sunk below the int args; (4) post-jal delay slot nop
+   (retail fills with ld $ra). */
 // FUN_00188940
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188940);
 
