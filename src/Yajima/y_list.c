@@ -30,7 +30,12 @@ extern void *func_0043f9c8(void *dest, s32 value, s32 size);
 extern s32 func_002e6b20(s16 *arg0, s16 *arg1);
 extern s32 func_002e6630(s16 *arg0, s16 *arg1);
 extern s32 func_00440bb8();
-extern void *func_0010fcb0(s16 arg0);
+extern void *func_0010fcb0();
+extern void func_0010cad0(void *dest, u16 id);
+extern s16 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00311d00(u16 id);
+extern s32 func_00311d60(u16 id);
+extern s32 func_00311e40(u16 id);
 extern void func_0043f810(void *dst, void *src, u32 size);
 
 // FUN_002E24A0
@@ -222,6 +227,18 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
 // FUN_002E3560
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e3560);
 
+/* measured: structure fully recovered at exact byte size (1360/1360B):
+   p[0]==1 early return, p->8=0, the 9-entry jump-table switch with cases
+   0/7/8 as the i=1..0xC/0xC0 cad0 loops using (i-1)*48, cases 1/5/6 as the
+   func_0010b5b0()-bounded abd0/ace0 loops (case 5 with the a900!=ace0
+   compare, case 6 with the buf1/buf2 compare via func_002e5270), case 2 as
+   the 0x100 fcb0 loop, and the trailing p[0]=1/return 0) but mwcc b210
+   colors the s16 loop counter i into $s2 and the shared cond-extension /
+   func_0010a900() temp into $s1 where retail has i in $s1 and the temp in
+   $s2; every spelling tried (a named void pointer / implicit temp, declared before/
+   after i at function scope or block-scoped, if(a!=b) vs if(a==b)continue)
+   gives the identical nd 62 of pure register renames. Saved-reg coloring
+   floor. */
 // FUN_002E4090
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4090);
 
@@ -334,6 +351,18 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4960);
 // FUN_002E4AC0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 
+/* measured: structure fully recovered (outer i-loop with base=p+i*12 /
+   slot2=&D_00882F70[(s8)(i+1)] / off48=i*48 hoisted per iteration, inner
+   j-loop with the per-iteration D_00882F70[0]+0x38 count chain, three
+   jump-table switches on slot2's entry and the main entry with q2/q3
+   compare via func_003129b0 and the *dst=1 store) but mwcc b210
+   MISCOMPILES this shape: it CSEs the *slot2 deref with the main-list
+   D_00882F70[0] load (slot2's computation is deleted entirely and the
+   switch1 type/q read the main p) and swaps the (j*3)*0x10 and off48
+   offsets between switch1 and switch2, giving an undersized 480B object
+   (nd 151) no matter the spelling: slot2 as subscript / byte-arithmetic /
+   s32 nxt local, p2 as local or fully inline chain in the switch
+   condition, entry2 intermediate, u32-cast derefs. Load-VN/CSE floor. */
 // FUN_002E5000
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5000);
 
@@ -463,6 +492,21 @@ s16 func_002e54c0(s8 arg0, s16 arg1) {
 /* measured: see the annotation above the matching `on` pragma (func_002e54c0). */
 #pragma opt_loop_invariants off
 
+/* measured: structure fully recovered (entry null-check, arg2==0 path with
+   the 748D70 switch + func_0010cad0, else path with func_0010aa80 == -1
+   check, three re-indexed D_00882F70[(s8)arg0]+0x38 chains with the 748D40 /
+   748D10 / 748CE0 switches, q[4]=0 and the ac10/memcpy variants, and the
+   trailing count++ via slotp) but mwcc b210 assigns the saved registers in a
+   different order (mine arg0=$s0 slotp=$s1 arg1=$s2 vs retail slotp=$s0
+   arg1=$s1 arg0=$s2) and CSEs the third re-index's address computation
+   across the cad0 call into the freed arg0 register (retail rematerializes
+   the full dsll32/dsra32/sll/lui/addiu/addu chain, nd 6 in that region).
+   Tried: declaration orders, entry init vs assignment, nested ifs, inverted
+   if/else, subscript vs byte-arithmetic re-indexes (byte-arith keeps the
+   chains but the 3rd still CSEs), <<2 and 4*x and double-cast and
+   block-scoped off3 spellings (<<2 drops the sign extension, off3 loses the
+   scale chain), byte-arith slotp init (CSEs everything, 864B). Saved-reg
+   rotation + rematerialization floor, best nd 125 at 920/928B. */
 // FUN_002E55C0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e55c0);
 
@@ -520,6 +564,19 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
     return 0;
 }
 
+/* measured: structure fully recovered (entry null-check, func_002e5960 and
+   func_002b2cb0((s8)arg2,3,0x63,1,1) with the s16 result spilled to the
+   stack, the 0xC0 i-loop with the iGpffffb3d4+i*14 entry2 checks, the id =
+   (u16)i j-loop over list with found flag, the k-loop via func_002e48a0
+   comparing q[2] against i, the 31e40 check, the count<entry2[3] gate and
+   the two jump-table switches (full-chain *slotp+0x38 conditions) with
+   memset/cad0 and the trailing p->8++) but mwcc b210 assigns the saved
+   registers one slot higher for arg0 ($s7 vs retail $s6), pushing the s16-i
+   temp to $s6 and i*14 to $fp, so arg1 (list) is spilled to the stack and
+   reloaded per j-iteration, and the found flag is kept in a saved register
+   with a single materialization where retail keeps it in $v1 with the
+   post-j-loop sink and the k-join re-materialization. Best nd 73 at
+   936/944B. Saved-reg rotation/spill floor. */
 // FUN_002E6280
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
 
@@ -527,7 +584,72 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6630);
 
 // FUN_002E68B0
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e68b0);
+/* measured: without `opt_loop_invariants on` MWCC keeps the loop2 switch
+   jump-table base (lui/addiu) inside the dispatch instead of hoisting it
+   into the preheader as retail does. */
+#pragma opt_loop_invariants on
+void func_002e68b0(s8 arg0) {
+    u8 **slotp = &D_00882F70[arg0];
+    u8 *entry;
+    u8 *p;
+    u8 **ep;
+    u8 *p2;
+    s32 count2;
+    s16 k;
+    s16 j;
+    u8 *dst;
+    s16 i;
+    s16 idx;
+    s16 arr1[0x100];
+    s16 arr2[0x100];
+
+    entry = *slotp;
+    if (entry == NULL) {
+        return;
+    }
+    ep = (u8 **)(entry + 0x38);
+    p = *(u8 **)(entry + 0x38);
+    for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
+        arr1[k] = k;
+    }
+    func_00440bb8(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6630);
+    j = 0;
+    count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
+    if (count2 > 0) {
+        p2 = *(u8 **)((u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)arg0 * 4) + 0x38);
+        for (; j < count2; j++) {
+            u8 *q;
+
+            idx = arr1[j];
+            switch (*(u32 *)(p2 + 4)) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                q = p2 + ((idx * 3) * 0x10) + 0xA4;
+                break;
+            default:
+                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                break;
+            }
+            arr2[j] = *(u16 *)(q + 2);
+        }
+    }
+    for (i = 0; i < *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8); i++) {
+        dst = p + ((i * 3) * 0x10) + 0x14;
+
+        func_0043f9c8(dst, 0, 0x30);
+        func_0043f810(dst, func_0010fcb0(arr2[i]), 0x30);
+    }
+}
+/* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
+#pragma opt_loop_invariants off
 
 /* measured: structure fully recovered (both jump-table switches with
    {0,2,7,8}->+0x14 / {1,5,6,10}->+0xA4 / default, x = var2[4] loaded at the

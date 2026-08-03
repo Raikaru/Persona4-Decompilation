@@ -90,8 +90,129 @@ extern u16 D_008C024E[];
 extern s32 D_007243D0;
 extern u8 D_007EF9B0[];
 
+extern char D_005F1770[];
+extern char D_005F1780[];
+extern u32 D_007EFA04[];
+extern u8 *func_0047a310(s32);
+extern s32 func_00457c90(u8 *, char *);
+extern s32 func_0014c4c0(u8 *, u8 *, f32);
+extern s32 func_0014a200(void);
+extern s32 func_0014a270(void);
+
 // FUN_00171610
-INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00171610);
+s32 func_00171610(u8 *arg0)
+{
+    s32 *h;
+    u8 *p;
+    u8 *q;
+    s32 cx;
+    s32 cy;
+    s32 flag;
+    s32 t21;
+    s32 t22;
+    s32 cx2;
+    s32 cy2;
+    s32 flag2;
+    s32 t20;
+    s32 t19;
+    s32 t;
+    u8 *o;
+    u8 *o2;
+    FldEventVec3 vec;
+
+    h = *(s32 **)(arg0 + 0x38);
+    p = (u8 *)func_001452b0(0xA);
+    if (func_0014a200() == 0 && func_0014a270() == 0) {
+        return 0;
+    }
+    t = D_007EF9F8[0].x != 0;
+    if (t != 0) {
+        t = D_007EFA04[0] != 0;
+    }
+    if (t == 0) {
+        return 0;
+    }
+    o = (u8 *)func_0047a2f0(D_007EFA00[0]);
+    vec = *(FldEventVec3 *)(o + 0x30);
+    while (p != 0) {
+        if ((*(s32 *)(p + 0x28) & 2) != 0 &&
+            func_00457c90((u8 *)func_0047a310(*(s32 *)(p + 0x144)),
+                          D_005F1770) != 0) {
+            cx = (s32)((600.0f + *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) +
+                                          0x30)) /
+                       1200.0f);
+            cy = (s32)((600.0f + *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) +
+                                          0x38)) /
+                       1200.0f);
+            flag = 0;
+            t21 = cy << 8;
+            t22 = cx * 0x10;
+            if (*(u8 *)((u8 *)func_00155280() + t21 + t22 + 0x5F) & 0xF) {
+                flag = 1;
+            }
+            if (flag == 1 &&
+                !(*(u8 *)((u8 *)func_00155280() + t21 + t22 + 0x5F) & 0xF0)) {
+                o2 = (u8 *)func_0047a2f0(D_007EFA00[0]);
+                if (func_0014bff0(120.0f, o2,
+                                 (u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) + 0x30) !=
+                        0 &&
+                    func_0014c4c0((u8 *)&vec,
+                                  (u8 *)func_0047a2f0(*(s32 *)(p + 0x144)) + 0x30,
+                                  250.0f) == 1) {
+                    h[5] = 1;
+                    if ((D_008C024E[0] & 0x40) != 0) {
+                        D_007243EC = (s32)p;
+                        D_007243E4 = cx;
+                        D_007243E0 = cy;
+                        goto found;
+                    }
+                }
+            }
+        }
+        p = *(u8 **)(p + 0x138);
+    }
+    D_007243EC = 0;
+    D_007243E4 = 0;
+    D_007243E0 = 0;
+    return 0;
+found:
+    q = (u8 *)func_001452b0(0xA);
+    while (q != 0) {
+        if (func_00457c90((u8 *)func_0047a310(*(s32 *)(q + 0x144)),
+                          D_005F1780) != 0) {
+            cx2 = (s32)((600.0f +
+                         *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x30)) /
+                         1200.0f);
+            cy2 = (s32)((600.0f +
+                         *(f32 *)((u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x38)) /
+                         1200.0f);
+            flag2 = 0;
+            t20 = cy2 << 8;
+            t19 = cx2 * 0x10;
+            if (*(u8 *)((u8 *)func_00155280() + t20 + t19 + 0x5F) & 0xF) {
+                flag2 = 1;
+            }
+            if (flag2 == 1 &&
+                !(*(u8 *)((u8 *)func_00155280() + t20 + t19 + 0x5F) & 0xF0)) {
+                o = (u8 *)func_0047a2f0(D_007EFA00[0]);
+                if (func_0014bff0(120.0f, o,
+                                 (u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x30) !=
+                        0 &&
+                    func_0014c4c0((u8 *)&vec,
+                                  (u8 *)func_0047a2f0(*(s32 *)(q + 0x144)) + 0x30,
+                                  250.0f) == 1) {
+                    h[5] = 1;
+                    D_007243E8 = (s32)q;
+                    h[1] = 0;
+                    return 1;
+                }
+            }
+        }
+        q = *(u8 **)(q + 0x138);
+    }
+    func_0046d730(D_005F1798, 0x2F3);
+    return 0;
+}
 // FUN_00171A80
 s32 func_00171a80(s32 arg0)
 {
@@ -348,8 +469,17 @@ s32 func_00171fe0(u8 *arg0)
 ret1:
     return 1;
 }
+/* measured: retail keeps the compaction-loop temps in $a0/$a1/$a2 with -1 hoisted
+   into $v1 before the loop; mwcc b210 re-materializes -1 in $v0 per iteration and
+   allocates var_6/temp_4 to $a0/$v1. Tried 4 declaration orders plus a -1 local,
+   all nd 10. Register-coalescing floor. */
 // FUN_00172360
 INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172360);
+/* measured: retail loads the 0x18DC map base before the index multiply, keeps
+   the loop head and bottom-test loads of h[0x1C] separate, and shares one
+   return-1 block; mwcc b210 inverts the base/index order, CSEs the loop loads,
+   and splits the return blocks. Tried base locals, break-to-shared-return, and
+   3 declaration orders, best nd 152. Load-sinking/coalescing floor. */
 // FUN_001727F0
 INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_001727f0);
 
@@ -357,10 +487,47 @@ INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_001727f0);
 INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172ba0);
 
 // FUN_00172CB0
-INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172cb0);
+s32 func_00172cb0(u8 *arg0)
+{
+    s32 *h;
+    FldEventVec3 vec;
+    u8 *t;
+    s32 r;
+
+    h = *(s32 **)(arg0 + 0x38);
+    if (func_0014a160() == 1) {
+        r = *(s32 *)func_001823c0();
+        if (r != 0) {
+            t = (u8 *)func_0047a2f0(D_007EFA00[0]);
+            vec = *(FldEventVec3 *)(t + 0x30);
+            vec.y += 100.0f;
+            func_0014e740(func_0015c1e0(0), &vec);
+            func_00182310(1);
+            h[1] = 2;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // FUN_00172D80
-INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172d80);
+s32 func_00172d80(u8 *arg0)
+{
+    s32 *h;
+
+    h = *(s32 **)(arg0 + 0x38);
+    if (func_0014a160() == 1) {
+        if (func_0015a160() != 0x9F) {
+            if ((D_008C024E[0] & 0x40) != 0) {
+                h[0xD] = 0;
+                h[0xE] = 0;
+                h[1] = 0;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 // FUN_00172E00
 INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172e00);

@@ -7,7 +7,16 @@ typedef int (*code)(...);
 extern code DAT_008873ec_abs[];
 extern void func_004808b0(int param_1);
 extern void func_0044ea90(u8 *file, s32 line);
+extern void func_0047f850(u8 *param_1, u8 *param_2, f32 param_3, f32 param_4, f32 param_5);
 extern u8 D_00713260[];
+extern u32 D_00713220[];
+
+typedef struct {
+    u32 field_0;
+    u32 field_4;
+    u32 field_8;
+    u32 field_C;
+} MdlFrameDispatch;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
 
@@ -26,7 +35,7 @@ extern u32 func_00480430(u32 param_1,u32 *param_2);
 extern u64 func_003bff30();
 extern u32 func_00480580(u32 param_1,u32 param_2);
 
-extern u32 func_00480670(u32 param_1,u32 *param_2);
+extern u8 *func_00480670(u8 *param_1, u8 *param_2);
 extern void func_003bff30_typed(u64 param_1,void *param_2,void *param_3);
 
 #pragma alias DAT_008873ec_abs DAT_008873ec
@@ -80,20 +89,67 @@ void func_0047fa60(int param_1)
 
 
 // FUN_0047FB50
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fb50);
+u8 *func_0047fb50(u8 **arg0, s32 *arg1)
+{
+    s32 temp_6;
+    s32 var_9;
+    s32 temp_8;
+    u8 *temp_7;
+    u8 *var_2;
+
+    temp_8 = *(u16 *)(arg1 + 1);
+    var_2 = (u8 *)(*arg0);
+    while (var_2 != NULL) {
+        temp_7 = (u8 *)(*(u8 **)(var_2 + 0x50));
+        if (temp_7 == (u8 *)arg1) {
+            return var_2;
+        }
+        if (*(u16 *)(temp_7 + 4) == temp_8) {
+            var_9 = 0;
+            while (var_9 < temp_8) {
+                temp_6 = (var_9 & 0xFFFF) * 4;
+                if (*(u32 *)(*(u8 **)temp_7 + temp_6) == *(u32 *)(*(u8 **)arg1 + temp_6)) {
+                    var_9 += 1;
+                } else {
+                    break;
+                }
+            }
+            if (var_9 == temp_8) {
+                return var_2;
+            }
+        }
+        var_2 = (u8 *)(*(u8 **)(var_2 + 0x54));
+    }
+    return NULL;
+}
 
 
 
+/* measured: retail colors node-ptr temp_16 -> $s0 and D-table entry temp_17 -> $s1;
+   mwcc b210 always colors the entry pointer $s0 and node pointer $s1, and swaps the
+   apply-call move/lw order, no matter the declaration order (7 orders tried, nd 12..70,
+   best 12). Saved-register identity coloring floor. */
 // FUN_0047FBF0
 INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fbf0);
 
 
 
+/* measured: retail colors node-ptr temp_16 -> $s0 and D-table entry temp_17 -> $s1;
+   mwcc b210 always colors the entry pointer $s0 / node pointer $s1 (identity-based,
+   decl-order independent), and then swaps the apply-call move/lw order. With the
+   correct 4-arg interleaved create prototype everything else matches; best nd 10.
+   Same pair wall as FUN_0047FBF0 / FUN_0047FE90. */
 // FUN_0047FD10
 INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fd10);
 
 
 
+/* measured: retail colors node-ptr temp_16 -> $s0 and D-table entry temp_17 -> $s1;
+   mwcc b210 always colors the entry pointer $s0 / node pointer $s1 no matter the
+   declaration order (10 orders tried, best nd 11), and swaps the apply-call move/lw
+   order as a consequence. Correct create prototype is 4-arg interleaved
+   (u8*,f32,u8*,f32) with temp_4_2 as first arg (already in $a0 from the guard check);
+   with that, everything else matches. Same pair wall as FUN_0047FBF0/FUN_0047FD10. */
 // FUN_0047FE90
 INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fe90);
 
@@ -161,12 +217,44 @@ void func_0047ffc0(int *param_1)
 
 
 // FUN_00480060
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_00480060);
+f32 func_00480060(u8 **arg0)
+{
+    f32 var_f0;
+    f32 temp_f1;
+    u8 *var_5;
+    u32 var_4;
+
+    var_f0 = 0.0f;
+    var_5 = (u8 *)(*arg0);
+    while (var_5 != NULL) {
+        var_4 = 0;
+        while (var_4 < 4U) {
+            if (*(s32 *)(var_5 + var_4 * 0x10 + 0xC) != 0) {
+                temp_f1 = *(f32 *)(var_5 + var_4 * 0x10 + 4);
+                if (temp_f1 > var_f0) {
+                    var_f0 = temp_f1;
+                }
+            }
+            var_4 += 1;
+        }
+        var_5 = (u8 *)(*(u8 **)(var_5 + 0x54));
+    }
+    return var_f0;
+}
 
 
 
+/* measured: best C (m2c-style loop + batched u8/f32 copies + old-style externs for the
+   u64-param calls func_00480800/00480840/00480630 with (u32) casts) reaches nd 103;
+   retail allocates args $s5..$s2 + bVar5 $s6 with var_17 at $s1, mwcc b210 always puts
+   the args one reg lower ($s4..$s1, bVar5 $s5, var_17 last) no matter the declaration
+   order, and the search loop's exit-edge NULL plus the lbu/lwc1 copy register rotation
+   resist all loop spellings (while+break, if/else, goto-found, m2c goto: nd 103..149).
+   P3 twin FUN_00320880 is NONMATCHING for the same family. */
 // FUN_004800D0
 INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_004800d0);
+
+
 
 // FUN_00480430
 u32 func_00480430(u32 param_1,u32 *param_2)
@@ -248,6 +336,13 @@ u64 func_00480630(u64 param_1,u64 param_2)
 
 
 
+/* measured: retail stores the s128-returning func_003bcfb0/func_003bd060 results with
+   sq and reloads them with lq, then compares raw (lq $v0; slt $v0, $s0, $v0). The sq/lq
+   side matches with u_long128/u64 locals + aliased s128-returning externs, but mwcc b210
+   ALWAYS emits a dsll32/dsra32 sign-extension for the mixed-width loop compare that
+   retail lacks (tried s128 signed/unsigned, u64, u_long128; direct, (s32)/(s64)/(u32)
+   casts; s32/u32/s64 counters; 8 decl orders; best nd 38). Same wall as P3 FUN_00320de0
+   (W414, nd17). Also a 3-way saved-reg rotation (var_18/var_17/temp_2). */
 // FUN_00480670
 INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_00480670);
 

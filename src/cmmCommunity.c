@@ -358,9 +358,17 @@ s32 func_00107930(s32 arg0)
     return 0;
 }
 
+/* measured: same slot-search floor as func_001075d0: retail's found-exit is
+   bne->advance; b found, jumping to a shared NULL-retest tail; mwcc b210
+   merges the goto spelling into a single beq->found (nd 24) and the
+   return-then spelling inlines the found lw/and block into the loop instead
+   of the shared retest tail (nd 25). Branch-shape floor. */
 // FUN_00107A00
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107a00);
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
+   Branch-shape floor. */
 // FUN_00107AC0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ac0);
 
@@ -383,8 +391,23 @@ s32 func_00107b70(void)
     return 0;
 }
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
+   Branch-shape floor. */
 // FUN_00107BD0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107bd0);
+
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
+   Branch-shape floor. */
+// FUN_00107CE0
+INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ce0);
+
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
+   Branch-shape floor. */
+// FUN_00107DC0
+INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107dc0);
 
 // FUN_00107C80
 s32 func_00107c80(void)
@@ -405,12 +428,6 @@ s32 func_00107c80(void)
     return 0;
 }
 
-// FUN_00107CE0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ce0);
-
-// FUN_00107DC0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107dc0);
-
 // FUN_00107EA0
 s32 func_00107ea0(void)
 {
@@ -430,9 +447,15 @@ s32 func_00107ea0(void)
     return 0;
 }
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
+   Branch-shape floor. */
 // FUN_00107F00
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107f00);
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
+   Branch-shape floor. */
 // FUN_00107FE0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107fe0);
 
@@ -444,6 +467,9 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107fe0);
 // FUN_001080C0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001080c0);
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 151
+   (loop floor plus tail register-allocation noise). Branch-shape floor. */
 // FUN_00108290
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108290);
 
@@ -457,12 +483,23 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108290);
 // FUN_00108590
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108590);
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 60
+   (loop floor plus tail noise). Branch-shape floor. */
 // FUN_001087E0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001087e0);
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
+   (loop floor plus tail noise). Branch-shape floor. */
 // FUN_00108950
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108950);
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 18
+   (tail matched; s16 arg1 variant only differs by mwcc's post-jal
+   re-extension, nd 47 with s32 arg1 from assert-block scheduling).
+   Branch-shape floor. */
 // FUN_00108B60
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108b60);
 
@@ -553,6 +590,10 @@ u16 func_00108ee0(void)
     return D_0079740C[0];
 }
 
+/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
+   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
+   (loop floor; the descending switch and call loop match otherwise).
+   Branch-shape floor. */
 // FUN_00108EF0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108ef0);
 

@@ -240,6 +240,18 @@ void func_004a4380(u8 *arg0)
 }
 #pragma opt_loop_invariants off
 
+/* measured: structure converges exactly onto retail's shape (preheader
+   hoists, both loops, conversion blocks) but mwcc b210 keeps the
+   negative-conversion `or` result in the SECOND operand's register
+   (`or $t1,$t2,$t1`) where retail keeps the FIRST (`or $t2,$t2,$t1`) at
+   both conversion sites (4 words) — same coalescing floor as
+   func_004A30E0 (exhaustively documented there). Also a second floor:
+   the 2^31 clamp emits `c.olt.s $f0,$f1; bc1t->else` for every spelling
+   tried (const-first, m2c-inverted, +opt_propagation off which was
+   worse, nd 94) vs retail's `c.ole.s $f1,$f0; bc1t->then`. Attempts:
+   inline u32 cast nd 181 (mwcc recursively re-applies its sign idiom to
+   the inner cast), named s32 intermediate nd 161, s32 loop counter
+   nd 47 (converged), probe batch best nd 48. */
 // FUN_004A4450
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a4450);
 
