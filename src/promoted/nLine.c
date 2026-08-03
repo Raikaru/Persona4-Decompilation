@@ -3,6 +3,14 @@
 /* Original translation unit nLine.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
+typedef struct {
+    f32 lo;
+    f32 hi;
+} SP68T;
+
+static inline f32 addF(f32 a, f32 b) { return a + b; }
+
+
 extern void (*D_00887310[])(s32, void *, s32);
 extern void (*D_00887300[])(s32, s32);
 extern s32 D_00882FC0[];
@@ -34,6 +42,10 @@ extern s16 iGpffffb5a4;
 extern char iGpffffa950;
 /* gp - 0x56B8 = 0x00723A38, GP-relative name string. */
 extern char iGpffffa958;
+/* gp - 0x7F6C = 0x00761184, GP-relative f32. */
+extern f32 iGpffff8094;
+/* gp - 0x7DE0 = 0x00761310, GP-relative f32. */
+extern f32 iGpffff8220;
 
 void func_0034b8d0(void);
 void func_0034b950(void);
@@ -61,6 +73,14 @@ void func_0043f9c8(void *dest, s32 value, s32 size);
 void func_0034edc0(void);
 
 void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
+void func_0034d040(u8 *arg0);
+void func_0034d070(u8 *arg0, s32 arg1);
+void func_0034d280(u8 *arg0, s32 arg1);
+void func_0034d490(u8 *arg0, s32 arg1);
+void func_0034d690(u8 *arg0, s32 arg1);
+void func_0034d890(u8 *arg0, s32 arg1);
+void func_0034ddf0(u8 *arg0, s32 arg1);
+void func_0034db60(u8 *arg0, s32 arg1, f32 fparg0);
 
 
 
@@ -354,6 +374,12 @@ void func_0034d040(u8 *arg0) {
 
 // FUN_0034D070
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d070);
+/* measured: retail keeps the loop counter in $a2 (arg1/arg0 live across the
+   loops, address scratch in $v0/$v1); mwcc b210 always colors the counter
+   $v0 and the scratch $v1/$a2, swapping every loop word, nd 36. Tried decl
+   orders, u32 counter, hoisted idx local, opt_loop_invariants (fixes the
+   640.0f preheader hoist, nd 48 -> 36) — best identical nd 36. Same defect
+   pattern in func_0034d280/d490/d690. Register-coloring floor. */
 
 // FUN_0034D280
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d280);
@@ -366,6 +392,16 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d690);
 
 // FUN_0034D890
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);
+/* measured: three compounding mwcc b210 defects vs retail, nd 159. (1) The
+   clamp comparison: only `prod < 2.1474836e9f` gives retail's layout (cvt
+   inline, sub out of line) but mwcc then encodes c.olt.s prod,const + bc1f
+   where retail has c.ole.s const,prod + bc1t (same family as func_0034c500).
+   (2) `y + 448.0f` repeated in calls 2+3 is CSE'd into a saved $f22 across
+   the calls (6 saved FP vs retail's 5, $f24/$f25 cascade); retail re-issues
+   lui/mtc1/add.s per call; operand reversal does not break mwcc's CSE.
+   (3) alpha/clamp byte chains color $v0 where retail uses $v1, plus the
+   bltz delay slot stays nop vs retail's mtc1. Register-coloring + CSE
+   + comparison-shape floor. */
 
 // FUN_0034DB60
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);

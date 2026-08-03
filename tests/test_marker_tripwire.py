@@ -39,11 +39,11 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """4862 tracked markers across first-party src/.  Bump deliberately.
+        """4863 tracked markers across first-party src/.  Bump deliberately.
 
-        3,073 are decompiled C; the rest are INCLUDE_ASM fallbacks placed by the
-        __FILE__-driven translation-unit recovery, which gave every function a
-        real source file to live in.
+        Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
+        unit recovery, which gave every function a real source file to live in;
+        the rest are decompiled C.
 
         Was 4865 until g_data.c was found carrying three functions whose
         `// FUN_` marker line was duplicated (FUN_001055A0, FUN_00106020,
@@ -51,11 +51,17 @@ class MarkerCountTripwireTests(unittest.TestCase):
         functions and reported NO_SYMBOL because only the second copy had a
         body; removing them lowers the count by exactly three without losing a
         single function.
+
+        Raised to 4863 when k_fldUnit.c was found carrying `}// FUN_00166600` --
+        a marker sharing a line with the previous function's closing brace, so
+        the scanner never saw it and func_00166600 was invisible to the
+        verifier. Splitting it onto its own line exposes a function that was
+        always there; nothing was added.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            4862,
+            4863,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:
