@@ -110,6 +110,13 @@ s32 func_0035c810(u8 *arg0) {
     return (s32)((*(u8 **)((s8 *)arg0 + 0x38))[4] & 2) != 0;
 }
 
+/* measured: four 16-bit-counter loops (var_3/var_6/var_16/var_16_2) keep
+   sign-extending via dsll32/dsra32. Retail places the sign-extension in the
+   loop CONDITION and reuses $v0 in the body; b210 re-sign-extends the counter
+   at the top of each body (extra 8B/loop) and allocates arg0 to $s1 instead
+   of retail's $s2. s16-while (nd 131), s64-(s64)(x<<0x30)>>0x30-if+goto
+   (bgtz/daddiu 64-bit ops, nd >200), and s64-while(1)+break all diverge.
+   s16 counter loop sign-extension placement + register allocation floor. */
 // FUN_0035C830
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035c830);
 
@@ -142,6 +149,13 @@ s32 func_0035cab0(u8 *arg0, s32 idx, s32 val) {
 // FUN_0035CB00
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cb00);
 
+/* measured: converged to nd 5 (2 `!` rows) -- the middle section's
+   arg1*4+arg0 / arg1*2+arg0 addu operand order. Retail emits $addu
+   $v1,$v0,$s3 (index-first); b210 emits base-first unless the index is a
+   named local, but a named local spanning the func_0035cc80/0045af60 calls
+   forces a 5th saved register (frame -0x60 vs retail -0x50). Named local at
+   top only + inline writes leaves the 2 addu ops base-first. addu operand
+   order + liveness floor. */
 // FUN_0035CC80
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cc80);
 
@@ -255,6 +269,13 @@ void func_0035dd40(u8* arg0) {
     }
 }
 
+/* measured: retail stores the s16 then sign-extends in place ($sh $v1 /
+   dsll32/dsra32 $v1) and loads the 0xA constant before the `sll var_2` in
+   the loop; b210 sign-extends into a copy $v0 before the store and does the
+   `sll` before the constant load. Tried natural form, (s64)(x<<0x30)>>0x30
+   for both, and #pragma schedule on (flips store order but defers move $s3
+   and uses $v0) -- all nd >= 61. Store/signextend ordering + constant
+   materialization floor. */
 // FUN_0035DDF0
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035ddf0);
 

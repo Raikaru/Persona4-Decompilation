@@ -62,7 +62,7 @@ void func_002baac0(s32 param);
 void func_002bad10(s32 param);
 void func_002bb4e0(void);
 s32 func_00353f50(s32 param);
-extern void func_0021f790();
+extern s32 func_0021f790(u8 *arg0);
 
 typedef struct BtlResultSubWork BtlResultSubWork;
 struct BtlResultSubWork
@@ -85,6 +85,13 @@ struct BtlResultSubWork
 // FUN_0021ED10
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ed10);
 
+/* measured: retail frame -0x60 with arg0 in s3 and loop vars in s0/s1/s2 +
+   f20 (4 saved int regs); mwcc b210 allocates arg0 to s4 (5 saved int regs),
+   frame -0x70, and the object is 68B short of the 976B window (908B) with
+   loop-2 store-address scheduling and the bltz float conversion emitted
+   differently. Tried: store-addr hoisted vs in-branch, bltz recipe (s32
+   value, u32 shift copy, f=f+f doubling), declaration orders; frame and
+   register rotation persist. Register-coloring/frame floor. */
 // FUN_0021EF70
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ef70);
 
@@ -98,15 +105,44 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ef70);
 // FUN_0021F340
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f340);
 
+/* measured: retail case 1 loads/increments/stores/masks work[0x3C] in one
+   register ($v0: addiu/sh/andi before slti 4); mwcc b210 keeps the raw value
+   in $v1 and the mask in $v0, scheduling andi before sh (nd 3, rest
+   byte-identical incl. the 6-entry jtbl_007476A0 switch, all distinct cases).
+   Tried: u16/u32/s32 temps, explicit v&=0xFFFF statement, store-masked vs
+   store-raw, in-place increment, function-level local, s16/s32 casts; all
+   give the identical 3-word scheduling rotation. Scheduling floor. */
 // FUN_0021F520
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f520);
 
+/* measured: retail case 5/6 loads/increments/stores/masks work[0x3C] in one
+   register ($v0: addiu/sh/andi before slti 5); mwcc b210 keeps the raw value
+   in $v1 and the mask in $v0, scheduling andi before sh (nd 3, rest
+   byte-identical incl. the 8-entry jtbl_007476C0 switch, all distinct cases,
+   the case 1->2 fallthrough and case 5->6 fallthrough). Tried: u16/u32/s32
+   temps, explicit mask statement, store-masked vs store-raw, comma-operator
+   short-circuit, s16/s32 casts; all give the identical 3-word rotation.
+   Same scheduling floor as 21f520 case 1. */
 // FUN_0021F790
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f790);
 
+/* measured: retail uses FPU multiply-accumulate idiom (adda.s $f3,$f2 /
+   madd.s $f1,$f0,$f1 fused lerp, plus neg.s for the -0x7E20 case) that m2c
+   cannot lower (M2C_ERROR on 4 sites), and two bltz float-conversion guards
+   on (func_003b7060() & 0xFFF) / (x & 0xFFF)*0xD6. The $f0 accumulate chain
+   (mtc1 $0,$f3; adda.s; madd.s = f0*(b-a)+a) has no plain-C spelling that
+   emits the fused pair; the bltz guards are the same 21f520/21f790 mask
+   floor. FPU-MAC + bltz scheduling floor. */
 // FUN_0021FA40
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
 
+/* measured: 5680B retail window; m2c cannot lower the FPU multiply-accumulate
+   idiom (adda.s $f0,$f3 / madd.s $f1,$f2,$f1 fused lerp in the loop_26
+   quadword color path) and the body is dominated by dozens of D_00887300
+   render-vtable calls, the (f32)(s32) range-guard idiom (0x4F000000 checks,
+   bltz floor family), s64 bitwise byte extractions, and 3 nested loops.
+   M2C_ERROR + bltz/range-guard + vtable-hoist floor; not attempted at this
+   scale. */
 // FUN_0021FEA0
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fea0);
 

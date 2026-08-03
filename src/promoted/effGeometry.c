@@ -34,6 +34,7 @@ extern s32 iGpffffb610;
 extern s32 func_003a2340();
 extern u8 D_00713460[];
 extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void func_003c2130();
 extern void func_003c2150();
 extern void func_003c2290();
 extern void func_003c22f0();
@@ -57,6 +58,8 @@ typedef struct RwMatrix
     RwV3d pos;     // 0x30
     u32 pad3;      // 0x3c
 } RwMatrix;
+
+typedef signed __int128 s128;
 
 void func_00483700(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0);
 void func_003e9cb0(void *frame, void *matrix, u32 flags);
@@ -104,11 +107,59 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
     return p;
 }
 
+/* measured floor: retail reuses $s0 (arg3) for var_16 and $s1 (arg0) for var_17
+   after func_00482c40; mwcc b210 assigns var_16=$s1, var_17=$s2 (shifted by one)
+   regardless of declaration order, because it cannot reuse the dead arg registers
+   for the loop counters. Tried 8 declaration orders + mask pre-hoisting, nd 85. */
 // FUN_00482DC0
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00482dc0);
 
 // FUN_00482F70
-INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00482f70);
+u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_22;
+    s32 temp_3;
+    u8 *temp_21;
+    u8 *var_20;
+    s32 var_19;
+    s32 var_18;
+    s32 var_17;
+    u8 *temp_2;
+    u8 *temp_3_2;
+    u8 *spCC;
+    s32 spB0;
+    s32 spA0;
+
+    temp_17 = arg2 & 0xFFFF;
+    if (temp_17 < 2) {
+        func_0046d730(D_00713448, 0x7F);
+    }
+    temp_3 = arg1 & 0xFFFF;
+    spA0 = temp_3 * 3;
+    temp_16 = arg0 & 0xFFFF;
+    temp_2 = (u8 *)func_00482c40(temp_16 * temp_17, temp_16 * temp_3, arg4);
+    temp_21 = *(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18);
+    spB0 = *(s32 *)(temp_2 + 0x14);
+    spCC = temp_2;
+    var_20 = *(u8 **)(temp_21 + 0x2C);
+    var_17 = 0;
+    var_19 = 0;
+    while (var_19 < temp_16) {
+        var_18 = 0;
+        temp_22 = var_17 & 0xFFFF;
+        while (var_18 < spA0) {
+            temp_3_2 = (u8 *)(arg3 + (var_18 * 2));
+            func_003c2130(temp_21, var_20, (temp_22 + *(u16 *)(temp_3_2 + 0)) & 0xFFFF, (temp_22 + *(u16 *)(temp_3_2 + 2)) & 0xFFFF, (temp_22 + *(u16 *)(temp_3_2 + 4)) & 0xFFFF);
+            func_003c2150(temp_21, var_20, spB0);
+            var_20 += 8;
+            var_18 += 3;
+        }
+        var_17 = (var_17 + arg2) & 0xFFFF;
+        var_19 += 1;
+    }
+    return spCC;
+}
 
 // FUN_004830F0
 u8 *func_004830f0(u16 arg0, s32 arg1) {
@@ -139,6 +190,10 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
     return p;
 }
 
+/* measured floor: retail allocates arg0=$s2, var_17=$s1, var_20=$s4; mwcc b210
+   assigns arg0=$s1, var_17=$s4, var_20=$s2 regardless of declaration order
+   (parameter register + result register rotation). Tried 5 declaration orders,
+   nd 72. */
 // FUN_00483270
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483270);
 
@@ -343,11 +398,75 @@ void func_004839d0(int param_1, u32 *param_2)
   return;
 }
 
+/* measured floor: retail allocates arg0=$s4, temp_22=$s6, temp_21=$s5, var_16=$s0
+   and places spCC at 0xcc; mwcc b210 assigns arg0=$s6 (rotated) and spCC at 0xdc
+   (stack layout shifted by the f32 spDC + sq slots). Tried 3 declaration orders
+   and u32 args, nd 108. */
 // FUN_00483A00
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483a00);
 
 // FUN_00483C40
-INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483c40);
+u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+    s32 temp_16;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_3_2;
+    s32 temp_23;
+    s32 temp_22;
+    u8 *temp_21;
+    u8 *var_20;
+    s32 var_19;
+    s32 var_18;
+    s32 var_17;
+    s32 var_16;
+    s32 spEC;
+    u8 *spE8;
+    s32 spD0;
+    s32 spC0;
+    s32 spB0;
+    u8 *spA0;
 
+    spEC = arg4;
+    temp_16 = arg3 & 0xFFFF;
+    if (temp_16 < 2) {
+        func_0046d730(D_00713448, 0x20D);
+    }
+    temp_3 = arg2 & 0xFFFF;
+    spD0 = temp_3 * 3;
+    temp_22 = arg1 & 0xFFFF;
+    temp_2 = (u8 *)func_00483a00(arg0, (temp_22 * temp_16) & 0xFFFF, (temp_22 * temp_3) & 0xFFFF, arg5);
+    spE8 = temp_2;
+    temp_21 = *(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18);
+    spC0 = *(s32 *)(temp_2 + 0x54);
+    var_20 = *(u8 **)(temp_21 + 0x2C);
+    var_16 = 0;
+    var_17 = 0;
+    spB0 = arg0 & 0xFFFF;
+    while (var_17 < spB0) {
+        var_19 = 0;
+        spA0 = (u8 *)(spC0 + (var_17 * 4));
+        while (var_19 < temp_22) {
+            var_18 = 0;
+            temp_23 = var_16 & 0xFFFF;
+            while (var_18 < spD0) {
+                temp_3_2 = (u8 *)(spEC + (var_18 * 2));
+                func_003c2130(temp_21, var_20, (temp_23 + *(u16 *)(temp_3_2 + 0)) & 0xFFFF, (temp_23 + *(u16 *)(temp_3_2 + 2)) & 0xFFFF, (temp_23 + *(u16 *)(temp_3_2 + 4)) & 0xFFFF);
+                func_003c2150(temp_21, var_20, *(s32 *)spA0);
+                var_20 += 8;
+                var_18 += 3;
+            }
+            var_16 = (var_16 + arg3) & 0xFFFF;
+            var_19 += 1;
+        }
+        var_17 += 1;
+    }
+    return spE8;
+}
+
+/* measured floor: retail keeps arg1=$s1, arg0=$s2, arg4=$s0 and masks the arg1
+   check into $v0; mwcc b210 hoists arg1&0xFFFF into $s0 (rotating the arg
+   registers to arg0=$s3, arg1=$s0, arg4=$s2) regardless of declaration order
+   or type-mismatch on the check. Tried 3 declaration orders, pre-hoisting and
+   type-mismatch, nd 110. */
 // FUN_00483E10
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483e10);

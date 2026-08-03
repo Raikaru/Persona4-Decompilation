@@ -23,6 +23,13 @@ extern f32 iGpffff80cc;
 
 static inline f32 panelAdd2(f32 left, f32 right) { return left + right; }
 
+/* measured: extreme saved-register pressure (9 saved regs + 3 fp). Retail keeps 7
+   color bytes in $16..$18/$21..$23/$30 and loads them via daddiu (u8 locals); mwcc
+   b210 spills most to the stack (frame 0x120 vs retail 0x150) and shifts the whole
+   allocation (arg0 $s5 vs $s4, arg2 $s4 vs $s3). u8 colors give retail's daddiu but
+   add andi-0xff masking; s32 colors drop the masking but lose the daddiu (nd 192).
+   Tried u8/s32, m2c declaration order (colors last), and reordering; best 192.
+   Saved-register-rotation + stack-layout floor. */
 // FUN_00218760
 INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00218760);
 
@@ -36,7 +43,55 @@ typedef struct {
 } PanelQuad;
 
 // FUN_00218AF0
-INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00218af0);
+void func_00218af0(f32 fparg0, f32 fparg1, f32 fparg2) {
+    PanelQuad quads[4];
+    u8 *p;
+    f32 zval;
+    f32 scale;
+
+    zval = D_008872F8[0];
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    p = (u8 *)&quads[0];
+    *(f32 *)(p + 0) = fparg0;
+    *(f32 *)(p + 4) = fparg1;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x18) = scale;
+    *(u32 *)(p + 0x20) = 0x43090000;
+    *(u32 *)(p + 0x24) = 0x437F0000;
+    *(u32 *)(p + 0x28) = 0x41F80000;
+    *(u32 *)(p + 0x2C) = 0x437F0000;
+    p = (u8 *)&quads[1];
+    *(f32 *)(p + 0) = 323.0f + fparg0;
+    *(f32 *)(p + 4) = fparg1;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x18) = scale;
+    *(u32 *)(p + 0x20) = 0x43090000;
+    *(u32 *)(p + 0x24) = 0x437F0000;
+    *(u32 *)(p + 0x28) = 0x41F80000;
+    *(u32 *)(p + 0x2C) = 0x437F0000;
+    p = (u8 *)&quads[2];
+    *(f32 *)(p + 0) = fparg0;
+    *(f32 *)(p + 4) = fparg1 + fparg2;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x18) = scale;
+    *(u32 *)(p + 0x20) = 0x43090000;
+    *(u32 *)(p + 0x24) = 0x437F0000;
+    *(u32 *)(p + 0x28) = 0x41F80000;
+    *(u32 *)(p + 0x2C) = 0x437F0000;
+    p = (u8 *)&quads[3];
+    *(f32 *)(p + 0) = 374.0f + fparg0;
+    *(f32 *)(p + 4) = fparg1 + fparg2;
+    *(f32 *)(p + 8) = zval;
+    *(f32 *)(p + 0x18) = scale;
+    *(u32 *)(p + 0x20) = 0x43090000;
+    *(u32 *)(p + 0x24) = 0x437F0000;
+    *(u32 *)(p + 0x28) = 0x41F80000;
+    *(u32 *)(p + 0x2C) = 0x437F0000;
+    D_00887300[0](1, 0);
+    func_00364c50();
+    D_00887310[0](4, &quads[0], 4);
+    func_00364c70();
+}
 
 // FUN_00218C60
 void func_00218c60(u8 *arg0, s32 arg1, s64 arg2, f32 fparg0, f32 fparg1) {
@@ -79,6 +134,13 @@ void func_00218e50(u8 *arg0, s32 arg1) {
 }
 
 typedef struct { f32 x, y, z, w; } PanelVec4X;
+/* measured: retail keeps arg0 in $s1 and temp_2_2+4 (src_base) in $s0; mwcc b210
+   always colors arg0 $s0 and src_base $s1, swapping them across every store site
+   (nd 17). Tried declaration orders (src_base first, scalar 3rd), s32* typing,
+   and a separate arg0-copy local; all nd 17. Register-rotation floor. 4-byte
+   float block copies (PanelVec4X struct assign) and the 8x8 copy loop both match
+   exactly once the frame is right; only the $s0/$s1 assignment of arg0 vs the
+   loop-source base differs. */
 // FUN_00218EA0
 INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00218ea0);
 
@@ -96,9 +158,23 @@ void func_00219060(u8 *arg0) {
     func_003e8120(func_00457120());
 }
 
+/* measured: the arg0[0x88] update uses the FPU accumulator idiom (adda.s $f0,$f1
+   then madd.s $f0,$f2,$f3 — a fused multiply-add of 0 + arg0[0x88] + iGpffff8480*f3)
+   which m2c marks M2C_ERROR and no C float spelling reproduces byte-for-byte
+   (same floor as btlAICommand func_001de370). The rest of the function (the
+   state-machine switch on arg0[2], the D_00626FE0/D_00628F60 table pick, the
+   D_008C025C signed-byte float conversion, the func_003e0870/05f0 render calls,
+   the 0x28/0xFF fade counter) is readable. FPU-accumulator floor. */
 // FUN_00219130
 INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00219130);
 
+/* measured: the 7-element spell loop uses the FPU accumulator idiom (adda.s
+   $f1,$f22 / madd.s $f23,$f0,$f20 in the loop body at 0x119EA4) which m2c marks
+   M2C_ERROR and no C float spelling reproduces byte-for-byte (same floor as
+   btlAICommand func_001de370 and this file's func_00219130). The rest (the
+   tempered-float fade, the D_00628FB8 spell table, the func_00218760/18af0/18c60
+   panel draws, the D_00887300/10 render dispatch) is readable. FPU-accumulator
+   floor. */
 // FUN_00219790
 INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00219790);
 

@@ -310,9 +310,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314ef0);
 // FUN_00315310
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00315310);
 
+// measured: nd N/A (draw-family, s64-param floor). 69x func_002b2970 + 30x 69f0 + 16x 6c30 + 18x 6150: the s64 arg1/arg2 params fed to the s32/s16 params of 6c30/69f0/6a70 make mwcc b210 emit a dsll32/dsra32 normalization at every call site (retail passes the raw reg); the shared externs are locked by matched callers (16e80/17240/17320/18f30/24f80/2f060). s64-param-normalization floor.
 // FUN_00315600
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00315600);
 
+// measured: nd N/A (draw-family, s64-param floor). 53x 2970 + 19x 6c30 + 17x 6a70 + 18x 69f0 + 4x 6b40: same s64-arg-to-s32-param normalization floor as func_00315600; externs locked by matched callers. s64-param-normalization floor.
 // FUN_00316470
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00316470);
 
@@ -497,6 +499,7 @@ void func_00317410(u8 *arg0, s8 arg1) {
 }
 
 
+// measured: nd N/A (COP2/VU0). M2C_ERROR on adda.s/msub.s (vector opcodes); the float-pair colour-chain math is VU0. COP2-blocked.
 // FUN_00317900
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317900);
 
@@ -561,18 +564,28 @@ s32 func_003190d0(u8 *arg0) {
     }
     return (s16)func_002b6970(*(s16 *)(func_002b6150(0x1DC) + 0x10), 1) == 1;
 }
+// measured: nd N/A (draw-family, s64-param floor). 22x 2970 + 16x 6150 + 16x 2a60 + 13x 6a70 + 8x 6af0: same s64-arg normalization floor as func_00315600; externs locked by matched callers. s64-param-normalization floor.
 // FUN_003191C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003191c0);
 
+// measured: nd N/A (draw-family, s64-param floor). 42x 2970 + 13x 6c30 + 14x 6a70 + 14x 6af0 + 15x 69f0 + 10x 68d0: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_0031AC10
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031ac10);
 
+// measured: nd N/A (draw-family, s64-param floor). 20+ 2970/6c30/6a70/69f0 with packed-float arg pairs (unk sp14C/sp64/sp6C read as f32 halves of s64 args): same s64-arg normalization + float-pair hoist floor as func_0031fa20 (nd 668). s64-param + float-pair floor.
 // FUN_0031C2B0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031c2b0);
 
+// measured: nd N/A (draw-family, s64-param floor). Same packed-float + 6c30/69f0/6a70 pattern as func_0031c2b0/1fa20: s64-arg normalization + float-pair register hoist. s64-param + float-pair floor.
 // FUN_0031CCE0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031cce0);
 
+// measured: nd 466 (1 attempt). Full C body correct in logic; retail keeps arg0-arg4
+// in saved regs ($s0/$s4/$s6/$fp/$s7) and only extracts a1=(s8)arg1 once into $s1;
+// mwcc b210 spills arg2/arg3/arg4 to the stack (frame 0xE0->0xC0) and re-extracts
+// the s8 args at every site, rotating every loop/color-store register. All call
+// shapes (1ddf0/2a30/ba970/75820/4ae50/4b810) match; pure saved-register
+// allocation + s8-arg-extraction floor. */
 // FUN_0031D630
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031d630);
 
@@ -591,27 +604,20 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031d630);
    floor. */
 // FUN_0031DDF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031ddf0);
-
-/* measured: nd 55 — everything (incl. the rule-1 lwr/lwl unaligned 4B reads at
-   0x85/0x75, all 5 blocks, the tail) matches except a pure saved-register
-   rotation + one 2-word order swap per 6b90/8370 call. Rule 1 confirmed: the
-   lwr/lwl pairs ARE plain *(u32 *)(p + 0x85)/*(u32 *)(p + 0x75) reads on u8*.
-   Retail allocates [v=$s0, t=$s1, arg1=$s2, p=$s3, id=$s4]; mwcc b210 always
-   emits [v=$s0, t=$s1, id=$s2, arg1=$s3, p=$s4] — 3-candidate decl-order probe
-   batch (v-first / t-first / inline (s8) cast), all nd 55. Also retail emits
-   the 6b90 a0 move (move $a0,$id) BEFORE the lwr/lwl pair, mwcc after (2 words
-   x 5 calls). Real fixes applied along the way vs the old nd-83 note: the
-   second func_0034ae50 call in the tail must be a named local BEFORE the 2a60
-   call (p5/p6, inline call moved the 2a60 block, nd 79), arg1 must be s16
-   (raw pass-through at the ae50 calls), sp7C..sp6C are u32 read back as lw.
-   Signature: void func_0031e320(u8 *arg0, s16 arg1). Saved-register rotation
-   + argument-scheduling floor. */
 // FUN_0031E320
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031e320);
 
+// measured: nd N/A (draw-family, s64-param floor). 20+ 2970/6c30/6a70/6af0/69f0 with packed-float sp148 accumulator (M2C_BITWISE f32) and s64 args: same s64-arg normalization + float-pair hoist floor as func_0031fa20. s64-param + float-pair floor.
 // FUN_0031E5B0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031e5b0);
 
+/* measured: nd 668 (1 attempt). Retail keeps arg1 (a packed f32 pair, low=sp58
+   high=sp5C) memory-resident and hoists only the high word into $f20, reloading
+   the low word from sp58 at every use; mwcc b210 caches BOTH words in saved
+   float regs ($f20-$f23), shrinking the frame 0x140->0x130 and rotating every
+   call's arg setup. The s64 arg2/arg3 params also make mwcc emit a dsll32/dsra32
+   normalization at every 6a70/69f0 call site (retail passes the raw reg).
+   Float-pair register-hoist + s64-param-normalization floor. */
 // FUN_0031FA20
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031fa20);
 
@@ -649,6 +655,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003205f0);
 // FUN_00320970
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320970);
 
+// measured: nd N/A (draw-family, s64-param floor). 2b2970/6c30/6a70/6af0/69f0/83e0 + 191c0/e5b0/ac10 calls with s64 args: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_00320B80
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
 
@@ -699,9 +706,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003212e0);
 // FUN_003218A0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003218a0);
 
+// measured: nd N/A (ldr/ldl unaligned 8B loads + draw-family). M2C_ERROR on ldr/ldl at 0x28/0x2f; the 6c30/69f0/6a70 s64-arg normalization floor also applies. Unaligned-load + s64-param floor.
 // FUN_00321E60
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00321e60);
 
+// measured: nd N/A (draw-family, s64-param floor). 29x 6150 + 17x 2a60 + 12x 2970 + 8x 6a70 + 7x 6c30: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_003233D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003233d0);
 
@@ -741,6 +750,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
 // FUN_00324410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324410);
 
+// measured: nd N/A (draw-family, s64-param floor). 19x 6a70 + 19x 6150 + 19x 2970 + 17x 2a60 + 15x 6c30: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_00324680
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324680);
 
@@ -808,6 +818,7 @@ void func_00324f80(u8 *arg0, FclVec2 arg1, s32 arg2, s32 arg3) {
     func_002b6a70(0xB5, 0, 0xFF, 0, 6, 0);
 }
 
+// measured: nd N/A (largest, 16064 B; draw-family + 12 M2C_ERROR). Heavy 2970/6c30/6a70/69f0 + unaligned/vector opcodes; s64-arg normalization floor. s64-param + misc-opcode floor.
 // FUN_00325450
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00325450);
 
@@ -851,6 +862,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
 // FUN_003297F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003297f0);
 
+// measured: nd N/A (ldr/ldl + COP2). M2C_ERROR on ldr/ldl 0x38/0x3f and adda.s; draw-family s64-arg normalization floor. Unaligned-load + COP2 + s64-param floor.
 // FUN_00329E40
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329e40);
 
@@ -908,6 +920,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
 // FUN_0032B770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 
+// measured: nd N/A (COP2/VU0). M2C_ERROR on adda.s/madd.s; the tail float-pair colour chain is VU0 vector math. COP2-blocked.
 // FUN_0032B9D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
 
@@ -938,9 +951,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 
+// measured: nd N/A (draw-family, s64-param floor). 26x 2970 + 17x 69f0 + 8x 68d0 + 6x 6c30 + 6x 7750: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_0032C660
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c660);
 
+// measured: nd N/A (ldr/ldl unaligned 8B loads). M2C_ERROR on ldr/ldl at 0x50/0x57; plus 147e0 call. Unaligned-load floor.
 // FUN_0032E570
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032e570);
 
