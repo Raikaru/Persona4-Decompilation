@@ -9,14 +9,17 @@ report the tree as recovered while it still reads like m2c output.
 """
 
 import json
+import re
 import sys
 import textwrap
+import urllib.parse
 import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools"))
 
+import gen_objdiff  # noqa: E402
 import progress  # noqa: E402
 import recovery_quality as rq  # noqa: E402
 
@@ -241,6 +244,83 @@ class CommittedReadmeTests(unittest.TestCase):
         self.assertIn(f"{metrics['matching']['count']:,}", block)
         self.assertIn(f"{metrics['linked']['count']:,}", block)
         self.assertIn(f"{metrics['total']:,}", block)
+
+
+class ReadmeBadgeTests(unittest.TestCase):
+    """The decomp.dev badges fail silently when their query string is wrong.
+
+    Every failure mode here still returns HTTP 200, so nothing but a test
+    catches them: dropping `mode=shield` serves the 4.6 MB unit treemap in place
+    of a badge, and a `category` decomp.dev does not know reports the whole
+    project under a first-party label.
+    """
+
+    SLUG = "Raikaru/Persona4-Decompilation"
+    # Verified live against decomp.dev's shield endpoint for this project.
+    MEASURES = {
+        "matched_code_percent",
+        "matched_data_percent",
+        "matched_functions",
+        "matched_functions_percent",
+        "fuzzy_match_percent",
+        "complete_code_percent",
+        "complete_units",
+    }
+    # decomp.dev's matched_* measures are fuzzy-weighted and credit near misses;
+    # this project counts a function only when it is byte-identical. The two
+    # disagreed by nine functions when the badges were wired up.
+    FUZZY = {"matched_code_percent", "matched_functions", "matched_functions_percent",
+             "fuzzy_match_percent"}
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.text = (REPO / "README.md").read_text(encoding="utf-8")
+        cls.urls = re.findall(r"https://decomp\.dev/[^\s)\"]+\.svg\?[^\s)\"]+", cls.text)
+
+    def query(self, url):
+        return urllib.parse.parse_qs(urllib.parse.urlsplit(url).query)
+
+    def test_readme_has_decomp_dev_badges(self) -> None:
+        self.assertTrue(self.urls, "README lost its decomp.dev badges")
+
+    def test_every_badge_requests_shield_mode(self) -> None:
+        """Without mode=shield the same URL returns a multi-megabyte treemap."""
+        for url in self.urls:
+            self.assertEqual(self.query(url).get("mode"), ["shield"], url)
+
+    def test_every_category_is_one_we_actually_emit(self) -> None:
+        ids = {c["id"] for c in gen_objdiff.PROGRESS_CATEGORIES}
+        for url in self.urls:
+            for category in self.query(url).get("category", []):
+                self.assertIn(category, ids, url)
+
+    def test_first_party_badge_uses_the_first_party_category(self) -> None:
+        """A first-party label over the default category would read 27%, not 72%."""
+        labelled = [u for u in self.urls if "first-party" in u]
+        self.assertEqual(len(labelled), 1)
+        self.assertEqual(self.query(labelled[0]).get("category"), ["main"])
+
+    def test_every_measure_is_supported(self) -> None:
+        for url in self.urls:
+            for measure in self.query(url).get("measure", []):
+                self.assertIn(measure, self.MEASURES, url)
+
+    def test_no_badge_reports_a_fuzzy_measure(self) -> None:
+        """Publishing a fuzzy measure would overstate a byte-identical claim."""
+        for url in self.urls:
+            for measure in self.query(url).get("measure", []):
+                self.assertNotIn(measure, self.FUZZY, url)
+
+    def test_all_badges_point_at_one_slug_matching_the_pages_badge(self) -> None:
+        for url in self.urls:
+            self.assertIn(f"decomp.dev/{self.SLUG}.svg", url)
+        owner, repo = self.SLUG.split("/")
+        self.assertIn(f"{owner}.github.io/{repo}/progress/", self.text)
+
+    def test_badges_link_to_the_project_page(self) -> None:
+        """A bare image is a dead end; peers link the badge to the report."""
+        for url in self.urls:
+            self.assertIn(f"]({url})](https://decomp.dev/{self.SLUG})", self.text)
 
 
 if __name__ == "__main__":

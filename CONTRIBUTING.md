@@ -235,6 +235,13 @@ A contribution lands when it satisfies the integration gate in
   markers, and that no first-party file regresses to the old per-function guard
   scheme; when you genuinely add functions, bump the count deliberately and say
   so, and never bump it to silence a drop you did not intend.
+- **Published progress ids are a public contract.** The README badges are served
+  by decomp.dev from the objdiff report, and the first-party badge selects
+  `category=main` from `PROGRESS_CATEGORIES` in `tools/gen_objdiff.py`. Renaming
+  a category id silently changes what that badge reports — decomp.dev answers
+  200 either way — so `tests/test_recovery_quality.py` pins the README's
+  `category` and `measure` values against the ids we actually emit. Change both
+  together or not at all.
 - **No junk in the tree**: no retail files, compiler outputs, or local scratch
   data in commits; minimal diffs — never reformat unrelated code.
 - **Full-build ownership stays with the integration lane.** Byte-identical
