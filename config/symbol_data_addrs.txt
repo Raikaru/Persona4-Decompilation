@@ -1,0 +1,26 @@
+// Curated data addresses that tools/recover_symbols.py cannot derive.
+//
+// That tool infers addresses from relocations in MATCHED functions. Two cases
+// escape it: a symbol whose only references are still INCLUDE_ASM (no relocation
+// to learn from), and a symbol whose NAME disagrees with its true address, which
+// the cross-file consistency check drops as a conflict.
+//
+// Dropping either is silent -- the per-function verifier masks relocations, so
+// the build still reproduces both retail hashes and only the count of linked C
+// objects falls. Every entry below therefore carries an `evidence:` note stating
+// how the address was established, and tests/test_recovered_symbols.py re-checks
+// the checkable ones against the retail image.
+//
+// Format: NAME = 0xADDRESS; // type:data evidence: <how it was established>
+
+// 0x007613EC holds the word 0x40490FDB, which is 3.14159274f -- pi in single
+// precision. Both k_draw.c/k_view.c (as gPI) and shdPersona.c (as D_007613EC)
+// reference it, so it is emitted under both names; the aliases are what let
+// those three translation units resolve without renaming anyone's source.
+gPI = 0x007613ec; // type:data evidence: retail word at 0x007613EC is 0x40490FDB == (f32)pi
+D_007613EC = 0x007613ec; // type:data evidence: same address as gPI; name encodes it
+
+// The relocation scan places this at 0x007642A0, but the placeholder name encodes
+// 0x007242A0, so the name-versus-address check treats it as a conflict and drops
+// it. The scan is the authority: the name is a Ghidra placeholder, not evidence.
+D_007242A0 = 0x007642a0; // type:data evidence: relocation scan (reported in name_encoded_disagree)

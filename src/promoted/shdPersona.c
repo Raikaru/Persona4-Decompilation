@@ -23,7 +23,6 @@ s32 func_00115020();
 void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 s32 func_001152b0();
 void func_00115cb0(Vec2f, s32, s16 *);
-void func_00115dc0(Vec2f, s32, s16 *);
 void func_00115e90(Vec2f, s32, s16 *);
 void func_0046d730(const char *file, s32 line);
 void func_0043f9c8(void *dst, s32 value, s32 size);
@@ -34,9 +33,48 @@ s32 func_0010c750();
 s32 func_00109430();
 s32 func_0010cd70(s32, s32, u8 *);
 void func_00115500(s16, u8 *, u8 *);
-void func_0011dfc0();
+s32 func_0011dfc0(s32, s32, char *);
 void func_00454bd0();
 void func_003ef3a0();
+void func_0044ea90(const void *msg, s32 id);
+extern u8 *(*D_008873F4[])(s32, s32, s32);
+s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern char D_005E4810[];
+extern char D_005E4EB0[];
+extern char D_005E4F50[];
+extern char D_005E4F10[];
+void func_001175e0(u8 *, s32, s32, s32);
+s32 func_001178a0(u8 *);
+void func_0011b2d0(u8 *);
+s32 func_0011d1f0(u8 *);
+void func_0011d3c0(u8 *);
+u8 *func_0011d460(s32, s32, f32, s32, s32);
+void func_0011e390(u8 *, Vec2f);
+void func_00364680(s32, s32 *, s32, s32, f32, f32, f32, f32, f32, f32, f32);
+void func_003f6440(s32, s32);
+s32 func_0011f5a0(u8 *);
+void func_0011fb90(u8 *);
+extern s32 D_005E4850[];
+extern char iGpffff9c20;
+extern u8 D_005E4950[];
+extern u8 D_005E4880[];
+extern u8 D_005E4A20[];
+extern u8 D_005E4AF0[];
+extern u8 D_005E4BC0[];
+extern u8 D_005E4C90[];
+void func_00442830(void *dst, s32 value);
+void func_002bbd20(s32 param, void *text);
+void func_00442088(void *dst, void *fmt, s32 value);
+void func_002bad10(s32 param);
+void func_002baf40(s32 a);
+void func_002bb050(s32 a);
+void func_002bbf60(void);
+void *func_00243840(u16 a);
+s32 func_0011e490(u8 *);
+void func_0011c6e0(u8 *, s32);
+void func_0011b480(u8 *, s32, u32, s32);
+void func_0011d5b0(f32, s32, s32, f32, f32, s32, s32, s32);
+u32 func_0011e3e0(u8 *);
 f32 func_0044b7b0(f32 arg0);
 f32 func_0044b610(f32 arg0);
 extern f32 D_007613EC;
@@ -80,8 +118,67 @@ s32 func_00115890(u8 *arg0, s32 arg1)
 
 
 
+s8 func_00109390(u8 *arg0);
+s8 func_00109920(u8 *arg0, s32 arg1);
+s8 func_001099f0(u8 *arg0, s32 arg1);
+s8 func_00109ad0(u8 *arg0, s32 arg1);
+s32 func_001097c0(u8 *arg0, u16 arg1);
+extern u16 D_007465D0[];
 // FUN_00115940
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115940);
+void func_00115940(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 v2;
+    u8 b4;
+    s32 i;
+
+    if (arg0 == NULL) {
+        func_0046d730(D_005E4868, 0x76);
+    }
+    *(u16 *)(arg1 + 2) = *(u16 *)(arg0 + 2);
+    *(s8 *)(arg1 + 4) = func_00109390(arg0);
+    b4 = *(u8 *)(arg0 + 4);
+    if (b4 == 0x63) {
+        v2 = 0;
+    } else {
+        if ((s32)b4 > 0x63) {
+            func_0046d730(D_005E4868, 0x65);
+        }
+        v2 = func_0010c750(arg0, (b4 + 1) & 0xFFFF) - func_00109430(arg0);
+        if (v2 < 0) {
+            v2 = 0;
+        }
+    }
+    *(s32 *)(arg1 + 0x38) = v2;
+    switch (arg2) {
+    case 0:
+        *(s8 *)(arg1 + 7) = func_00109920(arg0, 0);
+        *(s8 *)(arg1 + 8) = func_00109920(arg0, 1);
+        *(s8 *)(arg1 + 9) = func_00109920(arg0, 2);
+        *(s8 *)(arg1 + 0xA) = func_00109920(arg0, 3);
+        *(s8 *)(arg1 + 0xB) = func_00109920(arg0, 4);
+        break;
+    case 1:
+        *(s8 *)(arg1 + 7) = func_001099f0(arg0, 0);
+        *(s8 *)(arg1 + 8) = func_001099f0(arg0, 1);
+        *(s8 *)(arg1 + 9) = func_001099f0(arg0, 2);
+        *(s8 *)(arg1 + 0xA) = func_001099f0(arg0, 3);
+        *(s8 *)(arg1 + 0xB) = func_001099f0(arg0, 4);
+        break;
+    case 2:
+        *(s8 *)(arg1 + 7) = func_00109ad0(arg0, 0);
+        *(s8 *)(arg1 + 8) = func_00109ad0(arg0, 1);
+        *(s8 *)(arg1 + 9) = func_00109ad0(arg0, 2);
+        *(s8 *)(arg1 + 0xA) = func_00109ad0(arg0, 3);
+        *(s8 *)(arg1 + 0xB) = func_00109ad0(arg0, 4);
+        break;
+    default:
+        func_0046d730(D_005E4868, 0x96);
+        break;
+    }
+    for (i = 0; i < 7; i++) {
+        *(s32 *)(arg1 + 0x14 + i * 4) = func_001097c0(arg0, D_007465D0[i]);
+    }
+}
 
 
 
@@ -120,6 +217,14 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115cb0);
 
 
 
+void *func_00109220(u16 arg0);
+/* measured: the callee reads a 4th float argument ($f12 -> $f20 -> f14 of
+   func_00274ed0) but every in-file caller (incl. matched func_00115c40) calls it
+   with THREE args through an old-style () declaration, leaving $f12 as garbage;
+   mwcc b210 rejects an old-style () prototype followed by a 4-param new-style
+   definition ("redeclared", also K&R definitions unsupported), so the true
+   prototype cannot be expressed without rewriting the matched caller. ABI
+   prototype floor. */
 // FUN_00115DC0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115dc0);
 
@@ -130,18 +235,18 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
 
 
+u8 *func_0010d6d0(s16 arg0);
+void func_00274ed0(s32, s32, s32, u8 *, s32, s32, f32, f32, f32);
+/* measured: retail saves fparg0 FIRST into $f20 and gives the s64 home's high
+   word $f21 with the (f32)(s32)(114.0f+low) result in $f22; mwcc b210 allocates
+   the high-word local to $f20 and fparg0 to $f21, and reorders the prologue
+   (sd $a0 home and move $s3 before mov.s), nd 78 with the whole body shifted.
+   Tried FP declaration orders both ways — identical. FP-colouring floor. */
 // FUN_00116190
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116190);
 
 
 
-/* measured: everything matches except the mask fold — retail keeps the raw
-   `0xFF - (arg1 & 0xFF)` subu in $s0 and re-applies `andi $a3, $s0, 0xff` at
-   each of the two func_0046d4c0 call sites; mwcc b210 always folds the & 0xFF
-   into the CSE'd def (andi $s0) and emits plain move $a3, $s0, which also
-   collapses retail's FPU/GPR call-site interleave into sequential order (nd 33).
-   Tried: s32 mask local, u8 mask local, inline expr at calls, u8 arg1, and a
-   static inline helper — all fold identically. AND-fold scheduling floor. */
 // FUN_001162F0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001162f0);
 
@@ -167,11 +272,26 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116d40);
 
 
 
+/* measured: retail emits the prologue saves in the order mov.s $f22/$f12 (fparg0),
+   sw $a1,0x7c (cbytes), move $s4,$a2, move $s3,$a3, and sinks the per-iteration
+   lbu cbytes[0] to the middle of func_0046d4c0's argument materialisation
+   (after mov.s $f12/$f13, before move $t3); mwcc b210 always hoists the two GP
+   arg saves above the cbytes store and emits the lbu before the $a0/$a1 moves
+   (nd 15, all pure instruction-order swaps, no semantics). Tried 6 source
+   orderings/type shapes incl. s64 5-arg, Vec2f, s32 5-arg, u8 vs s32 byte
+   locals, statement permutations — all nd >= 15. Scheduling/materialisation
+   order floor, same family as func_0011ded0. */
 // FUN_001171C0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001171c0);
 
 
 
+/* measured: same floor family as func_001171c0 — retail emits the prologue in
+   the order mov.s $f22 (fparg0), sw $a1,0x7c (cbytes), then the GP arg saves,
+   and hoists the loop's 16.0f/0xA constants BEFORE the initial branch to the
+   while-test; mwcc b210 emits the GP saves before the FP save and places the
+   constants after the branch (nd 20, all instruction-order rows). Tried
+   declaration/statement orders — identical. Scheduling floor. */
 // FUN_00117310
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117310);
 
@@ -214,13 +334,79 @@ void func_00117580(u8 *arg0, s32 arg1)
 
 
 
+void func_00119e10(u8 *arg0);
+void func_00113750(u8 *arg0);
+extern char D_005E5810[];
+extern char D_005E5830[];
+extern char D_005E5850[];
+extern char D_005E57F0[];
+/* measured: retail hoists the D_005E4880 loop base (lui/addiu) into $a1 before
+   the initial branch to the loop test; mwcc b210 rematerialises it in the body
+   each iteration — #pragma opt_loop_invariants on restores the hoist. */
+#pragma opt_loop_invariants on
 // FUN_001175E0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001175e0);
+void func_001175e0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    u8 *b;
+    s32 i;
+    u8 *src;
+    u8 *dst;
 
+    b = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(b + 0x52C) = arg1;
+    *(s32 *)(b + 0x50C) = arg2;
+    *(s32 *)(b + 0x510) = arg3;
+    *(s16 *)(b + 0x508) = 0;
+    *(s32 *)(b + 0x52C) = -1;
+    *(s32 *)(b + 0x538) = 0;
+    *(s32 *)(b + 0x534) = 0;
+    func_0043f9c8(b + 0x540, 0, 0x30);
+    *(void (**)(u8 *))(b + 0x548) = func_00119e10;
+    *(u8 **)(b + 0x550) = b;
+    *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
+    *(u8 **)(b + 0x4F8) = func_0011d460((s32)arg0, 0xF, 0, 0, -0x100);
+    func_0011b6d0(arg0, arg1);
+    *(s32 *)(b + 0x2B8) = func_0046a770(D_005E5810);
+    *(s32 *)(b + 0x2BC) = func_0046a770(D_005E5830);
+    *(s32 *)(b + 0x2C0) = func_0046a770(D_005E5850);
+    *(s32 *)(b + 0x2C4) = func_0046a770(D_005E57F0);
+    for (i = 0; i < 0xA; i++) {
+        src = D_005E4880 + i * 0x14;
+        dst = b + i * 0x24;
+        *(f32 *)(dst + 0x2DC) = *(f32 *)(src + 0);
+        *(f32 *)(dst + 0x2E0) = *(f32 *)(src + 4);
+        *(u8 *)(dst + 0x2E6) = *(u8 *)(src + 8);
+    }
+    func_00113750(b + 0x84);
+    *(s32 *)(b + 0x444) = 0xC3E10000;
+    *(s32 *)(b + 0x448) = 0x80000000;
+    *(u8 *)(b + 0x44E) = 0xFF;
+    *(s32 *)(b + 0x450) = 0;
+    *(s32 *)(b + 0x454) = 0x40A00000;
+}
+
+
+#pragma opt_loop_invariants off
 
 
 // FUN_00117780
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117780);
+u8 *func_00117780(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    u8 *w;
+    u8 *r;
+
+    func_0044ea90(D_005E4868, 0x5ED);
+    w = D_008873F4[0](1, 0x574, 0x40000);
+    if (w == NULL) {
+        func_0046d730(D_005E4868, 0x5EE);
+    }
+    r = (u8 *)func_00451fc0(arg0, D_005E4810, arg1, 0, 0, func_001178a0, func_0011b2d0, w);
+    if (r == NULL) {
+        func_0046d730(D_005E4868, 0x5F8);
+    }
+    func_001175e0(r, arg2, arg3, arg4);
+    return r;
+}
 
 
 
@@ -261,6 +447,11 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
 
 
 
+void func_0034f4a0(s32, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32, s64, s64);
+/* measured: retail keeps only t16 and arg2 in saved registers (frame 0x60 with
+   the two s64 homes at 0x50/0x58); mwcc b210 also saves arg0 (frame 0x80,
+   homes at 0x70/0x78) and the whole body shifts (nd 147, obj 8B over window).
+   Tried declaration orders — identical. FP/GP colouring floor. */
 // FUN_001187B0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001187b0);
 
@@ -292,10 +483,73 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119e10);
 
 
 // FUN_0011AAA0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011aaa0);
+void func_0011aaa0(u8 *arg0, u32 arg1)
+{
+    u8 *p;
+    f32 vf20;
+    s32 i;
+    u8 *t;
+    u8 *d;
+
+    p = NULL;
+    for (i = 0; i < 0xA; i++) {
+        t = arg0 + i * 0x24;
+        *(f32 *)(t + 0x2CC) = *(f32 *)(t + 0x2DC);
+        *(f32 *)(t + 0x2D0) = *(f32 *)(t + 0x2E0);
+        *(u8 *)(t + 0x2E4) = *(u8 *)(t + 0x2E6);
+    }
+    switch (arg1) {
+    case 0:
+        p = D_005E4950;
+        vf20 = (f32)*(s32 *)(arg0 + 0x50C);
+        break;
+    case 1:
+        p = D_005E4880;
+        vf20 = (f32)*(s32 *)(arg0 + 0x510);
+        break;
+    case 2:
+        p = D_005E4A20;
+        vf20 = 4.0f;
+        break;
+    case 3:
+        p = D_005E4AF0;
+        vf20 = 4.0f;
+        break;
+    case 4:
+        p = D_005E4BC0;
+        vf20 = (f32)*(s32 *)(arg0 + 0x50C);
+        break;
+    case 5:
+        p = D_005E4C90;
+        vf20 = (f32)*(s32 *)(arg0 + 0x510);
+        break;
+    default:
+        func_0046d730(D_005E4868, 0xAA6);
+        break;
+    }
+    if (p == NULL) {
+        func_0046d730(D_005E4868, 0xAA9);
+    }
+    for (i = 0; i < 0xA; i++) {
+        t = p + i * 0x14;
+        d = arg0 + i * 0x24;
+        *(f32 *)(d + 0x2D4) = *(f32 *)(t + 0);
+        *(f32 *)(d + 0x2D8) = *(f32 *)(t + 4);
+        *(u8 *)(d + 0x2E5) = *(u8 *)(t + 8);
+        *(f32 *)(d + 0x2E8) = vf20 * *(f32 *)(t + 0xC);
+        *(f32 *)(d + 0x2EC) = vf20 * *(f32 *)(t + 0x10);
+    }
+}
 
 
 
+/* measured: retail keeps the per-iteration element pointer (arg0 + i*0x24) in
+   $a2, surviving the func_0044b7b0 call (mwcc's reloadable-load caching in the
+   arg registers) and saves only $s1=arg0/$s0=i; mwcc b210 colours the element
+   pointer into a saved register $s0 (frame 0x40 vs 0x30, whole body shifted,
+   nd ~40). Tried declaration orders — identical. Same a2-cache colouring floor
+   as func_0011f5a0. Also: the m2c's 4-arg func_0044b7b0 call and the
+   (u16)-cast var_6 pointer are hallucinated (real call is 1-arg). */
 // FUN_0011AC70
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ac70);
 
@@ -360,18 +614,207 @@ void func_0011b3d0(u8 *arg0, u8 *arg1)
 
 
 
+void func_00113610(u16 *, u8 *);
+void func_0011e0c0(u8 *, s32, s32);
+s32 func_0011dec0(u8 *);
+void func_0011cee0(u8 *);
 // FUN_0011B480
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b480);
+void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s32 arg3)
+{
+    u8 *work;
+    s32 t17;
+    s32 t4;
+    s32 state;
+    u16 t3_2;
+
+    work = ((SdkTask *)arg0)->work;
+    t17 = func_0011dec0(*(u8 **)(work + 0x4F8));
+    if (arg2 == 0) {
+        func_0011e0c0(*(u8 **)(work + 0x4F8), 0, t17);
+        *(s32 *)(work + 0x538) = 1;
+        *(s32 *)(work + 0x534) &= ~8;
+        return;
+    }
+    *(u16 **)(work + 0) = (u16 *)arg2;
+    state = *(s32 *)(work + 0x52C);
+    switch (state) {
+    case 0:
+    case 1:
+    case 2:
+        func_00115940((u8 *)(u16 *)arg2, work + 0xC, 2);
+        break;
+    case 3:
+    case 4:
+        func_00115940((u8 *)(u16 *)arg2, work + 0xC, 1);
+        break;
+    default:
+        func_0046d730(D_005E4868, 0xB91);
+        break;
+    }
+    *(s16 *)(work + 0xC) = (s16)arg1;
+    func_00113610((u16 *)arg2, work + 0x8C);
+    *(s8 *)(work + 0xEE) = (s8)arg3;
+    func_0043f9c8(work + 0x4C0, 0, 0x30);
+    func_0043f9c8(work + 0x4F0, 0, 6);
+    if (!(**(u16 **)(work + 0) & 4)) {
+        t4 = *(s32 *)(work + 0x534);
+        if (t4 & 0x80000) {
+            t3_2 = *(u16 *)(work + 0x458);
+            if (!(t3_2 & 2)) {
+                if (!(t3_2 & 1)) {
+                    *(s32 *)(work + 0x534) = t4 & 0xFFF7FFFF;
+                } else {
+                    *(s16 *)(work + 0x45A) = 0;
+                    *(u16 *)(work + 0x458) |= 2;
+                }
+            }
+        }
+    }
+    if (**(u16 **)(work + 0) & 4) {
+        *(s32 *)(work + 0x534) |= 0x80000;
+        func_0043f9c8(work + 0x458, 0, 0x68);
+    }
+    func_0011e0c0(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)arg2 + 2), t17);
+    func_0011c6e0(arg0, 0);
+    func_0011cee0(arg0);
+}
 
 
 
+s32 func_0046a770(char *arg0);
+extern char D_005E4E00[];
+void func_0011e360(u8 *, s32);
 // FUN_0011B6D0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b6d0);
+s32 func_0011b6d0(u8 *arg0, s32 arg1)
+{
+    u8 *work;
+    s32 t1;
+    s32 t2;
+    s32 t3;
+    s32 t4;
+    s32 t5;
+    s32 t6;
+    s32 t7;
+
+    work = ((SdkTask *)arg0)->work;
+    if (*(s32 *)(work + 0x52C) != arg1) {
+        *(s32 *)(work + 0x52C) = arg1;
+        switch (arg1) {
+        case 0:
+            t1 = *(s32 *)(work + 0x534) | 0x40;
+            *(s32 *)(work + 0x534) = t1;
+            t2 = t1 | 0x20;
+            *(s32 *)(work + 0x534) = t2;
+            t3 = t2 | 0x80;
+            *(s32 *)(work + 0x534) = t3;
+            t4 = t3 | 0x400;
+            *(s32 *)(work + 0x534) = t4;
+            t5 = t4 | 0x40000;
+            *(s32 *)(work + 0x534) = t5;
+            t6 = t5 | 0x200000;
+            *(s32 *)(work + 0x534) = t6;
+            break;
+        case 1:
+            t1 = *(s32 *)(work + 0x534) | 0x10;
+            *(s32 *)(work + 0x534) = t1;
+            t2 = t1 | 0x40;
+            *(s32 *)(work + 0x534) = t2;
+            t3 = t2 | 0x20;
+            *(s32 *)(work + 0x534) = t3;
+            t4 = t3 | 0x80;
+            *(s32 *)(work + 0x534) = t4;
+            t5 = t4 | 0x400;
+            *(s32 *)(work + 0x534) = t5;
+            t6 = t5 | 0x40000;
+            *(s32 *)(work + 0x534) = t6;
+            t7 = t6 | 0x200000;
+            *(s32 *)(work + 0x534) = t7;
+            break;
+        case 2:
+            t1 = *(s32 *)(work + 0x534) | 0x10;
+            *(s32 *)(work + 0x534) = t1;
+            t2 = t1 | 0x40;
+            *(s32 *)(work + 0x534) = t2;
+            t3 = t2 | 0x20;
+            *(s32 *)(work + 0x534) = t3;
+            t4 = t3 | 0x80;
+            *(s32 *)(work + 0x534) = t4;
+            t5 = t4 | 0x400;
+            *(s32 *)(work + 0x534) = t5;
+            t6 = t5 | 0x40000;
+            *(s32 *)(work + 0x534) = t6;
+            t7 = t6 | 0x200000;
+            *(s32 *)(work + 0x534) = t7;
+            break;
+        case 3:
+            t1 = *(s32 *)(work + 0x534) | 0x10;
+            *(s32 *)(work + 0x534) = t1;
+            t2 = t1 | 0x40;
+            *(s32 *)(work + 0x534) = t2;
+            t3 = t2 | 0x20;
+            *(s32 *)(work + 0x534) = t3;
+            t4 = t3 | 0x80;
+            *(s32 *)(work + 0x534) = t4;
+            t5 = t4 | 0x100;
+            *(s32 *)(work + 0x534) = t5;
+            t6 = t5 | 0x200000;
+            *(s32 *)(work + 0x534) = t6;
+            t7 = func_0046a770(D_005E4E00);
+            *(s32 *)(work + 0x2C8) = t7;
+            if (t7 == 0) {
+                func_0046d730(D_005E4868, 0xC02);
+            }
+            break;
+        case 4:
+            t1 = *(s32 *)(work + 0x534) | 0x10;
+            *(s32 *)(work + 0x534) = t1;
+            t2 = t1 | 0x40;
+            *(s32 *)(work + 0x534) = t2;
+            t3 = t2 | 0x20;
+            *(s32 *)(work + 0x534) = t3;
+            t4 = t3 | 0x200000;
+            *(s32 *)(work + 0x534) = t4;
+            break;
+        default:
+            func_0046d730(D_005E4868, 0xC0E);
+            break;
+        }
+        func_0011e360(*(u8 **)(work + 0x4F8), 1);
+    }
+    return 0;
+}
 
 
 
 // FUN_0011B8F0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b8f0);
+void func_0011b8f0(u8 *arg0, s32 arg1)
+{
+    u8 *work;
+    u16 *ptr;
+    s32 state;
+    s32 i;
+
+    work = ((SdkTask *)arg0)->work;
+    ptr = *(u16 **)(work + 0);
+    state = *(s32 *)(work + 0x52C);
+    switch (state) {
+    case 0:
+    case 1:
+    case 2:
+        func_00115940((u8 *)ptr, work + 0xC, 2);
+        break;
+    case 3:
+    case 4:
+        func_00115940((u8 *)ptr, work + 0xC, 1);
+        break;
+    default:
+        func_0046d730(D_005E4868, 0xB91);
+        break;
+    }
+    for (i = 0; i < 5; i++) {
+        *(u8 *)(work + 0x18 + i) = *(u8 *)(arg1 + i);
+    }
+}
 
 
 
@@ -388,7 +831,54 @@ s32 func_0011ba00(u8 *arg0)
 
 
 // FUN_0011BA40
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ba40);
+void func_0011ba40(u8 *arg0)
+{
+    s32 t1;
+    s32 t2;
+    s32 t3;
+    s32 t4;
+    s32 t5;
+    s32 t6;
+    s32 t7;
+    s32 state;
+    u16 *p;
+
+    t1 = *(s32 *)(arg0 + 0x534) | 1;
+    *(s32 *)(arg0 + 0x534) = t1;
+    t2 = t1 | 2;
+    *(s32 *)(arg0 + 0x534) = t2;
+    t3 = t2 | 0x200000;
+    *(s32 *)(arg0 + 0x534) = t3;
+    t4 = t3 | 0x800000;
+    *(s32 *)(arg0 + 0x534) = t4;
+    t5 = t4 & ~4;
+    *(s32 *)(arg0 + 0x534) = t5;
+    t6 = t5 & ~0x4000;
+    *(s32 *)(arg0 + 0x534) = t6;
+    t7 = t6 & 0xFFBFFFFF;
+    *(s32 *)(arg0 + 0x534) = t7;
+    p = *(u16 **)(arg0 + 0);
+    if (p != NULL && (*p & 4)) {
+        *(s32 *)(arg0 + 0x534) |= 0x80000;
+        func_0043f9c8(arg0 + 0x458, 0, 0x68);
+    } else {
+        *(s32 *)(arg0 + 0x534) &= 0xFFF7FFFF;
+    }
+    state = *(s32 *)(arg0 + 0x52C);
+    switch (state) {
+    case 0:
+    case 1:
+    case 2:
+        func_0045af60(0, 1, 0, 3);
+        return;
+    default:
+        func_0046d730(D_005E4868, 0xC8F);
+        /* fallthrough */
+    case 3:
+    case 4:
+        return;
+    }
+}
 
 
 
@@ -420,30 +910,178 @@ void func_0011bb90(u8 *arg0)
 
 
 // FUN_0011BC70
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bc70);
+void func_0011bc70(u8 *arg0)
+{
+    u8 *work;
+    s32 flags;
+    s32 t1;
+    s32 t2;
+    s32 t3;
+    s32 t4;
+    s32 t5;
+    s32 t6;
+    s32 state;
+
+    work = ((SdkTask *)arg0)->work;
+    flags = *(s32 *)(work + 0x534);
+    if (((flags & 1) != 0 && (flags & 4) == 0) || (flags & 0x400000) != 0) {
+        t1 = *(s32 *)(((SdkTask *)arg0)->work + 0x534) | 4;
+        *(s32 *)(work + 0x534) = t1;
+        t2 = t1 & ~2;
+        *(s32 *)(work + 0x534) = t2;
+        t3 = t2 & ~0x800;
+        *(s32 *)(work + 0x534) = t3;
+        t4 = t3 & ~0x1000;
+        *(s32 *)(work + 0x534) = t4;
+        t5 = t4 & ~0x2000;
+        *(s32 *)(work + 0x534) = t5;
+        t6 = t5 & ~0x4000;
+        *(s32 *)(work + 0x534) = t6;
+        *(s8 *)(work + 0x88) = -1;
+        *(s32 *)(work + 0x444) = 0xC3E10000;
+        state = *(s32 *)(work + 0x52C);
+        switch (state) {
+        case 0:
+            func_0045af60(0, 1, 0, 4);
+            break;
+        case 1:
+        case 3:
+        case 2:
+        case 4:
+            break;
+        default:
+            func_0046d730(D_005E4868, 0xCCC);
+            break;
+        }
+        *(s16 *)(work + 0x508) = 0;
+        *(u8 *)(work + 0x504) = *(u8 *)(work + 0x505);
+        *(s8 *)(work + 0x506) = 0;
+        func_0011aaa0(work, 1);
+        *(s32 *)(work + 0x534) &= 0xFF7FFFFF;
+    }
+}
 
 
 
+f32 func_0011de80(u8 *, Vec2f *);
+void func_0011e370(u8 *);
+/* measured: retail sinks the `lwc1 field, 0x4FC` load to AFTER the
+   addiu/mtc1/cvt.s.w materialisation of (f32)0x303 in the then-branch
+   (cvt -> $f1, load -> $f0); mwcc b210 always emits the field load first and
+   swaps the two FP temps (cvt -> $f0, load -> $f1), nd 6, all the same six
+   words. Tried: operand order both ways, cvt hoisted to a local, 0x303 as an
+   int local — identical. Load-scheduling floor. */
 // FUN_0011BDC0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bdc0);
 
 
 
+/* measured: retail materialises (f32)0x303 (addiu/mtc1/cvt.s.w into $f1) BEFORE
+   the lwc1 field load for sp20, and the (f32)(s32) round-trip casts m2c showed
+   for sp24/sp28/sp2C are hallucinated (plain float adds in retail); mwcc b210
+   emits the field load first and swaps the FP temps (nd 10+, obj over window).
+   Same load-order floor as func_0011bdc0. The 0xFF byte store needs a u8-typed
+   store or mwcc materialises -1. */
 // FUN_0011BF10
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bf10);
 
 
 
 // FUN_0011C180
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c180);
+void func_0011c180(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    s32 *src;
+    s32 *dst;
+    s32 temp;
+    s32 n;
+    u8 *work;
+
+    work = ((SdkTask *)arg0)->work;
+    if (!(*(s32 *)(work + 0x534) & 0x4000)) {
+        func_0011aaa0(work, 2);
+        *(f32 *)(work + 0x338) = (f32)0x28A;
+        *(s32 *)(work + 0x33C) = 0;
+        *(s32 *)(work + 0x2F0) = 0x42C80000;
+        *(s32 *)(work + 0x2F4) = 0;
+        *(u8 *)(work + 0x308) = 0;
+        *(u8 *)(work + 0x32C) = 0;
+        *(s32 *)(work + 0x410) = 0;
+        *(s32 *)(work + 0x414) = 0;
+        *(s32 *)(work + 0x3C8) = 0;
+        *(s32 *)(work + 0x3CC) = 0;
+        *(u8 *)(work + 0x3E0) = 0xFF;
+        *(u8 *)(work + 0x404) = 0xFF;
+        *(s16 *)(work + 0x516) = 0;
+        *(s32 *)(work + 0x534) |= 0x4000;
+    }
+    src = (s32 *)(work + 0xC);
+    dst = (s32 *)(work + 0x48);
+    n = 0xF;
+    do {
+        temp = *src;
+        src++;
+        n--;
+        *dst = temp;
+        dst++;
+    } while (n > 0);
+    func_0011c6e0(arg0, 0);
+    func_0011b480(arg0, arg1, arg2, arg3);
+    func_0045af60(0, 2, 0, 5);
+}
 
 
 
 // FUN_0011C2C0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c2c0);
+void func_0011c2c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    s32 *src;
+    s32 *dst;
+    s32 temp;
+    s32 n;
+    u8 *work;
+
+    work = ((SdkTask *)arg0)->work;
+    if (!(*(s32 *)(work + 0x534) & 0x4000)) {
+        func_0011aaa0(work, 3);
+        *(s32 *)(work + 0x338) = 0xC3480000;
+        *(s32 *)(work + 0x33C) = 0;
+        *(u8 *)(work + 0x350) = 0;
+        *(s32 *)(work + 0x2F0) = 0xC2C80000;
+        *(s32 *)(work + 0x2F4) = 0;
+        *(u8 *)(work + 0x308) = 0;
+        *(u8 *)(work + 0x32C) = 0;
+        *(s32 *)(work + 0x410) = 0;
+        *(s32 *)(work + 0x414) = 0;
+        *(u8 *)(work + 0x428) = 0xFF;
+        *(s32 *)(work + 0x3C8) = 0;
+        *(s32 *)(work + 0x3CC) = 0;
+        *(u8 *)(work + 0x3E0) = 0xFF;
+        *(u8 *)(work + 0x404) = 0xFF;
+        *(s16 *)(work + 0x516) = 0;
+        *(s32 *)(work + 0x534) |= 0x4000;
+    }
+    src = (s32 *)(work + 0xC);
+    dst = (s32 *)(work + 0x48);
+    n = 0xF;
+    do {
+        temp = *src;
+        src++;
+        n--;
+        *dst = temp;
+        dst++;
+    } while (n > 0);
+    func_0011b480(arg0, arg1, arg2, arg3);
+    func_0045af60(0, 2, 0, 5);
+}
 
 
 
+/* measured: retail hoists all four loop constants (1.0f, 0.0f, 0x4F000000,
+   0x80000000) into $f3/$f4/$f1/$a1 BEFORE the initial branch to the loop test
+   and keeps the 0x2E8 ratio in $f5; mwcc b210 rematerialises 0.0f inside the
+   branch and shifts every FP temp register (nd 8+). Tried
+   #pragma opt_loop_invariants on (hoists 2.0f instead, nd 20) — same
+   preheader-hoist/FP-colouring floor as func_00117310. */
 // FUN_0011C3E0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c3e0);
 
@@ -497,23 +1135,28 @@ void func_0011c6e0(u8 *arg0, s32 arg1)
 
 
 
+/* measured: retail interleaves the f2 load (lwc1 0x450) between the lh 0x514
+   and its mtc1/cvt.s.w, and colours the 0x44C byte into $a1 with the abs-else's
+   srl/or into $t0; mwcc b210 emits the cvt before the f2 load and colours the
+   byte into $v1 (nd 15, all instruction-order and register-name rows). Tried:
+   declaration orders, s16 temp, u8/s8 byte typing, if/else forms — identical.
+   Scheduling/colouring floor. */
 // FUN_0011C780
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
 
 
 
+/* measured: identical residuals to func_0011c780 (same body shape): retail
+   interleaves the f2 load between lh 0x514 and its cvt, and colours the 0x44C
+   byte into $a1 with the abs-else's srl/or into $t0; mwcc b210 emits the cvt
+   before the f2 load and colours the byte $v1 (nd 15, instruction-order and
+   register-name rows only). Tried declaration orders and load orders —
+   identical. Same scheduling/colouring floor as func_0011c780. */
 // FUN_0011C930
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
 
 
 
-/* measured: retail booleanizes the (flags & 0x800) != 0 test with sltu and routes
-   both early-outs through a shared `b` trampoline (beqz->L20, fallthrough->L20,
-   L20: b end); mwcc b210 emits andi+beqz straight to the join and skips the
-   trampoline. Tried: inline &&, nested ifs, early returns, bool locals,
-   masked-variable comparisons, and cond = A && B assignment (which sltu-izes the
-   first operand but also not/sltu-izes the byte test) — all nd 25. Branch-to-
-   branch sharing + booleanize floors. */
 // FUN_0011CAF0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
 
@@ -619,7 +1262,58 @@ void func_0011ce50(u8 *arg0)
 
 
 // FUN_0011CEE0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011cee0);
+void func_0011cee0(u8 *arg0)
+{
+    u8 *work;
+    s32 flags;
+    s32 state;
+    u16 t17;
+
+    work = ((SdkTask *)arg0)->work;
+    flags = *(s32 *)(work + 0x534);
+    if (flags & 0x40000) {
+        state = *(s32 *)(work + 0x52C);
+        switch (state) {
+        case 0:
+            if (*(u16 *)(work + 0xC) == 1) {
+                if ((func_0010b6f0(1, state) & 0xFFFF) == 1) {
+                    *(s32 *)(work + 0x528) = 0xD;
+                    return;
+                }
+                *(s32 *)(work + 0x528) = 9;
+                return;
+            }
+            *(s32 *)(work + 0x528) = -1;
+            return;
+        case 1:
+            if ((func_0010b6f0(1, state) & 0xFFFF) == 1) {
+                *(s32 *)(work + 0x528) = 0xA;
+                return;
+            }
+            t17 = *(u16 *)(*(u8 **)(work + 0) + 2);
+            if (t17 == (func_00109360(1) & 0xFFFF)) {
+                *(s32 *)(work + 0x528) = 0xB;
+                return;
+            }
+            *(s32 *)(work + 0x528) = 9;
+            return;
+        case 2:
+            *(s32 *)(work + 0x528) = 0xC;
+            return;
+        case 3:
+        case 4:
+            if ((func_0010b6f0(flags, state) & 0xFFFF) == 1) {
+                *(s32 *)(work + 0x528) = 0xA;
+                return;
+            }
+            *(s32 *)(work + 0x528) = 9;
+            return;
+        default:
+            func_0046d730(D_005E4868, 0xF87);
+            break;
+        }
+    }
+}
 
 
 
@@ -710,8 +1404,63 @@ s32 func_0011d1e0(u8 *arg0)
 
 
 
+s32 func_00452380(void *arg0);
+s32 func_004553c0(s32 arg0);
+s32 func_00454a60(u8 *arg0, s32 arg1);
+s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern char D_005E4E60[];
+extern char D_005E4E90[];
+extern char iGpffff9c18;
 // FUN_0011D1F0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011d1f0);
+s32 func_0011d1f0(u8 *arg0)
+{
+    u8 *work;
+    s32 state;
+    s32 temp_2;
+    s32 sp4C;
+
+    work = ((SdkTask *)arg0)->work;
+    state = *(s32 *)(work + 0);
+    switch (state) {
+    case 0:
+        if (*(s32 *)(work + 4) != 0) {
+            if (func_00452380(D_005E4E40) != 0) {
+                func_00440b68(D_005E4E60);
+            } else {
+                func_00442088(work + 0x54, D_005E4E90, *(s32 *)(work + 4));
+                func_00440b68(&iGpffff9c18, D_005E4868, 0x1046);
+                temp_2 = func_00454a60(work + 0x54, 0);
+                *(s32 *)(work + 0x4C) = temp_2;
+                if (temp_2 == 0) {
+                    func_0046d730(D_005E4868, 0x1047);
+                }
+                func_0011e240(arg0, NULL);
+                *(s32 *)(work + 0) = 1;
+            }
+        } else {
+            *(s32 *)(work + 0) = 3;
+        }
+        break;
+    case 1:
+        if (func_004553c0(*(s32 *)(work + 0x4C)) != 0) {
+            *(s32 *)(work + 0x48) = func_004667d0(0, (const char *)(work + 0x54), 0, 0, 0, 0, 0, 0, 0, 0);
+            *(s32 *)(work + 0) = 2;
+        }
+        break;
+    case 2:
+        *(s32 *)(work + 0x50) = func_004669d0(*(s32 *)(work + 0x48), &sp4C, 0);
+        if (sp4C != 0) {
+            *(s32 *)(work + 0x48) = 0;
+            func_00454bd0(*(s32 *)(work + 0x4C));
+            *(s32 *)(work + 0x4C) = 0;
+            *(s32 *)(work + 0) = 3;
+        }
+        break;
+    case 3:
+        break;
+    }
+    return 0;
+}
 
 
 
@@ -740,7 +1489,33 @@ void func_0011d3c0(u8 *arg0)
 
 
 // FUN_0011D460
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011d460);
+u8 *func_0011d460(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
+{
+    Vec2f v;
+    u8 *r;
+    u8 *w;
+
+    func_0044ea90(D_005E4868, 0x1090);
+    w = D_008873F4[0](1, 0x154, 0x40000);
+    if (w == NULL) {
+        return NULL;
+    }
+    r = (u8 *)func_00451fc0(arg0, D_005E4EB0, arg1, 0, 0, func_0011d1f0, func_0011d3c0, w);
+    if (r == NULL) {
+        return NULL;
+    }
+    *(s32 *)(w + 4) = arg2;
+    *(s32 *)(w + 8) = arg3;
+    *(s32 *)(w + 0xC) = (arg3 & 0xFF) | ~0x7EFF;
+    *(f32 *)(w + 0x18) = fparg0;
+    *(s32 *)&v.x = 0x43030000;
+    *(s32 *)&v.y = 0xC26C0000;
+    func_0011e240(r, (u8 *)&v);
+    *(s32 *)&v.x = 0xC1880000;
+    *(s32 *)&v.y = 0x41500000;
+    func_0011e390(r, v);
+    return r;
+}
 
 
 
@@ -750,10 +1525,41 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011d5b0);
 
 
 // FUN_0011DC50
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dc50);
+void func_0011dc50(u8 *arg0)
+{
+    u8 *work;
+    f32 f20;
+    f32 t;
+    f32 d;
+    s32 a;
+
+    work = ((SdkTask *)arg0)->work;
+    if (func_0011e3e0(arg0) != 0 && *(s32 *)(work + 4) != 0) {
+        t = (f32)*(s32 *)(work + 0x10);
+        if (t < 10.0f) {
+            *(s32 *)(work + 0x10) += 1;
+            f20 = *(f32 *)(work + 0x20);
+            t = func_0044b7b0(D_007613EC * (f32)*(s32 *)(work + 0x10) / 10.0f);
+            d = *(f32 *)(work + 0x30) - f20;
+            *(f32 *)(work + 0x28) = f20 + d * t;
+        } else {
+            *(f32 *)(work + 0x28) = *(f32 *)(work + 0x30);
+        }
+        a = *(s32 *)(work + 8);
+        func_0011d5b0(*(f32 *)(work + 0x18), a, a,
+                      *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
+                      0x200, 0x200, *(s32 *)(work + 0x50));
+    }
+}
 
 
 
+/* measured: everything matches except the work-pointer base register — retail
+   keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12
+   loads/stores; mwcc b210 always colours it $t0 (nd 24, every row is the same
+   instruction with $t0 vs $a1). Tried: declaration order both ways, SdkTask
+   typed form vs raw deref (per assignment note), s32 vs u8 byte locals —
+   identical. Register-colouring floor. */
 // FUN_0011DD50
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dd50);
 
@@ -809,6 +1615,12 @@ void func_0011df90(u8 *arg0)
 
 
 
+/* measured: retail materialises the D_005E4F10 address (lui+addiu $a0) BEFORE the
+   addiu $a1, $s0, 0x10 at the func_00440b68 call; mwcc b210 always emits the
+   computed operand first and the constant global address last (nd 5, three
+   swapped words plus their reloc pair). Tried: hoisting the address to a char*
+   local (nd 58), hoisting arg1+0x10 to a local (nd 61) — constant-vs-computed
+   argument materialisation order floor, same family as func_0011ded0. */
 // FUN_0011DFC0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dfc0);
 
@@ -938,13 +1750,61 @@ s32 func_0011e460(u8 *arg0)
 
 
 
+s32 func_003b7060();
+u8 *func_001094d0(u16 *arg0);
+extern u8 *iGpffffb3ec;
+/* measured: retail keeps the `bltz` sign-check and the full else-branch
+   (srl/andi/or/mtc1/cvt/add.s x2) of an abs-style conditional on
+   `func_003b7060() & 0x1000` (and & 0xFFF); mwcc b210's range analysis proves
+   the masked value non-negative and eliminates both branches entirely
+   (object 100B under window, nd > 300 with the whole body shifted). Tried the
+   conditional in every spelling (>=0/<0, if/else, ternary, s32/u32 locals,
+   cast-to-s32 compare, macro form) — all eliminated. Also the ptr in $s0
+   colouring differed. Range-analysis elimination floor. */
 // FUN_0011E490
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e490);
 
 
 
 // FUN_0011E740
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e740);
+void func_0011e740(u8 *arg0)
+{
+    u8 *base;
+    u8 buf[0x80];
+    s32 idx;
+    s32 t3;
+
+    base = *(u8 **)(arg0 + 0x20);
+    while ((idx = *(s32 *)(arg0 + 0xC)) < 5 && *(u8 *)(base + idx + 0x82) == 0) {
+        *(s32 *)(arg0 + 0xC) += 1;
+    }
+    if (idx < 5) {
+        func_00442830(buf, D_005E4850[idx]);
+        func_002bbd20(0, buf);
+        func_00442088(buf, &iGpffff9c20, base[*(s32 *)(arg0 + 0xC) + 0x82]);
+        func_002bbd20(1, buf);
+        func_002bad10(*(s32 *)(arg0 + 0x34));
+        *(s16 *)(arg0 + 2) = 0;
+        *(s32 *)(arg0 + 0x14) = 3;
+        return;
+    }
+    t3 = *(s32 *)(arg0 + 0x10);
+    if (t3 < 0x20 && ((u16 *)(base + 2))[t3] != 0) {
+        *(s16 *)(arg0 + 2) = 0;
+        *(s32 *)(arg0 + 0x14) = 4;
+        return;
+    }
+    if (func_0011e490(arg0) != 0) {
+        func_002bbd20(1, func_00243840(*(u16 *)(arg0 + 6)));
+        func_002bad10(*(s32 *)(arg0 + 0x4C));
+        func_002baf40(*(s32 *)(arg0 + 0x2C));
+        func_002bb050(1);
+        func_002bbf60();
+        *(s32 *)(arg0 + 0x14) = 8;
+        return;
+    }
+    *(s32 *)(arg0 + 0x14) = 0xC;
+}
 
 
 
@@ -966,8 +1826,34 @@ void func_0011f3c0(u8 *arg0)
 
 
 
+extern char D_005E4F30[];
+void func_0011e8e0(u8 *);
+void func_0011f3c0(u8 *);
 // FUN_0011F410
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011f410);
+u8 *func_0011f410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
+{
+    u8 *w;
+    u8 *r;
+    s32 i;
+
+    func_0044ea90(D_005E4868, 0x1464);
+    w = D_008873F4[0](1, 0x58, 0x40000);
+    if (w == NULL) {
+        func_0046d730(D_005E4868, 0x1465);
+    }
+    r = (u8 *)func_00451fc0(arg0, D_005E4F30, 0xF, 0, 0, func_0011e8e0, func_0011f3c0, w);
+    if (r == NULL) {
+        func_0046d730(D_005E4868, 0x146F);
+    }
+    *(s32 *)(w + 0x1C) = arg1;
+    *(s32 *)(w + 0x20) = arg2;
+    *(s32 *)(w + 0x24) = arg3;
+    *(s32 *)(w + 0x28) = arg4;
+    for (i = 0; i < 0xB; i++) {
+        *(s32 *)(w + 0x2C + i * 4) = *(s32 *)(arg5 + i * 4);
+    }
+    return r;
+}
 
 
 
@@ -987,8 +1873,32 @@ void func_0011f580(void)
 
 
 
+u16 func_00115750();
+void func_002baac0(s32 arg0);
+void func_002bb7c0();
+void func_002bb4e0();
+s32 func_002bb600(void);
+void func_002bb1e0(s32 arg0);
+s32 func_002bb140(void);
+s32 func_0011ccb0(u8 *arg0);
+void func_00115760(u8 *arg0);
+s32 func_001092f0(u8 *arg0);
+s16 func_00115380();
+extern u16 D_008C024E;
+extern u16 D_008C024C;
+void func_0011c630(u8 *arg0);
+/* measured: retail keeps the derived work->0xC->0x38 base pointer cached in $a2
+   (not saved, survives calls — mwcc's reloadable-load caching in the arg
+   registers) and saves only t18 in $s2; mwcc b210 colours this pointer into a
+   saved register $s2 in this function, cascading the whole body (nd ~60, obj
+   16B over window). Tried declaration orders and dropping the phantom
+   args/hallucinated 3-arg calls m2c invented from leftover registers
+   (func_002bb7c0/00115380/00115020/002bb4e0 are 1- or 2-arg, and the switch
+   needs the empty case 8 for sltiu 9) — the colouring itself is the floor. */
 // FUN_0011F5A0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011f5a0);
+
+
 
 // FUN_0011FB90
 void func_0011fb90(u8 *arg0)
@@ -999,4 +1909,25 @@ void func_0011fb90(u8 *arg0)
 
 
 // FUN_0011FBC0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011fbc0);
+u8 *func_0011fbc0(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
+{
+    u8 *w;
+    u8 *r;
+    s32 i;
+
+    func_0044ea90(D_005E4868, 0x1551);
+    w = D_008873F4[0](1, 0x44, 0x40000);
+    if (w == NULL) {
+        func_0046d730(D_005E4868, 0x1552);
+    }
+    r = (u8 *)func_00451fc0(arg0, D_005E4F50, 0xF, 0, 0, func_0011f5a0, func_0011fb90, w);
+    if (r == NULL) {
+        func_0046d730(D_005E4868, 0x155C);
+    }
+    *(u8 **)(w + 0xC) = arg1;
+    *(s32 *)(w + 0x14) = arg2;
+    for (i = 0; i < 0xB; i++) {
+        *(s32 *)(w + 0x18 + i * 4) = *(s32 *)(arg3 + i * 4);
+    }
+    return r;
+}

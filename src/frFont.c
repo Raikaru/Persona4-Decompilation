@@ -62,6 +62,63 @@ extern u32 DAT_00881764_abs[];
 #pragma alias DAT_00881764_abs DAT_00881764
 extern u32 DAT_00881768_abs[];
 #pragma alias DAT_00881768_abs DAT_00881768
+
+void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void func_0044ea90(const void *msg, s32 id);
+extern s8 D_007645B0;
+
+extern u32 DAT_00881518_abs[];
+#pragma alias DAT_00881518_abs DAT_00881518
+extern u32 DAT_0088151C_abs[];
+#pragma alias DAT_0088151C_abs DAT_0088151C
+extern u32 DAT_00881520_abs[];
+#pragma alias DAT_00881520_abs DAT_00881520
+extern u32 DAT_00881524_abs[];
+#pragma alias DAT_00881524_abs DAT_00881524
+
+extern s32 D_007645BC;
+extern s32 D_008815B0[];
+extern s32 func_0026e010();
+extern void func_00275a60();
+extern s32 func_00270fb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                        s32 arg5);
+
+extern u32 DAT_0088176C_abs[];
+#pragma alias DAT_0088176C_abs DAT_0088176C
+extern u32 DAT_00881770_abs[];
+#pragma alias DAT_00881770_abs DAT_00881770
+extern u32 DAT_00881774_abs[];
+#pragma alias DAT_00881774_abs DAT_00881774
+extern u32 DAT_00881778_abs[];
+#pragma alias DAT_00881778_abs DAT_00881778
+extern u32 DAT_0088177C_abs[];
+#pragma alias DAT_0088177C_abs DAT_0088177C
+
+extern s32 D_00763830;
+extern char D_0063BA00[];
+extern char D_00748100[];
+extern char D_00748110[];
+extern s32 D_007645A4;
+extern s32 D_007645A8;
+extern u32 DAT_0088164C_abs[];
+#pragma alias DAT_0088164C_abs DAT_0088164C
+extern u32 DAT_00881650_abs[];
+#pragma alias DAT_00881650_abs DAT_00881650
+extern u32 DAT_00881670_abs[];
+#pragma alias DAT_00881670_abs DAT_00881670
+extern u32 DAT_00881690_abs[];
+#pragma alias DAT_00881690_abs DAT_00881690
+extern u32 DAT_008816B0_abs[];
+#pragma alias DAT_008816B0_abs DAT_008816B0
+extern u32 DAT_008816D0_abs[];
+#pragma alias DAT_008816D0_abs DAT_008816D0
+extern u32 DAT_008817B0_abs[];
+#pragma alias DAT_008817B0_abs DAT_008817B0
+extern char D_0063BB00[];
+extern char D_0063BC10[];
+extern s32 func_00454a60(const void *arg0, s32 arg1);
+extern void func_00456150(s32 arg0);
+extern u8 *func_00455f70(void *arg0, void *arg1);
 extern void func_0026e170(int param_1);
 extern void func_00275bd0(void);
 extern void func_00271a40(void);
@@ -90,6 +147,13 @@ typedef struct FrFontNode {
     u8 unknown_28[0x18];
     int enabled;
 } FrFontNode;
+typedef struct FrFontScript {
+    u8 unknown_00[0x10];
+    u8 *data;
+    u8 unknown_14[4];
+    s32 pos;
+} FrFontScript;
+
 typedef struct FrFontSlot4 {
     u32 f00;
     u32 f04;
@@ -114,9 +178,15 @@ extern u32 DAT_00881634_abs[];
 
 
 
+/* measured: retail hoists &jtbl_008873E8 into $22 AND &jtbl_008873EC into $s0
+   (failure path), keeps both across calls, and runs the slot-link loops with
+   the global addresses hoisted in $v0/$v1; mwcc b210 hoists only the E8 base
+   (via a void *(**) local, nd161->nd159) and rematerializes the EC base per
+   call plus rotates the loop counters ($t0->$a2) when the extra locals exist
+   (nd159). Tried direct calls (nd205), void* (nd161), fptr** locals (nd159).
+   Render-vtable hoist + register rotation floor. */
 // FUN_00270FB0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
-
 // FUN_00271310
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271310);
 
@@ -130,7 +200,13 @@ void func_00271380(s32 arg0, u8 *arg1)
 #pragma alias DAT_00881630_abs DAT_00881630
 #pragma alias DAT_008873ec_abs DAT_008873ec
 
-
+/* measured: retail's bit-count while loops emit an entry guard
+   (bnez $v1,check; b exit) with the check block after the body; mwcc b210
+   emits [b check] when the condition is a provable constant and
+   [beqz exit; b check] otherwise - nd85 across three loops. Tried do-while+
+   if, while-in-if, plain while, m2c empty-if form, u32 vars, with and without
+   opt_loop_invariants (which did fix the &D_00881630/D_008815B0 base hoists).
+   Loop pre-test branch-layout floor. */
 // FUN_002713B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
 
@@ -138,7 +214,48 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002715c0);
 
 // FUN_002716B0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_002716b0);
+void func_002716b0(s32 arg0, u8 *arg1, u8 *arg2)
+{
+    FrFontSlot4 *slot;
+    s32 var_17;
+    s32 temp_3;
+    s32 temp_4;
+    u8 *temp_5;
+
+    if (arg1 == NULL && arg2 != NULL) {
+        arg1 = arg2;
+    }
+    if (arg1 == NULL) {
+        func_0046d730(D_0063BAE8, 0x2E9);
+    }
+    temp_4 = arg0 & 0xFF;
+    slot = &gFrFontManagerData_abs[0].slots[temp_4];
+    if (temp_4 >= 9) {
+        func_0046d740(D_0063BB40, D_0063BAE8, 0x2ED);
+    }
+    slot->f00 = (u32)arg2;
+    slot->f04 = (u32)arg1;
+    var_17 = *(s32 *)(arg1 + 0) + (*(u8 *)(arg1 + 0xA) << 6);
+    if (*(u8 *)(arg1 + 0x16) != 0) {
+        slot->f08 = *(u32 *)(arg1 + var_17);
+        slot->f10 = (u32)(arg1 + (var_17 + 4));
+        temp_3 = var_17 + (slot->f08 + 4);
+        slot->f0c = *(u32 *)(arg1 + temp_3);
+        slot->f14 = (u32)(arg1 + (temp_3 + 4));
+        var_17 = temp_3 + (slot->f0c + 4);
+    } else {
+        slot->f08 = 0;
+        slot->f10 = 0;
+        slot->f0c = 0;
+        slot->f14 = 0;
+    }
+    temp_5 = arg1 + var_17;
+    slot->f18 = (u32)temp_5;
+    func_00440b68(D_0063BB80, temp_5, var_17, *(u16 *)(slot->f04 + 0xE));
+    slot->object =
+        (u32)(arg1 + (var_17 + (*(u16 *)(slot->f04 + 0xE) * 4)));
+}
+
 // FUN_00271820
 void func_00271820(u32 param_1)
 {
@@ -159,7 +276,118 @@ void func_00271820(u32 param_1)
 
 
 // FUN_00271860
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00271860);
+void func_00271860(void)
+{
+    int sp1C;
+    u8 *var_7;
+    u8 *var_7_2;
+    u8 *var_7_3;
+    u8 *var_7_4;
+    u8 *var_7_5;
+    u8 *var_6;
+    u8 *var_6_2;
+    u8 *var_6_3;
+    u8 *var_6_4;
+    u8 *var_6_5;
+    s32 temp_4;
+    s32 temp_3;
+    s32 temp_4_2;
+    s32 temp_3_2;
+    s32 temp_4_3;
+    s32 temp_3_3;
+    s32 temp_4_4;
+    s32 temp_3_4;
+    s32 temp_4_5;
+    s32 temp_3_5;
+    s32 var_5;
+    s32 var_5_2;
+    s32 var_5_3;
+    s32 var_5_4;
+    s32 var_5_5;
+    s32 temp_2;
+
+    if (DAT_0088164C_abs[0] != 0) {
+        func_00440b68(D_0063BB00, NULL);
+    }
+    if (DAT_008817B0_abs[0] == 0) {
+        func_00440b68(&D_00763830, D_0063BAE8, 0x265);
+        temp_2 = func_00454a60(D_0063BC10, 0);
+        DAT_008817B0_abs[0] = temp_2;
+        func_00456150(temp_2);
+        func_002716b0(0, NULL, func_00455f70(D_0063BC10, &sp1C));
+    }
+    var_7 = (u8 *)gFrFontManagerData_abs;
+    var_6 = (u8 *)DAT_00881650_abs;
+    var_5 = 4;
+    do {
+        temp_4 = *(s32 *)(var_7 + 0);
+        temp_3 = *(s32 *)(var_7 + 4);
+        var_7 += 8;
+        var_5 -= 1;
+        *(s32 *)(var_6 + 0) = temp_4;
+        *(s32 *)(var_6 + 4) = temp_3;
+        var_6 += 8;
+    } while (var_5 > 0);
+    var_7_2 = (u8 *)gFrFontManagerData_abs;
+    var_6_2 = (u8 *)DAT_00881670_abs;
+    var_5_2 = 4;
+    do {
+        temp_4_2 = *(s32 *)(var_7_2 + 0);
+        temp_3_2 = *(s32 *)(var_7_2 + 4);
+        var_7_2 += 8;
+        var_5_2 -= 1;
+        *(s32 *)(var_6_2 + 0) = temp_4_2;
+        *(s32 *)(var_6_2 + 4) = temp_3_2;
+        var_6_2 += 8;
+    } while (var_5_2 > 0);
+    var_7_3 = (u8 *)gFrFontManagerData_abs;
+    var_6_3 = (u8 *)DAT_00881690_abs;
+    var_5_3 = 4;
+    do {
+        temp_4_3 = *(s32 *)(var_7_3 + 0);
+        temp_3_3 = *(s32 *)(var_7_3 + 4);
+        var_7_3 += 8;
+        var_5_3 -= 1;
+        *(s32 *)(var_6_3 + 0) = temp_4_3;
+        *(s32 *)(var_6_3 + 4) = temp_3_3;
+        var_6_3 += 8;
+    } while (var_5_3 > 0);
+    var_7_4 = (u8 *)gFrFontManagerData_abs;
+    var_6_4 = (u8 *)DAT_008816B0_abs;
+    var_5_4 = 4;
+    do {
+        temp_4_4 = *(s32 *)(var_7_4 + 0);
+        temp_3_4 = *(s32 *)(var_7_4 + 4);
+        var_7_4 += 8;
+        var_5_4 -= 1;
+        *(s32 *)(var_6_4 + 0) = temp_4_4;
+        *(s32 *)(var_6_4 + 4) = temp_3_4;
+        var_6_4 += 8;
+    } while (var_5_4 > 0);
+    var_7_5 = (u8 *)gFrFontManagerData_abs;
+    var_6_5 = (u8 *)DAT_008816D0_abs;
+    var_5_5 = 4;
+    do {
+        temp_4_5 = *(s32 *)(var_7_5 + 0);
+        temp_3_5 = *(s32 *)(var_7_5 + 4);
+        var_7_5 += 8;
+        var_5_5 -= 1;
+        *(s32 *)(var_6_5 + 0) = temp_4_5;
+        *(s32 *)(var_6_5 + 4) = temp_3_5;
+        var_6_5 += 8;
+    } while (var_5_5 > 0);
+    D_007645A8 = 0;
+    D_007645A4 = 0;
+    D_007645A0 = 0;
+}
+
+/* measured: retail re-issues the var_19&0xFF mask three times (andi $18/$17/$v0
+   from $19), keeping the store pointer in $s1 across the jal; mwcc b210 CSEs
+   every spelling tried (var_19&0xFF, (u8)var_19, (u8)(var_19&0xFF), %256 - all
+   lower to the same AND IR node) down to 2 andis and rematerializes the store
+   pointer after the jal (best nd29, nd42 with shared temp_17). CSE-of-mask
+   floor; pointer-element indexing + (u8) truncation fixed the offset folding
+   but could not fix the mask re-issue. */
 
 // FUN_00271A40
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271a40);
@@ -209,7 +437,7 @@ u32 func_00271bd0(int param_1)
                         puVar3[4] = 0;
                     }
 
-                    func_00271310(*(u32 *)(iVar2 + 8));
+                    func_00271310((u8 *)*(u32 *)(iVar2 + 8));
                     DAT_00881750_abs[0] = DAT_00881750_abs[0] + -1;
                 }
             }
@@ -230,15 +458,30 @@ u32 func_00271bd0(int param_1)
 
 
 
+extern char D_00763808;
+
+
+
+/* measured: retail's signed x/32 divisions write the mult product into the
+   SECOND operand's register ($a2) and sra from it; mwcc b210 writes it into
+   the FIRST operand's register ($a1) at all six division sites (nd42; the
+   switch-case + empty-if + explicit-shift forms fixed everything else).
+   Tried operand-order swaps, no change. Mult register-alloc floor. */
 // FUN_00271D10
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271d10);
-
 // FUN_00271F50
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271f50);
+extern char D_0063BC50[];
+extern u8 *func_0026e0e0(s32 param_1);
 
+
+
+/* measured: nd2 - retail emits slt $at for the var_16>=glyphcount check,
+   mwcc b210 emits slt $v0 no matter the spelling (>=, <= swapped, empty-if
+   <, (s32) casts - all nd2). Everything else matches byte-for-byte
+   (switch-chain with ascending cases + (s8)var_4==0 empty-else placement). */
 // FUN_00272170
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272170);
-
 // FUN_00272390
 int func_00272390(short *param_1)
 {
@@ -321,9 +564,19 @@ LAB_002724C4:
     return iVar2;
 }
 
+extern u8 D_007645B4;
+extern u8 *func_00272170(u16 arg0, u8 arg1, s8 arg2, s8 arg3);
+
+
+
+/* measured: nd92. Retail colors var_16=$16/var_17=$17/var_18=$18/
+   arg4=$19/arg0=$20/var_21=$21/arg2=$22/arg3=$23 and hoists the arg2/arg3
+   andi masks before the loop; mwcc b210 colors arg4=$16 first and keeps the
+   sltu check at the top (goto-loop) - while conversion fixes the loop shape
+   but not the register order; declaration reorders don't move it.
+   Saved-register rotation floor. */
 // FUN_002724D0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002724d0);
-
 // FUN_00272730
 void func_00272730(int param_1, u8 param_2)
 {
@@ -541,7 +794,42 @@ u32 func_00272cb0(int list)
 
 
 // FUN_00272D40
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00272d40);
+u8 *func_00272d40(u8 *arg0)
+{
+    s32 temp;
+
+    temp = *(s32 *)(arg0 + 0x30);
+    switch (temp) {
+    case 0xF222:
+    case 0xF227:
+        temp = *(s32 *)(arg0 + 0x3C);
+        if (temp == -1) {
+            break;
+        }
+        if (temp > 0) {
+            return arg0;
+        }
+        break;
+    case 0xF223:
+    case 0xF226:
+        temp = *(s32 *)(arg0 + 0x3C);
+        if (temp == -1) {
+            if (func_0045af90(1) != 0) {
+                return arg0;
+            }
+        } else if (temp > 0) {
+            return arg0;
+        }
+        break;
+    }
+    return 0;
+}
+/* measured: retail keeps arg1=$16/arg0=$17/temp_18=$18/var_19=$19/var_20=$20/
+   var_21=$21/var_22=$22/arg3=$23; mwcc b210 colors arg3=$16 FIRST and omits
+   the arg1+0x10 hoist (nd167). Declaration reorders (4 orders probed), u32
+   param widths, ternary float, early hoist, switch-wrapped final if: no
+   combination moves it. Float if/else also emits a branch-to-branch where
+   retail branches to the join. Saved-register rotation floor. */
 // FUN_00272E10
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272e10);
 // FUN_00273110
@@ -560,12 +848,28 @@ void func_00273140(void *param_1, u32 param_2)
 
 
 
+extern s32 D_0076459C;
+extern void func_003f6440(s32 param_1, s32 param_2);
+extern s32 func_00272e10(u8 *param_1, u8 *param_2, u8 param_3, u8 param_4);
+extern void func_00275d80(s32 param_1, s32 param_2, u8 *param_3,
+                         u8 param_4, u8 param_5, u8 param_6, s32 param_7,
+                         f32 param_8);
+extern code D_00887300_abs[];
+#pragma alias D_00887300_abs D_00887300
+
+
+
+/* measured: nd131 - the void *(**) tab local DOES hoist &D_00887300 into a
+   saved register (all 8 vtable calls match); retail then colors
+   var_16=$16/tab=$17/var_18=$18/arg1=$19/arg0=$20/var_19+arg1s8=$21/
+   temp_22=$22/temp_23=$23, mwcc b210 colors tab=$16/arg0=$17/var_16=$18/
+   var_18=$19/arg1=$21 no matter the declaration order. Everything else
+   matches byte-for-byte (switch chain, func_00275d80 arg set, s8 casts).
+   Saved-register rotation floor. */
 // FUN_00273170
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
-
 // FUN_002734B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002734b0);
-
 // FUN_00273610
 u32 func_00273610(void)
 {
@@ -605,9 +909,17 @@ body:
 
 
 
+extern int func_00273970(int param_1);
+
+
+
+/* measured: all instructions match; retail colors arg0=$16, temp_17=$17,
+   arg1=$18 and emits slt $at for the count check; mwcc b210 colors
+   arg1=$16, arg0=$17, temp_17=$18 and slt $v0 (nd37). Tried first-use
+   reorder, arg1 mutation (no var_18), cached func result, declaration
+   reorders - allocation never changes. Saved-register rotation floor. */
 // FUN_002736D0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002736d0);
-
 // FUN_002738A0
 void func_002738a0(u64 param_1)
 {
@@ -686,9 +998,18 @@ int func_00273970(int node)
 // FUN_002739E0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002739e0);
 
+extern s8 D_0076380C;
+extern s32 func_00442948(const void *param_1);
+
+
+
+/* measured: nd124. mwcc b210 places the sp8C/sp8D stack bytes at 0x8f (top
+   byte) with s8 locals; declaring `int sp8` + (s8*)&sp8 fixes the 0x8c slot.
+   Remaining: zero-loop ptr/counter registers (v1/a0 vs a0/v1), outer loop
+   check-at-top vs retail's b-to-bottom, func_00273650 bodies inline vs
+   retail's out-of-line - all layout/alloc floors (like FUN_00273F70). */
 // FUN_00273CC0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273cc0);
-
 // FUN_00273F70
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273f70);
 // FUN_002740B0
@@ -766,9 +1087,14 @@ void func_002746b0(u32 param_1)
     D_00764594 = param_1;
 }
 
+/* measured: retail colors arg0=$s3 first, arg1=$s4, and enters the script
+   loop via b to the bottom check (while shape); mwcc b210 colors arg1=$s3
+   first and falls into the loop body (do-while shape), nd109 best (struct
+   field access for 0x10/0x18 kills the address hoisting mwcc adds with raw
+   pointer casts; nd125 with inline casts, nd125 original). Register-order +
+   loop-entry floor. */
 // FUN_002746E0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002746e0);
-
 // FUN_002748E0
 s8 func_002748e0(int param_1, int param_2, int param_3)
 {

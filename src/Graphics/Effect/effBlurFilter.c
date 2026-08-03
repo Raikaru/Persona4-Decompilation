@@ -47,7 +47,7 @@ extern void func_004a8da0(u8 *arg0, u8 *arg1);
 extern void func_004a8890(u8 *arg0, s32 *arg1);
 extern s32 func_00481390(void *ptr);
 extern s32 func_00481300(u16 param);
-extern s32 func_00484490(u8 *obj);
+extern s32 func_00484490(void);
 extern u16 *func_004844d0(u8 *obj);
 extern u8 D_00714390[];
 extern u8 D_007143A4[];
@@ -64,15 +64,49 @@ typedef struct BlurRefObj {
 extern void *func_004abb00(BlurRefObj *param_1);
 extern void func_004aba70(void *param_1);
 
+extern f32 func_0044b7b0(f32 fparg0);
+extern s32 func_0044dcd8(f32 a);
+extern s32 func_0044b310(s32 a);
+extern s32 func_0044e100(s64 a, s32 b);
+extern s32 func_0044e168(s64 a, s32 b);
+extern f32 func_0044e7d8(s32 a);
+extern f32 fGpffff8084;
+extern s64 fGpffff8018;
+extern s64 fGpffff8020;
+extern s64 fGpffff8010;
+
+/* measured: retail's byte->f32 doubling and alpha blocks keep their values in
+   $a0 and convert into $f20 (or-dest = the srl scratch); mwcc b210 recompiled
+   from equivalent C keeps them in $v1 and converts into $f0, nd 11 (6 rows,
+   3 blocks). Tried 5 declaration orders, single/multi-statement forms, temps,
+   ternaries, shift/and operand orders - identical result. Scratch-register
+   rotation floor. */
 // FUN_004A8BB0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8bb0);
 
+extern u32 func_004bd050(u32 param);
+extern f32 func_004bd0b0(u32 param);
+extern f32 func_0044b610(f32 param);
+extern f32 fGpffff80f4;
+extern f32 fGpffff80cc;
+
+/* measured: retail seeds the ACC with mula.s (0.5f*t2) for the second
+   var_f23 = cc*var_f20 + 0.5f*var_f23 update and keeps the second sub-chain
+   result in $f2; mwcc b210 recompiled from equivalent C precomputes 0.5f*t2
+   with mul.s, CSEs cc*var_f20, and fuses madd.s with the wrong multiplier
+   (0.5f*(0.5f*t2)), nd 19 (9 rows, one block). Tried summand orders, m2c
+   declaration order, explicit temps - identical result. Register/FMA-fusion
+   floor. */
 // FUN_004A8DA0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
 
 // FUN_004A8F90
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8f90);
 
+/* measured: same byte-doubling floor as func_004a8bb0 (or-dest/cvt-into-f20)
+   plus the 1.0f-materialisation order in the madd store (mwcc hoists the x
+   load ahead of lui/mtc1 and gains an extra nop), nd 12 (6 rows). Tried
+   both summand orders and declaration swaps - identical result. */
 // FUN_004A9180
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a9180);
 
@@ -114,6 +148,12 @@ typedef struct BlurGsQuad {
     u8 pad3[0x38];
 } BlurGsQuad;
 
+/* measured: retail materialises `addiu $a0,1` before `lw $a1,($s0)` for the
+   first D_00887300 vtable call; mwcc b210 hoists the register-indirect load
+   first (global-load args order fine), nd 3 (2 rows). Direct D_00887300[0]()
+   spelling loses the $s1 address hoist (frame -0x10); cached setState pointer
+   keeps the hoist but keeps the load-first order. Argument-evaluation-order
+   floor. */
 // FUN_004A98D0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a98d0);
 
@@ -334,12 +374,25 @@ void func_004aaa90(u8 *arg0) {
 // FUN_004AAB50
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aab50);
 
+/* measured: same D_00887300 arg-order floor as func_004a98d0: retail emits
+   `addiu $a0,1` before `lw $a1,($s0)`; mwcc b210 hoists the register-indirect
+   load first, nd 3 (2 rows). Direct D_00887300[0]() spelling fixes the order
+   but drops the $s1 address hoist (frame -0x10). */
 // FUN_004AAD30
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aad30);
 
+/* measured: retail keeps arg0/$s5, arg1/$s4, hoists 0x60 into $s1 (temp_4
+   via addu); mwcc b210 recompiled from equivalent C hoists the 0xFFFF mask
+   into $s1/$s4 instead and rotates the saved registers (arg0 -> $s2, size/
+   alloc swapped), nd 25 (14 rows). Tried 5 declaration orders, u16/u32 arg0,
+   fn-pointer and mask temps, both assert cast forms - identical result.
+   Saved-register rotation floor. */
 // FUN_004AAEE0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aaee0);
-
+/* measured: same arg-materialisation floor as func_004ab5a0: retail emits
+   `daddu $a0,$v0` before `lhu $a1,0x1c($s1)` before the jal func_004ab960;
+   mwcc b210 emits the load first, nd 4 (2 rows). Same spellings tried,
+   identical result. */
 // FUN_004AB060
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab060);
 

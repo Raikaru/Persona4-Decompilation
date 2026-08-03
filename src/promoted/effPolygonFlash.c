@@ -29,6 +29,15 @@ extern void *func_004a1660(s32, void *);
 extern u8 *(*jtbl_008873E8[])(s32, s32);
 extern void func_0044ea90(char *, s32);
 extern void func_0046d730(char *, s32);
+extern s32 func_0048abd0(u8 *, u8 *, s32, s32);
+extern void func_004836b0(void *, void *, void *, void *);
+extern void func_00483490(void *, u16);
+
+/* 4-byte color, copied field-by-field by retail. */
+typedef struct
+{
+    u8 c[4];
+} Color4;
 extern char D_00713FF0[];
 extern char D_007133A0[];
 extern char D_007133C0[];
@@ -72,8 +81,107 @@ void func_0049a9e0(u8 *arg0)
 
 // FUN_0049AA30
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049aa30);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049B2B0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b2b0);
+void func_0049b2b0(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
 /* measured: with #pragma opt_loop_invariants on, the fill loop matches retail
  * exactly (including the preheader -1 hoist and the slt/nop/bnez tail); the
  * residual is 8 words in the func_0043f9c8 argument block: retail completes
@@ -117,8 +225,111 @@ void func_0049b640(u8 *arg0)
 
 // FUN_0049B690
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b690);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049BFF0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049bff0);
+void func_0049bff0(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
+
+/* measured: shares func_0049b470's recorded floor - the fill loop matches
+   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
+   splits around the size computation (8-word residual). See FUN_0049B470. */
 // FUN_0049C1B0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049c1b0);
 // FUN_0049C2A0
@@ -154,8 +365,111 @@ void func_0049c380(u8 *arg0)
 
 // FUN_0049C3D0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049c3d0);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049CD10
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049cd10);
+void func_0049cd10(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
+
+/* measured: shares func_0049b470's recorded floor - the fill loop matches
+   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
+   splits around the size computation (8-word residual). See FUN_0049B470. */
 // FUN_0049CED0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049ced0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
@@ -270,8 +584,111 @@ void func_0049d310(u8 *arg0)
 }
 // FUN_0049D360
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049d360);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049DB20
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049db20);
+void func_0049db20(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
+
+/* measured: shares func_0049b470's recorded floor - the fill loop matches
+   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
+   splits around the size computation (8-word residual). See FUN_0049B470. */
 // FUN_0049DCE0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049dce0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
@@ -380,8 +797,111 @@ void func_0049e100(u8 *arg0)
 }
 // FUN_0049E150
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049e150);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049E920
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049e920);
+void func_0049e920(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
+
+/* measured: shares func_0049b470's recorded floor - the fill loop matches
+   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
+   splits around the size computation (8-word residual). See FUN_0049B470. */
 // FUN_0049EAE0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049eae0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
@@ -490,8 +1010,111 @@ void func_0049ef00(u8 *arg0)
 }
 // FUN_0049EF50
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049ef50);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_0049F820
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049f820);
+void func_0049f820(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
+
+/* measured: shares func_0049b470's recorded floor - the fill loop matches
+   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
+   splits around the size computation (8-word residual). See FUN_0049B470. */
 // FUN_0049F9E0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049f9e0);
 // FUN_0049FAD0
@@ -519,8 +1142,111 @@ void func_0049fba0(u8 *arg0)
 }
 // FUN_0049FBF0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049fbf0);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_004A05F0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a05f0);
+void func_004a05f0(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
+
+/* measured: shares func_0049b470's recorded floor - the fill loop matches
+   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
+   splits around the size computation (8-word residual). See FUN_0049B470. */
 // FUN_004A07B0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a07b0);
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
@@ -633,8 +1359,108 @@ void func_004a0bb0(u8 *arg0) {
 
 // FUN_004A0C00
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a0c00);
+/* measured: retail's else-branch restores 0xFF to the alpha byte after the
+   color copy; mwcc b210 dead-store-eliminates that final store for a plain
+   local, so the restore is emitted through a volatile-qualified byte access. */
 // FUN_004A14A0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a14a0);
+void func_004a14a0(u8 *arg0)
+{
+    union
+    {
+        s32 w;
+        u8 b[4];
+    } sp4C;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s32 temp_3;
+    u8 *temp_2;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_6;
+    u32 temp_7;
+
+    temp_2 = *(u8 **)(arg0 + 0x3C);
+    temp_17 = *(u8 **)(arg0 + 0x40);
+    temp_16 = *(u8 **)(temp_2 + 4);
+    temp_6 = *(u32 *)(arg0 + 0x34);
+    temp_7 = *(u32 *)(temp_17 + 0x34);
+    if ((temp_7 >= temp_6) || (temp_7 == 0))
+    {
+        s32 *pt;
+
+        temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
+        sp48 = *(s32 *)(arg0 + 0x30);
+        pt = &sp48;
+        __asm__ volatile(
+            "lwc1 $f0, -0x7FBC($28)  \n"
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp44 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10    \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, $f0          \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 0x40($sp)      \n"
+            :
+            : "r"(&sp44)
+            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        sp4C.w = *(s32 *)&sp40;
+        if (sp4C.b[3] != 0xFF)
+        {
+            u8 *dst = *(u8 **)(temp_16 + 0x14);
+            *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+        }
+        else
+        {
+            sp4C.b[3] = 0xFE;
+            {
+                u8 *dst = *(u8 **)(temp_16 + 0x14);
+                *(Color4 *)(dst + 4) = *(Color4 *)&sp4C;
+            }
+            *((volatile u8 *)&sp4C + 3) = 0xFF;
+        }
+        func_004836b0(temp_16, arg0, arg0 + 0x10, arg0 + 0x20);
+        if (*(u8 *)(temp_17 + 0x56) != 0)
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 | 1;
+        }
+        else
+        {
+            *(u16 *)temp_16 = *(u16 *)temp_16 & 0xFFFE;
+        }
+        {
+            s32 temp_28 = *(u16 *)(temp_17 + 0x28);
+            func_00483490(temp_16, temp_28);
+        }
+    }
+}
+
 // FUN_004A1660
 /* measured: without opt_propagation off, mwcc folds the %lo of D_00713CE0
  * into the lq offset (lui+lq); retail materializes lui+addiu+lq. */
