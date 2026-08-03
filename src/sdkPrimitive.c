@@ -85,10 +85,27 @@ INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045db40);
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045dd30);
 
 
+/* measured: mwcc b210 allocates 8 saved registers (frame 0xC0, saved[6] at
+   0xA0) vs retail's 7 (frame 0xB0, saved[6] at 0x90) -- the extra live value
+   (loop counter or pre-jal operand) pushes the frame 0x10 and shifts the
+   byte-conversion loop codegen (inv/minus land in $f2/$f1 vs retail $f1/$f2,
+   branch inverted to bgez, loads reordered). Tried dedicated v0-v3/c0-c3/f0-f3
+   locals, block-scoped temps, bare u8 loads, and both if(x<0)/if(x>=0) branch
+   orientations: all nd 200 with the same 8-sreg frame. Register-allocation
+   floor. */
 // FUN_0045DFD0
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045dfd0);
 
 
+/* measured: mwcc b210 allocates 8 saved registers (frame 0xC0, saved[6] at
+   0xA0) vs retail's 7 (frame 0xB0, saved[6] at 0x90): the first-loop temp
+   &D_00712490[j] gets a dedicated $s5 instead of reusing out's register
+   ($s0, which is dead until the alloc call), and the D_00887304/00 call
+   arguments evaluate in the wrong order (the recorded db40/e6a0 floor). The
+   byte-conversion loop is otherwise structurally correct (inv/minus land in
+   $f2/$f1 vs retail $f1/$f2). Tried hoisting pos/col/scale all, pos/col only,
+   and every declaration order (probe a/b/c): all nd 225-227. Saved-register
+   rotation + argument-order floor. */
 // FUN_0045E310
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e310);
 
@@ -105,9 +122,25 @@ INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e310);
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e6a0);
 
 
+/* measured: prologue, alloc, w-field setup, both func_0043f810 copies, the
+   iGpffff81d0*scale + func_0044b7b0/44b610 calls, and the tail all match
+   byte-for-byte (nd 88). The rotation loop's retail FPU-accumulator chain
+   (mula.s $f2,$f20; madd.s $f1,$f3,$f0; add.s $f1,$f6,$f1 -- a 2-product
+   sum whose ACC is seeded with the dy*f21*f20 product, then the base f6
+   added last) is not reproduced: mwcc b210 always seeds the ACC with the
+   base addend (mtc1 $zero + adda.s $f4,$f6 + madda.s + madd.s) instead of
+   the product, for every term order (x-first/y-first), parenthesized,
+   separate rx/ry temps, and dx/dy locals (all nd 88-89). Also the w base
+   lands in $s0 vs retail $s2, and the pre-loop pos[0]/pos[1] spB8/spBC
+   stack stores are omitted. FPU-accumulate (mula/madd) floor. */
 // FUN_0045E8E0
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e8e0);
 
 
+/* measured: identical structure to func_0045e8e0 (same rotation loop with
+   retail's FPU-accumulator chain mula.s/madd.s/add.s) plus w->prime = 1
+   after the loop; hits the same FPU-accumulate floor at nd 88 (the base
+   f6/f5 acc-seed vs retail's product seed, and the w base in $s0 vs retail
+   $s2). See func_0045e8e0 note. FPU-accumulate (mula/madd) floor. */
 // FUN_0045EB20
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045eb20);

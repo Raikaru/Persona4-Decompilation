@@ -107,6 +107,7 @@ extern void func_003e9df0(void *arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0f40(void *arg0);
 extern void func_00146f50(void *arg0, void *arg1, void *arg2);
+extern void func_0026bfc0(f32 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *arg1);
 extern u8 *func_00147620(u32 arg0);
 extern f32 func_0044b610(f32 arg0);
 extern f32 func_0044b938(f32 arg0);
@@ -750,9 +751,18 @@ INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269c70);
 // FUN_00269DB0
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269db0);
 
+/* measured: not attempted — 6720B window with nested switches (jtbl_00748080),
+   half-scaler (u>>1|u&1) patterns and mula/madd MAC chains; complexity exceeds
+   the wave budget. Left as INCLUDE_ASM. */
 // FUN_0026A020
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026a020);
 
+/* measured: ported from m2c + P3FES idioms. Best nd 60 (obj 428B/window 432B)
+   with hoisted temp_3[0]/temp_3[4] loads + sp40p base pointer. Residual:
+   retail materializes func_00168ec0 arg3 (&sp40) via addiu $a2,$sp,0x40 at the
+   loop top (before the D_0063B080/B088 loads); a sp40p local forces it early
+   but spills to callee-saved $s3 (frame 0x70 vs 0x60). Without sp40p, nd 84
+   with frame 0x60. Argument-materialization + load-position scheduling floor. */
 // FUN_0026BA60
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026ba60);
 
@@ -869,12 +879,28 @@ void func_0026bf70(u32 arg0)
     }
 }
 
+/* measured: ported P3FES FUN_003bb450 (nd 4 there; nd 3 here). Only residual is
+   the axis2 12-byte aggregate copy (SceneVecBits D_0063B140): retail moves it
+   via lwc1/swc1 (12 bytes), b210 blits ld/sd (16). Direct-width spelling
+   (axis2.raw.xy = *(u64*)D_0063B140; axis2.raw.z = *(f32*)(D_0063B140+8)) emits
+   the right width but reorders the schedule (nd 31). Aggregate-copy WIDTH floor.
+   Needed: D_0063B1xx declared as ARRAYS (retail absolute lui/ld, not GPREL). */
 // FUN_0026BFC0
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
 
+/* measured: ported P3FES FUN_003bb620 (also nd 4 there). Only residual is the
+   direction-vector stores: retail sd $v0,0xd0($sp)/swc1 $f0,0xd8($sp) direct;
+   b210 either stores through a cached dest ptr (nd 4) or materializes the
+   func_003e40b0 $a1 base after the stores (nd 8). Direct/pointer/staged forms
+   probed, all >= nd 4. Cached-dest-pointer scheduling floor. */
 // FUN_0026C190
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026c190);
 
+/* measured: attempted m2c adaptation. Frame/layout mismatch (locals are 12-byte
+   vecs + matrix; my scalar declarations gave frame 0x80 vs retail 0xC0) and the
+   branch has a Gram-Schmidt cross-product MAC chain (mula.s/msub.s) that must
+   match exactly. P4-specific (no P3FES FUN_003bb7a0 equivalent — that lacks the
+   arg0[0x28]&0x08000000 branch). Reverted after 1 attempt; complex MAC-chain floor. */
 // FUN_0026C310
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026c310);
 

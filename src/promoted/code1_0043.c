@@ -74,7 +74,10 @@ void func_00438fa0(void) {
 /* floor: retail hoists the arg load above the frame (lui; addiu $sp; lw; sd $ra)
    and fills the jr $ra delay slot; b210 at every level either keeps the O2 order
    (nd 18: addiu $sp; sd $ra; lui; lw; jal; nop; sync; ei; ld; addiu $sp; jr; nop)
-   or moves the lw into the jal delay slot (nd 24). The sync/ei asm itself matches. */
+   or moves the lw into the jal delay slot (nd 24). The sync/ei asm itself matches.
+   measured: best candidate (plain O2, func_00421810(D_008AC780[0]) + sync/ei asm)
+   gives nd 6 (reloc-masked): only the lui/lw-vs-frame order and the jr-delay-slot
+   order differ; schedule on / O3 both move the lw into the jal delay slot (nd 11). */
 
 // FUN_004393F8 NONMATCHING
 #ifdef NON_MATCHING
@@ -129,16 +132,21 @@ s32 func_0043c0a0(void) {
 #ifdef NON_MATCHING
 /* measured: O3 is load-bearing (nd 13 -> 9). Floor: retail keeps the -1 compare
    constant in $t7 and places the pointer increment in the bne delay slot; b210
-   colours the constant $v1 and leaves the delay slot nop at all levels. */
+   colours the constant $v1 and leaves the delay slot nop at all levels.
+   Best candidate (do-while, local ptr/counter) gives nd 6 (reloc-masked): the
+   loop body is identical except the -1 constant is $v1 not $t7 and the pointer
+   increment is inline (offset 0x18) not in the bne delay slot (offset 0x28).
+   probed while/for/order-swap/dummy variants, all nd >= 6. */
 #pragma optimization_level 3
 void func_0043c6d8(u8 *arg0, s32 arg1) {
-    s32 var_5 = arg1 - 1;
-    if (var_5 != -1) {
+    u8 *p = arg0;
+    s32 c = arg1 - 1;
+    if (c != -1) {
         do {
-            *arg0 = 0;
-            var_5 -= 1;
-            arg0 += 1;
-        } while (var_5 != -1);
+            *p = 0;
+            c -= 1;
+            p += 1;
+        } while (c != -1);
     }
 }
 #else

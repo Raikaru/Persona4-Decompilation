@@ -10881,7 +10881,7 @@
       "target_path": "build/objdiff/target/Event/evtPMFileReader/00293d30.o",
       "base_path": "build/objdiff/base/Event/evtPMFileReader/00293d30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10892,7 +10892,7 @@
       "target_path": "build/objdiff/target/Event/evtPMFileReader/00293ed0.o",
       "base_path": "build/objdiff/base/Event/evtPMFileReader/00293ed0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -10925,7 +10925,7 @@
       "target_path": "build/objdiff/target/Event/evtPMFileReader/002940a0.o",
       "base_path": "build/objdiff/base/Event/evtPMFileReader/002940a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11772,7 +11772,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effCrossfade/004b2ed0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effCrossfade/004b2ed0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11794,7 +11794,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effCrossfade/004b3110.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effCrossfade/004b3110.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11805,7 +11805,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effCrossfade/004b3180.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effCrossfade/004b3180.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24576,7 +24576,7 @@
       "target_path": "build/objdiff/target/cldDungeonIn/00268920.o",
       "base_path": "build/objdiff/base/cldDungeonIn/00268920.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24587,7 +24587,7 @@
       "target_path": "build/objdiff/target/cldDungeonIn/00268990.o",
       "base_path": "build/objdiff/base/cldDungeonIn/00268990.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -129010,7 +129010,7 @@
       "target_path": "build/objdiff/target/promoted/cmmScript/0024a8b0.o",
       "base_path": "build/objdiff/base/promoted/cmmScript/0024a8b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138129,7 +138129,7 @@
       "target_path": "build/objdiff/target/promoted/sdkFiler/00468170.o",
       "base_path": "build/objdiff/base/promoted/sdkFiler/00468170.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138140,7 +138140,7 @@
       "target_path": "build/objdiff/target/promoted/sdkFiler/00468260.o",
       "base_path": "build/objdiff/base/promoted/sdkFiler/00468260.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -138184,7 +138184,7 @@
       "target_path": "build/objdiff/target/promoted/sdkFiler/00468940.o",
       "base_path": "build/objdiff/base/promoted/sdkFiler/00468940.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140802,7 +140802,7 @@
       "target_path": "build/objdiff/target/promoted/y_fclCmbBall/0034ad70.o",
       "base_path": "build/objdiff/base/promoted/y_fclCmbBall/0034ad70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -140857,7 +140857,7 @@
       "target_path": "build/objdiff/target/promoted/y_fclCmbBall/0034b740.o",
       "base_path": "build/objdiff/base/promoted/y_fclCmbBall/0034b740.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142738,7 +142738,7 @@
       "target_path": "build/objdiff/target/sdkClump/00462780.o",
       "base_path": "build/objdiff/base/sdkClump/00462780.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142760,7 +142760,7 @@
       "target_path": "build/objdiff/target/sdkClump/00462a60.o",
       "base_path": "build/objdiff/base/sdkClump/00462a60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142771,7 +142771,7 @@
       "target_path": "build/objdiff/target/sdkClump/00462ae0.o",
       "base_path": "build/objdiff/base/sdkClump/00462ae0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142870,7 +142870,7 @@
       "target_path": "build/objdiff/target/sdkOt/00460b60.o",
       "base_path": "build/objdiff/base/sdkOt/00460b60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142881,7 +142881,7 @@
       "target_path": "build/objdiff/target/sdkOt/00460c70.o",
       "base_path": "build/objdiff/base/sdkOt/00460c70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142936,7 +142936,7 @@
       "target_path": "build/objdiff/target/sdkOt/00461180.o",
       "base_path": "build/objdiff/base/sdkOt/00461180.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -142958,7 +142958,7 @@
       "target_path": "build/objdiff/target/sdkOt/00461390.o",
       "base_path": "build/objdiff/base/sdkOt/00461390.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

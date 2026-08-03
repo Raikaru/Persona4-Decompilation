@@ -421,6 +421,16 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d070);
 // FUN_0034D280
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d280);
 
+/* measured (1 attempt, best nd 35): opt_loop_invariants + for-loop shape
+   gives the byte-identical frame, preheader constant hoist (-640/640/4.0f),
+   the whole div/f14 section (incl. the D_007523C4 lwc1 division) and the
+   tail call; the ONLY residual is the 3 loop bodies — retail keeps the
+   loop counter in $a2 (arg0/arg1 live across, address scratch $v0/$v1)
+   while mwcc b210 always colors the counter $v0 and the scratch $v1/$a2,
+   swapping every loop word. Same register-printing floor as func_0034d690
+   (nd 37) / d070 (nd 35) / d490 (nd 37); the d690 probe confirmed u32
+   counter and hoisted base pointer are worse, so this family is exhausted. */
+
 /* measured: retail colors the loop counter $a2 (arg1/arg0 live across the
    loops, address scratch $v0/$v1); mwcc b210 always colors the counter $v0
    and the scratch $v1/$a2, swapping every loop word, nd 37. opt_loop_invariants
@@ -439,22 +449,31 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d490);
 
 // FUN_0034D690
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d690);
+/* measured (4 attempts, best nd 37): opt_loop_invariants + for-loop shape
+   gives the byte-identical frame, preheader constant hoist (-448/448/4.0f),
+   div section and tail call; the ONLY residual is the 3 loop bodies — retail
+   keeps the loop counter in $a2 (arg0/arg1 live across, address scratch
+   $v0/$v1) while mwcc b210 always colors the counter $v0 and the scratch
+   $v1/$a2, swapping every loop word. Tried s32/u32 counters, hoisted
+   f32* base local, decl orders, pragma on/off — identical. Register-printing
+   floor, same family as func_0034d070 (nd 35) / d280 / d490. */
 
 // FUN_0034D890
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);
-/* measured: re-tested with recipe A (3 attempts, best nd 161). The 0x994
-   byte chain now matches retail instruction-for-instruction (lbu + single
-   bltz + srl/andi/or + cvt + add.s doubling) and the adda.s/msub.s FMA
-   (247.0f - 82.0f*var_f0) matches. Remaining b210 floors: (1) the clamp
-   comparison — only `prod < 2.1474836e9f` gives retail's layout (cvt inline,
-   sub out of line) but mwcc encodes c.olt.s prod,const + bc1f where retail
-   has c.ole.s const,prod + bc1t (same family as c500/ddf0). (2) `y + 448.0f`
+/* measured: re-tested with recipe A (3 attempts, best nd 161). 4th attempt
+   (plain-C byte chain + unfused FMA) was worse (nd 179, obj 796B > 720B
+   window). The 0x994 byte chain and adda.s/msub.s FMA (247.0f - 82.0f*var_f0)
+   match retail instruction-for-instruction (lbu + single bltz + srl/andi/or
+   + cvt + add.s doubling). Remaining b210 floors: (1) the clamp comparison —
+   only `prod < 2.1474836e9f` gives retail's layout (cvt inline, sub out of
+   line) but mwcc encodes c.olt.s prod,const + bc1f where retail has
+   c.ole.s const,prod + bc1t (same family as c500/ddf0). (2) `y + 448.0f`
    repeated in calls 2+3 is CSE'd into a saved $f22 (6 saved FP vs retail's
    5, $f22 hole shifts x/delta/inv to $f23/$f24/$f25); retail re-issues
    lui/mtc1/add.s per call; operand reversal does not break mwcc's CSE.
    (3) saved-FP rotation: retail allocates by declaration order (0x9A0 ->
-   $f20, 164.0f*var_f0 -> $f21, 1/x -> $f22, delta -> $f23, x -> $f24), mwcc
-   by first-use (164*var_f0 -> $f20, 0x9A0 -> $f21). (4) int-args-before-
+   $f20, 164.0f*var_f0 -> $f21, 1/x -> $f22, delta -> $f23, x -> $f24),
+   mwcc by first-use (164*var_f0 -> $f20, 0x9A0 -> $f21). (4) int-args-before-
    float-moves call materialization. Register-coloring + CSE + comparison-
    shape floor. */
 

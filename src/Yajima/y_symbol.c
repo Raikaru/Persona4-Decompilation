@@ -93,6 +93,12 @@ s32 func_002b3990(s32 arg0)
     func_0046d280(t);
     return ret;
 }
+/* measured: retail materializes func_0025ecd0's float args (f16,f12,f13,f14)
+   before the int args and sinks the memory operands (p->sx,p->sy) + address
+   (D_00794D20) to the end; mwcc b210 emits the memory loads first and the
+   float args after the ints, so the arg blocks are ordered differently. Tried
+   Vec2-by-value, s32 tuple, and Symbol-struct-field spellings; all nd 37-85.
+   Argument-evaluation-order floor. */
 // FUN_002B3AE0
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b3ae0);
 // FUN_002B3C50
@@ -113,6 +119,13 @@ void func_002b3c60(u8 *arg0, u8 arg1)
     p[0x21] = arg1;
 }
 
+/* measured: retail frame is 0x80 with the func_0025ecd0 float pair copied to
+   sp60/sp58 (ld $2,0x70; sd $2,0x60) and saved regs $18/$17/$16/$f20; mwcc b210
+   eliminates the struct copy (dead-store shrink -> 0x70 frame), saves an extra
+   $f21, and misaligns the adda.s/madd.s FPU-MAC and bltz sign guard. Tried
+   Vec2-by-value, struct-copy, and s64-bit-reinterpret spellings; all lost the
+   struct copy or the bltz guard. Argument-order + dead-store-elimination floor.
+   */
 // FUN_002B3C70
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b3c70);
 // FUN_002B4110
@@ -149,6 +162,11 @@ void func_002b4240(u8 *arg0, u8 arg1)
     p[0] = arg1;
 }
 
+/* measured: retail keeps sp78/sp7C in memory (0x78/0x7c) and saves only
+   $s2/$s1/$s0/$f20; mwcc b210 keeps sp78/sp7C in FP regs, saves an extra $s3/
+   $f21, places the base at 0x70 instead of 0x68, and misaligns the adda.s/
+   madd.s FPU-MAC. Same register-vs-memory + stack-layout floor as func_002b4ad0
+   and func_002b3c70. */
 // FUN_002B4250
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b4250);
 // FUN_002B49E0
@@ -180,6 +198,13 @@ void func_002b4ac0(u8 *arg0, u8 arg1)
     p[0] = arg1;
 }
 
+/* measured: retail keeps sp78/sp7C in MEMORY (0x78/0x7c, copied from the
+   func_002b2bd0 output at 0x68) and saves only $s2/$s1/$s0/$f20; mwcc b210
+   keeps sp78/sp7C in saved FP regs $f21/$f20 (extra save), places the base at
+   0x70 instead of 0x68, and misaligns the adda.s/madd.s FPU-MAC. Tried three
+   declaration orders and Vec2/s64 struct layouts; sp78/sp7C never spill to
+   memory and $f21 is never freed. Register-vs-memory allocation + stack-layout
+   floor. */
 // FUN_002B4AD0
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b4ad0);
 // FUN_002B4FB0
