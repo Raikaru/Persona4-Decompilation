@@ -25,6 +25,14 @@ extern void func_004b13d0(s32 a, f32 b);
    order, and retail's bytes (addiu a0 / lwc1 f12 / addiu a1 before the jal) require that. */
 extern void func_003715e0(f32 *arg0, f32 fparg0, f32 *arg1);
 extern void func_00371780(f32 *arg0, f32 *arg1);
+
+/* measured: the operands must travel through this helper's parameters to get
+   retail's index-first `addu $v1,$v1,$s0`; rewriting the callsite expression as
+   `offset + (u32)base` is canonicalized straight back to the base-first form. */
+static inline u32 bseSlot(u32 offset, u32 base)
+{
+    return offset + base;
+}
 extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 
 // FUN_0038D6C0
@@ -188,10 +196,30 @@ void func_0038daf0(u8 *arg0, s32 arg1) {
         }
     }
 }
-/* measured: the C body below matches retail nd 0 for every real instruction, but the
-   retail window (176B) ends with an unreachable duplicate `jr $ra; nop` at 0x38DD60
-   (an unmarked nullsub stub -- func_0038dd70/0038dd80 are sibling nullsubs). No source
-   spelling emits dead epilogue bytes (probed: eff-local, offset-local, trailing
-   return). Window/tooling artifact: needs a func_0038dd60 symbol split; keep INCLUDE_ASM. */
+/* The window artifact this note used to describe is fixed: 0x0038DD60 is now a
+   canonical nullsub boundary (see DATA_REACHABLE_ENTRIES in
+   tools/reconcile_function_boundaries.py, justified by the callback-table word
+   at 0x005DD2A4), so the window is 160B and the body fills it exactly. */
 // FUN_0038DCC0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleEff", func_0038dcc0);
+void func_0038dcc0(u8 *arg0, s32 arg1)
+{
+    u8 *eff;
+    s32 *slot;
+    s32 held;
+
+    eff = *(u8 **)(arg0 + 0x38);
+    if (arg1 < 0 || arg1 >= 9) {
+        func_0046d730(&D_0064F210[0], 0x55);
+    }
+    slot = (s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
+    held = *(s32 *)(bseSlot(arg1 * 8, (u32)eff) + 0xC);
+    if (held != 0) {
+        func_004b1150(held);
+        *slot = 0;
+    }
+    /* measured: the compound assignment evaluates the mask before loading the
+       halfword, which is retail's order; a mask local plus an explicit load lets
+       b210 hoist the lhu above the shift chain. */
+    *(u16 *)(eff + 4) &= ~(1 << arg1);
+}
+

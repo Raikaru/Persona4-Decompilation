@@ -4776,7 +4776,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/00373610.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/00373610.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5458,7 +5458,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleEff/0038dcc0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleEff/0038dcc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -11783,7 +11783,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effCrossfade/004b30a0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effCrossfade/004b30a0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -64229,6 +64229,17 @@
     {
       "name": "nonmatchings:0038D660",
       "target_path": "build/objdiff/target/nonmatchings/0038d660.o",
+      "base_path": null,
+      "metadata": {
+        "complete": false,
+        "progress_categories": [
+          "unclassified"
+        ]
+      }
+    },
+    {
+      "name": "nonmatchings:0038DD60",
+      "target_path": "build/objdiff/target/nonmatchings/0038dd60.o",
       "base_path": null,
       "metadata": {
         "complete": false,
@@ -128779,7 +128790,7 @@
       "target_path": "build/objdiff/target/promoted/btlShuffleResult/00381830.o",
       "base_path": "build/objdiff/base/promoted/btlShuffleResult/00381830.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

@@ -492,24 +492,57 @@ void func_00373590(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
     *(s8 *)(arg0 + 1) = arg3;
 }
 
-/* measured: re-tested this wave (fresh reconstruction). The counter
-   increment chain `lhu;addiu;sh;andi` — retail orders sh $v0 BEFORE andi
-   $v1,$v0,0xffff (store raw, mask for the test); mwcc b210 always hoists
-   the andi above the sh (2 words differ, nd 4 = 2 real + 2 padding).
-   Tried: (u16) cast, s32 v with &=0xFFFF in place, store-then-reload
-   (emits a real lhu instead), m2c's exact double-mask with named
-   temp_2_3, and inline (temp_2 & 0xFFFF) — identical andi-first schedule
-   every time. Everything else (the >= slt/bnez layout, descending beq
-   switch chain 4,3,2,1,0 with case 0 shared exit, assert 0x379,
-   func_0045af60 calls) matches. Store/mask scheduling floor. */
-/* re-measured wave 14: compound-assignment increment
-   (`v = (*(u16 *)(arg0 + 2) += 1)` + `(v & 0xFFFF)` compare, FLBtlresultsimple
-   lever) and a real ascending-case switch BOTH regress hard (nd 53-57 vs
-   recorded 4) because the fresh reconstruction lost the recorded if/else-if
-   descending dispatch shape; the recorded nd-4 increment spelling remains
-   untranscribed. Store/mask scheduling floor confirmed. */
+/* Both notes previously here were wrong. The store/mask order and the dispatch
+   shape are each source-drivable, but only TOGETHER: the compound assignment's
+   value fixes sh-before-andi, and the positive-condition guard branching out to
+   a single trailing `return 0` gives retail's shared zero-return block. Wave 14
+   tried the compound assignment alone and regressed to nd 53-57 because it also
+   inlined the zero return, which shifts every branch target after it. Cases are
+   declared ascending so b210 reverses the comparisons to retail's 4,3,2,1,0
+   while laying the bodies out 1,2,3,4. */
 // FUN_00373610
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00373610);
+s32 func_00373610(u8 *arg0)
+{
+    s32 bumped;
+
+    if (arg0[1] == 0) {
+        return 1;
+    }
+    /* measured: the compound assignment's VALUE keeps the bumped counter in one
+       register, so the sh lands before the compare mask as retail does; a
+       separate increment-then-store pair hoists the andi above the sh. */
+    bumped = (*(u16 *)(arg0 + 2) += 1);
+    /* measured: testing the positive condition and letting it branch out to the
+       single trailing `return 0` reproduces retail's slt/bnez to one shared
+       zero-return block; an inline `return 0` here duplicates the block. */
+    if (!((s32)(bumped & 0xFFFF) < (s32)*(u16 *)(arg0 + 4))) {
+        /* Cases declared ascending: b210 emits the comparisons in reverse
+           (4,3,2,1,0) while laying the bodies out in declaration order. */
+        switch (arg0[1]) {
+        case 0:
+            break;
+        case 1:
+            func_0045af60(1, arg0[0], 5, 1);
+            break;
+        case 2:
+            func_0045af60(1, arg0[0], 5, 2);
+            break;
+        case 3:
+            func_0045af60(1, arg0[0], 5, 3);
+            break;
+        case 4:
+            func_0045af60(1, arg0[0], 5, 4);
+            break;
+        default:
+            func_0046d730(D_0064E9C0, 0x379);
+            break;
+        }
+        arg0[1] = 0;
+        return 1;
+    }
+    return 0;
+}
+
 // FUN_00373750
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00373750);
 

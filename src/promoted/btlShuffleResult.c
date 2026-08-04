@@ -166,32 +166,85 @@ s32 func_003816e0(u8 *arg0) {
     return 0;
 }
 
-/* measured: retail emits `sh $v0, 6($s0)` (counter store) before `andi $v1, $v0,
-   0xffff` (u16 compare mask) after the counter increment; mwcc b210 always emits
-   the andi immediately after the addiu, ahead of the store, regardless of source
-   spelling. Tried: u16 local with `cnt++`, u16 local with `cnt + 1` expression,
-   s32 local with explicit `(cnt & 0xFFFF)` mask at the compare, `(u16)` cast
-   compare, volatile store cast on the field, and `#pragma schedule off` — all
-   give the identical nd 2 (only the andi/sh pair swapped). Scheduling tie-break
-   floor, same family as the load-sinking floor. */
+/* Two levers, both recorded as impossible by the previous note: the counter
+   store lands before the compare mask because the compound assignment's VALUE
+   is used (see the measured comment at the site), and the single `return 0`
+   after the switch gives retail's one shared zero-return block placed last,
+   with the case bodies laid out in ascending declaration order. */
 // FUN_00381830
-INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00381830);
+s32 func_00381830(u8 *arg0)
+{
+    s32 *state = (s32 *)(arg0 + 0x18);
+    s32 count;
+    s32 i;
+    u8 *base;
+    s32 bumped;
+
+    switch (*(s32 *)(arg0 + 0x18)) {
+    case 0:
+        *state = 1;
+        /* fallthrough */
+    case 1:
+        if ((s32)*(u16 *)(arg0 + 6) < 0xA) {
+            /* measured: the compound assignment's VALUE keeps the incremented
+               counter in one register, so b210 emits the sh before the andi
+               exactly as retail does; a separate `cnt = cnt + 1; store;` pair
+               masks first. */
+            bumped = (*(u16 *)(arg0 + 6) += 1);
+            if ((bumped & 0xFFFF) == 0xA) {
+                func_0045af60(1, 1, 5, 0xC);
+            }
+        }
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            if (*(u16 *)(arg0 + 4) & 2) {
+                func_0043f9c8(arg0 + 0x18, 0, 0xC);
+                *(s32 *)(arg0 + 8) = 4;
+            } else {
+                base = *(u8 **)arg0;
+                count = func_00378530(*(s32 *)(base + 0x1F304),
+                                      *(s32 *)(base + 0x1F2FC));
+                for (i = 0; i < count; i++) {
+                    if (i != *(s32 *)(base + 0x1F308)) {
+                        if (*(u16 *)(base + (i * 0xE8) + 0x1D6A0) & 2) {
+                            func_0046d730(D_0064EC70, 0x8C);
+                        }
+                        func_0036e000(base + (i * 0xFB0));
+                    }
+                }
+                func_002bad10(0xA);
+                *state = 2;
+            }
+        }
+        break;
+    case 2:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            func_0036f620((u8 *)func_0036e900(*(void **)(*(u8 **)arg0 + 0x1F2A8)));
+            return 1;
+        }
+        break;
+    }
+    return 0;
+}
 
 /* measured: structure fully recovered from m2c (20-case jump-table state
    machine, case-1 init twin of func_00382ba0 case-0, case-5 with the three
    random chains + decoded FMA chain `1.0f + (1.0f + 20.0f * (rf / 4096.0f))`
    reproducing retail's adda.s/madd.s, cases 7-19 incl. D_0064E72E/
    D_0064EC88/D_0064EC90 lookups and iGpffffa9E0/a9E4 GPREL loads) but nd 989:
-   (1) every random chain carries the recorded b210 floors — or-fold
+   (1) every random chain carries the recorded b210 floors â€” or-fold
    `or $v0,$v1,$v0` vs retail `or $v1,$v1,$v0`, cvt-scratch `cvt.s.w $f0,$f0`
    + `add.s $f1,$f0,$f0` vs retail `cvt.s.w $f1,$f0; add.s $f1,$f1,$f1`,
    guard-polarity bc1f-inline-overflow vs retail bc1t-inline-cvt (same as
    func_00372960/effBlurFilter notes), and the definition-site andi of
    `(f()!=0) & 0xFF` temps sunk to first use; (2) the case-1 stack scalars do
    not land at retail's 0x128/0x12C/0x130/0x138 with the 0x118/0xD0/0x90/0x50
-   buffers (mwcc packs sp128 above sp138 at 0x13C — same layout family as the
+   buffers (mwcc packs sp128 above sp138 at 0x13C â€” same layout family as the
    func_00382ba0 sp38 slot floor); (3) arg0/ctx saved-register swap plus one
-   extra saved register ($s4) vs retail's 4 — declaration order and
+   extra saved register ($s4) vs retail's 4 â€” declaration order and
    block-scope old-style decls (func_002bb4e0, func_003816e0) verified as the
    only ways to get retail's no-arg jals. */
 // FUN_00381A70
