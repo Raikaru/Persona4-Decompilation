@@ -2,7 +2,12 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "include_asm.h"
 #include "type.h"
-extern void func_004604d0();
+extern u8 D_00887300_abs[];
+#pragma alias D_00887300_abs D_00887300
+typedef void (*KDrawFunc)(s32, s32);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_0045fa00(f32 arg0, u8 *arg1, s32 arg2);
+extern void func_004604d0(u8 *arg0, f32 arg1, f32 arg2, u8 *arg3, s32 arg4);
 extern u8 iGpffff9dd4;
 typedef struct { u8 c[4]; } Rgba8;
 
@@ -175,8 +180,11 @@ void func_0014d800(u8 *arg0, u8 *arg1) {
    arg1 into $v0 to survive. Naming the floats or the pointer in locals first does not
    change the order; both spellings give the identical nd 12. Evaluation-order floor. */
 // FUN_0014D830
-INCLUDE_ASM("asm/nonmatchings/k_draw", func_0014d830);
-
+void func_0014d830(u8 *arg0, u8 *arg1)
+{
+    func_004604d0(arg1 + 4, *(f32 *)(arg1 + 0x10), *(f32 *)(arg1 + 0x14),
+                  &iGpffff9dd4, 1);
+}
 // FUN_0014D870
 s32 func_0014d870(u8 *arg0)
 {
@@ -235,8 +243,19 @@ void func_0014da20(u8 *arg0, f32 arg1)
 }
 
 // FUN_0014DA30
-INCLUDE_ASM("asm/nonmatchings/k_draw", func_0014da30);
+void func_0014da30(u8 *arg0, u8 *arg1)
+{
+    KDrawFunc *tbl = (KDrawFunc *)D_00887300_abs;
 
+    (*tbl)(7, 2);
+    (*tbl)(6, 1);
+    (*tbl)(8, 0);
+    (*tbl)(0xC, 1);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+    func_0045fa00(60.0f, arg1, 1);
+    func_004601c0(20.0f, arg1 + 0x30, arg1 + 0x48, 1);
+}
 // FUN_0014DB10
 s32 func_0014db10(u8 *arg0)
 {
