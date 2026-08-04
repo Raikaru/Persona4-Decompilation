@@ -47,6 +47,18 @@ void func_004a49c0(u8 *arg0) {
 
 
 
+// FUN_004A5B60
+void func_004a5b60(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x30) = arg1;
+}
+
+// FUN_004A6BE0
+void func_004a6be0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x24) = arg1;
+}
+
 // FUN_004A7A50
 void func_004a7a50(void) {
     func_003e9c10(D_00724C70, D_00922D80, 0);

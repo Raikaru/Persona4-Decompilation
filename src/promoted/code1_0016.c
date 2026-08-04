@@ -39,6 +39,24 @@ void func_00168470(u8 *arg0)
 
 
 
+// FUN_001687D0
+s32 func_001687d0(u8 *arg0)
+{
+    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x40);
+}
+
+// FUN_001687E0
+s32 func_001687e0(u8 *arg0)
+{
+    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x44);
+}
+
+// FUN_0016E580
+s32 func_0016e580(u8 *arg0)
+{
+    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x8);
+}
+
 // FUN_0016E9F0
 void func_0016e9f0(u8 *arg0, u8 *arg1)
 {
@@ -49,6 +67,12 @@ void func_0016e9f0(u8 *arg0, u8 *arg1)
 }
 
 
+
+// FUN_0016EAF0
+s32 func_0016eaf0(u8 *arg0)
+{
+    return *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x2BC);
+}
 
 // FUN_0016F100
 void func_0016f100(u8 *arg0)

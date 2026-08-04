@@ -24,6 +24,30 @@ void func_00201280(u8 *arg0, u8 *arg1) {
 
 
 
+// FUN_00202460
+void func_00202460(u8 *arg0)
+{
+    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
+}
+
+// FUN_00202570
+void func_00202570(u8 *arg0)
+{
+    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
+}
+
+// FUN_00202620
+void func_00202620(u8 *arg0)
+{
+    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
+}
+
+// FUN_00202720
+void func_00202720(u8 *arg0)
+{
+    *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
+}
+
 // FUN_00202C60
 void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {
     memset(arg0, 0, 0x34);
