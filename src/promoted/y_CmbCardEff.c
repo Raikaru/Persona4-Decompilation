@@ -8,6 +8,8 @@ typedef struct { f32 x, y, z; } CmbVec3f;
 typedef struct { f32 x, y; } CmbVec2f;
 typedef struct { u8 b0, b1, b2, b3; } CmbRGBA;
 
+static inline u8 *cmbAddPtrRev(u32 base, u32 index) { return (u8 *)(index + base); }
+
 void func_0044ea90(void *arg0, u32 arg1);
 s32 func_00451fc0(u8 *arg0, void *arg1, u32 arg2, u32 arg3, u32 arg4, void (*arg5)(u8 *), void (*arg6)(u8 *), void *arg7);
 void func_00440b68(void *arg0, void *arg1, u32 arg2);
@@ -18,6 +20,10 @@ s32 func_004553c0(u8 *ptr);
 void func_004b1150(u32 arg0);
 void func_00454bd0(u8 *ptr);
 void func_0036d940(void *arg0);
+void func_0036d860(void *arg0, u32 arg1);
+void func_0036d230(u32 arg0);
+s32 func_0036d960(void);
+void func_0036da40(void *arg0, u32 arg1);
 s32 func_00347c70(u8 *arg0);
 u8 *func_00348160(u8 *arg0, s32 *arg1);
 void *func_00348290(u8 *arg0);
@@ -71,7 +77,17 @@ extern u8 D_0064A4A0[];
 extern u8 D_0064A5E8[];
 extern u8 D_0064A600[];
 extern u8 D_0064A5D0[];
+extern u8 D_0064A4E0[];
+extern u8 D_0064A4B0[];
+extern u8 D_0064A500[];
+extern u8 D_0064A520[];
+extern u8 D_0064A540[];
+extern u8 D_0064A560[];
+extern u8 D_0064A580[];
 extern u8 *(*D_008873F4[])(s32, s32, s32);
+s32 func_0033e810(u8 *arg0);
+s32 func_0033e5c0(u8 *arg0);
+u8 *func_003488d0(u8 *arg0, u8 *arg1, s8 arg2);
 extern u32 D_00763A28;
 extern s64 D_0064A5A0[];
 extern f32 D_0064A5A8[];
@@ -89,10 +105,16 @@ extern void (*D_00887300[])(s32, s32);
    rotation obj=$s0/i=$s1/q=$s2 vs retail q=$s0/obj=$s1/i=$s2 (p=$s3 matches); tried
    4 declaration orders incl. q-first — the allocator ignores decl order here;
    (2) the q and p address computations in the loop body are swapped (mine p then
-   q, retail q then p) — a scheduler-order defect across the two call args. */
+   q, retail q then p) — a scheduler-order defect across the two call args.
+   Re-measured this wave: the gp-relative func_00440b68 arg0 is `&iGpffffa938`
+   (gp-0x56C8, symbol already in the file); the function returns s32 (retail ends
+   daddu $2,$0), so it is declared `s32 func_0033e5c0(u8*)` and the f690 callback
+   sites cast it `(void (*)(u8 *))`; the loop's `*(s8 *)(obj+0x19FD8) += 1` must be
+   s8 (signed lb) not u8 (lbu). `#pragma opt_propagation off` around the body
+   REGRESSED to nd 49 (the q-then-p interleave is not a base-load-sink, it is a
+   two-call-arg scheduler order). nd 39 confirmed floor. */
 // FUN_0033E5C0
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033e5c0);
-
 // FUN_0033E7C0
 void func_0033e7c0(u8 *arg0) {
     func_0036d940((u8 *)(*(u8 **)(arg0 + 0x38)) + 0x20);
@@ -115,20 +137,82 @@ void func_0033f660(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-/* measured: recipe B (u32 cast base: `u32 base = (u32)D_008873F4;` + per-call
-   `((u8 *(*)(s32,s32,s32))*(u32 *)base)(...)`) SOLVES the recorded base-hoist floor:
-   retail's saved-$20 lui/addiu once + lw $2,0($20)/jalr twice now compiles
-   byte-exact (the typed-pointer local and direct array spelling still fold to
-   per-call lui/lw). With ret2 declared FIRST, everything matches except the
-   first copy loop (arg1[i] -> blk2+2): a 3-register temp rotation (mine
-   ext=$v0/scale=$a0/lh=$v1/i=$a1 vs retail ext=$v1/scale=$a1/lh=$a0/i=$a2)
-   plus the `sw ret2,4(blk1)` after the loop reads $s1 where retail's surviving
-   $v0 copy feeds it — my loop clobbers $v0 so b210 kills ret2's $v0 copy
-   (nd 22, all 22 words in this loop + the store). Tried 4 decl orders (only
-   ret2-first gives the right saved map), s16/u32 index casts, pointer locals. */
+/* measured: MATCHED this wave — the recorded nd-22 copy-loop rotation floor is broken
+   by three spellings together: (1) recipe B (u32 cast base `u32 base = (u32)D_008873F4;`
+   + per-call `((u8 *(*)(s32,s32,s32))*(u32 *)base)(...)`) for the saved-$20 lui/addiu
+   base hoist (typed-pointer local and array spelling still fold to per-call lui/lw);
+   (2) `ret` declared FIRST (before blk1/base) — any other order puts ret in $s0 and
+   blk1 in $s1, retail has ret=$s1/blk1=$s0, a pure 40-word rotation; (3) a SEPARATE
+   `s16 j` counter for the second 0x84-stride loop — reusing i makes b210 pick $a2
+   where retail's second loop counter is $a0 (the first loop holds $a2). nd path:
+   68 (plain array spelling) -> 40 (recipe B) -> 8 (ret-first) -> 0 (separate j).
+   Callbacks func_0033e810/0033e5c0 need file-scope prototypes for the arg passing. */
 // FUN_0033F690
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033f690);
-
+u8 *func_0033f690(u8 *arg0, u8 *arg1, s8 arg2) {
+    u8 *ret;
+    u8 *blk1;
+    u32 base;
+    u8 *blk2;
+    u8 *ret2;
+    s16 i;
+    s16 j;
+    func_0044ea90(D_0064A4A0, 0x1B8);
+    base = (u32)D_008873F4;
+    blk1 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x6E0, 0x40000);
+    ret = (u8 *)func_00451fc0(arg0, D_0064A4E0, 0xF, 0, 0, (void (*)(u8 *))func_0033e810, func_0033f660, blk1);
+    func_0044ea90(D_0064A4A0, 0xAD);
+    blk2 = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(1, 0x19FDC, 0x40000);
+    ret2 = (u8 *)func_00451fc0(ret, D_0064A4B0, 0xF, 0, 0, (void (*)(u8 *))func_0033e5c0, func_0033e7c0, blk2);
+    for (i = 0; i < 0xC; i++) {
+        *(s16 *)(blk2 + 2 + (s32)i * 2) = *(s16 *)(arg1 + (s32)i * 2);
+    }
+    *(u8 *)(blk2 + 0) = 0;
+    *(u8 *)(blk2 + 0x19FD8) = 0;
+    *(u32 *)(blk1 + 4) = (u32)ret2;
+    for (j = 0; j < 0xC; j++) {
+        *(s8 *)(blk1 + (s32)j * 0x84 + 0xC) = 0;
+    }
+    *(s8 *)(blk1 + 0) = 0;
+    *(s8 *)(blk1 + 0x63E) = arg2;
+    *(s8 *)(blk1 + 8) = 0;
+    *(s8 *)(blk1 + 1) = 0;
+    *(s8 *)(blk1 + 0x6B8) = 0;
+    switch (arg2) {
+    case 1:
+        *(s8 *)(blk1 + 0x6B9) = 2;
+        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A500, 6);
+        break;
+    case 2:
+        *(s8 *)(blk1 + 0x6B9) = 3;
+        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A520, 6);
+        break;
+    case 3:
+        *(s8 *)(blk1 + 0x6B9) = 4;
+        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A540, 6);
+        break;
+    case 4:
+        *(s8 *)(blk1 + 0x6B9) = 5;
+        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A560, 6);
+        break;
+    case 5:
+        *(s8 *)(blk1 + 0x6B9) = 6;
+        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A580, 6);
+        break;
+    case 6:
+        *(s8 *)(blk1 + 0x6B9) = 0xC;
+        *(u32 *)(blk1 + 0x64C) = (u32)func_003488d0(ret, D_0064A580, 6);
+        break;
+    }
+    func_00106390(0x58, 0);
+    func_00106390(0x59, 0);
+    func_00106390(0x5A, 0);
+    func_00106390(0x5B, 0);
+    func_00106390(0x5C, 0);
+    func_00106390(0x5D, 0);
+    func_00106390(0x5E, 0);
+    func_00106390(0x5F, 0);
+    return ret;
+}
 // FUN_0033FA20
 void *func_0033fa20(u8 *arg0) {
     return *(void **)(arg0 + 0x38);
@@ -153,26 +237,35 @@ void func_0033fb10(u8 *arg0, s8 arg1, s64 arg2) {
     u32 scaled = (s32)arg1 * 0x84;
     func_0036dd10((u8 *)(*(u32 *)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758), &arg2, 90.0f * *(f32 *)(scaled + (u32)obj + 0x8C));
 }
-/* measured: retail computes (base + idx*0xFB0) in $v0 then materializes 0xE398 with
-   `ori $at,$zero,0xE398; addu $a0,$v0,$at` before the 90.0f mul block; mwcc b210 with
-   any pointer-arithmetic spelling (`+ 0xE398`, `addr += 0xE398`, struct-member access,
-   u32-cast variants) emits the ori+addu only by deferring it past the float argument,
-   which reallocates the chain result to $v1 and hoists lui/mtc1/mul.s (nd 8); with the
-   u32-chain spelling the constant folds as two addiu (0x7FFF+0x6399) instead of ori+addu
-   (nd 2). Both spellings measured via probe_variants and standalone compiles; no
-   spelling reproduces retail's order+encoding simultaneously. $v0/$v1 coalescing floor. */
+/* measured: re-measured this wave with levers 3/6/opt_propagation — the residual is
+   unchanged at nd 2-3 (2 real words): retail materializes 0xE398 (out of signed-16-bit
+   range) as `ori $at,$zero,0xE398; addu $a0,$v0,$at`, mwcc b210 always folds it as
+   `addiu $v0,$v0,0x7fff; addiu $a0,$v0,0x6399` — probed plain u32-chain, pointer
+   spelling, lever-3 inline helper param, named u32/u16 locals, helper-return, and
+   `#pragma opt_propagation off` (alone and combined): every spelling folds as the
+   addiu pair (the helper/pointer spellings that did emit ori+addu deferred it past
+   the mul.s block, nd 8). Sibling func_0033fb10 matches because its 0x2758 constant
+   fits in signed-16-bit (plain addiu). Constant-selection floor, corroborated. */
 // FUN_0033FB90
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033fb90);
-/* measured: retail loads base early (lw $a2,0x38($a0) first) and ends with
-   `addu $a0,$v1,$a2` (index,base); with the scaled offset named in an s32 local and
-   base added as a plain assignment (the brief's addu-operand-order recipe) mwcc emits
-   the right addu but load-sinks the single-use base load past the index math (nd 7);
-   with the load inline as the right operand of + it stays early but the addu comes out
-   base-first `addu $a0,$a2,$v1` (nd 1). Measured all combos of inline/local, left/right
-   operand order, struct-subscript and cast spellings; the load position and the addu
-   operand order are mutually exclusive in every spelling. Load-sinking + addu-order floor. */
+/* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
+   lever 3 + opt_propagation: the inline helper cmbAddPtrRev carries the index-first addu
+   (`addu $a0,$v1,$a2` vs the old base-first `addu $a0,$a2,$v1`) through its parameters,
+   and `#pragma opt_propagation off` forces the single-use base load early into $a2
+   (helper alone: nd 9, load sinks to $v1 and the sign-ext chain shifts to $a1;
+   pragma alone on the plain expression: nd 3, still base-first addu). */
 // FUN_0033FC00
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033fc00);
+#pragma opt_propagation off /* measured: see above; forces the base load early (lw $a2,0x38($a0) first) */
+void func_0033fc00(u8 *arg0, s8 arg1, CmbVec2f arg2, CmbVec2f arg3, u16 arg4) {
+    u8 *p = cmbAddPtrRev((u32)*(u8 **)(arg0 + 0x38), (u32)((s32)arg1 * 0x84));
+    *(CmbVec2f *)(p + 0x20) = arg2;
+    *(CmbVec2f *)(p + 0x10) = *(CmbVec2f *)(p + 0x20);
+    *(CmbVec2f *)(p + 0x18) = arg3;
+    *(u16 *)(p + 0x2A) = 0;
+    *(u16 *)(p + 0x28) = arg4;
+    *(s8 *)(p + 0xC) |= 1;
+}
+#pragma opt_propagation on
 /* measured: rule 1 APPLIES — `func_003482d0(slot, *(CmbVec2f *)(ret + 0x134), *(CmbVec2f *)&vA0, 3)`
    emits retail's exact ldr $a1,0x134/ldl $a1,0x13B pair (candidate obj verified; only
    saved-reg $s0-vs-$s1 differs) — the 8-byte CmbVec2f by-value read at 4-mod-8 offset
@@ -289,12 +382,18 @@ void func_00347b30(u8 *arg0, u8 *arg1) {
    (1) the or/mtc1 chain at each of the 6 conversion sites keeps its result in $v1
    (or $v1,$a0,$v1) where retail coalesces into $a0 (or $a0,$a0,$v1) — tried both
    if/else orders, j=(u32)i loop copies, per-site fresh locals, decl reorders: the
-   or-result register never moves; (2) mwcc b210 places the loop-invariant
+   the or-result register never moves; (2) mwcc b210 places the loop-invariant
    `lui %hi(D_008872F8)` INSIDE the loop body (direct array spelling) or emits
    lui+addiu at entry (pointer local) — retail hoists a lui-ONLY base into $v0 at
    entry with %lo folded into the lwc1; no spelling reproduces the 1-word hoist.
    Recipe A cracked the doubled-alpha CFG; the or-register coloring + lui hoist
-   remain compiler floors (same family as func_0024f160 / mdlManager conv-CFG). */
+   remain compiler floors (same family as func_0024f160 / mdlManager conv-CFG).
+   Re-measured this wave: two fresh full-body reconstructions (m2c-based 426,
+   FMA-idiom zero+base-f3*mul block with s8-doubled-alpha per the inline-pointer-
+   out skill 433) BOTH landed well above the recorded 263 — the exact recipe-A
+   body is not recoverable from the truncated note + m2c draft (the adda.s/msub.s/
+   madd.s accumulator block and the lui-only D_008872F8 hoist are the structural
+   crux). 263 remains the measured best; not re-pursued to window-exactness. */
 // FUN_00347C70
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00347c70);
 // FUN_00348130
@@ -362,10 +461,15 @@ void func_003482d0(u8 *arg0, CmbVec2f arg1, CmbVec2f arg2, u16 arg3) {
    (reversed beq chain 3,2,1,0 + beqz); inner 0x39 dispatch is a 3-way if/else-if
    chain (x==0 / x==1 / x==2) whose x==2 test reuses the dispatch's $a1=2 constant;
    D_005DC7D0 must be indexed (`&D_005DC7D0[idx*0x54]`) or b210 hoists the base into
-   a saved reg and rotates obj to $s1. All verified against this function's retail. */
+   a saved reg and rotates obj to $s1. All verified against this function's retail.
+   Re-measured this wave: two fresh m2c-draft-based reconstructions (285, then the
+   same with 3-way if/else-if dispatch + indexed D_005DC7D0, 279) both far above
+   the recorded 16 — the exact winning recipe is not recoverable from the
+   truncated note; confirmed func_004553c0 takes ONE arg (the m2c draft's 2nd arg
+   is wrong), and the gated conversion needs the explicit `2.1474836e9f > f0`
+   guard to keep the c.ole.s/bc1t + per-arm andi. 16 remains the measured best. */
 // FUN_00348330
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_00348330);
-
 // FUN_00348840
 void func_00348840(u8 *arg0) {
     u8 *obj = *(u8 **)(arg0 + 0x38);

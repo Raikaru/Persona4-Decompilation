@@ -17,6 +17,9 @@ typedef struct {
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
+static inline u32 addOff(u32 offset, u32 base) { return offset + base; }
+
+
 
 
 extern void func_0044ea90(const void *arg0, u32 arg1);
@@ -88,7 +91,7 @@ extern void func_002b29e0(f32 *, f32, f32);
 extern u8 *func_002b81f0(s32);
 extern f32 func_0046b260(s32);
 extern void func_00314ef0(u8 *, s64, s64, s32, s64, s32);
-extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
+extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void func_002777f0(s8 arg0);
@@ -118,7 +121,7 @@ extern s32 iGpffffb440;
 extern u8 D_00796310[];
 extern u8 D_00796370[];
 extern void func_00275820(s32, s32, s32, s32, s32, s32, u8 *, s32, f32, f32, f32);
-extern void func_00279350(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
+extern void func_00279350(s32, s32, s32, s32, s32, s32, u8 *, f32, f32, f32);
 extern void func_0034a640(s32, u16, s32);
 extern u8 *func_0034a630(s32);
 extern s32 func_00109280(u16);
@@ -296,7 +299,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
    func_002b77d0 arg materialization (v23 as a local — s16 or s32 — adds extra
    normalizations, nd 195). All later blocks cascade from these two. Tried v23
    local (s32 nd 147/156, s16 nd 195), inline (s16)(v16+2) (nd 156), slot reorder.
-   Saved-register rotation + normalization-placement floor. */
+   Saved-register rotation + normalization-placement floor.
+   Re-measured from the M2C draft this wave (nd 225 — m2c's transcription is far off;
+   lever-1 finding: m2c's s64 arg3 is WRONG, the caller sets addiu $7,0x16C so the
+   checked-in s32 4th param is correct; the 5th param (arg4) IS s64 — sd to stack).
+   Floor confirmed. */
 // FUN_00314EF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314ef0);
 
@@ -306,7 +313,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314ef0);
    i*0x22 (sll4/addu/sll1) and emits the i*2 sll at the func_003147e0 args instead.
    Tried *2*0x11 (nd 21), <<1*0x11 (nd 86), a separate s16 i2 statement (nd 176 —
    allocates $s5 and grows the frame), s16/s32 v17 — v17 must be s32 or mwcc
-   re-normalizes it at the addu (nd 144). Load/scheduling-order floor. */
+   re-normalizes it at the addu (nd 144). Load/scheduling-order floor.
+   Re-measured this wave (best 43 of 4 new attempts: all-inline 43, v17+inline
+   2*0x11 folds f13 right but arg0 lands $s5 -> 173; M2C s64-arg1 sig confirmed;
+   name lh/hoist regressions 161/86): the i*2 CSE placement + (s16)arg1 hoist
+   remain out of reach. Floor confirmed. */
 // FUN_00315310
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00315310);
 
@@ -746,7 +757,9 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
    retail prologues): func_002b6150's param is s16 (s32 breaks func_00318f30),
    and func_002b7750/002b68d0/002b6af0/002b6a70/002b69f0 FIRST params are s16
    (the checked-in s32 externs add a spurious CSE'd dsll32/dsra32 on the s16
-   arg1 at the first call). */
+   arg1 at the first call). Re-measured this wave (FclVec2-struct recipe
+   reproduces nd 82 exactly; 280.0f and the f20 block confirmed as the sole
+   residual — the lau/load ordering floor is real). */
 // FUN_00324410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324410);
 
@@ -916,7 +929,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
    (f21 = acc = the 0x124-load variable, f21 * f20). RE-MEASURED this wave
    (nd 5 confirmed; inline spelling verified byte-perfect except the sink;
    named-w probe gave nd 16/24 across 5 decl orders; FMA tail confirmed via
-   0.0f + rAA->3C + facc*fdiff). */
+   0.0f + rAA->3C + facc*fdiff). Re-measured this wave (nd 100 best of 3
+   transcriptions: M2C's s64 arg1/arg2 wrong — caller passes single regs
+   (addiu $5,2 / daddu $6,$16); the v1/v2 in-place sign-ext + w-immediate-load
+   sink resist spelling. Confirmed the load-sink floor. */
 // FUN_0032B770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 
@@ -947,7 +963,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
    scheduling swaps: the func_002e48a0(0, s16) calls emit lh-before-move-a0
    (retail move-a0-first) at all 3 sites, and the func_00330e50 call
    materializes the D_00796310 address before mov.s f13/f14 (retail after).
-   Rotation + argument-scheduling floor. */
+   Rotation + argument-scheduling floor. Re-measured this wave (best 65 of 3
+   attempts: separate s32/s16/s8 temp locals 65, one-s16-reused 96, decl-swap
+   94). LEVER-1 confirmed: func_00279350's 7th param is a pointer (D_00796370),
+   not s32 — fixed the extern to (u8 *) this wave. The t/c register rotation
+   and the func_00330e50 D_00796310-before-mov.s swap resist spelling. */
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 
@@ -1143,9 +1163,96 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330060);
    (cases 2/3 empty) reproducing the jtbl dispatch; the 0xA/0xB if/else-if
    chain with the (s8)(obj+0x138)&1 / &2>>1 tests matches; case 1/4/5 inline
    (s16)((s16)t17-1) expressions compute into the arg register with no
-   conversion. Addu-operand-order floor (4 words). */
+   conversion. MATCHED this wave (was the 4-word addu-operand-order floor):
+   the fix was (1) the M2C draft's real param types — arg1 is s64 (switch on
+   (s8)arg1), arg2 is s32 (the D_00882FB0 table ADDRESS as an integer, NOT a
+   u8* pointer); (2) NO named lh local in the switch cases — retail reloads
+   *(s16 *)(obj + 0x11E) at each use, inline it; (3) the lever-3 static inline
+   addOff helper (offset-first) for the 4 +0x168 sites — addOff(lh*2, arg2)
+   emits addu $v0,$v0,$s3 (scaled+base) which the raw (u8*)(lh*2+arg2)+1
+   spelling never did; (4) hoisted s8 temp3 for the 0xA/0xB chain with ==1
+   tests. nd path 244->14->0. */
 // FUN_003307B0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003307b0);
+void func_003307b0(u8 *arg0, s64 arg1, s32 arg2) {
+    FclByte4 sp8C, sp88, sp84, sp80, sp7C, sp78, sp74, sp70, sp6C, sp68;
+    u8 *obj = *(u8 **)(arg0 + 0x38);
+    s64 t17 = (s8)obj[0x139];
+    s8 temp3;
+    u8 *p1, *p2;
+
+    func_002b2a60(&sp8C, 0, 0, 0x66, 0xFF);
+    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
+    *(FclByte4 *)(p1 + 0x85) = sp8C;
+    p2 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
+    *(FclByte4 *)(p2 + 0x85) = *(FclByte4 *)(p1 + 0x85);
+    func_002b2a60(&sp88, 0xCC, 0xFF, 0xFF, 0xFF);
+    p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+    *(FclByte4 *)(p1 + 0x85) = sp88;
+    func_002b2a60(&sp84, 0x25, 0x2F, 0x94, 0xFF);
+    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
+    *(FclByte4 *)(p1 + 0x85) = sp84;
+    if ((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) == 1) {
+        func_002b2a60(&sp80, 0xCC, 0xFF, 0xFF, 0xFF);
+        p1 = func_002b6150(0x175);
+        *(FclByte4 *)(p1 + 0x85) = sp80;
+    }
+    temp3 = (s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2);
+    if (temp3 == 0xA) {
+        if (((s8)obj[0x138] & 1) == 1) {
+            func_002b2a60(&sp7C, 0xFF, 0xCC, 0xFF, 0xFF);
+            p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+            *(FclByte4 *)(p1 + 0x85) = sp7C;
+        }
+    } else if ((temp3 == 0xB) && (((s32)((s8)obj[0x138] & 2) >> 1) == 1)) {
+        func_002b2a60(&sp78, 0xFF, 0xCC, 0xFF, 0xFF);
+        p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+        *(FclByte4 *)(p1 + 0x85) = sp78;
+    }
+    obj[0x13A] = 1;
+    switch ((s8)arg1) {
+    case 0: {
+        s32 t16 = (s16)((s16)t17 - 1);
+        if (*(s16 *)(obj + 0x11E) != t16) {
+            func_0045af60(0, 0, 0, 0);
+        }
+        *(s16 *)(obj + 0x11E) = (s16)func_002b2cb0(*(s16 *)(obj + 0x11E), 1, t16, 0, 1);
+        break;
+    }
+    case 1:
+        if (*(s16 *)(obj + 0x11E) != 0) {
+            func_0045af60(0, 0, 0, 0);
+        }
+        *(s16 *)(obj + 0x11E) = (s16)func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)((s16)t17 - 1), 1);
+        break;
+    case 2:
+    case 3:
+        break;
+    case 4:
+        func_0045af60(0, 0, 0, 0);
+        *(s16 *)(obj + 0x11E) = (s16)func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)((s16)t17 - 1), 0, 2);
+        break;
+    case 5:
+        func_0045af60(0, 0, 0, 0);
+        *(s16 *)(obj + 0x11E) = (s16)func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)((s16)t17 - 1), 2);
+        break;
+    }
+    func_002b2a60(&sp74, 0xC6, 0xEE, 1, 0xFF);
+    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F5));
+    *(FclByte4 *)(p1 + 0x85) = sp74;
+    p2 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) * 2 + 0x1F4));
+    *(FclByte4 *)(p2 + 0x85) = *(FclByte4 *)(p1 + 0x85);
+    func_002b2a60(&sp70, 0x2D, 0x2D, 0x2D, 0xFF);
+    p1 = func_002b6150((s16)((s8)*(u8 *)(addOff(*(s16 *)(obj + 0x11E) * 2, (u32)arg2) + 1) + 0x168));
+    *(FclByte4 *)(p1 + 0x85) = sp70;
+    func_002b2a60(&sp6C, 0x92, 0xC8, 7, 0xFF);
+    p1 = func_002b6150((s16)((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) + 0x2FB));
+    *(FclByte4 *)(p1 + 0x85) = sp6C;
+    if ((s8)*(u8 *)(arg2 + *(s16 *)(obj + 0x11E) * 2) == 1) {
+        func_002b2a60(&sp68, 0x2D, 0x2D, 0x2D, 0xFF);
+        p1 = func_002b6150(0x175);
+        *(FclByte4 *)(p1 + 0x85) = sp68;
+    }
+}
 /* measured: nd 20 (attempts: compile-fix, 49, 23, 20). Frame/prologue/epilogue
    and every instruction match; residual is pure func_0025ecd0 14-arg
    materialization scheduling (same family as y_draw func_002b6340 floor):
@@ -1156,7 +1263,12 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003307b0);
    12,13,14] identically for inline, named-hi and ptr-last prototypes (ptr-last
    fixed only the t3 slot, nd 23->20). True signature (s32, s64, s32, s32, s32,
    void*, f32, f32, f32) proven from caller func_0032c480; call p8 = arg4 cast
-   to void*, p9/p10 = the two s64 arg1 words bitcast as f32, p12 = 0.0f. */
+   to void*, p9/p10 = the two s64 arg1 words bitcast as f32, p12 = 0.0f.
+   Re-measured this wave (nd 20 confirmed): the func_0025ecd0 extern was the
+   ptr-LAST spelling (s32 x7, f32 x6, void*) — corrected this wave to
+   (s32 x7, void*, f32 x6) per the callee's own prologue (saves $4-$10, $11,
+   $f12-$f17; void* is the 8th integer-class arg in $11); nd unchanged (20),
+   the materialization-order floor holds for both spellings. */
 // FUN_00330E50
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330e50);
 

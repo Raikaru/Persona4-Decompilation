@@ -38,6 +38,8 @@ extern u32 func_00110600(u8 a, u8 b);
 extern s32 func_00110d30(s32 idx);
 extern s32 func_00249010();
 extern u16 func_002489c0(s32 arg0);
+extern s32 func_00248a60(s32 arg0);
+extern void func_00113480(s32 a, s32 b, s32 c, s32 d);
 
 extern char D_006359D0[];
 extern char D_006359E0[];
@@ -70,6 +72,14 @@ extern u8 *D_008814C0[];
 extern u8 *D_008814C8[];
 extern s32 D_008814CC[];
 extern u8 *D_008814D0[];
+
+static inline s32 cmmMiscAddOff(s32 offset, s32 base) {
+    return offset + base;
+}
+
+static inline s32 cmmMiscOr(s32 left, s32 right) {
+    return left | right;
+}
 
 // FUN_00246700
 void func_00246700(void) {
@@ -122,28 +132,32 @@ u8 *func_002468a0(u32 arg0) {
     return (u8 *)((temp_16 << 6) + (u32)temp_17 + 8);
 }
 
-/* measured: re-measured nd 9 (flat expr, s16 arg). Retail loads
-   D_0088149C into $a1 FIRST (lui/lw), then sign-extends arg0 and runs the
-   sll/addu/sll x24 chain in $v0, final `addu $v0,$v0,$a1`. mwcc b210 always
-   sinks the lui/lw after the chain and holds the loaded value in $v0
-   (addu $v0,$v0,$v1). s64-arg m2c spelling: nd 13 + 4B oversize. Tried also
-   hoisted local, separated statements, both orders, s16/s32 args (prior
-   wave, all nd 9). Load-sinking floor (same family as FUN_00246940). */
+/* MATCHED (wave 14): `#pragma opt_propagation off` (measured: nd 9 -> 2,
+   forces the single-use D_0088149C load into $a1 before the mul chain) + a
+   hoisted `s32 base` local + the cmmMiscAddOff inline helper (measured:
+   nd 2 -> 1, fixes the `addu $v0,$v0,$a1` mul-first operand order). Retail
+   loads the global into $a1 FIRST, then the x24 chain, then `addu $v0,$v0,$a1`. */
 // FUN_00246910
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246910);
-
-/* measured: retail loads D_008814A0 into $a1 FIRST, then sign-extends and
-   multiplies; mwcc b210 sinks the load after the multiply chain in every
-   spelling tried (flat expr, hoisted base local, separated statements, s16
-   vs s32 arg; all nd 9). Load-sinking floor (same family as FUN_00246910). */
-/* measured: same load-sinking floor as FUN_00246910 (re-measured nd 9):
-   retail loads D_008814A0 into $a1 FIRST, then the x20 chain; mwcc b210
-   sinks the load after the chain and uses $v0 for the loaded value.
-   Tried flat expr, hoisted base local, separated statements, s16 vs s32
-   arg (all nd 9). Load-sinking floor. */
+#pragma opt_propagation off
+u8 *func_00246910(s16 arg0) {
+    s32 base = D_0088149C[0];
+    s32 mul = (s16)arg0 * 24;
+    return (u8 *)(cmmMiscAddOff(mul, base) + 8);
+}
+#pragma opt_propagation on
 // FUN_00246940
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246940);
-
+/* MATCHED (wave 14): same recipe as func_00246910 — `#pragma opt_propagation
+   off` (measured: nd 9 -> 1, forces the single-use D_008814A0 load into $a1
+   before the x20 chain) + hoisted `s32 base` local + cmmMiscAddOff helper
+   (fixes the `addu $v0,$v0,$a1` operand order). Final residual is a benign
+   reloc-masked word. */
+#pragma opt_propagation off
+u8 *func_00246940(s16 arg0) {
+    s32 base = D_008814A0[0];
+    s32 mul = (s16)arg0 * 20;
+    return (u8 *)(cmmMiscAddOff(mul, base) + 8);
+}
+#pragma opt_propagation on
 // FUN_00246970
 s32 func_00246970(void) {
     return D_008814A4[0];
@@ -162,15 +176,28 @@ s32 func_00246980(s16 arg0, s16 arg1) {
     return base + arg0 * 0x41 + (arg1 - 1) * 0xD;
 }
 
-/* measured: retail emits `addu $v1, $v0, $s2` then `addu $v0, $v0, $v1`
-   (fresh sll results in rs, older value in rt). mwcc b210 puts fresh in rt.
-   Naming the offset in an s32 local (`mid = index + base`) flips the FIRST
-   addu to retail's order (nd 5 -> 4); also naming the second operand
-   (`tail = arg1 * 2`) rotates every saved register (nd 17). Best nd 4: only
-   residual is `addu $v0, $v1, $v0` vs retail `addu $v0, $v0, $v1`.
-   Addu-operand-order floor (same family as FUN_002487E0/FUN_00249670). */
+/* MATCHED (wave 14): lever-3 static inline helper `cmmMiscAddOff(offset, base)`
+   carrying the addu operand order through its parameters fixed the two
+   transposed `addu` residuals (nd 4 -> 0). The `index` local + first helper
+   call fixed the first addu; the second call `cmmMiscAddOff(arg1*2, mid)`
+   fixed the second. Original residual was `addu $v0,$v1,$v0` vs retail
+   `addu $v0,$v0,$v1` (fresh sll result in rs). */
 // FUN_00246A50
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246a50);
+s32 func_00246a50(s16 arg0, s16 arg1) {
+    s32 base = D_008814AC[0] + 8;
+    s32 index;
+    s32 mid;
+
+    if (arg0 >= 5) {
+        func_0046d730(D_006359D0, 0xC8);
+    }
+    if ((arg1 <= 0) || (arg1 > 5)) {
+        func_0046d700(D_006359D0, 0xC9, &D_007636F8, arg1);
+    }
+    index = arg0 * 8;
+    mid = cmmMiscAddOff(index, base);
+    return *(s16 *)(cmmMiscAddOff(arg1 * 2, mid) - 2);
+}
 // FUN_00246B10
 u8 *func_00246b10(u32 arg0) {
     u32 temp_16;
@@ -269,15 +296,14 @@ s32 func_00246e10(s32 arg0) {
     return off + (u32)temp_16 - 0x40;
 }
 
-/* measured: nd 6 -> 3 with two levers: (1) lever-10 named-offset local
-   (`off = (u16)arg0 * 14; mid = off + base;`) fixed the addu-operand-order
-   residual; (2) `m = arg0 & 0xFFFF;` as a STATEMENT before the if fixed
-   the andi/bltz order (`andi $v0,$s1` now precedes the branch, matching
-   retail's layout). Single remaining word: retail `bltz $v0` (tests the
-   MASKED value) vs mwcc `bltz $s1` (raw arg0) for `arg0 < 0`; the masked
-   spelling `(arg0 & 0xFFFF) < 0` folds to false and DELETES the bltz
-   (nd 23), `(s16)` casts materialize dsll32/dsra32 (nd 23), u16/s32 temps
-   fold or CSE. Dead-comparison-elimination floor (recipe A family). */
+/* measured (wave 14 retest — nd 5 best, no match): named-offset locals
+   `off = (u16)arg0 * 14; mid = off + base;` + `m = arg0 & 0xFFFF` statement
+   + `arg0 < 0` first test keep everything but the bltz cluster (5 words:
+   retail `andi $v0,$s1,0xffff; bltz $v0; slti $at,$v0,6` mask-first +
+   $at dest, mwcc `bltz $s1; andi; slti $v0,$v0,6` raw-first + $v0 dest).
+   `(arg0 & 0xFFFF) < 0` folds to false (nd 23); `(s16)m < 0` materializes
+   dsll32/dsra32 (nd 23); `(u32)m > 0x7FFF` halves to nd 22. Dead-comparison
+   elimination floor. */
 // FUN_00246E90
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246e90);
 // FUN_00246F10
@@ -353,28 +379,38 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247270);
    Mask-CSE floor (same family as FUN_00247DD0/FUN_00248A60). */
 // FUN_002474F0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002474f0);
-/* measured: retail allocates best=$s2, bestId=$s1, se=$s0, i=$s3; mwcc
-   b210 insists on se/i in the $s0/$s1 pair and best/bestId in $s2/$s3 in
-   every declaration order tried (best nd 14). Using `(u16)i` at the first
-   call site broke mwcc's mask-CSE (which hoisted i&0xFFFF into a 5th saved
-   register, nd 42) but no spelling moves bestId to $s1 with i at $s3.
-   Saved-register-rotation floor (same family as FUN_00247820). */
+/* measured (wave 14 retest — nd 12 best, no match): `(u16)i` at the FIRST
+   call site + `i & 0xFFFF` at the second breaks the mask-CSE (no 5th saved
+   reg) and `best=0; bestId=0; i=1; se=(s16)arg0;` init order (then a while
+   loop) reaches nd 12 — better than this note's earlier nd 14. Residual is
+   the pure saved-reg rotation: retail = best:$s2/bestId:$s1/se:$s0/i:$s3,
+   mwcc = best:$s3/bestId:$s2/i:$s1 (se already $s0); decl-order and
+   for-vs-while variants land 12-15. Saved-register-rotation floor (same
+   family as FUN_00247820). */
 // FUN_00247770
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247770);
-/* measured: retail allocates target=$s0, best_id=$s1, best=$s2, i=$s3,
-   v=$s4; mwcc b210 gives i=$s2, best=$s3, best_id=$s4, v=$s5 in every
-   declaration order tried (nd 52); s8 vs s32 target fixed the re-cast but not
-   the rotation. Saved-register-rotation floor (same family as FUN_00247770). */
+/* measured (wave 14 retest — nd 50, no match): draft-based reconstruction
+   (s8 target = func_00248760(arg0 & 0xFFFF); for i < (func_0010b6f0() &
+   0xFFFF) — the count call is INSIDE the loop condition in retail;
+   func_00109300(i & 0xFFFF) & 0xFFFF -> v; target == func_00109280(v) & 0xFF;
+   func_001093a0(...) & 0xFF -> cur; best < cur -> best=cur, best_id=v;
+   return (s16)best_id) — mwcc balloons the frame to 6 saved regs (-0x70 vs
+   retail's 5 at -0x60) by CSE-ing i & 0xFFFF and duplicating the target
+   sign-extension ($s5 copy); mixed (u16)i / i & 0xFFFF spellings are
+   normalised (nd 50). Saved-register-rotation + Mask-CSE floor. */
 // FUN_00247820
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247820);
-/* measured: retail reads spB0 (u_long128, sq at 0xB0) with `lq` AFTER the
-   func_00109280 call and compares via single bne; mwcc b210 hoists the load
-   before the call into $s7 and narrows it (lq+dsll32/dsra32 pair with the
-   value cast, lw with the s64 alias read; both nd 121+, operand swap and
-   (u32) spA0 cast fixed everything else). The store side (sq after
-   dsll32/dsra32 24) and spA0's sq match. Load-hoisting + 128-bit-read-shape
-   floor; rule-3 alias-read note: retail's lq has NO narrowing pair, and no
-   spelling of the read reproduced the post-call lq. */
+/* measured (wave 14 — no fresh full-body attempt; complex 800B floor):
+   below the recorded read-shape issue — retail reads the u_long128 spB0 with
+   `lq` AFTER the func_00109280 call and compares via one bne, while mwcc
+   b210 hoists the load before the call into $s7 and narrows it; no spelling
+   reproduced the post-call lq. Structure per m2c draft: recursive
+   func_00247900(arg0,arg1,-1), func_0044ea90 assert (extern added as
+   void(const void*, s32)), D_008873F4 allocator call, the 0x100 loop with
+   func_00109280/func_00107ac0 gates and var_18/var_17 list build, a bubble
+   sort, then the jtbl_008873EC dispatch. Load-hoisting + 128-bit-read-shape
+   floor; also needs the four vtable spellings for D_008873F4/jtbl_008873EC.
+   func_00109280 takes (s32) — calls pass (u16) masks via leftover regs. */
 // FUN_00247900
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247900);
 
@@ -399,11 +435,16 @@ s32 func_00247c20(s16 arg0) {
    var). 64-bit-constant-load floor. */
 // FUN_00247CB0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247cb0);
-/* measured: retail re-issues the var_18&0xFFFF mask per use (check into
-   $v1, ladder/arg into $a0, func_001077f0 arg, return) with a 3-saved-reg
-   frame; mwcc b210 CSEs the mask into a saved register $s2 across the calls
-   (4 saved regs, nd 31) in every spelling tried ((u16) vs & 0xFFFF mixes).
-   Mask-CSE floor (same family as FUN_00247770/FUN_00248E90). */
+/* measured (wave 14 retest): mask-CSE reconfirmed — my fresh reconstruction
+   of the loop (mask = arg0&0xFFFF; for i in 0..0x1E, base = D_00881480[0];
+   per-iteration checks, *100 ladder, func_002489c0(i&0xFFFF) with the
+   leftover-$4 arg, func_001077f0, return i&0xFFFF) scores nd 48-49
+   (note's earlier nd 31 with the func_002489c0 arg spelled explicitly).
+   mwcc b210 still CSEs i&0xFFFF into a 4th saved register $s2 (frame -0x50
+   vs retail's 3-reg -0x40); `(u16)i`/`i & 0xFFFF` mixes at the 5 sites are
+   normalised away (nd 49), and the cmmMiscAddOff helper on the *100 ladder
+   base-add only takes it to nd 48 (retail `addu $v0,$v0,$s0` mul-first, the
+   helper fixed that one word). Mask-CSE floor. */
 // FUN_00247DD0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247dd0);
 // FUN_00247EC0
@@ -429,11 +470,17 @@ s32 func_00247ec0(s32 seed) {
     return 0;
 }
 
-/* measured: retail hoists the &sp3C/&sp38 outputs of func_001104d0 into
-   $a0/$v1 before the loop, keeps ret in $v0, and folds the not-found test
-   away; mwcc b210 reloads both stack slots per iteration, keeps ret in a
-   saved register, and emits the post-loop i>=count test (best nd 53 across
-   pre-init, m2c-goto, and post-test shapes). Load-sinking floor. */
+/* measured (wave 14 retest — nd 53 -> 16): `#pragma opt_loop_invariants on`
+   (measured: 53 -> 16) DOES hoist the sp3C/sp38 outputs and the count into
+   registers before the loop (retail's $a0/$v1/$a2), so the earlier
+   "reloads per iteration" floor is gone. Loop body, advance, and the
+   i<count test now match byte-for-byte. Residual 16 words are all the
+   RETURN-sentinel layout: retail computes ret=1 (found) / ret=0 (loop end)
+   into $v0 then a shared `beqz $v0 -> RET1` CHECK block (found->return 0,
+   not-found->return 1), while mwcc b210 emits direct return-0/return-1
+   moves at the sites. Simple `while (i<count){ if(match) return 0; ... }`
+   is best (16); break/goto/while(1)+sentinel structures all explode the
+   register count (24/54/53). */
 // FUN_00247F60
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247f60);
 // FUN_00248040
@@ -466,17 +513,36 @@ body:
    Register-pressure + if-chain-layout floor. */
 // FUN_002480E0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002480e0);
-/* measured: retail re-issues var_20&0xFFFF into $a0 at every call site
-   (4 sites) plus the multiply, keeping temp_18 in $s2 (5 saved regs); mwcc
-   b210 CSEs the mask into a saved register $s3 at loop top and emits move
-   $a0,$s3 per call (nd 73). Mask-CSE floor (same family as
-   FUN_002474F0/FUN_002483C0/FUN_00248B80; the & 0xFFFF vs (u16) mixes
-   proven ineffective on FUN_00248B80). */
+/* measured (wave 14 retest — nd 66, no match): fresh reconstruction from the
+   m2c draft (u16 return, arg0=s32 counter target, p = D_00881490[0]+8,
+   8-saved-reg -0x90 frame — prologue matches retail exactly). The match
+   chain `p[0]==arg1 && p[1]==arg2 && func_00107ac0(*(u16*)(p+2))&0xFFFF
+   within [*(u16*)(p+4), *(u16*)(p+6)] && !=0xA && func_00107a00(...,3)==0
+   && *(u16*)(p+2) != func_00108ee0()&0xFFFF` compiles with a systematic
+   saved-reg rotation (my var_16/17/18 in $s3/$s2/$s1 vs retail $s0/$s1/$s2
+   — decl-order changes are neutral, nd 66) plus the documented inlined-
+   fail-skip vs retail's out-of-line booleanized match chain. func_00107a00
+   extern added as (u16, s32); func_00108ee0 as u16(void). Register-pressure
+   + Booleanize-layout floor (note's earlier best nd 30 with ret booleanize
+   avoided; not reproduced this wave). */
+/* measured (wave 14 retest — nd 73 reproduced exactly; no match): draft-based
+   reconstruction `while (var_20 < 0x1F) { if (func_001077f0(var_20&0xFFFF)
+   && func_00107a00(var_20&0xFFFF,3)==0) { temp_2 = func_001070e0(...); ...
+   *0x64 ladder, D_00881480 bounds, +0x12 flags, func_00107ce0 } }` scores
+   nd 73 — mwcc b210 CSEs var_20&0xFFFF into a saved register ($s3) at loop
+   top and emits move $a0,$s3 per call, retail re-issues andi per site.
+   Mixed `(u16)`/`& 0xFFFF` spellings regress to nd 90 (normalised away).
+   Mask-CSE floor (same family as FUN_002483C0/FUN_00248B80). */
 // FUN_00248240
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00248240);
-/* measured: retail re-issues i&0xFFFF into $a0 at every call (10 sites);
-   mwcc b210 CSEs the mask into a saved register and emits move $a0, $s3 (nd
-   30+). Mask-CSE floor (same family as FUN_002474F0/FUN_00248240). */
+/* measured (wave 14 retest — nd 119 with a fresh draft-based reconstruction,
+   no match): loop of func_001077f0/func_00107ac0==0xA/func_00248a60/
+   func_00107a00 guards, the D_00881494 two-u16 table scan into var_20,
+   func_001070e0 (real signature s32(s32) — the m2c's 2nd arg is a leftover
+   $5 the callee ignores), +0x12 flags and func_00107ce0 — mask-CSE
+   dominates (mwcc drills var_21&0xFFFF into a saved register; nd 30+ per the
+   earlier note's better spelling). Same family as FUN_00248240/FUN_00248B80.
+   func_00248a60 extern added as s32(s32). */
 // FUN_002483C0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002483c0);
 /* measured: #pragma opt_loop_invariants on/off scoped around this function:
@@ -774,40 +840,41 @@ s32 func_00249230(void) {
     return 1;
 }
 
-/* measured: retail places the shared temp_17=NULL block out of line
-   (beqz/bnez -> .L334, main path b .L338) and booleanizes the final test with
-   bnez/move/branch; mwcc b210 keeps both if bodies inline with negated skips
-   and booleanizes via sltu (best nd 26 across if/else, merged-NULL, switch
-   wraps, comparison forms). Single-statement-if layout floor. */
+/* measured (wave 14 retest — nd 26 -> 20, no match): the merged-NULL
+   spelling `if ((A61==0) || (var_17 = temp_17 + func_001064f0(0x6D)*0x24,
+   arg0 < func_00110600(var_17[2],var_17[3]))) var_17 = NULL;` now scores
+   nd 20; #pragma opt_rebuildconditionals off is neutral (nd 20) and a
+   one-case switch wrap regresses to nd 48. Residual: retail puts the shared
+   NULL block OUT OF LINE (.L249334) with positive branches (bnez $v0) and a
+   main-path `b .L249338`, plus `sltu $v0` (not $at) and a different
+   return-block 0/1 ordering; mwcc b210 keeps the NULL body inline with a
+   negated skip (beqz $at -> main) and sltu $at. Original note's claim —
+   switch wraps don't help — reconfirmed. */
 // FUN_002492B0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002492b0);
-/* measured: retail merges the two base=NULL paths into one out-of-line
-   block (.L49450) with both tests branching positively to it and the main
-   path skipping via `b .L49454`; mwcc b210 keeps the NULL stores inline in
-   both branch orders, uses sltu $at/beqz instead of sltu $v0/bnez for the
-   arg1<result test, and inverts the final if/else return placement (best nd
-   33). Out-of-line-if + comparison-form floor. */
 // FUN_00249370
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249370);
-/* measured: retail allocates arg0=$s0, temp_17=$s1, var_18=$s2, arg1=$s3
-   (4 saved regs, -0x60 frame); mwcc b210 always gives arg0=$s1, arg1=$s0,
-   temp_17+var_18 merged in $s2 (3 saved regs, -0x50 frame, nd 94-95) in
-   every declaration order and temp shape tried (block-scoped pointers,
-   draft-style temps, sp locals first/last). Call/if/branch structure and
-   the func_001104d0 $a0-skip all match. Saved-register-rotation floor
-   (same family as FUN_00247820/FUN_00247770). */
+/* measured (wave 14 retest — nd 33 reproducible, no match): merged-OR form
+   `if ((A61==0) || (var_16 = temp_16_2 + func_001064f0(0x6D)*0x24,
+   arg1 < func_00110600(var_16[2],var_16[3]))) var_16 = NULL;` scores nd 33
+   (the `!(arg1<result)` combined form also nd 33-34; opt_rebuildconditionals
+   off is neutral). Residual: retail emits `sltu $v0; bnez $v0 -> .L49450`
+   (positive branch to the shared out-of-line NULL) while mwcc emits
+   `xori $v0,$v0,1; bnez` or inlined negated skips, and all branch targets
+   shift by 4; the `if (arg2!=0 && arg2!=1)` assert and final
+   `return *(s32*)(var_16+arg2*0x10+0xC)` match after the shift. Out-of-line
+   shared-NULL layout floor (same family as FUN_002492B0). */
+/* measured (wave 14 retest — nd 71, no match): draft-based reconstruction
+   (u32 arg0 seed, s32 arg1; func_001104d0(arg0,&sp5C,&sp58) with the
+   leftover-$4 seed; A61!=0 && var_18 = temp_17+func_001064f0(0x6D)*0x24 &&
+   !(arg0 < func_00110600(...)) else NULL; arg1 0/1 assert; two u16-flag
+   blocks: func_00106600((s16)field4)&0xFF + field6 capped at 0x63 then
+   func_00106620(*(s16*)field4, v&0xFF), same for field8/fieldA) — the
+   shared-NULL + booleanization layout (xori vs bnez, branch targets shift)
+   and saved-reg merge (temp_17+var_18 into one reg) dominate; note's
+   earlier nd 94-95 with a different spelling. Out-of-line-if floor family. */
 // FUN_002494C0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002494c0);
-
-/* measured: retail emits `addu $s0, $v0, $s0` (call result, var) for
-   var_16 = func_001064f0(0x57) + arg1; mwcc b210 only emits rs=result when
-   the call result is named in a fresh s32 local on the LEFT (`var_16 =
-   r + arg1`; nd 5 -> 4). Residual at nd 4 is 3 prologue words only: mwcc
-   saves $a1 before $a0 (`move $s0,$a1; move $s1,$a0`) where retail saves
-   $a0 first, and tests the raw $a0 in the first bnez where retail tests
-   $s1. Tried: +=, both operand orders, temp local, declaration init,
-   early `var_16 = arg1` (rotates + flips addu back, nd 5). Addu-ok;
-   prologue-save-order floor. */
 // FUN_00249670
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249670);
 // FUN_00249770
@@ -880,15 +947,18 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
 // FUN_00249960
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249960);
 
-/* measured: recipe A re-test — nd 37 -> 5. Key crack: temp_16 must be a
-   POINTER (u8 *) — as s32, mwcc folds the load offset 0xE into the *0xE as
-   (x+1)*14 (extra addiu, nd 29); pointer-typed address arithmetic keeps
-   retail's lh 0xE($v0). (s16) casts on the call args reproduce the
-   dsll32/dsra32 16-bit sign-extension pairs for the s64 params of
-   func_00113480; everything else is byte-identical. Residual 5 words:
-   arg0&0xFFFF bltz dead-comparison (3, same family as FUN_00246E90 /
-   FUN_00249960); addu rs/rt on the base add (mwcc addu $v0,$s0,$v0 vs retail
-   $v0,$v0,$s0, source operand order does not change it); and the or rs/rt
-   (or $v0,$v0,$v1 vs retail $v0,$v1,$v0 — or-fold family). */
+/* measured (wave 14 retest — nd 5 reproducible, no match): the INLINE mask
+   spelling (no `s32 m` local — that forces a saved register, nd 38) + the
+   cmmMiscAddOff/cmmMiscOr helpers DID fix the documented addu rs/rt and
+   or rs/rt residuals (source operand order alone never did). The remaining 5
+   words are all the bltz dead-comparison cluster: retail emits
+   `andi $v0,$s1,0xffff; bltz $v0; slti $at,$v0,6` (mask FIRST, bltz tests
+   the MASKED value, slti result into $at) while mwcc b210 emits
+   `bltz $s1; andi $v0; slti $v0,$v0,6` (raw arg0, $v0 dest) — same family as
+   FUN_00246E90/FUN_00249960, and the $v0-vs-$at slti is the confirmed b210
+   floor (see frFont func_00272170). `(u32)(arg0&0xFFFF)>0x7FFF` halves it to
+   nd 17; `(s16)m<0` materializes dsll32/dsra32. Pointer-typed address
+   arithmetic keeps lh 0xE($v0). (s16) casts on the func_00113480 args
+   reproduce retail's dsll32/dsra32. */
 // FUN_00249A60
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249a60);

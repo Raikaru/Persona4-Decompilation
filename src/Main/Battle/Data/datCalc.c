@@ -69,7 +69,8 @@ extern u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 a
 extern u32 func_00106330(s32 arg0);
 extern s32 func_00109980(s32 arg0, s32 arg1);
 extern s64 func_00233570(u8 *arg0, s32 arg1, s64 arg2);
-extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+/* func_00241de0 passes a 5th arg (arg4) that func_00241bc0 ignores. */
+extern s32 func_00241bc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00244f60(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
 extern u16 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(u16 arg0);
@@ -168,16 +169,17 @@ void func_00231ef0(u8 *arg0, u8 arg1)
    loading lhu raw into $s0 like retail; frame 0x50 vs 0x40, obj over
    window. Tried s32 temp_16, (u16) cast at definition, (u16) cast at
    uses; all nd 157-178. */
+/* measured 2026-08-03 (wave 14): reconstructed from the m2c draft signature.
+   Still nd 195 (recorded 157-178). Lever 1 measured: extern confirmed
+   `u16 func_00231f80(DatUnit*)` (m2c infers u8*, ABI-identical; caller
+   func_002325a0 passes DatUnit*). Residual unchanged: mwcc b210 hoists the
+   0xFFFF mask into a saved register (ori $s1,$zero,0xffff) and masks temp_16
+   at definition instead of retail's raw `lhu $s0` (implicit mask); frame 0x50
+   vs retail 0x40 so obj exceeds the window. Tried s32/u16 temp_16, (u16)
+   casts at definition and uses, base-var spelling: all nd 157-195.
+   Mask-hoist/saved-register floor, corroborated. */
 // FUN_00231F80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231f80);
-
-/* measured: load-sinking floor in the table-index block; retail loads the
-   iGpffffb3c4 base (lw $a0,-0x4c3c($gp)) BEFORE the mask/mul chain while
-   mwcc sinks the lw after the *0x3C mul regardless of statement order
-   (inline, base-local, index-first all tried; nd 6). Everything else now
-   matches: mask-at-def was broken by mixing (u16) cast (asserts) with
-   & 0xFFFF (index) spellings, and the clamp needs `var_3 > 0x3E7` to get
-   the slti-$at form. */
 // FUN_00232290
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232290);
 // FUN_002325A0
@@ -409,7 +411,11 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
    sunk into the body), while(1)-break draft shape nd 302. The matched
    twins func_00232730/func_00242360 allocate their 2-value loops to
    $a1/$a0, so a third loop value shifts mwcc's pool to $v1/$a2/$a1; no
-   declaration order fixes it. */
+   declaration order fixes it.
+   Wave 14: no gp-relative base loads in this function (pure register-loop
+   floor) — opt_propagation-off + index-first helper combo not applicable;
+   m2c draft signature (s32 func_00232d80(u8*)) matches the asm (no lever-1
+   defect). */
 // FUN_00232D80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232d80);
 
@@ -501,7 +507,11 @@ void func_00233490(u8 *arg0, u8 arg1, s8 arg2)
    temp_3_3/temp_2_3) pushes temp_22 to $s7 (frame 0x90) and hoists
    ori $0xffff. Tried m2c decl order, (u8)arg1 mask split, single-p
    variants; best obj 756B. s8/s16 dsll32/dsra32 dance otherwise
-   matches. */
+   matches.
+   Wave 14: 3 gp-relative loads (multi-use masks) — pragma+helper combo
+   not applicable; extern s64 func_00233570(u8*, s32, s64) matches m2c
+   draft and the callers' s64 arg setup (no lever-1 defect). Corroborated
+   saved-register-rotation floor. */
 // FUN_00233570
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233570);
 
@@ -933,7 +943,14 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
    retail's 9 ($s7 for the case-loop limits, $23) — every later
    instruction shifts. The 9 jtbl cases each need their own temp_23/
    temp_4 pair; temp_4 is reused as the 0xE-check pointer here, which
-   corrupts the case bodies. */
+   corrupts the case bodies.
+   Wave 14 lever-1 check: m2c draft claims u8 return + s64 arg0, but the
+   retail asm (andi/slti 0x240 on $20, sll 2/addu/sll 3 stride chain) proves
+   arg0 is s32 and the matched callers (func_0023a490 nd 0) rely on the
+   s32-return extern — changing it to u8/s64 broke 3 matches, reverted.
+   The m2c s64 inference is WRONG here (cf. FLYFclcombinedraw's 3-of-4
+   wrong s64 guesses). Partial-adaptation note stands; not re-attempted
+   fully (3728B window; frame/register allocation divergence). */
 // FUN_00238940
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00238940);
 
@@ -1073,12 +1090,6 @@ s32 func_00239e40(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
    `(var_21 & 0xFFFFF) != 0` is required. */
 // FUN_00239F50
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00239f50);
-
-/* measured: retail places each `return 0` OUT OF LINE (bnez to it) and
-   re-masks the lhu'd sp/hp with andi at the compare; mwcc inlines the
-   return-0 (beqz skip) and eliminates the redundant mask via u16 range
-   tracking. sltu booleanize fixed via value-context; slt form fixed via
-   (s32) casts; block placement and the andi remain, nd ~28. */
 // FUN_0023A1E0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a1e0);
 
@@ -1232,7 +1243,12 @@ s32 func_0023d8e0(u8 *arg0, s32 arg1)
    but materialized per-iteration by b210 (== form booleanizes to
    xori/sltiu; != continue and goto-inc forms give nd 183-185), and
    var_17 must be u32 for the srl shift while the /100 division stays
-   signed (s32 temps). */
+   signed (s32 temps).
+   Wave 14: 5 gp-relative base loads (multi-use: base pointer reused across
+   the case-2 chain) — opt_propagation-off + index-first helper combo not
+   applicable (would CSE the per-site re-derives); m2c draft signature
+   (u32 func_0023d9b0(u8*, s32)) matches the extern exactly (no lever-1
+   defect). Corroborated mask-CSE floor. */
 // FUN_0023D9B0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023d9b0);
 // FUN_0023DD90
@@ -1307,9 +1323,17 @@ s32 func_0023dfe0(void)
 /* measured: loop-invariant hoisting fixed via opt_loop_invariants, but mwcc
    allocates var_4/var_3/temp_8 to $t1/$t2/$a1 where retail uses $a0/$v1/$t0
    (systematic rotation; probe batch of 4 spelling variants all nd 61). */
+/* measured 2026-08-03 (wave 14): re-tested with u16 return type + raw-value
+   switch (0xC0..0xC5) confirmed from the m2c draft (src/generated/code1_0023.c);
+   still nd 64-61. The loop-register rotation is robust: retail keeps the
+   func_0023e130 count in $s0/$t1 and the tbl pointer (func_0023e140 result) in
+   $2, bounds-compares i<count (constant in $a0) and n<0x10 (limit $a1, counter
+   $a2); mwcc b210 always rotates to counter $v1 / limit $a2 / rematerialized
+   constant, and splits the count into $s0 with the tbl in $a1. Tried goto-loop
+   form, s32/u16 vars, while-form, do-while: all 64. Register-rotation floor,
+   corroborated (recorded nd 61). */
 // FUN_0023DFF0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023dff0);
-
 // FUN_0023E140
 u8 *func_0023e140(u8 *arg0)
 {
@@ -1381,22 +1405,59 @@ s32 func_0023e2f0(u8 *arg0, s32 arg1)
     return 1;
 }
 
-/* measured: case 0's lhu path compiles mul-before-base-lw while retail
-   hoists the iGpffffb3c4 load above the *0x3C (sibling lbu case 1 matches);
-   tried inline, offset-local, and pointer-cast spellings, nd 7. */
-/* measured 2026-08-03: full C body rebuilt; nd 7, only residual is the
-   case-0 lhu block. Everything else matches byte-for-byte (frame, both
-   switch dispatches (tests 2/1/0 desc, bodies asc), error calls, the
-   (s16) dsll32/dsra32 args, case-1 lbu with retail's hoisted base lw,
-   case-2, the shared return-0). Case 0 is a scheduler floor: retail
-   hoists the iGpffffb3c4 base lw above the *0x3C andi-chain into $a0;
-   mwcc b210 sinks it after the chain into $v0 regardless of spelling
-   (inline cast, &arr[u8], (u16) double cast, u16*-element index,
-   chain-first addition order, pointer local: all nd 7, &arr[u8] nd 83).
-   The sibling lbu case 1 hoists fine; only the lhu case does not. */
+/* MATCHED 2026-08-03 (wave 14): the goto-form shared zero block + array
+   spelling for the lbu case + `#pragma opt_propagation off` + the index-first
+   PTDatCalcOffsetAdd helper on the case-0 lhu path together reproduced
+   retail's early iGpffffb3c4 base load. Was a documented load-sinking floor
+   (nd 7); now matches byte-for-byte. */
 // FUN_0023E3E0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e3e0);
-
+/* measured: opt_propagation off + index-first inline helper force the
+   single-use iGpffffb3c4 base lw before the *0x3C chain (peer-verified). */
+#pragma opt_propagation off
+u16 func_0023e3e0(u16 *arg0, s32 arg1)
+{
+    u16 ret;
+    if (arg0[0] & 0x4) {
+        u16 field0 = arg0[1];
+        if (field0 >= 0x150) {
+            func_0046d730(D_00635938, 0x1002);
+        }
+        switch (arg1 & 0xFF) {
+        case 0:
+            return *(u16 *)(PTDatCalcOffsetAdd((field0 & 0xFFFF) * 0x3C, (u32)iGpffffb3c4) + 0x3A);
+        case 1:
+            return iGpffffb3c4[(field0 & 0xFFFF) * 0x3C + 0x39];
+        case 2:
+            return *(u8 *)(iGpffffb3b8 + 0x25);
+        default:
+            func_0046d730(D_00635938, 0x100D);
+            goto zero;
+        }
+    }
+    else {
+        u16 field1;
+        u32 r;
+        field1 = arg0[1];
+        if (field1 >= 0xB) {
+            func_0046d730(D_00635938, 0x1011);
+        }
+        r = func_00106cd0((s16)field1, 0) & 0xFFFF;
+        switch (arg1 & 0xFF) {
+        case 0:
+            return func_001068b0((s16)r);
+        case 1:
+            return func_001068e0((s16)r);
+        case 2:
+            return func_00106910((s16)r) & 0xFF;
+        default:
+            func_0046d730(D_00635938, 0x101C);
+            goto zero;
+        }
+    }
+zero:
+    return 0;
+}
+#pragma opt_propagation on
 // FUN_0023E5B0
 s32 func_0023e5b0(u8 *arg0, s32 arg1)
 {
@@ -1446,7 +1507,11 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023e6f0);
    (nd 521). Structure otherwise verified: switch-dispatch (declared
    0x200,0x400,0x100,2,4 reversed-test order) matches, the two loops,
    the flag/0x3C-0x3E checks, the f20 dance, the shared ret1 via
-   goto-label all compile in retail shape. */
+   goto-label all compile in retail shape.
+   Wave 14: 10 gp-relative loads (multi-use: flag/0x3C-0x3E checks, table
+   reads) — pragma+helper combo not applicable; 4-arg signature (s32 arg2
+   in $6) verified from asm, no lever-1 width defect in the called externs.
+   Corroborated saved-register-rotation floor. */
 // FUN_002411A0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
 
@@ -1462,20 +1527,17 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
    the merge's (s16) extension (no path pairs); the s64-shift spelling
    `(s32)((s64)x << 0x30) >> 0x30` keeps the path pairs but adds a
    dsll32/dsra32-by-0 truncation pair per path (6 extra words, nd 58). The
-   merge itself ((s16)var_2_2 into $s0) matches. */
+   merge itself ((s16)var_2_2 into $s0) matches.
+   Wave 14 re-test: fresh reconstruction with the note's spellings (u32
+   flag1, (s32)(u16)arg2, (s16) v) gave nd 83 (obj 504B vs window 544B,
+   frame 0x50 vs 0x60 — 4 rst saved vs 5, branch targets shifted); the
+   exact hand-adapted body was not recovered. The 5th arg (arg4) is passed
+   by func_00241de0 but unused in the body (prologue never saves it).
+   s16-extension-pair floor, corroborated. */
 // FUN_00241BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
-
-/* measured: match reached nd 7 (of 64). All branch/return layout and the switch
-   (case 9/0xA in ascending declaration -> reversed test order) match exactly. The
-   only residual is the iGpffffb3b8 base-pointer load ORDER: retail loads it FIRST
-   into $a0 (lw $a0,-0x4c48($gp)) then computes the 0x28 stride index; mwcc b210
-   sinks the load to its use (loads last into $v0). Tried inline, hoisted base
-   local (frame grew to 0x70, nd 70), idx local, struct-field, decl-order swap:
-   all nd 7. Load-sinking floor family. */
 // FUN_00241DE0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
-
 // FUN_00241F00
 s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
 {
@@ -1736,7 +1798,12 @@ s32 func_00242800(u8 *arg0, s32 arg1)
    &4-else goto target shifts, branch targets differ) and the
    return-0x231/-1 early returns share the final move block instead of
    retail's per-site moves. The (s16)var_17==-1 tests, 47cb0/107ac0 tail
-   and index-first addu need the off-local form. */
+   and index-first addu need the off-local form.
+   Wave 14: no m2c draft found for 0x42990; the asm head confirms a
+   2-arg signature (s32 arg1 in $5, masked to $16) — no lever-1 width
+   defect. Residual verified as block-layout + shared-return-move
+   placement (not base-load sinking; pragma+helper not applicable).
+   Corroborated layout floor. */
 // FUN_00242990
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00242990);
 
@@ -1850,7 +1917,12 @@ u16 func_002439c0(u8 *arg0)
    loop pointer hoisted to $s6 (addiu $22,$16,0x22 across the 0x106330
    call) while mwcc reuses arg0's slot for var_21 and re-derives the
    pointer, frame 0x70 vs 0x80, nd 156. Tried separate loop vars, top-level
-   pointer locals, m2c declaration order. */
+   pointer locals, m2c declaration order.
+   Wave 14: the single gp-relative base load (lw $2,-0x4c3c) feeds a
+   loop-invariant element pointer ($18) used across a dozen lhu/lbu reads —
+   multi-use hoisted base, so the opt_propagation-off + index-first helper
+   combo is NOT applicable (would CSE a base retail hoists to $s6).
+   Corroborated saved-register/loop-pointer-hoist floor. */
 // FUN_00243A30
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00243a30);
 

@@ -590,10 +590,17 @@ u32 func_00277450(void)
    address into $s2 (extra addiu $s2,$v0,0x10; obj 452B vs window 464B, nd
    17). Tried: for+if(i==4), for+if(i>=4), goto-found fallthrough, t local
    with OR-guard `i >= 0 || i < 4` (m2c-exact) - all hit the same address-CSE.
-   CSE/allocator floor, not source-drivable. */
+   wave14 re-measure, 6 attempts (55 / 27 / 27 / 18 / 17 / 32): lever 1
+   swept FIRST - signature s32 func(u8*) is CORRECT (callers use the return;
+   lever-1 not the issue). Structure now fully reconstructed: frame 0x180 via
+   the 0x130-byte copy target `s32 sp50[0x4C]` at sp+0x50; the slot-walk loop
+   uses goto-done (NOT break) so `i = -1` lands only on loop exhaustion;
+   the guard must be the m2c tautology `i >= 0 || i < 4` (bgez-to-body shape;
+   `&&` flips to bltz-skip, +9 words); `i *= 4` in the guard body. Best nd 17
+   = the extra addiu address-CSE, which lever-6 distinct-cast spellings made
+   WORSE (nd 32). CSE/allocator floor stands, not source-drivable. */
 // FUN_002774D0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002774d0);
-
 // FUN_002776A0
 u8 *func_002776a0(u8 *arg0)
 {
@@ -750,8 +757,20 @@ void func_00277b10(u8 *arg0, s32 arg1)
    obj=$s2,i=$s3,bits=$s5,elem=$s6 (best decl order i-before-obj, nd 89;
    4+ permutations measured); (4) retail re-loads base17+8 for the post-loop
    OR where mwcc keeps the loop bits live. Tried: while/for/goto forms, s128/
-   s64/u32 counts, masked locals, named scaled offsets - rotation and compare
-   pair are stable. Saved-register-rotation + s128-compare floor. */
+   s64/s128 counts, masked locals, named scaled offsets - rotation and compare
+   pair are stable. Saved-register-rotation + s128-compare floor.
+   wave14 (5 attempts, best nd 78 - beats the recorded 89-94): TWO prior
+   claims are now DISPROVEN. (1) the s128-compare widening pair IS removable:
+   writing the loop test as `(s32)var_18 < (s32)spA0` (cast BOTH sides) makes
+   mwcc emit retail's plain `lq $v0,0xA0($sp); slt $v0,$s2,$v0` with no
+   dsll32/dsra32; the sq/lq 0xA0 storage of the count stays (m2c's
+   `s128 spA0 = (s128)*(s16*)(t+0x1A)` is load-bearing). (2) the
+   saved-register rotation partly yields to DECLARATION ORDER: declaring
+   var_21 (element ptr) BEFORE var_22/var_23 fixes the loop regs (nd 86 ->
+   78); var_21 must be `s32*` incremented with `var_21++` (the m2c draft's
+   `+= 4` is +16 bytes - a decompilot artifact). Residual at 78: pure call-arg
+  /scheduling order around the func_0027b6e0/79ce0/738a0 chain and the
+   post-loop OR store (sw vs lh interleave). */
 // FUN_00277BE0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277be0);
 // FUN_00277E80
@@ -991,16 +1010,52 @@ u32 func_002786c0(int arg0, int arg1, int arg2)
     return 1;
 }
 
-/* measured: retail keeps func_00279740's result in $v0 across the
-   iGpffffb4b0 read/0x7B-store block (bnez $v0 ... move $t3,$v0) and
-   materializes 0x7B in $v1; mwcc b210 -O2 reuses arg2's dead saved register
-   for the result (move $s2,$v0; bnez $s2 ... move $t3,$s2; addiu $v0,0x7B),
-   one extra instruction (obj 372B vs window 368B). Tried: if-block
-   restructure, u32 v, 5 declaration orders - all identical nd 38.
-   $v0/$v1-coalescing + saved-reg-reuse floor, not source-drivable. */
+/* MATCH (wave14): the old "$v0/$v1-coalescing + saved-reg-reuse floor" was
+   a lever-1 miss - the function was INCLUDE_ASM with no prototype, but retail
+   RETURNS a value (e.g. func_002745c0/0027a520 result). Writing the body as
+   s32 func_002787d0(s32,s32,s32,s32) with the 9-arg func_002745c0 call and
+   returning func_0027a520's result matched byte-exact (nd 0). mwcc requires
+   explicit casts (u8*<->int) at the func_00278de0/00279740 call sites. */
 // FUN_002787D0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002787d0);
+s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    u8 *obj;
+    u8 *t;
+    s32 r;
+    s32 res;
+    s32 final;
+    s32 local;
 
+    obj = D_00881808[arg0].unk0;
+    if (obj == NULL) {
+        func_0046d730(D_0063BE10, 0x9AE);
+    }
+    t = (u8 *)func_00278de0((int)obj, arg1);
+    if (*(s32 *)t != 0) {
+        func_0046d730(D_0063BE10, 0x9B3);
+    }
+    t = *(u8 **)(t + 4);
+    if (*(s16 *)(t + 0x18) == 0) {
+        return 0;
+    }
+    func_00279ce0(obj + 0x94);
+    r = *(s32 *)(obj + 8);
+    if (r != 0) {
+        func_002738a0(r);
+    }
+    r = func_00279740((int)t, arg2);
+    if (r == 0) {
+        return 0;
+    }
+    local = iGpffffb4b0;
+    if (local == 0) {
+        iGpffffb4b0 = 0x7B;
+    }
+    res = func_002745c0(0, 0, 0, arg3 & 0xFF, 0, 0, 0xFF, r, 0);
+    iGpffffb4b0 = local;
+    final = func_0027a520(res);
+    func_00271b70(res);
+    return final;
+}
 // FUN_00278940
 void func_00278940(void)
 {
@@ -1140,10 +1195,14 @@ check:
    (sq $s0). Tried: direct arg0 access, u8 *p local at function scope and inside
    the branch, flag preloaded into a local, fields preloaded into s32 locals,
    K&R-style definition, -O1 — all emit the $s0/-0x20 shape, identical nd 19
-   (obj 84B vs window 80B). Register-allocation floor, not source-drivable. */
+   (obj 84B vs window 80B). Register-allocation floor, not source-drivable.
+   wave14 lever-1 sweep: M2C oracle (code1_0027.c) + retail both confirm the
+   signature is `void func(u8*)` returning nothing, and the func_00278c60
+   call is 4 args (int*, int, u8*, int) - the $t3-vs-$s0 live-across-call
+   choice is pure allocator (retail keeps arg0 in the caller-saved $t3, frame
+   -0x10; b210 always saves it to $s0, frame -0x20). Re-probed nd 19. */
 // FUN_00278D50
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
-
 // FUN_00278DA0
 s32 func_00278da0(u8 *arg0)
 {
@@ -1157,19 +1216,22 @@ s32 func_00278da0(u8 *arg0)
     }
     return result != 0;
 }
+/* wave14: the former inline `volatile` on this load (which forced the
+   `lw $v1, 4($a0)` ahead of the sll; removing it plain lost MATCH -> nd 9)
+   is REPLACED by the lever-6 integer-domain spelling
+   `(s32)*(s32 **)((u32)param_1 + 4)` - measured to tie the volatile byte-
+   for-byte (fndiff 2 = benign tail padding; verify MATCH, decomp_lint clean).
+   No volatile remains in this file. */
 // FUN_00278DE0
 int func_00278de0(int param_1,int param_2)
 {
   s32 base;
   s32 index;
 
-  base = *(volatile /* Removing this qualifier loses FUN_00278DE0 (MATCH nd0 -> MISMATCH nd9, size 24 -> 24) - measured W170. */ s32 *)(param_1 + 4);
+  base = (s32)*(s32 **)((u32)param_1 + 4);
   index = param_2 * 8;
   return index + base + 0x20;
 }
-
-
-
 // FUN_00278E00
 int func_00278e00(int param_1)
 {
@@ -1259,10 +1321,20 @@ s32 func_00279010(s32 arg0)
    and with the slot statement moved before obj the frame drops to -0x70
    (arg5 loses its saved reg). Tried: inline expr, base local, arg5*8 first,
    slot-before-obj order - nd 46 / 46 / 46 / 44 (obj 452B vs window 448B).
-   Saved-register-chain + scheduler floor, not source-drivable. */
+   Saved-register-chain + scheduler floor, not source-drivable.
+   wave14 re-measure (6 attempts): (1) the func_00274570 float args need a
+   `(s32)` cast at the callsite - `func_00274570((s32)(16.0f*fparg0), ...)`
+   - or mwcc emits the guarded unsigned f32->u32 conversion path
+   (c.ole.s/bc1t/0x4f00 add/or) instead of retail's plain cvt.w.s/mfc1
+   (that alone was ~26 words). Signature verified against the callee's own
+   prologue: $f12-$f14 = 3 floats, $4-$9 = 6 ints (int-first s32..s8..s32
+   per m2c, but the file's float-first order is ABI-equivalent for the
+   matched callers 791f0/79350/79470). Residual is the pure saved-register
+   chain rotation (retail arg0=$s4..arg5=$s0/obj=$s5; mwcc rotates); best
+   nd 45 (slot-before-obj order + s32 casts). Not moved by local decl order
+   or opt_propagation off. */
 // FUN_00279030
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279030);
-
 // FUN_002791F0
 s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
@@ -1368,23 +1440,57 @@ u32 func_00279740(int param_1,int param_2)
    (3) func_00274570 lbu args hoisted above a0/a1 moves (6 words), (4)
    func_00279dd0 lui $a1 before move $a0 (3 words) - the recorded three
    orders persist. Named s32 scaled local fixes the slot addu order (66 vs
-   67). Loop-layout/scheduler floor, not source-drivable. */
+   67). Loop-layout/scheduler floor, not source-drivable.
+   wave14 re-measure: body transcribed from the m2c draft. KEY fix: the
+   `func_00274650(0x30)` result MUST be an `s32` local, NOT u8 - u8 adds a
+   narrowing andi to every bit-test (|0x8000000/&0x20 block), ~38 words;
+   s32 lands 107 -> 69. Best nd 69 (recorded 66): the same four residuals -
+   D_008817EC walk bottom-test shape (m2c goto form still emits test-at-top;
+   while spills found to $s3 frame -0x50), bltz-before-lh-count, 74570 lbu
+   arg order, 79dd0 lui order - plus a 1-word tail: the second-lookup slot
+   reuses the first lookup's $s0 (retail feeds func_002748e0 directly in
+   $a0); a separate slot2 local did not re-colour it in 4 attempts. */
 // FUN_00279780
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
 // FUN_00279A80
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279a80);
 
-/* measured: retail keeps `base` (arg0+0x94) live across the func_0046a2d0/
-   func_0046a430 calls in $s2 and RE-materializes the slot address after the
-   calls (sll $v1,$s3,2; addu $v1,$s2,$v1), while mwcc b210 -O2 CSEs the
-   pre-call `base + arg1*4` slot value into one register and reuses it for the
-   post-call store, killing base's liveness (base ends up in scratch $v1); the
-   arg->$s register mapping also shifts (retail $s1/$s3/$s0 vs candidate
-   $s2/$s0/$s1). Tried: slot local vs bare expression, `arg1 << 2` vs `arg1*4`
-   post-call, s32 base arithmetic, s32-star vs u8-star lvalue casts to defeat
-   CSE — all identical nd 51 (obj 204B vs window 224B). CSE/allocator floor. */
+/* MATCH (wave14): the old "CSE/allocator floor" was broken by lever 6 -
+   spelling the POST-call slot store with integer-domain address arithmetic,
+   `*(s32 **)((u32)base + (u32)arg1 * 4) = res;`, so its CSE key differs from
+   the pre-call `slot = (s32 *)(base + arg1 * 4)` read. mwcc then RE-derives
+   base+arg1*4 after the calls exactly like retail (sll $v1,$s3,2; addu
+   $v1,$s2,$v1) instead of holding the full slot address live across the
+   func_0046a2d0/func_0046a430 jals; base stays live in $s2 and the arg->$s
+   mapping falls into retail's $s1/$s3/$s0. Prior attempts (slot local, bare
+   expr, arg1<<2, s32/u8-star lvalue casts, opt_propagation off) all stayed
+   nd 51; the DISTINCT-CAST address spelling is the only thing that worked.
+   obj 220B vs window 224B (benign tail pad). */
 // FUN_00279C00
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279c00);
+void func_00279c00(u8 *arg0, s32 arg1, s32 arg2) {
+    s32 base;
+    s32 *slot;
+    u8 *v;
+    s32 *res;
+
+    if (arg0 == NULL) {
+        func_0046d730(D_0063BE10, 0xD38);
+    }
+    if ((arg1 < 0) || (arg1 >= 0x20)) {
+        func_0046d730(D_0063BE10, 0xD39);
+    }
+    base = (s32)arg0 + 0x94;
+    slot = (s32 *)(base + arg1 * 4);
+    v = *(u8 **)slot;
+    if (v != NULL) {
+        func_0046a340((s32)v);
+        *(u8 **)slot = NULL;
+    }
+    func_0046a2d0(D_0063BE10, 0xD55);
+    res = (s32 *)func_0046a430(4);
+    *(s32 **)((u32)base + (u32)arg1 * 4) = res;
+    *res = arg2;
+}
 // FUN_00279CE0
 void func_00279ce0(int param_1)
 {
@@ -1442,8 +1548,18 @@ void func_00279dd0(u8 *arg0, s32 arg1)
    ONLY remaining residual is the else-branch 7th-arg load position (off
    220-244): retail lw $t2,($v0) BEFORE the arg-zero moves, mwcc b210 always
    sinks it after move $a0..t0/addiu $t1,0xff; the 0x8000 branch's equivalent
-   load schedules correctly. Tried: inline expr, hoisted p local, precomputed
-   v local - all nd 8. Load-sinking/scheduler floor, not source-drivable. */
+   loads schedules correctly. Tried: inline expr, hoisted p local, precomputed
+   v local - all nd 8. Load-sinking/scheduler floor, not source-drivable.
+   wave14 re-measure (8 attempts): a lever-3 index-first inline helper
+   `addOff7e90(off, base) { return off + base; }` on BOTH branch address
+   chains fixed the addu operand orders previously blamed on alloc (candidate
+   without it: nd 10) AND the else-branch load position, landing this at a NEW
+   BEST nd 7 - the residual is now ONLY the 0x8000-branch 7th-arg load
+   (offsets 136-160): mwcc emits `lw $t2, 0x94($v0)` BEFORE the move $a0..t0/
+   addiu $t1,0xff, retail emits it after (between addiu $t1,0xff and move
+   $t3,$zero). Not moved by: named s32 offset local (nd 10), p7 load local
+   (nd 7), #pragma opt_propagation off (nd 7), #pragma schedule on (base
+   reorder, obj 288B), distinct casts. Load-position scheduler floor. */
 // FUN_00279E90
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279e90);
 // FUN_00279FD0
@@ -1496,14 +1612,19 @@ u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s
 /* measured: retail colors arg0=$s3, arg1=$s1, arg2=$s0 (cur=$s3, count=$s1,
    tag=$s2, next/last=$s0) with register reuse across the three free passes;
    mwcc b210 -O2 always needs a 5th saved register ($s4) plus a stack
-   slot for the split next/first/last locals and colors arg0=$s0/arg1=$s2
-   (obj 340B vs window 336B). Tried: 7 declaration orders (incl. split
-   nxt1/nxt2, first/last hoisting), cur=arg0 before/after null check -
-   best nd 37 (obj 332B vs window 336B). Saved-register-rotation floor, not
-   source-drivable. */
+   slot (obj 340B vs window 336B). Saved-register-rotation floor.
+   wave14 re-measure: lever 1 swept FIRST - signature confirmed correct
+   (u8* return, (u8*, s32, s32); the value flow is a linked-list free walk
+   returning the surviving head). Body fully reconstructed from retail:
+   first loop frees same-tag run while count>0 (returns NULL if the list
+   runs out), then a skip run, a free loop, and a 0x2C-relink pass.
+   All levers measured: lever 1 (correct signature) 80, lever 2 (Node
+   struct field access) compile error (self-ref tag), lever 4 (structured
+   while) 80, goto exact-retail-shape 72 - the goto form restructures the
+   loop head (bgtz placement) but the 5th saved register never goes away.
+   Not source-drivable; floor stands. */
 // FUN_0027A150
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a150);
-
 // FUN_0027A2A0
 void func_0027a2a0(int param_1, int param_2)
 {

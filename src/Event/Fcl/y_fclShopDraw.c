@@ -179,12 +179,13 @@ void func_00105780(s32);
 s32 func_00106b20(s16);
 void func_0044ea90(const void *, u32);
 s32 func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+s32 func_002e0100(void *);
 void func_0043f810(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
 s32 func_002b2a30(s32, s32, s32, s32);
-void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
 s8 func_002e0570(void *, s32);
 void *func_002e04e0(void *);
 void func_002e04f0(void *, s32, s32);
@@ -230,7 +231,7 @@ u16 func_00106940(s16);
 u16 func_00106970(s16);
 s16 func_002b3170(s32);
 void func_002b2a60(void *, s32, s32, s32, s32);
-void func_002cacd0(u64, s32, s32, s32, u32, s64, s64, s64, f32, s64, s64);
+void func_002cacd0(u64, s32, s32, s32, u32, s64, s64, s64, f32, s64, s64, s32);
 s64 func_0046a770(void *);
 s16 func_002e2830(void *, s32);
 u8 func_00106600(s64);
@@ -356,52 +357,31 @@ void func_002caa00(void *arg0, s8 arg1) {
     *(s8 *)(*(u32 *)((u8 *)arg0 + 0x38)) = arg1;
 }
 
-/* measured: func_002caa10 is a digit-draw loop; four variants compiled with the
-   full body (s64 spB0/spC0 slots at 16-aligned offsets read via lq/sq, s16
-   arg3 sign-extension, s8 loop counter, func_0025ec90/func_002b2a30 arg
-   shapes) and every instruction family matches retail -- best nd 141. The
+/* measured (this wave): func_002caa10's true signature is 7 args
+   (s64, s32, u32, s64, void*, s32, f32) -- m2c-confirmed, matches its usage;
+   no lever-1 defect. Same digit-draw family as func_002cacd0 (10 saved regs,
+   frame 0xF0, color bytes in $s0/$s1/$s7, func_0025ec90/func_002b2a30 arg
+   shapes). Four variants compiled with the full body (s64 spB0/spC0 slots at
+   16-aligned offsets read via lq/sq, s16 arg3 sign-extension, s8 loop
+   counter) and every instruction family matches retail -- best nd 141. The
    remaining deltas are stack-slot placement and saved-reg choice only: mwcc
    b210 assigns stack slots in FIRST-USE order high-to-low (arg0's u64 slot
    and the 0xDC color/arg1 struct must be ONE 0x20 struct starting at 0xD0,
    with func_00442830's target at 0xE0 = &st.tail), and the loop counter wants
-   s32 with an (s8) truncation cast (addiu first, then dsll32/dsra32 by 24).
-   Four-attempt budget exhausted; layout+coloring floor. */
+   s32 with an (s8) truncation cast. Four-attempt budget exhausted;
+   layout+coloring floor. */
 // FUN_002CAA10
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
 
-/* measured: digit-draw loop identical to func_002caa10 family; retail sets up
-   func_0025ec90's args as [arg3, f12-f14, arg1, arg2, arg4, arg5, arg6] and
-   func_002b2a30's constant 0xFF first; mwcc b210 emits FP args last and the
-   constant last (same two families as y_fclItemShopDraw func_0033cc40 and
-   func_002e0100 notes), and spills the three color-byte locals to 16B slots
-   while retail keeps them in $s0/$s1/$s6 (register pressure from arg5/arg6
-   saves; tried s32 locals + address-taken byte reads, nd 56). Arg-eval-order
-   floor. */
+/* measured (lever 1, this wave): func_002cacd0's true signature is 12 args --
+   the last is `s32 arg_sp8` (D_00793E80 + arg_sp8*0x30), missing from the old
+   11-arg decl. Fixed. Registers: retail frame 0xE0, 10 saved regs, color
+   bytes kept in $s0/$s1/$s6; mwcc b210 frame 0xD0, spills color bytes to
+   16B slots and reorders func_0025ec90's args (FP last + constant last).
+   Reconstructed full body nd 122 (obj 580B vs window 544B). Arg-eval-order +
+   layout/coloring floor. */
 // FUN_002CACD0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cacd0);
-
-/* measured: full body reconstructed (15 0a60/2970/0620/2a60 chains, u8[4]
-   color groups packed by mwcc exactly like retail lbu 0x11C-0x12F, struct
-   fields EEC-F04, func_002e0a60(void*, s32, f32) 3-arg shape); prologue and
-   all stack slots byte-match (frame 0x130, ra 0x20, s1/s0). Four variants,
-   best nd 414 (obj 2052B vs window 1968B, i.e. 10 words over window).
-   Residual: retail hoists the per-group D_0063F5xx base into $s1 once per
-   group (lui+addiu, then lwc1 0/4($s1) across the group's calls); mwcc b210
-   rematerialises lui+lwc1 per access even with named f32* base locals -
-   recorded D_00887300-family global-address-hoist floor (cf. func_002d6190/
-   func_002d7300 notes). Adding any extra local also flips the color-group
-   stack order (reverse-declaration allocation). Hoist + slot-order floor. */
-/* measured: recipe B (single Vec2f *base reassigned per group, as retail
-   re-hoists its $s1 base) WORKS here: nd 414 -> 41 with every non-color
-   instruction byte-identical (frame 0x130, all 28 u64 slots + 5 u8[4] color
-   groups, lwc1 0/4($s1) hoists, 3-arg func_002e0a60). Residual is only the
-   5 color blocks: retail loads lbu 12c/12d/12e/12f into $a2/$a1/$a0/$v1
-   then sb 79/7A/7B/7C in the same order; mwcc b210 always binds the
-   c1[0]/offset-0 (lowest-address) lbu to $v1 and emits that load LAST, the
-   other three bind $a2/$a1/$a0 in assignment order - tried direct array
-   stores (nd 36, interleaved), named u8 temps in all 4 declaration/assign
-   orders (nd 41), reversed assignment (nd 41); register binding is fixed by
-   the offset-0 scheduling, not by source order. Color-load binding floor. */
 // FUN_002CAEF0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caef0);
 
@@ -467,6 +447,17 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d1590);
    then mov.s; (3) the sp58 f32-pair stores: mwcc always loads in reverse
    store order (lwc1 0x5C before 0x58, first-loaded binds $f1) - tried f32
    temps in all declaration/assignment orders. Scheduling floor. */
+/* measured (this wave re-test): three fresh spellings from the m2c draft --
+   individual u64 slots (nd 462), Vec2f *b reassigned per group over u64
+   slots (nd 461), Vec2f buf[19] + `Vec2f *b` reassigned over the array
+   (nd 463) -- all reproduce the documented pre-recipe-B baseline, NOT the
+   recipe-B nd 9; the exact working structure from the re-test note above is
+   not recoverable from the description (the global-base-cache-in-$s0 aspect
+   requires the D_0063F5xx insns themselves, which mwcc rematerialises).
+   Confirmed lever-1: func_002e0660 is (void*, u8, u8, u8, s16, s64) and
+   func_002e0690 is (void*, s32, s32, s32, f32, f32) -- both match their
+   declarations. Func_002e26f0 extern is s16 -- matches retail's per-site
+   sign-extension split. Continuous scheduling+hoist floor. */
 // FUN_002D3EE0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d3ee0);
 
@@ -500,6 +491,11 @@ s32 func_002d4f30(s16 arg0) {
    shifts the rest of the stream; the lbu-vs-lb on the work[8]/work[7] byte
    reads should then fall out of the alignment. Four-attempt budget
    exhausted; missing-sign-extension floor. */
+/* lever-1 audit (this wave): func_002d5040 is void (void *arg0); the 8
+   func_002cacd0 calls now use the corrected 12-arg decl (last s32 arg_sp8 =
+   D_00793E80 + arg_sp8*0x30, was missing). func_001067f0 is void*(s32) and
+   func_002e2740 is s32(s32) -- both match; the documented fix (s32 c16 =
+   (s16)func_002e2740(...) local before func_001067f0) still stands. */
 // FUN_002D5040
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
 
@@ -515,6 +511,12 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
    RGBA struct, explicit r/g/b/a temps). (3) work[7] if/switch: retail reloads
    lb 7($s1) per site; mwcc hoists addiu $s0,$s1,7. Global-address-hoist +
    scheduling floor. */
+/* lever-1 audit (this wave): func_002d6190 is void (void *arg0) -- confirmed
+   by generated-draft call sites (arg0 only). All color-helper externs checked
+   against m2c: func_002e0660 (void*,u8,u8,u8,s16,s64), func_002e0690
+   (void*,s32,s32,s32,f32,f32), func_002e0b20/func_002e0be0 (s32,u64,s32,s32,
+   s32,void*,f32), func_00275680 (11-arg) -- all match declarations. No
+   extern-width defect. */
 // FUN_002D6190
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d6190);
 
@@ -529,6 +531,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d6190);
    func_002df4c0 (matched) has the identical call shape with u64 slots and
    retail order lw-first, so the s64-vs-u64 slot type or slot offset likely
    drives the scheduler; untested within budget. Pre-jal arg-order floor. */
+/* lever-1 audit (this wave): func_002d7300 is void (void *arg0) -- confirmed
+   by generated-draft call sites. D_0063F650/D_0063F658 are f32[] (matches
+   the note's Vec2f*(f32[]) reading); func_002e0620 (void*,u64,u64,s32,s32,
+   s16) and func_002e04e0 (void*) match m2c. No extern-width defect. */
 // FUN_002D7300
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d7300);
 
@@ -792,6 +798,11 @@ void func_002dd230(void *arg0) {
    under-extends: 1013 vs 1015) - mixed per-site extension needs an
    s32 prototype + explicit (s16) casts, unaudited within budget.
    Register-allocation + mixed-sign-extension floor. */
+/* lever-1 audit (this wave, via m2c/generated-draft oracle): func_002dd3b0 is
+   void (void *arg0) -- single arg confirmed by all call sites (arg0 only);
+   func_002e26f0 extern is s16 and matches retail's per-site sign-extension
+   split (prototype s16 over-extends, s32 under-extends: 1013 vs 1015, already
+   recorded). No extern-width defect found. */
 // FUN_002DD3B0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 
@@ -820,6 +831,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
    saves s0-s3 + f20-f22 vs retail s0-s1 + f20-f22, the frame stays 0x110 and
    every slot shifts 0x10; per-site the candidate is identical except
    lb ($s1) vs retail lb 8($s0). CSE-of-invariant-address floor. */
+/* lever-1 audit (this wave): func_002de5a0 is void (void *arg0). func_00275680
+   is 11-arg s32(...) and func_002e0b20 is (s32,u64,s32,s32,s32,void*,f32) --
+   both match m2c; func_00106cd0 is s16(s16,s16) matching the c16 sign-extension
+   pattern. No extern-width defect. */
 // FUN_002DE5A0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002de5a0);
 
@@ -983,23 +998,32 @@ void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
                   func_0010d6d0(arg1), 8, 0, D_00795E60);
 }
 
-/* measured: retail evaluates func_0025ecd0's 14 args in the order [3, 8,
-   f12-f14, 1, 2, 4, 5, 6, 7, f15-f17]; mwcc b210 emits [2, 3, 4, 6, 7, 8, 1, 5,
-   f12-f14, f15-f17] regardless of spelling (inline, hoisted local, struct
-   fields). Same family as y_fclItemShopDraw func_0033cc40 floor note; also the
-   func_002b2a30 constant-first arg order. nd 45. Argument-evaluation-order
-   scheduling floor. */
+/* measured (lever 1, this wave): func_0025ecd0's true signature is
+   (s32 x7, f32 x6, void *) -- the pointer is the LAST arg in $11, verified
+   from its own prologue ($4-$10, $f12-$f17, $11). The old decl had void* in
+   position 8, scrambling arg evaluation order; fixed. Residual register floor:
+   retail keeps arg0=$s1/p=$s0 (frame 0x30) and recomputes p+4 per call; mwcc
+   CSEs p+4. Field-spelling `&p->field_4` for one call + (u8*)p+4 for the
+   other broke that CSE: nd 94 -> 65 (obj 444B vs window 464B). Remaining:
+   func_002b2a30 constant-first arg order (retail addiu $a0 first, mwcc lbu
+   first) and func_0025ecd0's arg-load order [3, 8, f12-f14, 1, 2, 4, 5, 6, 7,
+   f15-f17] vs mwcc's declaration order. Arg-scheduling floor. */
 // FUN_002E0100
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002e0100);
-
 // FUN_002E02D0
 void func_002e02d0(void *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
-/* measured: retail keeps loop-invariant ptr D_0063F560+arg1*8 in $a3 and s16
-   counter in $t0 with sign-extended index in $a2; mwcc b210 allocates the same
-   three temps to $a2/$a3/$v1 for every declaration order tried (5 variants,
-   best nd 22). Loop temp register allocation floor. */
+/* measured (this wave): func_002e0300's register layout is retail frame 0x50
+   ($s0=p, $s1=arg0, $s2=arg2, $s3=arg1, loop counter $t0, base src ptr $a3,
+   sign-ext index $a2). mwcc b210 balloons to frame 0x70 with $s0-$s5 for any
+   natural spelling (nd 111): the `s32 a1=arg1` local + `src` local force extra
+   saved regs and the loop counter lands in $a1 instead of $t0. Also confirmed
+   func_0046d200's 2nd arg is (s32)sign-extended arg1 (kept in $5 across the
+   loop as loop-invariant, m2c-confirmed), and func_00451fc0's callbacks need
+   (void (*)(u8 *)) casts. The recorded best nd 22 (5 variants) not reachable
+   via these levers. Loop-temp register-allocation floor. */
 // FUN_002E0300
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002e0300);
+

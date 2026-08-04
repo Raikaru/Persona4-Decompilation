@@ -51,7 +51,7 @@ extern u32 D_00763840;
 extern u32 D_00763848;
 extern u32 D_00763838;
 extern int func_002724d0(void *param_1, int param_2, int param_3, int param_4,
-                        int param_5);
+                        void *param_5);
 extern u32 DAT_008817A0_abs[];
 #pragma alias DAT_008817A0_abs DAT_008817A0
 extern u32 DAT_00881510_abs[];
@@ -251,8 +251,12 @@ void func_00271380(s32 arg0, u8 *arg1)
    swapped). The double andi on the loop-exit adjust ((var_2-1)&0xFF then
    var_2&0xFF at the store) is CSEd by mwcc to one andi per loop. Tried this
    wave: while-in-if, switch(cond){case 0/default}, m2c empty-if, u32 vars,
-   statement-order swaps - guard shape never changes. Loop pre-test
-   branch-layout + mask-CSE floor. */
+   statement-order swaps - guard shape never changes. Re-tested wave 14:
+   fresh m2c body with direct globals (nd94 - the raw-array spelling is
+   slightly worse than the recorded 88 pointer-local spelling); arg0/16
+   division vs arg0>>4 manual-correction shift (94 vs 97 - the sra/bgez/
+   addiu/sra plain-shift+correction matches retail's rounding, division
+   duplicates it). Loop pre-test branch-layout + mask-CSE floor. */
 
 // FUN_002713B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
@@ -536,7 +540,13 @@ extern char D_00763808;
    SECOND operand's register ($a2) and sra from it; mwcc b210 writes it into
    the FIRST operand's register ($a1) at all six division sites (nd42; the
    switch-case + empty-if + explicit-shift forms fixed everything else).
-   Tried operand-order swaps, no change. Mult register-alloc floor. */
+   Tried operand-order swaps, no change. Re-tested wave 14 (fresh m2c body
+   with resolved globals D_007645A8/-0x4B48, D_007645A0/-0x4B50,
+   D_007645A4/-0x4B4C, D_00763808/-0x58E8): nd113 for both manual >>5/>>7
+   +correction and /32 /128 spelling - the whole-function register map
+   diverges from the start (retail lbu $a3 vs my $t0), not just the mult;
+   the recorded nd42 spelling was not reproduced. Mult register-alloc +
+   prologue-coloring floor. */
 // FUN_00271D10
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00271d10);
 // FUN_00271F50
@@ -606,8 +616,14 @@ extern u8 *func_0026e0e0(s32 param_1);
 
 /* measured: nd2 - retail emits slt $at for the var_16>=glyphcount check,
    mwcc b210 emits slt $v0 no matter the spelling (>=, <= swapped, empty-if
-   <, (s32) casts - all nd2). Everything else matches byte-for-byte
-   (switch-chain with ascending cases + (s8)var_4==0 empty-else placement). */
+   <, (s32) casts - all nd2). Re-tested wave 14: opt_rebuildconditionals off
+   (lever 4), goto form, named s32 glyphcount local, explicit boolean cond
+   var, s32 var_16 (kills the s16 dsll32/dsra32 sign-ext, nd85->21) - pinned
+   at nd2. The only residual is the comparison DEST register: retail slt $at
+   vs mwcc slt $v0, where $v0 overlays the glyphcount source (dest==src).
+   Both compile the identical slt; only the dest reg differs. Everything else
+   matches byte-for-byte (switch-chain with ascending cases + (s8)var_4==0
+   empty-else placement). Comparison-dest-register floor. */
 // FUN_00272170
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272170);
 // FUN_00272390
@@ -972,7 +988,12 @@ u8 *func_00272d40(u8 *arg0)
    the arg1+0x10 hoist (nd167). Declaration reorders (4 orders probed), u32
    param widths, ternary float, early hoist, switch-wrapped final if: no
    combination moves it. Float if/else also emits a branch-to-branch where
-   retail branches to the join. Saved-register rotation floor. */
+   retail branches to the join. Re-tested wave 14 (fresh m2c body, nd170):
+   confirms the pervasive rotation - retail saves 8 (frame 0x90,
+   arg0=$s1/arg1=$s0/arg3=$s7), mwcc saves 7 (frame 0x80, arg0=$s3/arg1=$s2)
+   from the very first move; also fixed func_00272d40's call to 1 arg (m2c
+   draft wrongly shows 2; retail calls with $18 only). Saved-register
+   rotation floor. */
 // FUN_00272E10
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272e10);
 // FUN_00273110
@@ -1018,10 +1039,17 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
 /* measured: retail's 4-case dispatch emits an extra scheduler nop before the
    default branch (beq;nop;nop;b vs mwcc b210's beq;nop;b), shifting the whole
    tail by one word; every instruction's content otherwise matches (nd 82 =
-   the one-word shift across ~49 words). Tried switch with goto-to-default
+   = the one-word shift across ~49 words). Tried switch with goto-to-default
    NULL block (m2c block_18 shape), direct-deref switch, per-branch NULL
    assignments, reversed case declarations - the nop never appears.
-   Branch-scheduling floor. */
+   Re-tested wave 14 (5 fresh spellings: if/else || form nd76, switch
+   case-decl 0xF226/223/227/222 nd80, switch reverse-order nd81, flag/sum
+   decl swap nd81, result-variable switch nd78). The switch with case groups
+   declared (0xF222,0xF227) then (0xF223,0xF226) DOES emit retail's exact beq
+   test order (F226,F223,F227,F222); residual is the saved-register rotation
+   (retail node=$s2/flag=$s1/sum=$s0, mwcc swaps flag/sum) + the shared
+   default result=0 block layout. Branch-scheduling + saved-register rotation
+   floors. */
 // FUN_002734B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002734b0);
 // FUN_00273610
@@ -1071,7 +1099,13 @@ extern int func_00273970(int param_1);
    arg1=$18 and emits slt $at for the count check; mwcc b210 colors
    arg1=$16, arg0=$17, temp_17=$18 and slt $v0 (nd37). Tried first-use
    reorder, arg1 mutation (no var_18), cached func result, declaration
-   reorders - allocation never changes. Saved-register rotation floor. */
+   reorders - allocation never changes. Re-tested wave 14 (fresh m2c
+   reconstruction, nd41): full-body probe (var_18 vs arg1-direct, no
+   change), lever-1 signature sweep (u8* cast on func_00273970 callsite -
+   REQUIRED, mwcc strict rejects pointer-to-int implicitly; return u8* vs
+   void* - no change; arg1 s32 vs u32 - no change). The rotation is the
+   prologue save order: retail saves arg0=$s0 BEFORE arg1, mwcc always
+   colors arg1=$s0 first. Saved-register rotation floor. */
 // FUN_002736D0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002736d0);
 // FUN_002738A0
@@ -1157,7 +1191,12 @@ int func_00273970(int node)
    temp_19=$19/var_18=$18/temp_17=$17, b210 colors arg1=$19/temp_19=$18/
    var_18=$17/temp_17=$20 (var_16=$16, var_21=$21, temp_22=$22 match) and
    no declaration order tried moved them. sp8C slot fixed with int+cast.
-   If-body placement + saved-register rotation floors. */
+   Re-tested wave 14 (fresh m2c body, u8 arg0 type, nd155): the s8 sp8C/
+   sp8D locals place the stack bytes at 0x8f (my spelling) vs the note's
+   int+cast 0x8c fix; register rotation is pervasive from the first arg
+   (retail arg1=$s4, mine $s3). Also fixed func_002724d0's extern param_5
+   from int to void* (retail passes a pointer there) - no codegen change to
+   the matched 40. If-body placement + saved-register rotation floors. */
 // FUN_002739E0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002739e0);
 
@@ -1179,7 +1218,13 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_00273cc0);
    the same call inline-with-negated-skip (beqz) in every spelling tried
    (plain if, switch case0/default in both declaration orders, empty-if +
    else). The remaining 48 words are the resulting layout shift only.
-   If-body placement floor. */
+   If-body placement floor. Re-tested wave 14 (fresh m2c reconstruction with
+   D_007645B4/&D_00763838 globals, nd51): #pragma opt_propagation off (lever
+   2) and the goto out-of-line form both leave nd51 - b210 still inlines the
+   func_00273650 call block with beqz, retail branches positively to it. The
+   assert-branch (if arg0->0x14 && arg0->0x14->0x1C==0) and the register map
+   (retail var_18=$s2, mwcc $s1) also rotate. If-body placement + saved-
+   register rotation floors. */
 // FUN_00273F70
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273f70);
 /* measured: nd217 at 1208B vs 1216B window. Structure matches (first-if,

@@ -336,34 +336,22 @@ u8 *func_002e48a0(s8 arg0, s16 arg1) {
     }
 }
 
-/* measured: retail keeps the p pointer in $t0 and the pre-switch counter
-   (n3=6, merged with the case-6 chain constant) in $a3, with the addiu placed
-   after the type load. mwcc b210 at O2 colors p->$a3 and the counter->$t0 and
-   hoists the addiu into the p/type load-delay gap; every spelling tried gives
-   the identical nd 14: case groups in both orders and several intra-group
-   orders (6,5,10,1,8,7,0 / 0,7,8,1,10,5,6 / 0,7,8,6,5,10,1), counter declared
-   at top vs inside block vs after the src assignment, n3 declared first/last,
-   dead 4th arg, separate entry local, inline switch(*(s32*)(p+4)), if/else-if
-   chain (71), and #pragma schedule on (64). Pure register-coloring residual
-   plus one load-slot scheduling word; this is the coloring floor. */
+/* measured 2026-08-03 (re-attack, wave 14): LEVER 1 HIT — the true signature
+   is func_002e4960(void *dest, s8 arg0, s16 arg1); the old note's 2-arg decl
+   was missing the dest pointer (caller at 0x30f0a8: addiu $4,$29,0x60; lb $5,
+   0x2F9($16); lb $6,0x2FA($16)). With dest added, the body is a 6x8-byte copy
+   loop (0x30 bytes) from p + arg1*0x30 + 0x14 (types 8/7/0) or +0xA4 (types
+   6/5/A/1) into dest. LEVER 5: declaring cases 0,7,8 then 1,A,5,6 (reverse
+   order) gives retail's exact descending test chain 6,5,A,1,8,7,0. Structure
+   now matches to nd 24: the ONLY residual is register allocation — retail
+   keeps p in $t0 and the default-case loop counter in $a3 (the switch const-6
+   register, reused after the dispatch), while mwcc b210 colors p->$a3 and the
+   counters->$t0, plus 3 operand-order addu words (retail index-first
+   `addu $v1,$v1,$t0`, mine base-first `addu $v1,$a3,$v1`; lever-2 struct
+   spelled via a[arg1]/a[arg1+3] union failed to compile). Pure
+   register-colouring floor, nd 24. */
 // FUN_002E4960
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4960);
-
-/* measured: structure fully recovered (p = D_00882F70[0]+0x38 with the
-   type 6/10/1 gate, a0/a1/offA1 prologue, nested i/j loops with the five
-   sq/lq 16-byte stack slots spE0/spD0/spC0/spB0/spA0 (i*12, p+i*12,
-   &D_00882F70[(s8)(i+1)], &D_00882F70[i], t5+0x14), the a0==0 path's three
-   jump-table switches (748BC0/748B90/748B60) + func_00312b60, the a0==1
-   path's four switches (748B30/748B00/748AD0/748AA0) + func_00312b90 with
-   the spE0+p2'+j q-store and the two w!=0/w==2 sb chains) but mwcc b210
-   emits a dsll32/dsrl32 widening pair before every sq and after every lq of
-   the slots (u32->u_long128 cast) where retail sq's/lq's the 32-bit values
-   directly, and u64 locals get 8-byte slots with sd/ld instead of sq/lq
-   (aligned(16) still sd). Tried u_long128/s128/u64/aligned-u64 locals with
-   (u64)/(u32)/direct casts and typed-alias reads; best nd 302 at 1352/1344B.
-   Mixed-width u_long128 floor (same family as mdlManager func_0047c660 and
-   mdlMatAnim func_00480670); the saved-reg assignments also rotate after
-   the type gate (bne vs retail's third beq). */
 // FUN_002E4AC0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 
@@ -597,19 +585,18 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
 // FUN_002E6280
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
 
-/* measured: structure fully recovered (a=*arg0/b=*arg1, p=*D_00882F70[0]+0x38,
-   four jump-table switches {0,2,7,8}->+0x14 / {1,5,6,10}->+0xA4 on *(p+4),
-   off1=a*0x30 / off2=b*0x30, g=iGpffffb3d4+2 with the u16*14 index and
-   u8*100 chain, v1 first then v2, slt/negu tail) but mwcc b210 CSEs the type
-   load into $a0 across all four dispatches (retail reloads lw 4(p) into
-   $v0/$v1/$a2/$a2 each time) and hoists p+off1 into $t0 for both slots where
-   retail keeps off1=$a3 and off2=$t0 live and re-derives p+off1 per slot;
-   obj 600B vs window 640B. Tried: decl orders, b-first load order, inline
-   (s16)*arg0 reads, signed (s32) type, explicit t locals; all nd 135. This is
-   the load-CSE/coloring floor (same family as func_002e6b20/6c90). */
+/* measured 2026-08-03 (wave 14 re-attack): LEVER 6 applies directly — retail
+   reloads the type (lw 4(p)) into $v0/$v1/$a2/$a2 across the four jump-table
+   dispatches because each dispatch jr clobbers $v0; spelling the four reads
+   with distinct integer-domain casts (*(s32*)(p+4) / (u32)p+4 / (s8*)p+4 /
+   (u8*)p+4) forces four distinct CSE keys and the reloads (recorded 135 ->
+   121). The residual: retail keeps offA=a*0x30 in $a3 and offB=b*0x30 in $t0
+   and re-derives p+offA per slot, while mwcc hoists p+offA into $a3 and
+   shares it across dispatch1/2 (and similarly for p+offB). Named offA/offB
+   locals regress to 158 (frame/blowup); inline expressions give 121. Load-
+   hoist/coloring floor, nd 121 (was 135). */
 // FUN_002E6630
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6630);
-
 // FUN_002E68B0
 /* measured: without `opt_loop_invariants on` MWCC keeps the loop2 switch
    jump-table base (lui/addiu) inside the dispatch instead of hoisting it
@@ -678,27 +665,33 @@ void func_002e68b0(s8 arg0) {
 /* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
 #pragma opt_loop_invariants off
 
-/* measured: structure fully recovered (both jump-table switches with
-   {0,2,7,8}->+0x14 / {1,5,6,10}->+0xA4 / default, x = var2[4] loaded at the
-   switch1 join, y loaded at the switch2 join, andi 0xffff at the compare) but
-   mwcc b210 CSEs the type load across the jump-table switch (kept in $v1)
-   where retail's allocator puts it in $v0, which the dispatch jr clobbers,
-   forcing retail's reload; plus first-load coloring a->$a3 vs $a2 and
-   b->$a1 vs $v1. Tried x/y as u8/s32 with (u16) casts, both switch type-load
-   spellings, hoisted and inline loads; all give the identical nd 70 of pure
-   register renames. This is the load-CSE/coloring floor. */
+/* measured 2026-08-03 (wave 14 re-attack): old note's nd 70 was DISPROVED as
+   a pure floor. LEVER 6 is the key: retail reloads the type (lw 4(p)) into $v0
+   then $a1 after each jump-table dispatch because the dispatch jr clobbers
+   $v0; mwcc CSEs it into $v1. Spelling the second read with a different
+   integer-domain cast — switch2 on `*(s32 *)((u8 *)p + 4)` (switch1 on
+   `*(s32 *)(p + 4)`) forces a distinct CSE key and the two loads come out
+   (70 -> 25). Then DECLARE/LOAD p before b (`u8 *p; ... p = ...; b = *arg1;`)
+   so allocation lands b->$v1 / p->$a0 like retail (25 -> 6). v1/v2 must be
+   u16 (retail andi 0xffff, not 0xff). Residual is exactly the top load ORDER:
+   retail emits lh a; lh b; lui/lw/lw(p); mwcc emits lh a; p-chain; lh b no
+   matter the spelling — tried #pragma schedule on (89), opt_common_subs off
+   (13), e-split (24), decl orders (24). 4 instruction words + 2 pool-number
+   relocs. Load-order scheduling floor, nd 6. */
 // FUN_002E6B20
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
 
-/* measured: full structure recovered (entry/slotp split re-derefs, sort via
-   func_00440bb8 with u16 count, loop2 jump-table switch {0,2,7,8}->+0x14 /
-   {1,5,6,10}->+0xA4, loop3 re-zero + re-copy) but mwcc b210 CSEs the loop2
-   p2 load (D_00882F70[arg0]+0x38) into the count2 load's intermediate, where
-   retail re-issues the full arg0 re-index (dsll32/sll/lui/lw/lw) after the
-   blez guard; every spelling tried (block-scoped p2, (s32)(s8)arg0 cast,
-   entry-vs-slotp paths, p2-before-count2 order) gives nd 140 with the same
-   missing re-index block and a cascading register-allocation shift (arg0 not
-   saved to $s2, q in $s2). This is the load-CSE floor. */
+/* measured 2026-08-03 (wave 14 re-attack): func_002e6c90 is the sibling of the
+   MATCHED func_002e68b0 (same structure) with func_002e6b20 as the sort
+   comparator. Porting func_002e68b0's exact C (same decl order, same p2
+   re-index spelling `(u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)arg0 * 4)` +
+   the same loop2/loop3 shapes) cut the recorded nd 140 to 52 and fixed the
+   old "arg0 not saved to $s2" defect (arg0 now correctly -> $s2) and the
+   missing p2 re-index (now emitted). Residual is a pure register rotation in
+   loop2: mine j->$a2/count2->$a1/p2->$a0/idx->$t0/q->$a3 vs retail
+   j->$a3/count2->$a2/p2->$a1/idx->$t1/q->$t0 (one register lower each).
+   Tried decl-order variants (61), #pragma opt_propagation off (52, no
+   change). Register-rotation floor, nd 52 (was 140). */
 // FUN_002E6C90
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6c90);
 // FUN_002E6F00

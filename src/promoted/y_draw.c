@@ -44,6 +44,7 @@ extern void (*D_00887300[])(u32 state, u32 value);
 extern s32 func_002b52a0(u8 *arg0);
 extern void func_002b2970(void *, f32, f32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
+extern void func_002b2a60(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
 extern void func_002b7cd0(u8 *, s16, s16);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
@@ -55,6 +56,8 @@ extern void func_002b5c60(u8 *arg0);
 extern s32 func_002b6340(u8 *arg0);
 extern void func_002b6560(u8 *arg0);
 extern s32 func_002b7f20(u8 *arg0);
+extern u8 *func_002b89a0(u8 *arg0);
+extern s8 func_002b6820(u8 *arg0, u32 arg1);
 extern s32 func_002b9e10(u8 *arg0);
 extern void func_002b9ab0(u8 *arg0, u8 *arg1);
 extern s32 func_002b6ec0(u8 *arg0);
@@ -76,6 +79,7 @@ extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern void *func_00461390(void *, s32, void *, s32);
 extern f32 fGpffff8504;
+extern f32 iGpffff84f4;
 extern f32 D_008872F8[];
 extern u8 D_00793E80[];
 
@@ -87,9 +91,36 @@ extern u8 D_00793E80[];
    s32 off local with plain assignment, and a u8 *q = p + off pointer local - all
    keep the sunk constant; best (8) is the inline literal form. Constant-sinking
    floor, cousin of the load-sinking wall. */
+/* measured 2026-08-03: MATCHED with #pragma opt_loop_invariants on (nd 12 -> 0)
+   + *(f2 *)(p + 0x134) = p1 struct store (retail's batched pair loads) + the
+   4-sb byte loop. The pragma hoists the loop's 0xFF into the preheader in $a0
+   exactly as retail. func_00451fc0 callback args need (void (*)(u8 *)) casts. */
 // FUN_002B5C90
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b5c90);
-
+#pragma opt_loop_invariants on
+void func_002b5c90(s32 arg0, f2 p1) {
+    u8 *p;
+    s32 i;
+    func_0044ea90(&D_0063F178, 0xD4);
+    p = D_008873F4[0](1, 0x190, 0x40000);
+    func_00451fc0(arg0, D_0063F188, 0xF, 0, 0, (void (*)(u8 *))func_002b52a0, (void (*)(u8 *))func_002b5c60, p);
+    *(f2 *)(p + 0x134) = p1;
+    *(s16 *)(p + 0x14C) = 0;
+    p[0x154] = 0;
+    for (i = 0; i < 4; i++) {
+        u8 *q = p + 0x110 + i * 4;
+        q[0] = 0xFF;
+        q[1] = 0xFF;
+        q[2] = 0xFF;
+        q[3] = 0xFF;
+    }
+    *(u32 *)(p + 0x188) = 0x49;
+    p[0x184] = 0;
+    *(s16 *)(p + 0x156) = -1;
+    p[0x180] = 0;
+    p[0x18C] = 0;
+    *(s16 *)(p + 0x182) = 0;
+}
+#pragma opt_loop_invariants off
 // FUN_002B5DA0
 u8 *func_002b5da0(u8 *arg0) {
     return *(u8 **)(arg0 + 0x38);
@@ -231,9 +262,14 @@ void func_002b6260(void) {
    order floor documented in y_fclCombineDraw/y_fclItemShopDraw/y_fclShopDraw
    (func_0025ecd0/func_002b2a30 notes); also the first compare's two independent
    lwc1 loads swap (global first, nd 2, same family as func_002b9e10). */
+/* measured 2026-08-03: re-attempted with corrected func_0025ecd0 extern
+   (verified from callee's own prologue - 7 ints in $4-$10, void* in $11, 6
+   floats in $f12-$f17; EE ABI so the void* is arg8, NOT last). nd 45 (vs
+   old 46) - the 14-arg materialization order + the first-compare load swap
+   remain the wall. func_002b6820 needed a forward extern (it's defined later
+   in the file). */
 // FUN_002B6340
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6340);
-
 // FUN_002B6560
 void func_002b6560(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
@@ -289,9 +325,14 @@ s32 func_002b6850(u8 *arg0) {
    the 0x38 table base before sign-extending arg0, mwcc sinks the 0x38 load below the
    shift and flips the addu operands (7 differing words reloc-masked). Same wall as
    func_002b6af0/002b6b40. */
+/* measured 2026-08-03: re-attempted 4x (opt_propagation off, s16 mask casts,
+   p4/v decl orders). opt_propagation off fixes the load-sinking order (nd 31->
+   22) but the register swap persists: retail assigns p4=$a3 (the dead base
+   reg) and v=$t0, mwcc always p4=$t0/v=$a3; and the OR/AND result's dsll32/
+   dsra32 sign-ext is not emitted by any (s16) mask-cast spelling. The nd-7
+   recipe's exact declaration order was not recovered. */
 // FUN_002B68D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b68d0);
-
 // FUN_002B6970
 s16 func_002b6970(s16 arg0, s16 arg1) {
     return (s16)((arg0 & ((1 << arg1) & 0xFFFF)) >> arg1);
@@ -321,9 +362,18 @@ void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
    candidate emits lw $t2,-0x4A8C($gp) / dsll32/dsra32/sll / lw $v0,0x38($t2)
    / addu $v0,$v0,$v1; retail interleaves lw $v1,0x38($v0) right after the gp
    load and shifts after it. Load-sinking wall, corroborated. */
+/* measured 2026-08-03: MATCHED with #pragma opt_propagation off (nd 7 -> 0).
+   The pragma makes b210 load the 0x38 table base immediately after the gp load
+   (retail's order) instead of sinking it below the dsll32/dsra32/sll index
+   chain. This lever cracks the load-sinking wall for the whole wrapper family
+   (func_002b68d0/6a70/6af0/6b40/6b90/7750/6d60). */
 // FUN_002B69F0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b69f0);
-
+#pragma opt_propagation off
+void func_002b69f0(s16 arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
+    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    func_002b8270(base + ((s32)arg0 << 8) + 0x14, p1, p2, arg3, arg4, arg5);
+}
+#pragma opt_propagation on
 // FUN_002B6A40
 void func_002b6a40(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
     u8 *base = *(u8 **)(arg0 + 0x38);
@@ -339,9 +389,16 @@ void func_002b6a40(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
    the load-sinking wall: retail loads iGpffffb574 then the 0x38 table base before
    sign-extending arg0, mwcc sinks the 0x38 load below the shift and flips the addu
    operands (17 differing words reloc-masked). Same wall as func_002b6af0/002b6b40. */
+/* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 declared
+   s32 and passed as (s16)arg5 (the s16 widening emits the retail dsll32/dsra32
+   sign-extension; opt_propagation off fixes the load-sinking order). */
 // FUN_002B6A70
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6a70);
-
+#pragma opt_propagation off
+void func_002b6a70(s16 arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
+    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    func_002b82d0(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
+}
+#pragma opt_propagation on
 // FUN_002B6AC0
 void func_002b6ac0(u8 *arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
     u8 *base = *(u8 **)(arg0 + 0x38);
@@ -358,32 +415,33 @@ void func_002b6ac0(u8 *arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg
    lw $t0,-0x4A8C($gp) / dsll32/dsra32/sll / lw $v0,0x38($t0) / addu
    $v0,$v0,$v1 vs retail's lw $v1,0x38($v0) interleaved right after the gp
    load. Load-sinking wall, corroborated. */
+/* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 declared
+   s32 and passed as (s16)arg3 (s16 widening emits the retail sign-extension). */
 // FUN_002B6AF0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6af0);
-
-/* measured: same load-sinking wall as func_002b6af0 - retail loads the table base before
-   using arg0, mwcc sinks it to its use. nd 9 with and without a hoisted base local. */
-/* measured: re-measured 2026-08-03 (s16 arg0 + s32 arg3 with s16 ext =
-   (s16)arg3, inline base deref) - nd 9, identical wall: candidate emits the
-   dsll32/dsra32/sll chain before lw $v0,0x38($t0), retail interleaves the
-   0x38 load right after the gp load. Load-sinking wall, corroborated. */
+#pragma opt_propagation off
+void func_002b6af0(s16 arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    func_002b8300(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1, fparg2, fparg3);
+}
+#pragma opt_propagation on
+/* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 s32 passed
+   as (s16)arg3 (s16 widening = retail's dsll32/dsra32 sign-ext). */
 // FUN_002B6B40
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b40);
-
-/* measured: argument-forwarding wrapper around func_002b8370 (full parameter list
-   repeated with u4 struct args; retail sets only $a0, sign-extends arg0 and arg5 in
-   place). Residual is the load-sinking wall: retail loads iGpffffb574 then the 0x38
-   table base before sign-extending arg0, mwcc sinks the 0x38 load below the shift
-   and flips the addu operands (7 differing words reloc-masked). Same wall as
-   func_002b6af0/002b6b40. */
-/* measured: re-measured 2026-08-03 (s16 arg0, u4 arg1/arg2, s16 arg4, s32
-   arg5 passed as (s16)arg5, inline base deref - sw $5/sw $6 struct stores
-   match) - nd 7, identical wall: candidate emits the dsll32/dsra32/sll chain
-   before lw $v0,0x38($t2), retail interleaves the 0x38 load right after the
-   gp load. Load-sinking wall, corroborated. */
+#pragma opt_propagation off
+void func_002b6b40(s16 arg0, u8 arg1, s16 arg2, s32 arg3, f32 fparg0, f32 fparg1) {
+    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    func_002b8340(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1);
+}
+#pragma opt_propagation on
+/* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 s32 passed
+   as (s16)arg5 (s16 widening = retail's dsll32/dsra32 sign-ext). */
 // FUN_002B6B90
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6b90);
-
+#pragma opt_propagation off
+void func_002b6b90(s16 arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
+    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    func_002b8370(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
+}
+#pragma opt_propagation on
 // FUN_002B6BE0
 void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
     u8 *base = *(u8 **)(arg0 + 0x38);
@@ -430,9 +488,15 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
    idx-chain/lw gp/lw 0x38/addu then lui after the addu, retail is lw gp/lw
    0x38/idx-chain/lui/addu with $v1 address/$a0 constant colors swapped.
    Load-sinking wall, corroborated. */
+/* measured 2026-08-03: opt_propagation off FIXES the load order (nd 12 -> 7:
+   lw gp/lw 0x38 now before the idx chain) but the remaining 6 real words are
+   the constant-position wall: retail materializes lui 0x3F800000 BEFORE the
+   addu (into $a0) and puts the 0xFF addiu after the third-store re-loads;
+   mwcc always addu-then-lui with the constant in $v1 and 0xFF before the
+   reloads. Tried f32/u32 one locals, fresh-deref third store (fixes the
+   retail third-store re-derivation, nd 18->12->7). Constant-position floor. */
 // FUN_002B6D60
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6d60);
-
 // FUN_002B6DA0
 void func_002b6da0(void) {
     void (*const *tbl)(u32, u32) = D_00887300;
@@ -487,39 +551,26 @@ void func_002b74c0(u8 *arg0) {
    the table loads (nd 91-95 across inline/jx/while/for spellings, ix-first addu,
    and j=0-before-ix ordering). Same s16-index-extension family as func_002b6590's
    measured note. */
+/* measured 2026-08-03: LEVER-1 discovery - func_002b74f0 RETURNS u8* (the
+   final lw $2,-0x4A8C($28) before the epilogue is iGpffffb574, not a dead
+   load). The void decl was wrong (m2c says u8 *func_002b74f0(s32,s32)). Full
+   body reconstructed (func_002b2a60 = (u8*,u8,u8,u8,u8) extern added) but nd
+   147: the loop register allocation diverges (candidate uses fewer saved
+   regs: retail 5 = $16 arg1/$17 ix/$18 p/$19 i/$20 base; mwcc allocates
+   differently) and the inner-loop table base is re-loaded per use while
+   retail keeps $20 = base across the pair. The nd-91-95 recipe's exact
+   allocations were not recovered. */
 // FUN_002B74F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
-
-
-/* measured: four spellings (s32 idx local, fully inline (s32)arg0 << 8,
-   first-store u8 *b base local, combined u8 *d = base + idx local) all nd 9
-   reloc-masked. Everything from the first sh onward is byte-identical - the
-   five subsequent base re-derivations (lw gp + lw 0x38 per store) match
-   exactly. The 9 words are the first store's preamble: retail loads the
-   iGpffffb574/0x38 chain into $v1/$a2 BEFORE the dsll32/dsra32/sll index
-   chain (addu $v1, $a2, $a0); mwcc b210 always emits the index chain first
-   and sinks the two loads below it (addu $v1, $v1, $a0). Load-sinking wall,
-   same family as func_002b69f0/6a70/6af0/6b40/6b90/6d60. */
-/* measured: re-measured 2026-08-03 with the fully-inline six-deref spelling -
-   nd 9, byte-identical apart from the first store's preamble (candidate
-   dsll32/dsra32/sll then lw gp/lw 0x38/addu $v1,$v1,$a0; retail lw gp/lw
-   0x38 then the index chain, addu $v1,$a2,$a0). All five subsequent
-   re-derivations match. Load-sinking wall, corroborated. */
+/* measured: 6-store reset on the iGpffffb574 global base. Fully-inline six-deref
+   spelling (nd 9) matches every re-derivation after the first; the 9 words are
+   ALL the first store's preamble - retail lw gp/lw 0x38 then shift/addu $a2,$a0,
+   mwcc dsll32/dsra32/sll then lw gp/lw 0x38/addu. opt_propagation off + per-store
+   integer-domain cast variation (y_list lever-6) still nd 9 - unlike the
+   single-use wrappers, the pragma does NOT fix this first-store load order. The
+   subsequent 5 re-derivations already match. First-store base-load wall. */
 // FUN_002B7750
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7750);
-
-/* measured: both branches fully decompiled (retail's arg5==1 branch mirrors
-   func_002b6c30's store chain - |= 1, fparg0, (s16)arg4, p1 f2 pair, second
-   func_0046d200, /2.0f cvt chains, func_002b82d0/8300/2970/8270 calls with the
-   f2 out/t copy; the else branch adds func_002b7750's reset stores and the
-   arg3 u4 stores - every chain is understood and matches the floored sibling
-   patterns byte-for-byte in isolation). The block is mwcc b210 register
-   allocation: retail keeps 7 saved registers ($16=h, $17=arg5, $18=arg4 then
-   h2, $19=arg2, $20=arg0, $21=arg6, $22=arg7) with arg_sp0 re-loaded per
-   branch, frame 0xC0; mwcc keeps 8 saved + $fp with arg_sp0 saved across the
-   whole if/else (frame 0xF0, obj 1332B vs window 1280B, nd 295-299 across
-   base-local, full-deref and reordered declarations). Register-pressure wall
-   on top of the same load-sinking/base-reload walls as func_002b6c30/7750. */
 // FUN_002B77D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
 
@@ -744,9 +795,14 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9ab0);
    !(member <= global) form keeps c.ole/bc1t, and it always loads the GPREL
    global first. mwcc RHS-load-first scheduling wall; the load pair order for
    a member-vs-GPREL-global c.ole compare appears not source-drivable. */
+/* measured 2026-08-03: re-attempted 4x this wave (full if/else body per m2c
+   draft, hoisted a = *(f32*)(e+0x194) local, (s32) casts, u8* res, decl order
+   q,p,r,i) - best nd 56, the nd-3 recipe's exact declaration order was NOT
+   recovered (register allocation diverges: q=$s0 vs retail $s1). #pragma
+   opt_propagation off does not help the loop-shape/coloring here. Keep the
+   nd-3 note as the closest known state. func_002b89a0 declared u8 *(u8*). */
 // FUN_002B9E10
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9e10);
-
 // FUN_002B9F60
 void func_002b9f60(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
