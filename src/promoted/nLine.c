@@ -61,7 +61,7 @@ void func_0034cef0(u8 *arg0);
 s16 func_0034e290(u8 *arg0, s32 arg1);
 s16 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
-void func_0034f0d0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7);
 u32 func_003b7060(void);
 void func_00364c50(void);
 void func_00364c70(void);
@@ -113,7 +113,13 @@ void func_0034ba20(void) {
    load $a1 and the dst-temp $a0, cascading through every store, nd 25. Tried
    named pointer locals, inline expressions, f32* pointers, s32 base/offset
    locals, m2c goto shape, and src/dst declaration+assignment order swaps —
-   best identical nd 25. Register-coloring floor. */
+   best identical nd 25. Re-attacked this wave: hoisting both bases into
+   locals before the loop reproduces retail's preheader exactly (lui/addiu
+   $a2 dst, $a0 src, move $a3 counter) and the store body matches byte-
+   for-byte; the ONLY residual is a clean $a0/$a1 swap between the src base
+   and the dst-temp (retail src=$a0/dst-temp=$a1, mwcc src=$a1/dst-temp=$a0)
+   across all 19 stores, nd 25. Lever 1 (signature) N/A: void, no args, no
+   externs. Register-coloring floor. */
 // FUN_0034BA30
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ba30);
 
@@ -289,25 +295,22 @@ void func_0034c260(s32 arg0) {
     D_00884684[0] = arg0;
 }
 
-/* measured: retail hoists the loop-invariant pieces (mtc1 $a1->$f3, andi
-   $a1&1, 255.0f/2^31/0x80000000 constants) to the preheader and keeps the
-   counter in $v0; mwcc b210 either rematerializes everything inside the loop
-   (nd 52, best no-pragma attempt: prologue/frame/layout byte-identical via
-   &arg0 + s32 casts, but counter $v1, in-loop lui/mtc1, mtc1 not hoisted) or
-   over-hoists the whole arg1 if/else with opt_loop_invariants (nd 92), plus
-   the c.ole.s const,prod + bc1t vs c.olt.s prod,const + bc1f clamp floor
-   (same family as func_0034c500/d890/ddf0). Tried 4 spellings, best nd 52. */
-/* measured: recipe B re-test — the typed pointer local `srcBase =
-   (f32 *)(D_00749CC0 + arg2 * 0x3C0)` DOES reproduce retail's base hoist
-   (lui/addiu/addu into $s0, prologue offsets 0-116 byte-identical, incl.
-   sd $a0,0x48 / move $s2,$a1 / move $s1,$a2 — mwcc's one-slot s64 ABI:
-   (s64,s32,s32,f32) with byte in arg1, index in arg2). Best nd 69 (attempts
-   130/83/83/69). Remaining b210 floors: in-loop lui/mtc1 rematerialization
-   of the loop-invariant 255.0f/0x4F000000/0x80000000 (retail hoists all into
-   the preheader, opt_loop_invariants over-hoists the arg1 if/else, nd 92),
-   counter $v1 vs retail $v0 (cmask takes $v0 first; decl/init order tried),
-   the c.olt.s prod,const+bc1f vs c.ole.s const,prod+bc1t clamp floor, and
-   the dst/src scratch rotation $a2/$a1 vs retail $a3/$a0. */
+/* measured (wave 14 re-attack, best nd 11 vs recorded 69): the true signature is
+   (s64 arg0, u32 arg1, s32 arg2, f32 fparg0) — NOT the old (u8*, s64, s32).
+   The s64 arg0 is spilled to 0x48 and its two words read as f32 in the loop
+   (baseLo/baseHi). With #pragma opt_loop_invariants on + the u32-copy half-
+   scaler recipe `c = (u32)var_3; var_f0 = (f32)(s32)((c>>1)|(c&1)); var_f0+=var_f0`
+   (logical srl, kills the else-branch clone) + x+x doubling (no 2.0f const),
+   every instruction matches except 4 fixed residuals: (1) baseLo/baseHi FP
+   register coloring is deterministically swapped (retail baseLo=$f5/baseHi=$f6,
+   mwcc baseLo=$f6/baseHi=$f5 regardless of assignment order), (2) the clamp
+   comparison — `temp_f0 < 2.1474836e9f` gives retail's layout but encodes
+   c.olt.s $f0,$f1+bc1f vs retail c.ole.s $f1,$f0+bc1t, and the c.ole.s form
+   only compiles with the inverted (wrong) layout (documented floor), (3) the
+   or-fold `(c>>1)|(c&1)` colors into $v1 vs retail $a0 (operand order), (4)
+   the base float load order (retail loads baseHi first). opt_propagation off
+   wrecked it (nd 97). Lever 1 (u32 arg1) + u32-copy recipe + x+x were the
+   big wins. FP-coloring + clamp-comparison floor. */
 // FUN_0034C270
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c270);
 
@@ -339,13 +342,17 @@ void func_0034c4a0(void) {
 // FUN_0034C500
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c500);
 
-/* measured: retail emits each call's args in source order (move $a0, mov.s
-   $f12-$f15, then lbu $a1-$t0) and saves $a1 to $s0 after the four float-arg
-   mov.s's; mwcc b210 always hoists the four independent lbu argument loads
-   ahead of the FP moves and spills $a1 before the float saves, nd 17 (16
-   argument-order words + 1 prologue). Tried both prototype class orders
-   (ptr,f,f,f,f,i,i,i,i and ptr,i,i,i,i,f,f,f,f) and both C arg orders —
-   identical nd. Argument-materialization scheduling floor. */
+/* measured (wave 14): the f0d0 extern is floats-first — the true signature is
+   (u8*, f32, f32, f32, f32, u8, u8, u8, u8), NOT (u8*, s32, s32, s32, s32,
+   f32, f32, f32, f32). With the corrected extern AND the C callsite written
+   floats-first (ptr, f0, f1, f2, f3, b0, b1, b2, b3), all four callsites now
+   match retail byte-for-byte (move $a0, mov.s $f12-$f15, then lbu $5-$8) —
+   nd 17 -> 6. The ONLY residual (5 words) is the prologue save order: retail
+   saves the 4 float params to $f26/$f25/$f24/$f20 THEN moves arg1 to $s0;
+   mwcc b210 always moves arg1 to $s0 first, then the float saves. Tried
+   named float locals, opt_propagation off (identical), decl orders — the
+   int-arg-first prologue save is a fixed b210 scheduling floor. Lever 1
+   (extern width/class) was the big win here. */
 // FUN_0034C6C0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c6c0);
 
@@ -417,7 +424,6 @@ void func_0034d040(u8 *arg0) {
    identical. Register-coloring floor (same family as d280/d490/d690). */
 // FUN_0034D070
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d070);
-
 // FUN_0034D280
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d280);
 
@@ -446,7 +452,6 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d280);
    family as func_0034d070 (nd 35) / d280 / d690. */
 // FUN_0034D490
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d490);
-
 // FUN_0034D690
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d690);
 /* measured (4 attempts, best nd 37): opt_loop_invariants + for-loop shape
@@ -475,35 +480,16 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);
    $f20, 164.0f*var_f0 -> $f21, 1/x -> $f22, delta -> $f23, x -> $f24),
    mwcc by first-use (164*var_f0 -> $f20, 0x9A0 -> $f21). (4) int-args-before-
    float-moves call materialization. Register-coloring + CSE + comparison-
-   shape floor. */
+   shape floor. Re-attacked wave 14 with the corrected floats-first f0d0
+   extern (u8*,f32,f32,f32,f32,u8,u8,u8,u8) + full reconstruction — nd 41
+   (all remaining words are the saved-FP rotation + call-arg FP pairing). */
 
 // FUN_0034DB60
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
-
-/* measured: recipe A re-test (4 attempts, all nd 164). The recipe's bltz
-   shape now matches retail instruction-for-instruction: s32 v = *(u8 *)
-   load + u32 copy + `(f32)(s32)((c>>1)|(c&1))` + x+x doubling gives retail's
-   single bare lbu/bltz/srl/andi/or/cvt/add.s chain (the old note's "lb when
-   retail lbu" defect is gone). Remaining b210 floors: saved-FP rotation
-   (mwcc allocates by first-use — prod=$f20, y=$f21 — retail by declaration
-   — y=$f20, prod=$f21, inv=$f22, delta=$f23, x=$f24), the 171.0f*var_f0 mul
-   CSE (div.s $f20/2.0f where retail re-multiplies) which forces a 6th saved
-   FP ($f22 = y+prod) and shifts the prologue save list, the x+580.0f CSE
-   across calls 3/4 (retail re-issues lui/mtc1/add.s), the c.olt.s
-   prod,const+bc1f vs c.ole.s const,prod+bc1t clamp floor, and the
-   int-args-before-float-moves call materialization. */
 // FUN_0034DDF0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
-
-/* measured: retail colors temp_f21/f22/f20/f26 to $f21/$f22/$f20/$f26 and
-   arg0/$byte to $s0/$s1; mwcc b210 permutes the temps to $f21/$f20/$f22/$f27
-   (extra $f27 save), swaps $s0/$s1, and hoists call-arg constant materialization
-   ahead of the FP mov.s's, nd 101. Tried declaration orders f20,f21,f22,f26 /
-   f21,f22,f20,f26 and both arg spellings — identical nd 101. Register-coloring
-   + argument-materialization scheduling floor. */
 // FUN_0034E0B0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e0b0);
-
 // FUN_0034E290
 s16 func_0034e290(u8 *arg0, s32 arg1) {
     s16 val;
@@ -534,6 +520,10 @@ s16 func_0034e290(u8 *arg0, s32 arg1) {
    and the coalescing cascade spills arg0 to 0x13C (frame 0x140 vs retail
    0x120) instead of $s7 — tried m2c declaration order, temp_16 first, GPR
    reorders, and all four params copied to named locals; identical nd 592.
-   Saved-register-rotation floor (same family as func_0034e0b0). */
+   Saved-register-rotation floor (same family as func_0034e0b0). Re-attacked
+   wave 14: the f0d0 extern is confirmed floats-first (u8*,f32,f32,f32,f32,u8,
+   u8,u8,u8) from f0d0's own prologue — but e360 is a saved-register/FP rotation
+   floor (mwcc permutes the trivial saved-GPR/FP allocation), not a signature
+   issue; the 20+ f0d0 callsites are byte-correct with the floats-first extern. */
 // FUN_0034E360
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e360);

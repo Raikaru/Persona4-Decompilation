@@ -616,6 +616,12 @@ s32 func_002a34e0(u8 *arg0) {
    (nd 12). The D_008873EC base hoist WAS matched via a `void *ec` local
    (setState pattern, nd 81 -> 12); only this arg-order scheduling remains.
    Argument-evaluation-order floor. */
+/* Wave-14 re-test: lever 7 (arg hoist into locals in retail order) applied to
+   a fresh m2c-sourced body; nd 235-282 (worse than the recorded 12) because the
+   m2c register allocation differs from the previous hand-adapted body. The
+   arg-order hoist at the func_0010e880/0010e710 sites alone does not recover
+   the frame; the whole-body register rotation dominates. Retest from the
+   previous nd-12 body, not from m2c. */
 // FUN_002A3D80
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a3d80);
 // FUN_002A4390
@@ -679,6 +685,11 @@ s32 func_002a4390(s32 arg0) {
    three declaration orders, explicit empty cases 0xA/0xC, single shared
    result variable -- all nd 9. Register-allocation floor ($v0/$v1 coloring),
    not source-drivable. */
+/* Wave-14 re-test: fresh m2c-sourced body (with the shared block_31 goto
+   restored and func_002a2e50(arg0, n) calls) gives nd 278 — the m2c register
+   allocation is far worse than the recorded nd 9. The m2c body is not a usable
+   base; the previous nd-9 body must be reconstructed by hand. Dispatch
+   register coloring ($v0 value / $v1 base) remains the known floor. */
 // FUN_002A4570
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4570);
 // FUN_002A4B10
@@ -761,6 +772,10 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a4d10);
    and merges s19/s20 into one register. Tried all six saved-reg declaration
    orders and the mul.s operand-order split; all nd 332. Saved-register rotation
    floor. */
+/* Wave-14: func_0025f3f0/func_002a66d0 in this family carry the same m2c
+   call-signature errors found in func_002a5f00 (floats must precede the ints in
+   the C call); not re-probed — same rotation family where a fresh m2c body
+   measured worse than the recorded hand-adapted best. */
 // FUN_002A4F20
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
 
@@ -779,6 +794,12 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
    than retail. Tried p first/last, all five saved-reg declaration orders, and
    the two-statement mul.s (value-in-fs) fix (that one landed); best nd 81.
    Saved-register rotation floor. */
+/* Wave-14 re-test: corrected the m2c call-signature errors at func_0025f3f0
+   (floats 0.0/195.0/0.0 then ints 0xFFFFFF/0xFF/0x22/0/[0x398]/1) and
+   func_002a66d0 (floats 72.0/179.0/0.0/124.0*f/116.0*f then ints 0x2D2D2D/0xFF/1)
+   and the 0xFF constants (m2c misread as 3.57e-43f); nd 314 from a fresh m2c
+   body, worse than the recorded 81 (previous hand-adapted body). The func_002a9f50
+   call now passes the correct s32 0xFF first arg. Rotation floor persists. */
 // FUN_002A5F00
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5f00);
 
@@ -1120,6 +1141,14 @@ s32 func_002a7330(u8 *arg0) {
    vs index copy loops -- the rotation never aligns. The first 4 copy-loop
    instructions, the state checks and the 66d0 call all match. Saved-register
    rotation floor. */
+/* Wave-14 re-test: fresh m2c-sourced body with the half-scaler as u32
+   (((u32)t2 >> 1) | (t2 & 1), per the btlShuffleCalc discovery) and the
+   0x8000001E overflow-guard constant; nd 176 (recorded best 158). The sp60
+   index still folds into the lw and the frame is 0x90 vs retail 0xA0 (3 vs 4
+   saved GPRs) — saved-register rotation + index-fold floor persists. Lever-3
+   inline helper for the sp60/sp80 base+index (per the y_CmbCardEff combo)
+   could not be measured: mwcc b210 rejects the inline-deref expression
+   ("pointer/array required") before it can be scored. */
 // FUN_002A73C0
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a73c0);
 // FUN_002A7710
@@ -1223,6 +1252,13 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a95c0);
    int args before float args. The float-param-first signature DID fix the
    FP move order (mov.s f22/f21/f20 before the int moves). Saved-register
    rotation floor. */
+/* Wave-14 re-test: fresh m2c-sourced body with the func_002a95c0 call arg
+   order corrected; the m2c had scrambled the 8-arg call (missing the 4th arg).
+   Retail leaves $7 live as arg3 at 0xA0C0, so the call is
+   func_002a95c0(arg0,arg1,arg2,(u8*)arg3,arg4,f0,f1,f2); nd 190 (recorded
+   162-181). The call site now matches (the jal relocation aligns) but the
+   prologue register rotation (retail's FP store order vs int) dominates.
+   Rotation floor persists. */
 // FUN_002A9F50
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a9f50);
 // FUN_002AA2B0

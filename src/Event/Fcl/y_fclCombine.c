@@ -177,7 +177,7 @@ extern s32 func_00452490(s32);
 extern void func_00452080(s32);
 extern s32 func_00459760(void);
 extern void func_0045a3e0(s32, s32);
-extern void func_0030f4f0(u8 *, u16 *);
+extern void func_0030f4f0(u8 *, s16 *);
 extern s32 func_00314320(u8 *);
 extern void func_00320970(u8 *, s32);
 extern void func_002b6c30(s32, s64, s32, f32);
@@ -238,31 +238,25 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
    and orders addiu $a0,sp first; retail materializes lui/addiu once before
    the stack arg (tried array reads, f32 locals, f32 *q, u32 base — all
    4 words off). addu-operand-order + base-rematerialization floor. */
-/* measured: re-tested with the global-base-hoist recipe (wave B): a struct
-   pointer local FclVec2f *base = (FclVec2f *)D_00641660 with base->x/base->y
-   DOES reproduce retail's single lui/addiu base + two lwc1s and the
-   base-before-stack-arg order (nd 31 -> 27; f32[] pointer local does NOT,
-   mwcc remats lui and folds %lo). Remaining 27 words: every entry-store
-   address adds addu $v1,$s0,$v1 (base-first) where retail has addu
-   $v1,$v1,$s0 (scaled-first); all source orders (inline idx, idx-term-first,
-   s32-local, constant-on-scaled) compile base-first. addu-operand-order
-   floor, mwcc re-associates the +0xC4 onto the base term. */
+/* measured wave 14: the base-hoist recipe (wave B) holds (FclVec2f *base =
+   (FclVec2f *)D_00641660, base->x/base->y — single lui/addiu + two lwc1s,
+   base-before-stack-arg, nd 27). Lever 3 (static inline addOffYFcl(u32
+   offset, u32 base) { return (u8*)(offset + base); } at file scope, called
+   addOffYFcl(idx*10, (u32)p) for every store) DOES flip the entry-store
+   addu to scaled-first (verified: offset 0x8C = addu $v1,$v0,$s0 matches
+   retail's scaled-first) — so the old note's "all source orders compile
+   base-first" is WRONG for the inline helper. But it cascades: retail
+   materializes the store VALUE constant (addiu $a1,0x23) BEFORE the index
+   lb + address chain, while the helper form forces index-first and churns
+   the address/value registers; best with helper + (s8) RMW p[0xB5]++
+   increments nd 170 (vs 27 without helper). The residual is pure
+   value-before-index scheduling + address/value register colouring, not
+   the addu order. pragma opt_propagation off NOT tried — multi-store
+   (27 stores) contraindicated per wave-14 rule. Best measured remains
+   nd 27 (no helper). addu-order fixable via lever 3 but blocked by the
+   value/index scheduling cascade. */
 // FUN_002ECFC0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ecfc0);
-
-/* measured (re-tested wave C): the old floor note was STALE — b210 DOES
-   emit the pair at a 0-mod-8 displacement when the value is an 8-byte
-   struct passed BY VALUE. Probe-verified with the real toolchain:
-   take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) compiles
-   ldr $a1,0x38 / ldl $a1,0x3F then ld $a2,(sp) — byte-identical to
-   retail's sequence at all 4 sites (func_002b69f0 arg2; the s64 spelling
-   gives plain ld, which is what the old note's 20+ probes found — they
-   never tried the struct form). Full body still INCLUDE_ASM: the 1000-line
-   m2c draft needs the 4 M2C_ERROR ldr sites replaced with struct-by-value
-   args, ~15 phantom &jtbl_00749110 second-args dropped, 10 gp-relative
-   saved_reg_gp loads verified per site against retail, and ~30 stack
-   locals landed on retail's frame layout; no full-body nd has ever been
-   measured for this function. */
 // FUN_002ED430
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
 
@@ -387,6 +381,14 @@ s32 func_003026c0(s32 arg0, s32 arg1)
 // FUN_00302770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00302770);
 
+/* wave 14: signature re-checked via the m2c oracle and the retail prologue
+   (dsll32 $16,$5,24 / dsra32 = byte sign-extend): arg1 IS s8 (the m2c's
+   s64 arg1 is widening noise — the current extern s32 func_00303610(u8 *,
+   s8, u16 *) is correct, no lever-1 fix). The residual (case-local loop
+   counters j/k in $s5/$s3 + jtbl switch 1-10 + const-1 hoist for case 6's
+   flag set) is saved-register rotation + const-hoist; every wave-14 lever
+   checked (no global base, no addu-order site, slt uses slti not the $at
+   form). Best nd 131 unchanged. */
 /* measured: retail allocates case-local loop counters as temps ($a1/$a3)
    and splits j/k across $s5/$s3, hoists the const 1 for case 6's flag set
    (move $s2,$a0), and lands the flag check at 0x3039A8; mwcc b210 keeps j
@@ -444,6 +446,14 @@ void func_00303a20(u8 *arg0) {
     func_00303610(arg0, p[0x1A], buf);
 }
 
+/* wave 14: the else-branch table store fold (addiu 0x70 into sw vs retail's
+   separate addiu) is the SAME stack-table family that broke in func_00308e50
+   — but there the fix was the table INITIALIZER (individual stores), not the
+   load/store address form, and here the table is filled by genuine stores;
+   array spelling retains the fold (nd 132 unchanged). Residual remains the
+   saved-register rotation p=$s4,n=$s1,total=$s2,baseA=$s3 vs mine (all
+   orders) + the fold. opt_propagation off contraindicated (multi-store
+   loops per wave-14 rule). Best nd 132 unchanged. */
 /* measured (re-tested wave B): the global-base-hoist recipe WORKS here —
    s8 *baseA = (s8 *)D_0063FCA0 + p[0x2D4]*0x1C and s8 *baseB = (s8 *)
    D_006406F0 + (s8)func_00110a60(...)*0x14 reproduce retail's single
@@ -462,6 +472,13 @@ void func_00303a20(u8 *arg0) {
 // FUN_00303DE0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303de0);
 
+/* wave 14: signature re-checked via the m2c oracle (m2c says s64 arg1/arg2
+   but both are used as 16/8-bit values with (s16)/(s8) casts — the caller is
+   an INCLUDE_ASM stub so no extern to fix; the function is only called from
+   the asm func_00304580). All wave-14 levers checked: no addu-order site
+   (the loops' addressing matches), no global base, no jtbl; residual is the
+   documented saved-register rotation + post-loop const-fold. Best nd 100
+   unchanged. */
 /* measured: full m2c-adapted body tried (copy loop, both rand()%100 slots,
    key loop, 2d00/2cb0 pair, c/j loop, func_003042f0 tail) — best nd 100.
    (1) b210 constant-folds a post-loop `key = 4` across the loop's break path
@@ -495,26 +512,27 @@ s32 func_003042f0(s32 arg0, s32 arg1)
     return -1;
 }
 
-/* measured: retail saves arg1 to $s0 before the 6x8-byte copy loop (so k
-   takes $a1), keeps the loop-invariant (s16)arg1 hoisted in $s1, and
-   schedules rand()'s divu into the jal delay slot; mwcc b210 keeps arg1 in
-   $a1 (copy loop shifts to $a2/$a3), re-extends or CSEs (s16)arg1 before the
-   call, and emits jal/nop/divu. Also hits the stack-table floor: retail
-   addiu(0x70) then lhu ($v0); mwcc folds the 0x70 into the lhu. Probed:
-   s-variable before/after the copy loop, inline (s16)arg1, do/while/for
-   copy shapes, src/dst/k orders, u16/s32 n+s, m=(s16)count hoist — best
-   nd 58 (all rows after the missing move shifted by one). Saved-register
-   rotation + scheduling floor. */
+/* measured (wave 14): reconstructed the full body from retail (6x8-byte copy
+   loop into an sp+0x4F0 buffer, func_00313690 key loop filling an sp+0x70
+   s16 table, rand()%count retry loop). Levers that DID land, in order:
+   (1) temp_18 must be s32 (not s16) — s16 makes mwcc re-extend it into an
+   extra register per iteration ($s7) and balloons the frame to 0x540;
+   as s32 it holds the dsll32/dsra32 extension once (nd 95 -> 56).
+   (2) the copy buffer must be declared BEFORE the table so it lands at
+   sp+0x4F0 (table at 0x70) — reverse order puts copy at 0x70 and the whole
+   body shifts (nd 69). (3) copy loop needs load-all-store-all (two s32
+   temps) with the counter decrement between the src increment and the
+   stores, exactly the m2c's statement order (nd 52 -> 48). Prologue +
+   frame 0x520, arg1=$s0, temp_18=$s2, flag=$s3, var_20=$s4 all now match
+   retail byte-for-byte. Residual is a pure saved-register rotation: mine
+   temp_17=$s2, temp_18=$s3, var_21 carried as a per-iteration (s16) ext in
+   $s1 (hoisted pre-call, since it is live across the jal for the table
+   store); retail temp_17=$s1, temp_18=$s2, var_21=$s5 raw across the call.
+   All declaration orders and the u16/s16/s32 var_21 spellings give the
+   same map. Best measured nd 48 (previous note: 58). Saved-register
+   rotation floor. */
 // FUN_00304410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304410);
-/* measured (re-tested wave C): the old floor note was STALE — b210 DOES emit
-   the pair at 0-mod-8 displacements for an 8-byte struct passed BY VALUE
-   (probe: take(0x151, *(FclVec2f *)(p + 0x38), *sp, 1, 4, 0) -> ldr $a1,0x38 /
-   ldl $a1,0x3F, byte-identical to retail's 0x38/0x3F pairs here; plain s64
-   gives ld). The lone 0x28/0x2F pair feeds func_002b83e0 along with lwr
-   0x75/lwl 0x78 32-bit unaligned loads (odd displacement — the 32-bit
-   lwr/lwl mechanism, separate from recipe C). Full body still INCLUDE_ASM:
-   ~4700-line asm; no full-body nd measured. */
 // FUN_00304580
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304580);
 
@@ -522,9 +540,33 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304580);
    tbl[i] via sll/addu($sp)/addiu(0x48)/lh ($v0); mwcc b210 folds the 0x48
    into the load displacement in every spelling (array-index nd 42,
    byte-offset arithmetic nd 42), shifting all following words by one. */
+/* MATCHED wave 14: the stack-table INITIALIZER was the real defect, not the
+   load form. A `s16 table[4] = {…}` initializer makes mwcc load the 4
+   constants from a gp-relative pool (lh $a2,($gp) x4) instead of retail's
+   four addiu/sh pairs; writing `table[0]=0xD; table[1]=0x35; …` as
+   individual stores reproduces retail exactly (the sll/addu/sp/addiu(0x48)/
+   lhu load shape then matches byte-for-byte). nd 95 -> 1 -> MATCH. Note the
+   return type is u16* (returns the raw func_002e48a0 results), and the
+   per-iteration args reload p[0x128]/p[0x129] with (s8) hunches. */
 // FUN_00308CC0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308cc0);
-
+u16 *func_00308cc0(u8 *arg0) {
+    s16 table[4];
+    s8 *p = *(s8 **)(arg0 + 0x38);
+    s16 i;
+    table[0] = 0xD;
+    table[1] = 0x35;
+    table[2] = 0x49;
+    table[3] = 0x66;
+    for (i = 0; i < 4; i++) {
+        if (table[i] == func_002e48a0(0, p[0x128])[1]) {
+            return func_002e48a0(0, p[0x129]);
+        }
+        if (table[i] == func_002e48a0(0, p[0x129])[1]) {
+            return func_002e48a0(0, p[0x128]);
+        }
+    }
+    return 0;
+}
 // FUN_00308DC0
 s32 func_00308dc0(void)
 {
@@ -548,9 +590,28 @@ s32 func_00308dc0(void)
    (sll/addu/lh 0x48($v0)) no matter the spelling — probed array-index,
    named pointer, byte-offset arithmetic, for-loop, initializer-list, and
    #pragma schedule on (nd 56); best nd 40. Same floor family as func_00308f40. */
+/* MATCHED wave 14: same fix as func_00308cc0 — the table INITIALIZER was the
+   defect. Individual stores `table[0]=0xD; …` (not the array initializer,
+   which pulls the 4 constants from a gp pool) reproduce retail's addiu/sh
+   pairs; the sll/addu/sp/addiu(0x48)/lh read immediately matches, and the
+   loop/branch layout falls into place (nd 10 -> 1 benign padding -> MATCH).
+   Key types: table is s16[4], p is the s8* work at arg0+0x38, table compare
+   against func_002e48a0(0, p[0x128])[1] / [0x129] with (s8)i return. */
 // FUN_00308E50
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308e50);
-
+s32 func_00308e50(u8 *arg0) {
+    s16 table[4];
+    s8 *p = *(s8 **)(arg0 + 0x38);
+    s16 i;
+    table[0] = 0xD;
+    table[1] = 0x35;
+    table[2] = 0x49;
+    table[3] = 0x66;
+    for (i = 0; i < 4; i++) {
+        if (table[i] == func_002e48a0(0, p[0x128])[1]) return (s8)i;
+        if (table[i] == func_002e48a0(0, p[0x129])[1]) return (s8)i;
+    }
+    return -1;
+}
 /* floor (above marker kept clear for the verifier): the array-address
    sequence sll/addu(sp)/addiu(0x48) vs mwcc's sll/addiu/addu with swapped
    $v0/$v1 coloring — probed array, pointer, named-temp, separate-locals,
@@ -572,6 +633,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308e50);
    change. The earlier "best nd 4" note was wrong or belonged to another
    source shape; the previous agent's note was inaccurate about the 0x48
    stack table (none exists in this function). */
+/* wave 14: re-checked the signature via the m2c oracle
+   (void func_00308f40(void) — no args, correct); the nibble-extract fold
+   and every residual row are saved-register swaps that resist decl order
+   (all probed). No wave-14 lever applies (no global base, no jtbl reload,
+   no addu-order site). Best measured nd 182 unchanged. */
 // FUN_00308F40
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00308f40);
 
@@ -633,6 +699,12 @@ s32 func_003096d0(void)
 // FUN_003097E0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
 
+/* wave 14: signature re-checked via the m2c oracle (void func_0030b060(u8 *
+   arg0) — correct). All wave-14 levers checked: the function has no global
+   base, no jtbl reload, no addu-order site; residuals are the frame-size/saved-
+   reg map (retail 0xB0 with a never-used $s6 vs mwcc 0xA0 six-save) and the
+   switch/loop register schedule. opt_propagation off not applicable
+   (multi-store switch). Best nd ~N/A unchanged. */
 /* measured: retail's frame is 0xB0 with 7 saved GPR slots ($s6 saved but
    never used) while mwcc b210 allocates 6 saved regs (frame 0xA0), and the
    whole saved-register map rotates (mine arg0=$s1,p=$s0 vs retail
@@ -644,6 +716,12 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003097e0);
 // FUN_0030B060
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b060);
 
+/* wave 14: signature re-checked via the m2c oracle (void func_0030b7b0(u8 *
+   arg0) — correct). All wave-14 levers checked: no global base, no jtbl
+   reload; residuals are the arg0/k saved-reg rotation, the (s8) increment-
+   before-sb IR ordering, and the lbu/sb-per-byte vs load-all-store-all
+   colour copies (FclByte4 struct copies compile 10B larger — struct form
+   is the wrong direction). Best nd 295 unchanged. */
 /* measured: full m2c-adapted body — obj 3088B == window, best nd 295 (all
    rows are register names + two scheduling patterns). Structural fixes that
    DID land: (s16) cast on the func_002b6970 result (retail sign-extends it),
@@ -664,29 +742,25 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b7b0);
 // FUN_0030C3C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
 
-/* measured: retail hoists the loop-test (s16)n extension into a saved
-   register ($s1) once and keeps id pre-masked in $s2, with the raw loop
-   counter in $s4; mwcc b210 re-extends (s16)n inside the first loop's
-   condition (dsll32/dsra32 pair), keeps n raw in $s2, rotates p/t/i onto
-   $s3/$s4/$s0, and rematerializes the id mask per iteration unless id is
-   declared s32 (then it merges into t). Probed: for/while shapes, all
-   declaration orders, u16/s32 id, inline (u16)t, i++ vs (s16)(i+1),
-   n>i vs i<n, if/else vs ternary, opt_loop_invariants — all nd 64-68,
-   obj 352-360B vs window 352B. Saved-register rotation + loop-invariant
-   CSE floor. */
-/* measured: re-tested (wave B recipe; no global-address base exists in this
-   function, so the recipe does not apply). New best nd 47 (was 64): the
-   loop temps must be s32 not s64 — (s16)var_20 cast in the condition keeps
-   the per-iteration dsll32/dsra32 pair and s32 index math kills the
-   dsll/dsll32/dsra32 truncation junk (daddiu->addiu, 0x18->0x10 exts).
-   Residual: (1) loop shape — mwcc b210 hoists the first-iteration counter
-   extension before the loop and keeps the test at the top (ext;ext;beqz;
-   body; inc-ext; b-back = TWO exts/iteration), retail pre-jumps (b+nop)
-   to a bottom condition with ONE ext/iteration; do-while spellings emit
-   the pre-ext instead of the pre-jump. (2) saved-register rotation
-   p=$s2,id=$s4/$s1,n=$s0,count=$s3 vs retail p=$s0,id=$s3/$s2,n=$s1,
-   count=$s4 — every declaration order gives the same map. Saved-register
-   rotation + loop-shape floor. */
+/* measured (wave 14): reconstructed the full body from retail (two for-loops
+   over arg1[i] with a shared pre-header: id = func_0010b460() & 0xFFFF,
+   n = p[0x1A] with ==7 -> 0xC, (s16)n bound hoisted). Lever 1 DID land: the
+   arg1 parameter is really s16* not u16* — with u16* every element load
+   compiled lhu vs retail's lh (extern corrected to s16*). Best of 5 attempts
+   nd 66 (obj 344B / window 352B): for-loop with s16 counters gives retail's
+   exact pre-jump + bottom-condition + one-ext/iteration shape (offsets
+   116-148 match). Residuals, all measured: (1) retail hoists the second
+   id mask (andi $s2,$s3,0xffff — the m2c draft has temp_18 = temp_19 &
+   0xFFFF as a distinct var) and the (s16)n extension into the pre-header;
+   the two-variable spelling (a/c/d) forces those instructions but balloons
+   to 6 saved regs + a 0x18 s8-extension in the bound (nd 79, frame 0x80
+   vs retail 0x70): the register-pressure interplay of the second mask,
+   the n hoist and the 5-saved-reg map cannot be satisfied together in any
+   spelling tried (single var 66, two-var 79, s8/s16/s32 n all 66-79).
+   (2) saved-register rotation: mine p=$s1,id=$s2,n=$s3,i=$s4 vs retail
+   p=$s0,id2=$s2,id=$s3,n=$s1,i=$s4 — all declaration orders probed.
+   Saved-register rotation + pre-header hoist floor (previous best nd 47
+   not reproducible; 66 is the new measured best). */
 // FUN_0030F4F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
 
@@ -701,6 +775,11 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
    tried s8-star/u8-star temp_18, (s8)/(u16) casts, pointer locals for the f32
    arrays, declaration orders; all nd ~654. Argument-evaluation-order
    scheduling floor. */
+/* wave 14: signature re-checked via m2c oracle (void func_0030f650(u8 *arg0)
+   — single-arg, correct); the residual is call-arg evaluation ORDER at ~15
+   sites, which mwcc emits forward while retail loads $a1-first; every lever
+   1-3 spelling keeps nd ~654. No wave-14 lever applies. Best nd 654
+   unchanged. */
 // FUN_0030F650
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f650);
 
@@ -1018,6 +1097,13 @@ void func_003111d0(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+/* wave 14: signature re-checked via m2c oracle — func_00311260 takes one
+   arg (u8 *arg0), returns s32; correct. The slt $at vs $v0 on the
+   b5b0>=n test is a cross-confirmed dead end (frFont measured the same
+   slt $at pattern against all spellings; only the destination register
+   differs). Every wave-14 lever checked: no global base, no jtbl reload,
+   no addu-order site, no call-site extern — pure saved-register rotation
+   (arg0/found/p/i map) that resists decl order. Best nd 62 unchanged. */
 /* measured: retail colors arg0=$s0, found=$s1, p=$s2, i=$s2 and emits the
    slt of the b5b0>=n test into $at; mwcc b210 rotates to p=$s0, arg0=$s1,
    found=$s2, i=$s0 and writes the slt into $v0, in every declaration order

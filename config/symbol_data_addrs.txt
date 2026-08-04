@@ -250,4 +250,4 @@ iGpffffad70 = 0x00763e60; // type:data evidence: retail func_004559b0 addiu $28,
 iGpffffad78 = 0x00763e68; // type:data evidence: retail func_004559b0 addiu $28,-0x5288 (0x00763E68) as D_008873AC arg1; gp base 0x007690F0
 iGpffffad80 = 0x00763e70; // type:data evidence: retail func_004559b0 addiu $28,-0x5280 (0x00763E70) as D_008873AC arg1; gp base 0x007690F0
 iGpffffbaa0 = 0x00764b90; // type:data evidence: retail func_004559b0 sw $1,-0x4560($28) (0x00764B90) at end; gp base 0x007690F0
-
+iGpffffb574 = 0x00764664; // type:data evidence: retail func_002b6a70 lw $2,-0x4A8C($28) (0x00764664) as the y_draw work-pointer base; gp base 0x007690F0
