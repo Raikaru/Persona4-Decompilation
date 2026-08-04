@@ -54,6 +54,24 @@ class ProgressTests(unittest.TestCase):
         self.assertEqual(metrics["matching"]["duplicate_rows"], 1)
         self.assertEqual(metrics["source"]["ignored_unknown_rows"], 1)
 
+    def test_coverage_counts_windows_no_marker_scores(self) -> None:
+        """Windows nobody has put under test must be reported, not hidden.
+
+        A window with no `// FUN_` marker in any src/*.c never appears in the
+        verifier report at all: it is handed to the link as raw retail bytes.
+        Such windows are absent from every status count, so measuring progress
+        against the scanned subset alone makes the work look far closer to done
+        than it is. Only one of the two windows here is scanned.
+        """
+        report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 16}]}
+        metrics, _matching, _linked = progress.make_metrics(report, WINDOWS, None, "verify.json", None)
+        self.assertEqual(metrics["coverage"]["scanned"], 1)
+        self.assertEqual(metrics["coverage"]["unscanned"], 1)
+        self.assertEqual(metrics["coverage"]["unscanned_percent"], 50.0)
+        # the honest denominator stays every window, never the scanned subset
+        self.assertEqual(metrics["total"], 2)
+        self.assertEqual(metrics["matching"]["percent"], 50.0)
+
     def test_linked_asm_fallback_is_counted_separately_not_as_progress(self) -> None:
         """A TU links as one object even when some members are INCLUDE_ASM.
 

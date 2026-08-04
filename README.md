@@ -22,6 +22,8 @@ before extracting what the build needs.
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,086; all mapped to C or owned retail assembly |
 | Byte-identical functions | 3,912 (29.895% of windows) |
+| Under test (a `// FUN_` marker scores them) | 4,864 (37.169% of windows) |
+| Not yet under test, supplied as retail bytes | 8,222 (62.831% of windows) |
 | In byte-exact linked C objects | 1,235 (9.438% of windows), with 508 assembly fallbacks still inside those objects |
 | First-party matched, scored for recovery | 3,294 |
 | — NAMED (not a `func_<address>` placeholder) | 155 (4.706%) |
