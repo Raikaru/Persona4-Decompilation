@@ -1,4 +1,5 @@
 #include "type.h"
+extern s32 iGpffff9ef8;
 
 extern u8 *func_00155280(void);
 extern void (*DAT_008873EC[])(void *);
@@ -22,6 +23,12 @@ void func_00160440(void)
 }
 
 
+
+// FUN_00161500
+void func_00161500(s32 arg0)
+{
+    iGpffff9ef8 = arg0;
+}
 
 // FUN_00168030
 void func_00168030(u8 *arg0)

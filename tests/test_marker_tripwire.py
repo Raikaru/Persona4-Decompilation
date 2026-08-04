@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5025 tracked markers across first-party src/.  Bump deliberately.
+        """5039 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -108,11 +108,17 @@ class MarkerCountTripwireTests(unittest.TestCase):
         OLD-STYLE extern for g so no argument setup is emitted), 11 vtable-call
         wrappers (`jtbl_008873EC[0](*(u8 **)(arg0 + 0x38))`), and 9 `return 0`
         (daddu $v0,$zero,$zero / jr). All in non-linked placeholders, all match.
+
+        Raised to 5039 for 14 gp-relative accessors: `lw $v0,-K($gp)` getters,
+        `sw $a0,-K($gp)` setters, and one `lw $v1,-K($gp); sw $a0,off($v1)`.
+        These needed 12 new curated symbols in config/symbol_data_addrs.txt,
+        each evidenced by the retail instruction that names the displacement,
+        with the address equal to 0x007690F0 minus that displacement.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5025,
+            5039,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

@@ -1,4 +1,5 @@
 #include "type.h"
+extern s32 iGpffffbb9c;
 extern void func_00484bb0();
 extern void func_00485b20();
 extern void func_00485fe0();
@@ -107,6 +108,12 @@ void func_004b1540(void)
 void func_004b1560(void)
 {
     func_00486180();
+}
+
+// FUN_004B3250
+void func_004b3250(s32 arg0)
+{
+    iGpffffbb9c = arg0;
 }
 
 // FUN_004B50D0
