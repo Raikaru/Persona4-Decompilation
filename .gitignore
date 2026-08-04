@@ -30,3 +30,5 @@
 __pycache__/
 /.vscode/
 *.pyc
+# cloned on first use by tools/permute_ast.py; upstream, not ours
+tools/decomp-permuter/
