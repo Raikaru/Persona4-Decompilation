@@ -4325,7 +4325,7 @@
       "target_path": "build/objdiff/target/Battle/btlResultHeroLvUp/00221cf0.o",
       "base_path": "build/objdiff/base/Battle/btlResultHeroLvUp/00221cf0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -9462,7 +9462,7 @@
       "target_path": "build/objdiff/target/Event/Fcl/y_fclModel/0034a4f0.o",
       "base_path": "build/objdiff/base/Event/Fcl/y_fclModel/0034a4f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -127954,7 +127954,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0017/00176220.o",
       "base_path": "build/objdiff/base/promoted/code1_0017/00176220.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

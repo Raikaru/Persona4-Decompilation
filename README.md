@@ -21,15 +21,15 @@ before extracting what the build needs.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,086; all mapped to C or owned retail assembly |
-| Byte-identical functions | 4,108 (31.392% of windows) |
+| Byte-identical functions | 4,111 (31.415% of windows) |
 | Under test (a `// FUN_` marker scores them) | 5,068 (38.728% of windows) |
 | Not yet under test, supplied as retail bytes | 8,018 (61.272% of windows) |
-| In byte-exact linked C objects | 1,235 (9.438% of windows), with 508 assembly fallbacks still inside those objects |
-| First-party matched, scored for recovery | 3,490 |
-| — NAMED (not a `func_<address>` placeholder) | 155 (4.441%) |
-| — TYPED (no raw-offset or `M2C_` access) | 1,349 (38.653%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 2,184 (62.579%) |
-| — still carrying decompiler local names | 792 (22.693%) |
+| In byte-exact linked C objects | 1,239 (9.468% of windows), with 507 assembly fallbacks still inside those objects |
+| First-party matched, scored for recovery | 3,493 |
+| — NAMED (not a `func_<address>` placeholder) | 155 (4.437%) |
+| — TYPED (no raw-offset or `M2C_` access) | 1,350 (38.649%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 2,186 (62.582%) |
+| — still carrying decompiler local names | 794 (22.731%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.
 <!-- STATUS:END -->

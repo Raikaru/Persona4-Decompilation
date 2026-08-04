@@ -144,9 +144,30 @@ void func_0034a480(u8 *arg0)
    reusing them); a {s64; f32} struct (22). The two callbacks need casts
    because func_00349c50 and func_0034a480 are declared returning s32/int.
    Body kept below so the last three words can be attacked without redoing
-   any of the above. */
-// FUN_0034A4F0 NONMATCHING
-#ifdef NON_MATCHING
+/* SOLVED by tools/permute.py after this was documented at nd 5 following five
+   hand attempts. The permuter found the two pragmas; everything else below is
+   the hand-built body it started from.
+
+   measured: optimization_level 1 is load-bearing -- with it removed the
+   function goes straight back to MISMATCH. `tailcall on` pairs with it. The
+   permuter also proposed s32 copies of both parameters; those were noise and
+   are dropped, the function still matches without them.
+
+   Keep the 12-byte vector copies as an explicit s64 + f32 pair: a {s64; f32}
+   struct assignment pads to 16 and copies the tail as a second ld/sd (nd 22),
+   and both callbacks need casts because func_00349c50 and func_0034a480 are
+/* SOLVED by tools/permute.py after this was documented at nd 5 following five
+   hand attempts. Keep the 12-byte vector copies as an explicit s64 + f32 pair:
+   a {s64; f32} struct assignment pads to 16 and copies the tail as a second
+   ld/sd (nd 22). Both callbacks need casts because func_00349c50 and
+   func_0034a480 are declared returning s32/int. The permuter also proposed
+   s32 copies of both parameters; those were noise and are dropped.
+   measured: optimization_level 1 is load-bearing here -- removing it puts the
+   function straight back to MISMATCH -- and `tailcall on` pairs with it. */
+#pragma optimization_level 1
+#pragma tailcall on
+// FUN_0034A4F0
+#pragma tailcall on
 s32 func_0034a4f0(s32 arg0, s32 arg1)
 {
     u8 sp50[0xC];
@@ -184,7 +205,8 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
     func_003e0c90(mem + 0x30, &sp50[0], 2);
     return handle;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclModel", func_0034a4f0);
-#endif
-
+/* measured: closes the optimization_level 1 + tailcall scope opened above for
+   func_0034a4f0; -O2 with tailcall off is the documented baseline. */
+#pragma tailcall off
+#pragma optimization_level 2
+#pragma tailcall off
