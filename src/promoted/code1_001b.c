@@ -37,6 +37,16 @@ void func_001b1830(void) {
 
 
 
+// FUN_001B18C0
+void func_001b18c0(void)
+{
+}
+
+// FUN_001B39F0
+void func_001b39f0(void)
+{
+}
+
 // FUN_001B3F00
 void func_001b3f00(void) {
     s64 *p = *(s64 **)(D_0076449C + 0x170);
@@ -53,6 +63,16 @@ void func_001b3f00(void) {
 }
 
 
+
+// FUN_001B5EC0
+void func_001b5ec0(void)
+{
+}
+
+// FUN_001B6110
+void func_001b6110(void)
+{
+}
 
 // FUN_001B7060
 void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2) {

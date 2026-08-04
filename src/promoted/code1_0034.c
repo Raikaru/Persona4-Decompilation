@@ -26,6 +26,11 @@ void func_0034ad40(u8 *arg0) {
 
 
 
+// FUN_0034B8C0
+void func_0034b8c0(void)
+{
+}
+
 // FUN_0034F2E0
 void func_0034f2e0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s64 arg4, f32 fparg0,
                    f32 fparg1) {

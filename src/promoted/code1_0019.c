@@ -61,6 +61,17 @@ void func_00193730(void) {
 
 
 
+// FUN_00194660
+void func_00194660(void)
+{
+}
+
+// FUN_00194B50
+s32 func_00194b50(void)
+{
+    return 1;
+}
+
 // FUN_00199830
 s64 func_00199830(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x98) & 2) {

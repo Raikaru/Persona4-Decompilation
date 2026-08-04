@@ -101,6 +101,11 @@ void func_00216df0(u8 *arg0, s32 arg1) {
 
 
 
+// FUN_00216E50
+void func_00216e50(void)
+{
+}
+
 // FUN_00218260
 void func_00218260(void) {
     u8 *temp_16;

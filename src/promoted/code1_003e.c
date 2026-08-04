@@ -138,6 +138,11 @@ s32 func_003e4510(void) {
 // jr $ra delay slot with sw $a0, -0x5478($gp); baseline -O2 emits sw; jr; nop.
 #pragma optimization_level 3
 
+// FUN_003E4AC0
+void func_003e4ac0(void)
+{
+}
+
 // FUN_003E5510
 void func_003e5510(s32 arg0) {
     D_00886700 = arg0;
