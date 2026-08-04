@@ -6,6 +6,9 @@
 extern void func_0044ea90(u8 *file, s32 line);
 extern void func_0046d730(u8 *file, s32 line);
 extern void func_002852a0(s32 arg0, s32 arg1);
+extern void func_00454bd0(u8 *arg0);
+extern void func_00291470(u8 *arg0);
+extern void (*jtbl_008873EC[])(u8 *arg0);
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern u8 D_00748340[];
@@ -28,7 +31,23 @@ u8 *func_00290f00(void)
 }
 
 // FUN_00290FA0
-INCLUDE_ASM("asm/nonmatchings/evtEffect", func_00290fa0);
+void func_00290fa0(u8 *arg0)
+{
+    s32 i;
+    u8 *e;
+
+    if (arg0 != NULL) {
+        for (i = 0; i < *(s32 *)(arg0 + 4); i++) {
+            e = arg0 + i * 0x2C;
+            if (*(s32 *)(e + 0x10) == 1) {
+                func_00454bd0(*(u8 **)(e + 0x38));
+            }
+        }
+        func_00291470(arg0);
+        jtbl_008873EC[0](arg0);
+        func_002852a0(0xB, -0x190);
+    }
+}
 // FUN_00291060
 void func_00291060(u32 *param_1)
 {
