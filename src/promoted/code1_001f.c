@@ -276,6 +276,17 @@ s32 func_001f6290(void) {
 
 
 
+// FUN_001F73C0
+void func_001f73c0(void)
+{
+}
+
+// FUN_001F9740
+s32 func_001f9740(void)
+{
+    return -1;
+}
+
 // FUN_001F9A50
 void func_001f9a50(s32 arg0, s32 arg1) {
     s32 f = *(u16 *)((u8 *)iGpfffb3ac + 0xB3A);

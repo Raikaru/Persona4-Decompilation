@@ -36,6 +36,11 @@ void func_002a2740(void) {
 
 
 
+// FUN_002AAA00
+void func_002aaa00(void)
+{
+}
+
 // FUN_002AAAA0
 void func_002aaaa0(void) {
     D_00882F20[0] &= ~1;

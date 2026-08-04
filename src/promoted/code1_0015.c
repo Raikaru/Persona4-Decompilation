@@ -75,6 +75,12 @@ s32 func_0015a130(void)
 }
 
 
+// FUN_0015C630
+s32 func_0015c630(void)
+{
+    return 1;
+}
+
 // FUN_0015F600
 s32 func_0015f600(void)
 {

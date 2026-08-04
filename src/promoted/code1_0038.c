@@ -52,6 +52,21 @@ s32 func_00389330(u8 *arg0) {
 
 
 
+// FUN_0038DD60
+void func_0038dd60(void)
+{
+}
+
+// FUN_0038DD70
+void func_0038dd70(void)
+{
+}
+
+// FUN_0038DD80
+void func_0038dd80(void)
+{
+}
+
 // FUN_0038EE10
 s32 func_0038ee10(void) {
     return !datGetFlag(0x1472);

@@ -66,6 +66,21 @@ void func_001421b0(u8 *arg0) {
 
 
 
+// FUN_00143B70
+void func_00143b70(void)
+{
+}
+
+// FUN_00143B80
+void func_00143b80(void)
+{
+}
+
+// FUN_00143B90
+void func_00143b90(void)
+{
+}
+
 // FUN_00145250
 s32 func_00145250(void) {
     return D_00762EA0;

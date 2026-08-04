@@ -51,6 +51,32 @@ void func_004843a0(u8 *arg0)
 
 
 
+// FUN_00484510
+void func_00484510(void)
+{
+}
+
+// FUN_00484520
+void func_00484520(void)
+{
+}
+
+// FUN_00484540
+void func_00484540(void)
+{
+}
+
+// FUN_00484550
+void func_00484550(void)
+{
+}
+
+// FUN_00484560
+s32 func_00484560(void)
+{
+    return 1;
+}
+
 // FUN_00486180
 void func_00486180(u8 *arg0)
 {

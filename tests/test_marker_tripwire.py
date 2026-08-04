@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """4876 tracked markers across first-party src/.  Bump deliberately.
+        """4914 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -84,11 +84,19 @@ class MarkerCountTripwireTests(unittest.TestCase):
         already marked in code1_0017.c, so the ten join their siblings there.
         They are canonical windows that had no marker at all; two of them
         (func_0017b990, func_0017cc90) matched immediately once visible.
+
+        Raised to 4914 for 38 trivial stubs recovered by scanning the retail bytes
+        in image.bin for unscanned windows whose whole body is `jr $ra; nop` or
+        `addiu $v0,$zero,K; jr $ra`. Each was placed in the non-linked
+        src/promoted/code1_XXXX.c placeholder whose marked address span already
+        contains it, so no linked object's carve layout moves. All 38 match as one
+        line of C. Note `addiu` SIGN-EXTENDS: the 0xFFFF at 0x001F9740 is
+        `return -1`, not 65535, and writing the unsigned value is a MISMATCH.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            4876,
+            4914,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

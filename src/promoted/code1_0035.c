@@ -31,6 +31,12 @@ void func_00354230(u8 *arg0)
 
 
 
+// FUN_003544F0
+s32 func_003544f0(void)
+{
+    return 50;
+}
+
 // FUN_003547C0
 void func_003547c0(s32 *arg0, u8 *arg1)
 {

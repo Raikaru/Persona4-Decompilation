@@ -55,6 +55,12 @@ s32 func_001e8d80(void) {
 
 
 
+// FUN_001EB370
+s32 func_001eb370(void)
+{
+    return 1;
+}
+
 // FUN_001EB380
 void func_001eb380(u8 *arg0) {
     memset(arg0, 0, 0x5C);

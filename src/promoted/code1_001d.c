@@ -19,6 +19,11 @@ void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 
 
 
+// FUN_001D6A60
+void func_001d6a60(void)
+{
+}
+
 // FUN_001DA230
 s32 btlCond_MYHANSYA(u8 *arg0, s16 arg1) {
     return (s32)((func_0023a6b0(*(s32 *)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64), arg1) & 0x02000000) != 0);
