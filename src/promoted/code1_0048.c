@@ -61,6 +61,12 @@ void func_00484520(void)
 {
 }
 
+// FUN_00484530
+s32 func_00484530(void)
+{
+    return 0;
+}
+
 // FUN_00484540
 void func_00484540(void)
 {

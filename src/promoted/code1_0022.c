@@ -1,4 +1,5 @@
 #include "type.h"
+extern void func_001bdeb0();
 
 s32 func_00452380(u8 *arg0);
 
@@ -79,6 +80,18 @@ void func_00225bd0(void)
 }
 
 
+
+// FUN_00228A60
+void func_00228a60(void)
+{
+    func_001bdeb0();
+}
+
+// FUN_0022BAC0
+s32 func_0022bac0(void)
+{
+    return 0;
+}
 
 // FUN_0022BD00
 s32 func_0022bd00(void)

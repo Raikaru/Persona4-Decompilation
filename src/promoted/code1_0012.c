@@ -36,6 +36,12 @@ void func_00121170(void *arg0)
 
 
 
+// FUN_001211A0
+s32 func_001211a0(void)
+{
+    return 0;
+}
+
 // FUN_00122820
 void func_00122820(s32 arg0, s32 arg1)
 {
@@ -106,6 +112,12 @@ void func_00123a80(void)
 }
 
 
+
+// FUN_00123D50
+void func_00123d50(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
 
 // FUN_0012B810
 s32 func_0012b810(s32 arg0)

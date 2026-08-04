@@ -1,4 +1,5 @@
 #include "type.h"
+extern void func_0036bbf0();
 
 extern void func_003642e0(u8 *arg0, void *arg1);
 
@@ -58,6 +59,12 @@ void func_0036d860(u8 *arg0, s32 arg1)
 }
 
 
+
+// FUN_0036D940
+void func_0036d940(void)
+{
+    func_0036bbf0();
+}
 
 // FUN_0036D960
 s32 func_0036d960(void)
