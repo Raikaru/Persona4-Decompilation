@@ -196,6 +196,11 @@ void func_004b5f20(RuntimeWork* work)
 
 
 
+// FUN_004B5F70
+void func_004b5f70(void)
+{
+}
+
 // FUN_004B5F80. Update the render color and mark it dirty.
 void func_004b5f80(RuntimeWork* work, const u8* color)
 {

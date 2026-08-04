@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """4864 tracked markers across first-party src/.  Bump deliberately.
+        """4866 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -67,11 +67,21 @@ class MarkerCountTripwireTests(unittest.TestCase):
         SIZE_MISMATCH. Marking it shrinks the window and BOTH functions match.
         This is the one case in the campaign where the count grew because a
         function was genuinely added rather than uncovered.
+
+        Raised to 4866 for the `jr $ra` nullsubs at 0x001C7770 (btlCamera.c) and
+        0x004B5F70 (k_vpad.c). Both are canonical windows in
+        tools/slus21782_functions.json that sat BETWEEN two already-marked
+        functions of the same file, so their owning translation unit is not in
+        doubt -- they were simply never given a marker, which left them outside
+        the verifier entirely and supplied to the link as raw retail bytes.
+        Marking them costs nothing and both match as empty functions. 8,220
+        windows are still in that unscanned state; this is the first two coming
+        in, and the count is expected to keep climbing as they do.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            4864,
+            4866,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

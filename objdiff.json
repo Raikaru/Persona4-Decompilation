@@ -3320,6 +3320,17 @@
       }
     },
     {
+      "name": "Battle/btlCamera:001C7770",
+      "target_path": "build/objdiff/target/Battle/btlCamera/001c7770.o",
+      "base_path": "build/objdiff/base/Battle/btlCamera/001c7770.o",
+      "metadata": {
+        "complete": true,
+        "progress_categories": [
+          "main"
+        ]
+      }
+    },
+    {
       "name": "Battle/btlCamera:001C7780",
       "target_path": "build/objdiff/target/Battle/btlCamera/001c7780.o",
       "base_path": "build/objdiff/base/Battle/btlCamera/001c7780.o",
@@ -19108,6 +19119,17 @@
       "name": "Kosaka/k_vpad:004B5F20",
       "target_path": "build/objdiff/target/Kosaka/k_vpad/004b5f20.o",
       "base_path": "build/objdiff/base/Kosaka/k_vpad/004b5f20.o",
+      "metadata": {
+        "complete": true,
+        "progress_categories": [
+          "main"
+        ]
+      }
+    },
+    {
+      "name": "Kosaka/k_vpad:004B5F70",
+      "target_path": "build/objdiff/target/Kosaka/k_vpad/004b5f70.o",
+      "base_path": "build/objdiff/base/Kosaka/k_vpad/004b5f70.o",
       "metadata": {
         "complete": true,
         "progress_categories": [
@@ -48081,17 +48103,6 @@
     {
       "name": "nonmatchings:001C7500",
       "target_path": "build/objdiff/target/nonmatchings/001c7500.o",
-      "base_path": null,
-      "metadata": {
-        "complete": false,
-        "progress_categories": [
-          "unclassified"
-        ]
-      }
-    },
-    {
-      "name": "nonmatchings:001C7770",
-      "target_path": "build/objdiff/target/nonmatchings/001c7770.o",
       "base_path": null,
       "metadata": {
         "complete": false,
@@ -93390,17 +93401,6 @@
     {
       "name": "nonmatchings:004B5C60",
       "target_path": "build/objdiff/target/nonmatchings/004b5c60.o",
-      "base_path": null,
-      "metadata": {
-        "complete": false,
-        "progress_categories": [
-          "unclassified"
-        ]
-      }
-    },
-    {
-      "name": "nonmatchings:004B5F70",
-      "target_path": "build/objdiff/target/nonmatchings/004b5f70.o",
       "base_path": null,
       "metadata": {
         "complete": false,
