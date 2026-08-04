@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """4914 tracked markers across first-party src/.  Bump deliberately.
+        """4980 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -92,11 +92,21 @@ class MarkerCountTripwireTests(unittest.TestCase):
         contains it, so no linked object's carve layout moves. All 38 match as one
         line of C. Note `addiu` SIGN-EXTENDS: the 0xFFFF at 0x001F9740 is
         `return -1`, not 65535, and writing the unsigned value is a MISMATCH.
+
+        Raised to 4980 for 66 more one-line functions read straight out of
+        image.bin: direct field getters and setters, getters through a pointer
+        field, `return arg0` identities, field copies, and the largest family --
+        read-modify-write of a halfword through a pointer field
+        (lw / lhu / addiu|ori|andi / sh / jr). All land in non-linked
+        code1_XXXX.c placeholders and all match. The signedness of the lvalue
+        must come from the LOAD opcode, never the store: `sh` cannot distinguish
+        s16 from u16, so typing the expression from the store emits `lh` where
+        retail has `lhu` and every one of them mismatches.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            4914,
+            4980,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

@@ -74,6 +74,12 @@ s32 func_00331660(void)
 
 
 
+// FUN_0033D310
+s32 func_0033d310(u8 *arg0)
+{
+    return *(s32 *)(arg0 + 0x38);
+}
+
 // FUN_0033D4B0
 void func_0033d4b0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
 {

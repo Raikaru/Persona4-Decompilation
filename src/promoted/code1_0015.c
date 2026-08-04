@@ -28,6 +28,24 @@ void func_00153a30(u8 *arg0)
 
 
 
+// FUN_00156170
+u16 func_00156170(u8 *arg0)
+{
+    return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x18);
+}
+
+// FUN_00156180
+u16 func_00156180(u8 *arg0)
+{
+    return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1A);
+}
+
+// FUN_00156190
+u16 func_00156190(u8 *arg0)
+{
+    return *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20);
+}
+
 // FUN_00156750
 void func_00156750(u8 *arg0)
 {
