@@ -268,6 +268,15 @@ variants is wasted time.
   well inside a minute; more time buys nothing. What is left needs a search that
   RESTRUCTURES code rather than reordering lines and swapping operands — i.e.
   `permute_ast.py` and decomp-permuter's AST passes, not a longer budget.
+- **128-bit `lq`/`sq` aggregate copy.** Three unscanned windows in
+  `code1_004a` are exactly `lq $v0,($a1) / sq $v0,($a0) / jr $ra` -- a single
+  16-byte load-store pair. There is no genuine 128-bit type in this repo
+  (`include/type.h` has none, and the `u128` in the m2c drafts under
+  `src/generated/` is a placeholder `typedef u64 u128`), and no matched source
+  anywhere in `src/` emits `lq`/`sq`. A `struct { u32 w[4]; }` assignment
+  compiles to FOUR `lwc1`/`swc1` pairs instead -- 40 bytes against a 16-byte
+  window. Reaching these needs a real quadword type first; do not retry the
+  struct-assignment spelling.
 - **Zero padding tail.** A 4–12 byte deficit after retail's last real
   instruction is zero padding, not missing logic. `verify.py` treats an
   all-zero tail as matching (`MATCH`; object 108B in a 112B window, 148B in a
