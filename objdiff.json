@@ -18559,7 +18559,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_draw/0014d830.o",
       "base_path": "build/objdiff/base/Kosaka/k_draw/0014d830.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -18636,7 +18636,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_draw/0014da30.o",
       "base_path": "build/objdiff/base/Kosaka/k_draw/0014da30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
