@@ -1,5 +1,10 @@
 #include "include_asm.h"
 #include "type.h"
+extern void (*iGpffffbb2c)();
+extern void (*iGpffffbb30)();
+extern void (*iGpffffbb34)();
+extern void (*iGpffffbb38)();
+extern void (*iGpffffbb3c)();
 
 extern u8 *func_00470d10(u8 *arg0, s32 arg1);
 extern void func_004704d0(u8 *arg0);
@@ -109,6 +114,36 @@ s32 func_0047ae90(u8 *arg0, u16 arg1)
 }
 
 
+
+// FUN_0047D0B0
+void func_0047d0b0(void)
+{
+    iGpffffbb2c();
+}
+
+// FUN_0047D0E0
+void func_0047d0e0(void)
+{
+    iGpffffbb30();
+}
+
+// FUN_0047D110
+void func_0047d110(void)
+{
+    iGpffffbb34();
+}
+
+// FUN_0047D140
+void func_0047d140(void)
+{
+    iGpffffbb38();
+}
+
+// FUN_0047D170
+void func_0047d170(void)
+{
+    iGpffffbb3c();
+}
 
 // FUN_0047DD70
 void func_0047dd70(u8 *arg0, u8 *arg1)

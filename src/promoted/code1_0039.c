@@ -65,11 +65,37 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003963b0);
 // emits jal + frame for a trailing call; retail is a tail j.
 #pragma optimization_level 3
 
+// FUN_0039A7E0
+s32 func_0039a7e0(void)
+{
+    return 1;
+}
+
+// FUN_0039AA30
+s32 func_0039aa30(void)
+{
+    return 1;
+}
+
+// FUN_0039AA40
+s32 func_0039aa40(void)
+{
+    return 1;
+}
+
 // FUN_0039AB10
 void func_0039ab10(void)
 {
     func_00399530();
 }
+/* measured: optimization_level 3 is load-bearing for all four functions in
+   this scope, not just func_0039a7e0 -- at -O2 the three `return 1` leaves
+   emit addiu; jr; nop against an 8-byte window and func_0039ab10 gets a
+   frame plus jal where retail tail-jumps. Closing the scope here; -O2 is
+/* At -O2 the three `return 1` leaves emit addiu; jr; nop against an 8-byte
+   window, and func_0039ab10 gets a frame plus jal where retail tail-jumps.
+   measured: optimization_level 3 is load-bearing for all four functions in
+   this scope; closing it here, -O2 is the documented baseline. */
 #pragma optimization_level 2
 
 

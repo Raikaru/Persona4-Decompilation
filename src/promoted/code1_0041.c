@@ -25,6 +25,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419628);
 #endif
 
 
+/* measured: retail fills the jr delay slot with the return value
+   (jr $ra; addiu $v0,$zero,1 = 8 bytes). Scheduling is off at file scope here,
+   so without this pragma b210 emits addiu; jr; nop and the object is 12 bytes
+   against an 8-byte window. */
+#pragma schedule on
+// FUN_0041F130
+s32 func_0041f130(void)
+{
+    return 1;
+}
+/* measured: see the annotation above the matching `on` pragma (func_0041f130). */
+#pragma schedule off
+
 // FUN_0041F2A8
 #pragma schedule on
 #ifdef NON_MATCHING

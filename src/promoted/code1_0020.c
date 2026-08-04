@@ -64,6 +64,12 @@ void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *a
 
 
 
+// FUN_00202E60
+void func_00202e60(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x18) = arg1;
+}
+
 // FUN_00203360
 void func_00203360(u8 *arg0, u8 *arg1) {
     u8 *temp_16;
