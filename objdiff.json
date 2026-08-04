@@ -135940,7 +135940,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldData/0015e7d0.o",
       "base_path": "build/objdiff/base/promoted/k_fldData/0015e7d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -136743,7 +136743,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldMipmap/0018c580.o",
       "base_path": "build/objdiff/base/promoted/k_fldMipmap/0018c580.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -137370,7 +137370,7 @@
       "target_path": "build/objdiff/target/promoted/k_readtex/00190600.o",
       "base_path": "build/objdiff/base/promoted/k_readtex/00190600.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
