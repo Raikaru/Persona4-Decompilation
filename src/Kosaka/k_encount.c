@@ -28,39 +28,81 @@ extern u8 D_005F1260[];
 extern u8 D_005F12C8[];
 extern u8 D_007E80A0[];
 
-/* measured: retail loads the gp pointer iGpffffb41c FIRST (lw $a0,-0x4BE4($gp))
-   then the *10 index chain, ending addu $v0,$v0,$a0; mwcc b210 sinks the load to
-   its use (lw $v0 after the chain) and flips the final addu to $v0,$v0,$v1 with
-   the chain in $v1. Tried: plain expr, base u8* local, m2c operand order
-   (chain+base), fully split statements (base/m/idx) — all nd 8, identical
-   bytes. Load-sinking + addu-flip floor (recorded in brief). */
+/* measured: the operands must travel through this helper's parameters to get
+   retail's offset-first `addu $v0,$v0,$a0`; a base local or an m2c chain+base
+   callsite spelling is canonicalized back to base-first. Expanded at the use so
+   nothing stays live across the guard calls. */
+static inline u32 encSlot(u32 offset, u32 base)
+{
+    return offset + base;
+}
+
+/* This "load-sinking + addu-flip floor" needed BOTH levers at once, which is why
+   the four spellings listed before (plain expr, base local, m2c chain+base,
+   fully split statements) all stalled at nd 8: `#pragma opt_propagation off`
+   brings the single-use gp base load ahead of the index chain, and the `encSlot`
+   helper holds the offset-first addu. Either alone leaves the other wrong.
+   The same pair matches the identically shaped FUN_00161B10 below. */
 // FUN_00161A70
-INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161a70);
+/* measured: forces the single-use gp base load ahead of the index chain. */
+#pragma opt_propagation off
+s32 func_00161a70(s32 arg0, s32 arg1, s32 arg2) {
+    s32 result;
+    u8 *base;
 
-/* measured: identical shape to FUN_00161A70 (same gp pointer, lbu at +4):
-   retail lw $a0,-0x4BE4($gp) FIRST then the *10 chain, addu $v0,$v0,$a0;
-   mwcc b210 sinks the load and flips the addu ($v0,$v0,$v1) — nd 8, single
-   attempt. Load-sinking + addu-flip floor. */
+    result = 0;
+    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+        base = iGpffffb41c;
+        result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 2);
+    }
+    return result;
+}
+/* measured: restores the file default after the function above. */
+#pragma opt_propagation on
+
 // FUN_00161B10
-INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161b10);
+/* measured: same recipe as FUN_00161A70 -- the pragma forces the single-use gp
+   base load ahead of the index chain. */
+#pragma opt_propagation off
+s32 func_00161b10(s32 arg0, s32 arg1, s32 arg2) {
+    s32 result;
+    u8 *base;
 
-/* measured: identical load-sinking residual to FUN_00161A70/61B10 — retail
-   lw $v1,-0x4BE4($gp) FIRST then the *10 chain (andi in $a0, reused as the
-   func_0015a740 arg); mwcc b210 sinks the load after the chain (lw $v0) and
-   shifts the chain's final sll to $v1 — nd 8, 5 rows. Everything else
-   (call-arg reuse, slti/beqz/move) matches. Load-sinking floor. */
+    result = 0;
+    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+        base = iGpffffb41c;
+        result = *(u8 *)((u8 *)encSlot((arg2 & 0xFFFF) * 10, (u32)base) + 4);
+    }
+    return result;
+}
+/* measured: restores the file default after the function above. */
+#pragma opt_propagation on
+
 // FUN_001619B0
-INCLUDE_ASM("asm/nonmatchings/k_encount", func_001619b0);
+/* measured: same pair of levers as FUN_00161A70 -- the pragma brings the gp base
+   load ahead of the index chain, the helper holds the offset-first addu. */
+#pragma opt_propagation off
+s32 func_001619b0(s32 arg0, s32 arg1, s32 arg2) {
+    s32 result;
+    s32 idx;
+    s32 v;
+    u8 *base;
 
-/* measured: loop structure and base-hoist now reproduce (typed pointer locals
-   for D_005F1260/D_007E80A0; (s32)temp_10 casts and s16 temp_4 each force a
-   dsll32/dsra32 extension pair mwcc b210 emits but retail lacks; (u16) cast
-   adds an andi) — best nd 44-45. Residual: pervasive temp-register allocation
-   (retail $t4/$t2/$t1/$a1/$t3/$a3/$t0, mwcc $v1/$t1/$t0/$a3/$t2/$a1/$a2),
-   constants 1/-1 materialized in-loop vs retail hoisted to entry, and the
-   outer-compare extension problem (retail compares the raw lh result against
-   the s64 temp_10 with one bne; b210 cannot be made to do this without an
-   extra instruction). 4 attempts: 49/44/44/45. */
+    result = 0;
+    if ((func_0014a230() == 1) || (func_0014a2a0(arg0, arg1) == 1)) {
+        base = iGpffffb41c;
+        idx = arg2 & 0xFFFF;
+        result = *(u8 *)((u8 *)encSlot(idx * 10, (u32)base) + 3);
+        v = func_0015a740(idx) & 0xFF;
+        if (v < 0xFF) {
+            result = v;
+        }
+    }
+    return result;
+}
+/* measured: restores the file default after the function above. */
+#pragma opt_propagation on
+
 // FUN_00161BB0
 INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161bb0);
 
