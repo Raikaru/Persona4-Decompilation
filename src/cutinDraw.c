@@ -115,6 +115,21 @@ void func_00120db0(u8 *arg0)
 
 
 
+// REACHABLE BUT NOT WITH HONEST SOURCE. tools/permute_ast.py cracks this in 28
+// compiles (~15s), reproducibly:
+//
+//   python tools/permute_ast.py src/cutinDraw.c func_00120e20 --time 900 --seed 5
+//
+// after activating the body below. Verified MATCH at 180B. The winning form needs
+// an empty `if (arg1) { }`, `hi` typed `unsigned int` rather than s16, and the lo
+// load taken through a named `s16 *` temp. Four reductions toward clean C were
+// measured and all fall back to MISMATCH: dropping the s16* temp, dropping the u8*
+// store temp, dropping the empty if, and a hand-written clean version carrying the
+// u32 type plus both pointer temps. Only the s16* temp is defensible source; the
+// empty if is dead code, so the raw winner is not committable under the
+// source-honesty policy. The nd-4 body below stays -- its residual is the two
+// halfword loads assigned to swapped registers ($a0/$v1 against 0x1c/0x1e).
+// Anyone reducing this further should start from the permuter output, not by hand.
 // FUN_00120E20 NONMATCHING
 // Measured floor nd=4: retail loads the packed arg1 halves as
 // [lh a0,0x1c(sp); lh v1,0x1e(sp); sh a0,4; sh v1,6] -- MWCC b210
