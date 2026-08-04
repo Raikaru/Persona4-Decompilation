@@ -100,9 +100,14 @@ u32 func_00298e20(void)
 }
 
 // FUN_00298E90
-INCLUDE_ASM("asm/nonmatchings/scrCommonCommand", func_00298e90);
-// floor: div.s placement (after vs before the cc00 call), $f20 vs $f1 join allocation, and mul.s-vs-add.s for the 2.0f factor; probed 12 source shapes + schedule/opt pragmas, best nd 15
+s32 func_00298e90(void)
+{
+    f32 ratio;
 
+    ratio = (f32)(u32)func_003b7060() / 2147483648.0f;
+    func_0029cf50((s32)(ratio * (f32)(func_0029cc00(0) + 1)));
+    return 1;
+}
 // FUN_00298F40
 u32 func_00298f40(void)
 {
