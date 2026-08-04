@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 
 extern void func_00213ab0();
@@ -24,6 +25,24 @@ void func_00201280(u8 *arg0, u8 *arg1) {
 
 
 
+// FUN_00201300
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201300);
+
+// FUN_00201650
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201650);
+
+// FUN_00201A80
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201a80);
+
+// FUN_00202120
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202120);
+
+// FUN_002022E0
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002022e0);
+
+// FUN_00202400
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202400);
+
 // FUN_00202460
 void func_00202460(u8 *arg0)
 {
@@ -48,6 +67,9 @@ void func_00202720(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
+// FUN_00202740
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202740);
+
 // FUN_00202C60
 void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {
     memset(arg0, 0, 0x34);
@@ -63,6 +85,9 @@ void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *a
 }
 
 
+
+// FUN_00202E00
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202e00);
 
 // FUN_00202E60
 void func_00202e60(u8 *arg0, s32 arg1)
@@ -140,6 +165,9 @@ void func_00203880(void)
 {
 }
 
+// FUN_002038C0
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002038c0);
+
 // FUN_00204D90
 void func_00204d90(void)
 {
@@ -148,6 +176,24 @@ void func_00204d90(void)
     p = (u8 *)func_00452560();
     *(s32 *)(p + 0xA0) = *(s32 *)(p + 0xA0) | 0x1;
 }
+
+// FUN_002089E0
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002089e0);
+
+// FUN_002090D0
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002090d0);
+
+// FUN_00209740
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209740);
+
+// FUN_00209CD0
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209cd0);
+
+// FUN_00209D40
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209d40);
+
+// FUN_0020A5D0
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020a5d0);
 
 // FUN_0020AD70
 void func_0020ad70(void)
@@ -168,6 +214,9 @@ void func_0020ad80(u8 *arg0, s32 arg1) {
 void func_0020b5a0(void)
 {
 }
+
+// FUN_0020BAC0
+INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020bac0);
 
 // FUN_0020BB20
 void func_0020bb20(u8 *arg0, s32 arg1) {

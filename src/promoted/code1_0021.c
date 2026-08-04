@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 
 extern void memset(void *destination, s32 value, u32 size);
@@ -19,6 +20,12 @@ void func_00211950(u8 *arg0, s32 arg1) {
 
 
 
+// FUN_002119A0
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002119a0);
+
+// FUN_00211F90
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00211f90);
+
 // FUN_00212100
 void func_00212100(s32 arg0) {
     u8 *temp_16;
@@ -33,12 +40,21 @@ void func_00212100(s32 arg0) {
 
 
 
+// FUN_002121B0
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002121b0);
+
 // FUN_00212240
 void func_00212240(u8 *arg0, s32 arg1) {
     *(s32 *)((u8 *)func_00452560() + 0x76C) = arg1;
 }
 
 
+
+// FUN_00213840
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00213840);
+
+// FUN_00213AB0
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00213ab0);
 
 // FUN_00213B80
 void func_00213b80(void)
@@ -119,12 +135,21 @@ void func_00216bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 
 
+// FUN_00216C40
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00216c40);
+
+// FUN_00216CA0
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00216ca0);
+
 // FUN_00216D70
 void func_00216d70(u8 *arg0, s32 arg1) {
     *(s32 *)((u8 *)func_00452560() + 0x86C) = arg1;
 }
 
 
+
+// FUN_00216DA0
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00216da0);
 
 // FUN_00216DF0
 void func_00216df0(u8 *arg0, s32 arg1) {
@@ -156,6 +181,15 @@ void func_00218260(void) {
 }
 
 
+
+// FUN_002183C0
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002183c0);
+
+// FUN_00218420
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00218420);
+
+// FUN_00218500
+INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00218500);
 
 // FUN_002186C0
 void func_002186c0(u8 *arg0, s32 arg1) {

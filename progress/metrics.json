@@ -1,10 +1,10 @@
 {
   "build_succeeded": true,
   "coverage": {
-    "scanned": 5072,
-    "scanned_percent": 38.759,
-    "unscanned": 8014,
-    "unscanned_percent": 61.241
+    "scanned": 5349,
+    "scanned_percent": 40.876,
+    "unscanned": 7737,
+    "unscanned_percent": 59.124
   },
   "hashes": {
     "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
@@ -5377,20 +5377,20 @@
     ],
     "count": 4116,
     "duplicate_rows": 0,
-    "known_rows": 5072,
+    "known_rows": 5349,
     "matched_body_bytes": 601988,
     "percent": 31.453,
-    "unique_known_addresses": 5072
+    "unique_known_addresses": 5349
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "C:\\tmp\\p4_link35.json",
-    "raw_rows": 5072,
-    "verifier_report": "C:\\tmp\\p4_v3.json"
+    "linked_report": "C:\\tmp\\p4_link36.json",
+    "raw_rows": 5349,
+    "verifier_report": "C:\\tmp\\p4_v7.json"
   },
   "status_counts": {
-    "ASM": 956,
+    "ASM": 1233,
     "MATCH": 4116
   },
   "total": 13086

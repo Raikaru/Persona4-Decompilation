@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 
 extern u8 *D_00764298;
@@ -12,6 +13,9 @@ asm void func_00100220(void)
 }
 
 
+
+// FUN_001002C0
+INCLUDE_ASM("asm/nonmatchings/code1_0010", func_001002c0);
 
 // FUN_00102980
 s32 func_00102980(void)

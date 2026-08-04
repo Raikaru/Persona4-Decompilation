@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -48,6 +49,9 @@ s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
 
 
 
+// FUN_002B3230
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b3230);
+
 // FUN_002B3960
 void func_002b3960(u8 *arg0)
 {
@@ -60,12 +64,27 @@ void func_002b5c60(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+// FUN_002BACB0
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bacb0);
+
+// FUN_002BAF40
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002baf40);
+
+// FUN_002BB4E0
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bb4e0);
+
+// FUN_002BB680
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bb680);
+
 // FUN_002BBCF0
 void func_002bbcf0(u8 *arg0) {
     func_002bb9e0(arg0, 1);
 }
 
 
+
+// FUN_002BBD80
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bbd80);
 
 // FUN_002BC0B0
 void func_002bc0b0(u32 arg0, u32 arg1, u32 arg2, s32 arg3, s32 arg4) {
@@ -74,12 +93,21 @@ void func_002bc0b0(u32 arg0, u32 arg1, u32 arg2, s32 arg3, s32 arg4) {
 
 
 
+// FUN_002BC7A0
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bc7a0);
+
+// FUN_002BC7F0
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bc7f0);
+
 // FUN_002BD3E0
 void func_002bd3e0(void) {
     func_002bcc60(D_0072466C);
 }
 
 
+
+// FUN_002BE100
+INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002be100);
 
 // FUN_002BE160
 s32 func_002be160(u8 *arg0, s32 arg1) {

@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern void func_0036bbf0();
 
@@ -28,6 +29,12 @@ void func_00361970(u8 *arg0)
 
 
 
+// FUN_003619B0
+INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003619b0);
+
+// FUN_00361CA0
+INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00361ca0);
+
 // FUN_003642A0
 void func_003642a0(u8 *arg0)
 {
@@ -47,6 +54,12 @@ void func_003671d0(s16 *arg0)
 }
 
 
+
+// FUN_00367940
+INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367940);
+
+// FUN_00369470
+INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00369470);
 
 // FUN_0036D860
 void func_0036d860(u8 *arg0, s32 arg1)

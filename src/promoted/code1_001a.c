@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 
 void btlActionSetState(u8 *arg0, u16 arg1);
@@ -69,6 +70,9 @@ void func_001a0670(u8 *arg0) {
 }
 
 
+
+// FUN_001A2AD0
+INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a2ad0);
 
 // FUN_001A2C10
 void func_001a2c10(s64 *arg0) {
@@ -176,6 +180,12 @@ void func_001ac500(s64 *arg0) {
 }
 
 
+
+// FUN_001AC5B0
+INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ac5b0);
+
+// FUN_001AC620
+INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ac620);
 
 // FUN_001AC6A0
 void func_001ac6a0(u8 *arg0) {

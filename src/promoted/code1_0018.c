@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern void func_0048a000();
 extern void func_00185370();
@@ -17,6 +18,12 @@ void func_00185120(u8 *arg0)
 }
 
 
+
+// FUN_001852F0
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001852f0);
+
+// FUN_00185370
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185370);
 
 // FUN_00185600
 void func_00185600(void)
@@ -46,11 +53,29 @@ void func_00189e90(u8 *arg0)
 
 
 
+// FUN_00189FA0
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00189fa0);
+
 // FUN_0018A000
 void func_0018a000(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4) = arg1;
 }
+
+// FUN_0018BAD0
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bad0);
+
+// FUN_0018BED0
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bed0);
+
+// FUN_0018BF50
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bf50);
+
+// FUN_0018C610
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c610);
+
+// FUN_0018C700
+INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c700);
 
 // FUN_0018DF30
 void func_0018df30(u8 *arg0)
