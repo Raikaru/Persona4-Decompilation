@@ -241,6 +241,33 @@ variants is wasted time.
   `daddiu` where retail uses `addiu` (or vice versa) when the operand is a
   small constant; the choice is tied to the surrounding type width and is not
   generally source-reachable.
+- **Chained-load intermediate register in a delay-slot getter.** The
+  `code1_004c`–`code1_0052` getter family: retail is exactly three words,
+  `lui $v1,%hi / jr $ra / lw $v0,%lo($v1)` (or `lw $v1,off($a0) / jr $ra /
+  lw $v0,off2($v1)`), i.e. the ADDRESS lands in `$v1` and the loaded value in
+  `$v0`, with the second load in the `jr` delay slot. b210 always reuses `$v0`
+  for the intermediate, giving `lw $v0,off($v0)`. That single word is the whole
+  residual — but only after `#pragma schedule on`, which is required in these
+  files (scheduling is off at file scope) to fill the delay slot at all;
+  without it the object is four words against a three-word window. Measured
+  invariant across five source forms: a magic `0x00710000 + off` literal, a
+  `u32 *` pointer local, two separate locals for base and value, a scalar
+  `extern u32 D_xxxxxxxx;` (which becomes gp-relative and is two words, too
+  short), and `extern u32 D_xxxxxxxx[]; return D_xxxxxxxx[0];`. The array-extern
+  form is the one to keep: it is the only spelling that both reproduces retail's
+  relocated `%hi`/`%lo` pair and avoids inventing a magic address. 19 functions
+  sit on this, all at exactly one differing word; `tools/permute_sweep.py`
+  scores every one of them 2 and cracks none.
+
+  Measured budget ceiling for the text-level permuter, so nobody re-runs it: a
+  60-second-per-function sweep over all 86 functions with a preserved
+  `#ifdef NON_MATCHING` body cracked three (`y_fclModel func_0034a4f0`,
+  `code1_0017 func_00176220`, `btlResultHeroLvUp func_00221cf0`). A second sweep
+  at **420 seconds** over the 35 that had scored 3–60 cracked **none**, and
+  every score was identical to the 60-second run. `tools/permute.py` converges
+  well inside a minute; more time buys nothing. What is left needs a search that
+  RESTRUCTURES code rather than reordering lines and swapping operands — i.e.
+  `permute_ast.py` and decomp-permuter's AST passes, not a longer budget.
 - **Zero padding tail.** A 4–12 byte deficit after retail's last real
   instruction is zero padding, not missing logic. `verify.py` treats an
   all-zero tail as matching (`MATCH`; object 108B in a 112B window, 148B in a
