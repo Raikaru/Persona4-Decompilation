@@ -1544,8 +1544,49 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
    s16-extension-pair floor, corroborated. */
 // FUN_00241BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
-// FUN_00241DE0
+/* measured: nd 7 (obj 284B vs window 288B, so SIX real words) from 65.
+
+   Two levers did all the work. (1) The first discrete test must be a switch
+   with ASCENDING case labels, not an `||` chain: `switch (kind) { case 9: case
+   10: return 1; }` reproduces retail testing 10 then 9 and branching both to a
+   shared target (65 -> 47); the `||` form tests them inline in source order.
+   The SECOND test is the opposite -- retail tests arg4 against 2 then 4,
+   ascending, so that one stays an `||` chain (as a switch it goes to 59).
+   (2) DISTINCT CSE KEYS for the index: `(arg2 & 0xFFFF)` in the range assert and
+   `(u16)arg2` in the table index (47 -> 7). With the same spelling in both
+   places b210 caches the masked value in a SIXTH saved register and the frame
+   grows to 0x70 where retail uses 0x60 with five.
+
+   Residual: retail loads the gp table pointer (`lw $a0, -0x4c48($gp)`) BEFORE
+   computing the index; b210 computes the index first and loads the pointer last.
+   Measured and rejected: hoisting the pointer into a local before the switch,
+   opt_propagation off (70, much worse -- it is the documented lever for an early
+   gp base load but not here), opt_common_subs off (25), a DatCalcEntry struct
+   typedef indexed as an array, and (u16) in the assert instead of the index.
+   Eleven spellings. gp-load sinking floor. */
+// FUN_00241DE0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    if (!((arg2 & 0xFFFF) < 0x1B8)) {
+        func_0046d730(D_00635938, 0x1333);
+    }
+    if (func_00241bc0(arg0, arg1, arg2, arg3, arg4) == 0) {
+        return 0;
+    }
+    switch (*(u8 *)(iGpffffb3b8 + (u16)arg2 * 0x28 + 0x24)) {
+    case 9:
+    case 10:
+        return 1;
+    }
+    if ((arg4 & 0xFFFF) == 2 || (arg4 & 0xFFFF) == 4) {
+        return 1;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
+#endif
 // FUN_00241F00
 s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
 {

@@ -254,3 +254,4 @@ iGpffffb574 = 0x00764664; // type:data evidence: retail func_002b6a70 lw $2,-0x4
 iGpffffb41c = 0x0076450c; // type:data evidence: retail func_00161a70 lw $4,-0x4BE4($28) (0x0076450C) as the encounter-table base; gp base 0x007690F0
 iGpffffa700 = 0x007637f0; // type:data evidence: retail func_0026da30 addiu $4,$28,-0x5900 (0x007637F0) as the func_00451de0 data arg; gp base 0x007690F0
 iGpffffb1a8 = 0x00764298; // type:data evidence: retail func_001028c0 lw $2,-0x4E58($28) (0x00764298) as the sequence task-handle slot; gp base 0x007690F0
+iGpffffa0b0 = 0x007631a0; // type:data evidence: retail func_0019acd0 addiu $4,$28,-0x5F50 (0x007631A0) as func_00440b68 arg0; gp base 0x007690F0

@@ -6459,7 +6459,7 @@
       "target_path": "build/objdiff/target/Battle/btlUnit/0019acd0.o",
       "base_path": "build/objdiff/base/Battle/btlUnit/0019acd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
