@@ -1,4 +1,13 @@
 #include "type.h"
+extern void func_00484bb0();
+extern void func_00485b20();
+extern void func_00485fe0();
+extern void func_00485630();
+extern void func_00485c80();
+extern void func_00486400();
+extern void func_00486060();
+extern void func_004860f0();
+extern void func_00486180();
 
 
 extern void func_004b0ce0();
@@ -28,6 +37,42 @@ void func_004b10f0(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x4) = arg1;
 }
 
+// FUN_004B1130
+void func_004b1130(void)
+{
+    func_00484bb0();
+}
+
+// FUN_004B1150
+void func_004b1150(void)
+{
+    func_00485b20();
+}
+
+// FUN_004B1170
+void func_004b1170(void)
+{
+    func_00485fe0();
+}
+
+// FUN_004B1190
+void func_004b1190(void)
+{
+    func_00485630();
+}
+
+// FUN_004B11B0
+void func_004b11b0(void)
+{
+    func_00485c80();
+}
+
+// FUN_004B13D0
+void func_004b13d0(void)
+{
+    func_00486400();
+}
+
 // FUN_004B13F0
 void func_004b13f0(void *object, s32 *arg1) {
     func_004865c0(object, *arg1);
@@ -45,6 +90,24 @@ void func_004b14f0(void *object, s32 *arg1) {
 
 typedef signed __int128 s128;
 
+
+// FUN_004B1520
+void func_004b1520(void)
+{
+    func_00486060();
+}
+
+// FUN_004B1540
+void func_004b1540(void)
+{
+    func_004860f0();
+}
+
+// FUN_004B1560
+void func_004b1560(void)
+{
+    func_00486180();
+}
 
 // FUN_004B50D0
 s128 func_004b50d0(s128 *arg0, s128 *arg1) {

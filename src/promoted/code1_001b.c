@@ -1,4 +1,7 @@
 #include "type.h"
+extern void func_001b6990();
+extern void func_00193d30();
+extern void func_00144f60();
 
 extern u8 *D_0076449C;
 extern u8 D_005F7000[];
@@ -42,6 +45,18 @@ void func_001b18c0(void)
 {
 }
 
+// FUN_001B18D0
+s32 func_001b18d0(void)
+{
+    return 0;
+}
+
+// FUN_001B19A0
+void func_001b19a0(void)
+{
+    func_001b6990();
+}
+
 // FUN_001B39F0
 void func_001b39f0(void)
 {
@@ -64,6 +79,12 @@ void func_001b3f00(void) {
 
 
 
+// FUN_001B5E40
+void func_001b5e40(void)
+{
+    func_00193d30();
+}
+
 // FUN_001B5EC0
 void func_001b5ec0(void)
 {
@@ -74,6 +95,12 @@ void func_001b6110(void)
 {
 }
 
+// FUN_001B6A00
+void func_001b6a00(void)
+{
+    func_00144f60();
+}
+
 // FUN_001B7060
 void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2) {
     *arg1 = 0xFF808080;
@@ -81,6 +108,12 @@ void func_001b7060(u32 arg0, s32 *arg1, s32 *arg2) {
 }
 
 
+
+// FUN_001B7090
+s32 func_001b7090(void)
+{
+    return 0;
+}
 
 // FUN_001B70A0
 void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2) {

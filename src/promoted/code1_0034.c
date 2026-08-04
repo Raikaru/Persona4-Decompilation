@@ -1,4 +1,5 @@
 #include "type.h"
+extern void func_0034c4a0();
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -41,6 +42,12 @@ s32 func_0034b810(u8 *arg0)
 // FUN_0034B8C0
 void func_0034b8c0(void)
 {
+}
+
+// FUN_0034B950
+void func_0034b950(void)
+{
+    func_0034c4a0();
 }
 
 // FUN_0034F2E0

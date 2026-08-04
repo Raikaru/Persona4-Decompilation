@@ -1,4 +1,5 @@
 #include "type.h"
+extern void (*jtbl_008873EC[])(u8 *arg0);
 
 // P4 retail reaches the battle-data object pointer at gp-0x4A68,
 // i.e. absolute 0x007690f0 - 0x4a68 = 0x00764688, GP-relative.
@@ -73,6 +74,12 @@ s32 func_00331660(void)
 }
 
 
+
+// FUN_00331F90
+void func_00331f90(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
 
 // FUN_0033D310
 s32 func_0033d310(u8 *arg0)

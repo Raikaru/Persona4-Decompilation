@@ -1,4 +1,5 @@
 #include "type.h"
+extern void func_004787e0();
 
 extern void func_004841c0(s32 arg0);
 extern void (*D_008873ec[])(void *);
@@ -97,6 +98,12 @@ void func_004a7df0(s32 *arg0) {
 }
 
 
+
+// FUN_004ABD60
+void func_004abd60(void)
+{
+    func_004787e0();
+}
 
 // FUN_004ACB50
 void func_004acb50(u8 *arg0) {

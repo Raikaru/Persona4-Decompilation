@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """4980 tracked markers across first-party src/.  Bump deliberately.
+        """5025 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -102,11 +102,17 @@ class MarkerCountTripwireTests(unittest.TestCase):
         must come from the LOAD opcode, never the store: `sh` cannot distinguish
         s16 from u16, so typing the expression from the store emits `lh` where
         retail has `lhu` and every one of them mismatches.
+
+        Raised to 5025 for 45 more, same method: 25 single-call wrappers
+        (addiu/sd/jal/nop/ld/addiu/jr, which is `void f(void) { g(); }` with an
+        OLD-STYLE extern for g so no argument setup is emitted), 11 vtable-call
+        wrappers (`jtbl_008873EC[0](*(u8 **)(arg0 + 0x38))`), and 9 `return 0`
+        (daddu $v0,$zero,$zero / jr). All in non-linked placeholders, all match.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            4980,
+            5025,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

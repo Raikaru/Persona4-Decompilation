@@ -1,4 +1,6 @@
 #include "type.h"
+extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void func_00105ed0();
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
@@ -53,6 +55,24 @@ void func_002e0940(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 
 
 
+// FUN_002E1CD0
+s32 func_002e1cd0(void)
+{
+    return 0;
+}
+
+// FUN_002E1CE0
+s32 func_002e1ce0(void)
+{
+    return 0;
+}
+
+// FUN_002E1CF0
+s32 func_002e1cf0(void)
+{
+    return 0;
+}
+
 // FUN_002E23B0
 s32 func_002e23b0(u8 *arg0)
 {
@@ -85,6 +105,18 @@ s32 func_002e2410(u8 *arg0)
 
 
 
+// FUN_002E2470
+void func_002e2470(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
+
+// FUN_002E74E0
+void func_002e74e0(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
+
 // FUN_002E78A0
 u8 func_002e78a0(void)
 {
@@ -108,6 +140,12 @@ u8 func_002e78e0(void)
 }
 
 
+
+// FUN_002E7A60
+void func_002e7a60(void)
+{
+    func_00105ed0();
+}
 
 // FUN_002E7A80
 void func_002e7a80(s32 arg0)
