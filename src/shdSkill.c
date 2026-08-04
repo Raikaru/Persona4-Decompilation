@@ -233,14 +233,22 @@ void func_00115760(u8 *arg0) {
     *(u16 *)(arg0 + 0x224) -= 1;
 }
 
-/* measured: retail trap-skip `bnez $v1,0x1156b0` targets the loop pre-jump
-   `b 0x1156f0` (the bottom test); mwcc b210 folds the branch-to-branch chain
-   and emits `bnez $v1,0x1156f0` directly. Re-measured this wave: sequential
-   `if (i >= count) trap; for(;i<count-1;i++)` -> nd 1, only this word;
-   explicit `goto test; body:...` prejump spelling -> nd 2; and
-   `if (i < count) { do {...} } else { trap; }` avoids the fold but breaks
-   regalloc (i stays $a1, arg0 $s0, frame 0x20) because i is not live across
-   the trap call in that shape. branch-target sharing floor. */
+/* measured: retail's trap-skip `bnez $v1,0x1156b0` targets the loop pre-jump
+   `b 0x1156f0`; b210 folds the branch-to-branch chain and emits
+   `bnez $v1,0x1156f0` directly. That single branch word is the whole residual --
+   the body is otherwise byte-identical (obj 220B, the remaining diff word is
+   window padding), reconstructed as the indexed twin of the matched
+   func_00115760 below.
+
+   Previously measured: the sequential `if (i >= count) trap; for(;;)` spelling,
+   an explicit `goto test; body:` pre-jump, and `if (i < count) { do {} } else
+   { trap; }` (which avoids the fold but breaks register allocation because i is
+   not live across the trap call).
+
+   New this pass, and the reason to stop: `#pragma opt_branch_folding off`
+   scoped around the function produces a BYTE-IDENTICAL object (sha1 of the
+   compiled output is unchanged with and without it), so b210 silently ignores
+   that pragma name -- it is not a lever here. Branch-folding floor. */
 // FUN_00115670
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
 
