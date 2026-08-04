@@ -876,8 +876,55 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249370);
    earlier nd 94-95 with a different spelling. Out-of-line-if floor family. */
 // FUN_002494C0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002494c0);
-// FUN_00249670
+/* measured: nd 4 (obj 252B vs window 256B, so THREE real words) from 14.
+   Reconstructed from the m2c draft in src/generated/code1_0024.c, which gave the
+   control flow directly; the `(s64)((x + 0x4EA) << 0x30) >> 0x30` it prints is
+   just `(s16)(v + 0x4EA)`.
+
+   Two levers. Declaring `v` before `n` fixes a whole-function $s0/$s1 mirror
+   (14 -> 5) -- m2c's own var_16/var_17 numbering is the hint, var_17 is `v` and
+   retail colours it $s1. Then `#pragma opt_propagation off` (measured: 5 -> 4)
+   stops b210 forwarding `v = arg0` so the zero test reads the saved $s1 copy the
+   way retail does, instead of testing $a0 directly.
+
+   Residual: the two parameter saves are emitted in register order ($s0 then $s1)
+   where retail emits them in parameter order (arg0 to $s1 first), and one
+   commutative `addu` has its operands transposed. Measured and rejected:
+   `arg1 + func_001064f0(0x57)`, seeding `n = arg1` at the top, seeding it just
+   before the add, and opt_common_subs off (5). Nine spellings.
+   Parameter-save order floor. */
+// FUN_00249670 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+s32 func_00249670(s32 arg0, s32 arg1)
+{
+    s32 v;
+    s32 n;
+
+    v = arg0;
+    if (v == 0) {
+        v = func_001064f0(0x58);
+        if (v == 0) {
+            func_0046d730(D_006359D0, 0x4C8);
+        }
+    }
+    func_00106550(0x58, v);
+    if (!(func_00106600((s16)(v + 0x4EA)) & 0xFF)) {
+        func_0046d730(D_006359D0, 0x4CC);
+    }
+    n = func_001064f0(0x57) + arg1;
+    if (n >= 4) {
+        n = 0;
+        func_00106390(v + 0x9AF, 1);
+        func_00106550(0x58, 0);
+    }
+    func_00106550(0x57, n);
+    return n;
+}
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249670);
+#endif
 // FUN_00249770
 s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_16;
