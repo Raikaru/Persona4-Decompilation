@@ -245,10 +245,16 @@ void func_00115760(u8 *arg0) {
    { trap; }` (which avoids the fold but breaks register allocation because i is
    not live across the trap call).
 
-   New this pass, and the reason to stop: `#pragma opt_branch_folding off`
-   scoped around the function produces a BYTE-IDENTICAL object (sha1 of the
-   compiled output is unchanged with and without it), so b210 silently ignores
-   that pragma name -- it is not a lever here. Branch-folding floor. */
+   `#pragma opt_branch_folding off` scoped around the function changes the
+   residual not at all (still nd 2). Do NOT read that as "b210 ignores the
+   pragma": an earlier version of this note claimed the object was
+   byte-identical, but that came from hashing a stale object path. The reliable
+   signal is the differing-word count, and by that measure the pragma has no
+   effect HERE -- which is all that is established. For contrast, `#pragma
+   schedule off` demonstrably does change codegen elsewhere (it moves
+   code1_003e func_003e3070 from nd 15 to nd 9), so scoped pragmas are worth
+   measuring per function rather than dismissing wholesale.
+   Branch-folding floor. */
 // FUN_00115670
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
 
