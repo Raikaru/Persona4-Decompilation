@@ -249,18 +249,24 @@ EPILOGUE_SEPARATED_ENTRIES = {
     0x0027A340,
 }
 
-# Source markers that deliberately have NO canonical boundary. Ghidra split one
-# retail code region into two "functions" at a branch target: `func_00272b00`'s
-# entry `beq` jumps to `func_00272b34`, whose entry `bne` branches back into
-# `00272b00`'s body, and `func_00272ba0`/`00272bd4` are the same shape. Neither
-# second half is ever called, and the P3FES donor keeps the identical pairs as
-# assembly (FUN_003b0dd8/FUN_003b0e04). The markers must stay so the assembly has
-# an owner, but the control-flow scan is right not to call them entry points.
+# Entries the control-flow scan gets BACKWARDS. Each of these is a real, heavily
+# called function whose entry instruction is an unconditional `b` into its own
+# condition check (a rotated loop). spimdisasm records the branch LANDING point
+# as the entry -- 0x00272B34 and 0x00272BD4, which it does find -- and misses the
+# actual entry, so without these declarations the true entries lose their windows
+# and nothing defines them.
 #
-# Without this allowlist the reconciler exits 1 *before* writing
-# slus21782_functions.json, which meant the canonical map could not be
-# regenerated at all -- and that blocked splitting the 0x00244100 nullsub above.
-GHIDRA_FALSE_SPLITS = {0x00272B00, 0x00272BA0}
+# The evidence is direct and overwhelming: the retail image contains 17 `jal`
+# instructions targeting 0x00272B00 and 18 targeting 0x00272BA0, and six
+# translation units reference them by name (dropping them produced
+# `Undefined: func_00272b00` from the linker). An earlier revision instead
+# allow-listed these two as "false splits that are never called", which is
+# factually wrong and is what broke the link once the map was regenerated.
+# tests/test_reconcile.py re-counts the jal sites against the retail ELF.
+JAL_REACHABLE_ENTRIES = {
+    0x00272B00: {"jal_sites": 17},
+    0x00272BA0: {"jal_sites": 18},
+}
 
 
 
@@ -342,6 +348,10 @@ def main() -> int:
                 f"epilogue-separated entry {address:#x} is outside code1"
             )
         code1.add(address)
+    for address in JAL_REACHABLE_ENTRIES:
+        if not entry <= address < code1_end:
+            raise RuntimeError(f"jal-reachable entry {address:#x} is outside code1")
+        code1.add(address)
     code2 = {address for address in ghidra_addresses if code2_start <= address < code2_end}
 
     # The shared blob has nine functions in both Persona 4 Ghidra analysis and
@@ -361,7 +371,7 @@ def main() -> int:
         for address, entries in markers.items()
         if any(marker["name"] is None for _path, marker in entries)
     }
-    source_only = set(markers) - canonical - GHIDRA_FALSE_SPLITS
+    source_only = set(markers) - canonical
 
     print(f"canonical boundaries: {len(canonical)}")
     print(f"unique C source markers: {len(markers)}")
