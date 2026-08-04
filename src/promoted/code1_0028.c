@@ -26,6 +26,15 @@ void func_00286350(void) {
 
 
 
+// FUN_00286380
+void func_00286380(void)
+{
+    u8 *p;
+
+    p = (u8 *)func_00452560();
+    *(s32 *)(p + 0x770) = *(s32 *)(p + 0x770) | 0x1;
+}
+
 // FUN_002863E0
 void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
