@@ -38,6 +38,21 @@ cont2:
 
 
 
+// FUN_001A0640
+void func_001a0640(void)
+{
+}
+
+// FUN_001A0650
+void func_001a0650(void)
+{
+}
+
+// FUN_001A0660
+void func_001a0660(void)
+{
+}
+
 // FUN_001A0670
 void func_001a0670(u8 *arg0) {
     s32 temp_5;
@@ -63,6 +78,16 @@ void func_001a2c10(s64 *arg0) {
 }
 
 
+
+// FUN_001A4390
+void func_001a4390(void)
+{
+}
+
+// FUN_001A47F0
+void func_001a47f0(void)
+{
+}
 
 // FUN_001A55A0
 void func_001a55a0(s64 *arg0) {
@@ -115,6 +140,16 @@ void func_001a58e0(s64 *arg0) {
 }
 
 
+
+// FUN_001A5990
+void func_001a5990(void)
+{
+}
+
+// FUN_001A7710
+void func_001a7710(void)
+{
+}
 
 // FUN_001AC500
 void func_001ac500(s64 *arg0) {

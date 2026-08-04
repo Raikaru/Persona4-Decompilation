@@ -153,6 +153,12 @@ s32 func_0025cf70(void) {
 
 
 
+// FUN_0025D520
+s32 func_0025d520(void)
+{
+    return 1;
+}
+
 // FUN_0025D7E0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0025d7e0(void) {

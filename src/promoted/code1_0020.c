@@ -105,6 +105,16 @@ void func_00203600(u8 *arg0) {
 
 
 
+// FUN_00203880
+void func_00203880(void)
+{
+}
+
+// FUN_0020AD70
+void func_0020ad70(void)
+{
+}
+
 // FUN_0020AD80
 void func_0020ad80(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x5B4);
@@ -114,6 +124,11 @@ void func_0020ad80(u8 *arg0, s32 arg1) {
 }
 
 
+
+// FUN_0020B5A0
+void func_0020b5a0(void)
+{
+}
 
 // FUN_0020BB20
 void func_0020bb20(u8 *arg0, s32 arg1) {
