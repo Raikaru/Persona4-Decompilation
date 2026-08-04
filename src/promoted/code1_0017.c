@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+extern void func_0015f660();
 
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -52,6 +53,12 @@ s32 func_00176220(void)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176220);
 #endif
+
+// FUN_00176280
+void func_00176280(void)
+{
+    func_0015f660();
+}
 
 // FUN_001788E0
 s32 func_001788e0(void)

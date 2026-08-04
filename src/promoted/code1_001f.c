@@ -1,4 +1,5 @@
 #include "type.h"
+extern void func_001f58d0();
 
 extern void memset(void *destination, s32 value, u32 size);
 
@@ -268,6 +269,12 @@ s32 func_001f5ea0(s32 arg0) {
 }
 
 
+
+// FUN_001F6190
+void func_001f6190(void)
+{
+    func_001f58d0();
+}
 
 // FUN_001F6290
 s32 func_001f6290(void) {

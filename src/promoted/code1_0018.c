@@ -1,4 +1,6 @@
 #include "type.h"
+extern void func_0048a000();
+extern void func_00185370();
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -15,6 +17,18 @@ void func_00185120(u8 *arg0)
 }
 
 
+
+// FUN_00185600
+void func_00185600(void)
+{
+    func_00185370();
+}
+
+// FUN_00185830
+void func_00185830(void)
+{
+    func_0048a000();
+}
 
 // FUN_00186610
 void func_00186610(u8 *arg0)
