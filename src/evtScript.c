@@ -47,6 +47,15 @@ extern u8 *func_002736d0(u8 **arg0, s32 arg1);
 extern s32 func_002738d0(u8 *arg0);
 extern void func_00272a10(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void func_00272ba0(u8 *arg0, s32 arg1);
+
+/* measured: the operands must travel through this helper's parameters to get
+   retail's offset-first `addu $v0,$v0,$s0`; every callsite spelling (p+scaled,
+   scaled+p, a named s32 local) is canonicalized back to base-first. Expand it at
+   the use rather than through a local, so nothing stays live across a call. */
+static inline u32 evtSlot(u32 offset, u32 base)
+{
+    return offset + base;
+}
 extern void func_00273170(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00271b70(u8 *arg0);
 extern f32 func_0044b7b0(f32 fparg0);
@@ -113,14 +122,35 @@ s32 func_00298550(void)
 done:
     return 0;
 }
-/* measured: retail computes the 0x698 store as `sll $v0,$s2,2; addu $v0,$v0,$s0`
-   (scaled offset as addu src1); mwcc b210 always emits the base register as
-   src1 (`addu $v0,$s0,$v0`). Tried: scaled offset in an s32 local, written
-   p+scaled / scaled+p / v0*4+p orders, and the if/else polarity flip that
-   fixed the guard layout — all nd 4, single word. Addu-operand-order
-   allocator floor. */
+/* The addu operand order this note called an allocator floor is fixed by the
+   `evtSlot` helper above, expanded at the use. The note was right that a named
+   s32 local and every p+scaled / scaled+p callsite spelling get canonicalized
+   back to base-first; only carrying the operands through a helper's parameters
+   holds the order, and expanding it per use keeps nothing live across a call. */
 // FUN_00298700
-INCLUDE_ASM("asm/nonmatchings/evtScript", func_00298700);
+s32 func_00298700(void) {
+    s32 slot;
+    s32 value;
+    s32 kind;
+    u8 *p;
+
+    slot = func_0029cc00(0);
+    value = func_0029cc00(1);
+    if (slot >= 5) {
+        return 1;
+    }
+    kind = func_00286350();
+    if (kind == 0) {
+        return 1;
+    }
+    p = (u8 *)func_00452560(kind);
+    if (func_002909a0(p + 0x678) == 0) {
+        return 1;
+    }
+    *(s32 *)((u8 *)evtSlot(slot * 4, (u32)p) + 0x698) = value;
+    return 1;
+}
+
 // FUN_002987D0
 void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
                    s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7)

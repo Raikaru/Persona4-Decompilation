@@ -3438,6 +3438,7 @@ iGpffffb3ec = 0x007644dc; // type:data
 iGpffffb3f0 = 0x007644e0; // type:data
 iGpffffb408 = 0x007644f8; // type:data
 D_00724504 = 0x00764504; // type:data
+iGpffffb41c = 0x0076450c; // type:data
 iGpffffb3c8 = 0x0076451c; // type:data
 DAT_00764530 = 0x00764530; // type:data
 iGpffffb444 = 0x00764534; // type:data

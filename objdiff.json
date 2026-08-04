@@ -18691,7 +18691,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_encount/001619b0.o",
       "base_path": "build/objdiff/base/Kosaka/k_encount/001619b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -18702,7 +18702,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_encount/00161a70.o",
       "base_path": "build/objdiff/base/Kosaka/k_encount/00161a70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -18713,7 +18713,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_encount/00161b10.o",
       "base_path": "build/objdiff/base/Kosaka/k_encount/00161b10.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33024,7 +33024,7 @@
       "target_path": "build/objdiff/target/evtScript/00298700.o",
       "base_path": "build/objdiff/base/evtScript/00298700.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
