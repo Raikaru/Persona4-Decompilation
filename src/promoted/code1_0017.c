@@ -38,21 +38,19 @@ extern u8 *func_004571c0(void);
    shape: a single bare comparison on a dead call result, where b210 always
    recycles the source register. 359 of the remaining first-party ASM functions
    contain an $at comparison, so the distinction is worth knowing before writing
-   any of them off. */
-// FUN_00176220 NONMATCHING
-#ifdef NON_MATCHING
+/* SOLVED by tools/permute.py; this previously carried a `slt $at` floor note
+   and sat under #ifdef NON_MATCHING. The permuter found the shape from the
+   preserved body. */
+// FUN_00176220
 s32 func_00176220(void)
 {
-    if (func_0029d020() >= 4) {
+    if (func_0029d020() > 3) {
         func_0029cf50(func_00110f00());
         return 1;
     }
     func_0029cf50(0);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176220);
-#endif
 
 // FUN_00176280
 void func_00176280(void)
