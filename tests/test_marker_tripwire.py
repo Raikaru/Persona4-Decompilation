@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5068 tracked markers across first-party src/.  Bump deliberately.
+        """5072 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -133,11 +133,16 @@ class MarkerCountTripwireTests(unittest.TestCase):
         pragma scopes in code1_0039.c and code1_003a.c, which broke functions
         that were already matching. Batch inserts MUST avoid landing between an
         existing pragma and the function it scopes.
+
+        Raised to 5072 for four `g(); return K;` wrappers (addiu / sd / jal / nop /
+        addiu $v0,$zero,K / ld / addiu / jr). A fifth family in the same size band,
+        the `lq`/`sq` 16-byte copy, is NOT here: see the note in docs/matching.md,
+        there is no real quadword type to express it with.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5068,
+            5072,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

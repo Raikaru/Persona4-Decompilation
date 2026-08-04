@@ -1,5 +1,6 @@
 /* Source unit: src/promoted/code1_0029.c */
 #include "type.h"
+extern void func_004b15d0();
 
 s32 func_00291a60(u16 arg0);
 
@@ -45,6 +46,13 @@ s32 func_002996e0(void) {
 }
 
 
+
+// FUN_00299740
+s32 func_00299740(void)
+{
+    func_004b15d0();
+    return 1;
+}
 
 // FUN_00299890
 s32 func_00299890(void) {
