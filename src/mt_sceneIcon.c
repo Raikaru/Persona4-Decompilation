@@ -8,6 +8,15 @@ extern code DAT_008873ec_abs[];
 
 /* gp - 0x5908 = 0x007637E8. */
 extern u8 iGpffffa6f8;
+/* gp - 0x5900 = 0x007637F0. */
+extern u8 iGpffffa700;
+extern void func_0044ea90(const void *msg, s32 id);
+extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
+                         void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+extern u8 *func_00145270(void);
+extern void func_004b1170(s32 a);
+extern void func_0026d890(u8 *arg0);
 extern u8 D_0063B558[];
 extern u8 D_0063B568[];
 extern void func_00440b68(u8 *fmt, u8 *file, s32 line);
@@ -41,4 +50,38 @@ void func_0026d9f0(void)
 }
 
 // FUN_0026DA30
-INCLUDE_ASM("asm/nonmatchings/mt_sceneIcon", func_0026da30);
+s32 func_0026da30(s32 arg0, s32 arg1)
+{
+    u8 *icon;
+    u8 *mem;
+    s32 kind;
+
+    if (arg1 == 0xA) {
+        icon = func_00145270();
+        /* measured: the NULL return is an `else` clause, not an early return, so
+           its zero lands after the two kind blocks exactly as retail places it. */
+        if (icon != NULL) {
+            kind = (*(u16 *)icon & 0xFFC00) >> 10;
+            if (kind == 1) {
+                if (*(s32 *)(icon + 0x144) != 0) {
+                    func_004b1170(*(s32 *)(icon + 0x144));
+                    return 0;
+                }
+            } else if (kind == 3) {
+                if (*(s32 *)(icon + 0x144) != 0) {
+                    func_004b1170(*(s32 *)(icon + 0x144));
+                    return 0;
+                }
+            }
+        } else {
+            return 0;
+        }
+    }
+    func_0044ea90(D_0063B558, 0xC1);
+    mem = D_008873F4[0](1, 0x10, 0x40000);
+    *(s16 *)(mem + 4) = arg0;
+    *(s32 *)(mem + 8) = arg1;
+    return func_00451de0(&iGpffffa700, 0xF, 0, 0, func_0026d890,
+                         (void (*)(u8 *))func_0026d9f0, mem);
+}
+
