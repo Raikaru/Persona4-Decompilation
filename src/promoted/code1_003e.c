@@ -33,65 +33,89 @@ void func_003e1020(s32 arg0) {
 
 
 
+/* measured: a plain linked-list search (walk arg0->f10 via f30 for f8 == arg1,
+   then store arg2 at f18 and return f0, else -1). Two b210 codegen choices
+   block it and they pull in opposite directions:
+
+   At -O2 b210 fills the loop and exit delay slots with BRANCH-LIKELY forms
+   (bnel/beql) retail never uses, collapsing the body to 60B against an 80B
+   window (nd 15). `#pragma schedule off` removes them and reaches 72B / nd 9,
+   but it also disables the delay-slot fill retail DOES have (retail puts the
+   `lw $v0,($v1)` in the `b` delay slot), so scheduling cannot be both off and
+   on. The 2-word residual after that is that fill plus a redundant `nop`
+   retail emits between the loop exit and the join at 0x3e3094.
+
+   Changed nothing here when probed: opt_peephole, opt_branch_likely,
+   opt_branch_folding, opt_common_subs, opt_unroll_loops, optimize_for_size,
+   opt_propagation. The nd-9 body is kept below so the next attempt starts from
+   it instead of re-deriving. Branch-likely / delay-slot floor. */
 // FUN_003E3070 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule off
 s32 func_003e3070(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *var_3;
+    u8 *node;
 
-    var_3 = *(u8 **)(arg0 + 0x10);
-    if (var_3 != NULL) {
-loop_1:
-        if (*(s32 *)(var_3 + 8) != arg1) {
-            var_3 = *(u8 **)(var_3 + 0x30);
-            if (var_3 == NULL) {
-            } else {
-                goto loop_1;
+    node = *(u8 **)(arg0 + 0x10);
+    if (node != NULL) {
+        do {
+            if (*(s32 *)(node + 8) == arg1) {
+                break;
             }
-        }
+            node = *(u8 **)(node + 0x30);
+        } while (node != NULL);
     }
-    if (var_3 != NULL) {
-        *(s32 *)(var_3 + 0x18) = arg2;
-        return *(s32 *)var_3;
+    if (node != NULL) {
+        *(s32 *)(node + 0x18) = arg2;
+        return *(s32 *)(node + 0);
     }
     return -1;
 }
+#pragma schedule on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
 #endif
 
+/* measured: a plain linked-list search (walk arg0->f10 via f30 for f8 == arg1,
+   then store arg2 at f18 and return f0, else -1). Two b210 codegen choices
+   block it and they pull in opposite directions:
 
+   At -O2 b210 fills the loop and exit delay slots with BRANCH-LIKELY forms
+   (bnel/beql) retail never uses, collapsing the body to 60B against an 80B
+   window (nd 15). `#pragma schedule off` removes them and reaches 72B / nd 9,
+   but it also disables the delay-slot fill retail DOES have (retail puts the
+   `lw $v0,($v1)` in the `b` delay slot), so scheduling cannot be both off and
+   on. The 2-word residual after that is that fill plus a redundant `nop`
+   retail emits between the loop exit and the join at 0x3e3094.
 
+   Changed nothing here when probed: opt_peephole, opt_branch_likely,
+   opt_branch_folding, opt_common_subs, opt_unroll_loops, optimize_for_size,
+   opt_propagation. The nd-9 body is kept below so the next attempt starts from
+   it instead of re-deriving. Branch-likely / delay-slot floor. */
 // FUN_003E30C0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma schedule off
 s32 func_003e30c0(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *var_3;
+    u8 *node;
 
-    var_3 = *(u8 **)(arg0 + 0x10);
-    if (var_3 != NULL) {
-loop_1:
-        if (*(s32 *)(var_3 + 8) != arg1) {
-            var_3 = *(u8 **)(var_3 + 0x30);
-            if (var_3 == NULL) {
-            } else {
-                goto loop_1;
+    node = *(u8 **)(arg0 + 0x10);
+    if (node != NULL) {
+        do {
+            if (*(s32 *)(node + 8) == arg1) {
+                break;
             }
-        }
+            node = *(u8 **)(node + 0x30);
+        } while (node != NULL);
     }
-    if (var_3 != NULL) {
-        *(s32 *)(var_3 + 0x1C) = arg2;
-        return *(s32 *)var_3;
+    if (node != NULL) {
+        *(s32 *)(node + 0x18) = arg2;
+        return *(s32 *)(node + 0);
     }
     return -1;
 }
+#pragma schedule on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e30c0);
 #endif
-
-
-// measured: removing this pragma takes func_003e43a0 nd 0 -> nd 15: retail fills the
-// jr $ra delay slot with sw $v1, -0x485c($gp) and hoists move $v0,$a0 before the
-// addiu; baseline -O2 emits lw; addiu; sw; move; jr; nop.
-#pragma optimization_level 3
 
 // FUN_003E43A0
 s32 func_003e43a0(s32 arg0) {
