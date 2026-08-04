@@ -14,6 +14,9 @@ extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern u8 D_00636838[];
 extern void func_0025c790(u8 *arg0);
+extern s32 func_0029d020(void);
+extern s32 func_0029cc00(s32 which);
+extern void func_0029cf50(s32 arg0);
 
 
 #pragma alias DAT_008873ec_abs DAT_008873ec
@@ -54,5 +57,16 @@ s32 func_0025cc70(void) {
     return func_00452490(func_00452380(D_00636A30)) != 0;
 }
 
+/* measured: the assert+allocator+register body is recovered (it is the
+   func_0025cbc0 shape wrapped in a func_0029d020 state test, with a second
+   path that probes func_00452380/func_00452490 and calls func_0029cf50 before
+   returning 1). Best nd 16 with an inline `return 0` in the first branch;
+   restructuring to an `else if` chain so all zero exits share one trailing
+   `return 0` -- retail branches to a shared L0025CDAC -- measured WORSE at
+   nd 18, so the shared-return lever does not apply in this shape. The
+   residual sits in the second path (offsets 180-220: retail reaches the
+   shared zero return by branch where b210 materializes it inline). Body not
+   kept because it MISMATCHES; the recipe above reproduces it in one pass. */
 // FUN_0025CCB0
 INCLUDE_ASM("asm/nonmatchings/shdScript", func_0025ccb0);
+

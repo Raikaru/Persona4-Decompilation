@@ -138459,7 +138459,7 @@
       "target_path": "build/objdiff/target/promoted/sdkWrap/004672c0.o",
       "base_path": "build/objdiff/base/promoted/sdkWrap/004672c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
