@@ -110,6 +110,12 @@ void func_004b1560(void)
     func_00486180();
 }
 
+// FUN_004B1AA0
+void func_004b1aa0(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x8) = 0;
+}
+
 // FUN_004B3250
 void func_004b3250(s32 arg0)
 {

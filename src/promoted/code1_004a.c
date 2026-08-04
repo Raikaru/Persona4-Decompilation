@@ -54,10 +54,22 @@ void func_004a5b60(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x30) = arg1;
 }
 
+// FUN_004A5F90
+void func_004a5f90(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x2C) = 0;
+}
+
 // FUN_004A6BE0
 void func_004a6be0(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x24) = arg1;
+}
+
+// FUN_004A6E40
+void func_004a6e40(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x10) = 0;
 }
 
 // FUN_004A7A50
@@ -76,6 +88,12 @@ void func_004a7b10(s32 arg0) {
 }
 
 
+
+// FUN_004A7BF0
+void func_004a7bf0(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x0) = 0;
+}
 
 // FUN_004A7DA0
 void func_004a7da0(s32 *arg0) {

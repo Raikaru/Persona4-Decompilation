@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5057 tracked markers across first-party src/.  Bump deliberately.
+        """5068 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -124,11 +124,20 @@ class MarkerCountTripwireTests(unittest.TestCase):
         existing `#pragma optimization_level 3` scope is fine -- those functions
         genuinely need it -- but the closing `optimization_level 2` must keep the
         word "measured" within three lines or H003W fires.
+
+        Raised to 5068 for 11 more: `*(T *)(arg0 + off) = 0` zero stores and
+        call-then-set-flag wrappers. A third family (store through a gp base,
+        `*(s32 *)(arg0 + iGpffffXXXX) = 0; return arg0;`) is NOT here: b210
+        canonicalizes the commutative `addu` to gpbase+arg0 where retail has
+        arg0+gpbase, and inserting those blocks landed them inside existing
+        pragma scopes in code1_0039.c and code1_003a.c, which broke functions
+        that were already matching. Batch inserts MUST avoid landing between an
+        existing pragma and the function it scopes.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5057,
+            5068,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

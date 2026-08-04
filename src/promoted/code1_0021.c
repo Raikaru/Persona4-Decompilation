@@ -40,6 +40,42 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 
 
+// FUN_00213B80
+void func_00213b80(void)
+{
+    u8 *p;
+
+    p = (u8 *)func_00452560();
+    *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x1;
+}
+
+// FUN_00213BE0
+void func_00213be0(void)
+{
+    u8 *p;
+
+    p = (u8 *)func_00452560();
+    *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x4;
+}
+
+// FUN_00213C10
+void func_00213c10(void)
+{
+    u8 *p;
+
+    p = (u8 *)func_00452560();
+    *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x2;
+}
+
+// FUN_00213C70
+void func_00213c70(void)
+{
+    u8 *p;
+
+    p = (u8 *)func_00452560();
+    *(s32 *)(p + 0x80C) = *(s32 *)(p + 0x80C) | 0x100;
+}
+
 // FUN_00213CD0
 void func_00213cd0(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x10);

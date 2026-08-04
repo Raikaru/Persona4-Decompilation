@@ -140,6 +140,15 @@ void func_00203880(void)
 {
 }
 
+// FUN_00204D90
+void func_00204d90(void)
+{
+    u8 *p;
+
+    p = (u8 *)func_00452560();
+    *(s32 *)(p + 0xA0) = *(s32 *)(p + 0xA0) | 0x1;
+}
+
 // FUN_0020AD70
 void func_0020ad70(void)
 {

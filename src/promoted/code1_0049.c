@@ -16,6 +16,12 @@ void func_00492cd0(u8 *arg0)
 
 
 
+// FUN_00492D00
+void func_00492d00(u8 *arg0)
+{
+    *(s32 *)(arg0 + 0x10) = 0;
+}
+
 // FUN_00494680
 void func_00494680(void *arg0)
 {
