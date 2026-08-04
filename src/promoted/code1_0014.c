@@ -1,4 +1,5 @@
 #include "type.h"
+extern u8 * iGpffff9db0;
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
 extern s32 D_00762EA0;
@@ -108,6 +109,12 @@ void func_00149680(s32 arg0) {
 }
 
 
+
+// FUN_0014A2F0
+void func_0014a2f0(s32 arg0)
+{
+    *(s32 *)(iGpffff9db0 + 0x18) = arg0;
+}
 
 // FUN_0014B840
 void func_0014b840(u8 *arg0)

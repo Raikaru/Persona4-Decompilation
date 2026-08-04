@@ -1,4 +1,5 @@
 #include "type.h"
+extern s32 iGpffffb1b4;
 
 extern s32 D_005E45E0[];
 
@@ -38,6 +39,12 @@ s32 func_00110d30(s32 arg0)
 }
 
 
+
+// FUN_00110E70
+void func_00110e70(s32 arg0)
+{
+    iGpffffb1b4 = arg0;
+}
 
 // FUN_00111010
 void func_00111010(void)
