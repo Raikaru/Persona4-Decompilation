@@ -1212,13 +1212,22 @@ s64 func_00106b80(s64 arg0)
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
-/* measured: retail loads D_007242A0[arg0].f30 into $a0 immediately after the
-   base addu, then computes 1 << (arg1+4); mwcc b210 always sinks the f30 load
-   to its use right before the and. Tried: one-liner, word local, mask-first
-   operand order, GDataEntry* + bit locals (best nd 11) - all sink the load.
-   Load-sinking floor. */
+/* The "load-sinking floor" here needed the word local AND the pragma together.
+   The note was right that a word local alone still sinks the f30 load (nd 11),
+   which is why one-liner / mask-order / GDataEntry* spellings all stalled there;
+   `#pragma opt_propagation off` is what keeps that single-use load right after
+   the base addu, and only then does the local hold it in place. Measured 11 -> 3
+   (the 3 are the window's trailing padding), verify reports MATCH. */
 // FUN_00106C30
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00106c30);
+#pragma opt_propagation off
+s32 func_00106c30(s16 arg0, s16 arg1)
+{
+    u32 flags;
+
+    flags = *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x30);
+    return (flags & (1 << ((s32)arg1 + 4))) != 0;
+}
+#pragma opt_propagation on
 
 // FUN_00106C80
 s32 func_00106c80(s16 arg0)

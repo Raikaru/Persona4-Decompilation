@@ -1364,6 +1364,7 @@
       "00106b20",
       "00106b50",
       "00106b80",
+      "00106c30",
       "00106c80",
       "00106cd0",
       "00106d40",
@@ -5121,23 +5122,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 3887,
+    "count": 3888,
     "duplicate_rows": 0,
     "known_rows": 4864,
-    "matched_body_bytes": 591244,
-    "percent": 29.703,
+    "matched_body_bytes": 591312,
+    "percent": 29.711,
     "unique_known_addresses": 4864
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "C:\\tmp\\p4_link11.json",
+    "linked_report": "C:\\tmp\\p4_link12.json",
     "raw_rows": 4864,
-    "verifier_report": "C:\\tmp\\p4_s7.json"
+    "verifier_report": "C:\\tmp\\p4_s9.json"
   },
   "status_counts": {
-    "ASM": 977,
-    "MATCH": 3887
+    "ASM": 976,
+    "MATCH": 3888
   },
   "total": 13086
 }
