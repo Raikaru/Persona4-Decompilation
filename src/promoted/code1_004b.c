@@ -22,6 +22,12 @@ void func_004b0fa0(void *object) {
 extern void func_004865c0();
 
 
+// FUN_004B10F0
+void func_004b10f0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x4) = arg1;
+}
+
 // FUN_004B13F0
 void func_004b13f0(void *object, s32 *arg1) {
     func_004865c0(object, *arg1);
@@ -51,6 +57,12 @@ s128 func_004b50d0(s128 *arg0, s128 *arg1) {
 typedef signed __int128 s128;
 
 
+// FUN_004B50E0
+void func_004b50e0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x10) = arg1;
+}
+
 // FUN_004B5750
 s128 func_004b5750(s128 *arg0, s128 *arg1) {
     s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
@@ -75,6 +87,12 @@ extern u8 *func_004b6900();
 extern void func_004b6bb0();
 extern void func_004b6da0();
 
+
+// FUN_004B5770
+void func_004b5770(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x24) = arg1;
+}
 
 // FUN_004B57A0
 u8 *func_004b57a0(void *object, s32 arg1) {

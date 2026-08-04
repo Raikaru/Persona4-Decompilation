@@ -79,6 +79,12 @@ void func_001a2c10(s64 *arg0) {
 
 
 
+// FUN_001A3DE0
+s32 func_001a3de0(u8 *arg0)
+{
+    return *(s32 *)(arg0 + 0x420);
+}
+
 // FUN_001A4390
 void func_001a4390(void)
 {
