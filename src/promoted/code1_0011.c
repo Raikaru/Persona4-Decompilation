@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern s32 iGpffffb1b4;
 
@@ -24,6 +25,15 @@ s32 func_001104a0(s32 arg0)
 
 
 
+// FUN_001105B0
+INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001105b0);
+
+// FUN_00110600
+INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110600);
+
+// FUN_00110680
+INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110680);
+
 // FUN_00110810
 void func_00110810(s32 arg0, s8 arg1)
 {
@@ -45,6 +55,12 @@ void func_00110e70(s32 arg0)
 {
     iGpffffb1b4 = arg0;
 }
+
+// FUN_00110E80
+INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110e80);
+
+// FUN_00110FC0
+INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110fc0);
 
 // FUN_00111010
 void func_00111010(void)

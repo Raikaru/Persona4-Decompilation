@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern void func_004787e0();
 
@@ -48,11 +49,26 @@ void func_004a49c0(u8 *arg0) {
 
 
 
+// FUN_004A58B0
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a58b0);
+
+// FUN_004A59B0
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a59b0);
+
+// FUN_004A5A00
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5a00);
+
+// FUN_004A5A60
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5a60);
+
 // FUN_004A5B60
 void func_004a5b60(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x30) = arg1;
 }
+
+// FUN_004A5DE0
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5de0);
 
 // FUN_004A5F90
 void func_004a5f90(u8 *arg0)
@@ -66,11 +82,17 @@ void func_004a6be0(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x24) = arg1;
 }
 
+// FUN_004A6DC0
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a6dc0);
+
 // FUN_004A6E40
 void func_004a6e40(u8 *arg0)
 {
     *(s32 *)(arg0 + 0x10) = 0;
 }
+
+// FUN_004A77B0
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a77b0);
 
 // FUN_004A7A50
 void func_004a7a50(void) {
@@ -80,6 +102,9 @@ void func_004a7a50(void) {
 
 
 
+// FUN_004A7A90
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7a90);
+
 // FUN_004A7B10
 void func_004a7b10(s32 arg0) {
     func_003e9c10(D_00724C70, D_00922D80, 0);
@@ -88,6 +113,9 @@ void func_004a7b10(s32 arg0) {
 }
 
 
+
+// FUN_004A7B70
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7b70);
 
 // FUN_004A7BF0
 void func_004a7bf0(u8 *arg0)
@@ -116,6 +144,9 @@ void func_004a7df0(s32 *arg0) {
 }
 
 
+
+// FUN_004ABB60
+INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004abb60);
 
 // FUN_004ABD60
 void func_004abd60(void)

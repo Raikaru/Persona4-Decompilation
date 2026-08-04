@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 
 extern void func_002bb550(s8 arg0);
@@ -31,6 +32,9 @@ void func_00354230(u8 *arg0)
 
 
 
+// FUN_00354490
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00354490);
+
 // FUN_003544F0
 s32 func_003544f0(void)
 {
@@ -51,11 +55,20 @@ void func_003547c0(s32 *arg0, u8 *arg1)
 
 
 
+// FUN_003549D0
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003549d0);
+
+// FUN_00355070
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355070);
+
 // FUN_00355300
 void func_00355300(u8 *arg0, s32 arg1)
 {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xC) = arg1;
 }
+
+// FUN_00355310
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355310);
 
 // FUN_00355370
 void func_00355370(u8 *arg0, u8 *arg1)
@@ -89,6 +102,12 @@ void func_003553b0(u8 *arg0, f32 *arg1)
 
 
 
+// FUN_00355460
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355460);
+
+// FUN_003558A0
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003558a0);
+
 // FUN_00356140
 void func_00356140(u8 *arg0)
 {
@@ -96,6 +115,18 @@ void func_00356140(u8 *arg0)
 }
 
 
+
+// FUN_00356170
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
+
+// FUN_003561D0
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003561d0);
+
+// FUN_00356820
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356820);
+
+// FUN_00359340
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00359340);
 
 // FUN_003593B0
 void func_003593b0(u8 *arg0)
@@ -106,6 +137,9 @@ void func_003593b0(u8 *arg0)
 
 
 
+// FUN_003596A0
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003596a0);
+
 // FUN_003599A0
 void func_003599a0(u8 *arg0)
 {
@@ -114,6 +148,9 @@ void func_003599a0(u8 *arg0)
 }
 
 
+
+// FUN_0035AEC0
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035aec0);
 
 // FUN_0035AF10
 void func_0035af10(u8 *arg0)
@@ -126,6 +163,12 @@ void func_0035af10(u8 *arg0)
 }
 
 
+
+// FUN_0035AFA0
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035afa0);
+
+// FUN_0035BE70
+INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035be70);
 
 // FUN_0035BEC0
 void func_0035bec0(u8 *arg0)
