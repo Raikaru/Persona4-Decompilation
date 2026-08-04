@@ -34993,7 +34993,7 @@
       "target_path": "build/objdiff/target/g_data/g_data/00106c30.o",
       "base_path": "build/objdiff/base/g_data/g_data/00106c30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
