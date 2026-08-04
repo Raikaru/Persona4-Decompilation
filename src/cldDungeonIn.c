@@ -4,6 +4,10 @@
 #include "type.h"
 
 extern u8 *func_00452560();
+extern u8 *func_00460990(void);
+extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void func_00268230(u8 *arg0);
+extern u8 D_007964F0[];
 extern void func_002e1ef0(void *a);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void func_0045a8d0(s32 a, s32 b);
@@ -37,8 +41,26 @@ void func_00268920(void) {
    inline bne (not out-of-line beq), and if+switch / two-switch splits collapse
    the all-return-0 sub-switch into a single return 0. Best nd 8. */
 // FUN_00268870
-INCLUDE_ASM("asm/nonmatchings/cldDungeonIn", func_00268870);
+s32 func_00268870(u8 *arg0)
+{
+    u8 *state;
+    u8 *obj;
 
+    state = func_00452560();
+    obj = func_00460990();
+    *(void **)(obj + 8) = (void *)func_00268230;
+    *(u8 **)(obj + 0x10) = arg0;
+    func_00460ac0(D_007964F0, obj);
+    switch (*(s32 *)state) {
+    case 0:
+    case 1:
+    case 2:
+        break;
+    case 3:
+        return -1;
+    }
+    return 0;
+}
 // FUN_00268990
 s32 func_00268990(s32 arg0) {
     u8 *s0;

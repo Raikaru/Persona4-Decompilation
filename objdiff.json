@@ -10012,7 +10012,7 @@
       "target_path": "build/objdiff/target/Event/evtEffect/00290fa0.o",
       "base_path": "build/objdiff/base/Event/evtEffect/00290fa0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -16777,7 +16777,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkUttmx/00463d60.o",
       "base_path": "build/objdiff/base/Kernel/sdkUttmx/00463d60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21705,7 +21705,7 @@
       "target_path": "build/objdiff/target/Main/sequence/001028c0.o",
       "base_path": "build/objdiff/base/Main/sequence/001028c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -24565,7 +24565,7 @@
       "target_path": "build/objdiff/target/cldDungeonIn/00268870.o",
       "base_path": "build/objdiff/base/cldDungeonIn/00268870.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

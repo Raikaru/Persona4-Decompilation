@@ -6,6 +6,16 @@
 extern void func_0044ea90(u8 *file, s32 line);
 extern u8 D_0064A618[];
 extern u8 D_0064A630[];
+extern u8 D_0064A6B0[];
+extern u8 D_0064A6C0[];
+
+/* The two 12-byte vectors retail copies global->stack as ld/sd for the first
+   eight bytes plus lwc1/swc1 for the last four. */
+typedef struct
+{
+    s64 xy;
+    f32 z;
+} FclVec3;
 extern u8 D_0064A6D0[];
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -117,5 +127,64 @@ void func_0034a480(u8 *arg0)
    load-store-load-store instead of load-load-store-store (nd 9); #pragma
    pack(4) splits the s64 into two lwc1 (nd 70). Mixed s64+f32 struct-copy
    grouping is a b210 floor. */
-// FUN_0034A4F0
+/* measured: reconstructed from scratch (this function had no note). Now nd 5,
+   of which 2 words are window padding, so THREE real words remain -- all in
+   the second 12-byte vector copy, where retail loads `ld` then `lwc1` and b210
+   emits them the other way round.
+
+   What got it here, in order of effect: (1) copy each 12-byte vector as an
+   explicit s64 + f32 pair, NOT as a {s64; f32} struct assignment -- the struct
+   pads to 16 and copies the tail as a second ld/sd (nd 22); (2) load both
+   halves into temps before storing either, which is the load-both-then-
+   store-both shape retail uses, and it fixes the FIRST copy (10 -> 5);
+   (3) declaration order `handle, entry, mem` -- with `mem` first the whole
+   function rotates $s0/$s1/$s2 against retail (26 vs 10).
+
+   Measured and rejected: separate temps for the second copy (8, worse than
+   reusing them); a {s64; f32} struct (22). The two callbacks need casts
+   because func_00349c50 and func_0034a480 are declared returning s32/int.
+   Body kept below so the last three words can be attacked without redoing
+   any of the above. */
+// FUN_0034A4F0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0034a4f0(s32 arg0, s32 arg1)
+{
+    u8 sp50[0xC];
+    u8 sp40[0xC];
+    s32 handle;
+    u8 *entry;
+    u8 *mem;
+    s64 xy;
+    f32 z;
+
+    /* measured: the 12-byte vectors are copied as an explicit s64 + f32 pair so
+       b210 emits retail's ld/sd plus lwc1/swc1; a {s64; f32} struct assignment
+       pads to 16 and copies the tail as a second ld/sd. */
+    xy = *(s64 *)&D_0064A6B0[0];
+    z = *(f32 *)&D_0064A6B0[8];
+    *(s64 *)&sp50[0] = xy;
+    *(f32 *)&sp50[8] = z;
+    xy = *(s64 *)&D_0064A6C0[0];
+    z = *(f32 *)&D_0064A6C0[8];
+    *(s64 *)&sp40[0] = xy;
+    *(f32 *)&sp40[8] = z;
+    func_0044ea90(D_0064A618, 0x7A9);
+    mem = D_008873F4[0](1, 0x100, 0x40000);
+    handle = func_00451fc0(arg0, D_0064A6D0, 0xF, 0, 0,
+                           (void (*)(u8 *))func_00349c50,
+                           (void (*)(u8 *))func_0034a480, mem);
+    *(s8 *)(mem + 0) = 0;
+    *(s16 *)(mem + 8) = 0;
+    *(s8 *)(mem + 5) = 0;
+    entry = func_00104900((s8)arg1);
+    *(u8 **)(mem + 0x14) = entry;
+    *(s32 *)(mem + 0x10) = *(s32 *)(entry + 8);
+    *(s32 *)(mem + 0xE8) = 0xB3;
+    func_003e0870(mem + 0x30, &sp40[0], 0, 180.0f);
+    func_003e0c90(mem + 0x30, &sp50[0], 2);
+    return handle;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclModel", func_0034a4f0);
+#endif
+
