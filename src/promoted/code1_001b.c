@@ -1,4 +1,5 @@
 #include "type.h"
+extern s32 iGpffffb3ac;
 extern void func_001b6990();
 extern void func_00193d30();
 extern void func_00144f60();
@@ -99,6 +100,30 @@ void func_001b6110(void)
 void func_001b6a00(void)
 {
     func_00144f60();
+}
+
+// FUN_001B7020
+s32 func_001b7020(void)
+{
+    return iGpffffb3ac + 0x1BC;
+}
+
+// FUN_001B7030
+s32 func_001b7030(void)
+{
+    return iGpffffb3ac + 0x1EC;
+}
+
+// FUN_001B7040
+s32 func_001b7040(void)
+{
+    return iGpffffb3ac + 0x21C;
+}
+
+// FUN_001B7050
+s32 func_001b7050(void)
+{
+    return iGpffffb3ac + 0x24C;
 }
 
 // FUN_001B7060
