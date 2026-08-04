@@ -5524,7 +5524,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleSeq/00378c80.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleSeq/00378c80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
