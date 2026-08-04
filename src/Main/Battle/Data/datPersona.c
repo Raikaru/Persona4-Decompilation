@@ -274,9 +274,48 @@ s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2)
     *stat = statTotal;
     return (u8)statTotal;
 }
-// FUN_0010A840
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010a840);
+/* measured: nd 26 (obj 184B vs window 192B, so 2 of those words are padding).
+   ONE root defect cascades: retail sign-extends the freshly `lbu`-loaded byte to
+   s16 (`dsll32/dsra32 0x10`) before adding the (s8)arg2 delta; b210 folds that
+   narrowing away as redundant on a u8 value, so every later word is offset by
+   two. The prologue, the assert, the clamp structure and the store all match.
 
+   Progress that IS kept below: distinct CSE keys for the index -- `(arg1 &
+   0xFFFF)` in the range test and `(u16)arg1` in the address -- stop b210 from
+   caching the masked value in the saved register retail uses for arg1, fixing
+   the $s1/$s2 assignment and taking nd 32 -> 26.
+
+   Measured and rejected: `s16 cur = *p` then `cur + (s8)arg2`; separate s16
+   locals for both addends; `(u16)arg1 + base` to swap the commutative addu
+   operands (b210 canonicalizes it back); a `0xFFFFU` mask variant; declaring
+   `p` before `base`; and opt_common_subs off (27, worse). Ten spellings, none
+   below 26. The residual also contains the confirmed $v0-vs-$at slti
+   destination floor. Redundant-narrowing elimination floor. */
+// FUN_0010A840 NONMATCHING
+#ifdef NON_MATCHING
+u8 func_0010a840(s32 arg0, s32 arg1, s32 arg2)
+{
+    u8 *base;
+    u8 *p;
+    s16 v;
+
+    base = (u8 *)func_0010a900();
+    if (!((arg1 & 0xFFFF) < 5)) {
+        func_0046d730(D_005E4318, 0x36C);
+    }
+    p = base + (u16)arg1 + 0x1C;
+    v = (s16)((s16)*p + (s8)arg2);
+    if (v >= 0x64) {
+        v = 0x63;
+    } else if (v < 0) {
+        v = 0;
+    }
+    *p = (u8)v;
+    return (u8)v;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010a840);
+#endif
 // FUN_0010A900
 u16 *func_0010a900(s32 arg0)
 {
