@@ -83,13 +83,29 @@ s32 func_004b2ed0(u8 *arg0) {
     return 0;
 }
 
-/* measured: store/mask scheduling floor. Retail: addiu $v1,$v1,1; sh $v1,4($s0);
-   andi $a0,$v1,0xffff; slt (store BEFORE mask). mwcc b210 always emits the
-   andi mask before the sh regardless of the temp type (u16/s32/u32) or the
-   switch/single-case-if outer shape. Tried 5 spellings, all nd 2-3. The branch
-   orientation (positive beq to out-of-line body) needed the single-case switch. */
+/* The store/mask order recorded here as a floor is source-drivable: using the
+   compound assignment's VALUE (see the measured comment at the site) puts the
+   sh before the andi. The single-case switch is still what gives the positive
+   beq to the out-of-line body. */
 // FUN_004B30A0
-INCLUDE_ASM("asm/nonmatchings/effCrossfade", func_004b30a0);
+void func_004b30a0(u8 *arg0, u8 *st)
+{
+    s32 bumped;
+
+    switch (*(u8 *)(st + 0)) {
+    case 3:
+        func_004b2a00(st);
+        /* measured: using the compound assignment's VALUE keeps the bumped
+           counter in one register, so the sh lands before the compare mask
+           exactly as retail does; a separate increment-then-store pair masks
+           first. */
+        bumped = (*(u16 *)(st + 4) += 1);
+        if ((s32)(bumped & 0xFFFF) >= (s32)*(u16 *)(st + 2)) {
+            *(u8 *)(st + 0) = 4;
+        }
+        break;
+    }
+}
 
 // FUN_004B3110
 s32 func_004b3110(s16 arg0) {

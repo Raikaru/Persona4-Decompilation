@@ -220,6 +220,33 @@ DATA_REACHABLE_ENTRIES = {
     # window against a 352B body, so that function could never leave
     # SIZE_MISMATCH; splitting it makes both match.
     0x00244100: {"pointer": 0x00635950},
+    # `jr $ra; nop` nullsub at the head of three consecutive callback slots:
+    # 005DD2A4/A8/AC hold 0038DD60/0038DD70/0038DD80 and the latter two are
+    # already canonical nullsubs, so this word is a callback slot rather than a
+    # constant. Folding it gave func_0038dcc0 a 176B window against a body whose
+    # every instruction already matches, leaving it permanently unable to fill
+    # the window; splitting it lets that function match.
+    0x0038DD60: {"pointer": 0x005DD2A4},
+}
+
+# Entries that spimdisasm's control-flow scan misses and that NO data pointer
+# justifies, so DATA_REACHABLE_ENTRIES cannot carry them. The evidence is
+# structural instead: the preceding canonical function's retail body ends in a
+# complete `jr $ra` + delay-slot epilogue immediately before the address, so the
+# bytes there are unreachable from it and cannot belong to its body. Without the
+# split the preceding window is larger than any correct body for it, which is
+# unfixable from source.
+#
+# This set exists because the committed map already contained such an entry:
+# regenerating without it silently dropped 0x0027A340, widened func_0027a2d0
+# from 112 to 128 bytes and broke a byte-exact match -- which is why the map
+# could not be regenerated at all. tests/test_reconcile.py re-checks the
+# epilogue against the retail ELF so a wrong address fails the suite instead of
+# corrupting the map.
+EPILOGUE_SEPARATED_ENTRIES = {
+    # func_0027a2d0 ends `addiu $sp,0x30; jr $ra; nop` at 0027A334-0027A33C; the
+    # 16 bytes here are a separate fragment reached only by a computed branch.
+    0x0027A340,
 }
 
 # Source markers that deliberately have NO canonical boundary. Ghidra split one
@@ -308,6 +335,12 @@ def main() -> int:
     for address in DATA_REACHABLE_ENTRIES:
         if not entry <= address < code1_end:
             raise RuntimeError(f"data-reachable entry {address:#x} is outside code1")
+        code1.add(address)
+    for address in EPILOGUE_SEPARATED_ENTRIES:
+        if not entry <= address < code1_end:
+            raise RuntimeError(
+                f"epilogue-separated entry {address:#x} is outside code1"
+            )
         code1.add(address)
     code2 = {address for address in ghidra_addresses if code2_start <= address < code2_end}
 
