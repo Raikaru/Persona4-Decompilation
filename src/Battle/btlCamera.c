@@ -469,6 +469,11 @@ void func_001c7510(BtlCamera* camera)
 
 
 
+// FUN_001C7770
+void func_001c7770(void)
+{
+}
+
 // FUN_001C7780
 void func_001c7780(BtlCamera* camera)
 {
