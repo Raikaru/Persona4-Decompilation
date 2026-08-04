@@ -142,6 +142,12 @@ void func_0014d9e0(u8 *arg0, u8 *arg1) {
 
 
 
+// FUN_0014DCD0
+void func_0014dcd0(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x44) = arg1;
+}
+
 // FUN_0014DD10
 void func_0014dd10(u8 *arg0, u8 *arg1) {
     f32 sp20[4];

@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5039 tracked markers across first-party src/.  Bump deliberately.
+        """5057 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -114,11 +114,21 @@ class MarkerCountTripwireTests(unittest.TestCase):
         These needed 12 new curated symbols in config/symbol_data_addrs.txt,
         each evidenced by the retail instruction that names the displacement,
         with the address equal to 0x007690F0 minus that displacement.
+
+        Raised to 5057 for 18 more: $a1 field setters, setters through a pointer
+        field, `return K` leaves whose constant sits in the jr DELAY SLOT,
+        gp-getter-plus-offset, and calls through a gp function pointer (six more
+        curated gp symbols). Two placement lessons here: a `return K` leaf needs
+        `#pragma schedule on` in files where scheduling is off at file scope, or
+        b210 emits addiu; jr; nop into an 8-byte window; and inserting into an
+        existing `#pragma optimization_level 3` scope is fine -- those functions
+        genuinely need it -- but the closing `optimization_level 2` must keep the
+        word "measured" within three lines or H003W fires.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5039,
+            5057,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

@@ -46,6 +46,12 @@ void func_00189e90(u8 *arg0)
 
 
 
+// FUN_0018A000
+void func_0018a000(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4) = arg1;
+}
+
 // FUN_0018DF30
 void func_0018df30(u8 *arg0)
 {
