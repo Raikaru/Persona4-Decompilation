@@ -17063,7 +17063,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldFoodCourt/0018dcd0.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldFoodCourt/0018dcd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -17074,7 +17074,7 @@
       "target_path": "build/objdiff/target/Kosaka/Field/k_fldFoodCourt/0018dd40.o",
       "base_path": "build/objdiff/base/Kosaka/Field/k_fldFoodCourt/0018dd40.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
