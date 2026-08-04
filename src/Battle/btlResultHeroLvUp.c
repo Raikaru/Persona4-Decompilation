@@ -134,23 +134,22 @@ void func_00221ab0(void)
     }
 }
 
-// FUN_00221CF0 NONMATCHING
-// measured: nd 4 at -O2 (obj 580B/592B). Residual is the documented
-// $v0-vs-$at compare-temp floor: the two `++count < 5` / `++count >= 5`
-// tests compile to slti $v0; bnez $v0, retail emits slti $at; bnez $at.
-// Probed: ++, assignment-in-condition, >= / < orientations, break vs
-// return-0 vs goto, m2c temp and comma forms - all emit slti $v0.
-#ifdef NON_MATCHING
+// FUN_00221CF0
+// SOLVED by tools/permute.py; this previously carried an nd-4 note calling the
+// residual the $v0-vs-$at compare-temp floor. The permuter cracked it from the
+// preserved body.
+#pragma tailcall off
 s32 func_00221cf0(BtlResultWork* work)
 {
+    BtlResultWork* work_p = work;
     u32 sp30[4];
     u32 sp20[4];
 
-    switch (work->state40) {
+    switch (work_p->state40) {
     case 0:
         if ((work->flags & 8) || (D_008C024E[0] & 0x50) ||
-            ((D_008C024C[0] & 0x10) && ((work->count = work->count + 1) >= 5))) {
-            func_002baac0(func_00455ea0(*(s32*)(work->field3C + 0x934), 0, 0));
+            ((D_008C024C[0] & 0x10) && ((work->count = work_p->count + 1) > 4))) {
+            func_002baac0(func_00455ea0(*(s32*)(work_p->field3C + 0x934), 0, 0));
             func_00442088(sp30, &iGpffffa5C8, func_00104c70(1) & 0xFF);
             func_002bbd20(0, sp30);
             func_002bad10(3);
@@ -159,9 +158,9 @@ s32 func_00221cf0(BtlResultWork* work)
         break;
     case 1:
         if (func_00353f50(1) == 0) {
-            if (func_00221970((u8*)work) != 0) {
+            if (func_00221970((u8*)work_p) != 0) {
                 func_002bad10(4);
-                work->state40 = 2;
+                work_p->state40 = 2;
             } else {
                 work->state40 = 4;
             }
@@ -183,11 +182,11 @@ s32 func_00221cf0(BtlResultWork* work)
         break;
     case 4:
         func_002bb4e0();
-        work->count = 0;
+        work_p->count = 0;
         work->state40 = 5;
         /* fallthrough */
     case 5:
-        if ((work->count = work->count + 1) < 5) {
+        if ((work->count = 1 + work_p->count) <= 4) {
             break;
         }
         return 1;
@@ -197,9 +196,7 @@ s32 func_00221cf0(BtlResultWork* work)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlResultHeroLvUp", func_00221cf0);
-#endif
+#pragma tailcall on
 
 // FUN_00221F40
 s32 func_00221f40(u8* arg0)
