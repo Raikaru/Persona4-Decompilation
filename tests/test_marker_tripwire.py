@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5072 tracked markers across first-party src/.  Bump deliberately.
+        """5349 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -138,11 +138,22 @@ class MarkerCountTripwireTests(unittest.TestCase):
         addiu $v0,$zero,K / ld / addiu / jr). A fifth family in the same size band,
         the `lq`/`sq` 16-byte copy, is NOT here: see the note in docs/matching.md,
         there is no real quadword type to express it with.
+
+        Raised to 5349 by onboarding 277 unscanned windows in the 64-128 byte band as
+        INCLUDE_ASM. These are NOT matches -- they were canonical windows with no
+        marker at all, invisible to the verifier and handed to the link as retail
+        bytes, and they now score as ASM so fndiff, probe_variants and the permuters
+        can reach them. Two rules the batch had to learn: a file receiving its first
+        INCLUDE_ASM needs `#include "include_asm.h"` added (31 of them did), and
+        files using scoped optimization pragmas must be SKIPPED entirely (190
+        candidates were) because lint pairs a schedule on/off bracket with a
+        justification that sits below the closing pragma, leaving no insertion
+        position in such a region that does not separate one from the other.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5072,
+            5349,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

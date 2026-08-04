@@ -1,4 +1,5 @@
 /* Source unit: src/promoted/code1_002a.c */
+#include "include_asm.h"
 #include "type.h"
 
 extern void (*jtbl_008873EC[])(u8 *);
@@ -36,10 +37,16 @@ void func_002a2740(void) {
 
 
 
+// FUN_002AA3F0
+INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002aa3f0);
+
 // FUN_002AAA00
 void func_002aaa00(void)
 {
 }
+
+// FUN_002AAA10
+INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002aaa10);
 
 // FUN_002AAAA0
 void func_002aaaa0(void) {

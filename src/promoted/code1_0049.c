@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 
 extern void (*jtbl_008873EC[])(void *);
@@ -31,6 +32,9 @@ void func_00494680(void *arg0)
 }
 
 
+
+// FUN_00494F90
+INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00494f90);
 
 // FUN_00495090
 void func_00495090(u8 *arg0, u32 arg1)

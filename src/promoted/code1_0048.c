@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV3d
@@ -82,6 +83,30 @@ s32 func_00484560(void)
 {
     return 1;
 }
+
+// FUN_00484790
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484790);
+
+// FUN_004847E0
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004847e0);
+
+// FUN_00484970
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484970);
+
+// FUN_00484A40
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484a40);
+
+// FUN_00484A90
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484a90);
+
+// FUN_00484AE0
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484ae0);
+
+// FUN_00484B30
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
+
+// FUN_00485FE0
+INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485fe0);
 
 // FUN_00486180
 void func_00486180(u8 *arg0)

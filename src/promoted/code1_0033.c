@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -75,17 +76,26 @@ s32 func_00331660(void)
 
 
 
+// FUN_003319C0
+INCLUDE_ASM("asm/nonmatchings/code1_0033", func_003319c0);
+
 // FUN_00331F90
 void func_00331f90(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+// FUN_00332B60
+INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00332b60);
+
 // FUN_0033D310
 s32 func_0033d310(u8 *arg0)
 {
     return *(s32 *)(arg0 + 0x38);
 }
+
+// FUN_0033D320
+INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d320);
 
 // FUN_0033D3D0
 void func_0033d3d0(u8 *arg0, s32 arg1)

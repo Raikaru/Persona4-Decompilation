@@ -61,6 +61,12 @@ void func_00470c80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 
 
 
+// FUN_00470D10
+INCLUDE_ASM("asm/nonmatchings/code1_0047", func_00470d10);
+
+// FUN_00470E20
+INCLUDE_ASM("asm/nonmatchings/code1_0047", func_00470e20);
+
 // FUN_00478E70
 void func_00478e70(u8 *arg0)
 {
