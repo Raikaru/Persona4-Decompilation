@@ -1,5 +1,6 @@
 /* Source unit: src/Script/scrScriptProcess_0029d900.c */
 #include "type.h"
+
 #include "include_asm.h"
 
 
@@ -244,9 +245,40 @@ u8* func_0029d120(ScrPool* pool)
     return elem + 8;
 }
 
-// FUN_0029D1C0
-INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d1c0);
+/* measured: nd 6 (obj 164B vs window 176B), of which 3 words are window
+   padding, so the residual is THREE words: retail materializes the third
+   argument (`lw $a2, ($s1)`) BEFORE the two `move`s into $a0/$a1, while b210
+   emits the two moves first and the load last. Logic, frame, registers and
+   every other instruction match.
 
+   Measured and rejected: hoisting the third argument into an s32 local before
+   the call, hoisting it above the preceding decrement store, and
+   `#pragma schedule off` / `#pragma opt_propagation off` -- all five spellings
+   score 6. b210 reschedules the argument setup regardless of source order.
+   Call-argument scheduling floor. */
+// FUN_0029D1C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0029d1c0(void *arg0, void *arg1)
+{
+    u8 *node;
+
+    if (arg0 == NULL) {
+        func_0046d730(D_0063E3D0, 0x6A);
+    }
+    if (arg1 == NULL) {
+        func_0046d730(D_0063E3D0, 0x6B);
+    }
+    node = (u8 *)arg1 - 8;
+    if (*(s32 *)((u8 *)arg1 - 4) == 0) {
+        *(u8 **)(node + 4) = *(u8 **)((u8 *)arg0 + 0xC);
+        *(u8 **)((u8 *)arg0 + 0xC) = node;
+        *(s32 *)((u8 *)arg0 + 8) = *(s32 *)((u8 *)arg0 + 8) - 1;
+        func_0043f9c8(arg1, 0, *(s32 *)arg0);
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d1c0);
+#endif
 // FUN_0029D270
 void func_0029d270(ScrScriptWork* s)
 {

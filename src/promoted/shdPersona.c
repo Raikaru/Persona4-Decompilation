@@ -1657,11 +1657,41 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
 // FUN_0011C930
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
 
-// FUN_0011CAF0
+/* measured: nd 19 (obj 120B vs window 128B). The residual is retail placing
+   the inner body OUT OF LINE -- a positive `bne $a0,$v1` to the body plus a
+   shared `b` trampoline to the epilogue -- where b210 collapses that into one
+   inverted `beq` straight to the epilogue, saving the 8 bytes.
+
+   Worth keeping: `!!(flags & 0x800) != 0` is what reproduces retail's
+   `sltu $v1,$zero,$v1` booleanization of the flag test, taking this from
+   nd 25 to 19. A plain `!= 0`, a 0/1 boolean local, `&&`, and a bitwise `&`
+   of two comparisons all fail to booleanize (25, 25, 25, 24) -- b210 folds
+   the comparison into the branch unless the double negation forces it.
+
+   Measured and rejected for the trampoline: empty-then/else, switch on the
+   boolean, switch on the raw value with an explicit `case -1: break`, `!!` on
+   both conditions, early returns, and opt_rebuildconditionals / schedule /
+   opt_common_subs off -- 14 spellings, none below 19. Branch-collapse floor. */
+// FUN_0011CAF0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0011caf0(u8 *arg0)
+{
+    u8 *p;
+    u32 flags;
+
+    p = *(u8 **)(arg0 + 0x38);
+    flags = *(u32 *)(p + 0x534);
+    if (!!(flags & 0x800) != 0) {
+        if (*(s8 *)(p + 0x88) != -1) {
+            if (func_00115020(p + 0x84, (flags & 0x100000) != 0) != 0) {
+                func_0045af60(0, 0, 0, 0);
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
-
-
-
+#endif
 // FUN_0011CB70
 s32 func_0011cb70(u8 *arg0, u8 *arg1)
 {
