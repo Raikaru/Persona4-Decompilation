@@ -16370,7 +16370,7 @@
       "target_path": "build/objdiff/target/Kernel/sdkLbox/00470970.o",
       "base_path": "build/objdiff/base/Kernel/sdkLbox/00470970.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

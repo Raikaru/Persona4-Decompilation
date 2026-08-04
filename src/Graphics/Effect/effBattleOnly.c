@@ -41,6 +41,13 @@ u8 *func_004b50f0(u16 id, s32 arg1);
 
 
 
+/* REACHABLE, NOT YET REDUCIBLE. tools/permute_ast.py reaches byte-exact here;
+   sweep it with `tools/permute_sweep.py --engine ast --time 150 --targets <json>`.
+   The winning source is not committable -- uninitialized reads, self-assignments,
+   comma operators and up to 21 dead temps. Reducing it to honest C is unfinished
+   work, not a floor: the same sweep produced a ONE-LINE honest fix for sdkLbox
+   func_00470970, which carried a firmer floor verdict than this one. Start from the
+   saved region under build/permute/, not from scratch. */
 // FUN_004B50F0 NONMATCHING
 /* measured floor: nd 13/272 (8 words). b210 colours the u16 check mask into
  * $s0 and the table base into $a0 (retail: mask into $v0, base into $v1) and

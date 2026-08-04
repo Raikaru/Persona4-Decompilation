@@ -111,14 +111,19 @@ INCLUDE_ASM("asm/nonmatchings/sdkLbox", func_004704d0);
 
    Note: do NOT #include "sdktask.h" in this file to reach `((SdkTask *)arg0)->work`
    -- it conflicts with the local declarations and breaks the whole TU.
-   Saved-register colouring floor. */
-// FUN_00470970 NONMATCHING
-#ifdef NON_MATCHING
+/* SOLVED. This carried an nd-18 "saved-register colouring floor" verdict backed by
+   seven hand spellings, and tools/permute.py re-confirmed 18 after 1,687 compiles.
+   tools/permute_ast.py cracked it, and the essential change reduces to one honest
+   line: materialize the node pointer as an s32 BEFORE the list walk and store that
+   local afterwards, rather than casting inline at the store. That single hoist
+   fixes the whole $s0/$s1 mirror. Nothing else about the body changed. */
+// FUN_00470970
 s32 func_00470970(u8 *arg0, u8 *arg1)
 {
     u8 *work;
     u8 *node;
     s32 *p;
+    s32 handle;
 
     work = *(u8 **)(arg0 + 0x38);
     func_0044ea90(D_00713118, 0x37D);
@@ -130,19 +135,17 @@ s32 func_00470970(u8 *arg0, u8 *arg1)
     *(s32 *)(node + 4) = 0;
     *(s32 *)node = *(s32 *)(work + 0x148);
     *(s32 *)(work + 0x148) = *(s32 *)(work + 0x148) + 1;
+    handle = (s32)node;
     p = (s32 *)(work + 0x144);
     while (*p != 0) {
         *(s32 *)(node + 0x224) = *p;
         p = (s32 *)(*p + 0x228);
     }
-    *p = (s32)node;
+    *p = handle;
     *(s32 *)(work + 0x140) = *(s32 *)(work + 0x140) + 1;
     func_004704d0(arg0);
     func_00453c80(work + 0x164);
     *(s32 *)(work + 0x140) = func_00453e10(work + 0x164);
     return *(s32 *)node;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkLbox", func_00470970);
-#endif
 
