@@ -1,5 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
+extern void func_0015a630();
+extern void func_00174c20();
 extern void func_0015f660();
 
 extern void (*jtbl_008873EC[])(u8 *arg0);
@@ -56,6 +58,20 @@ s32 func_00176220(void)
 void func_00176280(void)
 {
     func_0015f660();
+}
+
+// FUN_00176850
+s32 func_00176850(void)
+{
+    func_0015a630();
+    return 1;
+}
+
+// FUN_00178560
+s32 func_00178560(void)
+{
+    func_00174c20();
+    return 1;
 }
 
 // FUN_001788E0
