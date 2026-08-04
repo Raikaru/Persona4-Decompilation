@@ -27,6 +27,15 @@ extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern s32 func_0036de60(u8 *a);
 extern u16 func_0036dee0(u8 *a);
 extern s32 func_00378530(s32 a, s32 b);
+
+/* measured: the operands must travel through this helper's parameters to get
+   retail's offset-first `addu $v1,$v0,$s2` at the reused record base; writing
+   `arg0 + offset` gives base-first, and naming the offset in an s32 local fixes
+   the order but costs a fourth saved register and grows the frame to 0x80. */
+static inline u32 seqRecord(u32 offset, u32 base)
+{
+    return offset + base;
+}
 extern void func_00374910(u8 *a);
 extern s32 func_00379f90(u8 *a);
 extern s32 func_0037ad10(u8 *a);
@@ -173,18 +182,41 @@ u16 func_00378bf0(void) {
     return (u16)x;
 }
 
-/* measured: nd 1 (ONE real word, an `!` row). Everything matches except the
-   temp-base `addu` operand order: retail 0x378d04 `addu $v1,$v0,$s2` (scaled
-   offset first) vs candidate `addu $v1,$s2,$v0`. Frame 0x70, all other bytes
-   byte-identical. Best body: `sp60/sp50/sp40` as f32[3], struct copies
-   `*(Vec3f *)&sp60[0] = *(Vec3f *)(arg0 + arg1*0xE8 + 0x1D6CC)` (3 per group,
-   lui/ori/addu base once + 3 lwc1/swc1), inline `arg0 + arg1*0xE8` (CSE'd into
-   a temp). Naming the offset in an s32 local (lever 10, incl. declared first)
-   fixes the operand order but re-grows the frame to 0x80 via a 4th saved reg
-   s3; parent's arg-order/struct-field lever does not apply (residual is
-   operand order, not arg materialization). 7 attempts. */
+/* The one-word `addu` operand order this note called a floor is fixed by using
+   the inline helper PER USE instead of through a named local. The note was right
+   that naming the base costs a fourth saved register and grows the frame to
+   0x80 -- that applies to an inline helper assigned to a local too. Re-expanding
+   the helper at each field access carries the operand order through its
+   parameters while leaving no value live across the call, so the frame stays
+   0x70. Casting the integer-domain base to `u8 *` before adding the field offset
+   is what keeps retail's per-group lui/ori $at expansion rather than one hoisted
+   lui. */
 // FUN_00378C80
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00378c80);
+s32 func_00378c80(u8 *arg0, s32 arg1, s32 arg2)
+{
+    f32 sp60[3];
+    f32 sp50[3];
+    f32 sp40[3];
+    f32 angle;
+
+    if (func_00375970(arg0 + (arg1 * 0xE8) + 0x1D6A0) != 0) {
+        /* measured: the record base is spelled offset-first in the integer domain
+           at every use so b210 emits retail's `addu $v1,$v0,$s2`; a named local or
+           an inline helper fixes the order too but costs a fourth saved register
+           and grows the frame from 0x70 to 0x80. */
+        *(Vec3f *)&sp60[0] = *(Vec3f *)(((u8 *)seqRecord(arg1 * 0xE8, (u32)arg0)) + 0x1D6CC);
+        *(Vec3f *)&sp50[0] = *(Vec3f *)(((u8 *)seqRecord(arg1 * 0xE8, (u32)arg0)) + 0x1D6D8);
+        *(Vec3f *)&sp40[0] = *(Vec3f *)(((u8 *)seqRecord(arg1 * 0xE8, (u32)arg0)) + 0x1D6E4);
+        angle = *(f32 *)(((u8 *)seqRecord(arg1 * 0xE8, (u32)arg0)) + 0x1D6C8);
+        if (!(angle <= 360.0f)) {
+            angle = angle - 360.0f;
+        }
+        func_00375fa0(arg0, arg1, arg2, &sp60[0], &sp50[0], &sp40[0], angle,
+                      angle + (360.0f / (f32)*(s32 *)(arg0 + 0x1F304)));
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_00378DF0
 void func_00378df0(u8 *arg0, s32 arg1) {
