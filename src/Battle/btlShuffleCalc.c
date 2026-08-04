@@ -32,27 +32,59 @@ typedef struct { f32 x, y, z; } ShuffleVec3;
 typedef struct { f32 v[9]; s32 flag; } ShuffleOut;
 f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
 
-/* measured: re-tested this wave — nd 2 confirmed (1 real word + 1 pad).
-   retail's `mul.s $f1,$f0,$f1` (const × value) vs mwcc b210's
-   `mul.s $f1,$f1,$f0` (value × const) at the 60.0f*var_3 multiply — the ONLY
-   differing word once the source uses a value-first inline helper
-   a value-first inline multiply ((f32)var_3 * 60.0f) plus raw/temp_2=raw+0x68 base hoist (retail
-   re-issues `sra $v1,$a0,1` for the -320.0f divisor instead of CSE-ing the
-   shift; the assert mul needs a value-first inline multiply (value * 100.0f) to match, plain
-   `value*100.0f` swaps ITS operands). Flipping the helper to const-first,
-   plain (60.0f*(f32)var_3), a pre-materialized f32 local, or a two-statement
-   mul-then-div makes the constant load hoist before the cvt and re-colors
-   var_3 from $v1 to $a1 (nd 51). Commutative FP-mul scheduling floor. */
-/* re-measured wave 14: the m2c draft (src/generated/code1_0037.c) round-half
-   spelling (`var_3 = sp30>>1; if (sp30<0) var_3 = (s32)(sp30+1)>>1;`) with a
-   raw base hoist reproduces the same nd-51 const-first pathology — the nd-2
-   spelling (value-first inline mul + exact base hoist) remains untranscribed.
-   Confirmed floor. */
-// FUN_00371260
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371260);
-// FUN_003713B0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003713b0);
+/* SOLVED -- this was recorded here as a "Commutative FP-mul scheduling floor"
+   and re-confirmed as a floor through wave 14. The nd-2 spelling those notes
+   called untranscribed is the body below, and the LAST word came from a named
+   f32 constant local assigned before the base hoist:
 
+       k = 100.0f;
+       temp_16 = func_00457120() + 0x68;
+       if (*(f32 *)temp_16 * k <= 0.0f) { ... }
+
+   Retail materializes the constant into the LOWER FP register and loads the
+   value into the higher one; with the literal written inline b210 does the
+   reverse and emits `mul.s $f1,$f1,$f0` where retail has `mul.s $f1,$f0,$f1`.
+   A named local pins the materialization order. The identical one-line change
+   also matched func_003713b0, its 84.0f twin. Keep `s32 sp30[8]` for the 0x50
+   frame with the slot at 0x30, a `u8 *` base hoist, `sp30[0] / 2` for the
+   rounded halving in the scale numerator and `sp30[n] >> 1` in the two
+   perspective terms -- retail genuinely uses both halving forms. */
+// FUN_00371260
+void func_00371260(u8 *arg0) {
+    s32 sp30[8];
+    u8 *temp_16;
+    f32 scale;
+    f32 k;
+
+    k = 100.0f;
+    temp_16 = func_00457120() + 0x68;
+    if (*(f32 *)temp_16 * k <= 0.0f) {
+        func_0046d730(D_0064E9C0, 0x109);
+    }
+    func_003e8970(&sp30[0], func_003e89c0());
+    scale = (60.0f * (f32)(sp30[0] / 2)) / (k * *(f32 *)temp_16);
+    *(f32 *)(arg0 + 0) = scale * (*(f32 *)temp_16 * (1.0f + (-320.0f / (f32)(sp30[0] >> 1))));
+    *(f32 *)(arg0 + 4) = scale * (*(f32 *)(temp_16 + 4) * (1.0f + (-224.0f / (f32)(sp30[1] >> 1))));
+    *(f32 *)(arg0 + 8) = scale;
+}
+// FUN_003713B0
+void func_003713b0(u8 *arg0) {
+    s32 sp30[8];
+    u8 *temp_16;
+    f32 scale;
+    f32 k;
+
+    k = 84.0f;
+    temp_16 = func_00457120() + 0x68;
+    if (*(f32 *)temp_16 * k <= 0.0f) {
+        func_0046d730(D_0064E9C0, 0x109);
+    }
+    func_003e8970(&sp30[0], func_003e89c0());
+    scale = (60.0f * (f32)(sp30[0] / 2)) / (k * *(f32 *)temp_16);
+    *(f32 *)(arg0 + 0) = scale * (*(f32 *)temp_16 * (1.0f + (-320.0f / (f32)(sp30[0] >> 1))));
+    *(f32 *)(arg0 + 4) = scale * (*(f32 *)(temp_16 + 4) * (1.0f + (-224.0f / (f32)(sp30[1] >> 1))));
+    *(f32 *)(arg0 + 8) = scale;
+}
 // FUN_00371500
 void func_00371500(u8 *arg0, f32 fparg0, u8 *arg1) {
     s32 sp50[8];

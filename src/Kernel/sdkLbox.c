@@ -13,6 +13,9 @@ extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
 extern void func_004535c0(u8 *a, s32 b, s32 c);
 extern void func_00453860(u8 *a, s32 b, s32 c, s32 d, s32 e);
 extern u8 D_00713118[];
+extern void func_00442830(u8 *dst, u8 *src);
+extern void func_00453c80(u8 *arg0);
+extern s32 func_00453e10(u8 *arg0);
 extern u8 D_00713128[];
 extern void func_0046f2b0(u8 *arg0);
 extern void func_00470210(u8 *arg0);
@@ -94,6 +97,52 @@ void func_00470490(u8 *arg0, s32 arg1, s32 arg2) {
 // FUN_004704D0
 INCLUDE_ASM("asm/nonmatchings/sdkLbox", func_004704d0);
 
-// FUN_00470970
+/* measured: nd 18, obj 288B == window 288B, and every one of those words is the
+   SAME $s0/$s1 swap -- retail colours `work` into $s0 and the allocation into
+   $s1, b210 does the reverse. Logic, frame, call sequence and the list-walk loop
+   all match exactly.
+
+   Unlike func_00470280 above (and sdkWrap func_004672c0, sdkUttmx func_00463d60),
+   this mirror is NOT declaration-order drivable: node-first, p-first,
+   work-last, and the initialised-declaration idiom this file uses elsewhere
+   (`u8 *work = *(u8 **)(arg0 + 0x38);`) all score 18. Retail gives $s0 to the
+   more heavily used of the two pointers; b210 gives it to whichever is assigned
+   first, and no source ordering flips that here. Seven spellings.
+
+   Note: do NOT #include "sdktask.h" in this file to reach `((SdkTask *)arg0)->work`
+   -- it conflicts with the local declarations and breaks the whole TU.
+   Saved-register colouring floor. */
+// FUN_00470970 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00470970(u8 *arg0, u8 *arg1)
+{
+    u8 *work;
+    u8 *node;
+    s32 *p;
+
+    work = *(u8 **)(arg0 + 0x38);
+    func_0044ea90(D_00713118, 0x37D);
+    node = D_008873F4[0](1, 0x22C, 0x40000);
+    if (node == NULL) {
+        func_0046d730(D_00713118, 0x37F);
+    }
+    func_00442830(node + 8, arg1);
+    *(s32 *)(node + 4) = 0;
+    *(s32 *)node = *(s32 *)(work + 0x148);
+    *(s32 *)(work + 0x148) = *(s32 *)(work + 0x148) + 1;
+    p = (s32 *)(work + 0x144);
+    while (*p != 0) {
+        *(s32 *)(node + 0x224) = *p;
+        p = (s32 *)(*p + 0x228);
+    }
+    *p = (s32)node;
+    *(s32 *)(work + 0x140) = *(s32 *)(work + 0x140) + 1;
+    func_004704d0(arg0);
+    func_00453c80(work + 0x164);
+    *(s32 *)(work + 0x140) = func_00453e10(work + 0x164);
+    return *(s32 *)node;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkLbox", func_00470970);
+#endif
 
