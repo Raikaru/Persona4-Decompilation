@@ -245,17 +245,17 @@ u8* func_0029d120(ScrPool* pool)
     return elem + 8;
 }
 
-/* measured: nd 6 (obj 164B vs window 176B), of which 3 words are window
-   padding, so the residual is THREE words: retail materializes the third
-   argument (`lw $a2, ($s1)`) BEFORE the two `move`s into $a0/$a1, while b210
-   emits the two moves first and the load last. Logic, frame, registers and
-   every other instruction match.
+/* REACHABLE, NOT YET REDUCIBLE. tools/permute_ast.py reaches byte-exact here;
+   sweep it with `tools/permute_sweep.py --engine ast --time 150 --targets <json>`.
+   The winning source is not committable -- uninitialized reads, self-assignments,
+   comma operators and up to 21 dead temps. Reducing it to honest C is unfinished
+   work, not a floor: the same sweep produced a ONE-LINE honest fix for sdkLbox
+   func_00470970, which carried a firmer floor verdict than this one. Start from the
+   saved region under build/permute/, not from scratch.
 
-   Measured and rejected: hoisting the third argument into an s32 local before
-   the call, hoisting it above the preceding decrement store, and
-   `#pragma schedule off` / `#pragma opt_propagation off` -- all five spellings
-   score 6. b210 reschedules the argument setup regardless of source order.
-   Call-argument scheduling floor. */
+   Previously recorded, still true of the nd-6 body below: retail materializes the
+   third call argument before the two moves into $a0/$a1, and five hand spellings
+   including opt_propagation off all score 6. */
 // FUN_0029D1C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0029d1c0(void *arg0, void *arg1)
