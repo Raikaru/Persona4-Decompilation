@@ -202,9 +202,16 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
                   (void (*)(u8 *))func_0028f360, p);
 }
 
-/* measured: retail moves the handle to $a0 and then branches on $v0; mwcc b210 coalesces
-   the handle into $a0 and branches on that instead. Same instruction sequence, one word
-   apart. Early-return and pointer-typed spellings both give the identical nd 3. */
+/* measured: retail moves the handle to $a0 and then branches on $v0; mwcc b210
+   coalesces the handle into $a0 and branches on that instead. Exactly ONE real
+   word differs -- of the nd 3, two words are the window's trailing padding
+   (obj 56B vs window 64B).
+
+   Spellings measured, all nd 3: early return, pointer-typed handle, and four
+   attempts at giving the test and the argument different CSE keys so the value
+   would need two registers -- `(u32)h != 0`, `((u32)h & 0xFFFFFFFF) != 0`, and
+   passing `(void *)h` while testing `h` as s32. b210 coalesces regardless.
+   Register-coalescing floor. */
 // FUN_0028F4F0
 INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028f4f0);
 
