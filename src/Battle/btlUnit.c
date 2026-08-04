@@ -1,4 +1,13 @@
 #include "type.h"
+
+extern void func_004787e0(); /* old-style: retail jals with $a1 still holding the compared coordinate */
+extern s32 func_00477c40(u16 arg0, u16 arg1, s32 arg2);
+extern u8 *func_00478750(s32 arg0);
+extern void func_0047d110(u16 arg0, u16 arg1, void *arg2);
+extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
+extern s32 func_00454a60(void *arg0, s32 arg1);
+extern u8 D_005F6D00[];
+extern u8 iGpffffa0b0;
 #include "include_asm.h"
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
@@ -281,8 +290,49 @@ u32 func_0019df20(void* work);
 void func_0019e130(BtlUnitPacketCountRef* work);
 
 // FUN_0019ACD0
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019acd0);
+void func_0019acd0(u8 *arg0)
+{
+    u8 sp30[0x80];
+    u8 *p;
+    u8 *obj;
+    s32 flags;
+    u16 coord;
+    s32 made;
 
+    p = *(u8 **)arg0;
+    *(u16 *)(p + 0xA0) = *(u16 *)(p + 0xA0) + 1;
+    if (!(*(u16 *)(arg0 + 8) & 0x200)) {
+        obj = *(u8 **)(p + 0xA00);
+        if (obj != NULL) {
+            coord = *(u16 *)(arg0 + 4);
+            if (coord == *(u16 *)(obj + 0xD4)) {
+                coord = *(u16 *)(arg0 + 6);
+                if (coord == *(u16 *)(obj + 0xD6)) {
+                    return;
+                }
+            }
+            func_004787e0(obj);
+            *(u8 **)(p + 0xA00) = NULL;
+        }
+        made = func_00477c40(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
+        if (made != 0) {
+            *(u8 **)(p + 0xA00) = func_00478750(made);
+            flags = *(s32 *)(p + 0x98) | 2;
+            *(s32 *)(p + 0x98) = flags;
+            *(s32 *)(p + 0x98) = flags | 1;
+            return;
+        }
+    }
+    if (!(*(u16 *)(arg0 + 8) & 0x10)) {
+        func_0047d110(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), &sp30[0]);
+        func_00440b68(&iGpffffa0b0, D_005F6D00, 0xD98);
+        *(s32 *)(arg0 + 0xC) = func_00454a60(&sp30[0], 0);
+        *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) | 1;
+    }
+    if (!(*(u16 *)(arg0 + 8) & 0x200)) {
+        *(s32 *)(p + 0x98) = *(s32 *)(p + 0x98) & ~2;
+    }
+}
 // FUN_0019AE20
 INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019ae20);
 // FUN_0019E150
