@@ -385,6 +385,14 @@ s32 func_00232aa0(s32 arg0)
    and masks arg1 last; mwcc b210 sinks the lw after the chain into $v0.
    Tried: inline, base-local (`u8 *base = iGpffffb3c4;`), elem-pointer
    local, chain-first/base-first addition order -- all nd 9. */
+/* measured this pass: the load-sinking half IS the same defect func_0023e3e0
+   solved, and `#pragma opt_propagation off` plus nested PTDatCalcOffsetAdd calls
+   (offset-first for both the *0x3C chain and the arg1 mask) is the recipe that
+   worked there. It could not be applied here because the recorded nd-9 body is
+   not reconstructable from this note: a fresh reconstruction of the guards and
+   tail lands at nd 68 (74 with the pragma), so the combo has not actually been
+   tested against the good body. Whoever holds a body at nd 9 should try it --
+   do NOT re-derive from scratch. */
 // FUN_00232B40
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 
