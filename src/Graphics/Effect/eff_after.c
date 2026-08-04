@@ -456,8 +456,65 @@ void func_004bad70(u8 *data, EffAfterVec *position, EffAfterVec *normal) {
 // FUN_004BB1D0
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
 
-// FUN_004BC1E0
+/* measured: nd 34 from 49 (obj 288B vs window 304B). Logic confirmed, including
+   that the two ring-index expressions have DIFFERENT shapes in retail --
+   `-2 - arg1 + field0xC` for the first (addiu -2, subu, then addu the field) and
+   `(field0xC - 1) - arg1` for the second -- and that both wrap by adding
+   field0x8 when negative.
+
+   Two things earned the 49 -> 34: hoisting `arg0 + arg2 * 4` into a local, and
+   loading all three floats into temps BEFORE storing any of them, which is
+   retail's batch shape (3x lwc1 then 3x swc1); written as three
+   load-store pairs b210 interleaves them.
+
+   Residual: the three float temps are register-rotated against retail
+   ($f2/$f1/$f0 assigned to offsets +4/+8/+0 rather than +0/+4/+8), one
+   commutative `addu` has its operands swapped, and retail RECOMPUTES
+   `arg2 * 4 + arg0` for the second access instead of reusing the hoisted base.
+   Measured and rejected: inlining the address at both uses (49, worse -- b210
+   then emits a spurious `addiu $a0, $a1, 0x10`), `arg2 * 4 + arg0` operand
+   order, and declaring the temps in reverse (both 34). Register-rotation
+   floor. */
+// FUN_004BC1E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    f32 v[3];
+    s32 i;
+    f32 *p;
+    u8 *base;
+    f32 a;
+    f32 b;
+    f32 c;
+
+    if (arg1 == *(s32 *)(arg0 + 8) - 1) {
+        func_0046d730(D_007146E0, 0x6F8);
+    }
+    i = -2 - arg1 + *(s32 *)(arg0 + 0xC);
+    if (i < 0) {
+        i += *(s32 *)(arg0 + 8);
+    }
+    base = arg0 + arg2 * 4;
+    p = (f32 *)(*(u8 **)(base + 0x10) + i * 0xC);
+    a = p[0];
+    b = p[1];
+    c = p[2];
+    v[0] = a;
+    v[1] = b;
+    v[2] = c;
+    i = *(s32 *)(arg0 + 0xC) - 1 - arg1;
+    if (i < 0) {
+        i += *(s32 *)(arg0 + 8);
+    }
+    p = (f32 *)(*(u8 **)(base + 0x10) + i * 0xC);
+    v[0] -= p[0];
+    v[1] -= p[1];
+    v[2] -= p[2];
+    func_003e4180(v);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bc1e0);
+#endif
 
 // FUN_004BC310
 f32 func_004bc310(u8 *arg0, s32 arg1) {
