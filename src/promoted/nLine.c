@@ -488,8 +488,54 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
 // FUN_0034DDF0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
-// FUN_0034E0B0
+/* measured: nd 87 from 101. Logic is complete and every constant is confirmed
+   (480.0f, 640.0f, 448.0f; the four quad corners are 0x690/0x6D0/0x710/0x750).
+
+   The one real win: `#pragma opt_common_subs off` (101 -> 87). Without it b210
+   caches `y + 480.0f` -- shared by calls 2 and 3 -- in an EIGHTH float saved
+   register, so the prologue pushes $f20..$f27 where retail pushes $f20..$f26 and
+   every subsequent word is offset by one. Retail recomputes the corner offsets
+   per call, including re-materializing the constant.
+
+   What remains is three small residuals repeated across the four calls: `x` and
+   `z` are transposed ($f20 vs $f22), arg0 and the alpha byte are transposed
+   ($s0 vs $s1), and the commutative `add.s` operands come out reversed
+   ($f0 + $f21 rather than $f21 + $f0).
+
+   Measured and rejected: four declaration permutations of {scale, x, y, z,
+   alpha} (all 91, worse), computing z first (94), computing x first (90), and
+   alpha declared last (101). The callee signatures are already confirmed
+   correct -- func_0034f0d0 is (u8*, f32x4, u8x4), func_0034e360 returns s16.
+   Float-register colouring floor. */
+// FUN_0034E0B0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
+{
+    u8 alpha;
+    f32 z;
+    f32 y;
+    f32 x;
+    f32 scale;
+
+    alpha = *(u8 *)(arg0 + 0x994);
+    y = fparg1 + *(f32 *)(arg0 + 0x9A0);
+    x = fparg0 + *(f32 *)(arg0 + 0x99C);
+    z = D_008872F8[0] - D_0088467C[0];
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    func_0034f0d0(arg0 + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, alpha);
+    func_0034f0d0(arg0 + 0x6D0, x, y + 480.0f, z, scale, 0xFA, 0xE3, 0x27, alpha);
+    func_0034f0d0(arg0 + 0x710, x + 640.0f, y + 480.0f, z, scale, 0xFA, 0xE3, 0x27,
+                  alpha);
+    func_0034f0d0(arg0 + 0x750, x + 640.0f, y, z, scale, 0xFA, 0xE3, 0x27, alpha);
+    *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, fparg0, fparg1, 640.0f, 448.0f);
+    func_0034ee90(arg0, fparg0, fparg1, fparg2);
+}
+#pragma opt_common_subs on
+#else
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e0b0);
+#endif
+
 // FUN_0034E290
 s16 func_0034e290(u8 *arg0, s32 arg1) {
     s16 val;
