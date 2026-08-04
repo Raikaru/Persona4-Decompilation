@@ -122,6 +122,13 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
 }
 
 
+/* REACHABLE, NOT YET REDUCIBLE. tools/permute_ast.py reaches byte-exact here;
+   sweep it with `tools/permute_sweep.py --engine ast --time 150 --targets <json>`.
+   The winning source is not committable -- uninitialized reads, self-assignments,
+   comma operators and up to 21 dead temps. Reducing it to honest C is unfinished
+   work, not a floor: the same sweep produced a ONE-LINE honest fix for sdkLbox
+   func_00470970, which carried a firmer floor verdict than this one. Start from the
+   saved region under build/permute/, not from scratch. */
 // FUN_004B5800 NONMATCHING. Update linked render matrices and cache their translations.
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
  * Honest C: request = work->requestFlags; offset = i * 8; inlined at both

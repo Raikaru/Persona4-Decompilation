@@ -4253,6 +4253,7 @@
       "00470430",
       "00470490",
       "00470810",
+      "00470970",
       "00470a90",
       "00470bd0",
       "00470c10",
@@ -5370,23 +5371,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 4111,
+    "count": 4112,
     "duplicate_rows": 0,
     "known_rows": 5068,
-    "matched_body_bytes": 601556,
-    "percent": 31.415,
+    "matched_body_bytes": 601844,
+    "percent": 31.423,
     "unique_known_addresses": 5068
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "C:\\tmp\\p4_link32.json",
+    "linked_report": "C:\\tmp\\p4_link34.json",
     "raw_rows": 5068,
-    "verifier_report": "C:\\tmp\\p4_u4.json"
+    "verifier_report": "C:\\tmp\\p4_u9.json"
   },
   "status_counts": {
-    "ASM": 957,
-    "MATCH": 4111
+    "ASM": 956,
+    "MATCH": 4112
   },
   "total": 13086
 }

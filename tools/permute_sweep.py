@@ -120,17 +120,18 @@ def splice(path: Path, function: str, region):
     return True
 
 
-def run_one(target, budget, outdir):
+def run_one(target, budget, outdir, engine="text"):
     path = REPO / target["file"]
     original = activate(path, target["function"])
     if original is None:
         return {**target, "status": "SKIP", "reason": "could not activate the body"}
     out = outdir / f"{path.stem}.{target['function']}.match.c"
+    tool = "permute_ast.py" if engine == "ast" else "permute.py"
     try:
         proc = subprocess.run(
-            [sys.executable, str(TOOLS / "permute.py"), str(path), target["function"],
+            [sys.executable, str(TOOLS / tool), str(path), target["function"],
              "--time", str(budget), "--out", str(out)],
-            cwd=str(REPO), capture_output=True, text=True, timeout=budget + 120)
+            cwd=str(REPO), capture_output=True, text=True, timeout=budget + 180)
         text = proc.stdout + proc.stderr
         cracked = "MATCH at iter" in text or "match=True" in text
         score = None
@@ -145,6 +146,13 @@ def run_one(target, budget, outdir):
             if not out.is_file():
                 path.write_bytes(original)
                 return {**target, "status": "SKIP", "reason": "no --out region written"}
+            # An AST hit is heavily mutated (dead temps, empty ifs) and is NOT
+            # committable as-is; restore and report so it can be reduced by hand
+            # from the saved region. A text hit is a plain reordering and can be
+            # spliced straight in.
+            if engine == "ast":
+                path.write_bytes(original)
+                return {**target, "status": "CRACKED_AST", "score": 0, "out": str(out)}
             if not splice(path, target["function"], out.read_text().rstrip("\n").split("\n")):
                 path.write_bytes(original)
                 return {**target, "status": "SKIP", "reason": "could not splice the winner"}
@@ -168,6 +176,9 @@ def main():
     ap.add_argument("--json", type=Path, help="write the sweep report here")
     ap.add_argument("--limit", type=int, default=0, help="only the first N targets")
     ap.add_argument("--list", action="store_true", help="print targets and exit")
+    ap.add_argument("--engine", choices=("text", "ast"), default="text",
+                    help="text = permute.py (fast, commit-ready hits); "
+                         "ast = permute_ast.py (stronger, hits need reducing by hand)")
     args = ap.parse_args()
 
     targets = json.loads(args.targets.read_text()) if args.targets else discover_targets()
@@ -189,24 +200,29 @@ def main():
     results, started = [], time.time()
 
     def do_group(group):
-        return [run_one(t, args.time, args.outdir) for t in group]
+        return [run_one(t, args.time, args.outdir, args.engine) for t in group]
 
     with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
         futures = [pool.submit(do_group, g) for g in by_file.values()]
         for fut in as_completed(futures):
             for row in fut.result():
                 results.append(row)
-                if row["status"] in ("CRACKED", "TIMEOUT", "SKIP"):
+                if row["status"] in ("CRACKED", "CRACKED_AST", "TIMEOUT", "SKIP"):
                     print(f"[{row['status']}] {row['function']} ({row['file']})", flush=True)
 
-    cracked = [r for r in results if r["status"] == "CRACKED"]
+    cracked = [r for r in results if r["status"].startswith("CRACKED")]
     print(f"\nswept {len(results)} function(s) in {time.time()-started:.0f}s; "
           f"cracked {len(cracked)}")
     for r in cracked:
         print(f"  CRACKED {r['function']}  {r['file']}")
     if cracked:
-        print("\nRe-run tools/verify.py before committing: a permuter hit is a byte "
-              "match, not a semantic proof.")
+        if any(r["status"] == "CRACKED_AST" for r in cracked):
+            print("\nAST hits are left OUT of the tree: their source carries dead temps and "
+                  "empty ifs.\nReduce each saved region to honest C by hand, then confirm "
+                  "with tools/verify.py.")
+        else:
+            print("\nRe-run tools/verify.py before committing: a permuter hit is a byte "
+                  "match, not a semantic proof.")
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(json.dumps(results, indent=2) + "\n")
