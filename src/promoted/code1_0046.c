@@ -1,4 +1,6 @@
 #include "type.h"
+extern s32 iGpffffb034;
+extern s32 iGpffffbaf8;
 
 extern u8 *(*D_008873F8[])(...);
 extern void memset(void *dst, s32 value, s32 size);
@@ -68,6 +70,18 @@ void func_004680c0(u8 *arg0)
 }
 
 
+
+// FUN_0046A1E0
+s32 func_0046a1e0(void)
+{
+    return iGpffffb034;
+}
+
+// FUN_0046A2C0
+s32 func_0046a2c0(void)
+{
+    return iGpffffbaf8;
+}
 
 // FUN_0046A2D0
 void func_0046a2d0(s32 arg0, s32 arg1)

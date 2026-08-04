@@ -1,4 +1,5 @@
 #include "type.h"
+extern s32 iGpffffb4bc;
 extern void func_0026d810();
 
 extern u8 *func_00452560(void);
@@ -34,6 +35,12 @@ void func_00266b70(void) {
 void func_0026dc30(void)
 {
     func_0026d810();
+}
+
+// FUN_0026E350
+s32 func_0026e350(void)
+{
+    return iGpffffb4bc;
 }
 
 // FUN_0026E360
