@@ -221,6 +221,16 @@ def make_metrics(report: Any, windows: dict[int, int | None], linked_report: dic
                "linked": {"count": len(linked_addresses), "percent": percentage(len(linked_addresses), total),
                           "addresses": linked_addresses,
                           "asm_fallbacks_in_linked_objects": asm_fallback_linked},
+               # Every window is either under test (some src/*.c carries a `// FUN_`
+               # marker for it, so verify.py scores it) or it is supplied to the link
+               # as raw retail bytes carved from image.bin. Unscanned windows are not
+               # "nearly done" work: nobody has written a line of C for them, and they
+               # are invisible to every per-function status count above. Reporting them
+               # keeps the remaining effort measured against all `total` windows rather
+               # than against the scanned subset.
+               "coverage": {"scanned": unique_known, "scanned_percent": percentage(unique_known, total),
+                            "unscanned": total - unique_known,
+                            "unscanned_percent": percentage(total - unique_known, total)},
                "status_counts": status_counts, "hashes": hashes, "build_succeeded": build_succeeded}
     return metrics, badge("matching", len(matching_addresses), total), badge("linked", len(linked_addresses), total)
 
@@ -325,6 +335,10 @@ def render_status(metrics: dict, recovery: dict | None) -> str:
         f"| Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `{hashes['image_sha1']}` |",
         f"| Canonical function windows | {total:,}; all mapped to C or owned retail assembly |",
         f"| Byte-identical functions | {matching['count']:,} ({matching['percent']}% of windows) |",
+        f"| Under test (a `// FUN_` marker scores them) | {metrics['coverage']['scanned']:,} "
+        f"({metrics['coverage']['scanned_percent']}% of windows) |",
+        f"| Not yet under test, supplied as retail bytes | {metrics['coverage']['unscanned']:,} "
+        f"({metrics['coverage']['unscanned_percent']}% of windows) |",
         f"| In byte-exact linked C objects | {linked['count']:,} ({linked['percent']}% of windows), "
         f"with {linked['asm_fallbacks_in_linked_objects']:,} assembly fallbacks still inside those objects |",
     ]

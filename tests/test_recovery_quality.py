@@ -176,6 +176,8 @@ class StatusTableTests(unittest.TestCase):
         "matching": {"count": 3419, "percent": 26.131},
         "linked": {"count": 977, "percent": 7.467,
                    "asm_fallbacks_in_linked_objects": 814},
+        "coverage": {"scanned": 4864, "scanned_percent": 37.174,
+                     "unscanned": 8220, "unscanned_percent": 62.826},
     }
     RECOVERY = {
         "matched_first_party": 2801, "named": 155, "typed": 1163,
@@ -188,6 +190,10 @@ class StatusTableTests(unittest.TestCase):
         body = progress.render_status(self.METRICS, self.RECOVERY)
         for expected in ("13,084", "3,419", "977", "814", "2,801", "155", "1,163"):
             self.assertIn(expected, body)
+        # the table must not hide how much is still handed to the link as retail
+        # bytes: measuring against the scanned subset alone reads as near-done
+        self.assertIn("8,220", body)
+        self.assertIn("62.826", body)
 
     def test_table_separates_matching_from_recovery(self) -> None:
         body = progress.render_status(self.METRICS, self.RECOVERY)
