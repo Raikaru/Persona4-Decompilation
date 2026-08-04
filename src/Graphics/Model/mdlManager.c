@@ -2,6 +2,10 @@
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
 #include "type.h"
+/* measured: index-first addu operand-order carrier (lever 3). Kept at top of
+   file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
+   does not emit a standalone symbol. */
+static inline u32 addOff(u32 offset, u32 base) { return offset + base; }
 extern f32 iGpffff8040;
 extern f32 fGpffff809c;
 extern u8 D_00713180[];
@@ -249,8 +253,7 @@ extern void* func_003c0520();
 extern void* func_0047d200();
 extern void* func_0047dc30();
 extern void func_0047ea40();
-extern s32 func_00479d10();
-extern void func_0047fe90();
+extern s32 func_00479d10(u8* a, u32 b, s16 c);
 extern void func_0047eb20();
 extern s32 func_0047ae90();
 extern void func_00475350();
@@ -613,8 +616,80 @@ void func_00473520(void* param_1)
    param typing fixed the arg0+0x38 address-CSE frame growth, nd 81 -> 25).
    Tried: q,i,idx and i,q,idx declaration orders (25/28), idx named local.
    Saved-register rotation floor. */
+/* MATCHED this wave (nd 0, was 25). Levers: (4) opt_propagation off forces the
+   early obj[0x14]/obj[0x20] base load before the i*4 chain (FLYDraw), and
+   declaring the loop counter i BEFORE obj steers allocation to retail's
+   obj=$s0/i=$s1 (pure statement-order, cf FLYList). i*4 kept as a separate
+   local named j. */
 // FUN_004735B0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004735b0);
+#pragma opt_propagation off
+void func_004735b0(u8 *arg0)
+{
+    u32 i;
+    u32 *obj;
+    u32 *p;
+    u32 j;
+    u32 base;
+
+    obj = *(u32**)(arg0 + 0x38);
+    if (obj != 0)
+    {
+        i = 0;
+        while (i < *obj)
+        {
+            base = *(u32*)((u8*)obj + 0x14);
+            j = i * 4;
+            p = (u32*)(base + j);
+            if (*p != 0)
+            {
+                func_0047d2d0(*p);
+            }
+            base = *(u32*)((u8*)obj + 0x20);
+            p = (u32*)(base + j);
+            if (*p != 0)
+            {
+                func_0047dcc0(*p);
+            }
+            i++;
+        }
+        DAT_008873ec[0](obj);
+        *(u32**)(arg0 + 0x38) = 0;
+    }
+    if (*(u32*)(arg0 + 0x24) != 0)
+    {
+        func_003d5830(*(u32*)(arg0 + 0x24));
+        *(u32*)(arg0 + 0x24) = 0;
+    }
+    if (*(u32*)(arg0 + 0x28) != 0)
+    {
+        func_003d5830(*(u32*)(arg0 + 0x28));
+        *(u32*)(arg0 + 0x28) = 0;
+    }
+    if (*(u32*)(arg0 + 0x2C) != 0)
+    {
+        func_003d5830(*(u32*)(arg0 + 0x2C));
+        *(u32*)(arg0 + 0x2C) = 0;
+    }
+    if (*(u32*)(arg0 + 0x30) != 0)
+    {
+        func_003d5830(*(u32*)(arg0 + 0x30));
+        *(u32*)(arg0 + 0x30) = 0;
+    }
+    if (*(u32*)(arg0 + 0x34) != 0)
+    {
+        func_00471010(*(u32*)(arg0 + 0x34));
+        *(u32*)(arg0 + 0x34) = 0;
+    }
+    if ((*(u16*)(arg0 + 0) & 2) != 0)
+    {
+        if (*(u32*)(arg0 + 0x20) != 0)
+        {
+            func_00397120(*(u32*)(arg0 + 0x20));
+            *(u32*)(arg0 + 0x20) = 0;
+        }
+    }
+}
+#pragma opt_propagation on
 /* measured: retail keeps arg0=$s0 and folds 0x20 into every reload
    (lw $a0,0x20($s0) after each call); mwcc b210 materializes arg0+0x20 into an
    s-reg (addiu $s0,$s2,0x20) and rotates the saved set (arg0 $s0->$s2,
@@ -622,6 +697,11 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004735b0);
    (78), s32 base locals (78), opt_propagation off (57). Address-CSE into
    s-reg floor (same family as 79e60/776c0/73000 pre-fix; u8* typing did not
    break it here). */
+/* Wave 14 re-test: m2c signature (u8*,u8*,s32) confirmed; clean transcription
+   nd 79, adding the arg1+4 hoist (retail keeps $s1=arg1+4 across calls) nd 59.
+   Frame still -0x50 vs retail -0x60 (one saved reg short: arg2 in $s1 vs
+   retail's $s2) and the arg0+0x20 address-CSE floor from the original note
+   persists. opt_propagation off + forward externs help compile, not match. */
 // FUN_00473710
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
 
@@ -708,6 +788,10 @@ void func_004745f0(MdlAnimEntryTable* table)
 
 
 extern void func_0047ffc0(void* a);
+extern void func_0047fd10(s32 a, s32 b, f32 c, f32 d);
+extern void func_0047fe90(s32 a, s32 b, f32 c, f32 d);
+extern void func_0047fbf0(s32 a, s32 b, f32 c, f32 d);
+extern f32 func_00480060(s32 a);
 /* measured: u8* params fixed the param_2+0xC address-CSE (nd 106 -> 54) and
    the func_0047fd10 call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
    a1=$s0 move is deliberate, fixing it removes the shift). Residual
@@ -2001,9 +2085,44 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479d10);
    (load-sinking, brief-confirmed); (3) the return-1 path gets its own b to
    the epilogue where retail falls through. Load-CSE +
    sign-extension-reissue floor (same family as 79d10). */
+/* MATCHED this wave (nd 0, was 33). Levers: (3) addOff index-first addu
+   helper, (7) D_00922BC0_abs lui/addiu address, (4) opt_propagation off forces
+   the lhu-before-signext load order (FLYDraw/FLYCmbcardeff combo). Helper is
+   defined at top of file, outside the pragma. */
 // FUN_00479DD0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
+#pragma opt_propagation off
+s32 func_00479dd0(u8* param_1, u16 param_2, s16 param_3)
+{
+    int iVar1;
+    int iVar2;
+    int iVar3;
+    int iVar4;
+    int iVar5;
 
+    iVar1 = 0;
+    iVar2 = 0;
+    iVar3 = (param_2 & 0xffff) * 0xa4;
+    iVar4 = *(int*)(addOff(iVar3, (u32)param_1) + 0x120);
+    if (iVar4 != 0)
+    {
+        iVar5 = *(u16*)(iVar4 + 8);
+        if (param_3 < iVar5)
+        {
+            iVar2 = 1;
+        }
+    }
+    if (iVar2 != 0)
+    {
+        iVar4 = *(int*)(iVar4 + 0);
+        iVar3 = addOff(param_3 * 0x50, (u32)iVar4);
+        if (*(int*)(iVar3 + 0x40) == (int)D_00922BC0_abs)
+        {
+            iVar1 = 1;
+        }
+    }
+    return iVar1;
+}
+#pragma opt_propagation on
 /* measured: re-tested 4x this wave (nd 47/55/13/17; best spelling: (u16) cast
    in the final test + `param_2 & 0xFFFF` in the off chain + elem as
    `(u8*)*(void**)((u8*)arr) + (0x40 + v * 0x50)`, with opt_propagation off:
@@ -2016,6 +2135,13 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479dd0);
    the lw ($a1) where retail loads first (1-3 words). Recipe B (global base
    hoist) does not apply - no global array base in this function. Saved-
    register rotation floor. */
+/* Wave 14 re-test: m2c signature (s32,s32,f32) confirmed (arg0/arg1 are
+   integers; retail keeps raw a1 in $s1 and re-masks andi into a temp, so
+   arg1 must be s32 not u16). Clean m2c-derived transcription scored nd 43
+   (u8* base spelling) / nd 54 (u16 param + addOff helper; the helper
+   cascaded the FP allocation). Recorded best nd 13 still stands; the base+
+   scaled hoist into $s0 (vs retail's separate $s0/$s2 + per-use addu) and the
+   FP-coloring rotation are a genuine saved-register floor. */
 // FUN_00479E60
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479e60);
 // FUN_00479F60

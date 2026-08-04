@@ -5,6 +5,19 @@
 
 void func_0021dda0(void);
 extern u16 *func_00452560();
+void func_001437b0(void *arg0, s32 arg1, s32 arg2);
+s32 func_001b5fd0(void);
+void func_0025cbc0(void *arg0, s32 arg1, s32 arg2);
+s32 func_0025cc70(void);
+s32 func_0046d200(s32 arg0, s32 arg1);
+u32 func_003b7060(void);
+extern u16 D_008C024C[];
+extern u16 D_008C024E[];
+extern s32 D_00629380[];
+extern s32 D_006291A0[];
+extern s8 D_00629170[];
+extern s32 D_00629560[];
+extern s32 D_006295F0[];
 void func_00454bd0(u8 *ptr);
 void func_0046b0d0(void *ptr);
 void func_0046d280(s32 arg0);
@@ -29,12 +42,18 @@ s32 func_0046af60(u8 *arg0);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *work);
 void func_002214d0(void);
-void func_0034f2e0(void *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4, f32 arg5, f32 arg6);
+void func_0034f2e0(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
 void func_00442088(void *dst, const void *fmt, s32 value);
 void func_00460ac0(void *param, void *work);
 extern u32 D_00795F20[];
 s32 func_0021f520(u8 *arg0);
 s32 func_0021de60(void);
+static inline u32 addBase(u32 base, u32 index) { return base + index; }
+extern char iGpffffa5b8;
+extern u8 *iGpffffa5a0[2];
+extern s32 iGpffffa5a8[2];
+extern s32 iGpffffa5b0;
+extern char iGpffffa5b4;
 
 /* Work buffer handed to the result state machine (see func_002215c0). */
 typedef struct BtlResultWork BtlResultWork;
@@ -73,66 +92,203 @@ struct BtlResultSubWork
     s32 field934;      // 0x934
 };
 
-/* measured: retail allocates B=$s0,A=$s1,arg1=$s2,arg0=$s3,d=$s4,k=$s5,R=$s6,G=$s7
-   and emits the float args before the int args at the func_0034f2e0 call sites;
-   mwcc b210 allocates A=$s0,arg1=$s1,arg0=$s2,d=$s3,B=$s4 and emits int args
-   first (nd 132 bytes, obj 604B vs window 608B; walk-loop switch form matches
-   retail's beq-out-of-line shape, frame and stack slots exact). Tried: every
-   declaration order of A/R/G/B/d/k/v/i/n/j (6 batches), u8 vs s32 colors,
-   if-vs-switch walk; all give the identical rotation + arg order.
-   Register-coloring/arg-evaluation-order floor, same family as 214d0/21770/
-   21f340. */
+/* measured 2026-08-03 (wave 14 re-attack, 10 attempts): two lever wins landed,
+   then a register-coloring floor remained. LEVER 1: func_0034f2e0's true
+   signature is (u8*, f32, f32, u8, u8, u8, u8) — FLOATS-FIRST after the pointer
+   (verified from func_0034f320's own prologue: mov.s $f12/$f13/$f14 saved before
+   the int args; the old extern had int args first, which WAS the recorded
+   "emits int args first" floor). LEVER 5: the walk loop needs switch(buf[i])
+   {case 0x2E: dotbody; break; default: digitbody;} — case 0x2E declared FIRST so
+   the '.' body is laid out before the digit body (beq->dot, b->digit), exactly
+   matching retail; if/else and goto forms lay them out reversed (nd 99-104 vs
+   switch's 39). Also: arg3 must be u32 (retail divu + sltiu; s32 emits signed
+   div/slti), byte extraction is (arg2 & 0xFF000000)>>24 mask-first (srl, not sra),
+   and buf/buf2 must be char[] (signed lb loads). Final nd 39: residual is the
+   no-call digit-conversion loop's temp-register coloring (retail k=$t2/j=$t1,
+   +0x2E/2/0xA consts hoisted to the preheader; mwcc k=$v1/j=$t0 and sinks the
+   0x2E/2 materialisation into the loop) plus one slt-$at-vs-$v0 in the digit
+   assert. opt_loop_invariants off/on, block-scoped k/j, f32* arg1, m2c casts:
+   unchanged. Register-coloring + const-hoist floor. */
 // FUN_0021ED10
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ed10);
 
-/* measured: retail frame -0x60 with arg0 in s3 and loop vars in s0/s1/s2 +
-   f20 (4 saved int regs); mwcc b210 allocates arg0 to s4 (5 saved int regs),
-   frame -0x70, and the object is 68B short of the 976B window (908B) with
-   loop-2 store-address scheduling and the bltz float conversion emitted
-   differently. Tried: store-addr hoisted vs in-branch, bltz recipe (s32
-   value, u32 shift copy, f=f+f doubling), declaration orders; frame and
-   register rotation persist. Register-coloring/frame floor. */
+/* measured 2026-08-03 (wave 14 re-attack, 3 attempts): full body reconstructed from
+   the m2c draft (code1_0021.c) + retail asm — all 4 loops and the final stores
+   correct, but the register allocation makes the object 1020B (44B OVER the 976B
+   window) with 237 differing words. The m2c draft's u16* arg0 pointer math is
+   WRONG (doubles the byte offsets); the real access is u8* byte offsets. The
+   half-scaler value must be u32 (retail srl for the >>1, not sra) and the bltz
+   test is (s32)scaled<0. Base tables D_006291A0/D_00629380 are hoisted by
+   retail to the preheader; mwcc re-materialises them per iteration. Retail
+   frame -0x60 with arg0 in $s3 and loop vars in $s0/$s1/$s2 + $f20; mwcc b210
+   allocates the loop counters to saved registers and frames -0x70+ (5 saved
+   int regs), so the object runs 44B over the window. Block-scoping every loop
+   local, hoisted table bases, and separate table pointers all leave the
+   allocation unchanged. Frame + register-colouring floor (same family as the
+   recorded note). */
 // FUN_0021EF70
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ef70);
-
-/* measured: retail allocates work=$s1, counter=$s2, store-addr=$s0 and hoists
-   the indexed store address to the top of the loop body (before the two calls);
-   mwcc b210 allocates work=$s2, counter=$s1 and re-derives the store address
-   after the calls (nd 273 bytes, rest identical). Tried: all declaration
-   orders of i/count/v, loop-local dst pointers (pointer-arith and struct
-   member), inline and temp-value store forms; identical output every time.
-   Register-coloring/scheduling floor, same family as 214d0/21770. */
 // FUN_0021F340
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f340);
-
-/* measured: retail case 1 loads/increments/stores/masks work[0x3C] in one
-   register ($v0: addiu/sh/andi before slti 4); mwcc b210 keeps the raw value
-   in $v1 and the mask in $v0, scheduling andi before sh (nd 3, rest
-   byte-identical incl. the 6-entry jtbl_007476A0 switch, all distinct cases).
-   Tried: u16/u32/s32 temps, explicit v&=0xFFFF statement, store-masked vs
-   store-raw, in-place increment, function-level local, s16/s32 casts; all
-   give the identical 3-word scheduling rotation. Scheduling floor. */
 // FUN_0021F520
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f520);
+s32 func_0021f520(u8 *arg0) {
+    u8 *work;
+    u8 *sub;
+    u32 state;
+    s32 i;
+    s32 v;
 
-/* measured: retail case 5/6 loads/increments/stores/masks work[0x3C] in one
-   register ($v0: addiu/sh/andi before slti 5); mwcc b210 keeps the raw value
-   in $v1 and the mask in $v0, scheduling andi before sh (nd 3, rest
-   byte-identical incl. the 8-entry jtbl_007476C0 switch, all distinct cases,
-   the case 1->2 fallthrough and case 5->6 fallthrough). Tried: u16/u32/s32
-   temps, explicit mask statement, store-masked vs store-raw, comma-operator
-   short-circuit, s16/s32 casts; all give the identical 3-word rotation.
-   Same scheduling floor as 21f520 case 1. */
+    work = *(u8 **)(arg0 + 0x38);
+    sub = *(u8 **)(work + 0x570);
+    state = *(u32 *)(work + 0x38);
+    switch (state) {
+    case 0:
+        v = *(u16 *)(work + 0x3C);
+        if (v >= 0x1E) {
+            goto L;
+        }
+        *(u16 *)(work + 0x3C) = v + 1;
+        for (i = 0; i < 0x14; i++) {
+            switch (*(s32 *)((u8 *)D_00629380 + i * 0x18 + 0x14)) {
+            case 0:
+                func_001437b0(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 0);
+                break;
+            case 1:
+                func_001437b0(work + i * 0x30 + 0x40, *(u16 *)(work + 0x3C), 1);
+                break;
+            }
+        }
+        if (*(u16 *)(work + 0x3C) != 0x1E) {
+            goto L;
+        }
+        *(u16 *)(work + 0) |= 0x10;
+        *(u16 *)(work + 0x3C) = 0;
+        *(u32 *)(work + 0x38) = 1;
+        goto L;
+    case 1:
+        v = (*(u16 *)(work + 0x3C) += 1);
+        if ((v & 0xFFFF) < 4) {
+            goto L;
+        }
+        if (func_001b5fd0() != 0x10) {
+            goto L;
+        }
+        *(u32 *)(work + 0x38) = 2;
+        goto L;
+    case 2:
+        if ((D_008C024E[0] & 0x40) || (D_008C024C[0] & 0x10)) {
+            if (*(s16 *)(sub + 0x6F8) > 0) {
+                func_002baac0(func_00455ea0(*(s32 *)(sub + 0x934), 0, 0));
+                func_002bad10(0x17);
+                *(u32 *)(work + 0x38) = 3;
+            } else {
+                *(u32 *)(work + 0x38) = 5;
+            }
+        }
+        goto L;
+    case 3:
+        if (func_00353f50(1) != 0) {
+            goto L;
+        }
+        func_002bb4e0();
+        func_0025cbc0(arg0, 0, *(s16 *)(sub + 0x6F8));
+        *(u32 *)(work + 0x38) = 4;
+        goto L;
+    case 4:
+        if (func_0025cc70() != 0) {
+            goto L;
+        }
+        *(u32 *)(work + 0x38) = 5;
+        goto L;
+    case 5:
+        return 1;
+    default:
+    L:
+        return 0;
+    }
+}
 // FUN_0021F790
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f790);
+s32 func_0021f790(u8 *arg0) {
+    BtlResultWork *work;
+    u32 state;
+    s32 v;
 
-/* measured: retail uses FPU multiply-accumulate idiom (adda.s $f3,$f2 /
-   madd.s $f1,$f0,$f1 fused lerp, plus neg.s for the -0x7E20 case) that m2c
-   cannot lower (M2C_ERROR on 4 sites), and two bltz float-conversion guards
-   on (func_003b7060() & 0xFFF) / (x & 0xFFF)*0xD6. The $f0 accumulate chain
-   (mtc1 $0,$f3; adda.s; madd.s = f0*(b-a)+a) has no plain-C spelling that
-   emits the fused pair; the bltz guards are the same 21f520/21f790 mask
-   floor. FPU-MAC + bltz scheduling floor. */
+    work = (BtlResultWork *)func_00452560();
+    work->field08 = 0;
+    work->field0C = 0;
+    func_00460ac0(&D_00795F20, &work->field08);
+    state = work->state;
+    switch (state) {
+    case 0:
+        work->state = 1;
+        goto L;
+    case 1:
+        v = work->flags;
+        if ((v & 1) && (v & 8)) {
+            goto case2;
+        }
+        if ((v & 4) && (func_0021f340(work) != 0)) {
+            work->flags &= 0xFFFB;
+            work->flags |= 8;
+        }
+        goto L;
+    case 2:
+    case2:
+        func_0021ef70(work);
+        work->flags |= 2;
+        work->state = 3;
+        goto L;
+    case 3:
+        if (func_0021f520(arg0) != 0) {
+            v = *(s32 *)(work->field570 + 0x60);
+            if (v & 2) {
+                work->state = 4;
+                func_002baac0(func_00455ea0(*(s32 *)(work->field570 + 0x934), 0, 0));
+                func_002bad10(2);
+            } else if (v & 8) {
+                work->state = 4;
+                func_002baac0(func_00455ea0(*(s32 *)(work->field570 + 0x934), 0, 0));
+                func_002bad10(1);
+            } else if (v & 0x10) {
+                work->flags &= 0xFFFE;
+                work->state = 7;
+            } else {
+                work->flags &= 0xFFFE;
+                work->state = 7;
+                work->flags |= 0x80;
+            }
+        }
+        goto L;
+    case 4:
+        if (func_00353f50(1) == 0) {
+            func_002bb4e0();
+            work->flags &= 0xFFFE;
+            work->state = 7;
+        }
+        goto L;
+    case 5:
+        if (func_0021de60() != 0) {
+            work->state = 6;
+        case 6:
+            if (work->flags & 0x80) {
+                goto R1;
+            }
+            v = (work->field3C += 1);
+            if ((v & 0xFFFF) < 5) {
+                goto L;
+            }
+        R1:
+            work->flags &= 0xFFFD;
+            return -1;
+        }
+        goto L;
+    case 7:
+        goto L;
+    default:
+    L:
+        return 0;
+    }
+}
 // FUN_0021FA40
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
 
@@ -153,8 +309,32 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fea0);
    of p/w/i (8 variants), loop-local addr pointers, shared addr var, u16/u32
    counters; all give the identical 12-word rotation. Register-coloring floor. */
 // FUN_002214D0
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_002214d0);
+void func_002214d0(void) {
+    BtlResultWork *p;
+    s32 i;
+    s32 j;
 
+    p = (BtlResultWork *)func_00452560();
+    if (p->field4BC != 0) {
+        func_00454bd0((void *)p->field4BC);
+        p->field4BC = 0;
+    }
+    for (i = 0; i < 3; i++) {
+        s32 *el = (s32 *)(addBase((u32)p, (u32)(i * 4)) + 0x400);
+        if (*el != 0) {
+            func_0046b0d0((void *)*el);
+            *el = 0;
+        }
+    }
+    for (j = 0; j < 0x2A; j++) {
+        s32 *el = (s32 *)(addBase((u32)p, (u32)(j * 4)) + 0x414);
+        if (*el != 0) {
+            func_0046d280(*el);
+            *el = 0;
+        }
+    }
+    jtbl_008873EC[0](p);
+}
 // FUN_002215C0
 s32 func_002215c0(s32 arg0) {
     u8 *buf;
@@ -213,5 +393,18 @@ u16 func_00221740(void) {
    store pointer, dsll32/dsra32 single-pair cast and boolean idioms (both
    fixed); the register rotation and pre-call store-address hoist are invariant
    under all of them. Register-coloring/scheduling floor. */
+/* measured 2026-08-03 (wave 14 re-attack, 6 attempts): best nd 33 after fixing
+   (1) the iGpextern types must be COMPLETE (extern char iGpffffa5b8; extern u8 *iGpffffa5a0[2];
+   extern s32 iGpffffa5a8[2]; — incomplete [] emits absolute lui/addiu, complete types emit
+   retail's GPREL16 addiu $gp; the iGp<off> names ARE resolved by the tools via gp 0x007690F0),
+   (2) the s64->s16 halfword: `func_00110d60((s16)func_001060b0())` emits retail's single
+   dsll32/dsra32 pair (the multi-step s64-shift spelling emits two pairs), (3) r&1==0 boolean
+   via a u32 local. Residual: the pre-call store-address hoist in the field400 loop — retail
+   keeps store-addr (p+i*4+0x400) in $s2 across the func_0046a770 call and indexes iGpffffa5a8
+   in $v1; mwcc re-derives the store address after the call (sll $s2,i,2 first, addu/0x400
+   post-call). plus retail schedules `sw $v0,0x4BC($s0)` in the func_00454a60 jal delay slot.
+   dst-local, separate counters, decl orders, raw-offset spellings: unchanged. Register-
+   rotation + schedule floor (same family as 214d0, which matched with separate i/j counters
+   + addBase helper). */
 // FUN_00221770
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_00221770);

@@ -350,7 +350,7 @@ void func_001162f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 
 s32 func_00109280();
 f32 func_0046b1f0(s32, s32);
-void func_001171c0(s64, s32, s32, s32, f32);
+void func_001171c0(s64, f32, s32, u8, s32 *);
 /* measured: FP/GP colouring residual, nd 99. The family's real signature
    IS (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) with the color and its
    float bits coming from arg0's HIGH WORD (the callers clobber $a1 with
@@ -378,6 +378,18 @@ void func_001171c0(s64, s32, s32, s32, f32);
    (temp_20_2 = arg1 & 0xFF; temp_20_2 = 0xFF - temp_20_2;) to get retail's
    [andi, addiu, subu] order. func_001171c0's real proto is (s64, s32, s32,
    s32, f32) — fixed in this file. */
+/* Wave-14 correction: func_001171c0's real proto is (s64, f32, s32, u8, s32 *)
+   (from its own prologue sd $a0,0x70; mov.s $f22,$f12; sw $a1,0x7C; daddu
+   $a2/$a3 — the float is the SECOND arg, not the last; the lwc1 $f20,0x74 reads
+   arg0's high word). Extern corrected to `(s64, f32, s32, u8, s32 *)`.
+   Wave-14 re-measure with the corrected extern: full-body reconstruction
+   (s64/f32/s32/u8/pointer params, (f32 *)&arg0 inline read, ((f32 *)&arg0+1)
+   high local, sp90[2] s64 pair, two-statement inv) hits a saved-register
+   ROTATION cascade (retail i=$s1/arg1=$s3/arg2=$s2/p=$s0/c=$s4/t=$s5; mwcc
+   shifts all by 2 — candidates 68-100 words). The nd-6 spelling from the
+   prior wave was not recovered; the final call now emits retail's
+   [ld; mov.s $f12; lw $a1; lbu $a2; move $a3] order with the corrected proto,
+   so the old arg-order residual is resolved; the rotation is the floor. */
 // FUN_001163E0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001163e0);
 
@@ -645,10 +657,10 @@ extern f32 D_005E4D84;
 extern f32 D_005E4D88;
 extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
-void func_003657d0(s64, s32, s32, s32, f32, f32);
+void func_003657d0(s64, f32, s32, f32, f32, s32, f32, f32);
 s32 func_003b7060();
 void func_0045dfd0(f32, void *, void *, s32, s32, s32);
-void func_0034f4a0(s32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, s64, s64);
+void func_0034f4a0(s32, s32, s8, s8, s8, s64, s64, s16, f32, f32, f32, f32, s16, s16);
 /* measured: fully decoded, best nd 858 (obj 2992B / window 3632B) at attempt 2.
    The sp120-sp12B byte block and the spE0-spF4 float block must be ARRAYS
    (`u8 sp120[16]; f32 spE0[6];`) or mwcc dead-store-eliminates all but the
@@ -674,7 +686,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117980);
 
 
 
-void func_0034f4a0(s32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, s64, s64);
+void func_0034f4a0(s32, s32, s8, s8, s8, s64, s64, s16, f32, f32, f32, f32, s16, s16);
 /* measured: retail keeps only t16 and arg2 in saved registers (frame 0x60 with
    the two s64 homes at 0x50/0x58); mwcc b210 also saves arg0 (frame 0x80,
    homes at 0x70/0x78) and the whole body shifts (nd 147, obj 8B over window).
@@ -933,6 +945,16 @@ void func_0011aaa0(u8 *arg0, u32 arg1)
    nd ~40). Tried declaration orders — identical. Same a2-cache colouring floor
    as func_0011f5a0. Also: the m2c's 4-arg func_0044b7b0 call and the
    (u16)-cast var_6 pointer are hallucinated (real call is 1-arg). */
+/* Wave-14 re-measure: frame fix confirmed — lever 6 (inline element
+   pointer `arg0 + i*36 + off` as an integer-domain address, NO named `p`
+   local) drops the frame 0x40 -> 0x30 (retail's) and the element pointer
+   is recomputed in a temp per side of the func_0044b7b0 call like retail
+   (nd 158 -> 126). Remaining 126: (1) the top-of-loop load order — retail
+   [lh 0x508; sll/addu ptr; lwc1 0x2e8; mtc1; cvt] defers the cvt.s.w,
+   mwcc converts immediately after the lh; (2) the post-call element
+   pointer lands in $a3 vs retail $a2; (3) the lerp FMA + iGpffff8094 mul
+   register allocation. opt_propagation off (FLYDraw's lever) is NOT
+   applicable here — multi-use loop, not a single-use base wrapper. */
 // FUN_0011AC70
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ac70);
 
@@ -949,12 +971,18 @@ extern f32 iGpffff8094;
    branch). Logic itself decodes cleanly: per-element lerp with the
    signed-byte abs construct, then the post-loop interpolate-or-clear
    with the four chained mask clears. */
+/* Wave-14 re-measure: lever 6 (inline integer-domain element pointer
+   `arg0 + i*36 + off`, no named `p` local) applied — measured nd 149
+   (vs recorded 158), same family floor as func_0011ac70 (identical loop;
+   the post-loop differs: 0x510 vs 0x50C and the four chained mask clears
+   ~4/~0x80000/~0x200000/~0x800000 + the 0x505==0 ?? 0x400000 clear/or).
+   opt_propagation off (FLYDraw) does NOT apply — multi-use loop base. */
 // FUN_0011AE90
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ae90);
 
 
 
-void func_0034c270(s64, u8, s32, f32);
+void func_0034c270(Vec2f, u8, s32, f32);
 /* measured: re-tested with recipe A (s32 local v, u32 copy c, (s32) cast on
    the OR result, x+x doubling) — the single bare bltz survives and the
    srl/andi/or/mtc1/cvt/add.s neg path decodes byte-identically in shape
@@ -972,6 +1000,20 @@ void func_0034c270(s64, u8, s32, f32);
    Fixed during re-test: func_0045d6e0's real signature is (void *, void *,
    s32, f32) (callee m2c draft code1_0045.c; old (f32,u8*,s32*,s32) was
    wrong) and the FMA seed is 231.0f (0x43670000), not 230.0f. */
+/* Wave-14 re-measure: the s64-ZERO FOLD IS BREAKABLE — func_0034c270's first
+   arg is an 8-byte struct passed BY VALUE (cmpConfig.c declares Vec2f,
+   m2c draft code1_0034.c shows s64 with `sp48 = arg0` + low-word float
+   bit-read). Declaring the extern `(Vec2f, u8, s32, f32)` and passing a
+   `Vec2f z; z.x = z.y = 0.0f;` local forces the two `sw $0,0x20/0x24` +
+   `ld $a0,0x20` store-and-reload materialization exactly like retail —
+   nd 101 -> 47 (best, 4 attempts: s64 pair 101, Vec2f 50, Vec2f + hoisted
+   f53c 47). Remaining 47 = pure scheduling/colouring: (1) the call arg
+   order [retail ld $a0;lwc1 $f12;lbu $a1;addiu $a2] vs mwcc lwc1-first
+   (f32 hoist) or lbu-first (inline) — never the ld-first order;
+   (2) neg-path abs register choice (or $v0/cvt $f0 vs retail or $v1/cvt
+   $f1); (3) the 333.0f materializes via addiu 0x14d+cvt.s.w in mwcc vs
+   retail lui 0x43a6 — a mtc1-budget/colouring artefact;
+   (4) arg0 copy $a3 vs retail $a1. */
 // FUN_0011B110
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
 
@@ -1385,6 +1427,13 @@ void func_0011e370(u8 *);
    local, 0x303 as an int local, static-inline faddF32 helper, and the Vec2f
    struct shape (b,a declared b-first; all other 186 bytes byte-identical) —
    identical. Load-scheduling floor. */
+/* Wave-14 re-measure: confirmed nd 6 (same six words). Added levers measured:
+   #pragma schedule on -> 71 (O3 schedule cascades), v2[0] split into two
+   statements (771.0f then += load) -> 33, integer-domain address
+   `*(f32 *)((u32)w + 0x4FC)` -> 6 (identical), (f32)0x303 cast -> 6. Also
+   corrected the v[0] constant to 131.0f (0x4303, not 195.0f) and the array
+   declaration order (v2 declared first puts v at 0x20/v2 at 0x28 like retail).
+   Load-scheduling floor stands. */
 // FUN_0011BDC0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bdc0);
 
@@ -2360,7 +2409,7 @@ void func_0011e740(u8 *arg0)
 
 
 
-void func_0010a780(u8 *, u16, s8);
+s32 func_0010a780(u8 *, s32, s32);
 s32 func_0010ceb0(u8 *);
 s32 func_0011fcf0(u8 *);
 u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
@@ -2393,7 +2442,7 @@ extern u16 D_008C024C;
    func_0010cd70(..., (u8 *)(u32)c) and func_00115500((s16)n, (u8 *)(u32)c, ...)
    — mwcc rejects implicit ptr<->int both ways. func_0011e8e0 returns s32
    (epilogue `daddu $2,$0,$0`); declaration fixed. */
-void func_0010a780(u8 *, u16, s8);
+s32 func_0010a780(u8 *, s32, s32);
 s32 func_0010ceb0(u8 *);
 s32 func_0011fcf0(u8 *);
 u8 *func_0011fbc0(s32, u8 *, s32, u8 *);
