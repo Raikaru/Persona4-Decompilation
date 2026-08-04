@@ -70,13 +70,24 @@ class CanonicalMapTests(unittest.TestCase):
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
         windows = {int(address, 16): size for address, size in function_map["windows"].items()}
 
-        # 13,080 boundaries from Splat control flow + Ghidra, plus four curated
-        # DATA_REACHABLE_ENTRIES overrides that no control-flow scan can reach
-        # (each backed by a retail pointer site checked below). Bump these only
-        # alongside a documented pointer-site entry.
-        self.assertEqual(function_map["function_count"], 13084)
-        self.assertEqual(len(windows), 13084)
-        for segment_name, expected_count in (("code1", 13075), ("code2", 9)):
+        # 13,077 boundaries the Splat control-flow scan and Ghidra find on their
+        # own, plus every curated override: DATA_REACHABLE_ENTRIES (each backed by
+        # a retail pointer site), EPILOGUE_SEPARATED_ENTRIES and
+        # JAL_REACHABLE_ENTRIES. The old figure here was 13,080 + 4 because three
+        # boundaries sat in the committed map with no declaration at all, which is
+        # exactly what made the map unregenerable; they are now declared, so the
+        # base is the true scan result. Bump these only alongside a documented
+        # entry whose evidence the tests below re-check against the retail image.
+        expected_total = (
+            13077
+            + len(reconcile.DATA_REACHABLE_ENTRIES)
+            + len(reconcile.EPILOGUE_SEPARATED_ENTRIES)
+            + len(reconcile.JAL_REACHABLE_ENTRIES)
+        )
+        self.assertEqual(expected_total, 13086)
+        self.assertEqual(function_map["function_count"], expected_total)
+        self.assertEqual(len(windows), expected_total)
+        for segment_name, expected_count in (("code1", expected_total - 9), ("code2", 9)):
             start, end = reconcile.segment_bounds(target, segment_name)
             selected = {address: size for address, size in windows.items() if start <= address < end}
             if segment_name == "code1":
@@ -103,12 +114,12 @@ class CanonicalMapTests(unittest.TestCase):
     def test_source_markers_are_unique_and_canonical(self) -> None:
         """Every marker is a canonical boundary, or a declared exception.
 
-        Two declared exceptions are legitimate. `DATA_REACHABLE_ENTRIES` and
-        `EPILOGUE_SEPARATED_ENTRIES` are boundaries the control-flow scan misses,
-        each validated against the retail image by its own test. `GHIDRA_FALSE_SPLITS`
-        is the opposite case: Ghidra split one code region at a branch target, so
-        the marker must stay to own the assembly while the scan is right not to
-        treat it as an entry point, and it therefore has NO canonical window.
+        Three declared exceptions exist, each validated against the retail image
+        by its own test: `DATA_REACHABLE_ENTRIES` (reachable only through a data
+        pointer), `EPILOGUE_SEPARATED_ENTRIES` (no pointer, but the preceding
+        function ends in a complete epilogue) and `JAL_REACHABLE_ENTRIES` (real
+        entries whose first instruction is a `b` into their own condition check,
+        which the scan mistakes for the branch landing point).
         """
         markers = reconcile.source_markers()
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
@@ -120,7 +131,7 @@ class CanonicalMapTests(unittest.TestCase):
             set(windows)
             | set(reconcile.DATA_REACHABLE_ENTRIES)
             | set(reconcile.EPILOGUE_SEPARATED_ENTRIES)
-            | set(reconcile.GHIDRA_FALSE_SPLITS)
+            | set(reconcile.JAL_REACHABLE_ENTRIES)
         )
         orphans = sorted(f"{address:08X}" for address in set(markers) - known)
         self.assertEqual(orphans, [], f"markers outside the canonical map: {orphans}")
@@ -211,6 +222,38 @@ class CanonicalMapTests(unittest.TestCase):
                     reconcile.DATA_REACHABLE_ENTRIES,
                     "has pointer evidence; belongs in DATA_REACHABLE_ENTRIES",
                 )
+                self.assertIn(address, windows)
+
+    def test_jal_reachable_entries_are_called_from_the_retail_image(self) -> None:
+        """These are real functions the scan mis-locates, so the callers ARE the proof.
+
+        Counting the `jal` sites guards the failure that produced this category: an
+        earlier revision allow-listed these two addresses as "false splits that are
+        never called" and let them drop out of the map, which removed the only
+        definition of symbols six translation units reference and failed the link
+        with `Undefined: func_00272b00`.
+        """
+        import struct
+
+        target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
+        function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
+        windows = {int(address, 16): size for address, size in function_map["windows"].items()}
+        elf = REPO / "orig" / target["elf"]["filename"]
+        if not elf.exists():
+            self.skipTest(f"retail ELF not present at {elf}")
+
+        image = elf.read_bytes()
+        self.assertTrue(reconcile.JAL_REACHABLE_ENTRIES)
+        for address, evidence in sorted(reconcile.JAL_REACHABLE_ENTRIES.items()):
+            with self.subTest(address=f"{address:08X}"):
+                word = struct.pack("<I", 0x0C000000 | ((address >> 2) & 0x03FFFFFF))
+                sites = image.count(word)
+                self.assertEqual(
+                    sites,
+                    evidence["jal_sites"],
+                    f"{address:08X} has {sites} jal sites, not {evidence['jal_sites']}",
+                )
+                self.assertGreater(sites, 0, "no caller: this is not a real entry")
                 self.assertIn(address, windows)
 
     @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
