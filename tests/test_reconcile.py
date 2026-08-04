@@ -101,17 +101,14 @@ class CanonicalMapTests(unittest.TestCase):
         self.assertEqual({address: windows[address] for address in expected}, expected)
 
     def test_source_markers_are_unique_and_canonical(self) -> None:
-        """Every marker is a canonical boundary, or a declared data-reachable entry.
+        """Every marker is a canonical boundary, or a declared exception.
 
-        The committed `slus21782_functions.json` can lag the tool: regenerating it
-        today drops three boundaries the current control-flow scan cannot
-        reproduce (0x00272B00 and 0x00272BA0, the frFont false splits, and
-        0x0027A340), and losing 0x0027A340 turns a matching function into a
-        SIZE_MISMATCH. So a marker for an address already declared in
-        `DATA_REACHABLE_ENTRIES` is legitimate even before the map is next
-        regenerated -- that declaration IS the evidence, and
-        `test_data_reachable_entries_are_backed_by_a_retail_pointer` checks it
-        against the retail image.
+        Two declared exceptions are legitimate. `DATA_REACHABLE_ENTRIES` and
+        `EPILOGUE_SEPARATED_ENTRIES` are boundaries the control-flow scan misses,
+        each validated against the retail image by its own test. `GHIDRA_FALSE_SPLITS`
+        is the opposite case: Ghidra split one code region at a branch target, so
+        the marker must stay to own the assembly while the scan is right not to
+        treat it as an entry point, and it therefore has NO canonical window.
         """
         markers = reconcile.source_markers()
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
@@ -119,7 +116,12 @@ class CanonicalMapTests(unittest.TestCase):
 
         self.assertTrue(markers)
         self.assertTrue(all(len(entries) == 1 for entries in markers.values()))
-        known = set(windows) | set(reconcile.DATA_REACHABLE_ENTRIES)
+        known = (
+            set(windows)
+            | set(reconcile.DATA_REACHABLE_ENTRIES)
+            | set(reconcile.EPILOGUE_SEPARATED_ENTRIES)
+            | set(reconcile.GHIDRA_FALSE_SPLITS)
+        )
         orphans = sorted(f"{address:08X}" for address in set(markers) - known)
         self.assertEqual(orphans, [], f"markers outside the canonical map: {orphans}")
 
@@ -130,15 +132,12 @@ class CanonicalMapTests(unittest.TestCase):
         the tool does not actually hold the entry), and an override that has become
         redundant because Splat now finds the entry itself.
 
-        It does NOT require the override to appear in the committed
-        `slus21782_functions.json`, because that map cannot be regenerated cleanly
-        today: the current control-flow scan does not reproduce 0x0027A340, and
-        dropping it widens func_0027a2d0's window from 112 to 128 and turns a
-        matching function into a SIZE_MISMATCH. Give 0x0027A340 a documented entry
-        and the map becomes regenerable, at which point this can tighten back to
-        `assertIn(address, windows)`. Until then an override is validated by its
-        pointer evidence, and `verify.py` picks the boundary up from the source
-        marker regardless.
+        The map IS regenerable now, so every override must actually appear in the
+        committed map. That was previously impossible: the control-flow scan does
+        not reproduce 0x0027A340, and dropping it widened func_0027a2d0's window
+        from 112 to 128 and broke a byte-exact match. 0x0027A340 now has a
+        documented entry in `EPILOGUE_SEPARATED_ENTRIES`, so the assertion below
+        is tightened to require presence in the map.
         """
         import struct
 
@@ -164,8 +163,55 @@ class CanonicalMapTests(unittest.TestCase):
                     f"pointer site {evidence['pointer']:08X} holds {word:08X}, not {address:08X}",
                 )
                 self.assertNotIn(address, splat, "override is redundant; Splat finds this entry")
-                if address in windows:
-                    self.assertGreater(windows[address], 0)
+                self.assertIn(
+                    address,
+                    windows,
+                    "override is missing from the committed map; regenerate it",
+                )
+                self.assertGreater(windows[address], 0)
+
+    def test_epilogue_separated_entries_follow_a_complete_epilogue(self) -> None:
+        """These entries have no pointer evidence, so the epilogue IS the evidence.
+
+        A `jr $ra` plus its delay slot immediately before the address means the
+        preceding function's body ends there and the bytes at the address cannot
+        belong to it. Without that, an address here would silently invent a
+        boundary and corrupt every window after it.
+        """
+        import struct
+
+        target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
+        function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
+        windows = {int(address, 16): size for address, size in function_map["windows"].items()}
+        elf = REPO / "orig" / target["elf"]["filename"]
+        if not elf.exists():
+            self.skipTest(f"retail ELF not present at {elf}")
+
+        sys.path.insert(0, str(REPO / "tools"))
+        import verify
+
+        retail = verify.RetailElf(str(elf), target, function_map["sha1"])
+        splat = reconcile.splat_entries(REPO / "asm" / "code1.s")
+
+        self.assertTrue(reconcile.EPILOGUE_SEPARATED_ENTRIES)
+        for address in sorted(reconcile.EPILOGUE_SEPARATED_ENTRIES):
+            with self.subTest(address=f"{address:08X}"):
+                jr, delay = struct.unpack("<II", retail.bytes_at(address - 8, 8))
+                self.assertEqual(
+                    jr, 0x03E00008, f"{address - 8:08X} is not `jr $ra` (got {jr:08X})"
+                )
+                self.assertEqual(
+                    delay, 0x00000000, f"{address - 4:08X} is not a nop delay slot"
+                )
+                self.assertNotIn(
+                    address, splat, "override is redundant; Splat finds this entry"
+                )
+                self.assertNotIn(
+                    address,
+                    reconcile.DATA_REACHABLE_ENTRIES,
+                    "has pointer evidence; belongs in DATA_REACHABLE_ENTRIES",
+                )
+                self.assertIn(address, windows)
 
     @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
                          "needs splat output (make split); absent on toolchain-free CI")
