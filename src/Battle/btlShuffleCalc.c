@@ -134,7 +134,17 @@ void func_003715e0(u8 *arg0, u8 *arg1, f32 fparg0) {
    lwc1/mul.s $f0,$f20,$f0; div.s $f0,$f1,$f0` (numerator-first div; 5
    words). $v0/$v1 coalescing + FP-eval-order floor, nd 11. */
 // FUN_003716D0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003716d0);
+f32 func_003716d0(f32 fparg0) {
+    s32 sp30[8];
+    u8 *temp_16;
+
+    temp_16 = func_00457120() + 0x68;
+    if (fparg0 * *(f32 *)temp_16 <= 0.0f) {
+        func_0046d730(D_0064E9C0, 0x145);
+    }
+    func_003e8970(&sp30[0], func_003e89c0());
+    return (f32)(sp30[0] / 2) / (fparg0 * *(f32 *)temp_16);
+}
 // FUN_00371780
 void func_00371780(u8 *arg0, u8 *arg1) {
     func_003e42a0(arg0, arg1, func_003e9700(*(s32 *)(func_00457120() + 4)));
@@ -145,8 +155,29 @@ void func_00371780(u8 *arg0, u8 *arg1) {
    (retail $s2/$s1/$s0; 3 decl orders probed, nd 29), on top of the recorded
    $v0/$v1 rounding-coalescing floor and two mul.s operand swaps. */
 // FUN_003717E0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003717e0);
+s32 func_003717e0(u8 *arg0, u8 *arg1) {
+    s32 sp40[8];
+    u8 *temp_16;
+    f32 x;
+    f32 y;
 
+    temp_16 = func_00457120() + 0x68;
+    if (*(f32 *)(arg0 + 8) <= 0.0f || *(f32 *)temp_16 <= 0.0f ||
+        *(f32 *)(temp_16 + 4) <= 0.0f) {
+        func_0046d730(D_0064E9C0, 0x15F);
+    }
+    func_003e8970(&sp40[0], func_003e89c0());
+    x = (f32)(sp40[0] / 2) *
+        -((*(f32 *)(arg0 + 0) / *(f32 *)(arg0 + 8)) / *(f32 *)temp_16 - 1.0f);
+    *(f32 *)(arg1 + 0) = x;
+    y = (f32)(sp40[1] / 2) *
+        -((*(f32 *)(arg0 + 4) / *(f32 *)(arg0 + 8)) / *(f32 *)(temp_16 + 4) - 1.0f);
+    *(f32 *)(arg1 + 4) = y;
+    if (x >= 0.0f && x < 640.0f && y >= 0.0f && y < 448.0f) {
+        return 1;
+    }
+    return 0;
+}
 // FUN_00371990
 void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
     *(s16 *)(arg0 + 0) = 0;
@@ -177,16 +208,47 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
    adda/madd ACC chains (retail plain mul.s/add.s; split mul/add statements
    tried, identical). Ternary half-scalers (func_003720c0's trick) only
    reverse the srl/andi order here. u16-sign-test residual after recipe. */
-// FUN_00371A60
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
+/* measured: nd 41 from 45 via opt_common_subs off (obj 300B vs window 320B).
+   The logic, the lerp of the three components and the func_00373cb0 argument
+   mapping (f32, f32, s32, f32 -- the s32 lands in $a0) are all confirmed.
 
-/* MATCHED this wave via lever 1 (parameter width): the two half-scaler args
-   must be u32, not s32. With s32 args, `arg >> 1` compiles to arithmetic
-   `sra` (retail uses logical `srl`) and the or-fold colors into the andi
-   result reg; with u32 args the srl/andi/or/mtc1 chain is byte-identical
-   (old note's "u32 locals" probe only covered locals, not the parameters).
-   Recipe: u32 arg + `if (v >= 0) { f = (f32)v; } else { v = (v>>1)|(v&1);
-   f = (f32)(s32)v; f += f; }`, then ShuffleVec3 struct-copy loop. */
+   Residuals: retail moves arg0 into $s0 and loads the counter into $v0, while
+   b210 loads it straight into $a0 and colours everything downstream from there;
+   retail RE-READS the counter with a second `lhu` after incrementing it where
+   b210 reuses the incremented value (opt_common_subs off recovers part of this);
+   and retail computes `(f32)(u32)counter` into $f1 and moves it to $f12 with a
+   separate `mtc1 $zero,$f0; add.s` pair rather than converting directly into
+   $f12. An f32 local for the converted value and opt_propagation off do not
+   change any of these (45, 45).
+
+   `(f32)(u32)*(u16 *)arg0` IS the right spelling for the bltz/srl/andi/or/add.s
+   unsigned-to-float sequence -- do not simplify it to `(f32)`. Register
+   colouring floor. */
+// FUN_00371A60 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_common_subs off
+s32 func_00371a60(u8 *arg0, s32 arg1) {
+    f32 v;
+    f32 t;
+
+    if ((f32)(u32)*(u16 *)arg0 >= *(f32 *)(arg0 + 4)) {
+        return 1;
+    }
+    *(u16 *)arg0 = *(u16 *)arg0 + 1;
+    v = (f32)(u32)*(u16 *)arg0;
+    t = func_00373cb0(v, *(f32 *)(arg0 + 8), arg1, *(f32 *)(arg0 + 4));
+    *(f32 *)(arg0 + 0xC) =
+        (*(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0x18)) * t + *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg0 + 0x10) =
+        (*(f32 *)(arg0 + 0x28) - *(f32 *)(arg0 + 0x1C)) * t + *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg0 + 0x14) =
+        (*(f32 *)(arg0 + 0x2C) - *(f32 *)(arg0 + 0x20)) * t + *(f32 *)(arg0 + 0x20);
+    return 0;
+}
+#pragma opt_common_subs on
+#else
+INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
+#endif
 // FUN_00371BA0
 void func_00371ba0(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
     f32 f0;

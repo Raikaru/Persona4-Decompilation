@@ -4523,7 +4523,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/003716d0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/003716d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4545,7 +4545,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/003717e0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/003717e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
