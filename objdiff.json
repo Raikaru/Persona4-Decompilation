@@ -22442,7 +22442,7 @@
       "target_path": "build/objdiff/target/Script/scrCommonCommand/00298e90.o",
       "base_path": "build/objdiff/base/Script/scrCommonCommand/00298e90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -139702,7 +139702,7 @@
       "target_path": "build/objdiff/target/promoted/tnEffect/004815b0.o",
       "base_path": "build/objdiff/base/promoted/tnEffect/004815b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

@@ -121,8 +121,22 @@ s32 func_00481540(u16 arg0) {
 }
 
 // FUN_004815B0
-INCLUDE_ASM("asm/nonmatchings/tnEffect", func_004815b0);
-
+void func_004815b0(void *arg0) {
+    u8 *obj;
+    TNFunc *tbl;
+    if (*(u16 *)arg0 & 1) {
+        tbl = (TNFunc *)D_00887300_abs;
+        (*tbl)(6, 1);
+    } else {
+        tbl = (TNFunc *)D_00887300_abs;
+        (*tbl)(6, 0);
+    }
+    obj = *(u8 **)((u8 *)arg0 + 0x10);
+    (*(void (**)(u8 *))(obj + 0x48))(obj);
+    if (!(*(u16 *)arg0 & 1)) {
+        (*tbl)(6, 1);
+    }
+}
 // FUN_00481660
 void func_00481660(void *arg0) {
     TNFunc *tbl = (TNFunc *)D_00887300_abs;
