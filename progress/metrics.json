@@ -436,6 +436,7 @@
       "00268990",
       "0026d840",
       "0026d9f0",
+      "0026da30",
       "00274650",
       "0027b6e0",
       "0027b750",
@@ -1235,9 +1236,9 @@
       "004b7140",
       "004baea0"
     ],
-    "asm_fallbacks_in_linked_objects": 515,
-    "count": 1228,
-    "percent": 9.384
+    "asm_fallbacks_in_linked_objects": 514,
+    "count": 1229,
+    "percent": 9.392
   },
   "matching": {
     "addresses": [
@@ -2785,6 +2786,7 @@
       "0026d810",
       "0026d840",
       "0026d9f0",
+      "0026da30",
       "0026e0e0",
       "0026e120",
       "0026e170",
@@ -4050,6 +4052,7 @@
       "0046d4c0",
       "0046d6b0",
       "00470250",
+      "00470280",
       "004703c0",
       "004703d0",
       "00470430",
@@ -5138,23 +5141,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 3896,
+    "count": 3898,
     "duplicate_rows": 0,
     "known_rows": 4864,
-    "matched_body_bytes": 592608,
-    "percent": 29.772,
+    "matched_body_bytes": 593212,
+    "percent": 29.788,
     "unique_known_addresses": 4864
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "C:\\tmp\\p4_link16.json",
+    "linked_report": "C:\\tmp\\p4_link17.json",
     "raw_rows": 4864,
-    "verifier_report": "C:\\tmp\\p4_sF.json"
+    "verifier_report": "C:\\tmp\\p4_sG.json"
   },
   "status_counts": {
-    "ASM": 968,
-    "MATCH": 3896
+    "ASM": 966,
+    "MATCH": 3898
   },
   "total": 13086
 }
