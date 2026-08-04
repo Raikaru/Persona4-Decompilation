@@ -4479,7 +4479,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/00371260.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/00371260.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -4490,7 +4490,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/003713b0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/003713b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -21078,7 +21078,7 @@
       "target_path": "build/objdiff/target/Main/Social/pscModel/0036a900.o",
       "base_path": "build/objdiff/base/Main/Social/pscModel/0036a900.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
