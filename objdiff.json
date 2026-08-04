@@ -37270,7 +37270,7 @@
       "target_path": "build/objdiff/target/nEntry/002a2650.o",
       "base_path": "build/objdiff/base/nEntry/002a2650.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143717,7 +143717,7 @@
       "target_path": "build/objdiff/target/shdScript/0025cbc0.o",
       "base_path": "build/objdiff/base/shdScript/0025cbc0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
