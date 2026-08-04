@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """4866 tracked markers across first-party src/.  Bump deliberately.
+        """4876 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -77,11 +77,18 @@ class MarkerCountTripwireTests(unittest.TestCase):
         Marking them costs nothing and both match as empty functions. 8,220
         windows are still in that unscanned state; this is the first two coming
         in, and the count is expected to keep climbing as they do.
+
+        Raised to 4876 for the ten unscanned windows in 0x0017B510..0x0017CCC0.
+        tu_audit groups that span as ONE translation unit at HIGH tier (score 5)
+        from a `__FILE__` string naming k_shadow.c, and two of its members were
+        already marked in code1_0017.c, so the ten join their siblings there.
+        They are canonical windows that had no marker at all; two of them
+        (func_0017b990, func_0017cc90) matched immediately once visible.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            4866,
+            4876,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:
