@@ -11178,7 +11178,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effBattleOnly/004b50f0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effBattleOnly/004b50f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
