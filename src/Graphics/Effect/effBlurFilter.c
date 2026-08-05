@@ -1165,8 +1165,38 @@ INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aaee0);
    if-block (nd 24), obj2-first declaration order, s32 obj2 + cast,
    nested-if, #pragma schedule on (nd 46) — all nd 4. Same shape as the
    documented bpc 00245420 floor (retail move-before-load). */
+/* measured: nd 8 of 56 words - two adjacent argument materialisations for the
+   final call are transposed. Retail moves the already-computed texture pointer
+   into $a0 first and loads the u16 second; b210 loads first and copies the
+   register last, because the copy is free and it schedules it as late as it
+   can. Four source spellings that reorder the call arguments (index form,
+   extra cast, a second local holding the pointer, and inlining the producing
+   call into the argument list) all compile identically, and schedule on costs
+   nd 123. The rest of the function - both asserts, the *24 table stride and
+   the short-circuit - is byte-exact. func_004ab5a0 is the same shape. */
 // FUN_004AB060
+#ifdef NON_MATCHING
+u8 *func_004ab060(void *param_1) {
+    u8 *tmp;
+    u16 *tex;
+
+    tmp = (u8 *)func_00484490();
+    if (tmp == 0) {
+        func_0046d730(D_00714380, 0x660);
+    }
+    tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
+    if (tmp == 0) {
+        func_0046d730(D_00714380, 0x662);
+    }
+    tex = func_004844d0(param_1);
+    if ((tex != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
+        *(s32 *)(tmp + 0x28) = (s32)func_004ab960(tex, *(u16 *)((char *)param_1 + 0x1C));
+    }
+    return tmp;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab060);
+#endif
 
 /* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
    body — identical residual to func_004ab060 (same pre-jal
@@ -1176,8 +1206,30 @@ INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab060);
    helper around arg0 (file-scope, nd 4), helper around the load (compile
    error in-region) — all nd 4. 11 spellings total across both siblings.
    Complexity-ranking floor, same shape as bpc 00245420. */
+/* measured: same shape and same residual as func_004ab060; see that note. nd 8. */
 // FUN_004AB5A0
+#ifdef NON_MATCHING
+u8 *func_004ab5a0(void *param_1) {
+    u8 *tmp;
+    u16 *tex;
+
+    tmp = (u8 *)func_00484490();
+    if (tmp == 0) {
+        func_0046d730(D_00714380, 0x72B);
+    }
+    tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
+    if (tmp == 0) {
+        func_0046d730(D_00714380, 0x72D);
+    }
+    tex = func_004844d0(param_1);
+    if ((tex != 0) && (*(s8 *)(D_00714470 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
+        *(s32 *)(tmp + 0x28) = (s32)func_004ab960(tex, *(u16 *)((char *)param_1 + 0x1C));
+    }
+    return tmp;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab5a0);
+#endif
 
 // FUN_004AB140
 void func_004ab140(void *param_1) {
