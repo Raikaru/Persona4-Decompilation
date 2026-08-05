@@ -87,6 +87,30 @@ def main():
             continue
         sigs[sig].append((a, name, status, f))
 
+    if '--clusters' in sys.argv:
+        # Groups of unmatched functions that share a shape with EACH OTHER. No
+        # matched template exists, so the first one still has to be reverse
+        # engineered - but the cost is paid once for the whole group. The
+        # effPolygonFlash clear loop was seven functions differing in one word.
+        groups = []
+        for sig, members in sigs.items():
+            asm = [m for m in members if m[2] == 'ASM' and not verify.is_third_party(m[3])]
+            if len(asm) > 1:
+                groups.append({'words': len(sig), 'size': len(asm),
+                               'members': [f'{m[0]:08x}' for m in asm],
+                               'files': sorted({m[3] for m in asm})})
+        groups.sort(key=lambda g: (-g['size'], -g['words']))
+        total = sum(g['size'] for g in groups)
+        print(f'ASM-only structural clusters: {len(groups)} '
+              f'covering {total} functions')
+        for g in groups[:30]:
+            print(f"  {g['size']:3} fns  {g['words']:4} words  "
+                  f"{', '.join(m for m in g['members'][:6])}"
+                  f"{' ...' if g['size'] > 6 else ''}  "
+                  f"{g['files'][0].split(chr(92))[-1]}")
+        json.dump(groups, open('build/twin_clusters.json', 'w'), indent=1)
+        return
+
     hits = []
     for sig, members in sigs.items():
         matched = [m for m in members if m[2] == 'MATCH' and not verify.is_third_party(m[3])]
