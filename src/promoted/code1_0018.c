@@ -56,7 +56,14 @@ void func_00189e90(u8 *arg0)
 
 
 // FUN_00189FA0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00189fa0);
+s32 func_00189fa0(void) {
+    if (*(s32 *)((u8 *)(func_00155280()) + 0x30) == 0) {
+        return 0;
+    }
+    func_00452080(*(s32 *)((u8 *)(func_00155280()) + 0x30));
+    *(s32 *)((u8 *)(func_00155280()) + 0x30) = 0;
+    return 1;
+}
 
 // FUN_0018A000
 void func_0018a000(u8 *arg0, s32 arg1)

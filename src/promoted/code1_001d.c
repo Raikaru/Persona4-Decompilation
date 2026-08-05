@@ -35,7 +35,15 @@ void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d5ac0);
 
 // FUN_001D6300
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6300);
+void func_001d6300(u8 *arg0) {
+    u8 *temp_3;
+
+    *(s32 *)(arg0 + 0x1C) = 0;
+    func_001d40d0(*(u8 **)(arg0 + 0));
+    temp_3 = (u8 *)(*(u8 **)(arg0 + 4));
+    *(u16 *)(temp_3 + 0xA0) = (u16) (*(u16 *)(temp_3 + 0xA0) + 1);
+    *(s32 *)(arg0 + 0x18) = func_001d6ce0(*(s32 *)((u8 *)(*(u8 **)(arg0 + 4)) + 0xA08));
+}
 
 // FUN_001D6570
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6570);
@@ -52,7 +60,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6a70);
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7700);
 
 // FUN_001D7A60
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7a60);
+s32 func_001d7a60(u8 *arg0) {
+    func_00122520(1, *(u16 *)(arg0 + 4));
+    func_001228a0(*(u8 *)(arg0 + 0), *(u8 *)(arg0 + 1), *(u8 *)(arg0 + 2));
+    return 1;
+}
 
 // FUN_001D7B60
 void func_001d7b60(u16 param_1)

@@ -38,7 +38,18 @@ s32 func_00155290(void)
 }
 
 // FUN_001560A0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001560a0);
+void func_001560a0(u8 *arg0, s16 arg1, s16 arg2, s16 arg3) {
+    u8 *temp_16;
+
+    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    *(s16 *)(temp_16 + 0xD8) = arg1;
+    *(s16 *)(temp_16 + 0xDA) = arg2;
+    *(s16 *)(temp_16 + 0xDC) = arg3;
+    *(s16 *)(temp_16 + 0xDE) = 0;
+    *(s16 *)(temp_16 + 0xE0) = 0;
+    func_00122520(1, 0);
+    *(s32 *)(temp_16 + 0) = 0x11;
+}
 
 // FUN_001560F0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001560f0);

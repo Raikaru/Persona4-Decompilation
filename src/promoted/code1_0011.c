@@ -60,7 +60,11 @@ void func_00110e70(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110e80);
 
 // FUN_00110FC0
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110fc0);
+void func_00110fc0(void) {
+    func_00260560();
+    func_00122520(1, 1);
+    func_001029a0(0x1B, 0, 0, 8);
+}
 
 // FUN_00111010
 void func_00111010(void)

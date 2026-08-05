@@ -626,6 +626,83 @@ class CliTests(unittest.TestCase):
                 lint.ROOT = old_root
 
 
+
+
+class WholeFunctionAsmTests(unittest.TestCase):
+    """H009 for MWCC's `asm void f(void) { ... }` form.
+
+    A body of `.word` literals copied from the retail bytes matches
+    byte-for-byte by construction, so nothing else in the campaign can tell it
+    from a real result. m2c emits exactly that shape for functions it cannot
+    lift.
+    """
+
+    def test_fires_on_a_word_blob_of_ordinary_instructions(self) -> None:
+        findings = lint_text("""// FUN_003C54A0
+asm void func_003c54a0(void)
+{
+    .set noreorder
+    .word 0x3C020003 /* lui */
+    .word 0x8C4273E8 /* lw */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+""")
+        self.assertIn("H009", codes(findings))
+
+    def test_silent_on_a_syscall_trampoline(self) -> None:
+        # No C expression exists for `syscall`, and MWCC's assembler rejects
+        # the mnemonic, so the .word form is the honest representation.
+        findings = lint_text("""// FUN_004213C0
+asm void func_004213c0(void)
+{
+    .set noreorder
+    .word 0x24030000 /* addiu $v1, $zero, 0 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_on_a_cop2_blob(self) -> None:
+        findings = lint_text("""// FUN_00100000
+asm void func_00100000(void)
+{
+    .word 0x4A000000 /* COP2 */
+    .word 0x03E00008
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_silent_on_ordinary_c(self) -> None:
+        findings = lint_text("""// FUN_00100000
+s32 func_00100000(s32 arg0)
+{
+    return arg0 + 1;
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
+    def test_fires_on_mnemonic_form_without_word_directives(self) -> None:
+        findings = lint_text("""// FUN_00100000
+asm void func_00100000(void)
+{
+    lw $v0, 0x40($a0)
+    jr $ra
+    nop
+}
+""")
+        self.assertIn("H009", codes(findings))
+
+    def test_word_decoder_separates_hardware_from_computation(self) -> None:
+        self.assertTrue(lint._word_is_hardware(0x0000000C))    # syscall
+        self.assertTrue(lint._word_is_hardware(0x40026000))    # mfc0
+        self.assertTrue(lint._word_is_hardware(0x4A000000))    # COP2
+        self.assertFalse(lint._word_is_hardware(0x24030000))   # addiu
+        self.assertFalse(lint._word_is_hardware(0x8C420040))   # lw
+        self.assertFalse(lint._word_is_hardware(0x46000000))   # COP1 float
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -34,7 +34,11 @@ void func_00494680(void *arg0)
 
 
 // FUN_00494F90
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00494f90);
+void func_00494f90(u8 *arg0) {
+    func_0048a1f0();
+    func_003c2290(*(u8 **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x10)) + 0x10)) + 0x18), 0xA);
+    func_003c2290(*(u8 **)((u8 *)(*(u8 **)((u8 *)(*(u8 **)(arg0 + 0x14)) + 0x10)) + 0x18), 0xA);
+}
 
 // FUN_00495090
 void func_00495090(u8 *arg0, u32 arg1)

@@ -166,10 +166,29 @@ u8 *func_001f3b20(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f3f60);
 
 // FUN_001F4040
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f4040);
+s32 func_001f4040(u8 *arg0) {
+    if (*(u8 *)((u8 *)(*(u8 **)(arg0 + 0x30)) + 0xA2) != 0) {
+        return -1;
+    }
+    if (func_001f5ea0(0) != 0) {
+        return 0xCD;
+    }
+    return 0xCE;
+}
 
 // FUN_001F40A0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f40a0);
+s32 func_001f40a0(void) {
+    s32 temp_3;
+
+    temp_3 = func_001ef720(2, 0x80000) & 0xFFFF;
+    if (temp_3 >= 5) {
+        return -1;
+    }
+    if (temp_3 == 0) {
+        return -1;
+    }
+    return 0x58 - temp_3;
+}
 
 // FUN_001F41E0
 s32 func_001f41e0(void) {

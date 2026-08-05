@@ -574,6 +574,75 @@ def check_asm_barrier(src):
                           src.lines[i].strip())
 
 
+ASM_FUNC_RE = re.compile(r"^\s*asm\s+[A-Za-z_][\w \*]*\b\w+\s*\(")
+WORD_DIRECTIVE_RE = re.compile(r"^\s*\.word\s+(0[xX][0-9A-Fa-f]+)")
+
+
+def _word_is_hardware(word):
+    """True if a raw encoded instruction has no C expression.
+
+    A `.word` blob is machine code with the mnemonic hidden, so the allowlist
+    cannot be applied by name.  Decoding the few fields that matter is enough:
+    COP0 (`mfc0`/`mtc0`/`eret`/`tlbwi`) and COP2/VU0 are whole opcode spaces,
+    and `syscall`/`break`/`sync` are SPECIAL functs.  Everything else -- loads,
+    stores, arithmetic, branches, even COP1 float -- is ordinary computation
+    that belongs in C.
+    """
+    op = word >> 26
+    if op in (0x10, 0x12):                # COP0, COP2/VU0
+        return True
+    if op == 0:
+        return (word & 0x3F) in (0x0C, 0x0D, 0x0F)   # syscall, break, sync
+    return False
+
+
+def check_asm_function_body(src):
+    """H009 for MWCC's `asm void f(void) { ... }` whole-function form.
+
+    ASM_KEYWORD_RE only matches the statement form `asm (`, so a function
+    DEFINITION qualified with `asm` slipped past every asm rule.  That is the
+    most dangerous shape available: a body of `.word` literals copied from the
+    retail bytes matches byte-for-byte by construction, so it reads as a
+    genuine result to every other tool in the campaign.  m2c emits exactly
+    that form for functions it cannot lift, which is how one reached a
+    placeholder file.
+
+    The legitimate case is real: PS2 kernel syscall trampolines have no C
+    expression, and MWCC's assembler rejects the `syscall` mnemonic, so they
+    must be `.word` literals.  Those decode as hardware and stay allowed.
+    """
+    for i, line in enumerate(src.code):
+        if not ASM_FUNC_RE.match(line):
+            continue
+        depth, ordinary, hardware = 0, 0, False
+        for j in range(i, len(src.code)):
+            body = src.code[j]
+            m = WORD_DIRECTIVE_RE.match(body)
+            if m:
+                if _word_is_hardware(int(m.group(1), 16)):
+                    hardware = True
+                else:
+                    ordinary += 1
+            else:
+                for base in _asm_mnemonics(body if j > i else ''):
+                    if base.startswith("v") or base in ASM_ALLOWED:
+                        hardware = True
+                    else:
+                        ordinary += 1
+            depth += body.count("{") - body.count("}")
+            if depth <= 0 and j > i:
+                break
+        if hardware or not ordinary:
+            continue
+        if waived(src, i, "H009"):
+            continue
+        yield Finding("H009", src.rel(), i + 1,
+                      f"whole-function asm body of {ordinary} ordinary instruction(s) "
+                      "with no privileged/COP2/VU0 op; this matches by construction, "
+                      "not by decompilation",
+                      src.lines[i].strip())
+
+
 def check_asm_instructions(src):
     """H009: inline asm emitting real instructions for ordinary computation."""
     for i, line in enumerate(src.code):
@@ -696,6 +765,7 @@ CHECKS = (
     check_register_local,
     check_asm_barrier,
     check_asm_instructions,
+    check_asm_function_body,
     check_markers,
     check_pragma_balance,
 )
