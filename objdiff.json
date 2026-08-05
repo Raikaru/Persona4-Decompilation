@@ -10298,7 +10298,7 @@
       "target_path": "build/objdiff/target/Event/evtMain/00288020.o",
       "base_path": "build/objdiff/base/Event/evtMain/00288020.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
