@@ -21,7 +21,7 @@ before extracting what the build needs.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,083; all mapped to C or owned retail assembly |
-| Byte-identical functions | 4,156 (31.766% of windows) |
+| Byte-identical functions | 4,162 (31.812% of windows) |
 | Under test (a `// FUN_` marker scores them) | 5,538 (42.33% of windows) |
 | Not yet under test, supplied as retail bytes | 7,545 (57.67% of windows) |
 | In byte-exact linked C objects | 1,242 (9.493% of windows), with 506 assembly fallbacks still inside those objects |
