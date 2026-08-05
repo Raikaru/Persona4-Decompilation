@@ -62,8 +62,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd470);
 // FUN_003BD4F0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
 
-// FUN_003BD560 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_003BD560
+/* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
+   The retail window for func_003bd560 contains no branch-likely instruction at all, so the
+   likely form is simply wrong here; nd 4 -> MATCH with this pragma. */
+#pragma no_branch_likely on
 s32 func_003bd560(u8 *arg0) {
     u8 *temp_2;
 
@@ -73,9 +76,8 @@ s32 func_003bd560(u8 *arg0) {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd560);
-#endif
+/* measured: see the annotation above the matching `on` pragma (func_003bd560). */
+#pragma no_branch_likely off
 #pragma schedule off
 
 
@@ -103,8 +105,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd590);
 // FUN_003BD610
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
 
-// FUN_003BD680 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_003BD680
+/* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
+   The retail window for func_003bd680 contains no branch-likely instruction at all, so the
+   likely form is simply wrong here; nd 4 -> MATCH with this pragma. */
+#pragma no_branch_likely on
 s32 func_003bd680(u8 *arg0) {
     u8 *temp_2;
 
@@ -114,9 +119,8 @@ s32 func_003bd680(u8 *arg0) {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd680);
-#endif
+/* measured: see the annotation above the matching `on` pragma (func_003bd680). */
+#pragma no_branch_likely off
 #pragma schedule off
 
 
@@ -170,8 +174,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be820);
 // FUN_003BE8A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
 
-// FUN_003BE910 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_003BE910
+/* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
+   The retail window for func_003be910 contains no branch-likely instruction at all, so the
+   likely form is simply wrong here; nd 4 -> MATCH with this pragma. */
+#pragma no_branch_likely on
 s32 func_003be910(u8 *arg0) {
     u8 *temp_2;
 
@@ -181,9 +188,8 @@ s32 func_003be910(u8 *arg0) {
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be910);
-#endif
+/* measured: see the annotation above the matching `on` pragma (func_003be910). */
+#pragma no_branch_likely off
 #pragma schedule off
 
 
