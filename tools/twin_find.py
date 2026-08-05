@@ -27,10 +27,16 @@ import verify
 from verify import RetailElf, load_config
 
 
-def mask(word):
+def mask(word, loose=False):
     op = word >> 26
     if op in (2, 3):                       # j / jal: target is a relocation
         return op << 26
+    if loose:
+        # Drop every register field as well, keeping only the operation. Two
+        # functions with the same opcode sequence but different register
+        # allocation usually share a C shape and differ in types or in the
+        # order of independent statements.
+        return (op << 26) | (word & 0x3F) if op == 0 else op << 26
     if op == 0:                            # SPECIAL: keep rs/rt/rd/funct
         return word & 0xFFFFF83F
     if op in (4, 5, 6, 7, 20, 21, 22, 23, 1):   # branches: drop the displacement
@@ -40,19 +46,22 @@ def mask(word):
     return word
 
 
-def signature(data):
+def signature(data, loose=False):
     words = [struct.unpack('<I', data[i:i + 4])[0] for i in range(0, len(data) - 3, 4)]
     while words and words[-1] == 0:
         words.pop()
-    return tuple(mask(w) for w in words), len(words)
+    return tuple(mask(w, loose) for w in words), len(words)
 
 
 def main():
+    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    loose = '--loose' in sys.argv
+    out = 'build/twins_loose.json' if loose else 'build/twins.json'
     cfg = load_config()
     sizes = json.loads(open('tools/slus21782_functions.json').read())
     target = json.loads(open('config/target.json').read())
     retail = RetailElf(cfg['retail_elf'], target, sizes['sha1'])
-    report = json.loads(open(sys.argv[1]).read())
+    report = json.loads(open(args[0]).read())
 
     rows = []
     for r in report['results']:
@@ -71,7 +80,7 @@ def main():
         if not w or w < 16:
             continue
         try:
-            sig, n = signature(retail.bytes_at(a, w))
+            sig, n = signature(retail.bytes_at(a, w), loose)
         except Exception:
             continue
         if n < 4:
@@ -92,7 +101,7 @@ def main():
     for h in hits[:40]:
         print(f"  {h['asm']} {h['asm_name']:20} <- {h['twin']} {h['twin_name']:20} "
               f"{h['words']:4} words  {h['twin_file'].split(chr(92))[-1]}")
-    json.dump(hits, open('C:/tmp/p4_twins.json', 'w'), indent=1)
+    json.dump(hits, open(out, 'w'), indent=1)
 
 
 if __name__ == '__main__':

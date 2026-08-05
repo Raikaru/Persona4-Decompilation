@@ -131584,7 +131584,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0041/0041f2b8.o",
       "base_path": "build/objdiff/base/promoted/code1_0041/0041f2b8.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
