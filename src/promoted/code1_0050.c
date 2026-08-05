@@ -100,15 +100,6 @@ s32 *func_0050b3d0(void)
    ($v0/$v1 coalescing in tiny accessors; getters not reachable). */
 #pragma optimization_level 3
 
-// FUN_0050BCA0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0050bca0(void)
-{
-    return D_0074586C[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bca0);
-#endif
 #pragma optimization_level 2
 
 
@@ -120,15 +111,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bca0);
    ($v0/$v1 coalescing in tiny accessors; getters not reachable). */
 #pragma optimization_level 3
 
-// FUN_0050CA80 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0050ca80(void)
-{
-    return D_00745878[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050ca80);
-#endif
 #pragma optimization_level 2
 
 

@@ -62,15 +62,6 @@ extern s32 D_00723F20[];
  * there, all nd 2; 19 accessors tree-wide, none matched). NONMATCHING */
 #pragma schedule on
 
-// FUN_004D3190 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004d3190(void)
-{
-    return D_00723F20[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3190);
-#endif
 /* measured: schedule on keeps the lw in the jr delay slot (without it the
  * delay slot is unfilled, nd 3). */
 #pragma schedule off
@@ -105,15 +96,6 @@ extern s32 D_00724E58[];
  * tree-wide, none matched). NONMATCHING */
 #pragma schedule on
 
-// FUN_004D3688 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004d3688(void)
-{
-    return D_00724E58[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3688);
-#endif
 /* measured: schedule on keeps the lw in the jr delay slot (without it the
  * delay slot is unfilled, nd 3). */
 #pragma schedule off
@@ -129,15 +111,6 @@ extern s32 D_00724E60[];
  * tree-wide, none matched). NONMATCHING */
 #pragma schedule on
 
-// FUN_004D3698 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004d3698(void)
-{
-    return D_00724E60[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3698);
-#endif
 /* measured: schedule on keeps the lw in the jr delay slot (without it the
  * delay slot is unfilled, nd 3). */
 #pragma schedule off

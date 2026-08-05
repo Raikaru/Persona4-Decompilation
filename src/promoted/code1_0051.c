@@ -24,14 +24,6 @@ extern u8 *D_00745888[];
    brief's corroborated "$v0/$v1 coalescing in tiny accessors" floor. */
 
 #pragma schedule on
-// FUN_00510E40 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_00510e40(void) {
-    return D_00745888[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00510e40);
-#endif
 #pragma schedule off
 
 
@@ -44,14 +36,6 @@ extern u8 *D_00745AC0[];
    brief's corroborated "$v0/$v1 coalescing in tiny accessors" floor. */
 
 #pragma schedule on
-// FUN_00513790 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_00513790(void) {
-    return D_00745AC0[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513790);
-#endif
 #pragma schedule off
 
 

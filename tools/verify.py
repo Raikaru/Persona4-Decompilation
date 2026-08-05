@@ -61,7 +61,10 @@ def is_generated(path: Path) -> bool:
 # Middleware and platform code we did not write: RenderWare, CRI, the Sony SDK,
 # and the C runtime. It is tracked because it occupies retail windows, but it is
 # not the decompilation's goal, so progress is reported separately for it.
-THIRD_PARTY_PREFIXES = ("rw/", "cri/", "sce/")
+# "middleware/" holds code proven to be ee-gcc output rather than MWCCPS2 (see
+# src/middleware/gcc_ee_grouped.c for the per-signature evidence); the vendor is
+# unknown so it is filed by toolchain instead of under cri/ or sce/.
+THIRD_PARTY_PREFIXES = ("rw/", "cri/", "sce/", "middleware/")
 THIRD_PARTY_FILES = {"crt0.c", "libc_core.c", "libcdvd.c"}
 
 

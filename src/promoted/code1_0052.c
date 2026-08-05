@@ -54,15 +54,6 @@ u32 func_005230b8(u32 arg0)
  * stays $v0 vs retail $v1 (nd 2, allocator floor). NONMATCHING */
 #pragma schedule on
 
-// FUN_005230C8 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_005230c8(void)
-{
-    return D_00745ABC[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005230c8);
-#endif
 #pragma schedule off
 
 
@@ -102,15 +93,6 @@ u32 func_0052b9e0(u32 arg0)
  * stays $v0 vs retail $v1 (nd 2, allocator floor). NONMATCHING */
 #pragma schedule on
 
-// FUN_0052B9F0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0052b9f0(void)
-{
-    return D_00745C84[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b9f0);
-#endif
 #pragma schedule off
 
 
@@ -137,15 +119,6 @@ u32 func_0052ba00(u32 arg0)
  * stays $v0 vs retail $v1 (nd 2, allocator floor). NONMATCHING */
 #pragma schedule on
 
-// FUN_0052BA10 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0052ba10(void)
-{
-    return D_00745C6C[0];
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052ba10);
-#endif
 #pragma schedule off
 
 
