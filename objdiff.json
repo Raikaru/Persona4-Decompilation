@@ -126271,7 +126271,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0020/00202e00.o",
       "base_path": "build/objdiff/base/promoted/code1_0020/00202e00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -126557,7 +126557,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0021/002121b0.o",
       "base_path": "build/objdiff/base/promoted/code1_0021/002121b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -126766,7 +126766,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0021/00218420.o",
       "base_path": "build/objdiff/base/promoted/code1_0021/00218420.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -126777,7 +126777,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0021/00218500.o",
       "base_path": "build/objdiff/base/promoted/code1_0021/00218500.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -129890,7 +129890,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0039/0039aa50.o",
       "base_path": "build/objdiff/base/promoted/code1_0039/0039aa50.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -131298,7 +131298,7 @@
       "target_path": "build/objdiff/target/promoted/code1_003e/003e44b0.o",
       "base_path": "build/objdiff/base/promoted/code1_003e/003e44b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -131342,7 +131342,7 @@
       "target_path": "build/objdiff/target/promoted/code1_003e/003e4880.o",
       "base_path": "build/objdiff/base/promoted/code1_003e/003e4880.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -131353,7 +131353,7 @@
       "target_path": "build/objdiff/target/promoted/code1_003e/003e48d0.o",
       "base_path": "build/objdiff/base/promoted/code1_003e/003e48d0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -131419,7 +131419,7 @@
       "target_path": "build/objdiff/target/promoted/code1_003e/003e59e0.o",
       "base_path": "build/objdiff/base/promoted/code1_003e/003e59e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -133179,7 +133179,7 @@
       "target_path": "build/objdiff/target/promoted/code1_004b/004b0fd0.o",
       "base_path": "build/objdiff/base/promoted/code1_004b/004b0fd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -133190,7 +133190,7 @@
       "target_path": "build/objdiff/target/promoted/code1_004b/004b1030.o",
       "base_path": "build/objdiff/base/promoted/code1_004b/004b1030.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -133377,7 +133377,7 @@
       "target_path": "build/objdiff/target/promoted/code1_004b/004b18e0.o",
       "base_path": "build/objdiff/base/promoted/code1_004b/004b18e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

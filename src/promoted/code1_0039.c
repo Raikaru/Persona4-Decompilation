@@ -346,8 +346,24 @@ s32 func_0039aa40(void)
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
+/* measured: schedule on plus no_branch_likely on - schedule fills retail's
+   delay slots and b210 then wants beql/bnel where retail has plain branches. */
 // FUN_0039AA50
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039aa50);
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_0039aa50(u8 *arg0) {
+    s32 var_2;
+
+    if (*(s32 *)((u8 *)(func_003c9c20()) + 8) & 0x80) {
+        var_2 = func_0039b6e0(0x11010);
+    } else {
+        var_2 = func_0039b6e0(0x1100F);
+    }
+    *(s32 *)((u8 *)(arg0) + 0x7C) = var_2;
+    return (u8 *)(arg0);
+}
+#pragma no_branch_likely off
+#pragma schedule off
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
