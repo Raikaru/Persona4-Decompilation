@@ -268,6 +268,26 @@ JAL_REACHABLE_ENTRIES = {
     0x00272BA0: {"jal_sites": 18},
 }
 
+# The other half of the same spimdisasm mistake. Having declared the true entries
+# above, the LANDING points it mistook for entries must be withdrawn, or each
+# rotated loop stays cut in two: 0x00272B00 keeps only a 52-byte window ending in
+# the middle of its loop, and the 28 bytes holding the bottom test and epilogue are
+# attributed to a function that does not exist.
+#
+# The evidence is the mirror image of the evidence above. Scanning every
+# instruction in the retail image finds ZERO `jal`, ZERO `j` and ZERO data words
+# targeting either address, while their declared parents have 17 and 18 `jal`
+# sites. Each is reached only by the unconditional `b` its parent opens with
+# (0x00272B00 begins `b 0x00272B34`) and by that loop's own back-branch.
+#
+# Withdrawing an address that something really calls would break the link with
+# `Undefined: func_...`, which is exactly what happened when an earlier revision
+# withdrew the parents instead. tests/test_reconcile.py re-counts the callers.
+BRANCH_LANDING_ENTRIES = {
+    0x00272B34: {"parent": 0x00272B00},
+    0x00272BD4: {"parent": 0x00272BA0},
+}
+
 
 
 CURATED_NAMES = REPO / "config" / "symbol_names.txt"
@@ -352,6 +372,14 @@ def main() -> int:
         if not entry <= address < code1_end:
             raise RuntimeError(f"jal-reachable entry {address:#x} is outside code1")
         code1.add(address)
+    for address, info in BRANCH_LANDING_ENTRIES.items():
+        parent = info["parent"]
+        if parent not in code1:
+            raise RuntimeError(
+                f"branch-landing {address:#x} names parent {parent:#x}, which is "
+                "not an entry; withdrawing it would leave the bytes unowned"
+            )
+        code1.discard(address)
     code2 = {address for address in ghidra_addresses if code2_start <= address < code2_end}
 
     # The shared blob has nine functions in both Persona 4 Ghidra analysis and

@@ -33486,18 +33486,7 @@
       "target_path": "build/objdiff/target/frFont/00272b00.o",
       "base_path": "build/objdiff/base/frFont/00272b00.o",
       "metadata": {
-        "complete": false,
-        "progress_categories": [
-          "main"
-        ]
-      }
-    },
-    {
-      "name": "frFont:00272B34",
-      "target_path": "build/objdiff/target/frFont/00272b34.o",
-      "base_path": "build/objdiff/base/frFont/00272b34.o",
-      "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -33519,18 +33508,7 @@
       "target_path": "build/objdiff/target/frFont/00272ba0.o",
       "base_path": "build/objdiff/base/frFont/00272ba0.o",
       "metadata": {
-        "complete": false,
-        "progress_categories": [
-          "main"
-        ]
-      }
-    },
-    {
-      "name": "frFont:00272BD4",
-      "target_path": "build/objdiff/target/frFont/00272bd4.o",
-      "base_path": "build/objdiff/base/frFont/00272bd4.o",
-      "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
