@@ -255,7 +255,21 @@ u8* func_0029d120(ScrPool* pool)
 
    Previously recorded, still true of the nd-6 body below: retail materializes the
    third call argument before the two moves into $a0/$a1, and five hand spellings
-   including opt_propagation off all score 6. */
+/* Argument-materialisation floor, 3 words (nd 10). The body below is complete and
+   correct - it was recovered by running tools/permute_min.py over an AST-permuter hit,
+   which stripped 31 of 78 lines of randomiser noise (four empty blocks, comma
+   operators, a no-op mask, nine single-use temps) and left `*(&arg0)` plus a
+   duplicated assert as the only load-bearing oddities. Reading retail directly then
+   showed those two were noise as well: the real shape is two ordinary asserts on
+   DIFFERENT lines (106, 107) with `node` computed before the emptiness test.
+   The whole residual is that retail materialises the third argument first:
+       sw $v0,8($s1) / lw $a2,($s1) / move $a0,$s0 / move $a1,$zero / jal
+   where b210 emits the two moves before the load. Measured as NOT source-drivable:
+   inline-at-callsite, a temp after the decrement, a temp before it, `((s32 *)arg0)[0]`,
+   an old-style callee declaration, arg1 through a local, and `#pragma schedule off`
+   all sit at nd 10 (the two forms that move the load earlier score nd 13 and nd 104).
+   `schedule off` changing nothing proves this is codegen argument ordering, not the
+   scheduler - the genuine-floor case in mwccps2-operand-order-inline-helper. */
 // FUN_0029D1C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0029d1c0(void *arg0, void *arg1)
@@ -272,7 +286,7 @@ void func_0029d1c0(void *arg0, void *arg1)
     if (*(s32 *)((u8 *)arg1 - 4) == 0) {
         *(u8 **)(node + 4) = *(u8 **)((u8 *)arg0 + 0xC);
         *(u8 **)((u8 *)arg0 + 0xC) = node;
-        *(s32 *)((u8 *)arg0 + 8) = *(s32 *)((u8 *)arg0 + 8) - 1;
+        *(s32 *)((u8 *)arg0 + 8) -= 1;
         func_0043f9c8(arg1, 0, *(s32 *)arg0);
     }
 }
@@ -801,3 +815,4 @@ void func_0029e8d0(u8* arg0)
     buf = ((u8* (*)(s32, s32, s32))D_008873F4[0])(1, 0x228, 0x40000);
     func_00451fc0((s32)arg0, D_0063E618, 0xC9, 0, 0, (void (*)(u8*))func_0029e550, (void (*)(u8*))func_0029e7b0, buf);
 }
+
