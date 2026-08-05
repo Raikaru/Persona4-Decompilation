@@ -26,6 +26,12 @@ REPO = Path('.')
 MARK = re.compile(r'^\s*//\s*FUN_([0-9A-Fa-f]{8})\b')
 M2C_CALL = 'M2C_FIELD('
 BAD = ('M2C_UNK', 'M2C_ERROR', 'M2C_MEMCPY', '?')
+# m2c emits `asm void f(void) { .word 0x... }` for functions it cannot lift.
+# Spliced in, that scores a perfect MATCH by construction -- it IS the retail
+# bytes -- so it looks like a result to every other tool here. One reached a
+# placeholder file before decomp_lint grew a rule for the whole-function asm
+# form, which ASM_KEYWORD_RE never covered. Refuse it at the source too.
+ASM_BLOB = re.compile(r'(^|\n)\s*(asm\s+[A-Za-z_][\w \*]*\b\w+\s*\(|\.word\s+0[xX])')
 
 
 def find_draft(name):
@@ -124,6 +130,8 @@ def clean(text):
         base, typ, off = args
         text = text[:i] + f'*({typ})((u8 *)({base}) + {off})' + text[j + 1:]
     if any(b in text for b in BAD):
+        return None
+    if ASM_BLOB.search(text):
         return None
     return text
 
