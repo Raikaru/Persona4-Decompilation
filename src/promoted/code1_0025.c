@@ -228,7 +228,11 @@ s32 func_0025d520(void)
 }
 
 // FUN_0025D530
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d530);
+s32 func_0025d530(void)
+{
+    func_0029cf50((s16)func_00105ee0(func_0029cc00(0)));
+    return 1;
+}
 
 // FUN_0025D760
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d760);
