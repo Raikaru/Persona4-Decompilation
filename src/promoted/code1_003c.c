@@ -67,7 +67,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3cc0);
 // FUN_003C3E10
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e10);
 
-/* measured: same shape as func_003bd470 in code1_003b.c; see that note. nd 43. */
+/* measured: same shape as func_003bd470 in code1_003b.c, but NOT the same
+   residual - nd 102 here against nd 43 there. The note originally copied the
+   sibling's number without measuring this one; in a different translation unit
+   with different declarations the same source scores very differently. */
 // FUN_003C3F20
 #ifdef NON_MATCHING
 #pragma no_branch_likely on
