@@ -12,13 +12,13 @@ extern s32 D_007246EC;
 s32 func_0039b6e0(s32 arg0);
 
 extern s32 D_00884ACC[];
+extern u8 *D_007646D0;
 void *func_0039bb70(void *list, s32 key);
 
 
 // measured: schedule on hoists the return-value move to the top,
 // sinks the counter store, and fills the jr delay slot.
 #pragma schedule on
-
 // FUN_003901E0
 s32 func_003901e0(s32 arg0)
 {
@@ -98,8 +98,43 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399fd0);
 // FUN_0039A030
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a030);
 
+/* measured: nd 17 of 24 words, and the first thing to know is that this
+   function compiles at -O3, not -O2: the `#pragma optimization_level 3` far
+   above (opened for an unrelated function) is still in scope here, and every
+   probe made against it is measuring the wrong compiler. Scoping -O2 back over
+   the body takes nd 38 -> 17 on its own and is why the shape below reads
+   straight. Five functions in this file share the shape and differ only in the
+   returned field offset and the compared constant, so the residual is worth
+   five. What is left: retail hoists the compared constant into the preheader
+   (addiu $v1,$zero,1 before the loop) and enters the body without a pre-test,
+   knowing i=0 < 2 statically; b210 materialises the constant inside the body
+   and emits a `b` to the bottom test. opt_loop_invariants makes it worse
+   (nd 43), and the do/while spelling that removes the pre-test costs more than
+   it saves (nd 59 at -O2, obj 80 of 96). */
 // FUN_0039A090
+#ifdef NON_MATCHING
+#pragma optimization_level 2
+u32 func_0039a090(s32 arg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 1) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    return *(u32 *)(e + 0);
+}
+#pragma optimization_level 3
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a090);
+#endif
 
 // FUN_0039A0F0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
@@ -113,20 +148,112 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a260);
 // FUN_0039A2E0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a2e0);
 
+/* measured: same shape as func_0039a090; see that note. nd 17. */
 // FUN_0039A340
+#ifdef NON_MATCHING
+#pragma optimization_level 2
+u32 func_0039a340(s32 arg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 1) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    return *(u32 *)(e + 4);
+}
+#pragma optimization_level 3
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a340);
+#endif
 
+/* measured: same shape as func_0039a090; see that note. nd 17. */
 // FUN_0039A3A0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a3a0);
+#ifdef NON_MATCHING
+#pragma optimization_level 2
+u32 func_0039a3a0(s32 arg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
 
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 2) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    return *(u32 *)(e + 0);
+}
+#pragma optimization_level 3
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a3a0);
+#endif
+
+/* measured: same shape as func_0039a090; see that note. nd 17. */
 // FUN_0039A400
+#ifdef NON_MATCHING
+#pragma optimization_level 2
+u32 func_0039a400(s32 arg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 1) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    return *(u32 *)(e + 12);
+}
+#pragma optimization_level 3
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
+#endif
 
 // FUN_0039A460
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a460);
 
+/* measured: same shape as func_0039a090; see that note. nd 17. */
 // FUN_0039A630
+#ifdef NON_MATCHING
+#pragma optimization_level 2
+u32 func_0039a630(s32 arg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 4) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    return *(u32 *)(e + 0);
+}
+#pragma optimization_level 3
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a630);
+#endif
 
 // FUN_0039A690
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a690);
