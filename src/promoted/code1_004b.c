@@ -15,6 +15,8 @@ extern void func_00486180();
 extern void func_004b0ce0();
 
 
+extern u8 D_0071465C[];
+
 // FUN_004B0F70
 void func_004b0f70(void *object) {
     func_004b0ce0(object, 0);
@@ -151,7 +153,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b4ea0);
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b4f40);
 
 // FUN_004B4F90
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b4f90);
+void func_004b4f90(void *param_1) {
+    ((void (*)(void *))(*(u32 *)(D_0071465C + *(s32 *)((char *)param_1 + 0x18) * 24)))(param_1);
+    *(s32 *)((char *)param_1 + 0x14) += 1;
+}
 
 // FUN_004B4FF0
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b4ff0);

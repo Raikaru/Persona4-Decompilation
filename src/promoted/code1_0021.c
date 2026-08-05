@@ -196,7 +196,17 @@ void func_00218260(void) {
 
 
 // FUN_002183C0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002183c0);
+void func_002183c0(void) {
+    u8 *temp_16;
+    u8 *temp_2;
+
+    temp_2 = (u8 *)func_00452560();
+    temp_16 = temp_2 + 0x84C;
+    *(s16 *)(temp_16 + 0x28) = -1;
+    *(s32 *)(temp_16 + 0x2C) = -1;
+    func_001f7620(1, 0);
+    *(u16 *)(temp_16 + 0x10) &= 0xFFEF;
+}
 
 // FUN_00218420
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00218420);

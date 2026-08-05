@@ -11,6 +11,8 @@ void func_0018e780(s32 arg0);
 
 
 
+extern void func_003e0f40(s32 arg0);
+
 // FUN_00185120
 void func_00185120(u8 *arg0)
 {
@@ -63,7 +65,14 @@ void func_0018a000(u8 *arg0, s32 arg1)
 }
 
 // FUN_0018BAD0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bad0);
+void func_0018bad0(u8 *arg0) {
+    s32 h = *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x14);
+
+    if (h != 0) {
+        func_003e0f40(h);
+    }
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
 
 // FUN_0018BED0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bed0);
