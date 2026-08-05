@@ -127063,7 +127063,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0025/0025d7e0.o",
       "base_path": "build/objdiff/base/promoted/code1_0025/0025d7e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

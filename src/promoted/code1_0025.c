@@ -201,19 +201,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d530);
 // FUN_0025D760
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d760);
 
-// FUN_0025D7E0 NONMATCHING
-#ifdef NON_MATCHING
+/* `x > 0xA` here, not the equivalent `x >= 0xB`: b210 compiles `>= K` by
+   materialising the comparison into $v0, and `> K-1` by branching through the
+   assembler temp as retail does (slti $at,$v0,0xB / bnez $at). Identical
+   semantics, different branch form - this was the whole nd-2 residual. Found by
+   permute_ast (MATCH at 113 compiles) and reduced with permute_min; the winner
+   had rewritten the constant as `> (0xB & 0xFFFF) - 1`, which is the same thing.
+   Un-chaining the && and negating the inner test do NOT help - both stay nd 2. */
+// FUN_0025D7E0
 s32 func_0025d7e0(void) {
     if (func_0029d020() == 0xA) {
         func_001227d0();
         goto block_5;
     }
-    if ((func_0029d020() >= 0xB) && (func_001227f0() != 0)) {
+    if ((func_0029d020() > 0xA) && (func_001227f0() != 0)) {
         return 1;
     }
 block_5:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d7e0);
-#endif

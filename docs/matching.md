@@ -223,6 +223,23 @@ and often not source-reachable. Levers to try, in order:
 When no order matches after trying these, drop the function. Indexed
 getters/setters are the usual victims.
 
+## `slt $at` vs `slt $v0` — try `> K-1` for `>= K`
+
+When the only residual is a comparison row where retail names `$at` and we name
+`$v0` (`slti $at,$v0,0xB / bnez $at` against our `slti $v0,$v0,0xb / bnez $v0`),
+the fix is usually the *operator*, not the register. `x >= K` makes b210
+materialize the comparison into a general register; the equivalent `x > K-1`
+branches through the assembler temp, which is what retail does. Same semantics,
+different branch form.
+
+Measured on `code1_0025 func_0025d7e0`: `>= 0xB` → `> 0xA` took nd 2 → MATCH.
+Un-chaining the `&&` into nested `if`s and negating the inner test both stay at
+nd 2, so reach for the operator first. It is **per-comparison, not a blanket
+rewrite** — applying `>= K` → `> K-1` to all eight other preserved bodies that
+contain such a comparison produced no match and made five worse, because the
+form has to agree with retail's actual branch at that row. The mirror case is
+`x <= K` → `x < K+1`.
+
 ## Known compiler floors (do not fight these)
 
 When the only residual is one of these, the function is a compiler floor:
@@ -248,6 +265,18 @@ variants is wasted time.
   disagrees with retail and the two accesses are genuinely independent, no
   source order fixes it (see also the commutative-`addu` section — but those
   levers work only when the order is *dependent* on addressing).
+- **Framed tail jump.** For a one-line wrapper `return g(a);` retail emits a
+  frame *and* a tail jump: `addiu $sp,-0x10 / sd $ra,($sp) / ld $ra,($sp) /
+  j g / addiu $sp,0x10 / nop` — 24 bytes, `$ra` saved and restored around a
+  jump that never needs it. b210 emits exactly three shapes and none is that
+  one: 8 bytes (frameless tail jump), 28 bytes (framed `jal`, tail call
+  suppressed), or 32 bytes (the same unscheduled). Measured over all 18
+  combinations of `optimization_level` 1/2/3 × `tailcall` on/off × `schedule`
+  on/off/absent on `code1_0044 func_0044b8d8`; the size never leaves that set,
+  so the shape is not a pragma away. `#pragma tailcall off` is a real pragma
+  (checked with `tools/pragma_audit.py`) and does stop the collapse — it just
+  overshoots the window by one instruction. Affects the ~10-function wrapper
+  family in `code1_0043`/`code1_0044`.
 - **Commutative operand orientation** — `addu` and `mul.s` operand order when
   both operands are live in fixed registers. For float specifically,
   `fresh * invariant` canonicalizes to invariant-first (`mul.s $f0,$f2,$f0`)
