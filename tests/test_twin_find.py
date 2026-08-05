@@ -78,5 +78,52 @@ class SignatureTests(unittest.TestCase):
         self.assertEqual(n, 2)
 
 
+
+
+class LooseMask(unittest.TestCase):
+    """--loose drops register fields too.
+
+    It finds strictly more than the default, so an empty delta is the useful
+    signal: it means the vein is exhausted rather than that the mask is too
+    tight.
+    """
+
+    def test_register_fields_are_dropped(self):
+        lw_v0 = 0x8C820040        # lw $v0, 0x40($a0)
+        lw_t0 = 0x8C880040        # lw $t0, 0x40($a0)
+        self.assertEqual(twin.mask(lw_v0, True), twin.mask(lw_t0, True))
+
+    def test_default_mask_keeps_them_apart(self):
+        lw_v0 = 0x8C820040
+        lw_t0 = 0x8C880040
+        self.assertNotEqual(twin.mask(lw_v0), twin.mask(lw_t0))
+
+    def test_different_operations_still_differ(self):
+        lw = 0x8C820040
+        sw = 0xAC820040
+        self.assertNotEqual(twin.mask(lw, True), twin.mask(sw, True))
+
+    def test_special_keeps_funct_so_addu_and_subu_differ(self):
+        addu = 0x00431021
+        subu = 0x00431023
+        self.assertNotEqual(twin.mask(addu, True), twin.mask(subu, True))
+
+    def test_loose_is_coarser_than_default(self):
+        # Every pair the default mask calls equal must stay equal under loose,
+        # or the cluster search would lose candidates instead of gaining them.
+        words = [0x8C820040, 0x8C820044, 0xAC820040, 0x00431021, 0x24020001]
+        for a in words:
+            for b in words:
+                if twin.mask(a) == twin.mask(b):
+                    self.assertEqual(twin.mask(a, True), twin.mask(b, True))
+
+    def test_signature_threads_the_flag(self):
+        data = struct.pack('<II', 0x8C820040, 0x03E00008)
+        other = struct.pack('<II', 0x8C880040, 0x03E00008)
+        self.assertEqual(twin.signature(data, True), twin.signature(other, True))
+        self.assertNotEqual(twin.signature(data), twin.signature(other))
+        self.assertEqual(twin.signature(data, True), twin.signature(other, True))
+        self.assertNotEqual(twin.signature(data), twin.signature(other))
+
 if __name__ == "__main__":
     unittest.main()
