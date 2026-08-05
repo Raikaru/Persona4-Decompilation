@@ -275,6 +275,55 @@ literal word `measured` within three lines of the pragma, and a pragma that
 changes codegen with no recorded reason is the "window fill" defect this campaign
 exists to avoid. Record what the pragma fixed and what the residual was.
 
+## A function that cannot be matched may have the wrong WINDOW
+
+Before treating a function as unmatchable, check that its boundary is right. Three
+functions in this tree were documented as "Ghidra splits that portable C cannot
+express" and were nothing of the sort: spimdisasm had mistaken a rotated loop's
+condition check for a second function, so the parent's window stopped mid-loop and
+**no body could ever have filled it**. With the boundary corrected all three are
+ordinary nested `while` loops and match.
+
+### The reliable detector
+
+An entry whose **first instruction is an unconditional `b`** into **another entry
+that nothing references**. Both halves matter:
+
+```python
+# a reference is a jal, a j, a data word holding the address, OR a lui/%lo pair
+first = words[0]
+is_b = (first >> 26) == 4 and ((first >> 21) & 0x1f) == 0 and ((first >> 16) & 0x1f) == 0
+```
+
+That found exactly three instances tree-wide (`0x00272B34`, `0x00272BD4`,
+`0x0027A350`), all genuine, all now withdrawn in
+`reconcile.BRANCH_LANDING_ENTRIES`. The set is **exhausted** — re-running the sweep
+finds nothing.
+
+### Detectors that look equivalent and are not
+
+Measured, so they are not retried:
+
+| rule | hits | false positives |
+|---|---|---|
+| entry with zero `jal`/`j`/data references | 2,495 | **554 already MATCH** |
+| …also counting `lui`/`%lo` address forms | 1,078 | 100 already MATCH |
+| …and preceded by a non-terminating instruction | 483 | 54 already MATCH |
+| window containing no `jr $ra` and no tail `j` | 14 | 5 already MATCH |
+
+Reachability alone is not evidence: plenty of real, matching functions have no
+reference this analysis can see. Only the `b`-into-an-unreferenced-entry shape is
+safe to act on, because it identifies the *parent* independently.
+
+### Withdrawing safely
+
+`BRANCH_LANDING_ENTRIES` names a `parent` for each withdrawn address and refuses if
+that parent is not itself an entry. Withdrawing something genuinely called is what
+broke the link once before, when an earlier revision withdrew the *parents* by
+mistake and mwldps2 reported `Undefined: func_00272b00`. After any change here,
+re-verify with `build/cache/c` deleted — a stale object will happily hide a
+regression — and update the boundary total and marker tripwire with the reason.
+
 ## Score the m2c drafts before hand-writing anything
 
 `src/generated/` holds an m2c draft for most un-decompiled functions. Applying them
