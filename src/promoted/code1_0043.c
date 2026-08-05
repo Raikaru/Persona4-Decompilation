@@ -64,6 +64,9 @@ void func_00438780(void) {
    the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
 #pragma schedule on
 
+// FUN_00438A58
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438a58);
+
 // FUN_00438FA0
 void func_00438fa0(void) {
     func_00438e60();
@@ -78,6 +81,24 @@ void func_00438fa0(void) {
    measured: best candidate (plain O2, func_00421810(D_008AC780[0]) + sync/ei asm)
    gives nd 6 (reloc-masked): only the lui/lw-vs-frame order and the jr-delay-slot
    order differ; schedule on / O3 both move the lw into the jal delay slot (nd 11). */
+
+// FUN_00438FC0
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438fc0);
+
+// FUN_00439008
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439008);
+
+// FUN_00439050
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439050);
+
+// FUN_004390C8
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004390c8);
+
+// FUN_00439110
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439110);
+
+// FUN_004393A0
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393a0);
 
 // FUN_004393F8 NONMATCHING
 #ifdef NON_MATCHING
@@ -103,6 +124,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393f8);
    strength-reduces to sll/addu/sll at every level and source shape tried. */
 #pragma optimization_level 3
 
+// FUN_004394B8
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004394b8);
+
 // FUN_00439E90 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00439e90(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -118,6 +142,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439e90);
    the jr $ra delay slot with addiu $sp, $sp, 0x10 and materializes the return
    zero between ld $ra and the jump; baseline -O2 emits ld; move; addiu; jr; nop. */
 #pragma schedule on
+
+// FUN_0043A840
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a840);
+
+// FUN_0043A8A8
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a8a8);
+
+// FUN_0043A920
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a920);
+
+// FUN_0043AC18
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac18);
+
+// FUN_0043AC60
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac60);
+
+// FUN_0043ACC0
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043acc0);
+
+// FUN_0043BC70
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bc70);
 
 // FUN_0043C0A0
 s32 func_0043c0a0(void) {
@@ -155,6 +200,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6d8);
 
 
 
+// FUN_0043DDF8
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ddf8);
+
+// FUN_0043DE58
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043de58);
+
 // FUN_0043DFC0 NONMATCHING
 #ifdef NON_MATCHING
 /* floor: retail is the frame-preserving tail call addiu $sp; lui $t7; sd $ra;
@@ -173,6 +224,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfc0);
 #pragma schedule on
 
 
+
+// FUN_0043DFE0
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfe0);
+
+// FUN_0043E5B0
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043e5b0);
 
 // FUN_0043EB20 NONMATCHING
 #ifdef NON_MATCHING

@@ -149,6 +149,9 @@ void func_003a14b0(u8 *arg0)
 #pragma schedule on
 
 
+// FUN_003A16C0
+INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a16c0);
+
 // FUN_003A2340 NONMATCHING
 #ifdef NON_MATCHING
 void func_003a2340(s32 arg0, s32 arg1, s32 arg2)

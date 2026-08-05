@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -30,6 +31,9 @@ void func_00388d40(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0xFFFB;
 }
 
+// FUN_00388D60
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388d60);
+
 // FUN_00388E00
 void func_00388e00(u8 *arg0)
 {
@@ -42,6 +46,9 @@ s32 func_00388e20(u8 *arg0) {
 }
 
 
+
+// FUN_00388E40
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388e40);
 
 // FUN_00388EE0
 void func_00388ee0(u8 *arg0)
@@ -61,11 +68,17 @@ void func_00388f40(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0xFFEF;
 }
 
+// FUN_00388F60
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388f60);
+
 // FUN_00388FB0
 void func_00388fb0(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x20) | 0x2;
 }
+
+// FUN_00388FD0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388fd0);
 
 // FUN_00389020
 void func_00389020(u8 *arg0)
@@ -73,11 +86,20 @@ void func_00389020(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x24) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x24) | 0x4;
 }
 
+// FUN_00389040
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389040);
+
+// FUN_00389090
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389090);
+
 // FUN_003890F0
 void func_003890f0(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0xFF7F;
 }
+
+// FUN_00389110
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389110);
 
 // FUN_00389160
 s32 func_00389160(u8 *arg0) {
@@ -100,11 +122,17 @@ s32 func_003891e0(u8 *arg0) {
 
 
 
+// FUN_00389200
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389200);
+
 // FUN_003892C0
 void func_003892c0(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0xFDFF;
 }
+
+// FUN_003892E0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_003892e0);
 
 // FUN_00389330
 s32 func_00389330(u8 *arg0) {
@@ -119,11 +147,17 @@ void func_00389350(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4A) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4A) | 0x2;
 }
 
+// FUN_0038CE30
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038ce30);
+
 // FUN_0038CE90
 void func_0038ce90(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
+
+// FUN_0038D160
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d160);
 
 // FUN_0038D1D0
 void func_0038d1d0(u8 *arg0)
@@ -137,11 +171,17 @@ void func_0038d2a0(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x168) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x168) | 0x1;
 }
 
+// FUN_0038D2C0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d2c0);
+
 // FUN_0038D310
 void func_0038d310(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1B6) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1B6) | 0x2;
 }
+
+// FUN_0038D660
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d660);
 
 // FUN_0038DD60
 void func_0038dd60(void)
@@ -157,6 +197,9 @@ void func_0038dd70(void)
 void func_0038dd80(void)
 {
 }
+
+// FUN_0038DD90
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038dd90);
 
 // FUN_0038EE10
 s32 func_0038ee10(void) {

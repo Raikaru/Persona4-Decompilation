@@ -50,6 +50,18 @@ s32 func_003bbe80(s32 arg0) {
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
+// FUN_003BCF10
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
+
+// FUN_003BD110
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd110);
+
+// FUN_003BD470
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd470);
+
+// FUN_003BD4F0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
+
 // FUN_003BD560 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003bd560(u8 *arg0) {
@@ -85,6 +97,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd560);
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
+// FUN_003BD590
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd590);
+
+// FUN_003BD610
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
+
 // FUN_003BD680 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003bd680(u8 *arg0) {
@@ -146,6 +164,12 @@ s32 func_003be7e0(s32 arg0) {
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
+// FUN_003BE820
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be820);
+
+// FUN_003BE8A0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
+
 // FUN_003BE910 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003be910(u8 *arg0) {
