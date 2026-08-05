@@ -32584,7 +32584,7 @@
       "target_path": "build/objdiff/target/cutinDraw/00120e20.o",
       "base_path": "build/objdiff/base/cutinDraw/00120e20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

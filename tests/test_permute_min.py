@@ -78,6 +78,36 @@ class CandidateTests(unittest.TestCase):
         region[-2] = "    *(s32 *)(new_var1 + 4) = *(s32 *)(new_var1 + 8);"
         self.assertNotIn("inline new_var1", labels(region))
 
+    def test_splits_a_packed_line(self) -> None:
+        """The randomizer packs several statements per line; every other pass here
+        works line-at-a-time, so nothing can reach them until they are split."""
+        region = [
+            "// FUN_00123456",
+            "void func_00123456(void *arg0)",
+            "{",
+            "    int new_var2;",
+            " new_var2 = 0xB & 0xFFFF; new_var2 = 0; { new_var2 = 1; }",
+            "}",
+        ]
+        out = next((r for lbl, r in pmin.candidates(region, OPEN_LINE)
+                    if lbl == "split line"), None)
+        self.assertIsNotNone(out)
+        body = [l.strip() for l in out[4:-1]]
+        self.assertEqual(body, ["new_var2 = 0xB & 0xFFFF;", "new_var2 = 0;",
+                                "{ new_var2 = 1; }"])
+
+    def test_never_splits_a_for_header(self) -> None:
+        """A for-header's semicolons are not statement breaks."""
+        region = [
+            "// FUN_00123456",
+            "void func_00123456(void *arg0)",
+            "{",
+            "    int i;",
+            "    for (i = 0; i < 4; i++) { }",
+            "}",
+        ]
+        self.assertNotIn("split line", labels(region))
+
     def test_statement_drops_stay_at_top_level(self) -> None:
         """A statement inside a braced block must not be dropped on its own.
 

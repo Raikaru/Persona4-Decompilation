@@ -130,40 +130,37 @@ void func_00120db0(u8 *arg0)
 // source-honesty policy. The nd-4 body below stays -- its residual is the two
 // halfword loads assigned to swapped registers ($a0/$v1 against 0x1c/0x1e).
 // Anyone reducing this further should start from the permuter output, not by hand.
-// FUN_00120E20 NONMATCHING
-// Measured floor nd=4: retail loads the packed arg1 halves as
-// [lh a0,0x1c(sp); lh v1,0x1e(sp); sh a0,4; sh v1,6] -- MWCC b210
-// allocates a0 to the 0x1e(sp) load and emits the loads in reverse
-// store order regardless of source shape (probed: sp1c spill via
-// address-taken locals, lo/hi temps in every declaration/assignment
-// order, s16/s32 temp types, union, indexing forms -- all nd=4).
-#ifdef NON_MATCHING
+/* Retail splits arg1 into halves through the STACK, not with a shift: the value is
+   copied to a local before the first call and the two s16 halves are then read back
+   through its address. Two things here look redundant and are load-bearing - the
+   `result` scratch that feeds `lo`, and the `if (result == 0) return 0;` ahead of the
+   final `return result;`. Removing either scores nd 17, measured. Recovered with
+   permute_ast + permute_min; the reduction needed no dead code, so it cleaned up to
+   ordinary C (renames and cast tidying verified byte-identical). */
+// FUN_00120E20
 s32 func_00120e20(s32 arg0, s32 arg1)
 {
-    u8 *temp_2;
-    s32 sp1c;
-    s32 var_2;
-    s16 lo;
-    s16 hi;
-
-    sp1c = arg1;
-    func_0044ea90(D_005E4FB8, 0x68);
-    temp_2 = D_008873F4[0](1, 0x2C, 0x40000);
-    if (temp_2 == NULL) {
-        return 0;
-    }
-    lo = *(s16 *)&sp1c;
-    hi = *(s16 *)((u8 *)&sp1c + 2);
-    *(s16 *)(temp_2 + 4) = lo;
-    *(s16 *)(temp_2 + 6) = hi;
-    var_2 = func_00451de0(D_005E4FC8, 0xF, 0, 0, func_00120bc0,
-                          func_00120db0, temp_2);
-    if (var_2 == 0) {
-        var_2 = 0;
-        return var_2;
-    }
-    return var_2;
+  u8 *work;
+  s32 packed;
+  s32 result;
+  s16 lo;
+  s16 hi;
+  packed = arg1;
+  func_0044ea90(D_005E4FB8, 0x68);
+  work = D_008873F4[0](1, 0x2C, 0x40000);
+  if (work == NULL)
+  {
+    return 0;
+  }
+  result = *(s16 *)&packed;
+  lo = result;
+  hi = *(s16 *)((u8 *)&packed + 2);
+  *(s16 *)(work + 4) = lo;
+  *(s16 *)(work + 6) = hi;
+  result = func_00451de0(D_005E4FC8, 0xF, 0, 0, func_00120bc0, func_00120db0, work);
+  if (result == 0)
+  {
+    return 0;
+  }
+  return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cutinDraw", func_00120e20);
-#endif
