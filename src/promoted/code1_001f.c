@@ -14,6 +14,15 @@ extern void func_0045ae10(u16 arg0, u16 arg1, u16 arg2);
 
 
 
+extern void func_001f38e0(void);
+extern void func_001f3900(void);
+extern void func_001f3930(void);
+extern void *func_00194470();
+
+extern void func_001f39b0(void);
+extern void func_001f39d0(void);
+extern void func_001f3b00(void);
+
 // FUN_001F0260
 s64 func_001f0260(s32 arg0) {
     switch (arg0) {                                 /* irregular */
@@ -124,10 +133,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f2f90);
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f3870);
 
 // FUN_001F3950
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f3950);
+u8 *func_001f3950(u8 *arg0)
+{
+    u8 *packet;
+
+    packet = (u8 *)func_00194470(0x703, 4);
+    *(void **)(packet + 0x68) = (void *)func_001f38e0;
+    *(void **)(packet + 0x6C) = (void *)func_001f3900;
+    *(void **)(packet + 0x70) = (void *)func_001f3930;
+    **(u8 ***)(packet + 0x78) = arg0;
+    return packet;
+}
 
 // FUN_001F3B20
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f3b20);
+u8 *func_001f3b20(u8 *arg0)
+{
+    u8 *packet;
+
+    packet = (u8 *)func_00194470(0x702, 4);
+    *(void **)(packet + 0x68) = (void *)func_001f39b0;
+    *(void **)(packet + 0x6C) = (void *)func_001f39d0;
+    *(void **)(packet + 0x70) = (void *)func_001f3b00;
+    **(u8 ***)(packet + 0x78) = arg0;
+    return packet;
+}
 
 // FUN_001F3F60
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f3f60);
