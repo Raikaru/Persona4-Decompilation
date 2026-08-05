@@ -26,11 +26,8 @@ extern float D_008872f8[];
 
 /* Function-pointer slots outside the gp window. */
 extern code D_008873e8_abs[]; /* RwMalloc */
-#pragma alias D_008873e8_abs D_008873e8
 extern code D_008873ec_abs[]; /* RwFree */
-#pragma alias D_008873ec_abs D_008873ec
 extern u32 DAT_00881750_abs[];
-#pragma alias DAT_00881750_abs DAT_00881750
 extern void (*D_00887300[])(u32 state, u32 value); /* device.setRenderState */
 extern void (*D_00887310[])(s32, void *, s32);     /* device.fpIm2DRenderPrimitive */
 

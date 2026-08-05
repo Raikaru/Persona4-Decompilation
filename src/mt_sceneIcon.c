@@ -30,7 +30,6 @@ extern u8 *func_00454a60(u8 *path, s32 mode);
 extern void func_00456150(u8 *handle);
 
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 // func_00452560 is intentionally left undeclared (implicit old-style call, as

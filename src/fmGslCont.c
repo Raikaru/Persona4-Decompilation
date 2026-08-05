@@ -58,7 +58,6 @@ u32 func_0026e120(int* param_1, int param_2)
 }
 
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 
 // FUN_0026E170

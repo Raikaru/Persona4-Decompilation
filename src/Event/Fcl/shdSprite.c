@@ -10,7 +10,6 @@ typedef signed __int128 s128;
 typedef void (*shd_cb)(s32, u8, s8 *, s32, s32, s32, f32, f32, f32);
 typedef void (*shd_cb_f)(f32, f32, f32, s32, u8, s8 *, s32, s32, s32);
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 // func_0046b0d0 is intentionally left undeclared (implicit old-style call,
 // exactly as in the P3 donor FUN_0040e580): a typed prototype makes mwcc

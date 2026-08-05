@@ -21,8 +21,6 @@ extern MdlStridedCallback24 D_00713f1c[];
 extern MdlStridedCallback24 D_00713f20[];
 
 
-#pragma alias DAT_00881440_abs DAT_00881440
-#pragma alias DAT_00881444_abs DAT_00881444
 
 
 // FUN_001FC2C0
@@ -33,9 +31,6 @@ void func_001fc2c0(u32 first, u32 second)
 }
 
 
-#pragma alias DAT_00881448_abs DAT_00881448
-#pragma alias DAT_0088144c_abs DAT_0088144c
-#pragma alias DAT_00881450_abs DAT_00881450
 
 
 // FUN_001FC2E0

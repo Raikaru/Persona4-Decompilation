@@ -42,7 +42,6 @@ extern void func_003dc610(void *arg0, void *arg1);
 extern void func_004b12e0(s32 arg0, void *arg1);
 extern void func_004b1190(s32 arg0);
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 
 
@@ -247,7 +246,6 @@ void func_0047d900(int *param_1,float *param_2)
     }
 }
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 
 // FUN_0047D990
@@ -271,8 +269,6 @@ void func_0047d990(u32 *param_1)
 }
 
 
-#pragma alias func_004b1150_i func_004b1150
-#pragma alias func_004b1130_u32 func_004b1130
 
 
 // FUN_0047DA30
@@ -300,7 +296,6 @@ void func_0047da30(u32 *param_1)
 }
 
 
-#pragma alias func_004b1150_i func_004b1150
 
 
 // FUN_0047DAE0
@@ -474,7 +469,6 @@ int func_00486740(int param_1, int param_2)
   return 0;
 }
 
-#pragma alias func_00487fb0_evt func_00487fb0
 
 
 // FUN_00489E50

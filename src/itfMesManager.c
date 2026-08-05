@@ -1793,12 +1793,6 @@ void func_0027a6c0(int param_1)
 }
 
 
-#pragma alias DAT_008817EC_abs DAT_008817EC
-#pragma alias DAT_008817E4_abs DAT_008817E4
-#pragma alias DAT_008817E0_abs D_008817E0
-#pragma alias D_008817E8_abs D_008817E8
-#pragma alias D_008817F4_abs D_008817F4
-#pragma alias D_008817FC_abs D_008817FC
 
 
 // FUN_0027B620
