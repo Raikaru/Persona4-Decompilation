@@ -1,6 +1,10 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
+extern s32 D_007647CC;
+extern s32 D_007647C8;
+
 
 extern s32 D_007647BC;
 
@@ -61,8 +65,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3cc0);
 // FUN_003C3E10
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e10);
 
+/* measured: same shape as func_003bd470 in code1_003b.c; see that note. nd 43. */
 // FUN_003C3F20
+#ifdef NON_MATCHING
+#pragma no_branch_likely on
+s32 func_003c3f20(s32 arg0, s32 arg1)
+{
+    if (func_003df360(arg0, &D_007647CC, 4) == 0) {
+        return 0;
+    }
+    if (arg1 != 8) {
+        return arg0;
+    }
+    if (func_003df360(arg0, &D_007647C8, 4) == 0) {
+        return 0;
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3f20);
+#endif
 
 // FUN_003C3FA0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
@@ -76,6 +99,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c42b0);
 // FUN_003C47C0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 
+/* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
+   (nop); retail fills it with the final store (nd 15 -> 0). */
 // FUN_003C4A40
 #pragma schedule on
 u8 *func_003c4a40(u8 *arg0) {
@@ -89,9 +114,6 @@ u8 *func_003c4a40(u8 *arg0) {
 
 extern s32 D_007647EC;
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
-
 // FUN_003C54A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c54a0);
 
@@ -101,6 +123,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5700);
 // FUN_003C5760
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5760);
 
+/* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
+   and colours the increment $v0; retail fills the slot with the store. */
 // FUN_003C8CA0
 #pragma schedule on
 s32 func_003c8ca0(s32 arg0) {
