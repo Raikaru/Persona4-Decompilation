@@ -16,6 +16,8 @@ extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 
 
 
+extern void (*jtbl_008873EC[])(u8 *arg0);
+
 // FUN_004A22C0
 void func_004a22c0(u8 *arg0) {
     u8 *temp_16;
@@ -83,7 +85,11 @@ void func_004a6be0(u8 *arg0, s32 arg1)
 }
 
 // FUN_004A6DC0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a6dc0);
+void func_004a6dc0(u8 *arg0)
+{
+    func_004841c0(*(s32 *)(arg0 + 0x58));
+    jtbl_008873EC[0](arg0);
+}
 
 // FUN_004A6E40
 void func_004a6e40(u8 *arg0)

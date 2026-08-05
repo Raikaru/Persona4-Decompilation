@@ -19,6 +19,8 @@ extern void func_00266cc0(void);
 extern void func_0025f230(void *arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
+extern void func_004b1150(u8 *arg0);
+
 // FUN_00266A40
 s32 func_00266a40(u32 unk, s32 arg1) {
     u8 *temp_2 = func_00452560();
@@ -72,7 +74,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_002677a0);
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00268a70);
 
 // FUN_00268AD0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00268ad0);
+void func_00268ad0(u8 *arg0)
+{
+    u8 *temp_16;
+    u8 *temp_4;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_4 = *(u8 **)(temp_16 + 4);
+    if (temp_4 != NULL) {
+        func_004b1150(temp_4);
+        *(u8 **)(temp_16 + 4) = NULL;
+    }
+    jtbl_008873EC[0](temp_16);
+}
 
 // FUN_0026DC30
 void func_0026dc30(void)
