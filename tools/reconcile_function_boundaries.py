@@ -286,6 +286,11 @@ JAL_REACHABLE_ENTRIES = {
 BRANCH_LANDING_ENTRIES = {
     0x00272B34: {"parent": 0x00272B00},
     0x00272BD4: {"parent": 0x00272BA0},
+    # Found by sweeping every entry that opens with an unconditional `b` into
+    # another entry with no callers - the same shape, one instance left. 0x0027A340
+    # has 3 jal sites (the EPILOGUE_SEPARATED note above calls it computed-branch
+    # only, which is inaccurate but harmless); 0x0027A350 has none.
+    0x0027A350: {"parent": 0x0027A340},
 }
 
 

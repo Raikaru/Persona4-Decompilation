@@ -1,10 +1,10 @@
 {
   "build_succeeded": true,
   "coverage": {
-    "scanned": 5537,
-    "scanned_percent": 42.319,
-    "unscanned": 7547,
-    "unscanned_percent": 57.681
+    "scanned": 5538,
+    "scanned_percent": 42.33,
+    "unscanned": 7545,
+    "unscanned_percent": 57.67
   },
   "hashes": {
     "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
@@ -3066,6 +3066,7 @@
       "0027a010",
       "0027a2a0",
       "0027a2d0",
+      "0027a340",
       "0027a370",
       "0027a490",
       "0027a4b0",
@@ -5390,23 +5391,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 4128,
+    "count": 4129,
     "duplicate_rows": 0,
-    "known_rows": 5537,
-    "matched_body_bytes": 603420,
-    "percent": 31.55,
-    "unique_known_addresses": 5537
+    "known_rows": 5538,
+    "matched_body_bytes": 603464,
+    "percent": 31.56,
+    "unique_known_addresses": 5538
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "C:\\tmp\\p4_progS.json",
-    "raw_rows": 5537,
-    "verifier_report": "C:\\tmp\\p4_wS.json"
+    "linked_report": "C:\\tmp\\p4_progT.json",
+    "raw_rows": 5538,
+    "verifier_report": "C:\\tmp\\p4_wT.json"
   },
   "status_counts": {
     "ASM": 1409,
-    "MATCH": 4128
+    "MATCH": 4129
   },
-  "total": 13084
+  "total": 13083
 }
