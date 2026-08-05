@@ -893,6 +893,20 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002494c0);
    `arg1 + func_001064f0(0x57)`, seeding `n = arg1` at the top, seeding it just
    before the add, and opt_common_subs off (5). Nine spellings.
    Parameter-save order floor. */
+static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta; }
+
+/* nd 6 -> 4. The `+` here is a commutative operand-order row: retail emits
+   addu $s0,$v0,$s0 (call result first) and b210 emits addu $s0,$s0,$v0. Writing it
+   at the callsite does not move it; the operands have to travel through an inline
+   helper's parameter list, and the helper MUST sit above the // FUN_ marker - a
+   definition between the marker and the function body breaks the name parse and the
+   function silently vanishes from the verify report.
+   Remaining 2 words are the prologue parameter saves: retail emits move $s1,$a0
+   then move $s0,$a1, b210 the other way round. Measured unmoved by declaration
+   order (nd 15), by reversing the helper parameters, and by opt_lifetimes,
+   reg_class_allocs, opt_scalarizeliveranges, opt_serializeassignments,
+   opt_repositioncode, opt_movepostops, opt_prelinearize, opt_dead_assignments,
+   opt_marknonregtemps, opt_optimizenonregaccess and no_branch_likely. */
 // FUN_00249670 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off
@@ -912,7 +926,7 @@ s32 func_00249670(s32 arg0, s32 arg1)
     if (!(func_00106600((s16)(v + 0x4EA)) & 0xFF)) {
         func_0046d730(D_006359D0, 0x4CC);
     }
-    n = func_001064f0(0x57) + arg1;
+    n = cmmAddCountFirst(func_001064f0(0x57), arg1);
     if (n >= 4) {
         n = 0;
         func_00106390(v + 0x9AF, 1);
