@@ -89,5 +89,91 @@ class ScopeTracking(unittest.TestCase):
             self.assertIn(knob, psa.DEFAULTS)
 
 
+
+
+def audit(text):
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / 'unit.c'
+        p.write_text(text, encoding='utf-8')
+        src = psa.lint.Source(p, p.read_bytes())
+        return src
+
+
+@unittest.skipUnless(_LOADED, 'pragma_scope_audit did not import')
+class NonMatchingArm(unittest.TestCase):
+    """The reference arm is preprocessed out, so pragmas in it cannot leak."""
+
+    def test_a_pragma_inside_the_arm_does_not_reach_the_next_function(self):
+        got = scopes('// FUN_00100000\n'
+                     '#ifdef NON_MATCHING\n'
+                     '#pragma optimization_level 3\n'
+                     'void func_00100000(void) {}\n'
+                     '#else\n'
+                     'INCLUDE_ASM("asm", func_00100000);\n'
+                     '#endif\n'
+                     '// FUN_00100010\n'
+                     'void func_00100010(void) {}\n')
+        self.assertEqual(got['00100010'][1], {})
+
+    def test_a_pragma_outside_the_arm_still_reaches_it(self):
+        got = scopes('#pragma optimization_level 3\n'
+                     '// FUN_00100000\n'
+                     '#ifdef NON_MATCHING\n'
+                     'void func_00100000(void) {}\n'
+                     '#else\n'
+                     'INCLUDE_ASM("asm", func_00100000);\n'
+                     '#endif\n'
+                     '// FUN_00100010\n'
+                     'void func_00100010(void) {}\n')
+        self.assertEqual(got['00100010'][1], {'optimization_level': '3'})
+
+    def test_the_arm_ends_at_the_else(self):
+        src = audit('#ifdef NON_MATCHING\nA\n#else\nB\n#endif\nC\n')
+        skip = psa.non_matching(src)
+        self.assertIn(1, skip)          # A
+        self.assertNotIn(3, skip)       # B is the compiled arm
+        self.assertNotIn(5, skip)       # C is after the block
+
+
+@unittest.skipUnless(_LOADED, 'pragma_scope_audit did not import')
+class SplitPairs(unittest.TestCase):
+    """An open/close pair straddling the arm is balanced in text, not in the build."""
+
+    def test_off_inside_and_on_outside_is_reported(self):
+        src = audit('#ifdef NON_MATCHING\n'
+                    '#pragma schedule off\n'
+                    'void f(void) {}\n'
+                    '#else\n'
+                    'INCLUDE_ASM("asm", f);\n'
+                    '#endif\n'
+                    '#pragma schedule on\n')
+        self.assertIn('schedule', psa.split_pairs(src))
+
+    def test_a_pair_wholly_inside_the_arm_is_fine(self):
+        src = audit('#ifdef NON_MATCHING\n'
+                    '#pragma schedule off\n'
+                    'void f(void) {}\n'
+                    '#pragma schedule on\n'
+                    '#else\n'
+                    'INCLUDE_ASM("asm", f);\n'
+                    '#endif\n')
+        self.assertEqual(psa.split_pairs(src), {})
+
+    def test_a_pair_wholly_outside_the_arm_is_fine(self):
+        src = audit('#pragma schedule on\n'
+                    'void f(void) {}\n'
+                    '#pragma schedule off\n')
+        self.assertEqual(psa.split_pairs(src), {})
+
+    def test_an_even_number_outside_does_not_trip_it(self):
+        # Two outside directives close each other; only an odd count leaks.
+        src = audit('#ifdef NON_MATCHING\n'
+                    '#pragma schedule off\n'
+                    '#else\n'
+                    '#endif\n'
+                    '#pragma schedule on\n'
+                    '#pragma schedule off\n')
+        self.assertEqual(psa.split_pairs(src), {})
+
 if __name__ == '__main__':
     unittest.main()
