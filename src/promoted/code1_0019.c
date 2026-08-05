@@ -24,6 +24,10 @@ extern void func_0019ea60(u8 *arg0, u16 arg1);
 extern void func_0019be50(u8 *arg0);
 extern void *func_00194470();
 
+extern void func_0019e830(void);
+extern void func_0019e850(void);
+extern void func_0019e9d0(void);
+
 // FUN_00192B20
 void func_00192b20(void) {
     s32 i;
@@ -372,7 +376,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019d4e0);
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019dea0);
 
 // FUN_0019E9F0
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019e9f0);
+u8 *func_0019e9f0(u8 *unit, s16 value)
+{
+    u8 *packet;
+    u8 *work;
+
+    packet = (u8 *)func_00194470(0x11A, 8);
+    *(void **)(packet + 0x68) = (void *)func_0019e830;
+    *(void **)(packet + 0x6C) = (void *)func_0019e850;
+    *(void **)(packet + 0x70) = (void *)func_0019e9d0;
+    work = *(u8 **)(packet + 0x78);
+    *(u8 **)work = unit;
+    *(s16 *)(work + 4) = value;
+
+    return packet;
+}
 
 // FUN_0019EF30
 void func_0019ef30(u8 *arg0, u16 arg1) {

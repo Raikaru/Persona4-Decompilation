@@ -22,6 +22,8 @@ extern void func_00202070(void);
 
 extern void func_00202180(void);
 
+extern void func_00202640(void);
+
 // FUN_00201280
 void func_00201280(u8 *arg0, u8 *arg1) {
     func_00213ab0();
@@ -97,7 +99,19 @@ void func_00202720(u8 *arg0)
 }
 
 // FUN_00202740
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202740);
+u8 *func_00202740(u8 *unit)
+{
+    u8 *packet;
+
+    packet = (u8 *)func_00194470(0x501, 4);
+    *(u8 *)(packet + 71) &= ~(1 << 4);
+    *(void **)(packet + 0x68) = (void *)func_00202620;
+    *(void **)(packet + 0x6C) = (void *)func_00202640;
+    *(void **)(packet + 0x70) = (void *)func_00202720;
+    *(u8 **)*(u8 **)(packet + 0x78) = unit;
+
+    return packet;
+}
 
 // FUN_00202C60
 void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *arg5, void *arg6, u8 *arg7) {
