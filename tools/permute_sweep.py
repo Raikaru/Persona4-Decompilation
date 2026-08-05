@@ -103,7 +103,15 @@ def activate(path: Path, function: str):
 
 
 def splice(path: Path, function: str, region):
-    """Replace the function's marker-to-closing-brace span with `region`."""
+    """Replace the function's marker-to-closing-brace span with `region`.
+
+    The permuters write only the mutated FUNCTION to `--out`, with no `// FUN_`
+    marker, so pasting the region over the marker-to-brace span deletes the marker
+    and makes the function invisible to `verify.py` - which then cannot confirm or
+    deny the hit. Keep the original marker line unless the region supplies its own,
+    and drop any `NONMATCHING` tag from it, because splicing a winner in is exactly
+    the moment the body stops being a preserved non-match.
+    """
     raw = path.read_bytes()
     nl = newline_of(raw)
     lines = raw.decode("utf-8", errors="replace").splitlines()
@@ -115,9 +123,39 @@ def splice(path: Path, function: str, region):
     close = next((k for k in range(marker, len(lines)) if lines[k].startswith("}")), None)
     if close is None:
         return False
+    if not (region and MARKER_RE.match(region[0])):
+        region = [re.sub(r"\s+NONMATCHING\b.*$", "", lines[marker])] + list(region)
     lines[marker:close + 1] = region
     path.write_bytes((nl.join(lines) + nl).encode())
     return True
+
+
+def _reproduces(path, function, region):
+    """True when `region`, spliced into `path`, compiles to a byte-exact match.
+
+    Scored through permute.Target so this is the same mwccps2 compile and the same
+    reloc-masked comparison verify.py performs. The file is left untouched: the
+    caller restores the original bytes either way.
+    """
+    saved = path.read_bytes()
+    try:
+        if not splice(path, function, region):
+            return False
+        import permute as P
+        cfg = verify.load_config()
+        sizes = json.loads((TOOLS / "slus21782_functions.json").read_text())
+        tgt = json.loads((REPO / "config" / "target.json").read_text())
+        retail = verify.RetailElf(cfg["retail_elf"], tgt, sizes["sha1"])
+        t = P.Target(path, function, P.all_boundaries(sizes), cfg, retail)
+        score, match, _ = t.score(t.region)
+        return score == 0 and match
+    except BaseException:
+        # permute.Target calls sys.exit when it cannot find the marker, and that
+        # SystemExit would otherwise tear down the worker instead of failing one
+        # target.
+        return False
+    finally:
+        path.write_bytes(saved)
 
 
 def run_one(target, budget, outdir, engine="text"):
@@ -147,11 +185,24 @@ def run_one(target, budget, outdir, engine="text"):
                 path.write_bytes(original)
                 return {**target, "status": "SKIP", "reason": "no --out region written"}
             # An AST hit is heavily mutated (dead temps, empty ifs) and is NOT
-            # committable as-is; restore and report so it can be reduced by hand
-            # from the saved region. A text hit is a plain reordering and can be
-            # spliced straight in.
+            # committable as-is; restore and report so it can be reduced with
+            # tools/permute_min.py from the saved region.
+            #
+            # But first prove the region actually reproduces. decomp-permuter's
+            # randomizer can win using constructs of its own -- an extracted
+            # `inline_fn(...)` helper is the one seen here -- and permute_ast
+            # writes the mutated body WITHOUT them, so the saved region does not
+            # even compile in the file it came from. Reporting that as CRACKED_AST
+            # sends the next reader chasing a win that cannot be reproduced, which
+            # is worse than reporting nothing.
             if engine == "ast":
+                region = out.read_text().rstrip("\n").split("\n")
+                reproduced = _reproduces(path, target["function"], region)
                 path.write_bytes(original)
+                if not reproduced:
+                    return {**target, "status": "AST_HIT_UNREPRODUCIBLE",
+                            "out": str(out),
+                            "reason": "saved region does not score 0 when spliced back"}
                 return {**target, "status": "CRACKED_AST", "score": 0, "out": str(out)}
             if not splice(path, target["function"], out.read_text().rstrip("\n").split("\n")):
                 path.write_bytes(original)
