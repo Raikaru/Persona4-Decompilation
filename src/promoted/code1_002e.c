@@ -33,7 +33,14 @@ s64 func_002e0570(u8 *arg0, s32 arg1)
 
 
 // FUN_002E05A0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e05a0);
+s32 func_002e05a0(u8 *arg0) {
+    s16 flags = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x4);
+    if (((s8)((flags & 2) >> 1)) == 0 && ((s8)((flags & 4) >> 2)) == 0 &&
+        ((s8)((flags & 8) >> 3)) == 0 && ((s8)((flags & 0x10) >> 4)) == 0) {
+        return 0;
+    }
+    return 1;
+}
 
 // FUN_002E0660
 void func_002e0660(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
