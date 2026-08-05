@@ -66,22 +66,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2a8);
 #pragma schedule off
 
 
+/* measured: retail sinks the third store into the jr $ra delay slot, which
+   b210 only does under schedule on -- and only while the stored-through
+   pointer is already in $v0, which needs the discarded `return p`. Without
+   the return the pointer colours $v1 and the slot stays a nop (nd 4). */
 // FUN_0041F2B8
 #pragma schedule on
-#ifdef NON_MATCHING
-void func_0041f2b8(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+u8 *func_0041f2b8(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
 
     *(s32 *)(p + 0xB0) = arg3;
     *(s32 *)(p + 0xA8) = arg1;
     *(s32 *)(p + 0xAC) = arg2;
+
+    return p;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2b8);
-#endif
-/* measured: see the annotation above the matching `on` pragma (func_0041f2b8). */
 #pragma schedule off
+
 
 
 // FUN_0041F2D0
