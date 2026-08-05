@@ -136,7 +136,22 @@ def clean(text):
     return text
 
 
-def splice_and_measure(cfile, addr, body, report='build/draft_try.json'):
+# Brackets tried per draft in --knobs mode, best-first. schedule on is what
+# fills retail's branch and jal delay slots; b210 then reaches for beql/bnel
+# where retail has plain bne/bnez, so the two almost always travel together.
+# Measured on func_003e4880: plain -O2 nd 65, schedule alone nd 26, both nd 0.
+KNOB_BRACKETS = (
+    ('none', (), ()),
+    ('schedule', ('schedule on',), ('schedule off',)),
+    ('schedule+no_branch_likely',
+     ('schedule on', 'no_branch_likely on'),
+     ('no_branch_likely off', 'schedule off')),
+    ('no_branch_likely', ('no_branch_likely on',), ('no_branch_likely off',)),
+)
+
+
+def splice_and_measure(cfile, addr, body, report='build/draft_try.json',
+                       pre=(), post=()):
     p = Path(cfile)
     orig = p.read_bytes()
     txt = orig.decode('utf-8', errors='replace')
@@ -148,7 +163,10 @@ def splice_and_measure(cfile, addr, body, report='build/draft_try.json'):
         inc = next(k for k in range(mi, len(L)) if 'INCLUDE_ASM' in L[k])
     except StopIteration:
         return ('NO_MARKER', None, None, 0)
-    L[mi:inc + 1] = [re.sub(r'\s+NONMATCHING\b.*$', '', L[mi])] + body.split('\n')
+    L[mi:inc + 1] = ([re.sub(r'\s+NONMATCHING\b.*$', '', L[mi])]
+                     + [f'#pragma {k}' for k in pre]
+                     + body.split('\n')
+                     + [f'#pragma {k}' for k in post])
     p.write_bytes(nl.join(L).encode())
     try:
         subprocess.run([sys.executable, 'tools/verify.py', '--json', report, cfile],
@@ -166,8 +184,10 @@ def splice_and_measure(cfile, addr, body, report='build/draft_try.json'):
 
 
 def main():
-    targets = json.loads(Path(sys.argv[1]).read_text())
-    limit = int(sys.argv[2]) if len(sys.argv) > 2 else len(targets)
+    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    knobs = '--knobs' in sys.argv
+    targets = json.loads(Path(args[0]).read_text())
+    limit = int(args[1]) if len(args) > 1 else len(targets)
     out = []
     for t in targets[:limit]:
         draft = find_draft(t['name'])
@@ -177,11 +197,25 @@ def main():
         if not body:
             print(f"  {t['addr']} {t['name']:20} draft has M2C placeholders, skipped")
             continue
-        st, nd, obj, coll = splice_and_measure(t['file'], t['addr'], body)
-        flag = '  <== MATCH' if st == 'MATCH' and coll == 0 else ''
-        print(f"  {t['addr']} {t['name']:20} {st:14} nd={nd} obj={obj}/{t['win']} coll={coll}{flag}")
-        out.append({**t, 'status': st, 'nd': nd, 'obj': obj, 'coll': coll})
-    Path('C:/tmp/p4_draft_out.json').write_text(json.dumps(out, indent=1))
+        best = None
+        for label, pre, post in (KNOB_BRACKETS if knobs else KNOB_BRACKETS[:1]):
+            st, nd, obj, coll = splice_and_measure(t['file'], t['addr'], body,
+                                                   pre=pre, post=post)
+            if st == 'MATCH' and coll == 0:
+                best = (label, st, nd, obj, coll)
+                break
+            key = nd if nd is not None else 10 ** 6
+            if best is None or key < (best[2] if best[2] is not None else 10 ** 6):
+                best = (label, st, nd, obj, coll)
+            if st == 'COMPILE_ERROR':
+                break            # a broken draft breaks under every bracket
+        label, st, nd, obj, coll = best
+        flag = f'  <== MATCH ({label})' if st == 'MATCH' and coll == 0 else ''
+        print(f"  {t['addr']} {t['name']:20} {st:14} nd={nd} obj={obj}/{t['win']} "
+              f"coll={coll} best={label}{flag}")
+        out.append({**t, 'status': st, 'nd': nd, 'obj': obj, 'coll': coll,
+                    'bracket': label})
+    Path('build/draft_scores.json').write_text(json.dumps(out, indent=1))
     good = [r for r in out if r['status'] == 'MATCH' and r['coll'] == 0]
     close = [r for r in out if r['nd'] is not None and r['nd'] <= 30 and r['coll'] == 0]
     print(f"\n{len(good)} match(es); {len(close)} within nd 30")

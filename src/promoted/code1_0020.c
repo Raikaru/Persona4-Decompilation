@@ -146,7 +146,17 @@ void func_00202c60(u8 *arg0, s16 arg1, s16 arg2, void *arg3, void *arg4, void *a
 
 
 // FUN_00202E00
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202e00);
+void func_00202e00(u8 *arg0, s16 *arg1)
+{
+    if (arg1 != NULL) {
+        func_0043f810(arg0 + 0x2C, arg1, 8);
+        return;
+    }
+    *(s16 *)(arg0 + 0x2C) = 0x1000;
+    *(s16 *)(arg0 + 0x2E) = 0x4000;
+    *(u16 *)(arg0 + 0x30) = 0x8000;
+    *(s16 *)(arg0 + 0x32) = 0x2000;
+}
 
 // FUN_00202E60
 void func_00202e60(u8 *arg0, s32 arg1)

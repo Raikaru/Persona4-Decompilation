@@ -18,6 +18,8 @@ extern s32 D_00887330;
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
+extern void (*jtbl_008873EC[])(u8 *arg0);
+
 // FUN_003E05D0
 u8 *RwMatrixUpdate(u8 *arg0) {
     *(s32 *)(arg0 + 0xC) &= 0xFFFDFFFC;
@@ -222,8 +224,38 @@ s32 func_003e43a0(s32 arg0) {
 // FUN_003E43C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
 
+/* measured: same out-of-line-body shape as func_003e59e0 - retail branches to
+   the initialisation block and falls into the early `return 0`, so the goto
+   graph is needed and the plain `if (size < 0x20) return 0;` form is not
+   (nd 23 with it). schedule on fills the branch delay slot with the first store
+   as retail does, and no_branch_likely is then needed to stop b210 turning the
+   test into a beql, which was the last differing word. */
 // FUN_003E44B0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e44b0);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e44b0(u8 *arg0, s32 arg1)
+{
+    s32 *base;
+    s32 size;
+
+    base = (s32 *)(((s32)arg0 + 0x27) & ~0x1F);
+    size = ((((s32)arg0 + arg1) & ~0x1F) - (s32)base) - 0x20;
+    if (size >= 0x20) {
+        goto init;
+    }
+    return 0;
+init:
+    base[0] = (s32)arg0;
+    base[1] = 0;
+    base[2] = 0;
+    base[4] = 0;
+    base[3] = size;
+    *(s32 *)arg0 = (s32)base;
+    *(s32 *)(arg0 + 4) = (s32)base;
+    return 1;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
@@ -246,11 +278,59 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
 // FUN_003E4760
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4760);
 
+/* measured: schedule on plus no_branch_likely on. schedule alone gets nd 26
+   (retail fills the loop's branch delay slots), and b210 then wants beql/bnel
+   where retail has plain bne/bnez, which is the rest of it. */
 // FUN_003E4880
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4880);
+#pragma schedule on
+#pragma no_branch_likely on
+s8 *func_003e4880(s8 *arg0) {
+    s8 *var_5;
+    s8 temp_3;
 
+    if (arg0 != NULL) {
+        var_5 = (s8 *)(arg0);
+        if (*arg0 != 0) {
+            do {
+                temp_3 = (s8)(*var_5);
+                if ((temp_3 >= 0x61) && (temp_3 < 0x7B)) {
+                    *var_5 = temp_3 - 0x20;
+                }
+                var_5 += 1;
+            } while (*var_5 != 0);
+        }
+    }
+    return (s8 *)(arg0);
+}
+#pragma no_branch_likely off
+#pragma schedule off
+
+/* measured: schedule on plus no_branch_likely on. schedule alone gets nd 26
+   (retail fills the loop's branch delay slots), and b210 then wants beql/bnel
+   where retail has plain bne/bnez, which is the rest of it. */
 // FUN_003E48D0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e48d0);
+#pragma schedule on
+#pragma no_branch_likely on
+s8 *func_003e48d0(s8 *arg0) {
+    s8 *var_5;
+    s8 temp_3;
+
+    if (arg0 != NULL) {
+        var_5 = (s8 *)(arg0);
+        if (*arg0 != 0) {
+            do {
+                temp_3 = (s8)(*var_5);
+                if ((temp_3 >= 0x41) && (temp_3 < 0x5B)) {
+                    *var_5 = temp_3 + 0x20;
+                }
+                var_5 += 1;
+            } while (*var_5 != 0);
+        }
+    }
+    return (s8 *)(arg0);
+}
+#pragma no_branch_likely off
+#pragma schedule off
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
@@ -288,8 +368,25 @@ void func_003e5510(s32 arg0) {
 // FUN_003E5990
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
 
+/* measured: two things are load-bearing here. Retail tests POSITIVELY and puts
+   the indirect call out of line after the return path, then jumps back to it -
+   the plain `if (cond) { call(); } return arg0;` form compiles inline with a
+   negated skip and scores nd 31, while the goto graph below is exact. And the
+   jal and branch delay slots are filled, which needs schedule on. */
 // FUN_003E59E0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e59e0);
+#pragma schedule on
+u8 *func_003e59e0(u8 *arg0)
+{
+    if (*(s32 *)(arg0 + 4) != 0) {
+        goto call;
+    }
+ret:
+    return arg0;
+call:
+    (*jtbl_008873EC)(*(u8 **)arg0);
+    goto ret;
+}
+#pragma schedule off
 
 // FUN_003E6240
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6240);
