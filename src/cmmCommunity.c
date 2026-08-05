@@ -493,8 +493,42 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107a00);
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
-// FUN_00107AC0
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_00107AC0 NONMATCHING
+#ifdef NON_MATCHING
+u16 func_00107ac0(s32 arg0) {
+    u8 *var_4;
+    s32 temp_16;
+    s32 var_3;
+
+    temp_16 = arg0 & 0xFFFF;
+    if (temp_16 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_16 == 0) {
+        var_4 = NULL;
+    } else {
+        var_4 = &D_007973A0[0x70];
+        var_3 = 0;
+loop_8:
+        if (var_3 >= 0x15) {
+            var_4 = NULL;
+        } else if (*(u16 *)(var_4 + 4) == temp_16) {
+
+        } else {
+            var_4 += 16;
+            var_3 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_4 == NULL) {
+        return 0U;
+    }
+    return *(u16 *)(var_4 + 6);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ac0);
+#endif
 
 // FUN_00107B70
 s32 func_00107b70(void)
