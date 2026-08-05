@@ -275,6 +275,40 @@ literal word `measured` within three lines of the pragma, and a pragma that
 changes codegen with no recorded reason is the "window fill" defect this campaign
 exists to avoid. Record what the pragma fixed and what the residual was.
 
+## Score the m2c drafts before hand-writing anything
+
+`src/generated/` holds an m2c draft for most un-decompiled functions. Applying them
+in bulk does not work — an earlier attempt spliced 30 at once and got 242 compile
+errors, because a draft freely references symbols its destination file never
+declares. `tools/draft_probe.py` splices them **one at a time**, keeps only what
+compiles, and ranks the survivors by `normalized_diff`, so the failure mode becomes
+a filter.
+
+Over the 150 game-file `INCLUDE_ASM` functions with a draft and a window ≤ 400 B:
+80 had a draft free of `M2C_UNK`/`M2C_ERROR`, and **20 compiled cleanly**. None
+matched outright, but the ranking is the useful part:
+
+| function | nd | obj/window | file |
+|---|---|---|---|
+| `func_00288020` | 26 | 324/336 | `evtMain.c` |
+| `func_00107bd0` / `00107a00` / `00107dc0` / `00107fe0` | 38 | ~exact | `cmmCommunity.c` |
+
+The four `cmmCommunity` entries are one **family** — the same
+"scan 21 records of stride 16 for a matching id" loop as `func_001077f0` — so the
+shape is worth solving once. The blocker is that retail exits the loop on a match
+with a `bne`-to-advance plus a `b`-to-exit **pair**, where b210 emits a single
+`beq`-to-exit. Measured unreachable via: `goto`, `break`, an inverted test with
+`continue`, advance-in-`else`, an explicit entry-`goto` mirroring retail's block
+order, a `do`/`while` bottom test, a single-case `switch` (which reaches the exact
+size but booleanises the compare), and eleven loop/control-flow pragmas including
+`opt_rotateloops` both ways. The note on `func_001077f0` records that an in-loop
+`return p != NULL;` does reproduce the branch pair, at the cost of duplicating the
+`sltu` — that is the shape to start from.
+
+**A draft that scores well is a starting point, not an answer.** m2c gets pointer
+arithmetic wrong in ways that still compile: it emitted `s32 *p; p += 0x10`, which
+advances 64 bytes where retail advances 16.
+
 ## The retail binary is a MIXED-toolchain build — check the compiler first
 
 Two families this file used to list as MWCCPS2 "compiler floors" are **byte-exact
