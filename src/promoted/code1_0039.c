@@ -50,8 +50,36 @@ s32 func_00390210(s32 arg0)
 // mult cannot be reproduced and the shift chain cannot fit the 16B window.
 // Compiler-version codegen floor. NONMATCHING
 
+/* measured: nd 6 of 19 words - 16 are byte-exact and the whole residual is the
+   last two: retail folds `addiu $sp, $sp, 0x30` into the jr $ra delay slot,
+   b210 emits addiu then jr then nop. Not a general floor - 12 matched
+   first-party functions save registers AND fold the teardown, four of them in
+   this file (func_0039aab0, func_0039b510/540/570) - but none of the levers
+   that produce it there work here: optimization_level 3 (which is what
+   func_0039aab0 needs) and 4 both shrink the object to 72 bytes and leave the
+   swap, schedule on (which is what func_003a0260 needs) leaves it, and three
+   source shapes - early return, cached handle, uncached double load - all give
+   the same 3 words. The difference from the matching examples is that this one
+   holds arg0 in $s1 across a call inside a conditional and then returns it. */
 // FUN_00390230
+#ifdef NON_MATCHING
+s32 func_00390230(s32 arg0, s32 arg1)
+{
+    s32 *slot;
+    s32 handle;
+
+    slot = (s32 *)(arg0 + arg1);
+    handle = *slot;
+    if (handle != 0) {
+        func_0038fb10(handle);
+        *slot = 0;
+    }
+
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390230);
+#endif
 
 // FUN_003902D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
