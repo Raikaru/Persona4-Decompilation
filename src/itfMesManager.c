@@ -1201,8 +1201,24 @@ check:
    call is 4 args (int*, int, u8*, int) - the $t3-vs-$s0 live-across-call
    choice is pure allocator (retail keeps arg0 in the caller-saved $t3, frame
    -0x10; b210 always saves it to $s0, frame -0x20). Re-probed nd 19. */
-// FUN_00278D50
+/* A body is preserved below at nd 58 so this is resumable at all. The note above
+   records nd 19 from an earlier attempt whose source was never kept, and this
+   reconstruction from the retail listing does not reach it - a concrete case of why a
+   floor note without its body cannot be resumed. #pragma schedule on and
+   optimization_level 3 each take it 58 -> 44; neither matches, so neither is committed.
+   The residual is still the $t3-vs-$s0 live-across-call choice described above. */
+// FUN_00278D50 NONMATCHING
+#ifdef NON_MATCHING
+void func_00278d50(u8 *arg0) {
+    if (*(u8 *)(arg0 + 0x1C) == 0) {
+        func_00278c60((int *)(arg0 + 0x20), (int)(arg0 + 0x20),
+                      arg0 + *(s32 *)(arg0 + 0x10), *(s32 *)(arg0 + 0x14));
+        *(u8 *)(arg0 + 0x1C) = 1;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
+#endif
 // FUN_00278DA0
 s32 func_00278da0(u8 *arg0)
 {
