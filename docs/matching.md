@@ -275,6 +275,46 @@ literal word `measured` within three lines of the pragma, and a pragma that
 changes codegen with no recorded reason is the "window fill" defect this campaign
 exists to avoid. Record what the pragma fixed and what the residual was.
 
+## The retail binary is a MIXED-toolchain build — check the compiler first
+
+Two families this file used to list as MWCCPS2 "compiler floors" are **byte-exact
+under ee-gcc**, which means they were never Metrowerks code and no amount of source
+shaping or pragma work could ever have matched them.
+
+| function | mwccps2 b210 best | ee-gcc |
+|---|---|---|
+| `code1_004c func_004c3410` (absolute getter) | nd 2, unmoved by 8 spellings, 4 register/lifetime knobs and 9,039 `permute_ast` compiles | **exact** at `-O2`, every 2.9/2.95/2.96 variant |
+| `code1_0044 func_0044b8d8` (framed tail jump) | never reaches the 24-byte shape across 18 pragma combinations | **exact** at `ee-gcc2.96 -O2` |
+
+Verified through `tools/decompme.py --try ADDR --source ... --against ...`, which
+compiles one function against several compilers on decomp.me and reports each score.
+
+**This does not mean switch compilers.** Plenty of functions are the other way
+round: `code1_003b func_003bd560` is byte-exact under b210 (with
+`#pragma no_branch_likely on`) and scores 545–765 under every gcc. The two
+toolchains are interleaved, so the compiler is a per-TU property to be discovered,
+not a global setting.
+
+**Where the gcc code is.** Scanning every window ≤ 64 bytes for two unmistakable
+gcc shapes — `lui rX / jr $ra / load rY,off(rX)` with `rX != rY`, and
+`addiu $sp,-N / sd $ra / ld $ra / j target / addiu $sp,N` — finds 34 and 265
+functions respectively. 281 of those 299 sit in `0x004C0000`–`0x0052FFFF`, and that
+region is 91% third-party by scanned function count: 561 `cri_adx_grouped.c`, 93
+Sony `rofs_*`, 5 `cri_adx.c`, against 64 first-party placeholder entries. **These
+families are middleware, not game code.**
+
+So before grinding a function in the promoted `code1_XXXX` files, ask whether it is
+game code at all. A gcc signature plus a high address is strong evidence it belongs
+to CRI or the Sony SDK and is out of scope for first-party matching.
+
+**Do not use whole-file address spans to decide this.** `cri_adx_grouped.c` spans
+`0x0044db98`–`0x0052d980` but is non-contiguous: 943 game functions from
+`mdlManager.c`, `effBlurFilter.c`, `sdkSnd.c`, `sdkTask.c` and others are
+interleaved inside it. Attribute by nearest scanned neighbour on both sides
+instead. On that test, of 7,705 unscanned windows **2,723 are flanked by
+third-party on both sides** (likely middleware), 4,099 are flanked by first-party,
+and 883 are mixed and need real attribution.
+
 ## Known compiler floors (do not fight these)
 
 When the only residual is one of these, the function is a compiler floor:
@@ -300,36 +340,28 @@ variants is wasted time.
   disagrees with retail and the two accesses are genuinely independent, no
   source order fixes it (see also the commutative-`addu` section — but those
   levers work only when the order is *dependent* on addressing).
-- **Framed tail jump.** For a one-line wrapper `return g(a);` retail emits a
-  frame *and* a tail jump: `addiu $sp,-0x10 / sd $ra,($sp) / ld $ra,($sp) /
-  j g / addiu $sp,0x10 / nop` — 24 bytes, `$ra` saved and restored around a
-  jump that never needs it. b210 emits exactly three shapes and none is that
-  one: 8 bytes (frameless tail jump), 28 bytes (framed `jal`, tail call
-  suppressed), or 32 bytes (the same unscheduled). Measured over all 18
-  combinations of `optimization_level` 1/2/3 × `tailcall` on/off × `schedule`
-  on/off/absent on `code1_0044 func_0044b8d8`; the size never leaves that set,
-  so the shape is not a pragma away. `#pragma tailcall off` is a real pragma
-  (checked with `tools/pragma_audit.py`) and does stop the collapse — it just
-  overshoots the window by one instruction. Affects the ~10-function wrapper
-  family in `code1_0043`/`code1_0044`.
-- **Absolute-getter address register (19 functions).** For a one-line global
-  getter retail emits `lui $v1,%hi(sym) / jr $ra / lw $v0,%lo(sym)($v1)` — the
-  address in `$v1`, the value in `$v0`. b210 reuses `$v0` for both. Shape,
-  delay-slot fill and the value register already agree, so the whole residual is
-  that one register, nd 2 at 12 bytes against a 16-byte window (the gap is
-  trailing zero padding, not a missing instruction).
-  `#pragma schedule on` **is** load-bearing — without it the `lw` misses the `jr`
-  delay slot and the object really is one instruction short.
-  Measured on `code1_004c func_004c3410` across 8 spellings, every one landing on
-  `$v0`: const-int base + cast, array extern, scalar extern (goes GPREL16, a
-  different shape entirely), pointer local, base-array + scaled index,
-  base-pointer-then-deref, two-step pointer, and a result local. `permute_ast`
-  then ran **9,039 compiles over 900 s** and improved the score 9 → 5 without ever
-  matching. Shared as a decomp.me scratch for anyone who wants a crack at it:
-  <https://decomp.me/scratch/r8hUx> (compiler `mwcps2-3.0.1b210-060308`, `-O2`).
-  The family is 17 functions with this exact `lui/jr/lw` signature plus 2 more
-  using `lbu`/`lb`, all ≤ 24 bytes, across
-  `code1_0039/0041/004c/004d/004e/004f/0050/0051/0052`.
+- **~~Framed tail jump~~ and ~~absolute-getter address register~~ — NOT floors,
+  wrong compiler.** Both were listed here for a long time and both are **ee-gcc
+  code**; see "The retail binary is a MIXED-toolchain build" above. Kept as a
+  warning, because the MWCCPS2 evidence looked airtight and was still the wrong
+  conclusion.
+  * Framed tail jump (~10 functions in `code1_0043`/`code1_0044`): retail wraps
+    `return g(a);` in a frame *and* tail-jumps —
+    `addiu $sp,-0x10 / sd $ra,($sp) / ld $ra,($sp) / j g / addiu $sp,0x10`, 24
+    bytes. b210 only ever emits 8 bytes (frameless jump), 28 (framed `jal`) or 32
+    (unscheduled), across all 18 combinations of `optimization_level` 1/2/3 ×
+    `tailcall` on/off × `schedule` on/off/absent. **`ee-gcc2.96 -O2` is exact.**
+  * Absolute getter (19 functions, `code1_0039/0041/004c/004d/004e/004f/0050/0051/0052`):
+    retail emits `lui $v1,%hi(sym) / jr $ra / lw $v0,%lo(sym)($v1)`; b210 reuses
+    `$v0` for the address, nd 2 at 12 bytes against a 16-byte window (the gap is
+    trailing padding). Unmoved by 8 source spellings, by
+    `cse_hard_reg_gpr`/`opt_lifetimes`/`reg_class_allocs`/`opt_scalarizeliveranges`,
+    and by 9,039 `permute_ast` compiles (score 9 → 5, never 0).
+    **Every ee-gcc 2.9/2.95/2.96 at `-O2` is exact.** Scratch:
+    <https://decomp.me/scratch/r8hUx>.
+  * `#pragma schedule on` really is load-bearing for the getter shape under b210 —
+    without it the `lw` misses the `jr` delay slot — which is exactly why the
+    residual looked like one stubborn register instead of a different toolchain.
 - **Commutative operand orientation** — `addu` and `mul.s` operand order when
   both operands are live in fixed registers. For float specifically,
   `fresh * invariant` canonicalizes to invariant-first (`mul.s $f0,$f2,$f0`)
