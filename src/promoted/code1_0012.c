@@ -27,6 +27,8 @@ typedef struct {
 
 
 
+extern void func_003ef3a0(void *arg0);
+
 // FUN_00121170
 void func_00121170(void *arg0)
 {
@@ -159,7 +161,17 @@ s32 func_0012b810(s32 arg0)
 
 
 // FUN_0012B940
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012b940);
+void func_0012b940(u8 *arg0) {
+    u8 *p;
+    s32 v;
+
+    p = func_00452560();
+    v = *(s32 *)(p + 8);
+    if (v != 0) {
+        func_003ef3a0((void *)v);
+    }
+    jtbl_008873EC[0](p);
+}
 
 // FUN_0012C1A0
 s32 func_0012c1a0(s32 arg0)

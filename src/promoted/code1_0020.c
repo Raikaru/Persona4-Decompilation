@@ -17,6 +17,11 @@ extern void func_002119a0(u8 *arg0);
 
 
 
+extern void *func_00194470(u32 id, u32 size);
+extern void func_00202070(void);
+
+extern void func_00202180(void);
+
 // FUN_00201280
 void func_00201280(u8 *arg0, u8 *arg1) {
     func_00213ab0();
@@ -35,10 +40,34 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201650);
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201a80);
 
 // FUN_00202120
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202120);
+void func_00202120(u32 param_1, u16 param_2)
+{
+  u32 *puVar1;
+  int iVar2 = 0;
+
+  iVar2 = (int)func_00194470(0x505, 0xc);
+  *(void **)(iVar2 + 0x6c) = (void *)func_00202070;
+  puVar1 = *(u32 **)(iVar2 + 0x78);
+  *puVar1 = param_1;
+  *(u16 *)(puVar1 + 1) = param_2;
+  puVar1[2] = 0;
+  return;
+}
 
 // FUN_002022E0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002022e0);
+void func_002022e0(u32 param_1, u16 param_2)
+{
+  u32 *puVar1;
+  int iVar2 = 0;
+
+  iVar2 = (int)func_00194470(0x507, 0xc);
+  *(void **)(iVar2 + 0x6c) = (void *)func_00202180;
+  puVar1 = *(u32 **)(iVar2 + 0x78);
+  *puVar1 = param_1;
+  *(u16 *)(puVar1 + 1) = param_2;
+  puVar1[2] = 0;
+  return;
+}
 
 // FUN_00202400
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202400);

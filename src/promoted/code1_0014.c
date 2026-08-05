@@ -19,6 +19,12 @@ extern s32 D_007642F0;
 
 
 
+extern u8 *func_00460990(void);
+extern void func_00460ac0(void *arg0, u8 *arg1);
+extern void func_0014d290(u8 *arg0, u8 *arg1);
+
+extern s32 func_0034c210(void);
+
 // FUN_00142130
 void func_00142130(u8 *arg0) {
     *(f32 *)(arg0 + 0x250) = (f32) 0x28A;
@@ -73,7 +79,19 @@ void func_001421b0(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00142230);
 
 // FUN_00142340
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00142340);
+s32 func_00142340(u8 *arg0) {
+    s32 flag = 1;
+    s32 i = 0;
+    s32 v = *(s16 *)(arg0 + 0x20);
+
+    while (i < 41) {
+        if (v < *(s32 *)(arg0 + i * 48 + 0x6C)) {
+            flag = 0;
+        }
+        i++;
+    }
+    return flag & func_0034c210();
+}
 
 // FUN_00143B70
 void func_00143b70(void)
@@ -157,7 +175,21 @@ void func_0014b840(u8 *arg0)
 }
 
 // FUN_0014D470
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014d470);
+s32 func_0014d470(u8 *arg0)
+{
+    u8 *work;
+    u8 *obj;
+
+    work = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)work == 0) {
+        return 0;
+    }
+    obj = func_00460990();
+    *(void **)(obj + 8) = func_0014d290;
+    *(void **)(obj + 0x10) = work;
+    func_00460ac0(*(void **)(work + 0x110), obj);
+    return 0;
+}
 
 // FUN_0014D4E0
 void func_0014d4e0(u8 *arg0)
