@@ -134565,7 +134565,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/0049b470.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/0049b470.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134620,7 +134620,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/0049c1b0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/0049c1b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134675,7 +134675,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/0049ced0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/0049ced0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134752,7 +134752,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/0049dce0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/0049dce0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134829,7 +134829,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/0049eae0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/0049eae0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134906,7 +134906,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/0049f9e0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/0049f9e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134961,7 +134961,7 @@
       "target_path": "build/objdiff/target/promoted/effPolygonFlash/004a07b0.o",
       "base_path": "build/objdiff/base/promoted/effPolygonFlash/004a07b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
