@@ -15,6 +15,12 @@ extern s32 func_0036bb60(void);
 
 
 
+extern s32 func_0034c210(void);
+
+extern u8 *func_00460990(void);
+extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void func_00369440(void);
+
 // FUN_00361970
 void func_00361970(u8 *arg0)
 {
@@ -30,7 +36,19 @@ void func_00361970(u8 *arg0)
 
 
 // FUN_003619B0
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003619b0);
+s32 func_003619b0(u8 *arg0) {
+    s32 flag = 1;
+    s32 i = 0;
+    s32 v = *(s16 *)(arg0 + 0x20);
+
+    while (i < 29) {
+        if (v < *(s32 *)(arg0 + i * 48 + 0x74)) {
+            flag = 0;
+        }
+        i++;
+    }
+    return flag & func_0034c210();
+}
 
 // FUN_00361CA0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00361ca0);
@@ -59,7 +77,14 @@ void func_003671d0(s16 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367940);
 
 // FUN_00369470
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00369470);
+void func_00369470(s32 arg0, u8 *arg1) {
+    u8 *p;
+
+    p = func_00460990();
+    *(void **)(p + 0x8) = (void *)func_00369440;
+    *(s32 *)(p + 0x10) = arg0;
+    func_00460ac0(arg1, p);
+}
 
 // FUN_0036D860
 void func_0036d860(u8 *arg0, s32 arg1)

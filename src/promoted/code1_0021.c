@@ -11,6 +11,9 @@ extern void func_001f7620(s16 channel, s32 fadeFrames);
 
 
 
+extern void func_0046b0d0(void *arg0);
+extern void (*jtbl_008873EC[])(u8 *arg0);
+
 // FUN_00211950
 void func_00211950(u8 *arg0, s32 arg1) {
     memset(arg0, 0, 0x20);
@@ -51,7 +54,17 @@ void func_00212240(u8 *arg0, s32 arg1) {
 
 
 // FUN_00213840
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00213840);
+void func_00213840(u8 *arg0) {
+    u8 *p;
+    s32 v;
+
+    p = func_00452560();
+    v = *(s32 *)(p + 4);
+    if (v != 0) {
+        func_0046b0d0((void *)v);
+    }
+    jtbl_008873EC[0](p);
+}
 
 // FUN_00213AB0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00213ab0);

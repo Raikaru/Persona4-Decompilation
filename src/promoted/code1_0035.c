@@ -20,6 +20,8 @@ typedef struct Float2
 
 
 
+extern s32 func_0034c210(void);
+
 // FUN_00354230
 void func_00354230(u8 *arg0)
 {
@@ -138,7 +140,19 @@ void func_003593b0(u8 *arg0)
 
 
 // FUN_003596A0
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003596a0);
+s32 func_003596a0(u8 *arg0) {
+    s32 flag = 1;
+    s32 i = 0;
+    s32 v = *(s16 *)(arg0 + 0x20);
+
+    while (i < 43) {
+        if (v < *(s32 *)(arg0 + i * 48 + 0x17C)) {
+            flag = 0;
+        }
+        i++;
+    }
+    return flag & func_0034c210();
+}
 
 // FUN_003599A0
 void func_003599a0(u8 *arg0)
