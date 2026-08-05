@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern void (*jtbl_008873EC[])();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 D_007647CC;
 extern s32 D_007647C8;
@@ -10,6 +11,7 @@ extern s32 D_007647BC;
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
+
 
 // FUN_003C1D20
 #pragma schedule on
@@ -82,6 +84,7 @@ s32 func_003c3f20(s32 arg0, s32 arg1)
     }
     return arg0;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma no_branch_likely off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3f20);
@@ -121,8 +124,38 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c54a0);
 // FUN_003C5700
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5700);
 
+/* measured: the OR chain's five tests all branch POSITIVELY to a shared call
+   block placed after the return path, so each test needs its own
+   `if (...) goto call;` - written as one `if (a || b || ...)` the last test is
+   inverted and the body goes inline (nd 22). The jal delay slot and the
+   table's lui/lw need schedule on. The table must also be called through the
+   pointer: `jtbl_008873EC()` is an implicit call to the SYMBOL. */
 // FUN_003C5760
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5760);
+#pragma schedule on
+s32 func_003c5760(u8 *arg0)
+{
+    if (*(s32 *)arg0 != 0) {
+        goto call;
+    }
+    if (*(u16 *)(arg0 + 4) != 0) {
+        goto call;
+    }
+    if (*(u16 *)(arg0 + 6) != 0) {
+        goto call;
+    }
+    if (*(s32 *)(arg0 + 8) != 0) {
+        goto call;
+    }
+    if (*(s32 *)(arg0 + 0xC) != 0) {
+        goto call;
+    }
+ret:
+    return 1;
+call:
+    (*jtbl_008873EC)();
+    goto ret;
+}
+#pragma schedule off
 
 /* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
    and colours the increment $v0; retail fills the slot with the store. */
