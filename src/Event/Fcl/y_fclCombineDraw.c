@@ -257,8 +257,23 @@ void func_003146c0(u8 *arg0) {
    before the call; mwcc b210 sign-extends into $a3 first and then reuses $a2 for the load.
    Same instructions, different order. A named s8 local and an explicit (s8) cast at the
    callsite both give the identical nd 17. Argument-scheduling floor. */
-// FUN_003146F0
+/* A body is preserved below at nd 45 so this is resumable. The note above records
+   nd 17 from an earlier attempt whose source was never kept; this reconstruction from
+   the retail listing does not reach it. #pragma optimization_level 3 takes it 45 -> 26
+   and schedule on 45 -> 38, neither a match, so neither is committed. */
+// FUN_003146F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003146f0(u8 *arg0, s32 arg1, s8 arg2) {
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(p + 8) = arg1;
+    *(s8 *)(p + 0xC) = arg2;
+    func_0011b480(*(s32 *)(p + 4), 0, *(s32 *)(p + 8), arg2);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
+#endif
 
 // FUN_00314740
 void func_00314740(u8 *arg0, s8 arg1) {

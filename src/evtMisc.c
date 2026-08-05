@@ -211,8 +211,28 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
    would need two registers -- `(u32)h != 0`, `((u32)h & 0xFFFFFFFF) != 0`, and
    passing `(void *)h` while testing `h` as s32. b210 coalesces regardless.
    Register-coalescing floor. */
-// FUN_0028F4F0
+/* nd 1, one word: retail tests `beqz $v0` - the untouched return value - where b210
+   tests `beqz $a0`, the copy it already made for the argument. Semantically identical,
+   and b210 coalesces the test onto the copy no matter how the source is spelled.
+   Exhausted: the earlier CSE-key attempts recorded above, plus ALL 772 pragma probes
+   (every one of the 386 spellings b210 accepts, in both directions) via
+   tools/knob_sweep.py - zero matches and zero improvements. Confirmed genuinely
+   Metrowerks and not a mixed-toolchain case: on decomp.me this function scores 120
+   under mwcps2-3.0.1b210 against 830-1030 under every ee-gcc. Real coalescing floor.
+   The body below is now PRESERVED so the next attempt starts from nd 1. */
+// FUN_0028F4F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0028f4f0(void) {
+    s32 h;
+
+    h = func_00452380(&iGpffffa7a8);
+    if (h != 0) {
+        func_00452080(h);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028f4f0);
+#endif
 
 // FUN_0028F530
 void func_0028f530(void) {
