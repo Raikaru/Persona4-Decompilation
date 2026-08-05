@@ -31,8 +31,8 @@ s32 func_003901e0(s32 arg0)
 
 // measured: schedule on hoists the return-value move before the
 // counter arithmetic and fills the jr delay slot with the final sw.
-#pragma schedule on
 
+#pragma schedule on
 // FUN_00390210
 s32 func_00390210(s32 arg0)
 {
@@ -69,7 +69,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003963b0);
 
 // measured: optimization_level 3 is load-bearing -- b210 at -O2 always
 // emits jal + frame for a trailing call; retail is a tail j.
-#pragma optimization_level 3
 
 // FUN_00396E80
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
@@ -113,6 +112,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a030);
    it saves (nd 59 at -O2, obj 80 of 96). */
 // FUN_0039A090
 #ifdef NON_MATCHING
+/* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 u32 func_0039a090(s32 arg0)
 {
@@ -131,6 +131,9 @@ u32 func_0039a090(s32 arg0)
 found:
     return *(u32 *)(e + 0);
 }
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a090);
@@ -169,6 +172,9 @@ u32 func_0039a340(s32 arg0)
 found:
     return *(u32 *)(e + 4);
 }
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a340);
@@ -195,6 +201,9 @@ u32 func_0039a3a0(s32 arg0)
 found:
     return *(u32 *)(e + 0);
 }
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a3a0);
@@ -221,6 +230,9 @@ u32 func_0039a400(s32 arg0)
 found:
     return *(u32 *)(e + 12);
 }
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
@@ -250,6 +262,9 @@ u32 func_0039a630(s32 arg0)
 found:
     return *(u32 *)(e + 0);
 }
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a630);
@@ -264,30 +279,52 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a700);
 // FUN_0039A760
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a760);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039A7E0
 s32 func_0039a7e0(void)
 {
     return 1;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 // FUN_0039A8A0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a8a0);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039AA30
 s32 func_0039aa30(void)
 {
     return 1;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039AA40
 s32 func_0039aa40(void)
 {
     return 1;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 // FUN_0039AA50
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039aa50);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039AAB0
 u8 *func_0039aab0(u8 *arg0) {
     s32 var_2;
@@ -300,12 +337,20 @@ u8 *func_0039aab0(u8 *arg0) {
     *(s32 *)(arg0 + 0x6C) = var_2;
     return arg0;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039AB10
 void func_0039ab10(void)
 {
     func_00399530();
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 /* measured: optimization_level 3 is load-bearing for all four functions in
    this scope, not just func_0039a7e0 -- at -O2 the three `return 1` leaves
    emit addiu; jr; nop against an 8-byte window and func_0039ab10 gets a
@@ -314,13 +359,12 @@ void func_0039ab10(void)
    window, and func_0039ab10 gets a frame plus jal where retail tail-jumps.
    measured: optimization_level 3 is load-bearing for all four functions in
    this scope; closing it here, -O2 is the documented baseline. */
-#pragma optimization_level 2
 
 
 // measured: schedule on hoists the return-value move before the
 // counter arithmetic and fills the jr delay slot with the final sw.
-#pragma schedule on
 
+#pragma schedule on
 // FUN_0039AC20
 s32 func_0039ac20(s32 arg0)
 {
@@ -332,8 +376,8 @@ s32 func_0039ac20(s32 arg0)
 
 // measured: schedule on hoists the return-value move before the
 // counter arithmetic and fills the jr delay slot with the final sw.
-#pragma schedule on
 
+#pragma schedule on
 // FUN_0039AC40
 s32 func_0039ac40(s32 arg0)
 {
@@ -347,7 +391,6 @@ s32 func_0039ac40(s32 arg0)
 // scheduler (plain -O2 emits a 56B frame; schedule on or
 // optimization_level 3 both give the exact 48B shape). arg1/arg2 are
 // hidden params: retail moves arg3 ($a3) into the callee's $a0.
-#pragma optimization_level 3
 
 // FUN_0039AE30
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ae30);
@@ -358,12 +401,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b450);
 // FUN_0039B4B0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b4b0);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039B510
 s32 func_0039b510(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     *(s32 *)(arg0 + 8) = func_0039b6e0(arg3);
     return 1;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
 
@@ -371,14 +419,18 @@ s32 func_0039b510(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 // scheduler (plain -O2 emits a 56B frame; schedule on or
 // optimization_level 3 both give the exact 48B shape). arg1/arg2 are
 // hidden params: retail moves arg3 ($a3) into the callee's $a0.
-#pragma optimization_level 3
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039B540
 s32 func_0039b540(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     *(s32 *)(arg0 + 0x6C) = func_0039b6e0(arg3);
     return 1;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
 
@@ -386,14 +438,18 @@ s32 func_0039b540(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 // scheduler (plain -O2 emits a 56B frame; schedule on or
 // optimization_level 3 both give the exact 48B shape). arg1/arg2 are
 // hidden params: retail moves arg3 ($a3) into the callee's $a0.
-#pragma optimization_level 3
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_0039B570
 s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     *(s32 *)(arg0 + 0x7C) = func_0039b6e0(arg3);
     return 1;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
 

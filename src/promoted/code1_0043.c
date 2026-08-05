@@ -119,20 +119,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393f8);
 #endif
 
 
-/* measured: O3 is load-bearing (nd 48 -> 23). Floor: retail uses the R5900
-   3-op mult (addiu $v1,$zero,0x24; lui; mult $v1,$a0,$v1) for arg0*0x24; b210
-   strength-reduces to sll/addu/sll at every level and source shape tried. */
-#pragma optimization_level 3
-
 // FUN_004394B8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004394b8);
 
 // FUN_00439E90 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: O3 is load-bearing (nd 48 -> 23). Floor: retail uses the R5900
+   3-op mult (addiu $v1,$zero,0x24; lui; mult $v1,$a0,$v1) for arg0*0x24; b210
+   strength-reduces to sll/addu/sll at every level and source shape tried.
+   Scoped inside the reference arm: the body it justifies is not compiled, and
+   left outside it silently put 17 INCLUDE_ASM functions below on -O3. */
+#pragma optimization_level 3
 s32 func_00439e90(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     return func_00439cc8(arg0, arg1, arg2, arg3,
                          ((s32 *)&D_008AC788[arg0])[5]);
 }
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439e90);
 #endif
@@ -218,10 +220,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043de58);
 s32 func_0043dfc0(s32 arg0) {
     return func_0043DFA0(D_00710070[0]);
 }
+#pragma schedule on
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfc0);
 #endif
-#pragma schedule on
 
 
 
@@ -243,7 +246,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043e5b0);
 s32 *func_0043eb20(s32 arg0) {
     return func_0043eae8(D_00710070[0]);
 }
+#pragma schedule on
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043eb20);
 #endif
-#pragma schedule on

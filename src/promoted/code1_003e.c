@@ -13,23 +13,30 @@ extern s32 D_00887330;
 // measured: removing this pragma takes func_003e05d0 nd 0 -> nd 16: retail fills the
 // jr $ra delay slot with sw $v1, 0xc($a0) and hoists move $v0,$a0 before the and;
 // baseline -O2 emits lw; lui; ori; and; sw; move; jr; nop.
-#pragma optimization_level 3
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_003E05D0
 u8 *RwMatrixUpdate(u8 *arg0) {
     *(s32 *)(arg0 + 0xC) &= 0xFFFDFFFC;
     return arg0;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 
 // measured: removing this pragma takes func_003e1020 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with sw $a0, -0x54a0($gp); baseline -O2 emits sw; jr; nop.
-#pragma optimization_level 3
 
+#pragma optimization_level 3
 // FUN_003E1020
 void func_003e1020(s32 arg0) {
     D_008866D8 = arg0;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 
 
@@ -159,16 +166,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3f00);
 // FUN_003E4030
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4030);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_003E43A0
 s32 func_003e43a0(s32 arg0) {
     D_0088731C -= 1;
     return arg0;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 
 // measured: removing this pragma takes func_003e4510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with addiu $v0, $zero, 1; baseline -O2 emits addiu; jr; nop.
-#pragma optimization_level 3
 
 // FUN_003E43C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
@@ -176,15 +188,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
 // FUN_003E44B0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e44b0);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_003E4510
 s32 func_003e4510(void) {
     return 1;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 
 // measured: removing this pragma takes func_003e5510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with sw $a0, -0x5478($gp); baseline -O2 emits sw; jr; nop.
-#pragma optimization_level 3
 
 // FUN_003E46E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
@@ -198,10 +215,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4880);
 // FUN_003E48D0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e48d0);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_003E4AC0
 void func_003e4ac0(void)
 {
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 // FUN_003E4AD0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4ad0);
@@ -209,16 +232,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4ad0);
 // FUN_003E50A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e50a0);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_003E5510
 void func_003e5510(s32 arg0) {
     D_00886700 = arg0;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 
 // measured: removing this pragma takes func_003e6750 nd 0 -> nd 15: retail fills the
 // jr $ra delay slot with sw $v1, ($a1) and hoists move $v0,$a0 before the addiu;
 // baseline -O2 emits lw; addiu; sw; move; jr; nop.
-#pragma optimization_level 3
 
 // FUN_003E5990
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
@@ -229,17 +257,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e59e0);
 // FUN_003E6240
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6240);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_003E6750
 s32 func_003e6750(s32 arg0, s32 *arg1) {
     *arg1 += 1;
     return arg0;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 
 // measured: removing this pragma takes func_003e8910 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with lw $v0, -0x4848($gp); baseline -O2 emits lw; jr; nop.
-#pragma optimization_level 3
 
+#pragma optimization_level 3
 // FUN_003E7EE0
 u8 *func_003e7ee0(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x14) == 1) {
@@ -252,6 +286,8 @@ u8 *func_003e7ee0(u8 *arg0) {
     func_003e5110(arg0 + 0x10C, arg0 + 0x124, 8);
     return arg0;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
 
 // FUN_003E7F50
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7f50);
@@ -262,7 +298,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7fb0);
 // FUN_003E8010
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8010);
 
+/* measured: -O3 is load-bearing for this body - flipping the whole file to
+   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
+   reach the INCLUDE_ASM functions below, which it silently did before. */
+#pragma optimization_level 3
 // FUN_003E8910
 s32 func_003e8910(void) {
     return D_00887330;
 }
+/* measured: closes the bracket above at the -O2 baseline. */
+#pragma optimization_level 2
