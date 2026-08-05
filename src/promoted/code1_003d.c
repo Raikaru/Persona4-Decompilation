@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
+
 
 /* measured: schedule on is load-bearing for retail's b/exit delay-slot moves.
    NONMATCHING: retail keeps both null-returns out of line (beqz; lw; beqz;
@@ -41,8 +43,27 @@ void func_003df7f0(s32 arg0);
 // FUN_003D3920
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3920);
 
+/* measured: the call has a hidden first argument. Retail leaves $a0 holding
+   this function's own arg0 at the jal and puts the 0 in $a1 with the floats in
+   $f12/$f13, so func_003cfa80 takes (ptr, s32, f32, f32); every three-argument
+   prototype, in any order of the classes, puts the 0 in $a0 instead (nd 1). The
+   call is also placed out of line via a positive test, so the goto graph is
+   needed - the plain if form costs nd 13. */
 // FUN_003D3A90
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3a90);
+#pragma schedule on
+u8 *func_003d3a90(u8 *arg0)
+{
+    if (*(u8 *)(arg0 + 2) & 2) {
+        goto call;
+    }
+ret:
+    return arg0;
+call:
+    func_003cfa80(arg0, 0, 1.0f, 1.0f);
+    goto ret;
+}
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
 
 // FUN_003D4BF0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4bf0);
@@ -71,6 +92,7 @@ u8 **func_003d7cd0(u8 **arg0) {
     *(s32 *)(p + 0x40) += 1;
     return arg0;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 
@@ -158,6 +180,7 @@ s32 func_003df440(s32 arg0) {
     D_0072484C += 1;
     return arg0;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 
@@ -172,6 +195,7 @@ s32 func_003df460(s32 arg0) {
     D_0072484C -= 1;
     return arg0;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 
@@ -186,6 +210,7 @@ s32 func_003df4b0(s32 arg0) {
     D_00724854 -= 1;
     return arg0;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 
