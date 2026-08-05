@@ -63,15 +63,6 @@ u32 func_004f54a0(void) {
    consistency; the schedule-on pragma fills the jr $ra delay slot. */
 
 #pragma schedule on
-// FUN_004F54B0 NONMATCHING
-#ifdef NON_MATCHING
-u32 func_004f54b0(void) {
-    u32 segment = 0x00740000;
-    return *(u32 *)(segment + 0x3a54);
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f54b0);
-#endif
 #pragma schedule off
 
 
