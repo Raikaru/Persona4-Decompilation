@@ -1307,8 +1307,30 @@ void datResetTotalBtl(void)
    bloats the object past the 0x144 window. Tried: s32 value + >=0 (skill
    recipe), (s16)/(s32) casts, f=f+f and *2.0f doubling, u32 shift cast -
    best nd 37 with 188B object vs 144B window. Branch-duplication floor. */
+/* The old "branch-duplication floor" note here was wrong twice over. The
+   halve/convert/double branch around the accumulate is not something to write by
+   hand - it is b210's built-in UNSIGNED-to-float conversion, so `(f32)(u32)x` emits
+   the whole idiom with retail's shared tail. Hand-rolling the two arms is what
+   bloated the object to 188B against a 144B window (nd 37).
+   With the cast the size is exact and only the register roles differ: retail keeps
+   the counter in $a0 and the walking pointer in $a1. That is DECLARATION order -
+   declaring `u8 *p` before `s32 i` is byte-exact. Measured: the reverse order is
+   nd 7, an `i = 0` before the pointer setup is nd 12, index arithmetic without a
+   pointer local is nd 101, and fourteen allocation/loop pragmas all leave nd 7. */
 // FUN_00109190
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00109190);
+f32 func_00109190(void) {
+    f32 sum;
+    u8 *p;
+    s32 i;
+
+    sum = 0.0f;
+    p = &D_007973A0[0x70];
+    for (i = 0; i < 21; i++) {
+        sum += (f32)(u32)*(u16 *)(p + 6);
+        p += 16;
+    }
+    return sum / 210.0f;
+}
 
 // FUN_00109220
 u8* func_00109220(s32 personaId)
