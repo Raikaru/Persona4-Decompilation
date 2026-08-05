@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern s32 func_00106330(s32 arg0);
 extern void func_00213ab0();
 extern void func_0021ae60(u8 *arg0, u8 *arg1);
 
@@ -236,16 +237,68 @@ void func_00204d90(void)
 }
 
 // FUN_002089E0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002089e0);
+void func_002089e0(u8 *arg0, u8 *arg1)
+{
+    s16 *p;
+
+    if (func_00106330(60) == 0) {
+        return;
+    }
+    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
+    if (p == NULL) {
+        return;
+    }
+    p[1] = *(s16 *)(arg0 + 4);
+    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[0] = *(s16 *)(arg0 + 2);
+}
 
 // FUN_002090D0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002090d0);
+void func_002090d0(u8 *arg0, u8 *arg1)
+{
+    s16 *p;
+
+    if (func_00106330(60) == 0) {
+        return;
+    }
+    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
+    if (p == NULL) {
+        return;
+    }
+    p[3] = *(s16 *)(arg0 + 4);
+    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[2] = *(s16 *)(arg0 + 2);
+}
 
 // FUN_00209740
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209740);
+void func_00209740(u8 *arg0, u8 *arg1)
+{
+    s16 *p;
+
+    if (func_00106330(60) == 0) {
+        return;
+    }
+    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
+    if (p == NULL) {
+        return;
+    }
+    p[5] = *(s16 *)(arg0 + 4);
+    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[4] = *(s16 *)(arg0 + 2);
+}
 
 // FUN_00209CD0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209cd0);
+void func_00209cd0(u8 *arg0, u8 *arg1)
+{
+    s16 *p;
+
+    if (func_00106330(60) == 0) {
+        return;
+    }
+    p = *(s16 **)(*(u8 **)(arg1 + 376) + 1008);
+    if (p == NULL) {
+        return;
+    }
+    p[7] = *(s16 *)(arg0 + 4);
+    (*(s16 **)(*(u8 **)(arg1 + 376) + 1008))[6] = *(s16 *)(arg0 + 2);
+}
 
 // FUN_00209D40
 void func_00209d40(u16 *arg0, u8 *arg1) {
