@@ -38,7 +38,6 @@ extern u32 func_00480580(u32 param_1,u32 param_2);
 extern u8 *func_00480670(u8 *param_1, u8 *param_2);
 extern void func_003bff30_typed(u64 param_1,void *param_2,void *param_3);
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 
 
@@ -331,7 +330,6 @@ u64 func_00480630(u64 param_1,u64 param_2)
   return param_1;
 }
 
-#pragma alias func_003bff30_typed func_003bff30
 
 
 

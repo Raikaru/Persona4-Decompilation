@@ -81,7 +81,6 @@ u8 func_004599A0(s16 id, s16 unused)
     return 1;
 }
 
-#pragma alias sSlotWork_alt sSlotWork
 
 
 // FUN_0045A890

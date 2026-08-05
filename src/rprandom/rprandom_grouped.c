@@ -34,7 +34,6 @@ u64 func_003b82b0(u64 value) { return value; }
 
 /* Source unit: src/rprandom/rprandom_003b83f0.c (1 function markers) */
 
-#pragma alias DAT_00886498_abs DAT_00886498
 extern u32 DAT_00886498_abs[];
 
 #pragma schedule on

@@ -3,7 +3,6 @@
 extern u32 DAT_00882170_abs[];
 
 
-#pragma alias DAT_00882170_abs DAT_00882170
 
 
 // FUN_00285260

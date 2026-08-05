@@ -35,7 +35,6 @@ extern s32 D_007645A8;
 /* func_00275a40 (frFontGetHeight) takes a char parameter; the retail call
  * sites below pass a full int with no sign-extension, so call through an
  * int-typed alias exactly as the P3FES donor does with frFontGetHeightRaw. */
-#pragma alias func_00275a40_typed func_00275a40
 extern int func_00275a40_typed(int);
 
 /* Ported from the P3FES frFontEx module (frFontSetTextScale / FUN_003B2CB0

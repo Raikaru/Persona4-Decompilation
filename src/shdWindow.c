@@ -22,7 +22,6 @@ extern void func_0045af60(s32, s32, s32, s32);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 // func_00452560 is intentionally left undeclared (implicit old-style call, as

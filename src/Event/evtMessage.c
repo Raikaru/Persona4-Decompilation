@@ -30,9 +30,7 @@ INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290880);
    the opposite direction (collapsing branches INTO booleans), so it has no effect here. */
 // FUN_00290940
 extern void func_00290b00_narg(void);
-#pragma alias func_00290b00_narg func_00290b00
 extern void func_00290a50_narg(void);
-#pragma alias func_00290a50_narg func_00290a50
 
 void func_00290940(int *param_1)
 {
@@ -90,10 +88,6 @@ void func_00290a50(int *param_1)
   return;
 }
 
-#pragma alias func_00276e70_typed func_00276e70
-#pragma alias func_00277250_typed func_00277250
-#pragma alias func_00277ad0_typed func_00277ad0
-#pragma alias func_002781e0_typed func_002781e0
 
 
 // FUN_00290B00

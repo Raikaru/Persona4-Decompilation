@@ -30,7 +30,6 @@ void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 
 extern char D_00713270[];
 extern u8 D_00887300_abs[];
-#pragma alias D_00887300_abs D_00887300
 extern s32 D_00922CC0[];
 extern f32 D_00922CA0[];
 extern f32 D_00922CB0[];

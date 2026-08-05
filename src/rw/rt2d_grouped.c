@@ -10,7 +10,6 @@ u32 func_003d7b30(void);
 
 /* Source unit: src/rw/rt2d_003d5830.c (1 function markers) */
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 extern void (*DAT_008873ec_abs[])(void);
 
 #pragma optimization_level 3

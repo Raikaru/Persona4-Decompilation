@@ -19,7 +19,6 @@ typedef struct NmlistList {
 extern NmlistNode *func_002e2080(int *param_1, int *param_2);
 extern void FUN_0043f9c8(u32 dest, int value, u32 size);
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 extern code DAT_008873ec_abs[];
 
 // FUN_002E2240

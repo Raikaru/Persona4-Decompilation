@@ -2,7 +2,6 @@
 #include "include_asm.h"
 
 extern void func_002716b0_typed(s32 arg0, u64 arg1, u8 *arg2);
-#pragma alias func_002716b0_typed func_002716b0
 
 typedef int (*code)(...);
 extern u32 DAT_00881630_abs[];
@@ -27,11 +26,8 @@ extern void func_0046d730(const void *file, u32 line);
 extern char D_0063BAE8[];
 extern void func_00275c00(void);
 extern u32 DAT_00881528_abs[];
-#pragma alias DAT_00881528_abs DAT_00881528
 extern u32 DAT_0088152C_abs[];
-#pragma alias DAT_0088152C_abs DAT_0088152C
 extern u32 DAT_0088179C_abs[];
-#pragma alias DAT_0088179C_abs DAT_0088179C
 extern u32 func_00271bd0(int param_1);
 extern u32 func_00272cb0(int param_1);
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
@@ -53,28 +49,19 @@ extern u32 D_00763838;
 extern int func_002724d0(void *param_1, int param_2, int param_3, int param_4,
                         void *param_5);
 extern u32 DAT_008817A0_abs[];
-#pragma alias DAT_008817A0_abs DAT_008817A0
 extern u32 DAT_00881510_abs[];
-#pragma alias DAT_00881510_abs DAT_00881510
 extern u32 DAT_00881514_abs[];
-#pragma alias DAT_00881514_abs DAT_00881514
 extern u32 DAT_00881764_abs[];
-#pragma alias DAT_00881764_abs DAT_00881764
 extern u32 DAT_00881768_abs[];
-#pragma alias DAT_00881768_abs DAT_00881768
 
 void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0044ea90(const void *msg, s32 id);
 extern s8 D_007645B0;
 
 extern u32 DAT_00881518_abs[];
-#pragma alias DAT_00881518_abs DAT_00881518
 extern u32 DAT_0088151C_abs[];
-#pragma alias DAT_0088151C_abs DAT_0088151C
 extern u32 DAT_00881520_abs[];
-#pragma alias DAT_00881520_abs DAT_00881520
 extern u32 DAT_00881524_abs[];
-#pragma alias DAT_00881524_abs DAT_00881524
 
 extern s32 D_007645BC;
 extern s32 D_008815B0[];
@@ -85,15 +72,10 @@ extern s32 func_00270fb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                         s32 arg5);
 
 extern u32 DAT_0088176C_abs[];
-#pragma alias DAT_0088176C_abs DAT_0088176C
 extern u32 DAT_00881770_abs[];
-#pragma alias DAT_00881770_abs DAT_00881770
 extern u32 DAT_00881774_abs[];
-#pragma alias DAT_00881774_abs DAT_00881774
 extern u32 DAT_00881778_abs[];
-#pragma alias DAT_00881778_abs DAT_00881778
 extern u32 DAT_0088177C_abs[];
-#pragma alias DAT_0088177C_abs DAT_0088177C
 
 extern s32 D_00763830;
 extern char D_0063BA00[];
@@ -102,19 +84,12 @@ extern char D_00748110[];
 extern s32 D_007645A4;
 extern s32 D_007645A8;
 extern u32 DAT_0088164C_abs[];
-#pragma alias DAT_0088164C_abs DAT_0088164C
 extern u32 DAT_00881650_abs[];
-#pragma alias DAT_00881650_abs DAT_00881650
 extern u32 DAT_00881670_abs[];
-#pragma alias DAT_00881670_abs DAT_00881670
 extern u32 DAT_00881690_abs[];
-#pragma alias DAT_00881690_abs DAT_00881690
 extern u32 DAT_008816B0_abs[];
-#pragma alias DAT_008816B0_abs DAT_008816B0
 extern u32 DAT_008816D0_abs[];
-#pragma alias DAT_008816D0_abs DAT_008816D0
 extern u32 DAT_008817B0_abs[];
-#pragma alias DAT_008817B0_abs DAT_008817B0
 extern char D_0063BB00[];
 extern char D_0063BC10[];
 extern s32 func_00454a60(const void *arg0, s32 arg1);
@@ -172,7 +147,6 @@ typedef struct FrFontManagerData4 {
     u32 *allocations[9];
 } FrFontManagerData4;
 
-#pragma alias gFrFontManagerData_abs DAT_00881630
 extern FrFontManagerData4 gFrFontManagerData_abs[];
 
 extern u32 DAT_00881634_abs[];
@@ -237,8 +211,6 @@ void func_00271380(s32 arg0, u8 *arg1)
 }
 
 
-#pragma alias DAT_00881630_abs DAT_00881630
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 /* measured: recipe B retest 2026-08-03 - best nd88. Pointer locals
    (FrFontSlot4 *slots / s32 *bb0) DO hoist the &D_00881630/D_008815B0 bases
@@ -333,11 +305,6 @@ void func_00271820(u32 param_1)
 }
 
 
-#pragma alias DAT_00881750_abs DAT_00881750
-#pragma alias DAT_00881754_abs DAT_00881754
-#pragma alias DAT_00881758_abs DAT_00881758
-#pragma alias DAT_0088175c_abs DAT_0088175c
-#pragma alias DAT_00881760_abs DAT_00881760
 
 // func_0026e120 and func_00271310 are intentionally left undeclared
 // (implicit old-style calls, as in the P3 donor FUN_003b0030); a typed
@@ -1019,7 +986,6 @@ extern void func_00275d80(s32 param_1, s32 param_2, u8 *param_3,
                          u8 param_4, u8 param_5, u8 param_6, s32 param_7,
                          f32 param_8);
 extern code D_00887300_abs[];
-#pragma alias D_00887300_abs D_00887300
 
 
 
@@ -1130,7 +1096,6 @@ int func_002738d0(FrFontNode *node)
 }
 
 
-#pragma alias DAT_00881634_abs DAT_00881634
 
 
 // FUN_00273910
@@ -1142,7 +1107,6 @@ u16 func_00273910(u32 param_1)
 }
 
 
-#pragma alias DAT_00881634_abs DAT_00881634
 
 
 // FUN_00273940
