@@ -241,7 +241,17 @@ s32 func_003e6750(s32 arg0, s32 *arg1) {
 #pragma optimization_level 3
 
 // FUN_003E7EE0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7ee0);
+u8 *func_003e7ee0(u8 *arg0) {
+    if (*(s32 *)(arg0 + 0x14) == 1) {
+        func_003e7680();
+        func_003e6e70(arg0);
+    } else {
+        func_003e7d50();
+        func_003e7810(arg0);
+    }
+    func_003e5110(arg0 + 0x10C, arg0 + 0x124, 8);
+    return arg0;
+}
 
 // FUN_003E7F50
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7f50);

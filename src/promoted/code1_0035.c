@@ -70,7 +70,23 @@ void func_003547c0(s32 *arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003549d0);
 
 // FUN_00355070
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355070);
+void func_00355070(u8 *arg0, u8 *arg1) {
+    u8 *temp_3;
+
+    temp_3 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    if (arg1 != NULL) {
+        *(f32 *)(temp_3 + 0x18) = (f32) *(f32 *)(temp_3 + 0x10);
+        *(f32 *)(temp_3 + 0x1C) = (f32) *(f32 *)(temp_3 + 0x14);
+        *(f32 *)(temp_3 + 0x20) = (f32) *(f32 *)(arg1 + 0);
+        *(f32 *)(temp_3 + 0x24) = (f32) *(f32 *)(arg1 + 4);
+    } else {
+        *(f32 *)(temp_3 + 0x10) = (f32) *(f32 *)(temp_3 + 0x18);
+        *(f32 *)(temp_3 + 0x14) = (f32) *(f32 *)(temp_3 + 0x1C);
+        *(f32 *)(temp_3 + 0x30) = (f32) *(f32 *)(temp_3 + 0x18);
+        *(f32 *)(temp_3 + 0x34) = (f32) *(f32 *)(temp_3 + 0x1C);
+    }
+    *(s32 *)(temp_3 + 4) = 0;
+}
 
 // FUN_00355300
 void func_00355300(u8 *arg0, s32 arg1)
@@ -79,7 +95,23 @@ void func_00355300(u8 *arg0, s32 arg1)
 }
 
 // FUN_00355310
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355310);
+void func_00355310(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+    u8 *temp_3;
+
+    temp_3 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    if (arg1 != NULL) {
+        *(f32 *)(arg1 + 0) = (f32) *(f32 *)(temp_3 + 0x18);
+        *(f32 *)(arg1 + 4) = (f32) *(f32 *)(temp_3 + 0x1C);
+    }
+    if (arg2 != NULL) {
+        *(f32 *)(arg2 + 0) = (f32) *(f32 *)(temp_3 + 0x10);
+        *(f32 *)(arg2 + 4) = (f32) *(f32 *)(temp_3 + 0x14);
+    }
+    if (arg3 != NULL) {
+        *(f32 *)(arg3 + 0) = (f32) *(f32 *)(temp_3 + 0x20);
+        *(f32 *)(arg3 + 4) = (f32) *(f32 *)(temp_3 + 0x24);
+    }
+}
 
 // FUN_00355370
 void func_00355370(u8 *arg0, u8 *arg1)
@@ -201,7 +233,21 @@ void func_0035af10(u8 *arg0)
 
 
 // FUN_0035AFA0
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035afa0);
+s32 func_0035afa0(u8 *arg0) {
+    s32 var_2;
+    u8 *temp_3;
+
+    temp_3 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    if ((*(s32 *)(temp_3 + 0x2C) == 0) || (*(s8 *)(temp_3 + 0x20) == 0)) {
+        var_2 = 0;
+    } else {
+        var_2 = 1;
+    }
+    if (var_2 != 0) {
+        return (s32)(**(s32 **)(temp_3 + 0x3C));
+    }
+    return 0;
+}
 
 // FUN_0035BE70
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035be70);

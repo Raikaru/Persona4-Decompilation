@@ -71,7 +71,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bacb0);
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002baf40);
 
 // FUN_002BB4E0
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bb4e0);
+s32 func_002bb4e0(void) {
+    s32 *temp_2;
+    s32 temp_4;
+
+    temp_2 = (s32 *)(func_002bbf70());
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    temp_4 = (s32)(*(s32 *)((u8 *)(temp_2) + 0));
+    if (temp_4 >= 0) {
+        func_002777f0(temp_4);
+        *(s32 *)((u8 *)(temp_2) + 0) = -1;
+        *(s8 *)((u8 *)(temp_2) + 4) = 0;
+        *(s8 *)((u8 *)(temp_2) + 5) = 0;
+    }
+    func_002e0dd0();
+    return 1;
+}
 
 // FUN_002BB680
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bb680);

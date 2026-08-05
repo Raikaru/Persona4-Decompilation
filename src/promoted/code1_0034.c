@@ -28,7 +28,14 @@ s32 func_0034a630(u8 *arg0)
 }
 
 // FUN_0034A840
-INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034a840);
+void func_0034a840(u8 *arg0) {
+    u8 *temp_16;
+
+    temp_16 = (u8 *)(*(u8 **)(arg0 + 0x38));
+    *(s32 *)(temp_16 + 0xE4) = 0;
+    *(s32 *)(temp_16 + 0xE0) = 0;
+    func_003e8130(func_00457120(), temp_16 + 0xE0);
+}
 
 // FUN_0034AD40
 void func_0034ad40(u8 *arg0) {

@@ -182,7 +182,12 @@ void func_001ac500(s64 *arg0) {
 
 
 // FUN_001AC5B0
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ac5b0);
+void func_001ac5b0(s64 *arg0) {
+    if ((func_00193cd0(0x506) == 0) && (func_00193cd0(0x800) == 0)) {
+        *(u16 *)((u8 *)(arg0) + 0x18) = (u16) (*(u16 *)((u8 *)(arg0) + 0x18) | 0x100);
+        func_001b0800(arg0, 0xFU);
+    }
+}
 
 // FUN_001AC620
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ac620);

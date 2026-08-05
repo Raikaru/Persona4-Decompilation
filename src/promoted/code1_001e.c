@@ -52,7 +52,17 @@ s32 func_001e7f50(void) {
 
 
 // FUN_001E8C60
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e8c60);
+s32 func_001e8c60(void) {
+    u64 temp_16;
+
+    func_0029d050();
+    temp_16 = func_0029cc00(0);
+    func_0029cc00(1);
+    func_0029cc00(2);
+    func_001b0cc0((u64) (temp_16 << 0x24) >> 0x24);
+    func_0029cf50(-1);
+    return 1;
+}
 
 // FUN_001E8D80
 s32 func_001e8d80(void) {

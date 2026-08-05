@@ -162,7 +162,17 @@ s32 func_0039aa40(void)
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039aa50);
 
 // FUN_0039AAB0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039aab0);
+u8 *func_0039aab0(u8 *arg0) {
+    s32 var_2;
+
+    if (*(s32 *)((u8 *)(*(u8 **)(arg0 + 0x18)) + 8) & 0x80) {
+        var_2 = func_0039b6e0(0x1100E);
+    } else {
+        var_2 = func_0039b6e0(0x1100D);
+    }
+    *(s32 *)(arg0 + 0x6C) = var_2;
+    return arg0;
+}
 
 // FUN_0039AB10
 void func_0039ab10(void)

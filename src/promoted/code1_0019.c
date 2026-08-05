@@ -335,7 +335,20 @@ u8 *func_0019beb0(u8 *arg0)
 }
 
 // FUN_0019BF10
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019bf10);
+void func_0019bf10(u8 *arg0) {
+    u8 *temp_4;
+    u8 *temp_5;
+
+    temp_5 = (u8 *)(*(u8 **)(arg0 + 0));
+    *(u16 *)(temp_5 + 0xA0) = (u16) (*(u16 *)(temp_5 + 0xA0) + 1);
+    if (!(*(u16 *)(arg0 + 8) & 0x10)) {
+        temp_4 = (u8 *)(*(u8 **)(temp_5 + 0xA00));
+        if (*(s32 *)(temp_4 + 0x2D0) == 0) {
+            func_0047d170(temp_4, temp_5);
+        }
+        *(s32 *)(arg0 + 0xC) = 1;
+    }
+}
 
 // FUN_0019C010
 void func_0019c010(u8 *arg0)
