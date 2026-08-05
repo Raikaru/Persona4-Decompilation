@@ -109,6 +109,7 @@ u8 *func_003c4a40(u8 *arg0) {
     ((s32 *)arg0)[1] = 0;
     return arg0;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 
@@ -131,6 +132,7 @@ s32 func_003c8ca0(s32 arg0) {
     D_007647EC++;
     return arg0;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 
@@ -206,6 +208,7 @@ void func_003cc130(void) {
 s32 func_003cc240(void) {
     return 1;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 
@@ -246,12 +249,57 @@ extern s32 D_0070B110[];
 /* measured: without #pragma schedule on, MWCC emits lui / addiu before
    jr $ra with an unfilled delay slot; retail fills the slot (nd 6 -> 0). */
 
+/* measured: nd 2 of 32 words. schedule on plus no_branch_likely on gets the
+   delay slots and the plain bne/bnez; the rest was the shape of the four
+   un-merged `return NULL` blocks, which retail keeps separate and in a specific
+   order. Reaching the arg2 == 0 case through a goto is what stops case 1's null
+   return from pushing case 2's body down - `if (arg2 != 0) {...} return NULL;`
+   inside the case costs nd 19 and `break` into a shared tail costs nd 26.
+   The residual is two swapped branch targets: retail sends arg0 == NULL to the
+   earlier block and arg2 == 0 to the later one, and neither placing the label
+   inside the switch nor at the end of the function reverses that. */
 // FUN_003CF9B0
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003cf9b0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 *sub;
+
+    if (arg0 != NULL) {
+        sub = *(u8 **)(arg0 + 0x14);
+        if (sub != NULL) {
+            switch (arg1) {
+            case 1:
+                if (arg2 == 0) {
+                    goto none;
+                }
+                *(s32 *)(sub + 0x10) = arg2;
+                return arg0;
+            case 2:
+                *(s32 *)(sub + 0x14) = arg2;
+                return arg0;
+            default:
+                return NULL;
+            }
+none:
+            return NULL;
+        }
+        return NULL;
+    }
+    return NULL;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cf9b0);
+#endif
 
 // FUN_003CFA70
 #pragma schedule on
 s32 *func_003cfa70(void) {
     return D_0070B110;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off

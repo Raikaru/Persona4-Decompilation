@@ -23,6 +23,8 @@ extern s32 func_004782b0(s32 arg0);
 
 
 
+extern void (*jtbl_008873EC[])(s32 arg0);
+
 // FUN_00153A30
 void func_00153a30(u8 *arg0)
 {
@@ -147,7 +149,16 @@ void func_0015c730(void)
 }
 
 // FUN_0015D270
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015d270);
+void func_0015d270(u8 *arg0)
+{
+    s32 h;
+
+    h = *(s32 *)(arg0 + 0x14);
+    if (h != 0) {
+        (*jtbl_008873EC)(h);
+        *(s32 *)(arg0 + 0x14) = 0;
+    }
+}
 
 // FUN_0015D2C0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015d2c0);
