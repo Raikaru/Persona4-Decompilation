@@ -145,8 +145,24 @@ void func_003553b0(u8 *arg0, f32 *arg1)
 
 
 
+/* measured: the read and the write of the same field must use DIFFERENT
+   spellings. Written identically both times, b210 CSEs the address into a
+   callee-saved register (addiu $s0, $v1, 0x40 then sw at 0) and leaves the
+   struct pointer in a caller-saved one; retail keeps the POINTER in $s0 and
+   stores at 0x40($s0). Reading through the array index and writing through the
+   cast-and-offset breaks the CSE and the function matches exactly. Same shape
+   in func_0035aec0 and func_0035be70. */
 // FUN_00355460
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355460);
+s32 func_00355460(u8 *arg0)
+{
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x38);
+    if ((((s32 *)p)[16] == 0) && (*(u16 *)(p + 8) != 0)) {
+        *(s32 *)(p + 0x40) = func_00354830(p + 0x144);
+    }
+    return 0;
+}
 
 // FUN_003558A0
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003558a0);
@@ -218,7 +234,16 @@ void func_003599a0(u8 *arg0)
 
 
 // FUN_0035AEC0
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035aec0);
+s32 func_0035aec0(u8 *arg0)
+{
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x38);
+    if ((((s32 *)p)[11] == 0) && (*(s8 *)(p + 0x20) != 0)) {
+        *(s32 *)(p + 0x2C) = func_00354830(p + 0x30);
+    }
+    return 0;
+}
 
 // FUN_0035AF10
 void func_0035af10(u8 *arg0)
@@ -250,7 +275,16 @@ s32 func_0035afa0(u8 *arg0) {
 }
 
 // FUN_0035BE70
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035be70);
+s32 func_0035be70(u8 *arg0)
+{
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x38);
+    if ((((s32 *)p)[11] == 0) && (*(u16 *)(p + 0x20) != 0)) {
+        *(s32 *)(p + 0x2C) = func_00354830(p + 0x30);
+    }
+    return 0;
+}
 
 // FUN_0035BEC0
 void func_0035bec0(u8 *arg0)
