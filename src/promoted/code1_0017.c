@@ -77,7 +77,20 @@ s32 func_00176850(void)
 }
 
 // FUN_00176A50
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176a50);
+s32 func_00176a50(void)
+{
+    u8 *node;
+    s32 count;
+
+    node = (u8 *)func_001452b0(3);
+    count = 0;
+    while (node != NULL) {
+        count += 1;
+        node = *(u8 **)(node + 0x138);
+    }
+    func_0029cf50(count);
+    return 1;
+}
 
 // FUN_00176B60
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176b60);
