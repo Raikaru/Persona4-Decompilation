@@ -383,7 +383,27 @@ void func_0019d0c0(u8 *arg0) {
 
 
 // FUN_0019D4E0
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019d4e0);
+void func_0019d4e0(u8 *arg0)
+{
+    u8 *node;
+    s32 h;
+
+    func_0019d3c0();
+    node = *(u8 **)(arg0 + 0xA0C);
+    if (node != NULL) {
+        func_0019d550(node);
+    }
+    h = ((s32 *)arg0)[641];
+    if (h != 0) {
+        func_001d7040(h);
+        *(s32 *)(arg0 + 0xA04) = 0;
+    }
+    h = ((s32 *)arg0)[642];
+    if (h != 0) {
+        func_001d6c10(h);
+        *(s32 *)(arg0 + 0xA08) = 0;
+    }
+}
 
 // FUN_0019DEA0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019dea0);

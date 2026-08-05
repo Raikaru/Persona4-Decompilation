@@ -118,6 +118,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3020);
 
 // FUN_003E3070 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 s32 func_003e3070(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *node;
@@ -160,6 +161,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
    it instead of re-deriving. Branch-likely / delay-slot floor. */
 // FUN_003E30C0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 s32 func_003e30c0(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *node;
@@ -187,8 +189,50 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e30c0);
 // FUN_003E32F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
 
+/* measured: nd 22 of 32 words, and every instruction is right - retail has one
+   extra nop between the loop's exit branch and the `move $v0, $s1` that
+   materialises the return value, so the whole epilogue slides one word. This is
+   the SECOND function in this file with that exact artifact (see func_003e3020,
+   which has two consecutive nops at its own loop exit), which makes it look like
+   a b210-vs-retail behaviour at a loop-exit block join rather than anything the
+   source controls. Confirmed not source-driven here: do-while, while and an
+   explicit goto loop all give nd 22-23 under schedule+no_branch_likely, and
+   schedule alone costs nd 32. */
 // FUN_003E3370
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e3370(u8 *arg0, s32 arg1)
+{
+    s32 (*fn)(s32, s32, s32);
+    s32 got;
+    s32 total;
+    u8 *node;
+
+    node = *(u8 **)(arg0 + 0x10);
+    total = 0;
+    if (node != NULL) {
+        do {
+            fn = *(s32 (**)(s32, s32, s32))(node + 0x14);
+            if (fn != NULL) {
+                got = fn(arg1, *(s32 *)node, *(s32 *)(node + 4));
+                if (got > 0) {
+                    total += got + 0xC;
+                }
+            }
+            node = *(u8 **)(node + 0x30);
+        } while (node != NULL);
+    }
+
+    return total;
+}
+/* measured: closes the bracket noted above the marker. */
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3370);
+#endif
 
 // FUN_003E3630
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3630);
@@ -386,6 +430,7 @@ call:
     (*jtbl_008873EC)(*(u8 **)arg0);
     goto ret;
 }
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 // FUN_003E6240
