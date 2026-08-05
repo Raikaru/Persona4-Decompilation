@@ -1,6 +1,13 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
+extern s32 D_00764794;
+extern s32 D_00764790;
+extern s32 D_0076478C;
+extern s32 D_00764788;
+extern s32 D_007647AC;
+extern s32 D_007647A8;
 extern s32 D_00764784;
 
 extern s32 D_0076479C;
@@ -56,8 +63,35 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 // FUN_003BD110
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd110);
 
+/* measured: nd 43 of 32 words, and the shape is right - the residual is
+   branch polarity and block layout only. Retail tests positively and puts both
+   `return 0` paths OUT OF LINE past the default `return arg0`; b210 inverts
+   every test and lays the early exits inline. no_branch_likely is required just
+   to stop b210 emitting bnel/beql here (nd 60 -> 44), and of the three
+   plausible source shapes the flat early-return chain is closest (nd 43, obj
+   124 of 128): nesting the whole body under one positive guard costs nd 59, and
+   a single-case switch on arg1 == 8 costs nd 66.  Four functions in this file
+   share the shape, differing only in the two gp-relative operands. */
 // FUN_003BD470
+#ifdef NON_MATCHING
+#pragma no_branch_likely on
+s32 func_003bd470(s32 arg0, s32 arg1)
+{
+    if (func_003df360(arg0, &D_00764794, 4) == 0) {
+        return 0;
+    }
+    if (arg1 != 8) {
+        return arg0;
+    }
+    if (func_003df360(arg0, &D_00764790, 4) == 0) {
+        return 0;
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd470);
+#endif
 
 // FUN_003BD4F0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
@@ -99,8 +133,27 @@ s32 func_003bd560(u8 *arg0) {
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
+/* measured: same shape as func_003bd470; see that note. nd 43. */
 // FUN_003BD590
+#ifdef NON_MATCHING
+#pragma no_branch_likely on
+s32 func_003bd590(s32 arg0, s32 arg1)
+{
+    if (func_003df360(arg0, &D_0076478C, 4) == 0) {
+        return 0;
+    }
+    if (arg1 != 8) {
+        return arg0;
+    }
+    if (func_003df360(arg0, &D_00764788, 4) == 0) {
+        return 0;
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd590);
+#endif
 
 // FUN_003BD610
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
@@ -168,8 +221,27 @@ s32 func_003be7e0(s32 arg0) {
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
+/* measured: same shape as func_003bd470; see that note. nd 43. */
 // FUN_003BE820
+#ifdef NON_MATCHING
+#pragma no_branch_likely on
+s32 func_003be820(s32 arg0, s32 arg1)
+{
+    if (func_003df360(arg0, &D_007647AC, 4) == 0) {
+        return 0;
+    }
+    if (arg1 != 8) {
+        return arg0;
+    }
+    if (func_003df360(arg0, &D_007647A8, 4) == 0) {
+        return 0;
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be820);
+#endif
 
 // FUN_003BE8A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
