@@ -125,7 +125,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003561d0);
 
 // FUN_00356820
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356820);
+s32 func_00356820(u8 *arg0) {
+    s32 v = *(s32 *)(arg0 + 0x14);
+
+    switch (v) {
+    case 0:
+        v += 1;
+        *(s32 *)(arg0 + 0x14) = v;
+        return 1;
+    case 1:
+        return 1;
+    default:
+        return 0;
+    }
+}
 
 // FUN_00359340
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00359340);
