@@ -1663,6 +1663,19 @@ s32 func_0027a2d0(u8 *arg0, u8 *arg1)
                *(s16 *)(arg1 + 0x12) + 1;
 }
 
+/* Recovered after withdrawing the branch-landing boundary 0x0027A350: this
+   function opens with `b 0x0027A350` into its own loop test, which spimdisasm
+   recorded as a separate function, leaving only a 16-byte window here. 0x0027A340
+   has 3 jal sites, 0x0027A350 none. See reconcile.BRANCH_LANDING_ENTRIES. */
+// FUN_0027A340
+void func_0027a340(u8 *arg0, int arg1)
+{
+    while (arg0 != NULL) {
+        *(int *)(arg0 + 0x14) = arg1;
+        arg0 = *(u8 **)(arg0 + 0x24);
+    }
+}
+
 // FUN_0027A370
 /* Not `static`: the symbol must stay global so the linker can resolve the
  * retail asm blob's jal to this address (measured: mwldps2 reports Undefined

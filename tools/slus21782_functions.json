@@ -2,9 +2,9 @@
   "program": "SLUS_217.82",
   "sha1": "4eeec0360cf2715535d9f7e52eb69d786fb0158c",
   "generated_from": "Splat code1 control-flow scan plus Ghidra/shared-SDK code2 boundaries",
-  "function_count": 13084,
+  "function_count": 13083,
   "evidence": {
-    "code1_splat": 13075,
+    "code1_splat": 13074,
     "code2_ghidra_shared_sdk": 9,
     "ghidra_total": 11833
   },
@@ -3939,8 +3939,7 @@
     "0027a150": 336,
     "0027a2a0": 48,
     "0027a2d0": 112,
-    "0027a340": 16,
-    "0027a350": 32,
+    "0027a340": 48,
     "0027a370": 144,
     "0027a400": 144,
     "0027a490": 32,
