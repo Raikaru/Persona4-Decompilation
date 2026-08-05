@@ -80,6 +80,35 @@ class BannedPragmaTests(unittest.TestCase):
         findings = lint_text("#pragma optimization_level 2\nvoid func_00100000(void) { }\n")
         self.assertEqual(codes(findings), ["H003W"])
 
+    def test_onboarded_asm_stubs_do_not_hide_an_annotation(self) -> None:
+        """A pragma's waiver comes from the annotation above its enclosing marker.
+
+        Onboarding unscanned windows inserts runs of INCLUDE_ASM between an
+        existing annotation and the marker it was written for. Those lines are
+        other functions' whole bodies, not intervening code, so they must not push
+        the annotation out of the waiver window -- otherwise every onboarding batch
+        breaks H003 on pragmas nobody touched.
+        """
+        stubs = "".join(
+            f'// FUN_0010{i:04X}\nINCLUDE_ASM("asm/nonmatchings/x", func_0010{i:04x});\n\n'
+            for i in range(1, 9))
+        text = ("// measured: schedule off is load-bearing for func_00100000.\n"
+                + stubs
+                + "// FUN_00100000\n"
+                + "#pragma schedule off\n"
+                + "void func_00100000(void) { }\n")
+        self.assertNotIn("H003", codes(lint_text(text)))
+
+    def test_a_run_of_plain_code_still_hides_an_annotation(self) -> None:
+        """The skip is specific to INCLUDE_ASM; real code must still break the scan."""
+        filler = "".join(f"static int pad{i};\n" for i in range(1, 9))
+        text = ("// measured: schedule off is load-bearing for func_00100000.\n"
+                + filler
+                + "// FUN_00100000\n"
+                + "#pragma schedule off\n"
+                + "void func_00100000(void) { }\n")
+        self.assertIn("H003", codes(lint_text(text)))
+
 
 class DeadStoreTests(unittest.TestCase):
     def test_fires_on_assigned_never_read_local(self) -> None:

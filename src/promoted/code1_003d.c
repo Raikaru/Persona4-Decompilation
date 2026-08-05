@@ -38,6 +38,15 @@ void func_003df7f0(s32 arg0);
    the jal with a nop in its delay slot and leaves the jr slot unfilled;
    retail fills both slots (nd 17 -> 0). */
 
+// FUN_003D3920
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3920);
+
+// FUN_003D3A90
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3a90);
+
+// FUN_003D4BF0
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4bf0);
+
 // FUN_003D6010
 #pragma schedule on
 s32 func_003d6010(u8 *arg0) {
@@ -49,6 +58,9 @@ s32 func_003d6010(u8 *arg0) {
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final sw (nd 18 -> 0). */
+
+// FUN_003D7C50
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7c50);
 
 // FUN_003D7CD0
 #pragma schedule on
@@ -83,6 +95,9 @@ s32 func_003d8130(s32 arg0, s32 arg1) {
    beql with the move annulled in its slot across all probed shapes. */
 
 #pragma schedule on
+// FUN_003D8150
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8150);
+
 // FUN_003D81A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003d81a0(u32 arg0) {
@@ -101,6 +116,39 @@ extern s32 D_0072484C;
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final sw (nd 16 -> 0). */
+
+// FUN_003DC490
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc490);
+
+// FUN_003DC510
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc510);
+
+// FUN_003DC590
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc590);
+
+// FUN_003DD530
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd530);
+
+// FUN_003DD5C0
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd5c0);
+
+// FUN_003DD760
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
+
+// FUN_003DD7D0
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd7d0);
+
+// FUN_003DDC20
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddc20);
+
+// FUN_003DDF20
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf20);
+
+// FUN_003DDF80
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf80);
+
+// FUN_003DDFD0
+INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddfd0);
 
 // FUN_003DF440
 #pragma schedule on

@@ -30,6 +30,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419628);
    so without this pragma b210 emits addiu; jr; nop and the object is 12 bytes
    against an 8-byte window. */
 #pragma schedule on
+// FUN_0041C2F8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c2f8);
+
+// FUN_0041E198
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e198);
+
 // FUN_0041F130
 s32 func_0041f130(void)
 {
@@ -37,6 +43,12 @@ s32 func_0041f130(void)
 }
 /* measured: see the annotation above the matching `on` pragma (func_0041f130). */
 #pragma schedule off
+
+// FUN_0041F178
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f178);
+
+// FUN_0041F1C0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
 
 // FUN_0041F2A8
 #pragma schedule on
