@@ -756,6 +756,8 @@ void func_003766f0(f32 **arg0, s32 arg1, s32 arg2, u8 *arg3) {
 }
 
 
+void func_00376880(u8 **arg0);
+
 // FUN_00376800
 void func_00376800(u8 **arg0, s32 arg1) {
     u8 *var_16;
@@ -771,10 +773,20 @@ void func_00376800(u8 **arg0, s32 arg1) {
 }
 
 
-/* measured: retail re-loads *arg0 at the top of each iteration; mwcc b210 CSEs it with the
-   loop test at the bottom and keeps it in $a0, so the body is one load short (nd 18). */
+/* Retail re-loads *arg0 at every use. The fix is simply NOT to cache it: a `cur`
+   local lets b210 CSE the load with the loop test and the body comes out two
+   instructions short (nd 44), and a for(;;)-with-break shape scores nd 33.
+   Dereferencing *arg0 at each use is byte-exact - measured. */
 // FUN_00376880
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00376880);
+void func_00376880(u8 **arg0) {
+    u8 *next;
+
+    while (*arg0 != NULL) {
+        next = *(u8 **)(*arg0 + 0xC);
+        jtbl_008873EC[0](*arg0);
+        *arg0 = next;
+    }
+}
 
 
 // FUN_003768E0
