@@ -18,17 +18,6 @@ u32 func_004c3400(u32 arg0)
 }
 
 
-// FUN_004C3410 NONMATCHING
-#ifdef NON_MATCHING
-u32 func_004c3410(void)
-{
-    u32 segment = 0x00710000;
-
-    return *(u32 *)(segment + 0x4C3C);
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c3410);
-#endif
 
 
 // FUN_004C9BD0
@@ -68,17 +57,6 @@ u32 func_004cb2c0(u32 arg0)
 }
 
 
-// FUN_004CC1E0 NONMATCHING
-#ifdef NON_MATCHING
-u32 func_004cc1e0(void)
-{
-    u32 segment = 0x00710000;
-
-    return *(u32 *)(segment + 0x9998);
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cc1e0);
-#endif
 
 
 // FUN_004CF7E0
