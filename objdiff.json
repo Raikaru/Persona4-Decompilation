@@ -124610,7 +124610,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0019/0019d4e0.o",
       "base_path": "build/objdiff/base/promoted/code1_0019/0019d4e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -130517,7 +130517,7 @@
       "target_path": "build/objdiff/target/promoted/code1_003c/003c5760.o",
       "base_path": "build/objdiff/base/promoted/code1_003c/003c5760.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
