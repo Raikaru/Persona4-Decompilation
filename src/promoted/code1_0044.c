@@ -39,6 +39,18 @@ s64 func_004470f0(s64 arg0);
 #pragma push
 #pragma schedule on
 #pragma tailcall on
+// FUN_00446ED8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446ed8);
+
+// FUN_00446F30
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f30);
+
+// FUN_00446F80
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f80);
+
+// FUN_0044B868
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b868);
+
 // FUN_0044B8D8 NONMATCHING
 #ifdef NON_MATCHING
 s64 func_0044b8d8(s64 arg0) {

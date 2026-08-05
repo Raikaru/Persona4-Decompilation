@@ -1,3 +1,4 @@
+#include "include_asm.h"
 #include "type.h"
 extern s32 iGpffffb210;
 extern void func_00454bd0();
@@ -35,6 +36,12 @@ s32 func_00155290(void)
 {
     return iGpffffb210;
 }
+
+// FUN_001560A0
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001560a0);
+
+// FUN_001560F0
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001560f0);
 
 // FUN_00156170
 u16 func_00156170(u8 *arg0)
@@ -101,6 +108,21 @@ s32 func_0015a130(void)
 }
 
 
+// FUN_0015A630
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015a630);
+
+// FUN_0015A740
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015a740);
+
+// FUN_0015C210
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015c210);
+
+// FUN_0015C440
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015c440);
+
+// FUN_0015C590
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015c590);
+
 // FUN_0015C630
 s32 func_0015c630(void)
 {
@@ -112,6 +134,12 @@ void func_0015c730(void)
 {
     func_00454bd0();
 }
+
+// FUN_0015D270
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015d270);
+
+// FUN_0015D2C0
+INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015d2c0);
 
 // FUN_0015F600
 s32 func_0015f600(void)

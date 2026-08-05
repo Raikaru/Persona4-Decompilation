@@ -120,6 +120,7 @@ RULES = {
 SEVERITY_ORDER = {"info": 0, "warn": 1, "error": 2}
 
 MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))(.*)$")
+INCLUDE_ASM_RE = re.compile(r'^\s*INCLUDE_ASM\s*\(\s*"')
 # Any `// FUN_...` line, including ones whose address part is malformed.
 MARKER_LINE_RE = re.compile(r"^\s*//\s*FUN_([0-9a-fA-F]*)(.*)$")
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
@@ -265,6 +266,13 @@ def _scan_waiver(src, idx, code, depth):
             continue
         if MARKER_RE.match(line):
             continue  # annotations sit above the marker, the site below it
+        if INCLUDE_ASM_RE.search(line):
+            # Another function's whole body, onboarded as an assembly fallback.
+            # A run of these between an annotation and the marker it belongs to
+            # is not intervening code that should hide the annotation -- the two
+            # were adjacent before the stubs were inserted, and the measurement
+            # still describes the same construct. Skip without counting depth.
+            continue
         m = WAIVER_ALLOW_RE.search(line)
         if m:
             return m.group(1) == code

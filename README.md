@@ -22,13 +22,13 @@ before extracting what the build needs.
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,086; all mapped to C or owned retail assembly |
 | Byte-identical functions | 4,116 (31.453% of windows) |
-| Under test (a `// FUN_` marker scores them) | 5,349 (40.876% of windows) |
-| Not yet under test, supplied as retail bytes | 7,737 (59.124% of windows) |
+| Under test (a `// FUN_` marker scores them) | 5,539 (42.328% of windows) |
+| Not yet under test, supplied as retail bytes | 7,547 (57.672% of windows) |
 | In byte-exact linked C objects | 1,239 (9.468% of windows), with 507 assembly fallbacks still inside those objects |
 | First-party matched, scored for recovery | 3,498 |
 | — NAMED (not a `func_<address>` placeholder) | 155 (4.431%) |
 | — TYPED (no raw-offset or `M2C_` access) | 1,354 (38.708%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 2,183 (62.407%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 2,181 (62.35%) |
 | — still carrying decompiler local names | 794 (22.699%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.

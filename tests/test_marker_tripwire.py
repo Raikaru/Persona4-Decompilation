@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5349 tracked markers across first-party src/.  Bump deliberately.
+        """5539 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -149,11 +149,19 @@ class MarkerCountTripwireTests(unittest.TestCase):
         candidates were) because lint pairs a schedule on/off bracket with a
         justification that sits below the closing pragma, leaving no insertion
         position in such a region that does not separate one from the other.
+
+        Raised to 5539 by onboarding the 190 that the pragma restriction had
+        excluded. The restriction is gone because the real problem was in the lint:
+        a pragma's waiver comes from the annotation above its ENCLOSING MARKER, and
+        a run of onboarded INCLUDE_ASM stubs between the two pushed the annotation
+        out of the six-line window. decomp_lint now skips INCLUDE_ASM lines while
+        scanning for a waiver, since another function's assembly body is not
+        intervening code that should hide an annotation.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5349,
+            5539,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

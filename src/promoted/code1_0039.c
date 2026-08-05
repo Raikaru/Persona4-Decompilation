@@ -50,6 +50,12 @@ s32 func_00390210(s32 arg0)
 // mult cannot be reproduced and the shift chain cannot fit the 16B window.
 // Compiler-version codegen floor. NONMATCHING
 
+// FUN_00390230
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390230);
+
+// FUN_003902D0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
+
 // FUN_003963B0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003963b0(u8 *arg0)
@@ -65,11 +71,80 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003963b0);
 // emits jal + frame for a trailing call; retail is a tail j.
 #pragma optimization_level 3
 
+// FUN_00396E80
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
+
+// FUN_003982E0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003982e0);
+
+// FUN_00398540
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398540);
+
+// FUN_003992B0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003992b0);
+
+// FUN_003993E0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003993e0);
+
+// FUN_00399B10
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b10);
+
+// FUN_00399B80
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b80);
+
+// FUN_00399FD0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399fd0);
+
+// FUN_0039A030
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a030);
+
+// FUN_0039A090
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a090);
+
+// FUN_0039A0F0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
+
+// FUN_0039A200
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a200);
+
+// FUN_0039A260
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a260);
+
+// FUN_0039A2E0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a2e0);
+
+// FUN_0039A340
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a340);
+
+// FUN_0039A3A0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a3a0);
+
+// FUN_0039A400
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
+
+// FUN_0039A460
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a460);
+
+// FUN_0039A630
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a630);
+
+// FUN_0039A690
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a690);
+
+// FUN_0039A700
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a700);
+
+// FUN_0039A760
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a760);
+
 // FUN_0039A7E0
 s32 func_0039a7e0(void)
 {
     return 1;
 }
+
+// FUN_0039A8A0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a8a0);
 
 // FUN_0039AA30
 s32 func_0039aa30(void)
@@ -82,6 +157,12 @@ s32 func_0039aa40(void)
 {
     return 1;
 }
+
+// FUN_0039AA50
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039aa50);
+
+// FUN_0039AAB0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039aab0);
 
 // FUN_0039AB10
 void func_0039ab10(void)
@@ -131,6 +212,15 @@ s32 func_0039ac40(s32 arg0)
 // hidden params: retail moves arg3 ($a3) into the callee's $a0.
 #pragma optimization_level 3
 
+// FUN_0039AE30
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ae30);
+
+// FUN_0039B450
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b450);
+
+// FUN_0039B4B0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b4b0);
+
 // FUN_0039B510
 s32 func_0039b510(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
@@ -178,6 +268,9 @@ s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 // same selection to beql $v0,$zero + move-in-delay + inline lw (12 instr,
 // nd 17). Scheduler branch-shape floor. NONMATCHING
 // (pragma dropped in whole-file merge: function is INCLUDE_ASM fallback, not load-bearing)
+
+// FUN_0039B680
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b680);
 
 // FUN_0039B6E0 NONMATCHING
 #ifdef NON_MATCHING
