@@ -13,14 +13,19 @@ SPEC.loader.exec_module(audit)
 
 
 def mwcc_path() -> str | None:
-    """Must never raise: this is evaluated at import time by @skipUnless."""
+    """Must never raise: this is evaluated at import time by @skipUnless.
+
+    `load_config` calls `sys.exit` when the toolchain is not configured, which is
+    a BaseException and slips straight past `except Exception` - that is exactly
+    how this module broke CI, where no compiler exists.
+    """
     try:
         import sys
         sys.path.insert(0, str(REPO / "tools"))
         from verify import load_config
         path = load_config().get("mwcc")
         return path if path and Path(path).is_file() else None
-    except Exception:
+    except BaseException:
         return None
 
 
