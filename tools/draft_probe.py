@@ -29,19 +29,48 @@ BAD = ('M2C_UNK', 'M2C_ERROR', 'M2C_MEMCPY', '?')
 
 
 def find_draft(name):
-    """Return the draft's full function text, or None."""
+    """Return the draft's full function DEFINITION, or None.
+
+    Must not match a forward declaration. `s32 func_001077f0();` matches the same
+    name pattern, and walking braces from there silently captures the NEXT
+    function's body - measuring one function's draft against another's window, which
+    looks like a plausible bad score instead of an error.
+    """
+    pat = re.compile(r'^[A-Za-z_][\w \*]*\b' + re.escape(name) + r'\s*\(')
     for g in sorted(Path('src/generated').rglob('*.c')):
         lines = g.read_text(errors='replace').split('\n')
         for i, l in enumerate(lines):
-            if re.match(r'^[A-Za-z_][\w \*]*\b' + re.escape(name) + r'\s*\(', l):
-                depth, j, started = 0, i, False
-                while j < len(lines):
-                    depth += lines[j].count('{') - lines[j].count('}')
-                    if '{' in lines[j]:
-                        started = True
-                    if started and depth == 0:
-                        return '\n'.join(lines[i:j + 1])
+            if not pat.match(l):
+                continue
+            # walk to the end of the signature, then demand '{' before any ';'
+            depth, j, sig_done = 0, i, False
+            while j < len(lines) and not sig_done:
+                for ch in lines[j]:
+                    if ch == '(':
+                        depth += 1
+                    elif ch == ')':
+                        depth -= 1
+                        if depth == 0:
+                            sig_done = True
+                    elif depth == 0 and sig_done:
+                        break
+                if not sig_done:
                     j += 1
+            tail = lines[j].split(')')[-1] if j < len(lines) else ''
+            k = j
+            while k < len(lines) and not tail.strip():
+                k += 1
+                tail = lines[k] if k < len(lines) else ''
+            if ';' in tail.split('{')[0]:
+                continue                      # a declaration, not a definition
+            depth, m, started = 0, i, False
+            while m < len(lines):
+                depth += lines[m].count('{') - lines[m].count('}')
+                if '{' in lines[m]:
+                    started = True
+                if started and depth == 0:
+                    return '\n'.join(lines[i:m + 1])
+                m += 1
     return None
 
 

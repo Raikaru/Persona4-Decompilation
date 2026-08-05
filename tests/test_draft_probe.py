@@ -40,6 +40,32 @@ class FindDraftTests(unittest.TestCase):
     def test_returns_none_for_an_unknown_function(self) -> None:
         self.assertIsNone(probe.find_draft("func_deadbeef"))
 
+    def test_a_forward_declaration_is_not_mistaken_for_a_definition(self) -> None:
+        """m2c files open with declarations like `s32 func_001077f0();`.
+
+        Matching one and then walking braces captures the NEXT function's body, so
+        the tool measures one function's draft against another's window - which
+        reads as a plausible bad score rather than an error. Found in the wild.
+        """
+        import tempfile, shutil, os
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, True)
+        gen = probe.Path("src/generated")
+        cwd = os.getcwd()
+        try:
+            (tmp / "src" / "generated").mkdir(parents=True)
+            (tmp / "src" / "generated" / "x.c").write_text(
+                "s32 func_00111111();\n"
+                "void func_00222222(void) {\n    other();\n}\n"
+                "s32 func_00111111(s16 a) {\n    return a;\n}\n")
+            os.chdir(tmp)
+            got = probe.find_draft("func_00111111")
+        finally:
+            os.chdir(cwd)
+        self.assertIsNotNone(got)
+        self.assertIn("s16 a", got.split("\n")[0])
+        self.assertNotIn("other()", got)
+
     @unittest.skipUnless((REPO / "src" / "generated").is_dir(), "no drafts present")
     def test_a_found_draft_is_brace_balanced(self) -> None:
         """The extractor walks braces, so a truncated draft would corrupt the file
