@@ -434,8 +434,72 @@ s32 func_00247c20(s16 arg0) {
    b210 emits addiu for the variable and CSEs the constant into a move (nd 16)
    in every spelling tried (s32/s16/s64/u32 vars, L-suffix constants, arg-from-
    var). 64-bit-constant-load floor. */
-// FUN_00247CB0
+/* nd 8/288, from the m2c draft (nd 27) via tools/draft_probe.py.
+   Two of the three original defects came from ONE wrong type. Retail materialises
+   each case constant with `daddiu $s0,$zero,K` and separately loads the call
+   argument with `addiu $a0,$zero,K`; b210 with an s32 local emits `addiu $s0` and
+   then reuses it via `move $a0,$s0`. A NARROW UNSIGNED local produces the daddiu
+   form and stops the CSE, because the local and the int literal no longer share a
+   type - the same idiom as the matched datCalc func_00243ed0, where `u16 characterId`
+   compiles its `= 1` to daddiu. u16 and u8 both reach nd 8.
+   Remaining 2 words: our final two uses of the local emit `andi $a0,$s0,0xffff` and
+   `andi $v0,$s0,0xffff` where retail moves the register unmasked - b210 will not
+   drop the narrowing even though every assigned value is <= 0x18. Measured: s64,
+   u64, long and unsigned long all revert to addiu (nd 67); u32 keeps the mask off
+   but loses the daddiu (nd 27); (u16)/(u8) casts on the constants with an s32 local
+   do not help (nd 27); casting at the uses does not remove the mask; and fourteen
+   type-promotion pragmas including opt_unpromotetypes both ways leave nd 8. */
+// FUN_00247CB0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00247cb0(s64 arg0) {
+    u16 var_16;
+    s64 temp_2;
+
+    var_16 = 0;
+    temp_2 = (s64) (arg0 << 0x30) >> 0x30;
+    switch (temp_2) {
+    case 2:
+        var_16 = 7;
+        break;
+    case 3:
+        var_16 = 0xB;
+        if (func_001077f0(0xB) == 0) {
+            var_16 = 0xC;
+        }
+        break;
+    case 4:
+        var_16 = 5;
+        if (func_001077f0(5) == 0) {
+            var_16 = 6;
+        }
+        break;
+    case 5:
+        var_16 = 3;
+        if (func_001077f0(3) == 0) {
+            var_16 = 4;
+        }
+        break;
+    case 6:
+        var_16 = 0xA;
+        break;
+    case 7:
+        var_16 = 0xE;
+        if (func_001077f0(0xE) == 0) {
+            var_16 = 0xF;
+        }
+        break;
+    case 8:
+        var_16 = 0x18;
+        break;
+    }
+    if (func_001077f0(var_16) == 0) {
+        var_16 = 0;
+    }
+    return var_16;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247cb0);
+#endif
 /* measured (wave 14 retest): mask-CSE reconfirmed — my fresh reconstruction
    of the loop (mask = arg0&0xFFFF; for i in 0..0x1E, base = D_00881480[0];
    per-iteration checks, *100 ladder, func_002489c0(i&0xFFFF) with the
