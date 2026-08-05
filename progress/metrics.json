@@ -4588,6 +4588,8 @@
       "00484540",
       "00484550",
       "00484560",
+      "00484790",
+      "004847e0",
       "00486180",
       "004866e0",
       "004866f0",
@@ -5517,23 +5519,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 4248,
+    "count": 4250,
     "duplicate_rows": 0,
     "known_rows": 5538,
-    "matched_body_bytes": 615204,
-    "percent": 32.47,
+    "matched_body_bytes": 615356,
+    "percent": 32.485,
     "unique_known_addresses": 5538
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "C:\\tmp\\p4_pgI.json",
+    "linked_report": "C:\\tmp\\p4_pgJ.json",
     "raw_rows": 5538,
-    "verifier_report": "C:\\tmp\\p4_z2.json"
+    "verifier_report": "C:\\tmp\\p4_z4.json"
   },
   "status_counts": {
-    "ASM": 1290,
-    "MATCH": 4248
+    "ASM": 1288,
+    "MATCH": 4250
   },
   "total": 13083
 }
