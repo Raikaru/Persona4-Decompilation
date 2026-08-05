@@ -128,7 +128,14 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
    comma operators and up to 21 dead temps. Reducing it to honest C is unfinished
    work, not a floor: the same sweep produced a ONE-LINE honest fix for sdkLbox
    func_00470970, which carried a firmer floor verdict than this one. Start from the
-   saved region under build/permute/, not from scratch. */
+   saved region under build/permute/, not from scratch.
+ * A permute_sweep --engine ast run reported this CRACKED_AST. It is a PHANTOM: the
+ * saved region calls `inline_fn(work)`, a helper decomp-permuter extracts during its
+ * own scoring and that permute_ast does not write out, so the region does not even
+ * compile in this file (nd 245 / 364B when spliced back). permute_sweep now proves a
+ * region reproduces before claiming CRACKED_AST, and reports AST_HIT_UNREPRODUCIBLE
+ * otherwise. Do not re-chase this from build/permute/. Baseline re-measured at nd 8;
+ * #pragma schedule off changes nothing, so the residual is codegen, not scheduling. */
 // FUN_004B5800 NONMATCHING. Update linked render matrices and cache their translations.
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
  * Honest C: request = work->requestFlags; offset = i * 8; inlined at both

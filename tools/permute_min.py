@@ -80,9 +80,48 @@ def empty_block_span(region, i):
     return None
 
 
+def split_statements(region, b0, b1):
+    """Yield candidates that put one statement per line.
+
+    Purely cosmetic, but load-bearing for this tool: the randomizer packs several
+    statements and whole braced blocks onto a single line, and every other pass
+    here works line-at-a-time, so nothing can reach them until they are split.
+    """
+    for i in range(b0, b1):
+        line = region[i]
+        stripped = line.strip()
+        if stripped.startswith(("#", "//", "/*")) or '"' in line or "'" in line:
+            continue
+        if "for" in stripped:
+            continue          # a for-header's semicolons are not statement breaks
+        pieces, depth, buf = [], 0, ""
+        for ch in line:
+            buf += ch
+            if ch in "{(":
+                depth += 1
+            elif ch in "})":
+                depth -= 1
+                if depth == 0 and ch == "}" and buf.strip():
+                    pieces.append(buf.strip())
+                    buf = ""
+            elif ch == ";" and depth == 0:
+                pieces.append(buf.strip())
+                buf = ""
+        if buf.strip():
+            pieces.append(buf.strip())
+        pieces = [p for p in pieces if p and p != ";"]
+        if len(pieces) < 2:
+            continue
+        indent = line[:len(line) - len(line.lstrip())] or "    "
+        yield ("split line", region[:i] + [indent + p for p in pieces] + region[i + 1:])
+
+
 def candidates(region, open_line):
     """Yield (label, new_region) simplifications, cheapest and safest first."""
     b0, b1 = P.body_span(region, open_line)
+    # Splitting first is what lets every later pass see packed statements at all.
+    for cand in split_statements(region, b0, b1):
+        yield cand
     for i in range(b0, b1):
         span = empty_block_span(region, i)
         if span:
@@ -248,12 +287,22 @@ def main():
     # Target stores file-absolute indices; every permute.py helper that takes a
     # region wants an index LOCAL to that region.
     open_local = t.open_line - t.start
+    # Passes that rewrite in place (or deliberately grow, like `split line`) never
+    # reduce the line count, so gating purely on "must be shorter" silently
+    # disabled them. Name them instead.
+    NON_SHRINKING = {"comma", "no-op mask", "null cast", "deref-of-addr",
+                     "un-double parens", "split line"}
+    applied = set()
     for rnd in range(args.rounds):
         improved = False
         for label, cand in candidates(region, open_local):
-            if len(cand) >= len(region) and label not in ("comma", "no-op mask", "null cast"):
+            if len(cand) >= len(region) and label not in NON_SHRINKING:
                 continue
+            key = (label, "\n".join(cand))
+            if key in applied:
+                continue          # an in-place rewrite that already lost; do not requeue
             s, m, _ = t.score(cand)
+            applied.add(key)
             if s == 0:
                 print(f"  round {rnd}: {label}  ({len(region)} -> {len(cand)} lines)")
                 region = cand
