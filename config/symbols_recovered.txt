@@ -884,6 +884,7 @@ func_001d9280 = 0x001d9280; // type:data
 func_001d9390 = 0x001d9390; // type:data
 func_001d94d0 = 0x001d94d0; // type:data
 func_001d9740 = 0x001d9740; // type:data
+func_001d97b0 = 0x001d97b0; // type:data
 btlCond_MYBAD = 0x001d9b60; // type:data
 func_001d9b60 = 0x001d9b60; // type:data
 func_001da230 = 0x001da230; // type:data

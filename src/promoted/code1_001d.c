@@ -10,6 +10,12 @@ extern s32 btlCond_MYKYUSYU(u8 *arg0, s16 arg1);
 
 
 
+extern s32 func_001da230(u8 *arg0, s16 arg1);
+
+extern s32 func_001d9740(u8 *arg0, s16 arg1);
+
+extern s32 func_001d97b0(u8 *arg0, s16 arg1);
+
 // FUN_001D4E90
 void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     *(s32 *)((u8 *)arg3 + 0) = 0;
@@ -59,13 +65,49 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d97b0);
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9820);
 
 // FUN_001D9890
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9890);
+void func_001d9890(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001d9740);
+}
 
 // FUN_001D98E0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d98e0);
+#pragma opt_rebuildconditionals off
+/* Same shape as btlAICommand func_001db990, whose note records that removing this
+   pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
+void func_001d98e0(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001d9740);
+}
+#pragma opt_rebuildconditionals on
 
 // FUN_001D9940
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9940);
+#pragma opt_rebuildconditionals off
+/* Same shape as btlAICommand func_001db990, whose note records that removing this
+   pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
+void func_001d9940(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001d97b0);
+}
+#pragma opt_rebuildconditionals on
 
 // FUN_001D9B90
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9b90);
@@ -111,10 +153,29 @@ s32 btlCond_MYWEAK(u8 *arg0, s16 arg1) {
 
 
 // FUN_001DA330
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da330);
+void func_001da330(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da230);
+}
 
 // FUN_001DA380
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da380);
+#pragma opt_rebuildconditionals off
+/* Same shape as btlAICommand func_001db990, whose note records that removing this
+   pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
+void func_001da380(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da230);
+}
+#pragma opt_rebuildconditionals on
 
 // FUN_001DA3E0
 void btlCond_FRKYUSYU(u8 *arg0, s32 arg1) {
