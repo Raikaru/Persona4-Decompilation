@@ -74,8 +74,45 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
 // FUN_003E25F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e25f0);
 
+/* measured: nd 20 of 20 words, everything correct but a one-word shift -
+   retail has TWO consecutive nops between the search loop's bnez and the
+   following null test, ours has one, and every instruction after slides. None
+   of peephole off, no_branch_likely, opt_dead_code off, opt_propagation off,
+   opt_common_subs off or optimize_for_size moves it, and schedule on shrinks
+   the function to 68 bytes instead.
+   Two things worth keeping: this function was previously measured at -O3
+   because of a file-wide pragma span (nd 29 there), and the awkward
+   `if (p == NULL) {} else goto` shape is load-bearing - rewriting the search as
+   a plain while loop with a break costs nd 46. */
 // FUN_003E3020
+#ifdef NON_MATCHING
+s32 func_003e3020(u8 *arg0, s32 key, s32 arg2, s32 arg3, s32 arg4)
+{
+    u8 *node;
+
+    node = *(u8 **)(arg0 + 0x10);
+    if (node != NULL) {
+scan:
+        if (*(s32 *)(node + 8) != key) {
+            node = *(u8 **)(node + 0x30);
+            if (node == NULL) {
+
+            } else {
+                goto scan;
+            }
+        }
+    }
+    if (node != NULL) {
+        *(s32 *)(node + 0xC) = arg2;
+        *(s32 *)(node + 0x10) = arg3;
+        *(s32 *)(node + 0x14) = arg4;
+        return *(s32 *)node;
+    }
+    return -1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3020);
+#endif
 
 // FUN_003E3070 NONMATCHING
 #ifdef NON_MATCHING
