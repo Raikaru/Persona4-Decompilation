@@ -1296,7 +1296,6 @@ func_00279030 = 0x00279030; // type:data
 func_002791f0 = 0x002791f0; // type:data
 func_00279350 = 0x00279350; // type:data
 func_00279d40 = 0x00279d40; // type:data
-func_0027a340 = 0x0027a340; // type:data
 func_0027a370 = 0x0027a370; // type:data
 func_0027a400 = 0x0027a400; // type:data
 func_0027a490 = 0x0027a490; // type:data

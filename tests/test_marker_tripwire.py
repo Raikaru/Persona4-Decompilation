@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5537 tracked markers across first-party src/.  Bump deliberately.
+        """5538 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -150,6 +150,10 @@ class MarkerCountTripwireTests(unittest.TestCase):
         justification that sits below the closing pragma, leaving no insertion
         position in such a region that does not separate one from the other.
 
+        5538 after a sweep for the same defect found a third landing point
+        (0x0027A350) and its parent func_0027a340 was onboarded with a marker and
+        a body, which matched.
+
         Lowered to 5537 by withdrawing two branch-landing entries that spimdisasm
         had mistaken for functions (0x00272B34 and 0x00272BD4, zero callers each);
         their markers went with them and their bytes merged back into the parents,
@@ -166,7 +170,7 @@ class MarkerCountTripwireTests(unittest.TestCase):
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5537,
+            5538,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:
