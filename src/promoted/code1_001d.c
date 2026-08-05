@@ -16,6 +16,11 @@ extern s32 func_001d9740(u8 *arg0, s16 arg1);
 
 extern s32 func_001d97b0(u8 *arg0, s16 arg1);
 
+extern void func_001d7bb0(void);
+extern void *func_00194470();
+
+extern void func_001d7b30(void);
+
 // FUN_001D4E90
 void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     *(s32 *)((u8 *)arg3 + 0) = 0;
@@ -50,10 +55,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7700);
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7a60);
 
 // FUN_001D7B60
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7b60);
+void func_001d7b60(u16 param_1)
+{
+  int iVar1 = 0;
+
+  iVar1 = (int)func_00194470(0x30B, 2);
+  *(code *)(iVar1 + 0x6c) = (code)func_001d7b30;
+  **(u16 **)(iVar1 + 0x78) = param_1;
+  return;
+}
 
 // FUN_001D7BF0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7bf0);
+void func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = (u32)func_00194470(0x309, 0xc);
+    *(code **)(packet + 0x6c) = (code *)func_001d7bb0;
+    work = *(u32 **)(packet + 0x78);
+    work[0] = param_1;
+    work[1] = param_2;
+    work[2] = param_3;
+}
 
 // FUN_001D9740
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9740);
