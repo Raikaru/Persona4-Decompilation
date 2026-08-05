@@ -35092,7 +35092,7 @@
       "target_path": "build/objdiff/target/g_data/g_data/00109190.o",
       "base_path": "build/objdiff/base/g_data/g_data/00109190.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
