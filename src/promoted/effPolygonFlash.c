@@ -222,8 +222,54 @@ void func_0049b2b0(u8 *arg0)
  * 8 (no-op). The chain split is a register-allocation artifact (retail loads
  * chain3 into $v0 and chain4 into $a0; mwcc reuses $a0 for both, forcing the
  * chain4 load after the size arithmetic), not a scheduling toggle. */
+/* measured: three separate defects, each worth a note.  m2c wrote the entry
+   pointer as `s32 *` advancing by 0x1C, which walks 112 bytes where retail
+   walks 28 - the loop still compiled and still looked right.  The -1 stored in
+   the loop is loop-invariant and retail hoists it; b210 at -O2 rematerialises
+   it inside instead, so opt_loop_invariants is what retail was built with here
+   (nd 60 -> 17, and the hoisted addiu appears in the preheader exactly as
+   retail has it).  The last 8 words were argument order: writing the texture
+   handle as tex[5] instead of *(s32 *)(tex + 0x14) makes b210 finish the
+   pointer chain before evaluating the size argument, which is what retail
+   does; the cast-and-offset spelling lets the second load sink below the
+   multiply and no declaration order fixes it.
+   measured: without opt_loop_invariants the residual is nd 17, not 0. */
 // FUN_0049B470
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b470);
+#pragma opt_loop_invariants on
+void func_0049b470(u8 *arg0)
+{
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 7;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 
 // FUN_0049B560
 void *func_0049b560(u8 *arg0, s32 arg1)
@@ -373,8 +419,43 @@ void func_0049bff0(u8 *arg0)
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
    measured, no help (see FUN_0049B470). */
+/* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049C1B0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049c1b0);
+#pragma opt_loop_invariants on
+void func_0049c1b0(u8 *arg0)
+{
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 11;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 // FUN_0049C2A0
 void *func_0049c2a0(u8 *arg0, s32 arg1)
 {
@@ -522,8 +603,43 @@ void func_0049cd10(u8 *arg0)
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
    measured, no help (see FUN_0049B470). */
+/* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049CED0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049ced0);
+#pragma opt_loop_invariants on
+void func_0049ced0(u8 *arg0)
+{
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 6;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
@@ -576,6 +692,8 @@ void func_0049cfc0(u8 *arg0, u8 *arg1)
     }
 }
 #pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 
 // FUN_0049D100
 void *func_0049d100(u8 *arg0, void *arg1)
@@ -752,8 +870,43 @@ void func_0049db20(u8 *arg0)
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
    measured, no help (see FUN_0049B470). */
+/* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049DCE0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049dce0);
+#pragma opt_loop_invariants on
+void func_0049dce0(u8 *arg0)
+{
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 6;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
@@ -806,6 +959,8 @@ void func_0049ddd0(u8 *arg0, u8 *arg1)
     }
 }
 #pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 
 // FUN_0049DF10
 void *func_0049df10(u8 *arg0, void *arg1)
@@ -979,8 +1134,43 @@ void func_0049e920(u8 *arg0)
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
    measured, no help (see FUN_0049B470). */
+/* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049EAE0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049eae0);
+#pragma opt_loop_invariants on
+void func_0049eae0(u8 *arg0)
+{
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 10;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
@@ -1033,6 +1223,8 @@ void func_0049ebd0(u8 *arg0, u8 *arg1)
     }
 }
 #pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 
 // FUN_0049ED10
 void *func_0049ed10(u8 *arg0, void *arg1)
@@ -1201,8 +1393,43 @@ void func_0049f820(u8 *arg0)
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
    measured, no help (see FUN_0049B470). */
+/* measured: same shape as func_0049b470 above; see that note. */
 // FUN_0049F9E0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049f9e0);
+#pragma opt_loop_invariants on
+void func_0049f9e0(u8 *arg0)
+{
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 11;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 // FUN_0049FAD0
 void *func_0049fad0(u8 *arg0)
 {
@@ -1342,8 +1569,43 @@ void func_004a05f0(u8 *arg0)
    retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
    splits around the size computation (8-word residual). schedule pragmas
    measured, no help (see FUN_0049B470). */
+/* measured: same shape as func_0049b470 above; see that note. */
 // FUN_004A07B0
-INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a07b0);
+#pragma opt_loop_invariants on
+void func_004a07b0(u8 *arg0)
+{
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 8;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 /* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
  * constants inside the loop instead of hoisting them to the preheader
  * (14+ differing words); with it the loop matches. */
@@ -1396,6 +1658,8 @@ void func_004a08a0(u8 *arg0, u8 *arg1)
     }
 }
 #pragma opt_loop_invariants off
+/* measured: paired with the `on` above; scoped so the rest of the file
+   keeps b210 stock -O2 behaviour. */
 
 // FUN_004A09E0
 void *func_004a09e0(u8 *arg0, void *arg1)
