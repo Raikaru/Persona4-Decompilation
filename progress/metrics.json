@@ -1,10 +1,10 @@
 {
   "build_succeeded": true,
   "coverage": {
-    "scanned": 5539,
-    "scanned_percent": 42.328,
+    "scanned": 5537,
+    "scanned_percent": 42.319,
     "unscanned": 7547,
-    "unscanned_percent": 57.672
+    "unscanned_percent": 57.681
   },
   "hashes": {
     "image_sha1": "3d1d3d2b9d6ccb60836db239ab49674223025a78",
@@ -1257,7 +1257,7 @@
     ],
     "asm_fallbacks_in_linked_objects": 506,
     "count": 1242,
-    "percent": 9.491
+    "percent": 9.493
   },
   "matching": {
     "addresses": [
@@ -2953,7 +2953,9 @@
       "002728c0",
       "00272950",
       "00272a10",
+      "00272b00",
       "00272b50",
+      "00272ba0",
       "00272bf0",
       "00272c60",
       "00272c80",
@@ -5388,23 +5390,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 4126,
+    "count": 4128,
     "duplicate_rows": 0,
-    "known_rows": 5539,
-    "matched_body_bytes": 603284,
-    "percent": 31.53,
-    "unique_known_addresses": 5539
+    "known_rows": 5537,
+    "matched_body_bytes": 603420,
+    "percent": 31.55,
+    "unique_known_addresses": 5537
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "C:\\tmp\\p4_progO.json",
-    "raw_rows": 5539,
-    "verifier_report": "C:\\tmp\\p4_wO.json"
+    "linked_report": "C:\\tmp\\p4_progS.json",
+    "raw_rows": 5537,
+    "verifier_report": "C:\\tmp\\p4_wS.json"
   },
   "status_counts": {
-    "ASM": 1413,
-    "MATCH": 4126
+    "ASM": 1409,
+    "MATCH": 4128
   },
-  "total": 13086
+  "total": 13084
 }

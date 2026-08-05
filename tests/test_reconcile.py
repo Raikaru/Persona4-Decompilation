@@ -83,8 +83,9 @@ class CanonicalMapTests(unittest.TestCase):
             + len(reconcile.DATA_REACHABLE_ENTRIES)
             + len(reconcile.EPILOGUE_SEPARATED_ENTRIES)
             + len(reconcile.JAL_REACHABLE_ENTRIES)
+            - len(reconcile.BRANCH_LANDING_ENTRIES)
         )
-        self.assertEqual(expected_total, 13086)
+        self.assertEqual(expected_total, 13084)
         self.assertEqual(function_map["function_count"], expected_total)
         self.assertEqual(len(windows), expected_total)
         for segment_name, expected_count in (("code1", expected_total - 9), ("code2", 9)):

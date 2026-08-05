@@ -798,13 +798,28 @@ void func_00272a10(int param_1, float param_2, float param_3)
    vs a 13-word window and b34 a full body vs a 7-word window). P3FES donor
    keeps the same pair as asm functions (FUN_003b0dd8/FUN_003b0e04).
    Ghidra split, not a compiler floor. */
+/* Was recorded here as a Ghidra split that portable C could not express. It was a
+   boundary bug, not a source problem: spimdisasm took the landing point of this
+   function's opening `b 0x00272B34` - the bottom test of its rotated loop - as a second
+   function, so the window stopped at 52 bytes in the middle of the loop and no body
+   could ever fill it. 0x00272B34 has zero jal, zero j and zero pointer references in
+   the whole image while this address has 17 jal sites. With the landing point withdrawn
+   in reconcile_function_boundaries the window is 80 bytes and the obvious nested-while,
+   the same shape as the already-matching func_00272b50 below, is byte-exact. */
 // FUN_00272B00
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00272b00);
+void func_00272b00(int param_1, u8 param_2)
+{
+    FrFontGlyph *glyph;
 
-/* measured: 00272b34 is the check half of the func_00272b00 split (its entry
-   bne branches back into 00272b00's body); see note above FUN_00272B00. */
-// FUN_00272B34
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00272b34);
+    while (param_1 != 0) {
+        glyph = *(FrFontGlyph **)(param_1 + 0x1c);
+        while (glyph != NULL) {
+            glyph->unknown_10[4] = param_2;
+            glyph = glyph->next;
+        }
+        param_1 = *(int *)(param_1 + 0x24);
+    }
+}
 
 // FUN_00272B50
 void func_00272b50(int param_1, u8 param_2, u8 param_3)
@@ -828,13 +843,23 @@ void func_00272b50(int param_1, u8 param_2, u8 param_3)
    u32 at +0x10 instead of a u8 at +0x14); 00272bd4's entry bne branches back
    into 00272ba0's body. Same Ghidra split, same impossibility for portable C
    (see the note above FUN_00272B00). */
+/* The u32 twin of func_00272b00 above (stores at +0x10 instead of a u8 at +0x14).
+   Same withdrawn branch-landing entry (0x00272BD4, zero callers; this address has 18
+   jal sites), same 80-byte window, same nested-while body. */
 // FUN_00272BA0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00272ba0);
+void func_00272ba0(int param_1, u32 param_2)
+{
+    FrFontGlyph *glyph;
 
-/* measured: 00272bd4 is the check half of the func_00272ba0 split (its entry
-   bne branches back into 00272ba0's body); see note above FUN_00272BA0. */
-// FUN_00272BD4
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00272bd4);
+    while (param_1 != 0) {
+        glyph = *(FrFontGlyph **)(param_1 + 0x1c);
+        while (glyph != NULL) {
+            *(u32 *)((u8 *)glyph + 0x10) = param_2;
+            glyph = glyph->next;
+        }
+        param_1 = *(int *)(param_1 + 0x24);
+    }
+}
 
 // FUN_00272BF0
 int func_00272bf0(int param_1)
