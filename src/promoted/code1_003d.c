@@ -98,17 +98,19 @@ s32 func_003d8130(s32 arg0, s32 arg1) {
 // FUN_003D8150
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8150);
 
-// FUN_003D81A0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_003D81A0
+/* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
+   The retail window for func_003d81a0 contains no branch-likely instruction at all, so the
+   likely form is simply wrong here; nd 4 -> MATCH with this pragma. */
+#pragma no_branch_likely on
 s32 func_003d81a0(u32 arg0) {
     if (arg0 < 9U) {
         return (1 << arg0) * 4;
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d81a0);
-#endif
+/* measured: see the annotation above the matching `on` pragma (func_003d81a0). */
+#pragma no_branch_likely off
 #pragma schedule off
 
 

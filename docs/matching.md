@@ -240,6 +240,41 @@ contain such a comparison produced no match and made five worse, because the
 form has to agree with retail's actual branch at that row. The mirror case is
 `x <= K` → `x < K+1`.
 
+## b210 accepts 386 pragmas — sweep them before declaring a floor
+
+This campaign spent a long time using **19** pragma spellings. `mwccps2.exe`
+accepts **386**, and an unrecognized one is ignored *silently*, so nobody ever got
+told. `tools/knob_sweep.py --list-knobs` discovers the real list: it pulls
+identifiers out of the compiler binary and validates each with
+`#pragma warn_illpragma on`.
+
+The first sweep paid for itself immediately. **`#pragma no_branch_likely on`**
+turned four functions documented as compiler floors into byte-exact matches:
+b210 was emitting a branch-likely (`beql`) where retail used a plain `beqz`
+(`code1_003b func_003bd560`, `func_003bd680`, `func_003be910` at nd 4 each, and
+`code1_003d func_003d81a0` at nd 14).
+
+**Retail does use branch-likely** — 2,216 instructions across 1,061 functions
+(`beql` 937, `bnel` 1178, `blezl` 64, `bgtzl` 37) — so this is a per-function
+knob, never a global flag. The cheap test for whether it applies: scan the retail
+window for opcodes `0x14`–`0x17`; if there are none and our object has one, the
+likely form is wrong for that function.
+
+Knobs that look promising and did **not** move their obvious target, so you can
+skip them: `cse_hard_reg_gpr off`, `opt_lifetimes off`, `reg_class_allocs off` and
+`opt_scalarizeliveranges off` on the absolute-getter register floor;
+`opt_strength_reduction off`, `opt_strength_reduction_strict on`,
+`optimize_for_size on` and `opt_dospecialmultiplyunpromotion off` on
+`code1_0039 func_003963b0`, where b210 lowers `x * 0x24` to `sll/addu/sll` and
+retail emits a real `mult`; `opt_rebuildconditionals off`,
+`opt_optimizecontrolflow off` and `conditional_move off` on the `beql` case that
+`no_branch_likely` did fix.
+
+A knob hit is a **proposal**, not a result. `tools/decomp_lint.py` requires the
+literal word `measured` within three lines of the pragma, and a pragma that
+changes codegen with no recorded reason is the "window fill" defect this campaign
+exists to avoid. Record what the pragma fixed and what the residual was.
+
 ## Known compiler floors (do not fight these)
 
 When the only residual is one of these, the function is a compiler floor:
@@ -277,6 +312,24 @@ variants is wasted time.
   (checked with `tools/pragma_audit.py`) and does stop the collapse — it just
   overshoots the window by one instruction. Affects the ~10-function wrapper
   family in `code1_0043`/`code1_0044`.
+- **Absolute-getter address register (19 functions).** For a one-line global
+  getter retail emits `lui $v1,%hi(sym) / jr $ra / lw $v0,%lo(sym)($v1)` — the
+  address in `$v1`, the value in `$v0`. b210 reuses `$v0` for both. Shape,
+  delay-slot fill and the value register already agree, so the whole residual is
+  that one register, nd 2 at 12 bytes against a 16-byte window (the gap is
+  trailing zero padding, not a missing instruction).
+  `#pragma schedule on` **is** load-bearing — without it the `lw` misses the `jr`
+  delay slot and the object really is one instruction short.
+  Measured on `code1_004c func_004c3410` across 8 spellings, every one landing on
+  `$v0`: const-int base + cast, array extern, scalar extern (goes GPREL16, a
+  different shape entirely), pointer local, base-array + scaled index,
+  base-pointer-then-deref, two-step pointer, and a result local. `permute_ast`
+  then ran **9,039 compiles over 900 s** and improved the score 9 → 5 without ever
+  matching. Shared as a decomp.me scratch for anyone who wants a crack at it:
+  <https://decomp.me/scratch/r8hUx> (compiler `mwcps2-3.0.1b210-060308`, `-O2`).
+  The family is 17 functions with this exact `lui/jr/lw` signature plus 2 more
+  using `lbu`/`lb`, all ≤ 24 bytes, across
+  `code1_0039/0041/004c/004d/004e/004f/0050/0051/0052`.
 - **Commutative operand orientation** — `addu` and `mul.s` operand order when
   both operands are live in fixed registers. For float specifically,
   `fresh * invariant` canonicalizes to invariant-first (`mul.s $f0,$f2,$f0`)
