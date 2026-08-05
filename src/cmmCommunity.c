@@ -290,8 +290,67 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001075d0);
    (beq->found), and a post-loop NULL retest is only free (reuses the loop slti)
    when kept off the found path via goto; ==/> retest forms regress. Best nd 10
    (goto + >= retest); 4 attempts. Branch-shape + retest floor. */
-// FUN_001076E0
+/* Community-slot scan family (func_001076e0/1077f0/107a00/107bd0/107ce0/107dc0/
+   107f00/107fe0): walk 21 records of stride 16 from D_007973A0[0x70] looking for a
+   matching id. All eight sit at nd 38 with the body below, recovered from the m2c
+   draft via tools/draft_probe.py. Two m2c defects had to be repaired first: the
+   pointer is typed `s32 *` and advanced by `+= 0x10`, which walks 64 bytes per record
+   instead of 16 (silently wrong, still compiles), and the base is emitted as a bare
+   address literal D_00797410 that no file declares.
+   The residual is one branch shape: retail leaves the loop on a match with a
+   bne-to-advance plus b-to-exit PAIR, b210 with a single beq-to-exit. Measured NOT
+   reachable via goto, break, inverted test with continue, advance-in-else, an
+   explicit entry-goto mirroring retail block order, do/while, a single-case switch
+   (right size, booleanised compare), while+break (nd 48-65, and it is what fixed
+   evtMain func_00288020, so it is shape-specific not universal), s16/s32/u16
+   signatures, and eleven control-flow pragmas including opt_rotateloops both ways.
+   An in-loop `return` DOES produce the pair at the exact window size but then
+   materialises its own return value where retail falls into the shared block. */
+// FUN_001076E0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001076e0(s32 arg0) {
+    u8 *var_4;
+    s32 temp_16;
+    s32 var_17;
+    s32 var_5;
+
+    temp_16 = arg0 & 0xFFFF;
+    if (temp_16 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_16 == 0) {
+        var_4 = NULL;
+    } else {
+        var_4 = &D_007973A0[0x70];
+        var_5 = 0;
+loop_8:
+        if (var_5 >= 0x15) {
+            var_4 = NULL;
+        } else if (*(u16 *)(var_4 + 4) == temp_16) {
+
+        } else {
+            var_4 += 16;
+            var_5 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_4 != NULL) {
+        func_0043f9c8(var_4, 0, 0x10);
+        if (temp_16 <= 0) {
+            func_0046d730(D_005E42C8, 0x27);
+        }
+        var_17 = 0;
+loop_15:
+        if (var_17 < 0xD) {
+            func_00106390(temp_16 + ((var_17 << 5) + 0x3FF), 0);
+            var_17 += 1;
+            goto loop_15;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001076e0);
+#endif
 
 /* measured: retail slot search emits found-exit as inline unconditional b
    (bne->advance; b found) which mwcc b210 only produces for return-thens
@@ -305,8 +364,39 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001076e0);
    (nd 17); goto/break/switch forms merge into a single conditional branch
    (best nd 14 m2c-goto form). The found path must jump to the shared return
    block, which mwcc b210 only does for the merged goto. Branch-shape floor. */
-// FUN_001077F0
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_001077F0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001077f0(s32 arg0) {
+    u8 *var_4;
+    s32 temp_16;
+    s32 var_3;
+
+    temp_16 = arg0 & 0xFFFF;
+    if (temp_16 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_16 == 0) {
+        var_4 = NULL;
+    } else {
+        var_4 = &D_007973A0[0x70];
+        var_3 = 0;
+loop_8:
+        if (var_3 >= 0x15) {
+            var_4 = NULL;
+        } else if (*(u16 *)(var_4 + 4) == temp_16) {
+
+        } else {
+            var_4 += 16;
+            var_3 += 1;
+            goto loop_8;
+        }
+    }
+    return (s32)(var_4 != NULL);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001077f0);
+#endif
 
 // FUN_00107890
 s32 func_00107890(s32 arg0)
@@ -363,8 +453,42 @@ s32 func_00107930(s32 arg0)
    merges the goto spelling into a single beq->found (nd 24) and the
    return-then spelling inlines the found lw/and block into the loop instead
    of the shared retest tail (nd 25). Branch-shape floor. */
-// FUN_00107A00
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_00107A00 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00107a00(s32 arg0, s32 arg1) {
+    u8 *var_4;
+    s32 temp_17;
+    s32 var_3;
+
+    temp_17 = arg0 & 0xFFFF;
+    if (temp_17 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_17 == 0) {
+        var_4 = NULL;
+    } else {
+        var_4 = &D_007973A0[0x70];
+        var_3 = 0;
+loop_8:
+        if (var_3 >= 0x15) {
+            var_4 = NULL;
+        } else if (*(u16 *)(var_4 + 4) == temp_17) {
+
+        } else {
+            var_4 += 16;
+            var_3 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_4 == NULL) {
+        return 0;
+    }
+    return (s32)(*(s32 *)var_4 & arg1);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107a00);
+#endif
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
@@ -394,20 +518,127 @@ s32 func_00107b70(void)
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
-// FUN_00107BD0
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_00107BD0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00107bd0(s32 arg0) {
+    u8 *var_5;
+    s32 temp_16;
+    s32 var_4;
+
+    temp_16 = arg0 & 0xFFFF;
+    if (temp_16 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_16 == 0) {
+        var_5 = NULL;
+    } else {
+        var_5 = &D_007973A0[0x70];
+        var_4 = 0;
+loop_8:
+        if (var_4 >= 0x15) {
+            var_5 = NULL;
+        } else if (*(u16 *)(var_5 + 4) == temp_16) {
+
+        } else {
+            var_5 += 16;
+            var_4 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_5 != NULL) {
+        *(s32 *)var_5 |= 4;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107bd0);
+#endif
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
-// FUN_00107CE0
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_00107CE0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00107ce0(s32 arg0) {
+    u8 *var_5;
+    s32 temp_17;
+    s32 temp_3;
+    s32 var_4;
+
+    temp_17 = arg0 & 0xFFFF;
+    if (temp_17 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_17 == 0) {
+        var_5 = NULL;
+    } else {
+        var_5 = &D_007973A0[0x70];
+        var_4 = 0;
+loop_8:
+        if (var_4 >= 0x15) {
+            var_5 = NULL;
+        } else if (*(u16 *)(var_5 + 4) == temp_17) {
+
+        } else {
+            var_5 += 16;
+            var_4 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_5 != NULL) {
+        temp_3 = (s32)(*(s32 *)var_5 | 1);
+        *(s32 *)var_5 = temp_3;
+        *(s32 *)var_5 = temp_3 & ~2;
+        func_00106db0(arg0, 2);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ce0);
+#endif
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
-// FUN_00107DC0
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_00107DC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00107dc0(s32 arg0) {
+    u8 *var_5;
+    s32 temp_16;
+    s32 var_4;
+
+    temp_16 = arg0 & 0xFFFF;
+    if (temp_16 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_16 == 0) {
+        var_5 = NULL;
+    } else {
+        var_5 = &D_007973A0[0x70];
+        var_4 = 0;
+loop_8:
+        if (var_4 >= 0x15) {
+            var_5 = NULL;
+        } else if (*(u16 *)(var_5 + 4) == temp_16) {
+
+        } else {
+            var_5 += 16;
+            var_4 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_5 != NULL) {
+        *(s32 *)var_5 &= ~1;
+        if (temp_16 <= 0) {
+            func_0046d730(D_005E42C8, 0x1E);
+        }
+        func_00106390(temp_16 + 0x43F, 0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107dc0);
+#endif
 
 // FUN_00107C80
 s32 func_00107c80(void)
@@ -450,14 +681,88 @@ s32 func_00107ea0(void)
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
-// FUN_00107F00
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_00107F00 NONMATCHING
+#ifdef NON_MATCHING
+void func_00107f00(s32 arg0) {
+    u8 *var_5;
+    s32 temp_17;
+    s32 temp_3;
+    s32 var_4;
+
+    temp_17 = arg0 & 0xFFFF;
+    if (temp_17 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_17 == 0) {
+        var_5 = NULL;
+    } else {
+        var_5 = &D_007973A0[0x70];
+        var_4 = 0;
+loop_8:
+        if (var_4 >= 0x15) {
+            var_5 = NULL;
+        } else if (*(u16 *)(var_5 + 4) == temp_17) {
+
+        } else {
+            var_5 += 16;
+            var_4 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_5 != NULL) {
+        temp_3 = (s32)(*(s32 *)var_5 | 2);
+        *(s32 *)var_5 = temp_3;
+        *(s32 *)var_5 = temp_3 & ~1;
+        func_00106db0(arg0, 3);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107f00);
+#endif
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
-// FUN_00107FE0
+/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+// FUN_00107FE0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00107fe0(s32 arg0) {
+    u8 *var_5;
+    s32 temp_16;
+    s32 var_4;
+
+    temp_16 = arg0 & 0xFFFF;
+    if (temp_16 >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (temp_16 == 0) {
+        var_5 = NULL;
+    } else {
+        var_5 = &D_007973A0[0x70];
+        var_4 = 0;
+loop_8:
+        if (var_4 >= 0x15) {
+            var_5 = NULL;
+        } else if (*(u16 *)(var_5 + 4) == temp_16) {
+
+        } else {
+            var_5 += 16;
+            var_4 += 1;
+            goto loop_8;
+        }
+    }
+    if (var_5 != NULL) {
+        *(s32 *)var_5 &= ~2;
+        if (temp_16 <= 0) {
+            func_0046d730(D_005E42C8, 0x1E);
+        }
+        func_00106390(temp_16 + 0x45F, 0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107fe0);
+#endif
 
 /* measured: retail booleanizes the variable-mask bit check (lw; and; sltu
    $v0,$zero,$v0; beqz) and mwcc b210 folds `!= 0`, `(u32)x > 0`, boolean-local,
