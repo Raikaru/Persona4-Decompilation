@@ -69,8 +69,24 @@ void func_004a5b60(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x30) = arg1;
 }
 
+/* measured: the jump table must be called through the pointer -- `jtbl_x(a)` is
+   an implicit function call to the table SYMBOL, which links and runs wrong. */
 // FUN_004A5DE0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5de0);
+void func_004a5de0(u8 *arg0) {
+    s32 temp_4;
+    s32 temp_4_2;
+
+    temp_4 = (s32)(*(s32 *)((u8 *)(arg0) + 0xCC));
+    if (temp_4 != 0) {
+        func_004829c0(temp_4);
+    }
+    temp_4_2 = (s32)(*(s32 *)((u8 *)(arg0) + 0xD0));
+    if (temp_4_2 != 0) {
+        func_00481ee0(temp_4_2);
+    }
+    func_004833f0(*(s32 *)((u8 *)(arg0) + 0xC8));
+    (*jtbl_008873EC)(arg0);
+}
 
 // FUN_004A5F90
 void func_004a5f90(u8 *arg0)
