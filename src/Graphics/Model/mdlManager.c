@@ -157,7 +157,6 @@ extern u8 LAB_00474a90_abs[];
 
 extern void* func_00397470(void);
 extern void* func_00397470_typed(void* a);
-#pragma alias func_00397470_typed func_00397470
 extern void func_003e05f0(void* a, void* b, void* c);
 
 extern void func_004585c0();
@@ -367,13 +366,6 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
     return 1;
 }
 
-#pragma alias DAT_00922ba0_abs DAT_00922ba0
-#pragma alias DAT_00922ba4_abs DAT_00922ba4
-#pragma alias DAT_00922ba8_abs DAT_00922ba8
-#pragma alias DAT_00922bac_abs DAT_00922bac
-#pragma alias D_00922BC0_abs D_00922BC0
-#pragma alias D_00922BB0_abs D_00922BB0
-#pragma alias D_00922BB4_abs D_00922BB4
 
 
 
@@ -723,7 +715,6 @@ extern void func_003d5e40(void* a, f32 b);
 extern void func_003d5e90(void* a, void* b, void* c, f32 d);
 extern void func_003d5bc0(void* a, void* b, f32 c);
 extern void func_00397c40_1(void* a);
-#pragma alias func_00397c40_1 func_00397c40
 /* measured: nd 244 after 4 attempts; registers/decl-order/chains/calls all
    match (off16:$s0, idx:$s1, obj:$s4, arg1:$s3, arg2:$s2; dsll32/dsra32 sIdx
    materializations; func_003d5e90/5840/5bc0/5e40 sites; 0x73E74 chain2 and
@@ -873,7 +864,6 @@ void* func_00474a10(void* param_1, u32* param_2)
 }
 
 
-#pragma alias func_003d5e40_typed func_003d5e40
 
 
 
@@ -977,8 +967,6 @@ u32 func_00474ce0(void* param_1)
     return 0;
 }
 
-#pragma alias LAB_00474a50_abs LAB_00474a50
-#pragma alias LAB_00474a90_abs LAB_00474a90
 
 
 // FUN_00474DF0
@@ -1261,7 +1249,6 @@ extern void func_003f6440(s32 a, s32 b);
 extern void (*D_00887304[])(s32, void*);
 extern void func_00479910(void* a);
 extern void* func_003bfae0_1(void* a);
-#pragma alias func_003bfae0_1 func_003bfae0
 extern void (*D_00887300_abs[])(s32, s32);
 /* P4 port probe: opt_propagation off prevents mwcc folding the D_00887300_abs
    array address into per-call lui/lw (same measured fix as func_00478ec0). */

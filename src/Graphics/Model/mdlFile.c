@@ -38,7 +38,6 @@ u8 mdlFileIsTypePac(u16 type)
     return 0;
 }
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 
 // FUN_0047DCC0
@@ -55,8 +54,6 @@ void func_0047dcc0(int *param_1)
 }
 
 
-#pragma alias func_0047de90_wide func_0047de90
-#pragma alias func_004b57a0_u32 func_004b57a0
 
 
 // FUN_0047DE00
@@ -89,8 +86,6 @@ void func_0047de50(int param_1)
 }
 
 
-#pragma alias func_004578b0_ptr K_Clump_MatUsrDataGetInt
-#pragma alias DAT_00713200_abs DAT_00713200
 
 // FUN_0047F2C0
 void func_0047f2c0(f32 *param_1,u32 param_2)
@@ -115,7 +110,6 @@ void func_0047f2c0(f32 *param_1,u32 param_2)
 }
 
 
-#pragma alias DAT_00922c30_abs DAT_00922c30
 
 
 // FUN_0047F3A0

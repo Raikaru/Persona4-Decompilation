@@ -9,7 +9,6 @@ typedef int (*code)(...);
 extern code DAT_008873ec_abs[];
 
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 extern void func_0044ea90(const void *file, s32 line);
 extern void func_0046d730(const void *file, u32 line);

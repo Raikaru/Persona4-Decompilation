@@ -183,6 +183,23 @@ Rules of engagement:
   `saved_reg_gp - 0xXXXX` idiom in m2c output) to the absolute addresses they
   alias: absolute = `0x007690f0 - offset`. Use it to avoid declaring a
   duplicate global for the same variable.
+- **`#pragma alias` does nothing — b210 does not recognize it.** The compiler
+  ignores an unknown `#pragma` silently: no warning, no error, no effect. 109
+  `#pragma alias X_abs X` directives across 31 files were verified inert (every
+  spelling tried, including the exact `extern code X_abs[];` + pragma form the
+  tree used, is flagged under `#pragma warn_illpragma on`) and removed with the
+  first-party counts, every object size, and both link sha1s unchanged. What
+  actually makes an `_abs` alias work is two things that have nothing to do with
+  the pragma: the symbol is registered at the aliased address in
+  `config/symbols_recovered.txt`, and the **declaration form** picks the
+  addressing mode (array → absolute `lui`/`lw`, scalar or pointer → GPREL16).
+  Never credit a match to `#pragma alias`.
+- **Validate any new pragma with `tools/pragma_audit.py`.** It collects every
+  distinct spelling in `src/` and `include/` (comments stripped, so floor notes
+  quoting a pragma at line start are not mistaken for directives) and compiles
+  them in one unit under `warn_illpragma`. A typo such as `scheduling off` for
+  `schedule off` otherwise compiles clean, does nothing, and still demands a
+  `measured` justification from the lint. All 19 remaining spellings pass.
 
 ## Commutative-`addu` (frequent wall)
 

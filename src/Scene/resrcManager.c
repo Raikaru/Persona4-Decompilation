@@ -76,7 +76,6 @@ extern void func_00147430(ResrcManager* resManager, Resrc* res);
  * RwFree (rwGlobals.memFuncs.RwFree slot 0096017c) -> DAT_008873ec. */
 
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 // FUN_00147070
 ResrcManager* resrcMngCreate()

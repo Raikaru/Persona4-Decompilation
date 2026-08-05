@@ -3,7 +3,6 @@
 #include "include_asm.h"
 #include "type.h"
 extern u8 D_00887300_abs[];
-#pragma alias D_00887300_abs D_00887300
 typedef void (*KDrawFunc)(s32, s32);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_0045fa00(f32 arg0, u8 *arg1, s32 arg2);

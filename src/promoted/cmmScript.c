@@ -978,7 +978,6 @@ s32 func_0024efa0(void)
 
 
 
-#pragma alias DAT_008873ec_abs DAT_008873ec
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
 // func_00452560 is intentionally left undeclared (implicit old-style call, as

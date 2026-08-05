@@ -7022,7 +7022,6 @@ void func_004e55b8(int object, u32 first, u32 second)
 
 /* Source unit: src/cri/cri_adx_004e5c50.c (1 function markers) */
 
-#pragma alias argument_abs DAT_007330c8
 extern u32 argument_abs[];
 
 // FUN_004E5C50
@@ -7112,7 +7111,6 @@ asm void func_004e7428(void)
 
 /* Source unit: src/cri/cri_adx_004e76e0.c (1 function markers) */
 
-#pragma alias argument_abs DAT_00733f60
 extern u32 argument_abs[];
 
 // FUN_004E76E0
@@ -7197,7 +7195,6 @@ void func_004e9088(int object, u32 value) { *(u32 *)(object + 0x28) = value; }
 
 /* Source unit: src/cri/cri_adx_004ea008.c (1 function markers) */
 
-#pragma alias argument_abs DAT_00738cf8
 extern u32 argument_abs[];
 
 // FUN_004EA008
@@ -12417,7 +12414,6 @@ void func_00527b20(int object, u32 value) { *(u32 *)(object + 0xc) = value; }
 
 /* Source unit: src/cri/cri_adx_005280f8.c (1 function markers) */
 
-#pragma alias DAT_00745b28_abs DAT_00745b28
 extern u32 DAT_00745b28_abs[];
 
 #pragma schedule on
