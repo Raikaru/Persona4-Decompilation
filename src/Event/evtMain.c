@@ -440,8 +440,65 @@ INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287d90);
    locals (gets register allocation right: arg0=$s1, arg1=$s0, node=$s2) and
    inline-"use p directly" structure; all nd 17 with this residual. Temp-
    register allocation floor (not a saved-register issue). */
+/* Recovered from the m2c draft via tools/draft_probe.py (nd 26 as generated).
+   The whole residual was loop SHAPE: m2c writes every loop as
+   `if (cond) { body; goto top; }`, which b210 compiles as a top-test loop with an
+   unconditional back-branch, where retail rotates - an entry `b` to the test plus a
+   conditional back-branch at the bottom. Turning the two OUTER goto-chains into
+   `while` took nd 26 -> 10, and the two inner ones (with `break` on the hit, keeping
+   the trailing if/else exactly as m2c emitted it) closed it. Converting all four at
+   once while also collapsing that if/else scores nd 127 at 300B, so keep the
+   surrounding structure and change only the loop form. */
 // FUN_00288020
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288020);
+void func_00288020(s32 arg0, u8 *arg1) {
+    u8 *temp_2;
+    u8 *var_18;
+    u8 *var_18_2;
+    u8 *var_3;
+    u8 *var_4;
+    u8 *var_6;
+    u8 *var_6_2;
+
+    temp_2 = (u8 *)func_00145260();
+    if (temp_2 != NULL) {
+        var_18 = *(u8 **)(temp_2 + 4);
+        while (var_18 != NULL) {
+            var_3 = NULL;
+            var_6 = *(u8 **)(arg1 + 0x4C);
+            while (var_6 != NULL) {
+                if (*(s32 *)(var_6 + 0x34) == (s32) var_18) {
+                    var_3 = var_6;
+                    break;
+                }
+                var_6 = *(u8 **)(var_6 + 0x90);
+            }
+            if (var_3 == NULL) {
+                var_18 = *(u8 **)(var_18 + 0x138);
+            } else {
+                func_00287d90(arg0, var_18, (s32) var_6, arg1, 0);
+                var_18 = *(u8 **)(var_18 + 0x138);
+            }
+        }
+        var_18_2 = (u8 *)func_001452b0(3);
+        while (var_18_2 != NULL) {
+            var_4 = NULL;
+            var_6_2 = *(u8 **)(arg1 + 0x4C);
+            while (var_6_2 != NULL) {
+                if (*(s32 *)(var_6_2 + 0x34) == (s32) var_18_2) {
+                    var_4 = var_6_2;
+                    break;
+                }
+                var_6_2 = *(u8 **)(var_6_2 + 0x90);
+            }
+            if (var_4 == NULL) {
+                var_18_2 = *(u8 **)(var_18_2 + 0x138);
+            } else {
+                func_00287d90(arg0, var_18_2, (s32) var_6_2, arg1, 0);
+                var_18_2 = *(u8 **)(var_18_2 + 0x138);
+            }
+        }
+    }
+}
 // FUN_00288170
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288170);
 
