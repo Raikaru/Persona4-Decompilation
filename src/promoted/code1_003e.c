@@ -85,7 +85,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e25f0);
    Two things worth keeping: this function was previously measured at -O3
    because of a file-wide pragma span (nd 29 there), and the awkward
    `if (p == NULL) {} else goto` shape is load-bearing - rewriting the search as
-   a plain while loop with a break costs nd 46. */
+   a plain while loop with a break costs nd 46.
+   nd 20 as committed. */
 // FUN_003E3020
 #ifdef NON_MATCHING
 s32 func_003e3020(u8 *arg0, s32 key, s32 arg2, s32 arg3, s32 arg4)
@@ -197,7 +198,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
    a b210-vs-retail behaviour at a loop-exit block join rather than anything the
    source controls. Confirmed not source-driven here: do-while, while and an
    explicit goto loop all give nd 22-23 under schedule+no_branch_likely, and
-   schedule alone costs nd 32. */
+   schedule alone costs nd 32.
+   nd 22 as committed. */
 // FUN_003E3370
 #ifdef NON_MATCHING
 #pragma schedule on

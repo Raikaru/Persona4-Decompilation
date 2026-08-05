@@ -129,7 +129,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a030);
    function compiles at -O3, not -O2: the `#pragma optimization_level 3` far
    above (opened for an unrelated function) is still in scope here, and every
    probe made against it is measuring the wrong compiler. Scoping -O2 back over
-   the body takes nd 38 -> 17 on its own and is why the shape below reads
+   the body takes nd 38 -> 36 on its own and is why the shape below reads
    straight. Five functions in this file share the shape and differ only in the
    returned field offset and the compared constant, so the residual is worth
    five. What is left: retail hoists the compared constant into the preheader
@@ -179,7 +179,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a260);
 // FUN_0039A2E0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a2e0);
 
-/* measured: same shape as func_0039a090; see that note. nd 17. */
+/* measured: same shape as func_0039a090; see that note. nd 36. */
 // FUN_0039A340
 #ifdef NON_MATCHING
 #pragma optimization_level 2
@@ -208,7 +208,7 @@ found:
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a340);
 #endif
 
-/* measured: same shape as func_0039a090; see that note. nd 17. */
+/* measured: same shape as func_0039a090; see that note. nd 36. */
 // FUN_0039A3A0
 #ifdef NON_MATCHING
 #pragma optimization_level 2
@@ -237,7 +237,7 @@ found:
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a3a0);
 #endif
 
-/* measured: same shape as func_0039a090; see that note. nd 17. */
+/* measured: same shape as func_0039a090; see that note. nd 36. */
 // FUN_0039A400
 #ifdef NON_MATCHING
 #pragma optimization_level 2
@@ -269,7 +269,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
 // FUN_0039A460
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a460);
 
-/* measured: same shape as func_0039a090; see that note. nd 17. */
+/* measured: same shape as func_0039a090; see that note. nd 36. */
 // FUN_0039A630
 #ifdef NON_MATCHING
 #pragma optimization_level 2
