@@ -30,6 +30,8 @@ extern u8 D_00713480[];
 
 
 
+extern void (*jtbl_008873EC[])();
+
 // FUN_00484350
 void func_00484350(u8 *arg0)
 {
@@ -85,10 +87,32 @@ s32 func_00484560(void)
 }
 
 // FUN_00484790
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484790);
+void func_00484790(u8 *arg0)
+{
+    u8 *node;
+
+    node = ((u8 **)arg0)[6];
+    if (node != NULL) {
+        (*jtbl_008873EC)(node);
+        *(s32 *)(arg0 + 0x10) = 0;
+        *(s32 *)(arg0 + 0x14) = 0;
+        *(u8 **)(arg0 + 0x18) = NULL;
+    }
+}
 
 // FUN_004847E0
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004847e0);
+void func_004847e0(u8 *arg0)
+{
+    u8 *node;
+
+    node = ((u8 **)arg0)[10];
+    if (node != NULL) {
+        (*jtbl_008873EC)(node);
+        *(s32 *)(arg0 + 0x20) = 0;
+        *(s32 *)(arg0 + 0x24) = 0;
+        *(u8 **)(arg0 + 0x28) = NULL;
+    }
+}
 
 // FUN_00484970
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484970);
