@@ -1,5 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
+
+extern s32 func_0014a230(s32 arg0, s32 arg1);
+extern s32 func_0014a2a0(s32 arg0, s32 arg1);
 extern u8 * iGpffff9db0;
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -208,8 +211,28 @@ void func_00149e50(s32 arg0)
     func_00153bd0(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
-// FUN_0014A190
+/* measured: both calls take (arg0, arg1) unchanged from entry and the tail
+   boolean is `== 1` (retail's xori 1 / sltiu 1). Residual nd 26 is the
+   out-of-line layout of the two results: retail rematerialises the early
+   `return 1` from the comparison constant (`move $v0,$v1`) before branching
+   to the shared epilogue and lands the final sltiu directly in $v0, while
+   b210 branches without the move and needs `sltiu $v1` + `move $v0,$v1`.
+   Measured identical at nd 26: a result local with a goto to a shared
+   return, an if/else assigning the result, a named `one` constant, and both
+   combined. `#pragma schedule on` is much worse (nd 50, obj 88). The `!(x^1)`
+   and `(x^1) == 0` spellings of the tail are worse (nd 44/43).
+   Boolean-result tail layout floor (docs/matching.md). */
+// FUN_0014A190 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0014a190(s32 arg0, s32 arg1) {
+    if (func_0014a230(arg0, arg1) == 1) {
+        return 1;
+    }
+    return func_0014a2a0(arg0, arg1) == 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014a190);
+#endif
 
 // FUN_0014A2F0
 void func_0014a2f0(s32 arg0)

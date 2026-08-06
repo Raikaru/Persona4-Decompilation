@@ -1,5 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
+
+extern void func_0046a340(s32 arg0);
 extern void func_0027a370();
 extern void func_0027a400();
 
@@ -149,7 +151,20 @@ void func_0027a650(u8 *arg0)
 
 
 // FUN_0027A710
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027a710);
+void func_0027a710(s32 arg0) {
+    s32 i;
+    s32 *p;
+    s32 v;
+
+    for (i = 0; i < 0x20; i++) {
+        p = (s32 *)(arg0 + i * 4);
+        v = *p;
+        if (v != 0) {
+            func_0046a340(v);
+            *p = 0;
+        }
+    }
+}
 
 // FUN_0027B1C0
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027b1c0);

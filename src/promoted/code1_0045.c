@@ -35,7 +35,32 @@ s32 func_004535b0(void)
 }
 
 // FUN_00454460
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00454460);
+/* The three exits are laid out with explicit gotos because retail places the
+   `return 0` block and the `return 1` block out of line, in that order, after
+   the main body. The natural nested-if / result-variable spellings all merge
+   them into one epilogue and come out two words short (nd 24). */
+s32 func_00454460(u8 *arg0) {
+    s32 v;
+    s32 t;
+
+    v = *(s32 *)(arg0 + 0x28);
+    if (v <= 0) {
+        goto zero;
+    }
+    t = v - *(s32 *)(arg0 + 0x1C);
+    *(s32 *)(arg0 + 0x28) = t;
+    if (t >= 0) {
+        goto one;
+    }
+    *(s32 *)(arg0 + 0x28) = 0;
+    goto one;
+zero:
+    *(s32 *)(arg0 + 0x28) = 0;
+    *(s32 *)(arg0 + 0x24) = 0;
+    return 0;
+one:
+    return 1;
+}
 
 // FUN_004556B0
 s32 func_004556b0(u8* arg0, u32 arg1)
