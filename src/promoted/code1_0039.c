@@ -84,15 +84,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390230);
 // FUN_003902D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
 
-// FUN_003963B0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: b210's O2 strength-reduces this constant multiply; O1 preserves
+   the retail MMI multiply. schedule on places it in the jr delay slot, and
+   the inline helper presents the multiplier first for retail operand order. */
+#pragma optimization_level 1
+#pragma schedule on
+static inline s32 p4_mul_003963b0(s32 left, s32 right)
+{
+    return left * right;
+}
+// FUN_003963B0
 s32 func_003963b0(u8 *arg0)
 {
-    return 0x24 * *(s32 *)(arg0 + 4);
+    s32 multiplier;
+    s32 value;
+
+    value = *(s32 *)(arg0 + 4);
+    multiplier = 0x24;
+    return p4_mul_003963b0(multiplier, value);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003963b0);
-#endif
+/* measured: closes the schedule-on bracket for the multiply body. */
+#pragma schedule off
+/* measured: closes the O1 bracket at the O2 baseline. */
+#pragma optimization_level 2
 
 
 // measured: optimization_level 3 is load-bearing -- b210 at -O2 always

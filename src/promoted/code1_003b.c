@@ -60,8 +60,24 @@ s32 func_003bbe80(s32 arg0) {
 // FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 
+/* measured: ascending switch labels generate retail's descending 3/2/1
+   comparisons; no_branch_likely keeps each comparison as a plain beq. */
+#pragma no_branch_likely on
 // FUN_003BD110
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd110);
+s32 func_003bd110(s32 arg0)
+{
+    switch (arg0) {
+    case 1:
+        return 4;
+    case 2:
+        return 4;
+    case 3:
+        return 4;
+    default:
+        return 0;
+    }
+}
+#pragma no_branch_likely off
 
 /* measured: nd 43 of 32 words, and the shape is right - the residual is
    branch polarity and block layout only. Retail tests positively and puts both
