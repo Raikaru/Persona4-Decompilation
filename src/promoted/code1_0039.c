@@ -1,6 +1,12 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern s32 func_003df360(s32 arg0, s32 *arg1, s32 arg2);
+/* gp - 0x4A20 = 0x007690f0 - 0x4a20 = 0x007646d0 */
+extern s32 iGpffffb5e0;
+extern void func_00399b10(s32 arg0);
+extern void func_00399b80(s32 arg0);
+
 extern s32 D_007246B0;
 extern s32 D_007246B4;
 extern u8 D_008872E0[];
@@ -121,11 +127,67 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003982e0);
 // FUN_00398540
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398540);
 
+/* measured: retail lays the three exits out of line in the order
+   [return arg0][return 0][call + jump back], which the explicit gotos below
+   reproduce; the plain nested-if spelling merges them (nd 58). schedule on
+   fills the jal and b delay slots (without it nd 84, obj 128), and
+   no_branch_likely on stops b210 turning both tests into beql/bnel
+   (nd 35 -> 0). Note the first argument: retail passes arg0 to
+   func_003df360 unchanged in $a0, which the m2c draft dropped. */
 // FUN_003992B0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003992b0);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003992b0(s32 arg0, s32 arg1, s32 arg2) {
+    s32 sp3C;
 
+    if (func_003df360(arg0, &sp3C, 4) == 0) {
+        goto ret0;
+    }
+    if (sp3C != 0) {
+        goto docall;
+    }
+retarg:
+    return arg0;
+ret0:
+    return 0;
+docall:
+    func_00399b10(arg2);
+    goto retarg;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
+
+/* measured: retail lays the three exits out of line in the order
+   [return arg0][return 0][call + jump back], which the explicit gotos below
+   reproduce; the plain nested-if spelling merges them (nd 58). schedule on
+   fills the jal and b delay slots (without it nd 84, obj 128), and
+   no_branch_likely on stops b210 turning both tests into beql/bnel
+   (nd 35 -> 0). Note the first argument: retail passes arg0 to
+   func_003df360 unchanged in $a0, which the m2c draft dropped. */
 // FUN_003993E0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003993e0);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003993e0(s32 arg0, s32 arg1, s32 arg2) {
+    s32 sp3C;
+
+    if (func_003df360(arg0, &sp3C, 4) == 0) {
+        goto ret0;
+    }
+    if (sp3C != 0) {
+        goto docall;
+    }
+retarg:
+    return arg0;
+ret0:
+    return 0;
+docall:
+    func_00399b80(arg2);
+    goto retarg;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
 
 // FUN_00399B10
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b10);
@@ -136,8 +198,55 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b80);
 // FUN_00399FD0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399fd0);
 
-// FUN_0039A030
+/* This is the head of the 0039A0xx-0039A8xx slot-search family (about
+   fifteen functions): every one of them loads a 64-byte-strided table through
+   the gp-relative pointer at gp-0x4A20, scans at most two entries for a
+   given type code at offset 0x20, falls back to a NULL slot, and then does
+   one small thing to the slot. The addressing, the `(i + 1) & 0xFF` counter,
+   the `slti 2` bound and the whole prologue are byte-exact here, so this body
+   is the template for the rest of the family.
+   measured: residual nd 46, obj 84 in a 96-byte window. Retail reaches the
+   store block from the found path through an out-of-line `b` and fills BOTH
+   that branch's delay slot and the fallthrough with a duplicated
+   `neg.s $f0,$f12`; b210 computes the negation once and lets the found path
+   fall through, which is exactly the two missing words. It also materialises
+   the comparison constant inside the loop where retail hoists it into the
+   preheader. Measured identical at nd 46: a hoisted `one` local, the
+   inverted-test form, an explicit goto to the store label, a single-case
+   switch on the type code, and a do/while bottom test; dropping
+   no_branch_likely costs three more words and dropping schedule costs
+   twenty-three. Committed at nd 46. */
+// FUN_0039A030 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_0039a030(s32 arg0, f32 fparg0) {
+    u8 *base;
+    u8 *slot;
+    s32 i;
+
+    base = *(u8 **)(arg0 + iGpffffb5e0);
+    i = 0;
+loop:
+    slot = base + ((i & 0xFF) << 6);
+    if (*(s32 *)(slot + 0x20) == 1) {
+        goto store;
+    }
+    i = (i + 1) & 0xFF;
+    if (i < 2) {
+        goto loop;
+    }
+    slot = NULL;
+store:
+    *(f32 *)(slot + 0xC) = -fparg0;
+    return arg0;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a030);
+#endif
 
 /* measured: nd 17 of 24 words, and the first thing to know is that this
    function compiles at -O3, not -O2: the `#pragma optimization_level 3` far
@@ -377,6 +486,7 @@ u8 *func_0039aa50(u8 *arg0) {
     return (u8 *)(arg0);
 }
 #pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
