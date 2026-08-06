@@ -22,6 +22,13 @@ MARK = re.compile(r"^\s*//\s*FUN_([0-9A-Fa-f]{8})\b")
 
 
 def locate(lines, addr):
+    """Return the [start, end) line range holding the function's definition.
+
+    A parked function is wrapped in `#ifdef NON_MATCHING` / `#else` /
+    `INCLUDE_ASM` / `#endif`; replacing only the body would leave a dangling
+    `#else` and every variant would score COMPILE_ERROR.  Swallow the whole
+    conditional in that case so a candidate is measured as a plain body.
+    """
     for i, line in enumerate(lines):
         m = MARK.match(line)
         if m and m.group(1).lower() == addr:
@@ -30,6 +37,12 @@ def locate(lines, addr):
         raise SystemExit(f"no marker for {addr}")
     start = i + 1
     j = start
+    if lines[j].strip().startswith("#ifdef NON_MATCHING"):
+        while j < len(lines) and not lines[j].strip().startswith("#endif"):
+            j += 1
+        if j >= len(lines):
+            raise SystemExit(f"unterminated #ifdef for {addr}")
+        return start, j + 1
     if "INCLUDE_ASM" in lines[j]:
         return start, j + 1
     depth = 0

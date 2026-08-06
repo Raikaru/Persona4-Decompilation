@@ -11,6 +11,15 @@ extern u8 *D_0072466C;
 
 extern s32 clndGetMoonPhase(void);
 
+extern u32 func_00106a90(s16 arg0);
+extern u8 *D_00882F40[];
+extern void func_00278450(s32 arg0);
+extern s32 D_0063F2B0[];
+extern u8 D_00793E80[];
+extern s8 D_007488F8[];
+extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern void func_00279350(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
+
 
 
 // FUN_002B2CB0
@@ -50,7 +59,19 @@ s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
 
 
 // FUN_002B3230
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b3230);
+s32 func_002b3230(s16 *arg0, s16 *arg1) {
+    s16 b;
+    u32 x;
+    u32 y;
+
+    b = *arg1;
+    x = func_00106a90(*arg0);
+    y = func_00106a90(b);
+    if (x < y) {
+        return 1;
+    }
+    return -(s32)(y < x);
+}
 
 // FUN_002B3960
 void func_002b3960(u8 *arg0)
@@ -91,7 +112,23 @@ s32 func_002bb4e0(void) {
 }
 
 // FUN_002BB680
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bb680);
+s32 func_002bb680(s32 arg0) {
+    u8 *p;
+
+    p = D_00882F40[(s8)arg0];
+    if (p == NULL) {
+        return 0;
+    }
+    if (*(s32 *)p < 0) {
+        return 0;
+    }
+    if (*(s8 *)(p + 5) != 0) {
+        if (*(s8 *)(p + 4) == 2) {
+            return 0;
+        }
+    }
+    return *(s8 *)(p + 4);
+}
 
 // FUN_002BBCF0
 void func_002bbcf0(u8 *arg0) {
@@ -101,7 +138,14 @@ void func_002bbcf0(u8 *arg0) {
 
 
 // FUN_002BBD80
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bbd80);
+void func_002bbd80(s32 arg0) {
+    u8 *p;
+
+    p = D_00882F40[(s8)arg0];
+    if (p != NULL) {
+        func_00278450(*(s32 *)p);
+    }
+}
 
 // FUN_002BC0B0
 void func_002bc0b0(u32 arg0, u32 arg1, u32 arg2, s32 arg3, s32 arg4) {
@@ -111,10 +155,14 @@ void func_002bc0b0(u32 arg0, u32 arg1, u32 arg2, s32 arg3, s32 arg4) {
 
 
 // FUN_002BC7A0
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bc7a0);
+void func_002bc7a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    func_002791f0(arg1, arg2, arg3, 1, D_0063F2B0[(s8)arg4], arg0);
+}
 
 // FUN_002BC7F0
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bc7f0);
+void func_002bc7f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+    func_00279350(arg1, arg2, arg3, 1, D_0063F2B0[(s8)arg4], arg0, &D_00793E80[arg5 * 0x30]);
+}
 
 // FUN_002BD3E0
 void func_002bd3e0(void) {
