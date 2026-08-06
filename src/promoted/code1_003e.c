@@ -411,8 +411,41 @@ void func_003e5510(s32 arg0) {
 // jr $ra delay slot with sw $v1, ($a1) and hoists move $v0,$a0 before the addiu;
 // baseline -O2 emits lw; addiu; sw; move; jr; nop.
 
-// FUN_003E5990
+/* measured: the m2c draft advanced the s32* cursor by 4 ELEMENTS (16 bytes)
+   where retail advances one element; with `p++` the loop body, the found-exit
+   `*arg2 = i; return 1` and the count/limit registers are all correct and the
+   object is exactly the 80-byte window without any scheduling pragma (nd 43).
+   Two residuals remain: retail materialises the entry guard as
+   `slt $at,$zero,$v1; beqz $at` where b210 emits a single `blez` for `n > 0`,
+   `0 < n` and `!(n <= 0)` alike, and retail's in-loop mismatch test is a plain
+   `bne` + nop while b210 wants `bnel`. Adding no_branch_likely fixes the
+   second but costs the first (nd 49); schedule on shrinks the object to
+   64 bytes (nd 46). Entry-guard materialisation floor. */
+// FUN_003E5990 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003e5990(u8 *arg0, s32 arg1, s32 *arg2) {
+    s32 n;
+    s32 *p;
+    s32 i;
+
+    n = *(s32 *)(arg0 + 4);
+    i = 0;
+    if (n > 0) {
+        p = *(s32 **)arg0;
+        do {
+            if (*p == arg1) {
+                *arg2 = i;
+                return 1;
+            }
+            i++;
+            p++;
+        } while (i < n);
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
+#endif
 
 /* measured: two things are load-bearing here. Retail tests POSITIVELY and puts
    the indirect call out of line after the return path, then jumps back to it -

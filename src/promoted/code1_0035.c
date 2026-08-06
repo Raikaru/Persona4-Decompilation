@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern void func_0034f5d0(u8 *arg0);
+
 extern void func_002bb550(s8 arg0);
 extern void (*D_008873EC[])(...);
 
@@ -198,7 +200,13 @@ s32 func_00356820(u8 *arg0) {
 }
 
 // FUN_00359340
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00359340);
+void func_00359340(u8 *arg0) {
+    s32 i;
+
+    for (i = 0; i < 0x6C; i++) {
+        func_0034f5d0(arg0 + i * 0x14 + 0x960);
+    }
+}
 
 // FUN_003593B0
 void func_003593b0(u8 *arg0)
