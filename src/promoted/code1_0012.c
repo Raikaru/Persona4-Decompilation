@@ -11,6 +11,18 @@ extern void func_00267570();
 
 extern u8 *D_007242CC;
 extern s32 iGpffffb1e0;
+extern s32 iGpffffb1cc;
+extern u8 *func_00460990(void);
+extern void func_00460ac0(char *name, u8 *task);
+extern void func_001221a0(void);
+extern void func_00122a40(void);
+extern char D_00796340[];
+extern char D_00795F50[];
+extern s32 func_001060b0(void);
+extern s32 func_001060c0(void);
+extern s32 func_00110850(s16 arg0, s16 arg1);
+extern s32 func_0015a160(void);
+extern s32 func_0028b650(void);
 
 extern s32 func_004522d0(s32 arg0);
 
@@ -53,7 +65,20 @@ s32 func_001211a0(void)
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00121b20);
 
 // FUN_001223D0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001223d0);
+s32 func_001223d0(void) {
+    u8 *p;
+    s32 x;
+
+    p = func_00460990();
+    x = iGpffffb1cc;
+    if (x == 0) {
+        return 0;
+    }
+    *(void **)(p + 8) = (void *)func_001221a0;
+    *(s32 *)(p + 0x10) = x;
+    func_00460ac0(D_00796340, p);
+    return 0;
+}
 
 // FUN_00122720
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00122720);
@@ -84,7 +109,17 @@ void func_00122a10(void *arg0)
 
 
 // FUN_001236E0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001236e0);
+s32 func_001236e0(void) {
+    u8 *p;
+    u8 *q;
+
+    p = func_00460990();
+    q = D_007242CC;
+    *(void **)(p + 8) = (void *)func_00122a40;
+    *(u8 **)(p + 0x10) = q;
+    func_00460ac0(D_00795F50, p);
+    return 0;
+}
 
 // FUN_00123810
 s16 func_00123810(void)
@@ -118,11 +153,50 @@ s16 func_00123830(void)
 
 
 
-// FUN_00123850
+/* measured: same instructions and the same 104-byte object as retail; the
+   only residual is that retail stores the masked value to +6 and loads the
+   +4 field BEFORE sign-extending the second argument, while b210 materialises
+   the dsll32/dsra32 pair first (3 words, nd 14). Measured identical at nd 14:
+   naming the first argument in a local, naming the (s16) cast in a local, and
+   both; schedule on is much worse (nd 42, obj 92). Call-argument setup order
+   floor. Committed at nd 14. */
+// FUN_00123850 NONMATCHING
+#ifdef NON_MATCHING
+void func_00123850(void) {
+    u8 *p;
+    s32 t;
+
+    p = D_007242CC;
+    if (p != NULL) {
+        *(s16 *)(p + 4) = (s16)func_001060b0();
+        t = func_001060c0() & 0xFF;
+        *(s16 *)(p + 6) = (s16)t;
+        *(s16 *)(p + 8) = (s8)func_00110850(*(s16 *)(p + 4), (s16)t);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00123850);
+#endif
 
 // FUN_00123A10
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00123a10);
+void func_00123a10(void) {
+    u8 *p;
+
+    p = D_007242CC;
+    if (p != NULL) {
+        *(s32 *)(p + 0x18) = 1;
+        if (func_0015a160() != 0) {
+            goto set1;
+        }
+        if (func_0028b650() != 0) {
+            goto set1;
+        }
+        *(s32 *)(p + 0x1C) = 0;
+        return;
+set1:
+        *(s32 *)(p + 0x1C) = 1;
+    }
+}
 
 // FUN_00123A80
 void func_00123a80(void)
