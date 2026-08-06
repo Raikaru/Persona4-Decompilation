@@ -202,21 +202,25 @@ do2:
 /* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
    movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
    shapes tried.  #pragma no_branch_likely is load-bearing (nd 57 without). */
+/* measured: the two guarded func_003df240 calls, the reloaded 0x7C field and
+   the `return 0` block all match. Residual nd 37: retail folds the final
+   `r ? arg0 : 0` into a single `movz $s1,$zero,$v0` where b210 emits
+   `beql` + `move`, and it hoists the first 0x7C load above the prologue
+   stores. Measured: no_branch_likely on turns the beql into a branch pair and
+   costs more (nd 56 with the ternary, nd 48 with an `if (r == 0) arg0 = 0;`),
+   `#pragma conditional_move on` changes nothing, and schedule on changes
+   nothing. Conditional-move materialisation floor. Committed at nd 37. */
 // FUN_003BD610 NONMATCHING
 #ifdef NON_MATCHING
-#pragma no_branch_likely on
-s32 func_003bd610(s32 arg0, s32 arg1, s32 arg2)
-{
-    s32 result = arg0;
+s32 func_003bd610(s32 arg0, s32 arg1, u8 *arg2) {
+    s32 r;
+
     if (func_003df240(arg0, *(s32 *)(arg2 + 0x7C) + 0x2C, 4) == 0) {
         return 0;
     }
-    if (func_003df240(arg0, *(s32 *)(arg2 + 0x7C) + 0x30, 4) == 0) {
-        result = 0;
-    }
-    return result;
+    r = func_003df240(arg0, *(s32 *)(arg2 + 0x7C) + 0x30, 4);
+    return r ? arg0 : 0;
 }
-#pragma no_branch_likely off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
 #endif
@@ -311,21 +315,25 @@ do2:
 /* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
    movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
    shapes tried.  #pragma no_branch_likely is load-bearing (nd 57 without). */
+/* measured: the two guarded func_003df240 calls, the reloaded 0x6C field and
+   the `return 0` block all match. Residual nd 37: retail folds the final
+   `r ? arg0 : 0` into a single `movz $s1,$zero,$v0` where b210 emits
+   `beql` + `move`, and it hoists the first 0x6C load above the prologue
+   stores. Measured: no_branch_likely on turns the beql into a branch pair and
+   costs more (nd 56 with the ternary, nd 48 with an `if (r == 0) arg0 = 0;`),
+   `#pragma conditional_move on` changes nothing, and schedule on changes
+   nothing. Conditional-move materialisation floor. Committed at nd 37. */
 // FUN_003BE8A0 NONMATCHING
 #ifdef NON_MATCHING
-#pragma no_branch_likely on
-s32 func_003be8a0(s32 arg0, s32 arg1, s32 arg2)
-{
-    s32 result = arg0;
+s32 func_003be8a0(s32 arg0, s32 arg1, u8 *arg2) {
+    s32 r;
+
     if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x2C, 4) == 0) {
         return 0;
     }
-    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x30, 4) == 0) {
-        result = 0;
-    }
-    return result;
+    r = func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x30, 4);
+    return r ? arg0 : 0;
 }
-#pragma no_branch_likely off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
 #endif
