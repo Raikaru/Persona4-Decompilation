@@ -12,6 +12,10 @@ extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern u32 func_00231d70(s32 arg0);
 
 extern u8 *iGpfffb3ac;
+extern u8 *iGpffffb3b8;
+extern u16 D_00624FC0[];
+extern void func_001f65d0(void);
+extern s32 func_001ef9a0(void);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_00459880(void);
 
@@ -135,10 +139,51 @@ void func_001f0a10(u8 *arg0) {
 
 
 // FUN_001F0B90
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f0b90);
+/* The two 0xFFFF masks are spelled differently on purpose: retail re-masks
+   the counter separately for the index and for the loop bound, and writing
+   both as `i & 0xFFFF` lets b210 common-subexpression them into one andi
+   (nd 57, one word short). */
+s32 func_001f0b90(u8 *arg0) {
+    s32 i;
+    s32 n;
+
+    i = 0;
+    n = *(u16 *)(arg0 + 0x6A);
+    goto test;
+loop:
+    if (*(s32 *)(*(u8 **)(arg0 + ((u16)i * 4) + 0x38) + 0xE4) != 0) {
+        return 1;
+    }
+    i = (i + 1) & 0xFFFF;
+test:
+    if ((i & 0xFFFF) < n) {
+        goto loop;
+    }
+    return 0;
+}
 
 // FUN_001F0BF0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f0bf0);
+/* Mask spelling as in func_001f0b90: `(u16)i` for the index and
+   `i & 0xFFFF` for the bound, so b210 does not fold retail's two andi
+   instructions into one. */
+s32 func_001f0bf0(u8 *arg0) {
+    s32 i;
+    s32 n;
+
+    i = 0;
+    n = *(u16 *)(arg0 + 0x6A);
+    goto test;
+loop:
+    if ((*(u16 *)(*(u8 **)(arg0 + ((u16)i * 4) + 0x38) + 0xDE) & 6) != 0) {
+        return 1;
+    }
+    i = (i + 1) & 0xFFFF;
+test:
+    if ((i & 0xFFFF) < n) {
+        goto loop;
+    }
+    return 0;
+}
 
 // FUN_001F0F70
 u32 func_001f0f70(u8 *arg0)
@@ -164,7 +209,15 @@ u32 func_001f0f70(u8 *arg0)
 }
 
 // FUN_001F2F90
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f2f90);
+s32 func_001f2f90(u8 *arg0) {
+    u8 *p;
+
+    p = iGpffffb3b8 + *(s16 *)(arg0 + 0x6E) * 40;
+    if ((p[0] & 2) != 0) {
+        return 0;
+    }
+    return (p[0x24] ^ 6) != 0;
+}
 
 // FUN_001F3870
 void func_001f3870(u8 *arg0, s8 arg1)
@@ -264,7 +317,14 @@ s32 func_001f41e0(void) {
 
 
 // FUN_001F42D0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f42d0);
+s32 func_001f42d0(void) {
+    if ((*(s32 *)(iGpfffb3ac + 0x10) & 0x20000000) != 0) {
+        if (func_001ef9a0() == 0x20B) {
+            return 0x18B;
+        }
+    }
+    return 0x165;
+}
 
 // FUN_001F4330
 s32 func_001f4330(u8 *arg0)
@@ -420,7 +480,27 @@ s32 func_001f4810(u8 *arg0, s32 arg1, s32 arg2) {
 
 
 // FUN_001F5680
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f5680);
+/* The `return -1` and `return v + 0x11` blocks are reached by goto so they
+   land in retail's order; writing both as plain returns emits them the other
+   way round. */
+s32 func_001f5680(void) {
+    u8 *p;
+    s32 v;
+
+    p = *(u8 **)(iGpfffb3ac + 0xC68);
+    if (p == NULL) {
+        return -1;
+    }
+    v = *(u16 *)(p + 2);
+    if (v < 6) {
+        if (v != 0) {
+            goto add;
+        }
+    }
+    return -1;
+add:
+    return v + 0x11;
+}
 
 // FUN_001F5EA0
 s32 func_001f5ea0(s32 arg0) {
@@ -488,7 +568,17 @@ s32 func_001f6290(void) {
 
 
 // FUN_001F6710
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f6710);
+void func_001f6710(s32 arg0) {
+    u8 *p;
+    u8 *q;
+
+    p = (u8 *)func_00194470(0x803, 8);
+    p[0x47] &= 0xFE;
+    *(void **)(p + 0x6C) = (void *)func_001f65d0;
+    q = *(u8 **)(p + 0x78);
+    *(s16 *)(q + 4) = (s16)arg0;
+    *(s16 *)(q + 6) = 0;
+}
 
 // FUN_001F68E0
 s32 func_001f68e0(u8 *arg0)
@@ -504,8 +594,32 @@ s32 func_001f68e0(u8 *arg0)
     return (func_00232710(status, 0x60) != 0);
 }
 
-// FUN_001F6BF0
+/* measured: every instruction matches and the object is exactly the 80-byte
+   window; the only residual is that retail materialises the shift constant
+   (`addiu $v1,$zero,1`) BEFORE the branch into the loop test while b210 puts
+   it after, which also shifts the back-edge displacement by one word (nd 9).
+   Measured identical at nd 9: an inline `1 << i`, a hoisted `one` local, and
+   an explicit goto loop with the test at the bottom. Preheader hoist-order
+   floor. Committed at nd 9. */
+// FUN_001F6BF0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001f6bf0(u8 *arg0) {
+    s32 i;
+    s32 one;
+
+    i = 0;
+    one = 1;
+    while ((u32)i < 0x18) {
+        if ((one << i) == one) {
+            return arg0[i + 0x3F6] >= 2;
+        }
+        i++;
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f6bf0);
+#endif
 
 // measured: required for exact retail loop codegen in func_001f7260.
 #pragma opt_loop_invariants on
@@ -585,7 +699,18 @@ void func_001f8430(u32 value)
 }
 
 // FUN_001F9080
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f9080);
+s32 func_001f9080(u8 *arg0) {
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x30);
+    if (p[0xA2] != 0) {
+        return -1;
+    }
+    if (*(u8 **)(iGpfffb3ac + 0x170) == arg0) {
+        return -1;
+    }
+    return D_00624FC0[*(u16 *)(p + 0xA4)] + 0x45;
+}
 
 // FUN_001F9740
 s32 func_001f9740(void)
