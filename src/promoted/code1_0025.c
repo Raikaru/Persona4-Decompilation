@@ -22,6 +22,22 @@ s32 func_0029d020(void);
 void func_001227d0(void);
 s32 func_001227f0(void);
 
+s32 func_001060c0(void);
+s8 func_00110960(s16 arg0, s32 arg1);
+float func_0029cd50(s32 arg0);
+s16 func_00105010(s16 arg0, float arg1);
+s16 func_00104f10(s16 arg0);
+void func_0010a840(u16 arg0, u16 arg1, s8 arg2);
+void func_00106620(s16 arg0, s32 arg1);
+s16 func_00105ee0(s32 arg0);
+void func_00106000(s32 arg0, s32 arg1);
+s16 func_00106cd0(s16 arg0, s16 arg1);
+void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
+s32 func_00452490(s32 arg0);
+void func_00120f20(s32 arg0);
+void func_002aa300(s32 arg0, s32 arg1);
+s32 func_002aa3f0(void);
+
 
 
 // FUN_0025C310
@@ -68,7 +84,13 @@ s32 func_0025c3e0(void) {
 
 
 // FUN_0025C450
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025c450);
+s32 func_0025c450(void) {
+    s16 temp_16;
+
+    temp_16 = func_001060b0();
+    func_0029cf50((s32)func_00110960(temp_16, func_001060c0() & 0xFF));
+    return 1;
+}
 
 // FUN_0025C4B0
 s32 func_0025c4b0(void) {
@@ -144,13 +166,41 @@ s32 func_0025c730(void) {
 
 
 // FUN_0025CDD0
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025cdd0);
+s32 func_0025cdd0(void) {
+    s32 temp_16;
+
+    temp_16 = func_0029cc00(0);
+    func_0029cf50((s32)func_00105010((s16)temp_16, func_0029cd50(1)));
+    return 1;
+}
 
 // FUN_0025CE40
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ce40);
+s32 func_0025ce40(void) {
+    func_0029cf50((s32)func_00104f10((s16)func_0029cc00(0)));
+    return 1;
+}
 
-// FUN_0025CE90
+/* measured: everything matches except the ORDER in which the three arguments
+   are materialised before the jal -- retail emits `andi $a0`, `andi $a1`, then
+   the `dsll32/dsra32 $a2` sign-extension of the third call's result, while
+   b210 materialises $a2 first (4 words, the whole residual, nd 16). Measured
+   identical at nd 16: declaring the locals in assignment order, naming the
+   third value in an `s8` local, and naming both masked values in locals;
+   u16-typed locals are worse (nd 24). Call-argument setup order floor. */
+// FUN_0025CE90 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0025ce90(void) {
+    s32 temp_16;
+    s32 temp_17;
+
+    temp_17 = func_0029cc00(0);
+    temp_16 = func_0029cc00(1);
+    func_0010a840(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)func_0029cc00(2));
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ce90);
+#endif
 
 // FUN_0025CF00
 s32 func_0025cf00(void) {
@@ -190,16 +240,51 @@ block_4:
 }
 
 // FUN_0025D150
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d150);
+s32 func_0025d150(void) {
+    s16 temp_16;
+
+    temp_16 = func_0029cc00(0);
+    func_00106620(temp_16, func_0029cc00(1) & 0xFF);
+    return 1;
+}
 
 // FUN_0025D2D0
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d2d0);
+s32 func_0025d2d0(void) {
+    s16 temp_16;
+    s32 var_17;
+
+    var_17 = 0;
+    while (var_17 < 3) {
+        temp_16 = func_00105ee0(var_17);
+        if (temp_16 == func_0029cc00(0)) {
+            func_00106000(var_17, 0);
+        }
+        var_17++;
+    }
+    return 1;
+}
 
 // FUN_0025D350
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d350);
+s32 func_0025d350(void) {
+    s16 temp_16;
+    s16 temp_5;
+
+    temp_16 = func_0029cc00(0);
+    temp_5 = func_0029cc00(1);
+    func_0029cf50((s32)func_00106cd0(temp_16, temp_5));
+    return 1;
+}
 
 // FUN_0025D3C0
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d3c0);
+s32 func_0025d3c0(void) {
+    s16 a;
+    s16 b;
+
+    a = func_0029cc00(0);
+    b = func_0029cc00(1);
+    func_00106d40(a, b, (s16)func_0029cc00(2));
+    return 1;
+}
 
 // FUN_0025D440
 s32 func_0025d440(void) {
@@ -219,7 +304,20 @@ block_4:
 }
 
 // FUN_0025D4B0
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d4b0);
+s32 func_0025d4b0(void) {
+    s32 temp_2;
+
+    if (func_0029d020() == 0) {
+        func_002aa300(0, 0);
+    } else {
+        temp_2 = func_002aa3f0();
+        if (temp_2 != 0) {
+            func_0029cf50(temp_2);
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // FUN_0025D520
 s32 func_0025d520(void)
@@ -234,8 +332,32 @@ s32 func_0025d530(void)
     return 1;
 }
 
-// FUN_0025D760
+/* measured: the calls, the guard polarity and the cached index all match; the
+   residual is the tail LAYOUT. Retail emits the `return 1` materialisation
+   out of line first and the `return 0` materialisation last (b to the zero
+   block from the main body, then `addiu $v0,1`, then `b` to the epilogue,
+   then `move $v0,$zero`); b210 puts the zero inline in the main body and the
+   one after it, one instruction short of the window. Measured: the inverted
+   guard as written is nd 29, the natural early-`return 1` form is nd 46, a
+   goto to a shared ret0 label is nd 46, and an inner early `return 0` is
+   nd 50 (obj 124). Boolean-result tail layout floor. */
+// FUN_0025D760 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0025d760(void) {
+    s32 temp_16;
+
+    temp_16 = func_0029cc00(0);
+    if (func_0029d020() == 0) {
+        if (func_00452490(temp_16) != 0) {
+            func_00120f20(temp_16);
+        }
+        return 0;
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d760);
+#endif
 
 /* `x > 0xA` here, not the equivalent `x >= 0xB`: b210 compiles `>= K` by
    materialising the comparison into $v0, and `> K-1` by branching through the

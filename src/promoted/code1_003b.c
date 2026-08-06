@@ -2,6 +2,8 @@
 #include "type.h"
 
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
+extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
+extern s32 D_00764758;
 extern s32 D_00764794;
 extern s32 D_00764790;
 extern s32 D_0076478C;
@@ -79,38 +81,64 @@ s32 func_003bd110(s32 arg0)
 }
 #pragma no_branch_likely off
 
-/* measured: nd 43 of 32 words, and the shape is right - the residual is
-   branch polarity and block layout only. Retail tests positively and puts both
-   `return 0` paths OUT OF LINE past the default `return arg0`; b210 inverts
-   every test and lays the early exits inline. no_branch_likely is required just
-   to stop b210 emitting bnel/beql here (nd 60 -> 44), and of the three
-   plausible source shapes the flat early-return chain is closest (nd 43, obj
-   124 of 128): nesting the whole body under one positive guard costs nd 59, and
-   a single-case switch on arg1 == 8 costs nd 66.  Four functions in this file
-   share the shape, differing only in the two gp-relative operands. */
+/* measured: the flat early-return chain is nd 43 -- b210 inverts every test
+   and lays the early exits inline, while retail orders the blocks
+   [func1 test][retarg][ret0][do2].  Writing that exact block order with
+   explicit label targets (retarg = shared `return arg0`, ret0 = `return 0`,
+   do2 = second guarded call) makes it byte-exact (nd 43 -> MATCH).
+   #pragma no_branch_likely is load-bearing: without it the same body measures
+   nd 46 (b210 emits bnel/beql).  Three functions in this file share the shape,
+   differing only in the two gp-relative operands. */
 // FUN_003BD470
-#ifdef NON_MATCHING
 #pragma no_branch_likely on
 s32 func_003bd470(s32 arg0, s32 arg1)
 {
     if (func_003df360(arg0, &D_00764794, 4) == 0) {
-        return 0;
+        goto ret0;
     }
-    if (arg1 != 8) {
-        return arg0;
+    if (arg1 == 8) {
+        goto do2;
     }
-    if (func_003df360(arg0, &D_00764790, 4) == 0) {
-        return 0;
-    }
+retarg:
     return arg0;
+ret0:
+    return 0;
+do2:
+    if (func_003df360(arg0, &D_00764790, 4) != 0) {
+        goto retarg;
+    }
+    return 0;
+}
+#pragma no_branch_likely off
+
+/* measured: nd 48 of 28 words, obj 112/112 (correct size).  Two residuals
+   no source shape or schedule/optimization knob removes: (1) retail hoists
+   the first `lw *(arg2+0x6C)` to offset 4, before the register saves, to
+   hide load latency; mwcc schedules it after the saves (offsets 4-20
+   shifted).  (2) retail emits `movz $s1,$zero,$v0` for the second
+   conditional return; mwcc emits `bnez; move $s1,$0` instead.  Tried: flat
+   early returns, goto block layout, result variable, ternaries (both
+   directions), nested ifs, &&, cached base local, #pragma schedule on --
+   all nd 48.  #pragma no_branch_likely is load-bearing: without it mwcc
+   emits bnel (nd 57). */
+// FUN_003BD4F0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma no_branch_likely on
+s32 func_003bd4f0(s32 arg0, s32 arg1, s32 arg2)
+{
+    s32 result = arg0;
+    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x2C, 4) == 0) {
+        return 0;
+    }
+    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x30, 4) == 0) {
+        result = 0;
+    }
+    return result;
 }
 #pragma no_branch_likely off
 #else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd470);
-#endif
-
-// FUN_003BD4F0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
+#endif
 
 // FUN_003BD560
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
@@ -149,30 +177,49 @@ s32 func_003bd560(u8 *arg0) {
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
-/* measured: same shape as func_003bd470; see that note. nd 43. */
 // FUN_003BD590
-#ifdef NON_MATCHING
 #pragma no_branch_likely on
 s32 func_003bd590(s32 arg0, s32 arg1)
 {
     if (func_003df360(arg0, &D_0076478C, 4) == 0) {
-        return 0;
+        goto ret0;
     }
-    if (arg1 != 8) {
-        return arg0;
+    if (arg1 == 8) {
+        goto do2;
     }
-    if (func_003df360(arg0, &D_00764788, 4) == 0) {
-        return 0;
-    }
+retarg:
     return arg0;
+ret0:
+    return 0;
+do2:
+    if (func_003df360(arg0, &D_00764788, 4) != 0) {
+        goto retarg;
+    }
+    return 0;
+}
+#pragma no_branch_likely off
+
+/* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
+   movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
+   shapes tried.  #pragma no_branch_likely is load-bearing (nd 57 without). */
+// FUN_003BD610 NONMATCHING
+#ifdef NON_MATCHING
+#pragma no_branch_likely on
+s32 func_003bd610(s32 arg0, s32 arg1, s32 arg2)
+{
+    s32 result = arg0;
+    if (func_003df240(arg0, *(s32 *)(arg2 + 0x7C) + 0x2C, 4) == 0) {
+        return 0;
+    }
+    if (func_003df240(arg0, *(s32 *)(arg2 + 0x7C) + 0x30, 4) == 0) {
+        result = 0;
+    }
+    return result;
 }
 #pragma no_branch_likely off
 #else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd590);
-#endif
-
-// FUN_003BD610
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
+#endif
 
 // FUN_003BD680
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
@@ -237,30 +284,51 @@ s32 func_003be7e0(s32 arg0) {
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
-/* measured: same shape as func_003bd470; see that note. nd 43. */
+/* measured: same shape as func_003bd470; see that note.  The explicit-label
+   block order (retarg/ret0/do2) makes it byte-exact (nd 43 -> MATCH). */
 // FUN_003BE820
-#ifdef NON_MATCHING
 #pragma no_branch_likely on
 s32 func_003be820(s32 arg0, s32 arg1)
 {
     if (func_003df360(arg0, &D_007647AC, 4) == 0) {
-        return 0;
+        goto ret0;
     }
-    if (arg1 != 8) {
-        return arg0;
+    if (arg1 == 8) {
+        goto do2;
     }
-    if (func_003df360(arg0, &D_007647A8, 4) == 0) {
-        return 0;
-    }
+retarg:
     return arg0;
+ret0:
+    return 0;
+do2:
+    if (func_003df360(arg0, &D_007647A8, 4) != 0) {
+        goto retarg;
+    }
+    return 0;
+}
+#pragma no_branch_likely off
+
+/* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
+   movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
+   shapes tried.  #pragma no_branch_likely is load-bearing (nd 57 without). */
+// FUN_003BE8A0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma no_branch_likely on
+s32 func_003be8a0(s32 arg0, s32 arg1, s32 arg2)
+{
+    s32 result = arg0;
+    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x2C, 4) == 0) {
+        return 0;
+    }
+    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x30, 4) == 0) {
+        result = 0;
+    }
+    return result;
 }
 #pragma no_branch_likely off
 #else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be820);
-#endif
-
-// FUN_003BE8A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
+#endif
 
 // FUN_003BE910
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
