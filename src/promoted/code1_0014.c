@@ -25,7 +25,8 @@ extern void func_0014d290(u8 *arg0, u8 *arg1);
 
 extern s32 func_0034c210(void);
 
-extern void func_001452b0(s32 arg0);
+extern u8 *func_001452b0(s32 arg0);
+extern u8 *resrcMngGetListHead(u8 *resManager, u8 resType);
 extern void func_00153b20(s32 arg0, s32 arg1);
 
 extern void func_00153b60(s32 arg0, s32 arg1);
@@ -131,7 +132,16 @@ s32 func_00145250(void) {
 
 
 // FUN_001452B0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001452b0);
+u8 *func_001452b0(s32 arg0)
+{
+    u8 *resManager;
+
+    resManager = *(u8 **)(iGpffff9db0 + 8);
+    if (resManager == NULL) {
+        return NULL;
+    }
+    return resrcMngGetListHead(resManager, (u8)(arg0 & 0xFF));
+}
 
 // FUN_00145510
 void func_00145510(s32 arg0, s32 arg1) {
@@ -141,7 +151,24 @@ void func_00145510(s32 arg0, s32 arg1) {
 
 
 // FUN_001475C0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001475c0);
+/* Ported from P3FES resrcMngGetTotalResInList: P4 uses a 0x16-entry list
+   table and the list link remains at offset 0x138. */
+u32 func_001475c0(u8 *resLists, u8 resType)
+{
+    u32 total;
+    u8 *currRes;
+
+    total = 0;
+    if (resType >= 0x16) {
+        return total;
+    }
+    currRes = *(u8 **)(resLists + resType * 4);
+    while (currRes != NULL) {
+        total++;
+        currRes = *(u8 **)(currRes + 0x138);
+    }
+    return total;
+}
 
 // FUN_00149620
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00149620);
@@ -191,7 +218,25 @@ void func_0014a2f0(s32 arg0)
 }
 
 // FUN_0014B510
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014b510);
+s32 func_0014b510(s32 arg0)
+{
+    s32 var_17;
+    s32 temp_16;
+    u8 *var_2;
+
+    var_17 = 0;
+    temp_16 = arg0 & 0xFFFF;
+    var_2 = func_001452b0(temp_16);
+    while (var_2 != NULL) {
+        if ((*(u16 *)var_2 & 0x3FF) == var_17) {
+            var_17 += 1;
+            var_2 = func_001452b0(temp_16);
+        } else {
+            var_2 = *(u8 **)(var_2 + 0x138);
+        }
+    }
+    return var_17 & 0xFFFF;
+}
 
 // FUN_0014B840
 void func_0014b840(u8 *arg0)
