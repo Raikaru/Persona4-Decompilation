@@ -10,6 +10,7 @@ s32 func_00439970(void);
 s32 func_00438e60(void);
 
 extern s32 D_008AC780[];
+extern s32 D_0070F920[];
 void func_00421810(s32);
 
 typedef struct {
@@ -91,8 +92,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439008);
 // FUN_00439050
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439050);
 
-// FUN_004390C8
+/* measured: floor. retail keeps the R5900 3-op mult (addiu $v1,$zero,0x184;
+   mult $a0,$a0,$v1) for arg0*0x184; b210 strength-reduces to sll/addu at every
+   level and with opt_strength_reduction off (nd 76 -> 76, obj 96/72). Loop shape
+   otherwise reproduces retail once the mult is taken as given. */
+// FUN_004390C8 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_004390c8(s32 arg0, s32 arg1) {
+    s32 *p = (s32 *)(arg0 * 0x184 + (s32)D_0070F920 + 0xD0);
+    s32 i = 0;
+    while (1) {
+        i += 1;
+        if (*p == arg1) {
+            return 1;
+        }
+        if (i < 0x20) {
+            p += 1;
+        } else {
+            return 0;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004390c8);
+#endif
 
 // FUN_00439110
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439110);
@@ -148,8 +171,35 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439e90);
 // FUN_0043A840
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a840);
 
-// FUN_0043A8A8
+/* measured: obj 72 of a 72-byte window and the record stride/loop bounds are
+   right, but retail lays the two exits out separately -- `jr $ra; move $v0,$v1`
+   inline in the middle of the loop for the found case and `jr $ra; addiu
+   $v0,-1` after the back-edge -- and reaches the advance block through a
+   branch-likely PAIR (`beql` then `bnel`, both carrying the i++ in their delay
+   slots). b210 merges the two returns into one shared epilogue and lowers the
+   second test as `bne` + `b`. Measured identical at nd 41: do/while, while(1)
+   with a trailing `i >= 2` / `i > 1` return, an explicit goto-loop, nested-if
+   instead of &&, `e[0]` instead of `e[0] != 0`, and declaring the pointer
+   before the counter. The top-tested for/while forms are worse (nd 54, obj 76
+   overflows the window). Return-duplication/branch-likely-pair floor. */
+// FUN_0043A8A8 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0043a8a8(s32 arg0) {
+    s32 *e = (s32 *)D_008AC788;
+    s32 i = 0;
+
+    do {
+        if (e[0] != 0 && e[1] == arg0) {
+            return i;
+        }
+        i++;
+        e += 9;
+    } while (i < 2);
+    return -1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a8a8);
+#endif
 
 // FUN_0043A920
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a920);
@@ -171,6 +221,8 @@ s32 func_0043c0a0(void) {
     func_00431408();
     return 0;
 }
+/* measured: closes the bracket noted above func_0043c0a0's opening pragma
+   (removing it takes that function nd 0 -> nd 18). */
 #pragma schedule off
 
 

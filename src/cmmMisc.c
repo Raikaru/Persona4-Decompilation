@@ -297,16 +297,17 @@ s32 func_00246e10(s32 arg0) {
     return off + (u32)temp_16 - 0x40;
 }
 
-/* measured (wave 14 retest — nd 5 best, no match): named-offset locals
-   `off = (u16)arg0 * 14; mid = off + base;` + `m = arg0 & 0xFFFF` statement
-   + `arg0 < 0` first test keep everything but the bltz cluster (5 words:
-   retail `andi $v0,$s1,0xffff; bltz $v0; slti $at,$v0,6` mask-first +
-   $at dest, mwcc `bltz $s1; andi; slti $v0,$v0,6` raw-first + $v0 dest).
-   `(arg0 & 0xFFFF) < 0` folds to false (nd 23); `(s16)m < 0` materializes
-   dsll32/dsra32 (nd 23); `(u32)m > 0x7FFF` halves to nd 22. Dead-comparison
-   elimination floor. */
 // FUN_00246E90
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246e90);
+u8 *func_00246e90(s32 arg0) {
+    u8 *temp_16 = (u8 *)D_008814EC[0];
+    s32 off;
+
+    if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
+        func_0046d730(D_006359D0, 0x16B);
+    }
+    off = (u16)arg0 * 14;
+    return (u8 *)(off + (u32)temp_16 + 8);
+}
 // FUN_00246F10
 s32 func_00246f10(s32 arg0) {
     u16 temp_2;
@@ -1058,33 +1059,72 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
     return 0;
 }
 
-/* measured: recipe A re-test — nd 56 -> 12. Recipe A half-scaler shape
-   (s32 z; u32 c=(u32)z; fz=(f32)(s32)((c>>1)|(c&1)); fz=fz+fz) + retail's
-   layout `if (z >= 0) {direct} else {half-scaler}` (direct path inline,
-   bltz to the out-of-line scaler) + naming the y-address `p = off+temp_16+8`
-   (reproduces addiu $s1,$v0,8 / lh $s0,8($v0) / lh $v0,2($s1)) made
-   everything through the join byte-identical. Residual 12 words: the
-   arg0&0xFFFF bltz dead-comparison (3, same family as FUN_00246E90); the
-   or-fold (mwcc or $v0,$v1,$v0 rd=rt vs retail or $v1,$v1,$v0 rd=rs + mtc1);
-   the half-scaler cvt into $f0 scratch then add.s into $f1 (retail cvt.s.w
-   $f1,$f0 directly); and mwcc hoists the x load+cvt above lui/mtc1/div.s
-   with FP temps x=$f3/t=$f2 (retail div first, x=$f2/t=$f3, cascading into
-   the madd.s operands). adda.s/madd.s are COP1 accumulator (acc+a*b). */
-// FUN_00249960
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249960);
+/* measured: the retail range guard is now byte-exact -- `((s32)(arg0 &
+   0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)` reproduces `andi; bltz; slti $at,6`
+   (nd 34 -> 21), so the "dead-comparison" half of the old note is solved.
+   Recipe A half-scaler (s32 z; u32 c; fz = (f32)(s32)((c>>1)|(c&1));
+   fz = fz + fz) and retail's `if (z >= 0) direct else half-scaler` layout
+   keep everything through the join correct. Residual 9 words, all FPU:
+   (1) the or folds into $v0 (rd = rt) where retail keeps $v1 (rd = rs) and
+   the following cvt lands in $f0 with add.s $f1,$f0,$f0 instead of retail's
+   cvt into $f1 and add.s $f1,$f1,$f1; (2) mwcc sinks the div.s below the
+   lh/cvt of the second operand, so w and t swap FP registers and the
+   madd.s operands transpose. Twelve spellings measured (inline / cmmMiscOr
+   helper / named or-temp x named-t / inline-div / named-w / parenthesised
+   product) all give exactly nd 21. FPU allocation + scheduling floor. */
+// FUN_00249960 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00249960(s32 arg0) {
+    u8 *temp_16 = (u8 *)D_008814EC[0];
+    s32 off;
+    u8 *p;
+    s16 y;
+    s32 z;
+    u32 c;
+    u32 n;
+    f32 fz;
+    f32 t;
+    f32 w;
 
-/* measured (wave 14 retest — nd 5 reproducible, no match): the INLINE mask
-   spelling (no `s32 m` local — that forces a saved register, nd 38) + the
-   cmmMiscAddOff/cmmMiscOr helpers DID fix the documented addu rs/rt and
-   or rs/rt residuals (source operand order alone never did). The remaining 5
-   words are all the bltz dead-comparison cluster: retail emits
-   `andi $v0,$s1,0xffff; bltz $v0; slti $at,$v0,6` (mask FIRST, bltz tests
-   the MASKED value, slti result into $at) while mwcc b210 emits
-   `bltz $s1; andi $v0; slti $v0,$v0,6` (raw arg0, $v0 dest) — same family as
-   FUN_00246E90/FUN_00249960, and the $v0-vs-$at slti is the confirmed b210
-   floor (see frFont func_00272170). `(u32)(arg0&0xFFFF)>0x7FFF` halves it to
-   nd 17; `(s16)m<0` materializes dsll32/dsra32. Pointer-typed address
-   arithmetic keeps lh 0xE($v0). (s16) casts on the func_00113480 args
-   reproduce retail's dsll32/dsra32. */
+    if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
+        func_0046d730(D_006359D0, 0x16B);
+    }
+    off = (u16)arg0 * 14;
+    p = (u8 *)(off + (u32)temp_16 + 8);
+    y = *(s16 *)(off + (u32)temp_16 + 8);
+    z = func_003b7060();
+    if (z >= 0) {
+        fz = (f32)z;
+    } else {
+        c = (u32)z;
+        fz = (f32)(s32)((c >> 1) | (c & 1));
+        fz = fz + fz;
+    }
+    t = fz / 2147483648.0f;
+    return (s32)((f32)y + (f32)*(s16 *)(p + 2) * t);
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249960);
+#endif
+
+/* The retail range guard tests the MASKED index twice and lowers the upper
+   bound through the $at assembler temp: `andi $v0,$s1,0xffff; bltz $v0;
+   slti $at,$v0,6`. Spelling the bound as `> 5` rather than `>= 6` is what
+   puts the slti result in $at (see docs/matching.md); re-masking in both
+   halves of the || is what makes bltz test the masked value. Same shape as
+   FUN_00246E90. */
 // FUN_00249A60
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249a60);
+void func_00249a60(s32 arg0) {
+    u8 *temp_16 = (u8 *)D_008814EC[0];
+    s32 off;
+    s16 v;
+    s32 a;
+
+    if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
+        func_0046d730(D_006359D0, 0x16B);
+    }
+    off = (u16)arg0 * 14;
+    v = *(s16 *)(off + (u32)temp_16 + 0xE);
+    a = (s16)(v >> 8);
+    func_00113480(a, (s16)((((v >> 1) & 0xFF) << 1) | (v & 1)), a, 0);
+}

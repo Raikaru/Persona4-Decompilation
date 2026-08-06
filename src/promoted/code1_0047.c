@@ -16,15 +16,16 @@ extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 
 extern s32 func_00479ca0(u8 *arg0, s32 arg1);
 
+/* measured: func_00470e20's final `index*0xA4 + base` add emitted
+ * addu $v0,$s0,$v0 where retail has addu $v0,$v0,$s0; both plain C operand
+ * orders compile identically (nd 2). Routing the add through this
+ * static inline helper, whose parameter order is the reverse of the
+ * expression order, flips the operands and matches (nd 2 -> 0). The object
+ * size is unchanged, so the helper is inlined rather than called. */
 static inline s32 viewAddReverse(s32 base, s32 offset)
 {
     return offset + base;
 }
-
-/* measured: single residual at off 64 -- addu $v0,$s0,$v0 vs retail
- * addu $v0,$v0,$s0 (commutative operand swap on the final index*0xA4+base
- * add). Both C operand orders compile identically; nd 2 -> 2. Allocator
- * floor (same residual in 0047ADF0/0047AE90). */
 
 extern s32 func_004782b0(u8 *arg0);
 
