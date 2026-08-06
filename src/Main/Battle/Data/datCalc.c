@@ -396,15 +396,50 @@ s32 func_00232aa0(s32 arg0)
 // FUN_00232B40
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
 
-/* measured: retail guard `andi $v0,$s0,0xFFFF; bltz $v0` tests the MASKED value and
-   keeps the dead bltz; mwcc b210 deletes `(arg1&0xFFFF)<0` (proves non-negative) and
-   emits `bltz $s0` on the raw arg1 (tried masked-m, raw-arg1, s16 m, tip mask-order:
-   all nd >= 25). The `& 0x80` branch materializes a boolean `sltu $v1,$zero,$v1`
-   retail keeps (mine folds to beqz, even stored as a flag), and the `return 1` /
-   `0x63` consts load as `daddiu` retail-wide (mine `addiu`). Floor family: dead
-   masked-sign bltz + boolean-materialization + u8-const-daddiu. */
-// FUN_00232C70
+/* measured: the retail range guard IS reproducible -- `((s32)(arg1 & 0xFFFF)
+   < 0) || ((arg1 & 0xFFFF) >= 5)` keeps the dead bltz on the MASKED register
+   and the slti in $v0, and offsets 0-99 plus 112-163 are now byte-exact
+   (the older note claiming the masked sign test always folds is wrong: the
+   explicit (s32) cast with the mask repeated in BOTH halves defeats the
+   range prover). Residual nd 43 over four independent items: (1) retail
+   materializes the & 0x80 test as a boolean `sltu $v1,$zero,$v1` -- an
+   explicit u8/s32 flag local makes it worse (nd 63/48), (2) retail's zero
+   test is `bgtz` on the re-masked value where b210 emits bnez/beqz for
+   every `v == 0` / `(s32)v <= 0` / `v > 0` spelling, (3) the 1 and 0x63
+   constants load as `daddiu` retail-wide and `addiu` here (documented
+   width floor), (4) v colours $v1 instead of $v0 after each call, which
+   follows from (1). Tail shapes measured: `v <= 0` 43, `v == 0` 44,
+   `v > 0` else-form 48. */
+// FUN_00232C70 NONMATCHING
+#ifdef NON_MATCHING
+u32 func_00232c70(u8 *arg0, s32 arg1) {
+    u8 v;
+
+    if (((s32)(arg1 & 0xFFFF) < 0) || ((arg1 & 0xFFFF) >= 5)) {
+        func_0046d730(D_00635938, 0x313);
+    }
+    if ((*(u16 *)arg0 & 4) != 0) {
+        v = (u8)func_00232b40(arg0, arg1);
+    } else {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0x31A);
+        }
+        v = (u8)func_00109bf0(*(u16 *)(arg0 + 2), arg1);
+    }
+    if ((*(s32 *)(arg0 + 0xC) & 0x80) != 0) {
+        v = (u8)((u32)v >> 1);
+    }
+    if ((s32)v <= 0) {
+        return 1;
+    }
+    if (v > 0x63) {
+        return 0x63;
+    }
+    return v;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
+#endif
 
 /* measured: recipe-A-family re-test 2026-08-03. The u16-table shape now
    matches retail byte-for-byte outside the loop preheader (u16 loads, the

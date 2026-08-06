@@ -2,6 +2,19 @@
 #include "type.h"
 
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
+extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_004217e0(u8 *arg0);
+
+extern s32 D_00887180[];
+extern s32 D_00887184[];
+extern s32 D_00887188[];
+extern s32 D_0088718C[];
+extern void *D_00887194[];
+extern u8 D_008871A0[];
+extern s32 D_008871A4[];
+extern s32 D_008871A8[];
+extern s32 D_00724840;
+extern s32 D_00724844;
 
 
 /* measured: schedule on is load-bearing for retail's b/exit delay-slot moves.
@@ -151,13 +164,77 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc510);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc590);
 
 // FUN_003DD530
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd530);
+/* measured: b210 if-converts the ret==0 return into a beql with the move
+   annulled in its slot; retail uses a plain beqz with the return-0 block out
+   of line.  `no_branch_likely on` (with `schedule on` for the prologue's
+   arg-setup interleave and the jal delay-slot move) reproduces retail (nd 60
+   -> 20 with schedule on -> MATCH with both). */
+#pragma no_branch_likely on
+#pragma schedule on
+s32 func_003dd530(u8 *arg0, s32 arg1) {
+    u8 *ret = func_003dda50(arg0, arg1, 1, 0, 0);
+    if (ret != NULL) {
+        ((void (*)(u8 *))(*(void **)(arg0 + 0x2C)))(ret);
+        return 1;
+    }
+    return 0;
+}
+/* measured: closes the schedule/no_branch_likely brackets above. */
+#pragma schedule off
+#pragma no_branch_likely off
 
 // FUN_003DD5C0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd5c0);
+/* measured: b210 emits a branch-likely (beql) for the case-1 test and
+   if-converts the short case-1 body into its delay slot; retail uses a plain
+   beq with a nop and keeps both case bodies out of line.  `no_branch_likely on`
+   + `schedule on` reproduces retail exactly (switch, cases declared ascending
+   1,2; nd 49 -> MATCH). */
+#pragma no_branch_likely on
+#pragma schedule on
+void func_003dd5c0(u8 **arg0, s32 arg1) {
+    switch (arg1) {
+    case 1:
+        if (arg0[8] != NULL) {
+            ((void (*)(u8 *))arg0[8])((u8 *)arg0 + 0x50);
+        }
+        break;
+    case 2:
+        if (arg0[9] != NULL) {
+            ((void (*)(u8 *))arg0[9])((u8 *)arg0 + 0x50);
+        }
+        break;
+    }
+}
+/* measured: closes the schedule/no_branch_likely brackets above. */
+#pragma schedule off
+#pragma no_branch_likely off
 
-// FUN_003DD760
+/* measured: the statement sequence and every store are right (obj 112 in a
+   112-byte window) but b210 pairs the %hi/%lo halves of the first two globals
+   the other way round from retail (retail stores D_00887184 through the
+   SECOND lui and D_00887188 through the first; b210 pairs each store with its
+   own lui), transposes the `addiu $v1,1` and the D_008871A8 lui, and puts the
+   trailing constant 1 in $a0 instead of reusing $v0 after the call result is
+   stored. Measured identical at nd 45-49: a named `one` constant local, a
+   named result local for the func_004217e0 return, and 0 instead of NULL.
+   All three residual clusters are register/schedule choices with the same
+   addresses in both builds. Allocation floor. */
+// FUN_003DD760 NONMATCHING
+#ifdef NON_MATCHING
+void func_003dd760(s32 arg0) {
+    D_00887184[0] = arg0;
+    D_00887188[0] = 0;
+    D_00887180[0] = 0;
+    D_00887194[0] = NULL;
+    D_008871A8[0] = 1;
+    D_00724840 = 0;
+    D_008871A4[0] = 1;
+    D_00724844 = func_004217e0(D_008871A0);
+    D_0088718C[0] = 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
+#endif
 
 // FUN_003DD7D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd7d0);

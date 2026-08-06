@@ -3,6 +3,7 @@
 
 extern void (*jtbl_008873EC[])();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
+extern s32 func_003c5760(u8 *arg0);
 extern s32 D_007647CC;
 extern s32 D_007647C8;
 
@@ -40,9 +41,32 @@ s32 func_003c2130(s32 arg0, u8 *arg1, s16 arg2, s16 arg3, s16 arg4) {
    unfilled (nop) and colors the halfword scratch $v0; retail fills the slot
    with the final store and colors it $v1 (nd 15 -> 0). */
 
-// FUN_003C2290
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2290);
+/* measured: schedule on fills the jr $ra delay slot (nd 6 without it), and
+   no_branch_likely on stops b210 emitting beql where retail has a plain
+   beqz on the null test. */
 
+// FUN_003C2290
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003c2290(u8 *arg0, s32 arg1) {
+    u8 *temp;
+
+    *(u16 *)(arg0 + 0xC) |= (u16)(arg1 & 0xFFFF);
+    if (arg1 & 1) {
+        temp = *(u8 **)(arg0 + 0x54);
+        if (temp != NULL) {
+            func_003c5760(temp);
+            *(s32 *)(arg0 + 0x54) = 0;
+        }
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+
+/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
+   unfilled and drops the store out of it: MISMATCH nd 15, object 24 bytes in
+   a 32-byte window. With it the function matches. */
 // FUN_003C2A60
 #pragma schedule on
 u8 *func_003c2a60(u8 *arg0) {
