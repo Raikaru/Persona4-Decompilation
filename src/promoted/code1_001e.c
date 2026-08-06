@@ -13,6 +13,8 @@ extern s64 func_0023d8e0();
 extern u8 *func_0029d050();
 
 extern void memset(void *destination, s32 value, u32 size);
+extern u8 *iGpffffb3ac;
+extern s32 D_00724504;
 
 
 
@@ -33,7 +35,24 @@ s32 func_001e7dd0(void) {
 
 
 // FUN_001E7E70
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7e70);
+// measured: the status byte/halfword gates the signed-byte payload; the
+// payload is read only when neither gate is active.
+s32 func_001e7e70(void)
+{
+    u8 *base;
+    u8 *payload;
+    s32 value;
+
+    base = *(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30);
+    if (*(u8 *)(base + 0xA2) == 0 && *(u16 *)(base + 0xA4) != 1) {
+        payload = *(u8 **)(base + 0xA64);
+        value = *(s8 *)(payload + 0x10);
+    } else {
+        value = -1;
+    }
+    func_0029cf50(value);
+    return 1;
+}
 
 // FUN_001E7EF0
 s32 func_001e7ef0(void) {
@@ -73,7 +92,11 @@ s32 func_001e8d80(void) {
 
 
 // FUN_001EA420
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea420);
+s32 func_001ea420(void)
+{
+    func_0029cf50(((*(u32 *)(D_00724504 + (*(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8) * 0x18))) & 0x20) != 0);
+    return 1;
+}
 
 // FUN_001EA580
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea580);
