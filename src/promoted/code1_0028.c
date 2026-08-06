@@ -8,6 +8,10 @@ s32 *func_00452560(void);
 
 void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
+extern void func_0026be60(s32 arg0);
+extern f32 iGpffff809c;
+extern f32 iGpffff8218;
+extern f32 D_00882210[];
 
 typedef struct {
     u8 pad[0x76C];
@@ -127,10 +131,62 @@ void func_00287bf0(s32 arg0, u8 *arg1) {
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b650);
 
 // FUN_0028BE70
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028be70);
+void func_0028be70(u8 *arg0, s32 arg1)
+{
+    if (arg1 < 2) {
+        switch (arg1) {
+        case 0:
+            func_0026be60(0x1E58);
+            break;
+        case 1:
+            func_0026be60(0x1E59);
+            break;
+        default:
+            break;
+        }
+        *(s32 *)(arg0 + 0x524) = arg1;
+    }
+}
 
+// measured: required for exact retail loop codegen in func_0028c370.
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_0028C370
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c370);
+void func_0028c370(void)
+{
+    f32 fVar1;
+    f32 fVar2;
+    s32 iVar3;
+    f32 *pfVar4;
+    f32 *pfVar5;
+    u32 uVar6;
+
+    iVar3 = 0;
+    pfVar5 = D_00882210;
+    fVar1 = iGpffff809c;
+    fVar2 = iGpffff8218;
+    uVar6 = 0x40e00000;
+    for (; iVar3 < 3; iVar3 = iVar3 + 1) {
+        pfVar4 = &pfVar5[iVar3 * 0x10];
+        pfVar4[2] = fVar1;
+        pfVar4[3] = fVar1;
+        pfVar4[4] = fVar1;
+        pfVar4[5] = 0.0f;
+        pfVar4[6] = 0.0f;
+        pfVar4[7] = 0.0f;
+        pfVar4[8] = 0.0f;
+        pfVar4[9] = 0.0f;
+        pfVar4[10] = fVar2;
+        pfVar4[11] = fVar2;
+        pfVar4[12] = fVar2;
+        pfVar4[13] = 0.0f;
+        ((u32 *)pfVar4)[14] = uVar6;
+        pfVar4[15] = 0.0f;
+        pfVar4[0] = 0.0f;
+        pfVar4[1] = 0.0f;
+    }
+}
+#pragma pop
 
 // FUN_0028D020
 void func_0028d020(s32 arg0, s32 arg1) {

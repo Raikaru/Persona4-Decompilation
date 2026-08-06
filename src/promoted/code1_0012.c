@@ -10,6 +10,10 @@ extern s32 D_00796670[];
 extern void func_00267570();
 
 extern u8 *D_007242CC;
+extern s32 iGpffffb1e0;
+
+extern s32 func_004522d0(s32 arg0);
+
 
 typedef struct {
     u8 pad0[0x18];
@@ -141,7 +145,14 @@ void func_00123d50(u8 *arg0)
 }
 
 // FUN_00123E30
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00123e30);
+s32 func_00123e30(void)
+{
+    if (func_004522d0(iGpffffb1e0) == 3) {
+        iGpffffb1e0 = 0;
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_0012B810
 s32 func_0012b810(s32 arg0)

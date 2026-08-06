@@ -118,6 +118,12 @@ D_00764030 = 0x00764030; // type:data evidence: GP(0x007690F0) - 0x50C0 = 0x0076
 // relocation scanner cannot derive these). GP is 0x007690F0.
 D_0076129C = 0x0076129C; // type:data evidence: GP(0x007690F0) - 0x7E54; retail lwc1 -0x7E54($28) in func_001fc630/001ff490 etc.; image word 0x3B808081 = 1/255 (byte-to-float scale)
 D_00764C54 = 0x00764C54; // type:data evidence: GP(0x007690F0) - 0x449C; retail lbu -0x449C..-0x4499($28) (4 zero bytes) in func_001fc630 case 2
+D_00922D90 = 0x00922D90; // type:data evidence: retail func_004abb60 stores the mdlEffect display pointer at absolute 0x00922D90
+D_00922D94 = 0x00922D94; // type:data evidence: retail func_004abb60 stores the converted display width at absolute 0x00922D94
+D_00922D98 = 0x00922D98; // type:data evidence: retail func_004abb60 stores the converted display height at absolute 0x00922D98
+
+D_00922DA0 = 0x00922DA0; // type:data evidence: retail func_004b1600 loads/stores the current mdlEffect counter threshold at absolute 0x00922DA0
+
 D_00922CA0 = 0x00922CA0; // type:data evidence: retail func_001ff490 lui $3,0x92 + swc1 %lo(0x2CA0) absolute stores; 8 f32 palette slots; tnEffect.c already references it
 D_00922C60 = 0x00922C60; // type:data evidence: retail func_001ff490 lui $5,0x92 + addiu 0x2C60 (lq/sq 0x40-byte copy target)
 D_00922CC0 = 0x00922CC0; // type:data evidence: retail func_001ff490 lui $3,0x92 + sw %lo(0x2CC0) store of 1 (palette-dirty flag)
@@ -269,6 +275,9 @@ iGpffffba7c = 0x00764b6c; // type:data evidence: retail func_004571c0 lw $2,-0x4
 iGpffffba80 = 0x00764b70; // type:data evidence: retail func_00457120 lw $2,-0x4580($28) (0x00764B70); gp base 0x007690F0
 iGpffffbaf8 = 0x00764be8; // type:data evidence: retail func_0046a2c0 lw $2,-0x4508($28) (0x00764BE8); gp base 0x007690F0
 iGpffffbb9c = 0x00764c8c; // type:data evidence: retail func_004b3250 sw $4,-0x4464($28) (0x00764C8C); gp base 0x007690F0
+iGpffffbb98 = 0x00764c88; // type:data evidence: retail func_004b1600 lw/sw gp-0x4468($28) as the mdlEffect active flag; gp base 0x007690F0
+iGpffffbb94 = 0x00764c84; // type:data evidence: retail func_004b1600 lw/sw gp-0x446C($28) as the mdlEffect counter; gp base 0x007690F0
+
 iGpffffb3ac = 0x0076449c; // type:data evidence: retail func_001b7020 lw $2,-0x4C54($28) (0x0076449C); gp base 0x007690F0
 iGpffffbb2c = 0x00764c1c; // type:data evidence: retail func_0047d0b0 lw $2,-0x44D4($28) (0x00764C1C); gp base 0x007690F0
 iGpffffbb30 = 0x00764c20; // type:data evidence: retail func_0047d0e0 lw $2,-0x44D0($28) (0x00764C20); gp base 0x007690F0

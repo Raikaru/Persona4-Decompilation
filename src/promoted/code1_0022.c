@@ -17,6 +17,11 @@ extern u8 D_00629700[];
 void func_001c8d50(void);
 
 extern u8 *DAT_0076449c;
+extern void func_001c97b0(void *arg0);
+extern s32 func_001bc560(u8 *arg0, u8 *arg1);
+extern void func_0019de70(u8 *arg0, u16 arg1);
+
+extern u8 *func_00193bf0(u64 uid, u64 mask);
 
 void func_002258b0(float arg0, float arg1);
 
@@ -138,7 +143,19 @@ void func_00224970(void)
 
 
 // FUN_00225860
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00225860);
+void func_00225860(u8 *arg0)
+{
+    u16 temp_5;
+    u8 *temp_3;
+
+    temp_3 = *(u8 **)(arg0 + 0xE0);
+    if ((temp_3 != NULL) && ((*(u16 *)(temp_3 + 0x1A) & 1) != 0)) {
+        temp_5 = *(u16 *)(DAT_0076449c + 0xC00);
+        if (temp_5 == 1) {
+            func_001c97b0(arg0);
+        }
+    }
+}
 
 // FUN_00225BD0
 void func_00225bd0(void)
@@ -149,10 +166,36 @@ void func_00225bd0(void)
 
 
 // FUN_00225E50
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00225e50);
+void func_00225e50(u8 *arg0)
+{
+    s32 iVar1;
+
+    iVar1 = *(s32 *)(arg0 + 0xE0);
+    if ((((iVar1 != 0) && ((*(u16 *)(iVar1 + 0x1A) & 1) != 0)) &&
+         (*(u8 *)(*(s32 *)(iVar1 + 0x30) + 0xA2) != 0)) &&
+        (((iVar1 != 0) && ((*(u16 *)(iVar1 + 0x1A) & 1) != 0)) &&
+         (*(u16 *)(DAT_0076449c + 0xC00) == 1))) {
+        func_001c97b0(arg0);
+    }
+}
 
 // FUN_00227770
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00227770);
+void func_00227770(u8 *arg0)
+{
+    u8 *temp_3;
+    u8 *temp_5;
+
+    temp_5 = *(u8 **)(arg0 + 0x12C);
+    if (temp_5 != NULL) {
+        temp_3 = *(u8 **)(arg0 + 0xE0);
+        if ((temp_3 != NULL) &&
+            ((*(u16 *)(temp_3 + 0x1A) & 1) != 0) &&
+            (func_001bc560(arg0, temp_5) != 0)) {
+            func_0019de70(*(u8 **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+        }
+    }
+}
+
 
 // FUN_00228480
 void func_00228480(u8 *arg0) {
@@ -178,7 +221,18 @@ void func_00228d00(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022a6b0);
 
 // FUN_0022B040
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022b040);
+s32 func_0022b040(s64 *arg0)
+{
+    u8 *temp_4;
+
+    if (func_00193bf0(*arg0,
+                      ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
+        temp_4 = DAT_0076449c;
+        *(s32 *)(temp_4 + 0xC) &= 0xFFF7FFFF;
+        return 0;
+    }
+    return 1;
+}
 
 // FUN_0022BA40
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022ba40);
