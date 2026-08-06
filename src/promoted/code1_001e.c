@@ -4,6 +4,13 @@
 extern u8 *func_001b0cc0();
 extern s32 func_00231f80();
 extern s64 func_0029cc00();
+/* The surrounding wrappers use the raw s64 ABI; this typed view preserves
+   the 32-bit call result at this store site. */
+extern s32 func_0029cc00_s32(s32 index);
+static inline u32 p4_slot_001eb320(u32 offset, u32 base)
+{
+    return offset + base;
+}
 extern void func_0029cf50();
 extern s32 datCalcGetHp();
 extern s32 func_00232290();
@@ -119,8 +126,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eab60);
 // FUN_001EB0B0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb0b0);
 
+/* measured: the typed call view removes the dead s64 narrowing pair; the
+   volatile gp load and offset helper reproduce retail's load/shift/addu order. */
 // FUN_001EB320
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb320);
+s32 func_001eb320(void)
+{
+    s32 idx;
+    s32 value;
+    u32 offset;
+    u32 base;
+
+    idx = func_0029cc00_s32(0);
+    value = func_0029cc00_s32(1);
+    base = *(volatile u32 *)&iGpffffb3ac;
+    offset = (u32)idx * 4;
+    *(s32 *)((u8 *)p4_slot_001eb320(offset, base) + 0xDD8) = value;
+    return 1;
+}
 
 // FUN_001EB370
 s32 func_001eb370(void)
