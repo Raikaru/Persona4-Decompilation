@@ -71,7 +71,21 @@ void func_00267510(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_002677a0);
 
 // FUN_00268A70
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00268a70);
+s32 func_00268a70(u8 *arg0)
+{
+    s32 temp_2;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_2 = *(s32 *)temp_16 - 1;
+    *(s32 *)temp_16 = temp_2;
+    if (temp_2 < 0) {
+        func_004b1150((u8 *)*(s32 *)(temp_16 + 4));
+        *(s32 *)(temp_16 + 4) = 0;
+        return -1;
+    }
+    return 0;
+}
 
 // FUN_00268AD0
 void func_00268ad0(u8 *arg0)

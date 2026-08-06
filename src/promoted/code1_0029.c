@@ -19,6 +19,8 @@ void func_0029cf50(s32 arg0);
 s32 func_00104dc0(s16 arg0);
 
 s32 func_00104d50(s16 arg0);
+extern void func_001056e0(s16 arg0, s16 arg1);
+extern s64 func_0029cc00_s64(s32 arg0);
 
 
 
@@ -116,7 +118,16 @@ s32 func_00299cb0(void) {
 
 
 // FUN_00299D00
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00299d00);
+s32 func_00299d00(void)
+{
+    s64 temp_16;
+    s64 temp_17;
+
+    temp_16 = func_0029cc00_s64(0);
+    temp_17 = func_0029cc00_s64(1);
+    func_001056e0((s16)temp_16, (s16)temp_17);
+    return 1;
+}
 
 // FUN_00299D60
 s32 func_00299d60(void) {

@@ -4,6 +4,7 @@ extern s32 iGpffff9ef8;
 
 extern u8 *func_00155280(void);
 extern void (*DAT_008873EC[])(void *);
+extern u8 *func_00145270(u16 arg0);
 
 typedef struct E9F0Vec3
 {
@@ -99,7 +100,16 @@ void func_0016e9f0(u8 *arg0, u8 *arg1)
 
 
 // FUN_0016EA40
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016ea40);
+void func_0016ea40(u8 *arg0, u16 arg1)
+{
+    u8 *temp_16;
+    s32 type;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    type = (arg1 & 0xFFC00) >> 10;
+    if (type == 1)
+        *(u8 **)(temp_16 + 0x288) = func_00145270(arg1);
+}
 
 // FUN_0016EAA0
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016eaa0);

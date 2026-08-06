@@ -13,6 +13,8 @@ extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_0027bf10(s32 arg0);
 
 extern u16 D_008817E8[];
+extern u8 *func_00276290();
+extern u8 *func_002762f0();
 
 
 
@@ -94,7 +96,18 @@ void func_002746c0(s32 arg0, s32 arg1)
 
 
 // FUN_002761F0
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_002761f0);
+u8 *func_002761f0(s32 arg0, u8 *arg1, s32 arg2)
+{
+    u8 *var_2;
+
+    var_2 = func_00276290(arg0, arg2);
+    if (var_2 == NULL) {
+        var_2 = func_002762f0(arg0, arg1, arg2);
+        if (var_2 == NULL)
+            var_2 = NULL;
+    }
+    return var_2;
+}
 
 // FUN_0027A490
 void func_0027a490(void)

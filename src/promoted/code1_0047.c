@@ -16,6 +16,11 @@ extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 
 extern s32 func_00479ca0(u8 *arg0, s32 arg1);
 
+static inline s32 viewAddReverse(s32 base, s32 offset)
+{
+    return offset + base;
+}
+
 /* measured: single residual at off 64 -- addu $v0,$s0,$v0 vs retail
  * addu $v0,$v0,$s0 (commutative operand swap on the final index*0xA4+base
  * add). Both C operand orders compile identically; nd 2 -> 2. Allocator
@@ -87,7 +92,27 @@ compare:
 }
 
 // FUN_00470E20
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_00470e20);
+s32 func_00470e20(u8 *arg0)
+{
+    s32 temp_3;
+    s32 var_4;
+    u8 *temp_4;
+    u8 *var_5;
+
+    temp_4 = *(u8 **)(arg0 + 0x38);
+    var_5 = *(u8 **)(temp_4 + 0x144);
+    temp_3 = *(s32 *)(temp_4 + 0x138);
+    temp_3 = viewAddReverse(temp_3, *(s32 *)(temp_4 + 0x134));
+    if (temp_3 >= *(s32 *)(temp_4 + 0x140)) {
+        return -1;
+    }
+    var_4 = 0;
+    while (var_4 < temp_3) {
+        var_5 = *(u8 **)(var_5 + 0x228);
+        var_4 += 1;
+    }
+    return *(s32 *)var_5;
+}
 
 // FUN_00478E70
 void func_00478e70(u8 *arg0)

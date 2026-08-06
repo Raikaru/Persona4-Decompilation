@@ -10,6 +10,9 @@ extern void func_00145080();
 extern void func_00160440(void);
 
 extern u8 *D_00764334;
+extern s32 D_00764384;
+extern u32 D_0076438C;
+
 
 extern u8 *func_001452b0(s32 arg0);
 
@@ -161,7 +164,32 @@ void func_0015d270(u8 *arg0)
 }
 
 // FUN_0015D2C0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015d2c0);
+u16 *func_0015d2c0(u32 arg0)
+{
+    u16 *record;
+    u32 i;
+    s32 emptyCount;
+    u32 recordCount;
+    u16 emptyId;
+
+    record = (u16 *)D_00764384;
+    emptyCount = 0;
+    i = 0;
+    recordCount = D_0076438C;
+    emptyId = 0xFFFF;
+    while (i < recordCount) {
+        if (emptyCount != arg0) {
+            if (*record == emptyId) {
+                emptyCount++;
+            }
+            i++;
+            record = (u16 *)((u8 *)record + 0x84);
+        } else {
+            break;
+        }
+    }
+    return record;
+}
 
 // FUN_0015F600
 s32 func_0015f600(void)
