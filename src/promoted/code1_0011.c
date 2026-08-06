@@ -28,8 +28,34 @@ s32 func_001104a0(s32 arg0)
 // FUN_001105B0
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001105b0);
 
+/* The month index is walked in the PARAMETER, not a fresh local: retail keeps
+   it in $a0 for the whole loop, and any separate `cur` local rotates the three
+   live values through $a3/$a2/$a0 instead (identical instruction sequence,
+   11 differing words). */
 // FUN_00110600
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110600);
+s32 func_00110600(s32 arg0, s32 arg1) {
+    s32 sum = 0;
+    s32 next;
+
+    if (arg0 != 4) {
+        arg0 = arg0 - 1;
+        if (arg0 == 0) {
+            arg0 = 12;
+        }
+        do {
+            next = arg0 - 1;
+            sum = sum + D_005E45E0[next % 12];
+            if (arg0 == 4) {
+                break;
+            }
+            arg0 = next;
+            if (next == 0) {
+                arg0 = 12;
+            }
+        } while (1);
+    }
+    return sum + (arg1 - 1);
+}
 
 // FUN_00110680
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110680);

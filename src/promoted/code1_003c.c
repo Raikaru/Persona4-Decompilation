@@ -4,6 +4,8 @@
 extern void (*jtbl_008873EC[])();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003c5760(u8 *arg0);
+extern s32 func_003c9c20(u8 *arg0);
+extern void func_003c5a90(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 D_007647CC;
 extern s32 D_007647C8;
 
@@ -228,8 +230,32 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca9d0);
 // FUN_003CB720
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 
-// FUN_003CB820
+/* measured: retail takes THREE parameters and ignores the second -- arg0
+   arrives in $a0 and the object pointer in $a2 -- so the two-parameter m2c
+   draft put the pointer in $a1 and nothing lined up. With the third parameter
+   restored and #pragma schedule on (without it b210 leaves the jal delay slot
+   empty, nd 45, and the object overflows the window at 84 bytes) everything
+   matches except the order of the last two argument materialisations: retail
+   emits `move $a1,$v0` then puts `addiu $a3,$v0,0x10` in the jal delay slot,
+   b210 emits the addiu first and the move in the slot (2 words, nd 8).
+   Measured identical at nd 8: naming temp_2 + 0x10 in a local, pointer-typed
+   temp with pointer arithmetic, a named local for the 0x78 load, `0x10 +
+   temp_2`, an extra (s32) cast on the second argument, and both an
+   all-s32 and an old-style empty callee prototype. Call-argument setup
+   order floor (docs/matching.md). */
+// FUN_003CB820 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
+    s32 temp_2;
+
+    temp_2 = (s32)func_003c9c20(arg2);
+    func_003c5a90(*(s32 *)(arg2 + 0x78), temp_2, arg0, temp_2 + 0x10);
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
+#endif
 
 // FUN_003CB870
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
@@ -249,6 +275,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc070);
 // FUN_003CC0D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc0d0);
 
+/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
+   unfilled: MISMATCH nd 6, object 56 bytes in a 64-byte window. */
 // FUN_003CC130
 #pragma schedule on
 void func_003cc130(void) {
