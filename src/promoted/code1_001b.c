@@ -10,6 +10,9 @@ extern s32 func_0022bd20(void);
 extern void func_0022bd60(void);
 extern void func_001ba0e0(void);
 extern void *func_00194470(u32 size, u32 align);
+extern void func_001ec5e0(u8 *arg0, f32 fp);
+extern void func_001b69c0(void);
+extern void func_001ba590(void);
 extern u8 D_005F7180[];
 
 extern u8 D_005F7000[];
@@ -217,11 +220,40 @@ void func_001ba530(s32 arg0, s32 arg1) {
     *(s32 *)(p + 8) = arg1;
 }
 
-// FUN_001BA710
+/* measured: nd 8. Retail loads the four floats into $f3..$f0 and stores them
+   back in the same order; b210 rotates the four temporaries by one whichever
+   way they are declared. Probed four named locals in forward and reverse
+   declaration order and a direct element-by-element copy (nd 17).
+   Committed at nd 8. */
+// FUN_001BA710 NONMATCHING
+#ifdef NON_MATCHING
+void func_001ba710(f32 *arg0, s32 arg1) {
+    u8 *o = func_00194470(0x60A, 0x28);
+    f32 *p;
+    f32 a, b, c, d;
+
+    *(void (**)(void))(o + 0x6C) = func_001ba590;
+    p = *(f32 **)(o + 0x78);
+    a = arg0[0];
+    b = arg0[1];
+    c = arg0[2];
+    d = arg0[3];
+    p[0] = a;
+    p[1] = b;
+    p[2] = c;
+    p[3] = d;
+    *(s32 *)(p + 8) = arg1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001ba710);
+#endif
 
 // FUN_001BBE80
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bbe80);
+void func_001bbe80(u8 *arg0, f32 fp) {
+    func_001ec5e0(arg0 + 0x84, 60.0f * fp / 2.0f);
+    *(u16 *)arg0 &= 0xFFF3;
+    *(u16 *)arg0 |= 2;
+}
 
 // FUN_001BBF40
 void func_001bbf40(u8 *arg0, f32 fparg0) {

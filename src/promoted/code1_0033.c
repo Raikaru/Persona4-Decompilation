@@ -5,6 +5,9 @@ extern void (*jtbl_008873EC[])(u8 *arg0);
 // P4 retail reaches the battle-data object pointer at gp-0x4A68,
 // i.e. absolute 0x007690f0 - 0x4a68 = 0x00764688, GP-relative.
 extern int iGpffffb598;
+extern u16 D_008C024E[];
+extern s32 func_0029cc00(s32 arg0);
+extern void func_00106390(s32 arg0, s32 arg1);
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
@@ -77,7 +80,17 @@ s32 func_00331660(void)
 
 
 // FUN_003319C0
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_003319c0);
+s32 func_003319c0(void) {
+    s32 r;
+
+    if ((D_008C024E[0] & 0x800) != 0) {
+        func_00106390(func_0029cc00(0), 1);
+        r = 1;
+    } else {
+        r = 0;
+    }
+    return r;
+}
 
 // FUN_00331F90
 void func_00331f90(u8 *arg0)
@@ -95,7 +108,15 @@ s32 func_0033d310(u8 *arg0)
 }
 
 // FUN_0033D320
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d320);
+void func_0033d320(u8 *arg0, s32 arg1, s8 arg2) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    if (arg2 == 0) {
+        *(s16 *)(p + 4) |= (s16)((1 << arg1) & 0xFFFF);
+    } else if (arg2 == 1) {
+        *(s16 *)(p + 4) &= (s16)((1 << arg1) ^ 0xFFFF);
+    }
+}
 
 // FUN_0033D3D0
 void func_0033d3d0(u8 *arg0, s32 arg1)
