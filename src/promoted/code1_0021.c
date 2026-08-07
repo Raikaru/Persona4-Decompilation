@@ -1,6 +1,10 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern s32 iGpffffa598;
+extern void func_00442088(u8 *dst, const char *fmt, s32 arg);
+extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
+
 extern void memset(void *destination, s32 value, u32 size);
 
 extern u8 *func_00452560(void);
@@ -173,7 +177,12 @@ void func_00216d70(u8 *arg0, s32 arg1) {
 
 
 // FUN_00216DA0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00216da0);
+void func_00216da0(u8 *arg0, s32 arg1) {
+    u8 sp20[0x80];
+
+    func_00442088(sp20, (const char *)&iGpffffa598, arg1);
+    func_00278450(arg0, 1, sp20);
+}
 
 // FUN_00216DF0
 void func_00216df0(u8 *arg0, s32 arg1) {
