@@ -14,6 +14,11 @@ extern void func_00454bd0(u8 *arg0);
 
 
 extern void func_001d9b60(u8 *arg0);
+extern u8 *func_00457120(void);
+extern void func_003e8110(u8 *arg0);
+extern void func_003e8120(u8 *arg0);
+extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
+extern u8 D_008813B0[];
 
 typedef int (*code)(...);
 
@@ -44,7 +49,11 @@ void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
 
 
 // FUN_001D5AC0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d5ac0);
+void func_001d5ac0(void) {
+    func_003e8110(func_00457120());
+    func_003e9cb0(*(s32 *)(func_00457120() + 4), D_008813B0, 0);
+    func_003e8120(func_00457120());
+}
 
 // FUN_001D6300
 void func_001d6300(u8 *arg0) {
