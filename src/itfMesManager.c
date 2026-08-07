@@ -1255,7 +1255,8 @@ check:
    reconstruction from the retail listing does not reach it - a concrete case of why a
    floor note without its body cannot be resumed. #pragma schedule on and
    optimization_level 3 each take it 58 -> 44; neither matches, so neither is committed.
-   The residual is still the $t3-vs-$s0 live-across-call choice described above. */
+   The residual is still the $t3-vs-$s0 live-across-call choice described above.
+   Committed at nd 58. */
 // FUN_00278D50 NONMATCHING
 #ifdef NON_MATCHING
 void func_00278d50(u8 *arg0) {

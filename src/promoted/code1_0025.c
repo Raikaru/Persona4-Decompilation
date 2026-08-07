@@ -186,7 +186,8 @@ s32 func_0025ce40(void) {
    b210 materialises $a2 first (4 words, the whole residual, nd 16). Measured
    identical at nd 16: declaring the locals in assignment order, naming the
    third value in an `s8` local, and naming both masked values in locals;
-   u16-typed locals are worse (nd 24). Call-argument setup order floor. */
+   u16-typed locals are worse (nd 24). Call-argument setup order floor.
+   Committed at nd 16. */
 // FUN_0025CE90 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0025ce90(void) {
@@ -340,7 +341,8 @@ s32 func_0025d530(void)
    one after it, one instruction short of the window. Measured: the inverted
    guard as written is nd 29, the natural early-`return 1` form is nd 46, a
    goto to a shared ret0 label is nd 46, and an inner early `return 0` is
-   nd 50 (obj 124). Boolean-result tail layout floor. */
+   nd 50 (obj 124). Boolean-result tail layout floor.
+   Committed at nd 29. */
 // FUN_0025D760 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0025d760(void) {

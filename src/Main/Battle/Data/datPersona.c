@@ -290,7 +290,8 @@ s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2)
    operands (b210 canonicalizes it back); a `0xFFFFU` mask variant; declaring
    `p` before `base`; and opt_common_subs off (27, worse). Ten spellings, none
    below 26. The residual also contains the confirmed $v0-vs-$at slti
-   destination floor. Redundant-narrowing elimination floor. */
+   destination floor. Redundant-narrowing elimination floor.
+   Committed at nd 68. */
 // FUN_0010A840 NONMATCHING
 #ifdef NON_MATCHING
 u8 func_0010a840(s32 arg0, s32 arg1, s32 arg2)

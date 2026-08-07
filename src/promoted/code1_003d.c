@@ -254,7 +254,8 @@ void func_003dd5c0(u8 **arg0, s32 arg1) {
    stored. Measured identical at nd 45-49: a named `one` constant local, a
    named result local for the func_004217e0 return, and 0 instead of NULL.
    All three residual clusters are register/schedule choices with the same
-   addresses in both builds. Allocation floor. */
+   addresses in both builds. Allocation floor.
+   Committed at nd 49. */
 // FUN_003DD760 NONMATCHING
 #ifdef NON_MATCHING
 void func_003dd760(s32 arg0) {
@@ -368,7 +369,8 @@ s32 func_003df4b0(s32 arg0) {
    P3FES donor FUN_004c21b0 (rwplcore.c:2337) is itself an inline-asm body
    emitting the retail 3-operand mult $3,$2,$5 (0x00451818) -- a MIPS32r2
    rd-form multiply MWCC cannot emit from C.  Blocked per wave rule; not a
-   matching gap.  Residual nd 8 (the mult word). */
+   matching gap.  Residual nd 8 (the mult word).
+   Committed at nd 8. */
 
 // FUN_003DF870 NONMATCHING
 #ifdef NON_MATCHING

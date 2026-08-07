@@ -539,7 +539,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
    cleanest of the six (epilogue jr/nop already matches); residual is purely
    the pre-test + constant hoist + register allocation. Probed: do/while,
    schedule on, opt_loop_invariants, O1/O3, no_branch_likely. Committed at
-   nd 36. */
+   nd 36.
+   Committed at nd 36. */
 // FUN_0039A460 NONMATCHING
 #ifdef NON_MATCHING
 f32 func_0039a460(s32 arg0)
@@ -597,7 +598,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a630);
    pre-test) and hoists the compare constant (addiu $v1,$zero,4); b210 emits a
    pre-test `b`, materialises the constant in the body, and schedules the
    prologue/epilogue differently. Probed base for+goto form only. Committed at
-   nd 56. */
+   nd 56.
+   Committed at nd 56. */
 // FUN_0039A690 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0039a690(s32 arg0, s32 *arg1, s32 *arg2)
@@ -894,6 +896,9 @@ s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 // FUN_0039B680
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b680);
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 42. */
 // FUN_0039B6E0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0039b6e0(s32 arg0)

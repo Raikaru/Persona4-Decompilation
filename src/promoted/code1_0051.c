@@ -62,6 +62,9 @@ s32 func_00513a40(u8 *arg0) {
 
 
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 8. */
 // FUN_005179E8 NONMATCHING
 #ifdef NON_MATCHING
 void func_005179e8(u8 *arg0) {
@@ -95,7 +98,8 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
    lw $v0,0x20($v0)); retail 2.4.1.01 keeps it in $v1 (lw $v1,0x1f7c($a0) /
    lw $v0,0x20($v1)). nd 2 (the two rt-register bytes). Tried s32/u32 locals,
    result locals, single-expression chains, pointer-arithmetic variants, no-pragma
-   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief). */
+   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief).
+   Committed at nd 2. */
 
 #pragma schedule on
 // FUN_00519EE0 NONMATCHING
@@ -107,6 +111,7 @@ s32 func_00519ee0(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ee0);
 #endif
+/* measured: closes the schedule bracket above and restores the -O2 baseline. */
 #pragma schedule off
 
 

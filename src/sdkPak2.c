@@ -97,7 +97,8 @@ case6:
    spelling of the ent expression, `arg1 * 4 + arg0` for the slot, and
    opt_propagation off -- all six spellings score 8; b210 canonicalizes the
    commutative operands and sinks the load regardless. Address-materialization
-   order floor. */
+   order floor.
+   Committed at nd 16. */
 // FUN_00468BF0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00468bf0(u8 *arg0, s32 arg1)

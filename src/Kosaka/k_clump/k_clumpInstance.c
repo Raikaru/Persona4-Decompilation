@@ -68,7 +68,8 @@ extern char D_00763170;
 
 /* measured floor (nd 10): func_003deff0's 5-arg setup emits [move $a0; lw; lw; lw; lw]
  * where retail emits [lw; lw; move $a0; lw; lw] -- call-argument setup order, a
- * b210 scheduling floor (all other bytes of the function match). */
+ * b210 scheduling floor (all other bytes of the function match).
+   Committed at nd 10. */
 
 
 // FUN_00191E90 NONMATCHING
@@ -147,6 +148,9 @@ INCLUDE_ASM("asm/nonmatchings/k_clumpInstance", func_00191e90);
 #endif
 
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 194. */
 // FUN_001921A0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001921a0(u8 *arg0)

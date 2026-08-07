@@ -25,6 +25,8 @@ import sys
 MARKER_RE = re.compile(r"^\s*//\s*FUN_([0-9A-Fa-f]{8})\s+NONMATCHING\s*$")
 
 WRAPPERS = {
+    # The body exactly as committed, so a note can record what it really measures.
+    "plain": ("", ""),
     "cse_off": (
         "/* measured: retail re-issues a value b210 would hoist into a saved\n"
         "   register; disabling common-subexpression sharing restores that. */\n"
@@ -47,6 +49,12 @@ WRAPPERS = {
         "/* measured: retail fills delay slots this function leaves empty at -O2. */\n"
         "#pragma schedule on\n",
         "\n#pragma schedule off",
+    ),
+    "sched_off": (
+        "/* measured: retail interleaves a stack-address materialisation with the\n"
+        "   surrounding stores; b210's scheduler sinks it to just before the call. */\n"
+        "#pragma schedule off\n",
+        "\n#pragma schedule on",
     ),
     "nobl": (
         "/* measured: b210 emits a branch-likely where retail uses a plain branch. */\n"

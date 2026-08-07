@@ -219,7 +219,8 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
    tools/knob_sweep.py - zero matches and zero improvements. Confirmed genuinely
    Metrowerks and not a mixed-toolchain case: on decomp.me this function scores 120
    under mwcps2-3.0.1b210 against 830-1030 under every ee-gcc. Real coalescing floor.
-   The body below is now PRESERVED so the next attempt starts from nd 1. */
+   The body below is now PRESERVED so the next attempt starts from nd 1.
+   Committed at nd 1. */
 // FUN_0028F4F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0028f4f0(void) {

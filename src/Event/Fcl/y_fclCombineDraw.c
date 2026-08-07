@@ -314,7 +314,8 @@ void func_003146c0(u8 *arg0) {
 /* A body is preserved below at nd 45 so this is resumable. The note above records
    nd 17 from an earlier attempt whose source was never kept; this reconstruction from
    the retail listing does not reach it. #pragma optimization_level 3 takes it 45 -> 26
-   and schedule on 45 -> 38, neither a match, so neither is committed. */
+   and schedule on 45 -> 38, neither a match, so neither is committed.
+   Committed at nd 45. */
 // FUN_003146F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003146f0(u8 *arg0, s32 arg1, s8 arg2) {

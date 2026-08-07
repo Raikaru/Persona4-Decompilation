@@ -680,6 +680,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 // FUN_003CC680
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 15. */
 // FUN_003CC6E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003cc6e0(u8 *arg0) {

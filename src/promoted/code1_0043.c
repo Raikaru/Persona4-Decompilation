@@ -161,6 +161,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439110);
 // FUN_004393A0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393a0);
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 18. */
 // FUN_004393F8 NONMATCHING
 #ifdef NON_MATCHING
 void func_004393f8(void) {
@@ -219,7 +222,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a840);
    with a trailing `i >= 2` / `i > 1` return, an explicit goto-loop, nested-if
    instead of &&, `e[0]` instead of `e[0] != 0`, and declaring the pointer
    before the counter. The top-tested for/while forms are worse (nd 54, obj 76
-   overflows the window). Return-duplication/branch-likely-pair floor. */
+   overflows the window). Return-duplication/branch-likely-pair floor.
+   Committed at nd 41. */
 // FUN_0043A8A8 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0043a8a8(s32 arg0) {

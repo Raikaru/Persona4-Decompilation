@@ -74,7 +74,8 @@ void func_0036e000(u8 *arg0);
    0,1,2,3 reproduces that). Measured and rejected for the extra move: a u16 temp
    for the +6 argument at function scope, the same temp in a braced case block,
    temps for both arguments, and a local ShuffleCard struct typedef with named
-   fields -- all five score 24. Argument-clobber ordering floor. */
+   fields -- all five score 24. Argument-clobber ordering floor.
+   Committed at nd 57. */
 // FUN_0036D990 NONMATCHING
 #ifdef NON_MATCHING
 void func_0036d990(u8 *arg0, u8 *arg1)
