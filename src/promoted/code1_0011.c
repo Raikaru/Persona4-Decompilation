@@ -14,6 +14,7 @@ void func_0029e980(s32);
 void func_00106390(s32, s32);
 
 extern s32 uGpffffb1bc;
+extern void func_001104d0(s32 seed, s32 *month, s32 *day);
 
 
 
@@ -26,7 +27,14 @@ s32 func_001104a0(s32 arg0)
 
 
 // FUN_001105B0
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001105b0);
+s32 func_001105b0(s32 arg0) {
+    s32 sp1C;
+    s32 sp18;
+
+    func_001104d0(arg0, &sp1C, &sp18);
+    sp18 = (sp18 - 1) / 7;
+    return sp18 + 1;
+}
 
 /* The month index is walked in the PARAMETER, not a fresh local: retail keeps
    it in $a0 for the whole loop, and any separate `cur` local rotates the three
