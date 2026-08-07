@@ -17,7 +17,7 @@ extern u16 func_00107ac0(s32 arg0);
 extern s32 func_00107c80();
 extern s32 func_00107ea0();
 extern s32 func_001070e0();
-extern void func_00108b60(s32 arg0, s16 arg1);
+extern void func_00108b60(s32 arg0, s32 arg1);
 extern s32 func_00108e10(void);
 extern f32 D_005E42D8[];
 extern f32 D_005E42DC[];
@@ -110,8 +110,54 @@ end:
    the right registers with andi emitted before the jal. Tried all declaration
    orders, inline-CSE mask, u16* result type (all nd 10), and mask-first source
    order (best nd 6). Saved-register rotation floor. */
-// FUN_00106F40
+/* measured: nd 7. Reconstructed this wave; the body is right and the residual
+   is entirely which of two values gets $s0 - retail keeps func_001070e0's
+   result there and the masked id in $s1, b210 the other way round. Probed four
+   declaration orders, both assignment orders (id-first is worse at nd 11) and
+   opt_common_subs off (nd 224). Committed at nd 7. */
+// FUN_00106F40 NONMATCHING
+#ifdef NON_MATCHING
+void func_00106f40(s32 arg0) {
+    s32 e;
+    s32 id;
+    s32 j;
+    s32 lvl;
+
+    e = func_001070e0(arg0);
+    id = arg0 & 0xFFFF;
+    if (id <= 0) {
+        func_0046d730(D_005E42C8, 0x48);
+    }
+    if (id <= 0) {
+        func_0046d730(D_005E42C8, 0x27);
+    }
+    j = 0;
+    while (j < 0xD) {
+        func_00106390(id + ((j << 5) + 0x3FF), 0);
+        j++;
+    }
+    if (e == 0) {
+        return;
+    }
+    if (func_001077f0(arg0) != 0) {
+        func_00106db0(arg0, 0);
+        lvl = *(u16 *)(e + 6);
+        if (lvl == 0xA) {
+            func_00106db0(arg0, 1);
+        } else {
+            func_00106db0(arg0, lvl + 3);
+        }
+    }
+    if (func_00107c80(arg0) != 0) {
+        func_00106db0(arg0, 2);
+    }
+    if (func_00107ea0(arg0) != 0) {
+        func_00106db0(arg0, 3);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00106f40);
+#endif
 // FUN_001070B0
 void func_001070b0(void)
 {
@@ -281,7 +327,40 @@ void func_00107370(s32 arg0)
    the advance inline. Tried while+break+retest (re-test not folded), goto,
    both if/else orders — all nd 10. Branch-shape floor. */
 // FUN_001075D0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001075d0);
+void func_001075d0(s32 arg0) {
+    u8 *r;
+    u8 *p;
+    s32 i;
+
+    if (func_001077f0(arg0) != 0) {
+        return;
+    }
+    func_00107370(arg0);
+    p = D_00797410;
+    i = 0;
+    while (i < 0x15) {
+        if (*(u16 *)(p + 4) == 0) {
+            r = p;
+            goto ret;
+        }
+        p += 0x10;
+        i++;
+    }
+    r = NULL;
+ret:
+    if (r == NULL) {
+        func_0046d730(D_005E42C8, 0x107);
+    }
+    if ((arg0 & 0xFFFF) == 0) {
+        func_0046d730(D_005E42C8, 0x108);
+    }
+    func_0043f9c8(r, 0, 0x10);
+    *(s32 *)r = 0;
+    *(s16 *)(r + 4) = arg0;
+    *(s16 *)(r + 6) = 1;
+    func_00106db0(arg0, 0);
+    func_00106db0(arg0, 4);
+}
 
 /* measured: retail's slot search emits the found-exit as an inline
    unconditional branch (bne->advance; b found) exactly like func_001070e0's
@@ -807,7 +886,47 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108950);
    re-extension, nd 47 with s32 arg1 from assert-block scheduling).
    Branch-shape floor. */
 // FUN_00108B60
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108b60);
+void func_00108b60(s32 arg0, s32 arg1) {
+    s32 id = arg0 & 0xFFFF;
+    u8 *r;
+    u8 *p;
+    s32 i;
+
+    if (id >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (id == 0) {
+        r = NULL;
+        goto ret;
+    }
+    p = D_00797410;
+    i = 0;
+    while (i < 0x15) {
+        if (*(u16 *)(p + 4) == id) {
+            r = p;
+            goto ret;
+        }
+        p += 0x10;
+        i++;
+    }
+    r = NULL;
+ret:
+    if (r == NULL) {
+        return;
+    }
+    if (arg1 == 0) {
+        func_0046d730(D_005E42C8, 0x254);
+    }
+    if (arg1 > 0xA) {
+        func_0046d730(D_005E42C8, 0x255);
+    }
+    *(s16 *)(r + 6) = arg1;
+    if (*(u16 *)(r + 6) == 0xA) {
+        func_00106db0(arg0, 1);
+        return;
+    }
+    func_00106db0(arg0, *(u16 *)(r + 6) + 3);
+}
 
 // FUN_00108CA0
 s32 func_00108ca0(void)
