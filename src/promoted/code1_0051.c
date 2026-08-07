@@ -48,15 +48,16 @@ extern u8 *D_00745AC0[];
    best nd 7. $v0/$v1 coalescing floor (brief) + delay-slot preference. */
 
 #pragma schedule on
-// FUN_00513A40 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00513A40
+/* measured: retail materialises the global's address once and keeps it live
+   across the store; b210 shares that address with the returned constant
+   unless common-subexpression sharing is off (nd 7 -> byte-exact). */
+#pragma opt_common_subs off
 s32 func_00513a40(u8 *arg0) {
     D_00745AC0[0] = arg0;
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513a40);
-#endif
+#pragma opt_common_subs on
 #pragma schedule off
 
 

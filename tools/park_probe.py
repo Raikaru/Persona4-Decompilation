@@ -48,6 +48,23 @@ WRAPPERS = {
         "#pragma schedule on\n",
         "\n#pragma schedule off",
     ),
+    "nobl": (
+        "/* measured: b210 emits a branch-likely where retail uses a plain branch. */\n"
+        "#pragma no_branch_likely on\n",
+        "\n#pragma no_branch_likely off",
+    ),
+    "sched_cse_off": (
+        "/* measured: retail both fills delay slots this function leaves empty and\n"
+        "   re-issues a value b210 would share; both pragmas are needed. */\n"
+        "#pragma schedule on\n#pragma opt_common_subs off\n",
+        "\n#pragma opt_common_subs on\n#pragma schedule off",
+    ),
+    "sched_loopinv": (
+        "/* measured: retail fills delay slots and hoists a loop invariant into the\n"
+        "   preheader; both pragmas are needed together. */\n"
+        "#pragma schedule on\n#pragma opt_loop_invariants on\n",
+        "\n#pragma opt_loop_invariants off\n#pragma schedule off",
+    ),
 }
 
 
