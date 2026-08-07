@@ -312,6 +312,7 @@ iGpffffba28 = 0x00764b18; // type:data evidence: retail func_004534f0 sh to gp-0
 iGpffffba2c = 0x00764b1c; // type:data evidence: retail func_004534f0 sh to gp-0x45D4 (0x00764B1C), one of seven adjacent s16 slots stored together; gp base 0x007690F0
 iGpffffba30 = 0x00764b20; // type:data evidence: retail func_004534f0 sh to gp-0x45D0 (0x00764B20), one of seven adjacent s16 slots stored together; gp base 0x007690F0
 iGpffffba34 = 0x00764b24; // type:data evidence: retail func_004534f0 sh to gp-0x45CC (0x00764B24), one of seven adjacent s16 slots stored together; gp base 0x007690F0
+iGpffffb8f0 = 0x007649e0; // type:data evidence: retail func_003cc500 ld/sd gp-0x4710 (0x007649E0), a 64-bit mode word masked with ~0x1E0; gp base 0x007690F0
 iGpffffb414 = 0x00764504; // type:data evidence: retail func_001da130 lw $2,-0x4BEC($28) (0x00764504), base of the 0x18-strided entry table; gp base 0x007690F0
 iGpffffb614 = 0x00764704; // type:data evidence: retail func_003a16c0 sw $2,-0x49EC($28) (0x00764704) caching func_003e8930's handle; gp base 0x007690F0
 iGpffffbab0 = 0x00764ba0; // type:data evidence: retail func_004645e0 sw $0,-0x4550($28) (0x00764BA0), cleared beside iGpffffbab4; gp base 0x007690F0

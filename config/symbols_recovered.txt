@@ -3806,6 +3806,7 @@ D_0076489C = 0x0076489c; // type:data
 D_007648A0 = 0x007648a0; // type:data
 D_007648A4 = 0x007648a4; // type:data
 D_00887330 = 0x007648a8; // type:data
+iGpffffb8f0 = 0x007649e0; // type:data
 iGpffffb9b8 = 0x00764aa8; // type:data
 D_00764AC0 = 0x00764ac0; // type:data
 iGpffffb9ec = 0x00764adc; // type:data
