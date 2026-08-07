@@ -3473,6 +3473,7 @@ DAT_00762ca0 = 0x00762ca0; // type:data
 iGpffff9bb0 = 0x00762ca0; // type:data
 D_00762CB8 = 0x00762cb8; // type:data
 D_00762CC0 = 0x00762cc0; // type:data
+iGpffff9c08 = 0x00762cf8; // type:data
 iGpffff9c10 = 0x00762d00; // type:data
 iGpffff9c11 = 0x00762d01; // type:data
 iGpffff9c12 = 0x00762d02; // type:data

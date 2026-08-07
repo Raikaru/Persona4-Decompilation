@@ -363,3 +363,4 @@ D_00754D88 = 0x00754d88; // type:data evidence: retail func_003e50a0 lui/addiu a
 D_00887220 = 0x00887220; // type:data evidence: retail func_003e2570 lui 0(D_00887220) absolute base passed to func_003e1220
 D_00887280 = 0x00887280; // type:data evidence: retail func_003e46e0 lui 0(D_00887280) absolute base passed to func_003e1220
 D_0088732C = 0x0088732c; // type:data evidence: retail func_003e7fb0 lui 0(D_0088732C) absolute function-pointer jalr target
+iGpffff9c08 = 0x00762cf8; // type:data evidence: retail func_00115cb0 func_00442088 fmt arg addiu $5,$28,-0x63F8 (0x00762CF8); gp base 0x007690F0
