@@ -15,6 +15,11 @@ void func_00106390(s32, s32);
 
 extern s32 uGpffffb1bc;
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
+extern s32 iGpffffb1b8;
+extern void (*jtbl_008873EC[])(u8 *);
+extern u8 *func_0010d7c0(s32 a, s32 *b, s32 c);
+extern u8 D_007BBF00[];
+extern void func_0043f810(void *dst, void *src, s32 n);
 extern s16 D_00797B7A[];
 
 
@@ -101,7 +106,18 @@ void func_00110e70(s32 arg0)
 }
 
 // FUN_00110E80
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110e80);
+void func_00110e80(void) {
+    s32 sp3C;
+    u8 *p;
+    s32 n;
+
+    p = func_0010d7c0(0, &sp3C, 1);
+    n = sp3C;
+    func_0043f810(D_007BBF00, p, n);
+    iGpffffb1b8 = n;
+    jtbl_008873EC[0](p);
+    iGpffffb1b4 = 1;
+}
 
 // FUN_00110FC0
 void func_00110fc0(void) {

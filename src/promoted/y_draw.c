@@ -569,8 +569,26 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
    integer-domain cast variation (y_list lever-6) still nd 9 - unlike the
    single-use wrappers, the pragma does NOT fix this first-store load order. The
    subsequent 5 re-derivations already match. First-store base-load wall. */
-// FUN_002B7750
+/* measured: nd 22. Retail re-reads the work-pointer base from the GP slot
+   before every one of the six stores; b210 hoists it and keeps it live, which
+   is the load-sinking wall already documented for func_002b6a70 in this file.
+   Spelling every store with its own inline reload, as here, is as close as the
+   source can get. schedule on is worse (nd 28). Committed at nd 22. */
+// FUN_002B7750 NONMATCHING
+#ifdef NON_MATCHING
+void func_002b7750(s16 arg0, s16 arg1) {
+    s32 off = arg0 << 8;
+
+    *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8) = arg1;
+    *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) = 0;
+    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x4B) = 0;
+    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x77) = 0;
+    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xB7) = 0;
+    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xDF) = 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7750);
+#endif
 // FUN_002B77D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
 

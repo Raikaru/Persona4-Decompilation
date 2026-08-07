@@ -75,8 +75,29 @@ void func_00267510(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
-// FUN_002677A0
+/* measured: nd 12. A cubic Bezier evaluated with the EE's multiply-accumulate
+   chain - b210 does emit mula.s/madda.s/madd.s for this sum of four products,
+   and the four basis terms come out in retail's order. What is left is which
+   FPU register each term lands in: retail keeps 1-t in $f5 and 3(1-t) in $f4
+   and computes the u-cubed term before the t(3u)u term, b210 uses $f4/$f1 and
+   computes those two the other way round. Swapping the two declarations does
+   not move it - the order follows the accumulate chain, not the declarations.
+   Committed at nd 12. */
+// FUN_002677A0 NONMATCHING
+#ifdef NON_MATCHING
+f32 func_002677a0(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
+    f32 u = 1.0f - t;
+    f32 k = 3.0f * u;
+    f32 a = t * (t * t);
+    f32 b = t * (k * t);
+    f32 c = u * (u * u);
+    f32 d = t * (k * u);
+
+    return p1 * d + p0 * c + p2 * b + p3 * a;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_002677a0);
+#endif
 
 // FUN_00268A70
 s32 func_00268a70(u8 *arg0)
