@@ -1,0 +1,5 @@
+{
+"a": "#pragma schedule on\nvoid func_00438fc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {\n    u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);\n    s32 scale = *(u16 *)(p + 0x2A);\n    s32 c = arg2 + *(s32 *)(p + 0x34);\n    func_0043a2d0(arg0, arg1, c * scale, arg3 * scale);\n}\n#pragma schedule off\n",
+"b": "#pragma schedule on\nvoid func_00438fc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {\n    u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);\n    s32 scale = *(u16 *)(p + 0x2A);\n    s32 a = (arg2 + *(s32 *)(p + 0x34)) * scale;\n    s32 b = arg3 * scale;\n    func_0043a2d0(arg0, arg1, a, b);\n}\n#pragma schedule off\n",
+"c": "#pragma schedule on\nvoid func_00438fc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {\n    u16 *p = (u16 *)(arg0 * 0x184 + (s32)D_0070F920);\n    u16 scale = p[0x15];\n    s32 a = (arg2 + *(s32 *)&p[0x1A]) * scale;\n    s32 b = arg3 * scale;\n    func_0043a2d0(arg0, arg1, a, b);\n}\n#pragma schedule off\n"
+}

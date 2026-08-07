@@ -89,8 +89,26 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1a70);
 // FUN_003E1C30
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1c30);
 
-// FUN_003E1DB0
+/* measured: nd 33 against retail's 96-byte window. The residual is the
+   D_00887408 reference: retail reaches it with an absolute lui/lw pair placed
+   in the jal delay slot, b210 emits a GP-relative load ahead of the call.
+   Committed at nd 33. */
+// FUN_003E1DB0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+s32 func_003e1db0(u8 *arg0, s32 arg1) {
+    D_00724870 = arg1;
+    if (func_003e1cb0(D_008872E0 + arg1, D_00887408) == 0) {
+        return 0;
+    }
+    D_00764874++;
+    return (s32)arg0;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1db0);
+#endif
+
 
 /* measured: the guarded do/while (retail tests the head pointer once before
    the loop and again at the bottom) plus schedule on gets the object to
@@ -290,7 +308,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3370);
 #endif
 
 // FUN_003E3630
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3630);
+#pragma schedule on
+s32 func_003e3630(void) {
+    s32 r;
+    r = func_003e1220(0x3C, D_00763C68, 4, D_00763C6C, D_00887250, 0x40000);
+    D_00764888 = r;
+    if (r != 0) {
+        D_00764884 = 0;
+        return 1;
+    }
+    return 0;
+}
+#pragma schedule off
+
 
 // FUN_003E3C20
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);

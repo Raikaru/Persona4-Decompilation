@@ -84,19 +84,43 @@ void func_00438fa0(void) {
 #pragma schedule off
 
 
-/* floor: retail hoists the arg load above the frame (lui; addiu $sp; lw; sd $ra)
-   and fills the jr $ra delay slot; b210 at every level either keeps the O2 order
-   (nd 18: addiu $sp; sd $ra; lui; lw; jal; nop; sync; ei; ld; addiu $sp; jr; nop)
-   or moves the lw into the jal delay slot (nd 24). The sync/ei asm itself matches.
-   measured: best candidate (plain O2, func_00421810(D_008AC780[0]) + sync/ei asm)
-   gives nd 6 (reloc-masked): only the lui/lw-vs-frame order and the jr-delay-slot
-   order differ; schedule on / O3 both move the lw into the jal delay slot (nd 11). */
-
-// FUN_00438FC0
+/* measured: the arg0*0x184 entry address is the documented R5900-mult floor
+   from func_004390c8 - retail emits addiu $v1,$zero,0x184; mult $v1,$a0,$v1,
+   b210 strength-reduces to 5 sll/addu (probed 6 spellings incl. stride-local,
+   u16/s32 scale, arg locals; opt_strength_reduction off doesn't stop it, nd 68).
+   schedule on is load-bearing and fills the jr $ra delay slot (nd 68 -> 56,
+   obj 76/72; the 4-byte overflow is the strength-reduced mult itself).
+   Committed at nd 56. */
+// FUN_00438FC0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+void func_00438fc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);
+    s32 scale = *(u16 *)(p + 0x2A);
+    s32 c = arg2 + *(s32 *)(p + 0x34);
+    func_0043a2d0(arg0, arg1, c * scale, arg3 * scale);
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438fc0);
+#endif
 
-// FUN_00439008
+/* measured: twin of func_00438fc0 (same R5900-mult floor, calls func_0043a500).
+   schedule on fills the jr $ra delay slot (nd 68 -> 56, obj 76/72).
+   Committed at nd 56. */
+// FUN_00439008 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+void func_00439008(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);
+    s32 scale = *(u16 *)(p + 0x2A);
+    s32 c = arg2 + *(s32 *)(p + 0x34);
+    func_0043a500(arg0, arg1, c * scale, arg3 * scale);
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439008);
+#endif
 
 // FUN_00439050
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439050);
