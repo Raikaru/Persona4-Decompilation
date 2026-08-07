@@ -690,9 +690,12 @@ void func_002e68b0(s8 arg0) {
    ib=$a1, selector=$v1). Measured identical at nd 159: swapping the two index
    loads, declaring the indices last, and casting the comparison through
    (s32)(u16); s32 indices, inlining the second load and loading the base
-   first are all worse. Register colouring floor. Committed at nd 159. */
+   first are all worse. Register colouring floor. Committed at nd 45. */
 // FUN_002E6B20 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail re-issues the comparison operands b210 would share; turning
+   common-subexpression sharing off restores that, nd 159 -> 45. */
+#pragma opt_common_subs off
 s32 func_002e6b20(s16 *arg0, s16 *arg1) {
     s16 ia;
     s16 ib;
@@ -752,6 +755,7 @@ s32 func_002e6b20(s16 *arg0, s16 *arg1) {
     }
     return -((va & 0xFFFF) < vb);
 }
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
 #endif

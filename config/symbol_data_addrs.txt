@@ -13,6 +13,7 @@ iGpffffb434 = 0x00764524; // type:data evidence: retail func_00193a80 sw $0,-0x4
 iGpffffb438 = 0x00764528; // type:data evidence: retail func_00193a80 sw $0,-0x4BC8($28) (0x00764528), third of the same three; gp base 0x007690F0
 iGpffffa824 = 0x00763914; // type:data evidence: retail func_002a9100 addiu $28,-0x57DC as func_00442088 fmt arg (3 sites); gp base 0x007690F0 -> 0x00763914
 iGpffffa8d0 = 0x007639c0; // type:data evidence: retail func_00311ea0 addiu $9,$28,-0x5730 (0x007639C0) as the 3-pair s8 skill-table base; gp base 0x007690F0 -> 0x007639C0
+iGpffffa2a8 = 0x00763398; // type:data evidence: retail func_001dea90 addiu $2,$28,-0x5D58 (0x00763398) as the sum==0 return value; gp base 0x007690F0
 // Curated data addresses that tools/recover_symbols.py cannot derive.
 //
 // That tool infers addresses from relocations in MATCHED functions. Two cases
