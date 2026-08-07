@@ -343,21 +343,6 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252230);
 // FUN_00252710
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
 
-
-
-/* measured: nd 835 (frame -0x220 vs -0x240 shifts every stack offset); structure fully decompiled (copy loops,
-   func_00252230/003e0870/003e05f0/00366c70/003f6440/00887300 calls, u32-cast
-   doubled-alpha idiom, D_80000046/1E saturation fixups, sp218/sp230/sp238
-   block) but the frame/stack layout never converges: mwcc's slot allocator
-   OVERLAPS sp218 and sp230 (both s64, non-overlapping live ranges -> both at
-   0x218, frame -0x220) while retail keeps them at 0x218/0x230 (frame -0x240);
-   the 0x224 dead slot needs a 2-element f32 array (f32 sp220[2]); single
-   >=0x10 buffers get 0x10-aligned (0x220 instead of 0x218). Also var_21 lands
-   in $s7 (retail $s5) and the cvt.w.s saturation branch inlines (c.lt.s) where
-   retail's is out-of-line (c.le.s). Tried: struct vs buffer vs small-local
-   layouts for the 0x218-0x240 region, spC0[0x28]/[0x30], sp1F0[0x24]/[0x28].
-   Stack-slot-sharing floor; the (u32) cast for alpha sites and the
-   (s32)&D_80000046[0] fixup spelling are confirmed correct. */
 // FUN_00252A60
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
 
@@ -683,8 +668,72 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257900);
 /* measured: nd 94 with a full C body, object 320B against a 336B window (wave 7
    ran out of turns here and left it uncommitted). The body is undersized, so work
    is missing rather than merely mis-scheduled; re-attempt from the m2c draft. */
-// FUN_0025B0F0
+static inline void *rankArg0(f32 *p) { return p; }
+static inline void *rankArg1(u8 *p) { return p; }
+
+/* measured: nd 24. Retail hoists `addiu $a0,$sp,0x5C` (the &fbuf arg for
+   func_0045d6e0) between the fbuf/quad stores and `addiu $a1,$sp,0x40` between
+   the two lq/sq copies; mwcc b210 sinks both address materializations to just
+   before the jal (24 bytes). Tried: direct &fbuf/&arr[16], address locals,
+   `*fp = ...` store-through-pointer, single arr[32] with &arr[16], and
+   static-inline arg helpers - all nd 24. Same documented load-sinking floor as
+   mc.c func_002a4d10 (nd 62 there). Rest of function matches byte-exact:
+   switch jtbl_00747E50 (15 cases, cases 9/10 -> func_00257900), byte-fill
+   loop with beqz-pointer guard, (u8)(s32) float conversion with 2^31 arm. */
+// FUN_0025B0F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0025b0f0(s32 arg0, u8 *arg1) {
+    extern u32 *func_00452560();
+    u8 *sp;
+    u8 *p;
+    s32 i;
+    f32 fbuf;
+    u8 buf[4];
+    u8 arr[32];
+    u_long128 quad;
+    f32 f;
+
+    sp = (u8 *)func_00452560(arg1);
+    p = buf;
+    i = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+        } while (--i != 0);
+    }
+    f = (f32)*(s32 *)(sp + 0x4C) * 127.5f / 40.0f;
+    buf[3] = (u8)f;
+    fbuf = *(f32 *)buf;
+    quad = D_00636730;
+    *(u_long128 *)&arr[0] = quad;
+    *(u_long128 *)&arr[16] = quad;
+    func_0045d6e0(&fbuf, &arr[16], 1, 0.0f);
+    switch (*(u32 *)(sp + 4)) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        break;
+    case 9:
+    case 10:
+        func_00257900(arg1);
+        break;
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b0f0);
+#endif
 
 // FUN_0025B240
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b240);
