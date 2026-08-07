@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+extern u16 D_008C024E[];
 
 extern void func_0046a340(s32 arg0);
 extern void func_0027a370();
