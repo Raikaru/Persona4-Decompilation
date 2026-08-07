@@ -22,6 +22,25 @@ extern u8 *D_00724C08;
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_007130E8[];
 extern s32 D_00724130;
+extern void func_00451de0(u8 *name, s32 prio, s32 a2, s32 a3, void *entry, s32 a5, s32 a6);
+extern void func_004633f0(void);
+extern void func_00468ff0(void);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_00460ac0(char *name, u8 *task);
+extern u8 D_00712670[];
+extern s32 D_00724BF4;
+extern s32 func_004426e8(char *a, char *b);
+extern s32 uGpffffb230;
+extern s32 D_00724BC8;
+extern s32 func_0042ba70(void);
+extern void func_0042ba20(void);
+extern void func_004216e0(s32 handle, s32 *out);
+extern void func_00421770(s32 handle);
+extern s32 D_00724BF8;
+extern u32 D_00724BFC;
+extern u8 *D_00724C00;
+extern u8 *D_00724C04;
+extern void (*D_00887300[])(s32 arg0, s32 arg1);
 
 
 
@@ -64,17 +83,59 @@ void func_00460a80(s32 arg0, s32 arg1)
 
 
 
-// FUN_004614B0
+/* measured: the call sequence and every constant are right, but retail holds
+   the D_00887300 table ADDRESS in $s0 across the two indirect calls (frame
+   0x20 with the saved register) while b210 rematerialises the lui/%lo pair at
+   each use (frame 0x10, obj 108 in a 112-byte window). Everything after the
+   first call therefore shifts, which is what inflates nd to 69. Assigning the
+   table to a local pointer does not force the save; schedule on is worse
+   (nd 50) because retail leaves both jalr delay slots empty. Constant
+   rematerialisation floor. Committed at nd 69. */
+// FUN_004614B0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004614b0(void) {
+    void (**tbl)(s32, s32);
+
+    tbl = D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004614b0);
+#endif
 
 // FUN_00463520
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00463520);
+void func_00463520(void) {
+    func_00451de0(D_00712670, 0x12C, 0, 0, (void *)func_004633f0, 0, 0);
+}
 
 // FUN_004645E0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004645e0);
 
 // FUN_00466600
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00466600);
+void func_00466600(void) {
+    s32 sp20[12];
+    s32 r;
+
+    r = func_0042ba70();
+    if (uGpffffb230 != 0) {
+        func_004216e0(D_00724BC8, sp20);
+        if (sp20[0] == 0xC) {
+            goto call;
+        }
+        if (sp20[0] != 8) {
+            goto skip;
+        }
+call:
+        func_00421770(D_00724BC8);
+    }
+skip:
+    if (r == 0) {
+        func_0042ba20();
+    }
+}
 
 // FUN_004680C0
 void func_004680c0(u8 *arg0)
@@ -100,7 +161,17 @@ s32 func_004680f0(u8 *arg0, s8 *arg1) {
 }
 
 // FUN_00468FA0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00468fa0);
+s32 func_00468fa0(u8 *arg0) {
+    u8 *ctx;
+    u8 *task;
+
+    ctx = *(u8 **)(arg0 + 0x38);
+    task = func_00460990();
+    *(void **)(task + 8) = (void *)func_00468ff0;
+    *(u8 **)(task + 0x10) = ctx;
+    func_00460ac0(*(char **)(ctx + 0x218), task);
+    return 0;
+}
 
 // FUN_0046A1E0
 s32 func_0046a1e0(void)
@@ -124,10 +195,40 @@ void func_0046a2d0(s32 arg0, s32 arg1)
 
 
 // FUN_0046A2E0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046a2e0);
+void func_0046a2e0(u8 *arg0, s32 arg1) {
+    u32 i;
+
+    D_00724C04 = arg0;
+    D_00724C00 = arg0 + arg1;
+    D_00724BFC = 0x1F4;
+    i = 0;
+    while (i < D_00724BFC) {
+        *(s32 *)(arg0 + i * 8) = 0;
+        *(s32 *)(arg0 + i * 8 + 4) = 0;
+        i++;
+    }
+    D_00724BF8 = 0;
+    D_00724BF4 = 0;
+}
 
 // FUN_0046A770
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046a770);
+/* The list walk is written with an explicit goto loop: retail tests the
+   cursor at the TOP of the loop and both early exits are out of line, which
+   the natural `while (p != NULL)` form does not reproduce (nd 57). */
+u8 *func_0046a770(char *arg0) {
+    u8 *p;
+
+    p = D_00724C08;
+loop:
+    if (p == NULL) {
+        return NULL;
+    }
+    if (func_004426e8((char *)(p + 2), arg0) == 0) {
+        return p;
+    }
+    p = *(u8 **)(p + 0x238);
+    goto loop;
+}
 
 // FUN_0046AB40
 void func_0046ab40(void)
