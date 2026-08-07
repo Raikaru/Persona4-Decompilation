@@ -21,9 +21,10 @@ extern u8 *func_0029d050();
 
 extern void memset(void *destination, s32 value, u32 size);
 extern u8 *iGpffffb3ac;
+extern void func_00213b80(s32 arg0);
 extern void func_00213b50(s32 arg0);
 extern s32 func_001eb860(void);
-extern void func_00212240(s32 arg0);
+extern void func_00212240();
 extern s32 D_00724504;
 extern void func_001eb7f0(u8 *arg0);
 extern s32 func_001eb860(void);
@@ -181,10 +182,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eab10);
 #endif
 
 // FUN_001EAB60
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eab60);
+s32 func_001eab60(void) {
+    func_00213b80(*(s32 *)(iGpffffb3ac + 0xDD4));
+    if (func_001eb860() == 1) {
+        func_00212240(*(s32 *)(iGpffffb3ac + 0xDD4), 0);
+    }
+    return 1;
+}
 
 // FUN_001EB0B0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb0b0);
+s32 func_001eb0b0(void) {
+    u8 *o;
+
+    func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
+    o = func_001d3700(3, 0xFFF);
+    *(s16 *)(o + 0x48) = 3;
+    func_00194590(o, 0);
+    return 1;
+}
 
 /* measured: the typed call view removes the dead s64 narrowing pair; the
    volatile gp load and offset helper reproduce retail's load/shift/addu order. */

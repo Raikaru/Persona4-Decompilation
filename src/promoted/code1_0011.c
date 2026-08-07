@@ -15,6 +15,7 @@ void func_00106390(s32, s32);
 
 extern s32 uGpffffb1bc;
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
+extern s16 D_00797B7A[];
 
 
 
@@ -66,7 +67,16 @@ s32 func_00110600(s32 arg0, s32 arg1) {
 }
 
 // FUN_00110680
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110680);
+s32 func_00110680(s32 arg0, s32 arg1, s32 arg2) {
+    s32 sp3C;
+    s32 sp38;
+
+    func_001104d0(D_00797B7A[0], &sp3C, &sp38);
+    if (sp3C == arg1 && sp38 == arg2) {
+        return 1;
+    }
+    return 0;
+}
 
 // FUN_00110810
 void func_00110810(s32 arg0, s8 arg1)
