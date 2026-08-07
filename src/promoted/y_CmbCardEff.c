@@ -246,8 +246,24 @@ void func_0033fb10(u8 *arg0, s8 arg1, s64 arg2) {
    addiu pair (the helper/pointer spellings that did emit ori+addu deferred it past
    the mul.s block, nd 8). Sibling func_0033fb10 matches because its 0x2758 constant
    fits in signed-16-bit (plain addiu). Constant-selection floor, corroborated. */
-// FUN_0033FB90
+/* measured: nd 25 at retail's 112-byte window. The 0xFB0 stride and the
+   0xE398 bias (too large for addiu, so both retail and b210 route it through
+   $at) are right; what differs is that retail finishes the destination address
+   before materialising the 90.0f scale, and transposes the addu that adds the
+   stride to the base. Naming the destination in a local does not move it
+   (nd 25) and writing the addition index-first is much worse (nd 49).
+   Committed at nd 25. */
+// FUN_0033FB90 NONMATCHING
+#ifdef NON_MATCHING
+void func_0033fb90(u8 *arg0, s8 arg1, s64 arg2, f32 fp) {
+    s64 sp18 = arg2;
+    u8 *p = *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 0x38) + 4) + 0x38);
+
+    func_0036dd10(p + arg1 * 0xFB0 + 0xE398, &sp18, 90.0f * fp);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033fb90);
+#endif
 /* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
    lever 3 + opt_propagation: the inline helper cmbAddPtrRev carries the index-first addu
    (`addu $a0,$v1,$a2` vs the old base-first `addu $a0,$a2,$v1`) through its parameters,

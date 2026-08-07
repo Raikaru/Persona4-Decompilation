@@ -200,7 +200,19 @@ void func_002bd3e0(void) {
 
 
 // FUN_002BE100
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002be100);
+s32 func_002be100(s32 arg0) {
+    s32 i = 0;
+    s32 key = arg0 & 0xFF;
+    s8 *t = D_007488F8;
+
+    while ((i & 0xFF) < 0xC) {
+        if (key == t[i & 0xFF]) {
+            return i;
+        }
+        i = (i + 1) & 0xFF;
+    }
+    return 0;
+}
 
 // FUN_002BE160
 s32 func_002be160(u8 *arg0, s32 arg1) {

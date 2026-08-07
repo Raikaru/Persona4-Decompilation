@@ -8,6 +8,14 @@ extern int iGpffffb598;
 extern u16 D_008C024E[];
 extern s32 func_0029cc00(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
+extern u32 func_002e7a60(void);
+
+typedef struct {
+    s32 lo;
+    s32 hi;
+} S8iodata;
+
+extern void func_00364320(S8iodata arg0, s32 arg1, s32 arg2, f32 fparg0);
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
@@ -99,7 +107,10 @@ void func_00331f90(u8 *arg0)
 }
 
 // FUN_00332B60
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00332b60);
+void func_00332b60(u8 *arg0, u8 *arg1)
+{
+    func_00364320(*(S8iodata *)(arg1 + 0x1E0), 0xFF, func_002e7a60(), 1.0f);
+}
 
 // FUN_0033D310
 s32 func_0033d310(u8 *arg0)

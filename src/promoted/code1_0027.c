@@ -168,7 +168,29 @@ void func_0027a710(s32 arg0) {
 }
 
 // FUN_0027B1C0
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027b1c0);
+/* measured: opt_loop_invariants hoists mask/count/const-1 into preheader */
+#pragma opt_loop_invariants on
+s32 func_0027b1c0(s16 *arg0)
+{
+    s32 i = 0;
+    u16 mask;
+    s32 count;
+    s32 bit;
+    s16 *p;
+
+    mask = D_008C024E[0];
+    count = *(s16 *)((u8 *)arg0 + 0x16);
+    for (; i < count; i++) {
+        p = (s16 *)((u8 *)arg0 + i * 4 + 0x18);
+        bit = *p;
+        if ((1 << bit) & mask) {
+            return *(s16 *)((u8 *)p + 2);
+        }
+    }
+    return -1;
+}
+/* measured: opt_loop_invariants off */
+#pragma opt_loop_invariants off
 
 // FUN_0027B4C0
 void func_0027b4c0(s32 *arg0)

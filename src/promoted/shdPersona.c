@@ -2114,6 +2114,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dd50);
 
 
 
+
 // FUN_0011DE40
 void func_0011de40(u8 *arg0, s32 arg1)
 {

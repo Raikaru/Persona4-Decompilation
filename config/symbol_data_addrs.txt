@@ -342,6 +342,7 @@ D_00764898 = 0x00764898; // type:data evidence: retail func_003e4760 lw $3,-0x48
 D_0076489C = 0x0076489c; // type:data evidence: retail func_003e4760 lw/sw -0x4854($28) (0x0076489C) counter; gp base 0x007690F0
 
 D_007EF9B0 = 0x007ef9b0; // type:data evidence: retail func_001622d0/func_00162330 lui %hi(D_007EF9B0) at 0x622DC/0x6233C; 0x750-byte record array
+D_0063F560 = 0x0063f560; // type:data evidence: retail func_002e09e0 lui %hi(D_0063F560) at 0x002E09F8; two-float entry table indexed by (s16 at 0xF8)*8
 D_007F16F0 = 0x007f16f0; // type:data evidence: retail func_001622d0 lui %hi(D_007F16F0) at 0x622E4; 8-byte record array
 D_007E8C00 = 0x007e8c00; // type:data evidence: retail func_00162390 lui %hi(D_007E8C00) at 0x6239C; 0x750-byte record array
 iGpffff83d4 = 0x007614c4; // type:data evidence: retail func_003561d0 lwc1 $f0,-0x7C2C($28) (0x007614C4) float divisor; gp base 0x007690F0

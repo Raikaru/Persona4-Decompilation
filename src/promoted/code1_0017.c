@@ -10,8 +10,9 @@ extern u8 *func_00155280(void);
 extern s32 func_00156170(s32 arg0);
 extern s32 func_00156180(s32 arg0);
 extern s32 func_0015a160(void);
-extern s32 func_00161630(u16 a, u16 b, s32 c, s32 d);
+extern s32 func_00161630(u16 a, u16 b, u16 c, u16 d);
 extern u8 gMtScene[];
+extern u8 *iGpffff9db0;
 extern u8 D_005F18C0[];
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern u8 D_005F1910[];
@@ -163,8 +164,25 @@ s32 func_00178560(void)
     return 1;
 }
 
-// FUN_00178870
+/* measured: nd 10. Retail materialises the two halfword loads into $a0/$a1
+   before narrowing the cached scene index into $a3; b210 emits the narrowing
+   first. Hoisting the narrowed value into a local ahead of the call and
+   declaring func_00161630's third and fourth parameters u16 so the mask is
+   implicit both leave it at nd 10 - argument-materialisation order that the
+   callee's prototype does not reach. Committed at nd 10. */
+// FUN_00178870 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00178870(void) {
+    s32 a = func_0029cc00(0);
+    u8 *p = iGpffff9db0;
+    s32 b = func_0015a160();
+
+    func_0029cf50(func_00161630(*(u16 *)p, *(u16 *)(p + 4), b, a) & 0xFFFF);
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178870);
+#endif
 
 // FUN_001788E0
 s32 func_001788e0(void)
