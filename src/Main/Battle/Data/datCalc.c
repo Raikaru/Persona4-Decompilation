@@ -409,7 +409,8 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
    constants load as `daddiu` retail-wide and `addiu` here (documented
    width floor), (4) v colours $v1 instead of $v0 after each call, which
    follows from (1). Tail shapes measured: `v <= 0` 43, `v == 0` 44,
-   `v > 0` else-form 48. */
+   `v > 0` else-form 48.
+   Committed at nd 43. */
 // FUN_00232C70 NONMATCHING
 #ifdef NON_MATCHING
 u32 func_00232c70(u8 *arg0, s32 arg1) {
@@ -1598,7 +1599,8 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
    opt_propagation off (70, much worse -- it is the documented lever for an early
    gp base load but not here), opt_common_subs off (25), a DatCalcEntry struct
    typedef indexed as an array, and (u16) in the assert instead of the index.
-   Eleven spellings. gp-load sinking floor. */
+   Eleven spellings. gp-load sinking floor.
+   Committed at nd 16. */
 // FUN_00241DE0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)

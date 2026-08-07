@@ -1671,7 +1671,8 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
    Measured and rejected for the trampoline: empty-then/else, switch on the
    boolean, switch on the raw value with an explicit `case -1: break`, `!!` on
    both conditions, early returns, and opt_rebuildconditionals / schedule /
-   opt_common_subs off -- 14 spellings, none below 19. Branch-collapse floor. */
+   opt_common_subs off -- 14 spellings, none below 19. Branch-collapse floor.
+   Committed at nd 46. */
 // FUN_0011CAF0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0011caf0(u8 *arg0)

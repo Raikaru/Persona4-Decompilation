@@ -474,7 +474,8 @@ INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
    Measured and rejected: inlining the address at both uses (49, worse -- b210
    then emits a spurious `addiu $a0, $a1, 0x10`), `arg2 * 4 + arg0` operand
    order, and declaring the temps in reverse (both 34). Register-rotation
-   floor. */
+   floor.
+   Committed at nd 70. */
 // FUN_004BC1E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
