@@ -298,3 +298,4 @@ iGpffffb8e0 = 0x007647d0; // type:data evidence: retail func_003c40d0 lw $3,-0x4
 iGpffffb8e4 = 0x007647d4; // type:data evidence: retail func_003c40d0 lw/sw $3,-0x491C($28) (0x007647D4), a reference count; gp base 0x007690F0
 iGpffffb8e8 = 0x007647d8; // type:data evidence: retail func_003c5700 lw $4,-0x4918($28) (0x007647D8), a cached object pointer; gp base 0x007690F0
 iGpffffb8f4 = 0x007647e4; // type:data evidence: retail func_003c54c0 lw/sw $2,-0x490C($28) (0x007647E4), a reference count; gp base 0x007690F0
+iGpffffb9b8 = 0x00764aa8; // type:data evidence: retail func_003cc010 lw $5,-0x4648($28) (0x00764AA8), a byte offset into D_008872E0; gp base 0x007690F0
