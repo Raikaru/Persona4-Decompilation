@@ -34,6 +34,11 @@ extern void func_004a7c00(u8 *arg0, s32 arg1);
 
 extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 
+extern void func_0044ea90(const void *msg, s32 id);
+extern void func_0043f810(void *dst, void *src, u32 size);
+extern u8 *func_00484490(void);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+
 
 
 extern void (*jtbl_008873EC[])(u8 *arg0);
@@ -174,7 +179,18 @@ void func_004a7a50(void) {
 
 
 // FUN_004A7A90
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7a90);
+void *func_004a7a90(void)
+{
+    u8 *src;
+    void *dst;
+
+    src = func_00484490();
+    func_0044ea90(D_00714350, 0x249);
+    dst = jtbl_008873E8[0](0x14, 0x40000);
+    *(u32 *)dst = 0;
+    func_0043f810((u8 *)dst + 4, src, 0x10);
+    return dst;
+}
 
 // FUN_004A7B10
 void func_004a7b10(s32 arg0) {
@@ -186,7 +202,18 @@ void func_004a7b10(s32 arg0) {
 
 
 // FUN_004A7B70
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7b70);
+void *func_004a7b70(void *arg0)
+{
+    u8 *src;
+    void *dst;
+
+    src = (u8 *)arg0;
+    func_0044ea90(D_00714350, 0x249);
+    dst = jtbl_008873E8[0](0x14, 0x40000);
+    *(u32 *)dst = 0;
+    func_0043f810((u8 *)dst + 4, src + 4, 0x10);
+    return dst;
+}
 
 // FUN_004A7BF0
 void func_004a7bf0(u8 *arg0)
