@@ -9,6 +9,12 @@ void func_003891b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3);
 s32 datGetFlag(u32 arg0);
 
 extern u8 *D_007246AC;
+extern u8 *iGpffffb5b0;
+extern u8 D_00794990[];
+extern u8 D_00794E40[];
+extern u8 D_0064EEB0[];
+extern void func_00460ac0(u8 *arg0, u8 *arg1);
+extern void func_0046d730(u8 *arg0, s32 arg1);
 
 
 
@@ -107,8 +113,32 @@ void func_00389040(u8 *arg0) {
     *(u16 *)(temp_16 + 0x4C) = (u16) (*(u16 *)(temp_16 + 0x4C) | 0x80);
 }
 
-// FUN_00389090
+/* measured: nd 1. Two shapes were load-bearing here and are worth keeping:
+   advancing the slot pointer (`slot += n; slot[1] = ...`) instead of indexing
+   `slot[n + 1]` is what stops b210 folding the 0x28 sub-object offset into the
+   store displacement (nd 54 -> nd 3), and spelling the overflow guard `> 4`
+   rather than `>= 5` is what makes it compare through $at like retail
+   (nd 3 -> nd 1). The one remaining word is the commutative addu: retail
+   `addu $v1,$v1,$a2`, b210 `addu $v1,$a2,$v1`. A static inline helper taking
+   (offset, base) - the usual cure for that - wrecks the allocation here
+   (nd 20) in all four call shapes probed. Committed at nd 1. */
+// FUN_00389090 NONMATCHING
+#ifdef NON_MATCHING
+void func_00389090(u8 *arg0, s32 arg1) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+    s32 *slot = (s32 *)(p + 0x28);
+    s32 n = *(s32 *)(p + 0x3C);
+
+    *(s32 *)(p + 0x3C) = n + 1;
+    slot = n + slot;
+    slot[1] = arg1;
+    if (*(s32 *)(p + 0x3C) > 4) {
+        func_0046d730(D_0064EEB0, 0x745);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389090);
+#endif
 
 // FUN_003890F0
 void func_003890f0(u8 *arg0)
@@ -190,7 +220,17 @@ void func_00389350(u8 *arg0)
 }
 
 // FUN_0038CE30
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038ce30);
+s32 func_0038ce30(u8 *arg0) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    *(s32 *)(p + 8) = 0;
+    *(s32 *)(p + 0xC) = 0;
+    func_00460ac0(D_00794990, p + 8);
+    *(s32 *)(p + 0x38) = 0;
+    *(s32 *)(p + 0x3C) = 0;
+    func_00460ac0(D_00794E40, p + 0x38);
+    return 0;
+}
 
 // FUN_0038CE90
 void func_0038ce90(u8 *arg0)
@@ -264,7 +304,19 @@ void func_0038dd80(void)
 }
 
 // FUN_0038DD90
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038dd90);
+void func_0038dd90(u8 *arg0) {
+    s32 i;
+
+    *(s32 *)arg0 = 0;
+    arg0[0x122C] = 0xFF;
+    arg0[0x122D] = 0xFF;
+    arg0[0x122E] = 0xFF;
+    arg0[0x122F] = 0xFF;
+    for (i = 0; i < 0x20; i++) {
+        *(s32 *)(arg0 + i * 0x90 + 4) = 0;
+    }
+    iGpffffb5b0 = arg0;
+}
 
 // FUN_0038EE10
 s32 func_0038ee10(void) {
