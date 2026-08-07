@@ -33,7 +33,7 @@ void func_001437b0(void *, s32, s32);
 void func_0046d280(void *);
 s32 func_0034c210(void);
 s32 func_003b7060(void);
-s16 func_0023d8e0(void *, s16);
+s16 func_0023d8e0(void *, s32);
 void func_0034f1e0(void);
 void func_0034c270(Vec2f, u8, f32);
 void func_0034f320(void *, u8, u8, u8, s32, s32, s32, s32, f32, f32, f32, f32, f32);
@@ -344,6 +344,56 @@ s32 func_0013abb0(u8 *arg0)
    #pragma schedule on / optimization_level 3). Real defect is exactly 1 word:
    nd 2 (1 real + 1 padding) with the correct s32-arg0 + s32-second-param
    prototypes (func_0023d8e0's second param is s32 per its own m2c body). */
+/* Case values decoded from jtbl_007469C0 with tools/jtbl.py: twenty dense
+   entries mapping index+1 to 0x2B..0x32, with 9-19 sharing 0x33 and index 0
+   returning -1; >= 0x14 hits the assert. The labels are declared in that
+   object order because b210 lays case bodies out in declaration order.
+   This function is also why func_0023d8e0's second parameter is s32 and not
+   s16: retail passes arg0 with a plain `move $a1,$a0` and masks the COPY,
+   where the s16 prototype forced a dsll32/dsra32 pair and shifted the whole
+   body (nd 177). Widening it matched this function and regressed none of the
+   ten already matching in this file. */
 // FUN_0013AC30
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013ac30);
+s32 func_0013ac30(s32 arg0) {
+    s32 v;
+
+    if ((arg0 & 0xFFFF) >= 0x1B8) {
+        return 0x35;
+    }
+    v = func_0023d8e0(NULL, arg0) + 1;
+    switch ((u32)v) {
+    case 1:
+        return 0x2B;
+    case 2:
+        return 0x2C;
+    case 3:
+        return 0x2D;
+    case 4:
+        return 0x2E;
+    case 5:
+        return 0x2F;
+    case 6:
+        return 0x30;
+    case 7:
+        return 0x31;
+    case 8:
+        return 0x32;
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+        return 0x33;
+    case 0:
+        return -1;
+    }
+    func_0046d730(D_005ED9C0, 0x6B2);
+    return -1;
+}
 
