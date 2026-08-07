@@ -1,4 +1,12 @@
 D_0063EB30 = 0x0063eb30; // type:data evidence: retail func_002a9100 3x copy loops (lh s16 pairs, 6 iterations) at 0x2A922C/0x2A93F4/0x2A94D0; absolute lui/addiu base
+iGpffffb668 = 0x00764758; // type:data evidence: retail func_003bcf10 lw $3,-0x4998($28) (0x00764758) as the code1_003b per-slot table base; gp base 0x007690F0
+iGpffffb708 = 0x007647f8; // type:data evidence: retail func_003ca890/func_003cbc10 lw $2,-0x48F8($28) (0x007647F8) as the code1_003c node-array byte offset; gp base 0x007690F0
+iGpffffb70c = 0x007647fc; // type:data evidence: retail func_003cbc90 lw $2,-0x48F4($28) (0x007647FC), the sibling of iGpffffb708 one word up; gp base 0x007690F0
+iGpffff9ca8 = 0x00762d48; // type:data evidence: retail func_00121b20 addiu $4,$28,-0x63A8 (0x00762D48) passed as func_00451de0's list argument; gp base 0x007690F0
+iGpffffa598 = 0x00763688; // type:data evidence: retail func_00216da0 addiu $5,$28,-0x5A68 (0x00763688) as the func_00442088 format-string argument; gp base 0x007690F0
+iGpffffb430 = 0x00764520; // type:data evidence: retail func_00193a80 sw $0,-0x4BD0($28) (0x00764520), first of three consecutive words cleared together; gp base 0x007690F0
+iGpffffb434 = 0x00764524; // type:data evidence: retail func_00193a80 sw $0,-0x4BCC($28) (0x00764524), second of the same three; gp base 0x007690F0
+iGpffffb438 = 0x00764528; // type:data evidence: retail func_00193a80 sw $0,-0x4BC8($28) (0x00764528), third of the same three; gp base 0x007690F0
 iGpffffa824 = 0x00763914; // type:data evidence: retail func_002a9100 addiu $28,-0x57DC as func_00442088 fmt arg (3 sites); gp base 0x007690F0 -> 0x00763914
 iGpffffa8d0 = 0x007639c0; // type:data evidence: retail func_00311ea0 addiu $9,$28,-0x5730 (0x007639C0) as the 3-pair s8 skill-table base; gp base 0x007690F0 -> 0x007639C0
 // Curated data addresses that tools/recover_symbols.py cannot derive.

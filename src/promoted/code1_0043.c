@@ -11,6 +11,10 @@ s32 func_00438e60(void);
 
 extern s32 D_008AC780[];
 extern s32 D_0070F920[];
+extern s32 D_0070FC58[];
+extern s32 D_0070FC5C[];
+extern s32 D_0070FC60[];
+extern s32 D_0070FC64[];
 void func_00421810(s32);
 
 typedef struct {
@@ -213,8 +217,25 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac60);
 // FUN_0043ACC0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043acc0);
 
-// FUN_0043BC70
+/* measured: nd 29 at retail's exact 72-byte object. Declaring these four
+   globals as arrays rather than scalars is what fixes the addressing mode -
+   with `extern s32 D_0070FC64;` b210 reaches them GP-relative and the object
+   comes out at nd 39, while retail uses an absolute lui/lw pair, which the
+   array spelling reproduces. The remaining residual is the stride multiply:
+   retail materialises 0xC into a register and issues a real mult/mflo, b210
+   strength-reduces it to sll/addu/sll. Naming the stride in a local does not
+   change that (nd 29 either way). Committed at nd 29. */
+// FUN_0043BC70 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0043bc70(void) {
+    func_0043c6d8((u8 *)D_0070FC58[0], D_0070FC64[0] * 0xC);
+    D_0070FC60[0] = 0;
+    D_0070FC5C[0] = 0;
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bc70);
+#endif
 
 // FUN_0043C0A0
 s32 func_0043c0a0(void) {

@@ -12,6 +12,10 @@ extern void func_00267570();
 extern u8 *D_007242CC;
 extern s32 iGpffffb1e0;
 extern s32 iGpffffb1cc;
+extern s32 iGpffff9ca8;
+extern void func_00103a60(void);
+extern void func_00451de0(void *list, s32 count, s32 a, s32 b, void *fn, s32 c, s32 d);
+extern void func_00121af0(void);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(char *name, u8 *task);
 extern void func_001221a0(void);
@@ -62,7 +66,10 @@ s32 func_001211a0(void)
 }
 
 // FUN_00121B20
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00121b20);
+void func_00121b20(void) {
+    func_00103a60();
+    func_00451de0(&iGpffff9ca8, 0xF, 0, 0, (void *)func_00121af0, 0, 0);
+}
 
 // FUN_001223D0
 s32 func_001223d0(void) {
