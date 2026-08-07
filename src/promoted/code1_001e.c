@@ -21,6 +21,9 @@ extern u8 *func_0029d050();
 
 extern void memset(void *destination, s32 value, u32 size);
 extern u8 *iGpffffb3ac;
+extern void func_00213b50(s32 arg0);
+extern s32 func_001eb860(void);
+extern void func_00212240(s32 arg0);
 extern s32 D_00724504;
 extern void func_001eb7f0(u8 *arg0);
 extern s32 func_001eb860(void);
@@ -159,8 +162,23 @@ s32 func_001eaac0(void)
     return 1;
 }
 
-// FUN_001EAB10
+/* measured: nd 2 at exactly retail's 80-byte object. The only residual is
+   which register holds the comparison constant 1 after the call - retail
+   puts it in $a1, b210 in $v1. Naming the call result in a local does not
+   move it, and inverting the test to an early return is much worse (nd 42).
+   Register colouring floor. Committed at nd 2. */
+// FUN_001EAB10 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001eab10(void) {
+    func_00213b50(*(s32 *)(iGpffffb3ac + 0xDD4));
+    if (func_001eb860() == 1) {
+        func_00212240(*(s32 *)(iGpffffb3ac + 0xDD4));
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eab10);
+#endif
 
 // FUN_001EAB60
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eab60);

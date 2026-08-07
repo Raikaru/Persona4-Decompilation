@@ -3,7 +3,8 @@
 extern s32 iGpffffb4bc;
 extern void func_0026d810();
 
-extern u8 *func_00452560(void);
+extern u8 *func_00452560();
+extern s32 func_00452490(u8 *arg0);
 
 extern s32 func_0025ef20(u8 *arg0);
 extern u8 D_00637420[];
@@ -35,7 +36,14 @@ s32 func_00266a40(u32 unk, s32 arg1) {
 
 
 // FUN_00266A90
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00266a90);
+void func_00266a90(u8 *arg0) {
+    u8 *p;
+
+    if (func_00452490(arg0) != 0) {
+        p = func_00452560(arg0);
+        *(s32 *)(p + 4) |= 2;
+    }
+}
 
 // FUN_00266B70
 void func_00266b70(void) {
