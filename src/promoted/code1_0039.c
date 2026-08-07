@@ -25,8 +25,14 @@ extern s32 D_007246EC;
 s32 func_0039b6e0(s32 arg0);
 
 extern s32 D_00884ACC[];
+extern s32 D_00884AC8;
+extern s32 D_00884ADC;
 extern u8 *D_007646D0;
 void *func_0039bb70(void *list, s32 key);
+extern void func_0039b830(s32 arg0);
+extern void func_0039b8d0(s32 arg0, s32 arg1);
+extern s32 func_0039b7c0(s32 arg0);
+extern void func_0039ba80(s32 arg0);
 
 
 // measured: schedule on hoists the return-value move to the top,

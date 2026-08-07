@@ -25,9 +25,27 @@ extern s32 D_00764888;
 extern s32 D_00764890;
 extern s32 D_00764898;
 extern s32 D_0076489C;
-extern s32 (*D_00887350)(s32, s32, s32);
+extern s32 D_00763C54;
+extern s32 D_00763C58;
+extern s32 D_00763C70;
+extern s32 D_00763C74;
+extern s32 D_00764860;
+extern void *D_00764864;
+extern void *D_00764868;
+extern s32 D_007648A0;
+extern s32 D_007648A4;
+extern s32 D_0070B800[];
+extern u8 D_00887220[];
+extern u8 D_00887280[];
+extern s8 D_00754D88[];
+extern s32 (*D_0088732C[])(s32, s32, s32);
+extern s32 (*D_00887350[])(s32, s32, s32);
 s32 func_003e1220(s32, s32, s32, s32, void *, s32);
 void func_003e12f0(s32);
+s32 func_003e1740(u8 *);
+void func_003e1230(void *);
+void func_003ed7e0(void);
+void func_00410f40(s32);
 u8 *func_003e1cb0(u8 *, void *);
 void func_003e3dc0();
 void func_003e3d00();
@@ -83,16 +101,59 @@ void func_003e1020(s32 arg0) {
    opt_branch_folding, opt_common_subs, opt_unroll_loops, optimize_for_size,
    opt_propagation. The nd-9 body is kept below so the next attempt starts from
    it instead of re-deriving. Branch-likely / delay-slot floor. */
-// FUN_003E1A70
+// FUN_003E1A70 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: nd 45 of 112, guarded do/while summing func_003e1740(node-0x1C)
+   when >0 over the D_00764868 circular list. schedule on gets the layout; the
+   residual is register colouring - retail keeps node in  and sum in ,
+   b210 assigns node to  and sum to  (and shrinks the slt to a blez). */
+#pragma schedule on
+s32 func_003e1a70(void) {
+    s32 sum = 0;
+    void **node = (void **)D_00764868;
+    void **sentinel = (void **)&D_00764868;
+    if (node != sentinel) {
+        do {
+            s32 r = func_003e1740((u8 *)node - 0x1C);
+            if (0 < r) {
+                sum += r;
+            }
+            node = (void **)node[0];
+        } while (node != sentinel);
+    }
+    return sum;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1a70);
-
+#endif
+/* measured: schedule + no_branch_likely are load-bearing - schedule fills both
+   func_003e1230 jal delay slots with the cross-link sw, and no_branch_likely
+   stops b210 turning the loop's beq/bne into beql/bnel. */
 // FUN_003E1C30
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1c30);
-
-/* measured: nd 33 against retail's 96-byte window. The residual is the
-   D_00887408 reference: retail reaches it with an absolute lui/lw pair placed
-   in the jal delay slot, b210 emits a GP-relative load ahead of the call.
-   Committed at nd 33. */
+#pragma schedule on
+#pragma no_branch_likely on
+void func_003e1c30(void) {
+    void **node = (void **)D_00764868;
+    if (node != (void **)&D_00764868) {
+        do {
+            ((void **)node[1])[0] = node[0];
+            ((void **)node[0])[1] = node[1];
+            func_003e1230((u8 *)node - 0x1C);
+            node = (void **)D_00764868;
+        } while (node != (void **)&D_00764868);
+    }
+    {
+        u8 *obj = (u8 *)D_00764864;
+        ((void **) *(void **)(obj + 0x20))[0] = *(void **)(obj + 0x1C);
+        ((void **) *(void **)(obj + 0x1C))[1] = *(void **)(obj + 0x20);
+        func_003e1230(obj);
+    }
+    D_00764864 = 0;
+    D_00764860 = 0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003E1DB0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -141,11 +202,50 @@ s32 func_003e23e0(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 #endif
 
-// FUN_003E2570
+// FUN_003E2570 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: nd 30 of 128. Stores D_00764878=arg1, writes the func_003e1220
+   result into D_008872E0[D_00764878], increments D_0076487C and returns arg0,
+   else 0. schedule+no_branch_likely get everything but the store-reload: retail
+   stores the call result then RELOADS it (sw;lw;bnez) before the branch, b210
+   keeps the value in a register and tests it before the store. */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e2570(s32 arg0, s32 arg1) {
+    D_00764878 = arg1;
+    *(s32 *)&D_008872E0[D_00764878] = func_003e1220(0x24, D_00763C54, 4, D_00763C58, (void *)&D_00887220, 0x40404);
+    if (*(s32 *)&D_008872E0[D_00764878] != 0) {
+        D_0076487C++;
+        return arg0;
+    }
+    return 0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
-
+#endif
+/* measured: schedule+no_branch_likely are load-bearing - schedule hoists the
+   D_008872E0 lui and fills the jal delay slot; no_branch_likely stops b210
+   turning the beqz into a beql with the D_0076487C load in its slot. */
 // FUN_003E25F0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e25f0);
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003e25f0(u8 *arg0) {
+    s32 v = *(s32 *)&D_008872E0[D_00764878];
+    if (v != 0) {
+        func_003e12f0(v);
+    }
+    D_0076487C--;
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+
+
+
+
+
 
 /* measured: nd 20 of 20 words, everything correct but a one-word shift -
    retail has TWO consecutive nops between the search loop's bnez and the
@@ -322,11 +422,48 @@ s32 func_003e3630(void) {
 #pragma schedule off
 
 
-// FUN_003E3C20
+// FUN_003E3C20 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: nd 22 of 112. Walks arg0->f14 calling each node's f24 fnptr
+   (arg1, f0, f4) then following f34. schedule+no_branch_likely get the whole
+   body; the residual is a single extra nop - retail has TWO nops after the
+   loop's bnez (pipeline stall before the epilogue), b210 emits one, so the
+   epilogue slides one word (same floor as func_003e3020). */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e3c20(s32 arg0, s32 arg1) {
+    s32 node = *(s32 *)(arg0 + 0x14);
+    if (node) {
+        do {
+            ((s32 (*)(s32, s32, s32))(*(s32 *)(node + 0x24)))(arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
+            node = *(s32 *)(node + 0x34);
+        } while (node);
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);
-
+#endif
+/* measured: schedule+no_branch_likely load-bearing - schedule fills the
+   jalr delay slot, no_branch_likely keeps the loop bnez plain. */
 // FUN_003E3C90
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c90);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e3c90(s32 arg0, s32 arg1, s32 arg2) {
+    s32 node = *(s32 *)(arg0 + 0x10);
+    if (node) {
+        do {
+            ((s32 (*)(s32, s32, s32, s32))(*(s32 *)(node + 0x28)))(arg1, arg2, *(s32 *)(node + 0), *(s32 *)(node + 4));
+            node = *(s32 *)(node + 0x30);
+        } while (node);
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+
 
 // FUN_003E3F00
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3f00);
@@ -350,8 +487,31 @@ s32 func_003e43a0(s32 arg0) {
 // measured: removing this pragma takes func_003e4510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with addiu $v0, $zero, 1; baseline -O2 emits addiu; jr; nop.
 
-// FUN_003E43C0
+// FUN_003E43C0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: nd 35 of 96. Stores D_00764890=arg1 then four function pointers at
+   D_008872E0+arg1[2..5] then D_0088731C++. schedule on fixes the address
+   hoisting; the residual is register allocation - retail materialises all four
+   function addresses into distinct registers ($a3/$a2/$a0/$v1) and interleaves
+   their lui/addiu, b210 reuses one register per store. */
+#pragma schedule on
+void *func_003e43c0(u8 *arg0, s32 arg1, s32 arg2) {
+    void **p = (void **)&D_008872E0[arg1];
+    D_00764890 = arg1;
+    p[2] = (void *)func_003e3dc0;
+    p[3] = (void *)func_003e3d00;
+    p[4] = (void *)func_003e3f00;
+    p[5] = (void *)func_003e3e60;
+    D_0088731C++;
+    return arg0;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
+#endif
+
+
+
 
 /* measured: same out-of-line-body shape as func_003e59e0 - retail branches to
    the initialisation block and falls into the early `return 0`, so the goto
@@ -401,11 +561,43 @@ s32 func_003e4510(void) {
 // measured: removing this pragma takes func_003e5510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with sw $a0, -0x5478($gp); baseline -O2 emits sw; jr; nop.
 
-// FUN_003E46E0
+// FUN_003E46E0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: nd 30 of 128, twin of func_003e2570 (D_00764898 index, D_00887280
+   base, D_0076489C counter). Same store-then-reload floor: retail sw;lw;bnez
+   reloads the stored value, b210 tests the register before the store. */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e46e0(s32 arg0, s32 arg1) {
+    D_00764898 = arg1;
+    *(s32 *)&D_008872E0[D_00764898] = func_003e1220(0x21, D_00763C70, 4, D_00763C74, (void *)&D_00887280, 0x40412);
+    if (*(s32 *)&D_008872E0[D_00764898] != 0) {
+        D_0076489C++;
+        return arg0;
+    }
+    return 0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
-
+#endif
+/* measured: schedule+no_branch_likely load-bearing, twin of func_003e25f0
+   (D_00764898 index, D_0076489C counter). */
 // FUN_003E4760
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4760);
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003e4760(u8 *arg0) {
+    s32 v = *(s32 *)&D_008872E0[D_00764898];
+    if (v != 0) {
+        func_003e12f0(v);
+    }
+    D_0076489C--;
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+
 
 /* measured: schedule on plus no_branch_likely on. schedule alone gets nd 26
    (retail fills the loop's branch delay slots), and b210 then wants beql/bnel
@@ -472,10 +664,10 @@ void func_003e4ac0(void)
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
-// FUN_003E4AD0
 /* measured: schedule on is load-bearing (nd 55 without it, and the object
    overflows the window at 84 bytes); the default-argument substitution is
    reached by goto so it lands out of line after the call, as retail has it. */
+// FUN_003E4AD0
 #pragma schedule on
 s32 func_003e4ad0(char *arg0) {
     s32 r;
@@ -492,9 +684,33 @@ setdef:
 }
 #pragma schedule off
 
+/* measured: schedule on + no_branch_likely on are load-bearing for this body
+   (nd 76 without them) - they place result=0 in the beqz  delay slot and
+   keep the arg0[1]==0x3A test's xori/sltiu out of a branch-likely. */
 // FUN_003E50A0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e50a0);
-
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e50a0(s8 *arg0) {
+    s32 result = 0;
+    if (arg0 != 0) {
+        s32 flag = 1;
+        if (arg0[0] != 0x5C) {
+            s32 cond = (D_00754D88[arg0[0]] & 3) != 0;
+            if (cond) {
+                cond = (arg0[1] == 0x3A);
+            }
+            if (!cond) {
+                flag = 0;
+            }
+        }
+        if (flag) {
+            result = 1;
+        }
+    }
+    return result;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
@@ -568,8 +784,20 @@ call:
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
+/* measured: schedule on is load-bearing - it hoists move $s1,$a0 before the
+   first call and fills each jal delay slot with the running-total addu. */
 // FUN_003E6240
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6240);
+#pragma schedule on
+s32 func_003e6240(s32 arg0) {
+    s32 total = 0x10;
+    total += func_003e4ad0((char *)(arg0 + 0x10)) + 0xC;
+    total += func_003e4ad0((char *)(arg0 + 0x30)) + 0xC;
+    total += func_003e3370((u8 *)D_0070B800, arg0) + 0xC;
+    return total;
+}
+#pragma schedule off
+
+
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
@@ -603,14 +831,61 @@ u8 *func_003e7ee0(u8 *arg0) {
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
+/* measured: schedule+no_branch_likely load-bearing; flipped guard polarity so
+   the D_008872E0=0 work lands out of line after the early return 0. */
 // FUN_003E7F50
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7f50);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e7f50(u8 *arg0) {
+    if (D_00887350[0](0, (s32)arg0, 0) == 0) {
+        return 0;
+    }
+    *(s32 *)D_008872E0 = 0;
+    return (s32)arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 
+
+
+
+
+
+/* measured: schedule+no_branch_likely load-bearing - schedule puts the
+   D_008872E0 store in the func_003ed7e0 jal delay slot. */
 // FUN_003E7FB0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7fb0);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003e7fb0(u8 *arg0) {
+    *(s32 *)D_008872E0 = (s32)arg0;
+    func_003ed7e0();
+    if (D_0088732C[0](0, (s32)arg0, 0) == 0) {
+        return 0;
+    }
+    func_00410f40((s32)arg0);
+    return (s32)arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 
+
+/* measured: schedule+no_branch_likely load-bearing, same shape as func_003e25f0
+   but with a D_008872E0[D_007648A0]=0 store inside the guard. */
 // FUN_003E8010
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8010);
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003e8010(u8 *arg0) {
+    s32 v = *(s32 *)&D_008872E0[D_007648A0];
+    if (v != 0) {
+        func_003e12f0(v);
+        *(s32 *)&D_008872E0[D_007648A0] = 0;
+    }
+    D_007648A4--;
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
