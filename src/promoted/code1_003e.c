@@ -9,6 +9,11 @@ extern s32 D_00886700;
 
 extern s32 D_00887330;
 
+extern u8 D_008872E0[];
+extern s32 D_00724870;
+extern s32 (*D_008873D4[])(char *arg0);
+extern char D_00752FA8[];
+
 
 // measured: removing this pragma takes func_003e05d0 nd 0 -> nd 16: retail fills the
 // jr $ra delay slot with sw $v1, 0xc($a0) and hoists move $v0,$a0 before the and;
@@ -67,8 +72,36 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1c30);
 // FUN_003E1DB0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1db0);
 
-// FUN_003E23E0
+/* measured: the guarded do/while (retail tests the head pointer once before
+   the loop and again at the bottom) plus schedule on gets the object to
+   exactly retail's 68 bytes with the sum load in the beq delay slot; a plain
+   `while` costs nd 25 and no pragma costs nd 55. Residual nd 10: retail keeps
+   the D_008872E0 + offset base in $v1 while b210 uses $v0, and retail emits
+   one more nop before the jr. Naming the base in a local does not re-colour
+   it. Register colouring floor. Committed at nd 10. */
+// FUN_003E23E0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+s32 func_003e23e0(void) {
+    u8 *head;
+    u8 *node;
+    s32 sum;
+
+    head = *(u8 **)(D_008872E0 + D_00724870 + 0x24);
+    node = *(u8 **)head;
+    sum = *(s32 *)(D_008872E0 + D_00724870 + 8);
+    if (node != head) {
+        do {
+            sum += *(s32 *)(node + 8);
+            node = *(u8 **)node;
+        } while (node != head);
+    }
+    return sum;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
+#endif
 
 // FUN_003E2570
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
@@ -390,7 +423,24 @@ void func_003e4ac0(void)
 #pragma optimization_level 2
 
 // FUN_003E4AD0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4ad0);
+/* measured: schedule on is load-bearing (nd 55 without it, and the object
+   overflows the window at 84 bytes); the default-argument substitution is
+   reached by goto so it lands out of line after the call, as retail has it. */
+#pragma schedule on
+s32 func_003e4ad0(char *arg0) {
+    s32 r;
+
+    if (arg0 == NULL) {
+        goto setdef;
+    }
+call:
+    r = D_008873D4[0](arg0);
+    return (r + 4) & -4;
+setdef:
+    arg0 = D_00752FA8;
+    goto call;
+}
+#pragma schedule off
 
 // FUN_003E50A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e50a0);
