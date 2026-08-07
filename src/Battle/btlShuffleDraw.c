@@ -687,7 +687,40 @@ void func_00376330(u8 *arg0, s32 arg1, f32 *arg2) {
    func_00371f40's interleaved prototype (u8*, f32, u8*) which fixes the pre-jal
    materialisation order. Saved-register setup-order scheduling floor. */
 // FUN_003764B0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_003764b0);
+/* Case values decoded from jtbl_007529D0 with tools/jtbl.py: only entry 6 has
+   a body, entries 0-5 and 7-9 fall straight to the epilogue, and >= 10 hits
+   the assert. The empty cases must still be listed or b210 emits a compare
+   chain instead of the 10-entry table, and `default` is declared before them
+   because b210 lays case bodies out in declaration order.
+   The parameter list is interleaved (u8*, s32, f32, u8*), not grouped: the
+   float arrives in $f12 between the second and third integer argument, and
+   the grouped spelling costs nd 8. */
+void func_003764b0(u8 *arg0, s32 arg1, f32 fparg0, u8 *arg2) {
+    u8 *p;
+
+    p = (u8 *)(arg0 + arg1 * 0xE8 + 0x1D6A0);
+    if (arg2 == NULL) {
+        func_0046d730(D_0064EA20, 0x4E5);
+    }
+    switch ((u32)*(s32 *)(p + 4)) {
+    case 6:
+        func_00371f40(p + 0xC, fparg0, arg2);
+        break;
+    default:
+        func_0046d730(D_0064EA20, 0x508);
+        break;
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 7:
+    case 8:
+    case 9:
+        break;
+    }
+}
 
 // FUN_00376590
 s32 func_00376590(u8 *arg0, u8 *arg1) {

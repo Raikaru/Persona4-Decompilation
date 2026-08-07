@@ -9,6 +9,12 @@ void func_00440b68();
 extern char D_0063BE20[];
 void func_002782c0(int param_1,int param_2,int param_3,u32 param_4);
 u32 func_002786c0(int param_1,int param_2,int param_3);
+extern void func_00278450(int a, int b, int c);
+extern int func_002438b0(int arg0);
+extern int func_00243840(int arg0);
+extern int func_00109220(int arg0);
+extern char iGpffffa760;
+extern int iGpffffb444;
 
 extern void func_00278640(s32 arg0, s16 arg1, s32 arg2);
 
@@ -913,8 +919,51 @@ s16 func_00278260(s32 arg0)
    always hoists the pure address-of addiu above the moves. Tried: (s32)buf,
    &buf[0], char buf[4], u32 buf[4] - identical. Address-of-in-argument-list
    scheduler floor (documented non-applicable case), not source-drivable. */
-// FUN_002782C0
+/* Case values decoded from jtbl_00748120 with tools/jtbl.py: eight dense
+   entries, each with its own body, in the order written below (b210 lays case
+   bodies out in declaration order). Case 1 calls func_002784e0 with $a0/$a1/$a2
+   still holding the entry arguments, so it takes all three.
+   measured: nd 10, obj 388 in a 400-byte window. The only residual is case 0's
+   argument order -- retail materialises $a0 and $a1 before the sp+0x30 buffer
+   address in $a2, b210 emits the addiu first (3 words). Naming the buffer in
+   an int local and taking &sp30[0] both measure nd 10; schedule on is far
+   worse (nd 203). Call-argument setup order floor. Committed at nd 10. */
+// FUN_002782C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002782c0(int param_1, int param_2, int param_3, u32 param_4) {
+    char sp30[16];
+
+    switch (param_4) {
+    case 0:
+        func_00442088(sp30, &iGpffffa760, param_3);
+        func_00278450(param_1, param_2, (int)sp30);
+        break;
+    case 1:
+        func_002784e0(param_1, param_2, param_3);
+        break;
+    case 2:
+        func_00278450(param_1, param_2, iGpffffb444 + param_3 * 21);
+        break;
+    case 3:
+        func_00278450(param_1, param_2, func_002438b0(param_3 & 0xFF));
+        break;
+    case 4:
+        func_00278450(param_1, param_2, func_0010d620((s16)param_3));
+        break;
+    case 5:
+        func_00278450(param_1, param_2, func_001067f0((s16)param_3));
+        break;
+    case 6:
+        func_00278450(param_1, param_2, func_00243840(param_3 & 0xFFFF));
+        break;
+    case 7:
+        func_00278450(param_1, param_2, func_00109220(param_3 & 0xFFFF));
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002782c0);
+#endif
 
 // FUN_00278450
 void func_00278450(s32 arg0, s32 arg1, s32 arg2)
