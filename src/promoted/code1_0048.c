@@ -27,6 +27,10 @@ void func_003e9cb0(void *frame, void *matrix, u32 flags);
 void func_00483810();
 
 extern u8 D_00713480[];
+extern u8 D_0071349C[];
+extern u8 D_007134A0[];
+extern u8 D_007134A8[];
+extern u8 D_007134B0[];
 
 
 
@@ -115,16 +119,56 @@ void func_004847e0(u8 *arg0)
 }
 
 // FUN_00484970
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484970);
+void func_00484970(u8 *arg0) {
+    void (*fn)(s32) = *(void (**)(s32))(D_0071349C + (*(u16 *)(arg0 + 4) << 6));
 
-// FUN_00484A40
+    if (fn != NULL) {
+        fn(*(s32 *)(arg0 + 8));
+    }
+}
+
+/* measured: nd 2. Same dispatcher shape as func_00484970 and func_00484a90
+   above, which both match; the only difference is that retail scales the
+   handler index into $a2 here and into $a1 there. Probed unused second and
+   third parameters (to make $a1 look occupied), a pointer-typed second
+   parameter, hoisting the scaled index into a named local, and schedule on -
+   all nd 2. Colouring floor. Committed at nd 2. */
+// FUN_00484A40 NONMATCHING
+#ifdef NON_MATCHING
+void func_00484a40(u8 *arg0) {
+    void (*fn)(s32) = *(void (**)(s32))(D_007134A0 + (*(u16 *)(arg0 + 4) << 6));
+
+    if (fn != NULL) {
+        fn(*(s32 *)(arg0 + 8));
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484a40);
+#endif
 
 // FUN_00484A90
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484a90);
+void func_00484a90(u8 *arg0) {
+    void (*fn)(s32) = *(void (**)(s32))(D_007134A8 + (*(u16 *)(arg0 + 4) << 6));
 
-// FUN_00484AE0
+    if (fn != NULL) {
+        fn(*(s32 *)(arg0 + 8));
+    }
+}
+
+/* measured: nd 2, the same $a2-versus-$a1 scaling residual as func_00484a40
+   above and unmoved by the same probe set. Committed at nd 2. */
+// FUN_00484AE0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00484ae0(u8 *arg0) {
+    void (*fn)(s32) = *(void (**)(s32))(D_007134B0 + (*(u16 *)(arg0 + 4) << 6));
+
+    if (fn != NULL) {
+        fn(*(s32 *)(arg0 + 8));
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484ae0);
+#endif
 
 // FUN_00484B30
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
