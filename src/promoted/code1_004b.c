@@ -31,6 +31,10 @@ extern u8 D_00714660[];
 extern u8 D_00714658[];
 
 extern void func_004866e0(u8 *arg0, u32 *arg1);
+extern u8 D_007568C8[];
+extern u8 D_00756900[];
+extern void func_004bd6a0(u8 *arg0);
+extern void func_004bd9f8(u8 *arg0);
 extern void func_004866f0(u8 *arg0, u32 *arg1);
 extern void func_0048a150(void *arg0, void *arg1);
 
@@ -140,7 +144,14 @@ extern u32 func_00486700(void *object);
 
 
 // FUN_004B1420
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1420);
+void func_004b1420(u8 *arg0, f32 *arg1) {
+    f32 sp20[4];
+
+    func_004866e0(arg0, (u32 *)sp20);
+    arg1[0] = sp20[0];
+    arg1[1] = sp20[1];
+    arg1[2] = sp20[2];
+}
 
 // FUN_004B1470
 void func_004b1470(u8 *arg0, u8 *arg1)

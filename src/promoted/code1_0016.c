@@ -5,6 +5,9 @@ extern s32 iGpffff9ef8;
 extern u8 *func_00155280(void);
 extern void (*DAT_008873EC[])(void *);
 extern u8 *func_00145270(u16 arg0);
+extern u8 D_007EF9B0[];
+extern u8 D_007F16F0[];
+extern u8 D_007E8C00[];
 
 typedef struct E9F0Vec3
 {

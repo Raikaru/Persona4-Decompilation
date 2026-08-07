@@ -13,6 +13,26 @@ extern u8 D_008872E0[];
 extern s32 D_00724870;
 extern s32 (*D_008873D4[])(char *arg0);
 extern char D_00752FA8[];
+extern u8 D_00887250[];
+extern void *D_00887408;
+extern s32 D_00763C68;
+extern s32 D_00763C6C;
+extern s32 D_00764874;
+extern s32 D_00764878;
+extern s32 D_0076487C;
+extern s32 D_00764884;
+extern s32 D_00764888;
+extern s32 D_00764890;
+extern s32 D_00764898;
+extern s32 D_0076489C;
+extern s32 (*D_00887350)(s32, s32, s32);
+s32 func_003e1220(s32, s32, s32, s32, void *, s32);
+void func_003e12f0(s32);
+u8 *func_003e1cb0(u8 *, void *);
+void func_003e3dc0();
+void func_003e3d00();
+void func_003e3f00();
+void func_003e3e60();
 
 
 // measured: removing this pragma takes func_003e05d0 nd 0 -> nd 16: retail fills the

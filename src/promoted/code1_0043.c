@@ -15,6 +15,11 @@ extern s32 D_0070FC58[];
 extern s32 D_0070FC5C[];
 extern s32 D_0070FC60[];
 extern s32 D_0070FC64[];
+extern s32 D_0070FC40[];
+extern s32 D_008BE280[];
+void func_004217f0(s32);
+void func_0043a2d0(s32, s32, s32, s32);
+void func_0043a500(s32, s32, s32, s32);
 void func_00421810(s32);
 
 typedef struct {
@@ -208,8 +213,33 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a8a8);
 // FUN_0043A920
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a920);
 
-// FUN_0043AC18
+/* measured: retail hoists the D_0070FC40 address once into $v1 and reuses the
+   %lo displacement for both the flag load and the clear store; b210
+   materialises the address twice. Those two extra words, plus b210 filling a
+   branch-likely delay slot with the D_008BE280 lui where retail fills the
+   bnez slot with the $ra save, plus scheduling the flag clear into the bltz
+   delay slot where retail clears it before the load, leave the residual.
+   Probed the < 0 and >= 0 orientations, a pointer local for the flag (worse),
+   schedule on and off, O3, opt_common_subs on, and opt_rebuildconditionals
+   off. The equal-zero-plus-goto shape below is the best of them.
+   Committed at nd 29. */
+// FUN_0043AC18 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0043ac18(void) {
+    if (D_0070FC40[0] == 0) {
+        return 0;
+    }
+    D_0070FC40[0] = 0;
+    if (D_008BE280[0] < 0) {
+        goto ret1;
+    }
+    func_004217f0(D_008BE280[0]);
+ret1:
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac18);
+#endif
 
 // FUN_0043AC60
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac60);

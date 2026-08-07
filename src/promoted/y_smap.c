@@ -2,7 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_smap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
-extern void (*D_00887304[])(s32, s32);
+extern void (*D_00887304[])(s32, void *);
 
 extern void (*D_00887300[])(s32 state, s32 value);
 
@@ -215,7 +215,10 @@ s64 func_002adcf0(u8 arg0) {
    func_002add60 emits const-first because its 2nd arg is a load.
    Argument-scheduling floor. */
 // FUN_002ADD10
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002add10);
+void func_002add10(s32 arg0, u8 *arg1) {
+    D_00887304[0](0xE, arg1 + 0xB4);
+    D_00887300[0](0xE, 0);
+}
 
 // FUN_002ADD60
 void func_002add60(u8 *arg0, u8 *arg1) {
