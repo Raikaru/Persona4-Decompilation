@@ -142,8 +142,58 @@ u8 *func_00492f20(u8 *arg0)
    sll $v0,$v0,2), nd 5 with every other word matching. Tried: u16/s32/u32
    arg1, s32 pointer / void pointer arg2, named local `u32 x` (spills into
    $s0, nd 83), volatile arg reads. Temp-register-color floor ($v0 vs $a2). */
-// FUN_00493080
+/* Case values decoded from jtbl_007568A0 with tools/jtbl.py: eight dense
+   entries where 1/2/4/7 pair func_00487650 with a per-mode call, 5 and 6 call
+   directly, and 0/3 share the out-of-range assert, in that declaration order.
+   measured: nd 3, obj 376 in a 384-byte window - the whole residual is that
+   retail holds the masked switch value in $a2 while b210 uses $v0. Naming it
+   in a u32 local, masking explicitly, and both together all measure nd 3;
+   schedule on is far worse (nd 186). Register colouring floor.
+   Committed at nd 3. */
+// FUN_00493080 NONMATCHING
+#ifdef NON_MATCHING
+void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
+    u8 *o;
+
+    if (*(u8 **)(arg0 + 0x2C) == NULL) {
+        o = func_00486a50(*(u8 **)arg0);
+        *(u8 **)(arg0 + 0x2C) = o;
+        *(s32 *)(o + 0x4C) = *(s32 *)(arg0 + 0x30);
+    }
+    switch ((u32)arg1) {
+    case 1:
+        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
+        func_004877b0(*(void **)(arg0 + 0x2C), (void *)arg2);
+        break;
+    case 2:
+        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
+        func_00487860(*(void **)(arg0 + 0x2C), (void *)arg2);
+        break;
+    case 4:
+        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
+        func_00487710(*(void **)(arg0 + 0x2C), *(void **)arg2);
+        break;
+    case 5:
+        func_004878c0(*(void **)(arg0 + 0x2C), (void *)arg2);
+        break;
+    case 6:
+        func_00487a30(*(void **)(arg0 + 0x2C), (void *)arg2);
+        break;
+    case 7:
+        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
+        func_00487ba0(*(void **)(arg0 + 0x2C), (void *)arg2);
+        break;
+    case 0:
+    case 3:
+    default:
+        func_0046d730(D_00713E30, 0xA8);
+        break;
+    }
+    *(s16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) = (s16)arg1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_00493080);
+#endif
 
 /* measured: same volatile-anchored arg1 read as FUN_00492F20; plain reads
    swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
