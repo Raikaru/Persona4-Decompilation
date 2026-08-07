@@ -4,6 +4,8 @@
 extern s32 iGpffffa598;
 extern void func_00442088(u8 *dst, const char *fmt, s32 arg);
 extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
+extern void func_00271b70(s32 arg0);
+extern void func_00277ad0(s32 arg0, s32 arg1);
 
 extern void memset(void *destination, s32 value, u32 size);
 
@@ -195,7 +197,18 @@ void func_00216c40(s32 arg0, s32 arg1) {
 }
 
 // FUN_00216CA0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00216ca0);
+void func_00216ca0(void) {
+    u8 *b = (u8 *)func_00452560() + 0x84C;
+
+    if (*(s32 *)b != 0) {
+        func_00271b70(*(s32 *)b);
+        *(s32 *)b = 0;
+    }
+    func_00277ad0(*(s32 *)(b + 0x18), 0);
+    *(u16 *)(b + 0x10) &= 0xFFFD;
+    *(u16 *)(b + 0x16) = 0;
+    *(s32 *)(b + 8) = *(s32 *)(b + 4);
+}
 
 // FUN_00216D70
 void func_00216d70(u8 *arg0, s32 arg1) {

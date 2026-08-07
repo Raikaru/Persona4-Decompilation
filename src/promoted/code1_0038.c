@@ -9,6 +9,9 @@ void func_003891b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3);
 s32 datGetFlag(u32 arg0);
 
 extern u8 *D_007246AC;
+void func_00389180(u8 *arg0);
+extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern u8 *iGpffffb5b0;
 extern u8 D_00794990[];
 extern u8 D_00794E40[];
@@ -38,7 +41,14 @@ void func_00388d40(u8 *arg0)
 }
 
 // FUN_00388D60
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388d60);
+void func_00388d60(u8 *arg0) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    func_0043f9c8(p + 4, 0, 6);
+    *(u16 *)(p + 0x4C) |= 2;
+    func_00389180(arg0);
+    func_0045af60(1, 3, 5, 0xD);
+}
 
 // FUN_00388E00
 void func_00388e00(u8 *arg0)
@@ -54,7 +64,14 @@ s32 func_00388e20(u8 *arg0) {
 
 
 // FUN_00388E40
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388e40);
+void func_00388e40(u8 *arg0) {
+    u8 *p = *(u8 **)(arg0 + 0x38);
+
+    func_0043f9c8(p + 4, 0, 0x18);
+    *(u16 *)(p + 0x4C) |= 1;
+    func_00389180(arg0);
+    func_0045af60(1, 3, 5, 0xD);
+}
 
 // FUN_00388EE0
 void func_00388ee0(u8 *arg0)

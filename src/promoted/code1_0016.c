@@ -35,14 +35,92 @@ void func_00161500(s32 arg0)
     iGpffff9ef8 = arg0;
 }
 
-// FUN_001622D0
+/* measured: the initialiser for the same two tables. opt_loop_invariants
+   hoists the 0x750 stride into the preheader as retail does (nd 29 -> nd 14);
+   the rest of the residual is register assignment across the two table bases
+   and the hoisted constant 1. Committed at nd 14. */
+// FUN_001622D0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+void func_001622d0(void) {
+    s32 i = 0;
+    s32 one = 1;
+    s32 stride = 0x750;
+    u8 *slot = D_007EF9B0;
+    u8 *ent = D_007F16F0;
+
+    while (i < 4) {
+        *(s32 *)(slot + i * stride + 0x44) = one;
+        *(s32 *)(ent + i * 8 + 4) = 0;
+        *(s16 *)(ent + i * 8) = 0;
+        *(s16 *)(ent + i * 8 + 2) = 0;
+        i++;
+    }
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_001622d0);
+#endif
 
-// FUN_00162330
+/* measured: retail materialises the 0x750 stride in the loop preheader; b210
+   only does that under opt_loop_invariants, which is worth nd 19 -> nd 8 here.
+   The residual is which register holds the stride and which
+   holds the table base - retail $a2/$a1, b210 $a1/$a2. Reordering the two
+   declarations swaps other things instead (nd 12), and opt_common_subs (nd 19)
+   and level 3 (nd 53, undersized) are both worse.
+   Committed at nd 8. */
+// FUN_00162330 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+u8 *func_00162330(void) {
+    u8 *r = NULL;
+    s32 i = 0;
+    s32 stride = 0x750;
+    u8 *base = D_007EF9B0;
+    u8 *e;
+
+    while (i < 4) {
+        e = base + i * stride;
+        if (*(s32 *)(e + 0x48) == 0) {
+            r = e;
+            break;
+        }
+        i++;
+    }
+    return r;
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00162330);
+#endif
 
-// FUN_00162390
+/* measured: the 15-entry sibling of func_00162330 above, same preheader-hoist
+   residual and the same response to opt_loop_invariants (nd 19 -> nd 8).
+   Committed at nd 8. */
+// FUN_00162390 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_loop_invariants on
+u8 *func_00162390(void) {
+    u8 *r = NULL;
+    s32 i = 0;
+    s32 stride = 0x750;
+    u8 *base = D_007E8C00;
+    u8 *e;
+
+    while (i < 0xF) {
+        e = base + i * stride;
+        if (*(s32 *)(e + 0x48) == 0) {
+            r = e;
+            break;
+        }
+        i++;
+    }
+    return r;
+}
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00162390);
+#endif
 
 // FUN_00168030
 void func_00168030(u8 *arg0)

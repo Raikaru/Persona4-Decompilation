@@ -27,6 +27,7 @@ void func_003e9cb0(void *frame, void *matrix, u32 flags);
 void func_00483810();
 
 extern u8 D_00713480[];
+extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern u8 D_0071349C[];
 extern u8 D_007134A0[];
 extern u8 D_007134A8[];
@@ -174,7 +175,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484ae0);
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
 
 // FUN_00485FE0
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485fe0);
+void func_00485fe0(u8 *arg0) {
+    u8 *n = *(u8 **)(arg0 + 0x8C);
+    u8 *o;
+    void (*fn)(s32);
+
+    while (n != NULL) {
+        o = *(u8 **)(n + 0x90);
+        fn = *(void (**)(s32))(D_00713480 + (*(u16 *)(o + 4) << 6) + 0x1C);
+        if (fn != NULL) {
+            fn(*(s32 *)(o + 8));
+        }
+        n = *(u8 **)(n + 0xAC);
+    }
+    *(s32 *)(arg0 + 0x84) = 0;
+}
 
 // FUN_00486180
 void func_00486180(u8 *arg0)
