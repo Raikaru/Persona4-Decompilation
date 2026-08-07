@@ -400,8 +400,10 @@ void func_0020b5a0(void)
    first, assigning it last, and spelling the update as an explicit
    `x = x & mask` all leave it at nd 41, and retail additionally carries a nop
    at the loop's condition label that b210 never emits. Committed at nd 41. */
-// FUN_0020BAC0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0020BAC0
+/* measured: retail keeps the ~0x200 mask live in the loop preheader; plain -O2
+   rematerialises it inside the body (nd 41 -> byte-exact with the hoist). */
+#pragma opt_loop_invariants on
 void func_0020bac0(void) {
     u8 *w = (u8 *)func_00452560() + 0x710;
     s32 mask = ~0x200;
@@ -413,9 +415,9 @@ void func_0020bac0(void) {
     }
     *(s16 *)(w + 2) = 3;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020bac0);
-#endif
+/* measured: closes the hoist bracket opened above and restores the -O2
+   baseline for the rest of the file. */
+#pragma opt_loop_invariants off
 
 // FUN_0020BB20
 void func_0020bb20(u8 *arg0, s32 arg1) {

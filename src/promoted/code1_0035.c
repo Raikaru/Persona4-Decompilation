@@ -225,9 +225,11 @@ void func_00356140(u8 *arg0)
 
 
 
-/* measured: arg0 is an 8-byte struct (S64u {lo,hi}); retail passes arg0 (s64) plus arg0.hi as p1, and func_00365f00 takes (s64, s32, s32, s32, f32 x5). The byte check reads sphi=arg0.hi via lbu 0x1f (MSB of the word at 0x1c). Residual is pure register allocation: b210 keeps arg0.hi in $t0 for p1 (move $t0,$a1; lw $v0,0x14; sw $v0,0x1c) where retail stores sphi straight from $a1 (sw $a1,0x1c) and reloads it for p1; plus mtc1 $f16 where retail does mtc1 $f15; mov.s $f16,$f15. Probed s64+shift, struct, union, mask byte-check, different p1 spellings, pragma schedule on/off; all versions keep the same register skew. The 4 uninit f32 locals reflect retail truly passing garbage in f0-f3 (only f4=f16=1.0f is set). Committed at nd 63. */
+/* measured: arg0 is an 8-byte struct (S64u {lo,hi}); retail passes arg0 (s64) plus arg0.hi as p1, and func_00365f00 takes (s64, s32, s32, s32, f32 x5). The byte check reads sphi=arg0.hi via lbu 0x1f (MSB of the word at 0x1c). Residual is pure register allocation: b210 keeps arg0.hi in $t0 for p1 (move $t0,$a1; lw $v0,0x14; sw $v0,0x1c) where retail stores sphi straight from $a1 (sw $a1,0x1c) and reloads it for p1; plus mtc1 $f16 where retail does mtc1 $f15; mov.s $f16,$f15. Probed s64+shift, struct, union, mask byte-check, different p1 spellings, pragma schedule on/off; all versions keep the same register skew. The 4 uninit f32 locals reflect retail truly passing garbage in f0-f3 (only f4=f16=1.0f is set). Committed at nd 45. */
 // FUN_00356170 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule on fills the delay slots retail fills here, nd 63 -> 45. */
+#pragma schedule on
 void func_00356170(S64u arg0, s32 arg1, s32 arg2)
 {
     s32 var_8;
@@ -241,6 +243,7 @@ void func_00356170(S64u arg0, s32 arg1, s32 arg2)
     }
     func_00365f00(arg0, sphi, arg1, var_8, f_u1, f_u2, f_u3, f_u4, 1.0f);
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
 #endif

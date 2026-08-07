@@ -282,29 +282,35 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf20);
    the factor has to stay live across the call - retail parks it in $s0, which
    this shape reproduces. The residual is the argument shuffle before the jalr:
    retail routes the first parameter through $v0 and rebuilds $a0/$a1 from the
-   fourth, b210 moves them directly. Committed at nd 38. */
+   fourth, b210 moves them directly. Committed at nd 37. */
 // FUN_003DDF80 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule on fills one more delay slot retail fills, nd 38 -> 37. */
+#pragma schedule on
 u32 func_003ddf80(s32 arg0, u32 arg1, s32 arg2, u8 *arg3) {
     u32 (*fn)(u8 *, s32, s32);
 
     fn = *(u32 (**)(u8 *, s32, s32))(*(u8 **)(arg3 + 0x50) + 0x30);
     return fn(arg3, arg0, arg1 * arg2) / arg1;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf80);
 #endif
 
 /* measured: nd 38, the +0x34 sibling of func_003ddf80 above with the identical
-   residual and the identical response to schedule on. Committed at nd 38. */
+   residual and the identical response to schedule on. Committed at nd 37. */
 // FUN_003DDFD0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule on fills one more delay slot retail fills, nd 38 -> 37. */
+#pragma schedule on
 u32 func_003ddfd0(s32 arg0, u32 arg1, s32 arg2, u8 *arg3) {
     u32 (*fn)(u8 *, s32, s32);
 
     fn = *(u32 (**)(u8 *, s32, s32))(*(u8 **)(arg3 + 0x50) + 0x34);
     return fn(arg3, arg0, arg1 * arg2) / arg1;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddfd0);
 #endif
