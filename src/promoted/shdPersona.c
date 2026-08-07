@@ -2109,8 +2109,49 @@ void func_0011dc50(u8 *arg0)
    instruction with $t0 vs $a1). Tried: declaration order both ways, SdkTask
    typed form vs raw deref (per assignment note), s32 vs u8 byte locals —
    identical. Register-colouring floor. */
-// FUN_0011DD50
+/* measured: full body decompiled (guard chain, two float lerps, func_00364680 + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as func_0011dc50 note). Committed at nd 53. */
+// FUN_0011DD50 NONMATCHING
+#ifdef NON_MATCHING
+void func_0011dd50(s32 arg0)
+{
+    u8 *work;
+    s32 cond;
+    f32 half;
+    f32 f0;
+    f32 f1;
+
+    work = *(u8 **)(arg0 + 0x38);
+    cond = *(s32 *)work;
+    if (cond == 3) {
+        cond = *(s32 *)(work + 4);
+        if (cond != 0) {
+            cond = *(s32 *)(work + 0x14);
+            if (cond != 0) {
+                half = 3.0f;
+                f0 = *(f32 *)(work + 0x28);
+                f1 = *(f32 *)(work + 0x40);
+                f0 = f1 + (f0 - f1) / half;
+                *(f32 *)(work + 0x40) = f0;
+                f0 = *(f32 *)(work + 0x2C);
+                f1 = *(f32 *)(work + 0x44);
+                f0 = f1 + (f0 - f1) / half;
+                *(f32 *)(work + 0x44) = f0;
+                func_00364680(*(s32 *)(work + 0xC), *(s32 *)(work + 0x50), 1, 0,
+                              *(f32 *)(work + 0x18),
+                              *(f32 *)(work + 0x40) + *(f32 *)(work + 0x38),
+                              *(f32 *)(work + 0x44) + *(f32 *)(work + 0x3C),
+                              *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
+                              512.0f, 512.0f);
+                func_003f6440(3, 0x717FB);
+                func_003f6440(2, 0x44);
+            }
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dd50);
+#endif
+
 
 
 

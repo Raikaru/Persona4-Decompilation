@@ -24,7 +24,7 @@ extern void func_0045da40(float *a0, void *a1, float a2, s32 a3, void *a4);
 extern void func_0048a000(void);
 extern float func_0044b7b0(float angle);
 extern float func_0044b610(float angle);
-extern s32 func_0045eb20(void *a0, void *a1, float a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7, float a8, float a9, float a10, void *a11);
+extern s32 func_0045eb20(void *a0, void *a1, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, void *a7, float a8, float a9, float a10, float a11);
 extern float D_007612D0;
 extern f32 iGpffff81e0;
 extern f32 iGpffff8094;
@@ -36,7 +36,7 @@ extern s32 iGpffffb4d8;
 extern u8 D_00796430[];
 extern u8 D_00796490[];
 extern void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
-extern void func_0027d3c0(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2, s32 t3, f32 f0, f32 f1, f32 f2, f32 f3, void *a4);
+extern void func_0027d3c0(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f0, f32 f1, f32 f2, f32 f3, void *a4);
 extern void func_0025ecd0(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, void *t3);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *a0, void *a1);
@@ -200,18 +200,68 @@ void func_0027d2f0(void *arg0)
     func_00451fc0(arg0, D_0063C018, 0xF, 0, 0, (void *)func_0027d230, (void *)0, (void *)0);
 }
 
-/* measured: d3c0's loop, madd chains, color packing and call args match retail
-   instruction-for-instruction; the ONLY defect is the frame: 0x2E0 vs retail
-   0x2D0 (the gap above the saved area is 0x24 vs 0x14). mwcc b210 reserves an
-   extra outgoing 0x10 whenever the func_0045eb20 call uses the full 12-arg
-   prototype (floats at positions 3/9/10/11); retail's compile of the same call
-   has no such reservation. Tried: 8-arg and 11-arg prototypes (arity errors /
-   8-arg gives the right frame but can't set f12-f15), old-style `()` (promotes
-   floats to double via fptodp, frame 0x300), s32 vs void* a11, all 6 local
-   declaration orders, arg6/arg7 direct vs s16 locals, u32 vs u8 spD0. nd 99
-   (u32) / 97 (u8, wrong stride). Frame-size floor. */
-// FUN_0027D3C0
+/* Frame 0x2D0, loop, madd chains (adda.s/madd.s), color packing, struct copy
+   sp180[i]=sp180[1], and all call args match retail instruction-for-instruction.
+   The residual is float-arg scheduling: (1) prologue saves f12->f23 (first
+   float param) 3rd in retail but last here; (2) the func_0045eb20 call materialises
+   f12 first and t3 (arg_sp0) last in retail, but here t3 first and f12-f15 grouped
+   last. Frame fixed vs prior lane (was 0x2E0, wrong func_0045eb20 prototype). Key
+   levers: func_0045eb20 arg5/arg6 declared s16 (kills the lh-v0/move-t1 pair) and
+   arg7 declared s32 with a (s32) cast at the call (kills the t3-into-ints
+   materialisation). Tried schedule on/off (nd 423), optimization_level 3 (nd 429),
+   6 local declaration orders, u32/s32 i, union and *(float*)&arg0 bitcasts for the
+   raw-bit base (both split the array base and regress). Committed at nd 104. */
+// FUN_0027D3C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0027d3c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s16 arg6, s16 arg7, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, void *arg_sp0)
+{
+    MsgProcWindowF2 sp180[42];
+    MsgProcWindowRGBA spD0[42];
+    s16 spCE;
+    s16 spCC;
+    u32 i;
+    s32 r, g, b, a;
+    u32 packed;
+    float f24, fsin, f25;
+    MsgProcWindowF2 *p;
+    MsgProcWindowRGBA *c;
+
+    spCE = arg6;
+    spCC = arg7;
+    sp180[0].x = (float)arg0;
+    sp180[0].y = (float)arg1;
+    packed = ((u32)arg3 << 8) | (u32)arg4;
+    r = (packed >> 24) & 0xFF;
+    spD0[0].r = (u8)(packed >> 24);
+    g = (packed >> 16) & 0xFF;
+    spD0[0].g = (u8)(packed >> 16);
+    b = (packed >> 8) & 0xFF;
+    spD0[0].b = (u8)(packed >> 8);
+    a = packed & 0xFF;
+    spD0[0].a = (u8)packed;
+    for (i = 1; i < 0x29; i++) {
+        f25 = (D_007612D0 * (float)(s32)(i - 1)) / 40.0f;
+        f24 = func_0044b7b0(f25);
+        fsin = func_0044b610(f25);
+        p = &sp180[i];
+        p->x = fparg2 * ((float)arg2 * fsin) + (float)arg0;
+        p->y = fparg3 * ((float)arg2 * (-f24)) + (float)arg1;
+        c = &spD0[i];
+        c->r = (u8)r;
+        c->g = (u8)g;
+        c->b = (u8)b;
+        c->a = (u8)a;
+    }
+    sp180[i] = sp180[1];
+    spD0[i].r = (u8)r;
+    spD0[i].g = (u8)g;
+    spD0[i].b = (u8)b;
+    spD0[i].a = (u8)a;
+    func_0045eb20(&spD0[0], &sp180[0], 0x2A, 5, arg5, spCE, spCC, arg_sp0, fparg0, fparg1, fparg2, fparg3);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d3c0);
+#endif
 
 // FUN_0027D620
 void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, u32 t3, void *s0, float f0, float f1, float f2, float f3)
