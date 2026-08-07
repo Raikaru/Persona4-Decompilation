@@ -198,7 +198,20 @@ void func_0015c210(void) {
 }
 
 // FUN_0015C440
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015c440);
+s32 func_0015c440(void)
+{
+    s32 r = 0;
+    u8 *p = D_00764334;
+    if (p == NULL) {
+        return r;
+    }
+    if (*(u32 *)(*(u8 **)(p + 0x38) + 0x2C) == 0) {
+        func_00440b68(&iGpffff9e28, D_005F05E8, 0xC19);
+        r = func_00454a60(D_005F0720, 0);
+    }
+    return r;
+}
+
 
 // FUN_0015C590
 void func_0015c590(s32 arg0) {

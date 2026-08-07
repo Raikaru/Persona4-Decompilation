@@ -92,28 +92,14 @@ void func_00460a80(s32 arg0, s32 arg1)
 
 
 
-/* measured: the call sequence and every constant are right, but retail holds
-   the D_00887300 table ADDRESS in $s0 across the two indirect calls (frame
-   0x20 with the saved register) while b210 rematerialises the lui/%lo pair at
-   each use (frame 0x10, obj 108 in a 112-byte window). Everything after the
-   first call therefore shifts, which is what inflates nd to 69. Assigning the
-   table to a local pointer does not force the save; schedule on is worse
-   (nd 50) because retail leaves both jalr delay slots empty. Constant
-   rematerialisation floor. Committed at nd 69. */
-// FUN_004614B0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_004614B0
 void func_004614b0(void) {
-    void (**tbl)(s32, s32);
-
-    tbl = D_00887300;
+    void (**tbl)(s32, s32) = (void (**)(s32, s32))(u32)D_00887300;
     tbl[0](6, 1);
     tbl[0](8, 1);
     func_003f6440(2, 0x44);
     func_003f6440(3, 0x717FB);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004614b0);
-#endif
 
 // FUN_00463520
 void func_00463520(void) {
