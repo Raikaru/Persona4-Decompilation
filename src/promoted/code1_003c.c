@@ -19,6 +19,7 @@ extern u8 D_008872E0[];
 extern s32 iGpffffb9b8;
 /* gp - 0x48F8 = 0x007647f8 */
 extern s32 iGpffffb708;
+extern s64 iGpffffb8f0;
 /* gp - 0x48F4 = 0x007647fc */
 extern s32 iGpffffb70c;
 extern void func_003e9680(u8 *arg0);
@@ -400,8 +401,40 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9530);
 // FUN_003C96D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c96d0);
 
-// FUN_003CA830
+/* measured: nd 14 at retail's 96-byte window. Referencing the three handler
+   entry points by their own symbols (rather than func_003ca740 plus 0x40 and
+   0x60) is what folds each offset into its own relocation and stops b210
+   CSEing them into one base plus two unmasked addiu immediates - that alone
+   was nd 65, and schedule on then took it to nd 14 by hoisting the three
+   addresses above the first store the way retail does. The three words left
+   are the order of `move $v0,$a0`, `addu $t0,$a0,$a3` and the first store;
+   declaring the returned value first, last, or between the handlers and the
+   record pointer all measure nd 14. Committed at nd 14. */
+// FUN_003CA830 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+u8 *func_003ca830(u8 *arg0) {
+    u8 *f60 = func_003ca7a0;
+    u8 *f00 = func_003ca740;
+    u8 *f40 = func_003ca780;
+    u8 *node = arg0 + iGpffffb708;
+
+    *(s32 *)(node + 0) = 0;
+    *(s32 *)(node + 4) = 0;
+    *(s32 *)(node + 8) = 0;
+    *(s32 *)(node + 0x10) = *(s32 *)(arg0 + 0x18);
+    *(s32 *)(node + 0x14) = *(s32 *)(arg0 + 0x1C);
+    *(s32 *)(node + 0x18) = *(s32 *)(arg0 + 0x10);
+    *(u8 **)(arg0 + 0x10) = f60;
+    *(u8 **)(arg0 + 0x18) = f00;
+    *(u8 **)(arg0 + 0x1C) = f40;
+    *(s32 *)(node + 0xC) = 0;
+    return arg0;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
+#endif
 
 // FUN_003CA890
 #pragma schedule on
