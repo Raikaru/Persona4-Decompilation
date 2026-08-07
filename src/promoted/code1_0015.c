@@ -12,6 +12,8 @@ extern void func_00160440(void);
 extern u8 *D_00764334;
 extern s32 D_00764384;
 extern u32 D_0076438C;
+extern void func_00440b68();
+extern u8 D_005EFF60[];
 
 
 extern u8 *func_001452b0(s32 arg0);
@@ -57,7 +59,15 @@ void func_001560a0(u8 *arg0, s16 arg1, s16 arg2, s16 arg3) {
 }
 
 // FUN_001560F0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001560f0);
+void func_001560f0(u8 *arg0, s32 arg1) {
+    u8 *p;
+
+    if (arg0 != NULL) {
+        p = *(u8 **)(arg0 + 0x38);
+        func_00440b68(D_005EFF60);
+        *(s32 *)(p + 8) = arg1;
+    }
+}
 
 // FUN_00156170
 u16 func_00156170(u8 *arg0)

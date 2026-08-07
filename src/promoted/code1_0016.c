@@ -112,7 +112,22 @@ void func_0016ea40(u8 *arg0, u16 arg1)
 }
 
 // FUN_0016EAA0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016eaa0);
+/* The scaled offset is named in an s32 local and the base added TO it so the
+   final addu comes out `index + base` as retail has it; folding the multiply
+   into the pointer expression emits `base + index` (nd 1). The three floats
+   are one E9F0Vec3 assignment because retail loads all three before storing
+   any. */
+void func_0016eaa0(u8 *arg0, s32 arg1, E9F0Vec3 *arg2) {
+    u8 *base;
+    s32 i;
+    s32 off;
+
+    base = *(u8 **)(arg0 + 0x38);
+    i = (s8)arg1;
+    base[i + 0xE8] = 1;
+    off = i * 12;
+    *(E9F0Vec3 *)(off + (s32)base + 0x108) = *arg2;
+}
 
 // FUN_0016EAF0
 s32 func_0016eaf0(u8 *arg0)
