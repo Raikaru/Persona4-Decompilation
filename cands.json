@@ -1,0 +1,3 @@
+{
+ "v1": "u8 *func_003d38e0(u8 *arg0, s32 arg1) {\n    u8 *p;\n    u8 *ret;\n\n    if (arg0 == NULL) {\n        ret = NULL;\n    } else {\n        p = *(u8 **)((u8 *)arg0 + 0x14);\n        if (p == NULL) {\n            ret = NULL;\n        } else {\n            *(s32 *)(p + 0x14) = arg1;\n            ret = arg0;\n        }\n    }\n    return ret;\n}"
+}
