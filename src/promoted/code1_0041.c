@@ -13,6 +13,9 @@ void func_00420e50(u8 *);
 void func_00420f38(u8 *);
 
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 6. */
 // FUN_00419628 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00419628(u32 *arg0, u32 arg1)

@@ -269,7 +269,8 @@ u8* func_0029d120(ScrPool* pool)
    an old-style callee declaration, arg1 through a local, and `#pragma schedule off`
    all sit at nd 10 (the two forms that move the load earlier score nd 13 and nd 104).
    `schedule off` changing nothing proves this is codegen argument ordering, not the
-   scheduler - the genuine-floor case in mwccps2-operand-order-inline-helper. */
+   scheduler - the genuine-floor case in mwccps2-operand-order-inline-helper.
+   Committed at nd 10. */
 // FUN_0029D1C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0029d1c0(void *arg0, void *arg1)

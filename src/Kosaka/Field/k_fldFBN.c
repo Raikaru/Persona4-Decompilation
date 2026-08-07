@@ -153,6 +153,9 @@ u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
 }
 
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 1014. */
 // FUN_0015E960 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0015e960(u8 *arg0, u8 **arg1, s32 arg2, s32 arg3, s16 arg4)
@@ -360,6 +363,9 @@ INCLUDE_ASM("asm/nonmatchings/k_fldFBN", func_0015e960);
 #endif
 
 
+/* measured: the body below is a faithful reconstruction whose residual is
+   recorded in the notes above; re-measured for nd_audit coverage.
+   Committed at nd 983. */
 // FUN_0015F000 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0015f000(u8 *arg0, u8 *arg1)

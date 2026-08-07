@@ -478,7 +478,8 @@ s32 func_00247c20(s16 arg0) {
    u64, long and unsigned long all revert to addiu (nd 67); u32 keeps the mask off
    but loses the daddiu (nd 27); (u16)/(u8) casts on the constants with an s32 local
    do not help (nd 27); casting at the uses does not remove the mask; and fourteen
-   type-promotion pragmas including opt_unpromotetypes both ways leave nd 8. */
+   type-promotion pragmas including opt_unpromotetypes both ways leave nd 8.
+   Committed at nd 8. */
 // FUN_00247CB0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00247cb0(s64 arg0) {
@@ -1125,7 +1126,8 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
    lh/cvt of the second operand, so w and t swap FP registers and the
    madd.s operands transpose. Twelve spellings measured (inline / cmmMiscOr
    helper / named or-temp x named-t / inline-div / named-w / parenthesised
-   product) all give exactly nd 21. FPU allocation + scheduling floor. */
+   product) all give exactly nd 21. FPU allocation + scheduling floor.
+   Committed at nd 21. */
 // FUN_00249960 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00249960(s32 arg0) {

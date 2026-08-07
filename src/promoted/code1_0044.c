@@ -86,7 +86,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446ed8);
    are displaced by 0x20. Probed the natural declaration-order struct init,
    retail's store order (unk10,unk14,unkC,unk54,unk0,unk8), a pointer-to-struct
    local, passing &s.unk0, and scalar field locals — all nd 60. Committed at
-   nd 60. */
+   nd 60.
+   Committed at nd 60. */
 // FUN_00446F30 NONMATCHING
 #ifdef NON_MATCHING
 void func_00446f30(u8 *arg0, u8 *arg1) {
@@ -149,7 +150,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f80);
    Probed mfc1 idioms (pointer/union/u32/direct), fabsf with a declared
    prototype, comparison polarity (>, >=, constant-left, <=/inv), shared-call
    vs two-return layout, and function-scope vs if-scope local array. Committed
-   at nd 83. */
+   at nd 83.
+   Committed at nd 83. */
 // FUN_0044B868 NONMATCHING
 #ifdef NON_MATCHING
 f32 func_0044b868(f32 x) {

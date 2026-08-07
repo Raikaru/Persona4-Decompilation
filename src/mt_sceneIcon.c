@@ -68,7 +68,8 @@ void func_0026d840(void)
    this function but is called bare from func_0026da30, so it must stay
    old-style; and func_0026d890 really does return 0 / -1 in $v0 even though the
    task dispatcher discards it, so its prototype is s32 and the callback site
-   casts. */
+   casts.
+   Committed at nd 18. */
 // FUN_0026D890 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0026d890(u8 *arg0)

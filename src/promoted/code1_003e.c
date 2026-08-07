@@ -736,7 +736,8 @@ void func_003e5510(s32 arg0) {
    `0 < n` and `!(n <= 0)` alike, and retail's in-loop mismatch test is a plain
    `bne` + nop while b210 wants `bnel`. Adding no_branch_likely fixes the
    second but costs the first (nd 49); schedule on shrinks the object to
-   64 bytes (nd 46). Entry-guard materialisation floor. */
+   64 bytes (nd 46). Entry-guard materialisation floor.
+   Committed at nd 43. */
 // FUN_003E5990 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003e5990(u8 *arg0, s32 arg1, s32 *arg2) {

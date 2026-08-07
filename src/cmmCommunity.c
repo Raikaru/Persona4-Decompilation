@@ -305,7 +305,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001075d0);
    evtMain func_00288020, so it is shape-specific not universal), s16/s32/u16
    signatures, and eleven control-flow pragmas including opt_rotateloops both ways.
    An in-loop `return` DOES produce the pair at the exact window size but then
-   materialises its own return value where retail falls into the shared block. */
+   materialises its own return value where retail falls into the shared block.
+   Committed at nd 72. */
 // FUN_001076E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001076e0(s32 arg0) {
@@ -364,7 +365,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001076e0);
    (nd 17); goto/break/switch forms merge into a single conditional branch
    (best nd 14 m2c-goto form). The found path must jump to the shared return
    block, which mwcc b210 only does for the merged goto. Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_001077F0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001077f0(s32 arg0) {
@@ -453,7 +455,8 @@ s32 func_00107930(s32 arg0)
    merges the goto spelling into a single beq->found (nd 24) and the
    return-then spelling inlines the found lw/and block into the loop instead
    of the shared retest tail (nd 25). Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_00107A00 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00107a00(s32 arg0, s32 arg1) {
@@ -493,7 +496,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107a00);
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_00107AC0 NONMATCHING
 #ifdef NON_MATCHING
 u16 func_00107ac0(s32 arg0) {
@@ -552,7 +556,8 @@ s32 func_00107b70(void)
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_00107BD0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00107bd0(s32 arg0) {
@@ -591,7 +596,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107bd0);
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_00107CE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00107ce0(s32 arg0) {
@@ -634,7 +640,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107ce0);
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_00107DC0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00107dc0(s32 arg0) {
@@ -715,7 +722,8 @@ s32 func_00107ea0(void)
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_00107F00 NONMATCHING
 #ifdef NON_MATCHING
 void func_00107f00(s32 arg0) {
@@ -758,7 +766,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00107f00);
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
    Branch-shape floor. */
-/* Community-slot scan family; see the note above func_001076e0. nd 38. */
+/* Community-slot scan family; see the note above func_001076e0. nd 38.
+   Committed at nd 38. */
 // FUN_00107FE0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00107fe0(s32 arg0) {

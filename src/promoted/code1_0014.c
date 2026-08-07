@@ -232,7 +232,8 @@ void func_00149e50(s32 arg0)
    return, an if/else assigning the result, a named `one` constant, and both
    combined. `#pragma schedule on` is much worse (nd 50, obj 88). The `!(x^1)`
    and `(x^1) == 0` spellings of the tail are worse (nd 44/43).
-   Boolean-result tail layout floor (docs/matching.md). */
+   Boolean-result tail layout floor (docs/matching.md).
+   Committed at nd 26. */
 // FUN_0014A190 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0014a190(s32 arg0, s32 arg1) {
