@@ -401,8 +401,27 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c500);
    named float locals, opt_propagation off (identical), decl orders — the
    int-arg-first prologue save is a fixed b210 scheduling floor. Lever 1
    (extern width/class) was the big win here. */
-// FUN_0034C6C0
+/* measured: nd 13 against a 352-byte window. The body is right; the residual is
+   the prologue, where retail performs the float moves before saving the second
+   argument into $s0 and b210 does the save first. Capturing the argument into a
+   local first does not reorder it. Committed at nd 13. */
+// FUN_0034C6C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0034c6c0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+    f32 z;
+    f32 scale;
+
+    z = D_008872F8[0] - D_0088467C[0];
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    func_0034f0d0(arg0, fparg0, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+    func_0034f0d0(arg0 + 0x40, fparg0, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+    func_0034f0d0(arg0 + 0x80, fparg0 + fparg2, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+    func_0034f0d0(arg0 + 0xC0, fparg0 + fparg2, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c6c0);
+#endif
+
 
 // FUN_0034C820
 void func_0034c820(u8 *arg0) {

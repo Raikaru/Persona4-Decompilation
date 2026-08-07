@@ -1605,6 +1605,8 @@ void func_00279dd0(u8 *arg0, s32 arg1)
     *(u16 *)(base + 4) = 0xFFFF;
 }
 
+static inline s32 addOff7e90(s32 off, s32 base) { return off + base; }
+
 /* measured: re-measured 2026-08-03: nd 8 confirmed (obj 316B vs window
    320B). This wave established the full correct body: base/arg0+0x14 declared
    before id (register coloring), u32 masked = id & 0xFFFF local (retail
@@ -1626,8 +1628,60 @@ void func_00279dd0(u8 *arg0, s32 arg1)
    $t3,$zero). Not moved by: named s32 offset local (nd 10), p7 load local
    (nd 7), #pragma opt_propagation off (nd 7), #pragma schedule on (base
    reorder, obj 288B), distinct casts. Load-position scheduler floor. */
-// FUN_00279E90
+/* measured: nd 15. Reconstructed from scratch this wave; the levers that got it
+   here are worth keeping. Loading the halfword into a saved register BEFORE the
+   call (retail keeps it live across) fixed the frame; emitting the two
+   func_00274570 calls SEPARATELY, one per branch, instead of merging them to a
+   single call after the join reproduced retail's two jals; the else branch
+   re-reads the value from memory rather than reusing the saved copy; and the
+   0x8000 branch needs a named local for the scaled offset plus an index-first
+   addOff helper for the addu. The seven words left are the position of one
+   argument load, which opt_propagation off makes worse (nd 20).
+   Committed at nd 15. */
+// FUN_00279E90 NONMATCHING
+#ifdef NON_MATCHING
+void func_00279e90(u8 *arg0, u8 *arg1)
+{
+    s32 global;
+    u8 *base;
+    s32 X;
+    u16 v;
+    s32 masked;
+
+    base = arg0 + 0x14;
+    v = *(u16 *)(arg1 + 0x1A);
+    if (*(u16 *)(arg0 + 0x18) == v)
+        return;
+    if (*(s32 *)base != 0) {
+        func_00271b70(*(s32 *)base);
+        *(s32 *)base = 0;
+    }
+    *(u16 *)(base + 4) = v;
+    global = iGpffffb4b0;
+    if (global == 0)
+        iGpffffb4b0 = 0x7B;
+    masked = v & 0xFFFF;
+    if (masked != 0xFFFF) {
+        if (masked & 0x8000) {
+            s32 off;
+            s32 p7;
+            off = (masked & 0x7FFF) << 2;
+            p7 = *(s32 *)(addOff7e90(off, (s32)arg0) + 0x94);
+            *(s32 *)base = func_00274570(0, 0, 0, 0, 0, 0xFF, p7, 0);
+        } else {
+            s32 ep;
+            s32 v2;
+            v2 = *(u16 *)(arg0 + 0x18);
+            ep = *(s32 *)((*(s32 *)(*(s32 *)(arg0 + 4) + 0x18) << 3) + *(s32 *)(arg0 + 4) + 0x20);
+            *(s32 *)base = func_00274570(0, 0, 0, 0, 0, 0xFF, *(s32 *)(ep + (v2 << 2)), 0);
+        }
+        func_0027a340((u8 *)*(s32 *)base, *(s32 *)(arg0 + 0xC));
+    }
+    iGpffffb4b0 = global;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279e90);
+#endif
 // FUN_00279FD0
 int func_00279fd0(int param_1,u32 param_2)
 {
