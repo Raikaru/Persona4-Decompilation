@@ -17,7 +17,16 @@ extern u8 D_0070AFB0[];
 extern u8 D_008872E0[];
 /* gp - 0x4648 = 0x00764aa8 */
 extern s32 iGpffffb9b8;
-extern void func_003f32d0();
+/* gp - 0x48F8 = 0x007647f8 */
+extern s32 iGpffffb708;
+/* gp - 0x48F4 = 0x007647fc */
+extern s32 iGpffffb70c;
+extern void func_003e9680(u8 *arg0);
+extern u8 func_003ca740[];
+extern u8 func_003ca780[];
+extern u8 func_003ca7a0[];
+u8 *func_003cbc10(u8 *arg0, u8 *arg1);
+void func_003f32d0();
 extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
 extern void (*jtbl_008873E8[])(u8 *arg0, s32 arg1);
 /* gp - 0x4930 = 0x007647c0 */
@@ -55,6 +64,8 @@ s32 func_003c1d20(s32 arg0) {
     D_007647BC--;
     return arg0;
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 
@@ -69,6 +80,8 @@ s32 func_003c2130(s32 arg0, u8 *arg1, s16 arg2, s16 arg3, s16 arg4) {
     ((s16 *)arg1)[2] = arg4;
     return arg0;
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 
@@ -97,6 +110,8 @@ u8 *func_003c2290(u8 *arg0, s32 arg1) {
     return arg0;
 }
 #pragma no_branch_likely off
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
@@ -108,6 +123,8 @@ u8 *func_003c2a60(u8 *arg0) {
     ((s16 *)arg0)[7] = (s16)(((s16 *)arg0)[7] + 1);
     return arg0;
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 
@@ -125,6 +142,8 @@ s32 func_003c2c90(u8 *arg0) {
     total += func_003c4c00(arg0 + 0x20) + 0xC;
     return total + (func_003e3370(D_0070AFB0, arg0) + 0xC);
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 // FUN_003C38B0
@@ -163,6 +182,8 @@ s32 func_003c3cc0(u8 *arg0) {
     jtbl_008873FC[0](*(u8 **)(D_008872E0 + iGpffffb8d0), arg0);
     return 1;
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 /* measured: the object is exactly its 128-byte window and every instruction
@@ -182,6 +203,8 @@ u8 *func_003c3e10(u8 *arg0) {
     *(u8 **)(D_008872E0 + iGpffffb8d0) = NULL;
     return arg0;
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e10);
@@ -231,6 +254,8 @@ u8 *func_003c40d0(u8 *arg0) {
     return arg0;
 }
 #pragma no_branch_likely off
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 // FUN_003C42B0
@@ -271,6 +296,8 @@ s32 func_003c47c0(u8 *arg0) {
     }
     return total + (func_003e3370(D_0070AFF0, arg0) + 0xC);
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
@@ -343,6 +370,8 @@ call:
     (*jtbl_008873EC)();
     goto ret;
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 /* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
@@ -375,7 +404,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c96d0);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
 
 // FUN_003CA890
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca890);
+#pragma schedule on
+u8 *func_003ca890(u8 *arg0, u8 *arg1) {
+    u8 *node = arg1 + iGpffffb708;
+    u8 *node0 = arg0 + iGpffffb708;
+    s32 guard = *(s32 *)(node + 0xC);
+    *(s32 *)(node0 + 0) = 0;
+    *(s32 *)(node0 + 4) = 0;
+    *(s32 *)(node0 + 8) = 0;
+    if (guard != 0)
+        func_003cbc10((u8 *)guard, arg0);
+    return arg0;
+}
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
+#pragma schedule off
 
 // FUN_003CA8E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca8e0);
@@ -411,6 +454,8 @@ void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
     temp_2 = (s32)func_003c9c20(arg2);
     func_003c5a90(*(s32 *)(arg2 + 0x78), temp_2, arg0, temp_2 + 0x10);
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
@@ -420,10 +465,32 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
 
 // FUN_003CBC10
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbc10);
+#pragma schedule on
+u8 *func_003cbc10(u8 *arg0, u8 *arg1) {
+    u8 *node = arg1 + iGpffffb708;
+    u8 *v = *(u8 **)(arg1 + 4);
+    if (v != 0)
+        func_003e9680(v);
+    *(s32 *)(node + 0xC) = (s32)arg0;
+    return arg0;
+}
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
+#pragma schedule off
 
 // FUN_003CBC90
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbc90);
+#pragma schedule on
+u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
+    u8 *node = arg1 + iGpffffb70c;
+    u8 *v = *(u8 **)(arg1 + 4);
+    if (v != 0)
+        func_003e9680(v);
+    *(s32 *)(node + 0x0) = (s32)arg0;
+    return arg0;
+}
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
+#pragma schedule off
 
 /* One of three identical setters (0x40/0x3C/0x44 written, 0x58/0x54/0x5C
    consulted). The gotos reproduce retail's four-block layout, and schedule on
@@ -544,6 +611,8 @@ void func_003cc130(void) {
     func_003d4e90();
     func_003d4d70();
 }
+// measured: closes the schedule bracket opened above and restores the -O2
+// baseline for the rest of the file.
 #pragma schedule off
 
 

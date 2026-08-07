@@ -319,20 +319,27 @@ s32 func_002b6850(u8 *arg0) {
     return 1;
 }
 
-/* measured: restructured with a p4 = p + 4 store pointer, s32 v for the loaded s16,
-   and (s16) casts on the or/and masks - the entire body then matches retail exactly;
-   the only residual is the prologue load-sinking wall: retail loads iGpffffb574 then
-   the 0x38 table base before sign-extending arg0, mwcc sinks the 0x38 load below the
-   shift and flips the addu operands (7 differing words reloc-masked). Same wall as
-   func_002b6af0/002b6b40. */
-/* measured 2026-08-03: re-attempted 4x (opt_propagation off, s16 mask casts,
-   p4/v decl orders). opt_propagation off fixes the load-sinking order (nd 31->
-   22) but the register swap persists: retail assigns p4=$a3 (the dead base
-   reg) and v=$t0, mwcc always p4=$t0/v=$a3; and the OR/AND result's dsll32/
-   dsra32 sign-ext is not emitted by any (s16) mask-cast spelling. The nd-7
-   recipe's exact declaration order was not recovered. */
+/* measured 2026-08-07: MATCHED (nd 0). opt_propagation off fixes the prologue
+   load-sinking wall (lw gp then lw 0x38 table base before the arg0 sign-ext).
+   The OR branch uses (1 << arg1) & 0xFFFF (andi) and the AND branch uses
+   (1 << arg1) ^ 0xFFFF (xori) - spelling ~ on the mask emits 32-bit `not`
+   instead of retail's 16-bit xori. s32 v holds the loaded s16; p4 = slot + 4
+   is the store pointer. arg0/s16, arg1/s16, arg2/s8 sign-exts match retail. */
 // FUN_002B68D0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b68d0);
+#pragma opt_propagation off
+void func_002b68d0(s16 arg0, s16 arg1, s8 arg2) {
+    u8 *p = *(u8 **)(iGpffffb574 + 0x38);
+    u8 *slot = p + ((s32)arg0 << 8);
+    u8 *p4 = slot + 4;
+    s32 v = *(s16 *)(slot + 0x14);
+    if (arg2 == 0) {
+        v = (s16)(v | (s16)((1 << arg1) & 0xFFFF));
+    } else if (arg2 == 1) {
+        v = (s16)(v & (s16)((1 << arg1) ^ 0xFFFF));
+    }
+    *(s16 *)(p4 + 0x10) = (s16)v;
+}
+#pragma opt_propagation on
 // FUN_002B6970
 s16 func_002b6970(s16 arg0, s16 arg1) {
     return (s16)((arg0 & ((1 << arg1) & 0xFFFF)) >> arg1);
