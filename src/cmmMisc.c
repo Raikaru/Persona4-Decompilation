@@ -381,38 +381,67 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247270);
    Mask-CSE floor (same family as FUN_00247DD0/FUN_00248A60). */
 // FUN_002474F0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002474f0);
-/* measured (wave 14 retest — nd 12 best, no match): `(u16)i` at the FIRST
-   call site + `i & 0xFFFF` at the second breaks the mask-CSE (no 5th saved
-   reg) and `best=0; bestId=0; i=1; se=(s16)arg0;` init order (then a while
-   loop) reaches nd 12 — better than this note's earlier nd 14. Residual is
-   the pure saved-reg rotation: retail = best:$s2/bestId:$s1/se:$s0/i:$s3,
-   mwcc = best:$s3/bestId:$s2/i:$s1 (se already $s0); decl-order and
-   for-vs-while variants land 12-15. Saved-register-rotation floor (same
-   family as FUN_00247820). */
+/* MATCHED (measured): lever-2 re-masked loop counter. `#pragma opt_common_subs
+   off` (measured) stops mwcc b210 from CSE-ing `i & 0xFFFF` into a saved reg
+   so retail's `andi $a0,$i` is re-emitted at each call site; `i` MUST be
+   declared FIRST (measured: nd 12 -> 0) so the allocator picks
+   best=$s2/bestId=$s1/se=$s0/i=$s3; `target=(s16)arg0` sign-extends once
+   before the loop; `i=1` is set before the empty-init for. */
 // FUN_00247770
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247770);
-/* measured (wave 14 retest — nd 50, no match): draft-based reconstruction
-   (s8 target = func_00248760(arg0 & 0xFFFF); for i < (func_0010b6f0() &
-   0xFFFF) — the count call is INSIDE the loop condition in retail;
-   func_00109300(i & 0xFFFF) & 0xFFFF -> v; target == func_00109280(v) & 0xFF;
-   func_001093a0(...) & 0xFF -> cur; best < cur -> best=cur, best_id=v;
-   return (s16)best_id) — mwcc balloons the frame to 6 saved regs (-0x70 vs
-   retail's 5 at -0x60) by CSE-ing i & 0xFFFF and duplicating the target
-   sign-extension ($s5 copy); mixed (u16)i / i & 0xFFFF spellings are
-   normalised (nd 50). Saved-register-rotation + Mask-CSE floor. */
+#pragma opt_common_subs off
+s16 func_00247770(s32 arg0) {
+    s32 i;
+    s32 largest;
+    s32 result;
+    s32 target;
+
+    largest = 0;
+    result = 0;
+    i = 1;
+    target = (s16)arg0;
+    for (; i < 0x1F; i++) {
+        if (target == func_00248760(i & 0xFFFF)) {
+            s32 v = func_00107ac0(i & 0xFFFF) & 0xFFFF;
+            if (largest < v) {
+                largest = v;
+                result = i;
+            }
+        }
+    }
+    return result;
+}
+#pragma opt_common_subs on
+/* MATCHED (measured): `#pragma opt_common_subs off` stops mwcc b210 from
+   CSE-ing `i & 0xFFFF` into a saved reg so retail's `andi $a0,$i` is
+   re-emitted at each call site; declaration order target/i/largest/result
+   (measured: nd 8 -> 0) yields retail's $s0=target/$s1=result/$s2=largest/
+   $s3=i/$s4=v; `target=(s8)func_00248760(arg0&0xFFFF)` sign-extends once. */
 // FUN_00247820
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247820);
-/* measured (wave 14 — no fresh full-body attempt; complex 800B floor):
-   below the recorded read-shape issue — retail reads the u_long128 spB0 with
-   `lq` AFTER the func_00109280 call and compares via one bne, while mwcc
-   b210 hoists the load before the call into $s7 and narrows it; no spelling
-   reproduced the post-call lq. Structure per m2c draft: recursive
-   func_00247900(arg0,arg1,-1), func_0044ea90 assert (extern added as
-   void(const void*, s32)), D_008873F4 allocator call, the 0x100 loop with
-   func_00109280/func_00107ac0 gates and var_18/var_17 list build, a bubble
-   sort, then the jtbl_008873EC dispatch. Load-hoisting + 128-bit-read-shape
-   floor; also needs the four vtable spellings for D_008873F4/jtbl_008873EC.
-   func_00109280 takes (s32) — calls pass (u16) masks via leftover regs. */
+#pragma opt_common_subs off
+s16 func_00247820(s32 arg0) {
+    s32 target;
+    s32 i;
+    s32 largest;
+    s32 result;
+    s32 v;
+    s32 w;
+
+    largest = 0;
+    result = 0;
+    target = (s8)func_00248760(arg0 & 0xFFFF);
+    for (i = 0; i < (func_0010b6f0() & 0xFFFF); i++) {
+        v = func_00109300(i & 0xFFFF) & 0xFFFF;
+        if (target == (func_00109280(v) & 0xFF)) {
+            w = func_001093a0(i & 0xFFFF) & 0xFF;
+            if (largest < w) {
+                largest = w;
+                result = v;
+            }
+        }
+    }
+    return (s16)result;
+}
+#pragma opt_common_subs on
 // FUN_00247900
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247900);
 
@@ -536,19 +565,44 @@ s32 func_00247ec0(s32 seed) {
     return 0;
 }
 
-/* measured (wave 14 retest — nd 53 -> 16): `#pragma opt_loop_invariants on`
-   (measured: 53 -> 16) DOES hoist the sp3C/sp38 outputs and the count into
-   registers before the loop (retail's $a0/$v1/$a2), so the earlier
-   "reloads per iteration" floor is gone. Loop body, advance, and the
-   i<count test now match byte-for-byte. Residual 16 words are all the
-   RETURN-sentinel layout: retail computes ret=1 (found) / ret=0 (loop end)
-   into $v0 then a shared `beqz $v0 -> RET1` CHECK block (found->return 0,
-   not-found->return 1), while mwcc b210 emits direct return-0/return-1
-   moves at the sites. Simple `while (i<count){ if(match) return 0; ... }`
-   is best (16); break/goto/while(1)+sentinel structures all explode the
-   register count (24/54/53). */
+/* MATCHED (measured): `#pragma opt_loop_invariants on` (nd 53 -> 9) hoists
+   the sp3C/sp38 outputs and count into registers before the loop. The
+   goto-sentinel spelling is required: `found` is set to 1 inside the loop
+   (match) with `goto done`, and `found = 0` sits on the loop-exit path —
+   this puts the sentinel in $v0 and yields retail's shared `beqz $v0 ->
+   RET1` check. The inverted guard `if (found != 0) return 0; return 1;`
+   (measured: nd 9 -> 0) matches retail's branch polarity. */
 // FUN_00247F60
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247f60);
+#pragma opt_loop_invariants on
+s32 func_00247f60(s32 arg0) {
+    u8 *p;
+    s32 key1;
+    s32 key2;
+    s32 count;
+    s32 i;
+    s32 found;
+
+    if (func_00110d30(arg0) == 0) {
+        return 0;
+    }
+    p = D_00881498[0] + 8;
+    func_001104d0(arg0, &key1, &key2);
+    count = *(s32 *)(D_00881498[0] + 4);
+    for (i = 0; i < count; i++) {
+        if (p[0] == key1 && p[1] == key2) {
+            found = 1;
+            goto done;
+        }
+        p += 2;
+    }
+    found = 0;
+done:
+    if (found != 0) {
+        return 0;
+    }
+    return 1;
+}
+#pragma opt_loop_invariants off
 // FUN_00248040
 s32 func_00248040(s32 arg0) {
     s32 var_16 = arg0 + 1;

@@ -120,8 +120,56 @@ void func_0034ba20(void) {
    and the dst-temp (retail src=$a0/dst-temp=$a1, mwcc src=$a1/dst-temp=$a0)
    across all 19 stores, nd 25. Lever 1 (signature) N/A: void, no args, no
    externs. Register-coloring floor. */
-// FUN_0034BA30
+/* measured: nd 64 against retail's 224-byte window (object 212, retail's real
+   body is the same 212 with three trailing nops). Every instruction is right -
+   an earlier probe measured zero differing WORDS - and the residual is register
+   colouring across the nineteen stores plus the order in which the two table
+   base addresses are materialised: retail loads the destination base first.
+   Declaring and assigning the destination pointer ahead of the source does not
+   move it. Committed at nd 64. */
+// FUN_0034BA30 NONMATCHING
+#ifdef NON_MATCHING
+void func_0034ba30(void) {
+    u8 *dst;
+    u8 *src;
+    s32 i;
+    f32 t0;
+    f32 t1;
+    f32 t2;
+    f32 t3;
+
+    D_00884670[0] = 0;
+    D_00884674[0] = 0;
+    D_00884678[0] = 0;
+    D_00884680[0] = 0;
+    D_00884684[0] = 0;
+    dst = D_00882FF0;
+    src = D_00749B30;
+    for (i = 0; i < 20; i++) {
+        t0 = *(f32 *)(src + i * 20 + 0);
+        *(f32 *)(dst + i * 84 + 0x18) = t0;
+        *(f32 *)(dst + i * 84 + 0x08) = t0;
+        *(f32 *)(dst + i * 84 + 0x00) = t0;
+        t1 = *(f32 *)(src + i * 20 + 4);
+        *(f32 *)(dst + i * 84 + 0x1C) = t1;
+        *(f32 *)(dst + i * 84 + 0x0C) = t1;
+        *(f32 *)(dst + i * 84 + 0x04) = t1;
+        t2 = *(f32 *)(src + i * 20 + 0xC);
+        *(f32 *)(dst + i * 84 + 0x2C) = t2;
+        *(f32 *)(dst + i * 84 + 0x24) = t2;
+        *(f32 *)(dst + i * 84 + 0x20) = t2;
+        t3 = *(f32 *)(src + i * 20 + 0x10);
+        *(f32 *)(dst + i * 84 + 0x34) = t3;
+        *(f32 *)(dst + i * 84 + 0x30) = t3;
+        *(s16 *)(dst + i * 84 + 0x48) = *(s16 *)(src + i * 20 + 8);
+        *(s32 *)(dst + i * 84 + 0x4C) = 0;
+        *(s32 *)(dst + i * 84 + 0x10) = 0;
+        *(s32 *)(dst + i * 84 + 0x14) = 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ba30);
+#endif
 
 // FUN_0034BB10
 s32 func_0034bb10(void) {
