@@ -12,6 +12,13 @@ extern s32 func_00156180(s32 arg0);
 extern s32 func_0015a160(void);
 extern s32 func_00161630(u16 a, u16 b, s32 c, s32 d);
 extern u8 gMtScene[];
+extern u8 D_005F18C0[];
+extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern u8 D_005F1910[];
+void func_0017c930(u8 *arg0);
+void func_0017cc90(u8 *arg0);
+extern void func_0044ea90(const void *msg, s32 id);
+extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -258,5 +265,14 @@ void func_0017cc90(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_0017CCC0
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017ccc0);
+s32 func_0017ccc0(u8 *arg0) {
+    u8 *buf;
+
+    func_0044ea90(D_005F18C0, 0x8E5);
+    buf = D_008873F4[0](1, 0x40, 0x40000);
+    if (buf == NULL) {
+        return 0;
+    }
+    return func_00451fc0(arg0, D_005F1910, 8, 0, 0, func_0017c930, func_0017cc90, buf);
+}
 
