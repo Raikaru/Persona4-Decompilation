@@ -2,6 +2,14 @@
 #include "type.h"
 extern s32 iGpffffac74;
 extern s32 iGpffffad88;
+extern s16 iGpffffba1c;
+extern s16 iGpffffba20;
+extern s16 iGpffffba24;
+extern s16 iGpffffba28;
+extern s16 iGpffffba2c;
+extern s16 iGpffffba30;
+extern s16 iGpffffba34;
+extern s32 func_004535b0(void);
 extern u8 D_00711738[];
 extern void func_004244c8(u8 *arg0);
 extern void func_00426f80(s32 arg0);
@@ -31,7 +39,18 @@ void func_004526f0(u8* arg0, s32 arg1)
 
 
 // FUN_004534F0
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_004534f0);
+void func_004534f0(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+    if (func_004535b0() == 0) {
+        return;
+    }
+    iGpffffba34 = arg0;
+    iGpffffba30 = 0;
+    iGpffffba2c = arg2;
+    iGpffffba28 = arg3;
+    iGpffffba20 = arg1;
+    iGpffffba1c = 2;
+    iGpffffba24 = 0;
+}
 
 // FUN_004535B0
 s32 func_004535b0(void)

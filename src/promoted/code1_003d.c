@@ -130,8 +130,39 @@ s32 func_003d8130(s32 arg0, s32 arg1) {
    beql with the move annulled in its slot across all probed shapes. */
 
 #pragma schedule on
-// FUN_003D8150
+/* measured: nd 32 against retail's 80-byte window (object 56 vs retail's real
+   68, so work is still missing). Retail booleanises the loaded word with
+   sltu/xori before branching and keeps the scan pointer in $v1 with the index
+   in $a1; the goto layout here reproduces the branch shape but not the
+   register assignment or the extra normalisation. Probed do/while, plain for,
+   named booleanised locals, u32 vs s32 for the loaded word, unsigned index
+   compare, and several declaration orders. Committed at nd 32. */
+// FUN_003D8150 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003d8150(s32 arg0) {
+    u32 i;
+    u32 *p;
+    s32 nz;
+
+    i = 0;
+    p = (u32 *)(arg0 + D_0072483C);
+scan:
+    nz = (p[2] != 0);
+    if (!nz) {
+        goto step;
+    }
+    return 1;
+step:
+    p++;
+    i++;
+    if (i < 8) {
+        goto scan;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8150);
+#endif
 
 // FUN_003D81A0
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.

@@ -5,8 +5,14 @@ extern s32 func_003df360(s32 arg0, s32 *arg1, s32 arg2);
 /* gp - 0x4A20 = 0x007690f0 - 0x4a20 = 0x007646d0 */
 extern s32 iGpffffb5e0;
 extern void func_0038fb10(s32 arg0);
-extern void func_00399b10(s32 arg0);
-extern void func_00399b80(s32 arg0);
+extern s32 func_00399b10(s32 arg0);
+extern s32 func_00399b80(s32 arg0);
+extern void func_0039a8a0(s32 arg0);
+/* gp - 0x4A1C = 0x007690f0 - 0x4A1C = 0x007646D4 */
+extern s32 iGpffffb5e4;
+/* gp - 0x4A18 = 0x007690f0 - 0x4A18 = 0x007646D8 */
+extern s32 iGpffffb5e8;
+u8 *func_0039aab0(u8 *arg0);
 
 extern s32 D_007246B0;
 extern s32 D_007246B4;
@@ -190,14 +196,64 @@ docall:
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
-// FUN_00399B10
+/* measured: nd 43 against retail's 112-byte window. The control flow is right -
+   set the flag and return the object when the initialiser succeeds, otherwise
+   return zero - but retail places the already-initialised case out of line
+   while b210 inlines it, and the two returns are coloured the other way round.
+   Committed at nd 43. */
+// FUN_00399B10 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+s32 func_00399b10(s32 arg0)
+{
+    s32 *p = (s32 *)(arg0 + iGpffffb5e4);
+    if (*p == 0) {
+        if (func_0039aab0((u8 *)arg0)) {
+            *p = 1;
+            return arg0;
+        }
+        return 0;
+    }
+    return arg0;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b10);
+#endif
 
 // FUN_00399B80
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b80);
 
-// FUN_00399FD0
+/* measured: retail enters the slot loop directly (proves i=0<2, no pre-test)
+   and hoists the compare constant (addiu $v1,$zero,1) into the preheader;
+   b210 materialises the constant in the body and emits a `b` to the bottom
+   test, plus prologue scheduling order and epilogue delay-slot ordering.
+   Probed: do/while (nd 55), schedule on (nd 64), opt_loop_invariants (nd 54),
+   optimization O1 (nd 61) / O3 (nd 56), no_branch_likely. Same family floor as
+   the parked a090/a340/a3a0/a400/a630 (nd 36-46). Committed at nd 44. */
+// FUN_00399FD0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00399fd0(s32 arg0, s32 arg1)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 1) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    *(s32 *)(e + 0) = arg1;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399fd0);
+#endif
 
 /* This is the head of the 0039A0xx-0039A8xx slot-search family (about
    fifteen functions): every one of them loads a 64-byte-strided table through
@@ -291,17 +347,97 @@ found:
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a090);
 #endif
 
-// FUN_0039A0F0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
+/* measured: read-variant of the 0039A0xx slot-search family, same floor as
+   func_00399fd0 - retail enters the loop directly and hoists the compare
+   constant; b210 emits a pre-test `b`, materialises the constant in the body,
+   and schedules the prologue differently. Probed: do/while, schedule on,
+   opt_loop_invariants, O1/O3, no_branch_likely; none beat the for+goto form.
+   Committed at nd 42. */
+// FUN_0039A0F0 NONMATCHING
+#ifdef NON_MATCHING
+f32 func_0039a0f0(s32 arg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
 
-// FUN_0039A200
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 1) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    return -*(f32 *)(e + 0xC);
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
+#endif
+
+/* measured: store-variant of the 0039A0xx slot-search family, same floor as
+   func_00399fd0 - retail enters the loop directly and hoists the compare
+   constant (addiu $v1,$zero,2); b210 emits a pre-test `b`, materialises the
+   constant in the body, and schedules the prologue/epilogue differently.
+   Probed: do/while, schedule on, opt_loop_invariants, O1/O3,
+   no_branch_likely; none beat the for+goto form. Committed at nd 44. */
+// FUN_0039A200 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039a200(s32 arg0, s32 arg1)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 2) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    *(s32 *)(e + 0) = arg1;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a200);
+#endif
 
 // FUN_0039A260
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a260);
 
-// FUN_0039A2E0
+/* measured: store-variant of the 0039A0xx slot-search family, same floor as
+   func_00399fd0 - retail enters the loop directly and hoists the compare
+   constant (addiu $v1,$zero,2); b210 emits a pre-test `b`, materialises the
+   constant in the body, and schedules the prologue/epilogue differently.
+   Probed: do/while, schedule on, opt_loop_invariants, O1/O3,
+   no_branch_likely; none beat the for+goto form. Committed at nd 44. */
+// FUN_0039A2E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039a2e0(s32 arg0, f32 fparg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 2) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    *(f32 *)(e + 0x8) = fparg0;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a2e0);
+#endif
 
 /* measured: same shape as func_0039a090; see that note. nd 36. */
 // FUN_0039A340
@@ -390,8 +526,36 @@ found:
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
 #endif
 
-// FUN_0039A460
+/* measured: read-variant of the 0039A0xx slot-search family, same floor as
+   func_00399fd0 - retail enters the loop directly and hoists the compare
+   constant (addiu $v1,$zero,2); b210 emits a pre-test `b`, materialises the
+   constant in the body, and schedules the prologue differently. This is the
+   cleanest of the six (epilogue jr/nop already matches); residual is purely
+   the pre-test + constant hoist + register allocation. Probed: do/while,
+   schedule on, opt_loop_invariants, O1/O3, no_branch_likely. Committed at
+   nd 36. */
+// FUN_0039A460 NONMATCHING
+#ifdef NON_MATCHING
+f32 func_0039a460(s32 arg0)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 2) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    return *(f32 *)(e + 0x8);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a460);
+#endif
 
 /* measured: same shape as func_0039a090; see that note. nd 36. */
 // FUN_0039A630
@@ -422,14 +586,104 @@ found:
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a630);
 #endif
 
-// FUN_0039A690
+/* measured: store-through-pointer variant of the 0039A0xx slot-search family,
+   same floor as func_00399fd0 - retail enters the loop directly (i=0<2, no
+   pre-test) and hoists the compare constant (addiu $v1,$zero,4); b210 emits a
+   pre-test `b`, materialises the constant in the body, and schedules the
+   prologue/epilogue differently. Probed base for+goto form only. Committed at
+   nd 56. */
+// FUN_0039A690 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039a690(s32 arg0, s32 *arg1, s32 *arg2)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 4) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    *arg1 = *(s32 *)(e + 0x4);
+    *arg2 = *(s32 *)(e + 0x8);
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a690);
+#endif
 
-// FUN_0039A700
+/* measured: store-variant of the 0039A0xx slot-search family with a second
+   store (arg2 at 0x4) in the shared epilogue, same floor as func_00399fd0 -
+   retail enters the loop directly (i=0<2, no pre-test) and hoists the compare
+   constant (addiu $v1,$zero,5); b210 emits a pre-test `b`, materialises the
+   constant in the body, and the extra store adds register pressure to the
+   allocation. Probed: do/while, schedule on, opt_loop_invariants, O1/O3,
+   no_branch_likely; none beat the for+goto form. Committed at nd 49. */
+// FUN_0039A700 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039a700(s32 arg0, s32 arg1, s32 arg2)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 5) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    *(s32 *)(e + 0) = arg1;
+    *(s32 *)(e + 4) = arg2;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a700);
+#endif
 
-// FUN_0039A760
+/* measured: conditional-store variant of the 0039A0xx slot-search family
+   (the found path has an empty body - retail `b found` with a nop delay slot -
+   then stores through non-NULL arg1/arg2 pointers), same floor as
+   func_00399fd0 - retail enters the loop directly (i=0<2, no pre-test) and
+   hoists the compare constant (addiu $v1,$zero,5); b210 emits a pre-test `b`
+   and materialises the constant in the body. Probed base for+goto form only.
+   Committed at nd 46. */
+// FUN_0039A760 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0039a760(s32 arg0, s32 *arg1, s32 *arg2)
+{
+    u8 *p;
+    u8 *e;
+    u8 i;
+
+    p = *(u8 **)(arg0 + D_007646D0);
+    for (i = 0; i < 2; i++) {
+        e = p + i * 0x40;
+        if (*(s32 *)(e + 0x20) == 5) {
+            goto found;
+        }
+    }
+    e = NULL;
+found:
+    if (arg1) {
+        *arg1 = *(s32 *)(e + 0x0);
+    }
+    if (arg2) {
+        *arg2 = *(s32 *)(e + 0x4);
+    }
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a760);
+#endif
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot

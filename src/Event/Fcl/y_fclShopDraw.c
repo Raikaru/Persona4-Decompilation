@@ -1025,5 +1025,43 @@ void func_002e02d0(void *arg0) {
    (void (*)(u8 *)) casts. The recorded best nd 22 (5 variants) not reachable
    via these levers. Loop-temp register-allocation floor. */
 // FUN_002E0300
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002e0300);
+/* measured: retail hoists the loop-invariant 0xFF and 1.0f into the preheader. */
+#pragma opt_loop_invariants on
+s32 func_002e0300(s32 arg0, s16 arg1, u32 arg2) {
+    s32 r;
+    u8 *w;
+    u8 *src;
+    s16 i;
+    void *h;
+    func_0044ea90(&D_0063FAC0, 0x1D6A);
+    w = D_008873F4[0](1, 0x104, 0x40000);
+    r = func_00451fc0(arg0, (char *)&D_0063FB70, 0xF, 0, 0,
+                      (void (*)(u8 *))func_002e0100, (void (*)(u8 *))func_002e02d0, w);
+    w[0] = 0;
+    *(s16 *)(w + 0xF8) = arg1;
+    *(u32 *)(w + 0xF4) = arg2;
+    src = D_0063F560 + arg1 * 8;
+    for (i = 0; i < 3; i++) {
+        *(f32 *)(w + i * 8 + 0x1C) = *(f32 *)src;
+        *(f32 *)(w + i * 8 + 0x20) = *(f32 *)(src + 4);
+        w[i + 0x60] = 0xFF;
+        *(f32 *)(w + i * 4 + 0x98) = 1.0f;
+        *(f32 *)(w + i * 4 + 0x8C) = 1.0f;
+        *(s32 *)(w + i * 4 + 0xBC) = 0;
+        w[i * 4 + 0x73] = 0xFF;
+        w[i * 4 + 0x72] = 0xFF;
+        w[i * 4 + 0x71] = 0xFF;
+    }
+    *(f32 *)(w + 8) = 100.0f;
+    *(u32 *)(w + 0xFC) = 0x55;
+    *(s16 *)(w + 4) = 0;
+    h = func_0046d200(*(void **)(w + 0xF4), arg1);
+    *(s16 *)(w + 0x100) = (s32)(func_0046b260(h) / 2.0f);
+    *(s16 *)(w + 0x102) = (s32)(func_0046b2f0(h) / 2.0f);
+    func_0046d280(h);
+    return r;
+}
+// measured: closes the opt_loop_invariants bracket opened above and restores
+// the -O2 baseline for the rest of the file.
+#pragma opt_loop_invariants off
 
