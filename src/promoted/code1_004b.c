@@ -1,6 +1,10 @@
 #include "include_asm.h"
 #include "type.h"
 extern s32 iGpffffbb9c;
+/* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
+extern u8 *iGpffffbba0;
+/* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
+extern s32 (*iGpffffbba4)(void);
 extern void func_00484bb0();
 extern void func_00485b20();
 extern void func_00485fe0();
@@ -280,16 +284,82 @@ void func_004b50e0(u8 *arg0, s32 arg1)
 }
 
 // FUN_004B5340
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5340);
+/* The handler-table address is built through two named locals on purpose:
+   retail adds the sub-table offset to the base, then the 0x1C-strided index,
+   then loads at displacement 0. Folding either step into the expression makes
+   b210 sink the offset into the load displacement and flip the addu operands
+   (nd 40-54). */
+void func_004b5340(u8 *arg0) {
+    s32 tbl;
+    s32 idx;
+    void (*fn)(s32);
+
+    if (iGpffffbba4() != 0) {
+        tbl = (s32)iGpffffbba0 + 8;
+        idx = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        fn = *(void (**)(s32))(tbl + idx);
+        if (fn != NULL) {
+            fn(*(s32 *)(arg0 + 0x30));
+        }
+    }
+    jtbl_008873EC[0](arg0);
+}
 
 // FUN_004B5530
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5530);
+void func_004b5530(u8 *arg0) {
+    void (*fn)(u8 *);
+
+    if (iGpffffbba4() != 0) {
+        fn = *(void (**)(u8 *))(iGpffffbba0 + 0 + *(s32 *)(arg0 + 0x2C) * 0x1C);
+        if (fn != NULL) {
+            fn(arg0);
+        }
+        *(s32 *)(arg0 + 0x28) = 0;
+    }
+}
 
 // FUN_004B55A0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b55a0);
+/* The handler-table address is built through two named locals on purpose:
+   retail adds the sub-table offset to the base, then the 0x1C-strided index,
+   then loads at displacement 0. Folding either step into the expression makes
+   b210 sink the offset into the load displacement and flip the addu operands
+   (nd 40-54). */
+void func_004b55a0(u8 *arg0) {
+    s32 tbl;
+    s32 idx;
+    void (*fn)(u8 *);
+
+    if (iGpffffbba4() != 0) {
+        tbl = (s32)iGpffffbba0 + 0x10;
+        idx = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        fn = *(void (**)(u8 *))(tbl + idx);
+        if (fn != NULL) {
+            fn(arg0);
+        }
+        *(s32 *)(arg0 + 0x28) += 1;
+    }
+}
 
 // FUN_004B5620
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5620);
+/* The handler-table address is built through two named locals on purpose:
+   retail adds the sub-table offset to the base, then the 0x1C-strided index,
+   then loads at displacement 0. Folding either step into the expression makes
+   b210 sink the offset into the load displacement and flip the addu operands
+   (nd 40-54). */
+void func_004b5620(u8 *arg0) {
+    s32 tbl;
+    s32 idx;
+    void (*fn)(u8 *);
+
+    if (iGpffffbba4() != 0) {
+        tbl = (s32)iGpffffbba0 + 0x14;
+        idx = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        fn = *(void (**)(u8 *))(tbl + idx);
+        if (fn != NULL) {
+            fn(arg0);
+        }
+    }
+}
 
 // FUN_004B5750
 s128 func_004b5750(s128 *arg0, s128 *arg1) {
