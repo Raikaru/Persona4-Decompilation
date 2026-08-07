@@ -12,6 +12,10 @@ void func_0018e780(s32 arg0);
 
 
 extern void func_003e0f40(s32 arg0);
+extern s32 func_003ef6d0(void);
+extern s32 func_003ef650(s32 a, u8 *b);
+extern void func_003f6800(s32 a, f32 fp);
+extern u8 D_005F5360[];
 
 // FUN_00185120
 void func_00185120(u8 *arg0)
@@ -91,7 +95,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bf50);
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c610);
 
 // FUN_0018C700
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c700);
+void func_0018c700(f32 fp0) {
+    s32 a;
+    s32 b;
+
+    a = func_003ef6d0();
+    b = func_003ef650(a, D_005F5360);
+    func_003f6800(b, fp0);
+}
 
 // FUN_0018DF30
 void func_0018df30(u8 *arg0)
