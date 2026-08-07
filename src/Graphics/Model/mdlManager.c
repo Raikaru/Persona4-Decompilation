@@ -2051,14 +2051,35 @@ s32 func_00479ca0(void* param_1, s32 param_2)
     return 1;
 }
 
-/* measured: second block matches 100%; first block blocked by (1) retail reuses
-   $a3 (the dead s64 high-half reg, then the dead mask reg) for obj and keeps the
-   dsll32 idx in $t0, mwcc b210 allocates obj=$t0 / idx=$a3 (pure coloring swap;
-   tried with/without mask local, inline vs local obj — identical nd) and (2)
-   retail loads arr = *obj at the top of the body while mwcc sinks the load below
-   the idx*0x50 multiply chain. Load-sinking floor + register-coloring residual. */
+/* measured: MATCHED this wave (nd 0, was 91). Levers: (3) addOff index-first
+   addu helper, (4) explicit iVar5 temp for the *(u16*)(iVar4+8) load, and
+   reusing iVar4 for *obj (iVar4 = *(int*)(iVar4+0)) which routes the load into
+   the $a3 mask reg exactly as retail does, with addOff folding index into the
+   addu. The (u16)param_2 second check uses plain ints (no mask local). */
 // FUN_00479D10
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479d10);
+s32 func_00479d10(u8* param_1, u32 param_2, s16 param_3) {
+    int result = 0;
+    int iVar4;
+    int iVar5;
+    iVar4 = *(int*)(addOff((param_2 & 0xffff) * 0xa4, (u32)param_1) + 0x120);
+    if (iVar4 != 0) {
+        iVar5 = *(u16*)(iVar4 + 8);
+        if (param_3 < iVar5) {
+            iVar4 = *(int*)(iVar4 + 0);
+            if (*(int*)(addOff(param_3 * 0x50, (u32)iVar4) + 0x40) != 0) result = 1;
+        }
+    }
+    if ((u16)param_2 == 0) {
+        int r = *(int*)(param_1 + 0x234);
+        if (r != 0) {
+            if (param_3 < *(u16*)(r + 4)) {
+                int s = *(int*)(r + 0);
+                if (*(int*)(s + param_3 * 8) != 0) result = 1;
+            }
+        }
+    }
+    return result;
+}
 
 /* measured: 4 attempts (nd 33/36/36/36). Correct spellings found: the byte
    chain wants 32-bit arithmetic on a byte base - *(void**)((u8*)arr +
@@ -2486,16 +2507,26 @@ void func_0047aa10(void* param_1, RwV3d* param_2)
     *(RwV3d*)((u8*)param_1 + 0x170) = *param_2;
 }
 
-/* measured: retail masks the u16 loop counter in the loop head (andi $v1,$a3,0xffff;
-   slti $v1,$v1,5) and AGAIN at the body top (andi $a2,$a3,0xffff) to derive the
-   entry index; mwcc b210 value-numbers the two masks as one value, carries the
-   check's masked register ($a2) across the back edge and emits a redundant
-   self-mask (andi $a2,$a2,0xffff) at the body top. Tried: plain u16 loop (nd 25),
-   explicit `i & 0xFFFF` body mask (nd 6), reversed mask operands (nd 6), s32
-   counter with explicit masks (nd 25), separate s32 chk var while-loop (nd 25),
-   separate u16 idx / s32 idx locals (nd 25). Loop-test-CSE floor. */
+/* measured: retail masks the counter head (andi $v1,$a3,0xffff; slti $v1,$v1,5)
+   AND at the body top (andi $a2,$a3,0xffff). A plain s32 counter with (u16)
+   casts at each use CSEs the two masks into one carried register and emits a
+   redundant self-mask. The matching form is a while loop that derives the body
+   index into a separate u32 local (idx = (u16)i) so mwcc keeps the body-top
+   andi distinct from the loop-head andi (nd 0, byte-exact). Committed at nd 0. */
 // FUN_0047AA30
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047aa30);
+void func_0047aa30(void* param_1, void* param_2) {
+    s32 i;
+    *(void**)((u8*)param_1 + 0x2FC) = param_2;
+    i = 0;
+    while ((u16)i < 5) {
+        u32 idx = (u16)i;
+        void* slot = (u8*)param_1 + idx * 0xC;
+        if ((*(u8*)((u8*)slot + 0x28C) & 1) != 0 && *(void**)((u8*)slot + 0x290) != 0) {
+            *(void**)((u8*)*(void**)((u8*)slot + 0x290) + 0x2FC) = param_2;
+        }
+        i = (u16)(i + 1);
+    }
+}
 
 // FUN_0047AAA0
 void func_0047aaa0(void* param_1, s32 param_2, void* param_3, void* param_4, void* param_5, u32 param_6)
