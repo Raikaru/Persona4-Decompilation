@@ -4,13 +4,15 @@
 s32 func_00452380(void *arg0);
 extern s32 D_0063C368[];
 
-s32 *func_00452560(void);
+s32 *func_00452560();
 
 void memset(void *arg0, s32 arg1, s32 arg2);
 void func_00285260(void);
 extern void func_0026be60(s32 arg0);
 extern f32 iGpffff809c;
 extern f32 iGpffff8218;
+extern s32 func_00285af0(void);
+extern u8 *func_00285480(u8 *arg0);
 extern f32 D_00882210[];
 
 typedef struct {
@@ -128,7 +130,14 @@ void func_00287bf0(s32 arg0, u8 *arg1) {
 
 
 // FUN_0028B650
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b650);
+s32 func_0028b650(void) {
+    s32 h = func_00285af0();
+
+    if (h == 0) {
+        return 0;
+    }
+    return *(s32 *)(func_00285480((u8 *)func_00452560(h)) + 0x768) != 0;
+}
 
 // FUN_0028BE70
 void func_0028be70(u8 *arg0, s32 arg1)

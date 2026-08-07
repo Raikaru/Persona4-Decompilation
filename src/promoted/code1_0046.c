@@ -2,6 +2,15 @@
 #include "type.h"
 extern s32 iGpffffb034;
 extern s32 iGpffffbaf8;
+extern s32 iGpffffbab4;
+extern s32 iGpffffbab0;
+extern s32 D_008E4B30[];
+extern s32 D_008E4B34[];
+extern s32 D_008E4B38[];
+extern u8 D_008E4800[];
+extern void func_0043a978(void);
+extern void func_004316a8(s32 arg0);
+extern s32 func_00431928(void *a, u8 *b);
 
 extern u8 *(*D_008873F8[])(...);
 extern void memset(void *dst, s32 value, s32 size);
@@ -112,7 +121,15 @@ void func_00463520(void) {
 }
 
 // FUN_004645E0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004645e0);
+void func_004645e0(void) {
+    func_0043a978();
+    func_004316a8(0);
+    D_008E4B30[0] = 2;
+    D_008E4B34[0] = 2;
+    D_008E4B38[0] = 0;
+    iGpffffbab4 = func_00431928(D_008E4B30, D_008E4800);
+    iGpffffbab0 = 0;
+}
 
 // FUN_00466600
 void func_00466600(void) {

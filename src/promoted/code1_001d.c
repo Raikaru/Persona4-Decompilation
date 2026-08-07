@@ -5,6 +5,9 @@ extern s64 func_0023a6b0(s32 arg0, s64 arg1);
 extern u16 func_00231f80(u8 *arg0);
 extern u16 func_00232290(u8 *arg0);
 extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb414;
+extern u8 *D_0076449C;
+extern s32 func_00232710(s32 arg0, s32 arg1);
 extern void func_001d6de0(s32 arg0, s32 arg1);
 extern void func_001d3e00(s32 arg0);
 extern void func_001d6910(u8 *arg0);
@@ -237,7 +240,16 @@ void func_001d9b90(u8 *arg0, u32 arg1)
 }
 
 // FUN_001DA130
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da130);
+s32 func_001da130(u8 *arg0) {
+    s32 r;
+
+    if (func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), 0x180010) != 0) {
+        r = 0;
+    } else {
+        r = (*(s32 *)(iGpffffb414 + *(u16 *)(*(u8 **)(D_0076449C + 0xC68) + 8) * 0x18) & 1) != 0;
+    }
+    return r;
+}
 
 // FUN_001DA1A0
 s32 func_001da1a0(void)

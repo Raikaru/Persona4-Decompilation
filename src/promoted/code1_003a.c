@@ -12,6 +12,14 @@ extern s32 func_003a03a0(u8 *arg0);
 extern s32 func_003a0aa0(u8 *arg0);
 
 extern s32 D_00708460[];
+extern s32 iGpffffb614;
+extern s32 iGpffffb610;
+extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
+extern s32 func_003c1ab0(s32 a, s32 b, void *c, void *d, s32 e);
+extern void func_003a2ce0(void);
+extern void func_003a2d90(void);
+extern void func_003a15e0(void);
+extern void func_003a1600(void);
 extern u8 *func_003a2390();
 extern s32 func_003a20e0();
 
@@ -150,7 +158,14 @@ void func_003a14b0(u8 *arg0)
 
 
 // FUN_003A16C0
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a16c0);
+s32 func_003a16c0(void) {
+    iGpffffb614 = func_003e8930(4, 0x12F, (void *)func_003a2ce0, (void *)func_003a2d90);
+    if (iGpffffb614 < 0) {
+        return 0;
+    }
+    iGpffffb610 = func_003c1ab0(4, 0x12F, (void *)func_003a15e0, (void *)func_003a1600, 0);
+    return iGpffffb610 >= 0;
+}
 
 // FUN_003A2340 NONMATCHING
 #ifdef NON_MATCHING
@@ -170,6 +185,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2340);
 // slot unfilled; schedule on + O3 reproduce retail's `j func_003c02e0` tail
 // call with its nop slot.
 #pragma schedule on
+// measured: the same tail-call measurement as the schedule pragma directly
+// above; level 3 is what actually collapses the call.
 #pragma optimization_level 3
 
 
