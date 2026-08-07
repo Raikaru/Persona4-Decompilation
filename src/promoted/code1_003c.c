@@ -15,6 +15,9 @@ typedef struct { f32 x, y, z, w; } Vec4f;
 
 extern u8 D_0070AFB0[];
 extern u8 D_008872E0[];
+/* gp - 0x4648 = 0x00764aa8 */
+extern s32 iGpffffb9b8;
+extern void func_003f32d0();
 extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
 extern void (*jtbl_008873E8[])(u8 *arg0, s32 arg1);
 /* gp - 0x4930 = 0x007647c0 */
@@ -422,14 +425,114 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbc10);
 // FUN_003CBC90
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbc90);
 
-// FUN_003CC010
+/* One of three identical setters (0x40/0x3C/0x44 written, 0x58/0x54/0x5C
+   consulted). The gotos reproduce retail's four-block layout, and schedule on
+   plus no_branch_likely on take it from nd 54 to nd 12 (obj 88 in a 96-byte
+   window). The 3-word residual is that retail reads the gp offset TWICE in
+   the null path -- once into $v1 for the 0x58 lookup and again into $a1 in
+   the branch delay slot for the store base -- while b210 common-subexpressions
+   the two reads into one; assigning `off` before the lookup instead is worse
+   (nd 23). Committed at nd 12. */
+// FUN_003CC010 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003cc010(u8 *arg0) {
+    s32 off;
+
+    if (arg0 == NULL) {
+        goto nullcase;
+    }
+reload:
+    off = iGpffffb9b8;
+store:
+    *(u8 **)(D_008872E0 + off + 0x40) = arg0;
+    return arg0;
+nullcase:
+    arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x58);
+    if (arg0 == NULL) {
+        goto setnull;
+    }
+    off = iGpffffb9b8;
+    goto store;
+setnull:
+    arg0 = NULL;
+    goto reload;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc010);
+#endif
 
-// FUN_003CC070
+/* Sibling of func_003cc010; see the note there. Committed at nd 12. */
+// FUN_003CC070 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003cc070(u8 *arg0) {
+    s32 off;
+
+    if (arg0 == NULL) {
+        goto nullcase;
+    }
+reload:
+    off = iGpffffb9b8;
+store:
+    *(u8 **)(D_008872E0 + off + 0x3C) = arg0;
+    return arg0;
+nullcase:
+    arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x54);
+    if (arg0 == NULL) {
+        goto setnull;
+    }
+    off = iGpffffb9b8;
+    goto store;
+setnull:
+    arg0 = NULL;
+    goto reload;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc070);
+#endif
 
-// FUN_003CC0D0
+/* Sibling of func_003cc010; see the note there. Committed at nd 12. */
+// FUN_003CC0D0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003cc0d0(u8 *arg0) {
+    s32 off;
+
+    if (arg0 == NULL) {
+        goto nullcase;
+    }
+reload:
+    off = iGpffffb9b8;
+store:
+    *(u8 **)(D_008872E0 + off + 0x44) = arg0;
+    return arg0;
+nullcase:
+    arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x5C);
+    if (arg0 == NULL) {
+        goto setnull;
+    }
+    off = iGpffffb9b8;
+    goto store;
+setnull:
+    arg0 = NULL;
+    goto reload;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc0d0);
+#endif
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled: MISMATCH nd 6, object 56 bytes in a 64-byte window. */
