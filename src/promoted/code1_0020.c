@@ -14,6 +14,8 @@ typedef struct {
 } Vec2f;
 
 extern u8 *func_00452560();
+extern void func_00201410(u8 *arg0, s32 a, s32 b);
+extern void func_0011b360(s32 arg0);
 extern void func_002119a0(u8 *arg0);
 extern u8 *D_0076449C;
 
@@ -44,7 +46,17 @@ void func_00201300(s32 *arg0, f32 fp0, f32 fp1, f32 fp2, f32 fp3) {
 }
 
 // FUN_00201650
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201650);
+void func_00201650(u8 *arg0, s32 arg1, s32 arg2, u8 arg3, u8 arg4, u8 arg5, s32 arg6) {
+    arg0[0x94] = arg3;
+    arg0[0x95] = arg4;
+    arg0[0x96] = arg5;
+    arg0[0x7D] = 0xFF - (arg6 & 0xFF);
+    func_00201410(arg0, arg1, arg2);
+    arg0[0x94] = 0xFF;
+    arg0[0x95] = 0xFF;
+    arg0[0x96] = 0xFF;
+    arg0[0x7D] = 0;
+}
 
 // FUN_00201A80
 void func_00201a80(u8 *arg0) {
@@ -253,7 +265,19 @@ void func_00203880(void)
 }
 
 // FUN_002038C0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002038c0);
+void func_002038c0(void) {
+    u8 *b = (u8 *)func_00452560() + 0x9C;
+
+    *(s32 *)(b + 4) &= ~2;
+    func_002033c0(b + 0x2C);
+    if (*(s32 *)(b + 0x5A8) != 0) {
+        func_0011b360(*(s32 *)(b + 0x5A8));
+        *(s32 *)(b + 0x5A8) = 0;
+        *(s16 *)(b + 0x5AC) = -1;
+    }
+    *(s32 *)(b + 0x178) = 0;
+    *(s16 *)b = 0;
+}
 
 // FUN_00204D90
 void func_00204d90(void)

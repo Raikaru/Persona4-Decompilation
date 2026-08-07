@@ -6,10 +6,13 @@ extern void func_00442088(u8 *dst, const char *fmt, s32 arg);
 extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00271b70(s32 arg0);
 extern void func_00277ad0(s32 arg0, s32 arg1);
+extern void func_00201350(void);
+extern void func_002112c0(u8 *arg0, u8 *arg1);
+extern void func_00211650(u8 *arg0);
 
 extern void memset(void *destination, s32 value, u32 size);
 
-extern u8 *func_00452560(void);
+extern u8 *func_00452560();
 extern void func_0045af60(s32 bank, s32 channel, s32 cue, s32 variant);
 extern s32 func_00212180(s32);
 extern void func_00216c40(s32, s32);
@@ -44,7 +47,20 @@ void func_002119a0(u8 **arg0) {
 }
 
 // FUN_00211F90
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00211f90);
+void func_00211f90(s32 arg0, u8 *arg1) {
+    u8 sp30[0x20];
+    u8 *b = (u8 *)func_00452560(*(s32 *)(arg1 + 4));
+
+    func_00201350();
+    if ((*(u16 *)(arg1 + 8) & 0x10) == 0) {
+        return;
+    }
+    if (*(s32 *)(arg1 + 0x10) == 0) {
+        return;
+    }
+    func_002112c0(arg1, sp30);
+    func_00211650(b);
+}
 
 // FUN_00212100
 void func_00212100(s32 arg0) {
