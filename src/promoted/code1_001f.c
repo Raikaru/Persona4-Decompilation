@@ -603,8 +603,10 @@ s32 func_001f68e0(u8 *arg0)
    Measured identical at nd 9: an inline `1 << i`, a hoisted `one` local, and
    an explicit goto loop with the test at the bottom. Preheader hoist-order
    floor. Committed at nd 9. */
-// FUN_001F6BF0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_001F6BF0
+/* measured: retail materialises this loop's invariant in the preheader; plain
+   -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
+#pragma opt_loop_invariants on
 s32 func_001f6bf0(u8 *arg0) {
     s32 i;
     s32 one;
@@ -619,9 +621,9 @@ s32 func_001f6bf0(u8 *arg0) {
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f6bf0);
-#endif
+/* measured: closes the hoist bracket opened above and restores the -O2
+   baseline for the rest of the file. */
+#pragma opt_loop_invariants off
 
 // measured: required for exact retail loop codegen in func_001f7260.
 #pragma opt_loop_invariants on

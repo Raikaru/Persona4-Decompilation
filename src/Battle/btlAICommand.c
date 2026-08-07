@@ -92,9 +92,15 @@ extern s32 func_00232710(u32 arg0, u32 arg1);
 extern s32 func_00232730(u32 arg0, u32 arg1);
 extern s32 func_0023ddc0(u32 arg0, u32 arg1);
 extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3b8;
+extern void func_001ebc00(u8 *a, u8 *b);
+extern s32 func_0023dfe0(u32 a);
+extern s32 func_0023dff0(u32 a);
 extern u32 func_00231e20(u32 arg0);
 extern s32 func_002428f0(u32 arg0, u32 arg1);
 extern u8 *iGpffffb3d0;
+extern u8 *iGpffffb3c8;
+extern u8 *iGpffffb3cc;
 extern u8 iGpffffa2a8;
 extern u8 *iGpffffb444;
 extern void func_00442088(u8 *a, u8 *b, u32 c, u8 d);
@@ -109,20 +115,9 @@ extern u8 D_00609E20[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 extern void func_001eb3b0(u8 *a);
-extern u8 func_001de800(u8 *p);
-extern u8 *func_001dea90(u8 *p, u32 arg1);
-extern s32 func_001debb0();
-extern u16 func_0023dfe0(u32 arg0);
-extern u16 func_0023dff0(u32 arg0);
-extern void func_001ebc00(u8 *a, u8 *b);
-extern s32 func_0023e130(u32 arg0);
-extern s32 func_0023e140(u32 arg0);
-extern u32 func_00231f80(u32 arg0);
-extern s32 func_0043c6a0(u32 arg0);
-extern u8 *iGpffffb3b8;
-extern u8 *iGpffffb3c8;
-extern u8 *iGpffffb3cc;
 
+#pragma opt_rebuildconditionals off
+/* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001DAF40
 s32 func_001daf40(u8 *p, u32 arg1) {
@@ -148,9 +143,6 @@ s32 func_001daf40(u8 *p, u32 arg1) {
 ret1:
     return 1;
 }
-
-#pragma opt_rebuildconditionals off
-/* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUN_001DB040
 void func_001db040(u8 *arg0, u32 arg1) {
@@ -739,19 +731,34 @@ u32 func_001dc9a0(u32 param_1)
    sll $v0,$v0,2), mwcc b210 masks in place (andi $a0,$a0,0xffff; sll $v0,$a0,2);
    everything else in the function is byte-identical (nd 5 = those 2 words +
    reloc accounting). Tried (u32)/(s32)/explicit-mask index spellings: nd >= 5. */
-/* measured: re-verified this wave; best spelling is the u16-i body at nd 10
-   (i u16, while ((count = load) > i), pointer e = p + i*4). The residual is
-   the same four gaps as FUN_001DC9A0: (1) loop-body mask in-place
-   (andi $a0,$a0; sll $v0,$a0,2) vs retail scratch (andi $v0,$a0; sll
-   $v0,$v0,2); (2) loop-test order — retail lhu 0xd0 first (lhu $v1; andi
-   $v0; slt $v0,$v0,$v1), mwcc emits mask first and slt into $at; (3) the
-   post-loop sh uses $v0 instead of $v1; (4) s32-i/(u16)i/(i&0xFFFF)
-   spellings cascade the mask CSE to nd 42. Everything else (calls, else
-   path, epilogue) is byte-identical. Load-sinking + mask-CSE floor, same
-   family as FUN_001DC9A0/FUN_001DCF10; earlier nd 5 note not reproducible
-   this wave. */
+/* measured: MATCH. Copy loop spelled exactly like FUN_001DC9A0 (u16 index,
+   for loop, sh count). Else branch: retail keeps func_001dbf20 INLINE and
+   puts the store block OUT OF LINE (forward bnez) — lever 1, flip the
+   branch: if (func_001d8cb0(...) == 0) { return func_001dbf20(...); } then
+   the store block falls through. The opposite spelling (store block in the
+   if with return 1, func_001dbf20 as trailing return) emits the mirror
+   layout at nd 36. */
 // FUN_001DCA60
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dca60);
+s32 func_001dca60(u8 *param_1, u32 param_2)
+{
+    u16 result;
+    u16 index;
+
+    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    if (result != 0) {
+        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
+            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        }
+        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        return 1;
+    }
+    if (func_001d8cb0(0, (u8 *)(param_1 + 0x98)) == 0) {
+        return func_001dbf20(param_1, param_2);
+    }
+    *(u32 *)(param_1 + 0x38) = func_001d8bc0((u8 *)(param_1 + 0x98));
+    *(u16 *)(param_1 + 0x6a) = 1;
+    return 1;
+}
 
 // FUN_001DCB50
 void func_001dcb50(u64 formation)
@@ -880,14 +887,47 @@ void func_001dd090(u64 formation, u32 flags) {
     func_001dbba0(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYNOMAL);
 }
 
-/* measured: only residual is the 2-word loop-body mask floor shared with
-   FUN_001DCF10/FUN_001DC9A0 (retail andi $v0,$a0,0xffff; sll $v0,$v0,2 vs mwcc
-   b210 andi $a0,$a0,0xffff; sll $v0,$a0,2); the whole second loop matches with
-   declaration order best,j,bestScore,count + explicit j = 0 before the hoisted
-   count load + u32 bestScore (sltu). Tried inline no-q body and (u16)i casts:
-   still 2. */
+/* measured: MATCH. Copy loop spelled exactly like FUN_001DC9A0 (u16 index).
+   Second (max-score search) loop needs the WHILE form (not for) with
+   statement order best=0, bestScore=0, j=0, count=load — the for-loop spelling
+   emits the count load before j=0 in the preheader (nd 8); the while form
+   preserves source order and reproduces retail's best,bestScore,j,count
+   preheader exactly. bestScore u32 (sltu). */
 // FUN_001DD0D0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd0d0);
+u32 func_001dd0d0(u32 param_1)
+{
+    u16 result;
+    u16 index;
+    u32 best;
+    u32 j;
+    u32 bestScore;
+    u32 count;
+
+    result = func_001d7f10((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    if (result != 0) {
+        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
+            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        }
+        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        return 1;
+    }
+    best = 0;
+    bestScore = 0;
+    j = 0;
+    count = *(u16 *)(param_1 + 0xd0);
+    while (j < count) {
+        u8 *ptr = (u8 *)*(u32 *)(param_1 + j * 4 + 0x98);
+        u32 score = *(u16 *)(*(u32 *)(*(u32 *)(ptr + 0x30) + 0xA64) + 0x8);
+        if (bestScore < score) {
+            best = (u32)ptr;
+            bestScore = score;
+        }
+        j++;
+    }
+    *(u32 *)(param_1 + 0x38) = best;
+    *(u16 *)(param_1 + 0x6a) = 1;
+    return 1;
+}
 // FUN_001DD1C0
 s32 func_001dd1c0(u8 *p, u8 *q, u16 *t, u32 u, u32 v) {
     u32 s;
@@ -1014,16 +1054,64 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de000);
    pick) are all readable. */
 // FUN_001DE370
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de370);
-/* measured: switch-chain register-coloring floor — retail keeps v=$a2 (the
-   c param register) live across the whole dispatch, materializes t=$a1 in the
-   if/else, and promotes the switch value into $a3 (m's dead register) at the
-   join (andi $a3,$a1,0xffff). mwcc b210 instead folds t=v into $a2, re-colors
-   v to $v1 after q dies, and emits the whole 12-case beq chain comparing $a2;
-   every case body's registers cascade one slot off. Tried u16/s16 locals, all
-   declaration orders (v/t/q/m/sw), explicit sw local, ternary, switch(t):
-   nd 100-102. $a2/$v1-coloring floor. */
+/* measured: MATCH. The "coloring floor" was actually a switch-linear-chain
+   declaration-order issue: MWCC tests linear-chain case labels in the REVERSE
+   of their C declaration order, so the cases must be declared in the reverse
+   of retail's test order, i.e. 0x8000, 0x1000, 0x2000, 0x8002, 0x8007, 0x8005,
+   0x8006, 0x8001, 0x8008, 0x8009, 0x8004, default. Case 0x2000 falls through
+   into case 0x8002 (separate p+0xEC store then shared q+0x34=7 body); case
+   0x8004 falls through into default (v = func_0023dff0(...)&0xFFFF then the
+   shared q+0x34=2/q+0x36=v body, reusing the v parameter in $a2 exactly as
+   retail). if/else t = v / v & 0xF000, then switch(t & 0xFFFF). */
 // FUN_001DE640
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de640);
+void func_001de640(u8 *p, u8 *q, u16 v)
+{
+    u16 t;
+
+    if ((v & 0xF000) == 0x8000)
+        t = v;
+    else
+        t = v & 0xF000;
+    switch (t & 0xFFFF) {
+    case 0x8000:
+        *(u16 *)(q + 0x34) = 1;
+        *(u16 *)(q + 0x36) = func_0023dfe0(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64)) & 0xFFFF;
+        break;
+    case 0x1000:
+        *(u16 *)(q + 0x34) = 9;
+        *(u16 *)(q + 0x36) = 0x111;
+        *(u16 *)(q + 0x3E) = v & 0xFFFF0FFF;
+        break;
+    case 0x2000:
+        *(u16 *)(p + 0xEC) = v & 0xFFFF0FFF;
+    case 0x8002:
+        *(u16 *)(q + 0x34) = 0x7;
+        break;
+    case 0x8007:
+        *(u16 *)(q + 0x34) = 0x8;
+        break;
+    case 0x8005:
+        break;
+    case 0x8006:
+        *(u16 *)(q + 0x34) = 0xB;
+        break;
+    case 0x8001:
+        *(u16 *)(q + 0x34) = 0x6;
+        break;
+    case 0x8008:
+        *(u16 *)(q + 0x34) = 0xC;
+        break;
+    case 0x8009:
+        func_001ebc00(p, q);
+        break;
+    case 0x8004:
+        v = (u16)(func_0023dff0(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64)) & 0xFFFF);
+    default:
+        *(u16 *)(q + 0x34) = 2;
+        *(u16 *)(q + 0x36) = v;
+        break;
+    }
+}
 // FUN_001DE800
 u8 func_001de800(u8 *p) {
     u8 *base;
@@ -1082,25 +1170,48 @@ u8 func_001de800(u8 *p) {
    node += a*40. $v0/$v1-coloring floor. */
 // FUN_001DEA90
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dea90);
-/* measured: load-sinking floor on the func_00442088 4th arg — retail loads the
-   c byte right after the test (lbu $v0,0x10($v0); ...; move $a3,$v0) while mwcc
-   b210 sinks it into $a3 at the call site (lbu $a3,0x10($v0)), 1 word + 4-byte
-   shift of the else block. Hoisting c into a local made mwcc hoist the loads
-   ABOVE the a2 test instead (nd 10 head). Everything else matches: d declared
-   before t ($20/$19), buf[32], the case 0/1 switch, iGpffffb444 + x*21 chain. */
-/* measured: re-verified this wave; the body is byte-identical EXCEPT one
-   word: the func_00442088 4th-arg c load position. Retail: lbu $v0,0x10($v0)
-   right after the a2 test (then move $a3,$v0 with the other args); mwcc b210
-   sinks the lbu into $a3 at the call site under every spelling (inline
-   expression, block-scoped u8 c local, function-top local which instead
-   hoists it ABOVE the bnez) — the missing move shifts the whole else block
-   by 4 bytes, which inflates the raw reloc-masked count (74) with shift
-   shadow; the note's nd 10 was the same residual counted without the shift.
-   Also measured: the earlier note's "d declared before t" is wrong — mwcc
-   assigns saved registers in REVERSE declaration order, so t must be
-   declared BEFORE d to get retail's d=$19/t=$20. Load-sinking floor. */
+/* measured: MATCH. Two keys the earlier floor notes missed: (1) c is
+   REASSIGNED from func_0029de20's return in the type==0 branch
+   (`c = func_0029de20(v, buf);`), so c stays in scratch $v0 at the merge
+   point instead of needing a saved register — this is what makes retail's
+   lbu-into-$v0 + move-$a3 shape reproducible; (2) the `if (m >= 0)` guard
+   on the 0x130 load must be SIGNED (s32) or b210 eliminates it as `u32>=0`
+   always-true. t declared before d (reverse decl order -> d=$19/t=$20),
+   buf[32], case 0/1 switch, iGpffffb444 + x*21 chain. */
 // FUN_001DEBB0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001debb0);
+s32 func_001debb0(u8 *p, u8 *q, u32 v, u32 w)
+{
+    u8 buf[32];
+    u32 c;
+    u32 t;
+    u32 d;
+    u32 v2;
+
+    if (*(u8 *)(*(u32 *)(p + 0x30) + 0xA2) == 0) {
+        c = *(u8 *)(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64) + 0x10);
+        func_00442088(buf, D_00609E20, w, c);
+        c = func_0029de20(v, buf);
+    } else {
+        c = w;
+    }
+    t = func_0029da90((u8 *)(*(u32 *)(*(u32 *)(iGpffffb3ac + 0xDC8) + 0x20) - 1), v, c);
+    func_0029dfe0(t, p);
+    v2 = (u32)func_00452560(t);
+    if (*(s32 *)(v2 + 0x130) >= 0) {
+        switch (*(u8 *)(*(u32 *)(p + 0x30) + 0xA2)) {
+        case 0:
+            d = (u32)func_0010d740(*(s16 *)(*(u32 *)(p + 0x30) + 0xA4));
+            break;
+        case 1:
+            d = (u32)iGpffffb444 + (*(u16 *)(*(u32 *)(p + 0x30) + 0xA4)) * 21;
+            break;
+        }
+        func_00278450(*(s32 *)(v2 + 0x130), 0, d);
+    }
+    func_00452570((u8 *)(*(u32 *)(iGpffffb3ac + 0xDC8)), t);
+    *(u32 *)(q + 0x4C) = t;
+    return 1;
+}
 /* measured: three 1-2 word scheduler residuals. (1) case 1's chain: retail
    loads iGpffffb3d0 FIRST (lw $a0,-0x4c30) then computes (a4&0xFFFF)*164 and
    addu $v0,$v0,$a0, while mwcc b210 sinks the global load after the chain and
