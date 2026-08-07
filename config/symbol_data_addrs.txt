@@ -289,3 +289,6 @@ iGpffffb5e0 = 0x007646d0; // type:data evidence: retail func_003983f0 lw $3,-0x4
 iGpffffb5e4 = 0x007646d4; // type:data evidence: retail func_00399210 lw $3,-0x4A1C($28) (0x007646D4); gp base 0x007690F0
 iGpffffb5e8 = 0x007646d8; // type:data evidence: retail func_00399340 lw $3,-0x4A18($28) (0x007646D8); gp base 0x007690F0
 iGpffffb610 = 0x00764700; // type:data evidence: retail func_003a15e0 lw $3,-0x49F0($28) (0x00764700); gp base 0x007690F0
+iGpffffbba0 = 0x00764c90; // type:data evidence: retail func_004b5340 lw $2,-0x4460($28) (0x00764C90) as the per-type handler table base; gp base 0x007690F0
+iGpffffbba4 = 0x00764c94; // type:data evidence: retail func_004b5340 lw $2,-0x445C($28) (0x00764C94) then jalr $2, an enable predicate; gp base 0x007690F0
+iGpffffb460 = 0x00764550; // type:data evidence: retail func_001f9750 lw $2,-0x4BA0($28) (0x00764550); gp base 0x007690F0
