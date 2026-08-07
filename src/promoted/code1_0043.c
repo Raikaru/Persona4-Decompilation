@@ -21,6 +21,11 @@ void func_004217f0(s32);
 void func_0043a2d0(s32, s32, s32, s32);
 void func_0043a500(s32, s32, s32, s32);
 void func_00421810(s32);
+extern s32 D_008AC840;
+void func_00421820(s32);
+void func_00422218(s32 *, s32);
+extern s32 D_009389E0;
+s32 func_00421f98(s32, s32);
 
 typedef struct {
     u8 _pad[0x14];
