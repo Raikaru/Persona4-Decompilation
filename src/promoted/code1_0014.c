@@ -11,6 +11,10 @@ extern s32 D_00762EA0;
 extern s32 func_00145540(s32 arg0, s32 arg1, s32 arg2);
 
 extern s32 D_007642E4;
+extern u8 D_005EFB10[];
+extern void func_00148280(void);
+extern void func_0017ccc0(u8 *arg0);
+extern u8 *func_00451fc0(u8 *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
 
 typedef struct { f32 x, y, z; } SVec3;
 
@@ -174,7 +178,14 @@ u32 func_001475c0(u8 *resLists, u8 resType)
 }
 
 // FUN_00149620
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00149620);
+u8 *func_00149620(void) {
+    u8 *ctx;
+    u8 *o;
+
+    o = func_00451fc0(ctx, D_005EFB10, 0xC7, 0, 0, (void *)func_00148280, NULL, NULL);
+    func_0017ccc0(o);
+    return o;
+}
 
 // FUN_00149680
 void func_00149680(s32 arg0) {

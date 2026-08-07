@@ -12,6 +12,12 @@ extern void func_0029cf50(s32 arg0);
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3e0;
+extern s32 iGpffffb430;
+extern s32 iGpffffb434;
+extern s32 iGpffffb438;
+extern u8 D_005F6BF0[];
+extern void func_001939e0(void);
+extern u8 *func_00451fc0(u8 *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
@@ -87,7 +93,14 @@ void func_00193730(void) {
 
 
 // FUN_00193A80
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00193a80);
+void func_00193a80(void) {
+    u8 *ctx;
+
+    iGpffffb430 = 0;
+    iGpffffb434 = 0;
+    iGpffffb438 = 0;
+    func_00451fc0(ctx, D_005F6BF0, 0x10, 0, 0, (void *)func_001939e0, NULL, NULL);
+}
 
 // FUN_00193B70
 u8 *func_00193b70(u64 uid, u64 mask)
