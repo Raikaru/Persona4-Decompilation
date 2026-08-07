@@ -678,8 +678,83 @@ void func_002e68b0(s8 arg0) {
    matter the spelling — tried #pragma schedule on (89), opt_common_subs off
    (13), e-split (24), decl orders (24). 4 instruction words + 2 pool-number
    relocs. Load-order scheduling floor, nd 6. */
-// FUN_002E6B20
+/* A qsort-style comparator. Both halves select a per-entry field through the
+   SAME 11-entry switch on *(base + 4), decoded from jtbl_00748FE0 and
+   jtbl_00748FB0 with tools/jtbl.py: cases 0/2/7/8 take offset 0x14, cases
+   1/5/6/10 take 0xA4, and cases 3/4/9 share the out-of-range default, which
+   also takes 0x14 - so the first and third blocks are byte-identical
+   duplicates in retail as well.
+   measured: nd 159 at exactly retail's 356-byte object. Every instruction and
+   the whole block layout line up; the entire residual is that the allocator
+   shifts one register (retail ia=$a2, ib=$v1, selector=$v0; b210 ia=$a3,
+   ib=$a1, selector=$v1). Measured identical at nd 159: swapping the two index
+   loads, declaring the indices last, and casting the comparison through
+   (s32)(u16); s32 indices, inlining the second load and loading the base
+   first are all worse. Register colouring floor. Committed at nd 159. */
+// FUN_002E6B20 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002e6b20(s16 *arg0, s16 *arg1) {
+    s16 ia;
+    s16 ib;
+    u8 *base;
+    u8 *pa;
+    u8 *pb;
+    s32 va;
+    s32 vb;
+
+    ia = *arg0;
+    ib = *arg1;
+    base = *(u8 **)(D_00882F70[0] + 0x38);
+    switch ((u32)*(s32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        pa = base + ia * 0x30 + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        pa = base + ia * 0x30 + 0xA4;
+        break;
+    case 3:
+    case 4:
+    case 9:
+    default:
+        pa = base + ia * 0x30 + 0x14;
+        break;
+    }
+    va = *(u8 *)(pa + 4);
+    switch ((u32)*(s32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        pb = base + ib * 0x30 + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        pb = base + ib * 0x30 + 0xA4;
+        break;
+    case 3:
+    case 4:
+    case 9:
+    default:
+        pb = base + ib * 0x30 + 0x14;
+        break;
+    }
+    vb = *(u8 *)(pb + 4);
+    if (vb < (va & 0xFFFF)) {
+        return 1;
+    }
+    return -((va & 0xFFFF) < vb);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
+#endif
 
 /* measured 2026-08-03 (wave 14 re-attack): func_002e6c90 is the sibling of the
    MATCHED func_002e68b0 (same structure) with func_002e6b20 as the sort
