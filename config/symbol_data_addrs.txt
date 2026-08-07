@@ -305,3 +305,4 @@ D_00724BFC = 0x00764bfc; // type:data evidence: retail func_0046a2e0 sw/lw -0x44
 D_00724C00 = 0x00764c00; // type:data evidence: retail func_0046a2e0 sw $3,-0x44F0($28) (0x00764C00), the pool end pointer; gp base 0x007690F0
 D_00724C04 = 0x00764c04; // type:data evidence: retail func_0046a2e0 sw $4,-0x44EC($28) (0x00764C04), the pool base pointer; gp base 0x007690F0
 D_00724BC8 = 0x00764bc8; // type:data evidence: retail func_00466600 lw $4,-0x4528($28) (0x00764BC8), a handle passed to func_004216e0/func_00421770; gp base 0x007690F0
+D_00724870 = 0x00764870; // type:data evidence: retail func_003e23e0 lw $3,-0x4880($28) (0x00764870), a byte offset into D_008872E0; gp base 0x007690F0
