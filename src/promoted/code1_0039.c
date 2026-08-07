@@ -237,24 +237,38 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b80);
    Probed: do/while (nd 55), schedule on (nd 64), opt_loop_invariants (nd 54),
    optimization O1 (nd 61) / O3 (nd 56), no_branch_likely. Same family floor as
    the parked a090/a340/a3a0/a400/a630 (nd 36-46). Committed at nd 44. */
+/* measured: the loop walks an entry pointer and the found-exit is a bne/b pair
+   in retail. Giving the result its OWN pointer, distinct from the walking one,
+   and entering the loop directly with a do/while is worth nd 44 -> 36 - the same
+   separate-result-pointer shape that matched the nine-function cmmCommunity
+   family. What is left is the gp load and the counter zero being transposed,
+   the commutative addu that forms the record address, the compare constant
+   materialising inside the loop instead of the preheader, and two unfilled
+   delay slots; schedule on fills the slots but shrinks the object to 84 bytes
+   (nd 44). Committed at nd 36. */
 // FUN_00399FD0 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_00399fd0(s32 arg0, s32 arg1)
-{
+s32 func_00399fd0(s32 arg0, s32 arg1) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
+    s32 want;
 
+    i = 0;
     p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
-        if (*(s32 *)(e + 0x20) == 1) {
+    want = 1;
+    do {
+        e = p + (u8)i * 0x40;
+        if (*(s32 *)(e + 0x20) == want) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
 found:
-    *(s32 *)(e + 0) = arg1;
+    *(s32 *)r = arg1;
     return arg0;
 }
 #else
@@ -388,24 +402,38 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
    constant in the body, and schedules the prologue/epilogue differently.
    Probed: do/while, schedule on, opt_loop_invariants, O1/O3,
    no_branch_likely; none beat the for+goto form. Committed at nd 44. */
+/* measured: the loop walks an entry pointer and the found-exit is a bne/b pair
+   in retail. Giving the result its OWN pointer, distinct from the walking one,
+   and entering the loop directly with a do/while is worth nd 44 -> 36 - the same
+   separate-result-pointer shape that matched the nine-function cmmCommunity
+   family. What is left is the gp load and the counter zero being transposed,
+   the commutative addu that forms the record address, the compare constant
+   materialising inside the loop instead of the preheader, and two unfilled
+   delay slots; schedule on fills the slots but shrinks the object to 84 bytes
+   (nd 44). Committed at nd 36. */
 // FUN_0039A200 NONMATCHING
 #ifdef NON_MATCHING
-s32 func_0039a200(s32 arg0, s32 arg1)
-{
+s32 func_0039a200(s32 arg0, s32 arg1) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
+    s32 want;
 
+    i = 0;
     p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
-        if (*(s32 *)(e + 0x20) == 2) {
+    want = 2;
+    do {
+        e = p + (u8)i * 0x40;
+        if (*(s32 *)(e + 0x20) == want) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
 found:
-    *(s32 *)(e + 0) = arg1;
+    *(s32 *)r = arg1;
     return arg0;
 }
 #else
