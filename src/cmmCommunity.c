@@ -367,38 +367,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001076e0);
    block, which mwcc b210 only does for the merged goto. Branch-shape floor. */
 /* Community-slot scan family; see the note above func_001076e0. nd 38.
    Committed at nd 38. */
-// FUN_001077F0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_001077f0(s32 arg0) {
-    u8 *var_4;
-    s32 temp_16;
-    s32 var_3;
-
-    temp_16 = arg0 & 0xFFFF;
-    if (temp_16 >= 0x1F) {
-        func_0046d730(D_005E42C8, 0x66);
-    }
-    if (temp_16 == 0) {
-        var_4 = NULL;
-    } else {
-        var_4 = &D_007973A0[0x70];
-        var_3 = 0;
-loop_8:
-        if (var_3 >= 0x15) {
-            var_4 = NULL;
-        } else if (*(u16 *)(var_4 + 4) == temp_16) {
-
-        } else {
-            var_4 += 16;
-            var_3 += 1;
-            goto loop_8;
-        }
-    }
-    return (s32)(var_4 != NULL);
-}
-#else
+// FUN_001077F0
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001077f0);
-#endif
 
 // FUN_00107890
 s32 func_00107890(s32 arg0)

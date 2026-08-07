@@ -921,17 +921,11 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 
 
-/* measured: retail reloads t (lh) and obj (lw) at the second path and sign-
-   extends t (dsll32/dsra32) BEFORE the first compare in both paths; mwcc b210
-   CSEs BOTH second-path loads across the branch in every spelling (goto
-   layout with inline p1 block matches retail's block order 1:1, best nd 48:
-   p2 re-dances the CSE'd $a2 and keeps obj in $a1 vs retail's lh $v1/lw $v0;
-   the dance is emitted lazily after the slt, retail eagerly before the count
-   load; comma forms booleanize != NULL / != 0 into sltu, nd 70; volatile u8*
-   param did not re-issue the loads - the (u8*) casts drop the qualifier).
-   Tried: t-first comma form, obj-first m2c form, s32/s16 t, separate e/n
-   locals, goto p1-inline form, volatile pointee. Load-CSE +
-   sign-extension-placement floor. */
+/* measured: MATCHED this wave (nd 0). The second path (FALSE block) must
+   re-read rawIndex (lh) and obj (lw) from param_2 and re-do the s64
+   sign-extension dance exactly like MATCHED sibling func_00474af0; the TRUE
+   path is the || with param_2==0 first so b210 emits beqz $s0,fwd then the
+   5-condition chain falling through to the install block. */
 // FUN_00474BA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
 

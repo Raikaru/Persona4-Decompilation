@@ -390,6 +390,9 @@ void func_00188110(void)
 // FUN_00188200
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188200);
 
+
+
+
 /* measured: at 4 attempts. Progress: pragma opt_loop_invariants + decl order
    (var_17 first) + 102.0f (0x42CC0000, not 100.0) fixed the frame (-0x60,
    f20 save), the loop-counter registers, and the outer-loop mul hoist; the
@@ -428,6 +431,8 @@ INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188690);
    Argument-evaluation-order + load-sinking floor family. */
 // FUN_001887F0
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_001887f0);
+
+
 
 /* measured: at 4 attempts. s32 locals for the scaled offsets (sel/idx) fix
    the two addu operand orders (retail addu $v0,$v0,$s2; lever #10 confirmed).
