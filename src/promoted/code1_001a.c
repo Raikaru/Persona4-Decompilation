@@ -13,6 +13,8 @@ void func_001a03b0(s64 *arg0);
 void func_001dbf20(void *arg0, s32 arg1);
 u8 *func_001d3700(s32 arg0, s32 arg1);
 void func_00194590(u8 *arg0, s32 arg1);
+extern u8 *D_0076449C;
+extern u8 *func_0019b6a0(s32 arg0);
 u8 *btlCameraCreateSetStatePacket(void *arg0, s32 arg1);
 
 
@@ -72,7 +74,19 @@ void func_001a0670(u8 *arg0) {
 
 
 // FUN_001A2AD0
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a2ad0);
+void func_001a2ad0(u8 *arg0) {
+    func_001eb3b0(arg0 + 0x38);
+    if ((*(s32 *)(D_0076449C + 0xC) & 0x1000) == 0) {
+        return;
+    }
+    if ((*(u16 *)(arg0 + 0x1A) & 1) == 0) {
+        return;
+    }
+    if (*(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+        return;
+    }
+    func_001b0800(arg0, 9);
+}
 
 // FUN_001A2C10
 void func_001a2c10(s64 *arg0) {
@@ -190,7 +204,19 @@ void func_001ac5b0(s64 *arg0) {
 }
 
 // FUN_001AC620
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001ac620);
+void func_001ac620(void) {
+    u8 *p = *(u8 **)(D_0076449C + 0x174);
+    u8 *o;
+
+    while (p != NULL) {
+        if (func_001a05f0(p) != 0) {
+            o = func_0019b6a0(*(s32 *)(*(u8 **)(p + 0x30) + 0xA0C));
+            *(s64 *)(o + 0x60) = *(s64 *)p;
+            func_00194590(o, 1);
+        }
+        p = *(u8 **)(p + 0x450);
+    }
+}
 
 // FUN_001AC6A0
 void func_001ac6a0(u8 *arg0) {

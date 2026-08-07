@@ -1,6 +1,11 @@
 #include "include_asm.h"
 #include "type.h"
 extern s32 iGpffffac74;
+extern s32 iGpffffad88;
+extern u8 D_00711738[];
+extern void func_004244c8(u8 *arg0);
+extern void func_00426f80(s32 arg0);
+extern void func_00428f08(void *arg0, s32 arg1);
 extern s32 iGpffffba80;
 extern s32 iGpffffba70;
 extern s32 iGpffffba74;
@@ -74,7 +79,12 @@ s32 func_004556b0(u8* arg0, u32 arg1)
 
 
 // FUN_00456840
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00456840);
+void func_00456840(u8 *arg0) {
+    func_004244c8(D_00711738);
+    *(s32 *)(arg0 + 0x38) = 1;
+    func_00426f80(*(s32 *)(arg0 + 0x74));
+    func_00428f08(&iGpffffad88, 0);
+}
 
 // FUN_00457120
 s32 func_00457120(void)

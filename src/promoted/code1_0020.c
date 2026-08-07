@@ -15,6 +15,7 @@ typedef struct {
 
 extern u8 *func_00452560();
 extern void func_002119a0(u8 *arg0);
+extern u8 *D_0076449C;
 
 
 
@@ -368,8 +369,29 @@ void func_0020b5a0(void)
 {
 }
 
-// FUN_0020BAC0
+/* measured: nd 41 against retail's 96-byte window (real body 92). Retail
+   materialises the ~0x200 mask in the loop preheader, ahead of the branch into
+   the condition, and keeps it in $a0 for the whole loop; b210 rematerialises it
+   inside the body, which also transposes the and's operands. Declaring the mask
+   first, assigning it last, and spelling the update as an explicit
+   `x = x & mask` all leave it at nd 41, and retail additionally carries a nop
+   at the loop's condition label that b210 never emits. Committed at nd 41. */
+// FUN_0020BAC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0020bac0(void) {
+    u8 *w = (u8 *)func_00452560() + 0x710;
+    s32 mask = ~0x200;
+    u8 *p = *(u8 **)(D_0076449C + 0x178);
+
+    while (p != NULL) {
+        *(s32 *)(p + 0xA10) &= mask;
+        p = *(u8 **)(p + 0xA6C);
+    }
+    *(s16 *)(w + 2) = 3;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020bac0);
+#endif
 
 // FUN_0020BB20
 void func_0020bb20(u8 *arg0, s32 arg1) {
