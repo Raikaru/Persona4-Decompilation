@@ -66,6 +66,39 @@ s32 func_0025cc70(void) {
    residual sits in the second path (offsets 180-220: retail reaches the
    shared zero return by branch where b210 materializes it inline). Body not
    kept because it MISMATCHES; the recipe above reproduces it in one pass. */
-// FUN_0025CCB0
+/* measured: nd 42 against retail's 288-byte window; every instruction lines up
+   except one. Retail booleanises the second guard's call result with an extra
+   `sltu $v0,$zero,$v0` before branching, which shifts everything after it by a
+   word. Probed `!= 0` compared against zero, a double negation, an explicit
+   assignment into a named local, and that local typed u8/s8/u16/u32/s32 (all
+   nd 63, which is worse) - b210 branches on the raw result in every spelling.
+   Getting the outer guard's polarity right was worth nd 129 -> nd 42: retail
+   sends the ALREADY-OPEN case out of line and falls through into the create
+   path. Committed at nd 42. */
+// FUN_0025CCB0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0025ccb0(void) {
+    u8 *buf;
+    s32 a;
+    s32 b;
+
+    if (func_0029d020() == 0) {
+    a = func_0029cc00(0);
+    b = func_0029cc00(1);
+    func_0044ea90(D_00636838, 0x113);
+    buf = D_008873F4[0](1, 0x10, 0x40000);
+    *(s32 *)(buf + 4) = a;
+    *(s32 *)(buf + 8) = b;
+    *(s32 *)(buf + 0xC) = -1;
+    func_00451fc0(NULL, D_00636A30, 0xF, 0, 0, func_0025c790,
+                  (void (*)(u8 *))func_0025cb80, buf);
+    } else if (func_00452490(func_00452380(D_00636A30)) == 0) {
+        func_0029cf50(0);
+        return 1;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdScript", func_0025ccb0);
+#endif
 
