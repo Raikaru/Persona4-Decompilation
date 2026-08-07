@@ -81,7 +81,31 @@ s32 func_001223d0(void) {
 }
 
 // FUN_00122720
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00122720);
+/* The case values come from decoding the jump table at 0x007466C0 with
+   tools/jtbl.py: entry 0 returns 1, entries 1/2/4/5 share one body returning
+   0, entry 3 returns 2, and anything >= 6 falls through to the default 1.
+   The labels are declared in that object order because b210 lays case bodies
+   out in declaration order. */
+s32 func_00122720(void) {
+    s32 *state;
+
+    state = (s32 *)iGpffffb1cc;
+    if (state == NULL) {
+        return 1;
+    }
+    switch ((u32)state[0]) {
+    case 0:
+        return 1;
+    case 1:
+    case 2:
+    case 4:
+    case 5:
+        return 0;
+    case 3:
+        return 2;
+    }
+    return 1;
+}
 
 // FUN_00122820
 void func_00122820(s32 arg0, s32 arg1)
