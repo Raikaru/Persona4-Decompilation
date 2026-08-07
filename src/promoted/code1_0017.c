@@ -2,7 +2,16 @@
 #include "type.h"
 extern void func_0015a630();
 extern void func_00174c20();
-extern void func_0015f660();
+extern s32 func_0015f660();
+extern void func_001029a0(s32 a, void *b, s32 c, s32 d);
+extern void func_00260510(void);
+extern void *func_0043f9c8(void *dst, s32 value, s32 size);
+extern u8 *func_00155280(void);
+extern s32 func_00156170(s32 arg0);
+extern s32 func_00156180(s32 arg0);
+extern s32 func_0015a160(void);
+extern s32 func_00161630(u16 a, u16 b, s32 c, s32 d);
+extern u8 gMtScene[];
 
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -61,13 +70,37 @@ void func_00176280(void)
 }
 
 // FUN_00176320
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176320);
+s32 func_00176320(void) {
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_001029a0(0x19, NULL, 0, 0);
+    return 1;
+}
 
 // FUN_00176370
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176370);
+s32 func_00176370(void) {
+    s32 sp1C;
+
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00260510();
+    func_0043f9c8(&sp1C, 0, 4);
+    sp1C = func_0029cc00(0);
+    func_001029a0(0xC, &sp1C, 4, 2);
+    return 1;
+}
 
 // FUN_001763F0
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001763f0);
+s32 func_001763f0(void) {
+    if (func_0015f660() == 0) {
+        return 0;
+    }
+    func_00260510();
+    func_001029a0(0xD, NULL, 0, 2);
+    return 1;
+}
 
 // FUN_00176850
 s32 func_00176850(void)
@@ -93,10 +126,28 @@ s32 func_00176a50(void)
 }
 
 // FUN_00176B60
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176b60);
+s32 func_00176b60(void) {
+    s32 v;
+
+    v = 0;
+    if (*(s32 *)func_00155280() != 0) {
+        v = func_00156170(*(s32 *)func_00155280()) & 0xFFFF;
+    }
+    func_0029cf50(v);
+    return 1;
+}
 
 // FUN_00176BC0
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176bc0);
+s32 func_00176bc0(void) {
+    s32 v;
+
+    v = 0;
+    if (*(s32 *)func_00155280() != 0) {
+        v = func_00156180(*(s32 *)func_00155280()) & 0xFFFF;
+    }
+    func_0029cf50(v);
+    return 1;
+}
 
 // FUN_00178560
 s32 func_00178560(void)
