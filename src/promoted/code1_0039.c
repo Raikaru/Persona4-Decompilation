@@ -4,6 +4,7 @@
 extern s32 func_003df360(s32 arg0, s32 *arg1, s32 arg2);
 /* gp - 0x4A20 = 0x007690f0 - 0x4a20 = 0x007646d0 */
 extern s32 iGpffffb5e0;
+extern void func_0038fb10(s32 arg0);
 extern void func_00399b10(s32 arg0);
 extern void func_00399b80(s32 arg0);
 

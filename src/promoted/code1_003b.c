@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 
+extern s32 iGpffffb668;
+
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
 extern s32 D_00764758;
@@ -59,8 +61,37 @@ s32 func_003bbe80(s32 arg0) {
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
 #pragma schedule on
-// FUN_003BCF10
+/* measured: nd 47 at retail's real 68-byte body. Counts the entries of the
+   gp-based descriptor at iGpffffb668 whose +0xC word is set. Retail hoists the
+   zeroed accumulator and the loop index into the guard's delay slots and walks
+   the entry pointer with the stride in the back-edge slot; b210 keeps the
+   accumulator in a different register class and orders the guard the other
+   way. schedule on does not move it (nd 47). Committed at nd 47. */
+// FUN_003BCF10 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003bcf10(s32 arg0) {
+    u8 *t = (u8 *)(arg0 + iGpffffb668);
+    s32 n = *(s32 *)t;
+    s32 count = 0;
+    u8 *e;
+    s32 i;
+
+    if (n > 0) {
+        e = *(u8 **)(t + 4);
+        i = 0;
+        do {
+            if (*(s32 *)(e + 0xC) != 0) {
+                count++;
+            }
+            i++;
+            e += 0x10;
+        } while (i < n);
+    }
+    return count;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
+#endif
 
 /* measured: ascending switch labels generate retail's descending 3/2/1
    comparisons; no_branch_likely keeps each comparison as a plain beq. */
