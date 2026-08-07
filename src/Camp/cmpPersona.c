@@ -29,6 +29,7 @@ extern s32 D_005EB580[];
 extern u8 D_005EB560[];
 extern u8 D_005EB570[];
 extern u8 D_005EB578[];
+extern s16 D_005EB590[];
 typedef struct CmpPair CmpPair;
 struct CmpPair {
     f32 x;
@@ -259,7 +260,28 @@ void func_00137740(u8* arg0) {
 #pragma opt_loop_invariants off
 
 // FUN_001377E0
-INCLUDE_ASM("asm/nonmatchings/cmpPersona", func_001377e0);
+void func_001377e0(u8* arg0) {
+    u8* base = arg0;
+    s32 i;
+    s32* p;
+    for (i = 0; i < 0x17; i++) {
+        p = (s32*)(base + i * 4 + 0x1C54);
+        if (*p != 0) {
+            func_0046d280(*p);
+            *p = 0;
+        }
+    }
+    if (*(s32*)(base + 0x1CB4) != 0) {
+        func_00452080(*(s32*)(base + 0x1CB4));
+        *(s32*)(base + 0x1CB4) = 0;
+    }
+    if (*(s32*)(base + 0x1CB8) != 0) {
+        func_00452080(*(s32*)(base + 0x1CB8));
+        *(s32*)(base + 0x1CB8) = 0;
+    }
+    func_002bb4e0();
+    *(s32*)(base + 0x1C) = 0;
+}
 
 /* measured: blocked by the same overflow-safe (s32)f32 guard floor as
    func_001371a0/001356d0: the `temp_f1 = var_f2 * (var_f1/255.0f)` result is

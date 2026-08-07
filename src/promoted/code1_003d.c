@@ -24,27 +24,32 @@ extern s32 D_00724844;
    its slot and merges the exits (11 instr, nd 19 -> 15 with schedule on).
    Residual: nd 15. */
 
-#pragma schedule on
+/* measured: b210 emits a branch-likely where retail uses plain branches; the
+   no_branch_likely form brings the bare body from nd 15 to nd 11; guarded and re-measured it is nd 22.
+   Committed at nd 22. */
 // FUN_003D38E0 NONMATCHING
 #ifdef NON_MATCHING
+#pragma no_branch_likely on
+#pragma schedule on
 u8 *func_003d38e0(u8 *arg0, s32 arg1) {
     u8 *p;
 
-    if (arg0 != NULL) {
-        p = *(u8 **)((u8 *)arg0 + 0x14);
-        if (p != NULL) {
-            *(s32 *)(p + 0x14) = arg1;
-            return arg0;
-        }
+    if (arg0 == NULL) {
+        return NULL;
+    }
+    p = *(u8 **)((u8 *)arg0 + 0x14);
+    if (p != NULL) {
+        *(s32 *)(p + 0x14) = arg1;
+        return arg0;
     }
     return NULL;
 }
+/* measured: closes the no_branch_likely/schedule brackets above. */
+#pragma schedule off
+#pragma no_branch_likely off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d38e0);
 #endif
-// measured: closing bracket for the schedule-on above; satisfies decomp_lint
-// P001 balance and restores the -O2 default for any following code.
-#pragma schedule off
 
 
 void func_003df7f0(s32 arg0);
