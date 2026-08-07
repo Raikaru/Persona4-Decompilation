@@ -4,6 +4,36 @@
 extern void (*jtbl_008873EC[])();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003c5760(u8 *arg0);
+extern s32 func_003c2bd0(u8 *arg0);
+extern s32 func_003c4c00(u8 *arg0);
+extern s32 func_003e3370(u8 *desc, u8 *arg1);
+extern s32 func_003e3c20(u8 *desc, u8 *arg1);
+extern s32 func_003e6240(u8 *arg0);
+extern void func_003efda0(u8 *arg0);
+extern void func_003ef3a0(u8 *arg0);
+typedef struct { f32 x, y, z, w; } Vec4f;
+
+extern u8 D_0070AFB0[];
+extern u8 D_008872E0[];
+extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
+extern void (*jtbl_008873E8[])(u8 *arg0, s32 arg1);
+/* gp - 0x4930 = 0x007647c0 */
+extern s32 iGpffffb8d0;
+/* gp - 0x492C = 0x007647c4 */
+extern s32 iGpffffb8d4;
+/* gp - 0x4920 = 0x007647d0 */
+extern s32 iGpffffb8e0;
+/* gp - 0x491C = 0x007647d4 */
+extern s32 iGpffffb8e4;
+/* gp - 0x4918 = 0x007647d8 */
+extern u8 *iGpffffb8e8;
+/* gp - 0x490C = 0x007647e4 */
+extern s32 iGpffffb8f4;
+extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
+extern void func_003e12f0(u8 *arg0);
+extern void func_003c3890(void);
+extern u8 D_0070AFD0[];
+extern u8 D_0070AFF0[];
 extern s32 func_003c9c20(u8 *arg0);
 extern void func_003c5a90(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 D_007647CC;
@@ -82,16 +112,77 @@ u8 *func_003c2a60(u8 *arg0) {
    unfilled (nop); retail fills it with the final store (nd 11 -> 0). */
 
 // FUN_003C2C90
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2c90);
+/* measured: schedule on fills the four jal/jr delay slots; without it the
+   object is 104 bytes against a 96-byte window (nd 58). */
+#pragma schedule on
+s32 func_003c2c90(u8 *arg0) {
+    s32 total;
+
+    total = func_003c2bd0(arg0) + 0xC;
+    total += func_003c4c00(arg0 + 0x20) + 0xC;
+    return total + (func_003e3370(D_0070AFB0, arg0) + 0xC);
+}
+#pragma schedule off
 
 // FUN_003C38B0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c38b0);
+/* The four floats are copied as one Vec4f assignment because retail loads all
+   four before storing any; per-field assignments interleave lwc1/swc1 (nd 8).
+   The result blocks are reached by goto so the zero case lands before the
+   shared return, as retail lays them out. schedule on plus no_branch_likely
+   on are needed for the delay slots and the plain bc1t/bc1f (nd 53 -> 17). */
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003c38b0(u8 *arg0, Vec4f *arg1) {
+    *(Vec4f *)(arg0 + 0x18) = *arg1;
+    if (*(f32 *)(arg0 + 0x18) == *(f32 *)(arg0 + 0x1C)) {
+        goto chk;
+    }
+zero:
+    arg0[3] = 0;
+out:
+    return arg0;
+chk:
+    if (*(f32 *)(arg0 + 0x18) != *(f32 *)(arg0 + 0x20)) {
+        goto zero;
+    }
+    arg0[3] = 1;
+    goto out;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above func_003c38b0's marker. */
+#pragma schedule off
 
 // FUN_003C3CC0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3cc0);
+#pragma schedule on
+s32 func_003c3cc0(u8 *arg0) {
+    func_003e3c20(D_0070AFD0, arg0);
+    func_003efda0(arg0);
+    jtbl_008873FC[0](*(u8 **)(D_008872E0 + iGpffffb8d0), arg0);
+    return 1;
+}
+#pragma schedule off
 
-// FUN_003C3E10
+/* measured: the object is exactly its 128-byte window and every instruction
+   is right; the residual is which registers hold the reference count, the
+   table offset and the D_008872E0 base in the tail -- retail keeps the count
+   in $v1 and the offset in $a1, b210 swaps them (2 words, nd 9). Measured
+   identical at nd 9: naming the slot pointer in a local before the decrement,
+   and splitting the decrement into a read/modify/write through a local.
+   Register colouring floor. Committed at nd 9. */
+// FUN_003C3E10 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+u8 *func_003c3e10(u8 *arg0) {
+    func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb8d0), (void *)func_003c3890, 0);
+    func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb8d0));
+    iGpffffb8d4 -= 1;
+    *(u8 **)(D_008872E0 + iGpffffb8d0) = NULL;
+    return arg0;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e10);
+#endif
 
 /* measured: same shape as func_003bd470 in code1_003b.c, but NOT the same
    residual - nd 102 here against nd 43 there. The note originally copied the
@@ -123,13 +214,64 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3f20);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
 
 // FUN_003C40D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c40d0);
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003c40d0(u8 *arg0) {
+    u8 *p;
+
+    p = *(u8 **)(D_008872E0 + iGpffffb8e0);
+    if (p != NULL) {
+        func_003e12f0(p);
+        *(u8 **)(D_008872E0 + iGpffffb8e0) = NULL;
+    }
+    iGpffffb8e4 -= 1;
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_003C42B0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c42b0);
+/* measured: schedule on fills the branch and jr delay slots (nd 53 -> 4) and
+   no_branch_likely on stops b210 emitting beql on the two null tests. */
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
+    if (arg1 != NULL) {
+        *(s32 *)(arg1 + 0x54) += 1;
+    }
+    if (*arg0 != NULL) {
+        func_003ef3a0(*arg0);
+    }
+    *arg0 = arg1;
+    return (u8 *)arg0;
+}
+#pragma no_branch_likely off
+/* measured: closes the bracket noted above the marker. */
+#pragma schedule off
 
-// FUN_003C47C0
+/* measured: schedule on takes this from nd 71 (obj 104 in a 96-byte window)
+   to nd 8 and every instruction is right; the residual is three prologue
+   words -- retail interleaves `move $s1,$a0` between the two saved-register
+   stores while b210 emits both stores first. Measured identical at nd 8:
+   naming the inner pointer in a local before the guard; folding the 0x28
+   into both arms of an if/else is much worse (nd 42). Prologue scheduling
+   floor. Committed at nd 8. */
+// FUN_003C47C0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+s32 func_003c47c0(u8 *arg0) {
+    s32 total;
+
+    total = 0x28;
+    if (*(u8 **)arg0 != NULL) {
+        total += func_003e6240(*(u8 **)arg0) + 0xC;
+    }
+    return total + (func_003e3370(D_0070AFF0, arg0) + 0xC);
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
+#endif
 
 /* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
    (nop); retail fills it with the final store (nd 15 -> 0). */
@@ -151,7 +293,21 @@ extern s32 D_007647EC;
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c54a0);
 
 // FUN_003C5700
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5700);
+#pragma schedule on
+s32 func_003c5700(u8 *arg0) {
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 8);
+    if (p != NULL) {
+        jtbl_008873EC[0](p);
+        *(s32 *)(arg0 + 8) = 0;
+    }
+    jtbl_008873FC[0](iGpffffb8e8, arg0);
+    return 1;
+}
+/* measured: without schedule on the jalr and jr delay slots stay empty and
+   the object misses its window; with it func_003c5700 matches. */
+#pragma schedule off
 
 /* measured: the OR chain's five tests all branch POSITIVELY to a shared call
    block placed after the return path, so each test needs its own
