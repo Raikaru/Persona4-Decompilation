@@ -44,7 +44,7 @@ extern char D_0064E5B0[];
 f32 fGpffff83bc = 8.133125f;
 
 void func_0036da40(u8 *arg0, s32 arg1);
-void func_0036daa0(u8 *arg0, s32 arg1, s32 arg2);
+extern void func_0036daa0(u8 *arg0, s32 arg1, s32 arg2);
 void func_0036db20(u8 *arg0);
 void func_0036db60(u8 *arg0);
 void func_0036dba0(u8 *arg0);
@@ -62,45 +62,8 @@ void func_0036df30(u8 *arg0);
 void func_0036df90(u8 *arg0, s32 arg1);
 void func_0036e000(u8 *arg0);
 
-/* measured: nd 24, but the real defect is ONE extra instruction -- obj 180B vs
-   window 176B. In case 1 retail loads `lhu $a2, 6($a1)` FIRST and then
-   `lhu $a1, 4($a1)`, clobbering the base register last; b210 loads +4 into $v0,
-   then +6 into $a2, then needs `move $a1, $v0`. That one extra word shifts every
-   later branch target by 4, which is what inflates the count -- the dispatch
-   chain, all five case bodies and the assert all match instruction for
-   instruction.
-
-   The ascending case order IS correct (retail tests 3,2,1,0 descending; declaring
-   0,1,2,3 reproduces that). Measured and rejected for the extra move: a u16 temp
-   for the +6 argument at function scope, the same temp in a braced case block,
-   temps for both arguments, and a local ShuffleCard struct typedef with named
-   fields -- all five score 24. Argument-clobber ordering floor.
-   Committed at nd 57. */
-// FUN_0036D990 NONMATCHING
-#ifdef NON_MATCHING
-void func_0036d990(u8 *arg0, u8 *arg1)
-{
-    switch (*(s32 *)arg1) {
-    case 0:
-        func_0036da40(arg0, *(u16 *)(arg1 + 4));
-        break;
-    case 1:
-        func_0036daa0(arg0, *(u16 *)(arg1 + 4), *(u16 *)(arg1 + 6));
-        break;
-    case 2:
-        func_0036db20(arg0);
-        break;
-    case 3:
-        func_0036db60(arg0);
-        break;
-    default:
-        func_0046d730(D_0064E5B0, 0x72);
-        break;
-    }
-}
-#else
+// FUN_0036D990
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCard", func_0036d990);
-#endif
 // FUN_0036DA40
 void func_0036da40(u8 *arg0, s32 arg1)
 {

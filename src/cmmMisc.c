@@ -1168,13 +1168,50 @@ s32 func_00249010(s32 seed) {
     return -1;
 }
 
-/* measured: retail's not-found path sets i=-1 with no post-loop test and
-   branches positively (beq -> .L158) to an out-of-line return NULL; mwcc b210
-   emits the post-loop `i==count` test (bne), keeps the NULL return inline with
-   a negated skip, and shifts the body by one word (best nd 27 across while,
-   break, goto-done and m2c goto shapes). Loop-exit-test + layout floor. */
-// FUN_002490B0
+/* measured: candidate uses the retail incoming seed as the first argument to
+   func_001104d0 and reproduces the 0x50-byte frame, saved s0/s1/s2, and
+   all code through initialization. Candidate2 object 200B vs retail window
+   208B, nd 24; fndiff rows 68, 80, 92, 95, 100, 102-104, 106-113.
+   Candidate1 (direct stack comparisons) nd 52 and candidate3 (guarded loop
+   test) nd 50 were ruled out. Residual is the loop branch/layout floor.
+   Committed at nd 24. */
+// FUN_002490B0 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_002490b0(s32 seed) {
+    s32 sp4C;
+    s32 sp48;
+    u8 *temp_17;
+    u8 *p;
+    s32 count;
+    s32 a0;
+    s32 b0;
+    s32 i;
+
+    temp_17 = D_008814D0[0] + 8;
+    p = temp_17;
+    count = *(s32 *)(D_008814D0[0] + 4);
+    func_001104d0(seed, &sp4C, &sp48);
+    i = 0;
+    a0 = sp4C;
+    b0 = sp48;
+    while (i < count) {
+        if ((p[0] == a0) && (p[1] == b0)) {
+            break;
+        }
+        p += 0x24;
+        i++;
+    }
+    if (i == count) {
+        i = -1;
+    }
+    if (i != -1) {
+        return temp_17 + i * 0x24;
+    }
+    return NULL;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002490b0);
+#endif
 // FUN_00249180
 u8 *func_00249180(u32 arg0) {
     s32 sp3C;

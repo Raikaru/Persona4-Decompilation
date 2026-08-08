@@ -89,7 +89,8 @@ u8 *func_004b50f0(s32 id, s32 arg1)
  * lw 4(base), which is 312B, one instruction SHORT. That shortfall shifts every
  * later word and reads as nd 105, so the apparent cliff is an alignment cascade,
  * not 105 defects. Keeping the +4 out of the displacement while adding it before
- * the index is not expressible in C here - measured across 11 spellings. */
+ * the index is not expressible in C here - measured across 11 spellings.
+ * Committed at nd 7. */
 #ifdef NON_MATCHING
 u8 *func_004b5200(u8 *arg0)
 {

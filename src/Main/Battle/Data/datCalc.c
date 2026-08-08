@@ -509,52 +509,44 @@ s32 func_00232aa0(s32 arg0)
    tail lands at nd 68 (74 with the pragma), so the combo has not actually been
    tested against the good body. Whoever holds a body at nd 9 should try it --
    do NOT re-derive from scratch. */
-/* measured: P3-shaped basic-block reconstruction matches retail through the range guard, enemy table arithmetic, call/tail, and all but the signed player-id test's temporary register. Tried u16/u32/s32 check spellings and direct signed expressions; best verify normalized_diff nd 3 (object 296B, window 304B). Committed at nd 3. */
-// FUN_00232B40 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: widened temp to s32 and cast each u16 use, keeping the unmasked
+   source live while scratch andi values feed the guards/index; removed the
+   named check and kept the direct bound comparison. normalized_diff 0,
+   object 296B/304B. Committed at nd 0. */
+// FUN_00232B40
 u8 func_00232b40(u8 *arg0, s32 arg1)
 {
-    u16 temp;
+    s32 temp;
     u8 value;
-    s32 check;
     u32 index;
     u8 *base;
 
-    if ((s32)(arg1 & 0xFFFF) < 0 || (s32)(arg1 & 0xFFFF) >= 5) {
+    if ((s32)(arg1 & 0xFFFF) < 0 || (s32)(arg1 & 0xFFFF) >= 5)
         func_0046d730(D_00635938, 0x2F0);
-    }
     temp = *(u16 *)(arg0 + 2);
     if ((*(u16 *)arg0 & 4) != 0) {
-        if (temp >= 0x150) {
+        if ((u16)temp >= 0x150)
             func_0046d730(D_00635938, 0x2F7);
-        }
         base = (u8 *)iGpffffb3c4;
-        index = (u32)temp * 0x3C;
+        index = (u32)(u16)temp * 0x3C;
         base = (u8 *)(index + (u32)base);
         base = (u8 *)(((u32)arg1 & 0xFFFF) + (u32)base);
         value = *(u8 *)(base + 8);
     } else {
-        check = temp;
-        if (check >= 0xB) {
+        if ((u16)temp >= 0xB)
             func_0046d730(D_00635938, 0x2FA);
-        }
         value = (u8)func_00109980(temp, arg1);
     }
-    if ((s32)value > 0) {
+    if ((s32)value > 0)
         goto clamp_value;
-    }
     value = 1;
     goto done_value;
 clamp_value:
-    if (value > 0x63) {
+    if (value > 0x63)
         value = 0x63;
-    }
 done_value:
     return value;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
-#endif
 
 /* measured probe archived in build/W9DatCalcMisc_datCalc_32c70_bgtz.c:
    object 260/272, normalized_diff 32. The bgtz/clamp tail was the best
@@ -1166,7 +1158,6 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235110);
    booleanize) now matches; nd 92 from the fold ripple. */
 // FUN_00235320
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235320);
-
 // FUN_00235520
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235520);
 

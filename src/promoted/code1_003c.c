@@ -186,29 +186,21 @@ s32 func_003c3cc0(u8 *arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-/* measured: the object is exactly its 128-byte window and every instruction
-   is right; the residual is which registers hold the reference count, the
-   table offset and the D_008872E0 base in the tail -- retail keeps the count
-   in $v1 and the offset in $a1, b210 swaps them (2 words, nd 9). Measured
-   identical at nd 9: naming the slot pointer in a local before the decrement,
-   and splitting the decrement into a read/modify/write through a local.
-   Register colouring floor. Committed at nd 9. */
-// FUN_003C3E10 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: swapping the NULL-store and count decrement makes b210 assign
+   the tail count to $v1 and the table offset to $a1, matching retail.
+   Object/window 128/128, normalized_diff 0. Committed at nd 0. */
+// FUN_003C3E10
 #pragma schedule on
 u8 *func_003c3e10(u8 *arg0) {
     func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb8d0), (void *)func_003c3890, 0);
     func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb8d0));
-    iGpffffb8d4 -= 1;
     *(u8 **)(D_008872E0 + iGpffffb8d0) = NULL;
+    iGpffffb8d4 -= 1;
     return arg0;
 }
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e10);
-#endif
 
 /* measured: the explicit-label block order from func_003bd470 in code1_003b.c,
    with schedule on and no_branch_likely on, reproduces retail's block layout
@@ -463,15 +455,13 @@ finish:
 #pragma schedule off
 
 /* measured: nd 14 at the retail's 96B window (candidate obj 92B/window 96B).
-   Referencing the three handler entry points by their own symbols (rather
-   than func_003ca740 plus 0x40 and 0x60) is what folds each offset into its
-   own relocation and stops b210 CSEing them into one base plus two unmasked
-   addiu immediates - that alone was nd 65, and schedule on then took it to
-   nd 14 by hoisting the three addresses above the first store the way retail
-   does. The three words left are the order of `move $v0,$a0`, `addu
-   $t0,$a0,$a3` and the first store; declaring the returned value first, last,
-   or between the handlers and the record pointer all measure nd 14.
-   Committed at nd 14. */
+   Retail materializes the handlers directly as lui/addiu references to
+   func_003ca740 + 0, +0x40, and +0x60; it does not load them through a
+   function-pointer table. Direct-symbol C is nd 14; table-base/lw probes
+   scored nd 64 and nd 59 with object 88B. The remaining three words are the
+   order of `move $v0,$a0`, `addu $t0,$a0,$a3`, and the first store; all
+   returned-value, pointer/record-local, offset, and schedule variants remain
+   nd 14. Committed at nd 14. */
 // FUN_003CA830 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: probe schedule */
@@ -861,9 +851,7 @@ extern void (*D_00887300[])(u32, u32);
 /* measured: probe branch form */
 #pragma no_branch_likely on
 s32 func_003cc250(s32 arg0, u8 **arg1) {
-    u8 *p;
-
-    p = *arg1;
+    u8 *p = *arg1;
     if ((s32)*(u16 *)(p + 0) <= 0)
         goto retzero;
     *(s32 *)(p + 0x18) = *(s32 *)(p + 4);
@@ -885,9 +873,9 @@ call:
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
 #endif
 
-/* measured: the switch/if-chain C probes bottom out at nd 74 with object
-   108B versus the 96B window; no real C body was retained, so the bare
-   INCLUDE_ASM fallback remains. */
+/* measured: switch/if-chain probes bottomed out at nd 74, object 108B versus
+   the 96B window; no C body was retained, so the bare INCLUDE_ASM fallback
+   remains. */
 // FUN_003CC500
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 
@@ -897,20 +885,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 // FUN_003CC680
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 
-/* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; nd 15, obj 52B/window 64B. Committed at nd 15. */
-// FUN_003CC6E0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: the null-first `block_body`/`block_null` graph plus
+   no_branch_likely and schedule reproduce retail's out-of-line null branch,
+   the ld $ra delay-slot fill, and the backward body branch. Compiled C MATCH,
+   object 60B/window 64B. Committed at nd 0. */
+// FUN_003CC6E0
+/* measured: schedule on for func_003cc6e0. */
+#pragma schedule on
+/* measured: no_branch_likely on for func_003cc6e0. */
+#pragma no_branch_likely on
 void func_003cc6e0(u8 *arg0) {
-    if (((s32 *)arg0)[6] != 0) {
-        func_003f32d0();
-        func_003f32d0();
-    }
+    if (*(s32 *)(arg0 + 0x18) != 0)
+        goto block_body;
+block_null:
+    return;
+block_body:
+    func_003f32d0();
+    func_003f32d0();
+    goto block_null;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc6e0);
-#endif
-
+/* measured: no_branch_likely off for func_003cc6e0. */
+#pragma no_branch_likely off
+/* measured: schedule off for func_003cc6e0. */
+#pragma schedule off
 
 extern s32 D_0070B110[];
 

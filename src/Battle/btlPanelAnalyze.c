@@ -136,6 +136,7 @@ void func_00218e50(u8 *arg0, s32 arg1) {
 typedef struct { f32 x, y, z, w; } PanelVec4X;
 
 // measured: aggregate vector assignments and paired 32-bit copy loop reproduce the retail body except for 17 reloc-masked instruction words (normalized_diff 19); object 440B, retail window 448B. Parked because nd <= 25.
+// Committed at nd 19.
 // FUN_00218EA0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00218ea0(u8 *arg0) {

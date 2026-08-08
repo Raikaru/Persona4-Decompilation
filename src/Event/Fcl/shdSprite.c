@@ -49,19 +49,19 @@ extern u8 D_00637280[];
    other rows already byte-identical), align operand swaps, chain/align
    statement orderings, #pragma optimization_level 1 (nd 87).  This is the
    known load-sinking floor. */
+/* Compiled-C probe archived in build/WBSmallFiles_shdSprite_0025ef20_probe.txt:
+   object 476B / window 496B, normalized_diff 290, fndiff differing words 99.
+   The frame and object deficit ruled out the nd25 park threshold; restore the
+   assembly fallback. */
 // FUN_0025EF20
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
 
-/* measured: retail schedules the loop's array load (lw $v0, 8($s2)) BEFORE the
-   CSE'd index*4 (sll $s0, $s1, 2); mwcc b210 always hoists the sll above the
-   independent load. nd 2, every other word byte-identical (70 words). Tried
-   arr-local + arr[index], arr-local + off local, single inline index*4
-   expression, pointer-addition statement (p = arr + index), and if+do-while /
-   for(;;)+break shapes (the for(;;)+break shape fixed the return-0 block
-   layout, the rest was already exact). Scheduling-order floor. */
+/* Compiled-C probe archived in build/WBSmallFiles_shdSprite_0025f110_park.txt:
+   object 284B / window 288B, normalized_diff 61, fndiff differing words 24.
+   The body was structurally close but did not meet the nd25 park threshold;
+   restore the assembly fallback. Committed at nd 61. */
 // FUN_0025F110
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f110);
-
 // FUN_0025F230
 void func_0025f230(u32 param_1)
 {

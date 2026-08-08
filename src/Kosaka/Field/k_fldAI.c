@@ -96,6 +96,7 @@ void func_0017e9b0(u8 *arg0) {
    ld/sd+lwc1/swc1 (8+4 split) instead; also ab[4]+=90.0f reuses the fill
    register instead of retail's lwc1 reload. Copy-shape scheduling floor. */
 /* measured: func_0017ea10 near-match parked at normalized_diff 6 (object 808B/window 816B); the candidate matches through the second projection call but MWCCPS2 schedules the aggregate swap as ld/ld/sd/sd instead of retail ld/lwc1/sd/swc1 and omits two trailing nops. */
+// Committed at nd 6.
 // FUN_0017EA10 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0017ea10(u8 *arg0)

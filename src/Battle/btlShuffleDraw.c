@@ -618,7 +618,6 @@ void func_00375f00(u8 *arg0, s32 arg1) {
     func_00370a80((u8 *)idx + (u32)arg0 + 0x1D70C);
     *(s32 *)((u8 *)idx + (u32)arg0 + 0x1D6A8) = 3;
 }
-/* measured: restores the default optimization level after this probe. */
 #pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375f00);

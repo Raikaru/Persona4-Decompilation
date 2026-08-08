@@ -46,6 +46,7 @@ extern s32 *D_00710070[];
 void func_0043ddf8(u8 *, s16, s16, s32);
 s32 func_0043DFA0(s32 *);
 s32 func_004258b0(s32 *, s32, s32, s32 *, s32, s32 *, s32, s32, s32);
+s32 *func_0043eae8(s32 *);
 void func_0043c6d8(u8 *, s32, s32);
 
 void func_0043bb48(void *);
@@ -248,13 +249,14 @@ s32 func_0043c0a0(void) {
 
 
 /* measured: O3 is the best tested body for this byte loop (object 52/56,
-   normalized_diff 6). Retail allocates the -1 sentinel in $t7 and puts the
+   normalized_diff 9). Retail allocates the -1 sentinel in $t7 and puts the
    pointer increment in the branch-delay slot; plain C keeps the sentinel in
    $v1 and emits the increment before the branch. Postincrement, for-loop,
-   O2, and a live third-argument probe were ruled out. Committed at nd 9. */
+   O2, live third-argument, pointer-alias, and hoisted-zero probes were ruled
+   out. Committed at nd 9. */
 // FUN_0043C6D8 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: optimization level 3 is load-bearing for this parked nd 6 body. */
+/* measured: optimization level 3 live-value probe */
 #pragma optimization_level 3
 void func_0043c6d8(u8 *arg0, s32 arg1, s32 arg2) {
     s32 sentinel;
@@ -351,8 +353,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfe0);
 // FUN_0043E5B0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043e5b0);
 
-/* measured: retail window 32 bytes; the best attempted tail-jump bodies were
-   object 16/32 at nd 7 and schedule-on object 12/32 at nd 4. Those numbers
-   are size-deficit artifacts, not near matches; no real C body was produced. */
-// FUN_0043EB20
+/* measured: schedule-on call wrapper is object 32/32 at normalized_diff 13.
+   Retail uses an absolute D_00710070 load in $t7 followed by a framed tail jump;
+   b210 emits the equivalent jal/epilogue with a $v0 absolute load. Direct
+   tail-return without schedule was nd 25, object 40/32. Committed at nd 13. */
+// FUN_0043EB20 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: schedule-on tail-call body is load-bearing for this parked nd 13 body. */
+#pragma schedule on
+s32 *func_0043eb20(void) {
+    return func_0043eae8(D_00710070[0]);
+}
+/* measured: closes the schedule-on scope at the file baseline. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043eb20);
+#endif

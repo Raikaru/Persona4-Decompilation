@@ -652,16 +652,15 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
 // FUN_002E6280
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
 
-/* measured 2026-08-03 (wave 14 re-attack): LEVER 6 applies directly — retail
-   reloads the type (lw 4(p)) into $v0/$v1/$a2/$a2 across the four jump-table
-   dispatches because each dispatch jr clobbers $v0; spelling the four reads
-   with distinct integer-domain casts (*(s32*)(p+4) / (u32)p+4 / (s8*)p+4 /
-   (u8*)p+4) forces four distinct CSE keys and the reloads (recorded 135 ->
-   121). The residual: retail keeps offA=a*0x30 in $a3 and offB=b*0x30 in $t0
-   and re-derives p+offA per slot, while mwcc hoists p+offA into $a3 and
-   shares it across dispatch1/2 (and similarly for p+offB). Named offA/offB
-   locals regress to 158 (frame/blowup); inline expressions give 121. Load-
-   hoist/coloring floor, nd 121 (was 135). */
+/* Comparator reconstruction archived at
+   build/WBYList_y_list_6630_candidate.c. The port follows matched
+   func_002e68b0's 11-case selector ordering and repeated dispatch shape.
+   Tuned form measured normalized_diff 362, object 608B/window 640B
+   (fndiff differing words 142; verify first-diff rows 18,22,38,42,50,65,69,
+   70,74,78,81,85,86,90,101,105). An explicit s64 index-cast variant was
+   oversized at 704B (nd426); named offsets and alternative load/decl orders
+   were ruled out. Remaining residual is saved-register/addressing and switch
+   layout drift, so bare INCLUDE_ASM is retained. */
 // FUN_002E6630
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6630);
 
@@ -746,101 +745,93 @@ void func_002e68b0(s8 arg0) {
    matter the spelling — tried #pragma schedule on (89), opt_common_subs off
    (13), e-split (24), decl orders (24). 4 instruction words + 2 pool-number
    relocs. Load-order scheduling floor, nd 6. */
-/* A qsort-style comparator. Both halves select a per-entry field through the
-   SAME 11-entry switch on *(base + 4), decoded from jtbl_00748FE0 and
-   jtbl_00748FB0 with tools/jtbl.py: cases 0/2/7/8 take offset 0x14, cases
-   1/5/6/10 take 0xA4, and cases 3/4/9 share the out-of-range default, which
-   also takes 0x14 - so the first and third blocks are byte-identical
-   duplicates in retail as well.
-   measured: nd 159 at exactly retail's 356-byte object. Every instruction and
-   the whole block layout line up; the entire residual is that the allocator
-   shifts one register (retail ia=$a2, ib=$v1, selector=$v0; b210 ia=$a3,
-   ib=$a1, selector=$v1). Measured identical at nd 159: swapping the two index
-   loads, declaring the indices last, and casting the comparison through
-   (s32)(u16); s32 indices, inlining the second load and loading the base
-   first are all worse. Register colouring floor. Committed at nd 45. */
-// FUN_002E6B20 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail re-issues the comparison operands b210 would share; turning
-   common-subexpression sharing off restores that, nd 159 -> 45. */
-#pragma opt_common_subs off
-s32 func_002e6b20(s16 *arg0, s16 *arg1) {
-    s16 ia;
-    s16 ib;
-    u8 *base;
-    u8 *pa;
-    u8 *pb;
-    s32 va;
-    s32 vb;
-
-    ia = *arg0;
-    ib = *arg1;
-    base = *(u8 **)(D_00882F70[0] + 0x38);
-    switch ((u32)*(s32 *)(base + 4)) {
-    case 0:
-    case 2:
-    case 7:
-    case 8:
-        pa = base + ia * 0x30 + 0x14;
-        break;
-    case 1:
-    case 5:
-    case 6:
-    case 10:
-        pa = base + ia * 0x30 + 0xA4;
-        break;
-    case 3:
-    case 4:
-    case 9:
-    default:
-        pa = base + ia * 0x30 + 0x14;
-        break;
-    }
-    va = *(u8 *)(pa + 4);
-    switch ((u32)*(s32 *)(base + 4)) {
-    case 0:
-    case 2:
-    case 7:
-    case 8:
-        pb = base + ib * 0x30 + 0x14;
-        break;
-    case 1:
-    case 5:
-    case 6:
-    case 10:
-        pb = base + ib * 0x30 + 0xA4;
-        break;
-    case 3:
-    case 4:
-    case 9:
-    default:
-        pb = base + ib * 0x30 + 0x14;
-        break;
-    }
-    vb = *(u8 *)(pb + 4);
-    if (vb < (va & 0xFFFF)) {
-        return 1;
-    }
-    return -((va & 0xFFFF) < vb);
-}
-#pragma opt_common_subs on
-#else
+/* qsort-style comparator candidate archived at
+   build/WBYList_y_list_6b20_candidate.c. The best measured candidate had
+   normalized_diff 45 with object 364B/window 368B. Exact fndiff differing
+   offsets (bytes): 4,16,20,84,120,156,168,212,220,224,228,232,248,256,260,
+   264,268,284,292,296,300,308,312,316,320,336,344,348,352,356. Retail's
+   356B body layout was otherwise recovered, but saved-register coloring
+   remains different; index-load swaps, declaring indices last, comparison
+   casts, s32 indices, inlining the second load, and loading the base first
+   were ruled out. Bare INCLUDE_ASM is retained because nd45 exceeds the
+   nd<=25 park threshold. */
+// FUN_002E6B20
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
-#endif
-
-/* measured 2026-08-03 (wave 14 re-attack): func_002e6c90 is the sibling of the
-   MATCHED func_002e68b0 (same structure) with func_002e6b20 as the sort
-   comparator. Porting func_002e68b0's exact C (same decl order, same p2
-   re-index spelling `(u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)arg0 * 4)` +
-   the same loop2/loop3 shapes) cut the recorded nd 140 to 52 and fixed the
-   old "arg0 not saved to $s2" defect (arg0 now correctly -> $s2) and the
-   missing p2 re-index (now emitted). Residual is a pure register rotation in
-   loop2: mine j->$a2/count2->$a1/p2->$a0/idx->$t0/q->$a3 vs retail
-   j->$a3/count2->$a2/p2->$a1/idx->$t1/q->$t0 (one register lower each).
-   Tried decl-order variants (61), #pragma opt_propagation off (52, no
-   change). Register-rotation floor, nd 52 (was 140). */
+/* func_002e6c90 was closed by porting the MATCHED sibling func_002e68b0: same
+   declaration order, same p2 re-index spelling
+   `(u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)arg0 * 4)`, same loop2/loop3
+   shapes, with func_002e6b20 as the sort comparator. That fixed the old
+   "arg0 not saved to $s2" defect and the missing p2 re-index, taking the
+   recorded nd 140 to 52; the remaining loop2 register rotation then cleared.
+   measured: `opt_loop_invariants on` is required here — without it MWCC keeps
+   the loop-invariant slot address live in the loop body instead of hoisting it
+   into the preheader, which is the rotation retail does not have. */
 // FUN_002E6C90
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6c90);
+#pragma opt_loop_invariants on
+void func_002e6c90(s8 arg0) {
+    u8 **slotp = &D_00882F70[arg0];
+    u8 *entry;
+    u8 *p;
+    u8 **ep;
+    u8 *p2;
+    s32 count2;
+    s16 k;
+    s16 j;
+    u8 *dst;
+    s16 i;
+    s16 idx;
+    s16 arr1[0x100];
+    s16 arr2[0x100];
+
+    entry = *slotp;
+    if (entry == NULL) {
+        return;
+    }
+    ep = (u8 **)(entry + 0x38);
+    p = *(u8 **)(entry + 0x38);
+    for (k = 0; k < *(s32 *)(*(u8 **)(entry + 0x38) + 8); k++) {
+        arr1[k] = k;
+    }
+    func_00440bb8(arr1, *(u16 *)((u8 *)*ep + 8), 2, func_002e6b20);
+    j = 0;
+    count2 = *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8);
+    if (count2 > 0) {
+        p2 = *(u8 **)(*(u8 **)((u8 *)D_00882F70 +
+              (u32)(s8)arg0 * 4) + 0x38);
+        for (; j < count2; j++) {
+            u8 *q;
+
+            idx = arr1[j];
+            switch (*(u32 *)(p2 + 4)) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                q = p2 + ((idx * 3) * 0x10) + 0xA4;
+                break;
+            default:
+                q = p2 + ((idx * 3) * 0x10) + 0x14;
+                break;
+            }
+            arr2[j] = *(u16 *)(q + 2);
+        }
+    }
+    for (i = 0; i < *(s32 *)(*(u8 **)((u8 *)*slotp + 0x38) + 8); i++) {
+        dst = p + ((i * 3) * 0x10) + 0x14;
+
+        func_0043f9c8(dst, 0, 0x30);
+        func_0043f810(dst, func_0010fcb0(arr2[i]), 0x30);
+    }
+}
+/* measured: closing the scope restores the file baseline; leaving
+   `opt_loop_invariants on` open inflates the following functions. */
+#pragma opt_loop_invariants off
 // FUN_002E6F00
 /* measured: without `opt_loop_invariants on` MWCC rematerializes the -1 store
    constant at the top of the loop body (nd 6) instead of hoisting it into the

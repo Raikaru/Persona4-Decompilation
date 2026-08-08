@@ -38,81 +38,9 @@ extern u8 D_006267D0[];
 
 
 
-// FUN_00202890 NONMATCHING
-// measured: nd 310 at -O2 (obj 696B/720B). Residual is one MWCC register-content
-// choice: retail keeps idx*4 in $s0 and recomputes the slot address per store
-// (`addu $v1,$s0,$s2; sw $v0,0x2c($v1)`); b210 instead materializes the full
-// address recs+idx*4+0x2C into $s0 and stores with offset 0, re-materializing
-// idx*4 per D_00626720 access. Register-agnostic content diff: call sequence,
-// offsets and constants are 100% correct; every difference traces to that one
-// allocation decision. Probed 15+ shapes (struct/raw-pointer/array-index forms,
-// off variable, two-statement stores, -O1/-O3, schedule/opt pragmas) - all
-// compile to the identical hoist; no C source reaches retail's allocation.
-#ifdef NON_MATCHING
-s32 func_00202890(BtlPanel* panel)
-{
-    u8* recs = func_00452560(panel->field34);
-    s16 done = 0;
-    s32 idx;
-    u8* rec;
-
-    switch (panel->state) {
-    case 0:
-        rec = panel->records;
-        if (rec == NULL) {
-            if (func_00106330(0x1438) == 0) {
-                func_00440b68(&iGpffffa578, D_00626780, 0x532);
-                panel->records = func_00454a60(D_00626790, 1);
-            } else {
-                func_00440b68(&iGpffffa578, D_00626780, 0x534);
-                panel->records = func_00454a60(D_006267B0, 1);
-            }
-            goto check;
-        }
-        if (func_004553c0(rec) != 0) {
-            panel->state = 1;
-        case 1:
-            idx = panel->index;
-            if (*(s32*)(recs + idx * 4 + 0x2C) == 0) {
-                if (idx < 8) {
-                    if (func_0019ef90(0, (idx + 1) & 0xFFFF) != 0) {
-                        if (func_00106330(0x1438) == 0 || idx != 0) {
-                            *(s32*)(recs + idx * 4 + 0x2C) = func_0046b000(D_00626720[idx]);
-                        } else {
-                            *(s32*)(recs + idx * 4 + 0x2C) = func_0046b000(iGpffffa570);
-                        }
-                    } else {
-                        *(s32*)(recs + idx * 4 + 0x2C) = 0;
-                        panel->index++;
-                    }
-                } else if (idx < 0xC) {
-                    *(s32*)(recs + idx * 4 + 0x2C) = func_0046b000(D_00626720[idx]);
-                }
-            } else if (func_0046a750(*(s32*)(recs + idx * 4 + 0x2C)) != 0) {
-                if (++panel->index == 0xC) {
-                    func_00454bd0(panel->records);
-                    panel->records = NULL;
-                    done = 0xC;
-                }
-            }
-        }
-        break;
-    default:
-        break;
-    }
-check:
-    if (done == 0xC) {
-        for (idx = 0xC; idx < 0x10; idx++) {
-            *(s32*)(recs + idx * 4 + 0x2C) = func_0046a770(D_00626720[idx]);
-        }
-        *(u32*)recs |= 1;
-        return 1;
-    }
-    return 0;
-}
-#else
+// Archived C body: build/WBHygiene_func_00202890_archive.txt; no current park body remains.
+// FUN_00202890
 INCLUDE_ASM("asm/nonmatchings/btlPanel", func_00202890);
-#endif
 
 
 
