@@ -737,8 +737,80 @@ s32 func_00289780(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
    emits addu rs=$s1, and reuses the dispatch's $v0=1 by branching the default
    straight to the epilogue. Tried goto-ret, b-local vs inline expression, and
    4 declaration orders; all nd 8. Register-reuse + branch-target floor. */
-// FUN_002898B0
+/* measured: retail reuses arg2's dead register for the case-2 slot pointer and keeps the dispatcher result in a separate saved register; mwcc b210 assigns the slot and argument registers differently in the final call sequence. Tried declaration orders and parameter reuse; all closed at nd 8. Committed at nd 8. */
+// FUN_002898B0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002898b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    s32 result;
+    s32 t;
+    u8 *slot;
+
+    t = func_00286350();
+    switch (arg0) {
+    case 0:
+        switch (D_008821E0[0]) {
+        default:
+            return 0;
+        case 1:
+            break;
+        }
+        if (arg1 == *(s32 *)(arg2 + 0xC)) {
+            arg1 = 0;
+            while (arg1 < 3U) {
+                slot = arg2 + arg1 * 4 + 0x6D0;
+                if (*(s32 *)slot != 0) {
+                    func_00452080(*(s32 *)slot);
+                }
+                *(s32 *)slot = 0;
+                arg1 += 1;
+            }
+        }
+        return 1;
+    case 1:
+        return 1;
+    case 2:
+        if (*(u16 *)arg4 == arg1) {
+            slot = arg2 + ((*(u8 *)(arg4 + 0x12) >> 4) * 4) + 0x6D0;
+            if (*(s32 *)slot != 0) {
+                func_00452080(*(s32 *)slot);
+                *(s32 *)slot = 0;
+            }
+            switch (*(u8 *)(arg4 + 0x12) & 0xF) {
+            case 0:
+                result = *(s32 *)slot;
+                if (result != 0) {
+                    func_00452080(result);
+                    result = 0;
+                }
+                break;
+            case 1:
+                result = func_0028d390(t, 1, slot);
+                break;
+            case 2:
+                result = func_0028d390(t, 2, slot);
+                break;
+            case 3:
+                result = func_0028dc30(t, 1, slot);
+                break;
+            case 4:
+                result = func_0028dc30(t, 2, slot);
+                break;
+            case 5:
+                result = func_0028dc30(t, 3, slot);
+                break;
+            case 6:
+                result = func_0028dc30(t, 5, slot);
+                break;
+            }
+            *(s32 *)slot = result;
+        }
+    default:
+        return 1;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_002898b0);
+#endif
 // FUN_00289B10
 s32 func_00289b10(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     u8 sp60[0x14];

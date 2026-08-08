@@ -331,6 +331,8 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
 // FUN_0027D800
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d800);
 
+/* Skip: retail contains COP1 adda.s/madd.s chains; ordinary FPU-MAC inline asm
+   is prohibited, and this function has no measured plain-C near-match. */
 // FUN_0027D970
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d970);
 
@@ -383,6 +385,8 @@ void func_0027f6a0(void)
     }
 }
 
+/* Skip: retail contains repeated COP1 adda.s/msub.s/madd.s chains; ordinary
+   FPU-MAC inline asm is prohibited, with no measured plain-C near-match. */
 // FUN_0027F6F0
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027f6f0);
 // FUN_002818A0
@@ -495,6 +499,8 @@ s32 func_002833b0(s32 arg0)
     return 0;
 }
 
+/* Skip: retail contains COP1 adda.s/madd.s/msub.s chains; ordinary FPU-MAC
+   inline asm is prohibited, with no measured plain-C near-match. */
 // FUN_00283490
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_00283490);
 

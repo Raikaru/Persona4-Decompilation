@@ -73,7 +73,7 @@ extern s32 func_00105ee0(s32 arg0);
 extern s32 func_00155280(void);
 extern void func_0014a0f0(u16 arg0, s32 arg1);
 extern u16 func_00145780(u16 arg0, s32 arg1, s32 arg2);
-extern void func_0047a1a0(u8 *arg0, void *arg1, s32 arg2, f32 arg3);
+extern void func_0047a1a0(void *arg0, void *arg1, f32 arg2, s32 arg3);
 extern void func_0047a180(void *arg0, f32 *arg1, s32 arg2);
 extern s32 func_0018bb20(s32 arg0, void *arg1);
 
@@ -209,16 +209,86 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163990);
 
 
 
-/* measured: nd 6 after four attempts; all but 2 words match. (1) Retail's
-   var_5 = 3 materializes as daddiu $a1, $zero, 3; mwcc b210 emits addiu even
-   with var_5 declared s64 — 64-bit-constant-load floor (cf. cmmRankUp
-   func_00257820). (2) Retail loads st.a (D_005F1520, ld $v1) then st.b
-   (D_005F1528, lwc1 $f0) then stores both; mwcc b210 either interleaves
-   load/store (direct member assigns) or hoists the lwc1 first (temp locals,
-   both orderings tried) — load-scheduling floor. The S90 struct keeps all
-   three v-stores live (no DSE) and the frame/layout match. */
-// FUN_00163C90
+/* measured: retail uses a 0x50-byte frame, interleaved stack aggregate loads, and a 35.0f COP1 argument; this C body matches the full control-flow and call sequence at nd 5. Remaining residuals are the two independent D_005F1520/D_005F1528 load-order words plus relocation/tail-padding differences. Committed at nd 5. */
+// FUN_00163C90 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00163c90(s32 arg0)
+{
+    u8 sp40[12];
+    f32 sp30[3];
+    u8 var_5;
+    f32 temp_f0;
+    s32 temp_2;
+    u8 *temp_16;
+    s64 temp_s64;
+    f32 temp_stack;
+
+    temp_s64 = *(s64 *)D_005F1520;
+    temp_stack = *(f32 *)D_005F1528;
+    *(s64 *)sp40 = temp_s64;
+    *(f32 *)(sp40 + 8) = temp_stack;
+    temp_16 = D_007E8C00 + arg0 * 0x750;
+    if (*(s32 *)(temp_16 + 0x48) == 0) {
+        return 1;
+    }
+    if (*(s32 *)(temp_16 + 0x54) != 0) {
+        return 1;
+    }
+    if (*(s32 *)(temp_16 + 0x50) == 0) {
+        return 1;
+    }
+    if (func_004782b0(*(s32 *)(temp_16 + 0x50)) == 0) {
+        return 0;
+    }
+    var_5 = 0;
+    if (*(u8 *)(temp_16 + 0x1CA) == 1) {
+        var_5 = 3;
+    }
+    *(s32 *)(temp_16 + 0x54) = (s32)func_00145270(func_00145540((arg0 + 0x64) & 0xFFFF, var_5, *(u8 **)(temp_16 + 0x50)) & 0xFFFF);
+    func_00479940(*(u8 **)(temp_16 + 0x50), 0, 0, 0x10, 1);
+    func_0047aa30(*(u8 **)(temp_16 + 0x50), D_005DC920);
+    temp_2 = *(s32 *)(temp_16 + 0x1C0) - func_0014c780();
+    if (temp_2 < -3) {
+        *(u8 *)(temp_16 + 0x1CB) = 0;
+    } else if (temp_2 < -1) {
+        *(u8 *)(temp_16 + 0x1CB) = 1;
+    } else if (temp_2 < 3) {
+        *(u8 *)(temp_16 + 0x1CB) = 2;
+    } else if (temp_2 >= 3) {
+        *(u8 *)(temp_16 + 0x1CB) = 3;
+    }
+    if (*(u8 *)(temp_16 + 0x1CA) == 1) {
+        func_0017b9a0(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x224), *(f32 *)(D_005F1340 + *(u8 *)(temp_16 + 0x1CB) * 4));
+    }
+    func_0047a1e0(*(void **)(temp_16 + 0x50), D_005F12E0 + *(u8 *)(temp_16 + 0x1CA) * 0x30 + *(u8 *)(temp_16 + 0x1CB) * 0xC, 2);
+    func_003e05d0(func_0047a2f0(*(s32 *)(temp_16 + 0x50)));
+    func_00168de0(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), sp40, *(f32 *)(*(u8 **)(temp_16 + 0x1AC) + 0x14C));
+    func_00168ae0(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), *(u8 **)(temp_16 + 0x1AC) + 0x140);
+    func_0014b0c0(*(u16 *)(*(u8 **)(temp_16 + 0x54)), 1);
+    func_00168730(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), 0x40000000);
+    func_00168780(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), 35.0f);
+    *(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x228) = func_00478750(iGpffffb274);
+    temp_f0 = func_00168770(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220));
+    sp30[2] = temp_f0;
+    sp30[1] = temp_f0;
+    sp30[0] = temp_f0;
+    func_0047a1e0((void *)*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x228), sp30, 2);
+    func_00478e70((u8 *)*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x228));
+    *(s32 *)(temp_16 + 0x1B0) = func_00182220(0, temp_16, *(u8 *)(temp_16 + 0x1CA));
+    *(s32 *)(temp_16 + 0x1B8) = func_00167420((u8 *)0, temp_16);
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163c90);
+#endif
+
+
+
+
+
+
+
+
 
 
 
@@ -610,16 +680,77 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
 
 
 
-/* measured: nd 5 after many attempts. Retail's four gp byte copies
-   (iGpffff9f28..2b -> temp_6+4..7) load into $a1/$a0/$v1/$v0 in source order;
-   mwcc b210 rotates the load/register assignment by one (t0 lands in $v0) in
-   every spelling tried: u8/s32/array temps, reversed declarations, reversed
-   assignment order, reversed store order, temp_3_2 field local. Only the 4
-   sb rows differ (the lbu rows are reloc-masked). Caller-register-rotation
-   floor. Everything else (interleaved f32/s32 prototype for func_0047a1a0,
-   batched byte loads, temp_4_2 0x16C reuse, func_00145ac0 sh store) matches. */
-// FUN_00165FB0
+/* measured: nd 20. Retail differs only in unresolved absolute-data relocations for D_005DC920/D_005F1530/D_00756510/D_005F1570/D_005F1550, four GP byte-copy register assignments, and the D_007643D8 GP relocation; frame and all computation/call order match. Probed scalar/array/address spellings and the corrected interleaved func_0047a1a0 prototype. Committed at nd 20. */
+// FUN_00165FB0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 temp_17_2;
+    s32 temp_18;
+    s32 temp_17;
+    s32 temp_21;
+    s32 temp_4;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_3;
+    u8 *temp_3_2;
+    u8 *temp_4_2;
+    u8 *temp_6;
+    u8 *var_18;
+
+    if (arg0 != NULL) {
+        temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
+        *(u16 *)(arg0 + 0xC) = (u16)func_00145ac0(arg2 & 0xFFFF, func_00478750(*(s32 *)(func_0015a320())));
+        temp_2 = func_00145270(*(u16 *)(arg0 + 0xC));
+        func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
+        temp_21 = temp_17 * 0xC;
+        func_0047a1e0(*(u8 **)(temp_2 + 0x144), D_005F1530 + temp_21, 2);
+        func_0047a1a0(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);
+        func_0047a180(*(u8 **)(temp_2 + 0x144), (f32 *)(arg1 + 0x140), 2);
+        if (*(s32 *)(arg0 + 8) != 0) {
+            func_00479940(*(u8 **)(temp_2 + 0x144), 0, 2, 0, 0);
+        } else if (temp_17 == 1) {
+            func_00479940(*(u8 **)(temp_2 + 0x144), 0, 3, 0, 0);
+        }
+        temp_3 = *(u8 **)(temp_2 + 0x144);
+        *(s32 *)(temp_3 + 0xD8) |= 0x80;
+        temp_3_2 = *(u8 **)(temp_2 + 0x144);
+        var_18 = *(u8 **)(*(u8 **)(temp_3_2 + 0x2CC));
+        temp_6 = *(u8 **)(temp_3_2 + 0x124);
+        temp_6[4] = iGpffff9f28;
+        temp_6[5] = iGpffff9f29;
+        temp_6[6] = iGpffff9f2a;
+        temp_6[7] = iGpffff9f2b;
+        while (var_18 != NULL) {
+            temp_4 = *(s32 *)(var_18 + 8);
+            if (temp_4 != 0) {
+                func_004b13f0((u8 *)temp_4, (u8 *)&iGpffff9f28);
+            }
+            var_18 = *(u8 **)(var_18 + 0x10);
+        }
+        if (temp_17 == 1) {
+            func_0047a220((s32)*(u8 **)(temp_2 + 0x144), (u8 *)&iGpffff9f24);
+        } else {
+            func_0047a220((s32)*(u8 **)(temp_2 + 0x144), D_005F1570 + ((func_0015a160() / 20U) * 4));
+        }
+        temp_2_2 = (u8 *)func_00478750(D_00764364);
+        *(u8 **)(temp_2 + 0x16C) = temp_2_2;
+        func_0047a1a0(temp_2_2, D_00756510, *(f32 *)(arg1 + 0x14C), 2);
+        func_0047a1e0(*(u8 **)(temp_2 + 0x16C), D_005F1550 + temp_21, 2);
+        func_0047a180(*(u8 **)(temp_2 + 0x16C), (f32 *)(arg1 + 0x140), 2);
+        temp_4_2 = *(u8 **)(temp_2 + 0x16C);
+        *(u8 **)(arg0 + 0x164) = temp_4_2;
+        func_00478e70(temp_4_2);
+        temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
+        temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
+        *(u8 **)(temp_2 + 0x140) = func_00145270(*(u16 *)(func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
+        func_0014a0f0(*(u16 *)(arg0 + 0xC), 1);
+        D_007643D8 += 1;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165fb0);
+#endif
 
 
 

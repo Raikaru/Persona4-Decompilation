@@ -1256,9 +1256,15 @@ check:
    floor note without its body cannot be resumed. #pragma schedule on and
    optimization_level 3 each take it 58 -> 44; neither matches, so neither is committed.
    The residual is still the $t3-vs-$s0 live-across-call choice described above.
-   Committed at nd 58. */
+   Re-probed with the full park_probe wrapper battery: schedule on plus
+   opt_common_subs off together take it 58 -> 43, the best of thirteen
+   wrappers, and that pair is what is committed. Committed at nd 43. */
 // FUN_00278D50 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail both fills delay slots this function leaves empty and
+   re-issues a value b210 would share; both pragmas are needed. */
+#pragma schedule on
+#pragma opt_common_subs off
 void func_00278d50(u8 *arg0) {
     if (*(u8 *)(arg0 + 0x1C) == 0) {
         func_00278c60((int *)(arg0 + 0x20), (int)(arg0 + 0x20),
@@ -1266,6 +1272,10 @@ void func_00278d50(u8 *arg0) {
         *(u8 *)(arg0 + 0x1C) = 1;
     }
 }
+/* measured: closes both scopes above at the file's -O2 baseline. */
+#pragma opt_common_subs on
+/* measured: closes both scopes above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
 #endif
@@ -1472,8 +1482,24 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
    always emits sll first, registers follow. Tried: inline expression (nd 2),
    s32 base local, scaled-first/scaled-last - all nd 2-3 (obj 172B vs window
    176B). Load-sinking floor, not source-drivable. */
-// FUN_00279690
+/* measured: the direct-base s64 body matches retail except the final base-plus-scaled addu operand order (nd 1, object 172B versus the 176B window); O1 was also probed and left the same nd 1. The remaining commutative scheduling residual was not source-drivable. Committed at nd 1. */
+// FUN_00279690 NONMATCHING
+#ifdef NON_MATCHING
+s64 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    u8 *obj;
+    u32 address;
+
+    obj = D_00881808[arg0].unk0;
+    if (obj == NULL)
+        func_0046d730(D_0063BE10, 0xC50);
+    address = (u32)*(s32 *)(obj + 4);
+    address += (u32)(arg1 * 8);
+    return func_002748e0(func_00279740(*(s32 *)(address + 0x24), 0), arg2, arg3);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279690);
+#endif
 // FUN_00279740
 u32 func_00279740(int param_1,int param_2)
 {
@@ -1519,7 +1545,38 @@ u32 func_00279740(int param_1,int param_2)
 // FUN_00279780
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
 // FUN_00279A80
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279a80);
+void func_00279a80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    s32 size;
+    s32 base;
+    s32 *slot;
+    s32 *res;
+
+    if (arg0 == NULL)
+        func_0046d730(D_0063BE10, 0xCF1);
+    if ((arg1 < 0) || (arg1 >= 0x20))
+        func_0046d730(D_0063BE10, 0xCF2);
+    base = (s32)arg0 + 0x94;
+    slot = (s32 *)(base + arg1 * 4);
+    if (*slot != 0) {
+        func_0046a340(*slot);
+        *slot = 0;
+    }
+    if (arg3 <= 0) {
+        size = (func_00442948((const void *)arg2) + 4) & ~3;
+        func_0046a2d0(D_0063BE10, 0xD0F);
+        res = (s32 *)func_0046a430(size);
+        *(s32 **)((u32)base + (u32)arg1 * 4) = res;
+        func_0043f810(res, (void *)arg2, size);
+    } else {
+        size = (arg3 + 5) & ~3;
+        func_0046a2d0(D_0063BE10, 0xD22);
+        res = (s32 *)func_0046a430(size);
+        *(s32 **)((u32)base + (u32)arg1 * 4) = res;
+        func_0043f9c8(res, 0, size);
+        func_0043f810(*(s32 **)((u32)base + (u32)arg1 * 4), (void *)arg2, arg3);
+    }
+}
 
 /* MATCH (wave14): the old "CSE/allocator floor" was broken by lever 6 -
    spelling the POST-call slot store with integer-domain address arithmetic,

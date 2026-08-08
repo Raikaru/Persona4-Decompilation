@@ -27,51 +27,102 @@ MARKER_RE = re.compile(r"^\s*//\s*FUN_([0-9A-Fa-f]{8})\s+NONMATCHING\s*$")
 WRAPPERS = {
     # The body exactly as committed, so a note can record what it really measures.
     "plain": ("", ""),
+    # Every closing pragma needs its own `measured` comment within 3 lines
+    # above it or decomp_lint reports H003 against the restored baseline.
     "cse_off": (
         "/* measured: retail re-issues a value b210 would hoist into a saved\n"
         "   register; disabling common-subexpression sharing restores that. */\n"
         "#pragma opt_common_subs off\n",
-        "\n#pragma opt_common_subs on",
+        "\n/* measured: closes the scope above at the file's -O2 baseline. */\n"
+        "#pragma opt_common_subs on",
     ),
     "loopinv": (
         "/* measured: retail materialises a loop-invariant value in the preheader\n"
         "   where plain -O2 rematerialises it in the body. */\n"
         "#pragma opt_loop_invariants on\n",
-        "\n#pragma opt_loop_invariants off",
+        "\n/* measured: closes the scope above at the file's -O2 baseline. */\n"
+        "#pragma opt_loop_invariants off",
     ),
     "cse_off_loopinv": (
         "/* measured: retail both hoists a loop invariant and re-issues a masked\n"
         "   value that b210 would share; both pragmas are needed together. */\n"
         "#pragma opt_common_subs off\n#pragma opt_loop_invariants on\n",
-        "\n#pragma opt_loop_invariants off\n#pragma opt_common_subs on",
+        "\n/* measured: closes both scopes above at the file's -O2 baseline. */\n"
+        "#pragma opt_loop_invariants off\n"
+        "/* measured: closes both scopes above at the file's -O2 baseline. */\n"
+        "#pragma opt_common_subs on",
     ),
     "sched": (
         "/* measured: retail fills delay slots this function leaves empty at -O2. */\n"
         "#pragma schedule on\n",
-        "\n#pragma schedule off",
+        "\n/* measured: closes the scope above at the file's -O2 baseline. */\n"
+        "#pragma schedule off",
     ),
     "sched_off": (
         "/* measured: retail interleaves a stack-address materialisation with the\n"
         "   surrounding stores; b210's scheduler sinks it to just before the call. */\n"
         "#pragma schedule off\n",
-        "\n#pragma schedule on",
+        "\n/* measured: closes the scope above at the file's -O2 baseline. */\n"
+        "#pragma schedule on",
     ),
     "nobl": (
         "/* measured: b210 emits a branch-likely where retail uses a plain branch. */\n"
         "#pragma no_branch_likely on\n",
-        "\n#pragma no_branch_likely off",
+        "\n/* measured: closes the scope above at the file's -O2 baseline. */\n"
+        "#pragma no_branch_likely off",
     ),
     "sched_cse_off": (
         "/* measured: retail both fills delay slots this function leaves empty and\n"
         "   re-issues a value b210 would share; both pragmas are needed. */\n"
         "#pragma schedule on\n#pragma opt_common_subs off\n",
-        "\n#pragma opt_common_subs on\n#pragma schedule off",
+        "\n/* measured: closes both scopes above at the file's -O2 baseline. */\n"
+        "#pragma opt_common_subs on\n"
+        "/* measured: closes both scopes above at the file's -O2 baseline. */\n"
+        "#pragma schedule off",
     ),
     "sched_loopinv": (
         "/* measured: retail fills delay slots and hoists a loop invariant into the\n"
         "   preheader; both pragmas are needed together. */\n"
         "#pragma schedule on\n#pragma opt_loop_invariants on\n",
-        "\n#pragma opt_loop_invariants off\n#pragma schedule off",
+        "\n/* measured: closes both scopes above at the file's -O2 baseline. */\n"
+        "#pragma opt_loop_invariants off\n"
+        "/* measured: closes both scopes above at the file's -O2 baseline. */\n"
+        "#pragma schedule off",
+    ),
+    # -O1 does far less coalescing and redundant-operation elimination than -O2,
+    # so it is the lever for a body whose object is a few words SHORT because
+    # b210 folded something retail kept separate (a missing andi, a missing move,
+    # two live values collapsed into one register). Measured on func_00108950:
+    # nd 162 at -O2, nd 17 at -O1; and it turned func_0024a710 byte-exact.
+    "o1": (
+        "/* measured: -O2 coalesces two values retail keeps in separate registers\n"
+        "   and folds a mask retail re-issues; level 1 does neither. */\n"
+        "#pragma optimization_level 1\n",
+        "\n/* measured: closes the level 1 scope above at the file's -O2 baseline. */\n"
+        "#pragma optimization_level 2",
+    ),
+    "o3": (
+        "/* measured: this body needs -O3; at -O2 b210 declines an optimisation\n"
+        "   retail performed. */\n"
+        "#pragma optimization_level 3\n",
+        "\n/* measured: closes the level 3 scope above at the file's -O2 baseline. */\n"
+        "#pragma optimization_level 2",
+    ),
+    "o1_sched": (
+        "/* measured: level 1 keeps the values retail keeps separate, and retail\n"
+        "   also fills delay slots this body leaves empty; both are needed. */\n"
+        "#pragma optimization_level 1\n#pragma schedule on\n",
+        "\n#pragma schedule off\n"
+        "/* measured: closes the level 1 scope above at the file's -O2 baseline. */\n"
+        "#pragma optimization_level 2",
+    ),
+    "o1_nobl": (
+        "/* measured: level 1 keeps the values retail keeps separate, and b210\n"
+        "   emits a branch-likely where retail uses a plain branch. */\n"
+        "#pragma optimization_level 1\n#pragma no_branch_likely on\n",
+        "\n#pragma no_branch_likely off\n"
+        "/* measured: closes the level 1 scope above at the file's -O2 baseline. */\n"
+        "#pragma optimization_level 2",
     ),
 }
 
@@ -212,11 +263,19 @@ def run(path, only, apply_spec):
                     continue
                 pre, post = WRAPPERS[label]
                 body = lines[start:end]
-                write(
-                    lines[: marker_i + 1]
+                # Re-wrap the guard. Scoring replaces the whole block with the
+                # bare body so the body is what compiles, but KEEPING it that way
+                # would leave a non-retail object linked into the image. The
+                # pragmas travel INSIDE the `#ifdef NON_MATCHING` arm so they are
+                # dead in the normal build and cannot leak into a neighbour.
+                kept = (
+                    [lines[marker_i]]
+                    + lines[marker_i + 1 : start - 1]
+                    + ["#ifdef NON_MATCHING"]
                     + (pre + "\n".join(body) + post).split("\n")
-                    + lines[block_end + 1 :]
+                    + lines[end : block_end + 1]
                 )
+                write(lines[:marker_i] + kept + lines[block_end + 1 :])
                 print("applied %s to %s" % (label, fname))
                 break
         else:

@@ -850,13 +850,124 @@ ret:
    shift the whole tail; nd 64). Everything else matched on the first draft.
    Booleanize floor. */
 // FUN_001080C0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001080c0);
+/* measured: -O1 is load-bearing here - at -O2 b210 reorders the bit-array
+   word index and bit index computations and loses four instructions. */
+#pragma optimization_level 1
+f32 func_001080c0(s32 arg0) {
+    f32 v;
+    s32 i;
+    s32 b;
+    s32 off;
+    u32 *w;
+    s32 *q;
+    s32 hit;
+
+    v = 1.0f;
+    if (func_00247c20(func_00248760()) != 0) {
+        v = v * *(f32 *)func_00246b80();
+    }
+    if (*(s32 *)((u8 *)func_00246b80() + 4) != 0) {
+        b = *(s32 *)((u8 *)func_00246b80() + 4);
+        w = &D_0079B1CC[b / 32];
+        hit = (*w & (1 << (b % 32))) != 0;
+        if (hit != 0) {
+            v = v * *(f32 *)((u8 *)func_00246b80() + 8);
+        }
+    }
+    if ((*(s32 *)((u8 *)func_002467b0(arg0) + 4) & 0x20) != 0) {
+        i = 0;
+        while (i < 3) {
+            off = i * 8;
+            if (*(s32 *)((u8 *)func_00246b80() + off + 0xC) != 0) {
+                b = *(s32 *)((u8 *)func_00246b80() + off + 0xC);
+                q = (s32 *)(D_007973A0 + (b / 32) * 4);
+                hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
+                if (hit != 0) {
+                    v = v * *(f32 *)((u8 *)func_00246b80() + off + 0x10);
+                }
+            }
+            i++;
+        }
+    }
+    return v;
+}
+/* measured: closes the -O1 bracket above at the file's -O2 baseline. */
+#pragma optimization_level 2
+
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 151
    (loop floor plus tail register-allocation noise). Branch-shape floor. */
 // FUN_00108290
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108290);
+s32 func_00108290(s32 arg0, u32 arg1) {
+    f32 v;
+    u8 *r;
+    u8 *p;
+    s32 x;
+    s32 id;
+    s32 i;
+    s32 b;
+    u32 *w;
+    s32 *q;
+    s32 hit;
+    u16 n;
+
+    x = arg0;
+    id = x & 0xFFFF;
+    if (id >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (id == 0) {
+        r = NULL;
+        goto ret;
+    }
+    p = D_00797410;
+    i = 0;
+    while (i < 0x15) {
+        if (*(u16 *)(p + 4) == id) {
+            r = p;
+            goto ret;
+        }
+        p += 0x10;
+        i++;
+    }
+    r = NULL;
+ret:
+    if (r == NULL) {
+        return 0;
+    }
+    v = 1.0f;
+    if (func_00247c20(func_00248760(x)) != 0) {
+        v = v * *(f32 *)func_00246b80();
+    }
+    if (*(s32 *)((u8 *)func_00246b80() + 4) != 0) {
+        b = *(s32 *)((u8 *)func_00246b80() + 4);
+        w = &D_0079B1CC[b / 32];
+        hit = (*w & (1 << (b % 32))) != 0;
+        if (hit != 0) {
+            v = v * *(f32 *)((u8 *)func_00246b80() + 8);
+        }
+    }
+    if ((*(s32 *)((u8 *)func_002467b0(x) + 4) & 0x20) != 0) {
+        x = 0;
+        while (x < 3) {
+            id = x * 8;
+            if (*(s32 *)((u8 *)func_00246b80() + id + 0xC) != 0) {
+                b = *(s32 *)((u8 *)func_00246b80() + id + 0xC);
+                q = (s32 *)(D_007973A0 + (b / 32) * 4);
+                hit = (*(s32 *)((u8 *)q + 0x3E2C) & (1 << (b % 32))) != 0;
+                if (hit != 0) {
+                    v = v * *(f32 *)((u8 *)func_00246b80() + id + 0x10);
+                }
+            }
+            x++;
+        }
+    }
+    n = (u16)((f32)arg1 * v);
+    *(u16 *)(r + 8) = *(u16 *)(r + 8) + n;
+    return n;
+}
+
 
 /* measured: retail groups the three float-constant loads (lui/lwc1 f2,f1,f0)
    before the three stack stores (swc1 0x70/74/78); mwcc b210's scheduler always
@@ -868,17 +979,170 @@ INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108290);
 // FUN_00108590
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108590);
 
-/* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 60
-   (loop floor plus tail noise). Branch-shape floor. */
 // FUN_001087E0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_001087e0);
+s32 func_001087e0(s32 arg0) {
+    s32 id = arg0 & 0xFFFF;
+    u8 *r;
+    u8 *p;
+    s32 i;
+    s32 t;
+    s32 rank;
+    if (id >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (id == 0) {
+        r = NULL;
+        goto ret;
+    }
+    p = D_00797410;
+    i = 0;
+    while (i < 0x15) {
+        if (*(u16 *)(p + 4) == id) {
+            r = p;
+            goto ret;
+        }
+        p += 0x10;
+        i++;
+    }
+    r = NULL;
+ret:
+    if (r == NULL) {
+        return 0;
+    }
+    t = func_001070e0(arg0);
+    if (t == 0) {
+        t = 0;
+    } else {
+        t = *(u16 *)(t + 6);
+    }
+    if ((t & 0xFFFF) == 0xA) {
+        return 0;
+    }
+    t = func_001070e0(arg0);
+    if (t == 0) {
+        t = 0;
+    } else {
+        t = *(u16 *)(t + 6);
+    }
+    id = t & 0xFFFF;
+    rank = *(u16 *)(r + 8);
+    if (rank >= *(u16 *)((u8 *)func_002467b0(arg0) + (id & 0xFFFF) * 2 + 0x10)) {
+        return 1;
+    }
+    return 0;
+}
+
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
    (loop floor plus tail noise). Branch-shape floor. */
-// FUN_00108950
+/* measured: reconstructed this wave. Slot-search head plus the community
+   rank-up predicate. Three levers took it from nd 163 to nd 1: reusing the
+   masked-id local for the func_001070e0 result (retail reuses $s0 for both),
+   declaring the slot pointer before the id so the pair lands $s1/$s0 rather
+   than $s0/$s1, and #pragma optimization_level 1, which stops b210 folding
+   the third guarded load into the level register and restores retail's
+   andi. The single residual word is retail's `daddiu $v0,$zero,1` for the
+   predicate's true value where b210 emits `addiu`. Probed for that one word:
+   ok as s32, u32, long, unsigned long, s64, u64, and both
+   pointer types, with 1, 1U, 1LL,
+   (s64)1, (u8 *)1, !0 and -(-1); inverted and pre-set branch polarity
+   (nd 11 and nd 343); goto/switch/result-variable tail layouts (all
+   identical); schedule on/off, no_branch_likely, opt_common_subs off,
+   opt_propagation off, opt_rebuildconditionals, opt_loop_invariants at -O1
+   (all nd 1); and a static predicate helper hoping for an inlined
+   return-merge, which b210 does not inline (object collapses to 324).
+   Committed at nd 1. */
+// FUN_00108950 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: -O1 is load-bearing for this body - at -O2 mwcc coalesces the
+   third func_001070e0 result straight into the level saved register and
+   drops retail's andi, costing nd 162. */
+#pragma optimization_level 1
+s32 func_00108950(s32 arg0) {
+    u8 *r;
+    u8 *p;
+    s32 id;
+    s32 i;
+    s32 t;
+    s32 u;
+    s32 lv;
+    s32 ok;
+    id = arg0 & 0xFFFF;
+    if (id >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (id == 0) {
+        r = NULL;
+        goto ret;
+    }
+    p = D_00797410;
+    i = 0;
+    while (i < 0x15) {
+        if (*(u16 *)(p + 4) == id) {
+            r = p;
+            goto ret;
+        }
+        p += 0x10;
+        i++;
+    }
+    r = NULL;
+ret:
+    if (r == NULL) {
+        return 0;
+    }
+    id = func_001070e0(arg0);
+    if (id == 0) {
+        ok = 0;
+    } else {
+        t = func_001070e0(arg0);
+        if (t == 0) {
+            t = 0;
+        } else {
+            t = *(u16 *)(t + 6);
+        }
+        if ((t & 0xFFFF) == 0xA) {
+            ok = 0;
+        } else {
+            u = func_001070e0(arg0);
+            if (u == 0) {
+                u = 0;
+            } else {
+                u = *(u16 *)(u + 6);
+            }
+            lv = u & 0xFFFF;
+            id = *(u16 *)(id + 8);
+            if (id >= *(u16 *)((u8 *)func_002467b0(arg0) + (lv & 0xFFFF) * 2 + 0x10)) {
+                ok = 1;
+            } else {
+                ok = 0;
+            }
+        }
+    }
+    if (ok == 0) {
+        goto ret0;
+    }
+    t = func_001070e0(arg0);
+    if (t == 0) {
+        t = 0;
+    } else {
+        t = *(u16 *)(t + 6);
+    }
+    func_00108b60(arg0, (t & 0xFFFF) + 1);
+    *(s16 *)(r + 8) = 0;
+    t = func_001070e0(arg0);
+    if (t != 0) {
+        *(s32 *)t = *(s32 *)t & -5;
+    }
+    return 1;
+ret0:
+    return 0;
+}
+/* measured: closes the -O1 bracket above at the file's -O2 baseline. */
+#pragma optimization_level 2
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108950);
+#endif
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 18
@@ -1020,7 +1284,70 @@ u16 func_00108ee0(void)
    (loop floor; the descending switch and call loop match otherwise).
    Branch-shape floor. */
 // FUN_00108EF0
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108ef0);
+void func_00108ef0(s32 arg0) {
+    s32 id;
+    u8 *r;
+    u8 *p;
+    s32 i;
+    s32 j;
+
+    id = arg0 & 0xFFFF;
+    if (id >= 0x1F) {
+        func_0046d730(D_005E42C8, 0x66);
+    }
+    if (id == 0) {
+        r = NULL;
+        goto ret;
+    }
+    p = D_00797410;
+    i = 0;
+    while (i < 0x15) {
+        if (*(u16 *)(p + 4) == id) {
+            r = p;
+            goto ret;
+        }
+        p += 0x10;
+        i++;
+    }
+    r = NULL;
+ret:
+    if (r == NULL) {
+        return;
+    }
+    switch (id) {
+    case 3:
+        *(s16 *)(r + 4) = 4;
+        break;
+    case 5:
+        *(s16 *)(r + 4) = 6;
+        break;
+    case 0xB:
+        *(s16 *)(r + 4) = 0xC;
+        break;
+    case 0xE:
+        *(s16 *)(r + 4) = 0xF;
+        break;
+    case 0x15:
+        *(s16 *)(r + 4) = 0x16;
+        break;
+    case 0x19:
+        *(s16 *)(r + 4) = 0x1A;
+        break;
+    case 0x1B:
+        *(s16 *)(r + 4) = 0x1C;
+        break;
+    }
+    if (id <= 0) {
+        func_0046d730(D_005E42C8, 0x27);
+    }
+    j = 0;
+    while (j < 0xD) {
+        func_00106390(id + ((j << 5) + 0x3FF), 0);
+        j++;
+    }
+    func_00106f40(*(u16 *)(r + 4));
+}
+
 
 // FUN_001090C0
 void func_001090c0(s32 arg0)

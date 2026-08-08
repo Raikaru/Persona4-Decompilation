@@ -46,7 +46,49 @@ extern void (*jtbl_008873EC[])(void *ptr);
    u64 shift spellings (all add sext+canonicalize pairs). Saved-register
    rotation floor family. */
 // FUN_004B32F0
-INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b32f0);
+u8 *func_004b32f0(u8 *arg0)
+{
+    s32 n;
+    u8 *r;
+    u16 *p;
+    u32 i;
+    u8 *dst;
+    u32 c0;
+    u32 c1;
+    u32 a0;
+    u32 a1;
+    u32 cnt;
+    n = *(s32 *)(arg0 + 0x38);
+    func_0044ea90(D_00714628, 0x43);
+    r = (u8 *)(*jtbl_008873E8)(n * 8 + 0x10, 0x40000);
+    if (r == NULL) {
+        func_0046d730(D_00714628, 0x44);
+    }
+    *(u8 **)(r + 0) = r + 0x10;
+    *(u8 **)(r + 8) = r;
+    p = func_00482f70(n & 0xFFFF, 4, 6, D_00713310, 0x48);
+    *(u16 **)(r + 4) = p;
+    *p = *p & 0xFFFE;
+    cnt = *(s32 *)(arg0 + 0x38);
+    dst = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(r + 4) + 0x10) + 0x18) + 0x30);
+    c1 = *(u32 *)(arg0 + 0x54);
+    c0 = c1 & 0xFFFFFF;
+    a1 = *(u32 *)(arg0 + 0x58);
+    a0 = a1 & 0xFFFFFF;
+    i = 0;
+    while (i < cnt) {
+        *(u32 *)(dst + 0x00) = c0;
+        *(u32 *)(dst + 0x04) = c1;
+        *(u32 *)(dst + 0x08) = c0;
+        *(u32 *)(dst + 0x0C) = a0;
+        *(u32 *)(dst + 0x10) = a1;
+        *(u32 *)(dst + 0x14) = a0;
+        i++;
+        dst += 0x18;
+    }
+    return r;
+}
+
 // FUN_004B3420
 void func_004b3420(u8 *arg0) {
     func_004833f0(*(void **)(arg0 + 4));
@@ -54,21 +96,14 @@ void func_004b3420(u8 *arg0) {
 }
 
 
-/* measured: nd 10 with a full C body (object 576B against a 576B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
+/* measured: ordinary float/loop candidate reached nd 220 with a 576-byte
+   object, but remained non-byte-exact; partial candidate restored to ASM. */
 // FUN_004B3470
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b3470);
 
 
-/* measured: VU0/COP2-heavy reconstruction. The retail body is dominated by VU0
-   vector ops: the color-prefix does pextlb/pextlh/qmtc2/vitof0/vmulx/vftoi0/
-   ppacb, and the whole loop body is lqc2/vsub/vmul/vmulax/vmadday/vmaddz/
-   vrsqrt/vmulq/vopmula/vopmsub/sqc2. Matching this requires the full inline-asm
-   VU0 recipe (p3fes-vu0-stub-macro-unlock) plus the adda.s/madd.s FPU MAC and
-   the u16 sign-test conversions; not reconstructed in this wave. Loop/prefix
-   VU0 floor family. */
+/* measured: retail contains COP2/VU0 vector work; H009 permits the required
+   inline asm. No byte-exact candidate was retained in this wave. */
 // FUN_004B36B0
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b36b0);
 
@@ -122,17 +157,9 @@ void func_004b3e40(u8 *arg0) {
 }
 
 
-/* measured: nd 119 with a full C body whose logic and structure are correct
-   (prologue, jtbl_008873E8 alloc, r[0]/r[8] init, func_00482f70, the u16 sign-
-   test byte->float conversion with f+f doubling, the 0x4F000000 guard, and the
-   loop stores all match). Residual is a load-schedule + register-coloring floor:
-   retail reloads 0x38(arg0) and r[4] before the chain (lw $v0,0x38($s2); lw
-   $v1,4($s1); then chain) and colors the loop limit $v0 / chain $v1 / counter
-   $a2 / packed $a1/$a3, while mwcc b210 chains off the cached p3 and colors
-   $v0/$a1/$a0/$a2. The byte conversion also lands in $f2 (retail $f1). Tried
-   chain-via-r[4] (nd 123), separate loop_limit (nd 123), 64-bit byte extraction
-   (nd 124), m2c variable scheme (nd 136), and separate float temps (nd 119) --
-   all nd >= 119. Load-schedule/register-coloring floor family. */
+/* measured: retail is scalar allocation plus float conversion code, not a VU0
+   floor. Plain-C probes reached nd 27 (664-byte object against a 672-byte
+   window) but remained non-byte-exact; marker remains ASM. */
 // FUN_004B3ED0
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b3ed0);
 
@@ -143,28 +170,15 @@ void func_004b4170(u8 *arg0) {
 }
 
 
-/* measured: nd 18 (9 rows) with a full C body whose structure is 100% correct
-   (prologue, adda.s/madd.s FPU MAC, 0x4F000000 float->int guard with c.ole.s/
-   bc1t, in-range inline + overflow out of line, u16 andi 0xffff narrowing, and
-   the trailing 0x4C switch all match). The residual is a pure register-coloring
-   floor: mwcc b210 colors the 1st/2nd conversion result $v0 (retail $v1) and the
-   3rd $v1 (retail $a0), so the in-range mfc1 and the overflow `or` land in the
-   wrong TR register. Tried declaration order (3x), separate result vars, direct
-   store, s32-vs-u16 result, `& 0xFFFF`, `(f32)0xFFFF` constant spelling, separate
-   float temps, and both guard polarities -- all nd 18. Register-coloring floor
-   family. */
+/* measured: plain-C FPU-MAC reconstruction reached nd 266 with a 568-byte
+   object against a 624-byte window; non-byte-exact candidate restored to ASM. */
 // FUN_004B41C0
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b41c0);
 
 
-/* measured: VU0/COP2-heavy reconstruction. The retail body is dominated by VU0
-   vector ops: the color-prefix does pextlb/pextlh/qmtc2/vitof0/vmulx/vftoi0/
-   ppacb, and the whole loop body is lqc2/vsub/vmul/vmulax/vmadday/vmaddz/
-   vrsqrt/vmulq/sqc2. The non-VU0 prefix also has the adda.s/madd.s FPU MAC
-   pattern and the u16 sign-test byte->float conversions (self-contained and
-   matchable), but the full VU0 loop blocks a match without the inline-asm VU0
-   recipe (p3fes-vu0-stub-macro-unlock). Not reconstructed in this wave. Loop/
-   prefix VU0 floor family. */
+/* measured: retail contains COP2/VU0 vector work; H009 permits the required
+   inline asm, while the FPU MAC portions must remain plain C. No byte-exact
+   candidate was retained in this wave. */
 // FUN_004B4430
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b4430);
 

@@ -91,7 +91,7 @@ extern void func_0010cad0(u16 *arg0, u16 arg1);
 extern s64 func_00312c60(u16 *arg0, u8 *arg1, s64 arg2);
 extern u8 *func_002e4870(s8 arg0);
 extern s32 func_0010ce10(u8 *arg0, u32 arg1);
-extern s32 func_00313690(s16 arg0);
+extern s32 func_00313690(s64 arg0);
 extern u8 func_002e78a0(void);
 extern u8 func_002e78e0(void);
 extern s8 D_00641A60[];
@@ -512,27 +512,77 @@ s32 func_003042f0(s32 arg0, s32 arg1)
     return -1;
 }
 
-/* measured (wave 14): reconstructed the full body from retail (6x8-byte copy
-   loop into an sp+0x4F0 buffer, func_00313690 key loop filling an sp+0x70
-   s16 table, rand()%count retry loop). Levers that DID land, in order:
-   (1) temp_18 must be s32 (not s16) — s16 makes mwcc re-extend it into an
-   extra register per iteration ($s7) and balloons the frame to 0x540;
-   as s32 it holds the dsll32/dsra32 extension once (nd 95 -> 56).
-   (2) the copy buffer must be declared BEFORE the table so it lands at
-   sp+0x4F0 (table at 0x70) — reverse order puts copy at 0x70 and the whole
-   body shifts (nd 69). (3) copy loop needs load-all-store-all (two s32
-   temps) with the counter decrement between the src increment and the
-   stores, exactly the m2c's statement order (nd 52 -> 48). Prologue +
-   frame 0x520, arg1=$s0, temp_18=$s2, flag=$s3, var_20=$s4 all now match
-   retail byte-for-byte. Residual is a pure saved-register rotation: mine
-   temp_17=$s2, temp_18=$s3, var_21 carried as a per-iteration (s16) ext in
-   $s1 (hoisted pre-call, since it is live across the jal for the table
-   store); retail temp_17=$s1, temp_18=$s2, var_21=$s5 raw across the call.
-   All declaration orders and the u16/s16/s32 var_21 spellings give the
-   same map. Best measured nd 48 (previous note: 58). Saved-register
-   rotation floor. */
+/* measured: full body now MATCH. Retail copies six 8-byte blocks into an
+   sp+0x4F0 buffer, fills an sp+0x70 s16 table from the func_00313690 key
+   loop, then retries rand()%count until func_0010ce10 succeeds. The copy
+   buffer is declared before the table so the stack offsets match, and the
+   copy loop uses two s32 load/store temporaries with the counter decrement
+   between pointer increment and stores. The random divisor is a separate s32
+   local after the sign-extended s64 count; a signed modulo result and named
+   s16 *entry table pointer force retail's dsll32/dsra32 remainder and its
+   separate addiu 0x70 before lhu. Scoped verify reports byte-exact MATCH. */
 // FUN_00304410
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304410);
+u16 func_00304410(u8 *arg0, s64 arg1) {
+    u8 copy[0x30];
+    s16 table[0x240];
+    u8 *src;
+    u8 *dst;
+    s32 temp_1;
+    s32 temp_2;
+    s32 copy_count;
+    s64 arg1_saved;
+    s64 key;
+    s64 count;
+    s32 j;
+    s32 i;
+    s64 j_mask;
+    s8 retry;
+    s32 divisor;
+    s16 *entry;
+    u16 selected;
+    s64 bound;
+
+    arg1_saved = arg1;
+    src = arg0;
+    dst = copy;
+    copy_count = 6;
+    do {
+        temp_1 = *(s32 *)src;
+        temp_2 = *(s32 *)(src + 4);
+        src += 8;
+        copy_count -= 1;
+        *(s32 *)dst = temp_1;
+        *(s32 *)(dst + 4) = temp_2;
+        dst += 8;
+    } while (copy_count > 0);
+    key = (s16)func_00313690(arg1_saved);
+    count = (s16)key;
+    i = 0;
+    retry = 0;
+    j = 0;
+    bound = (s16)arg1_saved;
+    goto scan;
+scan_body:
+    key = (s16)func_00313690((s16)j);
+    if (count == (s16)key && bound != j_mask) {
+        table[(s16)i] = (s16)j;
+        i = (s16)(i + 1);
+    }
+    j = (j + 1) & 0xFFFF;
+scan:
+    j_mask = (u16)j;
+    if (j_mask < 0x240) goto scan_body;
+    j_mask = (s16)i;
+    divisor = (s32)j_mask;
+    do {
+        entry = table + (s16)(func_003b7060() % (u32)divisor);
+        selected = *entry;
+        if (func_0010ce10(copy, selected) == -1) {
+            retry = 1;
+        }
+    } while ((s8)retry == 0);
+    return selected;
+}
 // FUN_00304580
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00304580);
 

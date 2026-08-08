@@ -502,8 +502,22 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
    mwcc always addu-then-lui with the constant in $v1 and 0xFF before the
    reloads. Tried f32/u32 one locals, fresh-deref third store (fixes the
    retail third-store re-derivation, nd 18->12->7). Constant-position floor. */
-// FUN_002B6D60
+/* measured: retail loads the GP table and materializes 1.0f before the index extension, then reloads the table before addiu 0xFF; the C body with base-first local plus #pragma opt_propagation off matches the full 64-byte window except the final reload/0xFF materialization order. Tried loop-invariant and optimization-level pragmas and local/expressed 0xFF forms; best and committed body nd 9. Committed at nd 9. */
+// FUN_002B6D60 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+void func_002b6d60(s16 arg0) {
+    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    s32 off = ((s32)arg0) << 8;
+    *(f32 *)(base + off + 0xB0) = 1.0f;
+    *(f32 *)(base + off + 0xA4) = 1.0f;
+    *(u8 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x72) = 0xFF;
+}
+/* measured: opt_propagation off is bracketed around func_002b6d60. */
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6d60);
+#endif
 // FUN_002B6DA0
 void func_002b6da0(void) {
     void (*const *tbl)(u32, u32) = D_00887300;
@@ -569,33 +583,25 @@ void func_002b74c0(u8 *arg0) {
    allocations were not recovered. */
 // FUN_002B74F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
-/* measured: 6-store reset on the iGpffffb574 global base. Fully-inline six-deref
-   spelling (nd 9) matches every re-derivation after the first; the 9 words are
-   ALL the first store's preamble - retail lw gp/lw 0x38 then shift/addu $a2,$a0,
-   mwcc dsll32/dsra32/sll then lw gp/lw 0x38/addu. opt_propagation off + per-store
-   integer-domain cast variation (y_list lever-6) still nd 9 - unlike the
-   single-use wrappers, the pragma does NOT fix this first-store load order. The
-   subsequent 5 re-derivations already match. First-store base-load wall. */
-/* measured: nd 22. Retail re-reads the work-pointer base from the GP slot
-   before every one of the six stores; b210 hoists it and keeps it live, which
-   is the load-sinking wall already documented for func_002b6a70 in this file.
-   Spelling every store with its own inline reload, as here, is as close as the
-   source can get. schedule on is worse (nd 28). Committed at nd 22. */
-// FUN_002B7750 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002B7750
+#pragma opt_propagation off
 void func_002b7750(s16 arg0, s16 arg1) {
-    s32 off = arg0 << 8;
-
-    *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8) = arg1;
-    *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x14) = 0;
-    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x4B) = 0;
-    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0x77) = 0;
-    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xB7) = 0;
-    *(*(u8 **)(iGpffffb574 + 0x38) + off + 0xDF) = 0;
+    u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    s32 off = ((s32)arg0) << 8;
+    *(s16 *)(base + off + 8) = arg1;
+    base = *(u8 **)(iGpffffb574 + 0x38);
+    *(s16 *)(base + off + 0x14) = 0;
+    base = *(u8 **)(iGpffffb574 + 0x38);
+    *(u8 *)(base + off + 0x4B) = 0;
+    base = *(u8 **)(iGpffffb574 + 0x38);
+    *(u8 *)(base + off + 0x77) = 0;
+    base = *(u8 **)(iGpffffb574 + 0x38);
+    *(u8 *)(base + off + 0xB7) = 0;
+    base = *(u8 **)(iGpffffb574 + 0x38);
+    *(u8 *)(base + off + 0xDF) = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7750);
-#endif
+/* measured: opt_propagation off is required for the byte-exact 7750 reset sequence. */
+#pragma opt_propagation on
 // FUN_002B77D0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b77d0);
 

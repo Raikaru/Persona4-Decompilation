@@ -91,6 +91,9 @@ typedef struct {
     s64 q;
     f32 f;
 } bbSrc;
+static inline f32 cmmScriptAdd(f32 left, f32 right) { return left + right; }
+
+
 
 extern bbSrc D_00635A88[];
 extern u8 D_00635AA0[];
@@ -318,21 +321,57 @@ s32 func_0024a490(void)
     func_00278450(r, 7, buf);
     return 1;
 }
-/* measured: retail loads the iGpffffb3d4 base at the top of the
-   if-block, computes a*14 into $v0 (sll 3/subu/sll 1) and addu $v0,$v1;
-   mwcc b210 sinks the base load after the multiply, colors the multiply
-   result $v1 (sll $v1,$v0,1), and in the i<3 loop emits addiu $a2,gp
-   before move $a0,$s1 where retail emits the move first. Tried: named
-   base/off locals in both declaration orders, inline (a*14)+base,
-   base+a*14, 3+base+a*14, named pointer q = base + a*14, (u16)a, j=i+2
-   loop temp. All give the identical nd 6 (4 load-sink/coloring + 2 loop
-   arg order) — the documented load-sinking floor, same as FUN_0024A8B0. */
 
 /* Closes the measured optimization_level 1 scope opened above; -O2 is the
    baseline everywhere else in this translation unit. */
 #pragma optimization_level 2
 // FUN_0024A710
-INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024a710);
+/* measured: -O2 CSEs `temp_18 & 0xFFFF` into a callee-saved copy and sinks
+   the iGpffffb3d4 base load past the multiply (nd 287, object 428 of 416);
+   level 1 restores the per-site andi and retail's load-first order. Same
+   recipe as FUN_0024A8B0 below, including the integer-domain
+   ((u32)off + (u32)base) add. */
+#pragma optimization_level 1
+s32 func_0024a710(void)
+{
+    s32 sp5C;
+    u16 sp40[0xE];
+    s32 temp_18;
+    s32 temp_16;
+    s32 temp_2;
+    s32 var_16;
+    s32 var_16_2;
+
+    temp_18 = func_0029cc00(0);
+    temp_16 = func_0029cc00(1);
+    temp_2 = func_0029d030();
+    if (temp_2 < 0) {
+        func_0046d730(&D_006359F0, 0x16D);
+    }
+    if (temp_18 == 0) {
+        temp_18 = func_00108e10() & 0xFFFF;
+    }
+    temp_18 = func_00247900(temp_18 & 0xFFFF, func_00104c70(1), temp_16);
+    if (temp_18 != 0) {
+        u8 *base = iGpffffb3d4;
+        s32 off = temp_18 * 14;
+        func_002782c0(temp_2, 0, *(u8 *)((u32)off + (u32)base + 3), 0);
+        func_00278450(temp_2, 1, func_00109220(temp_18 & 0xFFFF));
+        for (var_16 = 0; var_16 < 3; var_16++) {
+            func_00278450(temp_2, var_16 + 2, &iGpffffa62c);
+        }
+        func_0010d360(temp_18 & 0xFFFF, sp40, &sp5C);
+        for (var_16_2 = 0; var_16_2 < sp5C; var_16_2++) {
+            func_00278450(temp_2, var_16_2 + 2, func_00243840(sp40[var_16_2]));
+        }
+    }
+    func_0029cf50(temp_18);
+    return 1;
+}
+/* measured: closes the level 1 scope above; -O2 is the baseline everywhere
+   else in this translation unit. */
+#pragma optimization_level 2
+
 /* measured: -O2 CSEs `temp_18 & 0xFFFF` into a callee-saved copy (andi $s0);
    level 1 restores the per-site andi. The base hoist (u8 *base = iGpffffb3d4)
    reproduces retail's load-first-into-$v1 and the integer-domain add
@@ -896,45 +935,95 @@ void func_0024ba60(s32 arg0)
         }
     }
 }
-/* measured: everything matches except two b210 codegen choices. (1) The
-   12-byte global->stack copy (ld D_00635A88 + lwc1 D_00635A90 -> sd + swc1)
-   is emitted by retail as loads-batched-then-stores with ONE shared lui;
-   b210 either stores the s64 between the loads or re-materialises the lui
-   (tried struct assignment, s64/f32 locals in both orders, bbSrc member
-   loads). (2) The entry index `addu $v0,$v0,$s0` (scaled index first, per
-   m2c temp_16[arg0]) is emitted base-first by b210 across every spelling
-   (p+arg0*4, arg0*4+p, &p[arg0], s32 off local + byte-ptr cast). Best nd 7,
-   no further source lever. Scheduling/operand-order floor. */
 // FUN_0024BB00
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024bb00);
-/* measured: float conversion recipe works (single bltz per arm, c.ole.s for the
-   final (s32) conversion, (f32)(s32)((u32)x>>1|(x&1)) + doubling). But the
-   register allocation is stuck: my candidate needs 6 saved registers
-   ($s0-$s4: var_19_2 -> $s2 early, var_18 -> $s3, temp_19 -> $s4) while retail
-   reuses $s3 for temp_19 then var_19_2 then var_19 (5 regs, frame 0x60). Tried
-   6 declaration orders (m2c order, temp_19 first/last, var_19_2 after temp_19,
-   retail first-use order) -- all nd 127, frame 0x70 (obj 676B vs window 672B).
-   Saved-register rotation floor. */
 // FUN_0024BE40
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
-/* measured: the (u8)(s32)f1 colour conversion needs the explicit
-   if (2.1474836e9f > f1) { cb = (u8)(s32)f1; } else { ... | 0x80000000; }
-   form to reproduce retail's per-arm andi and c.ole.s/bc1t, but b210 then
-   keeps the (s32)f1 mfc1 intermediate in $v0/$v1 and re-masks into $a1
-   where retail coalesces the whole chain into $a1 (tried u8/s32 locals,
-   inline casts, & 0xFF, decl positions -- best nd 15, all else matching).
-   Also the f17 mov.s is scheduled after the $11 address load (retail has
-   it before) at all 3 call sites. Register/scheduling floor. */
-// FUN_0024C0E0
+/* Parked reconstruction: retail branches on flags 0x2/0x4, computes the
+   particle alpha through single-precision FMA (adda.s/madd.s), saturates the
+   255.0f colour conversion with c.ole.s/bc1t, and shares the common particle
+   call/epilogue. C uses typed pointer fields, a split colour local, and the
+   direct C float expressions; no inline assembly. Probes: plain C, explicit
+   u8/s32 conversion arms, compare spellings, split locals, and helper/callee
+   parameter types. Best retained body: obj 892B/window 896B; residuals are
+   the FMA accumulator operand order, three mov.s/address-load scheduling
+   swaps, and colour mfc1 register coalescing. The 19 first quoted here was
+   fndiff's DIFFERING-WORD count, which is not verify.py's normalized_diff -
+   verify measures this body at 35. Committed at nd 35. */
+// FUN_0024C0E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0024c0e0(u8* arg0, u8* arg1)
+{
+    s32 temp_16;
+    s32 temp_2;
+    s32 temp_3;
+    s32 temp_4;
+    s32 temp_5;
+    f32 temp_f0;
+    f32 temp_f1;
+
+    temp_16 = func_00452380(D_00635A78);
+    temp_2 = func_00452380(D_00635A78);
+    if (temp_2 == 0) {
+        func_0046d730(D_006359F0, 0x392);
+    }
+    temp_4 = ((*(s32*)func_00452560(temp_2) & 1) != 0);
+    if (temp_4 == 0) {
+        func_0046d730(D_006359F0, 0x39D);
+    }
+    temp_16 = *(s32*)((u8*)func_00452560(temp_16) + 0x24);
+    temp_3 = *(s32*)(arg1 + 0);
+    if ((temp_3 & 2) != 0) {
+        temp_2 = *(s32*)(arg1 + 8);
+        if (temp_2 < 10) {
+            temp_f0 = func_0044b7b0((iGpffff8094 * (f32)temp_2) / 10.0f);
+        } else {
+            temp_f0 = 1.0f;
+        }
+        func_0025ecd0(0xFFFFFF, 0xFF, 0, temp_16, 1, 0, 0, D_00794E70,
+                      512.0f, 418.0f + 200.0f * (1.0f - temp_f0), cmmScriptAdd(418.0f, 0.0f),
+                      -30.0f, 1.0f, 1.0f);
+        temp_4 = *(s32*)(arg1 + 8) + 1;
+        *(s32*)(arg1 + 8) = temp_4;
+        if (temp_4 >= 10) {
+            *(s32*)(arg1 + 0) = *(s32*)(arg1 + 0) & ~2;
+            *(s32*)(arg1 + 8) = 0;
+        }
+        goto block_20;
+    }
+    if ((temp_3 & 4) != 0) {
+        temp_2 = *(s32*)(arg1 + 8);
+        if (temp_2 < 10) {
+            temp_f0 = func_0044b7b0((iGpffff8094 * (f32)temp_2) / 10.0f);
+        } else {
+            temp_f0 = 1.0f;
+        }
+        temp_f1 = 255.0f * (1.0f - temp_f0);
+        if (2147483600.0f > temp_f1) {
+            temp_5 = (u8)(s32)temp_f1;
+        } else {
+            temp_5 = (s32)(temp_f1 - 2147483600.0f) | 0x80000000;
+        }
+        temp_5 &= 0xFF;
+        func_0025ecd0(0xFFFFFF, temp_5, 0, temp_16, 1, 0, 0, D_00794E70,
+                      512.0f, 418.0f, 0.0f, -30.0f, 1.0f, 1.0f);
+        temp_4 = *(s32*)(arg1 + 8) + 1;
+        *(s32*)(arg1 + 8) = temp_4;
+        if (temp_4 >= 10) {
+            *(s32*)(arg1 + 0) = *(s32*)(arg1 + 0) & ~4;
+            *(s32*)(arg1 + 8) = 0;
+            return 1;
+        }
+        goto block_20;
+    }
+    func_0025ecd0(0xFFFFFF, 0xFF, 0, temp_16, 1, 0, 0, D_00794E70,
+                  512.0f, 418.0f, 0.0f, -30.0f, 1.0f, 1.0f);
+block_20:
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c0e0);
-/* measured: the func_0025ecd0 calls use H1 FPU FMA chains (adda.s seeds the
-   accumulator, then msub.s f13 = ACC - f1*f20; e.g. arg10 = 139.0f - 5.0f*f20)
-   that m2c couldn't decode (M2C_ERROR). Writing the natural C
-   (139.0f - 5.0f*var_f20, 433.0f-60.0f*temp_f21, etc.) compiles to mul.s/sub.s
-   instead, and needs 4 saved FP regs ($f20-$f23) vs retail's 2 ($f20,$f21);
-   obj 3784B vs window 3472B. FMA + FP-register-pressure floor; the gp floats
-   were identified (iGpffff8094 = -0x7F6C, iGpffff809c = -0x7F64) and the
-   struct offsets (0x0/0x8/0xC/0xE/0x10) are confirmed. */
+#endif
 // FUN_0024C460
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c460);
 /* measured: same H1 FPU FMA floor as FUN_0024C460 -- the func_0025ecd0 calls

@@ -1,10 +1,34 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct {
+    f32 x;
+    f32 y;
+} Vec2f;
+typedef struct {
+    u8 b0;
+    u8 b1;
+    u8 b2;
+    u8 b3;
+} Color4;
+static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
+    return (u8 *)(offset + (s32)base);
+}
 
 u16 func_00115750(u8 *arg0);
 void func_0046d730(const char *file, s32 line);
+void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 s64 func_0023d8e0(u32 arg0, u16 arg1);
 extern char D_005E4800[];
+extern char D_005E47F0[];
+void *func_00243840(u16 arg0);
+void func_00275020(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
+void func_0046d4c0(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
+extern char D_005E5830[];
+extern char D_005E5850[];
+void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5);
+s32 func_0046a770(const char *file);
+void func_00274ed0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
+void func_001138c0(s64 arg0, u8 arg1, s16 *arg2, f32 arg3);
 
 // FUN_001138C0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_001138c0);
@@ -20,23 +44,32 @@ INCLUDE_ASM("asm/nonmatchings/shdSkill", func_001138c0);
    x*255/255U divu + |~0xFF chain, lh->sll->D_005E47F0 byte index). Probed
    this wave: z/sp48 assignment orders, arg1/arg2 locals, lo/hi locals -- all
    nd 5/11. prologue/FP-arg save-order floor. */
-// FUN_00113E30
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113e30);
+/* measured: nd 19, object 184/192. Plain C with the Vec2f aggregate, interleaved f32 parameter order, signed table-byte load, and the 9-argument 00275020 call reproduces the complete retail body; the residual is the final mov.s placement before the call (retail emits it before integer argument setup) plus the 8-byte short object tail. The O1 probe was unchanged. No inline assembly. Committed at nd 19. */
+// FUN_00113E30 NONMATCHING
+#ifdef NON_MATCHING
+void func_00113e30(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2) {
+    f32 farg;
 
-/* measured: rule 2 (FMA operand order) applied: `0.0f + 45.0f * fparg1 +
-   129.0f * (1.0f - fparg1)` does emit the retail adda.s/madd.s pair with the
-   same fs/ft order, but the function's frame (0xE0 vs retail 0xF0) and every
-   saved register rotate: retail [arg3->$s0, temp_17->$s1, var_18->$s2,
-   var_19->$s3, temp_2->$s4, arg2->$s5, temp_22->$s6, arg1->$s7, temp_lo->$fp,
-   hi->$f20, fparg0->$f21, fparg1->$f22]; mwcc b210 assigns arg1->$s0,
-   arg3->$s4, fparg0->$f20, fparg1->$f21 for every declaration order tried
-   (with and without an explicit hi-word local). Re-measured this wave: full
-   m2c-faithful body (with the FMA fix, guard-cvt chains, S3f copy, spC0
-   switch incl. the func_001138c0 (s64,f32,s32,s16*) case and the d4c0 calls
-   under the (s32,s32,s32,s32,u8,u8,u8,s32,f32,f32,f32) prototype) -> nd 313,
-   matching the recorded floor. The guard-cvt color chains, S3f struct copy,
-   d4c0 calls and the s16 spC0 switch all compile identically in isolation.
-   nd 313; saved-reg/FP-reg rotation floor. */
+    farg = fparg0;
+    func_00275020((((arg1 & 0xFF) * 0xFF) / 255U) | ~0xFF,
+                  *((s8 *)((s32)&D_005E47F0 + (*(s16 *)(arg2 + 2) * 2))),
+                  1,
+                  func_00243840(*(u16 *)(arg2 + 0xA)),
+                  8,
+                  -1,
+                  (f32)(s32)arg0.x,
+                  (f32)(s32)arg0.y,
+                  farg);
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113e30);
+#endif
+
+/* measured: plain-C reconstruction attempt for the ordinary adda.s/madd.s
+   color interpolation reached nd 1083 (object 1456/1392) and was discarded:
+   the candidate's frame was 0xE0 versus retail 0xF0 and the saved-register
+   allocation diverged before the first call. No body is kept; rebuild this
+   target from retail rather than treating the measurement as a floor. */
 // FUN_00113EF0
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113ef0);
 
@@ -100,7 +133,24 @@ s32 func_00114cb0(u16 arg0) {
    alpha chain, 11-arg d4c0 setup with a3=alpha, f12/f13=arg0 halves,
    t0-t2=arg1 bytes, f14=fparg0, t3=0). prologue-save scheduling floor. */
 // FUN_00114DC0
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114dc0);
+void func_00114dc0(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
+    s32 temp;
+
+    temp = func_00114cb0(arg2);
+    if (temp > 0) {
+        func_0046d4c0(0,
+                      arg3,
+                      temp,
+                      arg0.x,
+                      arg0.y,
+                      (0xFF - arg1.b3) & 0xFF,
+                      arg1.b0,
+                      arg1.b1,
+                      arg1.b2,
+                      fparg0,
+                      0);
+    }
+}
 /* measured: best nd 38 (this wave, down from recorded 73) with an `s32 alpha
    local` = temp_16 & 0xFF passed as the d4c0 arg4 (a3) -- without it the
    masks are deleted and the arg setup reorders. Residual is five independent
@@ -118,8 +168,42 @@ INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114dc0);
    beqz chain otherwise byte-identical. Tried: m2c-faithful (107), hi local
    (76), x/y locals (76), alpha local (38), temp_16-first, decl swaps,
    u8 alpha (79). arg-eval-order + reg-coalescing + FP-scheduling floor. */
-// FUN_00114E50
+/* measured: plain C with the Vec2f ABI, precomputed x/y expressions, reused alpha temporaries, and a reordered mixed-class declaration for func_002bc860 reaches nd 2 (object 456/464). Retail differs only in the final guard temporary register (`andi/beqz $a3` vs b210 `$v1`) and has an 8-byte tail that b210 omits. The reordered declaration is required to place f14 before a1/a2. No inline assembly. Committed at nd 2. */
+// FUN_00114E50 NONMATCHING
+#ifdef NON_MATCHING
+void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_2;
+    f32 x;
+    f32 y;
+
+    temp_2 = func_0046a770(D_005E5850);
+    if (temp_2 == 0) {
+        func_0046d730(D_005E4800, 0x353);
+    }
+    x = 1.0f + arg0.x;
+    y = arg0.y - 1.0f;
+    temp_17 = arg1 & 0xFF;
+    temp_16 = 0xFF - temp_17;
+    func_0046d4c0(0, temp_2, 0x61, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    x = 393.0f + arg0.x;
+    y = arg0.y - 1.0f;
+    temp_16 = 0xFF - temp_17;
+    func_0046d4c0(0, temp_2, 0x60, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    x = arg0.x - 1.0f;
+    y = arg0.y;
+    temp_16 = 0xFF - temp_17;
+    func_0046d4c0(0, temp_2, 0x17, x, y, temp_16 & 0xFF, 0xFF, 0xA0, 0x0B, fparg0, 0);
+    if ((arg2 & 0xFFFF) != 0) {
+        x = 62.0f + arg0.x;
+        y = 22.0f + arg0.y;
+        func_002bc860((f32)(s32)x, (f32)(s32)y, fparg0, temp_17 | ~0xFF, 1, 8);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114e50);
+#endif
 
 /* measured: re-measured this wave with a rebuilt body, best nd 45. The
    working spelling: `u16 count = *(u16 *)(arg0 + 0x22C)` loaded BEFORE
@@ -197,7 +281,35 @@ s16 func_00115380(u8 *arg0, s32 arg1) {
    plus the extra dsll32/dsra32 re-extension the call path needs; temp-register
    rotation floor. */
 // FUN_00115420
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115420);
+void func_00115420(s32 arg0, u8 *arg1) {
+    s32 target;
+    s32 value;
+    s32 i;
+    s32 bound;
+    u16 count;
+
+    if (*(u16 *)(arg1 + 0x60) >= 8) {
+        func_0046d730(D_005E4800, 0x472);
+    }
+    count = *(u16 *)(arg1 + 0x60);
+    *(u16 *)(arg1 + 0x60) = count + 1;
+    *(s16 *)((u8 *)shdSkill_addOff(count * 12, arg1) + 2) = (s16)arg0;
+    i = 0;
+    target = arg0 & 0xFFFF;
+    bound = *(u16 *)(arg1 + 0x224);
+    goto loop_test;
+loop_body:
+    value = *(u16 *)(arg1 + (s16)i * 12 + 0x66);
+    if (value == target) {
+        func_00115670(arg1, i, bound, target);
+        return;
+    }
+    i = (s16)(i + 1);
+loop_test:
+    if ((s16)i < bound) {
+        goto loop_body;
+    }
+}
 
 /* measured: same rotation as func_00115420 — retail reuses loop-1's dead
    registers for loop 2 (counter -> $a1, key -> $a3, bound -> $a2), mwcc b210
@@ -255,8 +367,45 @@ void func_00115760(u8 *arg0) {
    code1_003e func_003e3070 from nd 15 to nd 9), so scoped pragmas are worth
    measuring per function rather than dismissing wholesale.
    Branch-folding floor. */
-// FUN_00115670
+/* measured: nd 2, object 220/224. Plain C reproduces the complete body, frame, loop, stores, and operand order; the only residual is b210 folding the initial branch through the loop pre-jump (`bnez` targets 0x1156f0 instead of retail 0x1156b0). Scoped opt_branch_folding off is unchanged. No inline assembly. */
+// FUN_00115670 NONMATCHING
+#ifdef NON_MATCHING
+void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    typedef struct {
+        f32 v[3];
+    } S3f;
+    s32 i;
+    u16 count;
+    u8 *p;
+    u8 *q;
+
+    i = (s64)(s16)arg1;
+    if (i < (s32)*(u16 *)(arg0 + 0x224)) {
+        goto loop_pre_15670;
+    }
+    func_0046d730(D_005E4800, 0x4B7);
+loop_pre_15670:
+    goto loop_test_15670;
+loop_body_15670:
+    p = (u8 *)(arg0 + i * 12);
+    *(S3f *)(p + 0x64) = *(S3f *)(p + 0x70);
+    q = (u8 *)(arg0 + i * 2);
+    *(u16 *)(q + 0x1E4) = *(u16 *)(q + 0x1E6);
+    i += 1;
+loop_test_15670:
+    count = *(u16 *)(arg0 + 0x224);
+    if (i < (s32)(count - 1)) {
+        goto loop_body_15670;
+    }
+    p = shdSkill_addOff(count * 12, arg0);
+    *(u16 *)(p + 0x5A) = 0;
+    p = shdSkill_addOff(*(u16 *)(arg0 + 0x224) * 2, arg0);
+    *(u16 *)(p + 0x1E2) = 0;
+    *(u16 *)(arg0 + 0x224) = *(u16 *)(arg0 + 0x224) - 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
+#endif
 
 // FUN_00115750
 u16 func_00115750(u8 *arg0) {

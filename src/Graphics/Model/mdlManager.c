@@ -921,14 +921,8 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 
 
-/* measured: MATCHED this wave (nd 0). The second path (FALSE block) must
-   re-read rawIndex (lh) and obj (lw) from param_2 and re-do the s64
-   sign-extension dance exactly like MATCHED sibling func_00474af0; the TRUE
-   path is the || with param_2==0 first so b210 emits beqz $s0,fwd then the
-   5-condition chain falling through to the install block. */
 // FUN_00474BA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
-
 // FUN_00474CE0
 u32 func_00474ce0(void* param_1)
 {
@@ -2144,8 +2138,53 @@ s32 func_00479dd0(u8* param_1, u16 param_2, s16 param_3)
    cascaded the FP allocation). Recorded best nd 13 still stands; the base+
    scaled hoist into $s0 (vs retail's separate $s0/$s2 + per-use addu) and the
    FP-coloring rotation are a genuine saved-register floor. */
-// FUN_00479E60
+/* measured: probing opt_common_subs off to retain the raw parameter register. */
+#pragma opt_common_subs off
+/* measured: parked near-match nd 1 (object 256/window 256); fndiff leaves one addu operand-order word at offset 0x80. Tried current addOff(elemOff,base), swapped helper args (nd25), integer-domain cast (nd1), pointer-domain cast (nd25), and named base temp (nd1); plain C remains behind NON_MATCHING while retail INCLUDE_ASM stays active. Committed at nd 1. */
+// FUN_00479E60 NONMATCHING
+#ifdef NON_MATCHING
+void func_00479e60(void* param_1, s32 param_2, f32 param_3)
+{
+    s32 arg1;
+    s32 off;
+    u8* arr;
+    s32 index;
+    s32 elemOff;
+    s32 elem;
+    s32 slot;
+    f32 frame;
+
+    arg1 = param_2;
+    frame = iGpffff8040 * param_3;
+    off = (arg1 & 0xFFFF) * 0xA4;
+    slot = addOff(off, (u32)param_1);
+    index = *(s16*)(slot + 0xF0);
+    if (index < 0)
+        goto tail;
+    arr = *(u8**)(slot + 0x120);
+    if (arr == 0)
+        goto tail;
+    if (*(u16*)(arr + 8) <= index)
+        goto tail;
+    elemOff = index * 0x50;
+    elem = *(s32*)addOff(elemOff, (u32)(*(s32*)arr + 0x40));
+    if (elem == 0)
+        goto tail;
+    if (elem == (s32)D_00922BC0_abs)
+        goto tail;
+    func_003d5e40(*(void**)(*(u8**)(slot + 0x10C) + 0x20), frame);
+    slot = addOff(off, (u32)param_1);
+    *(u16*)(slot + 0xEC) |= 4;
+tail:
+    if ((arg1 & 0xFFFF) == 0) {
+        func_00475170((u8*)param_1 + 0x23C, frame);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479e60);
+#endif
+/* measured: closes the scoped opt_common_subs probe for func_00479e60. */
+#pragma opt_common_subs on
 // FUN_00479F60
 f32 func_00479f60(void* param_1, s32 param_2)
 {

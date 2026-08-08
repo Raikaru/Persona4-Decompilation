@@ -149,6 +149,8 @@ s32 func_0035cab0(u8 *arg0, s32 idx, s32 val) {
 // FUN_0035CB00
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cb00);
 
+
+
 /* measured: converged to nd 5 (2 `!` rows) -- the middle section's
    arg1*4+arg0 / arg1*2+arg0 addu operand order. Retail emits $addu
    $v1,$v0,$s3 (index-first); b210 emits base-first unless the index is a
@@ -158,6 +160,7 @@ INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cb00);
    order + liveness floor. */
 // FUN_0035CC80
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cc80);
+
 
 // FUN_0035CE10
 s32 func_0035ce10(u8* arg0, s32 mode) {
@@ -269,15 +272,40 @@ void func_0035dd40(u8* arg0) {
     }
 }
 
-/* measured: retail stores the s16 then sign-extends in place ($sh $v1 /
-   dsll32/dsra32 $v1) and loads the 0xA constant before the `sll var_2` in
-   the loop; b210 sign-extends into a copy $v0 before the store and does the
-   `sll` before the constant load. Tried natural form, (s64)(x<<0x30)>>0x30
-   for both, and #pragma schedule on (flips store order but defers move $s3
-   and uses $v0) -- all nd >= 61. Store/signextend ordering + constant
-   materialization floor. */
-// FUN_0035DDF0
+/* measured: retail increments each s16 counter in the loaded register, stores it before sign-extension, and then compares the sign-extended value. Probed direct memory counter updates, split locals, score widths, and expression temporaries; the direct-memory C shape is best at nd 23 with object 440/448. Residuals are register coloring in the counter updates and first score sign-extension, plus two retail tail nops. No inline assembly. Committed at nd 23. */
+// FUN_0035DDF0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0035ddf0(u8 *arg0)
+{
+    s32 top;
+    s32 bottom;
+    s32 i;
+    s32 d1;
+    s32 d2;
+    s64 score;
+    u8 *p;
+    *(s16 *)(arg0 + 0x2A) = *(s16 *)(arg0 + 0x2A) + 1;
+    if (*(s16 *)(arg0 + 0x2A) >= 0x19) *(s16 *)(arg0 + 0x2A) = 0;
+    *(s16 *)(arg0 + 0x2C) = *(s16 *)(arg0 + 0x2C) + 1;
+    if (*(s16 *)(arg0 + 0x2C) >= 0x1E) *(s16 *)(arg0 + 0x2C) = 0;
+    top = (s32)((11.0f * (f32)*(s16 *)(arg0 + 0x2A)) / 25.0f);
+    bottom = (s32)(11.0f * (1.0f - ((f32)*(s16 *)(arg0 + 0x2C) / 30.0f)));
+    i = 0;
+    while (i < 0xB) {
+        if (i < top) d1 = top - i; else d1 = i - top;
+        if (i < bottom) d2 = bottom - i; else d2 = i - bottom;
+        score = 1;
+        if ((s16)(10 - d1 * 2) >= 2) score = (s16)(10 - d1 * 2);
+        if (score < (s16)(8 - d2 * 2)) score = (s16)(8 - d2 * 2);
+        p = arg0 + i * 0xA;
+        *(s16 *)(p + 0x3D8) = (s16)score;
+        func_0034f8f0(p + 0x3D8);
+        i++;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035ddf0);
+#endif
 
 // FUN_0035DFB0
 INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035dfb0);

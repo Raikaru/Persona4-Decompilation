@@ -767,6 +767,11 @@ void func_0049d310(u8 *arg0)
    s128-canonicalization floor family (cf. effPolygonThunder func_00495160). */
 // FUN_0049D360
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049d360);
+
+
+
+
+
 // FUN_0049DB20
 void func_0049db20(u8 *arg0)
 {

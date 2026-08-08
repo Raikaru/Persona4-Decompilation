@@ -439,7 +439,11 @@ void func_00271860(void)
    computed before the jal instead of re-materialising the base (nd67); the
    residual 18 is the subu from the (u8)i-idx delta plus the par-load temp
    register names ($a0/$v1 vs retail $v1/$a1). opt_common_subs off is required
-   for the three re-issued andi masks (retail andi $s2/$s1/$v0 from $s3). */
+   register names ($a0/$v1 vs retail $v1/$a1). opt_common_subs off is required
+   for the three re-issued andi masks (retail andi $s2/$s1/$v0 from $s3).
+   A measured optimization_level 1 bracket (with and without opt_common_subs
+   off) leaves nd18 unchanged; the load-sinking family remains a floor.
+   Committed at nd 18. */
 #pragma opt_common_subs off
 void func_00271a40(void)
 {
@@ -635,8 +639,88 @@ extern u8 *func_0026e0e0(s32 param_1);
    Both compile the identical slt; only the dest reg differs. Everything else
    matches byte-for-byte (switch-chain with ascending cases + (s8)var_4==0
    empty-else placement). Comparison-dest-register floor. */
-// FUN_00272170
+/* measured: nd2. Retail and candidate match byte-for-byte except the glyphcount comparison destination: retail emits slt $at,$s0,$v0 while b210 emits slt $v0,$s0,$v0 despite the same C shape. Tried explicit boolean local, ascending switch cases, out-of-line zero-store goto, opt_rebuildconditionals off, and signed/unsigned scalar variants; the out-of-line switch/goto body reaches nd2 with a full 544-byte object. Comparison-dest-register floor. Committed at nd 2. */
+// FUN_00272170 NONMATCHING
+#ifdef NON_MATCHING
+u8 * func_00272170(u16 arg0, u8 arg1, s8 arg2, s8 arg3)
+{
+    u8 *node;
+    u16 ch;
+    s32 width;
+    s32 temp;
+    s32 temp2;
+    u16 glyphcount;
+    s8 hit;
+    s32 value;
+
+    node = (u8 *)func_0026e0e0(DAT_0088175c_abs[0]);
+    DAT_00881754_abs[0] += 1;
+    if (node == NULL) {
+        func_0046d740(D_0063BC50, D_0063BAE8, 0x5D2);
+    }
+    *(u16 *)(node + 0) = arg0;
+    *(u8 *)(node + 0x15) = arg1;
+    *(u32 *)(node + 4) = 0;
+    *(u32 *)(node + 8) = 0;
+    *(u32 *)(node + 0xC) = 0;
+    *(u8 *)(node + 0x14) = arg2;
+    *(u32 *)(node + 0x10) = -0x100;
+    *(u8 *)(node + 0x16) = arg3;
+    *(u8 *)(node + 0x17) = D_00763810;
+    *(u16 *)(node + 2) = 0;
+    *(u32 *)(node + 0x1C) = 0;
+    *(u32 *)(node + 0x20) = 0;
+    *(u32 *)(node + 0x24) = 0;
+    *(u32 *)(node + 0x28) = 0;
+    ch = *(u16 *)node;
+    if (ch < 0x80) {
+        if (ch == 0x20) {
+            width = 0x1F6;
+        } else {
+            width = ch - 0x20;
+        }
+    } else {
+        temp = ch - 0x8000;
+        temp2 = temp - 0x80;
+        width = ((temp2 & 0xFF00) >> 1) + (temp2 & 0x7F);
+    }
+    glyphcount = *(u16 *)((u8 *)*(u32 **)((u8 *)DAT_00881630_abs + (arg1 & 0xFF) * 0x20 + 4) + 0xE);
+    if (width >= glyphcount) {
+        width = 0x147;
+    }
+    *(u32 *)(node + 0x1C) = (u32)func_00271f50(node, width);
+    func_00271d10(node, width);
+    if ((*(u8 *)(node + 0x17) & 0x10) == 0) {
+        goto zero_store;
+    }
+    hit = 0;
+    switch (width + 0x20) {
+    case 0x51:
+    case 0x67:
+    case 0x6A:
+    case 0x70:
+    case 0x71:
+    case 0x79:
+        hit = 1;
+        break;
+    default:
+        break;
+    }
+    if ((s8)hit == 0) {
+        value = 0;
+    } else {
+        value = 0x10;
+    }
+    *(u32 *)(node + 8) = (s8)value;
+    goto done;
+zero_store:
+    *(u32 *)(node + 8) = 0;
+done:
+    return node;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00272170);
+#endif
 // FUN_00272390
 int func_00272390(short *param_1)
 {

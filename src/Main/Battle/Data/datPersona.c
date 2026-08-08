@@ -739,7 +739,39 @@ void func_0010c980(u8 *arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010c9e0);
 
 // FUN_0010CAD0
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010cad0);
+void func_0010cad0(u8 *arg0, s32 arg1)
+{
+    s32 id;
+    s32 offset;
+    u8 buf[0x88];
+
+    if (arg0 == NULL) {
+        func_0046d730(D_005E4318, 0x6C2);
+    }
+    id = arg1 & 0xFFFF;
+    if (id == 0 || id >= 0x100) {
+        func_0046d730(D_005E4318, 0x6C3);
+    }
+    id = (u16)arg1;
+    offset = id * 0xE;
+    {
+        u8 *entry;
+
+        entry = iGpffffb3d4 + offset;
+        *(u16 *)(arg0 + 2) = (u16)arg1;
+        *(u8 *)(arg0 + 4) = entry[3];
+        *(u8 *)(arg0 + 5) = entry[9];
+        *(s32 *)(arg0 + 8) = func_0010c750(arg0, entry[3]);
+    }
+    *(s32 *)(arg0 + 0x2C) = 0;
+    func_0043f810(arg0 + 0x1C, iGpffffb3d4 + offset + 4, 5);
+    func_0043f9c8(arg0 + 0x21, 0, 5);
+    func_0043f9c8(arg0 + 0x26, 0, 5);
+    func_0043f9c8(arg0 + 0xC, 0, 0x10);
+    func_0010be60(arg0, buf, 0);
+    func_0010c5a0(arg0, buf);
+    func_0010d150(arg0);
+}
 
 // FUN_0010CC20
 s32 func_0010cc20(u8 *arg0, u32 arg1)

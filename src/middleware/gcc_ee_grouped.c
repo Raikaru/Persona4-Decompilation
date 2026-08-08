@@ -132,176 +132,324 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b998);
 #endif
 
 /* getter signature; moved from code1_004c.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_004C3410 NONMATCHING
 #ifdef NON_MATCHING
+extern u32 D_00714C3C[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 u32 func_004c3410(void)
 {
-    u32 segment = 0x00710000;
-
-    return *(u32 *)(segment + 0x4C3C);
+    return D_00714C3C[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c3410);
 #endif
 
 /* getter signature; moved from code1_004c.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_004CC1E0 NONMATCHING
 #ifdef NON_MATCHING
+extern u32 D_00719998[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 u32 func_004cc1e0(void)
 {
-    u32 segment = 0x00710000;
-
-    return *(u32 *)(segment + 0x9998);
+    return D_00719998[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cc1e0);
 #endif
 
 /* getter signature; moved from code1_004d.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_004D3190 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_00723F20[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_004d3190(void)
 {
     return D_00723F20[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3190);
 #endif
 
 /* getter signature; moved from code1_004d.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_004D3688 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_00724E58[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_004d3688(void)
 {
     return D_00724E58[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3688);
 #endif
 
 /* getter signature; moved from code1_004d.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_004D3698 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_00724E60[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_004d3698(void)
 {
     return D_00724E60[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3698);
 #endif
 
 /* getter signature; moved from code1_004e.c */
-/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lbu $2, b210 always lui $2 + lbu $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
-// FUN_004E3DA8
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
+// FUN_004E3DA8 NONMATCHING
+#ifdef NON_MATCHING
+extern u8 D_00731C7C[];
+/* measured: schedule on keeps the lbu in the jr delay slot. */
+#pragma schedule on
+u8 func_004e3da8(void)
+{
+    return D_00731C7C[0];
+}
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3da8);
+#endif
 
 /* getter signature; moved from code1_004e.c */
-/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
-// FUN_004E3DB8
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
+// FUN_004E3DB8 NONMATCHING
+#ifdef NON_MATCHING
+extern u32 D_00731C78[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
+u32 func_004e3db8(void)
+{
+    return D_00731C78[0];
+}
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3db8);
+#endif
 
 /* getter signature; moved from code1_004e.c */
-/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
-// FUN_004E4180
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
+// FUN_004E4180 NONMATCHING
+#ifdef NON_MATCHING
+extern u32 D_00731C3C[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
+u32 func_004e4180(void)
+{
+    return D_00731C3C[0];
+}
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4180);
+#endif
 
 /* getter signature; moved from code1_004e.c */
-/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lb $2, b210 always lui $2 + lb $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
-// FUN_004E4280
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
+// FUN_004E4280 NONMATCHING
+#ifdef NON_MATCHING
+extern s8 D_00731C01[];
+/* measured: schedule on keeps the lb in the jr delay slot. */
+#pragma schedule on
+s8 func_004e4280(void)
+{
+    return D_00731C01[0];
+}
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4280);
+#endif
 
 /* getter signature; moved from code1_004e.c */
-/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
-// FUN_004E4290
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
+// FUN_004E4290 NONMATCHING
+#ifdef NON_MATCHING
+extern u32 D_00731C34[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
+u32 func_004e4290(void)
+{
+    return D_00731C34[0];
+}
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4290);
+#endif
 
 /* getter signature; moved from code1_004e.c */
-/* measured (2026-08-03): nd 2 residual = global-address base register only: retail lui $3 + lw $2, b210 always lui $2 + lw $2 (base reuses $v0). Tried 16 spellings (array/scalar, pointer local, u32 base cast, literal/segment ptr, volatile, register, opt_level 3, comma, two-stmt, decl-then-assign) - all nd 2. Same floor in code1_004c/004d/004f-0052: 19 accessors tree-wide, none matched. schedule on keeps load in jr delay slot (tail nop is all-zero window padding). */
-// FUN_004E4688
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
+// FUN_004E4688 NONMATCHING
+#ifdef NON_MATCHING
+extern u32 D_00731C70[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
+u32 func_004e4688(void)
+{
+    return D_00731C70[0];
+}
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4688);
+#endif
 
 /* getter signature; moved from code1_004f.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_004F54B0 NONMATCHING
 #ifdef NON_MATCHING
-u32 func_004f54b0(void) {
-    u32 segment = 0x00740000;
-    return *(u32 *)(segment + 0x3a54);
+extern u32 D_00743A54[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
+u32 func_004f54b0(void)
+{
+    return D_00743A54[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f54b0);
 #endif
 
 /* getter signature; moved from code1_0050.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_0050BCA0 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_0074586C[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_0050bca0(void)
 {
     return D_0074586C[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050bca0);
 #endif
 
 /* getter signature; moved from code1_0050.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_0050CA80 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_00745878[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_0050ca80(void)
 {
     return D_00745878[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050ca80);
 #endif
 
 /* getter signature; moved from code1_0051.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_00510E40 NONMATCHING
 #ifdef NON_MATCHING
-u8 *func_00510e40(void) {
+extern u8 *D_00745888[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
+u8 *func_00510e40(void)
+{
     return D_00745888[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00510e40);
 #endif
 
 /* getter signature; moved from code1_0051.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_00513790 NONMATCHING
 #ifdef NON_MATCHING
-u8 *func_00513790(void) {
+extern u8 *D_00745AC0[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
+u8 *func_00513790(void)
+{
     return D_00745AC0[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513790);
 #endif
 
 /* getter signature; moved from code1_0052.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_005230C8 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_00745ABC[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_005230c8(void)
 {
     return D_00745ABC[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005230c8);
 #endif
 
 /* getter signature; moved from code1_0052.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_0052B9F0 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_00745C84[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_0052b9f0(void)
 {
     return D_00745C84[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b9f0);
 #endif
 
 /* getter signature; moved from code1_0052.c */
+/* measured (2026-08-07): nd 2; battery: K&R empty and old-style definitions, named pointer temps, extern D[1]/D[2], D[1]/D[2] indices, u32/s32/pointer return widths, schedule on/off, and optimization_level 1. No form changes retail's $v1 address base versus b210's $v0 result/base reuse. Committed at nd 2. */
 // FUN_0052BA10 NONMATCHING
 #ifdef NON_MATCHING
+extern s32 D_00745C6C[];
+/* measured: schedule on keeps the lw in the jr delay slot. */
+#pragma schedule on
 s32 func_0052ba10(void)
 {
     return D_00745C6C[0];
 }
+/* measured: schedule off brackets the candidate. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052ba10);
 #endif

@@ -290,7 +290,13 @@ def sanitize_c_lines(lines: list[str]) -> list[str]:
 
 
 def scan_markers(cpath: Path) -> list[dict]:
-    lines = cpath.read_text(errors="replace").splitlines()
+    try:
+        lines = cpath.read_text(errors="replace").splitlines()
+    except FileNotFoundError:
+        # Concurrent lanes write and delete their own probe scratch files; a
+        # source that vanished between the directory walk and this read has no
+        # markers to contribute and must not abort the whole run.
+        return []
     code_lines, markers, index = sanitize_c_lines(lines), [], 0
     while index < len(lines):
         marker = MARKER_RE.match(lines[index])

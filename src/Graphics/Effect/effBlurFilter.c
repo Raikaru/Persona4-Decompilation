@@ -400,18 +400,58 @@ typedef struct BlurGsQuad {
     u8 pad3[0x38];
 } BlurGsQuad;
 
-/* measured: re-measured this wave at nd 3 (2 rows). The func_004aa460
-   idiom (`void *setState = (void *)D_00887300;` + per-call
-   `(*(void (**)(u32,u32))setState)(...)`) keeps the $s1 base hoist AND
-   fixes the global-load call `(1, D_00922D90[0])` (the u32 integer-cast
-   and typed `void (**)` spellings both leave that call load-first, nd 6).
-   Residual is only the first call `(1, *temp_16)`: retail `addiu $a0,1`
-   before `lw $a1,($s0)`, mwcc b210 always emits the register-indirect load
-   first. Pre-loaded v1 local, all base spellings — identical 2 rows.
-   Literal-vs-load arg-order floor (same family as bpc 00245420, ab060). */
+/* measured: candidate matches the full GS state/packet sequence and all
+   relocations except the first indirect state call's argument order. Retail
+   emits `addiu $a0,1` before `lw $a1,($s0)`; mwcc b210 schedules the
+   register-indirect load first for every tested spelling. Cached
+   D_00887300/D_00887314 locals and packet-buffer sizing are otherwise exact.
+   Committed at nd 6. */
 
-// FUN_004A98D0
+/* measured: candidate matches the complete GS state/packet sequence and relocations. The only residual is the first indirect state call's argument materialization: retail emits addiu $a0,1 before lw $a1,($s0), while MWCCPS2 b210 schedules the register-indirect load first for every tested spelling. Committed at nd 6. */
+// FUN_004A98D0 NONMATCHING
+#ifdef NON_MATCHING
+void func_004a98d0(u8 *arg0) {
+    s32 sp24C;
+    s32 sp248;
+    u8 sp140[0xFC];
+    u8 sp40[0x100];
+    s32 *temp_16;
+    u8 *temp_18;
+    u8 *temp_3;
+    void (**setState)(u32, u32);
+    void (**sendPacket)(s32, void *, s32, void *, s32);
+
+    temp_3 = *(u8 **)(arg0 + 0x24);
+    temp_18 = temp_3 + 0xC0;
+    if (*(u8 *)(temp_3 + 0xC7) > 0) {
+        temp_16 = *(s32 **)(*(u8 **)(arg0 + 0x28) + 8);
+        func_003f6690(2, &sp24C);
+        func_003f6690(3, &sp248);
+        setState = (void (**)(u32, u32))D_00887300;
+        (*setState)(1, *temp_16);
+        func_00489f80();
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x31001);
+        func_004a8250(temp_18 + 4, sp140);
+        sendPacket = (void (**)(s32, void *, s32, void *, s32))D_00887314;
+        (*sendPacket)(3, sp140, 4, D_00714368, 6);
+        func_0048a000();
+        func_003f6440(2, sp24C | 0x10);
+        if (func_004a7e30(temp_18 + 4, sp40) != 0) {
+            (*setState)(1, D_00922D90[0]);
+            func_003f6440(3, 0x31001);
+            func_0048a070(0x9FC00A | ((s64)0x6FC << 0x20));
+            (*sendPacket)(3, sp40, 4, D_00714368, 6);
+            func_0048a0e0();
+        }
+        (*setState)(1, 0);
+        func_003f6440(3, sp248);
+        func_003f6440(2, sp24C);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a98d0);
+#endif
 
 // FUN_004A9AA0
 u8 *func_004a9aa0(u8 *arg0) {
@@ -1144,8 +1184,59 @@ void func_004aab50(u8 *arg0) {
         *(s8 *)(base + 0xF) = 0;
     }
 }
-// FUN_004AAD30
+/* measured: DMA/GIF packet construction, buffer offsets, saved-register
+   assignment, and indirect-call caching match retail. The only residual is
+   the first indirect state call: retail materialises literal argument 1
+   before loading the data value, while mwcc b210 always loads that value
+   first. Committed at nd 6. */
+/* measured: DMA/GIF packet construction, buffer offsets, saved-register assignment, and indirect-call caching match retail. The only residual is the first indirect state call: retail materializes literal argument 1 before loading the data value, while MWCCPS2 b210 always loads that value first. Committed at nd 6. */
+// FUN_004AAD30 NONMATCHING
+#ifdef NON_MATCHING
+void func_004aad30(u8 *arg0) {
+    s32 sp24C;
+    s32 sp248;
+    u8 sp140[0xFC];
+    u8 sp40[0xF8];
+    u8 *temp_16;
+    u8 *temp_18;
+    u8 *temp_3;
+    void *setState;
+
+    temp_3 = *(u8 **)(arg0 + 0x24);
+    temp_18 = temp_3 + 0xC0;
+    if (*(u8 *)(temp_3 + 0xCF) > 0) {
+        temp_16 = *(u8 **)(*(u8 **)(arg0 + 0x28) + 8);
+        func_003f6690(2, &sp24C);
+        func_003f6690(3, &sp248);
+        setState = (void *)D_00887300;
+        (*(void (**)(u32, u32))setState)(1, *(s32 *)temp_16);
+        func_00489f80();
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x31001);
+        func_004a86c0(temp_18 + 0xC, sp140);
+        *(s32 *)(sp140 + 0x10) = 0;
+        *(s32 *)(sp140 + 0x14) = 0;
+        *(s32 *)(sp140 + 0x50) = 0;
+        *(s32 *)(sp140 + 0x54) = 0x3F800000;
+        *(s32 *)(sp140 + 0x90) = 0x3F800000;
+        *(s32 *)(sp140 + 0x94) = 0x3F800000;
+        *(s32 *)(sp140 + 0xD0) = 0x3F800000;
+        *(s32 *)(sp140 + 0xD4) = 0;
+        temp_16 = (u8 *)D_00887314;
+        (*(void (**)(s32, void *, s32, void *, s32))temp_16)(3, sp140, 4, D_00714368, 6);
+        func_0048a000();
+        func_003f6440(2, sp24C | 0x10);
+        func_004a86c0(temp_18 + 0xC, sp40);
+        (*((void (**)(u32, u32))setState))(1, 0);
+        func_003f6440(3, 0x31001);
+        (*(void (**)(s32, void *, s32, void *, s32))temp_16)(3, sp40, 4, D_00714368, 6);
+        func_003f6440(3, sp248);
+        func_003f6440(2, sp24C);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aad30);
+#endif
 
 /* measured: retail keeps arg0/$s5, arg1/$s4, hoists 0x60 into $s1 (temp_4
    via addu); mwcc b210 recompiled from equivalent C hoists the 0xFFFF mask
@@ -1165,49 +1256,40 @@ INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aaee0);
    if-block (nd 24), obj2-first declaration order, s32 obj2 + cast,
    nested-if, #pragma schedule on (nd 46) — all nd 4. Same shape as the
    documented bpc 00245420 floor (retail move-before-load). */
-/* measured: nd 8 of 56 words - two adjacent argument materialisations for the
-   final call are transposed. Retail moves the already-computed texture pointer
-   into $a0 first and loads the u16 second; b210 loads first and copies the
-   register last, because the copy is free and it schedules it as late as it
-   can. Four source spellings that reorder the call arguments (index form,
-   extra cast, a second local holding the pointer, and inlining the producing
-   call into the argument list) all compile identically, and schedule on costs
-   nd 123. The rest of the function - both asserts, the *24 table stride and
-   the short-circuit - is byte-exact. func_004ab5a0 is the same shape. */
-// FUN_004AB060
+/* measured: candidate matches both asserts, the *24 table stride, and the
+   short-circuit. Retail moves the texture pointer into $a0 before loading
+   the u16 argument for the final func_004ab960 call; mwcc b210 schedules the
+   load first for all tested source spellings. Committed at nd 8. */
+/* measured: candidate matches both asserts, the *24 table stride, and the short-circuit. Retail moves the texture pointer into $a0 before loading the u16 argument for the final func_004ab960 call; MWCCPS2 b210 schedules the load first for all tested source spellings. Committed at nd 8. */
+// FUN_004AB060 NONMATCHING
 #ifdef NON_MATCHING
-u8 *func_004ab060(void *param_1) {
-    u8 *tmp;
-    u16 *tex;
+u8 *func_004ab060(u8 *arg0) {
+    s32 temp_2_2;
+    s32 temp_2_3;
+    u8 *temp_2;
 
-    tmp = (u8 *)func_00484490();
-    if (tmp == 0) {
+    temp_2_2 = (s32)func_00484490();
+    if (temp_2_2 == 0) {
         func_0046d730(D_00714380, 0x660);
     }
-    tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
-    if (tmp == 0) {
+    temp_2 = (u8 *)func_004aaee0(*(u16 *)(arg0 + 0xC), temp_2_2);
+    if (temp_2 == 0) {
         func_0046d730(D_00714380, 0x662);
     }
-    tex = func_004844d0(param_1);
-    if ((tex != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(tmp + 0x18) * 24) != 0)) {
-        *(s32 *)(tmp + 0x28) = (s32)func_004ab960(tex, *(u16 *)((char *)param_1 + 0x1C));
+    temp_2_3 = (s32)func_004844d0(arg0);
+    if ((temp_2_3 != 0) && (*(s8 *)(D_007143A0 + *(s32 *)(temp_2 + 0x18) * 24) != 0)) {
+        *(s32 *)(temp_2 + 0x28) = (s32)func_004ab960((u16 *)temp_2_3, *(u16 *)(arg0 + 0x1C));
     }
-    return tmp;
+    return temp_2;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab060);
 #endif
 
-/* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
-   body — identical residual to func_004ab060 (same pre-jal
-   arg-materialisation order: retail `daddu $a0,$v0` before
-   `lhu $a1,0x1c($s1)`, mwcc b210 always emits the load first). New
-   spellings this wave: (u16*)(u32) cast on arg0, static-inline identity
-   helper around arg0 (file-scope, nd 4), helper around the load (compile
-   error in-region) — all nd 4. 11 spellings total across both siblings.
-   Complexity-ranking floor, same shape as bpc 00245420. */
-/* measured: same shape and same residual as func_004ab060; see that note. nd 8. */
-// FUN_004AB5A0
+/* measured: same final-call argument-materialisation floor as func_004ab060.
+   Committed at nd 8. */
+/* measured: same final-call argument-materialization floor as func_004ab060. Committed at nd 8. */
+// FUN_004AB5A0 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_004ab5a0(void *param_1) {
     u8 *tmp;
@@ -1217,7 +1299,7 @@ u8 *func_004ab5a0(void *param_1) {
     if (tmp == 0) {
         func_0046d730(D_00714380, 0x72B);
     }
-    tmp = func_004aaee0(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
+    tmp = func_004ab420(*(u16 *)((char *)param_1 + 0xC), (s32)tmp);
     if (tmp == 0) {
         func_0046d730(D_00714380, 0x72D);
     }

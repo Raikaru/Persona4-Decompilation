@@ -13,9 +13,7 @@ void func_00420e50(u8 *);
 void func_00420f38(u8 *);
 
 
-/* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; re-measured for nd_audit coverage.
-   Committed at nd 6. */
+/* measured: candidate loads the old u32, stores arg1, then returns bit 8 of the old value. Retail places the final andi in the jr delay slot while b210 schedules it before jr; plain -O2 is nd 6 and schedule-on worsens it to nd 8. Committed at nd 6. */
 // FUN_00419628 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00419628(u32 *arg0, u32 arg1)
@@ -111,20 +109,22 @@ void func_0041f1c0(u8 *arg0, s32 arg1, s32 arg2) {
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
 #endif
 
-// FUN_0041F2A8
-#pragma schedule on
+/* measured: candidate loads the +0x40 base and tests its +4 u32 field for zero. Retail keeps the base in $v1 before loading the result into $v0; direct, local, pointer-type, struct-view, register-qualified, declaration-order, and pointer-advance spellings stayed at nd 2. Committed at nd 2. */
+// FUN_0041F2A8 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail fills delay slots this function leaves empty at -O2. */
+#pragma schedule on
 s32 func_0041f2a8(u8 *arg0)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
 
     return *(u32 *)(p + 4) < 1;
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2a8);
 #endif
-/* measured: see the annotation above the matching `on` pragma (func_0041f2a8). */
-#pragma schedule off
 
 
 /* measured: retail sinks the third store into the jr $ra delay slot, which
@@ -147,9 +147,11 @@ u8 *func_0041f2b8(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
 
 
-// FUN_0041F2D0
-#pragma schedule on
+/* measured: candidate reads +0xA8, +0xAC, and +0xB0 through the +0x40 base and writes the three output pointers. Retail keeps the base in $t0 and alternates value registers ($v0/$v1/$v0), while b210 reuses $a0/$v1; pointer/output types, declaration order, simultaneous-load, and optimization probes stayed at nd 9. Committed at nd 9. */
+// FUN_0041F2D0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail fills delay slots this function leaves empty at -O2. */
+#pragma schedule on
 void func_0041f2d0(u8 *arg0, s32 *arg1, s32 *arg2, s32 *arg3)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
@@ -158,16 +160,18 @@ void func_0041f2d0(u8 *arg0, s32 *arg1, s32 *arg2, s32 *arg3)
     *arg2 = *(s32 *)(p + 0xAC);
     *arg3 = *(s32 *)(p + 0xB0);
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2d0);
 #endif
-/* measured: see the annotation above the matching `on` pragma (func_0041f2d0). */
-#pragma schedule off
-// FUN_0041F550
-/* measured: see the annotation above the matching `on` pragma (func_0041f550). */
-#pragma opt_common_subs off
-#pragma schedule on
+/* measured: candidate stores the s64 argument at +0x90, stores 1 at +0x8C, and returns 1. Retail keeps the base in $v1 and uses $a0 for the status constant while b210 reuses $a0 for the base; local, pointer-type, return/store-value, and optimization probes stayed at nd 5. Committed at nd 5. */
+// FUN_0041F550 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail both fills delay slots this function leaves empty and
+   re-issues a value b210 would share; both pragmas are needed. */
+#pragma schedule on
+#pragma opt_common_subs off
 s32 func_0041f550(u8 *arg0, s64 arg1)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
@@ -176,12 +180,13 @@ s32 func_0041f550(u8 *arg0, s64 arg1)
     *(s32 *)(p + 0x8C) = 1;
     return 1;
 }
+/* measured: closes both scopes above at the file's -O2 baseline. */
+#pragma opt_common_subs on
+/* measured: closes both scopes above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f550);
 #endif
-/* measured: see the annotation above the matching `on` pragma (func_0041f550). */
-#pragma schedule off
-#pragma opt_common_subs on
 
 
 // FUN_0041F568
@@ -198,11 +203,13 @@ s32 func_0041f568(u8 *arg0)
 #pragma schedule off
 
 
-// FUN_0041F5E0
-/* measured: see the annotation above the matching `on` pragma (func_0041f5e0). */
-#pragma opt_common_subs off
-#pragma schedule on
+/* measured: candidate stores the 1 flag at +0x108, the s64 argument at +0x100, and returns 1. Retail keeps the base in $a2 while b210 reuses $a0; parameter, pointer-type, declaration-order, direct-store, and optimization-level probes stayed at nd 3. Committed at nd 3. */
+// FUN_0041F5E0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail both fills delay slots this function leaves empty and
+   re-issues a value b210 would share; both pragmas are needed. */
+#pragma schedule on
+#pragma opt_common_subs off
 s32 func_0041f5e0(u8 *arg0, s64 arg1)
 {
     u8 *p = *(u8 **)(arg0 + 0x40);
@@ -211,12 +218,13 @@ s32 func_0041f5e0(u8 *arg0, s64 arg1)
     *(s64 *)(p + 0x100) = arg1;
     return 1;
 }
+/* measured: closes both scopes above at the file's -O2 baseline. */
+#pragma opt_common_subs on
+/* measured: closes both scopes above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5e0);
 #endif
-/* measured: see the annotation above the matching `on` pragma (func_0041f5e0). */
-#pragma schedule off
-#pragma opt_common_subs on
 
 
 // FUN_0041F6C8
@@ -232,31 +240,35 @@ void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
 #pragma schedule off
 
 
-// FUN_0041F788
-#pragma schedule on
+/* measured: candidate calls func_00420e50 on the +0x68 address and returns 1. Retail materializes the base directly in $a0, while b210 uses $v0 then moves to $a0; callee-prototype, argument-reuse, pointer-local, and optimization-level probes stayed at nd 2 with a 36-byte object in the 40-byte window. Committed at nd 2. */
+// FUN_0041F788 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail fills delay slots this function leaves empty at -O2. */
+#pragma schedule on
 s32 func_0041f788(u8 *arg0)
 {
     func_00420e50(*(u8 **)(arg0 + 0x40) + 0x68);
     return 1;
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f788);
 #endif
-/* measured: see the annotation above the matching `on` pragma (func_0041f788). */
-#pragma schedule off
 
 
-// FUN_0041F7B0
-#pragma schedule on
+/* measured: candidate calls func_00420f38 on the +0x68 address and returns 1. Retail materializes the base directly in $a0, while b210 uses $v0 then moves to $a0; argument-reuse, pointer-local, and optimization-level probes stayed at nd 2 with a 36-byte object in the 40-byte window. Committed at nd 2. */
+// FUN_0041F7B0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail fills delay slots this function leaves empty at -O2. */
+#pragma schedule on
 s32 func_0041f7b0(u8 *arg0)
 {
     func_00420f38(*(u8 **)(arg0 + 0x40) + 0x68);
     return 1;
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f7b0);
 #endif
-/* measured: see the annotation above the matching `on` pragma (func_0041f7b0). */
-#pragma schedule off

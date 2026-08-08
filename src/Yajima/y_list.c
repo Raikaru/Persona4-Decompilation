@@ -350,8 +350,71 @@ u8 *func_002e48a0(s8 arg0, s16 arg1) {
    `addu $v1,$v1,$t0`, mine base-first `addu $v1,$a3,$v1`; lever-2 struct
    spelled via a[arg1]/a[arg1+3] union failed to compile). Pure
    register-colouring floor, nd 24. */
-// FUN_002E4960
+/* measured 2026-08-07: recovered the exact dispatch chain and three six-pair copy loops. Retail keeps the data pointer in $t0 and the default loop counter in $a3; b210 swaps those registers and omits the retail trailing padding word. Declaration-order, pointer-type, statement-order, and operand-order probes all bottomed out at nd 19. Committed at nd 19. */
+// FUN_002E4960 NONMATCHING
+#ifdef NON_MATCHING
+void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
+    u8 *p = *(u8 **)(D_00882F70[arg1] + 0x38);
+    s32 type = *(s32 *)(p + 4);
+    s32 n3 = 6;
+    u8 *src;
+    s32 n;
+
+    switch (type) {
+    case 0:
+    case 7:
+    case 8:
+        src = p + ((s32)arg2 * 0x30) + 0x14;
+        n = 6;
+        do {
+            s32 v0 = *(s32 *)src;
+            s32 v1 = *(s32 *)(src + 4);
+            src += 8;
+            n--;
+            *(s32 *)arg0 = v0;
+            *(s32 *)(arg0 + 4) = v1;
+            arg0 += 8;
+        } while (n > 0);
+        break;
+    case 1:
+    case 10:
+    case 5:
+    case 6:
+        src = p + ((s32)arg2 * 0x30) + 0xA4;
+        n = 6;
+        do {
+            s32 v0 = *(s32 *)src;
+            s32 v1 = *(s32 *)(src + 4);
+            src += 8;
+            n--;
+            *(s32 *)arg0 = v0;
+            *(s32 *)(arg0 + 4) = v1;
+            arg0 += 8;
+        } while (n > 0);
+        break;
+    default:
+        src = p + ((s32)arg2 * 0x30) + 0x14;
+        do {
+            s32 v0 = *(s32 *)src;
+            s32 v1 = *(s32 *)(src + 4);
+            src += 8;
+            n3--;
+            *(s32 *)arg0 = v0;
+            *(s32 *)(arg0 + 4) = v1;
+            arg0 += 8;
+        } while (n3 > 0);
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4960);
+#endif
+
+
+
+
+
+
 // FUN_002E4AC0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 
@@ -501,6 +564,7 @@ s16 func_002e54c0(s8 arg0, s16 arg1) {
    rotation + selective load-CSE floor, best nd 125. */
 // FUN_002E55C0
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e55c0);
+
 // FUN_002E5960
 void func_002e5960(s8 arg0) {
     u8 *p;
@@ -597,6 +661,7 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
    hoist/coloring floor, nd 121 (was 135). */
 // FUN_002E6630
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6630);
+
 // FUN_002E68B0
 /* measured: without `opt_loop_invariants on` MWCC keeps the loop2 switch
    jump-table base (lui/addiu) inside the dispatch instead of hoisting it

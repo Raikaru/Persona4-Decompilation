@@ -14,7 +14,7 @@ extern s32 D_00724870;
 extern s32 (*D_008873D4[])(char *arg0);
 extern char D_00752FA8[];
 extern u8 D_00887250[];
-extern void *D_00887408;
+extern void *D_00887408[];
 extern s32 D_00763C68;
 extern s32 D_00763C6C;
 extern s32 D_00764874;
@@ -154,21 +154,21 @@ void func_003e1c30(void) {
 }
 #pragma no_branch_likely off
 #pragma schedule off
-// FUN_003E1DB0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_003E1DB0
+/* measured: no_branch_likely keeps the success test as retail's plain bnez. */
+#pragma no_branch_likely on
 #pragma schedule on
 s32 func_003e1db0(u8 *arg0, s32 arg1) {
     D_00724870 = arg1;
-    if (func_003e1cb0(D_008872E0 + arg1, D_00887408) == 0) {
+    if (func_003e1cb0(D_008872E0 + arg1, D_00887408[0]) == 0) {
         return 0;
     }
     D_00764874++;
     return (s32)arg0;
 }
+/* measured: closes the no_branch_likely pragma above. */
+#pragma no_branch_likely off
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1db0);
-#endif
 
 
 /* measured: the guarded do/while (retail tests the head pointer once before
@@ -288,21 +288,23 @@ scan:
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3020);
 #endif
 
+/* measured: nd 16 of 80 bytes. The C body reproduces the linked-list search and store, but b210 omits retail's two nops between the loop exit and the final null test. Probed do/while, goto, schedule on/off, and no_branch_likely; committed at nd 16. */
 // FUN_003E3070 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: closes the bracket noted above the marker. */
-#pragma schedule off
 s32 func_003e3070(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *node;
 
     node = *(u8 **)(arg0 + 0x10);
     if (node != NULL) {
-        do {
-            if (*(s32 *)(node + 8) == arg1) {
-                break;
-            }
+scan3070:
+        if (*(s32 *)(node + 8) != arg1) {
             node = *(u8 **)(node + 0x30);
-        } while (node != NULL);
+            if (node == NULL) {
+
+            } else {
+                goto scan3070;
+            }
+        }
     }
     if (node != NULL) {
         *(s32 *)(node + 0x18) = arg2;
@@ -310,7 +312,6 @@ s32 func_003e3070(u8 *arg0, s32 arg1, s32 arg2) {
     }
     return -1;
 }
-#pragma schedule on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
 #endif
@@ -489,11 +490,6 @@ s32 func_003e43a0(s32 arg0) {
 
 // FUN_003E43C0 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: nd 35 of 96. Stores D_00764890=arg1 then four function pointers at
-   D_008872E0+arg1[2..5] then D_0088731C++. schedule on fixes the address
-   hoisting; the residual is register allocation - retail materialises all four
-   function addresses into distinct registers ($a3/$a2/$a0/$v1) and interleaves
-   their lui/addiu, b210 reuses one register per store. */
 #pragma schedule on
 void *func_003e43c0(u8 *arg0, s32 arg1, s32 arg2) {
     void **p = (void **)&D_008872E0[arg1];

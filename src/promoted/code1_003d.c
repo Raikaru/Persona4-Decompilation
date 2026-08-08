@@ -4,6 +4,8 @@
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_004217e0(u8 *arg0);
+extern s32 **func_003ce050();
+extern s32 iGpffffb728;
 
 extern s32 D_00887180[];
 extern s32 D_00887184[];
@@ -84,7 +86,38 @@ call:
 #pragma schedule off
 
 // FUN_003D4BF0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4bf0);
+/* measured: no_branch_likely and schedule on reproduce retail's explicit
+   result-pointer branch/call layout (MATCH; normalized_diff 0, object 124
+   bytes in the 128-byte retail slot). */
+#pragma no_branch_likely on
+#pragma schedule on
+s32 func_003d4bf0(u8 *arg0) {
+    u8 *temp5;
+    s32 **var4;
+    s32 **result;
+    u8 *flag;
+
+    temp5 = *(u8 **)(arg0 + 0x78);
+    if (temp5 == NULL) goto ret_one;
+    var4 = (s32 **)(arg0 + iGpffffb728);
+    flag = NULL;
+    if (*var4 == NULL) goto flag_done;
+    if (*(u16 *)(temp5 + 4) != **var4) goto flag_done;
+    flag = (u8 *)1;
+flag_done:
+    if (flag != NULL) {
+        result = var4;
+    } else {
+        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+    }
+    if (*result != NULL) goto ret_one;
+    return 0;
+ret_one:
+    return 1;
+}
+/* measured: closes the no_branch_likely/schedule brackets above. */
+#pragma schedule off
+#pragma no_branch_likely off
 
 // FUN_003D6010
 #pragma schedule on
@@ -274,7 +307,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
 #endif
 
 // FUN_003DD7D0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd7d0);
+/* measured: probe */
+#pragma no_branch_likely on
+#pragma schedule on
+s32 func_003dd7d0(void) {
+    s32 count;
+    s32 next;
+    void (*fn)(s32);
+
+    count = D_00887184[0];
+    if (count <= 0) goto ret_one;
+    next = D_00887188[0] + 1;
+    if (count >= next) goto ret_one;
+    fn = (void (*)(s32))D_00887194[0];
+    if (fn == NULL) goto ret_zero;
+    fn(5);
+ret_zero:
+    return 0;
+ret_one:
+    return 1;
+}
+/* measured: probe close */
+#pragma schedule off
+#pragma no_branch_likely off
 
 // FUN_003DDC20
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddc20);

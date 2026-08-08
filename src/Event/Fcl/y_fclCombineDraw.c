@@ -580,7 +580,7 @@ void func_00317410(u8 *arg0, s8 arg1) {
 }
 
 
-// measured: nd N/A (COP2/VU0). M2C_ERROR on adda.s/msub.s (vector opcodes); the float-pair colour-chain math is VU0. COP2-blocked.
+// measured: nd N/A (not yet reconstructed). Retail's adda.s/msub.s sequence is ordinary single-precision arithmetic that plain C can emit; no VU0/COP2 opcode is present in this function's retail window.
 // FUN_00317900
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00317900);
 
@@ -1003,10 +1003,50 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
    transcriptions: M2C's s64 arg1/arg2 wrong — caller passes single regs
    (addiu $5,2 / daddu $6,$16); the v1/v2 in-place sign-ext + w-immediate-load
    sink resist spelling. Confirmed the load-sink floor. */
-// FUN_0032B770
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
+/* measured: nd 21, object 596/608. Retail shape is a 0xD0 frame with three packed s64 vector slots, a signed s16 loop/index path, two 002E48A0 loads, and the final 0.0f+accumulator plus multiply-add colour chain. The preserved C uses s64 stack slots, s32 v1/v2/i with explicit s16/s8 casts, separate u16/u8 loads, and ordinary `acc + base * delta` arithmetic; probes of tail/order variants scored nd 21/40/97/434. The residual is the retail load-sink/order at the two 002E48A0 sites plus three padding words; no inline assembly is used. Committed at nd 21. */
+// FUN_0032B770 NONMATCHING
+#ifdef NON_MATCHING
+void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    s64 spC8;
+    s64 spC0;
+    s64 spB8;
+    s32 i;
+    s32 v1;
+    s32 v2;
+    u16 w;
+    u8 b;
+    u8 *obj;
+    f32 f20;
+    f32 f21;
 
-// measured: nd N/A (COP2/VU0). M2C_ERROR on adda.s/madd.s; the tail float-pair colour chain is VU0 vector math. COP2-blocked.
+    obj = *(u8 **)(arg0 + 0x38);
+    func_002b2970(&spC8, 156.0f, 87.0f);
+    func_0031e5b0(arg0, spC8, 0, arg3, 0, 1, 1);
+    i = 0;
+    v1 = (s16)arg1;
+    v2 = (s16)arg2;
+    while ((s16)i < v2) {
+        func_002b2970(&spC0, 162.0f, 111.0f);
+        w = *(u16 *)(func_002e48a0(0, i) + 2);
+        b = *(u8 *)(func_002e48a0(0, i) + 4);
+        func_0031ac10(arg0, spC0, -1, (s8)i, w, b, (s16)((s16)i * v1), arg3, 0, 0x99);
+        i = (s16)(i + 1);
+    }
+    func_003297f0(arg0, 0, arg3, 417.0f, 220.0f);
+    func_002b2970(&spB8, 472.0f, 112.0f);
+    func_00324f80(arg0, *(FclVec2 *)&spB8, 0, arg3);
+    f21 = (f32)(*(s16 *)(obj + 0x11E) - *(s16 *)(obj + 0x120));
+    f20 = *(f32 *)(obj + 0x124);
+    f20 = *(f32 *)(func_002b6150(0xAA) + 0x3C) + f20 * f21;
+    *(f32 *)(func_002b6150(0xB1) + 0x3C) = f20;
+    f20 = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
+    *(f32 *)(func_002b6150(0xB5) + 0x3C) = f20;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
+#endif
+
+// measured: nd N/A (not yet reconstructed). Retail's adda.s/madd.s sequence is ordinary single-precision arithmetic that plain C can emit; no VU0/COP2 opcode is present in this function's retail window.
 // FUN_0032B9D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
 

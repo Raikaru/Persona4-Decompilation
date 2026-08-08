@@ -12,6 +12,10 @@ extern void func_0039a8a0(s32 arg0);
 extern s32 iGpffffb5e4;
 /* gp - 0x4A18 = 0x007690f0 - 0x4A18 = 0x007646D8 */
 extern s32 iGpffffb5e8;
+extern s32 iGpffffb5f0;
+extern s32 iGpffffb5c8;
+extern void (*jtbl_008873EC[])(void *);
+extern u8 *func_0039aa50(u8 *arg0);
 u8 *func_0039aab0(u8 *arg0);
 
 extern s32 D_007246B0;
@@ -25,8 +29,14 @@ extern s32 D_007246EC;
 s32 func_0039b6e0(s32 arg0);
 
 extern s32 D_00884ACC[];
-extern s32 D_00884AC8;
+extern s32 D_00884AC8[];
 extern s32 D_00884ADC;
+extern s32 D_00884A7C[];
+extern s32 D_00884A80[];
+extern s32 func_0039aa40(void);
+extern void func_003e12f0(s32 arg0);
+extern void func_00398410(u8 *arg0);
+extern void (*jtbl_008873FC[])(s32, void *);
 extern u8 *D_007646D0;
 void *func_0039bb70(void *list, s32 key);
 extern void func_0039b830(s32 arg0);
@@ -134,11 +144,56 @@ s32 func_003963b0(u8 *arg0)
 // FUN_00396E80
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
 
+// measured: schedule and branch-shape probes for 982e0.
+#pragma schedule on
+// measured: retail uses plain branches in the 982e0 dispatch.
+#pragma no_branch_likely on
 // FUN_003982E0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003982e0);
+s32 func_003982e0(s32 arg0)
+{
+    s32 temp;
+
+    temp = D_00884A7C[0] - 1;
+    D_00884A7C[0] = temp;
+    if (temp == 0) {
+        goto init;
+    }
+tail:
+    if (D_00884A80[0] != 0) {
+        func_003e12f0(D_00884A80[0]);
+        D_00884A80[0] = 0;
+    }
+    return arg0;
+init:
+    func_0039aa40();
+    goto tail;
+}
+/* measured: closes the no_branch_likely-on 982e0 probe. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on 982e0 probe. */
+#pragma schedule off
+/* measured: schedule and branch-shape probes for 98540. */
+#pragma schedule on
+/* measured: retail uses a plain beqz for the entry test. */
+#pragma no_branch_likely on
 
 // FUN_00398540
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398540);
+s32 func_00398540(s32 arg0)
+{
+    u8 *temp_17;
+
+    temp_17 = *(u8 **)(arg0 + iGpffffb5e0);
+    if (temp_17 != NULL) {
+        func_00398410(temp_17);
+        jtbl_008873FC[0](D_00884A80[0], temp_17);
+        *(u8 **)(arg0 + iGpffffb5e0) = NULL;
+    }
+    return arg0;
+}
+/* measured: closes the no_branch_likely-on 98540 probe. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on 98540 probe. */
+#pragma schedule off
 
 /* measured: retail lays the three exits out of line in the order
    [return arg0][return 0][call + jump back], which the explicit gotos below
@@ -226,9 +281,35 @@ s32 func_00399b10(s32 arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b10);
 #endif
+/* measured: schedule and branch-shape probes for 99b80. */
+#pragma schedule on
+/* measured: retail uses plain branches in the 99b80 dispatch. */
+#pragma no_branch_likely on
 
 // FUN_00399B80
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b80);
+s32 func_00399b80(s32 arg0)
+{
+    s32 *p;
+
+    p = (s32 *)(arg0 + iGpffffb5e8);
+    if (*p == 0) {
+        goto call;
+    }
+retarg:
+    return arg0;
+call:
+    if (func_0039aa50((u8 *)arg0) == NULL) {
+        goto ret0;
+    }
+    *p = 1;
+    goto retarg;
+ret0:
+    return 0;
+}
+/* measured: closes the no_branch_likely-on 99b80 probe. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on 99b80 probe. */
+#pragma schedule off
 
 /* measured: retail enters the slot loop directly (proves i=0<2, no pre-test)
    and hoists the compare constant (addiu $v1,$zero,1) into the preheader;
@@ -245,9 +326,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b80);
    the commutative addu that forms the record address, the compare constant
    materialising inside the loop instead of the preheader, and two unfilled
    delay slots; schedule on fills the slots but shrinks the object to 84 bytes
-   (nd 44). Committed at nd 36. */
+   (nd 44). #pragma opt_loop_invariants on takes the same body 36 -> 18:
+   retail materialises the compare constant in the preheader and b210 only
+   does so with that pragma. Committed at nd 18. */
 // FUN_00399FD0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail materialises a loop-invariant value in the preheader
+   where plain -O2 rematerialises it in the body. */
+#pragma opt_loop_invariants on
 s32 func_00399fd0(s32 arg0, s32 arg1) {
     u8 *p;
     u8 *e;
@@ -271,6 +357,8 @@ found:
     *(s32 *)r = arg1;
     return arg0;
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399fd0);
 #endif
@@ -410,9 +498,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
    the commutative addu that forms the record address, the compare constant
    materialising inside the loop instead of the preheader, and two unfilled
    delay slots; schedule on fills the slots but shrinks the object to 84 bytes
-   (nd 44). Committed at nd 36. */
+   (nd 44). #pragma opt_loop_invariants on takes the same body 36 -> 18,
+   the same preheader-materialisation fix as func_00399fd0 above.
+   Committed at nd 18. */
 // FUN_0039A200 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail materialises a loop-invariant value in the preheader
+   where plain -O2 rematerialises it in the body. */
+#pragma opt_loop_invariants on
 s32 func_0039a200(s32 arg0, s32 arg1) {
     u8 *p;
     u8 *e;
@@ -436,6 +529,8 @@ found:
     *(s32 *)r = arg1;
     return arg0;
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma opt_loop_invariants off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a200);
 #endif
@@ -846,19 +941,78 @@ s32 func_0039ac40(s32 arg0)
 #pragma schedule off
 
 
-// measured: retail's sd/sdq-16 + jal + sw/ld/lq epilogue needs the
-// scheduler (plain -O2 emits a 56B frame; schedule on or
-// optimization_level 3 both give the exact 48B shape). arg1/arg2 are
-// hidden params: retail moves arg3 ($a3) into the callee's $a0.
-
+// measured: schedule on is probed for ae30's retail store and epilogue order.
+#pragma schedule on
+// measured: retail uses a plain beqz here, not blikely.
+#pragma no_branch_likely on
 // FUN_0039AE30
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ae30);
+s32 func_0039ae30(s32 arg0)
+{
+    u8 *temp_4;
+    u8 *temp_16;
+    s32 result;
+
+    temp_16 = (u8 *)(arg0 + iGpffffb5f0);
+    temp_4 = *(u8 **)(temp_16 + 8);
+    if (temp_4 != NULL) {
+        jtbl_008873EC[0](temp_4);
+    }
+    *(s32 *)(temp_16 + 8) = 0;
+    result = arg0;
+    *(s32 *)temp_16 = 0;
+    return result;
+}
+/* measured: closes the no_branch_likely-on bracket above. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on probe above. */
+#pragma schedule off
+/* measured: schedule and branch-shape probes for b450. */
+#pragma schedule on
+/* measured: retail uses a plain beqz for the initialization test. */
+#pragma no_branch_likely on
 
 // FUN_0039B450
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b450);
+s32 func_0039b450(s32 arg0)
+{
+    if (D_00884AC8[0] == 0) {
+        goto init;
+    }
+increment:
+    D_00884AC8[0] += 1;
+    return arg0;
+init:
+    func_0039ba80((s32)&D_00884ACC);
+    goto increment;
+}
+/* measured: closes the no_branch_likely-on b450 probe. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on b450 probe. */
+#pragma schedule off
+/* measured: schedule and branch-shape probes for b4b0. */
+#pragma schedule on
+/* measured: retail uses a plain beqz for the zero-count test. */
+#pragma no_branch_likely on
 
 // FUN_0039B4B0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b4b0);
+s32 func_0039b4b0(s32 arg0)
+{
+    s32 temp;
+
+    temp = D_00884AC8[0] - 1;
+    D_00884AC8[0] = temp;
+    if (temp == 0) {
+        goto init;
+    }
+ret:
+    return arg0;
+init:
+    func_0039b830((s32)&D_00884ACC);
+    goto ret;
+}
+/* measured: closes the no_branch_likely-on b4b0 probe. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on b4b0 probe. */
+#pragma schedule off
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
@@ -927,19 +1081,26 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b680);
 /* measured: the body below is a faithful reconstruction whose residual is
    recorded in the notes above; re-measured for nd_audit coverage.
    Committed at nd 42. */
-// FUN_0039B6E0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: schedule and plain-branch probes for b6e0. */
+#pragma schedule on
+/* measured: retail uses plain beqz/b, not blikely branches. */
+#pragma no_branch_likely on
+// FUN_0039B6E0
 s32 func_0039b6e0(s32 arg0)
 {
     u8 *temp_2;
 
-    temp_2 = (u8 *)(func_0039bb70(D_00884ACC, arg0));
-    if (temp_2 != NULL)
-    {
-        return (s32)(*(s32 *)(temp_2 + 0x10));
+    temp_2 = (u8 *)func_0039bb70((void *)D_00884ACC, arg0);
+    if (temp_2 == NULL) {
+        goto ret0;
     }
+    goto retval;
+retval:
+    return *(s32 *)(temp_2 + 0x10);
+ret0:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b6e0);
-#endif
+/* measured: closes the no_branch_likely-on b6e0 probe. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on b6e0 probe. */
+#pragma schedule off
