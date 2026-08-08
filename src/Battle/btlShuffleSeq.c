@@ -252,27 +252,57 @@ void func_00378ec0(u8 *arg0, s32 arg1) {
     func_003760f0(arg0, arg1, 0, 0xF, NULL, sp30);
 }
 
-/* measured: retail's else path emits `or $v1,$v1,$v0; mtc1 $v1,$f0; cvt.s.w
-   $f13,$f0; add.s $f13,$f13,$f13` (conversion into the destination, self-add
-   doubling); mwcc b210 always converts the doubled operand into a temp
-   (`or $v0; mtc1 $v0,$f0; cvt.s.w $f0,$f0; add.s $f13,$f0,$f0`) and `2.0f * x`
-   compiles to mul.s against a constant, never add.s. Tried: inline expr and
-   s32/u32 local, `(f32)t + (f32)t`, `(f32)t; +=`, `* 2.0f`, declaration
-   orders; all give the identical nd 42 (4 real words). FPU register
-   allocation floor. */
 // FUN_00378F90
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00378f90);
-/* measured: best attempt nd 14 (all `!` rows, register-coloring residual).
-   Needed: sp40 as f32[4] (func_003dc740 writes 16B dst), sp50/sp58 as ONE
-   12-byte region (s64+f32 as separate locals drops the D_0064EAB8 store via
-   DSE; combined `f32 sp50[3]` + `*(s64 *)&sp50[0] = D_0064EAB0[0]` + array
-   decls for absolute lui/addiu gets frame 0x60 and every slot right).
-   Residual: var_4 colors $v1, retail materializes it into $a0 (4th-arg
-   register) directly; derived load uses $v0 vs $v1 and $a1 materializes at
-   the jal instead of after the branch. Ternary-inline hoists the D_0064EAB0
-   load above the blez; named local colors $v1. 4 attempts. */
-// FUN_00379090
+/* measured: O1 probe for the negative conversion's destination register and tail padding. */
+#pragma optimization_level 1
+void func_00378f90(u8 *arg0, s32 arg1, s32 arg2) {
+    f32 sp40[3];
+    f32 var_f13;
+    s32 t;
+
+    *(Vec3f *)&sp40[0] = *(Vec3f *)(((u8 *)seqRecord(arg1 * 0xE8, (u32)arg0)) + 0x1D6B8);
+    sp40[2] = sp40[2] + 800.0f;
+    if (arg2 >= 0) {
+        var_f13 = (f32)arg2;
+    } else {
+        t = (u32)arg2 >> 1;
+        t |= arg2 & 1;
+        var_f13 = (f32)t;
+        var_f13 = var_f13 + var_f13;
+    }
+    func_00375dd0(arg0, arg1, NULL, &sp40[0], 0.0f, var_f13);
+    func_00376290(arg0, arg1, arg2, 0xFF, 0);
+}
+/* measured: close O1 probe; no baseline body change intended. */
+#pragma optimization_level 2
+
+
+
+/* measured: named aggregate copy reproduces retail's branch value in $a0 and grouped global loads/stores (nd 4, object 180B vs window 192B). Probed s64+f32, three-f32, s32/s32/f32, nested pairs, array pairs, packed/aligned spellings, staged s64 casts, and typed-global variants; b210's s64+f32 aggregate is 16-byte aligned and emits ld/sd for the 8-byte tail, while the retail tail is lwc1/swc1. The remaining four differing words are this unavoidable 12-byte aggregate width/alignment mismatch. Committed at nd 4. */
+// FUN_00379090 NONMATCHING
+#ifdef NON_MATCHING
+void func_00379090(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    struct S { s64 x; f32 y; };
+    struct S tmp;
+    f32 sp40[4];
+    s32 var_4;
+
+    if ((s16)arg3 > 0) var_4 = 0x5A; else var_4 = -0x5A;
+    tmp = *(struct S *)&D_0064EAB0[0];
+    func_003dc740(&sp40[0], &tmp, 0, (f32)var_4);
+    func_003760f0(arg0, arg1, 0, arg2, 0, &sp40[0]);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379090);
+#endif
+
+
+
+
+
+
+
+
 // FUN_00379150
 s32 func_00379150(u8 *arg0, s32 arg1, s32 arg2) {
     u8 *p1;
@@ -296,7 +326,7 @@ s32 func_00379150(u8 *arg0, s32 arg1, s32 arg2) {
     }
     return 0;
 }
-/* measured: frame floor. Object 496B vs window 480B (overflows). mwcc emits
+/* measured: nd 211, frame floor. Object 496B vs window 480B (overflows). mwcc emits
    frame -0x40 with sp30 at 0x3c; retail uses -0x70 with sp30 at 0x30 (0x30-0x70
    unused slack). The loop counter colors $a0 (retail: $a1) with the `== 2`
    constant reloaded as `addiu $v0,2` each iteration (retail hoists it into
@@ -307,6 +337,7 @@ s32 func_00379150(u8 *arg0, s32 arg1, s32 arg2) {
    char* is illegal in mwcc). 4 attempts. */
 // FUN_00379240
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379240);
+
 
 /* measured: nd 286, deep floor. Switch over *(u32*)(arg0+0x1F210) with jump
    table jtbl_00752A00, 6 cases: [0]=0x379480,[1]=0x3794d4,[2]=0x3796cc,

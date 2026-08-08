@@ -36,11 +36,10 @@ INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00311ea0);
 /* measured: 128-bit-slot wall (same as FUN_003130E0): retail loads spA0 from
    D_00642F04+arg1*8 into a quadword slot (lw $2; sq $2,0xA0) and tests the
    0x18-iteration loop with `lq $2,0xA0; slt $2,$18,$2` (raw quadword
-   compare, no narrowing). mwcc b210 compiles the read-back via *(u32 *)&spA0
-   to lw (not lq) and the full spA0 compare is illegal data size for both
-   mode(TI) and __int128; the loop-test shape is the btlAICommand FUN_001DD570
-   wall. Also a dense 17-entry D_006420A0 flag loop and a 4-element skill
-   scan. Not re-attempted (same floor). */
+   compare, no narrowing). The full C probe was 664B vs the 640B retail
+   window (normalized_diff 381); mwcc b210's `u_long128` read-back still
+   lowers through a scalar load, so the slot/compare floor remains. Probe
+   discarded. */
 // FUN_00312220
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312220);
 
@@ -49,11 +48,10 @@ INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312220);
    D_00642147 vs D_00642387 min*24+max lookups, the sp70 zero+pair, the
    (base[arg1*14+3]+base[arg2*14+3])/2 rounding into temp_5_2, and the
    func_003133b0-vs-func_003130e0 dispatch on temp_16==base[arg*14+2]) but
-   mwcc b210 keeps temp_21 (arg2*14) in $s6 (frame 0xA0 vs retail 0x90, 7
-   saved regs vs 6) and flips the D_00642147/D_00642387 index add order
-   (temp_16 before temp_20*24; retail temp_20*24 first). obj 812B vs 832B.
-   Tried decl orders (u32/u8 temp_21, temp_16/temp_20/temp_21 order) and
-   inline arg1*14; nd high. Register-allocation + index-order floor. */
+   the measured C probe was 804B vs the 832B retail window (nd 539).
+   mwcc b210 keeps temp_21 (arg2*14) in $s6 (retail frame 0x90 vs 0xA0
+   candidate) and flips both result-table index add orders. Register-allocation
+   + index-order floor; probe discarded. */
 // FUN_003124A0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003124a0);
 
@@ -172,25 +170,29 @@ s32 func_00312bc0(s8 arg0) {
 }
 #pragma opt_rebuildconditionals on
 
+/* measured: raw C reconstruction compiles to 1264B against the 1152B retail
+   window with normalized_diff 924. Retail keeps a 0xA0 frame and maps the
+   input/table locals to $s3/$fp/$s0/$s6; the straightforward typed loops
+   grew a 0xB0 frame and rotated those saved registers. Probe discarded. */
 // FUN_00312C60
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312c60);
 
 /* measured: retail sq's arg0&0xFF into spA0 (0xA0) and lq's it back in the
-   0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). mwcc b210
-   stores the u_long128/s128 spA0 as sq (correct) but the read-back via
-   *(u32 *)&spA0 compiles to lw (not lq), and the full-value comparison
-   spA0==byte is illegal data size for both mode(TI) and __int128. Same
-   128-bit-slot read wall as btlAICommand FUN_001DD570. Also the arg2 ($fp)
-   spills to 0xAC and the frame grows to 0xC0 vs retail 0xB0. Tried u_long128/
-   s128 with full compare and *(u32 *)& clean read; all nd count-large. Floor. */
+   0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). A full C
+   probe with `u_long128 spA0` and aliased scalar read-back compiled to 772B
+   against the 720B retail window (normalized_diff 528); mwcc b210 lowers the
+   read-back through lw (not lq), and the full-value compare has no legal C
+   data-size spelling. 128-bit-slot read floor; probe discarded. */
 // FUN_003130E0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003130e0);
 
 /* measured: identical 128-bit-slot wall to func_003130e0 (retail sq's
    arg0&0xFF into spA0 at 0xA0 and lq's it back in the 0xC0 i-loop, raw bne
-   compare; mwcc b210 read-back via *(u32 *)&spA0 compiles to lw not lq, and
-   full-value spA0==byte is illegal data size for mode(TI) and __int128),
-   plus its func_0046d730(0x43A) tail assert. Not re-attempted (same floor). */
+   compare). A full C probe with the same aliased scalar read-back compiled
+   to 788B against the 736B retail window (normalized_diff 541); mwcc b210
+   lowers the read-back through lw (not lq), and the full-value compare has
+   no legal C data-size spelling. The 0x43A tail assert is also retained.
+   128-bit-slot read floor; probe discarded. */
 // FUN_003133B0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003133b0);
 

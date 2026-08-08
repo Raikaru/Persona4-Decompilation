@@ -79,18 +79,55 @@ void func_0044ec50(s32 arg0) {
 // FUN_0044EC60
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ec60);
 
-/* measured: func_0044ee70 (256B) floor at nd 2 — the classBytes/classCount
-   accounting now MATCHES (the `cls` byte must be read DIRECTLY as
-   `*(u8 *)(block + 8)` at each use, NOT cached in a u8 local: caching put the
-   pool reload/classCount re-read in the wrong place, nd 23). The residual is a
-   pure store-vs-arg-copy schedule before `func_0043ed08`: retail emits
-   `sh $0, 8($v0)` (store to the func_0044e920 result) THEN `move $a0, $v0`;
-   mwcc b210 always emits the arg move first. Tried s16/u16 store, index store
-   `((s16 *)r)[4]`, fresh result var r, and lock/block decl swap — all nd 2.
-   Parent's struct-field load-order lever does not apply (arg is a register
-   value, not a memory load). */
-// FUN_0044EE70
+/* measured: 0044ee70 candidate is 256B in the 256B retail window at verify normalized_diff 6. The header lookup, pool counters, direct class-byte loads, class accounting, free transition, and lock cleanup match; the only remaining residual is retail storing `sh $0,8($v0)` before copying the result into `$a0`, while b210 emits the argument move first. Named offset/pointer forms and field-load split variants were probed; plain C cannot force that store-vs-argument schedule. Committed at nd 6. */
+// FUN_0044EE70 NONMATCHING
+#ifdef NON_MATCHING
+void func_0044ee70(u8 *arg0) {
+    s32 lock;
+    u8 *block;
+    u8 *pool;
+    u8 *pool2;
+    u8 *result;
+    s32 size;
+    s32 delta;
+    u16 payload;
+    s32 block_size;
+    u32 offset;
+
+    lock = func_0042ba20();
+    if (arg0 == NULL) {
+        func_0046d730(D_007104E0, 0x670);
+    }
+    block = *(u8 **)(arg0 - 4);
+    pool = (u8 *)D_00763D1C;
+    *(s32 *)(pool + 0x18) = *(s32 *)(pool + 0x18) - 1;
+    pool2 = (u8 *)D_00763D1C;
+    *(s32 *)(pool2 + 0x1C) = *(s32 *)(pool2 + 0x1C) - *(s32 *)block;
+    if ((s32)*(u8 *)(block + 8) < 8) {
+        pool = (u8 *)D_00763D1C;
+        offset = *(u8 *)(block + 8) * 4;
+        pool2 = (u8 *)(offset + (u32)pool);
+        *(s32 *)(pool2 + 0x38) = *(s32 *)(pool2 + 0x38) - *(s32 *)block;
+        payload = *(u16 *)(block + 4);
+        size = payload + 0x18;
+        block_size = *(s32 *)block;
+        size = block_size - size;
+        offset = *(u8 *)(block + 8) * 4;
+        pool2 = (u8 *)(offset + (u32)D_00763D1C);
+        delta = *(s32 *)(pool2 + 0x58) - size;
+        *(s32 *)(pool2 + 0x58) = delta;
+    }
+    result = func_0044e920(block + 0xC);
+    *(s16 *)(result + 8) = 0;
+    func_0043ed08(result);
+    if (lock != 0) {
+        func_0042ba70();
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ee70);
+#endif
+
 
 /* measured: func_0044ef70 (464B) floor at nd 54 — a saved-register rotation
    plus the classBytes/classCount pool-reload scheduling floor. retail allocates
@@ -115,13 +152,41 @@ INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ef70);
 // FUN_0044F140
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044f140);
 
-/* measured: func_0044f3a0 (304B) floor at nd 8 — a persistent saved-register
-   swap: retail puts block=func_0043ece8 result in $s4 and aligned=temp_19_2 in
-   $s3 (reusing dead arg0's register); mwcc b210 always puts block in $s3 and
-   aligned in $s4. Whole function body otherwise byte-identical (the
-   func_0044eaa0, func_0043f9c8, lock calls all match). Declaration order (5+
-   orders incl. temp_18 positioned), mult operand order (`arg1*arg0` vs
-   `arg0*arg1`), and split aligned computation all failed (nd 8, worse 9/32).
-   Same saved-register rotation family as func_0044ec60. */
-// FUN_0044F3A0
+/* measured: 0044f3a0 candidate is 296B in the 304B retail window at verify normalized_diff 6. The lock acquisition/release, size multiplication and alignment, allocation/error path, typed header initialization call, zero fill, and return all match; the remaining difference is the persistent saved-register assignment for the allocator result/aligned size pair. Reused locals, declaration orders, multiplication orders, and split alignment forms were probed; plain C cannot force retail's swap. Committed at nd 6. */
+// FUN_0044F3A0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0044f3a0(s32 arg0, s32 arg1)
+{
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_19;
+    s32 temp_19_2;
+    s32 temp_2;
+    u32 temp_18;
+
+    temp_17 = func_0042ba20();
+    temp_16 = func_0042ba20();
+    temp_18 = arg1 * arg0;
+    if (temp_18 == 0) {
+        func_0046d730(D_007104E0, 0x653);
+    }
+    temp_19_2 = (temp_18 + 0x37) & ~0xF;
+    temp_2 = func_0043ece8(temp_19_2);
+    if (temp_2 == 0) {
+        func_0046d700(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes, temp_18);
+    }
+    temp_19 = func_0044eaa0(temp_2, temp_19_2, 0x10, 0);
+    if (temp_16 != 0) {
+        func_0042ba70();
+    }
+    if (temp_19 != 0) {
+        func_0043f9c8((void *)temp_19, 0, temp_18);
+    }
+    if (temp_17 != 0) {
+        func_0042ba70();
+    }
+    return temp_19;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044f3a0);
+#endif

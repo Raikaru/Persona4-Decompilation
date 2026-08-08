@@ -224,8 +224,38 @@ void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
    the fixup to addiu +0x7e instead of +0x3f). All spellings give nd 9-10;
    closest 9 = 7 real words + 2 window padding. $v0/$v1 temp-pool coalescing
    floor. */
-// FUN_00455EA0
+/* measured: 00455ea0 plain-C candidate is 200B in a 208B retail window at nd 11. The block scan, 0x100-byte copies, 0x40 rounding, saved-register frame, and final output store match; b210 keeps the null-output test on $a2 instead of retail $s1 and selects different temporary registers for the rounded pointer update. Tried direct/pointer/integer base temporaries, named t/q arithmetic, struct-header aliases, declaration orders, and parameter capture; no legal plain-C spelling closed those residuals. Committed at nd 11. */
+// FUN_00455EA0 NONMATCHING
+#ifdef NON_MATCHING
+u8* func_00455ea0(u8* arg0, s32 arg1, s32* arg2) {
+    struct Header { u8 pad[0xFC]; s32 size; } header;
+    s32 out_local;
+    s32 count;
+    s32* out;
+    s32 i;
+    u8* entry;
+    s32 t;
+    s32 q;
+    out = arg2;
+    if (out == NULL) { out = &out_local; }
+    count = arg1;
+    entry = *(u8**)(arg0 + 0x110);
+    for (i = 0; i < count; i++) {
+        func_0043f810(&header, entry, sizeof(header));
+        entry += sizeof(header);
+        t = header.size + 0x3F;
+        q = t >> 6;
+        if (t < 0) { q = (t + 0x3F) >> 6; }
+        q <<= 6;
+        entry += q;
+    }
+    func_0043f810(&header, entry, sizeof(header));
+    *out = header.size;
+    return entry + sizeof(header);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00455ea0);
+#endif
 
 // FUN_00455F70
 s32 func_00455f70(s32 arg0, s32* arg1) {

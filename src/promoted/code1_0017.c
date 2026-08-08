@@ -16,7 +16,7 @@ extern u8 *iGpffff9db0;
 extern u8 D_005F18C0[];
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern u8 D_005F1910[];
-void func_0017c930(u8 *arg0);
+s32 func_0017c930(u8 *arg0);
 void func_0017cc90(u8 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
@@ -274,8 +274,114 @@ INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c270);
 // FUN_0017C670
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c670);
 
+
+
+
 // FUN_0017C930
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c930);
+s32 func_0017c930(u8 *arg0)
+{
+    extern u8 *func_001452b0(s32);
+    extern s32 func_0014a160(void);
+    extern s32 func_001623f0(void);
+    extern u8 *func_00460990(void);
+    extern void func_00460a80(void *, s32);
+    extern void func_00460ac0(void *, void *);
+    extern void func_004623a0(void *);
+    extern void func_00479100(void *, void *);
+    extern void func_0017bb50(u8 *, u8 *);
+    extern void func_0017bbe0(u8 *);
+    extern void func_0017bc60(u8 *, u8 *);
+    extern void func_0017c010(u8 *);
+    extern void func_0017c270(u8 *, u8 *);
+    extern void func_0017c670(u8 *);
+    u8 *list1;
+    u8 *list3;
+    u8 *state;
+    s32 state_value;
+    s32 i;
+    u8 *work;
+    u8 *p;
+
+    state = *(u8 **)(arg0 + 0x38);
+    list1 = func_001452b0(1);
+    list3 = func_001452b0(3);
+    state_value = *(s32 *)state;
+    switch (state_value) {
+    case 0:
+        *(s32 *)state = state_value + 1;
+        break;
+    case 1: {
+        func_00460a80(state + 4, 1);
+        work = func_00460990();
+        *(void **)(work + 8) = (void *)func_0017bb50;
+        *(u8 **)(work + 0x10) = state;
+        func_00460ac0(state + 4, work);
+        while (list1 != NULL) {
+            if ((*(s32 *)(list1 + 0x28) & 2) != 0 &&
+                *(u16 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38) + 0xA) == 1) {
+                work = func_00460990();
+                *(void **)(work + 8) = (void *)func_0017bc60;
+                *(u8 **)(work + 0x10) = list1;
+                func_00460ac0(state + 4, work);
+                if (*(s32 *)(*(u8 **)(*(u8 **)(list1 + 0x224) + 0x38)) > 0) {
+                    if (func_0014a160() == 1 || func_001623f0() == 1) {
+                        i = 0;
+                        while (i < 5) {
+                            p = *(u8 **)(list1 + 0x164) + i * 0xC;
+                            *(u8 *)(p + 0x28C) = *(u8 *)(p + 0x28C) & 0xFE;
+                            i += 1;
+                        }
+                    }
+                    *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) | 4;
+                    func_00479100(state + 4, *(u8 **)(list1 + 0x164));
+                    *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) = *(s32 *)(*(u8 **)(list1 + 0x164) + 0xD8) & ~4;
+                    if (func_0014a160() == 1 || func_001623f0() == 1) {
+                        i = 0;
+                        while (i < 5) {
+                            p = *(u8 **)(list1 + 0x164) + i * 0xC;
+                            *(u8 *)(p + 0x28C) = *(u8 *)(p + 0x28C) | 1;
+                            i += 1;
+                        }
+                    }
+                }
+                work = func_00460990();
+                *(void **)(work + 0xC) = (void *)func_0017c010;
+                *(u8 **)(work + 0x14) = list1;
+                func_00460ac0(state + 4, work);
+            }
+            list1 = *(u8 **)(list1 + 0x138);
+        }
+        while (list3 != NULL) {
+            if ((*(s32 *)(list3 + 0x28) & 2) != 0 &&
+                *(u16 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38) + 0xA) == 1) {
+                work = func_00460990();
+                *(void **)(work + 8) = (void *)func_0017c270;
+                *(u8 **)(work + 0x10) = list1;
+                func_00460ac0(state + 4, work);
+                if (*(s32 *)(*(u8 **)(*(u8 **)(list3 + 0x230) + 0x38)) > 0) {
+                    func_00479100(state + 4, *(u8 **)(list3 + 0x164));
+                }
+                work = func_00460990();
+                *(void **)(work + 0xC) = (void *)func_0017c670;
+                *(u8 **)(work + 0x14) = list1;
+                func_00460ac0(state + 4, work);
+            }
+            list3 = *(u8 **)(list3 + 0x138);
+        }
+        work = func_00460990();
+        *(void **)(work + 0xC) = (void *)func_0017bbe0;
+        *(u8 **)(work + 0x14) = state;
+        func_00460ac0(state + 4, work);
+        func_004623a0(state + 4);
+        break;
+    }
+    case 2:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
 
 // FUN_0017CC90
 void func_0017cc90(u8 *arg0)
@@ -291,6 +397,6 @@ s32 func_0017ccc0(u8 *arg0) {
     if (buf == NULL) {
         return 0;
     }
-    return func_00451fc0(arg0, D_005F1910, 8, 0, 0, func_0017c930, func_0017cc90, buf);
+    return func_00451fc0(arg0, D_005F1910, 8, 0, 0, (void (*)(u8 *))func_0017c930, func_0017cc90, buf);
 }
 

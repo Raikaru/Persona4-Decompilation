@@ -250,20 +250,71 @@ s32 func_00381830(u8 *arg0)
 // FUN_00381A70
 INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00381a70);
 
-/* measured: retail emits `sh $v0, 4($s0)` (counter store) before `andi $v0,
-   $v0, 0xffff` (u16 compare mask) after the counter increment, keeping the
-   whole chain in $v0; mwcc b210 canonicalizes the mask at the addiu with a
-   $v1/$v0 split (addiu $v1; andi $v0, $v1; sh $v1) no matter the spelling
-   (u16/s32 local, explicit mask, read-modify-write, comma sequencing — all
-   nd 2-4). Also, the 16-byte dst buffer (sp38, passed to func_0036dc60 /
-   func_00375d50) must sit at 0x38 with sp48[2] at 0x48 for the 0x50 frame;
-   mwcc b210 places f32[4]/s64[2] 16-byte locals at 0x30 (16-aligned) and
-   packs 8-byte arrays at 0x38/0x30, so no declaration reproduces 0x38 (nd 4-6
-   total). Rule-3 typed-alias check: retail has NO dsll32/dsra32 and no
-   quadword read (prologue sq is a register spill) — s128 rule not
-   applicable. Scheduling/layout floor, same family as func_00381830. */
 // FUN_00382BA0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00382ba0);
+s32 func_00382ba0(u8 *arg0) {
+    f32 sp48[2];
+    struct {
+        u8 pad[8];
+        u8 out[16];
+    } spbuf;
+    s32 temp_3;
+    u16 temp_2;
+    u8 *temp_16;
+    u8 *temp_17;
+
+    temp_16 = arg0 + 0x18;
+    temp_17 = *(u8 **)arg0;
+    temp_3 = *(s32 *)temp_16;
+    switch (temp_3) {
+    case 0:
+        *(f32 *)(temp_17 + 0x1F310) = 10.0f;
+        func_00374910(temp_17);
+        sp48[0] = 316.0f;
+        sp48[1] = 211.0f;
+        func_0036dc60(temp_17 + *(s32 *)(temp_17 + 0x1F308) * 0xFB0, &sp48[0], (f32 *)&spbuf.out[0], 160.0f);
+        func_00375d50(temp_17, *(s32 *)(temp_17 + 0x1F308), 0.0f, 0.0f, (f32 *)&spbuf.out[0], (f32 *)&spbuf.out[0]);
+        func_0038d9f0(*(s32 *)(temp_17 + 0x1F29C));
+        func_0038d970(*(s32 *)(temp_17 + 0x1F29C));
+        func_00388d60(*(s32 *)(temp_17 + 0x1F294));
+        func_0038daf0(*(s32 *)(temp_17 + 0x1F29C), 7);
+        *(s32 *)(temp_17 + 0x1F30C) = 1;
+        *(s32 *)temp_16 = 1;
+    case 1:
+        if (((*(u16 *)(temp_16 + 4) += 1) & 0xFFFF) >= 0xA && func_00388de0(*(s32 *)(temp_17 + 0x1F294)) != 0) {
+            func_002bad10(0x12);
+            *(s32 *)temp_16 = 2;
+        case 2:
+            func_002bb7c0(1);
+            if (func_002bb600() == 0) {
+                func_002bb1e0(1);
+                *(s32 *)temp_16 = 3;
+                func_00379090(temp_17, *(s32 *)(temp_17 + 0x1F308), 0xA, 1);
+                func_00388e00(*(s32 *)(temp_17 + 0x1F294));
+                func_0038dcc0(*(s32 *)(temp_17 + 0x1F29C), 7);
+                func_0038d310(*(s32 *)(temp_17 + 0x1F298));
+            }
+        }
+        goto block_17;
+    case 3:
+        if (func_00375a00(temp_17 + *(s32 *)(temp_17 + 0x1F308) * 0xE8 + 0x1D6A0) != 0) {
+            *(u16 *)(temp_17 + 0x1F2F4) = (u16)(*(u16 *)(temp_17 + 0x1F2F4) & 0xFFFB);
+            *(s32 *)temp_16 = 4;
+        case 4:
+            if (func_00388e20(*(s32 *)(temp_17 + 0x1F294)) != 0) {
+                *(s32 *)(temp_16 + 8) = 2;
+                return 1;
+            }
+            goto block_17;
+        }
+        goto block_17;
+    default:
+        func_0046d730(&D_0064EC70, 0x64E);
+        goto block_17;
+    }
+block_17:
+    return 0;
+}
+
 
 /* measured: structure fully recovered (dispatch beq-chain, the 4 identical
    chance chains with the explicit 2.1474836e9f guard, D_0064E700 loop with
@@ -284,22 +335,111 @@ INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00382ba0);
 // FUN_00382EA0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00382ea0);
 
-/* measured: retail emits `sh $v0, 6($s0)` (counter store) before `andi $v0,
-   $v0, 0xffff` (u16 compare mask) with the whole chain in $v0; mwcc b210
-   always canonicalizes the mask at the addiu ahead of the store with a
-   $v1/$v0 split (addiu $v1; andi $v0, $v1; sh $v1) — nd 5. Tried u16 local
-   with cnt++, s32 local with (u16)(cnt + 1) cast / explicit (cnt & 0xFFFF) at
-   the compare; same floor as func_00381830/func_00382ba0. Every other byte of
-   this 800-byte function matched: jump-table dispatch (jtbl_00752C00),
-   old-style no-arg calls to func_00381a70/16e0/81830/82ba0/80ea0 (block-scope
-   `s32 func_003816e0();` declaration needed since the in-TU definition's
-   prototype is visible; a function-pointer cast emits lui/addiu/jalr instead
-   of jal), the var materialize-then-test shape of cases 5/6/8, and the
-   u32-typed arg1 load-first order on the func_00380d80 call. Rule-3
-   typed-alias check: retail has NO dsll32/dsra32 and no quadword read — s128
-   rule not applicable. */
 // FUN_00383720
-INCLUDE_ASM("asm/nonmatchings/btlShuffleResult", func_00383720);
+s32 func_00383720(u8 *arg0) {
+    s32 func_00381a70();
+    s32 func_003816e0();
+    s32 func_00381830();
+    s32 func_00382ba0();
+    s32 func_00380ea0();
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_2_3;
+    u16 temp_2_2;
+    u32 temp_2;
+
+    temp_2 = (u32)*(s32 *)(arg0 + 8);
+    switch (temp_2) {
+    case 0:
+        temp_2_2 = *(u16 *)(arg0 + 6);
+        if ((s32)temp_2_2 < 0xA) {
+            if (((*(u16 *)(arg0 + 6) += 1) & 0xFFFF) == 0xA) {
+                func_0045af60(1, 1, 5, 0xA);
+            }
+        }
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            *(s32 *)(arg0 + 8) = func_00380d80(arg0, *(u16 *)(arg0 + 0x10));
+        }
+        goto block_39;
+    case 1:
+        if (func_00381a70() != 0) return 1;
+        goto block_39;
+    case 2:
+        if (func_003816e0() != 0) return 1;
+        goto block_39;
+    case 3:
+        if (func_00381830() != 0) return 1;
+        goto block_39;
+    case 4:
+        if (func_00382ba0() != 0) return *(s32 *)(arg0 + 0x20);
+        goto block_39;
+    case 5:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            var_2 = 1;
+        } else {
+            var_2 = 0;
+        }
+        if (var_2 != 0) {
+            if (*(u16 *)(arg0 + 4) & 1) {
+                func_0043f9c8(arg0 + 0x18, 0, 0x1C);
+                *(s32 *)(arg0 + 8) = 1;
+                func_002bad10(0xB);
+                goto block_39;
+            }
+            return 1;
+        }
+        goto block_39;
+    case 6:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            var_2_2 = 1;
+        } else {
+            var_2_2 = 0;
+        }
+        if (var_2_2 != 0) {
+            if (*(u16 *)(arg0 + 4) & 1) {
+                func_0043f9c8(arg0 + 0x18, 0, 0x1C);
+                *(s32 *)(arg0 + 8) = 1;
+                func_002bad10(0xB);
+                goto block_39;
+            }
+            return 1;
+        }
+        goto block_39;
+    case 7:
+        if (func_00380ea0() != 0) {
+            if (*(u16 *)(arg0 + 4) & 1) {
+                func_0043f9c8(arg0 + 0x18, 0, 0x1C);
+                *(s32 *)(arg0 + 8) = 1;
+                func_002bad10(0xB);
+                goto block_39;
+            }
+            return 1;
+        }
+        goto block_39;
+    case 8:
+        func_002bb7c0(1);
+        if (func_002bb600() == 0) {
+            func_002bb1e0(1);
+            var_2_3 = 1;
+        } else {
+            var_2_3 = 0;
+        }
+        if (var_2_3 != 0) return 1;
+        goto block_39;
+    default:
+        func_0046d730(&D_0064EC70, 0x72B);
+        goto block_39;
+    }
+block_39:
+    return 0;
+}
+
 // FUN_00383A40
 s32 func_00383a40(u8 *arg0) {
     u8 *temp_16;
