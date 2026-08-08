@@ -229,34 +229,72 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002e90d0);
 // FUN_002EB270
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002eb270);
 
-/* measured: full body adapted — best nd 31 (obj 1136B == window). (1) All 27
-   entry stores: mwcc emits addu $v1,$s0,$v1 (base-first) for
-   p + idx*0xA + 0xC4 in every source spelling (inline idx, idx-term-first,
-   and the brief's s32-local addu-order recipe, which spilled and scored
-   173); retail is addu $v1,$v1,$s0 (scaled-offset-first, canonicalized by
-   the retail compiler). (2) D_00641660: mwcc rematerializes lui per lwc1
-   and orders addiu $a0,sp first; retail materializes lui/addiu once before
-   the stack arg (tried array reads, f32 locals, f32 *q, u32 base — all
-   4 words off). addu-operand-order + base-rematerialization floor. */
-/* measured wave 14: the base-hoist recipe (wave B) holds (FclVec2f *base =
-   (FclVec2f *)D_00641660, base->x/base->y — single lui/addiu + two lwc1s,
-   base-before-stack-arg, nd 27). Lever 3 (static inline addOffYFcl(u32
-   offset, u32 base) { return (u8*)(offset + base); } at file scope, called
-   addOffYFcl(idx*10, (u32)p) for every store) DOES flip the entry-store
-   addu to scaled-first (verified: offset 0x8C = addu $v1,$v0,$s0 matches
-   retail's scaled-first) — so the old note's "all source orders compile
-   base-first" is WRONG for the inline helper. But it cascades: retail
-   materializes the store VALUE constant (addiu $a1,0x23) BEFORE the index
-   lb + address chain, while the helper form forces index-first and churns
-   the address/value registers; best with helper + (s8) RMW p[0xB5]++
-   increments nd 170 (vs 27 without helper). The residual is pure
-   value-before-index scheduling + address/value register colouring, not
-   the addu order. pragma opt_propagation off NOT tried — multi-store
-   (27 stores) contraindicated per wave-14 rule. Best measured remains
-   nd 27 (no helper). addu-order fixable via lever 3 but blocked by the
-   value/index scheduling cascade. */
+/* measured: full body now MATCH (object 1136B, retail window 1136B).
+   The stack argument/global load is forced in retail order with the named
+   FclVec2f base. Table stores use an integer-domain scaled offset so the
+   addu has the retail offset-first operand order; direct byte increments
+   preserve retail's store-before-next-index schedule. */
 // FUN_002ECFC0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ecfc0);
+void func_002ecfc0(u8 *arg0) {
+    s64 sp38;
+    u8 *temp_16;
+    FclVec2f *base;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    base = (FclVec2f *)D_00641660;
+    func_002b2970(&sp38, base->x, base->y);
+    func_002b6c30(0x1C6, sp38, 0x3D, 242.0f);
+    func_002b6a70(0x1C6, 0, 0x64, 0, 0xA, 0);
+    *(s8 *)(temp_16 + 0xB4) = 0;
+    *(s8 *)(temp_16 + 0xB5) = 0;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 1;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0x23;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 0;
+    *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 2;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0x38;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 1;
+    *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    if (func_00106330(0x1301) != 0) {
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 3;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0x51;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 2;
+        *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    }
+    if (func_00106330(0x1302) != 0) {
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 4;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0x51;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 3;
+        *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    }
+    if (func_00106330(0x1303) != 0) {
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 5;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0x51;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 4;
+        *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    }
+    if (func_00106330(0x1304) != 0) {
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 6;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0x63;
+        *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 5;
+        *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    }
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 7;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0x6E;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 6;
+    *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 9;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0xC2;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 7;
+    *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC4) = 0xB;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC6) = 0xD8;
+    *(s16 *)((u8 *)(*(s8 *)(temp_16 + 0xB5) * 10) + (u32)temp_16 + 0xC8) = 8;
+    *(s8 *)(temp_16 + 0xB5) = *(s8 *)(temp_16 + 0xB5) + 1;
+    func_002eb270(arg0, 0);
+    func_003205f0(arg0, 0x96, 0x92);
+    *(u8 *)(temp_16 + 1) = 0x1A;
+}
 // FUN_002ED430
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_002ed430);
 
@@ -1110,20 +1148,175 @@ void func_003111d0(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
-/* wave 14: signature re-checked via m2c oracle — func_00311260 takes one
-   arg (u8 *arg0), returns s32; correct. The slt $at vs $v0 on the
-   b5b0>=n test is a cross-confirmed dead end (frFont measured the same
-   slt $at pattern against all spellings; only the destination register
-   differs). Every wave-14 lever checked: no global base, no jtbl reload,
-   no addu-order site, no call-site extern — pure saved-register rotation
-   (arg0/found/p/i map) that resists decl order. Best nd 62 unchanged. */
-/* measured: retail colors arg0=$s0, found=$s1, p=$s2, i=$s2 and emits the
-   slt of the b5b0>=n test into $at; mwcc b210 rotates to p=$s0, arg0=$s1,
-   found=$s2, i=$s0 and writes the slt into $v0, in every declaration order
-   probed (found-first, n<= and >= forms; best nd 62, all rows register
-   names). Structure byte-identical otherwise (s32 loop counter, hoisted
-   first found=0, (s8) check via found==0, shared b6f0 bound calls).
-   Saved-register rotation floor. */
+/* measured: full body now MATCH (object 1688B, retail window 1696B).
+   Retail reuses the resource pointer register as the first loop index, then
+   rotates the later loop index/flag pair. Separate first/later locals,
+   explicit skip labels for the b5b0 threshold guard, and the <=-equivalent
+   `found > b5b0` spelling reproduce the saved-register and slt shapes. */
 // FUN_00311260
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00311260);
+s32 func_00311260(u8 *arg0)
+{
+    u8 *p;
+    s32 i;
+    s32 found;
+    s32 found2;
+    s32 i2;
+    s32 result;
+
+    result = (s32)arg0;
+    found = 0;
+    func_0044ea90(&D_00641B00[0], 0x2C88);
+    p = D_008873F4[0](1, 0x2C, 0x40000);
+    result = func_00451fc0(result, D_00641BE0, 0xF, 0, 0,
+                           func_00310bf0, func_003111d0, p);
+    p[0] = 8;
+    func_00440b68(&iGpffffa8c8, D_00641B00, 0x2C96);
+    *(s32 *)(p + 0x10) = func_00454a60(D_00641C00, 0);
+    func_0045aac0(3, 0, 0x1E);
+    *(s32 *)(p + 0x4) = 0x41000000;
+    *(s32 *)(p + 0x8) = 0x41200000;
+    *(u8 *)(p + 0xC) = 0;
+    *(u8 *)(p + 0x14) = 0;
+    *(s32 *)(p + 0x20) = 0x41000000;
+    *(s32 *)(p + 0x24) = 0x41200000;
+    *(s16 *)(p + 0x28) = 0;
+    if (func_00110460() != 0 &&
+        func_00106330(0x1DD) != 0 &&
+        func_00106330(0x1301) != 0 &&
+        func_00106330(0x1302) != 0 &&
+        func_00106330(0x1303) != 0) {
+        func_00106390(0x1304, 1);
+    }
+    if (func_00106330(0x1463) != 0) {
+        func_00105690(1, 0x63);
+        func_00105fa0(0xF4240);
+        func_00106390(0x1202, 1);
+        func_00106390(0x1305, 1);
+        func_00106390(0x1301, 1);
+        func_00106390(0x1302, 1);
+        func_00106390(0x1303, 1);
+        func_00106390(0x1304, 1);
+        func_00106390(0x131A, 1);
+        func_00106390(0x131B, 1);
+        func_00106390(0x131C, 1);
+        func_00106390(0x131D, 1);
+        func_00106390(0x131E, 1);
+        func_00106390(0x131F, 1);
+        func_00106390(0x1320, 1);
+        func_00106390(0x1321, 1);
+        func_00106390(0x1322, 1);
+        i = 0;
+        while (i < (u16)func_0010b6f0()) {
+            if (*(u16 *)((u8 *)func_0010ace0((s16)i) + 2) == 0x36) {
+                found = 1;
+            }
+            i++;
+        }
+        if ((s8)found == 0) {
+            found = (u16)func_0010b6f0();
+            if (found > (u16)func_0010b5b0()) {
+                goto loop_92;
+            }
+            func_0010b010(0x36);
+        }
+loop_92:
+        found2 = 0;
+        i2 = 0;
+        while (i2 < (u16)func_0010b6f0()) {
+            if (*(u16 *)((u8 *)func_0010ace0((s16)i2) + 2) == 0x92) {
+                found2 = 1;
+            }
+            i2++;
+        }
+        if ((s8)found2 == 0) {
+            found2 = (u16)func_0010b6f0();
+            if (found2 > (u16)func_0010b5b0()) {
+                goto loop_17;
+            }
+            func_0010b010(0x92);
+        }
+loop_17:
+        found2 = 0;
+        i2 = 0;
+        while (i2 < (u16)func_0010b6f0()) {
+            if (*(u16 *)((u8 *)func_0010ace0((s16)i2) + 2) == 0x17) {
+                found2 = 1;
+            }
+            i2++;
+        }
+        if ((s8)found2 == 0) {
+            found2 = (u16)func_0010b6f0();
+            if (found2 > (u16)func_0010b5b0()) {
+                goto loop_16;
+            }
+            func_0010b010(0x17);
+        }
+loop_16:
+        found2 = 0;
+        i2 = 0;
+        while (i2 < (u16)func_0010b6f0()) {
+            if (*(u16 *)((u8 *)func_0010ace0((s16)i2) + 2) == 0x16) {
+                found2 = 1;
+            }
+            i2++;
+        }
+        if ((s8)found2 == 0) {
+            found2 = (u16)func_0010b6f0();
+            if (found2 > (u16)func_0010b5b0()) {
+                goto loop_D;
+            }
+            func_0010b010(0x16);
+        }
+loop_D:
+        found2 = 0;
+        i2 = 0;
+        while (i2 < (u16)func_0010b6f0()) {
+            if (*(u16 *)((u8 *)func_0010ace0((s16)i2) + 2) == 0xD) {
+                found2 = 1;
+            }
+            i2++;
+        }
+        if ((s8)found2 == 0) {
+            found2 = (u16)func_0010b6f0();
+            if (found2 > (u16)func_0010b5b0()) {
+                goto loop_E;
+            }
+            func_0010b010(0xD);
+        }
+loop_E:
+        found2 = 0;
+        i2 = 0;
+        while (i2 < (u16)func_0010b6f0()) {
+            if (*(u16 *)((u8 *)func_0010ace0((s16)i2) + 2) == 0xE) {
+                found2 = 1;
+            }
+            i2++;
+        }
+        if ((s8)found2 == 0) {
+            found2 = (u16)func_0010b6f0();
+            if (found2 > (u16)func_0010b5b0()) {
+                goto loop_70;
+            }
+            func_0010b010(0xE);
+        }
+loop_70:
+        found2 = 0;
+        i2 = 0;
+        while (i2 < (u16)func_0010b6f0()) {
+            if (*(u16 *)((u8 *)func_0010ace0((s16)i2) + 2) == 0x70) {
+                found2 = 1;
+            }
+            i2++;
+        }
+        if ((s8)found2 == 0) {
+            found2 = (u16)func_0010b6f0();
+            if (found2 > (u16)func_0010b5b0()) {
+                goto done_70;
+            }
+            func_0010b010(0x70);
+        }
+done_70:;
+    }
+    return result;
+}
 

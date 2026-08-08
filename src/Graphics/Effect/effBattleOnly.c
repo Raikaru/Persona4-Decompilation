@@ -77,29 +77,21 @@ u8 *func_004b50f0(s32 id, s32 arg1)
 
 
 
-// FUN_004B5200 NONMATCHING
-/* measured floor: nd 7/320 (3 words), and now characterised exactly. Retail spends
- * FOUR instructions on the setup-member address: lw base / addiu base,4 / addu
- * base,off / lw 0(base). b210 has only two shapes and neither is that one. Compute
- * the constant with the index first (the form kept below) and it emits addiu off,4 /
- * lw base / addu - the right instruction COUNT with the two operands transposed,
- * nd 7 at 316B. Force the base load first by ANY spelling - ((u8 *)base + 4) + off,
- * &D_00764C90->setup + off, a u8* or a typed function-pointer local holding base+4,
- * or plain D_00764C90[i].setup - and it folds the 4 into the load displacement as
- * lw 4(base), which is 312B, one instruction SHORT. That shortfall shifts every
- * later word and reads as nd 105, so the apparent cliff is an alignment cascade,
- * not 105 defects. Keeping the +4 out of the displacement while adding it before
- * the index is not expressible in C here - measured across 11 spellings.
- * Committed at nd 7. */
-#ifdef NON_MATCHING
+/* Measured closure: compute the table offset first, then load D_00764C90 into
+ * named base, add 4 and the offset for setup, and reload base before adding the
+ * offset for post. This preserves retail's lw/addiu/addu address sequence.
+ * Object 316B/window 320B; scoped verify normalized_diff 0. */
+// FUN_004B5200
 u8 *func_004b5200(u8 *arg0)
 {
     u8 *tex;
     s32 value;
     s32 param;
+    s32 off;
     u16 id16;
     u16 id;
     u8 *work;
+    u8 *base;
 
     tex = func_00484490(arg0);
     if (tex == NULL) {
@@ -111,15 +103,22 @@ u8 *func_004b5200(u8 *arg0)
     id = *(u16 *)(arg0 + 0xC);
     work = func_004b50f0(id, (s32)tex);
     if ((*D_00764C94)() != 0) {
-        s32 off = (id & 0xFFFF) * 0x1C;
-        s32 (*setup)(void *, u16, s32, s32) =
-            *(s32 (**)(void *, u16, s32, s32))((u8 *)D_00764C90 + (4 + off));
-        if (setup != NULL) {
-            *(s32 *)(work + 0x30) = setup(tex, id16, value, param);
+        off = (id & 0xFFFF) * 0x1C;
+        base = (u8 *)D_00764C90;
+        base += 4;
+        base += off;
+        {
+            s32 (*setup)(void *, u16, s32, s32) =
+                *(s32 (**)(void *, u16, s32, s32))base;
+            if (setup != NULL) {
+                *(s32 *)(work + 0x30) = setup(tex, id16, value, param);
+            }
         }
+        base = (u8 *)D_00764C90;
+        base += off;
         {
             void (*post)(void *) =
-                *(void (**)(void *))((u8 *)D_00764C90 + off);
+                *(void (**)(void *))base;
             if (post != NULL) {
                 post(work);
             }
@@ -130,6 +129,3 @@ u8 *func_004b5200(u8 *arg0)
     }
     return work;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effBattleOnly", func_004b5200);
-#endif

@@ -664,6 +664,10 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
 // FUN_002E6630
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6630);
 
+
+
+
+
 // FUN_002E68B0
 /* measured: without `opt_loop_invariants on` MWCC keeps the loop2 switch
    jump-table base (lui/addiu) inside the dispatch instead of hoisting it
@@ -745,18 +749,85 @@ void func_002e68b0(s8 arg0) {
    matter the spelling — tried #pragma schedule on (89), opt_common_subs off
    (13), e-split (24), decl orders (24). 4 instruction words + 2 pool-number
    relocs. Load-order scheduling floor, nd 6. */
-/* qsort-style comparator candidate archived at
-   build/WBYList_y_list_6b20_candidate.c. The best measured candidate had
-   normalized_diff 45 with object 364B/window 368B. Exact fndiff differing
-   offsets (bytes): 4,16,20,84,120,156,168,212,220,224,228,232,248,256,260,
-   264,268,284,292,296,300,308,312,316,320,336,344,348,352,356. Retail's
-   356B body layout was otherwise recovered, but saved-register coloring
-   remains different; index-load swaps, declaring indices last, comparison
-   casts, s32 indices, inlining the second load, and loading the base first
-   were ruled out. Bare INCLUDE_ASM is retained because nd45 exceeds the
-   nd<=25 park threshold. */
-// FUN_002E6B20
+/* measured: the comparator body is structurally recovered at object 368B/window
+   368B and nd 13. The remaining residual is the retail initial load schedule
+   (arg1 loads before the global base) plus final value register coloring; the
+   CSE-off spelling preserves the retail jump-table and record-address shapes.
+   The body and all source probes are archived at
+   build/WBYList_y_list_6b20_candidate.c and
+   build/WCDeepYList_y_list_nd13_6b20.c. Committed at nd 13. */
+// FUN_002E6B20 NONMATCHING
+/* measured: opt_common_subs off is required for the recovered jump-table
+   reloads and must be closed after the guarded body. */
+#pragma opt_common_subs off
+#ifdef NON_MATCHING
+s32 func_002e6b20(s16 *arg0, s16 *arg1) {
+    s16 ia;
+    s16 ib;
+    u8 *base;
+    u8 *pa;
+    u8 *pb;
+    u16 vb;
+    u16 va;
+
+    ia = *arg0;
+    base = *(u8 **)(D_00882F70[0] + 0x38);
+    ib = *arg1;
+    switch ((u32)*(s32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        pa = base + ia * 0x30 + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        pa = base + ia * 0x30 + 0xA4;
+        break;
+    case 3:
+    case 4:
+    case 9:
+    default:
+        pa = base + ia * 0x30 + 0x14;
+        break;
+    }
+    va = *(u8 *)(pa + 4);
+    switch ((u32)*(s32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        pb = base + ib * 0x30 + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        pb = base + ib * 0x30 + 0xA4;
+        break;
+    case 3:
+    case 4:
+    case 9:
+    default:
+        pb = base + ib * 0x30 + 0x14;
+        break;
+    }
+    vb = *(u8 *)(pb + 4);
+    if (vb < (va & 0xFFFF)) {
+        return 1;
+    }
+    return -((va & 0xFFFF) < vb);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
+#endif
+/* measured: close opt_common_subs after the NON_MATCHING arm so it cannot leak. */
+#pragma opt_common_subs on
+
+
+
 /* func_002e6c90 was closed by porting the MATCHED sibling func_002e68b0: same
    declaration order, same p2 re-index spelling
    `(u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)arg0 * 4)`, same loop2/loop3

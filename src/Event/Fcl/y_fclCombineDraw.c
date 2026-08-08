@@ -275,16 +275,29 @@ void func_003146c0(u8 *arg0) {
     func_0011b9e0(*(u8 **)(*(u8 **)(arg0 + 0x38) + 4));
 }
 
-/* measured: final state remains bare. Lowest measured candidate with the
-   original all-s32 0011b480 declaration was nd 18, object 60/window 80;
-   the canonical pointer prototype (u8 *, s32, u32, s32) produced nd 28,
-   object 68/window 80. Both are materially undersized or above the nd 25
-   park threshold. Retail copies arg2 into $v1 early, stores through $v0,
-   and sign-extends $v1 into $a3 immediately before func_0011b480; MWCC
-   reverses that materialization and reuses the object register. Exact
-   residuals, probes, and ruled-outs: build/W8FclCombineDraw_003146f0_body.c.txt. */
-// FUN_003146F0
+/* Historical measurements before parking: the original all-s32 0011b480
+   declaration scored nd 18, object 60/window 80; the canonical pointer
+   prototype (u8 *, s32, u32, s32) scored nd 28, object 68/window 80.
+   Retail copies arg2 into $v1 early, stores through $v0, and sign-extends
+   $v1 into $a3 immediately before func_0011b480; MWCC reverses that
+   materialization and reuses the object register. Exact residuals, probes,
+   and ruled-outs remain archived in build/W8FclCombineDraw_003146f0_body.c.txt. */
+/* measured: Retail frame 0x10, no saved registers, 68-byte C object in an 80-byte window. Canonical func_0011b480(u8 *,s32,u32,s32) body is the lowest valid prototype candidate at nd 23 (all-s32 helper probe nd 18 was rejected because the promoted/shdPersona canonical declaration is required). Candidate residuals are the early u8 andi and shifted fourth argument versus retail's raw move $v1 plus late dsll32/dsra32; exact source-order and width/prototype probes were run and no nd <= 0 body was found. Parked at the nd-23 threshold; body archived at build/WCFclCombineDraw_003146f0_u8_body.c.txt. Committed at nd 23. */
+// FUN_003146F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003146f0(u8 *arg0, s32 arg1, s32 arg2) {
+    u8 v1;
+    u8 *p;
+
+    v1 = (u8)arg2;
+    p = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(p + 8) = arg1;
+    *(s8 *)(p + 0xC) = v1;
+    func_0011b480(*(u8 **)(p + 4), 0, *(s32 *)(p + 8), (s8)v1);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
+#endif
 
 
 

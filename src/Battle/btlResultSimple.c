@@ -138,6 +138,13 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ef70);
    wrong saved registers and recomputes that address after the call. The
    direct, slot-pointer, reload, and add-base spellings all stayed at nd 254+
    or nd 275. Register-colouring/pre-call-hoist floor; leave the marker bare. */
+/* measured 2026-08-08: raw u8* alias body reached object 472B / window
+   480B but normalized_diff 57, so the body is discarded rather than parked.
+   Exact residual fndiff offsets are 40, 44, 52, 60, 64, 68, 72, 76, 84, 88,
+   92, 100, 104, 108, 112, 116, 120, 124, 156, 160, 164, 168, 324; first
+   differing row is offset 40 (`lw $s2,0x4bc($s1)` vs retail
+   `lw $a0,0x4bc($s1)`). The discarded body is archived in
+   build/WCBattleUI_btlResultSimple_prepark_validate.c. */
 // FUN_0021F340
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f340);
 

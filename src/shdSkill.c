@@ -346,7 +346,11 @@ void func_00115760(u8 *arg0) {
    (retail branches to the pre-jump, b210 threads directly to loop_test);
    nd 1, object 220B/224B. Tried explicit pre-jumps, both-path gotos,
    if/else, do/while, while, switch, result-local and hidden-return forms,
-   plus opt_branch_folding off; all stayed nd 1 or grew. Committed at nd 1. */
+   plus opt_branch_folding off; all stayed nd 1 or grew. The comparison
+   spellings `i < count`/`i <= count - 1` scored nd 142 and
+   `i < count - 1`/`i <= count - 2` scored nd 7. A plain `goto done;`
+   shared exit with empty, self-assignment, and both-path tails stayed nd 1.
+   The base body remains the lowest park. Committed at nd 1. */
 // FUN_00115670 NONMATCHING
 #ifdef NON_MATCHING
 void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {

@@ -548,12 +548,52 @@ done_value:
     return value;
 }
 
-/* measured probe archived in build/W9DatCalcMisc_datCalc_32c70_bgtz.c:
-   object 260/272, normalized_diff 32. The bgtz/clamp tail was the best
-   measured source shape but exceeded the nd 25 park limit; the bare ASM
-   fallback is therefore retained. */
-// FUN_00232C70
+/* measured: plain-C tail reconstruction is 260B against the 272B retail window;
+   normalized_diff 4. Remaining rows are the two daddiu immediates and the
+   compare result's $at versus $v1 destination. Committed at nd 4. */
+// FUN_00232C70 NONMATCHING
+#ifdef NON_MATCHING
+u32 func_00232c70(u8 *arg0, s32 arg1)
+{
+    u32 v;
+    s32 temp_3;
+    u32 flag;
+
+    if (((s32)(arg1 & 0xFFFF) < 0) || ((arg1 & 0xFFFF) >= 5)) {
+        func_0046d730(D_00635938, 0x313);
+    }
+    if ((*(u16 *)arg0 & 4) != 0) {
+        v = func_00232b40(arg0, arg1);
+        v &= 0xFF;
+    } else {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0x31A);
+        }
+        v = func_00109bf0(*(u16 *)(arg0 + 2), arg1);
+        v &= 0xFF;
+    }
+    flag = (*(s32 *)(arg0 + 0xC) & 0x80) != 0;
+    if (flag != 0) {
+        v >>= 1;
+        v &= 0xFF;
+    }
+    temp_3 = v & 0xFF;
+    if (temp_3 > 0) {
+        goto clamp_value;
+    }
+    v = 1;
+    goto done_value;
+clamp_value:
+    if (temp_3 < 0x64) {
+        goto done_value;
+    }
+    v = 0x63;
+done_value:
+    return v;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
+#endif
 
 /* measured: recipe-A-family re-test 2026-08-03. The u16-table shape now
    matches retail byte-for-byte outside the loop preheader (u16 loads, the
@@ -1149,13 +1189,10 @@ void func_00235020(u8 *arg0)
 // FUN_00235110
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235110);
 
-/* measured: retail emits the full s8 ext/sll/ext dance for `var_17 = (s8)(var_17*2)`
-   (var_17 init 3) but mwcc b210 constant-folds it to `addiu 6` via SSA const-prop
-   (the s8->s32 conversion only materializes when the value is live across the
-   loop, e.g. the ext17 hoist). Tried literal/variable forms, s8/u16/s32
-   typings, and v17-temp materialization; all fold. Rest of the function
-   (u16 temp_18 vs cross-call mask CSE, merge-point (s8) casts, sltu
-   booleanize) now matches; nd 92 from the fold ripple. */
+/* measured: plain-C 35320 reconstruction archived at
+   build/WCDatCalc_00235320_best_probe.c; its object was 508B against the
+   512B retail window but remained a MISMATCH, so the guarded experiment was
+   removed and the byte-exact ASM fallback restored. */
 // FUN_00235320
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235320);
 // FUN_00235520

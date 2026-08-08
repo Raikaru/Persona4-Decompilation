@@ -63,7 +63,28 @@ void func_0036df90(u8 *arg0, s32 arg1);
 void func_0036e000(u8 *arg0);
 
 // FUN_0036D990
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCard", func_0036d990);
+void func_0036d990(u8 *arg0, u8 *arg1)
+{
+    u16 value1;
+    u16 value2;
+    switch (*(s32 *)arg1) {
+    case 0:
+        func_0036da40(arg0, *(u16 *)(arg1 + 4));
+        break;
+    case 1:
+        func_0036daa0(arg0, (value2 = *(u16 *)(arg1 + 6), value1 = *(u16 *)(arg1 + 4), value1), value2);
+        break;
+    case 2:
+        func_0036db20(arg0);
+        break;
+    case 3:
+        func_0036db60(arg0);
+        break;
+    default:
+        func_0046d730(D_0064E5B0, 0x72);
+        break;
+    }
+}
 // FUN_0036DA40
 void func_0036da40(u8 *arg0, s32 arg1)
 {

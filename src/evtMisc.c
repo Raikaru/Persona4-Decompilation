@@ -225,10 +225,11 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
    tools/knob_sweep.py - zero matches and zero improvements. Confirmed genuinely
    Metrowerks and not a mixed-toolchain case: on decomp.me this function scores 120
    under mwcps2-3.0.1b210 against 830-1030 under every ee-gcc. Real coalescing floor.
-   The body below is now PRESERVED so the next attempt starts from nd 1.
+   The new comparison-spelling attempt used `(u32)h > 0U` and `if (h)` in
+   place of `if (h != 0)`; both stayed nd 1, so the coalescing residual did
+   not move. The body below is PRESERVED at the lowest nd.
    Committed at nd 1. */
 // FUN_0028F4F0 NONMATCHING
-#ifdef NON_MATCHING
 void func_0028f4f0(void) {
     s32 h;
 
@@ -237,9 +238,6 @@ void func_0028f4f0(void) {
         func_00452080(h);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028f4f0);
-#endif
 
 // FUN_0028F530
 void func_0028f530(void) {

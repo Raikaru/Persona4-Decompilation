@@ -174,6 +174,9 @@ s32 func_00312bc0(s8 arg0) {
    window with normalized_diff 924. Retail keeps a 0xA0 frame and maps the
    input/table locals to $s3/$fp/$s0/$s6; the straightforward typed loops
    grew a 0xB0 frame and rotated those saved registers. Probe discarded. */
+/* Named compiler floor: the typed loop's saved-register/frame allocation grows
+   and rotates under b210; keep this body as ASM rather than inflating C with
+   artificial locals or pragmas. */
 // FUN_00312C60
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312c60);
 

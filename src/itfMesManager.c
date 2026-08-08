@@ -1238,28 +1238,13 @@ check:
 
 
 
-/* measured: retail keeps arg0 in $t3 across the jal to func_00278c60 with a
-   -0x10 frame (lbu reads via $a0, post-call sb via $t3); mwcc b210 -O2 always
-   allocates $s0 for the live-across-call pointer and grows the frame to -0x20
-   (sq $s0). Tried: direct arg0 access, u8 *p local at function scope and inside
-   the branch, flag preloaded into a local, fields preloaded into s32 locals,
-   K&R-style definition, -O1 — all emit the $s0/-0x20 shape, identical nd 19
-   (obj 84B vs window 80B). Register-allocation floor, not source-drivable.
-   wave14 lever-1 sweep: M2C oracle (code1_0027.c) + retail both confirm the
-   signature is `void func(u8*)` returning nothing, and the func_00278c60
-   call is 4 args (int*, int, u8*, int) - the $t3-vs-$s0 live-across-call
-   choice is pure allocator (retail keeps arg0 in the caller-saved $t3, frame
-   -0x10; b210 always saves it to $s0, frame -0x20). Re-probed nd 19. */
-/* A body is preserved below at nd 58 so this is resumable at all. The note above
-   records nd 19 from an earlier attempt whose source was never kept, and this
-   reconstruction from the retail listing does not reach it - a concrete case of why a
-   floor note without its body cannot be resumed. #pragma schedule on and
-   optimization_level 3 each take it 58 -> 44; neither matches, so neither is committed.
-   The residual is still the $t3-vs-$s0 live-across-call choice described above.
-   Re-probed with the full park_probe wrapper battery: schedule on plus
-   opt_common_subs off together take it 58 -> 43, the best of thirteen
-   wrappers, and that pair is what is committed. Committed at nd 43. */
-// Archived C body: build/WBHygiene_func_00278d50_archive.txt; no current park body remains.
+/* measured: the candidate body was not retainable. verify normalized_diff 58
+   (tools/fndiff.py differing-word count 19), object 84B versus retail window
+   80B. Retail keeps arg0 in caller-saved $t3 with frame -0x10; b210 spills
+   arg0 into $s0 across func_00278c60 and emits frame -0x20. This is an
+   oversized register-allocation residual, not a valid park. The verbatim body,
+   full residual rows and both figures are archived at
+   build/WCEvtItf_func_00278d50_body.c. */
 // FUN_00278D50
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
 // FUN_00278DA0

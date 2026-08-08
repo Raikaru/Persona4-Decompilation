@@ -842,7 +842,11 @@ void func_003f32d0();
 /* measured: explicit out-of-line labels, schedule on, no_branch_likely on,
    and two-argument signature reproduce the complete 112-byte body except
    retail hoists `lw $v1,($a1)` before saving $ra while b210 saves $ra first.
-   Prologue scheduling residual is nd 4, obj 104B/window 112B. Committed at nd 4. */
+   Prologue scheduling residual is nd 4, obj 104B/window 112B. Moving the
+   first pointer use into a nested load, assignment expression, direct
+   expression, or positive-branch form did not alter nd 4; the comparison
+   `<= 0` versus `< 1` also stayed nd 4. The base body remains the lowest
+   park. Committed at nd 4. */
 // FUN_003CC250 NONMATCHING
 #ifdef NON_MATCHING
 extern void (*D_00887300[])(u32, u32);
@@ -872,10 +876,6 @@ call:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
 #endif
-
-/* measured: switch/if-chain probes bottomed out at nd 74, object 108B versus
-   the 96B window; no C body was retained, so the bare INCLUDE_ASM fallback
-   remains. */
 // FUN_003CC500
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 

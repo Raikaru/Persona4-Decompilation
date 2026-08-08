@@ -1,0 +1,15 @@
+-xc
+-std=gnu89
+--target=mipsel-none-elf
+-ffreestanding
+-nostdinc
+-fno-builtin
+-ferror-limit=0
+-Wimplicit-function-declaration
+-Wimplicit-int
+-Wincompatible-pointer-types
+-DINCLUDE_ASM(FOLDER,NAME)=
+-DINCLUDE_RODATA(FOLDER,NAME)=
+-I.
+-Iinclude
+-Isrc

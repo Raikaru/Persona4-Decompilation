@@ -25,7 +25,7 @@ extern s32 func_001070e0(s32 idx);
 extern s32 func_00110580(s32 a);
 extern s32 func_00110680(s32 a, s32 b, s32 c);
 extern s32 func_001106f0(s32 a, s32 b, s32 c, s32 d, s32 e);
-extern s32 func_00107240(s32 idx);
+extern s32 func_00107240(s64 idx);
 extern s32 func_00107ac0(s32 idx);
 extern s32 func_001093a0(s32 idx);
 extern s8 func_00248760(s32 idx);
@@ -575,18 +575,15 @@ s32 func_00247c20(s16 arg0) {
    b210 emits addiu for the variable and CSEs the constant into a move (nd 16)
    in every spelling tried (s32/s16/s64/u32 vars, L-suffix constants, arg-from-
    var). 64-bit-constant-load floor. */
-/* nd 4/288 (object 284B in a 288B window), improved from nd 8 by declaring
-   func_001077f0's parameter as u16. That declaration is required by the
-   matching 00247270 family body and also changes this function's final-call
-   setup: off 236 now emits retail's `move $a0,$s0` instead of the previous
-   `andi $a0,$s0,0xffff`. The sole remaining row is off 260, where the bare
-   `return var_16` still emits `andi $v0,$s0,0xffff` versus retail's
-   `move $v0,$s0`. Return-type sweep (s32/u32/s64/u64), promotion spellings,
-   and plain-s32 shadow/return candidates all stayed nd 4; widening var_16
-   restores daddiu constant loads but regresses to nd 27. Committed at nd 4. */
-// FUN_00247CB0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00247cb0(s64 arg0) {
+/* nd 0/288 (object 284B in a 288B window). The existing u16 local and
+   matching u16 parameter declaration for func_001077f0 reproduce every
+   instruction; changing this function's return type from s32 to u16 removes
+   the redundant `andi $v0,$s0,0xffff` at the epilogue, leaving retail's
+   `move $v0,$s0`. Guard spelling probes (`n >= 4` versus `n > 3`) were
+   measured separately on func_00249670; the base spelling was retained.
+   Committed at nd 0. */
+// FUN_00247CB0
+u16 func_00247cb0(s64 arg0) {
     u16 var_16;
     s64 temp_2;
 
@@ -632,9 +629,6 @@ s32 func_00247cb0(s64 arg0) {
     }
     return var_16;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247cb0);
-#endif
 /* measured (wave 14 retest): mask-CSE reconfirmed — my fresh reconstruction
    of the loop (mask = arg0&0xFFFF; for i in 0..0x1E, base = D_00881480[0];
    per-iteration checks, *100 ladder, func_002489c0(i&0xFFFF) with the
@@ -1084,16 +1078,36 @@ s32 func_00248d00(s32 arg0, s32 arg1, s32 arg2) {
 }
 #pragma opt_loop_invariants off
 
-/* measured: rule-3 check: retail's two dsll32/dsra32 pairs are (s16)
-   sign-extensions of 32-bit values (arg0 and the func_00107240 result), not
-   quadword-narrowing casts - no lq data load exists, so the typed-alias
-   read does not apply. Retail sign-extends (s16)arg0 into $s0 between the
-   two calls (3 saved regs, -0x40 frame); mwcc b210 sinks the dsll32/dsra32
-   cast to its use after the second call into a temp (2 saved regs, -0x30
-   frame, nd 37) in every spelling tried (inline cast, s16 locals at top,
-   se-first declaration order). Load/cast-sinking floor. */
+/* measured: widening the declaration of func_00107240 to s64 is correct:
+   the callee truncates internally without sign-extending on entry. This lets
+   the caller pass the already-masked key in $s1, reproducing the retail move
+   and the complete -0x40 frame/s0-s2 prologue. With propagation disabled,
+   this body is MATCH at nd 0 (object 148B/window 160B). */
 // FUN_00248D80
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00248d80);
+/* measured: opt_propagation off preserves retail's raw/key lifetimes. */
+#pragma opt_propagation off
+s64 func_00248d80(s64 arg0)
+{
+    s64 raw;
+    s64 key;
+    s64 raw_low;
+
+    raw = arg0;
+    key = raw & 0xFFFF;
+    if (func_001077f0(key) == 0) {
+        raw_low = (s16)raw;
+        key = (s16)func_00107240(key);
+        if ((raw_low != key) && (func_001077f0((u16)key) != 0)) {
+            return key;
+        }
+    }
+    return raw;
+}
+/* measured: close the scoped propagation probe explicitly. */
+#pragma opt_propagation on
+
+
+
 // FUN_00248E20
 s32 func_00248e20(s32 arg0, s32 arg1, s32 arg2) {
     s32 temp_16;
@@ -1352,6 +1366,7 @@ static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta;
 /* measured: parked body committed at nd 4. */
 // FUN_00249670 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: opt_propagation off is required for the parked nd4 body. */
 #pragma opt_propagation off
 s32 func_00249670(s32 arg0, s32 arg1)
 {
@@ -1378,6 +1393,7 @@ s32 func_00249670(s32 arg0, s32 arg1)
     func_00106550(0x57, n);
     return n;
 }
+/* measured: closes the opt_propagation scope at the file baseline. */
 #pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249670);

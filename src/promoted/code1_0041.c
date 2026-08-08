@@ -127,11 +127,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
 /* measured: object/window 16/16; candidate loads the +0x40 base and tests
    its +4 u32 field for zero. Exact residual: off 0 candidate
    lw $v0,0x40($a0) versus retail lw $v1,0x40($a0); off 4 candidate
-   lw $v0,4($v0) versus retail lw $v0,4($v1) (2 words, nd 2). Ruled out
-   direct/local/full-inline chains, pointer/scalar/struct views, register
-   qualifiers, declaration and assignment orders, pointer advance, result
-   locals and initializers, live-value identities, and schedule/optimization
-   pragma variants. Retail's first-load destination remains unresponsive.
+   lw $v0,4($v0) versus retail lw $v0,4($v1) (2 words, nd 2). Enumerated
+   direct/local/pointer-temporary/value-capture spellings and comparison
+   forms: `< 1` retained nd 2, while `<= 0`, `== 0`, and `!value` scored
+   nd 13. The comparison lever and whole-function spelling enumeration did
+   not move the first-load destination; the base remains the lowest park.
    Committed at nd 2. */
 // FUN_0041F2A8 NONMATCHING
 #ifdef NON_MATCHING
@@ -303,10 +303,10 @@ void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
    lw $v0,0x40($a0) versus retail lw $a0,0x40($a0); off 16 candidate
    addiu $a0,$v0,0x68 versus retail addiu $a0,$a0,0x68; differing words 3
    including the relocation-masked jal, with the object 4 bytes short of the
-   retail trailing nop (nd 2). Ruled out callee prototypes, argument reuse,
-   parameter reassignment, pointer locals/shadows, inline/grouped/casted
-   expressions, scalar and pointer types, register qualifiers, declaration
-   order, and optimization/schedule pragma variants. Committed at nd 2. */
+   retail trailing nop (nd 2). Enumerated direct, parameter-reassignment,
+   local-pointer, explicit-cast, and argument-expression spellings; every
+   legal form remained nd 2, and this body has no range guard for the
+   comparison lever. The base remains the lowest park. Committed at nd 2. */
 // FUN_0041F788 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: inline argument-expression probe; schedule on retained the
@@ -329,10 +329,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f788);
    lw $v0,0x40($a0) versus retail lw $a0,0x40($a0); off 16 candidate
    addiu $a0,$v0,0x68 versus retail addiu $a0,$a0,0x68; differing words 3
    including the relocation-masked jal, with the object 4 bytes short of the
-   retail trailing nop (nd 2). Ruled out callee prototypes, argument reuse,
-   parameter reassignment, pointer locals/shadows, inline/grouped/casted
-   expressions, scalar and pointer types, register qualifiers, declaration
-   order, and optimization/schedule pragma variants. Committed at nd 2. */
+   retail trailing nop (nd 2). Enumerated direct, parameter-reassignment,
+   local-pointer, explicit-cast, and argument-expression spellings; every
+   legal form remained nd 2, and this body has no range guard for the
+   comparison lever. The base remains the lowest park. Committed at nd 2. */
 // FUN_0041F7B0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */
