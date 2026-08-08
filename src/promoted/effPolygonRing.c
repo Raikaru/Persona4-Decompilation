@@ -48,6 +48,7 @@ extern u_long128 D_00713CE0[];
 extern s32 D_00713F24[];
 extern u32 D_00713F14[];
 extern u32 D_00713F10[];
+extern void func_0049a6c0(void *arg0);
 
 
 
@@ -300,8 +301,105 @@ INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499730);
    (nd 9). The 0x30 sw copy, both colour-chain asm blocks, the s128-copy
    lui/pool allocation and the tail all reproduce exactly. Lead: untested
    s128 spelling for the copies. scheduler-reorder floor family. */
-// FUN_00499A30
+/* measured: VU0 colour conversion and all control flow, aggregate copies, and calls reproduce retail. The residual is the final 16-byte copy load order; b210 emits lq before lw
+   while retail emits lw before lq. The 6 first recorded here came from a
+   probe run; verify.py measures the body actually left in the file at 7.
+   Parked near-match. Committed at nd 7. */
+// FUN_00499A30 NONMATCHING
+#ifdef NON_MATCHING
+void func_00499a30(u8 *arg0)
+{
+    u8 *temp_16;
+    u8 *temp_18;
+    u8 *temp_17;
+    u8 colourStack[16];
+    s32 temp_3;
+    u8 *dest;
+    u8 *cs8;
+    u_long128 *dstq;
+
+    temp_16 = *(u8 **)(arg0 + 0x3C);
+    temp_18 = *(u8 **)(arg0 + 0x40);
+    temp_17 = *(u8 **)(temp_16 + 8);
+    if ((*(u32 *)(temp_18 + 0x34) >= *(u32 *)(arg0 + 0x34)) ||
+        (*(u32 *)(temp_18 + 0x34) == 0)) {
+        temp_3 = func_0048abd0(temp_18, temp_18 + 0x24,
+                               *(u32 *)(arg0 + 0x34),
+                               *(u32 *)(temp_18 + 0x34));
+        *(u32 *)&colourStack[8] = *(u32 *)(arg0 + 0x30);
+        cs8 = &colourStack[8];
+        __asm__ volatile(
+            ".set noreorder              \n"
+            "lwc1 $f0, -0x7FBC($28)       \n"
+            "lw $2, 0(%0)                 \n"
+            "pextlb $2, $0, $2            \n"
+            "pextlh $2, $0, $2            \n"
+            "qmtc2.ni $2, $vf10           \n"
+            "vitof0.xyzw $vf10, $vf10     \n"
+            "mfc1 $2, $f0                 \n"
+            "nop                         \n"
+            "qmtc2.ni $2, $vf2            \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10      \n"
+            "sw %1, 0x54($sp)             \n"
+            "addiu $2, $sp, 0x54          \n"
+            "lw $2, 0($2)                 \n"
+            "pextlb $2, $0, $2            \n"
+            "pextlh $2, $0, $2            \n"
+            "qmtc2.ni $2, $vf10           \n"
+            "vitof0.xyzw $vf10, $vf10     \n"
+            "mfc1 $3, $f0                 \n"
+            "nop                         \n"
+            "qmtc2.ni $3, $vf2            \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $3, 0x437F               \n"
+            "qmtc2.ni $3, $vf2            \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10    \n"
+            "qmfc2.ni $3, $vf10           \n"
+            "ppach $3, $0, $3             \n"
+            "ppacb $3, $0, $3             \n"
+            "sw $3, 0x50($sp)             \n"
+            ".set reorder                \n"
+            :
+            : "r"(cs8), "r"(temp_3)
+            : "$2", "$3", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+        *(u32 *)&colourStack[12] = *(u32 *)&colourStack[0];
+        if (colourStack[15] != 0xFF) {
+            dest = *(u8 **)(temp_17 + 0x14);
+            *(LineNovaColor *)(dest + 4) =
+                *(LineNovaColor *)&colourStack[12];
+        } else {
+            colourStack[15] = 0xFE;
+            dest = *(u8 **)(temp_17 + 0x14);
+            *(LineNovaColor *)(dest + 4) =
+                *(LineNovaColor *)&colourStack[12];
+            colourStack[15] = 0xFF;
+        }
+        if (*(u8 *)(*(u8 **)(temp_17 + 0x14) + 7) != 0) {
+            *(s32 *)(*(u8 **)(temp_16 + 4) + 0x30) =
+                *(s32 *)(arg0 + 0x30);
+            dstq = (u_long128 *)(*(u8 **)(temp_16 + 4) + 0x20);
+            *dstq = *(u_long128 *)(arg0 + 0x20);
+            dstq = (u_long128 *)(*(u8 **)(temp_16 + 4) + 0x0);
+            *dstq = *(u_long128 *)(arg0 + 0x0);
+            dstq = (u_long128 *)(*(u8 **)(temp_16 + 4) + 0x10);
+            *dstq = *(u_long128 *)(arg0 + 0x10);
+            func_0049a6c0(*(void **)(temp_16 + 4));
+            func_004836b0(temp_17, arg0, arg0 + 0x10, arg0 + 0x20);
+            if (*(u8 *)(temp_18 + 0x3C) != 0) {
+                *(u16 *)temp_17 = *(u16 *)temp_17 | 1;
+            } else {
+                *(u16 *)temp_17 = *(u16 *)temp_17 & 0xFFFE;
+            }
+            func_00483490((s32)temp_17, *(u16 *)(temp_18 + 0x28));
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499a30);
+#endif
 
 // FUN_00499C50
 void func_00499c50(u8 *arg0) {
@@ -470,7 +568,6 @@ void func_0049a1a0(u8 *param_1)
 }
 // FUN_0049A370
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_0049a370);
-
 // FUN_0049A4E0
 u8 *func_0049a4e0(u8 *arg0) {
     u8 *p;

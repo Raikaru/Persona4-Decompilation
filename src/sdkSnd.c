@@ -577,14 +577,31 @@ s32 func_0045aa90(void)
 /* FUN_0045AAC0                                                        */
 /* ================================================================== */
 
-/* measured: retail sign-extends the varargs arg1 (dsll32/dsra32 into $a2)
-   BEFORE loading the D_007122F0 format pointer; mwcc b210 always emits the
-   lui/addiu first for this call, swapping the two 2-instruction chains
-   (4 ! rows, nd 7). Tried inline args, pre-materialised a1 local, fmt local,
-   (s16) cast at call site; identical output. Argument-materialisation-order
-   floor. */
-// FUN_0045AAC0
+/* measured: retail sign-extends varargs arg1 before materializing the D_007122F0 format pointer; b210 emits the two chains in the opposite order. The direct-table C body also has three retail tail nops outside its natural object boundary. Probed direct-table, pointer-temporary, parameter-type, remasked, and pragma spellings; best verify result is nd 12 with object 260B vs window 272B. Argument-materialization order and tail-padding floor. Committed at nd 12. */
+// FUN_0045AAC0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0045aac0(s16 arg0, s16 arg1, s32 arg2)
+{
+    func_00440b68((s32)D_007122F0, arg0, arg1, arg2);
+    if (arg0 < 5)
+    {
+        if (D_008D2B90[arg0].f00 != 0)
+        {
+            func_004d8eb0(LD32(D_008D2BA0, SND_IDX(arg0)), arg2);
+            if (D_008D2B90[arg0].f00 != 0)
+            {
+                func_004d8d90(LD32(D_008D2BA0, SND_IDX(arg0)));
+                LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
+                D_008D2B90[arg0].f00 = 0;
+                LD16(D_008D2B98, SND_IDX(arg0)) = -1;
+            }
+        }
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045aac0);
+#endif
 
 // FUN_0045ABD0
 s32 func_0045abd0(s16 arg0, s32 arg1, s16 arg2)
@@ -665,13 +682,29 @@ s32 func_0045ae10(s32 arg0, s32 arg1, s16 arg2)
 /* FUN_0045AEB0                                                        */
 /* ================================================================== */
 
-/* measured: retail keeps the slot index in $a3 and the channel pointer in
-   $a2; mwcc b210 always allocates them to $a2/$a1 for this body (mult rd,
-   five addu sites, final addiu), leaving 8 identical shifted words. Tried
-   inline SND_IDX, explicit idx local, ch local, both locals, ch-first
-   ordering; all nd 8. Temp-register rotation floor. */
-// FUN_0045AEB0
+/* measured: retail assigns the slot-index product to $a3 and the channel pointer to $a2; b210 rotates those temporaries to $a2/$a1 through the mult, five addu sites, and final addiu. Probed direct fields, pointer temporaries, two-argument prototype, declaration order, and pragma spellings; best verify result is nd 9 with object 176B vs window 176B. Temporary-register rotation floor. Committed at nd 9. */
+// FUN_0045AEB0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0045aeb0(s16 arg0)
+{
+    SndCh *ch;
+
+    if (arg0 < 5)
+    {
+        ch = &D_008D2B90[arg0];
+        ch->f00 = 1;
+        LD16(D_008D2B98, SND_IDX(arg0)) = 0;
+        LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
+        LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
+        LD16(D_008D2BA4, SND_IDX(arg0)) = 0;
+        func_00442830((u8 *)ch + 0x18);
+        func_00459ad0(arg0);
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045aeb0);
+#endif
 /* ================================================================== */
 /* FUN_0045AF60                                                        */
 /* ================================================================== */
@@ -712,14 +745,48 @@ s32 func_0045af90(s16 arg0)
 /* FUN_0045B030                                                        */
 /* ================================================================== */
 
-/* measured: switch dispatch, condition temp in $a3 (passed as 4th arg of
-   the else-branch call) all match; mwcc b210 emits the constant 3rd arg
-   `move $a2,$zero` AFTER the $a3 D_008D1F10 lui/addiu chain in the
-   then-branch, retail before it (3 ! words, nd 3). Tried inline args,
-   t/h locals, else-call passing t; all nd 3. Argument-materialisation
-   order floor. */
 // FUN_0045B030
-INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045b030);
+s32 func_0045b030(void *arg0)
+{
+    s32 state;
+    s32 result;
+    u8 *work;
+    u8 *callback;
+
+    work = *(u8 **)((u8 *)arg0 + 0x38);
+    state = *(s32 *)work;
+    switch (state)
+    {
+    case 0:
+        *(s32 *)(work + 0xC) = 0;
+        callback = *(u8 **)(work + 0x110);
+        if (callback == NULL)
+        {
+            func_00456250(*(s32 *)(work + 4), work + 0x10, 0, &D_008D1F10);
+        }
+        else
+        {
+            func_00456250(*(s32 *)(work + 4), work + 0x10, 0, callback);
+        }
+        *(s32 *)work = 1;
+        break;
+    case 1:
+        *(s32 *)(work + 0xC) = *(s32 *)(work + 0xC) + 1;
+        result = func_004c7ef8(*(s32 *)(work + 4));
+        if (result == 4)
+        {
+            *(s32 *)work = 0;
+        }
+        else if (result == 3)
+        {
+            *(s32 *)work = 2;
+        }
+        break;
+    case 2:
+        break;
+    }
+    return 0;
+}
 /* ================================================================== */
 /* FUN_0045B120                                                        */
 /* ================================================================== */

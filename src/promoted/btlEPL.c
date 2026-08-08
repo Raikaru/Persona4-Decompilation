@@ -321,8 +321,46 @@ INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001ff490);
 // Argument-materialisation-order floor (same family as the skill's bpc
 // 00245420 literal case).
 // measured: see floor note above; nd recorded there.
-// FUN_001FFF40
+/* measured: effect-list table walk, lifetime checks, flag update, and all dispatch calls match retail. Saved-register declaration order is fixed (table index $s1, node $s2); remaining nd 8 is the known MWCCPS2 call-argument materialisation floor where retail emits lh $a1 before move $a0 for func_00198920, while b210 emits the move first. Tried named/cast/hoisted argument spellings; all scored nd 8. Candidate object 328B vs retail window 336B. Committed at nd 8. */
+// FUN_001FFF40 NONMATCHING
+#ifdef NON_MATCHING
+void func_001fff40(u8 *arg0) {
+    s32 count;
+    u8 *param;
+    u8 *node;
+    u32 i;
+    s32 value;
+
+    param = *(u8 **)(arg0 + 0x38);
+    count = *(s32 *)(arg0 + 0x28);
+    for (i = 0; i < 4; i++) {
+        node = *(u8 **)(D_0072449C + i * 8 + 0x178);
+        while (node != NULL) {
+            if ((func_001fc300(node, param) != 0) &&
+                ((value = *(s32 *)(node + 0xA64), value == 0) ||
+                 (func_00243d80(value) != 0) ||
+                 (func_002428f0(*(s32 *)(node + 0xA64), 0) == 0))) {
+                *(u16 *)(node + 0x9D8) |= 8;
+                if (count == 0) {
+                    if (*(u8 *)(param + 0xE) == 0) {
+                        func_0019d990(node, 4);
+                    }
+                    func_00198920(node, *(s16 *)(param + 4), *(u16 *)(param + 0xC),
+                                  *(f32 *)(param + 8), *(u16 *)(param + 6));
+                    value = *(s32 *)(param + 0x10);
+                    if (value != 0) {
+                        func_00199890(node, (s16)value);
+                    }
+                    func_0019d7a0(node, 4);
+                }
+            }
+            node = *(u8 **)(node + 0xA6C);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fff40);
+#endif
 // FUN_00200090
 s32 *func_00200090(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;
