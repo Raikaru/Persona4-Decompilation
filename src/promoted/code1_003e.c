@@ -171,24 +171,27 @@ s32 func_003e1db0(u8 *arg0, s32 arg1) {
 #pragma schedule off
 
 
-/* measured: the guarded do/while (retail tests the head pointer once before
-   the loop and again at the bottom) plus schedule on gets the object to
-   exactly retail's 68 bytes with the sum load in the beq delay slot; a plain
-   `while` costs nd 25 and no pragma costs nd 55. Residual nd 10: retail keeps
-   the D_008872E0 + offset base in $v1 while b210 uses $v0, and retail emits
-   one more nop before the jr. Naming the base in a local does not re-colour
-   it. Register colouring floor. Committed at nd 10. */
+/* measured: sum's initial load is written before base setup so b210 keeps
+   the D_008872E0 + offset base in $v1 while retail uses $v0 for the running
+   sum (nd 10 -> nd 7). The remaining difference is one missing nop before
+   the jr: candidate branches to the return at +0x3c while retail has a nop
+   at +0x3c and the jr at +0x40. Retail's three all-zero words after its jr
+   are alignment padding, not missing body instructions. Tail/control-flow,
+   declaration-order, base-local, O1/O3/CSE/loop-invariant/schedule probes
+   did not improve nd 7. Object 68/window 80. Committed at nd 7. */
 // FUN_003E23E0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
 s32 func_003e23e0(void) {
+    u8 *base;
     u8 *head;
     u8 *node;
     s32 sum;
 
-    head = *(u8 **)(D_008872E0 + D_00724870 + 0x24);
-    node = *(u8 **)head;
     sum = *(s32 *)(D_008872E0 + D_00724870 + 8);
+    base = D_008872E0 + D_00724870;
+    head = *(u8 **)(base + 0x24);
+    node = *(u8 **)head;
     if (node != head) {
         do {
             sum += *(s32 *)(node + 8);
@@ -225,18 +228,14 @@ u8 *func_003e25f0(u8 *arg0) {
 
 
 
-/* measured: nd 20 of 20 words, everything correct but a one-word shift -
-   retail has TWO consecutive nops between the search loop's bnez and the
-   following null test, ours has one, and every instruction after slides. None
-   of peephole off, no_branch_likely, opt_dead_code off, opt_propagation off,
-   opt_common_subs off or optimize_for_size moves it, and schedule on shrinks
-   the function to 68 bytes instead.
-   Two things worth keeping: this function was previously measured at -O3
-   because of a file-wide pragma span (nd 29 there), and the awkward
-   `if (p == NULL) {} else goto` shape is load-bearing - rewriting the search as
-   a plain while loop with a break costs nd 46.
-   nd 20 as committed. */
-// FUN_003E3020
+/* measured: recovered guarded body scores nd 20 at object 80/window 80.
+   Retail has TWO consecutive nops between the search loop's bnez and the
+   following null test; b210 emits one, shifting every later instruction.
+   Peephole off, no_branch_likely, opt_dead_code off, opt_propagation off,
+   opt_common_subs off, optimize_for_size, schedule, empty-branch, goto and
+   loop-shape probes did not add the missing nop. The awkward
+   `if (p == NULL) {} else goto` shape remains load-bearing. Committed at nd 20. */
+// FUN_003E3020 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003e3020(u8 *arg0, s32 key, s32 arg2, s32 arg3, s32 arg4)
 {
@@ -340,17 +339,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e30c0);
 // FUN_003E32F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
 
-/* measured: nd 22 of 32 words, and every instruction is right - retail has one
-   extra nop between the loop's exit branch and the `move $v0, $s1` that
-   materialises the return value, so the whole epilogue slides one word. This is
-   the SECOND function in this file with that exact artifact (see func_003e3020,
-   which has two consecutive nops at its own loop exit), which makes it look like
-   a b210-vs-retail behaviour at a loop-exit block join rather than anything the
-   source controls. Confirmed not source-driven here: do-while, while and an
-   explicit goto loop all give nd 22-23 under schedule+no_branch_likely, and
-   schedule alone costs nd 32.
-   nd 22 as committed. */
-// FUN_003E3370
+/* measured: recovered guarded body scores nd 22 at object 120/window 128.
+   Every emitted instruction is right, but retail has one extra nop between
+   the loop-exit branch and `move $v0, $s1`, shifting the epilogue by one word.
+   do-while, while, explicit-goto, empty-statement and label probes remain
+   nd 22-23 under schedule+no_branch_likely; schedule alone costs nd 32.
+   This is the same loop-exit block-join artifact as func_003e3020. Committed at nd 22. */
+// FUN_003E3370 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
 #pragma no_branch_likely on

@@ -62,25 +62,17 @@ void func_001622d0(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_001622d0);
 #endif
 
-/* measured: retail materialises the 0x750 stride in the loop preheader; b210
-   only does that under opt_loop_invariants, which is worth nd 19 -> nd 8 here.
-   The residual is which register holds the stride and which
-   holds the table base - retail $a2/$a1, b210 $a1/$a2. Reordering the two
-   declarations swaps other things instead (nd 12), and opt_common_subs (nd 19)
-   and level 3 (nd 53, undersized) are both worse.
-   Committed at nd 8. */
-// FUN_00162330 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00162330
+/* measured: direct global address expression preserves retail base/stride
+   register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
 u8 *func_00162330(void) {
     u8 *r = NULL;
     s32 i = 0;
-    s32 stride = 0x750;
-    u8 *base = D_007EF9B0;
     u8 *e;
 
     while (i < 4) {
-        e = base + i * stride;
+        e = D_007EF9B0 + i * 0x750;
         if (*(s32 *)(e + 0x48) == 0) {
             r = e;
             break;
@@ -89,26 +81,21 @@ u8 *func_00162330(void) {
     }
     return r;
 }
+/* measured: closes the loop-invariant scope at the file baseline. */
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00162330);
-#endif
 
-/* measured: the 15-entry sibling of func_00162330 above, same preheader-hoist
-   residual and the same response to opt_loop_invariants (nd 19 -> nd 8).
-   Committed at nd 8. */
-// FUN_00162390 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00162390
+/* measured: direct global address expression preserves retail base/stride
+   register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
 u8 *func_00162390(void) {
     u8 *r = NULL;
     s32 i = 0;
     s32 stride = 0x750;
-    u8 *base = D_007E8C00;
     u8 *e;
 
     while (i < 0xF) {
-        e = base + i * stride;
+        e = D_007E8C00 + i * stride;
         if (*(s32 *)(e + 0x48) == 0) {
             r = e;
             break;
@@ -117,10 +104,8 @@ u8 *func_00162390(void) {
     }
     return r;
 }
+/* measured: closes the loop-invariant scope at the file baseline. */
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00162390);
-#endif
 
 // FUN_00168030
 void func_00168030(u8 *arg0)

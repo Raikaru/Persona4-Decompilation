@@ -1724,21 +1724,12 @@ void* func_00477f10(void* param_1, void* param_2, int param_3, int param_4, u32 
 // FUN_00477FB0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477fb0);
 
-/* measured: loop matched only as an explicit-break while (while(node){if(D6==
-   id)break;node=next;} — the && form reorders the test block) with u32 params
-   and an explicit `id = arg1 & 0xFFFF` local (u16 params re-mask into extra
-   s-regs, nd 80); buf[0x100] at sp+0x50 gives the 0x150 frame. The residual is
-   the same branch-to-branch redirect as func_0047ac90: retail keeps
-   beqz $v0,0x478240; ... ; 0x478240: b 0x47828c after the func_0047d0e0 test,
-   mwcc b210 redirects the beqz straight to the join (re-measured nd 1, the
-   beqz imm). Tried: result local, empty-else, if forms — identical nd 1.
-   Branch-to-branch sharing floor. Committed at nd 1. */
-// FUN_00478140 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00478140
 void* func_00478140(u32 param_1, u32 param_2, u32 param_3)
 {
     void* node;
     void* obj;
+    void* result;
     u8 buf[0x100];
     u32 id;
 
@@ -1762,6 +1753,8 @@ void* func_00478140(u32 param_1, u32 param_2, u32 param_3)
         if (func_0047d0e0(param_1, param_2) != 0) {
             func_0047b050(obj, 1);
         }
+        result = obj;
+        goto done;
     } else {
         obj = func_004779b0(param_1, param_2);
         if ((param_3 & 1) != 0) {
@@ -1769,12 +1762,11 @@ void* func_00478140(u32 param_1, u32 param_2, u32 param_3)
         }
         *(u32*)((u8*)obj + 0xD8) |= 0x2000;
         func_004782b0(obj);
+        result = obj;
     }
-    return obj;
+done:
+    return result;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478140);
-#endif
 
 // FUN_004782B0
 s32 func_004782b0(u8* param_1)
@@ -2164,30 +2156,9 @@ s32 func_00479dd0(u8* param_1, u16 param_2, s16 param_3)
     return iVar1;
 }
 #pragma opt_propagation on
-/* measured: re-tested 4x this wave (nd 47/55/13/17; best spelling: (u16) cast
-   in the final test + `param_2 & 0xFFFF` in the off chain + elem as
-   `(u8*)*(void**)((u8*)arr) + (0x40 + v * 0x50)`, with opt_propagation off:
-   the mask CSE then breaks exactly as retail re-masks at .L479F24). Residual
-   nd 13 is the recorded p/off saved-register rotation: retail keeps off in
-   $s0 and derives p in temp $a2 (re-deriving addu $a0,$s0,$s2 AFTER the
-   func_003d5e40 call), mwcc b210 keeps p in $s0 across the call in every
-   spelling (inline store expr, p reassignment, fresh q, decl-order swaps)
-   and never rematerializes; plus the elem chain schedules addiu 0x40 before
-   the lw ($a1) where retail loads first (1-3 words). Recipe B (global base
-   hoist) does not apply - no global array base in this function. Saved-
-   register rotation floor. */
-/* Wave 14 re-test: m2c signature (s32,s32,f32) confirmed (arg0/arg1 are
-   integers; retail keeps raw a1 in $s1 and re-masks andi into a temp, so
-   arg1 must be s32 not u16). Clean m2c-derived transcription scored nd 43
-   (u8* base spelling) / nd 54 (u16 param + addOff helper; the helper
-   cascaded the FP allocation). Recorded best nd 13 still stands; the base+
-   scaled hoist into $s0 (vs retail's separate $s0/$s2 + per-use addu) and the
-   FP-coloring rotation are a genuine saved-register floor. */
 /* measured: probing opt_common_subs off to retain the raw parameter register. */
 #pragma opt_common_subs off
-/* measured: parked near-match nd 1 (object 256/window 256); fndiff leaves one addu operand-order word at offset 0x80. Tried current addOff(elemOff,base), swapped helper args (nd25), integer-domain cast (nd1), pointer-domain cast (nd25), and named base temp (nd1); plain C remains behind NON_MATCHING while retail INCLUDE_ASM stays active. Committed at nd 1. */
-// FUN_00479E60 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00479E60
 void func_00479e60(void* param_1, s32 param_2, f32 param_3)
 {
     s32 arg1;
@@ -2212,7 +2183,7 @@ void func_00479e60(void* param_1, s32 param_2, f32 param_3)
     if (*(u16*)(arr + 8) <= index)
         goto tail;
     elemOff = index * 0x50;
-    elem = *(s32*)addOff(elemOff, (u32)(*(s32*)arr + 0x40));
+    elem = *(s32 *)((u32)((u32)*(s32 *)arr + 0x40) + (u32)(elemOff, elemOff));
     if (elem == 0)
         goto tail;
     if (elem == (s32)D_00922BC0_abs)
@@ -2225,9 +2196,6 @@ tail:
         func_00475170((u8*)param_1 + 0x23C, frame);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479e60);
-#endif
 /* measured: closes the scoped opt_common_subs probe for func_00479e60. */
 #pragma opt_common_subs on
 // FUN_00479F60
@@ -2654,17 +2622,11 @@ void func_0047ab90(void* param_1, s32 param_2, void* param_3, void* param_4, voi
     *(u8*)((u8*)slot + 0x28C) |= 0x1;
 }
 
-/* measured: template matches the 0x170-frame resource attach path (void*
-   params 3/4, u32 casts for func_00477c40, buf[0x100] at sp+0x70) and the
-   tail stores. Retail branches to the intermediate b after func_0047b050;
-   mwcc b210 redirects directly to the join. addOff restores the retail
-   index-first tail addu. Best object 348B/window 352B, normalized_diff 1.
-   Branch-to-branch sharing floor. Committed at nd 1. */
-// FUN_0047AC90 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0047AC90
 void func_0047ac90(void* param_1, u32 param_2, void* param_3, void* param_4, u32 param_5)
 {
     void* obj;
+    void* result;
     u8 buf[0x100];
     u32 off;
     void* slot;
@@ -2675,6 +2637,8 @@ void func_0047ac90(void* param_1, u32 param_2, void* param_3, void* param_4, u32
         if (func_0047d0e0(param_3, param_4) != 0) {
             func_0047b050(obj, 1);
         }
+        result = obj;
+        goto done;
     } else {
         obj = func_004779b0(param_3, param_4);
         if ((param_5 & 1) != 0) {
@@ -2682,17 +2646,16 @@ void func_0047ac90(void* param_1, u32 param_2, void* param_3, void* param_4, u32
         }
         *(u32*)((u8*)obj + 0xD8) |= 0x2000;
         func_004782b0(obj);
+        result = obj;
     }
+done:
     off = (param_2 & 0xFFFF) * 0xC;
     slot = (void*)addOff(off, (u32)(u8*)param_1);
-    *(void**)((u8*)slot + 0x290) = obj;
-    *(u32*)((u8*)obj + 0xD8) |= 4;
+    *(void**)((u8*)slot + 0x290) = result;
+    *(u32*)((u8*)result + 0xD8) |= 4;
     *(u32*)((u8*)*(void**)((u8*)slot + 0x290) + 0xD8) |= 0x8000;
     *(u8*)((u8*)slot + 0x28C) |= 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ac90);
-#endif
 
 /* Ported from P3FES mdlManager.c func_003196f0 (verified MATCH there). Keep the
    iVar1/iVar2/pWpnMdl local structure and the recompute of iVar2+param_1 before

@@ -6,14 +6,30 @@ extern void func_0041e8d8(u8 *arg0, s32 arg1);
 /* measured: baseline -O2 emits lw/sw/srl/andi/jr/nop with the return andi
    before jr (nd 6); schedule-on fills the jr delay slot with the andi but
    reorders the srl ahead of the store (nd 8), so the plain -O2 form is
-   kept. Residual vs retail (lw/sw/srl/jr/andi): the andi/jr pair swapped. */
+   kept. Residual vs retail (lw/sw/srl/jr/andi): the andi/jr pair swapped.
+   Translation-unit hypothesis: seven parked functions here (nd 2 through
+   nd 8) all load 0x40($a0), but each b210 body chooses a different
+   destination from retail ($v1/$v1/$a2/$a0/$t0). Named locals, parameter
+   reassignment, fully inline expressions, declaration orders, pointer and
+   scalar types, and pragma wrappers did not move any destination. The
+   uniform file-wide register divergence suggests a translation-unit boundary
+   or declaration-environment defect (generated promoted grouping/prototypes),
+   not seven independent colouring floors. */
 
 void func_00420e50(u8 *);
 
 void func_00420f38(u8 *);
 
 
-/* measured: candidate loads the old u32, stores arg1, then returns bit 8 of the old value. Retail places the final andi in the jr delay slot while b210 schedules it before jr; plain -O2 is nd 6 and schedule-on worsens it to nd 8. Committed at nd 6. */
+/* measured: object/window 24/24; candidate loads the old u32, stores arg1,
+   then returns bit 8 of the old value. Exact residual: off 12 candidate
+   andi $v0,$v0,1 versus retail jr $ra; off 16 candidate jr $ra versus
+   retail andi $v0,$v0,1 (2 words, nd 6). Ruled out schedule on (nd 8),
+   schedule off, optimization levels 1/3, opt_common_subs, direct-return
+   and masked-expression forms, s32/u32/u8/u16 return types, local pointer
+   and casted load/store aliases, control-flow/ternary/switch forms, and
+   inline side-effect expressions. Delay-slot scheduling remains the best
+   measured body. Committed at nd 6. */
 // FUN_00419628 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00419628(u32 *arg0, u32 arg1)
@@ -109,7 +125,15 @@ void func_0041f1c0(u8 *arg0, s32 arg1, s32 arg2) {
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
 #endif
 
-/* measured: candidate loads the +0x40 base and tests its +4 u32 field for zero. Retail keeps the base in $v1 before loading the result into $v0; direct, local, pointer-type, struct-view, register-qualified, declaration-order, and pointer-advance spellings stayed at nd 2. Committed at nd 2. */
+/* measured: object/window 16/16; candidate loads the +0x40 base and tests
+   its +4 u32 field for zero. Exact residual: off 0 candidate
+   lw $v0,0x40($a0) versus retail lw $v1,0x40($a0); off 4 candidate
+   lw $v0,4($v0) versus retail lw $v0,4($v1) (2 words, nd 2). Ruled out
+   direct/local/full-inline chains, pointer/scalar/struct views, register
+   qualifiers, declaration and assignment orders, pointer advance, result
+   locals and initializers, live-value identities, and schedule/optimization
+   pragma variants. Retail's first-load destination remains unresponsive.
+   Committed at nd 2. */
 // FUN_0041F2A8 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */
@@ -147,25 +171,53 @@ u8 *func_0041f2b8(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
 
 
-/* measured: candidate reads +0xA8, +0xAC, and +0xB0 through the +0x40 base and writes the three output pointers. Retail keeps the base in $t0 and alternates value registers ($v0/$v1/$v0), while b210 reuses $a0/$v1; pointer/output types, declaration order, simultaneous-load, and optimization probes stayed at nd 9. Committed at nd 9. */
+/* measured: object/window 32/32; candidate returns the final loaded value
+   after storing all three outputs, improving nd 9 -> nd 8. Exact residual:
+   off 0 candidate lw $v1,0x40($a0) versus retail lw $t0,0x40($a0);
+   off 4 candidate lw $v0,0xa8($v1) versus retail lw $v0,0xa8($t0);
+   off 12 candidate lw $v0,0xac($v1) versus retail lw $v1,0xac($t0);
+   off 16 candidate sw $v0,($a2) versus retail sw $v1,($a2); off 20
+   candidate lw $v0,0xb0($v1) versus retail lw $v0,0xb0($t0) (5 words).
+   Ruled out pointer/output types, declaration order, simultaneous-load and
+   grouped-load forms, final-load/direct/output/unsigned returns, identity
+   uses, arrays and pointer aliases, and optimization/pragmas. Retail's
+   three-live-value colouring remains. Committed at nd 8. */
 // FUN_0041F2D0 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: retail fills delay slots this function leaves empty at -O2. */
+/* measured: probe discarded final return */
 #pragma schedule on
-void func_0041f2d0(u8 *arg0, s32 *arg1, s32 *arg2, s32 *arg3)
+s32 func_0041f2d0(u8 *arg0, s32 *arg1, s32 *arg2, s32 *arg3)
 {
-    u8 *p = *(u8 **)(arg0 + 0x40);
+    u8 *p;
+    s32 value1;
+    s32 value2;
+    s32 value3;
 
-    *arg1 = *(s32 *)(p + 0xA8);
-    *arg2 = *(s32 *)(p + 0xAC);
-    *arg3 = *(s32 *)(p + 0xB0);
+    p = *(u8 **)(arg0 + 0x40);
+    value1 = *(s32 *)(p + 0xA8);
+    *arg1 = value1;
+    value2 = *(s32 *)(p + 0xAC);
+    *arg2 = value2;
+    value3 = *(s32 *)(p + 0xB0);
+    *arg3 = value3;
+    return value3;
 }
-/* measured: closes the scope above at the file's -O2 baseline. */
+/* measured: close discarded return probe */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2d0);
 #endif
-/* measured: candidate stores the s64 argument at +0x90, stores 1 at +0x8C, and returns 1. Retail keeps the base in $v1 and uses $a0 for the status constant while b210 reuses $a0 for the base; local, pointer-type, return/store-value, and optimization probes stayed at nd 5. Committed at nd 5. */
+/* measured: object/window 24/24; candidate stores the s64 argument at
+   +0x90, stores 1 at +0x8C, and returns 1. Exact residual: off 0 candidate
+   lw $a0,0x40($a0) versus retail lw $v1,0x40($a0); off 4 candidate
+   addiu $v1,$zero,1 versus retail addiu $v0,$zero,1; off 8 candidate
+   addiu $v0,$zero,1 versus retail addiu $a0,$zero,1; off 12 candidate
+   sd $a1,0x90($a0) versus retail sd $a1,0x90($v1); off 20 candidate
+   sw $v1,0x8c($a0) versus retail sw $a0,0x8c($v1) (5 words, nd 5).
+   Ruled out local/pointer-type/struct views, declaration and assignment
+   order, parameter captures, separate/reused constants, wide types,
+   direct stores, return/store-value variants, and optimization/pragmas.
+   Committed at nd 5. */
 // FUN_0041F550 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail both fills delay slots this function leaves empty and
@@ -203,7 +255,14 @@ s32 func_0041f568(u8 *arg0)
 #pragma schedule off
 
 
-/* measured: candidate stores the 1 flag at +0x108, the s64 argument at +0x100, and returns 1. Retail keeps the base in $a2 while b210 reuses $a0; parameter, pointer-type, declaration-order, direct-store, and optimization-level probes stayed at nd 3. Committed at nd 3. */
+/* measured: object/window 24/24; candidate stores the 1 flag at +0x108,
+   the s64 argument at +0x100, and returns 1. Exact residual: off 0
+   candidate lw $a0,0x40($a0) versus retail lw $a2,0x40($a0); off 12
+   candidate sw $v1,0x108($a0) versus retail sw $v1,0x108($a2); off 20
+   candidate sd $a1,0x100($a0) versus retail sd $a1,0x100($a2) (3 words,
+   nd 3). Ruled out constants and captures, pointer/scalar/struct and wide
+   types, declaration/assignment order, direct-store/grouped-store forms,
+   return/store-value variants, and optimization/pragmas. Committed at nd 3. */
 // FUN_0041F5E0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail both fills delay slots this function leaves empty and
@@ -240,24 +299,41 @@ void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
 #pragma schedule off
 
 
-/* measured: candidate calls func_00420e50 on the +0x68 address and returns 1. Retail materializes the base directly in $a0, while b210 uses $v0 then moves to $a0; callee-prototype, argument-reuse, pointer-local, and optimization-level probes stayed at nd 2 with a 36-byte object in the 40-byte window. Committed at nd 2. */
+/* measured: object/window 36/40; candidate calls func_00420e50 on the
+   +0x68 address and returns 1. Exact residual: off 8 candidate
+   lw $v0,0x40($a0) versus retail lw $a0,0x40($a0); off 16 candidate
+   addiu $a0,$v0,0x68 versus retail addiu $a0,$a0,0x68; differing words 3
+   including the relocation-masked jal, with the object 4 bytes short of the
+   retail trailing nop (nd 2). Ruled out callee prototypes, argument reuse,
+   parameter reassignment, pointer locals/shadows, inline/grouped/casted
+   expressions, scalar and pointer types, register qualifiers, declaration
+   order, and optimization/schedule pragma variants. Committed at nd 2. */
 // FUN_0041F788 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: retail fills delay slots this function leaves empty at -O2. */
+/* measured: inline argument-expression probe; schedule on retained the
+   retail delay-slot form while the load destination remained a b210 floor. */
 #pragma schedule on
 s32 func_0041f788(u8 *arg0)
 {
-    func_00420e50(*(u8 **)(arg0 + 0x40) + 0x68);
+    func_00420e50((u8 *)(*(u8 **)((u8 *)arg0 + 0x40) + 0x68));
     return 1;
 }
-/* measured: closes the scope above at the file's -O2 baseline. */
+/* measured: closes the schedule scope above at the file's -O2 baseline. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f788);
 #endif
 
 
-/* measured: candidate calls func_00420f38 on the +0x68 address and returns 1. Retail materializes the base directly in $a0, while b210 uses $v0 then moves to $a0; argument-reuse, pointer-local, and optimization-level probes stayed at nd 2 with a 36-byte object in the 40-byte window. Committed at nd 2. */
+/* measured: object/window 36/40; candidate calls func_00420f38 on the
+   +0x68 address and returns 1. Exact residual: off 8 candidate
+   lw $v0,0x40($a0) versus retail lw $a0,0x40($a0); off 16 candidate
+   addiu $a0,$v0,0x68 versus retail addiu $a0,$a0,0x68; differing words 3
+   including the relocation-masked jal, with the object 4 bytes short of the
+   retail trailing nop (nd 2). Ruled out callee prototypes, argument reuse,
+   parameter reassignment, pointer locals/shadows, inline/grouped/casted
+   expressions, scalar and pointer types, register qualifiers, declaration
+   order, and optimization/schedule pragma variants. Committed at nd 2. */
 // FUN_0041F7B0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */

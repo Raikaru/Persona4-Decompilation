@@ -65,13 +65,13 @@ s64 func_0047e440(void) {
 }
 
 
-/* measured: nd 7. All code matches byte-for-byte (frame 0x190, case 1/2
-   allocation, loop) except the loop's align-up computation: retail keeps t =
-   sp16c+0x3F in $v1 and the >>6 result in $v0; mwcc b210 keeps t in $v0 and the
-   >>6 result in $v1. Tried t/var_2 declaration-order swaps, u32/s32 types, the
-   addu operand order, and the m2c pointer-slot form (frame grew to 0x1a0).
-   Register-allocation floor. */
-/* measured: raw s32 parameters, explicit 0x100-byte stack copy, and swapped 3-element arrays reproduce retail exactly except the align-up temporary and shifted result remain transposed in $v0/$v1. Committed at nd 7. */
+/* measured: nd 7. Frame, case dispatch/allocation, calls, stack copies, and
+   loop body match retail except the align-up addiu/sra/bgez/sll sequence:
+   retail uses the temporary/result register pair $v1/$v0 at offsets 0x1FC,
+   0x200, 0x204, 0x20C, 0x210, and 0x214 while b210 emits the pair
+   transposed. Declaration, type, operand-order, pointer-slot, and liveness
+   probes did not change the allocation. Register-allocation floor. Committed
+   at nd 7. */
 // FUN_0047E450 NONMATCHING
 #ifdef NON_MATCHING
 void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
@@ -142,12 +142,12 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
                 sp180[var_16] = temp_4_4;
                 sp16C = *(s32 *)(sp70 + 0xFC);
                 sp170[var_16] = sp16C;
-                temp_3_2 = sp16C + 0x3F;
-                var_2 = temp_3_2 >> 6;
-                if (temp_3_2 < 0) {
-                    var_2 = (temp_3_2 + 0x3F) >> 6;
+                var_2 = sp16C + 0x3F;
+                temp_3_2 = var_2 >> 6;
+                if (var_2 < 0) {
+                    temp_3_2 = (var_2 + 0x3F) >> 6;
                 }
-                var_17 = temp_4_4 + (var_2 << 6);
+                var_17 = temp_4_4 + (temp_3_2 << 6);
                 var_16 += 1;
             }
             func_0045a570((s16)*(s32 *)((u8 *)(*arg0) + 4), sp180[0], sp170[0], sp180[1], sp170[1], sp180[2], sp170[2]);

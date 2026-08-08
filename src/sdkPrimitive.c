@@ -13,8 +13,8 @@ extern void func_0045d890(void);
 extern void func_0045d370(void *out, void *a1, void *a2, f32 f0, s32 a3, s32 a4, f32 f1, f32 f2, f32 f3);
 extern void func_0045dd30(u8 *a0, s32 a1, s32 a2, f32 f0, u32 a3, s32 a4, s32 a5, f32 f1, f32 f2, f32 f3);
 extern void func_003f6440(s32 param, s32 value);
-extern void (*D_00887300[])(u32 state, u32 value);
-extern void (*D_00887304[])(u32 state, void *out);
+extern void (*D_00887300[])();
+extern void (*D_00887304[])();
 extern void (*D_00887310[])(s32 primType, void *verts, s32 numVerts);
 extern struct {
     s32 state;
@@ -58,9 +58,7 @@ void func_0045da40(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg0) {
 }
 
 
-/* measured: reconstructed the complete packet-state setup, vertex-generation call, primitive dispatch, and state restore. The candidate has the exact 0x1B0 frame, stack field offsets, register home mapping, and all relocations; b210 evaluates the state load before the stack-address arithmetic in both vtable calls, while retail computes each address first. Tried direct array/deref calls, hoisted pointers, named offset locals, interleaved prototypes, u32/s32 counters, and split counters; the two call-site rotations remained. Committed at nd 21. */
-// FUN_0045DB40 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0045DB40
 void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, f32 fparg3) {
     struct { s32 saved[6]; u8 pad1[8]; f32 out; u8 pad2[0xFC]; PrimFloat4 pos; } work;
     u32 i;
@@ -78,7 +76,7 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
         func_003f6440(3, 0x717FB);
     }
     func_0045d370(&work.out, arg0, &work.pos, fparg0, arg3, arg4, fparg1, fparg2, fparg3);
-    D_00887310[4](4, &work.out, 4);
+    D_00887310[0](4, &work.out, 4);
     if (arg2 != 0) {
         for (j = 0; j < 6; j++) {
             p = (s32 *)&D_00712490[j];
@@ -86,9 +84,6 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045db40);
-#endif
 
 
 /* measured: retail FP home-register mapping is {z:f24, sinv:f20, inv:f21,
@@ -129,12 +124,11 @@ INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045dfd0);
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e310);
 
 
-/* measured: reconstructed the complete state setup/restore loops, allocator call, delegated vertex emission, primitive dispatch, and packet release. The candidate has the exact register home mapping, frame, stack offsets, call sequence, and relocations; b210 evaluates the state load before the stack-address arithmetic in the two vtable calls, while retail computes each address first. Tried direct array/deref calls, hoisted pointers, named offset locals, interleaved prototypes, u32/s32 counters, split counters, and comma-order expressions; the residual call-site rotations remained. Committed at nd 21. */
-// FUN_0045E6A0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0045E6A0
 void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3) {
     s32 saved[6];
     s32 *p;
+    s32 *out;
     u32 i;
     u32 j;
     if (arg4 != 0) {
@@ -148,20 +142,17 @@ void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4,
         func_003f6440(3, 0x717FB);
     }
     func_0044ea90(D_007124C0, 0x355);
-    p = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
-    func_0045dd30((u8 *)p, arg0, arg1, fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
-    D_00887310[4](arg3, p, arg2);
+    out = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
+    func_0045dd30((u8 *)out, arg0, arg1, fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
+    D_00887310[0](arg3, out, arg2);
     if (arg4 != 0) {
         for (j = 0; j < 6; j++) {
             p = (s32 *)&D_00712490[j];
             D_00887300[0](p[0], saved[j]);
         }
     }
-    jtbl_008873EC[0](p);
+    jtbl_008873EC[0](out);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e6a0);
-#endif
 
 
 /* measured: prologue, alloc, w-field setup, both func_0043f810 copies, the

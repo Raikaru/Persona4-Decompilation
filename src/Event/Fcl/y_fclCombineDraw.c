@@ -194,64 +194,32 @@ void func_00314400(u8 *arg0, s8 arg1) {
     }
 }
 
-/* measured: nd 10 (re-measured this wave; prior note said 9) — retail keeps the
-   deref'd object pointer in $a0 (reusing the dead param register) and the zero-loop
-   buffer pointer in $v1; mwcc b210 ALWAYS colors the memory-load result $v1 here
-   (obj=$v1 is invariant across statement order, declaration order, arg0-reassign,
-   f32[2] buffer, u32 counter, indexed for-loop — probed 10 spellings, nd 10-23).
-   Counter CAN be coerced to $v0 (assign it before the buffer pointer; decl order
-   temp_4,var_3,var_2 — nd 10), leaving only the 5-word obj ($v1 vs $a0) + 5-word
-   buf ($a0 vs $v1) swap. The f32 must be written INTO the buffer (*(f32*)(sp18+4),
-   sp18[8]) or DSE removes the swc1 (nd 21). $v0/$v1-family allocation floor. */
-/* measured: nd 9 at retail's exact 128-byte object. Retail clears the eight-byte
-   packet with a guarded byte loop rather than a call, which is why fclZero8
-   above is inline. The residual is which register holds what: retail keeps the
-   work pointer in $a0 and the packet address in $v1, b210 the other way round.
-   Probed every declaration order for the two locals, assigning the work pointer
-   as a statement instead of an initialiser, and writing the clear out fully
-   inline instead of through the helper - all nd 9. Colouring floor.
-   Committed at nd 9. */
-// FUN_00314450 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00314450
 void func_00314450(u8 *arg0, s32 arg1, u8 arg2, s32 arg3) {
     f32 sp18[2];
-    u8 *t = *(u8 **)(arg0 + 0x38);
+    u32 t = *(u32 *)(arg0 + 0x38);
 
     fclZero8((u8 *)sp18);
     sp18[1] = 40.0f * (f32)arg3;
-    *(s32 *)(t + 8) = arg1;
-    t[0xC] = arg2;
-    t[0] = 0;
-    func_0011d100((u8 *)*(u32 *)(t + 4), sp18);
+    *(s32 *)((u32)t + 8) = arg1;
+    *(u8 *)((u32)t + 0xC) = arg2;
+    *(u8 *)((u32)t + 0) = 0;
+    func_0011d100((u8 *)*(u32 *)((u32)t + 4), sp18);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314450);
-#endif
 
-/* measured: nd 13 (re-measured this wave; prior note said 12) — same $a0/$v1
-   allocation swap as func_00314450 above (obj=$v1 invariant, buf=$a0, counter=$v0
-   achievable with counter-assigned-first statement order): 6 obj words (lw/sw/sb/sb/
-   sw/lw) + 5 buf words (addiu/beqz/sb/addiu/addiu) differ. arg0-reassign spelling
-   is worse (nd 15). $v0/$v1-family allocation floor. */
-/* measured: nd 10, the five-argument sibling of func_00314450 above with the
-   same packet-clear and the same $a0/$v1 residual. Committed at nd 10. */
-// FUN_003144D0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_003144D0
 void func_003144d0(u8 *arg0, s32 arg1, u8 arg2, s32 arg3, s32 arg4) {
     f32 sp18[2];
-    u8 *t = *(u8 **)(arg0 + 0x38);
+    u32 t = *(u32 *)(arg0 + 0x38);
 
     fclZero8((u8 *)sp18);
     sp18[1] = 40.0f * (f32)arg4;
-    *(s32 *)(t + 8) = arg1;
-    t[0xC] = arg2;
-    t[0] = 8;
-    *(s32 *)(t + 0x10) = arg3;
-    func_0011d100((u8 *)*(u32 *)(t + 4), sp18);
+    *(s32 *)((u32)t + 8) = arg1;
+    *(u8 *)((u32)t + 0xC) = arg2;
+    *(u8 *)((u32)t + 0) = 8;
+    *(s32 *)((u32)t + 0x10) = arg3;
+    func_0011d100((u8 *)*(u32 *)((u32)t + 4), sp18);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003144d0);
-#endif
 
 // FUN_00314560
 void func_00314560(u8 *arg0, s32 arg1, s8 arg2, s8 arg3) {

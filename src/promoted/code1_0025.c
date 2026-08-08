@@ -180,28 +180,19 @@ s32 func_0025ce40(void) {
     return 1;
 }
 
-/* measured: everything matches except the ORDER in which the three arguments
-   are materialised before the jal -- retail emits `andi $a0`, `andi $a1`, then
-   the `dsll32/dsra32 $a2` sign-extension of the third call's result, while
-   b210 materialises $a2 first (4 words, the whole residual, nd 16). Measured
-   identical at nd 16: declaring the locals in assignment order, naming the
-   third value in an `s8` local, and naming both masked values in locals;
-   u16-typed locals are worse (nd 24). Call-argument setup order floor.
-   Committed at nd 16. */
-// FUN_0025CE90 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: preserving the raw third-call result in s32 before masking the first two arguments reproduces retail's setup order; exact match nd 0 (obj 112B/window 112B). */
+// FUN_0025CE90
 s32 func_0025ce90(void) {
     s32 temp_16;
     s32 temp_17;
+    s32 temp_18;
 
     temp_17 = func_0029cc00(0);
     temp_16 = func_0029cc00(1);
-    func_0010a840(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)func_0029cc00(2));
+    temp_18 = func_0029cc00(2);
+    func_0010a840(temp_17 & 0xFFFF, temp_16 & 0xFFFF, (s8)temp_18);
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ce90);
-#endif
 
 // FUN_0025CF00
 s32 func_0025cf00(void) {

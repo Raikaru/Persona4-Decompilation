@@ -19,39 +19,31 @@ extern s32 D_00724840;
 extern s32 D_00724844;
 
 
-/* measured: schedule on is load-bearing for retail's b/exit delay-slot moves.
-   NONMATCHING: retail keeps both null-returns out of line (beqz; lw; beqz;
-   sw; b exit/move $v0,$a0; b exit/move $v0,$zero; move $v0,$zero; jr $ra,
-   12 instr); b210 if-converts the branch to beql with the move annulled in
-   its slot and merges the exits (11 instr, nd 19 -> 15 with schedule on).
-   Residual: nd 15. */
-
-/* measured: b210 emits a branch-likely where retail uses plain branches; the
-   no_branch_likely form brings the bare body from nd 15 to nd 11; guarded and re-measured it is nd 22.
-   Committed at nd 22. */
-// FUN_003D38E0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: separate goto labels preserve retail's distinct null-return targets; exact match nd 0 (obj 52B/window 64B). */
+// FUN_003D38E0
+/* measured: opening branch-shape pragmas preserve retail's two out-of-line null returns (nd 0). */
 #pragma no_branch_likely on
 #pragma schedule on
 u8 *func_003d38e0(u8 *arg0, s32 arg1) {
-    u8 *p;
+    u8 *temp_2;
 
     if (arg0 == NULL) {
-        return NULL;
+        goto block_1;
     }
-    p = *(u8 **)((u8 *)arg0 + 0x14);
-    if (p != NULL) {
-        *(s32 *)(p + 0x14) = arg1;
-        return arg0;
+    temp_2 = *(u8 **)(arg0 + 0x14);
+    if (temp_2 == NULL) {
+        goto block_2;
     }
+    *(s32 *)(temp_2 + 0x14) = arg1;
+    return arg0;
+block_1:
+    return NULL;
+block_2:
     return NULL;
 }
-/* measured: closes the no_branch_likely/schedule brackets above. */
+/* measured: closes the branch-shape pragma bracket (nd 0). */
 #pragma schedule off
 #pragma no_branch_likely off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d38e0);
-#endif
 
 
 void func_003df7f0(s32 arg0);

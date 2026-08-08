@@ -164,16 +164,18 @@ s32 func_00178560(void)
     return 1;
 }
 
-/* measured: nd 10. Retail materialises the two halfword loads into $a0/$a1
-   before narrowing the cached scene index into $a3; b210 emits the narrowing
-   first. Hoisting the narrowed value into a local ahead of the call and
-   declaring func_00161630's third and fourth parameters u16 so the mask is
-   implicit both leave it at nd 10 - argument-materialisation order that the
-   callee's prototype does not reach. Committed at nd 10. */
+/* measured: nd 8. Keeping the cached scene index as u16 moves its narrowing
+   into $s1 immediately after func_0029cc00; retail keeps the raw value in
+   $s1 and narrows it into $a3 after the two halfword loads. Best measured
+   body: object 108B in a 112B window. Negative evidence: func_0029cc00 is declared
+   and defined s32 in code1_0017.c and src/Script/scrTraceCode.c. Raw s32 plus
+   & 0xFFFF at each use, explicit (u16) casts, separate raw assignment, and the
+   fourth-argument and all-wide func_00161630 prototypes all measured nd 10 or worse.
+   Committed at nd 8. */
 // FUN_00178870 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00178870(void) {
-    s32 a = func_0029cc00(0);
+    u16 a = (u16)func_0029cc00(0);
     u8 *p = iGpffff9db0;
     s32 b = func_0015a160();
 

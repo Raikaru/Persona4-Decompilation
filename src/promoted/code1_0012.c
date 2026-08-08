@@ -184,30 +184,26 @@ s16 func_00123830(void)
 
 
 
-/* measured: same instructions and the same 104-byte object as retail; the
-   only residual is that retail stores the masked value to +6 and loads the
-   +4 field BEFORE sign-extending the second argument, while b210 materialises
-   the dsll32/dsra32 pair first (3 words, nd 14). Measured identical at nd 14:
-   naming the first argument in a local, naming the (s16) cast in a local, and
-   both; schedule on is much worse (nd 42, obj 92). Call-argument setup order
-   floor. Committed at nd 14. */
-// FUN_00123850 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: the named first-field load plus -O1 reproduce retail's argument setup order; exact match nd 0 (obj 104B/window 112B). */
+// FUN_00123850
+/* measured: opens optimization_level 1 to keep the +6 store and +4 load before the call conversion (nd 0). */
+#pragma optimization_level 1
 void func_00123850(void) {
     u8 *p;
     s32 t;
+    s16 first;
 
     p = D_007242CC;
     if (p != NULL) {
         *(s16 *)(p + 4) = (s16)func_001060b0();
         t = func_001060c0() & 0xFF;
         *(s16 *)(p + 6) = (s16)t;
-        *(s16 *)(p + 8) = (s8)func_00110850(*(s16 *)(p + 4), (s16)t);
+        first = *(s16 *)(p + 4);
+        *(s16 *)(p + 8) = (s8)func_00110850(first, (s16)t);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00123850);
-#endif
+/* measured: closes the optimization_level bracket at the file's -O2 baseline (nd 0). */
+#pragma optimization_level 2
 
 // FUN_00123A10
 void func_00123a10(void) {

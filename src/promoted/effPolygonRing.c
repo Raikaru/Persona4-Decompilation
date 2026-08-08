@@ -291,22 +291,7 @@ void func_004996e0(u8 *arg0)
 // FUN_00499730
 INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499730);
 
-/* measured: everything matches byte-for-byte except the LAST of the three
-   quadword copies (arg0+0x10): retail emits lw $v1,4($s0); lq $v0,0x10($s3);
-   sq $v0,0x10($v1) but mwcc b210 emits lq $v1,0x10($s3); lw $v0,4($s0);
-   sq $v0,0x10($v1) - the scheduler swaps the two independent loads of the
-   final copy only (copies 1-2 come out in retail order). nd 6, exactly 3
-   words. Tried: nested deref (nd 12, RHS-first eval), per-copy dest local
-   (nd 6), #pragma schedule off (no effect, nd 6), pointer-local dstq/srcq
-   (nd 9). The 0x30 sw copy, both colour-chain asm blocks, the s128-copy
-   lui/pool allocation and the tail all reproduce exactly. Lead: untested
-   s128 spelling for the copies. scheduler-reorder floor family. */
-/* measured: VU0 colour conversion and all control flow, aggregate copies, and calls reproduce retail. The residual is the final 16-byte copy load order; b210 emits lq before lw
-   while retail emits lw before lq. The 6 first recorded here came from a
-   probe run; verify.py measures the body actually left in the file at 7.
-   Parked near-match. Committed at nd 7. */
-// FUN_00499A30 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00499A30
 void func_00499a30(u8 *arg0)
 {
     u8 *temp_16;
@@ -384,7 +369,8 @@ void func_00499a30(u8 *arg0)
             *dstq = *(u_long128 *)(arg0 + 0x20);
             dstq = (u_long128 *)(*(u8 **)(temp_16 + 4) + 0x0);
             *dstq = *(u_long128 *)(arg0 + 0x0);
-            dstq = (u_long128 *)(*(u8 **)(temp_16 + 4) + 0x10);
+            dest = *(u8 **)(temp_16 + 4);
+            dstq = (u_long128 *)(dest + 0x10);
             *dstq = *(u_long128 *)(arg0 + 0x10);
             func_0049a6c0(*(void **)(temp_16 + 4));
             func_004836b0(temp_17, arg0, arg0 + 0x10, arg0 + 0x20);
@@ -397,9 +383,6 @@ void func_00499a30(u8 *arg0)
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonRing", func_00499a30);
-#endif
 
 // FUN_00499C50
 void func_00499c50(u8 *arg0) {

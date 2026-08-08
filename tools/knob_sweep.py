@@ -22,6 +22,7 @@ Usage:
   python tools/knob_sweep.py --targets ... --json out.json
 """
 from pathlib import Path
+import os
 import argparse
 import json
 import re
@@ -83,13 +84,15 @@ def locate(lines, addr):
     return mi, j, e, z
 
 
-def measure(cfile, addr, wrap=None, report="build/knob_sweep.json"):
+def measure(cfile, addr, wrap=None, report=None):
     """Score the preserved body, optionally wrapped in a pragma pair.
 
     Anything between the marker and `#ifdef` is PRESERVED: that region holds
     `#pragma schedule on` and floor notes, and dropping it makes a function look
     several instructions worse than it is.
     """
+    if report is None:
+        report = "build/_knobsweep_%s_%d.json" % (addr, os.getpid())
     path = Path(cfile)
     orig = path.read_bytes()
     txt = orig.decode("utf-8", errors="replace")

@@ -29,7 +29,7 @@ extern s32 func_00107240(s32 idx);
 extern s32 func_00107ac0(s32 idx);
 extern s32 func_001093a0(s32 idx);
 extern s8 func_00248760(s32 idx);
-extern s32 func_001077f0(s32 idx);
+extern s32 func_001077f0(u16 idx);
 extern s32 func_00109280(s32 idx);
 extern s32 func_00109300(s32 idx);
 extern s32 func_0010b6f0(void);
@@ -374,7 +374,60 @@ s32 func_00247020(void) {
    probe measured nd 207 at object 648/640 from duplicated pointer loads, so
    no pragma or body was retained. */
 // FUN_00247270
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247270);
+/* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
+#pragma opt_common_subs off
+s32 func_00247270(void) {
+    s32 temp_16;
+    u32 *temp_17;
+    u32 *temp_17_2;
+    s32 var_19;
+    s32 var_2;
+    s32 var_2_2;
+    s32 temp_18;
+
+    for (var_19 = 1; var_19 < 0x1F; var_19++) {
+        if (func_001087e0(var_19 & 0xFFFF) != 0) {
+            temp_18 = var_19 & 0xFFFF;
+            if (temp_18 == 0) {
+                func_0046d730(D_006359D0, 0x1B3);
+            }
+            if (func_00106330(temp_18 + 0x5BF) != 0) {
+                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (func_00106330(0x34) == 0)) {
+                    var_2 = 0;
+                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (func_00106330(0x615) == 0)) {
+                    var_2 = 0;
+                } else {
+                    var_2 = 1;
+                }
+            } else {
+                var_2 = 0;
+            }
+            if ((var_2 != 0) && (func_00107c80(var_19 & 0xFFFF) == 0) && (func_00107ea0(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) == 0)) {
+                temp_17 = (u32 *)D_00881480[0];
+                if ((u32)temp_18 >= temp_17[1]) {
+                    func_0046d730(D_006359D0, 0x4C);
+                }
+                temp_16 = (var_19 & 0xFFFF) * 0x64;
+                var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
+                if (var_2_2 != 0) {
+                    var_2_2 = func_00247020() == 1;
+                }
+                if (var_2_2 == 0) {
+                    temp_17_2 = (u32 *)D_00881480[0];
+                    if ((u32)temp_18 >= temp_17_2[1]) {
+                        func_0046d730(D_006359D0, 0x4C);
+                    }
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (func_00107b70(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                        return var_19 & 0xFFFF;
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+/* measured: opt_common_subs on restores the file baseline after func_00247270. */
+#pragma opt_common_subs on
 
 /* measured: retail re-issues the var_19&0xFFFF mask into $a0 at every call
    site (10+ times) while keeping temp_18 ($s2) for the idx checks; mwcc b210
@@ -382,7 +435,60 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247270);
    (nd 33, all diffs from this one pattern; u32 vs s32 temp_18 unchanged).
    Mask-CSE floor (same family as FUN_00247DD0/FUN_00248A60). */
 // FUN_002474F0
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002474f0);
+/* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
+#pragma opt_common_subs off
+s32 func_002474f0(void) {
+    s32 temp_16;
+    u32 *temp_17;
+    u32 *temp_17_2;
+    s32 var_19;
+    s32 var_2;
+    s32 var_2_2;
+    s32 temp_18;
+
+    for (var_19 = 1; var_19 < 0x1F; var_19++) {
+        if (func_001087e0(var_19 & 0xFFFF) != 0) {
+            temp_18 = var_19 & 0xFFFF;
+            if (temp_18 == 0) {
+                func_0046d730(D_006359D0, 0x1B3);
+            }
+            if (func_00106330(temp_18 + 0x5BF) != 0) {
+                if ((temp_18 == 0xA) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 9) && (func_00106330(0x34) == 0)) {
+                    var_2 = 0;
+                } else if ((temp_18 == 3) && ((func_00107ac0(var_19 & 0xFFFF) & 0xFFFF) == 6) && (func_00106330(0x615) == 0)) {
+                    var_2 = 0;
+                } else {
+                    var_2 = 1;
+                }
+            } else {
+                var_2 = 0;
+            }
+            if ((var_2 != 0) && (func_00107c80(var_19 & 0xFFFF) == 0) && (func_00107ea0(var_19 & 0xFFFF) == 0) && (func_002488e0(var_19 & 0xFFFF, func_00107ac0(var_19 & 0xFFFF) & 0xFF) != 0)) {
+                temp_17 = (u32 *)D_00881480[0];
+                if ((u32)temp_18 >= temp_17[1]) {
+                    func_0046d730(D_006359D0, 0x4C);
+                }
+                temp_16 = (var_19 & 0xFFFF) * 0x64;
+                var_2_2 = (*(s32 *)((u32)temp_16 + (u32)temp_17 + 0xC) & 0x10) != 0;
+                if (var_2_2 != 0) {
+                    var_2_2 = func_00247020() == 1;
+                }
+                if (var_2_2 == 0) {
+                    temp_17_2 = (u32 *)D_00881480[0];
+                    if ((u32)temp_18 >= temp_17_2[1]) {
+                        func_0046d730(D_006359D0, 0x4C);
+                    }
+                    if ((*(s32 *)((u32)temp_16 + (u32)temp_17_2 + 0xC) & 2) && (func_00107b70(var_19 & 0xFFFF) == 0) && (func_00246f10(var_19 & 0xFFFF) == 0)) {
+                        return var_19 & 0xFFFF;
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+/* measured: opt_common_subs on restores the file baseline after func_002474f0. */
+#pragma opt_common_subs on
 /* MATCHED (measured): lever-2 re-masked loop counter. `#pragma opt_common_subs
    off` (measured) stops mwcc b210 from CSE-ing `i & 0xFFFF` into a saved reg
    so retail's `andi $a0,$i` is re-emitted at each call site; `i` MUST be
@@ -469,22 +575,15 @@ s32 func_00247c20(s16 arg0) {
    b210 emits addiu for the variable and CSEs the constant into a move (nd 16)
    in every spelling tried (s32/s16/s64/u32 vars, L-suffix constants, arg-from-
    var). 64-bit-constant-load floor. */
-/* nd 8/288, from the m2c draft (nd 27) via tools/draft_probe.py.
-   Two of the three original defects came from ONE wrong type. Retail materialises
-   each case constant with `daddiu $s0,$zero,K` and separately loads the call
-   argument with `addiu $a0,$zero,K`; b210 with an s32 local emits `addiu $s0` and
-   then reuses it via `move $a0,$s0`. A NARROW UNSIGNED local produces the daddiu
-   form and stops the CSE, because the local and the int literal no longer share a
-   type - the same idiom as the matched datCalc func_00243ed0, where `u16 characterId`
-   compiles its `= 1` to daddiu. u16 and u8 both reach nd 8.
-   Remaining 2 words: our final two uses of the local emit `andi $a0,$s0,0xffff` and
-   `andi $v0,$s0,0xffff` where retail moves the register unmasked - b210 will not
-   drop the narrowing even though every assigned value is <= 0x18. Measured: s64,
-   u64, long and unsigned long all revert to addiu (nd 67); u32 keeps the mask off
-   but loses the daddiu (nd 27); (u16)/(u8) casts on the constants with an s32 local
-   do not help (nd 27); casting at the uses does not remove the mask; and fourteen
-   type-promotion pragmas including opt_unpromotetypes both ways leave nd 8.
-   Committed at nd 8. */
+/* nd 4/288 (object 284B in a 288B window), improved from nd 8 by declaring
+   func_001077f0's parameter as u16. That declaration is required by the
+   matching 00247270 family body and also changes this function's final-call
+   setup: off 236 now emits retail's `move $a0,$s0` instead of the previous
+   `andi $a0,$s0,0xffff`. The sole remaining row is off 260, where the bare
+   `return var_16` still emits `andi $v0,$s0,0xffff` versus retail's
+   `move $v0,$s0`. Return-type sweep (s32/u32/s64/u64), promotion spellings,
+   and plain-s32 shadow/return candidates all stayed nd 4; widening var_16
+   restores daddiu constant loads but regresses to nd 27. Committed at nd 4. */
 // FUN_00247CB0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00247cb0(s64 arg0) {
@@ -660,7 +759,58 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002480e0);
    Mixed `(u16)`/`& 0xFFFF` spellings regress to nd 90 (normalised away).
    Mask-CSE floor (same family as FUN_002483C0/FUN_00248B80). */
 // FUN_00248240
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00248240);
+/* measured: opt_common_subs off restores retail per-use masks while preserving the two table bases. */
+#pragma opt_common_subs off
+void func_00248240(void) {
+    s32 temp_17;
+    s32 var_20;
+    s32 var_3;
+    u32 temp_18;
+    u32 *temp_16;
+    u32 *temp_16_2;
+    u8 *temp_2;
+
+    var_20 = 1;
+    while (var_20 < 0x1F) {
+        if ((func_001077f0(var_20 & 0xFFFF) != 0) && (func_00107a00(var_20 & 0xFFFF, 3) == 0)) {
+            temp_2 = (u8 *)func_001070e0(var_20 & 0xFFFF);
+            if (temp_2 == NULL) {
+                var_3 = 0;
+                goto block_13;
+            }
+            temp_16 = (u32 *)D_00881480[0];
+            temp_18 = var_20 & 0xFFFF;
+            if (temp_18 >= temp_16[1]) {
+                func_0046d730(D_006359D0, 0x4C);
+            }
+            temp_17 = (var_20 & 0xFFFF) * 0x64;
+            if (*(u16 *)((u32)temp_17 + (u32)temp_16 + 0x12) != 0) {
+                *(u16 *)(temp_2 + 0xA) = *(u16 *)(temp_2 + 0xA) + 1;
+                temp_16_2 = (u32 *)D_00881480[0];
+                if (temp_18 >= temp_16_2[1]) {
+                    func_0046d730(D_006359D0, 0x4C);
+                }
+                if (*(u16 *)(temp_2 + 0xA) >= *(u16 *)((u32)temp_17 + (u32)temp_16_2 + 0x12)) {
+                    var_3 = 1;
+                } else {
+                    goto block_12;
+                }
+            } else {
+                goto block_12;
+            }
+            goto block_13;
+block_12:
+            var_3 = 0;
+block_13:
+            if (var_3 != 0) {
+                func_00107ce0(var_20 & 0xFFFF);
+            }
+        }
+        var_20 += 1;
+    }
+}
+/* measured: opt_common_subs on restores the file baseline after func_00248240. */
+#pragma opt_common_subs on
 /* measured (wave 14 retest — nd 119 with a fresh draft-based reconstruction,
    no match): loop of func_001077f0/func_00107ac0==0xA/func_00248a60/
    func_00107a00 guards, the D_00881494 two-u16 table scan into var_20,
@@ -689,6 +839,9 @@ u8 *func_002485e0(s32 arg0, s32 arg1) {
     u8 *var_19;
 
     if (!(var_4 & 0xFFFF)) {
+        /* func_001077f0 is narrow at the 00247270-family sites for retail's
+           andi, but 002485e0 passes arg1 whole as s32, so override it here. */
+        extern s32 func_001077f0(s32 idx);
         if (func_001077f0(arg1) == 0) {
             var_2 = 3;
         } else if (func_001087e0(arg1) != 0) {
@@ -805,7 +958,40 @@ u16 func_002489c0(s32 arg0) {
    one register (best nd 37) in every spelling tried ((u16) vs & 0xFFFF vs
    temp_17 = arg0). Mask-CSE floor (same family as FUN_00247DD0). */
 // FUN_00248A60
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00248a60);
+/* measured: opt_common_subs off preserves the raw parameter call and per-use table masks. */
+#pragma opt_common_subs off
+s32 func_00248a60(s32 arg0) {
+    s32 temp_16;
+    u32 temp_17;
+    u8 temp_16_2;
+    u32 *temp_18;
+    u32 *temp_18_2;
+
+    /* Retail reuses raw arg0 for this unprototyped call; keep that a0 value. */
+    extern s32 func_001077f0();
+    if (func_001077f0() == 0) {
+        return 0;
+    }
+    temp_18 = (u32 *)D_00881480[0];
+    temp_17 = arg0 & 0xFFFF;
+    if (temp_17 >= temp_18[1]) {
+        func_0046d730(D_006359D0, 0x4C);
+    }
+    temp_16 = (arg0 & 0xFFFF) * 0x64;
+    if (*(s32 *)((u32)temp_16 + (u32)temp_18 + 0xC) & 1) {
+        temp_18_2 = (u32 *)D_00881480[0];
+        if (temp_17 >= temp_18_2[1]) {
+            func_0046d730(D_006359D0, 0x4C);
+        }
+        temp_16_2 = *(u8 *)((u32)temp_16 + (u32)temp_18_2 + 0x11);
+        if ((s32)temp_16_2 >= (func_00107ac0(arg0) & 0xFFFF)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+/* measured: opt_common_subs on restores the file baseline after func_00248a60. */
+#pragma opt_common_subs on
 /* measured: retail re-issues var_18&0xFFFF into $a0 at every call site
    (3 sites) while keeping temp_21 in $s5 for the bounds checks (6 saved
    regs); mwcc b210 CSEs the mask into a saved register $s0 at loop top and
@@ -813,7 +999,62 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00248a60);
    sites, temp_21 u32 vs s32). Mask-CSE floor (same family as
    FUN_002474F0/FUN_002483C0/FUN_00248A60). */
 // FUN_00248B80
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00248b80);
+/* measured: opt_common_subs off restores retail per-use masks while preserving both table bases. */
+#pragma opt_common_subs off
+s32 func_00248b80(void) {
+    s32 temp_20;
+    s32 temp_2;
+    s32 var_18;
+    s32 var_17;
+    s32 var_16;
+    s32 var_2;
+    u32 temp_21;
+    u8 temp_19_3;
+    u32 *temp_19;
+    u32 *temp_19_2;
+
+    var_17 = -1;
+    var_16 = 0;
+    var_18 = 0;
+    while (var_18 < 0x1F) {
+        if (func_001077f0(var_18 & 0xFFFF) == 0) {
+            var_2 = 0;
+        } else {
+            temp_19 = (u32 *)D_00881480[0];
+            temp_21 = var_18 & 0xFFFF;
+            if (temp_21 >= temp_19[1]) {
+                func_0046d730(D_006359D0, 0x4C);
+            }
+            temp_20 = (var_18 & 0xFFFF) * 0x64;
+            if (*(s32 *)((u32)temp_20 + (u32)temp_19 + 0xC) & 1) {
+                temp_19_2 = (u32 *)D_00881480[0];
+                if (temp_21 >= temp_19_2[1]) {
+                    func_0046d730(D_006359D0, 0x4C);
+                }
+                temp_19_3 = *(u8 *)((u32)temp_20 + (u32)temp_19_2 + 0x11);
+                if ((s32)temp_19_3 >= (func_00107ac0(var_18 & 0xFFFF) & 0xFFFF)) {
+                    var_2 = 1;
+                } else {
+                    goto block_10;
+                }
+            } else {
+block_10:
+                var_2 = 0;
+            }
+        }
+        if (var_2 != 0) {
+            temp_2 = func_00107ac0(var_18 & 0xFFFF) & 0xFFFF;
+            if (var_17 < temp_2) {
+                var_17 = temp_2;
+                var_16 = var_18;
+            }
+        }
+        var_18 += 1;
+    }
+    return var_16 & 0xFFFF;
+}
+/* measured: opt_common_subs on restores the file baseline after func_00248b80. */
+#pragma opt_common_subs on
 
 /* measured: retail hoists the 0xFFFF0000 mask constant into $v1 before the
    loop and keeps the loop count in $t0; without #pragma opt_loop_invariants

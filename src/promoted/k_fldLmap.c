@@ -24,7 +24,7 @@ extern void func_00145080();
 extern void func_003f6440(s32 param, s32 value);
 extern u8 *func_00460990();
 extern void func_00460ac0(void *param, u8 *work);
-extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
+extern void func_0025ecd0(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, void *);
 extern f32 func_003e40b0(f32 *param, f32 *out);
 extern u8 *func_0047a2f0(s32 param);
 extern void func_0047a180();
@@ -394,9 +394,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188200);
 // FUN_00188320
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188320);
 
-/* measured re-triage: candidate reproduces the complete setup and color call (object 244/256). Retail hoists the f14 = arg1[8] load immediately after the f16 constant, before integer argument materialisation; MWCC b210 sinks it below the integer arguments in every tested spelling. Tried inline load, f32 local, pre-call assignment, and register f32 local; best exact C residual is normalized_diff 24. Committed at nd 24. */
-// FUN_00188590 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00188590
 void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
 {
     s32 temp_3;
@@ -408,11 +406,8 @@ void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
     func_00460ac0(D_00795E60, temp_2);
     temp_3 = arg2 * 0x18;
     temp_f14 = *(f32 *)(arg1 + 8);
-    func_0025ecd0(0xFF0000, 2, arg2, *(s32 *)(arg0 + 0x34), 0, 0, 0, (f32)(s32)(*(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B0 + temp_3)), (f32)(s32)(*(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20B4 + temp_3)), temp_f14, 0.0f, 1.0f, 1.0f, D_00795E60);
+    func_0025ecd0((f32)(s32)(*(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B0 + temp_3)), (f32)(s32)(*(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20B4 + temp_3)), temp_f14, 0xFF0000, 2, arg2, *(s32 *)(arg0 + 0x34), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188590);
-#endif
 
 /* measured re-triage: corrected two-call body has the expected setup and
    near-retail size, but MWCC b210 sinks the f14 load below the integer
@@ -566,9 +561,7 @@ u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
     return temp_18;
 }
 
-/* measured re-triage: reconstructed state/zero/nonzero light-map updates. Retail uses addu $v0,$v0,$s0 for each of the three scaled vertex addresses; mwcc emits addu $v0,$s0,$v0 despite matching all other instructions and leaves a 4-byte tail gap. Tried direct expressions, reusable scaled-offset locals, and integer-domain address arithmetic; best exact C residual is normalized_diff 15, object 364/368. Committed at nd 15. */
-// FUN_00189060 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00189060
 void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
 {
     f32 *temp_4_2;
@@ -581,9 +574,9 @@ void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
         if (fparg0 != 0.0f) {
             *(s32 *)(temp_16 + 0x58) = arg1;
             *(s32 *)(temp_16 + 0x5C) = -1;
-            *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0xC) = *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0xC) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x30);
-            *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x10) = *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x10) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x34);
-            *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x14) = *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x14) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x38);
+            *(f32 *)(temp_16 + 0x48) = *(f32 *)((u8 *)(*(s32 *)(temp_16 + 0x58) * 0xC) + (u32)temp_16 + 0xC) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x30);
+            *(f32 *)(temp_16 + 0x4C) = *(f32 *)((u8 *)(*(s32 *)(temp_16 + 0x58) * 0xC) + (u32)temp_16 + 0x10) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x34);
+            *(f32 *)(temp_16 + 0x50) = *(f32 *)((u8 *)(*(s32 *)(temp_16 + 0x58) * 0xC) + (u32)temp_16 + 0x14) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x38);
             temp_4_2 = (f32 *)(temp_16 + 0x48);
             func_003e40b0(temp_4_2, temp_4_2);
             *(s32 *)temp_16 = 2;
@@ -594,9 +587,6 @@ void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
         func_0047a180(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), temp_16 + (arg1 * 0xC) + 0xC, 0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00189060);
-#endif
 
 static inline f32 mulFp(f32 left, f32 right) { return left * right; }
 

@@ -62,15 +62,16 @@ s32 func_00513a40(u8 *arg0) {
 
 
 
-/* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; re-measured for nd_audit coverage.
-   Committed at nd 8. */
+/* measured: retail materializes arg0 + 0x1FC once, stores zero at +4 then
+   the zero at the base in the jr delay slot. The direct-store candidate
+   improves the object to nd 6; six named-pointer/address spellings and
+   both store orders stayed flat, so the residual is a jr delay-slot fill,
+   not an address-temp question. Committed at nd 6. */
 // FUN_005179E8 NONMATCHING
 #ifdef NON_MATCHING
 void func_005179e8(u8 *arg0) {
-    s32 *p = (s32 *)(arg0 + 0x1FC);
-    p[1] = 0;
-    p[0] = 0;
+    *(s32 *)(arg0 + 0x1FC) = 0;
+    *(s32 *)(arg0 + 0x200) = 0;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005179e8);

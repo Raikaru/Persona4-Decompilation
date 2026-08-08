@@ -483,41 +483,19 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
 // FUN_002B6C30
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
 
-/* measured: retail loads iGpffffb574 and the 0x38 table base before sign-extending
-   arg0, hoists the 1.0f constant before the addu, and re-loads the table for the
-   third store; mwcc b210 sinks both table loads below the shift and reorders the
-   constant (12 differing words reloc-masked, identical with a hoisted base local).
-   Load-sinking wall, same family as func_002b6af0/002b6b40. */
-/* measured: re-measured 2026-08-03 twice. Fully-inline six-deref spelling: nd
-   18 (mwcc refuses to CSE the first two base derefs, reloading gp+0x38 per
-   store). Hoisted u8 *e = base + idx local for the two 1.0f stores + inline
-   third store: nd 12, exactly the note's residual - candidate emits
-   idx-chain/lw gp/lw 0x38/addu then lui after the addu, retail is lw gp/lw
-   0x38/idx-chain/lui/addu with $v1 address/$a0 constant colors swapped.
-   Load-sinking wall, corroborated. */
-/* measured 2026-08-03: opt_propagation off FIXES the load order (nd 12 -> 7:
-   lw gp/lw 0x38 now before the idx chain) but the remaining 6 real words are
-   the constant-position wall: retail materializes lui 0x3F800000 BEFORE the
-   addu (into $a0) and puts the 0xFF addiu after the third-store re-loads;
-   mwcc always addu-then-lui with the constant in $v1 and 0xFF before the
-   reloads. Tried f32/u32 one locals, fresh-deref third store (fixes the
-   retail third-store re-derivation, nd 18->12->7). Constant-position floor. */
-/* measured: retail loads the GP table and materializes 1.0f before the index extension, then reloads the table before addiu 0xFF; the C body with base-first local plus #pragma opt_propagation off matches the full 64-byte window except the final reload/0xFF materialization order. Tried loop-invariant and optimization-level pragmas and local/expressed 0xFF forms; best and committed body nd 9. Committed at nd 9. */
-// FUN_002B6D60 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002B6D60
 #pragma opt_propagation off
 void func_002b6d60(s16 arg0) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
+    u8 *last;
     s32 off = ((s32)arg0) << 8;
     *(f32 *)(base + off + 0xB0) = 1.0f;
     *(f32 *)(base + off + 0xA4) = 1.0f;
-    *(u8 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x72) = 0xFF;
+    last = *(u8 **)(iGpffffb574 + 0x38);
+    *(u8 *)(last + off + 0x72) = 0xFF;
 }
 /* measured: opt_propagation off is bracketed around func_002b6d60. */
 #pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6d60);
-#endif
 // FUN_002B6DA0
 void func_002b6da0(void) {
     void (*const *tbl)(u32, u32) = D_00887300;

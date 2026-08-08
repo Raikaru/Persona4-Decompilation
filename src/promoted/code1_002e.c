@@ -68,13 +68,12 @@ void func_002e0940(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 
 
 
-/* measured: residual is only the post-call two-float copy: retail loads
-   out[0]->$f1 then out[1]->$f0 and stores $f1->0x2C/$f0->0x30; mwcc b210
-   always loads out[1]->$f1 first ($f0=out[0]) regardless of lo/hi decl or
-   assignment order, store order, s64 sp28+field reads, or #pragma schedule
-   on/off around the tail (schedule off regresses to nd 63). All 24 other
-   words match exactly. Float register-coloring floor (nd 4).
-   Committed at nd 4. */
+/* measured: swapping the post-call assignments to hi = out[0] and
+   lo = out[1] changes the loads to retail's $f1/$f0 order and improves
+   nd 4 -> nd 2. The remaining rows are only the two stores: mwcc keeps
+   $f0 at 0x2C and $f1 at 0x30 while retail stores $f1/$f0 respectively.
+   Object/window is 124/128 bytes; full value/store transpose regressed
+   to nd 4. Committed at nd 2. */
 // FUN_002E09E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
@@ -90,8 +89,8 @@ void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     temp_16 = *(u8 **)(arg0 + 0x38);
     func_002b2970((s64 *)out, entry[0], entry[1]);
-    lo = out[0];
-    hi = out[1];
+    hi = out[0];
+    lo = out[1];
     *(f32 *)(temp_16 + 0x2C) = lo;
     *(f32 *)(temp_16 + 0x30) = hi;
 }

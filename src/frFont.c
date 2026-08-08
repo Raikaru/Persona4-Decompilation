@@ -629,19 +629,7 @@ extern u8 *func_0026e0e0(s32 param_1);
 
 
 
-/* measured: nd2 - retail emits slt $at for the var_16>=glyphcount check,
-   mwcc b210 emits slt $v0 no matter the spelling (>=, <= swapped, empty-if
-   <, (s32) casts - all nd2). Re-tested wave 14: opt_rebuildconditionals off
-   (lever 4), goto form, named s32 glyphcount local, explicit boolean cond
-   var, s32 var_16 (kills the s16 dsll32/dsra32 sign-ext, nd85->21) - pinned
-   at nd2. The only residual is the comparison DEST register: retail slt $at
-   vs mwcc slt $v0, where $v0 overlays the glyphcount source (dest==src).
-   Both compile the identical slt; only the dest reg differs. Everything else
-   matches byte-for-byte (switch-chain with ascending cases + (s8)var_4==0
-   empty-else placement). Comparison-dest-register floor. */
-/* measured: nd2. Retail and candidate match byte-for-byte except the glyphcount comparison destination: retail emits slt $at,$s0,$v0 while b210 emits slt $v0,$s0,$v0 despite the same C shape. Tried explicit boolean local, ascending switch cases, out-of-line zero-store goto, opt_rebuildconditionals off, and signed/unsigned scalar variants; the out-of-line switch/goto body reaches nd2 with a full 544-byte object. Comparison-dest-register floor. Committed at nd 2. */
-// FUN_00272170 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00272170
 u8 * func_00272170(u16 arg0, u8 arg1, s8 arg2, s8 arg3)
 {
     u8 *node;
@@ -685,9 +673,11 @@ u8 * func_00272170(u16 arg0, u8 arg1, s8 arg2, s8 arg3)
         width = ((temp2 & 0xFF00) >> 1) + (temp2 & 0x7F);
     }
     glyphcount = *(u16 *)((u8 *)*(u32 **)((u8 *)DAT_00881630_abs + (arg1 & 0xFF) * 0x20 + 4) + 0xE);
-    if (width >= glyphcount) {
-        width = 0x147;
+    if (glyphcount > width) {
+        goto width_ok;
     }
+    width = 0x147;
+width_ok:
     *(u32 *)(node + 0x1C) = (u32)func_00271f50(node, width);
     func_00271d10(node, width);
     if ((*(u8 *)(node + 0x17) & 0x10) == 0) {
@@ -718,9 +708,6 @@ zero_store:
 done:
     return node;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00272170);
-#endif
 // FUN_00272390
 int func_00272390(short *param_1)
 {
@@ -1466,7 +1453,102 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_00273cc0);
    (retail var_18=$s2, mwcc $s1) also rotate. If-body placement + saved-
    register rotation floors. */
 // FUN_00273F70
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00273f70);
+/* measured: full func_002736d0 recipe stack. */
+#pragma optimization_level 1
+#pragma opt_common_subs on
+void func_00273f70(u8 *arg0)
+{
+    extern u8 iGpffffa748;
+    struct FrFontNode2 {
+        u16 value_00;
+        u8 code_02;
+        u8 unknown_03;
+        u32 value_04;
+        u32 value_08;
+        u8 unknown_0C[0x10];
+        u32 flag_1C;
+        u8 unknown_20[4];
+        struct FrFontNode2 *next;
+    };
+    struct FrFontWork2 {
+        u32 value_00;
+        u32 value_04;
+        u8 unknown_08[5];
+        s8 code_0D;
+        s8 code_0E;
+        u8 code_0F;
+        u8 unknown_10[4];
+        struct FrFontNode2 *list_14;
+        u8 unknown_18[4];
+        s8 active_1C;
+        s8 pending_1D;
+        s16 height_1E;
+    };
+    struct FrFontWork2 *work;
+    s16 height;
+    struct FrFontNode2 *node;
+    struct FrFontNode2 *list;
+    struct FrFontNode2 *updated;
+    u8 code;
+    u32 pending_value;
+    u8 *result;
+
+    work = (struct FrFontWork2 *)arg0;
+    node = work->list_14;
+    if ((node != NULL) && (node->flag_1C == 0)) {
+        work->active_1C = 0;
+    }
+    if (work->active_1C == 0) {
+        goto done;
+    }
+    list = work->list_14;
+    result = (u8 *)func_002724d0(&iGpffffa748, 0, work->code_0D, work->code_0E, NULL);
+    if (result == NULL) {
+        updated = list;
+        goto call_after;
+    }
+    updated = (struct FrFontNode2 *)func_00273650((int)list, (int)result, 1);
+    goto call_after;
+call_after:
+    list = updated;
+    work->list_14 = list;
+    code = work->code_0F;
+    if (list != NULL) {
+        goto loop_check;
+    }
+    func_0046d730(&D_0063BAE8, 0x69B);
+    goto loop_check;
+loop_body:
+    list->code_02 = code;
+    list = list->next;
+loop_check:
+    if (list != NULL) {
+        goto loop_body;
+    }
+    height = work->height_1E;
+    node = work->list_14;
+    if (node == NULL) {
+        func_0046d730(&D_0063BAE8, 0x6A7);
+    }
+    node->value_00 = (u32)(s32)height;
+    work->active_1C = 0;
+done:
+    if (work->pending_1D == 0) {
+        goto return_point;
+    }
+    pending_value = work->value_00;
+    node = work->list_14;
+    node->value_04 = pending_value;
+    pending_value = work->value_04;
+    node = work->list_14;
+    node->value_08 = pending_value;
+    work->pending_1D = 0;
+return_point:
+    return;
+}
+/* measured: close recipe stack. */
+#pragma optimization_level 2
+
 
 
 

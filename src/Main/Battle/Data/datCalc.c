@@ -1286,16 +1286,157 @@ s32 func_00239e40(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
     return func_00238940(arg0, arg1, arg2, arg5);
 }
 
-/* measured: 5 words off — mwcc emits `addu $a0,$v0,$v1` (base-first) and
-   `or $v1,$a0,$v1` where retail has index-first addu and the high mask in
-   $a0. uVar6 one-statement (lw-first) vs two-statement (register $v1)
-   forms, s32-cast add, and swapped operand orders all probed; the shift-pair
-   extraction condition also DSE-eliminates the whole low-bits store, so
-   `(var_21 & 0xFFFFF) != 0` is required. */
 // FUN_00239F50
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00239f50);
+s32 func_00239f50(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
+{
+    s32 temp_17;
+    u32 temp_21;
+    s32 result;
+
+    if (arg1 != NULL && arg2 != NULL) {
+        temp_17 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
+        arg3 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+        temp_21 = func_002397d0(arg0, arg1, arg2, 1, 1, 0);
+        if ((u16)arg0 >= 0x1B8) {
+            func_0046d730(D_00635938, 0xB94);
+        }
+        if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x18] != 2) {
+            result = 0;
+        } else {
+            if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
+                func_0046d730(D_00635938, 0xB9F);
+            }
+            result = func_00238940(arg0, arg1, arg2, 0);
+        }
+        if (temp_17 == 0 && arg3 == 0 && temp_21 == 0 && result == 0) {
+            return 0;
+        }
+        if ((((u64)temp_21 << 0x2C) >> 0x2C) != 0) {
+            *(u32 *)(arg2 + 0xC) = (*(u32 *)(arg2 + 0xC) & 0xFFF00000) | (temp_21 & 0xFFFFF);
+        }
+        *(u32 *)(arg2 + 0xC) |= temp_21 & 0xFFF00000;
+        *(u32 *)(arg2 + 0xC) &= ~result;
+        if (arg3 != 0) {
+            arg3 = (u32)*(u16 *)(arg2 + 0xA) + (u32)arg3;
+            if (arg3 < 0) {
+                arg3 = 0;
+            }
+            result = func_00232290((DatUnit *)arg2) & 0xFFFF;
+            if (result < arg3) {
+                arg3 = result;
+            }
+            *(u16 *)(arg2 + 0xA) = arg3;
+        }
+        if (temp_17 != 0) {
+            arg3 = *(u16 *)(arg2 + 0x8) + temp_17;
+            if (arg3 < 0) {
+                arg3 = 0;
+            }
+            result = func_00231f80((DatUnit *)arg2) & 0xFFFF;
+            if (result < arg3) {
+                arg3 = result;
+            }
+            *(u16 *)(arg2 + 0x8) = arg3;
+            if (*(u16 *)(arg2 + 0x8) == 0) {
+                *(u32 *)(arg2 + 0xC) = (*(u32 *)(arg2 + 0xC) & 0xFFF00000) | 0x80000;
+            }
+        }
+    }
+    return 1;
+}
+
+
+
+
+
 // FUN_0023A1E0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023a1e0);
+s32 func_0023a1e0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3)
+{
+    s32 temp_21;
+    s32 temp_19;
+    s32 temp_22;
+    s32 flags;
+    s32 result;
+    s32 status;
+    s32 high;
+    u32 hit;
+    u16 temp_17;
+    u16 temp_17_2;
+
+    flags = 0;
+    if (arg1 != NULL && arg2 != NULL) {
+        temp_21 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 1);
+        temp_19 = func_00235520(arg0, arg1, arg2, 1, 1, 1, arg3, 2);
+        temp_22 = func_002397d0(arg0, arg1, arg2, 1, 1, 0);
+        if ((u16)arg0 >= 0x1B8) {
+            func_0046d730(D_00635938, 0xB94);
+        }
+        if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x18] != 2) {
+            result = 0;
+        } else {
+            if ((s32)iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x19] < 0x64) {
+                func_0046d730(D_00635938, 0xB9F);
+            }
+            result = func_00238940(arg0, arg1, arg2, 0);
+        }
+        *(s32 *)(arg1 + 0x18) = 0;
+        *(s32 *)(arg2 + 0x18) = 0;
+        status = *(s32 *)(arg2 + 0xC);
+        high = ((status & 0x80000) != 0);
+        if (temp_21 == 0 && temp_19 == 0 && temp_22 == 0 && result == 0) {
+            flags |= 0xFFFF;
+        }
+        if (result == 0) {
+            goto check_status;
+        }
+        hit = ((status & result) != 0);
+        if (hit != 0) {
+            goto return_zero_status;
+        }
+        flags |= 4;
+        goto check_result_high;
+return_zero_status:
+        return 0;
+check_result_high:
+        if ((result & 0x80000) == 0) {
+            goto check_status;
+        }
+        if ((flags & 4) == 0) {
+            goto check_status;
+        }
+        goto return_flags_status;
+return_flags_status:
+        return flags;
+check_status:
+        if (high == 0) {
+            if (temp_19 > 0) {
+                temp_17 = *(u16 *)(arg2 + 0xA);
+                if ((s32)(func_00232290((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17) {
+                    goto return_zero_sp;
+                }
+                flags |= 2;
+                goto check_hp;
+return_zero_sp:
+                return 0;
+            }
+check_hp:
+            if (temp_21 > 0) {
+                temp_17_2 = *(u16 *)(arg2 + 0x8);
+                if ((s32)(func_00231f80((DatUnit *)arg2) & 0xFFFF) > (s32)temp_17_2) {
+                    goto return_zero_hp;
+                }
+                flags |= 1;
+                goto done;
+return_zero_hp:
+                return 0;
+            }
+            goto done;
+        }
+        return 0xFFFF;
+    }
+done:
+    return flags;
+}
 
 // FUN_0023A490
 s32 func_0023a490(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 *arg4, s32 *arg5, s32 *arg6)
@@ -1742,38 +1883,21 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
    s16-extension-pair floor, corroborated. */
 // FUN_00241BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
-/* measured: nd 7 (obj 284B vs window 288B, so SIX real words) from 65.
-
-   Two levers did all the work. (1) The first discrete test must be a switch
-   with ASCENDING case labels, not an `||` chain: `switch (kind) { case 9: case
-   10: return 1; }` reproduces retail testing 10 then 9 and branching both to a
-   shared target (65 -> 47); the `||` form tests them inline in source order.
-   The SECOND test is the opposite -- retail tests arg4 against 2 then 4,
-   ascending, so that one stays an `||` chain (as a switch it goes to 59).
-   (2) DISTINCT CSE KEYS for the index: `(arg2 & 0xFFFF)` in the range assert and
-   `(u16)arg2` in the table index (47 -> 7). With the same spelling in both
-   places b210 caches the masked value in a SIXTH saved register and the frame
-   grows to 0x70 where retail uses 0x60 with five.
-
-   Residual: retail loads the gp table pointer (`lw $a0, -0x4c48($gp)`) BEFORE
-   computing the index; b210 computes the index first and loads the pointer last.
-   Measured and rejected: hoisting the pointer into a local before the switch,
-   opt_propagation off (70, much worse -- it is the documented lever for an early
-   gp base load but not here), opt_common_subs off (25), a DatCalcEntry struct
-   typedef indexed as an array, and (u16) in the assert instead of the index.
-   Eleven spellings. gp-load sinking floor.
-   Committed at nd 16. */
-// FUN_00241DE0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00241DE0
 s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {
+    u8 *entry;
+    u32 offset;
     if (!((arg2 & 0xFFFF) < 0x1B8)) {
         func_0046d730(D_00635938, 0x1333);
     }
     if (func_00241bc0(arg0, arg1, arg2, arg3, arg4) == 0) {
         return 0;
     }
-    switch (*(u8 *)(PTDatCalcOffsetAdd((u16)arg2 * 0x28, (u32)iGpffffb3b8) + 0x24)) {
+    entry = (u8 *)iGpffffb3b8;
+    offset = (u16)arg2 * 0x28;
+    entry = (u8 *)((u32)offset + (u32)entry);
+    switch (*(u8 *)(entry + 0x24)) {
     case 9:
     case 10:
         return 1;
@@ -1783,9 +1907,6 @@ s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
-#endif
 
 // FUN_00241F00
 s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)

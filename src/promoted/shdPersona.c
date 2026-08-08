@@ -1055,9 +1055,20 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ae90);
 
 
 void func_0034c270(Vec2f, u8, s32, f32);
-/* measured: reconstructed plain-C body, nd 21 (obj 444B / window 448B). Retail's Vec2f zero aggregate, reversed linear-switch case declaration (0,2,4,3,1), signed-byte absolute-value reconstruction, and the single-precision `231.0f - 166.0f * (value / 255.0f)` arithmetic all compile without asm; MWCC emits the retail adda.s/msub.s chain. The remaining 21-word residual is call argument materialization/register coloring plus the 4-byte tail. Tried direct and hoisted intensity forms, u32 fold/local result, switch orders, pointer aliases, and explicit FMA seed. Committed at nd 21. */
+/* measured: reconstructed plain-C body, nd 18 (obj 444B / window 448B),
+   improved from nd 21 by bracketing only this function with
+   `#pragma opt_common_subs off` (restored after the body). The remaining
+   fndiff rows are the two call-site argument-materialization swaps at offsets
+   88/92 and 120/124 (retail prepares the stack aggregate before loading
+   $f12), the signed-byte negative-path colouring at 192/196 (`or` and `mtc1`
+   use retail $v1 while MWCC uses $v0), and the relocation-owned global-address
+   pair at 360/364. The object remains four bytes short at the tail. No source
+   spelling tested changed these residuals. Committed at nd 18. */
 // FUN_0011B110 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail re-issues a value b210 would hoist into a saved
+   register; disabling common-subexpression sharing restores that. */
+#pragma opt_common_subs off
 void func_0011b110(u8 *arg0)
 {
     Vec2f z;
@@ -1110,6 +1121,8 @@ void func_0011b110(u8 *arg0)
         return;
     }
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma opt_common_subs on
 #else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
 #endif
@@ -1518,22 +1531,18 @@ void func_0011bc70(u8 *arg0)
 
 f32 func_0011de80(u8 *, Vec2f *);
 void func_0011e370(u8 *);
-/* measured: retail sinks the `lwc1 field, 0x4FC` load to AFTER the
-   addiu/mtc1/cvt.s.w materialisation of (f32)0x303 in the then-branch
-   (cvt -> $f1, load -> $f0); mwcc b210 always emits the field load first and
-   swaps the two FP temps (cvt -> $f0, load -> $f1), nd 6, all the same six
-   words at offsets 188-208. Tried: operand order both ways, cvt hoisted to a
-   local, 0x303 as an int local, static-inline faddF32 helper, and the Vec2f
-   struct shape (b,a declared b-first; all other 186 bytes byte-identical) —
-   identical. Load-scheduling floor. */
-/* Wave-14 re-measure: confirmed nd 6 (same six words). Added levers measured:
-   #pragma schedule on -> 71 (O3 schedule cascades), v2[0] split into two
-   statements (771.0f then += load) -> 33, integer-domain address
-   `*(f32 *)((u32)w + 0x4FC)` -> 6 (identical), (f32)0x303 cast -> 6. Also
-   corrected the v[0] constant to 131.0f (0x4303, not 195.0f) and the array
-   declaration order (v2 declared first puts v at 0x20/v2 at 0x28 like retail).
-   Load-scheduling floor stands. */
-/* measured: fully decompiled, nd 19 (obj 336B / window 336B). All 19 differing bytes are the documented load-scheduling floor in the then-branch (bytes 188-206): retail materialises (f32)0x303 (addiu/mtc1/nop/cvt.s.w into $f1) BEFORE the lwc1 0x4FC load into $f0, then add.s $f0,$f1,$f0; mwcc b210 always emits the field load first and swaps the two FP temps (cvt->$f0, load->$f1, add.s $f0,$f0,$f1). Tried (f32)0x303 cast, 771.0f, cvt-to-local, operand order, integer-domain address (blows to nd 270) — identical. Load-scheduling floor (same family as func_0011bf10). Committed at nd 19. */
+/* measured: fully decompiled, nd 19 (obj 336B / window 336B). The only
+   residual is a six-word FP scheduling/allocation permutation at offsets
+   188, 192, 196, 200, 204, and 208. Retail emits addiu/mtc1/nop/cvt.s.w
+   for integer 0x303 into $f1, then lwc1 0x4FC into $f0, then add.s
+   $f0,$f1,$f0. MWCC emits the same multiset as lwc1 into $f1, addiu/mtc1/
+   nop/cvt.s.w into $f0, then add.s $f0,$f0,$f1. Nothing is missing or
+   extra: the values own the opposite FP temporaries, and retail hoists the
+   conversion chain over the field load to cover the mtc1-to-cvt.s.w hazard.
+   Operand transpositions are canonicalised; naming field/constant locals,
+   integer versus 771.0f spellings, split expressions, address-domain forms,
+   and all thirteen pragma wrappers did not change nd. Function-wide FP
+   liveness/scheduling floor. Committed at nd 19. */
 // FUN_0011BDC0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0011bdc0(u8 *arg0)
@@ -1554,7 +1563,7 @@ void func_0011bdc0(u8 *arg0)
         v.y = -59.0f + *(f32 *)(w + 0x500);
         ret = func_0011de80(*(u8 **)(w + 0x4F8), &v2);
         if (ret == 0.0f || ret == 1.0f) {
-            v2.x = (f32)0x303 + *(f32 *)(w + 0x4FC);
+            v2.x = 771.0f + *(f32 *)(w + 0x4FC);
             v2.y = -59.0f + *(f32 *)(w + 0x500);
             func_0011e2b0(*(u8 **)(w + 0x4F8), &v2, &v);
             func_0011e370(*(u8 **)(w + 0x4F8));
@@ -1571,19 +1580,18 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bdc0);
 
 
 
-
-/* measured: retail materialises (f32)0x303 (addiu/mtc1/cvt.s.w into $f1) BEFORE
-   the lwc1 field load for sp20 (offsets 292-312); mwcc b210 emits the field
-   load first and swaps the FP temps — nd 7 (the same six words as
-   func_0011bdc0 plus one missing tail padding word). Same load-order floor as
-   func_0011bdc0, corroborated there across 6 spellings. The (f32)(s32)
-   round-trip casts m2c showed are hallucinated (plain float adds in retail).
-   Working recipe for the rest of the body (all other 614 bytes byte-identical):
-   Vec2f b,a declared b-first (slots 0x28/0x20); mask chain via distinct temps
-   t1..t5 (a single reassigned local makes mwcc fold the masks); switch cases
-   declared 0,1,3,2,4 to get retail's 4,2,3,1,0 test order; u8-typed 0xFF
-   stores (s8 materialises -1). */
-/* measured: reconstructed full 0x270-byte body. Retail's state-switch/call register setup, mask chain, vector slots, interpolation calls, and final 0x80000 flag cleanup match; the six differing words are the documented (f32)0x303 materialization/load scheduling. Tried the distinct mask temporaries, switch declaration order 0,1,3,2,4, Vec2f b-first slots, and s8/u8 stores. Committed at nd 19. */
+/* measured: fully decompiled, nd 19 (obj 620B / window 624B). Offsets 292,
+   296, 300, 304, 308, and 312 have the same six-word FP permutation as
+   func_0011bdc0: retail emits addiu/mtc1/nop/cvt.s.w for integer 0x303 into
+   $f1, then lwc1 0x4FC into $f0, then add.s $f0,$f1,$f0; MWCC emits lwc1
+   into $f1, addiu/mtc1/nop/cvt.s.w into $f0, then add.s $f0,$f0,$f1.
+   Nothing is missing or extra in those six words; the opposite FP
+   temporary ownership prevents operand transposition from changing the
+   result, and retail's conversion-chain hoist covers the mtc1-to-cvt.s.w
+   hazard. The object is four bytes short at tail offset 620. Naming
+   field/constant locals, integer versus 771.0f spellings, split expressions,
+   address-domain forms, and all thirteen pragma wrappers did not change nd.
+   Function-wide FP liveness/scheduling floor. Committed at nd 19. */
 // FUN_0011BF10 NONMATCHING
 #ifdef NON_MATCHING
 void func_0011bf10(u8 *arg0)
@@ -1637,7 +1645,7 @@ void func_0011bf10(u8 *arg0)
         *(u8 *)(w + 0x504) = *(u8 *)(w + 0x505);
         *(u8 *)(w + 0x506) = 0xFF;
         func_0011aaa0(w, 5);
-        v.x = (f32)0x303 + *(f32 *)(w + 0x4FC);
+        v.x = 771.0f + *(f32 *)(w + 0x4FC);
         v.y = -59.0f + *(f32 *)(w + 0x500);
         ret = func_0011de80(*(u8 **)(w + 0x4F8), &v2);
         if (ret == 0.0f || ret == 1.0f) {
@@ -1828,24 +1836,19 @@ void func_0011c6e0(u8 *arg0, s32 arg1)
 
 
 
-/* measured: rule 2 confirmed — with the multiplications written ratio-first
-   (`base + ratio * delta`, `f + ratio * delta`), the adda.s/madd.s pairs match
-   retail byte-for-byte (madd.s $f1,$f0,$f1 / $f1,$f0,$f3); the OLD floor note's
-   "scheduling/colouring" residual is now isolated to: (1) the top load
-   interleave — retail [lh 0x514; lwc1 0x450; mtc1; cvt], mwcc emits the lwc1
-   either before the lh (v-local + lo-local order) or after the cvt (inline
-   conversion), never in the lh→mtc1 slot; (2) FP temp register rotation after
-   the func_0044b7b0 call (diff lands $f2 vs retail $f3, f_abs $f1 vs $f2,
-   adda/madd dests shift); (3) the 0x4F000000 guard: the constant MUST be the
-   float literal 2147483648.0f (an int 0x4F000000 materialises 0x4E9E0000)
-   and the condition must be small-path-first (`if (f < 2147483648.0f)` with
-   `(s32)f & 0xFF` inline, big path out of line) — the explicit-if form DOES
-   survive here (unlike func_00119210) because the value mixes a loaded byte
-   and the call-result phi. The func_0044b7b0 call must sit INSIDE the
-   else-if (div) branch, not after the chain — otherwise the div-destination
-   register and the nop-after-div disappear. Best nd 29 (obj 428B / window
-   432B) at attempt 4; attempts 1-3 were 58-86 with earlier shapes. */
-/* measured: fully decompiled, nd 48 (obj 428B / window 432B). Same recipe as func_0011c930 (s32 v + u32 c abs, (s32) cast on OR result, x+x doubling, `if (a >= 0)` then-else polarity, `ratio > hi` else-if) — FMA pairs match byte-for-byte and the div/abs branch layouts match. Remaining 48 = identical documented floors: (1) prologue load interleave; (2) neg-path abs registers (or $v1/cvt $f1 vs retail or $a0/cvt $f2); (3) 0x4F000000 guard c.olt.s+bc1f vs c.ole.s+bc1t; (4) n colours $v1 vs $a0. Committed at nd 48. */
+/* measured: reconstructed plain-C body, nd 18 (obj 428B / window 432B).
+   The raw s16 load ordering (raw; lo; ratio = (f32)raw; hi) first improved
+   nd 48 to 43; `~0x1000` then emitted retail's -0x1001 at offset 396, and
+   `2147483648.0f > acc` emitted retail c.ole.s plus bc1t at 288/292,
+   reaching nd 38. The final nd 38 -> 18 fix nests the high-bound load/test
+   inside the `else` after the low clamp, so the low path emits retail's
+   mtc1 $zero,$f0 / b / nop at offsets 48/52/56 and defers lwc1 0x454 to 60.
+   Remaining fndiff rows are the prologue load swap at 16/20; relocation-owned
+   iGpffff8094 GPREL materialization at 108; negative-path coloring at
+   240/244, 252/256; and output $v1/$a0 coloring at 304, 312, 340, 344, 348.
+   The object remains four bytes short at tail offset 428. In-place OR,
+   compound-assignment, reused-local, dual-result-zero, and all thirteen
+   pragma wrappers were flat or worse. Committed at nd 18. */
 // FUN_0011C780 NONMATCHING
 #ifdef NON_MATCHING
 void func_0011c780(u8 *arg0)
@@ -1863,16 +1866,20 @@ void func_0011c780(u8 *arg0)
     s32 b;
     s32 v;
     u32 c;
+    s16 raw;
 
-    ratio = (f32)(s16)*(s16 *)(arg0 + 0x514);
+    raw = *(s16 *)(arg0 + 0x514);
     lo = *(f32 *)(arg0 + 0x450);
-    hi = *(f32 *)(arg0 + 0x454);
+    ratio = (f32)raw;
     if (ratio < lo) {
         ratio = 0.0f;
-    } else if (ratio > hi) {
-        ratio = 1.0f;
     } else {
-        ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo)));
+        hi = *(f32 *)(arg0 + 0x454);
+        if (ratio > hi) {
+            ratio = 1.0f;
+        } else {
+            ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo)));
+        }
     }
     base = *(f32 *)(arg0 + 0x434);
     delta = *(f32 *)(arg0 + 0x43C) - base;
@@ -1892,20 +1899,19 @@ void func_0011c780(u8 *arg0)
         f_abs = f_abs + f_abs;
     }
     acc = f_abs + ratio * diff;
-    if (acc < 2147483648.0f) {
+    if (2147483648.0f > acc) {
         n = (s32)acc & 0xFF;
     } else {
         n = ((s32)(acc - 2147483648.0f) | 0x80000000) & 0xFF;
     }
     *(u8 *)(arg0 + 0x44E) = n;
     if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) {
-        *(s32 *)(arg0 + 0x534) &= ~0x1001;
+        *(s32 *)(arg0 + 0x534) &= ~0x1000;
     }
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
 #endif
-
 
 
 

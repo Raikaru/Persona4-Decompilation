@@ -25,7 +25,7 @@ void func_00275020(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5,
 void func_0046d4c0(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
 extern char D_005E5830[];
 extern char D_005E5850[];
-void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5);
+void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 s32 func_0046a770(const char *file);
 void func_00274ed0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 void func_001138c0(s64 arg0, u8 arg1, s16 *arg2, f32 arg3);
@@ -168,15 +168,14 @@ void func_00114dc0(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
    beqz chain otherwise byte-identical. Tried: m2c-faithful (107), hi local
    (76), x/y locals (76), alpha local (38), temp_16-first, decl swaps,
    u8 alpha (79). arg-eval-order + reg-coalescing + FP-scheduling floor. */
-/* measured: plain C with the Vec2f ABI, precomputed x/y expressions, reused alpha temporaries, and a reordered mixed-class declaration for func_002bc860 reaches nd 2 (object 456/464). Retail differs only in the final guard temporary register (`andi/beqz $a3` vs b210 `$v1`) and has an 8-byte tail that b210 omits. The reordered declaration is required to place f14 before a1/a2. No inline assembly. Committed at nd 2. */
-// FUN_00114E50 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00114E50
 void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
     s32 temp_16;
     s32 temp_17;
     s32 temp_2;
     f32 x;
     f32 y;
+    s32 temp_7;
 
     temp_2 = func_0046a770(D_005E5850);
     if (temp_2 == 0) {
@@ -195,15 +194,13 @@ void func_00114e50(Vec2f arg0, f32 fparg0, s32 arg1, s32 arg2) {
     y = arg0.y;
     temp_16 = 0xFF - temp_17;
     func_0046d4c0(0, temp_2, 0x17, x, y, temp_16 & 0xFF, 0xFF, 0xA0, 0x0B, fparg0, 0);
-    if ((arg2 & 0xFFFF) != 0) {
+    temp_7 = arg2 & 0xFFFF;
+    if (temp_7 != 0) {
         x = 62.0f + arg0.x;
         y = 22.0f + arg0.y;
-        func_002bc860((f32)(s32)x, (f32)(s32)y, fparg0, temp_17 | ~0xFF, 1, 8);
+        func_002bc860((f32)(s32)x, (f32)(s32)y, fparg0, temp_17 | ~0xFF, 1, 8, temp_7);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00114e50);
-#endif
 
 /* measured: re-measured this wave with a rebuilt body, best nd 45. The
    working spelling: `u16 count = *(u16 *)(arg0 + 0x22C)` loaded BEFORE
