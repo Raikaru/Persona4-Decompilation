@@ -371,3 +371,16 @@ D_008873D0 = 0x008873d0; // type:data evidence: retail func_003ddc20 lui/addiu %
 iGpffffb754 = 0x00764844; // type:data evidence: retail func_003ddf20 lw $4,-0x48AC($28) at 0x003DDF38 and 0x003DDF5C; gp base 0x007690F0
 D_00635938 = 0x00635938; // type:data evidence: retail func_002340c0 lui/addiu at 0x00234800/0x00234804 resolve the error-message table address 0x00635938
 iGpffffb440 = 0x00764530; // type:data evidence: retail func_0032c480 lw $2,-0x4BC0($28) at 0x0032C4CC; gp base 0x007690F0
+
+iGpffff9cd8 = 0x00762dc8; // type:data evidence: retail func_00142230 addiu $8,$28,-0x6328 at 0x00142234 resolves to 0x00762DC8; gp base 0x007690F0
+iGpffffa030 = 0x00763120; // type:data evidence: retail func_001901d0 addiu $4,$28,-0x5FD0 at 0x001902D4/0x00190308/0x00190338/0x00190368; gp base 0x007690F0
+D_0070C260 = 0x0070c260; // type:data evidence: retail func_003d3920 lui %hi(D_0070C260)/addiu %lo at 0x003D3970/0x003D3978, then sw $2,0x18($7) at 0x003D397C
+D_007638D0 = 0x007638d0; // type:data evidence: retail func_0029e550 addiu $5,$28,-0x5820 at 0x0029e5ac; GP base 0x007690F0
+iGpffffb06c = 0x0076415c; // type:data evidence: retail sdkLbox func_004704d0 GPREL -0x4F94($28) format string at 0x00470568; GP 0x007690F0
+iGpffffb070 = 0x00764160; // type:data evidence: retail sdkLbox func_004704d0 GPREL -0x4F90($28) format string at 0x004705A0; GP 0x007690F0
+iGpffffb0c0 = 0x007641b0; // type:data evidence: retail sdkLbox func_004704d0 GPREL -0x4F40($28) format string at 0x004705E0; GP 0x007690F0
+iGpffffb090 = 0x00764180; // type:data evidence: retail sdkLbox func_004704d0 GPREL -0x4F70($28) format string at 0x00470618; GP 0x007690F0
+iGpffffb0c8 = 0x007641b8; // type:data evidence: retail sdkLbox func_004704d0 GPREL -0x4F38($28) format string at 0x0047065C; GP 0x007690F0
+iGpffffb0a8 = 0x00764198; // type:data evidence: retail sdkLbox func_004704d0 GPREL -0x4F58($28) format string at 0x00470710; GP 0x007690F0
+iGpffff9f90 = 0x00763080; // type:data evidence: retail func_0018d950 gp-relative access at GP 0x007690F0 - 0x6070 = 0x00763080 (k_fldFoodCourt)
+iGpffff836c = 0x0076145c; // type:data evidence: retail func_004b1290 lwc1 $f0,-0x7C94($28) at 0x004B12A0; GP base 0x007690F0 -> 0x0076145C

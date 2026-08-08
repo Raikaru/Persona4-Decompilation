@@ -647,6 +647,7 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247cb0);
    helper fixed that one word). Mask-CSE floor. */
 // FUN_00247DD0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247dd0);
+
 // FUN_00247EC0
 s32 func_00247ec0(s32 seed) {
     u8 *p = D_00881498[0] + 8;

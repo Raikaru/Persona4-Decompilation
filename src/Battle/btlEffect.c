@@ -217,7 +217,30 @@ void func_001d7880(void)
 
 
 // FUN_001D78D0
-INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001d78d0);
+void func_001d78d0(void) {
+    s32 *out;
+    s32 offset;
+    s32 i;
+    s32 temp19;
+    u8 *work;
+    void *work2;
+    i = 0;
+    while (i == 0) {
+        func_00440b68(&iGpffffa290, D_00609548, 0x559);
+        offset = i * 4;
+        work = func_00454a60(*(u8 **)((u8 *)&iGpffffa2a0 + offset), 0);
+        func_00456150(work);
+        out = (s32 *)((u8 *)&iGpffffb450 + offset);
+        *out = func_001d3d50(2);
+        temp19 = *(s32 *)(work + 0x118);
+        func_0044ea90(D_00609558, 0x3A);
+        work2 = jtbl_008873E8[0](temp19, 0x40000);
+        func_0043f810(work2, (void *)*(s32 *)(work + 0x110), *(s32 *)(work + 0x118));
+        func_001d4490(*out, (u32)work2);
+        func_00454bd0(work);
+        i += 1;
+    }
+}
 
 // FUN_001D7A10
 void func_001d7a10(u16 param_1)

@@ -12,6 +12,7 @@ extern u8 *D_00745888[];
 u8 **func_00510e30(void) {
     return (u8 **)D_00745888;
 }
+/* measured: closes the schedule bracket for func_00510e30. */
 #pragma schedule off
 
 
@@ -23,8 +24,6 @@ extern u8 *D_00745888[];
    result locals, single-expression chains, no-pragma (nd 6); best nd 2. This is the
    brief's corroborated "$v0/$v1 coalescing in tiny accessors" floor. */
 
-#pragma schedule on
-#pragma schedule off
 
 
 extern u8 *D_00745AC0[];
@@ -35,8 +34,6 @@ extern u8 *D_00745AC0[];
    result locals, single-expression chains, no-pragma (nd 6); best nd 2. This is the
    brief's corroborated "$v0/$v1 coalescing in tiny accessors" floor. */
 
-#pragma schedule on
-#pragma schedule off
 
 
 extern u8 *D_00745AC0[];
@@ -47,6 +44,7 @@ extern u8 *D_00745AC0[];
    ordering). Tried pointer-local, (u32)-base, return-local, no-pragma (nd 6);
    best nd 7. $v0/$v1 coalescing floor (brief) + delay-slot preference. */
 
+/* measured: schedule on is paired with opt_common_subs off for func_00513a40. */
 #pragma schedule on
 // FUN_00513A40
 /* measured: retail materialises the global's address once and keeps it live
@@ -57,16 +55,19 @@ s32 func_00513a40(u8 *arg0) {
     D_00745AC0[0] = arg0;
     return 0;
 }
+/* measured: closes the opt_common_subs bracket for func_00513a40. */
 #pragma opt_common_subs on
+/* measured: closes the schedule bracket for func_00513a40. */
 #pragma schedule off
 
 
 
-/* measured: retail materializes arg0 + 0x1FC once, stores zero at +4 then
-   the zero at the base in the jr delay slot. The direct-store candidate
-   improves the object to nd 6; six named-pointer/address spellings and
-   both store orders stayed flat, so the residual is a jr delay-slot fill,
-   not an address-temp question. Committed at nd 6. */
+/* Direct stores matched the retail values but not its address-materialisation
+   and delay-slot order: active direct C was nd 6 (obj 12B/window 16B), with
+   fndiff rows 0 sw $zero,0x200($a0) vs addiu $a0,$a0,0x1fc; 4 jr $ra vs
+   sw $zero,4($a0); 8 sw $zero,0x1fc($a0) vs jr $ra; 12 retail-only sw
+   $zero,($a0). Pointer-local, store-order, and scheduler probes were ruled
+   out. Committed at nd 6. */
 // FUN_005179E8 NONMATCHING
 #ifdef NON_MATCHING
 void func_005179e8(u8 *arg0) {
@@ -92,6 +93,7 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
     arg0->unk_4 = arg2;
     arg0->unk_0 = arg1;
 }
+/* measured: closes the schedule bracket for func_00517c18. */
 #pragma schedule off
 
 
@@ -120,7 +122,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ee0);
    lw $v0,0x7c($v0)); retail 2.4.1.01 keeps it in $v1 (lw $v1,0x1fc0($a0) /
    lw $v0,0x7c($v1)). nd 2 (the two rt-register bytes). Tried s32/u32 locals,
    result locals, single-expression chains, pointer-arithmetic variants, no-pragma
-   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief). */
+   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief).
+   Committed at nd 2. */
 
 #pragma schedule on
 // FUN_0051F5E8 NONMATCHING
@@ -132,6 +135,7 @@ s32 func_0051f5e8(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_0051f5e8);
 #endif
+/* measured: closes the schedule bracket for func_0051f5e8. */
 #pragma schedule off
 
 
@@ -146,4 +150,5 @@ u8 *func_0051f5f8(u8 *arg0, s32 arg1) {
     *(s32 *)(p + 0x80) = arg1;
     return p;
 }
+/* measured: closes the schedule bracket for func_0051f5f8. */
 #pragma schedule off

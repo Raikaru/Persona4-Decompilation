@@ -198,6 +198,10 @@ void func_00442830(void* arg0, void* arg1);
 u8* func_00455f70(void* arg0, void* arg1);
 void func_00450050(s64 arg0, char* arg1, s32 arg2, void* arg3);
 void func_0045d6e0(void* arg0, void* arg1, f32 fparg0, s32 arg2);
+static inline u8 *scrAddOff(u32 offset, u8 *base)
+{
+    return (u8 *)(offset + (u32)base);
+}
 
 
 
@@ -265,30 +269,17 @@ u8* func_0029d120(ScrPool* pool)
    func_00470970, which carried a firmer floor verdict than this one. Start from the
    saved region under build/permute/, not from scratch.
 
-   Previously recorded, still true of the nd-6 body below: retail materializes the
-   third call argument before the two moves into $a0/$a1, and five hand spellings
-/* Argument-materialisation floor, 3 words (nd 10). The body below is complete and
-   correct - it was recovered by running tools/permute_min.py over an AST-permuter hit,
-   which stripped 31 of 78 lines of randomiser noise (four empty blocks, comma
-   operators, a no-op mask, nine single-use temps) and left `*(&arg0)` plus a
-   duplicated assert as the only load-bearing oddities. Reading retail directly then
-   showed those two were noise as well: the real shape is two ordinary asserts on
-   DIFFERENT lines (106, 107) with `node` computed before the emptiness test.
-   The whole residual is that retail materialises the third argument first:
-       sw $v0,8($s1) / lw $a2,($s1) / move $a0,$s0 / move $a1,$zero / jal
-   where b210 emits the two moves before the load. Measured as NOT source-drivable:
-   inline-at-callsite, a temp after the decrement, a temp before it, `((s32 *)arg0)[0]`,
-   an old-style callee declaration, arg1 through a local, and `#pragma schedule off`
-   all sit at nd 10 (the two forms that move the load earlier score nd 13 and nd 104).
-   `schedule off` changing nothing proves this is codegen argument ordering, not the
-   scheduler - the genuine-floor case in mwccps2-operand-order-inline-helper.
-   The 10 first recorded here predates the fallback arm being corrected to INCLUDE_ASM; verify measures the committed body at 30. Committed at nd 30. */
+/* Measured nd 10 (object 164 / window 176). The retail call to
+   func_0043f9c8 materializes the pool's offset-0 field as its third
+   argument after decrementing the offset-8 count; using that direct field
+   expression preserves the retail load and leaves only the documented
+   three-word argument-materialisation floor. The two null checks and the
+   linked-list insertion remain ordinary C. Committed at nd 10. */
 // FUN_0029D1C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0029d1c0(void *arg0, void *arg1)
 {
     u8 *node;
-    s32 size;
 
     if (arg0 == NULL) {
         func_0046d730(D_0063E3D0, 0x6A);
@@ -300,10 +291,8 @@ void func_0029d1c0(void *arg0, void *arg1)
     if (*(s32 *)((u8 *)arg1 - 4) == 0) {
         *(u8 **)(node + 4) = *(u8 **)((u8 *)arg0 + 0xC);
         *(u8 **)((u8 *)arg0 + 0xC) = node;
-        size = *(s32 *)((u8 *)arg0 + 8);
-        size -= 1;
-        *(s32 *)((u8 *)arg0 + 8) = size;
-        func_0043f9c8(arg1, 0, size);
+        *(s32 *)((u8 *)arg0 + 8) = *(s32 *)((u8 *)arg0 + 8) - 1;
+        func_0043f9c8(arg1, 0, *(s32 *)arg0);
     }
 }
 #else
@@ -783,7 +772,11 @@ void func_0029dfe0(void* arg0, u8* proc)
 // FUN_0029E040
 INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e040);
 
-/* Measured nd 27 (object 608 / window 608); process-loop C is structurally correct but retains compiler scheduling differences. Committed at nd 27. */
+/* Measured nd 25 (object 608 / window 608). The retail first-call
+   pointer arithmetic is offset-result first; the file-scope scrAddOff
+   inline helper preserves that addu operand order while the following
+   +0x10 keeps the task text address. The remaining differences are the
+   documented loop scheduling residual. Committed at nd 25. */
 // FUN_0029E550 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0029e550(u8 *arg0)
@@ -798,7 +791,7 @@ s32 func_0029e550(u8 *arg0)
     switch (task->unk_0C) {
     case 0:
         func_00442088(task->text, &D_007638D0, D_0063E5F0,
-                      task->text + func_00442948(D_0063E5F0));
+                      scrAddOff(func_00442948(D_0063E5F0), (u8 *)task) + 0x10);
         n = func_00442948(task->text) - 1;
         while (n > 0) {
             if (*((s8 *)task + n + 0x10) == 0x2F) {

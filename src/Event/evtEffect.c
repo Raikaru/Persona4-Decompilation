@@ -13,6 +13,11 @@ extern void func_0043f9c8(void *dest, s32 value, s32 size);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern u8 D_00748340[];
 extern u8 D_0063C830[];
+extern u8 iGpffff5848;
+extern void func_00440b68();
+extern s32 func_004553c0(u8 *arg0);
+extern u8 *func_00455f70(u8 *arg0, u32 *arg1);
+extern s32 func_00454a60(u8 *arg0, s32 arg1);
 
 // FUN_00290F00
 u8 *func_00290f00(void)

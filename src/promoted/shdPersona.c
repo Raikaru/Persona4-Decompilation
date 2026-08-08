@@ -22,10 +22,10 @@ void func_0011bc70();
 s32 func_00115020();
 void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 s32 func_001152b0();
-void func_00115cb0(Vec2f, s32, s16 *, f32);
+void func_00115cb0(Vec2f, f32, s32, s16 *);
 void func_00115e90(Vec2f, s32, s16 *, f32);
 extern char iGpffff9c08;
-void func_00275020(s32, s32, s32, u8 *, s32, s32, f32, f32, f32);
+void func_00275020(f32, f32, f32, s32, s32, s32, u8 *, s32, s32);
 void *func_00109220(u16 arg0);
 void func_00116190(s64, s32, u8 *, s32 *, f32);
 void func_00116610(s64, s32, u8 *, s32 *, f32);
@@ -214,50 +214,56 @@ void func_00115c00(u8 *arg0, u8 *arg1)
 }
 
 
-void func_00115dc0(Vec2f, s32, s16 *, f32);
+void func_00115dc0(Vec2f, f32, s32, s16 *);
 
 // FUN_00115C40
 void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
 {
     switch (*arg2) {
     case 0:
-        func_00115dc0(arg0, arg1, arg2, farg3);
+        func_00115dc0(arg0, farg3, arg1, arg2);
         break;
     case 1:
         func_00115e90(arg0, arg1, arg2, farg3);
         break;
     case 2:
-        func_00115cb0(arg0, arg1, arg2, farg3);
+        func_00115cb0(arg0, farg3, arg1, arg2);
         break;
     }
 }
 
 
 
-/* measured: the 15cb0/15dc0 fp-colour family shares the Vec2f, six-GP/two-float
-   renderer-call shape. Retail keeps $f20, then the saved pointer/colour locals
-   across func_00109220 and the mode switch; final-call f14-before-GP ordering
-   is the recurring b210 scheduler residual. 15cb0's family map is retained
-   below as an archived high-nd reconstruction rather than a guarded park. */
-/* measured: func_00115cb0's 272B retail window has frame 0x160, saved $s2
-   colour, $s1 data pointer, $s0 mode, and the 0x100-byte sp+0x60 buffer. */
-/* measured: archived candidate `build/W8ShdPersona_15cb0_base_then_or.c`
-   uses `color = -0x100; color |= ((u32)((arg1 & 0xFF) * 0xFF) / 255U)`.
-   Old body: nd 59, obj 260B / window 272B. This recipe: nd 33, obj 272B /
-   window 272B, with the frame, $s2 colour, $s1 arg2, $s0 mode, $v0
-   func_00109220 result, both func_00442088 calls, and sp+0x60 buffer exact.
-   Exact fndiff rows are 28/32 (retail mov.s $f20,$f12 then move $s1,$a2;
-   candidate reverses those), 120/152 (relocation-owned
-   iGpffff9c08 addiu $a1,$gp,-0x63f8), and 192/196/200/204/208/212/216
-   (retail mov.s $f14,$f20 before the six GP moves; candidate emits the
-   six GP moves before f14). Ruled out: original neg100 temporary (nd 59,
-   obj 260), base_local_or, scale_first, arg2_local, arg2_scale_first, and
-   switch_mode_local (all nd 33); earlier signed/unsigned div, neg100-first,
-   split-div, OR-swapped, and schedule/opt_common_subs/no-branch-likely
-   probes remained nd 59. The high-nd body is archived and the source stays
-   bare. */
+/* measured: the 15cb0/15dc0 fp-colour family shares the Vec2f, six-GP/three-float
+   renderer-call shape. The exact 15cb0 source uses the interleaved
+   `(Vec2f,f32,s32,s16*)` formal order and the local interleaved
+   `func_00275020(f32,f32,f32,s32,s32,s32,u8*,s32,s32)` declaration, so retail's
+   f14 move precedes the six GP moves. MATCH, object 260B / window 272B; the
+   remaining 12-byte tail is zero padding accepted by the verifier.
+   The prior high-nd probes remain archived in `build/` for family history. */
 // FUN_00115CB0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115cb0);
+void func_00115cb0(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
+{
+    s32 var_16;
+    s32 temp_2;
+    s32 color;
+    u8 sp60[0x100];
+
+    color = -0x100;
+    color |= (u32)((arg1 & 0xFF) * 0xFF) / 255U;
+    temp_2 = (s32)func_00109220((u16)arg2[5]);
+    switch (arg2[1]) {
+    case 0:
+        var_16 = 6;
+        func_00442088(&sp60[0], &iGpffff9c08, temp_2);
+        break;
+    case 1:
+        var_16 = 7;
+        func_00442088(&sp60[0], &iGpffff9c08, temp_2);
+        break;
+    }
+    func_00275020((f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3, color, var_16, 1, &sp60[0], 0, -1);
+}
 
 
 
@@ -265,26 +271,25 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115cb0);
 
 
 void *func_00109220(u16 arg0);
-/* measured: func_00115dc0 is a 208B / 208B fp-colour family member. The
-   six-GP/two-float call must use the corrected per-TU declaration
-   `func_00274ed0(s32,s32,s32,void*,s32,s32,f32,f32,f32)`. Initialising
-   `color = -0x100` and then OR-ing the 255-scaled value reproduces retail's
-   addiu $a0 at offsets 28-56 (the one-line OR form left that materialisation
-   last). The guarded body is nd 20, obj 208B / window 208B. Exact fndiff
-   residual rows are 144/148/152/156/160/164/168: retail emits mov.s
-   $f14,$f20 before the six GP moves, while b210 emits those moves first.
-   Split-OR (nd 126, obj 204), cached-call-args (nd 124, obj 216), scale
-   copies/identity helpers (nd 46/20), and alternate color spellings were
-   measured; no exact source shape was found. Committed at nd 20. */
-// FUN_00115DC0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00274ed0(s32, s32, s32, void *, s32, s32, f32, f32, f32);
-void func_00115dc0(Vec2f arg0, s32 arg1, s16 *arg2, f32 fparg0)
+/* measured: func_00115dc0 closes the 208B fp-colour member. Its final
+   renderer declaration is interleaved as
+   `func_00274ed0(f32,f32,f32,s32,s32,s32,void*,s32,s32)`, preserving the
+   six GP register assignments while making the f14 move precede them. Keep
+   `scale = fparg0` before the colour expression; this source shape matches
+   the helper call, mode switch, and final six-GP/three-float setup exactly.
+   MATCH, object 208B / window 208B. */
+void func_00274ed0(f32, f32, f32, s32, s32, s32, void *, s32, s32);
+
+// FUN_00115DC0
+void func_00115dc0(Vec2f arg0, f32 fparg0, s32 arg1, s16 *arg2)
 {
     s32 color;
     s32 var_16;
     s16 mode;
+    s32 temp_2;
+    f32 scale;
 
+    scale = fparg0;
     color = -0x100;
     color |= (u32)((arg1 & 0xFF) * 0xFF) / 255U;
     mode = arg2[1];
@@ -296,11 +301,10 @@ void func_00115dc0(Vec2f arg0, s32 arg1, s16 *arg2, f32 fparg0)
         var_16 = 7;
         break;
     }
-    func_00274ed0(color, var_16, 1, func_00109220(*(u16 *)(arg2 + 5)), 0, 0, (f32)(s32)arg0.x, (f32)(s32)arg0.y, fparg0);
+    temp_2 = (s32)func_00109220(*(u16 *)(arg2 + 5));
+    func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, var_16, 1, (void *)temp_2, 0, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115dc0);
-#endif
+
 
 
 
@@ -358,7 +362,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
 
 u8 *func_0010d6d0(s16 arg0);
-void func_00274ed0(s32, s32, s32, void *, s32, s32, f32, f32, f32);
+
 /* measured: retail saves fparg0 FIRST into $f20 and gives the s64 home's high
    word $f21 with the (f32)(s32)(114.0f+low) result in $f22; mwcc b210 allocates
    the high-word local to $f20 and fparg0 to $f21, and reorders the prologue

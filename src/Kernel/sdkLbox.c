@@ -19,6 +19,16 @@ extern s32 func_00453e10(u8 *arg0);
 extern u8 D_00713128[];
 extern void func_0046f2b0(u8 *arg0);
 extern void func_00470210(u8 *arg0);
+extern void func_00442088(void *buf, const void *fmt, ...);
+extern s32 func_00442948(const void *str);
+extern s32 func_0044dcd8(f32 value);
+extern u8 iGpffffb06c;
+extern u8 iGpffffb070;
+extern u8 iGpffffb0c0;
+extern u8 iGpffffb090;
+extern u8 iGpffffb0c8;
+extern u8 iGpffffb0a8;
+extern u8 D_007641F8;
 
 /* measured: `handle` must be declared before `mem`, exactly as in sdkWrap
    func_004672c0. With `mem` first, b210 colours arg0 into $s0 and mem into
@@ -95,7 +105,112 @@ void func_00470490(u8 *arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_004704D0
-INCLUDE_ASM("asm/nonmatchings/sdkLbox", func_004704d0);
+void func_004704d0(u8 *arg0)
+{
+    u8 sp60[0x100];
+    s32 temp16;
+    s32 temp3_2;
+    s32 temp4;
+    s32 temp4_2;
+    s32 temp4_3;
+    s32 temp5;
+    u8 *var20;
+    u32 var19;
+    s32 var18;
+    u32 temp3;
+    u8 *temp17;
+    u8 *temp4_4;
+
+    temp17 = *(u8 **)(arg0 + 0x38);
+    var20 = *(u8 **)(temp17 + 0x144);
+    var19 = 0;
+    goto loop_29_check;
+loop_29_body:
+    if (*(s32 *)(temp17 + 0x154) != 0) {
+        var18 = (*(s32 (**)(u8 *))(temp17 + 0x158))(var20 + 8);
+        temp4 = *(s32 *)(var20 + 4);
+        switch (temp4) {
+        case 0:
+            break;
+        case 1:
+            func_00442088(sp60, &iGpffffb06c, var20 + 0x108);
+            var18 += *(s32 *)(temp17 + 0x28) +
+                     (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
+            break;
+        case 2:
+            func_00442830(sp60, &iGpffffb070);
+            var18 += *(s32 *)(temp17 + 0x28) +
+                     (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
+            break;
+        case 3:
+            if (*(s32 *)(var20 + 0x218) == 0) {
+                func_00442088(sp60, &iGpffffb0c0,
+                              *(u8 **)(var20 + 0x208));
+                var18 += *(s32 *)(temp17 + 0x28) +
+                         (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
+            } else {
+                func_00442088(sp60, &iGpffffb090,
+                              *(u8 **)(var20 + 0x208));
+                var18 += *(s32 *)(temp17 + 0x28) +
+                         (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
+            }
+            break;
+        case 4:
+            temp16 = func_0044dcd8(*(f32 *)(var20 + 0x20C));
+            func_00442088(sp60, &iGpffffb0c8, temp16);
+            var18 += *(s32 *)(temp17 + 0x28) +
+                     (*(s32 (**)(u8 *))(temp17 + 0x158))(sp60);
+            break;
+        }
+    } else {
+        temp16 = *(s32 *)(temp17 + 0x28);
+        var18 = temp16 * func_00442948(var20 + 8);
+        temp4_2 = *(s32 *)(var20 + 4);
+        switch (temp4_2) {
+        case 0:
+            break;
+        case 1:
+            var18 += *(s32 *)(temp17 + 0x28) *
+                     (func_00442948(var20 + 0x108) + 1);
+            break;
+        case 2:
+            var18 += *(s32 *)(temp17 + 0x28) *
+                     (func_00442948(&iGpffffb0a8) + 1);
+            break;
+        case 3:
+            if (*(s32 *)(var20 + 0x218) == 0) {
+                var18 += temp16 * 9;
+            } else {
+                var18 += temp16 * 0xB;
+            }
+            break;
+        case 4:
+            var18 += temp16 * 8;
+            break;
+        }
+    }
+    temp3 = var18 + 4;
+    if (var19 < temp3) {
+        var19 = temp3;
+    }
+    var20 = *(u8 **)(var20 + 0x228);
+loop_29_check:
+    if (var20 != NULL) {
+        goto loop_29_body;
+    }
+    *(u32 *)(temp17 + 0x20) = var19;
+    temp5 = *(s32 *)(temp17 + 0x2C);
+    temp4_3 = *(s32 *)(temp17 + 0x140) * temp5 + 4;
+    temp3_2 = *(s32 *)(temp17 + 0x13C) * temp5 + 4;
+    *(s32 *)(temp17 + 0x24) = temp3_2;
+    if (temp4_3 < temp3_2) {
+        *(s32 *)(temp17 + 0x24) = temp4_3;
+    }
+    temp4_4 = *(u8 **)(temp17 + 0x130);
+    if (temp4_4 != NULL) {
+        func_0046ea60(temp4_4, temp17 + 0x18);
+    }
+}
 
 /* measured: nd 18, obj 288B == window 288B, and every one of those words is the
    SAME $s0/$s1 swap -- retail colours `work` into $s0 and the allocation into

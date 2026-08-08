@@ -43,9 +43,11 @@ s32 func_00439cc8(s32, s32, s32, s32, s32);
 s32 func_00431408(void);
 
 extern s32 *D_00710070[];
+void func_0043ddf8(u8 *, s16, s16, s32);
 s32 func_0043DFA0(s32 *);
-s32 *func_0043eae8(s32 *);
 s32 func_004258b0(s32 *, s32, s32, s32 *, s32, s32 *, s32, s32, s32);
+void func_0043c6d8(u8 *, s32, s32);
+
 void func_0043bb48(void *);
 
 /* measured: removing this pragma takes func_00438740 nd 0 -> nd 6: retail fills
@@ -119,6 +121,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439008);
 // FUN_00439050
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439050);
 
+
 /* measured: floor. Retail keeps the R5900 3-op mult (addiu $v1,$zero,0x184;
    mult $a0,$a0,$v1) for arg0*0x184; b210 strength-reduces it. Best probe nd 76;
    the archived body measured nd 84, object 96/72, and is not retained because
@@ -156,6 +159,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393f8);
 
 // FUN_004394B8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004394b8);
+
 // FUN_00439E90 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: O3 is load-bearing (nd 48 -> 23). Floor: retail uses the R5900
@@ -225,11 +229,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac60);
 // FUN_0043ACC0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043acc0);
 
-/* measured: nd 29 at the exact 72-byte object. Array declarations fixed
-   absolute DATA addressing (scalar form was nd 39); the remaining residual is
-   retail addiu 0xC + mult/mflo versus b210 sll/addu/sll. Archived in
-   build/W8Code1_0043_high_nd_park_archive.txt; source intentionally bare
-   because nd 29 exceeds the nd 25 park threshold. */
+
 // FUN_0043BC70
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bc70);
 
@@ -244,14 +244,16 @@ s32 func_0043c0a0(void) {
 
 
 
+/* measured: O3 is the best tested body for this byte loop (object 52/56,
+   normalized_diff 6). Retail allocates the -1 sentinel in $t7 and puts the
+   pointer increment in the branch-delay slot; plain C keeps the sentinel in
+   $v1 and emits the increment before the branch. Postincrement, for-loop,
+   O2, and a live third-argument probe were ruled out. Committed at nd 9. */
 // FUN_0043C6D8 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: parameter-reused sentinel keeps the retail a1 counter but b210
-   still allocates the -1 sentinel in $v1 (retail uses $t7) and places arg0++
-   before, rather than in, the bne delay slot. Committed at nd 9. */
-/* measured: optimization level 3 is load-bearing for this parked nd 9 body. */
+/* measured: optimization level 3 is load-bearing for this parked nd 6 body. */
 #pragma optimization_level 3
-void func_0043c6d8(u8 *arg0, s32 arg1) {
+void func_0043c6d8(u8 *arg0, s32 arg1, s32 arg2) {
     s32 sentinel;
     arg1 -= 1;
     sentinel = -1;
@@ -263,7 +265,7 @@ void func_0043c6d8(u8 *arg0, s32 arg1) {
         } while (arg1 != sentinel);
     }
 }
-/* measured: closes optimization-level 3 scope at file baseline. */
+/* measured: closes the optimization-level 3 scope at the file baseline. */
 #pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6d8);
@@ -314,6 +316,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ddf8);
 
 // FUN_0043DE58
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043de58);
+
 
 /* measured: pointer-loaded absolute D_00710070 plus schedule-on gives the exact
    32-byte object at nd 13 (bare baseline was nd 7 with object 16/32). The

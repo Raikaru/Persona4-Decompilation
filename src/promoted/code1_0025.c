@@ -324,18 +324,10 @@ s32 func_0025d530(void)
     return 1;
 }
 
-/* measured: the calls, the guard polarity and the cached index all match; the
-   residual is the tail LAYOUT. Retail emits the `return 1` materialisation
-   out of line first and the `return 0` materialisation last (b to the zero
-   block from the main body, then `addiu $v0,1`, then `b` to the epilogue,
-   then `move $v0,$zero`); b210 puts the zero inline in the main body and the
-   one after it, one instruction short of the window. Measured: the inverted
-   guard as written is nd 29, the natural early-`return 1` form is nd 46, a
-   goto to a shared ret0 label is nd 46, and an inner early `return 0` is
-   nd 50 (obj 124). Boolean-result tail layout floor.
-   Committed at nd 29. */
-// FUN_0025D760 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: explicit else placement reproduces retail's out-of-line return-one
+   block. Object 120B/window 128B; normalized_diff 0, with the remaining eight
+   bytes being retail zero padding. */
+// FUN_0025D760
 s32 func_0025d760(void) {
     s32 temp_16;
 
@@ -344,13 +336,11 @@ s32 func_0025d760(void) {
         if (func_00452490(temp_16) != 0) {
             func_00120f20(temp_16);
         }
-        return 0;
+    } else {
+        return 1;
     }
-    return 1;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d760);
-#endif
 
 /* `x > 0xA` here, not the equivalent `x >= 0xB`: b210 compiles `>= K` by
    materialising the comparison into $v0, and `> K-1` by branching through the

@@ -34,18 +34,42 @@ u8 *func_00462a60(u8 *arg0, u8 *arg1) {
 }
 
 
-/* measured: 4 attempts. Best nd 15 (reloc-masked). The two `while (var_6 <
-   0xA) { if (*(s32*)arg1 == (s32)D_00712530[var_6]) break; var_6++; }` loops
-   match retail byte-for-byte in the loop body, but retail hoists &D_00712530
-   into $a0 once before each loop (lui/addiu) and indexes `addu $v1,$a0,$v1`
-   (base in $a0; temp_2 kept in $v0 across the second loop), while mwcc b210
-   rematerializes the lui/addiu pair inside the loop body into $v1 with the
-   index in $a0. A `u32 *base = D_00712530;` local (brief spelling) hoists the
-   base but into $a1 and reallocates the whole function (nd 44 obj 240B); the
-   `while (var_6<0xA && ...)` && form gives a different loop canonicalization
-   (nd 25). The 15 residual words are all the base-hoist register choice. */
+/* measured: direct table references plus opt_loop_invariants reproduce both
+   retail table-base preheaders and both loop bodies exactly (nd 15 -> 0).
+   Committed at nd 0. */
+/* measured: opt_loop_invariants probe for the retail base preheader. */
+#pragma opt_loop_invariants on
 // FUN_00462960
-INCLUDE_ASM("asm/nonmatchings/sdkClump", func_00462960);
+s32 func_00462960(s32 arg0, void *arg1) {
+    s32 temp_2;
+    s32 var_5;
+    s32 var_6;
+
+    temp_2 = func_004578b0((void *)arg0, (const char *)D_00712558);
+    var_6 = 0;
+    while (var_6 < 0xA) {
+        if (*(s32 *)arg1 == (s32)D_00712530[var_6]) {
+            break;
+        }
+        var_6++;
+    }
+    var_5 = 0;
+    while (var_5 < 0xA) {
+        if (temp_2 == (s32)D_00712530[var_5]) {
+            break;
+        }
+        var_5++;
+    }
+    if (var_6 < var_5) {
+        *(s32 *)arg1 = (s32)D_00712530[var_5];
+    }
+    if (func_00457a90((void *)arg0, (const char *)D_00712568) == 1) {
+        *(s32 *)((u8 *)arg1 + 4) = 1;
+    }
+    return arg0;
+}
+/* measured: closes the opt_loop_invariants probe. */
+#pragma opt_loop_invariants off
 
 
 // FUN_00462780

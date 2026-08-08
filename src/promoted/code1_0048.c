@@ -158,7 +158,8 @@ void func_00484ae0(u8 *arg0, s32 arg1) {
 /* measured: retail uses VU0 zero stores, then a D_00713CE0 lq/sq aggregate copy and scalar tail stores. The C reconstruction with propagation off reproduces the 128-byte object except temporary-register colours at the 0x2C scalar and quad copy (normalized_diff 6); direct and struct aggregate spellings, declaration orders, signatures, optimizer, schedule, and branch pragmas were probed. Committed at nd 6. */
 // FUN_00484B30 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: probe */
+/* measured: propagation off preserves the retail aggregate lq/sq form; the
+   remaining register-color and eight-byte tail-padding residual is nd 6. */
 #pragma opt_propagation off
 void func_00484b30(u8 *arg0)
 {
@@ -178,7 +179,7 @@ void func_00484b30(u8 *arg0)
     *(s32 *)(arg0 + 0x64) = -1;
     *(s32 *)(arg0 + 0x68) = 0x80;
 }
-/* measured: probe */
+/* measured: close propagation bracket for the parked aggregate probe. */
 #pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);

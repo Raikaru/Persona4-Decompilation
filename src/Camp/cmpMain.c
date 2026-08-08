@@ -438,6 +438,7 @@ void func_0012cd90(void) {
         base[0](0xE, sp4C);
     }
 }
+/* measured: closes the opt_propagation bracket for func_0012cd90. */
 #pragma opt_propagation on
 
 // FUN_0012D000
@@ -480,13 +481,8 @@ void func_0012d160(void *arg0) {
    callback, and the body is an INCLUDE_ASM fallback. */
 void func_0012d190(u8 *arg0);
 
-/* measured: nd 144 with a full C body (object 396B against a 400B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
 // FUN_0012D190
 INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012d190);
-
 // FUN_0012D320
 s32 func_0012d320(void) {
     s32 r;

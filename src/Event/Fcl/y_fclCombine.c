@@ -471,27 +471,8 @@ void func_00303a20(u8 *arg0) {
    source-drivable after all. */
 // FUN_00303DE0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303de0);
-
-/* wave 14: signature re-checked via the m2c oracle (m2c says s64 arg1/arg2
-   but both are used as 16/8-bit values with (s16)/(s8) casts — the caller is
-   an INCLUDE_ASM stub so no extern to fix; the function is only called from
-   the asm func_00304580). All wave-14 levers checked: no addu-order site
-   (the loops' addressing matches), no global base, no jtbl; residual is the
-   documented saved-register rotation + post-loop const-fold. Best nd 100
-   unchanged. */
-/* measured: full m2c-adapted body tried (copy loop, both rand()%100 slots,
-   key loop, 2d00/2cb0 pair, c/j loop, func_003042f0 tail) — best nd 100.
-   (1) b210 constant-folds a post-loop `key = 4` across the loop's break path
-   (kills the break-path key=(s8)i, folds the call arg to addiu $a1,0,4); the
-   break-skipping spellings (key=4 inside the loop, pre-loop default, guarded
-   if) cost 110-114. (2) Saved-register rotation in the second half: retail
-   v20=$s4,c=$s3,v2=$s1,j=$s5,p=$s2,arg1=$s3 vs all decl-order variants
-   v20=$s5,c=$s4,v2=$s2,j=$s1,p=$s3,arg1=$s1. (3) First-loop temps r/v/i land
-   in $a1/$a0/$v1 vs retail $a0/$a1/$a2 (declaration swaps don't move them).
-   Saved-register rotation + const-propagation floor. */
 // FUN_003040D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003040d0);
-
 // FUN_003042F0
 s32 func_003042f0(s32 arg0, s32 arg1)
 {
@@ -812,25 +793,6 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
    rather than left as a guarded park. */
 // FUN_0030F4F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
-
-
-
-/* measured: best nd 654 (obj 3584B vs window 3632B). Complete faithful
-   reconstruction verified against retail: switch dispatch order, D2-D7/0x97
-   case bodies, nested jump-table switch (cases 2-7), the sp80[16] table,
-   all func_002b7750-style call sequences, the 0xC4/0xC6/0xC8 record stores
-   and the epilogue all match when aligned. Residual is purely
-   argument-materialization ORDER at ~15 call sites (retail loads $a1 before
-   $a0 on 2-arg calls and defers the (s8) arg casts to last; mwcc b210 emits
-   forward order) plus the D3 sh/dsll32 pair and D5 (s8)-cast placement —
-   tried s8-star/u8-star temp_18, (s8)/(u16) casts, pointer locals for the f32
-   arrays, declaration orders; all nd ~654. Argument-evaluation-order
-   scheduling floor. */
-/* wave 14: signature re-checked via m2c oracle (void func_0030f650(u8 *arg0)
-   — single-arg, correct); the residual is call-arg evaluation ORDER at ~15
-   sites, which mwcc emits forward while retail loads $a1-first; every lever
-   1-3 spelling keeps nd ~654. No wave-14 lever applies. Best nd 654
-   unchanged. */
 // FUN_0030F650
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f650);
 

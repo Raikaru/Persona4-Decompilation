@@ -306,51 +306,8 @@ void func_00265110(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
 /* Measured nd 166 (object 276 / window 272), well above the ~25 parking
    threshold; this full-size candidate preserves the recovered vertex/color
    loop for future reduction. Committed at nd 166. */
-// FUN_00265F40 NONMATCHING
-#ifdef NON_MATCHING
-void func_00265f40(s32 arg0, s32 arg1, u32 arg2, s32 arg3, u8 *arg4,
-                   f32 fparg0, s32 arg5, f32 fparg1, f32 fparg2)
-{
-    u8 local[0xC00];
-    s32 i;
-    u32 packed;
-    u32 c0;
-    u32 c1;
-    u32 c2;
-    u32 c3;
-    f32 accum;
-    f32 dx;
-    f32 dy;
-
-    i = 0;
-    packed = (arg2 << 8) | (u32)arg3;
-    c0 = (packed >> 24) & 0xFF;
-    c1 = (packed >> 16) & 0xFF;
-    c2 = (packed >> 8) & 0xFF;
-    c3 = packed & 0xFF;
-    dx = (f32)arg0;
-    dy = (f32)arg1;
-    accum = 0.0f;
-    while (i < arg5) {
-        accum += dx;
-        ((f32 *)(local + 0x400))[i * 2] =
-            accum + fparg1 * *(f32 *)(arg4 + i * 8);
-        accum += dy;
-        ((f32 *)(local + 0x400))[i * 2 + 1] =
-            accum + fparg2 * *(f32 *)(arg4 + i * 8 + 4);
-        local[i * 4] = (u8)c0;
-        local[i * 4 + 1] = (u8)c1;
-        local[i * 4 + 2] = (u8)c2;
-        local[i * 4 + 3] = (u8)c3;
-        i++;
-    }
-    func_00364c50();
-    func_0045dfd0(local, (f32 *)(local + 0x400), fparg0, arg5, 4, 1);
-    func_00364c70();
-}
-#else
+// FUN_00265F40
 INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00265f40);
-#endif
 
 /* No real C body was produced for this 1600-byte window. The nd 7 result came
    from an 8-byte empty stub and is a size-deficit artifact, not a near miss. */
@@ -363,48 +320,8 @@ INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00266050);
 /* Measured nd 53 (object 504 / window 512), above the ~25 parking threshold;
    this full-size candidate preserves the recovered state-machine arithmetic.
    Committed at nd 53. */
-// FUN_00266690 NONMATCHING
-#ifdef NON_MATCHING
-void func_00266690(s32 arg0, s32 arg1)
-{
-    u8 *p;
-    s32 state;
-    s32 alpha;
-    f32 ratio;
-    f32 value;
-
-    p = func_00452560(arg1);
-    state = *(s32 *)(p + 0) - 4;
-    switch (state) {
-    case 0:
-    case 1:
-        ratio = (f32)*(s32 *)(p + 0x18) / 7.0f;
-        alpha = (s32)(255.0f * ratio);
-        value = 336.0f + 128.0f * func_0044b610(iGpffff8570 * ratio);
-        func_00266050((s32)value, 0, alpha, *(s32 *)(p + 0x10), 336.0f);
-        func_00265110(0x150, 0, 0.0f, alpha, *(s32 *)(p + 0x10),
-                      *(s32 *)(p + 0x1C));
-        break;
-    case 2:
-    case 3:
-        func_00266050(0x150, 0, 0xFF, *(s32 *)(p + 0x10), 0.0f);
-        func_00265110(0x150, 0, 0.0f, 0xFF, *(s32 *)(p + 0x10),
-                      *(s32 *)(p + 0x1C));
-        break;
-    case 4:
-    case 5:
-        ratio = (f32)*(s32 *)(p + 0x18) / 10.0f;
-        alpha = (s32)(255.0f * (1.0f - ratio));
-        value = 336.0f - 192.0f * func_0044b7b0(iGpffff8570 * ratio);
-        func_00266050((s32)value, 0, alpha, *(s32 *)(p + 0x10), 336.0f);
-        func_00265110(0x150, 0, 0.0f, alpha, *(s32 *)(p + 0x10),
-                      *(s32 *)(p + 0x1C));
-        break;
-    }
-}
-#else
+// FUN_00266690
 INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00266690);
-#endif
 
 // FUN_00266890
 void func_00266890(s32 arg0, u8 *arg1) {

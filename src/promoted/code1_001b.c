@@ -112,8 +112,28 @@ void func_001b3f00(void) {
 
 
 
-// FUN_001B5D30
+/* Object is 112B against a 128-byte retail window: the body is four words short,
+   so unwrapping reports SIZE_MISMATCH even though the emitted instructions match.
+   Pointer-local and direct-global spellings were ruled out. Committed at nd 0. */
+// FUN_001B5D30 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001b5d30(void) {
+    u8 *p;
+
+    if (*(s32 *)(D_0076449C + 0x174) != 0) {
+        return 0;
+    }
+    func_001b69c0();
+    p = D_0076449C;
+    if ((*(s32 *)(p + 0xC) & 0x400) != 0 &&
+        *(u16 *)(p + 0x1C) != 2) {
+        return 0x10;
+    }
+    return 0x11;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b5d30);
+#endif
 
 // FUN_001B5E40
 void func_001b5e40(void)

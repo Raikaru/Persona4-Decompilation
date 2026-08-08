@@ -46,8 +46,8 @@ extern void func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
 extern u32 D_00763840;
 extern u32 D_00763848;
 extern u32 D_00763838;
-extern int func_002724d0(void *param_1, int param_2, int param_3, int param_4,
-                        void *param_5);
+extern u8 *func_002724d0(u8 *param_1, s64 param_2, s32 param_3, s32 param_4,
+                        u8 *param_5);
 extern u32 DAT_008817A0_abs[];
 extern u32 DAT_00881510_abs[];
 extern u32 DAT_00881514_abs[];
@@ -630,7 +630,7 @@ extern u8 *func_0026e0e0(s32 param_1);
 
 
 // FUN_00272170
-u8 * func_00272170(u16 arg0, u8 arg1, s8 arg2, s8 arg3)
+u8 * func_00272170(u16 arg0, u8 arg1, u8 arg2, u8 arg3)
 {
     u8 *node;
     u16 ch;
@@ -791,18 +791,92 @@ LAB_002724C4:
 }
 
 extern u8 D_007645B4;
-extern u8 *func_00272170(u16 arg0, u8 arg1, s8 arg2, s8 arg3);
+extern u8 *func_00272170(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
 
 
 
-/* measured: nd92. Retail colors var_16=$16/var_17=$17/var_18=$18/
-   arg4=$19/arg0=$20/var_21=$21/arg2=$22/arg3=$23 and hoists the arg2/arg3
-   andi masks before the loop; mwcc b210 colors arg4=$16 first and keeps the
-   sltu check at the top (goto-loop) - while conversion fixes the loop shape
-   but not the register order; declaration reorders don't move it.
-   Saved-register rotation floor. */
+/* Converted from INCLUDE_ASM. Retail keeps var16=$s0, var17=$s1,
+   var18/i=$s2, arg4=$s3, arg0=$s4, result count=$s5, arg2=$s6,
+   and arg3=$s7. The u8 helper arguments are materialized once in
+   preheader locals so b210 emits the retail andi sequence. */
 // FUN_002724D0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_002724d0);
+u8 *func_002724d0(u8 *arg0, s64 arg1, s32 arg2, s32 arg3, u8 *arg4) {
+    s32 temp2;
+    u16 ch;
+    u32 var21;
+    u8 value;
+    u8 *temp4;
+    u32 i;
+    u8 a2;
+    u8 a3;
+    u8 *var17;
+    u8 *var16;
+    u8 *var19;
+
+    var19 = arg4;
+    var21 = 0;
+    if ((s8)arg1 >= 0) {
+        D_007645B4 = (u8)arg1;
+    }
+    if (*(u32 *)((u8 *)DAT_0088164C_abs + ((D_007645B4 & 0xFF) << 5)) == 0) {
+        return NULL;
+    }
+    if (arg0 != NULL) {
+        var21 = func_00442948(arg0);
+    }
+    if (var19 == NULL) {
+        var19 = func_0026e0e0(*(u32 *)DAT_00881760_abs);
+        DAT_00881758_abs[0] += 1;
+        if (var19 == NULL) {
+            func_0046d730(&D_0063BAE8, 0x665);
+        }
+        func_0043f9c8(var19, 0, 0x44);
+        *(u8 *)(var19 + 2) = 0xFF;
+        *(s16 *)(var19 + 0) = 0x20;
+        *(u8 **)(var19 + 0x2C) = var19;
+    }
+    var17 = NULL;
+    var16 = *(u8 **)(var19 + 0x20);
+    i = 0;
+    a3 = (u8)arg3;
+    a2 = (u8)arg2;
+    while (i < var21) {
+        value = *(u8 *)(arg0 + i);
+        ch = value;
+        if (value >= 0x80) {
+            i += 1;
+            ch = (u16)(((u16)value << 8) | *(u8 *)(arg0 + i));
+        }
+        var17 = func_00272170(ch, D_007645B4, a2, a3);
+        if (var16 == NULL) {
+            *(u8 **)(var19 + 0x1C) = var17;
+        } else {
+            *(u8 **)(var16 + 0x28) = var17;
+        }
+        if (var17 == NULL) {
+            func_0046d730(&D_0063BAE8, 0x676);
+        }
+        *(u8 **)(var17 + 0x24) = var16;
+        var16 = var17;
+        *(s32 *)(var19 + 0x0C) += *(s32 *)(var17 + 0x0C);
+        *(s32 *)(var19 + 0x18) += 1;
+        temp2 = func_00272390((short *)var17);
+        if (temp2 != 0) {
+            temp4 = *(u8 **)(var17 + 0x24);
+            if (temp4 != NULL) {
+                *(s32 *)(temp4 + 0x0C) -= temp2;
+            }
+            *(s32 *)(var19 + 0x0C) -= temp2;
+        }
+        i += 1;
+    }
+    if (var17 != NULL) {
+        *(u8 **)(var19 + 0x20) = var17;
+        *(s16 *)(var19 + 0x10) = *(u8 *)(var17 + 0x18);
+        *(s16 *)(var19 + 0x12) = *(u8 *)(var17 + 0x19);
+    }
+    return var19;
+}
 // FUN_00272730
 void func_00272730(int param_1, u8 param_2)
 {

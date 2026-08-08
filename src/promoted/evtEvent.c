@@ -234,11 +234,76 @@ s32 func_00285b30(void) {
     return *(s32 *)((u8 *)func_00452560(h) + 0x14);
 }
 
-/* measured: retail's outer-loop count check emits `sltu $at,$s3,$v0; bnez $at`
-   (count loaded into $v0, result in $at); mwcc b210 always reuses $v0 for the
-   result (`sltu $v0,$s3,$v0; bnez $v0`) regardless of the comparison form
-   (`>=`, `<` inverted, `>`, u32 read all probed; nd 5). The `$at` split is a
-   register-color floor, not source-drivable. Largest loop structure otherwise
-   byte-identical (nd 5). */
-// FUN_00285B80
+/* Retail's outer-loop count check uses `sltu $at,$s3,$v0; bnez $at`, while
+   b210 reuses $v0 for the result (`sltu $v0,$s3,$v0; bnez $v0`). Exact
+   executable body otherwise; fndiff offsets 68 and 72 are that register
+   choice, offsets 120 and 124 are the D_0063C2C8 relocations, and offset
+   308 is the retail-only tail padding. Comparison polarity, >=/< /> forms,
+   u32 loads, and loop declaration reorder were ruled out. obj 308B/window
+   320B, nd 5. Committed at nd 2. */
+// FUN_00285B80 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_00285b80(u8 *arg0, s32 arg1)
+{
+    s32 count;
+    s32 i;
+    s32 matched;
+    u8 *p;
+    u32 j;
+    u16 flags;
+    s32 type;
+    s32 id;
+
+    matched = 0;
+    count = *(s32 *)(arg0 + 0x48);
+    i = 0;
+    goto outer_check;
+
+process_entry:
+    if ((u32)i < (u32)*(s32 *)(arg0 + 0x48)) {
+        goto traverse;
+    }
+    p = NULL;
+    goto classify;
+
+traverse:
+    p = *(u8 **)(arg0 + 0x4C);
+    j = 0;
+    goto inner_check;
+
+inner_body:
+    if (*(u8 **)(p + 0x90) == NULL) {
+        func_0046d730(D_0063C2C8, 0x18F);
+    }
+    p = *(u8 **)(p + 0x90);
+    j += 1;
+
+inner_check:
+    if (j < (u32)i) {
+        goto inner_body;
+    }
+    goto classify;
+
+classify:
+    flags = *(u16 *)(p + 0xC);
+    type = (s32)(flags & 0xFFC00) >> 10;
+    if (type == 3) {
+        id = flags & 0x3FF;
+        if (id >= 0x384 && id < 0x387) {
+            if (matched == arg1) {
+                return p;
+            }
+            matched += 1;
+        }
+    }
+    i += 1;
+
+outer_check:
+    if (i < count) {
+        goto process_entry;
+    }
+    return NULL;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/evtEvent", func_00285b80);
+#endif
