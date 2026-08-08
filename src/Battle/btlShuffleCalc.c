@@ -208,47 +208,12 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
    adda/madd ACC chains (retail plain mul.s/add.s; split mul/add statements
    tried, identical). Ternary half-scalers (func_003720c0's trick) only
    reverse the srl/andi order here. u16-sign-test residual after recipe. */
-/* measured: nd 41 from 45 via opt_common_subs off (obj 300B vs window 320B).
-   The logic, the lerp of the three components and the func_00373cb0 argument
-   mapping (f32, f32, s32, f32 -- the s32 lands in $a0) are all confirmed.
-
-   Residuals: retail moves arg0 into $s0 and loads the counter into $v0, while
-   b210 loads it straight into $a0 and colours everything downstream from there;
-   retail RE-READS the counter with a second `lhu` after incrementing it where
-   b210 reuses the incremented value (opt_common_subs off recovers part of this);
-   and retail computes `(f32)(u32)counter` into $f1 and moves it to $f12 with a
-   separate `mtc1 $zero,$f0; add.s` pair rather than converting directly into
-   $f12. An f32 local for the converted value and opt_propagation off do not
-   change any of these (45, 45).
-
-   `(f32)(u32)*(u16 *)arg0` IS the right spelling for the bltz/srl/andi/or/add.s
-   unsigned-to-float sequence -- do not simplify it to `(f32)`. Register
-   colouring floor. */
-// FUN_00371A60 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-s32 func_00371a60(u8 *arg0, s32 arg1) {
-    f32 v;
-    f32 t;
-
-    if ((f32)(u32)*(u16 *)arg0 >= *(f32 *)(arg0 + 4)) {
-        return 1;
-    }
-    *(u16 *)arg0 = *(u16 *)arg0 + 1;
-    v = (f32)(u32)*(u16 *)arg0;
-    t = func_00373cb0(v, *(f32 *)(arg0 + 8), arg1, *(f32 *)(arg0 + 4));
-    *(f32 *)(arg0 + 0xC) =
-        (*(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0x18)) * t + *(f32 *)(arg0 + 0x18);
-    *(f32 *)(arg0 + 0x10) =
-        (*(f32 *)(arg0 + 0x28) - *(f32 *)(arg0 + 0x1C)) * t + *(f32 *)(arg0 + 0x1C);
-    *(f32 *)(arg0 + 0x14) =
-        (*(f32 *)(arg0 + 0x2C) - *(f32 *)(arg0 + 0x20)) * t + *(f32 *)(arg0 + 0x20);
-    return 0;
-}
-#pragma opt_common_subs on
-#else
+/* measured: active C probe reached normalized_diff 125 with object 328B
+   against the 320B retail window (build/WABtlShuffleCalc_71a60_active.json).
+   Prologue: frame 0x20 and saved $s0 matched; the body was oversized by 8B.
+   The body and recipe are archived in build/WACalc_f71a60_archive.c. */
+// FUN_00371A60
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
-#endif
 // FUN_00371BA0
 void func_00371ba0(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
     f32 f0;

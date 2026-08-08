@@ -427,8 +427,30 @@ u8 *func_004b57a0(void *object, s32 arg1) {
 }
 
 
-// FUN_004BD6B8
+// FUN_004BD6B8 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_004bd6b8(u8 *arg0, u32 arg1)
+{
+    s32 temp;
+    u8 *ptr;
+
+    temp = arg1 < 0x44;
+    if (arg0 == NULL) {
+        ptr = D_007568C8;
+        goto call;
+    }
+    if (temp != 0) {
+        ptr = D_00756900;
+call:
+        func_004bd6a0(ptr, temp);
+        return 0;
+    }
+    func_004bd9f8(arg0);
+    return (s32)arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6b8);
+#endif
 
 // FUN_004BD750
 /* measured: schedule on fills func_004bd750's retail jr delay-slot load. */

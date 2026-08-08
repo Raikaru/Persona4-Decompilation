@@ -165,7 +165,7 @@ s32 func_003e23e0(void) {
     }
     return sum;
 }
-/* measured: close schedule */
+/* measured: closes the schedule bracket opened for the guarded 23e0 probe. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);

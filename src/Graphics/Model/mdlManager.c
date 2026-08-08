@@ -704,6 +704,7 @@ void func_004735b0(u8 *arg0)
    persists. opt_propagation off + forward externs help compile, not match. */
 // FUN_00473710
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
+
 // FUN_00473870
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
 extern void func_003d5bc0(void* a, void* b, f32 c);
@@ -1190,6 +1191,7 @@ void* func_00475b10(void* object, void* data)
    re-mask). Branch-placement + t-coloring floor, best nd 35. */
 // FUN_00475B90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475b90);
+
 // FUN_00475CD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
 
@@ -1450,10 +1452,8 @@ void *func_004776c0(void *arg0, void *arg1)
     s32 temp_17;
     u32 temp_22;
     u32 var_18;
-    u8 temp_2;
     u8 *temp_16;
     u8 *temp_19;
-
     pArg1 = (u8 *)arg1;
     temp_16 = *(u8 **)((u8 *)arg0 + 0x18);
     temp_22 = *(u32 *)(temp_16 + 0x24);
@@ -1473,7 +1473,6 @@ void *func_004776c0(void *arg0, void *arg1)
     }
     return arg0;
 }
-
 #else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004776c0);
 #endif
@@ -2439,14 +2438,17 @@ void func_0047a2a0(u32* param_1)
    + idx)` avoids the fold but keeps this order, plain `*a + 0x40 + idx`
    folds 0x40 into the load (3 words, nd 84). Chain-vs-load schedule floor
    (same as recorded). */
-/* measured: 0047A320 uses the exact retail prologue (frame 0x40, saved $s0/$s1) and the outer table walk now matches through the first helper and the 5-slot loop setup. Remaining fndiff residuals are inner-list register colors at offsets 0xD4/0xD8/0xE0/0xE4/0xE8/0xF4/0xF8/0xFC/0x100 (retail list=$v1,widx=$a0; b210 list=$a0,widx=$v1) and the inner base/index order at 0xF4-0x104 (retail lw base before sll chain; candidate sll chain before lw base). Tail is 372B vs 384B window, with the three final retail nop words absent. Tried nested/goto control flow, separate result, re-mask locals, direct integer-domain outer address, direct/nested inner address, declaration/type swaps, and scoped opt_common_subs/opt_propagation pragmas; best remained nd 18. Committed at nd 18. */
-// FUN_0047A320 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: 0047A320 now loads the inner list base into a named local before
+   the index chain, reproducing retail's lw-base-then-sll order and all inner
+   register colors. Scoped verify: normalized_diff 0, object 372B/window 384B;
+   the remaining 12-byte tail is zero padding after the matching jr/nop. */
+// FUN_0047A320
 s32 func_0047a320(void* arg0) {
     void* list;
     void* item;
     void* wpn;
     void* inner;
+    void* innerBase;
     void* slot;
     s16 idx;
     s16 widx;
@@ -2470,7 +2472,8 @@ s32 func_0047a320(void* arg0) {
                         if (inner != (void*)0) {
                             widx = *(s16*)((u8*)wpn + 0xF0);
                             if (widx < *(u16*)((u8*)inner + 8)) {
-                                item = *(void**)((u8*)*(void**)inner + (s32)widx * 0x50 + 0x40);
+                                innerBase = *(void**)inner;
+                                item = *(void**)((u32)innerBase + (u32)((s32)widx * 0x50) + 0x40);
                                 if (item != (void*)0 && item != (void*)D_00922BC0_abs) {
                                     func_00397c40(*(void**)((u8*)wpn + 0x10C), wpn);
                                 }
@@ -2485,9 +2488,6 @@ s32 func_0047a320(void* arg0) {
     }
     return 0;
   }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a320);
-#endif
 
 // FUN_0047A4A0
 u8 *func_0047a4a0(u8 *arg0, s32 *arg1) {

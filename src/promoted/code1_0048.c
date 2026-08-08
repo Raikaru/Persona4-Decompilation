@@ -33,7 +33,6 @@ extern u8 D_0071349C[];
 extern u8 D_007134A0[];
 extern u8 D_007134A8[];
 extern u8 D_007134B0[];
-
 extern char D_00713CE0[];
 
 

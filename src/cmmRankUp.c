@@ -559,8 +559,6 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    correct and ready for a source that reproduces retail's allocation. */
 // FUN_002561F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
-
-
 /* measured: structure fully understood (copy loop, 3-branch color store chain,
    func_0045e6a0 call with (s16) narrowing on args 6/7), but mwcc b210's saved-
    register allocation and FP scheduling never converge on retail's: retail

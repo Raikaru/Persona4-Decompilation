@@ -478,11 +478,72 @@ void func_0012d160(void *arg0) {
 }
 
 /* Declared here because func_00451de0 below takes this function's address as a
-   callback, and the body is an INCLUDE_ASM fallback. */
-void func_0012d190(u8 *arg0);
+   callback. */
+s32 func_0012d190(u8 *arg0);
 
 // FUN_0012D190
-INCLUDE_ASM("asm/nonmatchings/cmpMain", func_0012d190);
+s32 func_0012d190(u8 *arg0) {
+    s32 i;
+    s32 j;
+    s32 r;
+    u8 *p;
+    u8 *q;
+    u8 *dst;
+
+    p = *(u8 **)(arg0 + 0x38);
+    switch (*(u16 *)p) {
+    case 0:
+        goto state0;
+    case 1:
+        goto state1;
+    case 2:
+        goto state2;
+    default:
+        goto fail;
+    }
+
+state0:
+    func_00440b68(&iGpffff9cc0, D_005E5890, 0x2F8);
+    *(u8 **)(p + 0x34) = func_00454a60(D_005E58A0, 1);
+    if (*(u8 **)(p + 0x34) == NULL) {
+        func_0046d730(D_005E5890, 0x2F9);
+    }
+    *(u16 *)p += 1;
+
+state1:
+    if (func_004553c0(*(u8 **)(p + 0x34)) != 0) {
+        for (i = 0; i < 6; i++) {
+            q = p + i * 4;
+            dst = q + 0x1C;
+            *(s32 *)dst = func_0046b000(*(u32 *)(q + 4));
+            if (*(s32 *)dst == 0) {
+                func_0046d730(D_005E5890, 0x30C);
+            }
+        }
+        *(u16 *)p += 1;
+    } else {
+        goto fail;
+    }
+
+state2:
+    for (j = 0; j < 6; j++) {
+        if (func_0046a750(*(s32 *)(p + j * 4 + 0x1C)) != 0) {
+        } else {
+            r = 0;
+            goto done;
+        }
+    }
+    func_00454bd0(*(u8 **)(p + 0x34));
+    *(u8 **)(p + 0x34) = NULL;
+    r = -1;
+    goto done;
+
+fail:
+    r = 0;
+
+done:
+    return r;
+}
 // FUN_0012D320
 s32 func_0012d320(void) {
     s32 r;
