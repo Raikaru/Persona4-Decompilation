@@ -107,6 +107,9 @@ s32 func_002e0fb0(void)
     }
     return 0;
 }
+/* measured: the best exploratory C for func_002e1030 scored nd 334
+   (object 480B / window 512B); it was size-deficit and discarded, so no
+   real body is retained. */
 // FUN_002E1030
 INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e1030);
 
@@ -138,12 +141,19 @@ void func_002e1230(s32 arg0, s64 arg1)
    (nd 26). Tried: inline mask, u32 local mask (declared first/last/mid,
    assigned at declaration or as a pre-loop statement), 0xFFFF0000U suffix —
    all give the identical nd 26. This is the load-sinking floor. */
+/* measured: the best exploratory C scored nd 117 (object 184B / window
+   208B); it was size-deficit and discarded. The historical nd 26 note above
+   describes a discarded body, not a retained target. */
 // FUN_002E12E0
 INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e12e0);
 
+/* measured: no real C body was produced for this 1088B retail window; no
+   candidate nd was retained. */
 // FUN_002E13B0
 INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e13b0);
 
+/* measured: no real C body was produced for this 1248B retail window; no
+   candidate nd was retained. */
 // FUN_002E17F0
 INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e17f0);
 

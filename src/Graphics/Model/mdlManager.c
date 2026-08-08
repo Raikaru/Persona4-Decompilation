@@ -709,11 +709,11 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
    no effect); everything downstream rotates by one FP register. */
 // FUN_00473870
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
+extern void func_003d5bc0(void* a, void* b, f32 c);
 
 extern void func_00473870(void* a);
 extern void func_003d5e40(void* a, f32 b);
 extern void func_003d5e90(void* a, void* b, void* c, f32 d);
-extern void func_003d5bc0(void* a, void* b, f32 c);
 extern void func_00397c40_1(void* a);
 /* measured: nd 244 after 4 attempts; registers/decl-order/chains/calls all
    match (off16:$s0, idx:$s1, obj:$s4, arg1:$s3, arg2:$s2; dsll32/dsra32 sIdx
@@ -923,6 +923,9 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 // FUN_00474BA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
+
+
+
 // FUN_00474CE0
 u32 func_00474ce0(void* param_1)
 {
@@ -1477,6 +1480,7 @@ void func_004777d0(void* param_1, int param_2, u8 param_3)
    permutes (counter $v1<->$a2, const $f4, nd 55). Integer t-regs are permuted
    in both loops regardless (p8 $t0 vs $t1, mask regs). Tried: plain C (nd 45),
    one=1.0f local (nd 45), pragma on (nd 55). Register-coloring floor. */
+ 
 // FUN_00477810
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477810);
 /* Removing this loses FUN_00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */

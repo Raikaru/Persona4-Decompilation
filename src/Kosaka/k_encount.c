@@ -103,6 +103,8 @@ s32 func_001619b0(s32 arg0, s32 arg1, s32 arg2) {
 /* measured: restores the file default after the function above. */
 #pragma opt_propagation on
 
+/* measured: the best exploratory C scored nd 107 (object 200B / window
+   208B); it was size-deficit and discarded, so no real body is retained. */
 // FUN_00161BB0
 INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161bb0);
 
@@ -110,8 +112,12 @@ INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161bb0);
    Wave 9 ran out of turns here and left it uncommitted, so this is a partial
    adaptation rather than a settled floor -- re-attempt from the m2c draft with
    the brief's recipes before treating any of it as established. */
+/* measured: the best exploratory C scored nd 599 (object 792B / window
+   896B); it was size-deficit and discarded, so no real body is retained. */
 // FUN_00161630
 INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161630);
 
+/* measured: no real C body was produced for this 1184B retail window; no
+   candidate nd was retained. */
 // FUN_00161C80
 INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161c80);

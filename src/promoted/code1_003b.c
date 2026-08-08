@@ -66,9 +66,12 @@ s32 func_003bbe80(s32 arg0) {
    zeroed accumulator and the loop index into the guard's delay slots and walks
    the entry pointer with the stride in the back-edge slot; b210 keeps the
    accumulator in a different register class and orders the guard the other
-   way. schedule on does not move it (nd 47). Committed at nd 47. */
+   way. schedule on does not move it (nd 47). Committed at nd 46. */
 // FUN_003BCF10 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: -O2 coalesces two values retail keeps in separate registers
+   and folds a mask retail re-issues; level 1 does neither. */
+#pragma optimization_level 1
 s32 func_003bcf10(s32 arg0) {
     u8 *t = (u8 *)(arg0 + iGpffffb668);
     s32 n = *(s32 *)t;
@@ -89,6 +92,8 @@ s32 func_003bcf10(s32 arg0) {
     }
     return count;
 }
+/* measured: closes the level 1 scope above at the file's -O2 baseline. */
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 #endif

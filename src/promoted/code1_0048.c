@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 typedef struct RwV3d
 {
@@ -33,6 +34,7 @@ extern u8 D_007134A0[];
 extern u8 D_007134A8[];
 extern u8 D_007134B0[];
 
+extern char D_00713CE0[];
 
 
 extern void (*jtbl_008873EC[])();
@@ -171,8 +173,35 @@ void func_00484ae0(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484ae0);
 #endif
 
-// FUN_00484B30
+/* measured: retail uses VU0 zero stores, then a D_00713CE0 lq/sq aggregate copy and scalar tail stores. The C reconstruction with propagation off reproduces the 128-byte object except temporary-register colours at the 0x2C scalar and quad copy (normalized_diff 6); direct and struct aggregate spellings, declaration orders, signatures, optimizer, schedule, and branch pragmas were probed. Committed at nd 6. */
+// FUN_00484B30 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: b210 folds the D_00713CE0 low address into lq unless propagation is disabled. */
+#pragma opt_propagation off
+void func_00484b30(u8 *arg0)
+{
+    u_long128 *quadSrc;
+    u_long128 quad;
+
+    func_0043f9c8(arg0, 0, 0x80);
+    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg0) : "memory");
+    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(arg0) : "memory");
+    __asm__ volatile("sqc2 vf0, 64(%0)" : : "r"(arg0) : "memory");
+    *(s32 *)(arg0 + 0x44) = 0x40A00000;
+    __asm__ volatile("sqc2 vf0, 80(%0)" : : "r"(arg0) : "memory");
+    quadSrc = (u_long128 *)D_00713CE0;
+    quad = *quadSrc;
+    *(u_long128 *)(arg0 + 0x20) = quad;
+    *(s32 *)(arg0 + 0x60) = 0x3F800000;
+    *(s32 *)(arg0 + 0x74) = 0x3F800000;
+    *(s32 *)(arg0 + 0x64) = -1;
+    *(s32 *)(arg0 + 0x68) = 0x80;
+}
+/* measured: closes propagation scope for func_00484b30. */
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
+#endif
 
 // FUN_00485FE0
 void func_00485fe0(u8 *arg0) {

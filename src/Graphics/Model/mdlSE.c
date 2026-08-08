@@ -19,6 +19,7 @@ extern void func_00454bd0(void *arg0);
 extern s32 func_00455ea0(void *arg0, s32 arg1, s32 *arg2);
 extern s32 func_0045a890(s16 arg0);
 extern s32 func_003b7060(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_0047df40(s32 arg0, s32 arg1);
 
 
 // FUN_0047DEA0
@@ -70,8 +71,97 @@ s64 func_0047e440(void) {
    >>6 result in $v1. Tried t/var_2 declaration-order swaps, u32/s32 types, the
    addu operand order, and the m2c pointer-slot form (frame grew to 0x1a0).
    Register-allocation floor. */
-// FUN_0047E450
+/* measured: raw s32 parameters, explicit 0x100-byte stack copy, and swapped 3-element arrays reproduce retail exactly except the align-up temporary and shifted result remain transposed in $v0/$v1. Committed at nd 7. */
+// FUN_0047E450 NONMATCHING
+#ifdef NON_MATCHING
+void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
+{
+    s32 sp16C;
+    u8 sp70[0x100];
+    s32 sp180[3];
+    s32 sp170[3];
+    void *temp_16;
+    void *temp_2;
+    void *temp_2_2;
+    void *temp_2_3;
+    void *temp_4_2;
+    void *temp_4_3;
+    void *temp_4_5;
+    void *temp_4_6;
+    void *temp_5;
+    s32 temp_3_2;
+    s32 temp_4;
+    s32 temp_4_4;
+    s32 var_16;
+    s32 var_17;
+    s32 var_2;
+
+    var_17 = arg3;
+    temp_5 = *arg0;
+    if ((temp_5 == NULL) || ((*(u16 *)((u8 *)temp_5 + 0x12) & 1) == 0)) {
+        temp_4 = (u16)arg1;
+        switch (temp_4) {
+        case 1:
+            if (temp_5 == NULL) {
+                func_0044ea90(&D_007241D8, 0x2B);
+                temp_2 = jtbl_008873E8[0](0x28, 0x40000);
+                func_0043f9c8(temp_2, 0, 0x28);
+                *(s32 *)((u8 *)temp_2 + 8) = 1;
+                *(s16 *)((u8 *)temp_2 + 0xC) = (s16)arg1;
+                *(s16 *)((u8 *)temp_2 + 0xE) = (s16)arg2;
+                *(s16 *)((u8 *)temp_2 + 0x10) = 1;
+                *arg0 = temp_2;
+            }
+            temp_16 = *arg0;
+            func_0044ea90(&D_007241D8, 0x49);
+            temp_2_2 = jtbl_008873E8[0](arg4, 0x40000);
+            *(void **)((u8 *)temp_16 + 0) = temp_2_2;
+            func_0043f810(temp_2_2, (void *)var_17, arg4);
+            temp_4_2 = *arg0;
+            *(u16 *)((u8 *)temp_4_2 + 0x12) &= 0xFFFD;
+            temp_4_3 = *arg0;
+            *(u16 *)((u8 *)temp_4_3 + 0x12) |= 1;
+            return;
+        case 2:
+            if (temp_5 == NULL) {
+                func_0044ea90(&D_007241D8, 0x2B);
+                temp_2_3 = jtbl_008873E8[0](0x28, 0x40000);
+                func_0043f9c8(temp_2_3, 0, 0x28);
+                *(s32 *)((u8 *)temp_2_3 + 8) = 1;
+                *(s16 *)((u8 *)temp_2_3 + 0xC) = (s16)arg1;
+                *(s16 *)((u8 *)temp_2_3 + 0xE) = (s16)arg2;
+                *(s16 *)((u8 *)temp_2_3 + 0x10) = 2;
+                *arg0 = temp_2_3;
+            }
+            *(s32 *)((u8 *)(*arg0) + 0x14) = 0;
+            *(s32 *)((u8 *)(*arg0) + 4) = func_0047df40(arg1, arg2);
+            var_16 = 0;
+            while (var_16 < 3) {
+                func_0043f810(sp70, (void *)var_17, 0x100);
+                temp_4_4 = var_17 + 0x100;
+                sp180[var_16] = temp_4_4;
+                sp16C = *(s32 *)(sp70 + 0xFC);
+                sp170[var_16] = sp16C;
+                temp_3_2 = sp16C + 0x3F;
+                var_2 = temp_3_2 >> 6;
+                if (temp_3_2 < 0) {
+                    var_2 = (temp_3_2 + 0x3F) >> 6;
+                }
+                var_17 = temp_4_4 + (var_2 << 6);
+                var_16 += 1;
+            }
+            func_0045a570((s16)*(s32 *)((u8 *)(*arg0) + 4), sp180[0], sp170[0], sp180[1], sp170[1], sp180[2], sp170[2]);
+            temp_4_5 = *arg0;
+            *(u16 *)((u8 *)temp_4_5 + 0x12) |= 8;
+            temp_4_6 = *arg0;
+            *(u16 *)((u8 *)temp_4_6 + 0x12) |= 2;
+            break;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlSE", func_0047e450);
+#endif
 
 
 /* measured: nd 128. All structure matches (frame 0x60, switch, case 1/2 bodies,

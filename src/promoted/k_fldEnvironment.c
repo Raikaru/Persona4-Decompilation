@@ -10,6 +10,8 @@ extern s16 func_001060b0(void);
 extern s32 func_001060c0(void);
 extern s8 func_00110960(s64 arg0, s32 arg1);
 extern s32 func_00154720(u16 arg0, u16 arg1, s64 arg2);
+extern s32 func_00106330(s32 arg0);
+extern u8 *func_0015a0c0(void);
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
@@ -144,6 +146,7 @@ void func_001546a0(u16 arg0, u16 arg1)
    (retail does move $v0,$sN, no dsll32/dsra32 truncation; m2c's s16 is wrong).
    var_18=$s2, var_19=$s3 (declare var_18 second). Case 5 of the jtbl_00746C20
    switch goes straight to block_42 (own empty case needed). */
+/* measured: discarded positive-branch candidate object 980B/window 1008B, normalized_diff 232; restored to bare INCLUDE_ASM. */
 // FUN_00154720
 INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00154720);
 

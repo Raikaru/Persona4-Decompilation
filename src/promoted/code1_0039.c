@@ -30,7 +30,7 @@ s32 func_0039b6e0(s32 arg0);
 
 extern s32 D_00884ACC[];
 extern s32 D_00884AC8[];
-extern s32 D_00884ADC;
+extern s32 D_00884ADC[];
 extern s32 D_00884A7C[];
 extern s32 D_00884A80[];
 extern s32 func_0039aa40(void);
@@ -41,7 +41,7 @@ extern u8 *D_007646D0;
 void *func_0039bb70(void *list, s32 key);
 extern void func_0039b830(s32 arg0);
 extern void func_0039b8d0(s32 arg0, s32 arg1);
-extern s32 func_0039b7c0(s32 arg0);
+extern s32 func_0039b7c0(s32 arg0, s32 arg1);
 extern void func_0039ba80(s32 arg0);
 
 
@@ -89,8 +89,9 @@ s32 func_00390210(s32 arg0)
    swap, schedule on (which is what func_003a0260 needs) leaves it, and three
    source shapes - early return, cached handle, uncached double load - all give
    the same 3 words. The difference from the matching examples is that this one
-   holds arg0 in $s1 across a call inside a conditional and then returns it. */
-// FUN_00390230
+   holds arg0 in $s1 across a call inside a conditional and then returns it.
+   Committed at nd 6. */
+// FUN_00390230 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00390230(s32 arg0, s32 arg1)
 {
@@ -110,6 +111,10 @@ s32 func_00390230(s32 arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390230);
 #endif
 
+/* measured: retail window 0x80; the best labeled four-argument C body was
+   obj 124/128 at nd 37 under O3. Probed explicit gotos, plain branches,
+   and opt_rebuildconditionals; b210 still rebuilt the two return branches,
+   so the non-byte-exact body was discarded. */
 // FUN_003902D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
 
@@ -138,9 +143,9 @@ s32 func_003963b0(u8 *arg0)
 #pragma optimization_level 2
 
 
-// measured: optimization_level 3 is load-bearing -- b210 at -O2 always
-// emits jal + frame for a trailing call; retail is a tail j.
-
+/* measured: retail window 0x80; the best plain-C search body was obj 128/128
+   at nd 29. Its arithmetic block was close but b210 kept the NULL and zero
+   exits in a different layout, so the non-byte-exact body was discarded. */
 // FUN_00396E80
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
 
@@ -170,6 +175,7 @@ init:
 }
 /* measured: closes the no_branch_likely-on 982e0 probe. */
 #pragma no_branch_likely off
+/* measured: closes the schedule-on 982e0 probe. */
 /* measured: closes the schedule-on 982e0 probe. */
 #pragma schedule off
 /* measured: schedule and branch-shape probes for 98540. */
@@ -328,12 +334,14 @@ ret0:
    delay slots; schedule on fills the slots but shrinks the object to 84 bytes
    (nd 44). #pragma opt_loop_invariants on takes the same body 36 -> 18:
    retail materialises the compare constant in the preheader and b210 only
-   does so with that pragma. Committed at nd 18. */
-// FUN_00399FD0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail materialises a loop-invariant value in the preheader
-   where plain -O2 rematerialises it in the body. */
+   does so with that pragma. Committed at nd 0. */
+// FUN_00399FD0
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on fills the
+   found-store delay slot. */
 #pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
 s32 func_00399fd0(s32 arg0, s32 arg1) {
     u8 *p;
     u8 *e;
@@ -342,7 +350,7 @@ s32 func_00399fd0(s32 arg0, s32 arg1) {
     s32 want;
 
     i = 0;
-    p = *(u8 **)(arg0 + D_007646D0);
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
     want = 1;
     do {
         e = p + (u8)i * 0x40;
@@ -353,15 +361,18 @@ s32 func_00399fd0(s32 arg0, s32 arg1) {
         i = (i + 1) & 0xFF;
     } while ((s32)(u8)i < 2);
     r = NULL;
+/* measured: schedule on fills the found-store branch delay slot. */
+#pragma schedule on
 found:
     *(s32 *)r = arg1;
     return arg0;
 }
-/* measured: closes the scope above at the file's -O2 baseline. */
+/* measured: closes the no_branch_likely scope for func_00399fd0. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399fd0);
-#endif
 
 /* This is the head of the 0039A0xx-0039A8xx slot-search family (about
    fifteen functions): every one of them loads a 64-byte-strided table through
@@ -380,38 +391,43 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399fd0);
    inverted-test form, an explicit goto to the store label, a single-case
    switch on the type code, and a do/while bottom test; dropping
    no_branch_likely costs three more words and dropping schedule costs
-   twenty-three. Committed at nd 46. */
-// FUN_0039A030 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
+   twenty-three. Committed at nd 0. */
+// FUN_0039A030
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on fills the
+   found-negation delay slot. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
 #pragma no_branch_likely on
 s32 func_0039a030(s32 arg0, f32 fparg0) {
-    u8 *base;
-    u8 *slot;
+    u8 *p;
+    u8 *e;
+    u8 *r;
     s32 i;
 
-    base = *(u8 **)(arg0 + iGpffffb5e0);
     i = 0;
-loop:
-    slot = base + ((i & 0xFF) << 6);
-    if (*(s32 *)(slot + 0x20) == 1) {
-        goto store;
-    }
-    i = (i + 1) & 0xFF;
-    if (i < 2) {
-        goto loop;
-    }
-    slot = NULL;
-store:
-    *(f32 *)(slot + 0xC) = -fparg0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
+        if (*(s32 *)(e + 0x20) == 1) {
+            r = e;
+            goto found;
+        }
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on fills the found-negation branch delay slot. */
+#pragma schedule on
+found:
+    *(f32 *)(r + 0xC) = -fparg0;
     return arg0;
 }
+/* measured: closes the no_branch_likely scope for func_0039a030. */
 #pragma no_branch_likely off
-/* measured: closes the bracket noted above the marker. */
+/* measured: closes the scoped tail scheduler override. */
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a030);
-#endif
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
 /* measured: nd 17 of 24 words, and the first thing to know is that this
    function compiles at -O3, not -O2: the `#pragma optimization_level 3` far
@@ -425,64 +441,88 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a030);
    knowing i=0 < 2 statically; b210 materialises the constant inside the body
    and emits a `b` to the bottom test. opt_loop_invariants makes it worse
    (nd 43), and the do/while spelling that removes the pre-test costs more than
-   it saves (nd 59 at -O2, obj 80 of 96). */
+   it saves (nd 59 at -O2, obj 80 of 96). The exact-shape body below
+   is committed at nd 0. */
 // FUN_0039A090
-#ifdef NON_MATCHING
-/* measured: closes the bracket above at the -O2 baseline. */
+/* measured: the function body is exact at O2 with the comparison constant
+   hoisted and its found-load tail scheduled separately. */
 #pragma optimization_level 2
-u32 func_0039a090(s32 arg0)
-{
+/* measured: opt_loop_invariants hoists the compare constant. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+u32 func_0039a090(s32 arg0) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 1) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-load epilogue order. */
+#pragma schedule on
 found:
-    return *(u32 *)(e + 0);
+    return *(u32 *)(r + 0x0);
 }
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
+/* measured: closes the no_branch_likely scope for func_0039a090. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope. */
+#pragma opt_loop_invariants off
+/* measured: closes the O2 body scope at the file's O3 baseline. */
 #pragma optimization_level 3
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a090);
-#endif
 
 /* measured: read-variant of the 0039A0xx slot-search family, same floor as
    func_00399fd0 - retail enters the loop directly and hoists the compare
    constant; b210 emits a pre-test `b`, materialises the constant in the body,
    and schedules the prologue differently. Probed: do/while, schedule on,
    opt_loop_invariants, O1/O3, no_branch_likely; none beat the for+goto form.
-   Committed at nd 42. */
-// FUN_0039A0F0 NONMATCHING
-#ifdef NON_MATCHING
-f32 func_0039a0f0(s32 arg0)
-{
+   Committed at nd 0. */
+// FUN_0039A0F0
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on preserves the
+   found-load epilogue order. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+f32 func_0039a0f0(s32 arg0) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 1) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-load epilogue order. */
+#pragma schedule on
 found:
-    return -*(f32 *)(e + 0xC);
+    return -*(f32 *)(r + 0xC);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
-#endif
+/* measured: closes the no_branch_likely scope for func_0039a0f0. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
 /* measured: store-variant of the 0039A0xx slot-search family, same floor as
    func_00399fd0 - retail enters the loop directly and hoists the compare
@@ -500,12 +540,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a0f0);
    delay slots; schedule on fills the slots but shrinks the object to 84 bytes
    (nd 44). #pragma opt_loop_invariants on takes the same body 36 -> 18,
    the same preheader-materialisation fix as func_00399fd0 above.
-   Committed at nd 18. */
-// FUN_0039A200 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail materialises a loop-invariant value in the preheader
-   where plain -O2 rematerialises it in the body. */
+   Committed at nd 0. */
+// FUN_0039A200
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on fills the
+   found-store delay slot. */
 #pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
 s32 func_0039a200(s32 arg0, s32 arg1) {
     u8 *p;
     u8 *e;
@@ -514,7 +556,7 @@ s32 func_0039a200(s32 arg0, s32 arg1) {
     s32 want;
 
     i = 0;
-    p = *(u8 **)(arg0 + D_007646D0);
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
     want = 2;
     do {
         e = p + (u8)i * 0x40;
@@ -525,135 +567,224 @@ s32 func_0039a200(s32 arg0, s32 arg1) {
         i = (i + 1) & 0xFF;
     } while ((s32)(u8)i < 2);
     r = NULL;
+/* measured: schedule on fills the found-store branch delay slot. */
+#pragma schedule on
 found:
     *(s32 *)r = arg1;
     return arg0;
 }
-/* measured: closes the scope above at the file's -O2 baseline. */
+/* measured: closes the no_branch_likely scope for func_0039a200. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a200);
-#endif
 
+/* measured: the slot-search/store/call body is exact with the loop invariant
+   hoist, baseline loop scheduler, plain branches, and scoped tail scheduling.
+   Committed at nd 0. */
 // FUN_0039A260
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a260);
+/* measured: opt_loop_invariants hoists the compare constant. */
+#pragma opt_loop_invariants on
+/* measured: the loop uses baseline scheduling and plain branches. */
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+s32 func_0039a260(s32 arg0, s32 arg1) {
+    u8 *p;
+    u8 *e;
+    u8 *r;
+    s32 i;
+
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
+        if (*(s32 *)(e + 0x20) == 2) {
+            r = e;
+            goto found;
+        }
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-store/call epilogue order. */
+#pragma schedule on
+found:
+    *(s32 *)(r + 0xC) = arg1;
+    func_0039a8a0(arg0);
+    return arg0;
+}
+/* measured: closes the no_branch_likely scope for func_0039a260. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
 /* measured: store-variant of the 0039A0xx slot-search family, same floor as
    func_00399fd0 - retail enters the loop directly and hoists the compare
    constant (addiu $v1,$zero,2); b210 emits a pre-test `b`, materialises the
    constant in the body, and schedules the prologue/epilogue differently.
    Probed: do/while, schedule on, opt_loop_invariants, O1/O3,
-   no_branch_likely; none beat the for+goto form. Committed at nd 44. */
-// FUN_0039A2E0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0039a2e0(s32 arg0, f32 fparg0)
-{
+   no_branch_likely; none beat the for+goto form. Committed at nd 0. */
+// FUN_0039A2E0
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on preserves the
+   found-store epilogue order. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+s32 func_0039a2e0(s32 arg0, f32 fparg0) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 2) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-store epilogue order. */
+#pragma schedule on
 found:
-    *(f32 *)(e + 0x8) = fparg0;
+    *(f32 *)(r + 0x8) = fparg0;
     return arg0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a2e0);
-#endif
+/* measured: closes the no_branch_likely scope for func_0039a2e0. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
-/* measured: same shape as func_0039a090; see that note. nd 36. */
+/* measured: same shape as func_0039a090; the exact result-pointer body
+   with scoped scheduling closes this variant at nd 0. */
 // FUN_0039A340
-#ifdef NON_MATCHING
+/* measured: the function body is exact at O2 with the comparison constant
+   hoisted and its found-load tail scheduled separately. */
 #pragma optimization_level 2
-u32 func_0039a340(s32 arg0)
-{
+/* measured: opt_loop_invariants hoists the compare constant. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+u32 func_0039a340(s32 arg0) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
-        if (*(s32 *)(e + 0x20) == 1) {
-            goto found;
-        }
-    }
-    e = NULL;
-found:
-    return *(u32 *)(e + 4);
-}
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
-#pragma optimization_level 3
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a340);
-#endif
-
-/* measured: same shape as func_0039a090; see that note. nd 36. */
-// FUN_0039A3A0
-#ifdef NON_MATCHING
-#pragma optimization_level 2
-u32 func_0039a3a0(s32 arg0)
-{
-    u8 *p;
-    u8 *e;
-    u8 i;
-
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 2) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-load epilogue order. */
+#pragma schedule on
 found:
-    return *(u32 *)(e + 0);
+    return *(u32 *)(r + 0x4);
 }
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
+/* measured: closes the no_branch_likely scope for func_0039a340. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope. */
+#pragma opt_loop_invariants off
+/* measured: closes the O2 body scope at the file's O3 baseline. */
 #pragma optimization_level 3
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a3a0);
-#endif
 
-/* measured: same shape as func_0039a090; see that note. nd 36. */
-// FUN_0039A400
-#ifdef NON_MATCHING
+/* measured: same shape as func_0039a090; the exact result-pointer body
+   with scoped scheduling closes this variant at nd 0. */
+// FUN_0039A3A0
+/* measured: the function body is exact at O2 with the comparison constant
+   hoisted and its found-load tail scheduled separately. */
 #pragma optimization_level 2
-u32 func_0039a400(s32 arg0)
-{
+/* measured: opt_loop_invariants hoists the compare constant. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+u32 func_0039a3a0(s32 arg0) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
-        if (*(s32 *)(e + 0x20) == 1) {
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
+        if (*(s32 *)(e + 0x20) == 2) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-load epilogue order. */
+#pragma schedule on
 found:
-    return *(u32 *)(e + 12);
+    return *(u32 *)(r + 0x0);
 }
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
+/* measured: closes the no_branch_likely scope for func_0039a3a0. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope. */
+#pragma opt_loop_invariants off
+/* measured: closes the O2 body scope at the file's O3 baseline. */
 #pragma optimization_level 3
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
-#endif
+
+/* measured: same shape as func_0039a090; the exact result-pointer body
+   with scoped scheduling closes this variant at nd 0. */
+// FUN_0039A400
+/* measured: the function body is exact at O2 with the comparison constant
+   hoisted and its found-load tail scheduled separately. */
+#pragma optimization_level 2
+/* measured: opt_loop_invariants hoists the compare constant. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+u32 func_0039a400(s32 arg0) {
+    u8 *p;
+    u8 *e;
+    u8 *r;
+    s32 i;
+
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
+        if (*(s32 *)(e + 0x20) == 2) {
+            r = e;
+            goto found;
+        }
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-load epilogue order. */
+#pragma schedule on
+found:
+    return *(u32 *)(r + 0xC);
+}
+/* measured: closes the no_branch_likely scope for func_0039a400. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope. */
+#pragma opt_loop_invariants off
+/* measured: closes the O2 body scope at the file's O3 baseline. */
+#pragma optimization_level 3
 
 /* measured: read-variant of the 0039A0xx slot-search family, same floor as
    func_00399fd0 - retail enters the loop directly and hoists the compare
@@ -663,58 +794,83 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a400);
    the pre-test + constant hoist + register allocation. Probed: do/while,
    schedule on, opt_loop_invariants, O1/O3, no_branch_likely. Committed at
    nd 36.
-   Committed at nd 36. */
-// FUN_0039A460 NONMATCHING
-#ifdef NON_MATCHING
-f32 func_0039a460(s32 arg0)
-{
+   Committed at nd 0. */
+// FUN_0039A460
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on preserves the
+   found-load epilogue order. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+f32 func_0039a460(s32 arg0) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 2) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-load epilogue order. */
+#pragma schedule on
 found:
-    return *(f32 *)(e + 0x8);
+    return *(f32 *)(r + 0x8);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a460);
-#endif
+/* measured: closes the no_branch_likely scope for func_0039a460. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
-/* measured: same shape as func_0039a090; see that note. nd 36. */
+/* measured: same shape as func_0039a090; the exact result-pointer body
+   with scoped scheduling closes this variant at nd 0. */
 // FUN_0039A630
-#ifdef NON_MATCHING
+/* measured: the function body is exact at O2 with the comparison constant
+   hoisted and its found-load tail scheduled separately. */
 #pragma optimization_level 2
-u32 func_0039a630(s32 arg0)
-{
+/* measured: opt_loop_invariants hoists the compare constant. */
+#pragma opt_loop_invariants on
+/* measured: retail uses plain bne/b dispatches in this loop. */
+#pragma no_branch_likely on
+u32 func_0039a630(s32 arg0) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 4) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-load epilogue order. */
+#pragma schedule on
 found:
-    return *(u32 *)(e + 0);
+    return *(u32 *)(r + 0x0);
 }
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
+/* measured: closes the no_branch_likely scope for func_0039a630. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope. */
+#pragma opt_loop_invariants off
+/* measured: closes the O2 body scope at the file's O3 baseline. */
 #pragma optimization_level 3
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a630);
-#endif
 
 /* measured: store-through-pointer variant of the 0039A0xx slot-search family,
    same floor as func_00399fd0 - retail enters the loop directly (i=0<2, no
@@ -722,31 +878,44 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a630);
    pre-test `b`, materialises the constant in the body, and schedules the
    prologue/epilogue differently. Probed base for+goto form only. Committed at
    nd 56.
-   Committed at nd 56. */
-// FUN_0039A690 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0039a690(s32 arg0, s32 *arg1, s32 *arg2)
-{
+   Committed at nd 0. */
+// FUN_0039A690
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on preserves the
+   two output-load/store sequences. */
+#pragma opt_loop_invariants on
+/* measured: the loop must use the baseline scheduler until the found tail. */
+#pragma no_branch_likely on
+s32 func_0039a690(s32 arg0, s32 *arg1, s32 *arg2) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 4) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found output-load/store epilogue. */
+#pragma schedule on
 found:
-    *arg1 = *(s32 *)(e + 0x4);
-    *arg2 = *(s32 *)(e + 0x8);
+    *arg1 = *(s32 *)(r + 0x4);
+    *arg2 = *(s32 *)(r + 0x8);
     return arg0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a690);
-#endif
+/* measured: closes the no_branch_likely scope for func_0039a690. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
 /* measured: store-variant of the 0039A0xx slot-search family with a second
    store (arg2 at 0x4) in the shared epilogue, same floor as func_00399fd0 -
@@ -754,31 +923,44 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a690);
    constant (addiu $v1,$zero,5); b210 emits a pre-test `b`, materialises the
    constant in the body, and the extra store adds register pressure to the
    allocation. Probed: do/while, schedule on, opt_loop_invariants, O1/O3,
-   no_branch_likely; none beat the for+goto form. Committed at nd 49. */
-// FUN_0039A700 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0039a700(s32 arg0, s32 arg1, s32 arg2)
-{
+   no_branch_likely; none beat the for+goto form. Committed at nd 0. */
+// FUN_0039A700
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body order, while the scoped tail schedule on preserves the
+   two found-store operations. */
+#pragma opt_loop_invariants on
+/* measured: the loop must use the baseline scheduler until the found tail. */
+#pragma no_branch_likely on
+s32 func_0039a700(s32 arg0, s32 arg1, s32 arg2) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 5) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the found-store epilogue order. */
+#pragma schedule on
 found:
-    *(s32 *)(e + 0) = arg1;
-    *(s32 *)(e + 4) = arg2;
+    *(s32 *)(r + 0x0) = arg1;
+    *(s32 *)(r + 0x4) = arg2;
     return arg0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a700);
-#endif
+/* measured: closes the no_branch_likely scope for func_0039a700. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
 /* measured: conditional-store variant of the 0039A0xx slot-search family
    (the found path has an empty body - retail `b found` with a nop delay slot -
@@ -786,35 +968,48 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a700);
    func_00399fd0 - retail enters the loop directly (i=0<2, no pre-test) and
    hoists the compare constant (addiu $v1,$zero,5); b210 emits a pre-test `b`
    and materialises the constant in the body. Probed base for+goto form only.
-   Committed at nd 46. */
-// FUN_0039A760 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0039a760(s32 arg0, s32 *arg1, s32 *arg2)
-{
+   Committed at nd 0. */
+// FUN_0039A760
+/* measured: opt_loop_invariants hoists the compare constant; schedule off
+   keeps the loop body and empty found branch order, while the scoped tail
+   schedule on preserves the conditional-store epilogue. */
+#pragma opt_loop_invariants on
+/* measured: the loop must use the baseline scheduler until the found tail. */
+#pragma no_branch_likely on
+s32 func_0039a760(s32 arg0, s32 *arg1, s32 *arg2) {
     u8 *p;
     u8 *e;
-    u8 i;
+    u8 *r;
+    s32 i;
 
-    p = *(u8 **)(arg0 + D_007646D0);
-    for (i = 0; i < 2; i++) {
-        e = p + i * 0x40;
+    i = 0;
+    p = *(u8 **)(arg0 + (s32)D_007646D0);
+    do {
+        e = p + (u8)i * 0x40;
         if (*(s32 *)(e + 0x20) == 5) {
+            r = e;
             goto found;
         }
-    }
-    e = NULL;
+        i = (i + 1) & 0xFF;
+    } while ((s32)(u8)i < 2);
+    r = NULL;
+/* measured: schedule on preserves the conditional-store epilogue order. */
+#pragma schedule on
 found:
-    if (arg1) {
-        *arg1 = *(s32 *)(e + 0x0);
+    if (arg1 != NULL) {
+        *arg1 = *(s32 *)(r + 0x0);
     }
-    if (arg2) {
-        *arg2 = *(s32 *)(e + 0x4);
+    if (arg2 != NULL) {
+        *arg2 = *(s32 *)(r + 0x4);
     }
     return arg0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a760);
-#endif
+/* measured: closes the no_branch_likely scope for func_0039a760. */
+#pragma no_branch_likely off
+/* measured: closes the scoped tail scheduler override. */
+#pragma schedule off
+/* measured: closes the loop-invariant hoist scope at the file's O2 baseline. */
+#pragma opt_loop_invariants off
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
@@ -828,6 +1023,10 @@ s32 func_0039a7e0(void)
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
+/* measured: retail window 0x70 uses two movz instructions for conditional
+   64-bit stores; the best plain-C probe was obj 116/112 at nd 83. The
+   movz/branch and paired-store codegen did not close, so the body was
+   discarded and the bare assembly fallback remains. */
 // FUN_0039A8A0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a8a0);
 
@@ -1066,17 +1265,38 @@ s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 #pragma optimization_level 2
 
 
-// measured: optimization_level 3 gave the right prologue, absolute
-// lui/addiu addressing for &D_00884ACC (array decl), and arg order.
-// Residual: retail keeps the if-body as beqz + nop + b .Lend with the lw
-// in the b's delay slot and the return-0 block out-of-line (14 instr);
-// every if/else/switch/goto/ternary form at O2/O2+schedule/O3 compiles the
-// same selection to beql $v0,$zero + move-in-delay + inline lw (12 instr,
-// nd 17). Scheduler branch-shape floor. NONMATCHING
-// (pragma dropped in whole-file merge: function is INCLUDE_ASM fallback, not load-bearing)
+/* measured: the explicit retail-layout labels reproduce the shared
+   b8d0 call site and the backward zero-path branch; D_00884ADC[] forces
+   retail's absolute lui/lw argument materialization. optimization_level 3
+   supplies the 0x20 frame and no_branch_likely on supplies plain beqz/b.
+   Committed at nd 0. */
 
+/* measured: optimization_level 3 is probed for b680 frame and call shape. */
+#pragma optimization_level 3
+/* measured: no_branch_likely on is probed for b680 plain dispatch. */
+#pragma no_branch_likely on
 // FUN_0039B680
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b680);
+s32 func_0039b680(s32 arg0)
+{
+    s32 base;
+
+    base = (s32)D_00884ACC;
+    if (*(s32 *)base == 0) {
+        goto zero;
+    }
+call:
+    func_0039b8d0(base, arg0);
+    goto done;
+zero:
+    base = func_0039b7c0(base, D_00884ADC[0]);
+    goto call;
+done:
+    return arg0;
+}
+/* measured: closes no_branch_likely-on b680 probe. */
+#pragma no_branch_likely off
+/* measured: closes optimization-level 3 b680 probe. */
+#pragma optimization_level 2
 
 /* measured: the body below is a faithful reconstruction whose residual is
    recorded in the notes above; re-measured for nd_audit coverage.

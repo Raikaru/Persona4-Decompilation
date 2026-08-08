@@ -64,32 +64,17 @@ extern f32 iGpffff83f4;
 extern f32 iGpffff83e8;
 extern f32 iGpffff83ec;
 
-// measured: retail computes the madd.s as `adda.s $f0,$f1; madd.s $f1,$f2,$f3`
-// (addend (f32)temp_19 in $f1, multiplier (f32)(temp_18-temp_19+1) in $f2);
-// mwcc b210 materializes (f32)temp_19 first into $f2 and the multiplier into
-// $f1, emitting `adda.s $f0,$f2; madd.s $f1,$f1,$f3` (nd 152). Tried: source
-// conversion order (sub-named local), declaration orders for f1/f2/f3, both
-// overflow comparison forms `2.1474836e9f > f1`/`<= f1` (nd 152-154), and the
-// fix2float named-shift spelling. FPU register-choice floor, same family as
-// func_0037d840; also a saved-register rotation ($s1..$s4) and `or $a0,$a0,$v1`
-// vs `or $v1,$a0,$v1` in the fix2float that untried declaration orders did not
-// move. reached 152 differing words, retail 832B.
-// FUN_0037C720 NONMATCHING
+// measured: plain C reaches object 828B/window 832B but leaves normalized_diff 485;
+// the retail MAC register order, saved-register rotation, and fix2float operand
+// order remain divergent. Restored the bare assembly fallback.
+// FUN_0037C720
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037c720);
 
-// measured: retail spills the per-case sp48/sp4C results to the stack
-// (`swc1 $f0,0x48($sp)` / `sw $v1,0x4c($sp)` for the 74/174/274/374.0f consts)
-// and uses NO saved FP registers (prologue saves $s0-$s2 + $ra only). mwcc b210
-// keeps sp48/sp4C in $f20/$f21 (saved FP regs, `swc1 $f20,0($sp)`), enlarging
-// the frame layout and shrinking the object 84B (nd 486; also obj 1980B/win
-// 2064B). Tried sp48/sp4C as separate f32 locals and as a 2-element f32 array
-// (both have the same saved-FP-register allocation). The madd.s/adda.s FPU-MAC
-// family itself is source-drivable (the `base + coef * x` shape reproduces
-// `adda.s $f3,$f0; madd.s $f0,$f1,$f2`), but the spill-vs-saved-FP-register
-// choice is not. Same FPU register-choice floor as func_0037c720/func_0037d840.
-// FUN_0037CA60 NONMATCHING
+// measured: plain C reaches object 2052B/window 2064B but leaves normalized_diff
+// 190; all case CFGs and stack frame match, but retail's FPU MAC schedules differ.
+// Restored the bare assembly fallback.
+// FUN_0037CA60
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037ca60);
-
 // FUN_0037D270
 s32 func_0037d270(u8 *arg0, s64 arg1, s64 arg2) {
     f32 spA8[2];
@@ -247,18 +232,10 @@ void func_0037d630(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(u16 *)base |= 4;
 }
 
+
+
+// measured: plain C reproduces the shuffle loop and frame; only the commutative multiply operand order differs at two instructions (normalized_diff 2), with object 540B versus retail window 544B. Parked because nd <= 25.
 // FUN_0037D840 NONMATCHING
-// Measured floor (nd 2, obj 540B/win 544B): retail emits the fix2float tail as
-// `div.s $f1,$f1,$f0; addiu $v1,$s2,1; mtc1; nop; cvt.s.w $f0; mul.s $f0,$f0,$f1`
-// (cvt after the division, mul sources (cvt, div)). mwcc b210 with the cvt as
-// the mul's FIRST source hoists addiu/mtc1/nop/cvt.s.w $f2 above the u32-to-f32
-// bltz conversion, shifting andi to $a1 and div.s into $f0 (nd 23); with the div
-// as the first source the schedule matches retail but the mul comes out
-// `mul.s $f0,$f1,$f0` vs retail `mul.s $f0,$f0,$f1` (nd 2). Tried: split div
-// statement, single expression, named div/cvt temps, static-inline helpers in
-// four parameter arrangements (brDataMul, reversed params, div-inside-helper) -
-// all give nd 2 or the nd-23 hoist. fix2float FPU register-choice floor, same
-// residual as btlShuffleSeqShuffle5 func_0037ef40.
 #ifdef NON_MATCHING
 void func_0037d840(u8 *arg0) {
     u8 buf[0xFB0];
@@ -284,7 +261,7 @@ void func_0037d840(u8 *arg0) {
         temp_3 = func_003b7060() & 0xFFF;
         var_f1 = (f32)(u32)temp_3;
         temp_f0 = var_f1 / 4096.0f;
-        temp_f0 = temp_f0 * (f32)(var_18 + 1);
+        temp_f0 = (f32)(var_18 + 1) * temp_f0;
         var_16 = (s32)temp_f0;
         if ((var_18 < 0) || (var_18 >= n)) {
             func_0046d730(&D_0064EB20[0], 0x243);
