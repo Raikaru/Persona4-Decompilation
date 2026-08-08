@@ -11,8 +11,7 @@ u8 func_00106600(s16 arg0);
 s32 func_00106c30(s16 arg0, s32 arg1);
 s32 func_00106c80(s16 arg0);
 void func_0046d730(void *arg0, s32 arg1);
-extern u8 D_005E9FA0[];
-
+/* measured: candidate object_size 1192/window 1152 with normalized_diff 904; the oversized, distant body was discarded and the bare assembly fallback restored. */
 // FUN_001312B0
 INCLUDE_ASM("asm/nonmatchings/cmpEquip", func_001312b0);
 
@@ -69,6 +68,7 @@ s32 func_00131910(u8 *arg0) {
     func_00131a00(arg0);
     return rv;
 }
+/* measured: retail window 10928 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
 // FUN_00131A00
 INCLUDE_ASM("asm/nonmatchings/cmpEquip", func_00131a00);
 
@@ -99,6 +99,7 @@ void func_001344d0(u8 *arg0) {
     }
 }
 
+/* measured: candidate object_size 844/window 816 with normalized_diff 264; the oversized, distant body was discarded and the bare assembly fallback restored. */
 // FUN_00134560
 INCLUDE_ASM("asm/nonmatchings/cmpEquip", func_00134560);
 

@@ -168,8 +168,97 @@ s32 func_004b6e40(void)
     return 0;
 }
 
-// FUN_004B6E80
+/* measured: candidate nd 24, object 692B against 704B window; parked near-match pending saved-register/address relocation levers. */
+// FUN_004B6E80 NONMATCHING
+#ifdef NON_MATCHING
+void func_004b6e80(void) {
+    extern void func_004b5950(void *arg0);
+    extern void func_004b5c60(void *arg0);
+    extern s32 func_004bce30(void *arg0);
+    s32 flags;
+    u8 *first;
+    u8 *prev;
+    u8 *next;
+    s32 off;
+    u8 *temp;
+    s32 bits;
+    u8 *work;
+    s32 i;
+    u8 *node;
+
+    first = (u8 *)D_00764CA0;
+    if (first != NULL) {
+        while (first != NULL) {
+            flags = *(s32 *)(first + 0);
+            if (flags & 8) {
+                func_004b5950(first);
+            } else if (flags & 2) {
+                func_004b5950(first);
+                *(s32 *)(first + 0) = *(s32 *)(first + 0) & ~2;
+            }
+            first = *(u8 **)(first + 0x1C);
+        }
+        node = (u8 *)D_00764CA0;
+        while (node != NULL) {
+            temp = node;
+            node = *(u8 **)(node + 0x1C);
+            bits = 0;
+            i = 0;
+            while (i < *(s16 *)(*(u8 **)(temp + 4) + 4)) {
+                bits |= func_004bce30(*(u8 **)(temp + 0x10) + (i << 5));
+                i++;
+            }
+            if (bits == 0) {
+                if (D_00764CA0 == NULL) {
+                    func_0046d730(D_007146B0, 0x326);
+                }
+                if (D_00764C9C == NULL) {
+                    func_0046d730(D_007146B0, 0x327);
+                }
+                next = *(u8 **)(temp + 0x1C);
+                if (next != NULL) {
+                    *(u8 **)(next + 0x18) = *(u8 **)(temp + 0x18);
+                }
+                prev = *(u8 **)(temp + 0x18);
+                if (prev != NULL) {
+                    *(u8 **)(prev + 0x1C) = *(u8 **)(temp + 0x1C);
+                }
+                if (temp == (u8 *)D_00764C9C) {
+                    D_00764C9C = *(u8 **)(temp + 0x18);
+                }
+                if (temp == (u8 *)D_00764CA0) {
+                    D_00764CA0 = (RuntimeListNode *)*(u8 **)(temp + 0x1C);
+                }
+                work = *(u8 **)(temp + 4);
+                i = 0;
+                while (i < *(s16 *)(*(u8 **)(temp + 4) + 4)) {
+                    func_004b8f10(*(u8 **)(temp + 8) + i * 0x3C);
+                    off = i * 8;
+                    func_003e9390(*(u8 **)(*(u8 **)(temp + 0xC) + off) + 4);
+                    func_003c02e0(*(u8 **)(*(u8 **)(temp + 0xC) + off));
+                    func_003c4220(*(u8 **)(*(u8 **)(temp + 0xC) + off + 4));
+                    i++;
+                }
+                (*jtbl_008873EC)(temp);
+                (*jtbl_008873EC)(work);
+            }
+        }
+        first = (u8 *)D_00764CA0;
+        while (first != NULL) {
+            flags = *(s32 *)(first + 0);
+            if (flags & 8) {
+                func_004b5c60(first);
+            } else if (flags & 4) {
+                func_004b5c60(first);
+                *(s32 *)(first + 0) = *(s32 *)(first + 0) & ~4;
+            }
+            first = *(u8 **)(first + 0x1C);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6e80);
+#endif
 
 // FUN_004B7140
 void func_004b7140(s32 arg0)

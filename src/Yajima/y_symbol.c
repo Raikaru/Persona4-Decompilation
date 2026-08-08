@@ -56,9 +56,10 @@ extern s32 func_002b2960(void);
 extern s32 func_002b2a30(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_002b2bd0(void *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4,
                           f32 arg5);
-extern void func_0025ecd0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                          s32 arg5, s32 arg6, void *arg7, f32 arg8, f32 arg9,
-                          f32 arg10, f32 arg11, f32 arg12, f32 arg13);
+extern void func_0025ecd0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          s32 arg4, s32 arg5, s32 arg6, void *arg7,
+                          f32 arg8, f32 arg9, f32 arg10, f32 arg11,
+                          f32 arg12, f32 arg13);
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
 extern u8 *func_0046d200(s32 arg0, s32 arg1);
@@ -93,14 +94,45 @@ s32 func_002b3990(s32 arg0)
     func_0046d280(t);
     return ret;
 }
-/* measured: retail materializes func_0025ecd0's float args (f16,f12,f13,f14)
-   before the int args and sinks the memory operands (p->sx,p->sy) + address
-   (D_00794D20) to the end; mwcc b210 emits the memory loads first and the
-   float args after the ints, so the arg blocks are ordered differently. Tried
-   Vec2-by-value, s32 tuple, and Symbol-struct-field spellings; all nd 37-85.
-   Argument-evaluation-order floor. */
-// FUN_002B3AE0
+/* discarded C candidate measured nd 118 (object 368 / window 368); retail
+   retains a different argument-materialisation order and saved-FPU register. */
+/* Measured nd 118 (object 368 / window 368), well above the ~25 parking
+   threshold; this full-size candidate preserves the recovered symbol math and
+   argument ABI for future reduction. Committed at nd 118. */
+// FUN_002B3AE0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
+{
+    f32 fparg0_saved;
+    u8 *p;
+    f32 angle;
+    f32 centered;
+    f32 temp;
+
+    fparg0_saved = fparg0;
+    p = *(u8 **)(arg0 + 0x38);
+    angle = func_0014b5d0(func_0047a2f0(D_007EFA00[0]));
+    if (angle >= 0.0f) {
+        centered = angle - 180.0f;
+    } else {
+        centered = angle + 180.0f;
+    }
+    temp = (centered + *(f32 *)(p + 0x10)) * -1.0f;
+    if (*(s8 *)(p + 0x20) == 1) {
+        func_0025ecd0(arg2, 0xFF, 0x10, func_002ac740(), 1,
+                      *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), D_00794D20,
+                      *(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, temp,
+                      1.0f, 1.0f);
+        return;
+    }
+    func_0025ecd0(arg2, 0xFF, 0x10, func_002ac740(), 1,
+                  *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), D_00794DE0,
+                  *(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, temp,
+                  1.0f, 1.0f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b3ae0);
+#endif
 // FUN_002B3C50
 void func_002b3c50(u8 *arg0, u8 arg1)
 {
@@ -119,13 +151,8 @@ void func_002b3c60(u8 *arg0, u8 arg1)
     p[0x21] = arg1;
 }
 
-/* measured: retail frame is 0x80 with the func_0025ecd0 float pair copied to
-   sp60/sp58 (ld $2,0x70; sd $2,0x60) and saved regs $18/$17/$16/$f20; mwcc b210
-   eliminates the struct copy (dead-store shrink -> 0x70 frame), saves an extra
-   $f21, and misaligns the adda.s/madd.s FPU-MAC and bltz sign guard. Tried
-   Vec2-by-value, struct-copy, and s64-bit-reinterpret spellings; all lost the
-   struct copy or the bltz guard. Argument-order + dead-store-elimination floor.
-   */
+/* No real C body was produced for this 1184-byte window. The nd 10 result came
+   from a 12-byte empty stub and is a size-deficit artifact, not a near miss. */
 // FUN_002B3C70
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b3c70);
 // FUN_002B4110
@@ -162,11 +189,8 @@ void func_002b4240(u8 *arg0, u8 arg1)
     p[0] = arg1;
 }
 
-/* measured: retail keeps sp78/sp7C in memory (0x78/0x7c) and saves only
-   $s2/$s1/$s0/$f20; mwcc b210 keeps sp78/sp7C in FP regs, saves an extra $s3/
-   $f21, places the base at 0x70 instead of 0x68, and misaligns the adda.s/
-   madd.s FPU-MAC. Same register-vs-memory + stack-layout floor as func_002b4ad0
-   and func_002b3c70. */
+/* No real C body was produced for this 1936-byte window. The nd 10 result came
+   from a 12-byte empty stub and is a size-deficit artifact, not a near miss. */
 // FUN_002B4250
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b4250);
 // FUN_002B49E0
@@ -198,13 +222,8 @@ void func_002b4ac0(u8 *arg0, u8 arg1)
     p[0] = arg1;
 }
 
-/* measured: retail keeps sp78/sp7C in MEMORY (0x78/0x7c, copied from the
-   func_002b2bd0 output at 0x68) and saves only $s2/$s1/$s0/$f20; mwcc b210
-   keeps sp78/sp7C in saved FP regs $f21/$f20 (extra save), places the base at
-   0x70 instead of 0x68, and misaligns the adda.s/madd.s FPU-MAC. Tried three
-   declaration orders and Vec2/s64 struct layouts; sp78/sp7C never spill to
-   memory and $f21 is never freed. Register-vs-memory allocation + stack-layout
-   floor. */
+/* No real C body was produced for this 1248-byte window. The nd 10 result came
+   from a 12-byte empty stub and is a size-deficit artifact, not a near miss. */
 // FUN_002B4AD0
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b4ad0);
 // FUN_002B4FB0

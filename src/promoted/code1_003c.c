@@ -237,8 +237,13 @@ s32 func_003c3f20(s32 arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3f20);
 #endif
 
+/* measured: C reconstruction with schedule/no_branch_likely pragmas is nd 48,
+   object 112B/window 112B; retail's pre-prologue load and movz conditional
+   assignment remain compiler residuals; no real C body was retained, so the
+   bare INCLUDE_ASM fallback remains. */
 // FUN_003C3FA0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
+
 
 // FUN_003C40D0
 #pragma schedule on
@@ -320,6 +325,9 @@ u8 *func_003c4a40(u8 *arg0) {
 
 extern s32 D_007647EC;
 
+/* measured: the 112B window begins with a six-word absolute jump thunk into
+   the shared table; no plain-C body can reproduce that entry sequence under
+   the source policy, so the bare INCLUDE_ASM fallback remains. */
 // FUN_003C54A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c54a0);
 
@@ -586,8 +594,14 @@ s32 func_003ca9d0(u8 *arg0) {
 /* measured: close schedule */
 #pragma schedule off
 
+/* measured: best plain-C reconstruction with schedule/goto is nd 34,
+   object 76B versus the 80B window; call-argument ordering and final
+   conditional-move code remain; no real C body was retained, so the bare
+   INCLUDE_ASM fallback remains. */
 // FUN_003CB720
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
+
+
 
 /* measured: retail takes THREE parameters and ignores the second -- arg0
    arrives in $a0 and the object pointer in $a2 -- so the two-parameter m2c
@@ -618,6 +632,10 @@ void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
 #endif
 
+/* measured: best C reconstruction with schedule/goto is nd 37,
+   object 88B versus the 96B window; call/conditional-move residuals
+   remain; no real C body was retained, so the bare INCLUDE_ASM fallback
+   remains. */
 // FUN_003CB870
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
 
@@ -825,9 +843,15 @@ call:
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
 #endif
 
+/* measured: the switch/if-chain C probes bottom out at nd 74 with object
+   108B versus the 96B window; no real C body was retained, so the bare
+   INCLUDE_ASM fallback remains. */
 // FUN_003CC500
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 
+/* measured: retail uses standalone pexew/ppacw MMI instructions; no plain-C
+   equivalent is permitted. Window 96B; no real C body was retained; the bare
+   INCLUDE_ASM fallback remains. */
 // FUN_003CC680
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 

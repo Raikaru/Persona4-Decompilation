@@ -30,7 +30,7 @@ void func_00460ac0(void* param, void* work);
 extern u8 D_0064E2A0[];
 extern u8 D_0064E2C0[];
 extern u8 D_00794960[];
-extern f32 D_008872F8;
+extern f32 D_008872F8[];
 extern void (*D_00887300[])(u32, u32);
 extern void (*D_00887310[])(s32, void*, s32);
 extern u8 D_0064E290[];
@@ -39,6 +39,61 @@ extern u8* (*D_008873F4[])(s32, s32, s32);
 extern void (*jtbl_008873EC[])(void* ptr);
 
 typedef struct { f32 x, y; } Vec2f;
+typedef struct {
+    f32 f20;
+    f32 f24;
+    f32 f28;
+    u8 pad2c[0xC];
+    f32 f38;
+    u8 pad3c[4];
+    s32 c40;
+    s32 c44;
+    s32 c48;
+    s32 c4C;
+    u8 pad50[0x10];
+    f32 f60;
+    f32 f64;
+    f32 f68;
+    u8 pad6c[0xC];
+    f32 f78;
+    u8 pad7c[4];
+    s32 c80;
+    s32 c84;
+    s32 c88;
+    s32 c8C;
+    u8 pad90[0x10];
+    f32 fA0;
+    f32 fA4;
+    f32 fA8;
+    u8 padAC[0xC];
+    f32 fB8;
+    u8 padBC[4];
+    s32 cC0;
+    s32 cC4;
+    s32 cC8;
+    s32 cCC;
+    u8 padD0[0x10];
+    f32 fE0;
+    f32 fE4;
+    f32 fE8;
+    u8 padEC[0xC];
+    f32 fF8;
+    u8 padFC[4];
+    s32 c100;
+    s32 c104;
+    s32 c108;
+    s32 c10C;
+    u8 pad110[0x10];
+} DrawPacket;
+static inline f32 panelAdd(f32 left, f32 right) {
+    return left + right;
+}
+static inline f32 panelMulForward(f32 left, f32 right) {
+    return left * right;
+}
+static inline f32 panelMulReverse(f32 right, f32 left) {
+    return right * left;
+}
 
 // FUN_00362FD0
 void func_00362fd0(u8* arg0, f32* arg1, f32* arg2, s16 arg3) {
@@ -57,13 +112,73 @@ void func_00362fd0(u8* arg0, f32* arg1, f32* arg2, s16 arg3) {
 }
 
 
-/* measured: retail (MW 2.4.1.01 per ELF .comment) computes the four
-   primitive floats with plain mul.s/add.s; mwcc b210 always fuses
-   a + b*c into mtc1 $zero + ADDA.s + MADD.s accumulator ops (nd 24+
-   every attempt: -O1..-O4, -Op, locals, reordered trees). Toolchain
-   FPU-fusion floor; repo verify uses b210. */
-// FUN_00363080
+/* measured: aggregate DrawPacket candidate reproduces object_size 384/window 384 with normalized_diff 2; one remaining retail-only difference is the second mul.s operand order after probing split temporaries and inline helper parameter order. Committed at nd 2. */
+// FUN_00363080 NONMATCHING
+#ifdef NON_MATCHING
+void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
+    DrawPacket packet;
+    f32 z;
+    f32 x;
+    f32 y;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 temp_f4;
+    f32 temp_f6;
+    f32 temp_mul;
+
+    x = fparg0;
+    y = fparg1;
+    z = fparg2;
+    temp_f20 = D_008872F8[0];
+    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f4 = panelMulForward(41.0f, z);
+    temp_f2 = panelAdd(x, temp_f4);
+    temp_f4 = temp_f2;
+    temp_f2 = panelAdd(3.0f, temp_f4);
+    temp_f4 = temp_f2;
+    packet.f20 = temp_f4;
+    temp_mul = 1.0f - z;
+    temp_f3 = panelMulReverse(temp_mul, 20.0f);
+    temp_f3 = panelAdd(y, temp_f3);
+    packet.f24 = temp_f3;
+    packet.f28 = temp_f20;
+    packet.c40 = 0x41A80000;
+    packet.c44 = 0x41E80000;
+    packet.c48 = 0x42080000;
+    packet.c4C = 0x437F0000;
+    packet.f38 = temp_f6;
+    temp_f2 = 3.0f + (41.0f + x);
+    packet.f60 = temp_f2;
+    packet.f64 = y;
+    packet.f68 = temp_f20;
+    packet.c80 = 0x41A80000;
+    packet.c84 = 0x41E80000;
+    packet.c88 = 0x42080000;
+    packet.c8C = 0x437F0000;
+    packet.f78 = temp_f6;
+    packet.fA0 = temp_f4;
+    packet.fA4 = 4.0f + temp_f3;
+    packet.fA8 = temp_f20;
+    packet.cC0 = 0x41A80000;
+    packet.cC4 = 0x41E80000;
+    packet.cC8 = 0x42080000;
+    packet.cCC = 0x437F0000;
+    packet.fB8 = temp_f6;
+    packet.fE0 = temp_f2;
+    packet.fE4 = 4.0f + y;
+    packet.fE8 = temp_f20;
+    packet.c100 = 0x41A80000;
+    packet.c104 = 0x41E80000;
+    packet.c108 = 0x42080000;
+    packet.c10C = 0x437F0000;
+    packet.fF8 = temp_f6;
+    D_00887300[0](1, 0);
+    D_00887310[0](4, &packet, 4);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmpPartyPanel", func_00363080);
+#endif
 
 
 /* measured: saved-GPR rotation floor. Retail allocates

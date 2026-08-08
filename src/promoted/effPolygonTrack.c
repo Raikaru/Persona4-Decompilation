@@ -10,7 +10,7 @@ extern void func_00492d00(int arg0);
 extern void func_00492dd0(int arg0);
 extern void func_00492e10(int arg0);
 extern void func_00492e30(u16 *arg0);
-extern void func_00489f40(void *arg0);
+extern void func_00489f40(void *arg0, void *arg1);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0044ea90(const void *file, u32 line);
@@ -21,7 +21,7 @@ extern char D_00713E20[];
 extern char D_00713E30[];
 extern u8 *func_00484490(u8 *obj);
 extern s32 func_004844d0(u8 *obj);
-extern u8 *func_00486a50(u8 *arg0);
+extern void *func_00486a50(s32 arg0);
 extern u8 *func_00483270(u8 *arg0);
 extern void func_00487160(void *arg0, void *arg1);
 extern u8 *func_00492b20(u16 arg0, u32 arg1, void *arg2);
@@ -39,7 +39,7 @@ extern void func_00487fb0(void *arg0, f32 arg1);
 extern void func_00495090(void *arg0, u32 arg1);
 extern void func_00492d10(void *arg0);
 extern s32 func_00494710(void *arg0, u32 arg1);
-extern void func_00494740(void *arg0, u32 arg1, f32 arg2, void *arg3);
+extern void func_00494740(void *arg0, u32 arg1, void *arg2, f32 arg3);
 extern void func_004940d0(void *arg0, u32 arg1, void *arg2);
 extern void func_004946f0(void *arg0, u32 arg1);
 extern void func_004946d0(void *arg0, u32 arg1);
@@ -156,7 +156,7 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
     u8 *o;
 
     if (*(u8 **)(arg0 + 0x2C) == NULL) {
-        o = func_00486a50(*(u8 **)arg0);
+        o = func_00486a50(*(s32 *)arg0);
         *(u8 **)(arg0 + 0x2C) = o;
         *(s32 *)(o + 0x4C) = *(s32 *)(arg0 + 0x30);
     }
@@ -480,7 +480,7 @@ void func_00493e00(u8 *arg0, u32 arg1)
     *(u32 *)(arg0 + 4) = arg1;
     temp_4 = *(u32 *)(arg0 + 0x2C);
     if (temp_4 != 0) {
-        func_00489f40((void *)temp_4);
+        func_00489f40((void *)temp_4, (void *)arg1);
     }
 }
 

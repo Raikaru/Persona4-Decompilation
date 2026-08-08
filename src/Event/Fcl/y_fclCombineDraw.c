@@ -63,7 +63,7 @@ extern void func_002b7750(s16, s16);
 extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
 extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s32 arg1);
-extern u8 *func_0034ae50(u8 *arg0, s16 arg1);
+extern u8 *func_0034ae50(u8 *arg0, s64 arg1);
 extern void func_002ba970(u8 *, s64, s32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
 extern s32 func_0010b5b0(void);
@@ -388,6 +388,9 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314ef0);
    2*0x11 folds f13 right but arg0 lands $s5 -> 173; M2C s64-arg1 sig confirmed;
    name lh/hoist regressions 161/86): the i*2 CSE placement + (s16)arg1 hoist
    remain out of reach. Floor confirmed. */
+/* measured: nd 597, object 780/window 752 (one reconstruction); the control
+   flow and calls are present, but the first-pass source over-allocates the
+   frame and keeps the loop values in different saved registers. Discarded. */
 // FUN_00315310
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00315310);
 
@@ -686,7 +689,51 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031d630);
 // FUN_0031DDF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031ddf0);
 // FUN_0031E320
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031e320);
+void func_0031e320(u8 *arg0, s64 arg1) {
+    s32 idx;
+    s16 n1;
+    s16 n2;
+    s16 n3;
+    s16 n4;
+    u8 *work;
+    u8 *p1;
+    u8 *p2;
+    u8 *p3;
+    u8 *p4;
+    u8 *q1;
+    u8 *q2;
+    FclByte4 c7C, c78, c74, c70, c6C;
+
+    work = *(u8 **)(arg0 + 0x38);
+    idx = (s8)arg1;
+    n1 = (s16)(idx + 0x21C);
+    p1 = func_002b6150(n1);
+    func_002b2a60(&c7C, 0xFF, 0xFF, 0x9E, 0xFF);
+    func_002b6b90(n1, *(s32 *)(p1 + 0x85), *(s32 *)&c7C, 1, 6, 0);
+    *(s8 *)(func_002b6150(n1) + 0x91) = 1;
+    n2 = (s16)(idx + 0x22B);
+    p2 = func_002b6150(n2);
+    func_002b2a60(&c78, 0xFF, 0xFF, 0x9E, 0xFF);
+    func_002b6b90(n2, *(s32 *)(p2 + 0x85), *(s32 *)&c78, 1, 6, 0);
+    *(s8 *)(func_002b6150(n2) + 0x91) = 1;
+    n3 = (s16)(idx + 0x238);
+    p3 = func_002b6150(n3);
+    func_002b2a60(&c74, 0xFF, 0xFF, 0x9E, 0xFF);
+    func_002b6b90(n3, *(s32 *)(p3 + 0x85), *(s32 *)&c74, 1, 6, 0);
+    *(s8 *)(func_002b6150(n3) + 0x91) = 1;
+    n4 = (s16)(idx + 0x244);
+    p4 = func_002b6150(n4);
+    func_002b2a60(&c70, 0xFF, 0xFF, 0x9E, 0xFF);
+    func_002b6b90(n4, *(s32 *)(p4 + 0x85), *(s32 *)&c70, 1, 6, 0);
+    *(s8 *)(func_002b6150(n4) + 0x91) = 1;
+    q1 = func_0034ae50(*(u8 **)(work + 0x188), arg1);
+    q2 = func_0034ae50(*(u8 **)(work + 0x188), arg1);
+    func_002b2a60(&c6C, 0xFF, 0xFF, 0x9E, 0xFF);
+    func_002b8370(q1, *(s32 *)(q2 + 0x75), *(s32 *)&c6C, 1, 6, 0);
+    *(s8 *)(func_0034ae50(*(u8 **)(work + 0x188), arg1) + 0x81) = 1;
+}
+
+
 
 // measured: nd N/A (draw-family, s64-param floor). 20+ 2970/6c30/6a70/6af0/69f0 with packed-float sp148 accumulator (M2C_BITWISE f32) and s64 args: same s64-arg normalization + float-pair hoist floor as func_0031fa20. s64-param + float-pair floor.
 // FUN_0031E5B0
@@ -1046,7 +1093,7 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 #endif
 
-// measured: nd N/A (not yet reconstructed). Retail's adda.s/madd.s sequence is ordinary single-precision arithmetic that plain C can emit; no VU0/COP2 opcode is present in this function's retail window.
+// measured: nd 1154, object 1768/window 1776 (one faithful reconstruction); discarded because the loop and stack-value register allocation diverged.
 // FUN_0032B9D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
 
@@ -1078,6 +1125,9 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
    94). LEVER-1 confirmed: func_00279350's 7th param is a pointer (D_00796370),
    not s32 — fixed the extern to (u8 *) this wave. The t/c register rotation
    and the func_00330e50 D_00796310-before-mov.s swap resist spelling. */
+/* measured: nd 192, object 476/window 480 (one reconstruction); residual is
+   saved-register rotation plus call-argument scheduling and a four-byte tail.
+   Discarded. */
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 

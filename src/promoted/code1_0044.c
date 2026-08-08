@@ -118,9 +118,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f30);
    opt_common_subs, O3) reproduces the single hoist. The branch polarity is
    also inverted vs retail (bnel+beqz vs bne+bnel) as a consequence of the
    register allocation. Probed the && form, explicit-if in both guard
-   polarities, pointer forms, and the three pragmas. Committed at nd 57. */
+   polarities, pointer forms, and the three pragmas. Committed at nd 52. */
 // FUN_00446F80 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: retail interleaves a stack-address materialisation with the
+   surrounding stores; b210's scheduler sinks it to just before the call. */
+#pragma schedule off
 s32 func_00446f80(s32 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 temp_2;
 
@@ -133,6 +136,8 @@ s32 func_00446f80(s32 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     }
     return temp_2;
 }
+/* measured: closes the scope above at the file's -O2 baseline. */
+#pragma schedule on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f80);
 #endif

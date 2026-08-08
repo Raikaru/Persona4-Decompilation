@@ -39,6 +39,7 @@ void *func_00460990(void);
 void func_00460ac0(void *, void *);
 void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
 
+/* measured: retail window 37392 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
 // FUN_00332BB0
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_00332bb0);
 
@@ -57,19 +58,15 @@ void func_0033bdc0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
-/* measured: retail hoists the loop's constant 1 into the preheader (addiu
-   $a0,$zero,1), shares it with func_002e71c0's arg0, and keeps the s16 counter
-   in $a1. mwcc b210 (with or without #pragma opt_loop_invariants on) hoists the
-   constant but colors counter->$a0, check temp->$a1, const->$v1 and
-   rematerializes $a0=1 before the call. Tried: literal / s32 local / s64+m2c
-   goto / s32+m2c while / declaration-order swaps; all give identical nd 29-31.
-   Register-coloring residual (call-arg unification across the loop). */
+/* measured: candidate object_size 328/window 336 with normalized_diff 57; the loop body matched but call setup remained wrong, so the candidate was discarded and the bare assembly fallback restored. */
 // FUN_0033BE40
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033be40);
 
+/* measured: retail window 1280 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
 // FUN_0033BF90
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033bf90);
 
+/* measured: retail window 1840 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
 // FUN_0033C490
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033c490);
 

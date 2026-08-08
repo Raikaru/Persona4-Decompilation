@@ -81,9 +81,11 @@ void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0, f32 fparg3, f32
    call emits args then lw $v0,0($s0) -- 13 call sites; mwcc b210
    rematerializes lui+lw per call (nd 151, frame -0x60 vs -0x70). Same
    D_00887300 render-vtable hoist floor as func_002ab550 in this file. */
+/* measured: the best exploratory C scored nd 432 (object 700B / window
+   672B); it exceeded the retail slot and was discarded, so no real body is
+   retained. */
 // FUN_002AB0E0
 INCLUDE_ASM("asm/nonmatchings/titleVisual", func_002ab0e0);
-
 // FUN_002AB380
 void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5) {
     u8 *temp_2;
@@ -134,6 +136,9 @@ void func_002ab4b0(void *arg0, u8 *arg1) {
    per call before the args -- 14 call sites (nd 128 for D_00887300[0](),
    128 for (*D_00887300)(), 126 for a cached local table pointer). Same
    D_00887300 render-vtable hoist floor as mainDraw.c func_001015c0. */
+/* measured: the best exploratory C scored nd 356 (object 600B / window
+   576B); it exceeded the retail slot and was discarded, so no real body is
+   retained. */
 // FUN_002AB550
 INCLUDE_ASM("asm/nonmatchings/titleVisual", func_002ab550);
 
@@ -278,5 +283,7 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
    makes the FIRST alloc call re-derive lui+lw (nd 211, 1-word cascade).
    Same constant-address base-materialization family as the D_00887300
    render-vtable hoist floor. */
+/* measured: no real C body was produced for this 1088B retail window; no
+   candidate nd was retained. */
 // FUN_002ABB30
 INCLUDE_ASM("asm/nonmatchings/titleVisual", func_002abb30);

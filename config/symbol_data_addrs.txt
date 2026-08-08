@@ -364,3 +364,4 @@ D_00887220 = 0x00887220; // type:data evidence: retail func_003e2570 lui 0(D_008
 D_00887280 = 0x00887280; // type:data evidence: retail func_003e46e0 lui 0(D_00887280) absolute base passed to func_003e1220
 D_0088732C = 0x0088732c; // type:data evidence: retail func_003e7fb0 lui 0(D_0088732C) absolute function-pointer jalr target
 iGpffff9c08 = 0x00762cf8; // type:data evidence: retail func_00115cb0 func_00442088 fmt arg addiu $5,$28,-0x63F8 (0x00762CF8); gp base 0x007690F0
+D_007144B8 = 0x007144b8; // type:data evidence: retail func_004abe80 lui/addiu %hi/%lo(0x007144B8) at 0x004ABE9C/0x004ABEA0 as func_0044ea90's filename argument, the sibling of D_007144A8 sixteen bytes below

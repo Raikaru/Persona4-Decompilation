@@ -50,6 +50,7 @@ s32 *func_0043eae8(s32 *);
 void func_00438740(void) {
     func_00439598();
 }
+/* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
 
 
@@ -61,6 +62,7 @@ void func_00438740(void) {
 void func_00438760(void) {
     func_00439770();
 }
+/* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
 
 
@@ -72,6 +74,7 @@ void func_00438760(void) {
 void func_00438780(void) {
     func_00439970();
 }
+/* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
 
 
@@ -86,6 +89,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438a58);
 void func_00438fa0(void) {
     func_00438e60();
 }
+/* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
 
 
@@ -98,6 +102,7 @@ void func_00438fa0(void) {
    Committed at nd 56. */
 // FUN_00438FC0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule-on wrapper is load-bearing for this parked nd 56 body. */
 #pragma schedule on
 void func_00438fc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);
@@ -105,6 +110,7 @@ void func_00438fc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 c = arg2 + *(s32 *)(p + 0x34);
     func_0043a2d0(arg0, arg1, c * scale, arg3 * scale);
 }
+/* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438fc0);
@@ -115,6 +121,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438fc0);
    Committed at nd 56. */
 // FUN_00439008 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule-on wrapper is load-bearing for this parked nd 56 body. */
 #pragma schedule on
 void func_00439008(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);
@@ -122,6 +129,7 @@ void func_00439008(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 c = arg2 + *(s32 *)(p + 0x34);
     func_0043a500(arg0, arg1, c * scale, arg3 * scale);
 }
+/* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439008);
@@ -133,7 +141,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439050);
 /* measured: floor. retail keeps the R5900 3-op mult (addiu $v1,$zero,0x184;
    mult $a0,$a0,$v1) for arg0*0x184; b210 strength-reduces to sll/addu at every
    level and with opt_strength_reduction off (nd 76 -> 76, obj 96/72). Loop shape
-   otherwise reproduces retail once the mult is taken as given. */
+   otherwise reproduces retail once the mult is taken as given. The 76 first recorded here came from a probe run; verify measures the committed body at 84. Committed at nd 84. */
 // FUN_004390C8 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_004390c8(s32 arg0, s32 arg1) {
@@ -191,12 +199,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004394b8);
    3-op mult (addiu $v1,$zero,0x24; lui; mult $v1,$a0,$v1) for arg0*0x24; b210
    strength-reduces to sll/addu/sll at every level and source shape tried.
    Scoped inside the reference arm: the body it justifies is not compiled, and
-   left outside it silently put 17 INCLUDE_ASM functions below on -O3. */
+   left outside it silently put 17 INCLUDE_ASM functions below on -O3.
+   Committed at nd 23. */
+/* measured: optimization level 3 is load-bearing for this parked nd 23 body. */
 #pragma optimization_level 3
 s32 func_00439e90(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     return func_00439cc8(arg0, arg1, arg2, arg3,
                          ((s32 *)&D_008AC788[arg0])[5]);
 }
+/* measured: closes the optimization-level 3 scope at the file baseline. */
 #pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439e90);
@@ -312,13 +323,13 @@ s32 func_0043c0a0(void) {
 
 // FUN_0043C6D8 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: O3 is load-bearing (nd 13 -> 9). Floor: retail keeps the -1 compare
-   constant in $t7 and places the pointer increment in the bne delay slot; b210
-   colours the constant $v1 and leaves the delay slot nop at all levels.
-   Best candidate (do-while, local ptr/counter) gives nd 6 (reloc-masked): the
-   loop body is identical except the -1 constant is $v1 not $t7 and the pointer
-   increment is inline (offset 0x18) not in the bne delay slot (offset 0x28).
-   probed while/for/order-swap/dummy variants, all nd >= 6. */
+/* measured: the best plain-C body remains normalized_diff 9 at object 52/56.
+   Retail keeps the -1 compare constant in $t7 and places the pointer increment
+   in the bne delay slot; b210 colours the constant $v1 and leaves that delay
+   slot empty. The do-while, while/for, declaration-order, guard-polarity,
+   sentinel-local, comma-expression, and in-function scheduler variants all
+   scored nd >= 9. Committed at nd 9. */
+/* measured: optimization level 3 is load-bearing for this parked nd 9 body. */
 #pragma optimization_level 3
 void func_0043c6d8(u8 *arg0, s32 arg1) {
     u8 *p = arg0;
@@ -331,35 +342,63 @@ void func_0043c6d8(u8 *arg0, s32 arg1) {
         } while (c != -1);
     }
 }
+/* measured: closes the optimization-level 3 scope at the file baseline. */
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6d8);
 #endif
 
 
 
-// FUN_0043DDF8
+/* measured: raw field stores reproduce the exact 96-byte object except b210 uses $v1/$a1 for the two function/data addresses and leaves the final self-pointer store in the body instead of the jr $ra delay slot. In-function schedule off improves the baseline to normalized_diff 24 (object 92/96); address-local and struct-pointer spellings do not improve it. Committed at nd 24. */
+// FUN_0043DDF8 NONMATCHING
+#ifdef NON_MATCHING
+void func_0043ddf8(u8 *arg0, s16 arg1, s16 arg2, s32 arg3) {
+    extern void func_00442220();
+    extern void func_00442300();
+    extern u8 D_00442280[];
+    extern u8 D_00442368[];
+    typedef void (*Ddf8Func)(void);
+    typedef struct {
+        s32 f0; s32 f4; s32 f8; s16 fC; s16 fE;
+        s32 f10; s32 f14; s32 f18; u8 *f1C;
+        Ddf8Func f20; u8 *f24; Ddf8Func f28; u8 *f2C;
+        s32 f30; s32 f34; s32 f38; s32 f3C; s32 f40; s32 f44;
+        s32 f48; s32 f4C; s32 f50; s32 f54;
+    } Ddf8;
+    Ddf8 *p;
+    /* measured: schedule off gives the nearest tested 92-byte object. */
+    #pragma schedule off
+    p = (Ddf8 *)arg0;
+    p->f54 = arg3;
+    p->fC = arg1;
+    p->fE = arg2;
+    p->f20 = (Ddf8Func)func_00442220;
+    p->f24 = D_00442280;
+    p->f0 = 0;
+    p->f4 = 0;
+    p->f8 = 0;
+    p->f28 = (Ddf8Func)func_00442300;
+    p->f2C = D_00442368;
+    p->f10 = 0;
+    p->f14 = 0;
+    p->f18 = 0;
+    p->f1C = arg0;
+    /* measured: closes the schedule-off scope at the file baseline. */
+    #pragma schedule on
+  }
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ddf8);
+#endif
 
 // FUN_0043DE58
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043de58);
 
-// FUN_0043DFC0 NONMATCHING
-#ifdef NON_MATCHING
-/* floor: retail is the frame-preserving tail call addiu $sp; lui $t7; sd $ra;
-   lw $a0; ld $ra; j func; addiu $sp (28B). b210 O2 does not collapse (40B, nd 25);
-   O3/tailcall on collapse but eliminate the frame (12-16B); schedule on does not
-   merge and fills the jal delay slot with the load (32B). Residual nd 7, obj 16/32.
-   measured: the O3+schedule-off bracket below is load-bearing (nd 25 -> 7). */
-#pragma optimization_level 3
-#pragma schedule off
-s32 func_0043dfc0(s32 arg0) {
-    return func_0043DFA0(D_00710070[0]);
-}
-#pragma schedule on
-#pragma optimization_level 2
-#else
+/* measured: retail window 32 bytes; the best attempted tail-jump bodies were
+   object 16/32 at nd 7 and schedule-on object 12/32 at nd 4. Those numbers
+   are size-deficit artifacts, not near matches; no real C body was produced. */
+// FUN_0043DFC0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfc0);
-#endif
 
 
 
@@ -369,20 +408,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfe0);
 // FUN_0043E5B0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043e5b0);
 
-// FUN_0043EB20 NONMATCHING
-#ifdef NON_MATCHING
-/* floor: retail is the frame-preserving tail call addiu $sp; lui $t7; sd $ra;
-   lw $a0; ld $ra; j func; addiu $sp (28B). b210 O2 does not collapse (40B, nd 25);
-   O3/tailcall on collapse but eliminate the frame (12-16B); schedule on does not
-   merge and fills the jal delay slot with the load (32B). Residual nd 7, obj 16/32.
-   measured: the O3+schedule-off bracket below is load-bearing (nd 25 -> 7). */
-#pragma optimization_level 3
-#pragma schedule off
-s32 *func_0043eb20(s32 arg0) {
-    return func_0043eae8(D_00710070[0]);
-}
-#pragma schedule on
-#pragma optimization_level 2
-#else
+/* measured: retail window 32 bytes; the best attempted tail-jump bodies were
+   object 16/32 at nd 7 and schedule-on object 12/32 at nd 4. Those numbers
+   are size-deficit artifacts, not near matches; no real C body was produced. */
+// FUN_0043EB20
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043eb20);
-#endif

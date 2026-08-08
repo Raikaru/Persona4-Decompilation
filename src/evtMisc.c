@@ -147,12 +147,18 @@ void func_0028d310(void) {
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
+/* No real C body was produced for this 2208-byte window. The nd 7 result came
+   from an 8-byte empty stub and is a size-deficit artifact, not a near miss. */
 // FUN_0028D390
 INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028d390);
 
+/* No real C body was produced for this 4560-byte window. The nd 7 result came
+   from an 8-byte empty stub and is a size-deficit artifact, not a near miss. */
 // FUN_0028DC30
 INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028dc30);
 
+/* No real C body was produced for this 1376-byte window. The nd 10 result came
+   from a 12-byte empty stub and is a size-deficit artifact, not a near miss. */
 // FUN_0028EE00
 INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028ee00);
 

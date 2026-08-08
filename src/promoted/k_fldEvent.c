@@ -482,9 +482,26 @@ INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172360);
    3 declaration orders, best nd 152. Load-sinking/coalescing floor. */
 // FUN_001727F0
 INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_001727f0);
-
 // FUN_00172BA0
-INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172ba0);
+s32 func_00172ba0(void)
+{
+    s32 vals[4];
+    s32 i;
+
+    if (func_0010ce10(func_0010a900(1), 0x205) != -1) {
+        return 1;
+    }
+    vals[0] = 1;
+    for (i = 0; i < 3; i++) {
+        vals[i + 1] = func_00105ee0(i);
+    }
+    for (i = 0; i < 4; i++) {
+        if (vals[i] != 0 && func_00106cd0(vals[i], 2) == 0x270) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 // FUN_00172CB0
 s32 func_00172cb0(u8 *arg0)

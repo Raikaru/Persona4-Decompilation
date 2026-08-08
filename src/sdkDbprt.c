@@ -108,6 +108,8 @@ void H_Dbprt_Flush()
    glyph quad/UV position arithmetic (the 12x12 cell corners and 0.0625/0.046875
    UV block) differently from retail. Frame (0x190) and the D_00887300 calls
    match; nf-diff 175. */
+/* measured: the best retained exploratory C scored nd 175; its object size
+   was not recorded (retail window 880B), and the discarded body is not kept. */
 // FUN_0044F720
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
 
@@ -116,6 +118,8 @@ INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
    guard, then cvt.w.s or srl/or + doubling) and the same 12x12-cell / 0.0625
    UV block as func_0044f720; mwcc b210 reorders the color-conversion branches
    and glyph arithmetic across the two scale paths (f21 vs var_f20). nf-diff 342. */
+/* measured: the best retained exploratory C scored nd 342; its object size
+   was not recorded (retail window 1472B), and the discarded body is not kept. */
 // FUN_0044FA90
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
 
@@ -124,10 +128,10 @@ INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
    multiplier and the sp60[var_19] byte read as a 2-step `addiu $v1,$v1,0x60` +
    `lb`; mwcc b210 emits the D_008BF720 base FIRST (lui/addiu before the mult)
    and folds the 0x60 into the load offset, and places the loop condition check
-   at the top instead of retail's bottom. Register allocation (var_18->$s2,
-   var_17->$s1, var_19->$s3, saved_x->$s0) matched via declaration order
-   `var_19, var_18, var_17, saved_x`; the rest is the load-scheduling floor.
-   nf-diff 42. */
+   at the top instead of retail's bottom. The two-parameter variadic signature,
+   frame, saved-register assignment, and formatter call sequence were matched;
+   best retained candidate measured nd 65. The historical nd 42 in the old
+   note came from a discarded body and is not a target. */
 // FUN_00450050
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_00450050);
 

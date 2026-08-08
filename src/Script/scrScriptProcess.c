@@ -112,6 +112,18 @@ typedef struct ScrTaskData
     f32 unk_220;      // 0x220
     s32 unk_224;      // 0x224
 } ScrTaskData;
+typedef struct
+{
+    s32 a;
+    s32 b;
+    s32 c;
+    s32 d;
+} ScrE040Vec4;
+
+extern f32 iGpffffa7cc;
+extern char iGpffffa7d0;
+extern char iGpffffa7d8;
+
 
 int strcmp(const char* s1, const char* s2);
 
@@ -141,15 +153,15 @@ extern char D_0063E580[];
 extern char D_0063E5A0[];
 extern char D_0063E5B8[];
 extern char D_0063E5C8[];
-extern char D_0063E5E0[];
+extern ScrE040Vec4 D_0063E5E0;
 extern char D_0063E5F0[];
 extern char D_0063E600[];
 extern char D_0063E618[];
 extern u8* D_008873F4[]; // Allocator slot.
 extern void* jtbl_008873EC[];
-extern u16 D_008C024E[];
-extern u16 D_008C0252[];
-extern u16 D_008C0256[];
+extern u16 D_008C024E;
+extern u16 D_008C0252;
+extern u16 D_008C0256;
 
 void func_0044ea90(char* file, s32 line);
 void func_0046d730(char* file, s32 line);
@@ -178,14 +190,14 @@ s32 func_00451de0(void* data, s32 a, s32 b, s32 c, void* init, void* close, void
 s32 func_00451fc0(s32 arg0, char* arg1, s32 arg2, s32 arg3, s32 arg4, void (*init)(u8*), void (*close)(u8*), u8* arg7);
 /* Still an INCLUDE_ASM fallback below, so it has no C definition to declare it;
  * its address is taken at line 720. */
-extern void func_0029e550(u8* arg0);
-s32 func_004553c0(s32 arg0, s32 arg1);
+extern s32 func_0029e550(u8* arg0);
+s32 func_004553c0(s32 arg0);
 s32 func_00454a60(void* arg0, s32 arg1);
 s32 func_004680f0(s32 arg0, void* arg1);
 void func_00442830(void* arg0, void* arg1);
 u8* func_00455f70(void* arg0, void* arg1);
 void func_00450050(s64 arg0, char* arg1, s32 arg2, void* arg3);
-void func_0045d6e0(void* arg0, void* arg1, s32 arg2, f32 arg3);
+void func_0045d6e0(void* arg0, void* arg1, f32 fparg0, s32 arg2);
 
 
 
@@ -270,12 +282,13 @@ u8* func_0029d120(ScrPool* pool)
    all sit at nd 10 (the two forms that move the load earlier score nd 13 and nd 104).
    `schedule off` changing nothing proves this is codegen argument ordering, not the
    scheduler - the genuine-floor case in mwccps2-operand-order-inline-helper.
-   Committed at nd 10. */
+   The 10 first recorded here predates the fallback arm being corrected to INCLUDE_ASM; verify measures the committed body at 30. Committed at nd 30. */
 // FUN_0029D1C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0029d1c0(void *arg0, void *arg1)
 {
     u8 *node;
+    s32 size;
 
     if (arg0 == NULL) {
         func_0046d730(D_0063E3D0, 0x6A);
@@ -287,8 +300,10 @@ void func_0029d1c0(void *arg0, void *arg1)
     if (*(s32 *)((u8 *)arg1 - 4) == 0) {
         *(u8 **)(node + 4) = *(u8 **)((u8 *)arg0 + 0xC);
         *(u8 **)((u8 *)arg0 + 0xC) = node;
-        *(s32 *)((u8 *)arg0 + 8) -= 1;
-        func_0043f9c8(arg1, 0, *(s32 *)arg0);
+        size = *(s32 *)((u8 *)arg0 + 8);
+        size -= 1;
+        *(s32 *)((u8 *)arg0 + 8) = size;
+        func_0043f9c8(arg1, 0, size);
     }
 }
 #else
@@ -762,11 +777,89 @@ void func_0029dfe0(void* arg0, u8* proc)
     work->proc = proc;
 }
 
+/* Measured nd 891 (object 1300 / window 1296); this full-size reconstruction
+   is far above the ~25 parking threshold, so no real near-miss C body was
+   produced and the retail assembly fallback is retained. */
 // FUN_0029E040
 INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e040);
 
-// FUN_0029E550
+/* Measured nd 27 (object 608 / window 608); process-loop C is structurally correct but retains compiler scheduling differences. Committed at nd 27. */
+// FUN_0029E550 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0029e550(u8 *arg0)
+{
+    ScrTaskData *task;
+    ScrScriptWork *child;
+    s32 ret;
+    s32 n;
+    s32 handle;
+
+    task = *(ScrTaskData **)(arg0 + 0x38);
+    switch (task->unk_0C) {
+    case 0:
+        func_00442088(task->text, &D_007638D0, D_0063E5F0,
+                      task->text + func_00442948(D_0063E5F0));
+        n = func_00442948(task->text) - 1;
+        while (n > 0) {
+            if (*((s8 *)task + n + 0x10) == 0x2F) {
+                func_0043f9c8((u8 *)task + n + 0x20, 0, n - 1);
+                break;
+            }
+            n--;
+        }
+        task->unk_04 = func_00468170(arg0, task->text);
+        task->unk_0C = 1;
+        task->state = 0;
+        break;
+    case 1:
+        ret = func_0029e040(arg0);
+        switch (ret) {
+        case 1:
+            task->unk_0C = 3;
+            break;
+        case 2:
+            child = (ScrScriptWork *)task->unk_214;
+            if (child != NULL) {
+                func_00440b68(D_0063E548,
+                              child->procedure + (child->index << 5));
+                func_004504f0(D_0063E560,
+                              child->procedure + (child->index << 5));
+                func_0029d1c0(D_00764614, child->msgA);
+                handle = child->soundHandle;
+                if (handle >= 0) {
+                    func_002777f0(handle);
+                    func_00440b68(D_0063E580);
+                }
+                handle = (s32)child->textBuf;
+                if (handle != 0) {
+                    func_0046a340((void *)handle);
+                    func_00440b68(D_0063E5A0);
+                }
+                func_0029d270(child);
+                func_0029d1c0(D_00764610, child);
+                task->unk_214 = 0;
+            }
+            handle = task->unk_210;
+            if (handle != 0) {
+                func_00454bd0(handle);
+                task->unk_210 = 0;
+            }
+            func_00452080(task->unk_04);
+            task->unk_04 = 0;
+            task->unk_0C = 0;
+            break;
+        }
+        break;
+    case 3:
+        func_00440b68(D_0063E600);
+        return -1;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029e550);
+#endif
+
 
 // FUN_0029E7B0
 void func_0029e7b0(u8* arg0)

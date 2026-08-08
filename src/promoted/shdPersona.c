@@ -71,7 +71,7 @@ s32 func_0011d1f0(u8 *);
 void func_0011d3c0(u8 *);
 u8 *func_0011d460(s32, s32, f32, s32, s32);
 void func_0011e390(u8 *, Vec2f);
-void func_00364680(s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, f32);
+void func_00364680(s32, s32 *, s32, s32, f32, f32, f32, f32, f32, f32, f32);
 void func_003f6440(s32, s32);
 s32 func_0011f5a0(u8 *);
 void func_0011fb90(u8 *);
@@ -382,7 +382,7 @@ void func_001162f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 
 s32 func_00109280();
 f32 func_0046b1f0(s32, s32);
-void func_001171c0(s64, f32, s32, u8, s32 *);
+void func_001171c0(s64, f32, s32, u8, s32);
 /* measured: FP/GP colouring residual, nd 99. The family's real signature
    IS (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) with the color and its
    float bits coming from arg0's HIGH WORD (the callers clobber $a1 with
@@ -408,20 +408,18 @@ void func_001171c0(s64, f32, s32, u8, s32 *);
    (same family idiom as func_00116820), the sp90[2] array for the s64 pair
    passed to func_001171c0, and the inv as TWO statements
    (temp_20_2 = arg1 & 0xFF; temp_20_2 = 0xFF - temp_20_2;) to get retail's
-   [andi, addiu, subu] order. func_001171c0's real proto is (s64, s32, s32,
-   s32, f32) — fixed in this file. */
-/* Wave-14 correction: func_001171c0's real proto is (s64, f32, s32, u8, s32 *)
-   (from its own prologue sd $a0,0x70; mov.s $f22,$f12; sw $a1,0x7C; daddu
-   $a2/$a3 — the float is the SECOND arg, not the last; the lwc1 $f20,0x74 reads
-   arg0's high word). Extern corrected to `(s64, f32, s32, u8, s32 *)`.
-   Wave-14 re-measure with the corrected extern: full-body reconstruction
-   (s64/f32/s32/u8/pointer params, (f32 *)&arg0 inline read, ((f32 *)&arg0+1)
-   high local, sp90[2] s64 pair, two-statement inv) hits a saved-register
-   ROTATION cascade (retail i=$s1/arg1=$s3/arg2=$s2/p=$s0/c=$s4/t=$s5; mwcc
-   shifts all by 2 — candidates 68-100 words). The nd-6 spelling from the
-   prior wave was not recovered; the final call now emits retail's
-   [ld; mov.s $f12; lw $a1; lbu $a2; move $a3] order with the corrected proto,
-   so the old arg-order residual is resolved; the rotation is the floor. */
+   [andi, addiu, subu] order. The discarded nd-6 spelling used a stale
+   prototype and was not recovered. */
+/* Measured ABI correction: func_001171c0 is `(s64, f32, s32, u8, s32)`.
+   Its prologue stores the packed color value from $a1 and extracts bytes from
+   that home; the fifth argument is the scalar ID passed in $a3, not a pointer.
+   The old s32 * declaration changed every caller's argument materialisation.
+   The discarded nd-6 spelling was not recovered; its remaining differences
+   were the call argument order and saved-register rotation. */
+/* measured: corrected-prototype 163e0 reconstruction scored nd 373
+   (object 556B / window 560B). Its frame and stack arrays are close, but
+   saved-register assignment and argument materialisation still differ; kept
+   bare because it is not a byte-exact body. */
 // FUN_001163E0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001163e0);
 
@@ -872,7 +870,7 @@ void func_0011cd20(u8 *);
 void func_0011ce50(u8 *);
 void func_0011b110(u8 *);
 void func_0011de40(u8 *, s32);
-void func_0011dd50(s32);
+void func_0011dd50(u8 *);
 void func_00118a20(u8 *);
 void func_0011dc50(u8 *);
 void func_0011e400(u8 *, u8 *);

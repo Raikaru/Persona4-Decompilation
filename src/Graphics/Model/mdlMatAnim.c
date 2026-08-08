@@ -128,8 +128,46 @@ u8 *func_0047fb50(u8 **arg0, s32 *arg1)
    mwcc b210 always colors the entry pointer $s0 and node pointer $s1, and swaps the
    apply-call move/lw order, no matter the declaration order (7 orders tried, nd 12..70,
    best 12). Saved-register identity coloring floor. */
-// FUN_0047FBF0
+/* measured: direct typed C reproduces the 276-byte body and all control flow; b210 retains the node/table/work/counter values in a different saved-register coloring than retail. Seven declaration/type orders were tried; best normalized_diff was 17. Committed at nd 17. */
+// FUN_0047FBF0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0047fbf0(u8 **arg0, f32 scale)
+{
+    u8 *node;
+    u8 *tbl;
+    u8 *work;
+    u8 *entry;
+    u32 i;
+    u32 j;
+    u32 count;
+    u8 *(*init)(u8 *, f32);
+    void (*apply)(u8 *, u32);
+
+    node = *arg0;
+    while (node != NULL) {
+        tbl = *(u8 **)(node + 0x50);
+        count = *(u16 *)(tbl + 4);
+        for (i = 0; i < 4; i++) {
+            entry = (u8 *)D_00713220 + i * 0x10;
+            if (*(u32 *)(entry + 0xC) == 0) {
+                continue;
+            }
+            if (*(u32 *)(node + i * 0x10 + 0xC) == 0) {
+                continue;
+            }
+            init = (u8 *(*)(u8 *, f32))*(u32 *)entry;
+            work = init(node + i * 0x10, scale);
+            for (j = 0; j < count; j++) {
+                apply = (void (*)(u8 *, u32))*(u32 *)(entry + 0xC);
+                apply(work, *(u32 *)(*(u8 **)tbl + j * 4));
+            }
+        }
+        node = *(u8 **)(node + 0x54);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fbf0);
+#endif
 
 
 
