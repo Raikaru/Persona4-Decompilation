@@ -214,13 +214,14 @@ void func_00115c00(u8 *arg0, u8 *arg1)
 }
 
 
+void func_00115dc0(Vec2f, s32, s16 *, f32);
 
 // FUN_00115C40
 void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
 {
     switch (*arg2) {
     case 0:
-        func_00115dc0(arg0, arg1, arg2);
+        func_00115dc0(arg0, arg1, arg2, farg3);
         break;
     case 1:
         func_00115e90(arg0, arg1, arg2, farg3);
@@ -233,47 +234,30 @@ void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
 
 
 
-/* measured: two known floor families. (1) retail reads the color from the
-   live register (andi $v1, $a1, 0xff) and emits mov.s $f20, $f12 before
-   move $s1, $a2; mwcc b210 marks the Vec2f param address-taken via
-   &arg0.y (needed for the (f32)(s32) float round-trips that read the
-   0x58/0x5C home) and emits lbu 0x5c + the GP move first — address-take
-   registerisation floor, same family as func_001162f0; the prologue move
-   order is the func_001171c0 scheduling family. (2) final-call arg
-   materialisation order (retail mov.s $f14, $f20 before the GP args).
-   Tried direct &arg0.y, struct-copy local (grew frame to 0x170), and
-   m2c statement order (frame 0x150) — best nd 20. Note: the ABI-faithful
-   4-param prototype + func_00115c40 farg3 pass-through are kept; the
-   func_00115cb0 call site's $f12 is genuinely uninitialised in retail. */
-/* measured: fully decompiled, nd 59 (obj 260B / window 272B). Residual is three pure scheduling/materialisation reorderings, all documented family floors (func_00115c40 note): (1) prologue emits move $s1,$a2 before mov.s $f20,$f12 (retail the reverse — func_001171c0 scheduling family); (2) retail materialises -0x100 into $a0 BEFORE the andi/sll/subu/divu color computation so the OR is $s2,$a0,$v0, mwcc materialises it last (or $s2,$v1,$v0); (3) final-call args: retail emits mov.s $f14,$f20 before the GP args, mwcc emits GP args then mov.s last. Tried signed/unsigned div, neg100-first/split-div/or-swapped spellings, #pragma schedule/opt_common_subs/no_branch_likely — all nd 59. Committed at nd 59. */
-// FUN_00115CB0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00115cb0(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
-{
-    s32 var_16;
-    s32 temp_2;
-    s32 neg100;
-    s32 color;
-    u8 sp60[0x100];
-
-    neg100 = -0x100;
-    color = neg100 | ((u32)((arg1 & 0xFF) * 0xFF) / 0xFF);
-    temp_2 = (s32)func_00109220((u16)arg2[5]);
-    switch (arg2[1]) {
-    case 0:
-        var_16 = 6;
-        func_00442088(&sp60[0], &iGpffff9c08, temp_2);
-        break;
-    case 1:
-        var_16 = 7;
-        func_00442088(&sp60[0], &iGpffff9c08, temp_2);
-        break;
-    }
-    func_00275020(color, var_16, 1, &sp60[0], 0, -1, (f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3);
-}
-#else
+/* measured: the 15cb0/15dc0 fp-colour family shares the Vec2f, six-GP/two-float
+   renderer-call shape. Retail keeps $f20, then the saved pointer/colour locals
+   across func_00109220 and the mode switch; final-call f14-before-GP ordering
+   is the recurring b210 scheduler residual. 15cb0's family map is retained
+   below as an archived high-nd reconstruction rather than a guarded park. */
+/* measured: func_00115cb0's 272B retail window has frame 0x160, saved $s2
+   colour, $s1 data pointer, $s0 mode, and the 0x100-byte sp+0x60 buffer. */
+/* measured: archived candidate `build/W8ShdPersona_15cb0_base_then_or.c`
+   uses `color = -0x100; color |= ((u32)((arg1 & 0xFF) * 0xFF) / 255U)`.
+   Old body: nd 59, obj 260B / window 272B. This recipe: nd 33, obj 272B /
+   window 272B, with the frame, $s2 colour, $s1 arg2, $s0 mode, $v0
+   func_00109220 result, both func_00442088 calls, and sp+0x60 buffer exact.
+   Exact fndiff rows are 28/32 (retail mov.s $f20,$f12 then move $s1,$a2;
+   candidate reverses those), 120/152 (relocation-owned
+   iGpffff9c08 addiu $a1,$gp,-0x63f8), and 192/196/200/204/208/212/216
+   (retail mov.s $f14,$f20 before the six GP moves; candidate emits the
+   six GP moves before f14). Ruled out: original neg100 temporary (nd 59,
+   obj 260), base_local_or, scale_first, arg2_local, arg2_scale_first, and
+   switch_mode_local (all nd 33); earlier signed/unsigned div, neg100-first,
+   split-div, OR-swapped, and schedule/opt_common_subs/no-branch-likely
+   probes remained nd 59. The high-nd body is archived and the source stays
+   bare. */
+// FUN_00115CB0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115cb0);
-#endif
 
 
 
@@ -281,15 +265,42 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115cb0);
 
 
 void *func_00109220(u16 arg0);
-/* measured: the callee reads a 4th float argument ($f12 -> $f20 -> f14 of
-   func_00274ed0) but every in-file caller (incl. matched func_00115c40) calls it
-   with THREE args through an old-style () declaration, leaving $f12 as garbage;
-   mwcc b210 rejects an old-style () prototype followed by a 4-param new-style
-   definition ("redeclared", also K&R definitions unsupported), so the true
-   prototype cannot be expressed without rewriting the matched caller. ABI
-   prototype floor. */
-// FUN_00115DC0
+/* measured: func_00115dc0 is a 208B / 208B fp-colour family member. The
+   six-GP/two-float call must use the corrected per-TU declaration
+   `func_00274ed0(s32,s32,s32,void*,s32,s32,f32,f32,f32)`. Initialising
+   `color = -0x100` and then OR-ing the 255-scaled value reproduces retail's
+   addiu $a0 at offsets 28-56 (the one-line OR form left that materialisation
+   last). The guarded body is nd 20, obj 208B / window 208B. Exact fndiff
+   residual rows are 144/148/152/156/160/164/168: retail emits mov.s
+   $f14,$f20 before the six GP moves, while b210 emits those moves first.
+   Split-OR (nd 126, obj 204), cached-call-args (nd 124, obj 216), scale
+   copies/identity helpers (nd 46/20), and alternate color spellings were
+   measured; no exact source shape was found. Committed at nd 20. */
+// FUN_00115DC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00274ed0(s32, s32, s32, void *, s32, s32, f32, f32, f32);
+void func_00115dc0(Vec2f arg0, s32 arg1, s16 *arg2, f32 fparg0)
+{
+    s32 color;
+    s32 var_16;
+    s16 mode;
+
+    color = -0x100;
+    color |= (u32)((arg1 & 0xFF) * 0xFF) / 255U;
+    mode = arg2[1];
+    switch (mode) {
+    case 0:
+        var_16 = 0;
+        break;
+    case 1:
+        var_16 = 7;
+        break;
+    }
+    func_00274ed0(color, var_16, 1, func_00109220(*(u16 *)(arg2 + 5)), 0, 0, (f32)(s32)arg0.x, (f32)(s32)arg0.y, fparg0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115dc0);
+#endif
 
 
 
@@ -347,7 +358,7 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
 
 u8 *func_0010d6d0(s16 arg0);
-void func_00274ed0(s32, s64, s32, u8 *, s32, s32, f32, f32, f32);
+void func_00274ed0(s32, s32, s32, void *, s32, s32, f32, f32, f32);
 /* measured: retail saves fparg0 FIRST into $f20 and gives the s64 home's high
    word $f21 with the (f32)(s32)(114.0f+low) result in $f22; mwcc b210 allocates
    the high-word local to $f20 and fparg0 to $f21, and reorders the prologue
@@ -1933,7 +1944,16 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
    tried, nd 27); (4) the 0x88 store must be `*(s8 *)&0x88 = -1` (addiu -1,
    not 0xff). The func_0044b7b0 call must sit INSIDE the else-if branch or the
    div-destination register and the nop-after-div vanish. */
-/* measured: fully decompiled, nd 49 (obj 448B / window 448B). Recipe A (s32 v + u32 c abs, (s32) cast on OR result, x+x doubling) keeps the bare bltz; `if (a >= 0)` then-else polarity matched the div/neg branch layouts (bc1t to the out-of-line work). FMA pairs (add.s/madd.s) match byte-for-byte. Remaining 49 = documented scheduling/colouring rows: (1) prologue load interleave (retail [lh 0x514; lwc1 0x450; mtc1; cvt], mwcc emits lwc1 after cvt); (2) neg-path abs registers (retail or $a0/cvt $f2/add.s $f2,$f2,$f2, mwcc or $v1/cvt $f1/add.s $f2,$f1,$f1); (3) 0x4F000000 guard c.ole.s+bc1t vs mwcc c.olt.s+bc1f; (4) n local colours $v1 vs retail $a0. Prior wave best 15; this is the bltz-survival recipe at 49. Committed at nd 49. */
+/* measured: nested high-bound load/test plus the proven constant-left strict
+   guard (`2147483648.0f > acc`) and `~0x800`/`~0x2000` masks reduce this
+   body from nd 49 to nd 23 (obj 448B / window 448B). The nested `else`
+   fixes the pre-interpolation load schedule; the guard and masks reproduce
+   retail c.ole.s/bc1t and -0x801/-0x2001. Remaining fndiff rows are
+   20/24/28/32, relocation-owned 108 (iGpffff8094), 240/244/252/256,
+   and 304/312/340/344/348: prologue FP load interleave, negative-path
+   abs colouring, and output $a0 versus MWCC $v1 colouring. Strict,
+   inclusive, negated-strict, mask-only, constant-left-inclusive, and all
+   pragma-wrapper probes were ruled out or worse. Committed at nd 23. */
 // FUN_0011C930 NONMATCHING
 #ifdef NON_MATCHING
 void func_0011c930(u8 *arg0)
@@ -1954,13 +1974,15 @@ void func_0011c930(u8 *arg0)
 
     ratio = (f32)(s16)*(s16 *)(arg0 + 0x514);
     lo = *(f32 *)(arg0 + 0x450);
-    hi = *(f32 *)(arg0 + 0x454);
     if (ratio < lo) {
         ratio = 0.0f;
-    } else if (ratio > hi) {
-        ratio = 1.0f;
     } else {
-        ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo)));
+        hi = *(f32 *)(arg0 + 0x454);
+        if (ratio > hi) {
+            ratio = 1.0f;
+        } else {
+            ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo)));
+        }
     }
     base = *(f32 *)(arg0 + 0x434);
     delta = *(f32 *)(arg0 + 0x43C) - base;
@@ -1980,15 +2002,15 @@ void func_0011c930(u8 *arg0)
         f_abs = f_abs + f_abs;
     }
     acc = f_abs + ratio * diff;
-    if (acc < 2147483648.0f) {
+    if (2147483648.0f > acc) {
         n = (s32)acc & 0xFF;
     } else {
         n = ((s32)(acc - 2147483648.0f) | 0x80000000) & 0xFF;
     }
     *(u8 *)(arg0 + 0x44E) = n;
     if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) {
-        *(s32 *)(arg0 + 0x534) &= ~0x801;
-        *(s32 *)(arg0 + 0x534) &= ~0x2001;
+        *(s32 *)(arg0 + 0x534) &= ~0x800;
+        *(s32 *)(arg0 + 0x534) &= ~0x2000;
         *(s8 *)(arg0 + 0x88) = -1;
     }
 }
@@ -2000,24 +2022,25 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
 
 
 
-/* measured: nd 19 (obj 120B vs window 128B). The residual is retail placing
-   the inner body OUT OF LINE -- a positive `bne $a0,$v1` to the body plus a
-   shared `b` trampoline to the epilogue -- where b210 collapses that into one
-   inverted `beq` straight to the epilogue, saving the 8 bytes.
-
-   Worth keeping: `!!(flags & 0x800) != 0` is what reproduces retail's
-   `sltu $v1,$zero,$v1` booleanization of the flag test, taking this from
-   nd 25 to 19. A plain `!= 0`, a 0/1 boolean local, `&&`, and a bitwise `&`
-   of two comparisons all fail to booleanize (25, 25, 25, 24) -- b210 folds
-   the comparison into the branch unless the double negation forces it.
-
-   Measured and rejected for the trampoline: empty-then/else, switch on the
-   boolean, switch on the raw value with an explicit `case -1: break`, `!!` on
-   both conditions, early returns, and opt_rebuildconditionals / schedule /
-   opt_common_subs off -- 14 spellings, none below 19. Branch-collapse floor.
-   Committed at nd 46 (improved to nd 44 with #pragma schedule off). */
 // FUN_0011CAF0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
+void func_0011caf0(u8 *arg0)
+{
+    s32 flags;
+    u8 *work;
+    s32 bit800;
+    s32 bit100000;
+
+    work = *(u8 **)(arg0 + 0x38);
+    flags = *(s32 *)(work + 0x534);
+    bit800 = !!(flags & 0x800);
+    if (bit800 == 0 || *(s8 *)(work + 0x88) == -1) {
+        return;
+    }
+    bit100000 = (flags & 0x100000) != 0;
+    if (func_00115020(work + 0x84, bit100000, work) != 0) {
+        func_0045af60(0, 0, 0, 0);
+    }
+}
 // FUN_0011CB70
 s32 func_0011cb70(u8 *arg0, u8 *arg1)
 {

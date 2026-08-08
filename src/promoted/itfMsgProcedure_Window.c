@@ -24,7 +24,7 @@ extern void func_0045da40(float *a0, void *a1, float a2, s32 a3, void *a4);
 extern void func_0048a000(void);
 extern float func_0044b7b0(float angle);
 extern float func_0044b610(float angle);
-extern s32 func_0045eb20(void *a0, void *a1, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, void *a7, float a8, float a9, float a10, float a11);
+extern s32 func_0045eb20(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
 extern float D_007612D0;
 extern f32 iGpffff81e0;
 extern f32 iGpffff8094;
@@ -36,7 +36,7 @@ extern s32 iGpffffb4d8;
 extern u8 D_00796430[];
 extern u8 D_00796490[];
 extern void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
-extern void func_0027d3c0(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f0, f32 f1, f32 f2, f32 f3, void *a4);
+extern void func_0027d3c0(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f1, f32 f2, f32 f3, void *a4);
 extern void func_0025ecd0(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5, void *t3);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *a0, void *a1);
@@ -200,20 +200,13 @@ void func_0027d2f0(void *arg0)
     func_00451fc0(arg0, D_0063C018, 0xF, 0, 0, (void *)func_0027d230, (void *)0, (void *)0);
 }
 
-/* Frame 0x2D0, loop, madd chains (adda.s/madd.s), color packing, struct copy
-   sp180[i]=sp180[1], and all call args match retail instruction-for-instruction.
-   The residual is float-arg scheduling: (1) prologue saves f12->f23 (first
-   float param) 3rd in retail but last here; (2) the func_0045eb20 call materialises
-   f12 first and t3 (arg_sp0) last in retail, but here t3 first and f12-f15 grouped
-   last. Frame fixed vs prior lane (was 0x2E0, wrong func_0045eb20 prototype). Key
-   levers: func_0045eb20 arg5/arg6 declared s16 (kills the lh-v0/move-t1 pair) and
-   arg7 declared s32 with a (s32) cast at the call (kills the t3-into-ints
-   materialisation). Tried schedule on/off (nd 423), optimization_level 3 (nd 429),
-   6 local declaration orders, u32/s32 i, union and *(float*)&arg0 bitcasts for the
-   raw-bit base (both split the array base and regress). Committed at nd 104. */
-// FUN_0027D3C0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0027d3c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s16 arg6, s16 arg7, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, void *arg_sp0)
+/* measured: byte-exact after preserving the mixed ABI order in both the
+   function signature and func_0045eb20 declaration: arg0,arg1,fparg0,arg2,
+   arg3,arg4,arg5,arg6,arg7,fparg1,fparg2,fparg3,arg_sp0. The call uses the
+   same order, reproducing retail's f12 move before integer setup and stack
+   pointer last. Scoped verify: MATCH nd 0, object 600B/window 608B. */
+// FUN_0027D3C0
+void func_0027d3c0(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s16 arg6, s16 arg7, f32 fparg1, f32 fparg2, f32 fparg3, void *arg_sp0)
 {
     MsgProcWindowF2 sp180[42];
     MsgProcWindowRGBA spD0[42];
@@ -257,11 +250,8 @@ void func_0027d3c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s
     spD0[i].g = (u8)g;
     spD0[i].b = (u8)b;
     spD0[i].a = (u8)a;
-    func_0045eb20(&spD0[0], &sp180[0], 0x2A, 5, arg5, spCE, spCC, arg_sp0, fparg0, fparg1, fparg2, fparg3);
+    func_0045eb20(&spD0[0], &sp180[0], fparg0, 0x2A, 5, arg5, spCE, spCC, fparg1, fparg2, fparg3, arg_sp0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d3c0);
-#endif
 
 // FUN_0027D620
 void func_0027d620(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, u32 t3, void *s0, float f0, float f1, float f2, float f3)

@@ -101,12 +101,12 @@ extern f32 iGpffff8360;
 extern f32 iGpffff8504;
 extern void func_003191c0(u8 *, s64, s32, u16, u8, s32, s32, s8);
 extern s32 func_00331560();
-extern void func_002b77d0(s16, s64, s32, s32, s32, s64, s32, s32, f32, s64, s64);
+extern void func_002b77d0(s64, s64, s64, s32, s64, s64, s64, s64, f32, s16, s32);
 extern void func_002b29e0(f32 *, f32, f32);
 extern u8 *func_002b81f0(s32);
 extern f32 func_0046b260(s32);
 extern void func_00314ef0(u8 *, s64, s64, s32, s64, s32);
-extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern void func_0025ecd0(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, void *);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void func_002777f0(s8 arg0);
@@ -142,7 +142,7 @@ extern u8 *func_0034a630(s32);
 extern s32 func_00109280(u16);
 extern void func_0011d1d0(s32, f32);
 extern s8 func_00331640(void);
-extern void func_00330e50(s32, s64, s32, s32, s32, void *, f32, f32, f32);
+extern void func_00330e50(s32, s64, f32, s32, s32, s32, f32, f32, void *);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern void func_002b82d0(u8 *, u8, s32, s32, s32, s32);
 extern u8 D_00795E60[];
@@ -275,28 +275,15 @@ void func_003146c0(u8 *arg0) {
     func_0011b9e0(*(u8 **)(*(u8 **)(arg0 + 0x38) + 4));
 }
 
-/* measured: retail copies arg2 into $v1 up front and sign-extends it into $a3 last, right
-   before the call; mwcc b210 sign-extends into $a3 first and then reuses $a2 for the load.
-   Same instructions, different order. A named s8 local and an explicit (s8) cast at the
-   callsite both give the identical nd 17. Argument-scheduling floor. */
-/* A body is preserved below at nd 45 so this is resumable. The note above records
-   nd 17 from an earlier attempt whose source was never kept; this reconstruction from
-   the retail listing does not reach it. #pragma optimization_level 3 takes it 45 -> 26
-   and schedule on 45 -> 38, neither a match, so neither is committed.
-   Committed at nd 45. */
-// FUN_003146F0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003146f0(u8 *arg0, s32 arg1, s8 arg2) {
-    u8 *p;
-
-    p = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(p + 8) = arg1;
-    *(s8 *)(p + 0xC) = arg2;
-    func_0011b480(*(s32 *)(p + 4), 0, *(s32 *)(p + 8), arg2);
-}
-#else
+/* measured: best retained reconstruction nd 45 (earlier source shape nd 17),
+   object 80/window 80. Retail copies arg2 into $v1 early and sign-extends it
+   into $a3 immediately before func_0011b480; mwcc reverses that materialization
+   and reuses $a2 for the object+8 load. Named s8, explicit cast, declaration
+   order, and pragma-wrapper attempts were ruled out above the park threshold.
+   Body and register/residual notes are archived in
+   build/W8FclCombineDraw_003146f0_body.c.txt. */
+// FUN_003146F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
-#endif
 
 // FUN_00314740
 void func_00314740(u8 *arg0, s8 arg1) {
@@ -775,20 +762,35 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031fa20);
 // FUN_003205F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003205f0);
 
-/* measured: nd 43 (4 attempts: pointer-local 43, array-index 43, byte-cast 43,
-   u8-slot 47). Recipe B re-test FAILED: with a single-use base the pointer local
-   is dead after the call, so mwcc b210 rematerializes %hi/%lo per LOAD (emits
-   lui+lwc1 %lo twice, no addiu) instead of retail's one lui/addiu pair, and
-   always emits [addiu a0] [addr] [lwc1] [lwc1] where retail has [addr] [addiu a0]
-   [lwc1] [lwc1] — the recipe-B base hoist only fires when the pointer is live
-   across a branch (as in matched func_0032f060). Second residual: at every
-   func_002b77d0 site mwcc hoists the lw $a3 (stack arg) above the f12 constant
-   materialization; retail emits [lui/mtc1 f12] [addiu a0] [ld a1] [move a2]
-   [lw a3] strictly left-to-right. 16 words at the 2970 sites + 24 at the 77d0
-   sites + 3 padding. Argument-evaluation-order + address-rematerialization
-   floor. */
 // FUN_00320970
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320970);
+void func_00320970(u8 *arg0, s64 arg1) {
+    FclByte4 sp5C;
+    FclByte4 sp58;
+    FclByte4 sp54;
+    FclByte4 sp50;
+    s64 sp48;
+    s64 sp40;
+    s64 sp38;
+    s64 sp30;
+    FclVec2 *p;
+
+    p = (FclVec2 *)D_00644020;
+    func_002b2970(&sp48, p->x, p->y);
+    func_002b2a60(&sp5C, 0x49, 0x72, 0xFF, 0xFF);
+    func_002b77d0(0x56, sp48, 0x56, *(s32 *)&sp5C, 0xAA, arg1, 6, 6, 55.0f, 0, func_00331560());
+    p = (FclVec2 *)D_00644098;
+    func_002b2970(&sp40, p->x, p->y);
+    func_002b2a60(&sp58, 0x49, 0x72, 0xFF, 0xFF);
+    func_002b77d0(0x65, sp40, 0x65, *(s32 *)&sp58, 0xAA, arg1, 6, 6, 56.0f, 0, func_00331560());
+    p = (FclVec2 *)D_00644AD0;
+    func_002b2970(&sp38, p->x, p->y);
+    func_002b2a60(&sp54, 0xE, 0x17, 0x49, 0x80);
+    func_002b77d0(0x1AC, sp38, 0x1AC, *(s32 *)&sp54, 0xA9, arg1, 6, 6, 57.0f, 0, func_00331560());
+    p = (FclVec2 *)D_00644B00;
+    func_002b2970(&sp30, p->x, p->y);
+    func_002b2a60(&sp50, 0xE, 0x17, 0x49, 0x80);
+    func_002b77d0(0x1B2, sp30, 0x1B2, *(s32 *)&sp50, 0xA9, arg1, 6, 6, 58.0f, 0, func_00331560());
+}
 
 // measured: nd N/A (draw-family, s64-param floor). 2b2970/6c30/6a70/6af0/69f0/83e0 + 191c0/e5b0/ac10 calls with s64 args: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_00320B80
@@ -1057,7 +1059,19 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
    transcriptions: M2C's s64 arg1/arg2 wrong — caller passes single regs
    (addiu $5,2 / daddu $6,$16); the v1/v2 in-place sign-ext + w-immediate-load
    sink resist spelling. Confirmed the load-sink floor. */
-/* measured: nd 21, object 596/608. Retail shape is a 0xD0 frame with three packed s64 vector slots, a signed s16 loop/index path, two 002E48A0 loads, and the final 0.0f+accumulator plus multiply-add colour chain. The preserved C uses s64 stack slots, s32 v1/v2/i with explicit s16/s8 casts, separate u16/u8 loads, and ordinary `acc + base * delta` arithmetic; probes of tail/order variants scored nd 21/40/97/434. The residual is the retail load-sink/order at the two 002E48A0 sites plus three padding words; no inline assembly is used. Committed at nd 21. */
+/* measured: nd 16, object 596/window 608. The preserved C uses three packed s64
+   vector slots, s32 v1/v2/i with explicit s16/s8 casts, separate u16/u8 loads,
+   and the ordinary acc + base * delta tail. Reordering the f32 declarations to
+   f21 before f20 improves the prior nd21 body to nd16 and matches the entire
+   floating-point tail. Remaining fndiff rows are +0x34 move s2,a1 vs s1,a1;
+   +0x40 lw s1,38(a0) vs s2; +0x88/+0x8C dsll32/dsra32 s6,s2 vs s1,s1;
+   +0x90/+0x94 dsll32/dsra32 s7,s0 vs s6,s0; +0xCC lhu s2,2(v0) vs s7;
+   +0xF8 mult s0,s6 vs s0,s1; +0x110 move t0,s2 vs s7; +0x134 slt s0,s7
+   vs s0,s6; +0x1A0/+0x1A4 lh 11E/120(s1) vs (s2); +0x1B8 lwc1 f20,124(s1)
+   vs (s2). The three retail-only words at +0x254/+0x258/+0x25C are zero
+   tail padding. Raw-parameter-before-object, u32 pointer-cast, and declaration
+   order probes stayed at nd16 (normalizing before the field load was nd408);
+   no inline asm. Committed at nd 16. */
 // FUN_0032B770 NONMATCHING
 #ifdef NON_MATCHING
 void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
@@ -1070,8 +1084,8 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     u16 w;
     u8 b;
     u8 *obj;
-    f32 f20;
     f32 f21;
+    f32 f20;
 
     obj = *(u8 **)(arg0 + 0x38);
     func_002b2970(&spC8, 156.0f, 87.0f);
@@ -1132,9 +1146,13 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
    94). LEVER-1 confirmed: func_00279350's 7th param is a pointer (D_00796370),
    not s32 — fixed the extern to (u8 *) this wave. The t/c register rotation
    and the func_00330e50 D_00796310-before-mov.s swap resist spelling. */
-/* measured: nd 192, object 476/window 480 (one reconstruction); residual is
-   saved-register rotation plus call-argument scheduling and a four-byte tail.
-   Discarded. */
+/* measured: best reconstruction fndiff 65 differing words, object 480/window
+   480; final inline-color probe was worse at 81. Candidate keeps obj/c/n in
+   $s0/$s1/$s1 while retail uses $s1/$s0/$s0; repeated lh-before-move-a0 and
+   call-argument scheduling also differ. Typed obj/table access, FclVec2
+   aggregate, 140.0f constant, and corrected call prototypes were tried.
+   Discarded above the nd 25 park threshold; recipe, register map, residual
+   rows, and ruled-out shapes are archived in build/W8FclCombineDraw_0032c480_body.c.txt. */
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 
@@ -1420,25 +1438,13 @@ void func_003307b0(u8 *arg0, s64 arg1, s32 arg2) {
         *(FclByte4 *)(p1 + 0x85) = sp68;
     }
 }
-/* measured: nd 20 (attempts: compile-fix, 49, 23, 20). Frame/prologue/epilogue
-   and every instruction match; residual is pure func_0025ecd0 14-arg
-   materialization scheduling (same family as y_draw func_002b6340 floor):
-   retail spills the s64 arg1 pair immediately (sd $a1,0x78) keeping only the
-   high word in $s3, then evaluates args [3,12,9,10,11,1,2,4,5,6,7,13,14,8]
-   (lwc1 pair hoisted before the GPR moves, a0/t3 last); mwcc b210 keeps the
-   whole pair in saved regs, spills late, and emits [1,3,11,2,4,5,6,7,8,9,10,
-   12,13,14] identically for inline, named-hi and ptr-last prototypes (ptr-last
-   fixed only the t3 slot, nd 23->20). True signature (s32, s64, s32, s32, s32,
-   void*, f32, f32, f32) proven from caller func_0032c480; call p8 = arg4 cast
-   to void*, p9/p10 = the two s64 arg1 words bitcast as f32, p12 = 0.0f.
-   Re-measured this wave (nd 20 confirmed): the func_0025ecd0 extern was the
-   ptr-LAST spelling (s32 x7, f32 x6, void*) — corrected this wave to
-   (s32 x7, void*, f32 x6) per the callee's own prologue (saves $4-$10, $11,
-   $f12-$f17; void* is the 8th integer-class arg in $11); nd unchanged (20),
-   the materialization-order floor holds for both spellings. */
 // FUN_00330E50
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00330e50);
+void func_00330e50(s32 arg0, s64 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, void *arg5) {
+    s64 *p;
 
+    p = &arg1;
+    func_0025ecd0(*(f32 *)p, *((f32 *)p + 1), fparg0, arg2, arg3, (s16)arg0, func_00331560(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
+}
 // FUN_00330F20
 s32 func_00330f20(u8 *arg0) {
     s32 sp3C, sp38, sp34, sp30;

@@ -85,48 +85,12 @@ void func_003e1020(s32 arg0) {
 
 
 
-/* measured: a plain linked-list search (walk arg0->f10 via f30 for f8 == arg1,
-   then store arg2 at f18 and return f0, else -1). Two b210 codegen choices
-   block it and they pull in opposite directions:
-
-   At -O2 b210 fills the loop and exit delay slots with BRANCH-LIKELY forms
-   (bnel/beql) retail never uses, collapsing the body to 60B against an 80B
-   window (nd 15). `#pragma schedule off` removes them and reaches 72B / nd 9,
-   but it also disables the delay-slot fill retail DOES have (retail puts the
-   `lw $v0,($v1)` in the `b` delay slot), so scheduling cannot be both off and
-   on. The 2-word residual after that is that fill plus a redundant `nop`
-   retail emits between the loop exit and the join at 0x3e3094.
-
-   Changed nothing here when probed: opt_peephole, opt_branch_likely,
-   opt_branch_folding, opt_common_subs, opt_unroll_loops, optimize_for_size,
-   opt_propagation. The nd-9 body is kept below so the next attempt starts from
-   it instead of re-deriving. Branch-likely / delay-slot floor. */
-// FUN_003E1A70 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: nd 45 of 112, guarded do/while summing func_003e1740(node-0x1C)
-   when >0 over the D_00764868 circular list. schedule on gets the layout; the
-   residual is register colouring - retail keeps node in  and sum in ,
-   b210 assigns node to  and sum to  (and shrinks the slt to a blez). */
-#pragma schedule on
-s32 func_003e1a70(void) {
-    s32 sum = 0;
-    void **node = (void **)D_00764868;
-    void **sentinel = (void **)&D_00764868;
-    if (node != sentinel) {
-        do {
-            s32 r = func_003e1740((u8 *)node - 0x1C);
-            if (0 < r) {
-                sum += r;
-            }
-            node = (void **)node[0];
-        } while (node != sentinel);
-    }
-    return sum;
-}
-#pragma schedule off
-#else
+/* measured: the circular-list sum reconstruction for func_003e1a70 stalled
+   at nd 45 in its 112B window: register colouring and the entry comparison
+   (`slt`/`beqz` versus b210's `blez`) remain. This exceeds the park threshold,
+   so the bare INCLUDE_ASM fallback remains. */
+// FUN_003E1A70
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1a70);
-#endif
 /* measured: schedule + no_branch_likely are load-bearing - schedule fills both
    func_003e1230 jal delay slots with the cross-link sw, and no_branch_likely
    stops b210 turning the loop's beq/bne into beql/bnel. */
@@ -181,6 +145,7 @@ s32 func_003e1db0(u8 *arg0, s32 arg1) {
    did not improve nd 7. Object 68/window 80. Committed at nd 7. */
 // FUN_003E23E0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
 s32 func_003e23e0(void) {
     u8 *base;
@@ -200,6 +165,7 @@ s32 func_003e23e0(void) {
     }
     return sum;
 }
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
@@ -294,21 +260,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
 #endif
 
 /* measured: a plain linked-list search (walk arg0->f10 via f30 for f8 == arg1,
-   then store arg2 at f18 and return f0, else -1). Two b210 codegen choices
-   block it and they pull in opposite directions:
-
-   At -O2 b210 fills the loop and exit delay slots with BRANCH-LIKELY forms
-   (bnel/beql) retail never uses, collapsing the body to 60B against an 80B
-   window (nd 15). `#pragma schedule off` removes them and reaches 72B / nd 9,
-   but it also disables the delay-slot fill retail DOES have (retail puts the
-   `lw $v0,($v1)` in the `b` delay slot), so scheduling cannot be both off and
-   on. The 2-word residual after that is that fill plus a redundant `nop`
-   retail emits between the loop exit and the join at 0x3e3094.
-
-   Changed nothing here when probed: opt_peephole, opt_branch_likely,
-   opt_branch_folding, opt_common_subs, opt_unroll_loops, optimize_for_size,
-   opt_propagation. The nd-9 body is kept below so the next attempt starts from
-   it instead of re-deriving. Branch-likely / delay-slot floor. */
+   then store arg2 at f18 and return f0, else -1). The guarded do/while body
+   with schedule off compiles to object 72B/window 80B at nd 16. Retail's
+   branch/delay-slot sequence includes a standalone nop at the loop exit and
+   an otherwise filled `lw $v0,($v1)` delay slot; b210 cannot emit both in
+   this translation unit. Branch-likely / delay-slot floor. Committed at nd 16. */
 // FUN_003E30C0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: closes the bracket noted above the marker. */
@@ -347,7 +303,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
    This is the same loop-exit block-join artifact as func_003e3020. Committed at nd 22. */
 // FUN_003E3370 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
+/* measured: probe branch form */
 #pragma no_branch_likely on
 s32 func_003e3370(u8 *arg0, s32 arg1)
 {
@@ -402,8 +360,11 @@ s32 func_003e3630(void) {
    (arg1, f0, f4) then following f34. schedule+no_branch_likely get the whole
    body; the residual is a single extra nop - retail has TWO nops after the
    loop's bnez (pipeline stall before the epilogue), b210 emits one, so the
-   epilogue slides one word (same floor as func_003e3020). */
+   epilogue slides one word (same floor as func_003e3020).
+   Committed at nd 22. */
+/* measured: probe schedule */
 #pragma schedule on
+/* measured: probe branch form */
 #pragma no_branch_likely on
 s32 func_003e3c20(s32 arg0, s32 arg1) {
     s32 node = *(s32 *)(arg0 + 0x14);
@@ -415,7 +376,9 @@ s32 func_003e3c20(s32 arg0, s32 arg1) {
     }
     return arg0;
 }
+/* measured: close branch form */
 #pragma no_branch_likely off
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);
@@ -461,23 +424,8 @@ s32 func_003e43a0(s32 arg0) {
 // measured: removing this pragma takes func_003e4510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with addiu $v0, $zero, 1; baseline -O2 emits addiu; jr; nop.
 
-// FUN_003E43C0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-void *func_003e43c0(u8 *arg0, s32 arg1, s32 arg2) {
-    void **p = (void **)&D_008872E0[arg1];
-    D_00764890 = arg1;
-    p[2] = (void *)func_003e3dc0;
-    p[3] = (void *)func_003e3d00;
-    p[4] = (void *)func_003e3f00;
-    p[5] = (void *)func_003e3e60;
-    D_0088731C++;
-    return arg0;
-}
-#pragma schedule off
-#else
+// FUN_003E43C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
-#endif
 
 
 
@@ -688,31 +636,8 @@ void func_003e5510(s32 arg0) {
    second but costs the first (nd 49); schedule on shrinks the object to
    64 bytes (nd 46). Entry-guard materialisation floor.
    Committed at nd 43. */
-// FUN_003E5990 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003e5990(u8 *arg0, s32 arg1, s32 *arg2) {
-    s32 n;
-    s32 *p;
-    s32 i;
-
-    n = *(s32 *)(arg0 + 4);
-    i = 0;
-    if (n > 0) {
-        p = *(s32 **)arg0;
-        do {
-            if (*p == arg1) {
-                *arg2 = i;
-                return 1;
-            }
-            i++;
-            p++;
-        } while (i < n);
-    }
-    return 0;
-}
-#else
+// FUN_003E5990
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
-#endif
 
 /* measured: two things are load-bearing here. Retail tests POSITIVELY and puts
    the indirect call out of line after the return path, then jumps back to it -

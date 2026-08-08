@@ -16,7 +16,12 @@ extern s32 D_0070FC5C[];
 extern s32 D_0070FC60[];
 extern s32 D_0070FC64[];
 extern s32 D_0070FC40[];
+extern s32 D_008BD9C0[];
+extern s32 D_008BDAC0[];
+extern s32 D_00754B00[];
 extern s32 D_008BE280[];
+s32 func_0043ae60(s32);
+s32 func_0043a810(s32);
 void func_004217f0(s32);
 void func_0043a2d0(s32, s32, s32, s32);
 void func_0043a500(s32, s32, s32, s32);
@@ -24,7 +29,7 @@ void func_00421810(s32);
 extern s32 D_008AC840[];
 void func_00421820(s32);
 void func_00422218(s32 *, s32);
-extern s32 D_009389E0;
+extern s32 D_009389E0[];
 s32 func_00421f98(s32, s32);
 
 typedef struct {
@@ -40,7 +45,8 @@ s32 func_00431408(void);
 extern s32 *D_00710070[];
 s32 func_0043DFA0(s32 *);
 s32 *func_0043eae8(s32 *);
-
+s32 func_004258b0(s32 *, s32, s32, s32 *, s32, s32 *, s32, s32, s32);
+void func_0043bb48(void *);
 
 /* measured: removing this pragma takes func_00438740 nd 0 -> nd 6: retail fills
    the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
@@ -99,69 +105,26 @@ void func_00438fa0(void) {
    u16/s32 scale, arg locals; opt_strength_reduction off doesn't stop it, nd 68).
    schedule on is load-bearing and fills the jr $ra delay slot (nd 68 -> 56,
    obj 76/72; the 4-byte overflow is the strength-reduced mult itself).
-   Committed at nd 56. */
-// FUN_00438FC0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule-on wrapper is load-bearing for this parked nd 56 body. */
-#pragma schedule on
-void func_00438fc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);
-    s32 scale = *(u16 *)(p + 0x2A);
-    s32 c = arg2 + *(s32 *)(p + 0x34);
-    func_0043a2d0(arg0, arg1, c * scale, arg3 * scale);
-}
-/* measured: closes the schedule-on scope at the file baseline. */
-#pragma schedule off
-#else
+   Archived in build/W8Code1_0043_high_nd_park_archive.txt; source is
+   intentionally bare because nd 56 exceeds the nd 25 park threshold. */
+// FUN_00438FC0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438fc0);
-#endif
-
 /* measured: twin of func_00438fc0 (same R5900-mult floor, calls func_0043a500).
    schedule on fills the jr $ra delay slot (nd 68 -> 56, obj 76/72).
-   Committed at nd 56. */
-// FUN_00439008 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule-on wrapper is load-bearing for this parked nd 56 body. */
-#pragma schedule on
-void func_00439008(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    u8 *p = (u8 *)(arg0 * 0x184 + (s32)D_0070F920);
-    s32 scale = *(u16 *)(p + 0x2A);
-    s32 c = arg2 + *(s32 *)(p + 0x34);
-    func_0043a500(arg0, arg1, c * scale, arg3 * scale);
-}
-/* measured: closes the schedule-on scope at the file baseline. */
-#pragma schedule off
-#else
+   Archived in build/W8Code1_0043_high_nd_park_archive.txt; source is
+   intentionally bare because nd 56 exceeds the nd 25 park threshold. */
+// FUN_00439008
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439008);
-#endif
 
 // FUN_00439050
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439050);
 
-/* measured: floor. retail keeps the R5900 3-op mult (addiu $v1,$zero,0x184;
-   mult $a0,$a0,$v1) for arg0*0x184; b210 strength-reduces to sll/addu at every
-   level and with opt_strength_reduction off (nd 76 -> 76, obj 96/72). Loop shape
-   otherwise reproduces retail once the mult is taken as given. The 76 first recorded here came from a probe run; verify measures the committed body at 84. Committed at nd 84. */
-// FUN_004390C8 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004390c8(s32 arg0, s32 arg1) {
-    s32 *p = (s32 *)(arg0 * 0x184 + (s32)D_0070F920 + 0xD0);
-    s32 i = 0;
-    while (1) {
-        i += 1;
-        if (*p == arg1) {
-            return 1;
-        }
-        if (i < 0x20) {
-            p += 1;
-        } else {
-            return 0;
-        }
-    }
-}
-#else
+/* measured: floor. Retail keeps the R5900 3-op mult (addiu $v1,$zero,0x184;
+   mult $a0,$a0,$v1) for arg0*0x184; b210 strength-reduces it. Best probe nd 76;
+   the archived body measured nd 84, object 96/72, and is not retained because
+   it exceeds the nd 25 park threshold. */
+// FUN_004390C8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004390c8);
-#endif
 
 // FUN_00439110
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439110);
@@ -232,26 +195,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a840);
    with a trailing `i >= 2` / `i > 1` return, an explicit goto-loop, nested-if
    instead of &&, `e[0]` instead of `e[0] != 0`, and declaring the pointer
    before the counter. The top-tested for/while forms are worse (nd 54, obj 76
-   overflows the window). Return-duplication/branch-likely-pair floor.
-   Committed at nd 41. */
-// FUN_0043A8A8 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0043a8a8(s32 arg0) {
-    s32 *e = (s32 *)D_008AC788;
-    s32 i = 0;
-
-    do {
-        if (e[0] != 0 && e[1] == arg0) {
-            return i;
-        }
-        i++;
-        e += 9;
-    } while (i < 2);
-    return -1;
-}
-#else
+   overflows the window). Return-duplication/branch-likely-pair floor at nd 41;
+   archived in
+   build/W8Code1_0043_high_nd_park_archive.txt; source is intentionally bare
+   because nd 41 exceeds the nd 25 park threshold. */
+// FUN_0043A8A8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a8a8);
-#endif
 
 // FUN_0043A920
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a920);
@@ -263,26 +212,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043a920);
    bnez slot with the $ra save, plus scheduling the flag clear into the bltz
    delay slot where retail clears it before the load, leave the residual.
    Probed the < 0 and >= 0 orientations, a pointer local for the flag (worse),
-   schedule on and off, O3, opt_common_subs on, and opt_rebuildconditionals
-   off. The equal-zero-plus-goto shape below is the best of them.
-   Committed at nd 29. */
-// FUN_0043AC18 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0043ac18(void) {
-    if (D_0070FC40[0] == 0) {
-        return 0;
-    }
-    D_0070FC40[0] = 0;
-    if (D_008BE280[0] < 0) {
-        goto ret1;
-    }
-    func_004217f0(D_008BE280[0]);
-ret1:
-    return 1;
-}
-#else
+   schedule on and off, O3, opt_common_subs on, and opt_rebuildconditionals off.
+   The equal-zero-plus-goto shape was best at nd 29; archived in
+   build/W8Code1_0043_high_nd_park_archive.txt; source intentionally bare
+   because nd 29 exceeds the nd 25 park threshold. */
+// FUN_0043AC18
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac18);
-#endif
 
 // FUN_0043AC60
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac60);
@@ -290,25 +225,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac60);
 // FUN_0043ACC0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043acc0);
 
-/* measured: nd 29 at retail's exact 72-byte object. Declaring these four
-   globals as arrays rather than scalars is what fixes the addressing mode -
-   with `extern s32 D_0070FC64;` b210 reaches them GP-relative and the object
-   comes out at nd 39, while retail uses an absolute lui/lw pair, which the
-   array spelling reproduces. The remaining residual is the stride multiply:
-   retail materialises 0xC into a register and issues a real mult/mflo, b210
-   strength-reduces it to sll/addu/sll. Naming the stride in a local does not
-   change that (nd 29 either way). Committed at nd 29. */
-// FUN_0043BC70 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0043bc70(void) {
-    func_0043c6d8((u8 *)D_0070FC58[0], D_0070FC64[0] * 0xC);
-    D_0070FC60[0] = 0;
-    D_0070FC5C[0] = 0;
-    return 0;
-}
-#else
+/* measured: nd 29 at the exact 72-byte object. Array declarations fixed
+   absolute DATA addressing (scalar form was nd 39); the remaining residual is
+   retail addiu 0xC + mult/mflo versus b210 sll/addu/sll. Archived in
+   build/W8Code1_0043_high_nd_park_archive.txt; source intentionally bare
+   because nd 29 exceeds the nd 25 park threshold. */
+// FUN_0043BC70
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bc70);
-#endif
 
 // FUN_0043C0A0
 s32 func_0043c0a0(void) {
@@ -323,26 +246,24 @@ s32 func_0043c0a0(void) {
 
 // FUN_0043C6D8 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: the best plain-C body remains normalized_diff 9 at object 52/56.
-   Retail keeps the -1 compare constant in $t7 and places the pointer increment
-   in the bne delay slot; b210 colours the constant $v1 and leaves that delay
-   slot empty. The do-while, while/for, declaration-order, guard-polarity,
-   sentinel-local, comma-expression, and in-function scheduler variants all
-   scored nd >= 9. Committed at nd 9. */
+/* measured: parameter-reused sentinel keeps the retail a1 counter but b210
+   still allocates the -1 sentinel in $v1 (retail uses $t7) and places arg0++
+   before, rather than in, the bne delay slot. Committed at nd 9. */
 /* measured: optimization level 3 is load-bearing for this parked nd 9 body. */
 #pragma optimization_level 3
 void func_0043c6d8(u8 *arg0, s32 arg1) {
-    u8 *p = arg0;
-    s32 c = arg1 - 1;
-    if (c != -1) {
+    s32 sentinel;
+    arg1 -= 1;
+    sentinel = -1;
+    if (arg1 != sentinel) {
         do {
-            *p = 0;
-            c -= 1;
-            p += 1;
-        } while (c != -1);
+            *arg0 = 0;
+            arg1 -= 1;
+            arg0 += 1;
+        } while (arg1 != sentinel);
     }
 }
-/* measured: closes the optimization-level 3 scope at the file baseline. */
+/* measured: closes optimization-level 3 scope at file baseline. */
 #pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6d8);
@@ -394,11 +315,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ddf8);
 // FUN_0043DE58
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043de58);
 
-/* measured: retail window 32 bytes; the best attempted tail-jump bodies were
-   object 16/32 at nd 7 and schedule-on object 12/32 at nd 4. Those numbers
-   are size-deficit artifacts, not near matches; no real C body was produced. */
-// FUN_0043DFC0
+/* measured: pointer-loaded absolute D_00710070 plus schedule-on gives the exact
+   32-byte object at nd 13 (bare baseline was nd 7 with object 16/32). The
+   remaining fndiff rows are off 4 (candidate lui $v0 vs retail lui $t7), off
+   16 (candidate lw $a0 vs retail ld $ra), off 20 (candidate ld $ra vs retail
+   j func_0043DFA0), off 24 (candidate jr vs retail addiu $sp,0x10), and off
+   28 (candidate addiu $sp,0x10 vs retail nop). Direct array-address,
+   scalar-GP, pointer-cast, void-return, and schedule-off spellings were
+   ruled out; the scheduled pointer load is the best tested body.
+   Committed at nd 13. */
+// FUN_0043DFC0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: schedule-on pointer-load body is load-bearing for this parked nd 13 body. */
+#pragma schedule on
+s32 func_0043dfc0(void) {
+    return func_0043DFA0(*(s32 **)D_00710070);
+}
+/* measured: closes the schedule-on scope at the file baseline. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfc0);
+#endif
 
 
 

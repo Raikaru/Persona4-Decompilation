@@ -38,6 +38,14 @@ typedef struct SceneVecBits
 
 extern SceneVecBits D_0063b1a0[];
 extern float D_0063b1a8[];
+extern SceneVecBits D_0063B120[];
+extern f32 D_0063B128[];
+extern SceneVecBits D_0063B130[];
+extern f32 D_0063B138[];
+extern SceneVecBits D_0063B140[];
+extern f32 D_0063B148[];
+extern SceneVecBits D_0063B150[];
+extern f32 D_0063B158[];
 extern float RwV3dNormalize(float *dst, const float *src);
 extern u32 func_0044dcd8(float param_1);
 extern u32 func_0044b8d8(u32 value);
@@ -81,7 +89,7 @@ extern f32 func_003e40b0();
 extern s64 D_0063B110;
 extern f32 D_0063B118;
 extern f32 fGpffff8048;
-extern void func_003e0870(void *dst, void *src, s32 mode, f32 angle);
+extern void func_003e0870(void *dst, void *src, f32 angle, s32 mode);
 extern void func_003e4320(void *dst, void *src, void *mat);
 extern s32 func_003e05d0(void *arg0);
 extern s32 func_00168ec0(u16 *arg0, void *arg1, void *arg2);
@@ -879,14 +887,94 @@ void func_0026bf70(u32 arg0)
     }
 }
 
-/* measured: ported P3FES FUN_003bb450 (nd 4 there; nd 3 here). Only residual is
-   the axis2 12-byte aggregate copy (SceneVecBits D_0063B140): retail moves it
-   via lwc1/swc1 (12 bytes), b210 blits ld/sd (16). Direct-width spelling
-   (axis2.raw.xy = *(u64*)D_0063B140; axis2.raw.z = *(f32*)(D_0063B140+8)) emits
-   the right width but reorders the schedule (nd 31). Aggregate-copy WIDTH floor.
-   Needed: D_0063B1xx declared as ARRAYS (retail absolute lui/ld, not GPREL). */
-// FUN_0026BFC0
+/* measured: ported from P3FES FUN_003bb450 with the P4 global addresses and
+   interleaved func_003e0870 declaration. Best plain C is nd 9, object
+   460B/window 464B. The first differing fndiff rows are offset 0x70
+   (axis2's retail lwc1 versus mwcc's second aggregate ld), 0x78 (retail swc1
+   versus mwcc sd), and offsets 0x80/0x88/0x8C (axis3 global-load order and
+   register assignment). Direct axis2-width and direct axis3-load variants
+   measured nd 68 and nd 69; ruled out. Committed at nd 9. */
+// FUN_0026BFC0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *result) {
+    typedef struct SceneMatrixLocal {
+        RwV3d right;
+        u32 flags;
+        RwV3d up;
+        u32 pad1;
+        RwV3d at;
+        u32 pad2;
+        RwV3d pos;
+        u32 pad3;
+    } SceneMatrixLocal;
+    typedef union SceneVectorLocal {
+        RwV3d value;
+        struct {
+            u64 xy;
+            f32 z;
+            u32 pad;
+        } raw;
+    } SceneVectorLocal;
+    extern SceneVecBits D_0063B120[];
+    extern f32 D_0063B128[];
+    extern SceneVecBits D_0063B130[];
+    extern f32 D_0063B138[];
+    extern SceneVecBits D_0063B140[];
+    extern f32 D_0063B148[];
+    extern SceneVecBits D_0063B150[];
+    extern f32 D_0063B158[];
+    SceneVectorLocal axis0;
+    SceneVectorLocal transformed;
+    SceneVectorLocal source;
+    SceneVectorLocal output;
+    SceneVectorLocal axis1;
+    SceneVectorLocal axis2;
+    SceneVectorLocal axis3;
+    SceneMatrixLocal matrix;
+    u64 xy;
+    f32 z;
+
+    xy = *(u64 *)D_0063B120;
+    z = *(f32 *)D_0063B128;
+    axis0.raw.xy = xy;
+    axis0.raw.z = z;
+    xy = *(u64 *)D_0063B130;
+    z = *(f32 *)D_0063B138;
+    axis1.raw.xy = xy;
+    axis1.raw.z = z;
+    *(SceneVecBits *)&axis2.raw.xy = *(SceneVecBits *)D_0063B140;
+    xy = *(u64 *)D_0063B150;
+    z = *(f32 *)D_0063B158;
+    axis3.raw.xy = xy;
+    axis3.raw.z = z;
+
+    matrix.at.z = 1.0f;
+    matrix.up.y = 1.0f;
+    matrix.right.x = 1.0f;
+    matrix.up.x = 0.0f;
+    matrix.right.z = 0.0f;
+    matrix.right.y = 0.0f;
+    matrix.at.y = 0.0f;
+    matrix.at.x = 0.0f;
+    matrix.up.z = 0.0f;
+    matrix.pos.z = 0.0f;
+    matrix.pos.y = 0.0f;
+    matrix.pos.x = 0.0f;
+    matrix.flags |= 0x20003;
+
+    func_003e0870(&matrix, &axis2.value, fparg2, 1);
+    func_003e0870(&matrix, &axis1.value, fparg1, 1);
+    func_003e0870(&matrix, &axis3.value, fparg3, 1);
+    func_003e4320(&transformed, &axis0, &matrix);
+    source.value = *(RwV3d *)input;
+    output.value.x = source.value.x - transformed.value.x * fparg0;
+    output.value.y = source.value.y - transformed.value.y * fparg0;
+    output.value.z = source.value.z - transformed.value.z * fparg0;
+    *(RwV3d *)result = output.value;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
+#endif
 
 /* measured: ported P3FES FUN_003bb620 (also nd 4 there). Only residual is the
    direction-vector stores: retail sd $v0,0xd0($sp)/swc1 $f0,0xd8($sp) direct;

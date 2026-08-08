@@ -14,14 +14,14 @@ extern u8 D_00793E80[];
 
 void func_00332bb0(u8 *arg0);
 extern void func_00332a80(void);
-extern void func_0033cc40();
+extern s32 func_0033cc40();
 void func_0044ea90(const void *, u32);
 u8 *func_00451fc0(void *, u8 *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 void func_002e29a0(void);
 void func_00454bd0(void *);
 void func_0046b0d0(void *);
 s32 func_00106a90(s64);
-s32 func_002e71c0(s32, s32);
+s32 func_002e71c0(void);
 void func_002e24a0(s32, s32, s32, s32);
 void *func_0046d200(void *, s32, void *, s32);
 f32 func_0046b260(void *);
@@ -37,7 +37,7 @@ void func_0043f810(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
-void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
 
 /* measured: retail window 37392 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
 // FUN_00332BB0

@@ -43,41 +43,14 @@ void func_0026d840(void)
     func_00456150(func_00454a60(D_0063B568, 1));
 }
 
-/* measured: nd 20 (obj 340B vs window 352B) from 55. Reconstructed from the m2c
-   draft in src/generated/code1_0026.c.
-
-   The 55 -> 20 was the exit shape: the shared `return 0` belongs at the very END
-   of the function with case 0 reaching it via `break`, NOT as a `default:
-   return 0;` sitting between case 0 and case 1 the way m2c prints it. With the
-   m2c layout b210 materializes the zero inline at the end of case 0 and branches
-   to the epilogue; retail branches both case 0 and the default to one trailing
-   block.
-
-   Residual: retail colours `w` into $s1 and the func_004b1130 handle into $s0,
-   b210 the reverse -- and retail REUSES w's register for the func_00145270
-   result once w is dead, which is why the mirror covers the whole body. Also
-   `sltiu $at` vs `sltiu $v0` on the 0x1B bound, and retail tests the raw $v0
-   return for NULL where b210 tests the saved copy.
-
-   Measured and rejected: both declaration orders of {handle, w}, explicitly
-   reusing `w` for the icon pointer (20), and collapsing the two zero cases into
-   an `|| ` chain to chase the $at destination (61, far worse -- the nested
-   else-if IS correct). Six spellings. Saved-register colouring floor.
-
-   Two declaration facts recovered here: func_00145270 takes an id in $a0 from
-   this function but is called bare from func_0026da30, so it must stay
-   old-style; and func_0026d890 really does return 0 / -1 in $v0 even though the
-   task dispatcher discards it, so its prototype is s32 and the callback site
-   casts.
-   Committed at nd 18. */
-// FUN_0026D890 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0026D890
 s32 func_0026d890(u8 *arg0)
 {
-    u8 sp3C[0x4];
+    u8 sp3C[4];
     s32 handle;
     u8 *w;
     u8 *icon;
+    s32 icon_raw;
     s32 kind;
     s32 prev;
     u32 idx;
@@ -87,7 +60,7 @@ s32 func_0026d890(u8 *arg0)
     switch (*(u32 *)w) {
     case 0:
         idx = *(u32 *)(w + 8);
-        if (idx >= 0x1BU) {
+        if (idx > 0x1AU) {
             res = 0;
         } else if (D_0063B4F0[idx] == 0) {
             res = 0;
@@ -99,8 +72,8 @@ s32 func_0026d890(u8 *arg0)
         break;
     case 1:
         handle = func_004b1130(*(s32 *)(w + 0xC));
-        icon = func_00145270(*(u16 *)(w + 4));
-        if (icon != NULL) {
+        if ((icon_raw = (s32)func_00145270(*(u16 *)(w + 4))) != 0) {
+            icon = (u8 *)icon_raw;
             kind = (*(u16 *)icon & 0xFFC00) >> 0xA;
             if (kind == 1) {
                 prev = *(s32 *)(icon + 0x140);
@@ -120,9 +93,6 @@ s32 func_0026d890(u8 *arg0)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mt_sceneIcon", func_0026d890);
-#endif
 // FUN_0026D9F0
 void func_0026d9f0(void)
 {

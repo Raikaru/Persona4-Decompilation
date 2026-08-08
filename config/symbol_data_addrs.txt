@@ -369,3 +369,5 @@ D_008BD9C0 = 0x008bd9c0; // type:data evidence: retail func_0043A920/0043AC60/00
 D_008BDAC0 = 0x008bdac0; // type:data evidence: retail func_0043A920/0043AC60/0043ACC0 lui/addiu %hi/%lo(D_008BDAC0) at 0x0043A930/0x0043A938, 0x0043AC64/0x0043AC70, and 0x0043ACD0/0x0043ACD8
 D_008873D0 = 0x008873d0; // type:data evidence: retail func_003ddc20 lui/addiu %hi/%lo(D_008873D0) at 0x003DDC44/0x003DDC48, then lw $2,0($16) at 0x003DDC50
 iGpffffb754 = 0x00764844; // type:data evidence: retail func_003ddf20 lw $4,-0x48AC($28) at 0x003DDF38 and 0x003DDF5C; gp base 0x007690F0
+D_00635938 = 0x00635938; // type:data evidence: retail func_002340c0 lui/addiu at 0x00234800/0x00234804 resolve the error-message table address 0x00635938
+iGpffffb440 = 0x00764530; // type:data evidence: retail func_0032c480 lw $2,-0x4BC0($28) at 0x0032C4CC; gp base 0x007690F0

@@ -846,12 +846,173 @@ s8 func_00233a90(u8 *arg0, s32 arg1)
 // FUN_00233BC0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00233bc0);
 
-/* measured: nd 805 with a full C body, object 1880B against a 1904B window.
-   Wave 7 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a floor: re-attempt from the m2c draft with the
-   wave's recipes before treating any of it as settled. */
+/* measured: func_002340c0 matches retail's 1904-byte window (1900-byte
+   emitted body plus the retail zero-padding tail). The 0x30000 branch uses
+   goto-labelled shared return blocks, and each s64 flag normalization is
+   explicitly re-booleanized after dsra32 to preserve retail's sltu sequence. */
 // FUN_002340C0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_002340c0);
+s32 func_002340c0(u8 *arg0, s32 arg1)
+{
+    s32 temp_3;
+    s64 var_2;
+
+    if (arg1 == 0) {
+        return 0;
+    }
+    if (arg1 & 1) {
+        return func_002332a0(arg0, 0) > 0;
+    }
+    if (arg1 & 2) {
+        return func_002332a0(arg0, 0) < 0;
+    }
+    if (arg1 & 4) {
+        return func_002332a0(arg0, 1) > 0;
+    }
+    if (arg1 & 8) {
+        return func_002332a0(arg0, 1) < 0;
+    }
+    if (arg1 & 0x10) {
+        return func_002332a0(arg0, 2) > 0;
+    }
+    if (arg1 & 0x20) {
+        return func_002332a0(arg0, 2) < 0;
+    }
+    if (arg1 & 0x40) {
+        return func_002332a0(arg0, 3) > 0;
+    }
+    if (arg1 & 0x80) {
+        return func_002332a0(arg0, 3) < 0;
+    }
+    if (arg1 & 0x100) {
+        return func_002332a0(arg0, 4) > 0;
+    }
+    if (arg1 & 0x200) {
+        return func_002332a0(arg0, 4) < 0;
+    }
+    if (arg1 & 0x400) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x40000) != 0) << 0x38) >> 0x38) != 0;
+    }
+    if (arg1 & 0x800) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x80000) != 0) << 0x38) >> 0x38) != 0;
+    }
+    if (arg1 & 0x4000) {
+        return func_002332a0(arg0, 5) != 0;
+    }
+    if (arg1 & 0x8000) {
+        return func_002332a0(arg0, 6) != 0;
+    }
+    if (arg1 == 0x30000) {
+        goto case_30000;
+    }
+    if (arg1 & 0x10000) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x10000) != 0) << 0x38) >> 0x38) != 0;
+    }
+    if (arg1 & 0x20000) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x20000) != 0) << 0x38) >> 0x38) != 0;
+    }
+    goto rest_30000;
+case_30000:
+    temp_3 = *(s32 *)(arg0 + 0x14);
+    var_2 = (s64)((temp_3 & 0x10000) != 0);
+    var_2 = (s64)(var_2 << 0x38) >> 0x38;
+    var_2 = var_2 != 0;
+    if (var_2 == 0) {
+        var_2 = (s64)((temp_3 & 0x20000) != 0);
+        var_2 = (s64)(var_2 << 0x38) >> 0x38;
+        var_2 = var_2 != 0;
+    }
+    return var_2 != 0;
+rest_30000:
+    if (arg1 & 0x40000) {
+        return func_002332a0(arg0, 8) != 0;
+    }
+    if (arg1 & 0x80000) {
+        return func_002332a0(arg0, 9) != 0;
+    }
+    if (arg1 & 0x100000) {
+        return func_002332a0(arg0, 0xA) != 0;
+    }
+    if (arg1 & 0x200000) {
+        return func_002332a0(arg0, 0xB) != 0;
+    }
+    if (arg1 & 0x400000) {
+        return func_002332a0(arg0, 7) != 0;
+    }
+    if (arg1 & 0x800000) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x100000) != 0) << 0x38) >> 0x38) != 0;
+    }
+    if (arg1 & 0x04000000) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x800000) != 0) << 0x38) >> 0x38) != 0;
+    }
+    if (arg1 & 0x08000000) {
+        return func_002332a0(arg0, 0xC) != 0;
+    }
+    if (arg1 & 0x10000000) {
+        return func_002332a0(arg0, 0xD) != 0;
+    }
+    if (arg1 & 0x20000000) {
+        return func_002332a0(arg0, 0xE) != 0;
+    }
+    if (arg1 & 0x40000000) {
+        return func_002332a0(arg0, 0xF) != 0;
+    }
+    if (arg1 & 0x1000) {
+        if (func_002332a0(arg0, 0) <= 0) {
+            if (func_002332a0(arg0, 1) <= 0) {
+                if (func_002332a0(arg0, 2) <= 0) {
+                    if (func_002332a0(arg0, 3) <= 0) {
+                        if (func_002332a0(arg0, 4) > 0) {
+                            goto return_zero_1000;
+                        }
+                        goto return_one_1000;
+                    }
+                    goto return_zero_1000;
+                }
+                goto return_zero_1000;
+            }
+            goto return_zero_1000;
+        }
+        goto return_zero_1000;
+    }
+    goto check_2000;
+return_zero_1000:
+    return 0;
+return_one_1000:
+    return 1;
+check_2000:
+    if (arg1 & 0x2000) {
+        if (func_002332a0(arg0, 0) >= 0) {
+            if (func_002332a0(arg0, 1) >= 0) {
+                if (func_002332a0(arg0, 2) >= 0) {
+                    if (func_002332a0(arg0, 3) >= 0) {
+                        if (func_002332a0(arg0, 4) < 0) {
+                            goto return_zero_2000;
+                        }
+                        goto return_one_2000;
+                    }
+                    goto return_zero_2000;
+                }
+                goto return_zero_2000;
+            }
+            goto return_zero_2000;
+        }
+        goto return_zero_2000;
+    }
+    goto check_01000000;
+return_zero_2000:
+    return 0;
+return_one_2000:
+    return 1;
+check_01000000:
+    if (arg1 & 0x01000000) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x10000) != 0) << 0x38) >> 0x38) == 0;
+    }
+    if (arg1 & 0x02000000) {
+        return (((s64)((*(s32 *)(arg0 + 0x14) & 0x20000) != 0) << 0x38) >> 0x38) == 0;
+    }
+    func_0046d730(D_00635938, 0x5DE);
+    return 0;
+}
 
 // FUN_00234830
 void func_00234830(u8 *arg0, s32 arg1, s64 arg2)

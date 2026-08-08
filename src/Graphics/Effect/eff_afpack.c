@@ -168,9 +168,7 @@ s32 func_004b6e40(void)
     return 0;
 }
 
-/* measured: nd 1, object 692B against the 704B window. Hoisting the absolute jump-table base through a casted `code` table local reproduces retail's saved `$s1` table pointer and both indirect calls; the only non-relocation residual is `addiu $a0,$v0,4` vs retail `lw $a0,4($v0)` at +0x1B0 (fndiff also reports only masked GP/table relocation addend differences). Tried direct/local typed table pointers and field-load rewrites (nd 24/187/194) without improvement. Committed at nd 1. */
-// FUN_004B6E80 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_004B6E80
 void func_004b6e80(void) {
     typedef int (*code)(...);
     extern code DAT_008873ec_abs[];
@@ -237,7 +235,7 @@ void func_004b6e80(void) {
                 while (i < *(s16 *)(*(u8 **)(temp + 4) + 4)) {
                     func_004b8f10(*(u8 **)(temp + 8) + i * 0x3C);
                     off = i * 8;
-                    func_003e9390(*(u8 **)(*(u8 **)(temp + 0xC) + off) + 4);
+                    func_003e9390(*(u8 **)(*(u8 **)(*(u8 **)(temp + 0xC) + off) + 4));
                     func_003c02e0(*(u8 **)(*(u8 **)(temp + 0xC) + off));
                     func_003c4220(*(u8 **)(*(u8 **)(temp + 0xC) + off + 4));
                     i++;
@@ -260,9 +258,6 @@ void func_004b6e80(void) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6e80);
-#endif
 
 // FUN_004B7140
 void func_004b7140(s32 arg0)

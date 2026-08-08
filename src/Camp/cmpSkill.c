@@ -182,6 +182,7 @@ void func_0013a4a0(void *arg0)
         func_001437b0(p, *(s16 *)((u8 *)arg0 + 0x22), 0);
     }
 }
+/* measured: opt_common_subs off is required for the retail base+offset access order. */
 #pragma opt_common_subs on
 
 /* measured: switch and both data-copy loops match; the final loop's
@@ -222,6 +223,7 @@ void func_0013a8a0(u8 *arg0)
     }
     *(s16 *)(arg0 + 0x20) = 0;
 }
+/* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
 #pragma opt_loop_invariants off
 // FUN_0013A930
 void func_0013a930(void *arg0)
@@ -279,6 +281,7 @@ void func_0013aa00(u8 *arg0)
     }
     *(s16 *)(arg0 + 0x20) = 0;
 }
+/* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
 #pragma opt_loop_invariants off
 
 // FUN_0013AA90

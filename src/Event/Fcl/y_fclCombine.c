@@ -792,25 +792,24 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b7b0);
 // FUN_0030C3C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
 
-/* measured (wave 14): reconstructed the full body from retail (two for-loops
-   over arg1[i] with a shared pre-header: id = func_0010b460() & 0xFFFF,
-   n = p[0x1A] with ==7 -> 0xC, (s16)n bound hoisted). Lever 1 DID land: the
-   arg1 parameter is really s16* not u16* — with u16* every element load
-   compiled lhu vs retail's lh (extern corrected to s16*). Best of 5 attempts
-   nd 66 (obj 344B / window 352B): for-loop with s16 counters gives retail's
-   exact pre-jump + bottom-condition + one-ext/iteration shape (offsets
-   116-148 match). Residuals, all measured: (1) retail hoists the second
-   id mask (andi $s2,$s3,0xffff — the m2c draft has temp_18 = temp_19 &
-   0xFFFF as a distinct var) and the (s16)n extension into the pre-header;
-   the two-variable spelling (a/c/d) forces those instructions but balloons
-   to 6 saved regs + a 0x18 s8-extension in the bound (nd 79, frame 0x80
-   vs retail 0x70): the register-pressure interplay of the second mask,
-   the n hoist and the 5-saved-reg map cannot be satisfied together in any
-   spelling tried (single var 66, two-var 79, s8/s16/s32 n all 66-79).
-   (2) saved-register rotation: mine p=$s1,id=$s2,n=$s3,i=$s4 vs retail
-   p=$s0,id2=$s2,id=$s3,n=$s1,i=$s4 — all declaration orders probed.
-   Saved-register rotation + pre-header hoist floor (previous best nd 47
-   not reproducible; 66 is the new measured best). */
+/* measured nd43 bank (not parked; nd is above the <=25 park threshold):
+   func_0030f4f0 candidate object 348B / retail window 352B. The final 4B
+   retail tail is post-jr alignment padding, so the candidate tail is aligned
+   through jr and its delay slot. Reapply from build/W8FclCombine_0030f4f0_nd43.c.
+   Winning recipe: no named n local; load bound from p+0x1A after the
+   func_0010b460 call; keep id = call & 0xFFFF and id2 = id & 0xFFFF as
+   distinct locals; use s16 i and s32 j counters, with j advanced as
+   (s16)(j + 1); arg1 is s16*. Retail saved map is
+   $s0=p,$s1=bound,$s2=id2,$s3=id,$s4=i,$s5=arg1; candidate map is
+   $s0=id2,$s1=p,$s2=id,$s3=bound,$s4=i,$s5=arg1. Both use frame 0x70,
+   six saved registers, and identical save offsets/order.
+   Ruled out: six declaration permutations of the exact-size raw-id body
+   (A-D,F: obj352 nd163; E: obj352 nd166); p-first declaration variants
+   (obj352 nd166; combined obj348 nd48); n-width probes s8 (obj356 nd244),
+   s16 (obj356 nd244 in the two-id spelling), s32 (obj308 nd175 and
+   obj340 nd191), and s64 (obj356 nd133); direct-bound width probes s16
+   (obj380 nd284) and s64 (obj356 nd133). The nd43 body is banked above
+   rather than left as a guarded park. */
 // FUN_0030F4F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
 
