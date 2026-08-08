@@ -45,14 +45,61 @@ void func_003645c0();
 // FUN_00364320
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364320);
 
-/* measured: register allocation residual. Same do-while loop structure as m2c
-   seed (digit store, dot-if, mod-3 counter update). Tried 16+ source variants
-   (declaration order, char* / void* / s32 arg0, postfix, nested if, digit temp,
-   for/while loop shapes, named constants, register locals) - all produce i->t1
-   cnt->t0 with in-loop constant materialization vs retail i->v0 cnt->t3 with
-   preheader hoisting of '.',2,3,10. 28-word nd, all register name diffs. */
-// FUN_003645C0
+
+/* measured: plain -O2 variants kept the digit index in $t1 and counter in
+   $t0 while retail hoists '.',2,3,10 and uses $v0/$t3. Adding named constants
+   plus #pragma opt_loop_invariants on fixes the hoist and leaves only the
+   documented scratch-register residual; see the committed nd 12 body below. */
+/* measured: named constants plus #pragma opt_loop_invariants on hoist '.', 2, 3, and 10 into the retail preheader; all control flow and 38/40 words match. The remaining 10 differing words are one scratch-register allocation: b210 keeps the digit-buffer index in $t4 while retail reuses $v0. Declaration order, counter types, initializer forms, third-argument signature, and optimization-level probes did not move it. Committed at nd 12. */
+// FUN_003645C0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: candidate probe */
+#pragma opt_loop_invariants on
+void func_003645c0(char *arg0, s32 rem)
+{
+    s32 i;
+    s32 cnt;
+    s32 dot;
+    s32 two;
+    s32 three;
+    s32 ten;
+    s32 next;
+    s32 j;
+    char tmp[16];
+
+    i = 0;
+    cnt = 0;
+    dot = 0x2e;
+    two = 2;
+    three = 3;
+    ten = 10;
+    do {
+        tmp[i] = (char)((rem % ten) + 0x30);
+        i += 1;
+        rem = rem / ten;
+        if ((rem > 0) && (cnt == two)) {
+            tmp[i] = (char)dot;
+            i += 1;
+        }
+        next = cnt + 1;
+        cnt = next % three;
+    } while (rem > 0);
+    j = 0;
+    while (j < i) {
+        next = j + 1;
+        arg0[j] = tmp[i - next];
+        j = next;
+    }
+    arg0[j] = 0;
+}
+/* measured: candidate probe */
+#pragma opt_loop_invariants off
+#else
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_003645c0);
+#endif
+
+
+
 
 /* measured: multi-issue floor. Retail 1488B; mwcc-compiled candidate 1840B
    (352B over) via 4x0x10 struct-array + separate struct-field stores. The
@@ -87,11 +134,14 @@ void func_00364c70(void) {
 // FUN_00364C90
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364c90);
 
+
+
 // FUN_00364FB0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364fb0);
 
 // FUN_003657D0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_003657d0);
+
 
 // FUN_00365AC0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);

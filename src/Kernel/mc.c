@@ -66,6 +66,7 @@ extern char D_007638F8;
 extern char D_00763918;
 typedef struct { u64 lo, hi; } Qword;
 extern Qword D_0063ED70;
+static inline f32 mc_add(f32 left, f32 right) { return left + right; }
 extern f32 D_00761184;
 extern f32 D_00761174;
 extern f32 iGpffff8214;
@@ -74,7 +75,7 @@ extern f32 iGpffff821c;
 extern f32 iGpffff8030;
 extern s32 func_0043c6a0(u32 arg0);
 extern void func_002a7920(s8, u8 *, s32, s32, u8 *, f32, f32, f32, f32);
-extern void func_002a9f50(s32, u8 *, s32, s32, u8 *, f32, f32, f32);
+extern void func_002a9f50(f32, f32, f32, s32, u8 *, s32, s32, u8 *);
 extern void func_002a6b10(s32, s32, s32, void *);
 extern void func_002a7710(s32, u8 *);
 extern void func_002a6b60(s32, s32, s32, u8 *);
@@ -130,7 +131,7 @@ extern s16 D_0063EB30[];
 extern char iGpffffa824;
 extern void func_002a2e10(void);
 extern void func_002a9100(f32, f32, f32, s32, s32, s32, s32, u8 *);
-extern void func_002a95c0(s32, s32, s32, u8 *, u8 *, f32, f32, f32);
+extern void func_002a95c0(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
 extern s32 func_003b7060(s32);
 extern s32 D_0063EDB0[];
 extern s32 D_0063EDD0[];
@@ -757,12 +758,12 @@ void func_002a4cb0(void) {
     func_002aa2b0(work);
 }
 
-/* measured: retail hoists `addiu $a0, $sp, 0x5C` (the &sp50[3] arg for
-   func_0045d6e0) between the two sp50 stores; mwcc b210 sinks the address
-   materialization to just before the jal, shifting 31 words (nd 62). Tried:
-   direct &sp50[3], local pointer assigned at the store point, `*(&sp50[3]) =
-   D`, and #pragma schedule on (which fills delay slots retail leaves empty).
-   All give nd 62 except schedule on (worse, nd > 100). Load-sinking floor. */
+/* measured: the historical nd 62 load-sinking result was from a body that was
+   never preserved behind this marker. A fresh reconstructed aggregate body
+   measured nd 304; reusing the local at the retail register-reuse point also
+   measured nd 304. A bracketed #pragma optimization_level 1 probe measured
+   nd 307, so O1 worsened the candidate. The fresh body was not retained; this
+   remains bare because the load-sinking residual is not byte-exact. */
 // FUN_002A4D10
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4d10);
 
@@ -779,12 +780,12 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a4d10);
 // FUN_002A4F20
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4f20);
 
-/* measured: the func_0025f430 call site materializes its args with FPU
-   accumulator instructions adda.s $f12,$f0 / madd.s $f13,$f1,$f21 (COP1 MAC
-   writing $f12/$f13), which mwcc b210 cannot emit from plain C; and the
-   surrounding body is the same item-loop family as func_002a4f20/5f00 which
-   both floor on saved-register rotation. FPU-accumulator idiom + rotation
-   floor. */
+/* measured: a fresh plain-C reconstruction uses `131.0f + 47.0f * temp_f21`
+   for retail's adda.s/madd.s accumulator pair. MWCC emits the ordinary
+   single-precision arithmetic from that expression; the full candidate still
+   measured nd 1647 (object 2240B against the 2256B window) because its frame
+   and saved-register layout diverge. The candidate was not retained; this
+   remains bare pending a structurally correct body. */
 // FUN_002A5630
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a5630);
 
@@ -1260,7 +1261,55 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a95c0);
    prologue register rotation (retail's FP store order vs int) dominates.
    Rotation floor persists. */
 // FUN_002A9F50
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a9f50);
+void func_002a9f50(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 arg2, s32 arg3, u8 *arg4) {
+    s32 temp_17;
+    s32 temp_17_2;
+    s32 temp_17_3;
+    s32 temp_3;
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_2_3;
+    u8 *temp_2;
+    u8 *temp_4;
+
+    temp_2 = arg1 + (arg2 * 0x34);
+    temp_4 = temp_2 + 0x40;
+    temp_3 = *(s32 *)(arg1 + (arg2 * 4));
+    if (temp_3 == 1) {
+        if (*(u8 *)(temp_4 + 0xA) != 0 && *(s16 *)(temp_4 + 0) == 9 && *(s16 *)(temp_4 + 2) == 5) {
+            if (arg3 != 0) {
+                var_2 = (arg0 & 0xFF) | 0xFFE92C00;
+            } else {
+                var_2 = (arg0 & 0xFF) | 0xFFAE2000;
+            }
+            temp_17 = var_2 >> 8;
+            func_0025f3f0(5.0f + (113.0f + fparg0), 10.0f + fparg1, fparg2, temp_17, (u8)arg0, 0x43, 0, *(s32 *)(arg4 + 0x398), 1);
+            func_002a9100(mc_add(fparg0, 107.0f), mc_add(fparg1, 17.0f), fparg2, temp_17, arg0, (s32)arg1, arg2, arg4);
+            return;
+        }
+        func_002a95c0(fparg0, fparg1, fparg2, arg0, (s32)arg1, arg2, (u8 *)arg3, arg4);
+        return;
+    }
+    if (temp_3 == 2) {
+        if (arg3 != 0) {
+            var_2_2 = (arg0 & 0xFF) | 0xFFE92C00;
+        } else {
+            var_2_2 = (arg0 & 0xFF) | 0xFFAE2000;
+        }
+        temp_17_2 = var_2_2 >> 8;
+        func_0025f3f0(113.0f + fparg0, 34.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x46, 0, *(s32 *)(arg4 + 0x398), 1);
+        func_0025f3f0(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_2, (u8)arg0, 0x45, 0, *(s32 *)(arg4 + 0x398), 1);
+        return;
+    }
+    if (arg3 != 0) {
+        var_2_3 = (arg0 & 0xFF) | 0xFFE92C00;
+    } else {
+        var_2_3 = (arg0 & 0xFF) | 0xFFAE2000;
+    }
+    temp_17_3 = var_2_3 >> 8;
+    func_0025f3f0(122.0f + fparg0, 35.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x44, 0, *(s32 *)(arg4 + 0x398), 1);
+    func_0025f3f0(184.0f + fparg0, 36.0f + fparg1, fparg2, temp_17_3, (u8)arg0, 0x45, 0, *(s32 *)(arg4 + 0x398), 1);
+}
 // FUN_002AA2B0
 void func_002aa2b0(void *arg0) {
     typedef struct { u8 pad[0x3A4]; s32 handle; } Work;

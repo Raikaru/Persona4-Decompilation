@@ -509,7 +509,20 @@ int func_002B1210(RwV3d param_1)
    reversed decls, buf-indexed read, computed ptr) — all nd 11-38.
    Load-hoist/schedule floor. */
 // FUN_002B1260
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1260);
+f32 func_002b1260(u8 *arg0, f32 arg1) {
+    YVec3f v2;
+    u8 buf[0xC];
+    f32 t, p, q;
+
+    func_001687f0(buf, arg0);
+    v2 = *(YVec3f *)buf;
+    t = (s32)func_001687d0(arg0);
+    p = t * 1200.0f;
+    p -= 600.0f;
+    p = v2.x - p;
+    q = arg1 / 1200.0f;
+    return arg1 / 2.0f - p * q;
+}
 
 /* measured: re-tested wave 4 (nd 11, was recorded nd 1) — same result as
    func_002b1260: u8 buf[0xC] + `v2 = *(YVec3f *)buf` reproduces the lwc1
@@ -521,7 +534,20 @@ INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1260);
    and named-m variants stay nd 11. Load-hoist/schedule floor, same as
    func_002b1260. */
 // FUN_002B1320
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b1320);
+f32 func_002b1320(u8 *arg0, f32 arg1) {
+    YVec3f v2;
+    u8 buf[0xC];
+    f32 t, p, q;
+
+    func_001687f0(buf, arg0);
+    v2 = *(YVec3f *)buf;
+    t = (s32)func_001687e0(arg0);
+    p = t * 1200.0f;
+    p -= 600.0f;
+    p = v2.z - p;
+    q = arg1 / 1200.0f;
+    return arg1 / 2.0f - p * q;
+}
 // FUN_002B13E0
 f32 func_002b13e0(YVec3f *arg0, f32 arg1) {
     YVec3f v1, v2;

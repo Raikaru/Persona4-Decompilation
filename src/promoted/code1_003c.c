@@ -396,10 +396,60 @@ void func_003d4d70();
    jr $ra / nop; retail restores sp in the jr delay slot (nd 6 -> 0). */
 
 // FUN_003C9530
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9530);
+extern s32 iGpffffb7f0;
+extern s32 iGpffffb7f4;
+extern void func_003cc130(void);
+/* measured: probe schedule */
+#pragma schedule on
+s32 func_003c9530(s32 arg0) {
+    u8 *p;
+
+    p = *(u8 **)(D_008872E0 + iGpffffb7f0);
+    if (p != NULL) {
+        func_003e12f0(p);
+        *(u8 **)(D_008872E0 + iGpffffb7f0) = NULL;
+    }
+    func_003cc130();
+    iGpffffb7f4 -= 1;
+    return arg0;
+}
+/* measured: close schedule */
+#pragma schedule off
 
 // FUN_003C96D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c96d0);
+extern u8 D_008872E4[];
+/* measured: probe schedule */
+#pragma schedule on
+/* measured: probe branch form */
+#pragma no_branch_likely on
+s32 func_003c96d0(s32 (*arg0)(u8 *, s32), s32 arg1) {
+    u8 *base;
+    u8 *p;
+    u8 *end;
+    u8 *item;
+
+    base = *(u8 **)(D_008872E4);
+    end = base + 0x3C;
+    p = *(u8 **)(base + 0x3C);
+    if (p == end)
+        goto finish;
+loop:
+    item = p - 0x34;
+    p = *(u8 **)(p);
+    if (item == NULL)
+        goto check;
+    if (arg0(item, arg1) == 0)
+        return 1;
+check:
+    if (p != end)
+        goto loop;
+finish:
+    return 1;
+}
+/* measured: close branch form */
+#pragma no_branch_likely off
+/* measured: close schedule */
+#pragma schedule off
 
 /* measured: nd 14 at retail's 96-byte window. Referencing the three handler
    entry points by their own symbols (rather than func_003ca740 plus 0x40 and
@@ -435,7 +485,6 @@ u8 *func_003ca830(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
 #endif
-
 // FUN_003CA890
 #pragma schedule on
 u8 *func_003ca890(u8 *arg0, u8 *arg1) {
@@ -454,13 +503,88 @@ u8 *func_003ca890(u8 *arg0, u8 *arg1) {
 #pragma schedule off
 
 // FUN_003CA8E0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca8e0);
+/* measured: probe schedule */
+#pragma schedule on
+/* measured: probe branch form */
+#pragma no_branch_likely on
+u8 *func_003ca8e0(u8 *arg0) {
+    u8 *node;
+    u8 *p;
+
+    node = arg0 + iGpffffb708;
+    p = *(u8 **)node;
+    if (p != NULL)
+        jtbl_008873EC[0](p);
+    *(s32 *)(node + 0) = 0;
+    *(s32 *)(node + 4) = 0;
+    *(s32 *)(node + 8) = 0;
+    *(s32 *)(arg0 + 0x18) = *(s32 *)(node + 0x10);
+    *(s32 *)(arg0 + 0x1C) = *(s32 *)(node + 0x14);
+    *(s32 *)(arg0 + 0x10) = *(s32 *)(node + 0x18);
+    return arg0;
+}
+/* measured: close branch form */
+#pragma no_branch_likely off
+/* measured: close schedule */
+#pragma schedule off
 
 // FUN_003CA960
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca960);
+/* measured: probe schedule */
+#pragma schedule on
+s32 func_003ca960(u8 *arg0) {
+    u8 *x;
+    u8 *y;
+
+    x = *(u8 **)(arg0 + 0xC);
+    y = *(u8 **)(arg0 + 0x10);
+    *(u8 **)(y + 0) = x;
+    x = *(u8 **)(arg0 + 0x10);
+    y = *(u8 **)(arg0 + 0xC);
+    *(u8 **)(y + 4) = x;
+    x = *(u8 **)(arg0 + 0);
+    y = *(u8 **)(arg0 + 4);
+    *(u8 **)(y + 0) = x;
+    y = *(u8 **)(arg0 + 4);
+    x = *(u8 **)(arg0 + 0);
+    *(u8 **)(x + 4) = y;
+    jtbl_008873FC[0](*(u8 **)(D_008872E0 + (s32)iGpffffb8e8 + 4), arg0);
+    return 1;
+}
+/* measured: close schedule */
+#pragma schedule off
 
 // FUN_003CA9D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca9d0);
+/* measured: probe schedule */
+#pragma schedule on
+/* measured: probe branch form */
+#pragma no_branch_likely on
+s32 func_003ca9d0(u8 *arg0) {
+    u8 *obj;
+    u8 *x;
+    u8 *y;
+
+    obj = arg0;
+    if (*(s32 *)(obj + 8) != 0 && *(s32 *)(obj + 0x14) != 0) {
+        x = *(u8 **)(obj + 0xC);
+        y = *(u8 **)(obj + 0x10);
+        *(u8 **)(y + 0) = x;
+        x = *(u8 **)(obj + 0x10);
+        y = *(u8 **)(obj + 0xC);
+        *(u8 **)(y + 4) = x;
+        x = *(u8 **)(obj + 0);
+        y = *(u8 **)(obj + 4);
+        *(u8 **)(y + 0) = x;
+        y = *(u8 **)(obj + 4);
+        x = *(u8 **)(obj + 0);
+        *(u8 **)(x + 4) = y;
+        jtbl_008873FC[0](*(u8 **)(D_008872E0 + (s32)iGpffffb8e8), obj);
+    }
+    return 1;
+}
+/* measured: close branch form */
+#pragma no_branch_likely off
+/* measured: close schedule */
+#pragma schedule off
 
 // FUN_003CB720
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
@@ -671,8 +795,35 @@ void func_003f32d0();
    form of this if inline as a beql skip (13 instr) across 30+ probe
    shapes, so the layout is not reproducible.  Residual: nd 15. */
 
-// FUN_003CC250
+/* measured: explicit out-of-line labels, schedule on, no_branch_likely on, and two-argument signature reproduce the complete 112-byte body except retail hoists `lw $v1,($a1)` before saving $ra while b210 saves $ra first. Prologue scheduling residual is nd 4. Committed at nd 4. */
+// FUN_003CC250 NONMATCHING
+#ifdef NON_MATCHING
+extern void (*D_00887300[])(u32, u32);
+/* measured: schedule and branch pragmas for the parked reconstruction */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003cc250(s32 arg0, u8 **arg1) {
+    u8 *p;
+
+    p = *arg1;
+    if ((s32)*(u16 *)(p + 0) <= 0)
+        goto retzero;
+    *(s32 *)(p + 0x18) = *(s32 *)(p + 4);
+    if ((*(s32 *)(p + 0xC) & 1) == 0)
+        goto call;
+retone:
+    return 1;
+retzero:
+    return 0;
+call:
+    D_00887300[0](1, 0);
+    goto retone;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
+#endif
 
 // FUN_003CC500
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);

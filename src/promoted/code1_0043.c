@@ -185,7 +185,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393f8);
 
 // FUN_004394B8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004394b8);
-
 // FUN_00439E90 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: O3 is load-bearing (nd 48 -> 23). Floor: retail uses the R5900

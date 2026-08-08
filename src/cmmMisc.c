@@ -971,8 +971,44 @@ s32 func_00249230(void) {
    return-block 0/1 ordering; mwcc b210 keeps the NULL body inline with a
    negated skip (beqz $at -> main) and sltu $at. Original note's claim —
    switch wraps don't help — reconfirmed. */
-// FUN_002492B0
+/* measured: shared-tail reconstruction with explicit condition and boolean locals scores nd 25 (object 156B vs retail window 192B). Retail still keeps the NULL block out of line and emits the longer return tail; the candidate's branch layout remains shorter. Committed at nd 25. */
+// FUN_002492B0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002492b0(u32 arg0) {
+    s32 sp3C;
+    s32 sp38;
+    s32 cond;
+    s32 hit;
+    s32 result;
+    u8 *temp_17;
+    u8 *var_17;
+
+    temp_17 = D_008814D0[0] + 8;
+    func_001104d0(arg0, &sp3C, &sp38);
+    if (func_00106330(0xA61) == 0) {
+        goto null_p;
+    }
+    var_17 = temp_17 + func_001064f0(0x6D) * 0x24;
+    cond = arg0 < func_00110600(var_17[2], var_17[3]);
+    if (cond != 0) {
+        goto null_p;
+    }
+    goto done_p;
+null_p:
+    var_17 = NULL;
+done_p:
+    hit = (var_17 != NULL);
+    if (hit != 0) {
+        result = 1;
+        goto done_result;
+    }
+    result = 0;
+done_result:
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002492b0);
+#endif
 // FUN_00249370
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249370);
 /* measured (wave 14 retest — nd 33 reproducible, no match): merged-OR form
@@ -1026,7 +1062,9 @@ static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta;
    order (nd 15), by reversing the helper parameters, and by opt_lifetimes,
    reg_class_allocs, opt_scalarizeliveranges, opt_serializeassignments,
    opt_repositioncode, opt_movepostops, opt_prelinearize, opt_dead_assignments,
-   opt_marknonregtemps, opt_optimizenonregaccess and no_branch_likely. */
+   opt_marknonregtemps, opt_optimizenonregaccess and no_branch_likely.
+   Committed at nd 4. */
+/* measured: parked body committed at nd 4. */
 // FUN_00249670 NONMATCHING
 #ifdef NON_MATCHING
 #pragma opt_propagation off

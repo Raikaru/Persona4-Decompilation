@@ -13,12 +13,15 @@ in place.  Line endings are preserved.
 """
 
 import json
+import os
 import pathlib
 import subprocess
 import sys
 
 
 def score(report, func):
+    if not pathlib.Path(report).exists():
+        return 10**6, None
     for r in json.load(open(report))["results"]:
         if r["name"] == func:
             if r["status"] == "MATCH":
@@ -48,15 +51,18 @@ def main(argv):
         sys.exit("no bare INCLUDE_ASM line for %s in %s" % (func, path))
 
     bodies = json.load(open(cands))
+    # Concurrent lanes each probe their own function; a shared report path lets
+    # one lane read another's run (and a failed verify re-read the last one).
+    report = "build/_bare_%s_%d.json" % (func, os.getpid())
     best = (10**6, None)
     try:
         for label, body in bodies.items():
             p.write_bytes(orig.replace(marker, enc(body)))
             subprocess.run(
-                [sys.executable, "tools/verify.py", "--json", "build/_bare.json", path],
+                [sys.executable, "tools/verify.py", "--json", report, path],
                 capture_output=True,
             )
-            nd, r = score("build/_bare.json", func)
+            nd, r = score(report, func)
             st = r["status"] if r else "GONE"
             obj = r.get("object_size") if r else None
             win = r.get("window") if r else None
