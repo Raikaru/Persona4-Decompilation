@@ -365,34 +365,140 @@ void func_003723a0(u8 *arg0, u32 arg1, u32 arg2, u8 *arg3, u8 *arg4, f32 fparg0)
     *(ShuffleVec3 *)(arg0 + 0x24) = *(ShuffleVec3 *)(arg4 + 0);
     *(f32 *)(arg0 + 0x30) = fparg0;
 }
-/* measured: re-tested this wave — BEST nd 11 (recorded 91 -> 11) with a full
-   rebuild: u32 value local, recipe-A half-scalers, `#pragma opt_propagation
-   off` (FLYDraw lever: fixes the 1st half-scaler value coloring $a1->$a0),
-   sp40 declared BEFORE sp30 (stack slots 0x40/0x30 — the decl-order swap
-   alone took nd 27->11), func_003e40b0(&sp30,&sp40), per-component
-   `f18 + (sp30*t - t*(t*(sp30+sp40)))` mula/msub. Residual (all documented
-   floors): (1) Load-CSE — b210 CSEs the increment's re-load `lhu` with the
-   1st half-scaler load (offset 108 `andi $v0,$a0,0xffff` vs `lhu $v0,($s0)`),
-   value colored $a0 vs retail $v0 (5 words); (2) compare polarity `c.olt.s
-   $f0,$f1; bc1f` vs retail `c.olt.s $f1,$f0; bc1t` (all 4 compare spellings
-   probed elsewhere, floor); (3) func_00373cb0 arg order: `move $a0,$zero`
-   before `lwc1 $f14` vs retail f14-first (constant-vs-load order).
-   Load-CSE + compare-polarity floor, nd 11. */
-// FUN_003724F0
+/* measured 2026-08-08: array scratch plus explicit scale-order locals and
+   opt_propagation off reproduce the 003724f0 body at object 440B / window
+   448B, normalized_diff 23 (13 differing words). Exact residual fndiff rows:
+   offsets 20, 24, 32, 52, 56, 108, 184, 188, 320, 356, 392. First
+   differing row is offset 20 (`lhu $a0,($a0)` vs retail `lhu $v0,($a0)`).
+   The candidate is parked under NON_MATCHING. Committed at nd 23. */
+// FUN_003724F0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: opt_propagation off is retained for this parked candidate. */
+#pragma opt_propagation off
+s32 func_003724f0(u8 *arg0) {
+    f32 sp40[3];
+    f32 sp30[3];
+    f32 temp_f20;
+    f32 temp_f1;
+    f32 temp_f2;
+    f32 var_f12;
+    f32 var_f1;
+    u32 value;
+    u32 value2;
+
+    value = *(u16 *)arg0;
+    if (value >= 0) {
+        var_f1 = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        var_f1 = (f32)value;
+        var_f1 += var_f1;
+    }
+    if (!(var_f1 < *(f32 *)(arg0 + 4))) {
+        return 1;
+    }
+    *(u16 *)arg0 = (u16)(*(u16 *)arg0 + 1);
+    value2 = *(u16 *)arg0;
+    if (value2 >= 0) {
+        var_f12 = (f32)value2;
+    } else {
+        value2 = (value2 >> 1) | (value2 & 1);
+        var_f12 = (f32)value2;
+        var_f12 += var_f12;
+    }
+    temp_f20 = func_00373cb0(var_f12, *(f32 *)(arg0 + 8), 0, *(f32 *)(arg0 + 4));
+    sp40[0] = *(f32 *)(arg0 + 0x18) - *(f32 *)(arg0 + 0x24);
+    sp40[1] = *(f32 *)(arg0 + 0x1C) - *(f32 *)(arg0 + 0x28);
+    sp40[2] = *(f32 *)(arg0 + 0x20) - *(f32 *)(arg0 + 0x2C);
+    func_003e40b0(&sp30[0], &sp40[0]);
+    temp_f2 = sp30[0];
+    temp_f1 = *(f32 *)(arg0 + 0x30);
+    sp30[0] = temp_f2 * temp_f1;
+    temp_f2 = sp30[1];
+    temp_f1 = *(f32 *)(arg0 + 0x30);
+    sp30[1] = temp_f2 * temp_f1;
+    temp_f2 = sp30[2];
+    temp_f1 = *(f32 *)(arg0 + 0x30);
+    sp30[2] = temp_f2 * temp_f1;
+    temp_f2 = sp30[0] + sp40[0];
+    *(f32 *)(arg0 + 0xC) = *(f32 *)(arg0 + 0x18) +
+        (temp_f20 * sp30[0] - temp_f20 * (temp_f20 * temp_f2));
+    temp_f2 = sp30[1] + sp40[1];
+    *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 0x1C) +
+        (temp_f20 * sp30[1] - temp_f20 * (temp_f20 * temp_f2));
+    temp_f2 = sp30[2] + sp40[2];
+    *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0x20) +
+        (temp_f20 * sp30[2] - temp_f20 * (temp_f20 * temp_f2));
+    return 0;
+}
+/* measured probe: close opt_propagation scope after func_003724f0. */
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003724f0);
-/* measured: re-tested this wave — BEST nd 11 (recorded 99 -> 11) with a full
-   rebuild: u32 value local, recipe-A half-scalers, `#pragma opt_propagation
-   off` (fixes 1st half-scaler value coloring $a1->$a0), sp40 declared BEFORE
-   sp30 (0x40/0x30 slots), func_003e40b0(&sp30,&sp40), per-component
-   `f18 + (t*(sp30-sp40) - t*(sp30*t))` mula/msub. Residual is the SAME
-   documented 11-word floor as func_003724f0: (1) Load-CSE — b210 CSEs the
-   increment re-load `lhu` with the 1st half-scaler load (offset 108 `andi
-   $v0,$a0,0xffff` vs `lhu $v0,($s0)`), value colored $a0 vs retail $v0 (5
-   words); (2) compare polarity `c.olt.s $f0,$f1; bc1f` vs retail `c.olt.s
-   $f1,$f0; bc1t`; (3) func_00373cb0 arg order `move $a0,$zero` before
-   `lwc1 $f14` vs retail f14-first. Load-CSE + compare-polarity floor, nd 11. */
-// FUN_003726B0
+#endif
+/* measured 2026-08-08: array scratch plus raw-tail expression reproduces
+   func_003726b0's post-helper stack traffic and MAC tail at object 440B /
+   window 448B, normalized_diff 21 (12 differing words). Exact residual
+   fndiff rows: offsets 20, 24, 32, 52, 56, 108, 184, 188, 268, 272.
+   First differing row is offset 20 (`lhu $a0,($a0)` vs retail
+   `lhu $v0,($a0)`). The candidate is parked under NON_MATCHING.
+   Committed at nd 21. */
+// FUN_003726B0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: opt_propagation off is retained for this parked candidate. */
+#pragma opt_propagation off
+s32 func_003726b0(u8 *arg0) {
+    f32 sp40[3];
+    f32 sp30[3];
+    f32 temp_f1;
+    f32 temp_f20;
+    f32 var_f12;
+    f32 var_f1;
+    u32 value;
+    u32 value2;
+
+    value = *(u16 *)arg0;
+    if (value >= 0) {
+        var_f1 = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        var_f1 = (f32)value;
+        var_f1 += var_f1;
+    }
+    if (!(var_f1 < *(f32 *)(arg0 + 4))) {
+        return 1;
+    }
+    *(u16 *)arg0 = (u16)(*(u16 *)arg0 + 1);
+    value2 = *(u16 *)arg0;
+    if (value2 >= 0) {
+        var_f12 = (f32)value2;
+    } else {
+        value2 = (value2 >> 1) | (value2 & 1);
+        var_f12 = (f32)value2;
+        var_f12 += var_f12;
+    }
+    temp_f20 = func_00373cb0(var_f12, *(f32 *)(arg0 + 8), 0, *(f32 *)(arg0 + 4));
+    sp40[0] = *(f32 *)(arg0 + 0x18) - *(f32 *)(arg0 + 0x24);
+    sp40[1] = *(f32 *)(arg0 + 0x1C) - *(f32 *)(arg0 + 0x28);
+    sp40[2] = *(f32 *)(arg0 + 0x20) - *(f32 *)(arg0 + 0x2C);
+    func_003e40b0(&sp30[0], &sp40[0]);
+    temp_f1 = *(f32 *)(arg0 + 0x30);
+    sp30[0] *= temp_f1;
+    sp30[1] *= temp_f1;
+    sp30[2] *= temp_f1;
+    *(f32 *)(arg0 + 0xC) = *(f32 *)(arg0 + 0x18) +
+        (temp_f20 * (sp30[0] - sp40[0]) - temp_f20 * (sp30[0] * temp_f20));
+    *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 0x1C) +
+        (temp_f20 * (sp30[1] - sp40[1]) - temp_f20 * (sp30[1] * temp_f20));
+    *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0x20) +
+        (temp_f20 * (sp30[2] - sp40[2]) - temp_f20 * (sp30[2] * temp_f20));
+    return 0;
+}
+/* measured probe: close opt_propagation scope after func_003726b0. */
+#pragma opt_propagation on
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003726b0);
+#endif
 // FUN_00372870
 void func_00372870(u8 *arg0, s16 a1, s16 a2, u8 *arg3, ShuffleVec4 *arg4) {
     *(s16 *)(arg0 + 0) = 0;

@@ -18,10 +18,12 @@ extern void func_00460ac0(void *arg0, void *arg1);
 extern void func_004623a0(s32 arg0);
 extern void func_0044ea90(void *file, s32 line);
 extern void func_0046d730(void *file, s32 line);
+extern void func_0046d740(const void *msg, const void *file, s32 line);
 extern s32 func_00451de0();
 extern u8 D_00793E80[];
 extern u8 D_00793EB0[];
 extern u8 D_00794900[];
+extern u8 D_005DCAD0[];
 extern u8 D_005DCAE8[];
 extern u8 D_005DCAF8[];
 extern u8 D_005DCB10[];
@@ -208,16 +210,33 @@ extern s32 func_00102550(void);
 extern void func_001025e0(void *arg0);
 
 
-/* measured: retail hoists the D_00887300 vtable base into $s0 once
-   (lui/addiu) and reloads `lw $v0, 0($s0)` per call; mwcc b210 folds the
-   address into each call (`lui $v0; lw $v0, 0($v0)`) even when the base is
-   named in a local `void (**tbl)(u32,u32) = D_00887300;` (local gets folded
-   back into the constant). Tried both the direct D_00887300[0](...) spelling
-   and the local-pointer spelling: identical nd 67 (6 differing words at the
-   3 call sites + downstream branch-target shifts). Same vtable-hoist floor
-   as func_001015c0/16f0/1820/1950/1a80. */
+/* Measured: the local vtable pointer matches retail's single $s0
+   D_00887300 materialization only under opt_propagation off. The target is
+   MATCH at normalized_diff 0 with object 260B / window 272B. */
 // FUN_001014B0
-INCLUDE_ASM("asm/nonmatchings/mainDraw", func_001014b0);
+/* measured: opening opt_propagation bracket for the matching vtable probe. */
+#pragma opt_propagation off
+void func_001014b0(void) {
+    s32 temp_16;
+    void (**base)(u32, u32);
+
+    func_003e8110(func_00457120());
+    temp_16 = func_00457120();
+    func_003e82a0(temp_16, func_00457130(), 2);
+    if (func_003e8120(func_00457120()) != 0) {
+        base = D_00887300;
+        base[0](6, 1);
+        base[0](8, 1);
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+        base[0](0xE, 0);
+        return;
+    }
+    func_0046d740(D_005DCAD0, D_005DCAE8, 0x5A);
+}
+/* measured: closing opt_propagation bracket after the matching target. */
+#pragma opt_propagation on
+
 
 // FUN_001015C0
 /* measured: func_001015c0 is MATCH with opt_propagation off. */

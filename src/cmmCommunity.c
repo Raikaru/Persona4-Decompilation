@@ -1050,9 +1050,11 @@ ret:
    (nd 11 and nd 343); goto/switch/result-variable tail layouts (all
    identical); schedule on/off, no_branch_likely, opt_common_subs off,
    opt_propagation off, opt_rebuildconditionals, opt_loop_invariants at -O1
-   (all nd 1); and a static predicate helper hoping for an inlined
    return-merge, which b210 does not inline (object collapses to 324).
-   Committed at nd 1. */
+   New comparison-spelling probes changed `id >= 0x1F` to `id > 0x1E`
+   and `i < 0x15` to `i <= 0x14`; each scored nd 3, so the nd 1 base
+   remains the lowest body. The daddiu residual did not move; this is a
+   settled floor after the comparison lever. Committed at nd 1. */
 // FUN_00108950 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: -O1 is load-bearing for this body - at -O2 mwcc coalesces the

@@ -565,18 +565,6 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    declaration order reproduces offsets that separate locals do not. */
 // FUN_002561F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
-
-/* measured: structure fully understood (copy loop, 3-branch color store chain,
-   func_0045e6a0 call with (s16) narrowing on args 6/7), but mwcc b210's saved-
-   register allocation and FP scheduling never converge on retail's: retail
-   keeps temp_5's four bytes + the hoisted ==1 constant + the per-iteration
-   address temp in saved regs ($s4-$s0, $s5), hoists BOTH 255.0f muls to the
-   top, and folds sp70/spC0 offsets into addiu; mwcc instead saves temp_14 /
-   b2 / b3 / c0 / c1, keeps muls inline, and materializes the ==1 constant in
-   the loop (best nd 145). Tried: named byte locals in 3 declaration orders
-   (probe batch), m2c-exact inline-byte structure (nd 151), u8/u32 counters,
-   pointer locals for both loop addresses, sp70[0x50] frame fix. Saved-
-   register rotation + FP scheduling floor; m2c draft structurally correct. */
 // FUN_00256460
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00256460);
 

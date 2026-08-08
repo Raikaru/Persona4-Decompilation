@@ -1161,13 +1161,13 @@ u8 func_001de800(u8 *p) {
     return 0;
 }
 
-/* measured: preheader + loop-body coloring floor. Retail schedules the node
-   base addu ($4) BEFORE the sum/i inits and re-issues the (i & 0xFFFF) mask in
-   the loop body (andi $v0,$a3,0xffff; sll $v0,$v0,3), while mwcc b210 emits the
-   inits after the whole node expression and CSEs the test mask across the
-   branch (sll $v0,$v1,3), 1 word per iteration; the second loop's j2 counter
-   then colors into unsaved $18. Best 51 nd with node = ...; sum=0; i=0;
-   node += a*40. $v0/$v1-coloring floor. */
+/* measured 2026-08-08: reconstructed weighted-node selector reached object
+   288B / window 288B but normalized_diff 39, so the body is discarded rather
+   than parked. Exact fndiff residual offsets are 48, 52, 56, 60, 64, 68, 72,
+   100, 104, 132, 136, 164, 172, 184, 192, 196, 200, 204, 208, 212, 228,
+   240, 244, 248; first differing row is offset 48 (`andi $v1,$a1,0xffff`
+   vs retail `move $a2,$zero`). A `<= 4` guard variant measured nd43. The
+   discarded body is archived in build/WCBattleUI_btlAICommand_prepark_validate.c. */
 // FUN_001DEA90
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dea90);
 /* measured: MATCH. Two keys the earlier floor notes missed: (1) c is

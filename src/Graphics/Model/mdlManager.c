@@ -1,12 +1,14 @@
 #include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
-/* W8 negative census: the six small bare functions below all produced undersized
-   C objects, so their current reconstructions are missing logic rather than merely
-   misshapen register schedules; do not spend another colouring wave on them.
-   Best probes (object/window, nd): 00477810 232/240 nd169; 004776C0 244/272
-   nd92; 00474BA0 316/320 nd153; 00475B90 304/320 nd147; 00473710 332/352
-   nd202; 00477FB0 388/400 nd272. */
+/* W8 negative census corrected: 004776C0 is complete in C at 264B; its
+   272B retail window has two zero words after jr/nop. 00475B90 (304B body
+   plus jr/nop and two zero words) and 00473710 (332B body plus jr/nop and
+   three zero words) likewise use placement padding, not missing logic.
+   Remaining short probes are unresolved; do not add source-only padding.
+   Best probes (object/window, nd): 00477810 232/240 nd169; 004776C0
+   264/272 nd6; 00474BA0 316/320 nd153; 00475B90 304/320 nd147;
+   00473710 332/352 nd202; 00477FB0 388/400 nd272. */
 #include "type.h"
 /* measured: index-first addu operand-order carrier (lever 3). Kept at top of
    file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and

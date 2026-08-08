@@ -38,7 +38,7 @@ extern void func_00454bd0(u8 *arg0);
 extern void func_003ef3a0(void *arg0);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
-extern void func_00365f00(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4);
+extern void func_00365f00(f32 f0, f32 f1, f32 f2, f32 f3, s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 f4);
 extern f32 iGpffff83d4;
 extern f32 iGpffff8544;
 
@@ -246,14 +246,47 @@ void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3, f32 f0, f32 f1) {
     sel = ((u8 *)&saved1)[3];
     if (sel != 0xFF)
         var8 = 0;
-    func_00365f00(*(s64 *)((u8 *)saved0), saved1, saved1, arg2, var8, f0, f1, 1.0f, 0.0f, 0.0f);
+    func_00365f00(f0, f1, 1.0f, 0.0f, *(s64 *)((u8 *)saved0), saved1, saved1, arg2, var8, 0.0f);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
 #endif
-// Archived C body: build/WBHygiene_func_003561d0_archive.txt; no current park body remains.
-// FUN_003561D0
+/* measured: stack-frame and mixed-ABI call body reaches nd 7 in isolation at
+   object 116B/window 128B; residual call-setup order remains at offsets
+   0x40-0x4C. nd_audit compiles the whole file with NON_MATCHING defined, which
+   activates func_00356170's preserved body alongside this one and shifts it to
+   nd 15. Committed at nd 15. */
+// FUN_003561D0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003561d0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, f32 dummy, f32 f0, f32 f1)
+{
+    struct Frame { s64 saved0; s32 saved1; f32 temp; } frame;
+    s32 var8;
+    u8 sel;
+    f32 scaled;
+    f32 one;
+    f32 shifted;
+    s64 call0;
+    s32 call1;
+
+    frame.saved0 = arg0;
+    frame.saved1 = arg1;
+    scaled = f0 / iGpffff83d4;
+    shifted = iGpffff8544 + f1;
+    var8 = arg2;
+    frame.temp = *(f32 *)((u8 *)&frame.saved1);
+    sel = ((u8 *)&frame.temp)[3];
+    if (sel != 0xFF) {
+        var8 = 0;
+    }
+    one = 1.0f;
+    call0 = *(s64 *)((u8 *)&frame.saved0);
+    call1 = frame.saved1;
+    func_00365f00(dummy, scaled, shifted, one, call0, call1, call1, 4, var8, one);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003561d0);
+#endif
 // FUN_00356820
 s32 func_00356820(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);

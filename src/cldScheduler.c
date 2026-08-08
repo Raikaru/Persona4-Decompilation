@@ -64,13 +64,13 @@ void func_0025ff90(void)
 
 
 // FUN_00260020 NONMATCHING
+#ifdef NON_MATCHING
 /* Floor: b210 allocates the day-of-week temp ($a3 retail) ahead of the
  * 0x18 copy-loop counter ($a0 retail); every source ordering tried
  * (statement order, declaration order, for/do-while, block scope, u32
  * counter, comma-init) pins the counter last instead, swapping the two
  * registers in 5 instructions (nd 5/1056, obj 1048/1056).
  * Committed at nd 5. */
-#ifdef NON_MATCHING
 s32 func_00260020(void)
 {
     s32 v1;

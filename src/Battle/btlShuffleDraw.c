@@ -932,6 +932,9 @@ void func_00377e60(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00377eb0);
 
 
+
+
+
 // FUN_003781D0
 void func_003781d0(u8 *arg0, s32 arg1) {
     char buf[0x100];
