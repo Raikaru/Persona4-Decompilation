@@ -47,14 +47,11 @@ s32 func_00122430(s32 arg0)
 
 
 // FUN_00122520 NONMATCHING
-// Measured floor nd=19: retail keeps a dead `addiu v0,1` return-value
-// materialization in the shared return block (if1 branches to it and the
-// out-of-line tail falls into it), so ret0's branch targets the epilogue
-// 4 bytes later. MWCC b210 DCE removes the addiu whenever v0=1 is provable
-// at the return point; probed if/else, goto-label, two-return, and
-// pragma (schedule/optimization_level/propagation/loop_invariants) shapes
-// -- all nd>=19.
 #ifdef NON_MATCHING
+/* Measured nd 19 (object 288 / window 288). The retail shared return
+   block retains a dead `addiu v0,1` materialization; b210 removes it when
+   the return value is provably one. The control flow and all state writes
+   are otherwise byte-stable C. Committed at nd 19. */
 s32 func_00122520(s32 arg0, s32 arg1)
 {
     u8 *temp_16;

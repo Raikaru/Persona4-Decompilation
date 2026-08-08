@@ -426,11 +426,6 @@ u32 func_0029AD20(ScrData* scr)
     return 1;
 }
 
-/* FUN_0029AD40 (CodeFunc_Comm) NOT converted: retail allocates
-   cmdIdx-masked/group*8/cmds/idx*8 into $s1-$s4 with the mask in place
-   and an sltu bool test, which b210 never reproduces from any spelling of
-   the grouped-table access (20+ variants probed); the instruction stream
-   is identical, only registers differ. */
 // FUN_0029AD40. Call a native function
 INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029ad40);
 

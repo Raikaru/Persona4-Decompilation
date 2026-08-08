@@ -47,6 +47,7 @@ extern void func_0044ec50(s32 arg0);
 extern void func_0044ea90(const void *file, s32 line);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
+extern char iGpffffac30;
 
 typedef char *va_list;
 #define va_start(ap, last) (ap = ((va_list)__builtin_next_arg(last) - (__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8)))
@@ -123,17 +124,57 @@ INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044f720);
 // FUN_0044FA90
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
 
-/* measured: retail renders the formatted string into the 12x12 grid with the
-   grid-index (D_008BF720 + var_17*0x35 + var_18) built base-into-$v1 AFTER the
-   multiplier and the sp60[var_19] byte read as a 2-step `addiu $v1,$v1,0x60` +
-   `lb`; mwcc b210 emits the D_008BF720 base FIRST (lui/addiu before the mult)
-   and folds the 0x60 into the load offset, and places the loop condition check
-   at the top instead of retail's bottom. The two-parameter variadic signature,
-   frame, saved-register assignment, and formatter call sequence were matched;
-   best retained candidate measured nd 65. The historical nd 42 in the old
-   note came from a discarded body and is not a target. */
-// FUN_00450050
+/* measured: declaration order maps temp_16/var_17/var_18/var_19 to retail
+   $s0/$s1/$s2/$s3; integer-domain grid indexing and the stack-base expression
+   reproduce the retail post-multiply address order. Object 416B/window 416B,
+   committed at nd 8. */
+/* measured: object 416B/window 416B. First differing rows: +0xF0 candidate addiu ,,0x60 then addu ,,; retail addu ,, then addiu ,,0x60. All remaining instructions match; GP addend uses registered iGpffffac30 + 0x10. Stack address order floor after read-pointer probes. Committed at nd 7. */
+// FUN_00450050 NONMATCHING
+#ifdef NON_MATCHING
+void func_00450050(s64 arg0, s32 arg1, ...) {
+    va_list args;
+    s8 sp60[0x100];
+    f32 arg0hi;
+    s32 var_19;
+    s32 var_18;
+    s32 var_17;
+    s32 temp_16;
+    s8 temp_5;
+    u8 *read;
+
+    arg0hi = *(f32 *)((u8 *)&arg0 + 4);
+    va_start(args, arg1);
+    func_00446ed8(sp60, (void *)arg1, args);
+    var_18 = (s32)(*(f32 *)&arg0);
+    var_17 = (s32)arg0hi;
+    var_19 = 0;
+    temp_16 = var_18;
+    while (var_19 < 0x100) {
+        if ((*(f32 *)&arg0 < 53.0f) && (arg0hi < 40.0f) && (var_18 < 0x35) && (var_17 < 0x28)) {
+            read = (u8 *)((u32)var_19 + (u32)sp60);
+            temp_5 = *(s8 *)read;
+            if (temp_5 != 0) {
+                if (temp_5 == 0xA) {
+                    var_18 = temp_16;
+                    var_17 += 1;
+                } else {
+                    if ((var_17 == 0x27) && (var_18 >= 0x35)) {
+                        func_00440b68((char *)&iGpffffac30 + 0x10, temp_5);
+                    } else {
+                        *(u8 *)((u32)D_008BF720 + (u32)(var_17 * 0x35) + (u32)var_18) = temp_5;
+                    }
+                    var_18 += 1;
+                }
+                var_19 += 1;
+                continue;
+            }
+        }
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_00450050);
+#endif
 
 // FUN_004501F0
 void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...) {

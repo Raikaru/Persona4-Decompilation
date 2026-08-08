@@ -35,32 +35,27 @@ void func_00161500(s32 arg0)
     iGpffff9ef8 = arg0;
 }
 
-/* measured: the initialiser for the same two tables. opt_loop_invariants
-   hoists the 0x750 stride into the preheader as retail does (nd 29 -> nd 14);
-   the rest of the residual is register assignment across the two table bases
-   and the hoisted constant 1. Committed at nd 14. */
-// FUN_001622D0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: direct global address expressions preserve retail bases while
+   opt_loop_invariants hoists the 0x750 stride and exact table bases (nd 14 -> 0).
+   Committed at nd 0. */
+// FUN_001622D0
 #pragma opt_loop_invariants on
 void func_001622d0(void) {
     s32 i = 0;
     s32 one = 1;
     s32 stride = 0x750;
-    u8 *slot = D_007EF9B0;
-    u8 *ent = D_007F16F0;
 
     while (i < 4) {
-        *(s32 *)(slot + i * stride + 0x44) = one;
-        *(s32 *)(ent + i * 8 + 4) = 0;
-        *(s16 *)(ent + i * 8) = 0;
-        *(s16 *)(ent + i * 8 + 2) = 0;
+        *(s32 *)(D_007EF9B0 + i * stride + 0x44) = one;
+        *(s32 *)(D_007F16F0 + i * 8 + 4) = 0;
+        *(s16 *)(D_007F16F0 + i * 8) = 0;
+        *(s16 *)(D_007F16F0 + i * 8 + 2) = 0;
         i++;
     }
 }
+/* measured: direct global address expressions preserve retail bases while
+   opt_loop_invariants hoists the stride (nd 14 -> 0). */
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_001622d0);
-#endif
 
 // FUN_00162330
 /* measured: direct global address expression preserves retail base/stride

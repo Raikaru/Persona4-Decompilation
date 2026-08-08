@@ -12,6 +12,7 @@
    file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
    does not emit a standalone symbol. */
 static inline u32 addOff(u32 offset, u32 base) { return offset + base; }
+static inline f32 mdlMulOrdered77810(f32 a, f32 b) { return a * b; }
 extern f32 iGpffff8040;
 extern f32 fGpffff809c;
 extern u8 D_00713180[];
@@ -703,17 +704,6 @@ void func_004735b0(u8 *arg0)
    persists. opt_propagation off + forward externs help compile, not match. */
 // FUN_00473710
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
-
-/* measured: 4 attempts, all nd 152. Structure, pointer math (3-op mult,
-   base/stride/count reloads), the func_003d5bc0 2-arg call and the c.ole.s
-   len2<=0 test all match. Residual: the fused mula/madda/madd.s chains (len2
-   and the rotation terms) get their PRODUCT ORDER and registers permuted by
-   b210 vs retail (e.g. mine mula t1*t0 where retail mula t0*t0, second chain
-   mula/madda pair swapped) - same family as btlEPL func_001fceb0/001fe090
-   mula/madd FP-scheduling floors; the p1 vec4 (retail swc1/lwc1 sp30-3C
-   spill+reload) stays in registers; the 1.0f/0.0f constants are not hoisted
-   out of the loop (opt_loop_invariants on at function scope and inline:
-   no effect); everything downstream rotates by one FP register. */
 // FUN_00473870
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
 extern void func_003d5bc0(void* a, void* b, f32 c);
@@ -930,9 +920,6 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 // FUN_00474BA0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
-
-
-
 // FUN_00474CE0
 u32 func_00474ce0(void* param_1)
 {
@@ -1203,21 +1190,6 @@ void* func_00475b10(void* object, void* data)
    re-mask). Branch-placement + t-coloring floor, best nd 35. */
 // FUN_00475B90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475b90);
-/* measured: 1 transcription attempt (nd 889 of 0xFA0). The whole body is
-   readable C (byte-adjust 0x280/281/282, alpha conversion, quaternion dot +
-   acos + slerp-style polynomial interp with gp slots iGpffff8054/8058/805c/
-   8060/81cc/81fc, the 0xC0 identity matrix block, D_00887300/D_00887304
-   dispatch, 0x124/0x28C loops, 0x28C/0x290/0x294 slots) but the fused
-   mula/madda/madd.s chains and the 40+ stack f32 locals get reordered and
-   re-allocated by b210 vs retail (the same mula/madd FP-scheduling family as
-   func_00473870/btlEPL func_001fceb0 - never reproduced byte-for-byte), and
-   the frame/stack-slot layout diverges (retail spills the sp70-8C vec to
-   fixed slots 0x70-0x8C; b210 keeps them in registers and rotates). Fixes
-   verified while transcribing: func_00397c40 is 1-arg here (use
-   func_00397c40_1 alias); func_0047a2f0 is called with ONE arg (alias
-   func_0047a2f0_1); func_00477260's first arg wants an explicit (u64) cast;
-   D_00887300[] is an array (D_00887300[0](...)). FP-scheduling +
-   stack-layout floor. */
 // FUN_00475CD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
 
@@ -1458,16 +1430,53 @@ void* func_00477660(void* param_1, RwV3d* param_2)
     return param_1;
 }
 
-/* measured: retail folds the loop-invariant address arg1+4 into the in-loop
-   load (lw $a0,4($s4)); mwcc b210 hoists the address into an extra saved
-   register (addiu $s7,$s4,4 before the first jal) making the frame 0xA0 vs
-   retail 0x90 and shifting the stack buffer. Secondary: key/item s-regs swap
-   ($s1/$s3) and loop counter lands in $s1 vs retail $s2. Tried: v4 pre-loop
-   local, indexed ((void**)arg1)[1], reversed 4+ptr add, decl-order swaps,
-   opt_loop_invariants off — all nd 63. Loop-invariant-address hoist floor. */
-// FUN_004776C0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004776c0);
+/* measured: aggregate buffer reconstruction supplies all retail stores and
+   the exact loop/index schedule; object 264B/window 272B, nd 6. Residual
+   rows are the filter-result/item-pointer saved-register swap at offsets
+   0x40, 0x5C, 0x60, 0x74, 0x88, and 0xB8 (candidate $s3/$s1 where retail
+   uses $s1/$s3). Declaration-order, type-width, O1, and propagation probes
+   did not change those rows. Committed at nd 6. */
+// FUN_004776C0 NONMATCHING
+#ifdef NON_MATCHING
+void *func_004776c0(void *arg0, void *arg1)
+{
+    extern s32 func_00442948(s32 value);
+    extern s32 func_00442c30(s32 a, s32 b, s32 c);
+    extern u32 func_004578b0(void* object, void* name);
+    extern void func_004586f0(void* object, void* data);
+    u8 buf[4];
+    u8 *pArg1;
+    u32 value;
+    s32 temp_17;
+    u32 temp_22;
+    u32 var_18;
+    u8 temp_2;
+    u8 *temp_16;
+    u8 *temp_19;
 
+    pArg1 = (u8 *)arg1;
+    temp_16 = *(u8 **)((u8 *)arg0 + 0x18);
+    temp_22 = *(u32 *)(temp_16 + 0x24);
+    temp_17 = func_00442948(*(s32 *)(pArg1 + 4));
+    var_18 = 0;
+    while (var_18 < temp_22) {
+        temp_19 = *(u8 **)(*(u8 **)(temp_16 + 0x20) + var_18 * 4);
+        if (func_00442c30(*(s32 *)(pArg1 + 4), (s32)func_00474ce0(temp_19), temp_17) == 0) {
+            value = func_004578b0(temp_19, D_00713160);
+            buf[2] = (u8)value;
+            buf[1] = (u8)(value >> 8);
+            buf[0] = (u8)(value >> 16);
+            buf[3] = *(u8 *)(pArg1 + 0);
+            func_004586f0(temp_19, buf);
+        }
+        var_18 += 1;
+    }
+    return arg0;
+}
+
+#else
+INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004776c0);
+#endif
 // FUN_004777D0
 void func_004777d0(void* param_1, int param_2, u8 param_3)
 {
@@ -1489,7 +1498,62 @@ void func_004777d0(void* param_1, int param_2, u8 param_3)
    one=1.0f local (nd 45), pragma on (nd 55). Register-coloring floor. */
  
 // FUN_00477810
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477810);
+/* measured probe: hoist invariant constant for retail prologue. */
+#pragma opt_loop_invariants on
+void func_00477810(void *arg0, void *arg1)
+{
+    s32 i;
+    s32 j;
+    s32 idx;
+    s32 jidx;
+    f32 one;
+    f32 f5;
+    f32 f0;
+    f32 f1;
+    f32 f2;
+    f32 f3;
+    f32 f4;
+    u8 *src;
+    u8 *dst;
+
+    one = 1.0f;
+    i = 0;
+    while ((i & 0xFFFF) < 0x10) {
+        idx = (u16)i;
+        src = (u8 *)arg1 + idx * 2;
+        if (*(u16 *)(src + 0x198) > 0) {
+            if ((i & 0xFFFF) == 0) {
+                f4 = *(f32 *)((u8 *)arg1 + 0x18C);
+                f0 = *(f32 *)((u8 *)arg1 + 0x184);
+                f2 = one / f0;
+                f0 = *(f32 *)((u8 *)arg1 + 0x188);
+                f1 = one / f0;
+                f0 = *(f32 *)((u8 *)arg1 + 0x190);
+                f0 = mdlMulOrdered77810(f4, f0);
+                f0 = mdlMulOrdered77810(f2, f0);
+                f5 = mdlMulOrdered77810(f1, f0);
+                f1 = mdlMulOrdered77810(f4, f2);
+            }
+            j = 0;
+            while ((j & 0xFFFF) < 2) {
+                jidx = (u16)j;
+                dst = (u8 *)arg0 + jidx * 0xA4;
+                *(f32 *)(dst + 0x12C) = f1;
+                *(f32 *)(dst + 0x130) = f5;
+                *(f32 *)(dst + 0x134) = f5;
+                *(f32 *)(dst + 0x138) = *(f32 *)((u8 *)arg1 + 0x18C);
+                *(f32 *)(dst + 0x13C) = *(f32 *)((u8 *)arg1 + 0x190);
+                *(s32 *)(dst + 0x128) = *(u16 *)(src + 0x198);
+                *(u16 *)(dst + 0xEC) |= 0x10;
+                j = (j + 1) & 0xFFFF;
+            }
+        }
+        i = (i + 1) & 0xFFFF;
+    }
+}
+/* measured probe: close invariant pragma. */
+#pragma opt_loop_invariants off
+
 /* Removing this loses FUN_00477900 (MATCH nd0 -> MISMATCH nd51) - measured W161 (ported from P3FES donor; re-probed in P4: nd0 -> nd51). */
 #pragma opt_loop_invariants on
 

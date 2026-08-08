@@ -93,7 +93,32 @@ void func_001421b0(u8 *arg0) {
 
 
 // FUN_00142230
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00142230);
+/* measured: optimization level 1 plus base-before-value declaration order
+   keeps the retail t0/t1/a3 live ranges and loop arithmetic. */
+#pragma optimization_level 1
+void func_00142230(u8 *arg0) {
+    extern s32 iGpffff9cd8;
+    extern u8 D_005EF5A0[];
+    s32 i;
+    u8 *base;
+    s32 value;
+    u8 *table;
+    u8 *temp_3;
+    u8 *temp_5;
+    i = 0;
+    base = (u8 *)&iGpffff9cd8;
+    table = D_005EF5A0;
+    while (i < 5) {
+        value = *(s16 *)(arg0 + (*(u8 *)(base + i) * 2) + 0x187E) - 1;
+        temp_5 = table + i * 0x28 + value * 8;
+        temp_3 = arg0 + i * 0x30;
+        *(f32 *)(temp_3 + 0x588) = *(f32 *)(temp_5 + 0);
+        *(f32 *)(temp_3 + 0x58C) = *(f32 *)(temp_5 + 4);
+        i++;
+    }
+}
+/* measured: closes the scoped optimization-level-1 probe. */
+#pragma optimization_level 2
 
 // FUN_00142340
 s32 func_00142340(u8 *arg0) {
@@ -222,29 +247,11 @@ void func_00149e50(s32 arg0)
     func_00153bd0(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
-/* measured: both calls take (arg0, arg1) unchanged from entry and the tail
-   boolean is `== 1` (retail's xori 1 / sltiu 1). Residual nd 26 is the
-   out-of-line layout of the two results: retail rematerialises the early
-   `return 1` from the comparison constant (`move $v0,$v1`) before branching
-   to the shared epilogue and lands the final sltiu directly in $v0, while
-   b210 branches without the move and needs `sltiu $v1` + `move $v0,$v1`.
-   Measured identical at nd 26: a result local with a goto to a shared
-   return, an if/else assigning the result, a named `one` constant, and both
-   combined. `#pragma schedule on` is much worse (nd 50, obj 88). The `!(x^1)`
-   and `(x^1) == 0` spellings of the tail are worse (nd 44/43).
-   Boolean-result tail layout floor (docs/matching.md).
-   Committed at nd 26. */
-// FUN_0014A190 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0014a190(s32 arg0, s32 arg1) {
-    if (func_0014a230(arg0, arg1) == 1) {
-        return 1;
-    }
-    return func_0014a2a0(arg0, arg1) == 1;
-}
-#else
+/* Rejected C body archived in build/W9LastMile7_code1_0014_4a190_rejected.txt:
+   object 104 / window 112, normalized_diff 26. The retail boolean-result
+   branch layout remains above the parking threshold. */
+// FUN_0014A190
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014a190);
-#endif
 
 // FUN_0014A2F0
 void func_0014a2f0(s32 arg0)

@@ -304,9 +304,8 @@ void func_002951c0(u8 *arg0, u8 *arg1) {
     }
 }
 
-/* measured: taking the address of each coordinate local before its load reproduces retail's grouped lh x4 then stack sh x4, reducing normalized_diff 20 -> 2 with object 592/592. Remaining checklist-1 residual is the clamp compare register: candidate slti $v1,$v1,0x1f5; bnez $v1,... versus retail slti $at,$v1,0x1f5; bnez $at,.... Nested/positive-arm/continue forms, >0x1F4, and s16 local probes did not change it. Committed at nd 2. */
-// FUN_002954F0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: address-taken coordinate locals preserve retail's grouped loads and stores; the clamp uses a direct swapped relational guard so b210 emits retail's $at compare. Object 592/592, normalized_diff 0. Committed at nd 0. */
+// FUN_002954F0
 void func_002954f0(u8 *arg0, u8 *arg1) {
     u8 *temp_17;
     S16x4 sp58;
@@ -324,8 +323,6 @@ void func_002954f0(u8 *arg0, u8 *arg1) {
     u8 *var_3_2;
     s32 *var_4;
     u8 *var_4_2;
-    s32 temp_3_2;
-
     temp_17 = (u8 *)(func_00286f00(0x2F, arg1));
     for (var_16 = 0; var_16 < *(s32 *)(arg0 + 0xAC); var_16++) {
         temp_5 = (s32)(*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14));
@@ -374,17 +371,20 @@ void func_002954f0(u8 *arg0, u8 *arg1) {
             }
             *(s32 *)(temp_2 + 0x18) = *(s32 *)(var_3_2 + 8);
             if (*(s8 *)(temp_2 + 0x10) == 1) {
-                temp_3_2 = *(s16 *)(temp_2 + 0x1A);
-                if ((temp_3_2 < 0) || (temp_3_2 >= 0x1F5)) {
-                    *(s16 *)(temp_2 + 0x1A) = 0x64;
+                if (*(s16 *)(temp_2 + 0x1A) < 0) {
+                    goto clamp_954;
                 }
+                if (0x1F4 >= *(s16 *)(temp_2 + 0x1A)) {
+                    goto next_954;
+                }
+clamp_954:
+                *(s16 *)(temp_2 + 0x1A) = 0x64;
             }
+next_954:
+            ;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_002954f0);
-#endif
 
 // FUN_00295740
 void func_00295740(s32 arg0, u8 *arg1) {

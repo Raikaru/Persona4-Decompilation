@@ -53,14 +53,14 @@ extern void func_0011c180(s32, s32, s32, s8);
 extern void func_0011c2c0(s32, s32, s32, s8);
 extern void func_0011bdc0(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
-extern void func_002b2970(s64 *out, f32 x, f32 y);
-extern void func_002b6c30(s32 a, s64 b, s32 c, f32 d);
+extern void func_002b2970(void *out, f32 x, f32 y);
+extern void func_002b6c30(s16 a, s64 b, s32 c, f32 d);
 extern void func_002b6a70(s16, u8, u8, s32, s32, s32);
 extern void func_002b6b40(s32, s32, s32, s32, f32, f32);
 extern u8 *func_002b6150(s16);
 extern s32 func_002b6970(s16, s32);
 extern void func_002b7750(s16, s16);
-extern void func_002b2a60(void *arg0, s32, s32, s32, s32);
+extern void func_002b2a60(void *arg0, u8, u8, u8, u8);
 extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s32 arg1);
 extern u8 *func_0034ae50(u8 *arg0, s64 arg1);
@@ -82,7 +82,7 @@ extern f32 D_00644298[];
 extern f32 D_00644350[];
 extern void func_002b83e0(u8 *, s64, s64, s64, u8, u8, s32, s32, f32, f32, s64, s64);
 extern void func_002b6af0(s16, s32, s32, s32, f32, f32, f32, f32);
-extern void func_002b69f0(s16, s64, s64, s32, s32, s32);
+extern void func_002b69f0(s16, s64, s64, u32, u32, s16);
 extern s32 func_0046d200(s64, s32);
 extern f32 func_0046b2f0(s32);
 extern void func_0046d280(s32);
@@ -1118,21 +1118,70 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 // FUN_0032B9D0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b9d0);
 
-/* measured: this function MATCHES byte-for-byte as C -- store the func_002cb0
-   result through a u16 alias (*(u16 *)(obj + 0x11E) = (u16)v4;) and test it with
-   (s16)v4, so the differently-typed truncations do not CSE and mwcc emits sh
-   before truncating in place; case 5 also needs (s16)((s16)r - 1).
-
-   It is kept as INCLUDE_ASM anyway, and NOT because of a compiler floor. Its
-   6-case switch makes mwcc emit a second anonymous .rodata jump table (@434 and
-   @563), and build.py's recover_concatenated_layout cannot anchor two anonymous
-   .rodata sections, so plan_data_sections refuses the whole translation unit --
-   costing all 21 of this file's linked functions to gain one match. Verified by
-   reverting only this function: .rodata drops to one section and the TU is
-   placeable again. Restore the body once the layout recovery can locate a
-   second anonymous rodata section by its referencing relocation. */
+/* Measured: this C body is byte-exact under scoped verify.py (obj 956/window
+   960, nd 0), but its switch emits one additional anonymous .rodata jump
+   table (the current object labels it @551) alongside retail's one named
+   six-entry table, jtbl_00749640. Retail func_0032c0c0 uses one jump table;
+   this body emits one semantically identical table, but retaining the retail
+   assembly table makes the linked TU contain an additional anonymous table.
+   The scoped verifier is exact; whole-TU linked layout remains unverified.
+   If tools/build.py reports its first linked-image difference inside the
+   y_fclCombineDraw address range, inspect this function first. */
 // FUN_0032C0C0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c0c0);
+void func_0032c0c0(u8 *arg0, s64 arg1) {
+    f32 fdiff;
+    f32 facc;
+    s32 r;
+    s32 v4;
+    u8 *obj;
+
+    obj = *(u8 **)(arg0 + 0x38);
+    r = 8;
+    if (*(s32 *)(func_002e4870(0) + 8) < 8) {
+        r = *(s16 *)(func_002e4870(0) + 8);
+    }
+    *(s8 *)(obj + 0x13A) = 1;
+    switch ((s8)arg1) {
+    case 0:
+        *(s16 *)(obj + 0x11E) = func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 0, 1);
+        *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), r, 1);
+        break;
+    case 1:
+        *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, 0, 1);
+        *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s16 *)(func_002e4870(0) + 8), r, -1);
+        break;
+    case 2:
+        func_002b2e70(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(func_002e4870(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
+        break;
+    case 3:
+        func_002b2f90(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), *(s32 *)(func_002e4870(0) + 8), 8, (s16 *)(obj + 0x11E), (s16 *)(obj + 0x120));
+        break;
+    case 4:
+        v4 = func_002b2cb0(*(s16 *)(obj + 0x11E), 1, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 0, 2);
+        *(u16 *)(obj + 0x11E) = (u16)v4;
+        if ((s16)v4 == 0) {
+            *(s16 *)(obj + 0x120) = 0;
+        } else {
+            *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), r, 1);
+        }
+        break;
+    case 5:
+        if (*(s16 *)(obj + 0x11E) == 0) {
+            *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 2);
+            *(s16 *)(obj + 0x120) = (s16)((s16)r - 1);
+        } else {
+            *(s16 *)(obj + 0x11E) = func_002b2d00(*(s16 *)(obj + 0x11E), 1, 0, (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), 2);
+            *(s16 *)(obj + 0x120) = func_002b2d50(*(s16 *)(obj + 0x11E), *(s16 *)(obj + 0x120), (s16)(*(s32 *)(func_002e4870(0) + 8) - 1), r, -1);
+        }
+        break;
+    }
+    fdiff = (f32)(*(s16 *)(obj + 0x11E) - *(s16 *)(obj + 0x120));
+    facc = *(f32 *)(obj + 0x124);
+    facc = 0.0f + *(f32 *)(func_002b6150(0xAA) + 0x3C) + facc * fdiff;
+    *(f32 *)(func_002b6150(0xB1) + 0x3C) = facc;
+    facc = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
+    *(f32 *)(func_002b6150(0xB5) + 0x3C) = facc;
+}
 /* measured: nd 67 best (attempts: 67 cast-fix, 67 decl+hoist, ~65 n:s32+
    decl-order, 98 c-first-statement — worse, mwcc sinks the t load below the
    2a30 call and saves arg0). All call shapes and stack layout match; residual

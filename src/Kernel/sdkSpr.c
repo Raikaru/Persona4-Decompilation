@@ -319,8 +319,7 @@ void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y, u8 arg2, u8 arg
    adaptation rather than a settled floor -- re-attempt from the m2c draft with
    the brief's recipes before treating any of it as established. */
 /* Measured nd 9 (object 176 / window 192); the body matches the allocation, field initialization, callback, and result path but retains nine normalized instruction differences. */
-// FUN_0046D5F0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0046D5F0
 s32 func_0046d5f0(u8 *arg0, s32 arg1) {
     s32 temp_16;
     u8 *temp_2;
@@ -337,12 +336,14 @@ s32 func_0046d5f0(u8 *arg0, s32 arg1) {
     *(s32 *)(temp_2 + 4) = arg1;
     temp_5 = *(u8 **)temp_2;
     output = *(u8 **)(temp_5 + 0x204);
-    index = *(s32 *)(output + (arg1 << 7) + 0x14);
-    temp_16 = *(s32 *)(temp_5 + (index << 2) + 0x104);
+    output = (u8 *)sdkAddOffset((u32)(arg1 << 7), (u32)output);
+    index = *(s32 *)(output + 0x14);
+    temp_16 = *(s32 *)((u8 *)sdkAddOffset((u32)(index << 2), (u32)temp_5) + 0x104);
     jtbl_008873EC[0](temp_2);
     return temp_16;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046d5f0);
-#endif
+// FUN_0046D6A0
+void func_0046d6a0(void)
+{
+}
 

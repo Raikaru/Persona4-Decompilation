@@ -122,29 +122,13 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
 }
 
 
-/* REACHABLE, NOT YET REDUCIBLE. tools/permute_ast.py reaches byte-exact here;
-   sweep it with `tools/permute_sweep.py --engine ast --time 150 --targets <json>`.
-   The winning source is not committable -- uninitialized reads, self-assignments,
-   comma operators and up to 21 dead temps. Reducing it to honest C is unfinished
-   work, not a floor: the same sweep produced a ONE-LINE honest fix for sdkLbox
-   func_00470970, which carried a firmer floor verdict than this one. Start from the
-   saved region under build/permute/, not from scratch.
- * A permute_sweep --engine ast run reported this CRACKED_AST. It is a PHANTOM: the
- * saved region calls `inline_fn(work)`, a helper decomp-permuter extracts during its
- * own scoring and that permute_ast does not write out, so the region does not even
- * compile in this file (nd 245 / 364B when spliced back). permute_sweep now proves a
- * region reproduces before claiming CRACKED_AST, and reports AST_HIT_UNREPRODUCIBLE
- * otherwise. Do not re-chase this from build/permute/. Baseline re-measured at nd 8;
- * #pragma schedule off changes nothing, so the residual is codegen, not scheduling. */
-// FUN_004B5800 NONMATCHING. Update linked render matrices and cache their translations.
-/* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
- * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
- * call sites. Retail emits the loop's per-entry lw/sll pair load-first;
- * MWCC always schedules the sll ahead of the reload: measured nd 5 (fndiff,
- * = 2 real swapped words + 3 zero-padding tail words) for the while-loop
- * inline form and the for-loop form; request/offset locals 61; pragma
- * schedule on 72; optimization_level 3 72. Inline asm would force it but is
- * banned. Accepted compiler floor (instruction scheduling). */
+/* The loop body is executable-equivalent but MWCC b210 schedules the
+   per-entry pair as `sll $s0,$s3,3` before `lw $v1,4($s4)`; retail has
+   those two words reversed at fndiff offsets 84 and 88. The remaining
+   differences are retail-only zero-padding words at offsets 324, 328, and
+   332. While/for loop forms, local offset/request temporaries, and schedule
+   pragmas were ruled out. obj 324B/window 336B, nd 5. Committed at nd 8. */
+// FUN_004B5800 NONMATCHING
 #ifdef NON_MATCHING
 void func_004b5800(RuntimeWork* work)
 {
@@ -252,47 +236,9 @@ void func_004b5f80(RuntimeWork* work, const u8* color)
 }
 
 
-// FUN_004B7300 NONMATCHING. Measure both path-edge distances for one section.
-#ifdef NON_MATCHING
-f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
-{
-    s32 firstIndex;
-    s32 nextIndex;
-    RuntimeVec3 delta;
-    f32 total;
-    f32 result;
-    f32 length;
-
-    firstIndex = func_004b7800((const RuntimeWork*)work, index);
-    nextIndex = func_004b7800((const RuntimeWork*)work, index + 1);
-    total = 0.0f;
-
-    delta.x = work->firstVectors[nextIndex].x -
-              work->firstVectors[firstIndex].x;
-    delta.y = work->firstVectors[nextIndex].y -
-              work->firstVectors[firstIndex].y;
-    delta.z = work->firstVectors[nextIndex].z -
-              work->firstVectors[firstIndex].z;
-    total += RwV3dLength(&delta);
-
-    delta.x = work->secondVectors[nextIndex].x -
-              work->secondVectors[firstIndex].x;
-    delta.y = work->secondVectors[nextIndex].y -
-              work->secondVectors[firstIndex].y;
-    delta.z = work->secondVectors[nextIndex].z -
-              work->secondVectors[firstIndex].z;
-    length = RwV3dLength(&delta);
-    result = total + length;
-    result *= *(f32*)((u8*)work->config[0] + 0x2c);
-    return result;
-}
-#else
+// FUN_004B7300
 INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b7300);
-#endif
-
-
-
-// FUN_004B7800. Translate a logical sample index into the ring buffer.
+// FUN_004B7800
 s32 func_004b7800(const RuntimeWork* work, s32 index)
 {
     s32 result;
