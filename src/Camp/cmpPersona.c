@@ -225,7 +225,47 @@ void func_00137570(u8* arg0) {
 
 
 // FUN_001375F0
-INCLUDE_ASM("asm/nonmatchings/cmpPersona", func_001375f0);
+/* measured: probing O1 for retail's extra saved pointer. */
+#pragma optimization_level 1
+void func_001375f0(u8 *arg0)
+{
+    f32 f;
+    u32 val;
+    s32 i;
+    u32 random;
+    u8 *p;
+    u32 *q;
+
+    for (i = 0; i < 0x24; i++) {
+        if (func_003b7060() & 3) {
+            p = arg0 + i * 0x30;
+            val = (func_003b7060() % 7U) * 0x2C;
+            if (val >= 0) {
+                f = (f32)val;
+            } else {
+                val = (val >> 1) | (val & 1);
+                f = (f32)(s32)val;
+                f += f;
+            }
+            *(f32 *)(p + 0x159C) = f;
+            *(f32 *)(p + 0x1594) = f;
+            *(u32 *)(p + 0x1598) = 0x43FA0000;
+            *(f32 *)(p + 0x15A8) = *(f32 *)(p + 0x1598);
+            *(s32 *)(p + 0x15A0) = 0xC2C80000;
+            q = (u32 *)(p + 0x15BC);
+            random = func_003b7060() % 10U;
+            *q = random;
+            *(s32 *)(p + 0x15C0) = random + 0xA;
+        } else {
+            p = arg0 + i * 0x30;
+            *(f32 *)(p + 0x1598) = *(f32 *)(p + 0x15A0);
+        }
+    }
+    *(s16 *)(arg0 + 0x22) = 0;
+    *(s32 *)(arg0 + 0x1C) |= 0x1000;
+}
+/* measured: closing O1 probe. */
+#pragma optimization_level 2
 
 // FUN_00137740
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000

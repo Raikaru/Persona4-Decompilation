@@ -1015,39 +1015,64 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ae90);
 
 
 void func_0034c270(Vec2f, u8, s32, f32);
-/* measured: re-tested with recipe A (s32 local v, u32 copy c, (s32) cast on
-   the OR result, x+x doubling) — the single bare bltz survives and the
-   srl/andi/or/mtc1/cvt/add.s neg path decodes byte-identically in shape
-   (best nd 100, was 103). The residual is two documented families: (1) the
-   s64-zero fold — retail zeroes sp20/sp24 with two `sw $0,0x20/0x24` and
-   re-reads them as `ld $a0,0x20($sp)` at the func_0034c270 calls (high word
-   then overwritten by lbu 0x505 into $a1); mwcc b210 dead-store-eliminates
-   both sw and folds the arg to `move $a0,$zero`, shifting the whole body by
-   8B so every branch target differs (~80 words). Tried (s64)sp20,
-   *(s64 *)&sp20, s32-pair locals, or-constructs, 4 declaration orders —
-   all nd 100-116. (2) neg-path register allocation: mwcc converts into $f0
-   and doubles into $f1 (cvt.s.w $f0 / add.s $f1,$f0,$f0, or-result in $v0)
-   where retail converts into $f1 and doubles in place (cvt.s.w $f1 / add.s
-   $f1,$f1,$f1, or-result in $v1); also move $a3,$a0 vs retail move $a1,$a0.
-   Fixed during re-test: func_0045d6e0's real signature is (void *, void *,
-   s32, f32) (callee m2c draft code1_0045.c; old (f32,u8*,s32*,s32) was
-   wrong) and the FMA seed is 231.0f (0x43670000), not 230.0f. */
-/* Wave-14 re-measure: the s64-ZERO FOLD IS BREAKABLE — func_0034c270's first
-   arg is an 8-byte struct passed BY VALUE (cmpConfig.c declares Vec2f,
-   m2c draft code1_0034.c shows s64 with `sp48 = arg0` + low-word float
-   bit-read). Declaring the extern `(Vec2f, u8, s32, f32)` and passing a
-   `Vec2f z; z.x = z.y = 0.0f;` local forces the two `sw $0,0x20/0x24` +
-   `ld $a0,0x20` store-and-reload materialization exactly like retail —
-   nd 101 -> 47 (best, 4 attempts: s64 pair 101, Vec2f 50, Vec2f + hoisted
-   f53c 47). Remaining 47 = pure scheduling/colouring: (1) the call arg
-   order [retail ld $a0;lwc1 $f12;lbu $a1;addiu $a2] vs mwcc lwc1-first
-   (f32 hoist) or lbu-first (inline) — never the ld-first order;
-   (2) neg-path abs register choice (or $v0/cvt $f0 vs retail or $v1/cvt
-   $f1); (3) the 333.0f materializes via addiu 0x14d+cvt.s.w in mwcc vs
-   retail lui 0x43a6 — a mtc1-budget/colouring artefact;
-   (4) arg0 copy $a3 vs retail $a1. */
-// FUN_0011B110
+/* measured: reconstructed plain-C body, nd 21 (obj 444B / window 448B). Retail's Vec2f zero aggregate, reversed linear-switch case declaration (0,2,4,3,1), signed-byte absolute-value reconstruction, and the single-precision `231.0f - 166.0f * (value / 255.0f)` arithmetic all compile without asm; MWCC emits the retail adda.s/msub.s chain. The remaining 21-word residual is call argument materialization/register coloring plus the 4-byte tail. Tried direct and hoisted intensity forms, u32 fold/local result, switch orders, pointer aliases, and explicit FMA seed. Committed at nd 21. */
+// FUN_0011B110 NONMATCHING
+#ifdef NON_MATCHING
+void func_0011b110(u8 *arg0)
+{
+    Vec2f z;
+    f32 intensity;
+    s32 state;
+    s32 temp;
+    u32 bits;
+    f32 value;
+    f32 norm;
+    s32 work[4];
+    u8 color[4];
+    z.x = 0.0f;
+    z.y = 0.0f;
+    state = *(s32 *)(arg0 + 0x52C);
+    switch (state) {
+    case 0:
+    case 2:
+    case 4:
+        intensity = *(f32 *)(arg0 + 0x53C);
+        func_0034c270(z, *(u8 *)(arg0 + 0x505), 0x10, intensity);
+        return;
+    case 3:
+        intensity = *(f32 *)(arg0 + 0x53C);
+        func_0034c270(z, *(u8 *)(arg0 + 0x505), 0x23, intensity);
+        return;
+    case 1:
+        temp = *(u8 *)(arg0 + 0x505);
+        if (temp >= 0) {
+            value = (f32)temp;
+        } else {
+            bits = (u32)temp;
+            bits = (bits >> 1) | (bits & 1);
+            value = (f32)(s32)bits;
+            value = value + value;
+        }
+        norm = value / 255.0f;
+        work[0] = 0;
+        work[1] = (s32)(231.0f - 166.0f * norm);
+        work[2] = 0x280;
+        work[3] = (s32)(332.0f * norm);
+        color[0] = 0xFF;
+        color[1] = 0xE9;
+        color[2] = 0x2C;
+        color[3] = *(u8 *)(arg0 + 0x505);
+        D_00887300[0](1, 0);
+        func_0045d6e0(color, work, 0, 0.0f);
+        return;
+    default:
+        func_0046d730(D_005E4868, 0xB3D);
+        return;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
+#endif
 
 
 
@@ -1518,9 +1543,88 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bdc0);
    t1..t5 (a single reassigned local makes mwcc fold the masks); switch cases
    declared 0,1,3,2,4 to get retail's 4,2,3,1,0 test order; u8-typed 0xFF
    stores (s8 materialises -1). */
-// FUN_0011BF10
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bf10);
+/* measured: reconstructed full 0x270-byte body. Retail's state-switch/call register setup, mask chain, vector slots, interpolation calls, and final 0x80000 flag cleanup match; the six differing words are the documented (f32)0x303 materialization/load scheduling. Tried the distinct mask temporaries, switch declaration order 0,1,3,2,4, Vec2f b-first slots, and s8/u8 stores. Committed at nd 19. */
+// FUN_0011BF10 NONMATCHING
+#ifdef NON_MATCHING
+void func_0011bf10(u8 *arg0)
+{
+    u8 *w;
+    s32 flags;
+    s32 t1;
+    s32 t2;
+    s32 t3;
+    s32 t4;
+    s32 t5;
+    s32 t6;
+    s32 state;
+    u16 t7;
+    Vec2f v2;
+    Vec2f v;
+    f32 ret;
 
+    w = ((SdkTask *)arg0)->work;
+    flags = *(s32 *)(w + 0x534);
+    if ((flags & 1) != 0 && (flags & 4) == 0 && (flags & 0x400000) == 0) {
+        t1 = flags | 4;
+        *(s32 *)(w + 0x534) = t1;
+        t2 = t1 & ~2;
+        *(s32 *)(w + 0x534) = t2;
+        t3 = t2 & ~0x800;
+        *(s32 *)(w + 0x534) = t3;
+        t4 = t3 & ~0x1000;
+        *(s32 *)(w + 0x534) = t4;
+        t5 = t4 & ~0x2000;
+        *(s32 *)(w + 0x534) = t5;
+        t6 = t5 & ~0x4000;
+        *(s32 *)(w + 0x534) = t6;
+        *(s8 *)(w + 0x88) = -1;
+        *(s32 *)(w + 0x444) = 0xC3E10000;
+        state = *(s32 *)(w + 0x52C);
+        switch (state) {
+        case 0:
+            func_0045af60(0, 1, 0, 4);
+            break;
+        case 1:
+        case 3:
+        case 2:
+        case 4:
+            break;
+        default:
+            func_0046d730(D_005E4868, 0xCCC);
+            break;
+        }
+        *(u16 *)(w + 0x508) = 0;
+        *(u8 *)(w + 0x504) = *(u8 *)(w + 0x505);
+        *(u8 *)(w + 0x506) = 0xFF;
+        func_0011aaa0(w, 5);
+        v.x = (f32)0x303 + *(f32 *)(w + 0x4FC);
+        v.y = -59.0f + *(f32 *)(w + 0x500);
+        ret = func_0011de80(*(u8 **)(w + 0x4F8), &v2);
+        if (ret == 0.0f || ret == 1.0f) {
+            v2.x = 131.0f + *(f32 *)(w + 0x4FC);
+            v2.y = -59.0f + *(f32 *)(w + 0x500);
+            func_0011e2b0(*(u8 **)(w + 0x4F8), &v2, &v);
+            func_0011e370(*(u8 **)(w + 0x4F8));
+        } else {
+            func_0011e2b0(*(u8 **)(w + 0x4F8), &v2, &v);
+        }
+        flags = *(s32 *)(w + 0x534);
+        if ((flags & 0x80000) != 0) {
+            t7 = *(u16 *)(w + 0x458);
+            if ((t7 & 2) == 0) {
+                if ((t7 & 1) == 0) {
+                    *(s32 *)(w + 0x534) = flags & ~0x80000;
+                } else {
+                    *(u16 *)(w + 0x45A) = 0;
+                    *(u16 *)(w + 0x458) |= 2;
+                }
+            }
+        }
+    }
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bf10);
+#endif
 
 
 // FUN_0011C180
@@ -1866,29 +1970,8 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
    both conditions, early returns, and opt_rebuildconditionals / schedule /
    opt_common_subs off -- 14 spellings, none below 19. Branch-collapse floor.
    Committed at nd 46 (improved to nd 44 with #pragma schedule off). */
-// FUN_0011CAF0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: #pragma schedule off improves this body from nd 46 to nd 44 (park_probe). */
-#pragma schedule off
-void func_0011caf0(u8 *arg0)
-{
-    u8 *p;
-    u32 flags;
-
-    p = *(u8 **)(arg0 + 0x38);
-    flags = *(u32 *)(p + 0x534);
-    if (!!(flags & 0x800) != 0) {
-        if (*(s8 *)(p + 0x88) != -1) {
-            if (func_00115020(p + 0x84, (flags & 0x100000) != 0) != 0) {
-                func_0045af60(0, 0, 0, 0);
-            }
-        }
-    }
-}
-#pragma schedule on
-#else
+// FUN_0011CAF0
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011caf0);
-#endif
 // FUN_0011CB70
 s32 func_0011cb70(u8 *arg0, u8 *arg1)
 {
@@ -2307,47 +2390,8 @@ void func_0011dc50(u8 *arg0)
    typed form vs raw deref (per assignment note), s32 vs u8 byte locals —
    identical. Register-colouring floor. */
 /* measured: full body decompiled (guard chain, two float lerps, func_00364680 + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as func_0011dc50 note). Committed at nd 53. */
-// FUN_0011DD50 NONMATCHING
-#ifdef NON_MATCHING
-void func_0011dd50(s32 arg0)
-{
-    u8 *work;
-    s32 cond;
-    f32 half;
-    f32 f0;
-    f32 f1;
-
-    work = *(u8 **)(arg0 + 0x38);
-    cond = *(s32 *)work;
-    if (cond == 3) {
-        cond = *(s32 *)(work + 4);
-        if (cond != 0) {
-            cond = *(s32 *)(work + 0x14);
-            if (cond != 0) {
-                half = 3.0f;
-                f0 = *(f32 *)(work + 0x28);
-                f1 = *(f32 *)(work + 0x40);
-                f0 = f1 + (f0 - f1) / half;
-                *(f32 *)(work + 0x40) = f0;
-                f0 = *(f32 *)(work + 0x2C);
-                f1 = *(f32 *)(work + 0x44);
-                f0 = f1 + (f0 - f1) / half;
-                *(f32 *)(work + 0x44) = f0;
-                func_00364680(*(s32 *)(work + 0xC), *(s32 *)(work + 0x50), 1, 0,
-                              *(f32 *)(work + 0x18),
-                              *(f32 *)(work + 0x40) + *(f32 *)(work + 0x38),
-                              *(f32 *)(work + 0x44) + *(f32 *)(work + 0x3C),
-                              *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
-                              512.0f, 512.0f);
-                func_003f6440(3, 0x717FB);
-                func_003f6440(2, 0x44);
-            }
-        }
-    }
-}
-#else
+// FUN_0011DD50
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dd50);
-#endif
 
 
 

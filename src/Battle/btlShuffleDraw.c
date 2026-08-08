@@ -498,12 +498,25 @@ s32 func_00375a50(u8 *arg0) {
 }
 
 
-/* measured: retail keeps idx in $a1 (arg1's dead register) and arg0 in $a0, recomputing
-   addu $v1,$a1,$a0 per load (nd 29); mwcc b210 CSEs the base add into $a0 across the
-   branch and keeps idx in $v0. Tried u16/u32 temps, s32/u8* arg0, inline vs named idx,
-   operand orderings — all nd 29. Base-address CSE scheduling floor. */
+/* The source call must place the two converted values in f12/f14 around the
+   integer argument as func_00373cb0(var_f12, 0.0f, 0, var_f14); O2 CSEs the
+   base-address materialization and swaps the resulting argument registers.
+   measured: O1 plus that call order gives a byte-exact match, obj 204B of a
+   208B window. */
+#pragma optimization_level 1
 // FUN_00375A70
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375a70);
+f32 func_00375a70(u8 *arg0, s32 arg1) {
+    f32 var_f12;
+    f32 var_f14;
+    s32 idx;
+
+    idx = arg1 * 0xE8;
+    var_f12 = (f32)(u32)*(u16 *)((u8 *)idx + (u32)arg0 + 0x1D70C);
+    var_f14 = (f32)(u32)*(u16 *)((u8 *)idx + (u32)arg0 + 0x1D70E);
+    return func_00373cb0(var_f12, 0.0f, 0, var_f14);
+}
+/* measured: O1 probe for f70 address materialization */
+#pragma optimization_level 2
 
 
 /* measured: reconstructed to nd 88 (obj 504B, window 528B). The ACC-fused rotation
@@ -561,12 +574,26 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 }
 
 
-/* measured: retail keeps arg0/s1, idx/s0, p/s2 in three saved registers, using p for all
-   four uses; mwcc b210 folds arg0+idx into one register (p/s0) and reads arg0 from a0
-   directly, needing only two saved registers (nd 38). All variants with idx/p/arg0
-   declaration permutations and operand orderings produce the same nd. */
-// FUN_00375F00
+/* measured: O1 near miss (nd 21, obj 156B/window 160B). Retail keeps arg0 in $s1, idx in $s0, and p in $s2; this body preserves that frame and the first call but b210 still recomputes the base for the second call and final store. Committed at nd 21. */
+// FUN_00375F00 NONMATCHING
+#ifdef NON_MATCHING
+#pragma optimization_level 1
+void func_00375f00(u8 *arg0, s32 arg1) {
+    s32 idx;
+    u8 *p;
+
+    idx = arg1 * 0xE8;
+    p = (u8 *)idx + (u32)arg0;
+    func_00370410(p + 0x1D6AC);
+    *(s32 *)(p + 0x1D6A4) = 5;
+    func_00370a80((u8 *)idx + (u32)arg0 + 0x1D70C);
+    *(s32 *)((u8 *)idx + (u32)arg0 + 0x1D6A8) = 3;
+}
+/* measured: restore baseline optimization level after the parked probe. */
+#pragma optimization_level 2
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375f00);
+#endif
 
 
 // FUN_00375FA0

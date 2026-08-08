@@ -124,7 +124,6 @@ extern u8 *iGpffff9db0;
 extern s32 iGpffffb208;
 extern void func_004b1250(s32 a, void *b);
 extern void func_00454bd0(void *ptr);
-extern u32 PTR_DAT_00762ea0;
 extern u8 D_005EFD20[];
 extern u8 D_005EFD40[];
 extern u8 D_005EFD60[];
@@ -166,37 +165,11 @@ s32 func_0014ef80(void)
     return func_004553c0(iGpffffb204) != 0;
 }
 
-/* measured: retail hoists the loop bases D_005F05B8+s17v and D_005F0590 into
-   preheader temps and folds -0x28 into the lbu displacement, and does not
-   mask s16v before `s16v-1`; mwcc b210 rematerializes the bases inside the
-   loop body (nd 135). Tried 4 spellings: (1) u16 params + (u16) call casts
-   -- mwcc masks params at entry and CSEs &iGpffff9db0 into $s5/$s6, frame
-   grows to -0x100; (2) s32 params + (s16) casts + iGpffff9db0 as pointer --
-   prologue exact, but loop CSE keeps D_005F0590[s17v] address in $s0 across
-   calls and args land $s4/$s3; (3) loop lookup spelled D_005F05B8[s17v-0x28]
-   (retail's own symbol choice, breaks the CSE) -- prologue/args/registers
-   all exact, remaining diffs are the s16v mask, branch-2 base rematerialize,
-   and the loop LICM; (4) func_00442088 prototype s32 + (s16) args (pure
-   dsll32/dsra32) + swapped decl order (s16v->$s0, s17v->$s1) -- exact
-   through the whole function except the LICM hoist and the s16v u16 mask.
-   The last lever is scoped `#pragma opt_loop_invariants on` (unused here) or
-   pointer locals for the two table bases; s16v should be s32 not u16. */
 // FUN_0014EFC0
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014efc0);
 // FUN_0014F310
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014f310);
 
-/* measured: retail hoists &D_008873F4 into $s3 once and does `lw $v0, 0($s3)`
-   at both call sites; mwcc b210 with a local `tbl = D_008873F4` emits a dead
-   early lui/addiu copy plus a fresh rematerialization at the FIRST call
-   (nd 82, all remaining rows are that copy and the flag/r/tbl register
-   placement). Tried: direct D_008873F4[0]() twice (no hoist, per-call
-   lui/lw), scalar function-pointer extern (GPREL16 load, retail is
-   absolute), local u8 **tbl in every declaration order and init spelling
-   (&D_008873F4[0], init-in-decl, after-jal assignment) -- all nd 82-90.
-   Also: the two strlen loops are `while (*p)` / `while (*p != '/')` (test
-   first, retail branches to the test), D_00754D88 is s8[] (retail uses lb),
-   flag/r order matches when declared [flag, r, p] modulo the dead copy. */
 // FUN_00150970
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00150970);
 
@@ -215,20 +188,6 @@ s32 func_00150c80(u8 *arg0)
     return 1;
 }
 
-/* measured: every func_003e2ce0(s16, sp50[1]) call site is the known b210
-   call-argument floor -- retail sets args [move $a0; lw $a1, 0x54($sp)],
-   mwcc emits [lw $a1; move $a0] (same floor documented in effObjectParticle
-   func_004aea70 and k_clumpInstance func_00191e90). Tried: s32/u32 casts on
-   both args, hoisting sp50[1] into a local -- identical swapped pair each
-   time (5 call sites, nd 185 total with layout). Additionally the retail
-   stack layout (0x50..0x7C with 0x58-0x64 and 0x78 holes, frame -0x80)
-   implies a 48-byte record local (12-word array) whose fields sit at 0x50,
-   0x54, 0x68, 0x6C, 0x70, 0x74, 0x7C; separate s32 locals compile to a
-   packed -0x70 frame and shift every sp offset. Case 11/16's s18 =
-   arg0->0xA44 load wants to sit between the func_003e2f60 and func_004667d0
-   calls (separate alloc statement), which perturbs callee-saved allocation
-   (arg0 drifts to $s2). Declared case order 11,16,35,22,12 matches retail's
-   reversed beq-chain test order (12,22,35,16,11) and body layout exactly. */
 // FUN_00150CE0
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00150ce0);
 
@@ -597,21 +556,6 @@ void func_00151f80(u8 *arg0)
     jtbl_008873EC[0](arg0);
 }
 
-/* measured: retail materializes &D_00887300[0] via lui+addiu BEFORE the
-   constant args and loads lw 0($v0) after them (3 instructions, no fold);
-   mwcc b210 emits the args first, then lui+lw with the %lo folded into the
-   load (2 instructions) -- every D_00887300[0](const, const) call site
-   differs (8 sites, nd 242 all told: the 2-word form + the 4-byte shift
-   ripples the whole tail). Tried D_00887300[0](), (*D_00887300)(),
-   (D_00887300[0])() -- identical folded output through the mwccgap
-   assembler; a fn-ptr local p = D_00887300[0] gives direct jalr (no per-call
-   reload, retail reloads). The 2-param old-style definition
-   (void f(a0, a1) u8 *a0; u8 *a1;) is required: the matched func_00152930
-   assigns func_00152170 to a void(*)(void) slot without a cast, and retail
-   reads arg1 from $a1. Everything else -- the Vec4 struct copies into
-   0xA50/0xA60, the 8x8-byte copy loop into 0xA70, the two flag chains
-   (nested-if for cbc10, &&-form for cbe80), the D_00887300(0xF, ...) byte
-   merge, the five iGpffffbaXX gp bytes -- matched byte-identically. */
 // FUN_00152170
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152170);
 
@@ -812,53 +756,12 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
     }
 }
 
-/* measured: retail reuses $s0 for p16 (blocks 1-3) then the loop-1 counter,
-   keeping p17 in $s1 and the args at $s2/$s3 with p20 in $s4; mwcc b210 holds
-   p16 in $s0 for the whole function and shifts the chain (args land $s3/$s4,
-   counter $s1, p17 $s2) -- tried function-scoped and block-scoped p16, inline
-   pointer reloads (mwcc re-loads arg0->off->4 per use, nd 259), and every
-   pointer declaration order (nd 116, nd unchanged). The Vec3 add blocks
-   (sp100/spE0/spC0/spA0, and the loop-2 sp70) match byte-identically with
-   Vec3 struct assignments + 12-byte f32[3] buffers declared in descending
-   address order (sp100, spF0, spE0, spD0, ...) -- the earlier f32[4] and
-   separate-f32 spellings break the batched load/store or the slot layout.
-   D_005EFE28/D_005EFE30 must be array-typed (absolute lui/ld + lwc1; scalar
-   extern gives GPREL16). All loop-2 case 0/2 and case 1 bodies (matrix
-   init, func_003e0870/003e42a0/004b1250 calls, the 0x20003 OR) matched. */
 // FUN_00152E50
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152e50);
 
-/* measured: retail groups the two D_005EFE38/D_005EFE40 loads back-to-back
-   (ld $a2; lwc1 $f0) before the two stores, and hoists `addiu $a1, $sp, 0x40`
-   to the top for the first func_003e9d50 call; mwcc b210 interleaves the first
-   store between the loads no matter the spelling. Tried: two member
-   assignments into a struct local (nd 13), temp locals for the loads (nd 13),
-   one struct-copy assignment from a struct-typed extern (copies 16B incl.
-   padding vs retail's 12B, nd 5+), pointer local p = &sp40 with stores
-   through p (nd 5, stores use $a1 base and stay interleaved), and pointer
-   local passed to the calls (p gets a callee-saved register and the frame
-   grows, nd 100). All with real (s32,void*,f32,s32) prototype so the f32
-   arg stays single-precision. Compiler-floor scheduling artifact; the body
-   and every call site were byte-identical at nd 5. */
 // FUN_00153300
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00153300);
 
-/* measured: retail loads 90.0f into $f1 BEFORE the arg2 sign branch and keeps
-   var_f0 in $f0 (mtc1/cvt.s.w write $f0, add.s doubles in place); mwcc b210
-   with the same statements allocates var_f0 to $f1 and materializes 90.0f
-   into the dead $f0 right before the join's mul.s (nd 106, ~9 float words
-   plus a nop that shifts the whole tail). Tried: declaration orders,
-   temp_f20 = 90.0f; then temp_f20 *= var_f0 (mwcc sinks the load below the
-   early return), 2.0f * (emits mul.s not add.s), separate s32 temp for the
-   or-result -- all nd >= 106. Loop 2 also insists p18 (p20+j*24, live across
-   calls) -> $s1 while retail has p17 (arg0+j*24, recomputed in-branch) ->
-   $s1; p8 (copy source base) gets a callee-saved reg in mwcc but t0 in
-   retail, and the type test reloads arg0+j*0x18+0x120 via p8 instead of the
-   pre-walk p7 register. Everything else -- the copy loop, the type dispatch
-   (if/else-if 0/2 then 1), the Vec3 struct copy of 0xA24..0xA2C, the s16
-   (f32)(s32)(((u32)arg2>>1)|(arg2&1)) + x+x doubling, the (s32) casts on
-   func_00478750/func_004b11b0 args -- matched byte-identically in the best
-   build (nd 106 = only the float regs + loop-2 addressing). */
 // FUN_001534A0
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_001534a0);
 
