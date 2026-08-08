@@ -4,6 +4,8 @@
 #include "type.h"
 extern void func_002777f0();
 extern void func_0043f9c8();
+extern s32 func_002774d0();
+extern void func_00278640(s32 arg0, s32 arg1, s32 arg2);
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
 extern void func_0046d730(u8 *file, s32 line);
@@ -22,12 +24,28 @@ extern void func_002781e0_typed(s32, u32);
 
 extern u32 func_00278e90(int param_1);
 
+/* measured: a named u8 boolean preserves retail's sltu materialisation;
+   object 188B matches the 192-byte retail window with zero padding. */
 // FUN_00290880
-INCLUDE_ASM("asm/nonmatchings/evtMessage", func_00290880);
-/* measured: retail booleanises the test (sltu $v1,$0,$v1) and branches on the result;
-   mwcc b210 collapses it into a bare beqz. A named boolean local, a doubled != 0, and
-   #pragma opt_rebuildconditionals off all give the identical nd 16 - the pragma governs
-   the opposite direction (collapsing branches INTO booleans), so it has no effect here. */
+s32 func_00290880(u8 *arg0, s32 arg1) {
+    s32 temp_2;
+    u8 active;
+
+    active = (*(s32 *)arg0 != 0);
+    if (active != 0) {
+        func_0046d730(D_0063C820, 0x2D);
+    }
+    *(s32 *)(arg0 + 4) = 0;
+    temp_2 = func_002774d0(arg1);
+    if (temp_2 < 0) {
+        func_0046d730(D_0063C820, 0x33);
+    }
+    func_00278640(temp_2, 0, 0);
+    *(s32 *)(arg0 + 8) = temp_2;
+    *(s32 *)arg0 = 1;
+    func_0043f9c8(arg0 + 0x20, -1, 0x14);
+    return temp_2;
+}
 // FUN_00290940
 extern void func_00290b00_narg(void);
 extern void func_00290a50_narg(void);

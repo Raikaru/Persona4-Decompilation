@@ -250,8 +250,40 @@ s32 func_0022b040(s64 *arg0)
     return 1;
 }
 
+/* measured: -O1 retained loop-invariant id before the loop branch; exact MATCH. */
+#pragma optimization_level 1
+ 
 // FUN_0022BA40
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022ba40);
+void func_0022ba40(u16 arg1)
+{
+    s32 value;
+    s32 id;
+    u8 *p;
+
+    p = *(u8 **)(DAT_0076449c + 0x180);
+    id = 0x10E;
+    goto check;
+body:
+    value = *(u16 *)(p + 0xA4);
+    if (value == id) {
+        goto found;
+    }
+    p = *(u8 **)(p + 0xA6C);
+check:
+    if (p != NULL) {
+        goto body;
+    }
+found:
+    if (p != NULL) {
+        p = func_001b0c80(p);
+        if (p != NULL) {
+            func_001f2eb0(p, 0);
+            func_001f7530();
+        }
+    }
+}
+/* measured: -O1 retained loop-invariant id before the loop branch; exact MATCH. */
+#pragma optimization_level 2
 
 // FUN_0022BAC0
 s32 func_0022bac0(void)

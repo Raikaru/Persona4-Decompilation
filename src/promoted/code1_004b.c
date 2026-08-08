@@ -33,8 +33,11 @@ extern u8 D_00714658[];
 extern void func_004866e0(u8 *arg0, u32 *arg1);
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0);
+extern void func_004bd6a0(u8 *arg0, s32 arg1);
 extern void func_004bd9f8(u8 *arg0);
+extern void func_00486330(s32 arg0, void *arg1);
+extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
+extern f32 iGpffff836c;
 extern void func_004866f0(u8 *arg0, u32 *arg1);
 extern void func_0048a150(void *arg0, void *arg1);
 
@@ -126,7 +129,14 @@ void func_004b11b0(void)
 }
 
 // FUN_004B1290
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1290);
+void func_004b1290(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
+{
+    u8 scratch[16];
+
+    func_004bcf20(iGpffff836c * arg1, iGpffff836c * arg2, iGpffff836c * arg3);
+    __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(scratch) : "memory");
+    func_00486330(arg0, scratch);
+}
 
 // FUN_004B13D0
 void func_004b13d0(void)
@@ -417,15 +427,14 @@ u8 *func_004b57a0(void *object, s32 arg1) {
 }
 
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the load (nd 8 -> 0). */
-
 // FUN_004BD6B8
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6b8);
 
 // FUN_004BD750
+/* measured: schedule on fills func_004bd750's retail jr delay-slot load. */
 #pragma schedule on
 s32 func_004bd750(u8 *arg0) {
     return *(s32 *)(arg0 + 8);
 }
+/* measured: close the schedule bracket around func_004bd750. */
 #pragma schedule off

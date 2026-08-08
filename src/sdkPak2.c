@@ -77,19 +77,12 @@ case6:
     } while (p != NULL);
 }
 
-/* measured: the best parked body is nd 11, object 284B/window 288B. Split
-   `idx = base + count; idx = idx * 4;` before loading tbl and keep the
-   table-entry expression `*(u8 **)(tbl + 0x10) + idx`; this is the only
-   source shape that improves the earlier nd 14 body. fndiff's remaining
-   rows are offset 60 (candidate `lw $a0,8($s2)`, retail `sll $a0,$v0,2`),
-   64 (candidate `sll $v1,$v0,2`, retail `lw $v1,8($s2)`), 68 (candidate
-   `lw $v0,0x10($a0)`, retail `lw $v0,0x10($v1)`), 72 (candidate
-   `addu $v0,$v0,$v1`, retail `addu $v0,$a0,$v0`), and 108 (candidate
-   `addiu $a0,$a0,0x18`, retail `addiu $a0,$v1,0x18`). Declaration order,
-   integer casts, address-taken index locals, table declarations, and pragma
-   probes stayed nd 11 or worsened. Committed at nd 11. */
-// FUN_00468BF0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: keeping `idx = base + count; idx = idx * 4;` followed by the
+   explicit `idxp = (u8 *)idx` forces b210 to emit the retail shift before
+   the table loads and preserves the retail addu order. The candidate is
+   byte-exact (object/window 288B); prior declaration-order, integer-cast,
+   address-taken-index, table-declaration, and pragma probes were ruled out. */
+// FUN_00468BF0
 s32 func_00468bf0(u8 *arg0, s32 arg1)
 {
     s32 base;
@@ -98,19 +91,22 @@ s32 func_00468bf0(u8 *arg0, s32 arg1)
     s32 idx;
     u8 *slot;
     u8 *tbl;
-    u8 *ent;
+    u8 *idxp;
 
     base = *(s32 *)(arg0 + 0x3C);
     count = *(s32 *)(arg0 + 0x44);
     if (count < *(s32 *)(arg0 + 0x40) - base + 1) {
         idx = base + count;
         idx = idx * 4;
+        idxp = (u8 *)idx;
         tbl = *(u8 **)(arg0 + 8);
-        ent = *(u8 **)(tbl + 0x10) + idx;
-        len = *(s32 *)(ent + 8) - *(s32 *)(ent + 4);
+        len = *(s32 *)(idxp + (u32)*(u8 **)(tbl + 0x10) + 8) -
+              *(s32 *)(idxp + (u32)*(u8 **)(tbl + 0x10) + 4);
         if (len != 0) {
             slot = (u8 *)(arg1 * 4) + (u32)arg0 + 0x10;
-            *(s32 *)slot = func_004c8708(tbl + 0x18, 0, *(s32 *)(ent + 4), len);
+            *(s32 *)slot = func_004c8708(
+                tbl + 0x18, 0,
+                *(s32 *)(idxp + (u32)*(u8 **)(tbl + 0x10) + 4), len);
             func_0044ea90(D_00712AC0, 0xC7);
             *(s32 *)(*(u8 **)(arg0 + 0x38) + *(s32 *)(arg0 + 0x44) * 4) =
                 func_0044ef70(len << 11, 0x40, 0x40000);
@@ -122,7 +118,4 @@ s32 func_00468bf0(u8 *arg0, s32 arg1)
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkPak2", func_00468bf0);
-#endif
 

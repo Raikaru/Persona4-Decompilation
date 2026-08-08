@@ -21,6 +21,8 @@ extern s32 func_0034c210(void);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_00369440(void);
+extern void func_0011fd30(u8 *arg0);
+extern void func_0011fd50(s64 arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 
 // FUN_00361970
 void func_00361970(u8 *arg0)
@@ -89,8 +91,7 @@ void func_003671d0(s16 *arg0)
 
 
 // FUN_00367940
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367940);
-
+void func_00367940(struct { s32 lo; s32 hi; } arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 tmp[12]; f32 factor; factor = fparg0; func_0011fd30(tmp); *(s32 *)(tmp + 8) = 3; *(s16 *)(tmp + 6) = 1; *(s16 *)tmp = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, tmp, 1); }
 // FUN_00369470
 void func_00369470(s32 arg0, u8 *arg1) {
     u8 *p;

@@ -64,10 +64,6 @@ extern void func_003c22f0(void* a);
 // FUN_004B6030
 INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6030);
 
-/* measured: nd 501 with a full C body (object 684B against a 688B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
 // FUN_004B6900
 INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6900);
 

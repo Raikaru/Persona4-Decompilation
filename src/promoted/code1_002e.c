@@ -68,35 +68,22 @@ void func_002e0940(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 
 
 
-/* measured: swapping the post-call assignments to hi = out[0] and
-   lo = out[1] changes the loads to retail's $f1/$f0 order and improves
-   nd 4 -> nd 2. The remaining rows are only the two stores: mwcc keeps
-   $f0 at 0x2C and $f1 at 0x30 while retail stores $f1/$f0 respectively.
-   Object/window is 124/128 bytes; full value/store transpose regressed
-   to nd 4. Committed at nd 2. */
-// FUN_002E09E0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: replacing the two scalar result stores with a two-f32 aggregate
+   copy preserves retail's grouped output loads and store-source registers. */
+// FUN_002E09E0
 void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
+    struct Out2 { f32 x; f32 y; };
     u8 *temp_6 = *(u8 **)(arg0 + 0x38);
     f32 *entry = (f32 *)(D_0063F560 + *(s16 *)(temp_6 + 0xF8) * 8);
     u8 *temp_16;
-    f32 lo;
-    f32 hi;
-    f32 out[2];
-
+    struct Out2 out;
     *(s16 *)(temp_6 + 4) |= 1;
     *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = fparg0;
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0xFC) = arg1;
     temp_16 = *(u8 **)(arg0 + 0x38);
-    func_002b2970((s64 *)out, entry[0], entry[1]);
-    hi = out[0];
-    lo = out[1];
-    *(f32 *)(temp_16 + 0x2C) = lo;
-    *(f32 *)(temp_16 + 0x30) = hi;
+    func_002b2970((s64 *)&out, entry[0], entry[1]);
+    *(struct Out2 *)(temp_16 + 0x2C) = out;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e09e0);
-#endif
 
 // FUN_002E1CD0
 s32 func_002e1cd0(void)

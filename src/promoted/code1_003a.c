@@ -167,9 +167,8 @@ s32 func_003a16c0(void) {
     return iGpffffb610 >= 0;
 }
 
-/* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; re-measured for nd_audit coverage.
-   Committed at nd 44. */
+/* measured: reconstructed direct-call body parked at normalized_diff 44;
+   object 76/80. Archive: build/W9LastMile1_code1a_park_archive.json. */
 // FUN_003A2340 NONMATCHING
 #ifdef NON_MATCHING
 void func_003a2340(s32 arg0, s32 arg1, s32 arg2)

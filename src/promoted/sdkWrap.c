@@ -8,11 +8,13 @@ extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
-extern void func_00440b68(const void *a, void *b);
+extern void func_00440b68(const void *, const void *);
 extern u8 D_00712978[];
 extern u8 D_007129E0[];
 extern u8 D_00712A00[];
 extern u8 D_004671C0[];
+extern void func_00466c60(void);
+extern void func_00466e80(u8 *);
 
 // FUN_00466C60
 INCLUDE_ASM("asm/nonmatchings/sdkWrap", func_00466c60);

@@ -154,47 +154,19 @@ s32 func_003d8130(s32 arg0, s32 arg1) {
 // P001 balance and restores the -O2 default for any following code.
 #pragma schedule off
 
-/* measured: schedule on is load-bearing (nd 18 -> 14; default keeps the
-   b/exit structure but leaves its delay slot empty).  NONMATCHING: retail
-   keeps the else body out of line (sltiu; beqz; nop; addiu; sllv;
-   b exit/sll; move $v0,$zero; jr $ra); b210 if-converts the branch to
-   beql with the move annulled in its slot across all probed shapes. */
+/* measured: the prior guarded scan probe used schedule on (nd 18 -> 14), but
+   the best complete reconstruction remained nd 32; it is archived above the
+   park limit and this function remains a bare INCLUDE_ASM fallback. */
 
-#pragma schedule on
-/* measured: nd 32 against retail's 80-byte window (object 56 vs retail's real
-   68, so work is still missing). Retail booleanises the loaded word with
-   sltu/xori before branching and keeps the scan pointer in $v1 with the index
-   in $a1; the goto layout here reproduces the branch shape but not the
-   register assignment or the extra normalisation. Probed do/while, plain for,
-   named booleanised locals, u32 vs s32 for the loaded word, unsigned index
-   compare, and several declaration orders. Committed at nd 32. */
-// FUN_003D8150 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003d8150(s32 arg0) {
-    u32 i;
-    u32 *p;
-    s32 nz;
-
-    i = 0;
-    p = (u32 *)(arg0 + D_0072483C);
-scan:
-    nz = (p[2] != 0);
-    if (!nz) {
-        goto step;
-    }
-    return 1;
-step:
-    p++;
-    i++;
-    if (i < 8) {
-        goto scan;
-    }
-    return 0;
-}
-#else
+/* measured: best plain-C scan/step reconstruction was nd 32, object 80/window 80,
+   above the nd 25 park limit; body archived in build/W9Code1_003d8150_archive.txt.
+   Bare INCLUDE_ASM is retained. */
+// FUN_003D8150
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8150);
-#endif
 
+/* measured: schedule on remains required by func_003d81a0 (nd 18 -> MATCH);
+   the existing schedule-off close follows that function. */
+#pragma schedule on
 // FUN_003D81A0
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
    The retail window for func_003d81a0 contains no branch-likely instruction at all, so the
@@ -271,33 +243,11 @@ void func_003dd5c0(u8 **arg0, s32 arg1) {
 #pragma schedule off
 #pragma no_branch_likely off
 
-/* measured: the statement sequence and every store are right (obj 112 in a
-   112-byte window) but b210 pairs the %hi/%lo halves of the first two globals
-   the other way round from retail (retail stores D_00887184 through the
-   SECOND lui and D_00887188 through the first; b210 pairs each store with its
-   own lui), transposes the `addiu $v1,1` and the D_008871A8 lui, and puts the
-   trailing constant 1 in $a0 instead of reusing $v0 after the call result is
-   stored. Measured identical at nd 45-49: a named `one` constant local, a
-   named result local for the func_004217e0 return, and 0 instead of NULL.
-   All three residual clusters are register/schedule choices with the same
-   addresses in both builds. Allocation floor.
-   Committed at nd 49. */
-// FUN_003DD760 NONMATCHING
-#ifdef NON_MATCHING
-void func_003dd760(s32 arg0) {
-    D_00887184[0] = arg0;
-    D_00887188[0] = 0;
-    D_00887180[0] = 0;
-    D_00887194[0] = NULL;
-    D_008871A8[0] = 1;
-    D_00724840 = 0;
-    D_008871A4[0] = 1;
-    D_00724844 = func_004217e0(D_008871A0);
-    D_0088718C[0] = 1;
-}
-#else
+/* measured: best plain-C global-store reconstruction was nd 49, object 112/window
+   112, above the nd 25 park limit; body archived in
+   build/W9Code1_003dd760_archive.txt. Bare INCLUDE_ASM is retained. */
+// FUN_003DD760
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
-#endif
 
 // FUN_003DD7D0
 /* measured: probe */
@@ -374,44 +324,17 @@ s32 func_003ddf20(u8 *arg0) {
 /* measured: closes the schedule bracket for func_003ddf20. */
 #pragma schedule off
 
-/* measured: nd 38 (37 under schedule on, which also shrinks the object below
-   retail's). Dispatches through the +0x50 vtable slot at +0x30 and divides the
-   unsigned result by the same factor the third argument was scaled with, so
-   the factor has to stay live across the call - retail parks it in $s0, which
-   this shape reproduces. The residual is the argument shuffle before the jalr:
-   retail routes the first parameter through $v0 and rebuilds $a0/$a1 from the
-   fourth, b210 moves them directly. Committed at nd 37. */
-// FUN_003DDF80 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on fills one more delay slot retail fills, nd 38 -> 37. */
-#pragma schedule on
-u32 func_003ddf80(s32 arg0, u32 arg1, s32 arg2, u8 *arg3) {
-    u32 (*fn)(u8 *, s32, s32);
-
-    fn = *(u32 (**)(u8 *, s32, s32))(*(u8 **)(arg3 + 0x50) + 0x30);
-    return fn(arg3, arg0, arg1 * arg2) / arg1;
-}
-#pragma schedule off
-#else
+/* measured: best plain-C vtable-slot reconstruction was nd 37, object 80/window
+   80, above the nd 25 park limit; body archived in
+   build/W9Code1_003ddf_family_archive.txt. Bare INCLUDE_ASM is retained. */
+// FUN_003DDF80
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf80);
-#endif
 
-/* measured: nd 38, the +0x34 sibling of func_003ddf80 above with the identical
-   residual and the identical response to schedule on. Committed at nd 37. */
-// FUN_003DDFD0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on fills one more delay slot retail fills, nd 38 -> 37. */
-#pragma schedule on
-u32 func_003ddfd0(s32 arg0, u32 arg1, s32 arg2, u8 *arg3) {
-    u32 (*fn)(u8 *, s32, s32);
-
-    fn = *(u32 (**)(u8 *, s32, s32))(*(u8 **)(arg3 + 0x50) + 0x34);
-    return fn(arg3, arg0, arg1 * arg2) / arg1;
-}
-#pragma schedule off
-#else
+/* measured: sibling vtable-slot reconstruction was nd 37, object 80/window 80,
+   above the nd 25 park limit; body archived in
+   build/W9Code1_003ddf_family_archive.txt. Bare INCLUDE_ASM is retained. */
+// FUN_003DDFD0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddfd0);
-#endif
 
 // FUN_003DF440
 #pragma schedule on
