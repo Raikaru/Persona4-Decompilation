@@ -16,6 +16,7 @@ Usage:
   python tools/draft_probe.py targets.json          # [{file, addr, name, win}]
   python tools/draft_probe.py targets.json 30       # only the first 30
 """
+import os
 import json
 import re
 import subprocess
@@ -150,8 +151,11 @@ KNOB_BRACKETS = (
 )
 
 
-def splice_and_measure(cfile, addr, body, report='build/draft_try.json',
+def splice_and_measure(cfile, addr, body,
+                       report=None,
                        pre=(), post=()):
+    if report is None:
+        report = 'build/_draftprobe_%s_%d.json' % (addr, os.getpid())
     p = Path(cfile)
     orig = p.read_bytes()
     txt = orig.decode('utf-8', errors='replace')
@@ -215,7 +219,9 @@ def main():
               f"coll={coll} best={label}{flag}")
         out.append({**t, 'status': st, 'nd': nd, 'obj': obj, 'coll': coll,
                     'bracket': label})
-    Path('build/draft_scores.json').write_text(json.dumps(out, indent=1))
+    scores = 'build/_draftscores_%d.json' % os.getpid()
+    Path(scores).write_text(json.dumps(out, indent=1))
+    print('wrote ' + scores)
     good = [r for r in out if r['status'] == 'MATCH' and r['coll'] == 0]
     close = [r for r in out if r['nd'] is not None and r['nd'] <= 30 and r['coll'] == 0]
     print(f"\n{len(good)} match(es); {len(close)} within nd 30")

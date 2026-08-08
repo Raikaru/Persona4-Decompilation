@@ -47,8 +47,8 @@ extern void func_003e12f0(u8 *arg0);
 extern void func_003c3890(void);
 extern u8 D_0070AFD0[];
 extern u8 D_0070AFF0[];
-extern s32 func_003c9c20(u8 *arg0);
-extern void func_003c5a90(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern u8 *func_003c9c20(u32 arg0);
+extern s32 func_003c5a90(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 D_007647CC;
 extern s32 D_007647C8;
 
@@ -296,6 +296,7 @@ u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
    Prologue scheduling floor. Committed at nd 8. */
 // FUN_003C47C0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
 s32 func_003c47c0(u8 *arg0) {
     s32 total;
@@ -306,8 +307,7 @@ s32 func_003c47c0(u8 *arg0) {
     }
     return total + (func_003e3370(D_0070AFF0, arg0) + 0xC);
 }
-// measured: closes the schedule bracket opened above and restores the -O2
-// baseline for the rest of the file.
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
@@ -475,6 +475,7 @@ finish:
    Committed at nd 14. */
 // FUN_003CA830 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
 u8 *func_003ca830(u8 *arg0) {
     u8 *f60 = func_003ca7a0;
@@ -494,6 +495,7 @@ u8 *func_003ca830(u8 *arg0) {
     *(s32 *)(node + 0xC) = 0;
     return arg0;
 }
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
@@ -609,29 +611,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 
 
 /* measured: retail takes THREE parameters and ignores the second -- arg0
-   arrives in $a0 and the object pointer in $a2 -- so the two-parameter m2c
-   draft put the pointer in $a1 and nothing lined up. With the third parameter
+   arrives in $a0 and the object pointer in $a2. With the third parameter
    restored and #pragma schedule on (without it b210 leaves the jal delay slot
    empty, nd 45, and the object overflows the window at 84 bytes) everything
    matches except the order of the last two argument materialisations: retail
    emits `move $a1,$v0` then puts `addiu $a3,$v0,0x10` in the jal delay slot,
-   b210 emits the addiu first and the move in the slot (2 words, nd 8,
-   obj 72B/window 80B). Measured identical at nd 8: naming temp_2 + 0x10 in
-   a local, pointer-typed temp with pointer arithmetic, a named local for the
-   0x78 load, `0x10 + temp_2`, an extra (s32) cast on the second argument, and
-   both an all-s32 and an old-style empty callee prototype. Call-argument
-   setup order floor (docs/matching.md). */
+   b210 emits the addiu first and the move in the slot (fndiff rows 40/48,
+   checklist 9; nd 8, obj 72B/window 80B). The exact raw callee types are
+   now represented (`func_003c9c20` returns a pointer and `func_003c5a90`
+   takes pointer, pointer, s32, s32). Naming temp_2 + 0x10 in a local,
+   pointer-typed temp with pointer arithmetic, a named local for the 0x78
+   load, `0x10 + temp_2`, casts, pointer-return variants, and all-s32 or
+   old-style callee prototypes were all measured at nd 8. Committed at nd 8. */
 // FUN_003CB820 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
 void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
-    s32 temp_2;
+    u8 *temp_2;
 
-    temp_2 = (s32)func_003c9c20(arg2);
-    func_003c5a90(*(s32 *)(arg2 + 0x78), temp_2, arg0, temp_2 + 0x10);
+    temp_2 = func_003c9c20((u32)arg2);
+    func_003c5a90((u8 *)*(s32 *)(arg2 + 0x78), temp_2, arg0, (s32)(temp_2 + 0x10));
 }
-// measured: closes the schedule bracket opened above and restores the -O2
-// baseline for the rest of the file.
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
@@ -672,125 +674,140 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-/* measured: these three functions are one setter/lookup template. Their
+/* measured: these three functions are one setter/lookup template. The
    explicit four-block gotos plus schedule on, no_branch_likely on, and
-   opt_common_subs off reduce the residual from nd 12 to nd 6; object
-   88B/window 96B. Retail re-reads the gp offset in the null path, while
-   b210 still shares that value even with common-subexpression optimisation
-   disabled. Committed at nd 6. */
+   opt_common_subs off give nd 6 with object 88B/window 96B. fndiff's only
+   reloc-masked residual rows are offsets 16 and 20: retail emits
+   `addiu $v1,$v1,%lo(D_008872E0)` then `move $v0,$a0`, while b210 emits
+   those two words in the opposite order (checklist 9, preheader order).
+   The GP/global rows at offsets 8, 12, 36, 40, 44, and 68 are relocation
+   differences, not instruction residuals. Named base pointers at store,
+   reload, before the guard, lookup-only, initialized, and path-local forms;
+   array and `&D_008872E0` forms; base plus loop-invariants; and a separate
+   walker/result shared-exit form were all measured without improvement.
+   The split-store form grew to nd 40, object 100B/window 96B; the best
+   separate walker/result form was nd 25, object 84B/window 96B. Committed at nd 6. */
 // FUN_003CC010 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
-#pragma no_branch_likely on
-/* measured: disabling common-subexpression sharing preserves retail's
-   repeated gp-offset load in the null path. */
+/* measured: probe CSE */
 #pragma opt_common_subs off
+/* measured: probe branch form */
+#pragma no_branch_likely on
 u8 *func_003cc010(u8 *arg0) {
     s32 off;
+    u8 *base;
 
-    if (arg0 == NULL) {
+    if (arg0 == NULL)
         goto nullcase;
-    }
 reload:
     off = iGpffffb9b8;
 store:
-    *(u8 **)(D_008872E0 + off + 0x40) = arg0;
+    base = D_008872E0 + off;
+    *(u8 **)(base + 0x40) = arg0;
     return arg0;
 nullcase:
     arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x58);
-    if (arg0 == NULL) {
+    if (arg0 == NULL)
         goto setnull;
-    }
     off = iGpffffb9b8;
     goto store;
 setnull:
     arg0 = NULL;
     goto reload;
 }
-/* measured: closes the common-subexpression scope above at the file baseline. */
-#pragma opt_common_subs on
-/* measured: closes the branch and schedule scopes above at the file baseline. */
+/* measured: close branch form */
 #pragma no_branch_likely off
+/* measured: close CSE */
+#pragma opt_common_subs on
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc010);
 #endif
 
-/* measured: sibling of func_003cc010; same template and probes, nd 6,
-   object 88B/window 96B. Committed at nd 6. */
+/* measured: sibling of func_003cc010; the same template and probes leave
+   only the offset-16/20 preheader order residual, nd 6, object 88B/window
+   96B. Checklist 9. Committed at nd 6. */
 // FUN_003CC070 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
-#pragma no_branch_likely on
-/* measured: disabling common-subexpression sharing preserves retail's
-   repeated gp-offset load in the null path. */
+/* measured: probe CSE */
 #pragma opt_common_subs off
+/* measured: probe branch form */
+#pragma no_branch_likely on
 u8 *func_003cc070(u8 *arg0) {
     s32 off;
+    u8 *base;
 
-    if (arg0 == NULL) {
+    if (arg0 == NULL)
         goto nullcase;
-    }
 reload:
     off = iGpffffb9b8;
 store:
-    *(u8 **)(D_008872E0 + off + 0x3C) = arg0;
+    base = D_008872E0 + off;
+    *(u8 **)(base + 0x3C) = arg0;
     return arg0;
 nullcase:
     arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x54);
-    if (arg0 == NULL) {
+    if (arg0 == NULL)
         goto setnull;
-    }
     off = iGpffffb9b8;
     goto store;
 setnull:
     arg0 = NULL;
     goto reload;
 }
-/* measured: closes the common-subexpression scope above at the file baseline. */
-#pragma opt_common_subs on
-/* measured: closes the branch and schedule scopes above at the file baseline. */
+/* measured: close branch form */
 #pragma no_branch_likely off
+/* measured: close CSE */
+#pragma opt_common_subs on
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc070);
 #endif
 
-/* measured: sibling of func_003cc010; same template and probes, nd 6,
-   object 88B/window 96B. Committed at nd 6. */
+/* measured: sibling of func_003cc010; the same template and probes leave
+   only the offset-16/20 preheader order residual, nd 6, object 88B/window
+   96B. Checklist 9. Committed at nd 6. */
 // FUN_003CC0D0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
-#pragma no_branch_likely on
-/* measured: disabling common-subexpression sharing preserves retail's
-   repeated gp-offset load in the null path. */
+/* measured: probe CSE */
 #pragma opt_common_subs off
+/* measured: probe branch form */
+#pragma no_branch_likely on
 u8 *func_003cc0d0(u8 *arg0) {
     s32 off;
+    u8 *base;
 
-    if (arg0 == NULL) {
+    if (arg0 == NULL)
         goto nullcase;
-    }
 reload:
     off = iGpffffb9b8;
 store:
-    *(u8 **)(D_008872E0 + off + 0x44) = arg0;
+    base = D_008872E0 + off;
+    *(u8 **)(base + 0x44) = arg0;
     return arg0;
 nullcase:
     arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x5C);
-    if (arg0 == NULL) {
+    if (arg0 == NULL)
         goto setnull;
-    }
     off = iGpffffb9b8;
     goto store;
 setnull:
     arg0 = NULL;
     goto reload;
 }
-/* measured: closes the common-subexpression scope above at the file baseline. */
-#pragma opt_common_subs on
-/* measured: closes the branch and schedule scopes above at the file baseline. */
+/* measured: close branch form */
 #pragma no_branch_likely off
+/* measured: close CSE */
+#pragma opt_common_subs on
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc0d0);
@@ -840,8 +857,9 @@ void func_003f32d0();
 // FUN_003CC250 NONMATCHING
 #ifdef NON_MATCHING
 extern void (*D_00887300[])(u32, u32);
-/* measured: schedule and branch pragmas for the parked reconstruction */
+/* measured: probe schedule */
 #pragma schedule on
+/* measured: probe branch form */
 #pragma no_branch_likely on
 s32 func_003cc250(s32 arg0, u8 **arg1) {
     u8 *p;
@@ -860,7 +878,9 @@ call:
     D_00887300[0](1, 0);
     goto retone;
 }
+/* measured: close branch form */
 #pragma no_branch_likely off
+/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
@@ -898,53 +918,39 @@ extern s32 D_0070B110[];
 /* measured: without #pragma schedule on, MWCC emits lui / addiu before
    jr $ra with an unfilled delay slot; retail fills the slot (nd 6 -> 0). */
 
-/* measured: nd 2 of 32 words (obj 120B/window 128B). schedule on plus
-   no_branch_likely on gets the delay slots and the plain bne/bnez; the rest
-   was the shape of the four un-merged `return NULL` blocks, which retail
-   keeps separate and in a specific order. Reaching the arg2 == 0 case
-   through a goto is what stops case 1's null return from pushing case 2's
-   body down - `if (arg2 != 0) {...} return NULL;` inside the case costs nd 19
-   and `break` into a shared tail costs nd 26. The residual is two swapped
-   branch targets: retail sends arg0 == NULL to the earlier block and arg2 ==
-   0 to the later one, and neither placing the label inside the switch nor at
-   the end of the function reverses that. */
 // FUN_003CF9B0
-#ifdef NON_MATCHING
 #pragma schedule on
 #pragma no_branch_likely on
 u8 *func_003cf9b0(u8 *arg0, s32 arg1, s32 arg2)
 {
     u8 *sub;
 
-    if (arg0 != NULL) {
-        sub = *(u8 **)(arg0 + 0x14);
-        if (sub != NULL) {
-            switch (arg1) {
-            case 1:
-                if (arg2 == 0) {
-                    goto none;
-                }
-                *(s32 *)(sub + 0x10) = arg2;
-                return arg0;
-            case 2:
-                *(s32 *)(sub + 0x14) = arg2;
-                return arg0;
-            default:
-                return NULL;
-            }
-none:
-            return NULL;
-        }
+    if (arg0 == NULL)
+        goto outer_none;
+    sub = *(u8 **)(arg0 + 0x14);
+    if (sub == NULL)
+        goto sub_none;
+    switch (arg1) {
+    case 1:
+        if (arg2 == 0)
+            goto none;
+        *(s32 *)(sub + 0x10) = arg2;
+        return arg0;
+    case 2:
+        *(s32 *)(sub + 0x14) = arg2;
+        return arg0;
+    default:
         return NULL;
     }
+outer_none:
+    return NULL;
+sub_none:
+    return NULL;
+none:
     return NULL;
 }
 #pragma no_branch_likely off
-/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cf9b0);
-#endif
 
 // FUN_003CFA70
 #pragma schedule on

@@ -112,9 +112,7 @@ void func_00362fd0(u8* arg0, f32* arg1, f32* arg2, s16 arg3) {
 }
 
 
-/* measured: aggregate DrawPacket candidate reproduces object_size 384/window 384 with normalized_diff 2; one remaining retail-only difference is the second mul.s operand order after probing split temporaries and inline helper parameter order. Committed at nd 2. */
-// FUN_00363080 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00363080
 void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
     DrawPacket packet;
     f32 z;
@@ -139,7 +137,8 @@ void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
     temp_f4 = temp_f2;
     packet.f20 = temp_f4;
     temp_mul = 1.0f - z;
-    temp_f3 = panelMulReverse(temp_mul, 20.0f);
+    temp_f3 = temp_mul;
+    temp_f3 = panelMulForward(20.0f, temp_f3);
     temp_f3 = panelAdd(y, temp_f3);
     packet.f24 = temp_f3;
     packet.f28 = temp_f20;
@@ -176,9 +175,6 @@ void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
     D_00887300[0](1, 0);
     D_00887310[0](4, &packet, 4);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmpPartyPanel", func_00363080);
-#endif
 
 
 /* measured: saved-GPR rotation floor. Retail allocates

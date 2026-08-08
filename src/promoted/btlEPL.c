@@ -307,23 +307,7 @@ void func_001ff440(s32 *arg0) {
 // measured: see floor note above; nd recorded there.
 // FUN_001FF490
 INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001ff490);
-// measured: retried 2026-08 wave; the TRUE prototype is interleaved,
-// func_00198920(void*, s16, u16, f32, u16) -- retail's arg order is
-// (node, param+4, param+0xC, param+8, param+6) and func_00200230 stays
-// byte-identical under it with its args swapped to (node, s16, 0, f32,
-// u16-cast); the non-interleaved (void*,s16,u16,u16,f32) shape leaves an
-// extra lwc1/lhu pair (nd 8+8). With the interleaved prototype + node/i
-// declaration-order swap (node before i fixes the $s1/$s2 swap), the ONLY
-// residual is retail materialising lh $a1,4($s3) BEFORE move $a0; b210 -O2
-// always emits move $a0 first -- tried cast spellings ((s16) casts,
-// indexed ((s16*)param)[2], (void*)node), hoisted u16/f32 locals,
-// schedule-on: identical output. nd 8 (fndiff 4 words).
-// Argument-materialisation-order floor (same family as the skill's bpc
-// 00245420 literal case).
-// measured: see floor note above; nd recorded there.
-/* measured: effect-list table walk, lifetime checks, flag update, and all dispatch calls match retail. Saved-register declaration order is fixed (table index $s1, node $s2); remaining nd 8 is the known MWCCPS2 call-argument materialisation floor where retail emits lh $a1 before move $a0 for func_00198920, while b210 emits the move first. Tried named/cast/hoisted argument spellings; all scored nd 8. Candidate object 328B vs retail window 336B. Committed at nd 8. */
-// FUN_001FFF40 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_001FFF40
 void func_001fff40(u8 *arg0) {
     s32 count;
     u8 *param;
@@ -345,7 +329,8 @@ void func_001fff40(u8 *arg0) {
                     if (*(u8 *)(param + 0xE) == 0) {
                         func_0019d990(node, 4);
                     }
-                    func_00198920(node, *(s16 *)(param + 4), *(u16 *)(param + 0xC),
+                    value = *(s16 *)(param + 4);
+                    func_00198920(node, (s16)value, *(u16 *)(param + 0xC),
                                   *(f32 *)(param + 8), *(u16 *)(param + 6));
                     value = *(s32 *)(param + 0x10);
                     if (value != 0) {
@@ -358,9 +343,6 @@ void func_001fff40(u8 *arg0) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fff40);
-#endif
 // FUN_00200090
 s32 *func_00200090(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *result;

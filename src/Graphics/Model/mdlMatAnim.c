@@ -124,21 +124,23 @@ u8 *func_0047fb50(u8 **arg0, s32 *arg1)
 
 
 
-/* measured: retail colors node-ptr temp_16 -> $s0 and D-table entry temp_17 -> $s1;
-   mwcc b210 always colors the entry pointer $s0 and node pointer $s1, and swaps the
-   apply-call move/lw order, no matter the declaration order (7 orders tried, nd 12..70,
-   best 12). Saved-register identity coloring floor. */
-/* measured: direct typed C reproduces the 276-byte body and all control flow; b210 retains the node/table/work/counter values in a different saved-register coloring than retail. Seven declaration/type orders were tried; best normalized_diff was 17. Committed at nd 17. */
+/* measured: declaration permutation {node, tbl, entry, i, j, work, count, init,
+   apply} preserves the full 276-byte control-flow body and improves the parked
+   candidate from nd 17 to nd 7 (obj 276B/window 288B). Remaining fndiff rows
+   are offsets 0x38/0x3C (tbl/entry saved-register swap), 0x58/0x5C
+   (entry load), 0x7C (init pointer load), 0x9C (table load), and 0xAC
+   (apply pointer load): checklist item 4, live-range/saved-register coloring.
+   Committed at nd 7. */
 // FUN_0047FBF0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0047fbf0(u8 **arg0, f32 scale)
 {
     u8 *node;
     u8 *tbl;
-    u8 *work;
     u8 *entry;
     u32 i;
     u32 j;
+    u8 *work;
     u32 count;
     u8 *(*init)(u8 *, f32);
     void (*apply)(u8 *, u32);

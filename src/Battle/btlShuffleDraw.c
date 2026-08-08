@@ -89,7 +89,7 @@ extern f32 iGpffff8170;
 extern void func_003766f0(f32 **arg0, s32 arg1, s32 arg2, u8 *arg3);
 extern void func_00376800(u8 **arg0, s32 arg1);
 extern void func_00374910(u8 *arg0);
-extern void func_00375d50(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, f32 fparg1);
+extern void func_00375d50(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 *arg2, f32 *arg3);
 extern void func_00375dd0(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, f32 fparg1);
 extern void func_003760f0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 *arg4, f32 *arg5);
 extern void func_00376290(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -264,12 +264,7 @@ void func_00374610(u8 *arg0) {
 }
 
 
-/* measured: typed array locals and an explicit loop-test goto reproduce retail's
-   prologue, loop, calls, and final branch. The only residual is the known
-   mov.s $f13,$f12 versus pointer-argument scheduling order before func_00375d50.
-   nd 12, object 468B, window 480B. */
-// FUN_00374730 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00374730
 void func_00374730(u8 *arg0) {
     f32 sp68[2];
     f32 sp58[3];
@@ -296,7 +291,7 @@ loop_body:
         temp_f12 = (f32)var_16 * (2.0f - ((f32)(*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f));
         func_00375dd0(arg0, var_16, sp48, sp58, temp_f12, 10.0f + temp_f12);
     } else {
-        func_00375d50(arg0, var_16, sp58, sp58, 0.0f, 0.0f);
+        func_00375d50(arg0, var_16, 0.0f, 0.0f, sp58, sp58);
     }
     func_003760f0(arg0, var_16, 0, 0, sp30, sp30);
     func_00376290(arg0, var_16, 0, 0xFF, 0xFF);
@@ -310,9 +305,6 @@ loop_test:
         func_0045af60(1, 0, 5, 4);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00374730);
-#endif
 
 
 // FUN_00374910
@@ -575,7 +567,7 @@ f32 func_00375a70(u8 *arg0, s32 arg1) {
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375b40);
 
 // FUN_00375D50
-void func_00375d50(u8 *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 fparg0, f32 fparg1) {
+void func_00375d50(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 *arg2, f32 *arg3) {
     s32 idx = arg1 * 0xE8;
     u8 *p = (u8 *)idx + (u32)arg0;
 
@@ -611,7 +603,7 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 }
 
 
-/* measured: O1 near miss (nd 21, obj 156B/window 160B). Retail keeps arg0 in $s1, idx in $s0, and p in $s2; this body preserves that frame and the first call but b210 still recomputes the base for the second call and final store. Committed at nd 21. */
+/* measured: O1 near miss (nd 20, obj 156B/window 160B). Retail keeps arg0 in $s1, idx in $s0, and p in $s2; declaring the base as ((u32)arg0 + (u32)idx) fixes the addu operand order. The second call and final store still recompute the base instead of reusing p; p+ forms collapse the frame under b210. Committed at nd 20. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
@@ -620,14 +612,12 @@ void func_00375f00(u8 *arg0, s32 arg1) {
     u8 *p;
 
     idx = arg1 * 0xE8;
-    p = (u8 *)idx + (u32)arg0;
+    p = (u8 *)((u32)arg0 + (u32)idx);
     func_00370410(p + 0x1D6AC);
     *(s32 *)(p + 0x1D6A4) = 5;
     func_00370a80((u8 *)idx + (u32)arg0 + 0x1D70C);
     *(s32 *)((u8 *)idx + (u32)arg0 + 0x1D6A8) = 3;
 }
-/* measured: restore baseline optimization level after the parked probe. */
-#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375f00);
 #endif

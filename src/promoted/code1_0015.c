@@ -155,20 +155,12 @@ void func_0015a630(void) {
     func_0043f9c8(D_007E36F8, 0xFF, 0x14);
 }
 
-/* measured: nd 5. Walks a -1-terminated threshold table, then indexes a byte
-   table by the distance past the previous threshold. Retail holds the table
-   base in $v1 and the scaled index in $a1; b210 swaps the two, which also
-   transposes the addu that combines them. Declaring the table pointer before
-   the index measured nd 11, so the current order is the better of the two.
-   Committed at nd 5. */
-// FUN_0015A740 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0015A740
 u8 func_0015a740(s32 arg0) {
     s32 i = 0;
-    s16 *t = D_005F05D0;
 
-    while (t[i] >= 0) {
-        if (arg0 < t[i]) {
+    while (D_005F05D0[i] >= 0) {
+        if (arg0 < D_005F05D0[i]) {
             break;
         }
         i++;
@@ -178,9 +170,6 @@ u8 func_0015a740(s32 arg0) {
     }
     return D_007E36E4[arg0 - *(s16 *)(D_005F05CE + i * 2)];
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015a740);
-#endif
 
 // FUN_0015C210
 void func_0015c210(void) {

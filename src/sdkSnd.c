@@ -682,10 +682,8 @@ s32 func_0045ae10(s32 arg0, s32 arg1, s16 arg2)
 /* FUN_0045AEB0                                                        */
 /* ================================================================== */
 
-/* measured: retail assigns the slot-index product to $a3 and the channel pointer to $a2; b210 rotates those temporaries to $a2/$a1 through the mult, five addu sites, and final addiu. Probed direct fields, pointer temporaries, two-argument prototype, declaration order, and pragma spellings; best verify result is nd 9 with object 176B vs window 176B. Temporary-register rotation floor. Committed at nd 9. */
-// FUN_0045AEB0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0045aeb0(s16 arg0)
+// FUN_0045AEB0
+s32 func_0045aeb0(s16 arg0, const char * arg1)
 {
     SndCh *ch;
 
@@ -697,14 +695,11 @@ s32 func_0045aeb0(s16 arg0)
         LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
         LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
         LD16(D_008D2BA4, SND_IDX(arg0)) = 0;
-        func_00442830((u8 *)ch + 0x18);
+        func_00442830((u8 *)ch + 0x18, arg1, ch, SND_IDX(arg0));
         func_00459ad0(arg0);
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_0045aeb0);
-#endif
 /* ================================================================== */
 /* FUN_0045AF60                                                        */
 /* ================================================================== */

@@ -130,24 +130,13 @@ void func_00484970(u8 *arg0) {
     }
 }
 
-/* measured: nd 2. Same dispatcher shape as func_00484970 and func_00484a90
-   above, which both match; the only difference is that retail scales the
-   handler index into $a2 here and into $a1 there. Probed unused second and
-   third parameters (to make $a1 look occupied), a pointer-typed second
-   parameter, hoisting the scaled index into a named local, and schedule on -
-   all nd 2. Colouring floor. Committed at nd 2. */
-// FUN_00484A40 NONMATCHING
-#ifdef NON_MATCHING
-void func_00484a40(u8 *arg0) {
-    void (*fn)(s32) = *(void (**)(s32))(D_007134A0 + (*(u16 *)(arg0 + 4) << 6));
-
+// FUN_00484A40
+void func_00484a40(u8 *arg0, void *arg1) {
+    void (*fn)(s32, void *) = *(void (**)(s32, void *))(D_007134A0 + (*(u16 *)(arg0 + 4) << 6));
     if (fn != NULL) {
-        fn(*(s32 *)(arg0 + 8));
+        fn(*(s32 *)(arg0 + 8), arg1);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484a40);
-#endif
 
 // FUN_00484A90
 void func_00484a90(u8 *arg0) {
@@ -158,31 +147,23 @@ void func_00484a90(u8 *arg0) {
     }
 }
 
-/* measured: nd 2, the same $a2-versus-$a1 scaling residual as func_00484a40
-   above and unmoved by the same probe set. Committed at nd 2. */
-// FUN_00484AE0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00484ae0(u8 *arg0) {
-    void (*fn)(s32) = *(void (**)(s32))(D_007134B0 + (*(u16 *)(arg0 + 4) << 6));
-
+// FUN_00484AE0
+void func_00484ae0(u8 *arg0, s32 arg1) {
+    void (*fn)(s32, s32) = *(void (**)(s32, s32))(D_007134B0 + (*(u16 *)(arg0 + 4) << 6));
     if (fn != NULL) {
-        fn(*(s32 *)(arg0 + 8));
+        fn(*(s32 *)(arg0 + 8), arg1);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484ae0);
-#endif
 
 /* measured: retail uses VU0 zero stores, then a D_00713CE0 lq/sq aggregate copy and scalar tail stores. The C reconstruction with propagation off reproduces the 128-byte object except temporary-register colours at the 0x2C scalar and quad copy (normalized_diff 6); direct and struct aggregate spellings, declaration orders, signatures, optimizer, schedule, and branch pragmas were probed. Committed at nd 6. */
 // FUN_00484B30 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: b210 folds the D_00713CE0 low address into lq unless propagation is disabled. */
+/* measured: probe */
 #pragma opt_propagation off
 void func_00484b30(u8 *arg0)
 {
-    u_long128 *quadSrc;
     u_long128 quad;
-
+    u_long128 *quadSrc;
     func_0043f9c8(arg0, 0, 0x80);
     __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg0) : "memory");
     __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(arg0) : "memory");
@@ -197,7 +178,7 @@ void func_00484b30(u8 *arg0)
     *(s32 *)(arg0 + 0x64) = -1;
     *(s32 *)(arg0 + 0x68) = 0x80;
 }
-/* measured: closes propagation scope for func_00484b30. */
+/* measured: probe */
 #pragma opt_propagation on
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);

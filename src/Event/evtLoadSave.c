@@ -27,11 +27,10 @@ extern u8 D_005DC7D0[];
 extern u8 D_005DC878[];
 extern u8 D_0063CAB0[];
 
-/* measured: recovered C reproduces the retail control flow and all non-coordinate code, but MWCCPS2 b210 sinks the four s16 loads into the destination stores instead of retail's grouped lh x4 then stack sh x4. Baseline verify normalized_diff 19, object 1140/1152. Tried named aggregate struct, direct aggregate, s64 transfer, s16 array, and separate-field spellings; all were worse or identical. Load-sinking floor. Committed at nd 19. */
-// FUN_00294610 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00294610
 void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
     S16x4 sp48;
+    s16 *coord;
     s32 temp_3;
     s16 temp_9;
     s16 temp_8;
@@ -47,10 +46,14 @@ void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
     u8 *q;
 
     temp_3 = arg2 * 0x3C;
-    temp_9 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
-    temp_8 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
-    temp_7 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
-    temp_10 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
+    coord = &temp_9;
+    *coord = *(s16 *)((u32)temp_3 + (u32)*(s32 *)(arg0 + 0x98) + 0xC);
+    coord = &temp_8;
+    *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
+    coord = &temp_7;
+    *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
+    coord = &temp_10;
+    *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
     sp48.a = temp_9;
     sp48.b = temp_8;
     sp48.c = temp_7;
@@ -161,9 +164,6 @@ void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
         break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_00294610);
-#endif
 
 // FUN_00294A90
 void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
@@ -211,12 +211,11 @@ void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
 // FUN_00294BE0
 INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_00294be0);
 
-/* measured: recovered C reproduces the retail loop and field copies; the remaining residual is the four-coordinate aggregate load/store schedule and a 12-byte object deficit. Baseline verify normalized_diff 18, object 804/816. Tried named aggregate struct, direct aggregate, s64 transfer, s16 array, and separate-field spellings; recovered aggregate was best. Load-sinking floor. Committed at nd 18. */
-// FUN_002951C0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002951C0
 void func_002951c0(u8 *arg0, u8 *arg1) {
     u8 *arr[3];
     S16x4 sp58;
+    s16 *coord;
     s32 i;
     s32 type;
     s32 idx;
@@ -258,10 +257,14 @@ void func_002951c0(u8 *arg0, u8 *arg1) {
             }
             dest = func_00286780(arr[idx], var_2 & 0xFFFF, arg1);
             temp_3 = i * 0x3C;
-            temp_6 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
-            temp_5_2 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
-            temp_4 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
-            temp_7_2 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
+            coord = &temp_6;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
+            coord = &temp_5_2;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
+            coord = &temp_4;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
+            coord = &temp_7_2;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
             sp58.a = temp_6;
             sp58.b = temp_5_2;
             sp58.c = temp_4;
@@ -300,16 +303,14 @@ void func_002951c0(u8 *arg0, u8 *arg1) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_002951c0);
-#endif
 
-/* measured: recovered C reproduces the retail setup, tag dispatch, coordinate copy, and clamp. MWCCPS2 b210 still emits the four-coordinate aggregate in the wrong load/store schedule. Baseline verify normalized_diff 20, object 592/592. Tried named aggregate struct, direct aggregate, s64 transfer, s16 array, and separate-field spellings; recovered aggregate was best. Load-sinking floor. Committed at nd 20. */
+/* measured: taking the address of each coordinate local before its load reproduces retail's grouped lh x4 then stack sh x4, reducing normalized_diff 20 -> 2 with object 592/592. Remaining checklist-1 residual is the clamp compare register: candidate slti $v1,$v1,0x1f5; bnez $v1,... versus retail slti $at,$v1,0x1f5; bnez $at,.... Nested/positive-arm/continue forms, >0x1F4, and s16 local probes did not change it. Committed at nd 2. */
 // FUN_002954F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_002954f0(u8 *arg0, u8 *arg1) {
     u8 *temp_17;
     S16x4 sp58;
+    s16 *coord;
     s32 temp_3;
     s32 var_16;
     s32 temp_5;
@@ -341,10 +342,14 @@ void func_002954f0(u8 *arg0, u8 *arg1) {
             }
             temp_2 = (u8 *)(func_00286780(temp_17, var_2 & 0xFFFF, arg1));
             temp_3 = var_16 * 0x3C;
-            temp_6 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
-            temp_5_2 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
-            temp_4 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
-            temp_7_2 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
+            coord = &temp_6;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xC);
+            coord = &temp_5_2;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0xE);
+            coord = &temp_4;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x10);
+            coord = &temp_7_2;
+            *coord = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_3 + 0x12);
             sp58.a = temp_6;
             sp58.b = temp_5_2;
             sp58.c = temp_4;
@@ -428,9 +433,7 @@ void func_00295740(s32 arg0, u8 *arg1) {
     }
 }
 
-/* measured: recovered C reproduces the retail object loop and descriptor copy; MWCCPS2 b210 sinks the four-coordinate aggregate loads into interleaved destination stores. Baseline verify normalized_diff 18, object 560/560. Tried named aggregate struct, direct aggregate, s64 transfer, s16 array, and separate-field spellings; recovered aggregate was best. Load-sinking floor. Committed at nd 18. */
-// FUN_00295B80 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00295B80
 void func_00295b80(u8 *arg0, u8 *arg1) {
     u8 *arr[3];
     S16x4 sp58;
@@ -447,6 +450,7 @@ void func_00295b80(u8 *arg0, u8 *arg1) {
     s16 temp_4;
     s16 temp_3_2;
     s16 temp_6_2;
+    s16 *q;
     s32 idx;
 
     for (i = 0; i < 3; i++) {
@@ -478,10 +482,14 @@ void func_00295b80(u8 *arg0, u8 *arg1) {
             temp_8 = i * 0x10;
             temp_7 = i * 0x3C;
             entry = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_7);
-            temp_5 = *(s16 *)(entry + 0xC);
-            temp_4 = *(s16 *)(entry + 0xE);
-            temp_3_2 = *(s16 *)(entry + 0x10);
-            temp_6_2 = *(s16 *)(entry + 0x12);
+            q = &temp_5;
+            *q = *(s16 *)(entry + 0xC);
+            q = &temp_4;
+            *q = *(s16 *)(entry + 0xE);
+            q = &temp_3_2;
+            *q = *(s16 *)(entry + 0x10);
+            q = &temp_6_2;
+            *q = *(s16 *)(entry + 0x12);
             sp58.a = temp_5;
             sp58.b = temp_4;
             sp58.c = temp_3_2;
@@ -496,9 +504,6 @@ void func_00295b80(u8 *arg0, u8 *arg1) {
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_00295b80);
-#endif
 
 // FUN_00295910
 void func_00295910(u8 *arg0, u8 *arg1) {
