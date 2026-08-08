@@ -544,55 +544,265 @@ void func_0034d040(u8 *arg0) {
     func_0034e0b0(arg0, 0.0f, 0.0f, 1.0f);
 }
 
-/* measured: re-tested 4 spellings (do-while nd 122, for-loops nd 35, base
-   pointer nd 35). opt_loop_invariants + for-loop shape (the entry b + delay
-   nop per loop) gives the byte-identical frame and a byte-identical tail
-   (0x1688/4 div, alpha div, arg1-if, call — rows 320-524 all match); the
-   ONLY residual is the 3 loop bodies: retail keeps the loop counter in $a2
-   (arg0/arg1 live across, address scratch $v0/$v1); mwcc b210 always colors
-   the counter $v0 and the scratch $v1/$a2, swapping every loop word (nd 35).
-   Tried decl orders, u32 counter, hoisted base local, pragma on/off —
-   identical. Register-coloring floor (same family as d280/d490/d690). */
+/* measured: three separate loop-index locals plus the exact `lh` table access
+   reproduce retail's shared $a2 counter coloring; d070 is nd 0
+   (object 528B / window 528B). */
 // FUN_0034D070
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d070);
+/* measured: opens d070's exact loop-invariant scope. */
+#pragma opt_loop_invariants on
+void func_0034d070(u8 *arg0, s32 arg1) {
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 var_f14;
+    f32 var_f4;
+    s32 var_6_1;
+    s32 var_6_2;
+    s32 var_6_3;
+
+    if (arg1 != 0) {
+        var_f4 = 640.0f;
+        var_6_1 = 0;
+        for (; var_6_1 < 0x14; var_6_1++) {
+            temp_f0 = *(f32 *)(arg0 + var_6_1 * 0x54 + 8);
+            if (temp_f0 < var_f4) {
+                var_f4 = temp_f0;
+            }
+        }
+    } else if (*(s16 *)(D_007523C8 + (*(s32 *)(arg0 + 0x1680) * 0x10)) == 1) {
+        var_f4 = -640.0f;
+        var_6_2 = 0;
+        for (; var_6_2 < 0x14; var_6_2++) {
+            temp_f0_2 = *(f32 *)(arg0 + var_6_2 * 0x54 + 8);
+            if (!(temp_f0_2 <= var_f4)) {
+                var_f4 = temp_f0_2;
+            }
+        }
+    } else {
+        var_f4 = -640.0f;
+        var_6_3 = 0;
+        for (; var_6_3 < 0x14; var_6_3++) {
+            temp_f0_3 = *(f32 *)(arg0 + var_6_3 * 0x54 + 8) - 640.0f;
+            if (!(temp_f0_3 <= var_f4)) {
+                var_f4 = temp_f0_3;
+            }
+        }
+    }
+    temp_f3 = *(f32 *)(arg0 + 0x1688) / 4.0f;
+    if (*(s32 *)(arg0 + 0x1690) == 0) {
+        temp_f2 = (f32)*(s16 *)(arg0 + 0x1684);
+        if (temp_f2 < temp_f3) {
+            var_f14 = (temp_f2 - temp_f3) / (*(f32 *)(D_007523C4 + (*(s32 *)(arg0 + 0x1680) * 0x10)) - temp_f3);
+        } else {
+            var_f14 = 1.0f;
+        }
+    } else {
+        var_f14 = 1.0f;
+    }
+    if (arg1 == 0) {
+        var_f14 = 1.0f - var_f14;
+    }
+    func_0034e0b0(arg0, var_f4 - *(f32 *)(arg0 + 0x99C), -*(f32 *)(arg0 + 0x9A0), var_f14);
+}
+/* measured: closes the tested d070 loop-invariant scope at the file baseline. */
+#pragma opt_loop_invariants off
 // FUN_0034D280
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d280);
+/* measured: opens d280's exact loop-invariant scope. */
+#pragma opt_loop_invariants on
+void func_0034d280(u8 *arg0, s32 arg1) {
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 var_f14;
+    f32 var_f4;
+    s32 var_6_1;
+    s32 var_6_2;
+    s32 var_6_3;
 
-/* measured (1 attempt, best nd 35): opt_loop_invariants + for-loop shape
-   gives the byte-identical frame, preheader constant hoist (-640/640/4.0f),
-   the whole div/f14 section (incl. the D_007523C4 lwc1 division) and the
-   tail call; the ONLY residual is the 3 loop bodies — retail keeps the
-   loop counter in $a2 (arg0/arg1 live across, address scratch $v0/$v1)
-   while mwcc b210 always colors the counter $v0 and the scratch $v1/$a2,
-   swapping every loop word. Same register-printing floor as func_0034d690
-   (nd 37) / d070 (nd 35) / d490 (nd 37); the d690 probe confirmed u32
-   counter and hoisted base pointer are worse, so this family is exhausted. */
+    if (arg1 != 0) {
+        if (*(s16 *)(D_007523C8 + (*(s32 *)(arg0 + 0x1680) * 0x10)) == 1) {
+            var_f4 = -640.0f;
+            var_6_1 = 0;
+            for (; var_6_1 < 0x14; var_6_1++) {
+                temp_f0 = *(f32 *)(arg0 + var_6_1 * 0x54 + 8);
+                if (!(temp_f0 <= var_f4)) {
+                    var_f4 = temp_f0;
+                }
+            }
+        } else {
+            var_f4 = -640.0f;
+            var_6_2 = 0;
+            for (; var_6_2 < 0x14; var_6_2++) {
+                temp_f0_2 = *(f32 *)(arg0 + var_6_2 * 0x54 + 8) - 640.0f;
+                if (!(temp_f0_2 <= var_f4)) {
+                    var_f4 = temp_f0_2;
+                }
+            }
+        }
+    } else {
+        var_f4 = 640.0f;
+        var_6_3 = 0;
+        for (; var_6_3 < 0x14; var_6_3++) {
+            temp_f0_3 = *(f32 *)(arg0 + var_6_3 * 0x54 + 8);
+            if (temp_f0_3 < var_f4) {
+                var_f4 = temp_f0_3;
+            }
+        }
+    }
+    temp_f3 = *(f32 *)(arg0 + 0x1688) / 4.0f;
+    if (*(s32 *)(arg0 + 0x1690) == 0) {
+        temp_f2 = (f32)*(s16 *)(arg0 + 0x1684);
+        if (temp_f2 < temp_f3) {
+            var_f14 = (temp_f2 - temp_f3) / (*(f32 *)(D_007523C4 + (*(s32 *)(arg0 + 0x1680) * 0x10)) - temp_f3);
+        } else {
+            var_f14 = 1.0f;
+        }
+    } else {
+        var_f14 = 1.0f;
+    }
+    if (arg1 == 0) {
+        var_f14 = 1.0f - var_f14;
+    }
+    func_0034e0b0(arg0, var_f4 - *(f32 *)(arg0 + 0x99C), -*(f32 *)(arg0 + 0x9A0), var_f14);
+}
+/* measured: closes the tested d280 loop-invariant scope at the file baseline. */
+#pragma opt_loop_invariants off
 
-/* measured: retail colors the loop counter $a2 (arg1/arg0 live across the
-   loops, address scratch $v0/$v1); mwcc b210 always colors the counter $v0
-   and the scratch $v1/$a2, swapping every loop word, nd 37. opt_loop_invariants
-   fixes the 448.0f preheader hoist (nd 110 -> 37); tried s32 and u32 counters
-   and decl orders — best identical nd 37. Same register-coloring floor as
-   func_0034d070/d280/d490. */
-/* measured: re-tested (for-loops nd 37, u32 counter nd 37).
-   opt_loop_invariants + for-loop shape gives the byte-identical frame and
-   tail; the ONLY residual is the 3 loop bodies:
-   retail keeps the loop counter in $a2 (arg1/arg0 live across, address
-   scratch $v0/$v1); mwcc b210 always colors the counter $v0 and the scratch
-   $v1/$a2, swapping every loop word (nd 37). Register-coloring floor, same
-   family as func_0034d070 (nd 35) / d280 / d690. */
+/* measured: three separate loop-index locals plus the exact `lh` table access
+   reproduce retail's shared $a2 counter coloring; d280 is nd 0
+   (object 528B / window 528B). */
 // FUN_0034D490
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d490);
+/* measured: opt_loop_invariants hoists the shared 448.0f/4.0f constants for
+   this exact loop-index spelling. */
+#pragma opt_loop_invariants on
+void func_0034d490(u8 *arg0, s32 arg1) {
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f0_4;
+    f32 temp_f1;
+    f32 var_f14;
+    f32 var_f2;
+    s32 var_6_1;
+    s32 var_6_2;
+    s32 var_6_3;
+
+    if (arg1 != 0) {
+        var_f2 = 448.0f;
+        var_6_1 = 0;
+        for (; var_6_1 < 0x14; var_6_1++) {
+            temp_f0 = *(f32 *)(arg0 + var_6_1 * 0x54 + 0xC);
+            if (temp_f0 < var_f2) {
+                var_f2 = temp_f0;
+            }
+        }
+    } else if (*(s16 *)(D_007523C8 + (*(s32 *)(arg0 + 0x1680) * 0x10)) == 1) {
+        var_f2 = -448.0f;
+        var_6_2 = 0;
+        for (; var_6_2 < 0x14; var_6_2++) {
+            temp_f0_2 = *(f32 *)(arg0 + var_6_2 * 0x54 + 0xC) - 448.0f;
+            if (!(temp_f0_2 <= var_f2)) {
+                var_f2 = temp_f0_2;
+            }
+        }
+    } else {
+        var_f2 = -448.0f;
+        var_6_3 = 0;
+        for (; var_6_3 < 0x14; var_6_3++) {
+            temp_f0_3 = *(f32 *)(arg0 + var_6_3 * 0x54 + 0xC);
+            if (!(temp_f0_3 <= var_f2)) {
+                var_f2 = temp_f0_3;
+            }
+        }
+    }
+    temp_f1 = *(f32 *)(arg0 + 0x1688) / 4.0f;
+    if (*(s32 *)(arg0 + 0x1690) == 0) {
+        temp_f0_4 = (f32)*(s16 *)(arg0 + 0x1684);
+        if (temp_f0_4 < temp_f1) {
+            var_f14 = (temp_f1 - temp_f0_4) / temp_f1;
+        } else {
+            var_f14 = 1.0f;
+        }
+    } else {
+        var_f14 = 1.0f;
+    }
+    if (arg1 == 0) {
+        var_f14 = 1.0f - var_f14;
+    }
+    func_0034e0b0(arg0, -*(f32 *)(arg0 + 0x99C), var_f2 - *(f32 *)(arg0 + 0x9A0), var_f14);
+}
+/* measured: closes the tested loop-invariant scope at the file baseline. */
+#pragma opt_loop_invariants off
+/* measured: separate loop-index locals for d690's three independent extrema
+   scans reproduce retail's reused $a2 coloring; `lh` table access and
+   opt_loop_invariants give nd 0 (object 504B / window 512B). */
 // FUN_0034D690
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d690);
-/* measured (4 attempts, best nd 37): opt_loop_invariants + for-loop shape
-   gives the byte-identical frame, preheader constant hoist (-448/448/4.0f),
-   div section and tail call; the ONLY residual is the 3 loop bodies — retail
-   keeps the loop counter in $a2 (arg0/arg1 live across, address scratch
-   $v0/$v1) while mwcc b210 always colors the counter $v0 and the scratch
-   $v1/$a2, swapping every loop word. Tried s32/u32 counters, hoisted
-   f32* base local, decl orders, pragma on/off — identical. Register-printing
-   floor, same family as func_0034d070 (nd 35) / d280 / d490. */
+/* measured: opens the exact d690 loop-invariant scope. */
+#pragma opt_loop_invariants on
+void func_0034d690(u8 *arg0, s32 arg1) {
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f0_4;
+    f32 temp_f1;
+    f32 var_f14;
+    f32 var_f2;
+    s32 var_6_1;
+    s32 var_6_2;
+    s32 var_6_3;
+
+    if (arg1 != 0) {
+        if (*(s16 *)(D_007523C8 + (*(s32 *)(arg0 + 0x1680) * 0x10)) == 1) {
+            var_f2 = -448.0f;
+            var_6_1 = 0;
+            for (; var_6_1 < 0x14; var_6_1++) {
+                temp_f0 = *(f32 *)(arg0 + var_6_1 * 0x54 + 0xC) - 448.0f;
+                if (!(temp_f0 <= var_f2)) {
+                    var_f2 = temp_f0;
+                }
+            }
+        } else {
+            var_f2 = -448.0f;
+            var_6_2 = 0;
+            for (; var_6_2 < 0x14; var_6_2++) {
+                temp_f0_2 = *(f32 *)(arg0 + var_6_2 * 0x54 + 0xC);
+                if (!(temp_f0_2 <= var_f2)) {
+                    var_f2 = temp_f0_2;
+                }
+            }
+        }
+    } else {
+        var_f2 = 448.0f;
+        var_6_3 = 0;
+        for (; var_6_3 < 0x14; var_6_3++) {
+            temp_f0_3 = *(f32 *)(arg0 + var_6_3 * 0x54 + 0xC);
+            if (temp_f0_3 < var_f2) {
+                var_f2 = temp_f0_3;
+            }
+        }
+    }
+    temp_f1 = *(f32 *)(arg0 + 0x1688) / 4.0f;
+    if (*(s32 *)(arg0 + 0x1690) == 0) {
+        temp_f0_4 = (f32)*(s16 *)(arg0 + 0x1684);
+        if (temp_f0_4 < temp_f1) {
+            var_f14 = (temp_f1 - temp_f0_4) / temp_f1;
+        } else {
+            var_f14 = 1.0f;
+        }
+    } else {
+        var_f14 = 1.0f;
+    }
+    if (arg1 == 0) {
+        var_f14 = 1.0f - var_f14;
+    }
+    func_0034e0b0(arg0, -*(f32 *)(arg0 + 0x99C), var_f2 - *(f32 *)(arg0 + 0x9A0), var_f14);
+}
+/* measured: closes the tested d690 loop-invariant scope at the file baseline. */
+#pragma opt_loop_invariants off
 
 // FUN_0034D890
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);

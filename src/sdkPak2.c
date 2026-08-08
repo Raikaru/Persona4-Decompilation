@@ -77,15 +77,17 @@ case6:
     } while (p != NULL);
 }
 
-/* measured: the positive range guard matches retail's slt $at/beqz shape
-   (the earlier early-return form was nd 49). The best parked body is nd 14,
-   object 284B/window 288B: `(u8 *)(arg1 * 4) + (u32)arg0 + 0x10` fixes the
-   retail slot-address addu order. Residual fndiff rows are offsets 56, 60,
-   64, 68, 72 (retail computes base+count and scales before loading tbl,
-   then uses index-first table-entry addu) and 108 (retail passes tbl in v1,
-   mwcc passes the same value in a0). Tried idx locals and pointer-left
-   table-entry forms; they stayed nd 16. This is a scheduling/address
-   materialisation floor. Committed at nd 14. */
+/* measured: the best parked body is nd 11, object 284B/window 288B. Split
+   `idx = base + count; idx = idx * 4;` before loading tbl and keep the
+   table-entry expression `*(u8 **)(tbl + 0x10) + idx`; this is the only
+   source shape that improves the earlier nd 14 body. fndiff's remaining
+   rows are offset 60 (candidate `lw $a0,8($s2)`, retail `sll $a0,$v0,2`),
+   64 (candidate `sll $v1,$v0,2`, retail `lw $v1,8($s2)`), 68 (candidate
+   `lw $v0,0x10($a0)`, retail `lw $v0,0x10($v1)`), 72 (candidate
+   `addu $v0,$v0,$v1`, retail `addu $v0,$a0,$v0`), and 108 (candidate
+   `addiu $a0,$a0,0x18`, retail `addiu $a0,$v1,0x18`). Declaration order,
+   integer casts, address-taken index locals, table declarations, and pragma
+   probes stayed nd 11 or worsened. Committed at nd 11. */
 // FUN_00468BF0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00468bf0(u8 *arg0, s32 arg1)
@@ -93,6 +95,7 @@ s32 func_00468bf0(u8 *arg0, s32 arg1)
     s32 base;
     s32 count;
     s32 len;
+    s32 idx;
     u8 *slot;
     u8 *tbl;
     u8 *ent;
@@ -100,8 +103,10 @@ s32 func_00468bf0(u8 *arg0, s32 arg1)
     base = *(s32 *)(arg0 + 0x3C);
     count = *(s32 *)(arg0 + 0x44);
     if (count < *(s32 *)(arg0 + 0x40) - base + 1) {
+        idx = base + count;
+        idx = idx * 4;
         tbl = *(u8 **)(arg0 + 8);
-        ent = *(u8 **)(tbl + 0x10) + (base + count) * 4;
+        ent = *(u8 **)(tbl + 0x10) + idx;
         len = *(s32 *)(ent + 8) - *(s32 *)(ent + 4);
         if (len != 0) {
             slot = (u8 *)(arg1 * 4) + (u32)arg0 + 0x10;

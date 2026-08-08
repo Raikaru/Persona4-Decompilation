@@ -939,91 +939,13 @@ void func_0024ba60(s32 arg0)
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024bb00);
 // FUN_0024BE40
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
-/* Parked reconstruction: retail branches on flags 0x2/0x4, computes the
-   particle alpha through single-precision FMA (adda.s/madd.s), saturates the
-   255.0f colour conversion with c.ole.s/bc1t, and shares the common particle
-   call/epilogue. C uses typed pointer fields, a split colour local, and the
-   direct C float expressions; no inline assembly. Probes: plain C, explicit
-   u8/s32 conversion arms, compare spellings, split locals, and helper/callee
-   parameter types. Best retained body: obj 892B/window 896B; residuals are
-   the FMA accumulator operand order, three mov.s/address-load scheduling
-   swaps, and colour mfc1 register coalescing. The 19 first quoted here was
-   fndiff's DIFFERING-WORD count, which is not verify.py's normalized_diff -
-   verify measures this body at 35. Committed at nd 35. */
-// FUN_0024C0E0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0024c0e0(u8* arg0, u8* arg1)
-{
-    s32 temp_16;
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_4;
-    s32 temp_5;
-    f32 temp_f0;
-    f32 temp_f1;
-
-    temp_16 = func_00452380(D_00635A78);
-    temp_2 = func_00452380(D_00635A78);
-    if (temp_2 == 0) {
-        func_0046d730(D_006359F0, 0x392);
-    }
-    temp_4 = ((*(s32*)func_00452560(temp_2) & 1) != 0);
-    if (temp_4 == 0) {
-        func_0046d730(D_006359F0, 0x39D);
-    }
-    temp_16 = *(s32*)((u8*)func_00452560(temp_16) + 0x24);
-    temp_3 = *(s32*)(arg1 + 0);
-    if ((temp_3 & 2) != 0) {
-        temp_2 = *(s32*)(arg1 + 8);
-        if (temp_2 < 10) {
-            temp_f0 = func_0044b7b0((iGpffff8094 * (f32)temp_2) / 10.0f);
-        } else {
-            temp_f0 = 1.0f;
-        }
-        func_0025ecd0(0xFFFFFF, 0xFF, 0, temp_16, 1, 0, 0, D_00794E70,
-                      512.0f, 418.0f + 200.0f * (1.0f - temp_f0), cmmScriptAdd(418.0f, 0.0f),
-                      -30.0f, 1.0f, 1.0f);
-        temp_4 = *(s32*)(arg1 + 8) + 1;
-        *(s32*)(arg1 + 8) = temp_4;
-        if (temp_4 >= 10) {
-            *(s32*)(arg1 + 0) = *(s32*)(arg1 + 0) & ~2;
-            *(s32*)(arg1 + 8) = 0;
-        }
-        goto block_20;
-    }
-    if ((temp_3 & 4) != 0) {
-        temp_2 = *(s32*)(arg1 + 8);
-        if (temp_2 < 10) {
-            temp_f0 = func_0044b7b0((iGpffff8094 * (f32)temp_2) / 10.0f);
-        } else {
-            temp_f0 = 1.0f;
-        }
-        temp_f1 = 255.0f * (1.0f - temp_f0);
-        if (2147483600.0f > temp_f1) {
-            temp_5 = (u8)(s32)temp_f1;
-        } else {
-            temp_5 = (s32)(temp_f1 - 2147483600.0f) | 0x80000000;
-        }
-        temp_5 &= 0xFF;
-        func_0025ecd0(0xFFFFFF, temp_5, 0, temp_16, 1, 0, 0, D_00794E70,
-                      512.0f, 418.0f, 0.0f, -30.0f, 1.0f, 1.0f);
-        temp_4 = *(s32*)(arg1 + 8) + 1;
-        *(s32*)(arg1 + 8) = temp_4;
-        if (temp_4 >= 10) {
-            *(s32*)(arg1 + 0) = *(s32*)(arg1 + 0) & ~4;
-            *(s32*)(arg1 + 8) = 0;
-            return 1;
-        }
-        goto block_20;
-    }
-    func_0025ecd0(0xFFFFFF, 0xFF, 0, temp_16, 1, 0, 0, D_00794E70,
-                  512.0f, 418.0f, 0.0f, -30.0f, 1.0f, 1.0f);
-block_20:
-    return 0;
-}
-#else
+/* measured: the archived C reconstruction for func_0024c0e0 reached nd 35
+   at object 892B/window 896B. Its FMA accumulator order, mov.s/address-load
+   scheduling and mfc1 colouring residuals exceed the park threshold; the
+   body and ruled-out probe list are preserved in
+   build/W8CmmScript_c0e0_archive.json, so the bare INCLUDE_ASM fallback remains. */
+// FUN_0024C0E0
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c0e0);
-#endif
 // FUN_0024C460
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c460);
 /* measured: same H1 FPU FMA floor as FUN_0024C460 -- the func_0025ecd0 calls

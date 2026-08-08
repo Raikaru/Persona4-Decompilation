@@ -1,20 +1,27 @@
 #include "include_asm.h"
 #include "type.h"
 
-extern void func_0041e8d8(u8 *arg0, s32 arg1);
+s32 func_0041e8d8(); /* old-style: retail callers leave $a0..$a3 materialized */
 
 /* measured: baseline -O2 emits lw/sw/srl/andi/jr/nop with the return andi
    before jr (nd 6); schedule-on fills the jr delay slot with the andi but
    reorders the srl ahead of the store (nd 8), so the plain -O2 form is
    kept. Residual vs retail (lw/sw/srl/jr/andi): the andi/jr pair swapped.
    Translation-unit hypothesis: seven parked functions here (nd 2 through
-   nd 8) all load 0x40($a0), but each b210 body chooses a different
-   destination from retail ($v1/$v1/$a2/$a0/$t0). Named locals, parameter
-   reassignment, fully inline expressions, declaration orders, pointer and
-   scalar types, and pragma wrappers did not move any destination. The
-   uniform file-wide register divergence suggests a translation-unit boundary
-   or declaration-environment defect (generated promoted grouping/prototypes),
-   not seven independent colouring floors. */
+   nd 8) are under test; six load 0x40($a0), with retail destinations
+   $v1/$t0/$v1/$a2/$a0 (f2a8/f2d0/f550/f5e0/f788+f7b0), while f19628 loads
+   ($a0). Named locals, parameter reassignment, fully inline expressions,
+   declaration orders, pointer and scalar types, and pragma wrappers did not
+   move any destination. The uniform file-wide register divergence suggests
+   a translation-unit boundary or declaration-environment defect (generated
+   promoted grouping/prototypes), not seven independent colouring floors. */
+/* measured: retail call-site audit confirms func_0041e8d8 is old-style:
+   f178/f1c0/f500 enter its jal with the existing a0-a3 values and do not
+   materialize a prototype-defined argument list. The promoted TU now uses
+   `s32 func_0041e8d8();`; typed one-pointer declarations for 00420e50 and
+   00420f38 agree with their retail callers. No data globals are declared in
+   this TU, so there is no array-versus-scalar global correction to test.
+   Old-style and typed-helper probes left every parked nd unchanged. */
 
 void func_00420e50(u8 *);
 

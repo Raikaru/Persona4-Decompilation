@@ -689,7 +689,6 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
    separate walker/result form was nd 25, object 84B/window 96B. Committed at nd 6. */
 // FUN_003CC010 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: probe schedule */
 #pragma schedule on
 /* measured: probe CSE */
 #pragma opt_common_subs off
@@ -899,7 +898,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 
 /* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; nd 15, obj 52B/window 64B. */
+   recorded in the notes above; nd 15, obj 52B/window 64B. Committed at nd 15. */
 // FUN_003CC6E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003cc6e0(u8 *arg0) {

@@ -46,6 +46,10 @@ extern void func_002b2970(void *, f32, f32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
 extern void func_002b2a60(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern f32 func_0046b260(u8 *arg0);
+extern f32 func_0046b2f0(u8 *arg0);
+extern u8 *func_0046d200(u32 arg0, u32 arg1);
+extern void func_0046d280(u8 *arg0);
 extern void func_002b7cd0(u8 *, s16, s16);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -56,7 +60,7 @@ extern void func_002b5c60(u8 *arg0);
 extern s32 func_002b6340(u8 *arg0);
 extern void func_002b6560(u8 *arg0);
 extern s32 func_002b7f20(u8 *arg0);
-extern u8 *func_002b89a0(u8 *arg0);
+extern s32 func_002b89a0(u8 *arg0);
 extern s8 func_002b6820(u8 *arg0, u32 arg1);
 extern s32 func_002b9e10(u8 *arg0);
 extern void func_002b9ab0(u8 *arg0, u8 *arg1);
@@ -481,7 +485,27 @@ void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
    worse). Remaining levers: deferred g local scoped to the pair+chain only.
    Same argument-materialization family as the old nd 9 note. */
 // FUN_002B6C30
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6c30);
+void func_002b6c30(s16 arg0, f2 p1, s32 arg2, f32 fparg0) {
+    u8 *base;
+    u8 *base2;
+    s32 off;
+    u8 *entry;
+    u8 *tmp;
+    base = *(u8 **)(iGpffffb574 + 0x38);
+    off = ((s32)arg0) << 8;
+    entry = base + off;
+    *(s16 *)(entry + 0x14) |= 1;
+    *(f32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x18) = fparg0;
+    *(s32 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 0x0C) = arg2;
+    entry = *(u8 **)(iGpffffb574 + 0x38) + off;
+    *(f2 *)(entry + 0x3C) = p1;
+    tmp = func_0046d200(*(u32 *)base, *(s16 *)(*(u8 **)(iGpffffb574 + 0x38) + off + 8));
+    base2 = *(u8 **)(iGpffffb574 + 0x38);
+    *(s16 *)(base2 + off + 0x10) = (s16)(func_0046b260(tmp) / 2.0f);
+    base2 = *(u8 **)(iGpffffb574 + 0x38);
+    *(s16 *)(base2 + off + 0x12) = (s16)(func_0046b2f0(tmp) / 2.0f);
+    func_0046d280(tmp);
+}
 
 // FUN_002B6D60
 #pragma opt_propagation off
@@ -809,7 +833,7 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9ab0);
    q,p,r,i) - best nd 56, the nd-3 recipe's exact declaration order was NOT
    recovered (register allocation diverges: q=$s0 vs retail $s1). #pragma
    opt_propagation off does not help the loop-shape/coloring here. Keep the
-   nd-3 note as the closest known state. func_002b89a0 declared u8 *(u8*). */
+   nd-3 note as the closest known state. func_002b89a0 declared s32 (u8*). */
 // FUN_002B9E10
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9e10);
 // FUN_002B9F60

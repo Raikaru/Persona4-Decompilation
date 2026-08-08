@@ -55,6 +55,7 @@ void func_003df7f0(s32 arg0);
 // FUN_003D3920
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3920);
 
+
 /* measured: the call has a hidden first argument. Retail leaves $a0 holding
    this function's own arg0 at the jal and puts the 0 in $a1 with the floats in
    $f12/$f13, so func_003cfa80 takes (ptr, s32, f32, f32); every three-argument
