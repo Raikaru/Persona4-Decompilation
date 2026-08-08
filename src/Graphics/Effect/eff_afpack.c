@@ -168,10 +168,13 @@ s32 func_004b6e40(void)
     return 0;
 }
 
-/* measured: candidate nd 24, object 692B against 704B window; parked near-match pending saved-register/address relocation levers. */
+/* measured: nd 1, object 692B against the 704B window. Hoisting the absolute jump-table base through a casted `code` table local reproduces retail's saved `$s1` table pointer and both indirect calls; the only non-relocation residual is `addiu $a0,$v0,4` vs retail `lw $a0,4($v0)` at +0x1B0 (fndiff also reports only masked GP/table relocation addend differences). Tried direct/local typed table pointers and field-load rewrites (nd 24/187/194) without improvement. Committed at nd 1. */
 // FUN_004B6E80 NONMATCHING
 #ifdef NON_MATCHING
 void func_004b6e80(void) {
+    typedef int (*code)(...);
+    extern code DAT_008873ec_abs[];
+    void *(**table);
     extern void func_004b5950(void *arg0);
     extern void func_004b5c60(void *arg0);
     extern s32 func_004bce30(void *arg0);
@@ -239,8 +242,9 @@ void func_004b6e80(void) {
                     func_003c4220(*(u8 **)(*(u8 **)(temp + 0xC) + off + 4));
                     i++;
                 }
-                (*jtbl_008873EC)(temp);
-                (*jtbl_008873EC)(work);
+                table = (void *(**) )DAT_008873ec_abs;
+                ((code)table[0])(temp);
+                ((code)table[0])(work);
             }
         }
         first = (u8 *)D_00764CA0;

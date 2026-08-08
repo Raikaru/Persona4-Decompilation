@@ -278,7 +278,7 @@ void func_00378f90(u8 *arg0, s32 arg1, s32 arg2) {
 
 
 
-/* measured: named aggregate copy reproduces retail's branch value in $a0 and grouped global loads/stores (nd 4, object 180B vs window 192B). Probed s64+f32, three-f32, s32/s32/f32, nested pairs, array pairs, packed/aligned spellings, staged s64 casts, and typed-global variants; b210's s64+f32 aggregate is 16-byte aligned and emits ld/sd for the 8-byte tail, while the retail tail is lwc1/swc1. The remaining four differing words are this unavoidable 12-byte aggregate width/alignment mismatch. Committed at nd 4. */
+/* measured: named aggregate copy gives nd 4, object 180B vs window 192B, with the retail branch value in $a0 and grouped global loads/stores. Its residual is a wrong source operand, not a transfer-width floor: at 0x50 the candidate emits ld $v0, 8($v0) from D_0064EAB0+8 while retail emits lwc1 $f0, D_0064EAB8, and at 0x58 it stores that wrong value with sd instead of retail's swc1. Probed plain triples, f32[3], s64+f32, s32/s32/f32, nested pairs, array pairs, typed globals, packed/aligned spellings, unions, pointers, memcpy, mode-DI, vector, staged and pair-tail forms, the exact Pair-only two-statement copy (nd 70), an independent Pair plus f32 tail (nd 10), and member-wise direct-global s64/f32 copies (best nd 28, object 180B vs window 192B); none beat nd 4. The remaining four differing words are the unresolved D_0064EAB0+8 versus D_0064EAB8 operand mismatch. Committed at nd 4. */
 // FUN_00379090 NONMATCHING
 #ifdef NON_MATCHING
 void func_00379090(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {

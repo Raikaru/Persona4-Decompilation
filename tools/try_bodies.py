@@ -12,6 +12,7 @@ the closing brace, or through the `INCLUDE_ASM(...)` line, is replaced.
 Each variant is compiled with a scoped `tools/verify.py` run and reported with
 its status / normalized_diff / object size.  The file is always restored.
 """
+import os
 import json
 import pathlib
 import re
@@ -74,12 +75,13 @@ def main():
         for label, body in variants.items():
             new = lines[:start] + body.split("\n") + lines[end:]
             path.write_text(nl.join(new), encoding="utf-8", errors="surrogateescape")
+            rpt = "build/_trybodies_%s_%d.json" % (func, os.getpid())
             subprocess.run(
-                [sys.executable, "tools/verify.py", "--json", "build/try_bodies.json", cfile],
+                [sys.executable, "tools/verify.py", "--json", rpt, cfile],
                 capture_output=True, stdin=subprocess.DEVNULL,
             )
             try:
-                report = json.loads(pathlib.Path("build/try_bodies.json").read_text())
+                report = json.loads(pathlib.Path(rpt).read_text())
             except Exception:
                 print(f"  {label:24} VERIFY_FAILED")
                 continue

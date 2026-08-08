@@ -51,28 +51,22 @@ s32 func_003619b0(u8 *arg0) {
     return flag & func_0034c210();
 }
 
-/* measured: nd 8 at retail's exact 128-byte object. The odd `i <= 0` bound is
-   real - retail's back edge is a blez, so the body runs exactly once. The
-   residual is the argument order before the call: retail loads the counter
-   into $a1 before biasing the record address into $a0, b210 does the reverse.
-   Hoisting the address into a local and hoisting the counter into a local
-   both leave it at nd 8. Committed at nd 8. */
-// FUN_00361CA0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00361CA0
 void func_00361ca0(u8 *arg0) {
     s16 c = *(s16 *)(arg0 + 0x26);
+    s32 count;
     s32 i;
+    u8 *record;
 
     if (c < 100) {
         *(s16 *)(arg0 + 0x26) = c + 1;
     }
     for (i = 0; i <= 0; i++) {
-        func_001437b0(arg0 + i * 0x30 + 0x5B8, *(s16 *)(arg0 + 0x26), 0);
+        record = arg0 + i * 0x30;
+        count = *(s16 *)(arg0 + 0x26);
+        func_001437b0(record + 0x5B8, count, 0);
     }
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00361ca0);
-#endif
+  }
 
 // FUN_003642A0
 void func_003642a0(u8 *arg0)

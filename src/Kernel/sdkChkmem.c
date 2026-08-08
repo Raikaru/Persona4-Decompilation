@@ -152,16 +152,13 @@ INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ef70);
 // FUN_0044F140
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044f140);
 
-/* measured: 0044f3a0 candidate is 296B in the 304B retail window at verify normalized_diff 6. The lock acquisition/release, size multiplication and alignment, allocation/error path, typed header initialization call, zero fill, and return all match; the remaining difference is the persistent saved-register assignment for the allocator result/aligned size pair. Reused locals, declaration orders, multiplication orders, and split alignment forms were probed; plain C cannot force retail's swap. Committed at nd 6. */
-// FUN_0044F3A0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0044F3A0
 s32 func_0044f3a0(s32 arg0, s32 arg1)
 {
     s32 temp_16;
     s32 temp_17;
-    s32 temp_19;
-    s32 temp_19_2;
     s32 temp_2;
+    s32 temp_19_2;
     u32 temp_18;
 
     temp_17 = func_0042ba20();
@@ -175,18 +172,15 @@ s32 func_0044f3a0(s32 arg0, s32 arg1)
     if (temp_2 == 0) {
         func_0046d700(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes, temp_18);
     }
-    temp_19 = func_0044eaa0(temp_2, temp_19_2, 0x10, 0);
+    temp_19_2 = func_0044eaa0(temp_2, temp_19_2, 0x10, 0);
     if (temp_16 != 0) {
         func_0042ba70();
     }
-    if (temp_19 != 0) {
-        func_0043f9c8((void *)temp_19, 0, temp_18);
+    if (temp_19_2 != 0) {
+        func_0043f9c8((void *)temp_19_2, 0, temp_18);
     }
     if (temp_17 != 0) {
         func_0042ba70();
     }
-    return temp_19;
+    return temp_19_2;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044f3a0);
-#endif
