@@ -365,3 +365,7 @@ D_00887280 = 0x00887280; // type:data evidence: retail func_003e46e0 lui 0(D_008
 D_0088732C = 0x0088732c; // type:data evidence: retail func_003e7fb0 lui 0(D_0088732C) absolute function-pointer jalr target
 iGpffff9c08 = 0x00762cf8; // type:data evidence: retail func_00115cb0 func_00442088 fmt arg addiu $5,$28,-0x63F8 (0x00762CF8); gp base 0x007690F0
 D_007144B8 = 0x007144b8; // type:data evidence: retail func_004abe80 lui/addiu %hi/%lo(0x007144B8) at 0x004ABE9C/0x004ABEA0 as func_0044ea90's filename argument, the sibling of D_007144A8 sixteen bytes below
+D_008BD9C0 = 0x008bd9c0; // type:data evidence: retail func_0043A920/0043AC60/0043ACC0 lui/addiu %hi/%lo(D_008BD9C0) at 0x0043A924/0x0043A938, 0x0043AC68/0x0043AC7C, and 0x0043ACCC/0x0043ACE8
+D_008BDAC0 = 0x008bdac0; // type:data evidence: retail func_0043A920/0043AC60/0043ACC0 lui/addiu %hi/%lo(D_008BDAC0) at 0x0043A930/0x0043A938, 0x0043AC64/0x0043AC70, and 0x0043ACD0/0x0043ACD8
+D_008873D0 = 0x008873d0; // type:data evidence: retail func_003ddc20 lui/addiu %hi/%lo(D_008873D0) at 0x003DDC44/0x003DDC48, then lw $2,0($16) at 0x003DDC50
+iGpffffb754 = 0x00764844; // type:data evidence: retail func_003ddf20 lw $4,-0x48AC($28) at 0x003DDF38 and 0x003DDF5C; gp base 0x007690F0

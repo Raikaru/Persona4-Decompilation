@@ -211,31 +211,35 @@ u8 *func_003c3e10(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e10);
 #endif
 
-/* measured: same shape as func_003bd470 in code1_003b.c, but NOT the same
-   residual - nd 102 here against nd 43 there. The note originally copied the
-   sibling's number without measuring this one; in a different translation unit
-   with different declarations the same source scores very differently. */
+/* measured: the explicit-label block order from func_003bd470 in code1_003b.c,
+   with schedule on and no_branch_likely on, reproduces retail's block layout
+   and call setup. Scoped verify: nd 0, object 120B/window 128B. */
 // FUN_003C3F20
-#ifdef NON_MATCHING
+/* measured: schedule on and no_branch_likely on are required for the retail
+   jal/jr delay slots and plain branch forms. */
+#pragma schedule on
 #pragma no_branch_likely on
 s32 func_003c3f20(s32 arg0, s32 arg1)
 {
     if (func_003df360(arg0, &D_007647CC, 4) == 0) {
-        return 0;
+        goto ret0;
     }
-    if (arg1 != 8) {
-        return arg0;
+    if (arg1 == 8) {
+        goto do2;
     }
-    if (func_003df360(arg0, &D_007647C8, 4) == 0) {
-        return 0;
-    }
+retarg:
     return arg0;
+ret0:
+    return 0;
+do2:
+    if (func_003df360(arg0, &D_007647C8, 4) != 0) {
+        goto retarg;
+    }
+    return 0;
 }
-/* measured: closes the bracket noted above the marker. */
+/* measured: closes the branch and schedule pragmas above at the file baseline. */
 #pragma no_branch_likely off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3f20);
-#endif
+#pragma schedule off
 
 /* measured: C reconstruction with schedule/no_branch_likely pragmas is nd 48,
    object 112B/window 112B; retail's pre-prologue load and movz conditional
@@ -283,13 +287,13 @@ u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
-/* measured: schedule on takes this from nd 71 (obj 104 in a 96-byte window)
-   to nd 8 and every instruction is right; the residual is three prologue
-   words -- retail interleaves `move $s1,$a0` between the two saved-register
-   stores while b210 emits both stores first. Measured identical at nd 8:
-   naming the inner pointer in a local before the guard; folding the 0x28
-   into both arms of an if/else is much worse (nd 42). Prologue scheduling
-   floor. Committed at nd 8. */
+/* measured: schedule on takes this from nd 71 (obj 104B/window 96B)
+   to nd 8 (obj 92B/window 96B), with every instruction right; the residual
+   is three prologue words -- retail interleaves `move $s1,$a0` between the
+   two saved-register stores while b210 emits both stores first. Measured
+   identical at nd 8: naming the inner pointer in a local before the guard;
+   folding the 0x28 into both arms of an if/else is much worse (nd 42).
+   Prologue scheduling floor. Committed at nd 8. */
 // FUN_003C47C0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -459,15 +463,16 @@ finish:
 /* measured: close schedule */
 #pragma schedule off
 
-/* measured: nd 14 at retail's 96-byte window. Referencing the three handler
-   entry points by their own symbols (rather than func_003ca740 plus 0x40 and
-   0x60) is what folds each offset into its own relocation and stops b210
-   CSEing them into one base plus two unmasked addiu immediates - that alone
-   was nd 65, and schedule on then took it to nd 14 by hoisting the three
-   addresses above the first store the way retail does. The three words left
-   are the order of `move $v0,$a0`, `addu $t0,$a0,$a3` and the first store;
-   declaring the returned value first, last, or between the handlers and the
-   record pointer all measure nd 14. Committed at nd 14. */
+/* measured: nd 14 at the retail's 96B window (candidate obj 92B/window 96B).
+   Referencing the three handler entry points by their own symbols (rather
+   than func_003ca740 plus 0x40 and 0x60) is what folds each offset into its
+   own relocation and stops b210 CSEing them into one base plus two unmasked
+   addiu immediates - that alone was nd 65, and schedule on then took it to
+   nd 14 by hoisting the three addresses above the first store the way retail
+   does. The three words left are the order of `move $v0,$a0`, `addu
+   $t0,$a0,$a3` and the first store; declaring the returned value first, last,
+   or between the handlers and the record pointer all measure nd 14.
+   Committed at nd 14. */
 // FUN_003CA830 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -610,12 +615,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
    empty, nd 45, and the object overflows the window at 84 bytes) everything
    matches except the order of the last two argument materialisations: retail
    emits `move $a1,$v0` then puts `addiu $a3,$v0,0x10` in the jal delay slot,
-   b210 emits the addiu first and the move in the slot (2 words, nd 8).
-   Measured identical at nd 8: naming temp_2 + 0x10 in a local, pointer-typed
-   temp with pointer arithmetic, a named local for the 0x78 load, `0x10 +
-   temp_2`, an extra (s32) cast on the second argument, and both an
-   all-s32 and an old-style empty callee prototype. Call-argument setup
-   order floor (docs/matching.md). */
+   b210 emits the addiu first and the move in the slot (2 words, nd 8,
+   obj 72B/window 80B). Measured identical at nd 8: naming temp_2 + 0x10 in
+   a local, pointer-typed temp with pointer arithmetic, a named local for the
+   0x78 load, `0x10 + temp_2`, an extra (s32) cast on the second argument, and
+   both an all-s32 and an old-style empty callee prototype. Call-argument
+   setup order floor (docs/matching.md). */
 // FUN_003CB820 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
@@ -667,18 +672,19 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-/* One of three identical setters (0x40/0x3C/0x44 written, 0x58/0x54/0x5C
-   consulted). The gotos reproduce retail's four-block layout, and schedule on
-   plus no_branch_likely on take it from nd 54 to nd 12 (obj 88 in a 96-byte
-   window). The 3-word residual is that retail reads the gp offset TWICE in
-   the null path -- once into $v1 for the 0x58 lookup and again into $a1 in
-   the branch delay slot for the store base -- while b210 common-subexpressions
-   the two reads into one; assigning `off` before the lookup instead is worse
-   (nd 23). Committed at nd 12. */
+/* measured: these three functions are one setter/lookup template. Their
+   explicit four-block gotos plus schedule on, no_branch_likely on, and
+   opt_common_subs off reduce the residual from nd 12 to nd 6; object
+   88B/window 96B. Retail re-reads the gp offset in the null path, while
+   b210 still shares that value even with common-subexpression optimisation
+   disabled. Committed at nd 6. */
 // FUN_003CC010 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
 #pragma no_branch_likely on
+/* measured: disabling common-subexpression sharing preserves retail's
+   repeated gp-offset load in the null path. */
+#pragma opt_common_subs off
 u8 *func_003cc010(u8 *arg0) {
     s32 off;
 
@@ -701,18 +707,24 @@ setnull:
     arg0 = NULL;
     goto reload;
 }
+/* measured: closes the common-subexpression scope above at the file baseline. */
+#pragma opt_common_subs on
+/* measured: closes the branch and schedule scopes above at the file baseline. */
 #pragma no_branch_likely off
-/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc010);
 #endif
 
-/* Sibling of func_003cc010; see the note there. Committed at nd 12. */
+/* measured: sibling of func_003cc010; same template and probes, nd 6,
+   object 88B/window 96B. Committed at nd 6. */
 // FUN_003CC070 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
 #pragma no_branch_likely on
+/* measured: disabling common-subexpression sharing preserves retail's
+   repeated gp-offset load in the null path. */
+#pragma opt_common_subs off
 u8 *func_003cc070(u8 *arg0) {
     s32 off;
 
@@ -735,18 +747,24 @@ setnull:
     arg0 = NULL;
     goto reload;
 }
+/* measured: closes the common-subexpression scope above at the file baseline. */
+#pragma opt_common_subs on
+/* measured: closes the branch and schedule scopes above at the file baseline. */
 #pragma no_branch_likely off
-/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc070);
 #endif
 
-/* Sibling of func_003cc010; see the note there. Committed at nd 12. */
+/* measured: sibling of func_003cc010; same template and probes, nd 6,
+   object 88B/window 96B. Committed at nd 6. */
 // FUN_003CC0D0 NONMATCHING
 #ifdef NON_MATCHING
 #pragma schedule on
 #pragma no_branch_likely on
+/* measured: disabling common-subexpression sharing preserves retail's
+   repeated gp-offset load in the null path. */
+#pragma opt_common_subs off
 u8 *func_003cc0d0(u8 *arg0) {
     s32 off;
 
@@ -769,8 +787,10 @@ setnull:
     arg0 = NULL;
     goto reload;
 }
+/* measured: closes the common-subexpression scope above at the file baseline. */
+#pragma opt_common_subs on
+/* measured: closes the branch and schedule scopes above at the file baseline. */
 #pragma no_branch_likely off
-/* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc0d0);
@@ -813,7 +833,10 @@ void func_003f32d0();
    form of this if inline as a beql skip (13 instr) across 30+ probe
    shapes, so the layout is not reproducible.  Residual: nd 15. */
 
-/* measured: explicit out-of-line labels, schedule on, no_branch_likely on, and two-argument signature reproduce the complete 112-byte body except retail hoists `lw $v1,($a1)` before saving $ra while b210 saves $ra first. Prologue scheduling residual is nd 4. Committed at nd 4. */
+/* measured: explicit out-of-line labels, schedule on, no_branch_likely on,
+   and two-argument signature reproduce the complete 112-byte body except
+   retail hoists `lw $v1,($a1)` before saving $ra while b210 saves $ra first.
+   Prologue scheduling residual is nd 4, obj 104B/window 112B. Committed at nd 4. */
 // FUN_003CC250 NONMATCHING
 #ifdef NON_MATCHING
 extern void (*D_00887300[])(u32, u32);
@@ -856,8 +879,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 
 /* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; re-measured for nd_audit coverage.
-   Committed at nd 15. */
+   recorded in the notes above; nd 15, obj 52B/window 64B. */
 // FUN_003CC6E0 NONMATCHING
 #ifdef NON_MATCHING
 void func_003cc6e0(u8 *arg0) {
@@ -876,15 +898,16 @@ extern s32 D_0070B110[];
 /* measured: without #pragma schedule on, MWCC emits lui / addiu before
    jr $ra with an unfilled delay slot; retail fills the slot (nd 6 -> 0). */
 
-/* measured: nd 2 of 32 words. schedule on plus no_branch_likely on gets the
-   delay slots and the plain bne/bnez; the rest was the shape of the four
-   un-merged `return NULL` blocks, which retail keeps separate and in a specific
-   order. Reaching the arg2 == 0 case through a goto is what stops case 1's null
-   return from pushing case 2's body down - `if (arg2 != 0) {...} return NULL;`
-   inside the case costs nd 19 and `break` into a shared tail costs nd 26.
-   The residual is two swapped branch targets: retail sends arg0 == NULL to the
-   earlier block and arg2 == 0 to the later one, and neither placing the label
-   inside the switch nor at the end of the function reverses that. */
+/* measured: nd 2 of 32 words (obj 120B/window 128B). schedule on plus
+   no_branch_likely on gets the delay slots and the plain bne/bnez; the rest
+   was the shape of the four un-merged `return NULL` blocks, which retail
+   keeps separate and in a specific order. Reaching the arg2 == 0 case
+   through a goto is what stops case 1's null return from pushing case 2's
+   body down - `if (arg2 != 0) {...} return NULL;` inside the case costs nd 19
+   and `break` into a shared tail costs nd 26. The residual is two swapped
+   branch targets: retail sends arg0 == NULL to the earlier block and arg2 ==
+   0 to the later one, and neither placing the label inside the switch nor at
+   the end of the function reverses that. */
 // FUN_003CF9B0
 #ifdef NON_MATCHING
 #pragma schedule on

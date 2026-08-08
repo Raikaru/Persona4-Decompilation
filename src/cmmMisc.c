@@ -82,6 +82,7 @@ static inline s32 cmmMiscOr(s32 left, s32 right) {
     return left | right;
 }
 
+
 // FUN_00246700
 void func_00246700(void) {
     u32 sp3C;
@@ -364,13 +365,14 @@ s32 func_00247020(void) {
     }
     return 0;
 }
-/* measured: retail re-issues var_19&0xFFFF into $a0 at every call site
-   (7+ sites) while keeping temp_18 in $s2 for the idx checks and the
-   multiply (4 saved regs); mwcc b210 CSEs the call-arg masks into $s2 and
-   emits move $a0,$s2 instead of andi (nd 35, all diffs from this one
-   pattern; structure otherwise matches). Mask-CSE floor (same family as
-   FUN_002474F0, whose draft differs only in one comparison, floored nd 33;
-   also FUN_002483C0/FUN_00248B80). */
+/* Family map (measured): the six related masked-counter/table walkers are
+   FUN_00247270 (0x280/640), FUN_002474F0 (0x280/640), FUN_00247DD0
+   (0xF0/240), FUN_00248240 (0x180/384), FUN_00248A60 (0x120/288), and
+   FUN_00248B80 (0x180/384). Related FUN_002483C0 is 0x220/544. The
+   00247270 C body had exact CFG and measured nd 67 at object 636/640;
+   residuals were mask-CSE at the nested call/tail. The opt_common_subs-off
+   probe measured nd 207 at object 648/640 from duplicated pointer loads, so
+   no pragma or body was retained. */
 // FUN_00247270
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247270);
 

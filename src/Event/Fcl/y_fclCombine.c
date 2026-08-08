@@ -814,6 +814,8 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
 // FUN_0030F4F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
 
+
+
 /* measured: best nd 654 (obj 3584B vs window 3632B). Complete faithful
    reconstruction verified against retail: switch dispatch order, D2-D7/0x97
    case bodies, nested jump-table switch (cases 2-7), the sp80[16] table,

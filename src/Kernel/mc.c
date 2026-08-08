@@ -66,7 +66,7 @@ extern char D_007638F8;
 extern char D_00763918;
 typedef struct { u64 lo, hi; } Qword;
 extern Qword D_0063ED70;
-static inline f32 mc_add(f32 left, f32 right) { return left + right; }
+static inline f32 mc_add(f32 a, f32 b) { return a + b; }
 extern f32 D_00761184;
 extern f32 D_00761174;
 extern f32 iGpffff8214;

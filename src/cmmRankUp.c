@@ -13,6 +13,7 @@ extern void func_002516f0();
 extern u8 D_00635CF8[];
 extern u8 D_00635D18[];
 extern u8 D_006367C0[];
+extern u8 D_00636310[];
 extern u8 D_00636390[];
 extern u8 D_00636410[];
 extern u8 D_00636460[];
@@ -558,7 +559,6 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
    correct and ready for a source that reproduces retail's allocation. */
 // FUN_002561F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
-
 
 
 /* measured: structure fully understood (copy loop, 3-branch color store chain,

@@ -332,10 +332,54 @@ ret_one:
 #pragma no_branch_likely off
 
 // FUN_003DDC20
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddc20);
+extern s32 (*D_008873D0[])(u8 *, s32);
+/* measured: retail's saved self assignment is in the initial branch delay slot;
+   schedule and no_branch_likely reproduce the callback loop layout. */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 *func_003ddc20(u8 *arg0) {
+    u8 *self;
+    u8 *node;
+    s32 (**table)(u8 *, s32);
+
+    node = (u8 *)D_00887180[0];
+    self = arg0;
+    if (node != NULL) {
+        table = D_008873D0;
+        do {
+            if (table[0](self, *(s32 *)(node + 0xC)) == 0) {
+                return (s32 *)node;
+            }
+            node = *(u8 **)node;
+        } while (node != NULL);
+    }
+    return NULL;
+}
+/* measured: closes the schedule/no_branch_likely bracket for func_003ddc20. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_003DDF20
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf20);
+extern void func_00421800(s32 arg0);
+extern void func_00421820(s32 arg0);
+extern s32 iGpffffb754;
+/* measured: the wide argument on both 004218x0 calls fills the two retail
+   jal delay slots; schedule on reproduces the saved-register dispatch. */
+#pragma schedule on
+s32 func_003ddf20(u8 *arg0) {
+    u8 *temp;
+    void (*fn)(u8 *);
+
+    temp = (u8 *)(*(s32 *)(arg0 + 0x50) + 0x28);
+    func_00421820(iGpffffb754);
+    *(s32 *)(arg0 + 0x38) = 1;
+    fn = *(void (**)(u8 *))(temp + 4);
+    fn(arg0);
+    func_00421800(iGpffffb754);
+    return 0;
+}
+/* measured: closes the schedule bracket for func_003ddf20. */
+#pragma schedule off
 
 /* measured: nd 38 (37 under schedule on, which also shrinks the object below
    retail's). Dispatches through the +0x50 vtable slot at +0x30 and divides the

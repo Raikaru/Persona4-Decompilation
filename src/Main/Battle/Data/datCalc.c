@@ -164,27 +164,140 @@ void func_00231ef0(u8 *arg0, u8 arg1)
     arg0[6] = arg1;
 }
 
-/* measured: mwcc hoists the 0xFFFF mask constant into a saved register
-   (ori $s1, $zero, 0xffff) and masks temp_16 at its definition instead of
-   loading lhu raw into $s0 like retail; frame 0x50 vs 0x40, obj over
-   window. Tried s32 temp_16, (u16) cast at definition, (u16) cast at
-   uses; all nd 157-178. */
-/* measured 2026-08-03 (wave 14): reconstructed from the m2c draft signature.
-   Still nd 195 (recorded 157-178). Lever 1 measured: extern confirmed
-   `u16 func_00231f80(DatUnit*)` (m2c infers u8*, ABI-identical; caller
-   func_002325a0 passes DatUnit*). Residual unchanged: mwcc b210 hoists the
-   0xFFFF mask into a saved register (ori $s1,$zero,0xffff) and masks temp_16
-   at definition instead of retail's raw `lhu $s0` (implicit mask); frame 0x50
-   vs retail 0x40 so obj exceeds the window. Tried s32/u16 temp_16, (u16)
-   casts at definition and uses, base-var spelling: all nd 157-195.
-   Mask-hoist/saved-register floor, corroborated. */
+/* MATCHED 2026-08-08: func_00231f80 is byte-exact (nd 0, object 784B /
+   window 784B). A raw s32 temp with explicit masks at its uses, a named
+   GP-base/index helper, #pragma opt_common_subs off, and
+   #pragma opt_propagation off reproduce the retail saved-register lifetimes,
+   table-address load order, and the slti $at clamp guard. */
 // FUN_00231F80
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231f80);
+/* measured: opt_common_subs/opt_propagation plus PTDatCalcOffsetAdd force retail index-first GP addressing; nested guard preserves slti $at branch form. */
+#pragma opt_common_subs off
+#pragma opt_propagation off
+u16 func_00231f80(DatUnit *unit)
+{
+    s32 temp_16;
+    s32 var_18;
+    s32 var_3;
+    u16 var_2;
+    u8 *base;
+
+    var_18 = 0;
+    temp_16 = unit->id;
+    if ((unit->flags & 4) != 0) {
+        if ((temp_16 & 0xFFFF) >= 0x150) {
+            func_0046d730(D_00635938, 0xBF);
+        }
+        base = iGpffffb3c4;
+        var_2 = *(u16 *)((u8 *)PTDatCalcOffsetAdd((u32)((temp_16 & 0xFFFF) * 0x3C), (u32)base) + 4);
+    } else {
+        if ((temp_16 & 0xFFFF) >= 0xB) {
+            func_0046d730(D_00635938, 0xC2);
+        }
+        var_2 = (u16)func_001053b0((s16)temp_16);
+    }
+    temp_16 = var_2 & 0xFFFF;
+    if (func_00232730((u8 *)unit, 0x1F0) != 0) {
+        var_18 += (temp_16 * 0xA) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x1F1) != 0) {
+        var_18 += (temp_16 * 0x14) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x1F2) != 0) {
+        var_18 += (temp_16 * 0x1E) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x22D) != 0) {
+        var_18 += (temp_16 * 0x32) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x20C) != 0) {
+        var_18 += temp_16;
+    }
+    if (func_00232730((u8 *)unit, 0x20D) != 0) {
+        var_18 -= (temp_16 * 0x32) / 100;
+    }
+    var_18 += (func_00232950((u8 *)unit, 0x1A) & 0xFFFF) * 0xA;
+    var_18 += (func_00232950((u8 *)unit, 0x1B) & 0xFFFF) * 0x14;
+    var_18 += (func_00232950((u8 *)unit, 0x1C) & 0xFFFF) * 0x1E;
+    var_18 += (func_00232950((u8 *)unit, 0x1D) & 0xFFFF) * 0x28;
+    var_18 += (func_00232950((u8 *)unit, 0x1E) & 0xFFFF) * 0x32;
+    var_3 = temp_16 + (var_18 + ((func_00232950((u8 *)unit, 0x5B) & 0xFFFF) * 0x64));
+    if ((unit->flags & 4) == 0) {
+        if (var_3 > 0x3E7) {
+            var_3 = 0x3E7;
+        }
+    }
+    return var_3 & 0xFFFF;
+}
+/* measured: close opt_propagation scope after 00231f80. */
+#pragma opt_propagation on
+/* measured: close opt_common_subs scope after 00231f80. */
+#pragma opt_common_subs on
 
 
-/* measured: generated/P3-shaped max-SP reconstruction gives nd 511 (object 776B, window 784B); retail keeps id/base/bonus lifetimes and global-base load ordering unlike b210, so the candidate was discarded and the fallback remains. */
+/* MATCHED 2026-08-08: func_00232290 is byte-exact (nd 0, object 784B /
+   window 784B) using the same raw-s32/index-order/clamp template as
+   func_00231f80, with its stat offsets and percentage constants substituted. */
 // FUN_00232290
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232290);
+/* measured: sibling of exact 00231f80 template; raw s32 temp, integer GP-base addition, and direct clamp spelling preserve retail. */
+#pragma opt_common_subs off
+#pragma opt_propagation off
+u32 func_00232290(DatUnit *unit)
+{
+    s32 temp_16;
+    s32 var_18;
+    s32 var_3;
+    u16 var_2;
+    u8 *base;
+
+    var_18 = 0;
+    temp_16 = unit->id;
+    if ((unit->flags & 4) != 0) {
+        if ((temp_16 & 0xFFFF) >= 0x150) {
+            func_0046d730(D_00635938, 0xD9);
+        }
+        base = iGpffffb3c4;
+        var_2 = *(u16 *)((u8 *)PTDatCalcOffsetAdd((u32)((temp_16 & 0xFFFF) * 0x3C), (u32)base) + 6);
+    } else {
+        if ((temp_16 & 0xFFFF) >= 0xB) {
+            func_0046d730(D_00635938, 0xDC);
+        }
+        var_2 = (u16)func_00105460((s16)temp_16);
+    }
+    temp_16 = var_2 & 0xFFFF;
+    if (func_00232730((u8 *)unit, 0x1F3) != 0) {
+        var_18 += (temp_16 * 0xA) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x1F4) != 0) {
+        var_18 += (temp_16 * 0x14) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x1F5) != 0) {
+        var_18 += (temp_16 * 0x1E) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x22E) != 0) {
+        var_18 += (temp_16 * 0x32) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x20C) != 0) {
+        var_18 -= (temp_16 * 0x32) / 100;
+    }
+    if (func_00232730((u8 *)unit, 0x20D) != 0) {
+        var_18 += temp_16;
+    }
+    var_18 += (func_00232950((u8 *)unit, 0x1F) & 0xFFFF) * 0xA;
+    var_18 += (func_00232950((u8 *)unit, 0x20) & 0xFFFF) * 0x14;
+    var_18 += (func_00232950((u8 *)unit, 0x21) & 0xFFFF) * 0x1E;
+    var_18 += (func_00232950((u8 *)unit, 0x22) & 0xFFFF) * 0x28;
+    var_18 += (func_00232950((u8 *)unit, 0x23) & 0xFFFF) * 0x32;
+    var_3 = temp_16 + (var_18 + ((func_00232950((u8 *)unit, 0x8A) & 0xFFFF) * 0x64));
+    if ((unit->flags & 4) == 0) {
+        if (var_3 > 0x3E7) {
+            var_3 = 0x3E7;
+        }
+    }
+    return var_3 & 0xFFFF;
+}
+/* measured: close opt_propagation scope after 00232290. */
+#pragma opt_propagation on
+/* measured: close opt_common_subs scope after 00232290. */
+#pragma opt_common_subs on
 // FUN_002325A0
 s32 func_002325a0(DatUnit* unit, s32 hpDelta)
 {

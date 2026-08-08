@@ -1214,19 +1214,142 @@ extern int func_00273970(int param_1);
 
 
 
-/* measured: all instructions match; retail colors arg0=$16, temp_17=$17,
-   arg1=$18 and emits slt $at for the count check; mwcc b210 colors
-   arg1=$16, arg0=$17, temp_17=$18 and slt $v0 (nd37). Tried first-use
-   reorder, arg1 mutation (no var_18), cached func result, declaration
-   reorders - allocation never changes. Re-tested wave 14 (fresh m2c
-   reconstruction, nd41): full-body probe (var_18 vs arg1-direct, no
-   change), lever-1 signature sweep (u8* cast on func_00273970 callsite -
-   REQUIRED, mwcc strict rejects pointer-to-int implicitly; return u8* vs
-   void* - no change; arg1 s32 vs u32 - no change). The rotation is the
-   prologue save order: retail saves arg0=$s0 BEFORE arg1, mwcc always
-   colors arg1=$s0 first. Saved-register rotation floor. */
+/* measured 2026-08-08: reconstructed the 0x40-byte-linked-list extractor
+   with a typed local node and explicit goto CFG. The declaration order
+   temp_3,var_18,temp_17,var_7,... plus the forward count guard
+   `func_00273970(temp_17) > var_18` yields retail's saved colors and
+   `slt $at`; optimization_level 1 with opt_common_subs on is load-bearing.
+   MATCH nd 0, object 464/window 464 (O2 nd2; O1 without common-substitutions
+   nd36). */
 // FUN_002736D0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_002736d0);
+/* measured: opens the optimization_level 1 scope for func_002736d0; the
+   common-substitution setting is required for MATCH nd 0. */
+#pragma optimization_level 1
+#pragma opt_common_subs on
+u8 *func_002736d0(u8 **arg0, s32 arg1)
+{
+    struct FrFontTreeNode {
+        u8 unknown_00[8];
+        s32 type;
+        u8 unknown_0C[0x18];
+        struct FrFontTreeNode *prev;
+        struct FrFontTreeNode *next;
+        struct FrFontTreeNode *root;
+    };
+    s32 temp_3;
+    s32 var_18;
+    struct FrFontTreeNode *temp_17;
+    struct FrFontTreeNode *var_7;
+    struct FrFontTreeNode *temp_3_2;
+    struct FrFontTreeNode *temp_4;
+    struct FrFontTreeNode *temp_6;
+    struct FrFontTreeNode *var_2;
+    struct FrFontTreeNode *var_3;
+    struct FrFontTreeNode *var_4;
+    struct FrFontTreeNode *var_5;
+
+    var_18 = arg1;
+    if (arg0 == NULL) {
+        func_0046d730(&D_0063BAE8, 0x96B);
+    }
+    temp_17 = (struct FrFontTreeNode *)*arg0;
+    if (temp_17 == NULL) {
+        return NULL;
+    }
+    if (func_00273970((int)temp_17) < 2) {
+        return NULL;
+    }
+    if (func_00273970((int)temp_17) > var_18) {
+        goto count_ok;
+    }
+    return NULL;
+count_ok:
+    var_7 = temp_17->root;
+    goto outer_check;
+outer_body:
+    temp_3 = var_7->type;
+    var_7 = var_7->next;
+    goto inner_check;
+inner_body:
+    temp_3_2 = (struct FrFontTreeNode *)var_7->type;
+    if ((s32)temp_3_2 != temp_3) {
+        goto outer_decrement;
+    }
+    var_7 = var_7->next;
+inner_check:
+    if (var_7 != NULL) {
+        goto inner_body;
+    }
+outer_decrement:
+    var_18 -= 1;
+outer_check:
+    if (var_18 > 0) {
+        goto outer_body;
+    }
+    if (var_7 == NULL) {
+        return NULL;
+    }
+    var_2 = var_7;
+    goto result_check;
+result_body:
+    if (temp_6->type != var_7->type) {
+        goto result_done;
+    }
+    var_2 = temp_6;
+result_check:
+    temp_6 = var_2->next;
+    if (temp_6 != NULL) {
+        goto result_body;
+    }
+result_done:
+    var_5 = var_7->root;
+    if (var_5 != var_7) {
+        goto root_done;
+    }
+    var_5 = temp_6;
+root_done:
+    temp_3_2 = var_7->prev;
+    if (temp_3_2 == NULL) {
+        goto prev_done;
+    }
+    temp_3_2->next = temp_6;
+prev_done:
+    temp_4 = var_2->next;
+    if (temp_4 == NULL) {
+        goto next_done;
+    }
+    temp_4->prev = var_7->prev;
+next_done:
+    var_7->prev = NULL;
+    var_2->next = NULL;
+    var_3 = var_7;
+    goto loop29_check;
+loop29_body:
+    var_3->root = var_7;
+    var_3 = var_3->next;
+loop29_check:
+    if (var_3 != NULL) {
+        goto loop29_body;
+    }
+    var_4 = var_5;
+    goto loop32_check;
+loop32_body:
+    var_4->root = var_5;
+    var_4 = var_4->next;
+loop32_check:
+    if (var_4->next != NULL) {
+        goto loop32_body;
+    }
+    var_4->root = var_5;
+    *arg0 = (u8 *)var_4;
+    return (u8 *)var_2;
+}
+/* measured: closes the optimization_level 1 scope; func_002736d0 remains
+   MATCH nd 0, object 464/window 464 at the file's O2 baseline. */
+#pragma optimization_level 2
+
+
+
 // FUN_002738A0
 void func_002738a0(u64 param_1)
 {
@@ -1344,6 +1467,9 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_00273cc0);
    register rotation floors. */
 // FUN_00273F70
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273f70);
+
+
+
 /* measured: nd217 at 1208B vs 1216B window. Structure matches (first-if,
    D_00763810 update, while loop with comma-condition); residual is (1) the
    proven if-body-out-of-line floor at the func_002724d0/00273650 site (see

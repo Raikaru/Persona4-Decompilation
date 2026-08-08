@@ -264,18 +264,55 @@ void func_00374610(u8 *arg0) {
 }
 
 
-/* measured: retail emits mov.s $f13,$f12 (6th arg 0.0f of the func_00375d50 call)
-   right after move $a1, before the $a2/$a3 setup; mwcc b210 emits it after them
-   (nd 6). Everything else in this function is solved and documented: stack locals
-   sp68[2]@0x68, sp58[3]@0x58, sp48[3]@0x48, sp30[6]@0x30 (first declared gets the
-   highest slot; arrays align to floor-pow2(size); sp30 is 24 bytes so the 0x3C
-   store survives DSE); func_00375dd0/00375d50 need the 6-param prototype
-   (u8*,s32,f32*,f32*,f32,f32) so floats stay single in $f12/$f13 (old-style ()
-   promotes them to double); func_003760f0 needs f32* args 5/6; the loop-test
-   reload of *(arg0+0x1F304) doubles as func_00373750's 2nd arg. Argument
-   materialization scheduling floor. */
-// FUN_00374730
+/* measured: typed array locals and an explicit loop-test goto reproduce retail's
+   prologue, loop, calls, and final branch. The only residual is the known
+   mov.s $f13,$f12 versus pointer-argument scheduling order before func_00375d50.
+   nd 12, object 468B, window 480B. */
+// FUN_00374730 NONMATCHING
+#ifdef NON_MATCHING
+void func_00374730(u8 *arg0) {
+    f32 sp68[2];
+    f32 sp58[3];
+    f32 sp48[3];
+    f32 sp30[6];
+    f32 temp_f12;
+    s32 temp_5;
+    s32 var_16;
+
+    sp48[0] = 0.0f;
+    sp48[1] = 0.0f;
+    sp48[2] = 0.0f;
+    func_00374910(arg0);
+    sp30[3] = 0.0f;
+    sp30[0] = 0.0f;
+    sp30[1] = 1.0f;
+    sp30[2] = 0.0f;
+    var_16 = 0;
+    goto loop_test;
+loop_body:
+    func_00373750(var_16, temp_5, &sp68);
+    func_0036dc60(arg0 + var_16 * 0xFB0, sp68, sp58, 84.0f);
+    if (*(s32 *)(arg0 + 0x1F30C) != 0) {
+        temp_f12 = (f32)var_16 * (2.0f - ((f32)(*(s32 *)(arg0 + 0x1F304) - 3) / 5.0f));
+        func_00375dd0(arg0, var_16, sp48, sp58, temp_f12, 10.0f + temp_f12);
+    } else {
+        func_00375d50(arg0, var_16, sp58, sp58, 0.0f, 0.0f);
+    }
+    func_003760f0(arg0, var_16, 0, 0, sp30, sp30);
+    func_00376290(arg0, var_16, 0, 0xFF, 0xFF);
+    var_16++;
+loop_test:
+    temp_5 = *(s32 *)(arg0 + 0x1F304);
+    if (var_16 < temp_5) {
+        goto loop_body;
+    }
+    if (*(s32 *)(arg0 + 0x1F30C) != 0) {
+        func_0045af60(1, 0, 5, 4);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00374730);
+#endif
 
 
 // FUN_00374910
