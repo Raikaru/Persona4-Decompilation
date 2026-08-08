@@ -257,6 +257,7 @@ extern void func_0047eb20();
 extern s32 func_0047ae90();
 extern void func_00475350();
 extern void func_00478410(u8* a, u8* b);
+extern void func_0047b050(void* a, int b);
 
 
 
@@ -1731,9 +1732,49 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477fb0);
    beqz $v0,0x478240; ... ; 0x478240: b 0x47828c after the func_0047d0e0 test,
    mwcc b210 redirects the beqz straight to the join (re-measured nd 1, the
    beqz imm). Tried: result local, empty-else, if forms — identical nd 1.
-   Branch-to-branch sharing floor. */
-// FUN_00478140
+   Branch-to-branch sharing floor. Committed at nd 1. */
+// FUN_00478140 NONMATCHING
+#ifdef NON_MATCHING
+void* func_00478140(u32 param_1, u32 param_2, u32 param_3)
+{
+    void* node;
+    void* obj;
+    u8 buf[0x100];
+    u32 id;
+
+    node = D_00922BE0[param_1 & 0xFFFF];
+    id = param_2 & 0xFFFF;
+    while (node != 0) {
+        if (*(u16*)((u8*)node + 0xD6) == id) {
+            break;
+        }
+        node = *(void**)((u8*)node + 0x308);
+    }
+    if (node == 0) {
+        func_0047d110(param_1, param_2, buf);
+        obj = func_004779b0(param_1, param_2);
+        if ((param_3 & 1) != 0) {
+            *(u32*)((u8*)obj + 0xD8) |= 0x4000;
+        }
+        func_0047af60(obj);
+        func_0047aff0(obj, buf);
+        func_004782b0(obj);
+        if (func_0047d0e0(param_1, param_2) != 0) {
+            func_0047b050(obj, 1);
+        }
+    } else {
+        obj = func_004779b0(param_1, param_2);
+        if ((param_3 & 1) != 0) {
+            *(u32*)((u8*)obj + 0xD8) |= 0x4000;
+        }
+        *(u32*)((u8*)obj + 0xD8) |= 0x2000;
+        func_004782b0(obj);
+    }
+    return obj;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478140);
+#endif
 
 // FUN_004782B0
 s32 func_004782b0(u8* param_1)
@@ -2613,15 +2654,45 @@ void func_0047ab90(void* param_1, s32 param_2, void* param_3, void* param_4, voi
     *(u8*)((u8*)slot + 0x28C) |= 0x1;
 }
 
-/* measured: working spelling confirmed this wave — void* params 3/4 (u32
-   needs casts at the func_00477e80 call), buf[0x100] at sp+0x70 for the 0x170
-   frame, tail as in func_0047ab90. Retail keeps a branch-to-branch chain
-   after the func_0047b050 call (beqz $v0,0x47ad38; ... ; 0x47ad38: b 0x47ad84);
-   mwcc b210 redirects the beqz straight to the join (re-measured nd 2, one
-   differing word, the beqz imm). Tried: if/else forms, empty-then,
-   else-empty — identical nd 2. Branch-to-branch sharing floor. */
-// FUN_0047AC90
+/* measured: template matches the 0x170-frame resource attach path (void*
+   params 3/4, u32 casts for func_00477c40, buf[0x100] at sp+0x70) and the
+   tail stores. Retail branches to the intermediate b after func_0047b050;
+   mwcc b210 redirects directly to the join. addOff restores the retail
+   index-first tail addu. Best object 348B/window 352B, normalized_diff 1.
+   Branch-to-branch sharing floor. Committed at nd 1. */
+// FUN_0047AC90 NONMATCHING
+#ifdef NON_MATCHING
+void func_0047ac90(void* param_1, u32 param_2, void* param_3, void* param_4, u32 param_5)
+{
+    void* obj;
+    u8 buf[0x100];
+    u32 off;
+    void* slot;
+
+    if (func_00477c40((u32)param_3, (u32)param_4, 0) == (void*)0) {
+        func_0047d110(param_3, param_4, buf);
+        obj = func_00477e80(param_3, param_4, buf, param_5);
+        if (func_0047d0e0(param_3, param_4) != 0) {
+            func_0047b050(obj, 1);
+        }
+    } else {
+        obj = func_004779b0(param_3, param_4);
+        if ((param_5 & 1) != 0) {
+            *(u32*)((u8*)obj + 0xD8) |= 0x4000;
+        }
+        *(u32*)((u8*)obj + 0xD8) |= 0x2000;
+        func_004782b0(obj);
+    }
+    off = (param_2 & 0xFFFF) * 0xC;
+    slot = (void*)addOff(off, (u32)(u8*)param_1);
+    *(void**)((u8*)slot + 0x290) = obj;
+    *(u32*)((u8*)obj + 0xD8) |= 4;
+    *(u32*)((u8*)*(void**)((u8*)slot + 0x290) + 0xD8) |= 0x8000;
+    *(u8*)((u8*)slot + 0x28C) |= 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047ac90);
+#endif
 
 /* Ported from P3FES mdlManager.c func_003196f0 (verified MATCH there). Keep the
    iVar1/iVar2/pWpnMdl local structure and the recompute of iVar2+param_1 before

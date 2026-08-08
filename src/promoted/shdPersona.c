@@ -510,17 +510,59 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116d40);
    orderings/type shapes incl. s64 5-arg, Vec2f, s32 5-arg, u8 vs s32 byte
    locals, statement permutations — all nd >= 15. Scheduling/materialisation
    order floor, same family as func_0011ded0. */
-// FUN_001171C0
+static inline u8 shdPackedLow(s32 *value)
+{
+    return *((u8 *)value);
+}
+
+
+
+/* measured: best portable reconstruction nd 6 (object 328B / window 336B). The inline shdPackedLow helper reproduces retail's delayed cbytes[0] load; residual rows are the arg2 narrowing and branch register choices at offsets 0x34 and 0x40. Parked because it is not byte-exact. */
+// FUN_001171C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001171c0(s64 arg0, f32 fparg0, s32 arg1, u8 arg2, s32 arg3)
+{
+    s64 sp70;
+    s32 packed;
+    f32 farg;
+    f32 f;
+    s32 n;
+    s32 id;
+    u8 b2;
+    u8 b1;
+    s32 inv;
+    s32 rem;
+    f32 y;
+
+    sp70 = arg0;
+    farg = fparg0;
+    packed = arg1;
+    n = arg2;
+    id = arg3;
+    y = *((f32 *)&sp70 + 1);
+    if (id == 0) {
+        func_0046d730(D_005E4868, 0x400);
+    }
+    rem = n & 0xFF;
+    if (rem < 10) {
+        f = 11.0f + *((f32 *)&sp70 + 0);
+    } else {
+        f = 22.0f + *((f32 *)&sp70 + 0);
+    }
+    b2 = *((u8 *)&packed + 2);
+    b1 = *((u8 *)&packed + 1);
+    inv = 0xFF;
+    inv -= *((u8 *)&packed + 3);
+    do {
+        func_0046d4c0(0, id, (rem % 10) + 0x1D, f, y, inv, shdPackedLow(&packed), b1, b2, farg, 0);
+        n = ((u32)(n & 0xFF) / 10U) & 0xFF;
+        f -= 22.0f;
+        rem = n;
+    } while (n > 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001171c0);
-
-
-
-/* measured: same floor family as func_001171c0 — retail emits the prologue in
-   the order mov.s $f22 (fparg0), sw $a1,0x7c (cbytes), then the GP arg saves,
-   and hoists the loop's 16.0f/0xA constants BEFORE the initial branch to the
-   while-test; mwcc b210 emits the GP saves before the FP save and places the
-   constants after the branch (nd 20, all instruction-order rows). Tried
-   declaration/statement orders — identical. Scheduling floor. */
+#endif
 // FUN_00117310
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117310);
 

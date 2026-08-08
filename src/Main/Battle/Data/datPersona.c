@@ -726,17 +726,51 @@ void func_0010c980(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 8) += arg1;
 }
 
-/* Ported from the Persona 3 FES tree (datPersona.c
-   datPersonaMoveValidSkillsOnTop), which shares this source: the skills
-   array lives at offset 0xC as u16 entries (SKILL_SLASH_ATTACK = 0).
-   Floor: retail hoists maxSkills=8 to the $a0 preheader and allocates
-   skillIdx/nextSkillIdx one register higher ($a3/$a2); mwcc b210 keeps
-   8 at the beq use site in $v1 and rotates the loop counters down. Tried
-   raw-offset, persona_p-local, exact-donor-structure and offset-first
-   spellings; all nd 35. The donor body is itself nonmatching in P3FES
-   (same allocation floor). Saved-register/hoisting floor. */
+/* measured: ported the matching P3 FES skill-compaction structure, with
+   the loop-invariant pragma required to retain retail's maxSkills preheader;
+   normalized_diff 0, object_size 232/240. */
 // FUN_0010C9E0
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010c9e0);
+#pragma opt_loop_invariants on
+void func_0010c9e0(u8 *arg0)
+{
+    u8 *persona_p;
+    s32 skillIdx;
+    s32 nextSkillIdx;
+    s32 maxSkills;
+
+    persona_p = arg0;
+    if (persona_p == NULL) {
+        func_0046d730(D_005E4318, 0x69D);
+    }
+    maxSkills = 8;
+    skillIdx = 0;
+    nextSkillIdx = 0;
+    while (skillIdx < maxSkills) {
+        if (*(u16 *)(persona_p + skillIdx * 2 + 0xC) == 0) {
+            nextSkillIdx = skillIdx + 1;
+            while (nextSkillIdx < maxSkills) {
+                if (*(u16 *)(persona_p + nextSkillIdx * 2 + 0xC) != 0) {
+                    break;
+                }
+                nextSkillIdx++;
+            }
+            if (nextSkillIdx == maxSkills) {
+                return;
+            }
+        }
+        if (skillIdx != nextSkillIdx) {
+            if (nextSkillIdx < maxSkills) {
+                *(u16 *)(persona_p + skillIdx * 2 + 0xC) = *(u16 *)(persona_p + nextSkillIdx * 2 + 0xC);
+            } else {
+                *(u16 *)(persona_p + skillIdx * 2 + 0xC) = 0;
+            }
+        }
+        skillIdx++;
+        nextSkillIdx++;
+    }
+}
+/* measured: closing pragma balances the required loop-invariant setting; nd 0. */
+#pragma opt_loop_invariants off
 
 // FUN_0010CAD0
 void func_0010cad0(u8 *arg0, s32 arg1)

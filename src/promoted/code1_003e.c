@@ -202,32 +202,10 @@ s32 func_003e23e0(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 #endif
 
-// FUN_003E2570 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: nd 30 of 128. Stores D_00764878=arg1, writes the func_003e1220
-   result into D_008872E0[D_00764878], increments D_0076487C and returns arg0,
-   else 0. schedule+no_branch_likely get everything but the store-reload: retail
-   stores the call result then RELOADS it (sw;lw;bnez) before the branch, b210
-   keeps the value in a register and tests it before the store. */
-#pragma schedule on
-#pragma no_branch_likely on
-s32 func_003e2570(s32 arg0, s32 arg1) {
-    D_00764878 = arg1;
-    *(s32 *)&D_008872E0[D_00764878] = func_003e1220(0x24, D_00763C54, 4, D_00763C58, (void *)&D_00887220, 0x40404);
-    if (*(s32 *)&D_008872E0[D_00764878] != 0) {
-        D_0076487C++;
-        return arg0;
-    }
-    return 0;
-}
-#pragma no_branch_likely off
-#pragma schedule off
-#else
+/* measured: discarded nonvolatile candidate nd 31, object 120/128; the nd 0
+   volatile spelling is rejected by H001 (ordinary-data compiler steering). */
+// FUN_003E2570
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
-#endif
-/* measured: schedule+no_branch_likely are load-bearing - schedule hoists the
-   D_008872E0 lui and fills the jal delay slot; no_branch_likely stops b210
-   turning the beqz into a beql with the D_0076487C load in its slot. */
 // FUN_003E25F0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -557,29 +535,10 @@ s32 func_003e4510(void) {
 // measured: removing this pragma takes func_003e5510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with sw $a0, -0x5478($gp); baseline -O2 emits sw; jr; nop.
 
-// FUN_003E46E0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: nd 30 of 128, twin of func_003e2570 (D_00764898 index, D_00887280
-   base, D_0076489C counter). Same store-then-reload floor: retail sw;lw;bnez
-   reloads the stored value, b210 tests the register before the store. */
-#pragma schedule on
-#pragma no_branch_likely on
-s32 func_003e46e0(s32 arg0, s32 arg1) {
-    D_00764898 = arg1;
-    *(s32 *)&D_008872E0[D_00764898] = func_003e1220(0x21, D_00763C70, 4, D_00763C74, (void *)&D_00887280, 0x40412);
-    if (*(s32 *)&D_008872E0[D_00764898] != 0) {
-        D_0076489C++;
-        return arg0;
-    }
-    return 0;
-}
-#pragma no_branch_likely off
-#pragma schedule off
-#else
+/* measured: discarded nonvolatile candidate nd 31, object 120/128; the nd 0
+   volatile spelling is rejected by H001 (ordinary-data compiler steering). */
+// FUN_003E46E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
-#endif
-/* measured: schedule+no_branch_likely load-bearing, twin of func_003e25f0
-   (D_00764898 index, D_0076489C counter). */
 // FUN_003E4760
 #pragma schedule on
 #pragma no_branch_likely on
