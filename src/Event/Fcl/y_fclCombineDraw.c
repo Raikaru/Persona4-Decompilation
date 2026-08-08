@@ -377,22 +377,61 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
 // FUN_00314EF0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314ef0);
 
-/* measured: nd 21 (16 loop-body words + 5 padding): retail computes the
-   (s16)i*2 CSE (sll $s0,$v1,1) right after the loop's (s16)i normalization and
-   before the func_002b2970 f13 expression; mwcc b210 folds (s16)i*2*0x11 into
-   i*0x22 (sll4/addu/sll1) and emits the i*2 sll at the func_003147e0 args instead.
-   Tried *2*0x11 (nd 21), <<1*0x11 (nd 86), a separate s16 i2 statement (nd 176 —
-   allocates $s5 and grows the frame), s16/s32 v17 — v17 must be s32 or mwcc
-   re-normalizes it at the addu (nd 144). Load/scheduling-order floor.
-   Re-measured this wave (best 43 of 4 new attempts: all-inline 43, v17+inline
-   2*0x11 folds f13 right but arg0 lands $s5 -> 173; M2C s64-arg1 sig confirmed;
-   name lh/hoist regressions 161/86): the i*2 CSE placement + (s16)arg1 hoist
-   remain out of reach. Floor confirmed. */
-/* measured: nd 597, object 780/window 752 (one reconstruction); the control
-   flow and calls are present, but the first-pass source over-allocates the
-   frame and keeps the loop values in different saved registers. Discarded. */
+/* measured: nd 0, object 740/window 752 (the final 12 retail bytes are zero
+   tail padding ignored by verify). Exact recipe: retain raw arg1 in s0, use a
+   u32 base for the normalized 16-bit index, and write the loop increment as
+   i = (s16)(i + 1); addOff(index*2, (u32)t) supplies the retail offset-first
+   c74 address. */
 // FUN_00315310
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00315310);
+void func_00315310(u8 *arg0, s64 arg1) {
+    FclByte4 c7C;
+    FclByte4 c78;
+    FclByte4 c74;
+    FclByte4 c70;
+    FclByte4 c6C;
+    s64 sp60;
+    s32 i;
+    u8 *t;
+    u32 base;
+    s64 raw;
+    s32 off;
+    u8 *p;
+
+    raw = arg1;
+    t = *(u8 **)(arg0 + 0x38);
+    *(s16 *)(t + 0xB8) = 0x15D;
+    *(s16 *)(t + 0xBA) = 0x15E;
+    *(s16 *)(t + 0xBC) = 0x15F;
+    if (func_00106330(0x1305) != 0) {
+        *(s16 *)(t + 0xBA) = 0x160;
+    }
+    i = 0;
+    base = (s16)raw;
+    for (; (s16)i < 3; i = (s16)(i + 1)) {
+        off = (s16)i * 2;
+        func_002b2970(&sp60, 26.0f, (f32)((s16)i * 34 + 0x57));
+        func_003147e0(arg0, (s8)(s16)i, sp60, *(s16 *)(t + off + 0xB8), (s16)(base + off), 0);
+    }
+    func_002b2a60(&c7C, 0xC6, 0xEE, 1, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F4));
+    *(FclByte4 *)(p + 0x85) = c7C;
+    func_002b2a60(&c78, 0xC6, 0xEE, 1, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) * 2 + 0x1F5));
+    *(FclByte4 *)(p + 0x85) = c78;
+    func_002b2a60(&c74, 0x2D, 0x2D, 0x2D, 0xFF);
+    p = func_002b6150((s16)*(s16 *)(addOff(*(s8 *)(t + 0xB3) * 2, (u32)t) + 0xB8));
+    *(FclByte4 *)(p + 0x85) = c74;
+    if (*(s8 *)(t + 0xB3) == 1) {
+        if (func_00106330(0x1305) != 0) {
+        func_002b2a60(&c70, 0x2D, 0x2D, 0x2D, 0xFF);
+        p = func_002b6150(0x2EB);
+        *(FclByte4 *)(p + 0x85) = c70;
+        }
+    }
+    func_002b2a60(&c6C, 0x92, 0xC8, 7, 0xFF);
+    p = func_002b6150((s16)(*(s8 *)(t + 0xB3) + 0x2FB));
+    *(FclByte4 *)(p + 0x85) = c6C;
+}
 
 // measured: nd N/A (draw-family, s64-param floor). 69x func_002b2970 + 30x 69f0 + 16x 6c30 + 18x 6150: the s64 arg1/arg2 params fed to the s32/s16 params of 6c30/69f0/6a70 make mwcc b210 emit a dsll32/dsra32 normalization at every call site (retail passes the raw reg); the shared externs are locked by matched callers (16e80/17240/17320/18f30/24f80/2f060). s64-param-normalization floor.
 // FUN_00315600

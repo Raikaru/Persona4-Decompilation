@@ -1090,14 +1090,44 @@ s32 func_0028a3b0(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
     }
 }
 
-/* measured: retail reuses the condition's lhu $a0 (arg4[0], loaded at both
-   disjuncts) as the func_0026d810 call argument and for the else-if compare
-   (bne $s2,$a0, no andi, no reload). mwcc b210 always materializes a fresh
-   lhu $a0 in body1 before the jal, shifting every branch by one word.
-   Tried bare expressions (no temp var), u16 temp_4 in condition commas, and
-   m2c's exact spelling; all nd 30. Load hoisting/scheduling floor. */
+/* measured: nested switch for D_008821E0[0] plus the no-argument
+   func_0026d810 call preserves retail's live $a0 value. nd 0, object 320B,
+   window 320B. */
 // FUN_0028A560
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028a560);
+s32 func_0028a560(s32 arg0, s32 arg1, s32 *arg2, s32 arg3, u8 *arg4) {
+    u16 temp_3;
+    u16 temp_4;
+
+    func_00286350();
+    switch (arg0) {
+    case 0:
+        switch (D_008821E0[0]) {
+        default:
+            return 0;
+        case 2:
+            return 1;
+        }
+    case 1:
+        return 1;
+    case 2:
+        temp_3 = *(u16 *)(arg4 + 2);
+        if (((temp_3 == 0) && (arg1 == *(u16 *)arg4)) ||
+            ((temp_3 > 0) && ((arg1 < (s32)*(u16 *)arg4) == 0) &&
+             (arg1 < (*(u16 *)arg4 + temp_3)))) {
+            if ((temp_3 == 0) && (*(s16 *)(arg4 + 0x10) == 0)) {
+                *arg2 &= ~2;
+                func_0026d810();
+            } else if (arg1 == *(u16 *)arg4) {
+                *arg2 |= 2;
+                temp_4 = *(u16 *)(arg4 + 2);
+                func_0026d780(temp_4, *(s16 *)(arg4 + 0x10));
+            }
+        }
+        return 1;
+    default:
+        return 1;
+    }
+}
 
 // FUN_0028A6A0
 s32 func_0028a6a0(int param_1, int param_2, int param_3, int param_4, u16 *param_5) {
