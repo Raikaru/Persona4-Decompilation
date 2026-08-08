@@ -273,22 +273,44 @@ void func_00378f90(u8 *arg0, s32 arg1, s32 arg2) {
     func_00375dd0(arg0, arg1, NULL, &sp40[0], 0.0f, var_f13);
     func_00376290(arg0, arg1, arg2, 0xFF, 0);
 }
-/* measured: close O1 probe; no baseline body change intended. */
+/* measured: restore optimization level 2 after the O1 probe on
+   func_00378f90; this explicit opposite is required by following functions. */
 #pragma optimization_level 2
-
-
-
-/* measured: named aggregate copy gives nd 4, object 180B vs window 192B, with the retail branch value in $a0 and grouped global loads/stores. Its residual is a wrong source operand, not a transfer-width floor: at 0x50 the candidate emits ld $v0, 8($v0) from D_0064EAB0+8 while retail emits lwc1 $f0, D_0064EAB8, and at 0x58 it stores that wrong value with sd instead of retail's swc1. Probed plain triples, f32[3], s64+f32, s32/s32/f32, nested pairs, array pairs, typed globals, packed/aligned spellings, unions, pointers, memcpy, mode-DI, vector, staged and pair-tail forms, the exact Pair-only two-statement copy (nd 70), an independent Pair plus f32 tail (nd 10), and member-wise direct-global s64/f32 copies (best nd 28, object 180B vs window 192B); none beat nd 4. The remaining four differing words are the unresolved D_0064EAB0+8 versus D_0064EAB8 operand mismatch. Committed at nd 4. */
+/* measured: best legal body is the u64-padded aggregate stand-in at nd 4,
+   object 180B/window 192B. Retail evidence indicates the doubleword is
+   semantically two paired 32-bit members; this spelling is retained only
+   because it is the closest byte-producing C body, not as a claim that the
+   original source used u64. Alignment investigation measured a paired
+   `SeqPair { u32 first, second; }` at nd 70-77 without forced alignment and
+   nd 11 (object 180B/window 192B) with `__attribute__((aligned(8)))`; the
+   u64 body is parked because it is the lowest-nd result. Exact nd-4 fndiff
+   rows: +0x30/+0x3C (48/60) candidate `addiu $v1,$zero,+/-0x5A` vs retail
+   `$a0`; +0x40/+0x44/+0x48 (64/68/72) candidate `lui $v0,0`/`ld
+   $v0,($v0)`/`sd $v0,0x50($sp)` vs retail `addiu $a1,0x50($sp)`/`lui
+   $v0,0x65`/`ld $v1,-0x1550($v0)`; +0x54/+0x58/+0x5C/+0x60/+0x64/+0x68
+   (84/88/92/96/100/104) candidate `swc1 $f0,0x58($sp)`/`mtc1 $v1,$f0`/
+   `nop`/`cvt.s.w $f12,$f0`/`addiu $a0,0x40($sp)`/`addiu $a1,0x50($sp)`
+   vs retail `sd $v1,0x50($sp)`/`swc1 $f0,0x58($sp)`/`mtc1 $a0,$f0`/
+   `nop`/`cvt.s.w $f12,$f0`/`addiu $a0,0x40($sp)`. Measured in isolation (this
+   body activated alone) the same source scores nd 4; nd_audit compiles the
+   whole file with NON_MATCHING defined, so every preserved body in
+   btlShuffleSeq.c is live at once and the surrounding codegen shifts this
+   function to nd 28. Both figures are real; the whole-file figure is the one
+   the audit reproduces. Committed at nd 28. */
 // FUN_00379090 NONMATCHING
 #ifdef NON_MATCHING
 void func_00379090(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    struct S { s64 x; f32 y; };
+    f32 tail;
+    struct S { u64 pair; u32 pad; };
     struct S tmp;
     f32 sp40[4];
     s32 var_4;
-
+    u64 pair;
     if ((s16)arg3 > 0) var_4 = 0x5A; else var_4 = -0x5A;
-    tmp = *(struct S *)&D_0064EAB0[0];
+    pair = *(u64 *)&D_0064EAB0[0];
+    tail = D_0064EAB8[0];
+    tmp.pair = pair;
+    *(f32 *)((u8 *)&tmp + 8) = tail;
     func_003dc740(&sp40[0], &tmp, 0, (f32)var_4);
     func_003760f0(arg0, arg1, 0, arg2, 0, &sp40[0]);
 }

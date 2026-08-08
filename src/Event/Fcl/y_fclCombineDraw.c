@@ -47,7 +47,7 @@ extern s32 func_00106330(s32);
 extern s32 func_00452490(s32);
 extern void func_0011b9e0(u8 *arg0);
 extern void func_0011d100(u8 *arg0, f32 *arg1);
-extern void func_0011b480(s32, s32, s32, s32);
+extern void func_0011b480(u8 *, s32, u32, s32);
 extern void func_0011bc70(u8 *arg0);
 extern void func_0011c180(s32, s32, s32, s8);
 extern void func_0011c2c0(s32, s32, s32, s8);
@@ -59,7 +59,7 @@ extern void func_002b6a70(s16, u8, u8, s32, s32, s32);
 extern void func_002b6b40(s32, s32, s32, s32, f32, f32);
 extern u8 *func_002b6150(s16);
 extern s32 func_002b6970(s16, s32);
-extern void func_002b7750(s16, s16);
+extern void func_002b7750(s64, s16);
 extern void func_002b2a60(void *arg0, u8, u8, u8, u8);
 extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s32 arg1);
@@ -275,15 +275,32 @@ void func_003146c0(u8 *arg0) {
     func_0011b9e0(*(u8 **)(*(u8 **)(arg0 + 0x38) + 4));
 }
 
-/* measured: current best normalized_diff nd 18, object 60/window 80. The
-   archived transcription scored nd 45 (object 64/window 80); the older nd 17
-   result did not reproduce under the current declaration environment. Retail
-   copies arg2 into $v1 early and sign-extends it into $a3 immediately before
-   func_0011b480; mwcc reverses that materialization and reuses $a2 for the
-   object+8 load. The object is 20 bytes short, so this remains unparkable.
-   Body and residual notes: build/W8FclCombineDraw_003146f0_body.c.txt. */
+/* measured: final state remains bare. Lowest measured candidate with the
+   original all-s32 0011b480 declaration was nd 18, object 60/window 80;
+   the canonical pointer prototype (u8 *, s32, u32, s32) produced nd 28,
+   object 68/window 80. Both are materially undersized or above the nd 25
+   park threshold. Retail copies arg2 into $v1 early, stores through $v0,
+   and sign-extends $v1 into $a3 immediately before func_0011b480; MWCC
+   reverses that materialization and reuses the object register. Exact
+   residuals, probes, and ruled-outs: build/W8FclCombineDraw_003146f0_body.c.txt. */
 // FUN_003146F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // FUN_00314740
 void func_00314740(u8 *arg0, s8 arg1) {
@@ -865,29 +882,40 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003233d0);
 // FUN_00323D00
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
 
-/* measured: nd 82 — the ONLY defect is the f20 = 20.0f + sp68.y block (1 word +
-   register swap), and its -4 shift cascades through every later branch target
-   and row. Retail: [lwc1 y, lui 20.0f, mtc1, nop, add.s f20,f0,f1] — the y load
-   FIRST, nop for the FPU delay; mwcc b210 always emits [lui, mtc1, lwc1,
-   add.s] with the load hiding the delay (1 word shorter), regardless of source
-   order (20.0f + y, y + 20.0f, or a named f32 y local — all nd 82). FP
-   materialization-scheduling floor, same family as func_00330e50. Everything
-   else matches exactly: sp68 is ONE FclVec2 struct (the field-wise f32 loads
-   interleave; the struct copy gives retail's lwc1/lwc1/swc1/swc1 batch),
-   read back as *(s64 *)&sp68 for the 69f0 arg; the switch's descending
-   dispatch (2, 1, 0, default) with ascending case labels; case 0 breaks early
-   on the 6970==1 check then falls through its own if/else into the shared
-   6af0/6a70/6150/sb-1 tail; the t+v17+0x294 address written
-   (u8 *)(v17 + (s32)t) + 0x294 gives retail's addu index+base order;
-   2970 args 280.0f + sp68.x. SIGNATURE FIXES (externs checked against the
-   retail prologues): func_002b6150's param is s16 (s32 breaks func_00318f30),
-   and func_002b7750/002b68d0/002b6af0/002b6a70/002b69f0 FIRST params are s16
-   (the checked-in s32 externs add a spurious CSE'd dsll32/dsra32 on the s16
-   arg1 at the first call). Re-measured this wave (FclVec2-struct recipe
-   reproduces nd 82 exactly; 280.0f and the f20 block confirmed as the sole
-   residual — the lau/load ordering floor is real). */
+/* 00324410 body archived at build/WBFclCombineDraw_00324410_body.c.txt.
+   Best complete candidate measured nd 118, object 616/624 after changing only
+   func_002b7750's first parameter to s64 (the retained TU declaration);
+   baseline helper declaration scored nd 249, object 612/624. The candidate
+   matches the prologue, dispatch, all calls, and tail except for the FPU
+   materialization block at offsets 0x11C-0x12C: retail emits
+   [lwc1 y, lui 20.0f, mtc1, nop, add.s], while MWCC emits
+   [lui 20.0f, mtc1, lwc1, add.s]. The missing nop makes the object eight
+   bytes short and shifts the following branch/call rows. O1 (nd 421,
+   object 640/624) and schedule-on (nd 408, object 536/624) were ruled out;
+   ordinary source-order and pointer-pinning variants did not change nd 118.
+   Caller-side width was also measured: retail entry uses direct
+   daddu $s2,$a1 at 0x00324428 with no sign extension, but declaring arg1 s64
+   scored nd 399, object 648/624; the first residual moved to 0x6C, where
+   dsll32/dsra32 narrow arg1 for the still-s16 6150 call, and the same
+   narrowing recurs at later s16-helper calls. A combined caller/helper-width
+   probe (arg1 s64 plus s64 first params for 6150/68d0/69f0/6a70, with 6af0
+   left s16) scored nd 117, object 616/624; it left the 6af0 narrowing pair
+   at offsets 0x180/0x184. Widening 6af0 as well scored nd 249, object
+   612/624. The s16 definition and original helper declarations are therefore
+   retained; bare INCLUDE_ASM remains because nd 118 exceeds park threshold. */
 // FUN_00324410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324410);
+
+
+
+
+
+
+
+
+
+
+
 
 // measured: nd N/A (draw-family, s64-param floor). 19x 6a70 + 19x 6150 + 19x 2970 + 17x 2a60 + 15x 6c30: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
 // FUN_00324680

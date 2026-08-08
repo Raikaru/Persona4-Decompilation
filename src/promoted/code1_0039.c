@@ -259,25 +259,9 @@ docall:
    return zero - but retail places the already-initialised case out of line
    while b210 inlines it, and the two returns are coloured the other way round.
    Committed at nd 43. */
-// FUN_00399B10 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-s32 func_00399b10(s32 arg0)
-{
-    s32 *p = (s32 *)(arg0 + iGpffffb5e4);
-    if (*p == 0) {
-        if (func_0039aab0((u8 *)arg0)) {
-            *p = 1;
-            return arg0;
-        }
-        return 0;
-    }
-    return arg0;
-}
-#pragma schedule off
-#else
+// Archived C body: build/WBHygiene_func_00399b10_archive.txt; no current park body remains.
+// FUN_00399B10
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b10);
-#endif
 /* measured: schedule and branch-shape probes for 99b80. */
 #pragma schedule on
 /* measured: retail uses plain branches in the 99b80 dispatch. */

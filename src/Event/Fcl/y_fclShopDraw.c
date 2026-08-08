@@ -373,13 +373,10 @@ void func_002caa00(void *arg0, s8 arg1) {
 // FUN_002CAA10
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
 
-/* measured (lever 1, this wave): func_002cacd0's true signature is 12 args --
-   the last is `s32 arg_sp8` (D_00793E80 + arg_sp8*0x30), missing from the old
-   11-arg decl. Fixed. Registers: retail frame 0xE0, 10 saved regs, color
-   bytes kept in $s0/$s1/$s6; mwcc b210 frame 0xD0, spills color bytes to
-   16B slots and reorders func_0025ec90's args (FP last + constant last).
-   Reconstructed full body nd 122 (obj 580B vs window 544B). Arg-eval-order +
-   layout/coloring floor. */
+/* Signature audit: func_002cacd0 currently has 11 parameters
+   (u64, s32, s32, s16, u32, s64, s64, s32, f32, s32, s32), corroborated by
+   generated/code1_002c.c:183. The previously noted 12-argument diagnosis
+   is historical and closed; no prototype change remains. */
 // FUN_002CACD0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cacd0);
 // FUN_002CAEF0
@@ -1116,16 +1113,9 @@ void func_002d8600(void *arg0) {
 // FUN_002D8A60
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d8a60);
 
-/* measured: rule 2 applied at all 4 FMA sites (retail adda.s/madd.s at
-   0x1DA32C/1DA37C/1DA498/1DA4EC: 78.0f + 35.0f * (f32)work[8] with fs/ft order
-   preserved, two variants minus 450.0f; the -450.0f is sub.s after the madd,
-   i.e. (acc + a*b) - 450.0f). m2c draft adapted (D_0063F9C0/F9C8/F9D0 are
-   mislabels of the hoisted D_0063F5A0/D_0063F8C0 bases, FA40/44/46 are real
-   s16 symbols) and compiles; nd 1222. Residual: m2c's 0940/09b0/2970
-   arg-order scrambling across ~30 call sites (verified vs retail at the
-   D_0063FA48 group: lh D_0063FA46/D_0063FA44 with lui %hi + absolute) plus
-   D_0063F5A0/F8C0 base-hoist (retail keeps base in $s1, cf. func_002d7300
-   note - the Vec2f cast there may apply). Arg-order + hoist floor. */
+/* Archived C reconstruction: build/W8ShopRGBA_func_002da0a0_highnd.c.
+   Best measured candidate object 5032/window 4960, normalized_diff 3080;
+   bare INCLUDE_ASM restored after ruled-out source-shape probes. */
 // FUN_002DA0A0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002da0a0);
 
@@ -1160,24 +1150,12 @@ void func_002dd230(void *arg0) {
     func_002e04f0(work->field_D8C, 6, 0);
 }
 
-/* measured: func_002dd3b0 remains an assembly fallback after the reconstruction
-   probes in this wave. The best s16-extern raw Vec2f candidate was nd 3498,
-   object 4816/4592; its prologue was frame -0x150 saving s0-s3 plus f20/f21,
-   versus retail frame -0x170 saving s0-s2. Grouping the loose float scalars
-   into a stack aggregate moved the candidate to frame -0x160 and removed the
-   f20/f21 saves (still s0-s3), nd 3652, object 4848/4592. */
-/* measured: widening func_002e26f0 from s16 to s32 removed every redundant
-   dsll32/dsra32 sign-extension pair and, combined with the stack aggregate,
-   improved nd 3601 -> 3543; object remained 4816/4592 and the prologue stayed
-   frame -0x160 saving s0-s3. The approximately 224-byte oversize is excess
-   emitted code, not placement; the next attempt should find reconstructed
-   logic that retail inlines or omits rather than tune register allocation.
-   Sibling fallbacks not attempted here are func_002d8a60 (5696/5696),
-   func_002da0a0 (4960/4960), and func_002db400 (7728/7728). */
-/* lever audit: func_002dd3b0 is void (void *arg0), confirmed by all call sites;
-   func_002cacd0's declaration was corrected to its retail 11-parameter shape.
-   Keep func_002e26f0's widened s32 return: scoped verification retains all 21
-   existing MATCH rows with zero MISMATCH. No candidate body is applied. */
+/* measured: func_002dd3b0's best reconstructed C body is archived verbatim at
+   build/WBFclShopDraw_func_002dd3b0_archive.txt. Its scoped result was object
+   4816B against a 4592B retail window, normalized_diff 3543, MISMATCH. The
+   archive records the candidate/retail prologue and saved-register facts, the
+   exact fndiff prologue rows, the two-call func_0046a770 findings for all four
+   branch groups, the two regular work->field_F28 calls, and ruled-out probes. */
 // FUN_002DD3B0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
 

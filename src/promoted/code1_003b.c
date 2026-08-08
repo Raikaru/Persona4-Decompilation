@@ -67,36 +67,9 @@ s32 func_003bbe80(s32 arg0) {
    the entry pointer with the stride in the back-edge slot; b210 keeps the
    accumulator in a different register class and orders the guard the other
    way. schedule on does not move it (nd 47). Committed at nd 46. */
-// FUN_003BCF10 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: -O2 coalesces two values retail keeps in separate registers
-   and folds a mask retail re-issues; level 1 does neither. */
-#pragma optimization_level 1
-s32 func_003bcf10(s32 arg0) {
-    u8 *t = (u8 *)(arg0 + iGpffffb668);
-    s32 n = *(s32 *)t;
-    s32 count = 0;
-    u8 *e;
-    s32 i;
-
-    if (n > 0) {
-        e = *(u8 **)(t + 4);
-        i = 0;
-        do {
-            if (*(s32 *)(e + 0xC) != 0) {
-                count++;
-            }
-            i++;
-            e += 0x10;
-        } while (i < n);
-    }
-    return count;
-}
-/* measured: closes the level 1 scope above at the file's -O2 baseline. */
-#pragma optimization_level 2
-#else
+// Archived C body: build/WBHygiene_func_003bcf10_archive.txt; no current park body remains.
+// FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
-#endif
 
 /* measured: ascending switch labels generate retail's descending 3/2/1
    comparisons; no_branch_likely keeps each comparison as a plain beq. */
@@ -157,24 +130,9 @@ do2:
    directions), nested ifs, &&, cached base local, #pragma schedule on --
    all nd 48.  #pragma no_branch_likely is load-bearing: without it mwcc
    emits bnel (nd 57). */
-// FUN_003BD4F0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma no_branch_likely on
-s32 func_003bd4f0(s32 arg0, s32 arg1, s32 arg2)
-{
-    s32 result = arg0;
-    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x2C, 4) == 0) {
-        return 0;
-    }
-    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x30, 4) == 0) {
-        result = 0;
-    }
-    return result;
-}
-#pragma no_branch_likely off
-#else
+// Archived C body: build/WBHygiene_func_003bd4f0_archive.txt; no current park body remains.
+// FUN_003BD4F0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
-#endif
 
 // FUN_003BD560
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
@@ -246,20 +204,9 @@ do2:
    costs more (nd 56 with the ternary, nd 48 with an `if (r == 0) arg0 = 0;`),
    `#pragma conditional_move on` changes nothing, and schedule on changes
    nothing. Conditional-move materialisation floor. Committed at nd 37. */
-// FUN_003BD610 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003bd610(s32 arg0, s32 arg1, u8 *arg2) {
-    s32 r;
-
-    if (func_003df240(arg0, *(s32 *)(arg2 + 0x7C) + 0x2C, 4) == 0) {
-        return 0;
-    }
-    r = func_003df240(arg0, *(s32 *)(arg2 + 0x7C) + 0x30, 4);
-    return r ? arg0 : 0;
-}
-#else
+// Archived C body: build/WBHygiene_func_003bd610_archive.txt; no current park body remains.
+// FUN_003BD610
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
-#endif
 
 // FUN_003BD680
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
@@ -359,20 +306,9 @@ do2:
    costs more (nd 56 with the ternary, nd 48 with an `if (r == 0) arg0 = 0;`),
    `#pragma conditional_move on` changes nothing, and schedule on changes
    nothing. Conditional-move materialisation floor. Committed at nd 37. */
-// FUN_003BE8A0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003be8a0(s32 arg0, s32 arg1, u8 *arg2) {
-    s32 r;
-
-    if (func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x2C, 4) == 0) {
-        return 0;
-    }
-    r = func_003df240(arg0, *(s32 *)(arg2 + 0x6C) + 0x30, 4);
-    return r ? arg0 : 0;
-}
-#else
+// Archived C body: build/WBHygiene_func_003be8a0_archive.txt; no current park body remains.
+// FUN_003BE8A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
-#endif
 
 // FUN_003BE910
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.

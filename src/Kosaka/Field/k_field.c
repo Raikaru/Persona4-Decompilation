@@ -35,9 +35,9 @@ extern void func_003e9df0(s32);
 // FUN_00155360
 INCLUDE_ASM("asm/nonmatchings/k_field", func_00155360);
 
-/* measured: func_00155bf0 near-match parked at normalized_diff 2 (object 540B/window 544B); the retail window includes one trailing nop beyond the C object, and the GP symbol iGpffffb20c is not recovered. */
-// FUN_00155BF0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: func_00155bf0 now matches at normalized_diff 0 (object 540B/window 544B); spelling the second range as <= 0x1E makes MWCCPS2 use the retail $at branch temporary, with the same trailing window nop. */
+// Committed at nd 0.
+// FUN_00155BF0
 void func_00155bf0(u8 *arg0)
 {
     u8 *temp_17;
@@ -64,7 +64,7 @@ void func_00155bf0(u8 *arg0)
         var_18 = 0;
         while (var_18 < 0x10) {
             temp_16 = var_18 * 4;
-            temp_20 = (s32 *)((u8 *)KFIELD_D_007E8060 - 0x7FA0) + var_18;
+            temp_20 = (s32 *)KFIELD_D_007E8060 + var_18;
             temp_4_2 = *temp_20;
             if (temp_4_2 != 0) {
                 func_00151f80(temp_4_2);
@@ -82,7 +82,7 @@ void func_00155bf0(u8 *arg0)
     if ((u16)*(u16 *)(temp_17 + 0x18) < 0x15) {
         goto field_special;
     }
-    if ((u16)*(u16 *)(temp_17 + 0x18) < 0x1F) {
+    if (*(u16 *)(temp_17 + 0x18) <= 0x1E) {
         goto field_call;
     }
 field_special:
@@ -97,12 +97,12 @@ field_call:
 field_done:
     func_00164170();
     func_001641d0();
-    func_0043f9c8((u8 *)KFIELD_D_007E80A0 - 0x7F60, 0, 0xB40);
+    func_0043f9c8(KFIELD_D_007E80A0, 0, 0xB40);
     iGpffffb4e4 = 0;
     func_00156750(arg0);
     temp_16 = 0;
     while (temp_16 < 3) {
-        temp_2 = (s32 *)((u8 *)KFIELD_D_007D2510 + 0x2510) + temp_16;
+        temp_2 = (s32 *)KFIELD_D_007D2510 + temp_16;
         temp_4_3 = *(s32 *)((u8 *)temp_2 + 0x34);
         if (temp_4_3 != 0) {
             func_00452080(temp_4_3);
@@ -113,9 +113,6 @@ field_done:
     func_003e9df0(*(s32 *)(func_00457120() + 4));
     KFIELD_JTBL_008873EC(*(s32 *)(arg0 + 0x38));
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_field", func_00155bf0);
-#endif
 
 // FUN_00155E10
 INCLUDE_ASM("asm/nonmatchings/k_field", func_00155e10);

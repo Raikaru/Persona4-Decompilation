@@ -103,9 +103,9 @@ extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
 extern void *func_0047a2f0(u32 arg0);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 extern void (*jtbl_008873EC[])(void *);
-extern u32 D_007643A0;
-extern u32 *D_007643A4;
-extern FbnEntry *D_007643A8;
+extern u32 iGpffffb2a8;
+extern u32 *iGpffffb2a4;
+extern FbnEntry *iGpffffb2a0;
 extern s32 D_0076439C;
 extern s32 D_00764340;
 extern u32 D_00764388;
@@ -135,9 +135,9 @@ u8 *func_0015e870(s32 arg0, s32 arg1, s16 arg2)
     char spC0[0x80];
     char sp40[0x80];
 
-    D_007643A0 = 0;
-    D_007643A4 = 0;
-    D_007643A8 = 0;
+    iGpffffb2a8 = 0;
+    iGpffffb2a4 = 0;
+    iGpffffb2a0 = 0;
     if (func_0014eec0() == 0)
     {
         func_00442830(&spC0, D_005F1078);

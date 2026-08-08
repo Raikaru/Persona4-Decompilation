@@ -127,49 +127,9 @@ void func_0034ba20(void) {
    base addresses are materialised: retail loads the destination base first.
    Declaring and assigning the destination pointer ahead of the source does not
    move it. Committed at nd 64. */
-// FUN_0034BA30 NONMATCHING
-#ifdef NON_MATCHING
-void func_0034ba30(void) {
-    u8 *dst;
-    u8 *src;
-    s32 i;
-    f32 t0;
-    f32 t1;
-    f32 t2;
-    f32 t3;
-
-    D_00884670[0] = 0;
-    D_00884674[0] = 0;
-    D_00884678[0] = 0;
-    D_00884680[0] = 0;
-    D_00884684[0] = 0;
-    dst = D_00882FF0;
-    src = D_00749B30;
-    for (i = 0; i < 20; i++) {
-        t0 = *(f32 *)(src + i * 20 + 0);
-        *(f32 *)(dst + i * 84 + 0x18) = t0;
-        *(f32 *)(dst + i * 84 + 0x08) = t0;
-        *(f32 *)(dst + i * 84 + 0x00) = t0;
-        t1 = *(f32 *)(src + i * 20 + 4);
-        *(f32 *)(dst + i * 84 + 0x1C) = t1;
-        *(f32 *)(dst + i * 84 + 0x0C) = t1;
-        *(f32 *)(dst + i * 84 + 0x04) = t1;
-        t2 = *(f32 *)(src + i * 20 + 0xC);
-        *(f32 *)(dst + i * 84 + 0x2C) = t2;
-        *(f32 *)(dst + i * 84 + 0x24) = t2;
-        *(f32 *)(dst + i * 84 + 0x20) = t2;
-        t3 = *(f32 *)(src + i * 20 + 0x10);
-        *(f32 *)(dst + i * 84 + 0x34) = t3;
-        *(f32 *)(dst + i * 84 + 0x30) = t3;
-        *(s16 *)(dst + i * 84 + 0x48) = *(s16 *)(src + i * 20 + 8);
-        *(s32 *)(dst + i * 84 + 0x4C) = 0;
-        *(s32 *)(dst + i * 84 + 0x10) = 0;
-        *(s32 *)(dst + i * 84 + 0x14) = 0;
-    }
-}
-#else
+// Archived C body: build/WBHygiene_func_0034ba30_archive.txt; no current park body remains.
+// FUN_0034BA30
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ba30);
-#endif
 
 // FUN_0034BB10
 s32 func_0034bb10(void) {
@@ -848,34 +808,9 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
    alpha declared last (101). The callee signatures are already confirmed
    correct -- func_0034f0d0 is (u8*, f32x4, u8x4), func_0034e360 returns s16.
    Float-register colouring floor. */
-// FUN_0034E0B0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
-void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
-{
-    u8 alpha;
-    f32 z;
-    f32 y;
-    f32 x;
-    f32 scale;
-
-    alpha = *(u8 *)(arg0 + 0x994);
-    y = fparg1 + *(f32 *)(arg0 + 0x9A0);
-    x = fparg0 + *(f32 *)(arg0 + 0x99C);
-    z = D_008872F8[0] - D_0088467C[0];
-    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
-    func_0034f0d0(arg0 + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, alpha);
-    func_0034f0d0(arg0 + 0x6D0, x, y + 480.0f, z, scale, 0xFA, 0xE3, 0x27, alpha);
-    func_0034f0d0(arg0 + 0x710, x + 640.0f, y + 480.0f, z, scale, 0xFA, 0xE3, 0x27,
-                  alpha);
-    func_0034f0d0(arg0 + 0x750, x + 640.0f, y, z, scale, 0xFA, 0xE3, 0x27, alpha);
-    *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, fparg0, fparg1, 640.0f, 448.0f);
-    func_0034ee90(arg0, fparg0, fparg1, fparg2);
-}
-#pragma opt_common_subs on
-#else
+// Archived C body: build/WBHygiene_func_0034e0b0_archive.txt; no current park body remains.
+// FUN_0034E0B0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e0b0);
-#endif
 
 // FUN_0034E290
 s16 func_0034e290(u8 *arg0, s32 arg1) {

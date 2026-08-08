@@ -167,9 +167,8 @@ s32 func_003a16c0(void) {
     return iGpffffb610 >= 0;
 }
 
-/* measured fallback: direct C reached normalized_diff 44, object 76/80;
-   archive: build/WALastMile1_code1a_park_archive.json. */
-// FUN_003A2340 NONMATCHING
+// Archived C body: build/WBHygiene_func_003a2340_archive.txt; no current park body remains.
+// FUN_003A2340
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2340);
 // measured: closing bracket for the schedule-on above; satisfies decomp_lint
 // P001 balance and restores the -O2 default for any following code.

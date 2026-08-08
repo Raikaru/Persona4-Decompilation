@@ -99,40 +99,9 @@ s32 func_002b3990(s32 arg0)
 /* Measured nd 118 (object 368 / window 368), well above the ~25 parking
    threshold; this full-size candidate preserves the recovered symbol math and
    argument ABI for future reduction. Committed at nd 118. */
-// FUN_002B3AE0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
-{
-    f32 fparg0_saved;
-    u8 *p;
-    f32 angle;
-    f32 centered;
-    f32 temp;
-
-    fparg0_saved = fparg0;
-    p = *(u8 **)(arg0 + 0x38);
-    angle = func_0014b5d0(func_0047a2f0(D_007EFA00[0]));
-    if (angle >= 0.0f) {
-        centered = angle - 180.0f;
-    } else {
-        centered = angle + 180.0f;
-    }
-    temp = (centered + *(f32 *)(p + 0x10)) * -1.0f;
-    if (*(s8 *)(p + 0x20) == 1) {
-        func_0025ecd0(arg2, 0xFF, 0x10, func_002ac740(), 1,
-                      *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), D_00794D20,
-                      *(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, temp,
-                      1.0f, 1.0f);
-        return;
-    }
-    func_0025ecd0(arg2, 0xFF, 0x10, func_002ac740(), 1,
-                  *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), D_00794DE0,
-                  *(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, temp,
-                  1.0f, 1.0f);
-}
-#else
+// Archived C body: build/WBHygiene_func_002b3ae0_archive.txt; no current park body remains.
+// FUN_002B3AE0
 INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b3ae0);
-#endif
 // FUN_002B3C50
 void func_002b3c50(u8 *arg0, u8 arg1)
 {

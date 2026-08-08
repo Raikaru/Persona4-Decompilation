@@ -235,6 +235,7 @@ void func_0037d630(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 
 // measured: plain C reproduces the shuffle loop and frame; only the commutative multiply operand order differs at two instructions (normalized_diff 2), with object 540B versus retail window 544B. Parked because nd <= 25.
+// Committed at nd 2.
 // FUN_0037D840 NONMATCHING
 #ifdef NON_MATCHING
 void func_0037d840(u8 *arg0) {
@@ -312,14 +313,16 @@ void func_0037d840(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037d840);
 #endif
 
-// measured: retail hoists $f20 = 1.0f - ((0.5f*(f32)(temp_4-3))/5.0f) into the
+// measured evidence from the discarded body: retail hoists $f20 = 1.0f - ((0.5f*(f32)(temp_4-3))/5.0f) into the
 // prologue (mul.s/div.s/sub.s before the switch) and has a -0x120 frame with
 // sp90..sp118 stack locals; mwcc b210 computes that expression inline in the
 // case-6 loop and lays out a -0xb0 frame, producing an object 96B larger than
-// the 4912B window (nd 1108). The 22-entry jump table (jtbl_00752AE0, cases
+// the 4912B window. The 22-entry jump table (jtbl_00752AE0, cases
 // 0-21) is byte-identical, but the fall-through switch state machine (cases
 // 4/6/5, 7/8/9/10/11, 14/15/16/17/18/19) plus ~30 external calls and the
-// prologue hoist make the frame/codegen too divergent to pursue within budget.
-// Tried: faithful m2c transcription with all extern decls. Kept INCLUDE_ASM.
-// FUN_0037DA60 NONMATCHING
+// prologue hoist make the frame/codegen too divergent to pursue. The preserved
+// C body was discarded and is not recoverable; the prior nd1108 cannot be reproduced.
+// Tried: faithful m2c transcription with all extern decls.
+// Archived C body: build/WBHygiene_func_0037da60_archive.txt; no current park body remains.
+// FUN_0037DA60
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037da60);

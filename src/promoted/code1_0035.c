@@ -38,7 +38,7 @@ extern void func_00454bd0(u8 *arg0);
 extern void func_003ef3a0(void *arg0);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
-extern void func_00365f00(S64u arg0, s32 arg1, s32 arg2, s32 arg3, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4);
+extern void func_00365f00(s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4);
 extern f32 iGpffff83d4;
 extern f32 iGpffff8544;
 
@@ -225,14 +225,34 @@ void func_00356140(u8 *arg0)
 
 
 
-/* measured fallback: plain C with schedule on reached normalized_diff 45,
-   object 92/96; archive: build/WALastMile1_code1_0035_park_archive.json. */
+/* measured: retail's missing sd/ld pair for the 64-bit first argument requires
+   a stack array plus the direct pointer-dereference call expression. The
+   full callee prototype is retained; its two explicit 0.0f tail arguments
+   account for the remaining f-register residual. Best candidate nd 19,
+   object 96B/window 96B; archive
+   build/WBCode1_0035_func_00356170_nd19_archive.txt. Ruled out scalar saved0
+   (nd58,obj88/96), no-saved/full-call variants (nd59/58), three-float casts
+   and pragma/order variants (nd61/27/63/76). Committed at nd 19. */
 // FUN_00356170 NONMATCHING
+#ifdef NON_MATCHING
+void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3, f32 f0, f32 f1) {
+    s64 saved0[1];
+    s32 saved1;
+    s32 var8;
+    u8 sel;
+    saved0[0] = arg0;
+    saved1 = arg1;
+    var8 = arg3;
+    sel = ((u8 *)&saved1)[3];
+    if (sel != 0xFF)
+        var8 = 0;
+    func_00365f00(*(s64 *)((u8 *)saved0), saved1, saved1, arg2, var8, f0, f1, 1.0f, 0.0f, 0.0f);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
-/* measured fallback: latest direct-C probe normalized_diff 28, object 104/128;
-   pointer-local variant reached nd23 but remained nonmatching; archive:
-   build/WALastMile1_code1_0035_park_archive.json. */
-// FUN_003561D0 NONMATCHING
+#endif
+// Archived C body: build/WBHygiene_func_003561d0_archive.txt; no current park body remains.
+// FUN_003561D0
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003561d0);
 // FUN_00356820
 s32 func_00356820(u8 *arg0) {

@@ -57,23 +57,9 @@ s64 func_004470f0(s64 arg0);
    Mesh048 typedef used here, individual scalar locals (dead-store eliminated
    down to one), and taking the address of the first member instead of the
    struct. Committed at nd 45. */
-// FUN_00446ED8 NONMATCHING
-#ifdef NON_MATCHING
-void func_00446ed8(s8 *arg0) {
-    Mesh048 s;
-
-    s.unk0 = (u8 *)arg0;
-    s.unk8 = 0x7FFFFFFF;
-    s.unkC = 0x208;
-    s.unk10 = (u8 *)arg0;
-    s.unk14 = 0x7FFFFFFF;
-    s.unk54 = (u8 *)D_00710070;
-    func_004447f8(&s);
-    *arg0 = 0;
-}
-#else
+// Archived C body: build/WBHygiene_func_00446ed8_archive.txt; no current park body remains.
+// FUN_00446ED8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446ed8);
-#endif
 
 
 
@@ -88,23 +74,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446ed8);
    local, passing &s.unk0, and scalar field locals — all nd 60. Committed at
    nd 60.
    Committed at nd 60. */
-// FUN_00446F30 NONMATCHING
-#ifdef NON_MATCHING
-void func_00446f30(u8 *arg0, u8 *arg1) {
-    Mesh048 s;
-
-    s.unk0 = arg1;
-    s.unk8 = 0x7FFFFFFF;
-    s.unkC = 0x208;
-    s.unk10 = arg1;
-    s.unk14 = 0x7FFFFFFF;
-    s.unk54 = arg0;
-    func_00444870(&s);
-    *arg1 = 0;
-}
-#else
+// Archived C body: build/WBHygiene_func_00446f30_archive.txt; no current park body remains.
+// FUN_00446F30
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f30);
-#endif
 
 /* measured: nd 57 against retail's 96-byte object (object_size 88/96).
    Retail hoists `lui $s0,%hi(D_009389E0)` ONCE into a callee-saved register
@@ -119,28 +91,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f30);
    also inverted vs retail (bnel+beqz vs bne+bnel) as a consequence of the
    register allocation. Probed the && form, explicit-if in both guard
    polarities, pointer forms, and the three pragmas. Committed at nd 52. */
-// FUN_00446F80 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail interleaves a stack-address materialisation with the
-   surrounding stores; b210's scheduler sinks it to just before the call. */
-#pragma schedule off
-s32 func_00446f80(s32 *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    s32 temp_2;
-
-    D_009389E0[0] = 0;
-    temp_2 = func_00421da8(arg1, arg2, arg3);
-    if (temp_2 == -1) {
-        if (D_009389E0[0] != 0) {
-            *arg0 = D_009389E0[0];
-        }
-    }
-    return temp_2;
-}
-/* measured: closes the scope above at the file's -O2 baseline. */
-#pragma schedule on
-#else
+// Archived C body: build/WBHygiene_func_00446f80_archive.txt; no current park body remains.
+// FUN_00446F80
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f80);
-#endif
 
 /* measured: nd 83 against retail's 112-byte object (object_size 104/112).
    Retail reads the incoming float's bits via `mfc1 $t7,$f12` then `and`s with
@@ -157,28 +110,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f80);
    vs two-return layout, and function-scope vs if-scope local array. Committed
    at nd 83.
    Committed at nd 83. */
-// FUN_0044B868 NONMATCHING
-#ifdef NON_MATCHING
-f32 func_0044b868(f32 x) {
-    s32 a0;
-    f32 a1, a2;
-
-    if ((*(s32 *)&x & 0x7FFFFFFF) <= 0x3F490FDA) {
-        a2 = 0.0f;
-        a0 = 1;
-        a1 = x;
-    } else {
-        f32 local[2];
-        s32 r = func_0044a138(local);
-        a0 = 1 - ((r & 1) << 1);
-        a1 = local[0];
-        a2 = local[1];
-    }
-    return func_0044b018(a0, a1, a2);
-}
-#else
+// Archived C body: build/WBHygiene_func_0044b868_archive.txt; no current park body remains.
+// FUN_0044B868
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b868);
-#endif
 
 #pragma pop
 

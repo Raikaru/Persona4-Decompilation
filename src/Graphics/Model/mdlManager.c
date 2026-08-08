@@ -1432,12 +1432,12 @@ void* func_00477660(void* param_1, RwV3d* param_2)
     return param_1;
 }
 
-/* measured: aggregate buffer reconstruction supplies all retail stores and
-   the exact loop/index schedule; object 264B/window 272B, nd 6. Residual
-   rows are the filter-result/item-pointer saved-register swap at offsets
-   0x40, 0x5C, 0x60, 0x74, 0x88, and 0xB8 (candidate $s3/$s1 where retail
-   uses $s1/$s3). Declaration-order, type-width, O1, and propagation probes
-   did not change those rows. Committed at nd 6. */
+/* measured: complete aggregate-buffer reconstruction matches every real
+   instruction (264B object versus 272B window); the trailing 8B are two
+   alignment nops after jr/nop. The six residual rows are the
+   filter-result/item-pointer $s1/$s3 allocation swap. Probes covered
+   declaration order, widths, O1, loop scope, pointer forms, inlining,
+   aliases, call order, and register qualifiers. Committed at nd 6. */
 // FUN_004776C0 NONMATCHING
 #ifdef NON_MATCHING
 void *func_004776c0(void *arg0, void *arg1)
@@ -1973,7 +1973,7 @@ void func_004789c0(Model* mdl)
 extern void func_00475820(void* a, void* b);
 extern u8* func_00473b20(u8* a, u8* b, s32 c);
 extern void func_0047a510(void* a, s32 b, void* c);
-extern s32 func_0047a2f0(void* a, void* b, void* c);
+extern void* func_0047a2f0(void* a);
 extern void func_0047dae0(u32 a);
 extern void func_0047de50(u32 a);
 extern void func_0047de00(u32 a, void* b);
@@ -1984,18 +1984,15 @@ extern void func_0047ed60(void* a);
 extern void func_0047a0e0(u8* a, s32 b, f32 c);
 extern void func_0047aa10(void* a, RwV3d* b);
 extern int func_0047a9d0(void* a);
-/* measured: nd 16 after 4 attempts (object 1080B, window 1088B); everything
-   matches: registers (arg1:$s0, obj:$s1, t18/loop1-j:$s2, i2/loops-2-3:$s3,
-   slot:$s4, v:$s5), all loops/calls, p290/p294 two-use address locals, the
-   8-word copy bodies. Remaining: (1) both copy-loop setups: retail hoists
-   the p290 load above the s1 addiu (lw;addiu s1;addiu d1;addiu k) while b210
-   emits statement order (addiu s1;lw;addiu d1;addiu k) — load-hoist
-   scheduling; (2) the copy-loop counter k lands in $a3 vs retail's $a0 and
-   the second loop's dest d2 in $a0 vs retail's $a1 — temp-register rotation
-   (recorded family); (3) func_0047a510's args materialize move-first
-   (move $a0;lw $a1) vs retail's load-first (lw $a1;move $a0). The loop-1
-   counter must be a variable SEPARATE from the i2 accumulator (retail reuses
-   t18's $s2 for loop 1 only; loops 2-3 reuse i2's $s3). */
+/* 00478A30 probe audit: the historical nd 16 figure was never committed
+   and is unverified. The valid best probe was archived in
+   build/WBMdl_78a30_counter.c (fndiff: object 1048B, window 1088B,
+   91 differing words); no normalized_diff was recorded for that probe.
+   The discarded address-local probe is archived in
+   build/WBMdl_78a30_probe_final.c. Ruled out: the historical nd 16 claim,
+   function-scope p290/p294 locals (frame grew to 0xC0), block-scoped
+   p290/p294 reconstruction (object 1060B with wrong prologue allocation),
+   and direct final-loop locals (wrong saved-register allocation). */
 // FUN_00478A30
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478a30);
 
@@ -2013,7 +2010,7 @@ void func_00478eb0(void* param_1, int param_2, int param_3)
     *(int*)((u8*)param_1 + 0x31C) = param_3;
 }
 
-extern void func_004746b0(void* a, void* b);
+extern void func_004746b0(u8* a, u8* b);
 extern void func_00489f80(u32 a);
 extern s64 iGpffffabe8;
 

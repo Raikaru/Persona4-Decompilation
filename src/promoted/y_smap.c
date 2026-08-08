@@ -27,8 +27,8 @@ extern u8 D_00794C90[];
 extern char D_0063F0F0[];
 
 extern u8 *func_00457120(void);
-extern s32 func_00461390(void *a, s32 b, void *c, s32 d);
-extern s32 func_0046d200(s32 a, s32 b);
+extern u8 *func_00461390(void *a, s32 b, void *c, s32 d);
+extern u8 *func_0046d200(s32 a, s32 b);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern char D_0063EFD8[];
 extern void func_003f6440(s32 a, s32 b);
@@ -475,6 +475,12 @@ void func_002B1100(void *param_1,u32 param_2,u32 param_3)
 #pragma push
 
 
+/* Return-width audit: retail callers of func_002b11c0 and func_002b1210
+   consume the result directly with andi, sb, or mtc1 and emit no
+   dsll32/dsra32 sign-extension pair. Keep both returns wide (int): changing
+   either to s8 introduces the pair and regresses the caller by two words.
+   A missing pair means a callee return was declared too wide; an extra pair
+   means it was declared too narrow. */
 // FUN_002B11C0
 int func_002B11C0(RwV3d param_1)
 
@@ -605,15 +611,13 @@ void func_002b2240(u8 *arg0) {
     }
 }
 
-/* measured: retail computes z = -99.0f + 108.0f*j as mul.s+add.s with the
-   constant as the add's first operand (add.s $f20,$f0,$f1) and re-sign-extends
-   the s16 counter at the loop top (dsll32/dsra32 before sll); mwcc b210 fuses
-   the 1-statement `const + var*const` into adda.s/madd.s (nd 149) and for
-   statement-separated forms emits add.s with the product first (add.s
-   $f20,$f1,$f0) plus reuses the loop-test sign-extension across the back
-   edge, shrinking the body by 2 words (nd 97). Tried 1-statement both orders,
-   2-statement, +=, and variable addend — all nd 97. FPU-add-operand-order /
-   loop-sign-extend-lifetime floor. */
+/* measured: generated-shape C candidate archived at
+   build/WBYList_y_smap_2290_candidate.c (object 612B/window 624B,
+   normalized_diff 409; fndiff first differing offsets 0,4,8,10,12,14,16,
+   18,20,22,23,24,26,27,28,29). It was rejected because the compiler
+   allocated the base and loop counters to the wrong saved registers, emitted
+   a 0x50 frame instead of retail's 0x60 frame, and retained a 12B deficit.
+   Bare INCLUDE_ASM is retained. */
 // FUN_002B2290
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b2290);
 

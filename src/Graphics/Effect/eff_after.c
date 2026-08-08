@@ -476,46 +476,9 @@ INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bb1d0);
    order, and declaring the temps in reverse (both 34). Register-rotation
    floor.
    Committed at nd 70. */
-// FUN_004BC1E0 NONMATCHING
-#ifdef NON_MATCHING
-void func_004bc1e0(u8 *arg0, s32 arg1, s32 arg2)
-{
-    f32 v[3];
-    s32 i;
-    f32 *p;
-    u8 *base;
-    f32 a;
-    f32 b;
-    f32 c;
-
-    if (arg1 == *(s32 *)(arg0 + 8) - 1) {
-        func_0046d730(D_007146E0, 0x6F8);
-    }
-    i = -2 - arg1 + *(s32 *)(arg0 + 0xC);
-    if (i < 0) {
-        i += *(s32 *)(arg0 + 8);
-    }
-    base = arg0 + arg2 * 4;
-    p = (f32 *)(*(u8 **)(base + 0x10) + i * 0xC);
-    a = p[0];
-    b = p[1];
-    c = p[2];
-    v[0] = a;
-    v[1] = b;
-    v[2] = c;
-    i = *(s32 *)(arg0 + 0xC) - 1 - arg1;
-    if (i < 0) {
-        i += *(s32 *)(arg0 + 8);
-    }
-    p = (f32 *)(*(u8 **)(base + 0x10) + i * 0xC);
-    v[0] -= p[0];
-    v[1] -= p[1];
-    v[2] -= p[2];
-    func_003e4180(v);
-}
-#else
+// Archived C body: build/WBHygiene_func_004bc1e0_archive.txt; no current park body remains.
+// FUN_004BC1E0
 INCLUDE_ASM("asm/nonmatchings/eff_after", func_004bc1e0);
-#endif
 
 // FUN_004BC310
 f32 func_004bc310(u8 *arg0, s32 arg1) {

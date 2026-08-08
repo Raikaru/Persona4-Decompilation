@@ -2,6 +2,8 @@
 #include "type.h"
 
 s32 func_0041e8d8(); /* old-style: retail callers leave $a0..$a3 materialized */
+void func_0041dff8(void);
+void func_0041e030(u8 *arg0, s32 arg1);
 
 /* measured: baseline -O2 emits lw/sw/srl/andi/jr/nop with the return andi
    before jr (nd 6); schedule-on fills the jr delay slot with the andi but
@@ -36,12 +38,10 @@ void func_00420f38(u8 *);
 /* measured: object/window 24/24; candidate loads the old u32, stores arg1,
    then returns bit 8 of the old value. Exact residual: off 12 candidate
    andi $v0,$v0,1 versus retail jr $ra; off 16 candidate jr $ra versus
-   retail andi $v0,$v0,1 (2 words, nd 6). Ruled out schedule on (nd 8),
-   schedule off, optimization levels 1/3, opt_common_subs, direct-return
-   and masked-expression forms, s32/u32/u8/u16 return types, local pointer
-   and casted load/store aliases, control-flow/ternary/switch forms, and
-   inline side-effect expressions. Delay-slot scheduling remains the best
-   measured body. Committed at nd 6. */
+   retail andi $v0,$v0,1 (2 words, nd 6). Direct-return and inline-helper
+   forms were measured; the masked result remains pinned before the branch.
+   Schedule-on, optimization levels 1/3, type/cast and control-flow forms
+   were ruled out. Committed at nd 6. */
 // FUN_00419628 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00419628(u32 *arg0, u32 arg1)
@@ -61,11 +61,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419628);
    so without this pragma b210 emits addiu; jr; nop and the object is 12 bytes
    against an 8-byte window. */
 #pragma schedule on
+/* floor by name: func_0041c2f8 is a R5900 MMI byte-pack loop. Retail uses the
+   sequence mtsab $a4,0; qfsrv $a6,$a5,$a4; pextlb $a4,$zero,$a6; pextub
+   $a5,$zero,$a6, followed by two 128-bit stores per iteration. The generated
+   C records these as unknown MMI instructions; ordinary C cannot express the
+   required COP/MIPSI byte-lane operations and inline asm is forbidden. */
 // FUN_0041C2F8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c2f8);
 
+/* archived candidates: lowest nd36 tail-return (obj/window 72/80), plain
+   void nd37 (72/80), and schedule-off nd59 (96/80). Exact fndiff tables,
+   bodies, and ruled-out list: build/WBDatCalc_0041E198_archive.txt. */
+// Archived C body: build/WBDatCalc_0041E198_archive.txt
 // FUN_0041E198
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e198);
+
+
 
 // FUN_0041F130
 s32 func_0041f130(void)
@@ -87,24 +98,12 @@ s32 func_0041f130(void)
    and the or into separate statements, a named s32/u32 local for the result,
    and `(u32)(x << 4) >> 4`; optimization_level 1 reaches nd 37 and level 3
    nd 36 but both shrink the object further. Constant-mask lowering floor. */
-// FUN_0041F178 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-void func_0041f178(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *p = *(u8 **)(arg0 + 0x40);
-
-    arg1 = (arg1 & 0x0FFFFFFF) | 0x20000000;
-    *(s32 *)(p + 0xC4) = 1;
-    *(s32 *)(p + 0xEC) = arg1;
-    *(s32 *)(p + 0xF8) = arg2;
-    *(s32 *)(p + 0xF0) = 0;
-    *(s32 *)(p + 0xF4) = 0;
-    func_0041e8d8(arg0, arg1);
-}
-#pragma schedule off
-#else
+/* archived candidate: object/window 68/72, normalized_diff 46 (lower
+   optimization probes nd 37/36 shrink the object and were not retained).
+   Exact fndiff rows and the complete body are in the archive below. */
+// Archived C body: build/WBHygiene_func_0041f178_archive.txt
+// FUN_0041F178
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f178);
-#endif
 
 /* measured: the whole body is right -- retail's jal passes $a0 and $a1
    untouched from entry (arg0 and the masked tag), the 0x40 pointer lives in
@@ -118,24 +117,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f178);
    and the or into separate statements, a named s32/u32 local for the result,
    and `(u32)(x << 4) >> 4`; optimization_level 1 reaches nd 37 and level 3
    nd 36 but both shrink the object further. Constant-mask lowering floor. */
-// FUN_0041F1C0 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-void func_0041f1c0(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *p = *(u8 **)(arg0 + 0x40);
-
-    arg1 = (arg1 & 0x0FFFFFFF) | 0x20000000;
-    *(s32 *)(p + 0xF8) = arg2;
-    *(s32 *)(p + 0xEC) = arg1;
-    *(s32 *)(p + 0xF0) = 0;
-    *(s32 *)(p + 0xC4) = 0;
-    *(s32 *)(p + 0xF4) = 0;
-    func_0041e8d8(arg0, arg1);
-}
-#pragma schedule off
-#else
+/* archived candidate: object/window 64/72, normalized_diff 39. Exact
+   fndiff evidence and the complete body are in the archive below. */
+// Archived C body: build/WBHygiene_func_0041f1c0_archive.txt
+// FUN_0041F1C0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
-#endif
+
 
 /* measured: object/window 16/16; candidate loads the +0x40 base and tests
    its +4 u32 field for zero. Exact residual: off 0 candidate

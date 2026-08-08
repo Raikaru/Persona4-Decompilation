@@ -100,11 +100,17 @@ class Assembler:
         self,
         asm_filepath: Path,
     ) -> bytes:
-        with tempfile.NamedTemporaryFile(suffix=".o") as temp_file:
+        # NOTE: the object path must NOT be held open while the assembler runs.
+        # On Windows tempfile.NamedTemporaryFile opens with exclusive sharing, so
+        # a native as.exe cannot create its output and fails with "Permission
+        # denied". Allocate the name, close it, and clean up ourselves.
+        temp_fd, temp_name = tempfile.mkstemp(suffix=".o")
+        os.close(temp_fd)
+        try:
             as_name = str(self.as_path)
             use_wsl = os.name == "nt" and shutil.which(as_name) is None and _wsl_has(as_name)
             cmd = [as_name]
-            out_path = temp_file.name
+            out_path = temp_name
             include_dir = str(self.macro_inc_path.resolve().parent) if self.macro_inc_path else None
             if use_wsl:
                 cmd = ["wsl", "-d", _wsl_distro(), "--", as_name]
@@ -144,7 +150,13 @@ class Assembler:
                     f"Failed to assemble {asm_filepath} (assembler returned {process.returncode})"
                 )
 
-            obj_bytes = temp_file.read()
+            with open(temp_name, "rb") as fh:
+                obj_bytes = fh.read()
+        finally:
+            try:
+                os.remove(temp_name)
+            except OSError:
+                pass
 
         if len(obj_bytes) == 0:
             raise AssemblerException(

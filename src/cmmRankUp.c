@@ -547,18 +547,25 @@ void func_00256040(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
 
 
 
-/* measured: retail's loop keeps d0-d3, the hoisted `1` constant, and the
-   per-iteration address temp in saved regs ($s4-$s0, $s5) with the
-   byte-extract values precomputed before the loop; mwcc b210 instead
-   saves whichever THREE byte-extract values are computed first (in
-   reverse order, nd 153/153) and keeps the loop counter in a saved reg.
-   Tried: named c/d/e/g locals (both d-first and c-first declaration
-   order), all-inline byte expressions (mwcc then does not hoist them out
-   of the loop at all), s32/u32 counters, for/while forms. Saved-register
-   rotation floor; the m2c candidate (code1_0025.c) is structurally
-   correct and ready for a source that reproduces retail's allocation. */
+/* measured: retail frame is -0x140 with ra and $s0-$s5 saved; the two
+   arrays are rgba at sp+0x70 and pairs at sp+0xc0, with an unexplained
+   sixteen-byte slot at sp+0xb0.  The best complete reconstruction is
+   archived in build/WB561_work_gap_pairwalk.json:
+   `struct { RGBA rgba[16]; u8 scratch[16]; Pair pairs[16]; } Work`.
+   This one aggregate reproduces the frame, saved-register set, and both
+   array offsets; its object is 628 bytes against the 624-byte window
+   (nd 484).  Its first fndiff row is offset 0x20: the persistent rgba
+   base emits `addiu $t7,$sp,0x70` where retail starts the global read.
+   Direct indexed variants scalarize the aggregate (frames -0x120/-0x130,
+   objects 608-620), while the persistent base pins the gap at the cost
+   of that one surplus instruction.  Explicit qword/union/alignment
+   variants, separate locals, and branch-local pointer variants were
+   ruled out.  General finding: an unexplained retail stack gap is a real
+   declared object; declaring the complete frame as one struct in source
+   declaration order reproduces offsets that separate locals do not. */
 // FUN_002561F0
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_002561f0);
+
 /* measured: structure fully understood (copy loop, 3-branch color store chain,
    func_0045e6a0 call with (s16) narrowing on args 6/7), but mwcc b210's saved-
    register allocation and FP scheduling never converge on retail's: retail
