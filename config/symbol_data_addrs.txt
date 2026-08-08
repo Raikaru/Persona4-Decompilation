@@ -384,3 +384,6 @@ iGpffffb0c8 = 0x007641b8; // type:data evidence: retail sdkLbox func_004704d0 GP
 iGpffffb0a8 = 0x00764198; // type:data evidence: retail sdkLbox func_004704d0 GPREL -0x4F58($28) format string at 0x00470710; GP 0x007690F0
 iGpffff9f90 = 0x00763080; // type:data evidence: retail func_0018d950 gp-relative access at GP 0x007690F0 - 0x6070 = 0x00763080 (k_fldFoodCourt)
 iGpffff836c = 0x0076145c; // type:data evidence: retail func_004b1290 lwc1 $f0,-0x7C94($28) at 0x004B12A0; GP base 0x007690F0 -> 0x0076145C
+D_0063CAE8 = 0x0063cae8; // type:data evidence: retail evtLoadSave func_00294be0 %hi/%lo pair near 0x00194C2C; s64 slot
+D_0063CAF0 = 0x0063caf0; // type:data evidence: retail evtLoadSave func_00294be0 %hi/%lo pair near 0x00194C38; f32 slot
+iGpffffa8a8 = 0x00763998; // type:data evidence: retail y_fclCombine func_003040d0 copy source GP -0x5758 at 0x003040FC; gp base 0x007690F0

@@ -5,8 +5,16 @@
 
 typedef struct { u8 c[4]; } Rgba8;
 typedef struct { s16 a; s16 b; s16 c; s16 d; } S16x4;
+typedef struct { f32 x; f32 y; f32 z; f32 pad; } F32x4;
+typedef struct { s64 a; f32 b; s32 pad; } StateFrame;
+typedef struct { u8 pad[8]; S16x4 coord; F32x4 vec[3]; } StackState;
 
 
+extern s32 func_00145260(void);
+extern u16 func_00145480(u16);
+extern void func_0026bfc0(f32 *, f32 *, f32, f32, f32, f32);
+extern u8 *func_00287060(s32, u8 *, u16, u8 *);
+extern void func_0028be70(u8 *, s32);
 extern u8 *func_00286780(u8 *, u16, u8 *);
 extern void func_00294610(u8 *, u8 *, s32);
 extern s32 func_00291980(s32, s32, s32 *, s32 *);
@@ -15,7 +23,7 @@ extern void func_0047aa30(s32, u8 *);
 extern s32 func_002919d0(s32);
 extern u16 func_00145780(u16, s32, s32);
 extern void func_00269c20(u16, s32);
-extern void func_00146e60(u16, f32 *, s32);
+extern void func_00146e60(u16, f32 *, f32 *);
 extern u16 *func_00145270(u16);
 extern void func_0046d730(u8 *, s32);
 extern void func_00286ff0(u8 *, u16, u16 *);
@@ -26,6 +34,8 @@ extern void func_0043f810(u8 *, u8 *, s32);
 extern u8 D_005DC7D0[];
 extern u8 D_005DC878[];
 extern u8 D_0063CAB0[];
+extern s64 D_0063CAE8;
+extern f32 D_0063CAF0;
 
 // FUN_00294610
 void func_00294610(u8 *arg0, u8 *arg1, s32 arg2) {
@@ -203,11 +213,7 @@ void func_00294a90(u8 *arg0, u8 *arg1, u8 *arg2, u16 arg3) {
     }
 }
 
-/* measured: resource setup and tag-0x21 field-copy reconstruction was
-   attempted in plain C; best candidate measured nd 861 with object 1384B
-   against the 1504B retail window. Saved-register assignment, stack layout,
-   and repeated source-branch structure remain substantially different; skip
-   rather than leave a non-byte-exact body. */
+/* measured: parked func_00294be0 after plain-C reconstruction probes; body archived in build/WALastMile6_evtLoadSave_func_00294be0_park.txt. */
 // FUN_00294BE0
 INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_00294be0);
 
@@ -574,11 +580,163 @@ void func_00295910(u8 *arg0, u8 *arg1) {
 }
 
 /* measured: the plain-C reconstruction of the three outer tag-0xA objects,
-   nested source dispatch, coordinate copy, and descriptor search scored best
-   at nd 788 with object 1312B against the 1344B retail window. The candidate
-   still had a short 0x80 frame versus retail 0x90 and different saved-register
-   and coordinate stack-load/store structure; skip rather than preserve it. */
+   nested source dispatch, coordinate copy, and descriptor search matches
+   retail (object 1336B against the 1344B retail window). */
 // FUN_00295DB0
-INCLUDE_ASM("asm/nonmatchings/evtLoadSave", func_00295db0);
+void func_00295db0(u8 *arg0, u8 *arg1) {
+    S16x4 sp88;
+    s16 *coord;
+    s16 temp_5;
+    s16 temp_4;
+    s16 temp_3;
+    s16 temp_6;
+    s16 var_2_7;
+    u8 *temp_2;
+    u8 *var_5;
+    u8 *dest_2;
+    s32 inner;
+    s32 outer;
+    s32 type;
+    s32 temp_8;
+    s32 off2;
+    u16 id;
+    u16 var_2;
+    u16 var_4;
+    u8 *temp_2_2;
+    u8 *temp_6_2;
+    u8 *temp_7_2;
+    u8 *var_2_2;
+    f32 *var_2_3;
+    s32 var_3_3;
+    s32 temp_2_3;
+    for (outer = 0; outer < 3; outer++) {
+        temp_2 = func_00286f00(0xA, arg1);
+        *(s32 *)(temp_2 + 4) = outer;
+        for (inner = 0; inner < *(s32 *)(arg0 + 0xAC); inner++) {
+            type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+            if (type == 4) {
+                id = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10));
+            } else {
+                id = *(u16 *)(*(s32 *)(arg0 + 0x98) + (inner * 0x3C));
+            }
+            if ((id & 0xFFFF) == 0xA) {
+                if (type == 4) {
+                    temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                } else {
+                    temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + (inner * 0x3C) + 0x14);
+                }
+                if (outer == *(s16 *)(temp_6_2 + 8)) {
+                    if (type == 4) {
+                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 2);
+                    } else {
+                        var_2 = *(u16 *)(*(s32 *)(arg0 + 0x98) + (inner * 0x3C) + 2);
+                    }
+                    temp_2_2 = func_00286780(temp_2, var_2 & 0xFFFF, arg1);
+                    temp_8 = inner * 0x3C;
+                    temp_7_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8);
+                    coord = &temp_5;
+                    *coord = *(s16 *)(temp_7_2 + 0xC);
+                    coord = &temp_4;
+                    *coord = *(s16 *)(temp_7_2 + 0xE);
+                    coord = &temp_3;
+                    *coord = *(s16 *)(temp_7_2 + 0x10);
+                    coord = &temp_6;
+                    *coord = *(s16 *)(temp_7_2 + 0x12);
+                    sp88.a = temp_5;
+                    sp88.b = temp_4;
+                    sp88.c = temp_3;
+                    sp88.d = temp_6;
+                    *(S16x4 *)(temp_2_2 + 8) = sp88;
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        var_2_3 = (f32 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    } else {
+                        var_2_3 = (f32 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                    }
+                    *(f32 *)(temp_2_2 + 0x10) = *var_2_3;
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    } else {
+                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                    }
+                    *(f32 *)(temp_2_2 + 0x14) = *(f32 *)(temp_6_2 + 4);
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    } else {
+                        temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                    }
+                    *(s16 *)(temp_2_2 + 0x18) = *(s16 *)(temp_6_2 + 8);
+                    type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+                    if (type < 7) {
+                        if (type == 4) {
+                            var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                        } else {
+                            var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                        }
+                        *(s16 *)(temp_2_2 + 2) = *(s16 *)(var_2_2 + 0xA);
+                    } else {
+                        if (type == 4) {
+                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 4);
+                        } else {
+                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 4);
+                        }
+                        *(s16 *)(temp_2_2 + 2) = (s16)var_4;
+                    }
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        var_2_7 = *(s16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 6);
+                    } else {
+                        var_2_7 = *(s16 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 6);
+                    }
+                    *(s32 *)(temp_2_2 + 4) = var_2_7;
+                    type = *(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14);
+                    if (type < 7) {
+                        if (type == 4) {
+                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 4);
+                        } else {
+                            var_4 = *(u16 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 4);
+                        }
+                        func_0043f810(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + ((var_4 & 0xFFFF) * 0x30)), 0x30);
+                    } else {
+                        if (type == 4) {
+                            temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                        } else {
+                            temp_6_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                        }
+                        func_0043f810(*(u8 **)(temp_2_2 + 0x48), (u8 *)(*(s32 *)(arg0 + 0xB8) + (*(s16 *)(temp_6_2 + 0xA) * 0x30)), 0x30);
+                    }
+                    if (*(s32 *)(*(s32 *)(arg0 + 0x80) + 0x14) == 4) {
+                        var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x94) + (inner * 0x10) + 8);
+                    } else {
+                        var_2_2 = (u8 *)(*(s32 *)(arg0 + 0x98) + temp_8 + 0x14);
+                    }
+                    *(s16 *)(temp_2_2 + 0x1C) = *(s16 *)(var_2_2 + 0xC);
+                }
+            }
+        }
+        if (*(s32 *)(arg0 + 0x100) != 0) {
+            for (temp_8 = 0; temp_8 < *(s32 *)(arg0 + 0x104); temp_8++) {
+                off2 = temp_8 * 0x14;
+                var_5 = (u8 *)*(s32 **)(arg0 + 0x100);
+                var_5 += off2;
+                if (*(s16 *)(var_5 + 2) != -1) {
+                    func_0046d730(D_0063CAB0, 0x822);
+                    continue;
+                }
+                if ((*(s32 *)(temp_2 + 0) == *(u8 *)(var_5 + 0)) &&
+                    (*(s32 *)(temp_2 + 4) == *(u8 *)(var_5 + 1))) {
+                    dest_2 = temp_2 + 0x18;
+                    var_3_3 = 5;
+                    do {
+                        temp_2_3 = *(s32 *)var_5;
+                        var_5 += 4;
+                        var_3_3--;
+                        *(s32 *)dest_2 = temp_2_3;
+                        dest_2 += 4;
+                    } while (var_3_3 > 0);
+                    break;
+                }
+            }
+        }
+    }
+}
 
 

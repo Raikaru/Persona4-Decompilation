@@ -215,6 +215,7 @@ DATA_REACHABLE_ENTRIES = {
     0x0047F840: {"pointer": 0x0071324C},  # 12-byte {fn,0,0} records; prior holds 0047F830
     0x005072D0: {"pointer": 0x0075DDA8},  # {0,2,7FFFFFFF,fn,...} record, appears twice
     0x0046D6A0: {"pointer": 0x00764130},  # trailing jr $ra;nop after func_0046d5f0's epilogue; single pointer word at 0x00764130
+    0x001B5DA0: {"pointer": 0x005F7240},  # trailing jr $ra;nop after func_001b5d30's epilogue; single pointer word at 0x005F7240
     # `jr $ra; nop` at the head of a function-pointer table's callback slots:
     # 00635950 holds 00244100, and the next two slots hold 00244110 and 00244540,
     # both already canonical functions. Folding it left func_00243fa0 with a 368B

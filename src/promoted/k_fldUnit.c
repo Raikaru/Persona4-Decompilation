@@ -680,7 +680,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
 
 
 
-/* measured: old parked body nd 20, object/window 800/800. Grouped the four GP byte loads into color0..color3 locals before the four destination stores; best body is nd 4, object/window 796/800. Exact fndiff residuals: +0x170 (offset 368) and +0x17C (offset 380) have the color0/color3 store registers swapped; +0x2BC (offset 700) and +0x2C4 (offset 708) have commutative addu operands reversed. Relocation-only rows +0x160..+0x16C remain from the reordered GP-byte loads. Ruled out scalar/array/address spellings, pointer/direct-store forms, declaration/register/pragma/order sweeps, 24 load permutations, and semantic local maps; no prototype or symbol changes. Committed at nd 4. */
+/* measured: parked body improved nd 4 -> 3, object/window 796/800. Source keeps four GP byte loads as color0..color3 locals, writes color3/color1/color2/color0 to destination offsets 4..7, and spells the final lookup address index-first as (u8 *)(temp_18 << 8) + (u32)func_00155280() + (temp_17_2 * 0x10) + 0x56. Exact fndiff residuals: +0x170 (offset 368) candidate sb $v0,4($a2) vs retail sb $a1,4($a2); +0x17C (offset 380) candidate sb $a1,7($a2) vs retail sb $v0,7($a2); +0x2BC (offset 700) candidate addu $v1,$v1,$v0 vs retail addu $v1,$v0,$v1. Ruled out scalar/array/address spellings, pointer/direct-store forms, declaration/register/pragma/order sweeps, 24 load permutations, 24 assignment permutations, and semantic local maps; no prototype or symbol changes. Parked at nd 3. */
 // FUN_00165FB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
@@ -697,10 +697,10 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
     u8 *temp_4_2;
     u8 *temp_6;
     u8 *var_18;
-    u8 color0;
+    u8 color3;
     u8 color1;
     u8 color2;
-    u8 color3;
+    u8 color0;
 
     if (arg0 != NULL) {
         temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
@@ -722,13 +722,13 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         var_18 = *(u8 **)(*(u8 **)(temp_3_2 + 0x2CC));
         temp_6 = *(u8 **)(temp_3_2 + 0x124);
         color0 = iGpffff9f28;
-        color3 = iGpffff9f2b;
         color1 = iGpffff9f29;
         color2 = iGpffff9f2a;
-        temp_6[4] = color0;
+        color3 = iGpffff9f2b;
+        temp_6[4] = color3;
         temp_6[5] = color1;
         temp_6[6] = color2;
-        temp_6[7] = color3;
+        temp_6[7] = color0;
         while (var_18 != NULL) {
             temp_4 = *(s32 *)(var_18 + 8);
             if (temp_4 != 0) {
@@ -751,7 +751,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         func_00478e70(temp_4_2);
         temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
         temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
-        *(u8 **)(temp_2 + 0x140) = func_00145270(*(u16 *)(func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
+        *(u8 **)(temp_2 + 0x140) = func_00145270(*(u16 *)((u8 *)(temp_18 << 8) + (u32)func_00155280() + (temp_17_2 * 0x10) + 0x56));
         func_0014a0f0(*(u16 *)(arg0 + 0xC), 1);
         D_007643D8 += 1;
     }

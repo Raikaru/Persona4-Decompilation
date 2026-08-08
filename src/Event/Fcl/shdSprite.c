@@ -51,6 +51,7 @@ extern u8 D_00637280[];
    known load-sinking floor. */
 // FUN_0025EF20
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
+
 /* measured: retail schedules the loop's array load (lw $v0, 8($s2)) BEFORE the
    CSE'd index*4 (sll $s0, $s1, 2); mwcc b210 always hoists the sll above the
    independent load. nd 2, every other word byte-identical (70 words). Tried
@@ -60,6 +61,7 @@ INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
    layout, the rest was already exact). Scheduling-order floor. */
 // FUN_0025F110
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f110);
+
 // FUN_0025F230
 void func_0025f230(u32 param_1)
 {

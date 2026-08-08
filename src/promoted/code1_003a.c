@@ -167,17 +167,10 @@ s32 func_003a16c0(void) {
     return iGpffffb610 >= 0;
 }
 
-/* measured: reconstructed direct-call body parked at normalized_diff 44;
-   object 76/80. Archive: build/W9LastMile1_code1a_park_archive.json. */
+/* measured fallback: direct C reached normalized_diff 44, object 76/80;
+   archive: build/WALastMile1_code1a_park_archive.json. */
 // FUN_003A2340 NONMATCHING
-#ifdef NON_MATCHING
-void func_003a2340(s32 arg0, s32 arg1, s32 arg2)
-{
-    func_003a2390(arg0, func_003a20e0(arg1), arg2, &D_00708460[0]);
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2340);
-#endif
 // measured: closing bracket for the schedule-on above; satisfies decomp_lint
 // P001 balance and restores the -O2 default for any following code.
 #pragma schedule off
