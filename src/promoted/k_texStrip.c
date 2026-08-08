@@ -123,6 +123,7 @@ INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190680);
 // FUN_00190920
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190920);
 
+
 // measured: nd 102 after 5 attempts (best). Same spill-slot rule as func_001916a0: the four
 // func_003df3c0 spill slots MUST be `s32 spill[4]` (else sp74 promotes to a 5th saved reg).
 // Register order that works: declare temp_20,temp_19,temp_18,temp_4,var_17,var_16 (first-declared

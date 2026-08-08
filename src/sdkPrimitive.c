@@ -58,18 +58,37 @@ void func_0045da40(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, f32 fparg0) {
 }
 
 
-/* measured: retail evaluates the second argument (stack address/load) of the
-   D_00887304/D_00887300 vtable calls before the first argument (the state
-   load): `sll/addu` then `lw $a0, ($s0)` then `addiu $a1, $v0, 0x80`; mwcc b210
-   emits the `lw $a0` first in both loops (nd 8, exactly two 3-4 instruction
-   rotations, everything else byte-identical). Tried direct array spelling,
-   deref (*D_00887304)(...) spelling, hoisted out/sv pointers (before and after
-   the entry pointer), hoisted state temp, named s32 offset locals, s64 vs s32
-   arg3/arg4, interleaved f32 prototype positions, u32/s32 counters, split
-   i/j counters: all give identical nd 8 or regress the register allocation to
-   7 sregs. Argument-evaluation-order floor. */
-// FUN_0045DB40
+/* measured: reconstructed the complete packet-state setup, vertex-generation call, primitive dispatch, and state restore. The candidate has the exact 0x1B0 frame, stack field offsets, register home mapping, and all relocations; b210 evaluates the state load before the stack-address arithmetic in both vtable calls, while retail computes each address first. Tried direct array/deref calls, hoisted pointers, named offset locals, interleaved prototypes, u32/s32 counters, and split counters; the two call-site rotations remained. Committed at nd 21. */
+// FUN_0045DB40 NONMATCHING
+#ifdef NON_MATCHING
+void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, f32 fparg3) {
+    struct { s32 saved[6]; u8 pad1[8]; f32 out; u8 pad2[0xFC]; PrimFloat4 pos; } work;
+    u32 i;
+    u32 j;
+    s32 *p;
+    work.pos = *(PrimFloat4 *)arg1;
+    if (arg2 != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)((u8 *)work.saved + i * 4));
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+    }
+    func_0045d370(&work.out, arg0, &work.pos, fparg0, arg3, arg4, fparg1, fparg2, fparg3);
+    D_00887310[4](4, &work.out, 4);
+    if (arg2 != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], work.saved[j]);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045db40);
+#endif
 
 
 /* measured: retail FP home-register mapping is {z:f24, sinv:f20, inv:f21,
@@ -110,16 +129,39 @@ INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045dfd0);
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e310);
 
 
-/* measured: same argument-evaluation-order floor as func_0045db40. With the
-   correct register allocation (two separate loop counters i/j + locals
-   declared (saved[6], p, i, j); pointer-cast D_00712490 entry) everything
-   matches except two 3-4 instruction rotations in the D_00887304/D_00887300
-   vtable calls: mwcc b210 emits the `lw $a0, ($s0)` state load before the
-   `sll/addu` for &saved[i], retail after (nd 9). Tried hoisted out/sv
-   pointers, named s32 offset locals, direct vs deref call spelling: identical
-   nd 9. */
-// FUN_0045E6A0
+/* measured: reconstructed the complete state setup/restore loops, allocator call, delegated vertex emission, primitive dispatch, and packet release. The candidate has the exact register home mapping, frame, stack offsets, call sequence, and relocations; b210 evaluates the state load before the stack-address arithmetic in the two vtable calls, while retail computes each address first. Tried direct array/deref calls, hoisted pointers, named offset locals, interleaved prototypes, u32/s32 counters, split counters, and comma-order expressions; the residual call-site rotations remained. Committed at nd 21. */
+// FUN_0045E6A0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0045e6a0(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 fparg1, f32 fparg2, f32 fparg3) {
+    s32 saved[6];
+    s32 *p;
+    u32 i;
+    u32 j;
+    if (arg4 != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)((u8 *)saved + i * 4));
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+    }
+    func_0044ea90(D_007124C0, 0x355);
+    p = (s32 *)jtbl_008873E8[0](arg2 << 6, 0x40000);
+    func_0045dd30((u8 *)p, arg0, arg1, fparg0, arg2, arg5, arg6, fparg1, fparg2, fparg3);
+    D_00887310[4](arg3, p, arg2);
+    if (arg4 != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], saved[j]);
+        }
+    }
+    jtbl_008873EC[0](p);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e6a0);
+#endif
 
 
 /* measured: prologue, alloc, w-field setup, both func_0043f810 copies, the

@@ -103,14 +103,18 @@ struct BtlResultSubWork
    matching retail; if/else and goto forms lay them out reversed (nd 99-104 vs
    switch's 39). Also: arg3 must be u32 (retail divu + sltiu; s32 emits signed
    div/slti), byte extraction is (arg2 & 0xFF000000)>>24 mask-first (srl, not sra),
-   and buf/buf2 must be char[] (signed lb loads). Final nd 39: residual is the
-   no-call digit-conversion loop's temp-register coloring (retail k=$t2/j=$t1,
+   and buf/buf2 must be char[] (signed lb loads). Retail window 608B; best
+   discarded body was 600B with nd 39: residual is the no-call
+   digit-conversion loop's temp-register coloring (retail k=$t2/j=$t1,
    +0x2E/2/0xA consts hoisted to the preheader; mwcc k=$v1/j=$t0 and sinks the
    0x2E/2 materialisation into the loop) plus one slt-$at-vs-$v0 in the digit
    assert. opt_loop_invariants off/on, block-scoped k/j, f32* arg1, m2c casts:
    unchanged. Register-coloring + const-hoist floor. */
 // FUN_0021ED10
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ed10);
+
+
+
 
 /* measured 2026-08-03 (wave 14 re-attack, 3 attempts): full body reconstructed from
    the m2c draft (code1_0021.c) + retail asm — all 4 loops and the final stores
@@ -128,8 +132,18 @@ INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ed10);
    recorded note). */
 // FUN_0021EF70
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021ef70);
+/* measured 2026-08-07: discarded raw_alias body reached nd 57 with object
+   472B vs the 480B window. Retail precomputes the indexed field400 store
+   address before func_0046af60; b210 keeps the loop/index colouring in the
+   wrong saved registers and recomputes that address after the call. The
+   direct, slot-pointer, reload, and add-base spellings all stayed at nd 254+
+   or nd 275. Register-colouring/pre-call-hoist floor; leave the marker bare. */
 // FUN_0021F340
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021f340);
+
+
+
+
 // FUN_0021F520
 s32 func_0021f520(u8 *arg0) {
     u8 *work;
@@ -291,14 +305,19 @@ s32 func_0021f790(u8 *arg0) {
 }
 // FUN_0021FA40
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fa40);
+/* measured 2026-08-07: a full C reconstruction of the five-entry update
+   loop reached nd 1051 but emitted 1420B for the 1120B window. The remaining
+   retail path uses COP1 adda.s/madd.s interpolation, the EE three-operand
+   mult form, and b210's signed-range conversion/float-register schedule
+   differs throughout; discarded rather than leaving an oversized body bare. */
 
 /* measured: 5680B retail window; m2c cannot lower the FPU multiply-accumulate
    idiom (adda.s $f0,$f3 / madd.s $f1,$f2,$f1 fused lerp in the loop_26
    quadword color path) and the body is dominated by dozens of D_00887300
-   render-vtable calls, the (f32)(s32) range-guard idiom (0x4F000000 checks,
-   bltz floor family), s64 bitwise byte extractions, and 3 nested loops.
-   M2C_ERROR + bltz/range-guard + vtable-hoist floor; not attempted at this
-   scale. */
+   render-vtable calls, the (f32)(s32) range-guard idiom (0x4F000000 checks),
+   bltz floor family, s64 bitwise byte extractions, and 3 nested loops. A
+   stub-only probe measured nd 7 but object_size 8B/5680B, a size-deficit
+   result rather than a near miss; no body retained at this scale. */
 // FUN_0021FEA0
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_0021fea0);
 
@@ -408,3 +427,5 @@ u16 func_00221740(void) {
    + addBase helper). */
 // FUN_00221770
 INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_00221770);
+
+

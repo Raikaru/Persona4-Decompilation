@@ -180,6 +180,9 @@ void func_00231ef0(u8 *arg0, u8 arg1)
    Mask-hoist/saved-register floor, corroborated. */
 // FUN_00231F80
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00231f80);
+
+
+/* measured: generated/P3-shaped max-SP reconstruction gives nd 511 (object 776B, window 784B); retail keeps id/base/bonus lifetimes and global-base load ordering unlike b210, so the candidate was discarded and the fallback remains. */
 // FUN_00232290
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232290);
 // FUN_002325A0
@@ -393,8 +396,52 @@ s32 func_00232aa0(s32 arg0)
    tail lands at nd 68 (74 with the pragma), so the combo has not actually been
    tested against the good body. Whoever holds a body at nd 9 should try it --
    do NOT re-derive from scratch. */
-// FUN_00232B40
+/* measured: P3-shaped basic-block reconstruction matches retail through the range guard, enemy table arithmetic, call/tail, and all but the signed player-id test's temporary register. Tried u16/u32/s32 check spellings and direct signed expressions; best verify normalized_diff nd 3 (object 296B, window 304B). Committed at nd 3. */
+// FUN_00232B40 NONMATCHING
+#ifdef NON_MATCHING
+u8 func_00232b40(u8 *arg0, s32 arg1)
+{
+    u16 temp;
+    u8 value;
+    s32 check;
+    u32 index;
+    u8 *base;
+
+    if ((s32)(arg1 & 0xFFFF) < 0 || (s32)(arg1 & 0xFFFF) >= 5) {
+        func_0046d730(D_00635938, 0x2F0);
+    }
+    temp = *(u16 *)(arg0 + 2);
+    if ((*(u16 *)arg0 & 4) != 0) {
+        if (temp >= 0x150) {
+            func_0046d730(D_00635938, 0x2F7);
+        }
+        base = (u8 *)iGpffffb3c4;
+        index = (u32)temp * 0x3C;
+        base = (u8 *)(index + (u32)base);
+        base = (u8 *)(((u32)arg1 & 0xFFFF) + (u32)base);
+        value = *(u8 *)(base + 8);
+    } else {
+        check = temp;
+        if (check >= 0xB) {
+            func_0046d730(D_00635938, 0x2FA);
+        }
+        value = (u8)func_00109980(temp, arg1);
+    }
+    if ((s32)value > 0) {
+        goto clamp_value;
+    }
+    value = 1;
+    goto done_value;
+clamp_value:
+    if (value > 0x63) {
+        value = 0x63;
+    }
+done_value:
+    return value;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232b40);
+#endif
 
 /* measured: the retail range guard IS reproducible -- `((s32)(arg1 & 0xFFFF)
    < 0) || ((arg1 & 0xFFFF) >= 5)` keeps the dead bltz on the MASKED register
@@ -1378,6 +1425,8 @@ s32 func_0023dfe0(void)
    corroborated (recorded nd 61). */
 // FUN_0023DFF0
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023dff0);
+
+
 // FUN_0023E140
 u8 *func_0023e140(u8 *arg0)
 {
@@ -1611,7 +1660,7 @@ s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
     if (func_00241bc0(arg0, arg1, arg2, arg3, arg4) == 0) {
         return 0;
     }
-    switch (*(u8 *)(iGpffffb3b8 + (u16)arg2 * 0x28 + 0x24)) {
+    switch (*(u8 *)(PTDatCalcOffsetAdd((u16)arg2 * 0x28, (u32)iGpffffb3b8) + 0x24)) {
     case 9:
     case 10:
         return 1;
@@ -1624,6 +1673,7 @@ s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 #else
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241de0);
 #endif
+
 // FUN_00241F00
 s32 func_00241f00(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3)
 {

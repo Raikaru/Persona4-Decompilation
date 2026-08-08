@@ -196,11 +196,10 @@ void func_00186a60(u8 *arg0)
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
 }
 
-/* measured: retail materialises the tail 0.0f store as mtc1 $0,$f1 + swc1
-   (mtc1 hoisted above the blez); mwcc b210 constant-folds every spelling of
-   `*(f32 *)(ptr+4) = 0.0f` (literal, (f32)(s32)0, named local) into `sw $0`
-   (nd 2: missing mtc1 + swc1-vs-sw; branch offsets cascade). FP-zero-store
-   fold floor. */
+/* measured re-triage: switch CFG candidate reproduces the main state/update
+   path, but MWCC b210 still folds the retail mtc1 $0 + swc1 zero store to
+   sw $0 and leaves the candidate 8 bytes short of the retail window. Best
+   candidate: normalized_diff 103, object 456/464; discarded. */
 // FUN_00186AC0
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00186ac0);
 
@@ -279,12 +278,10 @@ void func_00186e10(u8 *arg0)
 
 extern s32 func_00186eb0(u8 *arg0);
 
-/* measured: retail fills each jal/branch delay slot with the following call's
-   first arg setup (move $a0 / addiu $a1) while mwcc b210 always emits nop,
-   shifting every subsequent call block by one word; also $4 = arg0 moves are
-   re-emitted per call where retail reuses them, and the case-0/7 bodies need
-   per-site scheduling fixes (nd ~820 of 952 words, attempted decl orders,
-   pragma, comparison forms). Delay-slot fill floor. */
+/* measured re-triage: generated-style candidate covers the complete
+   initialisation and state-machine body, but its call/branch scheduling and
+   delay-slot placement diverge substantially. Best candidate:
+   normalized_diff 2871, object 3964/3824; discarded. */
 // FUN_00186EB0
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00186eb0);
 
@@ -380,71 +377,61 @@ void func_00188110(void)
     func_003f6440(3, 0x72001);
 }
 
-/* measured: retail materialises the f12/f13 constants (lui+mtc1) BEFORE the
-   arg1 loads and interleaves f13's loads into f12's add->cvt latency; mwcc
-   b210 emits the loads first and does not interleave (nd 40 in the chains).
-   Retail also places the f14 = arg1[8] load after the f16 constant and before
-   the a0 lui; mwcc sinks it to just before the jal (load-sinking floor).
-   Tried inline, f32 locals, and pointer-last func_0025ecd0 prototype (that
-   one fixes the a7-last emission, kept in the file); all nd 56. */
+/* measured re-triage: corrected generated-style candidate has the complete
+   color-call setup and exact size, but MWCC b210 serialises the retail
+   constant-before-load and cross-chain float scheduling. Best candidate:
+   normalized_diff 154, object 288/288; discarded. */
 // FUN_00188200
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188200);
 
 
 
 
-/* measured: at 4 attempts. Progress: pragma opt_loop_invariants + decl order
-   (var_17 first) + 102.0f (0x42CC0000, not 100.0) fixed the frame (-0x60,
-   f20 save), the loop-counter registers, and the outer-loop mul hoist; the
-   madd.s/adda.s fused form compiles correctly. Remaining nd 135 is the
-   argument-evaluation-order family: retail materialises constants before
-   loads in every chain (e.g. f12 = -44.0f + arg1[0] uses 0xC2300000 = -44.0,
-   not -40.0) and interleaves f13's loads into f12's add->cvt latency; mwcc
-   emits load-first serialised chains and sinks the inner call's f14=arg1[8]
-   load. Also retail fills the post-jal delay slot with move $s1 while mwcc
-   emits nop (delay-slot-fill floor, see func_00186eb0). */
+/* measured re-triage: corrected loop/call CFG and declaration order produce
+   exact size, but MWCC b210 differs in the repeated float argument
+   materialisation and call scheduling. Best candidate:
+   normalized_diff 321, object 624/624; discarded. */
 // FUN_00188320
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188320);
 
-/* measured: retail hoists the f14 = arg1[8] load (lwc1 $f14, 8($s1)) up into
-   the float-arg cluster (right after the f16 materialisation, before the a0
-   lui); mwcc b210 always sinks it to just before the jal (after the a7 pair),
-   nd 14. Tried inline arg, hoisted f32 local (spills to f20), pre-call
-   assignment, and register f32 local - all identical. Load-sinking floor
-   (arg-evaluation-order family). */
-// FUN_00188590
+/* measured re-triage: candidate reproduces the complete setup and color call (object 244/256). Retail hoists the f14 = arg1[8] load immediately after the f16 constant, before integer argument materialisation; MWCC b210 sinks it below the integer arguments in every tested spelling. Tried inline load, f32 local, pre-call assignment, and register f32 local; best exact C residual is normalized_diff 24. Committed at nd 24. */
+// FUN_00188590 NONMATCHING
+#ifdef NON_MATCHING
+void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 temp_3;
+    u8 *temp_2;
+    f32 temp_f14;
+    temp_2 = func_00460990();
+    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00188030;
+    *(s32 *)(temp_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2);
+    temp_3 = arg2 * 0x18;
+    temp_f14 = *(f32 *)(arg1 + 8);
+    func_0025ecd0(0xFF0000, 2, arg2, *(s32 *)(arg0 + 0x34), 0, 0, 0, (f32)(s32)(*(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B0 + temp_3)), (f32)(s32)(*(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20B4 + temp_3)), temp_f14, 0.0f, 1.0f, 1.0f, D_00795E60);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188590);
+#endif
 
-/* measured: retail interleaves the f13 chain's loads between f12's add.s and
-   its cvt.w.s (sum in a fresh $f2), and places the f14 = arg1[8] load right
-   after the f16 constant; mwcc b210 serialises the chains (sum reused in $f0,
-   no interleave) and sinks the f14 load below the int args. Tried inline and
-   f32 locals for sx/sy; identical nd 29. Argument-evaluation-order +
-   load-sinking floor family (see also func_00188590/00188200 notes). */
+/* measured re-triage: corrected two-call body has the expected setup and
+   near-retail size, but MWCC b210 sinks the f14 load below the integer
+   arguments and does not interleave the f13 chain. Best candidate:
+   normalized_diff 82, object 344/352; discarded. */
 // FUN_00188690
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188690);
 
-/* measured: identical to func_00188690 - retail interleaves the f13 chain
-   into f12's add->cvt latency (sum in fresh $f2) and loads f14 = arg1[8]
-   right after the f16 constant; mwcc b210 serialises the chains and sinks the
-   f14 load below the int args. Tried inline spelling only; nd 27.
-   Argument-evaluation-order + load-sinking floor family. */
+/* measured re-triage: corrected two-call body has exact size, but MWCC b210
+   sinks the f14 load below the integer arguments and serialises the f13
+   chain. Best candidate: normalized_diff 79, object 336/336; discarded. */
 // FUN_001887F0
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_001887f0);
 
 
 
-/* measured: at 4 attempts. s32 locals for the scaled offsets (sel/idx) fix
-   the two addu operand orders (retail addu $v0,$v0,$s2; lever #10 confirmed).
-   Remaining nd 120 is the standard family: (1) argument-evaluation order -
-   retail materialises the f12/f13 constants before the arg1 loads and
-   interleaves f13's chain into f12's add->cvt latency (sum in fresh $f2);
-   mwcc emits load-first serialised chains; (2) call 3's f13 = (f32)(s32)0.0f
-   FOLDS to mtc1 $0,$f13 in mwcc while retail emits the cvt.w.s/cvt.s.w chain
-   reusing the f15 zero - needs a runtime zero local, but a zero local assigned
-   before the call shifts the whole cluster (tried, nd 145); (3) call 4's
-   f14 = arg1[8] load sunk below the int args; (4) post-jal delay slot nop
-   (retail fills with ld $ra). */
+/* measured re-triage: corrected four-call body is complete but exceeds the
+   retail window by one word and retains the float argument-order/scheduling
+   residual. Best candidate: normalized_diff 376, object 676/672; discarded. */
 // FUN_00188940
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188940);
 
@@ -579,14 +566,37 @@ u8 *func_00188f20(u8 *arg0, s32 arg1, u8 *arg2)
     return temp_18;
 }
 
-/* measured: retail repeats the (func_0047a2f0 + addr + sub.s) sequence three
-   times with func-result load ($f1) right after each jal; mwcc b210 matches
-   blocks 1-2 but in block 3 hoists the address computation before the func-
-   result load, flipping $f0/$f1 roles and the sub.s (nd 9). Tried statement
-   locals, inline expressions, declaration orders, distinct locals: block 3
-   allocator floor. */
-// FUN_00189060
+/* measured re-triage: reconstructed state/zero/nonzero light-map updates. Retail uses addu $v0,$v0,$s0 for each of the three scaled vertex addresses; mwcc emits addu $v0,$s0,$v0 despite matching all other instructions and leaves a 4-byte tail gap. Tried direct expressions, reusable scaled-offset locals, and integer-domain address arithmetic; best exact C residual is normalized_diff 15, object 364/368. Committed at nd 15. */
+// FUN_00189060 NONMATCHING
+#ifdef NON_MATCHING
+void func_00189060(u8 *arg0, s32 arg1, f32 fparg0)
+{
+    f32 *temp_4_2;
+    s32 temp_4;
+    u8 *temp_16;
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    *(f32 *)(temp_16 + 0x54) = fparg0;
+    temp_4 = *(s32 *)temp_16;
+    if (((temp_4 != 1) || (*(s32 *)(temp_16 + 0x5C) != arg1)) && ((temp_4 != 2) || (*(s32 *)(temp_16 + 0x58) != arg1))) {
+        if (fparg0 != 0.0f) {
+            *(s32 *)(temp_16 + 0x58) = arg1;
+            *(s32 *)(temp_16 + 0x5C) = -1;
+            *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0xC) = *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0xC) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x30);
+            *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x10) = *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x10) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x34);
+            *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x14) = *(f32 *)(temp_16 + (*(s32 *)(temp_16 + 0x58) * 0xC) + 0x14) - *(f32 *)(func_0047a2f0(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144)) + 0x38);
+            temp_4_2 = (f32 *)(temp_16 + 0x48);
+            func_003e40b0(temp_4_2, temp_4_2);
+            *(s32 *)temp_16 = 2;
+            return;
+        }
+        *(s32 *)(temp_16 + 0x58) = -1;
+        *(s32 *)(temp_16 + 0x5C) = arg1;
+        func_0047a180(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x144), temp_16 + (arg1 * 0xC) + 0xC, 0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00189060);
+#endif
 
 static inline f32 mulFp(f32 left, f32 right) { return left * right; }
 

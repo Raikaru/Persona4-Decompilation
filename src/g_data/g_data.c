@@ -1054,17 +1054,66 @@ u8 func_00106600(s16 arg0)
     return D_0079757A[arg0];
 }
 
-/* measured: retail reloads D_0079757A[arg0] (lbu) after the func_00106850
-   call and branches on it before computing id/bit/idx; mwcc b210 forwards the
-   earlier sb through both the array and a pointer local (and through an
-   old-style alias call) so the lbu/beqz never appears, and it rotates the
-   sign-ext/pointer registers ($s0/$s2 swapped) regardless of declaration
-   order. Tried: u8/s32 value, >0x63 vs >=0x64 forms, pointer vs array
-   reload, branch-order flips, bit/idx inside vs outside the if, old-style
-   extern and #pragma alias calls - best nd 30. Store-forwarding + register-
-   rotation floor. */
 // FUN_00106620
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00106620);
+/* func_00106850 takes the raw 32-bit id and narrows it itself; retail's call
+   here passes arg0 with no sign-extension at the call site. */
+u32 func_00106850(s32 arg0);
+void func_00106620(s32 arg0, s32 arg1)
+{
+    s16 id;
+    u8 *p;
+    s32 value;
+    s32 x;
+    s32 bit;
+    s32 idx;
+
+    value = arg1 & 0xFF;
+    if (value > 0x63)
+    {
+        value = 0x63;
+    }
+    id = (s16)arg0;
+    p = (u8 *)D_0079757A + id;
+    *p = value;
+    if (func_00106850(arg0) == 4)
+    {
+        if (*p != 0)
+        {
+            x = id - 0x200;
+            if ((x < 0) || (x >= 0x1600))
+            {
+                FUN_0046d730((const char *)D_005E4298, 0x471);
+            }
+            if (x == 0x1576)
+            {
+                func_00440b68(&iGpffff9b18);
+            }
+            x = (s16)arg0 - 0x200;
+            bit = 1 << (x % 32);
+            idx = x / 32;
+            D_0079B1CC[idx] |= bit;
+        }
+        else
+        {
+            s32 bit2;
+            s32 idx2;
+
+            x = id - 0x200;
+            if ((x < 0) || (x >= 0x1600))
+            {
+                FUN_0046d730((const char *)D_005E4298, 0x471);
+            }
+            if (x == 0x1576)
+            {
+                func_00440b68(&iGpffff9b18);
+            }
+            x = (s16)arg0 - 0x200;
+            bit2 = 1 << (x % 32);
+            idx2 = x / 32;
+            D_0079B1CC[idx2] &= ~bit2;
+        }
+    }
+}
 
 // FUN_001067F0
 u32 func_001067f0(s16 arg0)
@@ -1079,9 +1128,9 @@ GDataEntry* func_00106820(s16 arg0)
 }
 
 // FUN_00106850
-u32 func_00106850(s16 arg0)
+u32 func_00106850(s32 arg0)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68);
+    return *(u32*)((u8*)D_007242A0 + (s32)(s16)arg0 * 68);
 }
 
 // FUN_00106880
@@ -2009,14 +2058,57 @@ u8* func_0010fde0(u8* arg0)
     return NULL;
 }
 
-/* measured: retail loads the iGpffffb3d4 base pointer (lw -0x4c2c) between
-   the 0xF5E assert and the v reload, before the v*14 chain; mwcc b210 sinks
-   the base lw to its use after the chain in every spelling (inline expr,
-   (v=...) assignment, separate base local). Also rotates the assert temp
-   registers ($v1 vs $s0). Tried 4 forms, best nd 8 with identical logic.
-   Load-sinking floor. */
 // FUN_0010FFA0
-INCLUDE_ASM("asm/nonmatchings/g_data", func_0010ffa0);
+extern void func_0010cad0(u8 *arg0, s32 arg1);
+void func_0010ffa0(void) {
+    u8 buf[0x30];
+    u8 *base;
+    s32 id;
+    s32 i;
+
+    i = 1;
+    while (i < 0x100)
+    {
+        FUN_0043f9c8(buf, 0, 0x30);
+        func_0010cad0(buf, (u16)i);
+        *(u16 *)buf |= 1;
+        if (((s32)*(u16 *)(buf + 2) < 0) || ((s32)*(u16 *)(buf + 2) >= 0x100))
+        {
+            FUN_0046d730((const char *)D_005E4298, 0xF5E);
+        }
+        base = iGpffffb3d4;
+        id = *(u16 *)(buf + 2);
+        if (!(*(u16 *)(base + id * 0xE) & 8) &&
+            !(*(u16 *)(base + id * 0xE) & 0x20))
+        {
+            if (((s32)*(u16 *)(buf + 2) < 0) || ((s32)*(u16 *)(buf + 2) >= 0x100))
+            {
+                FUN_0046d730((const char *)D_005E4298, 0xF1D);
+            }
+            {
+                u8 *q;
+                q = (u8 *)DAT_007973a0 + id * 0x30;
+                if (*(u16 *)(q + 0xE2C) & 1)
+                {
+                    q = q + 0xE2C;
+                }
+                else
+                {
+                    q = NULL;
+                }
+                if (q == NULL)
+                {
+                    if (((s32)*(u16 *)(buf + 2) < 0) || ((s32)*(u16 *)(buf + 2) >= 0x100))
+                    {
+                        FUN_0046d730((const char *)D_005E4298, 0xF28);
+                    }
+                    func_0043f810((u8 *)DAT_007973a0 + (s32)*(u16 *)(buf + 2) * 0x30 + 0xE2C, buf, 0x30);
+                }
+            }
+        }
+        i = i + 1;
+    }
+}
 
 // FUN_00110140
 s32 func_00110140(void)

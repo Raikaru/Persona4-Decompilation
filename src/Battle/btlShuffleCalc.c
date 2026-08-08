@@ -313,29 +313,47 @@ void func_00371e50(u8 *arg0, u32 arg1, ShuffleVec3 *arg2, ShuffleVec3 *arg3, Shu
     *(ShuffleVec3 *)(arg0 + 0x2C) = sp20;
     *(ShuffleVec3 *)(arg0 + 0x38) = sp10;
 }
-/* measured: re-tested this wave — BEST nd 6 (4 real + 2 relocated), recorded
-   48 -> 6, with a full rebuild (u32 value local recipe-A half-scaler, lerp
-   computed BEFORE func_003e0f80, sp50[3] subs, 003e0870/003e42a0/003e0f40
-   calls, *= accumulators). Everything matches except TWO fixed order-swaps
-   (4 words): (1) prologue `move $s1,$a1` before `mov.s $f20,$f12` vs retail
-   f20-first (arg-save order of the f32 saved reg); (2) the func_003e0870
-   call `move $a2,$zero` before `mov.s $f12,$f20` vs retail mov.s $f12 first
-   (same documented floor in mt_sceneFunc.c FUN_002...2nd 003e0870 call;
-   named-zero local does not reorder). Saved-reg rotation (s2/s1/s0) now
-   matches retail. FP-arg-scheduling floor, nd 6. */
-// FUN_00371F40
+/* measured: nd 6, object 376/384. Residual is four differing instruction words in two fixed order swaps: f20 save ordering in the prologue and mov.s f12 versus zero-argument materialization before func_003e0870. */
+// FUN_00371F40 NONMATCHING
+#ifdef NON_MATCHING
+void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
+    f32 temp_f20;
+    s32 temp_16;
+    f32 sp50[3];
+    u32 value;
+    f32 half;
+
+    if (*(f32 *)(arg0 + 4) <= 0.0f) {
+        func_0046d730(&D_0064E9C0, 0x1EF);
+    }
+    value = *(u16 *)arg0;
+    if (value >= 0) {
+        half = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        half = (f32)(s32)value;
+        half += half;
+    }
+    temp_f20 = *(f32 *)(arg0 + 0x18) + ((half + fparg0) / *(f32 *)(arg0 + 4)) * (*(f32 *)(arg0 + 0x1C) - *(f32 *)(arg0 + 0x18));
+    temp_16 = func_003e0f80();
+    sp50[0] = *(f32 *)(arg0 + 0x38) - *(f32 *)(arg0 + 0x2C);
+    sp50[1] = *(f32 *)(arg0 + 0x3C) - *(f32 *)(arg0 + 0x30);
+    sp50[2] = *(f32 *)(arg0 + 0x40) - *(f32 *)(arg0 + 0x34);
+    func_003e0870(temp_16, arg0 + 0x20, 0, temp_f20);
+    func_003e42a0(arg1, &sp50[0], (void *)temp_16);
+    *(f32 *)(arg1 + 0) += *(f32 *)(arg0 + 0x2C);
+    *(f32 *)(arg1 + 4) += *(f32 *)(arg0 + 0x30);
+    *(f32 *)(arg1 + 8) += *(f32 *)(arg0 + 0x34);
+    func_003e0f40(temp_16);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371f40);
-/* measured: re-tested this wave — BEST nd 35 (recorded 61 -> 35) with a full
-   rebuild (u32 value local, recipe-A half-scalers, `var_f12 + 0.0f` then
-   div, 00371160 lerp arg). `#pragma opt_propagation off` (FLYDraw's lever)
-   improves the 1st half-scaler value coloring $a1 -> $a0 but does NOT break
-   the Load-CSE: b210 still CSEs the increment's re-load `lhu` with the 1st
-   half-scaler's load (offset 104: `andi $v0,$a0,0xffff` vs retail `lhu
-   $v0,($s0)`), keeping the value live across the whole half-scaler and
-   coloring it $a0 vs retail $v0 (cascades thro srl/andi/or/mtc1). Also
-   remnant: compare polarity `c.olt.s $f0,$f1; bc1f` vs retail `c.olt.s
-   $f1,$f0; bc1t`, and the 2nd half-scaler + lerp mula/madd scheduling.
-   Load-CSE + compare-polarity floor. */
+#endif
+/* measured: best reconstruction probe nd 75, object 308/320 bytes (window
+   0x140), so no body was retained. The first half-scaler remains in the wrong
+   integer/FP colors and the tail `adda.s`/`madd.s` sequence is also colored
+   differently; direct, goto, compound-store, local-type, declaration-order,
+   O1, and scheduling variants did not reach the parking threshold. */
 // FUN_003720C0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
 /* measured: re-tested this wave — BEST nd 32 (recorded 121 -> 32) with a full
