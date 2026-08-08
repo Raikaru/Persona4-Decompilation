@@ -1,6 +1,5 @@
 #include "include_asm.h"
 #include "type.h"
-
 extern void (*jtbl_008873EC[])();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003c5760(u8 *arg0);
@@ -689,6 +688,7 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
    separate walker/result form was nd 25, object 84B/window 96B. Committed at nd 6. */
 // FUN_003CC010 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: probe schedule */
 #pragma schedule on
 /* measured: probe CSE */
 #pragma opt_common_subs off

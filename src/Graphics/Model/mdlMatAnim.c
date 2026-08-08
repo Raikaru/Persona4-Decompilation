@@ -19,7 +19,6 @@ typedef struct {
 } MdlFrameDispatch;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
-
 extern s32 func_003bcfb0();
 extern s32 func_003bd000();
 extern s32 func_003bd040();
@@ -346,6 +345,7 @@ u32 func_00480430(u32 param_1,u32 *param_2)
   char *data;
 
   arrayCount = func_003bcfb0();
+
   arrayIndex = 0;
   while (arrayIndex < arrayCount) {
     userData = (void *)func_003bd000(param_1,arrayIndex);

@@ -7,21 +7,26 @@ s32 func_0041e8d8(); /* old-style: retail callers leave $a0..$a3 materialized */
    before jr (nd 6); schedule-on fills the jr delay slot with the andi but
    reorders the srl ahead of the store (nd 8), so the plain -O2 form is
    kept. Residual vs retail (lw/sw/srl/jr/andi): the andi/jr pair swapped.
-   Translation-unit hypothesis: seven parked functions here (nd 2 through
-   nd 8) are under test; six load 0x40($a0), with retail destinations
-   $v1/$t0/$v1/$a2/$a0 (f2a8/f2d0/f550/f5e0/f788+f7b0), while f19628 loads
-   ($a0). Named locals, parameter reassignment, fully inline expressions,
-   declaration orders, pointer and scalar types, and pragma wrappers did not
-   move any destination. The uniform file-wide register divergence suggests
-   a translation-unit boundary or declaration-environment defect (generated
-   promoted grouping/prototypes), not seven independent colouring floors. */
+   Translation-unit hypothesis: the parked bodies below were audited together;
+   eight +0x40 loaders currently active in the probe had nd/object 46/68/72
+   (f178), 39/64/72 (f1c0), 2/16/16 (f2a8), 8/32/32 (f2d0), 5/24/24
+   (f550), 3/24/24 (f5e0), and 2/36/40 (f788/f7b0). Named locals, parameter
+   reassignment, fully inline expressions, declaration orders, pointer and
+   scalar types, and pragma wrappers did not move any destination. */
+/* measured: compared with matching code1_0048 and code1_0051, this TU has the
+   same include set (`include_asm.h`, `type.h`), no data externs/globals, and
+   only the three helper declarations. Each pragma is locally closed; none
+   spans the file. One-at-a-time probes of old/prototyped helper forms,
+   explicit extern, helper widths, include order, and a file-wide schedule
+   extension left all eight active rows exactly unchanged. The uniform
+   register divergence is therefore not a declaration environment defect. */
 /* measured: retail call-site audit confirms func_0041e8d8 is old-style:
    f178/f1c0/f500 enter its jal with the existing a0-a3 values and do not
    materialize a prototype-defined argument list. The promoted TU now uses
    `s32 func_0041e8d8();`; typed one-pointer declarations for 00420e50 and
    00420f38 agree with their retail callers. No data globals are declared in
    this TU, so there is no array-versus-scalar global correction to test.
-   Old-style and typed-helper probes left every parked nd unchanged. */
+   Declaration-environment audit left every parked nd unchanged. */
 
 void func_00420e50(u8 *);
 

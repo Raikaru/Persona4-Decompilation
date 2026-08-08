@@ -247,11 +247,18 @@ void func_00149e50(s32 arg0)
     func_00153bd0(*(s32 *)(D_00762EA0 + 32), arg0);
 }
 
-/* Rejected C body archived in build/W9LastMile7_code1_0014_4a190_rejected.txt:
-   object 104 / window 112, normalized_diff 26. The retail boolean-result
-   branch layout remains above the parking threshold. */
+/* measured: opt_rebuildconditionals off reproduces retail's xori/sltiu
+   boolean tail and branch layout; scoped to this function. */
+#pragma opt_rebuildconditionals off
 // FUN_0014A190
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014a190);
+s32 func_0014a190(s32 arg0, s32 arg1) {
+    if (func_0014a230(arg0, arg1) == 1) {
+        return 1;
+    }
+    return func_0014a2a0(arg0, arg1) == 1;
+}
+/* measured: closes the scoped opt_rebuildconditionals probe. */
+#pragma opt_rebuildconditionals on
 
 // FUN_0014A2F0
 void func_0014a2f0(s32 arg0)

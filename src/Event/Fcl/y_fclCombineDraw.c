@@ -275,13 +275,13 @@ void func_003146c0(u8 *arg0) {
     func_0011b9e0(*(u8 **)(*(u8 **)(arg0 + 0x38) + 4));
 }
 
-/* measured: best retained reconstruction nd 45 (earlier source shape nd 17),
-   object 80/window 80. Retail copies arg2 into $v1 early and sign-extends it
-   into $a3 immediately before func_0011b480; mwcc reverses that materialization
-   and reuses $a2 for the object+8 load. Named s8, explicit cast, declaration
-   order, and pragma-wrapper attempts were ruled out above the park threshold.
-   Body and register/residual notes are archived in
-   build/W8FclCombineDraw_003146f0_body.c.txt. */
+/* measured: current best normalized_diff nd 18, object 60/window 80. The
+   archived transcription scored nd 45 (object 64/window 80); the older nd 17
+   result did not reproduce under the current declaration environment. Retail
+   copies arg2 into $v1 early and sign-extends it into $a3 immediately before
+   func_0011b480; mwcc reverses that materialization and reuses $a2 for the
+   object+8 load. The object is 20 bytes short, so this remains unparkable.
+   Body and residual notes: build/W8FclCombineDraw_003146f0_body.c.txt. */
 // FUN_003146F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
 
@@ -1195,13 +1195,13 @@ void func_0032c0c0(u8 *arg0, s64 arg1) {
    94). LEVER-1 confirmed: func_00279350's 7th param is a pointer (D_00796370),
    not s32 — fixed the extern to (u8 *) this wave. The t/c register rotation
    and the func_00330e50 D_00796310-before-mov.s swap resist spelling. */
-/* measured: best reconstruction fndiff 65 differing words, object 480/window
-   480; final inline-color probe was worse at 81. Candidate keeps obj/c/n in
+/* measured: current best normalized_diff nd 214, object 480/window 480;
+   fresh fndiff differing-word count 65. The candidate keeps obj/c/n in
    $s0/$s1/$s1 while retail uses $s1/$s0/$s0; repeated lh-before-move-a0 and
-   call-argument scheduling also differ. Typed obj/table access, FclVec2
-   aggregate, 140.0f constant, and corrected call prototypes were tried.
-   Discarded above the nd 25 park threshold; recipe, register map, residual
-   rows, and ruled-out shapes are archived in build/W8FclCombineDraw_0032c480_body.c.txt. */
+   call-argument scheduling also differ. Declaration-order, local-reuse,
+   zero-local, and call-order probes did not improve the rotation. Discarded
+   above the nd 25 park threshold; recipe, register map, residual rows, and
+   ruled-out shapes are archived in build/W8FclCombineDraw_0032c480_body.c.txt. */
 // FUN_0032C480
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032c480);
 

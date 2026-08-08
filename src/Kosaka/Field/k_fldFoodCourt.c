@@ -43,23 +43,22 @@ extern void func_00122640(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);
 
 
-/* Parked near-match: baseline INCLUDE_ASM. The reconstructed state-machine body reaches object 884B/window 896B with normalized_diff 22 (initial direct probe nd 512; explicit cases 4/5 improved to nd 299; low-16-bit sign extension of func_001060b0 result produced nd 22). Exact remaining fndiff rows: +0x6C candidate `dsll32 $v0,$v0,0x10`, retail `dsll32 $a0,$v0,0x10`; +0x70 candidate `dsra32 $a0,$v0,0x10`, retail `dsra32 $a0,$a0,0x10`; +0xA0, +0xF8, +0x130 candidate `addiu $a0,$gp,0`, retail `addiu $a0,$gp,-0x6070` with retail relocation `R_MIPS_GPREL16:iGpffff9f90`; +0x174 candidate `beqz $v0,0x18dc20`, retail `beqz $v0,0x18dca8`; +0x1C0/+0x1C4 candidate `dsll32 $v0,$v0,0x10`/`dsra32 $s1,$v0,0x10`, retail `dsll32 $s1,$v0,0x10`/`dsra32 $s1,$s1,0x10`; +0x1E0/+0x1E4 candidate `dsll32 $v0,$v0,0x18`/`dsra32 $v1,$v0,0x18`, retail both destinations `$v1`; +0x1FC/+0x200 candidate `lw $a1,4($s0)`/`addiu $a2,$zero,8`, retail `lw $a2,4($s0)`/`addiu $a1,$zero,8`; +0x210/+0x214/+0x218/+0x21C and the corresponding second-loop rows use candidate `$a2` as count and `$a1` as destination, retail `$a1` as count and `$a2` as destination; +0x2E0 candidate `beq $v0,$v1,0x18dc6c`, retail target `0x18dca8`. Ruled out: a linear comparison chain (nd 512), omitting explicit no-op cases 4/5 (nd 512), swapping declaration order of `var_5` and `var_6` (nd 301), and removing the explicit low-16-bit sign extension (nd 512). The retail GPREL symbol iGpffff9f90 is not present in config/symbol_data_addrs.txt; its evidence is GP 0x007690F0 minus 0x6070 = 0x00763080. Committed at nd 22. */
-// FUN_0018D950 NONMATCHING
-#ifdef NON_MATCHING
+
+// FUN_0018D950
 s32 func_0018d950(u8 *arg0) {
     s32 temp_3;
     s32 temp_3_2;
     s32 var_4;
-    s32 var_5;
-    s64 temp_17;
     s32 temp_2;
+    s64 temp_17;
     u8 *temp_16;
     u8 *temp_17_2;
     u8 *temp_2_2;
     u8 *temp_2_3;
+    u8 *var_6;
     u8 *var_2;
     u8 *var_2_2;
-    u8 *var_6;
+    s32 var_5;
 
     temp_16 = *(u8 **)(arg0 + 0x38);
     temp_2 = *(s32 *)(temp_16 + 0);
@@ -67,7 +66,7 @@ s32 func_0018d950(u8 *arg0) {
     case 0:
         *(u8 **)(temp_16 + 4) = (u8 *)func_003e0f80();
         func_00144c90(9, 1);
-        func_00144ed0((s64)((func_001546a0(9, 1) << 0x30) >> 0x30));
+        func_00144ed0((s64)(s16)func_001546a0(9, 1));
         if (func_0014bdb0(4, 1, 7, 0x1F) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x58);
             *(u8 **)(temp_16 + 8) = (u8 *)func_00454a60(D_005F5470, 0);
@@ -87,8 +86,8 @@ s32 func_0018d950(u8 *arg0) {
             if (func_0015f660() == 0) {
                 return 0;
             }
-            temp_17 = (s64)((func_001060b0() << 0x30) >> 0x30);
-            if (((s64)(func_00110960(temp_17, func_001060c0() & 0xFF) << 0x38) >> 0x38) == 1) {
+            temp_17 = (s16)func_001060b0();
+            if ((s8)func_00110960(temp_17, func_001060c0() & 0xFF) == 1) {
                 var_2 = (u8 *)func_0014b490();
                 var_6 = *(u8 **)(temp_16 + 4);
                 var_5 = 8;
@@ -123,6 +122,8 @@ s32 func_0018d950(u8 *arg0) {
             *(s32 *)(temp_16 + 0xC) =
                 func_0029db50(0xF, *(s32 *)(temp_2_2 + 0x110), *(s32 *)(temp_2_2 + 0x118), 0);
             *(s32 *)temp_16 += 1;
+        } else {
+            goto done;
         }
     case 2:
         if (func_00452490(*(s32 *)(temp_16 + 0xC)) != 1) {
@@ -131,6 +132,9 @@ s32 func_0018d950(u8 *arg0) {
             }
             func_00122640(1, 0);
             *(s32 *)temp_16 += 1;
+        }
+        else {
+            goto done;
         }
     case 3:
         if (func_00122720() != 0) {
@@ -142,12 +146,11 @@ s32 func_0018d950(u8 *arg0) {
     case 4:
     case 5:
     default:
-        return 0;
+        goto done;
     }
+done:
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldFoodCourt", func_0018d950);
-#endif
 
 // FUN_0018DCD0
 void func_0018dcd0(u8 *arg0)

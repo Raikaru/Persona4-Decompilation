@@ -51,6 +51,8 @@ extern u8 D_00625160[];
 // FUN_001F9CF0
 INCLUDE_ASM("asm/nonmatchings/btlCutin", func_001f9cf0);
 
+
+
 // FUN_001F9FA0
 s32 func_001f9fa0(void) {
     s32 var_18;

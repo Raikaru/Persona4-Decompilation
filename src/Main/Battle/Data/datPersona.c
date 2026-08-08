@@ -275,7 +275,30 @@ s32 func_0010a780(u8 *arg0, s32 arg1, s32 arg2)
     return (u8)statTotal;
 }
 // FUN_0010A840
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010a840);
+s32 func_0010a840(s32 arg0, s32 arg1, s32 arg2) {
+    u8 *base;
+    u8 *stat;
+    s16 old;
+    s16 delta;
+    s16 total;
+
+    base = (u8 *)func_0010a900();
+    if ((arg1 & 0xFFFF) >= 5) {
+        func_0046d730(D_005E4318, 0x36C);
+    }
+    stat = (u8 *)((u32)(u16)arg1 + (u32)base) + 0x1C;
+    old = (s16)(u16)*stat;
+    delta = (s8)arg2;
+    total = old + delta;
+    if (total > 0x63) {
+        total = 0x63;
+    } else if (total < 0) {
+        total = 0;
+    }
+    *stat = total;
+    return (u8)total;
+}
+
 // FUN_0010A900
 u16 *func_0010a900(s32 arg0)
 {

@@ -101,14 +101,13 @@ void func_00438fa0(void) {
 #pragma schedule off
 
 
-/* measured: the arg0*0x184 entry address is the documented R5900-mult floor
-   from func_004390c8 - retail emits addiu $v1,$zero,0x184; mult $v1,$a0,$v1,
-   b210 strength-reduces to 5 sll/addu (probed 6 spellings incl. stride-local,
-   u16/s32 scale, arg locals; opt_strength_reduction off doesn't stop it, nd 68).
-   schedule on is load-bearing and fills the jr $ra delay slot (nd 68 -> 56,
-   obj 76/72; the 4-byte overflow is the strength-reduced mult itself).
-   Archived in build/W8Code1_0043_high_nd_park_archive.txt; source is
-   intentionally bare because nd 56 exceeds the nd 25 park threshold. */
+/* measured: the retail listing settles the proposed nonconstant-stride lever.
+   funcs 00438fc0, 00439008, 004390c8, and 00439110 each materialize literal
+   0x184 with `addiu $v1,$zero,0x184` before a real three-operand `mult`; no
+   0x184 is loaded from memory or passed in. b210 strength-reduces the C
+   constant, so this is the documented R5900-mult floor. The first two best
+   probes are nd 68 -> 56 (obj 76/72); the latter two were archived above the
+   nd 25 threshold. */
 // FUN_00438FC0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438fc0);
 /* measured: twin of func_00438fc0 (same R5900-mult floor, calls func_0043a500).
@@ -230,6 +229,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ac60);
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043acc0);
 
 
+/* measured: func_0043bc70 is not a 0x184 wrapper. Retail loads the
+   multiplicand from D_0070FC64, materializes literal 0xC in $a2, then emits
+   `mult $0,$a1,$a2`; the multiplier is still compile-time constant, so the
+   same strength-reduction claim is inapplicable. */
 // FUN_0043BC70
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bc70);
 

@@ -336,8 +336,8 @@ u8 *func_002e48a0(s8 arg0, s16 arg1) {
     }
 }
 
-/* measured 2026-08-08: this reconstruction is a guarded park at object
-   348B/window 352B and nd 19.  The scheduling lever is retained: the
+/* measured 2026-08-08: this reconstruction is a park at object
+   348B/window 352B and nd 16.  The scheduling lever is retained: the
    dispatch operations are in retail order at 0x1C..0x28 (lw pointer,
    lw type, addiu literal 6, beq), after moving the named n3=6 assignment
    into the default loop and using the direct switch expression.  The
@@ -361,9 +361,7 @@ void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
     s32 n3;
     u8 *src;
     s32 n;
-
     p = *(u8 **)(D_00882F70[arg1] + 0x38);
-
     switch (*(s32 *)(p + 4)) {
     case 0:
     case 7:

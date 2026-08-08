@@ -225,50 +225,15 @@ void func_00356140(u8 *arg0)
 
 
 
-/* measured: arg0 is an 8-byte struct (S64u {lo,hi}); retail passes arg0 (s64) plus arg0.hi as p1, and func_00365f00 takes (s64, s32, s32, s32, f32 x5). The byte check reads sphi=arg0.hi via lbu 0x1f (MSB of the word at 0x1c). Residual is pure register allocation: b210 keeps arg0.hi in $t0 for p1 (move $t0,$a1; lw $v0,0x14; sw $v0,0x1c) where retail stores sphi straight from $a1 (sw $a1,0x1c) and reloads it for p1; plus mtc1 $f16 where retail does mtc1 $f15; mov.s $f16,$f15. Probed s64+shift, struct, union, mask byte-check, different p1 spellings, pragma schedule on/off; all versions keep the same register skew. The 4 uninit f32 locals reflect retail truly passing garbage in f0-f3 (only f4=f16=1.0f is set). Committed at nd 45. */
+/* measured fallback: plain C with schedule on reached normalized_diff 45,
+   object 92/96; archive: build/WALastMile1_code1_0035_park_archive.json. */
 // FUN_00356170 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on fills the delay slots retail fills here, nd 63 -> 45. */
-#pragma schedule on
-void func_00356170(S64u arg0, s32 arg1, s32 arg2)
-{
-    s32 var_8;
-    s32 sphi;
-    f32 f_u1, f_u2, f_u3, f_u4;
-
-    sphi = arg0.hi;
-    var_8 = arg2;
-    if (*(u8 *)((u8 *)&sphi + 3) != 0xFF) {
-        var_8 = 0;
-    }
-    func_00365f00(arg0, sphi, arg1, var_8, f_u1, f_u2, f_u3, f_u4, 1.0f);
-}
-#pragma schedule off
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
-#endif
-/* measured: Same func_00365f00 call shape as func_00356170: arg0 is an 8-byte struct (S64u {lo,hi}), p1=arg0.hi, p2=4, p3=var_8. The div.s f13 and add.s f14 feed func_00365f00's f1/f2 (f13/f14), f4=f16=1.0f; f0/f3 are garbage (f_u0/f_u3 uninit, matching retail leaving f12/f15 unset). The two GP floats are iGpffff83d4 (0x007014C4, divisor) and iGpffff8544 (0x00701634, addend). Byte check reads sphi=arg0.hi via lbu 0x1f. Residuals: b210 reads arg0.hi back from the sd spill (lw $v0,0x14; sw $v0,0x1c) instead of retail's sw $a1,0x18 + lwc1/swc1 float copy to 0x1c; float-load order (div/add scheduled after the sphi store vs retail before); mtc1 $f16 vs mtc1 $f15;mov.s $f16,$f15. Same register-allocation floor as func_00356170. Committed at nd 70. */
+/* measured fallback: latest direct-C probe normalized_diff 28, object 104/128;
+   pointer-local variant reached nd23 but remained nonmatching; archive:
+   build/WALastMile1_code1_0035_park_archive.json. */
 // FUN_003561D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003561d0(S64u arg0, s32 arg1, s32 arg2, f32 junk, f32 fparg1, f32 fparg2)
-{
-    s32 var_8;
-    s32 sphi;
-    f32 f_u0, f_u3;
-    f32 a, b;
-
-    sphi = arg0.hi;
-    a = fparg1 / iGpffff83d4;
-    b = iGpffff8544 + fparg2;
-    var_8 = arg1;
-    if (*(u8 *)((u8 *)&sphi + 3) != 0xFF) {
-        var_8 = 0;
-    }
-    func_00365f00(arg0, sphi, 4, var_8, f_u0, a, b, f_u3, 1.0f);
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003561d0);
-#endif
 // FUN_00356820
 s32 func_00356820(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);

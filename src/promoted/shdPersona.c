@@ -27,11 +27,11 @@ void func_00115e90(Vec2f, s32, s16 *, f32);
 extern char iGpffff9c08;
 void func_00275020(f32, f32, f32, s32, s32, s32, u8 *, s32, s32);
 void *func_00109220(u16 arg0);
-void func_00116190(s64, s32, u8 *, s32 *, f32);
-void func_00116610(s64, s32, u8 *, s32 *, f32);
+void func_00116190(s64, f32, s32, u8 *, s32 *);
+void func_00116610(s64, f32, s32, u8 *, s32 *);
 void func_001162f0(s64, f32, s32, u8 *, s32 *);
-void func_001163e0(s64, s32, u8 *, s32 *, f32);
-void func_00116820(s64, s32, u8 *, s32 *, f32);
+void func_001163e0(s64, f32, s32, u8 *, s32 *);
+void func_00116820(s64, f32, s32, u8 *, s32 *);
 typedef struct {
     s32 lo;
     s32 hi;
@@ -363,13 +363,43 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
 u8 *func_0010d6d0(s16 arg0);
 
-/* measured: retail saves fparg0 FIRST into $f20 and gives the s64 home's high
-   word $f21 with the (f32)(s32)(114.0f+low) result in $f22; mwcc b210 allocates
-   the high-word local to $f20 and fparg0 to $f21, and reorders the prologue
-   (sd $a0 home and move $s3 before mov.s), nd 78 with the whole body shifted.
-   Tried FP declaration orders both ways — identical. FP-colouring floor. */
-// FUN_00116190
+/* measured: float-second declaration `(s64,f32,s32,u8*,s32*)` is ABI-correct
+   for this call family and leaves the renderer's three float arguments in
+   the retail order. Body is 344B against a 352B window, nd 5. Residual
+   non-relocation rows are 0x28, 0xB0, 0xD4, 0x104, and 0x10C: the input
+   scale/result values use the opposite saved-FP registers. Relocation-owned
+   rows are 0x60, 0x64, 0x6C, 0xB8, and 0x124. Tried all FP-local declaration
+   permutations, direct/captured scale uses, and an O1 wrapper; all were
+   worse. Committed at nd 5. */
+// FUN_00116190 NONMATCHING
+#ifdef NON_MATCHING
+void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+{
+    f32 y;
+    f32 x;
+    f32 scale;
+    s32 alpha;
+    s32 color;
+    s32 temp_18;
+
+    scale = fparg0;
+    alpha = arg1 & 0xFF;
+    color = (u32)((alpha * 0xFF) / 255U);
+    if (*(u16 *)arg2 != 0) {
+        temp_18 = arg3[1];
+        if (temp_18 == 0) {
+            func_0046d730(D_005E4868, 0x171);
+        }
+        y = *((f32 *)&arg0 + 1);
+        func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, scale, 0);
+        x = (f32)(s32)(114.0f + *(f32 *)&arg0);
+        y = (f32)(s32)(2.0f + y);
+        func_00274ed0(x, y, scale, color | -0x100, 8, 1, func_0010d6d0(*(s16 *)arg2), 8, 0);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116190);
+#endif
 
 
 
@@ -440,33 +470,50 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001163e0);
 
 
 
-void func_00117310(I64, s32, s32, s32, s32, f32);
-extern char iGpffff9c1c;
-/* measured: same param address-take registerisation floor as
-   func_001162f0 — retail keeps arg1 in $s1 across both asserts (move
-   $s1, $a1 in the prologue, sd $a0, 0x88 pairing the arg0/arg1 homes)
-   with the color math (andi/sll/subu/divu/mflo $s5) hoisted before the
-   first assert; mwcc b210 sees &arg1 (the *(f32 *)&arg1 bit reads for
-   sp194 and the final call) and goes memory-only (lbu/sw from the
-   home, two sw instead of the sd pair, frame 0x170 vs 0x1A0, nd 121).
-   Tried s32 and u8 arg1, a local copy, and a union-cast local (probe
-   batch) — identical. Note: func_00117310's real signature is
-   (s32, s32, s32, s32, s32, f32) — the caller's ld $4, 0x190 is an
-   over-read whose high word is clobbered by the sp19C arg in $a1. */
-/* measured: nd 121-124, FP/GP colouring + layout residual. The s64
-   signature (s64 arg0, u8 *arg2, s32 *arg3, f32 fparg0) IS right — the
-   colour and its float bits ride in arg0's HIGH WORD (callers clobber
-   $a1 with the colour after their 8-byte ld) — and with it mwcc does
-   registerize the high word (move $s4, $a1, frame 0x190) instead of the
-   func_001162f0 address-take memory-only shape. What still differs:
-   retail reads the colour via a plain move into $s1 while mwcc needs
-   either dsra32 ((s32)(arg0 >> 32)) or a home read (((s32 *)&arg0)[1]);
-   the b1 bits local lands in $f21 and the sp190/sp194 locals stay in
-   registers (frame 0x190 vs 0x1A0, the sp90 buffer mis-laid-out). Best
-   of 4 attempts (s32/s64 arg0, local copies, bit-casts). Next wave:
-   try c via the low word of the colour expression or a union member. */
+void func_00117310(I64, f32, s32, s32, s32, s32);
+/* measured: the float-second `(I64,f32,s32,s32,s32,s32)` declaration for
+   func_00117310 reproduces its `ld $a0; mov.s $f12; lw/lw/move/addiu`
+   materialisation. This body also uses the float-first func_00275020
+   declaration and the existing `iGpffff9c08 + 4` spelling for retail
+   `-0x63F4($gp)`. Object 524B / window 528B, MATCH (nd 0). */
 // FUN_00116610
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116610);
+void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+{
+    u8 sp90[0x100];
+    f32 sp190[2];
+    u8 sp19c[4];
+    s32 alpha;
+    s32 color;
+    s32 id0;
+    s32 id1;
+    s32 temp;
+    f32 high;
+
+    high = *((f32 *)&arg0 + 1);
+    alpha = arg1 & 0xFF;
+    color = (u32)((alpha * 0xFF) / 255U);
+    id0 = arg3[0];
+    if (id0 == 0) {
+        func_0046d730(D_005E4868, 0x235);
+    }
+    id1 = arg3[1];
+    if (id1 == 0) {
+        func_0046d730(D_005E4868, 0x237);
+    }
+    sp190[0] = 129.0f + *(f32 *)&arg0;
+    sp190[1] = 39.0f + high;
+    func_0046d4c0(0, id0, 0x39, sp190[0], sp190[1], (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    sp190[0] = 259.0f + *(f32 *)&arg0;
+    sp190[1] = 43.0f + high;
+    sp19c[0] = 0x2D;
+    sp19c[1] = 0x2D;
+    sp19c[2] = 0x2D;
+    sp19c[3] = arg1;
+    func_00117310(*(I64 *)sp190, fparg0, *(s32 *)sp19c, *(s32 *)(arg2 + 0x38), id1, 1);
+    temp = (s32)func_00109220(*(u16 *)(arg2 + 2));
+    func_00442088(&sp90[0], (void *)((u8 *)&iGpffff9c08 + 4), temp);
+    func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, &sp90[0], 0, -1);
+}
 
 
 
