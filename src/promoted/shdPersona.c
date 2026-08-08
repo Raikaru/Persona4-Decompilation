@@ -36,7 +36,7 @@ typedef struct {
     s32 lo;
     s32 hi;
 } I64;
-void func_00116d40(I64, u8, u8, u8, s16, s32, f32);
+void func_00116d40(I64, s32, u8, u8, s16, s32, f32);
 void func_0045d6e0(void *, void *, s32, f32);
 void func_0034c270(Vec2f, u8, s32, f32);
 extern void (*D_00887300[])(u32, u32);
@@ -356,6 +356,10 @@ void func_00115dc0(Vec2f arg0, f32 fparg0, s32 arg1, s16 *arg2)
    f32 sp78[2] array read as *(s64 *)sp78 kept both stores. Layout 0x58
    arg0 home / 0x60 sp60[4] / 0x78 pair matches retail with declarations
    [base, y, sp78[2], sp60[4]]. Frame 0x80, all stores reproduce. */
+/* measured: the unguarded nd 582 candidate (obj 796B / window 768B) was
+   archived verbatim in build/WBShdPersona_func_00115e90_archive.txt and
+   reverted to bare INCLUDE_ASM because it is oversized and above the
+   nd-25 guarded-park threshold. */
 // FUN_00115E90
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
@@ -377,12 +381,10 @@ void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 {
     f32 y;
     f32 x;
-    f32 scale;
     s32 alpha;
     s32 color;
     s32 temp_18;
 
-    scale = fparg0;
     alpha = arg1 & 0xFF;
     color = (u32)((alpha * 0xFF) / 255U);
     if (*(u16 *)arg2 != 0) {
@@ -391,10 +393,10 @@ void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
             func_0046d730(D_005E4868, 0x171);
         }
         y = *((f32 *)&arg0 + 1);
-        func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, scale, 0);
+        func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
         x = (f32)(s32)(114.0f + *(f32 *)&arg0);
         y = (f32)(s32)(2.0f + y);
-        func_00274ed0(x, y, scale, color | -0x100, 8, 1, func_0010d6d0(*(s16 *)arg2), 8, 0);
+        func_00274ed0(x, y, fparg0, color | -0x100, 8, 1, func_0010d6d0(*(s16 *)arg2), 8, 0);
     }
 }
 #else
@@ -461,12 +463,52 @@ void func_001171c0(s64, f32, s32, u8, s32);
    The old s32 * declaration changed every caller's argument materialisation.
    The discarded nd-6 spelling was not recovered; its remaining differences
    were the call argument order and saved-register rotation. */
-/* measured: corrected-prototype 163e0 reconstruction scored nd 373
-   (object 556B / window 560B). Its frame and stack arrays are close, but
-   saved-register assignment and argument materialisation still differ; kept
-   bare because it is not a byte-exact body. */
+/* measured: corrected-prototype reconstruction is now exact after applying
+   the float-second family declaration and the renderer's `(int,int,int,
+   float,float,u8,u8,u8,u8,float,int)` call order. The added 83/36 coordinate
+   materialisation and two-statement inverse produce object 552B / window
+   560B, MATCH (normalized_diff 0). */
 // FUN_001163E0
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001163e0);
+void func_001163e0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
+{
+    f32 high;
+    f32 sp90[2];
+    u8 color[4];
+    s32 id0;
+    s32 id1;
+    s32 count;
+    s32 width;
+
+    high = *((f32 *)&arg0 + 1);
+    id0 = arg3[0];
+    if (id0 == 0) {
+        func_0046d730(D_005E4868, 0x1BF);
+    }
+    id1 = arg3[2];
+    if (id1 == 0) {
+        func_0046d730(D_005E4868, 0x1C1);
+    }
+    count = (s32)(func_00109280(*(u16 *)(arg2 + 2)) & 0xFF);
+    if (count <= 0 || count >= 0x20) {
+        func_0046d730(D_005E4868, 0x1E6);
+    }
+    sp90[1] = 6.0f + high;
+    width = (((count & 0xFFFF) - 1) & 0xFFFF) + 0x21;
+    sp90[0] = 80.0f + *(f32 *)&arg0 - func_0046b1f0(id0, width) / 2.0f;
+    count = arg1 & 0xFF;
+    count = 0xFF - count;
+    func_0046d4c0(0, id0, width, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
+    sp90[0] = 53.0f + *(f32 *)&arg0;
+    sp90[1] = 43.0f + high;
+    func_0046d4c0(0, id1, 0x2A, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
+    sp90[0] = 83.0f + *(f32 *)&arg0;
+    sp90[1] = 36.0f + high;
+    color[0] = 0xFF;
+    color[1] = 0xFF;
+    color[2] = 0xFF;
+    color[3] = (u8)arg1;
+    func_001171c0(*(s64 *)sp90, fparg0, *(s32 *)color, *(u8 *)(arg2 + 4), id1);
+}
 
 
 
@@ -517,22 +559,13 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 
 
 
-/* measured: fully decompiled, best nd 911 (obj 1200B / window 1312B). The real
-   signature IS (s64 arg0, s32 arg1, u8 *arg2, s32 *arg3, f32 fparg0) — the colour
-   is a separate s32 arg in $5 (the family floor notes claiming a 4-arg form do
-   NOT apply here). func_0046d4c0's real prototype (matched in sdkSpr.c) is
-   (s32,s32,s32,f32,f32,u8,u8,u8,u8,f32,s32) and func_00117310's arg0 is 8-byte
-   (I64) — both prototypes fixed in this file. Residuals: (1) retail keeps the
-   per-iteration spA4 load CSE'd into $f22 across the loop's calls, mwcc reloads
-   per call (I64-struct) or keeps a permanent register (separate f32 locals);
-   (2) retail hoists (65+fA)-0x13B and 152+(fB-88) into $f22/$f20 in loop2's
-   preheader, mwcc rematerialises in the body (#pragma opt_loop_invariants
-   untried within budget); (3) temp_22 lands $s4 and arg2 $s6, retail is the
-   reverse (declaration orders tried: [temp_22,var_19,temp_18,temp_17]);
-   (4) var_f0 negative path: retail doubles with add.s $f0,$f0,$f0, mwcc emits
-   mul.s for 2.0f*x (x+x lever untried within budget). Note: m2c's var_6-as-arg3
-   reading of the 0xDE call is wrong — that call's arg1 is the constant 0xDE and
-   the var_6 chain is dead code retail kept; mwcc reproduces the dead chain. */
+/* measured: fully decompiled candidate archived after the corrected
+   `(s64,f32,s32,u8*,s32*)` declaration scored nd 943 (obj 1236B /
+   window 1312B). The body was oversized relative to the useful park
+   threshold and is preserved verbatim in
+   build/WBShdPersona_func_00116820_archive.txt; the source remains a
+   bare INCLUDE_ASM until a separately measured reconstruction closes the
+   retail loop tail. */
 // FUN_00116820
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116820);
 

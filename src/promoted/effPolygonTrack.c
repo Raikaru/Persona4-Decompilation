@@ -136,16 +136,12 @@ u8 *func_00492f20(u8 *arg0)
     return t2;
 }
 
-/* measured: retail computes `arg1 & 0xFFFF` into `$a2` for the range guard
-   and switch index; b210 uses `$v0` for the same value. The parked body is
-   object 376B in the 384B window at nd 3. fndiff's first residual rows are
-   offset 68 (candidate `andi $v0,$s1,0xffff`, retail `andi $a2,$s1,0xffff`),
-   offset 72 (candidate `sltiu $at,$v0,8`, retail `sltiu $at,$a2,8`), and
-   offset 92 (candidate `sll $v0,$v0,2`, retail `sll $v0,$a2,2`). Tried
-   u16/s32/u32 declarations, assigning the mask into arg2 before the switch,
-   compound assignment, in-switch assignment, named locals, and register
-   qualifiers; the best alternatives stayed nd 3 or worsened. Committed at
-   nd 3. */
+/* measured: masked selector residual remains nd 3, object 376B/384B:
+   retail keeps arg1&0xFFFF in $a2 across sltiu and sll, while b210 uses
+   $v0. Tried u16/s32/u32 parameter widths, in-place parameter masks before
+   and after initialization, no-cast switches, saved-pointer/arg2 reuse,
+   selector locals, and explicit assignments; all stayed nd 3 or worsened.
+   Committed at nd 3. */
 // FUN_00493080 NONMATCHING
 #ifdef NON_MATCHING
 void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {

@@ -1230,6 +1230,17 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
    (retail node=$s2/flag=$s1/sum=$s0, mwcc swaps flag/sum) + the shared
    default result=0 block layout. Branch-scheduling + saved-register rotation
    floors. */
+/* measured candidate archived at build/WBYList_frFont_734b0_candidate.c.
+   It compiled as MISMATCH at normalized_diff 241 with object 336B/window
+   352B; fndiff reported 80 differing words at byte offsets:
+   0,4,8,12,16,20,24,28,32,44,52,56,64,68,72,76,80,84,88,92,96,100,
+   104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164,
+   168,172,176,180,184,188,192,196,200,204,212,216,220,224,228,232,
+   236,240,244,248,252,256,260,264,268,272,276,280,284,288,292,296,
+   300,304,308,312,316,320,324,328,332. Ruled out switch declaration
+   orders, generated M2C case layout, hit-pointer/direct result forms,
+   s32 versus s8 flags, and while/goto variants. Bare INCLUDE_ASM is
+   retained because this candidate remains above the nd<=25 park threshold. */
 // FUN_002734B0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002734b0);
 // FUN_00273610
@@ -1714,12 +1725,15 @@ void func_002746b0(u32 param_1)
     D_00764594 = param_1;
 }
 
-/* measured: retail colors arg0=$s3 first, arg1=$s4, and enters the script
-   loop via b to the bottom check (while shape); mwcc b210 colors arg1=$s3
-   first and falls into the loop body (do-while shape), nd109 best (struct
-   field access for 0x10/0x18 kills the address hoisting mwcc adds with raw
-   pointer casts; nd125 with inline casts, nd125 original). Register-order +
-   loop-entry floor. */
+/* measured candidate archived at build/WBYList_frFont_746e0_candidate5.c.
+   It compiled as MISMATCH at normalized_diff 102 with object 464B/window
+   512B; fndiff reported 50 differing words at byte offsets:
+   36,40,60,76,84,92,108,324,332,336,344,348,356,360,364,368,372,376,
+   380,384,388,392,396,400,404,408,412,416,420,424,428,432,436,440,444,
+   448,452,456,464,468,472,476,480,484,488,492,496. Ruled out raw-pointer
+   forms (nd363-376 and oversized frames), named callback-result/in-place
+   variants (nd104), and direct loop/boolean forms. Bare INCLUDE_ASM is
+   retained because this candidate remains above the nd<=25 park threshold. */
 // FUN_002746E0
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002746e0);
 // FUN_002748E0

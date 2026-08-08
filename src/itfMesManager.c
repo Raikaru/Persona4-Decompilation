@@ -1259,26 +1259,9 @@ check:
    Re-probed with the full park_probe wrapper battery: schedule on plus
    opt_common_subs off together take it 58 -> 43, the best of thirteen
    wrappers, and that pair is what is committed. Committed at nd 43. */
-// FUN_00278D50 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail both fills delay slots this function leaves empty and
-   re-issues a value b210 would share; both pragmas are needed. */
-#pragma schedule on
-#pragma opt_common_subs off
-void func_00278d50(u8 *arg0) {
-    if (*(u8 *)(arg0 + 0x1C) == 0) {
-        func_00278c60((int *)(arg0 + 0x20), (int)(arg0 + 0x20),
-                      arg0 + *(s32 *)(arg0 + 0x10), *(s32 *)(arg0 + 0x14));
-        *(u8 *)(arg0 + 0x1C) = 1;
-    }
-}
-/* measured: closes both scopes above at the file's -O2 baseline. */
-#pragma opt_common_subs on
-/* measured: closes both scopes above at the file's -O2 baseline. */
-#pragma schedule off
-#else
+// Archived C body: build/WBHygiene_func_00278d50_archive.txt; no current park body remains.
+// FUN_00278D50
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
-#endif
 // FUN_00278DA0
 s32 func_00278da0(u8 *arg0)
 {
@@ -1474,32 +1457,21 @@ s32 func_00279470(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     return 0;
 }
 
-/* measured: re-measured 2026-08-03: best nd 2 (recorded nd 3 was from a
-   misspelled expression - it loads the pointer VALUE at +0x24, not the
-   address). Correct body: func_002748e0(func_00279740(*(s32 *)((u8 *)(arg1 * 8
-   + *(s32 *)(obj + 4)) + 0x24), 0), arg2, arg3). Only residual: sll/lw order
-   swap at off 84/88 - retail lw $v1,4($s3); sll $v0,$s2,3; mwcc b210 -O2
-   always emits sll first, registers follow. Tried: inline expression (nd 2),
-   s32 base local, scaled-first/scaled-last - all nd 2-3 (obj 172B vs window
-   176B). Load-sinking floor, not source-drivable. */
-/* measured: the direct-base s64 body matches retail except the final base-plus-scaled addu operand order (nd 1, object 172B versus the 176B window); O1 was also probed and left the same nd 1. The remaining commutative scheduling residual was not source-drivable. Committed at nd 1. */
-// FUN_00279690 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: integer-domain index-first address `(u8 *)(arg1 * 8) + (u32)base` preserves retail's addu operand order; normalized_diff 0, object 172B/176B (trailing word is alignment padding). */
+// FUN_00279690
 s64 func_00279690(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
     u8 *obj;
-    u32 address;
+    u8 *base;
+    u8 *address;
 
     obj = D_00881808[arg0].unk0;
     if (obj == NULL)
         func_0046d730(D_0063BE10, 0xC50);
-    address = (u32)*(s32 *)(obj + 4);
-    address += (u32)(arg1 * 8);
+    base = (u8 *)*(s32 *)(obj + 4);
+    address = (u8 *)(arg1 * 8) + (u32)base;
     return func_002748e0(func_00279740(*(s32 *)(address + 0x24), 0), arg2, arg3);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279690);
-#endif
 // FUN_00279740
 u32 func_00279740(int param_1,int param_2)
 {

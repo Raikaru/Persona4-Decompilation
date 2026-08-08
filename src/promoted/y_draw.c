@@ -280,14 +280,19 @@ void func_002b6560(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
-/* measured: retail anchors the loop's (s16)i sign-extend at the loop head into $s0
-   (before the func_002b2970 call, live across it), then scales it post-call, and
-   materializes func_0046d200's arg1 (dsll32/dsra32 of the s16 arg) before the arg0
-   lw; mwcc b210 instead folds the loop-head extension into the bottom loop-test
-   extension (slti on $s0) when written as a pre-call s32 ix statement (nd 85), or
-   sinks it to first use after the call into $v1 when written inline (nd 12: 9
-   words extension placement + 3 words arg-materialization order). Both residuals
-   are the s16-index/arg-order floor family documented in y_fclCombineDraw. */
+/* measured candidate archived at build/WBYList_y_draw_6590_candidate.c.
+   It compiled as MISMATCH at normalized_diff 304 with object 560B/window
+   528B; fndiff reported 97 differing words at byte offsets:
+   28,88,92,132,144,148,152,156,160,168,172,176,184,188,192,196,200,204,
+   208,212,224,228,232,236,240,244,248,252,256,260,264,268,272,276,280,
+   284,292,296,300,304,308,312,316,320,324,328,332,336,340,344,348,352,
+   356,360,364,368,372,376,380,384,388,392,396,400,404,412,416,420,428,
+   432,436,444,448,452,456,460,464,472,476,480,488,492,496,500,504,508,
+   516,520,524,528,532,536,540,544,548,552,556. Ruled out: declaration
+   reorders (same object/nd), pointer-vs-s32 callback result (same), explicit
+   s64 loop casts, color/point local reshaping, and the historical unarchived
+   nd12 form. Bare INCLUDE_ASM is retained because this reconstruction did not
+   reach the nd<=25 park threshold. */
 // FUN_002B6590
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
 

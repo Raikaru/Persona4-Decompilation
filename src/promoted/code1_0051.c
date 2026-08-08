@@ -97,15 +97,21 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
 #pragma schedule off
 
 
-/* measured: mwcc b210 loads the intermediate pointer into $v0 (lw $v0,0x1f7c($a0) /
-   lw $v0,0x20($v0)); retail 2.4.1.01 keeps it in $v1 (lw $v1,0x1f7c($a0) /
-   lw $v0,0x20($v1)). nd 2 (the two rt-register bytes). Tried s32/u32 locals,
-   result locals, single-expression chains, pointer-arithmetic variants, no-pragma
-   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief).
-   Committed at nd 2. */
+/* measured: exhaustive C spellings (direct chain; u8/s32/u32/void pointer locals;
+   base/result locals; typed argument variants; explicit assignments and casts)
+   all produce object 12B/16B at nd 2; schedule-off and O1 both worsen to nd 7
+   with a 16B object. The intermediate pointer remains in $v0 instead of retail's
+   $v1; this is the irreducible tiny-accessor coloring floor. Committed at nd 2. */
 
 #pragma schedule on
 // FUN_00519EE0 NONMATCHING
+/* measured: exhaustive C spellings (direct chain; u8/s32/u32/void pointer locals;
+   base/result locals; typed argument variants; explicit assignments and casts)
+   all produce object 12B/16B at nd 2; schedule-off and O1 both worsen to nd 7
+   with a 16B object. Retail words: 0 7c1f838c lw $3, 0x1f7c($4); 4 0800e003
+   jr $31; 8 2000628c lw $2, 0x20($3) in the delay slot; 12 00000000 nop.
+   The intermediate pointer remains in $v0 instead of retail's $v1; this is
+   the irreducible tiny-accessor coloring floor. Committed at nd 2. */
 #ifdef NON_MATCHING
 s32 func_00519ee0(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x1F7C);
@@ -118,12 +124,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ee0);
 #pragma schedule off
 
 
-/* measured: mwcc b210 loads the intermediate pointer into $v0 (lw $v0,0x1fc0($a0) /
-   lw $v0,0x7c($v0)); retail 2.4.1.01 keeps it in $v1 (lw $v1,0x1fc0($a0) /
-   lw $v0,0x7c($v1)). nd 2 (the two rt-register bytes). Tried s32/u32 locals,
-   result locals, single-expression chains, pointer-arithmetic variants, no-pragma
-   (nd 6); best nd 2. Corroborated $v0/$v1 coalescing floor (wave brief).
-   Committed at nd 2. */
+/* measured: exhaustive C spellings (direct chain; u8/s32/u32/void pointer locals;
+   base/result locals; typed argument variants; explicit assignments and casts)
+   all produce object 12B/16B at nd 2; schedule-off and O1 both worsen to nd 7
+   with a 16B object. Retail words: 0 c01f838c lw $3, 0x1fc0($4); 4 0800e003
+   jr $31; 8 7c00628c lw $2, 0x7c($3) in the delay slot; 12 00000000 nop.
+   The intermediate pointer remains in $v0 instead of retail's $v1; this is
+   the irreducible tiny-accessor coloring floor. Committed at nd 2. */
 
 #pragma schedule on
 // FUN_0051F5E8 NONMATCHING

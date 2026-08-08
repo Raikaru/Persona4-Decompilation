@@ -17,6 +17,7 @@ extern s32 D_008871A4[];
 extern s32 D_008871A8[];
 extern s32 D_00724840;
 extern s32 D_00724844;
+extern u8 D_0070C260[];
 
 
 /* measured: separate goto labels preserve retail's distinct null-return targets; exact match nd 0 (obj 52B/window 64B). */
@@ -48,12 +49,43 @@ block_2:
 
 void func_003df7f0(s32 arg0);
 
-/* measured: without #pragma schedule on, MWCC emits lw $a0, 0x10($a0) before
-   the jal with a nop in its delay slot and leaves the jr slot unfilled;
-   retail fills both slots (nd 17 -> 0). */
+/* measured: explicit block labels, no_branch_likely, schedule, and the direct
+   default-path store `*(s32 *)(*(u8 **)(arg0 + 0x14) + 0x1C) = 0x20` reproduce
+   retail exactly. Compiled C MATCH, object 116B/window 128B. */
 
 // FUN_003D3920
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3920);
+/* measured: probe branch form */
+#pragma no_branch_likely on
+/* measured: probe schedule */
+#pragma schedule on
+u8 *func_003d3920(u8 *arg0, u8 *arg1, s32 arg2) {
+    u8 *temp_7;
+    if (arg0 == NULL) goto block_1;
+    temp_7 = *(u8 **)(arg0 + 0x14);
+    if (temp_7 == NULL) goto block_2;
+    if (arg1 == NULL) goto block_default;
+    if (arg2 != 0) goto block_custom;
+    return NULL;
+block_1:
+    return NULL;
+block_2:
+    return NULL;
+block_custom:
+    *(u8 **)(temp_7 + 0x18) = arg1;
+    temp_7 = *(u8 **)(arg0 + 0x14);
+    *(s32 *)(temp_7 + 0x1C) = arg2;
+    goto block_return;
+block_return:
+    return arg0;
+block_default:
+    *(u8 **)(temp_7 + 0x18) = D_0070C260;
+    *(s32 *)(*(u8 **)(arg0 + 0x14) + 0x1C) = 0x20;
+    goto block_return;
+}
+/* measured: close schedule */
+#pragma schedule off
+/* measured: close branch form */
+#pragma no_branch_likely off
 
 
 /* measured: the call has a hidden first argument. Retail leaves $a0 holding
@@ -154,15 +186,38 @@ s32 func_003d8130(s32 arg0, s32 arg1) {
 // P001 balance and restores the -O2 default for any following code.
 #pragma schedule off
 
-/* measured: the prior guarded scan probe used schedule on (nd 18 -> 14), but
-   the best complete reconstruction remained nd 32; it is archived above the
-   park limit and this function remains a bare INCLUDE_ASM fallback. */
 
-/* measured: best plain-C scan/step reconstruction was nd 32, object 80/window 80,
-   above the nd 25 park limit; body archived in build/W9Code1_003d8150_archive.txt.
-   Bare INCLUDE_ASM is retained. */
+/* measured: the XOR booleanisation plus schedule/no_branch_likely reproduce
+   retail's sltu/xori and plain branch sequence. Compiled C MATCH, object 68B
+   in the 80B window. */
 // FUN_003D8150
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8150);
+/* measured: schedule on for func_003d8150. */
+#pragma schedule on
+/* measured: no_branch_likely on for func_003d8150. */
+#pragma no_branch_likely on
+s32 func_003d8150(s32 arg0) {
+    u32 i;
+    u32 *p;
+    u32 nz;
+    i = 0;
+    p = (u32 *)(arg0 + D_0072483C);
+scan:
+    nz = (p[2] != 0);
+    nz ^= 1;
+    if (nz != 0)
+        goto step;
+    return 1;
+step:
+    p++;
+    i++;
+    if (i < 8)
+        goto scan;
+    return 0;
+}
+/* measured: close no_branch_likely for func_003d8150. */
+#pragma no_branch_likely off
+/* measured: close schedule for func_003d8150. */
+#pragma schedule off
 
 /* measured: schedule on remains required by func_003d81a0 (nd 18 -> MATCH);
    the existing schedule-off close follows that function. */
@@ -185,15 +240,22 @@ s32 func_003d81a0(u32 arg0) {
 
 extern s32 D_0072484C;
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final sw (nd 16 -> 0). */
+/* measured: retail uses the custom R5900 c1 opcode 0x500C4 for reciprocal-
+   square-root refinement; MWCCPS2 b210 emits no equivalent from legal C.
+   Bare INCLUDE_ASM is retained. */
 
 // FUN_003DC490
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc490);
 
+/* measured: retail uses the custom R5900 c1 opcode 0x500C4 for reciprocal-
+   square-root refinement; MWCCPS2 b210 emits no equivalent from legal C.
+   Bare INCLUDE_ASM is retained. */
 // FUN_003DC510
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc510);
 
+/* measured: retail uses the custom R5900 c1 opcode 0x500C4 for reciprocal-
+   square-root refinement; MWCCPS2 b210 emits no equivalent from legal C.
+   Bare INCLUDE_ASM is retained. */
 // FUN_003DC590
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc590);
 
@@ -243,11 +305,33 @@ void func_003dd5c0(u8 **arg0, s32 arg1) {
 #pragma schedule off
 #pragma no_branch_likely off
 
-/* measured: best plain-C global-store reconstruction was nd 49, object 112/window
-   112, above the nd 25 park limit; body archived in
-   build/W9Code1_003dd760_archive.txt. Bare INCLUDE_ASM is retained. */
-// FUN_003DD760
+/* measured: schedule-on direct-global reconstruction improved nd 49 to nd 18;
+   candidate object 104B versus the 112B retail window, so it is parked below
+   the nd 25 limit. Body archived in build/W9Code1_003dd760_archive.txt.
+   Residual rows are the global-address register/order differences at offsets
+   0x10-0x1c, 0x28-0x2c, 0x4c, and 0x54-0x58, plus the missing final padding.
+   Ruled out: no_branch_likely alone, no_branch_likely with schedule, 0 versus
+   NULL, and moving the A4 store after the call. Committed at nd 18. */
+// FUN_003DD760 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: schedule on for func_003dd760. */
+#pragma schedule on
+void func_003dd760(s32 arg0) {
+    D_00887184[0] = arg0;
+    D_00887188[0] = 0;
+    D_00887180[0] = 0;
+    D_00887194[0] = NULL;
+    D_008871A8[0] = 1;
+    D_00724840 = 0;
+    D_008871A4[0] = 1;
+    D_00724844 = func_004217e0(D_008871A0);
+    D_0088718C[0] = 1;
+}
+/* measured: schedule off for func_003dd760. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
+#endif
 
 // FUN_003DD7D0
 /* measured: probe */
@@ -324,15 +408,13 @@ s32 func_003ddf20(u8 *arg0) {
 /* measured: closes the schedule bracket for func_003ddf20. */
 #pragma schedule off
 
-/* measured: best plain-C vtable-slot reconstruction was nd 37, object 80/window
-   80, above the nd 25 park limit; body archived in
-   build/W9Code1_003ddf_family_archive.txt. Bare INCLUDE_ASM is retained. */
+/* measured: retail uses the three-operand R5900 `mult $6,$16,$6`; MWCCPS2
+   b210 cannot emit this form from legal C. Bare INCLUDE_ASM is retained. */
 // FUN_003DDF80
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf80);
 
-/* measured: sibling vtable-slot reconstruction was nd 37, object 80/window 80,
-   above the nd 25 park limit; body archived in
-   build/W9Code1_003ddf_family_archive.txt. Bare INCLUDE_ASM is retained. */
+/* measured: retail uses the three-operand R5900 `mult $6,$16,$6`; MWCCPS2
+   b210 cannot emit this form from legal C. Bare INCLUDE_ASM is retained. */
 // FUN_003DDFD0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddfd0);
 

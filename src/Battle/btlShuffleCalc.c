@@ -208,10 +208,19 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
    adda/madd ACC chains (retail plain mul.s/add.s; split mul/add statements
    tried, identical). Ternary half-scalers (func_003720c0's trick) only
    reverse the srl/andi order here. u16-sign-test residual after recipe. */
-/* measured: active C probe reached normalized_diff 125 with object 328B
-   against the 320B retail window (build/WABtlShuffleCalc_71a60_active.json).
-   Prologue: frame 0x20 and saved $s0 matched; the body was oversized by 8B.
-   The body and recipe are archived in build/WACalc_f71a60_archive.c. */
+/* measured: best retained C probe reached nd 63, object 312B/320B, with the
+   float-first helper prototype order and the exact temporary zero/add call
+   setup; archived verbatim in build/WBNearMiss1_71a60_floatfirst_active.c.
+   The same body under the file's original helper prototype reached nd 71 and
+   is archived in build/WBNearMiss1_71a60_zero_local_active.c. Retail first
+   residuals at nd 63: off 16/20/28/48/52 are lhu/bltz/mtc1/srl/andi using
+   $a0 where retail uses $v0; off 104 is andi $v0,$a0,0xffff vs retail lhu
+   $v0,($s0); off 208 is lwc1 $f2,0x18($s0) vs retail lwc1 $f5,0x18($s0),
+   followed by the FP lerp register/schedule cascade. Ruled out: direct
+   expression, optimization level 1, extra arg local, named base, split
+   differences/lerps, pointer counter, s32/u16 value locals, opt_propagation
+   off, opt_common_subs off, and alternate helper interleavings; both tested
+   helper prototype edits were restored. Plain INCLUDE_ASM is retained. */
 // FUN_00371A60
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
 // FUN_00371BA0

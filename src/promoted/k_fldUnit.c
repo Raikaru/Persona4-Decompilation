@@ -680,7 +680,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
 
 
 
-/* measured: parked body improved nd 4 -> 3, object/window 796/800. Source keeps four GP byte loads as color0..color3 locals, writes color3/color1/color2/color0 to destination offsets 4..7, and spells the final lookup address index-first as (u8 *)(temp_18 << 8) + (u32)func_00155280() + (temp_17_2 * 0x10) + 0x56. Exact fndiff residuals: +0x170 (offset 368) candidate sb $v0,4($a2) vs retail sb $a1,4($a2); +0x17C (offset 380) candidate sb $a1,7($a2) vs retail sb $v0,7($a2); +0x2BC (offset 700) candidate addu $v1,$v1,$v0 vs retail addu $v1,$v0,$v1. Ruled out scalar/array/address spellings, pointer/direct-store forms, declaration/register/pragma/order sweeps, 24 load permutations, 24 assignment permutations, and semantic local maps; no prototype or symbol changes. Parked at nd 3. */
+/* measured: parked body improved nd 4 -> 3, object/window 796/800. Source keeps four GP byte loads as color0..color3 locals, writes color3/color1/color2/color0 to destination offsets 4..7, and spells the final lookup address index-first as (u8 *)(temp_18 << 8) + (u32)func_00155280() + (temp_17_2 * 0x10) + 0x56. Exact fndiff residuals: +0x170 (offset 368) candidate sb $v0,4($a2) vs retail sb $a1,4($a2); +0x17C (offset 380) candidate sb $a1,7($a2) vs retail sb $v0,7($a2); +0x2BC (offset 700) candidate addu $v1,$v1,$v0 vs retail addu $v1,$v0,$v1. Ruled out scalar/array/address spellings, pointer/direct-store forms, declaration/register/pragma/order sweeps, 24 load permutations, 24 assignment permutations, and semantic local maps; no prototype or symbol changes. Committed at nd 3. */
 // FUN_00165FB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)

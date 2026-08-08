@@ -342,29 +342,11 @@ void func_00115760(u8 *arg0) {
     *(u16 *)(arg0 + 0x224) -= 1;
 }
 
-/* measured: retail's trap-skip `bnez $v1,0x1156b0` targets the loop pre-jump
-   `b 0x1156f0`; b210 folds the branch-to-branch chain and emits
-   `bnez $v1,0x1156f0` directly. That single branch word is the whole residual --
-   the body is otherwise byte-identical (obj 220B, the remaining diff word is
-   window padding), reconstructed as the indexed twin of the matched
-   func_00115760 below.
-
-   Previously measured: the sequential `if (i >= count) trap; for(;;)` spelling,
-   an explicit `goto test; body:` pre-jump, and `if (i < count) { do {} } else
-   { trap; }` (which avoids the fold but breaks register allocation because i is
-   not live across the trap call).
-
-   `#pragma opt_branch_folding off` scoped around the function changes the
-   residual not at all (still nd 2). Do NOT read that as "b210 ignores the
-   pragma": an earlier version of this note claimed the object was
-   byte-identical, but that came from hashing a stale object path. The reliable
-   signal is the differing-word count, and by that measure the pragma has no
-   effect HERE -- which is all that is established. For contrast, `#pragma
-   schedule off` demonstrably does change codegen elsewhere (it moves
-   code1_003e func_003e3070 from nd 15 to nd 9), so scoped pragmas are worth
-   measuring per function rather than dismissing wholesale.
-   Branch-folding floor. */
-/* measured: nd 2, object 220/224. Plain C reproduces the complete body, frame, loop, stores, and operand order; the only residual is b210 folding the initial branch through the loop pre-jump (`bnez` targets 0x1156f0 instead of retail 0x1156b0). Scoped opt_branch_folding off is unchanged. No inline assembly. */
+/* measured: indexed loop body matches retail except the initial bnez target
+   (retail branches to the pre-jump, b210 threads directly to loop_test);
+   nd 1, object 220B/224B. Tried explicit pre-jumps, both-path gotos,
+   if/else, do/while, while, switch, result-local and hidden-return forms,
+   plus opt_branch_folding off; all stayed nd 1 or grew. Committed at nd 1. */
 // FUN_00115670 NONMATCHING
 #ifdef NON_MATCHING
 void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
