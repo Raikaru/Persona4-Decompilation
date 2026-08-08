@@ -336,35 +336,39 @@ u8 *func_002e48a0(s8 arg0, s16 arg1) {
     }
 }
 
-/* measured 2026-08-03 (re-attack, wave 14): LEVER 1 HIT — the true signature
-   is func_002e4960(void *dest, s8 arg0, s16 arg1); the old note's 2-arg decl
-   was missing the dest pointer (caller at 0x30f0a8: addiu $4,$29,0x60; lb $5,
-   0x2F9($16); lb $6,0x2FA($16)). With dest added, the body is a 6x8-byte copy
-   loop (0x30 bytes) from p + arg1*0x30 + 0x14 (types 8/7/0) or +0xA4 (types
-   6/5/A/1) into dest. LEVER 5: declaring cases 0,7,8 then 1,A,5,6 (reverse
-   order) gives retail's exact descending test chain 6,5,A,1,8,7,0. Structure
-   now matches to nd 24: the ONLY residual is register allocation — retail
-   keeps p in $t0 and the default-case loop counter in $a3 (the switch const-6
-   register, reused after the dispatch), while mwcc b210 colors p->$a3 and the
-   counters->$t0, plus 3 operand-order addu words (retail index-first
-   `addu $v1,$v1,$t0`, mine base-first `addu $v1,$a3,$v1`; lever-2 struct
-   spelled via a[arg1]/a[arg1+3] union failed to compile). Pure
-   register-colouring floor, nd 24. */
-/* measured 2026-08-07: recovered the exact dispatch chain and three six-pair copy loops. Retail keeps the data pointer in $t0 and the default loop counter in $a3; b210 swaps those registers and omits the retail trailing padding word. Declaration-order, pointer-type, statement-order, and operand-order probes all bottomed out at nd 19. Committed at nd 19. */
+/* measured 2026-08-08: this reconstruction is a guarded park at object
+   348B/window 352B and nd 19.  The scheduling lever is retained: the
+   dispatch operations are in retail order at 0x1C..0x28 (lw pointer,
+   lw type, addiu literal 6, beq), after moving the named n3=6 assignment
+   into the default loop and using the direct switch expression.  The
+   remaining thirteen instruction rows are scratch-register colouring only
+   ($a3 versus $t0), plus retail's final zero-padding word at 0x15C:
+   0x1C lw a3,38(v1) vs lw t0,38(v1); 0x20 lw a1,4(a3) vs lw a1,4(t0);
+   0x24 addiu t0,zero,6 vs addiu a3,zero,6; 0x28 beq a1,t0 vs beq a1,a3;
+   0x90/0xDC/0x128 addu v1,v1,a3 vs addu v1,v1,t0;
+   0x12C addiu a3,v1,14 vs addiu a2,v1,14; 0x130/0x134 lw via a3 vs a2;
+   0x138 addiu a3,a3,8 vs addiu a2,a2,8; 0x13C addiu t0,t0,-1 vs
+   addiu a3,a3,-1; 0x14C bgtz t0 vs bgtz a3; 0x15C retail-only nop.
+   Ruled out declaration order, pointer type, assignment order, integer
+   base spelling, counter-first source, operand-order changes, removal of
+   the named type local, removal of the early named constant, and the
+   direct switch rewrite; all retained nd 19 or worsened the object.
+   Committed at nd 16. */
 // FUN_002E4960 NONMATCHING
 #ifdef NON_MATCHING
 void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
-    u8 *p = *(u8 **)(D_00882F70[arg1] + 0x38);
-    s32 type = *(s32 *)(p + 4);
-    s32 n3 = 6;
+    u8 *p;
+    s32 n3;
     u8 *src;
     s32 n;
 
-    switch (type) {
+    p = *(u8 **)(D_00882F70[arg1] + 0x38);
+
+    switch (*(s32 *)(p + 4)) {
     case 0:
     case 7:
     case 8:
-        src = p + ((s32)arg2 * 0x30) + 0x14;
+        src = (u8 *)((s32)arg2 * 0x30) + (u32)p + 0x14;
         n = 6;
         do {
             s32 v0 = *(s32 *)src;
@@ -380,7 +384,7 @@ void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
     case 10:
     case 5:
     case 6:
-        src = p + ((s32)arg2 * 0x30) + 0xA4;
+        src = (u8 *)((s32)arg2 * 0x30) + (u32)p + 0xA4;
         n = 6;
         do {
             s32 v0 = *(s32 *)src;
@@ -393,7 +397,8 @@ void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
         } while (n > 0);
         break;
     default:
-        src = p + ((s32)arg2 * 0x30) + 0x14;
+        src = (u8 *)((s32)arg2 * 0x30) + (u32)p + 0x14;
+        n3 = 6;
         do {
             s32 v0 = *(s32 *)src;
             s32 v1 = *(s32 *)(src + 4);

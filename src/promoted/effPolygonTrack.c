@@ -136,20 +136,16 @@ u8 *func_00492f20(u8 *arg0)
     return t2;
 }
 
-/* measured: retail's jump-table dispatch computes `arg1 & 0xFFFF` into $a2
-   (the dead arg2 register) and uses it for sltiu/sll; mwcc b210 always
-   colors the mask result $v0 (andi $v0,$s1,0xffff / sltiu $at,$v0,8 /
-   sll $v0,$v0,2), nd 5 with every other word matching. Tried: u16/s32/u32
-   arg1, s32 pointer / void pointer arg2, named local `u32 x` (spills into
-   $s0, nd 83), volatile arg reads. Temp-register-color floor ($v0 vs $a2). */
-/* Case values decoded from jtbl_007568A0 with tools/jtbl.py: eight dense
-   entries where 1/2/4/7 pair func_00487650 with a per-mode call, 5 and 6 call
-   directly, and 0/3 share the out-of-range assert, in that declaration order.
-   measured: nd 3, obj 376 in a 384-byte window - the whole residual is that
-   retail holds the masked switch value in $a2 while b210 uses $v0. Naming it
-   in a u32 local, masking explicitly, and both together all measure nd 3;
-   schedule on is far worse (nd 186). Register colouring floor.
-   Committed at nd 3. */
+/* measured: retail computes `arg1 & 0xFFFF` into `$a2` for the range guard
+   and switch index; b210 uses `$v0` for the same value. The parked body is
+   object 376B in the 384B window at nd 3. fndiff's first residual rows are
+   offset 68 (candidate `andi $v0,$s1,0xffff`, retail `andi $a2,$s1,0xffff`),
+   offset 72 (candidate `sltiu $at,$v0,8`, retail `sltiu $at,$a2,8`), and
+   offset 92 (candidate `sll $v0,$v0,2`, retail `sll $v0,$a2,2`). Tried
+   u16/s32/u32 declarations, assigning the mask into arg2 before the switch,
+   compound assignment, in-switch assignment, named locals, and register
+   qualifiers; the best alternatives stayed nd 3 or worsened. Committed at
+   nd 3. */
 // FUN_00493080 NONMATCHING
 #ifdef NON_MATCHING
 void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
@@ -194,7 +190,6 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
 #else
 INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_00493080);
 #endif
-
 /* measured: same volatile-anchored arg1 read as FUN_00492F20; plain reads
    swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
 // FUN_00493200

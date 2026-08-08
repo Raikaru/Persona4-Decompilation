@@ -53,7 +53,6 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364320);
 /* measured: named constants plus #pragma opt_loop_invariants on hoist '.', 2, 3, and 10 into the retail preheader; all control flow and 38/40 words match. The remaining 10 differing words are one scratch-register allocation: b210 keeps the digit-buffer index in $t4 while retail reuses $v0. Declaration order, counter types, initializer forms, third-argument signature, and optimization-level probes did not move it. Committed at nd 12. */
 // FUN_003645C0 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: candidate probe */
 #pragma opt_loop_invariants on
 void func_003645c0(char *arg0, s32 rem)
 {

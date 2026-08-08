@@ -15,7 +15,7 @@ extern void func_003e40b0(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern void func_003dcc70(void *a0, void *a1, void *a2);
 extern s32 func_003e0f80(void);
-extern void func_003e0870(s32 a0, void *a1, s32 a2, f32 fparg0);
+extern void func_003e0870(s32 a0, void *a1, f32 fparg0, s32 a2);
 extern void func_003e0f40(s32 a0);
 extern f32 D_00761144;
 extern f32 D_00761148;
@@ -313,9 +313,7 @@ void func_00371e50(u8 *arg0, u32 arg1, ShuffleVec3 *arg2, ShuffleVec3 *arg3, Shu
     *(ShuffleVec3 *)(arg0 + 0x2C) = sp20;
     *(ShuffleVec3 *)(arg0 + 0x38) = sp10;
 }
-/* measured: nd 6, object 376/384. Residual is four differing instruction words in two fixed order swaps: f20 save ordering in the prologue and mov.s f12 versus zero-argument materialization before func_003e0870. */
-// FUN_00371F40 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00371F40
 void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
     f32 temp_f20;
     s32 temp_16;
@@ -339,21 +337,13 @@ void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
     sp50[0] = *(f32 *)(arg0 + 0x38) - *(f32 *)(arg0 + 0x2C);
     sp50[1] = *(f32 *)(arg0 + 0x3C) - *(f32 *)(arg0 + 0x30);
     sp50[2] = *(f32 *)(arg0 + 0x40) - *(f32 *)(arg0 + 0x34);
-    func_003e0870(temp_16, arg0 + 0x20, 0, temp_f20);
+    func_003e0870(temp_16, arg0 + 0x20, temp_f20, 0);
     func_003e42a0(arg1, &sp50[0], (void *)temp_16);
     *(f32 *)(arg1 + 0) += *(f32 *)(arg0 + 0x2C);
     *(f32 *)(arg1 + 4) += *(f32 *)(arg0 + 0x30);
     *(f32 *)(arg1 + 8) += *(f32 *)(arg0 + 0x34);
     func_003e0f40(temp_16);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371f40);
-#endif
-/* measured: best reconstruction probe nd 75, object 308/320 bytes (window
-   0x140), so no body was retained. The first half-scaler remains in the wrong
-   integer/FP colors and the tail `adda.s`/`madd.s` sequence is also colored
-   differently; direct, goto, compound-store, local-type, declaration-order,
-   O1, and scheduling variants did not reach the parking threshold. */
 // FUN_003720C0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
 /* measured: re-tested this wave — BEST nd 32 (recorded 121 -> 32) with a full

@@ -2836,16 +2836,63 @@ s32 func_001e2550(void) {
     return 1;
 }
 
-/* measured: the branchy shift set itself compiles, but mwcc b210 proves
-   shift in {0,1} and folds the `shift & 0xFFFF` andi retail keeps, AND sinks
-   the `1 << shift` sllv below the cc00 calls, forcing shift into a saved
-   register ($s4) and rotating the whole allocation (shift=$s4/m=$s5/c02=$s4,
-   n=$s2,k=$s1,node=$s0 vs retail shift=$2/m=$20/c02=$20,n=$17,k=$16,node=$18).
-   Tried decl orders (natural, m2c, shift-first) and (shift & 0xFFFF) — all
-   nd 75. Allocator+sink floor; the loop body, call shapes, and tail flag
-   logic compile correctly. */
+/* measured: byte-exact at nd 0. Reusing the c0 local for the node payload
+   and m for the post-call c02 value gives retail's saved-register live
+   ranges; #pragma opt_rebuildconditionals off preserves the branchy shift
+   sequence and its 392-byte object (retail window 400 bytes). */
 // FUN_001E26C0
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e26c0);
+/* measured: retains the branch-rebuild setting required for the byte-exact body. */
+#pragma opt_rebuildconditionals off
+s32 func_001e26c0(void)
+{
+    u32 shift;
+    u32 v;
+    u32 m2;
+    u32 m;
+    u8 *c0;
+    u8 *node;
+    s32 n;
+    s32 k;
+    u32 flag;
+
+    if (*(u8 *)(*(u8 **)(func_0029d050() + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    m = (1 << (shift & 0xffff)) & 0xffff;
+    c0 = (u8 *)(func_0029cc00(0) & 0xffff);
+    v = func_0029cc00(1);
+    n = 0;
+    k = 0;
+    node = *(u8 **)(iGpffffb3ac + 0x174);
+    m2 = m & 0xffff;
+    m = (u32)c0 & 0xffff;
+    while (node != 0) {
+        if ((*(u16 *)(node + 0x1a) & 1) && (*(u16 *)(node + 0x1a) & 8)) {
+            c0 = *(u8 **)(node + 0x30);
+            if ((m2 & (1 << (*(u8 *)(c0 + 0xa2)))) != 0) {
+                if (*(u16 *)(c0 + 0xa4) == m) {
+                    if (func_002428f0(*(u32 *)(c0 + 0xa64), 0) == 0) {
+                        n = (n + 1) & 0xffff;
+                        if (func_00232710(*(u32 *)(c0 + 0xa64), v) != 0)
+                            k = (k + 1) & 0xffff;
+                    }
+                }
+            }
+        }
+        node = *(u8 **)(node + 0x450);
+    }
+    flag = 0;
+    if ((n & 0xffff) > 0 && (n & 0xffff) == (k & 0xffff))
+        flag = 1;
+    func_0029cf50(flag != 0);
+    return 1;
+}
+/* measured: closes the conditional-rebuild scope for FUN_001E26C0. */
+#pragma opt_rebuildconditionals on
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001E2850 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
@@ -2919,13 +2966,60 @@ s32 func_001e2910(void) {
     return 1;
 }
 
-/* measured: identical to FUN_001E26C0's allocator floor (only the last call
-   differs, func_002340c0 here) — mwcc b210 proves shift in {0,1}, folds the
-   shift andi retail keeps, and sinks the sllv below the cc00 calls, forcing
-   shift into $s4 and rotating the whole allocation (nd 75). The goto+pragma
-   branchy set is reproduced; decl-order variants all nd 75. */
+/* measured: byte-exact sibling of FUN_001E26C0; reusing c0 for the node
+   payload and m for c02 with conditional rebuilds disabled gives nd 0. */
 // FUN_001E2A80
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001e2a80);
+#pragma opt_rebuildconditionals off
+s32 func_001e2a80(void)
+{
+    u32 shift;
+    u32 v;
+    u32 m2;
+    u32 m;
+    u8 *c0;
+    u8 *node;
+    s32 n;
+    s32 k;
+    u32 flag;
+
+    if (*(u8 *)(*(u8 **)(func_0029d050() + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    m = (1 << (shift & 0xffff)) & 0xffff;
+    c0 = (u8 *)(func_0029cc00(0) & 0xffff);
+    v = func_0029cc00(1);
+    n = 0;
+    k = 0;
+    node = *(u8 **)(iGpffffb3ac + 0x174);
+    m2 = m & 0xffff;
+    m = (u32)c0 & 0xffff;
+    while (node != 0) {
+        if ((*(u16 *)(node + 0x1a) & 1) && (*(u16 *)(node + 0x1a) & 8)) {
+            c0 = *(u8 **)(node + 0x30);
+            if ((m2 & (1 << (*(u8 *)(c0 + 0xa2)))) != 0) {
+                if (*(u16 *)(c0 + 0xa4) == m) {
+                    if (func_002428f0(*(u32 *)(c0 + 0xa64), 0) == 0) {
+                        n = (n + 1) & 0xffff;
+                        if (func_002340c0(*(u32 *)(c0 + 0xa64), v) != 0)
+                            k = (k + 1) & 0xffff;
+                    }
+                }
+            }
+        }
+        node = *(u8 **)(node + 0x450);
+    }
+    flag = 0;
+    if ((n & 0xffff) > 0 && (n & 0xffff) == (k & 0xffff))
+        flag = 1;
+    func_0029cf50(flag != 0);
+    return 1;
+}
+/* measured: closes the conditional-rebuild scope for the byte-exact body. */
+#pragma opt_rebuildconditionals on
 
 /* measured: branchy shift set reproduces with the goto form under
    #pragma opt_rebuildconditionals off; only residual is 1 word — retail's

@@ -1,6 +1,12 @@
 #include "include_asm.h"
 /* Source unit: src/Graphics/Model/mdlManager_004711e0.c */
 /* Ported from P3FES src/Graphics/Model/mdlManager.c FUN_003115a0 (verified MATCH there). */
+/* W8 negative census: the six small bare functions below all produced undersized
+   C objects, so their current reconstructions are missing logic rather than merely
+   misshapen register schedules; do not spend another colouring wave on them.
+   Best probes (object/window, nd): 00477810 232/240 nd169; 004776C0 244/272
+   nd92; 00474BA0 316/320 nd153; 00475B90 304/320 nd147; 00473710 332/352
+   nd202; 00477FB0 388/400 nd272. */
 #include "type.h"
 /* measured: index-first addu operand-order carrier (lever 3). Kept at top of
    file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
@@ -2369,8 +2375,55 @@ void func_0047a2a0(u32* param_1)
    + idx)` avoids the fold but keeps this order, plain `*a + 0x40 + idx`
    folds 0x40 into the load (3 words, nd 84). Chain-vs-load schedule floor
    (same as recorded). */
-// FUN_0047A320
+/* measured: 0047A320 uses the exact retail prologue (frame 0x40, saved $s0/$s1) and the outer table walk now matches through the first helper and the 5-slot loop setup. Remaining fndiff residuals are inner-list register colors at offsets 0xD4/0xD8/0xE0/0xE4/0xE8/0xF4/0xF8/0xFC/0x100 (retail list=$v1,widx=$a0; b210 list=$a0,widx=$v1) and the inner base/index order at 0xF4-0x104 (retail lw base before sll chain; candidate sll chain before lw base). Tail is 372B vs 384B window, with the three final retail nop words absent. Tried nested/goto control flow, separate result, re-mask locals, direct integer-domain outer address, direct/nested inner address, declaration/type swaps, and scoped opt_common_subs/opt_propagation pragmas; best remained nd 18. Committed at nd 18. */
+// FUN_0047A320 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0047a320(void* arg0) {
+    void* list;
+    void* item;
+    void* wpn;
+    void* inner;
+    void* slot;
+    s16 idx;
+    s16 widx;
+    s32 i;
+    s32 elemOff;
+    list = *(void**)((u8*)arg0 + 0x120);
+    if (list != (void*)0) {
+        idx = *(s16*)((u8*)arg0 + 0xF0);
+        if (idx < *(u16*)((u8*)list + 8)) {
+            elemOff = (s32)idx * 0x50;
+            item = *(void**)((u32)((u32)*(s32*)list + 0x40) + (u32)elemOff);
+            if (item != (void*)0 && item != (void*)D_00922BC0_abs) {
+                { extern void func_00397c40(); func_00397c40(*(void**)((u8*)arg0 + 0x10C)); }
+                i = 0;
+                while ((i & 0xFFFF) < 5) {
+                    elemOff = (u16)i;
+                    slot = (u8*)arg0 + (elemOff * 0xC);
+                    if ((*(u8*)((u8*)slot + 0x28C) & 1) != 0 && *(void**)((u8*)slot + 0x290) != (void*)0 && func_0047ae90(arg0, i) != 0) {
+                        wpn = *(void**)((u8*)slot + 0x290);
+                        inner = *(void**)((u8*)wpn + 0x120);
+                        if (inner != (void*)0) {
+                            widx = *(s16*)((u8*)wpn + 0xF0);
+                            if (widx < *(u16*)((u8*)inner + 8)) {
+                                item = *(void**)((u8*)*(void**)inner + (s32)widx * 0x50 + 0x40);
+                                if (item != (void*)0 && item != (void*)D_00922BC0_abs) {
+                                    func_00397c40(*(void**)((u8*)wpn + 0x10C), wpn);
+                                }
+                            }
+                        }
+                    }
+                    i = (i + 1) & 0xFFFF;
+                }
+                return 1;
+            }
+        }
+    }
+    return 0;
+  }
+#else
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a320);
+#endif
 
 // FUN_0047A4A0
 u8 *func_0047a4a0(u8 *arg0, s32 *arg1) {

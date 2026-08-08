@@ -124,15 +124,7 @@ u8 *func_0047fb50(u8 **arg0, s32 *arg1)
 
 
 
-/* measured: declaration permutation {node, tbl, entry, i, j, work, count, init,
-   apply} preserves the full 276-byte control-flow body and improves the parked
-   candidate from nd 17 to nd 7 (obj 276B/window 288B). Remaining fndiff rows
-   are offsets 0x38/0x3C (tbl/entry saved-register swap), 0x58/0x5C
-   (entry load), 0x7C (init pointer load), 0x9C (table load), and 0xAC
-   (apply pointer load): checklist item 4, live-range/saved-register coloring.
-   Committed at nd 7. */
-// FUN_0047FBF0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0047FBF0
 void func_0047fbf0(u8 **arg0, f32 scale)
 {
     u8 *node;
@@ -150,15 +142,11 @@ void func_0047fbf0(u8 **arg0, f32 scale)
         tbl = *(u8 **)(node + 0x50);
         count = *(u16 *)(tbl + 4);
         for (i = 0; i < 4; i++) {
-            entry = (u8 *)D_00713220 + i * 0x10;
-            if (*(u32 *)(entry + 0xC) == 0) {
-                continue;
-            }
-            if (*(u32 *)(node + i * 0x10 + 0xC) == 0) {
-                continue;
-            }
-            init = (u8 *(*)(u8 *, f32))*(u32 *)entry;
+            if (*(u32 *)((u8 *)D_00713220 + i * 0x10 + 0xC) == 0) continue;
+            if (*(u32 *)(node + i * 0x10 + 0xC) == 0) continue;
+            init = (u8 *(*)(u8 *, f32))*(u32 *)((u8 *)D_00713220 + i * 0x10);
             work = init(node + i * 0x10, scale);
+            entry = (u8 *)D_00713220 + i * 0x10;
             for (j = 0; j < count; j++) {
                 apply = (void (*)(u8 *, u32))*(u32 *)(entry + 0xC);
                 apply(work, *(u32 *)(*(u8 **)tbl + j * 4));
@@ -167,30 +155,81 @@ void func_0047fbf0(u8 **arg0, f32 scale)
         node = *(u8 **)(node + 0x54);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fbf0);
-#endif
 
 
-
-/* measured: retail colors node-ptr temp_16 -> $s0 and D-table entry temp_17 -> $s1;
-   mwcc b210 always colors the entry pointer $s0 / node pointer $s1 (identity-based,
-   decl-order independent), and then swaps the apply-call move/lw order. With the
-   correct 4-arg interleaved create prototype everything else matches; best nd 10.
-   Same pair wall as FUN_0047FBF0 / FUN_0047FE90. */
 // FUN_0047FD10
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fd10);
+void func_0047fd10(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scale3)
+{
+    u8 *node;
+    u8 *match;
+    u8 *tbl;
+    u8 *entry;
+    u32 i;
+    u32 j;
+    u8 *work;
+    u32 count;
+    u8 *(*init)(u8 *, f32, u8 *, f32);
+    void (*apply)(u8 *, u32);
+
+    node = *arg0;
+    while (node != NULL) {
+        match = func_0047fb50(arg1, (s32 *)*(u8 **)(node + 0x50));
+        if (match != NULL) {
+            func_0047f850(node, match, scale1, scale2, scale3);
+        } else {
+            tbl = *(u8 **)(node + 0x50);
+            count = *(u16 *)(tbl + 4);
+            for (i = 0; i < 4; i++) {
+                if (*(u32 *)((u8 *)D_00713220 + i * 0x10 + 0xC) == 0) continue;
+                if (*(u32 *)(node + i * 0x10 + 0xC) == 0) continue;
+                init = (u8 *(*)(u8 *, f32, u8 *, f32))*(u32 *)((u8 *)D_00713220 + i * 0x10 + 8);
+                work = init(node + i * 0x10, scale1, node + 0x40, scale3);
+                entry = (u8 *)D_00713220 + i * 0x10;
+                for (j = 0; j < count; j++) {
+                    apply = (void (*)(u8 *, u32))*(u32 *)(entry + 0xC);
+                    apply(work, *(u32 *)(*(u8 **)tbl + j * 4));
+                }
+            }
+        }
+        node = *(u8 **)(node + 0x54);
+    }
+}
 
 
 
-/* measured: retail colors node-ptr temp_16 -> $s0 and D-table entry temp_17 -> $s1;
-   mwcc b210 always colors the entry pointer $s0 / node pointer $s1 no matter the
-   declaration order (10 orders tried, best nd 11), and swaps the apply-call move/lw
-   order as a consequence. Correct create prototype is 4-arg interleaved
-   (u8*,f32,u8*,f32) with temp_4_2 as first arg (already in $a0 from the guard check);
-   with that, everything else matches. Same pair wall as FUN_0047FBF0/FUN_0047FD10. */
+
 // FUN_0047FE90
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_0047fe90);
+void func_0047fe90(u8 **arg0, f32 scale1, f32 scale2)
+{
+    u8 *node;
+    u8 *tbl;
+    u8 *entry;
+    u32 i;
+    u32 j;
+    u8 *work;
+    u32 count;
+    u8 *(*init)(u8 *, f32, u8 *, f32);
+    void (*apply)(u8 *, u32);
+
+    node = *arg0;
+    while (node != NULL) {
+        tbl = *(u8 **)(node + 0x50);
+        count = *(u16 *)(tbl + 4);
+        for (i = 0; i < 4; i++) {
+            if (*(u32 *)((u8 *)D_00713220 + i * 0x10 + 0xC) == 0) continue;
+            if (*(u32 *)(node + i * 0x10 + 0xC) == 0) continue;
+            init = (u8 *(*)(u8 *, f32, u8 *, f32))*(u32 *)((u8 *)D_00713220 + i * 0x10 + 8);
+            work = init(node + i * 0x10, scale1, node + 0x40, scale2);
+            entry = (u8 *)D_00713220 + i * 0x10;
+            for (j = 0; j < count; j++) {
+                apply = (void (*)(u8 *, u32))*(u32 *)(entry + 0xC);
+                apply(work, *(u32 *)(*(u8 **)tbl + j * 4));
+            }
+        }
+        node = *(u8 **)(node + 0x54);
+    }
+}
+
 
 // FUN_0047FFC0
 void func_0047ffc0(int *param_1)

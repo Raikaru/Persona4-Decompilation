@@ -209,7 +209,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163990);
 
 
 
-/* measured: retail uses a 0x50-byte frame, interleaved stack aggregate loads, and a 35.0f COP1 argument; this C body matches the full control-flow and call sequence at nd 5. Remaining residuals are the two independent D_005F1520/D_005F1528 load-order words plus relocation/tail-padding differences. Committed at nd 5. */
+/* measured: parked nd 5, object/window 808/816. The control flow, 0x50-byte frame, stack aggregate stores, and 35.0f COP1 call match. Exact fndiff residuals are offsets 0x14, 0x18, 0x1C, 0x20, and 0x24: b210 schedules the D_005F1528 lwc1 before the D_005F1520 ld and colors the ld result $v0 instead of retail $v1. Ruled out assignment/declaration-order swaps, named-local versus direct-store forms, pointer and aggregate S8/S12 forms, comma sequencing, register storage, and pragma wrappers; no prototype or symbol changes. Committed at nd 5. */
 // FUN_00163C90 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00163c90(s32 arg0)
@@ -680,7 +680,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
 
 
 
-/* measured: nd 20. Retail differs only in unresolved absolute-data relocations for D_005DC920/D_005F1530/D_00756510/D_005F1570/D_005F1550, four GP byte-copy register assignments, and the D_007643D8 GP relocation; frame and all computation/call order match. Probed scalar/array/address spellings and the corrected interleaved func_0047a1a0 prototype. Committed at nd 20. */
+/* measured: old parked body nd 20, object/window 800/800. Grouped the four GP byte loads into color0..color3 locals before the four destination stores; best body is nd 4, object/window 796/800. Exact fndiff residuals: +0x170 (offset 368) and +0x17C (offset 380) have the color0/color3 store registers swapped; +0x2BC (offset 700) and +0x2C4 (offset 708) have commutative addu operands reversed. Relocation-only rows +0x160..+0x16C remain from the reordered GP-byte loads. Ruled out scalar/array/address spellings, pointer/direct-store forms, declaration/register/pragma/order sweeps, 24 load permutations, and semantic local maps; no prototype or symbol changes. Committed at nd 4. */
 // FUN_00165FB0 NONMATCHING
 #ifdef NON_MATCHING
 void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
@@ -697,6 +697,10 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
     u8 *temp_4_2;
     u8 *temp_6;
     u8 *var_18;
+    u8 color0;
+    u8 color1;
+    u8 color2;
+    u8 color3;
 
     if (arg0 != NULL) {
         temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
@@ -717,10 +721,14 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         temp_3_2 = *(u8 **)(temp_2 + 0x144);
         var_18 = *(u8 **)(*(u8 **)(temp_3_2 + 0x2CC));
         temp_6 = *(u8 **)(temp_3_2 + 0x124);
-        temp_6[4] = iGpffff9f28;
-        temp_6[5] = iGpffff9f29;
-        temp_6[6] = iGpffff9f2a;
-        temp_6[7] = iGpffff9f2b;
+        color0 = iGpffff9f28;
+        color3 = iGpffff9f2b;
+        color1 = iGpffff9f29;
+        color2 = iGpffff9f2a;
+        temp_6[4] = color0;
+        temp_6[5] = color1;
+        temp_6[6] = color2;
+        temp_6[7] = color3;
         while (var_18 != NULL) {
             temp_4 = *(s32 *)(var_18 + 8);
             if (temp_4 != 0) {
