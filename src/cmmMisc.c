@@ -442,6 +442,9 @@ s16 func_00247820(s32 arg0) {
     return (s16)result;
 }
 #pragma opt_common_subs on
+/* measured: corrected m2c reconstruction scores nd 581 with object 824B
+   versus the 800B window; recursive sort/allocation CFG remains oversized,
+   no real C body was retained; the bare INCLUDE_ASM fallback remains. */
 // FUN_00247900
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247900);
 
@@ -666,6 +669,7 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00248240);
    func_00248a60 extern added as s32(s32). */
 // FUN_002483C0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002483c0);
+
 /* measured: #pragma opt_loop_invariants on/off scoped around this function:
    retail hoists arg1&0xFFFF and var_4&0xFFFF into $s1/$s6 before the loop;
    without the pragma mwcc b210 re-masks inside the loop (nd 43 -> 2). s32
