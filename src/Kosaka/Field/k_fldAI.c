@@ -82,21 +82,15 @@ void func_0017e9b0(u8 *arg0) {
     *(s32 *)(p + 0xC) = 0;
 }
 
-/* measured: best C nd 104 (4 attempts: 155 plain-f32 locals, 124 all-structs,
-   125 ab[6]+structs, 104 struct-fills + named temps). Layout SOLVED: locals
-   ab[6]@0x50 (a=b pair contiguous), FldAIProj{ s64 xy; f32 z } out@0x70 (16B,
-   8-aligned), FldAIVec3 d@0x80; frame 0x90 exact; D_007EFA00 must be an array
-   (absolute lui/addiu, scalar spelling gives GPREL16); fills are struct copies
-   from pointers (grouped 3x lwc1/swc1, and the +90 reload from stack matches
-   the matched k_fldEvent.c idiom); s64 bit-copy out.xy = *(s64 *)&ab[0]
-   matches. Residual: the two 12-byte stack-to-stack copies a=b and b=out —
-   retail groups lwc1 $f2/$f1/$f0 (0x5c/60/64 then 0x70/74/78) + swc1 x3, mwcc
-   b210 interleaves separate statements AND named-temp load/store pairs
-   (load-store-load-store), and a real struct assignment compiles to
-   ld/sd+lwc1/swc1 (8+4 split) instead; also ab[4]+=90.0f reuses the fill
-   register instead of retail's lwc1 reload. Copy-shape scheduling floor. */
-/* measured: func_0017ea10 near-match parked at normalized_diff 6 (object 808B/window 816B); the candidate matches through the second projection call but MWCCPS2 schedules the aggregate swap as ld/ld/sd/sd instead of retail ld/lwc1/sd/swc1 and omits two trailing nops. */
-// Committed at nd 6.
+/* Measured near-match: the solved 0x90 frame and scalar projection copy
+ * (`out.xy = *(s64 *)&ab[0]; out.z = ab[2]`) improve the prior aggregate
+ * assignment from nd6 to nd4. Object 808B/window 816B. Exact remaining rows:
+ * +0x170 (368): candidate sd $v0,0x70($sp), retail lwc1 $f0,0x58($sp);
+ * +0x174 (372): candidate lwc1 $f0,0x58($sp), retail sd $v0,0x70($sp).
+ * Named pointer temporaries preserve retail address setup before these loads. */
+// Measured in isolation at nd 4; nd_audit compiles the whole file with
+// NON_MATCHING defined, which activates every preserved body at once and
+// shifts this one. Committed at nd 6.
 // FUN_0017EA10 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0017ea10(u8 *arg0)
@@ -136,10 +130,13 @@ s32 func_0017ea10(u8 *arg0)
     if (func_0016b8a0(ab, &out) == 1) {
         return 0;
     }
-    out = *(FldAIProj *)ab;
+    temp_2 = (u8 *)ab;
+    temp_2_2 = (u8 *)&out;
+    out.xy = *(s64 *)&ab[0];
+    out.z = ab[2];
     *(FldAIVec3 *)ab = *(FldAIVec3 *)(ab + 3);
     *(FldAIVec3 *)(ab + 3) = *(FldAIVec3 *)&out;
-    if (func_0016b8a0(ab, &out) == 1) {
+    if (func_0016b8a0(temp_2, temp_2_2) == 1) {
         return 0;
     }
     temp_17 = func_0047a2f0(*(u8 **)(arg0 + 0x50));

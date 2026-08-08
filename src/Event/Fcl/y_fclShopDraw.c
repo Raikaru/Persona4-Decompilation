@@ -1127,7 +1127,6 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002da0a0);
    sign-extension split. Hoist + width floor. */
 // FUN_002DB400
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002db400);
-
 // FUN_002DD230
 void func_002dd230(void *arg0) {
     u64 sp48;

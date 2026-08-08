@@ -1216,33 +1216,76 @@ extern code D_00887300_abs[];
    recorded note, plus an invariant-if hoist. */
 // FUN_00273170
 INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
-/* measured: retail's 4-case dispatch emits an extra scheduler nop before the
-   default branch (beq;nop;nop;b vs mwcc b210's beq;nop;b), shifting the whole
-   tail by one word; every instruction's content otherwise matches (nd 82 =
-   = the one-word shift across ~49 words). Tried switch with goto-to-default
-   NULL block (m2c block_18 shape), direct-deref switch, per-branch NULL
-   assignments, reversed case declarations - the nop never appears.
-   Re-tested wave 14 (5 fresh spellings: if/else || form nd76, switch
-   case-decl 0xF226/223/227/222 nd80, switch reverse-order nd81, flag/sum
-   decl swap nd81, result-variable switch nd78). The switch with case groups
-   declared (0xF222,0xF227) then (0xF223,0xF226) DOES emit retail's exact beq
-   test order (F226,F223,F227,F222); residual is the saved-register rotation
-   (retail node=$s2/flag=$s1/sum=$s0, mwcc swaps flag/sum) + the shared
-   default result=0 block layout. Branch-scheduling + saved-register rotation
-   floors. */
-/* measured candidate archived at build/WBYList_frFont_734b0_candidate.c.
-   It compiled as MISMATCH at normalized_diff 241 with object 336B/window
-   352B; fndiff reported 80 differing words at byte offsets:
-   0,4,8,12,16,20,24,28,32,44,52,56,64,68,72,76,80,84,88,92,96,100,
-   104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164,
-   168,172,176,180,184,188,192,196,200,204,212,216,220,224,228,232,
-   236,240,244,248,252,256,260,264,268,272,276,280,284,288,292,296,
-   300,304,308,312,316,320,324,328,332. Ruled out switch declaration
-   orders, generated M2C case layout, hit-pointer/direct result forms,
-   s32 versus s8 flags, and while/goto variants. Bare INCLUDE_ASM is
-   retained because this candidate remains above the nd<=25 park threshold. */
+/* measured: reconstructed from the matched func_00272d40 case logic. Reusing
+   arg0 as the walking node and declaring flag before sum gives retail's
+   node=$s2/flag=$s1/sum=$s0 prologue. Assigning the result pointer only after
+   each case's call, with explicit result_zero/result_check labels, reproduces
+   the shared move/beqz block. MATCH at normalized_diff 0, object 340B/window
+   352B; exact body archived at build/WCKFldUnit_734b0_match.c. */
 // FUN_002734B0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_002734b0);
+s32 func_002734b0(u8 *arg0)
+{
+    s32 temp_3;
+    s32 temp_3_2;
+    s32 temp_3_3;
+    u8 *temp_3_4;
+    s32 var_17;
+    s32 var_16;
+
+    var_17 = 1;
+    var_16 = 0;
+    if (arg0 == NULL) {
+        return 0;
+    }
+    arg0 = *(u8 **)(arg0 + 0x2C);
+    while (arg0 != NULL) {
+        if ((*(u8 **)(arg0 + 0x28) == NULL) &&
+            (*(s32 *)(arg0 + 0x40) == 0)) {
+            temp_3 = *(s32 *)(arg0 + 0x30);
+            switch (temp_3) {
+            case 0xF222:
+            case 0xF227:
+                temp_3_2 = *(s32 *)(arg0 + 0x3C);
+                if (temp_3_2 == -1) {
+                    goto result_zero;
+                }
+                if (temp_3_2 <= 0) {
+                    goto result_zero;
+                }
+                temp_3_4 = arg0;
+                goto result_check;
+            case 0xF223:
+            case 0xF226:
+                temp_3_3 = *(s32 *)(arg0 + 0x3C);
+                if (temp_3_3 == -1) {
+                    if (func_0045af90(1) != 0) {
+                        temp_3_4 = arg0;
+                        goto result_check;
+                    }
+                    goto result_zero;
+                } else if (temp_3_3 <= 0) {
+                    goto result_zero;
+                }
+                temp_3_4 = arg0;
+                goto result_check;
+            default:
+                goto result_zero;
+            }
+result_zero:
+            temp_3_4 = NULL;
+result_check:
+            if (temp_3_4 != NULL) {
+                var_17 = 0;
+            }
+        }
+        var_16 += *(s32 *)(arg0 + 0x18);
+        arg0 = *(u8 **)(arg0 + 0x28);
+    }
+    if ((s8)var_17 == 0) {
+        var_16 = 0;
+    }
+    return var_16;
+}
 // FUN_00273610
 u32 func_00273610(void)
 {

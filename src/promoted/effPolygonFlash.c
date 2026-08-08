@@ -102,6 +102,9 @@ void func_0049a9e0(u8 *arg0)
    (sp110 count + fade tests on the s128 slots + VU0 chains), so the
    canonicalization floor applies unchanged. s128-canonicalization /
    allocator-pool floor family. */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_0049AA30
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049aa30);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
@@ -309,6 +312,9 @@ void func_0049b640(u8 *arg0)
    family) and the fade denominator reloads differ. The e150-shaped layout
    structs, .word VU0 chains and adda/madd fusion otherwise reproduce
    byte-exact. allocator-pool floor family. */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_0049B690
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049b690);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
@@ -493,6 +499,9 @@ void func_0049c380(u8 *arg0)
    saved-GPR pool rotates ($s4-down vs retail $16-up) and the FP pool starts
    at $f28 with 9 slots vs retail $f20-$f29. 10 FP saved regs here. Same
    s128-canonicalization / allocator-pool floor family. */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_0049C3D0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049c3d0);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
@@ -765,6 +774,9 @@ void func_0049d310(u8 *arg0)
    chains, FP regs ($f20-f27 incl. var_f27/tf27 sharing), stack layout,
    adda/madd/msub fusion and the frame are otherwise byte-identical.
    s128-canonicalization floor family (cf. effPolygonThunder func_00495160). */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_0049D360
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049d360);
 
@@ -1034,6 +1046,9 @@ void func_0049e100(u8 *arg0)
    fusion, FP regs ($f20-f27) and the frame. Lead for a future wave: the
    D_00713D10 lui/addiu inside asm should use %%hi/%%lo(D_00713D10) symbol
    forms (reloc-masked) instead of raw constants. */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_0049E150
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049e150);
 // FUN_0049E920
@@ -1288,6 +1303,9 @@ void func_0049ef00(u8 *arg0)
    ($s4-down vs retail $16-up) and the FP pool starts at $f28 vs retail
    $f20-$f29 (10 FP saved regs). Same s128-canonicalization /
    allocator-pool floor family. */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_0049EF50
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049ef50);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
@@ -1464,6 +1482,9 @@ void func_0049fba0(u8 *arg0)
    saved-GPR pool rotates ($s4-down vs retail $16-up) and the FP pool starts
    at $f28 vs retail $f20-$f30 (11 FP saved regs - the widest of the family).
    Same s128-canonicalization / allocator-pool floor family. */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_0049FBF0
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_0049fbf0);
 /* measured: retail's else-branch restores 0xFF to the alpha byte after the
@@ -1735,6 +1756,9 @@ void func_004a0bb0(u8 *arg0) {
    canonicalization), the adda/madd fusion, the sp160-quad madd updates,
    the frame 0x1A0 and the tail. Same floor family as FUN_0049D360 /
    FUN_0049E150. */
+/* Named compiler floor: retail's standalone R5900 MMI pextlb/pextlh pair widens
+   packed scalar color data before the COP2 block; b210 cannot emit this sequence
+   from C. Leave the assembly fallback rather than forcing ordinary-computation asm. */
 // FUN_004A0C00
 INCLUDE_ASM("asm/nonmatchings/effPolygonFlash", func_004a0c00);
 // FUN_004A14A0

@@ -280,22 +280,77 @@ void func_002b6560(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
-/* measured candidate archived at build/WBYList_y_draw_6590_candidate.c.
-   It compiled as MISMATCH at normalized_diff 304 with object 560B/window
-   528B; fndiff reported 97 differing words at byte offsets:
-   28,88,92,132,144,148,152,156,160,168,172,176,184,188,192,196,200,204,
-   208,212,224,228,232,236,240,244,248,252,256,260,264,268,272,276,280,
-   284,292,296,300,304,308,312,316,320,324,328,332,336,340,344,348,352,
-   356,360,364,368,372,376,380,384,388,392,396,400,404,412,416,420,428,
-   432,436,444,448,452,456,460,464,472,476,480,488,492,496,500,504,508,
-   516,520,524,528,532,536,540,544,548,552,556. Ruled out: declaration
-   reorders (same object/nd), pointer-vs-s32 callback result (same), explicit
-   s64 loop casts, color/point local reshaping, and the historical unarchived
-   nd12 form. Bare INCLUDE_ASM is retained because this reconstruction did not
-   reach the nd<=25 park threshold. */
-// FUN_002B6590
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
+/* measured 2026-08-08: guarded reconstruction of func_002b6590. The body
+   uses the recovered s16 loop-index/s32 temporary shape and an aggregate f2
+   point store. The four u8 temporaries are intentionally permuted, with the
+   destination stores applying the inverse permutation, preserving the color
+   byte order while improving MWCC register coloring. Candidate measured
+   MISMATCH nd 16 with object/window 528B/528B; exact residual rows at offsets
+   156,168,172,196,224,232,280,292,296,308,316,320,324 are archived in
+   build/WCDeepYDraw_6590_nd16_final_fndiff.txt. Committed at nd 16. */
+// FUN_002B6590 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
+    f2 point;
+    u4 color;
+    u8 c0;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+    s32 temp_16;
+    s16 var_17;
+    s32 result;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 **temp_2_3;
+    u8 *temp_16_2;
 
+    func_0044ea90(&D_0063F178, 0x236);
+    temp_2 = D_008873F4[0](1, 0x100, 0x40000);
+    result = func_00451fc0(arg0, D_0063F1A0, 0xF, 0, 0,
+                           (void (*)(u8 *))func_002b6340,
+                           (void (*)(u8 *))func_002b6560, temp_2);
+    *(s16 *)(temp_2 + 4) = arg1;
+    *(s32 *)(temp_2 + 0) = arg2;
+    var_17 = 0;
+    while (((s32)var_17) < 3) {
+        temp_16 = (s32)var_17;
+        func_002b2970(&point, 0.0f, 0.0f);
+        temp_2_2 = temp_2 + temp_16 * 8;
+        *(f2 *)(temp_2_2 + 0x28) = point;
+        *(u8 *)(temp_2 + temp_16 + 0x6C) = 0xFF;
+        temp_16_2 = temp_2 + temp_16 * 4;
+        *(s32 *)(temp_16_2 + 0xC8) = 0;
+        *(s32 *)(temp_16_2 + 0xA4) = 0x3F800000;
+        *(s32 *)(temp_16_2 + 0x98) = 0x3F800000;
+        func_002b2a60((u8 *)&color, 0xFF, 0xFF, 0xFF, 0xFF);
+        c0 = color.c3;
+        c1 = color.c0;
+        c2 = color.c1;
+        c3 = color.c2;
+        *(u8 *)(temp_16_2 + 0x7D) = c1;
+        *(u8 *)(temp_16_2 + 0x7E) = c2;
+        *(u8 *)(temp_16_2 + 0x7F) = c3;
+        *(u8 *)(temp_16_2 + 0x80) = c0;
+        var_17 = var_17 + 1;
+    }
+    *(s32 *)(temp_2 + 0x14) = 0x42C80000;
+    *(s32 *)(temp_2 + 8) = 0x55;
+    *(s16 *)(temp_2 + 0x10) = 0;
+    temp_2_3 = (u8 **)func_0046d200(*(u32 *)(temp_2 + 0),
+                                    (u32)(s32)arg1);
+    *(s16 *)(temp_2 + 0xC) =
+        (s16)(s32)(func_0046b260((u8 *)temp_2_3) / 2.0f);
+    *(s16 *)(temp_2 + 0xE) =
+        (s16)(s32)(func_0046b2f0((u8 *)temp_2_3) / 2.0f);
+    func_0046d280((u8 *)temp_2_3);
+    return result;
+}
+
+
+#else
+INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
+#endif
 // FUN_002B67A0
 void func_002b67a0(u8 *arg0, u32 arg1, s8 arg2) {
     u8 *base = *(u8 **)(arg0 + 0x38);

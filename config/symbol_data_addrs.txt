@@ -395,3 +395,4 @@ iGpffffb2a0 = 0x00764390; // type:data evidence: retail k_fldFBN func_0015e870 G
 D_007E8060 = 0x007e8060; // type:data evidence: retail k_field func_00155bf0 %hi/%lo pair at vram 0x00155C7C (lui $v0,0x7f / addiu $v0,-0x7FA0)
 D_007E80A0 = 0x007e80a0; // type:data evidence: retail k_field sibling access; same 0x007E80xx block as D_007E8060
 D_007D2510 = 0x007d2510; // type:data evidence: retail k_field func_00155bf0 %hi/%lo pair at vram 0x00155D8C (addiu $v0,$v0,0x2510)
+iGpffffb5d8 = 0x007646c8; // type:data evidence: retail code1_0039 func_003902d0 GP -0x4A28; gp base 0x007690F0

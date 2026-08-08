@@ -1,0 +1,10 @@
+Diagnostics:
+  # MWCC/Ghidra dialect constructs clang cannot express. Zero signal value:
+  #   ellipsis_first_param      -> `void (*fn)(...)` Ghidra function-pointer types
+  #   asm_unknown_register_name -> `"$v0"` clobbers (GCC/MWCC spelling; clang wants "v0")
+  # Everything else stays visible, including conflicting_types: those are usually the
+  # deliberate narrow-return redeclarations used to steer MWCC register allocation,
+  # but a genuine prototype mismatch shows up in the same bucket.
+  Suppress: [ellipsis_first_param, asm_unknown_register_name]
+  UnusedIncludes: None
+  MissingIncludes: None

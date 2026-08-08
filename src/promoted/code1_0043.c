@@ -256,7 +256,7 @@ s32 func_0043c0a0(void) {
    out. Committed at nd 9. */
 // FUN_0043C6D8 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: optimization level 3 live-value probe */
+/* measured: optimization level 3 body */
 #pragma optimization_level 3
 void func_0043c6d8(u8 *arg0, s32 arg1, s32 arg2) {
     s32 sentinel;
@@ -275,6 +275,12 @@ void func_0043c6d8(u8 *arg0, s32 arg1, s32 arg2) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6d8);
 #endif
+
+
+
+/* measured: raw field stores reproduce the exact 96-byte object except b210 uses $v1/$a1 for the two function/data addresses and leaves the final self-pointer store in the body instead of the jr $ra delay slot. In-function schedule off improves the baseline to normalized_diff 24 (object 92/96); address-local and struct-pointer spellings do not improve it. Committed at nd 24. */
+/* measured: closes the optimization-level 3 scope at the file baseline. */
+#pragma optimization_level 2
 
 
 

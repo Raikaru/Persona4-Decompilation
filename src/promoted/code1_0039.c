@@ -12,6 +12,8 @@ extern void func_0039a8a0(s32 arg0);
 extern s32 iGpffffb5e4;
 /* gp - 0x4A18 = 0x007690f0 - 0x4A18 = 0x007646D8 */
 extern s32 iGpffffb5e8;
+/* gp - 0x4A28 = 0x007690f0 - 0x4A28 = 0x007646C8 */
+extern s32 iGpffffb5d8;
 extern s32 iGpffffb5f0;
 extern s32 iGpffffb5c8;
 extern void (*jtbl_008873EC[])(void *);
@@ -43,6 +45,9 @@ extern void func_0039b830(s32 arg0);
 extern void func_0039b8d0(s32 arg0, s32 arg1);
 extern s32 func_0039b7c0(s32 arg0, s32 arg1);
 extern void func_0039ba80(s32 arg0);
+extern s32 func_003e8920(void);
+extern s32 func_003df240(s32 arg0, s32 *arg1, s32 arg2);
+extern s32 func_0038fb50(s32 arg0, s32 arg1);
 
 
 // measured: schedule on hoists the return-value move to the top,
@@ -102,12 +107,45 @@ s32 func_00390230(s32 arg0, s32 arg1)
 /* measured: closing schedule for func_00390230. */
 #pragma schedule off
 
-/* measured: retail window 0x80; the best labeled four-argument C body was
-   obj 124/128 at nd 37 under O3. Probed explicit gotos, plain branches,
-   and opt_rebuildconditionals; b210 still rebuilt the two return branches,
-   so the non-byte-exact body was discarded. */
-// FUN_003902D0
+/* measured: retail window 0x80; this P3-shaped four-argument body reaches
+   nd 22 at object 124/128. The residuals are b210's guarded-call branch
+   orientation and epilogue layout; the body is parked at the lowest legal nd. */
+// FUN_003902D0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: O3 preserves the retail 0x40 frame and call sequence. */
+#pragma optimization_level 3
+/* measured: no_branch_likely keeps the guarded call tests as plain branches. */
+#pragma no_branch_likely on
+s32 func_003902d0(s32 arg0, s32 unused, s32 arg2, s32 arg3)
+{
+    s32 handle;
+
+    if (*(s32 *)(arg2 + arg3) != 0) {
+        goto body;
+    }
+    goto done;
+body:
+    handle = func_003e8920();
+    if (func_003df240(arg0, &handle, 4) != 0) {
+        goto second;
+    }
+    arg0 = 0;
+    goto done;
+second:
+    if (func_0038fb50(*(s32 *)(arg2 + arg3), arg0) != 0) {
+        goto done;
+    }
+    arg0 = 0;
+done:
+    return arg0;
+}
+/* measured: close no_branch_likely for func_003902d0. */
+#pragma no_branch_likely off
+/* measured: close O3 for func_003902d0 and restore the file's O2 baseline. */
+#pragma optimization_level 2
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
+#endif
 
 /* measured: b210's O2 strength-reduces this constant multiply; O1 preserves
    the retail MMI multiply. schedule on places it in the jr delay slot, and
@@ -134,12 +172,11 @@ s32 func_003963b0(u8 *arg0)
 #pragma optimization_level 2
 
 
-/* measured: retail window 0x80; the best plain-C search body was obj 128/128
-   at nd 29. Its arithmetic block was close but b210 kept the NULL and zero
-   exits in a different layout, so the non-byte-exact body was discarded. */
+/* measured: plain-C probes for func_00396e80 bottomed out at
+   normalized_diff 27 (object 132/window 128); the body is archived in
+   build/WCDeep_00396e80_nbl_probe.c and the retail fallback remains. */
 // FUN_00396E80
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
-
 // measured: schedule and branch-shape probes for 982e0.
 #pragma schedule on
 // measured: retail uses plain branches in the 982e0 dispatch.

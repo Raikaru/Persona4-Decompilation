@@ -151,15 +151,55 @@ INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cb00);
 
 
 
-/* measured: converged to nd 5 (2 `!` rows) -- the middle section's
-   arg1*4+arg0 / arg1*2+arg0 addu operand order. Retail emits $addu
-   $v1,$v0,$s3 (index-first); b210 emits base-first unless the index is a
-   named local, but a named local spanning the func_0035cc80/0045af60 calls
-   forces a 5th saved register (frame -0x60 vs retail -0x50). Named local at
-   top only + inline writes leaves the 2 addu ops base-first. addu operand
-   order + liveness floor. */
+/* matched: a ConfigEntry field-pointer for the first state load preserves
+   retail's addiu 0x48 address materialization while direct scaled
+   base-plus-index expressions preserve the two index-first addu instructions.
+   The final arg1==0 callback test must dereference that same state pointer;
+   using temp_2+0x48 emits the wrong lw displacement. Measured object
+   388B/window 400B, normalized_diff 0. */
 // FUN_0035CC80
-INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cc80);
+s32 func_0035cc80(u8 *arg0, s32 arg1, s32 arg2)
+{
+    typedef struct {
+        u8 pad[0x48];
+        s32 state;
+    } ConfigEntry;
+    s32 temp_16;
+    s32 var_2;
+    u8 *temp_2;
+
+    temp_2 = (u8 *)&((ConfigEntry *)((u8 *)(arg1 * 4) + (u32)arg0))->state;
+    if (*(s32 *)temp_2 == arg2) {
+        return 0;
+    }
+    if (arg1 == 1) {
+        if ((arg2 == 0) && (*(s32 *)(arg0 + 0x50) != 0)) {
+            func_0035cc80(arg0, 2, 0);
+        }
+        goto block_9;
+    }
+    if ((arg1 == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
+        func_0045af60(0, 0, 0, 8);
+        var_2 = 0;
+    } else {
+block_9:
+        var_2 = 1;
+    }
+    if (var_2 == 0) {
+        return 0;
+    }
+    *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x60) =
+        *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x48);
+    *(s32 *)((u8 *)(arg1 * 4) + (u32)arg0 + 0x48) = arg2;
+    *(s16 *)((u8 *)(arg1 * 2) + (u32)arg0 + 0x3A) = 0;
+    if ((arg1 == 0) && (*(s32 *)temp_2 == 1)) {
+        temp_16 = func_00106330(D_0064D3A0[0]);
+        func_00106390(D_0064D3A0[0], 1);
+        func_00113480(0xA, 0x96, 0xA, 0);
+        func_00106390(D_0064D3A0[0], temp_16);
+    }
+    return 1;
+}
 
 
 // FUN_0035CE10

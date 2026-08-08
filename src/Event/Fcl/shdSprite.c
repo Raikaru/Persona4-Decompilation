@@ -56,12 +56,62 @@ extern u8 D_00637280[];
 // FUN_0025EF20
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
 
-/* Compiled-C probe archived in build/WBSmallFiles_shdSprite_0025f110_park.txt:
-   object 284B / window 288B, normalized_diff 61, fndiff differing words 24.
-   The body was structurally close but did not meet the nd25 park threshold;
-   restore the assembly fallback. Committed at nd 61. */
-// FUN_0025F110
+/* Measured compiled-C park: direct field reload after the successful
+   validation increment reproduces retail's caller-saved $v0 tail path.
+   object 288B / window 288B, normalized_diff 23; exact residual rows are
+   archived in build/WCSmallFiles_shdSprite_f110_nd23_fndiff.txt and the body
+   in build/WCSmallFiles_shdSprite_f110_nd23_before_park.c. Committed at nd 23. */
+// FUN_0025F110 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0025f110(u8 *arg0)
+{
+    u32 temp;
+    s32 *table;
+    s32 index;
+    s32 offset;
+    s32 count;
+    u8 *result;
+
+    table = *(s32 **)(arg0 + 4);
+    index = *(s32 *)arg0;
+    count = table[1];
+    if (index >= count) {
+        return 1;
+    }
+    for (;;) {
+        offset = index * 4;
+        if (*(u8 **)(*(u8 **)(arg0 + 8) + offset) == NULL) {
+            result = func_00455f70(
+                *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4)) + offset),
+                &temp);
+            if (result != NULL) {
+                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
+                    func_0046af60((s32)result);
+            } else {
+                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
+                    func_0046aea0(
+                        (const char *)(*(u8 **)(*(u8 **)
+                            (*(u8 **)(arg0 + 4)) + offset)));
+            }
+        } else {
+            if (func_0046a750(
+                    (s32)*(u8 **)(*(u8 **)(arg0 + 8) + offset)) == 0) {
+                goto fail;
+            }
+            *(s32 *)arg0 = *(s32 *)arg0 + 1;
+        }
+        count = *(s32 *)(*(u8 **)(arg0 + 4) + 4);
+        if (*(s32 *)arg0 >= count) {
+            break;
+        }
+    }
+    return 1;
+fail:
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f110);
+#endif
 // FUN_0025F230
 void func_0025f230(u32 param_1)
 {
