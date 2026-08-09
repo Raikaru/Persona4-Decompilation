@@ -33,6 +33,8 @@ extern void func_0044ea90(u8 *file, s32 line);
 extern u8 D_007131E8[];
 /* Defined below in this file; called at line 54, above its definition. */
 extern void func_0047d310(u32 *param_1);
+extern void *func_00457120(void);
+extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0043f810(void *dst, const void *src, u32 size);
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
@@ -503,11 +505,58 @@ INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a0e0);
 // FUN_0048A150
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a150);
 // FUN_0048A1F0
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a1f0);
+void func_0048a1f0(u8 *arg0)
+{
+    u8 *obj;
+
+    obj = func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
+    *(f32 *)(arg0 + 0) = *(f32 *)(obj + 0x20);
+    *(f32 *)(arg0 + 4) = *(f32 *)(obj + 0x24);
+    *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x28);
+    *(s32 *)(arg0 + 0xC) = 0;
+}
 // FUN_0048A250
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a250);
+void func_0048a250(u8 *arg0)
+{
+    u8 *obj;
+
+    obj = func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
+    *(f32 *)(arg0 + 0) = *(f32 *)(obj + 0x30);
+    *(f32 *)(arg0 + 4) = *(f32 *)(obj + 0x34);
+    *(f32 *)(arg0 + 8) = *(f32 *)(obj + 0x38);
+    *(s32 *)(arg0 + 0xC) = 0;
+}
 // FUN_0048A2B0
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a2b0);
+void func_0048a2b0(u8 *arg0, u8 *arg1)
+{
+    u8 *obj;
+    f32 temp[4];
+
+    obj = func_003e9700(*(s32 *)((u8 *)func_00457120() + 4));
+    temp[0] = *(f32 *)(obj + 0x30);
+    temp[1] = *(f32 *)(obj + 0x34);
+    temp[2] = *(f32 *)(obj + 0x38);
+    temp[3] = 0.0f;
+    __asm__ volatile(
+        "lqc2 $vf10, 0(%0)         \n"
+        :
+        : "r"(arg0)
+        : "$vf10", "memory");
+    __asm__ volatile(
+        "lqc2 $vf11, 0(%0)         \n"
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq                   \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        "sqc2 $vf10, 0(%1)         \n"
+        :
+        : "r"(temp), "r"(arg1)
+        : "$vf10", "$vf11", "$vf2", "ACC", "Q", "memory");
+}
 // FUN_0048A340
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a340);
 // FUN_0048A460

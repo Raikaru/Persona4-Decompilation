@@ -68,6 +68,11 @@ extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
 extern void func_003679c0(PairBits arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367b80(void);
 extern void func_00367d00(void);
+extern void func_00367f50(void);
+extern void func_0036a900(u8 *arg0);
+extern f32 fGpffff8390;
+extern f32 fGpffff8394;
+
 
 // FUN_00361970
 void func_00361970(u8 *arg0)
@@ -299,7 +304,59 @@ INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367b80);
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367d00);
 
 // FUN_00368D30
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00368d30);
+void func_00368d30(u8 *arg0)
+{
+    RwV3d p1;
+    RwV3d p2;
+    RwV3d p3;
+    RwV3d p4;
+    u8 color;
+
+    func_00367f50();
+    *(s32 *)(arg0 + 4) = 3;
+    func_0036a900(arg0 + 0xE0);
+    p1.x = 3.0f;
+    p1.y = fGpffff8390;
+    p1.z = 0.0f;
+    *(RwV3d *)(arg0 + 0x170) = p1;
+    p2.x = -3.0f;
+    p2.y = p1.y;
+    p2.z = 0.0f;
+    *(RwV3d *)(arg0 + 0x194) = p2;
+    p3.x = -3.0f;
+    p3.y = fGpffff8394;
+    p3.z = 0.0f;
+    *(RwV3d *)(arg0 + 0x1B8) = p3;
+    p4.x = 3.0f;
+    p4.y = p3.y;
+    p4.z = 0.0f;
+    *(RwV3d *)(arg0 + 0x1DC) = p4;
+    color = 0xFF;
+    *(u8 *)(arg0 + 0x17C) = color;
+    *(u8 *)(arg0 + 0x17D) = color;
+    *(u8 *)(arg0 + 0x17E) = color;
+    *(u8 *)(arg0 + 0x17F) = color;
+    *(u8 *)(arg0 + 0x1A0) = color;
+    *(u8 *)(arg0 + 0x1A1) = color;
+    *(u8 *)(arg0 + 0x1A2) = color;
+    *(u8 *)(arg0 + 0x1A3) = color;
+    *(u8 *)(arg0 + 0x1C4) = color;
+    *(u8 *)(arg0 + 0x1C5) = color;
+    *(u8 *)(arg0 + 0x1C6) = color;
+    *(u8 *)(arg0 + 0x1C7) = color;
+    *(u8 *)(arg0 + 0x1E8) = color;
+    *(u8 *)(arg0 + 0x1E9) = color;
+    *(u8 *)(arg0 + 0x1EA) = color;
+    *(u8 *)(arg0 + 0x1EB) = color;
+    *(u32 *)(arg0 + 0x18C) = 0x3F7E0000;
+    *(u32 *)(arg0 + 0x1B0) = 0;
+    *(u32 *)(arg0 + 0x1D4) = 0;
+    *(u32 *)(arg0 + 0x1F8) = 0x3F7E0000;
+    *(u32 *)(arg0 + 0x190) = 0x3C000000;
+    *(u32 *)(arg0 + 0x1B4) = 0x3C000000;
+    *(u32 *)(arg0 + 0x1D8) = 0x3F230000;
+    *(u32 *)(arg0 + 0x1FC) = 0x3F230000;
+}
 
 // FUN_00368E80
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00368e80);

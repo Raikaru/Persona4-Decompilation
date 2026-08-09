@@ -45,6 +45,7 @@ extern void func_003d5bc0(f32 arg0);
 extern s32 iGpffffb738;
 extern s32 iGpffffb734;
 extern void func_003e12f0();
+extern void func_00426f80(s32 arg0);
 static inline s32 func_003d_add_offset(s32 base, s32 offset) {
     return base + offset;
 }
@@ -963,8 +964,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de2d0);
 /* Measured candidate archived in build/WI003d_de4c0_restore.txt: the isolated
    body measured nd 8, but the in-file committed figure was nd 38, above the
    nd 25 park limit. Retained as the bare assembly fallback. */
+/* measured: schedule on with tailcall on places the field load in the jump delay slot. */
+#pragma schedule on
+#pragma tailcall on
 // FUN_003DE4C0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de4c0);
+void func_003de4c0(u8 *arg0) {
+    *(s32 *)(arg0 + 0x38) = 1;
+    func_00426f80(*(s32 *)(arg0 + 0x60));
+}
+/* measured: closes the single-function tailcall/schedule brackets. */
+#pragma tailcall off
+#pragma schedule off
 // FUN_003DE4D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de4d0);
 // FUN_003DE6A0
@@ -999,8 +1009,34 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dea20);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ded20);
 // FUN_003DEEA0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003deea0);
-// FUN_003DEFF0
+/* Parked candidate: aggregate packing matches the retail window except for
+   a two-word scheduler order swap between the first addu and sw. Residual
+   normalized_diff 8. Committed at nd 8. */
+/* measured: schedule on preserves the retail packed-value instruction order. */
+// FUN_003DEFF0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    s32 temp_8;
+    u32 temp_7;
+    struct {
+        s32 first;
+        s32 second;
+        s32 third;
+    } data;
+
+    temp_8 = arg3 + 0xFFFD0000;
+    data.second = arg2;
+    data.first = arg1;
+    temp_7 = (temp_8 & 0x3FF00) << 0xE;
+    data.third = (arg4 & 0xFFFF) | (temp_7 | ((arg3 & 0x3F) << 0x10));
+    func_003e2ab0(arg0, &data.first, 0xC);
+}
+/* measured: closes the single-function schedule bracket. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003deff0);
+#endif
 // FUN_003DF050
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df050);
 // FUN_003DF1A0
@@ -1157,8 +1193,25 @@ s32 func_003df4b0(s32 arg0) {
 }
 // FUN_003DF4D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df4d0);
+/* measured: opt_propagation off probe preserves retail's paired float loads. */
+#pragma opt_propagation off
 // FUN_003DF550
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df550);
+u8 *func_003df550(u8 *arg0) {
+    f32 value0;
+    f32 value1;
+    u8 *base;
+    base = D_008872E0 + iGpffffb760;
+    value1 = *(f32 *)(base + 0);
+    value0 = *(f32 *)(base + 4);
+    *(f32 *)(arg0 + 0) = value1;
+    *(f32 *)(arg0 + 4) = value0;
+    base = D_008872E0 + iGpffffb760;
+    *(s32 *)(base + 0) = 0;
+    *(s32 *)(base + 4) = 0x80000000;
+    return arg0;
+}
+/* measured: closes the opt_propagation bracket. */
+#pragma opt_propagation on
 // FUN_003DF590
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df590);
 // FUN_003DF5D0

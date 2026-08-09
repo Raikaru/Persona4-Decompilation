@@ -85,6 +85,8 @@ extern void func_00123d50(u8 *arg0);
 extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
 extern void func_0046d730(const void *file, s32 line);
 extern u8 D_005E5548[];
+extern u8 func_00106600(s16 arg0);
+extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
 extern void func_0012aa70(void);
 extern void func_0012b660(void);
@@ -753,8 +755,46 @@ block_loop:
 }
 // FUN_0012E2F0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012e2f0);
+/* measured: opt_propagation off probe for temp16 width in func_0012e7c0 */
+#pragma opt_propagation off
 // FUN_0012E7C0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012e7c0);
+void func_0012e7c0(u8 *arg0)
+{
+    s32 temp_16;
+    s32 temp_4;
+    s64 temp_4_2;
+    s16 var_18;
+    s16 var_17;
+    u8 *temp_3;
+
+    var_17 = 0;
+    var_18 = 0;
+    goto loop_test;
+loop_body:
+    temp_16 = (s32)temp_4 + 0x300;
+    temp_4_2 = (s64)(s16)(func_00106600(temp_16) & 0xFF);
+    if (temp_4_2 != 0) {
+        temp_3 = arg0 + ((s16)var_17 * 4);
+        *(s16 *)(temp_3 + 0x3E) = (s16)temp_16;
+        *(s16 *)(temp_3 + 0x40) = (s16)temp_4_2;
+        var_17 += 1;
+    }
+    var_18 += 1;
+loop_test:
+    temp_4 = var_18;
+    if (temp_4 < 0x300) {
+        goto loop_body;
+    }
+    *(s16 *)(arg0 + 0xC3E) = var_17;
+    if (var_17 <= 0x300) {
+        goto guard_done;
+    }
+    func_0046d730(D_005E76C8, 0x225);
+guard_done:
+    ;
+}
+/* measured: opt_propagation on closes the temp16 width probe */
+#pragma opt_propagation on
 // FUN_0012E8B0
 s32 func_0012e8b0(u8 *arg0)
 {

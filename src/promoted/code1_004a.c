@@ -7,6 +7,10 @@ typedef struct {
     u8 c2;
     u8 c3;
 } PolygonWindColor;
+static inline u32 p4_add_u32(u32 left, u32 right)
+{
+    return left + right;
+}
 extern PolygonWindColor iGpffffbb64;
 extern void func_004a5fc0(u8 *arg0);
 extern u8 *func_004a6c00(u8 *arg0);
@@ -72,11 +76,15 @@ extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern u8 *func_00484490();
 extern f32 D_008872F8;
+ 
 extern void func_0045f0b0(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void func_0045fa00(f32 *arg0, s32 arg1, f32 arg2);
 extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
 extern void func_00485870(s32 arg0);
 extern f32 func_004bd0b0(u32 arg0);
+extern u32 func_004bd050(u32 arg0);
+extern f32 fGpffff80f4;
+extern f32 fGpffff81f4;
 
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern void func_003c22f0(u8 *arg0, u8 *arg1);
@@ -740,7 +748,33 @@ void func_004a8890(u8 *arg0, s32 *arg1) {
     func_003f6440(2, sp24C);
 }
 // FUN_004A8A50
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a8a50);
+void func_004a8a50(u8 *arg0, u8 *arg1)
+{
+    f32 temp_f1;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f22;
+    u8 *temp_16;
+
+    *(u32 *)arg1 = func_004bd050(0) % (u32)(*(s32 *)(arg0 + 4) + 1);
+    *(f32 *)(arg1 + 4) = fGpffff80f4;
+    temp_16 = arg1 + 8;
+    *(s32 *)(arg1 + 0x10) = *(s32 *)(arg0 + 0x10);
+    *(f32 *)(arg1 + 0x14) = *(f32 *)(arg0 + 0x14);
+    *(s32 *)(arg1 + 0xC) = *(s32 *)(arg0 + 0xC);
+    temp_f20 = 0.5f * (f32)*(s32 *)(arg0 + 0x28);
+    temp_f21 = *(f32 *)(arg0 + 0x24);
+    temp_f22 = *(f32 *)(arg0 + 0x1C) +
+               temp_f21 * (2.0f * (func_004bd0b0(0) - 0.5f));
+    temp_f1 = *(f32 *)(arg0 + 0x20) +
+              temp_f21 * (2.0f * (func_004bd0b0(0) - 0.5f));
+    *(f32 *)(temp_16 + 0x14) = temp_f22;
+    *(f32 *)(temp_16 + 0x18) = temp_f1;
+    *(f32 *)(temp_16 + 0x1C) = temp_f22 - temp_f20;
+    *(f32 *)(temp_16 + 0x20) = temp_f1 - temp_f20;
+    *(f32 *)(temp_16 + 0x24) = temp_f22 + temp_f20;
+    *(f32 *)(temp_16 + 0x28) = temp_f1 + temp_f20;
+}
 // FUN_004ABB60
 void func_004abb60(void)
 {
@@ -938,8 +972,107 @@ void func_004ae010(u8 *arg0, f32 arg1) {
 }
 // FUN_004AE0A0
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004ae0a0);
+/* The two $gp loads inside the COP2 blocks below are written as literal
+   displacements (-0x7e0c) rather than as a relocation against fGpffff81f4.
+   That is deliberate. With no GPREL16 relocation the verifier does NOT mask
+   the immediate, so it is compared directly against retail and is proven
+   equal; the symbolic form assembles to a different sequence (measured nd 4).
+   WIAudit reports these two offsets as missing GPREL16 -- expected, not a bug. */
 // FUN_004AE2F0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004ae2f0);
+void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 spC;
+    s32 sp8;
+    s32 sp4;
+    s32 temp_hi;
+    s32 temp_lo;
+    s32 quotient;
+    s32 remainder;
+    f32 temp_f1;
+
+    temp_lo = *(s32 *)(arg0 + 0x38) / 6;
+    if (temp_lo > 0) {
+        __asm__ volatile(
+            ".set noreorder\n"
+            "vmove.xyzw $vf12, $vf10\n"
+            ".set reorder\n"
+            :
+            :
+            : "$vf12", "memory");
+        quotient = arg2 / temp_lo;
+        remainder = arg2 % temp_lo;
+        temp_f1 = (f32)remainder / (f32)temp_lo;
+        temp_hi = (*(s8 *)(arg1 + 0x14) + quotient) % 6;
+        spC = ((s32 *)p4_add_u32(((temp_hi + 1) % 6) * 4, (u32)arg0))[0xF];
+        __asm__ volatile(
+            ".set noreorder\n"
+            "lwc1 $f0, -0x7e0c($gp)\n"
+            "lw $2, 0(%0)\n"
+            "pextlb $2, $0, $2\n"
+            "pextlh $2, $0, $2\n"
+            "qmtc2.ni $2, $vf11\n"
+            "vitof0.xyzw $vf11, $vf11\n"
+            "mfc1 $2, $f0\n"
+            "nop\n"
+            "qmtc2.ni $2, $vf2\n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x\n"
+            ".set reorder\n"
+            :
+            : "r"(&spC)
+            : "$2", "$vf2", "$vf11", "memory");
+        sp8 = ((s32 *)p4_add_u32(temp_hi * 4, (u32)arg0))[0xF];
+        __asm__ volatile(
+            ".set noreorder\n"
+            "lw $2, 0(%0)\n"
+            "pextlb $2, $0, $2\n"
+            "pextlh $2, $0, $2\n"
+            "qmtc2.ni $2, $vf10\n"
+            "vitof0.xyzw $vf10, $vf10\n"
+            "mfc1 $3, $f0\n"
+            "nop\n"
+            "qmtc2.ni $3, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            ".set reorder\n"
+            :
+            : "r"(&sp8)
+            : "$2", "$3", "$vf2", "$vf10", "memory");
+        __asm__ volatile(
+            ".set noreorder\n"
+            "mfc1 $3, %0\n"
+            "nop\n"
+            "qmtc2.ni $3, $vf2\n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+            "mfc1 $3, %1\n"
+            "nop\n"
+            "qmtc2.ni $3, $vf2\n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x\n"
+            "vadd.xyzw $vf10, $vf10, $vf11\n"
+            "vmove.xyzw $vf11, $vf12\n"
+            "vmul.xyzw $vf10, $vf10, $vf11\n"
+            ".set reorder\n"
+            :
+            : "f"(1.0f - temp_f1), "f"(temp_f1)
+            : "$3", "$vf2", "$vf10", "$vf11", "$vf12", "memory");
+    } else {
+        sp4 = ((s32 *)p4_add_u32(*(s8 *)(arg1 + 0x14) * 4, (u32)arg0))[0xF];
+        __asm__ volatile(
+            ".set noreorder\n"
+            "lw $3, -0x7e0c($gp)\n"
+            "lw $2, 0(%0)\n"
+            "pextlb $2, $0, $2\n"
+            "pextlh $2, $0, $2\n"
+            "qmtc2.ni $2, $vf11\n"
+            "vitof0.xyzw $vf11, $vf11\n"
+            "nop\n"
+            "qmtc2.ni $3, $vf2\n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x\n"
+            "vmul.xyzw $vf10, $vf10, $vf11\n"
+            ".set reorder\n"
+            :
+            : "r"(&sp4)
+            : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
+    }
+}
 // FUN_004AF520
 void func_004af520(u8 *arg0) {
     u8 *temp;

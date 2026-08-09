@@ -32,6 +32,8 @@ extern void func_003bb0d0(void);
 extern void func_003bb030(void);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 extern void func_003bf930(void);
+extern s32 func_003b88c0(void);
+extern s32 func_003b84a0(u8 *arg0);
 
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
@@ -251,10 +253,52 @@ s32 func_003b79f0(s32 arg0) {
 }
 /* measured: closes schedule around func_003b79f0. */
 #pragma schedule off
+/* measured: schedule on probe for 003b7a10 call/store order. */
+#pragma schedule on
+/* measured: no_branch_likely on selects retail's beqz null branch. */
+#pragma no_branch_likely on
 // FUN_003B7A10
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7a10);
+s32 func_003b7a10(s32 arg0) {
+    u8 *temp_17;
+
+    temp_17 = *(u8 **)(arg0 + *(s32 *)D_00886498);
+    if (temp_17 != NULL) {
+        func_003b88c0();
+        *(u8 **)(arg0 + *(s32 *)D_00886498) =
+            (u8 *)func_003b84a0(temp_17);
+    }
+    return arg0;
+}
+/* measured: close no_branch_likely around func_003b7a10. */
+#pragma no_branch_likely off
+/* measured: close schedule probe for 003b7a10. */
+#pragma schedule off
+/* measured: live-result propagation probe for func_003b88d0. */
+#pragma schedule on
+/* measured: opt_propagation off probe for func_003b88d0. */
+#pragma opt_propagation off
 // FUN_003B88D0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b88d0);
+s32 func_003b88d0(s32 arg0) {
+    s32 *var_10;
+    s32 base;
+    s32 sum;
+    s32 temp_16;
+    s32 result;
+    u8 *temp_4;
+
+    var_10 = (s32 *)0x10;
+    base = (s32)(var_10 + 1);
+    temp_4 = *(u8 **)(arg0 + *(s32 *)D_00886498);
+    sum = base + (*(s32 *)(temp_4 + 0) << 6);
+    temp_16 = add003b(sum, *(s32 *)(temp_4 + 4));
+    temp_16 += 0x10;
+    result = func_003b7450((s32 *)temp_4);
+    return temp_16 + result;
+}
+/* measured: close opt_propagation off probe for func_003b88d0. */
+#pragma opt_propagation on
+/* measured: close schedule probe for func_003b88d0. */
+#pragma schedule off
 // FUN_003B8930
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8930);
 // FUN_003B8AD0

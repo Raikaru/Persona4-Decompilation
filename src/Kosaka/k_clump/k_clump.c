@@ -474,10 +474,114 @@ u32 func_00462e80(const u32* state)
 
 
 
+/* measured: opt_propagation off preserves the delimiter preheader instruction order; this bracket was verified at object 592B/window 592B with normalized_diff 0. */
+#pragma opt_propagation off
 // FUN_00462EB0
-INCLUDE_ASM("asm/nonmatchings/k_clump", func_00462eb0);
-/* measured: the baseline candidate is 324B in the 336B retail window at normalized_diff 9, preserving retail's 0x40 frame and saved s0-s2 while differing in nine reloc-masked words. Complexity ordering was tested in both directions, along with slot/value locals in both declaration orders, a pointer-typed base, existing-local reuse, and a static inline argSecond parameter-position helper. Every variant either collapsed to this baseline or changed the object to 324/328/332B while changing the frame and saved-register set; none corrected materialization without losing the retail liveness structure. Parked as a narrow call-argument materialization floor. */
-// Committed at nd 195 in-file (nd 9 measured in isolation).
+void func_00462eb0(s8* arg0)
+{
+    extern u8* func_00455f70(void*, u32*);
+    extern void func_00442428();
+    extern s32 func_003e2f60(s32, s32, void*);
+    extern s32 func_003df3c0(s32, s32*);
+    extern void func_003e2ce0(s32, u32);
+    extern void func_003e2e40(s32, s32);
+    extern u8 iGpffffaf80;
+    extern u8 D_00712580[];
+    extern u8 D_007125A0[];
+    extern u8 D_007125E0[];
+    extern void func_00440b68();
+    typedef struct
+    {
+        s32 code;
+        u32 value;
+        u8 padding[0x18];
+        char buffer[0x10c];
+        u32 output;
+    } ParseWork;
+    ParseWork work;
+    s32 temp_2;
+    s32 var_20;
+    s32 var_19;
+    s32 var_18;
+    s32 var_17;
+    s32 var_21;
+    s32 var_4;
+    s8* var_16;
+    s32 var_22;
+    s32 var_23;
+    s32 delimiter;
+
+    var_20 = 0;
+    var_19 = 0;
+    var_18 = 0;
+    var_17 = 0;
+    var_21 = 0;
+    var_22 = 0;
+    var_23 = 0;
+    var_16 = arg0;
+    func_00455f70(arg0, &work.output);
+    func_00442830(work.buffer, (const char*)&iGpffffaf80);
+    var_4 = 0;
+    delimiter = 0x3A;
+    goto scan_cond;
+scan:
+    if (*var_16 == delimiter)
+    {
+        goto scan_colon;
+    }
+    var_16++;
+    goto scan_inc;
+scan_colon:
+    var_16++;
+    goto scan_found;
+scan_inc:
+    var_4++;
+scan_cond:
+    if (var_4 < 0x100)
+    {
+        goto scan;
+    }
+scan_found:
+    func_00442428(work.buffer, (const char*)var_16);
+    temp_2 = func_003e2f60(2, 1, arg0);
+    if (temp_2 != 0)
+    {
+        while (func_003df3c0(temp_2, &work.code) != 0)
+        {
+            switch (work.code)
+            {
+            case 11:
+                var_20++;
+                break;
+            case 16:
+                var_19++;
+                break;
+            case 27:
+                var_18++;
+                break;
+            case 35:
+                var_17++;
+                break;
+            case 22:
+                var_21++;
+                break;
+            case 43:
+                var_22++;
+                break;
+            case 12:
+                var_23++;
+                break;
+            }
+            func_003e2ce0(temp_2, work.value);
+        }
+        func_003e2e40(temp_2, 0);
+    }
+    func_00440b68(D_00712580, work.buffer);
+    func_00440b68(D_007125A0, var_20, var_19, var_18, var_22, var_17, var_21, var_23);
+    func_00440b68(D_007125E0);
+}
+/* measured: opt_propagation on closes the target-only bracket. */
+#pragma opt_propagation on
 // FUN_00463100
 #ifdef NON_MATCHING
 s32 func_00463100(s32 arg0, u32** arg1)

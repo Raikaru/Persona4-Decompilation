@@ -79,6 +79,7 @@ extern void func_003df8c0(u8 *, u8 *, u8 *);
 extern void func_003e6db0();
 extern void func_003e9680(void *arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void *(*jtbl_008873E8[])(void *arg0, s32 arg1);
 extern s32 iGpffffb76c;
 extern s32 iGpffffb7c0;
 extern s32 iGpffffb7c4;
@@ -1513,10 +1514,8 @@ u8 *func_003e82e0(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
 #endif
-
 // FUN_003E8310
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8310);
-
 // FUN_003E83A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
 
@@ -1545,8 +1544,34 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e84a0);
 // FUN_003E85A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e85a0);
 
+/* measured: opt_propagation off tests retaining table-address materialisation before the argument load. */
+#pragma opt_propagation off
+/* measured: tailcall on emits the retail jr-v0 wrapper for the table fetch. */
+#pragma tailcall on
 // FUN_003E8790
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8790);
+void *func_003e8790(void *arg0, s32 arg1) {
+    u8 *base;
+
+    base = (u8 *)0x00880000;
+    return (*(void *(**)(void *, s32))(base + 0x73e8))(*(void **)arg0, arg1);
+}
+/* measured: closes the single-function tailcall bracket. */
+/* measured: closes the opt_propagation bracket for func_003e8790. */
+#pragma opt_propagation on
+#pragma tailcall off
+
+/* measured: schedule on hoists the callback table load before saving self. */
+#pragma schedule on
+// FUN_003E87B0
+u8 *func_003e87b0(u8 *arg0, u8 *arg1) {
+    u8 *self;
+
+    self = arg0;
+    (*jtbl_008873EC)(arg1);
+    return self;
+}
+/* measured: closes the single-function schedule bracket. */
+#pragma schedule off
 
 // FUN_003E87F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e87f0);

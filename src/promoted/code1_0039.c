@@ -43,6 +43,7 @@ extern u8 *func_0039aa50(u8 *arg0);
 u8 *func_0039aab0(u8 *arg0);
 extern void func_003ef3a0(void *arg0, s32 arg1);
 extern s32 func_0039a7e0(u8 *arg0, s32 arg1);
+extern void func_0039a910(s32 arg0);
 
 extern s32 D_007246B0;
 extern s32 D_007246B4;
@@ -63,10 +64,17 @@ extern s32 func_0039aa40(void);
 extern void func_003e12f0(s32 arg0);
 extern void func_00398410(u8 *arg0);
 extern void (*jtbl_008873FC[])(s32, void *);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_007646D0;
-void *func_0039bb70(void *list, s32 key);
 extern void func_0039b830(s32 arg0);
 extern void func_0039b8d0(s32 arg0, s32 arg1);
+extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+extern s32 func_0039aa30(void);
+/* gp - 0x55F8 = 0x00763AF8 */
+extern s32 iGpffffaa08;
+/* gp - 0x55F4 = 0x00763AFC */
+extern s32 iGpffffaa0c;
+extern u8 D_00884A90[];
 extern s32 func_0039b7c0(s32 arg0, s32 arg1);
 extern void func_0039ba80(s32 arg0);
 extern s32 func_003e8920(void);
@@ -1319,9 +1327,53 @@ found:
 /* measured: closes no_branch_likely for func_0039a4c0. */
 #pragma no_branch_likely off
 #pragma schedule off
+/* measured: schedule on probes the retail a590 prologue and call delays. */
+#pragma schedule on
+/* measured: plain conditional branches reproduce a590's non-likely loop. */
+#pragma no_branch_likely on
+/* measured: loop-invariant optimization hoists a590's type constant. */
+#pragma opt_loop_invariants on
+/* measured: disabling conditional rebuilding preserves a590's bne dispatch. */
+#pragma opt_rebuildconditionals off
 
 // FUN_0039A590
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a590);
+s32 func_0039a590(s32 arg0, s32 arg1, s32 arg2)
+{
+    s32 want;
+    s32 i;
+    u8 *entry;
+    u8 *base;
+    u8 *result;
+
+    i = 0;
+    base = *(u8 **)(arg0 + iGpffffb5e0);
+    want = 4;
+
+    do {
+        entry = base + ((i & 0xFF) << 6);
+        if (*(s32 *)(entry + 0x20) == want) {
+            result = entry;
+            goto found;
+        }
+        i = (i + 1) & 0xFF;
+    } while (i < 2);
+    result = NULL;
+found:
+    *(s32 *)(result + 4) = arg1;
+    *(s32 *)(result + 8) = arg2;
+    func_0039a7e0(result, 0xA);
+    func_0039a7e0(result, 0xB);
+    func_0039a910(arg0);
+    return arg0;
+}
+/* measured: closes conditional-rebuild probe for func_0039a590. */
+#pragma opt_rebuildconditionals on
+/* measured: closes schedule-on probe for func_0039a590. */
+#pragma schedule off
+/* measured: closes no_branch_likely probe for func_0039a590. */
+#pragma no_branch_likely off
+/* measured: closes loop-invariant probe for func_0039a590. */
+#pragma opt_loop_invariants off
 // FUN_0039A630
 /* measured: the function body is exact at O2 with the comparison constant
    hoisted and its found-load tail scheduled separately. */
@@ -1899,7 +1951,28 @@ ret0:
 // FUN_0039B720
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b720);
 // FUN_0039B7C0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b7c0);
+/* measured: schedule on probes b7c0's retail branch delay-slot materialization. */
+#pragma schedule on
+s32 func_0039b7c0(s32 arg0, s32 arg1)
+{
+    s32 i;
+
+    if (arg1 != 0) {
+        goto nonzero_value;
+    }
+    i = 9;
+    goto common;
+nonzero_value:
+    i = arg1;
+common:
+    *(s32 *)arg0 = (s32)(*jtbl_008873E8)((u32)(i * 0x14), 0x01040131);
+    *(s32 *)(arg0 + 8) = i;
+    *(s32 *)(arg0 + 4) = 0;
+    *(s32 *)(arg0 + 0xC) = 0;
+    return arg0;
+}
+/* measured: closes schedule-on probe for func_0039b7c0. */
+#pragma schedule off
 // FUN_0039B830
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b830);
 // FUN_0039B8D0

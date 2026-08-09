@@ -5,14 +5,22 @@ typedef struct {
     f32 x;
     f32 y;
 } f2;
+typedef struct {
+    u8 c0;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+} u4;
 extern void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
 extern void func_00452080(s32 handle);
+extern u8 *iGpffffb588;
 extern u8 *iGpffffb590;
+extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00105ed0();
+extern s32 func_002e1230();
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
-void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3);
 
 void func_002b8340(u8 *arg0, s8 arg1, s16 arg2, s16 arg3);
 
@@ -81,10 +89,17 @@ void func_002e0660(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
 
 
 // FUN_002E0690
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0690);
+void func_002e0690(u8 *arg0, s8 arg1, s16 arg2, s64 arg3, f32 fparg0, f32 fparg1)
+{
+    extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
+                              f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+    func_002b8300(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3,
+                  fparg0, fparg1, fparg0, fparg1);
+}
 // FUN_002E06D0
 void func_002e06d0(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 {
+    extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3);
     func_002b8300(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3);
 }
 
@@ -104,10 +119,22 @@ void func_002e0940(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
    copy preserves retail's grouped output loads and store-source registers. */
 
 // FUN_002E0970
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0970);
+void func_002e0970(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s64 arg5)
+{
+    extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s16 arg5);
+    func_002b8370(*(u8 **)(arg0 + 0x38) + 4, arg1, arg2, arg3, arg4, arg5);
+}
 
 // FUN_002E09B0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e09b0);
+void func_002e09b0(u8 *arg0, f32 fparg0, s16 arg1)
+{
+    u8 *temp = *(u8 **)(arg0 + 0x38);
+    s16 flags = *(s16 *)(temp + 4);
+    *(s16 *)(temp + 4) = flags | 0x80;
+    *(s16 *)(temp + 0xF0) = 0;
+    *(f32 *)(temp + 0xEC) = fparg0;
+    *(s16 *)(temp + 0xF2) = arg1;
+}
 // FUN_002E09E0
 void func_002e09e0(u8 *arg0, s32 arg1, f32 fparg0) {
     struct Out2 { f32 x; f32 y; };
@@ -132,9 +159,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0be0);
 // FUN_002E0CA0
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0ca0);
 // FUN_002E0D60
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0d60);
+s32 func_002e0d60(void)
+{
+    u8 *temp = func_002e1db0(0x30, 0, 0, 0);
+    iGpffffb588 = temp;
+    return *(s32 *)(temp + 0x24);
+}
 // FUN_002E0DA0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0da0);
+s64 func_002e0da0(void)
+{
+    return (s64)(func_002e1230() != 0) << 0x30 >> 0x30;
+}
 // FUN_002E1CD0
 s32 func_002e1cd0(void)
 {

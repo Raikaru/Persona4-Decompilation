@@ -70,6 +70,7 @@ extern void func_00213b50(s32 arg0);
 extern void func_00213b80(s32 arg0);
 extern f32 fGpffff8184;
 extern f32 fGpffff84a4;
+extern f32 fGpffff81a8;
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern s32 func_00200ce0(void);
@@ -741,8 +742,23 @@ void func_002037b0(void) {
 u16 func_002037e0(void) {
     return *(u16 *)((u8 *)func_00452560() + 0x9C);
 }
+/* measured: opt_propagation off probe for 00203810 evaluation order. */
+#pragma opt_propagation off
 // FUN_00203810
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00203810);
+s32 func_00203810(void)
+{
+    u8 *p;
+    u8 *base;
+    s32 field;
+
+    p = func_00452560();
+    base = p + 0x9C;
+    field = *(s32 *)(p + 0xD4);
+    base += 0x40;
+    return (s32)(field == (s32)base);
+}
+/* measured: close opt_propagation after func_00203810 probe. */
+#pragma opt_propagation on
 // FUN_00203850
 s32 func_00203850(void)
 {

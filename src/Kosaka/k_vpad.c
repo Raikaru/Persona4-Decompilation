@@ -240,6 +240,7 @@ void func_004b5f80(RuntimeWork* work, const u8* color)
 }
 
 
+/* COP1 multiply-accumulate tail is compiler-blocked; plain C emits mul/add, and COP1 inline asm is banned. */
 // FUN_004B7300
 INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b7300);
 // FUN_004B7800

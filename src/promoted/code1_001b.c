@@ -17,6 +17,16 @@ extern void func_00452080(s32 arg0);
 extern u8 *func_00452560(s32 arg0);
 extern void func_00144f60();
 extern void (*jtbl_008873EC[])(u8 *arg0);
+extern void func_004833f0(s32 arg0);
+extern f32 D_00922CA0[];
+extern f32 D_00922CA4[];
+extern f32 D_00922CA8[];
+extern f32 D_00922CAC[];
+extern f32 D_00922CB0[];
+extern f32 D_00922CB4[];
+extern f32 D_00922CB8[];
+extern f32 D_00922CBC[];
+extern s32 D_00922CC0[];
 extern s32 func_00196b50(u8 *arg0);
 extern void func_00194ff0(u8 *arg0, void *arg1, void *arg2, void *arg3);
 extern u8 *func_00197f50(u8 *arg0, void *arg1, s32 arg2);
@@ -26,7 +36,6 @@ extern s32 func_001b0fa0(u8 *arg0);
 extern s32 func_002bbcc0(void);
 extern s32 func_002bb600(void);
 extern s32 func_002bb140(void);
-extern void func_00213b50(s32 arg0);
 extern void func_002bb380(void);
 extern void func_002bb4e0(void);
 
@@ -36,7 +45,7 @@ extern void func_0022bd60(void);
 extern void func_001fadc0(s32 arg0);
 extern s32 func_002aa3f0(void);
 extern void func_00192b20(void);
-extern void func_00145080(u8 *arg0);
+extern void func_00145080();
 extern void func_001ba0e0(void);
 extern void *func_00194470(u32 size, u32 align);
 extern void func_001ec5e0(u8 *arg0, f32 fp);
@@ -683,7 +692,43 @@ void func_001b6110(void)
 // FUN_001B6120
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6120);
 // FUN_001B68D0
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b68d0);
+/* measured: opt_propagation off probes the retail ordered second float load group. */
+#pragma opt_propagation off
+void func_001b68d0(void)
+{
+    f32 d;
+    f32 c;
+    f32 b;
+    f32 a;
+    s32 value;
+
+    a = *(f32 *)(D_0076449C + 0x270);
+    b = *(f32 *)(D_0076449C + 0x274);
+    c = *(f32 *)(D_0076449C + 0x278);
+    d = *(f32 *)(D_0076449C + 0x27C);
+    D_00922CA0[0] = a;
+    D_00922CA4[0] = b;
+    D_00922CA8[0] = c;
+    D_00922CAC[0] = d;
+    d = *(f32 *)(D_0076449C + 0x280);
+    c = *(f32 *)(D_0076449C + 0x284);
+    b = *(f32 *)(D_0076449C + 0x288);
+    a = *(f32 *)(D_0076449C + 0x28C);
+    D_00922CB0[0] = d;
+    D_00922CB4[0] = c;
+    D_00922CB8[0] = b;
+    D_00922CBC[0] = a;
+    D_00922CC0[0] = 1;
+    *(s32 *)(D_0076449C + 0xE78) = 0;
+    value = *(s32 *)(D_0076449C + 0xE7C);
+    if (value != 0) {
+        func_004833f0(value);
+        *(s32 *)(D_0076449C + 0xE7C) = 0;
+    }
+    func_00145080();
+}
+/* measured: closes opt_propagation probe for func_001b68d0. */
+#pragma opt_propagation on
 // FUN_001B6990
 void func_001b6990(void)
 {

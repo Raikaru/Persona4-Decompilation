@@ -42,6 +42,10 @@ extern void func_00457630(u8 *arg0, void *arg1, void *arg2, s32 arg3);
 extern u8 D_005F16C8[];
 extern u8 D_005F16D0[];
 extern void func_001604a0(u8 *arg0);
+extern s32 func_004553c0(u8 *arg0);
+extern u8 *iGpffffb2c8;
+extern u8 *iGpffffb2cc;
+extern u8 D_007E7B20[];
 extern u8 *func_0047a2f0();
 extern void func_00478e70(s32 arg0);
 extern s32 iGpffff9f00;
@@ -172,9 +176,30 @@ s32 func_00161510(void)
     return (s32)func_00454a60(sp10, 0);
 }
 
+/* measured: opt_propagation off probe for retail field-load order in func_001615a0 */
+#pragma opt_propagation off
 // FUN_001615A0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_001615a0);
+s32 func_001615a0(u8 *arg0)
+{
+    void *src;
+    u32 size;
 
+    if (arg0 == NULL) {
+        return 1;
+    }
+    if (func_004553c0(arg0) == 0) {
+        return 0;
+    }
+    iGpffffb2c8 = D_007E7B20;
+    size = *(u32 *)(arg0 + 0x118);
+    src = *(void **)(((u8 *)arg0 + size) - size + 0x110);
+    func_0043f810(iGpffffb2c8, src, size);
+    iGpffffb2cc = iGpffffb2c8 + 0x300;
+    func_00454bd0(arg0);
+    return 1;
+}
+/* measured: opt_propagation on closes the func_001615a0 load-order probe */
+#pragma opt_propagation on
 // FUN_00162120
 void func_00162120(void)
 {

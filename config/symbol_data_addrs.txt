@@ -480,3 +480,5 @@ iGpffffbae8 = 0x00764bd8; // type:data evidence: retail code1_0046 func_0046a020
 iGpffffbaec = 0x00764bdc; // type:data evidence: retail code1_0046 func_0046a020 GP -0x4514; gp base 0x007690F0
 fGpffff84a4 = 0x00761594; // type:data evidence: retail code1_0020 func_0020e5c0 lwc1 gp -0x7b5c; gp base 0x007690F0
 iGpffffb480 = 0x00764570; // type:data evidence: retail code1_0017/0018 GP -0x4b80; gp base 0x007690F0
+iGpffffaa7c = 0x00763b6c; // type:data evidence: retail code1_003b gp -0x5584; gp base 0x007690F0
+iGpffffa730 = 0x00763820; // type:data evidence: retail code1_0026 gp -0x58d0; gp base 0x007690F0

@@ -128,7 +128,6 @@ void func_0044ee70(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ee70);
 #endif
-
 /* measured: func_0044ef70 (464B) floor at nd 54 — a saved-register rotation
    plus the classBytes/classCount pool-reload scheduling floor. retail allocates
    class=temp_16_2 in $s0 and block=func_0043ece8 result in $s1; mwcc b210 puts

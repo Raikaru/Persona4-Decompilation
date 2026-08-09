@@ -1,5 +1,13 @@
 #include "include_asm.h"
 #include "type.h"
+static inline s32 code1_0018_shift4(s32 value)
+{
+    return value << 4;
+}
+static inline s32 code1_0018_add2(s32 first, s32 second)
+{
+    return first + second;
+}
 extern void func_0048a000();
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_003f6440(s32 arg0, s32 arg1);
@@ -35,10 +43,16 @@ extern s32 func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 size, s32 align, s32 flags);
 extern u8 D_005F5340[];
 extern u8 D_005F5350[];
+extern u8 D_005F5320[];
+extern u8 D_005F5330[];
 extern u8 *func_00457120(void);
+extern f32 fGpffff8218;
+extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_0018a200(u8 *arg0);
 extern s32 func_0015a560(void);
 extern u8 D_005F54D8[];
+extern s32 func_00189940(u8 *arg0);
+extern void func_0018a010(s32 arg0);
 extern u8 D_005F54E8[];
 extern void func_0018dde0(u8 *arg0);
 extern u8 D_005F1D80[];
@@ -350,7 +364,26 @@ void func_00189e90(u8 *arg0)
 
 
 // FUN_00189EC0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00189ec0);
+void func_00189ec0(void)
+{
+    u8 *temp_16;
+    u8 *temp_2;
+    s32 var_16;
+    if (*(s32 *)((u8 *)func_00155280() + 0x30) == 0) {
+        temp_16 = *(u8 **)func_00155280();
+        func_0044ea90(&D_005F5320, 0x17C);
+        temp_2 = D_008873F4[0](1, 0x230, 0x40000);
+        if (temp_2 == NULL) {
+            var_16 = 0;
+        } else {
+            var_16 = func_00451fc0(temp_16, &D_005F5330, 0xF, 0, 0,
+                                   (void (*)(u8 *))func_00189940,
+                                   (void (*)(u8 *))func_00189e90, temp_2);
+        }
+        *(s32 *)((u8 *)func_00155280() + 0x30) = var_16;
+        func_0018a010(-1);
+    }
+}
 // FUN_00189FA0
 s32 func_00189fa0(void) {
     if (*(s32 *)((u8 *)(func_00155280()) + 0x30) == 0) {
@@ -423,8 +456,53 @@ s32 func_0018bbf0(u8 *arg0)
 }
 // FUN_0018BC20
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bc20);
+/* measured: optimization_level 1 preserves the retail FPU accumulator order. */
+#pragma optimization_level 1
 // FUN_0018BDD0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bdd0);
+void func_0018bdd0(u8 *arg0)
+{
+    u8 *temp_16;
+    u8 *target;
+    f32 guard38;
+    f32 guard44;
+    f32 guard30;
+    f32 guard3c;
+    f32 guard34;
+    f32 guard40;
+    f32 value30;
+    f32 value34;
+    f32 value38;
+    s32 zero;
+    s32 one;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    guard38 = *(f32 *)(temp_16 + 0x38);
+    guard44 = *(f32 *)(temp_16 + 0x44);
+    guard30 = *(f32 *)(temp_16 + 0x30);
+    guard3c = *(f32 *)(temp_16 + 0x3C);
+    guard34 = *(f32 *)(temp_16 + 0x34);
+    guard40 = *(f32 *)(temp_16 + 0x40);
+    if ((guard30 * guard3c + guard34 * guard40) + guard38 * guard44 <
+        fGpffff8218) {
+        value30 = *(f32 *)(temp_16 + 0x30);
+        value34 = *(f32 *)(temp_16 + 0x34);
+        value38 = *(f32 *)(temp_16 + 0x38);
+        *(f32 *)(temp_16 + 0x3C) = value30;
+        *(f32 *)(temp_16 + 0x40) = value34;
+        *(f32 *)(temp_16 + 0x44) = value38;
+        target = *(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164);
+        zero = 0;
+        one = 1;
+        func_00479940(target, zero, one, 4, one);
+        *(s32 *)temp_16 = 6;
+        return;
+    }
+    func_00479940(*(u8 **)(*(u8 **)(temp_16 + 0xC) + 0x164),
+                  0, 0, 8, 1);
+    *(s32 *)temp_16 = 4;
+}
+/* measured: close optimization_level 1 FPU accumulator probe. */
+#pragma optimization_level 2
 /* measured: opt_propagation off probe preserves retail's handle-load/result
    initialization order for the state predicate. */
 #pragma opt_propagation off
@@ -623,6 +701,35 @@ void func_0018f390(u8 *arg0)
 // FUN_0018F7B0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018f7b0);
 // FUN_0018F8A0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018f8a0);
+void func_0018f8a0(u8 *arg0, u16 arg1, u16 arg2)
+{
+    s32 var_9;
+    s32 var_8;
+    u8 *temp_5;
+    u8 *temp_6;
+    u8 *temp_7;
+    u8 *field;
+
+    temp_7 = (u8 *)code1_0018_add2(
+        code1_0018_shift4(arg1 & 0xFFFF),
+        ((arg2 & 0xFFFF) << 8) + (s32)arg0);
+    if (temp_7[0x2C] != 0 && (temp_7[0x2D] & 0xF) != 0) {
+        var_9 = 0;
+        while (var_9 < (s32)temp_7[0x33]) {
+            var_8 = 0;
+            temp_6 = temp_7 + (var_9 << 8);
+            while (var_8 < (s32)temp_7[0x32]) {
+                temp_5 = temp_6 + var_8 * 0x10;
+                field = temp_5 + 0x2C;
+                if (*field != 0) {
+                    *field = 0;
+                    temp_5[0x2D] = 0;
+                }
+                var_8 += 1;
+            }
+            var_9 += 1;
+        }
+    }
+}
 // FUN_0018F950
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018f950);
