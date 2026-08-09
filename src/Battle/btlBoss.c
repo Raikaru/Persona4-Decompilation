@@ -26,6 +26,10 @@ typedef struct BtlPacket {
 BtlPacket* func_00194470(u32 type, u32 workSize);
 u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
+extern s32 func_001f0ff0();
+extern s32 func_00232710(u8* arg0, u32 arg1);
+extern s32 func_0019fc70();
+extern u16 func_001d7f10();
 s32 func_001ef9a0(void);
 void func_0022c430(void);
 void func_00440b68();
@@ -61,7 +65,43 @@ u8 func_0022fb90(BtlUnit* first, BtlUnit* second)
 
 
 // FUN_0022FC00
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022fc00);
+s32 func_0022fc00(u8* arg0)
+{
+    u8 temp_4;
+    u8* temp_3;
+    u8* temp_4_2;
+    u8* temp_5;
+
+    if ((*(s32*)(DAT_0076449c + 0xc) & 0x200000) == 0)
+    {
+        return 1;
+    }
+    if (func_001f0ff0() == 0)
+    {
+        return 1;
+    }
+    temp_5 = *(u8**)(arg0 + 0x30);
+    temp_3 = *(u8**)(*(u8**)(arg0 + 0x38) + 0x30);
+    temp_4 = *(u8*)(temp_5 + 0xa2);
+    if (temp_4 == 1)
+    {
+        return 1;
+    }
+    if (temp_5 == temp_3)
+    {
+        return 1;
+    }
+    if (temp_4 != *(u8*)(temp_3 + 0xa2))
+    {
+        return 1;
+    }
+    temp_4_2 = *(u8**)(temp_5 + 0xa64);
+    if ((temp_4_2 != NULL) && (func_00232710(temp_4_2, 0x100) != 0))
+    {
+        return 1;
+    }
+    return 0;
+}
 // FUN_0022FCE0
 u32 func_0022fce0(s32 first, s32 second)
 {
@@ -84,7 +124,22 @@ u32 func_0022fce0(s32 first, s32 second)
 
 
 // FUN_0022FD30
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022fd30);
+s32 func_0022fd30(u8* arg0)
+{
+    if ((*(s32*)(DAT_0076449c + 0xc) & 0x200000) == 0)
+    {
+        return 1;
+    }
+    if ((*(u16*)(arg0 + 0x1a) & 1) == 0)
+    {
+        return 1;
+    }
+    if (*(u8*)(*(u8**)(arg0 + 0x30) + 0xa2) != 1)
+    {
+        return 1;
+    }
+    return !((u32)func_0019fc70());
+}
 // FUN_0022FDC0
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022fdc0);
 // FUN_0022FF70

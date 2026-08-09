@@ -35,7 +35,9 @@ s32 func_00421f98(s32, s32);
 typedef struct {
     u8 _pad[0x14];
     s32 field_14;
-    u8 _pad2[0x24 - 0x18];
+    u8 _pad2[0x1c - 0x18];
+    s32 field_1c;
+    s32 field_20;
 } D_008AC788_entry;
 extern D_008AC788_entry D_008AC788[];
 s32 func_00439cc8(s32, s32, s32, s32, s32);
@@ -47,9 +49,9 @@ void func_0043ddf8(u8 *, s16, s16, s32);
 s32 func_0043DFA0(s32 *);
 s32 func_004258b0(s32 *, s32, s32, s32 *, s32, s32 *, s32, s32, s32);
 s32 *func_0043eae8(s32 *);
+extern s32 D_00754EF0[];
 void func_0043c6d8(u8 *, s32, s32);
 
-void func_0043bb48(void *);
 
 /* measured: removing this pragma takes func_00438740 nd 0 -> nd 6: retail fills
    the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
@@ -588,11 +590,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bcb8);
 // FUN_0043BEC8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bec8);
 // FUN_0043C008
-INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c008);
+s32 func_0043c008(void) {
+    return 0;
+}
 // FUN_0043C010
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c010);
 // FUN_0043C098
-INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c098);
+s32 func_0043c098(void) {
+    return 0;
+}
 // FUN_0043C0A0
 s32 func_0043c0a0(void) {
     func_00431408();
@@ -776,8 +782,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043e9d0);
 // FUN_0043EA60
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043ea60);
 
+/* measured: schedule on orders the global-address addiu into the jr delay slot. */
+#pragma schedule on
 // FUN_0043EAE8
-INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043eae8);
+s32 *func_0043eae8(s32 *arg0) {
+    return D_00754EF0;
+}
+/* measured: closes the schedule-on scope at the file baseline. */
+#pragma schedule off
 
 // FUN_0043EAF8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043eaf8);

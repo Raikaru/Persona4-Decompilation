@@ -12,6 +12,7 @@ extern s32 D_007442A0[];
 extern s32 D_0074586C[];
 
 extern s32 D_00745878[];
+extern void func_005179f8(void);
 
 
 /* measured: -O2 emits lui/addiu before jr $ra; retail schedules the final
@@ -99,13 +100,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00506c30);
 // FUN_00506D08
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00506d08);
 // FUN_00506D80
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00506d80);
+void func_00506d80(void)
+{
+}
 // FUN_00507258
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507258);
 // FUN_005072C0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005072c0);
+void func_005072c0(void)
+{
+}
 // FUN_005072C8
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005072c8);
+void func_005072c8(void)
+{
+}
 // FUN_005072D8
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005072d8);
 // FUN_005073A0
@@ -139,7 +146,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005077f0);
 // FUN_005078A0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005078a0);
 // FUN_00507948
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507948);
+s32 func_00507948(void)
+{
+    return 0;
+}
 // FUN_00507950
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507950);
 // FUN_00507968
@@ -159,6 +169,7 @@ s32 *func_00509910(s32 arg0)
     segment[0x10A3] = arg0;
     return segment;
 }
+/* measured: closes the schedule-on segment-return bracket through func_00509910; explicit schedule off restores the following code's baseline state. */
 #pragma schedule off
 
 
@@ -254,7 +265,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050b920);
 // FUN_0050B940
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050b940);
 // FUN_0050B9E8
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050b9e8);
+s32 func_0050b9e8(void)
+{
+    func_005179f8();
+    return 0;
+}
 // FUN_0050BA08
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050ba08);
 // FUN_0050BCB0
@@ -362,6 +377,7 @@ s32 *func_0050cce0(s32 arg0)
     segment[0x1621] = arg0;
     return segment;
 }
+/* measured: closes the schedule-on segment-return bracket through func_0050cce0; explicit schedule off restores the following code's baseline state. */
 #pragma schedule off
 
 // FUN_0050CCF0

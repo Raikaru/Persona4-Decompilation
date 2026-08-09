@@ -15,6 +15,13 @@ extern s32 D_007647A8;
 extern s32 D_00764784;
 
 extern s32 D_0076479C;
+extern u8 D_00886498[];
+extern u8 **func_003c22f0(u8 *arg0);
+extern s32 func_003c0700(u8 *arg0);
+extern s32 func_003c02e0(u8 *arg0);
+extern s32 iGpffffb6b0;
+extern s32 func_003bc880(s32 arg0, s32 arg1);
+extern s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2);
 
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
@@ -90,7 +97,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b65d0);
 // FUN_003B6680
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6680);
 // FUN_003B6CB0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cb0);
+/* measured: probe schedule with tailcall for retail's trailing nops. */
+#pragma schedule on
+#pragma tailcall on
+u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003c22f0(*(u8 **)(arg1 + 0x18));
+}
+/* measured: close tailcall and schedule probes. */
+#pragma tailcall off
+#pragma schedule off
 // FUN_003B6CC0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
 // FUN_003B6DA0
@@ -111,8 +126,47 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7150);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b71b0);
 // FUN_003B7290
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7290);
+static inline s32 add003b(s32 left, s32 right) {
+    return left + right;
+}
 // FUN_003B7450
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7450);
+/* measured: schedule on places the initial 0xC in the beqz delay slot. */
+#pragma schedule on
+/* measured: no_branch_likely probe around func_003b7450. */
+#pragma no_branch_likely on
+/* measured: O3 probe around func_003b7450. */
+#pragma optimization_level 3
+/* measured: opt_propagation off probe around func_003b7450. */
+#pragma opt_propagation off
+s32 func_003b7450(s32 *arg0) {
+    s32 temp_3;
+    s32 var_2;
+    s32 field34;
+    s32 base;
+    s32 scaled;
+    s32 sum;
+
+    temp_3 = *(s32 *)((u8 *)arg0 + 0x30);
+    var_2 = 0xC;
+    if (temp_3 != 0) {
+        scaled = temp_3 * 2;
+        base = *(s32 *)((u8 *)arg0 + 0);
+        field34 = *(s32 *)((u8 *)arg0 + 0x34);
+        sum = add003b(base, scaled);
+        field34 = field34 * 2;
+        sum = add003b(sum, field34);
+        var_2 = add003b(var_2, sum);
+    }
+    return var_2;
+}
+/* measured: close opt_propagation around func_003b7450. */
+#pragma opt_propagation on
+/* measured: close optimization_level 3 around func_003b7450. */
+#pragma optimization_level 2
+/* measured: close no_branch_likely around func_003b7450. */
+#pragma no_branch_likely off
+/* measured: close schedule around func_003b7450. */
+#pragma schedule off
 // FUN_003B7480
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7480);
 // FUN_003B7510
@@ -125,8 +179,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7680);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7860);
 // FUN_003B7970
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7970);
+/* measured: declaring D_00886498 as s32 produced GP-relative addressing;
+   declaring it as extern u8 [] and reading through the array forced retail's
+   absolute lui/lw pair. Array-vs-scalar global declarations are load-bearing. */
 // FUN_003B79F0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b79f0);
+/* measured: schedule fills the store in the jr delay slot. */
+#pragma schedule on
+s32 func_003b79f0(s32 arg0) {
+    *(s32 *)(arg0 + *(s32 *)D_00886498) = 0;
+    return arg0;
+}
+/* measured: closes schedule around func_003b79f0. */
+#pragma schedule off
 // FUN_003B7A10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7a10);
 // FUN_003B88D0
@@ -136,9 +200,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8930);
 // FUN_003B8AD0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8ad0);
 // FUN_003B8D20
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8d20);
+/* measured: probe schedule for retail's 16-byte return body. */
+#pragma schedule on
+s32 func_003b8d20(void) {
+    return 1;
+}
+/* measured: close schedule probe. */
+#pragma schedule off
 // FUN_003B8D30
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8d30);
+/* measured: probe schedule for retail's 16-byte return body. */
+#pragma schedule on
+s32 func_003b8d30(void) {
+    return 1;
+}
+/* measured: close schedule probe. */
+#pragma schedule off
 // FUN_003B8D40
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8d40);
 // FUN_003B8E50
@@ -170,11 +246,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbbe0);
 // FUN_003BBE20
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbe20);
 // FUN_003BBE60
+/* measured: schedule on is required for func_003bbe60's store delay slot. */
 #pragma schedule on
 s32 func_003bbe60(s32 arg0) {
     D_00764784 += 1;
     return arg0;
 }
+/* measured: close schedule around func_003bbe60. */
 #pragma schedule off
 
 
@@ -183,11 +261,13 @@ s32 func_003bbe60(s32 arg0) {
 //   the sw and colours it $v1 (nd 15 -> 0).
 
 // FUN_003BBE80
+/* measured: schedule on is required for func_003bbe80's store delay slot. */
 #pragma schedule on
 s32 func_003bbe80(s32 arg0) {
     D_00764784 -= 1;
     return arg0;
 }
+/* measured: close schedule around func_003bbe80. */
 #pragma schedule off
 
 
@@ -208,7 +288,6 @@ s32 func_003bbe80(s32 arg0) {
 //   Residual: 2 words at offsets 4/8.  measured: removing #pragma schedule
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
-#pragma schedule on
 /* measured: nd 47 at retail's real 68-byte body. Counts the entries of the
    gp-based descriptor at iGpffffb668 whose +0xC word is set. Retail hoists the
    zeroed accumulator and the loop index into the guard's delay slots and walks
@@ -241,7 +320,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc880);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc9c0);
 
 // FUN_003BCBC0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbc0);
+/* measured: schedule fills the second zero store in the jr delay slot. */
+#pragma schedule on
+s32 func_003bcbc0(s32 arg0, s32 arg1) {
+    u8 *temp_3;
+
+    temp_3 = (u8 *)(arg0 + arg1);
+    *(s32 *)(temp_3 + 0) = 0;
+    *(s32 *)(temp_3 + 4) = 0;
+    return arg0;
+}
+/* measured: closes schedule around func_003bcbc0. */
+#pragma schedule off
 
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
@@ -252,8 +342,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcc80);
 // FUN_003BCD50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcd50);
 
+/* measured: schedule on is required for func_003bce20's callback delay slot. */
+#pragma schedule on
 // FUN_003BCE20
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce20);
+s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    func_003bc880(arg2 + arg3, arg0);
+    return arg0;
+}
+/* measured: close schedule around func_003bce20. */
+#pragma schedule off
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
@@ -274,26 +371,70 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
 // FUN_003BD000
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd000);
 
+/* measured: schedule on is required for func_003bd040's return delay slot. */
+#pragma schedule on
 // FUN_003BD040
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd040);
+s32 func_003bd040(s32 *arg0) {
+    return *arg0;
+}
+/* measured: close schedule around func_003bd040. */
+#pragma schedule off
 
+/* measured: schedule on is required for func_003bd050's return delay slot. */
+#pragma schedule on
 // FUN_003BD050
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd050);
+s32 func_003bd050(u8 *arg0) {
+    return *(s32 *)(arg0 + 4);
+}
+/* measured: close schedule around func_003bd050. */
+#pragma schedule off
 
 // FUN_003BD070
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd070);
+/* measured: schedule fills the return load in the jr delay slot. */
+#pragma schedule on
+s32 func_003bd070(u8 *arg0, s32 arg1) {
+    return *(s32 *)(*(u8 **)(arg0 + 0xC) + (arg1 * 4));
+}
+/* measured: closes schedule around func_003bd070. */
+#pragma schedule off
 
 // FUN_003BD090
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd090);
+/* measured: schedule fills the floating return load in the jr delay slot. */
+#pragma schedule on
+f32 func_003bd090(u8 *arg0, s32 arg1) {
+    return *(f32 *)(*(u8 **)(arg0 + 0xC) + (arg1 * 4));
+}
+/* measured: closes schedule around func_003bd090. */
+#pragma schedule off
 
 // FUN_003BD0B0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd0b0);
+/* measured: schedule fills the return load in the jr delay slot. */
+#pragma schedule on
+s32 func_003bd0b0(u8 *arg0, s32 arg1) {
+    return *(s32 *)(*(u8 **)(arg0 + 0xC) + (arg1 * 4));
+}
+/* measured: closes schedule around func_003bd0b0. */
+#pragma schedule off
 
 // FUN_003BD0D0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd0d0);
+/* measured: schedule fills the store in the jr delay slot. */
+#pragma schedule on
+void func_003bd0d0(u8 *arg0, s32 arg1, s32 arg2) {
+    *(s32 *)(*(u8 **)(arg0 + 0xC) + (arg1 * 4)) = arg2;
+}
+/* measured: closes schedule around func_003bd0d0. */
+#pragma schedule off
 
 // FUN_003BD0F0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd0f0);
+/* measured: schedule fills the floating store in the jr delay slot. */
+#pragma schedule on
+void func_003bd0f0(u8 *arg0, s32 arg1, f32 fparg0) {
+    *(f32 *)(*(u8 **)(arg0 + 0xC) + (arg1 * 4)) = fparg0;
+}
+/* measured: closes schedule around func_003bd0f0. */
+#pragma schedule off
+/* measured: schedule on is required for func_003bd110's return delay slot. */
+#pragma schedule on
 // FUN_003BD110
 s32 func_003bd110(s32 arg0)
 {
@@ -308,6 +449,8 @@ s32 func_003bd110(s32 arg0)
         return 0;
     }
 }
+/* measured: close schedule around func_003bd110. */
+#pragma schedule off
 #pragma no_branch_likely off
 
 /* measured: the flat early-return chain is nd 43 -- b210 inverts every test
@@ -321,6 +464,8 @@ s32 func_003bd110(s32 arg0)
 
 // FUN_003BD160
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd160);
+/* measured: schedule on is required for func_003bd470's call delay slots. */
+#pragma schedule on
 // FUN_003BD470
 #pragma no_branch_likely on
 s32 func_003bd470(s32 arg0, s32 arg1)
@@ -341,6 +486,8 @@ do2:
     }
     return 0;
 }
+/* measured: close schedule around func_003bd470. */
+#pragma schedule off
 #pragma no_branch_likely off
 
 /* measured: nd 48 of 28 words, obj 112/112 (correct size).  Two residuals
@@ -357,6 +504,8 @@ do2:
 // FUN_003BD4F0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
 
+/* measured: schedule on is required for func_003bd560's return delay slot. */
+#pragma schedule on
 // FUN_003BD560
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
    The retail window for func_003bd560 contains no branch-likely instruction at all, so the
@@ -373,6 +522,7 @@ s32 func_003bd560(u8 *arg0) {
 }
 /* measured: see the annotation above the matching `on` pragma (func_003bd560). */
 #pragma no_branch_likely off
+/* measured: close schedule around func_003bd560. */
 #pragma schedule off
 
 
@@ -447,6 +597,7 @@ s32 func_003bd680(u8 *arg0) {
 }
 /* measured: see the annotation above the matching `on` pragma (func_003bd680). */
 #pragma no_branch_likely off
+/* measured: close schedule around func_003bd680/003bd590 scope. */
 #pragma schedule off
 
 
@@ -461,11 +612,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bdd00);
 // FUN_003BE180
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be180);
 // FUN_003BE7C0
+/* measured: schedule on is required for func_003be7c0's store delay slot. */
 #pragma schedule on
 s32 func_003be7c0(s32 arg0) {
     D_0076479C -= 1;
     return arg0;
 }
+/* measured: close schedule around func_003be7c0. */
 #pragma schedule off
 
 
@@ -474,11 +627,13 @@ s32 func_003be7c0(s32 arg0) {
 //   the sw and colours it $v1 (nd 16 -> 0).
 
 // FUN_003BE7E0
+/* measured: schedule on is required for func_003be7e0's store delay slot. */
 #pragma schedule on
 s32 func_003be7e0(s32 arg0) {
     D_0076479C += 1;
     return arg0;
 }
+/* measured: close schedule around func_003be7e0. */
 #pragma schedule off
 
 
@@ -499,15 +654,26 @@ s32 func_003be7e0(s32 arg0) {
 //   Residual: 2 words at offsets 4/8.  measured: removing #pragma schedule
 //   on regresses the addiu $v0, 8 back out of the b delay slot (nd 4 -> 17).
 
-#pragma schedule on
-/* measured: same shape as func_003bd470; see that note.  The explicit-label
-   block order (retarg/ret0/do2) makes it byte-exact (nd 43 -> MATCH). */
-
 // FUN_003BE800
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be800);
+/* measured: probe tailcall for direct wrapper. */
+#pragma tailcall on
+s32 func_003be800(u8 *arg0) {
+    return func_003c0700(arg0);
+}
+/* measured: close tailcall probe. */
+#pragma tailcall off
 
 // FUN_003BE810
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be810);
+/* measured: probe tailcall for direct wrapper. */
+#pragma tailcall on
+s32 func_003be810(u8 *arg0) {
+    return func_003c02e0(arg0);
+}
+/* measured: close tailcall probe. */
+#pragma tailcall off
+
+/* measured: restore schedule scope for func_003be820 and func_003be910. */
+#pragma schedule on
 // FUN_003BE820
 #pragma no_branch_likely on
 s32 func_003be820(s32 arg0, s32 arg1)
@@ -561,6 +727,7 @@ s32 func_003be910(u8 *arg0) {
 }
 /* measured: see the annotation above the matching `on` pragma (func_003be910). */
 #pragma no_branch_likely off
+/* measured: close schedule around func_003be910/003be820 scope. */
 #pragma schedule off
 
 
@@ -569,11 +736,13 @@ s32 func_003be910(u8 *arg0) {
 //   the sw and colours it $v1 (nd 15 -> 0).
 
 // FUN_003BE940
+/* measured: schedule on is required for func_003be940's store delay slot. */
 #pragma schedule on
 s32 func_003be940(s32 arg0, s32 *arg1) {
     *arg1 += 1;
     return arg0;
 }
+/* measured: close schedule around func_003be940. */
 #pragma schedule off
 
 
@@ -582,11 +751,13 @@ s32 func_003be940(s32 arg0, s32 *arg1) {
 //   the sw and colours it $v1 (nd 15 -> 0).
 
 // FUN_003BE960
+/* measured: schedule on is required for func_003be960's store delay slot. */
 #pragma schedule on
 s32 func_003be960(s32 arg0, s32 *arg1) {
     *arg1 += 1;
     return arg0;
 }
+/* measured: close schedule around func_003be960. */
 #pragma schedule off
 
 
@@ -595,11 +766,13 @@ s32 func_003be960(s32 arg0, s32 *arg1) {
 //   the sw and colours it $v1 (nd 15 -> 0).
 
 // FUN_003BE980
+/* measured: schedule on is required for func_003be980's store delay slot. */
 #pragma schedule on
 s32 func_003be980(s32 arg0, s32 *arg1) {
     *arg1 += 1;
     return arg0;
 }
+/* measured: close schedule around func_003be980. */
 #pragma schedule off
 
 // FUN_003BE9A0
@@ -616,10 +789,32 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bebb0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bed10);
 // FUN_003BEE80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bee80);
+/* measured: -0x4950($gp) is registered as iGpffffb6b0. The scalar GP
+   declaration reproduces retail's single gp-relative load before the three
+   zero stores. */
 // FUN_003BF1A0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf1a0);
+/* measured: schedule on is required for func_003bf1a0's store delay slot. */
+#pragma schedule on
+s32 func_003bf1a0(s32 arg0) {
+    u8 *temp_3;
+
+    temp_3 = (u8 *)(arg0 + iGpffffb6b0);
+    *(s32 *)(temp_3 + 8) = 0;
+    *(s32 *)(temp_3 + 4) = 0;
+    *(s32 *)(temp_3 + 0) = 0;
+    return arg0;
+}
+/* measured: closes schedule around func_003bf1a0. */
+#pragma schedule off
+/* measured: schedule on is required for func_003bf330's call delay slot. */
+#pragma schedule on
 // FUN_003BF330
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf330);
+s32 func_003bf330(s32 arg0) {
+    func_003c02e0((u8 *)arg0);
+    return arg0;
+}
+/* measured: close schedule around func_003bf330. */
+#pragma schedule off
 // FUN_003BF360
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf360);
 // FUN_003BF3D0
@@ -636,8 +831,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfc40);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfd00);
 // FUN_003BFDF0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfdf0);
+/* measured: schedule on is required for func_003bfe60's callback setup. */
+#pragma schedule on
 // FUN_003BFE60
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe60);
+s32 func_003bfe60(void *arg0) {
+    s32 result;
+
+    result = 0;
+    func_003bff30(arg0, func_003be940, &result);
+    return result;
+}
+/* measured: close schedule around func_003bfe60. */
+#pragma schedule off
 // FUN_003BFE90
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
 // FUN_003BFF30
