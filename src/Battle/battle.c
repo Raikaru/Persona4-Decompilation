@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/battle_00192560.c */
+#include "include_asm.h"
 #include "type.h"
 
 static u64 iGpffffa090 = 1;
@@ -73,6 +74,10 @@ u16 btlFindFreeCharResId(void)
 
 
 
+// FUN_00192610
+INCLUDE_ASM("asm/nonmatchings/battle", func_00192610);
+// FUN_001926C0
+INCLUDE_ASM("asm/nonmatchings/battle", func_001926c0);
 // FUN_00192790
 void* btlUpdateDraw3DFrontTask(void* task)
 {

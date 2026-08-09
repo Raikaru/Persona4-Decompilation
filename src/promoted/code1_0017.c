@@ -60,6 +60,51 @@ extern u8 *func_004571c0(void);
 /* SOLVED by tools/permute.py; this previously carried a `slt $at` floor note
    and sat under #ifdef NON_MATCHING. The permuter found the shape from the
    preserved body. */
+
+// FUN_00170120
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170120);
+
+// FUN_00170960
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170960);
+
+// FUN_001709C0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001709c0);
+
+// FUN_00170B50
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170b50);
+
+// FUN_00170BC0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170bc0);
+
+// FUN_00170E10
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170e10);
+
+// FUN_00170E50
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170e50);
+
+// FUN_00170F60
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170f60);
+
+// FUN_001711B0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001711b0);
+
+// FUN_00171280
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00171280);
+
+// FUN_001713E0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001713e0);
+
+// FUN_001714B0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001714b0);
+
+// FUN_00175F70
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00175f70);
+
+// FUN_001761D0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001761d0);
+
+// FUN_001761F0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001761f0);
 // FUN_00176220
 s32 func_00176220(void)
 {
@@ -77,6 +122,10 @@ void func_00176280(void)
     func_0015f660();
 }
 
+// FUN_001762A0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001762a0);
+// FUN_001762E0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001762e0);
 // FUN_00176320
 s32 func_00176320(void) {
     if (func_0015f660() == 0) {
@@ -110,6 +159,18 @@ s32 func_001763f0(void) {
     return 1;
 }
 
+// FUN_00176450
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176450);
+// FUN_00176500
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176500);
+// FUN_001765C0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001765c0);
+// FUN_001766E0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001766e0);
+// FUN_00176770
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176770);
+// FUN_00176810
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176810);
 // FUN_00176850
 s32 func_00176850(void)
 {
@@ -117,6 +178,12 @@ s32 func_00176850(void)
     return 1;
 }
 
+// FUN_00176880
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176880);
+// FUN_001768B0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001768b0);
+// FUN_001768E0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001768e0);
 // FUN_00176A50
 s32 func_00176a50(void)
 {
@@ -133,6 +200,8 @@ s32 func_00176a50(void)
     return 1;
 }
 
+// FUN_00176AB0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00176ab0);
 // FUN_00176B60
 s32 func_00176b60(void) {
     s32 v;
@@ -164,6 +233,15 @@ s32 func_00178560(void)
     return 1;
 }
 
+// FUN_00178590
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178590);
+
+// FUN_001786F0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001786f0);
+
+// FUN_00178790
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178790);
+
 /* measured: nd 8. Keeping the cached scene index as u16 moves its narrowing
    into $s1 immediately after func_0029cc00; retail keeps the raw value in
    $s1 and narrows it into $a3 after the two halfword loads. Best measured
@@ -172,6 +250,7 @@ s32 func_00178560(void)
    & 0xFFFF at each use, explicit (u16) casts, separate raw assignment, and the
    fourth-argument and all-wide func_00161630 prototypes all measured nd 10 or worse.
    Committed at nd 8. */
+
 // FUN_00178870 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00178870(void) {
@@ -202,6 +281,22 @@ s32 func_001788e0(void)
 
 
 
+// FUN_001789D0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_001789d0);
+// FUN_00178A00
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178a00);
+// FUN_00178A30
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178a30);
+// FUN_00178AF0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178af0);
+// FUN_00178B30
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178b30);
+// FUN_00178B70
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178b70);
+// FUN_00178BA0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178ba0);
+// FUN_00178BD0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178bd0);
 // FUN_00178C00
 /* Returns the stored constant: retail materializes the 1 in $v0 and stores
    from there, which only happens when it is also the return value. */
@@ -221,6 +316,20 @@ s32 func_00178c00(void)
    real TU is split out. They were canonical windows with no marker, i.e.
    invisible to the verifier and supplied to the link as retail bytes. */
 
+// FUN_00179FC0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00179fc0);
+// FUN_0017A700
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017a700);
+// FUN_0017A8D0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017a8d0);
+// FUN_0017AAE0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017aae0);
+// FUN_0017ABD0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017abd0);
+// FUN_0017ACC0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017acc0);
+// FUN_0017B350
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017b350);
 // FUN_0017B510
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017b510);
 
@@ -402,3 +511,18 @@ s32 func_0017ccc0(u8 *arg0) {
     return func_00451fc0(arg0, D_005F1910, 8, 0, 0, (void (*)(u8 *))func_0017c930, func_0017cc90, buf);
 }
 
+
+// FUN_0017CD60
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017cd60);
+// FUN_0017D060
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017d060);
+// FUN_0017D070
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017d070);
+// FUN_0017D0F0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017d0f0);
+// FUN_0017D100
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017d100);
+// FUN_0017D1F0
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017d1f0);
+// FUN_0017D240
+INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017d240);

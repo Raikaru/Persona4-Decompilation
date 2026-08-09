@@ -1,6 +1,7 @@
 /* Whole-file translation unit: src/Graphics/Effect/effMisc.c */
 
 /* Source unit: src/Graphics/Effect/effMisc_004bce50.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV4d
@@ -278,6 +279,8 @@ void func_004bd1a0(f32 angle)
 
 
 
+// FUN_004BD230
+INCLUDE_ASM("asm/nonmatchings/effMisc", func_004bd230);
 // FUN_004BD380
 void func_004bd380(const RwV3d* axis, f32 angle)
 {

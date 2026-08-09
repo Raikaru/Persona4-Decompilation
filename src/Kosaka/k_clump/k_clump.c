@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/k_clump/k_clump_004578b0.c (1 function markers) */
+#include "include_asm.h"
 #include "Kosaka/k_clump_internal.h"
 
 typedef struct KClumpResourceList
@@ -68,6 +69,8 @@ s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name)
 
 
 
+// FUN_004579A0
+INCLUDE_ASM("asm/nonmatchings/k_clump", func_004579a0);
 // FUN_00457A90
 u32 K_Clump_MatUsrDataHasData(const RpMaterial* material, const char* name)
 {
@@ -440,6 +443,12 @@ u32 func_00462e80(const u32* state)
 
 
 
+// FUN_00462EB0
+INCLUDE_ASM("asm/nonmatchings/k_clump", func_00462eb0);
+// FUN_00463100
+INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463100);
+// FUN_00463250
+INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463250);
 // FUN_004632F0
 void* func_004632f0(void* object, void* data)
 {

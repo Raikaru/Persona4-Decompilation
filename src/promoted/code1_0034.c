@@ -37,6 +37,8 @@ void func_0034f4a0(s32 arg0, s32 arg1, s8 arg2, s8 arg3, s8 arg4, s64 arg5,
 
 
 
+// FUN_00349340
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_00349340);
 // FUN_00349380
 void func_00349380(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
@@ -50,6 +52,10 @@ s32 func_0034a630(u8 *arg0)
     return *(s32 *)(arg0 + 0x38);
 }
 
+// FUN_0034A640
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034a640);
+// FUN_0034A820
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034a820);
 // FUN_0034A840
 void func_0034a840(u8 *arg0) {
     u8 *temp_16;
@@ -60,6 +66,12 @@ void func_0034a840(u8 *arg0) {
     func_003e8130(func_00457120(), temp_16 + 0xE0);
 }
 
+// FUN_0034A890
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034a890);
+// FUN_0034A8B0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034a8b0);
+// FUN_0034AC00
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034ac00);
 // FUN_0034AD40
 void func_0034ad40(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));
@@ -87,6 +99,8 @@ void func_0034b820(u8 *arg0, Svec2f_0034b820 v, s16 s, S4b_0034b820 b, f32 fparg
     *(s16 *)(obj + 0xE10) |= 1;
 }
 
+// FUN_0034B880
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034b880);
 // FUN_0034B8C0
 void func_0034b8c0(void)
 {
@@ -110,6 +124,14 @@ void func_0034b950(void)
     func_0034c4a0();
 }
 
+// FUN_0034EDC0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034edc0);
+// FUN_0034EE90
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034ee90);
+// FUN_0034F0D0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f0d0);
+// FUN_0034F1E0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f1e0);
 // FUN_0034F2E0
 void func_0034f2e0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s64 arg4, f32 fparg0,
                    f32 fparg1) {
@@ -119,9 +141,22 @@ void func_0034f2e0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s64 arg4, f32 fparg0,
 
 
 
+// FUN_0034F320
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f320);
 // FUN_0034F460
 void func_0034f460(s32 arg0, s32 arg1, s8 arg2, s8 arg3, s8 arg4, s64 arg5,
                    f32 fparg0, f32 fparg1) {
     func_0034f4a0(arg0, arg1, arg2, arg3, arg4, arg5, 0x1000, 0x1000, fparg0,
                   fparg1, 0.0f, 0.0f, 0, 0);
 }
+
+// FUN_0034F4A0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f4a0);
+// FUN_0034F5D0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f5d0);
+// FUN_0034F720
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f720);
+// FUN_0034F8F0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f8f0);
+// FUN_0034F9D0
+INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f9d0);

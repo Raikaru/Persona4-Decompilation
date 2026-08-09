@@ -230,6 +230,7 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
    not move. The body below is PRESERVED at the lowest nd.
    Committed at nd 1. */
 // FUN_0028F4F0 NONMATCHING
+#ifdef NON_MATCHING
 void func_0028f4f0(void) {
     s32 h;
 
@@ -238,6 +239,9 @@ void func_0028f4f0(void) {
         func_00452080(h);
     }
 }
+#else
+INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028f4f0);
+#endif
 
 // FUN_0028F530
 void func_0028f530(void) {

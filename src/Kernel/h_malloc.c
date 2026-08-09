@@ -1,4 +1,5 @@
 /* Source unit: src/Kernel/h_malloc_00143ba0.c (1 function markers) */
+#include "include_asm.h"
 #include "type.h"
 
 extern u8 D_007D0F00[];
@@ -56,6 +57,8 @@ void func_00143c90(u32 texture, void* packet, u32 source, s32 a3, s32 a4,
 
 
 
+// FUN_00143CF0
+INCLUDE_ASM("asm/nonmatchings/h_malloc", func_00143cf0);
 // FUN_00143F90
 void func_00143f90(u64* out, u32 a1, s32 a2, u32 a3, u32 a4, u32 a5,
                    u32 a6)

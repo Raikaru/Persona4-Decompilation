@@ -1,4 +1,5 @@
 /* Source unit: src/h_cdvd/h_cdvd_00454570.c (1 function markers) */
+#include "include_asm.h"
 #include "h_cdvd_internal.h"
 
 /* Prototypes for helpers defined in this TU but called by units that do not
@@ -909,6 +910,8 @@ common:
 
 
 
+// FUN_00456AE0
+INCLUDE_ASM("asm/nonmatchings/h_cdvd", func_00456ae0);
 // FUN_00456b70
 void* func_00456b70(void* contextData, u32 index)
 {

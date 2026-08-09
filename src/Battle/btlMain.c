@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlMain_001b5e60.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct BtlMain BtlMain;
@@ -112,6 +113,8 @@ BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
 
 
 
+// FUN_001B7B30
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b7b30);
 // FUN_001B7E20
 void func_001b7e20(u32 value)
 {
@@ -124,6 +127,8 @@ void func_001b7e20(u32 value)
 
 
 
+// FUN_001B7E70
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b7e70);
 // FUN_001B83F0
 BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5)
 {
@@ -160,6 +165,8 @@ BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16
 
 
 
+// FUN_001B87E0
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b87e0);
 // FUN_001B9360
 void func_001b9360(s32 arg, s16 mode)
 {
@@ -175,6 +182,8 @@ void func_001b9360(s32 arg, s16 mode)
 
 
 
+// FUN_001B93C0
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b93c0);
 // FUN_001B9560
 BtlPacket* func_001b9560(u32 param_1, u32 param_2)
 {
@@ -195,6 +204,8 @@ BtlPacket* func_001b9560(u32 param_1, u32 param_2)
 
 
 
+// FUN_001B96E0
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b96e0);
 // FUN_001B99A0
 void func_001b99a0(s32 arg)
 {
@@ -207,6 +218,8 @@ void func_001b99a0(s32 arg)
 
 
 
+// FUN_001B99F0
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b99f0);
 // FUN_001B9DE0
 void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
 {
@@ -224,6 +237,8 @@ void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
 
 
 
+// FUN_001B9E50
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b9e50);
 // FUN_001BA090
 void func_001ba090(s32 arg)
 {
@@ -528,6 +543,12 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
 
 
 
+// FUN_001BAFF0
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001baff0);
+// FUN_001BB3D0
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb3d0);
+// FUN_001BB790
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb790);
 // FUN_001BB8C0
 void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
 {
@@ -582,6 +603,8 @@ void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
 
 
 
+// FUN_001BB9B0
+INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb9b0);
 // FUN_001BBC40
 u32 func_001bbc40(u8* param_1, f32* param_2, f32* param_3)
 {

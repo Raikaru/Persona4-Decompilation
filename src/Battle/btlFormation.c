@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlFormation_001d1eb0.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef int (*code)(...);
@@ -116,6 +117,8 @@ void func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
 
 
 
+// FUN_001D1F30
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d1f30);
 // FUN_001D2D90
 void func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
 {
@@ -132,6 +135,12 @@ void func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
 
 
 
+// FUN_001D2E00
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2e00);
+// FUN_001D2E20
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2e20);
+// FUN_001D2FE0
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2fe0);
 // FUN_001D3000
 void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 {
@@ -151,6 +160,28 @@ void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 
 
 
+// FUN_001D3090
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3090);
+// FUN_001D3530
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3530);
+// FUN_001D35A0
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d35a0);
+// FUN_001D3700
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3700);
+// FUN_001D3760
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3760);
+// FUN_001D3900
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3900);
+// FUN_001D3950
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3950);
+// FUN_001D3B50
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3b50);
+// FUN_001D3BA0
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3ba0);
+// FUN_001D3D00
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3d00);
+// FUN_001D3D50
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3d50);
 // FUN_001D3E00
 void func_001d3e00(u32 param_1)
 {
@@ -346,6 +377,12 @@ u32 func_001d5eb0(u32 param_1, u32 param_2, u16 param_3)
 /* Ported from P3 donor func_002baec0. The volatile pointer locals are
    load-bearing: measured W170, removing the qualifiers loses this function
    (MATCH nd0 -> MISMATCH nd6, size 112 -> 112). */
+
+// FUN_001D5F60
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d5f60);
+
+// FUN_001D6010
+INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d6010);
 // FUN_001D6170
 bool func_001d6170(u32 *param_1)
 {

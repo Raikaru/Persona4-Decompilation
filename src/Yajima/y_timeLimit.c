@@ -1,4 +1,5 @@
 /* Source unit: src/Yajima/y_timeLimit_002a2340.c */
+#include "include_asm.h"
 #include "type.h"
 
 extern u32 D_00882F08[];
@@ -140,6 +141,8 @@ func_002A27C0(float param_1,int param_2,int param_3,int param_4,int param_5,int 
 
 
 
+// FUN_002A2980
+INCLUDE_ASM("asm/nonmatchings/y_timeLimit", func_002a2980);
 // FUN_002A2C10
 u32 func_002A2C10(int param_1,float *param_2)
 {

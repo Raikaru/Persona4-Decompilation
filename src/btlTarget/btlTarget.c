@@ -1,4 +1,5 @@
 /* Source unit: src/btlTarget/btlTarget_001eb420.c (1 function markers) */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV3d
@@ -98,6 +99,12 @@ void func_001ec6d0(s16* outX, s16* outZ, f32* position)
 
 
 
+// FUN_001EC790
+INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001ec790);
+// FUN_001EC8C0
+INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001ec8c0);
+// FUN_001ECA10
+INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
 // FUN_001ECDE0
 s32 func_001ecde0(const f32* param_1, const f32* param_2, const f32* param_3)
 {

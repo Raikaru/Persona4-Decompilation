@@ -490,6 +490,30 @@ void func_00489f50(f32 param_1, int param_2)
 
 /* Retail's 368-byte Catmull-Rom interpolator builds tangents and returns its VU0 vector in vf10. */
 
+// FUN_00489F80
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_00489f80);
+// FUN_0048A000
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a000);
+// FUN_0048A070
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a070);
+// FUN_0048A0E0
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a0e0);
+// FUN_0048A150
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a150);
+// FUN_0048A1F0
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a1f0);
+// FUN_0048A250
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a250);
+// FUN_0048A2B0
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a2b0);
+// FUN_0048A340
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a340);
+// FUN_0048A460
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
+// FUN_0048A510
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a510);
+// FUN_0048A650
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a650);
 // FUN_0048A810
 void func_0048a810(float param_1, u8 (*param_2)[16])
 {
@@ -699,6 +723,12 @@ void func_004a6e50(int param_1)
 
 
 
+// FUN_004A6E70
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a6e70);
+// FUN_004A7760
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a7760);
+// FUN_004A7790
+INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a7790);
 // FUN_004A77A0
 void func_004a77a0(u32 *param_1, u32 param_2)
 {

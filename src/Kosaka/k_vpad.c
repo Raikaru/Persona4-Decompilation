@@ -171,6 +171,8 @@ INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5800);
 #endif
 
 
+// FUN_004B5950
+INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5950);
 // FUN_004B5C20. Mark an active field runtime node for processing.
 void func_004b5c20(RuntimeWork* work)
 {
@@ -182,6 +184,8 @@ void func_004b5c20(RuntimeWork* work)
 
 
 
+// FUN_004B5C60
+INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5c60);
 // FUN_004B5F20. Activate a field runtime node and its owner.
 void func_004b5f20(RuntimeWork* work)
 {

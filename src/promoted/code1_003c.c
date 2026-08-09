@@ -58,6 +58,54 @@ extern s32 D_007647BC;
    unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
 
 
+// FUN_003C0050
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0050);
+// FUN_003C00E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c00e0);
+// FUN_003C0210
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0210);
+// FUN_003C02E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c02e0);
+// FUN_003C03A0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c03a0);
+// FUN_003C0520
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0520);
+// FUN_003C0640
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0640);
+// FUN_003C0700
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0700);
+// FUN_003C0850
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0850);
+// FUN_003C0880
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0880);
+// FUN_003C08C0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c08c0);
+// FUN_003C0900
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0900);
+// FUN_003C0960
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0960);
+// FUN_003C0F20
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0f20);
+// FUN_003C1AB0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ab0);
+// FUN_003C1AE0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ae0);
+// FUN_003C1B10
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b10);
+// FUN_003C1B40
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b40);
+// FUN_003C1B60
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b60);
+// FUN_003C1B80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b80);
+// FUN_003C1B90
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b90);
+// FUN_003C1BD0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1bd0);
+// FUN_003C1C70
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1c70);
+// FUN_003C1D00
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1d00);
 // FUN_003C1D20
 #pragma schedule on
 s32 func_003c1d20(s32 arg0) {
@@ -72,6 +120,10 @@ s32 func_003c1d20(s32 arg0) {
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final store (nd 13 -> 0). */
 
+// FUN_003C1D40
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1d40);
+// FUN_003C1EA0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ea0);
 // FUN_003C2130
 #pragma schedule on
 s32 func_003c2130(s32 arg0, u8 *arg1, s16 arg2, s16 arg3, s16 arg4) {
@@ -93,6 +145,10 @@ s32 func_003c2130(s32 arg0, u8 *arg1, s16 arg2, s16 arg3, s16 arg4) {
    no_branch_likely on stops b210 emitting beql where retail has a plain
    beqz on the null test. */
 
+// FUN_003C2150
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2150);
+// FUN_003C21E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c21e0);
 // FUN_003C2290
 #pragma schedule on
 #pragma no_branch_likely on
@@ -117,6 +173,12 @@ u8 *func_003c2290(u8 *arg0, s32 arg1) {
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled and drops the store out of it: MISMATCH nd 15, object 24 bytes in
    a 32-byte window. With it the function matches. */
+
+// FUN_003C22F0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c22f0);
+
+// FUN_003C2630
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2630);
 // FUN_003C2A60
 #pragma schedule on
 u8 *func_003c2a60(u8 *arg0) {
@@ -131,6 +193,14 @@ u8 *func_003c2a60(u8 *arg0) {
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final store (nd 11 -> 0). */
 
+// FUN_003C2A80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2a80);
+// FUN_003C2B70
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2b70);
+// FUN_003C2BA0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2ba0);
+// FUN_003C2BD0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2bd0);
 // FUN_003C2C90
 /* measured: schedule on fills the four jal/jr delay slots; without it the
    object is 104 bytes against a 96-byte window (nd 58). */
@@ -146,6 +216,12 @@ s32 func_003c2c90(u8 *arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
+// FUN_003C2CF0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2cf0);
+// FUN_003C30B0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c30b0);
+// FUN_003C3890
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3890);
 // FUN_003C38B0
 /* The four floats are copied as one Vec4f assignment because retail loads all
    four before storing any; per-field assignments interleave lwc1/swc1 (nd 8).
@@ -174,6 +250,16 @@ chk:
 /* measured: closes the bracket noted above func_003c38b0's marker. */
 #pragma schedule off
 
+// FUN_003C3920
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3920);
+// FUN_003C3950
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3950);
+// FUN_003C3980
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3980);
+// FUN_003C39C0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c39c0);
+// FUN_003C3AE0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3ae0);
 // FUN_003C3CC0
 #pragma schedule on
 s32 func_003c3cc0(u8 *arg0) {
@@ -189,6 +275,9 @@ s32 func_003c3cc0(u8 *arg0) {
 /* measured: swapping the NULL-store and count decrement makes b210 assign
    the tail count to $v1 and the table offset to $a1, matching retail.
    Object/window 128/128, normalized_diff 0. Committed at nd 0. */
+
+// FUN_003C3D20
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3d20);
 // FUN_003C3E10
 #pragma schedule on
 u8 *func_003c3e10(u8 *arg0) {
@@ -205,6 +294,9 @@ u8 *func_003c3e10(u8 *arg0) {
 /* measured: the explicit-label block order from func_003bd470 in code1_003b.c,
    with schedule on and no_branch_likely on, reproduces retail's block layout
    and call setup. Scoped verify: nd 0, object 120B/window 128B. */
+
+// FUN_003C3E90
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e90);
 // FUN_003C3F20
 /* measured: schedule on and no_branch_likely on are required for the retail
    jal/jr delay slots and plain branch forms. */
@@ -240,6 +332,10 @@ do2:
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
 
 
+// FUN_003C4010
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4010);
+// FUN_003C4040
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
 // FUN_003C40D0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -259,6 +355,10 @@ u8 *func_003c40d0(u8 *arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
+// FUN_003C4140
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4140);
+// FUN_003C4220
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4220);
 // FUN_003C42B0
 /* measured: schedule on fills the branch and jr delay slots (nd 53 -> 4) and
    no_branch_likely on stops b210 emitting beql on the two null tests. */
@@ -274,6 +374,18 @@ u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
     *arg0 = arg1;
     return (u8 *)arg0;
 }
+// FUN_003C4310
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4310);
+
+// FUN_003C4340
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4340);
+
+// FUN_003C4370
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4370);
+
+// FUN_003C4390
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
+
 #pragma no_branch_likely off
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
@@ -285,6 +397,7 @@ u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
    identical at nd 8: naming the inner pointer in a local before the guard;
    folding the 0x28 into both arms of an if/else is much worse (nd 42).
    Prologue scheduling floor. Committed at nd 8. */
+
 // FUN_003C47C0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: probe schedule */
@@ -306,6 +419,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 
 /* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
    (nop); retail fills it with the final store (nd 15 -> 0). */
+
+// FUN_003C4820
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
+
+// FUN_003C49A0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c49a0);
 // FUN_003C4A40
 #pragma schedule on
 u8 *func_003c4a40(u8 *arg0) {
@@ -323,9 +442,31 @@ extern s32 D_007647EC;
 /* measured: the 112B window begins with a six-word absolute jump thunk into
    the shared table; no plain-C body can reproduce that entry sequence under
    the source policy, so the bare INCLUDE_ASM fallback remains. */
+
+// FUN_003C4A60
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a60);
+
+// FUN_003C4A80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
+
+// FUN_003C4BC0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
+
+// FUN_003C4C00
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4c00);
+
+// FUN_003C4CF0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4cf0);
+
+// FUN_003C4FA0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4fa0);
 // FUN_003C54A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c54a0);
 
+// FUN_003C5510
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5510);
+// FUN_003C55F0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c55f0);
 // FUN_003C5700
 #pragma schedule on
 s32 func_003c5700(u8 *arg0) {
@@ -380,6 +521,66 @@ call:
 
 /* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
    and colours the increment $v0; retail fills the slot with the store. */
+
+// FUN_003C57D0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c57d0);
+
+// FUN_003C59F0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c59f0);
+
+// FUN_003C5A90
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5a90);
+
+// FUN_003C5D10
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5d10);
+
+// FUN_003C5FD0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5fd0);
+
+// FUN_003C6060
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6060);
+
+// FUN_003C6080
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6080);
+
+// FUN_003C6280
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6280);
+
+// FUN_003C65B0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c65b0);
+
+// FUN_003C66C0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c66c0);
+
+// FUN_003C67B0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c67b0);
+
+// FUN_003C6960
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6960);
+
+// FUN_003C6A40
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6a40);
+
+// FUN_003C6C10
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6c10);
+
+// FUN_003C70E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c70e0);
+
+// FUN_003C7D90
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c7d90);
+
+// FUN_003C8200
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8200);
+
+// FUN_003C8910
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8910);
+
+// FUN_003C8920
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8920);
+
+// FUN_003C8BF0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8bf0);
 // FUN_003C8CA0
 #pragma schedule on
 s32 func_003c8ca0(s32 arg0) {
@@ -398,6 +599,28 @@ void func_003d4d70();
 /* measured: without #pragma schedule on, MWCC emits ld $ra / addiu $sp /
    jr $ra / nop; retail restores sp in the jr delay slot (nd 6 -> 0). */
 
+// FUN_003C8CC0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8cc0);
+// FUN_003C8CE0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8ce0);
+// FUN_003C8D00
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d00);
+// FUN_003C8D30
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d30);
+// FUN_003C8D60
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d60);
+// FUN_003C8D80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d80);
+// FUN_003C8DA0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8da0);
+// FUN_003C8DD0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8dd0);
+// FUN_003C8EB0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8eb0);
+// FUN_003C91D0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c91d0);
+// FUN_003C9300
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9300);
 // FUN_003C9530
 extern s32 iGpffffb7f0;
 extern s32 iGpffffb7f4;
@@ -419,6 +642,10 @@ s32 func_003c9530(s32 arg0) {
 /* measured: close schedule */
 #pragma schedule off
 
+// FUN_003C95A0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c95a0);
+// FUN_003C9640
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9640);
 // FUN_003C96D0
 extern u8 D_008872E4[];
 /* measured: probe schedule */
@@ -449,6 +676,63 @@ check:
 finish:
     return 1;
 }
+// FUN_003C9750
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9750);
+
+// FUN_003C97E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
+
+// FUN_003C9940
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9940);
+
+// FUN_003C99F0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c99f0);
+
+// FUN_003C9A80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9a80);
+
+// FUN_003C9B30
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9b30);
+
+// FUN_003C9C20
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9c20);
+
+// FUN_003C9D00
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d00);
+
+// FUN_003C9D40
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d40);
+
+// FUN_003C9E80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9e80);
+
+// FUN_003C9EB0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
+
+// FUN_003CA270
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca270);
+
+// FUN_003CA320
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
+
+// FUN_003CA3D0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca3d0);
+
+// FUN_003CA400
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca400);
+
+// FUN_003CA430
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca430);
+
+// FUN_003CA5A0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca5a0);
+
+// FUN_003CA6A0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca6a0);
+
+// FUN_003CA740
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
+
 /* measured: close branch form */
 #pragma no_branch_likely off
 /* measured: close schedule */
@@ -462,6 +746,7 @@ finish:
    order of `move $v0,$a0`, `addu $t0,$a0,$a3`, and the first store; all
    returned-value, pointer/record-local, offset, and schedule variants remain
    nd 14. Committed at nd 14. */
+
 // FUN_003CA830 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: probe schedule */
@@ -594,10 +879,67 @@ s32 func_003ca9d0(u8 *arg0) {
    object 76B versus the 80B window; call-argument ordering and final
    conditional-move code remain; no real C body was retained, so the bare
    INCLUDE_ASM fallback remains. */
+
+// FUN_003CAA50
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003caa50);
+
+// FUN_003CAC30
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cac30);
+
+// FUN_003CAD40
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cad40);
+
+// FUN_003CAEF0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003caef0);
+
+// FUN_003CB1E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb1e0);
+
+// FUN_003CB210
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb210);
+
+// FUN_003CB250
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb250);
+
+// FUN_003CB300
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb300);
+
+// FUN_003CB670
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb670);
+
+// FUN_003CB6A0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb6a0);
+
+// FUN_003CB6D0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb6d0);
+
+// FUN_003CB700
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb700);
 // FUN_003CB720
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 
 
+
+// FUN_003CB770
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb770);
+
+// FUN_003CB780
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb780);
+
+// FUN_003CB790
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb790);
+
+// FUN_003CB7C0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7c0);
+
+// FUN_003CB7D0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7d0);
+
+// FUN_003CB7E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7e0);
+
+// FUN_003CB810
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb810);
 
 /* measured: retail takes THREE parameters and ignores the second -- arg0
    arrives in $a0 and the object pointer in $a2. With the third parameter
@@ -612,6 +954,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
    pointer-typed temp with pointer arithmetic, a named local for the 0x78
    load, `0x10 + temp_2`, casts, pointer-return variants, and all-s32 or
    old-style callee prototypes were all measured at nd 8. Committed at nd 8. */
+
 // FUN_003CB820 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: probe schedule */
@@ -635,6 +978,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
 // FUN_003CB870
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
 
+// FUN_003CB8D0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb8d0);
+// FUN_003CB900
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb900);
 // FUN_003CBC10
 #pragma schedule on
 u8 *func_003cbc10(u8 *arg0, u8 *arg1) {
@@ -649,6 +996,8 @@ u8 *func_003cbc10(u8 *arg0, u8 *arg1) {
 // baseline for the rest of the file.
 #pragma schedule off
 
+// FUN_003CBC60
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbc60);
 // FUN_003CBC90
 #pragma schedule on
 u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
@@ -659,6 +1008,21 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
     *(s32 *)(node + 0x0) = (s32)arg0;
     return arg0;
 }
+// FUN_003CBCE0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbce0);
+
+// FUN_003CBCF0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbcf0);
+
+// FUN_003CBDE0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbde0);
+
+// FUN_003CBE80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbe80);
+
+// FUN_003CBF30
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbf30);
+
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
@@ -676,6 +1040,7 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
    walker/result shared-exit form were all measured without improvement.
    The split-store form grew to nd 40, object 100B/window 96B; the best
    separate walker/result form was nd 25, object 84B/window 96B. Committed at nd 6. */
+
 // FUN_003CC010 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: probe schedule */
@@ -820,6 +1185,8 @@ void func_003cc130(void) {
 /* measured: without #pragma schedule on, MWCC emits addiu $v0, 1 before
    jr $ra with an unfilled delay slot; retail fills the slot (nd 6 -> 0). */
 
+// FUN_003CC170
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc170);
 // FUN_003CC240
 #pragma schedule on
 s32 func_003cc240(void) {
@@ -876,12 +1243,24 @@ call:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
 #endif
+
+// FUN_003CC2C0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc2c0);
+
+// FUN_003CC370
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc370);
+
+// FUN_003CC460
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc460);
 // FUN_003CC500
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 
 /* measured: retail uses standalone pexew/ppacw MMI instructions; no plain-C
    equivalent is permitted. Window 96B; no real C body was retained; the bare
    INCLUDE_ASM fallback remains. */
+
+// FUN_003CC560
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc560);
 // FUN_003CC680
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 
@@ -914,6 +1293,40 @@ extern s32 D_0070B110[];
 /* measured: without #pragma schedule on, MWCC emits lui / addiu before
    jr $ra with an unfilled delay slot; retail fills the slot (nd 6 -> 0). */
 
+// FUN_003CC720
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc720);
+// FUN_003CCF80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ccf80);
+// FUN_003CD720
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cd720);
+// FUN_003CDFA0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cdfa0);
+// FUN_003CE050
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce050);
+// FUN_003CE170
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce170);
+// FUN_003CE230
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce230);
+// FUN_003CE2E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce2e0);
+// FUN_003CE3A0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce3a0);
+// FUN_003CE560
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce560);
+// FUN_003CE840
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce840);
+// FUN_003CE9E0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ce9e0);
+// FUN_003CEBB0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cebb0);
+// FUN_003CEEB0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ceeb0);
+// FUN_003CF070
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cf070);
+// FUN_003CF140
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cf140);
+// FUN_003CF610
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cf610);
 // FUN_003CF9B0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -948,6 +1361,8 @@ none:
 #pragma no_branch_likely off
 #pragma schedule off
 
+// FUN_003CFA30
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cfa30);
 // FUN_003CFA70
 #pragma schedule on
 s32 *func_003cfa70(void) {
@@ -955,3 +1370,10 @@ s32 *func_003cfa70(void) {
 }
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
+
+// FUN_003CFA80
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cfa80);
+// FUN_003CFFA0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cffa0);
+// FUN_003CFFF0
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cfff0);

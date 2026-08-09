@@ -1,0 +1,23 @@
+.section .text
+.set noat
+.set noreorder
+glabel func_0070d920
+.word 0x27BDFFF0
+.word 0xFFBF0000
+.word 0x0C01D858
+.word 0x3084FFFF
+.word 0x0000000F
+.word 0xDFBF0000
+.word 0x03E00008
+.word 0x27BD0010
+.word 0x3C02B000
+.word 0x34421820
+.word 0xAC440000
+.word 0x0000000F
+.word 0x3C02B000
+.word 0x24030583
+.word 0x34421810
+.word 0x03E00008
+.word 0xAC430000
+.word 0x00000000
+.size func_0070d920, 0x48

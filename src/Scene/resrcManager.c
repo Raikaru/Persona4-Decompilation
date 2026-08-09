@@ -231,6 +231,8 @@ Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
     return res;
 }
 
+// FUN_00147430
+INCLUDE_ASM("asm/nonmatchings/resrcManager", func_00147430);
 // FUN_00147500
 Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType)
 {

@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/k_view_004577d0.c */
+#include "include_asm.h"
 #include "type.h"
 
 /* Ported from P3FES src/Kosaka/k_view.c K_View_SetFov FUN_001a4580 (verified
@@ -95,6 +96,10 @@ void func_00470a90(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 
 
 
+// FUN_00470AD0
+INCLUDE_ASM("asm/nonmatchings/k_view", func_00470ad0);
+// FUN_00470B40
+INCLUDE_ASM("asm/nonmatchings/k_view", func_00470b40);
 // FUN_00470BD0
 s32* func_00470bd0(KwlnTask* task, u32 id)
 {

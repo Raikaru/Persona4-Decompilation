@@ -102,6 +102,12 @@ s32 func_00390230(s32 arg0, s32 arg1)
 
     return arg0;
   }
+// FUN_00390280
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390280);
+
+// FUN_00390290
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
+
 /* measured: closing no_branch_likely for func_00390230. */
 #pragma no_branch_likely off
 /* measured: closing schedule for func_00390230. */
@@ -110,6 +116,7 @@ s32 func_00390230(s32 arg0, s32 arg1)
 /* measured: retail window 0x80; this P3-shaped four-argument body reaches
    nd 22 at object 124/128. The residuals are b210's guarded-call branch
    orientation and epilogue layout; the body is parked at the lowest legal nd. */
+
 // FUN_003902D0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: O3 preserves the retail 0x40 frame and call sequence. */
@@ -156,6 +163,75 @@ static inline s32 p4_mul_003963b0(s32 left, s32 right)
 {
     return left * right;
 }
+
+// FUN_00390350
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390350);
+
+// FUN_00390500
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390500);
+
+// FUN_00390520
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390520);
+
+// FUN_00390680
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390680);
+
+// FUN_00391400
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00391400);
+
+// FUN_00391C10
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00391c10);
+
+// FUN_00392650
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00392650);
+
+// FUN_00392A50
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00392a50);
+
+// FUN_00392BF0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00392bf0);
+
+// FUN_00393900
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00393900);
+
+// FUN_003941E0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003941e0);
+
+// FUN_00394870
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394870);
+
+// FUN_00394C70
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394c70);
+
+// FUN_00394D70
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394d70);
+
+// FUN_00394E70
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394e70);
+
+// FUN_00394FD0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394fd0);
+
+// FUN_00395100
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00395100);
+
+// FUN_00395290
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00395290);
+
+// FUN_003954B0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003954b0);
+
+// FUN_003955A0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003955a0);
+
+// FUN_00395BD0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00395bd0);
+
+// FUN_003961F0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003961f0);
+
+// FUN_003962E0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003962e0);
 // FUN_003963B0
 s32 func_003963b0(u8 *arg0)
 {
@@ -175,12 +251,66 @@ s32 func_003963b0(u8 *arg0)
 /* measured: plain-C probes for func_00396e80 bottomed out at
    normalized_diff 27 (object 132/window 128); the body is archived in
    build/WCDeep_00396e80_nbl_probe.c and the retail fallback remains. */
+
+// FUN_003963C0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003963c0);
+
+// FUN_00396520
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396520);
+
+// FUN_00396680
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396680);
+
+// FUN_00396750
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396750);
+
+// FUN_00396830
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396830);
+
+// FUN_00396870
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396870);
+
+// FUN_00396890
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396890);
+
+// FUN_00396940
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396940);
+
+// FUN_00396A40
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396a40);
+
+// FUN_00396C00
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396c00);
 // FUN_00396E80
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
 // measured: schedule and branch-shape probes for 982e0.
 #pragma schedule on
 // measured: retail uses plain branches in the 982e0 dispatch.
 #pragma no_branch_likely on
+
+// FUN_00396F00
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396f00);
+
+// FUN_00396FB0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396fb0);
+
+// FUN_00397120
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00397120);
+
+// FUN_003971D0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003971d0);
+
+// FUN_00397390
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00397390);
+
+// FUN_00397470
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00397470);
+
+// FUN_00397480
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00397480);
+
+// FUN_00397C40
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00397c40);
 // FUN_003982E0
 s32 func_003982e0(s32 arg0)
 {
@@ -211,6 +341,12 @@ init:
 /* measured: retail uses a plain beqz for the entry test. */
 #pragma no_branch_likely on
 
+// FUN_00398350
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398350);
+// FUN_003983F0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003983f0);
+// FUN_00398410
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398410);
 // FUN_00398540
 s32 func_00398540(s32 arg0)
 {
@@ -236,6 +372,33 @@ s32 func_00398540(s32 arg0)
    no_branch_likely on stops b210 turning both tests into beql/bnel
    (nd 35 -> 0). Note the first argument: retail passes arg0 to
    func_003df360 unchanged in $a0, which the m2c draft dropped. */
+
+// FUN_003985B0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003985b0);
+
+// FUN_00398890
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398890);
+
+// FUN_00398970
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398970);
+
+// FUN_00398D20
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398d20);
+
+// FUN_003990A0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003990a0);
+
+// FUN_00399210
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399210);
+
+// FUN_00399230
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399230);
+
+// FUN_00399250
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399250);
+
+// FUN_00399280
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399280);
 // FUN_003992B0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -267,6 +430,21 @@ docall:
    no_branch_likely on stops b210 turning both tests into beql/bnel
    (nd 35 -> 0). Note the first argument: retail passes arg0 to
    func_003df360 unchanged in $a0, which the m2c draft dropped. */
+
+// FUN_00399320
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399320);
+
+// FUN_00399340
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399340);
+
+// FUN_00399360
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399360);
+
+// FUN_00399380
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399380);
+
+// FUN_003993B0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003993b0);
 // FUN_003993E0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -296,6 +474,18 @@ docall:
    return zero - but retail places the already-initialised case out of line
    while b210 inlines it, and the two returns are coloured the other way round.
    Committed at nd 43. */
+
+// FUN_00399450
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399450);
+
+// FUN_00399470
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399470);
+
+// FUN_00399530
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399530);
+
+// FUN_003999A0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003999a0);
 // Archived C body: build/WBHygiene_func_00399b10_archive.txt; no current park body remains.
 // FUN_00399B10
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b10);
@@ -347,6 +537,15 @@ ret0:
    (nd 44). #pragma opt_loop_invariants on takes the same body 36 -> 18:
    retail materialises the compare constant in the preheader and b210 only
    does so with that pragma. Committed at nd 0. */
+
+// FUN_00399BF0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399bf0);
+
+// FUN_00399D80
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399d80);
+
+// FUN_00399DB0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399db0);
 // FUN_00399FD0
 /* measured: opt_loop_invariants hoists the compare constant; schedule off
    keeps the loop body order, while the scoped tail schedule on fills the
@@ -553,6 +752,9 @@ found:
    (nd 44). #pragma opt_loop_invariants on takes the same body 36 -> 18,
    the same preheader-materialisation fix as func_00399fd0 above.
    Committed at nd 0. */
+
+// FUN_0039A150
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a150);
 // FUN_0039A200
 /* measured: opt_loop_invariants hoists the compare constant; schedule off
    keeps the loop body order, while the scoped tail schedule on fills the
@@ -845,6 +1047,12 @@ found:
 
 /* measured: same shape as func_0039a090; the exact result-pointer body
    with scoped scheduling closes this variant at nd 0. */
+
+// FUN_0039A4C0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a4c0);
+
+// FUN_0039A590
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a590);
 // FUN_0039A630
 /* measured: the function body is exact at O2 with the comparison constant
    hoisted and its found-load tail scheduled separately. */
@@ -1039,6 +1247,9 @@ s32 func_0039a7e0(void)
    64-bit stores; the best plain-C probe was obj 116/112 at nd 83. The
    movz/branch and paired-store codegen did not close, so the body was
    discarded and the bare assembly fallback remains. */
+
+// FUN_0039A7F0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a7f0);
 // FUN_0039A8A0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a8a0);
 
@@ -1046,6 +1257,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a8a0);
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
+
+// FUN_0039A910
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a910);
 // FUN_0039AA30
 s32 func_0039aa30(void)
 {
@@ -1130,6 +1344,9 @@ void func_0039ab10(void)
 // counter arithmetic and fills the jr delay slot with the final sw.
 
 #pragma schedule on
+
+// FUN_0039AB20
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ab20);
 // FUN_0039AC20
 s32 func_0039ac20(s32 arg0)
 {
@@ -1156,6 +1373,12 @@ s32 func_0039ac40(s32 arg0)
 #pragma schedule on
 // measured: retail uses a plain beqz here, not blikely.
 #pragma no_branch_likely on
+
+// FUN_0039AC60
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ac60);
+
+// FUN_0039AC80
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ac80);
 // FUN_0039AE30
 s32 func_0039ae30(s32 arg0)
 {
@@ -1182,6 +1405,22 @@ s32 func_0039ae30(s32 arg0)
 /* measured: retail uses a plain beqz for the initialization test. */
 #pragma no_branch_likely on
 
+// FUN_0039AE90
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ae90);
+// FUN_0039AF40
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039af40);
+// FUN_0039B080
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b080);
+// FUN_0039B210
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b210);
+// FUN_0039B250
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b250);
+// FUN_0039B290
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b290);
+// FUN_0039B2C0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b2c0);
+// FUN_0039B380
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b380);
 // FUN_0039B450
 s32 func_0039b450(s32 arg0)
 {
@@ -1287,6 +1526,9 @@ s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 #pragma optimization_level 3
 /* measured: no_branch_likely on is probed for b680 plain dispatch. */
 #pragma no_branch_likely on
+
+// FUN_0039B5A0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b5a0);
 // FUN_0039B680
 s32 func_0039b680(s32 arg0)
 {
@@ -1336,3 +1578,46 @@ ret0:
 #pragma no_branch_likely off
 /* measured: closes the schedule-on b6e0 probe. */
 #pragma schedule off
+
+// FUN_0039B720
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b720);
+// FUN_0039B7C0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b7c0);
+// FUN_0039B830
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b830);
+// FUN_0039B8D0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b8d0);
+// FUN_0039BA80
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ba80);
+// FUN_0039BB70
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bb70);
+// FUN_0039BBD0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bbd0);
+// FUN_0039BDF0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bdf0);
+// FUN_0039BEB0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039beb0);
+// FUN_0039C000
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039c000);
+// FUN_0039C360
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039c360);
+// FUN_0039C730
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039c730);
+// FUN_0039C900
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039c900);
+// FUN_0039CB80
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039cb80);
+// FUN_0039D360
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039d360);
+// FUN_0039DCC0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039dcc0);
+// FUN_0039E740
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039e740);
+// FUN_0039F050
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f050);
+// FUN_0039F0E0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f0e0);
+// FUN_0039F160
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f160);
+// FUN_0039F9D0
+INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f9d0);

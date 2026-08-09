@@ -1,5 +1,6 @@
 /* Grouped verified Persona 4 source units. */
 /* The original guards were independently verified before grouping. */
+#include "include_asm.h"
 #include "type.h"
 
 /* Canonical grouped function declarations. */
@@ -31,6 +32,8 @@ void func_004647b0(void)
 
 extern s32 D_00764B9C;
 
+// FUN_004647C0
+INCLUDE_ASM("asm/nonmatchings/h_memcard_grouped", func_004647c0);
 // FUN_004653F0
 void func_004653f0(void)
 {

@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlTarget_001eb440.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct BtlUnit {
@@ -142,6 +143,8 @@ void func_001f2fe0(void* arg)
 
 /* Ported from P3FES src/Battle/btlTarget.c FUN_002d7df0 (verified MATCH there). */
 
+// FUN_001F3010
+INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001f3010);
 // FUN_001F36B0
 void func_001f36b0(void* arg)
 {
@@ -152,6 +155,10 @@ void func_001f36b0(void* arg)
 
 
 
+// FUN_001F36E0
+INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001f36e0);
+// FUN_001F37B0
+INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001f37b0);
 // FUN_001F37D0
 u32 func_001f37d0(void* arg)
 {

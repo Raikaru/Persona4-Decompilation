@@ -649,6 +649,9 @@ void func_002b2500(void) {
    rotation floor (same family as func_002b0b10). */
 // FUN_002B25D0
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b25d0);
+
+// FUN_002B2800
+INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b2800);
 // FUN_002B2830
 void func_002b2830(u8 *arg0, YVec2f arg1, f32 arg2, f32 arg3, u32 arg4) {
     u8 *p;

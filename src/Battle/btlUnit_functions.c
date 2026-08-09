@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlUnit_00198300.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct BtlUnit BtlUnit;
@@ -410,6 +411,12 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
 
 
 
+// FUN_0019E5D0
+INCLUDE_ASM("asm/nonmatchings/btlUnit_functions", func_0019e5d0);
+// FUN_0019E5F0
+INCLUDE_ASM("asm/nonmatchings/btlUnit_functions", func_0019e5f0);
+// FUN_0019E7A0
+INCLUDE_ASM("asm/nonmatchings/btlUnit_functions", func_0019e7a0);
 // FUN_0019E7C0
 BtlPacket* btlUnitCreateLookAtDeactivatePacket(BtlUnit* unit, u16 flags)
 {

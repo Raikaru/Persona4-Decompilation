@@ -158,6 +158,16 @@ void func_001974d0(BtlUnitPacketCountRef* work);
 u32 func_001974f0(void* work);
 void func_001979c0(BtlUnitPacketCountRef* work);
 
+// FUN_00195B60
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00195b60);
+// FUN_00195D50
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00195d50);
+// FUN_00196040
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00196040);
+// FUN_00196610
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00196610);
+// FUN_001974F0
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_001974f0);
 // FUN_001979E0
 BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32 param, f32 speed, u32 flags)
 {
@@ -239,6 +249,8 @@ void func_00199e50(BtlUnitPacketCountRef* work);
 u32 func_00199e70(void* work);
 void func_00199ec0(BtlUnitPacketCountRef* work);
 
+// FUN_00198050
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00198050);
 // FUN_00199EE0
 BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, u16 id, u16 blendFrameCount, f32 speed, u16 mode)
 {
@@ -573,6 +585,8 @@ void func_0019e1f0(BtlUnitPacketTwoUnits* packet)
     packet->second->packetCount++;
 }
 
+// FUN_0019E220
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019e220);
 // FUN_0019E520
 void func_0019e520(BtlUnitPacketTwoUnits* packet)
 {
