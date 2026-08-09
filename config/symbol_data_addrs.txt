@@ -180,7 +180,7 @@ D_005E5830 = 0x005E5830; // type:data evidence: retail func_001356d0 (0x359C8) p
 D_005E5850 = 0x005E5850; // type:data evidence: retail func_001356d0 (0x359F8) passes &D_005E5850 to func_0046a770 via lui/addiu %hi/%lo
 D_005E9FB0 = 0x005E9FB0; // type:data evidence: retail func_001356d0 (0x35A88) lbu reads D_005E9FB0[i] via lui/addiu %hi/%lo
 D_0064A790 = 0x0064A790; // type:data evidence: retail func_001356d0 (0x35B6C) passes &D_0064A790 to func_002baac0 via lui/addiu %hi/%lo
-iGpffff8394 = 0x00761458; // type:data evidence: retail func_00119810 lwc1 -0x7C98($28) as func_00274ed0's 7th arg; gp base 0x007690F0 -> 0x00761458
+iGpffff8368 = 0x00761458; // type:data evidence: retail func_00119810 lwc1 -0x7C98($28) as func_00274ed0's 7th arg; gp base 0x007690F0 -> 0x00761458
 D_00636210 = 0x00636210; // type:data evidence: retail func_00252a60 copies 4x8 bytes from it into sp110
 D_00636230 = 0x00636230; // type:data evidence: retail func_00252a60 copies 4x8 bytes from it into spF0
 D_00636250 = 0x00636250; // type:data evidence: retail func_00252a60 ld copies it into sp218 (s64)
@@ -192,9 +192,9 @@ D_007612CC = 0x007612CC; // type:data evidence: retail func_00252a60 lwc1 GPREL 
 D_007612D0 = 0x007612D0; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7E20($28); GP base 0x007690F0
 D_0076120C = 0x0076120C; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7EE4($28); GP base 0x007690F0
 D_00761288 = 0x00761288; // type:data evidence: retail func_00252a60 lwc1 GPREL -0x7E68($28); GP base 0x007690F0
-fGpffff7ae0 = 0x00761610; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7AE0($28) at 0x002D12F4; GP base 0x007690F0 - 0x7AE0 = 0x00761610
-fGpffff7adc = 0x00761614; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7ADC($28) at 0x002D140C; GP base 0x007690F0 - 0x7ADC = 0x00761614
-fGpffff7ad8 = 0x00761618; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7AD8($28) at 0x002D1504; GP base 0x007690F0 - 0x7AD8 = 0x00761618
+fGpffff8520 = 0x00761610; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7AE0($28) at 0x002D12F4; GP base 0x007690F0 - 0x7AE0 = 0x00761610
+fGpffff8524 = 0x00761614; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7ADC($28) at 0x002D140C; GP base 0x007690F0 - 0x7ADC = 0x00761614
+fGpffff8528 = 0x00761618; // type:data evidence: retail func_002cdf80 lwc1 GPREL -0x7AD8($28) at 0x002D1504; GP base 0x007690F0 - 0x7AD8 = 0x00761618
 
 // func_00247900 loads the skill-record table pointer at GPREL -0x4C2C($28)
 // (lw at 0x2479E8 / 0x247A4C / 0x247B3C, 0xE-byte records); GP base
@@ -318,12 +318,12 @@ iGpffffb614 = 0x00764704; // type:data evidence: retail func_003a16c0 sw $2,-0x4
 iGpffffbab0 = 0x00764ba0; // type:data evidence: retail func_004645e0 sw $0,-0x4550($28) (0x00764BA0), cleared beside iGpffffbab4; gp base 0x007690F0
 iGpffffbab4 = 0x00764ba4; // type:data evidence: retail func_004645e0 sw $2,-0x454C($28) (0x00764BA4) caching func_00431928's handle; gp base 0x007690F0
 iGpffffb460 = 0x00764550; // type:data evidence: retail func_001f9750 lw $2,-0x4BA0($28) (0x00764550); gp base 0x007690F0
-iGpffffb8d0 = 0x007647c0; // type:data evidence: retail func_003c3cc0 lw $4,-0x4930($28) (0x007647C0), a byte offset into D_008872E0; gp base 0x007690F0
-iGpffffb8d4 = 0x007647c4; // type:data evidence: retail func_003c3e10 lw/sw $3,-0x492C($28) (0x007647C4), a reference count; gp base 0x007690F0
-iGpffffb8e0 = 0x007647d0; // type:data evidence: retail func_003c40d0 lw $3,-0x4920($28) (0x007647D0), a byte offset into D_008872E0; gp base 0x007690F0
-iGpffffb8e4 = 0x007647d4; // type:data evidence: retail func_003c40d0 lw/sw $3,-0x491C($28) (0x007647D4), a reference count; gp base 0x007690F0
-iGpffffb8e8 = 0x007647d8; // type:data evidence: retail func_003c5700 lw $4,-0x4918($28) (0x007647D8), a cached object pointer; gp base 0x007690F0
-iGpffffb8f4 = 0x007647e4; // type:data evidence: retail func_003c54c0 lw/sw $2,-0x490C($28) (0x007647E4), a reference count; gp base 0x007690F0
+iGpffffb6d0 = 0x007647c0; // type:data evidence: retail func_003c3cc0 lw $4,-0x4930($28) (0x007647C0), a byte offset into D_008872E0; gp base 0x007690F0
+iGpffffb6d4 = 0x007647c4; // type:data evidence: retail func_003c3e10 lw/sw $3,-0x492C($28) (0x007647C4), a reference count; gp base 0x007690F0
+iGpffffb6e0 = 0x007647d0; // type:data evidence: retail func_003c40d0 lw $3,-0x4920($28) (0x007647D0), a byte offset into D_008872E0; gp base 0x007690F0
+iGpffffb6e4 = 0x007647d4; // type:data evidence: retail func_003c40d0 lw/sw $3,-0x491C($28) (0x007647D4), a reference count; gp base 0x007690F0
+iGpffffb6e8 = 0x007647d8; // type:data evidence: retail func_003c5700 lw $4,-0x4918($28) (0x007647D8), a cached object pointer; gp base 0x007690F0
+iGpffffb6f4 = 0x007647e4; // type:data evidence: retail func_003c54c0 lw/sw $2,-0x490C($28) (0x007647E4), a reference count; gp base 0x007690F0
 iGpffffb9b8 = 0x00764aa8; // type:data evidence: retail func_003cc010 lw $5,-0x4648($28) (0x00764AA8), a byte offset into D_008872E0; gp base 0x007690F0
 D_00724BF4 = 0x00764bf4; // type:data evidence: retail func_0046a2e0 sw $0,-0x44FC($28) (0x00764BF4); gp base 0x007690F0
 D_00724BF8 = 0x00764bf8; // type:data evidence: retail func_0046a2e0 sw $0,-0x44F8($28) (0x00764BF8); gp base 0x007690F0
@@ -425,7 +425,7 @@ iGpffffba98 = 0x00764b88; // type:data evidence: retail code1_0046 func_00460910
 iGpffffba9c = 0x00764b8c; // type:data evidence: retail code1_0046 func_00460910 allocator GP -0x4564; gp base 0x007690F0
 fGpffff8184 = 0x00761274; // type:data evidence: retail code1_0020 func_00200960 lwc1 gp -0x7e7c; gp base 0x007690F0
 iGpffffb7c4 = 0x007648b4; // type:data evidence: retail code1_003e func_003e8e60 GP -0x483c; gp base 0x007690F0
-iGpffffb7a8 = 0x007648a8; // type:data evidence: retail code1_003e func_003e8910 lw gp -0x4848; alias of D_00887330; gp base 0x007690F0
+iGpffffb7b8 = 0x007648a8; // type:data evidence: retail code1_003e func_003e8910 lw gp -0x4848; alias of D_00887330; gp base 0x007690F0
 iGpffffb468 = 0x00764558; // type:data evidence: retail code1_001f func_001fc1b0 GP -0x4b98; gp base 0x007690F0
 iGpffffb469 = 0x00764559; // type:data evidence: retail code1_001f func_001fc1b0 GP -0x4b97; lbu/sb byte slot; gp base 0x007690F0
 iGpffffb46e = 0x0076455e; // type:data evidence: retail code1_001f func_001fc1b0 GP -0x4b92; lbu/sb byte slot; gp base 0x007690F0

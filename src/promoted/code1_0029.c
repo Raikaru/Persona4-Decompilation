@@ -3,6 +3,9 @@
 #include "type.h"
 extern u8 *iGpffffb510;
 extern void func_004b15d0();
+extern s32 iGpffffa7c8;
+extern s32 func_0029ce90(s32 arg0);
+extern void func_0029e9b0(void *arg0, s32 arg1);
 
 s32 func_00291a60(u16 arg0);
 
@@ -317,7 +320,11 @@ s32 func_00299b70(void) {
     return 1;
 }
 // FUN_00299C20
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00299c20);
+s32 func_00299c20(void)
+{
+    func_0029e9b0(&iGpffffa7c8, func_0029ce90(0));
+    return 1;
+}
 // FUN_00299C60
 s32 func_00299c60(void) {
     func_0029cf50(func_00104ce0(func_0029cc00(0)) & 0xFFFF);

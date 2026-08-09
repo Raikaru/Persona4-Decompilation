@@ -1600,58 +1600,50 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422328);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422390);
 // FUN_004223F8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004223f8);
+/* measured: schedule on keeps the permitted sync after the real call and
+   reproduces the retail leaf wrapper's epilogue. */
+#pragma schedule on
 // FUN_00422460
-asm void func_00422460(void)
+void func_00422460(void)
 {
-    .set noreorder
-    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
-    .word 0xFFBF0000 /* sd $ra, 0($sp) */
-    .word 0x0C108560 /* jal 0x00421580 */
-    .word 0x00000000 /* nop */
-    .word 0x0000000F /* sync */
-    .word 0xDFBF0000 /* ld $ra, 0($sp) */
-    .word 0x03E00008 /* jr $ra */
-    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+    func_00421580();
+    __asm__ volatile ("sync" : : : "memory");
 }
+/* measured: closes schedule on around func_00422460. */
+#pragma schedule off
+/* measured: schedule on keeps the permitted sync after the real call and
+   reproduces the retail leaf wrapper's epilogue. */
+#pragma schedule on
 // FUN_00422480
-asm void func_00422480(void)
+void func_00422480(void)
 {
-    .set noreorder
-    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
-    .word 0xFFBF0000 /* sd $ra, 0($sp) */
-    .word 0x0C108564 /* jal 0x00421590 */
-    .word 0x00000000 /* nop */
-    .word 0x0000000F /* sync */
-    .word 0xDFBF0000 /* ld $ra, 0($sp) */
-    .word 0x03E00008 /* jr $ra */
-    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+    func_00421590();
+    __asm__ volatile ("sync" : : : "memory");
 }
+/* measured: closes schedule on around func_00422480. */
+#pragma schedule off
+/* measured: schedule on keeps the permitted sync after the real call and
+   reproduces the retail leaf wrapper's epilogue. */
+#pragma schedule on
 // FUN_004224A0
-asm void func_004224a0(void)
+void func_004224a0(void)
 {
-    .set noreorder
-    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
-    .word 0xFFBF0000 /* sd $ra, 0($sp) */
-    .word 0x0C108568 /* jal 0x004215A0 */
-    .word 0x00000000 /* nop */
-    .word 0x0000000F /* sync */
-    .word 0xDFBF0000 /* ld $ra, 0($sp) */
-    .word 0x03E00008 /* jr $ra */
-    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+    func_004215a0();
+    __asm__ volatile ("sync" : : : "memory");
 }
+/* measured: closes schedule on around func_004224a0. */
+#pragma schedule off
+/* measured: schedule on keeps the permitted sync after the real call and
+   reproduces the retail leaf wrapper's epilogue. */
+#pragma schedule on
 // FUN_004224C0
-asm void func_004224c0(void)
+void func_004224c0(void)
 {
-    .set noreorder
-    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
-    .word 0xFFBF0000 /* sd $ra, 0($sp) */
-    .word 0x0C10856C /* jal 0x004215B0 */
-    .word 0x00000000 /* nop */
-    .word 0x0000000F /* sync */
-    .word 0xDFBF0000 /* ld $ra, 0($sp) */
-    .word 0x03E00008 /* jr $ra */
-    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+    func_004215b0();
+    __asm__ volatile ("sync" : : : "memory");
 }
+/* measured: closes schedule on around func_004224c0. */
+#pragma schedule off
 // FUN_004224E0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004224e0);
 // FUN_004225B8

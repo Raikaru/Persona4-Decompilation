@@ -236,6 +236,26 @@ DATA_REACHABLE_ENTRIES = {
     # against a 112B body whose every instruction already matches, so that
     # function could never leave SIZE_MISMATCH; splitting it makes both match.
     0x001CCA50: {"pointer": 0x005F7780},
+    # `jr $ra; nop` nullsub after func_001a2c70's epilogue. The record at
+    # 005F6E94/98/9C holds 001A2C70, 001A2D60 and 001A2D70; the neighbours on
+    # both sides are already canonical functions, so this word is a callback
+    # slot rather than a constant. Folding it left func_001a2c70 with a 256B
+    # window against a 240B body whose every instruction matches, so that
+    # function could never leave SIZE_MISMATCH; splitting it makes both match.
+    0x001A2D60: {"pointer": 0x005F6E98},
+    # `jr $ra; nop` nullsub after func_001c6b60's epilogue; the record at
+    # 005F76F0/F4 holds 001C6B60 then 001C6BA0, so the neighbouring field
+    # already points at a known function and this word is a callback slot.
+    0x001C6BA0: {"pointer": 0x005F76F4},
+    # `jr $ra; nop` nullsub folded into func_001cde50's window; the single
+    # reference is the callback slot at 005F74FC, whose record neighbours are
+    # a data pointer and the usual {0,1,1} flag triple.
+    0x001CE420: {"pointer": 0x005F74FC},
+    # `jr $ra; nop` nullsub after func_001ade10's epilogue; the record at
+    # 005F6F5C/64/68 holds 001ADE10, 001ADE90 and 001ADEA0, so both
+    # neighbouring fields already point at known functions and this word is a
+    # callback slot rather than a constant.
+    0x001ADE90: {"pointer": 0x005F6F64},
 }
 
 # Entries that spimdisasm's control-flow scan misses and that NO data pointer

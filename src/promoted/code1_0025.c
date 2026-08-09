@@ -52,6 +52,10 @@ extern s32 func_0025ecd0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                          s32 arg4, s32 arg5, s32 arg6, void *arg7,
                          f32 farg0, f32 farg1, f32 farg2, f32 farg3,
                          f32 farg4, f32 farg5);
+void func_0025ea20(s32 arg0, s32 arg1, s32 arg2, void *arg3,
+                   s32 arg4, s32 arg5, s32 arg6,
+                   f32 farg0, f32 farg1, f32 farg2, f32 farg3,
+                   f32 farg4, f32 farg5);
 
 
 
@@ -418,7 +422,11 @@ block_5:
 // FUN_0025D850
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d850);
 // FUN_0025E9E0
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025e9e0);
+void func_0025e9e0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4,
+                   f32 farg0, f32 farg1, f32 farg2) {
+    func_0025ea20(arg0, arg1, arg2, arg3, arg4, 0, 0,
+                  farg0, farg1, farg2, 0.0f, 1.0f, 1.0f);
+}
 // FUN_0025EA20
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ea20);
 // FUN_0025EC10

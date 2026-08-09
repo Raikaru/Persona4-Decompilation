@@ -63,19 +63,19 @@ void func_003f32d0();
 extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
 extern void (*jtbl_008873E8[])(u8 *arg0, s32 arg1);
 /* gp - 0x4930 = 0x007647c0 */
-extern s32 iGpffffb8d0;
+extern s32 iGpffffb6d0;
 /* gp - 0x492C = 0x007647c4 */
-extern s32 iGpffffb8d4;
+extern s32 iGpffffb6d4;
 /* gp - 0x4920 = 0x007647d0 */
-extern s32 iGpffffb8e0;
+extern s32 iGpffffb6e0;
 /* gp - 0x491C = 0x007647d4 */
-extern s32 iGpffffb8e4;
+extern s32 iGpffffb6e4;
 /* gp - 0x4918 = 0x007647d8 */
-extern u8 *iGpffffb8e8;
+extern u8 *iGpffffb6e8;
 /* gp - 0x48e8 = 0x00764808 */
 extern u8 *iGpffffb718;
 /* gp - 0x490C = 0x007647e4 */
-extern s32 iGpffffb8f4;
+extern s32 iGpffffb6f4;
 extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
 extern void func_003e12f0(u8 *arg0);
 extern s32 func_003c3890(u8 *arg0);
@@ -563,7 +563,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3ae0);
 s32 func_003c3cc0(u8 *arg0) {
     func_003e3c20(D_0070AFD0, arg0);
     func_003efda0(arg0);
-    jtbl_008873FC[0](*(u8 **)(D_008872E0 + iGpffffb8d0), arg0);
+    jtbl_008873FC[0](*(u8 **)(D_008872E0 + iGpffffb6d0), arg0);
     return 1;
 }
 // measured: closes the schedule bracket opened above and restores the -O2
@@ -579,10 +579,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3d20);
 // FUN_003C3E10
 #pragma schedule on
 u8 *func_003c3e10(u8 *arg0) {
-    func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb8d0), (void *)func_003c3890, 0);
-    func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb8d0));
-    *(u8 **)(D_008872E0 + iGpffffb8d0) = NULL;
-    iGpffffb8d4 -= 1;
+    func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb6d0), (void *)func_003c3890, 0);
+    func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb6d0));
+    *(u8 **)(D_008872E0 + iGpffffb6d0) = NULL;
+    iGpffffb6d4 -= 1;
     return arg0;
 }
 // measured: closes the schedule bracket opened above and restores the -O2
@@ -661,12 +661,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
 u8 *func_003c40d0(u8 *arg0) {
     u8 *p;
 
-    p = *(u8 **)(D_008872E0 + iGpffffb8e0);
+    p = *(u8 **)(D_008872E0 + iGpffffb6e0);
     if (p != NULL) {
         func_003e12f0(p);
-        *(u8 **)(D_008872E0 + iGpffffb8e0) = NULL;
+        *(u8 **)(D_008872E0 + iGpffffb6e0) = NULL;
     }
-    iGpffffb8e4 -= 1;
+    iGpffffb6e4 -= 1;
     return arg0;
 }
 #pragma no_branch_likely off
@@ -854,7 +854,7 @@ s32 func_003c5700(u8 *arg0) {
         jtbl_008873EC[0](p);
         *(s32 *)(arg0 + 8) = 0;
     }
-    jtbl_008873FC[0](iGpffffb8e8, arg0);
+    jtbl_008873FC[0](iGpffffb6e8, arg0);
     return 1;
 }
 /* measured: without schedule on the jalr and jr delay slots stay empty and
@@ -1081,21 +1081,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c91d0);
 // FUN_003C9300
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9300);
 // FUN_003C9530
-extern s32 iGpffffb7f0;
-extern s32 iGpffffb7f4;
+extern s32 iGpffffb700;
+extern s32 iGpffffb704;
 extern void func_003cc130(void);
 /* measured: probe schedule */
 #pragma schedule on
 s32 func_003c9530(s32 arg0) {
     u8 *p;
 
-    p = *(u8 **)(D_008872E0 + iGpffffb7f0);
+    p = *(u8 **)(D_008872E0 + iGpffffb700);
     if (p != NULL) {
         func_003e12f0(p);
-        *(u8 **)(D_008872E0 + iGpffffb7f0) = NULL;
+        *(u8 **)(D_008872E0 + iGpffffb700) = NULL;
     }
     func_003cc130();
-    iGpffffb7f4 -= 1;
+    iGpffffb704 -= 1;
     return arg0;
 }
 /* measured: close schedule */
