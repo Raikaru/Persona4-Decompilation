@@ -1,8 +1,0 @@
-{
-  "H_clean": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n    s32 nz;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        nz = (p[2] != 0);\n        if (!nz) {\n            continue;\n        }\n        return 1;\n    }\n    return 0;\n}",
-  "I_clean_u32i": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    u32 i;\n    u32 nz;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        nz = (p[2] != 0);\n        if (!nz) {\n            continue;\n        }\n        return 1;\n    }\n    return 0;\n}",
-  "J_goto_inline": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n    s32 nz;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        nz = (p[2] != 0);\n        if (!nz) {\n            goto next;\n        }\n        return 1;\n    next:\n        ;\n    }\n    return 0;\n}",
-  "K_while": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n    s32 nz;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    i = 0;\n    while (i < 8) {\n        nz = (p[2] != 0);\n        if (nz) {\n            return 1;\n        }\n        p++;\n        i++;\n    }\n    return 0;\n}",
-  "L_do_while": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n    s32 nz;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    i = 0;\n    do {\n        nz = (p[2] != 0);\n        if (nz) {\n            return 1;\n        }\n        p++;\n        i++;\n    } while (i < 8);\n    return 0;\n}",
-  "M_nz_test": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        if (!(p[2] != 0)) {\n            p++;\n            continue;\n        }\n        return 1;\n    }\n    return 0;\n}"
-}

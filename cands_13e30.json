@@ -1,4 +1,0 @@
-{
-  "v1": "void func_00113e30(s64 arg0, s32 arg1, u8 *arg2, f32 fparg0) {\n    func_00275020(((u32)((arg1 & 0xFF) * 0xFF) / 255U) | ~0xFF, *((u8 *)((s32)&D_005E47F0 + (*(s16 *)(arg2 + 2) * 2))), 1, func_00243840(*(u16 *)(arg2 + 0xA)), 8, -1, (f32)(s32)(*(f32 *)&arg0), (f32)(s32)(*((f32 *)&arg0 + 1)), fparg0);\n}",
-  "v2": "void func_00113e30(s64 arg0, s32 arg1, u8 *arg2, f32 fparg0) {\n    s32 lo;\n    s32 hi;\n    lo = (s32)(*(f32 *)&arg0);\n    hi = (s32)(*((f32 *)&arg0 + 1));\n    func_00275020(((u32)((arg1 & 0xFF) * 0xFF) / 255U) | ~0xFF, *((u8 *)((s32)&D_005E47F0 + (*(s16 *)(arg2 + 2) * 2))), 1, func_00243840(*(u16 *)(arg2 + 0xA)), 8, -1, (f32)lo, (f32)hi, fparg0);\n}"
-}
