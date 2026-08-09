@@ -49,6 +49,9 @@ typedef struct KWindowEntry
 } KWindowEntry;
 
 extern KWindowEntry* func_00470d10(KwlnTask* task, s32 id);
+extern void func_00442830(void* destination, const char* source);
+extern void func_004704d0(KwlnTask* task);
+
 
 
 
@@ -97,9 +100,38 @@ void func_00470a90(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 
 
 // FUN_00470AD0
-INCLUDE_ASM("asm/nonmatchings/k_view", func_00470ad0);
+void func_00470ad0(KwlnTask* task, u32 id, const char* text)
+{
+    KWindowEntry* entry;
+
+    entry = (KWindowEntry*)func_00470d10(task, id);
+    if (entry != NULL)
+    {
+        entry->type = 1;
+        if (text != NULL)
+        {
+            func_00442830(entry->text, text);
+        }
+        func_004704d0(task);
+    }
+}
 // FUN_00470B40
-INCLUDE_ASM("asm/nonmatchings/k_view", func_00470b40);
+void func_00470b40(KwlnTask* task, u32 id, s32 value, s32 minValue,
+                   s32 maxValue, s32 flags)
+{
+    KWindowEntry* entry;
+
+    entry = (KWindowEntry*)func_00470d10(task, id);
+    if (entry != NULL)
+    {
+        entry->type = 3;
+        entry->intValue = value;
+        entry->minValue = minValue;
+        entry->maxValue = maxValue;
+        entry->flags = flags;
+        func_004704d0(task);
+    }
+}
 // FUN_00470BD0
 s32* func_00470bd0(KwlnTask* task, u32 id)
 {

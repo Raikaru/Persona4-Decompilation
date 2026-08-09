@@ -371,6 +371,7 @@ void func_00482700(int param_1, float *param_2)
 /* Removing this loses FUN_00482730 (MATCH nd0 -> MISMATCH nd45) - measured W161. */
 
 // FUN_00482730
+/* measured: opt_loop_invariants on is required for func_00482730 (MATCH nd0). */
 #pragma opt_loop_invariants on
 void func_00482730(int param_1, u32 param_2)
 {
@@ -388,6 +389,7 @@ void func_00482730(int param_1, u32 param_2)
 }
 
 
+/* measured: opt_loop_invariants off closes the func_00482730 bracket. */
 #pragma opt_loop_invariants off
 
 // FUN_00484490
@@ -624,6 +626,7 @@ u_long128 func_00492db0(int param_1, u32 *param_2)
 }
 
 
+/* measured: opt_propagation off preserves func_00492dd0's 128-bit load/store ordering (MATCH nd0). */
 #pragma opt_propagation off
 
 // FUN_00492DD0
@@ -638,6 +641,7 @@ u_long128 func_00492dd0(int param_1, u32 *param_2)
   return value;
 }
 
+/* measured: opt_propagation on closes the func_00492dd0 bracket. */
 #pragma opt_propagation on
 
 
@@ -649,6 +653,7 @@ u_long128 func_00492df0(int param_1, u32 *param_2)
 }
 
 
+/* measured: opt_propagation off preserves func_00492e10's 128-bit load/store ordering (MATCH nd0). */
 #pragma opt_propagation off
 
 // FUN_00492E10
@@ -662,6 +667,7 @@ u_long128 func_00492e10(int param_1, u32 *param_2)
   *dst = value;
   return value;
 }
+/* measured: opt_propagation on closes the func_00492e10 bracket. */
 #pragma opt_propagation on
 
 
@@ -728,7 +734,10 @@ INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a6e70);
 // FUN_004A7760
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a7760);
 // FUN_004A7790
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a7790);
+u_long128 func_004a7790(u_long128 *arg0, u_long128 *arg1)
+{
+    return *arg0 = *arg1;
+}
 // FUN_004A77A0
 void func_004a77a0(u32 *param_1, u32 param_2)
 {

@@ -102,6 +102,12 @@ typedef int long128 __attribute__((mode(TI)));
 extern s32 func_004270f8(s32 fd, s32 offset, s32 origin);
 
 extern const char D_00711780[];
+extern s32 iGpffffad88;
+extern void func_00442830(char* destination, const char* source);
+extern void func_00442428(char* destination, const char* source);
+extern s32 func_00442948(const char* text);
+extern s32 func_00426cf0(const char* path, s32 mode);
+extern void func_00426f80(s32 fd);
 
 
 
@@ -911,7 +917,21 @@ common:
 
 
 // FUN_00456AE0
-INCLUDE_ASM("asm/nonmatchings/h_cdvd", func_00456ae0);
+s32 func_00456ae0(void* unused, const char* path)
+{
+    char fullPath[256];
+    s32 fd;
+
+    func_00442830(fullPath, (const char*)&iGpffffad88);
+    func_00442428(fullPath, path + func_00442948(fullPath));
+    fd = func_00426cf0(fullPath, 1);
+    if (fd >= 0)
+    {
+        func_00426f80(fd);
+        return 1;
+    }
+    return 0;
+}
 // FUN_00456b70
 void* func_00456b70(void* contextData, u32 index)
 {

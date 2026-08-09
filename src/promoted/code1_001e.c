@@ -7,9 +7,9 @@ extern s64 func_0029cc00();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
 extern s32 func_0029cc00_s32(s32 index);
-static inline u32 p4_slot_001eb320(u32 offset, u32 base)
+static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
 {
-    return offset + base;
+    return (u8 *)((u32)offset + (u32)base);
 }
 extern void func_0029cf50();
 extern s32 datCalcGetHp();
@@ -36,6 +36,12 @@ extern u8 *func_001bc920(s32 arg0, s32 arg1);
 extern void func_00194590(u8 *arg0, s32 arg1);
 extern u8 *func_001f60c0(void);
 
+
+extern u8 *func_001b1560(void);
+extern s32 func_00231d70(s32 arg0);
+extern void func_001eb410(u8 *arg0);
+extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern u8 *iGpffffb3bc;
 
 
 
@@ -74,7 +80,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7ab0);
 // FUN_001E7C20
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7c20);
 // FUN_001E7D30
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7d30);
+s32 func_001e7d30(void) {
+    u8 *temp;
+
+    temp = func_0029d050();
+    func_0029cf50(*(s32 *)(temp + 8) | 0x80000000);
+    return 1;
+}
 // FUN_001E7D70
 s32 func_001e7d70(void) {
     func_0029cf50(func_00231f80(*(s32 *)(*(u8 **)(func_001b0cc0((u64) func_0029cc00(0) & 0xFFFFFFF) + 0x30) + 0xA64)) & 0xFFFF);
@@ -92,7 +104,13 @@ s32 func_001e7dd0(void) {
 
 
 // FUN_001E7E30
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7e30);
+s32 func_001e7e30(void) {
+    u8 *temp;
+
+    temp = func_001b1560();
+    func_0029cf50(*(s32 *)(temp + 8) | 0x80000000);
+    return 1;
+}
 // FUN_001E7E70
 // measured: the status byte/halfword gates the signed-byte payload; the
 // payload is read only when neither gate is active.
@@ -207,7 +225,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea220);
 // FUN_001EA2D0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea2d0);
 // FUN_001EA360
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea360);
+s32 func_001ea360(void) {
+    u8 *temp;
+
+    temp = func_0029d050();
+    *(s16 *)(temp + 0x6C) = 5;
+    return 1;
+}
 // FUN_001EA390
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea390);
 // FUN_001EA420
@@ -218,7 +242,10 @@ s32 func_001ea420(void)
 }
 
 // FUN_001EA470
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea470);
+s32 func_001ea470(void) {
+    func_0029cf50(*(s16 *)(iGpffffb3ac + 0xC34));
+    return 1;
+}
 
 // FUN_001EA4A0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea4a0);
@@ -265,7 +292,12 @@ s32 func_001eaa30(void)
 }
 
 // FUN_001EAA80
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eaa80);
+s32 func_001eaa80(void) {
+    if (func_001eb860() == 1) {
+        *(s32 *)(iGpffffb3ac + 0xC) |= 0x2000;
+    }
+    return 1;
+}
 // FUN_001EAAC0
 s32 func_001eaac0(void)
 {
@@ -328,25 +360,46 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb110);
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb1d0);
 
 // FUN_001EB2A0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb2a0);
+s32 func_001eb2a0(void) {
+    s32 temp;
 
-// FUN_001EB2E0
+    temp = func_0029cc00_s32(0);
+    temp = func_00231d70(temp);
+    func_0029cf50(temp);
+    return 1;
+}
+
+/* measured: object/window 64/64, normalized_diff 6. Retail places the
+   iGpffffb3ac load in the call delay slot and keeps the index in $v0; b210
+   emits the scale before the GP load under the tested direct and helper
+   spellings. Committed at nd 6. */
+// FUN_001EB2E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001eb2e0(void) {
+    s32 index;
+
+    index = func_0029cc00_s32(0);
+    func_0029cf50(*(s32 *)(iGpffffb3ac + index * 4 + 0xDD8));
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb2e0);
+#endif
+/* measured: opt_propagation off probe for e320 GP-load order. */
+#pragma opt_propagation off
 // FUN_001EB320
 s32 func_001eb320(void)
 {
     s32 idx;
     s32 value;
-    u32 offset;
-    u32 base;
 
     idx = func_0029cc00_s32(0);
     value = func_0029cc00_s32(1);
-    base = *(volatile u32 *)&iGpffffb3ac;
-    offset = (u32)idx * 4;
-    *(s32 *)((u8 *)p4_slot_001eb320(offset, base) + 0xDD8) = value;
+    *(s32 *)(p4_slot_001eb320((u32)idx * 4, iGpffffb3ac) + 0xDD8) = value;
     return 1;
 }
+/* measured: closes opt_propagation probe for func_001eb320. */
+#pragma opt_propagation on
 
 // FUN_001EB370
 s32 func_001eb370(void)
@@ -360,9 +413,23 @@ void func_001eb380(u8 *arg0) {
 }
 
 // FUN_001EB3B0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb3b0);
+void func_001eb3b0(u8 *arg0) {
+    u8 *temp;
+
+    temp = arg0;
+    func_001eb410(temp);
+    *(s16 *)(temp + 0x36) = 0;
+    *(s16 *)(temp + 0x38) = 0;
+    *(s16 *)(temp + 0x34) = 0;
+    *(s32 *)(temp + 0x50) = 0;
+    *(s32 *)(temp + 0x54) = 0;
+    *(s32 *)(temp + 0x58) = 0;
+    func_0043f9c8(temp + 0x3E, 0, 6);
+}
 // FUN_001EB410
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb410);
+void func_001eb410(u8 *arg0) {
+    *(s16 *)(arg0 + 0x32) = 0;
+}
 // FUN_001EB4A0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb4a0);
 // FUN_001EB7F0
@@ -414,7 +481,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eed10);
 // FUN_001EF110
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef110);
 // FUN_001EF4A0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef4a0);
+s32 func_001ef4a0(s32 arg0) {
+    s32 value;
+
+    value = iGpffffb3bc[(arg0 & 0xFFFF) * 4];
+    if (value == 0) {
+        value = 1;
+    }
+    return value;
+}
 // FUN_001EF4D0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef4d0);
 // FUN_001EF5F0
@@ -426,7 +501,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef7e0);
 // FUN_001EF8C0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef8c0);
 // FUN_001EF9A0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef9a0);
+u16 func_001ef9a0(void) {
+    return *(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8);
+}
 // FUN_001EF9C0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef9c0);
 // FUN_001EFD50

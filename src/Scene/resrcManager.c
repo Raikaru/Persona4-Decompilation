@@ -45,9 +45,11 @@ struct Resrc
     f32 unk_1c;         /* 0x1c */
     f32 unk_20;         /* 0x20 */
     f32 unk_24;         /* 0x24 */
-    u8 unkData2[0x110]; /* 0x28 */
+    u8 unkData2[0x30];  /* 0x28 */
+    void* ownedData;     /* 0x58. Freed when non-NULL */
+    u8 unkData3[0xdc];   /* 0x5c */
     Resrc* next;        /* 0x138 */
-    Resrc* prev;        /* 0x13C */
+    Resrc* prev;        /* 0x13c */
 };
 
 typedef struct ResrcManager
@@ -232,7 +234,44 @@ Resrc* resrcMngCreateRes(ResrcManager* resManager, u16 resTypeId)
 }
 
 // FUN_00147430
-INCLUDE_ASM("asm/nonmatchings/resrcManager", func_00147430);
+void func_00147430(ResrcManager* resManager, Resrc* res)
+{
+    Resrc* currRes;
+    Resrc* prevRes;
+    Resrc* nextRes;
+    Resrc** listHead;
+
+    listHead = &resManager->resLists[RESRC_GET_TYPE(res->resTypeId)];
+    currRes = *listHead;
+    while (currRes != NULL)
+    {
+        if (res == currRes)
+        {
+            prevRes = currRes->prev;
+            nextRes = currRes->next;
+            if (prevRes == NULL)
+            {
+                *listHead = res->next;
+            }
+            if (nextRes != NULL)
+            {
+                nextRes->prev = prevRes;
+            }
+            if (prevRes != NULL)
+            {
+                prevRes->next = nextRes;
+            }
+            if (res->ownedData != NULL)
+            {
+                (*jtbl_008873EC)(res->ownedData);
+                res->ownedData = NULL;
+            }
+            (*jtbl_008873EC)(res);
+            return;
+        }
+        currRes = currRes->next;
+    }
+}
 // FUN_00147500
 Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType)
 {

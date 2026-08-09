@@ -158,7 +158,13 @@ void func_001f36b0(void* arg)
 // FUN_001F36E0
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001f36e0);
 // FUN_001F37B0
-INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001f37b0);
+void func_001f37b0(void* arg)
+{
+    BtlAction* action;
+
+    action = *(BtlAction**)arg;
+    action->unit->packetCount++;
+}
 // FUN_001F37D0
 u32 func_001f37d0(void* arg)
 {

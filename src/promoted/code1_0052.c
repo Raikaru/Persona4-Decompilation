@@ -109,7 +109,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524680);
 // FUN_00524720
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524720);
 // FUN_00524770
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524770);
+void func_00524770(s32 *arg0, s32 arg1, s32 arg2, s32 *arg3)
+{
+    *arg3 = 0;
+}
 // FUN_00524778
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524778);
 // FUN_00524820
@@ -133,6 +136,7 @@ s32 *func_00528c30(void)
 {
     return D_007609B0;
 }
+/* measured: closes the schedule-on segment-return bracket through func_00528c30; explicit schedule off restores the following code's baseline state. */
 #pragma schedule off
 
 
@@ -199,9 +203,19 @@ u32 func_0052ba00(u32 arg0)
 #pragma schedule on
 
 // FUN_0052BA20
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052ba20);
+s32 *func_0052ba20(u8 *arg0, s32 arg1)
+{
+    s32 *work = *(s32 **)(arg0 + 0x24);
+    work[0x11] = arg1;
+    return work;
+}
 // FUN_0052BA30
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052ba30);
+s32 *func_0052ba30(u8 *arg0, s32 arg1)
+{
+    s32 *work = *(s32 **)(arg0 + 0x24);
+    work[0x12] = arg1;
+    return work;
+}
 // FUN_0052C840
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052c840);
 // FUN_0052C870
@@ -212,6 +226,7 @@ u32 func_0052c870(u32 arg0)
     *(u32 *)(segment + 0x613C) = arg0;
     return segment;
 }
+/* measured: closes the schedule-on segment-return bracket through func_0052c870; explicit schedule off restores the following code's baseline state. */
 #pragma schedule off
 
 // FUN_0052C880

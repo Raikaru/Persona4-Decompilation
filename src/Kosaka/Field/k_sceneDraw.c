@@ -12,6 +12,10 @@ typedef struct Resrc
 #define SCENEDRAW_RESRC_FLAG_VISIBLE 0x00000002
 
 extern Resrc* MT_Scene_GetRes(u16 resTypeId);
+extern u8* func_001452b0(s32 arg0);
+extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 arg3);
+extern f32 fGpffff809c;
+extern f32 fGpffff838c;
 
 typedef struct ResrcManager ResrcManager;
 
@@ -185,9 +189,53 @@ void func_0014a460(u16 resTypeId, u32 directionalOnly)
 
 
 // FUN_0014A5D0
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a5d0);
+void* func_0014a5d0(u16 resTypeId)
+{
+    Resrc* res;
+    u32 type;
+
+    type = RESRC_GET_TYPE(resTypeId);
+    if (type == RESRC_TYPE_MODELCHAR)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x168;
+    }
+    if (type == RESRC_TYPE_MODELNPC)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x168;
+    }
+    if (type == RESRC_TYPE_MODELUNK)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x15c;
+    }
+    return NULL;
+}
 // FUN_0014A6C0
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a6c0);
+void* func_0014a6c0(u16 resTypeId)
+{
+    Resrc* res;
+    u32 type;
+
+    type = RESRC_GET_TYPE(resTypeId);
+    if (type == RESRC_TYPE_MODELCHAR)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x178;
+    }
+    if (type == RESRC_TYPE_MODELNPC)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x178;
+    }
+    if (type == RESRC_TYPE_MODELUNK)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x16c;
+    }
+    return NULL;
+}
 // FUN_0014A7B0
 void* func_0014a7b0(u16 resTypeId)
 {
@@ -216,25 +264,324 @@ void* func_0014a7b0(u16 resTypeId)
 
 
 // FUN_0014A8A0
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a8a0);
+void* func_0014a8a0(u16 resTypeId)
+{
+    Resrc* res;
+    u32 type;
+
+    type = RESRC_GET_TYPE(resTypeId);
+    if (type == RESRC_TYPE_MODELCHAR)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x1d0;
+    }
+    if (type == RESRC_TYPE_MODELNPC)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x1d0;
+    }
+    if (type == RESRC_TYPE_MODELUNK)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x1c0;
+    }
+    return NULL;
+}
 // FUN_0014A990
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a990);
+void* func_0014a990(u16 resTypeId)
+{
+    Resrc* res;
+    u32 type;
+
+    type = RESRC_GET_TYPE(resTypeId);
+    if (type == RESRC_TYPE_MODELCHAR)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x1e0;
+    }
+    if (type == RESRC_TYPE_MODELNPC)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x1e0;
+    }
+    if (type == RESRC_TYPE_MODELUNK)
+    {
+        res = func_00147530(gMtScene->resManager, resTypeId);
+        return res == NULL ? NULL : (u8*)res + 0x1d0;
+    }
+    return NULL;
+}
 // FUN_0014AA80
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014aa80);
+void func_0014aa80(u16 resTypeId)
+{
+    s32 sp[3];
+    s32 one;
+    u8 *temp_21;
+    u8 *temp_19;
+    u8 *temp_18;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 type;
+
+    temp_17 = func_0014a5d0(resTypeId);
+    temp_16 = func_0014a6c0(resTypeId);
+    temp_19 = func_0014a7b0(resTypeId);
+    temp_21 = func_0014a8a0(resTypeId);
+    temp_18 = func_0014a990(resTypeId);
+    *(s32 *)(temp_17 + 0x0) = 0x3f000000;
+    *(s32 *)(temp_17 + 0x4) = 0x3f000000;
+    *(s32 *)(temp_17 + 0x8) = 0x3f000000;
+    *(s32 *)(temp_17 + 0xc) = 0;
+    *(s32 *)(temp_16 + 0x0) = 0x3f000000;
+    *(s32 *)(temp_16 + 0x4) = 0x3f000000;
+    *(s32 *)(temp_16 + 0x8) = 0x3f000000;
+    *(s32 *)(temp_16 + 0xc) = 0;
+    *(s32 *)(temp_21 + 0x0) = 0;
+    *(s32 *)(temp_21 + 0x4) = 0;
+    *(s32 *)(temp_21 + 0x8) = 0;
+    *(s32 *)(temp_21 + 0xc) = 0;
+    one = 0x3f800000;
+    *(s32 *)(temp_19 + 0x28) = one;
+    *(s32 *)(temp_19 + 0x14) = one;
+    *(s32 *)(temp_19 + 0x0) = one;
+    *(s32 *)(temp_19 + 0x10) = 0;
+    *(s32 *)(temp_19 + 0x8) = 0;
+    *(s32 *)(temp_19 + 0x4) = 0;
+    *(s32 *)(temp_19 + 0x24) = 0;
+    *(s32 *)(temp_19 + 0x20) = 0;
+    *(s32 *)(temp_19 + 0x18) = 0;
+    *(s32 *)(temp_19 + 0x38) = 0;
+    *(s32 *)(temp_19 + 0x34) = 0;
+    *(s32 *)(temp_19 + 0x30) = 0;
+    *(s32 *)(temp_19 + 0xc) = *(s32 *)(temp_19 + 0xc) | 0x20003;
+    sp[0] = 0;
+    sp[1] = one;
+    sp[2] = 0;
+    func_003e0870(temp_19, &sp[0], 2, -180.0f);
+    sp[0] = one;
+    sp[1] = 0;
+    sp[2] = 0;
+    func_003e0870(temp_19, &sp[0], 2, -45.0f);
+    *(s32 *)(temp_18 + 0x28) = one;
+    *(s32 *)(temp_18 + 0x14) = one;
+    *(s32 *)(temp_18 + 0x0) = one;
+    *(s32 *)(temp_18 + 0x10) = 0;
+    *(s32 *)(temp_18 + 0x8) = 0;
+    *(s32 *)(temp_18 + 0x4) = 0;
+    *(s32 *)(temp_18 + 0x24) = 0;
+    *(s32 *)(temp_18 + 0x20) = 0;
+    *(s32 *)(temp_18 + 0x18) = 0;
+    *(s32 *)(temp_18 + 0x38) = 0;
+    *(s32 *)(temp_18 + 0x34) = 0;
+    *(s32 *)(temp_18 + 0x30) = 0;
+    *(s32 *)(temp_18 + 0xc) = *(s32 *)(temp_18 + 0xc) | 0x20003;
+    sp[0] = 0;
+    sp[1] = one;
+    sp[2] = 0;
+    func_003e0870(temp_18, &sp[0], 2, -180.0f);
+    sp[0] = one;
+    sp[1] = 0;
+    sp[2] = 0;
+    func_003e0870(temp_18, &sp[0], 2, -45.0f);
+    type = RESRC_GET_TYPE(resTypeId);
+    if (type == RESRC_TYPE_MODELCHAR || type == RESRC_TYPE_MODELNPC)
+    {
+        func_00147530(gMtScene->resManager, resTypeId);
+    }
+}
 // FUN_0014ACD0
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014acd0);
+void* func_0014acd0(void)
+{
+    u8* res;
+
+    res = func_001452b0(4);
+    if (res != NULL)
+    {
+        return res + 0x140;
+    }
+    return NULL;
+}
 // FUN_0014AD10
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014ad10);
+void* func_0014ad10(void)
+{
+    u8* res;
+
+    res = func_001452b0(4);
+    if (res != NULL)
+    {
+        return res + 0x150;
+    }
+    return NULL;
+}
 // FUN_0014AD50
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014ad50);
+void* func_0014ad50(void)
+{
+    u8* res;
+
+    res = func_001452b0(4);
+    if (res != NULL)
+    {
+        return res + 0x160;
+    }
+    return NULL;
+}
 // FUN_0014AD90
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014ad90);
+void func_0014ad90(void)
+{
+    s32 sp[3];
+    s32 one;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    u8 *temp_2_4;
+    u8 *temp_2_5;
+    u8 *var_16;
+    u8 *var_17;
+    u8 *var_18;
+    u8 *var_19;
+    u8 *var_20;
+
+    temp_2 = func_001452b0(4);
+    if (temp_2 != NULL)
+    {
+        var_20 = temp_2 + 0x140;
+    }
+    else
+    {
+        var_20 = NULL;
+    }
+    temp_2_2 = func_001452b0(4);
+    if (temp_2_2 != NULL)
+    {
+        var_19 = temp_2_2 + 0x150;
+    }
+    else
+    {
+        var_19 = NULL;
+    }
+    temp_2_3 = func_001452b0(4);
+    if (temp_2_3 != NULL)
+    {
+        var_17 = temp_2_3 + 0x160;
+    }
+    else
+    {
+        var_17 = NULL;
+    }
+    temp_2_4 = func_001452b0(4);
+    if (temp_2_4 != NULL)
+    {
+        var_18 = temp_2_4 + 0x1a0;
+    }
+    else
+    {
+        var_18 = NULL;
+    }
+    temp_2_5 = func_001452b0(4);
+    if (temp_2_5 != NULL)
+    {
+        var_16 = temp_2_5 + 0x1b0;
+    }
+    else
+    {
+        var_16 = NULL;
+    }
+    temp_f0 = fGpffff809c;
+    *(f32 *)(var_20 + 0x0) = temp_f0;
+    *(f32 *)(var_20 + 0x4) = temp_f0;
+    *(f32 *)(var_20 + 0x8) = temp_f0;
+    *(s32 *)(var_20 + 0xc) = 0;
+    temp_f0_2 = fGpffff838c;
+    *(f32 *)(var_19 + 0x0) = temp_f0_2;
+    *(f32 *)(var_19 + 0x4) = temp_f0_2;
+    *(f32 *)(var_19 + 0x8) = temp_f0_2;
+    *(s32 *)(var_19 + 0xc) = 0;
+    *(s32 *)(var_18 + 0x0) = 0;
+    *(s32 *)(var_18 + 0x4) = 0;
+    *(s32 *)(var_18 + 0x8) = 0;
+    *(s32 *)(var_18 + 0xc) = 0;
+    one = 0x3f800000;
+    *(s32 *)(var_17 + 0x28) = one;
+    *(s32 *)(var_17 + 0x14) = one;
+    *(s32 *)(var_17 + 0x0) = one;
+    *(s32 *)(var_17 + 0x10) = 0;
+    *(s32 *)(var_17 + 0x8) = 0;
+    *(s32 *)(var_17 + 0x4) = 0;
+    *(s32 *)(var_17 + 0x24) = 0;
+    *(s32 *)(var_17 + 0x20) = 0;
+    *(s32 *)(var_17 + 0x18) = 0;
+    *(s32 *)(var_17 + 0x38) = 0;
+    *(s32 *)(var_17 + 0x34) = 0;
+    *(s32 *)(var_17 + 0x30) = 0;
+    *(s32 *)(var_17 + 0xc) = *(s32 *)(var_17 + 0xc) | 0x20003;
+    sp[0] = 0;
+    sp[1] = one;
+    sp[2] = 0;
+    func_003e0870(var_17, &sp[0], 2, -180.0f);
+    sp[0] = one;
+    sp[1] = 0;
+    sp[2] = 0;
+    func_003e0870(var_17, &sp[0], 2, -45.0f);
+    *(s32 *)(var_16 + 0x28) = one;
+    *(s32 *)(var_16 + 0x14) = one;
+    *(s32 *)(var_16 + 0x0) = one;
+    *(s32 *)(var_16 + 0x10) = 0;
+    *(s32 *)(var_16 + 0x8) = 0;
+    *(s32 *)(var_16 + 0x4) = 0;
+    *(s32 *)(var_16 + 0x24) = 0;
+    *(s32 *)(var_16 + 0x20) = 0;
+    *(s32 *)(var_16 + 0x18) = 0;
+    *(s32 *)(var_16 + 0x38) = 0;
+    *(s32 *)(var_16 + 0x34) = 0;
+    *(s32 *)(var_16 + 0x30) = 0;
+    *(s32 *)(var_16 + 0xc) = *(s32 *)(var_16 + 0xc) | 0x20003;
+    sp[0] = 0;
+    sp[1] = one;
+    sp[2] = 0;
+    func_003e0870(var_16, &sp[0], 2, -180.0f);
+    sp[0] = one;
+    sp[1] = 0;
+    sp[2] = 0;
+    func_003e0870(var_16, &sp[0], 2, -45.0f);
+}
 // FUN_0014B000
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014b000);
+void* func_0014b000(void)
+{
+    u8* res;
+
+    res = func_001452b0(5);
+    if (res != NULL)
+    {
+        return res + 0x140;
+    }
+    return NULL;
+}
 // FUN_0014B040
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014b040);
+void* func_0014b040(void)
+{
+    u8* res;
+
+    res = func_001452b0(5);
+    if (res != NULL)
+    {
+        return res + 0x150;
+    }
+    return NULL;
+}
 // FUN_0014B080
-INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014b080);
+void* func_0014b080(void)
+{
+    u8* res;
+
+    res = func_001452b0(5);
+    if (res != NULL)
+    {
+        return res + 0x160;
+    }
+    return NULL;
+}
 // FUN_0014B0C0
 void func_0014b0c0(u16 resTypeId, u32 visible)
 {

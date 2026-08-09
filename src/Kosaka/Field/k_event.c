@@ -32,6 +32,7 @@ extern f32 RwV3dLength(const RwV3d* vector);
 extern u32 func_0016b540(const RwV3d* line, RwV3d* hitPointDst);
 
 
+
 #pragma push
 
 // FUN_0014BFF0
@@ -155,7 +156,29 @@ done:
 #pragma push
 
 // FUN_0014C3D0
-INCLUDE_ASM("asm/nonmatchings/k_event", func_0014c3d0);
+f32 func_0014c3d0(const RwMatrix* viewerMat, const RwV3d* targetPos,
+                  f32 fov, f32 fovMaxDist, f32 maxDist)
+{
+    RwV3d delta;
+    f32 distance;
+    f32 result;
+
+    result = -1.0f;
+    delta.x = targetPos->x - viewerMat->pos.x;
+    delta.y = targetPos->y - viewerMat->pos.y;
+    delta.z = targetPos->z - viewerMat->pos.z;
+    distance = RwV3dLength(&delta);
+    if ((K_FldEvent_IsPosWithinFov(viewerMat, targetPos, fov) == 1) &&
+        (distance < fovMaxDist))
+    {
+        result = distance;
+    }
+    if (distance < maxDist)
+    {
+        result = distance;
+    }
+    return result;
+}
 // FUN_0014C4C0
 u32 K_FldEvent_ArePosWithinDist(const RwV3d* posA, const RwV3d* posB, f32 maxDist)
 {

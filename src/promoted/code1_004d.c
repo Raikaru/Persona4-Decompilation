@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+extern s32 D_0072ACC0[];
 
 
 /* measured: #pragma schedule on is load-bearing -- retail sinks the second
@@ -12,15 +13,10 @@ void func_004d12a0(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x60) = arg1;
     *(s32 *)(arg0 + 0x3C) = arg1;
 }
+/* measured: close schedule-on bracket after func_004d12a0. */
 #pragma schedule off
 
 
-/* measured: #pragma schedule on is load-bearing (delay-slot fill, nd 3
- * without it); retail's $v0 base is the live return value, so the store
- * must return the zero-lo segment base: a void store colors the address
- * $v1 (nd 2), returning the base folds the sw into 0x3F10($v0) and the
- * object matches byte-for-byte (tail nop is all-zero window padding). */
-#pragma schedule on
 
 // FUN_004D15D8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d15d8);
@@ -37,9 +33,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d1898);
 // FUN_004D18B0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d18b0);
 // FUN_004D18C8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d18c8);
+void func_004d18c8(void)
+{
+}
 // FUN_004D18D0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d18d0);
+void func_004d18d0(void)
+{
+}
+/* measured: #pragma schedule on is load-bearing (delay-slot fill, nd 3
+ * without it); retail's $v0 base is the live return value, so the store
+ * must return the zero-lo segment base: a void store colors the address
+ * $v1 (nd 2), returning the base folds the sw into 0x3F10($v0) and the
+ * object matches byte-for-byte (tail nop is all-zero window padding). */
+#pragma schedule on
 // FUN_004D18D8
 s32 *func_004d18d8(s32 arg0)
 {
@@ -47,17 +53,12 @@ s32 *func_004d18d8(s32 arg0)
     segment[0xFC4] = arg0;
     return segment;
 }
+/* measured: close schedule-on bracket after func_004d18d8. */
 #pragma schedule off
 
 
 extern s32 D_00723F20[];
 
-/* measured: #pragma schedule on is load-bearing (delay-slot fill);
- * retail's $v0 base is the live return value, so the store returns the
- * zero-lo segment base: a void store colors the address $v1 (nd 2),
- * returning the base folds the sw into 0x3F20($v0) and the object
- * matches byte-for-byte (tail nop is all-zero window padding). */
-#pragma schedule on
 
 // FUN_004D30B8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d30b8);
@@ -65,6 +66,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d30b8);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d30f8);
 // FUN_004D3118
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3118);
+/* measured: #pragma schedule on is load-bearing (delay-slot fill);
+ * retail's $v0 base is the live return value, so the store returns the
+ * zero-lo segment base: a void store colors the address $v1 (nd 2),
+ * returning the base folds the sw into 0x3F20($v0) and the object
+ * matches byte-for-byte (tail nop is all-zero window padding). */
+#pragma schedule on
 // FUN_004D3148
 s32 *func_004d3148(s32 arg0)
 {
@@ -72,6 +79,7 @@ s32 *func_004d3148(s32 arg0)
     segment[0xFC8] = arg0;
     return segment;
 }
+/* measured: close schedule-on bracket after func_004d3148. */
 #pragma schedule off
 
 
@@ -84,21 +92,10 @@ extern s32 D_00723F20[];
  * off, #pragma optimize_level 1 -- all nd 2. Same tree-wide floor as
  * code1_004e func_004e3da8/3db8/4180/4280/4290/4688 (16 spellings tried
  * there, all nd 2; 19 accessors tree-wide, none matched). NONMATCHING */
-#pragma schedule on
-
-/* measured: schedule on keeps the lw in the jr delay slot (without it the
- * delay slot is unfilled, nd 3). */
-#pragma schedule off
 
 
 extern s32 D_00724E58[];
 
-/* measured: #pragma schedule on is load-bearing (delay-slot fill);
- * retail's $v0 base is the live return value, so the store returns the
- * zero-lo segment base: a void store colors the address $v1 (nd 2),
- * returning the base folds the sw into 0x4E58($v0) and the object
- * matches byte-for-byte (tail nop is all-zero window padding). */
-#pragma schedule on
 
 // FUN_004D3158
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3158);
@@ -108,8 +105,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d31a0);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d31d8);
 // FUN_004D31E8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d31e8);
+/* measured: schedule on preserves the retail return delay-slot fill. */
+#pragma schedule on
 // FUN_004D3220
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3220);
+s8 func_004d3220(u8 *arg0)
+{
+    return *(s8 *)(arg0 + 2);
+}
+/* measured: close schedule-on bracket after func_004d3220. */
+#pragma schedule off
 // FUN_004D3228
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3228);
 // FUN_004D3258
@@ -138,6 +142,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3588);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d35d8);
 // FUN_004D3628
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3628);
+/* measured: #pragma schedule on is load-bearing (delay-slot fill);
+ * retail's $v0 base is the live return value, so the store returns the
+ * zero-lo segment base: a void store colors the address $v1 (nd 2),
+ * returning the base folds the sw into 0x4E58($v0) and the object
+ * matches byte-for-byte (tail nop is all-zero window padding). */
+#pragma schedule on
 // FUN_004D3678
 s32 *func_004d3678(s32 arg0)
 {
@@ -145,6 +155,7 @@ s32 *func_004d3678(s32 arg0)
     segment[0x1396] = arg0;
     return segment;
 }
+/* measured: close schedule-on bracket after func_004d3678. */
 #pragma schedule off
 
 
@@ -156,11 +167,6 @@ extern s32 D_00724E58[];
  * $v0). Same tree-wide floor as code1_004e func_004e3da8/3db8/4180/
  * 4280/4290/4688 (16 spellings tried there, all nd 2; 19 accessors
  * tree-wide, none matched). NONMATCHING */
-#pragma schedule on
-
-/* measured: schedule on keeps the lw in the jr delay slot (without it the
- * delay slot is unfilled, nd 3). */
-#pragma schedule off
 
 
 extern s32 D_00724E60[];
@@ -171,11 +177,6 @@ extern s32 D_00724E60[];
  * $v0). Same tree-wide floor as code1_004e func_004e3da8/3db8/4180/
  * 4280/4290/4688 (16 spellings tried there, all nd 2; 19 accessors
  * tree-wide, none matched). NONMATCHING */
-#pragma schedule on
-
-/* measured: schedule on keeps the lw in the jr delay slot (without it the
- * delay slot is unfilled, nd 3). */
-#pragma schedule off
 
 
 extern s32 D_00724E60[];
@@ -194,6 +195,7 @@ s32 *func_004d36a8(s32 arg0)
     segment[0x1398] = arg0;
     return segment;
 }
+/* measured: close schedule-on bracket after func_004d36a8. */
 #pragma schedule off
 
 
@@ -202,7 +204,6 @@ s32 *func_004d36a8(s32 arg0)
  * the stored constant 1 makes mwcc materialize it in $v0 (a void return
  * colors it $v1, nd 2), so the stored value doubles as the return value
  * and no extra instruction is needed. */
-#pragma schedule on
 
 // FUN_004D36B8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d36b8);
@@ -282,20 +283,69 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de198);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1b0);
 // FUN_004DE1C8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1c8);
+/* measured: schedule on preserves the retail zero-return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE1E0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1e0);
+s32 func_004de1e0(void)
+{
+    return 0;
+}
+/* measured: close schedule-on bracket after func_004de1e0. */
+#pragma schedule off
+/* measured: schedule on preserves the retail zero-return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE1E8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1e8);
+s32 func_004de1e8(void)
+{
+    return 0;
+}
+/* measured: close schedule-on bracket after func_004de1e8. */
+#pragma schedule off
+/* measured: schedule on preserves the retail zero-return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE1F0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1f0);
+s32 func_004de1f0(void)
+{
+    return 0;
+}
+/* measured: close schedule-on bracket after func_004de1f0. */
+#pragma schedule off
+/* measured: schedule on preserves the retail zero-return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE1F8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de1f8);
+s32 func_004de1f8(void)
+{
+    return 0;
+}
+/* measured: close schedule-on bracket after func_004de1f8. */
+#pragma schedule off
+/* measured: schedule on preserves the retail zero-return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE200
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de200);
+s32 func_004de200(void)
+{
+    return 0;
+}
+/* measured: close schedule-on bracket after func_004de200. */
+#pragma schedule off
+/* measured: schedule on preserves the retail zero-return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE208
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de208);
+s32 func_004de208(void)
+{
+    return 0;
+}
+/* measured: close schedule-on bracket after func_004de208. */
+#pragma schedule off
+/* measured: schedule on preserves the retail zero-return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE210
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de210);
+s32 func_004de210(void)
+{
+    return 0;
+}
+/* measured: close schedule-on bracket after func_004de210. */
+#pragma schedule off
 // FUN_004DE218
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de218);
 // FUN_004DE230
@@ -308,24 +358,50 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de260);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de278);
 // FUN_004DE290
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de290);
+/* measured: schedule on preserves the retail store/return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE2A8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de2a8);
+void func_004de2a8(u8 *arg0, s32 arg1)
+{
+    *(s32 *)(arg0 + 0x2C) = arg1;
+}
+/* measured: close schedule-on bracket after func_004de2a8. */
+#pragma schedule off
+/* measured: schedule on preserves the retail store/return delay-slot fill. */
+#pragma schedule on
 // FUN_004DE2B0
 s32 func_004de2b0(u8 *arg0)
 {
     *(s32 *)(arg0 + 8) = 1;
     return 1;
 }
+/* measured: close schedule-on bracket after func_004de2b0. */
 #pragma schedule off
 
 // FUN_004DE2C0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de2c0);
+/* measured: schedule on keeps the global store in the jr delay slot. */
+#pragma schedule on
 // FUN_004DE2D8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de2d8);
+s32 *func_004de2d8(s32 arg0)
+{
+    s32 *segment = (s32 *)0x00730000;
+    *(s32 *)((u8 *)segment - 0x5340) = arg0;
+    return segment;
+}
+/* measured: close schedule-on probe after func_004de2d8. */
+#pragma schedule off
 // FUN_004DE2E8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de2e8);
+/* measured: schedule on places the zero return in the jr delay slot. */
+#pragma schedule on
 // FUN_004DE310
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de310);
+s32 func_004de310(void)
+{
+    return 0;
+}
+/* measured: close schedule-on probe after func_004de310. */
+#pragma schedule off
 // FUN_004DE318
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004de318);
 // FUN_004DE340
@@ -387,7 +463,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df260);
 // FUN_004DF2E8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df2e8);
 // FUN_004DF318
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df318);
+void func_004df318(void)
+{
+}
 // FUN_004DF320
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df320);
 // FUN_004DF3C0
