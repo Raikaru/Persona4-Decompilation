@@ -13,7 +13,6 @@ extern s32 D_00731C3C[];
 extern s8 D_00731C01[];
 
 extern s32 D_00731C34[];
-
 /* Measured: retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
  * toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 #pragma schedule on

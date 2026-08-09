@@ -72,6 +72,10 @@ extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern u8 *func_00484490();
 extern f32 D_008872F8;
+extern void func_0045f0b0(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
+extern void func_0045fa00(f32 *arg0, s32 arg1, f32 arg2);
+extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
+extern void func_00485870(s32 arg0);
 extern f32 func_004bd0b0(u32 arg0);
 
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
@@ -666,6 +670,7 @@ void func_004a7bf0(u8 *arg0)
     *(s32 *)(arg0 + 0x0) = 0;
 }
 
+// Measured: fifty-plus source spellings across two lanes reached a best 416-byte object against the 416-byte window at normalized diff 6; residual bytes are OR offsets 105, 110, 237, 242, 333, and 338.
 // FUN_004A7C00
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7c00);
 // FUN_004A7DA0
@@ -860,7 +865,50 @@ loop_004adab0_check:
 // FUN_004ADB50
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004adb50);
 // FUN_004ADE80
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004ade80);
+void func_004ade80(u8 *arg0)
+{
+    u8 frame[0x50];
+    s32 *var_16_2;
+    s32 temp_4;
+    u32 temp_18;
+    u32 var_16;
+    u32 var_17;
+
+    if (*(s32 *)(arg0 + 0x9C) == 0) {
+        *(u8 *)(frame + 0x4C) = 0xFF;
+        *(u8 *)(frame + 0x4D) = 0xFF;
+        *(u8 *)(frame + 0x4E) = 0;
+        *(u8 *)(frame + 0x4F) = 0xFF;
+        var_16 = 0;
+        goto loop_004ade80_a_check;
+loop_004ade80_a_body:
+        if (func_0047a510(*(u8 **)(arg0 + 0xA0), var_16, frame) != 0) {
+            func_0045f0b0((f32 *)(frame + 0x30), frame + 0x4C, 1, 4.0f);
+            func_0045fa00((f32 *)frame, 1, 30.0f);
+        }
+        var_16 += 1;
+loop_004ade80_a_check:
+        if (var_16 < (u32)*(u32 *)(arg0 + 0x28)) {
+            goto loop_004ade80_a_body;
+        }
+        return;
+    }
+    temp_4 = *(s32 *)(arg0 + 0x90);
+    temp_18 = *(u32 *)(arg0 + 0x28);
+    var_16_2 = *(s32 **)(arg0 + 0x98);
+    if ((*(s32 *)(arg0 + 0x2C) < temp_4) || (temp_4 == 0)) {
+        var_17 = 0;
+        goto loop_004ade80_b_check;
+loop_004ade80_b_body:
+        func_00485870(*var_16_2);
+        var_16_2++;
+        var_17 += 1;
+loop_004ade80_b_check:
+        if (var_17 < temp_18) {
+            goto loop_004ade80_b_body;
+        }
+    }
+}
 // FUN_004ADFA0
 void func_004adfa0(u8 *arg0) {
     func_004adb50();

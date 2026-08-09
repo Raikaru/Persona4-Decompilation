@@ -11,17 +11,17 @@ extern void func_0039e740(u8 *arg0);
 extern s32 func_003a03a0(u8 *arg0);
 extern s32 func_003a0aa0(u8 *arg0);
 
-extern s32 D_00708460[];
 extern s32 iGpffffb614;
 extern s32 iGpffffb610;
+extern void func_003a3d50(u8 *arg0);
+extern void func_003a3de0(u8 *arg0);
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
 extern s32 func_003c1ab0(s32 a, s32 b, void *c, void *d, s32 e);
+extern void func_003e1ea0(s32 arg0);
 extern void func_003a2ce0(void);
 extern void func_003a2d90(void);
 extern s32 func_003a15e0(s32 arg0);
 extern u8 *func_003a1600(u8 *arg0);
-extern u8 *func_003a2390();
-extern s32 func_003a20e0();
 
 extern void func_003c02e0(void);
 extern void func_003c42b0(void *arg0, s32 arg1);
@@ -229,10 +229,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a1c40);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a20e0);
 // FUN_003A2290
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2290);
-// Archived C body: build/WBHygiene_func_003a2340_archive.txt; no current park body remains.
 // FUN_003A2340
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2340);
-
 
 
 

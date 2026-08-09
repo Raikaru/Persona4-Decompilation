@@ -1517,10 +1517,7 @@ s32 func_00421f90(void)
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
-/* measured: honest reconstruction matches the first three retail words with
- * plain scheduling; the remaining residual is the `move $v0` before `jr`
- * instead of in its delay slot. `schedule on` reorders the stores and is
- * worse. Measured in isolation at nd 2; nd_audit compiles the whole file with NON_MATCHING defined, which activates every preserved body at once and shifts this one. Committed at nd 16. */
+/* measured: plain scheduling leaves only the return delay-slot residual (nd 2 in isolation; nd_audit reads nd 16 in-file). Committed at nd 16. */
 // FUN_00421F98 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00421f98(s32 arg0, u8 *arg1)

@@ -623,7 +623,6 @@ void func_00375f00(u8 *arg0, s32 arg1) {
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375f00);
 #endif
 
-
 // FUN_00375FA0
 void func_00375fa0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
     ShuffleVec3 v3;

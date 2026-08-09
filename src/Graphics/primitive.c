@@ -321,8 +321,10 @@ typedef struct
 } PrimDesc;
 
 extern void func_00480940(int param_1, int param_2);
+extern s32 func_003df300(void *stream, void *buf, s32 size);
+extern s32 func_003df360(void *stream, void *buf, s32 size);
 extern void func_00480cd0(void* param_2, void* param_3, void* param_4, f32 param_1);
-extern void func_004810c0(void);
+extern void func_004810c0();
 extern void func_00480f20(void* param_1, void* param_2);
 extern void* func_00480e20(void* param_1, void* param_2);
 extern u32 func_00480d50(int param_1, u64 param_2);
@@ -699,7 +701,28 @@ u32 func_00480d50(int param_1, u64 param_2)
 
 
 // FUN_00480E20
-INCLUDE_ASM("asm/nonmatchings/primitive", func_00480e20);
+void *func_00480e20(void *arg0, void *arg1)
+{
+    s32 sp6C;
+    s32 *temp_16;
+    s32 temp_17;
+    s32 var_18;
+
+    temp_17 = *(s32 *)((u8 *)arg1 + 0x10);
+    var_18 = 0;
+    while (var_18 < *(s32 *)((u8 *)arg1 + 4))
+    {
+        temp_16 = (s32 *)(temp_17 + var_18 * 0x34);
+        if ((func_003df300(arg0, temp_16 + 1, 0x30) == 0) ||
+            (func_003df360(arg0, &sp6C, 4) == 0))
+        {
+            return NULL;
+        }
+        *temp_16 = temp_17 + sp6C;
+        var_18++;
+    }
+    return arg1;
+}
 // FUN_00480F00
 s32 func_00480f00(void* arg0)
 {
@@ -708,7 +731,36 @@ s32 func_00480f00(void* arg0)
 // FUN_00480F20
 INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f20);
 // FUN_004810C0
-INCLUDE_ASM("asm/nonmatchings/primitive", func_004810c0);
+void func_004810c0(void *arg0, void *arg1, void *arg2)
+{
+    PrimInterpData *out;
+    const PrimInterpData *a;
+    const PrimInterpData *b;
+
+    out = (PrimInterpData *)arg0;
+    a = (const PrimInterpData *)arg1;
+    b = (const PrimInterpData *)arg2;
+
+    out->quat.w = a->quat.w * b->quat.w -
+                  (a->quat.x * b->quat.x +
+                   a->quat.y * b->quat.y +
+                   a->quat.z * b->quat.z);
+    out->quat.x = a->quat.y * b->quat.z - a->quat.z * b->quat.y;
+    out->quat.y = a->quat.z * b->quat.x - a->quat.x * b->quat.z;
+    out->quat.z = a->quat.x * b->quat.y - a->quat.y * b->quat.x;
+    out->quat.x += b->quat.x * a->quat.w;
+    out->quat.y += b->quat.y * a->quat.w;
+    out->quat.z += b->quat.z * a->quat.w;
+    out->quat.x += a->quat.x * b->quat.w;
+    out->quat.y += a->quat.y * b->quat.w;
+    out->quat.z += a->quat.z * b->quat.w;
+    out->values[0] = a->values[0] + b->values[0];
+    out->values[1] = a->values[1] + b->values[1];
+    out->values[2] = a->values[2] + b->values[2];
+    out->values[3] = a->values[3] + b->values[3];
+    out->values[4] = a->values[4] + b->values[4];
+    out->values[5] = a->values[5] + b->values[5];
+}
 // FUN_00481250
 u32 func_00481250(void)
 {
@@ -721,7 +773,7 @@ u32 func_00481250(void)
     desc.funcA = func_00480940;
     desc.funcB = func_00480aa0;
     desc.funcB2 = func_00480cd0;
-    desc.funcC = &func_004810c0;
+    desc.funcC = (void (*)(void))&func_004810c0;
     desc.funcD = func_00480f20;
     desc.funcE = (u64 (*)(u64, u64))func_00480e20;
     desc.funcF = func_00480d50;

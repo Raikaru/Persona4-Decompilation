@@ -44,6 +44,7 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
 
 
 
+
 // FUN_00349340
 s32 func_00349340(void)
 {

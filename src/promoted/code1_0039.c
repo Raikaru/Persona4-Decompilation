@@ -41,6 +41,8 @@ extern s32 iGpffffb5c8;
 extern void (*jtbl_008873EC[])(void *);
 extern u8 *func_0039aa50(u8 *arg0);
 u8 *func_0039aab0(u8 *arg0);
+extern void func_003ef3a0(void *arg0, s32 arg1);
+extern s32 func_0039a7e0(u8 *arg0, s32 arg1);
 
 extern s32 D_007246B0;
 extern s32 D_007246B4;
@@ -140,46 +142,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
 /* measured: closing schedule for func_00390230. */
 #pragma schedule off
 
-/* measured: retail window 0x80; this P3-shaped four-argument body reaches
-   nd 22 at object 124/128. The residuals are b210's guarded-call branch
-   orientation and epilogue layout; the body is parked at the lowest legal nd. */
-
-// FUN_003902D0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: O3 preserves the retail 0x40 frame and call sequence. */
-#pragma optimization_level 3
-/* measured: no_branch_likely keeps the guarded call tests as plain branches. */
-#pragma no_branch_likely on
-s32 func_003902d0(s32 arg0, s32 unused, s32 arg2, s32 arg3)
-{
-    s32 handle;
-
-    if (*(s32 *)(arg2 + arg3) != 0) {
-        goto body;
-    }
-    goto done;
-body:
-    handle = func_003e8920();
-    if (func_003df240(arg0, &handle, 4) != 0) {
-        goto second;
-    }
-    arg0 = 0;
-    goto done;
-second:
-    if (func_0038fb50(*(s32 *)(arg2 + arg3), arg0) != 0) {
-        goto done;
-    }
-    arg0 = 0;
-done:
-    return arg0;
-}
-/* measured: close no_branch_likely for func_003902d0. */
-#pragma no_branch_likely off
-/* measured: close O3 for func_003902d0 and restore the file's O2 baseline. */
-#pragma optimization_level 2
-#else
+// FUN_003902D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
-#endif
 
 /* measured: b210's O2 strength-reduces this constant multiply; O1 preserves
    the retail MMI multiply. schedule on places it in the jr delay slot, and
@@ -962,8 +926,54 @@ found:
    the same preheader-materialisation fix as func_00399fd0 above.
    Committed at nd 0. */
 
+/* measured: schedule on reproduces the retail saved-register prologue and
+   the setter's call sequence. */
+#pragma schedule on
+/* measured: plain branches are required for the retail dispatch. */
+#pragma no_branch_likely on
+/* measured: loop invariant optimization hoists the type constant to retail's
+   preheader. */
+#pragma opt_loop_invariants on
 // FUN_0039A150
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a150);
+s32 func_0039a150(s32 arg0, u8 **arg1)
+{
+    s32 var_5;
+    u8 *p;
+    u8 *var_16;
+    u8 *temp_4;
+    u8 *result;
+    s32 want;
+
+    p = *(u8 **)(arg0 + (s32)iGpffffb5e0);
+    var_5 = 0;
+    want = 2;
+loop_1:
+    var_16 = p + ((var_5 & 0xFF) << 6);
+    if (*(s32 *)(var_16 + 0x20) == want) {
+        result = var_16;
+        goto found;
+    }
+    var_5 = (var_5 + 1) & 0xFF;
+    if (var_5 < 2) {
+        goto loop_1;
+    }
+    result = NULL;
+found:
+    *(s32 *)((u8 *)arg1 + 0x54) += 1;
+    temp_4 = *(u8 **)(result + 4);
+    if (temp_4 != NULL) {
+        func_003ef3a0(temp_4, var_5);
+        *(u8 **)(result + 4) = NULL;
+    }
+    *(u8 **)(result + 4) = (u8 *)arg1;
+    return arg0;
+}
+/* measured: closes opt_loop_invariants for func_0039a150. */
+#pragma opt_loop_invariants off
+/* measured: closes no_branch_likely for func_0039a150. */
+#pragma no_branch_likely off
+/* measured: closes schedule for func_0039a150. */
+#pragma schedule off
 // FUN_0039A200
 /* measured: opt_loop_invariants hoists the compare constant; schedule off
    keeps the loop body order, while the scoped tail schedule on fills the
@@ -1257,8 +1267,58 @@ found:
 /* measured: same shape as func_0039a090; the exact result-pointer body
    with scoped scheduling closes this variant at nd 0. */
 
+/* measured: schedule on matches the retail prologue and fills the first
+   func_0039a7e0 call's store delay slot in this setter. */
+#pragma schedule on
+/* measured: plain branches are required for the retail dispatch. */
+/* measured: loop invariant optimization hoists the type constant to the
+   retail preheader in this four-byte slot-search variant. */
+#pragma opt_loop_invariants on
+#pragma no_branch_likely on
 // FUN_0039A4C0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a4c0);
+s32 func_0039a4c0(s32 arg0, u8 **arg1)
+{
+    s32 var_5;
+    u8 *p;
+    u8 ***var_16;
+    u8 **temp_4;
+    u8 ***result;
+    s32 want;
+
+    p = *(u8 **)(arg0 + (s32)iGpffffb5e0);
+    var_5 = 0;
+    want = 4;
+
+loop_1:
+    var_16 = (u8 ***)((p) + ((var_5 & 0xFF) << 6));
+
+    if (*(s32 *)((u8 *)var_16 + 0x20) == want) {
+        result = var_16;
+        goto found;
+    }
+    var_5 = (var_5 + 1) & 0xFF;
+    if (var_5 < 2) {
+        goto loop_1;
+    }
+    result = NULL;
+found:
+    *(s32 *)((u8 *)arg1 + 0x54) += 1;
+    temp_4 = *result;
+    if (temp_4 != NULL) {
+        func_003ef3a0(temp_4, var_5);
+        *result = NULL;
+    }
+    *result = arg1;
+    func_0039a7e0((u8 *)result, 2);
+    func_0039a7e0((u8 *)result, 1);
+    return arg0;
+}
+/* measured: closes opt_loop_invariants for func_0039a4c0. */
+#pragma opt_loop_invariants off
+/* measured: closes schedule for func_0039a4c0. */
+/* measured: closes no_branch_likely for func_0039a4c0. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_0039A590
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a590);
@@ -1445,7 +1505,7 @@ found:
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 // FUN_0039A7E0
-s32 func_0039a7e0(void)
+s32 func_0039a7e0(u8 *arg0, s32 arg1)
 {
     return 1;
 }
