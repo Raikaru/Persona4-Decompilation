@@ -201,6 +201,7 @@ void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 fparg0)
 }
 // FUN_00201720
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201720);
+// FUN_00201820
 void func_00201820(s32 arg0)
 {
     s32 temp_5;

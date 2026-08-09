@@ -1,9 +1,19 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct {
+    f32 x;
+    f32 y;
+} Vec2f;
+void func_00113800(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+void func_001138c0(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+void func_00113e30(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
+void func_001203a0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3, s32 arg4_2);
 extern s32 iGpffffb1b4;
 
 extern s32 D_005E45E0[];
 extern s8 D_005E3A02[];
+extern s8 D_005E3A04[];
 extern u8 D_00797B7C[];
 extern s32 D_0079B40C[];
 
@@ -32,9 +42,21 @@ extern s32 func_00106330(s32 arg0);
 extern void func_00453570(void);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00452080(void);
-static inline s32 p4_00110850_add(s32 base, s32 offset)
+extern s32 func_0010f560(s16 arg0, u16 arg1);
+extern s32 func_0010f600(s16 arg0, u16 arg1);
+extern void *func_00243840(u16 arg0);
+extern void func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
+extern s8 D_005E47F0[];
+static inline s32 p4_00113520_add(s32 offset, s32 base)
 {
-    return base + offset;
+    return offset + base;
+}
+static inline s32 p4_00110850_add(s32 offset, s32 base)
+{
+    s32 temp;
+
+    temp = offset;
+    return base + temp;
 }
 
 
@@ -158,8 +180,7 @@ block_12:
         break;
     }
     temp_4 = arg0 * 6;
-    temp_5 = (s32)&D_005E3A02;
-    temp_5 = p4_00110850_add(temp_5, temp_4);
+    temp_5 = p4_00110850_add(temp_4, (s32)&D_005E3A02);
     temp_6 = var_5 * 2;
     return (s64) ((s64) *((u8 *)(temp_6 + temp_5)) << 0x38) >> 0x38;
 }
@@ -168,7 +189,40 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110960);
 // FUN_00110A60
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110a60);
 // FUN_00110C50
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110c50);
+s32 func_00110c50(s32 arg0, s32 arg1)
+{
+    s32 temp_3_3;
+    s32 temp_4;
+    s32 temp_5;
+    s32 temp_2;
+    u16 temp_3;
+    u16 temp_3_2;
+    s32 var_2;
+    s32 var_5;
+
+    if ((arg1 + 3) < arg0) {
+        temp_4 = arg0 * 6;
+        temp_3 = *(u16 *)((s32)&D_005E3A02 + temp_4);
+        if (temp_3 & 0x8000) {
+            temp_5 = (u16)(temp_3 & 0x7F00) >> 8;
+            var_5 = temp_5 & 0xFFFF;
+        } else {
+            var_5 = temp_3 & 0xFF;
+        }
+        temp_3_2 = *(u16 *)((s32)&D_005E3A04 + temp_4);
+        if (temp_3_2 & 0x8000) {
+            temp_2 = (u16)(temp_3_2 & 0x7F00) >> 8;
+            var_2 = temp_2 & 0xFFFF;
+        } else {
+            var_2 = temp_3_2 & 0xFF;
+        }
+    } else {
+        temp_3_3 = arg0 * 6;
+        var_5 = *(u8 *)((s32)&D_005E3A02 + temp_3_3);
+        var_2 = *(u8 *)((s32)&D_005E3A04 + temp_3_3);
+    }
+    return ((var_5 & 0xFFFF) + ((var_2 & 0xFFFF) * 0x10)) & 0xFFFF;
+}
 // FUN_00110D30
 s32 func_00110d30(s32 arg0)
 {
@@ -177,8 +231,49 @@ s32 func_00110d30(s32 arg0)
 
 
 
+/* measured: opt_rebuildconditionals off preserves the direct range guards. */
+#pragma opt_rebuildconditionals off
 // FUN_00110D60
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110d60);
+s32 func_00110d60(s32 arg0)
+{
+    s32 temp_18;
+    s32 temp_2;
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 var_16;
+    s32 var_2;
+    s32 var_2_2;
+
+    var_16 = 0;
+    temp_18 = func_00110600(4, 1);
+    temp_2 = func_00110600(6, 0xC);
+    if ((arg0 >= temp_18) && (arg0 <= temp_2)) {
+        var_2 = 1;
+    } else {
+        var_2 = 0;
+    }
+    if (var_2 == 0) {
+        temp_2_2 = func_00110600(0xA, 0xA);
+        temp_2_3 = temp_2_2 + 0x16C;
+        if ((arg0 >= temp_2_2) && (arg0 <= temp_2_3)) {
+            var_2_2 = 1;
+        } else {
+            var_2_2 = 0;
+        }
+        if (var_2_2 != 0) {
+            goto block_10;
+        }
+    } else {
+block_10:
+        var_16 |= 1;
+    }
+    if (D_005E3A00[D_00797B7A[0] * 6] != 0) {
+        var_16 |= 2;
+    }
+    return var_16;
+}
+/* measured: restore opt_rebuildconditionals on after func_00110d60. */
+#pragma opt_rebuildconditionals on
 // FUN_00110E70
 void func_00110e70(s32 arg0)
 {
@@ -325,7 +420,36 @@ void func_00113500(void) {
     func_00453570();
 }
 // FUN_00113520
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113520);
+s32 func_00113520(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
+{
+    s32 temp_3;
+    u16 temp_2;
+    u16 temp_5;
+
+    *(u16 *)(arg3 + 2) = 0;
+    *(s32 *)(arg3 + 4) = 0;
+    *(s32 *)(arg3 + 8) = 0;
+    temp_2 = *(u16 *)(p4_00113520_add(arg2 * 2, arg1) + 0xC);
+    if (temp_2 != 0) {
+        *(u16 *)(arg3 + 2) = temp_2;
+        if (arg0 != 0) {
+            temp_5 = *(u16 *)(arg3 + 2);
+            if ((s32)temp_5 < 0x1B8) {
+                temp_3 = func_0010f560((s16)arg0, temp_5) & 0xFFFF;
+                switch (temp_3) {
+                case 1:
+                    *(s32 *)(arg3 + 4) = func_0010f600((s16)arg0, *(u16 *)(arg3 + 2));
+                    break;
+                case 2:
+                    *(s32 *)(arg3 + 8) = func_0010f600((s16)arg0, *(u16 *)(arg3 + 2));
+                    break;
+                }
+            }
+        }
+        return 1;
+    }
+    return 0;
+}
 // FUN_00113610
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113610);
 // FUN_00113730
@@ -343,9 +467,46 @@ void func_00113750(u8 *arg0) {
     func_0043f9c8(arg0 + 8, 0, 0x22C);
 }
 // FUN_00113790
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113790);
-// FUN_00113800
+void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
+{
+    s16 temp_8;
+
+    temp_8 = *(s16 *)arg2;
+    switch (temp_8) {
+    case 0:
+        func_00113800(arg0, arg1, arg2, arg3, arg4);
+        return;
+    case 1:
+        func_001138c0(arg0, arg1, arg2, arg3, arg4);
+        return;
+    case 2:
+        func_00113e30(arg0, arg1, arg2, arg3, arg4);
+        return;
+    }
+}
+/* measured: retail places the incoming float save before the two GP callee-save
+   moves; b210 keeps the identical 184B body but emits those three prologue
+   moves in GP-then-FP order. Declaration, scheduling, and O1 probes retained
+   the nd 10 residual. Committed at nd 10. */
+// FUN_00113800 NONMATCHING
+#ifdef NON_MATCHING
+void func_00113800(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
+{
+    f32 scale;
+    s32 color;
+    s8 index;
+    void *temp;
+
+    scale = arg4;
+
+    temp = func_00243840(*(u16 *)((u8 *)arg2 + 0xA));
+    color = -0x100 | (((arg1 & 0xFF) * 0xFF) / 255U);
+    index = *(s8 *)((s32)D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2));
+    func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, index, 1, temp, 0, 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113800);
+#endif
 // FUN_00115830
 void func_00115830(u8 *arg0) {
     func_0043f9c8(arg0 + 8, 0, 0x3C);
@@ -368,6 +529,25 @@ void func_0011fd30(u8 *arg0) {
     *(s16 *)(arg0 + 6) = 0;
 }
 // FUN_0011FD50
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_0011fd50);
+void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
+{
+    s32 temp_7;
+
+    temp_7 = *(s32 *)(arg2 + 8);
+    switch (temp_7) {
+    case 0:
+        func_0011fdf0(arg0, arg4, arg1, arg2, temp_7);
+        return;
+    case 1:
+        func_001203a0(arg0, arg4, arg1, arg2, 0, arg3);
+        return;
+    case 2:
+        func_001203a0(arg0, arg4, arg1, arg2, 0, arg3);
+        return;
+    case 3:
+        func_001203a0(arg0, arg4, arg1, arg2, 1, arg3);
+        return;
+    }
+}
 // FUN_0011FDF0
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_0011fdf0);

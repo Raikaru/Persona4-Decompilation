@@ -87,6 +87,8 @@ RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
 void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
 void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
+void func_001bd560(f32 *out, f32 *in);
+void func_001cc5d0(u8 *camera, f32 *out);
 void func_001bdd80(u8* camera, void* data, s32 mode);
 extern s32 func_004bd050(s32 arg0);
 static inline u32 cd600Add(u32 flagOffset, u32 tableAddr)
@@ -133,6 +135,7 @@ extern f32 DAT_00761254;
 extern f32 DAT_00761188;
 extern f32 DAT_00761258;
 extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3bc;
 extern void func_001c1f70(void *arg0, s32 arg1);
 extern void func_001bdeb0(void);
 void func_001cb970(void* camera, f32 speed, int param_3);
@@ -235,7 +238,7 @@ s32 func_001bc630(u8 *param_1)
     u32 offset;
 
     offset = (u32)*(u16 *)(*(u8 **)(param_1 + 0xE0) + 0x6E) * 4;
-    offset += (u32)iGpffffb3ac;
+    offset += (u32)iGpffffb3bc;
     return (s32)((*(u16 *)(offset + 2) & 0x4000) != 0);
 }
 // FUN_001BC660
@@ -668,8 +671,27 @@ void func_001cc5c0(void)
 }
 // FUN_001CC5D0
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc5d0);
+/* measured: plain-C aggregate reconstruction reproduces every retail
+   instruction; the object is 112B against the 128B window, with the retail
+   trailing jr/nop pair left as window padding. */
 // FUN_001CC9E0
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc9e0);
+void func_001cc9e0(u8 *arg0)
+{
+    struct C9Work {
+        f32 first[7];
+        f32 second[7];
+    } work;
+
+    func_001bd560(work.first, (f32 *)(arg0 + 0x9C));
+    func_001cc5d0(arg0, work.second);
+    func_001bac20(arg0, (RwV3d *)work.first, (RwV3d *)work.second, 1);
+    func_001bbef0(arg0, 10.0f);
+}
+// FUN_001CCA50
+void func_001cca50(void)
+{
+}
+
 // FUN_001CCA60
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cca60);
 // FUN_001CCDA0
