@@ -38,6 +38,10 @@ extern void (*jtbl_008873EC[])(void *arg0);
 extern s32 func_0011b360(s32 arg0);
 extern void func_001f7570(s32 arg0);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
+extern void func_001bd780();
+extern void func_001bab00();
+extern void func_001bd5a0();
+extern u8 D_0060A0E0[];
 extern s32 func_001ef9a0(void);
 extern u8 *iGpffffb414;
 
@@ -297,7 +301,25 @@ INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00228580);
 // FUN_002286C0
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002286c0);
 // FUN_00228800
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00228800);
+void func_00228800(s32 arg0)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } Vector3;
+    struct {
+        Vector3 position;
+        u8 transform[20];
+    } values;
+    f32 *temp;
+
+    temp = (f32 *)(*(u8 **)(DAT_0076449c + 0xB98) + 0x6CC);
+    func_001bd780(values.transform, temp, temp + 3, D_0060A0E0);
+    values.position = *(Vector3 *)temp;
+    func_001bab00(DAT_0076449c + 0x24, (f32 *)&values.position);
+    func_001bd5a0((u8 *)arg0 + 0x9C, (f32 *)&values.position);
+}
 // FUN_00228890
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00228890);
 // FUN_002289B0

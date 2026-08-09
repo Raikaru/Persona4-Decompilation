@@ -21,6 +21,17 @@ void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
 void func_002b8340(u8 *arg0, s8 arg1, s16 arg2, s16 arg3, f32 fparg0, f32 fparg1);
 
+typedef struct {
+    f32 x;
+    f32 y;
+} F2_0033;
+
+extern void func_002bdea0(void);
+extern void func_00308f40(void);
+extern void (*D_00887300[])(s32, s32);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_002b8270(u8 *arg0, F2_0033 arg1, F2_0033 arg2,
+                           u32 arg3, s32 arg4, s32 arg5);
 
 
 // FUN_00331560
@@ -96,7 +107,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00331770);
 // FUN_00331860
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00331860);
 // FUN_00331950
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00331950);
+s32 func_00331950(void)
+{
+    func_002bdea0();
+    func_00308f40();
+    return 1;
+}
 // FUN_00331980
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00331980);
 // FUN_003319C0
@@ -121,7 +137,21 @@ void func_00331f90(u8 *arg0)
 }
 
 // FUN_00332A80
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_00332a80);
+void func_00332a80(void)
+{
+    void (**tbl)(s32, s32);
+
+    tbl = (void (**)(s32, s32))(u32)D_00887300;
+    tbl[0](6, 1);
+    tbl[0](8, 1);
+    tbl[0](0xC, 1);
+    tbl[0](7, 2);
+    tbl[0](9, 2);
+    tbl[0](2, 4);
+    tbl[0](0xE, 0);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x7100D);
+}
 // FUN_00332B60
 void func_00332b60(u8 *arg0, u8 *arg1)
 {
@@ -159,7 +189,11 @@ void func_0033d3d0(u8 *arg0, s32 arg1)
 }
 
 // FUN_0033D3E0
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d3e0);
+void func_0033d3e0(u8 *arg0, F2_0033 p1, F2_0033 p2,
+                   u32 arg3, u32 arg4, s16 arg5)
+{
+    func_002b8270(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
+}
 // FUN_0033D420
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d420);
 // FUN_0033D4B0
@@ -185,7 +219,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d630);
 // FUN_0033D9D0
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d9d0);
 // FUN_0033DC60
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033dc60);
+void func_0033dc60(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
 // FUN_0033E1E0
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033e1e0);
 // FUN_0033E3A0

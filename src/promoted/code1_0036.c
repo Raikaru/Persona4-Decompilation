@@ -1,5 +1,10 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} RwV3d;
 extern void func_0036bbf0();
 
 extern void func_003642e0(u8 *arg0, void *arg1);
@@ -94,7 +99,17 @@ void func_003642a0(u8 *arg0)
 
 
 // FUN_003642E0
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003642e0);
+void func_003642e0(u8 *arg0, void *arg1)
+{
+    u16 *temp;
+
+    temp = *(u16 **)(arg0 + 0x38);
+    if (arg1 != NULL) {
+        *temp |= 1;
+    } else {
+        *temp &= (u16)~1;
+    }
+}
 // FUN_00366380
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366380);
 // FUN_00366670
@@ -152,7 +167,10 @@ void func_00369470(s32 arg0, u8 *arg1) {
 // FUN_0036AE90
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_0036ae90);
 // FUN_0036B630
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_0036b630);
+void func_0036b630(u8 *arg0, RwV3d *arg1)
+{
+    *(RwV3d *)(arg0 + 0x994) = *arg1;
+}
 // FUN_0036D860
 void func_0036d860(u8 *arg0, s32 arg1)
 {

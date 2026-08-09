@@ -1,11 +1,13 @@
 #include "include_asm.h"
 #include "type.h"
+/* Toolchain note: retail saves $s registers with sd; MWCCPS2 3.0.1 emits sq; toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 
 
 extern u8 *D_00745888[];
 extern void func_004d3cd8();
 extern s32 func_004d43f8();
 extern u8 *D_007458B8[];
+void func_00514d80(u8 *, u8 *, u8 *);
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop) and retail fills it with the final addiu (nd 6 -> 0). */
@@ -133,7 +135,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512fc8);
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513168);
 
 // FUN_005131B0
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005131b0);
+void func_005131b0(u8 *arg0, u8 *arg1)
+{
+    func_00514d80(arg0, *(u8 **)(arg0 + 0x200C), arg1);
+}
 
 // FUN_005131D0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005131d0);
@@ -274,14 +279,13 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
    with a 16B object. The intermediate pointer remains in $v0 instead of retail's
    $v1; this is the irreducible tiny-accessor coloring floor. Committed at nd 2. */
 
-#pragma schedule on
 
 // FUN_00517C28
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517c28);
 
 /* Global setter residual: retail fills the second branch delay with the global
    address and branches to the shorter common exit; b210 leaves a nop and shifts
-   the setter body by one instruction. Committed at nd 16. */
+   the setter body by one instruction. Committed at nd 32 in-file (nd 16 measured in isolation). */
 // FUN_00517CF0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00517cf0(u8 *arg0) {
@@ -357,14 +361,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519e90);
    the irreducible tiny-accessor coloring floor. Committed at nd 2. */
 #ifdef NON_MATCHING
 s32 func_00519ee0(u8 *arg0) {
-    u8 *p = *(u8 **)(arg0 + 0x1F7C);
-    return *(s32 *)(p + 0x20);
+    s32 value;
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x1F7C);
+    value = *(s32 *)(p + 0x20);
+    return value;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519ee0);
 #endif
-/* measured: closes the schedule bracket above and restores the -O2 baseline. */
-#pragma schedule off
 
 
 /* measured: exhaustive C spellings (direct chain; u8/s32/u32/void pointer locals;
@@ -384,19 +390,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519fa0);
 // FUN_0051A090
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_0051a090);
 
-#pragma schedule on
-
+/* measured: tiny delayed global-getter floor for func_0051F5E8. The best
+   schedule-on candidate is object/window 12/16 at nd 2; retail names the
+   delayed-load base in $v1 while b210 colors it in $v0. Committed at nd 2. */
 // FUN_0051F5E8 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule-on probe for the delayed pointer accessor. */
+#pragma schedule on
 s32 func_0051f5e8(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x1FC0);
     return *(s32 *)(p + 0x7C);
 }
+/* measured: closes schedule-on probe for the delayed pointer accessor. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_0051f5e8);
 #endif
-/* measured: closes the schedule bracket for func_0051f5e8. */
-#pragma schedule off
 
 
 /* measured: without #pragma schedule on, the sw does not fill the jr $ra

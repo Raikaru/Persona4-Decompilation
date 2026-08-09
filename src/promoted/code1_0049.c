@@ -58,11 +58,61 @@ loop_00490360_check:
 // FUN_004903C0
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_004903c0);
 // FUN_00490BB0
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00490bb0);
+void func_00490bb0(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00490bb0_check;
+loop_00490bb0_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00490bb0_check:
+    if (var_7 < 3U) {
+        goto loop_00490bb0_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+    *(f32 *)(temp_6 + 0xE8) = *(f32 *)(temp_5 + 0xE8) * fparg0;
+}
 // FUN_00490C40
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00490c40);
 // FUN_00491660
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00491660);
+void func_00491660(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00491660_check;
+loop_00491660_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00491660_check:
+    if (var_7 < 3U) {
+        goto loop_00491660_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xD0) = *(f32 *)(temp_5 + 0xD0) * fparg0;
+    *(f32 *)(temp_6 + 0xDC) = *(f32 *)(temp_5 + 0xDC) * fparg0;
+    *(f32 *)(temp_6 + 0xE4) = *(f32 *)(temp_5 + 0xE4) * fparg0;
+}
 // FUN_004916F0
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_004916f0);
 // FUN_00492080
@@ -94,7 +144,33 @@ loop_00492080_check:
 // FUN_00492100
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00492100);
 // FUN_00492A80
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00492a80);
+void func_00492a80(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    u32 var_7;
+    u8 *temp_5;
+    u8 *temp_6;
+
+    temp_6 = *(u8 **)(arg0 + 0x20);
+    temp_5 = *(u8 **)(arg0 + 0x24);
+    *(f32 *)(temp_6 + 0x64) = *(f32 *)(temp_5 + 0x64) * fparg0;
+    *(f32 *)(temp_6 + 0x68) = *(f32 *)(temp_5 + 0x68) * fparg0;
+    var_7 = 0;
+    goto loop_00492a80_check;
+loop_00492a80_body:
+    temp_4 = var_7 * 8;
+    *(f32 *)(temp_6 + temp_4 + 0x74) =
+        code1_0049_mul(*(f32 *)(temp_5 + temp_4 + 0x74), fparg0);
+    var_7 += 1;
+loop_00492a80_check:
+    if (var_7 < 3U) {
+        goto loop_00492a80_body;
+    }
+    *(f32 *)(temp_6 + 0xC8) = *(f32 *)(temp_5 + 0xC8) * fparg0;
+    *(f32 *)(temp_6 + 0xCC) = *(f32 *)(temp_5 + 0xCC) * fparg0;
+    *(f32 *)(temp_6 + 0xD4) = *(f32 *)(temp_5 + 0xD4) * fparg0;
+    *(f32 *)(temp_6 + 0xD8) = *(f32 *)(temp_5 + 0xD8) * fparg0;
+    *(f32 *)(temp_6 + 0xE0) = *(f32 *)(temp_5 + 0xE0) * fparg0;
+}
 // FUN_00492B20
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00492b20);
 // FUN_00492CD0
@@ -111,8 +187,36 @@ void func_00492d00(u8 *arg0)
     *(s32 *)(arg0 + 0x10) = 0;
 }
 
+/* measured: probing opt_loop_invariants for the preheader -1 and loop branch. */
+#pragma opt_loop_invariants on
 // FUN_00492D10
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00492d10);
+void func_00492d10(u8 *arg0, u8 *arg1, u32 arg2) {
+    extern void (*D_00713D50[])(u8 *, u8 *, u32);
+    u32 count;
+    u32 var_6;
+    u8 *var_5;
+
+    var_5 = arg1;
+    var_6 = arg2;
+    if (*(s32 *)(arg0 + 0x10) == 0) {
+        count = *(u32 *)(arg0 + 8);
+        var_5 = *(u8 **)(arg0 + 0x18);
+        var_6 = 0;
+        goto loop_00492d10_check;
+loop_00492d10_body:
+        *(s32 *)(var_5 + 0x10) = -1;
+        var_5 += 0x20;
+        var_6 += 1;
+loop_00492d10_check:
+        if (var_6 < count) {
+            goto loop_00492d10_body;
+        }
+    }
+    D_00713D50[*(u16 *)arg0 * 4](arg0, var_5, var_6);
+    *(s32 *)(arg0 + 0x10) = *(s32 *)(arg0 + 0x10) + 1;
+}
+/* measured: closes opt_loop_invariants at its prior file baseline. */
+#pragma opt_loop_invariants off
 // FUN_00492E30
 void func_00492e30(u16 *arg0) {
     D_00713D54[*arg0 * 4]();
@@ -141,7 +245,26 @@ void func_00494f90(u8 *arg0) {
 }
 
 // FUN_00494FF0
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_00494ff0);
+void func_00494ff0(u8 *arg0) {
+    extern void func_003c22f0(void *);
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_17_2;
+    u8 *temp_18;
+
+    temp_18 = *(u8 **)(arg0 + 0x14);
+    temp_17 = *(u8 **)(*(u8 **)(temp_18 + 0x10) + 0x18);
+    func_003c22f0(temp_17);
+    if (*(u16 *)temp_18 & 4) {
+        *(u16 *)(temp_17 + 0xC) = *(u16 *)(temp_17 + 0xC) | 1;
+    }
+    temp_17_2 = *(u8 **)(arg0 + 0x10);
+    temp_16 = *(u8 **)(*(u8 **)(temp_17_2 + 0x10) + 0x18);
+    func_003c22f0(temp_16);
+    if (*(u16 *)temp_17_2 & 4) {
+        *(u16 *)(temp_16 + 0xC) = *(u16 *)(temp_16 + 0xC) | 1;
+    }
+}
 // FUN_00495090
 void func_00495090(u8 *arg0, u32 arg1)
 {
@@ -275,5 +398,42 @@ void func_0049a7f0(u8 *arg0, f32 *arg1) {
     *(f32 *)(arg0 + 0x24) = arg1[1];
     *(f32 *)(arg0 + 0x28) = arg1[2];
 }
+/* measured: the sibling 0049b470 body matches this routine's control-flow and
+   call sequence; target entries are 0x18 bytes, so the fill stride is six words. */
+#pragma opt_loop_invariants on
 // FUN_0049A810
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_0049a810);
+void func_0049a810(u8 *arg0)
+{
+    extern void func_003c2290(void *, s32);
+    extern void func_003c22f0(void *);
+    u8 *state;
+    u8 *work;
+    u8 *model;
+    s32 **tex;
+    s32 *entry;
+    s32 count;
+    s32 i;
+    s32 value;
+
+    state = *(u8 **)(arg0 + 0x3C);
+    entry = *(s32 **)state;
+    work = *(u8 **)(state + 4);
+    count = *(s32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    func_003c2290(*(u8 **)(*(u8 **)(work + 0x10) + 0x18), 2);
+    tex = *(s32 ***)(*(u8 **)(*(u8 **)(work + 0x10) + 0x18) + 0x5C);
+    func_0043f9c8((s32)tex[5], 0, *(s16 *)(work + 8) * 0xC);
+    model = *(u8 **)(*(u8 **)(work + 0x10) + 0x18);
+    func_003c22f0(model);
+    if (*(u16 *)work & 4) {
+        *(u16 *)(model + 0xC) = *(u16 *)(model + 0xC) | 1;
+    }
+    i = 0;
+    value = -1;
+    while (i < count) {
+        *entry = value;
+        entry += 6;
+        i++;
+    }
+}
+/* measured: closes the opt_loop_invariants scope for 0049a810 at the file baseline. */
+#pragma opt_loop_invariants off

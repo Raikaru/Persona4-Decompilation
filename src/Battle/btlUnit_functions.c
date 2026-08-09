@@ -412,11 +412,29 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
 
 
 // FUN_0019E5D0
-INCLUDE_ASM("asm/nonmatchings/btlUnit_functions", func_0019e5d0);
+u32 func_0019e5d0(void *arg0)
+{
+    u8 *temp;
+
+    temp = *(u8 **)arg0;
+    if (temp != NULL)
+    {
+        *(u16 *)(temp + 0xa0) = *(u16 *)(temp + 0xa0) + 1;
+    }
+}
 // FUN_0019E5F0
 INCLUDE_ASM("asm/nonmatchings/btlUnit_functions", func_0019e5f0);
 // FUN_0019E7A0
-INCLUDE_ASM("asm/nonmatchings/btlUnit_functions", func_0019e7a0);
+u32 func_0019e7a0(void *arg0)
+{
+    u8 *temp;
+
+    temp = *(u8 **)arg0;
+    if (temp != NULL)
+    {
+        *(u16 *)(temp + 0xa0) = *(u16 *)(temp + 0xa0) - 1;
+    }
+}
 // FUN_0019E7C0
 BtlPacket* btlUnitCreateLookAtDeactivatePacket(BtlUnit* unit, u16 flags)
 {

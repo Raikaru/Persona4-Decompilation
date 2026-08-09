@@ -1,8 +1,18 @@
 #include "include_asm.h"
 #include "type.h"
 extern s32 D_0072ACC0[];
+extern s32 D_00758C58[];
+extern s32 D_007597C8[];
+extern s32 D_00759890[];
+extern s32 D_007598C0[];
+extern s32 D_007598F0[];
+extern s32 D_00759920[];
+extern s32 D_007599B0[];
+extern s32 D_00759A10[];
 
 
+/* Retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
+ * toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 /* measured: #pragma schedule on is load-bearing -- retail sinks the second
  * sw into the jr return delay slot; O2 alone emits sw/sw/jr/nop (nd 6). */
 #pragma schedule on
@@ -18,6 +28,13 @@ void func_004d12a0(u8 *arg0, s32 arg1)
 
 
 
+/* Framed tail-jump floor (measured): the 24-byte ASM tier has three retail
+ * variants. Plain: 004D1880, 004D1898, 004D18B0, 004D3528, 004D3540,
+ * 004D3558, 004D3570, 004D36E8, 004D3738, 004D3F90, 004DE2C0.
+ * Load-then-tail: 004DE168, 004DE180, 004DE198, 004DE1B0, 004DE1C8,
+ * 004DE218, 004DE230, 004DE248, 004DE260, 004DE278, 004DE290.
+ * Move-arg: 004D32E0. b210 emits 8, 28, or 32 bytes for these spellings;
+ * leave all 23 INCLUDE_ASM fallbacks bare. */
 // FUN_004D15D8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d15d8);
 // FUN_004D1748
@@ -259,8 +276,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4308);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4338);
 // FUN_004D43F8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d43f8);
+/* measured: optimization level 3 reproduces the null-accessor branch shape. */
+#pragma optimization_level 3
 // FUN_004D4430
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4430);
+s8 func_004d4430(u8 *arg0)
+{
+    if (arg0 == NULL) {
+        func_004c6a98(D_00758C58);
+        return -1;
+    }
+    return *(s8 *)(arg0 + 1);
+}
+/* measured: restore optimization level 2 after func_004d4430. */
+#pragma optimization_level 2
 // FUN_004D4460
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d4460);
 // FUN_004D4490
@@ -430,8 +458,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004dec30);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004decb8);
 // FUN_004DED60
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004ded60);
+/* measured: optimization level 3 reproduces the null-accessor branch shape. */
+#pragma optimization_level 3
 // FUN_004DEE18
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004dee18);
+s8 func_004dee18(u8 *arg0)
+{
+    if (arg0 == NULL) {
+        func_004de2c0(D_007597C8);
+        return -1;
+    }
+    return *(s8 *)(arg0 + 1);
+}
+/* measured: restore optimization level 2 after func_004dee18. */
+#pragma optimization_level 2
 // FUN_004DEE48
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004dee48);
 // FUN_004DEEC0
@@ -448,20 +487,53 @@ INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df068);
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df098);
 // FUN_004DF0C8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df0c8);
+/* measured: optimization level 3 reproduces the null-accessor branch shape. */
+#pragma optimization_level 3
 // FUN_004DF0F8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df0f8);
+s32 func_004df0f8(u8 *arg0)
+{
+    if (arg0 == NULL) {
+        func_004de2c0(D_00759920);
+        return -1;
+    }
+    return *(s32 *)(arg0 + 0x1C0);
+}
+/* measured: restore optimization level 2 after func_004df0f8. */
+#pragma optimization_level 2
 // FUN_004DF128
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df128);
 // FUN_004DF1A0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df1a0);
+/* measured: optimization level 3 reproduces the null-accessor branch shape. */
+#pragma optimization_level 3
 // FUN_004DF1F0
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df1f0);
+s32 func_004df1f0(u8 *arg0)
+{
+    if (arg0 == NULL) {
+        func_004de2c0(D_007599B0);
+        return 0;
+    }
+    return *(s32 *)(arg0 + 0x90);
+}
+/* measured: restore optimization level 2 after func_004df1f0. */
+#pragma optimization_level 2
 // FUN_004DF220
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df220);
 // FUN_004DF260
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df260);
+/* measured: optimization level 3 reproduces the null-accessor branch shape. */
+#pragma optimization_level 3
 // FUN_004DF2E8
-INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004df2e8);
+s32 func_004df2e8(u8 *arg0)
+{
+    if (arg0 == NULL) {
+        func_004de2c0(D_00759A10);
+        return 0;
+    }
+    return *(s32 *)(arg0 + 0x1A8);
+}
+/* measured: restore optimization level 2 after func_004df2e8. */
+#pragma optimization_level 2
 // FUN_004DF318
 void func_004df318(void)
 {

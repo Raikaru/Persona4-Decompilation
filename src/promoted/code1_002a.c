@@ -3,6 +3,7 @@
 #include "type.h"
 
 extern void (*jtbl_008873EC[])(u8 *);
+extern s16 *D_00764658;
 
 s32 func_00452380(void *arg0);
 extern u8 D_0063E918[];
@@ -115,6 +116,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002ac2a0);
 // FUN_002AC360
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002ac360);
 // FUN_002AC3B0
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002ac3b0);
+u32 func_002ac3b0(void) {
+    return (u32)D_00764658;
+}
 // FUN_002AC3C0
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002ac3c0);

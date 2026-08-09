@@ -22,6 +22,11 @@ extern void func_003e8110(u8 *arg0);
 extern void func_003e8120(u8 *arg0);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
 extern u8 D_008813B0[];
+extern u8 D_00607E50[];
+extern u8 iGpffffa4d8;
+extern u8 iGpffffa4d9;
+extern u8 iGpffffa4da;
+extern u8 iGpffffa4db;
 
 typedef int (*code)(...);
 
@@ -171,7 +176,36 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6ad0);
 // FUN_001D6C10
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6c10);
 // FUN_001D72E0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d72e0);
+s32 func_001d72e0(s32 arg0)
+{
+    if (arg0 == 0) {
+        return -1;
+    }
+    switch (arg0) {
+    case 2:
+        return 0x12;
+    case 4:
+        return 0x13;
+    case 8:
+        return 0x14;
+    case 0x10:
+        return 0x15;
+    case 1:
+        return 0x16;
+    case 0x20:
+        return 0x17;
+    case 0x40:
+        return 0x18;
+    case 0x80:
+        return 0x19;
+    case 0x100:
+        return 0x1A;
+    case 0x80000:
+    case 0x100000:
+    default:
+        return -1;
+    }
+}
 // FUN_001D7400
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7400);
 // FUN_001D75D0
@@ -350,8 +384,33 @@ void func_001d9b90(u8 *arg0, u32 arg1)
     }
 }
 
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 // FUN_001D9C00
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9c00);
+#pragma opt_rebuildconditionals off
+void func_001d9c00(u8 *arg0, u32 arg1)
+{
+    u32 shift;
+    u32 temp_3;
+
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero_1;
+        shift = 1;
+        goto done_1;
+    nonzero_1:
+        shift = 0;
+    done_1:
+        ;
+    }
+    temp_3 = shift & 0xFFFF;
+    if ((arg1 & 0x80000) != 0) {
+        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0, 0, (code)func_001d9b60);
+    } else {
+        func_001d94d0((int)arg0, arg1, (1 << (temp_3 & 0xFFFF)) & 0xFFFF, 0x80000, 0, (code)func_001d9b60);
+    }
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001D9CA0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9ca0);
 // FUN_001D9DB0
