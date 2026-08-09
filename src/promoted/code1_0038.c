@@ -27,6 +27,13 @@ extern void func_0038c100(u8 *arg0);
 extern void func_0038c770(u8 *arg0);
 extern void func_0038cab0(u8 *arg0);
 extern u8 D_0064F0E0[];
+extern void func_00389370();
+extern void func_00389640();
+extern void func_00389e10();
+extern void func_0038a940();
+extern void func_0038b1c0();
+extern void func_0034f460(s32 arg0, f32 arg1, s32 arg2, f32 arg3,
+                          s32 arg4, s32 arg5, s32 arg6, s32 arg7);
 
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
 {
@@ -385,8 +392,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a940);
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038acd0);
 // FUN_0038B1C0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b1c0);
+// measured: preserve retail argument materialization order
+#pragma opt_propagation off
 // FUN_0038B490
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b490);
+void func_0038b490(s32 arg0, u8 **arg1)
+{
+    s32 temp_16;
+    func_0034f1e0();
+    func_00389370(arg1);
+    func_00389640(arg1);
+    temp_16 = *(s32 *)(*arg1 + 0x1F2B4);
+    func_0034f460(temp_16, 0.0f, 0, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
+    func_00389e10(arg1);
+    func_0038a940(arg1);
+    func_0038b1c0(arg1);
+}
+// measured: restore propagation default
+#pragma opt_propagation on
 // FUN_0038B530
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b530);
 // FUN_0038BAB0

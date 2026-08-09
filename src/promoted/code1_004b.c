@@ -824,7 +824,33 @@ void func_004b5620(u8 *arg0) {
 }
 
 // FUN_004B5690
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5690);
+void func_004b5690(u8 *arg0)
+{
+    s32 tbl1;
+    s32 idx1;
+    void (*fn1)(u8 *);
+    s32 tbl2;
+    s32 idx2;
+    void (*fn2)(u8 *);
+
+    if (iGpffffbba4() != 0) {
+        tbl1 = (s32)iGpffffbba0 + 0x10;
+        idx1 = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        fn1 = *(void (**)(u8 *))(tbl1 + idx1);
+        if (fn1 != NULL) {
+            fn1(arg0);
+        }
+        *(s32 *)(arg0 + 0x28) += 1;
+    }
+    if (iGpffffbba4() != 0) {
+        tbl2 = (s32)iGpffffbba0 + 0x14;
+        idx2 = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        fn2 = *(void (**)(u8 *))(tbl2 + idx2);
+        if (fn2 != NULL) {
+            fn2(arg0);
+        }
+    }
+}
 // FUN_004B5750
 s128 func_004b5750(s128 *arg0, s128 *arg1) {
     s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
@@ -904,10 +930,103 @@ void func_004bc520(u8 *arg0, f32 *arg1)
 }
 // FUN_004BC540
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc540);
+typedef struct {
+    s32 a;
+    s32 b;
+    s32 c;
+    f32 d;
+} Code1_004bBccf0Temp;
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} Code1_004bBddVec4;
 // FUN_004BCCF0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bccf0);
+void func_004bccf0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3)
+{
+    Code1_004bBccf0Temp temp;
+    s16 temp_6;
+    u8 *var_6_2;
+    s32 var_6;
+    s32 var_7;
+    u8 *temp_3;
+    u8 *var_4;
+    s32 var_4_2;
+
+    var_7 = arg3;
+    temp_6 = *(s16 *)(arg0 + 0x38);
+    switch (temp_6) {
+    case 0:
+        var_7 = (*(s32 *)(*(u8 **)(arg0 + 0) + 0xC) * 2) + 1;
+        break;
+    case 1:
+        var_7 = (*(s32 *)(*(u8 **)(arg0 + 0) + 0xC) * 3) + 6;
+        break;
+    case 2:
+        var_7 = (*(s32 *)(*(u8 **)(arg0 + 0) + 0xC) * 3) + 6;
+        break;
+    }
+    var_4 = *(u8 **)(arg1 + 0x30);
+    var_6 = 0;
+    while (var_6 < var_7) {
+        *(u8 *)(var_4 + 0) = 0;
+        *(u8 *)(var_4 + 1) = 0;
+        *(u8 *)(var_4 + 2) = 0;
+        *(u8 *)(var_4 + 3) = 0;
+        var_6 += 1;
+        var_4 += 4;
+    }
+    var_6_2 = *(u8 **)(*(u8 **)(arg1 + 0x5C) + 0x14);
+    var_4_2 = 0;
+    while (var_4_2 < var_7) {
+        *(s32 *)(var_6_2 + 0) = 0;
+        *(s32 *)(var_6_2 + 4) = 0;
+        *(s32 *)(var_6_2 + 8) = 0;
+        var_4_2 += 1;
+        var_6_2 += 0xC;
+    }
+    temp.a = 0;
+    temp.b = 0;
+    temp.c = 0;
+    temp.d = (f32)1000000000;
+    temp_3 = *(u8 **)(arg1 + 0x5C);
+    *(Code1_004bBccf0Temp *)(temp_3 + 4) = temp;
+}
 // FUN_004BD4A0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd4a0);
+f32 func_004bd4a0(u8 *arg0, u8 *arg1)
+{
+    Code1_004bBddVec4 a;
+    Code1_004bBddVec4 b;
+    f32 ad;
+    f32 bd;
+    f32 dot;
+
+    a = *(Code1_004bBddVec4 *)arg0;
+    b = *(Code1_004bBddVec4 *)arg1;
+    ad = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
+    ad = __sqrt(ad, 0.0f);
+    a.x = a.x / ad;
+    a.y = a.y / ad;
+    a.z = a.z / ad;
+    a.w = a.w / ad;
+    bd = b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;
+    bd = __sqrt(bd, 0.0f);
+    b.x = b.x / bd;
+    b.y = b.y / bd;
+    b.z = b.z / bd;
+    b.w = b.w / bd;
+    if ((a.x == b.x) && (a.y == b.y) && (a.z == b.z) && (a.w == b.w)) {
+        return 0.0f;
+    }
+    dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+    if (dot > 1.0f) {
+        dot = 1.0f;
+    } else if (dot < -1.0f) {
+        dot = -1.0f;
+    }
+    return dot;
+}
 // FUN_004BD628
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd628);
 // FUN_004BD640

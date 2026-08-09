@@ -26,7 +26,7 @@ struct BtlBattleFlagPacket
 {
     u32 flags;
 };
-extern Battle* iGpfffb3ac;
+extern Battle* iGpffffb3ac;
 
 typedef struct BtlPacket BtlPacket;
 struct BtlPacket
@@ -108,7 +108,7 @@ u32 func_00193750(void* work)
     BtlBattleFlagPacket* packet;
 
     packet = (BtlBattleFlagPacket*)work;
-    iGpfffb3ac->flags |= packet->flags;
+    iGpffffb3ac->flags |= packet->flags;
 
     return 1;
 }
@@ -137,7 +137,7 @@ u32 func_001937c0(void* work)
     BtlBattleFlagPacket* packet;
     Battle* btl;
 
-    btl = iGpfffb3ac;
+    btl = iGpffffb3ac;
     packet = (BtlBattleFlagPacket*)work;
     btl->flags &= ~packet->flags;
 

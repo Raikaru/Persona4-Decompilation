@@ -60,11 +60,19 @@ extern void func_0025f430(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           f32 arg12, f32 arg13);
 extern void func_00263cb0(s32 arg0);
 extern void func_00274660();
-extern s32 func_002746a0(void);
+extern s32 func_002746a0();
 extern s64 func_0010d660(s32 arg0);
 extern s64 func_0010d6d0(s32 arg0);
 extern void func_00442088();
+extern s32 D_008815B0[];
+extern void func_00273f70(u8 *arg0);
+extern void func_002739e0(s32 arg0, u8 *arg1);
 extern u8 iGpffffa734;
+extern f32 func_003e4180(f32 *arg0);
+extern u8 *func_003e9700(s32 arg0);
+extern u8 *func_00457120(void);
+extern void func_004b1470(s32 arg0, f32 *arg1);
+extern void func_00106620(s32 arg0, s32 arg1);
 
 // FUN_00260510
 void func_00260510(void)
@@ -358,8 +366,65 @@ void func_0026dc30(void)
     func_0026d810();
 }
 
+/* measured: opt_propagation off probe for func_0026dc50 float load scheduling. */
+#pragma opt_propagation off
 // FUN_0026DC50
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026dc50);
+s32 func_0026dc50(u8 **arg0, u8 **arg1)
+{
+    struct DC50Frame {
+        f32 v40[3];
+        u8 pad4C[0x24];
+        f32 v70[3];
+        u8 pad7C[4];
+        f32 v80[3];
+        u8 pad8C[0x24];
+        f32 vB0[3];
+        u8 padBC[4];
+        f32 vC0[3];
+        u8 padCC[4];
+        f32 vD0[3];
+        u8 padDC[4];
+        f32 vE0[3];
+        u8 padEC[4];
+    } frame;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+    f32 *temp_B0;
+    f32 *temp_70;
+    f32 temp_c1;
+    f32 temp_c2;
+    u8 *temp_16;
+    u8 *temp_2;
+
+    temp_2 = func_00457120();
+    temp_2 = func_003e9700(*(s32 *)(temp_2 + 4));
+    temp_f0 = *(f32 *)(temp_2 + 0x30);
+    temp_f2 = *(f32 *)(temp_2 + 0x34);
+    temp_f1 = *(f32 *)(temp_2 + 0x38);
+    frame.vC0[0] = temp_f0;
+    frame.vC0[1] = temp_f2;
+    frame.vC0[2] = temp_f1;
+    temp_16 = *arg1;
+    temp_2 = *arg0;
+    func_004b1470(*(s32 *)(temp_2 + 0x144), frame.v80);
+    func_004b1470(*(s32 *)(temp_16 + 0x144), frame.v40);
+    temp_B0 = frame.vB0;
+    temp_70 = frame.v70;
+    frame.vE0[0] = temp_B0[0] - frame.vC0[0];
+    temp_c1 = frame.vC0[1];
+    frame.vE0[1] = temp_B0[1] - temp_c1;
+    temp_c2 = frame.vC0[2];
+    frame.vE0[2] = temp_B0[2] - temp_c2;
+    frame.vD0[0] = temp_70[0] - frame.vC0[0];
+    frame.vD0[1] = temp_70[1] - frame.vC0[1];
+    frame.vD0[2] = temp_70[2] - frame.vC0[2];
+    temp_f20 = func_003e4180(frame.vE0);
+    return (s32)(temp_f20 - func_003e4180(frame.vD0));
+}
+/* measured: closes opt_propagation off probe for func_0026dc50. */
+#pragma opt_propagation on
 // FUN_0026DD60
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026dd60);
 // FUN_0026DEE0
@@ -870,10 +935,90 @@ scan_loop:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ebe0);
 #endif
+/* measured: opt_propagation off preserves decode and state-store order for func_0026ed00. */
+#pragma opt_propagation off
 // FUN_0026ED00
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ed00);
+s32 func_0026ed00(s32 arg0, u8 *arg1)
+{
+    s32 temp_3_3;
+    s32 temp_3_5;
+    s32 temp_3_4;
+    s32 var_2;
+    u8 temp_3_2;
+    u8 *temp_3;
+
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
+        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x38) = 1;
+    }
+    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x30) = arg0;
+    if (func_00106330(0x3A) == 0) {
+        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) = 0x23;
+    } else {
+        temp_3_4 = *(s32 *)(arg1 + 0x18);
+        temp_3_5 = *(s32 *)(arg1 + 0x10);
+        temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+        temp_3_3 = (temp_3[0] - 1) & 0xFF;
+        temp_3_2 = temp_3[1];
+        if (temp_3_2 == 0xFF) {
+            var_2 = 0;
+        } else {
+            var_2 = (temp_3_2 - 1) & 0xFF;
+        }
+        var_2 &= 0xFF;
+        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) =
+            (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
+    }
+    return 0;
+}
+/* measured: closing opt_propagation off for func_0026ed00. */
+#pragma opt_propagation on
+/* measured: opt_propagation off preserves decode and state-store order for func_0026ee00. */
+#pragma opt_propagation off
 // FUN_0026EE00
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ee00);
+s32 func_0026ee00(s32 arg0, u8 *arg1)
+{
+    s32 temp_3_3;
+    s32 temp_3_5;
+    s32 temp_3_4;
+    s32 var_2;
+    u8 temp_3_2;
+    u8 *temp_3;
+    s32 temp_4;
+    s32 temp_6;
+    u8 *temp_7;
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    temp_3_3 = (temp_3[0] - 1) & 0xFF;
+    temp_3_2 = temp_3[1];
+    if (temp_3_2 == 0xFF) {
+        var_2 = 0;
+    } else {
+        var_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    var_2 &= 0xFF;
+    temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
+        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x38) = 1;
+    }
+    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x30) = arg0;
+    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) = (s32)(s16)temp_4;
+    temp_7 = *(u8 **)(arg1 + 0x14) + 0x3C;
+    temp_6 = *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C);
+    if (temp_6 < 0) {
+        *(s32 *)temp_7 = 0;
+    }
+    return 0;
+}
+/* measured: closing opt_propagation off for func_0026ee00. */
+#pragma opt_propagation on
 // FUN_0026EF00
 s32 func_0026ef00(s32 arg0, u8 *arg1)
 {
@@ -889,8 +1034,44 @@ s32 func_0026ef00(s32 arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ef60);
 // FUN_0026F0A0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f0a0);
-// FUN_0026F1E0
+/* measured: exact-size decode and table-dispatch reconstruction reaches normalized_diff 10; saved-register coloring remains. Committed at nd 10. */
+// FUN_0026F1E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0026f1e0(s32 arg0, u8 *arg1)
+{
+    s32 temp_4;
+    s32 temp_3_4;
+    s32 temp_3_5;
+    s32 var_2;
+    u8 temp_3_2;
+    u8 *temp_3;
+    u16 temp_16;
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    temp_4 = (temp_3[0] - 1) & 0xFF;
+    temp_3_2 = temp_3[1];
+    if (temp_3_2 == 0xFF) {
+        var_2 = 0;
+    } else {
+        var_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    var_2 &= 0xFF;
+    temp_16 = (u16)(s16)((var_2 << 8) | (u8)temp_4);
+    temp_16 &= 0xFFFF;
+    if (func_002746a0(temp_4) != 0) {
+        return 0;
+    }
+    if (D_008815B0[temp_16 & 0xFFFF] != 0) {
+        func_00273f70(arg1);
+        func_002739e0(temp_16 & 0xFF, arg1);
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f1e0);
+#endif
 // FUN_0026F2C0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f2c0);
 /* measured: optimization_level 0 probe for the retail redundant return branch. */
@@ -936,8 +1117,80 @@ s32 func_0026fc20(s32 arg0, u8 *arg1)
     return 0;
 }
 // FUN_0026FCA0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026fca0);
+s32 func_0026fca0(s32 arg0, u8 *arg1)
+{
+    s8 sp20[0x23];
+
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    func_00442088(&sp20, &iGpffffa734, func_0010d6d0(1));
+    func_00273f70(arg1);
+    func_00273cc0(&sp20, arg1);
+    sp20[0] = -0x7D;
+    sp20[1] = -0xA;
+    sp20[2] = 0;
+    func_00273f70(arg1);
+    func_00273cc0(&sp20, arg1);
+    func_00442088(&sp20, &iGpffffa734, func_0010d660(1));
+    func_00273f70(arg1);
+    func_00273cc0(&sp20, arg1);
+    return 0;
+}
 // FUN_0026FD90
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026fd90);
+/* measured: opt_common_subs off forces func_0026fff0 field reloads. */
+#pragma opt_common_subs off
+/* measured: opt_propagation off preserves func_0026fff0 decode scheduling. */
+#pragma opt_propagation off
 // FUN_0026FFF0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026fff0);
+s32 func_0026fff0(s32 arg0, u8 *arg1)
+{
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_4;
+    s32 var_2;
+    s32 var_2_2;
+    s32 temp_3_4;
+    s32 temp_3_5;
+    s32 temp_3_6;
+    s32 temp_3_7;
+    s32 temp_3_2;
+    s32 temp_3_4b;
+    u8 *temp_3;
+    u8 *temp_3_3;
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    temp_4 = (temp_3[0] - 1) & 0xFF;
+    temp_3_2 = temp_3[1];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2 = 0;
+    } else {
+        var_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    var_2 &= 0xFF;
+    temp_16 = (s32)(s16)((var_2 << 8) | (u8)temp_4);
+    temp_3_6 = *(s32 *)(arg1 + 0x18);
+    temp_3_7 = *(s32 *)(arg1 + 0x10);
+    temp_3_3 = (u8 *)(temp_3_6 + temp_3_7);
+    temp_4 = (temp_3_3[2] - 1) & 0xFF;
+    temp_3_4b = temp_3_3[3];
+    if ((u8)temp_3_4b == 0xFF) {
+        var_2_2 = 0;
+    } else {
+        var_2_2 = (temp_3_4b - 1) & 0xFF;
+    }
+    var_2_2 &= 0xFF;
+    temp_17 = (s32)(s16)((var_2_2 << 8) | (u8)temp_4);
+    if (func_002746a0(temp_4) != 0) {
+        return 0;
+    }
+    func_00106620((s16)temp_16, temp_17 & 0xFF);
+    return 0;
+}
+/* measured: closing opt_propagation off for func_0026fff0. */
+#pragma opt_propagation on
+/* measured: closing opt_common_subs off for func_0026fff0. */
+#pragma opt_common_subs on

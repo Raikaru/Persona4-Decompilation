@@ -6,6 +6,8 @@ extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_004217e0(u8 *arg0);
 extern s32 **func_003ce050();
 extern s32 iGpffffb728;
+extern s32 iGpffffb730;
+extern s32 iGpffffb72c;
 extern s32 iGpffffab50;
 
 extern s32 D_00887180[];
@@ -264,14 +266,170 @@ done:
 /* measured: closes the no_branch_likely/schedule brackets. */
 #pragma schedule off
 #pragma no_branch_likely off
+/* measured probe: schedule/no_branch_likely tested for 003d4910 branch graph. */
+#pragma no_branch_likely on
+#pragma schedule on
 // FUN_003D4910
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4910);
+u8 *func_003d4910(u8 *arg0) {
+    u8 *saved_arg0;
+    u8 *temp5;
+    s32 **var4;
+    s32 **result;
+    u8 *flag;
+
+    saved_arg0 = arg0;
+    temp5 = *(u8 **)(arg0 + 0x54);
+    if (temp5 == NULL) goto clear_temp;
+    var4 = (s32 **)(saved_arg0 + iGpffffb730);
+    flag = NULL;
+    if (*var4 == NULL) goto flag_done;
+    if (*(u16 *)(temp5 + 4) != **var4) goto flag_done;
+    flag = (u8 *)1;
+flag_done:
+    if (flag != NULL) {
+        result = var4;
+    } else {
+        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+    }
+    if (*result != NULL) goto ret_arg0;
+    return NULL;
+ret_arg0:
+    return saved_arg0;
+clear_temp:
+    *(s32 *)(saved_arg0 + iGpffffb730) = 0;
+    goto ret_arg0;
+}
+/* measured probe: close schedule/no_branch_likely around 003d4910. */
+#pragma schedule off
+#pragma no_branch_likely off
+/* measured probe: schedule/no_branch_likely tested for 003d49b0 branch graph. */
+#pragma no_branch_likely on
+#pragma schedule on
 // FUN_003D49B0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d49b0);
+u8 *func_003d49b0(u8 *arg0) {
+    u8 *saved_arg0;
+    u8 *object;
+    u8 *temp5;
+    s32 value;
+    s32 **var4;
+    s32 **result;
+    u8 *flag;
+    saved_arg0 = arg0;
+    object = *(u8 **)(arg0 + 0x18);
+    temp5 = *(u8 **)(object + 0x54);
+    if (temp5 == NULL) goto clear_temp;
+    value = *(s32 *)(object + 0x18);
+    if (value <= 1) goto clear_temp;
+    var4 = (s32 **)(saved_arg0 + iGpffffb72c);
+    flag = NULL;
+    if (*var4 == NULL) goto flag_done;
+    if (*(u16 *)(temp5 + 4) != **var4) goto flag_done;
+    flag = (u8 *)1;
+flag_done:
+    if (flag != NULL) {
+        result = var4;
+    } else {
+        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+    }
+    if (*result != NULL) goto ret_arg0;
+    return NULL;
+ret_arg0:
+    return saved_arg0;
+clear_temp:
+    *(s32 *)(saved_arg0 + iGpffffb72c) = 0;
+    goto ret_arg0;
+}
+/* measured probe: close schedule/no_branch_likely around 003d49b0. */
+#pragma schedule off
+#pragma no_branch_likely off
+/* measured probe: schedule/no_branch_likely tested for 003d4a60 branch graph. */
+#pragma no_branch_likely on
+#pragma schedule on
 // FUN_003D4A60
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4a60);
+u8 *func_003d4a60(u8 *arg0) {
+    u8 *saved_arg0;
+    u8 *temp5;
+    s32 **var4;
+    s32 **result;
+    u8 *flag;
+
+    saved_arg0 = arg0;
+    temp5 = *(u8 **)(arg0 + 0x78);
+    if (temp5 == NULL) goto clear_temp;
+    var4 = (s32 **)(saved_arg0 + iGpffffb728);
+    flag = NULL;
+    if (*var4 == NULL) goto flag_done;
+    if (*(u16 *)(temp5 + 4) != **var4) goto flag_done;
+    flag = (u8 *)1;
+flag_done:
+    if (flag != NULL) {
+        result = var4;
+    } else {
+        result = func_003ce050(var4, *(u16 *)(temp5 + 4), flag);
+    }
+    if (*result != NULL) goto ret_arg0;
+    return NULL;
+ret_arg0:
+    return saved_arg0;
+clear_temp:
+    *(s32 *)(saved_arg0 + iGpffffb728) = 0;
+    goto ret_arg0;
+}
+/* measured probe: close schedule/no_branch_likely around 003d4a60. */
+#pragma schedule off
+#pragma no_branch_likely off
+/* measured probe: no_branch_likely and schedule tested for 003d4b00 branch graph. */
+#pragma no_branch_likely on
+#pragma schedule on
 // FUN_003D4B00
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4b00);
+s32 func_003d4b00(u8 *arg0) {
+    u8 *object;
+    u8 *temp6;
+    s32 count;
+    s32 one;
+    s32 **var4;
+    s32 **result;
+    u8 *flag;
+
+    object = *(u8 **)(arg0 + 0x18);
+    temp6 = *(u8 **)(object + 0x54);
+    if (temp6 == NULL) goto ret_one;
+    count = *(s32 *)(object + 0x18);
+    one = 1;
+    if (count != one) goto second_path;
+    var4 = (s32 **)(object + iGpffffb730);
+    flag = NULL;
+    if (*var4 == NULL) goto first_flag_done;
+    if (*(u16 *)(temp6 + 4) != **var4) goto first_flag_done;
+    flag = (u8 *)one;
+first_flag_done:
+    if (flag != NULL) {
+        result = var4;
+    } else {
+        result = func_003ce050(var4, *(u16 *)(temp6 + 4), temp6, flag);
+    }
+    if (*result != NULL) goto ret_one;
+    return 0;
+ret_one:
+    return 1;
+second_path:
+    var4 = (s32 **)(arg0 + iGpffffb72c);
+    flag = NULL;
+    if (*var4 == NULL) goto second_flag_done;
+    if (*(u16 *)(temp6 + 4) != **var4) goto second_flag_done;
+    flag = (u8 *)one;
+second_flag_done:
+    if (flag != NULL) {
+        result = var4;
+    } else {
+        result = func_003ce050(var4, *(u16 *)(temp6 + 4), temp6, flag);
+    }
+    if (*result != NULL) goto ret_one;
+    return 0;
+}
+/* measured probe: close no_branch_likely/schedule around 003d4b00. */
+#pragma schedule off
+#pragma no_branch_likely off
 // FUN_003D4BF0
 /* measured: no_branch_likely and schedule on reproduce retail's explicit
    result-pointer branch/call layout (MATCH; normalized_diff 0, object 124
@@ -1180,13 +1338,21 @@ s32 func_003df460(s32 arg0) {
 
 extern s32 D_00724854;
 
-/* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
-   unfilled (nop); retail fills it with the final sw (nd 16 -> 0). */
-
-// FUN_003DF480
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df480);
-// FUN_003DF4B0
+/* measured: schedule on keeps the initial arg1 store and final counter store
+   in the retail order while retaining the returned arg0. */
 #pragma schedule on
+// FUN_003DF480
+s32 func_003df480(s32 arg0, s32 arg1) {
+    s32 counter;
+
+    iGpffffb760 = arg1;
+    counter = D_00724854;
+    *(s32 *)(D_008872E0 + arg1) = 0;
+    *(s32 *)(D_008872E0 + arg1 + 4) = 0x80000000;
+    D_00724854 = counter + 1;
+    return arg0;
+}
+// FUN_003DF4B0
 s32 func_003df4b0(s32 arg0) {
     D_00724854 -= 1;
     return arg0;
