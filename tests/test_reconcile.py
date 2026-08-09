@@ -85,7 +85,7 @@ class CanonicalMapTests(unittest.TestCase):
             + len(reconcile.JAL_REACHABLE_ENTRIES)
             - len(reconcile.BRANCH_LANDING_ENTRIES)
         )
-        self.assertEqual(expected_total, 13098)
+        self.assertEqual(expected_total, 13100)
         self.assertEqual(function_map["function_count"], expected_total)
         self.assertEqual(len(windows), expected_total)
         for segment_name, expected_count in (("code1", expected_total - 9), ("code2", 9)):
@@ -208,12 +208,31 @@ class CanonicalMapTests(unittest.TestCase):
         self.assertTrue(reconcile.EPILOGUE_SEPARATED_ENTRIES)
         for address in sorted(reconcile.EPILOGUE_SEPARATED_ENTRIES):
             with self.subTest(address=f"{address:08X}"):
-                jr, delay = struct.unpack("<II", retail.bytes_at(address - 8, 8))
-                self.assertEqual(
-                    jr, 0x03E00008, f"{address - 8:08X} is not `jr $ra` (got {jr:08X})"
+                # Walk back over any inter-function zero padding to the last
+                # real instruction, then require it to be a register jump with
+                # a nop delay slot. Accepting `jr $rX` and not only `jr $ra` is
+                # deliberate: a tail-jump stub ends `lw $v0,...; jr $v0; nop`
+                # and terminates its function just as definitively as a return,
+                # and 003C54A0 and 003E8790 are both exactly that shape. The
+                # padding walk is bounded so a runaway scan cannot manufacture
+                # evidence from an unrelated function further back.
+                terminator = None
+                for offset in range(4, 68, 4):
+                    word = struct.unpack("<I", retail.bytes_at(address - offset, 4))[0]
+                    if word != 0x00000000:
+                        terminator = (address - offset, word)
+                        break
+                self.assertIsNotNone(
+                    terminator, f"only padding precedes {address:08X}; no epilogue evidence"
                 )
+                jr_at, jr = terminator
+                self.assertTrue(
+                    (jr >> 26) == 0 and (jr & 0x3F) == 0x08,
+                    f"{jr_at:08X} is not a register jump (got {jr:08X})",
+                )
+                delay = struct.unpack("<I", retail.bytes_at(jr_at + 4, 4))[0]
                 self.assertEqual(
-                    delay, 0x00000000, f"{address - 4:08X} is not a nop delay slot"
+                    delay, 0x00000000, f"{jr_at + 4:08X} is not a nop delay slot"
                 )
                 self.assertNotIn(
                     address, splat, "override is redundant; Splat finds this entry"

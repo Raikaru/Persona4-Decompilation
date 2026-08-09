@@ -32,6 +32,10 @@ extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern void func_00442088(void *dst, const char *fmt, ...);
 extern void func_00442830(void *dst, const char *fmt);
 extern u8 *iGpffffb244;
+extern s32 D_007E8060[];
+extern s32 func_0014a200(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_0014a270(void);
+extern void func_00151f80(s32 arg0);
 extern s32 func_0014e710();
 extern void func_0046d730();
 extern void func_0043f810();
@@ -63,9 +67,16 @@ static inline u32 wg0035_add_offset(u32 offset, u32 base)
 {
     return offset + base;
 }
+static inline u8 *wg0015_add_ptr(u8 *base, s32 offset)
+{
+    return base + offset;
+}
 
 
 extern u8 *func_001452b0(s32 arg0);
+extern void func_00458f40(s32 arg0, s32 arg1);
+extern void func_00458f70(s32 arg0, s32 arg1);
+extern s32 func_0047a310(s32 arg0);
 
 /* measured: opt_loop_invariants hoists the 0x10000000 mask before the loop
  * test and colours it $a0 with the field in $v1 (nd 15 -> 0). */
@@ -80,7 +91,25 @@ extern s32 func_004782b0(s32 arg0);
 extern void (*jtbl_008873EC[])(s32 arg0);
 
 // FUN_001537C0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001537c0);
+void func_001537c0(u8 *arg0, s32 arg1)
+{
+    s32 index;
+    u8 *work;
+
+    work = func_001452b0(0xA);
+    if ((*(s32 *)(arg0 + 0) & 1) != 0) {
+        func_00458f70(*(s32 *)(arg0 + 8), arg1);
+    }
+    index = 0;
+    while ((u32)index < *(u32 *)(arg0 + 0x18)) {
+        func_00458f40(*(s32 *)(arg0 + (index * 4) + 0x1C), arg1);
+        index += 1;
+    }
+    while (work != NULL) {
+        func_00458f40(func_0047a310(*(s32 *)(work + 0x144)), arg1);
+        work = *(u8 **)(work + 0x138);
+    }
+}
 // FUN_001538A0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001538a0);
 // FUN_00153A00
@@ -290,7 +319,50 @@ s32 func_00159e90(s32 arg0, s32 arg1, s32 arg2) {
     return temp_17;
 }
 // FUN_00159F70
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00159f70);
+void func_00159f70(s32 arg0)
+{
+    u8 *root;
+    u8 *state;
+    s32 arg_offset;
+    s32 base_offset;
+    s32 base;
+    s32 index;
+    s32 *entry;
+    u8 *first;
+
+    root = D_00764334;
+    if (root != NULL) {
+        state = *(u8 **)(root + 0x38);
+        if (arg0 < 0) {
+            *(s32 *)(state + 8) = 0x3FF;
+        } else {
+            *(s32 *)(state + 8) = 0xFFFF;
+        }
+        arg_offset = arg0 * 0x10;
+        base_offset = *(s32 *)(state + 4) * 0x10;
+        base = *(s32 *)(state + 0x20);
+        first = (u8 *)(base + base_offset);
+        if (((*(u16 *)first != *(u16 *)(first + arg_offset)) ||
+             (*(u16 *)(base + 2 + base_offset) !=
+              *(u16 *)wg0015_add_ptr((u8 *)(base + 2 + base_offset), arg_offset))) &&
+            (((*(s32 *)(state + 0x24) |= 0x80000000),
+              func_0014a200(base, base_offset, arg_offset) == 1) ||
+             (func_0014a270() == 1))) {
+            index = 0;
+            while (index < 0x10) {
+                entry = &D_007E8060[index];
+                if (*entry != 0) {
+                    func_00151f80(*entry);
+                    *entry = 0;
+                }
+                index += 1;
+            }
+        }
+        *(s32 *)(state + 4) += arg0;
+        func_001560f0(*(u8 **)(state + 0x18), 1);
+        *(s32 *)state = 5;
+    }
+}
 // FUN_0015A0C0
 s32 func_0015a0c0(void)
 {

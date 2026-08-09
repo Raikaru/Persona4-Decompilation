@@ -295,6 +295,22 @@ EPILOGUE_SEPARATED_ENTRIES = {
     0x00156630,
     0x00209F90,
     0x0020A5C0,
+    # Two further entries found in wave WL. Unlike the nullsubs above these are
+    # substantial functions with their own `addiu $sp,-0x20` prologue and full
+    # epilogue, sharing a window with a preceding 32-byte tail-jump stub. Both
+    # are referenced only by a lui/addiu %hi/%lo pair whose halves are NOT
+    # adjacent, which is why the automated nullsub sweep reports them as
+    # unreferenced: it only pairs a `lui` with an `addiu` within four
+    # instructions.
+    #
+    # 003E87B0 is materialised by `lui $v1,0x3f` at 003E8CA0 and
+    # `addiu $v1,$v1,0x87b0` two words later at 003E8CA8 (0x3F0000 +
+    # (signed)0xFFFF87B0). 003C54C0 is materialised by `lui $a3,0x3c` at
+    # 003CA460 and `addiu $a3,$a3,0x54c0` six instructions later at 003CA478,
+    # straddling an intervening `jal`, and is passed as that call's fourth
+    # argument -- a callback handed to a registration routine.
+    0x003C54C0,
+    0x003E87B0,
 }
 
 # Entries the control-flow scan gets BACKWARDS. Each of these is a real, heavily

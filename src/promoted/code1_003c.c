@@ -101,6 +101,7 @@ extern u8 D_0070B060[];
 extern s32 func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern void func_003efd20(u8 *arg0, u8 *arg1);
 extern s32 func_003e3020(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern s32 D_007647CC;
 extern s32 D_007647C8;
 
@@ -664,10 +665,10 @@ do2:
 #pragma no_branch_likely off
 #pragma schedule off
 
-/* measured: C reconstruction with schedule/no_branch_likely pragmas is nd 48,
-   object 112B/window 112B; retail's pre-prologue load and movz conditional
-   assignment remain compiler residuals; no real C body was retained, so the
-   bare INCLUDE_ASM fallback remains. */
+/* measured: typed three-argument helper and schedule yield nd 15 with
+   object/window 112B; the pre-prologue load and final movz remain compiler
+   residuals. No real C body was retained, so the bare INCLUDE_ASM fallback
+   remains. */
 // FUN_003C3FA0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
 
@@ -810,6 +811,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 // FUN_003C4820
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
 
+/* measured: generated-shape list teardown reaches nd 76 with object/window
+   148B/160B; the entry slt/beq guard and resulting block layout remain a
+   compiler residual. No real C body was retained, so the bare INCLUDE_ASM
+   fallback remains. */
 // FUN_003C49A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c49a0);
 // FUN_003C4A40
@@ -879,8 +884,39 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4cf0);
 
 // FUN_003C4FA0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4fa0);
+/* measured: tailcall preserves the callback jump and constant 0x30502 setup. */
+#pragma tailcall on
 // FUN_003C54A0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c54a0);
+void func_003c54a0(u8 *arg0) {
+    jtbl_008873E8[0](arg0, 0x30502);
+}
+/* measured: tailcall off closes the c54a0 probe. */
+#pragma tailcall off
+
+/* measured: schedule fills the counter branch delay and preserves self across
+   the conditional teardown call. */
+#pragma schedule on
+/* measured: no_branch_likely keeps the null teardown test as beqz. */
+#pragma no_branch_likely on
+// FUN_003C54C0
+u8 *func_003c54c0(u8 *arg0) {
+    u8 *self;
+
+    self = arg0;
+    iGpffffb6f4 -= 1;
+    if (iGpffffb6f4 != 0)
+        goto done;
+    if (iGpffffb6e8 == NULL)
+        goto done;
+    func_003e12f0(iGpffffb6e8);
+    iGpffffb6e8 = NULL;
+done:
+    return self;
+}
+/* measured: no_branch_likely off closes the c54c0 probe. */
+#pragma no_branch_likely off
+/* measured: schedule off closes the c54c0 probe. */
+#pragma schedule off
 
 // FUN_003C5510
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5510);
@@ -944,6 +980,10 @@ call:
 // FUN_003C57D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c57d0);
 
+/* measured: direct callback-loop reconstruction reaches nd 34 with
+   object/window 140B/160B; the saved-argument coloring and branch layout
+   remain residuals. No real C body was retained, so the bare INCLUDE_ASM
+   fallback remains. */
 // FUN_003C59F0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c59f0);
 
@@ -1143,8 +1183,14 @@ s32 func_003c9530(s32 arg0) {
 /* measured: close schedule */
 #pragma schedule off
 
+/* measured: typed allocator reconstruction reaches normalized_diff 37 with
+   object 152B/window 160B; the store/load check still folds before the
+   retail branch block, so the bare INCLUDE_ASM fallback remains. */
 // FUN_003C95A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c95a0);
+/* measured: reordered dispatch reconstruction reaches normalized_diff 30 with
+   object 136B/window 144B; the conditional-move branch and entry targets
+   remain residuals, so the bare INCLUDE_ASM fallback remains. */
 // FUN_003C9640
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9640);
 // FUN_003C96D0
@@ -1186,9 +1232,41 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
 // FUN_003C9940
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9940);
 
+/* measured: schedule fills the key-test and found-exit delay slots. */
+#pragma schedule on
 // FUN_003C99F0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c99f0);
+void func_003c99f0(u8 *arg0) {
+    u8 **temp_6_2;
+    u8 *temp_3;
+    u8 *temp_6;
+    u8 *temp_5;
+    u8 *var_7;
 
+    temp_3 = D_008872E0 + iGpffffb700;
+    var_7 = *(u8 **)(temp_3 + 4);
+    temp_6 = temp_3 + 4;
+    if (var_7 != temp_6) {
+loop:
+        temp_5 = var_7 - 8;
+        if (*(u8 **)(var_7 - 8) == arg0) {
+            *(u8 **)(*(u8 **)(temp_5 + 0xC)) =
+                *(u8 **)(temp_5 + 8);
+            temp_6_2 = (u8 **)(*(u8 **)(temp_5 + 0xC));
+            *(u8 **)(*(u8 **)(temp_5 + 8) + 4) = (u8 *)temp_6_2;
+            jtbl_008873FC[0](
+                *(u8 **)(D_008872E0 + iGpffffb700), temp_5);
+            goto done;
+        }
+        var_7 = *(u8 **)var_7;
+        if (var_7 == temp_6)
+            goto done;
+        goto loop;
+    }
+done:
+    return;
+}
+/* measured: schedule off closes the c99f0 probe. */
+#pragma schedule off
 // FUN_003C9A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9a80);
 
@@ -2083,7 +2161,20 @@ s32 *func_003cfa70(void) {
 
 // FUN_003CFA80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cfa80);
+/* measured: schedule on places saved self and helper argument delay slots. */
+#pragma schedule on
 // FUN_003CFFA0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cffa0);
+u8 *func_003cffa0(u8 *arg0, u8 *arg1) {
+    if ((*(u8 *)(arg0 + 2) & 1) != 0)
+        goto call;
+return_value:
+    return arg0;
+call:
+    func_003cfa80(arg0, (s32)(arg1 + 0x10),
+                  *(f32 *)(arg1 + 0x50), *(f32 *)(arg1 + 0x54));
+    goto return_value;
+}
+/* measured: schedule off closes cffa0's delay-slot probe. */
+#pragma schedule off
 // FUN_003CFFF0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cfff0);

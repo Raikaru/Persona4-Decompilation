@@ -50,6 +50,9 @@ extern s32 func_0014c240(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
 extern s32 func_0014a230(s32 arg0, s32 arg1);
 extern s32 func_0014a2a0(s32 arg0, s32 arg1);
 extern u8 * iGpffff9db0;
+extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
+                          s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
 extern s32 D_00762EA0;
@@ -284,8 +287,31 @@ s32 func_00142340(u8 *arg0) {
     return flag & func_0034c210();
 }
 
+/* measured: opt_propagation off probe for func_001423c0. */
+#pragma opt_propagation off
 // FUN_001423C0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001423c0);
+void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
+{
+    u8 *base;
+    s32 count;
+    s64 c1;
+    u8 c2;
+    u8 c3;
+    base = arg2;
+    count = arg3;
+    c1 = ((u8 *)&arg1)[3];
+    c2 = ((u8 *)&arg1)[2];
+    c3 = ((u8 *)&arg1)[1];
+    while (count > 0) {
+        func_0034f320(*(u8 **)(base + ((count % 10) * 4) + 0x1844),
+                      *(f32 *)&arg0, *(((f32 *)&arg0) + 1), fparg0, *(u8 *)&arg1, c3, c2,
+                      c1, 0x1000, 0x1000, 0, 0, 0);
+        *(f32 *)&arg0 -= 22.0f;
+        count /= 10;
+    }
+}
+/* measured: closes opt_propagation off probe for func_001423c0. */
+#pragma opt_propagation on
 // FUN_001424B0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001424b0);
 // FUN_001427C0
