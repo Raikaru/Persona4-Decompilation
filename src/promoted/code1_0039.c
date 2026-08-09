@@ -1947,7 +1947,6 @@ ret0:
 #pragma no_branch_likely off
 /* measured: closes the schedule-on b6e0 probe. */
 #pragma schedule off
-
 // FUN_0039B720
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b720);
 // FUN_0039B7C0

@@ -214,7 +214,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416bc0);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416cf0);
 
 // FUN_00416DF0
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416df0);
+/* measured: schedule-on probe puts the final addiu in the return delay slot. */
+#pragma schedule on
+/* measured: opt_propagation off retains the multiplier register. */
+#pragma opt_propagation off
+s32 func_00416df0(u8 *arg0)
+{
+    s32 mul;
+    s32 value;
+
+    mul = 0x16;
+    value = *(s32 *)(arg0 + 4);
+    return (mul * value) + 0x18;
+}
+/* measured: close the schedule scope after the multiplier probe. */
+#pragma schedule off
+/* measured: close the opt_propagation scope after the multiplier probe. */
+#pragma opt_propagation on
 
 // FUN_00416E10
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416e10);

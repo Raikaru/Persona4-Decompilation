@@ -29,6 +29,11 @@ extern u8 D_007E8060[];
 extern u8 D_007E8020[];
 extern u8 *iGpffffb2b0;
 extern s32 iGpffffb2b8;
+extern s32 iGpffffba48;
+extern u8 iGpffffba4c;
+extern u8 iGpffffba50;
+extern u8 iGpffffba54;
+extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_0044ea90(const void *msg, s32 line);
@@ -142,8 +147,27 @@ void func_00160680(void)
 }
 /* measured: closing the single-function address-hoist bracket. */
 #pragma opt_propagation on
+/* measured: opt_propagation off preserves the render-state table base across calls. */
+#pragma opt_propagation off
 // FUN_001607E0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_001607e0);
+void func_001607e0(void)
+{
+    u32 color;
+    void (**base)(u32, u32);
+
+    if (iGpffffba48 == 1) {
+        base = D_00887300;
+        base[0](0xE, 1);
+        color = ((u32)iGpffffba58 << 24) |
+                ((u32)iGpffffba4c << 16) |
+                ((u32)iGpffffba50 << 8) |
+                (u32)iGpffffba54;
+        base[0](0xF, color);
+        base[0](0x10, 1);
+    }
+}
+/* measured: closes the function-scoped opt_propagation probe. */
+#pragma opt_propagation on
 // FUN_00160880
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00160880);
 // FUN_001614D0

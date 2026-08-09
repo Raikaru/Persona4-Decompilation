@@ -22,7 +22,6 @@ extern u8 D_006432B0[];
 extern u8 func_002e78a0();
 extern u8 func_002e78e0();
 extern void func_002e7920();
-extern void func_00313d20();
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 // FUN_00311900
@@ -231,6 +230,7 @@ s32 func_00313fb0(u8 *arg0)
     temp = func_0010c750(arg0, (arg0[4] + 1) & 0xFFFF);
     return temp - func_0010c750(arg0, arg0[4]);
 }
+ 
 // FUN_00314010
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00314010);
 // FUN_003142F0

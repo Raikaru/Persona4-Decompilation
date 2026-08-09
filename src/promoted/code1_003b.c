@@ -29,11 +29,22 @@ extern s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2);
 extern s32 D_00764770;
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
 extern void func_003bb0d0(void);
-extern void func_003bb030(void);
+extern s32 func_003bb030(s32 arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 extern void func_003bf930(void);
 extern s32 func_003b88c0(void);
 extern s32 func_003b84a0(u8 *arg0);
+extern s32 iGpffffb654;
+extern s32 iGpffffb61c;
+extern u8 D_008864E8[];
+extern s32 func_003e8960(s32 arg0);
+extern void func_003b8d40(u8 *arg0, s32 arg1);
+extern s32 func_003e8410(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
+extern s32 func_003c3920(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
+extern void func_003bf1c0(void);
+extern void func_003bf1d0(void);
+extern void func_003bf1f0(void);
+extern s32 iGpffffb6b4;
 
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
@@ -229,8 +240,39 @@ s32 func_003b7450(s32 *arg0) {
 #pragma no_branch_likely off
 /* measured: close schedule around func_003b7450. */
 #pragma schedule off
+/* measured: schedule restores func_003b7480's call delay slots and joins. */
+#pragma schedule on
+/* measured: no_branch_likely on selects retail's plain comparisons. */
+#pragma no_branch_likely on
 // FUN_003B7480
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7480);
+void func_003b7480(u8 *arg0, s32 arg1) {
+    s32 var_16;
+
+    var_16 = arg1;
+    if (func_003e8960(0x120) != -1) {
+        goto second;
+    }
+    if (var_16 != 2) {
+        goto second;
+    }
+set_one:
+    var_16 = 1;
+final:
+    func_003b8d40(arg0, var_16);
+    return;
+second:
+    if (func_003e8960(0x12E) != -1) {
+        goto final;
+    }
+    if (var_16 == 3) {
+        goto set_one;
+    }
+    goto final;
+}
+/* measured: close schedule around func_003b7480. */
+/* measured: close no_branch_likely around func_003b7480. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003B7510
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7510);
 // FUN_003B7590
@@ -327,8 +369,39 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8e50);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b90b0);
 // FUN_003B9A40
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b9a40);
+/* measured: schedule restores func_003bb030's loop and return slots. */
+#pragma schedule on
 // FUN_003BB030
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb030);
+s32 func_003bb030(s32 arg0) {
+    s32 temp_2;
+    s32 var_19;
+    u32 **var_18;
+    void (**var_17)(u8 *arg0);
+
+    temp_2 = iGpffffb654 - 1;
+    iGpffffb654 = temp_2;
+    if (temp_2 == 0) {
+        goto clear;
+    }
+    goto done;
+done:
+    return arg0;
+clear:
+    var_19 = 0xA;
+    var_18 = (u32 **)D_008864E8;
+    var_17 = jtbl_008873EC;
+    do {
+        var_17[0]((u8 *)*var_18);
+        var_19 -= 1;
+        *var_18 = NULL;
+        var_18 -= 1;
+    } while (var_19 >= 4);
+    var_17[0]((u8 *)iGpffffb61c);
+    iGpffffb61c = 0;
+    goto done;
+}
+/* measured: close schedule around func_003bb030. */
+#pragma schedule off
 // FUN_003BB0D0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb0d0);
 // FUN_003BB210
@@ -1051,7 +1124,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfc40);
 // FUN_003BFD00
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfd00);
 // FUN_003BFDF0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfdf0);
+/* measured: schedule restores func_003bfdf0's call and branch delay slots. */
+#pragma schedule on
+s32 func_003bfdf0(void) {
+    s32 result;
+
+    result = func_003e8410(0xC, 0x10, (void *)func_003bf1a0, (void *)func_003bf1c0, 0);
+    iGpffffb6b0 = result;
+    if (result < 0) {
+        return 0;
+    }
+    result = func_003c3920(0xC, 0x10, (void *)func_003bf1d0, (void *)func_003bf1f0, 0);
+    iGpffffb6b4 = result;
+    return result >= 0;
+}
+/* measured: close schedule around func_003bfdf0. */
+#pragma schedule off
 /* measured: schedule on is required for func_003bfe60's callback setup. */
 #pragma schedule on
 // FUN_003BFE60
