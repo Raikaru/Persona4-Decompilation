@@ -1,4 +1,5 @@
 /* Source unit: src/Kernel/h_memcard_00464650.c (1 function markers) */
+#include "include_asm.h"
 #include "type.h"
 
 extern s32 D_00764BBC; /* sMemcardMode */
@@ -118,6 +119,12 @@ void func_00465570(s32 file, void* buffer, s32 size)
 
 
 
+// FUN_00465590
+INCLUDE_ASM("asm/nonmatchings/h_memcard", func_00465590);
+// FUN_004659F0
+INCLUDE_ASM("asm/nonmatchings/h_memcard", func_004659f0);
+// FUN_00465A10
+INCLUDE_ASM("asm/nonmatchings/h_memcard", func_00465a10);
 // FUN_00465F20
 void func_00465F20(void)
 {
@@ -128,6 +135,8 @@ void func_00465F20(void)
 
 
 
+// FUN_00465F40
+INCLUDE_ASM("asm/nonmatchings/h_memcard", func_00465f40);
 // FUN_00466260
 void func_00466260(s32 slot)
 {

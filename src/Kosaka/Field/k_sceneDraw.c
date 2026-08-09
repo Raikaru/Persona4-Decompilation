@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/Field/k_sceneDraw.c */
+#include "include_asm.h"
 #include "type.h"
 
 // 256 bytes. Base struct for every type of resource
@@ -183,6 +184,10 @@ void func_0014a460(u16 resTypeId, u32 directionalOnly)
 
 
 
+// FUN_0014A5D0
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a5d0);
+// FUN_0014A6C0
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a6c0);
 // FUN_0014A7B0
 void* func_0014a7b0(u16 resTypeId)
 {
@@ -210,6 +215,26 @@ void* func_0014a7b0(u16 resTypeId)
 
 
 
+// FUN_0014A8A0
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a8a0);
+// FUN_0014A990
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014a990);
+// FUN_0014AA80
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014aa80);
+// FUN_0014ACD0
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014acd0);
+// FUN_0014AD10
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014ad10);
+// FUN_0014AD50
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014ad50);
+// FUN_0014AD90
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014ad90);
+// FUN_0014B000
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014b000);
+// FUN_0014B040
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014b040);
+// FUN_0014B080
+INCLUDE_ASM("asm/nonmatchings/k_sceneDraw", func_0014b080);
 // FUN_0014B0C0
 void func_0014b0c0(u16 resTypeId, u32 visible)
 {

@@ -1,6 +1,7 @@
 /* Whole-file translation unit: src/Graphics/primitive.c */
 
 /* Source unit: src/Graphics/primitive_0045f0b0.c (donor P3 FUN_00358a30 primQuad3D) */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct
@@ -697,6 +698,14 @@ u32 func_00480d50(int param_1, u64 param_2)
 
 
 
+// FUN_00480E20
+INCLUDE_ASM("asm/nonmatchings/primitive", func_00480e20);
+// FUN_00480F00
+INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f00);
+// FUN_00480F20
+INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f20);
+// FUN_004810C0
+INCLUDE_ASM("asm/nonmatchings/primitive", func_004810c0);
 // FUN_00481250
 u32 func_00481250(void)
 {

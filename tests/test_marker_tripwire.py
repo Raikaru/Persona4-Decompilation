@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """5540 tracked markers across first-party src/.  Bump deliberately.
+        """13085 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -166,11 +166,23 @@ class MarkerCountTripwireTests(unittest.TestCase):
         out of the six-line window. decomp_lint now skips INCLUDE_ASM lines while
         scanning for a waiver, since another function's assembly body is not
         intervening code that should hide an annotation.
+
+        Raised to 13085 -- every canonical function in
+        tools/slus21782_functions.json -- by tools/promote_unmarked.py. Until then
+        the marker population was a bookkeeping artifact of what had been promoted
+        into a translation unit, not the size of the image: 7545 canonical
+        functions had no marker anywhere, so verify, fndiff, the permuters and the
+        progress denominator could not see them at all. Each was given its owning
+        unit (an existing file when the address falls between two of its markers,
+        otherwise the src/promoted unit its src/generated counterpart names), an
+        extracted INCLUDE_ASM fallback, and a marker in address order. An
+        INCLUDE_ASM fallback reproduces its window byte-for-byte by construction,
+        so none of this changed the linked image.
         """
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            5540,
+            13085,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

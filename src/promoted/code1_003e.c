@@ -63,6 +63,24 @@ void func_003e3e60();
 #pragma optimization_level 3
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
+// FUN_003E00F0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e00f0);
+// FUN_003E0130
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0130);
+// FUN_003E0180
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0180);
+// FUN_003E01E0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e01e0);
+// FUN_003E0250
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0250);
+// FUN_003E02C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e02c0);
+// FUN_003E0380
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0380);
+// FUN_003E03B0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e03b0);
+// FUN_003E03E0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e03e0);
 // FUN_003E05D0
 u8 *RwMatrixUpdate(u8 *arg0) {
     *(s32 *)(arg0 + 0xC) &= 0xFFFDFFFC;
@@ -76,6 +94,36 @@ u8 *RwMatrixUpdate(u8 *arg0) {
 // jr $ra delay slot with sw $a0, -0x54a0($gp); baseline -O2 emits sw; jr; nop.
 
 #pragma optimization_level 3
+
+// FUN_003E05F0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e05f0);
+
+// FUN_003E0670
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0670);
+
+// FUN_003E0680
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0680);
+
+// FUN_003E0870
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0870);
+
+// FUN_003E0960
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0960);
+
+// FUN_003E0A90
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0a90);
+
+// FUN_003E0C90
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0c90);
+
+// FUN_003E0E20
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0e20);
+
+// FUN_003E0F40
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0f40);
+
+// FUN_003E0F80
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0f80);
 // FUN_003E1020
 void func_003e1020(s32 arg0) {
     D_008866D8 = arg0;
@@ -89,11 +137,47 @@ void func_003e1020(s32 arg0) {
    at nd 45 in its 112B window: register colouring and the entry comparison
    (`slt`/`beqz` versus b210's `blez`) remain. This exceeds the park threshold,
    so the bare INCLUDE_ASM fallback remains. */
+
+// FUN_003E1030
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1030);
+
+// FUN_003E1220
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1220);
+
+// FUN_003E1230
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1230);
+
+// FUN_003E12F0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e12f0);
+
+// FUN_003E13D0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e13d0);
+
+// FUN_003E15A0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e15a0);
+
+// FUN_003E1740
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1740);
+
+// FUN_003E18C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e18c0);
 // FUN_003E1A70
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1a70);
 /* measured: schedule + no_branch_likely are load-bearing - schedule fills both
    func_003e1230 jal delay slots with the cross-link sw, and no_branch_likely
    stops b210 turning the loop's beq/bne into beql/bnel. */
+
+// FUN_003E1AE0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ae0);
+
+// FUN_003E1AF0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1af0);
+
+// FUN_003E1B00
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1b00);
+
+// FUN_003E1B10
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1b10);
 // FUN_003E1C30
 #pragma schedule on
 #pragma no_branch_likely on
@@ -118,6 +202,9 @@ void func_003e1c30(void) {
 }
 #pragma no_branch_likely off
 #pragma schedule off
+
+// FUN_003E1CB0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1cb0);
 // FUN_003E1DB0
 /* measured: no_branch_likely keeps the success test as retail's plain bnez. */
 #pragma no_branch_likely on
@@ -130,6 +217,21 @@ s32 func_003e1db0(u8 *arg0, s32 arg1) {
     D_00764874++;
     return (s32)arg0;
 }
+// FUN_003E1E10
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1e10);
+
+// FUN_003E1EA0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ea0);
+
+// FUN_003E1F50
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1f50);
+
+// FUN_003E1FF0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ff0);
+
+// FUN_003E22C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
+
 /* measured: closes the no_branch_likely pragma above. */
 #pragma no_branch_likely off
 #pragma schedule off
@@ -143,6 +245,7 @@ s32 func_003e1db0(u8 *arg0, s32 arg1) {
    are alignment padding, not missing body instructions. Tail/control-flow,
    declaration-order, base-local, O1/O3/CSE/loop-invariant/schedule probes
    did not improve nd 7. Object 68/window 80. Committed at nd 7. */
+
 // FUN_003E23E0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: probe schedule */
@@ -173,6 +276,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 
 /* measured: discarded nonvolatile candidate nd 31, object 120/128; the nd 0
    volatile spelling is rejected by H001 (ordinary-data compiler steering). */
+
+// FUN_003E2430
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
 // FUN_003E2570
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
 // FUN_003E25F0
@@ -186,8 +292,36 @@ u8 *func_003e25f0(u8 *arg0) {
     D_0076487C--;
     return arg0;
 }
+/* measured: closes the schedule/no_branch_likely bracket opened above
+   func_003e25f0; the explicit opposite state is required by the functions
+   that follow. */
 #pragma no_branch_likely off
 #pragma schedule off
+// FUN_003E2650
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2650);
+
+// FUN_003E2750
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2750);
+
+// FUN_003E2800
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2800);
+
+// FUN_003E2910
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2910);
+
+// FUN_003E2AB0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2ab0);
+
+// FUN_003E2CE0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2ce0);
+
+// FUN_003E2E40
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2e40);
+
+// FUN_003E2F60
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2f60);
+
+
 
 
 
@@ -201,6 +335,7 @@ u8 *func_003e25f0(u8 *arg0) {
    opt_common_subs off, optimize_for_size, schedule, empty-branch, goto and
    loop-shape probes did not add the missing nop. The awkward
    `if (p == NULL) {} else goto` shape remains load-bearing. Committed at nd 20. */
+
 // FUN_003E3020 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003e3020(u8 *arg0, s32 key, s32 arg2, s32 arg3, s32 arg4)
@@ -292,6 +427,8 @@ s32 func_003e30c0(u8 *arg0, s32 arg1, s32 arg2) {
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e30c0);
 #endif
 
+// FUN_003E3110
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3110);
 // FUN_003E32F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
 
@@ -339,6 +476,10 @@ s32 func_003e3370(u8 *arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3370);
 #endif
 
+// FUN_003E33F0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e33f0);
+// FUN_003E3560
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3560);
 // FUN_003E3630
 #pragma schedule on
 s32 func_003e3630(void) {
@@ -351,7 +492,20 @@ s32 func_003e3630(void) {
     }
     return 0;
 }
+/* measured: closes the schedule bracket opened above func_003e3630; the
+   explicit opposite state is required by the functions that follow. */
 #pragma schedule off
+// FUN_003E3680
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3680);
+// FUN_003E36C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e36c0);
+// FUN_003E3830
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3830);
+// FUN_003E3870
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3870);
+// FUN_003E3B70
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3b70);
+
 
 
 // FUN_003E3C20 NONMATCHING
@@ -402,9 +556,17 @@ s32 func_003e3c90(s32 arg0, s32 arg1, s32 arg2) {
 #pragma schedule off
 
 
+// FUN_003E3D00
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3d00);
+// FUN_003E3DC0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3dc0);
+// FUN_003E3E60
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3e60);
 // FUN_003E3F00
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3f00);
 
+// FUN_003E3F80
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3f80);
 // FUN_003E4030
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4030);
 
@@ -412,6 +574,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4030);
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
+
+// FUN_003E40B0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e40b0);
+
+// FUN_003E4180
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4180);
+
+// FUN_003E41B0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e41b0);
+
+// FUN_003E41E0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e41e0);
+
+// FUN_003E42A0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e42a0);
+
+// FUN_003E42E0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e42e0);
+
+// FUN_003E4320
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4320);
+
+// FUN_003E4360
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4360);
 // FUN_003E43A0
 s32 func_003e43a0(s32 arg0) {
     D_0088731C -= 1;
@@ -436,6 +622,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
    (nd 23 with it). schedule on fills the branch delay slot with the first store
    as retail does, and no_branch_likely is then needed to stop b210 turning the
    test into a beql, which was the last differing word. */
+
+// FUN_003E4420
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4420);
 // FUN_003E44B0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -480,6 +669,12 @@ s32 func_003e4510(void) {
 
 /* measured: discarded nonvolatile candidate nd 31, object 120/128; the nd 0
    volatile spelling is rejected by H001 (ordinary-data compiler steering). */
+
+// FUN_003E4520
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4520);
+
+// FUN_003E45F0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
 // FUN_003E46E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
 // FUN_003E4760
@@ -500,6 +695,9 @@ u8 *func_003e4760(u8 *arg0) {
 /* measured: schedule on plus no_branch_likely on. schedule alone gets nd 26
    (retail fills the loop's branch delay slots), and b210 then wants beql/bnel
    where retail has plain bne/bnez, which is the rest of it. */
+
+// FUN_003E47C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e47c0);
 // FUN_003E4880
 #pragma schedule on
 #pragma no_branch_likely on
@@ -555,6 +753,15 @@ s8 *func_003e48d0(s8 *arg0) {
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
+
+// FUN_003E4920
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4920);
+
+// FUN_003E4960
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4960);
+
+// FUN_003E49A0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e49a0);
 // FUN_003E4AC0
 void func_003e4ac0(void)
 {
@@ -585,6 +792,18 @@ setdef:
 /* measured: schedule on + no_branch_likely on are load-bearing for this body
    (nd 76 without them) - they place result=0 in the beqz  delay slot and
    keep the arg0[1]==0x3A test's xori/sltiu out of a branch-likely. */
+
+// FUN_003E4B20
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4b20);
+
+// FUN_003E4BE0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4be0);
+
+// FUN_003E4D80
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4d80);
+
+// FUN_003E4F60
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4f60);
 // FUN_003E50A0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -613,6 +832,21 @@ s32 func_003e50a0(s8 *arg0) {
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
+
+// FUN_003E5110
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5110);
+
+// FUN_003E5220
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5220);
+
+// FUN_003E5250
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5250);
+
+// FUN_003E5290
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5290);
+
+// FUN_003E53B0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e53b0);
 // FUN_003E5510
 void func_003e5510(s32 arg0) {
     D_00886700 = arg0;
@@ -636,6 +870,15 @@ void func_003e5510(s32 arg0) {
    second but costs the first (nd 49); schedule on shrinks the object to
    64 bytes (nd 46). Entry-guard materialisation floor.
    Committed at nd 43. */
+
+// FUN_003E5520
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5520);
+
+// FUN_003E5550
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5550);
+
+// FUN_003E5830
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5830);
 // FUN_003E5990
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
 
@@ -662,6 +905,18 @@ call:
 
 /* measured: schedule on is load-bearing - it hoists move $s1,$a0 before the
    first call and fills each jal delay slot with the running-total addu. */
+
+// FUN_003E5A30
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5a30);
+
+// FUN_003E5AE0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5ae0);
+
+// FUN_003E5DF0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5df0);
+
+// FUN_003E6210
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6210);
 // FUN_003E6240
 #pragma schedule on
 s32 func_003e6240(s32 arg0) {
@@ -679,6 +934,15 @@ s32 func_003e6240(s32 arg0) {
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
+
+// FUN_003E62B0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e62b0);
+
+// FUN_003E6430
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6430);
+
+// FUN_003E66C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e66c0);
 // FUN_003E6750
 s32 func_003e6750(s32 arg0, s32 *arg1) {
     *arg1 += 1;
@@ -692,6 +956,33 @@ s32 func_003e6750(s32 arg0, s32 *arg1) {
 // jr $ra delay slot with lw $v0, -0x4848($gp); baseline -O2 emits lw; jr; nop.
 
 #pragma optimization_level 3
+
+// FUN_003E6770
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6770);
+
+// FUN_003E6870
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6870);
+
+// FUN_003E6A60
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6a60);
+
+// FUN_003E6A90
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6a90);
+
+// FUN_003E6DB0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6db0);
+
+// FUN_003E6E70
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6e70);
+
+// FUN_003E7680
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7680);
+
+// FUN_003E7810
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7810);
+
+// FUN_003E7D50
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7d50);
 // FUN_003E7EE0
 u8 *func_003e7ee0(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x14) == 1) {
@@ -767,9 +1058,83 @@ u8 *func_003e8010(u8 *arg0) {
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
+
+// FUN_003E8080
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
+
+// FUN_003E8130
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8130);
+
+// FUN_003E8180
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8180);
+
+// FUN_003E81C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e81c0);
+
+// FUN_003E8200
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
+
+// FUN_003E82A0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
+
+// FUN_003E82E0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
+
+// FUN_003E8310
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8310);
+
+// FUN_003E83A0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
+
+// FUN_003E8410
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8410);
+
+// FUN_003E8440
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8440);
+
+// FUN_003E84A0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e84a0);
+
+// FUN_003E85A0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e85a0);
+
+// FUN_003E8790
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8790);
+
+// FUN_003E87F0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e87f0);
 // FUN_003E8910
 s32 func_003e8910(void) {
     return D_00887330;
 }
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
+
+// FUN_003E8930
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8930);
+// FUN_003E8960
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8960);
+// FUN_003E8970
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8970);
+// FUN_003E89C0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e89c0);
+// FUN_003E8A10
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8a10);
+// FUN_003E8A50
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8a50);
+// FUN_003E8B10
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8b10);
+// FUN_003E8C60
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8c60);
+// FUN_003E8DC0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8dc0);
+// FUN_003E8E60
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8e60);
+// FUN_003E8ED0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8ed0);
+// FUN_003E8F80
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8f80);
+// FUN_003E90F0
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e90f0);
+// FUN_003E9140
+INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e9140);

@@ -255,6 +255,8 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 
 
 
+// FUN_001F8070
+INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f8070);
 // FUN_001F8140
 void func_001f8140(u16 state)
 {
@@ -298,6 +300,8 @@ BtlPacket* func_001f81f0(u16 channel, const char* streamName)
 
 
 
+// FUN_001F8280
+INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f8280);
 // FUN_001F82B0
 void func_001f82b0(void* unit)
 {
@@ -310,6 +314,8 @@ void func_001f82b0(void* unit)
 
 
 
+// FUN_001F8300
+INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f8300);
 // FUN_001F8330
 void func_001f8330(void* unit)
 {

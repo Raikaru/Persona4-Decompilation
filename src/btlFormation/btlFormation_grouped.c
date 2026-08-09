@@ -1,5 +1,6 @@
 /* Grouped verified Persona 4 source units. */
 /* The original guards were independently verified before grouping. */
+#include "include_asm.h"
 #include "type.h"
 
 /* Canonical grouped function declarations. */
@@ -46,6 +47,10 @@ void func_001d6ee0(void** units)
     }
 }
 
+// FUN_001D6F20
+INCLUDE_ASM("asm/nonmatchings/btlFormation_grouped", func_001d6f20);
+// FUN_001D7040
+INCLUDE_ASM("asm/nonmatchings/btlFormation_grouped", func_001d7040);
 // FUN_001D7100
 void func_001d7100(u8* packet, s16 value)
 {
@@ -56,6 +61,8 @@ void func_001d7100(u8* packet, s16 value)
     }
 }
 
+// FUN_001D7140
+INCLUDE_ASM("asm/nonmatchings/btlFormation_grouped", func_001d7140);
 // FUN_001D72C0
 void func_001d72c0(void* packet, u32 value)
 {

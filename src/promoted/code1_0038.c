@@ -21,6 +21,40 @@ extern void func_0046d730(u8 *arg0, s32 arg1);
 
 
 
+// FUN_00380980
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00380980);
+// FUN_00380BD0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00380bd0);
+// FUN_00380D80
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00380d80);
+// FUN_00383C00
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383c00);
+// FUN_00383C20
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383c20);
+// FUN_00383C40
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383c40);
+// FUN_00383D70
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383d70);
+// FUN_00383F80
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00383f80);
+// FUN_00384CC0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00384cc0);
+// FUN_00385380
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385380);
+// FUN_00385970
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385970);
+// FUN_00386C00
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00386c00);
+// FUN_003874C0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_003874c0);
+// FUN_00387750
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387750);
+// FUN_00387E70
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387e70);
+// FUN_003889B0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_003889b0);
+// FUN_00388B40
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388b40);
 // FUN_00388BA0
 void func_00388ba0(u8 *arg0) {
     D_008873ec[0](*(s32 *)(arg0 + 0x38));
@@ -28,6 +62,10 @@ void func_00388ba0(u8 *arg0) {
 
 
 
+// FUN_00388BD0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388bd0);
+// FUN_00388D10
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388d10);
 // FUN_00388D20
 void func_00388d20(u8 *arg0)
 {
@@ -50,6 +88,8 @@ void func_00388d60(u8 *arg0) {
     func_0045af60(1, 3, 5, 0xD);
 }
 
+// FUN_00388DE0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388de0);
 // FUN_00388E00
 void func_00388e00(u8 *arg0)
 {
@@ -73,12 +113,16 @@ void func_00388e40(u8 *arg0) {
     func_0045af60(1, 3, 5, 0xD);
 }
 
+// FUN_00388EC0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388ec0);
 // FUN_00388EE0
 void func_00388ee0(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4) | 0x4;
 }
 
+// FUN_00388F00
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388f00);
 // FUN_00388F20
 void func_00388f20(u8 *arg0)
 {
@@ -174,6 +218,8 @@ void func_00389180(u8 *arg0) {
 
 
 
+// FUN_003891B0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_003891b0);
 // FUN_003891E0
 s32 func_003891e0(u8 *arg0) {
     return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0x100);
@@ -195,6 +241,8 @@ void func_00389200(u8 *arg0, s8 arg1, s8 arg2, s8 arg3) {
     *(u16 *)(temp_17 + 0x4C) = (u16) (*(u16 *)(temp_17 + 0x4C) | 0x200);
 }
 
+// FUN_00389280
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389280);
 // FUN_003892C0
 void func_003892c0(u8 *arg0)
 {
@@ -223,6 +271,38 @@ void func_00389350(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4A) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4A) | 0x2;
 }
 
+// FUN_00389370
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389370);
+// FUN_00389640
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389640);
+// FUN_00389CB0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389cb0);
+// FUN_00389E10
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389e10);
+// FUN_0038A3E0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a3e0);
+// FUN_0038A480
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a480);
+// FUN_0038A940
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a940);
+// FUN_0038ACD0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038acd0);
+// FUN_0038B1C0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b1c0);
+// FUN_0038B490
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b490);
+// FUN_0038B530
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b530);
+// FUN_0038BAB0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
+// FUN_0038C100
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c100);
+// FUN_0038C770
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c770);
+// FUN_0038CAB0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038cab0);
+// FUN_0038CD70
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038cd70);
 // FUN_0038CE30
 s32 func_0038ce30(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
@@ -242,6 +322,16 @@ void func_0038ce90(u8 *arg0)
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 
+// FUN_0038CEC0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038cec0);
+// FUN_0038D020
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d020);
+// FUN_0038D060
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d060);
+// FUN_0038D0A0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d0a0);
+// FUN_0038D0D0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d0d0);
 // FUN_0038D160
 void func_0038d160(u8 *arg0) {
     u8 *temp_16;
@@ -260,6 +350,10 @@ void func_0038d1d0(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1A6) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1A6) | 0x2;
 }
 
+// FUN_0038D1F0
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d1f0);
+// FUN_0038D280
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d280);
 // FUN_0038D2A0
 void func_0038d2a0(u8 *arg0)
 {
@@ -281,6 +375,8 @@ void func_0038d310(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1B6) = *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x1B6) | 0x2;
 }
 
+// FUN_0038D330
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d330);
 // FUN_0038D660
 s32 func_0038d660(u8 *arg0) {
     s32 *temp_16;
@@ -329,6 +425,10 @@ s32 func_0038ee10(void) {
 
 
 
+// FUN_0038F400
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f400);
+// FUN_0038F590
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f590);
 // FUN_0038F600
 void func_0038f600(u8 *arg0) {
     *(s32 *)(arg0 + 0) = 0;
@@ -343,6 +443,8 @@ void func_0038f600(u8 *arg0) {
 #pragma schedule on
 
 
+// FUN_0038F990
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f990);
 // FUN_0038FB20
 s32 func_0038fb20(u8 *arg0) {
     s32 var_2;
@@ -357,3 +459,10 @@ s32 func_0038fb20(u8 *arg0) {
 // measured: closing bracket for the schedule-on above; the function body is
 // already compiled, so this off only satisfies decomp_lint P001 balance.
 #pragma schedule off
+
+// FUN_0038FB50
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fb50);
+// FUN_0038FD30
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fd30);
+// FUN_0038FE90
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038fe90);

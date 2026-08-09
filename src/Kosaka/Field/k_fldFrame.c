@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/Field/k_fldFrame.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV3d
@@ -79,6 +80,12 @@ RwV3d* func_00169200(RwV3d* dst, const RwV3d* point,
 
 
 
+// FUN_00169320
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169320);
+// FUN_00169780
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169780);
+// FUN_00169A30
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_00169a30);
 // FUN_0016A0C0
 void* func_0016a0c0(void* collisionWorld, void* state)
 {
@@ -90,6 +97,16 @@ void* func_0016a0c0(void* collisionWorld, void* state)
 
 
 
+// FUN_0016A110
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016a110);
+// FUN_0016A960
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016a960);
+// FUN_0016ABC0
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016abc0);
+// FUN_0016B080
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b080);
+// FUN_0016B260
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b260);
 // FUN_0016B350
 void* func_0016b350(f32 fraction, const RwV3d* line,
                     void* unused, FldFrameRaycast* raycast)
@@ -168,6 +185,8 @@ u32 func_0016b480(void* collisionWorld, const RwV3d* line,
 
 
 
+// FUN_0016B540
+INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b540);
 // FUN_0016B770
 void* func_0016b770(f32 fraction, const RwV3d* line,
                     void* unused, FldFrameRaycast* raycast)

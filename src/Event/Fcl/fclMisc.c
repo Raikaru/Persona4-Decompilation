@@ -1,6 +1,7 @@
 /* Whole-file translation unit: src/Event/Fcl/fclMisc.c */
 
 /* Source unit: src/Event/Fcl/fclMisc.c */
+#include "include_asm.h"
 #include "type.h"
 
 // Donor calls this implicitly (no prototype), so keep the old-style form.
@@ -69,6 +70,14 @@ u64 func_002bcc60(int *param_1)
 
 
 
+// FUN_002BCD20
+INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bcd20);
+// FUN_002BCE00
+INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bce00);
+// FUN_002BCFB0
+INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bcfb0);
+// FUN_002BD1E0
+INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bd1e0);
 // FUN_002BD220
 u8 func_002bd220(void)
 {
@@ -135,6 +144,8 @@ void func_002bd440(void)
 
 
 
+// FUN_002BD4A0
+INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bd4a0);
 // FUN_002BD530
 void func_002bd530(int *param_1)
 {
@@ -150,6 +161,8 @@ void func_002bd530(int *param_1)
 
 
 
+// FUN_002BD580
+INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bd580);
 // FUN_002BD610
 s8 func_002bd610(int *param_1)
 {

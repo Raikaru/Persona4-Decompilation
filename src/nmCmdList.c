@@ -1,4 +1,5 @@
 /* Source unit: src/nmCmdList_002baa90.c */
+#include "include_asm.h"
 #include "type.h"
 
 extern u8 DAT_00882F60_abs[];
@@ -118,6 +119,8 @@ void func_002bb050(u8 param_1)
 #pragma push
 
 
+// FUN_002BB0A0
+INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bb0a0);
 // FUN_002BB0E0
 u32 func_002bb0e0(void)
 
@@ -239,6 +242,8 @@ u32 func_002bb1e0(int param_1)
 #pragma push
 
 
+// FUN_002BB290
+INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bb290);
 // FUN_002BB380
 u32 func_002bb380(void)
 
@@ -498,6 +503,14 @@ void func_002bbdd0(int param_1)
 #pragma push
 
 
+// FUN_002BBE90
+INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbe90);
+// FUN_002BBF60
+INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf60);
+// FUN_002BBF70
+INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf70);
+// FUN_002BBF80
+INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf80);
 // FUN_002BC010
 void func_002bc010(int param_1,u64 param_2)
 
