@@ -14,7 +14,6 @@ typedef struct {
     f32 x;
     f32 y;
 } FclVec2f;
-
 extern u16 *func_001102e0(void);
 extern s32 func_00106330(s32);
 extern void func_00145080(void);

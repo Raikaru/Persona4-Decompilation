@@ -44,6 +44,8 @@ extern s64 iGpffffb8f0;
 extern s32 iGpffffb70c;
 /* gp - 0x4938 = 0x007647b8 */
 extern s32 iGpffffb6c8;
+/* gp - 0x4934 = 0x007647bc */
+extern s32 iGpffffb6cc;
 /* gp - 0x494C = 0x007647A4 */
 extern s32 iGpffffb6b4;
 /* gp - 0x4950 = 0x007647A0 */
@@ -70,6 +72,8 @@ extern s32 iGpffffb8e0;
 extern s32 iGpffffb8e4;
 /* gp - 0x4918 = 0x007647d8 */
 extern u8 *iGpffffb8e8;
+/* gp - 0x48e8 = 0x00764808 */
+extern u8 *iGpffffb718;
 /* gp - 0x490C = 0x007647e4 */
 extern s32 iGpffffb8f4;
 extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
@@ -317,7 +321,7 @@ s32 func_003c1c70(u8 *arg0) {
 #pragma schedule on
 s32 func_003c1d00(s32 arg0, s32 arg1) {
     iGpffffb6c8 = arg1;
-    iGpffffb70c += 1;
+    iGpffffb6cc += 1;
     return arg0;
 }
 #pragma schedule off
@@ -1332,7 +1336,7 @@ s32 func_003ca960(u8 *arg0) {
     y = *(u8 **)(arg0 + 4);
     x = *(u8 **)(arg0 + 0);
     *(u8 **)(x + 4) = y;
-    jtbl_008873FC[0](*(u8 **)(D_008872E0 + (s32)iGpffffb8e8 + 4), arg0);
+    jtbl_008873FC[0](*(u8 **)(D_008872E0 + (s32)iGpffffb718 + 4), arg0);
     return 1;
 }
 /* measured: close schedule */
@@ -1362,7 +1366,7 @@ s32 func_003ca9d0(u8 *arg0) {
         y = *(u8 **)(obj + 4);
         x = *(u8 **)(obj + 0);
         *(u8 **)(x + 4) = y;
-        jtbl_008873FC[0](*(u8 **)(D_008872E0 + (s32)iGpffffb8e8), obj);
+        jtbl_008873FC[0](*(u8 **)(D_008872E0 + (s32)iGpffffb718), obj);
     }
     return 1;
 }

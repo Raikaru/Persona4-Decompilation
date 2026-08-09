@@ -82,10 +82,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0930);
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0a60);
 // FUN_001B0BF0
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0bf0);
-/* measured: pointer-chain body reaches nd 11 (object 60B/window 64B);
-   the remaining bne-plus-tail branch layout is a b210 residual. Committed at nd 11. */
-// FUN_001B0C80 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: returning directly from the compare branch preserves retail's
+   bne/branch-to-tail layout; the C object is 60B/64B with nd 0 and only the
+   retail alignment nop remains. */
+// FUN_001B0C80
 u8 *func_001b0c80(s32 arg0)
 {
     u8 *p;
@@ -94,25 +94,16 @@ u8 *func_001b0c80(s32 arg0)
     goto check;
 loop:
     if (*(s32 *)(p + 0x30) == arg0) {
-        goto found;
+        return p;
     }
-advance:
     p = *(u8 **)(p + 0x450);
 check:
-    if (p != NULL) {
-        goto loop;
-    }
+    if (p != NULL) goto loop;
     return NULL;
-found:
-    return p;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0c80);
-#endif
-/* measured: 0cc0 uses the same pointer-chain residual as 0c80 (nd 11,
-   object 60B/window 64B). Committed at nd 11. */
-// FUN_001B0CC0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: 0cc0 shares the pointer-chain branch shape above; only its
+   compare-field displacement changes, with nd 0 in a 60B/64B object. */
+// FUN_001B0CC0
 u8 *func_001b0cc0(s32 arg0)
 {
     u8 *p;
@@ -121,21 +112,13 @@ u8 *func_001b0cc0(s32 arg0)
     goto check;
 loop:
     if (*(s32 *)(p + 8) == arg0) {
-        goto found;
+        return p;
     }
-advance:
     p = *(u8 **)(p + 0x450);
 check:
-    if (p != NULL) {
-        goto loop;
-    }
+    if (p != NULL) goto loop;
     return NULL;
-found:
-    return p;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0cc0);
-#endif
 // FUN_001B0D70
 s32 func_001b0d70(u8 *arg0)
 {

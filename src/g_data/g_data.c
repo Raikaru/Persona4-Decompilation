@@ -59,6 +59,7 @@ typedef struct GDataEntry {
 } GDataEntry;
 
 extern GDataEntry* D_007242A0;
+extern GDataEntry* iGpffffb1ac;
 
 extern u8 D_007981CC[];
 
@@ -249,13 +250,13 @@ void* func_00104900(s32 arg0)
 
     func_0044ea90(D_005E4298, 0xB8);
     idx = (arg0 & 0xFFFF) * 16;
-    size = *(u32*)((u8*)D_007242A0 + idx + 0) * 32 + 0x10 + *(u32*)((u8*)D_007242A0 + idx + 4) * 16;
+    size = *(u32*)((u8*)iGpffffb1ac + idx + 0) * 32 + 0x10 + *(u32*)((u8*)iGpffffb1ac + idx + 4) * 16;
     new = jtbl_008873E8[0](size, 0x40000);
-    func_0043f810(new, (u8*)D_007242A0 + idx, 0x10);
+    func_0043f810(new, (u8*)iGpffffb1ac + idx, 0x10);
     *(u32*)(new + 8) = (u32)new + 0x10;
     *(u32*)(new + 0xC) = *(u32*)(new + 8) + *(u32*)(new + 0) * 32;
-    func_0043f810(*(void**)(new + 8), *(void**)(idxFirst(idx, (u8*)D_007242A0) + 8), *(u32*)(new + 0) * 32);
-    func_0043f810(*(void**)(new + 0xC), *(void**)(idxFirst(idx, (u8*)D_007242A0) + 0xC), *(u32*)(new + 4) * 16);
+    func_0043f810(*(void**)(new + 8), *(void**)(idxFirst(idx, (u8*)iGpffffb1ac) + 8), *(u32*)(new + 0) * 32);
+    func_0043f810(*(void**)(new + 0xC), *(void**)(idxFirst(idx, (u8*)iGpffffb1ac) + 0xC), *(u32*)(new + 4) * 16);
     return new;
 }
 
@@ -280,22 +281,22 @@ void func_00104a60(void)
     src = *(u8**)(obj + 0x110);
     size = (*(u32*)(src + 0) + *(u32*)(src + 0x10)) * 32 + 0x20 + (*(u32*)(src + 4) + *(u32*)(src + 0x14)) * 16;
     func_0044ea90(D_005E4298, 0xD2);
-    D_007242A0 = (GDataEntry*)jtbl_008873E8[0](size, 0x40000);
-    *(u32*)((u8*)D_007242A0 + 0) = *(u32*)(src + 0);
-    *(u32*)((u8*)D_007242A0 + 4) = *(u32*)(src + 4);
-    *(u32*)((u8*)D_007242A0 + 8) = (u32)D_007242A0 + 0x20;
-    *(u32*)((u8*)D_007242A0 + 0xC) = *(u32*)((u8*)D_007242A0 + 8) + *(u32*)((u8*)D_007242A0 + 0) * 32;
+    iGpffffb1ac = (GDataEntry*)jtbl_008873E8[0](size, 0x40000);
+    *(u32*)((u8*)iGpffffb1ac + 0) = *(u32*)(src + 0);
+    *(u32*)((u8*)iGpffffb1ac + 4) = *(u32*)(src + 4);
+    *(u32*)((u8*)iGpffffb1ac + 8) = (u32)iGpffffb1ac + 0x20;
+    *(u32*)((u8*)iGpffffb1ac + 0xC) = *(u32*)((u8*)iGpffffb1ac + 8) + *(u32*)((u8*)iGpffffb1ac + 0) * 32;
     dst = src + 0x20;
-    func_0043f810(*(void**)((u8*)D_007242A0 + 8), dst, *(u32*)((u8*)D_007242A0 + 0) * 32);
-    dst = dst + *(u32*)((u8*)D_007242A0 + 0) * 32;
-    func_0043f810(*(void**)((u8*)D_007242A0 + 0xC), dst, *(u32*)((u8*)D_007242A0 + 4) * 16);
-    *(u32*)((u8*)D_007242A0 + 0x10) = *(u32*)(src + 0x10);
-    *(u32*)((u8*)D_007242A0 + 0x14) = *(u32*)(src + 0x14);
-    *(u32*)((u8*)D_007242A0 + 0x18) = *(u32*)((u8*)D_007242A0 + 0xC) + *(u32*)((u8*)D_007242A0 + 4) * 16;
-    *(u32*)((u8*)D_007242A0 + 0x1C) = *(u32*)((u8*)D_007242A0 + 0x18) + *(u32*)((u8*)D_007242A0 + 0x10) * 32;
-    dst = dst + *(u32*)((u8*)D_007242A0 + 4) * 16;
-    func_0043f810(*(void**)((u8*)D_007242A0 + 0x18), dst, *(u32*)((u8*)D_007242A0 + 0x10) * 32);
-    func_0043f810(*(void**)((u8*)D_007242A0 + 0x1C), dst + *(u32*)((u8*)D_007242A0 + 0x10) * 32, *(u32*)((u8*)D_007242A0 + 0x14) * 16);
+    func_0043f810(*(void**)((u8*)iGpffffb1ac + 8), dst, *(u32*)((u8*)iGpffffb1ac + 0) * 32);
+    dst = dst + *(u32*)((u8*)iGpffffb1ac + 0) * 32;
+    func_0043f810(*(void**)((u8*)iGpffffb1ac + 0xC), dst, *(u32*)((u8*)iGpffffb1ac + 4) * 16);
+    *(u32*)((u8*)iGpffffb1ac + 0x10) = *(u32*)(src + 0x10);
+    *(u32*)((u8*)iGpffffb1ac + 0x14) = *(u32*)(src + 0x14);
+    *(u32*)((u8*)iGpffffb1ac + 0x18) = *(u32*)((u8*)iGpffffb1ac + 0xC) + *(u32*)((u8*)iGpffffb1ac + 4) * 16;
+    *(u32*)((u8*)iGpffffb1ac + 0x1C) = *(u32*)((u8*)iGpffffb1ac + 0x18) + *(u32*)((u8*)iGpffffb1ac + 0x10) * 32;
+    dst = dst + *(u32*)((u8*)iGpffffb1ac + 4) * 16;
+    func_0043f810(*(void**)((u8*)iGpffffb1ac + 0x18), dst, *(u32*)((u8*)iGpffffb1ac + 0x10) * 32);
+    func_0043f810(*(void**)((u8*)iGpffffb1ac + 0x1C), dst + *(u32*)((u8*)iGpffffb1ac + 0x10) * 32, *(u32*)((u8*)iGpffffb1ac + 0x14) * 16);
     func_00454bd0(obj);
 }
 

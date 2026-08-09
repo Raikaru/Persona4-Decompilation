@@ -59,6 +59,7 @@ s32 func_00270390(void)
     func_002e0f20();
     return 0;
 }
+
 // FUN_002703D0
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_002703d0);
 // FUN_002704F0

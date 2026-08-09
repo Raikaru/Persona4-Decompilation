@@ -48,9 +48,11 @@ extern u8 D_00887280[];
 extern s8 D_00754D88[];
 extern s32 (*D_0088732C[])(s32, s32, s32);
 extern s32 (*D_00887350[])(s32, s32, s32);
+extern s32 (*D_0088737C)(void);
 extern u8 D_008872F0[];
 extern s32 func_003e87f0();
 s32 func_003e1220(s32, s32, s32, s32, void *, s32);
+extern s32 func_003ec480(s32 arg0);
 void func_003e12f0(s32);
 s32 func_003e1740(u8 *);
 void func_003e1230(void *);
@@ -664,8 +666,27 @@ void func_003e3680(u8 *arg0, u8 *arg1) {
 #pragma tailcall off
 // FUN_003E36C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e36c0);
-// FUN_003E3830
+/* measured: linked-list lookup body reproduces the retail node walk and
+   success/failure values at nd 18, object 60 bytes versus the 64-byte window.
+   The one-word shortfall is a branch-join scheduling floor. Committed at nd 18. */
+// FUN_003E3830 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003e3830(u8 *arg0, s32 arg1) {
+    u8 *node;
+    node = *(u8 **)(arg0 + 0x10);
+    if (node != NULL) {
+        do {
+            if (*(s32 *)(node + 8) == arg1) {
+                return *(s32 *)node;
+            }
+            node = *(u8 **)(node + 0x30);
+        } while (node != NULL);
+    }
+    return -1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3830);
+#endif
 // FUN_003E3870
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3870);
 // FUN_003E3B70
@@ -1420,11 +1441,37 @@ u8 *func_003e81c0(u8 *arg0, f32 fparg0) {
 // FUN_003E8200
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
 
-// FUN_003E82A0
+/* measured: retail calls the GP function pointer D_0088737C, then returns
+   arg0 for a nonzero result and NULL otherwise. The plain-C if form measures
+   nd 21 at object 52 bytes versus the 64-byte retail window, within three
+   words. Committed at nd 21. */
+// FUN_003E82A0 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003e82a0(u8 *arg0) {
+    if (D_0088737C() != 0) {
+        return arg0;
+    }
+    return (u8 *)0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
+#endif
 
-// FUN_003E82E0
+/* measured: retail wrapper tests arg0->0x60 with func_003ec480 and returns
+   arg0 only on a nonzero result. The plain-C if form measures nd 23 at
+   object 52 bytes versus the 48-byte retail window, within one word.
+   Committed at nd 23. */
+// FUN_003E82E0 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003e82e0(u8 *arg0) {
+    if (func_003ec480(*(s32 *)(arg0 + 0x60)) != 0) {
+        return arg0;
+    }
+    return (u8 *)0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
+#endif
 
 // FUN_003E8310
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8310);
@@ -1569,16 +1616,24 @@ u8 *func_003e8e60(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8ed0);
 // FUN_003E8F80
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8f80);
+/* measured: schedule on and no_branch_likely on reproduce the retail
+   incoming-a0/second-argument call to func_003e8f80 and the plain branch.
+   This exact cleaned M2C shape compiles MATCH at nd 0. */
 // FUN_003E90F0
-u8 *func_003e90f0(u8 *arg0) {
-    u8 *temp_2;
-
-    temp_2 = (u8 *)func_003e8f80(arg0);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 *func_003e90f0(u8 *arg0) {
+    s32 *temp_2;
+    temp_2 = (s32 *)(func_003e8f80(arg0, 0));
     if (temp_2 != NULL) {
-        temp_2[3] = (u8)(temp_2[3] & (u8)~3);
+        *(u8 *)((u8 *)(temp_2) + 3) = (u8)(*(u8 *)((u8 *)(temp_2) + 3) & ~3);
         func_003e9680(temp_2);
     }
-    return temp_2;
+    return (s32 *)(temp_2);
 }
+/* measured: closes no_branch_likely around func_003e90f0. */
+#pragma no_branch_likely off
+/* measured: closes schedule around func_003e90f0. */
+#pragma schedule off
 // FUN_003E9140
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e9140);

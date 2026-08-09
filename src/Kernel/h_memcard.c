@@ -49,12 +49,12 @@ extern char D_00712938[];
 // FUN_00464650
 void func_00464650(s32 file, void* buffer, s32 size)
 {
+    D_00764BC0 = 0;
     D_00764BBC = 0;
-    D_00764BA0 = 0;
     D_00764BB8 = file;
     D_00764BAC = buffer;
     D_00764BB4 = size;
-    D_00764BC0 = 0;
+    D_00764BA0 = 0;
 }
 
 
@@ -136,12 +136,12 @@ card_done:
 // FUN_00465570
 void func_00465570(s32 file, void* buffer, s32 size)
 {
+    D_00764BC0 = 0;
     D_00764BBC = 0;
-    D_00764BA0 = 0;
     D_00764BB8 = file;
     D_00764BAC = buffer;
     D_00764BB0 = size;
-    D_00764BC0 = 0;
+    D_00764BA0 = 0;
 }
 
 
@@ -287,7 +287,7 @@ void func_004659F0(s32 file)
 {
     D_00764BC0 = 0;
     D_00764BA8 = (s32 *)(uintptr_t)file;
-    D_00764BA0 = 0;
+    D_00764BBC = 0;
     D_00764BB8 = 0;
     iGpffffbab0 = 0;
 }

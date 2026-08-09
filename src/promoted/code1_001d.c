@@ -1,5 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
+static inline s32 p4_001da5f0_xor(s32 left, s32 right)
+{
+    return left ^ right;
+}
 
 extern s64 func_0023a6b0(s32 arg0, s64 arg1);
 extern u16 func_00231f80(u8 *arg0);
@@ -7,8 +11,14 @@ extern u16 func_00232290(u8 *arg0);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
+extern s32 func_002428f0(u8 *arg0, s32 arg1);
+extern s32 func_00231e20(u8 *arg0);
 extern s32 func_00232710();
+extern s32 func_002340c0(s32 arg0, s32 arg1);
 extern void func_001d6de0(s32 arg0, s32 arg1);
+extern s32 func_001d6360(u8 *arg0);
+extern void func_001d6880(u8 *arg0);
+extern void (*jtbl_008873EC[])(u8 *arg0);
 extern void func_001d3e00(s32 arg0);
 extern void func_001d6910(u8 *arg0);
 extern void func_001d75d0(u8 *arg0);
@@ -44,7 +54,7 @@ extern void func_001da270(void);
 extern void func_001da2b0(void);
 extern void func_001da2f0(void);
 extern s32 func_001da5f0(u8 *arg0, s32 arg1);
-extern s64 func_0023d8e0(u8 *arg0, s32 arg1);
+extern s64 func_0023d8e0(s32 arg0, u16 arg1);
 extern s32 func_00122640(s32 arg0, s32 arg1);
 
 extern void func_001d7bb0(void);
@@ -146,7 +156,23 @@ void func_001d6570(u8 *arg0)
 }
 
 // FUN_001D65D0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d65d0);
+void func_001d65d0(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4)
+{
+    u8 *packet;
+    u8 *work;
+
+    packet = (u8 *)func_00194470(0x302, 0x28);
+    *(u8 *)(packet + 0x47) &= 0xEF;
+    *(void (**)(u8 *))(packet + 0x68) = func_001d6300;
+    *(s32 (**)(u8 *))(packet + 0x6C) = func_001d6360;
+    *(void (**)(u8 *))(packet + 0x70) = func_001d6570;
+    work = *(u8 **)(packet + 0x78);
+    *(s32 *)(work + 0) = arg0;
+    *(s32 *)(work + 4) = arg1;
+    *(s32 *)(work + 8) = arg2;
+    *(s64 *)(work + 0x10) = arg3;
+    *(s32 *)(work + 0x20) = arg4;
+}
 // FUN_001D6680
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6680);
 // FUN_001D6910
@@ -174,7 +200,32 @@ void func_001d6a70(void)
 // FUN_001D6AD0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6ad0);
 // FUN_001D6C10
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6c10);
+void func_001d6c10(u8 *arg0)
+{
+    u32 i;
+    u8 *entry;
+    u8 *next;
+    u8 *prev;
+
+    i = 0;
+    while (i < 0x30U) {
+        entry = *(u8 **)(arg0 + (i * 4));
+        func_001d6880(entry);
+        next = *(u8 **)(entry + 0x20);
+        if (next != NULL) {
+            *(u8 **)(next + 0x1C) = *(u8 **)(entry + 0x1C);
+        }
+        prev = *(u8 **)(entry + 0x1C);
+        if (prev != NULL) {
+            *(u8 **)(prev + 0x20) = *(u8 **)(entry + 0x20);
+        } else {
+            *(u8 **)(iGpffffb3ac + 0x1B8) = *(u8 **)(entry + 0x20);
+        }
+        (*jtbl_008873EC)(entry);
+        i++;
+    }
+    (*jtbl_008873EC)(arg0);
+}
 // FUN_001D72E0
 s32 func_001d72e0(s32 arg0)
 {
@@ -272,7 +323,26 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7f10);
 // FUN_001D8010
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8010);
 // FUN_001D8C00
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8c00);
+u8 *func_001d8c00(u8 *arg0)
+{
+    u16 flags;
+    u8 *data;
+    u8 *unit;
+
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    while (unit != NULL) {
+        flags = *(u16 *)(unit + 0x1A);
+        if ((flags & 1) != 0 && (flags & 8) != 0) {
+            data = *(u8 **)(*(u8 **)(unit + 0x30) + 0xA64);
+            if ((data == NULL || func_002428f0(data, 0) == 0) &&
+                *(s64 *)unit == *(s64 *)(arg0 + 0x30)) {
+                return unit;
+            }
+        }
+        unit = *(u8 **)(unit + 0x450);
+    }
+    return NULL;
+}
 // FUN_001D8CB0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8cb0);
 // FUN_001D8E50
@@ -366,7 +436,10 @@ void func_001d9940(u8 *arg0, u32 arg1) {
 #pragma opt_rebuildconditionals on
 
 // FUN_001D99A0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d99a0);
+s32 func_001d99a0(u8 *arg0, u32 arg1)
+{
+    return (u32)(func_00231e20(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)) & 0xFF) >= arg1;
+}
 // FUN_001D9B60
 void func_001d9b60(u8 *arg0) {
     func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64));
@@ -411,16 +484,169 @@ void func_001d9c00(u8 *arg0, u32 arg1)
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
+/* measured: opt_rebuildconditionals off forces the retail mode branch. */
+#pragma opt_rebuildconditionals off
 // FUN_001D9CA0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9ca0);
+s32 func_001d9ca0(u8 *arg0, s32 arg1)
+{
+    u8 *unit;
+    s32 mode;
+    s32 mask;
+    u16 flags;
+    u8 *temp;
+
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        goto nonzero;
+    mode = 1;
+    goto done;
+nonzero:
+    mode = 0;
+done:
+    ;
+    mask = (1 << (mode & 0xFFFF)) & 0xFFFF;
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    while (unit != NULL) {
+        flags = *(u16 *)(unit + 0x1A);
+        if ((flags & 1) != 0 && (flags & 8) != 0) {
+            temp = *(u8 **)(unit + 0x30);
+            if ((mask & (1 << *(u8 *)(temp + 0xA2))) != 0 &&
+                func_002428f0(*(u8 **)(temp + 0xA64), 0) == 0 &&
+                func_00232710(*(s32 *)(temp + 0xA64), arg1) == 0) {
+                break;
+            }
+        }
+        unit = *(u8 **)(unit + 0x450);
+    }
+    if (unit != NULL)
+        goto found;
+    return 1;
+found:
+    return 0;
+}
+/* measured: restore opt_rebuildconditionals after func_001d9ca0. */
+#pragma opt_rebuildconditionals on
 // FUN_001D9DB0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9db0);
+s32 func_001d9db0(u8 *arg0, s32 arg1)
+{
+    u16 flags;
+    u8 *temp;
+    u8 *unit;
+
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    while (unit != NULL) {
+        if (arg0 != unit) {
+            flags = *(u16 *)(unit + 0x1A);
+            if ((flags & 1) != 0 && (flags & 8) != 0) {
+                temp = *(u8 **)(unit + 0x30);
+                if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == *(u8 *)(temp + 0xA2) &&
+                    func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                    *(u16 *)(temp + 0xA4) == arg1) {
+                    return 1;
+                }
+            }
+        }
+        unit = *(u8 **)(unit + 0x450);
+    }
+    return 0;
+}
+/* measured: opt_rebuildconditionals off forces the retail mode branch. */
+#pragma opt_rebuildconditionals off
 // FUN_001D9E80
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9e80);
+s32 func_001d9e80(u8 *arg0, s32 arg1)
+{
+    u8 *unit;
+    s32 value;
+    s32 mode;
+    u16 flags;
+    u8 *temp;
+
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        goto nonzero;
+    value = 1;
+    goto done;
+nonzero:
+    value = 0;
+done:
+    ;
+    mode = value & 0xFFFF;
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    while (unit != NULL) {
+        flags = *(u16 *)(unit + 0x1A);
+        if ((flags & 1) != 0 && (flags & 8) != 0) {
+            temp = *(u8 **)(unit + 0x30);
+            if (*(u8 *)(temp + 0xA2) == mode &&
+                func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                *(u16 *)(temp + 0xA4) == arg1) {
+                return 1;
+            }
+        }
+        unit = *(u8 **)(unit + 0x450);
+    }
+    return 0;
+}
+/* measured: restore opt_rebuildconditionals after func_001d9e80. */
+#pragma opt_rebuildconditionals on
 // FUN_001D9F60
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9f60);
+s32 func_001d9f60(u8 *arg0, s32 arg1)
+{
+    u16 flags;
+    u8 *temp;
+    u8 *unit;
+
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    while (unit != NULL) {
+        if (arg0 != unit) {
+            flags = *(u16 *)(unit + 0x1A);
+            if ((flags & 1) != 0 && (flags & 8) != 0) {
+                temp = *(u8 **)(unit + 0x30);
+                if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == *(u8 *)(temp + 0xA2) &&
+                    func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                    func_002340c0(*(s32 *)(temp + 0xA64), arg1) != 0) {
+                    return 1;
+                }
+            }
+        }
+        unit = *(u8 **)(unit + 0x450);
+    }
+    return 0;
+}
+/* measured: opt_rebuildconditionals off forces the retail mode branch. */
+#pragma opt_rebuildconditionals off
 // FUN_001DA040
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da040);
+s32 func_001da040(u8 *arg0, s32 arg1)
+{
+    u8 *unit;
+    s32 value;
+    s32 mode;
+    u16 flags;
+    u8 *temp;
+
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        goto nonzero;
+    value = 1;
+    goto done;
+nonzero:
+    value = 0;
+done:
+    ;
+    mode = value & 0xFFFF;
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    while (unit != NULL) {
+        flags = *(u16 *)(unit + 0x1A);
+        if ((flags & 1) != 0 && (flags & 8) != 0) {
+            temp = *(u8 **)(unit + 0x30);
+            if (*(u8 *)(temp + 0xA2) == mode &&
+                func_00232710(*(s32 *)(temp + 0xA64), 0x80000) == 0 &&
+                func_002340c0(*(s32 *)(temp + 0xA64), arg1) != 0) {
+                return 1;
+            }
+        }
+        unit = *(u8 **)(unit + 0x450);
+    }
+    return 0;
+}
+/* measured: restore opt_rebuildconditionals after func_001da040. */
+#pragma opt_rebuildconditionals on
 // FUN_001DA130
 s32 func_001da130(u8 *arg0) {
     s32 r;
@@ -586,7 +812,12 @@ void func_001da590(u8 *arg0, u32 arg1) {
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 // FUN_001DA5F0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da5f0);
+s32 func_001da5f0(u8 *arg0, s32 arg1)
+{
+    return p4_001da5f0_xor((s16)func_0023d8e0(
+        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+        *(u16 *)(arg0 + 0x7E)), arg1) < 1U;
+}
 // FUN_001DA640
 void func_001da640(u8 *arg0, u32 arg1) {
     func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da5f0);

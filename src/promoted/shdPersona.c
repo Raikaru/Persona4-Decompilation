@@ -2521,7 +2521,7 @@ void func_0011dc50(u8 *arg0)
         if (t < 10.0f) {
             *(s32 *)(work + 0x10) += 1;
             f20 = *(f32 *)(work + 0x20);
-            t = func_0044b7b0(D_007613EC * (f32)*(s32 *)(work + 0x10) / 10.0f);
+            t = func_0044b7b0(iGpffff8094 * (f32)*(s32 *)(work + 0x10) / 10.0f);
             d = *(f32 *)(work + 0x30) - f20;
             *(f32 *)(work + 0x28) = f20 + d * t;
         } else {

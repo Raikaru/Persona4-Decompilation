@@ -478,32 +478,30 @@ s32 func_00399230(s32 arg0)
 /* measured: schedule off closes the scoped schedule bracket. */
 #pragma schedule off
 
-/* measured: nearest legal 99250 body is 40B in a 48B window (nd 24);
-   the residual is retail's scheduled destination address and store delay-slot
-   sequence, while this body preserves the call-free branch shape. Committed at nd 24. */
-// FUN_00399250 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on preserves the nearest retail branch ordering. */
+/* measured: the donor-derived branch/store shape reproduces retail's split
+   setter and return blocks for func_00399250 (nd 0, object 48B/window 48B). */
 #pragma schedule on
 /* measured: no_branch_likely on preserves the plain branch. */
 #pragma no_branch_likely on
+// FUN_00399250
 s32 func_00399250(s32 arg0, s32 arg1)
 {
     s32 base;
+    s32 *dst;
 
     base = iGpffffb5e4;
-    if (*(s32 *)(arg1 + base) != 0) {
-        *(s32 *)(arg0 + base) = 1;
-    }
+    dst = (s32 *)(arg0 + base);
+    if (*(s32 *)(arg1 + base) != 0) goto set;
+retarg:
     return arg0;
+set:
+    *dst = 1;
+    goto retarg;
 }
 /* measured: close no_branch_likely for func_00399250. */
 #pragma no_branch_likely off
-/* measured: close schedule on for func_00399250. */
+/* measured: close schedule for func_00399250. */
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399250);
-#endif
 
 
 /* measured: schedule on hoists the local buffer address before the GP load. */
