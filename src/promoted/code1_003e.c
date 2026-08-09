@@ -14,7 +14,7 @@ extern s32 D_0088731C;
 extern s32 D_00886700;
 
 extern s32 D_00887330;
-extern s32 iGpffffb7a8;
+extern s32 iGpffffb7b8;
 
 extern u8 D_008872E0[];
 extern u8 *iGpffffb768;
@@ -188,8 +188,49 @@ u8 *RwMatrixUpdate(u8 *arg0) {
 
 
 
+/* measured: schedule on keeps the returned pointer in retail's jr delay slot. */
+#pragma schedule on
 // FUN_003E05F0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e05f0);
+u8 *func_003e05f0(u8 *arg0, u8 *arg1, u8 *arg2) {
+    __asm__ volatile(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x10($5)\n"
+        "lqc2 $vf3, 0x20($5)\n"
+        "lqc2 $vf4, 0x30($5)\n"
+        "lwu $3, 0xC($5)\n"
+        "lqc2 $vf5, 0x0($6)\n"
+        "lqc2 $vf6, 0x10($6)\n"
+        "lqc2 $vf7, 0x20($6)\n"
+        "lqc2 $vf8, 0x30($6)\n"
+        "lwu $2, 0xC($6)\n"
+        "vmulax.xyz $ACC, $vf5, $vf1x\n"
+        "vmadday.xyz $ACC, $vf6, $vf1y\n"
+        "vmaddz.xyz $vf9, $vf7, $vf1z\n"
+        "vmulax.xyz $ACC, $vf5, $vf2x\n"
+        "vmadday.xyz $ACC, $vf6, $vf2y\n"
+        "vmaddz.xyz $vf10, $vf7, $vf2z\n"
+        "vmulax.xyz $ACC, $vf5, $vf3x\n"
+        "vmadday.xyz $ACC, $vf6, $vf3y\n"
+        "vmaddz.xyz $vf11, $vf7, $vf3z\n"
+        "vmulax.xyz $ACC, $vf5, $vf4x\n"
+        "vmadday.xyz $ACC, $vf6, $vf4y\n"
+        "vmaddaz.xyz $ACC, $vf7, $vf4z\n"
+        "vmaddw.xyz $vf12, $vf8, $vf0w\n"
+        "and $2, $2, $3\n"
+        "sqc2 $vf9, 0x0($4)\n"
+        "sqc2 $vf10, 0x10($4)\n"
+        "sqc2 $vf11, 0x20($4)\n"
+        "sqc2 $vf12, 0x30($4)\n"
+        "sw $2, 0xC($4)\n"
+        ".set reorder\n"
+        :
+        : "r"(arg0), "r"(arg1), "r"(arg2)
+        : "$2", "$3", "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "$vf6", "$vf7", "$vf8", "$vf9", "$vf10", "$vf11", "$vf12", "ACC", "memory");
+    return arg0;
+}
+/* measured: closes schedule on for the VU0 function. */
+#pragma schedule off
 
 // FUN_003E0670
 /* measured: probe typed tailcall for retail's direct matrix wrapper. */
@@ -512,7 +553,7 @@ scan:
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3020);
 #endif
 
-/* measured: nd 16 of 80 bytes. The C body reproduces the linked-list search and store, but b210 omits retail's two nops between the loop exit and the final null test. Probed do/while, goto, schedule on/off, and no_branch_likely; committed at nd 16. */
+/* measured: nd 16 of 80 bytes. The C body reproduces the linked-list search and store, but b210 omits retail's two nops between the loop exit and the final null test. Probed do/while, goto, schedule on/off, and no_branch_likely; Committed at nd 16. */
 // FUN_003E3070 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003e3070(u8 *arg0, s32 arg1, s32 arg2) {
@@ -1513,7 +1554,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e87f0);
 /* measured: schedule on places the GP load in the jr delay slot. */
 #pragma schedule on
 s32 func_003e8910(void) {
-    return iGpffffb7a8;
+    return iGpffffb7b8;
 }
 /* measured: closes the single-function schedule bracket. */
 #pragma schedule off

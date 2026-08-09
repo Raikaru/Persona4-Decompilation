@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
-extern void func_001bdeb0(void);
+extern void func_001bdeb0();
 extern void func_001c9820(u8 *arg0, s32 arg1, s32 arg2, f32 arg3);
 extern void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
@@ -25,6 +25,15 @@ extern s32 func_001d8df0(u8 *arg0);
 extern void func_001c8e90(u8 *arg0, f32 *arg1, f32 *arg2);
 extern void func_001bac20(u8 *arg0, f32 *arg1, f32 *arg2, s32 arg3);
 extern void func_001bbef0(u8 *arg0, f32 arg1);
+extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
+extern s32 func_004bd050(s32 arg0);
+extern u8 D_005F7CA0[];
+extern u8 D_005F91A0[];
+extern u8 D_005FA2D0[];
+extern s32 func_001f0ff0(u8 *arg0);
+extern void func_001c2ee0(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 D_005F78C0[];
+extern u8 D_005F7AB0[];
 
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
@@ -220,21 +229,90 @@ void func_001cb200(u8 *arg0)
     }
 }
 // FUN_001CB2E0
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb2e0);
+void func_001cb2e0(u8 *arg0)
+{
+    u16 value;
+    s32 flag_offset;
+    s32 index_offset;
+    u8 *target;
+
+    value = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA4);
+    flag_offset = (func_004bd050(0) & 1) * 0xF4;
+    index_offset = (value & 0xFFFF) * 0x1E8;
+    target = (u8 *)&D_005F7CA0 + index_offset;
+    func_001bdd80(arg0, target + flag_offset, 2);
+}
 // FUN_001CB380
 void func_001cb380(void) {
     func_001bdeb0();
 }
 // FUN_001CB3A0
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb3a0);
+void func_001cb3a0(u8 *arg0)
+{
+    u8 *temp;
+    u16 value;
+    s32 flag_offset;
+    s32 index_offset;
+    u8 *target;
+
+    temp = *(u8 **)(arg0 + 0xE0);
+    value = *(u16 *)(*(u8 **)(temp + 0x30) + 0xA4);
+    func_001b73f0(*(u8 **)(temp + 0x30));
+    flag_offset = (func_004bd050(0) & 1) * 0xF4;
+    index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
+    target = (u8 *)&D_005F91A0 + index_offset;
+    func_001bdd80(arg0, target + flag_offset, 2);
+}
 // FUN_001CB440
 void func_001cb440(void) {
     func_001bdeb0();
 }
 // FUN_001CB460
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb460);
+void func_001cb460(u8 *arg0)
+{
+    u16 value;
+    s32 flag_offset;
+    s32 index_offset;
+    u8 *target;
+
+    value = *(u16 *)(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30) + 0xA4);
+    if (func_001f0ff0(*(u8 **)(arg0 + 0xE0)) != 0) {
+        flag_offset = (func_004bd050(0) & 1) * 0xF4;
+        index_offset = ((value & 0xFFFF) - 2) * 0x1E8;
+        target = (u8 *)&D_005FA2D0 + index_offset;
+        func_001bdd80(arg0, target + flag_offset, 2);
+        func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 3);
+    } else {
+        func_001c2ee0(arg0, 0, 1);
+    }
+}
 // FUN_001CB540
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb540);
+void func_001cb540(u8 *arg0)
+{
+    u8 *temp;
+
+    if (func_001f0ff0(*(u8 **)(arg0 + 0xE0)) != 0) {
+        func_001bdeb0(arg0);
+        goto done;
+    }
+    temp = *(u8 **)(arg0 + 0xE0);
+    if (temp == NULL)
+        goto done;
+    if (*(s32 *)(arg0 + 0xD8) != 0)
+        goto done;
+    if (temp == NULL)
+        goto done;
+    if ((*(u16 *)(temp + 0x1A) & 1) == 0)
+        goto done;
+    if (*(s32 *)(arg0 + 0xDC) == 0) {
+        func_001bcd40(temp, NULL, NULL, 0.0f, 0x11);
+    }
+    if (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
+        func_0019de70(*(u8 **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+    }
+done:
+    ;
+}
 // FUN_001CB610
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb610);
 // FUN_001CB960
@@ -282,7 +360,24 @@ void func_001cf020(u8 *arg0) {
     func_001bab00(arg0, sp20);
 }
 // FUN_001CF070
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cf070);
+void func_001cf070(u8 *arg0, u8 *arg1)
+{
+    s16 mode;
+    u8 *target;
+
+    mode = *(s16 *)(*(u8 **)(arg0 + 0xE0) + 0x448);
+    target = arg1;
+    switch (mode) {
+    case 1:
+        target = (u8 *)&D_005F78C0 + (func_004bd050(0) & 1) * 0xF4;
+        break;
+    case 0:
+        target = (u8 *)&D_005F7AB0 + (func_004bd050(0) & 1) * 0xF4;
+        break;
+    }
+    func_001bdd80(arg0, target, 2);
+    func_004b3110(5);
+}
 // FUN_001CF140
 void func_001cf140(void) {
     func_001bdeb0();

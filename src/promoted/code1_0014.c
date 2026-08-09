@@ -22,6 +22,7 @@ extern u8 D_005EF930[];
 extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
+extern u8 D_005EF870[];
 extern void func_0046d730(const void *arg0, s32 arg1);
 extern void func_0047a180();
 extern u8 D_005EF840[];
@@ -39,6 +40,12 @@ extern u8 *func_00457120(void);
 extern u8 *func_004571a0(void);
 extern u8 *func_004571b0(void);
 extern u8 *func_004571c0(void);
+extern u8 *func_00457190(void);
+extern void func_003cbe80(void *arg0, void *arg1);
+extern u8 *func_00149ca0(void);
+extern u8 D_007E8020[];
+extern void *func_0047a2f0(s32 arg0);
+extern s32 func_0014c240(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
 
 extern s32 func_0014a230(s32 arg0, s32 arg1);
 extern s32 func_0014a2a0(s32 arg0, s32 arg1);
@@ -48,6 +55,11 @@ extern void (*jtbl_008873EC[])(u8 *arg0);
 extern s32 D_00762EA0;
 
 extern s32 func_00145540(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_004b1130(s32 arg0);
+extern void func_004b1250(s32 arg0, u8 *arg1);
+extern s32 func_001684a0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
+extern s32 func_0017b510(s32 arg0, s32 arg1, s32 arg2);
+extern void func_004b13d0(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
@@ -472,9 +484,74 @@ s32 func_00145690(u16 arg0, s32 arg1) {
     return temp_17;
 }
 // FUN_00145780
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00145780);
+s32 func_00145780(u16 arg0, s32 arg1, s32 arg2) {
+    s8 sp[0xC];
+    s32 temp_17;
+    s32 temp_2_2;
+    s32 temp_4;
+    s8 *clear;
+    s32 var_2;
+    u8 *temp_2;
+
+    clear = sp;
+    var_2 = 0xC;
+    if (clear != NULL) {
+        do {
+            *clear = 0;
+            clear++;
+            var_2--;
+        } while (var_2 != 0);
+    }
+    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0xC00) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    if (arg2 == 0) {
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_17);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    *(s32 *)(temp_2 + 0x28) = *(s32 *)(temp_2 + 0x28) | 0x10000000;
+    *(s32 *)(temp_2 + 0x164) = arg2;
+    temp_2_2 = func_001684a0(0, temp_17 & 0xFFFF, 0, 60.0f);
+    *(s32 *)(temp_2 + 0x228) = temp_2_2;
+    *(s32 *)(temp_2 + 0x230) = func_0017b510(temp_2_2, temp_17, arg1);
+    return temp_17;
+}
 // FUN_001459B0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001459b0);
+s32 func_001459b0(u16 arg0, s32 arg1, s8 arg2) {
+    s32 sp[3];
+    s32 temp_16;
+    s32 temp_4;
+    u8 *temp_2;
+
+    temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x1800) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    if (arg1 == 0) {
+        func_00440b68(&D_005EF870);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_16);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    *(s32 *)(temp_2 + 0x144) = func_004b1130(arg1);
+    *(s8 *)(temp_2 + 0x140) = arg2;
+    sp[0] = 0x42C80000;
+    sp[1] = 0;
+    sp[2] = 0;
+    func_004b1250(*(s32 *)(temp_2 + 0x144), (u8 *)sp);
+    func_004b13d0(*(s32 *)(temp_2 + 0x144), 1.5f);
+    return temp_16;
+}
 // FUN_00145AC0
 s32 func_00145ac0(u16 arg0, s32 arg1) {
     s8 sp30[0xC];
@@ -1084,7 +1161,19 @@ u8 *func_00147620(s32 arg0) {
 // FUN_00147640
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147640);
 // FUN_00147830
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147830);
+void func_00147830(u8 *arg0, u8 *arg1) {
+    u8 *temp_16;
+
+    func_003e8110(func_00457120());
+    temp_16 = func_00457190();
+    func_003cbe80(temp_16, func_004571c0());
+    if (func_00149ca0() != NULL) {
+        func_003c38b0(func_004571a0(), arg1);
+        func_003c38b0(func_004571b0(), arg1 + 0x10);
+        func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x20, 0);
+    }
+    func_003e8120(func_00457120());
+}
 // FUN_00147910
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147910);
 // FUN_00147AE0
@@ -1098,9 +1187,44 @@ void func_00147ae0(u8 *arg0, u8 *arg1) {
     func_003e8120(func_00457120());
 }
 // FUN_00147BB0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147bb0);
+void func_00147bb0(u8 *arg0, u8 *arg1) {
+    s32 temp_3;
+    u8 *temp_16;
+
+    temp_16 = func_001452b0(4);
+    func_003e8110(func_00457120());
+    func_003c38b0(func_004571a0(), temp_16 + 0x140);
+    func_003c38b0(func_004571c0(), temp_16 + 0x150);
+    func_003e9cb0(*(s32 *)(func_004571c0() + 4), temp_16 + 0x160, 0);
+    temp_3 = *(s32 *)(arg1 + 0x28);
+    if (temp_3 & 0x80000000) {
+        func_003c38b0(func_004571a0(), arg1 + 0x168);
+        func_003c38b0(func_004571c0(), arg1 + 0x178);
+        func_003c38b0(func_004571b0(), arg1 + 0x1D0);
+        func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x190, 0);
+        func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1E0, 0);
+    } else if (temp_3 & 0x40000000) {
+        func_003c38b0(func_004571b0(), arg1 + 0x1D0);
+        func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1E0, 0);
+    } else {
+        func_003c38b0(func_004571b0(), temp_16 + 0x1A0);
+        func_003e9cb0(*(s32 *)(func_004571b0() + 4), temp_16 + 0x1B0, 0);
+    }
+    func_003e8120(func_00457120());
+}
 // FUN_00147D80
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147d80);
+void func_00147d80(void) {
+    u8 *temp_16;
+
+    temp_16 = func_001452b0(5);
+    func_003e8110(func_00457120());
+    func_003c38b0(func_004571a0(), temp_16 + 0x140);
+    func_003c38b0(func_004571c0(), temp_16 + 0x150);
+    func_003c38b0(func_004571b0(), temp_16 + 0x1A0);
+    func_003e9cb0(*(s32 *)(func_004571c0() + 4), temp_16 + 0x160, 0);
+    func_003e9cb0(*(s32 *)(func_004571b0() + 4), temp_16 + 0x1B0, 0);
+    func_003e8120(func_00457120());
+}
 // FUN_00147E60
 void func_00147e60(u8 *arg0, u8 *arg1) {
     func_003e8110(func_00457120());
@@ -1430,7 +1554,31 @@ INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014c540);
 // FUN_0014C780
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014c780);
 // FUN_0014C850
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014c850);
+s32 *func_0014c850(u8 *arg0, f32 fparg0, f32 fparg1) {
+    u8 *temp_18;
+    u8 *temp_19;
+    s32 var_16;
+    u8 *temp_2;
+
+    var_16 = 0;
+    goto loop_test_0014c850;
+loop_body_0014c850:
+    if (*(s32 *)temp_18 != 0) {
+        if (func_0014c240(func_0047a2f0(*(s32 *)(arg0 + 0x50)),
+                          temp_18 + 0x150, fparg1, fparg0) != 0) {
+            return *(s32 **)temp_19;
+        }
+    }
+    var_16 += 1;
+loop_test_0014c850:
+    temp_2 = D_007E8020 + (var_16 * 4);
+    temp_19 = temp_2 + 0x20;
+    temp_18 = *(u8 **)temp_19;
+    if (temp_18 != NULL) {
+        goto loop_body_0014c850;
+    }
+    return NULL;
+}
 // FUN_0014C920
 void func_0014c920(void) {
     iGpffffb1f8 = 0;
@@ -1439,8 +1587,38 @@ void func_0014c920(void) {
 }
 // FUN_0014C960
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014c960);
+/* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
+#pragma opt_loop_invariants on
 // FUN_0014CEF0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014cef0);
+u8 *func_0014cef0(s32 arg0, s32 arg1) {
+    f32 temp_f0;
+    f32 temp_f0_2;
+    s32 temp_16;
+    s32 temp_17;
+    u8 *var_2;
+
+    var_2 = func_001452b0(0xF);
+    goto loop_test_0014cef0;
+loop_body_0014cef0:
+    temp_f0 = (600.0f + *(f32 *)(var_2 + 0x140)) / 1200.0f;
+    temp_f0_2 = (600.0f + *(f32 *)(var_2 + 0x148)) / 1200.0f;
+    temp_16 = (s32)temp_f0;
+    temp_17 = (s32)temp_f0_2;
+    if (((temp_16 == arg0) && (temp_17 == arg1)) ||
+        ((temp_16 == (arg0 + 1)) && (temp_17 == arg1)) ||
+        ((temp_16 == arg0) && (temp_17 == (arg1 + 1))) ||
+        ((temp_16 == (arg0 + 1)) && (temp_17 == (arg1 + 1)))) {
+        return var_2;
+    }
+    var_2 = *(u8 **)(var_2 + 0x138);
+loop_test_0014cef0:
+    if (var_2 != NULL) {
+        goto loop_body_0014cef0;
+    }
+    return NULL;
+}
+/* measured: opt_loop_invariants on is required for the retail preheader. */
+#pragma opt_loop_invariants off
 // FUN_0014CFD0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014cfd0);
 // FUN_0014D290

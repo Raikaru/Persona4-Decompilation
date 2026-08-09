@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+extern u8 D_008872E0[];
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
 extern s32 func_003b6e00(s32 arg0);
@@ -119,8 +120,24 @@ u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
 // FUN_003B6DA0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
+/* measured: schedule on and no_branch_likely on reproduce the callback
+   null-branch and post-call clear ordering. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003B6E00
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e00);
+s32 func_003b6e00(s32 arg0) {
+    u8 *temp;
+
+    temp = *(u8 **)(D_008872E0 + iGpffffb618);
+    if (temp != NULL) {
+        jtbl_008873EC[0](temp);
+        *(u8 **)(D_008872E0 + iGpffffb618) = NULL;
+    }
+    return arg0;
+}
+/* measured: close no_branch_likely and schedule around func_003b6e00. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003B6E70
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
 // FUN_003B6F00

@@ -98,6 +98,8 @@ extern void func_0019d3c0();
 extern void func_0019d0c0();
 extern void func_0019d040(u8 *arg0);
 extern u8 iGpffffa088;
+extern void func_00479100(void *arg0, void *arg1);
+extern u8 D_00794150[];
 
 
 // FUN_001900A0
@@ -989,10 +991,28 @@ void func_0019d0c0(u8 *arg0) {
     *(s32 *)(arg0 + 0x9C) &= ~2;
 }
 
-
-
 // FUN_0019D150
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019d150);
+void func_0019d150(void)
+{
+    u8 *temp;
+    u8 *node;
+    u32 i;
+
+    for (i = 0; i < 4; i++) {
+        node = *(u8 **)(iGpffffb3ac + i * 8 + 0x17C);
+        while (node != NULL) {
+            if ((*(s32 *)(node + 0x98) & 2) != 0 &&
+                (*(s32 *)(node + 0x9C) & 2) != 0 &&
+                *(u8 *)(node + 0x33) > 0) {
+                temp = *(u8 **)(node + 0xA00);
+                if ((*(s32 *)(temp + 0xD8) & 0x20) == 0) {
+                    func_00479100(D_00794150, temp);
+                }
+            }
+            node = *(u8 **)(node + 0xA68);
+        }
+    }
+}
 // FUN_0019D210
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019d210);
 // FUN_0019D3C0
@@ -1111,7 +1131,29 @@ void func_0019ef30(u8 *arg0, u16 arg1) {
 }
 
 // FUN_0019EF90
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019ef90);
+/* measured: opt_propagation off reproduces ef90's retail address setup order. */
+#pragma opt_propagation off
+u8 *func_0019ef90(s32 arg0, s32 arg1)
+{
+    u8 *base;
+    u8 *packet;
+    u32 address;
+
+    base = iGpffffb3ac;
+    arg0 = (u16)arg0;
+    address = (u32)p4_unit_00195530((u16)arg0 * 8, base) + 0x17C;
+    packet = *(u8 **)address;
+    arg1 = (u16)arg1;
+    while (packet != NULL) {
+        if (*(u16 *)(packet + 0xA4) == arg1) {
+            return packet;
+        }
+        packet = *(u8 **)(packet + 0xA68);
+    }
+    return NULL;
+}
+/* measured: closes opt_propagation around ef90. */
+#pragma opt_propagation on
 // FUN_0019EFE0
 u8 *func_0019efe0(s32 arg0)
 {

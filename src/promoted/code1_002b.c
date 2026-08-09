@@ -37,6 +37,7 @@ extern void func_00279350(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 
 extern s32 func_00106880(void);
 extern void func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern void func_00145080(void);
 extern void func_003f6440(s32 arg0, s32 arg1);
 
 
@@ -496,7 +497,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bd840);
 // FUN_002BD8E0
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bd8e0);
 // FUN_002BDB10
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bdb10);
+void func_002bdb10(u8 *arg0)
+{
+    func_00145080();
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
 // FUN_002BDFF0
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bdff0);
 // FUN_002BE100

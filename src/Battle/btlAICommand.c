@@ -99,7 +99,7 @@ extern s32 func_0023dff0(u32 a);
 extern u32 func_00231e20(u32 arg0);
 extern s32 func_002428f0(u32 arg0, u32 arg1);
 extern u8 *iGpffffb3d0;
-extern u8 *iGpffffb3c8;
+extern u8 *iGpffffb42c;
 extern u8 *iGpffffb3cc;
 extern u8 iGpffffa2a8;
 extern u8 *iGpffffb444;
@@ -1224,7 +1224,7 @@ s32 func_001debb0(u8 *p, u8 *q, u32 v, u32 w)
    func_002d15a0->func_001eb3b0, func_002c6f50->func_001debb0, func_002c6ba0->func_001de800,
    func_002c6e30->func_001dea90, func_002c6a00->func_001de640, PTR_FUN_006975e0->D_00609CE0;
    DAT_007ce41c->iGpffffb3d0 (integer-domain address forces the early base load),
-   DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb3c8. func_001de800 declared
+   DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb42c. func_001de800 declared
    locally as u32 to keep the &0xFFFF mask from folding to 0xff. */
 // FUN_001DED30
 void func_001ded30(int param_1, int param_2)
@@ -1255,7 +1255,7 @@ void func_001ded30(int param_1, int param_2)
             off = ((u32)baseActionId * 0x28 + (u32)baseActionId) * 4;
             table = (u8 *)(off) + (int)table;
             actionId = *(u16 *)(table + 2);
-            data = (u32)iGpffffb3c8;
+            data = (u32)iGpffffb42c;
         }
         break;
     }

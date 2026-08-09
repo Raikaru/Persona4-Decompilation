@@ -367,20 +367,15 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
 
 u8 *func_0010d6d0(s16 arg0);
 
-/* measured: float-second declaration `(s64,f32,s32,u8*,s32*)` is ABI-correct
-   for this call family and leaves the renderer's three float arguments in
-   the retail order. Body is 344B against a 352B window, nd 5. Residual
-   non-relocation rows are 0x28, 0xB0, 0xD4, 0x104, and 0x10C: the input
-   scale/result values use the opposite saved-FP registers. Relocation-owned
-   rows are 0x60, 0x64, 0x6C, 0xB8, and 0x124. Tried all FP-local declaration
-   permutations, direct/captured scale uses, and an O1 wrapper; all were
-   worse. Committed at nd 5. */
-// FUN_00116190 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: declaration-order lever assigns the input float to $f20 and
+   delayed high-coordinate assignment keeps retail's $f21 load at the call
+   site. Exact MATCH: object 344B against the 352B retail window. */
+// FUN_00116190
 void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 {
-    f32 y;
+    f32 high;
     f32 x;
+    f32 y;
     s32 alpha;
     s32 color;
     s32 temp_18;
@@ -392,16 +387,13 @@ void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
         if (temp_18 == 0) {
             func_0046d730(D_005E4868, 0x171);
         }
-        y = *((f32 *)&arg0 + 1);
-        func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+        high = *((f32 *)&arg0 + 1);
+        func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
         x = (f32)(s32)(114.0f + *(f32 *)&arg0);
-        y = (f32)(s32)(2.0f + y);
+        y = (f32)(s32)(2.0f + high);
         func_00274ed0(x, y, fparg0, color | -0x100, 8, 1, func_0010d6d0(*(s16 *)arg2), 8, 0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116190);
-#endif
 
 
 
@@ -612,7 +604,7 @@ static inline u8 shdPackedLow(s32 *value)
 
 
 
-/* measured: best portable reconstruction nd 6 (object 328B / window 336B). The inline shdPackedLow helper reproduces retail's delayed cbytes[0] load; residual rows are the arg2 narrowing and branch register choices at offsets 0x34 and 0x40. Parked because it is not byte-exact. */
+/* measured: best portable reconstruction nd 6 (object 328B / window 336B). The inline shdPackedLow helper reproduces retail's delayed cbytes[0] load; residual rows are the arg2 narrowing and branch register choices at offsets 0x34 and 0x40. Parked because it is not byte-exact. Committed at nd 6. */
 // FUN_001171C0 NONMATCHING
 #ifdef NON_MATCHING
 void func_001171c0(s64 arg0, f32 fparg0, s32 arg1, u8 arg2, s32 arg3)
@@ -947,7 +939,7 @@ s32 func_00107890(s32);
 void func_0046d2b0(s32, s32, s32, f32, f32, u8, f32, s32);
 void func_001190f0(f32 *, u8);
 extern u8 D_005E4DB0[];
-extern f32 iGpffff8394;
+extern f32 iGpffff8368;
 /* measured: recipe A re-test — nd 362-363 (vs recorded 358). PARTIAL
    OVERTURN: with the exact retail spelling the four abs bltzs SURVIVE —
    `s32 temp_5 = temp_21 & 0xFF;` (temp_21 a u8 lbu local — the mask of an

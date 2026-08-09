@@ -4,7 +4,7 @@
 #include "type.h"
 
 extern s32 iGpffffb20c;
-extern s32 iGpffffb4e4;
+extern s32 iGpffffb2e4;
 extern u8 *iGpffff9db0;
 extern s32 D_007E8060[];
 extern u8 D_007E80A0[];
@@ -98,7 +98,7 @@ field_done:
     func_00164170();
     func_001641d0();
     func_0043f9c8(KFIELD_D_007E80A0, 0, 0xB40);
-    iGpffffb4e4 = 0;
+    iGpffffb2e4 = 0;
     func_00156750(arg0);
     temp_16 = 0;
     while (temp_16 < 3) {

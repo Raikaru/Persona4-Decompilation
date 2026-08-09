@@ -23,7 +23,7 @@ typedef struct RwMatrix
 
 // P3 counterpart sDegreesPerRadian (gp -0x7D00); P4 retail uses gp -0x7D00,
 // i.e. absolute 0x007690f0 - 0x7d00 = 0x007613f0.
-extern f32 fGpffff7d00;
+extern f32 fGpffff8300;
 extern f32 RwV3dNormalize(RwV3d* out, const RwV3d* in);
 extern f32 func_0044b920(f32 x);
 
@@ -56,7 +56,7 @@ u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos,
     targetDir.z = targetPos->z - viewerMat->pos.z;
     RwV3dNormalize(&targetDir, &targetDir);
 
-    viewAngle = fGpffff7d00 * func_0044b920((viewDir.x * forward.x) +
+    viewAngle = fGpffff8300 * func_0044b920((viewDir.x * forward.x) +
                                             (viewDir.y * forward.y) +
                                             (viewDir.z * forward.z));
     if (viewDir.x < 0.0f)
@@ -65,7 +65,7 @@ u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos,
     }
     viewAngle += 180.0f;
 
-    targetAngle = fGpffff7d00 * func_0044b920((targetDir.x * forward.x) +
+    targetAngle = fGpffff8300 * func_0044b920((targetDir.x * forward.x) +
                                               (targetDir.y * forward.y) +
                                               (targetDir.z * forward.z));
     if (targetDir.x < 0.0f)
