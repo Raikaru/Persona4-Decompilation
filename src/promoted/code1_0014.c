@@ -111,6 +111,14 @@ extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];
 extern void func_001441e0(u8 *arg0);
 extern void func_00144ac0(u8 *arg0);
+extern void func_00442830(void *arg0, const char *arg1);
+extern void func_00442088(void *arg0, const char *arg1, ...);
+extern void func_00442428(void *arg0, const void *arg1);
+extern s32 func_00454570(void *arg0);
+extern u8 D_005EF7C0[];
+extern u8 iGpffff9db8;
+extern u8 iGpffff9dc0;
+extern u8 iGpffff9dc8;
 static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
@@ -360,8 +368,47 @@ s32 func_00144af0(void)
     return func_00451de0(&D_005EF7B0, 0x100, 0, 0,
                          func_001441e0, func_00144ac0, (void *)(u32)temp_2);
 }
-// FUN_00144B80
+/* measured: opt_common_subs off preserves the retail comparison move. */
+#pragma opt_common_subs off
+/* Measured candidate reproduces the full 264-byte body/window 272 bytes with only the comparison-copy residual. Committed at nd 8. */
+// FUN_00144B80 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00144b80(s32 arg0, s32 arg1)
+{
+    s32 result;
+    s32 value;
+    s32 compare;
+    u8 spC0[0x80];
+    u8 sp40[0x80];
+
+    func_00442830(spC0, (const char *)D_005EF7C0);
+    func_00442088(sp40, (const char *)&iGpffff9db8, arg0);
+    func_00442428(spC0, sp40);
+    func_00442088(sp40, (const char *)&iGpffff9dc0, arg1);
+    func_00442428(spC0, sp40);
+    func_00442428(spC0, (const char *)&iGpffff9dc8);
+    if (func_00454570(spC0) == 0) {
+        return 0;
+    }
+    result = 1;
+    value = func_0014a230(arg0 & 0xFFFF, arg1 & 0xFFFF);
+    if (value == (compare = result + 0)) {
+        goto set_result;
+    }
+    value = func_0014a2a0(arg0 & 0xFFFF, arg1 & 0xFFFF);
+    if (value != (compare = result + 0)) {
+        goto done;
+    }
+set_result:
+    result = 1;
+done:
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144b80);
+#endif
+/* measured: closes the func_00144b80 common-subexpression probe. */
+#pragma opt_common_subs on
 // FUN_00144C90
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144c90);
 // FUN_00144E10

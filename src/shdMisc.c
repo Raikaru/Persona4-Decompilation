@@ -32,7 +32,7 @@ void func_0048a000(void);
 u8 *func_00457120(void);
 f32 func_0044b610(f32 fparg0);
 f32 func_0044b7b0(f32 fparg0);
-void func_003645c0();
+s32 func_003645c0();
 
 /* measured: register allocation / stack-layout floor. Retail stores first arg
    (s64) as one sd at 0x48, keeps arg0-HIGH in $s1 across the 9 vtable calls,
@@ -46,15 +46,12 @@ void func_003645c0();
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364320);
 
 
-/* measured: plain -O2 variants kept the digit index in $t1 and counter in
-   $t0 while retail hoists '.',2,3,10 and uses $v0/$t3. Adding named constants
-   plus #pragma opt_loop_invariants on fixes the hoist and leaves only the
-   documented scratch-register residual; see the committed nd 12 body below. */
-/* measured: named constants plus #pragma opt_loop_invariants on hoist '.', 2, 3, and 10 into the retail preheader; all control flow and 38/40 words match. The remaining 10 differing words are one scratch-register allocation: b210 keeps the digit-buffer index in $t4 while retail reuses $v0. Declaration order, counter types, initializer forms, third-argument signature, and optimization-level probes did not move it. Committed at nd 12. */
-// FUN_003645C0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: returning the digit count makes b210 keep the loop index in $v0,
+   matching retail; opt_loop_invariants hoists the decimal constants into the
+   preheader. The function is an intentional hidden-return-value reconstruction. */
+// FUN_003645C0
 #pragma opt_loop_invariants on
-void func_003645c0(char *arg0, s32 rem)
+s32 func_003645c0(char *arg0, s32 rem)
 {
     s32 i;
     s32 cnt;
@@ -90,12 +87,10 @@ void func_003645c0(char *arg0, s32 rem)
         j = next;
     }
     arg0[j] = 0;
+    return i;
 }
-/* measured: candidate probe */
+/* measured: hidden return value keeps digit index in $v0 and yields exact retail code. */
 #pragma opt_loop_invariants off
-#else
-INCLUDE_ASM("asm/nonmatchings/shdMisc", func_003645c0);
-#endif
 
 
 

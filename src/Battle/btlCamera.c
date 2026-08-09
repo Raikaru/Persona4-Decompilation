@@ -257,7 +257,53 @@ u16 func_001bc7f0(void)
     return *(u16 *)(iGpffffb3ac + 0xf4);
 }
 // FUN_001BC800
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001bc800);
+void func_001bc800(u8 *arg0)
+{
+    u8 *camera;
+    u8 *action;
+    u8 *actionSlot;
+    u8 *stateAction;
+    u8 *stateActionSlot;
+    u8 *stateAction2;
+    u8 *stateActionSlot2;
+    u16 state;
+
+    camera = iGpffffb3ac;
+    actionSlot = camera + 0x104;
+    action = *(u8 **)actionSlot;
+    if (action != NULL) {
+        if (*(s32 *)(action + 8) == *(s32 *)(arg0 + 8)) {
+            *(u8 **)actionSlot = NULL;
+        }
+        camera = iGpffffb3ac;
+        state = *(u16 *)(camera + 0xF4);
+        switch (state) {
+        case 13:
+            stateActionSlot = camera + 0x124;
+            stateAction = *(u8 **)stateActionSlot;
+            if (stateAction != NULL &&
+                *(s32 *)(stateAction + 8) == *(s32 *)(arg0 + 8)) {
+                *(u8 **)stateActionSlot = NULL;
+                return;
+            }
+            break;
+        case 20:
+        case 16:
+        case 18:
+        case 19:
+        case 42:
+            stateActionSlot2 = camera + 0x158;
+            stateAction2 = *(u8 **)stateActionSlot2;
+            if (stateAction2 != NULL &&
+                *(s32 *)(stateAction2 + 8) == *(s32 *)(arg0 + 8)) {
+                *(u8 **)stateActionSlot2 = NULL;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
 // FUN_001BC8E0
 u32 btlCameraUpdateSetStatePacket(void* work)
 {

@@ -9,7 +9,7 @@ struct Battle
     u32 flags;
 };
 
-extern Battle* iGpfffb3ac;
+extern Battle* iGpffffb3ac;
 extern void func_00459880(void);
 extern void func_004598e0(s32 fadeDuration);
 
@@ -84,7 +84,7 @@ extern u32 func_001f9750(void* work);
 // FUN_001F7530
 void func_001f7530(void)
 {
-    if ((iGpfffb3ac->flags & 0x40) != 0)
+    if ((iGpffffb3ac->flags & 0x40) != 0)
     {
         func_00459880();
     }
@@ -95,7 +95,7 @@ void func_001f7530(void)
 // FUN_001F7570
 void func_001f7570(s16 fadeDuration)
 {
-    if ((iGpfffb3ac->flags & 0x40) != 0)
+    if ((iGpffffb3ac->flags & 0x40) != 0)
     {
         func_004598e0(fadeDuration);
     }

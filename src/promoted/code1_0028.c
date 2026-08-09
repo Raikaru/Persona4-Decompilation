@@ -17,6 +17,19 @@ extern void func_004598e0(s16 arg0);
 extern void func_0046d730(void *arg0, s32 arg1);
 extern s32 D_0063C1D0[];
 extern u8 D_0063C2B8[];
+extern f32 D_00882214[];
+extern f32 D_00882218[];
+extern f32 D_0088221C[];
+extern f32 D_00882220[];
+extern f32 D_00882224[];
+extern f32 D_00882228[];
+extern f32 D_0088222C[];
+extern f32 D_00882230[];
+extern f32 D_00882234[];
+extern f32 D_00882238[];
+extern f32 D_0088223C[];
+extern f32 D_00882240[];
+extern f32 D_00882244[];
 extern f32 D_00882210[];
 extern s32 func_00144b80(s32 arg0, s32 arg1);
 extern void func_00144c90(s32 arg0, s32 arg1);
@@ -263,7 +276,52 @@ void func_002865e0(UnkStruct_002865E0 *arg0) {
 
 
 // FUN_002866C0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002866c0);
+void func_002866c0(u8 *arg0, s32 *arg1) {
+    u8 *temp_3;
+    u8 *var_7;
+
+    var_7 = *(u8 **)(arg0 + 0x68);
+    if (var_7 == NULL) {
+        *(u8 **)(arg0 + 0x68) = (u8 *)arg1;
+        *(u8 **)(arg0 + 0x6C) = (u8 *)arg1;
+        *(u8 **)((u8 *)arg1 + 0x4C) = NULL;
+        *(u8 **)((u8 *)arg1 + 0x50) = NULL;
+        goto done;
+    }
+    goto loop_7_check;
+loop_7_body:
+    if ((s32)*(u16 *)arg1 < (s32)*(u16 *)var_7) {
+        temp_3 = *(u8 **)(var_7 + 0x50);
+        if (temp_3 == NULL) {
+            *(u8 **)(arg0 + 0x68) = (u8 *)arg1;
+            *(u8 **)(var_7 + 0x50) = (u8 *)arg1;
+            *(u8 **)((u8 *)arg1 + 0x50) = NULL;
+            *(u8 **)((u8 *)arg1 + 0x4C) = var_7;
+        } else {
+            *(u8 **)(temp_3 + 0x4C) = (u8 *)arg1;
+            *(u8 **)((u8 *)arg1 + 0x50) = *(u8 **)(var_7 + 0x50);
+            *(u8 **)((u8 *)arg1 + 0x4C) = var_7;
+            *(u8 **)(var_7 + 0x50) = (u8 *)arg1;
+        }
+        goto block_24;
+    }
+loop_7_next:
+    var_7 = *(u8 **)(var_7 + 0x4C);
+loop_7_check:
+    if (var_7 != NULL) {
+        goto loop_7_body;
+    }
+block_24:
+    if (var_7 != NULL) {
+        goto done;
+    }
+    *(u8 **)(*(u8 **)(arg0 + 0x6C) + 0x4C) = (u8 *)arg1;
+    *(u8 **)((u8 *)arg1 + 0x50) = *(u8 **)(arg0 + 0x6C);
+    *(u8 **)((u8 *)arg1 + 0x4C) = NULL;
+    *(u8 **)(arg0 + 0x6C) = (u8 *)arg1;
+done:
+    *(s32 *)(arg0 + 0x64) = *(s32 *)(arg0 + 0x64) + 1;
+}
 // FUN_00287BF0
 void func_00287bf0(s32 arg0, u8 *arg1) {
     u8 *var_17;
@@ -368,7 +426,32 @@ void func_0028be70(u8 *arg0, s32 arg1)
 #pragma opt_loop_invariants on
 
 // FUN_0028BEF0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028bef0);
+s32 func_0028bef0(s32 arg0, u8 *arg1, s32 *arg2, s32 *arg3) {
+    s32 temp_3_2;
+    s8 temp_3;
+
+    *arg2 = (s32)((s16)*(s16 *)(arg1 + 0x10) & 0xFFF);
+    *arg3 = (((s16)*(s16 *)(arg1 + 0x10) >> 0xC) & 0xF);
+    temp_3 = *(s8 *)(arg1 + 0x15);
+    switch (temp_3) {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+        temp_3_2 = *(s32 *)((u8 *)(temp_3 * 4) + arg0 + 0x694);
+        if (temp_3_2 == -1) {
+            return 0;
+        }
+        *arg2 += temp_3_2;
+        goto block_6;
+    case 6:
+        return 0;
+    default:
+block_6:
+        return 1;
+    }
+}
 
 // FUN_0028BF90
 f32 func_0028bf90(s32 arg0) {
@@ -465,7 +548,32 @@ INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c3f0);
 // FUN_0028C580
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c580);
 // FUN_0028CED0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028ced0);
+void func_0028ced0(s32 arg0, s32 arg1, s32 arg2, f32 *arg3,
+                   f32 *arg4, f32 *arg5) {
+    s32 temp_3;
+
+    if (arg0 < 3) {
+        temp_3 = arg0 << 6;
+        *(f32 *)((u8 *)D_00882218 + temp_3) = arg3[0];
+        *(f32 *)((u8 *)D_0088221C + temp_3) = arg3[1];
+        *(f32 *)((u8 *)D_00882220 + temp_3) = arg3[2];
+        *(u32 *)((u8 *)D_00882224 + temp_3) = 0;
+        *(f32 *)((u8 *)D_00882228 + temp_3) = arg4[0];
+        *(f32 *)((u8 *)D_0088222C + temp_3) = arg4[1];
+        *(f32 *)((u8 *)D_00882230 + temp_3) = arg4[2];
+        *(f32 *)((u8 *)D_00882234 + temp_3) = arg4[3];
+        *(f32 *)((u8 *)D_00882238 + temp_3) = arg5[0];
+        *(f32 *)((u8 *)D_0088223C + temp_3) = arg5[1];
+        *(f32 *)((u8 *)D_00882240 + temp_3) = arg5[2];
+        *(u32 *)((u8 *)D_00882244 + temp_3) = 0x3F800000;
+        *(s32 *)((u8 *)D_00882210 + temp_3) = arg1;
+        if (arg1 == 3) {
+            *(s32 *)((u8 *)D_00882214 + temp_3) = arg2;
+            return;
+        }
+        *(s32 *)((u8 *)D_00882214 + temp_3) = 0;
+    }
+}
 // FUN_0028D020
 void func_0028d020(s32 arg0, s32 arg1) {
     if ((arg0 >= 0xA) || (arg0 < 0)) {

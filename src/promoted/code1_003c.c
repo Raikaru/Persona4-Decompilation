@@ -2,7 +2,7 @@
 #include "type.h"
 extern void (*jtbl_008873EC[])();
 extern void *(*D_008873F8[])(s32 arg0, s32 arg1);
-extern s32 func_003e3b70();
+extern void func_003e3b70(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
 extern void func_003bf320();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003c5760(u8 *arg0);
@@ -28,6 +28,7 @@ extern s32 func_003ce9e0(s32 arg0, u8 *arg1);
 extern s32 func_003ceeb0(u8 *arg0);
 
 typedef struct { f32 x, y, z, w; } Vec4f;
+typedef struct { u8 pad[0x54]; s32 field; } Cb720Obj;
 
 extern u16 D_008872E8[];
 extern u8 func_003cac30[];
@@ -55,6 +56,8 @@ extern s32 iGpffffb6b4;
 extern s32 iGpffffb6b0;
 /* gp - 0x48EC = 0x00764804 */
 extern s32 iGpffffb714;
+/* gp - 0x48E4 = 0x0076480C */
+extern s32 iGpffffb71c;
 /* gp - 0x4910 = 0x007647e0 */
 extern u8 *iGpffffb6f0;
 /* gp - 0x4940 = 0x007647B0 */
@@ -618,7 +621,43 @@ s32 func_003c3cc0(u8 *arg0) {
    Object/window 128/128, normalized_diff 0. Committed at nd 0. */
 
 // FUN_003C3D20
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3d20);
+#pragma schedule on
+#pragma no_branch_likely on
+extern void func_003c38a0(void);
+u8 *func_003c3d20(s8 arg0) {
+    u8 *temp;
+
+    temp = ((u8 *(*)(s32, s32, s32))D_008873F8[0])(*(s32 *)(D_008872E0 + iGpffffb6d0), 0x30012, iGpffffb6d0);
+    if (temp == NULL)
+        goto null_result;
+    *(s8 *)(temp + 0) = 3;
+    *(s8 *)(temp + 1) = arg0;
+    *(s8 *)(temp + 2) = 0;
+    *(s8 *)(temp + 3) = 0;
+    *(s32 *)(temp + 4) = 0;
+    *(void **)(temp + 0x10) = (void *)func_003c38a0;
+    *(s32 *)(temp + 0x14) = 0;
+    *(s32 *)(temp + 0x28) = 0;
+    *(s32 *)(temp + 0x18) = 0x3F800000;
+    *(s32 *)(temp + 0x1C) = 0x3F800000;
+    *(s32 *)(temp + 0x20) = 0x3F800000;
+    *(s32 *)(temp + 0x24) = 0x3F800000;
+    *(s8 *)(temp + 3) = 1;
+    *(u8 **)(temp + 0x2C) = temp + 0x2C;
+    *(u8 **)(temp + 0x30) = temp + 0x2C;
+    *(s32 *)(temp + 0x38) = 0;
+    *(s32 *)(temp + 0x34) = 0;
+    *(s16 *)(temp + 0x3C) = (s16)(D_008872E8[1] - 1);
+    *(s8 *)(temp + 2) = 3;
+    func_003e3b70(D_0070AFD0, temp, (u8 *)1, (u8 *)0x3F800000);
+    goto done;
+done:
+    return temp;
+null_result:
+    return NULL;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003C3E10
 #pragma schedule on
 u8 *func_003c3e10(u8 *arg0) {
@@ -852,6 +891,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
    and loop-order residuals. Committed at nd 34 in-file (nd 11 measured in isolation). */
 // FUN_003C4BC0
 #ifdef NON_MATCHING
+#pragma schedule on
 s32 func_003c4bc0(u8 *arg0, s32 arg1) {
     s32 count;
     s32 index;
@@ -866,12 +906,12 @@ s32 func_003c4bc0(u8 *arg0, s32 arg1) {
                 goto done;
             }
             p -= 1;
-            index -= 1;
-        } while (index > 0);
+        } while (index-- > 0);
     }
 done:
     return index;
 }
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
 #endif
@@ -1224,7 +1264,37 @@ finish:
     return 1;
 }
 // FUN_003C9750
+/* measured: schedule and no_branch_likely reproduce the callback loop layout.
+   Candidate object 132B/window 144B, normalized_diff 11; residual is
+   register coloring between the cursor and next-node values.
+   Committed at nd 11. */
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003c9750(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
+    u8 *end;
+    u8 *node;
+    u8 *next;
+    s32 value;
+
+    end = arg0 + 0x40;
+    node = *(u8 **)(arg0 + 0x40);
+    if (node != end) {
+        do {
+            value = *(s32 *)(node + 8);
+            next = *(u8 **)node;
+            if ((value != 0) && (arg1(value, arg2) == 0))
+                return arg0;
+            node = next;
+        } while (node != end);
+    }
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9750);
+#endif
 
 // FUN_003C97E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
@@ -1348,7 +1418,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca430);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca5a0);
 
 // FUN_003CA6A0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca6a0);
+/* measured: no_branch_likely before schedule preserves retail ordinary null
+   branches without changing the scheduled prologue. */
+#pragma no_branch_likely on
+#pragma schedule on
+u8 *func_003ca6a0(u8 *arg0) {
+    u8 *p;
+
+    p = *(u8 **)(D_008872E0 + (s32)iGpffffb718 + 4);
+    if (p == NULL)
+        goto second;
+    func_003e12f0(p);
+    *(u8 **)(D_008872E0 + (s32)iGpffffb718 + 4) = NULL;
+second:
+    p = *(u8 **)(D_008872E0 + (s32)iGpffffb718);
+    if (p == NULL)
+        goto done;
+    func_003e12f0(p);
+    *(u8 **)(D_008872E0 + (s32)iGpffffb718) = NULL;
+done:
+    iGpffffb71c -= 1;
+    return arg0;
+}
+#pragma schedule off
+#pragma no_branch_likely off
 
 // FUN_003CA740
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
@@ -1369,7 +1462,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
 
 // FUN_003CA830 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: probe schedule */
 #pragma schedule on
 u8 *func_003ca830(u8 *arg0) {
     u8 *f60 = func_003ca7a0;
@@ -1389,7 +1481,6 @@ u8 *func_003ca830(u8 *arg0) {
     *(s32 *)(node + 0xC) = 0;
     return arg0;
 }
-/* measured: close schedule */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
@@ -1617,7 +1708,20 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
 // FUN_003CB720
+#ifdef NON_MATCHING
+extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
+#pragma schedule on
+s32 func_003cb720(s32 arg0, s32 arg1, u8 *arg2) {
+    Cb720Obj *obj;
+
+    obj = (Cb720Obj *)arg2;
+    obj->field = func_003c5d10(arg0, arg2, arg2 + 0x20);
+    return (obj->field == 0) ? 0 : arg0;
+}
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
+#endif
 
 // FUN_003CB770
 /* measured: schedule on places the field load in the jump delay slot. */

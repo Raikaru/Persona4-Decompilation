@@ -727,7 +727,6 @@ void func_0025b0f0(s32 arg0, u8 *arg1) {
 #else
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b0f0);
 #endif
-
 // FUN_0025B240
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b240);
 

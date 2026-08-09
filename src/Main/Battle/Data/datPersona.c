@@ -21,6 +21,10 @@ extern u8 *iGpffffb3d8; /* gp -0x4C28 */
 extern u8 *iGpffffb3d4; /* gp -0x4C2C */
 extern u8 *iGpffffb3dc; /* gp -0x4C24 */
 extern u8 *iGpffffb3e4; /* gp -0x4C1C */
+static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
+{
+    return flags | mask;
+}
 
 extern void func_0043f810(void *dst, void *src, u32 size);
 extern void func_0010c9e0(u8 *arg0);
@@ -599,20 +603,77 @@ s32 func_0010b5b0(void)
     return 6;
 }
 
-/* measured: mwcc b210 folds a register OR-chain (flags|1, |2, |4) into a
-   single ori when any def is single-use (case 2 needs an f2 intermediate,
-   case 3 always folds to |6; AND-chains do not fold, OR-chains do). Tried
-   intermediates, plain assignments, single expressions; nd 17-46. OR-chain
-   constant-folding floor. */
+/* measured: nested static inline OR helper preserves retail's intermediate
+   ori sequence for modes 2 and 3; helper is required for exact b610 codegen. */
+/* measured: opt_propagation off preserves the three retail mask/and steps. */
+#pragma opt_propagation off
 // FUN_0010B610
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b610);
-/* measured: retail loads the count constants with daddiu into $v1 (reusing
-   the dead test register) and hoists (u16)count to a preheader mask; mwcc
-   b210 allocates count to $a2 with addiu and re-masks inside the loop. Tried
-   s64/u16/s32 count, declaration orders, base-assignment placements;
-   nd 33-51. Saved-register/temp allocation floor. */
+void func_0010b610(s32 arg0)
+{
+    s32 flags;
+    s32 mode;
+
+    flags = D_0079B40C[0];
+    flags &= ~1;
+    flags &= ~2;
+    flags &= ~4;
+    D_0079B40C[0] = flags;
+    mode = arg0 & 0xFFFF;
+    switch (mode) {
+    case 0:
+        break;
+    case 1:
+        D_0079B40C[0] = flags | 1;
+        break;
+    case 2:
+        D_0079B40C[0] = datPersonaOrFlag(datPersonaOrFlag(flags, 1), 2);
+        break;
+    case 3:
+        D_0079B40C[0] = datPersonaOrFlag(datPersonaOrFlag(datPersonaOrFlag(flags, 1), 2), 4);
+        break;
+    default:
+        func_0046d730(D_005E4318, 0x4CD);
+        break;
+    }
+}
+/* measured: explicit opposite pragma closes the b610 propagation bracket. */
+#pragma opt_propagation on
+/* measured: sibling P3 valid-count shape closes this 0xD0 window with
+   opt_loop_invariants; the explicit bracket is required for the hoisted base. */
+#pragma opt_loop_invariants on
 // FUN_0010B6F0
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b6f0);
+u16 func_0010b6f0(void)
+{
+    u16 validCount;
+    u32 modeFlags;
+    u16 maxPersonaCount;
+    s32 personaCount;
+    u16 personaIdx;
+    u8 valid;
+
+    validCount = 0;
+    modeFlags = D_0079B40C[0];
+    if (modeFlags & 4) {
+        maxPersonaCount = 0xC;
+    } else if (modeFlags & 2) {
+        maxPersonaCount = 0xA;
+    } else if (modeFlags & 1) {
+        maxPersonaCount = 8;
+    } else {
+        maxPersonaCount = 6;
+    }
+    personaIdx = 0;
+    personaCount = (u16)maxPersonaCount;
+    for (; personaIdx < personaCount; personaIdx++) {
+        valid = (*(u16 *)((u8 *)D_007973A0 + (s16)personaIdx * 0x30 + 0xBEC) & 1) != 0;
+        if (valid) {
+            validCount++;
+        }
+    }
+    return validCount;
+}
+/* measured: explicit opposite pragma closes the one-function optimization bracket. */
+#pragma opt_loop_invariants off
 // FUN_0010B7C0
 void func_0010b7c0(void)
 {
