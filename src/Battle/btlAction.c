@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlAction_001a1100.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV3d RwV3d;
@@ -83,6 +84,8 @@ void btlActionUpdateStateStartHome(BtlAction* action)
 
 
 
+// FUN_001A1190
+INCLUDE_ASM("asm/nonmatchings/btlAction", func_001a1190);
 // FUN_001A13E0
 void btlActionUpdateStateChangeFormation(BtlAction* action)
 {

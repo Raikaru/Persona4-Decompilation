@@ -92,12 +92,18 @@ void func_004b1030(u8 *arg0)
     }
 }
 
+// FUN_004B1090
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1090);
+// FUN_004B10C0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b10c0);
 // FUN_004B10F0
 void func_004b10f0(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x4) = arg1;
 }
 
+// FUN_004B1100
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1100);
 // FUN_004B1130
 void func_004b1130(void)
 {
@@ -128,6 +134,12 @@ void func_004b11b0(void)
     func_00485c80();
 }
 
+// FUN_004B11D0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b11d0);
+// FUN_004B1210
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1210);
+// FUN_004B1250
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1250);
 // FUN_004B1290
 void func_004b1290(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
 {
@@ -138,6 +150,8 @@ void func_004b1290(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
     func_00486330(arg0, scratch);
 }
 
+// FUN_004B12E0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b12e0);
 // FUN_004B13D0
 void func_004b13d0(void)
 {
@@ -207,6 +221,10 @@ void func_004b1560(void)
     func_00486180();
 }
 
+// FUN_004B1590
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1590);
+// FUN_004B15D0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b15d0);
 // FUN_004B1600
 void func_004b1600(void)
 {
@@ -226,6 +244,10 @@ void func_004b1600(void)
     }
 }
 
+// FUN_004B1680
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1680);
+// FUN_004B16C0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b16c0);
 // FUN_004B18E0
 void func_004b18e0(u8 *arg0)
 {
@@ -243,18 +265,36 @@ void func_004b18e0(u8 *arg0)
     (*jtbl_008873EC)(arg0);
 }
 
+// FUN_004B1950
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1950);
+// FUN_004B1A00
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1a00);
 // FUN_004B1AA0
 void func_004b1aa0(u8 *arg0)
 {
     *(s32 *)(arg0 + 0x8) = 0;
 }
 
+// FUN_004B1AB0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1ab0);
+// FUN_004B1AD0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1ad0);
+// FUN_004B2740
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b2740);
+// FUN_004B2780
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b2780);
+// FUN_004B2A00
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b2a00);
+// FUN_004B2E00
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b2e00);
 // FUN_004B3250
 void func_004b3250(s32 arg0)
 {
     iGpffffbb9c = arg0;
 }
 
+// FUN_004B3260
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b3260);
 // FUN_004B4EA0
 void func_004b4ea0(u8 *arg0)
 {
@@ -266,6 +306,8 @@ void func_004b4ea0(u8 *arg0)
     jtbl_008873EC[0](temp_16);
 }
 
+// FUN_004B4F10
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b4f10);
 // FUN_004B4F40
 void func_004b4f40(u8 *arg0)
 {
@@ -287,6 +329,8 @@ void func_004b4ff0(u8 *arg0)
     }
 }
 
+// FUN_004B5040
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5040);
 // FUN_004B50D0
 s128 func_004b50d0(s128 *arg0, s128 *arg1) {
     s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
@@ -326,6 +370,8 @@ void func_004b5340(u8 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 
+// FUN_004B53C0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b53c0);
 // FUN_004B5530
 void func_004b5530(u8 *arg0) {
     void (*fn)(u8 *);
@@ -382,6 +428,8 @@ void func_004b5620(u8 *arg0) {
     }
 }
 
+// FUN_004B5690
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5690);
 // FUN_004B5750
 s128 func_004b5750(s128 *arg0, s128 *arg1) {
     s128 temp = *arg1; /* measured: without the local, MWCC reloads after the store */
@@ -413,6 +461,10 @@ void func_004b5770(u8 *arg0, s32 arg1)
     *(s32 *)(arg0 + 0x24) = arg1;
 }
 
+// FUN_004B5780
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5780);
+// FUN_004B5790
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5790);
 // FUN_004B57A0
 u8 *func_004b57a0(void *object, s32 arg1) {
     u8 *temp_2;
@@ -427,10 +479,36 @@ u8 *func_004b57a0(void *object, s32 arg1) {
 }
 
 
+// FUN_004BC4D0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc4d0);
+// FUN_004BC500
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc500);
+// FUN_004BC520
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc520);
+// FUN_004BC540
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc540);
+// FUN_004BCCF0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bccf0);
+// FUN_004BD4A0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd4a0);
+// FUN_004BD628
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd628);
+// FUN_004BD640
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd640);
+// FUN_004BD658
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd658);
+// FUN_004BD670
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd670);
+// FUN_004BD688
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd688);
+// FUN_004BD6A0
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6a0);
 // Archived C body: build/WBHygiene_func_004bd6b8_archive.txt; no current park body remains.
 // FUN_004BD6B8
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd6b8);
 
+// FUN_004BD720
+INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bd720);
 // FUN_004BD750
 /* measured: schedule on fills func_004bd750's retail jr delay-slot load. */
 #pragma schedule on

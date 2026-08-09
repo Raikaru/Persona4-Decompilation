@@ -1,5 +1,6 @@
 /* Grouped verified Persona 4 source units. */
 /* The original guards were independently verified before grouping. */
+#include "include_asm.h"
 #include "type.h"
 
 /* Canonical grouped function declarations. */
@@ -29,6 +30,8 @@ void btlCameraSetDefaultDistanceB(void* camera)
 
 void FUN_001be050(f32 angle, f32 distance, void* camera);
 
+// FUN_001D05E0
+INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d05e0);
 // FUN_001D0670
 void btlCameraSetDefaultDistanceC(void* camera)
 {
@@ -37,6 +40,12 @@ void btlCameraSetDefaultDistanceC(void* camera)
 
 /* Source unit: src/Battle/btlCamera_001d10d0.c */
 
+// FUN_001D06A0
+INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d06a0);
+// FUN_001D0730
+INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d0730);
+// FUN_001D07E0
+INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d07e0);
 // FUN_001D10D0
 u32 func_001d10d0(void* camera)
 {
@@ -47,6 +56,10 @@ u32 func_001d10d0(void* camera)
 
 void FUN_0043f9c8(void* memory, s32 value, u32 size);
 
+// FUN_001D10F0
+INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d10f0);
+// FUN_001D1200
+INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d1200);
 // FUN_001D12E0
 void btlCameraResetWork(void* work)
 {

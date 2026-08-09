@@ -1,4 +1,5 @@
 /* Source unit: src/sfl_res/sfl_res_0036b5a0.c (1 function markers) */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct Vec3 {
@@ -32,6 +33,8 @@ void func_0036b5c0(void* work, const f32* value)
 
 
 
+// FUN_0036B5E0
+INCLUDE_ASM("asm/nonmatchings/sfl_res", func_0036b5e0);
 // FUN_0036B600
 void func_0036b600(void* work, const f32* value)
 {

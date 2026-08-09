@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlCamera_001bc3a0.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV3d RwV3d;
@@ -214,6 +215,14 @@ s32 func_001bc560(BtlCamera* camera, u32 unit)
 
 
 
+// FUN_001BC630
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001bc630);
+// FUN_001BC660
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001bc660);
+// FUN_001BC7F0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001bc7f0);
+// FUN_001BC800
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001bc800);
 // FUN_001BC8E0
 u32 btlCameraUpdateSetStatePacket(void* work)
 {
@@ -319,6 +328,8 @@ void func_001c6560(void* camera)
 
 
 
+// FUN_001C6650
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6650);
 // FUN_001C6760
 void func_001c6760(void *camera, float angle, float distanceScale, float heightScale, float minimumDistance)
 {
@@ -416,6 +427,24 @@ void func_001c6b10(void* camera)
 
 
 
+// FUN_001C6B50
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6b50);
+// FUN_001C6B60
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6b60);
+// FUN_001C6BB0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6bb0);
+// FUN_001C6BE0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6be0);
+// FUN_001C6BF0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6bf0);
+// FUN_001C6F30
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6f30);
+// FUN_001C6F40
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6f40);
+// FUN_001C73E0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c73e0);
+// FUN_001C7500
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c7500);
 // FUN_001C7510
 void func_001c7510(BtlCamera* camera)
 {
@@ -551,6 +580,28 @@ void func_001cbfe0(int param_1)
 
 
 
+// FUN_001CC0A0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc0a0);
+// FUN_001CC5C0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc5c0);
+// FUN_001CC5D0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc5d0);
+// FUN_001CC9E0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc9e0);
+// FUN_001CCA60
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cca60);
+// FUN_001CCDA0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001ccda0);
+// FUN_001CCDB0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001ccdb0);
+// FUN_001CD600
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cd600);
+// FUN_001CD6A0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cd6a0);
+// FUN_001CD6C0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cd6c0);
+// FUN_001CD7B0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cd7b0);
 // FUN_001CD7D0
 void btlAct_WIN_P(BtlCamera* camera)
 {
@@ -628,6 +679,12 @@ void btlAct_WIN_P(BtlCamera* camera)
 
 
 
+// FUN_001CDAF0
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cdaf0);
+// FUN_001CDE50
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cde50);
+// FUN_001CE390
+INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001ce390);
 // FUN_001CE430
 void func_001ce430(int param_1)
 {

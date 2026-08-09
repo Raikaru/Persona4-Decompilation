@@ -260,6 +260,15 @@ class CanonicalMapTests(unittest.TestCase):
     @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
                          "needs splat output (make split); absent on toolchain-free CI")
     def test_every_canonical_boundary_gets_an_owner(self) -> None:
+        """Every canonical function is owned, and now every one carries a marker.
+
+        tools/promote_unmarked.py gave the last 7545 unmarked windows a marker and
+        an INCLUDE_ASM fallback, so the assembly-owner fallback path -- which
+        assigned an owning file to windows that had no marker -- is now empty. The
+        grouping assertion below therefore only applies while that set is
+        non-empty; the invariant that replaced it, and the one that matters, is
+        that the marker set covers the whole canonical map.
+        """
         target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
         windows = {int(address, 16): size for address, size in function_map["windows"].items()}
@@ -271,7 +280,9 @@ class CanonicalMapTests(unittest.TestCase):
         self.assertEqual(len(rows), len(windows))
         self.assertEqual(set(assembly_owners), set(windows) - set(markers))
         self.assertTrue(all(owner.suffix == ".c" for owner in assembly_owners.values()))
-        self.assertLess(len(set(assembly_owners.values())), len(assembly_owners))
+        if assembly_owners:
+            self.assertLess(len(set(assembly_owners.values())), len(assembly_owners))
+        self.assertEqual(set(windows) - set(markers), set())
         self.assertTrue(all(" MAPPED   " in row for row in rows))
 
 

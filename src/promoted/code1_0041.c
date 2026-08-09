@@ -35,6 +35,243 @@ void func_00420e50(u8 *);
 void func_00420f38(u8 *);
 
 
+// FUN_004125E0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004125e0);
+
+// FUN_00412CA0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412ca0);
+
+// FUN_00412E90
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412e90);
+
+// FUN_00412FB0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412fb0);
+
+// FUN_00413290
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413290);
+
+// FUN_00413350
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413350);
+
+// FUN_00413410
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413410);
+
+// FUN_00413640
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413640);
+
+// FUN_00413700
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413700);
+
+// FUN_00413B80
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413b80);
+
+// FUN_00413E50
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413e50);
+
+// FUN_004140F0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004140f0);
+
+// FUN_004141E0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004141e0);
+
+// FUN_004142B0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004142b0);
+
+// FUN_00414390
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414390);
+
+// FUN_004143F0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004143f0);
+
+// FUN_004147A0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004147a0);
+
+// FUN_00414820
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414820);
+
+// FUN_00414930
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414930);
+
+// FUN_00414A30
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414a30);
+
+// FUN_00414B50
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414b50);
+
+// FUN_00414C10
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414c10);
+
+// FUN_00414E10
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414e10);
+
+// FUN_00414EF0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414ef0);
+
+// FUN_00414FD0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414fd0);
+
+// FUN_00415070
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415070);
+
+// FUN_004151B0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004151b0);
+
+// FUN_00415340
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415340);
+
+// FUN_00415580
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415580);
+
+// FUN_004156E0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004156e0);
+
+// FUN_00415920
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415920);
+
+// FUN_00415930
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415930);
+
+// FUN_00415940
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415940);
+
+// FUN_00415950
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415950);
+
+// FUN_00415960
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415960);
+
+// FUN_00415AD0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415ad0);
+
+// FUN_00415BC0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415bc0);
+
+// FUN_004165A0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004165a0);
+
+// FUN_00416BC0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416bc0);
+
+// FUN_00416CF0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416cf0);
+
+// FUN_00416DF0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416df0);
+
+// FUN_00416E10
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416e10);
+
+// FUN_00417310
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417310);
+
+// FUN_00417470
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417470);
+
+// FUN_00417510
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417510);
+
+// FUN_004176A0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004176a0);
+
+// FUN_004176B0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004176b0);
+
+// FUN_00417718
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417718);
+
+// FUN_004177B8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004177b8);
+
+// FUN_004177C8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004177c8);
+
+// FUN_00417B40
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417b40);
+
+// FUN_00417C00
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417c00);
+
+// FUN_00417CC8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417cc8);
+
+// FUN_00417EB0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417eb0);
+
+// FUN_00417F98
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417f98);
+
+// FUN_00418030
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418030);
+
+// FUN_00418348
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418348);
+
+// FUN_00418488
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418488);
+
+// FUN_00418B18
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418b18);
+
+// FUN_00418BB8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418bb8);
+
+// FUN_00418D98
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418d98);
+
+// FUN_00418DF8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418df8);
+
+// FUN_00418E68
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418e68);
+
+// FUN_00418EF0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418ef0);
+
+// FUN_00418F18
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f18);
+
+// FUN_00418F50
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f50);
+
+// FUN_00418F78
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f78);
+
+// FUN_00419058
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419058);
+
+// FUN_00419230
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419230);
+
+// FUN_00419268
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419268);
+
+// FUN_00419280
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419280);
+
+// FUN_004192E8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004192e8);
+
+// FUN_00419360
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419360);
+
+// FUN_004193D8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004193d8);
+
+// FUN_00419420
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419420);
+
+// FUN_004194A0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004194a0);
+
+// FUN_00419520
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419520);
+
+// FUN_00419558
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419558);
+
+// FUN_00419590
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419590);
+
 /* measured: object/window 24/24; candidate loads the old u32, stores arg1,
    then returns bit 8 of the old value. Exact residual: off 12 candidate
    andi $v0,$v0,1 versus retail jr $ra; off 16 candidate jr $ra versus
@@ -42,6 +279,7 @@ void func_00420f38(u8 *);
    forms were measured; the masked result remains pinned before the branch.
    Schedule-on, optimization levels 1/3, type/cast and control-flow forms
    were ruled out. Committed at nd 6. */
+
 // FUN_00419628 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00419628(u32 *arg0, u32 arg1)
@@ -66,18 +304,207 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419628);
    $a5,$zero,$a6, followed by two 128-bit stores per iteration. The generated
    C records these as unknown MMI instructions; ordinary C cannot express the
    required COP/MIPSI byte-lane operations and inline asm is forbidden. */
+
+// FUN_00419640
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419640);
+
+// FUN_004197C8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004197c8);
+
+// FUN_00419ED0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419ed0);
+
+// FUN_0041A120
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041a120);
+
+// FUN_0041A5A8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041a5a8);
+
+// FUN_0041A7C8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041a7c8);
+
+// FUN_0041AA08
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041aa08);
+
+// FUN_0041AD38
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041ad38);
+
+// FUN_0041B160
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041b160);
+
+// FUN_0041B300
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041b300);
+
+// FUN_0041B858
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041b858);
+
+// FUN_0041B9D0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041b9d0);
+
+// FUN_0041BB38
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bb38);
+
+// FUN_0041BCB8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bcb8);
+
+// FUN_0041BDA0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bda0);
+
+// FUN_0041BE30
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041be30);
+
+// FUN_0041BEC8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bec8);
+
+// FUN_0041BF00
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bf00);
+
+// FUN_0041BF08
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bf08);
+
+// FUN_0041BFC8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bfc8);
+
+// FUN_0041C0B8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c0b8);
+
+// FUN_0041C178
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c178);
 // FUN_0041C2F8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c2f8);
 
 /* archived candidates: lowest nd36 tail-return (obj/window 72/80), plain
    void nd37 (72/80), and schedule-off nd59 (96/80). Exact fndiff tables,
    bodies, and ruled-out list: build/WBDatCalc_0041E198_archive.txt. */
+
+// FUN_0041C370
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c370);
+
+// FUN_0041C408
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c408);
+
+// FUN_0041C4C0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c4c0);
+
+// FUN_0041C590
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c590);
+
+// FUN_0041C640
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c640);
+
+// FUN_0041C6F8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c6f8);
+
+// FUN_0041C7F0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c7f0);
+
+// FUN_0041C8F0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c8f0);
+
+// FUN_0041C990
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041c990);
+
+// FUN_0041CA40
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041ca40);
+
+// FUN_0041CB20
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041cb20);
+
+// FUN_0041CC08
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041cc08);
+
+// FUN_0041CCE0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041cce0);
+
+// FUN_0041CDB0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041cdb0);
+
+// FUN_0041CED0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041ced0);
+
+// FUN_0041CFE8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041cfe8);
+
+// FUN_0041D088
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041d088);
+
+// FUN_0041D228
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041d228);
+
+// FUN_0041D540
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041d540);
+
+// FUN_0041D7F0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041d7f0);
+
+// FUN_0041D890
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041d890);
+
+// FUN_0041D9D8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041d9d8);
+
+// FUN_0041DB18
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041db18);
+
+// FUN_0041DC00
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dc00);
+
+// FUN_0041DC10
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dc10);
+
+// FUN_0041DC20
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dc20);
+
+// FUN_0041DE08
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041de08);
+
+// FUN_0041DE18
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041de18);
+
+// FUN_0041DE28
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041de28);
+
+// FUN_0041DFF8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dff8);
+
+// FUN_0041E030
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e030);
+
+// FUN_0041E038
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e038);
+
+// FUN_0041E190
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e190);
 // Archived C body: build/WBDatCalc_0041E198_archive.txt
 // FUN_0041E198
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e198);
 
 
 
+// FUN_0041E1E8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e1e8);
+// FUN_0041E278
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e278);
+// FUN_0041E310
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e310);
+// FUN_0041E408
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e408);
+// FUN_0041E4D8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e4d8);
+// FUN_0041E710
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e710);
+// FUN_0041E810
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e810);
+// FUN_0041E8D8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e8d8);
+// FUN_0041EA90
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041ea90);
+// FUN_0041ED48
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041ed48);
+// FUN_0041EEB8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041eeb8);
+// FUN_0041F080
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f080);
 // FUN_0041F130
 s32 func_0041f130(void)
 {
@@ -101,6 +528,9 @@ s32 func_0041f130(void)
 /* archived candidate: object/window 68/72, normalized_diff 46 (lower
    optimization probes nd 37/36 shrink the object and were not retained).
    Exact fndiff rows and the complete body are in the archive below. */
+
+// FUN_0041F138
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f138);
 // Archived C body: build/WBHygiene_func_0041f178_archive.txt
 // FUN_0041F178
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f178);
@@ -124,6 +554,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f178);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
 
 
+// FUN_0041F218
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f218);
+
+// FUN_0041F298
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f298);
+
 /* measured: object/window 16/16; candidate loads the +0x40 base and tests
    its +4 u32 field for zero. Exact residual: off 0 candidate
    lw $v0,0x40($a0) versus retail lw $v1,0x40($a0); off 4 candidate
@@ -133,6 +569,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
    nd 13. The comparison lever and whole-function spelling enumeration did
    not move the first-load destination; the base remains the lowest park.
    Committed at nd 2. */
+
 // FUN_0041F2A8 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */
@@ -206,6 +643,30 @@ s32 func_0041f2d0(u8 *arg0, s32 *arg1, s32 *arg2, s32 *arg3)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2d0);
 #endif
+// FUN_0041F2F0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2f0);
+
+// FUN_0041F328
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f328);
+
+// FUN_0041F360
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f360);
+
+// FUN_0041F370
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f370);
+
+// FUN_0041F3E8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f3e8);
+
+// FUN_0041F460
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f460);
+
+// FUN_0041F4A8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f4a8);
+
+// FUN_0041F500
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f500);
+
 /* measured: object/window 24/24; candidate stores the s64 argument at
    +0x90, stores 1 at +0x8C, and returns 1. Exact residual: off 0 candidate
    lw $a0,0x40($a0) versus retail lw $v1,0x40($a0); off 4 candidate
@@ -217,6 +678,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2d0);
    order, parameter captures, separate/reused constants, wide types,
    direct stores, return/store-value variants, and optimization/pragmas.
    Committed at nd 5. */
+
 // FUN_0041F550 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail both fills delay slots this function leaves empty and
@@ -250,6 +712,24 @@ s32 func_0041f568(u8 *arg0)
     *(s32 *)(p + 0x8C) = 0;
     return 1;
 }
+// FUN_0041F580
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f580);
+
+// FUN_0041F590
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f590);
+
+// FUN_0041F5A0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5a0);
+
+// FUN_0041F5B0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5b0);
+
+// FUN_0041F5C0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5c0);
+
+// FUN_0041F5D0
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5d0);
+
 /* measured: see the annotation above the matching `on` pragma (func_0041f568). */
 #pragma schedule off
 
@@ -262,6 +742,7 @@ s32 func_0041f568(u8 *arg0)
    nd 3). Ruled out constants and captures, pointer/scalar/struct and wide
    types, declaration/assignment order, direct-store/grouped-store forms,
    return/store-value variants, and optimization/pragmas. Committed at nd 3. */
+
 // FUN_0041F5E0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail both fills delay slots this function leaves empty and
@@ -285,6 +766,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5e0);
 #endif
 
 
+// FUN_0041F5F8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5f8);
 // FUN_0041F6C8
 #pragma schedule on
 void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
@@ -294,6 +777,12 @@ void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
     *(s32 *)(arg0 + 0) = arg1;
     *(s32 *)(arg0 + 8) = arg1;
 }
+// FUN_0041F700
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f700);
+
+// FUN_0041F770
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f770);
+
 /* measured: see the annotation above the matching `on` pragma (func_0041f6c8). */
 #pragma schedule off
 
@@ -307,6 +796,7 @@ void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
    local-pointer, explicit-cast, and argument-expression spellings; every
    legal form remained nd 2, and this body has no range guard for the
    comparison lever. The base remains the lowest park. Committed at nd 2. */
+
 // FUN_0041F788 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: inline argument-expression probe; schedule on retained the
@@ -347,3 +837,10 @@ s32 func_0041f7b0(u8 *arg0)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f7b0);
 #endif
+
+// FUN_0041F7D8
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f7d8);
+// FUN_0041FA68
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041fa68);
+// FUN_0041FD28
+INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041fd28);

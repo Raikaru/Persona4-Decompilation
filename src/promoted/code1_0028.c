@@ -26,6 +26,24 @@ extern s32 D_008825F0[10];
 
 
 
+// FUN_002852A0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002852a0);
+// FUN_00285330
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285330);
+// FUN_002853B0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002853b0);
+// FUN_002853C0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002853c0);
+// FUN_002853F0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002853f0);
+// FUN_00285CC0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285cc0);
+// FUN_00285DD0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285dd0);
+// FUN_00286240
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00286240);
+// FUN_002862A0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002862a0);
 // FUN_00286350
 void func_00286350(void) {
     func_00452380(D_0063C368);
@@ -42,6 +60,8 @@ void func_00286380(void)
     *(s32 *)(p + 0x770) = *(s32 *)(p + 0x770) | 0x1;
 }
 
+// FUN_002863B0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002863b0);
 // FUN_002863E0
 void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 *temp_2;
@@ -54,6 +74,8 @@ void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 
 
+// FUN_00286430
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00286430);
 // FUN_002865E0
 void func_002865e0(UnkStruct_002865E0 *arg0) {
     s32 sp30[15];
@@ -101,6 +123,8 @@ void func_002865e0(UnkStruct_002865E0 *arg0) {
 
 
 
+// FUN_002866C0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002866c0);
 // FUN_00287BF0
 void func_00287bf0(s32 arg0, u8 *arg1) {
     u8 *var_17;
@@ -139,6 +163,10 @@ s32 func_0028b650(void) {
     return *(s32 *)(func_00285480((u8 *)func_00452560(h)) + 0x768) != 0;
 }
 
+// FUN_0028B6B0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b6b0);
+// FUN_0028B7B0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b7b0);
 // FUN_0028BE70
 void func_0028be70(u8 *arg0, s32 arg1)
 {
@@ -160,6 +188,18 @@ void func_0028be70(u8 *arg0, s32 arg1)
 // measured: required for exact retail loop codegen in func_0028c370.
 #pragma push
 #pragma opt_loop_invariants on
+
+// FUN_0028BEF0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028bef0);
+
+// FUN_0028BF90
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028bf90);
+
+// FUN_0028BFB0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028bfb0);
+
+// FUN_0028C080
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c080);
 // FUN_0028C370
 void func_0028c370(void)
 {
@@ -197,6 +237,12 @@ void func_0028c370(void)
 }
 #pragma pop
 
+// FUN_0028C3F0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c3f0);
+// FUN_0028C580
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c580);
+// FUN_0028CED0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028ced0);
 // FUN_0028D020
 void func_0028d020(s32 arg0, s32 arg1) {
     if ((arg0 >= 0xA) || (arg0 < 0)) {
@@ -214,3 +260,6 @@ s32 func_0028d060(s32 arg0) {
     }
     return D_008825F0[arg0];
 }
+
+// FUN_0028D0A0
+INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028d0a0);

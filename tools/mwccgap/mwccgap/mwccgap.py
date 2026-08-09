@@ -252,7 +252,12 @@ def process_c_file(
         if local_syms_inserted > 0:
             # update relocations
             for relocation_record in compiled_elf.get_relocations():
-                if relocation_record.sh_info == rodata_section_indices[0]:
+                # A translation unit can legitimately have no .rodata at all --
+                # e.g. one whose functions are every one an INCLUDE_ASM
+                # fallback. There is then no rodata relocation record to split,
+                # so fall through to the plain symbol-index fixup below.
+                if (rodata_section_indices
+                        and relocation_record.sh_info == rodata_section_indices[0]):
                     if num_rodata_symbols == 1:
                         # nothing to do when only a single .rodata section
                         continue

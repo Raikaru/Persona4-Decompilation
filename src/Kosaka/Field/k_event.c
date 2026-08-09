@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/Field/k_event.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV3d
@@ -153,6 +154,8 @@ done:
 
 #pragma push
 
+// FUN_0014C3D0
+INCLUDE_ASM("asm/nonmatchings/k_event", func_0014c3d0);
 // FUN_0014C4C0
 u32 K_FldEvent_ArePosWithinDist(const RwV3d* posA, const RwV3d* posB, f32 maxDist)
 {

@@ -21,6 +21,154 @@ extern s32 D_0076479C;
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 15 -> 0).
 
+// FUN_003B0B80
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b0b80);
+// FUN_003B12A0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b12a0);
+// FUN_003B1A10
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b1a10);
+// FUN_003B31A0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b31a0);
+// FUN_003B3240
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3240);
+// FUN_003B3570
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3570);
+// FUN_003B3880
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3880);
+// FUN_003B3F50
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3f50);
+// FUN_003B4020
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4020);
+// FUN_003B4120
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4120);
+// FUN_003B4230
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4230);
+// FUN_003B42E0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b42e0);
+// FUN_003B4470
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4470);
+// FUN_003B47F0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b47f0);
+// FUN_003B4AB0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4ab0);
+// FUN_003B4C10
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4c10);
+// FUN_003B4DB0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4db0);
+// FUN_003B4FF0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4ff0);
+// FUN_003B5160
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5160);
+// FUN_003B53B0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b53b0);
+// FUN_003B5650
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5650);
+// FUN_003B5820
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5820);
+// FUN_003B5AC0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5ac0);
+// FUN_003B5BF0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5bf0);
+// FUN_003B5D20
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5d20);
+// FUN_003B5FB0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5fb0);
+// FUN_003B6020
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6020);
+// FUN_003B61E0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
+// FUN_003B6390
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
+// FUN_003B6420
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
+// FUN_003B64C0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b64c0);
+// FUN_003B6540
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6540);
+// FUN_003B65D0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b65d0);
+// FUN_003B6680
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6680);
+// FUN_003B6CB0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cb0);
+// FUN_003B6CC0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
+// FUN_003B6DA0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
+// FUN_003B6E00
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e00);
+// FUN_003B6E70
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
+// FUN_003B6F00
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6f00);
+// FUN_003B7060
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7060);
+// FUN_003B7110
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7110);
+// FUN_003B7150
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7150);
+// FUN_003B71B0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b71b0);
+// FUN_003B7290
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7290);
+// FUN_003B7450
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7450);
+// FUN_003B7480
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7480);
+// FUN_003B7510
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7510);
+// FUN_003B7590
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7590);
+// FUN_003B7680
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7680);
+// FUN_003B7860
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7860);
+// FUN_003B7970
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7970);
+// FUN_003B79F0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b79f0);
+// FUN_003B7A10
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7a10);
+// FUN_003B88D0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b88d0);
+// FUN_003B8930
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8930);
+// FUN_003B8AD0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8ad0);
+// FUN_003B8D20
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8d20);
+// FUN_003B8D30
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8d30);
+// FUN_003B8D40
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8d40);
+// FUN_003B8E50
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8e50);
+// FUN_003B90B0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b90b0);
+// FUN_003B9A40
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b9a40);
+// FUN_003BB030
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb030);
+// FUN_003BB0D0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb0d0);
+// FUN_003BB210
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb210);
+// FUN_003BB330
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb330);
+// FUN_003BB3A0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb3a0);
+// FUN_003BB4A0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb4a0);
+// FUN_003BB5B0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb5b0);
+// FUN_003BBA90
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bba90);
+// FUN_003BBB60
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbb60);
+// FUN_003BBBE0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbbe0);
+// FUN_003BBE20
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbe20);
 // FUN_003BBE60
 #pragma schedule on
 s32 func_003bbe60(s32 arg0) {
@@ -67,6 +215,48 @@ s32 func_003bbe80(s32 arg0) {
    the entry pointer with the stride in the back-edge slot; b210 keeps the
    accumulator in a different register class and orders the guard the other
    way. schedule on does not move it (nd 47). Committed at nd 46. */
+
+// FUN_003BBEA0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbea0);
+
+// FUN_003BBF80
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbf80);
+
+// FUN_003BC150
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc150);
+
+// FUN_003BC400
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc400);
+
+// FUN_003BC620
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc620);
+
+// FUN_003BC740
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc740);
+
+// FUN_003BC880
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc880);
+
+// FUN_003BC9C0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bc9c0);
+
+// FUN_003BCBC0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbc0);
+
+// FUN_003BCBE0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
+
+// FUN_003BCC80
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcc80);
+
+// FUN_003BCD50
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcd50);
+
+// FUN_003BCE20
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce20);
+
+// FUN_003BCE50
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
 // Archived C body: build/WBHygiene_func_003bcf10_archive.txt; no current park body remains.
 // FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
@@ -74,6 +264,36 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 /* measured: ascending switch labels generate retail's descending 3/2/1
    comparisons; no_branch_likely keeps each comparison as a plain beq. */
 #pragma no_branch_likely on
+
+// FUN_003BCF60
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf60);
+
+// FUN_003BCFB0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
+
+// FUN_003BD000
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd000);
+
+// FUN_003BD040
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd040);
+
+// FUN_003BD050
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd050);
+
+// FUN_003BD070
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd070);
+
+// FUN_003BD090
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd090);
+
+// FUN_003BD0B0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd0b0);
+
+// FUN_003BD0D0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd0d0);
+
+// FUN_003BD0F0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd0f0);
 // FUN_003BD110
 s32 func_003bd110(s32 arg0)
 {
@@ -98,6 +318,9 @@ s32 func_003bd110(s32 arg0)
    #pragma no_branch_likely is load-bearing: without it the same body measures
    nd 46 (b210 emits bnel/beql).  Three functions in this file share the shape,
    differing only in the two gp-relative operands. */
+
+// FUN_003BD160
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd160);
 // FUN_003BD470
 #pragma no_branch_likely on
 s32 func_003bd470(s32 arg0, s32 arg1)
@@ -231,6 +454,12 @@ s32 func_003bd680(u8 *arg0) {
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 16 -> 0).
 
+// FUN_003BD6B0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd6b0);
+// FUN_003BDD00
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bdd00);
+// FUN_003BE180
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be180);
 // FUN_003BE7C0
 #pragma schedule on
 s32 func_003be7c0(s32 arg0) {
@@ -273,6 +502,12 @@ s32 func_003be7e0(s32 arg0) {
 #pragma schedule on
 /* measured: same shape as func_003bd470; see that note.  The explicit-label
    block order (retarg/ret0/do2) makes it byte-exact (nd 43 -> MATCH). */
+
+// FUN_003BE800
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be800);
+
+// FUN_003BE810
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be810);
 // FUN_003BE820
 #pragma no_branch_likely on
 s32 func_003be820(s32 arg0, s32 arg1)
@@ -366,3 +601,46 @@ s32 func_003be980(s32 arg0, s32 *arg1) {
     return arg0;
 }
 #pragma schedule off
+
+// FUN_003BE9A0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be9a0);
+// FUN_003BE9F0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be9f0);
+// FUN_003BEA60
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bea60);
+// FUN_003BEB10
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003beb10);
+// FUN_003BEBB0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bebb0);
+// FUN_003BED10
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bed10);
+// FUN_003BEE80
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bee80);
+// FUN_003BF1A0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf1a0);
+// FUN_003BF330
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf330);
+// FUN_003BF360
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf360);
+// FUN_003BF3D0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf3d0);
+// FUN_003BF5F0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf5f0);
+// FUN_003BF930
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf930);
+// FUN_003BFAE0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfae0);
+// FUN_003BFC40
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfc40);
+// FUN_003BFD00
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfd00);
+// FUN_003BFDF0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfdf0);
+// FUN_003BFE60
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe60);
+// FUN_003BFE90
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
+// FUN_003BFF30
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bff30);
+// FUN_003BFFC0
+INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bffc0);

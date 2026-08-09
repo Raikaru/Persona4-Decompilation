@@ -60,6 +60,8 @@ u8 func_0022fb90(BtlUnit* first, BtlUnit* second)
 
 
 
+// FUN_0022FC00
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022fc00);
 // FUN_0022FCE0
 u32 func_0022fce0(s32 first, s32 second)
 {
@@ -81,6 +83,22 @@ u32 func_0022fce0(s32 first, s32 second)
 
 
 
+// FUN_0022FD30
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022fd30);
+// FUN_0022FDC0
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022fdc0);
+// FUN_0022FF70
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022ff70);
+// FUN_00230020
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230020);
+// FUN_002300F0
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_002300f0);
+// FUN_00230170
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230170);
+// FUN_00230210
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230210);
+// FUN_00230340
+INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230340);
 // FUN_002303E0
 u32 func_002303e0(void* work)
 {

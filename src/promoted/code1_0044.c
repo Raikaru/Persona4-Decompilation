@@ -57,6 +57,183 @@ s64 func_004470f0(s64 arg0);
    Mesh048 typedef used here, individual scalar locals (dead-store eliminated
    down to one), and taking the address of the first member instead of the
    struct. Committed at nd 45. */
+
+// FUN_004401C8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004401c8);
+
+// FUN_004402D0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004402d0);
+
+// FUN_00440430
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440430);
+
+// FUN_00440498
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440498);
+
+// FUN_00440618
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440618);
+
+// FUN_004406D8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004406d8);
+
+// FUN_00440880
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440880);
+
+// FUN_00440A00
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440a00);
+
+// FUN_00440B68
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440b68);
+
+// FUN_00440BB8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440bb8);
+
+// FUN_004414F8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004414f8);
+
+// FUN_00441558
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441558);
+
+// FUN_00441580
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441580);
+
+// FUN_00441B40
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441b40);
+
+// FUN_00441CB0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441cb0);
+
+// FUN_00441CF0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441cf0);
+
+// FUN_00441D38
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441d38);
+
+// FUN_00441D70
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441d70);
+
+// FUN_00441EF0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441ef0);
+
+// FUN_00441F40
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441f40);
+
+// FUN_00441F68
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441f68);
+
+// FUN_00442088
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442088);
+
+// FUN_004420F8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004420f8);
+
+// FUN_00442100
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442100);
+
+// FUN_00442188
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442188);
+
+// FUN_00442220
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442220);
+
+// FUN_00442300
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442300);
+
+// FUN_00442388
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442388);
+
+// FUN_00442428
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442428);
+
+// FUN_00442558
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442558);
+
+// FUN_004426E8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004426e8);
+
+// FUN_00442830
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442830);
+
+// FUN_00442948
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442948);
+
+// FUN_00442A80
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442a80);
+
+// FUN_00442C30
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442c30);
+
+// FUN_00442DE8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442de8);
+
+// FUN_00442FA8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442fa8);
+
+// FUN_00443010
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443010);
+
+// FUN_00443068
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443068);
+
+// FUN_00443EE0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443ee0);
+
+// FUN_00443F18
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443f18);
+
+// FUN_00443F38
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443f38);
+
+// FUN_00443FD0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443fd0);
+
+// FUN_00444210
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444210);
+
+// FUN_00444240
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444240);
+
+// FUN_00444458
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444458);
+
+// FUN_00444488
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444488);
+
+// FUN_00444570
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444570);
+
+// FUN_00444700
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444700);
+
+// FUN_00444748
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444748);
+
+// FUN_004447F8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004447f8);
+
+// FUN_00444870
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444870);
+
+// FUN_00445DD0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00445dd0);
+
+// FUN_00445F78
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00445f78);
+
+// FUN_004460C0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004460c0);
+
+// FUN_00446108
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446108);
+
+// FUN_00446D98
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446d98);
+
+// FUN_00446E88
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446e88);
+
+// FUN_00446EB0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446eb0);
 // Archived C body: build/WBHygiene_func_00446ed8_archive.txt; no current park body remains.
 // FUN_00446ED8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446ed8);
@@ -110,6 +287,75 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446f80);
    vs two-return layout, and function-scope vs if-scope local array. Committed
    at nd 83.
    Committed at nd 83. */
+
+// FUN_00446FE0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446fe0);
+
+// FUN_004470F0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004470f0);
+
+// FUN_004476B0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004476b0);
+
+// FUN_00447B88
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00447b88);
+
+// FUN_00447D00
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00447d00);
+
+// FUN_00448A00
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00448a00);
+
+// FUN_00448D10
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00448d10);
+
+// FUN_00449120
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00449120);
+
+// FUN_004494B8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004494b8);
+
+// FUN_00449680
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00449680);
+
+// FUN_00449938
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00449938);
+
+// FUN_0044A138
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044a138);
+
+// FUN_0044A4D0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044a4d0);
+
+// FUN_0044A5B0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044a5b0);
+
+// FUN_0044A700
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044a700);
+
+// FUN_0044AF20
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044af20);
+
+// FUN_0044B018
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b018);
+
+// FUN_0044B310
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b310);
+
+// FUN_0044B340
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b340);
+
+// FUN_0044B610
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b610);
+
+// FUN_0044B6C0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b6c0);
+
+// FUN_0044B6D8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b6d8);
+
+// FUN_0044B7B0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b7b0);
 // Archived C body: build/WBHygiene_func_0044b868_archive.txt; no current park body remains.
 // FUN_0044B868
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b868);
@@ -243,3 +489,56 @@ f32 func_0044a4d0(f32 arg0);
 #pragma schedule on
 #pragma tailcall on
 #pragma pop
+
+// FUN_0044B9B0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b9b0);
+// FUN_0044BA00
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044ba00);
+// FUN_0044BA98
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044ba98);
+// FUN_0044BB60
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044bb60);
+// FUN_0044BC68
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044bc68);
+// FUN_0044BCD8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044bcd8);
+// FUN_0044BDE8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044bde8);
+// FUN_0044BF10
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044bf10);
+// FUN_0044C5D8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044c5d8);
+// FUN_0044C708
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044c708);
+// FUN_0044CDD0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044cdd0);
+// FUN_0044CDE8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044cde8);
+// FUN_0044D4B0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044d4b0);
+// FUN_0044D4D0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044d4d0);
+// FUN_0044E608
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e608);
+// FUN_0044E658
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e658);
+// FUN_0044E708
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e708);
+// FUN_0044E7A8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e7a8);
+// FUN_0044E7D8
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e7d8);
+// FUN_0044E830
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e830);
+// FUN_0044E8D0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e8d0);
+// FUN_0044E920
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e920);
+// FUN_0044E9E0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e9e0);
+// FUN_0044EA90
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044ea90);
+// FUN_0044F4D0
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044f4d0);
+// FUN_0044F510
+INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044f510);

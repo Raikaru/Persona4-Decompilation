@@ -242,6 +242,8 @@ void func_001d78d0(void) {
     }
 }
 
+// FUN_001D79E0
+INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001d79e0);
 // FUN_001D7A10
 void func_001d7a10(u16 param_1)
 
@@ -392,6 +394,10 @@ bool btlCond_MYUSESKIL(int param_1, int param_2)
 
 
 
+// FUN_001DA730
+INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da730);
+// FUN_001DA780
+INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da780);
 // FUN_001DA7E0
 u32 btlCond_MYGROUP(int param_1)
 {
@@ -409,6 +415,10 @@ u32 btlCond_MYGROUP(int param_1)
 
 
 
+// FUN_001DA840
+INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da840);
+// FUN_001DA890
+INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da890);
 // FUN_001DA8F0
 bool btlCond_TURN(int param_1, u32 param_2)
 {

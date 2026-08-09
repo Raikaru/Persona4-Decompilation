@@ -1,4 +1,5 @@
 /* Source unit: src/Kosaka/k_spipe_00178c20.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef struct RwV3d RwV3d;
@@ -252,6 +253,10 @@ void* func_00179130(void* atomic, FldShadowBoundsAccum* accum)
 
 
 
+// FUN_001791D0
+INCLUDE_ASM("asm/nonmatchings/k_spipe", func_001791d0);
+// FUN_00179860
+INCLUDE_ASM("asm/nonmatchings/k_spipe", func_00179860);
 // FUN_00179F70
 void* func_00179f70(void* atomic, FldShadowAtomicContext* context)
 {

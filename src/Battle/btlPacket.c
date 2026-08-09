@@ -1,4 +1,5 @@
 /* Source unit: src/Battle/btlPacket.c */
+#include "include_asm.h"
 #include "type.h"
 
 typedef void (*BtlPacketCallback)(void* data);
@@ -63,6 +64,8 @@ void func_00194c60(BtlPacketCallbackWork* work)
 
 
 
+// FUN_00194C90
+INCLUDE_ASM("asm/nonmatchings/btlPacket", func_00194c90);
 // FUN_00194DC0
 void func_00194dc0(BtlUnit* unit)
 {
