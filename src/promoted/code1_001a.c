@@ -4,6 +4,7 @@
 void btlActionSetState(u8 *arg0, u16 arg1);
 s32 func_00193bf0();
 void func_001b0800();
+void func_001f6cd0(void);
 
 void func_001eb3b0(void *arg0);
 void func_001d7f10(void *arg0, void *arg1, s32 arg2, s32 arg3);
@@ -133,13 +134,26 @@ INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a2c70);
 // FUN_001A2D70
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a2d70);
 // FUN_001A31A0
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a31a0);
+void func_001a31a0(u8 *arg0)
+{
+    func_001f6cd0();
+    *(s32 *)(arg0 + 0x41C) = 1;
+    *(s32 *)(arg0 + 0x420) = 0;
+}
 // FUN_001A31E0
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a31e0);
 // FUN_001A3840
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a3840);
 // FUN_001A3D50
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a3d50);
+void func_001a3d50(s64 *arg0)
+{
+    if (func_00193bf0(*arg0, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+        *(s16 *)((u8 *)arg0 + 0x448) = -1;
+        *(s32 *)(D_0076449C + 0xC) |= 0x400000;
+        *(u16 *)(D_0076449C + 0x18) |= 7;
+        func_001b0800(arg0, 0x20);
+    }
+}
 // FUN_001A3DE0
 s32 func_001a3de0(u8 *arg0)
 {

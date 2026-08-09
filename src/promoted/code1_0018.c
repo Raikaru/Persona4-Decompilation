@@ -33,6 +33,14 @@ extern u8 iGpffffb310;
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern s32 func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 size, s32 align, s32 flags);
+extern u8 D_005F5340[];
+extern u8 D_005F5350[];
+extern u8 *func_00457120(void);
+extern void func_0018a200(u8 *arg0);
+extern s32 func_0015a560(void);
+extern u8 D_005F54D8[];
+extern u8 D_005F54E8[];
+extern void func_0018dde0(u8 *arg0);
 extern u8 D_005F1D80[];
 extern s32 iGpffff9f60;
 extern void func_00182bc0(u8 *arg0);
@@ -387,7 +395,21 @@ void func_0018bad0(u8 *arg0) {
 }
 
 // FUN_0018BB20
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bb20);
+s32 func_0018bb20(s32 arg0, s32 arg1)
+{
+    s32 temp_17;
+    u8 *temp_2;
+
+    func_0044ea90(&D_005F5340, 0x2E6);
+    temp_2 = D_008873F4[0](1, 0x58, 0x40000);
+    if (temp_2 == NULL)
+        return 0;
+    temp_17 = func_00451fc0((u8 *)arg0, &D_005F5350, 0xF, 0, 0,
+                            func_0018a200, func_0018bad0, temp_2);
+    *(s32 *)(temp_2 + 0xC) = arg1;
+    *(f32 *)(temp_2 + 0x48) = *(f32 *)(func_00457120() + 0x80);
+    return temp_17;
+}
 // FUN_0018BBF0
 s32 func_0018bbf0(u8 *arg0)
 {
@@ -514,7 +536,22 @@ void func_0018df30(u8 *arg0)
 
 
 // FUN_0018DF60
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018df60);
+s32 func_0018df60(s32 arg0)
+{
+    s32 temp_2;
+    u8 *temp_2_2;
+
+    if (func_0015a560() == 0)
+        return 0;
+    func_0044ea90(&D_005F54D8, 0x91);
+    temp_2_2 = D_008873F4[0](1, 0x14, 0x40000);
+    if (temp_2_2 == NULL)
+        return 0;
+    temp_2 = func_00451fc0((u8 *)arg0, &D_005F54E8, 0xF, 0, 0,
+                           func_0018dde0, func_0018df30, temp_2_2);
+    *(s32 *)(temp_2_2 + 8) = 0x1E;
+    return temp_2;
+}
 // FUN_0018E030
 void func_0018e030(u8 *arg0, s32 arg1)
 {

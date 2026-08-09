@@ -82,6 +82,20 @@ extern s32 func_00481e30(s32 arg0);
 extern void func_00481ee0(s32 arg0);
 extern void func_004829c0(s32 arg0);
 extern s32 func_00482a70(s32 arg0);
+extern void func_0047a2a0(void *arg0);
+extern s32 func_00479ca0(void *arg0, s32 arg1);
+extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
+extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
+extern void func_004abe60(void);
+extern u16 iGpffffbb90;
+extern f32 fGpffffbb74;
+extern f32 fGpffffbb70;
+extern f32 iGpffffb10c;
+extern s8 iGpffffbb68;
+extern s32 func_00477c40(s32 arg0, u16 arg1, s32 arg2);
+extern u8 *func_00477f10(s32 arg0, u16 arg1, u8 *arg2, s32 arg3, s32 arg4);
+extern void func_00485fe0(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -468,12 +482,13 @@ void func_004a6be0(u8 *arg0, s32 arg1)
 void func_004a6bf0(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x20) = arg1;
 }
+/* measured: testing loop-invariant hoisting for the retail preheader. */
+#pragma opt_loop_invariants on
 // FUN_004A6C00
 u8 *func_004a6c00(u8 *arg0)
 {
     u16 *temp_18;
     u16 *temp_2_2;
-    s32 value = -1;
     u16 *temp_3;
     u32 var_4;
     u8 *temp_17;
@@ -495,13 +510,15 @@ u8 *func_004a6c00(u8 *arg0)
     *temp_3 = *temp_3 & 0xFFFB;
     func_003c2290(
         *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18), 8);
+    var_5 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18) + 0x30);
+    temp_3 = (u16 *)(s32)-1;
     var_4 = 0;
     goto loop_004a6c00_check;
 loop_004a6c00_body:
-    *(s32 *)(var_5 + 0) = value;
-    *(s32 *)(var_5 + 4) = value;
-    *(s32 *)(var_5 + 8) = value;
-    *(s32 *)(var_5 + 0xC) = value;
+    *(s32 *)(var_5 + 0) = (s32)temp_3;
+    *(s32 *)(var_5 + 4) = (s32)temp_3;
+    *(s32 *)(var_5 + 8) = (s32)temp_3;
+    *(s32 *)(var_5 + 0xC) = (s32)temp_3;
     var_5 += 0x10;
     var_4 += 1;
 loop_004a6c00_check:
@@ -516,6 +533,8 @@ loop_004a6c00_check:
     }
     return temp_2;
 }
+/* measured: close loop-invariant hoisting after func_004a6c00. */
+#pragma opt_loop_invariants off
 // FUN_004A6D90
 void func_004a6d90(void) {
     u8 *temp;
@@ -655,9 +674,39 @@ void func_004abb60(void)
 }
 
 // FUN_004ABBB0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004abbb0);
+void func_004abbb0(u8 *arg0)
+{
+    func_0047a2a0(arg0);
+    if (func_00479ca0(arg0, 0) != 0) {
+        func_00479940(arg0, 0, 0, 0, 0);
+        func_0047a0e0(arg0, 0, 1.0f);
+    }
+    *(s32 *)(arg0 + 0xD8) &= ~2;
+    func_00478eb0(arg0, func_004abe60, arg0);
+}
 // FUN_004ABC50
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004abc50);
+u8 *func_004abc50(u8 *arg0, s32 arg1)
+{
+    u8 *temp_2;
+
+    goto loop_004abc50_check;
+loop_004abc50_body:
+    iGpffffbb90 += 1;
+loop_004abc50_check:
+    if (func_00477c40(6, iGpffffbb90, 0) != 0) {
+        goto loop_004abc50_body;
+    }
+    temp_2 = func_00477f10(6, iGpffffbb90, arg0, arg1, 1);
+    func_0047a2a0(temp_2);
+    if (func_00479ca0(temp_2, 0) != 0) {
+        func_00479940(temp_2, 0, 0, 0, 0);
+        func_0047a0e0(temp_2, 0, 1.0f);
+    }
+    *(s32 *)(temp_2 + 0xD8) &= ~2;
+    func_00478eb0(temp_2, func_004abe60, temp_2);
+    iGpffffbb90 += 1;
+    return temp_2;
+}
 // FUN_004ABD60
 void func_004abd60(void)
 {
@@ -711,7 +760,29 @@ void func_004ad450(u8 *arg0) {
     *(u8 *)(arg0 + 0xB8) = 0;
 }
 // FUN_004ADAB0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004adab0);
+void func_004adab0(u8 *arg0)
+{
+    s32 *var_18;
+    u32 temp_16;
+    u32 var_17;
+
+    if (*(s32 *)(arg0 + 0x9C) != 0) {
+        temp_16 = *(u32 *)(arg0 + 0x28);
+        var_18 = *(s32 **)(arg0 + 0x98);
+        var_17 = 0;
+        goto loop_004adab0_check;
+loop_004adab0_body:
+        func_00485fe0(*var_18);
+        var_18++;
+        var_17 += 1;
+loop_004adab0_check:
+        if (var_17 < temp_16) {
+            goto loop_004adab0_body;
+        }
+    }
+    func_00479e60((u8 *)*(s32 *)(arg0 + 0xA0), 0, 0.0f);
+    *(s32 *)(arg0 + 0x2C) = 0;
+}
 // FUN_004ADB50
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004adb50);
 // FUN_004ADE80

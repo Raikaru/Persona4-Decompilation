@@ -1225,7 +1225,7 @@ s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
     u8 var_18;
     u8 *temp_2_4;
 
-    if (iGpffffb448[(arg0 & 0xFFFF) * 0x28 + 0x24] != 6) {
+    if (iGpffffb3b8[(arg0 & 0xFFFF) * 0x28 + 0x24] != 6) {
         return 0;
     }
     if (arg1 != (u8 *)arg2) {
@@ -1323,7 +1323,7 @@ u32 func_002397d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5)
         func_0046d730(D_00635938, 0xB1D);
     }
     off = (arg0 & 0xFFFF) * 0x28;
-    temp_4 = (u8 *)(off + (s32)iGpffffb448);
+    temp_4 = (u8 *)(off + (s32)iGpffffb3b8);
     if (temp_4[0x24] == 0xD) {
         return 0x80000U;
     }
@@ -2221,7 +2221,7 @@ s32 func_00242360(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
         if (temp_16 >= 0x1B8) {
             func_0046d730(D_00635938, 0xF5E);
         }
-        flag3 = (iGpffffb448[(u16)arg2 * 0x28] & 2) != 0;
+        flag3 = (iGpffffb3b8[(u16)arg2 * 0x28] & 2) != 0;
         if (flag3) {
             var_17 = 0x32;
         }
@@ -2230,7 +2230,7 @@ s32 func_00242360(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
             var_17 = 0x64;
         }
     } else {
-        var_17 = iGpffffb448[(u16)arg2 * 0x28 + 0x26];
+        var_17 = iGpffffb3b8[(u16)arg2 * 0x28 + 0x26];
         if ((s32)var_17 > 0) {
             temp_2_2 = temp_2 & 0xFFFF;
             var_f1 = (f32)temp_2_2;

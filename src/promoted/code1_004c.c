@@ -10,6 +10,8 @@ extern s32 D_00758470[];
 extern s32 D_007584F8[];
 extern s32 D_00758528[];
 extern s32 D_007587E8[];
+extern u8 D_00922E20_abs[];
+extern u8 D_00922E28_abs[];
 /* Toolchain-blocked region: retail saves `$s` registers with `sd`; MWCCPS2 3.0.1 emits `sq`; see build/ORCH_sd_toolchain_blocked.txt. */
 
 // FUN_004C3400
@@ -224,7 +226,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9a28);
 // FUN_004C9B80
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9b80);
 // FUN_004C9BB8
+#ifdef NON_MATCHING
+s32 func_004c9bb8(s32 arg0)
+{
+    u8 *base;
+
+    base = (u8 *)0x00710000;
+    return (s32)(*(u8 **)(base + arg0 * 4 + 0x61F0) + 0x10);
+}
+/* Committed at nd 2. */
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9bb8);
+#endif
 // FUN_004C9BD0
 u32 func_004c9bd0(u32 arg0)
 {
@@ -523,7 +536,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cd108);
 // FUN_004CD130
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cd130);
 // FUN_004CD148
-INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cd148);
+s32 func_004cd148(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    s32 *base0;
+    s32 *base1;
+
+    base0 = (s32 *)D_00922E20_abs;
+    base1 = (s32 *)D_00922E28_abs;
+    base0[1] = arg1;
+    base0[0] = arg0;
+    base1[1] = arg3;
+    base1[0] = arg2;
+    return (s32)base0;
+}
 // FUN_004CD170
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004cd170);
 // FUN_004CD1A0

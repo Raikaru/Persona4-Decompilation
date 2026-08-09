@@ -1243,7 +1243,7 @@ void func_001ded30(int param_1, int param_2)
     switch (type) {
     case 0:
         actionId = baseActionId;
-        data = (u32)iGpffffb3cc;
+        data = (u32)iGpffffb428;
         break;
     case 1:
         {

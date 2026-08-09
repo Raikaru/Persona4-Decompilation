@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 287 of 13083 symbols carry a recovered name.
+// 287 of 13086 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -1816,6 +1816,7 @@ func_001b5710 = 0x001B5710; // type:func
 func_001b57f0 = 0x001B57F0; // type:func
 func_001b5970 = 0x001B5970; // type:func
 func_001b5d30 = 0x001B5D30; // type:func
+func_001b5da0 = 0x001B5DA0; // type:func
 func_001b5db0 = 0x001B5DB0; // type:func
 func_001b5e40 = 0x001B5E40; // type:func
 btlMainUpdateStateExit = 0x001B5E60; // type:func
@@ -1986,6 +1987,7 @@ func_001cc0a0 = 0x001CC0A0; // type:func
 func_001cc5c0 = 0x001CC5C0; // type:func
 func_001cc5d0 = 0x001CC5D0; // type:func
 btlAct_TARGET = 0x001CC9E0; // type:func
+func_001cca50 = 0x001CCA50; // type:func
 func_001cca60 = 0x001CCA60; // type:func
 func_001ccda0 = 0x001CCDA0; // type:func
 btlAct_NOP = 0x001CCDB0; // type:func
@@ -8309,6 +8311,7 @@ func_0046d2b0 = 0x0046D2B0; // type:func
 func_0046d3b0 = 0x0046D3B0; // type:func
 func_0046d4c0 = 0x0046D4C0; // type:func
 func_0046d5f0 = 0x0046D5F0; // type:func
+func_0046d6a0 = 0x0046D6A0; // type:func
 func_0046d6b0 = 0x0046D6B0; // type:func
 func_0046d700 = 0x0046D700; // type:func
 func_0046d730 = 0x0046D730; // type:func

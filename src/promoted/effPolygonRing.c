@@ -39,6 +39,7 @@ extern s32 func_0048abd0();
 extern void func_004836b0(void *arg0, void *arg1, void *arg2, void *arg3);
 extern void func_00483490(int arg0, int arg1);
 extern f32 iGpffff8044;
+extern f32 fGpffff8044;
 extern void func_0049a610(void *arg0);
 extern u8 *func_00482dc0();
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -301,6 +302,7 @@ void func_00499a30(u8 *arg0)
     s32 temp_3;
     u8 *dest;
     u8 *cs8;
+    f32 scale;
     u_long128 *dstq;
 
     temp_16 = *(u8 **)(arg0 + 0x3C);
@@ -313,15 +315,15 @@ void func_00499a30(u8 *arg0)
                                *(u32 *)(temp_18 + 0x34));
         *(u32 *)&colourStack[8] = *(u32 *)(arg0 + 0x30);
         cs8 = &colourStack[8];
+        scale = fGpffff8044;
         __asm__ volatile(
             ".set noreorder              \n"
-            "lwc1 $f0, -0x7FBC($28)       \n"
             "lw $2, 0(%0)                 \n"
             "pextlb $2, $0, $2            \n"
             "pextlh $2, $0, $2            \n"
             "qmtc2.ni $2, $vf10           \n"
             "vitof0.xyzw $vf10, $vf10     \n"
-            "mfc1 $2, $f0                 \n"
+            "mfc1 $2, %2                 \n"
             "nop                         \n"
             "qmtc2.ni $2, $vf2            \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -333,7 +335,7 @@ void func_00499a30(u8 *arg0)
             "pextlh $2, $0, $2            \n"
             "qmtc2.ni $2, $vf10           \n"
             "vitof0.xyzw $vf10, $vf10     \n"
-            "mfc1 $3, $f0                 \n"
+            "mfc1 $3, %2                 \n"
             "nop                         \n"
             "qmtc2.ni $3, $vf2            \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -348,8 +350,8 @@ void func_00499a30(u8 *arg0)
             "sw $3, 0x50($sp)             \n"
             ".set reorder                \n"
             :
-            : "r"(cs8), "r"(temp_3)
-            : "$2", "$3", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(cs8), "r"(temp_3), "f"(scale)
+            : "$2", "$3", "memory");
         *(u32 *)&colourStack[12] = *(u32 *)&colourStack[0];
         if (colourStack[15] != 0xFF) {
             dest = *(u8 **)(temp_17 + 0x14);

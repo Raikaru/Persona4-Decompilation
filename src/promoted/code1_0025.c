@@ -42,6 +42,16 @@ s32 func_00452490(s32 arg0);
 void func_00120f20(s32 arg0);
 void func_002aa300(s32 arg0, s32 arg1);
 s32 func_002aa3f0(void);
+extern s32 func_00481450(void);
+extern void func_00481440(s32 arg0);
+extern void func_004ab8a0(s32 arg0);
+extern void func_004ab360(s32 arg0);
+extern void func_0046b380(void *arg0, s32 arg1);
+extern void func_0046d280(void *arg0);
+extern s32 func_0025ecd0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                         s32 arg4, s32 arg5, s32 arg6, void *arg7,
+                         f32 farg0, f32 farg1, f32 farg2, f32 farg3,
+                         f32 farg4, f32 farg5);
 
 
 
@@ -112,7 +122,10 @@ s32 func_0025c3e0(void) {
 
 
 // FUN_0025C420
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025c420);
+s32 func_0025c420(void) {
+    func_0029cf50(func_001060c0() & 0xFF);
+    return 1;
+}
 // FUN_0025C450
 s32 func_0025c450(void) {
     s16 temp_16;
@@ -409,15 +422,50 @@ INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025e9e0);
 // FUN_0025EA20
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ea20);
 // FUN_0025EC10
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ec10);
+void func_0025ec10(s32 arg0, u8 *arg1) {
+    func_0046b380(arg1, 1);
+    func_0046d280(arg1);
+}
 // FUN_0025EC50
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ec50);
+void func_0025ec50(s32 arg0, u8 *arg1) {
+    func_0046b380(arg1, 0);
+    func_0046d280(arg1);
+}
 // FUN_0025EC90
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ec90);
+void func_0025ec90(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                   void *arg5, f32 farg0, f32 farg1, f32 farg2) {
+    func_0025ecd0(arg0, arg1, arg2, arg3, arg4, 0, 0, arg5,
+                  farg0, farg1, farg2, 0.0f, 1.0f, 1.0f);
+}
 // FUN_0025ECD0
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ecd0);
 // FUN_0025F960
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025f960);
+s32 func_0025f960(void) {
+    s32 var_17;
+    s32 *p;
+    s32 temp_3;
+
+    p = func_00452560();
+    if (p[4] != 0) {
+        var_17 = func_00481450();
+        func_00481440(p[4]);
+    }
+    temp_3 = p[0];
+    switch (temp_3) {
+    case 0:
+        func_004ab8a0(p[1]);
+        p[2] = p[2] + 1;
+        break;
+    case 1:
+        func_004ab360(p[1]);
+        p[2] = p[2] + 1;
+        break;
+    }
+    if (p[4] != 0) {
+        func_00481440(var_17);
+    }
+    return 0;
+}
 // FUN_0025FA30
 void func_0025fa30(void)
 {

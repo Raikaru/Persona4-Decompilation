@@ -13,14 +13,25 @@ extern f32 iGpffff809c;
 extern f32 iGpffff8218;
 extern s32 func_00285af0(void);
 extern u8 *func_00285480(u8 *arg0);
+extern void func_004598e0(s16 arg0);
+extern void func_0046d730(void *arg0, s32 arg1);
+extern s32 D_0063C1D0[];
+extern u8 D_0063C2B8[];
 extern f32 D_00882210[];
 
 typedef struct {
     u8 pad[0x76C];
     s32 field_76C[15];
 } UnkStruct_002865E0;
+extern void func_0028b160(s32 *arg0, s32 arg1);
+extern u8 *func_0028afe0(void);
+extern void func_00285dd0(void);
+extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
+                         void *init, void *close, void *buf);
 
 s32 func_00286430(u8 *arg0);
+
+extern u8 iGpffffa790;
 
 extern s32 D_008825F0[10];
 
@@ -35,17 +46,59 @@ s32 func_002853b0(void) {
     return 0;
 }
 // FUN_002853C0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002853c0);
+void func_002853c0(void) {
+    func_00452380(&iGpffffa790);
+}
+/* measured: retail hoists the lookup table address before the search loop. */
+#pragma opt_loop_invariants on
 // FUN_002853F0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002853f0);
+s32 func_002853f0(s32 arg0) {
+    s32 i;
+
+    if (arg0 >= 0x3A) {
+        func_0046d730(D_0063C2B8, 0x1E6);
+    }
+    i = 0;
+    while (i < 0x3A) {
+        if (arg0 == D_0063C1D0[i]) {
+            return i;
+        }
+        i++;
+    }
+    return 0;
+}
+#pragma opt_loop_invariants off
 // FUN_00285CC0
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285cc0);
 // FUN_00285DD0
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285dd0);
 // FUN_00286240
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00286240);
+void func_00286240(void) {
+    s32 *p;
+
+    p = func_00452560();
+    if (*p & 0x80000000) {
+        func_0028b160(p, 1);
+    } else {
+        func_0028b160(p, 0);
+    }
+}
 // FUN_002862A0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002862a0);
+void func_002862a0(s32 arg0, s32 arg1) {
+    s32 *p;
+
+    p = (s32 *)func_0028afe0();
+    p[0x76C / 4] = 0;
+    p[0x77C / 4] = arg0;
+    if (arg0 != 0) {
+        p[0] |= 0x40000000;
+    }
+    func_00451de0(D_0063C368, 0, 0, 0, (void *)func_00285dd0,
+                  (void *)func_00286240, p);
+    if (arg1 != 0) {
+        p[0] |= 0x80000000;
+    }
+}
 // FUN_00286350
 void func_00286350(void) {
     func_00452380(D_0063C368);
@@ -266,4 +319,13 @@ s32 func_0028d060(s32 arg0) {
 }
 
 // FUN_0028D0A0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028d0a0);
+void func_0028d0a0(u8 *arg0) {
+    s32 i;
+
+    i = 0;
+    while (i < *(s32 *)(arg0 + 0xD4)) {
+        func_004598e0(*(s16 *)(arg0 + i * 4 + 0xD8));
+        i++;
+    }
+    *(s32 *)(arg0 + 0xD4) = 0;
+}

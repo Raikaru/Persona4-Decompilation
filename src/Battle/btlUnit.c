@@ -6,8 +6,16 @@ extern u8 *func_00478750(s32 arg0);
 extern void func_0047d110(u16 arg0, u16 arg1, void *arg2);
 extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
+extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
+extern f32 fGpffff82d4;
 extern u8 D_005F6D00[];
 extern u8 iGpffffa0b0;
+extern void func_00194ff0(void *arg0, void *arg1, s32 arg2, void *arg3);
+extern void func_003dc740(void *dst, void *src, s32 mode, f32 angle);
+extern f32 func_0044b950(f32 x, f32 y);
+extern f32 fGpffff8048;
+extern u8 D_0060A0E0[];
+extern void func_0019dea0(void *unit);
 #include "include_asm.h"
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
@@ -146,11 +154,23 @@ struct BtlUnitPacketMoveToUnit
     f32 speed;
     BtlUnit* targetUnit;
 };
+typedef struct BtlUnitAnimBounds BtlUnitAnimBounds;
+struct BtlUnitAnimBounds
+{
+    s16 centerX;
+    s16 centerY;
+    s16 centerZ;
+    u16 unk_6;
+    u16 radius;
+};
+const BtlUnitAnimBounds* func_0019eda0(BtlUnit* unit, s32 id);
+
 
 BtlPacket* func_00194470(u32 id, s32 workDataSize);
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
 void func_001ec1c0(RwV3d* dst, const RwV3d* from, const RwV3d* to);
+extern void func_003dcb40(RwV3d *dst, RwV3d *src, s32 mode, RwV3d *rot);
 void func_00196ce0(BtlUnitPacketMove* work);
 u32 func_00196d00(void* work);
 void func_001973d0(BtlUnitPacketMove* work);
@@ -159,9 +179,79 @@ u32 func_001974f0(void* work);
 void func_001979c0(BtlUnitPacketCountRef* work);
 
 // FUN_00195B60
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00195b60);
+void func_00195b60(u8 *arg0, s32 arg1, u8 *arg2)
+{
+    struct Btl95Work {
+        RwV3d rotation;
+        f32 pad3c;
+        RwV3d transformed;
+        f32 pad4c;
+        RwV3d scaled;
+    } work;
+    BtlUnitAnimBounds *bounds;
+    f32 centerY;
+    f32 centerZ;
+    f32 centerX;
+    RwV3d *out;
+
+    func_001ec1c0(&work.rotation, (RwV3d *)(arg0 + 4), (RwV3d *)((u8 *)arg1 + 4));
+    bounds = (BtlUnitAnimBounds *)func_0019eda0((BtlUnit *)arg0, 0xA);
+    centerY = (f32)bounds->centerY;
+    centerZ = (f32)bounds->centerZ;
+    centerX = (f32)bounds->centerX;
+    work.scaled.x = centerX * *(f32 *)(arg0 + 0x2C);
+    work.scaled.y = centerY * *(f32 *)(arg0 + 0x2C);
+    work.scaled.z = centerZ * *(f32 *)(arg0 + 0x2C);
+    func_003dcb40(&work.transformed, &work.scaled, 1, &work.rotation);
+    out = (RwV3d *)arg2;
+    out->x = work.transformed.x + *(f32 *)(arg0 + 4);
+    out->y = work.transformed.y + *(f32 *)(arg0 + 8);
+    out->z = work.transformed.z + *(f32 *)(arg0 + 0xC);
+}
+/* measured: plain-C aggregate reconstruction reproduces every retail
+   instruction; the object is 324B against the 336B window, with three retail
+   trailing nop words left as window padding. */
 // FUN_00195D50
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00195d50);
+void func_00195d50(u8 *arg0, u8 *arg1)
+{
+    struct Btl95DWork {
+        RwV3d secondOut;
+        f32 pad0;
+        RwV3d secondScaled;
+        f32 pad1;
+        RwV3d firstOut;
+        f32 pad2;
+        RwV3d firstScaled;
+        f32 pad3;
+    } work;
+    RwV3d *out;
+
+    out = (RwV3d *)arg1;
+    if ((*(s32 *)(arg0 + 0x98) & 2) == 0)
+    {
+        work.firstScaled.x = *(f32 *)(arg0 + 0x80) * *(f32 *)(arg0 + 0x2C);
+        work.firstScaled.y = *(f32 *)(arg0 + 0x84) * *(f32 *)(arg0 + 0x2C);
+        work.firstScaled.z = *(f32 *)(arg0 + 0x88) * *(f32 *)(arg0 + 0x2C);
+        func_003dcb40(&work.firstOut, &work.firstScaled, 1,
+                      (RwV3d *)(arg0 + 0x1C));
+        out->x = work.firstOut.x + *(f32 *)(arg0 + 4);
+        out->y = work.firstOut.y + *(f32 *)(arg0 + 8);
+        out->z = work.firstOut.z + *(f32 *)(arg0 + 0xC);
+        return;
+    }
+    if (func_0047a6d0(*(void **)(arg0 + 0xA00), 0, arg1) == 0)
+    {
+        work.secondScaled.x = *(f32 *)(arg0 + 0x80) * *(f32 *)(arg0 + 0x2C);
+        work.secondScaled.y = *(f32 *)(arg0 + 0x84) * *(f32 *)(arg0 + 0x2C);
+        work.secondScaled.z = *(f32 *)(arg0 + 0x88) * *(f32 *)(arg0 + 0x2C);
+        func_003dcb40(&work.secondOut, &work.secondScaled, 1,
+                      (RwV3d *)(arg0 + 0x1C));
+        out->x = work.secondOut.x + *(f32 *)(arg0 + 4);
+        out->y = work.secondOut.y + *(f32 *)(arg0 + 8);
+        out->z = work.secondOut.z + *(f32 *)(arg0 + 0xC);
+    }
+}
+
 // FUN_00196040
 INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00196040);
 // FUN_00196610
@@ -242,6 +332,101 @@ struct BtlUnitPacketAnim
     u16 mode;
 };
 
+/* measured: plain-C reconstruction is 632B against the 640B retail window,
+   normalized_diff 10; scaled/rotation/copy body words match, with only the
+   boolean switch tail's register/compare sequence differing. Committed at nd 10. */
+// FUN_00198050 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00198050(u8 *arg0)
+{
+    struct Btl980Rot {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    };
+    struct Btl980Work {
+        struct Btl980Rot rotation;
+        RwV3d transformed;
+        f32 transformedPad;
+        RwV3d scaled;
+    } work;
+    u8 *temp_17;
+    u8 *temp_16;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    s32 temp_3;
+    f32 var_f12;
+    f32 var_f13;
+
+    temp_17 = *(u8 **)(arg0 + 0);
+    if (*(s32 *)(arg0 + 0xC) == 0)
+    {
+        temp_3 = *(s32 *)(arg0 + 8);
+        if ((temp_3 & 2) != 0)
+        {
+            if ((temp_3 & 0x20) != 0)
+            {
+                temp_16 = *(u8 **)(arg0 + 4);
+                work.scaled.x = *(f32 *)(temp_16 + 0x80) * *(f32 *)(temp_16 + 0x2C);
+                work.scaled.y = *(f32 *)(temp_16 + 0x84) * *(f32 *)(temp_16 + 0x2C);
+                work.scaled.z = *(f32 *)(temp_16 + 0x88) * *(f32 *)(temp_16 + 0x2C);
+                func_003dcb40(&work.transformed, &work.scaled, 1,
+                              (void *)(temp_16 + 0x1C));
+                var_f12 = work.transformed.x
+                    + (f32)((*(s16 *)(temp_16 + 0x94) * 0x19) - 0x6D6)
+                    - *(f32 *)(temp_17 + 4);
+                var_f13 = work.transformed.z
+                    + (f32)((*(s16 *)(temp_16 + 0x96) * 0x19) - 0x6D6)
+                    - *(f32 *)(temp_17 + 0xC);
+            }
+            else
+            {
+                temp_2 = *(u8 **)(arg0 + 4);
+                var_f12 = *(f32 *)(temp_2 + 4) - *(f32 *)(temp_17 + 4);
+                var_f13 = *(f32 *)(temp_2 + 0xC) - *(f32 *)(temp_17 + 0xC);
+            }
+            if ((var_f12 != 0.0f) || (var_f13 != 0.0f))
+            {
+                func_003dc740(&work.rotation, D_0060A0E0, 0,
+                              fGpffff8048 * func_0044b950(var_f12, var_f13));
+                if ((*(s32 *)(temp_17 + 0x9C) & 0x2000) == 0)
+                {
+                    *(struct Btl980Rot *)(temp_17 + 0x1C) = work.rotation;
+                    *(s32 *)(temp_17 + 0x98) |= 4;
+                }
+            }
+            *(s32 *)(temp_17 + 0xC4) &= ~2;
+            *(u16 *)(temp_17 + 0xC8) &= 0xFFFD;
+            func_0019dea0(temp_17);
+        }
+        else
+        {
+            if ((temp_3 & 0x20) != 0)
+            {
+                func_00194ff0(*(u8 **)(arg0 + 4), temp_17 + 0xD0, 0, NULL);
+            }
+            else
+            {
+                temp_2_2 = *(u8 **)(arg0 + 4);
+                *(RwV3d *)(temp_17 + 0xD0) = *(RwV3d *)(temp_2_2 + 4);
+            }
+            *(s32 *)(temp_17 + 0xC4) |= *(s32 *)(arg0 + 8);
+            *(u16 *)(temp_17 + 0xC8) |= 2;
+        }
+    }
+    switch ((*(u16 *)(temp_17 + 0xC8) & 2) != 0)
+    {
+    case 1:
+        *(s32 *)(arg0 + 0xC) += 1;
+        return 0;
+    default:
+        return 1;
+}
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00198050);
+#endif
 BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
 BtlPacket* func_0019a5e0(BtlUnit* unit, s32 param);
 BtlPacket* btlUnitCreateEnmDodgeAnimPacket(BtlUnit* unit, s32 param);
@@ -249,8 +434,6 @@ void func_00199e50(BtlUnitPacketCountRef* work);
 u32 func_00199e70(void* work);
 void func_00199ec0(BtlUnitPacketCountRef* work);
 
-// FUN_00198050
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00198050);
 // FUN_00199EE0
 BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, u16 id, u16 blendFrameCount, f32 speed, u16 mode)
 {
@@ -599,15 +782,6 @@ void func_0019e520(BtlUnitPacketTwoUnits* packet)
 
 #define BTLUNIT_FLAG3_UNK400 (1 << 10)
 
-typedef struct BtlUnitAnimBounds BtlUnitAnimBounds;
-struct BtlUnitAnimBounds
-{
-    s16 centerX;
-    s16 centerY;
-    s16 centerZ;
-    u16 unk_6;
-    u16 radius;
-};
 
 typedef struct BtlUnitPacket00284900 BtlUnitPacket00284900;
 struct BtlUnitPacket00284900
@@ -619,8 +793,6 @@ struct BtlUnitPacket00284900
     f32 phase;
 };
 
-void func_0019dea0(BtlUnit* unit);
-const BtlUnitAnimBounds* func_0019eda0(BtlUnit* unit, s32 id);
 s16 func_00199500(BtlUnit* unit, u16 id, f32 scale);
 s16 func_00198810(BtlUnit* unit);
 u16 func_00231d70(u32 max);
@@ -728,7 +900,6 @@ void func_001987a0(BtlUnit* unit)
 // FUN_0019A370
 u32 func_0019a370(void* work)
 {
-    static f32 one = 1.0f;
     BtlUnitPacket00284900* packet;
     BtlUnit* unit;
     RwV3d position;
@@ -759,7 +930,7 @@ u32 func_0019a370(void* work)
         magnitude = 75.0f;
     }
 
-    if (arcScale < one)
+    if (arcScale < fGpffff82d4)
     {
         magnitude *= arcScale;
         direction.x *= magnitude;

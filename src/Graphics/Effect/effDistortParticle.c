@@ -29,6 +29,7 @@ extern f32 func_004bd0b0(u32 arg0);
 extern f32 fGpffff8080;
 extern f32 fGpffff8098;
 extern f32 fGpffff809c;
+extern s32 iGpffff81f4; /* 0x007612E4 */
 void func_004afc80(u8 *arg0, u8 *arg1);
 void func_004afb10(u8 *arg0, u32 arg1, u8 *arg2);
 void func_004afa60(u8 *arg0, s32 arg1);
@@ -284,6 +285,7 @@ void func_004b0a80(u8 *arg0) {
 // FUN_004B0CE0
 void func_004b0ce0(u8 *arg0, s32 arg1) {
     s32 spFC;
+    s32 *pt;
     f32 spF0[2];
     u8 spE0[16];
     u8 spD0[16];
@@ -298,6 +300,7 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
     u8 *temp_3;
     u8 *temp_4;
     u8 *var_17;
+    s32 scale;
 
     temp_3 = *(u8 **)(arg0 + 0x5C);
     temp_16 = *(s32 *)(temp_3 + 8);
@@ -314,18 +317,19 @@ void func_004b0ce0(u8 *arg0, s32 arg1) {
         spF0[0] = (f32) * (s32 *)(temp_21 + 0xC);
         spF0[1] = (f32) * (s32 *)(temp_21 + 0x10);
         spFC = *(s32 *)(arg0 + 4);
+        pt = &spFC;
+        scale = iGpffff81f4;
         __asm__ volatile(
-            "lw $3, -0x7E0C($gp)     \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
             "nop                   \n"
-            "qmtc2.ni $3, $vf2     \n"
+            "qmtc2.ni %1, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             :
-            : "r"(&spFC)
+            : "r"(pt), "r"(scale)
             : "$2", "$3", "$vf2", "$vf10", "memory");
         __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(spE0) : "$vf10", "memory");
         temp_4 = *(u8 **)(arg0 + 0x5C);

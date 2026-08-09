@@ -17,6 +17,8 @@ extern u8 D_008871A0[];
 extern s32 D_008871A4[];
 extern s32 D_008871A8[];
 extern s32 D_00724840;
+extern u8 D_008872E0[];
+extern s32 iGpffffb760;
 extern s32 D_00724844;
 extern u8 D_0070C260[];
 extern s32 func_003d2720(void);
@@ -349,16 +351,67 @@ s32 func_003d5300(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5300);
 #endif
-// FUN_003D5330
+/* measured: loader wrapper body follows the retail e2f60/df050/53c0/e2e40
+   call sequence. schedule/no_branch_likely reaches nd 23 at object 136 bytes
+   versus the 144-byte window; the two-word tail is padding. Committed at nd 23. */
+// FUN_003D5330 NONMATCHING
+#ifdef NON_MATCHING
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003d5330(s32 arg0) {
+    s32 *temp_2;
+    u8 *temp_17;
+    temp_2 = (s32 *)(func_003e2f60(2, 1, arg0));
+    if (temp_2 != NULL) {
+        if (func_003df050(temp_2, 0x1B, NULL, NULL) == 0) {
+            return NULL;
+        }
+        temp_17 = (u8 *)(func_003d53c0(temp_2));
+        func_003e2e40(temp_2, 0);
+        return (u8 *)(temp_17);
+    }
+    return NULL;
+}
+/* measured: closes schedule/no_branch_likely around func_003d5330. */
+#pragma no_branch_likely off
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5330);
+#endif
 // FUN_003D53C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d53c0);
 // FUN_003D5600
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5600);
 // FUN_003D5710
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5710);
-// FUN_003D5750
+/* measured: circular-list count reconstruction uses arg0->0, arg0->0x10,
+   the stride at object+8, and returns the live node count. The do-loop
+   compiles at nd 20 with object 64 bytes/window 64; branch scheduling remains
+   the residual. Committed at nd 20. */
+// FUN_003D5750 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003d5750(u8 *arg0) {
+    u8 *obj;
+    u8 *head;
+    u8 *node;
+    s32 stride;
+    s32 count;
+    obj = *(u8 **)arg0;
+    head = *(u8 **)(arg0 + 0x10);
+    stride = *(s32 *)(obj + 8);
+    node = *(u8 **)head;
+    count = 0;
+    if (node != head) {
+        do {
+            node += stride;
+            count += 1;
+        } while (*(u8 **)node != head);
+    }
+    return count;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5750);
+#endif
 // FUN_003D5790
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5790);
 // FUN_003D59A0
@@ -367,8 +420,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59a0);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59d0);
 // FUN_003D5BC0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5bc0);
+/* measured: schedule on reproduces the retail float helper's branch and
+   fills the final stack-restore delay slot; probe matched at nd 0. */
 // FUN_003D5E40
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5e40);
+#pragma schedule on
+s32 func_003d5e40(u8 *arg0, f32 fparg0) {
+    f32 value;
+
+    value = fparg0 - *(f32 *)(arg0 + 4);
+    if (value < 0.0f) {
+        func_003d59d0(-value);
+    } else {
+        func_003d5bc0(value);
+    }
+    return 1;
+}
+/* measured: closes the single-function schedule bracket for func_003d5e40. */
+#pragma schedule off
 // FUN_003D5E90
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5e90);
 // FUN_003D5F50
@@ -590,8 +658,23 @@ s32 func_003dd530(u8 *arg0, s32 arg1) {
 #pragma schedule off
 #pragma no_branch_likely off
 
+/* measured: full s64 temporaries preserve retail's ld/slt comparison and
+   schedule/no_branch_likely reproduce the branch and delay-slot shape.
+   Exact MATCH at nd 0 (object 44 bytes in the 48-byte window). */
 // FUN_003DD590
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd590);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003dd590(u8 *arg0) {
+    s64 temp_3;
+    temp_3 = *(s64 *)((u8 *)(arg0) + 0x10);
+    if (temp_3 == -1) {
+        return 1;
+    }
+    return (s32)(temp_3 >= *(s64 *)((u8 *)(arg0) + 0));
+}
+/* measured: closes schedule/no_branch_likely around func_003dd590. */
+#pragma schedule off
+#pragma no_branch_likely off
 // FUN_003DD5C0
 /* measured: b210 emits a branch-likely (beql) for the case-1 test and
    if-converts the short case-1 body into its delay slot; retail uses a plain
@@ -825,18 +908,11 @@ s32 *func_003de2c0(void) {
 #pragma schedule off
 // FUN_003DE2D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de2d0);
-/* Parked candidate: tail-call framing is an MWCC b210 floor for this
-   16-byte direct-jump wrapper. Residual normalized_diff 8.
-   Committed at nd 38 in-file (nd 8 measured in isolation). */
-// FUN_003DE4C0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003de4c0(u8 *arg0) {
-    *(s32 *)(arg0 + 0x38) = 1;
-    func_00426f80(*(s32 *)(arg0 + 0x60));
-}
-#else
+/* Measured candidate archived in build/WI003d_de4c0_restore.txt: the isolated
+   body measured nd 8, but the in-file committed figure was nd 38, above the
+   nd 25 park limit. Retained as the bare assembly fallback. */
+// FUN_003DE4C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de4c0);
-#endif
 // FUN_003DE4D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de4d0);
 // FUN_003DE6A0
@@ -897,14 +973,98 @@ s32 func_003df270(s32 arg0) {
 }
 /* measured: close schedule around func_003df270. */
 #pragma schedule off
+/* measured: an 8-byte leading pad keeps sp28/sp2c at the retail local
+   offsets inside the compact 0x30-byte frame. schedule/no_branch_likely
+   reproduce the callback branch; tail padding is all-zero. Exact MATCH nd 0. */
 // FUN_003DF2A0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df2a0);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003df2a0(s32 arg0) {
+    struct {
+        u8 pad[8];
+        s32 sp28;
+        s32 sp2C;
+    } frame;
+    if (func_003e2910() != 0) {
+        return arg0;
+    }
+    frame.sp28 = 1;
+    frame.sp2C = func_003df590(0x8000001A);
+    func_003df4d0(&frame.sp28);
+    return 0;
+}
+/* measured: closes schedule/no_branch_likely around func_003df2a0. */
+#pragma no_branch_likely off
+#pragma schedule off
+/* measured: sibling of func_003df2a0; compact 8-byte leading pad pins
+   sp28/sp2c and schedule/no_branch_likely reproduce the same exact body.
+   MATCH nd 0; retail's trailing words are zero padding. */
 // FUN_003DF300
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df300);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003df300(s32 arg0) {
+    struct {
+        u8 pad[8];
+        s32 sp28;
+        s32 sp2C;
+    } frame;
+    if (func_003e2910() != 0) {
+        return arg0;
+    }
+    frame.sp28 = 1;
+    frame.sp2C = func_003df590(0x8000001A);
+    func_003df4d0(&frame.sp28);
+    return 0;
+}
+/* measured: closes schedule/no_branch_likely around func_003df300. */
+#pragma no_branch_likely off
+#pragma schedule off
+/* measured: sibling of func_003df2a0; the same compact frame and
+   schedule/no_branch_likely bracket reproduce MATCH nd 0. */
 // FUN_003DF360
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df360);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003df360(s32 arg0) {
+    struct {
+        u8 pad[8];
+        s32 sp28;
+        s32 sp2C;
+    } frame;
+    if (func_003e2910() != 0) {
+        return arg0;
+    }
+    frame.sp28 = 1;
+    frame.sp2C = func_003df590(0x8000001A);
+    func_003df4d0(&frame.sp28);
+    return 0;
+}
+/* measured: closes schedule/no_branch_likely around func_003df360. */
+#pragma no_branch_likely off
+#pragma schedule off
+/* measured: func_003deea0 retains the incoming arg0 as its hidden first
+   argument before four stack-output pointers. Preserving that ABI order with
+   schedule/no_branch_likely yields exact MATCH at nd 0, object/window 128B. */
 // FUN_003DF3C0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df3c0);
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003df3c0(s32 arg0, u32 *arg1) {
+    u32 sp3C;
+    u32 sp38;
+    u32 sp34;
+    u32 sp30;
+    if (func_003deea0(arg0, &sp3C, &sp38, &sp34, &sp30) == 0) {
+        return 0;
+    }
+    *(u32 *)((u8 *)(arg1) + 0) = sp3C;
+    *(u32 *)((u8 *)(arg1) + 4) = sp38;
+    *(u32 *)((u8 *)(arg1) + 8) = sp34;
+    *(u32 *)((u8 *)(arg1) + 0xC) = sp30;
+    *(s32 *)((u8 *)(arg1) + 0x10) = func_003ded20(arg1);
+    return arg0;
+}
+/* measured: closes schedule/no_branch_likely around func_003df3c0. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003DF440
 #pragma schedule on
 s32 func_003df440(s32 arg0) {

@@ -50,6 +50,7 @@ extern f32 D_00713D10[4];
 extern f32 D_00713D14[4];
 extern f32 D_00713D18[4];
 extern f32 iGpffff8084; /* 0x00761174 */
+extern f32 fGpffff8044; /* 0x00761134 */
 extern f32 iGpffff8080; /* 0x00761170 */
 extern void *func_004a5630(s32, void *);
 extern char D_00714134[];
@@ -146,6 +147,7 @@ void func_004a2c90(u8 *arg0)
     u32 temp_21;
     u32 temp_6_2;
     u32 combined;
+    f32 scale;
 
     temp_3 = *(u8 **)(arg0 + 0x3C);
     temp_18 = *(u8 **)(arg0 + 0x40);
@@ -159,21 +161,21 @@ void func_004a2c90(u8 *arg0)
         temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
         spA8 = *(s32 *)(arg0 + 0x30);
         pt = &spA8;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         spA4 = temp_3_2;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -181,7 +183,7 @@ void func_004a2c90(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -195,8 +197,8 @@ void func_004a2c90(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0xA0($sp)      \n"
             :
-            : "r"(&spA4)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&spA4), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         combined = *(s32 *)&spA0;
         temp_23 = *(u32 *)(temp_18 + 0x38);
         temp_21 = *(u32 *)(temp_18 + 0x80);
@@ -205,21 +207,21 @@ void func_004a2c90(u8 *arg0)
             temp_6_2 = *var_19;
             if (temp_6_2 < temp_21) {
                 sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                scale = fGpffff8044;
                 __asm__ volatile(
-                    "lwc1 $f0, -0x7FBC($28)  \n"
                     "lw $2, 0(%0)          \n"
                     "pextlb $2, $0, $2     \n"
                     "pextlh $2, $0, $2     \n"
                     "qmtc2.ni $2, $vf10    \n"
                     "vitof0.xyzw $vf10, $vf10 \n"
-                    "mfc1 $2, $f0          \n"
+                    "mfc1 $2, %1           \n"
                     "nop                   \n"
                     "qmtc2.ni $2, $vf2     \n"
                     "vmulx.xyzw $vf10, $vf10, $vf2x \n"
                     "vmove.xyzw $vf11, $vf10 \n"
                     :
-                    : "r"(&sp9C)
-                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                    : "r"(&sp9C), "f"(scale)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 sp98 = combined;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -227,7 +229,7 @@ void func_004a2c90(u8 *arg0)
                     "pextlh $2, $0, $2     \n"
                     "qmtc2.ni $2, $vf10    \n"
                     "vitof0.xyzw $vf10, $vf10 \n"
-                    "mfc1 $2, $f0          \n"
+                    "mfc1 $2, %1           \n"
                     "nop                   \n"
                     "qmtc2.ni $2, $vf2     \n"
                     "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -241,8 +243,8 @@ void func_004a2c90(u8 *arg0)
                     "ppacb $2, $0, $2      \n"
                     "sw $2, 0x94($sp)      \n"
                     :
-                    : "r"(&sp98)
-                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                    : "r"(&sp98), "f"(scale)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 spAC.w = *(s32 *)&sp94;
                 if (spAC.b[3] != 0xFF) {
                     u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
@@ -415,6 +417,7 @@ void func_004a4000(u8 *arg0)
     u32 temp_21;
     u32 temp_6_2;
     u32 combined;
+    f32 scale;
 
     temp_3 = *(u8 **)(arg0 + 0x3C);
     temp_18 = *(u8 **)(arg0 + 0x40);
@@ -428,21 +431,21 @@ void func_004a4000(u8 *arg0)
         temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
         spA8 = *(s32 *)(arg0 + 0x30);
         pt = &spA8;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         spA4 = temp_3_2;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -450,7 +453,7 @@ void func_004a4000(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -464,8 +467,8 @@ void func_004a4000(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0xA0($sp)      \n"
             :
-            : "r"(&spA4)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&spA4), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         combined = *(s32 *)&spA0;
         temp_23 = *(u32 *)(temp_18 + 0x38);
         temp_21 = *(u32 *)(temp_18 + 0x80);
@@ -474,21 +477,21 @@ void func_004a4000(u8 *arg0)
             temp_6_2 = *var_19;
             if (temp_6_2 < temp_21) {
                 sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                scale = fGpffff8044;
                 __asm__ volatile(
-                    "lwc1 $f0, -0x7FBC($28)  \n"
                     "lw $2, 0(%0)          \n"
                     "pextlb $2, $0, $2     \n"
                     "pextlh $2, $0, $2     \n"
                     "qmtc2.ni $2, $vf10    \n"
                     "vitof0.xyzw $vf10, $vf10 \n"
-                    "mfc1 $2, $f0          \n"
+                    "mfc1 $2, %1           \n"
                     "nop                   \n"
                     "qmtc2.ni $2, $vf2     \n"
                     "vmulx.xyzw $vf10, $vf10, $vf2x \n"
                     "vmove.xyzw $vf11, $vf10 \n"
                     :
-                    : "r"(&sp9C)
-                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                    : "r"(&sp9C), "f"(scale)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 sp98 = combined;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -496,7 +499,7 @@ void func_004a4000(u8 *arg0)
                     "pextlh $2, $0, $2     \n"
                     "qmtc2.ni $2, $vf10    \n"
                     "vitof0.xyzw $vf10, $vf10 \n"
-                    "mfc1 $2, $f0          \n"
+                    "mfc1 $2, %1           \n"
                     "nop                   \n"
                     "qmtc2.ni $2, $vf2     \n"
                     "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -510,8 +513,8 @@ void func_004a4000(u8 *arg0)
                     "ppacb $2, $0, $2      \n"
                     "sw $2, 0x94($sp)      \n"
                     :
-                    : "r"(&sp98)
-                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                    : "r"(&sp98), "f"(scale)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 spAC.w = *(s32 *)&sp94;
                 if (spAC.b[3] != 0xFF) {
                     u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);
@@ -696,6 +699,7 @@ void func_004a52b0(u8 *arg0)
     u32 temp_21;
     u32 temp_6_2;
     u32 combined;
+    f32 scale;
 
     temp_3 = *(u8 **)(arg0 + 0x3C);
     temp_18 = *(u8 **)(arg0 + 0x40);
@@ -709,21 +713,21 @@ void func_004a52b0(u8 *arg0)
         temp_3_2 = func_0048abd0(temp_18, temp_18 + 0x24, temp_6, temp_7);
         spA8 = *(s32 *)(arg0 + 0x30);
         pt = &spA8;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         spA4 = temp_3_2;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -731,7 +735,7 @@ void func_004a52b0(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -745,8 +749,8 @@ void func_004a52b0(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0xA0($sp)      \n"
             :
-            : "r"(&spA4)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&spA4), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         combined = *(s32 *)&spA0;
         temp_23 = *(u32 *)(temp_18 + 0x38);
         temp_21 = *(u32 *)(temp_18 + 0x80);
@@ -755,21 +759,21 @@ void func_004a52b0(u8 *arg0)
             temp_6_2 = *var_19;
             if (temp_6_2 < temp_21) {
                 sp9C = func_0048abd0(temp_18 + 0x3C, temp_18 + 0x60, temp_6_2, temp_21);
+                scale = fGpffff8044;
                 __asm__ volatile(
-                    "lwc1 $f0, -0x7FBC($28)  \n"
                     "lw $2, 0(%0)          \n"
                     "pextlb $2, $0, $2     \n"
                     "pextlh $2, $0, $2     \n"
                     "qmtc2.ni $2, $vf10    \n"
                     "vitof0.xyzw $vf10, $vf10 \n"
-                    "mfc1 $2, $f0          \n"
+                    "mfc1 $2, %1           \n"
                     "nop                   \n"
                     "qmtc2.ni $2, $vf2     \n"
                     "vmulx.xyzw $vf10, $vf10, $vf2x \n"
                     "vmove.xyzw $vf11, $vf10 \n"
                     :
-                    : "r"(&sp9C)
-                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                    : "r"(&sp9C), "f"(scale)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 sp98 = combined;
                 __asm__ volatile(
                     "lw $2, 0(%0)          \n"
@@ -777,7 +781,7 @@ void func_004a52b0(u8 *arg0)
                     "pextlh $2, $0, $2     \n"
                     "qmtc2.ni $2, $vf10    \n"
                     "vitof0.xyzw $vf10, $vf10 \n"
-                    "mfc1 $2, $f0          \n"
+                    "mfc1 $2, %1           \n"
                     "nop                   \n"
                     "qmtc2.ni $2, $vf2     \n"
                     "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -791,8 +795,8 @@ void func_004a52b0(u8 *arg0)
                     "ppacb $2, $0, $2      \n"
                     "sw $2, 0x94($sp)      \n"
                     :
-                    : "r"(&sp98)
-                    : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+                    : "r"(&sp98), "f"(scale)
+                    : "$2", "$vf2", "$vf10", "$vf11", "memory");
                 spAC.w = *(s32 *)&sp94;
                 if (spAC.b[3] != 0xFF) {
                     u8 *dst = *(u8 **)(*(u8 **)(temp_16 + 0x54) + (var_17 & 0xFFFF) * 4);

@@ -15,7 +15,7 @@ extern f32 func_0044b610(f32);
 extern f32 func_0044b7b0(f32);
 /* Anonymous gp-relative float slots (-0x7FBC / -0x7F30 of $28), same
    convention as effPolygonThunder.c's iGpffff8044. */
-extern f32 iGpffff8044;
+extern f32 fGpffff8044;
 extern f32 fGpffff80d0;
 /* Scratch color quads, addressed absolutely by retail (lui/addiu). */
 extern f32 D_00713D10[4];
@@ -129,6 +129,7 @@ void func_0049b2b0(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -142,21 +143,21 @@ void func_0049b2b0(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -164,7 +165,7 @@ void func_0049b2b0(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -178,8 +179,8 @@ void func_0049b2b0(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {
@@ -339,6 +340,7 @@ void func_0049bff0(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -352,21 +354,21 @@ void func_0049bff0(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -374,7 +376,7 @@ void func_0049bff0(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -388,8 +390,8 @@ void func_0049bff0(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {
@@ -526,6 +528,7 @@ void func_0049cd10(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -539,21 +542,21 @@ void func_0049cd10(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -561,7 +564,7 @@ void func_0049cd10(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -575,8 +578,8 @@ void func_0049cd10(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {
@@ -801,6 +804,7 @@ void func_0049db20(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -814,21 +818,21 @@ void func_0049db20(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -836,7 +840,7 @@ void func_0049db20(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -850,8 +854,8 @@ void func_0049db20(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {
@@ -1068,6 +1072,7 @@ void func_0049e920(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -1081,21 +1086,21 @@ void func_0049e920(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -1103,7 +1108,7 @@ void func_0049e920(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -1117,8 +1122,8 @@ void func_0049e920(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {
@@ -1330,6 +1335,7 @@ void func_0049f820(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -1343,21 +1349,21 @@ void func_0049f820(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -1365,7 +1371,7 @@ void func_0049f820(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -1379,8 +1385,8 @@ void func_0049f820(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {
@@ -1509,6 +1515,7 @@ void func_004a05f0(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -1522,21 +1529,21 @@ void func_004a05f0(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -1544,7 +1551,7 @@ void func_004a05f0(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -1558,8 +1565,8 @@ void func_004a05f0(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {
@@ -1778,6 +1785,7 @@ void func_004a14a0(u8 *arg0)
     u8 *temp_16;
     u32 temp_6;
     u32 temp_7;
+    f32 scale;
 
     temp_2 = *(u8 **)(arg0 + 0x3C);
     temp_17 = *(u8 **)(arg0 + 0x40);
@@ -1791,21 +1799,21 @@ void func_004a14a0(u8 *arg0)
         temp_3 = func_0048abd0(temp_17, temp_17 + 0x24, temp_6, temp_7);
         sp48 = *(s32 *)(arg0 + 0x30);
         pt = &sp48;
+        scale = fGpffff8044;
         __asm__ volatile(
-            "lwc1 $f0, -0x7FBC($28)  \n"
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             "vmove.xyzw $vf11, $vf10 \n"
             :
-            : "r"(pt)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp44 = temp_3;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
@@ -1813,7 +1821,7 @@ void func_004a14a0(u8 *arg0)
             "pextlh $2, $0, $2     \n"
             "qmtc2.ni $2, $vf10    \n"
             "vitof0.xyzw $vf10, $vf10 \n"
-            "mfc1 $2, $f0          \n"
+            "mfc1 $2, %1           \n"
             "nop                   \n"
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
@@ -1827,8 +1835,8 @@ void func_004a14a0(u8 *arg0)
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x40($sp)      \n"
             :
-            : "r"(&sp44)
-            : "$2", "$f0", "$vf2", "$vf10", "$vf11", "memory");
+            : "r"(&sp44), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
         sp4C.w = *(s32 *)&sp40;
         if (sp4C.b[3] != 0xFF)
         {

@@ -14,9 +14,17 @@ extern f32 fGpffff8198;
 extern f32 fGpffff80fc;
 extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac;
+extern f32 fGpffff811c;
 extern void func_001bcd40(u8 *arg0, u8 *arg1, u8 *arg2, f32 arg3, s32 arg4);
 extern void func_001ca590(u8 *arg0, f32 arg1, f32 arg2);
 extern void func_001cacd0(u8 *arg0, f32 arg1, f32 arg2);
+extern void func_0019de70(u8 *arg0, u16 arg1);
+extern s32 func_001bc560(u8 *arg0, u8 *arg1);
+extern s16 func_001d7f10(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_001d8df0(u8 *arg0);
+extern void func_001c8e90(u8 *arg0, f32 *arg1, f32 *arg2);
+extern void func_001bac20(u8 *arg0, f32 *arg1, f32 *arg2, s32 arg3);
+extern void func_001bbef0(u8 *arg0, f32 arg1);
 
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
@@ -42,7 +50,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c21d0);
 // FUN_001C2EE0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c2ee0);
 // FUN_001C3EB0
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c3eb0);
+void func_001c3eb0(u8 *arg0, s32 arg1)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0xE0);
+    if ((temp_4 != NULL) && ((*(u16 *)(temp_4 + 0x1A) & 1) != 0)) {
+        if (*(s32 *)(arg0 + 0xDC) == 0) {
+            if (arg1 == 0) {
+                func_001bcd40(temp_4, NULL, NULL, 0.0f, 3);
+            } else {
+                func_001bcd40(temp_4, NULL, NULL, 0.0f, 0x11);
+            }
+        }
+        if (func_001bc560(arg0, *(u8 **)(arg0 + 0x12C)) != 0) {
+            func_0019de70(*(u8 **)(arg0 + 0x12C), *(u16 *)(arg0 + 0x130));
+        }
+    }
+}
 // FUN_001C3F70
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c3f70);
 // FUN_001C5110
@@ -63,14 +88,44 @@ INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c80f0);
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c88d0);
 // FUN_001C8B00
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c8b00);
+/* measured: optimization_level 1 probe for c8cf0 argument order. */
+#pragma optimization_level 1
 // FUN_001C8CF0
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c8cf0);
+void func_001c8cf0(u8 *arg0)
+{
+    u8 *temp_16;
+    u8 *call_arg0;
+    s32 call_arg1;
+    s32 call_arg2;
+
+    temp_16 = *(u8 **)(arg0 + 0xE0);
+    call_arg0 = temp_16;
+    call_arg1 = 0;
+    call_arg2 = *(u16 *)(temp_16 + 0x6E);
+    *(s16 *)(arg0 + 0x106) = func_001d7f10((s32)call_arg0, call_arg1, call_arg2, 0);
+    *(s16 *)(arg0 + 0x104) = func_001d8df0(temp_16 + 0x98);
+    *(s32 *)(arg0 + 0x100) = 0;
+}
+/* measured: close optimization_level after c8cf0. */
+#pragma optimization_level 2
 // FUN_001C8D50
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c8d50);
 // FUN_001C8E90
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c8e90);
 // FUN_001C9750
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c9750);
+void func_001c9750(u8 *arg0)
+{
+    struct Work {
+        f32 first;
+        u8 gap[0x18];
+        f32 second;
+        u8 tail[0x20];
+    } work;
+
+    func_001c8e90(arg0, &work.first, &work.second);
+    func_001bac20(arg0, &work.first, &work.second, 1);
+    func_001bbef0(arg0, fGpffff811c);
+}
 // FUN_001C97B0
 void func_001c97b0(u8 *arg0)
 {

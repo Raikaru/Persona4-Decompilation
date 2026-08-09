@@ -90,6 +90,9 @@ extern void func_0047d170();
 extern s32 func_0047e6f0();
 extern void func_0019db40(u8 *arg0);
 extern void func_001fc1b0(s32 arg0);
+extern s32 func_002300f0();
+extern void func_0019acd0();
+extern s32 func_0019ae20();
 extern void func_001d6ee0(s32 arg0);
 extern void func_0019d3c0();
 extern void func_0019d0c0();
@@ -770,7 +773,25 @@ void func_0019b530(u8 *arg0)
 }
 
 // FUN_0019B550
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019b550);
+u8 *func_0019b550(u8 *arg0, s16 arg1, s16 arg2)
+{
+    u8 *work;
+    u8 *packet;
+
+    packet = (u8 *)func_00194470(0x10F, 0x10);
+    *(u8 *)(packet + 0x47) &= 0xFE;
+    *(void **)(packet + 0x68) = (void *)func_0019acd0;
+    *(void **)(packet + 0x6C) = (void *)func_0019ae20;
+    *(void **)(packet + 0x70) = (void *)func_0019b530;
+    work = *(u8 **)(packet + 0x78);
+    *(u8 **)work = arg0;
+    *(s16 *)(work + 8) = arg2;
+    if (func_002300f0(arg0, (s16 *)(work + 4), (s16 *)(work + 6)) == 0) {
+        *(s16 *)(work + 4) = *(u8 *)(arg0 + 0xA2) + 1;
+        *(s16 *)(work + 6) = arg1;
+    }
+    return packet;
+}
 // FUN_0019B620
 void func_0019b620(u8 *arg0)
 {
@@ -1090,21 +1111,7 @@ void func_0019ef30(u8 *arg0, u16 arg1) {
 }
 
 // FUN_0019EF90
-u8 *func_0019ef90(s32 arg0, s32 arg1)
-{
-    u8 *base;
-    u8 *entry;
-
-    base = D_0076449C;
-    entry = *(u8 **)((u32)base + (u32)((arg0 & 0xFFFF) * 8) + 0x17C);
-    while (entry != NULL) {
-        if ((arg1 & 0xFFFF) == *(u16 *)(entry + 0xA4)) {
-            return entry;
-        }
-        entry = *(u8 **)(entry + 0xA68);
-    }
-    return NULL;
-}
+INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019ef90);
 // FUN_0019EFE0
 u8 *func_0019efe0(s32 arg0)
 {

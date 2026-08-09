@@ -229,6 +229,13 @@ DATA_REACHABLE_ENTRIES = {
     # every instruction already matches, leaving it permanently unable to fill
     # the window; splitting it lets that function match.
     0x0038DD60: {"pointer": 0x005DD2A4},
+    # `jr $ra; nop` nullsub after func_001cc9e0's epilogue. The table at
+    # 005F777C/80 holds 001CC9E0 then 001CCA50, so the neighbouring field
+    # already points at a known function and this word is a callback slot
+    # rather than a constant. Folding it left func_001cc9e0 with a 128B window
+    # against a 112B body whose every instruction already matches, so that
+    # function could never leave SIZE_MISMATCH; splitting it makes both match.
+    0x001CCA50: {"pointer": 0x005F7780},
 }
 
 # Entries that spimdisasm's control-flow scan misses and that NO data pointer

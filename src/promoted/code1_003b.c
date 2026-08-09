@@ -282,8 +282,34 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb4a0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb5b0);
 // FUN_003BBA90
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bba90);
+/* measured: schedule on fills the final callback argument and epilogue slots. */
+#pragma schedule on
+/* measured: no_branch_likely on preserves retail's plain null tests. */
+#pragma no_branch_likely on
 // FUN_003BBB60
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbb60);
+s32 func_003bbb60(u8 *arg0) {
+    u8 *temp_4;
+    u8 *temp_4_2;
+    void (*callback)(u8 *);
+
+    temp_4 = *(u8 **)(arg0 + 0x14);
+    if (temp_4 != NULL) {
+        jtbl_008873EC[0](temp_4);
+        *(u8 **)(arg0 + 0x14) = NULL;
+    }
+    temp_4_2 = *(u8 **)(arg0 + 0x10);
+    if (temp_4_2 != NULL) {
+        jtbl_008873EC[0](temp_4_2);
+        *(u8 **)(arg0 + 0x10) = NULL;
+    }
+    callback = jtbl_008873EC[0];
+    callback(arg0);
+    return 1;
+}
+/* measured: no_branch_likely off closes func_003bbb60's branch bracket. */
+#pragma no_branch_likely off
+/* measured: schedule off closes func_003bbb60's scheduling bracket. */
+#pragma schedule off
 // FUN_003BBBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbbe0);
 /* measured: schedule on restores retail's callback-address materialization order. */

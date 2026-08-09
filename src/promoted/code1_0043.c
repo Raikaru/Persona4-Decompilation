@@ -214,27 +214,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00433310);
 // FUN_00433370
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00433370);
 // FUN_004333E0
-s32 func_004333e0(s8 *arg0) {
-    s8 *var_4;
-    u8 var_3;
-
-    var_4 = arg0;
-    var_3 = (u8)*var_4;
-    if (*var_4 != 0) {
-loop_2:
-        if (((s8)var_3 == 0x3F) ||
-            ((s8)var_3 == 0x2A) ||
-            (var_4 += 1, ((s8)var_3 < 0x20))) {
-            return 0;
-        }
-        var_3 = (u8)*var_4;
-        if (*var_4 == 0) {
-            return 1;
-        }
-        goto loop_2;
-    }
-    return 1;
-}
+INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004333e0);
 // FUN_00433438
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00433438);
 // FUN_004334F0

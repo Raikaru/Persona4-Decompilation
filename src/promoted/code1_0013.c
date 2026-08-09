@@ -7,6 +7,7 @@ static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 extern void func_0046d280(s32 arg0);
+extern void func_00105780(s16 arg0);
 
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
@@ -91,7 +92,7 @@ void func_00130580(u8 *arg0) {
 s32 func_00130600(u8 *arg0) {
     s32 flag = 1;
     s32 i = 0;
-    s16 v = *(s16 *)(arg0 + 0x1c);
+    s32 v = *(s16 *)(arg0 + 0x1c);
 
     while (i < 0x1e) {
         if (v < *(s32 *)(arg0 + i * 48 + 0x1304)) {
@@ -167,7 +168,31 @@ void func_00134a50(u8 *arg0) {
     *(s16 *)(arg0 + 0x20) = 0;
 }
 // FUN_00134AB0
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134ab0);
+void func_00134ab0(u8 *arg0) {
+    s32 temp;
+    s32 var17;
+    s32 var18;
+    u8 *p;
+    u8 *q;
+
+    var18 = 0;
+    while (var18 < 0x34) {
+        q = arg0 + var18 * 4;
+        p = q + 0x14c0;
+        temp = *(s32 *)(q + 0x14c0);
+        if (temp != 0) {
+            func_0046d280(temp);
+            *(s32 *)p = 0;
+        }
+        var18++;
+    }
+    var17 = 0;
+    while (var17 < *(s16 *)(arg0 + 0x48)) {
+        func_00105780(*(s16 *)(arg0 + var17 * 2 + 0x38));
+        var17++;
+    }
+    *(s32 *)(arg0 + 0x1c) = 0;
+}
 // FUN_00134B60
 s32 func_00134b60(u8 *arg0) {
     s32 flag = 1;
@@ -185,7 +210,39 @@ s32 func_00134b60(u8 *arg0) {
 // FUN_00134BE0
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134be0);
 // FUN_00134DA0
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134da0);
+s32 func_00134da0(s32 arg0) {
+    s32 result;
+
+    if (arg0 & 0x81) {
+        result = 7;
+        goto done;
+    }
+    if (arg0 & 0x102) {
+        result = 8;
+        goto done;
+    }
+    if (arg0 & 0x204) {
+        result = 9;
+        goto done;
+    }
+    if (arg0 & 0x408) {
+        result = 10;
+        goto done;
+    }
+    if (arg0 & 0x810) {
+        result = 11;
+        goto done;
+    }
+    if (arg0 & 0x1020) {
+        result = 12;
+        goto done;
+    }
+    if (arg0 & 0x2040) {
+        result = 13;
+    }
+done:
+    return result;
+}
 // FUN_00134E50
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134e50);
 // FUN_00134F40
@@ -210,6 +267,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013c5a0);
 s32 func_0013c6d0(void) {
     return func_0010f540(*(u16 *)(func_00106820() + 0x24)) != 0;
 }
+// FUN_0013C700
+INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013c700);
 // FUN_0013CA60
 s32 func_0013ca60(s32 arg0, s32 arg1, s32 arg2) {
     s32 v = 0;

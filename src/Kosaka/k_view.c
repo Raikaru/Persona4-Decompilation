@@ -16,9 +16,10 @@ typedef struct RwCamera
     RwV2d viewWindow; /* 0x68 */
 } RwCamera;
 
-#define DEG_TO_RAD(deg) (gPI * (deg) / 180.0f)
+#define DEG_TO_RAD(deg) (fGpffff8084 * (deg) / 180.0f)
 
 extern f32 gPI;
+extern f32 fGpffff8084;
 extern f32 gAspectRatio;
 extern f32 tanf(f32 x);
 extern RwCamera* RwCameraSetViewWindow(RwCamera* camera, const RwV2d* viewWindow);
