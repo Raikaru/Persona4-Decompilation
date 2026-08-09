@@ -25,25 +25,239 @@ extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
 extern void func_002abf70(u8 *arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 func_0025f3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                         void *arg4, s32 arg5, f32 farg0, f32 farg1,
+                         f32 farg2);
+extern u8 *func_00460990(void);
+extern void func_00460ac0(void *arg0, void *arg1);
+extern u8 D_00795E60[];
+extern void func_002a1ef0(u8 *arg0);
+extern f32 fGpffff8204;
+extern u8 func_002a2780(s32 arg0);
+extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                         s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
+extern void func_002a2980(u8 *arg0);
+extern s32 func_002a2c70(u8 *arg0);
+extern void func_0029fbb0(u8 *arg0, s32 arg1);
+extern s32 func_002a2ca0(u8 *arg0);
+extern s32 iGpffffb530;
+extern void func_002baac0(void *arg0);
+extern void func_002bad10(s32 arg0);
+extern void func_002baf40(s32 arg0);
+extern void func_002bb050(s32 arg0);
+extern s32 func_002bb0e0(void);
+extern void func_002bb4e0(void);
+extern s32 func_002bb600(void);
+extern s32 func_002bb700(void);
+extern void func_002bbcc0(void);
+extern s32 iGpffffb52c;
+extern u8 D_0063E630[];
 
 
 
 // FUN_002A02F0
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a02f0);
+void func_002a02f0(u8 *arg0, s32 arg1) {
+    u8 *temp_4;
+    s32 i;
+
+    temp_4 = *(u8 **)(arg0 + 0x38);
+    if ((arg1 == 0) && (*(s32 *)(temp_4 + 0x14) != 1)) {
+        for (i = 0; i < 6; i++) {
+            *(s16 *)(temp_4 + (i * 4) + 0x1C38) = 0;
+        }
+    }
+    func_0029fbb0(arg0, 0);
+    func_0029fbb0(arg0, 1);
+    func_0029fbb0(arg0, 2);
+    func_0029fbb0(arg0, 4);
+    func_0029fbb0(arg0, 5);
+}
 // FUN_002A03B0
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a03b0);
 // FUN_002A12E0
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a12e0);
 // FUN_002A1A10
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a1a10);
+s32 func_002a1a10(u8 *arg0) {
+    s32 temp_3;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_3 = *(s32 *)(temp_16 + 0x10);
+    switch (temp_3) {
+    case 0:
+        iGpffffb52c = 0;
+        func_002bb4e0();
+        func_002baac0(D_0063E630);
+        func_002bad10(1);
+        func_002baf40(0);
+        func_002bb050(0);
+        *(s32 *)(temp_16 + 0x10) = 1;
+        goto done;
+    case 1:
+        if (func_002bb600() != 0) {
+            func_002bbcc0();
+            if (func_002bb700() == 0) {
+                iGpffffb52c = func_002bb0e0();
+            }
+        } else {
+            *(s32 *)(temp_16 + 0x10) = 2;
+        }
+        goto done;
+    case 2:
+        func_002bb4e0();
+        *(s32 *)(temp_16 + 0x10) = 0;
+        return iGpffffb52c;
+    default:
+        goto done;
+    }
+done:
+    return -1;
+}
+/* measured: disabling common-subexpression propagation prevents the repeated
+   tween target from being held in a saved register across calls. */
+#pragma opt_common_subs off
+/* measured: disabling propagation preserves the retail call-site materialization. */
+#pragma opt_propagation off
 // FUN_002A1B20
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a1b20);
+s32 func_002a1b20(u8 *arg0) {
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(temp_16 + 8) == 0) {
+        func_002a2780((s32)(temp_16 + 0x178));
+        func_002a27c0((s32)(temp_16 + 0x178), 0, 0, 0, 0, fGpffff8204, 0, 10, 20);
+        *(s32 *)(temp_16 + 8) = 1;
+    }
+    func_002a2980(temp_16 + 0x178);
+    if (func_002a2c70(temp_16 + 0x178) != 0) {
+        goto fail;
+    }
+    *(s32 *)(temp_16 + 8) = 0;
+    return 1;
+fail:
+    return 0;
+}
+/* measured: closes opt_propagation around func_002a1b20. */
+#pragma opt_propagation on
+/* measured: closes opt_common_subs around func_002a1b20. */
+#pragma opt_common_subs on
+/* measured: common-subexpression suppression preserves repeated target addresses. */
+#pragma opt_common_subs off
+/* measured: propagation suppression preserves retail call-site materialization. */
+#pragma opt_propagation off
 // FUN_002A1BD0
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a1bd0);
+s32 func_002a1bd0(u8 *arg0) {
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(temp_16 + 8) == 0) {
+        func_002a2780((s32)(temp_16 + 0x210));
+        {
+            s32 target;
+            s32 value;
+
+            target = (s32)(temp_16 + 0x210);
+            value = 18;
+            func_002a27c0(target, value, 249, value, 219, fGpffff8204, 0, 0, 10);
+        }
+        *(s32 *)(temp_16 + 8) = 1;
+    }
+    func_002a2980(temp_16 + 0x210);
+    if (func_002a2c70(temp_16 + 0x210) != 0) {
+        goto fail;
+    }
+    *(s32 *)(temp_16 + 8) = 0;
+    return 1;
+fail:
+    return 0;
+}
+/* measured: closes propagation suppression around func_002a1bd0. */
+#pragma opt_propagation on
+/* measured: closes common-subexpression suppression around func_002a1bd0. */
+#pragma opt_common_subs on
+/* measured: no_branch_likely preserves retail's ordinary loop branches. */
+#pragma no_branch_likely on
+/* measured: opt_common_subs off preserves retail per-use index arithmetic. */
+#pragma opt_common_subs off
+/* measured: opt_propagation off preserves retail's global counter loads. */
+#pragma opt_propagation off
 // FUN_002A1C80
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a1c80);
+s32 func_002a1c80(u8 *arg0) {
+    s32 var_17;
+    s32 var_17_2;
+    s32 var_18;
+    s32 var_17_3;
+    u8 *temp_16;
+    u8 *temp_18;
+    u8 *temp_18_2;
+    u8 *temp_19;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(temp_16 + 8) == 0) {
+        iGpffffb530 = 0;
+        *(s32 *)(temp_16 + 8) = 1;
+    }
+    if ((iGpffffb530 < 6) && ((*(s32 *)(temp_16 + 0x18) % 6) == 0)) {
+        var_17 = 0;
+        while (var_17 < 4) {
+            temp_18 = temp_16 + ((iGpffffb530 + (var_17 * 6)) * 0x98) + 0x340;
+            func_002a2780((s32)temp_18);
+            func_002a27c0((s32)temp_18, 0, 0, 0, 0, fGpffff8204, 0, 0, 6);
+            var_17++;
+        }
+        func_002a27c0((s32)(temp_16 + (iGpffffb530 * 0x98) + 0x1180),
+                      0, -2, 0, 0, fGpffff8204, 0, 0, 12);
+        iGpffffb530++;
+    }
+    var_17_2 = 0;
+    while (var_17_2 < 24) {
+        temp_18_2 = temp_16 + (var_17_2 * 0x98) + 0x340;
+        if (func_002a2ca0(temp_18_2) == 0) {
+            func_002a2980(temp_18_2);
+        }
+        var_17_2++;
+    }
+    var_18 = 0;
+    var_17_3 = 0;
+    while (var_17_3 < 6) {
+        if (func_002a2ca0(temp_16 + (var_17_3 * 0x98) + 0x1180) == 0) {
+            temp_19 = temp_16 + (var_17_3 * 0x98) + 0x1180;
+            func_002a2980(temp_19);
+            if (func_002a2c70(temp_19) == 0) {
+                var_18++;
+            }
+        }
+        var_17_3++;
+    }
+    if (var_18 == 6) {
+        *(s32 *)(temp_16 + 8) = 0;
+        *(s32 *)(temp_16 + 0x18) = 0;
+        return 1;
+    }
+    *(s32 *)(temp_16 + 0x18) += 1;
+    return 0;
+}
+/* measured: closes opt_propagation around func_002a1c80. */
+#pragma opt_propagation on
+/* measured: closes opt_common_subs around func_002a1c80. */
+#pragma opt_common_subs on
+/* measured: closes no_branch_likely around func_002a1c80. */
+#pragma no_branch_likely off
 // FUN_002A1F20
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a1f20);
+s32 func_002a1f20(u8 *arg0) {
+    u8 *temp_2;
+
+    if (*(s32 *)(*(u8 **)(arg0 + 0x38) + 4) != 3) {
+        temp_2 = func_00460990();
+        *(void (**)(u8 *))(temp_2 + 8) = func_002a1ef0;
+        *(u8 **)(temp_2 + 0x10) = arg0;
+        func_00460ac0(D_00795E60, temp_2);
+        goto success;
+    }
+    return -1;
+success:
+    return 0;
+}
 // FUN_002A1FA0
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a1fa0);
 // FUN_002A2310
@@ -72,7 +286,16 @@ void func_002a2740(void) {
 
 
 // FUN_002A2E10
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a2e10);
+void func_002a2e10(f32 f0, f32 f1, f32 f2, s32 arg0, s32 arg1,
+                   s8 *arg2, s32 arg3, s32 arg4, s32 arg5) {
+    s32 value;
+
+    value = arg2[arg3];
+    if (value == 0) {
+        value = 10;
+    }
+    func_0025f3f0(arg0, arg1, value, 0, (void *)arg5, 1, f0, f1, f2);
+}
 // FUN_002AA3F0
 s32 func_002aa3f0(void) {
     s32 r;

@@ -41,6 +41,10 @@ extern void func_0045a3e0(s32 arg0, s32 arg1);
 extern void func_001bd780();
 extern void func_001bab00();
 extern void func_001bd5a0();
+extern void func_001bd560();
+extern void func_001bac20();
+extern void func_001bbef0(u8 *arg0, f32 arg1);
+extern s32 func_00231d70(s32 arg0);
 extern u8 D_0060A0E0[];
 extern s32 func_001ef9a0(void);
 extern u8 *iGpffffb414;
@@ -311,9 +315,64 @@ void func_00228480(u8 *arg0) {
 }
 
 // FUN_002284D0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002284d0);
+void func_002284d0(u8 *arg0)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } Vec3;
+    struct Work {
+        f32 first[7];
+        Vec3 second;
+        f32 third[4];
+    } work;
+    f32 *temp_16;
+    u8 *temp_2;
+
+    func_001bd560(work.first, arg0 + 0x9C);
+    temp_2 = *(u8 **)(DAT_0076449c + 0xB98);
+    temp_16 = (f32 *)(temp_2 + 0x6B4);
+    func_001bd780(work.third, temp_16, (u8 *)temp_16 + 0xC, D_0060A0E0);
+    work.second = *(Vec3 *)temp_16;
+    func_001bac20(arg0, work.first, &work.second, 1);
+    func_001bbef0(arg0, 0.75f);
+}
 // FUN_00228580
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00228580);
+void func_00228580(void)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } Vec3;
+    struct Work {
+        Vec3 first;
+        f32 quat1[4];
+        Vec3 second;
+        f32 quat2[4];
+    } work;
+    f32 var_f1;
+    u32 index;
+    u16 temp_2_2;
+    u8 *base;
+    u8 *temp_16;
+    u8 *temp_2;
+
+    index = (u32)(func_00231d70(2) & 0xFFFF);
+    base = *(u8 **)(DAT_0076449c + 0xB98);
+    temp_2 = base + index * 0x34;
+    temp_16 = temp_2 + 0x64C;
+    func_001bd780(work.quat1, temp_16 + 4, temp_16 + 0x10, D_0060A0E0);
+    work.first = *(Vec3 *)(temp_16 + 4);
+    func_001bd780(work.quat2, temp_16 + 0x1C, temp_16 + 0x28,
+        D_0060A0E0);
+    work.second = *(Vec3 *)(temp_16 + 0x1C);
+    temp_2_2 = *(u16 *)temp_16;
+    var_f1 = (f32)temp_2_2 / 30.0f;
+    func_001bac20(DAT_0076449c + 0x24, &work.first, &work.second, 1);
+    func_001bbef0(DAT_0076449c + 0x24, var_f1);
+}
 // FUN_002286C0
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002286c0);
 // FUN_00228800

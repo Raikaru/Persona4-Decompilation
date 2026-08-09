@@ -1634,7 +1634,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039af40);
 // FUN_0039B080
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b080);
 // FUN_0039B210
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b210);
+s32 func_0039b210(u8 *arg0)
+{
+    s32 value;
+    s32 result;
+
+    value = *(s32 *)(arg0 + iGpffffb5f0);
+    if (value != 0) {
+        result = 4;
+        result += value * 0x14;
+        return result;
+    }
+    return 0;
+}
 // FUN_0039B250
 f32 func_0039b250(s32 arg0, f32 fparg0)
 {

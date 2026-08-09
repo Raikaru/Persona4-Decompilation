@@ -43,7 +43,7 @@ extern s16 iGpffffb5a4;
 /* gp - 0x56B0 = 0x00723A40, GP-relative assert string. */
 extern char iGpffffa950;
 /* gp - 0x56B8 = 0x00723A38, GP-relative name string. */
-extern char iGpffffa958;
+extern char iGpffffa948;
 /* gp - 0x7F6C = 0x00761184, GP-relative f32. */
 extern f32 iGpffff8094;
 /* gp - 0x7DE0 = 0x00761310, GP-relative f32. */
@@ -91,7 +91,7 @@ void func_0034db60(u8 *arg0, s32 arg1, f32 fparg0);
 s32 func_0034b970(void) {
     s32 temp_2;
 
-    temp_2 = func_00451de0(&iGpffffa958, 0xC7, 0, 0, func_0034b8d0, 0, 0);
+    temp_2 = func_00451de0(&iGpffffa948, 0xC7, 0, 0, func_0034b8d0, 0, 0);
     if (temp_2 == 0) {
         func_0046d730(&iGpffffa950, 0x168);
     }

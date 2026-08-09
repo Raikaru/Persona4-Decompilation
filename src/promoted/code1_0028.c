@@ -33,14 +33,56 @@ s32 func_00286430(u8 *arg0);
 
 extern u8 iGpffffa790;
 
+extern s32 D_00882170[];
 extern s32 D_008825F0[10];
 
 
 
 // FUN_002852A0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_002852a0);
+void func_002852a0(s32 arg0, s32 arg1) {
+    s32 *temp_4;
+    s32 *temp_4_2;
+
+    if ((arg0 < 0xD) && (arg0 >= 0)) {
+        switch (arg0) {
+        case 0:
+        case 4:
+        case 5:
+        case 6:
+            temp_4_2 = &D_00882170[arg0];
+            *temp_4_2 += arg1;
+            break;
+        default:
+            temp_4 = &D_00882170[arg0];
+            *temp_4 += arg1;
+            break;
+        }
+    }
+}
+/* measured: table and comparison-register shape; setup order remains the
+   residual. Committed at nd 33 in-file (nd 9 measured in isolation). */
 // FUN_00285330
+#ifdef NON_MATCHING
+s32 func_00285330(void) {
+    s32 i = 0;
+    s32 four = 4;
+    s32 five = 5;
+    s32 six = 6;
+    s32 *table = D_00882170;
+
+    while (i < 0xD) {
+        if ((i != 0) && (i != four) && (i != five) &&
+            (i != six) && (table[i] != 0)) {
+            return 0;
+        }
+        i++;
+    }
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285330);
+#endif
+/* Compiled-C park: object 124B/window 128B, normalized_diff 9. Committed at nd 9. */
 // FUN_002853B0
 s32 func_002853b0(void) {
     return 0;
@@ -250,7 +292,9 @@ void func_0028be70(u8 *arg0, s32 arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028bef0);
 
 // FUN_0028BF90
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028bf90);
+f32 func_0028bf90(s32 arg0) {
+    return (f32)arg0 + 2.0f;
+}
 
 // FUN_0028BFB0
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028bfb0);

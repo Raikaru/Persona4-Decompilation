@@ -22,6 +22,9 @@ extern s32 iGpffffb760;
 extern s32 D_00724844;
 extern u8 D_0070C260[];
 extern s32 func_003d2720(void);
+extern void func_003db360(u8 *arg0, u8 *arg1);
+extern u8 *func_003d5790(s32 arg0, s32 arg1);
+extern s32 func_003db480(s32 *arg0, s32 arg1);
 extern s32 func_003dd530(u8 *arg0, s32 arg1);
 extern s32 D_0070B470[];
 extern void func_003d3e60(void);
@@ -439,8 +442,25 @@ s32 func_003d5e40(u8 *arg0, f32 fparg0) {
 #pragma schedule off
 // FUN_003D5E90
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5e90);
+/* measured: the explicit -1 fallback and scheduled callback setup reproduce
+   the 96-byte retail frame and call delay slot exactly. */
+#pragma schedule on
 // FUN_003D5F50
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5f50);
+void func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    s32 var_7;
+    u8 *temp_2;
+
+    var_7 = arg3;
+    if (var_7 == -1) {
+        var_7 = *(s32 *)(arg0 + 0x20);
+    }
+    temp_2 = func_003d5790(arg2, var_7);
+    *(u8 **)(temp_2 + 0x38) = arg0;
+    *(s32 *)(temp_2 + 0x34) = arg1;
+    *(s32 *)(temp_2 + 0x30) = 1;
+}
+/* measured: closes the schedule bracket around func_003d5f50. */
+#pragma schedule off
 // FUN_003D5FB0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5fb0);
 // FUN_003D6010
@@ -587,8 +607,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d9f30);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db190);
 // FUN_003DB360
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db360);
+/* measured: the callback setup and hidden two-argument func_003db360 call
+   require schedule on to match retail's prologue and jal delay slot. */
+#pragma schedule on
 // FUN_003DB440
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db440);
+s32 func_003db440(s32 arg0, u8 *arg1) {
+    *(s32 (**)(s32 *, s32))(arg1 + 0x18) = func_003db480;
+    func_003db360((u8 *)arg0, arg1);
+    return arg0;
+}
+/* measured: closes the schedule bracket around func_003db440. */
+#pragma schedule off
 // FUN_003DB480
 /* measured: schedule on places the comparison result in the jr delay slot. */
 #pragma schedule on
@@ -1162,7 +1191,8 @@ s32 func_003df890(s32 *arg0) {
    P3FES donor FUN_004c21e0 (rwplcore.c:2357) is itself an inline-asm body
    emitting the retail 3-operand mult $3,$3,$2 (0x00621818) -- the same
    MIPS32r2 rd-form multiply MWCC cannot emit from C.  Blocked per wave
-   rule; not a matching gap.  Residual nd 8 (the mult word). */
+   rule; not a matching gap.  Residual nd 8 (the mult word).
+   Committed at nd 8. */
 
 // FUN_003DF8A0 NONMATCHING
 #ifdef NON_MATCHING

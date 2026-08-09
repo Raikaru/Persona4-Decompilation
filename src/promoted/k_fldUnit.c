@@ -6,9 +6,9 @@
 extern void (*DAT_008873EC[])(void *);
 extern s32 (*DAT_008873F4[])(s32, s32, s32);
 
-extern s32 iGpffffb4e8;
+extern s32 iGpffffb2e8;
 extern s32 iGpffffb260;
-extern s32 iGpffffb4e4;
+extern s32 iGpffffb2e4;
 extern s32 iGpffffb274;
 extern s32 D_00764344;
 extern s32 D_00724504;
@@ -347,7 +347,7 @@ void func_00164020(u8 *arg0)
         *(s32 *)(arg0 + 0x1B4) = 0;
         *(s32 *)(arg0 + 0x1B8) = 0;
         if (*(u16 *)(arg0 + 0x1C8) != 0) {
-            iGpffffb4e8 -= 1;
+            iGpffffb2e8 -= 1;
         }
     }
 }
@@ -785,7 +785,7 @@ void func_001662d0(void)
         return;
     }
     func_0043f9c8(D_007E80A0, 0, 0xB40);
-    iGpffffb4e4 = 0;
+    iGpffffb2e4 = 0;
     h0 = *(u16 *)iGpffff9db0;
     h4 = *(u16 *)(iGpffff9db0 + 4);
     s19 = (u8 *)func_00161b10(h0, h4, t17);
@@ -899,7 +899,7 @@ u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2)
     *arg1 = 0;
     var_16 = 0;
     if (func_0014a200() == 1) {
-        if (iGpffffb4e4 < (s32)arg0) {
+        if (iGpffffb2e4 < (s32)arg0) {
             var_f22 = 1.1754944e-38f;
             while (var_19 != NULL) {
                 pos = *(V3 *)(var_19 + 0x140);
@@ -910,7 +910,7 @@ u8 *func_00166600(u8 *arg0, u32 *arg1, s32 arg2)
                     var_19 = *(u8 **)(var_19 + 0x138);
                     var_16 += 1;
                 } else {
-                    if (iGpffffb4e4 == 0) {
+                    if (iGpffffb2e4 == 0) {
                         return var_19;
                     }
                     var_f23 = 1.1754944e-38f;

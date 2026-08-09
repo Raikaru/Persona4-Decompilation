@@ -27,6 +27,7 @@ BtlPacket* func_00194470(u32 type, u32 workSize);
 u32 func_002303e0(void* work);
 u32 func_00230450(void* work);
 extern s32 func_001f0ff0();
+extern u16 func_001d7f10();
 extern s32 func_00232710(u8* arg0, u32 arg1);
 extern s32 func_0019fc70();
 extern s32 func_001ef9a0();
@@ -223,11 +224,12 @@ loop_16:
         }
     }
 }
+/* measured: call-argument materialisation residual; retail does lhu $v0 then
+   move $a2, while every plain-C candidate reverses that order. Roughly thirty
+   spellings over four waves reached best nd 5 at object 168; complexity-ordering
+   and inline-parameter-position levers are exhausted. */
 // FUN_0022FF70
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022ff70);
-/* measured: plain-C reconstruction is 200B against the 208B retail window,
-   normalized_diff 6; condition chain instructions match, but return-merge
-   branch targets and the final shared return differ. Committed at nd 6. */
 // FUN_00230020
 #ifdef NON_MATCHING
 s32 func_00230020(u8 *arg0)
