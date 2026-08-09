@@ -217,6 +217,14 @@ def process_c_file(
 
         initial_sh_info_value = compiled_elf.symtab.sh_info
         local_syms_inserted = 0
+        # The symbol-index fixup below shifts indices to account for local
+        # symbols inserted ahead of them. It must apply ONLY to relocations the
+        # compiled C object already had: the records appended from the assembled
+        # fallback get their indices from add_symbol() and are already correct,
+        # so shifting those too walks each one onto a neighbouring symbol. That
+        # is invisible in the function's bytes -- verify.py masks relocated
+        # fields -- and shows up only as a call to the wrong function.
+        pre_existing_relocations = list(compiled_elf.get_relocations())
 
         # assumes .text relocations precede .rodata relocations
         for i, relocation_record in enumerate(relocation_records):
@@ -249,9 +257,17 @@ def process_c_file(
             compiled_elf.add_section(relocation_record)
 
         new_rodata_relocs = []
-        if local_syms_inserted > 0:
+        # `local_syms_inserted` counts every local symbol SEEN while walking the
+        # assembled relocations, including ones add_symbol() found already
+        # present and did not insert. Using that count over-shifts the indices
+        # and walks a relocation onto a neighbouring symbol -- invisible in the
+        # function's bytes, because verify.py masks relocated fields, and
+        # visible only as a call to the wrong function. The real shift is how
+        # far the first-global boundary actually moved.
+        symbol_index_shift = compiled_elf.symtab.sh_info - initial_sh_info_value
+        if symbol_index_shift > 0:
             # update relocations
-            for relocation_record in compiled_elf.get_relocations():
+            for relocation_record in pre_existing_relocations:
                 # A translation unit can legitimately have no .rodata at all --
                 # e.g. one whose functions are every one an INCLUDE_ASM
                 # fallback. There is then no rodata relocation record to split,
@@ -290,7 +306,7 @@ def process_c_file(
 
                 for relocation in relocation_record.relocations:
                     if relocation.symbol_index >= initial_sh_info_value:
-                        relocation.symbol_index += local_syms_inserted
+                        relocation.symbol_index += symbol_index_shift
 
             for new_rodata_reloc in new_rodata_relocs[1:]:
                 compiled_elf.add_section(new_rodata_reloc)

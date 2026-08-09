@@ -326,7 +326,7 @@ extern void func_004810c0(void);
 extern void func_00480f20(void* param_1, void* param_2);
 extern void* func_00480e20(void* param_1, void* param_2);
 extern u32 func_00480d50(int param_1, u64 param_2);
-extern u32 func_00480f00(void* param_1);
+extern s32 func_00480f00(void* param_1);
 extern int func_003d5000(void* desc); // P3 FUN_004b6680
 
 
@@ -701,7 +701,10 @@ u32 func_00480d50(int param_1, u64 param_2)
 // FUN_00480E20
 INCLUDE_ASM("asm/nonmatchings/primitive", func_00480e20);
 // FUN_00480F00
-INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f00);
+s32 func_00480f00(void* arg0)
+{
+    return *(const s32*)((const u8*)arg0 + 4) * 0x34;
+}
 // FUN_00480F20
 INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f20);
 // FUN_004810C0

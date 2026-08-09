@@ -65,7 +65,10 @@ void func_00388ba0(u8 *arg0) {
 // FUN_00388BD0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388bd0);
 // FUN_00388D10
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00388d10);
+void func_00388d10(u8 *arg0)
+{
+    *(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) = 0;
+}
 // FUN_00388D20
 void func_00388d20(u8 *arg0)
 {

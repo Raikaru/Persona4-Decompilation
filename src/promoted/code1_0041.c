@@ -180,7 +180,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004176b0);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417718);
 
 // FUN_004177B8
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004177b8);
+asm void func_004177b8(void)
+{
+    .set noreorder
+    .word 0x24030080 /* addiu $v1, $zero, 128 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 
 // FUN_004177C8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004177c8);

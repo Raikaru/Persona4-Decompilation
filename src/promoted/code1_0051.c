@@ -3,6 +3,9 @@
 
 
 extern u8 *D_00745888[];
+extern void func_004d3cd8();
+extern s32 func_004d43f8();
+extern u8 *D_007458B8[];
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop) and retail fills it with the final addiu (nd 6 -> 0). */
@@ -104,11 +107,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512d90);
 // FUN_00512EA8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512ea8);
 
+
 // FUN_00512EF8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512ef8);
 
-// FUN_00512FA0
+/* xori/sltiu scheduling residual: retail computes xori before ld ra while b210
+   delays both boolean operations until after the epilogue under all tried source
+   spellings and scheduler settings. Committed at nd 6. */
+// FUN_00512FA0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00512fa0(u8 *arg0) {
+    return func_004d43f8(*(s32 *)(*(u8 **)(arg0 + 0x2004))) == 3;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512fa0);
+#endif
+
+
+
 
 // FUN_00512FC8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512fc8);
@@ -134,8 +150,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132a8);
 // FUN_005132C8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132c8);
 
-// FUN_00513380
+/* xori/sltiu scheduling residual: retail uses two sltiu operations split by
+   the epilogue; b210 emits the second booleanization before restore. Committed at nd 7. */
+// FUN_00513380 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00513380(void) {
+    return (func_004d43f8() < 2U) == 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513380);
+#endif
 
 // FUN_005133A8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005133a8);
@@ -162,7 +186,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005138a0);
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513948);
 
 // FUN_00513A20
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513a20);
+s32 func_00513a20(void) {
+    func_004d3cd8();
+    return 0;
+}
 // FUN_00513A40
 /* measured: retail materialises the global's address once and keeps it live
    across the store; b210 shares that address with the returned constant
@@ -216,7 +243,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005179f8);
 // FUN_00517AA0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517aa0);
 // FUN_00517AB8
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517ab8);
+/* measured: retail places the final zero store in the jr delay slot; schedule on reproduces it. */
+#pragma schedule on
+void func_00517ab8(u8 *arg0) {
+    *(s32 *)(arg0 + 0x10) = 0;
+    *(s32 *)(arg0 + 0x0) = 0;
+    *(s32 *)(arg0 + 0x4) = 0;
+    *(s32 *)(arg0 + 0x8) = 0;
+    *(s32 *)(arg0 + 0xC) = 0;
+}
+/* measured: closes schedule scope for func_00517ab8. */
+#pragma schedule off
 // FUN_00517AD0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517ad0);
 // FUN_00517B80
@@ -242,8 +279,23 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
 // FUN_00517C28
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517c28);
 
-// FUN_00517CF0
+/* Global setter residual: retail fills the second branch delay with the global
+   address and branches to the shorter common exit; b210 leaves a nop and shifts
+   the setter body by one instruction. Committed at nd 16. */
+// FUN_00517CF0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00517cf0(u8 *arg0) {
+    s32 result;
+    result = -1;
+    if ((arg0 != NULL) && (*(s32 *)(arg0 + 0x48) != 0)) {
+        D_007458B8[0] = arg0;
+        result = 0;
+    }
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517cf0);
+#endif
 
 // FUN_00517D18
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d18);
@@ -258,10 +310,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d48);
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d68);
 
 // FUN_00517D80
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d80);
+void func_00517d80() {
+}
 
 // FUN_00517D88
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d88);
+void func_00517d88() {
+}
 
 // FUN_00517D90
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d90);
@@ -285,7 +339,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519d20);
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519d40);
 
 // FUN_00519DE8
-INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519de8);
+void func_00519de8() {
+}
 
 // FUN_00519DF0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519df0);

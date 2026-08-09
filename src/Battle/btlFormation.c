@@ -24,6 +24,29 @@ extern u32 func_001d1f30(u32 *work);
 extern void func_001d2e00(u32 *work);
 extern u32 func_001d2e20(u32 *param_1);
 extern void func_001d2fe0(u32 *work);
+extern void func_001d3090();
+extern u32 func_001d35a0(u16 *param_1);
+extern u32 func_001d3760(u16 *param_1);
+extern void func_001d3950();
+extern void func_001d3ba0();
+extern u32 func_001d6ce0(u32 param_1);
+extern void func_0044ea90(const void *msg, s32 id);
+extern u8 D_00609498[];
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern u8 *D_0076449C;
+extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
+extern void func_00194ee0(void *arg0, void *arg1);
+extern void func_00194f10(void *arg0, void *arg1);
+extern s32 func_00196b50(void *arg0);
+extern void func_00196b70(void *arg0);
+extern void func_00196ba0(void *arg0);
+extern void func_0019dea0(void *arg0);
+extern void func_001ee490(void *arg0);
+extern u8 *func_001b1510(void);
+extern void func_001d1680(s32 arg0, s32 arg1);
+extern s32 func_00232710(u32 arg0, u32 arg1);
+extern s32 func_002428f0(u32 arg0, u32 arg1);
+extern void func_003e40b0(f32 *arg0, f32 *arg1);
 
 typedef struct BtlFormationState
 {
@@ -90,6 +113,7 @@ extern void func_001d61e0(u32 *param_1);
 
 extern u8* DAT_0076449c;
 extern char D_00609570[];
+extern u8 *func_001d41b0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern char D_00609588[];
 extern u8 D_00763388;
 
@@ -136,11 +160,17 @@ void func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
 
 
 // FUN_001D2E00
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2e00);
+void func_001d2e00(u32 *work)
+{
+    *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) + 1;
+}
 // FUN_001D2E20
 INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2e20);
 // FUN_001D2FE0
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d2fe0);
+void func_001d2fe0(u32 *work)
+{
+    *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) - 1;
+}
 // FUN_001D3000
 void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 {
@@ -163,25 +193,179 @@ void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 // FUN_001D3090
 INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3090);
 // FUN_001D3530
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3530);
+void func_001d3530(u32 param_1, u32 param_2, u16 param_3)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = (u32)func_00194470(0xb03, 0xc);
+    *(code **)(packet + 0x6c) = (code *)func_001d3090;
+    work = *(u32 **)(packet + 0x78);
+    work[0] = param_1;
+    work[1] = param_2;
+    *(u16 *)(work + 2) = param_3;
+}
 // FUN_001D35A0
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d35a0);
+u32 func_001d35a0(u16 *arg0)
+{
+    u8 sp80[0x10];
+    u8 sp70[0x10];
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_21;
+    u32 temp_18;
+    u16 temp_2;
+    u8 *var_20;
+    u32 var_19;
+
+    temp_18 = arg0[0];
+    temp_2 = arg0[1];
+    var_19 = 0;
+    temp_17 = temp_2 & 0x8000;
+    temp_16 = temp_2 & 1;
+    temp_21 = temp_2 & 2;
+    while (var_19 < 4) {
+        if ((temp_18 & (1 << var_19)) != 0) {
+            var_20 = *(u8 **)(D_0076449C + var_19 * 8 + 0x178);
+            while (var_20 != NULL) {
+                if (((*(u32 *)(var_20 + 0x9c) & 4) != 0) &&
+                    ((temp_17 == 0) || (func_00196b50(var_20) == 0))) {
+                    func_00194ff0(var_20, sp80, sp70, NULL);
+                    if (temp_16 != 0) {
+                        func_00194ee0(var_20, sp80);
+                        func_00196b70(var_20);
+                        func_001ee490(var_20);
+                    }
+                    if (temp_21 != 0) {
+                        func_00194f10(var_20, sp70);
+                        func_00196ba0(var_20);
+                        func_0019dea0(var_20);
+                    }
+                }
+                var_20 = *(u8 **)(var_20 + 0xa6c);
+            }
+        }
+        var_19++;
+    }
+    return 1;
+}
 // FUN_001D3700
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3700);
+void func_001d3700(u16 param_1, u16 param_2)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = (u32)func_00194470(0xb04, 4);
+    *(code **)(packet + 0x6c) = (code *)func_001d35a0;
+    work = *(u32 **)(packet + 0x78);
+    *(u16 *)(work + 0) = param_1;
+    *(u16 *)((u8 *)work + 2) = param_2;
+}
 // FUN_001D3760
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3760);
+u32 func_001d3760(u16 *arg0)
+{
+    f32 sp60[4];
+    f32 sp50[4];
+    f32 sp40[4];
+    f32 temp_f1;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 var_f20;
+    u8 *temp_16;
+    u8 *var_17;
+
+    temp_16 = func_001b1510();
+    func_001d1680(!(*arg0 & 2), 0);
+    if ((*arg0 & 1) != 0) {
+        var_17 = *(u8 **)(D_0076449C + 0x178);
+        while (var_17 != NULL) {
+            if ((func_00232710(*(u32 *)(var_17 + 0xa64), 0x180017) == 0) &&
+                (func_002428f0(*(u32 *)(var_17 + 0xa64), 0) == 0)) {
+                if (*(u8 **)(temp_16 + 0x30) == var_17) {
+                    var_f20 = 250.0f;
+                } else {
+                    var_f20 = 350.0f;
+                }
+                func_00194ff0(var_17, sp60, NULL, sp50);
+                sp50[1] = sp60[1];
+                sp40[0] = sp60[0] - sp50[0];
+                sp40[1] = sp60[1] - sp60[1];
+                sp40[2] = sp60[2] - sp50[2];
+                func_003e40b0(&sp40[0], &sp40[0]);
+                temp_f3 = sp40[0] * var_f20;
+                sp40[0] = temp_f3;
+                temp_f2 = sp40[1] * var_f20;
+                sp40[1] = temp_f2;
+                temp_f1 = sp40[2] * var_f20;
+                sp40[2] = temp_f1;
+                sp60[0] += temp_f3;
+                sp60[1] += temp_f2;
+                sp60[2] += temp_f1;
+                func_00194ee0(var_17, sp60);
+            }
+            var_17 = *(u8 **)(var_17 + 0xa6c);
+        }
+    }
+    return 1;
+}
 // FUN_001D3900
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3900);
+void func_001d3900(u16 param_1)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = (u32)func_00194470(0xb05, 2);
+    *(code **)(packet + 0x6c) = (code *)func_001d3760;
+    work = *(u32 **)(packet + 0x78);
+    *(u16 *)(work + 0) = param_1;
+}
 // FUN_001D3950
 INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3950);
 // FUN_001D3B50
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3b50);
+void func_001d3b50(u32 param_1)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = (u32)func_00194470(0xb06, 4);
+    *(code **)(packet + 0x6c) = (code *)func_001d3950;
+    work = *(u32 **)(packet + 0x78);
+    work[0] = param_1;
+}
 // FUN_001D3BA0
 INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3ba0);
 // FUN_001D3D00
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3d00);
+void func_001d3d00(u32 param_1)
+{
+    u32 *work;
+    u32 packet;
+
+    packet = (u32)func_00194470(0xb07, 4);
+    *(code **)(packet + 0x6c) = (code *)func_001d3ba0;
+    work = *(u32 **)(packet + 0x78);
+    work[0] = param_1;
+}
 // FUN_001D3D50
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3d50);
+void func_001d3d50(u32 param_1)
+{
+    BtlFormationState *state;
+
+    func_0044ea90(&D_00609498, 0x3A);
+    state = (BtlFormationState *)jtbl_008873E8[0](0x638, 0x40000);
+    switch (param_1 & 0xffff) {
+    case 0:
+        state->flags = 0;
+        break;
+    case 1:
+        state->flags = 0;
+        break;
+    case 2:
+        state->flags = 8;
+        break;
+    }
+    state->counter = 1;
+    state->value = 0;
+}
 // FUN_001D3E00
 void func_001d3e00(u32 param_1)
 {
@@ -374,31 +558,96 @@ u32 func_001d5eb0(u32 param_1, u32 param_2, u16 param_3)
 }
 
 
-/* Ported from P3 donor func_002baec0. The volatile pointer locals are
-   load-bearing: measured W170, removing the qualifiers loses this function
-   (MATCH nd0 -> MISMATCH nd6, size 112 -> 112). */
 
 // FUN_001D5F60
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d5f60);
+void func_001d5f60(u32 *work)
+{
+    s16 mode;
 
+    work[6] = 0;
+    func_001d40d0(work[0]);
+    *(u16 *)(work[1] + 0xa0) = *(u16 *)(work[1] + 0xa0) + 1;
+    *(u16 *)(work[2] + 0xa0) = *(u16 *)(work[2] + 0xa0) + 1;
+    mode = *(s16 *)((u8 *)work + 0xc);
+    switch (mode) {
+    case 0:
+        work[5] = *(u32 *)(work[1] + 0xa08);
+        break;
+    case 1:
+        work[5] = *(u32 *)(work[2] + 0xa08);
+        break;
+    }
+    work[4] = func_001d6ce0(work[5]);
+}
 // FUN_001D6010
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d6010);
+/* measured: opt_propagation off preserves func_001d6010's index-before-value argument-load order (MATCH nd0). */
+#pragma opt_propagation off
+u32 func_001d6010(u32 *param_1)
+{
+    s16 sVar1;
+    u16 *puVar2;
+    int iVar3;
+    u16 functionIndex;
+    u32 unaff_s2_lo;
+    u32 unaff_s1_lo;
+
+    if (!func_001d4120(param_1[0])) {
+        return 0;
+    }
+    puVar2 = (u16 *)param_1[4];
+    if ((*(u32 *)(puVar2 + 2) & 0xff000000) == 0) {
+        return 1;
+    }
+    functionIndex = *(u16 *)(param_1 + 3);
+    iVar3 = func_001d4140(param_1[functionIndex & 0], functionIndex);
+    if ((*puVar2 & 0x40) == 0) {
+        if ((int)param_1[6] >= iVar3 * 2 - 0xd) {
+            *puVar2 = *puVar2 | 0x100;
+            return 0;
+        }
+        if (param_1[6] == 0) {
+            u32 flags = param_1[7];
+
+            if ((flags & 0xc00) != 0xc00) {
+                sVar1 = *(short *)(param_1 + 3);
+                switch (sVar1) {
+                case 0:
+                    unaff_s2_lo = param_1[1];
+                    unaff_s1_lo = param_1[2];
+                    break;
+                case 1:
+                    unaff_s2_lo = param_1[2];
+                    unaff_s1_lo = param_1[1];
+                    break;
+                }
+                *(u32 *)(puVar2 + 8) =
+                    (u32)func_001d41b0((u8 *)param_1[0], sVar1 & 0xffff,
+                                       unaff_s2_lo, unaff_s1_lo, flags);
+                *puVar2 = *puVar2 | 0x30;
+            }
+        }
+        param_1[6] = param_1[6] + 2;
+    }
+    return 0;
+}
+/* measured: opt_propagation on closes the func_001d6010 bracket. */
+#pragma opt_propagation on
+// measured: #pragma opt_propagation off preserves retail's index-before-value argument-load order; plain C without it emits the two loads in the opposite order. Object 112B, retail window 112B, normalized_diff 0.
+// Committed at nd 0.
 // FUN_001D6170
+/* measured: opt_propagation off probe for 6170 argument loads. */
+#pragma opt_propagation off
 bool func_001d6170(u32 *param_1)
 {
     int iVar2;
     u16 index;
     u32 value;
-    volatile /* Removing this function's qualifier batch loses func_001d6170 (MATCH nd0 -> MISMATCH nd6, size 112 -> 112) - measured W170; ported from P3 donor func_002baec0. */ u16 *index_ptr;
-    volatile /* Removing this function's qualifier batch loses func_001d6170 (MATCH nd0 -> MISMATCH nd6, size 112 -> 112) - measured W170; ported from P3 donor func_002baec0. */ u32 *value_ptr;
 
     if (!func_001d4120(*param_1)) {
         return false;
     }
-    index_ptr = (volatile u16 *)(param_1 + 3);
-    value_ptr = (volatile u32 *)param_1;
-    iVar2 = (index = *index_ptr,
-             value = *value_ptr,
+    iVar2 = (index = *(u16 *)(param_1 + 3),
+             value = *(u32 *)((u8 *)param_1 + ((u32)index & 0)),
              func_001d4190(value, index));
     iVar2 <<= 1;
     if (iVar2 < 1) {
@@ -406,6 +655,8 @@ bool func_001d6170(u32 *param_1)
     }
     return iVar2 <= (int)param_1[6];
 }
+/* measured: closes opt_propagation off probe for func_001d6170. */
+#pragma opt_propagation on
 
 
 

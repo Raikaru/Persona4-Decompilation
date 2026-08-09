@@ -1,5 +1,11 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct {
+    f32 normal;
+    f32 orthogonal;
+    f32 identity;
+} MatrixTolerance003e;
+typedef void (*Callback003e)(u8 *, u8 *, u8 *);
 
 extern s32 D_008866D8;
 
@@ -10,6 +16,7 @@ extern s32 D_00886700;
 extern s32 D_00887330;
 
 extern u8 D_008872E0[];
+extern u8 *iGpffffb768;
 extern s32 D_00724870;
 extern s32 (*D_008873D4[])(char *arg0);
 extern char D_00752FA8[];
@@ -51,20 +58,53 @@ void func_003e3dc0();
 void func_003e3d00();
 void func_003e3f00();
 void func_003e3e60();
+extern u8 *func_003df9f0(u8 *arg0, u8 *arg1);
+extern s32 func_003e1030(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+extern void func_0043ece8(s32 arg0);
+extern void func_00441558(u8 *arg0, u8 *arg1);
+extern void func_0043c710(s32 arg0, s32 arg1);
+extern s32 func_003e3830(u8 *arg0, s32 arg1);
+extern u8 D_0070B760[];
+extern u8 D_0070B710[];
+extern u8 D_0070B7A0[];
+extern void func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern void func_003ef3a0(void);
+extern f32 sqrtf(f32 x);
+extern void func_003df8c0(u8 *, u8 *, u8 *);
+extern void func_003e6db0();
+extern void func_003e9680(void *arg0);
+extern void (*jtbl_008873EC[])(u8 *arg0);
 
 
 // measured: removing this pragma takes func_003e05d0 nd 0 -> nd 16: retail fills the
 // jr $ra delay slot with sw $v1, 0xc($a0) and hoists move $v0,$a0 before the and;
 // baseline -O2 emits lw; lui; ori; and; sw; move; jr; nop.
 
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
-#pragma optimization_level 3
-extern void (*jtbl_008873EC[])(u8 *arg0);
-
+/* measured: no_branch_likely on reproduces the retail beqz/nop and
+   shared address-calculation block for the NULL callback fallback. */
+#pragma no_branch_likely on
+/* measured: schedule on probe for the retail constant/address order. */
+#pragma schedule on
 // FUN_003E00F0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e00f0);
+s32 func_003e00f0(Callback003e arg0) {
+    u8 *globals;
+    s32 result;
+    if (arg0 == (Callback003e)0) {
+        goto fallback;
+    }
+store:
+    globals = (u8 *)D_008872E0 + (s32)iGpffffb768;
+    result = 1;
+    *(Callback003e *)(globals + 8) = arg0;
+    return result;
+fallback:
+    arg0 = func_003df8c0;
+    goto store;
+}
+/* measured: close schedule around func_003e00f0. */
+#pragma schedule off
+/* measured: close no_branch_likely around func_003e00f0. */
+#pragma no_branch_likely off
 // FUN_003E0130
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0130);
 // FUN_003E0180
@@ -76,11 +116,41 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0250);
 // FUN_003E02C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e02c0);
 // FUN_003E0380
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0380);
+/* measured: iGpffffb768 is the registered scalar for GP -0x4898. The
+   absolute D_008872E0 array plus the scalar offset reproduces retail's
+   lui/addiu, gp-load, addu addressing sequence. */
+/* measured: open the one-function optimization probe for func_003e0380. */
+#pragma optimization_level 3
+s32 func_003e0380(MatrixTolerance003e *arg0) {
+    u8 *globals;
+    s32 result;
+    globals = (u8 *)D_008872E0 + (s32)iGpffffb768;
+    result = 1;
+    *(MatrixTolerance003e *)arg0 = *(MatrixTolerance003e *)(globals + 0xc);
+    return result;
+}
+/* measured: close the one-function optimization probe for func_003e0380. */
+#pragma optimization_level 2
+
 // FUN_003E03B0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e03b0);
+/* measured: use the same registered scalar and absolute array domain as the
+   getter; retaining the true return value reproduces retail's addiu v0,1. */
+/* measured: open the one-function optimization probe for func_003e03b0. */
+#pragma optimization_level 3
+s32 func_003e03b0(const MatrixTolerance003e *arg0) {
+    u8 *globals;
+    s32 result;
+    globals = (u8 *)D_008872E0 + (s32)iGpffffb768;
+    result = 1;
+    *(MatrixTolerance003e *)(globals + 0xc) = *arg0;
+    return result;
+}
+/* measured: close the one-function optimization probe for func_003e03b0. */
+#pragma optimization_level 2
 // FUN_003E03E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e03e0);
+/* measured: open O3 only for func_003e05d0; do not span promoted stubs. */
+#pragma optimization_level 3
 // FUN_003E05D0
 u8 *RwMatrixUpdate(u8 *arg0) {
     *(s32 *)(arg0 + 0xC) &= 0xFFFDFFFC;
@@ -90,16 +160,20 @@ u8 *RwMatrixUpdate(u8 *arg0) {
 #pragma optimization_level 2
 
 
-// measured: removing this pragma takes func_003e1020 nd 0 -> nd 6: retail fills the
-// jr $ra delay slot with sw $a0, -0x54a0($gp); baseline -O2 emits sw; jr; nop.
-
-#pragma optimization_level 3
 
 // FUN_003E05F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e05f0);
 
 // FUN_003E0670
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0670);
+/* measured: probe typed tailcall for retail's direct matrix wrapper. */
+#pragma schedule on
+#pragma tailcall on
+u8 *func_003e0670(u8 *arg0, u8 *arg1) {
+    return func_003df9f0(arg0, arg1);
+}
+/* measured: close typed tailcall probe. */
+#pragma tailcall off
+#pragma schedule off
 
 // FUN_003E0680
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0680);
@@ -124,6 +198,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0f40);
 
 // FUN_003E0F80
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0f80);
+// measured: removing this pragma takes func_003e1020 nd 0 -> nd 6: retail fills the
+// jr $ra delay slot with sw $a0, -0x54a0($gp); baseline -O2 emits sw; jr; nop.
+
+#pragma optimization_level 3
 // FUN_003E1020
 void func_003e1020(s32 arg0) {
     D_008866D8 = arg0;
@@ -142,7 +220,15 @@ void func_003e1020(s32 arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1030);
 
 // FUN_003E1220
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1220);
+/* measured: probe typed tailcall for the six-argument allocator wrapper. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5) {
+    return func_003e1030(arg0, arg1, arg2, arg3, arg4, arg5);
+}
+/* measured: close typed tailcall probe. */
+#pragma tailcall off
+#pragma schedule off
 
 // FUN_003E1230
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1230);
@@ -168,13 +254,37 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1a70);
    stops b210 turning the loop's beq/bne into beql/bnel. */
 
 // FUN_003E1AE0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ae0);
+/* measured: probe typed tailcall for callback trampoline. */
+#pragma schedule on
+#pragma tailcall on
+void func_003e1ae0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4, s32 arg5, void *arg6) {
+    func_0043ece8(arg0);
+}
+/* measured: close typed tailcall probe. */
+#pragma tailcall off
+#pragma schedule off
 
 // FUN_003E1AF0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1af0);
+/* measured: probe typed tailcall for callback trampoline. */
+#pragma schedule on
+#pragma tailcall on
+void func_003e1af0(u8 *arg0, u8 *arg1) {
+    func_00441558(arg0, arg1);
+}
+/* measured: close typed tailcall probe. */
+#pragma tailcall off
+#pragma schedule off
 
 // FUN_003E1B00
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1b00);
+/* measured: probe typed tailcall for callback trampoline. */
+#pragma schedule on
+#pragma tailcall on
+void func_003e1b00(s32 arg0, s32 arg1) {
+    func_0043c710(arg0, arg1);
+}
+/* measured: close typed tailcall probe. */
+#pragma tailcall off
+#pragma schedule off
 
 // FUN_003E1B10
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1b10);
@@ -579,10 +689,25 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4030);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e40b0);
 
 // FUN_003E4180
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4180);
+/* measured: ordinary COP1 MAC lowering is plain-C matchable; this staged
+   accumulator spelling follows retail's y*y, x*x, z*z order. */
+f32 func_003e4180(f32 *arg0) {
+    f32 result;
+    result = arg0[1] * arg0[1];
+    result += arg0[0] * arg0[0];
+    result += arg0[2] * arg0[2];
+    return sqrtf(result);
+}
 
 // FUN_003E41B0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e41b0);
+/* measured: ordinary COP1 MAC lowering is plain-C matchable; retain the
+   two-dimensional y*y then x*x accumulator order from retail. */
+f32 func_003e41b0(f32 *arg0) {
+    f32 result;
+    result = arg0[1] * arg0[1];
+    result += arg0[0] * arg0[0];
+    return sqrtf(result);
+}
 
 // FUN_003E41E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e41e0);
@@ -837,7 +962,11 @@ s32 func_003e50a0(s8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5110);
 
 // FUN_003E5220
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5220);
+#pragma tailcall on
+void func_003e5220(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    func_003e3020(D_0070B710, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
 
 // FUN_003E5250
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5250);
@@ -871,8 +1000,17 @@ void func_003e5510(s32 arg0) {
    64 bytes (nd 46). Entry-guard materialisation floor.
    Committed at nd 43. */
 
+/* measured: optimization_level 3 reproduces retail's argument-register
+   materialisation for this direct wrapper. */
+#pragma optimization_level 3
 // FUN_003E5520
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5520);
+#pragma tailcall on
+void func_003e5520(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    func_003e3020(D_0070B7A0, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes optimization_level 3 around func_003e5520. */
+#pragma optimization_level 2
 
 // FUN_003E5550
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5550);
@@ -915,8 +1053,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5ae0);
 // FUN_003E5DF0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5df0);
 
+/* measured: optimization_level 3 reproduces retail's argument-register
+   materialisation for this direct wrapper. */
+#pragma optimization_level 3
 // FUN_003E6210
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6210);
+#pragma tailcall on
+void func_003e6210(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    func_003e3020((u8 *)D_0070B800, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes optimization_level 3 around func_003e6210. */
+#pragma optimization_level 2
 // FUN_003E6240
 #pragma schedule on
 s32 func_003e6240(s32 arg0) {
@@ -964,7 +1111,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6770);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6870);
 
 // FUN_003E6A60
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6a60);
+s32 func_003e6a60(s32 arg0) {
+    func_003ef3a0();
+    return arg0;
+}
 
 // FUN_003E6A90
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6a90);
@@ -1065,11 +1215,37 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
 // FUN_003E8130
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8130);
 
+/* measured: no_branch_likely on forces the retail beqz+nop shape. */
+#pragma no_branch_likely on
 // FUN_003E8180
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8180);
+u8 *func_003e8180(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    *(f32 *)(arg0 + 0x80) = fparg0;
+    func_003e6db0();
+    temp_4 = *(s32 *)(arg0 + 4);
+    if (temp_4 != 0) {
+        func_003e9680((void *)temp_4);
+    }
+    return arg0;
+}
+/* measured: close no_branch_likely around func_003e8180. */
+#pragma no_branch_likely off
 
 // FUN_003E81C0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e81c0);
+/* measured: no_branch_likely on forces the retail beqz+nop shape. */
+#pragma no_branch_likely on
+u8 *func_003e81c0(u8 *arg0, f32 fparg0) {
+    s32 temp_4;
+    *(f32 *)(arg0 + 0x84) = fparg0;
+    func_003e6db0();
+    temp_4 = *(s32 *)(arg0 + 4);
+    if (temp_4 != 0) {
+        func_003e9680((void *)temp_4);
+    }
+    return arg0;
+}
+/* measured: close no_branch_likely around func_003e81c0. */
+#pragma no_branch_likely off
 
 // FUN_003E8200
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
@@ -1087,7 +1263,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8310);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
 
 // FUN_003E8410
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8410);
+#pragma tailcall on
+void func_003e8410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    func_003e3870(D_0070B710, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
 
 // FUN_003E8440
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8440);
@@ -1110,10 +1290,27 @@ s32 func_003e8910(void) {
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
+/* measured: optimization_level 3 reproduces retail's argument-register
+   materialisation for this direct wrapper. */
+#pragma optimization_level 3
 // FUN_003E8930
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8930);
+#pragma tailcall on
+void func_003e8930(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    func_003e3870(D_0070B760, arg0, arg1, arg2, arg3, 0);
+}
+#pragma tailcall off
+/* measured: closes optimization_level 3 around func_003e8930. */
+#pragma optimization_level 2
 // FUN_003E8960
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8960);
+/* measured: probe typed tailcall for global-base forwarding wrapper. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003e8960(s32 arg0) {
+    return func_003e3830(D_0070B760, arg0);
+}
+/* measured: close typed tailcall probe. */
+#pragma tailcall off
+#pragma schedule off
 // FUN_003E8970
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8970);
 // FUN_003E89C0

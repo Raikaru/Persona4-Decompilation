@@ -13,9 +13,6 @@ extern s8 D_00731C01[];
 
 extern s32 D_00731C34[];
 
-extern s32 D_00731C70[];
-
-
 #pragma schedule on
 
 // FUN_004E0058
@@ -45,11 +42,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e04b0);
 // FUN_004E0560
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0560);
 // FUN_004E0590
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0590);
+s8 func_004e0590(u8 *arg0)
+{
+    return *(s8 *)(arg0 + 1);
+}
 // FUN_004E0598
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0598);
 // FUN_004E05D0
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e05d0);
+void func_004e05d0(u8 *arg0)
+{
+    *(s8 *)(arg0 + 1) = 0;
+}
 // FUN_004E13C8
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e13c8);
 // FUN_004E1418
@@ -181,8 +184,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4990);
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e49e8);
 // FUN_004E4A60
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4a60);
+/* measured: schedule on moves the byte load into the jr delay slot. */
+#pragma schedule on
 // FUN_004E4DC8
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4dc8);
+s8 func_004e4dc8(u8 *arg0)
+{
+    return *(s8 *)(arg0 + 1);
+}
+/* measured: closes the schedule-on tiny accessor scope. */
+#pragma schedule off
 // FUN_004E4DD0
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4dd0);
 // FUN_004E4E90
@@ -217,8 +227,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7d40);
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7ed0);
 // FUN_004E7FC8
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7fc8);
+/* measured: schedule on places the constant return in the jr delay slot. */
+#pragma schedule on
 // FUN_004E8000
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e8000);
+s32 func_004e8000(void)
+{
+    return 0x800;
+}
+/* measured: closes the schedule-on constant-return scope. */
+#pragma schedule off
 // FUN_004E8008
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e8008);
 // FUN_004E8058

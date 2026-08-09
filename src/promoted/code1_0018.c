@@ -1,6 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
 extern void func_0048a000();
+extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern void func_003c21e0();
+extern void func_004787e0(s32 arg0);
 extern void func_00185370();
 
 extern void (*jtbl_008873EC[])(void *);
@@ -30,8 +33,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00182390);
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001823c0);
 // FUN_001823D0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001823d0);
+/* measured probe: opt_propagation off tests caching the repeated render callback base. */
+#pragma opt_propagation off
 // FUN_00182B40
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00182b40);
+void func_00182b40(void)
+{
+    void (**fn)(s32, s32);
+
+    fn = D_00887300;
+    fn[0](7, 2);
+    fn[0](6, 1);
+    fn[0](8, 0);
+    fn[0](0xC, 1);
+}
+/* measured probe: restore opt_propagation after func_00182b40. */
+#pragma opt_propagation on
 // FUN_00182BC0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00182bc0);
 // FUN_001837F0
@@ -141,7 +157,16 @@ void func_0018bad0(u8 *arg0) {
 // FUN_0018BB20
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bb20);
 // FUN_0018BBF0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bbf0);
+s32 func_0018bbf0(u8 *arg0)
+{
+    u32 value;
+
+    if (arg0 == NULL) {
+        return 1;
+    }
+    value = *(u32 *)(*(u8 **)(arg0 + 0x38));
+    return value >= 4;
+}
 // FUN_0018BC20
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bc20);
 // FUN_0018BDD0
@@ -192,7 +217,11 @@ u8 *func_0018c610(u8 *arg0, s32 *arg1) {
 }
 
 // FUN_0018C680
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c680);
+u8 *func_0018c680(u8 *arg0, s32 arg1)
+{
+    func_003c21e0(*(s32 *)(arg0 + 0x18), func_0018c610, arg1);
+    return arg0;
+}
 // FUN_0018C6C0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c6c0);
 // FUN_0018C700
@@ -260,7 +289,16 @@ s32 func_0018e450(u8 *arg0)
 }
 
 // FUN_0018E4D0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018e4d0);
+void func_0018e4d0(u8 *arg0)
+{
+    s32 value;
+
+    value = *(s32 *)(*(u8 **)(arg0 + 0x38) + 4);
+    if (value != 0) {
+        func_004787e0(value);
+    }
+    jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+}
 // FUN_0018E810
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018e810);
 // FUN_0018EF20

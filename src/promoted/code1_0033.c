@@ -148,7 +148,10 @@ void func_0033d320(u8 *arg0, s32 arg1, s8 arg2) {
 // FUN_0033D390
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d390);
 // FUN_0033D3C0
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d3c0);
+void func_0033d3c0(u8 *arg0, f32 arg1)
+{
+    *(f32 *)(*(u8 **)(arg0 + 0x38) + 8) = arg1;
+}
 // FUN_0033D3D0
 void func_0033d3d0(u8 *arg0, s32 arg1)
 {

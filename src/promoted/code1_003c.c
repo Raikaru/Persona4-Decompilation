@@ -7,9 +7,16 @@ extern s32 func_003c2bd0(u8 *arg0);
 extern s32 func_003c4c00(u8 *arg0);
 extern s32 func_003e3370(u8 *desc, u8 *arg1);
 extern s32 func_003e3c20(u8 *desc, u8 *arg1);
-extern s32 func_003e6240(u8 *arg0);
-extern void func_003efda0(u8 *arg0);
-extern void func_003ef3a0(u8 *arg0);
+extern s32 func_003e3070(u8 *desc, s32 arg0, s32 arg1);
+extern s32 func_003e30c0(u8 *desc, s32 arg0, s32 arg1);
+extern s32 func_003e3830(u8 *desc, s32 arg0);
+extern s32 func_003c3cc0(u8 *arg0);
+extern u8 *func_003c8200(u8 *arg0, s32 arg1, s32 arg2);
+extern s32 func_003c5fd0(u8 *arg0, u8 *arg1);
+extern void func_003ce840(u8 *arg0);
+extern s32 func_003ce3a0(s32 arg0, u8 *arg1);
+extern s32 func_003ce9e0(s32 arg0, u8 *arg1);
+extern s32 func_003ceeb0(u8 *arg0);
 typedef struct { f32 x, y, z, w; } Vec4f;
 
 extern u8 D_0070AFB0[];
@@ -21,6 +28,10 @@ extern s32 iGpffffb708;
 extern s64 iGpffffb8f0;
 /* gp - 0x48F4 = 0x007647fc */
 extern s32 iGpffffb70c;
+/* gp - 0x4938 = 0x007647b8 */
+extern s32 iGpffffb6c8;
+/* gp - 0x4910 = 0x007647e0 */
+extern u8 *iGpffffb6f0;
 extern void func_003e9680(u8 *arg0);
 extern u8 func_003ca740[];
 extern u8 func_003ca780[];
@@ -43,11 +54,24 @@ extern u8 *iGpffffb8e8;
 extern s32 iGpffffb8f4;
 extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
 extern void func_003e12f0(u8 *arg0);
-extern void func_003c3890(void);
+extern s32 func_003c3890(u8 *arg0);
 extern u8 D_0070AFD0[];
 extern u8 D_0070AFF0[];
 extern u8 *func_003c9c20(u32 arg0);
-extern s32 func_003c5a90(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+extern u8 *func_003c9640(u8 *arg0);
+extern u8 D_0070AF70[];
+extern u8 D_0070B040[];
+extern u8 D_008872E4[];
+extern s32 func_003c5a90(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3);
+extern void func_003cbde0(u8 *arg0, void (*arg1)(u8 *), u8 *arg2);
+extern void func_003c8dd0(u8 *arg0);
+extern u8 *func_003cbc90(u8 *arg0, u8 *arg1);
+extern void func_003cbe80(u8 *arg0, u8 *arg1);
+extern u8 D_0070AF90[];
+extern u8 D_0070B060[];
+extern s32 func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern void func_003efd20(u8 *arg0, u8 *arg1);
+extern s32 func_003e3020(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 D_007647CC;
 extern s32 D_007647C8;
 
@@ -87,25 +111,98 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0960);
 // FUN_003C0F20
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0f20);
 // FUN_003C1AB0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ab0);
+/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c1ab0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070AF70, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
+#pragma schedule off
 // FUN_003C1AE0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ae0);
+/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c1ae0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070AF90, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003c1ae0; explicit opposite state restores the file default. */
+#pragma schedule off
 // FUN_003C1B10
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b10);
+/* measured: schedule and tailcall reproduce the five-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c1b10(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070AF70, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003c1b10; explicit opposite state restores the file default. */
+#pragma schedule off
 // FUN_003C1B40
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b40);
+/* measured: schedule and tailcall reproduce the direct shared-helper jump. */
+#pragma schedule on
+/* measured: tailcall on preserves the frameless helper jump. */
+#pragma tailcall on
+s32 func_003c1b40(s32 arg0, s32 arg1) {
+    return func_003e3070(D_0070AF70, arg0, arg1);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 // FUN_003C1B60
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b60);
+/* measured: schedule and tailcall reproduce the direct shared-helper jump. */
+#pragma schedule on
+/* measured: tailcall on preserves the frameless helper jump. */
+#pragma tailcall on
+s32 func_003c1b60(s32 arg0, s32 arg1) {
+    return func_003e30c0(D_0070AF70, arg0, arg1);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 // FUN_003C1B80
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b80);
+/* measured: schedule and tailcall reproduce the direct shared-helper jump. */
+#pragma schedule on
+/* measured: tailcall on preserves the frameless helper jump. */
+#pragma tailcall on
+s32 func_003c1b80(s32 arg0) {
+    return func_003e3830(D_0070AF70, arg0);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 // FUN_003C1B90
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1b90);
+/* measured: schedule moves the saved object into the call delay slot. */
+#pragma schedule on
+u8 *func_003c1b90(u8 *arg0, u8 *arg1, s32 arg2) {
+    u8 *p;
+    u8 flag;
+    p = arg0;
+    func_003efd20(p, arg1);
+    flag = p[3];
+    flag |= 1;
+    p[3] = flag;
+    return p;
+}
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 // FUN_003C1BD0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1bd0);
 // FUN_003C1C70
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1c70);
 // FUN_003C1D00
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1d00);
+/* measured: schedule places the increment store in the return delay slot. */
+#pragma schedule on
+s32 func_003c1d00(s32 arg0, s32 arg1) {
+    iGpffffb6c8 = arg1;
+    iGpffffb70c += 1;
+    return arg0;
+}
+#pragma schedule off
 // FUN_003C1D20
 #pragma schedule on
 s32 func_003c1d20(s32 arg0) {
@@ -196,9 +293,24 @@ u8 *func_003c2a60(u8 *arg0) {
 // FUN_003C2A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2a80);
 // FUN_003C2B70
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2b70);
+/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c2b70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070AFB0, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
+#pragma schedule off
 // FUN_003C2BA0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2ba0);
+/* measured: schedule and tailcall reproduce the five-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c2ba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070AFB0, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003c2ba0; explicit opposite state restores the file default. */
+#pragma schedule off
 // FUN_003C2BD0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2bd0);
 // FUN_003C2C90
@@ -221,7 +333,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2cf0);
 // FUN_003C30B0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c30b0);
 // FUN_003C3890
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3890);
+/* measured: tailcall on reproduces the direct helper jump. */
+#pragma tailcall on
+s32 func_003c3890(u8 *arg0) {
+    return func_003c3cc0(arg0);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
 // FUN_003C38B0
 /* The four floats are copied as one Vec4f assignment because retail loads all
    four before storing any; per-field assignments interleave lwc1/swc1 (nd 8).
@@ -251,9 +369,24 @@ chk:
 #pragma schedule off
 
 // FUN_003C3920
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3920);
+/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c3920(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070AFD0, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
+#pragma schedule off
 // FUN_003C3950
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3950);
+/* measured: schedule and tailcall reproduce the five-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c3950(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070AFD0, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003c3950; explicit opposite state restores the file default. */
+#pragma schedule off
 // FUN_003C3980
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3980);
 // FUN_003C39C0
@@ -333,7 +466,28 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
 
 
 // FUN_003C4010
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4010);
+/* measured: schedule places the successful result in the branch delay slot. */
+#pragma schedule on
+/* measured: no_branch_likely keeps both null checks as ordinary branches. */
+#pragma no_branch_likely on
+s32 func_003c4010(u8 *arg0) {
+    u8 *p;
+    s32 result;
+    p = *(u8 **)(arg0 + 8);
+    if (p == NULL)
+        goto zero;
+    if (*(s32 *)(p + 0x2C) == 0)
+        goto zero;
+    result = 8;
+    goto done;
+zero:
+    result = 0;
+done:
+    return result;
+}
+/* measured: no_branch_likely off closes this function's bracket. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003C4040
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
 // FUN_003C40D0
@@ -375,13 +529,39 @@ u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
     return (u8 *)arg0;
 }
 // FUN_003C4310
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4310);
+/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c4310(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070AFF0, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003c4310; explicit opposite state restores the file default. */
+#pragma schedule off
 
 // FUN_003C4340
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4340);
+/* measured: schedule and tailcall reproduce the five-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c4340(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070AFF0, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003c4340; explicit opposite state restores the file default. */
+#pragma schedule off
 
 // FUN_003C4370
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4370);
+/* measured: schedule and tailcall reproduce the direct shared-helper jump. */
+#pragma schedule on
+/* measured: tailcall on preserves the frameless helper jump. */
+#pragma tailcall on
+s32 func_003c4370(s32 arg0, s32 arg1) {
+    return func_003e30c0(D_0070AFF0, arg0, arg1);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 
 // FUN_003C4390
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
@@ -439,12 +619,17 @@ u8 *func_003c4a40(u8 *arg0) {
 
 extern s32 D_007647EC;
 
-/* measured: the 112B window begins with a six-word absolute jump thunk into
-   the shared table; no plain-C body can reproduce that entry sequence under
-   the source policy, so the bare INCLUDE_ASM fallback remains. */
+/* measured: the indexed table accessor is reproduced by a direct scaled
+   pointer load; schedule on places its final load in the jr delay slot. */
 
 // FUN_003C4A60
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a60);
+/* measured: schedule on places the final indexed load in the jr delay slot. */
+#pragma schedule on
+s32 func_003c4a60(s32 *arg0, s32 arg1) {
+    return ((s32 *)*arg0)[arg1];
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 
 // FUN_003C4A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
@@ -538,7 +723,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5d10);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5fd0);
 
 // FUN_003C6060
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6060);
+/* measured: a returned old value selects retail v0/v1 coloring. */
+#pragma schedule on
+s16 func_003c6060(void) {
+    s32 offset;
+    u8 *base;
+    u8 *p;
+    s16 old;
+    offset = (s32)iGpffffb6f0;
+    base = D_008872E0;
+    p = base + offset;
+    old = *(s16 *)p;
+    *(s16 *)p = old + 1;
+    return old;
+}
+#pragma schedule off
 
 // FUN_003C6080
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6080);
@@ -574,8 +773,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c7d90);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8200);
 
 // FUN_003C8910
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8910);
-
+/* measured: schedule on places the constant in the jump delay slot. */
+#pragma schedule on
+/* measured: tailcall on preserves the helper's frameless jump. */
+#pragma tailcall on
+u8 *func_003c8910(u8 *arg0) {
+    return func_003c8200(arg0, 0, 1);
+}
+/* measured: tailcall off closes the single-function bracket. */
+#pragma tailcall off
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003C8920
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8920);
 
@@ -596,23 +804,82 @@ void func_003d4e00();
 void func_003d4e90();
 void func_003d4d70();
 
-/* measured: without #pragma schedule on, MWCC emits ld $ra / addiu $sp /
-   jr $ra / nop; retail restores sp in the jr delay slot (nd 6 -> 0). */
-
+/* measured: schedule on is required for the direct decrement return. */
 // FUN_003C8CC0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8cc0);
+/* measured: schedule on places the returned argument move in the jr delay slot. */
+#pragma schedule on
+s32 func_003c8cc0(s32 arg0) {
+    D_007647EC -= 1;
+    return arg0;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003C8CE0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8ce0);
+/* measured: tailcall on preserves the indirect dispatch jump. */
+#pragma tailcall on
+void func_003c8ce0(void) {
+    ((void (*)(void))(*(void **)(*(u8 **)D_008872E4 + 0x68)))();
+}
+/* measured: tailcall off closes the single-function bracket. */
+#pragma tailcall off
 // FUN_003C8D00
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d00);
+/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c8d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070B040, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
+#pragma schedule off
 // FUN_003C8D30
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d30);
+/* measured: schedule and tailcall reproduce the five-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003c8d30(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070B040, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003c8d30; explicit opposite state restores the file default. */
+#pragma schedule off
 // FUN_003C8D60
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d60);
+/* measured: schedule and tailcall reproduce the direct shared-helper jump. */
+#pragma schedule on
+/* measured: tailcall on preserves the frameless helper jump. */
+#pragma tailcall on
+s32 func_003c8d60(s32 arg0, s32 arg1) {
+    return func_003e3070(D_0070B040, arg0, arg1);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 // FUN_003C8D80
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8d80);
+/* measured: schedule and tailcall reproduce the direct shared-helper jump. */
+#pragma schedule on
+/* measured: tailcall on preserves the frameless helper jump. */
+#pragma tailcall on
+s32 func_003c8d80(s32 arg0, s32 arg1) {
+    return func_003e30c0(D_0070B040, arg0, arg1);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 // FUN_003C8DA0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8da0);
+/* measured: schedule fills the branch and return delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely keeps the equality test as an ordinary branch. */
+#pragma no_branch_likely on
+s32 func_003c8da0(s32 arg0, u8 *arg1) {
+    if (*(s32 *)arg1 == arg0)
+        goto equal;
+    return arg0;
+equal:
+    *(s32 *)(arg1 + 4) = 1;
+    return 0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003C8DD0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8dd0);
 // FUN_003C8EB0
@@ -698,13 +965,39 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9b30);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9c20);
 
 // FUN_003C9D00
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d00);
+/* measured: schedule preserves the saved argument across the callback helper. */
+#pragma schedule on
+s32 func_003c9d00(u8 *arg0) {
+    u8 *self;
+    self = arg0;
+    func_003cbde0(*(u8 **)D_008872E0, func_003c8dd0, self);
+    return (s32)self;
+}
+/* measured: closes the schedule bracket for func_003c9d00; explicit opposite state restores the file default. */
+#pragma schedule off
 
 // FUN_003C9D40
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d40);
 
 // FUN_003C9E80
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9e80);
+/* measured: schedule places store and callback-address materialization in retail delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely keeps the null callback test as retail beqz. */
+#pragma no_branch_likely on
+u8 *func_003c9e80(u8 *arg0, u8 *(*arg1)(u8 *)) {
+    if (arg1 == NULL)
+        goto default_callback;
+store:
+    *(u8 **)(arg0 + 0x68) = (u8 *)arg1;
+    return arg0;
+default_callback:
+    arg1 = func_003c9640;
+    goto store;
+}
+/* measured: no_branch_likely off closes this function's bracket. */
+#pragma no_branch_likely off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 
 // FUN_003C9EB0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
@@ -716,10 +1009,25 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca270);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
 
 // FUN_003CA3D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca3d0);
+/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003ca3d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070B060, arg0, arg1, arg2, arg3, arg4);
+}
+#pragma tailcall off
+#pragma schedule off
 
 // FUN_003CA400
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca400);
+/* measured: schedule and tailcall reproduce the five-argument shared-helper jump. */
+#pragma schedule on
+#pragma tailcall on
+s32 func_003ca400(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070B060, arg0, arg1, arg2, arg3);
+}
+#pragma tailcall off
+/* measured: closes the schedule bracket for func_003ca400; explicit opposite state restores the file default. */
+#pragma schedule off
 
 // FUN_003CA430
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca430);
@@ -905,41 +1213,121 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb250);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb300);
 
 // FUN_003CB670
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb670);
+/* measured: schedule places the saved object in the helper call delay slot. */
+#pragma schedule on
+s32 func_003cb670(u8 *arg0, u8 *arg1) {
+    u8 *self;
+    self = arg0;
+    func_003cbc90(arg1, self);
+    return (s32)self;
+}
+#pragma schedule off
 
 // FUN_003CB6A0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb6a0);
+/* measured: schedule places the saved object in the helper call delay slot. */
+#pragma schedule on
+s32 func_003cb6a0(u8 *arg0, u8 *arg1) {
+    u8 *self;
+    self = arg0;
+    func_003cbe80(arg1, self);
+    return (s32)self;
+}
+/* measured: closes the schedule bracket for func_003cb6a0; explicit opposite state restores the file default. */
+#pragma schedule off
 
 // FUN_003CB6D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb6d0);
+/* measured: schedule places the saved object in the helper call delay slot. */
+#pragma schedule on
+s32 func_003cb6d0(u8 *arg0, u8 *arg1) {
+    u8 *self;
+    self = arg0;
+    func_003cbc10(arg1, self);
+    return (s32)self;
+}
+/* measured: closes the schedule bracket for func_003cb6d0; explicit opposite state restores the file default. */
+#pragma schedule off
 
 // FUN_003CB700
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb700);
+/* measured: schedule and tailcall reproduce the four-argument helper jump. */
+#pragma schedule on
+/* measured: tailcall on preserves the frameless helper jump. */
+#pragma tailcall on
+s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
+    u8 *self;
+    self = arg2;
+    return func_003c5a90(*(u8 **)(self + 0x54), self, arg0, self + 0x20);
+}
+/* measured: tailcall off closes func_003cb700's bracket and restores the file default. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 // FUN_003CB720
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 
 
 
 // FUN_003CB770
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb770);
+/* measured: schedule on places the field load in the jump delay slot. */
+#pragma schedule on
+/* measured: tailcall on preserves the helper's frameless jump. */
+#pragma tailcall on
+s32 func_003cb770(u8 *arg0) {
+    return func_003c5fd0(*(u8 **)(arg0 + 0x54), arg0);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 
 // FUN_003CB780
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb780);
+/* measured: schedule on places the selected move in the jump delay slot. */
+#pragma schedule on
+/* measured: tailcall on preserves the helper's frameless jump. */
+#pragma tailcall on
+s32 func_003cb780(s32 arg0, s32 arg1, u8 *arg2) {
+    return func_003ce3a0(arg0, arg2);
+}
+/* measured: tailcall off closes this function's bracket. */
+#pragma tailcall off
+/* measured: schedule off closes this function's bracket. */
+#pragma schedule off
 
 // FUN_003CB790
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb790);
 
 // FUN_003CB7C0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7c0);
+/* measured: tailcall on preserves the helper jump. */
+#pragma tailcall on
+void func_003cb7c0(u8 *arg0) {
+    func_003ce840(arg0);
+}
+/* measured: tailcall off closes the single-function bracket. */
+#pragma tailcall off
 
 // FUN_003CB7D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7d0);
+/* measured: schedule on places the selected argument move in the jump delay slot. */
+#pragma schedule on
+/* measured: tailcall on preserves the helper's selected argument jump. */
+#pragma tailcall on
+s32 func_003cb7d0(s32 arg0, s32 arg1, u8 *arg2) {
+    return func_003ce9e0(arg0, arg2);
+}
+/* measured: tailcall off closes the single-function bracket. */
+#pragma tailcall off
+/* measured: schedule off closes the selected argument bracket. */
+#pragma schedule off
 
 // FUN_003CB7E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7e0);
 
 // FUN_003CB810
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb810);
+/* measured: tailcall on preserves the helper jump. */
+#pragma tailcall on
+s32 func_003cb810(u8 *arg0) {
+    return func_003ceeb0(arg0);
+}
+/* measured: tailcall off closes the single-function bracket. */
+#pragma tailcall off
 
 /* measured: retail takes THREE parameters and ignores the second -- arg0
    arrives in $a0 and the object pointer in $a2. With the third parameter
@@ -955,21 +1343,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb810);
    load, `0x10 + temp_2`, casts, pointer-return variants, and all-s32 or
    old-style callee prototypes were all measured at nd 8. Committed at nd 8. */
 
-// FUN_003CB820 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: probe schedule */
+// FUN_003CB820
+/* measured: schedule on places the second call in the jr delay slot as retail
+   does; the fourth argument to func_003c5a90 is a u8 *, and casting it to s32
+   was what kept this body from compiling under NON_MATCHING and from matching. */
 #pragma schedule on
 void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
     u8 *temp_2;
 
     temp_2 = func_003c9c20((u32)arg2);
-    func_003c5a90((u8 *)*(s32 *)(arg2 + 0x78), temp_2, arg0, (s32)(temp_2 + 0x10));
+    func_003c5a90((u8 *)*(s32 *)(arg2 + 0x78), temp_2, arg0, temp_2 + 0x10);
 }
-/* measured: close schedule */
+/* measured: closes the schedule bracket opened above func_003cb820. */
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
-#endif
 
 /* measured: best C reconstruction with schedule/goto is nd 37,
    object 88B versus the 96B window; call/conditional-move residuals
@@ -979,7 +1365,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb820);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
 
 // FUN_003CB8D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb8d0);
+/* measured: schedule preserves the object across both helper calls. */
+#pragma schedule on
+void func_003cb8d0(u8 *arg0) {
+    u8 *self;
+    u8 *temp;
+    self = arg0;
+    temp = func_003c9c20((u32)self);
+    func_003c5fd0(*(u8 **)(self + 0x78), temp);
+}
+#pragma schedule off
 // FUN_003CB900
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb900);
 // FUN_003CBC10
@@ -997,7 +1392,23 @@ u8 *func_003cbc10(u8 *arg0, u8 *arg1) {
 #pragma schedule off
 
 // FUN_003CBC60
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbc60);
+/* measured: schedule places the zero return and final store in retail delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely keeps the node test as an ordinary branch. */
+#pragma no_branch_likely on
+s32 func_003cbc60(s32 arg0, u8 *arg1) {
+    u8 *node;
+    node = arg1 + iGpffffb708;
+    if (*(s32 *)(node + 0xC) != 0)
+        goto active;
+    return 0;
+active:
+    *(s32 *)(node + 0xC) = 0;
+    *(s32 *)(node + 8) = 0;
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003CBC90
 #pragma schedule on
 u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
@@ -1009,7 +1420,13 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
     return arg0;
 }
 // FUN_003CBCE0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbce0);
+/* measured: schedule on places the GP-derived field load in the jr delay slot. */
+#pragma schedule on
+s32 func_003cbce0(s32 arg0) {
+    return *(s32 *)(arg0 + iGpffffb70c);
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 
 // FUN_003CBCF0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbcf0);
@@ -1362,7 +1779,27 @@ none:
 #pragma schedule off
 
 // FUN_003CFA30
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cfa30);
+/* measured: schedule reproduces the shared exits and return delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely keeps the two null tests as ordinary branches. */
+#pragma no_branch_likely on
+u8 *func_003cfa30(u8 *arg0, u8 *arg1) {
+    u8 *p;
+    if (arg0 == NULL)
+        goto no_result;
+    p = *(u8 **)(arg0 + 0x14);
+    if (p == NULL)
+        goto no_result2;
+    *(u8 **)(p + 0x18) = arg1;
+    return arg0;
+no_result:
+    return NULL;
+no_result2:
+    return NULL;
+}
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket for func_003cfa30; explicit opposite state restores the file default. */
+#pragma schedule off
 // FUN_003CFA70
 #pragma schedule on
 s32 *func_003cfa70(void) {

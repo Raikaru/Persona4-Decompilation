@@ -42,7 +42,20 @@ extern s32 func_003b83f0(void* object);
 extern s32 func_003b85b0(void* object);
 extern void func_003b8520(void* object, u32 mode);
 extern void func_003b83d0(void* object, void* data);
+extern f32 func_003bd090(RpUserDataArray* userData, s32 index);
+
 extern void func_00397390(void* data);
+extern u8* func_003ef650(s32, s32);
+extern s32 func_003ef6d0(void);
+extern void func_003ef3a0(void*);
+extern void func_003ef5b0(s32, s32);
+extern void func_00440b68();
+extern void func_0044ea90(void*, s32);
+extern u8* (*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern u8 D_00712620[];
+extern u8 D_00712640[];
+extern u8 D_00712650[];
+extern void (*jtbl_008873EC[])(void*);
 
 
 
@@ -70,7 +83,25 @@ s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name)
 
 
 // FUN_004579A0
-INCLUDE_ASM("asm/nonmatchings/k_clump", func_004579a0);
+f32 func_004579a0(const RpMaterial* material, const char* name)
+{
+    s32 i;
+    f32 value;
+    RpUserDataArray* userData;
+
+    value = 1.0f;
+    for (i = 0; i < func_003bcfb0(material); i++)
+    {
+        userData = func_003bd000(material, i);
+        if (strcmp(func_003bd040(userData), name) == 0 &&
+            func_003bd050(userData) == rpREALUSERDATA)
+        {
+            value = func_003bd090(userData, 0);
+            break;
+        }
+    }
+    return value;
+}
 // FUN_00457A90
 u32 K_Clump_MatUsrDataHasData(const RpMaterial* material, const char* name)
 {
@@ -448,7 +479,23 @@ INCLUDE_ASM("asm/nonmatchings/k_clump", func_00462eb0);
 // FUN_00463100
 INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463100);
 // FUN_00463250
-INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463250);
+void func_00463250(u32* arg0)
+{
+    u32* next;
+    u32* current;
+    u8* resource;
+
+    current = arg0;
+    while (current != NULL)
+    {
+        next = (u32*)current[0x40 / 4];
+        resource = func_003ef650(func_003ef6d0(), (s32)current);
+        func_00440b68(D_00712650, current, *(s32*)(resource + 0x54));
+        func_003ef3a0(resource);
+        jtbl_008873EC[0](current);
+        current = next;
+    }
+}
 // FUN_004632F0
 void* func_004632f0(void* object, void* data)
 {

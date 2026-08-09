@@ -221,8 +221,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f8f60);
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f8fe8);
 // FUN_004F9040
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9040);
+/* measured: schedule on tested for return-zero epilogue order. */
+#pragma schedule on
 // FUN_004F9130
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9130);
+s32 func_004f9130(void)
+{
+    func_004f8f60();
+    return 0;
+}
+/* measured: restore schedule off after func_004f9130. */
+#pragma schedule off
 // FUN_004F9150
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9150);
 // FUN_004F9198

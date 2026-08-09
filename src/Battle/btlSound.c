@@ -52,7 +52,7 @@ struct BtlSoundPacketSkillSE
 };
 extern void func_001f7d90(void* work);
 extern u32 func_001f7e30(void* work);
-extern u32 func_001f8070(void* work);
+extern u32 func_001f8070(u16* work);
 
 extern u32 sprintf(void* buffer, const void* format, ...);
 extern char sGpffffa500[5];
@@ -62,6 +62,7 @@ extern char DAT_00624F40[15];
 extern char D_00624F20[];
 extern char D_00624F30[];
 extern u8 func_0045aeb0(s16 channelIndex, const char* name);
+extern u8 *D_0076449C;
 
 extern void func_00440b68(const char* fmt, const char* file, s32 line);
 extern void* func_00454a60(const char* path, s32 flags);
@@ -256,14 +257,41 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 
 
 // FUN_001F8070
-INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f8070);
+u32 func_001f8070(u16* work)
+{
+    u16 state;
+    s16 channel;
+    u8* global;
+
+    state = *work;
+    switch (state)
+    {
+    case 0:
+        func_0045af60(2, 4, 0, (s16)state);
+        break;
+    case 1:
+        global = D_0076449C;
+        if (*(s8*)(global + 0xaca) == -1)
+        {
+            channel = *(s16*)(global + 0xac8);
+            func_0045af60(2, channel, 0, (s16)state);
+            D_0076449C[0xaca] = 0;
+            if ((*(u16*)(D_0076449C + 0xac8) += 1) >= 9)
+            {
+                *(u16*)(D_0076449C + 0xac8) = 5;
+            }
+        }
+        break;
+    }
+    return 1;
+}
 // FUN_001F8140
 void func_001f8140(u16 state)
 {
     BtlPacket* packet;
 
     packet = func_00194470(0x904, 2);
-    packet->updateFunc = func_001f8070;
+    packet->updateFunc = (BtlPacketFunc)func_001f8070;
     *(u16*)packet->workData = state;
 }
 
@@ -301,7 +329,17 @@ BtlPacket* func_001f81f0(u16 channel, const char* streamName)
 
 
 // FUN_001F8280
-INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f8280);
+u32 func_001f8280(void* work)
+{
+    u8* unit;
+
+    unit = *(u8**)work;
+    if ((*(s32*)(unit + 0x98) & 2) != 0)
+    {
+        *(u16*)(unit + 0x9d8) &= (u16)~0x10;
+    }
+    return 1;
+}
 // FUN_001F82B0
 void func_001f82b0(void* unit)
 {
@@ -315,7 +353,17 @@ void func_001f82b0(void* unit)
 
 
 // FUN_001F8300
-INCLUDE_ASM("asm/nonmatchings/btlSound", func_001f8300);
+u32 func_001f8300(void* work)
+{
+    u8* unit;
+
+    unit = *(u8**)work;
+    if ((*(s32*)(unit + 0x98) & 2) != 0)
+    {
+        *(u16*)(unit + 0x9d8) |= 0x10;
+    }
+    return 1;
+}
 // FUN_001F8330
 void func_001f8330(void* unit)
 {

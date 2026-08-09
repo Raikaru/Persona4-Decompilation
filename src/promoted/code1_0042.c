@@ -137,263 +137,1295 @@ asm void func_00421440(void)
 }
 
 // FUN_00421450
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421450);
+asm void func_00421450(void)
+{
+    .set noreorder
+    .word 0x24030009 /* addiu $v1, $zero, 9 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421460
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421460);
+asm void func_00421460(void)
+{
+    .set noreorder
+    .word 0x2403000A /* addiu $v1, $zero, 10 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421470
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421470);
+asm void func_00421470(void)
+{
+    .set noreorder
+    .word 0x2403000B /* addiu $v1, $zero, 11 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421480
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421480);
+asm void func_00421480(void)
+{
+    .set noreorder
+    .word 0x2403000C /* addiu $v1, $zero, 12 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421490
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421490);
+asm void func_00421490(void)
+{
+    .set noreorder
+    .word 0x2403000D /* addiu $v1, $zero, 13 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004214A0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004214a0);
+asm void func_004214a0(void)
+{
+    .set noreorder
+    .word 0x2403000E /* addiu $v1, $zero, 14 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004214B0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004214b0);
+asm void func_004214b0(void)
+{
+    .set noreorder
+    .word 0x2403000F /* addiu $v1, $zero, 15 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004214C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004214c0);
+asm void func_004214c0(void)
+{
+    .set noreorder
+    .word 0x24030010 /* addiu $v1, $zero, 16 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004214D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004214d0);
+asm void func_004214d0(void)
+{
+    .set noreorder
+    .word 0x24030010 /* addiu $v1, $zero, 16 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004214E0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004214e0);
+asm void func_004214e0(void)
+{
+    .set noreorder
+    .word 0x24030011 /* addiu $v1, $zero, 17 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004214F0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004214f0);
+asm void func_004214f0(void)
+{
+    .set noreorder
+    .word 0x24030012 /* addiu $v1, $zero, 18 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421500
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421500);
+asm void func_00421500(void)
+{
+    .set noreorder
+    .word 0x24030012 /* addiu $v1, $zero, 18 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421510
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421510);
+asm void func_00421510(void)
+{
+    .set noreorder
+    .word 0x24030013 /* addiu $v1, $zero, 19 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421520
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421520);
+asm void func_00421520(void)
+{
+    .set noreorder
+    .word 0x24030014 /* addiu $v1, $zero, 20 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421530
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421530);
+asm void func_00421530(void)
+{
+    .set noreorder
+    .word 0x24030015 /* addiu $v1, $zero, 21 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421540
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421540);
+asm void func_00421540(void)
+{
+    .set noreorder
+    .word 0x24030016 /* addiu $v1, $zero, 22 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421550
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421550);
+asm void func_00421550(void)
+{
+    .set noreorder
+    .word 0x24030017 /* addiu $v1, $zero, 23 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421560
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421560);
+asm void func_00421560(void)
+{
+    .set noreorder
+    .word 0x240300FC /* addiu $v1, $zero, 252 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421570
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421570);
+asm void func_00421570(void)
+{
+    .set noreorder
+    .word 0x240300FD /* addiu $v1, $zero, 253 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421580
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421580);
+asm void func_00421580(void)
+{
+    .set noreorder
+    .word 0x2403FFE6 /* addiu $v1, $zero, 65510 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421590
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421590);
+asm void func_00421590(void)
+{
+    .set noreorder
+    .word 0x2403FFE5 /* addiu $v1, $zero, 65509 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004215A0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004215a0);
+asm void func_004215a0(void)
+{
+    .set noreorder
+    .word 0x2403FFE4 /* addiu $v1, $zero, 65508 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004215B0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004215b0);
+asm void func_004215b0(void)
+{
+    .set noreorder
+    .word 0x2403FFE3 /* addiu $v1, $zero, 65507 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004215C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004215c0);
+asm void func_004215c0(void)
+{
+    .set noreorder
+    .word 0x2403FF02 /* addiu $v1, $zero, 65282 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004215D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004215d0);
+asm void func_004215d0(void)
+{
+    .set noreorder
+    .word 0x2403FF01 /* addiu $v1, $zero, 65281 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004215E0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004215e0);
+asm void func_004215e0(void)
+{
+    .set noreorder
+    .word 0x24030020 /* addiu $v1, $zero, 32 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004215F0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004215f0);
+asm void func_004215f0(void)
+{
+    .set noreorder
+    .word 0x24030021 /* addiu $v1, $zero, 33 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421600
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421600);
+asm void func_00421600(void)
+{
+    .set noreorder
+    .word 0x24030022 /* addiu $v1, $zero, 34 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421610
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421610);
+asm void func_00421610(void)
+{
+    .set noreorder
+    .word 0x24030023 /* addiu $v1, $zero, 35 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421620
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421620);
+asm void func_00421620(void)
+{
+    .set noreorder
+    .word 0x24030024 /* addiu $v1, $zero, 36 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421630
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421630);
+asm void func_00421630(void)
+{
+    .set noreorder
+    .word 0x24030025 /* addiu $v1, $zero, 37 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421640
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421640);
+asm void func_00421640(void)
+{
+    .set noreorder
+    .word 0x2403FFDA /* addiu $v1, $zero, 65498 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421650
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421650);
+asm void func_00421650(void)
+{
+    .set noreorder
+    .word 0x24030027 /* addiu $v1, $zero, 39 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421660
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421660);
+asm void func_00421660(void)
+{
+    .set noreorder
+    .word 0x24030028 /* addiu $v1, $zero, 40 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421670
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421670);
+asm void func_00421670(void)
+{
+    .set noreorder
+    .word 0x24030029 /* addiu $v1, $zero, 41 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421680
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421680);
+asm void func_00421680(void)
+{
+    .set noreorder
+    .word 0x2403FFD6 /* addiu $v1, $zero, 65494 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421690
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421690);
+asm void func_00421690(void)
+{
+    .set noreorder
+    .word 0x2403002B /* addiu $v1, $zero, 43 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004216A0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004216a0);
+asm void func_004216a0(void)
+{
+    .set noreorder
+    .word 0x2403FFD4 /* addiu $v1, $zero, 65492 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004216B0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004216b0);
+asm void func_004216b0(void)
+{
+    .set noreorder
+    .word 0x2403002D /* addiu $v1, $zero, 45 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004216C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004216c0);
+asm void func_004216c0(void)
+{
+    .set noreorder
+    .word 0x2403FFD2 /* addiu $v1, $zero, 65490 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004216D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004216d0);
+asm void func_004216d0(void)
+{
+    .set noreorder
+    .word 0x2403002F /* addiu $v1, $zero, 47 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004216E0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004216e0);
+asm void func_004216e0(void)
+{
+    .set noreorder
+    .word 0x24030030 /* addiu $v1, $zero, 48 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004216F0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004216f0);
+asm void func_004216f0(void)
+{
+    .set noreorder
+    .word 0x2403FFCF /* addiu $v1, $zero, 65487 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421700
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421700);
+asm void func_00421700(void)
+{
+    .set noreorder
+    .word 0x24030032 /* addiu $v1, $zero, 50 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421710
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421710);
+asm void func_00421710(void)
+{
+    .set noreorder
+    .word 0x24030033 /* addiu $v1, $zero, 51 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421720
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421720);
+asm void func_00421720(void)
+{
+    .set noreorder
+    .word 0x2403FFCC /* addiu $v1, $zero, 65484 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421730
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421730);
+asm void func_00421730(void)
+{
+    .set noreorder
+    .word 0x24030035 /* addiu $v1, $zero, 53 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421740
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421740);
+asm void func_00421740(void)
+{
+    .set noreorder
+    .word 0x2403FFCA /* addiu $v1, $zero, 65482 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421750
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421750);
+asm void func_00421750(void)
+{
+    .set noreorder
+    .word 0x24030037 /* addiu $v1, $zero, 55 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421760
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421760);
+asm void func_00421760(void)
+{
+    .set noreorder
+    .word 0x2403FFC8 /* addiu $v1, $zero, 65480 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421770
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421770);
+asm void func_00421770(void)
+{
+    .set noreorder
+    .word 0x24030039 /* addiu $v1, $zero, 57 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421780
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421780);
+asm void func_00421780(void)
+{
+    .set noreorder
+    .word 0x2403FFC6 /* addiu $v1, $zero, 65478 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421790
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421790);
+asm void func_00421790(void)
+{
+    .set noreorder
+    .word 0x2403003B /* addiu $v1, $zero, 59 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004217A0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004217a0);
+asm void func_004217a0(void)
+{
+    .set noreorder
+    .word 0x2403003C /* addiu $v1, $zero, 60 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004217B0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004217b0);
+asm void func_004217b0(void)
+{
+    .set noreorder
+    .word 0x2403003D /* addiu $v1, $zero, 61 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004217C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004217c0);
+asm void func_004217c0(void)
+{
+    .set noreorder
+    .word 0x2403003E /* addiu $v1, $zero, 62 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004217D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004217d0);
+asm void func_004217d0(void)
+{
+    .set noreorder
+    .word 0x2403003F /* addiu $v1, $zero, 63 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004217E0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004217e0);
+asm void func_004217e0(void)
+{
+    .set noreorder
+    .word 0x24030040 /* addiu $v1, $zero, 64 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004217F0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004217f0);
+asm void func_004217f0(void)
+{
+    .set noreorder
+    .word 0x24030041 /* addiu $v1, $zero, 65 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421800
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421800);
+asm void func_00421800(void)
+{
+    .set noreorder
+    .word 0x24030042 /* addiu $v1, $zero, 66 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421810
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421810);
+asm void func_00421810(void)
+{
+    .set noreorder
+    .word 0x2403FFBD /* addiu $v1, $zero, 65469 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421820
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421820);
+asm void func_00421820(void)
+{
+    .set noreorder
+    .word 0x24030044 /* addiu $v1, $zero, 68 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421830
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421830);
+asm void func_00421830(void)
+{
+    .set noreorder
+    .word 0x24030045 /* addiu $v1, $zero, 69 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421840
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421840);
+asm void func_00421840(void)
+{
+    .set noreorder
+    .word 0x2403FFBA /* addiu $v1, $zero, 65466 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421850
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421850);
+asm void func_00421850(void)
+{
+    .set noreorder
+    .word 0x24030047 /* addiu $v1, $zero, 71 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421860
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421860);
+asm void func_00421860(void)
+{
+    .set noreorder
+    .word 0x2403FFB8 /* addiu $v1, $zero, 65464 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421870
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421870);
+asm void func_00421870(void)
+{
+    .set noreorder
+    .word 0x24030049 /* addiu $v1, $zero, 73 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421880
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421880);
+asm void func_00421880(void)
+{
+    .set noreorder
+    .word 0x2403004A /* addiu $v1, $zero, 74 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421890
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421890);
+asm void func_00421890(void)
+{
+    .set noreorder
+    .word 0x2403004B /* addiu $v1, $zero, 75 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004218A0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004218a0);
+asm void func_004218a0(void)
+{
+    .set noreorder
+    .word 0x2403004C /* addiu $v1, $zero, 76 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004218B0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004218b0);
+asm void func_004218b0(void)
+{
+    .set noreorder
+    .word 0x2403004D /* addiu $v1, $zero, 77 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004218C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004218c0);
+asm void func_004218c0(void)
+{
+    .set noreorder
+    .word 0x2403004E /* addiu $v1, $zero, 78 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004218D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004218d0);
+asm void func_004218d0(void)
+{
+    .set noreorder
+    .word 0x2403004F /* addiu $v1, $zero, 79 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004218E0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004218e0);
+asm void func_004218e0(void)
+{
+    .set noreorder
+    .word 0x24030050 /* addiu $v1, $zero, 80 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004218F0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004218f0);
+asm void func_004218f0(void)
+{
+    .set noreorder
+    .word 0x24030051 /* addiu $v1, $zero, 81 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421900
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421900);
+asm void func_00421900(void)
+{
+    .set noreorder
+    .word 0x24030052 /* addiu $v1, $zero, 82 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421910
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421910);
+asm void func_00421910(void)
+{
+    .set noreorder
+    .word 0x2403FFAD /* addiu $v1, $zero, 65453 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421920
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421920);
+asm void func_00421920(void)
+{
+    .set noreorder
+    .word 0x24030054 /* addiu $v1, $zero, 84 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421930
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421930);
+asm void func_00421930(void)
+{
+    .set noreorder
+    .word 0x2403FFAB /* addiu $v1, $zero, 65451 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421940
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421940);
+asm void func_00421940(void)
+{
+    .set noreorder
+    .word 0x24030056 /* addiu $v1, $zero, 86 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421950
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421950);
+asm void func_00421950(void)
+{
+    .set noreorder
+    .word 0x24030057 /* addiu $v1, $zero, 87 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421960
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421960);
+asm void func_00421960(void)
+{
+    .set noreorder
+    .word 0x2403FFA8 /* addiu $v1, $zero, 65448 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421970
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421970);
+asm void func_00421970(void)
+{
+    .set noreorder
+    .word 0x24030059 /* addiu $v1, $zero, 89 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421980
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421980);
+asm void func_00421980(void)
+{
+    .set noreorder
+    .word 0x2403FFA6 /* addiu $v1, $zero, 65446 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421990
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421990);
+asm void func_00421990(void)
+{
+    .set noreorder
+    .word 0x2403005B /* addiu $v1, $zero, 91 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004219A0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004219a0);
+asm void func_004219a0(void)
+{
+    .set noreorder
+    .word 0x2403005C /* addiu $v1, $zero, 92 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004219B0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004219b0);
+asm void func_004219b0(void)
+{
+    .set noreorder
+    .word 0x2403FFA4 /* addiu $v1, $zero, 65444 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004219C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004219c0);
+asm void func_004219c0(void)
+{
+    .set noreorder
+    .word 0x2403005D /* addiu $v1, $zero, 93 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004219D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004219d0);
+asm void func_004219d0(void)
+{
+    .set noreorder
+    .word 0x2403FFA3 /* addiu $v1, $zero, 65443 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004219E0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004219e0);
+asm void func_004219e0(void)
+{
+    .set noreorder
+    .word 0x2403005E /* addiu $v1, $zero, 94 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_004219F0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004219f0);
+asm void func_004219f0(void)
+{
+    .set noreorder
+    .word 0x2403FFA2 /* addiu $v1, $zero, 65442 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A00
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a00);
+asm void func_00421a00(void)
+{
+    .set noreorder
+    .word 0x2403005F /* addiu $v1, $zero, 95 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A10
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a10);
+asm void func_00421a10(void)
+{
+    .set noreorder
+    .word 0x2403FFA1 /* addiu $v1, $zero, 65441 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A20
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a20);
+asm void func_00421a20(void)
+{
+    .set noreorder
+    .word 0x24030060 /* addiu $v1, $zero, 96 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A30
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a30);
+asm void func_00421a30(void)
+{
+    .set noreorder
+    .word 0x24030061 /* addiu $v1, $zero, 97 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A40
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a40);
+asm void func_00421a40(void)
+{
+    .set noreorder
+    .word 0x24030062 /* addiu $v1, $zero, 98 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A50
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a50);
+asm void func_00421a50(void)
+{
+    .set noreorder
+    .word 0x24030063 /* addiu $v1, $zero, 99 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A60
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a60);
+asm void func_00421a60(void)
+{
+    .set noreorder
+    .word 0x24030064 /* addiu $v1, $zero, 100 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A70
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a70);
+asm void func_00421a70(void)
+{
+    .set noreorder
+    .word 0x24030066 /* addiu $v1, $zero, 102 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A80
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a80);
+asm void func_00421a80(void)
+{
+    .set noreorder
+    .word 0x2403FF99 /* addiu $v1, $zero, 65433 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421A90
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421a90);
+asm void func_00421a90(void)
+{
+    .set noreorder
+    .word 0x2403FF98 /* addiu $v1, $zero, 65432 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421AA0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421aa0);
+asm void func_00421aa0(void)
+{
+    .set noreorder
+    .word 0x2403FF96 /* addiu $v1, $zero, 65430 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421AB0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ab0);
+asm void func_00421ab0(void)
+{
+    .set noreorder
+    .word 0x2403006B /* addiu $v1, $zero, 107 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421AC0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ac0);
+asm void func_00421ac0(void)
+{
+    .set noreorder
+    .word 0x2403006C /* addiu $v1, $zero, 108 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421AD0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ad0);
+asm void func_00421ad0(void)
+{
+    .set noreorder
+    .word 0x2403006D /* addiu $v1, $zero, 109 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421AE0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ae0);
+asm void func_00421ae0(void)
+{
+    .set noreorder
+    .word 0x2403006E /* addiu $v1, $zero, 110 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421AF0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421af0);
+asm void func_00421af0(void)
+{
+    .set noreorder
+    .word 0x2403006F /* addiu $v1, $zero, 111 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B00
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b00);
+asm void func_00421b00(void)
+{
+    .set noreorder
+    .word 0x24030070 /* addiu $v1, $zero, 112 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B10
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b10);
+asm void func_00421b10(void)
+{
+    .set noreorder
+    .word 0x2403FF90 /* addiu $v1, $zero, 65424 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B20
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b20);
+asm void func_00421b20(void)
+{
+    .set noreorder
+    .word 0x24030071 /* addiu $v1, $zero, 113 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B30
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b30);
+asm void func_00421b30(void)
+{
+    .set noreorder
+    .word 0x2403FF8F /* addiu $v1, $zero, 65423 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B40
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b40);
+asm void func_00421b40(void)
+{
+    .set noreorder
+    .word 0x24030072 /* addiu $v1, $zero, 114 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B50
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b50);
+asm void func_00421b50(void)
+{
+    .set noreorder
+    .word 0x24030073 /* addiu $v1, $zero, 115 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B60
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b60);
+asm void func_00421b60(void)
+{
+    .set noreorder
+    .word 0x24030074 /* addiu $v1, $zero, 116 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B70
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b70);
+asm void func_00421b70(void)
+{
+    .set noreorder
+    .word 0x24030075 /* addiu $v1, $zero, 117 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B80
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b80);
+asm void func_00421b80(void)
+{
+    .set noreorder
+    .word 0x24030076 /* addiu $v1, $zero, 118 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421B90
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421b90);
+asm void func_00421b90(void)
+{
+    .set noreorder
+    .word 0x2403FF8A /* addiu $v1, $zero, 65418 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421BA0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ba0);
+asm void func_00421ba0(void)
+{
+    .set noreorder
+    .word 0x24030077 /* addiu $v1, $zero, 119 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421BB0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421bb0);
+asm void func_00421bb0(void)
+{
+    .set noreorder
+    .word 0x2403FF89 /* addiu $v1, $zero, 65417 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421BC0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421bc0);
+asm void func_00421bc0(void)
+{
+    .set noreorder
+    .word 0x24030078 /* addiu $v1, $zero, 120 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421BD0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421bd0);
+asm void func_00421bd0(void)
+{
+    .set noreorder
+    .word 0x2403FF88 /* addiu $v1, $zero, 65416 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421BE0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421be0);
+asm void func_00421be0(void)
+{
+    .set noreorder
+    .word 0x24030079 /* addiu $v1, $zero, 121 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421BF0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421bf0);
+asm void func_00421bf0(void)
+{
+    .set noreorder
+    .word 0x2403007A /* addiu $v1, $zero, 122 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421C00
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c00);
+asm void func_00421c00(void)
+{
+    .set noreorder
+    .word 0x2403007B /* addiu $v1, $zero, 123 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421C10
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c10);
+asm void func_00421c10(void)
+{
+    .set noreorder
+    .word 0x2403007C /* addiu $v1, $zero, 124 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421C20
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c20);
+asm void func_00421c20(void)
+{
+    .set noreorder
+    .word 0x2403007D /* addiu $v1, $zero, 125 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421C30
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c30);
+asm void func_00421c30(void)
+{
+    .set noreorder
+    .word 0x2403007E /* addiu $v1, $zero, 126 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421C40
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c40);
+asm void func_00421c40(void)
+{
+    .set noreorder
+    .word 0x2403007F /* addiu $v1, $zero, 127 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421C50
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c50);
+asm void func_00421c50(void)
+{
+    .set noreorder
+    .word 0x24030082 /* addiu $v1, $zero, 130 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_00421C60
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c60);
 // FUN_00421C70
@@ -406,20 +1438,69 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421da8);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421e28);
 // FUN_00421EA0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ea0);
+/* measured: schedule on places the constant return in the jr delay slot. */
+#pragma schedule on
 // FUN_00421EC8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ec8);
+s32 func_00421ec8(void)
+{
+    return -1;
+}
+/* measured: end of the function-local scheduling override. */
+#pragma schedule off
+/* measured: schedule on places the constant return in the jr delay slot. */
+#pragma schedule on
 // FUN_00421ED0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ed0);
+s32 func_00421ed0(void)
+{
+    return -1;
+}
+/* measured: end of the function-local scheduling override. */
+#pragma schedule off
+/* measured: schedule on places the constant return in the jr delay slot. */
+#pragma schedule on
 // FUN_00421ED8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ed8);
+s32 func_00421ed8(void)
+{
+    return -1;
+}
+/* measured: end of the function-local scheduling override. */
+#pragma schedule off
 // FUN_00421EE0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ee0);
+/* measured: schedule on places the constant return in the jr delay slot. */
+#pragma schedule on
 // FUN_00421F90
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421f90);
-// FUN_00421F98
+s32 func_00421f90(void)
+{
+    return 1;
+}
+/* measured: end of the function-local scheduling override. */
+#pragma schedule off
+/* measured: honest reconstruction matches the first three retail words with
+ * plain scheduling; the remaining residual is the `move $v0` before `jr`
+ * instead of in its delay slot. `schedule on` reorders the stores and is
+ * worse. Measured in isolation at nd 2; nd_audit compiles the whole file with NON_MATCHING defined, which activates every preserved body at once and shifts this one. Committed at nd 16. */
+// FUN_00421F98 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00421f98(s32 arg0, u8 *arg1)
+{
+    s32 value = 0x2000;
+    *(u64 *)(arg1 + 0x48) = 0;
+    *(s32 *)(arg1 + 0x4) = value;
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421f98);
+#endif
+/* measured: schedule on places the constant return in the jr delay slot. */
+#pragma schedule on
 // FUN_00421FB0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421fb0);
+s32 func_00421fb0(void)
+{
+    return 1;
+}
+/* measured: end of the function-local scheduling override. */
+#pragma schedule off
 // FUN_00421FB8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421fb8);
 // FUN_00421FE0
@@ -447,13 +1528,57 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422390);
 // FUN_004223F8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004223f8);
 // FUN_00422460
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422460);
+asm void func_00422460(void)
+{
+    .set noreorder
+    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
+    .word 0xFFBF0000 /* sd $ra, 0($sp) */
+    .word 0x0C108560 /* jal 0x00421580 */
+    .word 0x00000000 /* nop */
+    .word 0x0000000F /* sync */
+    .word 0xDFBF0000 /* ld $ra, 0($sp) */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+}
 // FUN_00422480
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00422480);
+asm void func_00422480(void)
+{
+    .set noreorder
+    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
+    .word 0xFFBF0000 /* sd $ra, 0($sp) */
+    .word 0x0C108564 /* jal 0x00421590 */
+    .word 0x00000000 /* nop */
+    .word 0x0000000F /* sync */
+    .word 0xDFBF0000 /* ld $ra, 0($sp) */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+}
 // FUN_004224A0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004224a0);
+asm void func_004224a0(void)
+{
+    .set noreorder
+    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
+    .word 0xFFBF0000 /* sd $ra, 0($sp) */
+    .word 0x0C108568 /* jal 0x004215A0 */
+    .word 0x00000000 /* nop */
+    .word 0x0000000F /* sync */
+    .word 0xDFBF0000 /* ld $ra, 0($sp) */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+}
 // FUN_004224C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004224c0);
+asm void func_004224c0(void)
+{
+    .set noreorder
+    .word 0x27BDFFF0 /* addiu $sp, $sp, -0x10 */
+    .word 0xFFBF0000 /* sd $ra, 0($sp) */
+    .word 0x0C10856C /* jal 0x004215B0 */
+    .word 0x00000000 /* nop */
+    .word 0x0000000F /* sync */
+    .word 0xDFBF0000 /* ld $ra, 0($sp) */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x27BD0010 /* addiu $sp, $sp, 0x10 */
+}
 // FUN_004224E0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004224e0);
 // FUN_004225B8
@@ -542,8 +1667,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424548);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004245c8);
 // FUN_004245E8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004245e8);
-// FUN_004245F8
+extern s32 D_0088DE80[];
+/* measured: direct array indexing with schedule on keeps the global
+ * materialization first; residuals are the index register, addu destination,
+ * and load delay-slot placement. Measured in isolation at nd 4; nd_audit compiles the whole file with NON_MATCHING defined, which activates every preserved body at once and shifts this one. Committed at nd 18. */
+// FUN_004245F8 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_004245f8(s32 arg0)
+{
+    return D_0088DE80[arg0];
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004245f8);
+#endif
 // FUN_00424610
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424610);
 // FUN_00424630
@@ -558,10 +1694,33 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424790);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004247c8);
 // FUN_00424A48
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424a48);
+extern s32 D_0088DCD8[];
+/* measured: schedule on places the final store in the jr delay slot. */
+#pragma schedule on
 // FUN_00424A80
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424a80);
+s32 func_00424a80(s32 arg0, s32 arg1)
+{
+    u8 *base = (u8 *)D_0088DCD8;
+    s32 result = *(s32 *)(base + 0x14);
+    *(s32 *)(base + 0x18) = arg1;
+    *(s32 *)(base + 0x14) = arg0;
+    return result;
+}
+/* measured: close the function-local scheduling override. */
+#pragma schedule off
+/* measured: schedule on places the final store in the jr delay slot. */
+#pragma schedule on
 // FUN_00424A98
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424a98);
+s32 func_00424a98(s32 arg0, s32 arg1)
+{
+    u8 *base = (u8 *)D_0088DCD8;
+    s32 result = *(s32 *)(base + 0xC);
+    *(s32 *)(base + 0x10) = arg1;
+    *(s32 *)(base + 0xC) = arg0;
+    return result;
+}
+/* measured: close the function-local scheduling override. */
+#pragma schedule off
 // FUN_00424AB0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424ab0);
 // FUN_00424B28
@@ -785,35 +1944,131 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b1a8);
 // FUN_0042B208
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b208);
 // FUN_0042B290
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b290);
+asm void func_0042b290(void)
+{
+    .set noreorder
+    .word 0x2403005A /* addiu $v1, $zero, 90 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B2A0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b2a0);
 // FUN_0042B2D8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b2d8);
+asm void func_0042b2d8(void)
+{
+    .set noreorder
+    .word 0x2403005B /* addiu $v1, $zero, 91 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B2E8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b2e8);
+asm void func_0042b2e8(void)
+{
+    .set noreorder
+    .word 0x24030074 /* addiu $v1, $zero, 116 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B2F8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b2f8);
 // FUN_0042B3C0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b3c0);
+asm void func_0042b3c0(void)
+{
+    .set noreorder
+    .word 0x24030055 /* addiu $v1, $zero, 85 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B3D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b3d0);
+asm void func_0042b3d0(void)
+{
+    .set noreorder
+    .word 0x2403FFAB /* addiu $v1, $zero, 65451 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B3E0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b3e0);
+asm void func_0042b3e0(void)
+{
+    .set noreorder
+    .word 0x24030056 /* addiu $v1, $zero, 86 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B3F0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b3f0);
 // FUN_0042B420
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b420);
+asm void func_0042b420(void)
+{
+    .set noreorder
+    .word 0x2403FFAA /* addiu $v1, $zero, 65450 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B430
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b430);
+asm void func_0042b430(void)
+{
+    .set noreorder
+    .word 0x24030057 /* addiu $v1, $zero, 87 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B440
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b440);
+asm void func_0042b440(void)
+{
+    .set noreorder
+    .word 0x2403FFA9 /* addiu $v1, $zero, 65449 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B450
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b450);
+asm void func_0042b450(void)
+{
+    .set noreorder
+    .word 0x24030058 /* addiu $v1, $zero, 88 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B460
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b460);
+asm void func_0042b460(void)
+{
+    .set noreorder
+    .word 0x2403FFA8 /* addiu $v1, $zero, 65448 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B470
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b470);
+asm void func_0042b470(void)
+{
+    .set noreorder
+    .word 0x24030059 /* addiu $v1, $zero, 89 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042B480
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b480);
 // FUN_0042B4C0
@@ -823,45 +2078,118 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b6c0);
 // FUN_0042BA20
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042ba20);
 // FUN_0042BA70
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042ba70);
+asm s32 func_0042ba70(void)
+{
+    .set noreorder
+    .word 0x40026000 /* mfc0 $v0, $12 */
+    .word 0x3C030001 /* lui $v1, 0x1 */
+    .word 0x00431024 /* and $v0, $v0, $v1 */
+    .word 0x42000038 /* ei */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x0002102B /* sltu $v0, $zero, $v0 */
+}
 // FUN_0042BA88
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042ba88);
 // FUN_0042BAE8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bae8);
 // FUN_0042BAF8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042baf8);
+asm void func_0042baf8(void)
+{
+    .set noreorder
+    .word 0x2403005A /* addiu $v1, $zero, 90 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BB08
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bb08);
 // FUN_0042BB40
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bb40);
 // FUN_0042BB80
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bb80);
+asm void func_0042bb80(void)
+{
+    .set noreorder
+    .word 0x24030083 /* addiu $v1, $zero, 131 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BB90
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bb90);
 // FUN_0042BBC8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bbc8);
 // FUN_0042BCC8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bcc8);
+asm void func_0042bcc8(void)
+{
+    .set noreorder
+    .word 0x24030074 /* addiu $v1, $zero, 116 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BCD8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bcd8);
 // FUN_0042BD30
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bd30);
+asm void func_0042bd30(void)
+{
+    .set noreorder
+    .word 0x24030074 /* addiu $v1, $zero, 116 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BD40
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bd40);
+asm void func_0042bd40(void)
+{
+    .set noreorder
+    .word 0x2403005A /* addiu $v1, $zero, 90 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BD50
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bd50);
 // FUN_0042BD88
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bd88);
+asm void func_0042bd88(void)
+{
+    .set noreorder
+    .word 0x2403005B /* addiu $v1, $zero, 91 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BD98
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bd98);
 // FUN_0042BE00
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042be00);
 // FUN_0042BEB0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042beb0);
+asm void func_0042beb0(void)
+{
+    .set noreorder
+    .word 0x2403005A /* addiu $v1, $zero, 90 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BEC0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bec0);
 // FUN_0042BEF0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bef0);
+asm void func_0042bef0(void)
+{
+    .set noreorder
+    .word 0x24030074 /* addiu $v1, $zero, 116 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042BF00
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042bf00);
 // FUN_0042C018
@@ -875,13 +2203,37 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042c0d8);
 // FUN_0042C100
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042c100);
 // FUN_0042C150
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042c150);
+asm void func_0042c150(void)
+{
+    .set noreorder
+    .word 0x24030074 /* addiu $v1, $zero, 116 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042C160
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042c160);
+asm void func_0042c160(void)
+{
+    .set noreorder
+    .word 0x2403005A /* addiu $v1, $zero, 90 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042C170
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042c170);
 // FUN_0042C1A8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042c1a8);
+asm void func_0042c1a8(void)
+{
+    .set noreorder
+    .word 0x2403005B /* addiu $v1, $zero, 91 */
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008 /* jr $ra */
+    .word 0x00000000 /* nop */
+}
+
 // FUN_0042C1B8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042c1b8);
 // FUN_0042C290

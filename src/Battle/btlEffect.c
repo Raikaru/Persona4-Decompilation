@@ -62,6 +62,7 @@ extern void func_0043f810(void* dst, void* src, u32 size);
 extern void func_00454bd0(u8* ptr);
 extern u32 func_001d3d50(u16 param_1);
 extern void func_001d4490(int param_1, u32 param_2);
+extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u8* D_0076449C;
@@ -243,7 +244,11 @@ void func_001d78d0(void) {
 }
 
 // FUN_001D79E0
-INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001d79e0);
+u32 func_001d79e0(u16 *param_1)
+{
+    func_004b3110(*param_1);
+    return 1;
+}
 // FUN_001D7A10
 void func_001d7a10(u16 param_1)
 
@@ -300,6 +305,7 @@ u32 func_001d8df0(int param_1)
   }
   return result;
 }
+/* measured: closes opt_loop_invariants for FUN_001D8DF0. */
 #pragma opt_loop_invariants off
 
 
@@ -314,6 +320,7 @@ bool btlCond_FRLV_O(int param_1, u32 param_2)
 }
 
 
+/* measured: opt_rebuildconditionals off is required for FUN_001D9A30. */
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001D9A30 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
 
@@ -334,6 +341,7 @@ done:
   uVar1 = func_001ef4d0(1 << genus & 0xffff, 0x80000);
   return param_2 <= (uVar1 & 0xffff);
 }
+/* measured: closes opt_rebuildconditionals for FUN_001D9A30. */
 #pragma opt_rebuildconditionals on
 
 
@@ -348,6 +356,7 @@ bool btlCond_FRCNT(int param_1, u32 param_2)
 }
 
 
+/* measured: opt_rebuildconditionals off is required for FUN_001D9AF0. */
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001D9AF0 (MATCH nd0 -> MISMATCH nd49) - measured W161. */
 
@@ -370,6 +379,7 @@ done:
   uVar1 = func_001ef720(1 << genus & 0xffff, 0x80000);
   return (uVar1 & 0xffff) <= param_2;
 }
+/* measured: closes opt_rebuildconditionals for FUN_001D9AF0. */
 #pragma opt_rebuildconditionals on
 
 
@@ -395,9 +405,28 @@ bool btlCond_MYUSESKIL(int param_1, int param_2)
 
 
 // FUN_001DA730
-INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da730);
+void func_001da730(int param_1, u32 param_2)
+{
+    func_001d94d0(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
+}
+/* measured: opt_rebuildconditionals off is required for the retail branch shape. */
+#pragma opt_rebuildconditionals off
 // FUN_001DA780
-INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da780);
+void func_001da780(int param_1, u32 param_2)
+{
+    u32 shift;
+
+    if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
+}
+/* measured: closes the function-local conditional rebuild setting. */
+#pragma opt_rebuildconditionals on
 // FUN_001DA7E0
 u32 btlCond_MYGROUP(int param_1)
 {
@@ -416,9 +445,28 @@ u32 btlCond_MYGROUP(int param_1)
 
 
 // FUN_001DA840
-INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da840);
+void func_001da840(int param_1, u32 param_2)
+{
+    func_001d94d0(param_1, param_2, 1 << *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
+}
+/* measured: opt_rebuildconditionals off is required for the retail branch shape. */
+#pragma opt_rebuildconditionals off
 // FUN_001DA890
-INCLUDE_ASM("asm/nonmatchings/btlEffect", func_001da890);
+void func_001da890(int param_1, u32 param_2)
+{
+    u32 shift;
+
+    if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+        goto nonzero;
+    shift = 1;
+    goto done;
+nonzero:
+    shift = 0;
+done:
+    func_001d94d0(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
+}
+/* measured: closes the function-local conditional rebuild setting. */
+#pragma opt_rebuildconditionals on
 // FUN_001DA8F0
 bool btlCond_TURN(int param_1, u32 param_2)
 {

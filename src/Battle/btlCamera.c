@@ -428,23 +428,31 @@ void func_001c6b10(void* camera)
 
 
 // FUN_001C6B50
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6b50);
+void func_001c6b50(void)
+{
+}
 // FUN_001C6B60
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6b60);
 // FUN_001C6BB0
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6bb0);
 // FUN_001C6BE0
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6be0);
+void func_001c6be0(void)
+{
+}
 // FUN_001C6BF0
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6bf0);
 // FUN_001C6F30
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6f30);
+void func_001c6f30(void)
+{
+}
 // FUN_001C6F40
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c6f40);
 // FUN_001C73E0
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c73e0);
 // FUN_001C7500
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001c7500);
+void func_001c7500(void)
+{
+}
 // FUN_001C7510
 void func_001c7510(BtlCamera* camera)
 {
@@ -591,7 +599,9 @@ INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc9e0);
 // FUN_001CCA60
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cca60);
 // FUN_001CCDA0
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001ccda0);
+void func_001ccda0(void)
+{
+}
 // FUN_001CCDB0
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001ccdb0);
 // FUN_001CD600

@@ -7,7 +7,7 @@ extern u16 func_00232290(u8 *arg0);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 func_00232710(s32 arg0, s32 arg1);
+extern s32 func_00232710();
 extern void func_001d6de0(s32 arg0, s32 arg1);
 extern void func_001d3e00(s32 arg0);
 extern void func_001d6910(u8 *arg0);
@@ -35,11 +35,17 @@ extern s32 func_001da230(u8 *arg0, s16 arg1);
 extern s32 func_001d9740(u8 *arg0, s32 arg1);
 
 extern s32 func_001d97b0(u8 *arg0, s32 arg1);
+extern void func_001da270(void);
+extern void func_001da2b0(void);
+extern void func_001da2f0(void);
+extern s32 func_001da5f0(u8 *arg0, s32 arg1);
+extern s64 func_0023d8e0(u8 *arg0, s32 arg1);
+extern s32 func_00122640(s32 arg0, s32 arg1);
 
 extern void func_001d7bb0(void);
 extern void *func_00194470();
 
-extern void func_001d7b30(void);
+extern s32 func_001d7b30(u16 *arg0);
 
 // FUN_001D01C0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d01c0);
@@ -48,7 +54,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d1310);
 // FUN_001D14B0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d14b0);
 // FUN_001D1540
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d1540);
+void func_001d1540(u8 *arg0, s32 arg1, s32 arg2) {
+    u8 temp_4;
+
+    temp_4 = *(u8 *)(arg0 + 0xA2);
+    switch (temp_4) {
+    case 0:
+        ((s32 *)(iGpffffb3ac + 0xA74))[(u16)arg1] = arg2;
+        return;
+    case 1:
+        ((s32 *)(iGpffffb3ac + 0xA84))[(u16)arg1] = arg2;
+        return;
+    }
+}
 // FUN_001D15A0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d15a0);
 // FUN_001D1680
@@ -184,7 +202,10 @@ s32 func_001d7a60(u8 *arg0) {
 }
 
 // FUN_001D7B30
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7b30);
+s32 func_001d7b30(u16 *arg0) {
+    func_00122640(1, *arg0);
+    return 1;
+}
 // FUN_001D7B60
 void func_001d7b60(u16 param_1)
 {
@@ -267,6 +288,7 @@ void func_001d9890(u8 *arg0, u32 arg1) {
 }
 
 // FUN_001D98E0
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
@@ -284,9 +306,11 @@ void func_001d98e0(u8 *arg0, u32 arg1) {
     }
     func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001d9740);
 }
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 
 // FUN_001D9940
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
@@ -304,12 +328,15 @@ void func_001d9940(u8 *arg0, u32 arg1) {
     }
     func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001d97b0);
 }
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 
 // FUN_001D99A0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d99a0);
 // FUN_001D9B60
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9b60);
+void func_001d9b60(u8 *arg0) {
+    func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64));
+}
 // FUN_001D9B90
 void func_001d9b90(u8 *arg0, u32 arg1)
 {
@@ -405,6 +432,7 @@ void func_001da330(u8 *arg0, u32 arg1) {
 }
 
 // FUN_001DA380
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
 #pragma opt_rebuildconditionals off
 /* Same shape as btlAICommand func_001db990, whose note records that removing this
    pragma costs the match (nd 0 -> 43) - measured there, inherited here. */
@@ -422,6 +450,7 @@ void func_001da380(u8 *arg0, u32 arg1) {
     }
     func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da230);
 }
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
 
 // FUN_001DA3E0
@@ -430,39 +459,197 @@ void btlCond_FRKYUSYU(u8 *arg0, s32 arg1) {
 }
 
 // FUN_001DA430
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da430);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001da430(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da270);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DA490
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da490);
+void func_001da490(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da2b0);
+}
 // FUN_001DA4E0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da4e0);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001da4e0(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da2b0);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DA540
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da540);
+void func_001da540(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da2f0);
+}
 // FUN_001DA590
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da590);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001da590(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da2f0);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DA5F0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da5f0);
 // FUN_001DA640
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da640);
+void func_001da640(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code)func_001da5f0);
+}
 // FUN_001DA690
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da690);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001da690(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)func_001da5f0);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DA930
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da930);
 // FUN_001DAA00
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001daa00);
+void func_001daa00(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da230);
+}
 // FUN_001DAA50
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001daa50);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001daa50(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da230);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DAAB0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001daab0);
+void func_001daab0(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da270);
+}
 // FUN_001DAB00
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001dab00);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001dab00(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da270);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DAB60
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001dab60);
+void func_001dab60(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da2b0);
+}
 // FUN_001DABB0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001dabb0);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001dabb0(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da2b0);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DAC10
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001dac10);
+void func_001dac10(u8 *arg0, u32 arg1) {
+    func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da2f0);
+}
 // FUN_001DAC60
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001dac60);
+/* Opening state measured: opt_rebuildconditionals off is required for this wrapper. */
+#pragma opt_rebuildconditionals off
+/* Same branch shape as func_001da380; pragma measured on this wrapper. */
+void func_001dac60(u8 *arg0, u32 arg1) {
+    u32 shift;
+    {
+        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+            goto nonzero;
+        shift = 1;
+        goto done;
+    nonzero:
+        shift = 0;
+    done:
+        ;
+    }
+    func_001d94d0((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)func_001da2f0);
+}
+/* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
+#pragma opt_rebuildconditionals on
 // FUN_001DACE0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001dace0);
 // FUN_001DAE00

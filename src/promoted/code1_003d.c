@@ -18,6 +18,9 @@ extern s32 D_008871A8[];
 extern s32 D_00724840;
 extern s32 D_00724844;
 extern u8 D_0070C260[];
+extern s32 func_003d2720(void);
+extern s32 func_003dd530(u8 *arg0, s32 arg1);
+extern s32 D_0070B470[];
 
 
 // FUN_003D0140
@@ -45,11 +48,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d20d0);
 // FUN_003D2240
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2240);
 // FUN_003D22F0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d22f0);
+/* measured: tailcall on reproduces retail's frameless jump wrapper. */
+#pragma tailcall on
+s32 func_003d22f0(void) {
+    return func_003d2720();
+}
+/* measured: tailcall off closes the single-function bracket. */
+#pragma tailcall off
 // FUN_003D2300
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2300);
 // FUN_003D2710
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2710);
+/* measured: schedule on places the constant in the jr delay slot. */
+#pragma schedule on
+s32 func_003d2710(void) {
+    return 1;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003D2720
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2720);
 // FUN_003D2C40
@@ -57,7 +72,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2c40);
 // FUN_003D30B0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d30b0);
 // FUN_003D3120
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3120);
+/* measured: schedule on places the zero result in the jr delay slot. */
+#pragma schedule on
+s32 func_003d3120(void) {
+    return 0;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003D3130
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3130);
 // FUN_003D3460
@@ -145,7 +166,13 @@ block_default:
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d39a0);
 
 // FUN_003D3A80
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3a80);
+/* measured: schedule on places the address addiu in the jr delay slot. */
+#pragma schedule on
+s32 *func_003d3a80(void) {
+    return D_0070B470;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003D3A90
 #pragma schedule on
 u8 *func_003d3a90(u8 *arg0)
@@ -169,7 +196,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3bd0);
 // FUN_003D3E60
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3e60);
 // FUN_003D48C0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d48c0);
+/* measured: schedule on places the returned pointer move in the jr delay slot. */
+#pragma schedule on
+s32 func_003d48c0(s32 arg0, s32 arg1) {
+    *(s32 *)(arg0 + arg1) = 0;
+    return arg0;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003D48D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d48d0);
 // FUN_003D4910
@@ -273,7 +307,13 @@ s32 func_003d6010(u8 *arg0) {
 // FUN_003D6030
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d6030);
 // FUN_003D60D0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d60d0);
+/* measured: schedule on places the field load in the jr delay slot. */
+#pragma schedule on
+s32 func_003d60d0(u8 *arg0) {
+    return *(s32 *)(arg0 + 0x14);
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003D7B40
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7b40);
 // FUN_003D7C50
@@ -297,7 +337,13 @@ extern s32 D_0072483C;
 // FUN_003D7CF0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7cf0);
 // FUN_003D8060
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8060);
+/* measured: schedule on places the field load in the jr delay slot. */
+#pragma schedule on
+s32 func_003d8060(u8 *arg0) {
+    return *(s32 *)(arg0 + 0x14);
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003D8070
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8070);
 // FUN_003D8130
@@ -395,7 +441,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db360);
 // FUN_003DB440
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db440);
 // FUN_003DB480
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db480);
+/* measured: schedule on places the comparison result in the jr delay slot. */
+#pragma schedule on
+s32 func_003db480(s32 *arg0, s32 arg1) {
+    return *arg0 == arg1;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003DB490
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db490);
 // FUN_003DB550
@@ -554,7 +606,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd990);
 // FUN_003DDA50
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dda50);
 // FUN_003DDC10
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddc10);
+/* measured: schedule on places the global address addiu in the jr delay slot. */
+#pragma schedule on
+s32 **func_003ddc10(void) {
+    return (s32 **)&D_00887180;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003DDC20
 extern s32 (*D_008873D0[])(u8 *, s32);
 /* measured: retail's saved self assignment is in the initial branch delay slot;
@@ -586,7 +644,13 @@ s32 *func_003ddc20(u8 *arg0) {
 // FUN_003DDCA0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddca0);
 // FUN_003DDDE0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddde0);
+/* measured: schedule on places the global store in the jr delay slot. */
+#pragma schedule on
+void func_003ddde0(s32 arg0) {
+    D_00724840 = arg0;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003DDDF0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dddf0);
 // FUN_003DDF20
@@ -644,11 +708,25 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de740);
 // FUN_003DE8C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de8c0);
 // FUN_003DE9B0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de9b0);
+/* measured: schedule on places the field store in the jr delay slot and
+   preserves the result in $v0. */
+#pragma schedule on
+s32 func_003de9b0(u8 *arg0) {
+    *(s32 *)(arg0 + 0x38) = 1;
+    return 1;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 // FUN_003DE9C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de9c0);
 // FUN_003DEA10
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dea10);
+/* measured: tailcall on reproduces retail's frameless jump wrapper. */
+#pragma tailcall on
+s32 func_003dea10(u8 *arg0, s32 arg1) {
+    return func_003dd530(arg0, arg1);
+}
+/* measured: tailcall off closes the single-function bracket. */
+#pragma tailcall off
 // FUN_003DEA20
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dea20);
 // FUN_003DED20
@@ -724,7 +802,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df6e0);
 // FUN_003DF7F0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df7f0);
 // FUN_003DF860
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df860);
+s32 func_003df860(u8 *arg0) {
+    return *(s32 *)(arg0 + 4);
+}
 
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
@@ -752,7 +832,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df870);
 
 
 // FUN_003DF890
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df890);
+/* measured: schedule on places the load in the jr delay slot. */
+#pragma schedule on
+s32 func_003df890(s32 *arg0) {
+    return *arg0;
+}
+/* measured: schedule off closes the single-function bracket. */
+#pragma schedule off
 
 /* NONMATCHING: retail schedules the result addu into the jr $ra delay slot
    (lw 0xc; lw 4; mult; lw 0; jr; addu).  #pragma schedule on fills the slot
