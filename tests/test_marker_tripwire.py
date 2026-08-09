@@ -40,7 +40,7 @@ def first_party_sources() -> list[Path]:
 
 class MarkerCountTripwireTests(unittest.TestCase):
     def test_first_party_marker_count_is_unchanged(self) -> None:
-        """13098 tracked markers across first-party src/.  Bump deliberately.
+        """13100 tracked markers across first-party src/.  Bump deliberately.
 
         Most are INCLUDE_ASM fallbacks placed by the __FILE__-driven translation
         unit recovery, which gave every function a real source file to live in;
@@ -167,7 +167,7 @@ class MarkerCountTripwireTests(unittest.TestCase):
         scanning for a waiver, since another function's assembly body is not
         intervening code that should hide an annotation.
 
-        Raised to 13098 -- every canonical function in
+        Raised to 13100 -- every canonical function in
         tools/slus21782_functions.json -- by tools/promote_unmarked.py. Until then
         the marker population was a bookkeeping artifact of what had been promoted
         into a translation unit, not the size of the image: 7545 canonical
@@ -182,7 +182,7 @@ class MarkerCountTripwireTests(unittest.TestCase):
         sources = first_party_sources()
         self.assertEqual(
             sum(len(verify.scan_markers(path)) for path in sources),
-            13098,
+            13100,
         )
 
     def test_no_address_suffixed_sources_remain(self) -> None:

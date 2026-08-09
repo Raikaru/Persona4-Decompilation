@@ -1,13 +1,16 @@
 /* Source unit: src/promoted/code1_0029.c */
 #include "include_asm.h"
 #include "type.h"
+typedef char *va_list;
+#define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
+#define va_end(ap) ((void)0)
 extern u8 *iGpffffb510;
 extern void func_004b15d0();
 extern s32 iGpffffa7c8;
 extern s32 func_0029ce90(s32 arg0);
-extern void func_0029e9b0(void *arg0, s32 arg1);
+extern void func_0029e9b0(void *arg0, ...);
 
-s32 func_00291a60(u16 arg0);
+s32 func_00291a60(s32 arg0);
 
 s32 func_0045a8d0(s64 arg0, s32 arg1);
 
@@ -50,8 +53,14 @@ extern void func_00105730(s16 arg0, s16 arg1);
 static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
-extern u8 *func_00145270(u16 arg0);
+extern u8 *func_00145270(s32 arg0);
 extern void func_00146630(u16 arg0);
+extern void func_0047ae10(u8 *arg0, s32 arg1, u8 *arg2, s32 arg3);
+extern u8 func_002a2780(s32 arg0);
+extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          s32 arg4, f32 farg0, s32 arg5, s32 arg6,
+                          s32 arg7);
+extern f32 fGpffff8204;
 
 
 
@@ -60,7 +69,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00291530);
 // FUN_002915F0
 INCLUDE_ASM("asm/nonmatchings/code1_0029", func_002915f0);
 // FUN_00291790
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00291790);
+void func_00291790(u8 *arg0, s32 arg1)
+{
+    s32 var_7;
+    u8 *temp_6;
+
+    if ((arg1 < 3) && (arg1 >= 0) && (arg0 != 0)) {
+        var_7 = 0;
+        temp_6 = code29AddOff(arg1 * 0xC, arg0);
+        if ((*(u8 *)(temp_6 + 0x28C) & 1) &&
+            (*(s32 *)(temp_6 + 0x290) != 0)) {
+            var_7 = 1;
+        }
+        if (var_7 == 1) {
+            func_0047ae10(arg0, arg1 & 0xFFFF, temp_6, var_7);
+        }
+    }
+}
 // FUN_00291810
 INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00291810);
 // FUN_00291980
@@ -90,7 +115,42 @@ void func_002919e0(void) {
     }
 }
 // FUN_00291A60
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00291a60);
+s32 func_00291a60(s32 arg0)
+{
+    s32 temp_4;
+    s32 mask;
+    u8 *temp_2;
+
+    temp_2 = func_00145270(arg0);
+    mask = 0xFFC00;
+    temp_4 = (s32)(arg0 & 0xFFFF) & mask;
+    temp_4 >>= 0xA;
+    switch (temp_4) {
+    case 1:
+        if (temp_2 != NULL) {
+            return (s32)*(s32 *)(temp_2 + 0x164);
+        }
+        break;
+    case 2:
+        if (temp_2 != NULL) {
+            return (s32)*(s32 *)(temp_2 + 0x158);
+        }
+        break;
+    case 3:
+        if (temp_2 != NULL) {
+            return (s32)*(s32 *)(temp_2 + 0x164);
+        }
+        break;
+    case 10:
+        if (temp_2 != NULL) {
+            return (s32)*(s32 *)(temp_2 + 0x144);
+        }
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
 // FUN_00291B30
 s32 func_00291b30(s32 arg0, u16 *arg1) {
     return (s32)(func_00291a60(*arg1) == 0);
@@ -435,11 +495,40 @@ void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4)
 {
 }
 // FUN_0029E9B0
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029e9b0);
+void func_0029e9b0(void *arg0, ...)
+{
+    va_list args;
+    va_start(args, arg0);
+    va_end(args);
+}
 // FUN_0029E9E0
 INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029e9e0);
 // FUN_0029EBF0
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029ebf0);
+void func_0029ebf0(u8 *arg0, s32 arg1)
+{
+    s32 var_19;
+    s32 var_18;
+    s32 var_17;
+    s32 temp_16;
+
+    temp_16 = *(s32 *)(arg0 + 0x38);
+    if (arg1 == 0) {
+        var_19 = 0xED;
+        var_17 = 0x4C;
+        var_18 = var_17;
+    } else if (arg1 == 1) {
+        var_19 = 0xED;
+        var_18 = 0x4C;
+        var_17 = 0x49;
+    } else {
+        var_19 = 0xED;
+        var_17 = 0x4C;
+        var_18 = 0x49;
+    }
+    func_002a2780(temp_16 + 0x2A8);
+    func_002a27c0(temp_16 + 0x2A8, var_19, var_18, var_19, var_17,
+                  fGpffff8204, 0, 0, 0xA);
+}
 // FUN_0029ECB0
 INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029ecb0);
 // FUN_0029EF90

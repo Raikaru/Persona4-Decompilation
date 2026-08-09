@@ -66,8 +66,44 @@ extern s32 func_001d7b30(u16 *arg0);
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d01c0);
 // FUN_001D1310
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d1310);
+/* measured: opt_propagation off probe for func_001d14b0 loop masks. */
+#pragma opt_propagation off
 // FUN_001D14B0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d14b0);
+s32 func_001d14b0(u8 *arg0)
+{
+    s32 index;
+    u16 masked_index;
+    u16 test_index;
+    u8 *table;
+    u8 *entry;
+
+    index = 0;
+    table = D_00607E50;
+    goto test;
+loop:
+    masked_index = (u16)index;
+    entry = table + (masked_index * 0xE0);
+    if (*(u16 *)(arg0 + 0) > *(u16 *)(entry + 0xD8)) {
+        goto next;
+    }
+    if (*(u16 *)(arg0 + 2) > *(u16 *)(entry + 0xDA)) {
+        goto next;
+    }
+    if (*(u16 *)(arg0 + 4) > *(u16 *)(entry + 0xDC)) {
+        goto next;
+    }
+    return index;
+next:
+    index = (index + 1) & 0xFFFF;
+test:
+    test_index = (u16)index;
+    if (test_index < 0x19U) {
+        goto loop;
+    }
+    return 0x18;
+}
+/* measured: close opt_propagation after func_001d14b0 probe. */
+#pragma opt_propagation on
 // FUN_001D1540
 void func_001d1540(u8 *arg0, s32 arg1, s32 arg2) {
     u8 temp_4;

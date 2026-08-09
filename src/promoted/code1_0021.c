@@ -985,8 +985,9 @@ s32 func_0021db40(void)
     }
     return 0;
 }
-/* measured: branch-fed scalar retains retail's exact CFG except for the
-   slti destination; three source spellings reached nd 5. Committed at nd 2 in-file (nd 5 measured in isolation). */
+/* measured: direct branch-fed scalar candidate matches the retail CFG and
+   frame, with object size 164 bytes versus the 176-byte window and
+   normalized_diff 2. Committed at nd 2. */
 // FUN_0021DBA0
 #ifdef NON_MATCHING
 s32 func_0021dba0(void)
@@ -1004,7 +1005,7 @@ s32 func_0021dba0(void)
         func_00122520(1, 1);
         goto exit;
     }
-    if (value < 0xD) {
+    if (0xD > value) {
         goto exit;
     }
     if (func_00122720() != 0) {
