@@ -7,8 +7,21 @@
 # Scratch probes from codegen experiments; build/ is already ignored.
 /.probe/
 
-# Generated split/build output.
+# Permuter/probe candidate dumps. These are written to the repo ROOT by
+# tools/permute_*.py and by hand during matching probes; 15 of them were
+# committed by accident before this rule existed.
+/cand.json
+/cand_*.json
+/cands.json
+/cands_*.json
+
+# Generated split/build output. The leading slash on /build/ only anchors the
+# ROOT build directory: a lane that wrote to a nested path once committed
+# source/Persona4-Decompilation/build/.../*.o straight past it, so ignore a
+# build directory at ANY depth and object files outright.
 /build/
+build/
+*.o
 /assets/
 /asm/*.s
 /asm/*.o

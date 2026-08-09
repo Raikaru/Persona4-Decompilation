@@ -1,9 +1,0 @@
-{
-  "A_plain": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        if (p[2] != 0) {\n            return 1;\n        }\n        p++;\n    }\n    return 0;\n}",
-  "B_namedbool": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n    s32 nz;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        nz = (p[2] != 0);\n        if (!nz) {\n            p++;\n            continue;\n        }\n        return 1;\n    }\n    return 0;\n}",
-  "C_namedbool_u32": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    u32 i;\n    u32 nz;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        nz = (p[2] != 0);\n        if (!nz) {\n            p++;\n            continue;\n        }\n        return 1;\n    }\n    return 0;\n}",
-  "D_notcond": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        if (!(p[2] != 0)) {\n            p++;\n            continue;\n        }\n        return 1;\n    }\n    return 0;\n}",
-  "E_notcond_u32": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    u32 i;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        if (!(p[2] != 0)) {\n            p++;\n            continue;\n        }\n        return 1;\n    }\n    return 0;\n}",
-  "F_goto": "s32 func_003d8150(s32 arg0) {\n    u32 *p;\n    s32 i;\n\n    p = (u32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        if (p[2] == 0) {\n            p++;\n            continue;\n        }\n        goto found;\n    }\n    return 0;\nfound:\n    return 1;\n}",
-  "G_s32load": "s32 func_003d8150(s32 arg0) {\n    s32 *p;\n    s32 i;\n\n    p = (s32 *)(arg0 + D_0072483C);\n    for (i = 0; i < 8; i++) {\n        if (p[2] != 0) {\n            return 1;\n        }\n        p++;\n    }\n    return 0;\n}"
-}
