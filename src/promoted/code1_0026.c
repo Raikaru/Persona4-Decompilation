@@ -36,6 +36,7 @@ extern s64 func_0010d660(s32 arg0);
 extern s64 func_0010d6d0(s32 arg0);
 extern void func_00442088();
 extern u8 iGpffffa734;
+
 // FUN_00260510
 void func_00260510(void)
 {
@@ -194,9 +195,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267570);
 // FUN_00267670
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267670);
 /* measured: optimization_level 1 and the right-associated first two terms produce the retail FPU chain; exact match nd 0 (obj 88B/window 96B). */
-// FUN_002677A0
 /* measured: opens optimization_level 1 to preserve retail's FPU term and accumulator order (nd 0). */
 #pragma optimization_level 1
+// FUN_002677A0
 f32 func_002677a0(f32 p0, f32 p1, f32 p2, f32 p3, f32 t) {
     f32 u;
     f32 k;

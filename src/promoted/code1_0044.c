@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+/* Toolchain-blocked: retail saves callee-saved registers with sd; MWCCPS2 3.0.1 emits sq. See build/ORCH_sd_toolchain_blocked.txt. */
 
 
 s32 func_004447f8();
@@ -25,7 +26,11 @@ typedef struct E8Node E8Node;
 typedef struct {
     E8Node *first;
     E8Node *last;
-    u8 pad8[0x28];
+    E8Node *current;
+    u8 padC[0xC];
+    s32 count;
+    s32 total;
+    u8 pad20[0x10];
     s32 (*fn_30)(void);
 } E8Pool;
 struct E8Node {
@@ -258,7 +263,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446e88);
 
 // FUN_00446EB0
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446eb0);
-// Archived C body: build/WBHygiene_func_00446ed8_archive.txt; no current park body remains.
 // FUN_00446ED8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00446ed8);
 
@@ -571,7 +575,36 @@ void func_0044e8d0(E8Node *node) {
     node->prev = 0;
 }
 // FUN_0044E920
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e920);
+void func_0044e920(E8Node *node) {
+    E8Node *next;
+    next = node->next;
+    if (next == 0) {
+        if (node->prev != 0) {
+            D_00763D1C->first = node->prev;
+            node->prev->next = 0;
+            goto done;
+        }
+        D_00763D1C->last = 0;
+        D_00763D1C->first = 0;
+        goto done;
+    }
+    if (node->prev == 0) {
+        if (next != 0) {
+            D_00763D1C->last = next;
+            node->next->prev = 0;
+        } else {
+            D_00763D1C->last = 0;
+            D_00763D1C->first = 0;
+        }
+    } else {
+        next->prev = node->prev;
+        node->prev->next = node->next;
+    }
+done:
+    if (node == D_00763D1C->current) {
+        D_00763D1C->current = 0;
+    }
+}
 // FUN_0044E9E0
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e9e0);
 // FUN_0044EA90

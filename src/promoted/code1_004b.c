@@ -22,6 +22,22 @@ extern s32 iGpffffbb94;
 extern s32 D_00922DA0[];
 extern void func_004a7c00(u8 *arg0, s32 arg1);
 extern void func_004a7a50(void);
+extern s16 D_00922DA4[];
+extern s32 D_00922DA8[];
+extern s32 D_00922DAC[];
+extern void func_00492dd0(u8 *arg0);
+extern void func_00492e10(u8 *arg0);
+extern void func_00492e30(u8 *arg0);
+extern void func_00481440(void);
+extern void func_00485870(void *arg0);
+extern void func_00485ae0(void *arg0);
+extern void func_004861f0(void *arg0, f32 *arg1);
+extern void func_004b1ad0(u8 *arg0);
+extern void func_004b4cb0(u16 arg0, s32 arg1);
+
+/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
+   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
+   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
 
 
 
@@ -42,6 +58,8 @@ extern void func_004866f0(u8 *arg0, u32 *arg1);
 extern void func_0048a150(void *arg0, void *arg1);
 
 extern void (*jtbl_008873EC[])(u8 *arg0);
+/* The six framed tail-jump wrappers listed above are intentionally retained
+   as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
 // FUN_004B0F70
 void func_004b0f70(void *object) {
@@ -93,17 +111,26 @@ void func_004b1030(u8 *arg0)
 }
 
 // FUN_004B1090
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1090);
+void func_004b1090(u8 *arg0)
+{
+    func_00492dd0(*(u8 **)(arg0 + 0x5c));
+}
 // FUN_004B10C0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b10c0);
+void func_004b10c0(u8 *arg0)
+{
+    func_00492e10(*(u8 **)(arg0 + 0x5c));
+}
 // FUN_004B10F0
 void func_004b10f0(u8 *arg0, s32 arg1)
 {
     *(s32 *)(arg0 + 0x4) = arg1;
 }
-
 // FUN_004B1100
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1100);
+void func_004b1100(u8 *arg0, f32 arg1)
+{
+    *(f32 *)(arg0 + 8) = arg1;
+    func_00492e30(*(u8 **)(arg0 + 0x5c));
+}
 // FUN_004B1130
 void func_004b1130(void)
 {
@@ -135,11 +162,32 @@ void func_004b11b0(void)
 }
 
 // FUN_004B11D0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b11d0);
+void func_004b11d0(void *arg0, void *arg1)
+{
+    if (arg0 != NULL) {
+        func_00481440();
+    }
+    func_00485870(arg1);
+}
 // FUN_004B1210
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1210);
+void func_004b1210(void *arg0, void *arg1)
+{
+    if (arg0 != NULL) {
+        func_00481440();
+    }
+    func_00485ae0(arg1);
+}
 // FUN_004B1250
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1250);
+void func_004b1250(void *arg0, f32 *arg1)
+{
+    f32 work[4];
+
+    work[0] = arg1[0];
+    work[1] = arg1[1];
+    work[2] = arg1[2];
+    work[3] = 0.0f;
+    func_004861f0(arg0, work);
+}
 // FUN_004B1290
 void func_004b1290(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
 {
@@ -222,9 +270,21 @@ void func_004b1560(void)
 }
 
 // FUN_004B1590
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1590);
+void func_004b1590(s32 arg0, s16 arg1)
+{
+    D_00922DA0[0] = arg0;
+    D_00922DA4[0] = arg1;
+    D_00922DA8[0] = 0;
+    D_00922DAC[0] = 0;
+    iGpffffbb94 = 0;
+    iGpffffbb98 = 1;
+}
 // FUN_004B15D0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b15d0);
+void func_004b15d0(void)
+{
+    func_004a7a50();
+    iGpffffbb98 = 0;
+}
 // FUN_004B1600
 void func_004b1600(void)
 {
@@ -245,7 +305,15 @@ void func_004b1600(void)
 }
 
 // FUN_004B1680
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1680);
+void func_004b1680(s32 arg0, s16 arg1, s32 arg2, s32 arg3)
+{
+    D_00922DA0[0] = arg0;
+    D_00922DA4[0] = arg1;
+    D_00922DA8[0] = arg2;
+    D_00922DAC[0] = arg3;
+    iGpffffbb94 = 0;
+    iGpffffbb98 = 1;
+}
 // FUN_004B16C0
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b16c0);
 // FUN_004B18E0
@@ -276,11 +344,18 @@ void func_004b1aa0(u8 *arg0)
 }
 
 // FUN_004B1AB0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1ab0);
+void func_004b1ab0(u8 *arg0)
+{
+    *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
+}
 // FUN_004B1AD0
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b1ad0);
 // FUN_004B2740
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b2740);
+void func_004b2740(u8 *arg0)
+{
+    *(s32 *)(arg0 + 8) = *(s32 *)(arg0 + 8) + 1;
+    func_004b1ad0(arg0);
+}
 // FUN_004B2780
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b2780);
 // FUN_004B2A00
@@ -307,7 +382,10 @@ void func_004b4ea0(u8 *arg0)
 }
 
 // FUN_004B4F10
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b4f10);
+void func_004b4f10(u8 *arg0)
+{
+    func_004b4cb0(*(u16 *)(arg0 + 0x18), *(s32 *)(arg0 + 0x24));
+}
 // FUN_004B4F40
 void func_004b4f40(u8 *arg0)
 {
@@ -462,9 +540,16 @@ void func_004b5770(u8 *arg0, s32 arg1)
 }
 
 // FUN_004B5780
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5780);
+void func_004b5780(u8 *arg0, f32 arg1)
+{
+    *(f32 *)(arg0 + 0x20) = arg1;
+}
 // FUN_004B5790
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b5790);
+void func_004b5790(u8 *arg0, s32 arg1)
+{
+    iGpffffbba0 = arg0;
+    iGpffffbba4 = (s32 (*)(void))arg1;
+}
 // FUN_004B57A0
 u8 *func_004b57a0(void *object, s32 arg1) {
     u8 *temp_2;
@@ -480,11 +565,26 @@ u8 *func_004b57a0(void *object, s32 arg1) {
 
 
 // FUN_004BC4D0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc4d0);
+void func_004bc4d0(u8 *arg0, f32 arg1)
+{
+    *(s32 *)(arg0 + 0x28) = 0;
+    *(f32 *)(arg0 + 0x30) = *(f32 *)(arg0 + 0x2c);
+    *(f32 *)(arg0 + 0x34) = arg1;
+    *(s32 *)(arg0 + 4) |= 1;
+}
 // FUN_004BC500
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc500);
+void func_004bc500(u8 *arg0)
+{
+    *(s32 *)(arg0 + 4) = 0;
+    *(s32 *)(arg0 + 0x2c) = 0;
+    *(s32 *)(arg0 + 8) = 0;
+    *(s32 *)(arg0 + 0xc) = 0;
+}
 // FUN_004BC520
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc520);
+void func_004bc520(u8 *arg0, f32 *arg1)
+{
+    *(f32 *)(arg0 + 0x2c) += *arg1;
+}
 // FUN_004BC540
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc540);
 // FUN_004BCCF0

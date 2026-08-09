@@ -2,6 +2,11 @@
 #include "type.h"
 
 s32 func_00452380(void *arg0);
+extern s32 *func_00452560();
+extern void func_0025f230(s32 arg0);
+extern void (*jtbl_008873EC[])(void *ptr);
+extern void func_004ab680(s32 arg0);
+extern void func_004ab140(s32 arg0);
 extern s32 D_006367C0[];
 
 s16 func_001060b0(void);
@@ -53,7 +58,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0025", func_002518d0);
 // FUN_002519E0
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_002519e0);
 // FUN_00251CE0
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_00251ce0);
+void func_00251ce0(void)
+{
+    void *t;
+
+    t = func_00452560();
+    func_0025f230(*(s32 *)((u8 *)t + 0x10));
+    (*jtbl_008873EC)(t);
+}
 // FUN_00251D30
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_00251d30);
 // FUN_0025C310
@@ -407,6 +419,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ecd0);
 // FUN_0025F960
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025f960);
 // FUN_0025FA30
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025fa30);
+void func_0025fa30(void)
+{
+    s32 *temp_2;
+    s32 temp_3;
+
+    temp_2 = func_00452560();
+    temp_3 = temp_2[0];
+    switch (temp_3) {
+    case 0:
+        func_004ab680(temp_2[1]);
+        break;
+    case 1:
+        func_004ab140(temp_2[1]);
+        break;
+    }
+    jtbl_008873EC[0](temp_2);
+}
 // FUN_0025FF60
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ff60);
+s32 func_0025ff60(void)
+{
+    s32 *p;
+    p = func_00452560();
+    return p[0];
+}

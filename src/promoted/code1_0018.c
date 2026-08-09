@@ -2,11 +2,16 @@
 #include "type.h"
 extern void func_0048a000();
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_00489f80(void);
+extern void func_001852f0(void);
+extern void func_003a2760(s32 arg0);
+extern void func_003e9390(s32 arg0);
 extern void func_003c21e0();
 extern void func_004787e0(s32 arg0);
 extern void func_00185370();
 
-extern void (*jtbl_008873EC[])(void *);
+extern u8 *(*jtbl_008873EC[])(u8 *);
 
 extern s32 D_0076428C;
 
@@ -24,13 +29,75 @@ extern s32 func_003ef6d0(void);
 extern s32 func_003ef650(s32 a, u8 *b);
 extern void func_003f6800(s32 a, f32 fp);
 extern u8 D_005F5360[];
+extern u8 iGpffffb310;
+extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern s32 func_0044ea90(const void *msg, s32 id);
+extern u8 *(*D_008873F4[])(s32 size, s32 align, s32 flags);
+extern u8 D_005F1D80[];
+extern s32 iGpffff9f60;
+extern void func_00182bc0(u8 *arg0);
+extern s32 func_00451fc0(u8 *window, const void *data, s32 prio, s32 arg3,
+                         s32 arg4, void (*init)(u8 *), void (*close)(u8 *),
+                         u8 *work);
+extern void func_00185850(u8 *arg0);
+extern void func_00186610(u8 *arg0);
+extern void func_0018e810(u8 *arg0);
+extern void func_0018ef20(u8 *arg0);
+extern u8 D_005F1DF8[];
+extern u8 D_005F1E08[];
+extern u8 D_005F57B0[];
+extern u8 D_005F57C0[];
+extern s32 func_003bfae0();
+extern u8 *func_00457120(void);
+extern s32 func_003e8200(u8 *arg0, s32 arg1);
+extern void func_003f68a0(s32 arg0, s32 arg1);
+extern u8 D_007E8C00[];
+extern void func_003bff30(u8 *arg0, u8 *(*cb)(u8 *, s32), s32 *result);
 
+/* measured: loop-invariant hoisting keeps the retail stride/base preheader for
+   the 0x750 slot scan. */
+#pragma opt_loop_invariants on
 // FUN_00182310
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00182310);
+void func_00182310(s32 arg0)
+{
+    s32 i;
+    s32 one;
+    s32 stride;
+    s32 hit;
+    u8 *p;
+    u8 *temp;
+
+    i = 0;
+    one = 1;
+    stride = 0x750;
+    while (i < 0xF) {
+        hit = 0;
+        p = D_007E8C00 + i * stride;
+        if (*(s32 *)(p + 0x48) != 0 && *(s32 *)(p + 0x54) != 0) {
+            hit = one;
+        }
+        hit = hit != 0;
+        if (hit != 0) {
+            temp = *(u8 **)(p + 0x1B0);
+            if (temp != NULL) {
+                *(s32 *)(*(u8 **)(temp + 0x38) + 4) = arg0;
+            }
+        }
+        i += 1;
+    }
+}
+/* measured: close loop-invariant hoisting around the slot scan. */
+#pragma opt_loop_invariants off
 // FUN_00182390
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00182390);
+void func_00182390(void)
+{
+    func_0043f9c8(&iGpffffb310, 0, 4);
+}
 // FUN_001823C0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001823c0);
+u8 *func_001823c0(void)
+{
+    return &iGpffffb310;
+}
 // FUN_001823D0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001823d0);
 /* measured probe: opt_propagation off tests caching the repeated render callback base. */
@@ -50,12 +117,56 @@ void func_00182b40(void)
 #pragma opt_propagation on
 // FUN_00182BC0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00182bc0);
+/* measured: propagation off preserves the cached jtbl_008873EC base for
+   the post-loop callback sequence. */
 // FUN_001837F0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001837f0);
+#pragma opt_propagation off
+void func_001837f0(u8 *arg0)
+{
+    u8 *temp_16;
+    s32 var_17;
+    u8 *(**base)(u8 *);
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    var_17 = 0;
+    while (var_17 < *(s32 *)(temp_16 + 0x40)) {
+        jtbl_008873EC[0](*(u8 **)(*(u8 **)(temp_16 + 0x5C) + var_17 * 0x10 + 0xC));
+        var_17 += 1;
+    }
+    base = jtbl_008873EC;
+    base[0](*(u8 **)(temp_16 + 0x5C));
+    base[0](*(u8 **)(temp_16 + 0x38));
+    func_003a2760(*(s32 *)(temp_16 + 8));
+    func_003e9390(*(s32 *)(temp_16 + 0xC));
+    if (*(s32 *)(temp_16 + 0x10) != 0) {
+        func_003e0f40(*(s32 *)(temp_16 + 0x10));
+    }
+    base[0](*(u8 **)(arg0 + 0x38));
+}
+/* measured: closing the single-function callback-base bracket. */
+#pragma opt_propagation on
 // FUN_001838D0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001838d0);
+void func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                   f32 fparg2, f32 fparg3, s32 arg2, s32 arg3, s32 arg4)
+{
+    u8 *temp_2;
+
+    func_0044ea90(&D_005F1D80, 0x17B);
+    temp_2 = D_008873F4[0](1, 0x78, 0x40000);
+    func_00451fc0(arg0, &iGpffff9f60, 0xF, 0, 0, func_00182bc0,
+                  func_001837f0, temp_2);
+    *(s32 *)(temp_2 + 0x28) = arg1;
+    *(f32 *)(temp_2 + 0x18) = fparg0;
+    *(f32 *)(temp_2 + 0x14) = fparg1;
+    *(f32 *)(temp_2 + 0x1C) = fparg2;
+    *(f32 *)(temp_2 + 0x20) = fparg3;
+    *(s32 *)(temp_2 + 0x24) = arg2;
+    *(s32 *)(temp_2 + 0x2C) = arg3;
+    *(s32 *)(temp_2 + 0x30) = arg4;
+}
 // FUN_001839E0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001839e0);
+ 
 // FUN_00183B80
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00183b80);
 // FUN_00185120
@@ -74,20 +185,107 @@ INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001852f0);
 // FUN_00185370
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185370);
 
+/* measured: the saved callback argument and D_00887300 base reproduce the
+   retail s17/s16 frame layout under opt_propagation off. */
 // FUN_001853E0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001853e0);
+#pragma opt_propagation off
+void func_001853e0(u8 *arg0, u8 *arg1)
+{
+    s32 *value;
+    void (**base)(s32, s32);
+
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](6, 0);
+    base[0](8, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](9, 2);
+    base[0](2, 1);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x54);
+    value = *(s32 **)(arg1 + 0x88C0);
+    base[0](1, *value);
+}
+/* measured: closing the single-function address-hoist bracket. */
+#pragma opt_propagation on
+/* measured: the saved callback argument and D_00887300 base reproduce the
+   retail s17/s16 frame layout under opt_propagation off. */
 // FUN_001854F0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001854f0);
+#pragma opt_propagation off
+void func_001854f0(u8 *arg0, u8 *arg1)
+{
+    s32 *value;
+    void (**base)(s32, s32);
+
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](6, 1);
+    base[0](8, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](9, 2);
+    base[0](2, 1);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x54);
+    value = *(s32 **)(arg1 + 0x88C4);
+    base[0](1, *value);
+    func_001852f0();
+}
+/* measured: closing the single-function address-hoist bracket. */
+#pragma opt_propagation on
 // FUN_00185600
 void func_00185600(void)
 {
     func_00185370();
 }
 
+/* measured: the saved callback argument and D_00887300 base reproduce the
+   retail s17/s16 frame layout under opt_propagation off. */
 // FUN_00185620
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185620);
+#pragma opt_propagation off
+void func_00185620(u8 *arg0, u8 *arg1)
+{
+    void (**base)(s32, s32);
+
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](6, 0);
+    base[0](8, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](9, 2);
+    base[0](2, 3);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x54);
+    base[0](1, *(s32 *)(arg1 + 0x88C8));
+    func_001852f0();
+}
+/* measured: closing the single-function address-hoist bracket. */
+#pragma opt_propagation on
+/* measured: retail hoists the D_00887300 base across nine indirect calls;
+   opt_propagation off preserves the saved-register address materialization. */
 // FUN_00185730
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185730);
+#pragma opt_propagation off
+void func_00185730(void)
+{
+    void (**base)(s32, s32);
+
+    base = D_00887300;
+    base[0](0xE, 0);
+    base[0](6, 0);
+    base[0](8, 0);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](9, 2);
+    base[0](2, 3);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    base[0](1, 0);
+    func_00489f80();
+}
+/* measured: closing the single-function address-hoist bracket. */
+#pragma opt_propagation on
 // FUN_00185830
 void func_00185830(void)
 {
@@ -105,11 +303,34 @@ void func_00186610(u8 *arg0)
 
 
 // FUN_00186640
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00186640);
+void func_00186640(u8 *arg0)
+{
+    func_0044ea90(&D_005F1DF8, 0x299);
+    func_00451fc0(arg0, &D_005F1E08, 0xF, 0, 0, func_00185850,
+                  func_00186610, D_008873F4[0](1, 0x88D0, 0x40000));
+}
 // FUN_00189600
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00189600);
+/* measured: retail hoists the D_00887300 base across seven indirect calls;
+   opt_propagation off preserves the saved-register address materialization. */
 // FUN_00189870
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00189870);
+#pragma opt_propagation off
+void func_00189870(void)
+{
+    void (**base)(s32, s32);
+
+    base = D_00887300;
+    base[0](6, 1);
+    base[0](8, 1);
+    base[0](0xC, 1);
+    base[0](7, 2);
+    base[0](9, 2);
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+    base[0](1, 0);
+}
+/* measured: closing the single-function address-hoist bracket. */
+#pragma opt_propagation on
 // FUN_00189940
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00189940);
 // FUN_00189E90
@@ -141,7 +362,18 @@ void func_0018a000(u8 *arg0, s32 arg1)
 // FUN_0018A010
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018a010);
 // FUN_0018A170
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018a170);
+s32 func_0018a170(s32 arg0, s32 *arg1)
+{
+    u8 *temp_16;
+
+    func_003bfae0();
+    temp_16 = func_00457120();
+    if (func_003e8200(temp_16, func_003bfae0(arg0)) != 0) {
+        *arg1 = 1;
+        return 0;
+    }
+    return arg0;
+}
 // FUN_0018A200
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018a200);
 // FUN_0018BAD0
@@ -171,8 +403,32 @@ s32 func_0018bbf0(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bc20);
 // FUN_0018BDD0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bdd0);
+/* measured: opt_propagation off probe preserves retail's handle-load/result
+   initialization order for the state predicate. */
+#pragma opt_propagation off
 // FUN_0018BEA0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bea0);
+s32 func_0018bea0(u8 *arg0)
+{
+    u8 *p;
+    s32 r;
+    s32 v;
+
+    p = *(u8 **)(arg0 + 0x38);
+    r = 0;
+    v = *(s32 *)p;
+    if (v == 5) {
+        goto set;
+    }
+    if (v != 6) {
+        goto rest;
+    }
+set:
+    r = 1;
+rest:
+    return r;
+}
+/* measured: opt_propagation on closes the state-predicate probe. */
+#pragma opt_propagation on
 // FUN_0018BED0
 void func_0018bed0(u8 *arg0, s32 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x38);
@@ -189,7 +445,6 @@ s32 func_0018bf50(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
     s32 r = 0;
     s32 v = *(s32 *)p;
-
     if (v == 5) {
         goto set;
     }
@@ -223,7 +478,15 @@ u8 *func_0018c680(u8 *arg0, s32 arg1)
     return arg0;
 }
 // FUN_0018C6C0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c6c0);
+s32 func_0018c6c0(u8 *arg0, s32 arg1)
+{
+    s32 sp[2];
+
+    sp[0] = 0;
+    sp[1] = arg1;
+    func_003bff30(arg0, func_0018c680, sp);
+    return sp[0];
+}
 // FUN_0018C700
 void func_0018c700(f32 fp0) {
     s32 a;
@@ -302,13 +565,24 @@ void func_0018e4d0(u8 *arg0)
 // FUN_0018E810
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018e810);
 // FUN_0018EF20
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018ef20);
+void func_0018ef20(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
 // FUN_0018EF50
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018ef50);
+void func_0018ef50(s32 arg0)
+{
+    func_0044ea90(&D_005F57B0, 0x101);
+    func_00451fc0((u8 *)arg0, &D_005F57C0, 0xF, 0, 0, func_0018e810,
+                  func_0018ef20, D_008873F4[0](1, 0x1B440, 0x40000));
+}
 // FUN_0018EFE0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018efe0);
 // FUN_0018F390
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018f390);
+void func_0018f390(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
 // FUN_0018F7B0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018f7b0);
 // FUN_0018F8A0

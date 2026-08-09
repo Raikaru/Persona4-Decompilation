@@ -732,7 +732,10 @@ void func_004a6e50(int param_1)
 // FUN_004A6E70
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a6e70);
 // FUN_004A7760
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_004a7760);
+void func_004a7760(u8 *arg0) {
+    (*(s32 *)(arg0 + 0x10))++;
+    func_004a6e70();
+}
 // FUN_004A7790
 u_long128 func_004a7790(u_long128 *arg0, u_long128 *arg1)
 {

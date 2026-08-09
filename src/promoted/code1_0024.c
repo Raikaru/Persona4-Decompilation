@@ -32,10 +32,14 @@ extern s32 func_00108590(s32 arg0, s32 arg1, s32 arg2);
 extern s64 func_001060b0(void);
 extern s32 func_001104d0(s64 arg0, s32 *arg1, s32 *arg2);
 extern s32 func_002480e0(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_00248040(s32 arg0);
+extern s32 func_00110580(s32 arg0);
+extern s32 func_00110d30(s32 arg0);
 extern s32 func_00108ed0(s32 arg0);
 extern s32 func_00108ee0(void);
 extern s32 func_00247f60(s32 arg0);
 
+extern void func_00243ed0(void);
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
@@ -64,7 +68,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0024", func_00244cf0);
 // FUN_00244E20
 INCLUDE_ASM("asm/nonmatchings/code1_0024", func_00244e20);
 // FUN_00246550
-INCLUDE_ASM("asm/nonmatchings/code1_0024", func_00246550);
+s32 func_00246550(void)
+{
+    func_00243ed0();
+    return 1;
+}
 // FUN_00246580
 s32 func_00246580(void)
 {
@@ -278,7 +286,16 @@ s32 func_00249f50(void)
     return 1;
 }
 // FUN_00249FE0
-INCLUDE_ASM("asm/nonmatchings/code1_0024", func_00249fe0);
+s32 func_00249fe0(void)
+{
+    s32 sp2C;
+    s32 sp28;
+    s32 temp_16;
+    temp_16 = func_0029cc00(0);
+    func_001104d0((s16)func_001060b0(), &sp2C, &sp28);
+    func_0029cf50(func_002480e0(temp_16, sp2C, sp28));
+    return 1;
+}
 // FUN_0024A060
 s32 func_0024a060(void)
 {
@@ -304,4 +321,19 @@ s32 func_0024a0e0(void)
     return 1;
 }
 // FUN_0024A140
-INCLUDE_ASM("asm/nonmatchings/code1_0024", func_0024a140);
+s32 func_0024a140(void)
+{
+    s32 temp_17;
+    s32 var_16;
+    temp_17 = func_00248040((s16)func_001060b0());
+    var_16 = 0;
+    if (temp_17 == ((s16)func_001060b0() + 1)) {
+        var_16 = 1;
+    } else if (func_00110580(temp_17) == 0) {
+        var_16 = 2;
+    } else if (func_00110d30(temp_17) != 0) {
+        var_16 = 3;
+    }
+    func_0029cf50(var_16);
+    return 1;
+}

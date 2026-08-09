@@ -41,6 +41,7 @@ extern s32 func_00452380(void *path);
 extern s32 func_00106330(s32 arg0);
 extern void func_001238c0(s32 arg0);
 extern s32 func_00104e30(s16 arg0);
+extern void func_00105730(s16 arg0, s16 arg1);
 
 
 
@@ -300,7 +301,16 @@ s32 func_00299db0(void) {
     return 1;
 }
 // FUN_00299E00
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00299e00);
+s32 func_00299e00(void)
+{
+    s64 temp_16;
+    s64 temp_17;
+
+    temp_16 = func_0029cc00_s64(0);
+    temp_17 = func_0029cc00_s64(1);
+    func_00105730((s16)temp_16, (s16)temp_17);
+    return 1;
+}
 // FUN_00299E60
 s32 func_00299e60(void) {
     func_001238c0(func_0029cc00(0) != 0);

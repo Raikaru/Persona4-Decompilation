@@ -35,6 +35,24 @@ extern s32 func_00451de0(void *, s32, s32, s32, void *, void *, void *);
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
 extern s32 func_002bce00(void);
+extern u32 func_00278110(s32);
+extern void func_0046d730(const void *, s32);
+extern char D_0063F2A0[];
+extern void func_002bd530();
+extern s32 func_002bd580(u8 *, s32, s32);
+extern s8 func_002bd610();
+
+extern void func_002bd660();
+extern u32 func_002bd730();
+extern void func_002bd260();
+extern void func_002e22f0();
+extern void func_002bcbc0();
+extern void func_002bc890();
+extern void func_002bc9e0();
+extern s32 func_002bcfb0(u8 *, u8 *);
+extern s32 func_002bd220(void);
+
+
 
 
 
@@ -106,9 +124,144 @@ void func_002bcd20(void)
 
 
 // FUN_002BCE00
-INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bce00);
+s32 func_002bce00(void)
+{
+    u8 *manager;
+    u8 *head;
+    u8 *entry;
+    u8 *item;
+    s32 flags;
+    s32 i;
+
+    manager = (u8 *)(uintptr_t)iGpffffb57c;
+    flags = *(s32 *)(manager + 4);
+    if ((flags & 1) != 0)
+    {
+        if ((flags & 2) != 0)
+        {
+            func_002bcc60((int *)manager);
+            if (func_002bd220() != 0)
+            {
+                *(s32 *)(manager + 4) &= ~2;
+                func_002bd260(0);
+                func_002e22f0(*(void **)manager,
+                              (u8 *)*(void **)manager + 4);
+                i = 0;
+                while (i < 0xb)
+                {
+                    func_002bcbc0(manager, i);
+                    i++;
+                }
+            }
+            goto update_tail;
+        }
+        head = *(u8 **)((u8 *)*(u32 *)manager + 4);
+        if (head == NULL)
+        {
+            item = NULL;
+            goto process_item;
+        }
+        item = *(u8 **)(head + 0x14);
+process_item:
+        if (item == NULL)
+        {
+            goto update_tail;
+        }
+        *(s32 *)(manager + 4) = flags & ~1;
+        func_002bd4a0(item + 0x10, *(s32 *)(item + 0x28));
+        func_002bc890(manager, 0);
+        func_002bc890(manager, *(s32 *)(item + 0x2c));
+        *(s32 *)(item + 4) |= 2;
+        *(s32 *)(item + 4) |= 1;
+    }
+update_tail:
+    head = *(u8 **)((u8 *)*(u32 *)manager + 4);
+    if (head != NULL)
+    {
+        entry = *(u8 **)(head + 0x14);
+        if ((*(s32 *)(entry + 4) & 2) != 0)
+        {
+            if (func_002bcfb0(manager, entry) != 0)
+            {
+                *(s32 *)(manager + 4) |= 1;
+                func_002e2240(*(int **)manager,
+                              (int *)((u8 *)*(int **)manager + 4),
+                              (int *)head);
+            }
+        }
+    }
+    func_002bc9e0(manager);
+    return 0;
+}
+/* measured: callback body is exact-size (560B/window 560B), with only the
+ * signed-byte helper return extension and one comparison-register choice
+ * remaining; caller/helper type changes regress the matched helper. Committed at nd 263 in-file (nd 22 measured in isolation). */
 // FUN_002BCFB0
+#ifdef NON_MATCHING
+/* Candidate reconstructed from the retail callback state transitions. */
+s32 func_002bcfb0(u8 *manager, u8 *entry)
+{
+    s32 flags;
+    s32 index;
+
+    flags = *(s32 *)(entry + 4);
+    if ((flags & 4) != 0)
+    {
+        if ((func_00278110(*(s32 *)(entry + 0x10)) & 0x3300) == 0)
+        {
+            func_002bd530((int *)(entry + 0x10));
+            if ((*(s32 *)(manager + 0x14) & 1) == 0)
+            {
+                if (manager == NULL)
+                {
+                    func_0046d730(D_0063F2A0, 0x58f);
+                }
+                *(s32 *)(manager + 0x1c) |= 4;
+            }
+            index = *(s32 *)(entry + 0x2c);
+            if (index < 0 || index >= 0xc)
+            {
+                func_0046d730(D_0063F2A0, 0x590);
+            }
+            *(s32 *)(manager + index * 0xc + 0x1c) |= 4;
+            return 1;
+        }
+        return 0;
+    }
+    if ((flags & 1) != 0)
+    {
+        if (manager == NULL)
+        {
+            func_0046d730(D_0063F2A0, 0x587);
+        }
+        if ((*(s32 *)(manager + 0x1c) & 2) == 0)
+        {
+            return 0;
+        }
+        index = *(s32 *)(entry + 0x2c);
+        if (manager == NULL)
+        {
+            func_0046d730(D_0063F2A0, 0x587);
+        }
+        if ((*(s32 *)(manager + index * 0xc + 0x1c) & 2) == 0)
+        {
+            return 0;
+        }
+        *(s32 *)(entry + 4) &= ~1;
+        func_002bd580(entry + 0x10, *(s32 *)(entry + 0x2c),
+                      *(s32 *)(entry + 0x20));
+    }
+    func_002bd660(entry + 0x10);
+    if (func_002bd610((int *)(entry + 0x10)) == 0)
+    {
+        func_002bd730((u32 *)(entry + 0x10));
+        *(s32 *)(entry + 4) |= 4;
+    }
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bcfb0);
+#endif
 // FUN_002BD1E0
 s32 func_002bd1e0(s32 param_1)
 {
@@ -123,7 +276,7 @@ s32 func_002bd1e0(s32 param_1)
     return *(s32*)(entry + 0x24);
 }
 // FUN_002BD220
-u8 func_002bd220(void)
+s32 func_002bd220(void)
 {
     return *(int *)(*(int *)(iGpffffb57c + 0x18) + 4) == 0;
 }

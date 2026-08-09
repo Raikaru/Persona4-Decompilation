@@ -143,17 +143,102 @@ s32 func_0022fd30(u8* arg0)
 // FUN_0022FDC0
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022fdc0);
 // FUN_0022FF70
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022ff70);
+s32 func_0022ff70(u8 *arg0)
+{
+    s32 temp_3;
+    u16 value;
+
+    if ((*(s32 *)(DAT_0076449c + 0xc) & 0x200000) == 0)
+        return 0;
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xa2) == 1)
+        return 0;
+    value = *(u16 *)(arg0 + 0x6e);
+    temp_3 = (s32)(func_001d7f10(0, 0, value, 0) & 0xffff);
+    if ((temp_3 != 2) && (temp_3 != 1))
+        return 0;
+    return 1;
+}
 // FUN_00230020
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230020);
 // FUN_002300F0
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_002300f0);
+u32 func_002300f0(u8 *arg0, u16 *out1, u16 *out2)
+{
+    if ((*(u32 *)(DAT_0076449c + 0xc) & 0x200000) == 0)
+        return 0;
+    if (arg0[0xa2] != 1)
+        return 0;
+    if (*(u16 *)(arg0 + 0xa4) != 0x111)
+        return 0;
+    *out1 = arg0[0xa2] + 1;
+    *out2 = 0x110;
+    return 1;
+}
+/* measured probe: opt_loop_invariants on for func_00230170 */
+#pragma opt_loop_invariants on
 // FUN_00230170
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230170);
+void func_00230170(u8 *arg0)
+{
+    u8 *temp_6;
+    u8 *var_6;
+    u16 target = 0x10f;
+
+    temp_6 = DAT_0076449c;
+    if ((*(s32 *)(temp_6 + 0xc) & 0x200000) &&
+        (*(u16 *)(arg0 + 0xa4) == 0x106) &&
+        ((*(s32 *)(arg0 + 0x9c) & 8) == 0))
+    {
+        var_6 = *(u8 **)(temp_6 + 0x180);
+        goto loop_cond;
+loop_body:
+        if (*(u16 *)(var_6 + 0xa4) == target)
+            goto loop_done;
+        var_6 = *(u8 **)(var_6 + 0xa6c);
+loop_cond:
+        if (var_6 != NULL)
+            goto loop_body;
+loop_done:
+        if ((var_6 != NULL) && ((*(u16 *)var_6 & 2) != 0))
+        {
+            *(u16 *)arg0 = *(u16 *)arg0 | 2;
+            *(u8 *)(arg0 + 0x37) = *(u8 *)(var_6 + 0x37);
+        }
+    }
+}
+
+#pragma opt_loop_invariants off
 // FUN_00230210
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230210);
 // FUN_00230340
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230340);
+void func_00230340(u8 *arg0)
+{
+    u8 *temp_5;
+    u8 *temp_6;
+    u16 temp_4;
+
+    temp_6 = DAT_0076449c;
+    if ((*(s32 *)(temp_6 + 0xc) & 0x200000) != 0)
+    {
+        temp_5 = *(u8 **)(arg0 + 0x30);
+        if (*(u8 *)(temp_5 + 0xa2) == 1)
+        {
+            temp_4 = *(u16 *)(temp_5 + 0xa4);
+            switch (temp_4)
+            {
+            case 0x102:
+            case 0x104:
+            case 0x105:
+            case 0x106:
+            case 0x107:
+            case 0x10b:
+            case 0x112:
+                *(s8 *)(temp_6 + 0xc12) = -1;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
 // FUN_002303E0
 u32 func_002303e0(void* work)
 {

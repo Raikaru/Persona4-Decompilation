@@ -1,6 +1,13 @@
 #include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
+typedef struct {
+    f32 x;
+    f32 y;
+} f2;
+extern void func_002b8270(u8 *arg0, f2 p1, f2 p2, u32 arg3, s32 arg4, s32 arg5);
+extern void func_00452080(s32 handle);
+extern u8 *iGpffffb590;
 extern void func_00105ed0();
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
@@ -24,9 +31,22 @@ extern void func_002b2970(s64 *out, f32 x, f32 y);
 
 
 // FUN_002E04E0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e04e0);
+s32 func_002e04e0(u8 *arg0)
+{
+    return *(s32 *)(arg0 + 0x38);
+}
 // FUN_002E04F0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e04f0);
+void func_002e04f0(u8 *arg0, u32 arg1, s8 arg2) {
+    u8 *base = *(u8 **)(arg0 + 0x38);
+    if (arg2 == 0) {
+        *(s16 *)(base + 4) |= (s16)((1 << (arg1 & 0xffff)) & 0xffff);
+        return;
+    }
+    if (arg2 == 1) {
+        *(s16 *)(base + 4) &= (s16)((1 << (arg1 & 0xffff)) ^ 0xffff);
+        return;
+    }
+}
 // FUN_002E0570
 s64 func_002e0570(u8 *arg0, s32 arg1)
 {
@@ -49,7 +69,9 @@ s32 func_002e05a0(u8 *arg0) {
 }
 
 // FUN_002E0620
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0620);
+void func_002e0620(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
+    func_002b8270(*(u8 **)(arg0 + 0x38) + 4, p1, p2, arg3, arg4, arg5);
+}
 // FUN_002E0660
 void func_002e0660(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s64 arg5)
 {
@@ -195,7 +217,9 @@ s32 func_002e6f90(u8 *arg0, s32 arg1) {
 // FUN_002E7010
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7010);
 // FUN_002E7190
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7190);
+void func_002e7190(void) {
+    ((void (*)(void))jtbl_008873EC[0])();
+}
 // FUN_002E71C0
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e71c0);
 // FUN_002E72C0
@@ -209,7 +233,14 @@ void func_002e74e0(u8 *arg0)
 // FUN_002E7510
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7510);
 // FUN_002E7870
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7870);
+void func_002e7870(void) {
+    u8 *g = iGpffffb590;
+
+    if (g != NULL) {
+        func_00452080((s32)g);
+        iGpffffb590 = NULL;
+    }
+}
 // FUN_002E78A0
 u8 func_002e78a0(void)
 {

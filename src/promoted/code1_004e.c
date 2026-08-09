@@ -6,6 +6,7 @@ extern s8 D_00923640[];
 extern u8 D_00731C7C[];
 
 extern s32 D_00731C78[];
+extern s32 D_00731C84[];
 
 extern s32 D_00731C3C[];
 
@@ -13,6 +14,8 @@ extern s8 D_00731C01[];
 
 extern s32 D_00731C34[];
 
+/* Measured: retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
+ * toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 #pragma schedule on
 
 // FUN_004E0058
@@ -197,8 +200,20 @@ s8 func_004e4dc8(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4dd0);
 // FUN_004E4E90
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4e90);
+/* measured: schedule on keeps the store in the jr return delay slot. */
+#pragma schedule on
 // FUN_004E4EF8
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4ef8);
+s32 func_004e4ef8(void)
+{
+    u8 *base = (u8 *)D_00731C84;
+    s32 *slot = (s32 *)(base + 0);
+    s32 value = *slot;
+    value -= 1;
+    *slot = value;
+    return value;
+}
+/* measured: close schedule-on scope after func_004e4ef8. */
+#pragma schedule off
 // FUN_004E4F10
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4f10);
 // FUN_004E5000
@@ -209,6 +224,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e76f8);
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e77c0);
 // FUN_004E7978
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7978);
+/* Known floor: standalone R5900 movz in func_004e7a00; b210 cannot emit it. */
 // FUN_004E7A00
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e7a00);
 // FUN_004E7A38

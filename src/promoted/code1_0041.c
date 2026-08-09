@@ -1,9 +1,11 @@
 #include "include_asm.h"
 #include "type.h"
+/* Toolchain note: retail saves $s registers with sd; MWCCPS2 3.0.1 emits sq; toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 
 s32 func_0041e8d8(); /* old-style: retail callers leave $a0..$a3 materialized */
 void func_0041dff8(void);
-void func_0041e030(u8 *arg0, s32 arg1);
+void func_0041be30(void);
+void func_0041e030();
 
 /* measured: baseline -O2 emits lw/sw/srl/andi/jr/nop with the return andi
    before jr (nd 6); schedule-on fills the jr delay slot with the andi but
@@ -33,7 +35,15 @@ void func_0041e030(u8 *arg0, s32 arg1);
 void func_00420e50(u8 *);
 
 void func_00420f38(u8 *);
+void func_00420cc8(u8 *, u8 *);
+extern u8 D_00753AF0[];
+extern u8 D_00753B20[];
+extern u8 D_0070C3C0[];
+extern u8 D_00753B38[];
+extern u8 D_00753B70[];
 
+void func_00418df8(s32 *);
+void func_00418e68(u8 *, u32, s32 *);
 
 // FUN_004125E0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004125e0);
@@ -126,16 +136,26 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415580);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004156e0);
 
 // FUN_00415920
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415920);
+void func_00415920(void) {}
 
 // FUN_00415930
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415930);
+/* measured: schedule on preserves retail's jr delay-slot return and leaves
+   the aligned 16-byte tiny body. */
+#pragma schedule on
+s32 func_00415930(void) { return 1; }
+/* measured: closes the schedule scope for the 16-byte return-one stub. */
+#pragma schedule off
 
 // FUN_00415940
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415940);
+void func_00415940(void) {}
 
 // FUN_00415950
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415950);
+/* measured: schedule on preserves retail's jr delay-slot return and leaves
+   the aligned 16-byte tiny body. */
+#pragma schedule on
+s32 func_00415950(void) { return 1; }
+/* measured: closes the schedule scope for the 16-byte return-one stub. */
+#pragma schedule off
 
 // FUN_00415960
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415960);
@@ -170,8 +190,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417470);
 // FUN_00417510
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417510);
 
+/* measured: schedule-on places the global-address addiu in retail's jr delay slot. */
+#pragma schedule on
 // FUN_004176A0
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004176a0);
+u8 *func_004176a0(void)
+{
+    return D_0070C3C0;
+}
+/* measured: closes schedule-on for the global-address accessor. */
+#pragma schedule off
 
 // FUN_004176B0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004176b0);
@@ -235,8 +262,35 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418e68);
 // FUN_00418EF0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418ef0);
 
-// FUN_00418F18
+/* measured: object/window 44/56; returned zero-fill loop with schedule-on
+   leaves the retail loop register/order and trailing words mismatched
+   (nd 11). Plain/sentinel/local-pointer spellings were tested; returning the
+   final counter is required to color retail $v0. Committed at nd 27 in-file (nd 11 measured in isolation). */
+// FUN_00418F18 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: schedule-on probe for the returned zero-fill loop. */
+#pragma schedule on
+s32 func_00418f18(u8 *arg0, s32 arg1)
+{
+    s32 count;
+    u8 *p;
+
+    p = arg0;
+    count = arg1 - 1;
+    if (arg1 != 0) {
+        do {
+            *p = 0;
+            count -= 1;
+            p += 1;
+        } while (count != -1);
+    }
+    return count;
+}
+/* measured: closes schedule-on probe for the returned zero-fill loop. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f18);
+#endif
 
 // FUN_00418F50
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f50);
@@ -271,11 +325,42 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419420);
 // FUN_004194A0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004194a0);
 
+/* measured: schedule-on probe for the conditional helper wrapper. */
+#pragma schedule on
 // FUN_00419520
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419520);
+s32 func_00419520(u32 *arg0, s32 arg1)
+{
+    if (arg1 == 1) {
+        return ((u32)*arg0 >> 8) & 1;
+    }
+    func_00418df8((s32 *)arg0);
+    return 0;
+}
+/* measured: closes schedule-on probe for the conditional helper wrapper. */
+#pragma schedule off
 
+/* measured: object/window 52/56; conditional helper wrapper reproduces every
+   retail instruction, with the retail trailing alignment word left as window
+   padding. The opt-propagation-off and schedule-on brackets below are both
+   load-bearing for this body. */
 // FUN_00419558
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419558);
+/* measured: opt-propagation-off probe for the conditional helper wrapper. */
+#pragma opt_propagation off
+/* measured: schedule-on probe for the conditional helper wrapper. */
+#pragma schedule on
+s32 func_00419558(u8 *arg0, u32 arg1, s32 arg2, s32 *arg3)
+{
+    if (arg2 == 1) {
+        return *(u32 *)(arg0 + 0x10) < arg1;
+    }
+    func_00418e68(arg0, arg1, arg3);
+    return 0;
+}
+/* measured: closes schedule-on probe for the conditional helper wrapper. */
+#pragma schedule off
+/* measured: closes opt-propagation-off probe for the conditional helper wrapper. */
+#pragma opt_propagation on
+
 
 // FUN_00419590
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419590);
@@ -306,7 +391,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419628);
    (jr $ra; addiu $v0,$zero,1 = 8 bytes). Scheduling is off at file scope here,
    so without this pragma b210 emits addiu; jr; nop and the object is 12 bytes
    against an 8-byte window. */
-#pragma schedule on
 /* floor by name: func_0041c2f8 is a R5900 MMI byte-pack loop. Retail uses the
    sequence mtsab $a4,0; qfsrv $a6,$a5,$a4; pextlb $a4,$zero,$a6; pextub
    $a5,$zero,$a6, followed by two 128-bit stores per iteration. The generated
@@ -360,12 +444,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bda0);
 
 // FUN_0041BE30
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041be30);
-
 // FUN_0041BEC8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bec8);
 
+/* measured: tailcall-on probe for the direct retail jump wrapper. */
+#pragma tailcall on
 // FUN_0041BF00
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bf00);
+void func_0041bf00(void)
+{
+    func_0041be30();
+}
+/* measured: closes tailcall-on probe for func_0041bf00. */
+#pragma tailcall off
 
 // FUN_0041BF08
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041bf08);
@@ -454,20 +544,60 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041d9d8);
 // FUN_0041DB18
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041db18);
 
+/* measured: schedule-on bracket for func_0041dc00. */
+#pragma schedule on
+/* measured: tailcall-on bracket for func_0041dc00. */
+#pragma tailcall on
 // FUN_0041DC00
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dc00);
+void func_0041dc00(u8 *arg0) {
+    func_00420cc8(arg0, D_00753AF0);
+}
+/* measured: closes tailcall-on bracket for func_0041dc00. */
+#pragma tailcall off
+/* measured: closes schedule-on bracket for func_0041dc00. */
+#pragma schedule off
 
+/* measured: schedule-on bracket for func_0041dc10. */
+#pragma schedule on
+/* measured: tailcall-on bracket for func_0041dc10. */
+#pragma tailcall on
 // FUN_0041DC10
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dc10);
+void func_0041dc10(u8 *arg0) {
+    func_00420cc8(arg0, D_00753B20);
+}
+/* measured: closes tailcall-on bracket for func_0041dc10. */
+#pragma tailcall off
+/* measured: closes schedule-on bracket for func_0041dc10. */
+#pragma schedule off
 
 // FUN_0041DC20
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dc20);
 
+/* measured: schedule-on bracket for func_0041de08. */
+#pragma schedule on
+/* measured: tailcall-on bracket for func_0041de08. */
+#pragma tailcall on
 // FUN_0041DE08
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041de08);
+void func_0041de08(u8 *arg0) {
+    func_00420cc8(arg0, D_00753B38);
+}
+/* measured: closes tailcall-on bracket for func_0041de08. */
+#pragma tailcall off
+/* measured: closes schedule-on bracket for func_0041de08. */
+#pragma schedule off
 
+/* measured: schedule-on bracket for func_0041de18. */
+#pragma schedule on
+/* measured: tailcall-on bracket for func_0041de18. */
+#pragma tailcall on
 // FUN_0041DE18
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041de18);
+void func_0041de18(u8 *arg0) {
+    func_00420cc8(arg0, D_00753B70);
+}
+/* measured: closes tailcall-on bracket for func_0041de18. */
+#pragma tailcall off
+/* measured: closes schedule-on bracket for func_0041de18. */
+#pragma schedule off
 
 // FUN_0041DE28
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041de28);
@@ -475,14 +605,31 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041de28);
 // FUN_0041DFF8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dff8);
 
+/* measured: tailcall-on probe for the direct retail jump wrapper. */
+#pragma tailcall on
 // FUN_0041E030
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e030);
+void func_0041e030()
+{
+    func_0041be30();
+}
+/* measured: closes tailcall-on probe for func_0041e030. */
+#pragma tailcall off
 
 // FUN_0041E038
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e038);
 
+/* measured: schedule-on moves the constant into the retail jump delay slot. */
+#pragma schedule on
+/* measured: tailcall-on probe for the argument-materializing wrapper. */
+#pragma tailcall on
 // FUN_0041E190
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e190);
+void func_0041e190(s32 arg0)
+{
+    func_0041e030(arg0, 0x20);
+}
+#pragma tailcall off
+/* measured: closes schedule-on probe for func_0041e190. */
+#pragma schedule off
 // Archived C body: build/WBDatCalc_0041E198_archive.txt
 // FUN_0041E198
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041e198);
@@ -513,12 +660,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041ed48);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041eeb8);
 // FUN_0041F080
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f080);
+/* measured: schedule-on bracket for the 8-byte return-one function. */
+#pragma schedule on
 // FUN_0041F130
 s32 func_0041f130(void)
 {
     return 1;
 }
-/* measured: see the annotation above the matching `on` pragma (func_0041f130). */
+/* measured: closes schedule-on bracket for func_0041f130. */
 #pragma schedule off
 
 /* measured: the whole body is right -- retail's jal passes $a0 and $a1
@@ -577,7 +726,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f298);
    nd 13. The comparison lever and whole-function spelling enumeration did
    not move the first-load destination; the base remains the lowest park.
    Committed at nd 2. */
-
 // FUN_0041F2A8 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail fills delay slots this function leaves empty at -O2. */
@@ -657,8 +805,25 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2f0);
 // FUN_0041F328
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f328);
 
-// FUN_0041F360
+/* measured: tiny delayed global-getter family floor covers F298, F2A8, F360,
+   F590, and F5A0. Retail names the delayed-load base in $v1; b210 colors it
+   in $v0. Best measured candidates are object/window 12/16 at nd 3 for F360
+   and nd 2 for F590/F5A0; no additional member probe is planned.
+   Committed at nd 2 in-file (nd 3 measured in isolation). */
+// FUN_0041F360 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: schedule-on probe for the delayed pointer accessor. */
+#pragma schedule on
+s32 func_0041f360(u8 *arg0)
+{
+    s32 *p = *(s32 **)(arg0 + 0x40);
+    return p[0x21F];
+}
+/* measured: closes schedule-on probe for the delayed pointer accessor. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f360);
+#endif
 
 // FUN_0041F370
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f370);
@@ -686,7 +851,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f500);
    order, parameter captures, separate/reused constants, wide types,
    direct stores, return/store-value variants, and optimization/pragmas.
    Committed at nd 5. */
-
 // FUN_0041F550 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail both fills delay slots this function leaves empty and
@@ -710,6 +874,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f550);
 #endif
 
 
+/* measured: schedule-on bracket for func_0041f568. */
 // FUN_0041F568
 #pragma schedule on
 s32 func_0041f568(u8 *arg0)
@@ -720,8 +885,21 @@ s32 func_0041f568(u8 *arg0)
     *(s32 *)(p + 0x8C) = 0;
     return 1;
 }
+/* measured: closes schedule-on bracket for func_0041f568. */
+#pragma schedule off
+
+/* measured: schedule-on bracket for func_0041f580. */
 // FUN_0041F580
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f580);
+#pragma schedule on
+s32 func_0041f580(u8 *arg0, s32 arg1)
+{
+    u8 *p = *(u8 **)(arg0 + 0x40);
+
+    *(s32 *)(p + 0xEC) = arg1;
+    return 1;
+}
+/* measured: closes schedule-on bracket for func_0041f580. */
+#pragma schedule off
 
 // FUN_0041F590
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f590);
@@ -729,16 +907,38 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f590);
 // FUN_0041F5A0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5a0);
 
+/* measured: schedule-on bracket for func_0041f5b0. */
 // FUN_0041F5B0
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5b0);
+#pragma schedule on
+u8 *func_0041f5b0(u8 *arg0)
+{
+    return *(u8 **)(arg0 + 0x40) + 0xC8;
+}
+/* measured: closes schedule-on bracket for func_0041f5b0. */
+#pragma schedule off
 
+/* measured: schedule-on bracket for func_0041f5c0. */
 // FUN_0041F5C0
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5c0);
+#pragma schedule on
+u8 *func_0041f5c0(u8 *arg0)
+{
+    return *(u8 **)(arg0 + 0x40) + 0xC8;
+}
+/* measured: closes schedule-on bracket for func_0041f5c0. */
+#pragma schedule off
 
+/* measured: schedule-on bracket for func_0041f5d0. */
 // FUN_0041F5D0
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5d0);
+#pragma schedule on
+s32 func_0041f5d0(u8 *arg0, s32 arg1)
+{
+    u8 *p = *(u8 **)(arg0 + 0x40);
+    s32 value = *(s32 *)(p + 0xFC);
 
-/* measured: see the annotation above the matching `on` pragma (func_0041f568). */
+    *(s32 *)(p + 0xFC) = arg1;
+    return value;
+}
+/* measured: closes schedule-on bracket for func_0041f5d0. */
 #pragma schedule off
 
 
@@ -750,7 +950,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5d0);
    nd 3). Ruled out constants and captures, pointer/scalar/struct and wide
    types, declaration/assignment order, direct-store/grouped-store forms,
    return/store-value variants, and optimization/pragmas. Committed at nd 3. */
-
 // FUN_0041F5E0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: retail both fills delay slots this function leaves empty and

@@ -508,7 +508,10 @@ INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbe90);
 // FUN_002BBF60
 INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf60);
 // FUN_002BBF70
-INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf70);
+u8 *func_002bbf70(void)
+{
+    return (u8 *)DAT_00882F60_abs;
+}
 // FUN_002BBF80
 INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf80);
 // FUN_002BC010

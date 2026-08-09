@@ -3,6 +3,9 @@
 extern s32 iGpffffb1b4;
 
 extern s32 D_005E45E0[];
+extern s8 D_005E3A02[];
+extern u8 D_00797B7C[];
+extern s32 D_0079B40C[];
 
 extern u8 D_0079B6D8[];
 
@@ -12,6 +15,7 @@ s32 func_0029e970(void);
 void func_0029e980(s32);
 
 void func_00106390(s32, s32);
+void func_004534f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 extern s32 uGpffffb1bc;
 extern void func_001104d0(s32 seed, s32 *month, s32 *day);
@@ -28,6 +32,10 @@ extern s32 func_00106330(s32 arg0);
 extern void func_00453570(void);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00452080(void);
+static inline s32 p4_00110850_add(s32 base, s32 offset)
+{
+    return base + offset;
+}
 
 
 // FUN_00110460
@@ -110,7 +118,51 @@ void func_00110810(s32 arg0, s8 arg1)
 
 
 // FUN_00110850
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110850);
+s64 func_00110850(s32 arg0, u32 arg1)
+{
+    s32 temp_4;
+    s32 temp_5;
+    s32 temp_6;
+    u32 var_5;
+
+    var_5 = arg1;
+    if ((arg0 == D_00797B7A[0]) && (var_5 == D_00797B7C[0])) {
+        if (D_0079B40C[0] & 8) {
+            return 0;
+        }
+        if (D_0079B40C[0] & 0x10) {
+            return 1;
+        }
+        if (D_0079B40C[0] & 0x20) {
+            return 2;
+        }
+        if (D_0079B40C[0] & 0x40) {
+            return 3;
+        }
+        if (D_0079B40C[0] & 0x80) {
+            return 4;
+        }
+        goto block_12;
+    }
+block_12:
+    switch (var_5) {
+    case 0:
+    case 1:
+        var_5 = 0;
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+        var_5 = 1;
+        break;
+    }
+    temp_4 = arg0 * 6;
+    temp_5 = (s32)&D_005E3A02;
+    temp_5 = p4_00110850_add(temp_5, temp_4);
+    temp_6 = var_5 * 2;
+    return (s64) ((s64) *((u8 *)(temp_6 + temp_5)) << 0x38) >> 0x38;
+}
 // FUN_00110960
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110960);
 // FUN_00110A60
@@ -196,9 +248,37 @@ s32 func_001110e0(void) {
     return var_16;
 }
 // FUN_00111160
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00111160);
+void func_00111160(s32 arg0)
+{
+    u32 var_16;
+    var_16 = 0;
+    for (var_16 = 0; var_16 < 6U; var_16++) {
+        if (arg0 & (1 << var_16)) {
+            func_00106390(D_005E4610[var_16], 1);
+        } else {
+            func_00106390(D_005E4610[var_16], 0);
+        }
+    }
+}
+/* measured: plain C reconstruction remains nd 10 (object 132B / window 144B), with only result-register and GP-store register residuals. Committed at nd 10. */
 // FUN_00111200
+#ifdef NON_MATCHING
+void func_00111200(void)
+{
+    u32 var_17;
+    s32 var_16;
+    var_16 = 0;
+    for (var_17 = 0; var_17 < 6U; var_17++) {
+        if (func_00106330(D_005E4610[var_17]) == 0) {
+            continue;
+        }
+        var_16 |= 1 << var_17;
+    }
+    uGpffffb1bc = var_16 | 0x80000000;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00111200);
+#endif
 // FUN_00111290
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00111290);
 // FUN_001113B0
@@ -234,7 +314,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001130c0);
 // FUN_00113280
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113280);
 // FUN_00113480
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113480);
+void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    if (func_00106330(0x39) != 0) {
+        func_004534f0(arg0, arg1, arg2, arg3);
+    }
+}
 // FUN_00113500
 void func_00113500(void) {
     func_00453570();

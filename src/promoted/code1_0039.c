@@ -1,5 +1,25 @@
 #include "include_asm.h"
 #include "type.h"
+/*
+ * Measured scope map; ranges refer to this file after this header.
+ * Broad non-default scopes (singleton per-function scopes are omitted):
+ * 113-141 schedule on + no_branch_likely on: 00390280, 00390290.
+ * 114-139 no_branch_likely on: 00390280, 00390290.
+ * 187-280 optimization_level 1 (schedule 189-278): 00390350, 00390500, 00390520, 00390680, 00391400, 00391C10, 00392650, 00392A50, 00392BF0, 00393900, 003941E0, 00394870, 00394C70, 00394D70, 00394E70, 00394FD0, 00395100, 00395290, 003954B0, 003955A0, 00395BD0, 003961F0, 003962E0, 003963B0.
+ * 348-402 schedule on + no_branch_likely on: 00396F00, 00396FB0, 00397120, 003971D0, 00397390, 00397470, 00397480, 00397C40, 003982E0.
+ * 350-399 no_branch_likely on: 00396F00, 00396FB0, 00397120, 003971D0, 00397390, 00397470, 00397480, 00397C40, 003982E0.
+ * 404-434 schedule on + no_branch_likely on: 00398350, 003983F0, 00398410, 00398540.
+ * 406-432 no_branch_likely on: 00398350, 003983F0, 00398410, 00398540.
+ * 861-1052 optimization_level 3: 0039A0F0, 0039A150, 0039A200, 0039A260, 0039A2E0, 0039A340.
+ * 1168-1226 optimization_level 3: 0039A460, 0039A4C0, 0039A590, 0039A630.
+ * 1260-1411 optimization_level 3: 0039A690, 0039A700, 0039A760, 0039A7E0.
+ * 1426-1436 optimization_level 3: 0039A910, 0039AA30.
+ * 1515-1526 schedule on: 0039AB20, 0039AC20.
+ * 1544-1582 schedule on + no_branch_likely on: 0039AC60, 0039AC80, 0039AE30.
+ * 1584-1643 schedule on + no_branch_likely on: 0039AE90, 0039AF40, 0039B080, 0039B210, 0039B250, 0039B290, 0039B2C0, 0039B380, 0039B450.
+ * 1729-1756 optimization_level 3: 0039B5A0, 0039B680.
+ * 1731-1754 no_branch_likely on: 0039B5A0, 0039B680.
+ */
 
 extern s32 func_003df360(s32 arg0, s32 *arg1, s32 arg2);
 /* gp - 0x4A20 = 0x007690f0 - 0x4a20 = 0x007646d0 */
@@ -48,6 +68,7 @@ extern void func_0039b8d0(s32 arg0, s32 arg1);
 extern s32 func_0039b7c0(s32 arg0, s32 arg1);
 extern void func_0039ba80(s32 arg0);
 extern s32 func_003e8920(void);
+extern s32 func_0038fb20(s32 arg0);
 extern s32 func_003df240(s32 arg0, s32 *arg1, s32 arg2);
 extern f32 func_0039b250(s32 arg0, f32 arg1);
 
@@ -61,6 +82,7 @@ s32 func_003901e0(s32 arg0)
     *(s32 *)(D_008872E0 + D_007246B4) = 0;
     return arg0;
 }
+// measured: schedule off closes the scoped schedule bracket for func_003901e0.
 #pragma schedule off
 
 
@@ -74,6 +96,7 @@ s32 func_00390210(s32 arg0)
     D_007246B0 -= 1;
     return arg0;
 }
+// measured: schedule off closes the scoped schedule bracket for func_00390210.
 #pragma schedule off
 
 
@@ -162,6 +185,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
    the retail MMI multiply. schedule on places it in the jr delay slot, and
    the inline helper presents the multiplier first for retail operand order. */
 #pragma optimization_level 1
+// measured: schedule on is load-bearing for the func_003963b0 multiply body.
 #pragma schedule on
 static inline s32 p4_mul_003963b0(s32 left, s32 right)
 {
@@ -292,8 +316,20 @@ s32 func_00396830(s32 arg0)
 /* measured: closes schedule-on epilogue probe for func_00396830. */
 #pragma schedule off
 
+/* measured: schedule on reproduces the retail setter's return move and delay-slot stores. */
+#pragma schedule on
 // FUN_00396870
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396870);
+s32 func_00396870(s32 arg0)
+{
+    u8 *temp;
+
+    temp = (u8 *)(arg0 + iGpffffb5d8);
+    *(s32 *)(temp + 4) = 0;
+    *(s32 *)temp = -1;
+    return arg0;
+}
+/* measured: schedule off closes the scoped schedule bracket. */
+#pragma schedule off
 
 // FUN_00396890
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396890);
@@ -420,19 +456,71 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00398d20);
 // FUN_003990A0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003990a0);
 
+/* measured: schedule on reproduces the retail setter's return move and jr delay-slot store. */
+#pragma schedule on
 // FUN_00399210
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399210);
+s32 func_00399210(s32 arg0)
+{
+    *(s32 *)(arg0 + iGpffffb5e4) = 0;
+    return arg0;
+}
+/* measured: schedule off closes the scoped schedule bracket. */
+#pragma schedule off
 
+/* measured: schedule on reproduces the retail setter's return move and jr delay-slot store. */
+#pragma schedule on
 // FUN_00399230
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399230);
+s32 func_00399230(s32 arg0)
+{
+    *(s32 *)(arg0 + iGpffffb5e4) = 0;
+    return arg0;
+}
+/* measured: schedule off closes the scoped schedule bracket. */
+#pragma schedule off
 
-// FUN_00399250
+/* measured: nearest legal 99250 body is 40B in a 48B window (nd 24);
+   the residual is retail's scheduled destination address and store delay-slot
+   sequence, while this body preserves the call-free branch shape. Committed at nd 24. */
+// FUN_00399250 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: schedule on preserves the nearest retail branch ordering. */
+#pragma schedule on
+/* measured: no_branch_likely on preserves the plain branch. */
+#pragma no_branch_likely on
+s32 func_00399250(s32 arg0, s32 arg1)
+{
+    s32 base;
+
+    base = iGpffffb5e4;
+    if (*(s32 *)(arg1 + base) != 0) {
+        *(s32 *)(arg0 + base) = 1;
+    }
+    return arg0;
+}
+/* measured: close no_branch_likely for func_00399250. */
+#pragma no_branch_likely off
+/* measured: close schedule on for func_00399250. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399250);
+#endif
 
+
+/* measured: schedule on hoists the local buffer address before the GP load. */
+#pragma schedule on
 // FUN_00399280
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399280);
+void func_00399280(s32 arg0, s32 unused, s32 arg2)
+{
+    s32 sp1c;
+
+    sp1c = *(s32 *)(arg2 + iGpffffb5e4);
+    func_003df240(arg0, &sp1c, 4);
+}
+/* measured: closes schedule for func_00399280. */
+#pragma schedule off
 // FUN_003992B0
 #pragma schedule on
+/* measured: no_branch_likely on preserves the plain branch dispatch for func_003992b0. */
 #pragma no_branch_likely on
 s32 func_003992b0(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp3C;
@@ -451,10 +539,10 @@ docall:
     func_00399b10(arg2);
     goto retarg;
 }
+/* measured: no_branch_likely off closes the scoped func_003992b0 branch bracket. */
 #pragma no_branch_likely off
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
-
 /* measured: retail lays the three exits out of line in the order
    [return arg0][return 0][call + jump back], which the explicit gotos below
    reproduce; the plain nested-if spelling merges them (nd 58). schedule on
@@ -462,7 +550,6 @@ docall:
    no_branch_likely on stops b210 turning both tests into beql/bnel
    (nd 35 -> 0). Note the first argument: retail passes arg0 to
    func_003df360 unchanged in $a0, which the m2c draft dropped. */
-
 // FUN_00399320
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399320);
 
@@ -490,13 +577,45 @@ s32 func_00399360(s32 arg0)
 /* measured: closes schedule-on for func_00399360. */
 #pragma schedule off
 
+/* measured: schedule and no_branch_likely preserve the retail branch delay-slot
+   address computation and out-of-line setter layout. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_00399380
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399380);
+s32 func_00399380(s32 arg0, s32 arg1)
+{
+    s32 base;
+    s32 *dst;
 
+    base = iGpffffb5e8;
+    dst = (s32 *)(arg0 + base);
+    if (*(s32 *)(arg1 + base) != 0) goto set;
+retarg:
+    return arg0;
+set:
+    *dst = 1;
+    goto retarg;
+}
+/* measured: close no_branch_likely for func_00399380. */
+#pragma no_branch_likely off
+/* measured: close schedule for func_00399380. */
+#pragma schedule off
+
+/* measured: schedule on hoists the local buffer address before the GP load. */
+#pragma schedule on
 // FUN_003993B0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003993b0);
+void func_003993b0(s32 arg0, s32 unused, s32 arg2)
+{
+    s32 sp1c;
+
+    sp1c = *(s32 *)(arg2 + iGpffffb5e8);
+    func_003df240(arg0, &sp1c, 4);
+}
+/* measured: closes schedule for func_003993b0. */
+#pragma schedule off
 // FUN_003993E0
 #pragma schedule on
+/* measured: no_branch_likely on preserves the plain branch dispatch for func_003993e0. */
 #pragma no_branch_likely on
 s32 func_003993e0(s32 arg0, s32 arg1, s32 arg2) {
     s32 sp3C;
@@ -515,6 +634,7 @@ docall:
     func_00399b80(arg2);
     goto retarg;
 }
+/* measured: no_branch_likely off closes the scoped func_003993e0 branch bracket. */
 #pragma no_branch_likely off
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
@@ -537,8 +657,34 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399530);
 // FUN_003999A0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003999a0);
 // Archived C body: build/WBHygiene_func_00399b10_archive.txt; no current park body remains.
+/* measured: schedule on reproduces the donor's prologue and call delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely on preserves the donor's plain branch dispatch. */
+#pragma no_branch_likely on
 // FUN_00399B10
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399b10);
+s32 func_00399b10(s32 arg0)
+{
+    s32 *p;
+
+    p = (s32 *)(arg0 + iGpffffb5e4);
+    if (*p == 0) {
+        goto call;
+    }
+retarg:
+    return arg0;
+call:
+    if (func_0039aab0((u8 *)arg0) == NULL) {
+        goto ret0;
+    }
+    *p = 1;
+    goto retarg;
+ret0:
+    return 0;
+}
+/* measured: no_branch_likely off closes the scoped donor branch bracket. */
+#pragma no_branch_likely off
+/* measured: schedule off closes the scoped donor schedule bracket. */
+#pragma schedule off
 /* measured: schedule and branch-shape probes for 99b80. */
 #pragma schedule on
 /* measured: retail uses plain branches in the 99b80 dispatch. */
@@ -1349,6 +1495,7 @@ s32 func_0039aa40(void)
    delay slots and b210 then wants beql/bnel where retail has plain branches. */
 // FUN_0039AA50
 #pragma schedule on
+/* measured: no_branch_likely on preserves the plain branch dispatch for func_0039aa50. */
 #pragma no_branch_likely on
 u8 *func_0039aa50(u8 *arg0) {
     s32 var_2;
@@ -1361,6 +1508,7 @@ u8 *func_0039aa50(u8 *arg0) {
     *(s32 *)((u8 *)(arg0) + 0x7C) = var_2;
     return (u8 *)(arg0);
 }
+/* measured: no_branch_likely off closes the scoped func_0039aa50 branch bracket. */
 #pragma no_branch_likely off
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
@@ -1418,6 +1566,7 @@ s32 func_0039ac20(s32 arg0)
     D_007246EC += 1;
     return arg0;
 }
+// measured: schedule off closes the scoped schedule bracket for func_0039ac20.
 #pragma schedule off
 
 
@@ -1431,6 +1580,7 @@ s32 func_0039ac40(s32 arg0)
     D_007246EC -= 1;
     return arg0;
 }
+// measured: schedule off closes the scoped schedule bracket for func_0039ac40.
 #pragma schedule off
 
 

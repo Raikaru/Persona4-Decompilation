@@ -10,6 +10,7 @@ extern s32 D_00758470[];
 extern s32 D_007584F8[];
 extern s32 D_00758528[];
 extern s32 D_007587E8[];
+/* Toolchain-blocked region: retail saves `$s` registers with `sd`; MWCCPS2 3.0.1 emits `sq`; see build/ORCH_sd_toolchain_blocked.txt. */
 
 // FUN_004C3400
 u32 func_004c3400(u32 arg0)

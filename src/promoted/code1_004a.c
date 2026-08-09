@@ -1,8 +1,17 @@
 #include "include_asm.h"
 #include "type.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
+typedef struct {
+    u8 c0;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+} PolygonWindColor;
+extern PolygonWindColor iGpffffbb64;
 extern void func_004a5fc0(u8 *arg0);
-extern void func_004a6c00(u8 *arg0);
+extern u8 *func_004a6c00(u8 *arg0);
+extern u8 *func_004a5630(u16 arg0, u8 *arg1);
+extern u8 D_0071413C[];
 extern void func_00492dd0();
 extern void func_00492e10();
 extern void func_00492e30();
@@ -52,7 +61,27 @@ extern void func_00479e60(u8 *arg0, s32 arg1, f32 arg2);
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0043f810(void *dst, void *src, u32 size);
-extern u8 *func_00484490(void);
+extern u8 *func_00484490();
+extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void func_003c22f0(u8 *arg0, u8 *arg1);
+extern u16 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          void *arg4, s32 arg5);
+extern void func_003c2290(void *arg0, s32 arg1);
+extern void func_003c42b0(void *arg0, s32 arg1);
+extern u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4);
+extern void func_004a5ef0(u8 *arg0, u8 *arg1);
+extern u8 *func_00483270(s32 arg0);
+extern s32 func_00481300(u16 arg0);
+extern s32 func_00481d80(u16 *arg0);
+extern s32 func_00482800(u16 *arg0);
+extern void func_00483970(u8 *arg0, u16 *arg1);
+extern u16 *func_004844d0(u8 *arg0);
+extern u8 D_00713408[];
+extern u8 D_007141A0[];
+extern s32 func_00481e30(s32 arg0);
+extern void func_00481ee0(s32 arg0);
+extern void func_004829c0(s32 arg0);
+extern s32 func_00482a70(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -83,7 +112,13 @@ void func_004a1b50(u8 *arg0) {
     }
 }
 // FUN_004A1BA0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a1ba0);
+void func_004a1ba0(u8 *arg0) {
+    (*(void (**)(void))(D_00714020 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    (*(s32 *)(arg0 + 0x34))++;
+    if (*(s32 *)(arg0 + 0x34) > 0) {
+        (*(void (**)(u8 *))(D_00714024 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
+    }
+}
 // FUN_004A1C30
 u_long128 func_004a1c30(u8 *arg0, u8 *arg1) {
     u_long128 value;
@@ -114,8 +149,40 @@ void func_004a1c80(u8 *arg0, f32 *arg1) {
     *(f32 *)(arg0 + 0x24) = arg1[1];
     *(f32 *)(arg0 + 0x28) = arg1[2];
 }
+/* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
+#pragma opt_loop_invariants on
 // FUN_004A1CA0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a1ca0);
+void func_004a1ca0(u8 *arg0)
+{
+    u8 *p5;
+    u8 *p7;
+    u32 count;
+    u32 i;
+    u8 *p11;
+    u8 *p13;
+
+    p5 = *(u8 **)(arg0 + 0x3C);
+    p7 = *(u8 **)p5;
+    count = *(u32 *)(*(u8 **)(arg0 + 0x40) + 0x38);
+    i = 0;
+    while (i < count) {
+        p11 = *(u8 **)(p5 + 4);
+        if (iGpffffbb64.c3 != 0xFF) {
+            p13 = *(u8 **)(*(u8 **)(p11 + 0x54) + (i & 0xFFFF) * 4);
+            *(PolygonWindColor *)(p13 + 4) = iGpffffbb64;
+        } else {
+            iGpffffbb64.c3 = 0xFE;
+            p13 = *(u8 **)(*(u8 **)(p11 + 0x54) + (i & 0xFFFF) * 4);
+            *(PolygonWindColor *)(p13 + 4) = iGpffffbb64;
+            iGpffffbb64.c3 = 0xFF;
+        }
+        *(s32 *)p7 = -1;
+        i++;
+        p7 += 0x30;
+    }
+}
+/* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
+#pragma opt_loop_invariants off
 // FUN_004A1D70
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a1d70);
 // FUN_004A22C0
@@ -159,7 +226,16 @@ void func_004a58b0(u8 *arg0)
 }
 
 // FUN_004A5910
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5910);
+u8 *func_004a5910(u8 *arg0)
+{
+    u8 *temp_16;
+
+    temp_16 = func_004a5630(*(u16 *)(arg0 + 0x38), *(u8 **)(arg0 + 0x40));
+    *(s32 *)(temp_16 + 0x3C) =
+        (*(s32 (**)(u8 *))(D_0071413C + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
+    (*(void (**)(u8 *))(D_00714130 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(temp_16);
+    return temp_16;
+}
 // FUN_004A59B0
 void func_004a59b0(u8 *arg0)
 {
@@ -183,7 +259,17 @@ void func_004a5a60(u8 *arg0)
 }
 
 // FUN_004A5AB0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5ab0);
+void func_004a5ab0(u8 *arg0)
+{
+    s32 temp_3;
+
+    (*(void (**)(void))(D_00714140 + (*(s32 *)(arg0 + 0x38) * 0x1C)))();
+    temp_3 = *(s32 *)(arg0 + 0x34) + 1;
+    *(s32 *)(arg0 + 0x34) = temp_3;
+    if (temp_3 > 0) {
+        (*(void (**)(u8 *))(D_00714144 + (*(s32 *)(arg0 + 0x38) * 0x1C)))(arg0);
+    }
+}
 // FUN_004A5B40
 u_long128 func_004a5b40(u8 *arg0, u8 *arg1) {
     u_long128 value;
@@ -222,7 +308,67 @@ void func_004a5b90(u8 *arg0, f32 *arg1) {
 }
 
 // FUN_004A5BB0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5bb0);
+u8 *func_004a5bb0(u8 *arg0)
+{
+    u16 *temp_2_4;
+    u16 temp_4;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    u8 *temp_3;
+
+    func_0044ea90(D_007141A0, 0x1C);
+    temp_2 = (u8 *)jtbl_008873E8[0](0xD4, 0x40000);
+    if (temp_2 == NULL) {
+        func_0046d730(D_007141A0, 0x1D);
+    }
+    func_0043f9c8(temp_2, 0, 0xD4);
+    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
+    __asm__ volatile ("sqc2 vf0, 0x10(%0)" : : "r"(temp_2) : "memory");
+    *(s32 *)(temp_2 + 0x24) = -1;
+    *(f32 *)(temp_2 + 0x20) = 1.0f;
+    if (arg0 == NULL) {
+        return temp_2;
+    }
+    temp_2_2 = func_00482f70(1, 2, 4, D_00713408, 0x4C);
+    *(u8 **)(temp_2 + 0xC8) = temp_2_2;
+    temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18) + 0x30);
+    *(s32 *)(temp_3 + 0) = -1;
+    *(s32 *)(temp_3 + 4) = -1;
+    *(s32 *)(temp_3 + 8) = -1;
+    *(s32 *)(temp_3 + 0xC) = -1;
+    *(s32 *)(temp_2 + 0x28) = *(u16 *)(arg0 + 0xC);
+    temp_2_3 = func_00484490(arg0);
+    if (temp_2_3 == NULL) {
+        func_0046d730(D_007141A0, 0x47);
+    }
+    func_0043f810(temp_2 + 0x30, temp_2_3, 0x98);
+    temp_2_4 = func_004844d0(arg0);
+    if (temp_2_4 != NULL) {
+        temp_4 = *(u16 *)(arg0 + 0x1C);
+        switch (temp_4) {
+        case 1:
+            func_00483970(*(u8 **)(temp_2 + 0xC8), temp_2_4);
+            break;
+        case 2:
+            *(s32 *)(temp_2 + 0xD0) = func_00481d80(temp_2_4);
+            break;
+        case 4:
+            func_003c42b0(
+                *(u8 **)(*(u8 **)(temp_2 + 0xC8) + 0x14),
+                func_00481300(*temp_2_4));
+            break;
+        case 7:
+            *(s32 *)(temp_2 + 0xCC) = func_00482800(temp_2_4);
+            break;
+        default:
+            func_0046d730(D_007141A0, 0x5D);
+            break;
+        }
+    }
+    return temp_2;
+}
+
 // FUN_004A5DE0
 void func_004a5de0(u8 *arg0) {
     s32 temp_4;
@@ -241,9 +387,46 @@ void func_004a5de0(u8 *arg0) {
 }
 
 // FUN_004A5E50
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5e50);
+u8 *func_004a5e50(u8 *arg0)
+{
+    u8 *temp_16;
+    u8 *temp_2;
+    u8 *temp_3;
+
+    temp_16 = func_004a5bb0(NULL);
+    temp_2 = func_00483270(*(s32 *)(arg0 + 0xC8));
+    *(u8 **)(temp_16 + 0xC8) = temp_2;
+    temp_3 = *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18) + 0x30);
+    *(s32 *)(temp_3 + 0) = -1;
+    *(s32 *)(temp_3 + 4) = -1;
+    *(s32 *)(temp_3 + 8) = -1;
+    *(s32 *)(temp_3 + 0xC) = -1;
+    func_0043f810(temp_16 + 0x30, arg0 + 0x30, 0x98);
+    func_004a5ef0(temp_16, arg0);
+    return temp_16;
+}
 // FUN_004A5EF0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a5ef0);
+void func_004a5ef0(u8 *arg0, u8 *arg1)
+{
+    s32 temp_4;
+    s32 temp_4_2;
+
+    if (*(s32 *)(arg1 + 0xD0) != 0) {
+        temp_4 = *(s32 *)(arg0 + 0xD0);
+        if (temp_4 != 0) {
+            func_00481ee0(temp_4);
+        }
+        *(s32 *)(arg0 + 0xD0) = func_00481e30(*(s32 *)(arg1 + 0xD0));
+        return;
+    }
+    if (*(s32 *)(arg1 + 0xCC) != 0) {
+        temp_4_2 = *(s32 *)(arg0 + 0xCC);
+        if (temp_4_2 != 0) {
+            func_004829c0(temp_4_2);
+        }
+        *(s32 *)(arg0 + 0xCC) = func_00482a70(*(s32 *)(arg1 + 0xCC));
+    }
+}
 // FUN_004A5F90
 void func_004a5f90(u8 *arg0)
 {
@@ -286,7 +469,53 @@ void func_004a6bf0(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x20) = arg1;
 }
 // FUN_004A6C00
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a6c00);
+u8 *func_004a6c00(u8 *arg0)
+{
+    u16 *temp_18;
+    u16 *temp_2_2;
+    s32 value = -1;
+    u16 *temp_3;
+    u32 var_4;
+    u8 *temp_17;
+    u8 *temp_2;
+    u8 *var_5;
+
+    func_0044ea90(D_00714350, 0x78);
+    temp_2 = (u8 *)jtbl_008873E8[0](0x5C, 0x40000);
+    if (temp_2 == NULL) {
+        func_0046d730(D_00714350, 0x79);
+    }
+    func_0043f9c8(temp_2, 0, 0x5C);
+    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(temp_2) : "memory");
+    func_0043f810(temp_2 + 0x18, arg0, 0x40);
+    temp_2_2 = func_00483c40(0xD, 4, 2, 4, D_00713408, 0x4C);
+    *(u16 **)(temp_2 + 0x58) = temp_2_2;
+    *temp_2_2 = *temp_2_2 & 0xFFFE;
+    temp_3 = *(u16 **)(temp_2 + 0x58);
+    *temp_3 = *temp_3 & 0xFFFB;
+    func_003c2290(
+        *(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x58) + 0x10) + 0x18), 8);
+    var_4 = 0;
+    goto loop_004a6c00_check;
+loop_004a6c00_body:
+    *(s32 *)(var_5 + 0) = value;
+    *(s32 *)(var_5 + 4) = value;
+    *(s32 *)(var_5 + 8) = value;
+    *(s32 *)(var_5 + 0xC) = value;
+    var_5 += 0x10;
+    var_4 += 1;
+loop_004a6c00_check:
+    if (var_4 < 0x34U) {
+        goto loop_004a6c00_body;
+    }
+    temp_18 = *(u16 **)(temp_2 + 0x58);
+    temp_17 = *(u8 **)(*(u8 **)((u8 *)temp_18 + 0x10) + 0x18);
+    func_003c22f0(temp_17, var_5);
+    if ((*temp_18 & 4) != 0) {
+        *(u16 *)(temp_17 + 0xC) = *(u16 *)(temp_17 + 0xC) | 1;
+    }
+    return temp_2;
+}
 // FUN_004A6D90
 void func_004a6d90(void) {
     u8 *temp;

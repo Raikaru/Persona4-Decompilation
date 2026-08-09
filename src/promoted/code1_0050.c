@@ -13,7 +13,20 @@ extern s32 D_0074586C[];
 
 extern s32 D_00745878[];
 extern void func_005179f8(void);
-
+/* Census note: the 24-byte tier here is mostly a confirmed framed tail-jump
+   floor, not a reusable template backlog. The floor members are:
+   00503848, 005074A8, 005074F0, 00507508, 00507768, 005097E8,
+   0050C008, 0050C128, 0050C218, 0050C360, 0050C910, 0050C928,
+   0050CD80, 0050CD98, 0050CDB0, 00507520, 0050BEE8, 0050C8B0,
+   0050C8C8, 0050C8E0, 0050C8F8, 0050CFE0, 0050CFF8.
+   The first 15 use the plain framed tail shape; 00507520, 0050BEE8,
+   0050C8B0, 0050C8C8, 0050C8E0, and 0050C8F8 add a pre-tail load;
+   0050CFE0 and 0050CFF8 add a pre-tail addiu. The only real 24-byte
+   members are 00507950 and 0050B3E0. Above this tier: 56-byte has one
+   pair plus singletons, 40-byte has two triples plus singletons, 136-byte
+   has one pair plus singletons, and 120-byte is seven singletons; this
+   singleton-heavy shape is the actual file structure.
+*/
 
 /* measured: -O2 emits lui/addiu before jr $ra; retail schedules the final
    addiu into the jr delay slot (lui $v0; jr $ra; addiu $v0, $v0, %lo). */
@@ -395,7 +408,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cdb0);
 // FUN_0050CDC8
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cdc8);
 // FUN_0050CDD8
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cdd8);
+void func_0050cdd8(void)
+{
+}
 // FUN_0050CDE0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cde0);
 // FUN_0050CE40
@@ -434,5 +449,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d2f0);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d320);
 // FUN_0050D348
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d348);
+/* measured: schedule on places the field load in the jr $ra delay slot for this 8-byte accessor. */
+#pragma schedule on
 // FUN_0050D370
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050d370);
+s32 func_0050d370(u8 *arg0)
+{
+    return *(s32 *)(arg0 + 0x40);
+}
+/* measured: closes the schedule-on bracket for func_0050d370; explicit schedule off restores the file baseline. */
+#pragma schedule off

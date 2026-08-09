@@ -12,7 +12,15 @@ extern s32 D_00745C84[];
 extern s32 D_00745C6C[];
 
 extern s32 D_0074613C[];
-
+/* Open declaration question (2026-08-09): func_0052c890 candidates all emit
+ * sq-style saves at frame 0x40 while retail uses sd saves at frame 0x20.
+ * The scalar-only body removed aggregates, arrays, by-value structs, and
+ * vector types; deleting either added callee prototype independently did not
+ * change the result. The same unexplained inflation appears at
+ * func_0050d088 (0x30 vs 0x20) and func_005249b0 (0x30 vs 0x20).
+ * This is anomalous, not normal MWCCPS2 behavior: among retail functions
+ * saving $ra, 3161 already-MATCHED and 4690 unmatched functions use sd, while
+ * exactly one function in the image uses sq $ra. */
 
 /* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
  * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with

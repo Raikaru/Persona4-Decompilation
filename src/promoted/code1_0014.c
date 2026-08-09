@@ -1,5 +1,27 @@
 #include "include_asm.h"
 #include "type.h"
+extern void func_0046d280(s32 arg0);
+extern void func_00452080(s32 arg0);
+extern void func_0014eed0(s32 arg0, s32 arg1);
+extern u8 *func_00147190(s32 arg0, s32 arg1);
+extern void func_00440b68(const void *arg0);
+extern u8 D_005EF820[];
+extern void func_0046d730(const void *arg0, s32 arg1);
+extern u8 D_005EF840[];
+extern u8 D_005EF858[];
+extern void func_004b1150(s32 arg0);
+extern s32 func_004782b0(s32 arg0);
+extern void func_004787e0(s32 arg0);
+extern s32 func_00104c70(s32 arg0);
+extern u8 D_007EF9B0[];
+extern void func_003c38b0(void *arg0, void *arg1);
+extern void func_003e8110(void *arg0);
+extern void func_003e8120(void *arg0);
+extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
+extern u8 *func_00457120(void);
+extern u8 *func_004571a0(void);
+extern u8 *func_004571b0(void);
+extern u8 *func_004571c0(void);
 
 extern s32 func_0014a230(s32 arg0, s32 arg1);
 extern s32 func_0014a2a0(s32 arg0, s32 arg1);
@@ -17,6 +39,7 @@ extern void func_0017ccc0(u8 *arg0);
 extern u8 *func_00451fc0(u8 *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
 
 typedef struct { f32 x, y, z; } SVec3;
+typedef struct { u8 c[4]; } Rgba8_0014;
 
 extern s32 RwEngineGetMatrixTolerances();
 extern s32 RwMatrixOptimize();
@@ -48,6 +71,14 @@ extern u8 D_005EFAA0[];
 extern u8 D_007D24B0[];
 extern void func_0034f5d0(u8 *arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void func_0044ea90(const void *file, s32 line);
+extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
+                         void *init, void *close, void *buf);
+extern u8 iGpffff9da8;
+extern u8 D_005EF7B0[];
+extern void func_001441e0(u8 *arg0);
+extern void func_00144ac0(u8 *arg0);
 static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
@@ -76,8 +107,37 @@ void func_00141d10(u8 *arg0) {
 }
 // FUN_00141D80
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00141d80);
+/* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
+#pragma opt_loop_invariants on
 // FUN_00142090
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00142090);
+void func_00142090(u8 *arg0)
+{
+    s32 i;
+    s16 cur;
+    u8 *p;
+    f32 f;
+
+    for (i = 0; i < 8; i++) {
+        cur = *(s16 *)((u8 *)arg0 + 0x34);
+        if (i == cur) {
+            p = (u8 *)arg0 + i * 0x30;
+            *(s32 *)(p + 0x78) = 0xC4480000;
+            *(s32 *)(p + 0x7C) = 0;
+            *(u8 *)(p + 0x89) = 0xFF;
+        } else {
+            f = 200.0f;
+            if (i < cur) {
+                f = -f;
+            }
+            p = (u8 *)arg0 + i * 0x30;
+            *(s32 *)(p + 0x78) = 0;
+            *(f32 *)(p + 0x7C) = f;
+            *(u8 *)(p + 0x89) = 0;
+        }
+    }
+}
+/* measured: restore loop-invariant hoisting after func_00142090. */
+#pragma opt_loop_invariants off
 // FUN_00142130
 void func_00142130(u8 *arg0) {
     *(f32 *)(arg0 + 0x250) = (f32) 0x28A;
@@ -157,7 +217,29 @@ void func_00142230(u8 *arg0) {
 #pragma optimization_level 2
 
 // FUN_001422B0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001422b0);
+void func_001422b0(u8 *arg0) {
+    s32 temp_4;
+    s32 temp_4_2;
+s32 i;
+    u8 *p;
+    u8 *q;
+
+    for (i = 0; i < 0x19; i++) {
+        p = arg0 + i * 4;
+        q = p + 0x1810;
+        temp_4 = *(s32 *)(p + 0x1810);
+        if (temp_4 != 0) {
+            func_0046d280(temp_4);
+            *(s32 *)q = 0;
+        }
+    }
+    temp_4_2 = *(s32 *)(arg0 + 0x3C);
+    if (temp_4_2 != 0) {
+        func_00452080(temp_4_2);
+        *(s32 *)(arg0 + 0x3C) = 0;
+    }
+    *(s32 *)(arg0 + 0x1C) = 0;
+}
 // FUN_00142340
 s32 func_00142340(u8 *arg0) {
     s32 flag = 1;
@@ -211,13 +293,51 @@ void func_00144ac0(u8 *arg0)
 }
 
 // FUN_00144AF0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144af0);
+s32 func_00144af0(void)
+{
+    s32 temp_2;
+
+    func_0044ea90(&iGpffff9da8, 0xFE);
+    temp_2 = (s32)D_008873F4[0](1, 0x20, 0x40000);
+    if (temp_2 == 0) {
+        return 0;
+    }
+    return func_00451de0(&D_005EF7B0, 0x100, 0, 0,
+                         func_001441e0, func_00144ac0, (void *)(u32)temp_2);
+}
 // FUN_00144B80
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144b80);
 // FUN_00144C90
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144c90);
 // FUN_00144E10
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144e10);
+void func_00144e10(s64 arg0) {
+    s32 temp_5;
+    u8 *flags;
+    u8 *temp_2;
+    u8 *temp_7;
+    u8 *var_4;
+
+    temp_7 = iGpffff9db0;
+    flags = temp_7 + 0xC;
+    temp_5 = *(s32 *)flags;
+    if (temp_5 & 1) {
+        if (*(s16 *)(temp_7 + 0x10) != ((s64)(arg0 << 0x30) >> 0x30)) {
+            *(s32 *)flags = temp_5 | 2;
+            *(s16 *)(iGpffff9db0 + 0x10) = arg0;
+            *(s32 *)(iGpffff9db0 + 0x94) = 0x1E;
+            temp_2 = iGpffff9db0;
+            func_0014eed0(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
+            return;
+        }
+        var_4 = func_001452b0(3);
+        while (var_4 != NULL) {
+            *(s32 *)(var_4 + 0x28) |= 2;
+            var_4 = *(u8 **)(var_4 + 0x138);
+        }
+        return;
+    }
+    *(s16 *)(temp_7 + 0x10) = arg0;
+}
 // FUN_00144ED0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144ed0);
 // FUN_00144F60
@@ -244,9 +364,52 @@ u8 *func_001452b0(s32 arg0)
 }
 
 // FUN_001453A0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001453a0);
+s32 func_001453a0(u16 arg0)
+{
+    s32 temp_16;
+    s32 temp_3;
+    s32 temp_4;
+    u8 *temp_2;
+
+    temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x2000) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(D_005EF820);
+        return 0;
+    }
+    temp_3 = (u16)temp_16;
+    if (((temp_3 & 0xFFC00) >> 10) != 8) {
+        func_00440b68(D_005EF840);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_16);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    if (temp_2 == NULL) {
+        func_0046d730(D_005EF858, 0x1DE);
+    }
+    return temp_16;
+}
 // FUN_00145480
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00145480);
+s32 func_00145480(u16 arg0) {
+    s32 temp_16;
+    s32 temp_4;
+    u8 *temp_2;
+
+    temp_16 = ((arg0 & 0xFFFF & 0x3FF) | 0x1C00) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_16);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    *(s32 *)(temp_2 + 0x140) = 0x420C0000;
+    return temp_16;
+}
 // FUN_00145510
 void func_00145510(s32 arg0, s32 arg1) {
     func_00145540(arg0, 0, arg1);
@@ -273,17 +436,143 @@ INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00145d60);
 // FUN_00145E90
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00145e90);
 // FUN_00145FC0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00145fc0);
+s32 func_00145fc0(u16 arg0, f32 *arg1, f32 fparg0) {
+    s32 temp_17;
+    s32 temp_4;
+    u8 *temp_2;
+    SVec3 point;
+
+    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x3800) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_17);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    point = *(SVec3 *)arg1;
+    *(SVec3 *)(temp_2 + 0x140) = point;
+    *(f32 *)(temp_2 + 0x14C) = fparg0;
+    *(s32 *)(temp_2 + 0x28) |= 8;
+    return temp_17;
+}
 // FUN_00146080
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146080);
+s32 func_00146080(u16 arg0, f32 *arg1, f32 fparg0) {
+    s32 temp_17;
+    s32 temp_4;
+    u8 *temp_2;
+    SVec3 point;
+
+    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x3C00) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_17);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    point = *(SVec3 *)arg1;
+    *(SVec3 *)(temp_2 + 0x140) = point;
+    *(f32 *)(temp_2 + 0x14C) = fparg0;
+    *(s32 *)(temp_2 + 0x28) |= 8;
+    return temp_17;
+}
 // FUN_00146140
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146140);
+s32 func_00146140(u16 arg0, f32 *arg1, f32 fparg0) {
+    s32 temp_17;
+    s32 temp_4;
+    u8 *temp_2;
+    SVec3 point;
+
+    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4000) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_17);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    point = *(SVec3 *)arg1;
+    *(SVec3 *)(temp_2 + 0x140) = point;
+    *(f32 *)(temp_2 + 0x14C) = fparg0;
+    *(s32 *)(temp_2 + 0x28) |= 8;
+    return temp_17;
+}
 // FUN_00146200
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146200);
+s32 func_00146200(u16 arg0, f32 *arg1, f32 fparg0) {
+    s32 temp_17;
+    s32 temp_4;
+    u8 *temp_2;
+    SVec3 point;
+
+    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4400) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_17);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    point = *(SVec3 *)arg1;
+    *(SVec3 *)(temp_2 + 0x140) = point;
+    *(f32 *)(temp_2 + 0x14C) = fparg0;
+    *(s32 *)(temp_2 + 0x28) |= 8;
+    return temp_17;
+}
 // FUN_001462C0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001462c0);
+s32 func_001462c0(u16 arg0, f32 *arg1, f32 fparg0) {
+    s32 temp_17;
+    s32 temp_4;
+    u8 *temp_2;
+    SVec3 point;
+
+    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4800) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_17);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    point = *(SVec3 *)arg1;
+    *(SVec3 *)(temp_2 + 0x140) = point;
+    *(f32 *)(temp_2 + 0x14C) = fparg0;
+    *(s32 *)(temp_2 + 0x28) |= 8;
+    return temp_17;
+}
 // FUN_00146380
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146380);
+s32 func_00146380(u16 arg0, f32 *arg1, f32 fparg0) {
+    s32 temp_17;
+    s32 temp_4;
+    u8 *temp_2;
+    SVec3 point;
+
+    temp_17 = ((arg0 & 0xFFFF & 0x3FF) | 0x4C00) & 0xFFFF;
+    temp_4 = *(s32 *)(iGpffff9db0 + 8);
+    if (temp_4 == 0) {
+        func_00440b68(&D_005EF820);
+        return 0;
+    }
+    temp_2 = func_00147190(temp_4, temp_17);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    point = *(SVec3 *)arg1;
+    *(SVec3 *)(temp_2 + 0x140) = point;
+    *(f32 *)(temp_2 + 0x14C) = fparg0;
+    *(s32 *)(temp_2 + 0x28) |= 8;
+    return temp_17;
+}
 // FUN_00146440
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146440);
 // FUN_00146630
@@ -291,7 +580,28 @@ INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146630);
 // FUN_00146A10
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00146a10);
 // FUN_00147530
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147530);
+u8 *func_00147530(u8 *arg0, u16 arg1) {
+    s32 temp_3;
+    s32 temp_5;
+    u8 *var_2;
+
+    temp_5 = arg1;
+    temp_3 = ((temp_5 & 0xFFC00) >> 0xA) & 0xFF;
+    if (temp_3 == 0) {
+        return NULL;
+    }
+    if (temp_3 >= 0x16) {
+        return NULL;
+    }
+    var_2 = *(u8 **)(arg0 + temp_3 * 4);
+    while (var_2 != NULL) {
+        if (*(u16 *)var_2 == temp_5) {
+            return var_2;
+        }
+        var_2 = *(u8 **)(var_2 + 0x138);
+    }
+    return NULL;
+}
 // FUN_001475C0
 /* Ported from P3FES resrcMngGetTotalResInList: P4 uses a 0x16-entry list
    table and the list link remains at offset 0x138. */
@@ -323,15 +633,39 @@ INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147830);
 // FUN_00147910
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147910);
 // FUN_00147AE0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147ae0);
+void func_00147ae0(u8 *arg0, u8 *arg1) {
+    func_003e8110(func_00457120());
+    func_003c38b0(func_004571a0(), arg1);
+    func_003c38b0(func_004571c0(), arg1 + 0x60);
+    func_003c38b0(func_004571b0(), arg1 + 0x10);
+    func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x70, 0);
+    func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x20, 0);
+    func_003e8120(func_00457120());
+}
 // FUN_00147BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147bb0);
 // FUN_00147D80
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147d80);
 // FUN_00147E60
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147e60);
+void func_00147e60(u8 *arg0, u8 *arg1) {
+    func_003e8110(func_00457120());
+    func_003c38b0(func_004571a0(), arg1 + 0x168);
+    func_003c38b0(func_004571c0(), arg1 + 0x178);
+    func_003c38b0(func_004571b0(), arg1 + 0x1D0);
+    func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x190, 0);
+    func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1E0, 0);
+    func_003e8120(func_00457120());
+}
 // FUN_00147F30
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00147f30);
+void func_00147f30(u8 *arg0, u8 *arg1) {
+    func_003e8110(func_00457120());
+    func_003c38b0(func_004571a0(), arg1 + 0x15C);
+    func_003c38b0(func_004571c0(), arg1 + 0x16C);
+    func_003c38b0(func_004571b0(), arg1 + 0x1C0);
+    func_003e9cb0(*(s32 *)(func_004571c0() + 4), arg1 + 0x180, 0);
+    func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1D0, 0);
+    func_003e8120(func_00457120());
+}
 // FUN_00148000
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148000);
 // FUN_00148140
@@ -596,7 +930,34 @@ f32 func_0014b590(f32 fparg0) {
     return result;
 }
 // FUN_0014B780
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014b780);
+s32 func_0014b780(u8 *arg0) {
+    s32 temp_2;
+    s32 temp_3;
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x38);
+    temp_3 = *(s32 *)p;
+    switch (temp_3) {
+    case 0:
+        if (func_004782b0(*(s32 *)(p + 8)) != 0) {
+            *(s32 *)p = *(s32 *)p + 1;
+        }
+        goto done;
+    case 1:
+        temp_2 = *(s32 *)(p + 4) - 1;
+        *(s32 *)(p + 4) = temp_2;
+        if (temp_2 > 0) {
+            goto done;
+        }
+        *(s32 *)p = *(s32 *)p + 1;
+    case 2:
+        func_004787e0(*(s32 *)(p + 8));
+        return -1;
+    default:
+    done:
+        return 0;
+    }
+}
 // FUN_0014B840
 void func_0014b840(u8 *arg0)
 {
@@ -672,32 +1033,13 @@ void func_0014dcd0(u8 *arg0, s32 arg1)
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x44) = arg1;
 }
 
-/* measured: object/window 44/48, normalized_diff 8. The four byte values
-   are stored to the correct offsets, but b210 rotates their load registers
-   by one relative to retail; declaration, direct-store, and register probes
-   were ruled out. Committed at nd 8. */
-// FUN_0014DCE0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0014dce0(u8 *arg0, u8 *arg1) {
-    u8 *temp_8;
-    register u8 value_0;
-    register u8 value_1;
-    register u8 value_2;
-    register u8 value_3;
+// FUN_0014DCE0
+void func_0014dce0(u8 *arg0, u8 *arg1)
+{
+    u8 *p = *(u8 **)(arg0 + 0x38);
 
-    temp_8 = *(u8 **)(arg0 + 0x38);
-    value_0 = arg1[0];
-    value_1 = arg1[1];
-    value_2 = arg1[2];
-    value_3 = arg1[3];
-    *(u8 *)(temp_8 + 0x48) = value_0;
-    *(u8 *)(temp_8 + 0x49) = value_1;
-    *(u8 *)(temp_8 + 0x4A) = value_2;
-    *(u8 *)(temp_8 + 0x4B) = value_3;
+    *(Rgba8_0014 *)(p + 0x48) = *(Rgba8_0014 *)arg1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014dce0);
-#endif
 // FUN_0014DD10
 void func_0014dd10(u8 *arg0, u8 *arg1) {
     f32 sp20[4];
@@ -719,7 +1061,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014def0);
 // FUN_0014E2A0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014e2a0);
 // FUN_0014E540
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014e540);
+void func_0014e540(u8 *arg0) {
+    s32 i;
+    u8 *p;
+    s32 temp_4;
+
+    p = *(u8 **)(arg0 + 0x38);
+    for (i = 0; i < 8; i++) {
+        temp_4 = *(s32 *)(p + i * 4 + 0x24);
+        if (temp_4 != 0) {
+            func_004b1150(temp_4);
+        }
+    }
+    temp_4 = *(s32 *)(p + 0x14);
+    if (temp_4 != 0) {
+        func_004b1150(temp_4);
+    }
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}
 // FUN_0014E5E0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014e5e0);
 // FUN_0014E710
