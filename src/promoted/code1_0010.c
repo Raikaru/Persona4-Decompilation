@@ -3,6 +3,8 @@
 
 extern u8 *D_00764298;
 extern void func_00440b68();
+extern void func_0042c0d8(void);
+extern void func_004ccb38(s32 arg0);
 extern s32 func_00100230(void);
 extern void func_00101350(void);
 extern u8 D_00559810[];
@@ -36,7 +38,14 @@ extern void func_00103980(u8 *arg0);
 // FUN_00100008
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100008);
 // FUN_00100218
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100218);
+/* measured: tailcall on emits the retail bare jump wrapper. */
+#pragma tailcall on
+void func_00100218(void)
+{
+    func_0042c0d8();
+}
+/* measured: close tailcall bracket around func_00100218. */
+#pragma tailcall off
 // FUN_00100220
 asm void func_00100220(void)
 {
@@ -60,13 +69,46 @@ s32 func_001002c0(void) {
 }
 
 // FUN_00100310
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100310);
+s32 func_00100310(s32 arg0)
+{
+    volatile u32 *reg = (volatile u32 *)0x10000010;
+
+    if (arg0 == 9) {
+        if ((*reg & 0x800) != 0) {
+            *reg = *reg | 0x800;
+        }
+    }
+    __asm__ volatile (
+        ".set noreorder\n"
+        "sync\n"
+        "ei\n"
+        ".set reorder"
+        :
+        :
+        : "memory"
+    );
+    return 0;
+}
 // FUN_00100350
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100350);
 // FUN_00100670
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100670);
 // FUN_00100E30
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100e30);
+/* measured: hardware barrier probe uses the required sync/ei instructions. */
+s32 func_00100e30(void)
+{
+    func_004ccb38(0);
+    __asm__ volatile (
+        ".set noreorder\n"
+        "sync\n"
+        "ei\n"
+        ".set reorder"
+        :
+        :
+        : "memory"
+    );
+    return 0;
+}
 // FUN_00100E60
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100e60);
 // FUN_00101270

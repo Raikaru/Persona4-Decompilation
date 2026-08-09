@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+/* Toolchain-blocked: retail saves callee-saved registers with sd; MWCCPS2 3.0.1 emits sq. See build/ORCH_sd_toolchain_blocked.txt. */
 
 s32 func_00439598(void);
 
@@ -51,6 +52,7 @@ s32 func_004258b0(s32 *, s32, s32, s32 *, s32, s32 *, s32, s32, s32);
 s32 *func_0043eae8(s32 *);
 extern s32 D_00754EF0[];
 void func_0043c6d8(u8 *, s32, s32);
+s64 func_00444210(s32, s32, s32);
 
 
 /* measured: removing this pragma takes func_00438740 nd 0 -> nd 6: retail fills
@@ -212,7 +214,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00433310);
 // FUN_00433370
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00433370);
 // FUN_004333E0
-INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004333e0);
+s32 func_004333e0(s8 *arg0) {
+    s8 *var_4;
+    u8 var_3;
+
+    var_4 = arg0;
+    var_3 = (u8)*var_4;
+    if (*var_4 != 0) {
+loop_2:
+        if (((s8)var_3 == 0x3F) ||
+            ((s8)var_3 == 0x2A) ||
+            (var_4 += 1, ((s8)var_3 < 0x20))) {
+            return 0;
+        }
+        var_3 = (u8)*var_4;
+        if (*var_4 == 0) {
+            return 1;
+        }
+        goto loop_2;
+    }
+    return 1;
+}
 // FUN_00433438
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00433438);
 // FUN_004334F0
@@ -628,8 +650,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c518);
 // FUN_0043C5E8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c5e8);
 
-// FUN_0043C6B0
+/* measured: direct cast is byte-exact except return conversion and epilogue scheduling; Committed at nd 8 in-file (nd 2 measured in isolation). */
+// FUN_0043C6B0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0043c6b0(s32 arg0) {
+    s64 result;
+    result = func_00444210(arg0, 0, 0xA);
+    return (s32)result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6b0);
+#endif
 
 /* measured: closes the bracket noted above func_0043c0a0's opening pragma
    (removing it takes that function nd 0 -> nd 18). */
