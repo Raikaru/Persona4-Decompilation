@@ -33,6 +33,14 @@ extern void (*jtbl_008873FC[])(...);
 extern void func_00452730(s32 arg0);
 
 extern void (*jtbl_008873EC[])(...);
+extern s32 iGpffffbae8;
+extern s32 iGpffffbaec;
+extern u8 D_0070B610[];
+extern void func_0050ffc8(s32 arg0);
+extern void func_005097e8(s32 arg0);
+extern void func_003ec330(s32 arg0);
+extern s32 func_003d5fb0(u8 *arg0);
+extern void func_0046a340(u32 arg0);
 
 extern s32 D_00724BEC;
 extern s32 D_00724BF0;
@@ -62,6 +70,18 @@ extern u32 D_00724BFC;
 extern u8 *D_00724C00;
 extern u8 *D_00724C04;
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
+extern void (*D_00887304[])(s32 arg0, s32 *arg1);
+extern u8 D_008872E0[];
+extern s32 iGpffffaf60;
+extern void func_003c21e0(s32 arg0, s32 (*callback)(u8 *, s32 *), s32 *result);
+extern u8 *func_003bfae0(s32 arg0);
+extern s32 func_003e8200(s32 arg0, u8 *arg1);
+extern void func_00477400(s32 arg0, s32 arg1);
+extern void func_00476c70(u8 *arg0);
+extern void func_00479910(s32 arg0);
+extern void func_00461560(u8 *arg0);
+extern void func_00461a40(u8 *arg0);
+extern void func_00461be0(u8 *arg0);
 extern u8 *func_0046a6f0(s32 arg0, s32 arg1);
 extern s32 func_00451fc0(s32 arg0, s32 name, s32 prio, s32 a3, s32 a4,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *work);
@@ -157,12 +177,101 @@ s32 func_00461530(u8 *arg0, s32 *arg1)
 }
 // FUN_00461560
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00461560);
+// measured: opt_propagation off retains the initial D_00887300 callback table and the 0x40-byte frame in func_00461a40.
+#pragma opt_propagation off
 // FUN_00461A40
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00461a40);
+void func_00461a40(u8 *arg0)
+{
+    s32 sp3C;
+    s32 sp38;
+    s32 temp_4;
+    u8 *temp_16;
+    u8 *temp_4_2;
+    u8 *var_16;
+    void (**table)(s32, s32);
+
+    temp_16 = *(u8 **)(arg0 + 0x1C);
+    if (temp_16 != NULL) {
+        if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
+            table = D_00887300;
+            table[0](6, 1);
+            table[0](8, 0);
+        }
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+        var_16 = *(u8 **)(temp_16 + 0x20);
+        goto loop_00461A40_test;
+loop_00461A40_body:
+        sp38 = 0;
+        temp_4 = *(s32 *)(*(u8 **)(var_16 + 0) + 0x18);
+        if (temp_4 != 0) {
+            func_003c21e0(temp_4, func_00461530, &sp38);
+            if ((sp38 != 1) &&
+                (func_003e8200(*(s32 *)D_008872E0,
+                               func_003bfae0(*(s32 *)(var_16 + 0))) != 0)) {
+                if (*(s32 *)(var_16 + 4) == 1) {
+                    D_00887304[0](0xE, &sp3C);
+                    D_00887300[0](0xE, 0);
+                }
+                if (iGpffffaf60 == 1) {
+                    temp_4_2 = *(u8 **)(var_16 + 0);
+                    ((void (*)(u8 *))(*(void **)(temp_4_2 + 0x48)))(temp_4_2);
+                }
+                if (*(s32 *)(var_16 + 4) == 1) {
+                    D_00887300[0](0xE, sp3C);
+                }
+            }
+        }
+        var_16 = *(u8 **)(var_16 + 0x24);
+loop_00461A40_test:
+        if (var_16 != NULL) {
+            goto loop_00461A40_body;
+        }
+    }
+}
+// measured: closes opt_propagation around func_00461a40.
+#pragma opt_propagation on
 // FUN_00461BE0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00461be0);
+// measured: opt_propagation off preserves the callback table pointer across jal calls while probing func_00462230.
+#pragma opt_propagation off
 // FUN_00462230
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00462230);
+void func_00462230(u8 *arg0)
+{
+    u8 *self;
+    u8 *work;
+    void (**table)(s32, s32);
+
+    self = arg0;
+    work = *(u8 **)(self + 0x1C);
+    if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
+        func_00477400(*(s32 *)(work + 0xDC), 1);
+    }
+    func_00476c70(work);
+    if ((*(s32 *)(work + 0xE0) == 0) ||
+        ((*(s32 *)(work + 0xD8) & 0x800) != 0)) {
+        func_003f6440(2, *(s32 *)(work + 0xE4));
+        func_003f6440(3, *(s32 *)(work + 0xE8));
+        self = (u8 *)D_00887300;
+        ((void (**)(s32, s32))self)[0](6, 1);
+        ((void (**)(s32, s32))self)[0](8, 0);
+        func_00479910(*(s32 *)(work + 0xDC));
+    } else {
+        table = D_00887300;
+        table[0](6, 1);
+        table[0](8, 0);
+        *(u16 *)(self + 0x1A) |= 2;
+        *(s32 *)(self + 0x1C) = *(s32 *)(work + 0xE0);
+        func_00461560(self);
+        func_00461a40(self);
+        func_00461be0(self);
+    }
+    if ((*(s32 *)(work + 0xD8) & 0x400) != 0) {
+        func_00477400(*(s32 *)(work + 0xDC), 0);
+    }
+}
+// measured: closes opt_propagation around func_00462230.
+#pragma opt_propagation on
 // FUN_004623A0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004623a0);
 // FUN_00462BF0
@@ -385,7 +494,40 @@ s32 func_00468fa0(u8 *arg0) {
 // FUN_00468FF0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00468ff0);
 // FUN_0046A020
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046a020);
+void func_0046a020(u8 *arg0)
+{
+    u8 *work;
+
+    work = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(work + 4) != 0) {
+        if (*(s32 *)(work + 0xD8) != 0) {
+            func_0050ffc8(*(s32 *)(work + 4));
+        }
+        func_005097e8(*(s32 *)(work + 4));
+        *(s32 *)(work + 4) = 0;
+    }
+    if (*(s32 *)(work + 0x1E0) != 0) {
+        jtbl_008873EC[0](*(s32 *)(work + 0x1E0));
+        *(s32 *)(work + 0x1E0) = 0;
+    }
+    if (*(s32 *)(work + 0x200) != 0) {
+        jtbl_008873EC[0](*(s32 *)(work + 0x200));
+        *(s32 *)(work + 0x200) = 0;
+        iGpffffbae8 = 0;
+    }
+    if (*(s32 *)(work + 0xD0) != 0) {
+        func_003ec330(*(s32 *)(work + 0xD0));
+        *(s32 *)(work + 0xD0) = 0;
+    }
+    if (*(s32 *)(work + 0x1F4) == 0) {
+        iGpffffbaec = 0;
+    }
+    if (*(s32 *)(work + 0x1FC) != 0) {
+        *(s32 *)(work + 0x1FC) = 0;
+        func_003d5fb0(D_0070B610);
+    }
+    func_0046a340((u32)work);
+}
 // FUN_0046A110
 s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
     s32 result;

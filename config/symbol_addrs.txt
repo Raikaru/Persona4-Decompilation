@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 287 of 13090 symbols carry a recovered name.
+// 287 of 13098 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 func_00100218 = 0x00100218; // type:func
 func_00100220 = 0x00100220; // type:func
@@ -949,6 +949,7 @@ func_00156170 = 0x00156170; // type:func
 func_00156180 = 0x00156180; // type:func
 func_00156190 = 0x00156190; // type:func
 func_001561a0 = 0x001561A0; // type:func
+func_00156630 = 0x00156630; // type:func
 func_00156640 = 0x00156640; // type:func
 func_00156750 = 0x00156750; // type:func
 func_00156800 = 0x00156800; // type:func
@@ -1720,6 +1721,7 @@ func_001a5990 = 0x001A5990; // type:func
 func_001a59a0 = 0x001A59A0; // type:func
 func_001a7710 = 0x001A7710; // type:func
 func_001a7720 = 0x001A7720; // type:func
+func_001abba0 = 0x001ABBA0; // type:func
 func_001abbb0 = 0x001ABBB0; // type:func
 func_001ac500 = 0x001AC500; // type:func
 func_001ac5b0 = 0x001AC5B0; // type:func
@@ -1794,6 +1796,7 @@ func_001b18e0 = 0x001B18E0; // type:func
 func_001b1940 = 0x001B1940; // type:func
 func_001b19a0 = 0x001B19A0; // type:func
 func_001b19c0 = 0x001B19C0; // type:func
+func_001b1b20 = 0x001B1B20; // type:func
 func_001b1b30 = 0x001B1B30; // type:func
 func_001b1d70 = 0x001B1D70; // type:func
 func_001b2380 = 0x001B2380; // type:func
@@ -1925,6 +1928,7 @@ func_001bf530 = 0x001BF530; // type:func
 func_001bf5e0 = 0x001BF5E0; // type:func
 func_001bfb70 = 0x001BFB70; // type:func
 btlAct_SKILL_RECITE_E = 0x001BFC00; // type:func
+func_001c04d0 = 0x001C04D0; // type:func
 func_001c04e0 = 0x001C04E0; // type:func
 func_001c09a0 = 0x001C09A0; // type:func
 func_001c09b0 = 0x001C09B0; // type:func
@@ -2821,6 +2825,7 @@ func_001fc630 = 0x001FC630; // type:func
 func_001fce30 = 0x001FCE30; // type:func
 func_001fce80 = 0x001FCE80; // type:func
 func_001fceb0 = 0x001FCEB0; // type:func
+func_001fd780 = 0x001FD780; // type:func
 func_001fd790 = 0x001FD790; // type:func
 func_001fe010 = 0x001FE010; // type:func
 func_001fe060 = 0x001FE060; // type:func
@@ -2843,6 +2848,7 @@ func_00200720 = 0x00200720; // type:func
 func_00200770 = 0x00200770; // type:func
 func_00200960 = 0x00200960; // type:func
 func_00200980 = 0x00200980; // type:func
+func_00200a50 = 0x00200A50; // type:func
 func_00200a60 = 0x00200A60; // type:func
 func_00200c50 = 0x00200C50; // type:func
 func_00200c70 = 0x00200C70; // type:func
@@ -2950,7 +2956,9 @@ func_00209bc0 = 0x00209BC0; // type:func
 func_00209cd0 = 0x00209CD0; // type:func
 func_00209d40 = 0x00209D40; // type:func
 func_00209dc0 = 0x00209DC0; // type:func
+func_00209f90 = 0x00209F90; // type:func
 func_00209fa0 = 0x00209FA0; // type:func
+func_0020a5c0 = 0x0020A5C0; // type:func
 func_0020a5d0 = 0x0020A5D0; // type:func
 func_0020a640 = 0x0020A640; // type:func
 func_0020aa70 = 0x0020AA70; // type:func

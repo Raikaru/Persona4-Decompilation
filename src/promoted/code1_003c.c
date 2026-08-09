@@ -1,6 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])();
+extern void *(*D_008873F8[])(s32 arg0, s32 arg1);
+extern s32 func_003e3b70();
+extern void func_003bf320();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003c5760(u8 *arg0);
 extern s32 func_003c2bd0(u8 *arg0);
@@ -54,6 +57,8 @@ extern s32 iGpffffb6b0;
 extern s32 iGpffffb714;
 /* gp - 0x4910 = 0x007647e0 */
 extern u8 *iGpffffb6f0;
+/* gp - 0x4940 = 0x007647B0 */
+extern s32 iGpffffb6c0;
 extern void func_003e9680(u8 *arg0);
 extern u8 func_003ca740[];
 extern u8 func_003ca780[];
@@ -118,8 +123,45 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c02e0);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c03a0);
 // FUN_003C0520
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0520);
+/* measured: schedule on preserves the allocator and initializer delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely on preserves the plain allocator null branch. */
+#pragma no_branch_likely on
 // FUN_003C0640
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0640);
+u8 *func_003c0640(void) {
+    u8 *temp_2;
+    u8 *temp_3;
+    u8 *temp_6;
+    u8 *temp_7;
+
+    temp_2 = (u8 *)D_008873F8[0](*(s32 *)(D_008872E0 + iGpffffb6c0 + 4), 0x30010);
+    if (temp_2 != NULL) {
+        *(s8 *)(temp_2 + 0) = 2;
+        temp_7 = temp_2 + 8;
+        *(s8 *)(temp_2 + 1) = 0;
+        *(s8 *)(temp_2 + 2) = 0;
+        temp_6 = temp_2 + 0x10;
+        *(s8 *)(temp_2 + 3) = 0;
+        temp_3 = temp_2 + 0x18;
+        *(s32 *)(temp_2 + 4) = 0;
+        *(u8 **)(temp_2 + 8) = temp_7;
+        *(u8 **)(temp_2 + 0xC) = temp_7;
+        *(u8 **)(temp_2 + 0x10) = temp_6;
+        *(u8 **)(temp_2 + 0x14) = temp_6;
+        *(u8 **)(temp_2 + 0x18) = temp_3;
+        *(u8 **)(temp_2 + 0x1C) = temp_3;
+        *(s32 *)(temp_2 + 0x24) = 0;
+        *(s32 *)(temp_2 + 0x20) = 0;
+        *(u8 **)(temp_2 + 0x28) = (u8 *)func_003bf320;
+        func_003e3b70(D_0070AF90, temp_2, temp_6, temp_7);
+        return temp_2;
+    }
+    return temp_2;
+}
+/* measured: no_branch_likely off closes allocator null-branch probe. */
+#pragma no_branch_likely off
+/* measured: schedule off closes allocator and initializer delay-slot probe. */
+#pragma schedule off
 // FUN_003C0700
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0700);
 /* measured: schedule on probes retail's load/store order for the linked node. */
@@ -1498,8 +1540,6 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma schedule off
 // FUN_003CB720
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
-
-
 
 // FUN_003CB770
 /* measured: schedule on places the field load in the jump delay slot. */

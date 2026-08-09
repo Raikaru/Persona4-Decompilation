@@ -10,7 +10,6 @@ extern s32 D_00759920[];
 extern s32 D_007599B0[];
 extern s32 D_00759A10[];
 
-
 /* Retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
  * toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 /* measured: #pragma schedule on is load-bearing -- retail sinks the second
@@ -118,21 +117,8 @@ extern s32 D_00724E58[];
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d3158);
 // FUN_004D31A0
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d31a0);
-/* measured: schedule-on body is nd 2 with object 12/16; b210 leaves only
- * the retail zero-padding tail different. Committed at nd 2. */
-// FUN_004D31D8 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on fills the retail load into the jr delay slot. */
-#pragma schedule on
-s32 func_004d31d8(u8 *arg0)
-{
-    return *(s32 *)(*(u8 **)(arg0 + 8) + 0x4C);
-}
-/* measured: closes schedule-on bracket for func_004d31d8. */
-#pragma schedule off
-#else
+// FUN_004D31D8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d31d8);
-#endif
 // FUN_004D31E8
 INCLUDE_ASM("asm/nonmatchings/code1_004d", func_004d31e8);
 /* measured: schedule on preserves the retail return delay-slot fill. */

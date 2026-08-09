@@ -153,6 +153,10 @@ void func_001fce80(void *arg0) {
 // measured: see floor note above; nd recorded there.
 // FUN_001FCEB0
 INCLUDE_ASM("asm/nonmatchings/btlEPL", func_001fceb0);
+// FUN_001FD780
+void func_001fd780(void)
+{
+}
 
 // measured: retried 2026-08 wave; diagnosis confirmed against retail asm.
 // Retail frame is 0x20 with NO saved registers (older wave's frame numbers

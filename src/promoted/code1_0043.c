@@ -11,7 +11,6 @@ s32 func_00439970(void);
 s32 func_00438e60(void);
 
 extern s32 D_008AC780[];
-extern s32 D_0070F920[];
 extern s32 D_0070FC58[];
 extern s32 D_0070FC5C[];
 extern s32 D_0070FC60[];
@@ -853,8 +852,33 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fa88);
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fae0);
 // FUN_0043FB38
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fb38);
-// FUN_0043FBE0
+/* measured: pointer-slot reconstruction is semantically exact; b210 keeps
+   the same 44-byte object but colors the temporaries in caller-saved registers
+   instead of retail's t-registers. Object 44/48, normalized_diff 14. Committed at nd 14. */
+// FUN_0043FBE0 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: O3 is required for the 44-byte parked object. */
+#pragma optimization_level 3
+void func_0043fbe0(u8 *arg0, u8 *arg1)
+{
+    s32 index;
+    s32 table;
+    s32 slot;
+    s32 old;
+    if (arg1 != 0) {
+        index = *(s32 *)(arg1 + 0x4);
+        table = *(s32 *)(arg0 + 0x4C);
+        slot = table + (index << 2);
+        old = *(s32 *)slot;
+        *(s32 *)arg1 = old;
+        *(s32 *)slot = (s32)arg1;
+    }
+}
+/* measured: closes O3 around parked func_0043fbe0. */
+#pragma optimization_level 2
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fbe0);
+#endif
 // FUN_0043FC10
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fc10);
 // FUN_0043FD18

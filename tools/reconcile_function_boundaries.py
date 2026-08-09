@@ -256,6 +256,17 @@ DATA_REACHABLE_ENTRIES = {
     # neighbouring fields already point at known functions and this word is a
     # callback slot rather than a constant.
     0x001ADE90: {"pointer": 0x005F6F64},
+    # Eight further `jr $ra; nop` nullsubs found by the systematic sweep in
+    # build/WIAudit_hidden_nullsub_sweep.py: each sits after its containing
+    # function's complete epilogue and is named by a callback slot inside a
+    # structured record whose neighbouring fields already hold known function
+    # pointers.  The five below carry a raw pointer word; the three reached by
+    # a lui/addiu pair are in EPILOGUE_SEPARATED_ENTRIES instead.
+    0x001ABBA0: {"pointer": 0x005F6F10},
+    0x001B1B20: {"pointer": 0x005F71B0},
+    0x001C04D0: {"pointer": 0x005F767C},
+    0x001FD780: {"pointer": 0x0062529C},
+    0x00200A50: {"pointer": 0x0062537C},
 }
 
 # Entries that spimdisasm's control-flow scan misses and that NO data pointer
@@ -276,6 +287,14 @@ EPILOGUE_SEPARATED_ENTRIES = {
     # func_0027a2d0 ends `addiu $sp,0x30; jr $ra; nop` at 0027A334-0027A33C; the
     # 16 bytes here are a separate fragment reached only by a computed branch.
     0x0027A340,
+    # Three more `jr $ra; nop` nullsubs whose only references are lui/addiu
+    # %hi/%lo pairs rather than data words, so DATA_REACHABLE_ENTRIES cannot
+    # carry them: 00156630 from 001566CC/D0, 00209F90 from 00209928/2C, and
+    # 0020A5C0 from 00209930/34.  Each address is materialised exactly by its
+    # pair and each sits after the containing function's complete epilogue.
+    0x00156630,
+    0x00209F90,
+    0x0020A5C0,
 }
 
 # Entries the control-flow scan gets BACKWARDS. Each of these is a real, heavily

@@ -1347,8 +1347,51 @@ INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00149ea0);
 /* measured: opt_rebuildconditionals off is scoped to func_0014a000. */
 #pragma opt_rebuildconditionals off
 
+/* measured: loop-invariant constants probe for func_0014a000. */
+#pragma opt_loop_invariants on
 // FUN_0014A000
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014a000);
+void func_0014a000(s32 arg0, s32 arg1)
+{
+    u8 *var_16;
+    u8 *var_6;
+    s32 one;
+    s32 mask;
+    var_16 = func_001452b0(0xC);
+    var_6 = func_001452b0(0xA);
+    one = 1;
+    mask = -3;
+    goto loop_5_test;
+loop_5_body:
+    if (arg0 == one) {
+        *(s32 *)(var_16 + 0x28) = *(s32 *)(var_16 + 0x28) | 2;
+    } else {
+        *(s32 *)(var_16 + 0x28) = *(s32 *)(var_16 + 0x28) & mask;
+    }
+    var_16 = *(u8 **)(var_16 + 0x138);
+loop_5_test:
+    if (var_16 != NULL) {
+        goto loop_5_body;
+    }
+    if (arg1 != one) {
+        goto done;
+    }
+    goto loop_12_test;
+loop_12_body:
+    if (arg0 == one) {
+        *(s32 *)(var_6 + 0x28) = *(s32 *)(var_6 + 0x28) | 2;
+    } else {
+        *(s32 *)(var_6 + 0x28) = *(s32 *)(var_6 + 0x28) & mask;
+    }
+    var_6 = *(u8 **)(var_6 + 0x138);
+loop_12_test:
+    if (var_6 != NULL) {
+        goto loop_12_body;
+    }
+done:
+    ;
+}
+/* measured: closes loop-invariant constants probe for func_0014a000. */
+#pragma opt_loop_invariants off
 /* measured: closes opt_rebuildconditionals for func_0014a000. */
 #pragma opt_rebuildconditionals on
 

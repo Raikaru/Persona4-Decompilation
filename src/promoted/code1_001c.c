@@ -27,6 +27,7 @@ extern void func_001bac20(u8 *arg0, f32 *arg1, f32 *arg2, s32 arg3);
 extern void func_001bbef0(u8 *arg0, f32 arg1);
 extern void func_001bdd80(u8 *arg0, u8 *arg1, s32 arg2);
 extern s32 func_004bd050(s32 arg0);
+extern s16 func_001991c0(u8 *arg0, s32 arg1, f32 arg2);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
@@ -320,7 +321,12 @@ void func_001cb960(void) {}
 // FUN_001CB970
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cb970);
 // FUN_001CBF80
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cbf80);
+void func_001cbf80(u8 *arg0) {
+    *(s16 *)(arg0 + 0x10E) =
+        func_001991c0(*(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30), 4, 1.0f);
+    *(s32 *)(arg0 + 0x100) = *(s32 *)(*(u8 **)(arg0 + 0xE0) + 0x38);
+    *(s16 *)(arg0 + 0x10C) = 0;
+}
 // FUN_001CE470
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001ce470);
 // FUN_001CE620

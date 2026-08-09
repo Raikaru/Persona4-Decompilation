@@ -57,7 +57,7 @@ extern s32 func_00451fc0();
 extern s32 func_00106390(s32 arg0, s32 arg1);
 extern void func_00159a60();
 extern void func_00159d50();
-extern void func_001587d0();
+extern void func_001587d0(u16 arg0, u16 arg1, u16 arg2);
 /* Forces b210's offset-first addu operand order. */
 static inline u32 wg0035_add_offset(u32 offset, u32 base)
 {
@@ -192,6 +192,10 @@ u16 func_00156190(u8 *arg0)
 
 // FUN_001561A0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001561a0);
+// FUN_00156630
+void func_00156630(void)
+{
+}
 // FUN_00156640
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156640);
 // FUN_00156750
@@ -228,8 +232,41 @@ INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001579b0);
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001582f0);
 // FUN_001587D0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001587d0);
+/* measured: opt_propagation off probe for func_001599d0. */
+#pragma opt_propagation off
+/* measured: loop-invariant callback masks remain at call site in func_001599d0. */
+#pragma opt_loop_invariants off
 // FUN_001599D0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001599d0);
+void func_001599d0(void)
+{
+    s32 var_18;
+    s32 var_17;
+    s32 var_16;
+
+    var_18 = 0;
+    goto loop_5_test;
+loop_5_body:
+    var_17 = 0;
+    var_16 = var_18 * 0x10;
+    goto loop_3_test;
+loop_3_body:
+    func_001587d0((u16)(var_17 + var_16),
+                  (u16)var_17, (u16)var_18);
+    var_17 += 1;
+loop_3_test:
+    if (var_17 < 0x10) {
+        goto loop_3_body;
+    }
+    var_18 += 1;
+loop_5_test:
+    if (var_18 < 0x18) {
+        goto loop_5_body;
+    }
+}
+/* measured: restores loop-invariant hoisting after func_001599d0. */
+#pragma opt_loop_invariants on
+/* measured: closes opt_propagation off probe for func_001599d0. */
+#pragma opt_propagation on
 // FUN_00159A60
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00159a60);
 // FUN_00159D50
