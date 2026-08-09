@@ -15,7 +15,8 @@ extern s32 D_00764634;
 extern u8 D_0063EE40[];
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_00451fc0(void *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
-extern void func_002aa890(void);
+extern s32 func_002aa890(u8 *arg0);
+extern void func_002aa450(u8 *arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern u8 D_0063EEC0[];
 extern u8 D_0063EED0[];
@@ -31,6 +32,7 @@ extern s32 func_0025f3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *arg0, void *arg1);
 extern u8 D_00795E60[];
+extern u8 D_007966A0[];
 extern void func_002a1ef0(u8 *arg0);
 extern f32 fGpffff8204;
 extern u8 func_002a2780(s32 arg0);
@@ -311,7 +313,49 @@ s32 func_002aa3f0(void) {
 // FUN_002AA450
 INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002aa450);
 // FUN_002AA890
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002aa890);
+s32 func_002aa890(u8 *arg0) {
+    s32 *state;
+    u8 *temp_2;
+
+    state = D_00882F20;
+    switch (state[1]) {
+    case 0:
+        state[1] = 1;
+    case 1:
+        if ((state[0] & 1) != 0) {
+            state[1] = 3;
+        }
+        break;
+    case 3:
+        state[1] = 4;
+        state[2] = 0;
+        state[0] |= 2;
+    case 4:
+        if ((state[0] & 1) == 0) {
+            state[0] |= 4;
+        }
+        if ((state[0] & 2) != 0) {
+            if (state[3] < 5) {
+                state[3]++;
+            } else {
+                state[0] &= ~2;
+            }
+        } else if ((state[0] & 4) != 0) {
+            if (state[3] > 0) {
+                state[3]--;
+            } else {
+                state[0] &= ~4;
+                state[1] = 1;
+            }
+        }
+        temp_2 = func_00460990();
+        *(void **)(temp_2 + 8) = (void *)func_002aa450;
+        *(u8 **)(temp_2 + 0x10) = arg0;
+        func_00460ac0(D_007966A0, temp_2);
+        break;
+    }
+    return 0;
+}
 // FUN_002AAA00
 void func_002aaa00(void)
 {

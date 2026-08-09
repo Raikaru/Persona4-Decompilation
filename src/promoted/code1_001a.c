@@ -347,6 +347,10 @@ void func_001a7710(void)
 
 // FUN_001A7720
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a7720);
+// FUN_001ABBA0
+void func_001abba0(void)
+{
+}
 // FUN_001ABBB0
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001abbb0);
 // FUN_001AC500

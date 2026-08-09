@@ -18,6 +18,9 @@ extern s32 D_008871A4[];
 extern s32 D_008871A8[];
 extern s32 D_00724840;
 extern u8 D_008872E0[];
+extern u8 D_00887150[];
+extern s32 iGpffffab1c;
+extern s32 iGpffffab20;
 extern s32 iGpffffb760;
 extern s32 D_00724844;
 extern u8 D_0070C260[];
@@ -31,11 +34,10 @@ extern void func_003d3e60(void);
 extern void func_003d0fa0(void);
 extern void func_003cdfa0(u8 *arg0);
 extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
-extern void func_003d4f20();
-extern s32 func_003d4f80(s32 arg0);
+extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+extern s32 func_003d4f20(s32 arg0);
 extern void (*jtbl_008873EC[])(void);
 extern s32 func_003df5d0(s32 arg0, s32 arg1);
-extern void func_00426f80(s32 arg0);
 extern void func_003e2ab0();
 extern s32 func_003de8c0(u8 *arg0, s32 arg1);
 extern void func_003d59d0(f32 arg0);
@@ -307,8 +309,29 @@ ret_one:
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4c70);
 // FUN_003D4EA0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4ea0);
+/* measured: opt_propagation off probe keeps the callback result live
+   through the explicit branch graph. */
+#pragma opt_propagation off
+#pragma schedule on
 // FUN_003D4F20
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4f20);
+s32 func_003d4f20(s32 arg0) {
+    s32 temp;
+
+    temp = func_003e1220(0x18, iGpffffab1c, 4, iGpffffab20, D_00887150, 0x4001B);
+    iGpffffb738 = temp;
+    if (temp != 0) {
+        goto return_arg0_4f20;
+    }
+    goto fail_4f20;
+return_arg0_4f20:
+    return arg0;
+fail_4f20:
+    arg0 = 0;
+    goto return_arg0_4f20;
+}
+/* measured: closes opt_propagation around func_003d4f20. */
+#pragma opt_propagation on
+#pragma schedule off
 /* measured: schedule on moves the independent GP store into the retail branch
    delay slot and preserves the saved callback argument across the call. */
 #pragma schedule on

@@ -6,6 +6,12 @@ s32 func_0041e8d8(); /* old-style: retail callers leave $a0..$a3 materialized */
 void func_0041dff8(void);
 void func_0041be30(void);
 void func_0041e030();
+u8 **func_004117b0(s32);
+s32 func_00413700(s32);
+s32 func_00413b80(s32);
+s32 func_00413e50(s32, s32 *);
+s32 func_004140f0(s32, s32 *);
+void func_004143f0(s32, s32);
 
 /* measured: baseline -O2 emits lw/sw/srl/andi/jr/nop with the return andi
    before jr (nd 6); schedule-on fills the jr delay slot with the andi but
@@ -87,8 +93,40 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004141e0);
 // FUN_004142B0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004142b0);
 
+/* measured: no_branch_likely-on preserves retail's plain null branch. */
+#pragma no_branch_likely on
+/* measured: opt_rebuildconditionals-off preserves the retail two-branch null path. */
+#pragma opt_rebuildconditionals off
+/* measured: schedule-on reproduces allocator and store delay-slot order. */
+#pragma schedule on
 // FUN_00414390
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414390);
+void func_00414390(u8 *arg0, u8 *arg1, u8 ***arg2)
+{
+    u8 **node;
+
+    node = func_004117b0(8);
+    switch ((u32)*arg2) {
+    case 0:
+        goto assign_node;
+    default:
+        goto write_node;
+    }
+write_node:
+    node[0] = arg0;
+    node[1] = *(u8 **)(arg0 + 8);
+    goto done;
+assign_node:
+    *arg2 = node;
+    goto write_node;
+done:
+    ;
+}
+/* measured: closes schedule-on around func_00414390. */
+#pragma schedule off
+/* measured: closes no_branch_likely around func_00414390. */
+#pragma no_branch_likely off
+/* measured: closes opt_rebuildconditionals-off around func_00414390. */
+#pragma opt_rebuildconditionals on
 
 // FUN_004143F0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004143f0);

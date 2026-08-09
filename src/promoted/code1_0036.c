@@ -9,7 +9,14 @@ typedef struct {
     s32 lo;
     s32 hi;
 } P4Pair;
-extern void func_0036bbf0();
+typedef struct {
+    f32 x;
+    f32 y;
+} PairF32;
+typedef union {
+    s64 raw;
+    PairF32 f;
+} PairBits;
 
 extern void func_003642e0(u8 *arg0, void *arg1);
 
@@ -40,16 +47,25 @@ extern void func_0046d280(s32 arg0);
 extern void func_00452080(s32 arg0);
 extern void func_002bb550(s8 arg0);
 extern f32 iGpffff84a4;
+extern s32 func_0046a770(const void *arg0);
+extern void func_0046d730(const void *arg0, s32 arg1);
+extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+                          u8 arg2, u8 arg3, u8 arg4, u8 arg5,
+                          f32 z, s32 arg6);
+extern char D_005E5810[];
+extern char D_005E5830[];
+extern char D_0064E460[];
+
 extern f32 func_0044b610(f32 arg0);
 static inline f32 p4_00362f00_add(f32 left, f32 right)
 {
     return left + right;
 }
+extern void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1);
 extern void func_00367420(void);
-extern void func_003675f0(void);
 extern void func_003676f0(void);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
-extern void func_003679c0(void);
+extern void func_003679c0(PairBits arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367b80(void);
 extern void func_00367d00(void);
 
@@ -225,7 +241,7 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
             func_00367420();
             return;
         case 1:
-            func_003675f0();
+            func_003675f0(*(PairBits *)&arg0, arg4, arg1);
             return;
         case 2:
             func_003676f0();
@@ -234,7 +250,7 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
             func_00367940(arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 4:
-            func_003679c0();
+            func_003679c0(*(PairBits *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 5:
             func_00367b80();
@@ -250,12 +266,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003672d0);
 // FUN_00367420
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367420);
 // FUN_003675F0
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003675f0);
+void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
+{
+    s32 temp;
+    s32 alpha;
+
+    temp = func_0046a770(D_005E5810);
+    if (temp == 0) {
+        func_0046d730(D_0064E460, 0xB5);
+    }
+    alpha = arg1 & 0xFF;
+    alpha = 0xFF - alpha;
+    func_0046d4c0(0, temp, 0x49, arg0.f.x, arg0.f.y,
+                  alpha & 0xFF, 0xFB, 0xA2, 0, fparg0, 0);
+    func_0046d4c0(0, temp, 0x48, 108.0f + arg0.f.x,
+                  arg0.f.y, alpha & 0xFF,
+                  0xFB, 0xA2, 0, fparg0, 0);
+}
 // FUN_003676F0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003676f0);
 // FUN_00367940
 void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 tmp[12]; f32 factor; factor = fparg0; func_0011fd30(tmp); *(s32 *)(tmp + 8) = 3; *(s16 *)(tmp + 6) = 1; *(s16 *)tmp = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, tmp, 1); }
 
+// Probe note: body matches retail through offset 244; the remaining nine loop words persist with plain source and with opt_loop_invariants on.
 // FUN_003679C0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003679c0);
 

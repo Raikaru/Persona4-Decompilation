@@ -279,15 +279,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9590);
 // FUN_004F95F8
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f95f8);
 
-/* Parked candidate: the u32 return plus split temporaries preserves the retail
-   104-byte shape at nd 2; measured hoisting, helper, macro, fourth-argument,
-   and local-width variants without closing the final allocator residual.
+/* measured: split-u32 candidate leaves one copy-load register residual.
    Committed at nd 2. */
-// FUN_004F9638
+// FUN_004F9638 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: optimization level 1 and schedule on reproduce the straight-line
-   byte permutation order and the filled jr delay slot. */
+/* measured: optimization-level one reproduces the retail straight-line shape. */
 #pragma optimization_level 1
+/* measured: scheduling fills the final return delay slot. */
 #pragma schedule on
 u32 func_004f9638(u8 *a0, u8 *a1, u8 *a2)
 {
@@ -321,22 +319,21 @@ u32 func_004f9638(u8 *a0, u8 *a1, u8 *a2)
     a2[7] = result;
     return result;
 }
-/* measured: restore the file's optimization and schedule states. */
+/* measured: close the scheduling scope. */
 #pragma schedule off
-/* measured: restore optimization level 2 after the isolated function. */
+/* measured: restore optimization level two. */
 #pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9638);
 #endif
 
-/* Parked candidate: the split u32 donor shape leaves only the copy-load
-   register residual at nd 2; measured in-place XOR, tail, and copy spellings.
+/* measured: split-u32 candidate leaves one copy-load register residual.
    Committed at nd 2. */
-// FUN_004F96A0
+// FUN_004F96A0 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: optimization level 1 and schedule on reproduce this member's
-   straight-line order and filled jr delay slot. */
+/* measured: optimization-level one reproduces the retail straight-line shape. */
 #pragma optimization_level 1
+/* measured: scheduling fills the final return delay slot. */
 #pragma schedule on
 u32 func_004f96a0(u8 *a0, u8 *a1, u8 *a2)
 {
@@ -370,9 +367,9 @@ u32 func_004f96a0(u8 *a0, u8 *a1, u8 *a2)
     a2[7] = result;
     return result;
 }
-/* measured: restore the file's optimization and schedule states. */
+/* measured: close the scheduling scope. */
 #pragma schedule off
-/* measured: restore optimization level 2 after the isolated function. */
+/* measured: restore optimization level two. */
 #pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f96a0);
