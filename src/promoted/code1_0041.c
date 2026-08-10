@@ -10,7 +10,7 @@ u8 **func_004117b0(s32);
 s32 func_00413700(s32);
 s32 func_00413b80(s32);
 s32 func_00413e50(s32, s32 *);
-s32 func_004140f0(s32, s32 *);
+s32 func_004140f0(u8 *, u8 **);
 void func_004143f0(s32, s32);
 
 void func_00415ad0(u8 *, u8 *);
@@ -101,6 +101,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004141e0);
 // FUN_004142B0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004142b0);
 
+
 /* measured: no_branch_likely-on preserves retail's plain null branch. */
 #pragma no_branch_likely on
 /* measured: opt_rebuildconditionals-off preserves the retail two-branch null path. */
@@ -142,6 +143,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004143f0);
 // FUN_004147A0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004147a0);
 
+
 // FUN_00414820
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414820);
 
@@ -151,22 +153,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414930);
 // FUN_00414A30
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414a30);
 
-/* measured: scheduler probe at nd42 tests retail branch-delay ordering. */
-/* measured: no_branch_likely-on keeps retail's plain branch opcodes. */
-/* measured: opt_rebuildconditionals-off preserves retail's branch layout. */
-#pragma no_branch_likely on
-#pragma opt_rebuildconditionals off
-#pragma schedule on
-/* measured: object 192B vs window 192B, normalized_diff 19; residual
-   register coloring, float load ordering, and branch-delay scheduling. */
+
+/* Probed: scheduler, no_branch_likely-on and opt_rebuildconditionals-off were
+   each measured around a candidate body for func_00414b50, which reached
+   object 192B against a 192B window at normalized_diff 19; residual was
+   register colouring, float load ordering and branch-delay scheduling.
+   The candidate was reverted, so no pragma bracket is kept here: pragmas do
+   not affect an INCLUDE_ASM body. Reinstate them only alongside a real body. */
 // FUN_00414B50
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414b50);
-/* measured: closes scheduler probe for func_00414b50. */
-#pragma schedule off
-/* measured: closes opt_rebuildconditionals probe for func_00414b50. */
-#pragma opt_rebuildconditionals on
-/* measured: closes no_branch_likely probe for func_00414b50. */
-#pragma no_branch_likely off
 
 // FUN_00414C10
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414c10);
@@ -219,7 +214,6 @@ s32 func_00415950(void) { return 1; }
 
 // FUN_00415960
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415960);
-
 // FUN_00415AD0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415ad0);
 
@@ -231,6 +225,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004165a0);
 
 // FUN_00416BC0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416bc0);
+
 
 // FUN_00416CF0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416cf0);
@@ -259,7 +254,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00416e10);
 
 // FUN_00417310
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417310);
-
 // FUN_00417470
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417470);
 

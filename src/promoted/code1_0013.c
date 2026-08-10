@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+extern u32 func_003b7060(void);
 extern s32 func_0034c210(void);
 extern u8 *func_00106820();
 extern s32 func_0010f930(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -118,8 +119,47 @@ void func_00130360(u8 *arg0) {
     }
     *(s16 *)(arg0 + 0x20) = 0;
 }
+/* measured: probing O1 for retail's extra saved pointer. */
+#pragma optimization_level 1
 // FUN_00130430
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130430);
+void func_00130430(u8 *arg0)
+{
+    f32 f;
+    u32 val;
+    s32 i;
+    u32 random;
+    u8 *p;
+    u32 *q;
+
+    for (i = 0; i < 0xC; i++) {
+        if (func_003b7060() & 3) {
+            p = arg0 + i * 0x30;
+            val = (func_003b7060() % 6U) * 0x2C;
+            if (val >= 0) {
+                f = (f32)val;
+            } else {
+                val = (val >> 1) | (val & 1);
+                f = (f32)(s32)val;
+                f += f;
+            }
+            *(f32 *)(p + 0x1880) = f;
+            *(f32 *)(p + 0x1878) = f;
+            *(u32 *)(p + 0x187C) = 0x43FA0000;
+            *(f32 *)(p + 0x188C) = *(f32 *)(p + 0x187C);
+            *(s32 *)(p + 0x1884) = 0xC2C80000;
+            q = (u32 *)(p + 0x18A0);
+            random = func_003b7060() % 10U;
+            *q = random;
+            *(s32 *)(p + 0x18A4) = random + 0xA;
+        } else {
+            p = arg0 + i * 0x30;
+            *(f32 *)(p + 0x187C) = *(f32 *)(p + 0x1884);
+        }
+    }
+    *(s16 *)(arg0 + 0x1E) = 0;
+}
+/* measured: closing O1 probe. */
+#pragma optimization_level 2
 // FUN_00130580
 void func_00130580(u8 *arg0) {
     s32 i;

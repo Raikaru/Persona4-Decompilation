@@ -278,7 +278,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9528);
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9590);
 // FUN_004F95F8
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f95f8);
-
 /* measured: split-u32 candidate leaves one copy-load register residual.
    Committed at nd 2. */
 // FUN_004F9638 NONMATCHING
@@ -603,50 +602,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f98a8);
    register residuals at nd 4; measured middle, typed-copy, and tail variants.
    Committed at nd 4. */
 // FUN_004F9910
-#ifdef NON_MATCHING
-/* measured: optimization level 1 and schedule on reproduce this member's
-   straight-line order and filled jr delay slot. */
-#pragma optimization_level 1
-#pragma schedule on
-u32 func_004f9910(u8 *a0, u8 *a1, u8 *a2)
-{
-    u32 x;
-    u32 y;
-    u32 result;
-
-    x = a0[7];
-    a2[0] = x;
-    x = a1[3];
-    y = a0[4];
-    result = y ^ x;
-    a2[1] = result;
-    x = a0[3];
-    a2[2] = x;
-    x = a1[2];
-    y = a0[1];
-    result = y + x;
-    a2[3] = result;
-    x = a0[0];
-    a2[4] = x;
-    x = a0[2];
-    a2[5] = x;
-    x = a1[1];
-    y = a0[5];
-    result = y + x;
-    a2[6] = result;
-    x = a0[6];
-    y = a1[0];
-    result = x ^ y;
-    a2[7] = result;
-    return result;
-}
-/* measured: restore the file's optimization and schedule states. */
-#pragma schedule off
-/* measured: restore optimization level 2 after the isolated function. */
-#pragma optimization_level 2
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9910);
-#endif
 
 /* measured: this member uses the same split u32 temporary shape as the
    measured leader, with its own byte permutation order. */

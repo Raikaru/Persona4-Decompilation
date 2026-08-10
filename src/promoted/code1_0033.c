@@ -558,37 +558,7 @@ void func_0033e4b0(u8 *arg0)
                   1, 0, 0, 104.0f, 0.0f, 1.0f, 1.0f, D_007955C0);
 }
 // FUN_0033E540
-#ifdef NON_MATCHING
-void func_0033e540(u8 *arg0, s64 arg1, s64 arg2, s16 arg3, s16 arg4)
-{
-    u8 *p;
-    f32 a0;
-    f32 a1;
-    f32 b0;
-    f32 b1;
-
-    p = *(u8 **)(arg0 + 0x38);
-    a1 = *(f32 *)&arg1;
-    a0 = *((f32 *)&arg1 + 1);
-    *(f32 *)(p + 0x1C) = a1;
-    *(f32 *)(p + 0x20) = a0;
-    a1 = *(f32 *)(p + 0x1C);
-    a0 = *(f32 *)(p + 0x20);
-    *(f32 *)(p + 0xC) = a1;
-    *(f32 *)(p + 0x10) = a0;
-    b1 = *(f32 *)&arg2;
-    *(f32 *)(p + 0x14) = b1;
-    b0 = *((f32 *)&arg2 + 1);
-    *(f32 *)(p + 0x18) = b0;
-    *(s16 *)(p + 0x24) = arg3;
-    *(s16 *)(p + 0x26) = 0;
-    *(s16 *)(p + 0x28) = arg4;
-    *(s8 *)p = 2;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033e540);
-#endif
-// Committed at nd 15.
 // FUN_0033E5A0
 s32 func_0033e5a0(u8 *arg0)
 {

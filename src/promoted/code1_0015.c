@@ -88,6 +88,22 @@ extern u8 *func_001452b0(s32 arg0);
 extern void func_00458f40(s32 arg0, s32 arg1);
 extern void func_00458f70(s32 arg0, s32 arg1);
 extern s32 func_0047a310(s32 arg0);
+extern s32 *func_00155280(void);
+extern void func_004577d0(void *arg0, f32 arg1);
+extern void func_003e0670(void *arg0, s32 arg1);
+extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
+extern void func_0016e590(s32 arg0, s32 arg1);
+extern void func_0016e9f0(s32 arg0, void *arg1);
+extern void func_0016ea20(s32 arg0, f32 arg1);
+extern void func_0016ea30(s32 arg0, f32 arg1);
+extern void func_0016eaa0(s32 arg0, s8 arg1, void *arg2);
+extern u8 *func_0016eaf0(s32 arg0);
+extern u8 *func_0047a2f0(s32 arg0);
+extern s32 func_00457c90(s32 arg0, const void *arg1);
+extern void func_00479940(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern u8 D_005F0690[];
+extern u8 D_005F06A0[];
+extern void func_0016eb00(s32 arg0);
 
 /* measured: opt_loop_invariants hoists the 0x10000000 mask before the loop
  * test and colours it $a0 with the field in $v1 (nd 15 -> 0). */
@@ -138,7 +154,59 @@ void func_00153a30(u8 *arg0)
 
 
 // FUN_00155070
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00155070);
+void func_00155070(void)
+{
+    u8 sp30[0x40];
+    u8 *temp_2;
+    u8 *var_2;
+    u8 *var_6;
+    s16 *temp_4;
+    s32 temp_3;
+    s32 var_5;
+    s32 var_17;
+
+    temp_2 = func_001452b0(0x14);
+    if (temp_2 != NULL) {
+        func_004577d0((void *)func_00457120(), *(f32 *)(temp_2 + 0x144));
+        func_003e0670(sp30, *(s32 *)(temp_2 + 0x148));
+        func_003e9cb0(*(s32 *)(func_00457120() + 4), sp30, 0);
+        func_0016e590(func_00155280()[1], *(s32 *)(temp_2 + 0x140));
+        func_0016e9f0(func_00155280()[1], temp_2 + 0x150);
+        if ((*(f32 *)(temp_2 + 0x15C) == 0.0f) &&
+            (func_0014a160() == 1)) {
+            *(f32 *)(temp_2 + 0x15C) = 20.0f;
+        }
+        func_0016ea20(func_00155280()[1], *(f32 *)(temp_2 + 0x15C));
+        func_0016ea30(func_00155280()[1], *(f32 *)(temp_2 + 0x160));
+        var_17 = 0;
+        goto loop_test;
+loop_body:
+        if (*(s8 *)(temp_2 + var_17 + 0x164) != 0) {
+            func_0016eaa0(func_00155280()[1],
+                          (s8)var_17,
+                          temp_2 + var_17 * 0xC + 0x184);
+        }
+        var_17 += 1;
+loop_test:
+        if (var_17 < 0x20) {
+            goto loop_body;
+        }
+        func_003e0670(sp30, *(s32 *)(temp_2 + 0x14C));
+        var_2 = func_0016eaf0(func_00155280()[1]);
+        var_6 = sp30;
+        var_5 = 8;
+        do {
+            temp_4 = *(s16 **)var_6;
+            temp_3 = *(s32 *)(var_6 + 4);
+            var_6 += 8;
+            var_5 -= 1;
+            *(s16 **)var_2 = temp_4;
+            *(s32 *)(var_2 + 4) = temp_3;
+            var_2 += 8;
+        } while (var_5 > 0);
+        func_0016eb00(func_00155280()[1]);
+    }
+}
 // FUN_00155250
 void func_00155250(void)
 {

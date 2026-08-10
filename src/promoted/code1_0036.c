@@ -33,6 +33,9 @@ extern void func_001437b0(u8 *arg0, s16 arg1, s32 arg2);
 
 
 extern s32 func_0034c210(void);
+extern s32 func_00106330(s32 arg0);
+extern s32 func_0035fa00(s32 arg0, s32 arg1, s16 arg2);
+extern void func_0034f8f0(void *arg0);
 
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
@@ -55,6 +58,7 @@ extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
 extern char D_005E5810[];
 extern char D_005E5830[];
 extern char D_0064E460[];
+extern char D_0064E280[];
 
 extern f32 func_0044b610(f32 arg0);
 static inline f32 p4_00362f00_add(f32 left, f32 right)
@@ -65,8 +69,9 @@ extern void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1);
 extern void func_00367420(void);
 extern void func_003676f0(void);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
-extern void func_003679c0(PairBits arg0, f32 fparg0, s32 arg1, u8 *arg2);
-extern void func_00367b80(void);
+extern void func_003679c0(s64 arg0, s32 arg1, u8 *arg2, f32 fparg0);
+/* func_00367b80 is declared at its call site with no prototype so the
+ * dispatcher preserves the incoming registers used by the retail call. */
 extern void func_00367d00(void);
 extern void func_00367f50(void);
 extern void func_0036a900(u8 *arg0);
@@ -135,7 +140,39 @@ void func_00361a30(u8 *arg0)
     *(s32 *)(arg0 + 0x1C) = 0;
 }
 // FUN_00361AE0
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00361ae0);
+void func_00361ae0(u8 *arg0)
+{
+    s32 top;
+    s32 bottom;
+    s32 i;
+    s32 d1;
+    s32 d2;
+    s64 score;
+    s16 tmp1;
+    s16 tmp2;
+    u8 *p;
+
+    *(s16 *)(arg0 + 0x22) = *(s16 *)(arg0 + 0x22) + 1;
+    if (*(s16 *)(arg0 + 0x22) >= 0x19) *(s16 *)(arg0 + 0x22) = 0;
+    *(s16 *)(arg0 + 0x24) = *(s16 *)(arg0 + 0x24) + 1;
+    if (*(s16 *)(arg0 + 0x24) >= 0x1E) *(s16 *)(arg0 + 0x24) = 0;
+    top = (s32)((11.0f * (f32)*(s16 *)(arg0 + 0x22)) / 25.0f);
+    bottom = (s32)(11.0f * (1.0f - ((f32)*(s16 *)(arg0 + 0x24) / 30.0f)));
+    i = 0;
+    while (i < 0xB) {
+        if (i < top) d1 = top - i; else d1 = i - top;
+        if (i < bottom) d2 = bottom - i; else d2 = i - bottom;
+        score = 1;
+        tmp1 = (s16)(10 - d1 * 2);
+        if (tmp1 > 1) score = tmp1;
+        tmp2 = (s16)(8 - d2 * 2);
+        if (score < tmp2) score = tmp2;
+        p = arg0 + i * 0xA;
+        *(s16 *)(p + 0x5E8) = (s16)score;
+        func_0034f8f0(p + 0x5E8);
+        i++;
+    }
+}
 // FUN_00361CA0
 void func_00361ca0(u8 *arg0) {
     s16 c = *(s16 *)(arg0 + 0x26);
@@ -237,6 +274,7 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
 {
     P4Pair sp18;
     s16 temp_3;
+    extern void func_00367b80(void);
 
     sp18 = arg0;
     if (arg1 & 0xFF) {
@@ -255,7 +293,7 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
             func_00367940(arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 4:
-            func_003679c0(*(PairBits *)&arg0, arg4, arg1, (u8 *)arg2);
+            func_003679c0(*(s64 *)&arg0, arg1, (u8 *)arg2, arg4);
             return;
         case 5:
             func_00367b80();
@@ -290,15 +328,14 @@ void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
 }
 // FUN_003676F0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003676f0);
+// FUN_00367B80
+INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367b80);
 // FUN_00367940
 void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 tmp[12]; f32 factor; factor = fparg0; func_0011fd30(tmp); *(s32 *)(tmp + 8) = 3; *(s16 *)(tmp + 6) = 1; *(s16 *)tmp = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, tmp, 1); }
 
 // Probe note: body matches retail through offset 244; the remaining nine loop words persist with plain source and with opt_loop_invariants on.
 // FUN_003679C0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003679c0);
-
-// FUN_00367B80
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367b80);
 
 // FUN_00367D00
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367d00);

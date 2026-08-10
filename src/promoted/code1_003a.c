@@ -14,13 +14,17 @@ extern s32 func_003a8d20(u8 *arg0, u8 **arg1);
 
 extern s32 iGpffffb614;
 extern s32 iGpffffb610;
+extern s64 iGpffffb8d0;
+extern s32 iGpffffb94c;
+extern s32 func_0040f570();
+extern void func_00410390();
 extern void func_003a3d50(u8 *arg0);
 extern void func_003a3de0(u8 *arg0);
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
 extern s32 func_003c1ab0(s32 a, s32 b, void *c, void *d, s32 e);
 extern void func_003e1ea0(s32 arg0);
-extern void func_003a2ce0(void);
-extern void func_003a2d90(void);
+extern s32 func_003a2ce0(s32 arg0);
+extern s32 func_003a2d90(s32 arg0);
 extern s32 func_003a15e0(s32 arg0);
 extern u8 *func_003a1600(u8 *arg0);
 
@@ -39,7 +43,14 @@ extern s32 D_007084A0[];
 extern void func_003b42e0(s32 arg0, u8 *arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5, s32 arg6);
 extern void func_003a76c0(u8 *arg0, s32 *arg2, s32 arg4);
+extern u8 D_008872E0[];
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void func_003a8500(u8 *arg0);
+extern void func_003a7160(u8 *arg0);
+extern s32 func_003a8ca0(void);
+extern s32 func_003a92d0(void);
 extern void func_003a72a0(void);
+
 
 
 // measured: b210 at -O2 leaves branch/jal delay slots unfilled and orders the
@@ -269,20 +280,158 @@ s32 func_003a2920(s32 arg0)
     *(s32 *)(temp_5 + 0x3c) = 0;
     return arg0;
 }
-// measured: closes schedule-on probe at the file's schedule-off baseline.
+// measured: closes the schedule bracket opened above func_003a2920.
 #pragma schedule off
 // FUN_003A2950
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2950);
 // FUN_003A29F0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a29f0);
+// measured: schedule on for 003a2ad0 materialization order.
+#pragma schedule on
+// measured: no-branch-likely keeps 2ad0 dispatches as plain beq tests.
+#pragma no_branch_likely on
 // FUN_003A2AD0
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2ad0);
+s32 func_003a2ad0(u8 *arg0, u8 *arg1)
+{
+    u8 *temp_6;
+    u32 temp_4;
+    u32 temp_3;
+    u32 temp_3_2;
+    u64 var_7 = 0;
+
+    if (arg1 == NULL)
+    {
+        goto block_17;
+    }
+    temp_6 = *(u8 **)(arg0 + 0x4C);
+    temp_4 = *(s32 *)(arg1 + 0x50);
+    temp_3 = (temp_4 & 0xF00) >> 8;
+    switch (temp_3)
+    {
+    case 1:
+        var_7 = 0;
+        var_7 &= (s64)-4;
+        goto block_9;
+    case 3:
+        var_7 |= 1;
+        goto block_9;
+    case 2:
+        goto block_0;
+    case 4:
+        goto block_0;
+    default:
+        goto block_0;
+    }
+block_0:
+    return 0;
+block_9:
+    temp_3_2 = (temp_4 & 0xF000) >> 0xC;
+    switch (temp_3_2)
+    {
+    case 1:
+        var_7 &= (s64)-0xD;
+        goto block_16;
+    case 3:
+        var_7 |= 4;
+        goto block_16;
+    case 2:
+        goto block_18;
+    case 4:
+        goto block_18;
+    default:
+        goto block_18;
+    }
+block_16:
+    *(s64 *)(temp_6 + 0xC0) = var_7;
+block_17:
+    return 1;
+block_18:
+    return 0;
+}
+// measured: closes the 003a2ad0 schedule-on probe.
+#pragma schedule off
+// measured: closes no-branch-likely for func_003a2ad0.
+#pragma no_branch_likely off
 // FUN_003A2BB0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2bb0);
+// measured: schedule-on probe for func_003a2ce0 prologue and callback setup.
+#pragma schedule on
+// measured: no_branch_likely keeps the allocation-null test as a plain beqz.
+#pragma no_branch_likely on
 // FUN_003A2CE0
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2ce0);
+s32 func_003a2ce0(s32 arg0)
+{
+    u8 *temp_2;
+
+    temp_2 = (u8 *)(*jtbl_008873E8)(0x18, 0x4012F);
+    if (temp_2 != NULL) {
+        *(u8 **)(D_008872E0 + iGpffffb614) = temp_2;
+        *(s32 *)(temp_2 + 4) = 0;
+        *(s32 *)(temp_2 + 8) = 0;
+        *(s32 *)(temp_2 + 0xC) = 0;
+        *(s32 *)(temp_2 + 0x10) = 0;
+        *(s32 *)(temp_2 + 0x14) = 0;
+        func_003a8500(temp_2);
+        func_003a7160(temp_2);
+        *(s32 *)(temp_2 + 0) = func_003a8ca0();
+        *(s32 *)(temp_2 + 0x14) = func_003a92d0();
+        return arg0;
+    }
+    return 0;
+}
+// measured: closes schedule-on probe for func_003a2ce0.
+// measured: closes no_branch_likely for func_003a2ce0.
+#pragma no_branch_likely off
+#pragma schedule off
+// measured: schedule-on preserves 003a2d90's global setup and callback order.
+#pragma schedule on
+// measured: no_branch_likely keeps the six cleanup tests as plain beqz.
+#pragma no_branch_likely on
 // FUN_003A2D90
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2d90);
+s32 func_003a2d90(s32 arg0)
+{
+    s32 temp_4;
+    s32 temp_4_2;
+    s32 temp_4_3;
+    s32 temp_4_4;
+    s32 temp_4_5;
+    s32 temp_4_6;
+    u8 *temp_17;
+
+    temp_17 = *(u8 **)(D_008872E0 + iGpffffb614);
+    if (temp_17 != NULL) {
+        temp_4 = *(s32 *)(temp_17 + 8);
+        if (temp_4 != 0) {
+            func_00411670(temp_4);
+        }
+        temp_4_2 = *(s32 *)(temp_17 + 4);
+        if (temp_4_2 != 0) {
+            func_00411670(temp_4_2);
+        }
+        temp_4_3 = *(s32 *)(temp_17 + 0x10);
+        if (temp_4_3 != 0) {
+            func_00411670(temp_4_3);
+        }
+        temp_4_4 = *(s32 *)(temp_17 + 0xC);
+        if (temp_4_4 != 0) {
+            func_00411670(temp_4_4);
+        }
+        temp_4_5 = *(s32 *)(temp_17 + 0x14);
+        if (temp_4_5 != 0) {
+            func_00411670(temp_4_5);
+        }
+        temp_4_6 = *(s32 *)(temp_17 + 0);
+        if (temp_4_6 != 0) {
+            func_00411670(temp_4_6);
+        }
+        (*jtbl_008873EC)(temp_17);
+    }
+    return arg0;
+}
+// measured: closes no_branch_likely for func_003a2d90.
+#pragma no_branch_likely off
+// measured: closes schedule-on for func_003a2d90.
+#pragma schedule off
 // FUN_003A2E60
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2e60);
 // FUN_003A3050

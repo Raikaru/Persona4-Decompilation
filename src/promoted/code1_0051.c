@@ -145,7 +145,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005131d0);
 
 // FUN_00513278
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513278);
-
 // FUN_00513290
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513290);
 
@@ -283,11 +282,12 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
 // FUN_00517C28
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517c28);
 
-/* Global setter residual: retail fills the second branch delay with the global
-   address and branches to the shorter common exit; b210 leaves a nop and shifts
-   the setter body by one instruction. Committed at nd 32 in-file (nd 16 measured in isolation). */
+/* measured: in-file schedule-on recheck gives object/window 40B and
+   improved from an earlier in-file measurement. Committed at nd 16. */
 // FUN_00517CF0 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: schedule on fills the setter's branch delay slot. */
+#pragma schedule on
 s32 func_00517cf0(u8 *arg0) {
     s32 result;
     result = -1;
@@ -297,6 +297,8 @@ s32 func_00517cf0(u8 *arg0) {
     }
     return result;
 }
+/* measured: closes the schedule-on scope for the setter. */
+#pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517cf0);
 #endif

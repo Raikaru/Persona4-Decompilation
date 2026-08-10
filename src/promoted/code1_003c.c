@@ -11,7 +11,7 @@ extern s32 func_003c4c00(u8 *arg0);
 extern s32 func_003c4a80(u8 *arg0, s32 arg1);
 extern s32 func_003c4bc0(u8 *arg0, s32 arg1);
 extern u8 *func_003c2290(u8 *arg0, s32 arg1);
-extern s32 func_003c49a0(u8 *arg0);
+extern u8 *func_003c49a0(u8 *arg0);
 extern void func_003ce2e0(u8 *arg0);
 extern s32 func_003c2c90(u8 *arg0);
 extern s32 func_003e3370(u8 *desc, u8 *arg1);
@@ -47,6 +47,10 @@ extern u8 *(*D_0070B030)(u8 *arg0, s32 arg1);
 extern s32 D_0070B034;
 extern u8 *func_003c8920(u8 *arg0, s32 arg1);
 extern s32 iGpffffb9b8;
+extern s32 iGpffffb9b0;
+extern s32 func_00410a40(s32 arg0);
+extern s32 func_00410ab0(s32 arg0, s32 arg1);
+extern void func_00411670(s32 arg0);
 /* gp - 0x48F8 = 0x007647f8 */
 extern s32 iGpffffb708;
 extern s64 iGpffffb8f0;
@@ -683,11 +687,11 @@ u8 *func_003c3e10(u8 *arg0) {
 
 // FUN_003C3E90
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e90);
-// FUN_003C3F20
 /* measured: schedule on and no_branch_likely on are required for the retail
    jal/jr delay slots and plain branch forms. */
 #pragma schedule on
 #pragma no_branch_likely on
+// FUN_003C3F20
 s32 func_003c3f20(s32 arg0, s32 arg1)
 {
     if (func_003df360(arg0, &D_007647CC, 4) == 0) {
@@ -1344,7 +1348,6 @@ done:
 #pragma schedule off
 // FUN_003C9A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9a80);
-
 // FUN_003C9B30
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9b30);
 
@@ -1391,12 +1394,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
 
 // FUN_003CA270
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca270);
-
 // FUN_003CA320
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
-
 // FUN_003CA3D0
-/* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
 #pragma schedule on
 #pragma tailcall on
 s32 func_003ca3d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
@@ -1893,7 +1893,6 @@ s32 func_003cbce0(s32 arg0) {
 
 // FUN_003CBCF0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbcf0);
-
 // FUN_003CBDE0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbde0);
 
@@ -2129,12 +2128,33 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc2c0);
 
 // FUN_003CC370
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc370);
-
+/* measured: schedule-on probe for cc460 call delay-slot setup. */
+#pragma schedule on
 // FUN_003CC460
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc460);
+void func_003cc460(void) {
+    u8 *temp_2;
+
+    func_00410ab0(0, 2);
+    func_00410ab0(0, 1);
+    func_00410ab0(0, 4);
+    func_00410ab0(0, 5);
+    func_00410ab0(0, 3);
+    func_00410a40(0);
+    temp_2 = D_008872E0 + iGpffffb9b0;
+    *(s32 *)(temp_2 + 0x3C) = 0;
+    *(s32 *)(temp_2 + 0x38) = 0;
+    *(s32 *)(temp_2 + 0x30) = 0;
+    *(s32 *)(temp_2 + 0x2C) = 0;
+    *(s32 *)(temp_2 + 0x24) = 0;
+    *(s32 *)(temp_2 + 0x28) = 0;
+    *(s32 *)(temp_2 + 0x20) = 0;
+    func_00411670(*(s32 *)(temp_2 + 0x1C));
+    *(s32 *)(D_008872E0 + iGpffffb9b0 + 0x1C) = 0;
+}
+/* measured: closes schedule-on probe for cc460 and restores file default. */
+#pragma schedule off
 // FUN_003CC500
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
-
 /* measured: retail uses standalone pexew/ppacw MMI instructions; no plain-C
    equivalent is permitted. Window 96B; no real C body was retained; the bare
    INCLUDE_ASM fallback remains. */

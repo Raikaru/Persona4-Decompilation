@@ -396,26 +396,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004392d0);
 // FUN_004393A0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393a0);
 
-/* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; re-measured for nd_audit coverage.
-   Committed at nd 18. */
-// FUN_004393F8 NONMATCHING
-#ifdef NON_MATCHING
-void func_004393f8(void) {
-    func_00421810(D_008AC780[0]);
-    __asm__ volatile (
-        ".set noreorder\n"
-        "sync\n"
-        "ei\n"
-        ".set reorder"
-        :
-        :
-        : "memory"
-    );
-}
-#else
+// FUN_004393F8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004393f8);
-#endif
 
 
 // FUN_00439428
@@ -768,7 +750,6 @@ s32 func_0043dfc0(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dfc0);
 #endif
-
 
 
 // FUN_0043DFE0

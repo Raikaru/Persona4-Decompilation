@@ -193,75 +193,11 @@ update_tail:
     func_002bc9e0(manager);
     return 0;
 }
-/* measured: callback body is exact-size (560B/window 560B), with only the
- * signed-byte helper return extension and one comparison-register choice
- * remaining; caller/helper type changes regress the matched helper. Committed at nd 263 in-file (nd 22 measured in isolation). */
+/* measured: in-file body recheck is object 508B/window 560B with
+   normalized_diff 263, over the park threshold; body archived at
+   build/WS19_002bcfb0_nd263.c and restored to INCLUDE_ASM. */
 // FUN_002BCFB0
-#ifdef NON_MATCHING
-/* Candidate reconstructed from the retail callback state transitions. */
-s32 func_002bcfb0(u8 *manager, u8 *entry)
-{
-    s32 flags;
-    s32 index;
-
-    flags = *(s32 *)(entry + 4);
-    if ((flags & 4) != 0)
-    {
-        if ((func_00278110(*(s32 *)(entry + 0x10)) & 0x3300) == 0)
-        {
-            func_002bd530((int *)(entry + 0x10));
-            if ((*(s32 *)(manager + 0x14) & 1) == 0)
-            {
-                if (manager == NULL)
-                {
-                    func_0046d730(D_0063F2A0, 0x58f);
-                }
-                *(s32 *)(manager + 0x1c) |= 4;
-            }
-            index = *(s32 *)(entry + 0x2c);
-            if (index < 0 || index >= 0xc)
-            {
-                func_0046d730(D_0063F2A0, 0x590);
-            }
-            *(s32 *)(manager + index * 0xc + 0x1c) |= 4;
-            return 1;
-        }
-        return 0;
-    }
-    if ((flags & 1) != 0)
-    {
-        if (manager == NULL)
-        {
-            func_0046d730(D_0063F2A0, 0x587);
-        }
-        if ((*(s32 *)(manager + 0x1c) & 2) == 0)
-        {
-            return 0;
-        }
-        index = *(s32 *)(entry + 0x2c);
-        if (manager == NULL)
-        {
-            func_0046d730(D_0063F2A0, 0x587);
-        }
-        if ((*(s32 *)(manager + index * 0xc + 0x1c) & 2) == 0)
-        {
-            return 0;
-        }
-        *(s32 *)(entry + 4) &= ~1;
-        func_002bd580(entry + 0x10, *(s32 *)(entry + 0x2c),
-                      *(s32 *)(entry + 0x20));
-    }
-    func_002bd660(entry + 0x10);
-    if (func_002bd610((int *)(entry + 0x10)) == 0)
-    {
-        func_002bd730((u32 *)(entry + 0x10));
-        *(s32 *)(entry + 4) |= 4;
-    }
-    return 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/fclMisc", func_002bcfb0);
-#endif
 // FUN_002BD1E0
 s32 func_002bd1e0(s32 param_1)
 {

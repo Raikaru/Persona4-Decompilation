@@ -596,8 +596,8 @@ s32 func_0025d000(void) {
 
     temp_16 = func_00105ed0();
     var_4 = temp_16 + func_0029cc00(0);
-    if (var_4 >= 0x989680) {
-        var_4 = 0x98967F;
+    if (var_4 >= 0x00989680U) {
+        var_4 = 0x0098967FU;
     }
     if (var_4 < 0) {
         var_4 = 0;
@@ -609,7 +609,7 @@ s32 func_0025d000(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d000);
 #endif
-/* Compiled-C park: object 132B/window 144B, normalized_diff 7. Committed at nd 7. */
+/* Compiled-C park: object 132B/window 144B, normalized_diff 6. Committed at nd 6. */
 /* measured probe: restore opt_common_subs after the d000 clamp probe. */
 #pragma opt_common_subs on
 // FUN_0025D090

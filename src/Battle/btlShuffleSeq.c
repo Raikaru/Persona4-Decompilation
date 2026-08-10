@@ -276,47 +276,11 @@ void func_00378f90(u8 *arg0, s32 arg1, s32 arg2) {
 /* measured: restore optimization level 2 after the O1 probe on
    func_00378f90; this explicit opposite is required by following functions. */
 #pragma optimization_level 2
-/* measured: best legal body is the u64-padded aggregate stand-in at nd 4,
-   object 180B/window 192B. Retail evidence indicates the doubleword is
-   semantically two paired 32-bit members; this spelling is retained only
-   because it is the closest byte-producing C body, not as a claim that the
-   original source used u64. Alignment investigation measured a paired
-   `SeqPair { u32 first, second; }` at nd 70-77 without forced alignment and
-   nd 11 (object 180B/window 192B) with `__attribute__((aligned(8)))`; the
-   u64 body is parked because it is the lowest-nd result. Exact nd-4 fndiff
-   rows: +0x30/+0x3C (48/60) candidate `addiu $v1,$zero,+/-0x5A` vs retail
-   `$a0`; +0x40/+0x44/+0x48 (64/68/72) candidate `lui $v0,0`/`ld
-   $v0,($v0)`/`sd $v0,0x50($sp)` vs retail `addiu $a1,0x50($sp)`/`lui
-   $v0,0x65`/`ld $v1,-0x1550($v0)`; +0x54/+0x58/+0x5C/+0x60/+0x64/+0x68
-   (84/88/92/96/100/104) candidate `swc1 $f0,0x58($sp)`/`mtc1 $v1,$f0`/
-   `nop`/`cvt.s.w $f12,$f0`/`addiu $a0,0x40($sp)`/`addiu $a1,0x50($sp)`
-   vs retail `sd $v1,0x50($sp)`/`swc1 $f0,0x58($sp)`/`mtc1 $a0,$f0`/
-   `nop`/`cvt.s.w $f12,$f0`/`addiu $a0,0x40($sp)`. Measured in isolation (this
-   body activated alone) the same source scores nd 4; nd_audit compiles the
-   whole file with NON_MATCHING defined, so every preserved body in
-   btlShuffleSeq.c is live at once and the surrounding codegen shifts this
-   function to nd 28. Both figures are real; the whole-file figure is the one
-   the audit reproduces. Committed at nd 28. */
-// FUN_00379090 NONMATCHING
-#ifdef NON_MATCHING
-void func_00379090(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    f32 tail;
-    struct S { u64 pair; u32 pad; };
-    struct S tmp;
-    f32 sp40[4];
-    s32 var_4;
-    u64 pair;
-    if ((s16)arg3 > 0) var_4 = 0x5A; else var_4 = -0x5A;
-    pair = *(u64 *)&D_0064EAB0[0];
-    tail = D_0064EAB8[0];
-    tmp.pair = pair;
-    *(f32 *)((u8 *)&tmp + 8) = tail;
-    func_003dc740(&sp40[0], &tmp, 0, (f32)var_4);
-    func_003760f0(arg0, arg1, 0, arg2, 0, &sp40[0]);
-}
-#else
+/* measured: in-file body recheck is object 180B/window 192B with
+   normalized_diff 28, over the park threshold; body archived at
+   build/WS19_00379090_nd28.c and restored to INCLUDE_ASM. */
+// FUN_00379090
 INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379090);
-#endif
 
 
 

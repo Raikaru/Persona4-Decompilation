@@ -433,17 +433,16 @@ void func_00271860(void)
 // FUN_00271A40 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: nd18. retail keeps the par-load base in $a1 and reuses it for the
-   free-slot store at +0x180 (`addu $v0,$a1,$v0; addiu $s1,$v0,0x180` before the
-   jal, `sw ($s1)` after). Expressing the store as `par + ((u8)i - idx)*4`
-   forces b210 to reuse the live par temp (call-clobbered) so the address is
-   computed before the jal instead of re-materialising the base (nd67); the
-   residual 18 is the subu from the (u8)i-idx delta plus the par-load temp
-   register names ($a0/$v1 vs retail $v1/$a1). opt_common_subs off is required
-   register names ($a0/$v1 vs retail $v1/$a1). opt_common_subs off is required
-   for the three re-issued andi masks (retail andi $s2/$s1/$v0 from $s3).
-   A measured optimization_level 1 bracket (with and without opt_common_subs
-   off) leaves nd18 unchanged; the load-sinking family remains a floor.
-   Committed at nd 18. */
+   free-slot store at +0x180 (`addu $v0,$a1,$v0; addiu $s1,$v0,0x180` before).
+   Expressing the store as `par + ((u8)i - idx)*4` forces b210 to reuse the
+   live par temp (call-clobbered) so the address is computed before the jal
+   instead of re-materialising the base (nd67); the residual 18 is the subu
+   from the (u8)i-idx delta plus the par-load temp register names
+   ($a0/$v1 vs retail $v1/$a1). opt_common_subs off is required for the three
+   re-issued andi masks (retail andi $s2/$s1/$v0 from $s3). A measured
+   optimization_level 1 bracket (with and without opt_common_subs off) leaves
+   nd18 unchanged; the load-sinking family remains a floor. Committed at nd
+   18. */
 #pragma opt_common_subs off
 void func_00271a40(void)
 {

@@ -230,6 +230,8 @@ loop_16:
    and inline-parameter-position levers are exhausted. */
 // FUN_0022FF70
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022ff70);
+/* measured: in-file body recheck is object 200B/window 208B with
+   normalized_diff 6. */
 // FUN_00230020
 #ifdef NON_MATCHING
 s32 func_00230020(u8 *arg0)

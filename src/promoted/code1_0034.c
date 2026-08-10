@@ -206,7 +206,18 @@ void func_0034edc0(void)
 // FUN_0034EE90
 INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034ee90);
 // FUN_0034F0D0
-INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f0d0);
+void func_0034f0d0(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4,
+                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+
+    *(f32 *)(arg0 + 0) = fparg0;
+    *(f32 *)(arg0 + 4) = fparg1;
+    *(f32 *)(arg0 + 8) = fparg2;
+    *(f32 *)(arg0 + 0x18) = fparg3;
+    *(f32 *)(arg0 + 0x20) = (f32)arg1;
+    *(f32 *)(arg0 + 0x24) = (f32)arg2;
+    *(f32 *)(arg0 + 0x28) = (f32)arg3;
+    *(f32 *)(arg0 + 0x2C) = (f32)arg4;
+}
 // FUN_0034F1E0
 /* measured: opt_propagation off keeps the cached D_00887300 base in $s0. */
 #pragma opt_propagation off
@@ -314,7 +325,36 @@ f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
             ((1.0f - fparg1) / (f32)(*(s32 *)(arg0 + 0x10) - 1)) +
             fparg1);
 }
+/* measured: direct-field reconstruction is 220B/224B at nd 2; only the
+   absolute-value temporary's saved-register coloring differs. Committed at nd 2. */
 // FUN_0034F8F0
+#ifdef NON_MATCHING
+void func_0034f8f0(u8 *arg0) {
+    s32 temp_3_2;
+    s32 var_2;
+
+    *(s16 *)(arg0 + 8) -= 1;
+    if (*(s16 *)(arg0 + 8) < 0) {
+        temp_3_2 = (s64)(*(s16 *)(arg0 + 0) - *(s16 *)(arg0 + 6));
+        if (temp_3_2 != 0) {
+            if (temp_3_2 < 0) {
+                var_2 = -temp_3_2;
+            } else {
+                var_2 = temp_3_2;
+            }
+            *(s16 *)(arg0 + 6) += (s16)(temp_3_2 / var_2);
+        }
+        func_003b7060();
+        *(s16 *)(arg0 + 8) = 2;
+    }
+    *(s16 *)(arg0 + 4) -= 1;
+    if ((*(s16 *)(arg0 + 4) < 0) || (*(s16 *)(arg0 + 2) < *(s16 *)(arg0 + 6))) {
+        *(s16 *)(arg0 + 2) = *(s16 *)(arg0 + 6);
+        *(s16 *)(arg0 + 4) = 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f8f0);
+#endif
 // FUN_0034F9D0
 INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f9d0);
