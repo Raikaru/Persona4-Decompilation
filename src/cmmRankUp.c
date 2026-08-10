@@ -234,12 +234,14 @@ extern u8 *func_001452b0(s32 arg0);
 extern s32 func_00268cb0(u8 *arg0);
 extern void func_00268c20(s32 arg0, s32 arg1);
 
-/* measured: volatile casts on the D_00635D28/2C/30 loads and the spFloat
-   stores force mwcc b210 to batch the three lwc1 before the three swc1;
-   with plain float temps it interleaves each load/store pair. Loop 1's
+/* measured: opt_propagation off around func_00252050 batches the D_00635D28/
+   2C/30 lwc1 loads before the spFloat stores; plain float temps under the
+   default propagation setting interleave each load/store pair. Loop 1's
    value pair and loop 2's counter are value-class locals (v/w/t) so they
    land in $v1/$v0, and loop 2 uses fresh pointer locals so mwcc
    re-allocates $a1/$a2 instead of keeping loop 1's $a2/$a3. */
+/* measured: opt_propagation-off bracket pins the retail access-order batch. */
+#pragma opt_propagation off
 // FUN_00252050
 void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
     extern u8 *func_00452560();
@@ -261,12 +263,12 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
     f32 fb;
     f32 fc;
 
-    fa = *(volatile f32 *)D_00635D28;
-    fb = *(volatile f32 *)D_00635D2C;
-    fc = *(volatile f32 *)D_00635D30;
-    *(volatile f32 *)&spFloat[0] = fa;
-    *(volatile f32 *)&spFloat[1] = fb;
-    *(volatile f32 *)&spFloat[2] = fc;
+    fa = *(f32 *)D_00635D28;
+    fb = *(f32 *)D_00635D2C;
+    fc = *(f32 *)D_00635D30;
+    spFloat[0] = fa;
+    spFloat[1] = fb;
+    spFloat[2] = fc;
 
     srcp = D_00635D40;
     dstp = (u8 *)copy2;
@@ -319,6 +321,8 @@ void func_00252050(s32 arg0, s32 arg1, s32 arg2) {
         func_0043f810(p + 0xC, src, 0x6C);
     }
 }
+/* measured: closes opt_propagation-off bracket for func_00252050. */
+#pragma opt_propagation on
 
 
 
@@ -672,7 +676,7 @@ static inline void *rankArg1(u8 *p) { return p; }
    static-inline arg helpers - all nd 24. Same documented load-sinking floor as
    mc.c func_002a4d10 (nd 62 there). Rest of function matches byte-exact:
    switch jtbl_00747E50 (15 cases, cases 9/10 -> func_00257900), byte-fill
-   loop with beqz-pointer guard, (u8)(s32) float conversion with 2^31 arm. */
+   loop with beqz-pointer guard, (u8)(s32) float conversion with 2^31 arm. Committed at nd 24. */
 // FUN_0025B0F0 NONMATCHING
 #ifdef NON_MATCHING
 void func_0025b0f0(s32 arg0, u8 *arg1) {

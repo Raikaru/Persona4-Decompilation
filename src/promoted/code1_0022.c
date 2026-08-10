@@ -525,7 +525,40 @@ void func_00228580(void)
     func_001bbef0(DAT_0076449c + 0x24, var_f1);
 }
 // FUN_002286C0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002286c0);
+void func_002286c0(void)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } Vec3;
+    struct Work {
+        Vec3 first;
+        f32 quat1[4];
+        Vec3 second;
+        f32 quat2[4];
+    } work;
+    f32 var_f1;
+    u32 index;
+    u16 temp_2_2;
+    u8 *base;
+    u8 *temp_16;
+    u8 *temp_2;
+
+    index = (u32)(func_00231d70(2) & 0xFFFF);
+    base = *(u8 **)(DAT_0076449c + 0xB98);
+    temp_2 = base + index * 0x34;
+    temp_16 = temp_2 + 0x5B0;
+    func_001bd780(work.quat1, temp_16 + 4, temp_16 + 0x10, D_0060A0E0);
+    work.first = *(Vec3 *)(temp_16 + 4);
+    func_001bd780(work.quat2, temp_16 + 0x1C, temp_16 + 0x28,
+        D_0060A0E0);
+    work.second = *(Vec3 *)(temp_16 + 0x1C);
+    temp_2_2 = *(u16 *)temp_16;
+    var_f1 = (f32)temp_2_2 / 30.0f;
+    func_001bac20(DAT_0076449c + 0x24, &work.first, &work.second, 1);
+    func_001bbef0(DAT_0076449c + 0x24, var_f1);
+}
 // FUN_00228800
 void func_00228800(s32 arg0)
 {

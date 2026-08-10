@@ -17,6 +17,15 @@ extern s32 D_008815B0[];
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 func_0027bf10(s32 arg0);
+extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_00107930(s64 arg0);
+extern u8 *func_00246c20(s32 arg0);
+extern s32 func_00108e10(void);
+extern u8 *func_00246830(s32 arg0);
+static inline s32 add_retail_ptr(s32 a, s32 b) {
+    return a + b;
+}
+extern void func_0026bc10(s32 arg0, s32 arg1);
 
 extern u16 D_008817E8[];
 extern u8 *func_00276290();
@@ -83,8 +92,41 @@ s32 func_00270750(void)
     func_002746a0();
     return 0;
 }
+/* measured: candidate is byte-identical through its 0xE8-byte object;
+   remaining residual is one commutative addu operand order and two retail
+   tail padding words. Committed at nd 3. */
 // FUN_00270780
+#ifdef NON_MATCHING
+s32 func_00270780(s32 arg0, u8 *arg1) {
+    u8 sp30[0x20];
+    s32 temp_17;
+    s32 var_2;
+    u8 temp_3_2;
+    u8 *temp_3;
+    u32 low;
+    s32 key;
+
+    temp_3 = (u8 *)add_retail_ptr(*(s32 *)(arg1 + 0x10), *(s32 *)(arg1 + 0x18));
+    low = (temp_3[0] - 1) & 0xFF;
+    temp_3_2 = temp_3[1];
+    if (temp_3_2 == 0xFF) {
+        var_2 = 0;
+    } else {
+        var_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    key = ((var_2 & 0xFF) << 8) | (low & 0xFF);
+    temp_17 = func_00107930((s16)key);
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    func_00273f70(arg1);
+    func_00275980(func_00246c20(temp_17 & 0xFFFF), sp30, 0x20);
+    func_00273cc0(sp30, arg1);
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_00270780);
+#endif
 // FUN_00270870
 s32 func_00270870(s32 arg0, u8 *arg1)
 {
@@ -150,8 +192,45 @@ s32 func_002709b0(s32 arg0, u8 *arg1)
     func_00273cc0(work.sp20, arg1);
     return 0;
 }
+/* measured: candidate object is exact in size and differs only in one
+   commutative addu operand order. Committed at nd 1. */
 // FUN_00270A80
+#ifdef NON_MATCHING
+s32 func_00270a80(s32 arg0, u8 *arg1) {
+    u8 sp30[0x40];
+    s32 temp_4;
+    s32 var_2;
+    s64 temp_17;
+    u8 temp_3_2;
+    u8 *temp_3;
+    u8 *var_2_2;
+
+    temp_3 = (u8 *)*(s32 *)(arg1 + 0x18);
+    temp_3 += *(s32 *)(arg1 + 0x10);
+    temp_4 = (temp_3[0] - 1) & 0xFF;
+    temp_3_2 = temp_3[1];
+    if (temp_3_2 == 0xFF) {
+        var_2 = 0;
+    } else {
+        var_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    temp_17 = (s64)(s16)(((var_2 & 0xFF) << 8) | (temp_4 & 0xFF));
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    if (temp_17 == 0) {
+        var_2_2 = func_00246830(func_00108e10() & 0xFFFF);
+    } else {
+        var_2_2 = func_00246830((u16)temp_17);
+    }
+    func_00275980(var_2_2, sp30, 0x40);
+    func_00273f70(arg1);
+    func_00273cc0(sp30, arg1);
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_00270a80);
+#endif
 // FUN_00270B80
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_00270b80);
 // FUN_00270CA0
@@ -372,7 +451,45 @@ INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027ac50);
 // FUN_0027AE90
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027ae90);
 // FUN_0027B100
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027b100);
+void func_0027b100(u8 *arg0, s32 arg1) {
+    s32 temp_2;
+    s32 var_6;
+    u32 var_5;
+    s32 var_3;
+
+    temp_2 = (s32)*(s16 *)(arg0 + 0xE);
+    if (arg1 < 0) {
+        var_6 = temp_2 - 1;
+        if (var_6 < 0) {
+            var_6 = (s32)*(s16 *)(arg0 + 0x12) - 1;
+        }
+    } else {
+        var_6 = temp_2 + 1;
+        if (var_6 >= (s32)*(s16 *)(arg0 + 0x12)) {
+            var_6 = 0;
+        }
+    }
+    *(s16 *)(arg0 + 0xE) = (s16)var_6;
+    var_5 = *(u32 *)(arg0 + 8);
+    var_3 = 0;
+    goto loop_test;
+loop_body:
+    if ((var_5 & 1) == 0) {
+        var_6 -= 1;
+        if (var_6 < 0) {
+            goto loop_exit;
+        }
+    }
+    var_3 += 1;
+    var_5 >>= 1;
+loop_test:
+    if (var_3 < 0x20) {
+        goto loop_body;
+    }
+loop_exit:
+    *(s16 *)(arg0 + 0x10) = (s16)var_3;
+    func_0045af60(0, 0, 0, 0);
+}
 // FUN_0027B1C0
 /* measured: opt_loop_invariants hoists mask/count/const-1 into preheader */
 #pragma opt_loop_invariants on
