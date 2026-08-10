@@ -39,6 +39,7 @@ extern void func_004789c0(u8 *arg0);
 extern void func_0047a320(u8 *arg0);
 extern void func_003dcb40(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
 extern void func_001d44a0(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
+extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, s32 arg4, s32 arg5);
 
 
 extern void func_001d9b60(u8 *arg0);
@@ -306,11 +307,110 @@ void func_001d4b00(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     *(f32 *)(arg3 + 8) = frame.value78;
 }
 // FUN_001D4C40
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4c40);
+void func_001d4c40(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+    struct Frame {
+        s32 zero0;
+        s32 zero1;
+        s32 zero2;
+        s32 one;
+        f32 value40;
+        f32 pad44;
+        f32 pad48;
+        f32 value4C;
+    } frame;
+    f32 base;
+    f32 value;
+    s32 temp;
+    u8 *temp16;
+
+    temp16 = (u8 *)(arg2 + 8);
+    base = func_00196040(3, 0, (u8 *)&frame.value40, (u8 *)&frame.value4C, 0, 0);
+    temp = *(u16 *)(temp16 + 4);
+    if (temp == 0) {
+        value = base;
+    } else {
+        value = (f32)temp;
+    }
+    frame.one = 0x3F800000;
+    frame.zero0 = 0;
+    frame.zero1 = 0;
+    frame.zero2 = 0;
+    func_001d44a0(value, 0.5f * frame.value4C, &frame.value40, &frame.zero0, temp16, arg3);
+}
 // FUN_001D4CF0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4cf0);
+void func_001d4cf0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+    struct Frame {
+        s32 zero0;
+        s32 zero1;
+        s32 zero2;
+        s32 one;
+        f32 value40;
+        f32 pad44;
+        f32 pad48;
+        f32 value4C;
+    } frame;
+    f32 base;
+    f32 value;
+    s32 mode;
+    s32 temp;
+    u8 *temp16;
+
+    if (*(u8 *)(arg1 + 0xA2) == 0) {
+        mode = 1;
+    } else {
+        mode = 2;
+    }
+    temp16 = (u8 *)(arg2 + 8);
+    base = func_00196040(mode & 0xFFFF, 0, (u8 *)&frame.value40, (u8 *)&frame.value4C, 0, 0);
+    temp = *(u16 *)(temp16 + 4);
+    if (temp == 0) {
+        value = base;
+    } else {
+        value = (f32)temp;
+    }
+    frame.one = 0x3F800000;
+    frame.zero0 = 0;
+    frame.zero1 = 0;
+    frame.zero2 = 0;
+    func_001d44a0(value, 0.5f * frame.value4C, &frame.value40, &frame.zero0, temp16, arg3);
+}
 // FUN_001D4DC0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4dc0);
+void func_001d4dc0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+    struct Frame {
+        s32 zero0;
+        s32 zero1;
+        s32 zero2;
+        s32 one;
+        f32 value40;
+        f32 pad44;
+        f32 pad48;
+        f32 value4C;
+    } frame;
+    f32 base;
+    f32 value;
+    s32 mode;
+    s32 temp;
+    u8 *temp16;
+
+    if (*(u8 *)(arg1 + 0xA2) == 0) {
+        mode = 2;
+    } else {
+        mode = 1;
+    }
+    temp16 = (u8 *)(arg2 + 8);
+    base = func_00196040(mode & 0xFFFF, 0, (u8 *)&frame.value40, (u8 *)&frame.value4C, 0, 0);
+    temp = *(u16 *)(temp16 + 4);
+    if (temp == 0) {
+        value = base;
+    } else {
+        value = (f32)temp;
+    }
+    frame.one = 0x3F800000;
+    frame.zero0 = 0;
+    frame.zero1 = 0;
+    frame.zero2 = 0;
+    func_001d44a0(value, 0.5f * frame.value4C, &frame.value40, &frame.zero0, temp16, arg3);
+}
 // FUN_001D4E90
 void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     *(s32 *)((u8 *)arg3 + 0) = 0;

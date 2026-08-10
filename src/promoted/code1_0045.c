@@ -1,5 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
+extern f32 D_008872F8_abs[];
+extern f32 D_008872FC_abs[];
+extern u8 *iGpffffb9e0;
 extern s32 iGpffffac74;
 extern s32 iGpffffad88;
 extern s16 iGpffffba1c;
@@ -68,8 +71,37 @@ extern u8 D_008D1C98[];
 extern u8 D_008D1CD4[];
 
 
+/* measured: object 92B vs window 96B, normalized_diff 15; residual load ordering and FPU register coloring. */
+// Committed at nd 15.
 // FUN_00450490
+#ifdef NON_MATCHING
+f32 func_00450490(f32 fparg0)
+{
+    f32 temp_f3;
+    f32 temp_f2;
+    f32 temp_f4;
+    f32 temp_f0;
+    f32 temp_f1;
+
+    temp_f4 = D_008872FC_abs[0];
+    temp_f2 = *(f32 *)(iGpffffb9e0 + 0x84);
+    temp_f3 = *(f32 *)(iGpffffb9e0 + 0x80);
+    temp_f0 = D_008872F8_abs[0];
+    temp_f1 = temp_f0 - temp_f4;
+    temp_f0 = temp_f3 - temp_f2;
+    temp_f1 = temp_f1 / temp_f0;
+    temp_f0 = fparg0 - temp_f2;
+    temp_f2 = temp_f0 * temp_f1;
+    temp_f0 = temp_f3 / fparg0;
+    temp_f1 = temp_f4 + temp_f0 * temp_f2;
+    if (temp_f1 < 0.0f) {
+        temp_f1 = 0.0f;
+    }
+    return temp_f1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450490);
+#endif
 // FUN_00450630
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
 // FUN_00450A50

@@ -151,8 +151,22 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414930);
 // FUN_00414A30
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414a30);
 
+/* measured: scheduler probe at nd42 tests retail branch-delay ordering. */
+/* measured: no_branch_likely-on keeps retail's plain branch opcodes. */
+/* measured: opt_rebuildconditionals-off preserves retail's branch layout. */
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma schedule on
+/* measured: object 192B vs window 192B, normalized_diff 19; residual
+   register coloring, float load ordering, and branch-delay scheduling. */
 // FUN_00414B50
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414b50);
+/* measured: closes scheduler probe for func_00414b50. */
+#pragma schedule off
+/* measured: closes opt_rebuildconditionals probe for func_00414b50. */
+#pragma opt_rebuildconditionals on
+/* measured: closes no_branch_likely probe for func_00414b50. */
+#pragma no_branch_likely off
 
 // FUN_00414C10
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414c10);
