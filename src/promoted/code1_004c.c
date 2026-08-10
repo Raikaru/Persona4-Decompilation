@@ -14,6 +14,7 @@ extern u8 D_00922E20_abs[];
 extern u8 D_00922E28_abs[];
 extern u8 D_007199D0_abs[];
 extern u8 D_007212D0_abs[];
+
 /* Toolchain-blocked region: retail saves `$s` registers with `sd`; MWCCPS2 3.0.1 emits `sq`; see build/ORCH_sd_toolchain_blocked.txt. */
 
 // FUN_004C3400

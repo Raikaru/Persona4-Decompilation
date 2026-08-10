@@ -81,6 +81,13 @@ extern s32 func_003e8920(void);
 extern s32 func_0038fb20(s32 arg0);
 extern s32 func_003df240(s32 arg0, s32 *arg1, s32 arg2);
 extern f32 func_0039b250(s32 arg0, f32 arg1);
+extern u8 *func_004115d0(void);
+extern s32 *func_00412ca0(s32 *arg0);
+extern s32 *func_003cfa70(void);
+extern u8 *func_00412fb0(u8 *arg0, s32 *arg1, s32 *arg2, s32 arg3);
+extern s32 **func_00412e90(u8 *arg0, s32 arg1, s32 arg2, s32 *arg3);
+extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, s32 arg2);
+extern u8 *func_003cfa30(u8 *arg0, s32 arg1);
 
 // measured: schedule on hoists the return-value move to the top,
 // sinks the counter store, and fills the jr delay slot.
@@ -144,8 +151,6 @@ s32 func_00390280(s32 arg0, s32 arg1)
 }
 // FUN_00390290
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
-
-
 /* measured: closing no_branch_likely for func_00390230. */
 #pragma no_branch_likely off
 /* measured: closing schedule for func_00390230. */
@@ -2016,8 +2021,31 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ba80);
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bb70);
 // FUN_0039BBD0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bbd0);
+/* measured: schedule on preserves the bdf0 call and delay-slot order. */
+#pragma schedule on
 // FUN_0039BDF0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039bdf0);
+u8 *func_0039bdf0(u8 *arg0)
+{
+    u8 *temp_2;
+    s32 *temp_16;
+    s32 *temp_2_2;
+    u8 *result;
+
+    temp_2 = func_004115d0();
+    *(s32 *)(temp_2 + 0x2C) = *(s32 *)(arg0 + 0);
+    *(s32 *)(temp_2 + 0x30) = *(s32 *)(arg0 + 4);
+    temp_16 = func_00412ca0((s32 *)temp_2);
+    temp_2_2 = func_003cfa70();
+    result = func_00412fb0((u8 *)temp_16, NULL, temp_2_2, 0);
+    result = (u8 *)func_004125e0((s32)result);
+    result = (u8 *)func_00412e90(result, *temp_2_2, 0, NULL);
+    result = func_003cf9b0(result, 1, *(s32 *)(arg0 + 8));
+    result = func_003cf9b0(result, 2, *(s32 *)(arg0 + 0xC));
+    func_003cfa30(result, *(s32 *)(arg0 + 0x10));
+    return temp_2;
+}
+/* measured: closes the bdf0 schedule bracket. */
+#pragma schedule off
 // FUN_0039BEB0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039beb0);
 // FUN_0039C000
