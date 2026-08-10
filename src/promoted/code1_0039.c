@@ -145,6 +145,7 @@ s32 func_00390280(s32 arg0, s32 arg1)
 // FUN_00390290
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
 
+
 /* measured: closing no_branch_likely for func_00390230. */
 #pragma no_branch_likely off
 /* measured: closing schedule for func_00390230. */
@@ -513,15 +514,9 @@ docall:
 #pragma no_branch_likely off
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
-/* measured: retail lays the three exits out of line in the order
-   [return arg0][return 0][call + jump back], which the explicit gotos below
-   reproduce; the plain nested-if spelling merges them (nd 58). schedule on
-   fills the jal and b delay slots (without it nd 84, obj 128), and
-   no_branch_likely on stops b210 turning both tests into beql/bnel
-   (nd 35 -> 0). Note the first argument: retail passes arg0 to
-   func_003df360 unchanged in $a0, which the m2c draft dropped. */
 // FUN_00399320
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399320);
+
 
 /* measured: schedule on preserves the retail setter's return move and
    address calculation order. */
@@ -1564,13 +1559,52 @@ s32 func_0039a7e0(u8 *arg0, s32 arg1)
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
+
+/* measured: schedule on probes A7F0's switch branch-delay stores. */
+#pragma schedule on
+// FUN_0039A7F0
+void func_0039a7f0(s32 arg0)
+{
+    u8 *temp_5;
+    u32 temp_3;
+
+    temp_5 = *(u8 **)(arg0 + iGpffffb5e0);
+    temp_3 = *(u32 *)(temp_5 + 0x80);
+    switch (temp_3) {
+    case 3:
+        *(s64 *)(temp_5 + 0x68) = (s64)0x58;
+        *(s64 *)(temp_5 + 0x70) = 0;
+        *(s64 *)(temp_5 + 0x78) = 0;
+    case 1:
+        *(s64 *)(temp_5 + 0x28) = ((s64)0x80 << 32) | (s64)0x48;
+        *(s64 *)(temp_5 + 0x30) = 0;
+        *(s64 *)(temp_5 + 0x38) = 0;
+        break;
+    case 2:
+        *(s64 *)(temp_5 + 0x28) = ((s64)0x80 << 32) | (s64)0x68;
+        *(s64 *)(temp_5 + 0x30) = 0;
+        *(s64 *)(temp_5 + 0x38) = 0;
+        break;
+    case 4:
+        *(s64 *)(temp_5 + 0x30) = (s64)0x01000000;
+        *(s64 *)(temp_5 + 0x38) = 0;
+        break;
+    case 6:
+        *(s64 *)(temp_5 + 0x70) = (s64)0x01000000;
+        *(s64 *)(temp_5 + 0x78) = 0;
+        break;
+    case 0:
+    case 5:
+    default:
+        break;
+    }
+}
+/* measured: schedule off closes the A7F0 scheduler probe. */
+#pragma schedule off
 /* measured: retail window 0x70 uses two movz instructions for conditional
    64-bit stores; the best plain-C probe was obj 116/112 at nd 83. The
    movz/branch and paired-store codegen did not close, so the body was
    discarded and the bare assembly fallback remains. */
-
-// FUN_0039A7F0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a7f0);
 // FUN_0039A8A0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a8a0);
 

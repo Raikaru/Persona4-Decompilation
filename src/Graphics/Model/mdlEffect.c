@@ -33,7 +33,7 @@ extern void func_0044ea90(u8 *file, s32 line);
 extern u8 D_007131E8[];
 /* Defined below in this file; called at line 54, above its definition. */
 extern void func_0047d310(u32 *param_1);
-extern void *func_00457120(void);
+extern u8 *func_00457120(void);
 extern u8 *func_003e9700(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_0043f810(void *dst, const void *src, u32 size);
@@ -43,6 +43,17 @@ extern void func_003e0670(void *matrixOut, void *matrixIn);
 extern void func_003dc610(void *arg0, void *arg1);
 extern void func_004b12e0(s32 arg0, void *arg1);
 extern void func_004b1190(s32 arg0);
+extern void func_004bce80(void);
+extern void func_004bceb0(void);
+extern void func_003e42a0(void *arg0, void *arg1, u8 *arg2);
+extern f32 D_00713D10[];
+extern f32 D_00713D14[];
+extern f32 D_00713D18[];
+static inline u8 *mdlEffect_camera_matrix(u8 *base)
+{
+    return base + 0x20;
+}
+
 
 
 
@@ -503,7 +514,47 @@ INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a070);
 // FUN_0048A0E0
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a0e0);
 // FUN_0048A150
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a150);
+void func_0048a150(u8 *arg0, u8 *arg1)
+{
+    f32 work[4];
+    u8 *base;
+
+    __asm__ volatile(
+        "lqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(arg1)
+        : "$vf10", "memory");
+    func_004bce80();
+    func_004bceb0();
+    base = (u8 *)work;
+    __asm__ volatile(
+        "sqc2 $vf28, 0(%0) \n"
+        :
+        : "r"(base)
+        : "$vf28", "memory");
+    *(f32 *)(arg0 + 0) = work[0];
+    *(f32 *)(arg0 + 4) = work[1];
+    *(f32 *)(arg0 + 8) = work[2];
+    __asm__ volatile(
+        "sqc2 $vf29, 0(%0) \n"
+        :
+        : "r"(base)
+        : "$vf29", "memory");
+    *(f32 *)(arg0 + 0x10) = work[0];
+    *(f32 *)(arg0 + 0x14) = work[1];
+    *(f32 *)(arg0 + 0x18) = work[2];
+    __asm__ volatile(
+        "sqc2 $vf30, 0(%0) \n"
+        :
+        : "r"(base)
+        : "$vf30", "memory");
+    *(f32 *)(arg0 + 0x20) = work[0];
+    *(f32 *)(arg0 + 0x24) = work[1];
+    *(f32 *)(arg0 + 0x28) = work[2];
+    *(s32 *)(arg0 + 0x30) = 0;
+    *(s32 *)(arg0 + 0x34) = 0;
+    *(s32 *)(arg0 + 0x38) = 0;
+}
 // FUN_0048A1F0
 void func_0048a1f0(u8 *arg0)
 {
@@ -562,7 +613,52 @@ INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a340);
 // FUN_0048A460
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
 // FUN_0048A510
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a510);
+s32 func_0048a510(void)
+{
+    u8 raw[0x40];
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f20;
+    f32 temp_f3;
+    u8 *ptr;
+
+    __asm__ volatile(
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(&D_00713D10)
+        : "$vf10", "memory");
+    *(f32 *)(raw + 0x20) = D_00713D10[0];
+    *(f32 *)(raw + 0x24) = D_00713D14[0];
+    *(f32 *)(raw + 0x28) = D_00713D18[0];
+    func_003e42a0(raw + 0x30, raw + 0x20,
+                  mdlEffect_camera_matrix(func_00457120()));
+    ptr = (u8 *)func_00457120();
+    temp_f20 = *(f32 *)(ptr + 0x80);
+    ptr = (u8 *)func_00457120();
+    temp_f0 = *(f32 *)(ptr + 0x84);
+    temp_f1 = *(f32 *)(raw + 0x38);
+    if ((temp_f1 <= temp_f20) || !(temp_f1 < temp_f0)) {
+        return 0;
+    }
+    temp_f3 = 640.0f * (*(f32 *)(raw + 0x30) / temp_f1);
+    *(f32 *)(raw + 0x18) = temp_f3;
+    temp_f1 = 448.0f * (*(f32 *)(raw + 0x34) / temp_f1);
+    *(f32 *)(raw + 0x1c) = temp_f1;
+    if (!(temp_f3 < 0.0f) && !(temp_f1 < 0.0f) &&
+        (temp_f3 <= 640.0f) && (temp_f1 <= 448.0f)) {
+        *(f32 *)(raw + 0) = temp_f3;
+        *(f32 *)(raw + 4) = temp_f1;
+        *(f32 *)(raw + 8) = 0.0f;
+        *(f32 *)(raw + 0xc) = 0.0f;
+        __asm__ volatile(
+            "lqc2 $vf10, 0(%0) \n"
+            :
+            : "r"(raw)
+            : "$vf10", "memory");
+        return 1;
+    }
+    return 0;
+}
 // FUN_0048A650
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a650);
 // FUN_0048A810

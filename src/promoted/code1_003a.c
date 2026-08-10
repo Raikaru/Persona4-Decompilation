@@ -10,6 +10,7 @@ extern void func_0039dcc0(u8 *arg0);
 extern void func_0039e740(u8 *arg0);
 extern s32 func_003a03a0(u8 *arg0);
 extern s32 func_003a0aa0(u8 *arg0);
+extern s32 func_003a8d20(u8 *arg0, u8 **arg1);
 
 extern s32 iGpffffb614;
 extern s32 iGpffffb610;
@@ -31,6 +32,9 @@ extern void func_00411670(s32 arg0);
 extern s32 func_004125e0(s32 arg0);
 extern s32 func_00412ca0(s32 arg0);
 extern s32 func_00412fb0(s32 arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, void *arg2);
+extern s32 *func_003cfa70(void);
+extern s32 func_00412e90(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 D_007084A0[];
 extern void func_003b42e0(s32 arg0, u8 *arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5, s32 arg6);
@@ -423,7 +427,42 @@ s32 func_003a8ca0(void)
 // FUN_003A8D20
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8d20);
 // FUN_003A92D0
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a92d0);
+// measured: schedule on fills saved-register and call-argument delay slots in func_003a92d0.
+#pragma schedule on
+// measured: no_branch_likely on keeps func_003a92d0's null tests as plain beqz instructions.
+#pragma no_branch_likely on
+s32 func_003a92d0(void)
+{
+    s32 temp_2;
+    s32 *temp_2_3;
+    s32 temp_2_2;
+
+    temp_2 = func_004115d0();
+    if (temp_2 != 0) {
+        temp_2_2 = func_00412ca0(temp_2);
+        if (temp_2_2 != 0) {
+            temp_2_3 = func_003cfa70();
+            temp_2_2 = func_00412fb0(temp_2_2, 0, temp_2_3, 0);
+            func_00412e90(temp_2_2, *temp_2_3, 0, 0);
+            temp_2_2 = func_004125e0(temp_2_2);
+            if (temp_2_2 != 0) {
+                func_003cf9b0(
+                    (u8 *)func_00412e90(temp_2_2, *temp_2_3, 0, 0),
+                    1,
+                    (void *)func_003a8d20);
+                return temp_2;
+            }
+        }
+        func_00411670(temp_2);
+        goto block_5;
+    }
+block_5:
+    return 0;
+}
+// measured: closes no_branch_likely for func_003a92d0.
+#pragma no_branch_likely off
+// measured: closes the schedule-on bracket for func_003a92d0.
+#pragma schedule off
 // FUN_003A93B0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a93b0);
 // FUN_003A9880

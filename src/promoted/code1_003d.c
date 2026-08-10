@@ -38,8 +38,7 @@ extern void func_003cdfa0(u8 *arg0);
 extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
 extern s32 func_003d4f20(s32 arg0);
-extern void (*jtbl_008873EC[])(void);
-extern s32 func_003df5d0(s32 arg0, s32 arg1);
+extern void (*jtbl_008873EC[])();
 extern void func_003e2ab0();
 extern s32 func_003de8c0(u8 *arg0, s32 arg1);
 extern void func_003d59d0(f32 arg0);
@@ -158,7 +157,7 @@ block_2:
 #pragma no_branch_likely off
 
 
-void func_003df7f0(s32 arg0);
+s32 func_003df7f0();
 
 /* measured: explicit block labels, no_branch_likely, schedule, and the direct
    default-path store `*(s32 *)(*(u8 **)(arg0 + 0x14) + 0x1C) = 0x20` reproduce
@@ -466,8 +465,41 @@ ret_one:
 
 // FUN_003D4C70
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4c70);
+/* measured: schedule/no_branch_likely preserves 4ea0's callback branch and
+   stack-local call sequence. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003D4EA0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4ea0);
+s32 func_003d4ea0(void) {
+    extern s32 func_0039b6e0(s32 arg0);
+    extern void func_003cc070(s32 arg0);
+    extern s32 func_003df590(s32 arg0, void *arg1);
+    extern void func_003df4d0(s32 *arg0);
+    extern u8 D_0070B5D0[];
+    extern s32 iGpffffb9b8;
+    struct {
+        s32 sp18;
+        s32 sp1C;
+    } frame;
+    s32 temp_2;
+    u8 *base;
+
+    temp_2 = func_0039b6e0(0x1002);
+    base = D_008872E0 + iGpffffb9b8;
+    *(s32 *)(base + 0x54) = temp_2;
+    if (temp_2 != 0) {
+        func_003cc070(temp_2);
+        return 1;
+    }
+    func_003cc070(0);
+    frame.sp18 = 2;
+    frame.sp1C = func_003df590(0x80000006, D_0070B5D0);
+    func_003df4d0(&frame.sp18);
+    return 1;
+}
+/* measured: closes no_branch_likely/schedule around func_003d4ea0. */
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: opt_propagation off probe keeps the callback result live
    through the explicit branch graph. */
 #pragma opt_propagation off
@@ -523,19 +555,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5000);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5130);
 // FUN_003D51C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d51c0);
-/* Parked candidate: the jump-table callback and scalar return are correct,
-   but b210 retains a 48-byte object versus the 48-byte retail slot with
-   differing branch/call placement. Residual normalized_diff 17.
-   Committed at nd 17. */
-// FUN_003D5300 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: schedule on reproduces the callback address-load, branch delay,
+   and epilogue order for func_003d5300; exact MATCH (48B). */
+#pragma schedule on
+// FUN_003D5300
 s32 func_003d5300(void) {
     jtbl_008873EC[0]();
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5300);
-#endif
+/* measured: closes schedule around func_003d5300. */
+#pragma schedule off
 /* measured: loader wrapper body follows the retail e2f60/df050/53c0/e2e40
    call sequence. schedule/no_branch_likely reaches nd 23 at object 136 bytes
    versus the 144-byte window; the two-word tail is padding. Committed at nd 23. */
@@ -1384,8 +1413,25 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df590);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df5d0);
 // FUN_003DF6E0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df6e0);
+/* measured: no_branch_likely preserves 7f0's two callback paths. */
+#pragma no_branch_likely on
 // FUN_003DF7F0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df7f0);
+s32 func_003df7f0(u8 *arg0) {
+    u8 *self;
+    u8 *temp_4;
+
+    self = arg0;
+    temp_4 = *(u8 **)self;
+    if ((temp_4 != NULL) && (*(s32 *)(self + 8) != 0)) {
+        jtbl_008873EC[0](temp_4);
+        *(s32 *)self = 0;
+        *(s32 *)(self + 8) = 0;
+    }
+    jtbl_008873EC[0](self);
+    return 1;
+}
+/* measured: closes no_branch_likely around func_003df7f0. */
+#pragma no_branch_likely off
 // FUN_003DF860
 s32 func_003df860(u8 *arg0) {
     return *(s32 *)(arg0 + 4);

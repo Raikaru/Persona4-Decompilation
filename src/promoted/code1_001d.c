@@ -153,8 +153,6 @@ void func_001d4e90(s32 arg0, s32 arg1, s32 arg2, u8 *arg3) {
     *(s32 *)((u8 *)arg3 + 0xC) = 0;
 }
 
-
-
 // FUN_001D4EB0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4eb0);
 // FUN_001D5130

@@ -441,7 +441,31 @@ void func_00144e10(s64 arg0) {
     *(s16 *)(temp_7 + 0x10) = arg0;
 }
 // FUN_00144ED0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144ed0);
+void func_00144ed0(s64 arg0) {
+    s32 temp_6;
+    u8 *flags;
+    u8 *temp_2;
+    u8 *temp_4;
+    u8 *temp_5;
+
+    temp_5 = iGpffff9db0;
+    flags = temp_5 + 0xC;
+    temp_6 = *(s32 *)flags;
+    if (temp_6 & 1) {
+        if (*(s16 *)(temp_5 + 0x12) != ((s64)(arg0 << 0x30) >> 0x30)) {
+            * (s32 *)flags = temp_6 | 4;
+            *(s16 *)(iGpffff9db0 + 0x12) = arg0;
+            temp_2 = iGpffff9db0;
+            func_0014eed0(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
+            temp_4 = iGpffff9db0;
+            if ((*(s32 *)(temp_4 + 0xC) & 2) == 0) {
+                *(s32 *)(temp_4 + 0x94) = 0x28;
+            }
+        }
+    } else {
+        *(s16 *)(temp_5 + 0x12) = arg0;
+    }
+}
 // FUN_00144F60
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144f60);
 // FUN_00145080

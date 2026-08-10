@@ -629,7 +629,6 @@ void func_00202620(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
-
 // FUN_00202640
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202640);
 // FUN_00202720
