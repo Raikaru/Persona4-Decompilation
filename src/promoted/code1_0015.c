@@ -28,6 +28,7 @@ extern u8 D_005F0770[];
 extern u8 D_005F0720[];
 extern s16 D_005F05D0[];
 extern u8 D_005F05CE[];
+extern u8 D_007D3E2B[];
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern void func_00442088(void *dst, const char *fmt, ...);
 extern void func_00442830(void *dst, const char *fmt);
@@ -659,8 +660,50 @@ u8 func_0015a740(s32 arg0) {
 
 // FUN_0015A7C0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015a7c0);
+/* measured: opt_rebuildconditionals off preserves the retail threshold loop branch shape in func_0015ab20. */
+#pragma opt_rebuildconditionals off
 // FUN_0015AB20
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015ab20);
+s32 func_0015ab20(s32 arg0, s32 arg1, s32 arg2) {
+    s16 temp_2;
+    s32 temp_16;
+    s32 temp_5;
+    s32 var_6;
+    u8 *work;
+
+    var_6 = 0;
+    goto loop_test;
+loop_body:
+    if (arg0 < temp_2) {
+        goto done;
+    }
+    var_6 += 1;
+loop_test:
+    temp_5 = var_6 * 2;
+    temp_2 = *(s16 *)((u8 *)D_005F05D0 + temp_5);
+    if (temp_2 >= 0) {
+        goto loop_body;
+    }
+done:
+    if (var_6 == 0) {
+        return 0;
+    }
+    temp_16 = arg0 - *(s16 *)(D_005F05CE + temp_5);
+    if (temp_16 >= 0x14) {
+        func_0046d730(D_005F05E8, 0x8E3, var_6);
+    }
+    if (*(u8 *)(D_007D3E10 + temp_16) == 1) {
+        work = (u8 *)func_00155280();
+        work += arg2 << 8;
+        work += arg1 << 4;
+        *(u8 *)(D_007D3E2B + temp_16 * 0xC00 +
+                (arg2 << 7) + (arg1 << 3)) = *(u8 *)(work + 0x5F);
+        return 1;
+    }
+    func_0046d730(D_005F05E8, 0x8ED);
+    return 0;
+}
+/* measured: closes opt_rebuildconditionals bracket for func_0015ab20. */
+#pragma opt_rebuildconditionals on
 // FUN_0015AC60
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015ac60);
 // FUN_0015B240

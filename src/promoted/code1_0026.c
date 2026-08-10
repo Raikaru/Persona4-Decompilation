@@ -1034,7 +1034,6 @@ s32 func_0026ef00(s32 arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ef60);
 // FUN_0026F0A0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f0a0);
-/* measured: exact-size decode and table-dispatch reconstruction reaches normalized_diff 10; saved-register coloring remains. Committed at nd 10. */
 // FUN_0026F1E0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0026f1e0(s32 arg0, u8 *arg1)

@@ -9,6 +9,8 @@ extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3bc;
 extern void func_001b0d00(s32 arg0, s32 arg1);
+extern f32 *func_0014acd0(void);
+extern f32 *func_0014ad10(void);
 extern void func_001b6990();
 extern void func_00193d30();
 extern void func_00122640(s32 arg0, s32 arg1);
@@ -907,7 +909,29 @@ void func_001b6a00(void)
 }
 
 // FUN_001B6A20
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6a20);
+void func_001b6a20(void)
+{
+    struct P4Vec4 {
+        f32 a;
+        f32 b;
+        f32 c;
+        f32 d;
+    };
+    u8 *base;
+    struct P4Vec4 *dst;
+    struct P4Vec4 *src;
+
+    base = D_0076449C;
+    if ((*(s32 *)(base + 0xC) & 2) != 0) {
+        dst = (struct P4Vec4 *)func_0014acd0();
+        src = (struct P4Vec4 *)(base + 0x1EC);
+        *dst = *src;
+        base = D_0076449C;
+        dst = (struct P4Vec4 *)func_0014ad10();
+        src = (struct P4Vec4 *)(base + 0x1FC);
+        *dst = *src;
+    }
+}
 // FUN_001B6AB0
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b6ab0);
 // FUN_001B7020

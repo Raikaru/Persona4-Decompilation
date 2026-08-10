@@ -50,6 +50,7 @@ extern u8 D_005E5560[];
 extern u8 D_005E5570[];
 extern void func_00111bc0(void);
 extern s32 func_0025e800(u8 *arg0, s32 arg1, s32 arg2);
+extern void func_0025e8b0(s32 arg0);
 extern s32 func_0025e8f0(s32 arg0);
 extern s32 func_002aa300(u8 *arg0, s32 arg1);
 extern s32 func_002aa3f0(void);
@@ -89,7 +90,7 @@ extern s32 func_00451fc0(s32 window, const void *data, s32 prio, s32 a3,
                          s32 a4, void *init, void *close, u8 *work);
 extern u8 D_005E57B8[];
 extern u8 D_005E57D0[];
-extern void func_0012c220(void *arg0);
+extern s32 func_0012c220(u8 *arg0);
 extern void func_0012e9d0(u8 *arg0);
 extern void func_0012fdf0(u8 *arg0);
 extern void func_0012feb0(u8 *arg0);
@@ -866,7 +867,72 @@ s32 func_0012c1a0(s32 arg0)
 }
 
 // FUN_0012C220
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012c220);
+s32 func_0012c220(u8 *arg0) {
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    u32 temp_2;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_2 = *(u32 *)(temp_16 + 0);
+    switch (temp_2) {
+    case 0:
+        if ((func_0045a890(0) != 0) && (func_0045a890(1) != 0)) {
+            *(u32 *)(temp_16 + 0) = 1U;
+        }
+        goto block_20;
+    default:
+        goto block_20;
+    case 1:
+        *(s32 *)(temp_16 + 0xC) = func_0025e800(arg0, 1, 0xF);
+        *(s32 *)(temp_16 + 8) = 0x3C;
+        *(u32 *)(temp_16 + 0) = 2U;
+        goto block_20;
+    case 2:
+        temp_2_2 = *(s32 *)(temp_16 + 8) - 1;
+        *(s32 *)(temp_16 + 8) = temp_2_2;
+        if (temp_2_2 == 0) {
+            func_00465f20();
+            *(u32 *)(temp_16 + 0) = 3U;
+        }
+        goto block_20;
+    case 3:
+        temp_2_3 = func_00465f40();
+        *(s32 *)(temp_16 + 4) = temp_2_3;
+        if (temp_2_3 != 0) {
+            if (temp_2_3 == 0x64) {
+                func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+                return -1;
+            }
+            *(u32 *)(temp_16 + 0) = 4U;
+            goto block_20;
+        }
+        goto block_20;
+    case 4:
+        func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+        if (*(s32 *)(temp_16 + 4) == -6) {
+            *(s32 *)(temp_16 + 0xC) = func_0025e800(arg0, 1, 0x15);
+        } else {
+            *(s32 *)(temp_16 + 0xC) = func_0025e800(arg0, 1, 0x10);
+        }
+        *(u32 *)(temp_16 + 0) = 5U;
+        goto block_20;
+    case 5:
+        temp_2_4 = func_0025e8f0(*(s32 *)(temp_16 + 0xC));
+        if (temp_2_4 == 1) {
+            func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+            return -1;
+        }
+        if (temp_2_4 == 2) {
+            func_0025e8b0(*(s32 *)(temp_16 + 0xC));
+            *(u32 *)(temp_16 + 0) = 1U;
+        }
+        goto block_20;
+    }
+block_20:
+    return 0;
+}
 // FUN_0012C410
 void func_0012c410(u8 *arg0)
 {

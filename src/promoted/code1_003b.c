@@ -111,8 +111,51 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
 // FUN_003B6420
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
-// FUN_003B64C0
+/* measured: schedule on restores 003b64c0 setup order around the guard. */
+#pragma schedule on
+/* measured: exact-size plain-C candidate retains the retail loop body; the remaining
+   entry slt/beqz versus blez and preheader ordering residual measured nd 7. Committed at nd 7. */
+// FUN_003B64C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_003b64c0(u8 *arg0, s32 arg1, u8 *arg2) {
+    s32 temp_8;
+    s32 var_12;
+    u8 *temp_10;
+    u8 *temp_4;
+    u8 *temp_6;
+    u8 *temp_7;
+    u8 *temp_9;
+    u8 *var_11;
+
+    var_11 = *(u8 **)(arg0 + 0);
+    temp_10 = arg2 + 0x90;
+    temp_9 = arg2 + 0x98;
+    temp_8 = *(s32 *)(arg0 + 4);
+    var_12 = arg1 > 0;
+    if (var_12 != 0) {
+        var_12 = 0;
+        do {
+            temp_7 = var_11 + temp_8;
+            temp_6 = temp_7 + temp_8;
+            var_12 += 1;
+            temp_4 = temp_6 + temp_8;
+            *(f32 *)(var_11 + 0) = *(f32 *)(temp_10 + 0);
+            *(f32 *)(var_11 + 4) = *(f32 *)(temp_9 + 4);
+            var_11 = temp_4 + temp_8;
+            *(f32 *)(temp_7 + 0) = *(f32 *)(temp_9 + 0);
+            *(f32 *)(temp_7 + 4) = *(f32 *)(temp_9 + 4);
+            *(f32 *)(temp_6 + 0) = *(f32 *)(temp_9 + 0);
+            *(f32 *)(temp_6 + 4) = *(f32 *)(temp_10 + 4);
+            *(f32 *)(temp_4 + 0) = *(f32 *)(temp_10 + 0);
+            *(f32 *)(temp_4 + 4) = *(f32 *)(temp_10 + 4);
+        } while (var_12 < arg1);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b64c0);
+#endif
+/* measured: close schedule around func_003b64c0. */
+#pragma schedule off
 // FUN_003B6540
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6540);
 // FUN_003B65D0

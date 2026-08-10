@@ -30,12 +30,29 @@ extern s32 iGpffffb430;
 extern s32 iGpffffb434;
 extern s32 iGpffffb438;
 extern u8 D_005F6BF0[];
+extern u64 iGpffffa090;
+extern u16 iGpffffa098;
+extern s32 iGpffffb43c;
+extern u8 D_005F65D0[];
+extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
+extern void func_001ee1c0(void);
+extern void func_00194660(void);
+extern void func_001bdb60(void);
+extern void func_001f7260(void);
+extern void func_001f9bf0(void);
+extern void func_001d6a60(void);
+extern void func_001b1850(void);
+extern void func_001b60a0(void);
+extern void func_001f6100(void);
+extern s32 func_002774d0(u8 *arg0);
 extern void func_001939e0(void);
 extern s32 func_00451fc0(u8 *a, void *b, s32 c, s32 d, s32 e,
                          void (*f)(u8 *), void (*g)(u8 *), void *h);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern f32 func_0022cf00(u8 *arg0, u8 *arg1, s32 arg2);
 extern s64 func_001990d0();
+extern s32 func_00452380(void *arg0);
+extern void func_00452080(s32 arg0);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
@@ -306,8 +323,35 @@ void func_00192b20(void) {
 
 
 
+
+
+
 // FUN_00192B90
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00192b90);
+void func_00192b90(void)
+{
+    s32 i;
+    *(u64 *)&iGpffffa090 = 1;
+    iGpffffa098 = 0x100;
+    func_0044ea90(D_005F65D0, 0x3A);
+    iGpffffb3ac = (u8 *)D_008873E8[0](0xE88, 0x40000);
+    func_0043f9c8(iGpffffb3ac, 0, 0xE88);
+    *(s32 *)(iGpffffb3ac + 0xC60) = func_002774d0((u8 *)iGpffffb43c);
+    for (i = 0x15C0; i <= 0x15FF; i++) {
+        func_00106390(i, 0);
+    }
+    func_00106390(0x1435, 0);
+    func_00106390(0x1438, 0);
+    func_001ee1c0();
+    func_00194660();
+    func_001bdb60();
+    func_001f7260();
+    func_001f9bf0();
+    func_001d6a60();
+    func_001b1850();
+    func_001b60a0();
+    func_001f6100();
+    *(s32 *)(iGpffffb3ac + 0xC) |= 0x1480877C;
+}
 // FUN_00192CD0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00192cd0);
 // FUN_00192E90

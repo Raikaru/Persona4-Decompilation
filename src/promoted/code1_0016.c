@@ -8,6 +8,10 @@ extern void (*DAT_008873EC[])(void *);
 extern u8 *func_00145270(u16 arg0);
 extern u8 D_007EF9B0[];
 extern u8 D_007F16F0[];
+extern u8 D_007E4320[];
+extern u8 D_007F16F2[];
+extern u8 D_007F16F4[];
+extern void func_004787e0();
 extern u8 D_007E8C00[];
 extern void func_00442830(void *arg0, const char *arg1);
 extern s32 func_00442088(char *buf, const char *fmt, ...);
@@ -52,6 +56,8 @@ extern u8 *iGpffffb2c8;
 extern u8 *iGpffffb2cc;
 extern u8 D_007E7B20[];
 extern u8 *func_0047a2f0();
+extern void func_0047a180(s32 arg0, void *arg1, s32 arg2);
+extern void func_0047a1a0(s32 arg0, s32 arg1, f32 arg2, s32 arg3);
 extern void func_00478e70(s32 arg0);
 extern s32 iGpffff9f00;
 extern void func_003e99a0(void *arg0);
@@ -91,7 +97,6 @@ void func_00160440(void)
         *(s32 *)((u8 *)func_00155280() + 0x1854) = 0;
     }
 }
-
 
 
 // FUN_001604A0
@@ -241,8 +246,41 @@ void func_00162120(void)
     func_0043f9c8(D_007E8020, 0, 0x40);
 }
 
+/* measured: opt_propagation off preserves the retail recomputed index and live register set in func_00162200. */
+#pragma opt_propagation off
 // FUN_00162200
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00162200);
+void func_00162200(s32 arg0) {
+    s32 saved_arg0;
+    s32 temp_18;
+    s32 *temp_17;
+    u8 *temp_16;
+    u8 *temp_3;
+    s32 var_6;
+
+    saved_arg0 = arg0;
+    if (*(s32 *)(D_007F16F4 + (arg0 * 8)) != 0) {
+        var_6 = 0;
+        temp_16 = D_007F16F0 + (arg0 * 8);
+        goto loop_test;
+loop_body:
+        temp_3 = (u8 *)(*(s32 *)(temp_16 + 4) + (var_6 * 0xC));
+        *(u8 *)(temp_3 + 0x28C) =
+            (u8)(*(u8 *)(temp_3 + 0x28C) | 1);
+        var_6 += 1;
+loop_test:
+        if (var_6 < 5) {
+            goto loop_body;
+        }
+        temp_18 = saved_arg0 * 8;
+        temp_17 = (s32 *)(D_007F16F4 + temp_18);
+        func_004787e0(*temp_17);
+        *temp_17 = 0;
+        *(s16 *)(temp_16 + 0) = 0;
+        *(s16 *)(D_007F16F2 + temp_18) = 0;
+    }
+}
+/* measured: closes the opt_propagation bracket for func_00162200. */
+#pragma opt_propagation on
 /* measured: direct global address expressions preserve retail bases while
    opt_loop_invariants hoists the stride (nd 14 -> 0). */
 // FUN_001622D0
@@ -471,7 +509,26 @@ void func_00168c00(u8 *arg0) {
 // FUN_00168CB0
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00168cb0);
 // FUN_00168DE0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00168de0);
+void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
+    E9F0Vec3 sp50;
+    E9F0Vec3 sp40;
+    s32 temp_4;
+    u8 *temp_16;
+    u8 *temp_2;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_4 = *(s32 *)(temp_16 + 0x10);
+    if (temp_4 != 0) {
+        temp_2 = func_0047a2f0(temp_4);
+        sp50 = *(E9F0Vec3 *)(temp_2 + 0x30);
+        sp40.x = -1.0f * sp50.x;
+        sp40.y = -1.0f * sp50.y;
+        sp40.z = -1.0f * sp50.z;
+        func_0047a180(*(s32 *)(temp_16 + 0x10), &sp40, 2);
+        func_0047a1a0(*(s32 *)(temp_16 + 0x10), arg1, fparg0, 2);
+        func_0047a180(*(s32 *)(temp_16 + 0x10), &sp50, 2);
+    }
+}
 // FUN_00168EC0
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00168ec0);
 // FUN_0016B8A0

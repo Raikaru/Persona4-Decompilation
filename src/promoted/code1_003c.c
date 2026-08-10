@@ -15,6 +15,7 @@ extern s32 func_003c49a0(u8 *arg0);
 extern void func_003ce2e0(u8 *arg0);
 extern s32 func_003c2c90(u8 *arg0);
 extern s32 func_003e3370(u8 *desc, u8 *arg1);
+extern s32 func_003e1220();
 extern s32 func_003e3c20(u8 *desc, u8 *arg1);
 extern s32 func_003e3070(u8 *desc, s32 arg0, s32 arg1);
 extern s32 func_003e30c0(u8 *desc, s32 arg0, s32 arg1);
@@ -26,6 +27,11 @@ extern void func_003ce840(u8 *arg0);
 extern s32 func_003ce3a0(s32 arg0, u8 *arg1);
 extern s32 func_003ce9e0(s32 arg0, u8 *arg1);
 extern s32 func_003ceeb0(u8 *arg0);
+/* gp - 0x5568 = 0x00763B88 */
+extern s32 iGpffffaa98;
+/* gp - 0x5564 = 0x00763B8C */
+extern s32 iGpffffaa9c;
+extern u8 D_00886550[];
 
 typedef struct { f32 x, y, z, w; } Vec4f;
 typedef struct { u8 pad[0x54]; s32 field; } Cb720Obj;
@@ -775,6 +781,10 @@ u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
     *arg0 = arg1;
     return (u8 *)arg0;
 }
+/* measured: closes the no_branch_likely bracket for func_003c42b0. */
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket for func_003c42b0; explicit opposite state restores the file default. */
+#pragma schedule off
 // FUN_003C4310
 /* measured: schedule and tailcall reproduce the six-argument shared-helper jump. */
 #pragma schedule on
@@ -812,11 +822,6 @@ s32 func_003c4370(s32 arg0, s32 arg1) {
 
 // FUN_003C4390
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
-
-#pragma no_branch_likely off
-/* measured: closes the bracket noted above the marker. */
-#pragma schedule off
-
 /* measured: schedule on takes this from nd 71 (obj 104B/window 96B)
    to nd 8 (obj 92B/window 96B), with every instruction right; the residual
    is three prologue words -- retail interleaves `move $s1,$a0` between the
@@ -885,12 +890,12 @@ s32 func_003c4a60(s32 *arg0, s32 arg1) {
 // FUN_003C4A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
 
-/* measured: hidden s32 return recovered the retail index; the straightforward
-   count/index loop is nd 11 with object/window 64B. Return-width, guard
-   polarity, early-return, and shared-exit variants retained the same branch
-   and loop-order residuals. Committed at nd 34 in-file (nd 11 measured in isolation). */
+/* measured: hidden s32 return recovered the retail index; schedule on yields
+   object 60B/window 64B and normalized_diff 8. The final return alignment
+   remains a compiler residual. Committed at nd 8. */
 // FUN_003C4BC0
 #ifdef NON_MATCHING
+/* measured: schedule on preserves the compact loop body. */
 #pragma schedule on
 s32 func_003c4bc0(u8 *arg0, s32 arg1) {
     s32 count;
@@ -909,6 +914,7 @@ s32 func_003c4bc0(u8 *arg0, s32 arg1) {
         } while (index-- > 0);
     }
 done:
+    ;
     return index;
 }
 #pragma schedule off
@@ -1707,7 +1713,10 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-// FUN_003CB720
+/* measured: schedule on and the stored-field result yield object 72B/window
+   80B and normalized_diff 6; retail's movz conditional move remains a
+   compiler residual. Committed at nd 6. */
+// FUN_003CB720 NONMATCHING
 #ifdef NON_MATCHING
 extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
 #pragma schedule on
@@ -1770,9 +1779,8 @@ s32 func_003cb7d0(s32 arg0, s32 arg1, u8 *arg2) {
 }
 /* measured: tailcall off closes the single-function bracket. */
 #pragma tailcall off
-/* measured: schedule off closes the selected argument bracket. */
+/* measured: closes the schedule bracket for func_003cb7d0; explicit opposite state restores the file default. */
 #pragma schedule off
-
 // FUN_003CB7E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7e0);
 // FUN_003CB810

@@ -6,11 +6,21 @@ extern void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_001b73f0(void *arg0);
 extern void func_004b3110(s32 arg0);
-extern void func_001bab00(u8 *arg0, u8 *arg1);
+extern void func_001bab00(u8 *arg0, void *arg1);
 extern void func_001c6f40(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4);
 extern void func_001cfad0(u8 *arg0, f32 arg1, f32 arg2);
 extern f32 fGpffff809c;
 extern f32 fGpffff8198;
+extern f32 fGpffff8110;
+extern f32 fGpffff8100;
+extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+extern void func_001bd560();
+extern void func_001958f0(u8 *arg0, f32 *arg1);
+extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
+extern void func_003e0870(void *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void func_003e4320(void *arg0, void *arg1, void *arg2);
+extern void func_001bc3a0(f32 *arg0, f32 *arg1);
+extern f32 func_0044b868(f32 arg0);
 extern f32 fGpffff80fc;
 extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac;
@@ -52,9 +62,9 @@ extern s32 func_00232710(s32 arg0, s32 arg1);
 extern s32 func_0022f950(u8 *arg0, u8 *arg1);
 extern void func_00194fa0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
 extern void func_00195850(u8 *arg0, f32 *arg1);
-extern void func_003e0870(u8 *arg0, u8 *arg1, f32 arg2, s32 arg3);
-extern void func_003e4320(u8 *arg0, u8 *arg1, u8 *arg2);
-extern void func_001bd780(f32 *arg0, f32 *arg1, f32 *arg2, u8 *arg3);
+extern void func_003e0870(void *arg0, void *arg1, f32 arg2, s32 arg3);
+extern void func_003e4320(void *arg0, void *arg1, void *arg2);
+extern void func_001bd780(void *arg0, void *arg1, void *arg2, void *arg3);
 extern u8 D_0060A0D0[];
 extern u8 D_0060A0E0[];
 extern u8 D_0060A0F0[];
@@ -99,6 +109,11 @@ static inline void func_001c_copy_pair(s64 *arg0, f32 *arg1,
     value = *arg3;
     *arg0 = pair;
     *arg1 = value;
+}
+static inline void func_001c_rotate(void *arg0, void *arg1,
+                                    f32 arg2, s32 arg3)
+{
+    func_003e0870(arg0, arg1, arg2, arg3);
 }
 
 /* Promoted from the canonical function map: every function here is a
@@ -800,7 +815,47 @@ void func_001ce470(u8 *arg0)
 /* measured: close ce470 opt_propagation off probe. */
 #pragma opt_propagation on
 // FUN_001CE620
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001ce620);
+void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
+{
+    struct Frame {
+        u8 matrix[0x40];
+        f32 result[3];
+        f32 quat[4];
+        u8 pad5C[4];
+        f32 transformed[3];
+    } frame;
+    f32 scale;
+
+    if (*(s32 *)(arg0 + 0x120) != 0) {
+        *(f32 *)(arg0 + 0x11C) =
+            func_00196040(3, 0, arg0 + 0x104, 0, 0, 1);
+        *(f32 *)(arg0 + 0x108) = 0.0f;
+        *(s32 *)(arg0 + 0x120) = 0;
+    }
+    func_001c_rotate(frame.matrix, D_0060A0D0, arg1, 0);
+    func_001c_rotate(frame.matrix, D_0060A0E0,
+                     *(f32 *)(arg0 + 0x100), 2);
+    func_003e4320(frame.transformed, D_0060A0F0, frame.matrix);
+    scale = (*(f32 *)(arg0 + 0x11C) * arg3) /
+            func_0044b868(fGpffff8110 *
+                          (0.5f * *(f32 *)(arg0 + 0xB8)));
+    frame.transformed[0] *= scale;
+    frame.transformed[1] *= scale;
+    frame.transformed[2] *= scale;
+    frame.result[0] = frame.transformed[0] + *(f32 *)(arg0 + 0x104);
+    frame.result[1] = frame.transformed[1] + *(f32 *)(arg0 + 0x108);
+    frame.result[2] = frame.transformed[2] + *(f32 *)(arg0 + 0x10C);
+    func_001bd780(frame.quat, frame.result, arg0 + 0x104,
+                  D_0060A0E0);
+    if (frame.result[1] < 25.0f) {
+        frame.result[1] = 25.0f;
+    }
+    *(f32 *)(arg0 + 0x100) += arg2;
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
+        func_001bc3a0(frame.result, frame.result);
+    }
+    func_001bab00(arg0, frame.result);
+}
 /* measured: sibling random half-scaler body is object 144B/window 144B with normalized_diff 2; the only residual is the OR result register. Committed at nd 2. */
 // FUN_001CE7F0 NONMATCHING
 #ifdef NON_MATCHING
@@ -827,7 +882,72 @@ void func_001ce880(u8 *arg0) {
     func_001ce620(arg0, -17.5f, 0.25f, 0.75f);
 }
 // FUN_001CE8C0
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001ce8c0);
+void func_001ce8c0(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
+{
+    struct Frame {
+        u8 matrix[0x40];
+        f32 result[3];
+        f32 quat[4];
+        u8 pad5C[4];
+        f32 diff[3];
+        u8 pad6C[4];
+        f32 target[3];
+    } frame;
+    f32 scale;
+
+    if (*(s32 *)(arg0 + 0x120) != 0) {
+        func_00196040(2, 1, (u8 *)frame.target, 0, 0, 1);
+        *(f32 *)(arg0 + 0x11C) =
+            func_00196040(3, 0, arg0 + 0x104, 0, 0, 2);
+        *(f32 *)(arg0 + 0x108) = 0.0f;
+        frame.diff[0] = *(f32 *)(arg0 + 0x104) - frame.target[0];
+        frame.diff[1] = *(f32 *)(arg0 + 0x108) - frame.target[1];
+        frame.diff[2] = *(f32 *)(arg0 + 0x10C) - frame.target[2];
+        scale = fGpffff8100 * func_003e40b0(frame.diff, frame.diff);
+        frame.diff[0] *= scale;
+        frame.diff[1] *= scale;
+        frame.diff[2] *= scale;
+        *(f32 *)(arg0 + 0x104) = frame.target[0] + frame.diff[0];
+        *(f32 *)(arg0 + 0x108) = frame.target[1] + frame.diff[1];
+        *(f32 *)(arg0 + 0x10C) = frame.target[2] + frame.diff[2];
+        *(f32 *)(arg0 + 0x108) = frame.target[1];
+        *(f32 *)(arg0 + 0x110) =
+            *(f32 *)(arg0 + 0x104) - frame.target[0];
+        *(f32 *)(arg0 + 0x114) =
+            *(f32 *)(arg0 + 0x108) - frame.target[1];
+        *(f32 *)(arg0 + 0x118) =
+            *(f32 *)(arg0 + 0x10C) - frame.target[2];
+        func_003e40b0((f32 *)(arg0 + 0x110),
+                      (f32 *)(arg0 + 0x110));
+        *(s32 *)(arg0 + 0x120) = 0;
+    }
+    func_001c_rotate(frame.matrix, D_0060A0D0, arg1, 0);
+    func_001c_rotate(frame.matrix, D_0060A0E0,
+                     *(f32 *)(arg0 + 0x100), 2);
+    func_003e4320(frame.diff, arg0 + 0x110, frame.matrix);
+    if (*(f32 *)(arg0 + 0x11C) < 600.0f) {
+        *(f32 *)(arg0 + 0x11C) = 600.0f;
+    }
+    scale = (*(f32 *)(arg0 + 0x11C) * arg3) /
+            func_0044b868(fGpffff8110 *
+                          (0.5f * *(f32 *)(arg0 + 0xB8)));
+    frame.diff[0] *= scale;
+    frame.diff[1] *= scale;
+    frame.diff[2] *= scale;
+    frame.result[0] = frame.diff[0] + *(f32 *)(arg0 + 0x104);
+    frame.result[1] = frame.diff[1] + *(f32 *)(arg0 + 0x108);
+    frame.result[2] = frame.diff[2] + *(f32 *)(arg0 + 0x10C);
+    func_001bd780(frame.quat, frame.result, arg0 + 0x104,
+                  D_0060A0E0);
+    if (frame.result[1] < 25.0f) {
+        frame.result[1] = 25.0f;
+    }
+    *(f32 *)(arg0 + 0x100) += arg2;
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0) {
+        func_001bc3a0(frame.result, frame.result);
+    }
+    func_001bab00(arg0, frame.result);
+}
 // FUN_001CEBA0
 void func_001ceba0(u8 *arg0)
 {
@@ -880,7 +1000,6 @@ void func_001cecb0(u8 *arg0) {
 }
 // FUN_001CECE0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cece0);
-/* measured: sibling random half-scaler body is object 144B/window 144B with normalized_diff 2; the only residual is the OR result register. Committed at nd 2. */
 // FUN_001CEF20 NONMATCHING
 #ifdef NON_MATCHING
 void func_001cef20(u8 *arg0) {
