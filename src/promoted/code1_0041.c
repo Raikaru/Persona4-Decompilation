@@ -13,6 +13,14 @@ s32 func_00413e50(s32, s32 *);
 s32 func_004140f0(s32, s32 *);
 void func_004143f0(s32, s32);
 
+void func_00415ad0(u8 *, u8 *);
+void func_004165a0(u8 *, u8 *, u8 *, f32, f32, f32);
+void func_00415bc0(u8 *, u8 *, u8 *, u8 *, f32);
+void func_00417310(u8 *, u8 *, u8 *);
+void func_00416e10(u8 *, u8 *);
+u8 *func_00416bc0(s32, u8 *);
+s32 func_00416cf0(u8 *, s32);
+s32 func_00416df0(u8 *);
 /* measured: baseline -O2 emits lw/sw/srl/andi/jr/nop with the return andi
    before jr (nd 6); schedule-on fills the jr delay slot with the andi but
    reorders the srl ahead of the store (nd 8), so the plain -O2 form is

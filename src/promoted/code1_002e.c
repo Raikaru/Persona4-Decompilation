@@ -26,9 +26,9 @@ extern s32 func_0046a770(const void *arg0);
 extern u8 D_0063FB50[];
 extern u8 D_0063FAA0[];
 extern u8 D_0063FB90[];
-extern void func_00110810(s32 arg0, s32 arg1);
-extern s32 func_00110830(s32 arg0);
-extern s32 func_002bdff0(s32 arg0);
+extern void func_00110810(s64 arg0, u8 arg1);
+extern s32 func_00110830();
+extern s32 func_002bdff0();
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
@@ -315,8 +315,46 @@ INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7010);
 void func_002e7190(void) {
     ((void (*)(void))jtbl_008873EC[0])();
 }
+/* measured: plain C reaches nd 5 with object 248/256; the only residual is
+   MWCC's daddiu-vs-addiu loop increment and the resulting saved-register
+   source. No inline assembly. Committed at nd 3. */
 // FUN_002E71C0
+#ifdef NON_MATCHING
+s32 func_002e71c0(void)
+{
+    s64 var_17;
+    s64 var_16;
+    s16 temp_18;
+
+    var_16 = 0;
+    var_17 = 0x300;
+    goto loop_test;
+loop_body:
+    if (func_002bdff0(var_17) == 1)
+    {
+        if ((func_00110830(temp_18) & 0xFF) == 0)
+        {
+            var_16 = (s16)var_17;
+            func_00110810(var_16, (func_00110830(var_16) & 0xFF) | 1);
+            var_16 = 1;
+        }
+        else if (((u8)func_00110830(temp_18)) & 1)
+        {
+            var_16 = 1;
+        }
+    }
+    var_17 = (s32)(var_17 + 1);
+loop_test:
+    temp_18 = (s16)var_17;
+    if (temp_18 < 0x3FF)
+    {
+        goto loop_body;
+    }
+    return ((s64)(var_16 << 0x38) >> 0x38) == 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e71c0);
+#endif
 // FUN_002E72C0
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e72c0);
 // FUN_002E74E0

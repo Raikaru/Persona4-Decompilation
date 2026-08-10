@@ -52,9 +52,17 @@ extern void func_00266cc0(void);
 
 extern void func_0025f230(void *arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
-
-extern void func_004b1150(u8 *arg0);
-
+extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern u8 D_00638FA0[];
+extern u8 D_00638FB0[];
+extern void func_0046d730(void *arg0, s32 arg1);
+extern s32 func_00266ba0(u8 *arg0);
+extern s32 func_0045a8d0(s32 arg0, s32 arg1);
+extern s32 func_004598e0(s32 arg0);
+extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+extern s32 func_0025f110(u8 *arg0);
+extern u8 D_00638F90[];
+extern void func_002674b0(s32 arg0, u8 *arg1);
 extern char D_00637348[];
 extern s32 func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
@@ -222,7 +230,44 @@ void func_00266b70(void) {
 
 
 // FUN_00266BA0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00266ba0);
+s32 func_00266ba0(u8 *arg0)
+{
+    s32 sp3C;
+    s32 sp38;
+    u8 *work;
+    s32 temp;
+    s32 state;
+
+    work = func_00452560();
+    func_001104d0(*(s32 *)(work + 0xC), &sp3C, &sp38);
+    state = *(s32 *)(work + 0);
+    switch (state) {
+    case 0:
+        *(s32 *)(work + 4) = func_0025ef20(D_00638F90);
+        *(s32 *)(work + 0) = 1;
+        break;
+    case 1:
+        if (func_0025f110((u8 *)*(s32 *)(work + 4)) != 0) {
+            *(s32 *)(work + 0) = 2;
+            *(s32 *)(work + 0x14) = 0;
+        }
+        break;
+    case 2:
+        temp = *(s32 *)(work + 0x14) + 1;
+        *(s32 *)(work + 0x14) = temp;
+        if (temp >= 0x3C) {
+            *(s32 *)(work + 0) = 3;
+        }
+        break;
+    case 3:
+    case 4:
+        return -1;
+    default:
+        break;
+    }
+    func_002674b0((s32)arg0, (u8 *)*(s32 *)(work + 8));
+    return 0;
+}
 // FUN_00266CC0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00266cc0);
 // FUN_002674B0
@@ -249,7 +294,27 @@ void func_00267510(u8 *arg0) {
 }
 
 // FUN_00267570
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267570);
+s32 func_00267570(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    u8 *work;
+    s32 result;
+
+    if (arg3 == 0) {
+        func_0046d730(D_00638FA0, 0xF2);
+    }
+    func_0044ea90(D_00638FA0, 0xF3);
+    work = D_008873F4[0](1, 0x18, 0x40000);
+    *(s32 *)(work + 0) = 0;
+    *(s32 *)(work + 8) = arg3;
+    *(s32 *)(work + 0xC) = arg1;
+    *(s32 *)(work + 0x10) = arg2;
+    result = func_00451fc0(arg0, D_00638FB0, 0xF, 0, 0,
+                           (void (*)(void))func_00266ba0,
+                           (void (*)(void))func_00267510, (s32)work);
+    func_0045a8d0(3, 0);
+    func_004598e0(0xA);
+    return result;
+}
 // FUN_00267670
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_00267670);
 /* measured: optimization_level 1 and the right-associated first two terms produce the retail FPU chain; exact match nd 0 (obj 88B/window 96B). */

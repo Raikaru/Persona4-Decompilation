@@ -6,6 +6,9 @@ extern s32 func_0010f930(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static inline u8 *code13AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
+static inline f32 code13Add(f32 left, f32 right) {
+    return left + right;
+}
 extern void func_0046d280(s32 arg0);
 extern void func_001400f0(u8 *arg0);
 extern void func_00141d10(u8 *arg0);
@@ -49,6 +52,8 @@ extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+extern u8 D_0064B2E0[];
+extern u8 D_0064B2E8[];
 typedef struct {
     s32 first;
     s32 second;
@@ -178,8 +183,60 @@ void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
 #pragma opt_propagation on
 // FUN_00130CE0
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130ce0);
+/* measured: second 00134890 probe preserves the retail floating zero and constant materialization. */
+#pragma opt_propagation off
 // FUN_00134890
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134890);
+void func_00134890(u8 *arg0)
+{
+    f32 temp_f1;
+    f32 temp_f0;
+
+    temp_f1 = 0.0f;
+    *(s32 *)(arg0 + 0x13D0) = 0;
+    *(u8 *)(arg0 + 0x13E8) = 0xFF;
+    *(s8 *)(arg0 + 0x1418) = 0;
+    *(s8 *)(arg0 + 0x1388) = 0;
+    *(u8 *)(arg0 + 0x1028) = 0xFF;
+    *(s32 *)(arg0 + 0x1014) = 0;
+    *(s32 *)(arg0 + 0x13D0) = 0;
+    *(u8 *)(arg0 + 0x13E8) = 0xFF;
+    *(s8 *)(arg0 + 0x1418) = 0;
+    temp_f0 = 122.0f;
+    *(s32 *)(arg0 + 0x1430) = 0x42F40000;
+    *(s32 *)(arg0 + 0x1438) = 0x42F40000;
+    *(s32 *)(arg0 + 0x1440) = 0x42F40000;
+    *(u8 *)(arg0 + 0x1448) = 0xFF;
+    *(u8 *)(arg0 + 0x144A) = 0xFF;
+    *(s8 *)(arg0 + 0x1449) = 0;
+    *(s32 *)(arg0 + 0x1490) = 0;
+    *(s32 *)(arg0 + 0x1498) = 0;
+    *(s32 *)(arg0 + 0x14A0) = 0;
+    *(u8 *)(arg0 + 0x14A8) = 0xFF;
+    *(u8 *)(arg0 + 0x14AA) = 0xFF;
+    *(s8 *)(arg0 + 0x14A9) = 0;
+    *(s32 *)(arg0 + 0x146C) = 0;
+    if (*(s16 *)(arg0 + 0x2C) > *(s16 *)(arg0 + 0x34)) {
+        *(s32 *)(arg0 + 0x1444) = 0x43090000;
+        *(s32 *)(arg0 + 0x1434) = 0x43090000;
+        *(f32 *)(arg0 + 0x143C) = temp_f0;
+        *(f32 *)(arg0 + 0x14A4) = temp_f1;
+        *(f32 *)(arg0 + 0x1494) = temp_f1;
+        *(s32 *)(arg0 + 0x149C) = 0xC1A80000;
+        *(s32 *)(arg0 + 0x1464) = 0xC1200000;
+    } else {
+        temp_f0 = (f32)0x111;
+        *(f32 *)(arg0 + 0x1444) = temp_f0;
+        *(f32 *)(arg0 + 0x1434) = temp_f0;
+        *(s32 *)(arg0 + 0x143C) = 0x43950000;
+        *(f32 *)(arg0 + 0x1494) = temp_f1;
+        *(s32 *)(arg0 + 0x149C) = 0x41A80000;
+        *(f32 *)(arg0 + 0x143C) = 10.0f + *(f32 *)(arg0 + 0x1444);
+        *(s32 *)(arg0 + 0x1464) = 0x41200000;
+    }
+    *(s16 *)(arg0 + 0x24) = 0;
+}
+/* measured: close opt_propagation for func_00134890. */
+#pragma opt_propagation on
 // FUN_00134990
 void func_00134990(u8 *arg0, s16 arg1, s16 arg2) {
     *(s32 *)(arg0 + 0x13d0) = 0;
@@ -314,9 +371,79 @@ done:
     return result;
 }
 // FUN_00134E50
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134e50);
+/* measured: reconstructing the mixed-ABI palette draw pair from the matching 00130C30 shape. */
+#pragma opt_propagation off
+void func_00134e50(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
+{
+    f32 temp_f20;
+    s32 p;
+    s32 p2;
+    u8 *color;
+
+    p = *(s32 *)(arg0 + 0x1580);
+    p2 = *(s32 *)(arg0 + 0x1584);
+    switch ((s16)arg2) {
+    case 0:
+        color = D_0064B2E0;
+        break;
+    case 1:
+        color = D_0064B2E8;
+        break;
+    }
+    temp_f20 = ((f32 *)&arg1)[1] - 3.0f;
+    func_0034f2e0((void *)p, ((f32 *)&arg1)[0], temp_f20,
+                  color[0], color[1], color[2], arg3);
+    func_0034f2e0((void *)p2, 241.0f + ((f32 *)&arg1)[0], temp_f20,
+                  color[0], color[1], color[2], arg3);
+}
+/* measured: close mixed-ABI palette draw pair pragma. */
+#pragma opt_propagation on
 // FUN_00134F40
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134f40);
+/* measured: transfer the neighboring mixed-ABI palette branch shape. */
+#pragma opt_propagation off
+void func_00134f40(u8 *arg0, s64 arg1, s64 arg2, u8 arg3)
+{
+    f32 temp_f20;
+    s32 p;
+    u8 *color;
+
+    switch ((s16)arg2) {
+    case 0:
+        p = *(s32 *)(arg0 + 0x14C8);
+        temp_f20 = ((f32 *)&arg1)[1];
+        func_0034f2e0((void *)p,
+                      ((f32 *)&arg1)[0], temp_f20,
+                      D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
+        p = *(s32 *)(arg0 + 0x1508);
+        func_0034f2e0((void *)p,
+                      36.0f + ((f32 *)&arg1)[0], 24.0f + temp_f20,
+                      D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
+        p = *(s32 *)(arg0 + 0x1500);
+        temp_f20 = code13Add(9.0f, temp_f20);
+        func_0034f2e0((void *)p,
+                      419.0f + ((f32 *)&arg1)[0], temp_f20,
+                      D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
+        p = *(s32 *)(arg0 + 0x1504);
+        func_0034f2e0((void *)p,
+                      473.0f + ((f32 *)&arg1)[0], temp_f20,
+                      D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], arg3);
+        break;
+    case 1:
+        color = D_0064B2E8;
+        p = *(s32 *)(arg0 + 0x155C);
+        temp_f20 = ((f32 *)&arg1)[1];
+        func_0034f2e0((void *)p,
+                      2.0f + ((f32 *)&arg1)[0], temp_f20,
+                      color[0], color[1], color[2], arg3);
+        p = *(s32 *)(arg0 + 0x1560);
+        func_0034f2e0((void *)p,
+                      474.0f + ((f32 *)&arg1)[0], temp_f20,
+                      color[0], color[1], color[2], arg3);
+        break;
+    }
+}
+/* measured: close neighboring mixed-ABI palette branch pragma. */
+#pragma opt_propagation on
 // FUN_00135130
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00135130);
 // FUN_00135520

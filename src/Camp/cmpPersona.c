@@ -140,15 +140,9 @@ void func_00136fc0(u8* arg0) {
     }
 }
 
-/* measured: retail computes the stack-array element address as
-   sll(i*2); addu(+$sp); addiu(+0x40); lh($v0) -- the 0x40 array-base offset
-   is a SEPARATE addiu. mwcc b210 folds 0x40 into the lh displacement
-   (lh 0x40($v0)) no matter how the array is accessed (sp40[i], byte-ptr
-   arithmetic, integer-domain (u32)sp40+off, or (u32)sp40-0x40+off+0x40,
-   all nd across the 2nd loop; copy loop matches with var_6/var_5 decl
-   order). Scheduling fold, not source-drivable. */
 // FUN_001370E0
 INCLUDE_ASM("asm/nonmatchings/cmpPersona", func_001370e0);
+
 
 /* measured: retail converts f32 fields at 0x8/0xC of the data array to s16
    via mwcc's native overflow-safe (s32)f32 pattern (c.ole.s $f1,0x4F000000;

@@ -10,6 +10,27 @@ static u16 iGpffffa098 = 0x100;
 
 extern void func_001949d0(u32 layer);
 extern void func_001b6ab0(void);
+extern void func_001b5fe0(void);
+extern void func_001b0a60(void);
+extern void func_001b15b0(void);
+extern void func_001b6a20(void);
+extern void func_001bd7d0(void);
+extern void func_0019c0d0(void);
+extern void func_001f6190(void);
+extern void func_001f9be0(void);
+extern void func_001f72e0(void);
+extern void func_001eb8d0(void);
+extern void func_00192ae0(void);
+extern s32 func_00457120(void);
+extern s32 func_003e8120(s32 arg0);
+extern void func_0019cfb0(void);
+extern void func_0019d150(void);
+extern void func_001d6680(void);
+extern void func_001bd9e0(void);
+extern void func_00460ac0(void *arg0, void *arg1);
+extern void func_003e8110(s32 arg0);
+extern u8 D_007940C0[];
+extern u8 D_00794120[];
 
 extern s32 func_0029d020(void);
 extern u32 func_001fc270(void);
@@ -75,9 +96,45 @@ u16 btlFindFreeCharResId(void)
 
 
 // FUN_00192610
-INCLUDE_ASM("asm/nonmatchings/battle", func_00192610);
+u32 func_00192610(void)
+{
+    if (iGpffffb3ac->flags & 1) {
+        func_001949d0(0);
+        func_001b5fe0();
+        func_001b0a60();
+        func_001b15b0();
+        func_001b6a20();
+        func_001bd7d0();
+        func_0019c0d0();
+        func_001f6190();
+        func_001f9be0();
+        func_001f72e0();
+        func_001949d0(1);
+        func_001eb8d0();
+    } else {
+        func_00192ae0();
+    }
+    return 0;
+}
 // FUN_001926C0
-INCLUDE_ASM("asm/nonmatchings/battle", func_001926c0);
+u32 func_001926c0(void)
+{
+    if (func_003e8120(func_00457120()) != 0) {
+        func_001949d0(2);
+        func_0019cfb0();
+        func_0019d150();
+        func_001d6680();
+        func_001bd9e0();
+        *(s32 *)((u8 *)iGpffffb3ac + 0xE18) = 0;
+        *(s32 *)((u8 *)iGpffffb3ac + 0xE1C) = 0;
+        func_00460ac0(D_007940C0, (u8 *)iGpffffb3ac + 0xE18);
+        *(s32 *)((u8 *)iGpffffb3ac + 0xE48) = 0;
+        *(s32 *)((u8 *)iGpffffb3ac + 0xE4C) = 0;
+        func_00460ac0(D_00794120, (u8 *)iGpffffb3ac + 0xE48);
+        func_003e8110(func_00457120());
+    }
+    return 0;
+}
 // FUN_00192790
 void* btlUpdateDraw3DFrontTask(void* task)
 {
