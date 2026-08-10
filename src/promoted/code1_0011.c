@@ -1,5 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
+extern u8 *func_001094d0(void);
+extern s32 func_00109510(s32 arg0, void *arg1, void *arg2);
 typedef struct {
     f32 x;
     f32 y;
@@ -77,6 +79,7 @@ s32 func_001104a0(s32 arg0)
 
 
 
+ 
 // FUN_001104D0
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001104d0);
 // FUN_00110580
@@ -509,7 +512,46 @@ s32 func_00113520(s32 arg0, s32 arg1, s32 arg2, u8 *arg3)
     return 0;
 }
 // FUN_00113610
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113610);
+void func_00113610(s32 arg0, u8 *arg1)
+{
+    u8 sp70[0x40];
+    u8 sp30[0x40];
+    u8 *table;
+    u8 *entry;
+    s16 i;
+    s16 j;
+    s32 count;
+    s32 index;
+    u16 value;
+
+    table = func_001094d0();
+    i = 0;
+    while (i < 8) {
+        index = (s32)i * 0xC;
+        entry = arg1 + index;
+        *(s32 *)(entry + 4) = 0;
+        *(s32 *)(entry + 8) = 0;
+        value = *(u16 *)(table + ((s32)i * 2));
+        if (value == 0) {
+            break;
+        }
+        *(u16 *)(entry + 2) = value;
+        i++;
+    }
+    *(s16 *)(arg1 + 0x60) = i;
+    count = (s16)func_00109510(arg0, sp70, sp30);
+    j = 0;
+    while (j < count) {
+        index = (s32)j * 0xC;
+        entry = arg1 + index;
+        *(s32 *)(entry + 0x68) = 0;
+        *(s32 *)(entry + 0x6C) = 0;
+        *(u16 *)(entry + 0x66) = *(u16 *)(sp70 + ((s32)j * 2));
+        *(u16 *)(arg1 + ((s32)j * 2) + 0x1E4) = *(u16 *)(sp30 + ((s32)j * 2));
+        j++;
+    }
+    *(s16 *)(arg1 + 0x224) = count;
+}
 // FUN_00113730
 void func_00113730(s16 *arg0) {
     arg0[0] = 0;

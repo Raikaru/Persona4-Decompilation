@@ -29,6 +29,10 @@ extern void func_003c4220(s32 arg0);
 extern void func_003e9390(s32 arg0);
 void func_003e9cb0(void *frame, void *matrix, u32 flags);
 extern void func_004823e0(u8 *arg0);
+extern s32 func_004861f0(u8 *arg0, f32 *arg1);
+extern void func_004bce50(void);
+extern s32 func_004bceb0(void);
+extern void func_00486400(u8 *arg0, f32 arg1);
 extern void func_00484790(u8 *arg0);
 extern void func_004847e0(u8 *arg0);
 extern u8 *func_00482230(void);
@@ -624,11 +628,221 @@ void func_00486180(u8 *arg0)
 }
 
 // FUN_004861F0
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004861f0);
+s32 func_004861f0(u8 *arg0, f32 *arg1)
+{
+    u_long128 sp50[4];
+    u_long128 sp40;
+    u_long128 sp30;
+    f32 var_21;
+    f32 var_20;
+    s32 flags;
+    u8 *temp_4;
+    s32 (*temp_2)(s32, void *, u8 *);
+
+    __asm__ volatile("lqc2 $vf10, 0($5)" : : : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
+    __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp40) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(arg0) : "$vf10", "memory");
+    func_004bceb0();
+    __asm__ volatile(
+        "sqc2 $vf28, 0(%0)     \n"
+        "sqc2 $vf29, 16(%0)    \n"
+        "sqc2 $vf30, 32(%0)    \n"
+        "sqc2 $vf31, 48(%0)    \n"
+        :
+        : "r"(&sp50)
+        : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
+    var_21 = *(f32 *)(arg0 + 0x60) * *(f32 *)(arg0 + 0x74);
+    arg0 = *(u8 **)(arg0 + 0x8C);
+    var_20 = 5.0f;
+    goto loop_004861f0_check;
+loop_004861f0_body:
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&sp40) : "$vf10", "memory");
+    flags = *(s32 *)(arg0 + 0x68);
+    if ((flags & 4) != 0) {
+        __asm__ volatile(
+            "mfc1 $2, %0       \n"
+            "nop               \n"
+            "qmtc2.ni $2, $vf2 \n"
+            "vaddx.y $vf10, $vf0, $vf2x \n"
+            :
+            : "f"(var_20)
+            : "$2", "$vf2", "$vf10", "memory");
+    }
+    __asm__ volatile("lqc2 $vf11, 0x40(%0)" : : "r"(arg0) : "$vf11", "memory");
+    if ((flags & 0x80) != 0) {
+        __asm__ volatile(
+            "mfc1 $3, %0       \n"
+            "nop               \n"
+            "qmtc2.ni $3, $vf2 \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            :
+            : "f"(var_21)
+            : "$3", "$vf2", "$vf11", "memory");
+    }
+    __asm__ volatile(
+        "lqc2 $vf28, 0(%0)     \n"
+        "lqc2 $vf29, 16(%0)    \n"
+        "lqc2 $vf30, 32(%0)    \n"
+        "lqc2 $vf31, 48(%0)    \n"
+        :
+        : "r"(&sp50)
+        : "$vf28", "$vf29", "$vf30", "$vf31", "memory");
+    __asm__ volatile(
+        "vmulax.xyzw $ACC, $vf28, $vf11x \n"
+        "vmadday.xyzw $ACC, $vf29, $vf11y \n"
+        "vmaddz.xyzw $vf11, $vf30, $vf11z \n"
+        "vadd.xyzw $vf10, $vf10, $vf11 \n"
+        :
+        :
+        : "$vf10", "$vf11", "ACC", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp30) : "$vf10", "memory");
+    temp_4 = *(u8 **)(arg0 + 0x90);
+    temp_2 = *(s32 (**)(s32, void *, u8 *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
+    if (temp_2 != NULL) {
+        temp_2(*(s32 *)(temp_4 + 8), &sp30, temp_4);
+    }
+    arg0 = *(u8 **)(arg0 + 0xAC);
+loop_004861f0_check:
+    if (arg0 != NULL) {
+        goto loop_004861f0_body;
+    }
+}
 // FUN_00486330
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486330);
+void func_00486330(u8 *arg0, u8 *arg1)
+{
+    u_long128 scratch[2];
+    u8 *temp_4;
+    u8 *var_16;
+    s32 (*temp_2)(s32, void *);
+
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg1) : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0x50(%0)" : : "r"(arg0) : "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(scratch + 1) : "$vf10", "memory");
+    func_004bceb0();
+    __asm__ volatile(
+        "lqc2 $vf10, 0x10(%0)       \n"
+        "vmulax.xyzw $ACC, $vf28, $vf10x \n"
+        "vmadday.xyzw $ACC, $vf29, $vf10y \n"
+        "vmaddz.xyzw $vf10, $vf30, $vf10z \n"
+        "sqc2 $vf10, 0(%0)          \n"
+        :
+        : "r"(arg0)
+        : "$vf10", "ACC", "memory");
+    var_16 = *(u8 **)(arg0 + 0x8C);
+    goto loop_00486330_check;
+loop_00486330_body:
+    __asm__ volatile("lqc2 $vf10, 0x50(%0)" : : "r"(var_16) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(scratch + 1) : "$vf11", "memory");
+    func_004bce50();
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(scratch) : "$vf10", "memory");
+    temp_4 = *(u8 **)(var_16 + 0x90);
+    temp_2 = *(s32 (**)(s32, void *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x24);
+    if (temp_2 != NULL) {
+        temp_2(*(s32 *)(temp_4 + 8), scratch);
+    }
+    var_16 = *(u8 **)(var_16 + 0xAC);
+loop_00486330_check:
+    if (var_16 != NULL) {
+        goto loop_00486330_body;
+    }
+    func_004861f0(arg0, (f32 *)(arg0 + 0x40));
+}
 // FUN_00486400
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486400);
+void func_00486400(u8 *arg0, f32 arg1)
+{
+    u_long128 sp50;
+    u_long128 sp40;
+    f32 var_21;
+    f32 var_20;
+    f32 temp_f12;
+    f32 temp_f0;
+    s32 flags;
+    u8 *temp_4;
+    u8 *var_16;
+    void (*temp_3)(s32, u8 *, f32);
+    void (*temp_3_2)(s32, void *, u8 *);
+    void (*temp_3_3)(s32, void *, u8 *);
+
+    *(f32 *)(arg0 + 0x60) = arg1;
+    var_21 = arg1 * *(f32 *)(arg0 + 0x74);
+    var_16 = *(u8 **)(arg0 + 0x8C);
+    var_20 = 5.0f;
+    goto loop_00486400_check;
+loop_00486400_body:
+    flags = *(s32 *)(var_16 + 0x68);
+    if ((flags & 0x100) == 0) {
+        temp_f12 = *(f32 *)(var_16 + 0x60);
+        if ((*(s32 *)(var_16 + 0x84) & 1) != 0) {
+            temp_f12 *= var_21;
+        }
+        temp_4 = *(u8 **)(var_16 + 0x90);
+        temp_3 = *(void (**)(s32, u8 *, f32))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x28);
+        if (temp_3 != NULL) {
+            temp_3(*(s32 *)(temp_4 + 8), temp_4, temp_f12);
+        }
+        goto loop_00486400_tail;
+    }
+    __asm__ volatile("lqc2 $vf10, 0x20(%0)" : : "r"(var_16) : "$vf10", "memory");
+    temp_f0 = *(f32 *)(var_16 + 0x60);
+    if ((*(s32 *)(var_16 + 0x84) & 1) != 0) {
+        temp_f0 *= var_21;
+    }
+    __asm__ volatile(
+        "mfc1 $3, %0       \n"
+        "nop               \n"
+        "qmtc2.ni $3, $vf2 \n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+        :
+        : "f"(temp_f0)
+        : "$3", "$vf2", "$vf10", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp40) : "$vf10", "memory");
+    temp_4 = *(u8 **)(var_16 + 0x90);
+    temp_3_2 = *(void (**)(s32, void *, u8 *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x2C);
+    if (temp_3_2 != NULL) {
+        temp_3_2(*(s32 *)(temp_4 + 8), &sp40, temp_4);
+    }
+loop_00486400_tail:
+    flags = *(s32 *)(var_16 + 0x68);
+    if ((flags & 0x80) != 0) {
+        __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0) : "$vf10", "memory");
+        __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0) : "$vf11", "memory");
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        if ((flags & 4) != 0) {
+            __asm__ volatile(
+                "mfc1 $2, %0       \n"
+                "nop               \n"
+                "qmtc2.ni $2, $vf2 \n"
+                "vaddx.y $vf10, $vf0, $vf2x \n"
+                :
+                : "f"(var_20)
+                : "$2", "$vf2", "$vf10", "memory");
+        }
+        __asm__ volatile("lqc2 $vf11, 0x40(%0)" : : "r"(var_16) : "$vf11", "memory");
+        __asm__ volatile(
+            "mfc1 $3, %0       \n"
+            "nop               \n"
+            "qmtc2.ni $3, $vf2 \n"
+            "vmulx.xyzw $vf11, $vf11, $vf2x \n"
+            :
+            : "f"(var_21)
+            : "$3", "$vf2", "$vf11", "memory");
+        __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+        __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp50) : "$vf10", "memory");
+        temp_4 = *(u8 **)(var_16 + 0x90);
+        temp_3_3 = *(void (**)(s32, void *, u8 *))(D_00713480 + (*(u16 *)(temp_4 + 4) << 6) + 0x20);
+        if (temp_3_3 != NULL) {
+            temp_3_3(*(s32 *)(temp_4 + 8), &sp50, temp_4);
+        }
+    }
+    var_16 = *(u8 **)(var_16 + 0xAC);
+loop_00486400_check:
+    if (var_16 != NULL) {
+        goto loop_00486400_body;
+    }
+}
 // FUN_004865C0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004865c0);
 // FUN_00486780

@@ -6,6 +6,7 @@ extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_0046b380(u8 *arg0, s32 arg1);
 extern void func_0046d730(const void *file, s32 line);
 extern char D_0064B310[];
+extern u32 func_003b7060();
 
 extern void (*jtbl_008873EC[])(void *);
 
@@ -18,6 +19,13 @@ extern s32 D_00884670[];
 extern s32 D_00884684[];
 extern u16 iGpffffb5a4;
 extern u8 *func_0046d200(s32 arg0, s32 arg1);
+extern s32 func_002b89a0(void *arg0);
+extern void func_0043f810(void *arg0, s32 arg1, s32 arg2);
+extern u8 *func_00457120(void);
+extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern u8 D_00793E80[];
+extern void func_0034a8b0(void *arg0);
+extern f32 fGpffff8504;
 extern void func_0046d280(u8 *arg0);
 
 // struct passed by value to func_0034b820 (64-bit: two floats in $a1-$a2)
@@ -282,7 +290,30 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
 // FUN_0034F5D0
 INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f5d0);
 // FUN_0034F720
-INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f720);
+f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
+    if ((fparg0 < 0.0f) || !(fparg0 <= 1.0f)) {
+        func_0046d730(D_0064B310, 0xD0);
+    }
+    if ((fparg1 < 0.0f) || !(fparg1 <= 1.0f)) {
+        func_0046d730(D_0064B310, 0xD1);
+    }
+    if ((fparg2 < 0.0f) || !(fparg2 <= 1.0f)) {
+        func_0046d730(D_0064B310, 0xD2);
+    }
+    if ((*(s32 *)(arg0 + 0xC) - 1) <= 0) {
+        func_0046d730(D_0064B310, 0xD3);
+    }
+    if ((*(s32 *)(arg0 + 0x10) - 1) <= 0) {
+        func_0046d730(D_0064B310, 0xD4);
+    }
+    return fparg2 *
+           ((f32)(*(s32 *)(arg0 + 4)) *
+            ((1.0f - fparg0) / (f32)(*(s32 *)(arg0 + 0xC) - 1)) +
+            fparg0) *
+           ((f32)(*(s32 *)(arg0 + 8)) *
+            ((1.0f - fparg1) / (f32)(*(s32 *)(arg0 + 0x10) - 1)) +
+            fparg1);
+}
 // FUN_0034F8F0
 INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f8f0);
 // FUN_0034F9D0

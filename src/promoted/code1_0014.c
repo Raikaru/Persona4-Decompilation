@@ -64,6 +64,8 @@ extern s32 D_00762EA0;
 
 extern s32 func_00145540(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_004b1130(s32 arg0);
+extern void func_004b1170(s32 arg0);
+extern s32 func_004b11b0(s32 arg0);
 extern void func_004b1250(s32 arg0, u8 *arg1);
 extern s32 func_001684a0(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern s32 func_0017b510(s32 arg0, s32 arg1, s32 arg2);
@@ -75,6 +77,9 @@ extern void func_00148280(void);
 extern void func_0017ccc0(u8 *arg0);
 extern u8 *func_00451fc0(u8 *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
 
+static inline u8 *p4_e740_add(s32 offset, u8 *base) {
+    return (u8 *)(offset + (u32)base);
+}
 typedef struct { f32 x, y, z; } SVec3;
 typedef struct { u8 c[4]; } Rgba8_0014;
 
@@ -109,6 +114,11 @@ extern u8 D_007D24B0[];
 extern void func_0034f5d0(u8 *arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern void func_0044ea90(const void *file, s32 line);
+extern u8 D_005EFC18[];
+extern u8 iGpffff9de0;
+extern u8 iGpffff9de8;
+extern void func_0014e2a0(u8 *arg0);
+extern void func_0014e540(u8 *arg0);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
@@ -1982,7 +1992,29 @@ void func_0014e540(u8 *arg0) {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
 // FUN_0014E5E0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014e5e0);
+s32 func_0014e5e0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3) {
+    s32 temp_17;
+    u8 *temp_2;
+
+    func_0044ea90(&iGpffff9de0, 0xC2);
+    temp_2 = D_008873F4[0](1, 0xFC, 0x40000);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    temp_17 = (s32)func_00451fc0(arg0, &D_005EFC18, 0xF, 0, 0,
+                                  (void *)func_0014e2a0,
+                                  (void *)func_0014e540, temp_2);
+    if (arg3 == 0) {
+        func_00440b68(&iGpffff9de8, &iGpffff9de0, 0xD0);
+        *(s32 *)(temp_2 + 4) = (s32)func_00454a60(arg1, 0);
+    } else {
+        *(s32 *)(temp_2 + 4) = arg3;
+        *(s32 *)(temp_2 + 0xC) = 1;
+    }
+    *(s32 *)(temp_2 + 8) = arg2;
+    func_00442830(temp_2 + 0xBC, (const char *)arg1);
+    return temp_17;
+}
 // FUN_0014E710
 s32 func_0014e710(u8 *arg0) {
     if (arg0 == NULL) {
@@ -1990,8 +2022,58 @@ s32 func_0014e710(u8 *arg0) {
     }
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) >= 1;
 }
+/* measured probe: optimization level 1 register allocation for func_0014e740. */
+#pragma optimization_level 1
 // FUN_0014E740
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014e740);
+s32 func_0014e740(u8 *arg0, f32 *arg1) {
+    s32 temp_20;
+    s32 temp_4;
+    u8 *temp_19;
+    s32 temp_2;
+    s32 temp_3;
+    s32 var_17;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    var_17 = -1;
+    if (*(s32 *)(temp_16 + 0x10) == 1) {
+        var_17 = 0;
+        goto loop_test_4;
+loop_body_4:
+        if (*(s32 *)(temp_16 + (var_17 * 4) + 0x24) == 0) {
+            goto loop_done_4;
+        }
+        var_17 += 1;
+loop_test_4:
+        if (var_17 < 8) {
+            goto loop_body_4;
+        }
+loop_done_4:
+        if (var_17 >= 8) {
+            func_0046d730(&iGpffff9de0, 0x100);
+        }
+        temp_20 = var_17 * 4;
+        temp_19 = p4_e740_add(temp_20, temp_16) + 0x24;
+        temp_2 = func_004b11b0(*(s32 *)(temp_16 + 0x14));
+        *(s32 *)temp_19 = temp_2;
+        func_004b1250(temp_2, (u8 *)arg1);
+        *(s32 *)(p4_e740_add(temp_20, temp_16) + 0x44) = 0;
+        temp_3 = 1;
+        *(s16 *)(p4_e740_add(var_17 * 2, temp_16) + 0x64) = temp_3;
+        *(s32 *)(temp_16 + 0x20) = *(s32 *)(temp_16 + 0x20) + 1;
+    } else {
+        func_004b1170(*(s32 *)(temp_16 + 0x14));
+        func_004b1250(*(s32 *)(temp_16 + 0x14), (u8 *)arg1);
+        *(s32 *)(temp_16 + 0x18) = 0;
+        temp_4 = 1;
+        *(s32 *)(temp_16 + 0x10) = temp_4;
+        *(s16 *)(temp_16 + 0x1C) = temp_4;
+    }
+    *(s32 *)temp_16 = 2;
+    return var_17;
+}
+/* measured probe: restore optimization level 2 after func_0014e740. */
+#pragma optimization_level 2
 // FUN_0014E880
 void func_0014e880(u8 *arg0, s32 arg1, s16 arg2) {
     u8 *temp_4;
