@@ -86,7 +86,88 @@ void func_001fad10(void);
 
 
 // FUN_001A0140
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a0140);
+/* measured: loop-invariant probe for 001A0140 preheader materialization. */
+#pragma opt_loop_invariants on
+s32 func_001a0140(u8 *arg0)
+{
+    s32 i0;
+    u8 temp_3;
+
+    temp_3 = *(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2);
+    switch (temp_3) {
+    case 0:
+    {
+        s32 j0;
+        s32 n0;
+        s32 count0;
+        s32 mask0;
+        u8 *target0;
+
+        i0 = 0;
+        n0 = *(u16 *)(arg0 + 0x6A);
+        mask0 = 0x100000;
+        goto outer0_test;
+outer0_body:
+        target0 = *(u8 **)(arg0 + ((u16)i0 * 4) + 0x38);
+        count0 = target0[0xD9];
+        j0 = 0;
+        goto inner0_test;
+inner0_body:
+        if ((*(s32 *)(target0 + ((u16)j0 << 5) + 0xF8) & mask0) != 0) {
+            return 1;
+        }
+        j0 = (j0 + 1) & 0xFFFF;
+inner0_test:
+        if ((j0 & 0xFFFF) < count0) {
+            goto inner0_body;
+        }
+        i0 = (i0 + 1) & 0xFFFF;
+outer0_test:
+        if ((i0 & 0xFFFF) >= n0) {
+            goto block_20;
+        }
+        goto outer0_body;
+    }
+    case 1:
+    {
+        s32 i1;
+        s32 j1;
+        s32 n1;
+        s32 count1;
+        u8 *target1;
+
+        i1 = 0;
+        n1 = *(u16 *)(arg0 + 0x6A);
+        goto outer1_test;
+outer1_body:
+        target1 = *(u8 **)(arg0 + ((u16)i1 * 4) + 0x38);
+        count1 = target1[0xD9];
+        j1 = 0;
+        goto inner1_test;
+inner1_body:
+        if ((*(u16 *)(target1 + ((u16)j1 << 5) + 0x10E) & 4) != 0) {
+            return 1;
+        }
+        j1 = (j1 + 1) & 0xFFFF;
+inner1_test:
+        if ((j1 & 0xFFFF) < count1) {
+            goto inner1_body;
+        }
+        i1 = (i1 + 1) & 0xFFFF;
+outer1_test:
+        if ((i1 & 0xFFFF) < n1) {
+            goto outer1_body;
+        }
+        goto block_20;
+    }
+    default:
+        goto block_20;
+    }
+block_20:
+    return 0;
+}
+/* measured: close loop-invariant probe for 001A0140. */
+#pragma opt_loop_invariants off
 // FUN_001A0290
 void func_001a0290(u8 *arg0, s32 arg1, u8 *arg2)
 {

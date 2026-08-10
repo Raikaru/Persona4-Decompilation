@@ -499,8 +499,37 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486400);
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004865c0);
 // FUN_00486780
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486780);
-// FUN_004867E0
+/* Measured compiled-C park: object 96B / window 96B, normalized_diff 15.
+   The remaining difference is branch layout; the exact residual is archived
+   in build/WO0048_probe_0048_e0hidden.json. Committed at nd 15. */
+// FUN_004867E0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_004867e0(u8 *arg0, s32 arg1)
+{
+    s32 var_2;
+    u8 *var_3;
+
+    var_2 = 0;
+    var_3 = *(u8 **)(arg0 + 0x8C);
+    goto check_004867e0;
+body_004867e0:
+    if (var_3 == (u8 *)arg1) {
+        goto done_004867e0;
+    }
+    var_2 += 1;
+    var_3 = *(u8 **)(var_3 + 0xAC);
+check_004867e0:
+    if (var_3 != NULL) {
+        goto body_004867e0;
+    }
+    func_0046d730(D_00713470, 0xA9E);
+    var_2 = 0;
+done_004867e0:
+    return var_2;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004867e0);
+#endif
 // FUN_00486840
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486840);
 // FUN_00486970

@@ -125,20 +125,8 @@ void func_00524770(s32 *arg0, s32 arg1, s32 arg2, s32 *arg3)
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524778);
 // FUN_00524820
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524820);
-/* measured: the four-argument return/store body is nd 2 with object 16/16;
-   the remaining store-order difference is a compiler coloring floor. */
-// FUN_005248A8 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_005248a8(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3)
-{
-    *arg3 = 0x3E8;
-    *arg2 = 0;
-    return 0x3E8;
-}
-/* Committed at nd 2. */
-#else
+// FUN_005248A8
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005248a8);
-#endif
 // FUN_005248B8
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005248b8);
 // FUN_005249B0

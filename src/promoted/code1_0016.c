@@ -67,6 +67,11 @@ extern void func_003e0f40(s32 arg0);
 extern char D_005F11E8[];
 extern char D_005F1200[];
 extern s32 iGpffff9f08;
+extern u8 *iGpffff9db0;
+extern s32 func_00106330();
+extern s32 func_0015a160();
+extern s32 func_001623f0();
+extern s32 func_00162510(u16 arg0, u16 arg1);
 
 typedef struct E9F0Vec3
 {
@@ -714,6 +719,86 @@ INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016f8b0);
 // FUN_0016FD00
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016fd00);
 // FUN_0016FE80
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016fe80);
+s32 func_0016fe80(s32 arg0)
+{
+    s32 result;
+    u8 *temp;
+
+    switch (arg0) {
+    case 1:
+        temp = iGpffff9db0;
+        if (func_00162510(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
+            result = 3;
+            if (func_001623f0() == 1) {
+                result = 0xA;
+            } else if (func_00106330(0xC01) != 0) {
+                result--;
+            }
+        } else {
+            temp = iGpffff9db0;
+            if ((*(s32 *)(temp + 0) == 0x44) &&
+                (*(s32 *)(temp + 4) == 1)) {
+                result = 3;
+                if (func_00106330(0xC01, 1) != 0) {
+                    result--;
+                }
+            } else if (func_0015a160() != 0) {
+                result = 2;
+            } else {
+                result = 3;
+                if (func_001623f0() == 1) {
+                    result = 0xA;
+                } else if (func_00106330(0xC01) != 0) {
+                    result--;
+                }
+            }
+        }
+        break;
+    default:
+        result = 2;
+        break;
+    }
+    return result;
+}
 // FUN_0016FFD0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016ffd0);
+s32 func_0016ffd0(s32 arg0)
+{
+    s32 result;
+    u8 *temp;
+
+    switch (arg0) {
+    case 1:
+        temp = iGpffff9db0;
+        if (func_00162510(*(u16 *)(temp + 0), *(u16 *)(temp + 4)) == 1) {
+            result = 5;
+            if (func_001623f0() == 1) {
+                result = 0xB;
+            } else if (func_00106330(0xC01) != 0) {
+                result--;
+            }
+        } else {
+            temp = iGpffff9db0;
+            if ((*(s32 *)(temp + 0) == 0x44) &&
+                (*(s32 *)(temp + 4) == 1)) {
+                result = 5;
+                if (func_00106330(0xC01, 1) != 0) {
+                    result--;
+                }
+            } else if (func_0015a160() != 0) {
+                result = 2;
+            } else {
+                result = 5;
+                if (func_001623f0() == 1) {
+                    result = 0xB;
+                } else if (func_00106330(0xC01) != 0) {
+                    result--;
+                }
+            }
+        }
+        break;
+    default:
+        result = 2;
+        break;
+    }
+    return result;
+}

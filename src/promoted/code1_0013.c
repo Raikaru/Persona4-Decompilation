@@ -47,6 +47,8 @@ extern s32 func_00106600(s16 arg0);
 extern void func_00106620(s16 arg0, s32 arg1);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
+extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
+                          u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 typedef struct {
     s32 first;
     s32 second;
@@ -150,7 +152,30 @@ s32 func_00130600(u8 *arg0) {
 // FUN_00130680
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130680);
 // FUN_00130C30
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130c30);
+/* measured: opt_propagation off probe for func_00130c30 ordering. */
+#pragma opt_propagation off
+void func_00130c30(u8 *arg0, s64 arg1, s32 arg2)
+{
+    f32 c0;
+    s32 p;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+
+    p = *(s32 *)(arg0 + 0x1b60);
+    c1 = ((u8 *)&arg2)[3];
+    c2 = ((u8 *)&arg2)[2];
+    c3 = ((u8 *)&arg2)[1];
+    c0 = ((f32 *)&arg1)[1];
+    func_0034f2e0((void *)p,
+                  ((f32 *)&arg1)[0], c0,
+                  ((u8 *)&arg2)[0], c3, c2, c1);
+    func_0034f2e0(*(void **)(arg0 + 0x1b64),
+                  340.0f + ((f32 *)&arg1)[0], c0,
+                  ((u8 *)&arg2)[0], c3, c2, c1);
+}
+/* measured: close opt_propagation for func_00130c30 probe. */
+#pragma opt_propagation on
 // FUN_00130CE0
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00130ce0);
 // FUN_00134890
@@ -299,7 +324,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00135520);
 // FUN_0013AD40
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013ad40);
 // FUN_0013B370
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013b370);
+/* measured: family substitution reuses the exact 176-byte byte-color shape. */
+#pragma opt_propagation off
+void func_0013b370(u8 *arg0, s64 arg1, s32 arg2)
+{
+    f32 c0;
+    s32 p;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+
+    p = *(s32 *)(arg0 + 0x1288);
+    c1 = ((u8 *)&arg2)[3];
+    c2 = ((u8 *)&arg2)[2];
+    c3 = ((u8 *)&arg2)[1];
+    c0 = ((f32 *)&arg1)[1];
+    func_0034f2e0((void *)p,
+                  ((f32 *)&arg1)[0], c0,
+                  ((u8 *)&arg2)[0], c3, c2, c1);
+    func_0034f2e0(*(void **)(arg0 + 0x128c),
+                  340.0f + ((f32 *)&arg1)[0], c0,
+                  ((u8 *)&arg2)[0], c3, c2, c1);
+}
+/* measured: close family opt_propagation bracket. */
+#pragma opt_propagation on
 // FUN_0013B420
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013b420);
 // FUN_0013B9F0

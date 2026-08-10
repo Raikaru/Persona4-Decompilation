@@ -68851,7 +68851,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0013/00130c30.o",
       "base_path": "build/objdiff/base/promoted/code1_0013/00130c30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -69016,7 +69016,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0013/0013b370.o",
       "base_path": "build/objdiff/base/promoted/code1_0013/0013b370.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -69555,7 +69555,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0014/00144f60.o",
       "base_path": "build/objdiff/base/promoted/code1_0014/00144f60.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -72074,7 +72074,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0016/0016fe80.o",
       "base_path": "build/objdiff/base/promoted/code1_0016/0016fe80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -72085,7 +72085,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0016/0016ffd0.o",
       "base_path": "build/objdiff/base/promoted/code1_0016/0016ffd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -75286,7 +75286,7 @@
       "target_path": "build/objdiff/target/promoted/code1_001a/001a0140.o",
       "base_path": "build/objdiff/base/promoted/code1_001a/001a0140.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -78696,7 +78696,7 @@
       "target_path": "build/objdiff/target/promoted/code1_001d/001d7f10.o",
       "base_path": "build/objdiff/base/promoted/code1_001d/001d7f10.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -96142,7 +96142,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0039/0039bdf0.o",
       "base_path": "build/objdiff/base/promoted/code1_0039/0039bdf0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

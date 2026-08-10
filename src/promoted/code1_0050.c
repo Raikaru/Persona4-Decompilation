@@ -32,6 +32,7 @@ extern void func_005179f8(void);
    addiu into the jr delay slot (lui $v0; jr $ra; addiu $v0, $v0, %lo). */
 #pragma optimization_level 3
 
+/* measured: 00503478 has a 16-byte window containing two jr $ra/nop pairs; the second pair is unreferenced and not registrable, so this boundary is unmatchable in C. */
 // FUN_00503478
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00503478);
 // FUN_00503488
@@ -405,6 +406,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cd80);
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cd98);
 // FUN_0050CDB0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cdb0);
+/* measured: 0050CDC8 has a 16-byte window containing two jr $ra/nop pairs; the second pair is unreferenced and not registrable, so this boundary is unmatchable in C. */
 // FUN_0050CDC8
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cdc8);
 // FUN_0050CDD8

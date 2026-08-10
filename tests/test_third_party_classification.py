@@ -31,6 +31,57 @@ class PrefixTests(unittest.TestCase):
             self.assertFalse(verify.is_third_party(rel), rel)
 
 
+class VendorAddressTests(unittest.TestCase):
+    """Vendor libraries are excluded by ADDRESS, because their units are mixed.
+
+    CRI Sofdec/ADX/ROFS, the Sony SDK and the C runtime were linked in as
+    prebuilt ee-gcc objects, but the promotion step filed them under generic
+    `code1_00xx.c` names. Four of those units also hold real game code, so the
+    exclusion cannot be a path rule and the files must not be moved -- relocating
+    a translation unit would change object boundaries and break the exact link.
+    """
+
+    def test_known_vendor_addresses_are_excluded(self) -> None:
+        # func_0050b6b8 is the worked example: byte-exact under ee-gcc2.96 and
+        # 899 under MWCCPS2 b210. Then one probe per declared range.
+        for addr in (0x0050B6B8, 0x00417510, 0x004BD628, 0x0070C850):
+            self.assertTrue(verify.is_vendor_address(addr), hex(addr))
+
+    def test_game_addresses_are_not_excluded(self) -> None:
+        # Boundaries are half-open, so each range END belongs to game code.
+        # 0x00100008 and 0x00100218 are 8-aligned but are a data table and a
+        # `j` thunk, not GCC functions -- the alignment signal alone is not
+        # sufficient at the very start of code1.
+        for addr in (0x00100008, 0x00100218, 0x0044E830, 0x004BD620,
+                     0x0052D8C0, 0x0070E140):
+            self.assertFalse(verify.is_vendor_address(addr), hex(addr))
+
+    def test_accepts_the_hex_string_form_used_in_report_rows(self) -> None:
+        self.assertTrue(verify.is_vendor_address("0050b6b8"))
+        self.assertFalse(verify.is_vendor_address("00100008"))
+
+    def test_missing_or_malformed_addresses_are_not_vendor(self) -> None:
+        for value in (None, "", "not-hex"):
+            self.assertFalse(verify.is_vendor_address(value), repr(value))
+
+    def test_ranges_are_ordered_and_disjoint(self) -> None:
+        ranges = verify.VENDOR_CODE_RANGES
+        for low, high in ranges:
+            self.assertLess(low, high)
+        for (a_low, a_high), (b_low, b_high) in zip(ranges, ranges[1:]):
+            self.assertLessEqual(a_high, b_low)
+
+    def test_gcc_alignment_stragglers_are_covered(self) -> None:
+        """GCC aligns to 8, MWCCPS2 to 16, so 8-aligned code cannot be ours.
+
+        These addresses sat just outside an earlier, hand-written set of
+        boundaries and are what proved that set wrong.
+        """
+        for addr in (0x0042BA88, 0x0042BB08, 0x00442388, 0x00442DE8,
+                     0x0044E658, 0x0044E7D8, 0x004BD628, 0x004BD688):
+            self.assertTrue(verify.is_vendor_address(addr), hex(addr))
+
+
 @unittest.skipUnless(MIDDLEWARE.is_file(), "middleware unit not present")
 class MiddlewareUnitTests(unittest.TestCase):
     """The unit only holds functions with a signature b210 cannot emit.

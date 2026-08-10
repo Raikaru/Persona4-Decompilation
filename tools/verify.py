@@ -75,6 +75,68 @@ def is_third_party(rel_file: str) -> bool:
     return norm in THIRD_PARTY_FILES or norm.startswith(THIRD_PARTY_PREFIXES)
 
 
+# The same judgement applied by ADDRESS rather than by path. Three contiguous
+# spans of the retail image are prebuilt vendor libraries -- CRI Sofdec/ADX/ROFS,
+# the Sony PS2 SDK, and the C runtime -- linked in as objects. They are filed
+# here rather than under cri/ or sce/ because the promotion step named their
+# translation units generically (code1_0041.c .. code1_0052.c, code2_0070.c),
+# and those units cannot simply be MOVED: four of them are mixed, holding game
+# code as well, and relocating a .c file would change object boundaries and
+# break the byte-exact link.
+#
+# Three independent lines of evidence, all reproducible from the retail image:
+#
+#  1. Stack prologue. MWCCPS2 saves and restores registers across the stack
+#     with `sq`/`lq`; GCC (Cygnus) uses `sd`/`ld`. Retail uses `sd` of an $s
+#     register here, which no MWCCPS2 build or option emits. Note the test is
+#     specifically the PROLOGUE/EPILOGUE: `sd` also appears in ordinary MWCCPS2
+#     code for 64-bit data, so a bare "contains sd" scan false-positives on
+#     about thirty scattered game functions.
+#
+#  2. Function alignment, which is the cleanest discriminator. GCC aligns
+#     functions to 8 bytes and MWCCPS2 to 16, so any function whose address is
+#     8 mod 16 cannot be MWCCPS2 output. Inside these spans 42-50% of functions
+#     are 8-aligned; outside them 0.23% are (19 of 8250, and those 19 sit
+#     against these very boundaries). That two-hundred-fold separation is what
+#     fixed the boundaries below -- an earlier hand-written set was too tight at
+#     the bottom of each span and ran 1.9 MB too far past the top of the third.
+#
+#  3. Strings. Decoding the %hi/%lo string references that originate inside
+#     these spans yields "(c)CRI", "CRI-MW", "../../rofs_mai.c", "rofs_if.c",
+#     "rofs_hn.c", "rofs_pfs.c", "MWSST_Create", "MWSFSVR_*", "MWSTM_ReqStart",
+#     "mwPlyStartXX", "SceStdioIoctlSema", "Sony PS2 Memory Card Format",
+#     "bug in vfprintf", and MPEG macroblock decoder errors.
+#
+# Worked example: func_0050b6b8 scores 899 under mwcps2-3.0.1b210-060308 and is
+# instruction-identical under ee-gcc2.96 -O2 -G0, the only differing row being
+# the `jal` label name. Four different C spellings gave the same score, so the
+# compiler was the variable, not the source. Reproduce with
+# `tools/decompme.py --try 0050b6b8 --against ee-gcc2.96,mwcps2-3.0.1b210-060308`.
+#
+# Note the CONVERSE does not hold: a function in these spans that is neither
+# 8-aligned nor uses `sd` is not thereby game code. Most such functions are
+# 16-40 byte leaf accessors where GCC and MWCCPS2 happen to emit identical
+# bytes, which is also why some already report MATCH. Membership is decided by
+# the span, not by the instruction mix of an individual function.
+VENDOR_CODE_RANGES = (
+    (0x00417510, 0x0044E830),
+    (0x004BD628, 0x0052D8C0),
+    (0x0070C850, 0x0070E140),
+)
+
+
+def is_vendor_address(address) -> bool:
+    """True when a retail address falls inside a prebuilt vendor library."""
+    if address is None:
+        return False
+    if isinstance(address, str):
+        try:
+            address = int(address, 16)
+        except ValueError:
+            return False
+    return any(low <= address < high for low, high in VENDOR_CODE_RANGES)
+
+
 def _die(message: str) -> None:
     raise SystemExit(f"verify: {message}")
 
@@ -536,15 +598,19 @@ def main() -> None:
             results.extend(verify_file(path, cfg, retail, sorted(bounds), Path(directory)))
     counts: dict[str, int] = {}
     for result in results: counts[result["status"]] = counts.get(result["status"], 0) + 1
-    first_party = [r for r in results if not is_third_party(r["file"])]
+    first_party = [
+        r for r in results
+        if not is_third_party(r["file"]) and not is_vendor_address(r.get("addr"))
+    ]
     fp_counts: dict[str, int] = {}
     for result in first_party: fp_counts[result["status"]] = fp_counts.get(result["status"], 0) + 1
     order = ("MATCH", "ASM", "STUB", "NONMATCHING", "STALE_NONMATCHING", "MISMATCH", "SIZE_MISMATCH", "NO_SYMBOL", "COMPILE_ERROR", "UNKNOWN_ADDR")
     print(f"functions scanned: {len(results)}")
     for status in order:
         if counts.get(status): print(f"  {status:<18} {counts[status]}")
-    # First-party is the decomp's actual goal; rw/cri/sce and the C runtime are
-    # middleware we did not write, tracked only because they occupy retail windows.
+    # First-party is the decomp's actual goal; rw/cri/sce, the C runtime, and the
+    # prebuilt vendor libraries in VENDOR_CODE_RANGES are code we did not write,
+    # tracked only because they occupy retail windows.
     fp_match = fp_counts.get("MATCH", 0)
     fp_pct = f" ({100 * fp_match / len(first_party):.1f}%)" if first_party else ""
     print(f"first-party functions scanned: {len(first_party)}")
