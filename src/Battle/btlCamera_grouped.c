@@ -2,6 +2,10 @@
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
+static inline u8 *btlCamera_add_index(s32 index, u8 *base)
+{
+    return (u8 *)(index + (u32)base);
+}
 
 /* Canonical grouped function declarations. */
 u32 func_001d10d0(void* camera);
@@ -128,7 +132,40 @@ void func_001d10f0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4)
     }
 }
 // FUN_001D1200
-INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d1200);
+u8 *func_001d1200(u8 *arg0)
+{
+    u8 *base;
+    s16 index;
+    s32 condition;
+
+    if ((*(u16 *)(arg0 + 0xE) & 1) == 0) {
+        return 0;
+    }
+    base = *(u8 **)(arg0 + 0x10);
+    index = *(s16 *)(arg0 + 0xA);
+    if (base == 0) {
+        return 0;
+    }
+    if (index == -1) {
+        goto increment;
+    }
+    condition = *(u16 *)(arg0 + 0xC) < *(s16 *)(btlCamera_add_index(index * 0x3C, base) + 4);
+    if (condition != 0) {
+        goto done;
+    }
+increment:
+    index++;
+done:
+    if (base[0] > index) {
+        goto bound_ok;
+    }
+    return 0;
+bound_ok:
+    if (index >= 4) {
+        return 0;
+    }
+    return base + index * 0x3C + 4;
+}
 // FUN_001D12E0
 void btlCameraResetWork(void* work)
 {

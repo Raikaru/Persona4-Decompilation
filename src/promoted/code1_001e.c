@@ -74,9 +74,8 @@ extern u8 *iGpffffb3bc;
 
 extern void func_0019ef30(u8 *arg0, u64 arg1);
 extern void func_001de640(u8 *arg0, u8 *arg1, u16 arg2);
-extern void func_0046d730(void *arg0, s32 arg1);
-extern u8 *iGpffffb3b8;
-extern u8 D_00609E30[];
+extern s32 func_001de800(u8 *arg0);
+extern u8 *func_001dea90(u8 *arg0, u32 arg1);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 func_0029cd50(s32 arg0);
@@ -958,8 +957,23 @@ s32 func_001eb110(void) {
 }
 
 // FUN_001EB1D0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb1d0);
+s32 func_001eb1d0(void) {
+    s32 temp_3;
+    u32 index;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    s32 (*callback)(u8 *, s64);
 
+    temp_2 = func_0029d050();
+    temp_2_2 = func_001dea90(temp_2, (u32)func_001de800(temp_2) & 0xFFFF);
+    func_001de640(temp_2, temp_2 + 0x38, *(u16 *)(temp_2_2 + 2));
+    temp_3 = *(s32 *)(temp_2_2 + 4);
+    index = ((u32)temp_3 & 0xFF000000) >> 24;
+    callback = *(s32 (**)(u8 *, s64))((u8 *)D_00609CE0 + index * 8);
+    if (callback(temp_2, ((u64)temp_3 << 40) >> 40) == 0)
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(temp_2, 0);
+    return 1;
+}
 // FUN_001EB2A0
 s32 func_001eb2a0(void) {
     s32 temp;
