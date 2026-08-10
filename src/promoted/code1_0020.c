@@ -48,7 +48,7 @@ extern s32 func_00202070(u8 *arg0);
 
 extern void func_00202180(void);
 
-extern s32 func_00202640(u8 *arg0);
+extern s32 func_00202640(u8 **arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00626500[];
@@ -65,8 +65,8 @@ extern void func_00201db0(void *arg0);
 extern void func_0043f810(void *dst, const void *src, u32 size);
 extern void func_002777f0(s32 arg0);
 extern void func_0046b0d0(void *arg0);
-extern s16 func_00231ed0(s32 arg0);
-extern s16 func_00231f80(s32 arg0);
+extern s32 func_00231ed0(s32 arg0);
+extern s32 func_00231f80(s32 arg0);
 extern void func_004abd60(s32 arg0);
 extern void func_004b5790(void *arg0, void *arg1);
 extern u8 D_00625240[];
@@ -582,8 +582,8 @@ s32 func_00202480(u8 *arg0)
     temp_16 = *(u8 **)(arg0 + 0);
     switch (*(u8 *)(arg0 + 4)) {
     case 0:
-        var_17 = func_00231ed0(*(s32 *)(temp_16 + 0xA64));
-        temp_3_2 = func_00231f80(*(s32 *)(temp_16 + 0xA64));
+        var_17 = (s16)func_00231ed0(*(s32 *)(temp_16 + 0xA64));
+        temp_3_2 = (s16)func_00231f80(*(s32 *)(temp_16 + 0xA64));
         temp_2 = *(s16 *)(arg0 + 6);
         if (temp_2 != 0) {
             var_17 = (s16)(var_17 + temp_2);
@@ -629,8 +629,48 @@ void func_00202620(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
+/* measured: plain C conversion leaves seven normalized residual bytes and is within eight bytes of retail. Committed at nd 7. */
 // FUN_00202640
+#ifdef NON_MATCHING
+s32 func_00202640(u8 **arg0)
+{
+    f32 var_f0;
+    f32 var_f20;
+    u32 temp_7;
+    u32 temp_8;
+    s32 temp_2;
+    s32 temp_2_2;
+    u8 *temp_16;
+
+    temp_16 = *arg0;
+    temp_2 = func_00231ed0(*(s32 *)(temp_16 + 0xA64));
+    if (temp_2 >= 0) {
+        var_f20 = (f32)temp_2;
+    } else {
+        temp_7 = (u32)temp_2 >> 1;
+        temp_8 = (u32)temp_2 & 1;
+        temp_7 |= temp_8;
+        var_f20 = (f32)(s32)temp_7;
+        var_f20 += var_f20;
+    }
+    temp_2_2 = func_00231f80(*(s32 *)(temp_16 + 0xA64));
+    if (temp_2_2 >= 0) {
+        var_f0 = (f32)temp_2_2;
+    } else {
+        temp_7 = (u32)temp_2_2 >> 1;
+        temp_8 = (u32)temp_2_2 & 1;
+        temp_7 |= temp_8;
+        var_f0 = (f32)(s32)temp_7;
+        var_f0 += var_f0;
+    }
+    *(f32 *)(temp_16 + 0xA2C) = var_f20 / var_f0;
+    *(s32 *)(temp_16 + 0xA28) = (s32)0xBF800000;
+    *(s16 *)(temp_16 + 0xA38) = -1;
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202640);
+#endif
 // FUN_00202720
 void func_00202720(u8 *arg0)
 {

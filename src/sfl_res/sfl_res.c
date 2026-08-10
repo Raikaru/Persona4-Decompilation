@@ -34,7 +34,10 @@ void func_0036b5c0(void* work, const f32* value)
 
 
 // FUN_0036B5E0
-INCLUDE_ASM("asm/nonmatchings/sfl_res", func_0036b5e0);
+void func_0036b5e0(void* work, f32* value)
+{
+    *(Vec3*)value = *(const Vec3*)((u8*)work + 0x2c);
+}
 // FUN_0036B600
 void func_0036b600(void* work, const f32* value)
 {

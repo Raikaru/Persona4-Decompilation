@@ -172,8 +172,6 @@ s32 func_00223270(void)
     return func_00452380(D_00629640) != 0;
 }
 
-
-
 // FUN_002232A0
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002232a0);
 // FUN_002236B0

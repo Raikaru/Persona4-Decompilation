@@ -882,7 +882,36 @@ s32 func_001eae30(void) {
     return hit ^ 1;
 }
 // FUN_001EAEC0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eaec0);
+s32 func_001eaec0(void)
+{
+    extern u8 *func_001d9280(s64 arg0, s32 arg1, s32 arg2);
+    extern void func_00198920(s32 arg0, s64 arg1, s64 arg2, f32 arg3,
+                               s64 arg4);
+    s64 temp_20;
+    s64 temp_19;
+    s64 temp_18;
+    s64 temp_17;
+    s64 temp_16;
+    s32 var_2;
+    u8 *temp_2;
+
+    temp_20 = func_0029cc00(0);
+    temp_19 = func_0029cc00(1);
+    temp_18 = func_0029cc00(2);
+    temp_17 = func_0029cc00(3);
+    temp_16 = func_0029cc00(4);
+    if (temp_20 == 0) {
+        var_2 = 1;
+    } else {
+        var_2 = 2;
+    }
+    temp_2 = func_001d9280(temp_19 & 0xFFFF, var_2 & 0xFFFF, 0x80000);
+    if (temp_2 != NULL) {
+        func_00198920(*(s32 *)(temp_2 + 0x30), (s16)temp_18,
+                      temp_17 & 0xFFFF, 1.0f, temp_16 & 0xFFFF);
+    }
+    return 1;
+}
 // FUN_001EAFB0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eafb0);
 // FUN_001EB0B0
