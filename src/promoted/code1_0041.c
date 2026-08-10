@@ -316,35 +316,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418e68);
 // FUN_00418EF0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418ef0);
 
-/* measured: object/window 44/56; returned zero-fill loop with schedule-on
-   leaves the retail loop register/order and trailing words mismatched
-   (nd 11). Plain/sentinel/local-pointer spellings were tested; returning the
-   final counter is required to color retail $v0. Committed at nd 27 in-file (nd 11 measured in isolation). */
-// FUN_00418F18 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule-on probe for the returned zero-fill loop. */
-#pragma schedule on
-s32 func_00418f18(u8 *arg0, s32 arg1)
-{
-    s32 count;
-    u8 *p;
-
-    p = arg0;
-    count = arg1 - 1;
-    if (arg1 != 0) {
-        do {
-            *p = 0;
-            count -= 1;
-            p += 1;
-        } while (count != -1);
-    }
-    return count;
-}
-/* measured: closes schedule-on probe for the returned zero-fill loop. */
-#pragma schedule off
-#else
+// FUN_00418F18
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f18);
-#endif
 
 // FUN_00418F50
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f50);
@@ -419,26 +392,8 @@ s32 func_00419558(u8 *arg0, u32 arg1, s32 arg2, s32 *arg3)
 // FUN_00419590
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419590);
 
-/* measured: object/window 24/24; candidate loads the old u32, stores arg1,
-   then returns bit 8 of the old value. Exact residual: off 12 candidate
-   andi $v0,$v0,1 versus retail jr $ra; off 16 candidate jr $ra versus
-   retail andi $v0,$v0,1 (2 words, nd 6). Direct-return and inline-helper
-   forms were measured; the masked result remains pinned before the branch.
-   Schedule-on, optimization levels 1/3, type/cast and control-flow forms
-   were ruled out. Committed at nd 6. */
-
-// FUN_00419628 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00419628(u32 *arg0, u32 arg1)
-{
-    u32 temp = *arg0;
-
-    *arg0 = arg1;
-    return (temp >> 8) & 1;
-}
-#else
+// FUN_00419628
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419628);
-#endif
 
 
 /* measured: retail fills the jr delay slot with the return value
@@ -771,30 +726,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f218);
 // FUN_0041F298
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f298);
 
-/* measured: object/window 16/16; candidate loads the +0x40 base and tests
-   its +4 u32 field for zero. Exact residual: off 0 candidate
-   lw $v0,0x40($a0) versus retail lw $v1,0x40($a0); off 4 candidate
-   lw $v0,4($v0) versus retail lw $v0,4($v1) (2 words, nd 2). Enumerated
-   direct/local/pointer-temporary/value-capture spellings and comparison
-   forms: `< 1` retained nd 2, while `<= 0`, `== 0`, and `!value` scored
-   nd 13. The comparison lever and whole-function spelling enumeration did
-   not move the first-load destination; the base remains the lowest park.
-   Committed at nd 2. */
-// FUN_0041F2A8 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail fills delay slots this function leaves empty at -O2. */
-#pragma schedule on
-s32 func_0041f2a8(u8 *arg0)
-{
-    u8 *p = *(u8 **)(arg0 + 0x40);
-
-    return *(u32 *)(p + 4) < 1;
-}
-/* measured: closes the scope above at the file's -O2 baseline. */
-#pragma schedule off
-#else
+// FUN_0041F2A8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2a8);
-#endif
 
 
 /* measured: retail sinks the third store into the jr $ra delay slot, which
@@ -817,67 +750,16 @@ u8 *func_0041f2b8(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
 
 
-/* measured: object/window 32/32; candidate returns the final loaded value
-   after storing all three outputs, improving nd 9 -> nd 8. Exact residual:
-   off 0 candidate lw $v1,0x40($a0) versus retail lw $t0,0x40($a0);
-   off 4 candidate lw $v0,0xa8($v1) versus retail lw $v0,0xa8($t0);
-   off 12 candidate lw $v0,0xac($v1) versus retail lw $v1,0xac($t0);
-   off 16 candidate sw $v0,($a2) versus retail sw $v1,($a2); off 20
-   candidate lw $v0,0xb0($v1) versus retail lw $v0,0xb0($t0) (5 words).
-   Ruled out pointer/output types, declaration order, simultaneous-load and
-   grouped-load forms, final-load/direct/output/unsigned returns, identity
-   uses, arrays and pointer aliases, and optimization/pragmas. Retail's
-   three-live-value colouring remains. Committed at nd 8. */
-// FUN_0041F2D0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: probe discarded final return */
-#pragma schedule on
-s32 func_0041f2d0(u8 *arg0, s32 *arg1, s32 *arg2, s32 *arg3)
-{
-    u8 *p;
-    s32 value1;
-    s32 value2;
-    s32 value3;
-
-    p = *(u8 **)(arg0 + 0x40);
-    value1 = *(s32 *)(p + 0xA8);
-    *arg1 = value1;
-    value2 = *(s32 *)(p + 0xAC);
-    *arg2 = value2;
-    value3 = *(s32 *)(p + 0xB0);
-    *arg3 = value3;
-    return value3;
-}
-/* measured: close discarded return probe */
-#pragma schedule off
-#else
+// FUN_0041F2D0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2d0);
-#endif
 // FUN_0041F2F0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2f0);
 
 // FUN_0041F328
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f328);
 
-/* measured: tiny delayed global-getter family floor covers F298, F2A8, F360,
-   F590, and F5A0. Retail names the delayed-load base in $v1; b210 colors it
-   in $v0. Best measured candidates are object/window 12/16 at nd 3 for F360
-   and nd 2 for F590/F5A0; no additional member probe is planned.
-   Committed at nd 2 in-file (nd 3 measured in isolation). */
-// FUN_0041F360 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule-on probe for the delayed pointer accessor. */
-#pragma schedule on
-s32 func_0041f360(u8 *arg0)
-{
-    s32 *p = *(s32 **)(arg0 + 0x40);
-    return p[0x21F];
-}
-/* measured: closes schedule-on probe for the delayed pointer accessor. */
-#pragma schedule off
-#else
+// FUN_0041F360
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f360);
-#endif
 
 // FUN_0041F370
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f370);
@@ -894,38 +776,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f4a8);
 // FUN_0041F500
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f500);
 
-/* measured: object/window 24/24; candidate stores the s64 argument at
-   +0x90, stores 1 at +0x8C, and returns 1. Exact residual: off 0 candidate
-   lw $a0,0x40($a0) versus retail lw $v1,0x40($a0); off 4 candidate
-   addiu $v1,$zero,1 versus retail addiu $v0,$zero,1; off 8 candidate
-   addiu $v0,$zero,1 versus retail addiu $a0,$zero,1; off 12 candidate
-   sd $a1,0x90($a0) versus retail sd $a1,0x90($v1); off 20 candidate
-   sw $v1,0x8c($a0) versus retail sw $a0,0x8c($v1) (5 words, nd 5).
-   Ruled out local/pointer-type/struct views, declaration and assignment
-   order, parameter captures, separate/reused constants, wide types,
-   direct stores, return/store-value variants, and optimization/pragmas.
-   Committed at nd 5. */
-// FUN_0041F550 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail both fills delay slots this function leaves empty and
-   re-issues a value b210 would share; both pragmas are needed. */
-#pragma schedule on
-#pragma opt_common_subs off
-s32 func_0041f550(u8 *arg0, s64 arg1)
-{
-    u8 *p = *(u8 **)(arg0 + 0x40);
-
-    *(s64 *)(p + 0x90) = arg1;
-    *(s32 *)(p + 0x8C) = 1;
-    return 1;
-}
-/* measured: closes both scopes above at the file's -O2 baseline. */
-#pragma opt_common_subs on
-/* measured: closes both scopes above at the file's -O2 baseline. */
-#pragma schedule off
-#else
+// FUN_0041F550
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f550);
-#endif
 
 
 /* measured: schedule-on bracket for func_0041f568. */
@@ -996,35 +848,8 @@ s32 func_0041f5d0(u8 *arg0, s32 arg1)
 #pragma schedule off
 
 
-/* measured: object/window 24/24; candidate stores the 1 flag at +0x108,
-   the s64 argument at +0x100, and returns 1. Exact residual: off 0
-   candidate lw $a0,0x40($a0) versus retail lw $a2,0x40($a0); off 12
-   candidate sw $v1,0x108($a0) versus retail sw $v1,0x108($a2); off 20
-   candidate sd $a1,0x100($a0) versus retail sd $a1,0x100($a2) (3 words,
-   nd 3). Ruled out constants and captures, pointer/scalar/struct and wide
-   types, declaration/assignment order, direct-store/grouped-store forms,
-   return/store-value variants, and optimization/pragmas. Committed at nd 3. */
-// FUN_0041F5E0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail both fills delay slots this function leaves empty and
-   re-issues a value b210 would share; both pragmas are needed. */
-#pragma schedule on
-#pragma opt_common_subs off
-s32 func_0041f5e0(u8 *arg0, s64 arg1)
-{
-    u8 *p = *(u8 **)(arg0 + 0x40);
-
-    *(s32 *)(p + 0x108) = 1;
-    *(s64 *)(p + 0x100) = arg1;
-    return 1;
-}
-/* measured: closes both scopes above at the file's -O2 baseline. */
-#pragma opt_common_subs on
-/* measured: closes both scopes above at the file's -O2 baseline. */
-#pragma schedule off
-#else
+// FUN_0041F5E0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5e0);
-#endif
 
 
 // FUN_0041F5F8
@@ -1048,56 +873,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f770);
 #pragma schedule off
 
 
-/* measured: object/window 36/40; candidate calls func_00420e50 on the
-   +0x68 address and returns 1. Exact residual: off 8 candidate
-   lw $v0,0x40($a0) versus retail lw $a0,0x40($a0); off 16 candidate
-   addiu $a0,$v0,0x68 versus retail addiu $a0,$a0,0x68; differing words 3
-   including the relocation-masked jal, with the object 4 bytes short of the
-   retail trailing nop (nd 2). Enumerated direct, parameter-reassignment,
-   local-pointer, explicit-cast, and argument-expression spellings; every
-   legal form remained nd 2, and this body has no range guard for the
-   comparison lever. The base remains the lowest park. Committed at nd 2. */
-
-// FUN_0041F788 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: inline argument-expression probe; schedule on retained the
-   retail delay-slot form while the load destination remained a b210 floor. */
-#pragma schedule on
-s32 func_0041f788(u8 *arg0)
-{
-    func_00420e50((u8 *)(*(u8 **)((u8 *)arg0 + 0x40) + 0x68));
-    return 1;
-}
-/* measured: closes the schedule scope above at the file's -O2 baseline. */
-#pragma schedule off
-#else
+// FUN_0041F788
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f788);
-#endif
 
 
-/* measured: object/window 36/40; candidate calls func_00420f38 on the
-   +0x68 address and returns 1. Exact residual: off 8 candidate
-   lw $v0,0x40($a0) versus retail lw $a0,0x40($a0); off 16 candidate
-   addiu $a0,$v0,0x68 versus retail addiu $a0,$a0,0x68; differing words 3
-   including the relocation-masked jal, with the object 4 bytes short of the
-   retail trailing nop (nd 2). Enumerated direct, parameter-reassignment,
-   local-pointer, explicit-cast, and argument-expression spellings; every
-   legal form remained nd 2, and this body has no range guard for the
-   comparison lever. The base remains the lowest park. Committed at nd 2. */
-// FUN_0041F7B0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail fills delay slots this function leaves empty at -O2. */
-#pragma schedule on
-s32 func_0041f7b0(u8 *arg0)
-{
-    func_00420f38(*(u8 **)(arg0 + 0x40) + 0x68);
-    return 1;
-}
-/* measured: closes the scope above at the file's -O2 baseline. */
-#pragma schedule off
-#else
+// FUN_0041F7B0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f7b0);
-#endif
 
 // FUN_0041F7D8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f7d8);

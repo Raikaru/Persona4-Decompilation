@@ -1452,10 +1452,12 @@ done:
 // FUN_003CA740
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
 
-/* measured: close branch form */
+/* measured: closes the no_branch_likely bracket opened above FUN_003C0640. */
 #pragma no_branch_likely off
-/* measured: close schedule */
+/* measured: closes the schedule bracket opened above FUN_003C0640; the explicit
+   opposite state restores this unit's `schedule off` file default. */
 #pragma schedule off
+
 
 /* measured: nd 14 at the retail's 96B window (candidate obj 92B/window 96B).
    Retail materializes the handlers directly as lui/addiu references to

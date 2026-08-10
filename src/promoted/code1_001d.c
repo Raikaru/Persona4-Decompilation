@@ -4,6 +4,10 @@ static inline s32 p4_001da5f0_xor(s32 left, s32 right)
 {
     return left ^ right;
 }
+static inline s32 p4_001d7f10_add(s32 left, s32 right)
+{
+    return left + right;
+}
 
 extern s64 func_0023a6b0(s32 arg0, s64 arg1);
 extern u16 func_00231f80(u8 *arg0);
@@ -26,6 +30,8 @@ extern void func_001d3e00(s32 arg0);
 extern void func_001d6910(u8 *arg0);
 extern void func_001d75d0(u8 *arg0);
 extern void func_00454bd0(u8 *arg0);
+extern u32 iGpffffb3b8;
+extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 
 
 
@@ -379,11 +385,40 @@ void func_001d7bf0(u32 param_1, u32 param_2, u32 param_3)
     work[1] = param_2;
     work[2] = param_3;
 }
-
 // FUN_001D7C60
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7c60);
 // FUN_001D7F10
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7f10);
+u8 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3)
+{
+    u32 effect;
+    s32 offset;
+    u32 bVar4;
+    if (arg1 != NULL) {
+        offset = (arg2 & 0xFFFF) * 0x28;
+        effect = *(u8 *)((u8 *)p4_001d7f10_add(
+            offset, (s32)iGpffffb3b8) + 9);
+        bVar4 = *(u8 *)((u8 *)(u32)iGpffffb3b8 + offset + 0xA);
+        if (arg3 != 0) {
+            arg3 = (u8)effect;
+            if (((arg3 & 1) != 0) && ((arg3 & 2) == 0)) {
+                effect = (u8)(effect & 0xFE);
+                effect = (u8)(effect | 2);
+            } else if (((arg3 & 2) != 0) && ((arg3 & 1) == 0)) {
+                effect = (u8)(effect & 0xFD);
+                effect = (u8)(effect | 1);
+            }
+            if (((u8)bVar4 & 1) != 0) {
+                bVar4 = (u8)(bVar4 & 0xFE);
+                bVar4 = (u8)(bVar4 | 2);
+            }
+        }
+        func_001d7c60(arg0, arg1, effect, bVar4,
+                      *(u16 *)((u8 *)p4_001d7f10_add(
+                          (s32)offset, (s32)iGpffffb3b8) + 0xC));
+    }
+    arg0 = (u8 *)(u32)iGpffffb3b8;
+    return (arg0 + (arg2 & 0xFFFF) * 0x28)[8];
+}
 // FUN_001D8010
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8010);
 // FUN_001D8C00
