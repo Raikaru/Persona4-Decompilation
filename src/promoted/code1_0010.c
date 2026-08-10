@@ -32,6 +32,30 @@ extern void func_002a2740(void);
 extern void func_00460a50(s32 arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern s32 iGpffff85b8;
+extern s32 iGpffffb194;
+extern s32 iGpffffb1a0;
+extern s32 iGpffffb19c;
+extern void func_00454640(void);
+extern void func_0046ab40(void);
+extern void func_0045b7c0(void);
+extern void func_004594c0(void);
+extern void func_00452ce0(void);
+extern s32 func_00451cf0(void);
+extern void func_00466580(void);
+extern void func_003e5510(s32 arg0);
+extern s32 iGpffffba48;
+extern u8 iGpffffba4c;
+extern u8 iGpffffba50;
+extern u8 iGpffffba54;
+extern u8 iGpffffba58;
+extern f32 iGpffffba6c;
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_00100350(void);
+extern void func_00100670(void);
+extern void func_00100e60(void);
+extern void func_003b6f00(s32 arg0);
+extern void func_003b6da0(s32 arg0);
 extern void func_001036d0(u8 *arg0);
 extern void func_00103980(u8 *arg0);
 
@@ -53,7 +77,6 @@ asm void func_00100220(void)
     addiu $3, $0, 0x23
     syscall 0
 }
-
 
 
 // FUN_00100230
@@ -113,9 +136,81 @@ s32 func_00100e30(void)
 // FUN_00100E60
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100e60);
 // FUN_00101270
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00101270);
+s32 func_00101270(void)
+{
+    s32 temp_3;
+    s32 temp_3_2;
+
+    if (iGpffff85b8 != 0) {
+        iGpffff85b8 = 0;
+        *(u32 *)0x10000000 = 0;
+        *(u32 *)0x10000010 = 0x83;
+        goto block_5;
+    }
+    iGpffffb194 = *(u32 *)0x10000000;
+    func_00454640();
+    func_0046ab40();
+    func_0045b7c0();
+    func_004594c0();
+    func_00452ce0();
+    if (func_00451cf0() == 0) {
+        return 0;
+    }
+    func_00466580();
+    func_003e5510(1);
+block_5:
+    temp_3 = iGpffffb1a0;
+    if (temp_3 != -1) {
+        iGpffffb1a0 = temp_3 + 1;
+    }
+    temp_3_2 = iGpffffb19c;
+    if (temp_3_2 != -1) {
+        iGpffffb19c = temp_3_2 + 1;
+    }
+    return 1;
+}
 // FUN_00101350
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00101350);
+void func_00101350(void)
+{
+    func_00100350();
+    func_00100670();
+    func_00100e60();
+    func_003b6f00(*(u32 *)0x10000000);
+    func_003b6da0(*(u32 *)0x10000000);
+loop_1:
+    func_00101270();
+    goto loop_1;
+}
+/* measured: opt_propagation off preserves the callback table base across calls in func_001013a0; the best legal plain-C spelling is object 264B/window 272B, normalized_diff 6. The remaining four differing instruction rows are the materialization order of the (4, &iGpffffba6c) call arguments. Committed at nd 6. */
+// FUN_001013A0 NONMATCHING
+#ifdef NON_MATCHING
+#pragma opt_propagation off
+void func_001013a0(void)
+{
+    u32 color;
+    void (**base)(s32, s32);
+
+    if (iGpffffba48 == 1) {
+        base = D_00887300;
+        base[0](0x14, 2);
+        base[0](0xE, 1);
+        color = ((u32)iGpffffba58 << 24) |
+                ((u32)iGpffffba4c << 16) |
+                ((u32)iGpffffba50 << 8) |
+                (u32)iGpffffba54;
+        base[0](0xF, color);
+        base[0](0x10, 1);
+        func_003f6440(4, (s32)&iGpffffba6c);
+        base[0](6, 1);
+        base[0](8, 1);
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    }
+}
+#pragma opt_propagation on
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_0010", func_001013a0);
+#endif
 // FUN_00102780
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00102780);
 // FUN_00102890

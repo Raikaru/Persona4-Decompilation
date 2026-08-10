@@ -515,7 +515,29 @@ void func_002bbdd0(int param_1)
 
 
 // FUN_002BBE90
-INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbe90);
+void func_002bbe90(s64 arg0, s32 arg1)
+{
+    u8 **temp_16;
+    u8 *temp_3;
+    s32 index;
+
+    index = (s8)arg0;
+    temp_16 = D_00882F40 + index;
+    temp_3 = *temp_16;
+    if (temp_3 != NULL) {
+        if (arg1 != 0) {
+            func_002781e0(*(s32 *)(temp_3 + 0), 0x800000);
+            func_002781e0(*(s32 *)(*temp_16 + 0), 0x100000);
+            *(s8 *)(*temp_16 + 5) = 0;
+            func_00276e70(*(s32 *)(*temp_16 + 0), 1);
+            *(s8 *)(*temp_16 + 4) = 1;
+            return;
+        }
+        func_00278170(*(s32 *)(temp_3 + 0), 0x800000);
+        func_00278170(*(s32 *)(*temp_16 + 0), 0x100000);
+        *(s8 *)(*temp_16 + 5) = 1;
+    }
+}
 // FUN_002BBF60
 void func_002bbf60(void)
 {

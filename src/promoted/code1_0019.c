@@ -1,5 +1,22 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct P4_95730_Vec3 {
+    f32 x;
+    f32 y;
+    f32 z;
+} P4_95730_Vec3;
+typedef struct P4_95730_Vec4 {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} P4_95730_Vec4;
+typedef struct P4_95730_Bytes4 {
+    u8 x;
+    u8 y;
+    u8 z;
+    u8 w;
+} P4_95730_Bytes4;
 
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s16 func_0022cb90(void);
@@ -54,6 +71,7 @@ extern void func_0010d480(void);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern f32 func_0022cf00(u8 *arg0, u8 *arg1, s32 arg2);
 extern s64 func_001990d0();
+extern void func_00195630(u8 *arg0);
 extern s32 func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
 
@@ -774,7 +792,31 @@ void func_00195710(u8 *arg0)
 }
 
 // FUN_00195730
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00195730);
+void func_00195730(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+{
+    u8 *packet;
+    u8 *work;
+
+    packet = (u8 *)func_00194470(0x11C, 0x28);
+    *(void (**)(u8 *))(packet + 0x68) = func_00195610;
+    *(void (**)(u8 *))(packet + 0x6C) = func_00195630;
+    *(void (**)(u8 *))(packet + 0x70) = func_00195710;
+    work = *(u8 **)(packet + 0x78);
+    *(s32 *)work = arg0;
+    *(u16 *)(work + 0x24) = 0;
+    if (arg1 != NULL) {
+        *(P4_95730_Vec3 *)(work + 4) = *(P4_95730_Vec3 *)arg1;
+        *(u16 *)(work + 0x24) |= 1;
+    }
+    if (arg2 != NULL) {
+        *(P4_95730_Vec4 *)(work + 0x10) = *(P4_95730_Vec4 *)arg2;
+        *(u16 *)(work + 0x24) |= 2;
+    }
+    if (arg3 != NULL) {
+        *(P4_95730_Bytes4 *)(work + 0x20) = *(P4_95730_Bytes4 *)arg3;
+        *(u16 *)(work + 0x24) |= 4;
+    }
+}
 // FUN_00196B70
 void func_00196b70(u8 *arg0) {
     *(s32 *)(arg0 + 0xC4) &= ~1;

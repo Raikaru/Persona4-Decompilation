@@ -128,7 +128,6 @@ INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b7c10);
 
 // FUN_003B7CA0
 INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b7ca0);
-
 // FUN_003B7E00
 INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b7e00);
 

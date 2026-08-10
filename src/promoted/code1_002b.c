@@ -37,10 +37,12 @@ extern s32 func_002bb0e0(void);
 extern void func_002791f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern void func_00279350(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u8 *arg6);
 extern s32 func_00106880(void);
-extern void func_002be1e0(s32 arg0);
+extern s32 func_002be1e0(s32 arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void func_00145080(void);
 extern void func_003f6440(s32 arg0, s32 arg1);
+extern u32 func_002e7a60(void);
+extern void func_00364320(s64 arg0, s32 arg1, s32 arg2, f32 arg3);
 
 
 
@@ -172,8 +174,64 @@ INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2d50);
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2e70);
 // FUN_002B2F90
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2f90);
-// FUN_002B3050
+/* measured: explicit-goto candidate reproduces the retail control-flow layout; object 184B, retail window 192B, normalized_diff 1. Parked because nd <= 25. Committed at nd 1. */
+// FUN_002B3050 NONMATCHING
+#ifdef NON_MATCHING
+void func_002b3050(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s16 *arg5, s16 *arg6)
+{
+    s32 var_3;
+    s32 var_8;
+
+    if (arg2 != 0)
+        goto nonzero;
+    var_3 = arg4 & 0xFF;
+    *arg5 = var_3;
+    *arg6 = var_3;
+    goto done;
+
+nonzero:
+    if ((arg0 - arg1) != 0)
+        goto setup;
+    arg0 = arg4 & 0xFF;
+    arg1 = arg0;
+    goto store;
+
+setup:
+    var_8 = 0;
+    arg2 = (s8)arg3;
+    goto loop_test;
+
+loop_body:
+    var_3 = (s16)(arg0 - arg1) - 1;
+    if (var_3 < 0)
+        var_3 = 0;
+    if (var_3 != 0)
+        goto decrement;
+    arg0 -= 1;
+    if (arg0 < 0)
+        arg0 = 0;
+    goto store;
+
+decrement:
+    arg0 -= 1;
+    if (arg0 < 0)
+        arg0 = 0;
+    var_8 += 1;
+
+loop_test:
+    if (var_8 < arg2)
+        goto loop_body;
+
+store:
+    *arg5 = arg0;
+    *arg6 = arg1;
+
+done:
+    return;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b3050);
+#endif
 
 /* measured: opt_rebuildconditionals off probe for min/max */
 #pragma opt_rebuildconditionals off
@@ -648,7 +706,67 @@ void func_002be1b0(void)
     func_002be1e0(func_00106880());
 }
 // FUN_002BE1E0
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002be1e0);
+s32 func_002be1e0(s32 arg0)
+{
+    if (arg0 & 1) {
+        return 0;
+    }
+    if (arg0 & 2) {
+        return 1;
+    }
+    if (arg0 & 4) {
+        return 2;
+    }
+    if (arg0 & 8) {
+        return 3;
+    }
+    if (arg0 & 0x10) {
+        return 4;
+    }
+    if (arg0 & 0x20) {
+        return 5;
+    }
+    if (arg0 & 0x40) {
+        return 6;
+    }
+    if (arg0 & 0x80) {
+        return 7;
+    }
+    if (arg0 & 0x100) {
+        return 8;
+    }
+    if (arg0 & 0x200) {
+        return 9;
+    }
+    if (arg0 & 0x400) {
+        return 0xA;
+    }
+    if (arg0 & 0x800) {
+        return 0xB;
+    }
+    if (arg0 & 0x1000) {
+        return 0xC;
+    }
+    if (arg0 & 0x2000) {
+        return 0xD;
+    }
+    if (arg0 & 0x4000) {
+        return 0xE;
+    }
+    if (arg0 & 0x8000) {
+        return 0xF;
+    }
+    if (arg0 & 0x10000) {
+        return 0x10;
+    }
+    if (arg0 & 0x20000) {
+        return 0x11;
+    }
+    if (arg0 & 0x40000) {
+        return 0x12;
+    }
+    return 0;
+}
 // FUN_002BE3C0
 void func_002be3c0(void)
 {
@@ -666,4 +784,12 @@ void func_002be3c0(void)
     func_003f6440(3, 0x7100D);
 }
 // FUN_002BE4A0
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002be4a0);
+void func_002be4a0(void)
+{
+    s64 sp18;
+
+    func_002b2970((u8 *)&sp18,
+                  580.0f - 21.0f * (f32)func_002b3170(func_002e7a60()),
+                  15.0f);
+    func_00364320(sp18, 0xFF, func_002e7a60(), 1.0f);
+}

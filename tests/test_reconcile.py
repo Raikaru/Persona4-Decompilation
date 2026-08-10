@@ -85,7 +85,7 @@ class CanonicalMapTests(unittest.TestCase):
             + len(reconcile.JAL_REACHABLE_ENTRIES)
             - len(reconcile.BRANCH_LANDING_ENTRIES)
         )
-        self.assertEqual(expected_total, 13100)
+        self.assertEqual(expected_total, 13101)
         self.assertEqual(function_map["function_count"], expected_total)
         self.assertEqual(len(windows), expected_total)
         for segment_name, expected_count in (("code1", expected_total - 9), ("code2", 9)):
@@ -226,9 +226,17 @@ class CanonicalMapTests(unittest.TestCase):
                     terminator, f"only padding precedes {address:08X}; no epilogue evidence"
                 )
                 jr_at, jr = terminator
+                is_register_jump = (jr >> 26) == 0 and (jr & 0x3F) == 0x08
+                # An unconditional branch to itself is also a complete
+                # terminator: func_00101350 ends `b .-3` and loops forever, so
+                # nothing can fall through into the next function. Encoding is
+                # BEQ $zero,$zero with a negative displacement.
+                is_self_loop = (jr >> 26) == 0x04 and ((jr >> 16) & 0x3FF) == 0 \
+                    and (jr & 0x8000) != 0
                 self.assertTrue(
-                    (jr >> 26) == 0 and (jr & 0x3F) == 0x08,
-                    f"{jr_at:08X} is not a register jump (got {jr:08X})",
+                    is_register_jump or is_self_loop,
+                    f"{jr_at:08X} is neither a register jump nor an infinite "
+                    f"branch (got {jr:08X})",
                 )
                 delay = struct.unpack("<I", retail.bytes_at(jr_at + 4, 4))[0]
                 self.assertEqual(

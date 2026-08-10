@@ -881,24 +881,8 @@ s32 func_00178af0(void)
 }
 /* measured: only the independent GP load/zero-argument scheduling pair remains (nd 10).
    Measured in isolation at nd 10; nd_audit compiles the whole file with NON_MATCHING defined, which activates every preserved body at once and shifts this one. Committed at nd 6. */
-// FUN_00178B30 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00178b30(void)
-{
-    s32 temp;
-    s32 result;
-
-    result = 0;
-    temp = *(s32 *)(*(u8 **)(D_007643D0 + 0x160) + 8);
-    if (temp != 0) {
-        result = temp;
-    }
-    func_0029cf50(result);
-    return 1;
-}
-#else
+// FUN_00178B30
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178b30);
-#endif
 // FUN_00178B70
 s32 func_00178b70(void)
 {

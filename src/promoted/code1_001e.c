@@ -110,6 +110,12 @@ extern void func_0022b120(void);
 extern void func_0022b870(void);
 extern void func_001debb0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_00452490(s32 arg0);
+extern u8 *func_00194470(s32 arg0, s32 arg1);
+extern s32 func_0022ced0(s32 arg0);
+extern s32 func_0029de20(s32 arg0, s32 arg1);
+extern s32 func_001eba20(u8 *arg0);
+extern u8 *iGpffffb428;
+extern u8 *iGpffffb42c;
 // FUN_001E6B90
 s32 func_001e6b90(void) {
     u32 a = func_0029cc00_s32(0);
@@ -964,22 +970,20 @@ s32 func_001eb2a0(void) {
     return 1;
 }
 
-/* measured: object/window 64/64, normalized_diff 6. Retail places the
-   iGpffffb3ac load in the call delay slot and keeps the index in $v0; b210
-   emits the scale before the GP load under the tested direct and helper
-   spellings. Committed at nd 6. */
-// FUN_001EB2E0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: optimization_level 1 probe for retail GP-load scheduling. */
+#pragma optimization_level 1
+// FUN_001EB2E0
 s32 func_001eb2e0(void) {
     s32 index;
+    u8 *slot;
 
     index = func_0029cc00_s32(0);
-    func_0029cf50(*(s32 *)(iGpffffb3ac + index * 4 + 0xDD8));
+    slot = p4_slot_001eb320((u32)index * 4, iGpffffb3ac);
+    func_0029cf50(*(s32 *)(slot + 0xDD8));
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eb2e0);
-#endif
+/* measured: close optimization_level 1 probe for func_001eb2e0. */
+#pragma optimization_level 2
 /* measured: opt_propagation off probe for e320 GP-load order. */
 #pragma opt_propagation off
 // FUN_001EB320
@@ -1106,7 +1110,32 @@ done:
     return result;
 }
 // FUN_001EBB00
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ebb00);
+u8 *func_001ebb00(s32 arg0, s32 arg1, s32 arg2) {
+    s32 kind;
+    u8 *temp_16;
+    u8 *temp_2;
+
+    temp_2 = func_00194470(0xD00, 0x10);
+    *(u8 *)(temp_2 + 0x47) &= 0xEE;
+    *(s32 *)(temp_2 + 0x6C) = (s32)func_001eba20;
+    temp_16 = *(u8 **)(temp_2 + 0x78);
+    kind = arg1 & 0xFFFF;
+    switch (kind) {
+    case 1:
+        *(s32 *)(temp_16 + 0xC) = (s32)iGpffffb428;
+        break;
+    case 2:
+        *(s32 *)(temp_16 + 0xC) = (s32)iGpffffb42c;
+        break;
+    case 3:
+        *(s32 *)(temp_16 + 0xC) = func_0022ced0(0);
+        break;
+    }
+    *(s32 *)(temp_16 + 0x0) = arg0;
+    *(s32 *)(temp_16 + 0x4) = func_0029de20(*(s32 *)(temp_16 + 0xC), arg2);
+    *(s32 *)(temp_16 + 0x8) = 0;
+    return temp_2;
+}
 // FUN_001EBC00
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ebc00);
 // FUN_001EC1C0
