@@ -6,6 +6,59 @@ typedef struct RwObjectOwnerLink RwObjectOwnerLink;
 typedef struct RwObject RwObject;
 
 /* Canonical grouped function declarations. */
+extern s32 iGpffffb994;
+extern s32 iGpffffac10;
+extern s32 iGpffffb900;
+extern s32 iGpffffb9c0;
+extern s32 D_0070C220[];
+extern s32 D_0070C35C[];
+extern s32 iGpffffb7e0;
+extern s32 iGpffffb938;
+extern s32 D_008872E0[];
+extern s32 iGpffffb958;
+extern s32 iGpffffac00;
+extern s32 D_008872F8[];
+extern u8 D_0070B7A0[];
+extern u8 D_0070B7E0[];
+extern u8 D_0070B800[];
+extern void func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern s8 *func_003eab70(s8 *arg0, s32 arg1, s32 (*arg2)(s32, s32), s32 *arg3);
+extern s32 func_003eb0d0(s32 arg0, u8 **arg1);
+extern s32 func_00410ff0(void);
+extern s32 (*D_00887368[])(s32 arg0, s32 arg1, s32 arg2);
+extern u8 *iGpffffb980;
+extern s32 D_0088CAC0[];
+extern s32 D_0088CAC4[];
+extern s32 D_0088CAC8[];
+extern s32 D_0088CACC[];
+extern void func_003ed960(u8 *arg0);
+extern void (*jtbl_008873EC[])(void *ptr);
+extern void (*D_00887388[])(s32 arg0, s32 arg1, s32 arg2);
+extern s32 (*D_00887384[])(s32 *arg0, s32 arg1, s32 arg2);
+extern s32 (*D_00887364[])(s32 *arg0, s32 arg1, s32 arg2);
+extern void func_003ee470(void);
+extern void func_003ee1d0(void);
+extern u8 *iGpffffb978;
+extern u8 *iGpffffb97c;
+extern void (*D_00887308[])(void);
+extern void (*D_0088730C[])(void);
+extern void (*D_00887310[])(void);
+extern void (*D_00887314[])(void);
+extern s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_0040b230(void);
+extern void func_0040c0f0(void);
+extern s32 func_0040d0a0(s32 arg0, s32 arg1);
+extern void func_0040aa60(void (*arg0)(void));
+extern s32 func_00402d50(void *arg0, s32 *arg1);
+extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern s32 iGpffffb9b0;
+extern void func_00415940(void *arg0);
+extern void func_00415920(void *arg0);
+extern s32 iGpffffb9b4;
+extern u8 iGpffffb984;
+extern u8 D_00753330[];
+extern u8 D_00753340[];
+extern void (*D_0070C300[])(void *arg0, s32 arg1, s32 arg2);
 u32 func_003e8110(u32 camera);
 u32 func_003e8120(u32 camera);
 u8 func_003e9240(RwObjectOwnerLink *param_1);
@@ -99,7 +152,10 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9d50);
 // FUN_003E9DF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9df0);
 // FUN_003E9EB0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9eb0);
+void func_003e9eb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    func_003e3870(D_0070B7A0, arg0, arg1, arg2, arg3, arg4);
+}
 // FUN_003E9EE0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9ee0);
 // FUN_003EA130
@@ -111,7 +167,14 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea370);
 // FUN_003EA3E0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea3e0);
 // FUN_003EA510
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea510);
+u8 *func_003ea510(u8 *arg0)
+{
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x14));
+    *(u8 **)(arg0 + 0x14) = NULL;
+    *(s32 *)(arg0 + 0x18) = 0;
+    *(s32 *)arg0 &= ~1;
+    return arg0;
+}
 // FUN_003EA560
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea560);
 // FUN_003EA690
@@ -127,7 +190,14 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eaf60);
 // FUN_003EB0D0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eb0d0);
 // FUN_003EB1C0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eb1c0);
+s8 *func_003eb1c0(s8 *arg0)
+{
+    s32 sp1C;
+
+    sp1C = 0;
+    func_003eab70(arg0, 0x14, (s32 (*)(s32, s32))func_003eb0d0, &sp1C);
+    return (s8 *)sp1C;
+}
 // FUN_003EB1F0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eb1f0);
 // FUN_003EB3B0
@@ -149,21 +219,71 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec180);
 // FUN_003EC1F0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec1f0);
 // FUN_003EC2A0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec2a0);
+s32 func_003ec2a0(s32 arg0)
+{
+    D_00887368[0](0, arg0, 0);
+    return arg0;
+}
 // FUN_003EC2E0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec2e0);
+u8 *func_003ec2e0(u8 *arg0)
+{
+    D_00887388[0](0, (s32)arg0, 0);
+    arg0[0x22] = (u8)(arg0[0x22] & ~0x18);
+    return arg0;
+}
 // FUN_003EC330
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec330);
 // FUN_003EC3A0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec3a0);
+void func_003ec3a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    func_003e3870(D_0070B7E0, arg0, arg1, arg2, arg3, arg4);
+}
 // FUN_003EC3D0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec3d0);
+/* measured: retail callback result uses a plain beqz, not bnel. */
+#pragma no_branch_likely on
 // FUN_003EC420
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec420);
+s32 func_003ec420(u8 *arg0)
+{
+    extern s32 (*D_00887398[])(s32 *arg0, u8 *arg1, s32 arg2);
+    s32 sp1C;
+
+    if (((arg0[0x23] << 8) & 0x8000) == 0) {
+        return 1;
+    }
+    if (D_00887398[0](&sp1C, arg0, 0) != 0) {
+        return sp1C;
+    }
+    return -1;
+}
+/* measured: closes no_branch_likely around func_003ec420. */
+#pragma no_branch_likely off
 // FUN_003EC480
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec480);
+/* measured: callback result uses retail's plain bnez, not bnel. */
+#pragma no_branch_likely on
 // FUN_003EC4F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec4f0);
+u8 *func_003ec4f0(u8 *arg0, u8 *arg1, u8 *arg2)
+{
+    extern s32 (*D_00887358[])(u8 *arg0, u8 *arg1, s32 arg2);
+    s16 temp_7;
+
+    if ((arg0[0x21] & 0x80) == 0) {
+        return NULL;
+    }
+    *(s32 *)(arg0 + 0xc) = *(s32 *)(arg2 + 8);
+    *(s32 *)(arg0 + 0x10) = *(s32 *)(arg2 + 0xc);
+    *(s16 *)(arg0 + 0x1c) = *(s16 *)(arg1 + 0x1c) + *(s16 *)arg2;
+    temp_7 = *(s16 *)(arg1 + 0x1e);
+    *(s16 *)(arg0 + 0x1e) = temp_7 + *(s16 *)(arg2 + 4);
+    if (D_00887358[0](arg0, arg1, 0) == 0) {
+        return NULL;
+    }
+    *(s32 *)arg0 = *(s32 *)arg1;
+    return arg0;
+}
+/* measured: closes no_branch_likely around func_003ec4f0. */
+#pragma no_branch_likely off
 // FUN_003EC590
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec590);
 // FUN_003EC6A0
@@ -205,7 +325,14 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ee1d0);
 // FUN_003EE470
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ee470);
 // FUN_003EEA90
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eea90);
+void func_003eea90(void)
+{
+    if (*(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x1c) != 0) {
+        func_003ee470();
+        return;
+    }
+    func_003ee1d0();
+}
 // FUN_003EEAE0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eeae0);
 // FUN_003EEE70
@@ -213,13 +340,27 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eee70);
 // FUN_003EEF60
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003eef60);
 // FUN_003EF000
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef000);
+s32 func_003ef000(s32 arg0)
+{
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x1c) = arg0;
+    return 1;
+}
 // FUN_003EF020
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef020);
+s32 func_003ef020(void)
+{
+    return *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x1c);
+}
 // FUN_003EF040
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef040);
+s32 func_003ef040(s32 arg0)
+{
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x20) = arg0;
+    return 1;
+}
 // FUN_003EF060
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef060);
+s32 func_003ef060(void)
+{
+    return *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x20);
+}
 // FUN_003EF080
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef080);
 // FUN_003EF0D0
@@ -238,30 +379,95 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef470);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef510);
 // FUN_003EF5B0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef5b0);
+/* measured: no_branch_likely preserves the retail list-detach branch. */
+#pragma no_branch_likely on
 // FUN_003EF610
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef610);
+u8 *func_003ef610(u8 *arg0)
+{
+    if (*(s32 *)(arg0 + 4) != 0) {
+        goto body;
+    }
+    goto done;
+done:
+    return arg0;
+body:
+    *(s32 *)(arg0 + 4) = 0;
+    *(u8 **)(*(u8 **)(arg0 + 0xc)) = *(u8 **)(arg0 + 8);
+    *(u8 **)(*(u8 **)(arg0 + 8) + 4) = *(u8 **)(arg0 + 0xc);
+    goto done;
+}
+/* measured: closes no_branch_likely around func_003ef610. */
+#pragma no_branch_likely off
 // FUN_003EF650
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef650);
 // FUN_003EF6B0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef6b0);
+s32 func_003ef6b0(s32 arg0)
+{
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x10) = arg0;
+    return arg0;
+}
 // FUN_003EF6D0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef6d0);
+s32 func_003ef6d0(void)
+{
+    return *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x10);
+}
+/* measured: no_branch_likely preserves the retail callback null branch. */
+#pragma no_branch_likely on
 // FUN_003EF6F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef6f0);
+s32 func_003ef6f0(void)
+{
+    s32 (*temp_2)(void);
+
+    temp_2 = *(s32 (**)(void))((u8 *)D_008872E0 + iGpffffb7e0 + 0x30);
+    if (temp_2 == NULL) {
+        goto zero;
+    }
+    return temp_2();
+zero:
+    return 0;
+}
+/* measured: closes no_branch_likely around func_003ef6f0. */
+#pragma no_branch_likely off
 // FUN_003EF740
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef740);
 // FUN_003EF890
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef890);
+void func_003ef890(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    func_003e3870(D_0070B800, arg0, arg1, arg2, arg3, arg4);
+}
 // FUN_003EF8C0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef8c0);
+s32 func_003ef8c0(void)
+{
+    s32 (*func)(void);
+
+    func = *(s32 (**)(void))((u8 *)D_008872E0 + iGpffffb7e0 + 0x2c);
+    return func() != 0;
+}
 // FUN_003EF900
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef900);
 // FUN_003EFAC0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003efac0);
 // FUN_003EFD20
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003efd20);
+/* measured: no_branch_likely preserves the retail list-link branch. */
+#pragma no_branch_likely on
 // FUN_003EFDA0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003efda0);
+void func_003efda0(u8 *arg0)
+{
+    if (*(s32 *)(arg0 + 4) != 0) {
+        goto body;
+    }
+    goto done;
+done:
+    ;
+    return;
+body:
+    *(u8 **)(*(u8 **)(arg0 + 0xc)) = *(u8 **)(arg0 + 8);
+    *(u8 **)(*(u8 **)(arg0 + 8) + 4) = *(u8 **)(arg0 + 0xc);
+    goto done;
+}
+/* measured: closes no_branch_likely around func_003efda0. */
+#pragma no_branch_likely off
 // FUN_003EFDE0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003efde0);
 // FUN_003EFF30
@@ -356,12 +562,43 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f5d90);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6440);
 // FUN_003F6690
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6690);
+/* measured: retail emits plain bnez/beqz branches with the zero-return block last. */
+#pragma no_branch_likely on
 // FUN_003F6780
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6780);
+s32 func_003f6780(s32 arg0)
+{
+    if (iGpffffb958 != 0) {
+        goto done_zero;
+    }
+    if (arg0 == 0) {
+        goto zero_case;
+    }
+nonzero:
+    iGpffffac00 = 0x20;
+    D_008872F8[0] = 0x4B7FFFFF;
+    goto done_one;
+zero_case:
+    iGpffffac00 = 0x10;
+    D_008872F8[0] = 0x477FFF00;
+done_one:
+    return 1;
+done_zero:
+    return 0;
+}
+/* measured: closes no_branch_likely around func_003f6780. */
+#pragma no_branch_likely off
 // FUN_003F67E0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f67e0);
+s32 func_003f67e0(s32 arg0)
+{
+    iGpffffb994 = arg0;
+    return 1;
+}
 // FUN_003F67F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f67f0);
+s32 func_003f67f0(s32 arg0)
+{
+    iGpffffac10 = arg0;
+    return 1;
+}
 // FUN_003F6800
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6800);
 // FUN_003F68A0
@@ -371,7 +608,16 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6910);
 // FUN_003F6990
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6990);
 // FUN_003F69F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f69f0);
+s32 func_003f69f0(s32 *arg0)
+{
+    s32 var_2;
+
+    var_2 = 0;
+    if ((arg0 != NULL) && (*arg0 != 0)) {
+        var_2 = 4;
+    }
+    return var_2;
+}
 // FUN_003F6A10
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6a10);
 // FUN_003F73D0
@@ -381,7 +627,11 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f7490);
 // FUN_003F79B0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f79b0);
 // FUN_003F7A60
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f7a60);
+s32 func_003f7a60(s32 *arg0, s32 arg1)
+{
+    *arg0 = arg1;
+    return 1;
+}
 // FUN_003F7A70
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f7a70);
 // FUN_003F8110
@@ -423,9 +673,15 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fddc0);
 // FUN_003FDF20
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fdf20);
 // FUN_003FE1F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe1f0);
+s32 func_003fe1f0(void)
+{
+    return 1;
+}
 // FUN_003FE200
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe200);
+s32 func_003fe200(void)
+{
+    return 0;
+}
 // FUN_003FE210
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003fe210);
 // FUN_003FE320
@@ -445,7 +701,10 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ff5b0);
 // FUN_004010C0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004010c0);
 // FUN_00401450
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401450);
+s32 *func_00401450(void)
+{
+    return &D_0070C220[0];
+}
 // FUN_00401460
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401460);
 // FUN_004015E0
@@ -457,7 +716,10 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401870);
 // FUN_00401AA0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401aa0);
 // FUN_00401B80
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401b80);
+s32 func_00401b80(void)
+{
+    return iGpffffb900;
+}
 // FUN_00401B90
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401b90);
 // FUN_00402390
@@ -472,8 +734,32 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402510);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402570);
 // FUN_00402600
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402600);
+/* measured: no_branch_likely preserves the two retail plain null branches. */
+#pragma no_branch_likely on
 // FUN_00402680
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402680);
+void func_00402680(void)
+{
+    u8 *temp_4;
+    u8 *temp_4_2;
+
+    temp_4 = iGpffffb978;
+    if (temp_4 == NULL) {
+        goto second;
+    }
+    func_003ec330(temp_4);
+    iGpffffb978 = NULL;
+second:
+    temp_4_2 = iGpffffb97c;
+    if (temp_4_2 == NULL) {
+        goto done;
+    }
+    func_003ec330(temp_4_2);
+    iGpffffb97c = NULL;
+done:
+    ;
+}
+/* measured: closes no_branch_likely around func_00402680. */
+#pragma no_branch_likely off
 // FUN_004026D0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004026d0);
 // FUN_00402970
@@ -489,7 +775,23 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402fe0);
 // FUN_00403170
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00403170);
 // FUN_00403390
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00403390);
+s32 func_00403390(void)
+{
+    s32 sp10[4];
+    s32 var_2;
+    u8 *temp_3;
+
+    temp_3 = iGpffffb980;
+    var_2 = 0;
+    if (temp_3 != NULL) {
+        sp10[1] = 0;
+        sp10[0] = 0;
+        sp10[2] = *(s32 *)(temp_3 + 0xc);
+        sp10[3] = *(s32 *)(temp_3 + 0x10);
+        var_2 = func_00402d50(NULL, sp10);
+    }
+    return var_2;
+}
 // FUN_004033E0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004033e0);
 // FUN_00403930
@@ -499,7 +801,15 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004052b0);
 // FUN_00406B60
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00406b60);
 // FUN_00407BD0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00407bd0);
+s32 func_00407bd0(s32 arg0, u8 *arg1)
+{
+    iGpffffb980 = arg1;
+    D_0088CAC0[0] = *(s16 *)(arg1 + 0x1c);
+    D_0088CAC4[0] = *(s16 *)(arg1 + 0x1e);
+    D_0088CAC8[0] = *(s32 *)(arg1 + 0xc);
+    D_0088CACC[0] = *(s32 *)(arg1 + 0x10);
+    return 1;
+}
 // FUN_00407C10
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00407c10);
 // FUN_00407D10
@@ -528,8 +838,23 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040aa10);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040aa60);
 // FUN_0040ADF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040adf0);
+/* measured: retail selector branch is plain beqz, not beql. */
+#pragma no_branch_likely on
 // FUN_0040AFB0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040afb0);
+s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+    u8 *base;
+
+    if ((iGpffffb984 & 1) != 0) {
+        base = D_00753340;
+    } else {
+        base = D_00753330;
+    }
+    func_0040adf0(base, 0, arg0 + (arg2 << 6), arg0 + (arg3 << 6));
+    return 1;
+}
+/* measured: closes no_branch_likely around func_0040afb0. */
+#pragma no_branch_likely off
 // FUN_0040B010
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040b010);
 // FUN_0040B230
@@ -559,9 +884,18 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040cd60);
 // FUN_0040D0A0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d0a0);
 // FUN_0040D110
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d110);
+void func_0040d110(void)
+{
+    D_00887308[0] = (void (*)(void))func_0040afb0;
+    D_0088730C[0] = (void (*)(void))func_0040b230;
+    D_00887310[0] = (void (*)(void))func_0040c0f0;
+    D_00887314[0] = (void (*)(void))func_0040d0a0;
+    func_0040aa60((void (*)(void))func_0040c0f0);
+}
 // FUN_0040D160
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d160);
+void func_0040d160(void)
+{
+}
 // FUN_0040D170
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d170);
 // FUN_0040D570
@@ -573,7 +907,9 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040da90);
 // FUN_0040DCC0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040dcc0);
 // FUN_0040DF40
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040df40);
+void func_0040df40(void)
+{
+}
 // FUN_0040DF50
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040df50);
 // FUN_0040E830
@@ -583,7 +919,9 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040eee0);
 // FUN_0040F020
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040f020);
 // FUN_0040F1B0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040f1b0);
+void func_0040f1b0(void)
+{
+}
 // FUN_0040F1C0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040f1c0);
 // FUN_0040F480
@@ -597,15 +935,44 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040fcd0);
 // FUN_00410080
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410080);
 // FUN_00410360
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410360);
+s32 func_00410360(void)
+{
+    return D_0070C35C[0];
+}
 // FUN_00410370
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410370);
+s32 func_00410370(s32 arg0, s32 *arg1, s32 *arg2)
+{
+    u8 *temp_4;
+
+    temp_4 = (u8 *)(arg0 + iGpffffb938);
+    *arg2 = *(s32 *)(temp_4 + 8);
+    *arg1 = *(s32 *)(temp_4 + 0xc);
+    return arg0;
+}
 // FUN_00410390
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410390);
 // FUN_00410420
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410420);
+/* measured: no_branch_likely preserves the retail plain availability branch. */
+#pragma no_branch_likely on
 // FUN_004104D0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004104d0);
+s32 func_004104d0(void)
+{
+    u8 *temp_3;
+
+    temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+    if (*(s32 *)(temp_3 + 0x44) == 0) {
+        goto zero;
+    }
+    func_0043f9c8(temp_3 + 0x40, 0, 0x3c);
+    goto done;
+zero:
+    return 0;
+done:
+    return 1;
+}
+/* measured: closes no_branch_likely around func_004104d0. */
+#pragma no_branch_likely off
 // FUN_00410520
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410520);
 // FUN_004106A0
@@ -619,17 +986,32 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410a40);
 // FUN_00410AB0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410ab0);
 // FUN_00410D90
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410d90);
+s32 func_00410d90(s32 arg0)
+{
+    func_00415940((void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x20));
+    func_00415920((void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x1c));
+    iGpffffb9b4 -= 1;
+    return arg0;
+}
 // FUN_00410DF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410df0);
 // FUN_00410ED0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410ed0);
 // FUN_00410F00
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410f00);
+s32 func_00410f00(s32 arg0)
+{
+    func_00410ff0();
+    return arg0;
+}
 // FUN_00410F30
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410f30);
+s32 func_00410f30(void)
+{
+    return 1;
+}
 // FUN_00410F40
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410f40);
+void func_00410f40(void)
+{
+}
 // FUN_00410F50
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410f50);
 // FUN_00410FF0
@@ -639,7 +1021,10 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411060);
 // FUN_00411130
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411130);
 // FUN_004114C0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004114c0);
+s32 func_004114c0(void)
+{
+    return iGpffffb9c0;
+}
 // FUN_004114D0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004114d0);
 // FUN_004115D0

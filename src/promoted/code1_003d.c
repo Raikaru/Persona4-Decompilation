@@ -1,5 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
+typedef char *va_list;
+#define va_start(ap, last) (ap = (va_list)(s32)(__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8))
+#define va_end(ap) ((void)0)
 
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -47,6 +50,14 @@ extern s32 iGpffffb738;
 extern s32 iGpffffb734;
 extern void func_003e12f0();
 extern void func_00426f80(s32 arg0);
+extern s32 func_003c1ab0();
+extern s32 func_003c1b40();
+extern s32 func_003c2b70();
+extern s32 func_003c8d00();
+extern s32 func_003c8d60();
+extern s32 D_00886E50[];
+extern s32 func_003df590(s64 arg0, ...);
+extern u8 *func_003df4d0();
 static inline s32 func_003d_add_offset(s32 base, s32 offset) {
     return base + offset;
 }
@@ -463,8 +474,32 @@ ret_one:
 #pragma schedule off
 #pragma no_branch_likely off
 
+/* measured: schedule and no_branch_likely probe for func_003d4c70. */
+#pragma schedule on
+/* measured: no_branch_likely probe for func_003d4c70. */
+#pragma no_branch_likely on
 // FUN_003D4C70
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d4c70);
+s32 func_003d4c70(void) {
+    s32 temp_17;
+    s32 var_16;
+    s32 aggregate;
+
+    var_16 = 0;
+    temp_17 = 0;
+    iGpffffb730 = func_003c2b70(4, 0x50F, func_003d48c0, func_003d48d0, func_003d4910);
+    iGpffffb72c = func_003c1ab0(4, 0x50F, func_003d48c0, func_003d48d0, func_003d49b0);
+    iGpffffb728 = func_003c8d00(4, 0x50F, func_003d48c0, func_003d48d0, func_003d4a60);
+    temp_17 |= func_003c1b40(0x50F, func_003d4b00);
+    aggregate = temp_17 | func_003c8d60(0x50F, func_003d4bf0);
+    if ((aggregate | (iGpffffb728 | (iGpffffb730 | iGpffffb72c))) >= 0) {
+        var_16 = 1;
+    }
+    return var_16;
+}
+/* measured: closes schedule around func_003d4c70. */
+#pragma schedule off
+/* measured: closes no_branch_likely around func_003d4c70. */
+#pragma no_branch_likely off
 /* measured: schedule/no_branch_likely preserves 4ea0's callback branch and
    stack-local call sequence. */
 #pragma schedule on
@@ -474,7 +509,7 @@ s32 func_003d4ea0(void) {
     extern s32 func_0039b6e0(s32 arg0);
     extern void func_003cc070(s32 arg0);
     extern s32 func_003df590(s32 arg0, void *arg1);
-    extern void func_003df4d0(s32 *arg0);
+    extern u8 *func_003df4d0(s32 *arg0);
     extern u8 D_0070B5D0[];
     extern s32 iGpffffb9b8;
     struct {
@@ -670,7 +705,7 @@ void func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)(temp_2 + 0x34) = arg1;
     *(s32 *)(temp_2 + 0x30) = 1;
 }
-/* measured: closes the schedule bracket around func_003d5f50. */
+/* measured: closes the single-function schedule bracket for func_003d5f50. */
 #pragma schedule off
 // FUN_003D5FB0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5fb0);
@@ -684,11 +719,42 @@ s32 func_003d6010(u8 *arg0) {
    unfilled (nop); retail fills it with the final sw (nd 18 -> 0). */
 #pragma schedule off
 
-// FUN_003D6030
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d6030);
-// FUN_003D60D0
-/* measured: schedule on places the field load in the jr delay slot. */
+/* measured: no_branch_likely/schedule preserve 6030's plain scan and
+   callback delay-slot setup. */
+#pragma no_branch_likely on
 #pragma schedule on
+// FUN_003D6030
+u8 *func_003d6030(u8 *arg0, u8 *arg1) {
+    extern s32 func_003df860(u8 *arg0);
+    extern s32 *func_003df870(s32 *arg0, s32 arg1);
+    extern s32 func_003df890(s32 *arg0);
+    extern s32 func_003df8a0(s32 *arg0);
+    extern void func_003df7e0(s32 arg0, s32 arg1);
+    s32 *start;
+    s32 *end;
+    u8 *self;
+
+    self = arg0;
+    start = (s32 *)func_003df890(*(s32 **)(self + 0x10));
+    end = (s32 *)func_003df8a0(*(s32 **)(self + 0x10));
+    if (start != end) {
+        do {
+            if (arg1 == (u8 *)start[0]) {
+                start[0] = *func_003df870(*(s32 **)(self + 0x10),
+                    func_003df860(*(u8 **)(self + 0x10)) - 1);
+                func_003df7e0((s32)*(s32 **)(self + 0x10), 1);
+                return self;
+            }
+            start += 1;
+        } while (start != end);
+    }
+    return NULL;
+}
+/* measured: closes no_branch_likely/schedule around func_003d6030. */
+#pragma schedule off
+#pragma no_branch_likely off
+#pragma schedule on
+// FUN_003D60D0
 s32 func_003d60d0(u8 *arg0) {
     return *(s32 *)(arg0 + 0x14);
 }
@@ -939,9 +1005,41 @@ void func_003dd5c0(u8 **arg0, s32 arg1) {
 }
 // FUN_003DD620
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd620);
-
 // FUN_003DD6D0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd6d0);
+void func_003dd6d0(u8 *arg0)
+{
+    s32 temp_7;
+    s32 var_5;
+
+    if (arg0 == NULL) {
+        goto block_exit;
+    }
+    if (*(s32 *)(arg0 + 0x30) == 0) {
+        goto block_exit;
+    }
+    temp_7 = *(s32 *)(arg0 + 0x40);
+    if ((temp_7 != 1) &&
+        (*(u32 *)(arg0 + 0x48) != 0)) {
+        if (temp_7 == 4) {
+            var_5 = *(s32 *)(arg0 + 0x10);
+        } else {
+            var_5 = *(s32 *)(arg0 + 0x44);
+        }
+        *(s32 *)(arg0 + 0x40) = 1;
+        ((void (*)(u8 *, s32, s32, s32, s32))(*(u32 *)(arg0 + 0x48)))(
+            arg0, var_5, *(s32 *)(arg0 + 0x38), temp_7,
+            *(s32 *)(arg0 + 0x4C));
+        goto block_shared;
+    }
+    goto block_set;
+block_shared:
+    return;
+block_set:
+    *(s32 *)(arg0 + 0x40) = 1;
+    goto block_shared;
+block_exit:
+    return;
+}
 
 /* measured: closes the schedule/no_branch_likely brackets above. */
 #pragma schedule off
@@ -1003,8 +1101,36 @@ ret_one:
 
 // FUN_003DD830
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd830);
+extern s32 (*D_008873C8[])(u8 *, u8 *);
+/* measured: schedule/no_branch_likely reproduce DD900's saved-self callback
+   loop, linked-list traversal, and fallback callback placement. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003DD900
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd900);
+u8 *func_003dd900(u8 *arg0) {
+    u8 *self;
+    u8 *node;
+    s32 (**table)(u8 *, u8 *);
+
+    node = (u8 *)D_00887180[0];
+    self = arg0;
+    if (node != NULL) {
+        table = D_008873C8;
+        do {
+            if (table[0](node + 0x50, self) == 0) {
+                return node;
+            }
+            node = *(u8 **)node;
+        } while (node != NULL);
+    }
+    if (D_00887194[0] != NULL) {
+        ((void (*)(s32))D_00887194[0])(6);
+    }
+    return NULL;
+}
+/* measured: closes schedule/no_branch_likely around func_003dd900. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003DD990
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd990);
 // FUN_003DDA50
@@ -1164,8 +1290,47 @@ void func_003de4c0(u8 *arg0) {
 #pragma schedule off
 // FUN_003DE4D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de4d0);
+/* measured: no_branch_likely keeps DE6A0's plain conditional branches. */
+#pragma no_branch_likely on
+/* measured: schedule reproduces DE6A0's callback-live argument and store
+   delay-slot ordering. */
+#pragma schedule on
 // FUN_003DE6A0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de6a0);
+s64 func_003de6a0(u8 *arg0, s32 arg1, s64 arg2) {
+    extern s64 sceWrite(s32 arg0);
+    s64 temp_4;
+    s64 var_17;
+    s64 result;
+
+    *(s32 *)(arg0 + 0x38) = 3;
+    var_17 = arg2;
+    result = sceWrite(*(s32 *)(arg0 + 0x60));
+    if (*(s32 *)(arg0 + 0x30) != 0) {
+        if (result < 0) {
+            var_17 = 0;
+        }
+        result = var_17;
+    }
+    *(s32 *)(arg0 + 0x38) = 2;
+    if (result > 0) {
+        *(s64 *)(arg0 + 0x10) += (s32)result;
+        temp_4 = *(s64 *)(arg0 + 0x10);
+        if (temp_4 > *(s64 *)arg0) {
+            goto block_update;
+        }
+        goto block_finish;
+block_finish:
+        return result;
+block_update:
+        *(s64 *)arg0 = temp_4;
+        goto block_finish;
+    }
+    return 0;
+}
+/* measured: closes schedule around func_003de6a0. */
+#pragma schedule off
+/* measured: closes no_branch_likely around func_003de6a0. */
+#pragma no_branch_likely off
 // FUN_003DE740
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de740);
 // FUN_003DE8C0
@@ -1180,8 +1345,23 @@ s32 func_003de9b0(u8 *arg0) {
 }
 /* measured: schedule off closes the single-function bracket. */
 #pragma schedule off
+/* measured: schedule reproduces DE9C0's constant/prologue order and
+   call-preserving saved-self delay slot. */
+#pragma schedule on
 // FUN_003DE9C0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de9c0);
+s32 func_003de9c0(u8 *arg0) {
+    if (*(s32 *)(arg0 + 0x38) != 1) {
+        goto block_call;
+    }
+    goto block_done;
+block_done:
+    return *(s32 *)(arg0 + 0x38);
+block_call:
+    func_003de8c0(arg0, 0);
+    goto block_done;
+}
+/* measured: closes schedule around func_003de9c0. */
+#pragma schedule off
 // FUN_003DEA10
 /* measured: tailcall on reproduces retail's frameless jump wrapper. */
 #pragma tailcall on
@@ -1250,6 +1430,7 @@ s32 func_003df270(s32 arg0) {
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003df2a0(s32 arg0) {
+    extern s32 func_003df590(s32 arg0);
     struct {
         u8 pad[8];
         s32 sp28;
@@ -1273,6 +1454,7 @@ s32 func_003df2a0(s32 arg0) {
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003df300(s32 arg0) {
+    extern s32 func_003df590(s32 arg0);
     struct {
         u8 pad[8];
         s32 sp28;
@@ -1295,6 +1477,7 @@ s32 func_003df300(s32 arg0) {
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003df360(s32 arg0) {
+    extern s32 func_003df590(s32 arg0);
     struct {
         u8 pad[8];
         s32 sp28;
@@ -1381,8 +1564,36 @@ s32 func_003df4b0(s32 arg0) {
     D_00724854 -= 1;
     return arg0;
 }
+/* measured: no_branch_likely on preserves retail's plain branch chain. */
+#pragma no_branch_likely on
 // FUN_003DF4D0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df4d0);
+u8 *func_003df4d0(s32 *arg0) {
+    u8 *input;
+    u8 *base;
+    u8 *base2;
+    input = (u8 *)arg0;
+    base = D_008872E0 + iGpffffb760;
+    if (*(s32 *)(base + 0) != 0) {
+        goto done;
+    }
+    if (*(s32 *)(base + 4) != 0x80000000) {
+        goto done;
+    }
+    if ((*(s32 *)(input + 4) & 0x80000000) != 0) {
+        goto zero;
+    }
+    *(s32 *)(base + 0) = *(s32 *)(input + 0);
+final_store:
+    base2 = D_008872E0 + iGpffffb760;
+    *(s32 *)(base2 + 4) = *(s32 *)(input + 4);
+done:
+    return input;
+zero:
+    *(s32 *)(base + 0) = 0;
+    goto final_store;
+}
+/* measured: closes the no_branch_likely bracket opened above func_003df4d0. */
+#pragma no_branch_likely off
 /* measured: opt_propagation off probe preserves retail's paired float loads. */
 #pragma opt_propagation off
 // FUN_003DF550
@@ -1403,7 +1614,12 @@ u8 *func_003df550(u8 *arg0) {
 /* measured: closes the opt_propagation bracket. */
 #pragma opt_propagation on
 // FUN_003DF590
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df590);
+s32 func_003df590(s64 arg0, ...) {
+    va_list args;
+    va_start(args, arg0);
+    va_end(args);
+    return (s32)(((s64)arg0 << 0x20) >> 0x20);
+}
 // FUN_003DF5D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df5d0);
 // FUN_003DF6E0

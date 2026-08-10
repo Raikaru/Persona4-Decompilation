@@ -976,6 +976,7 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
 #endif
 
+
 /* measured: ported P3FES FUN_003bb620 (also nd 4 there). Only residual is the
    direction-vector stores: retail sd $v0,0xd0($sp)/swc1 $f0,0xd8($sp) direct;
    b210 either stores through a cached dest ptr (nd 4) or materializes the

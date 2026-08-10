@@ -31,6 +31,10 @@ void func_003e9cb0(void *frame, void *matrix, u32 flags);
 extern void func_004823e0(u8 *arg0);
 extern s32 func_004861f0(u8 *arg0, f32 *arg1);
 extern void func_004bce50(void);
+extern void func_0048a2b0(u8 *arg0, u8 *arg1);
+extern f32 func_0044b920(f32 arg0);
+extern f32 func_0044b950(f32 arg0, f32 arg1);
+extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
 extern s32 func_004bceb0(void);
 extern void func_00486400(u8 *arg0, f32 arg1);
 extern void func_00484790(u8 *arg0);
@@ -63,6 +67,14 @@ extern u8 D_007134A0[];
 extern u8 D_007134A8[];
 extern u8 D_007134B0[];
 extern char D_00713CE0[];
+extern f32 fGpffff8044;
+extern void func_00494f90(u8 *arg0);
+extern s32 func_00494710(u8 *arg0, u16 arg1);
+extern void func_00494740(u8 *arg0, u16 arg1, void *arg2, f32 arg3);
+extern void func_004940d0(u8 *arg0, u16 arg1, void *arg2);
+extern void func_004946f0(u8 *arg0, u16 arg1);
+extern void func_004946d0(u8 *arg0, u16 arg1);
+extern void func_00494ff0(u8 *arg0);
 
 
 extern void (*jtbl_008873EC[])();
@@ -880,8 +892,53 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004867e0);
 #endif
 // FUN_00486840
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486840);
-// FUN_00486970
+/* Measured compiled-C park: object 224B / window 224B, normalized_diff 5.
+   The only residual is the flags-load register choice; the body is retained under
+   NON_MATCHING with the exact measured score. Committed at nd 5. */
+/* measured: opening optimization_level 1 for the parked 00486970 body. */
+#pragma optimization_level 1
+// FUN_00486970 NONMATCHING
+#ifdef NON_MATCHING
+void func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
+{
+    u32 flags;
+    u_long128 sp40;
+    u_long128 value;
+    f32 var_f20;
+
+    if (((flags = *(s32 *)(arg0 + 0x68)) & 0x60) == 0) {
+        value = *(u_long128 *)(arg0 + 0x50);
+        *arg2 = value;
+        return;
+    }
+    func_0048a2b0(arg1, (u8 *)&sp40);
+    if (*(s32 *)(arg0 + 0x68) & 0x40) {
+        var_f20 = 0.0f;
+    } else {
+        var_f20 = -func_0044b920(-*(f32 *)((u8 *)&sp40 + 4));
+    }
+    func_004bcf20(var_f20,
+                  func_0044b950(*(f32 *)((u8 *)&sp40 + 0),
+                                *(f32 *)((u8 *)&sp40 + 8)),
+                  0.0f);
+    if (*(s32 *)(arg0 + 0x68) & 0x40) {
+        __asm__ volatile(
+            ".set noreorder\n"
+            "vmove.xyzw $vf11, $vf10\n"
+            "lqc2 $vf10, 0x50(%0)\n"
+            ".set reorder\n"
+            :
+            : "r"(arg0)
+            : "$vf10", "$vf11", "memory");
+        func_004bce50();
+    }
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(arg2) : "$vf10", "memory");
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486970);
+#endif
+/* measured: closes optimization_level 1 for the parked 00486970 body. */
+#pragma optimization_level 2
 // FUN_00489E00
 void func_00489e00(u8 *arg0)
 {

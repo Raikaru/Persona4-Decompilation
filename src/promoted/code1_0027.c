@@ -26,6 +26,9 @@ static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
 extern void func_0026bc10(s32 arg0, s32 arg1);
+extern s32 func_00110d60(s16 arg0);
+extern s64 func_002e0da0(s64 arg0, s32 arg1, s64 arg2);
+extern void func_002e0f90(void);
 
 extern u16 D_008817E8[];
 extern u8 *func_00276290();
@@ -69,8 +72,64 @@ s32 func_00270390(void)
     return 0;
 }
 
+/* measured: opt_propagation off probe for 002703d0 register setup. */
+#pragma opt_propagation off
 // FUN_002703D0
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_002703d0);
+s32 func_002703d0(s32 arg0, u8 *arg1)
+{
+    u16 temp_16;
+    s32 temp_4;
+
+    {
+        u8 *base;
+        s32 offset;
+        s32 var_2;
+        u8 temp_3_2;
+        s32 low;
+        base = *(u8 **)(arg1 + 0x18);
+        offset = *(s32 *)(arg1 + 0x10);
+        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        low = (((u8 *)base)[0] - 1) & 0xFF;
+        temp_3_2 = ((u8 *)base)[1];
+        if (temp_3_2 == 0xFF) {
+            var_2 = 0;
+        } else {
+            var_2 = (temp_3_2 - 1) & 0xFF;
+        }
+        temp_16 = (s32)(s16)(((var_2 & 0xFF) << 8) |
+                             (low & 0xFF));
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 var_2_2;
+        u8 temp_3_4;
+        s32 low;
+        s32 key_2;
+        base = *(u8 **)((u8 *)arg1 + 0x18);
+        offset = *(s32 *)((u8 *)arg1 + 0x10);
+        base += offset;
+        low = (((u8 *)base)[2] - 1) & 0xFF;
+        temp_3_4 = ((u8 *)base)[3];
+        if (temp_3_4 == 0xFF) {
+            var_2_2 = 0;
+        } else {
+            var_2_2 = (temp_3_4 - 1) & 0xFF;
+        }
+        key_2 = (s32)(s16)(((var_2_2 & 0xFF) << 8) |
+                           (low & 0xFF));
+        temp_4 = key_2 & 0xFF;
+    }
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    func_0026bc10(
+        (((temp_16 & 0xFFFF) & 0x3FF) | 0xC00) & 0xFFFF,
+        temp_4);
+    return 0;
+}
+/* measured: closes opt_propagation off probe for 002703d0. */
+#pragma opt_propagation on
 // FUN_002704F0
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_002704f0);
 // FUN_002706F0

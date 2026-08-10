@@ -1,5 +1,12 @@
 #include "include_asm.h"
 #include "type.h"
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+typedef int s128 __attribute__((mode(TI)));
+typedef struct {
+    s128 lock;
+    u8 pad[12];
+    s32 arg6;
+} Func004667d0Locals;
 extern s32 iGpffffb034;
 extern s32 iGpffffbaf8;
 extern s32 iGpffffbab4;
@@ -8,6 +15,12 @@ extern s32 D_008E4B30[];
 extern s32 D_008E4B34[];
 extern s32 D_008E4B38[];
 extern u8 D_008E4800[];
+extern u8 D_008E4B50[];
+extern u8 D_008E4D30[];
+static inline u8 *func_004667d0_entry(u8 *base, s32 index)
+{
+    return base + index * 0x1DC;
+}
 extern void func_0043a978(void);
 extern void func_004316a8(s32 arg0);
 extern s32 func_00431928(void *a, u8 *b);

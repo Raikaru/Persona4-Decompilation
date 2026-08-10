@@ -684,8 +684,54 @@ void func_0010b7c0(void)
    b5b0-return form) inside the ||; mwcc b210 emits addiu for ternary/local
    forms and hoists the D_0079B40C load. Tried ternary/u16/s64 arms and
    assignment forms; nd 104-106. Same daddiu-local floor as func_0010b6f0. */
-// FUN_0010B7F0
+// FUN_0010B7F0 NONMATCHING
+#ifdef NON_MATCHING
+void func_0010b7f0(void)
+{
+    u8 sp30[0x30];
+    s16 selected;
+    s32 temp_off;
+    s32 count;
+    s32 i;
+
+    selected = D_00797F88[0];
+    if (selected >= 0) {
+        if (D_0079B40C[0] & 4) {
+            count = 0xC;
+        } else if (D_0079B40C[0] & 2) {
+            count = 0xA;
+        } else if (D_0079B40C[0] & 1) {
+            count = 8;
+        } else {
+            count = 6;
+        }
+        if (selected < (count & 0xFFFF)) {
+            goto valid_index;
+        }
+    }
+    func_0046d730(D_005E4318, 0x50B);
+valid_index:
+    temp_off = (s32)selected * 0x30;
+    if ((*(u16 *)((u8 *)D_00797F8C + temp_off) & 1) == 0) {
+        func_0046d730(D_005E4318, 0x50C);
+    }
+    if (selected != 0) {
+        func_0043f810(sp30, (u8 *)D_007973A0 + temp_off + 0xBEC, 0x30);
+        i = selected;
+        while (i > 0) {
+            func_0043f810((u8 *)D_007973A0 + (s32)i * 0x30 + 0xBEC,
+                          (u8 *)D_007973A0 + ((s32)i - 1) * 0x30 + 0xBEC,
+                          0x30);
+            i--;
+        }
+        func_0043f810((void *)D_00797F8C, sp30, 0x30);
+        D_00797F88[0] = 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010b7f0);
+#endif
+
 
 /* measured: retail loads the count-select ternary arms with daddiu into
    $v0 and hoists (u16)count/base to the search-loop preheader; mwcc b210

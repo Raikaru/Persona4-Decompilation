@@ -346,11 +346,11 @@ s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
     func_0046d280((u8 *)temp_2_3);
     return result;
 }
-
-
 #else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
 #endif
+
+
 // FUN_002B67A0
 void func_002b67a0(u8 *arg0, u32 arg1, s8 arg2) {
     u8 *base = *(u8 **)(arg0 + 0x38);

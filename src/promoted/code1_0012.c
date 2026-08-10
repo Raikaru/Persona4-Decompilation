@@ -1,5 +1,13 @@
 #include "include_asm.h"
 #include "type.h"
+static inline s32 code1_0012_stride(s32 index, s32 base)
+{
+    return index + base;
+}
+static inline s32 code1_0012_stride_loop(s32 base, s32 index)
+{
+    return base + index;
+}
 
 extern s32 D_007242B0;
 extern void (*jtbl_008873EC[])(void *);
@@ -663,9 +671,7 @@ s16 func_00123b40(void) {
     }
     return -1;
 }
-/* measured candidate is 472 bytes against the 480-byte retail window; normalized_diff 3. Committed at nd 3. */
 // FUN_00123B70
-#ifdef NON_MATCHING
 s32 func_00123b70(u8 *arg0)
 {
     s32 temp_2_2;
@@ -718,10 +724,10 @@ s32 func_00123b70(u8 *arg0)
         if (temp_2_4 == 1) {
             goto case_5_error;
         }
-        if (temp_2_4 == 0) {
-            goto block_20;
+        if (temp_2_4 != 0) {
+            goto case_5_action;
         }
-        goto case_5_action;
+        goto block_20;
 case_5_error:
         return -1;
 case_5_action:
@@ -734,9 +740,6 @@ case_5_action:
 block_20:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00123b70);
-#endif
 // FUN_00123D50
 void func_00123d50(u8 *arg0)
 {
@@ -1109,8 +1112,155 @@ s32 func_0012db80(u8 *arg0, s32 arg1)
     }
     return 1;
 }
+/* measured: opt_loop_invariants on is load-bearing for 0012DC00 -- without it
+   the object grows to 676 bytes against the 672-byte window at nd 243. */
+#pragma opt_loop_invariants on
 // FUN_0012DC00
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012dc00);
+void func_0012dc00(u8 *arg0)
+{
+    s32 temp_10;
+    s32 temp_3;
+    s32 temp_5;
+    s32 temp_7;
+    s32 temp_9;
+    s32 temp_8;
+    s32 var_11;
+    s32 var_11_2;
+    s32 var_12;
+    s32 var_c_ff;
+    f32 var_c_1;
+    f32 var_c_2;
+    s32 var_c_7f;
+    s32 var_c_3;
+    u8 *temp_3_2;
+    u8 *temp_3_3;
+    u8 *temp_5_2;
+    u8 *temp_5_3;
+    u8 *temp_6;
+    u8 *temp_6_2;
+    u8 *temp_6_3;
+    u8 *temp_6_4;
+    u8 *temp_6_5;
+
+    temp_5 = *(s32 *)(arg0 + 0x10);
+    temp_10 = *(s32 *)(arg0 + 0x14);
+    temp_3 = *(s32 *)(arg0 + 0x38);
+    temp_9 = temp_3 - 1;
+    temp_8 = -temp_9;
+    temp_7 = temp_5 - temp_10;
+    var_11 = 0;
+    goto loop_0012dc00_2_check;
+loop_0012dc00_2_body:
+    temp_6 = (var_11 * 0x30) + arg0;
+    *(s32 *)(temp_6 + 0xBC) = 0;
+    *(s32 *)(temp_6 + 0xC0) = 0;
+    var_11 += 1;
+loop_0012dc00_2_check:
+    if (var_11 < 0xB) {
+        goto loop_0012dc00_2_body;
+    }
+    if (temp_7 == 1) {
+        temp_3_2 = (u8 *)code1_0012_stride(temp_10 * 0x30, (s32)(u32)arg0);
+        *(s32 *)(temp_3_2 + 0x9C) = 0;
+        *(s32 *)(temp_3_2 + 0x98) = 0;
+        *(s32 *)(temp_3_2 + 0xA0) = 0;
+        *(u8 *)(temp_3_2 + 0xAC) = 0xFF;
+        *(u8 *)(temp_3_2 + 0xAD) = 0xFF;
+        *(s32 *)(temp_3_2 + 0xC0) = 0;
+        temp_5_2 = (u8 *)code1_0012_stride(temp_5 * 0x30, (s32)(u32)arg0);
+        *(s32 *)(temp_5_2 + 0x9C) = 0;
+        *(s32 *)(temp_5_2 + 0x98) = (s32)0xC1700000;
+        *(s32 *)(temp_5_2 + 0xA0) = (s32)0x40B00000;
+        *(s8 *)(temp_5_2 + 0xAC) = 0x7F;
+        *(u8 *)(temp_5_2 + 0xAD) = 0xFF;
+        *(s32 *)(temp_5_2 + 0xC0) = 3;
+        *(s32 *)(arg0 + 0x278) = (s32)0x3F800000;
+        *(s32 *)(arg0 + 0x280) = (s32)0x3F800000;
+    } else if (temp_7 == -1) {
+        temp_3_3 = (u8 *)code1_0012_stride(temp_10 * 0x30, (s32)(u32)arg0);
+        *(s32 *)(temp_3_3 + 0x9C) = 0;
+        *(s32 *)(temp_3_3 + 0x98) = 0;
+        *(s32 *)(temp_3_3 + 0xA0) = 0;
+        *(u8 *)(temp_3_3 + 0xAC) = 0xFF;
+        *(u8 *)(temp_3_3 + 0xAD) = 0xFF;
+        *(s32 *)(temp_3_3 + 0xC0) = 0;
+        temp_5_3 = (u8 *)code1_0012_stride(temp_5 * 0x30, (s32)(u32)arg0);
+        *(s32 *)(temp_5_3 + 0x9C) = 0;
+        *(s32 *)(temp_5_3 + 0x98) = (s32)0x41700000;
+        *(s32 *)(temp_5_3 + 0xA0) = (s32)0xC0B00000;
+        *(s8 *)(temp_5_3 + 0xAC) = 0x7F;
+        *(u8 *)(temp_5_3 + 0xAD) = 0xFF;
+        *(s32 *)(temp_5_3 + 0xC0) = 3;
+        *(s32 *)(arg0 + 0x278) = 0;
+        *(s32 *)(arg0 + 0x280) = 0;
+    } else if (temp_7 == temp_9) {
+        var_12 = 0;
+        var_c_ff = 0xFF;
+        var_c_1 = -15.0f;
+        var_c_2 = 5.5f;
+        var_c_7f = 0x7F;
+        var_c_3 = 3;
+        goto loop_0012dc00_13_check;
+loop_0012dc00_13_body:
+        if (var_12 == temp_5) {
+            temp_6_2 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_12 * 0x30);
+            *(f32 *)(temp_6_2 + 0x98) = var_c_1;
+            *(f32 *)(temp_6_2 + 0xA0) = var_c_2;
+            *(s8 *)(temp_6_2 + 0xAC) = var_c_7f;
+            *(u8 *)(temp_6_2 + 0xAD) = var_c_ff;
+            *(s32 *)(temp_6_2 + 0xC0) = var_c_3;
+        } else {
+            temp_6_3 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_12 * 0x30);
+            *(s32 *)(temp_6_3 + 0x9C) = 0;
+            *(s32 *)(temp_6_3 + 0x98) = 0;
+            *(s32 *)(temp_6_3 + 0xA0) = 0;
+            *(u8 *)(temp_6_3 + 0xAC) = var_c_ff;
+            *(u8 *)(temp_6_3 + 0xAD) = var_c_ff;
+            *(s32 *)(temp_6_3 + 0xC0) = 0;
+        }
+        var_12 += 1;
+loop_0012dc00_13_check:
+        if (var_12 < temp_3) {
+            goto loop_0012dc00_13_body;
+        }
+        *(s32 *)(arg0 + 0x278) = (s32)0x3F800000;
+        *(s32 *)(arg0 + 0x280) = (s32)0x3F800000;
+    } else if (temp_7 == temp_8) {
+        var_11_2 = 0;
+        var_c_ff = 0xFF;
+        var_c_1 = 15.0f;
+        var_c_2 = -5.5f;
+        var_c_3 = 3;
+        goto loop_0012dc00_21_check;
+loop_0012dc00_21_body:
+        if (var_11_2 == temp_5) {
+            temp_6_4 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_11_2 * 0x30);
+            *(f32 *)(temp_6_4 + 0x98) = var_c_1;
+            *(f32 *)(temp_6_4 + 0xA0) = var_c_2;
+            *(s8 *)(temp_6_4 + 0xAC) = 0;
+            *(u8 *)(temp_6_4 + 0xAD) = var_c_ff;
+            *(s32 *)(temp_6_4 + 0xC0) = var_c_3;
+        } else {
+            temp_6_5 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_11_2 * 0x30);
+            *(s32 *)(temp_6_5 + 0x9C) = 0;
+            *(s32 *)(temp_6_5 + 0x98) = 0;
+            *(s32 *)(temp_6_5 + 0xA0) = 0;
+            *(u8 *)(temp_6_5 + 0xAC) = var_c_ff;
+            *(u8 *)(temp_6_5 + 0xAD) = var_c_ff;
+            *(s32 *)(temp_6_5 + 0xC0) = 0;
+        }
+        var_11_2 += 1;
+loop_0012dc00_21_check:
+        if (var_11_2 < temp_3) {
+            goto loop_0012dc00_21_body;
+        }
+        *(s32 *)(arg0 + 0x278) = 0;
+        *(s32 *)(arg0 + 0x280) = 0;
+    }
+    *(s16 *)(arg0 + 0xC) = 0;
+}
+/* measured: closes the opt_loop_invariants bracket opened above func_0012dc00. */
+#pragma opt_loop_invariants off
 // FUN_0012DEA0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012dea0);
 // FUN_0012E150

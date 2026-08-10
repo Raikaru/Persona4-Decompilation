@@ -7,7 +7,6 @@ extern void func_00410370(u64 source, void* bytes, u16* header);
 extern void func_003f34e0(void* packet, u32 size);
 extern void func_00143c90(u32 texture, void* packet, u32 source, s32 a3,
                            s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9);
-
 extern void func_00143cf0(u32 texture, void* packet, u32 source, s32 a3,
                           s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9,
                           s32 a10);
@@ -15,6 +14,14 @@ extern void func_00143cf0(u32 texture, void* packet, u32 source, s32 a3,
 extern void* func_0046a430(size_t size);
 extern void memset(void* dst, u32 value, u32 size);
 
+extern void func_00143f90(u64* out, u32 a1, s32 a2, u32 a3, u32 a4,
+                          u32 a5, u32 a6);
+extern void func_00144000(u32* out, u64 address, s32 a2, s32 a3, s32 a4,
+                          s32 a5, s32 a6, u32 a7);
+extern void func_00144060(u32* output, u32 image, u32 width, u32 height);
+extern void func_001440d0(u32* output, u32 flag, u32 image, u32 height);
+extern void func_00144140(u32* out, u32 x, u32 y);
+extern void func_001441a0(u32* out, u32 value);
 
 
 // FUN_00143BA0

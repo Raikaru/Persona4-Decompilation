@@ -423,7 +423,6 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4ac0);
 
 // FUN_002E5000
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e5000);
-
 // FUN_002E5270
 s32 func_002e5270(u8 *arg0, u8 *arg1) {
     s16 i;

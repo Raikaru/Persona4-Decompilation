@@ -53,7 +53,26 @@ extern s32 func_0010f560(s16 arg0, u16 arg1);
 extern s32 func_0010f600(s16 arg0, u16 arg1);
 extern void *func_00243840(u16 arg0);
 extern void func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
+extern void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+                          u8 arg2, u8 arg3, f32 z, s32 arg4);
+extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+                          u8 arg2, u8 arg3, u8 arg4, u8 arg5,
+                          f32 z, s32 arg6);
+extern u32 func_00106880(s16 arg0);
+extern s32 func_0046a770(void *param);
+extern s32 func_001068b0(s16 arg0);
+extern s32 func_00106940(s16 arg0);
+extern s32 func_00106970(s16 arg0);
+extern s32 func_00106c30(s16 arg0, s16 arg1);
+extern s32 func_00106c80(s16 arg0);
+extern s16 func_00106cd0(s16 arg0, s16 arg1);
+extern u8 *func_0010d620(s16 arg0);
+extern u8 D_005E4F70[];
 extern s8 D_005E47F0[];
+static inline s64 p4_0011_signext16(s16 arg0)
+{
+    return (s64)arg0;
+}
 static inline s32 p4_00113520_add(s32 offset, s32 base)
 {
     return offset + base;
@@ -468,7 +487,64 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 // FUN_001130C0
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001130c0);
 // FUN_00113280
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113280);
+void func_00113280(Vec2f arg0, f32 fparg0, s32 arg1, s16 arg2, s32 arg3,
+                   s32 arg4)
+{
+    f32 scale;
+    s32 flags;
+    s32 mode;
+    s32 id;
+    s32 alpha;
+
+    scale = fparg0;
+    flags = func_00106880(arg2);
+    mode = -1;
+    if (flags & 0x81) {
+        mode = 0x14;
+        id = arg3;
+    } else if (flags & 0x102) {
+        mode = 0x15;
+        id = arg3;
+    } else if (flags & 0x204) {
+        mode = 0x16;
+        id = arg3;
+    } else if (flags & 0x408) {
+        mode = 0x17;
+        id = arg3;
+    } else if (flags & 0x810) {
+        mode = 0x18;
+        id = arg3;
+    } else if (flags & 0x1020) {
+        mode = 0x19;
+        id = arg3;
+    } else if (flags & 0x2040) {
+        mode = 0x1A;
+        id = arg3;
+    } else if (flags & 0x4000) {
+        mode = 0x1B;
+        id = arg3;
+    } else if (flags & 0x8000) {
+        mode = 0x1C;
+        id = arg3;
+    } else if (flags & 0x10000) {
+        mode = 0x1B;
+        id = arg4;
+    } else if (flags & 0x20000) {
+        mode = 0x1C;
+        id = arg4;
+    } else if (flags & 0x40000) {
+        mode = 0x1A;
+        id = arg4;
+    }
+    if (mode != -1) {
+        alpha = 0xFF;
+        alpha -= ((u8 *)&arg1)[3];
+        func_0046d4c0(0, id, mode, arg0.x, arg0.y,
+                      alpha & 0xFF,
+                      ((u8 *)&arg1)[0], ((u8 *)&arg1)[1],
+                      ((u8 *)&arg1)[2], scale, 0);
+    }
+}
 // FUN_00113480
 void func_00113480(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
@@ -650,4 +726,91 @@ void func_0011fd50(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
     }
 }
 // FUN_0011FDF0
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_0011fdf0);
+void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
+{
+    s16 temp_17;
+    s32 temp_2;
+    s32 temp_17_2;
+    s32 temp_17_3;
+    s32 temp_17_4;
+    s32 temp_20;
+    s32 temp_20_2;
+    s32 temp_20_3;
+    s32 alpha;
+    s32 mode;
+
+    temp_2 = func_0046a770(D_005E4F70);
+    temp_17 = *(s16 *)(arg2 + 4);
+    if (temp_2 == 0) {
+        temp_2 = arg1 & 0xFF;
+        func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, arg4,
+                      temp_2 | -0x100, 0, 4,
+                      func_0010d620(*(s16 *)arg2), 0, 0);
+        return;
+    }
+    if (p4_0011_signext16(temp_17) == -1) {
+        alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+        func_0046d3b0(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        return;
+    }
+    if (func_00106c30(temp_17, *(s16 *)arg2) == 0) {
+        alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+        func_0046d3b0(0, temp_2, 3, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        return;
+    }
+    mode = func_00106c80(temp_17);
+    switch (mode) {
+    case 0:
+        temp_20 = func_001068b0(temp_17) & 0xFFFF;
+        if (temp_20 == (func_001068b0(func_00106cd0(*(s16 *)arg2, 0)) & 0xFFFF)) {
+            alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+            func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            return;
+        }
+        temp_17_2 = func_001068b0(temp_17) & 0xFFFF;
+        if (temp_17_2 >= (func_001068b0(func_00106cd0(*(s16 *)arg2, 0)) & 0xFFFF)) {
+            alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+            func_0046d3b0(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            return;
+        }
+        alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+        func_0046d3b0(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        return;
+    case 1:
+        temp_20_2 = func_00106940(temp_17) & 0xFFFF;
+        if (temp_20_2 >= (func_00106940(func_00106cd0(*(s16 *)arg2, 1)) & 0xFFFF)) {
+            alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+            func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            return;
+        }
+        temp_17_3 = func_00106940(temp_17) & 0xFFFF;
+        if (temp_17_3 >= (func_00106940(func_00106cd0(*(s16 *)arg2, 1)) & 0xFFFF)) {
+            alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+            func_0046d3b0(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            return;
+        }
+        alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+        func_0046d3b0(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        return;
+    case 2:
+        temp_20_3 = func_00106970(temp_17) & 0xFFFF;
+        if (temp_20_3 >= (func_00106970(func_00106cd0(*(s16 *)arg2, 2)) & 0xFFFF)) {
+            alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+            func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            return;
+        }
+        temp_17_4 = func_00106970(temp_17) & 0xFFFF;
+        if (temp_17_4 >= (func_00106970(func_00106cd0(*(s16 *)arg2, 2)) & 0xFFFF)) {
+            alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+            func_0046d3b0(0, temp_2, 1, arg0.x, arg0.y, 0, alpha, arg4, 1);
+            return;
+        }
+        alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+        func_0046d3b0(0, temp_2, 2, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        return;
+    case 3:
+        alpha = (0xFF - (arg1 & 0xFF)) & 0xFF;
+        func_0046d3b0(0, temp_2, 4, arg0.x, arg0.y, 0, alpha, arg4, 1);
+        return;
+    }
+}

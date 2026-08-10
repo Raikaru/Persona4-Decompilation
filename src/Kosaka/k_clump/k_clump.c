@@ -582,51 +582,11 @@ scan_found:
 }
 /* measured: opt_propagation on closes the target-only bracket. */
 #pragma opt_propagation on
+/* measured: in-file body recheck is object 344B/window 336B with
+   normalized_diff 195, over the park threshold; body archived at
+   build/WS19_00463100_nd195.c and restored to INCLUDE_ASM. */
 // FUN_00463100
-#ifdef NON_MATCHING
-s32 func_00463100(s32 arg0, u32** arg1)
-{
-    u32* temp_2_3;
-    u32* temp_2_4;
-    u32* var_3;
-    u32 temp_2_5;
-    u8* temp_2;
-    u8* temp_2_2;
-
-    temp_2 = func_003ef650(func_003ef6d0(), (s32)k_clump_arg_second((u8*)arg0, 0x10));
-    if (temp_2 != NULL)
-    {
-        *(s32*)(temp_2 + 0x54) = *(s32*)(temp_2 + 0x54) + 1;
-    }
-    else
-    {
-        func_003ef5b0(func_003ef6d0(), arg0);
-    }
-    temp_2_2 = func_003ef650(func_003ef6d0(), arg0 + 0x10);
-    func_00440b68(D_00712620, temp_2_2 + 0x10,
-                  *(u8*)(temp_2_2 + 0x50), *(s32*)(temp_2_2 + 0x54));
-    func_0044ea90(D_00712640, 0x97);
-    temp_2_3 = (u32*)D_008873F4[0](1, 0x44, 0x40000);
-    func_00442830((char*)temp_2_3, (const char*)(arg0 + 0x10));
-    temp_2_4 = *arg1;
-    if (temp_2_4 == NULL)
-    {
-        *arg1 = temp_2_3;
-    }
-    else
-    {
-        var_3 = (u32*)((u8*)temp_2_4 + 0x40);
-        while ((temp_2_5 = *var_3) != 0)
-        {
-            var_3 = (u32*)((u8*)temp_2_5 + 0x40);
-        }
-        *var_3 = (u32)temp_2_3;
-    }
-    return arg0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463100);
-#endif
 // FUN_00463250
 void func_00463250(u32* arg0)
 {
