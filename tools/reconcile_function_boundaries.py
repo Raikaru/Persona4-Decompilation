@@ -311,6 +311,16 @@ EPILOGUE_SEPARATED_ENTRIES = {
     # argument -- a callback handed to a registration routine.
     0x003C54C0,
     0x003E87B0,
+    # 001013A0 is materialised by `lui $v1,0x10` at 001024FC and
+    # `addiu $v1,$v1,0x13A0` at 00102500, and the game installs it as a
+    # callback: src/Main/mainDraw.c already declares `extern u8 D_001013A0[]`
+    # and stores `&D_001013A0` into a structure field. Its owner func_00101350
+    # ends at 0010139C with an infinite `b .-3` plus a nop delay slot rather
+    # than a `jr`, which is why the epilogue check below also accepts a
+    # self-branch: a function that loops forever terminates just as
+    # definitively as one that returns. Splitting the fused 352-byte window
+    # into 80 + 272 closed func_00101350 outright at nd 0.
+    0x001013A0,
 }
 
 # Entries the control-flow scan gets BACKWARDS. Each of these is a real, heavily

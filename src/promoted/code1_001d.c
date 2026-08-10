@@ -33,6 +33,12 @@ extern void func_00454bd0(u8 *arg0);
 extern u32 iGpffffb3b8;
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 
+extern void func_00195850(u8 *arg0, f32 *arg1);
+extern s32 func_0047a6d0();
+extern void func_004789c0(u8 *arg0);
+extern void func_0047a320(u8 *arg0);
+extern void func_003dcb40(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
+extern void func_001d44a0(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
 
 
 extern void func_001d9b60(u8 *arg0);
@@ -138,13 +144,167 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d41b0);
 // FUN_001D44A0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d44a0);
 // FUN_001D4780
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4780);
+void func_001d4780(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+    struct Frame {
+        f32 value50;
+        f32 value54;
+        f32 value58;
+        f32 pad5C;
+        f32 value60;
+        f32 value64;
+        f32 value68;
+        f32 pad6C;
+        f32 value70;
+        f32 value74;
+        f32 value78;
+    } frame;
+    s32 temp_2;
+    f32 var_f20;
+    f32 temp_f21;
+    u8 *temp_s0;
+
+    temp_s0 = arg2 + 8;
+    temp_2 = *(u16 *)(arg2 + 0xC);
+    if (temp_2 == 0) {
+        var_f20 = *(f32 *)(arg0 + 0x30) * *(f32 *)(arg1 + 0x2C);
+    } else {
+        var_f20 = (f32)temp_2;
+    }
+    temp_f21 = 0.5f * (*(f32 *)(arg0 + 0x2C) * *(f32 *)(arg1 + 0x2C));
+    frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
+    frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
+    frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
+    func_003dcb40(&frame.value50, &frame.value60, 1, arg0 + 0x40);
+    frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
+    frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
+    frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+    func_001d44a0(var_f20, temp_f21, &frame.value70, (s32 *)(arg0 + 0x40), temp_s0, arg3);
+}
 // FUN_001D48B0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d48b0);
+void func_001d48b0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+    struct Frame {
+        f32 value30;
+        f32 value34;
+        f32 value38;
+        f32 pad3C;
+        f32 value40;
+        f32 value44;
+        f32 value48;
+        f32 pad4C;
+        f32 value50;
+        f32 value54;
+        f32 value58;
+    } frame;
+    u16 temp_2;
+    u8 *temp_16;
+
+    temp_16 = (u8 *)(arg2 + 8);
+    if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
+        func_00195850(arg1, &frame.value50);
+    } else {
+        temp_2 = *(u16 *)(temp_16 + 4);
+        if (func_0047a6d0(*(u8 **)(arg1 + 0xA00), temp_2, &frame.value50) == 0) {
+            frame.value40 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
+            frame.value44 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
+            frame.value48 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
+            func_003dcb40(&frame.value30, &frame.value40, 1, arg0 + 0x40);
+            frame.value50 = frame.value30 + *(f32 *)(arg0 + 0x34);
+            frame.value54 = frame.value34 + *(f32 *)(arg0 + 0x38);
+            frame.value58 = frame.value38 + *(f32 *)(arg0 + 0x3C);
+        }
+    }
+    *(f32 *)(arg3 + 0) = frame.value50;
+    *(f32 *)(arg3 + 4) = frame.value54;
+    *(f32 *)(arg3 + 8) = frame.value58;
+}
 // FUN_001D49C0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d49c0);
+void func_001d49c0(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+    struct Frame {
+        f32 value50;
+        f32 value54;
+        f32 value58;
+        f32 pad5C;
+        f32 value60;
+        f32 value64;
+        f32 value68;
+        f32 pad6C;
+        f32 value70;
+        f32 value74;
+        f32 value78;
+    } frame;
+    u8 *temp_2;
+    u8 *var_19;
+    u8 *temp_s2;
+
+    temp_s2 = (u8 *)(arg2 + 8);
+    if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
+        func_00195850(arg1, &frame.value70);
+    } else {
+        temp_2 = *(u8 **)(arg1 + 0xA00);
+        var_19 = *(u8 **)(temp_2 + 0x29C);
+        if (var_19 == NULL) {
+            var_19 = temp_2;
+        }
+        func_004789c0(var_19);
+        func_0047a320(var_19);
+        if (func_0047a6d0(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
+            frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
+            frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
+            frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
+            func_003dcb40(&frame.value50, &frame.value60, 1, arg0 + 0x40);
+            frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
+            frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
+            frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+        }
+    }
+    *(f32 *)(arg3 + 0) = frame.value70;
+    *(f32 *)(arg3 + 4) = frame.value74;
+    *(f32 *)(arg3 + 8) = frame.value78;
+}
 // FUN_001D4B00
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4b00);
+void func_001d4b00(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+    struct Frame {
+        f32 value50;
+        f32 value54;
+        f32 value58;
+        f32 pad5C;
+        f32 value60;
+        f32 value64;
+        f32 value68;
+        f32 pad6C;
+        f32 value70;
+        f32 value74;
+        f32 value78;
+    } frame;
+    u8 *temp_2;
+    u8 *var_19;
+    u8 *temp_s2;
+
+    temp_s2 = (u8 *)(arg2 + 8);
+    if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
+        func_00195850(arg1, &frame.value70);
+    } else {
+        temp_2 = *(u8 **)(arg1 + 0xA00);
+        var_19 = *(u8 **)(temp_2 + 0x290);
+        if (var_19 == NULL) {
+            var_19 = temp_2;
+        }
+        func_004789c0(var_19);
+        func_0047a320(var_19);
+        if (func_0047a6d0(var_19, *(u16 *)(temp_s2 + 4), &frame.value70) == 0) {
+            frame.value60 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
+            frame.value64 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
+            frame.value68 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
+            func_003dcb40(&frame.value50, &frame.value60, 1, arg0 + 0x40);
+            frame.value70 = frame.value50 + *(f32 *)(arg0 + 0x34);
+            frame.value74 = frame.value54 + *(f32 *)(arg0 + 0x38);
+            frame.value78 = frame.value58 + *(f32 *)(arg0 + 0x3C);
+        }
+    }
+    *(f32 *)(arg3 + 0) = frame.value70;
+    *(f32 *)(arg3 + 4) = frame.value74;
+    *(f32 *)(arg3 + 8) = frame.value78;
+}
 // FUN_001D4C40
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4c40);
 // FUN_001D4CF0
@@ -447,9 +607,88 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8cb0);
 // FUN_001D8E50
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8e50);
 // FUN_001D9280
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9280);
+u8 *func_001d9280(s32 arg0, s32 arg1, s32 arg2) {
+    s32 work_flags;
+    u8 *unit;
+    u8 *work;
+    u16 flags;
+    u32 mask;
+    u32 filter;
+    s32 id;
+
+    work_flags = arg2;
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    mask = (u16)arg1;
+    filter = work_flags & 0x80000;
+    id = (u16)arg0;
+    goto next_branch;
+loop:
+    flags = *(u16 *)(unit + 0x1A);
+    if ((flags & 1) != 0) {
+        if ((flags & 8) != 0) {
+            work = *(u8 **)(unit + 0x30);
+            if ((mask & (1 << *(u8 *)(work + 0xA2))) != 0) {
+                if (filter != 0) {
+                    if (func_002428f0(*(u8 **)(work + 0xA64), 0) != 0) {
+                        goto next;
+                    }
+                }
+                if (func_00232710(*(u8 **)(work + 0xA64), work_flags) != 0) {
+                    goto next;
+                }
+                if (*(u16 *)(work + 0xA4) == id) {
+                    return unit;
+                }
+            }
+        }
+    }
+next:
+    unit = *(u8 **)(unit + 0x450);
+next_branch:
+    if (unit != NULL) {
+        goto loop;
+    }
+    return NULL;
+}
 // FUN_001D9390
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d9390);
+int func_001d9390(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(u8 *, s32), u8 **arg6) {
+    struct Frame {
+        u8 *entries[14];
+        u16 count;
+    } frame;
+    u8 *unit;
+    s32 index;
+    s32 matches;
+    u8 *work;
+    u16 flags;
+
+    func_001d7c60((u8 *)arg0, (u8 *)&frame.entries[0], arg3, 0, 0);
+    matches = 0;
+    index = 0;
+    goto test;
+loop:
+    unit = frame.entries[(u16)index];
+    flags = *(u16 *)(unit + 0x1A);
+    if ((flags & 1) != 0) {
+        if ((flags & 8) != 0) {
+            work = *(u8 **)(unit + 0x30);
+            if (func_00232710(*(u8 **)(work + 0xA64), arg2) == 0) {
+                if (arg5(unit, arg1) != arg4) {
+                    if (arg6 != NULL) {
+                        arg6[(u16)matches] = unit;
+                    }
+                    matches = (matches + 1) & 0xFFFF;
+                }
+            }
+        }
+    }
+    index = (index + 1) & 0xFFFF;
+test:
+    if ((u16)index < frame.count) {
+        goto loop;
+    }
+    return matches;
+}
 // FUN_001D94D0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d94d0);
 // FUN_001D9740

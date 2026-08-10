@@ -18,6 +18,19 @@ s16 func_001d7130(s32 param_1);
 void func_001d8be0(s32 param_1, u64* param_2);
 void func_001d8bf0(s32 param_1, s32 param_2);
 u32 btlCond_MORE(s32 param_1);
+extern void func_001d6880(void* param_1);
+extern void func_001d3e00(u32 param_1);
+extern u8* DAT_0076449c;
+extern void (*jtbl_008873EC[])(void* ptr);
+extern void* (*jtbl_008873E8[])(u32 size, u32 align);
+extern char D_00609558[];
+extern void func_0044ea90(const void* msg, s32 id);
+extern void func_0043f9c8(void* dst, s32 value, u32 size);
+extern void func_001d42e0(u8* arg0);
+extern void func_001d40d0(u8* arg0);
+extern u8* func_001d41b0(u8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_00485b20(u32 arg0);
+extern void func_004787e0(u32 arg0);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
 
@@ -48,9 +61,78 @@ void func_001d6ee0(void** units)
 }
 
 // FUN_001D6F20
-INCLUDE_ASM("asm/nonmatchings/btlFormation_grouped", func_001d6f20);
+u8* func_001d6f20(s32 arg0)
+{
+    u8* temp_2;
+    u8* temp_2_2;
+    u8* temp_2_3;
+    u32 table;
+
+    func_0044ea90(D_00609558, 0x48);
+    table = (u32)jtbl_008873E8;
+    temp_2 = (u8*)((void* (*)(u32, u32))*(u32*)table)(0x18, 0x40000);
+    *(s32*)(temp_2 + 4) = arg0;
+    *(s16*)(temp_2 + 0x10) = -1;
+    *(s8*)(temp_2 + 0) = 0;
+    *(s32*)(temp_2 + 0x14) = -1;
+    *(s32*)(temp_2 + 0xC) = 0;
+    func_0044ea90(D_00609558, 0x51);
+    temp_2_2 = (u8*)((void* (*)(u32, u32))*(u32*)table)(0x24, 0x40000);
+    func_0043f9c8(temp_2_2, 0, 0x24);
+    *(s32*)(temp_2_2 + 4) = -1;
+    *(s8*)(temp_2_2 + 8) = 0x14;
+    *(s32*)(temp_2_2 + 0xC) = 0;
+    *(u16*)(temp_2_2 + 0) = 0x200;
+    *(s32*)(temp_2_2 + 0x1C) = 0;
+    temp_2_3 = *(u8**)((u8*)DAT_0076449c + 0x1B8);
+    if (temp_2_3 != 0)
+    {
+        *(u8**)(temp_2_3 + 0x1C) = temp_2_2;
+        *(u8**)(temp_2_2 + 0x20) = *(u8**)((u8*)DAT_0076449c + 0x1B8);
+    }
+    else
+    {
+        *(u8**)(temp_2_2 + 0x20) = 0;
+    }
+    *(u8**)((u8*)DAT_0076449c + 0x1B8) = temp_2_2;
+    *(u8**)(temp_2 + 8) = temp_2_2;
+    return temp_2;
+}
 // FUN_001D7040
-INCLUDE_ASM("asm/nonmatchings/btlFormation_grouped", func_001d7040);
+void func_001d7040(u8* arg0)
+{
+    u8* temp_16;
+    u8* temp_3;
+    u8* temp_3_2;
+    u32 temp_4;
+    u32 table;
+
+    temp_16 = *(u8**)(arg0 + 8);
+    func_001d6880(temp_16);
+    temp_3 = *(u8**)(temp_16 + 0x20);
+    if (temp_3 != 0)
+    {
+        *(u8**)(temp_3 + 0x1C) = *(u8**)(temp_16 + 0x1C);
+    }
+    temp_3_2 = *(u8**)(temp_16 + 0x1C);
+    if (temp_3_2 != 0)
+    {
+        *(u8**)(temp_3_2 + 0x20) = *(u8**)(temp_16 + 0x20);
+    }
+    else
+    {
+        *(u8**)((u8*)DAT_0076449c + 0x1B8) = *(u8**)(temp_16 + 0x20);
+    }
+    table = (u32)jtbl_008873EC;
+    ((void (**)(void*))table)[0](temp_16);
+    temp_4 = *(u32*)(arg0 + 0xC);
+    if (temp_4 != 0)
+    {
+        func_001d3e00(temp_4);
+        *(u32*)(arg0 + 0xC) = 0;
+    }
+    ((void (**)(void*))table)[0](arg0);
+}
 // FUN_001D7100
 void func_001d7100(u8* packet, s16 value)
 {
@@ -61,8 +143,82 @@ void func_001d7100(u8* packet, s16 value)
     }
 }
 
+/* measured: candidate object 372B/window 384B, normalized_diff 6. Committed at nd 6. */
 // FUN_001D7140
+#ifdef NON_MATCHING
+void func_001d7140(u8* arg0)
+{
+    s16 temp_4_5;
+    s32 temp_4;
+    s32 temp_4_2;
+    s32 temp_4_3;
+    s32 temp_4_4;
+    s32 temp_4_6;
+    s32 temp_6;
+    u8* temp_17;
+    u8* temp_4_7;
+    u8* temp_4_8;
+
+    if ((*(u32*)((u8*)DAT_0076449c + 0xC) & 0x40000) != 0)
+    {
+        if ((*arg0 & 1) != 0)
+        {
+            temp_17 = *(u8**)(arg0 + 8);
+            temp_4 = *(s32*)(temp_17 + 0x10);
+            if (temp_4 != 0)
+            {
+                func_001d42e0((u8*)temp_4);
+                *(s32*)(temp_17 + 0x10) = 0;
+            }
+            temp_4_2 = *(s32*)(temp_17 + 0x14);
+            if (temp_4_2 != 0)
+            {
+                func_00485b20((u32)temp_4_2);
+                *(s32*)(temp_17 + 0x14) = 0;
+            }
+            temp_4_3 = *(s32*)(temp_17 + 0x18);
+            if (temp_4_3 != 0)
+            {
+                func_004787e0((u32)temp_4_3);
+                *(s32*)(temp_17 + 0x18) = 0;
+            }
+            *(s32*)(temp_17 + 4) = -1;
+            *(s8*)(temp_17 + 8) = 0x14;
+            *(s32*)(temp_17 + 0xC) = 0;
+            *(u16*)(temp_17 + 0) = 0x200;
+            temp_4_4 = *(s32*)(arg0 + 0xC);
+            if (temp_4_4 != 0)
+            {
+                func_001d3e00((u32)temp_4_4);
+                *(s32*)(arg0 + 0xC) = 0;
+            }
+            temp_4_5 = *(s16*)(arg0 + 0x10);
+            if (temp_4_5 != -1)
+            {
+                temp_4_6 = (temp_4_7 = DAT_0076449c,
+                            *(s32*)(temp_4_7 + (temp_4_5 * 4) + 0xD04));
+                *(s32*)(arg0 + 0xC) = temp_4_6;
+                func_001d40d0((u8*)temp_4_6);
+                temp_6 = *(s32*)(arg0 + 4);
+                *(s32*)(*(u8**)(arg0 + 8) + 0x10) =
+                    (s32)func_001d41b0(*(u8**)(arg0 + 0xC), 1, temp_6, temp_6, 0);
+            }
+            *arg0 &= (u8)~1;
+        }
+        if (*(s16*)(arg0 + 0x10) != -1)
+        {
+            temp_4_7 = *(u8**)(arg0 + 8);
+            *(u16*)temp_4_7 |= 0x30;
+            *(s32*)(*(u8**)(arg0 + 8) + 4) = *(s32*)(arg0 + 0x14);
+            return;
+        }
+        temp_4_8 = *(u8**)(arg0 + 8);
+        *(u16*)temp_4_8 &= (u16)~0x30;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlFormation_grouped", func_001d7140);
+#endif
 // FUN_001D72C0
 void func_001d72c0(void* packet, u32 value)
 {
