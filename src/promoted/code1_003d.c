@@ -65,21 +65,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0540);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0790);
 // FUN_003D0850
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0850);
-/* Parked candidate: branch scheduling leaves the 0xff materialization and
-   shared return path one word away from retail. Residual normalized_diff 25.
-   Committed at nd 25. */
-// FUN_003D0930 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: a local 0xFF limit plus schedule on reproduces retail's
+   constant materialization and branch delay-slot layout exactly (nd 0). */
+// FUN_003D0930
+#pragma schedule on
 void func_003d0930(u8 *arg0) {
-    if (*(u8 *)(*(u8 **)(arg0 + 8)) == 0xFF) {
+    s32 limit;
+    limit = 0xFF;
+    if (*(u8 *)(*(u8 **)(arg0 + 8)) == limit) {
         func_003d3e60();
     } else {
         func_003d0fa0();
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0930);
-#endif
+/* measured: closes schedule around func_003d0930. */
+#pragma schedule off
 // FUN_003D0970
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0970);
 // FUN_003D0FA0
@@ -1196,12 +1196,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dea20);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ded20);
 // FUN_003DEEA0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003deea0);
-/* Parked candidate: aggregate packing matches the retail window except for
-   a two-word scheduler order swap between the first addu and sw. Residual
-   normalized_diff 8. Committed at nd 8. */
-/* measured: schedule on preserves the retail packed-value instruction order. */
-// FUN_003DEFF0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: moving the second-field store after the base packing
+   computation lets schedule on reproduce the retail aggregate order exactly
+   (nd 0, object 88 bytes/window 96 bytes). */
+// FUN_003DEFF0
 #pragma schedule on
 s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 temp_8;
@@ -1213,17 +1211,14 @@ s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     } data;
 
     temp_8 = arg3 + 0xFFFD0000;
-    data.second = arg2;
     data.first = arg1;
     temp_7 = (temp_8 & 0x3FF00) << 0xE;
+    data.second = arg2;
     data.third = (arg4 & 0xFFFF) | (temp_7 | ((arg3 & 0x3F) << 0x10));
     func_003e2ab0(arg0, &data.first, 0xC);
 }
-/* measured: closes the single-function schedule bracket. */
+/* measured: closes schedule around func_003deff0. */
 #pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003deff0);
-#endif
 // FUN_003DF050
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df050);
 // FUN_003DF1A0

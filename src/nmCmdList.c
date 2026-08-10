@@ -8,14 +8,17 @@ extern u8 DAT_00882F65_abs[];
 extern u32 DAT_00882F68_abs[];
 extern u8 DAT_00882F6C_abs[];
 extern u8 DAT_00882F6D_abs[];
+extern u8 *D_00882F40[];
 extern u8 *func_002bbf70(void);
-extern u64 func_002bbf80(s32* param_1, int param_2);
+extern s32 func_002bbf80(s32* param_1, s32 param_2);
 extern u32 func_00277070(int param_1);
 extern void func_002bbdd0(int param_1);
+extern s32 func_00278610(s32 arg0, s16 arg1);
 extern int func_00276fb0(int param_1);
 
 extern u32 DAT_0063F2B0_abs[];
 extern void func_002777f0(s32 param_1);
+extern s8 iGpffffb578;
 
 
 #pragma push
@@ -120,7 +123,15 @@ void func_002bb050(u8 param_1)
 
 
 // FUN_002BB0A0
-INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bb0a0);
+void func_002bb0a0(s64 arg0, s8 arg1)
+{
+    u8 *temp_4;
+
+    temp_4 = D_00882F40[(s8)arg0];
+    if ((temp_4 != NULL) && (*(s32 *)temp_4 >= 0)) {
+        *(s8 *)(temp_4 + 0xC) = arg1;
+    }
+}
 // FUN_002BB0E0
 u32 func_002bb0e0(void)
 
@@ -506,14 +517,31 @@ void func_002bbdd0(int param_1)
 // FUN_002BBE90
 INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbe90);
 // FUN_002BBF60
-INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf60);
+void func_002bbf60(void)
+{
+    iGpffffb578 = 1;
+}
 // FUN_002BBF70
 u8 *func_002bbf70(void)
 {
     return (u8 *)DAT_00882F60_abs;
 }
 // FUN_002BBF80
-INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bbf80);
+s32 func_002bbf80(s32 *arg0, s32 arg1)
+{
+    switch (arg1) {
+    case 0:
+        func_00278610(*arg0, 0);
+        break;
+    case 1:
+        func_00278610(*arg0, 2);
+        break;
+    case 2:
+        func_00278610(*arg0, 1);
+        break;
+    }
+    return 0;
+}
 // FUN_002BC010
 void func_002bc010(int param_1,u64 param_2)
 

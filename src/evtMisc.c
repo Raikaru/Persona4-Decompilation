@@ -207,41 +207,14 @@ void func_0028f3a0(s32 arg0, s32 *arg1, s32 arg2) {
                   (void (*)(u8 *))func_0028f360, p);
 }
 
-/* measured: retail moves the handle to $a0 and then branches on $v0; mwcc b210
-   coalesces the handle into $a0 and branches on that instead. Exactly ONE real
-   word differs -- of the nd 3, two words are the window's trailing padding
-   (obj 56B vs window 64B).
-
-   Spellings measured, all nd 3: early return, pointer-typed handle, and four
-   attempts at giving the test and the argument different CSE keys so the value
-   would need two registers -- `(u32)h != 0`, `((u32)h & 0xFFFFFFFF) != 0`, and
-   passing `(void *)h` while testing `h` as s32. b210 coalesces regardless.
-   Register-coalescing floor. */
-/* nd 1, one word: retail tests `beqz $v0` - the untouched return value - where b210
-   tests `beqz $a0`, the copy it already made for the argument. Semantically identical,
-   and b210 coalesces the test onto the copy no matter how the source is spelled.
-   Exhausted: the earlier CSE-key attempts recorded above, plus ALL 772 pragma probes
-   (every one of the 386 spellings b210 accepts, in both directions) via
-   tools/knob_sweep.py - zero matches and zero improvements. Confirmed genuinely
-   Metrowerks and not a mixed-toolchain case: on decomp.me this function scores 120
-   under mwcps2-3.0.1b210 against 830-1030 under every ee-gcc. Real coalescing floor.
-   The new comparison-spelling attempt used `(u32)h > 0U` and `if (h)` in
-   place of `if (h != 0)`; both stayed nd 1, so the coalescing residual did
-   not move. The body below is PRESERVED at the lowest nd.
-   Committed at nd 1. */
-// FUN_0028F4F0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0028F4F0
 void func_0028f4f0(void) {
     s32 h;
 
-    h = func_00452380(&iGpffffa7a8);
-    if (h != 0) {
+    if (h = func_00452380(&iGpffffa7a8)) {
         func_00452080(h);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtMisc", func_0028f4f0);
-#endif
 
 // FUN_0028F530
 void func_0028f530(void) {

@@ -856,27 +856,31 @@ void func_001ce620(u8 *arg0, f32 arg1, f32 arg2, f32 arg3)
     }
     func_001bab00(arg0, frame.result);
 }
-/* measured: sibling random half-scaler body is object 144B/window 144B with normalized_diff 2; the only residual is the OR result register. Committed at nd 2. */
-// FUN_001CE7F0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured probe: optimization_level 1 for 001CE7F0 register coloring. */
+#pragma optimization_level 1
+// FUN_001CE7F0
 void func_001ce7f0(u8 *arg0) {
-    f32 value;
     s32 random;
+    u32 shifted;
+    u32 masked;
+    f32 value;
 
     random = func_00231d70(0x168);
     if (random >= 0) {
         value = (f32)random;
     } else {
-        value = (f32)(s32)(((u32)random >> 1) | (random & 1));
+        shifted = (u32)random >> 1;
+        masked = (u32)random & 1;
+        shifted |= masked;
+        value = (f32)(s32)shifted;
         value += value;
     }
     *(f32 *)(arg0 + 0x100) = value;
     *(s32 *)(arg0 + 0x120) = 1;
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001ce7f0);
-#endif
+/* measured probe: close optimization_level 1 for 001CE7F0. */
+#pragma optimization_level 2
 // FUN_001CE880
 void func_001ce880(u8 *arg0) {
     func_001ce620(arg0, -17.5f, 0.25f, 0.75f);
@@ -1000,26 +1004,31 @@ void func_001cecb0(u8 *arg0) {
 }
 // FUN_001CECE0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cece0);
-// FUN_001CEF20 NONMATCHING
-#ifdef NON_MATCHING
+/* measured probe: optimization_level 1 preserves 001CEF20 low-bit OR coloring. */
+#pragma optimization_level 1
+// FUN_001CEF20
 void func_001cef20(u8 *arg0) {
-    f32 value;
     s32 random;
+    u32 shifted;
+    u32 masked;
+    f32 value;
 
     random = func_00231d70(0x168);
     if (random >= 0) {
         value = (f32)random;
     } else {
-        value = (f32)(s32)(((u32)random >> 1) | (random & 1));
+        shifted = (u32)random >> 1;
+        masked = (u32)random & 1;
+        shifted |= masked;
+        value = (f32)(s32)shifted;
         value += value;
     }
     *(f32 *)(arg0 + 0x100) = value;
     *(s32 *)(arg0 + 0x120) = 1;
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cef20);
-#endif
+/* measured: closes optimization_level 1 for 001CEF20. */
+#pragma optimization_level 2
 // FUN_001CEFB0
 void func_001cefb0(u8 *arg0) {
     func_001ce620(arg0, -10.0f, 0.125f, fGpffff809c);
@@ -1059,26 +1068,30 @@ void func_001cf070(u8 *arg0, u8 *arg1)
 void func_001cf140(void) {
     func_001bdeb0();
 }
-/* measured: sibling random half-scaler body is object 136B/window 144B with normalized_diff 2; the only residual is the OR result register and the tail is retail padding. Committed at nd 2. */
-// FUN_001CF160 NONMATCHING
-#ifdef NON_MATCHING
+/* measured probe: optimization_level 1 preserves 001CF160 low-bit OR coloring. */
+#pragma optimization_level 1
+// FUN_001CF160
 void func_001cf160(u8 *arg0) {
-    f32 value;
     s32 random;
+    u32 shifted;
+    u32 masked;
+    f32 value;
 
     random = func_00231d70(0x168);
     if (random >= 0) {
         value = (f32)random;
     } else {
-        value = (f32)(s32)(((u32)random >> 1) | (random & 1));
+        shifted = (u32)random >> 1;
+        masked = (u32)random & 1;
+        shifted |= masked;
+        value = (f32)(s32)shifted;
         value += value;
     }
     *(f32 *)(arg0 + 0x100) = value;
     func_001bcd40(*(u8 **)(arg0 + 0xE0), NULL, NULL, 0.0f, 0x100);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cf160);
-#endif
+/* measured: closes optimization_level 1 for 001CF160. */
+#pragma optimization_level 2
 // FUN_001CF1F0
 void func_001cf1f0(u8 *arg0)
 {

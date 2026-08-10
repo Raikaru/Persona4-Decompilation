@@ -343,6 +343,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a7160);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a72a0);
 // FUN_003A76C0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a76c0);
+
 /* Measured compiled-C park: schedule-on reaches the retail preheader and delay
    slot ordering; object 188B / window 192B, normalized_diff 17. Committed at nd 17. */
 // measured: opening schedule-on bracket for the parked func_003a7970 probe.

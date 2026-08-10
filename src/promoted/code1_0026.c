@@ -31,6 +31,10 @@ static inline u32 *func_0026e010_add_offset(s32 offset, u32 *base)
 {
     return (u32 *)((u8 *)base + offset + 8);
 }
+static inline u8 *func_0026f1e0_add(u8 *base, u32 index)
+{
+    return base + index;
+}
 
 extern u8 *func_00452560();
 extern s32 func_00452490();
@@ -1034,21 +1038,22 @@ s32 func_0026ef00(s32 arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ef60);
 // FUN_0026F0A0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f0a0);
-// FUN_0026F1E0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0026f1e0(s32 arg0, u8 *arg1)
+// FUN_0026F1E0
+s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
 {
+    s32 temp_16;
     s32 temp_4;
     s32 temp_3_4;
     s32 temp_3_5;
     s32 var_2;
     u8 temp_3_2;
     u8 *temp_3;
-    u16 temp_16;
+    u8 *self;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    self = (u8 *)arg1;
+    temp_3_4 = *(s32 *)(self + 0x18);
+    temp_3_5 = *(s32 *)(self + 0x10);
+    temp_3 = func_0026f1e0_add((u8 *)temp_3_5, (u32)temp_3_4);
     temp_4 = (temp_3[0] - 1) & 0xFF;
     temp_3_2 = temp_3[1];
     if (temp_3_2 == 0xFF) {
@@ -1063,14 +1068,11 @@ s32 func_0026f1e0(s32 arg0, u8 *arg1)
         return 0;
     }
     if (D_008815B0[temp_16 & 0xFFFF] != 0) {
-        func_00273f70(arg1);
-        func_002739e0(temp_16 & 0xFF, arg1);
+        func_00273f70(self);
+        func_002739e0(temp_16 & 0xFF, self);
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f1e0);
-#endif
 // FUN_0026F2C0
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f2c0);
 /* measured: optimization_level 0 probe for the retail redundant return branch. */

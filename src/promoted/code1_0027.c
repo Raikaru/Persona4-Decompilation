@@ -22,8 +22,8 @@ extern s32 func_00107930(s64 arg0);
 extern u8 *func_00246c20(s32 arg0);
 extern s32 func_00108e10(void);
 extern u8 *func_00246830(s32 arg0);
-static inline s32 add_retail_ptr(s32 a, s32 b) {
-    return a + b;
+static inline u32 add_retail_ptr(u32 offset, u32 base) {
+    return offset + base;
 }
 extern void func_0026bc10(s32 arg0, s32 arg1);
 
@@ -92,11 +92,9 @@ s32 func_00270750(void)
     func_002746a0();
     return 0;
 }
-/* measured: candidate is byte-identical through its 0xE8-byte object;
-   remaining residual is one commutative addu operand order and two retail
-   tail padding words. Committed at nd 3. */
+/* measured: opt_propagation off probe for 00270780 family add */
+#pragma opt_propagation off
 // FUN_00270780
-#ifdef NON_MATCHING
 s32 func_00270780(s32 arg0, u8 *arg1) {
     u8 sp30[0x20];
     s32 temp_17;
@@ -105,8 +103,12 @@ s32 func_00270780(s32 arg0, u8 *arg1) {
     u8 *temp_3;
     u32 low;
     s32 key;
+    u32 base;
+    u32 offset;
 
-    temp_3 = (u8 *)add_retail_ptr(*(s32 *)(arg1 + 0x10), *(s32 *)(arg1 + 0x18));
+    base = *(u32 *)(arg1 + 0x18);
+    offset = *(u32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)add_retail_ptr(offset, base);
     low = (temp_3[0] - 1) & 0xFF;
     temp_3_2 = temp_3[1];
     if (temp_3_2 == 0xFF) {
@@ -124,9 +126,8 @@ s32 func_00270780(s32 arg0, u8 *arg1) {
     func_00273cc0(sp30, arg1);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_00270780);
-#endif
+/* measured: close opt_propagation off probe for 00270780 family add */
+#pragma opt_propagation on
 // FUN_00270870
 s32 func_00270870(s32 arg0, u8 *arg1)
 {
@@ -192,10 +193,9 @@ s32 func_002709b0(s32 arg0, u8 *arg1)
     func_00273cc0(work.sp20, arg1);
     return 0;
 }
-/* measured: candidate object is exact in size and differs only in one
-   commutative addu operand order. Committed at nd 1. */
+/* measured: opt_propagation off probe for 00270a80 addu order */
+#pragma opt_propagation off
 // FUN_00270A80
-#ifdef NON_MATCHING
 s32 func_00270a80(s32 arg0, u8 *arg1) {
     u8 sp30[0x40];
     s32 temp_4;
@@ -204,9 +204,12 @@ s32 func_00270a80(s32 arg0, u8 *arg1) {
     u8 temp_3_2;
     u8 *temp_3;
     u8 *var_2_2;
+    u32 base;
+    u32 offset;
 
-    temp_3 = (u8 *)*(s32 *)(arg1 + 0x18);
-    temp_3 += *(s32 *)(arg1 + 0x10);
+    base = *(u32 *)(arg1 + 0x18);
+    offset = *(u32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)add_retail_ptr(offset, base);
     temp_4 = (temp_3[0] - 1) & 0xFF;
     temp_3_2 = temp_3[1];
     if (temp_3_2 == 0xFF) {
@@ -228,9 +231,8 @@ s32 func_00270a80(s32 arg0, u8 *arg1) {
     func_00273cc0(sp30, arg1);
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_00270a80);
-#endif
+/* measured: close opt_propagation off probe for 00270a80 */
+#pragma opt_propagation on
 // FUN_00270B80
 INCLUDE_ASM("asm/nonmatchings/code1_0027", func_00270b80);
 // FUN_00270CA0

@@ -210,7 +210,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163990);
 
 
 /* measured: parked nd 5, object/window 808/816. The control flow, 0x50-byte frame, stack aggregate stores, and 35.0f COP1 call match. Exact fndiff residuals are offsets 0x14, 0x18, 0x1C, 0x20, and 0x24: b210 schedules the D_005F1528 lwc1 before the D_005F1520 ld and colors the ld result $v0 instead of retail $v1. Ruled out assignment/declaration-order swaps, named-local versus direct-store forms, pointer and aggregate S8/S12 forms, comma sequencing, register storage, and pragma wrappers; no prototype or symbol changes. Committed at nd 5. */
-// FUN_00163C90 NONMATCHING
+// FUN_00163C90
 #ifdef NON_MATCHING
 s32 func_00163c90(s32 arg0)
 {
