@@ -1099,10 +1099,160 @@ s32 func_0026ef00(s32 arg0, u8 *arg1)
     iGpffffb4bc = 0;
     return 0;
 }
+extern void func_00106390();
+extern u8 D_0063BA30[];
+/* measured: opt_common_subs off reconstructs the retail packed-index sequence for func_0026ef60. */
+#pragma opt_common_subs off
+/* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for func_0026ef60. */
+#pragma opt_propagation off
 // FUN_0026EF60
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ef60);
+s32 func_0026ef60(s32 arg0, u8 *arg1)
+{
+    s32 temp_17;
+    s32 temp_q1;
+    s32 temp_q2;
+    s32 temp_18;
+    s32 sp30[5];
+    u8 *var_4;
+    u8 *var_5;
+    s32 temp_2;
+    s32 temp_3_3;
+    s32 temp_3_5;
+    s32 temp_3_4;
+    s32 temp_4;
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_3;
+
+    s32 temp_index;
+    s32 temp_3_2;
+    s32 temp_3_6;
+    u8 *temp_3;
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
+    temp_3_2 = temp_3[1];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2 = 0;
+    } else {
+        var_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    temp_index = (((var_2 & 0xFF) << 8) |
+                  (temp_3_3 & 0xFF));
+    temp_q1 = (s64)(s16)temp_index;
+    temp_17 = temp_q1;
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_4 = (s32)((temp_3[2] - 1) & 0xFF);
+    temp_3_6 = temp_3[3];
+    if ((u8)temp_3_6 == 0xFF) {
+        var_2_2 = 0;
+    } else {
+        var_2_2 = (temp_3_6 - 1) & 0xFF;
+    }
+    temp_q2 = (s64)(s16)((((var_2_2 & 0xFF) << 8) |
+                          (temp_4 & 0xFF)));
+    temp_18 = temp_q2;
+
+    if (func_002746a0(temp_4) != 0) {
+        return 0;
+    }
+    var_4 = (u8 *)&D_0063BA30[0];
+    var_5 = (u8 *)&sp30[0];
+    var_3 = 5;
+    do {
+        temp_2 = *(s32 *)var_4;
+        var_4 += 4;
+        var_3 -= 1;
+        *(s32 *)var_5 = temp_2;
+        var_5 += 4;
+    } while (var_3 > 0);
+    func_00106390(temp_18 + sp30[temp_17], 1);
+    return 0;
+}
+/* measured: closing opt_propagation off for func_0026ef60. */
+#pragma opt_propagation on
+/* measured: closing opt_common_subs off for func_0026ef60. */
+#pragma opt_common_subs on
+/* measured: opt_common_subs off reconstructs the retail packed-index sequence for func_0026f0a0. */
+#pragma opt_common_subs off
+/* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for func_0026f0a0. */
+#pragma opt_propagation off
 // FUN_0026F0A0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f0a0);
+s32 func_0026f0a0(s32 arg0, u8 *arg1)
+{
+    s32 temp_17;
+    s32 temp_q1;
+    s32 temp_q2;
+    s32 temp_18;
+    s32 sp30[5];
+    u8 *var_4;
+    u8 *var_5;
+    s32 temp_2;
+    s32 temp_3_3;
+    s32 temp_3_5;
+    s32 temp_3_4;
+    s32 temp_4;
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_3;
+
+    s32 temp_index;
+    s32 temp_3_2;
+    s32 temp_3_6;
+    u8 *temp_3;
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
+    temp_3_2 = temp_3[1];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2 = 0;
+    } else {
+        var_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    temp_index = (((var_2 & 0xFF) << 8) |
+                  (temp_3_3 & 0xFF));
+    temp_q1 = (s64)(s16)temp_index;
+    temp_17 = temp_q1;
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_4 = (s32)((temp_3[2] - 1) & 0xFF);
+    temp_3_6 = temp_3[3];
+    if ((u8)temp_3_6 == 0xFF) {
+        var_2_2 = 0;
+    } else {
+        var_2_2 = (temp_3_6 - 1) & 0xFF;
+    }
+    temp_q2 = (s64)(s16)((((var_2_2 & 0xFF) << 8) |
+                          (temp_4 & 0xFF)));
+    temp_18 = temp_q2;
+
+    if (func_002746a0(temp_4) != 0) {
+        return 0;
+    }
+    var_4 = (u8 *)&D_0063BA30[0];
+    var_5 = (u8 *)&sp30[0];
+    var_3 = 5;
+    do {
+        temp_2 = *(s32 *)var_4;
+        var_4 += 4;
+        var_3 -= 1;
+        *(s32 *)var_5 = temp_2;
+        var_5 += 4;
+    } while (var_3 > 0);
+    func_00106390(temp_18 + sp30[temp_17], 0);
+    return 0;
+}
+/* measured: closing opt_propagation off for func_0026f0a0. */
+#pragma opt_propagation on
+/* measured: closing opt_common_subs off for func_0026f0a0. */
+#pragma opt_common_subs on
 // FUN_0026F1E0
 s32 func_0026f1e0(s32 arg0, u32 arg1, s32 arg2)
 {

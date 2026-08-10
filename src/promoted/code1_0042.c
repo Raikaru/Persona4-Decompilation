@@ -15,6 +15,7 @@ extern u8 D_00753E10[];
 extern void func_004244c8();
 extern s32 D_0088DCD8[];
 extern void func_0042b480();
+extern void func_0042c0d8(s32 arg0);
 extern void func_00421800();
 extern s32 D_0070C684[];
 extern void func_00429d90();
@@ -1539,8 +1540,18 @@ s32 func_00421fb0(void)
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
+/* measured: schedule on preserves the retail store/epilogue ordering. */
+#pragma schedule on
 // FUN_00421FB8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421fb8);
+s32 func_00421fb8(s32 arg0, s32 arg1)
+{
+    if (arg0 == 1) {
+        func_0042c0d8(arg1);
+    }
+    return 0;
+}
+/* measured: close the function-local scheduling override. */
+#pragma schedule off
 // FUN_00421FE0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421fe0);
 // FUN_00422008

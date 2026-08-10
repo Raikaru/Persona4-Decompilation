@@ -21,10 +21,13 @@ u64 func_003e3810(u64 value);
 u64 func_003e3820(u64 value);
 extern s32 D_00886490[];
 extern s32 D_00886498[];
+extern u32 DAT_00886498_abs[];
 extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003c1ab0(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
 extern s32 func_003c1b10(s32 arg0, void *arg1, void *arg2, void *arg3);
 extern s32 func_003c1b40(s32 arg0, void *arg1);
+extern s32 func_003b7450(s32 *arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_003b88d0(s32 arg0);
 extern s32 func_003c1b60(s32 arg0, void *arg1);
 extern s32 func_003c2b70(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
 extern s32 func_003c2ba0(s32 arg0, void *arg1, void *arg2, void *arg3);
@@ -35,9 +38,9 @@ extern void func_003b7a10();
 extern s32 func_003b7a90(s32 arg0);
 extern s32 func_003b7ad0(s32 arg0);
 extern s32 func_003b7b00(s32 arg0, s32 arg1);
-extern void func_003b7b20();
+extern s32 func_003b7b20(u8 *arg0);
 extern s32 func_003b7bb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_003b7c10();
+extern s32 func_003b7c10(u8 *arg0);
 extern s32 *func_003b7ca0(s32 *arg0, s32 arg1, u8 *arg2);
 extern void func_003b7e00();
 extern void func_003b8050();
@@ -124,7 +127,42 @@ s32 func_003b7bb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 #pragma no_branch_likely off
 
 // FUN_003B7C10
-INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b7c10);
+/* measured: no_branch_likely on selects retail's plain pointer branches. */
+#pragma no_branch_likely on
+s32 func_003b7c10(u8 *arg0)
+{
+    s32 temp_16;
+    s32 temp_5_2;
+    s32 temp_6;
+    s32 temp_7;
+    s32 var_2;
+    u8 *temp_5;
+
+    var_2 = 0;
+    temp_5 = *(u8 **)(arg0 + DAT_00886498_abs[0]);
+    if (temp_5 == NULL) {
+        goto done;
+    }
+    if ((*(s32 *)(arg0 + 8) & 0x01000000) != 0) {
+        goto special;
+    }
+    temp_7 = *(s32 *)(arg0 + 0x14);
+    temp_6 = 4;
+    temp_6 += *(s32 *)(temp_5 + 4);
+    temp_5_2 = temp_6;
+    temp_5_2 += temp_7 * 4;
+    temp_16 = temp_5_2;
+    temp_16 += temp_7 * 0x10;
+    temp_16 += *(s32 *)(temp_5 + 0) << 6;
+    var_2 = temp_16 + func_003b7450((s32 *)temp_5, temp_5_2, temp_6, temp_7);
+    goto done;
+special:
+    var_2 = func_003b88d0((s32)arg0);
+done:
+    return var_2;
+}
+/* measured: close no_branch_likely around pointer family probe. */
+#pragma no_branch_likely off
 
 // FUN_003B7CA0
 INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b7ca0);
@@ -139,7 +177,6 @@ u64 func_003b82b0(u64 value) { return value; }
 
 /* Source unit: src/rprandom/rprandom_003b83f0.c (1 function markers) */
 
-extern u32 DAT_00886498_abs[];
 
 #pragma schedule on
 

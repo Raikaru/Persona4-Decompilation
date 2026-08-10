@@ -22,6 +22,15 @@ extern void func_00185370();
 extern u8 *(*jtbl_008873EC[])(u8 *);
 
 extern s32 D_0076428C;
+extern s32 iGpffffb27c;
+extern s32 iGpffffb278;
+extern s32 func_0029d2e0(void);
+extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+static inline s32 code1_0018_get_b278(void)
+{
+    return iGpffffb278;
+}
+extern s32 func_00452490(s32 arg0);
 
 void func_0018e780(s32 arg0);
 
@@ -54,7 +63,7 @@ extern u8 D_005F54D8[];
 extern s32 func_00189940(u8 *arg0);
 extern void func_0018a010(s32 arg0);
 extern u8 D_005F54E8[];
-extern void func_0018dde0(u8 *arg0);
+extern s32 func_0018dde0(u8 *arg0);
 extern u8 D_005F1D80[];
 extern s32 iGpffff9f60;
 extern void func_00182bc0(u8 *arg0);
@@ -603,8 +612,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c750);
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
 // FUN_0018CED0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018ced0);
+/* measured: opt_rebuildconditionals off preserves the retail case-2 branch orientation. */
+#pragma opt_rebuildconditionals off
 // FUN_0018DDE0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018dde0);
+/* measured: restore opt_rebuildconditionals after func_0018dde0. */
+#pragma opt_rebuildconditionals on
 // FUN_0018DF30
 void func_0018df30(u8 *arg0)
 {
@@ -626,7 +639,7 @@ s32 func_0018df60(s32 arg0)
     if (temp_2_2 == NULL)
         return 0;
     temp_2 = func_00451fc0((u8 *)arg0, &D_005F54E8, 0xF, 0, 0,
-                           func_0018dde0, func_0018df30, temp_2_2);
+                           (void (*)(u8 *))func_0018dde0, func_0018df30, temp_2_2);
     *(s32 *)(temp_2_2 + 8) = 0x1E;
     return temp_2;
 }

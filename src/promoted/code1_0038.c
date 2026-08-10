@@ -51,6 +51,7 @@ extern void func_0038c100(u8 *arg0);
 extern void func_0038c770(u8 *arg0);
 extern void func_0038cab0(u8 *arg0);
 extern u8 D_0064F0E0[];
+extern f32 D_0064EEF0[];
 extern void func_00389370();
 extern void func_00389640();
 extern void func_00389e10();
@@ -723,7 +724,106 @@ void func_0038d310(u8 *arg0)
 }
 
 // FUN_0038D330
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038d330);
+void func_0038d330(s32 *raw_arg0)
+{
+    extern void func_004b1150(s32 arg0, u8 *arg1);
+    extern void func_004b1210(void *arg0, s32 arg1);
+    extern u8 D_005DC824[];
+    extern u8 D_005DC974[];
+    extern u8 D_005DC9C8[];
+    u8 *arg0;
+    u8 *temp_5;
+    s32 temp_4;
+
+    arg0 = (u8 *)raw_arg0;
+    if (*(u16 *)(arg0 + 4) & 1) {
+        temp_5 = (u8 *)(arg0 + 8);
+        if (++*(u16 *)(arg0 + 8) >= 0x5A) {
+            temp_4 = *(s32 *)(arg0 + 0xC);
+            if (temp_4 != 0) {
+                func_004b1150(temp_4, temp_5);
+                *(s32 *)(arg0 + 0xC) = 0;
+            }
+            *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFE;
+        } else {
+            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+        }
+    }
+    if (*(u16 *)(arg0 + 4) & 2) {
+        temp_5 = (u8 *)(arg0 + 0x10);
+        if (++*(u16 *)(arg0 + 0x10) >= 0x5A) {
+            temp_4 = *(s32 *)(arg0 + 0x14);
+            if (temp_4 != 0) {
+                func_004b1150(temp_4, temp_5);
+                *(s32 *)(arg0 + 0x14) = 0;
+            }
+            *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFD;
+        } else {
+            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+        }
+    }
+    if (*(u16 *)(arg0 + 4) & 4) {
+        temp_5 = (u8 *)(arg0 + 0x18);
+        if (++*(u16 *)(arg0 + 0x18) >= 0x5A) {
+            temp_4 = *(s32 *)(arg0 + 0x1C);
+            if (temp_4 != 0) {
+                func_004b1150(temp_4, temp_5);
+                *(s32 *)(arg0 + 0x1C) = 0;
+            }
+            *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFFB;
+        } else {
+            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+        }
+    }
+    if (*(u16 *)(arg0 + 4) & 8) {
+        temp_5 = (u8 *)(arg0 + 0x20);
+        if (++*(u16 *)(arg0 + 0x20) >= 0x5A) {
+            temp_4 = *(s32 *)(arg0 + 0x24);
+            if (temp_4 != 0) {
+                func_004b1150(temp_4, temp_5);
+                *(s32 *)(arg0 + 0x24) = 0;
+            }
+            *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFF7;
+        } else {
+            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+        }
+    }
+    if (*(u16 *)(arg0 + 4) & 0x10) {
+        temp_5 = (u8 *)(arg0 + 0x28);
+        if (++*(u16 *)(arg0 + 0x28) >= 0x5A) {
+            temp_4 = *(s32 *)(arg0 + 0x2C);
+            if (temp_4 != 0) {
+                func_004b1150(temp_4, temp_5);
+                *(s32 *)(arg0 + 0x2C) = 0;
+            }
+            *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFEF;
+        } else {
+            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+        }
+    }
+    if (*(u16 *)(arg0 + 4) & 0x20) {
+        temp_5 = (u8 *)(arg0 + 0x30);
+        if (++*(u16 *)(arg0 + 0x30) >= 0x5A) {
+            temp_4 = *(s32 *)(arg0 + 0x34);
+            if (temp_4 != 0) {
+                func_004b1150(temp_4, temp_5);
+                *(s32 *)(arg0 + 0x34) = 0;
+            }
+            *(u16 *)(arg0 + 4) = *(u16 *)(arg0 + 4) & 0xFFDF;
+        } else {
+            func_004b1210(D_005DC974, *(s32 *)(temp_5 + 4));
+        }
+    }
+    if (*(u16 *)(arg0 + 4) & 0x40) {
+        func_004b1210(D_005DC9C8, *(s32 *)(arg0 + 0x3C));
+    }
+    if (*(u16 *)(arg0 + 4) & 0x80) {
+        func_004b1210(D_005DC9C8, *(s32 *)(arg0 + 0x44));
+    }
+    if (*(u16 *)(arg0 + 4) & 0x100) {
+        func_004b1210(D_005DC824, *(s32 *)(arg0 + 0x4C));
+    }
+}
 // FUN_0038D660
 s32 func_0038d660(u8 *arg0) {
     s32 *temp_16;
@@ -787,14 +887,12 @@ void func_0038f600(u8 *arg0) {
 }
 
 
+// FUN_0038F990
+INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f990);
 // measured: b210 at -O2 folds (a*0x10)+0x30 into one addiu in the beqz delay
 // slot (11 words); schedule on with the constant materialized first reproduces
 // retail's hoisted addiu $a1,0x30 + addu $v0,$a1,$v0 delay-slot pair (12 words).
 #pragma schedule on
-
-
-// FUN_0038F990
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f990);
 // FUN_0038FB20
 s32 func_0038fb20(u8 *arg0) {
     s32 var_2;

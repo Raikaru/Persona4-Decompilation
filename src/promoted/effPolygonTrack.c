@@ -395,7 +395,6 @@ void func_004938b0(u8 *arg0)
 
 // FUN_004938E0
 INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_004938e0);
-
 // FUN_00493B90
 void func_00493b90(u8 *arg0)
 {
