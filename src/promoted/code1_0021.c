@@ -985,11 +985,7 @@ s32 func_0021db40(void)
     }
     return 0;
 }
-/* measured: direct branch-fed scalar candidate matches the retail CFG and
-   frame, with object size 164 bytes versus the 176-byte window and
-   normalized_diff 2. Committed at nd 2. */
 // FUN_0021DBA0
-#ifdef NON_MATCHING
 s32 func_0021dba0(void)
 {
     u8 *p;
@@ -1005,7 +1001,7 @@ s32 func_0021dba0(void)
         func_00122520(1, 1);
         goto exit;
     }
-    if (0xD > value) {
+    if (value <= 0xC) {
         goto exit;
     }
     if (func_00122720() != 0) {
@@ -1014,9 +1010,6 @@ s32 func_0021dba0(void)
 exit:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021dba0);
-#endif
 // FUN_0021DC50
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021dc50);
 // FUN_0021DDA0

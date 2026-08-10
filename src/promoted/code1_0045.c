@@ -129,10 +129,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0045", func_004530b0);
 // FUN_00453250
 #ifdef NON_MATCHING
 void func_00453250(s32 arg0, s32 arg1, s32 arg2) {
-    u32 temp_7;
-    u32 temp_4;
-    u16 *temp_4_2;
+    s32 temp_4;
     u8 *temp_6;
+    u16 *temp_4_2;
+    s32 temp_7;
 
     temp_7 = arg0 * 0x4A;
     temp_4 = arg1 & 0xFFFF;

@@ -83,30 +83,8 @@ void func_002852a0(s32 arg0, s32 arg1) {
         }
     }
 }
-/* measured: table and comparison-register shape; setup order remains the
-   residual. Committed at nd 33 in-file (nd 9 measured in isolation). */
 // FUN_00285330
-#ifdef NON_MATCHING
-s32 func_00285330(void) {
-    s32 i = 0;
-    s32 four = 4;
-    s32 five = 5;
-    s32 six = 6;
-    s32 *table = D_00882170;
-
-    while (i < 0xD) {
-        if ((i != 0) && (i != four) && (i != five) &&
-            (i != six) && (table[i] != 0)) {
-            return 0;
-        }
-        i++;
-    }
-    return 1;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285330);
-#endif
-/* Compiled-C park: object 124B/window 128B, normalized_diff 9. Committed at nd 9. */
 // FUN_002853B0
 s32 func_002853b0(void) {
     return 0;
@@ -223,11 +201,9 @@ void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)((u8 *)temp_2 + 0x790) = arg2;
     *(s32 *)((u8 *)temp_2 + 0x794) = arg3;
 }
-
-
-
 // FUN_00286430
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00286430);
+
 // FUN_002865E0
 void func_002865e0(UnkStruct_002865E0 *arg0) {
     s32 sp30[15];
@@ -361,46 +337,7 @@ s32 func_0028b650(void) {
 }
 
 // FUN_0028B6B0
-#ifdef NON_MATCHING
-void func_0028b6b0(u8 *arg0) {
-    u8 *base;
-    s32 temp_16;
-    s32 temp_16_2;
-    s32 temp_17;
-    u8 *temp_4;
-    s32 var_18;
-
-    if (*(s32 *)(arg0 + 0x7A4) == 0) {
-        *(s32 *)(arg0 + 0x7A0) = 0;
-        return;
-    }
-    temp_17 = *(s32 *)(arg0 + 0x7A0);
-    var_18 = 0;
-    goto loop_7_test;
-loop_7:
-    base = *(u8 **)(arg0 + 0x7A4);
-    temp_16 = var_18 * 4;
-    temp_4 = ((u8 **)base)[var_18];
-    if ((temp_4 != 0) && (temp_4 != 0)) {
-        (*jtbl_008873EC)(temp_4);
-        func_002852a0(0xC, 0);
-        *(s32 *)(*(u8 **)(arg0 + 0x7A4) + temp_16) = 0;
-    }
-    var_18 += 1;
-loop_7_test:
-    if (var_18 < temp_17) {
-        goto loop_7;
-    }
-    temp_16_2 = *(s32 *)(arg0 + 0x7A0) * 4;
-    (*jtbl_008873EC)(*(u8 **)(arg0 + 0x7A4));
-    func_002852a0(0xC, -temp_16_2);
-    *(s32 *)(arg0 + 0x7A4) = 0;
-    *(s32 *)(arg0 + 0x7A0) = 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b6b0);
-#endif
-/* Compiled-C park: object 244B/window 256B, normalized_diff 8. Committed at nd 8. */
 // FUN_0028B7B0
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b7b0);
 // FUN_0028BE70

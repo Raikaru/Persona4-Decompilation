@@ -24,6 +24,7 @@ void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 s32 func_001152b0();
 void func_00115cb0(Vec2f, f32, s32, s16 *);
 void func_00115e90(Vec2f, s32, s16 *, f32);
+extern char iGpffff9c0c;
 extern char iGpffff9c08;
 void func_00275020(f32, f32, f32, s32, s32, s32, u8 *, s32, s32);
 void *func_00109220(u16 arg0);
@@ -504,12 +505,12 @@ void func_001163e0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 
 
 
-void func_00117310(I64, f32, s32, s32, s32, s32);
+void func_00117310(s64, f32, s32, s32, s32, s32);
 /* measured: the float-second `(I64,f32,s32,s32,s32,s32)` declaration for
    func_00117310 reproduces its `ld $a0; mov.s $f12; lw/lw/move/addiu`
-   materialisation. This body also uses the float-first func_00275020
-   declaration and the existing `iGpffff9c08 + 4` spelling for retail
-   `-0x63F4($gp)`. Object 524B / window 528B, MATCH (nd 0). */
+   materialisation. This body uses the float-first func_00275020 declaration
+   and the direct `iGpffff9c0c` spelling for retail `-0x63F4($gp)`.
+   Object 524B / window 528B, MATCH (nd 0). */
 // FUN_00116610
 void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 {
@@ -543,9 +544,9 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
     sp19c[1] = 0x2D;
     sp19c[2] = 0x2D;
     sp19c[3] = arg1;
-    func_00117310(*(I64 *)sp190, fparg0, *(s32 *)sp19c, *(s32 *)(arg2 + 0x38), id1, 1);
+    func_00117310(*(s64 *)sp190, fparg0, *(s32 *)sp19c, *(s32 *)(arg2 + 0x38), id1, 1);
     temp = (s32)func_00109220(*(u16 *)(arg2 + 2));
-    func_00442088(&sp90[0], (void *)((u8 *)&iGpffff9c08 + 4), temp);
+    func_00442088(&sp90[0], (void *)&iGpffff9c0c, temp);
     func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, &sp90[0], 0, -1);
 }
 
@@ -652,8 +653,6 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_001171c0);
 #endif
 // FUN_00117310
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117310);
-
-
 
 // FUN_001174A0
 f32 func_001174a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)

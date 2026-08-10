@@ -105,7 +105,6 @@ s32 func_003b7b00(s32 arg0, s32 arg1)
     *(s32 *)(arg0 + D_00886494[0]) = *(s32 *)(arg1 + D_00886494[0]);
     return arg0;
 }
-
 // FUN_003B7B20
 INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b7b20);
 

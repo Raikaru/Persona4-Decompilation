@@ -47,7 +47,9 @@ extern u8 *func_00457190(void);
 extern void func_003cbe80(void *arg0, void *arg1);
 extern u8 *func_00149ca0(void);
 extern u8 D_007E8020[];
-extern void *func_0047a2f0(s32 arg0);
+extern u8 *func_0047a2f0(s32 arg0);
+extern f32 func_003e4180(f32 *arg0);
+extern u8 *func_003e9700(s32 arg0);
 extern s32 func_0014c240(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
 
 extern s32 func_0014a230(s32 arg0, s32 arg1);
@@ -1385,10 +1387,94 @@ void func_00147f30(u8 *arg0, u8 *arg1) {
     func_003e9cb0(*(s32 *)(func_004571b0() + 4), arg1 + 0x1D0, 0);
     func_003e8120(func_00457120());
 }
+/* measured probe: opt_propagation off preserves 00148000 vector coloring. */
+#pragma opt_propagation off
 // FUN_00148000
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148000);
+s32 func_00148000(u8 **arg0, u8 **arg1) {
+    struct Frame {
+        f32 v40[3];
+        u8 pad4C[4];
+        f32 v50[3];
+        u8 pad5C[4];
+        f32 v60[3];
+        u8 pad6C[4];
+    } frame;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_2;
+
+    temp_2 = func_00457120();
+    temp_2 = func_003e9700(*(s32 *)(temp_2 + 4));
+    temp_f2 = *(f32 *)(temp_2 + 0x30);
+    temp_f1 = *(f32 *)(temp_2 + 0x34);
+    temp_f0 = *(f32 *)(temp_2 + 0x38);
+    frame.v40[0] = temp_f2;
+    frame.v40[1] = temp_f1;
+    frame.v40[2] = temp_f0;
+    temp_17 = *arg0;
+    temp_16 = *arg1;
+    frame.v60[0] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_17 + 0x164)) + 0x30) - frame.v40[0];
+    temp_f21 = frame.v40[1];
+    frame.v60[1] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_17 + 0x164)) + 0x34) - temp_f21;
+    temp_f20 = frame.v40[2];
+    frame.v60[2] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_17 + 0x164)) + 0x38) - temp_f20;
+    frame.v50[0] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x164)) + 0x30) - frame.v40[0];
+    frame.v50[1] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x164)) + 0x34) - temp_f21;
+    frame.v50[2] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x164)) + 0x38) - temp_f20;
+    temp_f20 = func_003e4180(frame.v60);
+    return (s32)(temp_f20 - func_003e4180(frame.v50));
+}
+/* measured: closes opt_propagation off for func_00148000. */
+#pragma opt_propagation on
+/* measured: opt_propagation off preserves 00148140 vector coloring. */
+#pragma opt_propagation off
 // FUN_00148140
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148140);
+s32 func_00148140(u8 **arg0, u8 **arg1) {
+    struct Frame {
+        f32 v40[3];
+        u8 pad4C[4];
+        f32 v50[3];
+        u8 pad5C[4];
+        f32 v60[3];
+        u8 pad6C[4];
+    } frame;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_2;
+
+    temp_2 = func_00457120();
+    temp_2 = func_003e9700(*(s32 *)(temp_2 + 4));
+    temp_f2 = *(f32 *)(temp_2 + 0x30);
+    temp_f1 = *(f32 *)(temp_2 + 0x34);
+    temp_f0 = *(f32 *)(temp_2 + 0x38);
+    frame.v40[0] = temp_f2;
+    frame.v40[1] = temp_f1;
+    frame.v40[2] = temp_f0;
+    temp_17 = *arg0;
+    temp_16 = *arg1;
+    frame.v60[0] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_17 + 0x164)) + 0x30) - frame.v40[0];
+    temp_f21 = frame.v40[1];
+    frame.v60[1] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_17 + 0x164)) + 0x34) - temp_f21;
+    temp_f20 = frame.v40[2];
+    frame.v60[2] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_17 + 0x164)) + 0x38) - temp_f20;
+    frame.v50[0] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x164)) + 0x30) - frame.v40[0];
+    frame.v50[1] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x164)) + 0x34) - temp_f21;
+    frame.v50[2] = *(f32 *)(func_0047a2f0(*(s32 *)(temp_16 + 0x164)) + 0x38) - temp_f20;
+    temp_f20 = func_003e4180(frame.v60);
+    return (s32)(temp_f20 - func_003e4180(frame.v50));
+}
+/* measured: closes opt_propagation off for func_00148140. */
+#pragma opt_propagation on
 // FUN_00148280
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00148280);
 // FUN_00149620

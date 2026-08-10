@@ -5,6 +5,8 @@
 
 /* Canonical grouped function declarations. */
 u32 func_001d10d0(void* camera);
+void func_00195850(u8* arg0, f32* arg1);
+void func_001bcd40(u8* arg0, u8* arg1, f32* arg2, s32 arg3, f32 arg4);
 
 /* Source unit: src/Battle/btlCamera_001be8d0.c */
 
@@ -31,7 +33,22 @@ void btlCameraSetDefaultDistanceB(void* camera)
 void FUN_001be050(f32 angle, f32 distance, void* camera);
 
 // FUN_001D05E0
-INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d05e0);
+void func_001d05e0(u8 *arg0)
+{
+    f32 sp30[3];
+    u8 *temp_16;
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0xE0);
+    if (temp_4 != NULL) {
+        if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
+            temp_16 = *(u8 **)(temp_4 + 0x30);
+            func_00195850(temp_16, sp30);
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0xC1,
+                          0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)));
+        }
+    }
+}
 // FUN_001D0670
 void btlCameraSetDefaultDistanceC(void* camera)
 {
@@ -41,7 +58,22 @@ void btlCameraSetDefaultDistanceC(void* camera)
 /* Source unit: src/Battle/btlCamera_001d10d0.c */
 
 // FUN_001D06A0
-INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d06a0);
+void func_001d06a0(u8 *arg0)
+{
+    f32 sp30[3];
+    u8 *temp_16;
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0xE0);
+    if (temp_4 != NULL) {
+        if ((*(u16 *)(temp_4 + 0x1A) & 1) != 0) {
+            temp_16 = *(u8 **)(temp_4 + 0x30);
+            func_00195850(temp_16, sp30);
+            func_001bcd40(*(u8 **)(arg0 + 0xE0), arg0 + 0x9C, sp30, 0xC1,
+                          0.5f * (*(f32 *)(temp_16 + 0x90) * *(f32 *)(temp_16 + 0x2C)));
+        }
+    }
+}
 // FUN_001D0730
 INCLUDE_ASM("asm/nonmatchings/btlCamera_grouped", func_001d0730);
 // FUN_001D07E0

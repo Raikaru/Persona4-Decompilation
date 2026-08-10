@@ -1041,7 +1041,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5d10);
 
 // FUN_003C5FD0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5fd0);
-
 // FUN_003C6060
 /* measured: a returned old value selects retail v0/v1 coloring. */
 #pragma schedule on
@@ -1733,7 +1732,6 @@ s32 func_003cb720(s32 arg0, s32 arg1, u8 *arg2) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 #endif
-
 // FUN_003CB770
 /* measured: schedule on places the field load in the jump delay slot. */
 #pragma schedule on

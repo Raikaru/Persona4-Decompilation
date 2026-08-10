@@ -818,7 +818,7 @@ do2:
    directions), nested ifs, &&, cached base local, #pragma schedule on --
    all nd 48.  #pragma no_branch_likely is load-bearing: without it mwcc
    emits bnel (nd 57). */
-// Archived C body: build/WBHygiene_func_003bd4f0_archive.txt; no current park body remains.
+/* Archived C body: build/WBHygiene_func_003bd4f0_archive.txt; no current park body remains. */
 // FUN_003BD4F0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
 
