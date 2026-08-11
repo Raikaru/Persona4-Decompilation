@@ -907,17 +907,16 @@ void func_00202620(u8 *arg0)
 }
 // FUN_00202640
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202640);
+
 // FUN_00202720
 void func_00202720(u8 *arg0)
 {
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
-
 // FUN_00202740
 u8 *func_00202740(u8 *unit)
 {
     u8 *packet;
-
     packet = (u8 *)func_00194470(0x501, 4);
     *(u8 *)(packet + 71) &= ~(1 << 4);
     *(void **)(packet + 0x68) = (void *)func_00202620;

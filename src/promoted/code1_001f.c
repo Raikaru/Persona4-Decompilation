@@ -3389,7 +3389,6 @@ s32 func_001fb170(s32 arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fb1f0);
 /* measured: candidate object 284B/window 288B, normalized_diff 1. Committed at nd 1. */
 // FUN_001FB360
-#ifdef NON_MATCHING
 s32 func_001fb360(u8 *arg0, s32 arg1)
 {
     s32 temp_16;
@@ -3411,16 +3410,20 @@ s32 func_001fb360(u8 *arg0, s32 arg1)
         goto loop_test;
 loop_body:
         temp_5 = 1 << var_17;
-        if (!(temp_16 & temp_5) ||
-            (func_002340c0(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
-                           temp_5) != 0)) {
-            var_17 += 1;
-            goto loop_test;
+        if (!(temp_16 & temp_5)) {
+            goto loop_increment;
         }
+        if (func_002340c0(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+                          temp_5) == 0) {
+            goto loop_after_call;
+        }
+loop_increment:
+        var_17 += 1;
 loop_test:
         if (var_17 < 0x20U) {
             goto loop_body;
         }
+loop_after_call:
         if (var_17 == 0x20) {
             if (temp_16 & 0x3000) {
                 var_2 = 7;
@@ -3432,9 +3435,6 @@ loop_test:
     }
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fb360);
-#endif
 // FUN_001FB480
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fb480);
 // FUN_001FBB50

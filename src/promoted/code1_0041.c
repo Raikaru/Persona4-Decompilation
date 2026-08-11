@@ -55,6 +55,7 @@ extern u8 D_00753B20[];
 extern u8 D_0070C3C0[];
 extern u8 D_00753B38[];
 extern u8 D_00753B70[];
+void func_00418df8(s32 *);
 
 void func_0041ed48(u8 *);
 void func_0041eeb8(u8 *);
@@ -420,7 +421,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419628);
 
 // FUN_00419640
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419640);
-
 // FUN_004197C8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004197c8);
 

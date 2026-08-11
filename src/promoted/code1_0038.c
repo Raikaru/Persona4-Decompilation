@@ -59,7 +59,6 @@ extern void func_0038a940();
 extern void func_0038b1c0();
 extern void func_0034f460(s32 arg0, f32 arg1, s32 arg2, f32 arg3,
                           s32 arg4, s32 arg5, s32 arg6, s32 arg7);
-
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
 {
     return offset + base;

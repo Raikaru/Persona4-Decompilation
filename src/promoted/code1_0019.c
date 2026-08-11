@@ -770,8 +770,7 @@ void func_00193730(void) {
 
 
 
-/* measured probe at optimization_level 2. Committed at nd 6. */
-// FUN_00193840
+// FUN_00193840 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00193840(u8 *arg0, s32 arg1)
 {
