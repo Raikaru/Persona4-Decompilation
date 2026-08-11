@@ -967,12 +967,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
    identical at nd 8: naming the inner pointer in a local before the guard;
    folding the 0x28 into both arms of an if/else is much worse (nd 42).
    Prologue scheduling floor. Committed at nd 8. */
-/* measured: direct two-call sum shape reaches object 92B/window 96B and
-   normalized_diff 3; retail interleaves `move $s1,$a0` between the saved
-   register stores while b210 emits both stores first. No real C body was
-   retained, so the bare INCLUDE_ASM fallback remains. */
+/* measured: archived scheduled body reaches object 92B/window 96B and
+   normalized_diff 8; residual words are +0x0C/+0x10 (prologue move/sq
+   order). No real C body was retained, so the bare INCLUDE_ASM fallback
+   remains. */
 // FUN_003C47C0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
+
+
+
 
 
 
@@ -1014,9 +1017,10 @@ s32 func_003c4a60(s32 *arg0, s32 arg1) {
 // FUN_003C4A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
 
-/* measured: hidden s32 return recovered the retail index; schedule on yields
-   object 60B/window 64B and normalized_diff 8. The final return alignment
-   remains a compiler residual. Committed at nd 8. */
+/* measured: archived scheduled body reaches object 60B/window 64B and
+   normalized_diff 8; residual words are +0x04/+0x1C/+0x34/+0x38 (branch
+   targets and epilogue jr placement). No real C body was retained, so the
+   bare INCLUDE_ASM fallback remains. */
 // FUN_003C4BC0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
 // FUN_003C4C00
@@ -1947,15 +1951,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbcf0);
 // FUN_003CBDE0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbde0);
 
+/* measured: archived scheduled body reaches object 160B/window 176B and
+   normalized_diff 57; residual branch-delay/layout words begin at +0x2C and
+   the low-path tail diverges from +0x64 through +0xA4. No real C body was
+   retained, so the bare INCLUDE_ASM fallback remains. */
 // FUN_003CBE80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbe80);
+/* measured: closes the schedule bracket opened above and restores the file default. */
+#pragma schedule off
 
 // FUN_003CBF30
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbf30);
-
-// measured: closes the schedule bracket opened above and restores the -O2
-// baseline for the rest of the file.
-#pragma schedule off
 
 /* measured: these three functions are one setter/lookup template. The
    explicit four-block gotos plus schedule on, no_branch_likely on, and

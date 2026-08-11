@@ -68,7 +68,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_007646D0;
 extern void func_0039b830(u8 *arg0);
 extern void func_0039b8d0(s32 arg0, s32 arg1);
-extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+extern s32 func_003e1220(s32, s32, s32, s32, void *, s32);
 extern s32 func_0039aa30(void);
 /* gp - 0x55F8 = 0x00763AF8 */
 extern s32 iGpffffaa08;
