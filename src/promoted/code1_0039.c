@@ -98,8 +98,6 @@ extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 *func_003cfa30(u8 *arg0, s32 arg1);
 extern void func_00411670(s32 arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
-
-
 extern u8 *func_0039bb70(u8 **arg0, s32 arg1);
 extern void (*D_0064F2B4[])(u8 *arg0, s32 arg1, s32 arg2);
 // measured: schedule on hoists the return-value move to the top,

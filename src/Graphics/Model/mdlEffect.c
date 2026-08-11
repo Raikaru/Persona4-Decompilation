@@ -28,6 +28,10 @@ extern void func_00487fb0_evt(float param_1);
 extern void func_00492e30(u16 *param_1);
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
+extern void func_003f3eb0(s32 arg0, s32 arg1);
+extern u8 *iGpffffb884;
+extern u64 iGpffffb8c8;
+extern u64 iGpffffb8e8;
 
 extern void func_0044ea90(u8 *file, s32 line);
 extern u8 D_007131E8[];
@@ -505,14 +509,92 @@ void func_00489f50(f32 param_1, int param_2)
 
 /* Retail's 368-byte Catmull-Rom interpolator builds tangents and returns its VU0 vector in vf10. */
 
+/* measured: enable MWCCPS2's MMI builtins and O1; _pcpyld on u64 locals
+ * reproduces the 00489f80 packet skeleton (object 116/window 128,
+ * normalized_diff 0) and the 0048a000/0048a0e0/0048a070 packet skeletons. */
+#pragma enable_vu0_registers on
+#pragma vu0_mmi_reg_binding on
+/* measured: optimization_level 1 is required with the VU0 pragmas above;
+   at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
+#pragma optimization_level 1
 // FUN_00489F80
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_00489f80);
+void func_00489f80(void)
+{
+    u8 *packet;
+    u_long128 packed;
+    u64 a, c, b;
+
+    func_003f3eb0((s32)0x80000000, 2);
+    a = 0xE;
+    b = 0x1000000000008001ULL;
+    packed = _pcpyld(a, b);
+    packet = iGpffffb884;
+    *(u_long128 *)packet = packed;
+    c = 0x4C;
+    b = iGpffffb8c8 | 0x00FFFFFF00000000ULL;
+    packed = _pcpyld(c, b);
+    *(u_long128 *)(packet + 0x10) = packed;
+    iGpffffb884 = iGpffffb884 + 0x20;
+}
 // FUN_0048A000
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a000);
+void func_0048a000(void)
+{
+    u8 *packet;
+    u_long128 packed;
+    u64 a, c, b;
+
+    func_003f3eb0((s32)0x80000000, 2);
+    a = 0xE;
+    b = 0x1000000000008001ULL;
+    packed = _pcpyld(a, b);
+    packet = iGpffffb884;
+    *(u_long128 *)packet = packed;
+    c = 0x4C;
+    b = iGpffffb8c8;
+    packed = _pcpyld(c, b);
+    *(u_long128 *)(packet + 0x10) = packed;
+    iGpffffb884 = iGpffffb884 + 0x20;
+}
 // FUN_0048A070
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a070);
+void func_0048a070(u64 arg0)
+{
+    u8 *packet;
+    u_long128 packed;
+    u64 a, c, b;
+
+    func_003f3eb0((s32)0x80000000, 2);
+    a = 0xE;
+    b = 0x1000000000008001ULL;
+    packed = _pcpyld(a, b);
+    packet = iGpffffb884;
+    *(u_long128 *)packet = packed;
+    c = 8;
+    packed = _pcpyld(c, arg0);
+    *(u_long128 *)(packet + 0x10) = packed;
+    iGpffffb884 = iGpffffb884 + 0x20;
+}
 // FUN_0048A0E0
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a0e0);
+void func_0048a0e0(void)
+{
+    u8 *packet;
+    u_long128 packed;
+    u64 a, c, b;
+
+    func_003f3eb0((s32)0x80000000, 2);
+    a = 0xE;
+    b = 0x1000000000008001ULL;
+    packed = _pcpyld(a, b);
+    packet = iGpffffb884;
+    *(u_long128 *)packet = packed;
+    c = 8;
+    b = iGpffffb8e8;
+    packed = _pcpyld(c, b);
+    *(u_long128 *)(packet + 0x10) = packed;
+    iGpffffb884 = iGpffffb884 + 0x20;
+}
+#pragma optimization_level 2
+#pragma vu0_mmi_reg_binding off
+#pragma enable_vu0_registers off
 // FUN_0048A150
 void func_0048a150(u8 *arg0, u8 *arg1)
 {

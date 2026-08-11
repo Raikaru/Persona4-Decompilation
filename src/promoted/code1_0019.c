@@ -642,14 +642,10 @@ s32 func_00193260(void)
     }
     return 0;
 }
-/* measured probe at optimization_level 2. Committed at nd 1. */
 // FUN_001932F0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001932f0);
-#pragma push
-#pragma opt_rebuildconditionals off
 // FUN_00193450
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00193450);
-#pragma pop
 // FUN_001935C0
 s32 func_001935c0(void) {
     func_001fc1b0(1);
@@ -1093,8 +1089,48 @@ s32 func_00194b50(void)
     return 1;
 }
 
+/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
+#pragma optimization_level 1
 // FUN_00194B60
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00194b60);
+u8 *func_00194b60(void)
+{
+    u8 *temp_16;
+    s32 j;
+    s32 i;
+    u8 *base;
+    s32 value;
+
+    func_0044ea90(D_005F6C00, 0x51);
+    temp_16 = (u8 *)D_008873E8[0](0x90, 0x40000);
+    func_0043f9c8(temp_16, 0, 0x90);
+    *(s32 *)(temp_16 + 0x40) = 0xFF00;
+    i = 0;
+    value = 1;
+    goto first_check;
+first_body:
+    *(u8 *)(temp_16 + ((i & 0xFFFF) << 4)) = (u8)value;
+    i = (i + 1) & 0xFFFF;
+first_check:
+    if ((i & 0xFFFF) < 2) {
+        goto first_body;
+    }
+    base = temp_16 + 0x20;
+    j = 0;
+    value = 1;
+    goto second_check;
+second_body:
+    *(u8 *)(base + ((j & 0xFFFF) << 4)) = (u8)value;
+    j = (j + 1) & 0xFFFF;
+second_check:
+    if ((j & 0xFFFF) < 2) {
+        goto second_body;
+    }
+    *(u8 *)(temp_16 + 0x47) =
+        (u8)(*(u8 *)(temp_16 + 0x47) | 0x31);
+    *(s32 *)(temp_16 + 0x6C) = (s32)func_00194b50;
+    return temp_16;
+}
+#pragma optimization_level 2
 /* measured probe at optimization_level 2. Committed at nd 24. */
 // FUN_00194FF0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00194ff0);

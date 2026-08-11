@@ -612,6 +612,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5330);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d53c0);
 // FUN_003D5600
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5600);
+/* measured: archived live-across-call candidate in build/FP3D_003d5710_body.c
+   (object 60/window 64, normalized_diff 6); source restored to ASM because
+   schedule-on re-colors the pre-call addend and schedule-off leaves prologue
+   and epilogue ordering residuals. */
 // FUN_003D5710
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5710);
 // FUN_003D5750 NONMATCHING
@@ -927,18 +931,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dbbc0);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dbe40);
 // FUN_003DC370
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc370);
+/* measured: corrected sqrtf/sqrt.s reconstruction is archived in
+   build/W3RSQ_003dc490_body.c (object 124/window 128, normalized_diff 24).
+   The source fallback remains ASM after the capped register-pressure probes. */
 // FUN_003DC490
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc490);
-
-/* measured: retail uses the custom R5900 c1 opcode 0x500C4 for reciprocal-
-   square-root refinement; MWCCPS2 b210 emits no equivalent from legal C.
-   Bare INCLUDE_ASM is retained. */
+/* measured: corrected sqrtf branch archived in
+   build/W3RSQ_003dc510_body.c (object 136/window 128, normalized_diff 33);
+   retained ASM after the capped transfer probe. */
 // FUN_003DC510
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc510);
-
-/* measured: retail uses the custom R5900 c1 opcode 0x500C4 for reciprocal-
-   square-root refinement; MWCCPS2 b210 emits no equivalent from legal C.
-   Bare INCLUDE_ASM is retained. */
+/* measured: no corrected candidate was retained within the capped transfer
+   probe; ASM fallback remains. */
 // FUN_003DC590
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc590);
 
@@ -1200,13 +1204,12 @@ s32 func_003ddf20(u8 *arg0) {
 /* measured: closes the schedule bracket for func_003ddf20. */
 #pragma schedule off
 
-/* measured: retail uses the three-operand R5900 `mult $6,$16,$6`; MWCCPS2
-   b210 cannot emit this form from legal C. Bare INCLUDE_ASM is retained. */
+/* measured: legal-C cluster candidate archived in build/FP3D_003ddf80_body.c
+   at object 76/window 80, normalized_diff 12; restored to ASM. */
 // FUN_003DDF80
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf80);
-
-/* measured: retail uses the three-operand R5900 `mult $6,$16,$6`; MWCCPS2
-   b210 cannot emit this form from legal C. Bare INCLUDE_ASM is retained. */
+/* measured: the transferred legal-C shape matched the 003ddf80 residual
+   exactly (object 76/window 80, normalized_diff 12); compiler-floor ASM retained. */
 // FUN_003DDFD0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddfd0);
 
