@@ -512,8 +512,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 
 // FUN_003E2430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
-/* measured: registration worker reconstruction reaches object 120B/window
-   128B, normalized_diff 14; store/reload and branch-delay order unresolved. */
+/* measured: H001 rejects volatile-only exactness; nonvolatile best body is object 120B/window 128B, normalized_diff 14. */
 // FUN_003E2570
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
 /* measured: schedule and no_branch_likely bracket retained around func_003e25f0. */
@@ -1551,6 +1550,7 @@ u8 *func_003e8010(u8 *arg0) {
 
 // FUN_003E8080
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
+/* measured: H001 rejects volatile-only exactness; nonvolatile best body is object 124B/window 144B, normalized_diff 17. */
 
 /* measured: two-float load-order reconstruction reaches object 72B/window
    80B, normalized_diff 16; b210 keeps both loads after the frame save. */
