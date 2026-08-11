@@ -502,6 +502,37 @@ def _compile(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
     return process.returncode == 0 and output.is_file(), process.stdout
 
 
+# Part of P4 was not built with Metrowerks.  Functions whose retail prologue
+# saves callee-saved `$s` registers with `sd` rather than `sq` come from
+# ee-gcc, and MWCCPS2 cannot reproduce them at any optimisation level.  Those
+# translation units are compiled here with tools/eegcc_shim.py instead.
+#
+# mwccgap is not used for them: it splices assembly using MWCC's `asm void
+# f() {}` extension, which GCC cannot parse.  It is not needed either, because
+# INCLUDE_ASM expands to nothing (include/include_asm.h) and every marker it
+# covers is reported from the retail fallback anyway.
+def is_gcc_unit(cpath: Path, cfg: dict) -> bool:
+    names = cfg.get("gcc_units") or []
+    try:
+        rel = cpath.resolve().relative_to(REPO).as_posix()
+    except ValueError:
+        rel = cpath.as_posix()
+    return rel in names or cpath.name in names
+
+
+def _compile_gcc(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
+    shim = TOOLS / "eegcc_shim.py"
+    process = subprocess.run(
+        [sys.executable, str(shim), "-c", *cfg["compile_flags"],
+         "-o", str(output), str(cpath)],
+        cwd=REPO,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    return process.returncode == 0 and output.is_file(), process.stdout
+
+
 
 def compile_object(
     cpath: Path,
@@ -514,7 +545,10 @@ def compile_object(
     relative = cpath.relative_to(REPO)
     output = objdir / (relative.as_posix().replace("/", "_") + ".o")
     output.parent.mkdir(parents=True, exist_ok=True)
-    compiled, log = _compile(cpath, cfg, output)
+    if is_gcc_unit(cpath, cfg):
+        compiled, log = _compile_gcc(cpath, cfg, output)
+    else:
+        compiled, log = _compile(cpath, cfg, output)
     return (ObjectFile(output) if compiled else None), log
 
 
@@ -528,7 +562,10 @@ def verify_file(
     relative, markers = cpath.relative_to(REPO), scan_markers(cpath)
     if not markers: return []
     output = objdir / (relative.as_posix().replace("/", "_") + ".o")
-    compiled, log = _compile(cpath, cfg, output)
+    if is_gcc_unit(cpath, cfg):
+        compiled, log = _compile_gcc(cpath, cfg, output)
+    else:
+        compiled, log = _compile(cpath, cfg, output)
     if not compiled:
         return [dict(file=str(relative), **marker, status="COMPILE_ERROR", detail=log.strip()[:400]) for marker in markers]
     obj, results = ObjectFile(output), []
