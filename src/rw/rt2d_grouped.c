@@ -236,6 +236,7 @@ u8 *func_003d6c10(u8 *arg0, u8 *arg1)
 #pragma schedule off
 /* measured: close optimization_level 1 for func_003d6c10. */
 #pragma optimization_level 2
+
 // FUN_003D6C50
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6c50);
 // FUN_003D6D50

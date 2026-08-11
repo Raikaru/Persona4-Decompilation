@@ -858,7 +858,29 @@ loop_00486400_check:
 // FUN_004865C0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004865c0);
 // FUN_00486780
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486780);
+u8 *func_00486780(u8 *arg0, s32 arg1)
+{
+    s32 temp_3;
+    s32 var_5;
+    u8 *var_2;
+
+    var_5 = arg1;
+    var_2 = *(u8 **)(arg0 + 0x8C);
+    goto loop_00486780_check;
+loop_00486780_body:
+    temp_3 = var_5;
+    var_5 -= 1;
+    if (temp_3 == 0) {
+        return var_2;
+    }
+    var_2 = *(u8 **)(var_2 + 0xAC);
+loop_00486780_check:
+    if (var_2 != NULL) {
+        goto loop_00486780_body;
+    }
+    func_0046d730(D_00713470, 0xA87);
+    return NULL;
+}
 /* Measured compiled-C park: object 96B / window 96B, normalized_diff 15.
    The remaining difference is branch layout; the exact residual is archived
    in build/WO0048_probe_0048_e0hidden.json. Committed at nd 15. */
@@ -892,9 +914,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004867e0);
 #endif
 // FUN_00486840
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486840);
-/* Measured compiled-C park: object 224B / window 224B, normalized_diff 5.
-   The only residual is the flags-load register choice; the body is retained under
-   NON_MATCHING with the exact measured score. Committed at nd 5. */
 /* measured: opening optimization_level 1 for the parked 00486970 body. */
 #pragma optimization_level 1
 // FUN_00486970 NONMATCHING

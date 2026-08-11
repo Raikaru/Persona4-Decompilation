@@ -746,7 +746,103 @@ void func_0046ea50(u8 *arg0, s32 arg1)
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
 }
 // FUN_0046EA60
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046ea60);
+void func_0046ea60(u8 *arg0, u8 *arg1)
+{
+    struct FInput {
+        f32 f0;
+        f32 f4;
+        f32 f8;
+        f32 fC;
+    };
+    union Input {
+        struct {
+            s32 sp0;
+            s32 sp4;
+            s32 sp8;
+            s32 spC;
+        } i;
+        struct FInput f;
+    } input;
+#define sp0 input.i.sp0
+#define sp4 input.i.sp4
+#define sp8 input.i.sp8
+#define spC input.i.spC
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f0_4;
+    f32 temp_f1;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 temp_f4;
+    s32 temp_4;
+    s32 temp_5;
+    u8 *temp_3;
+
+    input = *(union Input *)arg1;
+    temp_3 = *(u8 **)(arg0 + 0x38);
+    if (*(s32 *)(temp_3 + 0) == 6) {
+        *(struct FInput *)(temp_3 + 0xC) = input.f;
+        temp_f4 = (f32)sp0;
+        *(f32 *)(temp_3 + 0x60) = temp_f4;
+        temp_f3 = (f32)sp4;
+        *(f32 *)(temp_3 + 0x64) = temp_f3;
+        temp_5 = sp0 + sp8;
+        temp_f2 = (f32)temp_5;
+        *(f32 *)(temp_3 + 0xA0) = temp_f2;
+        *(f32 *)(temp_3 + 0xA4) = temp_f3;
+        *(f32 *)(temp_3 + 0xE0) = temp_f4;
+        temp_f0 = (f32)(sp4 + 2);
+        *(f32 *)(temp_3 + 0xE4) = temp_f0;
+        *(f32 *)(temp_3 + 0x120) = temp_f2;
+        *(f32 *)(temp_3 + 0x124) = temp_f0;
+        temp_f0_2 = (f32)(temp_5 - 2);
+        *(f32 *)(temp_3 + 0x160) = temp_f0_2;
+        *(f32 *)(temp_3 + 0x164) = temp_f3;
+        *(f32 *)(temp_3 + 0x1A0) = temp_f2;
+        *(f32 *)(temp_3 + 0x1A4) = temp_f3;
+        *(f32 *)(temp_3 + 0x1E0) = temp_f0_2;
+        temp_4 = sp4 + spC;
+        temp_f1 = (f32)temp_4;
+        *(f32 *)(temp_3 + 0x1E4) = temp_f1;
+        *(f32 *)(temp_3 + 0x220) = temp_f2;
+        *(f32 *)(temp_3 + 0x224) = temp_f1;
+        *(f32 *)(temp_3 + 0x260) = temp_f4;
+        temp_f0_3 = (f32)(temp_4 - 2);
+        *(f32 *)(temp_3 + 0x264) = temp_f0_3;
+        *(f32 *)(temp_3 + 0x2A0) = temp_f2;
+        *(f32 *)(temp_3 + 0x2A4) = temp_f0_3;
+        *(f32 *)(temp_3 + 0x2E0) = temp_f4;
+        *(f32 *)(temp_3 + 0x2E4) = temp_f1;
+        *(f32 *)(temp_3 + 0x320) = temp_f2;
+        *(f32 *)(temp_3 + 0x324) = temp_f1;
+        *(f32 *)(temp_3 + 0x360) = temp_f4;
+        *(f32 *)(temp_3 + 0x364) = temp_f3;
+        temp_f0_4 = (f32)(sp0 + 2);
+        *(f32 *)(temp_3 + 0x3A0) = temp_f0_4;
+        *(f32 *)(temp_3 + 0x3A4) = temp_f3;
+        *(f32 *)(temp_3 + 0x3E0) = temp_f4;
+        *(f32 *)(temp_3 + 0x3E4) = temp_f1;
+        *(f32 *)(temp_3 + 0x420) = temp_f0_4;
+        *(f32 *)(temp_3 + 0x424) = temp_f1;
+        *(f32 *)(temp_3 + 0x460) = (f32)*(s32 *)(temp_3 + 0xC);
+        *(f32 *)(temp_3 + 0x464) = (f32)*(s32 *)(temp_3 + 0x10);
+        temp_5 = *(s32 *)(temp_3 + 0xC) + *(s32 *)(temp_3 + 0x14);
+        *(f32 *)(temp_3 + 0x4A0) = (f32)temp_5;
+        *(f32 *)(temp_3 + 0x4A4) = (f32)*(s32 *)(temp_3 + 0x10);
+        *(f32 *)(temp_3 + 0x4E0) = (f32)*(s32 *)(temp_3 + 0xC);
+        temp_5 = *(s32 *)(temp_3 + 0x10) + *(s32 *)(temp_3 + 0x18);
+        *(f32 *)(temp_3 + 0x4E4) = (f32)temp_5;
+        temp_5 = *(s32 *)(temp_3 + 0xC) + *(s32 *)(temp_3 + 0x14);
+        *(f32 *)(temp_3 + 0x520) = (f32)temp_5;
+        temp_5 = *(s32 *)(temp_3 + 0x10) + *(s32 *)(temp_3 + 0x18);
+        *(f32 *)(temp_3 + 0x524) = (f32)temp_5;
+    }
+}
+#undef sp0
+#undef sp4
+#undef sp8
+#undef spC
 // FUN_0046EC70
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046ec70);
 // FUN_0046F2B0

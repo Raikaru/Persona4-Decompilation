@@ -1224,8 +1224,44 @@ zero:
 #pragma schedule off
 /* measured: closes the no_branch_likely bracket opened above func_003be9f0. */
 #pragma no_branch_likely off
+/* measured: schedule and plain-branch probes for func_003beb10. */
+#pragma schedule on
+#pragma no_branch_likely on
+/* measured: opt_propagation off probe for the explicit count boolean. */
+#pragma opt_propagation off
 // FUN_003BEB10
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003beb10);
+u8 *func_003beb10(u8 *arg0) {
+    s32 *temp_4;
+    s32 var_15;
+    s32 var_17;
+    s32 var_16;
+
+    var_17 = 0;
+    var_15 = 0 < *(s32 *)(arg0 + 4);
+    if (var_15 != 0) {
+        goto loop_entry;
+    }
+cleanup:
+    temp_4 = *(s32 **)(arg0 + 0);
+    if (temp_4 != NULL) {
+        jtbl_008873EC[0]((u8 *)temp_4);
+        *(s32 **)(arg0 + 0) = NULL;
+    }
+    return arg0;
+loop_entry:
+    var_16 = 0;
+    do {
+        func_003c2a80(*(s32 *)(*(u8 **)(arg0 + 0) + var_16));
+        var_17 += 1;
+        var_16 += 4;
+    } while (var_17 < *(s32 *)(arg0 + 4));
+    goto cleanup;
+}
+/* measured: close opt_propagation probe for func_003beb10. */
+#pragma opt_propagation on
+/* measured: close plain-branch and schedule probes for func_003beb10. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003BEBB0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bebb0);
 // FUN_003BED10

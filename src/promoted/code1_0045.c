@@ -207,8 +207,56 @@ INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450490);
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
 // FUN_00450A50
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450a50);
+/* measured: O1 preserves the 00450DD0 mixed save and literal count branch. */
+#pragma optimization_level 1
 // FUN_00450DD0
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450dd0);
+void func_00450dd0(s64 arg0, s32 arg1, s64 arg2, s64 arg3, s64 arg4,
+                   s64 arg5, s64 arg6, s64 arg7, f32 fparg0, s64 arg_sp0)
+{
+    struct {
+        u8 sp20[0x100];
+        u8 pad_120[0xC];
+        union {
+            f32 f;
+            s32 i;
+        } sp12C;
+        s64 sp130;
+        u8 pad_138[0x18];
+        s32 sp150;
+        u8 pad_154[0xC];
+        s64 sp160;
+        s64 sp168;
+        s64 sp170;
+        s64 sp178;
+        s64 sp180;
+        s64 sp188;
+    } work;
+    s32 var_3;
+    f32 temp_f0;
+    extern f32 fGpffffac58;
+
+    work.sp130 = arg0;
+    temp_f0 = fparg0;
+    work.sp150 = arg1;
+    work.sp160 = arg2;
+    work.sp168 = arg3;
+    work.sp170 = arg4;
+    work.sp178 = arg5;
+    work.sp180 = arg6;
+    work.sp188 = arg7;
+    work.sp12C.f = fGpffffac58;
+    var_3 = 2;
+    if (var_3 >= 8) {
+        var_3 = 0;
+    } else {
+        var_3 = (8 - var_3) * 8;
+    }
+    func_00446ed8(work.sp20, work.sp150,
+                   (u8 *)&arg_sp0 - var_3);
+    func_00450a50(work.sp12C.i, work.sp130, temp_f0, work.sp20);
+}
+/* measured: restore O2 after func_00450dd0. */
+#pragma optimization_level 2
 /* measured: O1 preserves the literal argument-count branch shape. */
 #pragma optimization_level 1
 // FUN_00450E80
@@ -1090,8 +1138,8 @@ void func_0045ed60(void *arg0, void *arg1, s32 arg2, f32 farg0) {
     u8 color1;
     u8 color2;
     u8 color3;
-
     ptr = colors.b;
+
     color0 = ((u8 *)arg0)[0];
     color1 = ((u8 *)arg0)[1];
     color2 = ((u8 *)arg0)[2];

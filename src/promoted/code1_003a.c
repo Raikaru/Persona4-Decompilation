@@ -493,47 +493,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a72a0);
 // FUN_003A76C0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a76c0);
 
-/* Measured compiled-C park: schedule-on reaches the retail preheader and delay
-   slot ordering; object 188B / window 192B, normalized_diff 17. Committed at nd 17. */
-// measured: opening schedule-on bracket for the parked func_003a7970 probe.
-// FUN_003A7970 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-s32 func_003a7970(u8 *arg0, u8 *arg1)
-{
-    s32 temp_10;
-    s32 temp_4;
-    s32 temp_8;
-    s32 temp_9;
-    u8 *temp_16;
-    u8 *temp_14;
-    u8 *temp_2;
-
-    temp_14 = *(u8 **)(arg0 + 0x2C);
-    temp_4 = *(s32 *)(arg0 + 8);
-    temp_16 = *(u8 **)(temp_4 + iGpffffb610);
-    temp_2 = *(u8 **)(temp_16 + 0x9C);
-    *(s32 *)(temp_2 + (*(s32 *)(temp_2 + 0xE4) * 0x24) + 0x140) =
-        *(s32 *)(arg1 + 4);
-    *(s32 *)(temp_2 + (*(s32 *)(temp_2 + 0xE4) * 0x24) + 0x154) =
-        *(s32 *)(arg1 + 0);
-    temp_9 = *(s32 *)(temp_2 + 0xE4);
-    temp_10 = *(s32 *)(arg1 + 8);
-    temp_8 = temp_9 * 0x24;
-    *(s32 *)(temp_2 + temp_8 + 0x160) = temp_10;
-    *(void (**)(u8 *, s32 *, s32))(temp_16 + 0x24) = func_003a76c0;
-    func_003b42e0(temp_4, temp_16 + 0x50,
-                  ((u32)*(s32 *)(temp_14 + 4) >> 2), 0xEFFFFFFF,
-                  temp_8, temp_9, temp_10);
-    *(void (**)(u8 *, s32 *, s32))(temp_16 + 0x24) =
-        (void (*)(u8 *, s32 *, s32))func_003a72a0;
-    return 1;
-}
-// measured: closes schedule-on bracket for the parked func_003a7970 probe.
-#pragma schedule off
-#else
+// FUN_003A7970
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a7970);
-#endif
 // FUN_003A7A30
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a7a30);
 // FUN_003A7F80
