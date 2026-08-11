@@ -21,6 +21,7 @@ from collections import defaultdict
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+EDIT_SLACK = 6
 sys.path.insert(0, str(REPO / "tools"))
 import verify as V  # noqa: E402
 import build as B  # noqa: E402
@@ -44,7 +45,7 @@ def main() -> int:
     import bisect
 
     rows = json.load(open(REPO / "build/verify_wave.json"))["results"]
-    groups = defaultdict(list)
+    entries = []
     for r in rows:
         if r["status"] != "ASM":
             continue
@@ -55,11 +56,41 @@ def main() -> int:
         window = bounds[index] - address if index < len(bounds) else None
         if not window or window < smallest or window > 0x4000:
             continue
-        groups[skeleton(retail.bytes_at(address, window))].append(
-            (r["addr"], r["name"], r["file"].replace("\\", "/"), window))
+        entries.append((skeleton(retail.bytes_at(address, window)),
+                        r["addr"], r["name"], r["file"].replace("\\", "/"),
+                        window))
 
-    clusters = sorted((v for v in groups.values() if len(v) >= least),
-                      key=lambda v: (-len(v), v[0][3]))
+    # Exact skeletons first, then absorb near neighbours. Grouping only on
+    # exact equality demonstrably under-counts: a family member differing by a
+    # single extra load falls out, yet takes the same source shape. A member
+    # within EDIT_SLACK instructions of the seed, at the same length, is
+    # treated as part of the family.
+    exact = defaultdict(list)
+    for entry in entries:
+        exact[entry[0]].append(entry[1:])
+
+    seeds = sorted(exact.items(), key=lambda kv: (-len(kv[1]), kv[1][0][2]))
+    taken = set()
+    clusters = []
+    for shape, members in seeds:
+        group = [m for m in members if m[0] not in taken]
+        if not group:
+            continue
+        for other, others in exact.items():
+            if other is shape:
+                continue
+            # Length may differ: a family member with one extra load or store
+            # is still the same routine. Compare on the common prefix and
+            # charge the length difference as edits.
+            apart = (sum(1 for a, b in zip(shape, other) if a != b)
+                     + abs(len(other) - len(shape)))
+            if apart and apart <= EDIT_SLACK:
+                group += [m for m in others if m[0] not in taken]
+        if len(group) < least:
+            continue
+        taken.update(m[0] for m in group)
+        clusters.append(sorted(group))
+    clusters.sort(key=lambda v: (-len(v), v[0][2]))
     total = sum(len(c) for c in clusters)
     print("open first-party in clusters of >=%d: %d functions in %d clusters"
           % (least, total, len(clusters)))

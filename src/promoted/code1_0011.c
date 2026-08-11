@@ -6,9 +6,9 @@ typedef struct {
     f32 x;
     f32 y;
 } Vec2f;
-void func_00113800(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3);
 void func_001138c0(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
-void func_00113e30(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+void func_00113e30(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3);
 void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
 void func_001203a0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3, s32 arg4_2);
 extern s32 iGpffffb1b4;
@@ -650,23 +650,21 @@ void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
     temp_8 = *(s16 *)arg2;
     switch (temp_8) {
     case 0:
-        func_00113800(arg0, arg1, arg2, arg3, arg4);
+        func_00113800(arg0, arg4, arg1, arg2, arg3);
         return;
     case 1:
         func_001138c0(arg0, arg1, arg2, arg3, arg4);
         return;
     case 2:
-        func_00113e30(arg0, arg1, arg2, arg3, arg4);
+        func_00113e30(arg0, arg4, arg1, arg2, arg3);
         return;
     }
 }
-/* measured: retail places the incoming float save before the two GP callee-save
-   moves; b210 keeps the identical 184B body but emits those three prologue
-   moves in GP-then-FP order. Declaration, scheduling, and O1 probes retained
-   the nd 10 residual. Committed at nd 10. */
-// FUN_00113800 NONMATCHING
-#ifdef NON_MATCHING
-void func_00113800(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
+/* measured: declaring the f32 parameter immediately after the Vec2f aggregate
+   reproduces retail's FP-first prologue save order. Probe object 184B/window
+   192B; the only two fndiff residual words are zero-padding tail bytes. */
+// FUN_00113800
+void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
 {
     f32 scale;
     s32 color;
@@ -680,9 +678,6 @@ void func_00113800(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
     index = *(s8 *)((s32)D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2));
     func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, index, 1, temp, 0, 0);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00113800);
-#endif
 // FUN_00115830
 void func_00115830(u8 *arg0) {
     func_0043f9c8(arg0 + 8, 0, 0x3C);

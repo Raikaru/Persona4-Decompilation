@@ -617,6 +617,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
 /* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcf10_body.c. */
 // FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
+/* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */
 #pragma schedule on
 /* measured: no_branch_likely on restores the plain guard form in func_003bcf60. */
 #pragma no_branch_likely on

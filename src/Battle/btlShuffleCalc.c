@@ -30,7 +30,17 @@ f32 func_003716d0(f32 fparg0);
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
 typedef struct { f32 x, y, z; } ShuffleVec3;
 typedef struct { f32 v[9]; s32 flag; } ShuffleOut;
-f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2);
+typedef struct ShuffleCalcUnit {
+    u16 count;
+    u16 pad02;
+    f32 duration;
+    f32 rate;
+    f32 output[3];
+    f32 start[3];
+    f32 target[3];
+    f32 scale;
+} ShuffleCalcUnit;
+f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
 
 /* SOLVED -- this was recorded here as a "Commutative FP-mul scheduling floor"
    and re-confirmed as a floor through wave 14. The nd-2 spelling those notes
@@ -365,17 +375,17 @@ void func_003723a0(u8 *arg0, u32 arg1, u32 arg2, u8 *arg3, u8 *arg4, f32 fparg0)
     *(ShuffleVec3 *)(arg0 + 0x24) = *(ShuffleVec3 *)(arg4 + 0);
     *(f32 *)(arg0 + 0x30) = fparg0;
 }
-/* measured 2026-08-08: array scratch plus explicit scale-order locals and
-   opt_propagation off reproduce the 003724f0 body at object 440B / window
-   448B, normalized_diff 23 (13 differing words). Exact residual fndiff rows:
-   offsets 20, 24, 32, 52, 56, 108, 184, 188, 320, 356, 392. First
-   differing row is offset 20 (`lhu $a0,($a0)` vs retail `lhu $v0,($a0)`).
-   The candidate is parked under NON_MATCHING. Committed at nd 23. */
-// FUN_003724F0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: opt_propagation off is retained for this parked candidate. */
+/* Cluster transfer: the named ShuffleCalcUnit/count-pointer shape and
+   corrected helper argument order match this 440-byte body in its 448-byte
+   retail window (normalized_diff 0). */
+// FUN_003724F0
+/* measured: func_003724f0 object 440B/window 448B normalized_diff 0; this
+   pragma is required (without opt_propagation off, normalized_diff 26). */
 #pragma opt_propagation off
-s32 func_003724f0(u8 *arg0) {
+s32 func_003724f0(ShuffleCalcUnit *unit) {
+    u32 value2;
+    u16 *count;
+    u32 value;
     f32 sp40[3];
     f32 sp30[3];
     f32 temp_f20;
@@ -383,10 +393,9 @@ s32 func_003724f0(u8 *arg0) {
     f32 temp_f2;
     f32 var_f12;
     f32 var_f1;
-    u32 value;
-    u32 value2;
 
-    value = *(u16 *)arg0;
+    count = &unit->count;
+    value = *count;
     if (value >= 0) {
         var_f1 = (f32)value;
     } else {
@@ -394,11 +403,11 @@ s32 func_003724f0(u8 *arg0) {
         var_f1 = (f32)value;
         var_f1 += var_f1;
     }
-    if (!(var_f1 < *(f32 *)(arg0 + 4))) {
+    if (!(var_f1 < unit->duration)) {
         return 1;
     }
-    *(u16 *)arg0 = (u16)(*(u16 *)arg0 + 1);
-    value2 = *(u16 *)arg0;
+    unit->count = (u16)(unit->count + 1);
+    value2 = unit->count;
     if (value2 >= 0) {
         var_f12 = (f32)value2;
     } else {
@@ -406,58 +415,57 @@ s32 func_003724f0(u8 *arg0) {
         var_f12 = (f32)value2;
         var_f12 += var_f12;
     }
-    temp_f20 = func_00373cb0(var_f12, *(f32 *)(arg0 + 8), 0, *(f32 *)(arg0 + 4));
-    sp40[0] = *(f32 *)(arg0 + 0x18) - *(f32 *)(arg0 + 0x24);
-    sp40[1] = *(f32 *)(arg0 + 0x1C) - *(f32 *)(arg0 + 0x28);
-    sp40[2] = *(f32 *)(arg0 + 0x20) - *(f32 *)(arg0 + 0x2C);
+    temp_f2 = unit->rate;
+    temp_f1 = unit->duration;
+    temp_f20 = func_00373cb0(var_f12, temp_f2, temp_f1, 0);
+    sp40[0] = unit->start[0] - unit->target[0];
+    sp40[1] = unit->start[1] - unit->target[1];
+    sp40[2] = unit->start[2] - unit->target[2];
     func_003e40b0(&sp30[0], &sp40[0]);
     temp_f2 = sp30[0];
-    temp_f1 = *(f32 *)(arg0 + 0x30);
+    temp_f1 = unit->scale;
     sp30[0] = temp_f2 * temp_f1;
     temp_f2 = sp30[1];
-    temp_f1 = *(f32 *)(arg0 + 0x30);
+    temp_f1 = unit->scale;
     sp30[1] = temp_f2 * temp_f1;
     temp_f2 = sp30[2];
-    temp_f1 = *(f32 *)(arg0 + 0x30);
+    temp_f1 = unit->scale;
     sp30[2] = temp_f2 * temp_f1;
     temp_f2 = sp30[0] + sp40[0];
-    *(f32 *)(arg0 + 0xC) = *(f32 *)(arg0 + 0x18) +
-        (temp_f20 * sp30[0] - temp_f20 * (temp_f20 * temp_f2));
+    unit->output[0] = unit->start[0] +
+        (sp30[0] * temp_f20 - temp_f20 * (temp_f20 * temp_f2));
     temp_f2 = sp30[1] + sp40[1];
-    *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 0x1C) +
-        (temp_f20 * sp30[1] - temp_f20 * (temp_f20 * temp_f2));
+    unit->output[1] = unit->start[1] +
+        (sp30[1] * temp_f20 - temp_f20 * (temp_f20 * temp_f2));
     temp_f2 = sp30[2] + sp40[2];
-    *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0x20) +
-        (temp_f20 * sp30[2] - temp_f20 * (temp_f20 * temp_f2));
+    unit->output[2] = unit->start[2] +
+        (sp30[2] * temp_f20 - temp_f20 * (temp_f20 * temp_f2));
     return 0;
 }
-/* measured probe: close opt_propagation scope after func_003724f0. */
+/* measured: func_003724f0 object 440B/window 448B normalized_diff 0; restore
+   normal propagation before the next function. */
 #pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003724f0);
-#endif
-/* measured 2026-08-08: array scratch plus raw-tail expression reproduces
-   func_003726b0's post-helper stack traffic and MAC tail at object 440B /
-   window 448B, normalized_diff 21 (12 differing words). Exact residual
-   fndiff rows: offsets 20, 24, 32, 52, 56, 108, 184, 188, 268, 272.
-   First differing row is offset 20 (`lhu $a0,($a0)` vs retail
-   `lhu $v0,($a0)`). The candidate is parked under NON_MATCHING.
-   Committed at nd 21. */
-// FUN_003726B0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: opt_propagation off is retained for this parked candidate. */
+/* Cluster transfer: the same named ShuffleCalcUnit/count-pointer and helper
+   call shape matches the second 440-byte member in its 448-byte window
+   (normalized_diff 0); only its measured FP tail spelling differs. */
+// FUN_003726B0
+/* measured: func_003726b0 object 440B/window 448B normalized_diff 0; this
+   pragma is required (without opt_propagation off, normalized_diff 26). */
 #pragma opt_propagation off
-s32 func_003726b0(u8 *arg0) {
+s32 func_003726b0(ShuffleCalcUnit *unit) {
+    u32 value2;
+    u16 *count;
+    u32 value;
     f32 sp40[3];
     f32 sp30[3];
     f32 temp_f1;
+    f32 temp_f2;
     f32 temp_f20;
     f32 var_f12;
     f32 var_f1;
-    u32 value;
-    u32 value2;
 
-    value = *(u16 *)arg0;
+    count = &unit->count;
+    value = *count;
     if (value >= 0) {
         var_f1 = (f32)value;
     } else {
@@ -465,11 +473,11 @@ s32 func_003726b0(u8 *arg0) {
         var_f1 = (f32)value;
         var_f1 += var_f1;
     }
-    if (!(var_f1 < *(f32 *)(arg0 + 4))) {
+    if (!(var_f1 < unit->duration)) {
         return 1;
     }
-    *(u16 *)arg0 = (u16)(*(u16 *)arg0 + 1);
-    value2 = *(u16 *)arg0;
+    unit->count = (u16)(unit->count + 1);
+    value2 = unit->count;
     if (value2 >= 0) {
         var_f12 = (f32)value2;
     } else {
@@ -477,28 +485,30 @@ s32 func_003726b0(u8 *arg0) {
         var_f12 = (f32)value2;
         var_f12 += var_f12;
     }
-    temp_f20 = func_00373cb0(var_f12, *(f32 *)(arg0 + 8), 0, *(f32 *)(arg0 + 4));
-    sp40[0] = *(f32 *)(arg0 + 0x18) - *(f32 *)(arg0 + 0x24);
-    sp40[1] = *(f32 *)(arg0 + 0x1C) - *(f32 *)(arg0 + 0x28);
-    sp40[2] = *(f32 *)(arg0 + 0x20) - *(f32 *)(arg0 + 0x2C);
+    temp_f1 = unit->rate;
+    temp_f20 = func_00373cb0(var_f12, temp_f1, unit->duration, 0);
+    sp40[0] = unit->start[0] - unit->target[0];
+    sp40[1] = unit->start[1] - unit->target[1];
+    sp40[2] = unit->start[2] - unit->target[2];
     func_003e40b0(&sp30[0], &sp40[0]);
-    temp_f1 = *(f32 *)(arg0 + 0x30);
-    sp30[0] *= temp_f1;
-    sp30[1] *= temp_f1;
-    sp30[2] *= temp_f1;
-    *(f32 *)(arg0 + 0xC) = *(f32 *)(arg0 + 0x18) +
+    temp_f2 = sp30[0];
+    temp_f1 = unit->scale;
+    sp30[0] = temp_f2 * temp_f1;
+    temp_f2 = sp30[1];
+    sp30[1] = temp_f2 * temp_f1;
+    temp_f2 = sp30[2];
+    sp30[2] = temp_f2 * temp_f1;
+    unit->output[0] = unit->start[0] +
         (temp_f20 * (sp30[0] - sp40[0]) - temp_f20 * (sp30[0] * temp_f20));
-    *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 0x1C) +
+    unit->output[1] = unit->start[1] +
         (temp_f20 * (sp30[1] - sp40[1]) - temp_f20 * (sp30[1] * temp_f20));
-    *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0x20) +
+    unit->output[2] = unit->start[2] +
         (temp_f20 * (sp30[2] - sp40[2]) - temp_f20 * (sp30[2] * temp_f20));
     return 0;
 }
-/* measured probe: close opt_propagation scope after func_003726b0. */
+/* measured: func_003726b0 object 440B/window 448B normalized_diff 0; restore
+   normal propagation before the next function. */
 #pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003726b0);
-#endif
 // FUN_00372870
 void func_00372870(u8 *arg0, s16 a1, s16 a2, u8 *arg3, ShuffleVec4 *arg4) {
     *(s16 *)(arg0 + 0) = 0;
@@ -624,7 +634,7 @@ s32 func_00373170(u8 *arg0) {
         var_f14 = (f32)value3;
         var_f14 += var_f14;
     }
-    t = func_00373cb0(var_f12, var_f13, 0, var_f14);
+    t = func_00373cb0(var_f12, var_f13, var_f14, 0);
     func_003dc740(&sp20[0], arg0 + 0x28, 0, 0.0f + *(f32 *)(arg0 + 0x34) + t * (*(f32 *)(arg0 + 0x38) - *(f32 *)(arg0 + 0x34)));
     *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0x24) * sp20[3] - (*(f32 *)(arg0 + 0x18) * sp20[0] + *(f32 *)(arg0 + 0x1C) * sp20[1] + *(f32 *)(arg0 + 0x20) * sp20[2]);
     *(f32 *)(arg0 + 0x8) = *(f32 *)(arg0 + 0x1C) * sp20[2] - *(f32 *)(arg0 + 0x20) * sp20[1];
@@ -743,7 +753,7 @@ void func_00373c20(u8 *arg0) {
 }
 
 // FUN_00373CB0
-f32 func_00373cb0(f32 fparg0, f32 fparg1, s32 arg0, f32 fparg2) {
+f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0) {
     f32 temp_f20;
 
     if (fparg0 < fparg1) {

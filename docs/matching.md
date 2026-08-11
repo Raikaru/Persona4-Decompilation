@@ -524,3 +524,38 @@ duplicate definitions.
 - **Record waivers per `docs/STYLE.md`** when a steering construct is
   load-bearing: annotation above the marker, containing the word `measured`
   and the measured cost of removal.
+
+## A MATCH does not prove the right global
+
+`tools/verify.py` masks relocations before comparing, because an unlinked
+object cannot know where a symbol will land. That is correct for per-function
+verification and it has one consequence worth internalising: **a function can
+report MATCH while referencing the wrong symbol.** The relocated field is
+masked, so any symbol of the right kind compares equal.
+
+Only the linked image catches it. A real example, from the wave that added
+`func_004a8bb0` and `func_004a8f90` to `src/Graphics/Effect/effBlurFilter.c`:
+both verified MATCH at normalized_diff 0, and both were wrong. They are a
+sibling cluster, solved once and transferred, and the transfer silently carried
+the first function's global into the second:
+
+    func_004a8bb0 @ 0x004a8cbc   ld $a0, -0x7fe0($gp)   fGpffff8020 = 0x00761110
+    func_004a8f90 @ 0x004a909c   ld $a0, -0x7ff0($gp)   fGpffff8010 = 0x00761100
+
+`tools/build.py` reported `first diff at vram 0x4a8cbc` and the image sha1
+changed. Nothing else would have.
+
+Practical rules:
+
+- When you transfer a shape between cluster members, diff the retail windows for
+  their GLOBAL references specifically. Constants and offsets are obvious;
+  a `%hi`/`%lo` or `$gp` displacement pointing at a different datum is not.
+- A newly referenced global that no existing source mentions has to be
+  registered in `config/symbol_data_addrs.txt` with evidence, or the object
+  quietly drops out of the link. It will not fail verification - it will just
+  stop being one of the linked translation units, and the only visible symptom
+  is the linked-function count falling.
+- Derive a `?Gpffff####` address as `gp + (signed 16-bit offset)`, gp base
+  `0x007690F0`, and confirm it against the retail instruction that references
+  it rather than against the name. The name is a decompiler guess and this
+  case proves it can be wrong.

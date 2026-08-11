@@ -72,8 +72,10 @@ extern s32 func_0044e168(s64 a, s32 b);
 extern f32 func_0044e7d8(s32 a);
 extern f32 fGpffff8084;
 extern s64 fGpffff8018;
+extern s64 fGpffff8010;
 extern s64 fGpffff8020;
 extern s64 fGpffff8010;
+extern s64 fGpffff8020;
 
 extern s32 func_0048abd0(u8 *a, u8 *b, s32 c, s32 d);
 extern f32 func_0048aff0(u8 *a, s32 b, s32 c);
@@ -84,16 +86,73 @@ extern void func_004a8bb0(u8 *a, u8 *b);
 extern void func_004a8f90(u8 *a, u8 *b);
 extern void func_004a9180(u8 *a, u8 *b);
 
-/* measured: nd 18 (9 rows) with the closest spelling — constant-first
-   `if (2.1474836e9f <= temp_f1) { goto big; }` reproduces retail's c.ole.s
-   $f0,$f1 exactly, but mwcc b210 keeps the overflow (sub.s) body INLINE with
-   a bc1f to the cvt body placed out of line, while retail keeps the cvt body
-   inline with bc1t to the overflow body, and the byte value lands in $v1
-   instead of $a0. Tried if/else both polarities (nd 19), default-assignment
-   then single-if (nd 48), goto/label per evtModel precedent (nd 18) — the
-   body-placement + branch-polarity pair never flips. Branch-layout floor. */
+/* measured: optimization_level 1 plus the swapped integer declaration order and
+   a block-local threshold produce object 488B/window 496B and only the two
+   zero-padding tail words differ in the standalone probe (nd 2). Compound
+   overflow masking keeps the OR/ANDI result in the retail destination
+   register; the candidate body follows the 004A8F90 sibling skeleton. */
+/* measured: func_004a8bb0 O1 bracket, standalone probe object 488B/window 496B,
+   normalized_diff 2 (retail-only zero-padding tail). */
+#pragma optimization_level 1
 // FUN_004A8BB0
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8bb0);
+void func_004a8bb0(u8 *a, u8 *b) {
+    int *param_1 = (int *)a;
+    float *param_2 = (float *)b;
+    int iVar4;
+    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } uVar2;
+    int iVar1;
+    float fVar6;
+    float alphaF;
+    float temp_f1;
+    u32 alpha;
+    s32 var_4;
+
+    iVar1 = *param_1;
+    if (!(iVar1 <= 0x64)) {
+        func_0046d730(D_00714380, 0x190);
+    }
+    uVar2.packed = (u32)param_1[3];
+    alpha = (u32)uVar2.rgba.a;
+    if (alpha >= 0) {
+        alphaF = (float)alpha;
+    } else {
+        alpha = (alpha >> 1) | (alpha & 1);
+        alphaF = (float)alpha;
+        alphaF += alphaF;
+    }
+
+    for (iVar4 = 0; iVar4 < iVar1; iVar4 = iVar4 + 1) {
+        if (((int *)param_2)[0] == 0) {
+            float threshold;
+            if (!(param_2[1] <= fGpffff8084)) {
+                func_004a8a50(a, (u8 *)param_2);
+            }
+            fVar6 = func_0044b7b0(param_2[1]);
+            param_2[6] = 1.0f + ((float *)param_1)[6] * fVar6;
+            temp_f1 = alphaF * func_0044e7d8(func_0044e168(fGpffff8018, func_0044e100(fGpffff8020, func_0044b310(func_0044dcd8(param_2[1])))));
+            threshold = 2.1474836e9f;
+            if (threshold <= temp_f1) {
+                goto alpha_big;
+            }
+            var_4 = (s32)temp_f1;
+            var_4 &= 0xFF;
+            goto alpha_done;
+        alpha_big:
+            var_4 = (s32)(temp_f1 - threshold);
+            var_4 |= 0x80000000;
+            var_4 &= 0xFF;
+        alpha_done:
+            *((u8 *)param_2 + 0xF) = (u8)var_4;
+            param_2[1] = param_2[1] + ((float *)param_1)[2];
+        } else {
+            *((u8 *)param_2 + 0xF) = 0;
+            ((int *)param_2)[0] = ((int *)param_2)[0] - 1;
+        }
+        param_2 = param_2 + 0x34 / 4;
+    }
+}
+/* measured: closes func_004a8bb0 O1 bracket; restore O2 for the next function. */
+#pragma optimization_level 2
 
 extern u32 func_004bd050(u32 param);
 extern f32 func_004bd0b0(u32 param);
@@ -117,18 +176,72 @@ extern f32 fGpffff80cc;
 // FUN_004A8DA0
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
 
-/* measured: re-measured this wave at nd 18 (9 rows). The GS doubled-alpha
-   block now matches exactly (u32 value + `value >= 0` + t+t doubling ->
-   lbu/bltz/srl/or/andi, cvt straight into $f20, add.s self-add); the madd
-   store matches (1.0f + x*ret, madd.s $f0,$f3,$f0). Residual is only the
-   0x4F000000 clamp: mwcc b210 always keeps the overflow (sub.s) body INLINE
-   with bc1f to the cvt body placed out of line, while retail keeps the cvt
-   body inline with bc1t to the overflow body, and the byte value lands in
-   $v1 instead of $a0. Tried if/else both polarities and operand orders,
-   default-assignment, goto/label, switch, ternary, 3 declaration orders -
-   all nd 18. Branch-layout + rotation floor. */
+/* measured: cluster transfer from func_004a8bb0 — changing only the assert
+   line to 575 and the recursive helper to func_004a8da0 preserves the exact
+   488B candidate body/window 496B with only the two retail zero-padding tail
+   words outside the standalone object (nd 2). */
+/* measured: func_004a8f90 O1 bracket, standalone probe object 488B/window 496B,
+   normalized_diff 2 (retail-only zero-padding tail). */
+#pragma optimization_level 1
 // FUN_004A8F90
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8f90);
+void func_004a8f90(u8 *a, u8 *b) {
+    int *param_1 = (int *)a;
+    float *param_2 = (float *)b;
+    int iVar4;
+    union { struct { u8 r; u8 g; u8 b2; u8 a; } rgba; u32 packed; } uVar2;
+    int iVar1;
+    float fVar6;
+    float alphaF;
+    float temp_f1;
+    u32 alpha;
+    s32 var_4;
+
+    iVar1 = *param_1;
+    if (!(iVar1 <= 0x64)) {
+        func_0046d730(D_00714380, 575);
+    }
+    uVar2.packed = (u32)param_1[3];
+    alpha = (u32)uVar2.rgba.a;
+    if (alpha >= 0) {
+        alphaF = (float)alpha;
+    } else {
+        alpha = (alpha >> 1) | (alpha & 1);
+        alphaF = (float)alpha;
+        alphaF += alphaF;
+    }
+
+    for (iVar4 = 0; iVar4 < iVar1; iVar4 = iVar4 + 1) {
+        if (((int *)param_2)[0] == 0) {
+            float threshold;
+            if (!(param_2[1] <= fGpffff8084)) {
+                func_004a8da0(a, (u8 *)param_2);
+            }
+            fVar6 = func_0044b7b0(param_2[1]);
+            param_2[6] = 1.0f + ((float *)param_1)[6] * fVar6;
+            temp_f1 = alphaF * func_0044e7d8(func_0044e168(fGpffff8018, func_0044e100(fGpffff8010, func_0044b310(func_0044dcd8(param_2[1])))));
+            threshold = 2.1474836e9f;
+            if (threshold <= temp_f1) {
+                goto alpha_big;
+            }
+            var_4 = (s32)temp_f1;
+            var_4 &= 0xFF;
+            goto alpha_done;
+        alpha_big:
+            var_4 = (s32)(temp_f1 - threshold);
+            var_4 |= 0x80000000;
+            var_4 &= 0xFF;
+        alpha_done:
+            *((u8 *)param_2 + 0xF) = (u8)var_4;
+            param_2[1] = param_2[1] + ((float *)param_1)[2];
+        } else {
+            *((u8 *)param_2 + 0xF) = 0;
+            ((int *)param_2)[0] = ((int *)param_2)[0] - 1;
+        }
+        param_2 = param_2 + 0x34 / 4;
+    }
+}
+/* measured: closes func_004a8f90 O1 bracket; restore O2 for the next function. */
+#pragma optimization_level 2
 // FUN_004A9180
 void func_004a9180(u8 *a, u8 *b) {
     int *param_1 = (int *)a;
