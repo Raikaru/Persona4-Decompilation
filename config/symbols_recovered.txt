@@ -5527,7 +5527,6 @@ func_004f8d60 = 0x004f8d60; // type:data
 func_004f8d98 = 0x004f8d98; // type:data
 func_004f8e10 = 0x004f8e10; // type:data
 func_004f8e78 = 0x004f8e78; // type:data
-func_004f8f60 = 0x004f8f60; // type:data
 func_004f9590 = 0x004f9590; // type:data
 func_004f9a10 = 0x004f9a10; // type:data
 func_004f9a88 = 0x004f9a88; // type:data
