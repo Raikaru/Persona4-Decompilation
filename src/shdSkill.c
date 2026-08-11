@@ -21,7 +21,7 @@ s64 func_0023d8e0(u32 arg0, u16 arg1);
 extern char D_005E4800[];
 extern char D_005E47F0[];
 void *func_00243840(u16 arg0);
-void func_00275020(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
+void func_00275020(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
 void func_0046d4c0(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
 extern char D_005E5830[];
 extern char D_005E5850[];
@@ -44,26 +44,28 @@ INCLUDE_ASM("asm/nonmatchings/shdSkill", func_001138c0);
    x*255/255U divu + |~0xFF chain, lh->sll->D_005E47F0 byte index). Probed
    this wave: z/sp48 assignment orders, arg1/arg2 locals, lo/hi locals -- all
    nd 5/11. prologue/FP-arg save-order floor. */
-/* measured: nd 19, object 184/192. Plain C with the Vec2f aggregate, interleaved f32 parameter order, signed table-byte load, and the 9-argument 00275020 call reproduces the complete retail body; the residual is the final mov.s placement before the call (retail emits it before integer argument setup) plus the 8-byte short object tail. The O1 probe was unchanged. No inline assembly. Committed at nd 19. */
-// FUN_00113E30 NONMATCHING
-#ifdef NON_MATCHING
-void func_00113e30(Vec2f arg0, f32 fparg0, s32 arg1, u8 *arg2) {
+/* measured: MATCH, object 184/192. The cluster's float-first interleaving and callee-first local evaluation reproduce the retail body; the remaining 8 bytes are zero tail padding accepted by the verifier. */
+// FUN_00113E30
+void func_00113e30(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3) {
     f32 farg;
+    s32 color;
+    s32 index;
+    void *temp;
 
     farg = fparg0;
-    func_00275020((((arg1 & 0xFF) * 0xFF) / 255U) | ~0xFF,
-                  *((s8 *)((s32)&D_005E47F0 + (*(s16 *)(arg2 + 2) * 2))),
-                  1,
-                  func_00243840(*(u16 *)(arg2 + 0xA)),
-                  8,
-                  -1,
-                  (f32)(s32)arg0.x,
+    temp = func_00243840(*(u16 *)((u8 *)arg2 + 0xA));
+    color = (((arg1 & 0xFF) * 0xFF) / 255U) | ~0xFF;
+    index = *((s8 *)((s32)&D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2)));
+    func_00275020((f32)(s32)arg0.x,
                   (f32)(s32)arg0.y,
-                  farg);
+                  farg,
+                  color,
+                  index,
+                  1,
+                  temp,
+                  8,
+                  -1);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00113e30);
-#endif
 
 /* measured: plain-C reconstruction attempt for the ordinary adda.s/madd.s
    color interpolation reached nd 1083 (object 1456/1392) and was discarded:

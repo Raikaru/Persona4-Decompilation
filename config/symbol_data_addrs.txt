@@ -493,3 +493,5 @@ iGpffffb538 = 0x00764628; // type:data evidence: retail code1_0029 func_0029ef90
 iGpffffa960 = 0x00763a50; // type:data evidence: retail gp -0x56a0; gp base 0x007690F0
 iGpffffb578 = 0x00764668; // type:data evidence: retail gp -0x4a88; gp base 0x007690F0
 iGpffff9c0c = 0x00762cfc; // type:data evidence: retail shdPersona func_00116610 gp -0x63f4; gp base 0x007690F0
+fGpffff8010 = 0x00761100; // type:data evidence: retail effBlurFilter func_004a8f90 instruction at 0x004a909c is `ld $a0, -0x7ff0($gp)`; gp base 0x007690F0. The decompiled source first named this fGpffff8020, which verify.py accepted because it masks relocations; the linked image caught it.
+fGpffff8020 = 0x00761110; // type:data evidence: retail effBlurFilter func_004a8bb0 instruction at 0x004a8cbc is `ld $a0, -0x7fe0($gp)`; gp base 0x007690F0. Its cluster twin func_004a8f90 uses fGpffff8010 instead, which is why the two must not share a spelling.
