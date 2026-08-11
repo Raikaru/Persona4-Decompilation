@@ -11,6 +11,8 @@ extern void func_00375fa0(u8 *arg0, s32 arg1, s32 arg2, f32 *arg3, f32 *arg4, f3
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern f32 fGpffff80d8;
+extern f32 fGpffff83e4;
+extern f32 fGpffff837c;
 extern void func_003e40b0(f32 *arg0, f32 *arg1);
 static inline f32 add_retail_order(f32 a, f32 b) {
     return a + b;
@@ -83,7 +85,58 @@ void func_00379e90(u8 *arg0, s32 arg1, f32 *arg2) {
 // FUN_00379F90
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_00379f90);
 // FUN_0037AB50
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037ab50);
+void func_0037ab50(u8 *arg0, s32 arg1, f32 *arg2) {
+    struct {
+        f32 sp50;
+        f32 sp54;
+        f32 sp58;
+        f32 pad5c;
+        f32 sp60;
+        f32 sp64;
+        f32 sp68;
+        f32 pad6c;
+        f32 sp70;
+        f32 sp74;
+        f32 sp78;
+    } work;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 zero;
+    s32 parity;
+
+    func_00371260((u8 *)&work.sp70);
+    work.sp74 = work.sp74 - 25.0f;
+    work.sp60 = work.sp70;
+    work.sp64 = work.sp74;
+    temp_f2 = work.sp78;
+    work.sp68 = add_retail_order(temp_f2, 200.0f);
+    parity = arg1 & 1;
+    if ((arg1 < 0) && (parity != 0)) {
+        parity -= 2;
+    }
+    if (parity == 0) {
+        temp_f20 = -func_0044b610(fGpffff83e4);
+        work.sp50 = temp_f20 * func_0044b7b0(fGpffff837c);
+        temp_f20 = -func_0044b610(fGpffff83e4);
+        work.sp54 = temp_f20 * func_0044b610(fGpffff837c);
+        work.sp58 = func_0044b7b0(fGpffff83e4);
+        zero = 0.0f;
+    } else {
+        temp_f20 = -func_0044b610(fGpffff83e4);
+        work.sp50 = temp_f20 * func_0044b7b0(fGpffff837c);
+        temp_f20 = func_0044b610(fGpffff83e4);
+        work.sp54 = temp_f20 * func_0044b610(fGpffff837c);
+        work.sp58 = -func_0044b7b0(fGpffff83e4);
+        zero = 0.0f;
+    }
+    if (arg2 != NULL) {
+        func_00371160((u8 *)&work.sp60, (u8 *)&work.sp50,
+                      (u8 *)&work.sp70, zero, (u8 *)arg2);
+        return;
+    }
+    func_00375fa0(arg0, arg1, 0, &work.sp50, &work.sp60,
+                  &work.sp70, zero, zero);
+}
 // FUN_0037AD10
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037ad10);
 // FUN_0037B8C0

@@ -66,7 +66,7 @@ extern void func_00398410(u8 *arg0);
 extern void (*jtbl_008873FC[])(s32, void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_007646D0;
-extern void func_0039b830(s32 arg0);
+extern void func_0039b830(u8 *arg0);
 extern void func_0039b8d0(s32 arg0, s32 arg1);
 extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
 extern s32 func_0039aa30(void);
@@ -88,7 +88,12 @@ extern u8 *func_00412fb0(u8 *arg0, s32 *arg1, s32 *arg2, s32 arg3);
 extern s32 **func_00412e90(u8 *arg0, s32 arg1, s32 arg2, s32 *arg3);
 extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, s32 arg2);
 extern u8 *func_003cfa30(u8 *arg0, s32 arg1);
+extern void func_00411670(s32 arg0);
+extern void (*jtbl_008873EC[])(void *ptr);
 
+
+extern u8 *func_0039bb70(u8 **arg0, s32 arg1);
+extern void (*D_0064F2B4[])(u8 *arg0, s32 arg1, s32 arg2);
 // measured: schedule on hoists the return-value move to the top,
 // sinks the counter store, and fills the jr delay slot.
 #pragma schedule on
@@ -158,7 +163,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390290);
 
 // FUN_003902D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003902d0);
-
 /* measured: b210's O2 strength-reduces this constant multiply; O1 preserves
    the retail MMI multiply. schedule on places it in the jr delay slot, and
    the inline helper presents the multiplier first for retail operand order. */
@@ -308,7 +312,6 @@ s32 func_00396870(s32 arg0)
 }
 /* measured: schedule off closes the scoped schedule bracket. */
 #pragma schedule off
-
 // FUN_00396890
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396890);
 
@@ -1864,7 +1867,7 @@ s32 func_0039b4b0(s32 arg0)
 ret:
     return arg0;
 init:
-    func_0039b830((s32)&D_00884ACC);
+    func_0039b830((u8 *)&D_00884ACC);
     goto ret;
 }
 /* measured: closes the no_branch_likely-on b4b0 probe. */

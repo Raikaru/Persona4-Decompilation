@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+typedef signed __int128 s128;
 
 extern u8 *func_001b0cc0();
 extern void *D_00609850[];
@@ -12,7 +13,6 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
-extern void func_0029cf50();
 extern s32 datCalcGetHp();
 extern s32 func_00232290();
 extern s32 datCalcGetSp();
@@ -26,6 +26,9 @@ extern u8 *func_0029d050();
 
 extern void memset(void *destination, s32 value, u32 size);
 extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3bc;
+extern u8 *iGpffffb414;
+extern u8 iGpffffa9b0;
 extern void func_00213b80(s32 arg0);
 extern void func_00213b50(s32 arg0);
 extern s32 func_001eb860(void);
@@ -69,10 +72,9 @@ extern u8 D_0060A0E0[];
 
 
 extern u8 *func_001b1560(void);
-extern s32 func_00231d70(s32 arg0);
 extern void func_001eb410(u8 *arg0);
+extern s32 func_00231d70(s32 arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
-extern u8 *iGpffffb3bc;
 
 
 
@@ -90,6 +92,9 @@ extern f32 D_00881420[];
 extern f32 D_00881424[];
 extern f32 D_00881428[];
 extern f32 fGpffffb458;
+extern u8 *iGpffffb3b8;
+extern void func_0046d730(void *arg0, s32 arg1);
+extern u8 D_00609E30[];
 extern f32 D_008813F0[];
 extern f32 D_008813F4[];
 extern f32 D_008813F8[];
@@ -118,6 +123,9 @@ extern s32 func_0022ced0(s32 arg0);
 extern s32 func_0029de20(s32 arg0, s32 arg1);
 extern s32 func_001eba20(u8 *arg0);
 extern u8 *iGpffffb428;
+extern s32 func_00107ac0(s32 arg0);
+extern s32 func_00243e30(s32 arg0);
+extern s32 func_00247cb0(s16 arg0);
 extern u8 *iGpffffb42c;
 // FUN_001E6B90
 s32 func_001e6b90(void) {
@@ -1982,9 +1990,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ec2b0);
 // FUN_001EC350
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ec350);
 // FUN_001EC3D0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ec3d0);
+f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+{
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+    extern f32 fabsf(f32 arg0);
+    f32 delta[2];
+    f32 vx;
+    f32 vy;
+    f32 cross;
+
+    delta[0] = *(f32 *)(arg0 + 0) - *(f32 *)(arg1 + 0);
+    delta[1] = *(f32 *)(arg0 + 4) - *(f32 *)(arg1 + 4);
+    func_003e41e0(delta, delta);
+    vx = *(f32 *)(arg2 + 0) - *(f32 *)(arg0 + 0);
+    vy = *(f32 *)(arg2 + 4) - *(f32 *)(arg0 + 4);
+    cross = (vx * delta[1]) + (vy * -delta[0]);
+    if (arg3 != NULL) {
+        *(f32 *)(arg3 + 0) = *(f32 *)(arg2 + 0) - cross * delta[1];
+        *(f32 *)(arg3 + 4) = *(f32 *)(arg2 + 4) - cross * -delta[0];
+    }
+    return fabsf(cross);
+}
 // FUN_001EC4A0
-s32 func_001ec4a0(s32 arg0, u8 *arg1) {
+s32 func_001ec4a0(s32 arg0, u8 *arg1)
+{
     extern void func_003e42a0();
     extern u8 *func_00457120();
     f32 sp40[3];
@@ -2161,12 +2190,37 @@ s32 func_001ef720(s32 arg0, s32 arg1) {
     }
     return var_17;
 }
-/* measured: v1-v3 casts and typed locals did not reproduce retail's final u16 return narrowing; next probe should declare a u16 return type. */
 // FUN_001EF7E0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef7e0);
-/* measured: v1-v3 casts and typed locals left retail's final u16 narrowing plus a four-byte epilogue shift; next probe should declare a u16 return type. */
 // FUN_001EF8C0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef8c0);
+s32 func_001ef8c0(void) {
+    u8 *base;
+    u8 *table;
+    u16 index;
+    s32 flags;
+    s64 result;
+    u16 flags2;
+
+    base = iGpffffb3ac;
+    index = *(u16 *)(*(u8 **)(base + 0xC68) + 8);
+    table = iGpffffb414 + index * 0x18;
+    if (*(s32 *)(base + 0xC) & 0x20000000)
+        return 0;
+    flags = *(s32 *)table;
+    if (flags & 8)
+        return 0;
+    if (flags & 0x10)
+        return 2;
+    if (flags & 0x800)
+        return 1;
+    flags2 = *(u16 *)(base + 0xC70);
+    if (flags2 & 4)
+        return 0;
+    if (flags2 & 1)
+        return 2;
+    result = (flags2 & 0x10) != 0;
+    return (u16)result;
+}
 // FUN_001EF9A0
 s32 func_001ef9a0(void) {
     return *(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8);

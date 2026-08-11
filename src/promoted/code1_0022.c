@@ -1299,8 +1299,63 @@ s32 func_0022b0e0(void)
 }
 // FUN_0022B120
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022b120);
+/* measured: opt_loop_invariants on probe for func_0022b870. */
+#pragma opt_loop_invariants on
 // FUN_0022B870
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022b870);
+s32 func_0022b870(u8 *arg0)
+{
+    extern void func_0019ea60(u8 *arg0, s32 arg1);
+    extern void func_00231af0(u8 *arg0, s32 arg1, s32 arg2);
+    extern void func_001b0d70(u8 *arg0);
+    extern s32 func_001b1540(void);
+    extern void func_0022fdc0(s32 arg0);
+    extern s32 func_001f7650(u8 *arg0);
+    extern void func_00198dd0(u8 *arg0, s32 arg1);
+    extern u8 D_00630C50[];
+    u32 index;
+    s32 value;
+    s32 fill;
+    u8 *temp;
+
+    if (func_00193bf0(*(u64 *)arg0,
+                      ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
+        *(s32 *)(DAT_0076449c + 0xC) &= 0xFFF7FFFF;
+        func_0019ea60(*(u8 **)(arg0 + 0x30), 0x10E);
+        func_00231af0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 1, 0x10E);
+        func_00106390(0x15FF, 1);
+        *(u8 **)(DAT_0076449c + 0xB98) = &D_00630C50[0];
+        *(s32 *)(DAT_0076449c + 0xC40) = 1;
+        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) |= 0x2000;
+        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) &= 0xFFFF7FFF;
+        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) &= ~0x20;
+        temp = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
+        *(u16 *)temp |= 0x20;
+        *(u16 *)(arg0 + 0x1A) |= 0x100;
+        func_001b0d70(arg0);
+        func_0022fdc0(func_001b1540());
+        index = 0;
+        fill = -1;
+        goto loop_test;
+loop_body:
+        *(s8 *)(DAT_0076449c + index + 0xC10) = fill;
+        index++;
+loop_test:
+        if (index < 0x1E) {
+            goto loop_body;
+        }
+        value = func_001f7650(*(u8 **)(arg0 + 0x30));
+        *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA00) + 0x2DC) = value;
+        func_00198dd0(*(u8 **)(arg0 + 0x30), 6);
+        func_00106390(0x15C0, 0);
+        *(s32 *)(DAT_0076449c + 0xBB4) = 0;
+        *(s32 *)(DAT_0076449c + 0xBC8) = 0;
+        *(u16 *)(DAT_0076449c + 0x290) |= 0x10;
+        return 0;
+    }
+    return 1;
+}
+/* measured: closes opt_loop_invariants around func_0022b870. */
+#pragma opt_loop_invariants off
 /* measured: optimization_level 1 preserves func_0022ba40's loop branch. */
 #pragma optimization_level 1
 // FUN_0022BA40
@@ -1342,7 +1397,61 @@ s32 func_0022bac0(void)
 }
 
 // FUN_0022BAD0
+#ifdef NON_MATCHING
+s32 func_0022bad0(u8 *arg0, s16 arg1)
+{
+    extern s32 func_0010d740();
+    extern s32 func_00278450();
+    extern s32 iGpffffb444;
+    extern void func_0029dfe0();
+    extern void func_00452570();
+    s32 temp_2;
+    s32 temp_4;
+    s32 temp_4_2;
+    u8 *temp_2_2;
+    u8 *temp_3;
+    u8 *temp_5;
+    u8 *temp_6;
+    u8 *var_17;
+
+    temp_6 = DAT_0076449c;
+    temp_5 = temp_6 + ((u16)arg1 * 4);
+    if ((*(s32 *)(temp_5 + 0xBA8) == *(s32 *)(arg0 + 8)) &&
+        (*(s32 *)(temp_5 + 0xBBC) == *(s32 *)(arg0 + 0x20))) {
+        return 0;
+    }
+    if (arg0 == NULL) {
+        var_17 = *(u8 **)(temp_6 + 0x170);
+    } else {
+        var_17 = arg0;
+    }
+    temp_2 = func_0029da90(*(s32 *)(temp_6 + 0xDC8 + 0x20) - 1,
+                           ((u8 *(*)(s32, u8 *, u8 *))func_0022ced0)(
+                               0, temp_5, temp_6),
+                           (u16)arg1);
+    func_0029dfe0(temp_2, var_17);
+    temp_2_2 = (u8 *)((u8 *(*)(s32))func_00452560)(temp_2);
+    temp_4 = *(s32 *)(temp_2_2 + 0x130);
+    if (temp_4 >= 0) {
+        temp_3 = *(u8 **)(var_17 + 0x30);
+        if (*(u8 *)(temp_3 + 0xA2) == 0) {
+            func_00278450(temp_4, 0, func_0010d740(*(s16 *)(temp_3 + 0xA4)));
+        } else {
+            func_00278450(temp_4, 0,
+                          iGpffffb444 + ((u16)*(s16 *)(temp_3 + 0xA4) * 0x15));
+        }
+    }
+    func_00452570(*(u8 **)(temp_6 + 0xDC8), temp_2);
+    *(s32 *)(temp_6 + 0xBA0) = temp_2;
+    *(s16 *)(temp_6 + 0xBA4) = arg1;
+    temp_4_2 = (u16)arg1 * 4;
+    *(s32 *)(temp_6 + temp_4_2 + 0xBA8) = *(s32 *)(arg0 + 8);
+    *(s32 *)(temp_6 + temp_4_2 + 0xBBC) = *(s32 *)(arg0 + 0x20);
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022bad0);
+#endif
 // FUN_0022BC80
 s32 func_0022bc80(s32 arg0) {
     u8 *b = DAT_0076449c;

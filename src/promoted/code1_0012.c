@@ -1,5 +1,17 @@
+typedef signed __int128 s128;
 #include "include_asm.h"
 #include "type.h"
+extern f32 fGpffff9cA0;
+extern f32 fGpffff9cA4;
+extern s128 D_005E5740;
+extern s128 D_005E5750;
+extern void func_00366c70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s16 arg7, f32 fparg0, s16 arg_sp0, s32 *arg_sp8, s32 arg_sp10, void *arg_sp18);
+extern f32 fGpffff84a4;
+extern u8 iGpffffb1d8;
+extern u8 iGpffffb1d4;
+extern u8 iGpffffb1d0;
+extern f32 func_0044b7b0(void *arg0, f32 arg1);
+extern void func_0045d6e0(void *arg0, s32 *arg1, s32 arg2, f32 arg3);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
     return index + base;
@@ -351,8 +363,55 @@ void func_00121db0(void)
     jtbl_008873EC[0]((void *)iGpffffb1cc);
     iGpffffb1cc = 0;
 }
+typedef struct {
+    s32 s0;
+    s32 s1;
+    s32 s2;
+    s32 s3;
+    u8 pad10[0xC];
+    u8 c1c;
+    u8 c1d;
+    u8 c1e;
+    u8 c1f;
+} Frame00121DE0;
 // FUN_00121DE0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00121de0);
+void func_00121de0(void)
+{
+    Frame00121DE0 sp;
+    u8 *temp_4;
+    s32 temp_3;
+    s32 var_16;
+    s32 var_2;
+    f32 result;
+    f32 high_temp;
+    f32 ratio;
+
+    temp_4 = (u8 *)iGpffffb1cc;
+    if (temp_4 != NULL) {
+        temp_3 = *(s32 *)(temp_4 + 8);
+        if (*(s32 *)temp_4 >= 4) {
+            ratio = (fGpffff84a4 * (f32)*(s32 *)(temp_4 + 0xC)) / (f32)temp_3;
+            result = func_0044b7b0(temp_4, ratio);
+            high_temp = 640.0f - (640.0f * result);
+            var_16 = (s32)high_temp;
+            var_2 = 0x280;
+        } else {
+            var_16 = 0;
+            ratio = (fGpffff84a4 * (f32)*(s32 *)(temp_4 + 0xC)) / (f32)temp_3;
+            result = func_0044b7b0(temp_4, ratio);
+            var_2 = (s32)(640.0f * result);
+        }
+        sp.s0 = var_16;
+        sp.s1 = 0;
+        sp.s2 = var_2 - var_16;
+        sp.s3 = 0x1E0;
+        sp.c1f = 0xFF;
+        sp.c1c = iGpffffb1d8;
+        sp.c1d = iGpffffb1d4;
+        sp.c1e = iGpffffb1d0;
+        func_0045d6e0(&sp.c1c, &sp.s0, 1, 0.0f);
+    }
+}
 // FUN_00121F20
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00121f20);
 // FUN_001221A0
@@ -587,7 +646,67 @@ void func_00123850(void) {
 #pragma optimization_level 2
 
 // FUN_001238C0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001238c0);
+void func_001238c0(s32 arg0)
+{
+    s32 var_8;
+    s32 var_9;
+    u8 *temp_4;
+    u8 *temp_4_2;
+    u8 *temp_5;
+    u8 *temp_5_2;
+    u8 *temp_7;
+    u8 *temp_7_2;
+    u8 *temp_8;
+    u8 *table;
+
+    temp_8 = (u8 *)iGpffffb1cc;
+    if (temp_8 != NULL) {
+        if (arg0 != 0) {
+            *(s32 *)(temp_8 + 0x18) = 0;
+        }
+        if (*(s32 *)(temp_8 + 0x14) != arg0) {
+            *(s32 *)(temp_8 + 0x14) = arg0;
+            if (arg0 == 1) {
+                temp_7 = (u8 *)iGpffffb1cc;
+                var_9 = 0;
+                table = D_005E50D0;
+                while (var_9 < 5) {
+                    temp_5 = table + (var_9 << 5);
+                    temp_4 = temp_7 + (var_9 * 0x30);
+                    *(f32 *)(temp_4 + 0x20) = *(f32 *)(temp_5 + 0);
+                    *(f32 *)(temp_4 + 0x24) = *(f32 *)(temp_5 + 4);
+                    *(f32 *)(temp_4 + 0x28) = *(f32 *)(temp_5 + 8);
+                    *(f32 *)(temp_4 + 0x2C) = *(f32 *)(temp_5 + 0xC);
+                    *(s32 *)(temp_4 + 0x48) = *(s32 *)(temp_5 + 0x14);
+                    *(s32 *)(temp_4 + 0x4C) = *(s32 *)(temp_5 + 0x18);
+                    *(s8 *)(temp_4 + 0x39) = *(s32 *)(temp_5 + 0x10);
+                    *(s8 *)(temp_4 + 0x38) = 0;
+                    var_9 += 1;
+                }
+                *(s32 *)(temp_7 + 0x10) = 0;
+                *(s32 *)(temp_8 + 0xC) = 7;
+                return;
+            }
+            temp_7_2 = (u8 *)iGpffffb1cc;
+            var_8 = 0;
+            table = D_005E50D0;
+            while (var_8 < 5) {
+                temp_5_2 = table + (var_8 << 5);
+                temp_4_2 = temp_7_2 + (var_8 * 0x30);
+                *(f32 *)(temp_4_2 + 0x20) = *(f32 *)(temp_5_2 + 0);
+                *(f32 *)(temp_4_2 + 0x24) = *(f32 *)(temp_5_2 + 4);
+                *(f32 *)(temp_4_2 + 0x28) = *(f32 *)(temp_5_2 + 8);
+                *(f32 *)(temp_4_2 + 0x2C) = *(f32 *)(temp_5_2 + 0xC);
+                *(s32 *)(temp_4_2 + 0x48) = *(s32 *)(temp_5_2 + 0x14);
+                *(s32 *)(temp_4_2 + 0x4C) = *(s32 *)(temp_5_2 + 0x18);
+                *(s8 *)(temp_4_2 + 0x39) = *(s32 *)(temp_5_2 + 0x10);
+                *(s8 *)(temp_4_2 + 0x38) = 0;
+                var_8 += 1;
+            }
+            *(s32 *)(temp_7_2 + 0x10) = 0x46;
+        }
+    }
+}
 // FUN_00123A10
 void func_00123a10(void) {
     u8 *p;
@@ -990,7 +1109,82 @@ void func_0012b940(u8 *arg0) {
 }
 
 // FUN_0012B9A0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012b9a0);
+void func_0012b9a0(s32 unused, s32 arg1)
+{
+    typedef struct {
+        s128 sp50;
+        s128 sp60;
+        s128 sp70;
+        u8 gap[4];
+        f32 sp84;
+        f32 sp88;
+        f32 sp8C;
+    } B9Stack;
+    B9Stack stack;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    s32 temp_17;
+    s32 temp_17_2;
+    s32 var_2;
+    s32 var_2_2;
+    u8 *temp_16;
+    u8 *temp_16_2;
+    u8 *temp_2;
+    s32 temp_3;
+    f32 *sp8c_ptr;
+    s32 *sp70_ptr;
+
+    temp_2 = (u8 *)func_00452560(arg1);
+    temp_3 = *(s32 *)(temp_2 + 0);
+    switch (temp_3) {
+    case 4:
+    case 5:
+    case 6:
+        temp_f0 = fGpffff9cA0;
+        stack.sp88 = temp_f0;
+        sp8c_ptr = &stack.sp8C;
+        stack.sp8C = temp_f0;
+        stack.sp60 = D_005E5740;
+        sp70_ptr = (s32 *)&stack.sp70;
+        stack.sp70 = D_005E5740;
+        func_0045d6e0(sp8c_ptr, sp70_ptr, 1, 0.0f);
+        temp_17 = *(s32 *)(temp_2 + 0x10);
+        temp_16 = (u8 *)func_00452560(temp_17);
+        if (func_00452490(temp_17) == 0) {
+            var_2 = 0;
+        } else if (*(s32 *)(temp_16 + 0) == 3) {
+            var_2 = *(s32 *)(*(u8 **)(temp_16 + 8));
+        } else {
+            var_2 = 0;
+        }
+        func_00366c70(0x77, 0xAA, 0x200, 0x80, 0xFFFFFF, 0xFF, 1, 0, 0.0f, 0, 0, var_2, 0);
+        return;
+    case 7:
+    case 8:
+    case 9:
+        temp_f0_2 = fGpffff9cA4;
+        stack.sp84 = temp_f0_2;
+        sp8c_ptr = &stack.sp8C;
+        stack.sp8C = temp_f0_2;
+        stack.sp50 = D_005E5750;
+        sp70_ptr = (s32 *)&stack.sp70;
+        stack.sp70 = D_005E5750;
+        func_0045d6e0(sp8c_ptr, sp70_ptr, 1, 0.0f);
+        temp_17_2 = *(s32 *)(temp_2 + 0x14);
+        temp_16_2 = (u8 *)func_00452560(temp_17_2);
+        if (func_00452490(temp_17_2) == 0) {
+            var_2_2 = 0;
+        } else if (*(s32 *)(temp_16_2 + 0) == 3) {
+            var_2_2 = *(s32 *)(*(u8 **)(temp_16_2 + 8));
+        } else {
+            var_2_2 = 0;
+        }
+        func_00366c70(0, 0, 0x400, 0x200, 0xFFFFFF, 0xFF, 1, 0, 0.0f, 0, 0, var_2_2, 0);
+        /* fall through */
+    default:
+        return;
+    }
+}
 // FUN_0012C1A0
 s32 func_0012c1a0(s32 arg0)
 {

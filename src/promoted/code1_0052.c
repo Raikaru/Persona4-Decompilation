@@ -11,7 +11,6 @@ extern s32 D_00745C84[];
 
 extern s32 D_00745C6C[];
 
-extern s32 D_0074613C[];
 /* Open declaration question (2026-08-09): func_0052c890 candidates all emit
  * sq-style saves at frame 0x40 while retail uses sd saves at frame 0x20.
  * The scalar-only body removed aggregates, arrays, by-value structs, and
@@ -22,6 +21,12 @@ extern s32 D_0074613C[];
  * saving $ra, 3161 already-MATCHED and 4690 unmatched functions use sd, while
  * exactly one function in the image uses sq $ra. */
 
+typedef void (*Code1B9Callback)(s32 arg0, s32 arg1, void *arg2);
+typedef struct {
+    Code1B9Callback callback;
+    s32 arg1;
+    s32 count;
+} Code1B9Work;
 /* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
  * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
  * the base doubling as the returned segment. Returned-base local (segment +
@@ -58,7 +63,6 @@ u32 func_005207f8(u32 arg0)
  * the base doubling as the returned segment. Returned-base local (segment +
  * 0x5ABC store, return segment) forces $v0; #pragma schedule on fills slot. */
 #pragma schedule on
-
 // FUN_00522FD0
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00522fd0);
 // FUN_00522FF8
@@ -148,12 +152,12 @@ s32 *func_00528c30(void)
 #pragma schedule off
 
 
+
 /* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
  * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
  * the base doubling as the returned segment. Returned-base local (segment +
  * 0x5C84 store, return segment) forces $v0; #pragma schedule on fills slot. */
 #pragma schedule on
-
 // FUN_0052B950
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b950);
 // FUN_0052B9A0

@@ -56,7 +56,8 @@ extern u8 D_0070C3C0[];
 extern u8 D_00753B38[];
 extern u8 D_00753B70[];
 
-void func_00418df8(s32 *);
+void func_0041ed48(u8 *);
+void func_0041eeb8(u8 *);
 void func_00418e68(u8 *, u32, s32 *);
 
 // FUN_004125E0
@@ -328,24 +329,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418df8);
 
 // FUN_00418E68
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418e68);
-
 // FUN_00418EF0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418ef0);
-
 // FUN_00418F18
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f18);
-
 // FUN_00418F50
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f50);
 
 // FUN_00418F78
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00418f78);
-
 // FUN_00419058
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419058);
 
 // FUN_00419230
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419230);
+
 
 // FUN_00419268
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419268);
@@ -355,10 +353,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419280);
 
 // FUN_004192E8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004192e8);
-
 // FUN_00419360
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00419360);
-
 // FUN_004193D8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004193d8);
 
@@ -738,12 +734,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f1c0);
 
 // FUN_0041F218
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f218);
-
 // FUN_0041F298
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f298);
-
 // FUN_0041F2A8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2a8);
+
 
 
 /* measured: retail sinks the third store into the jr $ra delay slot, which
@@ -762,6 +757,7 @@ u8 *func_0041f2b8(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
     return p;
 }
+/* measured: closes schedule-on bracket for f1f2b8. */
 #pragma schedule off
 
 
@@ -771,8 +767,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2d0);
 // FUN_0041F2F0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f2f0);
 
+/* measured: schedule-on probe for f1f328 delay-slot/prologue ordering. */
+#pragma schedule on
 // FUN_0041F328
-INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f328);
+s32 func_0041f328(u8 *arg0, u32 arg1)
+{
+    u8 *temp4;
+    s32 ret;
+    extern void func_0041e408(u8 *);
+
+    temp4 = *(u8 **)(arg0 + 0x40);
+    if (arg1 < 2U) {
+        goto body;
+    }
+    ret = -1;
+    goto done;
+body:
+    *(u32 *)(temp4 + 0x87C) = arg1;
+    func_0041e408(temp4);
+    ret = 1;
+done:
+    return ret;
+}
+/* measured: closes schedule-on probe for f1f328. */
+#pragma schedule off
 
 // FUN_0041F360
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f360);
@@ -788,7 +806,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f460);
 
 // FUN_0041F4A8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f4a8);
-
 // FUN_0041F500
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f500);
 
@@ -822,10 +839,8 @@ s32 func_0041f580(u8 *arg0, s32 arg1)
 }
 /* measured: closes schedule-on bracket for func_0041f580. */
 #pragma schedule off
-
 // FUN_0041F590
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f590);
-
 // FUN_0041F5A0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5a0);
 
@@ -871,6 +886,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5e0);
 // FUN_0041F5F8
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f5f8);
 // FUN_0041F6C8
+/* measured: schedule-on retains func_0041f6c8 store order. */
 #pragma schedule on
 void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
 {
@@ -879,14 +895,14 @@ void func_0041f6c8(u8 *arg0, s32 arg1, s32 arg2)
     *(s32 *)(arg0 + 0) = arg1;
     *(s32 *)(arg0 + 8) = arg1;
 }
+/* measured: closes schedule-on after func_0041f6c8. */
+#pragma schedule off
 // FUN_0041F700
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f700);
 
 // FUN_0041F770
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041f770);
 
-/* measured: see the annotation above the matching `on` pragma (func_0041f6c8). */
-#pragma schedule off
 
 
 // FUN_0041F788

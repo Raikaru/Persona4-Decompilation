@@ -606,18 +606,36 @@ void func_0018c700(f32 fp0) {
     func_003f6800(b, fp0);
 }
 
-// FUN_0018C750
+// FUN_0018C750 NONMATCHING
+#ifdef NON_MATCHING
+void func_0018c750(f32 fparg0)
+{
+    s32 temp_2;
+    s32 var_5;
+    s32 converted;
+
+    temp_2 = func_003ef650(func_003ef6d0(), D_005F5360);
+    if (2147483648.0f <= fparg0) {
+        goto positive;
+    }
+    var_5 = (s32)fparg0;
+    goto done;
+positive:
+    converted = (s32)(fparg0 - 2147483648.0f);
+    var_5 = converted;
+    var_5 |= (s32)0x80000000;
+done:
+    func_003f68a0(temp_2, var_5);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c750);
+#endif
 // FUN_0018C7E0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
 // FUN_0018CED0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018ced0);
-/* measured: opt_rebuildconditionals off preserves the retail case-2 branch orientation. */
-#pragma opt_rebuildconditionals off
 // FUN_0018DDE0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018dde0);
-/* measured: restore opt_rebuildconditionals after func_0018dde0. */
-#pragma opt_rebuildconditionals on
 // FUN_0018DF30
 void func_0018df30(u8 *arg0)
 {

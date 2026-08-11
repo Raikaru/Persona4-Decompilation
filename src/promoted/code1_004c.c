@@ -14,7 +14,6 @@ extern u8 D_00922E20_abs[];
 extern u8 D_00922E28_abs[];
 extern u8 D_007199D0_abs[];
 extern u8 D_007212D0_abs[];
-
 /* Toolchain-blocked region: retail saves `$s` registers with `sd`; MWCCPS2 3.0.1 emits `sq`; see build/ORCH_sd_toolchain_blocked.txt. */
 
 // FUN_004C3400
@@ -230,12 +229,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9a28);
 INCLUDE_ASM("asm/nonmatchings/code1_004c", func_004c9b80);
 // FUN_004C9BB8
 #ifdef NON_MATCHING
-s32 func_004c9bb8(s32 arg0)
+u32 func_004c9bb8(u32 arg0)
 {
-    u8 *base;
-
-    base = (u8 *)0x00710000;
-    return (s32)(*(u8 **)(base + arg0 * 4 + 0x61F0) + 0x10);
+    arg0 <<= 2;
+    return (u32)(*(u8 **)((u8 *)0x00710000 + arg0 + 0x61F0) + 0x10);
 }
 /* Committed at nd 2. */
 #else

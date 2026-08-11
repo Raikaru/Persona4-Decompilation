@@ -10,12 +10,34 @@ extern s32 iGpffffb994;
 extern s32 iGpffffac10;
 extern s32 iGpffffb900;
 extern s32 iGpffffb9c0;
+extern s32 iGpffffb9b8;
+extern s32 iGpffffb9bc;
+extern void func_003e12f0(s32 arg0);
+extern void func_00414fd0(s32 arg0);
 extern s32 D_0070C220[];
 extern s32 D_0070C35C[];
 extern s32 iGpffffb7e0;
+extern s32 iGpffffb7e8;
+extern s32 iGpffffb7f8;
+extern s32 iGpffffb7f4;
+extern s32 iGpffffb7ec;
+extern s8 iGpffffb7f0;
+extern u16 iGpffffabd4;
 extern s32 iGpffffb938;
 extern s32 D_008872E0[];
+extern s32 iGpffffb7c0;
+extern u8 *(*D_008873F8[])(u8 *arg0, s32 arg1);
+extern s32 iGpffffb7c8;
+extern u8 D_0070B7C0[];
+extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
+extern u8 *func_003ea510(u8 *arg0);
+extern s32 (*D_00887340[])(s32 *arg0, u8 *arg1, s32 arg2);
+extern s32 (*D_00887344[])(u8 *arg0, s32 *arg1, s32 arg2);
+extern u8 *D_0088739C[];
+extern void func_003ed650(u8 *arg0);
 extern s32 iGpffffb958;
+extern u8 *iGpffffb904;
+extern s32 func_003ec330(u8 *arg0);
 extern s32 iGpffffac00;
 extern s32 D_008872F8[];
 extern u8 D_0070B7A0[];
@@ -45,14 +67,14 @@ extern void (*D_0088730C[])(void);
 extern void (*D_00887310[])(void);
 extern void (*D_00887314[])(void);
 extern s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_0040b230(void);
+extern s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
 extern void func_0040c0f0(void);
 extern s32 func_0040d0a0(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
 extern s32 func_00402d50(void *arg0, s32 *arg1);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
-extern void func_00415940(void *arg0);
+extern s32 iGpffffb9ac;
 extern void func_00415920(void *arg0);
 extern s32 iGpffffb9b4;
 extern u8 iGpffffb984;
@@ -70,25 +92,30 @@ u32 func_0041f6f0(u32 *param_1);
 
 /* Source unit: src/rw/rwcore_003e8110.c (1 function markers) */
 
+/* measured: source unit 003e8110 requires optimization_level 3. */
 #pragma optimization_level 3
 // FUN_003E8110
 u32 func_003e8110(u32 camera)
 {
     return ((u32 (*)(u32))*(u32 *)(camera + 0x1c))(camera);
 }
+/* measured: closes optimization_level 3 around func_003e8110. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_003e8120.c (1 function markers) */
 
+/* measured: source unit 003e8120 requires optimization_level 3. */
 #pragma optimization_level 3
 // FUN_003E8120
 u32 func_003e8120(u32 camera)
 {
     return ((u32 (*)(u32))*(u32 *)(camera + 0x18))(camera);
 }
+/* measured: closes optimization_level 3 around func_003e8120. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_003e9240.c (1 function markers) */
+/* measured: source unit 003e9240 requires optimization_level 3. */
 #pragma optimization_level 3
 struct RwObjectOwnerLink {
     u8 padding[0xa0];
@@ -104,33 +131,100 @@ u8 func_003e9240(RwObjectOwnerLink *param_1)
 {
     return param_1->owner->type & 3;
 }
+/* measured: closes optimization_level 3 around func_003e9240. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_003e9750.c (1 function markers) */
+/* measured: source unit 003e9750 requires optimization_level 3. */
 #pragma optimization_level 3
 
 // FUN_003E9250
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9250);
+/* measured: retail callback guard is plain beqz, not bnel. */
+#pragma no_branch_likely on
 // FUN_003E9320
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9320);
+u8 *func_003e9320(void)
+{
+    u8 *temp_2;
+
+    temp_2 = D_008873F8[0](
+        *(u8 **)((u8 *)D_008872E0 + iGpffffb7c0),
+        0x3000E);
+    if (temp_2 != NULL) {
+        func_003e9250(temp_2);
+        return temp_2;
+    }
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_003e9320. */
+#pragma no_branch_likely off
 // FUN_003E9390
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9390);
 // FUN_003E9460
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9460);
 // FUN_003E95C0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e95c0);
+/* measured: retail uses a plain beqz guard for func_003e9680. */
+#pragma no_branch_likely on
 // FUN_003E9680
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9680);
+u8 *func_003e9680(u8 *arg0)
+{
+    u8 temp_6;
+    u8 *temp_3;
+    u8 **head;
+
+    temp_3 = *(u8 **)(arg0 + 0xa0);
+    temp_6 = temp_3[3];
+    if ((temp_6 & 3) == 0) {
+        goto insert;
+    }
+flags:
+    (*(u8 **)(arg0 + 0xa0))[3] = temp_6 | 3;
+    arg0[3] |= 0xc;
+    return arg0;
+insert:
+    head = (u8 **)&D_0088739C;
+    *(u8 **)(temp_3 + 8) = *head;
+    temp_3 = *(u8 **)(arg0 + 0xa0);
+    *(u8 **)(temp_3 + 0xc) = (u8 *)head;
+    temp_3 = *(u8 **)(arg0 + 0xa0);
+    *(u8 **)(*head + 4) = temp_3 + 8;
+    temp_3 = *(u8 **)(arg0 + 0xa0);
+    *head = temp_3 + 8;
+    goto flags;
+}
+/* measured: closes no_branch_likely around func_003e9680. */
+#pragma no_branch_likely off
+/* measured: retail uses a plain bnez for the callback guard. */
+#pragma no_branch_likely on
 // FUN_003E9700
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9700);
+u8 *func_003e9700(u8 *arg0)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0xa0);
+    if ((temp_4[3] & 1) == 0) {
+        goto done;
+    }
+    goto callback;
+done:
+    return arg0 + 0x50;
+callback:
+    func_003ed960(temp_4);
+    goto done;
+}
+/* measured: closes no_branch_likely around func_003e9700. */
+#pragma no_branch_likely off
 // FUN_003E9750
 u32 func_003e9750(int param_1)
 {
     return *(u32 *)(param_1 + 0xa0);
 }
+/* measured: closes optimization_level 3 around source unit 003e9750. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_004125d0.c (1 function markers) */
+/* measured: source unit 004125d0 requires optimization_level 3. */
 #pragma optimization_level 3
 
 // FUN_003E9760
@@ -139,18 +233,169 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9760);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9830);
 // FUN_003E99A0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e99a0);
+/* measured: retail list callback branches are plain beqz/bnez. */
+#pragma no_branch_likely on
 // FUN_003E9AF0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9af0);
+u8 *func_003e9af0(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2)
+{
+    u8 *temp_16;
+    u8 *var_4;
+
+    var_4 = *(u8 **)(arg0 + 0x98);
+    if (var_4 == NULL) {
+        goto done_zero;
+    }
+loop_1:
+    temp_16 = *(u8 **)(var_4 + 0x9c);
+    if (arg1(var_4, arg2) != 0) {
+        goto callback;
+    }
+    goto done;
+done:
+    return arg0;
+callback:
+    var_4 = temp_16;
+    if (var_4 != NULL) {
+        goto loop_1;
+    }
+done_zero:
+    return arg0;
+}
+/* measured: closes no_branch_likely around func_003e9af0. */
+#pragma no_branch_likely off
 // FUN_003E9B60
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9b60);
+/* measured: retail uses plain beqz in func_003e9c10's flag test. */
+#pragma no_branch_likely on
 // FUN_003E9C10
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9c10);
+u8 *func_003e9c10(u8 *arg0)
+{
+    extern s32 func_003e0c90();
+    u8 *temp_3;
+    u8 temp_5;
+    u8 **head;
+
+    func_003e0c90(arg0 + 0x10);
+    temp_3 = *(u8 **)(arg0 + 0xA0);
+    temp_5 = *(u8 *)(temp_3 + 3);
+    if ((temp_5 & 3) == 0) {
+        goto insert;
+    }
+update:
+    *(u8 *)(*(u8 **)(arg0 + 0xA0) + 3) = (u8)(temp_5 | 3);
+    *(u8 *)(arg0 + 3) = (u8)(*(u8 *)(arg0 + 3) | 0xC);
+    return arg0;
+insert:
+    head = (u8 **)D_0088739C;
+    *(u8 **)(temp_3 + 8) = *head;
+    *(u8 **)(*(u8 **)(arg0 + 0xA0) + 0xC) = (u8 *)head;
+    *(u8 **)(*head + 4) = *(u8 **)(arg0 + 0xA0) + 8;
+    *head = *(u8 **)(arg0 + 0xA0) + 8;
+    goto update;
+}
+/* measured: closes no_branch_likely around func_003e9c10. */
+#pragma no_branch_likely off
+/* measured: sibling list helper func_003e9cb0 uses plain beqz branches. */
+#pragma no_branch_likely on
 // FUN_003E9CB0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9cb0);
+u8 *func_003e9cb0(u8 *arg0)
+{
+    extern s32 func_003e0e20();
+    u8 *temp_3;
+    u8 temp_5;
+    u8 **head;
+
+    func_003e0e20(arg0 + 0x10);
+    temp_3 = *(u8 **)(arg0 + 0xA0);
+    temp_5 = *(u8 *)(temp_3 + 3);
+    if ((temp_5 & 3) == 0) {
+        goto insert;
+    }
+update:
+    *(u8 *)(*(u8 **)(arg0 + 0xA0) + 3) = (u8)(temp_5 | 3);
+    *(u8 *)(arg0 + 3) = (u8)(*(u8 *)(arg0 + 3) | 0xC);
+    return arg0;
+insert:
+    head = (u8 **)D_0088739C;
+    *(u8 **)(temp_3 + 8) = *head;
+    *(u8 **)(*(u8 **)(arg0 + 0xA0) + 0xC) = (u8 *)head;
+    *(u8 **)(*head + 4) = *(u8 **)(arg0 + 0xA0) + 8;
+    *head = *(u8 **)(arg0 + 0xA0) + 8;
+    goto update;
+}
+/* measured: closes no_branch_likely around func_003e9cb0. */
+#pragma no_branch_likely off
+/* measured: sibling list helper func_003e9d50 uses plain beqz branches. */
+#pragma no_branch_likely on
 // FUN_003E9D50
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9d50);
+u8 *func_003e9d50(u8 *arg0)
+{
+    extern s32 func_003e0870();
+    u8 *temp_3;
+    u8 temp_5;
+    u8 **head;
+
+    func_003e0870(arg0 + 0x10);
+    temp_3 = *(u8 **)(arg0 + 0xA0);
+    temp_5 = *(u8 *)(temp_3 + 3);
+    if ((temp_5 & 3) == 0) {
+        goto insert;
+    }
+update:
+    *(u8 *)(*(u8 **)(arg0 + 0xA0) + 3) = (u8)(temp_5 | 3);
+    *(u8 *)(arg0 + 3) = (u8)(*(u8 *)(arg0 + 3) | 0xC);
+    return arg0;
+insert:
+    head = (u8 **)D_0088739C;
+    *(u8 **)(temp_3 + 8) = *head;
+    *(u8 **)(*(u8 **)(arg0 + 0xA0) + 0xC) = (u8 *)head;
+    *(u8 **)(*head + 4) = *(u8 **)(arg0 + 0xA0) + 8;
+    *head = *(u8 **)(arg0 + 0xA0) + 8;
+    goto update;
+}
+/* measured: closes no_branch_likely around func_003e9d50. */
+#pragma no_branch_likely off
+/* measured: func_003e9df0 uses plain beqz in the shared list setup. */
+#pragma no_branch_likely on
 // FUN_003E9DF0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9df0);
+u8 *func_003e9df0(u8 *arg0)
+{
+    u8 temp_6;
+    u8 *temp_3;
+    u8 **head;
+
+    *(u32 *)(arg0 + 0x38) = 0x3F800000U;
+    *(u32 *)(arg0 + 0x24) = 0x3F800000U;
+    *(u32 *)(arg0 + 0x10) = 0x3F800000U;
+    *(u32 *)(arg0 + 0x20) = 0;
+    *(u32 *)(arg0 + 0x18) = 0;
+    *(u32 *)(arg0 + 0x14) = 0;
+    *(u32 *)(arg0 + 0x34) = 0;
+    *(u32 *)(arg0 + 0x30) = 0;
+    *(u32 *)(arg0 + 0x28) = 0;
+    *(u32 *)(arg0 + 0x48) = 0;
+    *(u32 *)(arg0 + 0x44) = 0;
+    *(u32 *)(arg0 + 0x40) = 0;
+    *(u32 *)(arg0 + 0x1C) |= 0x20003U;
+    temp_3 = *(u8 **)(arg0 + 0xA0);
+    temp_6 = *(u8 *)(temp_3 + 3);
+    if ((temp_6 & 3) == 0) {
+        goto insert;
+    }
+update:
+    *(u8 *)(*(u8 **)(arg0 + 0xA0) + 3) = (u8)(temp_6 | 3);
+    *(u8 *)(arg0 + 3) = (u8)(*(u8 *)(arg0 + 3) | 0xC);
+    return arg0;
+insert:
+    head = (u8 **)D_0088739C;
+    *(u8 **)(temp_3 + 8) = *head;
+    *(u8 **)(*(u8 **)(arg0 + 0xA0) + 0xC) = (u8 *)head;
+    *(u8 **)(*head + 4) = *(u8 **)(arg0 + 0xA0) + 8;
+    *head = *(u8 **)(arg0 + 0xA0) + 8;
+    goto update;
+}
+/* measured: closes no_branch_likely around func_003e9df0. */
+#pragma no_branch_likely off
 // FUN_003E9EB0
 void func_003e9eb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
@@ -160,10 +405,47 @@ void func_003e9eb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9ee0);
 // FUN_003EA130
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea130);
+/* measured: callback guard in func_003ea2c0 is a plain beqz. */
+#pragma no_branch_likely on
 // FUN_003EA2C0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea2c0);
+u8 *func_003ea2c0(s32 arg0, s32 arg1, s32 arg2)
+{
+    extern void func_003e3b70(u8 *arg0, u8 *arg1);
+    u8 *temp_2;
+
+    temp_2 = D_008873F8[0](
+        *(u8 **)((u8 *)D_008872E0 + iGpffffb7c0),
+        0x30018U);
+    if (temp_2 != NULL) {
+        *(s32 *)(temp_2 + 4) = arg0;
+        *(s32 *)(temp_2 + 8) = arg1;
+        *(s32 *)(temp_2 + 0xC) = arg2;
+        *(s32 *)(temp_2 + 0x14) = 0;
+        *(s32 *)(temp_2 + 0x18) = 0;
+        *(s32 *)temp_2 = 0;
+        func_003e3b70(D_0070B7C0, temp_2);
+        return temp_2;
+    }
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_003ea2c0. */
+#pragma no_branch_likely off
+/* measured: retail flag guard is plain beqz, not beql. */
+#pragma no_branch_likely on
 // FUN_003EA370
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea370);
+s32 func_003ea370(u8 *arg0)
+{
+    extern void func_003e3c20(u8 *arg0, u8 *arg1);
+
+    if ((*(s32 *)arg0 & 1) != 0) {
+        func_003ea510(arg0);
+    }
+    func_003e3c20(D_0070B7C0, arg0);
+    jtbl_008873FC[0](*(u8 **)((u8 *)D_008872E0 + iGpffffb7e0), arg0);
+    return 1;
+}
+/* measured: closes no_branch_likely around func_003ea370. */
+#pragma no_branch_likely off
 // FUN_003EA3E0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ea3e0);
 // FUN_003EA510
@@ -212,12 +494,69 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ebbf0);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ebde0);
 // FUN_003EBFF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ebff0);
+/* measured: retail callback and flag branches are plain beqz/bnez. */
+#pragma no_branch_likely on
 // FUN_003EC110
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec110);
+s32 *func_003ec110(s32 *arg0, u8 *arg1)
+{
+    if (D_00887340[0](arg0, arg1, 0) == 0) {
+        goto fail;
+    }
+    if ((arg1[0x22] & 1) != 0) {
+        goto set_flag;
+    }
+    goto success;
+success:
+    return arg0;
+set_flag:
+    *arg0 |= 2;
+    goto success;
+fail:
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_003ec110. */
+#pragma no_branch_likely off
+/* measured: retail callback and flag branches are plain beqz/bnez. */
+#pragma no_branch_likely on
 // FUN_003EC180
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec180);
+u8 *func_003ec180(u8 *arg0, s32 *arg1)
+{
+    if (D_00887344[0](arg0, arg1, 0) == 0) {
+        goto fail;
+    }
+    if ((*arg1 & 2) != 0) {
+        goto set_flag;
+    }
+    goto success;
+success:
+    return arg0;
+set_flag:
+    arg0[0x22] |= 1;
+    goto success;
+fail:
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_003ec180. */
+#pragma no_branch_likely off
+/* measured: retail uses a plain bnez for the callback result. */
+#pragma no_branch_likely on
 // FUN_003EC1F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec1f0);
+s32 func_003ec1f0(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3, s32 *arg4, s32 *arg5)
+{
+    extern s32 (*D_0088734C[])(u8 *arg0, s32 arg1, s32 arg2);
+    u8 sp60[0x34];
+
+    if (D_0088734C[0](sp60, arg0, arg1) == 0) {
+        return 0;
+    }
+    *arg5 = (sp60[0x23] << 8) | sp60[0x20];
+    *arg2 = *(s32 *)(sp60 + 0xc);
+    *arg3 = *(s32 *)(sp60 + 0x10);
+    *arg4 = *(s32 *)(sp60 + 0x14);
+    return arg0;
+}
+/* measured: closes no_branch_likely around func_003ec1f0. */
+#pragma no_branch_likely off
 // FUN_003EC2A0
 s32 func_003ec2a0(s32 arg0)
 {
@@ -232,14 +571,36 @@ u8 *func_003ec2e0(u8 *arg0)
     return arg0;
 }
 // FUN_003EC330
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec330);
+s32 func_003ec330(u8 *arg0)
+{
+    extern void func_003e3c20(u8 *arg0, u8 *arg1);
+    extern s32 (*D_0088733C[])(s32 arg0, s32 arg1, s32 arg2);
+    extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
+
+    func_003e3c20(D_0070B7E0, arg0);
+    D_0088733C[0](0, (s32)arg0, 0);
+    jtbl_008873FC[0](*(u8 **)((u8 *)D_008872E0 + iGpffffb7e0 + 0x60), arg0);
+    return 1;
+}
 // FUN_003EC3A0
 void func_003ec3a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
     func_003e3870(D_0070B7E0, arg0, arg1, arg2, arg3, arg4);
 }
+/* measured: retail uses a plain beqz for the callback result. */
+#pragma no_branch_likely on
 // FUN_003EC3D0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec3d0);
+s32 func_003ec3d0(s32 arg0, s32 arg1)
+{
+    s32 sp1C;
+
+    if (D_00887384[0](&sp1C, arg0, arg1) != 0) {
+        return sp1C;
+    }
+    return 0;
+}
+/* measured: closes no_branch_likely around func_003ec3d0. */
+#pragma no_branch_likely off
 /* measured: retail callback result uses a plain beqz, not bnel. */
 #pragma no_branch_likely on
 // FUN_003EC420
@@ -260,7 +621,7 @@ s32 func_003ec420(u8 *arg0)
 #pragma no_branch_likely off
 // FUN_003EC480
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec480);
-/* measured: callback result uses retail's plain bnez, not bnel. */
+/* measured: callback guard uses retail's plain bnez in func_003ec4f0. */
 #pragma no_branch_likely on
 // FUN_003EC4F0
 u8 *func_003ec4f0(u8 *arg0, u8 *arg1, u8 *arg2)
@@ -286,10 +647,38 @@ u8 *func_003ec4f0(u8 *arg0, u8 *arg1, u8 *arg2)
 #pragma no_branch_likely off
 // FUN_003EC590
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec590);
+/* measured: retail uses a plain beqz for the callback result. */
+#pragma no_branch_likely on
 // FUN_003EC6A0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec6a0);
+s32 func_003ec6a0(s32 arg0, s32 arg1, s32 arg2)
+{
+    s32 sp1C;
+
+    if (D_00887364[0](&sp1C, arg0, arg2 + ((arg1 & 0xff) << 8)) != 0) {
+        return sp1C;
+    }
+    return 0;
+}
+/* measured: closes no_branch_likely around func_003ec6a0. */
+#pragma no_branch_likely off
+/* measured: retail uses a plain beqz for the callback guard. */
+#pragma no_branch_likely on
 // FUN_003EC6F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec6f0);
+s32 func_003ec6f0(s32 arg0)
+{
+    extern void func_003e12f0(s32 arg0);
+    s32 temp_4;
+
+    temp_4 = *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x60);
+    if (temp_4 != 0) {
+        func_003e12f0(temp_4);
+        *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x60) = 0;
+    }
+    iGpffffb9b4 = iGpffffb9b4 - 1;
+    return arg0;
+}
+/* measured: closes no_branch_likely around func_003ec6f0. */
+#pragma no_branch_likely off
 // FUN_003EC760
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ec760);
 // FUN_003EC840
@@ -547,9 +936,63 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4be0);
 // FUN_003F4C90
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4c90);
 // FUN_003F4F30
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4f30);
+void func_003f4f30(void)
+{
+    extern void func_003f4a80(void);
+
+    func_003f4a80();
+    iGpffffb7e8 = 0;
+    if (iGpffffb7f8 == 0) {
+        goto callback;
+    }
+cleanup:
+    iGpffffb7f4 = 0;
+    iGpffffb7f8 = 0;
+    iGpffffb7ec = 0;
+    iGpffffb7f0 = 0;
+    goto done;
+callback:
+    jtbl_008873EC[0]((void *)iGpffffb7f4);
+    goto cleanup;
+done:
+    return;
+}
+/* measured: retail uses plain branches in func_003f4f90. */
+#pragma no_branch_likely on
 // FUN_003F4F90
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4f90);
+s32 func_003f4f90(s32 arg0, s32 arg1, s32 arg2)
+{
+    s32 result;
+    s32 var_5;
+
+    var_5 = arg1;
+    if (var_5 == 0) {
+        var_5 = iGpffffabd4;
+    }
+    if (iGpffffb7e8 != 0) {
+        goto zero;
+    }
+    if (arg2 == 0) {
+        goto success;
+    }
+    if ((arg2 & 0x7f) != 0) {
+        return 0;
+    }
+    goto assign_arg2;
+zero:
+    result = 0;
+    goto return_result;
+assign_arg2:
+    iGpffffb7f4 = arg2;
+success:
+    iGpffffb7f8 = arg0;
+    iGpffffabd4 = var_5;
+    result = 1;
+return_result:
+    return result;
+}
+/* measured: closes no_branch_likely around func_003f4f90. */
+#pragma no_branch_likely off
 // FUN_003F4FF0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4ff0);
 // FUN_003F5040
@@ -601,8 +1044,35 @@ s32 func_003f67f0(s32 arg0)
 }
 // FUN_003F6800
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6800);
+/* measured: retail uses plain bnez/beqz branches in func_003f68a0. */
+#pragma no_branch_likely on
 // FUN_003F68A0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f68a0);
+s32 *func_003f68a0(s32 *arg0, u32 arg1)
+{
+    s32 temp_7;
+    u32 var_5;
+    u8 *temp_4;
+    u8 *temp_6;
+    s32 *result;
+    result = arg0;
+    if (arg0 != NULL) {
+        temp_7 = *arg0;
+        if (temp_7 != 0) {
+            if (arg1 > 3U)
+                var_5 = 3;
+            else
+                var_5 = arg1;
+            temp_6 = (u8 *)(temp_7 + iGpffffb938);
+            *(u16 *)(temp_6 + 0x14) = (u16)(*(u16 *)(temp_6 + 0x14) & 0xCFFF);
+            temp_4 = (u8 *)(*arg0 + iGpffffb938);
+            *(u16 *)(temp_4 + 0x14) = (u16)(*(u16 *)(temp_4 + 0x14) | (u16)(((var_5 & 0xFFFF) << 0xC) & 0xFFFF));
+            return result;
+        }
+    }
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_003f68a0. */
+#pragma no_branch_likely off
 // FUN_003F6910
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f6910);
 // FUN_003F6990
@@ -707,8 +1177,36 @@ s32 *func_00401450(void)
 }
 // FUN_00401460
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401460);
+/* measured: retail cleanup tests are plain beqz. */
+#pragma no_branch_likely on
 // FUN_004015E0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004015e0);
+s32 func_004015e0(void)
+{
+    s32 temp_16;
+    u8 *temp_4;
+    u8 *temp_4_2;
+
+    temp_16 = iGpffffb958;
+    if (temp_16 != 0) {
+        temp_4 = iGpffffb904;
+        if (temp_4 != NULL) {
+            if (temp_4 != NULL) {
+                func_003ec330(temp_4);
+            }
+            iGpffffb904 = NULL;
+        }
+        temp_4_2 = (u8 *)iGpffffb900;
+        if (temp_4_2 != NULL) {
+            if (temp_4_2 != NULL) {
+                func_003ec330(temp_4_2);
+            }
+            iGpffffb900 = 0;
+        }
+    }
+    return temp_16;
+}
+/* measured: closes no_branch_likely around func_004015e0. */
+#pragma no_branch_likely off
 // FUN_00401650
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401650);
 // FUN_00401870
@@ -857,8 +1355,31 @@ s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 #pragma no_branch_likely off
 // FUN_0040B010
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040b010);
+/* measured: retail selector branch in func_0040b230 is plain beqz, not beql. */
+#pragma no_branch_likely on
 // FUN_0040B230
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040b230);
+s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4)
+{
+    extern s32 func_0040b010(void *arg0, s32 arg1, u8 *arg2, u8 *arg3,
+                             u8 *arg4, void *arg5);
+    u8 *base;
+
+    if ((iGpffffb984 & 1) != 0) {
+        base = D_00753340;
+    } else {
+        base = D_00753330;
+    }
+    func_0040b010(
+        base,
+        0,
+        arg0 + (arg2 << 6),
+        arg0 + (arg3 << 6),
+        arg0 + (arg4 << 6),
+        base);
+    return 1;
+}
+/* measured: closes no_branch_likely around func_0040b230. */
+#pragma no_branch_likely off
 // FUN_0040B290
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040b290);
 // FUN_0040B520
@@ -981,10 +1502,148 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004106a0);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410800);
 // FUN_00410930
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410930);
+/* measured: retail uses plain null branches in func_00410a40. */
+#pragma no_branch_likely on
 // FUN_00410A40
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410a40);
+s32 func_00410a40(s32 arg0)
+{
+    s32 temp_2;
+    u8 *temp_3;
+
+    if (arg0 == 0)
+        goto null_path;
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0) = arg0;
+finish:
+    return *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0);
+null_path:
+    temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+    temp_2 = *(s32 *)(temp_3 + 0x1c);
+    if (temp_2 != 0) {
+        *(s32 *)temp_3 = temp_2;
+    } else {
+        *(s32 *)temp_3 = 0;
+    }
+    goto finish;
+}
+/* measured: closes no_branch_likely around func_00410a40. */
+#pragma no_branch_likely off
+/* measured: retail preserves plain switch and callback branches in func_00410ab0. */
+#pragma no_branch_likely on
 // FUN_00410AB0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410ab0);
+s32 func_00410ab0(s32 arg0, u32 arg1)
+{
+    s32 error_set[2];
+    s32 error_get[2];
+    s32 temp_2;
+    u8 *temp_3;
+
+    if (arg0 != 0) {
+        switch (arg1) {
+        case 3:
+            *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 4) = arg0;
+            return arg0;
+        case 5:
+            *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 8) = arg0;
+            return arg0;
+        case 4:
+            *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0xC) = arg0;
+            return arg0;
+        case 1:
+            *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x10) = arg0;
+            return arg0;
+        case 2:
+            *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x14) = arg0;
+            return arg0;
+        case 6:
+            *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x18) = arg0;
+            return arg0;
+        default:
+            error_set[0] = 1;
+            error_set[1] = func_003df590(0x25);
+            func_003df4d0(error_set);
+error_return:
+            return 0;
+        }
+    } else {
+        switch (arg1) {
+        case 3:
+            temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+            temp_2 = *(s32 *)(temp_3 + 0x20);
+            if (temp_2 == 0)
+                goto zero3;
+            *(s32 *)(temp_3 + 4) = temp_2;
+read3:
+            return *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 4);
+        case 5:
+            temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+            temp_2 = *(s32 *)(temp_3 + 0x24);
+            if (temp_2 == 0)
+                goto zero5;
+            *(s32 *)(temp_3 + 8) = temp_2;
+read5:
+            return *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 8);
+        case 4:
+            temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+            temp_2 = *(s32 *)(temp_3 + 0x28);
+            if (temp_2 == 0)
+                goto zero4;
+            *(s32 *)(temp_3 + 0xC) = temp_2;
+read4:
+            return *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x28);
+        case 1:
+            temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+            temp_2 = *(s32 *)(temp_3 + 0x2C);
+            if (temp_2 == 0)
+                goto zero1;
+            *(s32 *)(temp_3 + 0x10) = temp_2;
+read1:
+            return *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x2C);
+        case 2:
+            temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+            temp_2 = *(s32 *)(temp_3 + 0x30);
+            if (temp_2 == 0)
+                goto zero2;
+            *(s32 *)(temp_3 + 0x14) = temp_2;
+read2:
+            return *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x30);
+        case 6:
+            temp_3 = (u8 *)((u8 *)D_008872E0 + iGpffffb9b0);
+            temp_2 = *(s32 *)(temp_3 + 0x34);
+            if (temp_2 == 0)
+                goto zero6;
+            *(s32 *)(temp_3 + 0x18) = temp_2;
+read6:
+            return *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x34);
+        default:
+            error_get[0] = 1;
+            error_get[1] = func_003df590(0x25);
+            func_003df4d0(error_get);
+            goto error_return;
+        }
+    }
+zero3:
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 4) = 0;
+    goto read3;
+zero5:
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 8) = 0;
+    goto read5;
+zero4:
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0xC) = 0;
+    goto read4;
+zero1:
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x10) = 0;
+    goto read1;
+zero2:
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x14) = 0;
+    goto read2;
+zero6:
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x18) = 0;
+    goto read6;
+}
+/* measured: closes no_branch_likely around func_00410ab0. */
+#pragma no_branch_likely off
+/* measured: retail preserves plain return branches in func_00410df0. */
+#pragma no_branch_likely on
 // FUN_00410D90
 s32 func_00410d90(s32 arg0)
 {
@@ -994,7 +1653,41 @@ s32 func_00410d90(s32 arg0)
     return arg0;
 }
 // FUN_00410DF0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410df0);
+s32 func_00410df0(s32 arg0, s32 arg1)
+{
+    s32 var_2;
+    u8 *temp_4;
+
+    extern s32 func_00415930(void *arg0);
+    extern s32 func_00415950(void *arg0);
+
+    iGpffffb9b0 = arg1;
+    temp_4 = (u8 *)((u8 *)D_008872E0 + arg1);
+    iGpffffb9ac = (s32)temp_4;
+    iGpffffb9b4 += 1;
+    func_0043f9c8(temp_4, 0, 0x7C);
+    var_2 = func_00415930(
+        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x1C));
+    if (var_2 != 0)
+        goto call_second;
+check_done:
+    if (var_2 == 0)
+        goto cleanup;
+    return arg0;
+call_second:
+    var_2 = func_00415950(
+        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x20));
+    goto check_done;
+cleanup:
+    func_00415940(
+        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x20));
+    func_00415920(
+        (void *)((u8 *)D_008872E0 + iGpffffb9b0 + 0x1C));
+    iGpffffb9b4 -= 1;
+    return 0;
+}
+/* measured: closes no_branch_likely around func_00410df0. */
+#pragma no_branch_likely off
 // FUN_00410ED0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410ed0);
 // FUN_00410F00
@@ -1014,8 +1707,27 @@ void func_00410f40(void)
 }
 // FUN_00410F50
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410f50);
+/* measured: retail cleanup guard is a plain bnez. */
+#pragma no_branch_likely on
 // FUN_00410FF0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410ff0);
+s32 func_00410ff0(void)
+{
+    if (iGpffffb9bc != 0) {
+        goto body;
+    }
+    goto done;
+done:
+    return 1;
+body:
+    func_003e12f0(*(s32 *)((u8 *)D_008872E0 + iGpffffb9b8));
+    *(s32 *)((u8 *)D_008872E0 + iGpffffb9b8) = 0;
+    func_00414fd0(iGpffffb9c0);
+    iGpffffb9c0 = 0;
+    iGpffffb9bc = 0;
+    goto done;
+}
+/* measured: closes no_branch_likely around func_00410ff0. */
+#pragma no_branch_likely off
 // FUN_00411060
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411060);
 // FUN_00411130
@@ -1032,9 +1744,57 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004115d0);
 // FUN_00411670
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411670);
 // FUN_00411740
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411740);
+u32 func_00411740(s32 arg0)
+{
+    extern s32 func_003df590();
+    extern s32 func_003df4d0();
+    struct {
+        s32 sp18;
+        s32 sp1C;
+    } stack;
+    u32 temp_2;
+    u32 temp_5;
+
+    temp_5 = (arg0 + 3) & ~3;
+    temp_2 = (u32)(iGpffffb9b8 - temp_5);
+    iGpffffb9b8 = temp_2;
+    if (temp_2 >= (u32)iGpffffb9bc)
+        return temp_2;
+    iGpffffb9b8 = temp_2 + temp_5;
+    stack.sp18 = 1;
+    stack.sp1C = func_003df590(0x80000013, temp_5);
+    func_003df4d0(&stack.sp18);
+    return 0;
+}
+/* measured: retail uses a plain bnez for the allocator range guard. */
+#pragma no_branch_likely on
 // FUN_004117B0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004117b0);
+u8 **func_004117b0(s32 arg0)
+{
+    extern s32 func_003df590();
+    extern s32 func_003df4d0();
+    struct {
+        s32 sp18;
+        s32 sp1C;
+    } stack;
+    u32 temp_3;
+    u32 temp_5;
+
+    temp_5 = (arg0 + 3) & ~3;
+    temp_3 = (u32)(iGpffffb9bc + temp_5);
+    iGpffffb9bc = temp_3;
+    if (temp_3 > (u32)iGpffffb9b8)
+        goto allocate;
+    return (u8 **)(temp_3 - temp_5);
+allocate:
+    iGpffffb9bc = temp_3 - temp_5;
+    stack.sp18 = 1;
+    stack.sp1C = func_003df590(0x80000013, temp_5);
+    func_003df4d0(&stack.sp18);
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_004117b0. */
+#pragma no_branch_likely off
 // FUN_00411820
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411820);
 // FUN_004118C0
@@ -1056,9 +1816,11 @@ u32 func_004125d0(int param_1)
 {
     return *(u32 *)(param_1 + 0x20);
 }
+/* measured: closes optimization_level 3 around source unit 004125d0. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_0041f208.c (1 function markers) */
+/* measured: source unit 0041f208 requires optimization_level 3. */
 #pragma optimization_level 3
 
 // FUN_0041F208
@@ -1066,9 +1828,11 @@ s32 func_0041f208(int param_1)
 {
     return *(s32 *)(*(s32 *)(param_1 + 0x40) + 0x878) = 1;
 }
+/* measured: closes optimization_level 3 around func_0041f208. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_0041f6e0.c (1 function markers) */
+/* measured: source unit 0041f6e0 requires optimization_level 3. */
 #pragma optimization_level 3
 
 // FUN_0041F6E0
@@ -1076,9 +1840,11 @@ u32 func_0041f6e0(u32 *param_1)
 {
     return param_1[3] = param_1[2];
 }
+/* measured: closes optimization_level 3 around func_0041f6e0. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_0041f6f0.c (1 function markers) */
+/* measured: source unit 0041f6f0 requires optimization_level 3. */
 #pragma optimization_level 3
 
 // FUN_0041F6F0
@@ -1086,9 +1852,11 @@ u32 func_0041f6f0(u32 *param_1)
 {
     return param_1[2] = param_1[3];
 }
+/* measured: closes optimization_level 3 around func_0041f6f0. */
 #pragma optimization_level 2
 
 /* Source unit: src/rw/rwcore_004222b0.c (1 function markers) */
+/* measured: source unit 004222b0 requires optimization_level 3. */
 #pragma optimization_level 3
 
 // FUN_004222B0
@@ -1100,4 +1868,5 @@ asm u32 QueryIntrContext(void)
     jr $ra
     andi $v0, $v0, 1
 }
+/* measured: closes optimization_level 3 around func_004222b0. */
 #pragma optimization_level 2

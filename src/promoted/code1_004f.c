@@ -7,21 +7,70 @@ extern s32 func_004e22f8(void);
 extern s32 func_004e3448(void);
 extern void func_004e2298(void);
 extern void func_004e2690(void);
-extern void func_004f14c8(u8 *arg0);
+extern void func_004f14c8();
+typedef void (*Code1Callback)(void *);
+typedef struct {
+    Code1Callback callback;
+    void *arg;
+} Code1CallbackRec;
+extern Code1CallbackRec D_00925E80[];
+typedef struct {
+    u8 pad_0[0xC];
+    void (*callback)(u8 *arg0);
+} Code1Table;
+extern Code1Table D_0075D650[];
+extern u8 *D_00743A48[];
+typedef void (*Code1IndexCallback)(s32 arg0, s32 arg1, s32 arg2);
+extern Code1IndexCallback D_00743C40[];
+extern void func_004f1e10(void);
+extern Code1CallbackRec D_00925E88[];
+extern s32 D_00925EA0[];
+extern void func_004f1f80(s32 arg0);
+extern u32 func_004f54a0(void);
+extern u8 *D_00743A50[];
 
 /* measured: without #pragma schedule on, MWCC emits lui/addiu/jr/nop with
    the jr $ra delay slot unfilled; retail fills the delay slot with the
    final addiu (nd 6 -> 0). */
-
 // FUN_004F1350
+#ifdef NON_MATCHING
+/* measured: schedule on reproduces callback global staging and delay-slot order. */
+#pragma schedule on
+void func_004f1350(void) {
+    Code1CallbackRec *rec;
+    rec = D_00925E80;
+    if (rec->callback != NULL) {
+        rec->callback(rec->arg);
+    }
+}
+/* measured: schedule off closes the isolated 004f1350 callback probe. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1350);
+#endif
 // FUN_004F1380
+#ifdef NON_MATCHING
+/* measured: schedule on reproduces callback global staging and delay-slot order. */
+#pragma schedule on
+void func_004f1380(void) {
+    Code1CallbackRec *rec;
+    rec = D_00925E88;
+    if (rec->callback != NULL) {
+        rec->callback(rec->arg);
+    }
+}
+/* measured: schedule off closes the isolated 004f1380 callback probe. */
+#pragma schedule off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1380);
+#endif
 // FUN_004F13B0
+/* measured: schedule on fills the 004f13b0 return delay slot. */
 #pragma schedule on
 s32 *func_004f13b0(void) {
     return D_00925BE0;
 }
+/* measured: schedule off closes func_004f13b0's return-slot probe. */
 #pragma schedule off
 
 
@@ -40,7 +89,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1430);
 // FUN_004F1448
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1448);
 // FUN_004F1460
+#ifdef NON_MATCHING
+s32 func_004f1460(void) {
+    s32 var_2;
+    var_2 = func_004e22f8();
+    switch (var_2) {
+    case 0:
+        return 0;
+    default:
+        var_2 = 3;
+    case 1:
+    case 2:
+        return var_2;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1460);
+#endif
 // FUN_004F14B0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f14b0);
 // FUN_004F14C8
@@ -50,10 +115,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f14e0);
 // FUN_004F1518
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1518);
 // FUN_004F1538
+/* measured: schedule on fills the 004f1538 return delay slot. */
 #pragma schedule on
 s32 *func_004f1538(void) {
     return D_0075D370;
 }
+/* measured: schedule off closes func_004f1538's return-slot probe. */
 #pragma schedule off
 
 
@@ -62,7 +129,6 @@ extern s32 D_0075D620[];
 /* measured: without #pragma schedule on, MWCC emits lui/addiu/jr/nop with
    the jr $ra delay slot unfilled; retail fills the delay slot with the
    final addiu (nd 6 -> 0). */
-
 // FUN_004F1548
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1548);
 // FUN_004F1600
@@ -76,9 +142,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1750);
 // FUN_004F1820
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1820);
 // FUN_004F1850
+#ifdef NON_MATCHING
+void func_004f1850(u8 *arg0) {
+    if ((arg0 != NULL) && (*(s16 *)(arg0 + 0x34) != 0)) {
+        if (*(s16 *)(arg0 + 0x38) == 2) {
+            func_004f1e10();
+        }
+        *(s16 *)(arg0 + 0x36) = 0;
+        *(s16 *)(arg0 + 0x34) = 0;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1850);
+#endif
 // FUN_004F1F80
+#ifdef NON_MATCHING
+void func_004f1f80(s32 unused) {
+    Code1Table *table;
+    table = D_0075D650;
+    D_00743A48[0] = (u8 *)table;
+    table->callback((u8 *)table);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1f80);
+#endif
 // FUN_004F1FB0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1fb0);
 // FUN_004F2BC0
@@ -104,10 +191,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f3340);
 // FUN_004F33E0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f33e0);
 // FUN_004F34A0
+/* measured: schedule on fills the 004f34a0 return delay slot. */
 #pragma schedule on
 s32 *func_004f34a0(void) {
     return D_0075D620;
 }
+/* measured: schedule off closes func_004f34a0's return-slot probe. */
 #pragma schedule off
 
 
@@ -117,39 +206,66 @@ s32 *func_004f34a0(void) {
    The schedule-on pragma fills the jr $ra delay slot (nd 6 -> 0). */
 
 // FUN_004F34B0
+#ifdef NON_MATCHING
+/* measured: tailcall on preserves the retail framed jump after the setup calls. */
+#pragma tailcall on
+void func_004f34b0(s32 arg0) {
+    s32 value;
+    value = (s32)func_004f34a0();
+    D_00925EA0[0] = value;
+    func_004f54a0();
+    func_004f1f80(arg0);
+}
+/* measured: tailcall off closes the isolated 004f34b0 probe. */
+#pragma tailcall off
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f34b0);
+#endif
 // FUN_004F34E8
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f34e8);
 // FUN_004F3780
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f3780);
 // FUN_004F54A0
+/* measured: schedule on fills the 004f54a0 store delay slot. */
 #pragma schedule on
 u32 func_004f54a0(void) {
     u32 segment = 0x00740000;
     *(u32 *)(segment + 0x3a54) = 0;
     return segment;
 }
+/* measured: schedule off closes func_004f54a0's store-slot probe. */
 #pragma schedule off
 
 
-/* measured: the segment-return form (CRI ADX family) is used for family
-   consistency; the schedule-on pragma fills the jr $ra delay slot. */
-
-#pragma schedule on
-#pragma schedule off
 
 
 /* measured: the segment-return form (CRI ADX "set param" family) is
    load-bearing: retail's sw $a0 uses $v0 as base because the segment
    address is the live return value; a void store compiles to a $v1 base.
    The schedule-on pragma fills the jr $ra delay slot (nd 6 -> 0). */
-
 // FUN_004F5BD0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5bd0);
 // FUN_004F5BF0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5bf0);
 // FUN_004F5CD0
+#ifdef NON_MATCHING
+s32 func_004f5cd0(s32 mode, s32 *out) {
+    s32 flags;
+    if (mode == 1) {
+        flags = *(s32 *)((u8 *)D_00743A50[0] + 0x18) & 1;
+    } else if (mode == 0) {
+        flags = *(s32 *)((u8 *)D_00743A50[0] + 0x18) & 0x400;
+    } else if (mode == 2) {
+        flags = *(s32 *)((u8 *)D_00743A50[0] + 0x18) & 2;
+    } else {
+        return -100;
+    }
+    *out = flags != 0;
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5cd0);
+#endif
 // FUN_004F5D38
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5d38);
 // FUN_004F5FD8
@@ -169,12 +285,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f68b8);
 // FUN_004F6948
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f6948);
 // FUN_004F69B8
+/* measured: schedule on fills the 004f69b8 store delay slot. */
 #pragma schedule on
 u32 func_004f69b8(u32 value) {
     u32 segment = 0x00740000;
     *(u32 *)(segment + 0x3b58) = value;
     return segment;
 }
+/* measured: schedule off closes func_004f69b8's store-slot probe. */
 #pragma schedule off
 
 
@@ -185,10 +303,12 @@ extern s32 D_0075D9E8[];
    final addiu (nd 6 -> 0). */
 
 // FUN_004F69C8
+/* measured: schedule on fills the 004f69c8 return delay slot. */
 #pragma schedule on
 s32 *func_004f69c8(void) {
     return D_0075D9E8;
 }
+/* measured: schedule off closes func_004f69c8's return-slot probe. */
 #pragma schedule off
 
 
@@ -203,10 +323,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f7940);
 // FUN_004F8478
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f8478);
 // FUN_004F8508
+/* measured: schedule on fills the 004f8508 return delay slot. */
 #pragma schedule on
 s32 *func_004f8508(void) {
     return D_0075DB88;
 }
+/* measured: schedule off closes func_004f8508's return-slot probe. */
 #pragma schedule off
 
 
@@ -237,16 +359,33 @@ s32 func_004f9130(void)
 /* measured: restore schedule off after func_004f9130. */
 #pragma schedule off
 // FUN_004F9150
+#ifdef NON_MATCHING
+s32 func_004f9150(s32 arg0, s32 arg1, u32 index, s32 arg3) {
+    s32 result;
+    u32 offset;
+
+    offset = index * 4;
+    result = -1000;
+    if (index < 9U) {
+        ((Code1IndexCallback *)((u8 *)D_00743C40 + offset))[0](arg0, arg1, arg3);
+        result = 0;
+    }
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9150);
+#endif
 // FUN_004F9198
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9198);
 // FUN_004F9350
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9350);
 // FUN_004F9368
+/* measured: schedule on fills the 004f9368 return delay slot. */
 #pragma schedule on
 s32 *func_004f9368(void) {
     return D_0075DBC8;
 }
+/* measured: schedule off closes func_004f9368's return-slot probe. */
 #pragma schedule off
 
 // FUN_004F9378
@@ -277,9 +416,34 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9528);
 // FUN_004F9590
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9590);
 // FUN_004F95F8
+#ifdef NON_MATCHING
+s32 func_004f95f8(u8 *arg0, s32 arg1) {
+    s32 result;
+    s32 index;
+    u8 *entry;
+
+    index = 0;
+    if (arg1 > 0) {
+        entry = arg0;
+loop_004f95f8:
+        index += 1;
+        result = 0;
+        if (*entry == 0) {
+            if (index < arg1) {
+                entry = arg0 + index;
+                goto loop_004f95f8;
+            }
+            goto done_004f95f8;
+        }
+    } else {
+done_004f95f8:
+        result = 1;
+    }
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f95f8);
-/* measured: split-u32 candidate leaves one copy-load register residual.
-   Committed at nd 2. */
+#endif
 // FUN_004F9638 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: optimization-level one reproduces the retail straight-line shape. */

@@ -6,6 +6,8 @@ extern f32 D_008872F8;
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
+extern void func_00446ed8(void *buf, s32 fmt, void *va);
+extern void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2);
 static inline f32 add_f32(f32 a, f32 b) {
     return a + b;
 }
@@ -177,27 +179,22 @@ extern u8 D_008D1CD4[];
 
 /* measured: object 92B vs window 96B, normalized_diff 15; residual load ordering and FPU register coloring. */
 // Committed at nd 15.
-// FUN_00450490
 #ifdef NON_MATCHING
+// FUN_00450490
 f32 func_00450490(f32 fparg0)
 {
-    f32 temp_f3;
-    f32 temp_f2;
-    f32 temp_f4;
-    f32 temp_f0;
     f32 temp_f1;
+    f32 temp_f0;
+    f32 temp_f2;
 
-    temp_f4 = D_008872FC_abs[0];
-    temp_f2 = *(f32 *)(iGpffffb9e0 + 0x84);
-    temp_f3 = *(f32 *)(iGpffffb9e0 + 0x80);
-    temp_f0 = D_008872F8_abs[0];
-    temp_f1 = temp_f0 - temp_f4;
-    temp_f0 = temp_f3 - temp_f2;
+    temp_f1 = D_008872F8_abs[0] - D_008872FC_abs[0];
+    temp_f0 = *(f32 *)(iGpffffb9e0 + 0x80) -
+        *(f32 *)(iGpffffb9e0 + 0x84);
     temp_f1 = temp_f1 / temp_f0;
-    temp_f0 = fparg0 - temp_f2;
+    temp_f0 = fparg0 - *(f32 *)(iGpffffb9e0 + 0x84);
     temp_f2 = temp_f0 * temp_f1;
-    temp_f0 = temp_f3 / fparg0;
-    temp_f1 = temp_f4 + temp_f0 * temp_f2;
+    temp_f0 = *(f32 *)(iGpffffb9e0 + 0x80) / fparg0;
+    temp_f1 = D_008872FC_abs[0] + temp_f0 * temp_f2;
     if (temp_f1 < 0.0f) {
         temp_f1 = 0.0f;
     }
@@ -212,8 +209,52 @@ INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450a50);
 // FUN_00450DD0
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450dd0);
+/* measured: O1 preserves the literal argument-count branch shape. */
+#pragma optimization_level 1
 // FUN_00450E80
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450e80);
+void func_00450e80(s32 arg0, s64 arg1, s32 arg2, s64 arg3, s64 arg4,
+                   s64 arg5, s64 arg6, s64 arg7, f32 fparg0, s64 arg_sp0)
+{
+    struct {
+        u8 sp20[0x100];
+        u8 pad_120[8];
+        s32 sp128;
+        u8 pad_12c[0xC];
+        s64 sp138;
+        u8 pad_140[0x18];
+        s32 sp158;
+        u8 pad_15c[0xC];
+        s64 sp168;
+        s64 sp170;
+        s64 sp178;
+        s64 sp180;
+        s64 sp188;
+    } work;
+    s32 var_3;
+    s32 temp_3;
+    f32 temp_f0;
+
+    work.sp128 = arg0;
+    work.sp138 = arg1;
+    temp_f0 = fparg0;
+    work.sp158 = arg2;
+    work.sp168 = arg3;
+    work.sp170 = arg4;
+    work.sp178 = arg5;
+    work.sp180 = arg6;
+    work.sp188 = arg7;
+    var_3 = 3;
+    if (var_3 >= 8) {
+        var_3 = 0;
+    } else {
+        temp_3 = 8 - var_3;
+        var_3 = temp_3 * 8;
+    }
+    func_00446ed8(work.sp20, work.sp158, (u8 *)&arg_sp0 - var_3);
+    func_00450a50(work.sp128, work.sp138, temp_f0, work.sp20);
+}
+/* measured: restore O2 after the 00450e80 O1 probe. */
+#pragma optimization_level 2
 // FUN_004526A0
 void func_004526a0(u8 *arg0) {
     u8 *var_6;
