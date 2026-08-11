@@ -504,20 +504,35 @@ def _compile(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
 
 # Part of P4 was not built with Metrowerks.  Functions whose retail prologue
 # saves callee-saved `$s` registers with `sd` rather than `sq` come from
-# ee-gcc, and MWCCPS2 cannot reproduce them at any optimisation level.  Those
-# translation units are compiled here with tools/eegcc_shim.py instead.
+# ee-gcc 2.96, and MWCCPS2 cannot reproduce them at any optimisation level.
+# Those translation units are listed in config/gcc_units.txt and compiled with
+# tools/eegcc_shim.py instead.  The split is per translation unit because the
+# two compilers separate cleanly by file in this game.
 #
-# mwccgap is not used for them: it splices assembly using MWCC's `asm void
-# f() {}` extension, which GCC cannot parse.  It is not needed either, because
-# INCLUDE_ASM expands to nothing (include/include_asm.h) and every marker it
-# covers is reported from the retail fallback anyway.
-def is_gcc_unit(cpath: Path, cfg: dict) -> bool:
-    names = cfg.get("gcc_units") or []
+# mwccgap is not used for them: it splices assembly through MWCC's `asm void
+# f() {}` extension, which GCC cannot parse.  The shim splices the same
+# assembly as file-scope `__asm__`, which keeps retail's function order.
+GCC_UNITS_PATH = REPO / "config" / "gcc_units.txt"
+_GCC_UNITS: set[str] | None = None
+
+
+def gcc_units() -> set[str]:
+    global _GCC_UNITS
+    if _GCC_UNITS is None:
+        _GCC_UNITS = set()
+        if GCC_UNITS_PATH.is_file():
+            for line in GCC_UNITS_PATH.read_text().splitlines():
+                line = line.split("#", 1)[0].strip()
+                if line:
+                    _GCC_UNITS.add(line)
+    return _GCC_UNITS
+
+
+def is_gcc_unit(cpath: Path) -> bool:
     try:
-        rel = cpath.resolve().relative_to(REPO).as_posix()
+        return cpath.resolve().relative_to(REPO).as_posix() in gcc_units()
     except ValueError:
-        rel = cpath.as_posix()
-    return rel in names or cpath.name in names
+        return False
 
 
 def _compile_gcc(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
@@ -545,7 +560,7 @@ def compile_object(
     relative = cpath.relative_to(REPO)
     output = objdir / (relative.as_posix().replace("/", "_") + ".o")
     output.parent.mkdir(parents=True, exist_ok=True)
-    if is_gcc_unit(cpath, cfg):
+    if is_gcc_unit(cpath):
         compiled, log = _compile_gcc(cpath, cfg, output)
     else:
         compiled, log = _compile(cpath, cfg, output)
@@ -562,7 +577,7 @@ def verify_file(
     relative, markers = cpath.relative_to(REPO), scan_markers(cpath)
     if not markers: return []
     output = objdir / (relative.as_posix().replace("/", "_") + ".o")
-    if is_gcc_unit(cpath, cfg):
+    if is_gcc_unit(cpath):
         compiled, log = _compile_gcc(cpath, cfg, output)
     else:
         compiled, log = _compile(cpath, cfg, output)

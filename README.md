@@ -28,7 +28,7 @@ before extracting what the build needs.
 | First-party matched, scored for recovery | 6,216 |
 | — NAMED (not a `func_<address>` placeholder) | 155 (2.494%) |
 | — TYPED (no raw-offset or `M2C_` access) | 2,145 (34.508%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,251 (68.388%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,253 (68.42%) |
 | — still carrying decompiler local names | 1,713 (27.558%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.
