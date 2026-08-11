@@ -908,11 +908,26 @@ s32 func_003e43a0(s32 arg0) {
 #pragma schedule off
 
 
-/* measured: registration initializer candidate object 88B/window 96B,
-   normalized_diff 23; callback-address materialization order and final
-   counter update remain unresolved. */
+/* measured: schedule-on callback initializer matches object 84B/window 96B,
+   normalized_diff 0; direct callback stores reproduce retail order. */
+#pragma schedule on
 // FUN_003E43C0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
+s32 func_003e43c0(s32 arg0, s32 arg1) {
+    D_00764890 = arg1;
+    *(Fn3f80A *)((u8 *)D_008872E0 + D_00764890 + 8) =
+        (Fn3f80A)func_003e3dc0;
+    *(Fn3f80B *)((u8 *)D_008872E0 + D_00764890 + 0xC) =
+        (Fn3f80B)func_003e3d00;
+    *(Fn3f80A *)((u8 *)D_008872E0 + D_00764890 + 0x10) =
+        (Fn3f80A)func_003e3f00;
+    *(Fn3f80B *)((u8 *)D_008872E0 + D_00764890 + 0x14) =
+        (Fn3f80B)func_003e3e60;
+    D_0076489C += 1;
+    return arg0;
+}
+/* measured: closes schedule-on callback initializer, object 84B/window 96B,
+   normalized_diff 0. */
+#pragma schedule off
 
 
 
