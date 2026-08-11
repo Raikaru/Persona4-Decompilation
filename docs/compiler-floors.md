@@ -55,8 +55,35 @@ be source-drivable. Check these before concluding anything is unreachable.
   reproduced it - that one word remains open.
 - **A missing `nop` before the final `jr`**, with every following branch
   displacement off by one and the object one word short. Seen on
-  `func_003c4bc0` and `func_003b6da0` in different files, so it is a source
-  shape. Neither the single-case-switch recipe from
-  `skill://mwccps2-switch-linear-chain-declaration-order` nor a whole-function
-  `#pragma schedule off` moved it; both measurably made it worse. Unexplained,
-  not yet a floor.
+  `func_003c4bc0` and `func_003b6da0` in different files. Two lanes recorded
+  this as an unexplained floor; it is not one. It is delay-slot scheduling,
+  and the lever is `#pragma schedule` ON - the opposite of the `schedule off`
+  both lanes tried, which is why their probes kept getting worse. Retail fills
+  the `blez` delay slot with the following `addiu`; the candidate emits a
+  `nop`. Measured on decomp.me scratch voNWo, max_score 1500:
+
+      mwcc b210 -O2 bare                  680   54.7%
+      mwcc b210 -O2 #pragma schedule on    70   95.3%
+      ee-gcc 3.2 -O2                      285   81.0%
+      ee-gcc 3.2 -O3                      270   82.0%
+
+  The ee-gcc figures are kept because beating bare MWCC prompted a reasonable
+  suggestion that these were GCC-built. They are not; see the census below.
+
+## Where the GCC-built code is, and is not
+
+Both functions above sit at 16-byte-aligned addresses outside every
+`VENDOR_CODE_RANGES` span, and MWCC beats every ee-gcc build on them once the
+scheduler pragma is set. A tree-wide alignment census confirms the boundary is
+sound - GCC aligns functions to 8 bytes, MWCC to 16:
+
+    inside the known vendor ranges:  2350/4873 = 48.22% at 8 mod 16
+    first-party overall:                2/7867 =  0.03% at 8 mod 16
+
+A 1600-fold separation, so there is no second GCC pocket hiding in first-party
+code. The two first-party outliers, `func_00100008` and `func_00100218`, sit at
+the very start of the text segment and one already matches under MWCC.
+
+Note that the prologue test which originally found the vendor band cannot
+classify a leaf function: both functions above save nothing, so they have no
+`sd`/`sq` to read. Use alignment for those, not the prologue.

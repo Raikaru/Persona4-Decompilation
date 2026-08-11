@@ -5579,7 +5579,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/003724f0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/003724f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -5590,7 +5590,7 @@
       "target_path": "build/objdiff/target/Battle/btlShuffleCalc/003726b0.o",
       "base_path": "build/objdiff/base/Battle/btlShuffleCalc/003726b0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12355,7 +12355,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effBlurFilter/004a8bb0.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effBlurFilter/004a8bb0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -12377,7 +12377,7 @@
       "target_path": "build/objdiff/target/Graphics/Effect/effBlurFilter/004a8f90.o",
       "base_path": "build/objdiff/base/Graphics/Effect/effBlurFilter/004a8f90.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -67817,7 +67817,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0011/00113800.o",
       "base_path": "build/objdiff/base/promoted/code1_0011/00113800.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -143926,7 +143926,7 @@
       "target_path": "build/objdiff/target/shdSkill/00113e30.o",
       "base_path": "build/objdiff/base/shdSkill/00113e30.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
