@@ -847,8 +847,12 @@ def _include_dirs(flags):
     return directories
 
 
-def _mwccgap_flags(c):
+def _mwccgap_flags(c, src=None):
     """Return the compiler/assembler flags shared by every C compile path."""
+    if src is not None and V.is_gcc_unit(src):
+        # A different compiler entirely; the key must not collide with the
+        # MWCC object this file would otherwise have produced.
+        return ["--eegcc-shim", *c["compile_flags"]]
     flags = [
         "--mwcc-path", c["mwcc"],
         "--asm-dir-prefix", str(REPO),
@@ -861,7 +865,19 @@ def _mwccgap_flags(c):
     return flags
 
 
+def _compile_with_eegcc(c, src, output):
+    """Build a config/gcc_units.txt translation unit with ee-gcc 2.96."""
+    sh(
+        [sys.executable, str(REPO / "tools" / "eegcc_shim.py"), "-c",
+         *c["compile_flags"], "-o", str(output), str(src)],
+        cwd=str(REPO),
+    )
+
+
 def _compile_with_mwccgap(c, src, output):
+    if V.is_gcc_unit(src):
+        _compile_with_eegcc(c, src, output)
+        return
     mwccgap = REPO / "tools" / "mwccgap" / "mwccgap.py"
     sh(
         [sys.executable, str(mwccgap), str(src), str(output),
@@ -892,6 +908,8 @@ def _cache_inputs(mode, source=None):
     inputs.extend(sorted((REPO / "tools" / "mwccgap").rglob("*.py")))
     inputs.append(ASM / "macro.inc")
     inputs.extend(_cache_asm_inputs(source))
+    if source is not None and V.is_gcc_unit(source):
+        inputs += [REPO / "tools" / "eegcc_shim.py", V.GCC_UNITS_PATH]
     if mode == "eligibility":
         inputs.append(Path(V.__file__))
     return inputs
@@ -912,7 +930,7 @@ def compile_eligibility(c, src, cache):
     # Both the eligibility and link paths now compile through mwccgap, so the
     # cache key must record the mwccgap flags actually used -- keying on the
     # bare compile_flags would miss an assembler/prefix change.
-    flags = _mwccgap_flags(c)
+    flags = _mwccgap_flags(c, src)
 
     def produce(temporary):
         _compile_with_mwccgap(c, src, temporary)
@@ -942,7 +960,7 @@ def compile_c(c, src, obj, cache):
         output=obj,
         source=src,
         include_dirs=_include_dirs(c["compile_flags"]),
-        flags=_mwccgap_flags(c),
+        flags=_mwccgap_flags(c, src),
         tools=_cache_tools(c, "link"),
         inputs=_cache_inputs("link", src),
         producer=produce,
@@ -1194,7 +1212,10 @@ def main():
             )
             for marker in o["funcs"] if marker.get("name")
         })
-        leftover = [s for s in V.ObjectFile(cobj).sections if s["name"] == ".text"]
+        # ee-gcc always emits an empty `.text` even under -ffunction-sections;
+        # it contributes no bytes, so it cannot displace a placed function.
+        leftover = [s for s in V.ObjectFile(cobj).sections
+                    if s["name"] == ".text" and s["size"]]
         if leftover:
             sys.exit(f"build: {cobj.name} has .text sections no placed marker owns; "
                      "cannot lay it out per function")

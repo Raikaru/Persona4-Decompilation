@@ -8,6 +8,8 @@ extern s32 D_0075DE40[];
 extern s32 D_0075E8B0[];
 
 extern s32 D_007442A0[];
+extern s32 D_0074428C;
+extern s32 D_00745884;
 
 extern s32 D_0074586C[];
 
@@ -72,8 +74,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005038f8);
 // FUN_00503990
 void func_00503990(u8 *arg0, s32 arg1, s32 arg2)
 {
-    *(s32 *)(arg0 + 4) = arg2;
     *(s32 *)arg0 = arg1;
+    *(s32 *)(arg0 + 4) = arg2;
 }
 #pragma optimization_level 2
 
@@ -177,11 +179,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_005097e8);
 // FUN_00509800
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00509800);
 // FUN_00509910
-s32 *func_00509910(s32 arg0)
+void func_00509910(s32 arg0)
 {
-    s32 *segment = (s32 *)0x00740000;
-    segment[0x10A3] = arg0;
-    return segment;
+    D_0074428C = arg0;
 }
 /* measured: closes the schedule-on segment-return bracket through func_00509910; explicit schedule off restores the following code's baseline state. */
 #pragma schedule off
@@ -385,11 +385,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cc48);
 // FUN_0050CC78
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cc78);
 // FUN_0050CCE0
-s32 *func_0050cce0(s32 arg0)
+void func_0050cce0(s32 arg0)
 {
-    s32 *segment = (s32 *)0x00740000;
-    segment[0x1621] = arg0;
-    return segment;
+    D_00745884 = arg0;
 }
 /* measured: closes the schedule-on segment-return bracket through func_0050cce0; explicit schedule off restores the following code's baseline state. */
 #pragma schedule off

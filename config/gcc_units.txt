@@ -1,0 +1,31 @@
+# Translation units that retail built with ee-gcc 2.96 rather than MWCCPS2.
+#
+# Evidence: every function in these files saves callee-saved `$s` registers
+# with `sd` in its retail prologue.  MWCCPS2 3.0.1b210 emits `sq` at every
+# optimisation level in all three builds present on disk, and its MIPS BackEnd
+# has no option that changes it -- so these functions are unreachable with
+# Metrowerks and reachable with ee-gcc 2.96 at `-O2 -G0`.
+#
+# ee-gcc 2.96 was pinned, not guessed.  2.95.3 emits `sq` for callee-saved
+# registers, and 3.2 colours a scratch base register `$t7` where retail has
+# `$v0` (func_00509910/func_0050cce0); 2.96 reproduces both exactly.
+#
+# The two compilers separate cleanly by file: these units contain no MWCC
+# functions.  code1_0041.c is 66 GCC / 24 MWCC with a single transition in
+# address order and code1_0044.c is 53 / 1; both need splitting before they
+# can be listed here.
+#
+# Anything listed here is built by tools/eegcc_shim.py in both tools/verify.py
+# and tools/build.py.  Nothing else changes.
+#
+# A unit is listed only once it verifies clean under ee-gcc (every row MATCH
+# or ASM).  The others need their existing C bodies reshaped first: a body
+# written to MWCC's register allocation usually needs a different spelling
+# here.  Measured residuals at the time of writing, all in src/promoted:
+#   code1_0042  17 MISMATCH, 2 NO_SYMBOL (of 484 rows)
+#   code1_0043   6 MISMATCH, 1 NO_SYMBOL
+#   code1_004c   9 MISMATCH      code1_004d  7 MISMATCH
+#   code1_004e   2 MISMATCH      code1_004f  5 MISMATCH
+#   code1_0051   3 MISMATCH      code1_0052  5 MISMATCH
+src/promoted/code1_0050.c
+src/promoted/code2_0070.c
