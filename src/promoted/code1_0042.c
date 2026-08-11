@@ -15,7 +15,6 @@ extern u8 D_00753E10[];
 extern void func_004244c8();
 extern s32 D_0088DCD8[];
 extern void func_0042b480();
-extern void func_0042c0d8(s32 arg0);
 extern void func_00421800();
 extern s32 D_0070C684[];
 extern void func_00429d90();
@@ -1476,8 +1475,31 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421c70);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421d00);
 // FUN_00421DA8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421da8);
-// FUN_00421E28
+// FUN_00421E28 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00421e28(s32 arg0, s32 arg1, s32 arg2)
+{
+ extern s32 D_0070C5D0[];
+ extern s32 func_00423180(s32);
+ extern s32 func_004230b0(s32, s32);
+ u32 segment = ((u32)D_0070C5D0) & 0xFFFF0000;
+
+ if (arg0 == 0) {
+  if (*(s32 *)(segment - 0x3A30) == 0) {
+   if (func_00423180(arg1) == 0) {
+    goto block_fail;
+   }
+   *(s32 *)(segment - 0x3A30) = 1;
+  }
+  return func_004230b0(arg1, arg2);
+block_fail:
+  return -1;
+ }
+ return -1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421e28);
+#endif
 // FUN_00421EA0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421ea0);
 /* measured: schedule on places the constant return in the jr delay slot. */
@@ -1518,19 +1540,8 @@ s32 func_00421f90(void)
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
-/* measured: plain scheduling leaves only the return delay-slot residual (nd 2 in isolation; nd_audit reads nd 16 in-file). Committed at nd 16. */
-// FUN_00421F98 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00421f98(s32 arg0, u8 *arg1)
-{
-    s32 value = 0x2000;
-    *(u64 *)(arg1 + 0x48) = 0;
-    *(s32 *)(arg1 + 0x4) = value;
-    return 0;
-}
-#else
+// FUN_00421F98
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00421f98);
-#endif
 /* measured: schedule on places the constant return in the jr delay slot. */
 #pragma schedule on
 // FUN_00421FB0
@@ -1543,8 +1554,9 @@ s32 func_00421fb0(void)
 /* measured: schedule on preserves the retail store/epilogue ordering. */
 #pragma schedule on
 // FUN_00421FB8
-s32 func_00421fb8(s32 arg0, s32 arg1)
+s32 func_00421fb8(s32 arg0, u8 *arg1)
 {
+    extern void func_0042c0d8(u8 *value);
     if (arg0 == 1) {
         func_0042c0d8(arg1);
     }
@@ -1736,27 +1748,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424458);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004244c8);
 // FUN_00424548
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424548);
-/* Measured: the ordered load/store body is structurally exact (object 28B/window 32B); b210's temporary register colouring remains at nd 7 after opt_propagation-off and declaration/type probes. Committed at nd 8 in-file (nd 7 measured in isolation). */
-// FUN_004245C8 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: opt_propagation off preserves the three retail load order. */
-#pragma opt_propagation off
-/* measured: schedule on places the computed word store in the jr delay slot. */
-#pragma schedule on
-void func_004245c8(u8 *arg0, u8 *arg1)
-{
-    s32 index = *(s32 *)(arg0 + 0x10);
-    s32 base = *(s32 *)(arg1 + 0x1C);
-    s32 value = *(s32 *)(arg0 + 0x14);
-    *(s32 *)((index * 4) + base) = value;
-}
-/* measured: closes the function-local scheduling override. */
-#pragma schedule off
-/* measured: closes the function-local propagation override. */
-#pragma opt_propagation on
-#else
+// FUN_004245C8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004245c8);
-#endif
 /* measured: schedule on places the copied value store in the jr delay slot. */
 #pragma schedule on
 // FUN_004245E8
@@ -1768,19 +1761,8 @@ s32 func_004245e8(u8 *arg0, u8 *arg1)
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
-extern s32 D_0088DE80[];
-/* measured: direct array indexing with schedule on keeps the global
- * materialization first; residuals are the index register, addu destination,
- * and load delay-slot placement. Measured in isolation at nd 4; nd_audit compiles the whole file with NON_MATCHING defined, which activates every preserved body at once and shifts this one. Committed at nd 18. */
-// FUN_004245F8 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004245f8(s32 arg0)
-{
-    return D_0088DE80[arg0];
-}
-#else
+// FUN_004245F8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004245f8);
-#endif
 // FUN_00424610
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424610);
 /* measured: schedule on places the global address addiu in the jr delay slot. */
@@ -1851,23 +1833,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00424f28);
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004250c8);
 // FUN_004250F0
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004250f0);
-/* Measured: the clear/store sequence is structurally correct but b210 folds retail's 32-bit 0xFFFFFFFE mask to addiu -2 and omits the trailing delay words (object 24B/window 32B, nd 7); mask-materialization and optimization probes did not improve it. Committed at nd 15 in-file (nd 7 measured in isolation). */
-// FUN_00425198 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on preserves the clear-store order and final store delay slot. */
-#pragma schedule on
-void func_00425198(u8 *arg0)
-{
-    s32 value = *(s32 *)(arg0 + 0x10);
-    *(s32 *)(arg0 + 0x18) = 0;
-    value &= 0xFFFFFFFE;
-    *(s32 *)(arg0 + 0x10) = value;
-}
-/* measured: closes the function-local scheduling override. */
-#pragma schedule off
-#else
+// FUN_00425198
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00425198);
-#endif
 // FUN_004251B8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004251b8);
 // FUN_004251E8
@@ -1923,7 +1890,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004262b8);
 // FUN_00426670
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00426670);
 // FUN_004266C8
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004266c8);
+/* measured: schedule on preserves the second-call global load and return sequence. */
+#pragma schedule on
+s32 func_004266c8(void)
+{
+    extern void func_00426670();
+    extern void func_00421820();
+    func_00426670();
+    func_00421820(D_0070C684[0]);
+    return 0;
+}
+/* measured: close the function-local scheduling override. */
+#pragma schedule off
 /* measured: tailcall on emits the bare jump to the syscall wrapper. */
 #pragma tailcall on
 /* measured: schedule on places the global load in the tail-call delay slot. */
@@ -2205,7 +2183,18 @@ asm void func_0042b3e0(void)
 }
 
 // FUN_0042B3F0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042b3f0);
+/* measured: schedule on places the saved-ra store in the guard branch delay slot. */
+#pragma schedule on
+s32 func_0042b3f0(s32 arg0)
+{
+    extern s32 func_0042b3e0();
+    if ((u32)(arg0 - 0xD) >= 0x23U) {
+        return -1;
+    }
+    return func_0042b3e0();
+}
+/* measured: close the function-local scheduling override. */
+#pragma schedule off
 // FUN_0042B420
 asm void func_0042b420(void)
 {
@@ -2592,7 +2581,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042f548);
 // FUN_0042F600
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042f600);
 // FUN_0042F6D0
-INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042f6d0);
+/* measured: schedule on preserves the pre-call global materialization and return delay slot. */
+#pragma schedule on
+s32 func_0042f6d0(void)
+{
+    extern u8 D_007546F0[];
+    extern void func_004244c8();
+    func_004244c8(D_007546F0);
+    return 2;
+}
+/* measured: close the function-local scheduling override. */
+#pragma schedule off
 // FUN_0042F6F8
 INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042f6f8);
 // FUN_0042F848

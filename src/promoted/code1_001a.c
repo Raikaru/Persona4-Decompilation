@@ -6,6 +6,7 @@ s32 func_00193bf0();
 void func_001b0800();
 void func_001f6cd0(void);
 
+void func_001f14f0(void *arg0);
 void func_001eb3b0(void *arg0);
 void func_001d7f10(void *arg0, void *arg1, s32 arg2, s32 arg3);
 void func_001d8cb0(void *arg0, void *arg1);

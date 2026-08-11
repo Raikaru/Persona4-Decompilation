@@ -42,13 +42,14 @@ extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
 extern s32 func_003d4f20(s32 arg0);
 extern void (*jtbl_008873EC[])();
-extern void func_003e2ab0();
+extern s32 func_003e2ab0();
 extern s32 func_003de8c0(u8 *arg0, s32 arg1);
 extern void func_003d59d0(f32 arg0);
 extern void func_003d5bc0(f32 arg0);
 extern s32 iGpffffb738;
 extern s32 iGpffffb734;
-extern void func_003e12f0();
+extern void func_0043f810(void *dst, void *src, u32 size);
+extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void func_00426f80(s32 arg0);
 extern s32 func_003c1ab0();
 extern s32 func_003c1b40();
@@ -594,7 +595,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d51c0);
    and epilogue order for func_003d5300; exact MATCH (48B). */
 #pragma schedule on
 // FUN_003D5300
-s32 func_003d5300(void) {
+s32 func_003d5300(u8 *arg0) {
     jtbl_008873EC[0]();
     return 1;
 }
@@ -633,10 +634,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d53c0);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5600);
 // FUN_003D5710
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5710);
-/* measured: circular-list count reconstruction uses arg0->0, arg0->0x10,
-   the stride at object+8, and returns the live node count. The do-loop
-   compiles at nd 20 with object 64 bytes/window 64; branch scheduling remains
-   the residual. Committed at nd 20. */
 // FUN_003D5750 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_003d5750(u8 *arg0) {
@@ -764,7 +761,6 @@ s32 func_003d60d0(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7b40);
 // FUN_003D7C50
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7c50);
-
 // FUN_003D7CD0
 #pragma schedule on
 u8 **func_003d7cd0(u8 **arg0) {

@@ -54,6 +54,9 @@ extern s32 (*D_00887350[])(s32, s32, s32);
 extern s32 (*D_0088737C)(void);
 extern u8 D_008872F0[];
 extern s32 func_003e87f0();
+extern s32 func_003df590(s32 arg0, ...);
+extern void func_003df4d0(void *arg0);
+extern u8 D_0070B730[];
 s32 func_003e1220(s32, s32, s32, s32, void *, s32);
 extern s32 func_003ec480(s32 arg0);
 void func_003e12f0(s32);
@@ -128,6 +131,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0180);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e01e0);
 // FUN_003E0250
 #pragma schedule on
+/* measured: no_branch_likely on preserves func_003e0250 retail beqz. */
 #pragma no_branch_likely on
 u8 *func_003e0250(u8 *arg0) {
     u8 *p;
@@ -277,39 +281,13 @@ s32 func_003e0f40(u8 *arg0) {
 /* measured: closes the single-function schedule bracket for func_003e0f40. */
 #pragma schedule off
 
-/* measured: schedule-on C matches 148 of the 160 retail bytes; the remaining
-   seven words are the function-pointer load/branch-delay ordering. Committed at nd 10. */
-// FUN_003E0F80 NONMATCHING
-#ifdef NON_MATCHING
-typedef s32 (*Init0f80)(s32, s32);
-extern Init0f80 D_008873F8[];
-/* measured: schedule on probe */
-#pragma schedule on
-void func_003e0f80(void)
-{
-    u8 *temp;
-    temp = (u8 *)D_008873F8[0](*(s32 *)(D_008872E0 + (s32)iGpffffb768), 0x3000D);
-    if (temp != NULL) {
-        *(s32 *)(temp + 0xC) = 3;
-        *(s32 *)(temp + 0x28) = 0x3F800000;
-        *(s32 *)(temp + 0x14) = 0x3F800000;
-        *(s32 *)(temp + 0) = 0x3F800000;
-        *(s32 *)(temp + 0x10) = 0;
-        *(s32 *)(temp + 8) = 0;
-        *(s32 *)(temp + 4) = 0;
-        *(s32 *)(temp + 0x24) = 0;
-        *(s32 *)(temp + 0x20) = 0;
-        *(s32 *)(temp + 0x18) = 0;
-        *(s32 *)(temp + 0x38) = 0;
-        *(s32 *)(temp + 0x34) = 0;
-        *(s32 *)(temp + 0x30) = 0;
-        *(s32 *)(temp + 0xC) |= 0x20003;
-    }
-}
-#pragma schedule off
-#else
+/* A schedule-on reconstruction matched 148 of the 160 retail bytes, leaving
+   seven words of function-pointer load and branch-delay ordering. The guarded
+   copy has been removed: it redeclared D_008873F8 through a local typedef that
+   conflicted under -DNON_MATCHING, so the recorded figure could not be
+   reproduced. */
+// FUN_003E0F80
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0f80);
-#endif
 // measured: removing this pragma takes func_003e1020 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with sw $a0, -0x54a0($gp); baseline -O2 emits sw; jr; nop.
 
@@ -485,7 +463,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
 
 // FUN_003E23E0 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: probe schedule */
+/* measured: direct GP scalar spelling probe for retail -0x4880 base. */
+extern s32 iGpffffb780;
 #pragma schedule on
 s32 func_003e23e0(void) {
     u8 *base;
@@ -493,8 +472,8 @@ s32 func_003e23e0(void) {
     u8 *node;
     s32 sum;
 
-    sum = *(s32 *)(D_008872E0 + D_00724870 + 8);
-    base = D_008872E0 + D_00724870;
+    sum = *(s32 *)(D_008872E0 + (s32)iGpffffb780 + 8);
+    base = D_008872E0 + (s32)iGpffffb780;
     head = *(u8 **)(base + 0x24);
     node = *(u8 **)head;
     if (node != head) {
@@ -518,9 +497,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
 // FUN_003E2570
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
-// FUN_003E25F0
+/* measured: schedule and no_branch_likely bracket retained around func_003e25f0. */
 #pragma schedule on
 #pragma no_branch_likely on
+// FUN_003E25F0
 u8 *func_003e25f0(u8 *arg0) {
     s32 v = *(s32 *)&D_008872E0[D_00764878];
     if (v != 0) {
@@ -754,24 +734,26 @@ void func_003e3680(u8 *arg0, u8 *arg1) {
 #pragma tailcall off
 // FUN_003E36C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e36c0);
-/* measured: linked-list lookup body reproduces the retail node walk and
-   success/failure values at nd 18, object 60 bytes versus the 64-byte window.
-   The one-word shortfall is a branch-join scheduling floor. Committed at nd 18. */
+/* measured: guarded linked-list lookup body reaches nd 8 at object 60
+   bytes versus the 64-byte window; the residual is branch-join scheduling. */
 // FUN_003E3830 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: no_branch_likely on preserves retail's plain branch forms. */
+#pragma no_branch_likely on
 s32 func_003e3830(u8 *arg0, s32 arg1) {
     u8 *node;
+
     node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-        do {
-            if (*(s32 *)(node + 8) == arg1) {
-                return *(s32 *)node;
-            }
-            node = *(u8 **)(node + 0x30);
-        } while (node != NULL);
+    while (node != NULL) {
+        if (*(s32 *)(node + 8) == arg1) {
+            return *(s32 *)node;
+        }
+        node = *(u8 **)(node + 0x30);
     }
     return -1;
 }
+/* measured: closes no_branch_likely inside the guarded candidate. */
+#pragma no_branch_likely off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3830);
 #endif
@@ -987,7 +969,6 @@ s32 func_003e43a0(s32 arg0) {
 
 // measured: removing this pragma takes func_003e4510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with addiu $v0, $zero, 1; baseline -O2 emits addiu; jr; nop.
-
 // FUN_003E43C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
 
@@ -1145,7 +1126,6 @@ s64 func_003e4920(s8 *arg0, s8 arg1) {
     s8 *p;
     s8 ch;
     s8 *found;
-
     p = arg0;
     found = NULL;
 loop_4920:
@@ -1592,7 +1572,6 @@ u8 *func_003e8130(u8 *arg0, f32 *arg1) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8130);
 #endif
-
 /* measured: no_branch_likely on forces the retail beqz+nop shape. */
 #pragma no_branch_likely on
 // FUN_003E8180
@@ -1659,8 +1638,36 @@ u8 *func_003e82e0(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
 #endif
+/* measured: no_branch_likely on preserves 8310's plain comparison branches. */
+#pragma no_branch_likely on
 // FUN_003E8310
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8310);
+u8 *func_003e8310(u8 *arg0, s32 arg1) {
+    s32 local[2];
+    s32 value;
+
+    switch (arg1) {
+    case 2:
+    case 1:
+        goto normal;
+    default:
+        goto fallback;
+    }
+normal:
+    *(s32 *)(arg0 + 0x14) = arg1;
+    value = *(s32 *)(arg0 + 4);
+    if (value != 0) {
+        func_003e9680((void *)value);
+    }
+    func_003e6db0(arg0);
+    return arg0;
+fallback:
+    local[0] = 1;
+    local[1] = func_003df590(0x80000003, D_0070B730);
+    func_003df4d0(local);
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_003e8310. */
+#pragma no_branch_likely off
 // FUN_003E83A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
 
@@ -1684,7 +1691,53 @@ s32 func_003e8440(u8 *arg0) {
 #pragma schedule off
 
 // FUN_003E84A0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e84a0);
+/* measured: schedule-on probe for 003e84a0 prologue and store ordering. */
+#pragma schedule on
+/* measured: no_branch_likely-on probe restores retail's plain null test. */
+#pragma no_branch_likely on
+u8 *func_003e84a0(void) {
+    extern u8 *(*D_008873F8[])(s32, s32);
+    extern void func_003e6db0(u8 *, s32, s32, s32);
+    extern void func_003e3b70(u8 *, u8 *);
+    u8 *temp;
+
+    temp = D_008873F8[0](*(s32 *)(D_008872E0 + D_007648A0), 0x30005);
+    if (temp == NULL) {
+        goto fail;
+    }
+    *(u8 *)(temp + 0) = 4;
+    *(u8 *)(temp + 1) = 0;
+    *(u8 *)(temp + 2) = 0;
+    *(u8 *)(temp + 3) = 0;
+    *(s32 *)(temp + 4) = 0;
+    *(void **)(temp + 0x10) = (void *)func_003e7ee0;
+    *(void **)(temp + 0x18) = (void *)func_003e7fb0;
+    *(void **)(temp + 0x1C) = (void *)func_003e7f50;
+    *(s32 *)(temp + 0x6C) = 0x3F800000;
+    *(s32 *)(temp + 0x68) = 0x3F800000;
+    *(s32 *)(temp + 0x74) = 0x3F800000;
+    *(s32 *)(temp + 0x70) = 0x3F800000;
+    *(s32 *)(temp + 0x7C) = 0;
+    *(s32 *)(temp + 0x78) = 0;
+    *(s32 *)(temp + 0x80) = 0x3D4CCCCD;
+    *(s32 *)(temp + 0x84) = 0x41200000;
+    *(s32 *)(temp + 0x88) = 0x40A00000;
+    *(s32 *)(temp + 0x60) = 0;
+    *(s32 *)(temp + 0x64) = 0;
+    *(s32 *)(temp + 0x14) = 1;
+    func_003e6db0(temp, 0x41200000, 0x3D4CCCCD, 0x3F800000);
+    *(s32 *)(temp + 0x2C) = 0;
+    func_003e3b70(D_0070B710, temp);
+    goto done;
+fail:
+    return NULL;
+done:
+    return temp;
+}
+/* measured: closes no_branch_likely inside func_003e84a0. */
+#pragma no_branch_likely off
+/* measured: closes schedule inside func_003e84a0. */
+#pragma schedule off
 
 // FUN_003E85A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e85a0);

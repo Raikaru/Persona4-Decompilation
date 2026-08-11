@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 extern u8 D_008872E0[];
+extern s32 iGpffffb680;
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
 extern u64 func_003b7060(void);
@@ -47,11 +48,9 @@ extern void func_003bf1d0(void);
 extern void func_003bf1f0(void);
 extern s32 iGpffffb6b4;
 
-
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 15 -> 0).
-
 // FUN_003B0B80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b0b80);
 // FUN_003B12A0
@@ -112,51 +111,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
 // FUN_003B6420
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
-/* measured: schedule on restores 003b64c0 setup order around the guard. */
-#pragma schedule on
-/* measured: exact-size plain-C candidate retains the retail loop body; the remaining
-   entry slt/beqz versus blez and preheader ordering residual measured nd 7. Committed at nd 7. */
-// FUN_003B64C0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003b64c0(u8 *arg0, s32 arg1, u8 *arg2) {
-    s32 temp_8;
-    s32 var_12;
-    u8 *temp_10;
-    u8 *temp_4;
-    u8 *temp_6;
-    u8 *temp_7;
-    u8 *temp_9;
-    u8 *var_11;
-
-    var_11 = *(u8 **)(arg0 + 0);
-    temp_10 = arg2 + 0x90;
-    temp_9 = arg2 + 0x98;
-    temp_8 = *(s32 *)(arg0 + 4);
-    var_12 = arg1 > 0;
-    if (var_12 != 0) {
-        var_12 = 0;
-        do {
-            temp_7 = var_11 + temp_8;
-            temp_6 = temp_7 + temp_8;
-            var_12 += 1;
-            temp_4 = temp_6 + temp_8;
-            *(f32 *)(var_11 + 0) = *(f32 *)(temp_10 + 0);
-            *(f32 *)(var_11 + 4) = *(f32 *)(temp_9 + 4);
-            var_11 = temp_4 + temp_8;
-            *(f32 *)(temp_7 + 0) = *(f32 *)(temp_9 + 0);
-            *(f32 *)(temp_7 + 4) = *(f32 *)(temp_9 + 4);
-            *(f32 *)(temp_6 + 0) = *(f32 *)(temp_9 + 0);
-            *(f32 *)(temp_6 + 4) = *(f32 *)(temp_10 + 4);
-            *(f32 *)(temp_4 + 0) = *(f32 *)(temp_10 + 0);
-            *(f32 *)(temp_4 + 4) = *(f32 *)(temp_10 + 4);
-        } while (var_12 < arg1);
-    }
-}
-#else
+/* An exact-size plain-C candidate retained the retail loop body but kept an
+   entry slt/beqz versus blez difference and a preheader ordering residual at
+   normalized_diff 7. The guarded copy has been removed: its pragma bracket
+   lived entirely inside the NON_MATCHING branch, so its recorded figure could
+   never be reproduced by the default build. */
+// FUN_003B64C0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b64c0);
-#endif
-/* measured: close schedule around func_003b64c0. */
-#pragma schedule off
 // FUN_003B6540
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6540);
 // FUN_003B65D0
@@ -638,16 +599,38 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-// Archived C body: build/WBHygiene_func_003bcf10_archive.txt; no current park body remains.
 // FUN_003BCF10
+#ifdef NON_MATCHING
+s32 func_003bcf10(s32 arg0) {
+    s32 count;
+    s32 index;
+    s32 limit;
+    u8 *entry;
+    u8 *base;
+
+    count = 0;
+    base = (u8 *)(arg0 + iGpffffb668);
+    limit = *(s32 *)(base + 0);
+    if (limit > 0) {
+        index = 0;
+        entry = *(u8 **)(base + 4);
+        do {
+            if (*(s32 *)(entry + 0xC) != 0) {
+                count += 1;
+            }
+            index += 1;
+            entry += 0x10;
+        } while (index < limit);
+    }
+    return count;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
-
-/* measured: ascending switch labels generate retail's descending 3/2/1
-   comparisons; no_branch_likely keeps each comparison as a plain beq. */
-#pragma no_branch_likely on
-
+#endif
 /* measured: schedule on probes retail's field-load before index shift. */
 #pragma schedule on
+/* measured: no_branch_likely on restores the plain guard form in func_003bcf60. */
+#pragma no_branch_likely on
 // FUN_003BCF60
 s32 func_003bcf60(s32 arg0, s32 arg1) {
     s32 result;
@@ -666,15 +649,45 @@ done:
 }
 /* measured: schedule off closes the one-function field-order probe. */
 #pragma schedule off
+/* measured: no_branch_likely off closes the one-function 003bcf60 probe. */
+#pragma no_branch_likely off
 
 /* measured: in-file body recheck is object 76B/window 80B with
    normalized_diff 38, over the park threshold; body archived at
    build/WS19_003bcfb0_nd38.c and restored to INCLUDE_ASM. */
 // FUN_003BCFB0
+#ifdef NON_MATCHING
+s32 func_003bcfb0(s32 arg0) {
+    s32 count;
+    s32 index;
+    s32 limit;
+    u8 *entry;
+    u8 *base;
+
+    count = 0;
+    base = (u8 *)(arg0 + iGpffffb680);
+    limit = *(s32 *)(base + 0);
+    if (limit > 0) {
+        index = 0;
+        entry = *(u8 **)(base + 4);
+        do {
+            if (*(s32 *)(entry + 0xC) != 0) {
+                count += 1;
+            }
+            index += 1;
+            entry += 0x10;
+        } while (index < limit);
+    }
+    return count;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
+#endif
 
 /* measured: schedule on restores retail's field-load/index ordering. */
 #pragma schedule on
+/* measured: no_branch_likely on restores the plain guard form in func_003bd000. */
+#pragma no_branch_likely on
 // FUN_003BD000
 s32 func_003bd000(s32 arg0, s32 arg1) {
     s32 result;
@@ -693,6 +706,8 @@ done:
 }
 /* measured: schedule off closes the one-function field-order probe. */
 #pragma schedule off
+/* measured: no_branch_likely off closes the one-function 003bd000 probe. */
+#pragma no_branch_likely off
 
 /* measured: schedule on is required for func_003bd040's return delay slot. */
 #pragma schedule on
@@ -758,6 +773,8 @@ void func_003bd0f0(u8 *arg0, s32 arg1, f32 fparg0) {
 #pragma schedule off
 /* measured: schedule on is required for func_003bd110's return delay slot. */
 #pragma schedule on
+/* measured: no_branch_likely on restores the plain switch branches in func_003bd110. */
+#pragma no_branch_likely on
 // FUN_003BD110
 s32 func_003bd110(s32 arg0)
 {
@@ -774,6 +791,7 @@ s32 func_003bd110(s32 arg0)
 }
 /* measured: close schedule around func_003bd110. */
 #pragma schedule off
+/* measured: no_branch_likely off closes the one-function 003bd110 probe. */
 #pragma no_branch_likely off
 
 /* measured: the flat early-return chain is nd 43 -- b210 inverts every test
@@ -868,6 +886,7 @@ s32 func_003bd560(u8 *arg0) {
 
 #pragma schedule on
 // FUN_003BD590
+/* measured: no_branch_likely on preserves the retail plain beq branches. */
 #pragma no_branch_likely on
 s32 func_003bd590(s32 arg0, s32 arg1)
 {
@@ -887,7 +906,10 @@ do2:
     }
     return 0;
 }
+/* measured: no_branch_likely off closes func_003bd590's branch bracket. */
 #pragma no_branch_likely off
+/* measured: schedule off closes func_003bd590 before the archived ASM sibling. */
+#pragma schedule off
 
 /* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
    movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
@@ -904,6 +926,8 @@ do2:
 // FUN_003BD610
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
 
+/* measured: schedule on opens func_003bd680's independent probe. */
+#pragma schedule on
 // FUN_003BD680
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
    The retail window for func_003bd680 contains no branch-likely instruction at all, so the
@@ -1017,7 +1041,10 @@ do2:
     }
     return 0;
 }
+/* measured: no_branch_likely off closes func_003be820's branch bracket. */
 #pragma no_branch_likely off
+/* measured: schedule off closes func_003be820 before the archived ASM sibling. */
+#pragma schedule off
 
 /* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
    movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
@@ -1034,6 +1061,8 @@ do2:
 // FUN_003BE8A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
 
+/* measured: schedule on opens func_003be910's independent probe. */
+#pragma schedule on
 // FUN_003BE910
 /* measured: b210 emits a branch-likely (beql) where retail uses a plain beqz.
    The retail window for func_003be910 contains no branch-likely instruction at all, so the

@@ -8,9 +8,10 @@ s32 func_00444870();
 s32 func_00421da8();
 s32 func_0044a138();
 f32 func_0044b018(s32 arg0, f32 fparg0, f32 fparg1);
-extern s32 *D_00710070;
 extern s32 D_009389E0[];
 s32 func_004526e0(void);
+s32 func_0044d4d0();
+u64 func_00443fd0(s32 *arg0, s8 *arg1, s8 **arg2, s16 arg3);
 
 typedef struct {
     u8 *unk0;      /* 0x0 */
@@ -38,6 +39,7 @@ struct E8Node {
     E8Node *prev;
 };
 extern E8Pool *D_00763D1C;
+extern s32 *D_00710070[];
 extern s32 (*D_008BE290[])(u32);
 extern void (*D_008BE294[])(u8 *);
 extern s32 (*D_008BE298[])(void *, u32);
@@ -114,7 +116,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440b68);
 
 // FUN_00440BB8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00440bb8);
-
 // FUN_004414F8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_004414f8);
 
@@ -136,6 +137,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441cf0);
 // FUN_00441D38
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441d38);
 
+
 // FUN_00441D70
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441d70);
 
@@ -144,9 +146,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441ef0);
 
 // FUN_00441F40
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441f40);
-
 // FUN_00441F68
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00441f68);
+
 
 // FUN_00442088
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442088);
@@ -199,13 +201,51 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442de8);
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00442fa8);
 
 // FUN_00443010
+#ifdef NON_MATCHING
+s8 *func_00443010(s8 *arg0, s8 *arg1) {
+    s32 counter;
+    s8 *result;
+    s8 c1;
+    s8 c2;
+
+    result = arg0;
+    if (*arg0 != 0) {
+        goto outer;
+    }
+    if (*arg1 == 0) {
+        return result;
+    }
+    return NULL;
+outer:
+    counter = 0;
+inner:
+    c1 = arg1[counter];
+    if (c1 == 0) {
+        return result;
+    }
+    c2 = result[counter];
+    if (c1 == c2) {
+        counter++;
+        goto inner;
+    }
+    result++;
+    if (*result != 0) {
+        counter = 0;
+        goto outer;
+    }
+    return NULL;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443010);
+#endif
 
 // FUN_00443068
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443068);
 
+
 // FUN_00443EE0
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443ee0);
+
 
 // FUN_00443F18
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00443f18);
@@ -232,7 +272,23 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444488);
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444570);
 
 // FUN_00444700
+#ifdef NON_MATCHING
+s32 func_00444700(u8 *arg0, u8 *arg1) {
+    extern s32 func_0043e608(u8 *arg0, u8 *arg1);
+    s32 result;
+
+    if (*(s32 *)(arg1 + 8) == 0) {
+        *(s32 *)(arg1 + 4) = 0;
+        return 0;
+    }
+    result = func_0043e608(arg0, arg1);
+    *(s32 *)(arg1 + 4) = 0;
+    *(s32 *)(arg1 + 8) = 0;
+    return result;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444700);
+#endif
 
 // FUN_00444748
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_00444748);
@@ -384,7 +440,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b6d8);
 
 // FUN_0044B7B0
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b7b0);
-// Archived C body: build/WBHygiene_func_0044b868_archive.txt; no current park body remains.
 // FUN_0044B868
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044b868);
 

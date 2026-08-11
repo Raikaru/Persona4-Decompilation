@@ -7,12 +7,8 @@ extern u8 D_00731C7C[];
 
 extern s32 D_00731C78[];
 extern s32 D_00731C84[];
-
-extern s32 D_00731C3C[];
-
-extern s8 D_00731C01[];
-
-extern s32 D_00731C34[];
+extern s32 D_00731C44[];
+extern s32 D_00731C74[];
 /* Measured: retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
  * toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 #pragma schedule on
@@ -134,35 +130,6 @@ s32 *func_004e3d98(s32 arg0) {
 /* measured: sw uses $v0 base because zero-lo segment is the live return (void store colors $v1, nd 2; returning 0x00731C78 adds ori, nd 3); schedule on fills the jr delay slot (nd 3 -> 0, tail nop is padding) */
 #pragma schedule off
 
-
-#pragma schedule on
-
-#pragma schedule off
-
-
-#pragma schedule on
-
-#pragma schedule off
-
-
-#pragma schedule on
-
-#pragma schedule off
-
-
-#pragma schedule on
-
-#pragma schedule off
-
-
-#pragma schedule on
-
-#pragma schedule off
-
-
-#pragma schedule on
-
-#pragma schedule off
 
 // FUN_004E4698
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4698);

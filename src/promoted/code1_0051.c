@@ -6,9 +6,6 @@
 extern u8 *D_00745888[];
 extern void func_004d3cd8();
 extern s32 func_004d43f8();
-extern u8 *D_007458B8[];
-void func_00514d80(u8 *, u8 *, u8 *);
-
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop) and retail fills it with the final addiu (nd 6 -> 0). */
 
@@ -60,7 +57,6 @@ extern u8 *D_00745888[];
    brief's corroborated "$v0/$v1 coalescing in tiny accessors" floor. */
 
 
-
 extern u8 *D_00745AC0[];
 
 /* measured: mwcc b210 coalesces the global base into $v0 (lui $v0 / lw $v0, 0($v0));
@@ -96,7 +92,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512b08);
 
 // FUN_00512B90
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512b90);
-
 // FUN_00512BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00512bb0);
 
@@ -153,9 +148,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132a8);
 
 // FUN_005132C8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132c8);
-
-/* xori/sltiu scheduling residual: retail uses two sltiu operations split by
-   the epilogue; b210 emits the second booleanization before restore. Committed at nd 7. */
+/* xori/sltiu scheduling residual: retail computes xori before ld ra while b210
+   delays both boolean operations until after the epilogue under all tried source
+   spellings and scheduler settings. Committed at nd 7. */
 // FUN_00513380 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00513380(void) {
@@ -179,7 +174,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513720);
 
 // FUN_005137A0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005137a0);
-
 // FUN_005137E0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005137e0);
 
@@ -223,15 +217,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517928);
    $zero,($a0). Pointer-local, store-order, and scheduler probes were ruled
    out. Committed at nd 6. */
 
-// FUN_005179E8 NONMATCHING
-#ifdef NON_MATCHING
-void func_005179e8(u8 *arg0) {
-    *(s32 *)(arg0 + 0x1FC) = 0;
-    *(s32 *)(arg0 + 0x200) = 0;
-}
-#else
+// FUN_005179E8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005179e8);
-#endif
 
 
 typedef struct {
@@ -282,26 +269,10 @@ void func_00517c18(Unit17C18 *arg0, s32 arg1, s32 arg2) {
 // FUN_00517C28
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517c28);
 
-/* measured: in-file schedule-on recheck gives object/window 40B and
-   improved from an earlier in-file measurement. Committed at nd 16. */
-// FUN_00517CF0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on fills the setter's branch delay slot. */
-#pragma schedule on
-s32 func_00517cf0(u8 *arg0) {
-    s32 result;
-    result = -1;
-    if ((arg0 != NULL) && (*(s32 *)(arg0 + 0x48) != 0)) {
-        D_007458B8[0] = arg0;
-        result = 0;
-    }
-    return result;
-}
-/* measured: closes the schedule-on scope for the setter. */
-#pragma schedule off
-#else
+/* measured: schedule-on compound reconstruction reached object/window 40B
+   at nd 16; restored ASM after the three-spelling selection gate. */
+// FUN_00517CF0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517cf0);
-#endif
 
 // FUN_00517D18
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d18);
@@ -322,12 +293,12 @@ void func_00517d80() {
 // FUN_00517D88
 void func_00517d88() {
 }
-
 // FUN_00517D90
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517d90);
-
 // FUN_00517DA8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00517da8);
+
+
 
 // FUN_00519CC0
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00519cc0);
