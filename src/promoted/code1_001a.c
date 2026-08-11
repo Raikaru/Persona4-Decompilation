@@ -4,6 +4,10 @@
 void btlActionSetState(u8 *arg0, u16 arg1);
 s32 func_00193bf0();
 void func_001b0800();
+static inline s32 func_001a_add_offset(s32 offset, s32 base)
+{
+    return offset + base;
+}
 void func_001f6cd0(void);
 
 void func_001f14f0(void *arg0);
@@ -28,13 +32,10 @@ s32 func_001d8bc0(u8 *arg0);
 void func_001d8be0(u8 *arg0, s32 arg1);
 u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u8 *iGpffffb3b8;
-extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3cc;
-extern f32 D_005F6D20[];
-s32 func_001b0e90(s64 *arg0);
-void func_00194ff0(u8 *arg0, f32 *arg1, s32 arg2, void *arg3);
-f32 func_001ec250(u8 *arg0, f32 *arg1);
-u8 *func_001973f0(u8 *arg0, f32 *arg1, s32 arg2, s32 arg3, f32 arg4);
+void func_001d8e50(u8 *arg0, u8 *arg1);
+void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+void func_00212010(s32 arg0);
+void func_0019faf0(u8 *arg0);
 s32 func_0023e1f0();
 u8 *func_0019e550(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_001bc920(u8 *arg0, s32 arg1);
@@ -88,6 +89,15 @@ s32 func_001f6770(u8 *arg0);
 void func_001fac30(void);
 s32 func_001a3de0(u8 *arg0);
 
+extern u8 *func_002022e0(u8 *arg0, u16 arg1);
+extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
+extern void func_0010b300(s32 arg0);
+extern void func_0019ef30(u8 *arg0, u16 arg1);
+extern void func_0010b7f0(void);
+extern s32 func_00106330(s32 arg0);
+extern u8 *func_001d6240(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
+extern u8 *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
+extern f32 D_0076144C;
 s32 func_001fac80(u8 *arg0);
 void func_001fad10(void);
 

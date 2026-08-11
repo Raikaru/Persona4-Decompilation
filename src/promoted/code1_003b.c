@@ -1,24 +1,25 @@
 #include "include_asm.h"
 #include "type.h"
 extern u8 D_008872E0[];
-extern s32 iGpffffb680;
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
 extern u64 func_003b7060(void);
 extern s32 func_003b6e00(s32 arg0);
+extern void func_003b6f00(s32 arg0, u8 *arg1);
+extern s32 iGpffffb6c0;
+extern s32 iGpffffb6c4;
+extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
+extern void func_003e12f0(u8 *arg0);
+extern s32 D_00764758;
 
 extern s32 iGpffffb668;
 
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_003df590(s32 arg0);
+extern s32 func_003df590();
 extern void func_003df4d0(s32 *arg0);
 extern void func_003bbea0(s32 arg0);
 extern void func_003c2a80(s32 arg0);
-extern s32 func_003e3370(u8 *desc, u8 *arg1);
-extern u8 D_0070AF70[];
-extern void func_003e9700(s32 arg0);
-extern s32 D_00764758;
 extern s32 D_00764794;
 extern s32 D_00764790;
 extern s32 D_0076478C;
@@ -108,6 +109,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5ac0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5bf0);
 // FUN_003B5D20
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5d20);
+/* measured: best plain-C attempt object 112B/window 112B, normalized_diff 26;
+   archived at build/FP3B_003b5fb0_body.c and restored to INCLUDE_ASM. */
 // FUN_003B5FB0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5fb0);
 // FUN_003B6020
@@ -118,13 +121,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
 // FUN_003B6420
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
-/* An exact-size plain-C candidate retained the retail loop body but kept an
-   entry slt/beqz versus blez difference and a preheader ordering residual at
-   normalized_diff 7. The guarded copy has been removed: its pragma bracket
-   lived entirely inside the NON_MATCHING branch, so its recorded figure could
-   never be reproduced by the default build. */
+/* measured: best plain-C attempt object 124B/window 128B, normalized_diff 90;
+   archived at build/FP3B_003b64c0_body.c and restored to INCLUDE_ASM. */
 // FUN_003B64C0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b64c0);
+/* measured: best plain-C attempt object 144B/window 144B, normalized_diff 31;
+   archived at build/FP3B_003b6540_body.c and restored to INCLUDE_ASM. */
 // FUN_003B6540
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6540);
 // FUN_003B65D0
@@ -143,10 +145,16 @@ u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
 #pragma schedule off
 // FUN_003B6CC0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_propagation off
+/* measured: best plain-C attempt object 84B/window 96B, normalized_diff 6;
+   archived at build/FP3B_003b6da0_body.c and restored to INCLUDE_ASM. */
 // FUN_003B6DA0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
-/* measured: schedule on and no_branch_likely on reproduce the callback
-   null-branch and post-call clear ordering. */
+#pragma opt_propagation on
+#pragma schedule off
+#pragma no_branch_likely off
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003B6E00
@@ -170,11 +178,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
    build/WS19_003b6f00_nd210.c and restored to INCLUDE_ASM. */
 // FUN_003B6F00
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6f00);
+/* measured: best plain-C attempt object 172B/window 176B, normalized_diff 30;
+   archived at build/FP3B_003b7060_body.c and restored to INCLUDE_ASM. */
 // FUN_003B7060
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7060);
 /* measured: schedule on reproduces func_003b7110's callback-address setup and return compare. */
-// FUN_003B7110
 #pragma schedule on
+// FUN_003B7110
 s32 func_003b7110(void) {
     s32 result;
 
@@ -182,7 +192,6 @@ s32 func_003b7110(void) {
     iGpffffb618 = result;
     return result >= 0;
 }
-/* measured: close schedule around func_003b7110. */
 #pragma schedule off
 /* measured: schedule on reproduces the callback and linked-object clear order. */
 #pragma schedule on
@@ -285,9 +294,11 @@ second:
     goto final;
 }
 /* measured: close schedule around func_003b7480. */
+#pragma schedule off
 /* measured: close no_branch_likely around func_003b7480. */
 #pragma no_branch_likely off
-#pragma schedule off
+/* measured: best plain-C attempt object 128B/window 128B, normalized_diff 78;
+   archived at build/FP3B_003b7510_body.c and restored to INCLUDE_ASM. */
 // FUN_003B7510
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7510);
 // FUN_003B7590
@@ -450,6 +461,7 @@ clear:
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb0d0);
 // FUN_003BB210
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb210);
+/* measured: switch candidate normalized_diff 83; restored assembly fallback. */
 // FUN_003BB330
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb330);
 // FUN_003BB3A0
@@ -584,7 +596,6 @@ s32 func_003bcbc0(s32 arg0, s32 arg1) {
     return arg0;
 }
 /* measured: closes schedule around func_003bcbc0. */
-#pragma schedule off
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
 
@@ -606,34 +617,12 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
+/* measured: schedule off is retained for func_003bcf10's loop order. */
+#pragma schedule off
+/* measured: best plain-C attempt object 76B/window 80B, normalized_diff 50;
+   archived at build/FP3B_003bcf10_body.c and restored to INCLUDE_ASM. */
 // FUN_003BCF10
-#ifdef NON_MATCHING
-s32 func_003bcf10(s32 arg0) {
-    s32 count;
-    s32 index;
-    s32 limit;
-    u8 *entry;
-    u8 *base;
-
-    count = 0;
-    base = (u8 *)(arg0 + iGpffffb668);
-    limit = *(s32 *)(base + 0);
-    if (limit > 0) {
-        index = 0;
-        entry = *(u8 **)(base + 4);
-        do {
-            if (*(s32 *)(entry + 0xC) != 0) {
-                count += 1;
-            }
-            index += 1;
-            entry += 0x10;
-        } while (index < limit);
-    }
-    return count;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
-#endif
 /* measured: schedule on probes retail's field-load before index shift. */
 #pragma schedule on
 /* measured: no_branch_likely on restores the plain guard form in func_003bcf60. */
@@ -659,37 +648,10 @@ done:
 /* measured: no_branch_likely off closes the one-function 003bcf60 probe. */
 #pragma no_branch_likely off
 
-/* measured: in-file body recheck is object 76B/window 80B with
-   normalized_diff 38, over the park threshold; body archived at
-   build/WS19_003bcfb0_nd38.c and restored to INCLUDE_ASM. */
+/* measured: best plain-C attempt object 76B/window 80B, normalized_diff 10;
+   archived at build/FP3B_003bcfb0_body.c and restored to INCLUDE_ASM. */
 // FUN_003BCFB0
-#ifdef NON_MATCHING
-s32 func_003bcfb0(s32 arg0) {
-    s32 count;
-    s32 index;
-    s32 limit;
-    u8 *entry;
-    u8 *base;
-
-    count = 0;
-    base = (u8 *)(arg0 + iGpffffb680);
-    limit = *(s32 *)(base + 0);
-    if (limit > 0) {
-        index = 0;
-        entry = *(u8 **)(base + 4);
-        do {
-            if (*(s32 *)(entry + 0xC) != 0) {
-                count += 1;
-            }
-            index += 1;
-            entry += 0x10;
-        } while (index < limit);
-    }
-    return count;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
-#endif
 
 /* measured: schedule on restores retail's field-load/index ordering. */
 #pragma schedule on
@@ -1196,7 +1158,7 @@ u8 *func_003bea60(u8 *arg0, u8 *arg1) {
     extern void func_003c0850(s32 arg0, u8 *arg1);
     extern void func_003c1b90(u8 *arg0, s32 arg1);
     extern void func_003df4d0(s32 *arg0);
-    extern s32 func_003df590(s32 arg0);
+    extern s32 func_003df590();
 
     temp_2 = func_003c03a0();
     if (temp_2 == NULL) {
@@ -1294,6 +1256,8 @@ s32 func_003bf330(s32 arg0) {
 }
 /* measured: close schedule around func_003bf330. */
 #pragma schedule off
+/* measured: best plain-C attempt object 100B/window 112B, normalized_diff 16;
+   archived at build/FP3B_003b360_body.c and restored to INCLUDE_ASM. */
 // FUN_003BF360
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf360);
 // FUN_003BF3D0
@@ -1304,8 +1268,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf5f0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf930);
 // FUN_003BFAE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfae0);
+/* measured: schedule on probe for func_003bfc40 call setup and cleanup. */
+#pragma schedule on
 // FUN_003BFC40
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfc40);
+s32 func_003bfc40(s32 arg0) {
+    u8 *temp_4;
+
+    func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb6c0 + 4), (void *)func_003be800, 0);
+    func_003e18c0(*(u8 **)(D_008872E0 + iGpffffb6c0), (void *)func_003be810, 0);
+    func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb6c0));
+    func_003e12f0(*(u8 **)(D_008872E0 + iGpffffb6c0 + 4));
+    temp_4 = (u8 *)(D_008872E0 + iGpffffb6c0);
+    *(s32 *)(temp_4 + 0) = 0;
+    *(s32 *)(temp_4 + 4) = 0;
+    iGpffffb6c4 -= 1;
+    return arg0;
+}
+/* measured: close schedule around func_003bfc40. */
+#pragma schedule off
 // FUN_003BFD00
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfd00);
 // FUN_003BFDF0
@@ -1337,6 +1317,7 @@ s32 func_003bfe60(void *arg0) {
 }
 /* measured: close schedule around func_003bfe60. */
 #pragma schedule off
+/* measured: list-walk candidate normalized_diff 81; restored assembly fallback. */
 // FUN_003BFE90
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
 // FUN_003BFF30

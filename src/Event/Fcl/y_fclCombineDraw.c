@@ -284,20 +284,7 @@ void func_003146c0(u8 *arg0) {
    and ruled-outs remain archived in build/W8FclCombineDraw_003146f0_body.c.txt. */
 /* measured: Retail frame 0x10, no saved registers, 68-byte C object in an 80-byte window. Canonical func_0011b480(u8 *,s32,u32,s32) body is the lowest valid prototype candidate at nd 23 (all-s32 helper probe nd 18 was rejected because the promoted/shdPersona canonical declaration is required). Candidate residuals are the early u8 andi and shifted fourth argument versus retail's raw move $v1 plus late dsll32/dsra32; exact source-order and width/prototype probes were run and no nd <= 0 body was found. Parked at the nd-23 threshold; body archived at build/WCFclCombineDraw_003146f0_u8_body.c.txt. Committed at nd 23. */
 // FUN_003146F0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003146f0(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 v1;
-    u8 *p;
-
-    v1 = (u8)arg2;
-    p = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(p + 8) = arg1;
-    *(s8 *)(p + 0xC) = v1;
-    func_0011b480(*(u8 **)(p + 4), 0, *(s32 *)(p + 8), (s8)v1);
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
-#endif
 
 
 
@@ -1114,46 +1101,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
    order probes stayed at nd16 (normalizing before the field load was nd408);
    no inline asm. Committed at nd 16. */
 // FUN_0032B770 NONMATCHING
-#ifdef NON_MATCHING
-void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    s64 spC8;
-    s64 spC0;
-    s64 spB8;
-    s32 i;
-    s32 v1;
-    s32 v2;
-    u16 w;
-    u8 b;
-    u8 *obj;
-    f32 f21;
-    f32 f20;
-
-    obj = *(u8 **)(arg0 + 0x38);
-    func_002b2970(&spC8, 156.0f, 87.0f);
-    func_0031e5b0(arg0, spC8, 0, arg3, 0, 1, 1);
-    i = 0;
-    v1 = (s16)arg1;
-    v2 = (s16)arg2;
-    while ((s16)i < v2) {
-        func_002b2970(&spC0, 162.0f, 111.0f);
-        w = *(u16 *)(func_002e48a0(0, i) + 2);
-        b = *(u8 *)(func_002e48a0(0, i) + 4);
-        func_0031ac10(arg0, spC0, -1, (s8)i, w, b, (s16)((s16)i * v1), arg3, 0, 0x99);
-        i = (s16)(i + 1);
-    }
-    func_003297f0(arg0, 0, arg3, 417.0f, 220.0f);
-    func_002b2970(&spB8, 472.0f, 112.0f);
-    func_00324f80(arg0, *(FclVec2 *)&spB8, 0, arg3);
-    f21 = (f32)(*(s16 *)(obj + 0x11E) - *(s16 *)(obj + 0x120));
-    f20 = *(f32 *)(obj + 0x124);
-    f20 = *(f32 *)(func_002b6150(0xAA) + 0x3C) + f20 * f21;
-    *(f32 *)(func_002b6150(0xB1) + 0x3C) = f20;
-    f20 = 52.0f + *(f32 *)(func_002b6150(0xB1) + 0x3C);
-    *(f32 *)(func_002b6150(0xB5) + 0x3C) = f20;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
-#endif
 
 // measured: nd 1154, object 1768/window 1776 (one faithful reconstruction); discarded because the loop and stack-value register allocation diverged.
 // FUN_0032B9D0

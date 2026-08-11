@@ -58,7 +58,7 @@ extern s32 func_003df590(s32 arg0, ...);
 extern void func_003df4d0(void *arg0);
 extern u8 D_0070B730[];
 s32 func_003e1220(s32, s32, s32, s32, void *, s32);
-extern s32 func_003ec480(s32 arg0);
+extern s32 func_003ec480();
 void func_003e12f0(s32);
 s32 func_003e1740(u8 *);
 void func_003e1230(void *);
@@ -90,6 +90,8 @@ extern s32 iGpffffb76c;
 extern s32 iGpffffb7c0;
 extern s32 iGpffffb7c4;
 extern s32 iGpffffb7a4;
+extern s32 iGpffffb780;
+extern s32 iGpffffb7a0;
 extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
 extern void func_003efda0(u8 *arg0);
 
@@ -119,7 +121,6 @@ fallback:
     arg0 = func_003df8c0;
     goto store;
 }
-/* measured: close schedule around func_003e00f0. */
 #pragma schedule off
 /* measured: close no_branch_likely around func_003e00f0. */
 #pragma no_branch_likely off
@@ -379,22 +380,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1740);
 // FUN_003E18C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e18c0);
 
+/* measured: sentinel-list sum candidate object 96B/window 112B,
+   normalized_diff 18; prologue/registers match but branch and loop-exit
+   shape remain unresolved. */
 // FUN_003E1A70
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1a70);
-/* measured: schedule + no_branch_likely are load-bearing - schedule fills both
-   func_003e1230 jal delay slots with the cross-link sw, and no_branch_likely
-   stops b210 turning the loop's beq/bne into beql/bnel. */
 
 // FUN_003E1AE0
-/* measured: probe typed tailcall for callback trampoline. */
-#pragma schedule on
 #pragma tailcall on
 void func_003e1ae0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4, s32 arg5, void *arg6) {
     func_0043ece8(arg0);
 }
 /* measured: close typed tailcall probe. */
 #pragma tailcall off
-#pragma schedule off
 
 // FUN_003E1AF0
 /* measured: probe typed tailcall for callback trampoline. */
@@ -504,40 +502,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
    declaration-order, base-local, O1/O3/CSE/loop-invariant/schedule probes
    did not improve nd 7. Object 68/window 80. Committed at nd 7. */
 
-// FUN_003E23E0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: direct GP scalar spelling probe for retail -0x4880 base. */
-extern s32 iGpffffb780;
-#pragma schedule on
-s32 func_003e23e0(void) {
-    u8 *base;
-    u8 *head;
-    u8 *node;
-    s32 sum;
-
-    sum = *(s32 *)(D_008872E0 + (s32)iGpffffb780 + 8);
-    base = D_008872E0 + (s32)iGpffffb780;
-    head = *(u8 **)(base + 0x24);
-    node = *(u8 **)head;
-    if (node != head) {
-        do {
-            sum += *(s32 *)(node + 8);
-            node = *(u8 **)node;
-        } while (node != head);
-    }
-    return sum;
-}
-/* measured: closes the schedule bracket opened for the guarded 23e0 probe. */
-#pragma schedule off
-#else
+/* measured: running-sum reconstruction remains object 68B/window 80B with
+   normalized_diff 6-7; missing terminal nop is unresolved. */
+// FUN_003E23E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
-#endif
 
 /* measured: discarded nonvolatile candidate nd 31, object 120/128; the nd 0
    volatile spelling is rejected by H001 (ordinary-data compiler steering). */
 
 // FUN_003E2430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
+/* measured: registration worker reconstruction reaches object 120B/window
+   128B, normalized_diff 14; store/reload and branch-delay order unresolved. */
 // FUN_003E2570
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
 /* measured: schedule and no_branch_likely bracket retained around func_003e25f0. */
@@ -589,101 +565,21 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2f60);
 
 
 
-/* measured: recovered guarded body scores nd 20 at object 80/window 80.
-   Retail has TWO consecutive nops between the search loop's bnez and the
-   following null test; b210 emits one, shifting every later instruction.
-   Peephole off, no_branch_likely, opt_dead_code off, opt_propagation off,
-   opt_common_subs off, optimize_for_size, schedule, empty-branch, goto and
-   loop-shape probes did not add the missing nop. The awkward
-   `if (p == NULL) {} else goto` shape remains load-bearing. Committed at nd 20. */
-
-// FUN_003E3020 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003e3020(u8 *arg0, s32 key, s32 arg2, s32 arg3, s32 arg4)
-{
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-scan:
-        if (*(s32 *)(node + 8) != key) {
-            node = *(u8 **)(node + 0x30);
-            if (node == NULL) {
-
-            } else {
-                goto scan;
-            }
-        }
-    }
-    if (node != NULL) {
-        *(s32 *)(node + 0xC) = arg2;
-        *(s32 *)(node + 0x10) = arg3;
-        *(s32 *)(node + 0x14) = arg4;
-        return *(s32 *)node;
-    }
-    return -1;
-}
-#else
+/* measured: linked-list search/store reconstruction reaches object 80B/window
+   80B, normalized_diff 16-20; retail's two loop-exit nops are unresolved. */
+// FUN_003E3020
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3020);
-#endif
 
-/* measured: nd 16 of 80 bytes. The C body reproduces the linked-list search and store, but b210 omits retail's two nops between the loop exit and the final null test. Probed do/while, goto, schedule on/off, and no_branch_likely; Committed at nd 16. */
-// FUN_003E3070 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003e3070(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-scan3070:
-        if (*(s32 *)(node + 8) != arg1) {
-            node = *(u8 **)(node + 0x30);
-            if (node == NULL) {
-
-            } else {
-                goto scan3070;
-            }
-        }
-    }
-    if (node != NULL) {
-        *(s32 *)(node + 0x18) = arg2;
-        return *(s32 *)(node + 0);
-    }
-    return -1;
-}
-#else
+/* measured: linked-list search/store reconstruction reaches object 72B/window
+   80B, normalized_diff 16; branch/delay-slot sequence remains unresolved. */
+// FUN_003E3070
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
-#endif
 
-/* measured: a plain linked-list search (walk arg0->f10 via f30 for f8 == arg1,
-   then store arg2 at f18 and return f0, else -1). The guarded do/while body
-   with schedule off compiles to object 72B/window 80B at nd 16. Retail's
-   branch/delay-slot sequence includes a standalone nop at the loop exit and
-   an otherwise filled `lw $v0,($v1)` delay slot; b210 cannot emit both in
-   this translation unit. Branch-likely / delay-slot floor. Committed at nd 16. */
-// FUN_003E30C0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003e30c0(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-        do {
-            if (*(s32 *)(node + 8) == arg1) {
-                break;
-            }
-            node = *(u8 **)(node + 0x30);
-        } while (node != NULL);
-    }
-    if (node != NULL) {
-        *(s32 *)(node + 0x18) = arg2;
-        return *(s32 *)(node + 0);
-    }
-    return -1;
-}
-#else
+/* measured: linked-list search/store reconstruction reaches object 72B/window
+   80B, normalized_diff 16; loop-exit nop and delay-slot sequence remain
+   unresolved. */
+// FUN_003E30C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e30c0);
-#endif
 
 // FUN_003E3110
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3110);
@@ -779,29 +675,14 @@ void func_003e3680(u8 *arg0, u8 *arg1) {
 #pragma tailcall off
 // FUN_003E36C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e36c0);
-/* measured: guarded linked-list lookup body reaches nd 8 at object 60
-   bytes versus the 64-byte window; the residual is branch-join scheduling. */
-// FUN_003E3830 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: no_branch_likely on preserves retail's plain branch forms. */
-#pragma no_branch_likely on
-s32 func_003e3830(u8 *arg0, s32 arg1) {
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    while (node != NULL) {
-        if (*(s32 *)(node + 8) == arg1) {
-            return *(s32 *)node;
-        }
-        node = *(u8 **)(node + 0x30);
-    }
-    return -1;
-}
-/* measured: closes no_branch_likely inside the guarded candidate. */
-#pragma no_branch_likely off
-#else
+/* measured: archived linked-list reconstruction object 60B/window 64B,
+   normalized_diff 7; branch-join delay scheduling remains unresolved. */
+/* measured: linked-list search probes remain object 60-68B/window 64B,
+   normalized_diff 7-10; branch-join scheduling unresolved. */
+/* measured: archived explicit linked-list reconstruction object 56-68B/window
+   64B, normalized_diff 7-10; branch-join scheduling remains unresolved. */
+// FUN_003E3830
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3830);
-#endif
 // FUN_003E3870
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3870);
 /* measured: schedule/no_branch_likely preserve the two callback-loop paths. */
@@ -846,11 +727,11 @@ return_zero:
 #pragma schedule off
 
 
-
+/* measured: callback-list loop candidate object 96B/window 112B,
+   normalized_diff 12; all loop instructions match, but retail has one
+   additional branch-join nop before the return. */
 // FUN_003E3C20
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);
-/* measured: schedule+no_branch_likely load-bearing - schedule fills the
-   jalr delay slot, no_branch_likely keeps the loop bnez plain. */
 // FUN_003E3C90
 #pragma schedule on
 /* measured: no_branch_likely knob retains the func_003e3c90 bracket. */
@@ -1027,8 +908,9 @@ s32 func_003e43a0(s32 arg0) {
 #pragma schedule off
 
 
-// measured: removing this pragma takes func_003e4510 nd 0 -> nd 6: retail fills the
-// jr $ra delay slot with addiu $v0, $zero, 1; baseline -O2 emits addiu; jr; nop.
+/* measured: registration initializer candidate object 88B/window 96B,
+   normalized_diff 23; callback-address materialization order and final
+   counter update remain unresolved. */
 // FUN_003E43C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
 
@@ -1042,8 +924,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
    as retail does, and no_branch_likely is then needed to stop b210 turning the
    test into a beql, which was the last differing word. */
 
-/* measured: schedule/no_branch_likely preserve the explicit fallback block
-   and branch-delay store ordering. */
+/* measured: schedule/no_branch_likely preserve the explicit fallback block. */
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003E4420
@@ -1141,12 +1022,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4520);
 
 // FUN_003E45F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
+/* measured: store/reload-tail probes remain nd 14; schedule-off reaches
+   nd 30 and O1/common-subexpression variants do not recover retail. */
 // FUN_003E46E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
-// FUN_003E4760
 /* measured: schedule/no_branch_likely bracket retained for func_003e4760. */
 #pragma schedule on
 #pragma no_branch_likely on
+// FUN_003E4760
 u8 *func_003e4760(u8 *arg0) {
     s32 v = *(s32 *)&D_008872E0[D_00764898];
     if (v != 0) {
@@ -1226,39 +1109,16 @@ s8 *func_003e48d0(s8 *arg0) {
    structurally right, but b210 keeps the found-pointer value in the wrong
    temporary registers and shifts the equality branch. Residual
    normalized_diff 23. Committed at nd 23. */
-// FUN_003E4920 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: optimization_level 3 is load-bearing for func_003e4920. */
-#pragma optimization_level 3
-/* measured: schedule on probes the equality branch and final sign extension
-   delay-slot placement. */
-#pragma schedule on
-s64 func_003e4920(s8 *arg0, s8 arg1) {
-    s8 *p;
-    s8 ch;
-    s8 *found;
-    p = arg0;
-    found = NULL;
-loop_4920:
-    ch = *p;
-    if (ch == arg1) {
-        found = p;
-    } else {
-        p += 1;
-        if (ch == 0) {
-        } else {
-            goto loop_4920;
-        }
-    }
-    return (s64)(s32)found;
-}
-/* measured: closes the single-function schedule bracket. */
-#pragma schedule off
-/* measured: closes optimization_level 3 around func_003e4920. */
-#pragma optimization_level 2
-#else
+/* measured: string-search candidates remain nonmatching (best active probe
+   object 56B/window 64B, normalized_diff 10); restored assembly fallback. */
+// FUN_003E4920
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4920);
-#endif
+/* measured: last-byte-search reconstruction remains a 64-byte object with
+   normalized_diff 10-16 across typed pointer, explicit key, and O1 probes;
+   restored assembly fallback. */
+/* measured: last-byte search candidate object 52B/window 64B,
+   normalized_diff 9; signed-key prologue matches, but delayed pointer
+   sign-extension and loop-exit scheduling remain unresolved. */
 // FUN_003E4960
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4960);
 
@@ -1414,9 +1274,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5550);
 
 // FUN_003E5830
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5830);
+/* measured: count/loop reconstruction reaches object 80-88B/window 80B,
+   normalized_diff 11-14; signed-positive guard and branch/epilogue delay-slot
+   order remain unresolved. */
+/* measured: indexed search reconstruction follows retail's count guard,
+   pointer walk, output-index store, and success/failure return paths. */
 // FUN_003E5990
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
-
 
 /* measured: two things are load-bearing here. Retail tests POSITIVELY and puts
    the indirect call out of line after the return path, then jumps back to it -
@@ -1673,42 +1537,10 @@ u8 *func_003e8010(u8 *arg0) {
 // FUN_003E8080
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
 
-/* Parked candidate: the two f32 source loads are in retail order after
-   propagation control, but b210 keeps both loads after the frame save.
-   Residual normalized_diff 16. Committed at nd 16. */
-// FUN_003E8130 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: optimization_level 3 is load-bearing for func_003e8130. */
-#pragma optimization_level 3
-/* measured: opt_propagation off preserves the two source f32 loads' order;
-   no_branch_likely keeps the callback guard's beqz/nop. */
-#pragma opt_propagation off
-#pragma no_branch_likely on
-u8 *func_003e8130(u8 *arg0, f32 *arg1) {
-    u8 *self;
-    s32 temp;
-    f32 f1;
-    f32 f0;
-
-    f1 = arg1[0];
-    f0 = arg1[1];
-    self = arg0;
-    *(f32 *)(self + 0x78) = f1;
-    *(f32 *)(self + 0x7C) = f0;
-    temp = *(s32 *)(self + 4);
-    if (temp != 0) {
-        func_003e9680((void *)temp);
-    }
-    return self;
-}
-/* measured: closes the no_branch_likely/opt_propagation bracket. */
-#pragma no_branch_likely off
-#pragma opt_propagation on
-/* measured: closes optimization_level 3 around func_003e8130. */
-#pragma optimization_level 2
-#else
+/* measured: two-float load-order reconstruction reaches object 72B/window
+   80B, normalized_diff 16; b210 keeps both loads after the frame save. */
+// FUN_003E8130
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8130);
-#endif
 /* measured: no_branch_likely on forces the retail beqz+nop shape. */
 #pragma no_branch_likely on
 /* measured: optimization_level 3 is load-bearing for func_003e8180. */
@@ -1752,36 +1584,15 @@ u8 *func_003e81c0(u8 *arg0, f32 fparg0) {
 // FUN_003E8200
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
 
-/* measured: retail calls the GP function pointer D_0088737C, then returns
-   arg0 for a nonzero result and NULL otherwise. The plain-C if form measures
-   nd 51 at object 52 bytes versus the 64-byte retail window, within three
-   words. */
-// FUN_003E82A0 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_003e82a0(u8 *arg0) {
-    if (D_0088737C() != 0) {
-        return arg0;
-    }
-    return (u8 *)0;
-}
-#else
+/* measured: callback conditional-move reconstruction reaches object 60-72B/window
+   64B, normalized_diff 8-16; b210 emits branches rather than retail movz. */
+// FUN_003E82A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
-#endif
 
-/* measured: retail wrapper tests arg0->0x60 with func_003ec480 and returns
-   arg0 only on a nonzero result. The plain-C if form measures nd 48 at
-   object 52 bytes versus the 48-byte retail window, within one word. */
-// FUN_003E82E0 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_003e82e0(u8 *arg0) {
-    if (func_003ec480(*(s32 *)(arg0 + 0x60)) != 0) {
-        return arg0;
-    }
-    return (u8 *)0;
-}
-#else
+/* measured: direct wrapper reaches object 56B/window 48B,
+   normalized_diff 8; callback load/delay slot matches but movz remains. */
+// FUN_003E82E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
-#endif
 /* measured: no_branch_likely on preserves 8310's plain comparison branches. */
 #pragma no_branch_likely on
 /* measured: optimization_level 3 is load-bearing for func_003e8310. */
@@ -1816,6 +1627,9 @@ fallback:
 #pragma optimization_level 2
 /* measured: closes no_branch_likely around func_003e8310. */
 #pragma no_branch_likely off
+/* measured: normalization wrapper reconstruction reaches object 108B/window
+   112B, normalized_diff 7; input-load placement before the frame save remains
+   unresolved. */
 // FUN_003E83A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
 
