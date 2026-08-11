@@ -100,6 +100,7 @@ extern u8 D_00793E80[];
    4-sb byte loop. The pragma hoists the loop's 0xFF into the preheader in $a0
    exactly as retail. func_00451fc0 callback args need (void (*)(u8 *)) casts. */
 // FUN_002B5C90
+/* measured: open opt_loop_invariants scope for func_002b5c90. */
 #pragma opt_loop_invariants on
 void func_002b5c90(s32 arg0, f2 p1) {
     u8 *p;
@@ -124,6 +125,7 @@ void func_002b5c90(s32 arg0, f2 p1) {
     p[0x18C] = 0;
     *(s16 *)(p + 0x182) = 0;
 }
+/* measured: close opt_loop_invariants scope after func_002b5c90. */
 #pragma opt_loop_invariants off
 // FUN_002B5DA0
 u8 *func_002b5da0(u8 *arg0) {
@@ -390,6 +392,7 @@ s32 func_002b6850(u8 *arg0) {
    instead of retail's 16-bit xori. s32 v holds the loaded s16; p4 = slot + 4
    is the store pointer. arg0/s16, arg1/s16, arg2/s8 sign-exts match retail. */
 // FUN_002B68D0
+/* measured: open opt_propagation scope for func_002b68d0. */
 #pragma opt_propagation off
 void func_002b68d0(s16 arg0, s16 arg1, s8 arg2) {
     u8 *p = *(u8 **)(iGpffffb574 + 0x38);
@@ -403,6 +406,7 @@ void func_002b68d0(s16 arg0, s16 arg1, s8 arg2) {
     }
     *(s16 *)(p4 + 0x10) = (s16)v;
 }
+/* measured: close opt_propagation scope after func_002b68d0. */
 #pragma opt_propagation on
 // FUN_002B6970
 s16 func_002b6970(s16 arg0, s16 arg1) {
@@ -439,11 +443,13 @@ void func_002b69b0(u8 *arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
    chain. This lever cracks the load-sinking wall for the whole wrapper family
    (func_002b68d0/6a70/6af0/6b40/6b90/7750/6d60). */
 // FUN_002B69F0
+/* measured: open opt_propagation scope for func_002b69f0. */
 #pragma opt_propagation off
 void func_002b69f0(s16 arg0, f2 p1, f2 p2, u32 arg3, u32 arg4, s16 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b8270(base + ((s32)arg0 << 8) + 0x14, p1, p2, arg3, arg4, arg5);
 }
+/* measured: close opt_propagation scope after func_002b69f0. */
 #pragma opt_propagation on
 // FUN_002B6A40
 void func_002b6a40(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
@@ -464,11 +470,13 @@ void func_002b6a40(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
    s32 and passed as (s16)arg5 (the s16 widening emits the retail dsll32/dsra32
    sign-extension; opt_propagation off fixes the load-sinking order). */
 // FUN_002B6A70
+/* measured: open opt_propagation scope for func_002b6a70. */
 #pragma opt_propagation off
 void func_002b6a70(s16 arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4, s32 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b82d0(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
 }
+/* measured: close opt_propagation scope after func_002b6a70. */
 #pragma opt_propagation on
 // FUN_002B6AC0
 void func_002b6ac0(u8 *arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
@@ -494,6 +502,7 @@ void func_002b6af0(s16 arg0, u32 arg1, u32 arg2, s32 arg3, f32 fparg0, f32 fparg
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b8300(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1, fparg2, fparg3);
 }
+/* measured: close opt_propagation scope after func_002b6af0. */
 #pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg3 s32 passed
    as (s16)arg3 (s16 widening = retail's dsll32/dsra32 sign-ext). */
@@ -503,6 +512,7 @@ void func_002b6b40(s16 arg0, u8 arg1, s16 arg2, s32 arg3, f32 fparg0, f32 fparg1
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b8340(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, (s16)arg3, fparg0, fparg1);
 }
+/* measured: close opt_propagation scope after func_002b6b40. */
 #pragma opt_propagation on
 /* measured 2026-08-03: MATCHED with #pragma opt_propagation off + arg5 s32 passed
    as (s16)arg5 (s16 widening = retail's dsll32/dsra32 sign-ext). */
@@ -512,6 +522,7 @@ void func_002b6b90(s16 arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg5) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
     func_002b8370(base + ((s32)arg0 << 8) + 0x14, arg1, arg2, arg3, arg4, (s16)arg5);
 }
+/* measured: close opt_propagation scope after func_002b6b90. */
 #pragma opt_propagation on
 // FUN_002B6BE0
 void func_002b6be0(u8 *arg0, f2 p1, u32 arg2, f32 fparg0) {
@@ -568,6 +579,7 @@ void func_002b6c30(s16 arg0, f2 p1, s32 arg2, f32 fparg0) {
 }
 
 // FUN_002B6D60
+/* measured: open opt_propagation scope for func_002b6d60. */
 #pragma opt_propagation off
 void func_002b6d60(s16 arg0) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);
@@ -646,6 +658,7 @@ void func_002b74c0(u8 *arg0) {
 // FUN_002B74F0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b74f0);
 // FUN_002B7750
+/* measured: open opt_propagation scope for func_002b7750. */
 #pragma opt_propagation off
 void func_002b7750(s16 arg0, s16 arg1) {
     u8 *base = *(u8 **)(iGpffffb574 + 0x38);

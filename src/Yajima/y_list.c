@@ -837,6 +837,7 @@ INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
    the loop-invariant slot address live in the loop body instead of hoisting it
    into the preheader, which is the rotation retail does not have. */
 // FUN_002E6C90
+/* measured: open opt_loop_invariants scope for func_002e6c90. */
 #pragma opt_loop_invariants on
 void func_002e6c90(s8 arg0) {
     u8 **slotp = &D_00882F70[arg0];

@@ -1954,6 +1954,7 @@ u16 func_0023e3e0(u16 *arg0, s32 arg1)
 zero:
     return 0;
 }
+/* measured: close opt_propagation scope after func_0023e3e0. */
 #pragma opt_propagation on
 // FUN_0023E5B0
 s32 func_0023e5b0(u8 *arg0, s32 arg1)

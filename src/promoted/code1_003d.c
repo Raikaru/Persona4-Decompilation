@@ -447,6 +447,7 @@ second_flag_done:
    result-pointer branch/call layout (MATCH; normalized_diff 0, object 124
    bytes in the 128-byte retail slot). */
 #pragma no_branch_likely on
+/* measured: schedule knob retains the func_003d4bf0 bracket. */
 #pragma schedule on
 s32 func_003d4bf0(u8 *arg0) {
     u8 *temp5;
@@ -686,6 +687,7 @@ void func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 // FUN_003D5FB0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5fb0);
 // FUN_003D6010
+/* measured: schedule bracket retained for func_003d6010. */
 #pragma schedule on
 s32 func_003d6010(u8 *arg0) {
     func_003df7f0(*(s32 *)(arg0 + 0x10));
@@ -741,6 +743,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7b40);
 // FUN_003D7C50
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7c50);
 // FUN_003D7CD0
+/* measured: schedule bracket retained for func_003d7cd0. */
 #pragma schedule on
 u8 **func_003d7cd0(u8 **arg0) {
     u8 *p;
@@ -768,6 +771,7 @@ s32 func_003d8060(u8 *arg0) {
 // FUN_003D8070
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8070);
 // FUN_003D8130
+/* measured: schedule bracket retained for func_003d8130. */
 #pragma schedule on
 s32 func_003d8130(s32 arg0, s32 arg1) {
     u32 *ptr;
@@ -849,8 +853,41 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d86a0);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8760);
 // FUN_003D8C00
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8c00);
+/* measured: schedule/no_branch_likely preserve the helper-call argument
+   order and the two out-of-line null-return paths. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003D96B0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d96b0);
+u8 *func_003d96b0(u8 *arg0, s32 arg1) {
+    u8 *temp2;
+    s32 var16;
+    extern u8 *func_003e2f60(s32, s32, s32);
+    extern void func_003d81d0(u8 *, s32, u8 *);
+    extern void func_003d8300(u8 *, s32, u8 *);
+    extern s32 func_003d86a0(s8 *, s32, u8 *);
+    extern s32 func_003d81a0(s32);
+    extern void func_003e2e40(u8 *, s32);
+
+    temp2 = func_003e2f60(2, 2, arg1);
+    if (temp2 == NULL) {
+        goto done;
+    }
+    var16 = 0x18;
+    if (*(s32 *)(arg0 + 0x18) != 0) {
+        var16 = *(s32 *)(arg0 + 0xC);
+    }
+    func_003d81d0(temp2, var16, arg0);
+    func_003d8300(temp2, var16, arg0);
+    func_003d86a0((s8 *)temp2, var16, arg0);
+    func_003d81a0(var16);
+    func_003e2e40(temp2, 0);
+    return arg0;
+done:
+    return NULL;
+}
+/* measured: closes schedule/no_branch_likely around func_003d96b0. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003D9760
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d9760);
 // FUN_003D9F30
@@ -925,6 +962,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd430);
    of line.  `no_branch_likely on` (with `schedule on` for the prologue's
    arg-setup interleave and the jal delay-slot move) reproduces retail (nd 60
    -> 20 with schedule on -> MATCH with both). */
+/* measured: schedule/no_branch_likely bracket retained for func_003dd530. */
 #pragma no_branch_likely on
 #pragma schedule on
 s32 func_003dd530(u8 *arg0, s32 arg1) {
@@ -943,6 +981,7 @@ s32 func_003dd530(u8 *arg0, s32 arg1) {
    schedule/no_branch_likely reproduce the branch and delay-slot shape.
    Exact MATCH at nd 0 (object 44 bytes in the 48-byte window). */
 // FUN_003DD590
+/* measured: schedule/no_branch_likely bracket retained for func_003dd590. */
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003dd590(u8 *arg0) {
@@ -962,6 +1001,7 @@ s32 func_003dd590(u8 *arg0) {
    beq with a nop and keeps both case bodies out of line.  `no_branch_likely on`
    + `schedule on` reproduces retail exactly (switch, cases declared ascending
    1,2; nd 49 -> MATCH). */
+/* measured: schedule/no_branch_likely bracket retained for func_003dd6d0. */
 #pragma no_branch_likely on
 #pragma schedule on
 void func_003dd5c0(u8 **arg0, s32 arg1) {
@@ -1335,6 +1375,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003deea0);
    computation lets schedule on reproduce the retail aggregate order exactly
    (nd 0, object 88 bytes/window 96 bytes). */
 // FUN_003DEFF0
+/* measured: schedule bracket retained for func_003deff0. */
 #pragma schedule on
 s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 temp_8;
@@ -1382,6 +1423,7 @@ s32 func_003df270(s32 arg0) {
    offsets inside the compact 0x30-byte frame. schedule/no_branch_likely
    reproduce the callback branch; tail padding is all-zero. Exact MATCH nd 0. */
 // FUN_003DF2A0
+/* measured: schedule/no_branch_likely bracket retained for func_003df2a0. */
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003df2a0(s32 arg0) {
@@ -1406,6 +1448,7 @@ s32 func_003df2a0(s32 arg0) {
    sp28/sp2c and schedule/no_branch_likely reproduce the same exact body.
    MATCH nd 0; retail's trailing words are zero padding. */
 // FUN_003DF300
+/* measured: schedule/no_branch_likely bracket retained for func_003df300. */
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003df300(s32 arg0) {
@@ -1430,6 +1473,7 @@ s32 func_003df300(s32 arg0) {
    schedule/no_branch_likely bracket reproduce MATCH nd 0. */
 // FUN_003DF360
 #pragma schedule on
+/* measured: no_branch_likely knob retains the func_003df360 bracket. */
 #pragma no_branch_likely on
 s32 func_003df360(s32 arg0) {
     extern s32 func_003df590(s32 arg0);
@@ -1453,6 +1497,7 @@ s32 func_003df360(s32 arg0) {
    argument before four stack-output pointers. Preserving that ABI order with
    schedule/no_branch_likely yields exact MATCH at nd 0, object/window 128B. */
 // FUN_003DF3C0
+/* measured: schedule/no_branch_likely bracket retained for func_003df3c0. */
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003df3c0(s32 arg0, u32 *arg1) {
@@ -1474,6 +1519,7 @@ s32 func_003df3c0(s32 arg0, u32 *arg1) {
 #pragma no_branch_likely off
 #pragma schedule off
 // FUN_003DF440
+/* measured: schedule bracket retained for func_003df440. */
 #pragma schedule on
 s32 func_003df440(s32 arg0) {
     D_0072484C += 1;
@@ -1489,6 +1535,7 @@ extern s32 D_0072484C;
    unfilled (nop); retail fills it with the final sw (nd 16 -> 0). */
 
 // FUN_003DF460
+/* measured: schedule bracket retained for func_003df460. */
 #pragma schedule on
 s32 func_003df460(s32 arg0) {
     D_0072484C -= 1;

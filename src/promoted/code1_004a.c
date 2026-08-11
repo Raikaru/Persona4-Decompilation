@@ -678,7 +678,6 @@ void func_004a7bf0(u8 *arg0)
     *(s32 *)(arg0 + 0x0) = 0;
 }
 
-// Measured: fifty-plus source spellings across two lanes reached a best 416-byte object against the 416-byte window at normalized diff 6; residual bytes are OR offsets 105, 110, 237, 242, 333, and 338.
 // FUN_004A7C00
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7c00);
 // FUN_004A7DA0

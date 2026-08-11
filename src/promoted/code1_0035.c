@@ -339,8 +339,6 @@ void func_00354230(u8 *arg0)
     (*D_008873EC)(temp_16);
 }
 
-
-
 // FUN_00354280
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00354280);
 // FUN_00354490

@@ -3386,7 +3386,68 @@ s32 func_001fb170(s32 arg0) {
     }
 }
 // FUN_001FB1F0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fb1f0);
+s32 func_001fb1f0(u8 *arg0, s32 arg1)
+{
+    s32 temp_16;
+    u32 var_19;
+    u32 var_18;
+    s32 temp_17;
+    s32 var_2;
+    u8 *temp_3;
+
+    if (arg1 <= 0) {
+        return 0;
+    }
+    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
+    if (!(*(u8 *)(temp_3 + 0) & 8)) {
+        return 0;
+    }
+    temp_16 = *(s32 *)(temp_3 + 0x20);
+    if ((temp_16 & 0x7F7FFFFF) && !(temp_16 & 0x80800000)) {
+        var_19 = 0;
+        goto loop_outer_test;
+loop_outer_body:
+        temp_17 = 1 << var_19;
+        if (temp_16 & temp_17) {
+            var_18 = 0;
+            goto loop_inner_test;
+loop_inner_body:
+            if (func_002340c0(
+                *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64),
+                temp_17) != 0) {
+                var_18 += 1;
+                goto loop_inner_test;
+            } else {
+                goto loop_inner_exit;
+            }
+loop_inner_test:
+            if (var_18 < *(u16 *)(arg0 + 0x6A)) {
+                goto loop_inner_body;
+            }
+loop_inner_exit:
+            if (var_18 != *(u16 *)(arg0 + 0x6A)) {
+                goto loop_outer_after;
+            }
+        }
+loop_outer_increment:
+        var_19 += 1;
+loop_outer_test:
+        if (var_19 < 0x20U) {
+            goto loop_outer_body;
+        }
+loop_outer_after:
+        if (var_19 == 0x20) {
+            if (temp_16 & 0x3000) {
+                var_2 = 7;
+            } else {
+                var_2 = 3;
+            }
+            return var_2;
+        }
+    }
+done:
+        return 0;
+}
 /* measured: candidate object 284B/window 288B, normalized_diff 1. Committed at nd 1. */
 // FUN_001FB360
 s32 func_001fb360(u8 *arg0, s32 arg1)

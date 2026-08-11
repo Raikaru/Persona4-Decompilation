@@ -131,10 +131,133 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0050);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c00e0);
 // FUN_003C0210
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0210);
+/* measured: schedule on fills callback argument delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely on keeps the cleanup tests as plain branches. */
+#pragma no_branch_likely on
 // FUN_003C02E0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c02e0);
+s32 func_003c02e0(u8 *arg0) {
+    extern void func_003e1ea0(u8 *arg0);
+    extern s32 func_003cbce0(s32 arg0);
+    extern void func_003efda0(u8 *arg0);
+    u8 *self;
+    u8 *temp;
+
+    self = arg0;
+    func_003e3c20(D_0070AF70, self);
+    temp = *(u8 **)(self + 0x14);
+    if (temp != NULL) {
+        func_003e1ea0(temp);
+    }
+    temp = *(u8 **)(self + 0x18);
+    if (temp != NULL) {
+        if (temp != NULL) {
+            func_003c2a80(temp);
+        }
+        *(s32 *)(self + 0x18) = 0;
+        temp = *(u8 **)(self + 4);
+        if (temp != NULL) {
+            if (func_003cbce0((s32)self) != 0) {
+                func_003e9680(temp);
+            }
+        }
+    }
+    func_003efda0(self);
+    jtbl_008873FC[0](*(u8 **)(D_008872E0 + iGpffffb6c0), self);
+    return 1;
+}
+/* measured: no_branch_likely off closes the cleanup branch probe. */
+#pragma no_branch_likely off
+/* measured: schedule off closes the callback delay-slot probe and restores the file default. */
+#pragma schedule off
+/* measured: schedule on and no_branch_likely on reproduce the object-copy
+   callback delays and plain null branches. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003C03A0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c03a0);
+u8 *func_003c03a0(u8 *arg0) {
+    extern u8 *func_003c00e0(void);
+    extern u8 *func_003c1b90(u8 *arg0, u8 *arg1);
+    extern void func_003c2a60(u8 *arg0);
+    extern void func_003c2a80(u8 *arg0);
+    extern s32 func_003cbce0(s32 arg0);
+    extern void func_003e3c90(u8 *arg0, u8 *arg1, u8 *arg2);
+    s32 temp_18_2;
+    u8 *temp_18;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_4;
+    f32 f3;
+    f32 f2;
+    f32 f1;
+    f32 f0;
+
+    temp_2 = func_003c00e0();
+    if (temp_2 != NULL) {
+        *(u8 *)(temp_2 + 0) = *(u8 *)(arg0 + 0);
+        *(u8 *)(temp_2 + 1) = *(u8 *)(arg0 + 1);
+        *(u8 *)(temp_2 + 2) = *(u8 *)(arg0 + 2);
+        *(u8 *)(temp_2 + 3) = *(u8 *)(arg0 + 3);
+        *(s32 *)(temp_2 + 4) = 0;
+        *(u8 *)(temp_2 + 2) = *(u8 *)(arg0 + 2);
+        func_003c1b90(temp_2, NULL);
+        temp_18 = *(u8 **)(arg0 + 0x18);
+        if (temp_18 != *(u8 **)(temp_2 + 0x18)) {
+            if (temp_18 != NULL) {
+                func_003c2a60(temp_18);
+            }
+            temp_4 = *(u8 **)(temp_2 + 0x18);
+            if (temp_4 != NULL) {
+                func_003c2a80(temp_4);
+            }
+            *(u8 **)(temp_2 + 0x18) = temp_18;
+            if (temp_18 != NULL) {
+                temp_2_2 = *(u8 **)(temp_18 + 0x5C);
+                f3 = *(f32 *)(temp_2_2 + 4);
+                f2 = *(f32 *)(temp_2_2 + 8);
+                f1 = *(f32 *)(temp_2_2 + 0xC);
+                f0 = *(f32 *)(temp_2_2 + 0x10);
+                *(f32 *)(temp_2 + 0x1C) = f3;
+                *(f32 *)(temp_2 + 0x20) = f2;
+                *(f32 *)(temp_2 + 0x24) = f1;
+                *(f32 *)(temp_2 + 0x28) = f0;
+            }
+            temp_18_2 = *(s32 *)(temp_2 + 4);
+            if (temp_18_2 != 0) {
+                if (func_003cbce0((s32)temp_2) != 0) {
+                    func_003e9680((u8 *)temp_18_2);
+                }
+            }
+        }
+        f3 = *(f32 *)(arg0 + 0x1C);
+        f2 = *(f32 *)(arg0 + 0x20);
+        f1 = *(f32 *)(arg0 + 0x24);
+        f0 = *(f32 *)(arg0 + 0x28);
+        *(f32 *)(temp_2 + 0x1C) = f3;
+        *(f32 *)(temp_2 + 0x20) = f2;
+        *(f32 *)(temp_2 + 0x24) = f1;
+        *(f32 *)(temp_2 + 0x28) = f0;
+        *(s32 *)(temp_2 + 0x48) = *(s32 *)(arg0 + 0x48);
+        *(s32 *)(temp_2 + 0x6C) = *(s32 *)(arg0 + 0x6C);
+        f3 = *(f32 *)(arg0 + 0x4C);
+        f2 = *(f32 *)(arg0 + 0x50);
+        f1 = *(f32 *)(arg0 + 0x54);
+        f0 = *(f32 *)(arg0 + 0x58);
+        *(f32 *)(temp_2 + 0x4C) = f3;
+        *(f32 *)(temp_2 + 0x50) = f2;
+        *(f32 *)(temp_2 + 0x54) = f1;
+        *(f32 *)(temp_2 + 0x58) = f0;
+        f0 = *(f32 *)(arg0 + 0x5C);
+        *(f32 *)(temp_2 + 0x5C) = f0;
+        func_003e3c90(D_0070AF70, temp_2, arg0);
+        return temp_2;
+    }
+    return NULL;
+}
+/* measured: no_branch_likely off closes object-copy branch probe. */
+#pragma no_branch_likely off
+/* measured: schedule off closes object-copy callback delays. */
+#pragma schedule off
 // FUN_003C0520
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0520);
 /* measured: schedule on preserves the allocator and initializer delay slots. */
@@ -176,8 +299,12 @@ u8 *func_003c0640(void) {
 #pragma no_branch_likely off
 /* measured: schedule off closes allocator and initializer delay-slot probe. */
 #pragma schedule off
+/* measured: schedule on fills the list teardown and callback delay slots. */
+#pragma schedule on
 // FUN_003C0700
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0700);
+/* measured: schedule off closes the list teardown probe and restores the file default. */
+#pragma schedule off
 /* measured: schedule on probes retail's load/store order for the linked node. */
 #pragma schedule on
 // FUN_003C0850
@@ -745,9 +872,9 @@ done:
 #pragma no_branch_likely off
 #pragma schedule off
 /* measured: typed six-argument helper reconstruction reaches object 124B/window
-   144B and nd 17; retail's store/reload and branch ordering remain a compiler
-   residual. No real C body was retained, so the bare INCLUDE_ASM fallback
-   remains. */
+   144B and nd 17; retail's store/reload and branch ordering remain a
+   compiler residual. No real C body was retained, so the bare INCLUDE_ASM
+   fallback remains. */
 // FUN_003C4040
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
 // FUN_003C40D0
@@ -769,12 +896,12 @@ u8 *func_003c40d0(u8 *arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-// FUN_003C4140
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4140);
 /* measured: typed helper reconstruction reaches object 128B/window 144B
    and nd 74; saved-self branch placement, callback address ordering, and
    the callback branch layout remain residuals. No real C body was retained,
    so the bare INCLUDE_ASM fallback remains. */
+// FUN_003C4140
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4140);
 // FUN_003C4220
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4220);
 // FUN_003C42B0

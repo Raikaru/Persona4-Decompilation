@@ -774,8 +774,75 @@ void func_001b19a0(void)
     func_001b6990();
 }
 
+/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
+#pragma opt_rebuildconditionals off
 // FUN_001B19C0
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b19c0);
+s32 func_001b19c0(void)
+{
+    extern s32 func_001b6a00(void);
+    extern s32 func_00193c70(void);
+    extern void func_0014a2e0(s32 arg0);
+    extern void func_001b6120(void);
+    extern s32 func_00106330(s32 arg0);
+    extern u8 *func_001f9b80(s32 arg0);
+    extern void func_00194590(u8 *arg0, s32 arg1);
+    extern u8 *func_001f97b0(void);
+    extern s32 func_0022bd20(void);
+    extern u8 *func_002304b0(void);
+    extern s32 func_00230790(void);
+    extern u8 *func_002305c0(s32 arg0);
+    extern s32 func_001ef9a0(void);
+    extern void func_002aaa80(void);
+    extern void func_001fc280(void);
+    s32 var_2;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    u8 *temp_2;
+    u8 *temp_2_2;
+
+    if (func_001b6a00() == 0) {
+        goto done;
+    }
+    if (func_00193c70() != 0) {
+        goto done;
+    }
+    func_0014a2e0(1);
+    func_001b6120();
+    if (func_00106330(0x38) == 0) {
+        goto set_zero;
+    }
+    var_2 = 1;
+    goto got_var;
+set_zero:
+    var_2 = 0;
+got_var:
+    temp_2 = func_001f9b80(var_2 & 0xFFFF);
+    func_00194590(temp_2, 1);
+    temp_2_2 = func_001f97b0();
+    *(s8 *)(temp_2_2 + 0) = 4;
+    *(s64 *)(temp_2_2 + 8) = *(s64 *)(temp_2 + 0x58);
+    func_00194590(temp_2_2, 1);
+    if (func_0022bd20() != 0) {
+        func_00194590(func_002304b0(), 1);
+        temp_2_3 = func_00230790();
+        if (temp_2_3 != -1) {
+            func_00194590(func_002305c0(temp_2_3), 1);
+        }
+    }
+    temp_2_4 = func_001ef9a0();
+    switch (temp_2_4) {
+    case 0x20B:
+    case 0x215:
+        func_002aaa80();
+        func_001fc280();
+        break;
+    }
+    return 5;
+done:
+    return 0;
+}
+/* measured: close opt_rebuildconditionals off for func_001b19c0. */
+#pragma opt_rebuildconditionals on
 // FUN_001B1B20
 void func_001b1b20(void)
 {
