@@ -82227,7 +82227,7 @@
       "target_path": "build/objdiff/target/promoted/code1_001f/001fae80.o",
       "base_path": "build/objdiff/base/promoted/code1_001f/001fae80.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -134774,7 +134774,7 @@
       "target_path": "build/objdiff/target/promoted/shdPersona/001171c0.o",
       "base_path": "build/objdiff/base/promoted/shdPersona/001171c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

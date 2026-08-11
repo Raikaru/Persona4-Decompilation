@@ -147,7 +147,7 @@ u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
 #pragma schedule off
 // FUN_003B6CC0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
-/* measured: best plain-C attempt object 84B/window 96B, normalized_diff 7; archived at build/W3C3B_003b6da0_body.c. */
+/* measured: best plain-C attempt object 84B/window 96B, normalized_diff 6; archived at build/W4C3B_003b6da0_nd6_body.c and restored to INCLUDE_ASM. Residual is branch displacement plus the missing nop before jr under the tuned pragma set. */
 // FUN_003B6DA0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
 #pragma schedule on
@@ -592,7 +592,7 @@ s32 func_003bcbc0(s32 arg0, s32 arg1) {
 }
 /* measured: closes schedule around func_003bcbc0. */
 #pragma schedule off
-/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 7; archived at build/W3C3B_003bcbe0_body.c. */
+/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 4; archived at build/FP3B_003bcbe0_body.c and restored to INCLUDE_ASM. */
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
 
@@ -614,7 +614,7 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcf10_body.c. */
+/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcf10_body.c and restored to INCLUDE_ASM. Residual words are the outer slt operand register and its paired delayed index move. */
 // FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 /* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */
@@ -642,7 +642,7 @@ done:
 /* measured: no_branch_likely off closes the one-function 003bcf60 probe. */
 #pragma no_branch_likely off
 
-/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcfb0_body.c. */
+/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcfb0_body.c and restored to INCLUDE_ASM. Residual words are identical to func_003bcf10 at the outer slt and delayed index move. */
 // FUN_003BCFB0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
 
