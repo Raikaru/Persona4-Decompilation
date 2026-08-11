@@ -461,28 +461,29 @@ void func_00225c00(u8 *arg0)
         func_001cbf80(self);
     }
 }
-/* measured 00225d00 plain-C reconstruction reproduces the complete 252-byte object against the 256-byte window; the counter-field register colouring residual remains at normalized_diff 11. Committed at nd 11. */
-// FUN_00225D00 NONMATCHING
-#ifdef NON_MATCHING
+/* measured 00225d00 plain-C reconstruction matches the complete 256-byte retail window at normalized_diff 0. */
+#pragma optimization_level 1
+// FUN_00225D00
 void func_00225d00(u8 *arg0)
 {
-    u16 temp_4;
-    u16 temp_3;
+    u32 temp_4;
+    s32 temp_3;
     u8 *temp_5;
+    extern s32 func_00243ce0(s32 arg0);
 
     temp_5 = *(u8 **)(arg0 + 0xE0);
     if ((temp_5 != NULL) &&
         (*(u16 *)(temp_5 + 0x6A) == 1) &&
         (*(s32 *)(arg0 + 0x100) == *(s32 *)(temp_5 + 0x38)) &&
         ((*(u16 *)(temp_5 + 0x1A) & 1) != 0)) {
-        if (func_00243ce0(*(s32 *)(*(u8 **)(temp_5 + 0x30) + 0xA64),
-                           temp_5) == 0) {
+        if (func_00243ce0(*(s32 *)(*(u8 **)(temp_5 + 0x30) + 0xA64)) == 0) {
             func_001cbfe0(arg0);
             return;
         }
         temp_4 = *(u16 *)(arg0 + 0x10E);
-        temp_3 = (u16)(*(u16 *)(arg0 + 0x10C) + 1);
+        temp_3 = *(u16 *)(arg0 + 0x10C) + 1;
         *(u16 *)(arg0 + 0x10C) = temp_3;
+        temp_3 = (u16)temp_3;
         if (temp_4 != temp_3) {
             return;
         }
@@ -493,9 +494,7 @@ void func_00225d00(u8 *arg0)
         func_002250a0(arg0, 400.0f, fGpffff809c);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00225d00);
-#endif
+#pragma optimization_level 2
 // FUN_00225E50
 void func_00225e50(u8 *arg0)
 {
@@ -1532,8 +1531,59 @@ s32 func_0022cb90(u8 *arg0, s32 arg1)
         return *(u8 *)(temp_6 + (arg1 & 0xFFFF));
     }
 }
+#pragma opt_propagation off
 // FUN_0022CC90
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022cc90);
+void func_0022cc90(void)
+{
+    extern void func_0010b010(s32 arg0);
+    extern void func_0010b300(s32 arg0);
+    extern void func_0010b7c0(void);
+    extern void func_00106d40(s32 arg0, s32 arg1, s32 arg2);
+    extern void func_00454bd0(s32 arg0);
+    extern void func_001d3e00(s32 arg0, u8 *arg1);
+    s16 i;
+    s32 value;
+    s32 temp_index;
+    s32 index;
+    s16 index16;
+    u8 *slot;
+    u8 *base;
+
+    switch (func_001ef9a0()) {
+    case 0x214:
+        func_0010b7c0();
+        func_0010b010(1);
+        func_0010b300(1);
+        func_00106d40(1, 0, 1);
+        break;
+    }
+    i = 0;
+    while (i < 8) {
+        base = DAT_0076449c;
+        slot = base + i * 4;
+        value = *(s32 *)(slot + 0xBE0);
+        if (value != 0) {
+            index16 = i;
+            temp_index = (s32)(s64)(s16)index16;
+            index = temp_index * 4;
+            func_001d3e00(value, base);
+            base = DAT_0076449c;
+            *(s32 *)(base + index + 0xBE0) = 0;
+        }
+        i++;
+    }
+    value = *(s32 *)(DAT_0076449c + 0xB94);
+    if (value != 0) {
+        func_00454bd0(value);
+        *(s32 *)(DAT_0076449c + 0xB94) = 0;
+    }
+    value = *(s32 *)(DAT_0076449c + 0xB90);
+    if (value != 0) {
+        func_00454bd0(value);
+        *(s32 *)(DAT_0076449c + 0xB90) = 0;
+    }
+}
+#pragma opt_propagation on
 // FUN_0022CDB0
 u8 *func_0022cdb0(s32 arg0)
 {
