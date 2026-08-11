@@ -1,15 +1,17 @@
 #include "include_asm.h"
 #include "type.h"
 
-extern s32 D_00745AF8[];
+extern s32 D_00745AF8;
 
-extern s32 D_00745ABC[];
+extern s32 D_00745ABC;
 
 extern s32 D_007609B0[];
 
-extern s32 D_00745C84[];
+extern s32 D_00745C84;
 
-extern s32 D_00745C6C[];
+extern s32 D_00745C6C;
+
+extern s32 D_0074613C;
 
 /* Open declaration question (2026-08-09): func_0052c890 candidates all emit
  * sq-style saves at frame 0x40 while retail uses sd saves at frame 0x20.
@@ -27,10 +29,9 @@ typedef struct {
     s32 arg1;
     s32 count;
 } Code1B9Work;
-/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
- * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
- * the base doubling as the returned segment. Returned-base local (segment +
- * 0x5AF8 store, return segment) forces $v0; #pragma schedule on fills slot. */
+extern void func_00524318();
+extern void func_00524b78(u8 *arg0);
+/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
 
 // FUN_00520068
@@ -48,20 +49,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00520750);
 // FUN_005207A8
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005207a8);
 // FUN_005207F8
-u32 func_005207f8(u32 arg0)
+void func_005207f8(s32 arg0)
 {
-    u32 segment = 0x00740000;
-
-    *(u32 *)(segment + 0x5AF8) = arg0;
-    return segment;
+    D_00745AF8 = arg0;
 }
 #pragma schedule off
 
 
-/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
- * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
- * the base doubling as the returned segment. Returned-base local (segment +
- * 0x5ABC store, return segment) forces $v0; #pragma schedule on fills slot. */
+/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
 // FUN_00522FD0
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00522fd0);
@@ -70,12 +65,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00522ff8);
 // FUN_00523050
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00523050);
 // FUN_005230B8
-u32 func_005230b8(u32 arg0)
+void func_005230b8(s32 arg0)
 {
-    u32 segment = 0x00740000;
-
-    *(u32 *)(segment + 0x5ABC) = arg0;
-    return segment;
+    D_00745ABC = arg0;
 }
 #pragma schedule off
 
@@ -105,7 +97,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00523578);
 // FUN_005235F8
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005235f8);
 // FUN_005242D0
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005242d0);
+void func_005242d0(u8 *arg0)
+{
+    if (*(s32 *)(arg0 + 0x36B0) == 0) {
+        return;
+    }
+    func_00524318();
+    func_00524b78(arg0);
+}
 // FUN_00524318
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524318);
 // FUN_00524480
@@ -130,7 +129,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524778);
 // FUN_00524820
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_00524820);
 // FUN_005248A8
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005248a8);
+void func_005248a8(s32 arg0, s32 arg1, s32 *arg2, s32 *arg3)
+{
+    *arg2 = 0;
+    *arg3 = 0x3E8;
+}
 // FUN_005248B8
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_005248b8);
 // FUN_005249B0
@@ -153,22 +156,16 @@ s32 *func_00528c30(void)
 
 
 
-/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
- * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
- * the base doubling as the returned segment. Returned-base local (segment +
- * 0x5C84 store, return segment) forces $v0; #pragma schedule on fills slot. */
+/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
 // FUN_0052B950
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b950);
 // FUN_0052B9A0
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052b9a0);
 // FUN_0052B9E0
-u32 func_0052b9e0(u32 arg0)
+void func_0052b9e0(s32 arg0)
 {
-    u32 segment = 0x00740000;
-
-    *(u32 *)(segment + 0x5C84) = arg0;
-    return segment;
+    D_00745C84 = arg0;
 }
 #pragma schedule off
 
@@ -182,19 +179,13 @@ u32 func_0052b9e0(u32 arg0)
 #pragma schedule off
 
 
-/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
- * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
- * the base doubling as the returned segment. Returned-base local (segment +
- * 0x5C6C store, return segment) forces $v0; #pragma schedule on fills slot. */
+/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
 
 // FUN_0052BA00
-u32 func_0052ba00(u32 arg0)
+void func_0052ba00(s32 arg0)
 {
-    u32 segment = 0x00740000;
-
-    *(u32 *)(segment + 0x5C6C) = arg0;
-    return segment;
+    D_00745C6C = arg0;
 }
 #pragma schedule off
 
@@ -208,10 +199,7 @@ u32 func_0052ba00(u32 arg0)
 #pragma schedule off
 
 
-/* measured: void store colors the address scratch $v1 (lui $v1/sw/jr/nop,
- * delay slot unfilled); retail is lui $v0 / jr $ra / sw-in-delay-slot with
- * the base doubling as the returned segment. Returned-base local (segment +
- * 0x613C store, return segment) forces $v0; #pragma schedule on fills slot. */
+/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
 
 // FUN_0052BA20
@@ -231,18 +219,18 @@ s32 *func_0052ba30(u8 *arg0, s32 arg1)
 // FUN_0052C840
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052c840);
 // FUN_0052C870
-u32 func_0052c870(u32 arg0)
+void func_0052c870(s32 arg0)
 {
-    u32 segment = 0x00740000;
-
-    *(u32 *)(segment + 0x613C) = arg0;
-    return segment;
+    D_0074613C = arg0;
 }
 /* measured: closes the schedule-on segment-return bracket through func_0052c870; explicit schedule off restores the following code's baseline state. */
 #pragma schedule off
 
 // FUN_0052C880
-INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052c880);
+s32 func_0052c880(void)
+{
+    return D_0074613C;
+}
 // FUN_0052C890
 INCLUDE_ASM("asm/nonmatchings/code1_0052", func_0052c890);
 // FUN_0052C8E0

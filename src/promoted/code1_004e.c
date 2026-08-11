@@ -12,6 +12,11 @@ extern s32 D_00731C34[];
 extern s8 D_00731C01[];
 extern s32 D_00731C44[];
 extern s32 D_00731C74[];
+extern s32 D_0072B678;
+extern s8 D_0072B680;
+extern void func_0043f9c8(void *, s32, s32);
+extern void func_004e0380(void);
+extern void func_004e0398(void);
 /* Measured: retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
  * toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 #pragma schedule on
@@ -35,13 +40,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0398);
 // FUN_004E03B0
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e03b0);
 // FUN_004E0408
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0408);
+void func_004e0408(void) {
+    s32 value;
+
+    func_004e0380();
+    value = D_0072B678 - 1;
+    D_0072B678 = value;
+    if (value == 0) {
+        func_0043f9c8(&D_0072B680, 0, 0x6570);
+    }
+    func_004e0398();
+}
 // FUN_004E0458
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0458);
 // FUN_004E04B0
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e04b0);
 // FUN_004E0560
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e0560);
+void func_004e0560(s32 *arg0) {
+    func_004e0380();
+    if (arg0 != 0) {
+        *arg0 = 0;
+    }
+    func_004e0398();
+}
 // FUN_004E0590
 s8 func_004e0590(u8 *arg0)
 {
@@ -114,12 +135,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3c10);
 // FUN_004E3C78
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e3c78);
 // FUN_004E3D88
-u8 *func_004e3d88(u8 arg0) {
-    u8 *segment = (u8 *)0x00730000;
-    segment[0x1C7C] = arg0;
-    return segment;
+void func_004e3d88(u8 arg0) {
+    D_00731C7C[0] = arg0;
 }
-/* measured: sb uses $v0 base because zero-lo segment is the live return (void store colors $v1, nd 2; returning 0x00731C7C adds ori, nd 3); schedule on fills the jr delay slot (nd 3 -> 0, tail nop is padding) */
+/* measured: direct global store matches retail under ee-gcc -O2 -G0 (normalized_diff 0). */
 #pragma schedule off
 
 
@@ -127,19 +146,19 @@ u8 *func_004e3d88(u8 arg0) {
 #pragma schedule on
 
 // FUN_004E3D98
-s32 *func_004e3d98(s32 arg0) {
-    s32 *segment = (s32 *)0x00730000;
-    segment[0x71E] = arg0;
-    return segment;
+void func_004e3d98(s32 arg0) {
+    D_00731C78[0] = arg0;
 }
-/* measured: sw uses $v0 base because zero-lo segment is the live return (void store colors $v1, nd 2; returning 0x00731C78 adds ori, nd 3); schedule on fills the jr delay slot (nd 3 -> 0, tail nop is padding) */
+/* measured: direct global store matches retail under ee-gcc -O2 -G0 (normalized_diff 0). */
 #pragma schedule off
 
 
 // FUN_004E4698
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4698);
 // FUN_004E46F0
-INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e46f0);
+s32 func_004e46f0(void) {
+    return D_00731C74[0];
+}
 // FUN_004E4700
 INCLUDE_ASM("asm/nonmatchings/code1_004e", func_004e4700);
 // FUN_004E4738

@@ -10,6 +10,13 @@ extern s32 D_0075E8B0[];
 extern s32 D_007442A0[];
 extern s32 D_0074428C;
 extern s32 D_00745884;
+extern s32 D_00745880;
+extern s32 D_0074587C;
+extern s32 D_00744164;
+extern s32 D_00744168;
+
+extern void func_0050cd00(s32 arg0);
+extern void func_0043f810(s32 arg0, s32 arg1, s32 arg2);
 
 extern s32 D_0074586C[];
 
@@ -167,7 +174,14 @@ s32 func_00507948(void)
     return 0;
 }
 // FUN_00507950
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507950);
+extern s32 D_00744164;
+extern s32 D_00744168;
+s32 func_00507950(s32 arg0, s32 arg1)
+{
+    D_00744164 = arg0;
+    D_00744168 = arg1;
+    return 0;
+}
 // FUN_00507968
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_00507968);
 // FUN_00509698
@@ -365,23 +379,48 @@ INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c940);
 // FUN_0050C9D0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050c9d0);
 // FUN_0050CA58
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050ca58);
+void func_0050ca58(s32 arg0)
+{
+    if (arg0 == 0) {
+        D_00745878[0] = 0;
+        return;
+    }
+    D_00745878[0] = 1;
+}
 // FUN_0050CAA0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050caa0);
 // FUN_0050CAE0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cae0);
+void func_0050cae0(void)
+{
+    D_00745878[0] = 1;
+    D_0074587C = 0;
+    D_00745880 = 0;
+    D_00745884 = 0;
+}
 // FUN_0050CB08
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cb08);
+void func_0050cb08(void)
+{
+    func_0050cd00(8);
+    func_0050cd00(9);
+}
 // FUN_0050CB28
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cb28);
 // FUN_0050CB68
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cb68);
+s32 func_0050cb68(s32 arg0, s32 arg1, s32 arg2)
+{
+    func_0043f810(arg2, arg0 + 0x70000000, arg1);
+    return 0;
+}
 // FUN_0050CBA0
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cba0);
 // FUN_0050CC08
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cc08);
 // FUN_0050CC48
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cc48);
+s32 func_0050cc48(s32 arg0, s32 arg1, s32 arg2)
+{
+    func_0043f810(arg2 + 0x70000000, arg0, arg1);
+    return 0;
+}
 // FUN_0050CC78
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cc78);
 // FUN_0050CCE0
@@ -393,7 +432,10 @@ void func_0050cce0(s32 arg0)
 #pragma schedule off
 
 // FUN_0050CCF0
-INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050ccf0);
+s32 func_0050ccf0(void)
+{
+    return D_00745884;
+}
 // FUN_0050CD00
 INCLUDE_ASM("asm/nonmatchings/code1_0050", func_0050cd00);
 // FUN_0050CD48
