@@ -130,6 +130,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0180);
 // FUN_003E01E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e01e0);
 // FUN_003E0250
+/* measured: schedule bracket retained for func_003e0250. */
 #pragma schedule on
 /* measured: no_branch_likely on preserves func_003e0250 retail beqz. */
 #pragma no_branch_likely on
@@ -282,11 +283,8 @@ s32 func_003e0f40(u8 *arg0) {
 /* measured: closes the single-function schedule bracket for func_003e0f40. */
 #pragma schedule off
 
-/* A schedule-on reconstruction matched 148 of the 160 retail bytes, leaving
-   seven words of function-pointer load and branch-delay ordering. The guarded
-   copy has been removed: it redeclared D_008873F8 through a local typedef that
-   conflicted under -DNON_MATCHING, so the recorded figure could not be
-   reproduced. */
+/* A schedule-on reconstruction for func_003e0f80 was three spellings short
+   of the retail callback-load order and was removed after the probe limit. */
 // FUN_003E0F80
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0f80);
 // measured: removing this pragma takes func_003e1020 nd 0 -> nd 6: retail fills the
@@ -321,8 +319,50 @@ s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5) 
 #pragma tailcall off
 #pragma schedule off
 
+/* measured: schedule/no_branch_likely preserve the callback-loop reloads,
+   callback delay slots, and the two ordered flag tests. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003E1230
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1230);
+void func_003e1230(void *arg0) {
+    u8 *self;
+    u8 *node;
+    u8 *next;
+    u8 *prev;
+    u8 *sentinel;
+    s32 temp;
+    void (**callback)(u8 *);
+    extern s32 iGpffffb774;
+
+    self = (u8 *)arg0;
+    node = *(u8 **)(self + 0x10);
+    sentinel = self + 0x10;
+    if (node != sentinel) {
+        callback = jtbl_008873EC;
+        do {
+            next = *(u8 **)node;
+            prev = *(u8 **)(node + 4);
+            *(u8 **)prev = next;
+            prev = *(u8 **)(node + 4);
+            next = *(u8 **)node;
+            *(u8 **)(next + 4) = prev;
+            (*callback)(node);
+            node = *(u8 **)(self + 0x10);
+            sentinel = self + 0x10;
+        } while (node != sentinel);
+    }
+    if ((*(s32 *)(self + 0x18) & 1) == 0) {
+        temp = iGpffffb774;
+        if (temp != (s32)self && temp != 0) {
+            jtbl_008873FC[0]((u8 *)temp, self);
+            return;
+        }
+        jtbl_008873EC[0](self);
+    }
+}
+/* measured: close no_branch_likely/schedule around func_003e1230. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_003E12F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e12f0);
@@ -381,6 +421,7 @@ void func_003e1b00(s32 arg0, s32 arg1) {
 // FUN_003E1B10
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1b10);
 // FUN_003E1C30
+/* measured: schedule/no_branch_likely bracket retained for func_003e1c30. */
 #pragma schedule on
 #pragma no_branch_likely on
 void func_003e1c30(void) {
@@ -698,6 +739,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e33f0);
 // FUN_003E3560
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3560);
 // FUN_003E3630
+/* measured: schedule bracket retained for func_003e3630. */
 #pragma schedule on
 s32 func_003e3630(void) {
     s32 r;
@@ -762,8 +804,46 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3830);
 #endif
 // FUN_003E3870
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3870);
+/* measured: schedule/no_branch_likely preserve the two callback-loop paths. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003E3B70
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3b70);
+u8 *func_003e3b70(u8 *arg0, u8 *arg1) {
+    u8 *node;
+    s32 result;
+
+    node = *(u8 **)(arg0 + 0x10);
+    if (node == NULL) {
+        goto return_arg0;
+    }
+first_loop:
+    result = ((s32 (*)(s32, s32, s32))(*(s32 *)(node + 0x20)))(
+        (s32)arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
+    if (result == 0) {
+        node = *(u8 **)(node + 0x34);
+        if (node == NULL) {
+            goto return_zero;
+        }
+second_loop:
+        do {
+            ((s32 (*)(s32, s32, s32))(*(s32 *)(node + 0x24)))(
+                (s32)arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
+            node = *(u8 **)(node + 0x34);
+        } while (node != NULL);
+        goto return_zero;
+    }
+    node = *(u8 **)(node + 0x30);
+    if (node != NULL) {
+        goto first_loop;
+    }
+return_arg0:
+    return arg0;
+return_zero:
+    return NULL;
+}
+/* measured: closes schedule/no_branch_likely around func_003e3b70. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 
 
@@ -773,6 +853,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);
    jalr delay slot, no_branch_likely keeps the loop bnez plain. */
 // FUN_003E3C90
 #pragma schedule on
+/* measured: no_branch_likely knob retains the func_003e3c90 bracket. */
 #pragma no_branch_likely on
 s32 func_003e3c90(s32 arg0, s32 arg1, s32 arg2) {
     s32 node = *(s32 *)(arg0 + 0x10);
@@ -961,9 +1042,55 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e43c0);
    as retail does, and no_branch_likely is then needed to stop b210 turning the
    test into a beql, which was the last differing word. */
 
+/* measured: schedule/no_branch_likely preserve the explicit fallback block
+   and branch-delay store ordering. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003E4420
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4420);
+void func_003e4420(u8 *arg0, u32 arg1) {
+    s32 value;
+    u8 *temp3;
+    u8 *temp3_2;
+    u8 *temp6;
+    u8 *temp7;
+
+    temp6 = *(u8 **)(arg0 + 4);
+    temp3 = arg0 + arg1;
+    temp7 = temp3 + 0x20;
+    if (temp6 == NULL) {
+        goto fallback;
+    }
+    if ((~(*(s32 *)(temp6 + 0x10)) & 1) == 0) {
+        goto fallback;
+    }
+    *(u8 **)(temp7 + 4) = *(u8 **)(temp6 + 4);
+    value = *(s32 *)(*(u8 **)(arg0 + 4) + 0xC) +
+        (*(s32 *)(arg0 + 0xC) - (s32)arg1);
+    *(s32 *)(temp7 + 0xC) = value;
+common:
+    *(u8 **)(arg0 + 4) = temp7;
+    *(s32 *)(temp7 + 0x10) = 0;
+    *(u8 **)(temp7 + 8) = arg0;
+    temp3_2 = *(u8 **)(temp7 + 4);
+    if (temp3_2 != NULL) {
+        *(u8 **)(temp3_2 + 8) = temp7;
+    }
+    *(u32 *)(arg0 + 0xC) = arg1;
+    *(s32 *)temp7 = *(s32 *)arg0;
+    goto done;
+fallback:
+    *(u8 **)(temp7 + 4) = temp6;
+    value = *(s32 *)(arg0 + 0xC) - (s32)arg1 - 0x20;
+    *(s32 *)(temp7 + 0xC) = value;
+    goto common;
+done:
+    ;
+}
+/* measured: closes schedule/no_branch_likely around func_003e4420. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003E44B0
+/* measured: schedule/no_branch_likely bracket retained for func_003e44b0. */
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003e44b0(u8 *arg0, s32 arg1)
@@ -1017,6 +1144,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
 // FUN_003E46E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
 // FUN_003E4760
+/* measured: schedule/no_branch_likely bracket retained for func_003e4760. */
 #pragma schedule on
 #pragma no_branch_likely on
 u8 *func_003e4760(u8 *arg0) {
@@ -1038,9 +1166,10 @@ u8 *func_003e4760(u8 *arg0) {
 
 // FUN_003E47C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e47c0);
-// FUN_003E4880
+/* measured: schedule/no_branch_likely bracket retained for func_003e4880. */
 #pragma schedule on
 #pragma no_branch_likely on
+// FUN_003E4880
 s8 *func_003e4880(s8 *arg0) {
     s8 *var_5;
     s8 temp_3;
@@ -1067,6 +1196,7 @@ s8 *func_003e4880(s8 *arg0) {
    (retail fills the loop's branch delay slots), and b210 then wants beql/bnel
    where retail has plain bne/bnez, which is the rest of it. */
 // FUN_003E48D0
+/* measured: schedule/no_branch_likely bracket retained for func_003e48d0. */
 #pragma schedule on
 #pragma no_branch_likely on
 s8 *func_003e48d0(s8 *arg0) {
@@ -1143,6 +1273,7 @@ void func_003e4ac0(void)
    overflows the window at 84 bytes); the default-argument substitution is
    reached by goto so it lands out of line after the call, as retail has it. */
 // FUN_003E4AD0
+/* measured: schedule bracket retained for func_003e4ad0. */
 #pragma schedule on
 s32 func_003e4ad0(char *arg0) {
     s32 r;
@@ -1176,6 +1307,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4d80);
 // FUN_003E4F60
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4f60);
 // FUN_003E50A0
+/* measured: schedule/no_branch_likely bracket retained for func_003e50a0. */
 #pragma schedule on
 #pragma no_branch_likely on
 s32 func_003e50a0(s8 *arg0) {
@@ -1267,6 +1399,7 @@ void func_003e5510(s32 arg0) {
    materialisation for this direct wrapper. */
 #pragma optimization_level 3
 // FUN_003E5520
+/* measured: tailcall knob retains the func_003e5520 bracket. */
 #pragma tailcall on
 void func_003e5520(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003e3020(D_0070B7A0, arg0, arg1, arg2, arg3);
@@ -1291,6 +1424,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
    negated skip and scores nd 31, while the goto graph below is exact. And the
    jal and branch delay slots are filled, which needs schedule on. */
 // FUN_003E59E0
+/* measured: schedule bracket retained for func_003e59e0. */
 #pragma schedule on
 u8 *func_003e59e0(u8 *arg0)
 {
@@ -1322,6 +1456,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5df0);
    materialisation for this direct wrapper. */
 #pragma optimization_level 3
 // FUN_003E6210
+/* measured: tailcall knob retains the func_003e6210 bracket. */
 #pragma tailcall on
 void func_003e6210(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003e3020((u8 *)D_0070B800, arg0, arg1, arg2, arg3);
@@ -1356,6 +1491,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6430);
 // FUN_003E66C0
 typedef u8 *(*Callback66c0)(u8 *, u8 *);
 extern s32 (*D_0088738C[])(s32 *, Callback66c0, s32);
+/* measured: no_branch_likely knob retains the func_003e66c0 bracket. */
 #pragma no_branch_likely on
 Callback66c0 func_003e66c0(Callback66c0 arg0, u8 *arg1)
 {
@@ -1393,6 +1529,7 @@ extern s32 (*D_0088738C[])(s32 *, Callback6770, s32);
 extern s32 (*D_00887394[])(s32, Callback6770, s32);
 extern s32 func_003deff0(s32, s32, s32, s32, s32);
 extern u8 *func_003e33f0(u8 *, s32, Callback6770);
+/* measured: no_branch_likely knob retains the func_003e6770 bracket. */
 #pragma no_branch_likely on
 Callback6770 func_003e6770(Callback6770 arg0, u8 *arg1)
 {
@@ -1475,6 +1612,7 @@ u8 *func_003e7ee0(u8 *arg0) {
    the D_008872E0=0 work lands out of line after the early return 0. */
 // FUN_003E7F50
 #pragma schedule on
+/* measured: no_branch_likely knob retains the func_003e7f50 bracket. */
 #pragma no_branch_likely on
 s32 func_003e7f50(u8 *arg0) {
     if (D_00887350[0](0, (s32)arg0, 0) == 0) {
@@ -1496,6 +1634,7 @@ s32 func_003e7f50(u8 *arg0) {
    D_008872E0 store in the func_003ed7e0 jal delay slot. */
 // FUN_003E7FB0
 #pragma schedule on
+/* measured: no_branch_likely knob retains the func_003e7fb0 bracket. */
 #pragma no_branch_likely on
 s32 func_003e7fb0(u8 *arg0) {
     *(s32 *)D_008872E0 = (s32)arg0;
@@ -1515,6 +1654,7 @@ s32 func_003e7fb0(u8 *arg0) {
    but with a D_008872E0[D_007648A0]=0 store inside the guard. */
 // FUN_003E8010
 #pragma schedule on
+/* measured: no_branch_likely knob retains the func_003e8010 bracket. */
 #pragma no_branch_likely on
 u8 *func_003e8010(u8 *arg0) {
     s32 v = *(s32 *)&D_008872E0[D_007648A0];
@@ -1818,6 +1958,7 @@ s32 func_003e8910(void) {
    materialisation for this direct wrapper. */
 #pragma optimization_level 3
 // FUN_003E8930
+/* measured: tailcall knob retains the func_003e8930 bracket. */
 #pragma tailcall on
 void func_003e8930(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003e3870(D_0070B760, arg0, arg1, arg2, arg3, 0);
@@ -1890,6 +2031,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8c60);
 // FUN_003E8DC0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8dc0);
 // FUN_003E8E60
+/* measured: schedule/no_branch_likely bracket retained for func_003e8e60. */
 #pragma schedule on
 #pragma no_branch_likely on
 u8 *func_003e8e60(u8 *arg0) {
@@ -1916,6 +2058,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8f80);
    incoming-a0/second-argument call to func_003e8f80 and the plain branch.
    This exact cleaned M2C shape compiles MATCH at nd 0. */
 // FUN_003E90F0
+/* measured: schedule/no_branch_likely bracket retained for func_003e90f0. */
 #pragma schedule on
 #pragma no_branch_likely on
 s32 *func_003e90f0(u8 *arg0) {

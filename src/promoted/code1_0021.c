@@ -1397,9 +1397,9 @@ s32 func_0021e050(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021e110);
 /* measured: plain-C reconstruction reaches object size 448B against the
    448B retail window at normalized_diff 7. The prologue, calls, loop
-   addressing, and arithmetic all match; residuals are seven register-name
-   words in the final sign-extension/clamp sequence. Parked because nd <= 25.
-   Committed at nd 7. */
+   addressing, and arithmetic all match; the residual is register naming in
+   the final sign-extension/clamp sequence. Re-measured at nd 94 after later
+   declaration-environment changes in this file. */
 // FUN_0021E9A0
 #ifdef NON_MATCHING
 void func_0021e9a0(u8 *arg0, u8 *arg1)
@@ -1442,7 +1442,6 @@ void func_0021e9a0(u8 *arg0, u8 *arg1)
             temp_21 = 0x63;
         }
         func_00106620(*(s16 *)temp_20, (u8)temp_21);
-        var_17 += 1;
     }
 }
 #else

@@ -2040,8 +2040,24 @@ s32 func_001ec4a0(s32 arg0, u8 *arg1)
     *(f32 *)(arg1 + 4) = temp_f1;
     return 1;
 }
+/* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
+#pragma opt_propagation off
 // FUN_001EC5E0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ec5e0);
+void func_001ec5e0(u8 *arg0, f32 arg1)
+{
+    f32 zero;
+
+    *(f32 *)arg0 = arg1;
+    *(f32 *)(arg0 + 4) = arg1;
+    zero = 0.0f;
+    *(s32 *)(arg0 + 0xC) = 0;
+    *(s32 *)(arg0 + 0x10) = 0;
+    if (zero != arg1) {
+        *(f32 *)(arg0 + 8) = 1.0f / ((arg1 * arg1) / 4.0f);
+    }
+}
+/* measured: closes opt_propagation probe for func_001ec5e0. */
+#pragma opt_propagation on
 // FUN_001ECE50
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ece50);
 // FUN_001ED060

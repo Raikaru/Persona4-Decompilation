@@ -68,7 +68,7 @@ extern void (*D_00887310[])(void);
 extern void (*D_00887314[])(void);
 extern s32 func_0040afb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_0040b230(u8 *arg0, s32 unused, s32 arg2, s32 arg3, s32 arg4);
-extern void func_0040c0f0(void);
+extern s32 func_0040c0f0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_0040d0a0(s32 arg0, s32 arg1);
 extern void func_0040aa60(void (*arg0)(void));
 extern s32 func_00402d50(void *arg0, s32 *arg1);
@@ -139,7 +139,61 @@ u8 func_003e9240(RwObjectOwnerLink *param_1)
 #pragma optimization_level 3
 
 // FUN_003E9250
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9250);
+void func_003e9250(u8 *arg0)
+{
+    extern void func_003e3b70(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    extern u8 D_0070B7A0[];
+    u8 *temp_3;
+    u8 *temp_5;
+    s32 temp_2;
+    s32 temp_6;
+    s32 temp_7;
+
+    *(u8 *)(arg0 + 0) = 0;
+    temp_5 = arg0;
+    *(u8 *)(arg0 + 1) = 0;
+    temp_3 = temp_5 + 0x90;
+    *(u8 *)(arg0 + 2) = 0;
+    temp_7 = 3;
+    *(u8 *)(arg0 + 3) = 0;
+    temp_6 = 0x3f800000;
+    *(s32 *)(arg0 + 4) = 0;
+    temp_2 = 0x20003;
+    *(s32 *)(arg0 + 0x90) = (s32)temp_3;
+    *(s32 *)(arg0 + 0x94) = (s32)temp_3;
+    *(s32 *)(arg0 + 0x1c) = temp_7;
+    *(s32 *)(arg0 + 0x38) = temp_6;
+    *(s32 *)(arg0 + 0x24) = temp_6;
+    *(s32 *)(arg0 + 0x10) = temp_6;
+    *(s32 *)(arg0 + 0x20) = 0;
+    *(s32 *)(arg0 + 0x18) = 0;
+    *(s32 *)(arg0 + 0x14) = 0;
+    *(s32 *)(arg0 + 0x34) = 0;
+    *(s32 *)(arg0 + 0x30) = 0;
+    *(s32 *)(arg0 + 0x28) = 0;
+    *(s32 *)(arg0 + 0x48) = 0;
+    *(s32 *)(arg0 + 0x44) = 0;
+    *(s32 *)(arg0 + 0x40) = 0;
+    *(s32 *)(arg0 + 0x1c) |= temp_2;
+    *(s32 *)(arg0 + 0x5c) = temp_7;
+    *(s32 *)(arg0 + 0x78) = temp_6;
+    *(s32 *)(arg0 + 0x64) = temp_6;
+    *(s32 *)(arg0 + 0x50) = temp_6;
+    *(s32 *)(arg0 + 0x60) = 0;
+    *(s32 *)(arg0 + 0x58) = 0;
+    *(s32 *)(arg0 + 0x54) = 0;
+    *(s32 *)(arg0 + 0x74) = 0;
+    *(s32 *)(arg0 + 0x70) = 0;
+    *(s32 *)(arg0 + 0x68) = 0;
+    *(s32 *)(arg0 + 0x88) = 0;
+    *(s32 *)(arg0 + 0x84) = 0;
+    *(s32 *)(arg0 + 0x80) = 0;
+    *(s32 *)(arg0 + 0x5c) |= temp_2;
+    *(s32 *)(arg0 + 0x98) = 0;
+    *(s32 *)(arg0 + 0x9c) = 0;
+    *(u8 **)(arg0 + 0xa0) = temp_5;
+    func_003e3b70(D_0070B7A0, temp_5, 0x3f800000, 3);
+}
 /* measured: retail callback guard is plain beqz, not bnel. */
 #pragma no_branch_likely on
 // FUN_003E9320
@@ -752,10 +806,77 @@ s32 func_003ef060(void)
 }
 // FUN_003EF080
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef080);
+/* measured: retail ef0d0 allocator guard is plain beqz, not bnel. */
+#pragma no_branch_likely on
 // FUN_003EF0D0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef0d0);
+u8 *func_003ef0d0(void)
+{
+    extern u8 *(*D_008873F8[])(u8 *arg0, s32 arg1);
+    extern s32 D_008872E0[];
+    extern s32 iGpffffb7e0;
+    extern u8 D_0070B820[];
+    extern void func_003e3b70(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+    u8 *temp_2;
+    u8 *temp_6;
+
+    temp_2 = D_008873F8[0](
+        *(u8 **)((u8 *)D_008872E0 + iGpffffb7e0 + 0xC),
+        0x30016);
+    if (temp_2 != NULL) {
+        temp_2[0] = 6;
+        temp_2[1] = 0;
+        temp_2[2] = 0;
+        temp_6 = temp_2 + 0x10;
+        temp_2[3] = 0;
+        *(s32 *)(temp_2 + 4) = 0;
+        *(s32 *)(temp_2 + 0x10) = *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0);
+        *(u8 **)(temp_2 + 0x14) = (u8 *)D_008872E0 + iGpffffb7e0;
+        *(u8 **)(*(u8 **)((u8 *)D_008872E0 + iGpffffb7e0) + 4) = temp_6;
+        *(u8 **)((u8 *)D_008872E0 + iGpffffb7e0) = temp_6;
+        *(u8 **)(temp_2 + 8) = temp_2 + 8;
+        *(u8 **)(temp_2 + 0xC) = temp_2 + 8;
+        func_003e3b70(D_0070B820, temp_2, temp_6, (u8 *)D_008872E0);
+        return temp_2;
+    }
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_003ef0d0. */
+#pragma no_branch_likely off
+/* measured: retail ef1b0 equal-head branch is plain beq, not beql. */
+#pragma no_branch_likely on
 // FUN_003EF1B0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef1b0);
+s32 func_003ef1b0(u8 *arg0)
+{
+    extern s32 func_003ef260(u8 *arg0, s32 (*arg1)(), s32 arg2);
+    extern s32 func_003ef3a0();
+    extern void func_003e3c20(u8 *arg0, u8 *arg1);
+    extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
+    extern s32 D_008872E0[];
+    extern s32 iGpffffb7e0;
+    extern u8 D_0070B820[];
+    u8 *clear;
+    u8 **temp_6;
+
+    clear = (u8 *)D_008872E0 + iGpffffb7e0 + 0x10;
+    if (*(u8 **)clear == arg0) {
+        goto clear_head;
+    }
+process:
+    func_003ef260(arg0, func_003ef3a0, 0);
+    func_003e3c20(D_0070B820, arg0);
+    *(u8 **)(*(u8 **)(arg0 + 0x14)) = *(u8 **)(arg0 + 0x10);
+    temp_6 = *(u8 ***)(arg0 + 0x14);
+    *(u8 **)(*(u8 **)(arg0 + 0x10) + 4) = (u8 *)temp_6;
+    jtbl_008873FC[0](
+        *(u8 **)((u8 *)D_008872E0 + iGpffffb7e0 + 0xC),
+        arg0);
+    return 1;
+clear_head:
+    *(u8 **)clear = NULL;
+    goto process;
+}
+/* measured: closes no_branch_likely around func_003ef1b0. */
+#pragma no_branch_likely off
 // FUN_003EF260
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef260);
 // FUN_003EF2E0
@@ -1231,7 +1352,37 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402510);
 // FUN_00402570
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402570);
 // FUN_00402600
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402600);
+s32 func_00402600(void)
+{
+    extern u8 *func_003ec590(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    extern void func_003ec330(u8 *arg0);
+    extern u8 *iGpffffb980;
+    extern u8 *iGpffffb978;
+    extern u8 *iGpffffb97c;
+    extern s32 iGpffffb970;
+    u8 *temp_2;
+    u8 *temp_2_2;
+
+    iGpffffb980 = NULL;
+    temp_2 = func_003ec590(0, 0, 0, 0x80);
+    iGpffffb978 = temp_2;
+    if (temp_2 == NULL) {
+        goto fail_first;
+    }
+    temp_2_2 = func_003ec590(0, 0, 0, 0x80);
+    iGpffffb97c = temp_2_2;
+    if (temp_2_2 == NULL) {
+        goto fail_second;
+    }
+    iGpffffb970 = 0;
+    return 1;
+fail_first:
+    return 0;
+fail_second:
+    func_003ec330(iGpffffb978);
+    iGpffffb978 = NULL;
+    return 0;
+}
 /* measured: no_branch_likely preserves the two retail plain null branches. */
 #pragma no_branch_likely on
 // FUN_00402680
@@ -1390,8 +1541,29 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040b7b0);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040bac0);
 // FUN_0040BDE0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040bde0);
+/* measured: retail 0040c0f0 uses plain blez/beqz branches. */
+#pragma no_branch_likely on
 // FUN_0040C0F0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040c0f0);
+s32 func_0040c0f0(s32 arg0, s32 arg1, s32 arg2)
+{
+    extern u8 iGpffffb984;
+    extern u8 D_00753330[];
+    extern u8 D_00753340[];
+    extern void (*D_0070C2E0[])(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
+    u8 *var_4;
+
+    if ((arg0 > 0) && ((u32)arg0 < 6U)) {
+        if ((iGpffffb984 & 1) != 0) {
+            var_4 = D_00753340;
+        } else {
+            var_4 = D_00753330;
+        }
+        D_0070C2E0[arg0](var_4, 0, arg1, arg2);
+    }
+    return 1;
+}
+/* measured: closes no_branch_likely around func_0040c0f0. */
+#pragma no_branch_likely off
 // FUN_0040C170
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040c170);
 // FUN_0040C420
@@ -1474,7 +1646,7 @@ s32 func_00410370(s32 arg0, s32 *arg1, s32 *arg2)
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410390);
 // FUN_00410420
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410420);
-/* measured: no_branch_likely preserves the retail plain availability branch. */
+/* measured: retail 004104d0 null guard is plain beqz, not beql. */
 #pragma no_branch_likely on
 // FUN_004104D0
 s32 func_004104d0(void)

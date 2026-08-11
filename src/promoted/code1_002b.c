@@ -307,10 +307,9 @@ s16 func_002b2d50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     }
     return arg1;
 }
-/* measured: explicit branch-shape candidate is 276B in the 288B retail window with normalized_diff 7; parked at the measured floor. Committed at nd 7. */
-// FUN_002B2E70 NONMATCHING
+/* measured: archived body in build/WW15_002b2e70.c (object 276B/window 288B, normalized_diff 5); restored ASM fallback. */
+// FUN_002B2E70
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2e70);
-/* measured: explicit-goto candidate is 180B in the 192B retail window with normalized_diff 1; parked at the measured floor. Committed at nd 1. */
 // FUN_002B2F90 NONMATCHING
 #ifdef NON_MATCHING
 void func_002b2f90(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)

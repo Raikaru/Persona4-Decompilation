@@ -272,11 +272,9 @@ void func_003671d0(s16 *arg0)
 // FUN_00367210
 void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
 {
-    P4Pair sp18;
     s16 temp_3;
     extern void func_00367b80(void);
 
-    sp18 = arg0;
     if (arg1 & 0xFF) {
         temp_3 = *arg2;
         switch (temp_3) {

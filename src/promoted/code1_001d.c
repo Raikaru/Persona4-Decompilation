@@ -509,8 +509,96 @@ INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d4eb0);
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d5130);
 // FUN_001D53E0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d53e0);
+/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
+#pragma optimization_level 1
 // FUN_001D5990
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d5990);
+void func_001d5990(void)
+{
+    struct Frame {
+        f32 sp10;
+        f32 sp14;
+        f32 sp18;
+        s32 sp1C;
+        f32 sp20;
+        f32 sp24;
+        f32 sp28;
+        f32 pad2C;
+        f32 sp30;
+        f32 sp34;
+        f32 sp38;
+        f32 pad3C;
+        f32 sp40;
+        f32 sp44;
+        f32 sp48;
+        f32 pad4C;
+        f32 sp50;
+        f32 sp54;
+        f32 sp58;
+    } frame;
+    u32 *source;
+    u32 *destination;
+    s32 count;
+    u32 first;
+    u32 second;
+    f32 temp1;
+    f32 temp2;
+    f32 temp3;
+    extern f32 fGpffff8444;
+    extern f32 fGpffff8448;
+    extern f32 fGpffff844c;
+    extern f32 fGpffff8450;
+    extern f32 fGpffff8454;
+    extern f32 fGpffff8458;
+    extern f32 fGpffff845c;
+    extern f32 fGpffff8460;
+    extern f32 fGpffff8464;
+    extern f32 fGpffff8468;
+    extern f32 fGpffff846c;
+    extern f32 fGpffff8470;
+    extern f32 fGpffff8474;
+    extern f32 fGpffff8478;
+    extern f32 fGpffff847c;
+
+    func_003e8110(func_00457120());
+    source = (u32 *)(*(u8 **)(func_00457120() + 4) + 0x10);
+    destination = (u32 *)D_008813B0;
+    count = 8;
+    do {
+        first = source[0];
+        second = source[1];
+        source += 2;
+        count--;
+        destination[0] = first;
+        destination[1] = second;
+        destination += 2;
+    } while (count > 0);
+    frame.sp10 = fGpffff8444;
+    frame.sp14 = fGpffff8448;
+    frame.sp18 = fGpffff844c;
+    frame.sp20 = fGpffff8450;
+    frame.sp24 = fGpffff8454;
+    frame.sp28 = fGpffff8458;
+    frame.sp30 = fGpffff845c;
+    frame.sp34 = fGpffff8460;
+    frame.sp38 = fGpffff8464;
+    frame.sp40 = 0;
+    frame.sp44 = 0;
+    frame.sp48 = 0;
+    frame.sp1C = 3;
+    frame.sp50 = fGpffff8468;
+    frame.sp54 = fGpffff846c;
+    frame.sp58 = fGpffff8470;
+    temp1 = frame.sp50;
+    temp2 = frame.sp54;
+    temp3 = frame.sp58;
+    frame.sp40 = temp1;
+    frame.sp44 = temp2;
+    frame.sp48 = temp3;
+    func_003e9cb0(*(s32 *)(func_00457120() + 4), (u8 *)&frame.sp10, 0);
+    func_003e8120(func_00457120());
+}
+/* measured: restore optimization_level 2 after func_001d5990. */
+#pragma optimization_level 2
 // FUN_001D5AC0
 void func_001d5ac0(void) {
     func_003e8110(func_00457120());

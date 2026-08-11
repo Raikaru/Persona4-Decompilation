@@ -1804,7 +1804,93 @@ loop_check:
 // FUN_0022EBA0
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022eba0);
 // FUN_0022F520
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022f520);
+s32 func_0022f520(void)
+{
+    struct {
+        s64 a;
+        s64 b;
+        s64 c;
+    } sp30;
+    s32 temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0) {
+        return 0;
+    }
+    temp_2 = func_001ef9a0();
+    switch (temp_2) {
+    case 0x202: {
+        u8 *var_17;
+        u8 *temp_16;
+        temp_2_2 = func_0019ef90(1, 0x102);
+        if ((temp_2_2 == NULL) ||
+            (func_002428f0(*(s32 **)(temp_2_2 + 0xA64), 0) != 0)) {
+            func_001f0a10((s64 *)&sp30);
+            *(s32 *)&sp30 = 0xFFF00001;
+            var_17 = *(u8 **)(DAT_0076449c + 0x174);
+            goto loop_0022f520_14_check;
+loop_0022f520_14_body:
+            if ((*(u16 *)(var_17 + 0x1A) & 1) != 0) {
+                temp_16 = *(u8 **)(var_17 + 0x30);
+                if ((*(u8 *)(temp_16 + 0xA2) == 1) &&
+                    (*(u16 *)(temp_16 + 0xA4) != 0x102) &&
+                    (func_002428f0(*(s32 **)(temp_16 + 0xA64), 0) == 0)) {
+                    func_00194590(
+                        func_001f36e0(var_17, var_17, (s64 *)&sp30, 1, 1),
+                        1);
+                    func_00194590(
+                        func_00199ee0(temp_16, 2, 0, 0, 1.0f),
+                        1);
+                }
+            }
+            var_17 = *(u8 **)(var_17 + 0x450);
+loop_0022f520_14_check:
+            if (var_17 != NULL) {
+                goto loop_0022f520_14_body;
+            }
+            return 1;
+        }
+        goto block_0022f520_27;
+    }
+    case 0x203: {
+        u8 *temp_17;
+        u8 *var_16;
+        temp_2_3 = func_0019ef90(1, 0x103);
+        if ((temp_2_3 == NULL) ||
+            (func_002428f0(*(s32 **)(temp_2_3 + 0xA64), 0) != 0)) {
+            func_001f0a10((s64 *)&sp30);
+            *(s32 *)&sp30 = 0xFFF00001;
+            var_16 = *(u8 **)(DAT_0076449c + 0x174);
+            goto loop_0022f520_25_check;
+loop_0022f520_25_body:
+            if ((*(u16 *)(var_16 + 0x1A) & 1) != 0) {
+                temp_17 = *(u8 **)(var_16 + 0x30);
+                if ((*(u8 *)(temp_17 + 0xA2) == 1) &&
+                    (*(u16 *)(temp_17 + 0xA4) != 0x103) &&
+                    (func_002428f0(*(s32 **)(temp_17 + 0xA64), 0) == 0)) {
+                    func_00194590(
+                        func_001f36e0(var_16, var_16, (s64 *)&sp30, 1, 1),
+                        1);
+                    func_00194590(
+                        func_00199ee0(temp_17, 2, 0, 0, 1.0f),
+                        1);
+                }
+            }
+            var_16 = *(u8 **)(var_16 + 0x450);
+loop_0022f520_25_check:
+            if (var_16 != NULL) {
+                goto loop_0022f520_25_body;
+            }
+            return 1;
+        }
+        goto block_0022f520_27;
+    }
+    default:
+        goto block_0022f520_27;
+    }
+block_0022f520_27:
+    return 0;
+}
 // FUN_0022F7D0
 s32 func_0022f7d0(u8 *arg0, u8 *arg1) {
     s32 temp_2;
