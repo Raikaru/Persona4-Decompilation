@@ -144,6 +144,7 @@ u8 *func_003e0250(u8 *arg0) {
     iGpffffb76c -= 1;
     return arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 /* measured: closes the schedule bracket opened above and restores the
    translation-unit baseline. */
@@ -401,6 +402,7 @@ void func_003e1c30(void) {
     D_00764864 = 0;
     D_00764860 = 0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -434,6 +436,9 @@ s32 func_003e1e10(s32 arg0)
     D_00764874 -= 1;
     return arg0;
 }
+/* measured: closes no_branch_likely/schedule around func_003e1e10. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_003E1EA0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ea0);
@@ -447,9 +452,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ff0);
 // FUN_003E22C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
 
-/* measured: closes the no_branch_likely pragma above. */
-#pragma no_branch_likely off
-#pragma schedule off
 
 
 /* measured: sum's initial load is written before base setup so b210 keeps
@@ -513,6 +515,7 @@ u8 *func_003e25f0(u8 *arg0) {
    func_003e25f0; the explicit opposite state is required by the functions
    that follow. */
 #pragma no_branch_likely off
+/* measured: closes the function pragma bracket. */
 #pragma schedule off
 // FUN_003E2650
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2650);
@@ -764,35 +767,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3b70);
 
 
 
-// FUN_003E3C20 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: nd 22 of 112. Walks arg0->f14 calling each node's f24 fnptr
-   (arg1, f0, f4) then following f34. schedule+no_branch_likely get the whole
-   body; the residual is a single extra nop - retail has TWO nops after the
-   loop's bnez (pipeline stall before the epilogue), b210 emits one, so the
-   epilogue slides one word (same floor as func_003e3020).
-   Committed at nd 22. */
-/* measured: probe schedule */
-#pragma schedule on
-/* measured: probe branch form */
-#pragma no_branch_likely on
-s32 func_003e3c20(s32 arg0, s32 arg1) {
-    s32 node = *(s32 *)(arg0 + 0x14);
-    if (node) {
-        do {
-            ((s32 (*)(s32, s32, s32))(*(s32 *)(node + 0x24)))(arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
-            node = *(s32 *)(node + 0x34);
-        } while (node);
-    }
-    return arg0;
-}
-/* measured: close branch form */
-#pragma no_branch_likely off
-/* measured: close schedule */
-#pragma schedule off
-#else
+// FUN_003E3C20
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);
-#endif
 /* measured: schedule+no_branch_likely load-bearing - schedule fills the
    jalr delay slot, no_branch_likely keeps the loop bnez plain. */
 // FUN_003E3C90
@@ -808,6 +784,7 @@ s32 func_003e3c90(s32 arg0, s32 arg1, s32 arg2) {
     }
     return arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -875,14 +852,12 @@ set3:
 // FUN_003E4030
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4030);
 
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
-#pragma optimization_level 3
 
 // FUN_003E40B0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e40b0);
 
+/* measured: optimization_level 3 is load-bearing for func_003e4180. */
+#pragma optimization_level 3
 // FUN_003E4180
 /* measured: ordinary COP1 MAC lowering is plain-C matchable; this staged
    accumulator spelling follows retail's y*y, x*x, z*z order. */
@@ -893,7 +868,11 @@ f32 func_003e4180(f32 *arg0) {
     result += arg0[2] * arg0[2];
     return sqrtf(result);
 }
+/* measured: closes optimization_level 3 around func_003e4180. */
+#pragma optimization_level 2
 
+/* measured: optimization_level 3 is load-bearing for func_003e41b0. */
+#pragma optimization_level 3
 // FUN_003E41B0
 /* measured: ordinary COP1 MAC lowering is plain-C matchable; retain the
    two-dimensional y*y then x*x accumulator order from retail. */
@@ -903,6 +882,8 @@ f32 func_003e41b0(f32 *arg0) {
     result += arg0[0] * arg0[0];
     return sqrtf(result);
 }
+/* measured: closes optimization_level 3 around func_003e41b0. */
+#pragma optimization_level 2
 
 // FUN_003E41E0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e41e0);
@@ -963,8 +944,6 @@ s32 func_003e43a0(s32 arg0) {
 }
 /* measured: closes the single-function schedule bracket. */
 #pragma schedule off
-/* measured: closes the optimization bracket above at the -O2 baseline. */
-#pragma optimization_level 2
 
 
 // measured: removing this pragma takes func_003e4510 nd 0 -> nd 6: retail fills the
@@ -1008,6 +987,7 @@ init:
     *(s32 *)(arg0 + 4) = (s32)base;
     return 1;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -1047,6 +1027,7 @@ u8 *func_003e4760(u8 *arg0) {
     D_0076489C--;
     return arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -1078,6 +1059,7 @@ s8 *func_003e4880(s8 *arg0) {
     }
     return (s8 *)(arg0);
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -1105,13 +1087,10 @@ s8 *func_003e48d0(s8 *arg0) {
     }
     return (s8 *)(arg0);
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
-#pragma optimization_level 3
 
 /* Parked candidate: the string-search loop and sign-extension sequence are
    structurally right, but b210 keeps the found-pointer value in the wrong
@@ -1119,6 +1098,8 @@ s8 *func_003e48d0(s8 *arg0) {
    normalized_diff 23. Committed at nd 23. */
 // FUN_003E4920 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: optimization_level 3 is load-bearing for func_003e4920. */
+#pragma optimization_level 3
 /* measured: schedule on probes the equality branch and final sign extension
    delay-slot placement. */
 #pragma schedule on
@@ -1143,6 +1124,8 @@ loop_4920:
 }
 /* measured: closes the single-function schedule bracket. */
 #pragma schedule off
+/* measured: closes optimization_level 3 around func_003e4920. */
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4920);
 #endif
@@ -1155,8 +1138,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e49a0);
 void func_003e4ac0(void)
 {
 }
-/* measured: closes the bracket above at the -O2 baseline. */
-#pragma optimization_level 2
 
 /* measured: schedule on is load-bearing (nd 55 without it, and the object
    overflows the window at 84 bytes); the default-argument substitution is
@@ -1176,6 +1157,7 @@ setdef:
     arg0 = D_00752FA8;
     goto call;
 }
+/* measured: closes the function pragma bracket. */
 #pragma schedule off
 
 /* measured: schedule on + no_branch_likely on are load-bearing for this body
@@ -1215,21 +1197,21 @@ s32 func_003e50a0(s8 *arg0) {
     }
     return result;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
-#pragma optimization_level 3
 
 // FUN_003E5110
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5110);
 
+/* measured: optimization_level 3 is load-bearing for func_003e5220/5250. */
+#pragma optimization_level 3
 // FUN_003E5220
 #pragma tailcall on
 void func_003e5220(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003e3020(D_0070B710, arg0, arg1, arg2, arg3);
 }
+/* measured: closes the function pragma bracket. */
 #pragma tailcall off
 
 /* measured: disabling propagation keeps the 0x2C offset in s16 across the
@@ -1247,17 +1229,21 @@ s32 func_003e5250(s32 arg0) {
 }
 /* measured: closes the single-function propagation bracket for func_003e5250. */
 #pragma opt_propagation on
+/* measured: closes optimization_level 3 around func_003e5220/5250. */
+#pragma optimization_level 2
 
 // FUN_003E5290
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5290);
 
 // FUN_003E53B0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e53b0);
+/* measured: optimization_level 3 is load-bearing for func_003e5510. */
+#pragma optimization_level 3
 // FUN_003E5510
 void func_003e5510(s32 arg0) {
     D_00886700 = arg0;
 }
-/* measured: closes the bracket above at the -O2 baseline. */
+/* measured: closes optimization_level 3 around func_003e5510. */
 #pragma optimization_level 2
 
 
@@ -1285,6 +1271,7 @@ void func_003e5510(s32 arg0) {
 void func_003e5520(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003e3020(D_0070B7A0, arg0, arg1, arg2, arg3);
 }
+/* measured: closes the function pragma bracket. */
 #pragma tailcall off
 /* measured: closes optimization_level 3 around func_003e5520. */
 #pragma optimization_level 2
@@ -1339,6 +1326,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5df0);
 void func_003e6210(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003e3020((u8 *)D_0070B800, arg0, arg1, arg2, arg3);
 }
+/* measured: closes the function pragma bracket. */
 #pragma tailcall off
 /* measured: closes optimization_level 3 around func_003e6210. */
 #pragma optimization_level 2
@@ -1351,14 +1339,11 @@ s32 func_003e6240(s32 arg0) {
     total += func_003e3370((u8 *)D_0070B800, arg0) + 0xC;
     return total;
 }
+/* measured: closes the function pragma bracket. */
 #pragma schedule off
 
 
 
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
-#pragma optimization_level 3
 
 // FUN_003E62B0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e62b0);
@@ -1366,6 +1351,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e62b0);
 // FUN_003E6430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6430);
 
+/* measured: optimization_level 3 is load-bearing for func_003e66c0/6750. */
+#pragma optimization_level 3
 // FUN_003E66C0
 typedef u8 *(*Callback66c0)(u8 *, u8 *);
 extern s32 (*D_0088738C[])(s32 *, Callback66c0, s32);
@@ -1382,6 +1369,7 @@ Callback66c0 func_003e66c0(Callback66c0 arg0, u8 *arg1)
     *(s32 *)arg1 += func_003e3370((u8 *)D_0070B800, (s32)arg0) + 0xC;
     return arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 // FUN_003E6750
 s32 func_003e6750(s32 arg0, s32 *arg1) {
@@ -1392,16 +1380,14 @@ s32 func_003e6750(s32 arg0, s32 *arg1) {
 #pragma optimization_level 2
 
 
-// measured: removing this pragma takes func_003e8910 nd 0 -> nd 6: retail fills the
-// jr $ra delay slot with lw $v0, -0x4848($gp); baseline -O2 emits lw; jr; nop.
-
-#pragma optimization_level 3
 
 /* measured: plain C matches 252 of the 256 retail bytes; residual argument-load
    ordering at the D_00887394 call remains after direct locals, a forced stack
    load, and an inline wrapper probe. Committed at nd 6. */
 // FUN_003E6770 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: optimization_level 3 is load-bearing for func_003e6770. */
+#pragma optimization_level 3
 typedef u8 *(*Callback6770)(u8 *, u8 *);
 extern s32 (*D_0088738C[])(s32 *, Callback6770, s32);
 extern s32 (*D_00887394[])(s32, Callback6770, s32);
@@ -1430,7 +1416,10 @@ Callback6770 func_003e6770(Callback6770 arg0, u8 *arg1)
     *(s32 *)(arg1 + 4) = 0;
     return NULL;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
+/* measured: closes optimization_level 3 around func_003e6770. */
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6770);
 #endif
@@ -1438,11 +1427,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6770);
 // FUN_003E6870
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6870);
 
+/* measured: optimization_level 3 is load-bearing for func_003e6a60. */
+#pragma optimization_level 3
 // FUN_003E6A60
 s32 func_003e6a60(s32 arg0) {
     func_003ef3a0();
     return arg0;
 }
+/* measured: closes optimization_level 3 around func_003e6a60. */
+#pragma optimization_level 2
 
 // FUN_003E6A90
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6a90);
@@ -1461,6 +1454,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7810);
 
 // FUN_003E7D50
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e7d50);
+/* measured: optimization_level 3 is load-bearing for func_003e7ee0. */
+#pragma optimization_level 3
 // FUN_003E7EE0
 u8 *func_003e7ee0(u8 *arg0) {
     if (*(s32 *)(arg0 + 0x14) == 1) {
@@ -1473,7 +1468,7 @@ u8 *func_003e7ee0(u8 *arg0) {
     func_003e5110(arg0 + 0x10C, arg0 + 0x124, 8);
     return arg0;
 }
-/* measured: closes the bracket above at the -O2 baseline. */
+/* measured: closes optimization_level 3 around func_003e7ee0. */
 #pragma optimization_level 2
 
 /* measured: schedule+no_branch_likely load-bearing; flipped guard polarity so
@@ -1488,6 +1483,7 @@ s32 func_003e7f50(u8 *arg0) {
     *(s32 *)D_008872E0 = 0;
     return (s32)arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -1510,6 +1506,7 @@ s32 func_003e7fb0(u8 *arg0) {
     func_00410f40((s32)arg0);
     return (s32)arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -1528,14 +1525,10 @@ u8 *func_003e8010(u8 *arg0) {
     D_007648A4--;
     return arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
 
-
-/* measured: -O3 is load-bearing for this body - flipping the whole file to
-   -O2 regressed 8 matched functions here. Bracketed per function so it cannot
-   reach the INCLUDE_ASM functions below, which it silently did before. */
-#pragma optimization_level 3
 
 // FUN_003E8080
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
@@ -1545,6 +1538,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
    Residual normalized_diff 16. Committed at nd 16. */
 // FUN_003E8130 NONMATCHING
 #ifdef NON_MATCHING
+/* measured: optimization_level 3 is load-bearing for func_003e8130. */
+#pragma optimization_level 3
 /* measured: opt_propagation off preserves the two source f32 loads' order;
    no_branch_likely keeps the callback guard's beqz/nop. */
 #pragma opt_propagation off
@@ -1569,11 +1564,15 @@ u8 *func_003e8130(u8 *arg0, f32 *arg1) {
 /* measured: closes the no_branch_likely/opt_propagation bracket. */
 #pragma no_branch_likely off
 #pragma opt_propagation on
+/* measured: closes optimization_level 3 around func_003e8130. */
+#pragma optimization_level 2
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8130);
 #endif
 /* measured: no_branch_likely on forces the retail beqz+nop shape. */
 #pragma no_branch_likely on
+/* measured: optimization_level 3 is load-bearing for func_003e8180. */
+#pragma optimization_level 3
 // FUN_003E8180
 u8 *func_003e8180(u8 *arg0, f32 fparg0) {
     s32 temp_4;
@@ -1585,9 +1584,13 @@ u8 *func_003e8180(u8 *arg0, f32 fparg0) {
     }
     return arg0;
 }
+/* measured: closes optimization_level 3 around func_003e8180. */
+#pragma optimization_level 2
 /* measured: close no_branch_likely around func_003e8180. */
 #pragma no_branch_likely off
 
+/* measured: optimization_level 3 is load-bearing for func_003e81c0. */
+#pragma optimization_level 3
 // FUN_003E81C0
 /* measured: no_branch_likely on forces the retail beqz+nop shape. */
 #pragma no_branch_likely on
@@ -1601,6 +1604,8 @@ u8 *func_003e81c0(u8 *arg0, f32 fparg0) {
     }
     return arg0;
 }
+/* measured: closes optimization_level 3 around func_003e81c0. */
+#pragma optimization_level 2
 /* measured: close no_branch_likely around func_003e81c0. */
 #pragma no_branch_likely off
 
@@ -1609,8 +1614,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
 
 /* measured: retail calls the GP function pointer D_0088737C, then returns
    arg0 for a nonzero result and NULL otherwise. The plain-C if form measures
-   nd 21 at object 52 bytes versus the 64-byte retail window, within three
-   words. Committed at nd 21. */
+   nd 51 at object 52 bytes versus the 64-byte retail window, within three
+   words. */
 // FUN_003E82A0 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_003e82a0(u8 *arg0) {
@@ -1624,9 +1629,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
 #endif
 
 /* measured: retail wrapper tests arg0->0x60 with func_003ec480 and returns
-   arg0 only on a nonzero result. The plain-C if form measures nd 23 at
-   object 52 bytes versus the 48-byte retail window, within one word.
-   Committed at nd 23. */
+   arg0 only on a nonzero result. The plain-C if form measures nd 48 at
+   object 52 bytes versus the 48-byte retail window, within one word. */
 // FUN_003E82E0 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_003e82e0(u8 *arg0) {
@@ -1640,6 +1644,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
 #endif
 /* measured: no_branch_likely on preserves 8310's plain comparison branches. */
 #pragma no_branch_likely on
+/* measured: optimization_level 3 is load-bearing for func_003e8310. */
+#pragma optimization_level 3
 // FUN_003E8310
 u8 *func_003e8310(u8 *arg0, s32 arg1) {
     s32 local[2];
@@ -1666,18 +1672,26 @@ fallback:
     func_003df4d0(local);
     return NULL;
 }
+/* measured: closes optimization_level 3 around func_003e8310. */
+#pragma optimization_level 2
 /* measured: closes no_branch_likely around func_003e8310. */
 #pragma no_branch_likely off
 // FUN_003E83A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
 
+/* measured: optimization_level 3 is load-bearing for func_003e8410. */
+#pragma optimization_level 3
 // FUN_003E8410
 #pragma tailcall on
 void func_003e8410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     func_003e3870(D_0070B710, arg0, arg1, arg2, arg3, arg4);
 }
+/* measured: closes optimization_level 3 around func_003e8410. */
+#pragma optimization_level 2
 #pragma tailcall off
 
+/* measured: optimization_level 3 is load-bearing for func_003e8440. */
+#pragma optimization_level 3
 // FUN_003E8440
 #pragma schedule on
 s32 func_003e8440(u8 *arg0) {
@@ -1686,10 +1700,14 @@ s32 func_003e8440(u8 *arg0) {
     jtbl_008873FC[0](*(u8 **)(D_008872E0 + D_007648A0), arg0);
     return 1;
 }
+/* measured: closes optimization_level 3 around func_003e8440. */
+#pragma optimization_level 2
 /* measured: closes the schedule bracket opened above and restores the
    translation-unit baseline. */
 #pragma schedule off
 
+/* measured: optimization_level 3 is load-bearing for func_003e84a0. */
+#pragma optimization_level 3
 // FUN_003E84A0
 /* measured: schedule-on probe for 003e84a0 prologue and store ordering. */
 #pragma schedule on
@@ -1734,6 +1752,8 @@ fail:
 done:
     return temp;
 }
+/* measured: closes optimization_level 3 around func_003e84a0. */
+#pragma optimization_level 2
 /* measured: closes no_branch_likely inside func_003e84a0. */
 #pragma no_branch_likely off
 /* measured: closes schedule inside func_003e84a0. */
@@ -1746,6 +1766,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e85a0);
 #pragma opt_propagation off
 /* measured: tailcall on emits the retail jr-v0 wrapper for the table fetch. */
 #pragma tailcall on
+/* measured: optimization_level 3 is load-bearing for func_003e8790. */
+#pragma optimization_level 3
 // FUN_003E8790
 void *func_003e8790(void *arg0, s32 arg1) {
     u8 *base;
@@ -1753,6 +1775,8 @@ void *func_003e8790(void *arg0, s32 arg1) {
     base = (u8 *)0x00880000;
     return (*(void *(**)(void *, s32))(base + 0x73e8))(*(void **)arg0, arg1);
 }
+/* measured: closes optimization_level 3 around func_003e8790. */
+#pragma optimization_level 2
 /* measured: closes the single-function tailcall bracket. */
 /* measured: closes the opt_propagation bracket for func_003e8790. */
 #pragma opt_propagation on
@@ -1760,6 +1784,8 @@ void *func_003e8790(void *arg0, s32 arg1) {
 
 /* measured: schedule on hoists the callback table load before saving self. */
 #pragma schedule on
+/* measured: optimization_level 3 is load-bearing for func_003e87b0. */
+#pragma optimization_level 3
 // FUN_003E87B0
 u8 *func_003e87b0(u8 *arg0, u8 *arg1) {
     u8 *self;
@@ -1768,21 +1794,25 @@ u8 *func_003e87b0(u8 *arg0, u8 *arg1) {
     (*jtbl_008873EC)(arg1);
     return self;
 }
+/* measured: closes optimization_level 3 around func_003e87b0. */
+#pragma optimization_level 2
 /* measured: closes the single-function schedule bracket. */
 #pragma schedule off
 
 // FUN_003E87F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e87f0);
+/* measured: optimization_level 3 is load-bearing for func_003e8910. */
+#pragma optimization_level 3
 // FUN_003E8910
 /* measured: schedule on places the GP load in the jr delay slot. */
 #pragma schedule on
 s32 func_003e8910(void) {
     return iGpffffb7b8;
 }
+/* measured: closes optimization_level 3 around func_003e8910. */
+#pragma optimization_level 2
 /* measured: closes the single-function schedule bracket. */
 #pragma schedule off
-/* measured: closes the bracket above at the -O2 baseline. */
-#pragma optimization_level 2
 
 /* measured: optimization_level 3 reproduces retail's argument-register
    materialisation for this direct wrapper. */
@@ -1792,6 +1822,7 @@ s32 func_003e8910(void) {
 void func_003e8930(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003e3870(D_0070B760, arg0, arg1, arg2, arg3, 0);
 }
+/* measured: closes the function pragma bracket. */
 #pragma tailcall off
 /* measured: closes optimization_level 3 around func_003e8930. */
 #pragma optimization_level 2
@@ -1872,6 +1903,7 @@ u8 *func_003e8e60(u8 *arg0) {
     iGpffffb7c4 -= 1;
     return arg0;
 }
+/* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 /* measured: closes the schedule bracket opened above and restores the
    translation-unit baseline. */

@@ -48,6 +48,7 @@ extern void func_003d59d0(f32 arg0);
 extern void func_003d5bc0(f32 arg0);
 extern s32 iGpffffb738;
 extern s32 iGpffffb734;
+extern void func_003e12f0();
 extern void func_0043f810(void *dst, void *src, u32 size);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void func_00426f80(s32 arg0);
@@ -604,30 +605,8 @@ s32 func_003d5300(u8 *arg0) {
 /* measured: loader wrapper body follows the retail e2f60/df050/53c0/e2e40
    call sequence. schedule/no_branch_likely reaches nd 23 at object 136 bytes
    versus the 144-byte window; the two-word tail is padding. Committed at nd 23. */
-// FUN_003D5330 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-#pragma no_branch_likely on
-u8 *func_003d5330(s32 arg0) {
-    s32 *temp_2;
-    u8 *temp_17;
-    temp_2 = (s32 *)(func_003e2f60(2, 1, arg0));
-    if (temp_2 != NULL) {
-        if (func_003df050(temp_2, 0x1B, NULL, NULL) == 0) {
-            return NULL;
-        }
-        temp_17 = (u8 *)(func_003d53c0(temp_2));
-        func_003e2e40(temp_2, 0);
-        return (u8 *)(temp_17);
-    }
-    return NULL;
-}
-/* measured: closes schedule/no_branch_likely around func_003d5330. */
-#pragma no_branch_likely off
-#pragma schedule off
-#else
+// FUN_003D5330
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5330);
-#endif
 // FUN_003D53C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d53c0);
 // FUN_003D5600
@@ -999,8 +978,14 @@ void func_003dd5c0(u8 **arg0, s32 arg1) {
         break;
     }
 }
+/* measured: closes schedule/no_branch_likely around func_003dd5c0. */
+#pragma schedule off
+#pragma no_branch_likely off
 // FUN_003DD620
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd620);
+/* measured: schedule/no_branch_likely reproduce func_003dd6d0's branch graph. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003DD6D0
 void func_003dd6d0(u8 *arg0)
 {
@@ -1036,39 +1021,13 @@ block_set:
 block_exit:
     return;
 }
-
-/* measured: closes the schedule/no_branch_likely brackets above. */
+/* measured: closes schedule/no_branch_likely around func_003dd6d0. */
 #pragma schedule off
 #pragma no_branch_likely off
 
-/* measured: schedule-on direct-global reconstruction improved nd 49 to nd 18;
-   candidate object 104B versus the 112B retail window, so it is parked below
-   the nd 25 limit. Body archived in build/W9Code1_003dd760_archive.txt.
-   Residual rows are the global-address register/order differences at offsets
-   0x10-0x1c, 0x28-0x2c, 0x4c, and 0x54-0x58, plus the missing final padding.
-   Ruled out: no_branch_likely alone, no_branch_likely with schedule, 0 versus
-   NULL, and moving the A4 store after the call. Committed at nd 18. */
 
-// FUN_003DD760 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: schedule on for func_003dd760. */
-#pragma schedule on
-void func_003dd760(s32 arg0) {
-    D_00887184[0] = arg0;
-    D_00887188[0] = 0;
-    D_00887180[0] = 0;
-    D_00887194[0] = NULL;
-    D_008871A8[0] = 1;
-    D_00724840 = 0;
-    D_008871A4[0] = 1;
-    D_00724844 = func_004217e0(D_008871A0);
-    D_0088718C[0] = 1;
-}
-/* measured: schedule off for func_003dd760. */
-#pragma schedule off
-#else
+// FUN_003DD760
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
-#endif
 
 // FUN_003DD7D0
 /* measured: probe */
@@ -1609,6 +1568,10 @@ u8 *func_003df550(u8 *arg0) {
 }
 /* measured: closes the opt_propagation bracket. */
 #pragma opt_propagation on
+/* measured: closes schedule around func_003df550. */
+#pragma schedule off
+/* measured: schedule on preserves func_003df590's return sequence. */
+#pragma schedule on
 // FUN_003DF590
 s32 func_003df590(s64 arg0, ...) {
     va_list args;
@@ -1616,10 +1579,14 @@ s32 func_003df590(s64 arg0, ...) {
     va_end(args);
     return (s32)(((s64)arg0 << 0x20) >> 0x20);
 }
+/* measured: closes schedule around func_003df590. */
+#pragma schedule off
 // FUN_003DF5D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df5d0);
 // FUN_003DF6E0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df6e0);
+/* measured: schedule on preserves func_003df7f0/860's callback sequence. */
+#pragma schedule on
 /* measured: no_branch_likely preserves 7f0's two callback paths. */
 #pragma no_branch_likely on
 // FUN_003DF7F0

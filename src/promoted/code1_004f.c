@@ -248,24 +248,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5bd0);
 // FUN_004F5BF0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5bf0);
 // FUN_004F5CD0
-#ifdef NON_MATCHING
-s32 func_004f5cd0(s32 mode, s32 *out) {
-    s32 flags;
-    if (mode == 1) {
-        flags = *(s32 *)((u8 *)D_00743A50[0] + 0x18) & 1;
-    } else if (mode == 0) {
-        flags = *(s32 *)((u8 *)D_00743A50[0] + 0x18) & 0x400;
-    } else if (mode == 2) {
-        flags = *(s32 *)((u8 *)D_00743A50[0] + 0x18) & 2;
-    } else {
-        return -100;
-    }
-    *out = flags != 0;
-    return 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5cd0);
-#endif
 // FUN_004F5D38
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5d38);
 // FUN_004F5FD8
@@ -486,10 +469,10 @@ u32 func_004f9638(u8 *a0, u8 *a1, u8 *a2)
 #pragma schedule off
 /* measured: restore optimization level two. */
 #pragma optimization_level 2
+
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9638);
 #endif
-
 /* measured: split-u32 candidate leaves one copy-load register residual.
    Committed at nd 2. */
 // FUN_004F96A0 NONMATCHING
@@ -534,10 +517,10 @@ u32 func_004f96a0(u8 *a0, u8 *a1, u8 *a2)
 #pragma schedule off
 /* measured: restore optimization level two. */
 #pragma optimization_level 2
+
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f96a0);
 #endif
-
 /* measured: this member uses the same split u32 temporary shape as the
    measured leader, with its own byte permutation order. */
 #pragma optimization_level 1

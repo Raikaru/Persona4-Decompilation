@@ -681,10 +681,9 @@ u8 *func_003c3e10(u8 *arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-/* measured: the explicit-label block order from func_003bd470 in code1_003b.c,
-   with schedule on and no_branch_likely on, reproduces retail's block layout
-   and call setup. Scoped verify: nd 0, object 120B/window 128B. */
-
+/* measured: explicit-label block order and the six-argument helper setup
+   remain a compiler residual at this 144-byte window; no real C body was
+   retained, so the bare INCLUDE_ASM fallback remains. */
 // FUN_003C3E90
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e90);
 /* measured: schedule on and no_branch_likely on are required for the retail
@@ -714,10 +713,10 @@ do2:
 #pragma no_branch_likely off
 #pragma schedule off
 
-/* measured: typed three-argument helper and schedule yield nd 15 with
-   object/window 112B; the pre-prologue load and final movz remain compiler
-   residuals. No real C body was retained, so the bare INCLUDE_ASM fallback
-   remains. */
+/* measured: typed three-argument helper and schedule probes reached
+   normalized_diff 15 with object 112B/window 112B; pre-prologue load and
+   final movz remained compiler residuals. No real C body was retained, so
+   the bare INCLUDE_ASM fallback remains. */
 // FUN_003C3FA0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
 
@@ -745,6 +744,10 @@ done:
 /* measured: no_branch_likely off closes this function's bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
+/* measured: typed six-argument helper reconstruction reaches object 124B/window
+   144B and nd 17; retail's store/reload and branch ordering remain a compiler
+   residual. No real C body was retained, so the bare INCLUDE_ASM fallback
+   remains. */
 // FUN_003C4040
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
 // FUN_003C40D0
@@ -768,6 +771,10 @@ u8 *func_003c40d0(u8 *arg0) {
 
 // FUN_003C4140
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4140);
+/* measured: typed helper reconstruction reaches object 128B/window 144B
+   and nd 74; saved-self branch placement, callback address ordering, and
+   the callback branch layout remain residuals. No real C body was retained,
+   so the bare INCLUDE_ASM fallback remains. */
 // FUN_003C4220
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4220);
 // FUN_003C42B0
@@ -833,28 +840,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
    identical at nd 8: naming the inner pointer in a local before the guard;
    folding the 0x28 into both arms of an if/else is much worse (nd 42).
    Prologue scheduling floor. Committed at nd 8. */
-
-// FUN_003C47C0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: probe schedule */
-#pragma schedule on
-s32 func_003c47c0(u8 *arg0) {
-    s32 total;
-
-    total = 0x28;
-    if (*(u8 **)arg0 != NULL) {
-        total += func_003e6240(*(u8 **)arg0) + 0xC;
-    }
-    return total + (func_003e3370(D_0070AFF0, arg0) + 0xC);
-}
-/* measured: close schedule */
-#pragma schedule off
-#else
+/* measured: direct two-call sum shape reaches object 92B/window 96B and
+   normalized_diff 3; retail interleaves `move $s1,$a0` between the saved
+   register stores while b210 emits both stores first. No real C body was
+   retained, so the bare INCLUDE_ASM fallback remains. */
+// FUN_003C47C0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
-#endif
 
-/* measured: without schedule on, b210 leaves the jr $ra delay slot unfilled
-   (nop); retail fills it with the final store (nd 15 -> 0). */
+
 
 // FUN_003C4820
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);

@@ -7,6 +7,9 @@ extern u8 D_00731C7C[];
 
 extern s32 D_00731C78[];
 extern s32 D_00731C84[];
+extern s32 D_00731C3C[];
+extern s32 D_00731C34[];
+extern s8 D_00731C01[];
 extern s32 D_00731C44[];
 extern s32 D_00731C74[];
 /* Measured: retail saves callee-saved $s registers with sd; MWCCPS2 3.0.1 emits sq;
@@ -89,6 +92,7 @@ s8 *func_004e1c20(void) {
 #pragma schedule off
 
 
+/* measured: restore schedule on before the following accessor block. */
 #pragma schedule on
 
 // FUN_004E1C30
@@ -119,6 +123,7 @@ u8 *func_004e3d88(u8 arg0) {
 #pragma schedule off
 
 
+/* measured: restore schedule on before func_004e3d98. */
 #pragma schedule on
 
 // FUN_004E3D98
