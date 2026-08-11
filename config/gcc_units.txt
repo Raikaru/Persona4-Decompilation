@@ -18,14 +18,26 @@
 # Anything listed here is built by tools/eegcc_shim.py in both tools/verify.py
 # and tools/build.py.  Nothing else changes.
 #
-# A unit is listed only once it verifies clean under ee-gcc (every row MATCH
-# or ASM).  The others need their existing C bodies reshaped first: a body
-# written to MWCC's register allocation usually needs a different spelling
-# here.  Measured residuals at the time of writing, all in src/promoted:
-#   code1_0042  17 MISMATCH, 2 NO_SYMBOL (of 484 rows)
-#   code1_0043   6 MISMATCH, 1 NO_SYMBOL
-#   code1_004c   9 MISMATCH      code1_004d  7 MISMATCH
-#   code1_004e   2 MISMATCH      code1_004f  5 MISMATCH
-#   code1_0051   3 MISMATCH      code1_0052  5 MISMATCH
+# A unit is listed once ee-gcc is a net win for it.  Moving a file here costs
+# any existing C body that was written to MWCC's register allocation and does
+# not reshape, so each one was measured both ways first.  These five gained:
+#   code1_004e +3   code1_004f +8   code1_0050 +7
+#   code1_0052 +3   code2_0070  0 (no C bodies; it links, which proved the path)
+#
+# code1_0051 measured +13 but cost func_005131b0, which matches under MWCCPS2
+# and has no ee-gcc spelling: retail keeps a full frame around the call where
+# ee-gcc emits a tail call.  A net gain is not worth a regression, so it stays.
+#
+# Four more are pure ee-gcc but are NOT listed, because on measurement they
+# lost more than they gained: code1_0042 -14, code1_0043 -4, code1_004c -1,
+# code1_004d -1.  Their MWCC-shaped bodies match today and the ee-gcc spellings
+# for them have not been found.  code1_0041 and code1_0044 are mixed units and
+# need splitting at their single GCC/MWCC transition before they can move.
+#
+# All of these are prebuilt vendor libraries (see VENDOR_CODE_RANGES in
+# tools/verify.py), so this list moves the tree-wide count, not first-party.
+src/promoted/code1_004e.c
+src/promoted/code1_004f.c
 src/promoted/code1_0050.c
+src/promoted/code1_0052.c
 src/promoted/code2_0070.c

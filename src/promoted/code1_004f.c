@@ -26,8 +26,20 @@ extern void func_004f1e10(void);
 extern Code1CallbackRec D_00925E88[];
 extern s32 D_00925EA0[];
 extern void func_004f1f80(s32 arg0);
-extern u32 func_004f54a0(void);
-extern u8 *D_00743A50[];
+extern void func_004f54a0(void);
+extern u8 *D_00743A50;
+extern s32 D_00743A54;
+extern s32 D_00743B58;
+extern void func_004e20a0(void);
+extern void func_004e2750(void);
+extern void func_004f9a70(void);
+extern void func_004f26e8(s32 arg0, s32 arg1, s32 arg2);
+extern void func_004e2170(void);
+extern void func_004e2240(void);
+extern void func_004e2108(s32 arg0);
+extern void func_004f53c0(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4);
+extern s32 D_0075D3E0[];
+extern s32 D_0075D3F8[];
 
 /* measured: without #pragma schedule on, MWCC emits lui/addiu/jr/nop with
    the jr $ra delay slot unfilled; retail fills the delay slot with the
@@ -83,37 +95,34 @@ extern s32 D_0075D370[];
 // FUN_004F13C0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f13c0);
 // FUN_004F1418
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1418);
-// FUN_004F1430
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1430);
-// FUN_004F1448
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1448);
-// FUN_004F1460
-#ifdef NON_MATCHING
-s32 func_004f1460(void) {
-    s32 var_2;
-    var_2 = func_004e22f8();
-    switch (var_2) {
-    case 0:
-        return 0;
-    default:
-        var_2 = 3;
-    case 1:
-    case 2:
-        return var_2;
-    }
+void func_004f1418(void) {
+    func_004e20a0();
 }
-#else
+// FUN_004F1430
+void func_004f1430(void) {
+    func_004e2170();
+}
+// FUN_004F1448
+void func_004f1448(void) {
+    func_004e2240();
+}
+// FUN_004F1460
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1460);
-#endif
 // FUN_004F14B0
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f14b0);
+void func_004f14b0(void) {
+    func_004e2690();
+}
 // FUN_004F14C8
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f14c8);
+void func_004f14c8(s32 unused) {
+    func_004e2750();
+}
 // FUN_004F14E0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f14e0);
 // FUN_004F1518
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1518);
+void func_004f1518(void) {
+    func_004e2298();
+    func_004f9a70();
+}
 // FUN_004F1538
 /* measured: schedule on fills the 004f1538 return delay slot. */
 #pragma schedule on
@@ -140,7 +149,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1708);
 // FUN_004F1750
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1750);
 // FUN_004F1820
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1820);
+void func_004f1820(s32 arg0) {
+    func_004f54a0();
+    func_004f26e8(arg0, 0, 0);
+}
 // FUN_004F1850
 #ifdef NON_MATCHING
 void func_004f1850(u8 *arg0) {
@@ -225,26 +237,24 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f34b0);
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f34e8);
 // FUN_004F3780
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f3780);
-// FUN_004F54A0
-/* measured: schedule on fills the 004f54a0 store delay slot. */
 #pragma schedule on
-u32 func_004f54a0(void) {
-    u32 segment = 0x00740000;
-    *(u32 *)(segment + 0x3a54) = 0;
-    return segment;
+// FUN_004F54A0
+void func_004f54a0(void) {
+    D_00743A54 = 0;
 }
-/* measured: schedule off closes func_004f54a0's store-slot probe. */
+/* measured: D_00743A54 global store shape produces normalized_diff 0. */
 #pragma schedule off
 
 
 
 
-/* measured: the segment-return form (CRI ADX "set param" family) is
-   load-bearing: retail's sw $a0 uses $v0 as base because the segment
-   address is the live return value; a void store compiles to a $v1 base.
-   The schedule-on pragma fills the jr $ra delay slot (nd 6 -> 0). */
+/* measured: scalar D_00743A50 declaration and field store produce normalized_diff 0. */
 // FUN_004F5BD0
-INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5bd0);
+void func_004f5bd0(s32 arg0) {
+    if (D_00743A50 != NULL) {
+        *(s32 *)(D_00743A50 + 0x1C) = arg0 * 0x2710;
+    }
+}
 // FUN_004F5BF0
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f5bf0);
 // FUN_004F5CD0
@@ -267,15 +277,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f68a0);
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f68b8);
 // FUN_004F6948
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f6948);
-// FUN_004F69B8
-/* measured: schedule on fills the 004f69b8 store delay slot. */
 #pragma schedule on
-u32 func_004f69b8(u32 value) {
-    u32 segment = 0x00740000;
-    *(u32 *)(segment + 0x3b58) = value;
-    return segment;
+// FUN_004F69B8
+void func_004f69b8(u32 value) {
+    D_00743B58 = value;
 }
-/* measured: schedule off closes func_004f69b8's store-slot probe. */
+/* measured: D_00743B58 global store shape produces normalized_diff 0. */
 #pragma schedule off
 
 
@@ -473,8 +480,8 @@ u32 func_004f9638(u8 *a0, u8 *a1, u8 *a2)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9638);
 #endif
-/* measured: split-u32 candidate leaves one copy-load register residual.
-   Committed at nd 2. */
+/* measured: split-u32 candidate; the single copy-load residual was
+   MWCCPS2's. Under ee-gcc 2.96 it measures nd 26. Committed at nd 26. */
 // FUN_004F96A0 NONMATCHING
 #ifdef NON_MATCHING
 /* measured: optimization-level one reproduces the retail straight-line shape. */
@@ -617,37 +624,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9770);
 #pragma optimization_level 1
 #pragma schedule on
 // FUN_004F97D8
-u32 func_004f97d8(u8 *a0, u8 *a1, u8 *a2)
-{
-    u32 x;
-    u32 y;
-    u32 result;
-
-    x = a0[7];
-    a2[0] = x;
-    x = a1[3];
-    y = a0[0];
-    result = y + x;
-    a2[1] = result;
-    y = a1[0];
-    x = a0[2];
-    x = x + y;
-    a2[2] = x;
-    x = a1[1];
-    y = a0[6];
-    result = y + x;
-    a2[3] = result;
-    x = a0[4];
-    a2[4] = x;
-    y = a0[3];
-    a2[5] = y;
-    x = a0[5];
-    a2[6] = x;
-    y = a0[1];
-    x = a1[2];
-    result = y + x;
-    a2[7] = result;
-    return result;
+void func_004f97d8(u8 *a0, u8 *a1, u8 *a2) {
+    *(u8 *)(a2 + 0) = (u8)*(u8 *)(a0 + 7);
+    *(s8 *)(a2 + 1) = (s8)(*(u8 *)(a0 + 0) + *(u8 *)(a1 + 3));
+    *(s8 *)(a2 + 2) = (s8)(*(u8 *)(a0 + 2) + *(u8 *)(a1 + 0));
+    *(s8 *)(a2 + 3) = (s8)(*(u8 *)(a0 + 6) + *(u8 *)(a1 + 1));
+    *(u8 *)(a2 + 4) = (u8)*(u8 *)(a0 + 4);
+    *(u8 *)(a2 + 5) = (u8)*(u8 *)(a0 + 3);
+    *(u8 *)(a2 + 6) = (u8)*(u8 *)(a0 + 5);
+    *(s8 *)(a2 + 7) = (s8)(*(u8 *)(a0 + 1) + *(u8 *)(a1 + 2));
 }
 /* measured: restore the file's optimization and schedule states. */
 #pragma schedule off
@@ -659,37 +644,15 @@ u32 func_004f97d8(u8 *a0, u8 *a1, u8 *a2)
 #pragma optimization_level 1
 #pragma schedule on
 // FUN_004F9840
-u32 func_004f9840(u8 *a0, u8 *a1, u8 *a2)
-{
-    u32 x;
-    u32 y;
-    u32 result;
-
-    x = a0[2];
-    a2[0] = x;
-    x = a1[2];
-    y = a0[3];
-    result = y + x;
-    a2[1] = result;
-    x = a0[6];
-    a2[2] = x;
-    x = a1[0];
-    y = a0[7];
-    result = y + x;
-    a2[3] = result;
-    x = a0[0];
-    a2[4] = x;
-    x = a1[1];
-    y = a0[1];
-    result = y + x;
-    a2[5] = result;
-    x = a0[4];
-    a2[6] = x;
-    y = a0[5];
-    x = a1[3];
-    result = y + x;
-    a2[7] = result;
-    return result;
+void func_004f9840(u8 *a0, u8 *a1, u8 *a2) {
+    *(u8 *)(a2 + 0) = (u8)*(u8 *)(a0 + 2);
+    *(s8 *)(a2 + 1) = (s8)(*(u8 *)(a0 + 3) + *(u8 *)(a1 + 2));
+    *(u8 *)(a2 + 2) = (u8)*(u8 *)(a0 + 6);
+    *(s8 *)(a2 + 3) = (s8)(*(u8 *)(a0 + 7) + *(u8 *)(a1 + 0));
+    *(u8 *)(a2 + 4) = (u8)*(u8 *)(a0 + 0);
+    *(s8 *)(a2 + 5) = (s8)(*(u8 *)(a0 + 1) + *(u8 *)(a1 + 1));
+    *(u8 *)(a2 + 6) = (u8)*(u8 *)(a0 + 4);
+    *(s8 *)(a2 + 7) = (s8)(*(u8 *)(a0 + 5) + *(u8 *)(a1 + 3));
 }
 /* measured: restore the file's optimization and schedule states. */
 #pragma schedule off
@@ -697,8 +660,8 @@ u32 func_004f9840(u8 *a0, u8 *a1, u8 *a2)
 #pragma optimization_level 2
 
 /* Parked candidate: the same XCXCCXCX donor shape leaves only the copy-load
-   and tail register residuals at nd 2; measured tail and copy spellings.
-   Committed at nd 2. */
+   and tail register residuals under MWCCPS2; measured tail and copy
+   spellings. Under ee-gcc 2.96 it measures nd 26. Committed at nd 26. */
 // FUN_004F98A8
 #ifdef NON_MATCHING
 /* measured: optimization level 1 and schedule on reproduce this member's
@@ -756,37 +719,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9910);
 #pragma optimization_level 1
 #pragma schedule on
 // FUN_004F9978
-u32 func_004f9978(u8 *a0, u8 *a1, u8 *a2)
-{
-    u32 x;
-    u32 y;
-    u32 result;
-
-    x = a0[3];
-    a2[0] = x;
-    x = a1[1];
-    y = a0[0];
-    result = y ^ x;
-    a2[1] = result;
-    x = a0[6];
-    a2[2] = x;
-    x = a1[0];
-    y = a0[4];
-    result = y + x;
-    a2[3] = result;
-    y = a1[3];
-    x = a0[2];
-    x = x ^ y;
-    a2[4] = x;
-    y = a0[7];
-    a2[5] = y;
-    x = a0[1];
-    a2[6] = x;
-    y = a0[5];
-    x = a1[2];
-    result = y + x;
-    a2[7] = result;
-    return result;
+void func_004f9978(u8 *a0, u8 *a1, u8 *a2) {
+    *(u8 *)(a2 + 0) = (u8)*(u8 *)(a0 + 3);
+    *(s8 *)(a2 + 1) = (s8)(*(u8 *)(a0 + 0) ^ *(u8 *)(a1 + 1));
+    *(u8 *)(a2 + 2) = (u8)*(u8 *)(a0 + 6);
+    *(s8 *)(a2 + 3) = (s8)(*(u8 *)(a0 + 4) + *(u8 *)(a1 + 0));
+    *(s8 *)(a2 + 4) = (s8)(*(u8 *)(a0 + 2) ^ *(u8 *)(a1 + 3));
+    *(u8 *)(a2 + 5) = (u8)*(u8 *)(a0 + 7);
+    *(u8 *)(a2 + 6) = (u8)*(u8 *)(a0 + 1);
+    *(s8 *)(a2 + 7) = (s8)(*(u8 *)(a0 + 5) + *(u8 *)(a1 + 2));
 }
 /* measured: restore the file's optimization and schedule states. */
 #pragma schedule off

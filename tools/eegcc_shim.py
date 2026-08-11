@@ -263,26 +263,34 @@ def _compile_to_asm(source: Path, includes: list[str], work: Path) -> Path:
         staged.append(index)
     script = work / "run.sh"
     here = "%s/%s" % (STAGE_WSL, work.name)
+    # $STAGE holds only the compiler, and every invocation compiles in its own
+    # directory: waves run a dozen of these at once, and a shared in.c/out.s
+    # meant one lane silently compiled another lane's source.
     lines = [
         "#!/bin/bash",
         "set -e",
         "STAGE=/tmp/p4gcc_shim",
         "if [ ! -x \"$STAGE/bin/ee-gcc\" ]; then",
-        "    mkdir -p \"$STAGE\"",
-        "    cp -r %s/toolchain/bin %s/toolchain/lib \"$STAGE/\"" % (
+        "    TMP=$(mktemp -d /tmp/p4gcc_stage.XXXXXX)",
+        "    cp -r %s/toolchain/bin %s/toolchain/lib \"$TMP/\"" % (
             STAGE_WSL, STAGE_WSL),
-        "    chmod -R +x \"$STAGE/bin\" \"$STAGE/lib\"",
+        "    chmod -R +x \"$TMP/bin\" \"$TMP/lib\"",
+        # Publish atomically: a half-copied toolchain must never be visible to
+        # a concurrent invocation.
+        "    mkdir -p \"$STAGE\" && cp -rn \"$TMP\"/* \"$STAGE/\" 2>/dev/null || true",
+        "    rm -rf \"$TMP\"",
         "fi",
+        "WORK=$(mktemp -d /tmp/p4gcc_work.XXXXXX)",
+        "trap 'rm -rf \"$WORK\"' EXIT",
     ]
     for index in staged:
-        lines += ["rm -rf \"$STAGE/inc%d\"" % index,
-                  "cp -r %s/inc%d \"$STAGE/inc%d\"" % (here, index, index)]
+        lines.append("cp -r %s/inc%d \"$WORK/inc%d\"" % (here, index, index))
     lines += [
-        "cp %s/in.c \"$STAGE/in.c\"" % here,
-        "cd \"$STAGE\"",
-        "./bin/ee-gcc %s %s -S in.c -o out.s" % (
+        "cp %s/in.c \"$WORK/in.c\"" % here,
+        "cd \"$WORK\"",
+        "\"$STAGE/bin/ee-gcc\" %s %s -S in.c -o out.s" % (
             " ".join(GCC_FLAGS),
-            " ".join("-I$STAGE/inc%d" % index for index in staged)),
+            " ".join("-I$WORK/inc%d" % index for index in staged)),
         "cp out.s %s/out.s" % here,
     ]
     script.write_text("\n".join(lines) + "\n", newline="\n")
