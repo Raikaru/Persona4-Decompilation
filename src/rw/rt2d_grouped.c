@@ -139,8 +139,32 @@ void func_003d6900(u8 *arg0, u8 *arg1)
 #pragma optimization_level 2
 // FUN_003D6950
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6950);
+/* measured: schedule-on probe for func_003d6a00 FPU order. */
+#pragma schedule on
 // FUN_003D6A00
-INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6a00);
+void func_003d6a00(u8 *arg0, u8 *arg1, u8 *arg2, f32 factor)
+{
+    *(f32 *)(arg0 + 8) =
+        *(f32 *)(arg1 + 8) +
+        factor * (*(f32 *)(arg2 + 8) - *(f32 *)(arg1 + 8));
+    *(f32 *)(arg0 + 0xC) =
+        *(f32 *)(arg1 + 0xC) +
+        factor * (*(f32 *)(arg2 + 0xC) - *(f32 *)(arg1 + 0xC));
+    *(f32 *)(arg0 + 0x10) =
+        *(f32 *)(arg1 + 0x10) +
+        factor * (*(f32 *)(arg2 + 0x10) - *(f32 *)(arg1 + 0x10));
+    *(f32 *)(arg0 + 0x14) =
+        *(f32 *)(arg1 + 0x14) +
+        factor * (*(f32 *)(arg2 + 0x14) - *(f32 *)(arg1 + 0x14));
+    *(f32 *)(arg0 + 0x18) =
+        *(f32 *)(arg1 + 0x18) +
+        factor * (*(f32 *)(arg2 + 0x18) - *(f32 *)(arg1 + 0x18));
+    *(f32 *)(arg0 + 0x1C) =
+        *(f32 *)(arg1 + 0x1C) +
+        factor * (*(f32 *)(arg2 + 0x1C) - *(f32 *)(arg1 + 0x1C));
+}
+/* measured: closes schedule-on probe for func_003d6a00. */
+#pragma schedule off
 // FUN_003D6AA0
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6aa0);
 /* measured: optimization_level 3 probe for func_003d6b70. */
@@ -339,4 +363,3 @@ u32 func_003d7b30(u32 value)
 }
 /* measured: close schedule on for func_003d7b30. */
 #pragma schedule off
-#pragma optimization_level 2

@@ -24,6 +24,7 @@ extern s32 D_0063F2C8[];
 extern s32 D_00882F60[];
 extern void func_0046d730(const void *arg0, s32 arg1);
 extern char D_0063F2A0[];
+extern char D_007488E8[];
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 
 extern s32 clndGetMoonPhase(void);
@@ -420,9 +421,11 @@ loop_body:
     }
     if (temp_3 == 0) {
         arg0 -= 1;
-        if (arg0 < 0) {
-            arg0 = 0;
+        if (arg0 >= 0) {
+            goto first_clamp_done;
         }
+        arg0 = 0;
+first_clamp_done:
         goto done;
     }
     arg0 -= 1;
@@ -650,6 +653,7 @@ void func_002b5120(s32 arg0, u8 *arg1)
         }
     }
 }
+/* measured: restores opt_propagation after func_002b5120. */
 #pragma opt_propagation on
 // FUN_002B52A0
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b52a0);

@@ -131,9 +131,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004319b8);
 // FUN_00431A38
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00431a38);
 // FUN_00431AE8
-INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00431ae8);
+/* measured: opt_propagation off preserves the retail call argument/global
+   materialization order (nd 22 -> 0, object 56/56). */
+#pragma opt_propagation off
+s32 func_00431ae8(s32 arg0) { extern s32 D_008968E0[]; extern void func_00421670(s32,s32); s32 g; if(arg0<=0)return 0x81010016; { s32 x; g=D_008968E0[0]; x=arg0; func_00421670(g,x); } return 0; }
+/* measured: closes the opt_propagation scope at the file baseline. */
+#pragma opt_propagation on
 // FUN_00431B20
-INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00431b20);
+/* measured: opt_propagation off preserves the retail call argument/global
+   materialization order (nd 22 -> 0, object 56/56). */
+#pragma opt_propagation off
+s32 func_00431b20(s32 arg0) { extern s32 D_008968E0[]; extern void func_00421680(s32,s32); s32 g; if(arg0<=0)return 0x81010016; { s32 x; g=D_008968E0[0]; x=arg0; func_00421680(g,x); } return 0; }
+/* measured: closes the opt_propagation scope at the file baseline. */
+#pragma opt_propagation on
 // FUN_00431B58
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00431b58);
 // FUN_00431C08
@@ -423,25 +433,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439a60);
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439bb0);
 // FUN_00439CC8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439cc8);
-// FUN_00439E90 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: O3 is load-bearing (nd 48 -> 23). Floor: retail uses the R5900
-   3-op mult (addiu $v1,$zero,0x24; lui; mult $v1,$a0,$v1) for arg0*0x24; b210
-   strength-reduces to sll/addu/sll at every level and source shape tried.
-   Scoped inside the reference arm: the body it justifies is not compiled, and
-   left outside it silently put 17 INCLUDE_ASM functions below on -O3.
-   Committed at nd 23. */
-/* measured: optimization level 3 is load-bearing for this parked nd 23 body. */
-#pragma optimization_level 3
-s32 func_00439e90(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    return func_00439cc8(arg0, arg1, arg2, arg3,
-                         ((s32 *)&D_008AC788[arg0])[5]);
-}
-/* measured: closes the optimization-level 3 scope at the file baseline. */
-#pragma optimization_level 2
-#else
+// FUN_00439E90
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439e90);
-#endif
 
 
 /* measured: removing this pragma takes func_0043c0a0 nd 0 -> nd 18: retail fills
@@ -615,9 +608,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c5e8);
 // FUN_0043C6B0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_0043c6b0(s32 arg0) {
-    s64 result;
-    result = func_00444210(arg0, 0, 0xA);
-    return (s32)result;
+    return (s32)func_00444210(arg0, 0, 0xA);
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6b0);
@@ -740,10 +731,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043dec8);
 
 // FUN_0043DFC0 NONMATCHING
 #ifdef NON_MATCHING
-/* measured: schedule-on pointer-load body is load-bearing for this parked nd 13 body. */
+/* measured: schedule-on indexed pointer-load body is load-bearing for this parked nd 13 body. */
 #pragma schedule on
-s32 func_0043dfc0(void) {
-    return func_0043DFA0(*(s32 **)D_00710070);
+void func_0043dfc0(void) {
+    func_0043DFA0(D_00710070[0x1C]);
 }
 /* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
@@ -834,32 +825,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fae0);
 // FUN_0043FB38
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fb38);
 /* measured: pointer-slot reconstruction is semantically exact; b210 keeps
-   the same 44-byte object but colors the temporaries in caller-saved registers
-   instead of retail's t-registers. Object 44/48, normalized_diff 14. Committed at nd 14. */
-// FUN_0043FBE0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: O3 is required for the 44-byte parked object. */
-#pragma optimization_level 3
-void func_0043fbe0(u8 *arg0, u8 *arg1)
-{
-    s32 index;
-    s32 table;
-    s32 slot;
-    s32 old;
-    if (arg1 != 0) {
-        index = *(s32 *)(arg1 + 0x4);
-        table = *(s32 *)(arg0 + 0x4C);
-        slot = table + (index << 2);
-        old = *(s32 *)slot;
-        *(s32 *)arg1 = old;
-        *(s32 *)slot = (s32)arg1;
-    }
-}
-/* measured: closes O3 around parked func_0043fbe0. */
-#pragma optimization_level 2
-#else
+   the same 44-byte object but assigns temporaries to v-registers
+   instead of retail's t-registers. Object 44/48, normalized_diff 14. */
+// FUN_0043FBE0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fbe0);
-#endif
 // FUN_0043FC10
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043fc10);
 // FUN_0043FD18

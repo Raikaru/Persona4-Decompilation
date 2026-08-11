@@ -898,8 +898,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
    object 60B/window 64B and normalized_diff 8. The final return alignment
    remains a compiler residual. Committed at nd 8. */
 // FUN_003C4BC0
-#ifdef NON_MATCHING
 /* measured: schedule on preserves the compact loop body. */
+#ifdef NON_MATCHING
 #pragma schedule on
 s32 func_003c4bc0(u8 *arg0, s32 arg1) {
     s32 count;
@@ -921,6 +921,7 @@ done:
     ;
     return index;
 }
+/* measured: schedule on closes 003C4BC0. */
 #pragma schedule off
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
@@ -1931,7 +1932,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbf30);
 u8 *func_003cc010(u8 *arg0) {
     s32 off;
     u8 *base;
-
     if (arg0 == NULL)
         goto nullcase;
 reload:
@@ -2045,6 +2045,7 @@ setnull:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc0d0);
 #endif
+
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled: MISMATCH nd 6, object 56 bytes in a 64-byte window. */
