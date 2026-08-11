@@ -32,7 +32,7 @@ extern u8 *iGpffffb3bc;
 extern u8 *iGpffffb3d0;
 
 extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 func_001d7f10();
+extern u16 func_001d7f10();
 extern void func_001f62b0();
 extern void func_001f58d0();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -253,83 +253,7 @@ s64 func_001f0260(s32 arg0) {
 
 /* Parked candidate: switch dispatch, case bodies, and final shared return are instruction-close; measured object 664B/window 672B, normalized_diff 22. Committed at nd 22. */
 // FUN_001F0620
-#ifdef NON_MATCHING
-s32 func_001f0620(u8 *arg0, s64 arg1)
-{
-    s32 temp_3_2;
-    s64 temp_2;
-    u16 temp_6;
-    u8 *temp_3;
-    u8 *temp_5;
-
-    temp_6 = *(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8);
-    if ((temp_6 == 0x215) && ((s16)arg1 != 2)) {
-        return 0;
-    }
-    temp_2 = (s16)arg1;
-    switch (temp_2) {
-    case 1:
-        return 1;
-    case 2:
-        return (s32)(func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
-                                   8) == 0);
-    case 3:
-        return func_00106330(0x1438) == 0;
-    case 4:
-        temp_3 = *(u8 **)(arg0 + 0x30);
-        if (temp_3[0xA2] != 0) {
-            return 0;
-        }
-        if (*(u16 *)(temp_3 + 0xA4) != 1) {
-            return 0;
-        }
-        if ((func_001ef720(1, 0) & 0xFFFF) < 2) {
-            return 0;
-        }
-        return func_00106330(0x1438) == 0;
-    case 5:
-        temp_5 = *(u8 **)(arg0 + 0x30);
-        if (temp_5[0xA2] != 0) {
-            return 0;
-        }
-        if (*(u16 *)(temp_5 + 0xA4) != 1) {
-            return 0;
-        }
-        if ((*(u16 *)(arg0 + 0x18) & 0x400) == 0) {
-            return 0;
-        }
-        if (func_00232710(*(s32 *)(temp_5 + 0xA64), 8) != 0) {
-            return 0;
-        }
-        return func_00106330(0x1438) == 0;
-    case 6:
-        temp_3_2 = *(s32 *)(iGpffffb414 + ((temp_6 & 0xFFFF) * 0x18));
-        if (temp_3_2 & 0x20) {
-            return 0;
-        }
-        if ((temp_3_2 & 1) == 0) {
-            return 0;
-        }
-        return func_001f5ea0(0) == 0;
-    case 7:
-    case 8:
-    case 11:
-    case 12:
-        return 1;
-    case 10:
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
-            return 0;
-        }
-        return func_00106330(0x1438) == 0;
-    case 13:
-        return 1;
-    default:
-        return 0;
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f0620);
-#endif
 // FUN_001F08C0
 s32 func_001f08c0(u8 *arg0)
 {
@@ -564,18 +488,17 @@ u32 func_001f0f70(u8 *arg0)
 }
 
 /* measured: compiler residual in call argument materialization. Committed at nd 3. */
+/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
+#pragma optimization_level 1
 // FUN_001F0FF0
-#ifdef NON_MATCHING
-s32 func_001f0ff0(u8 *arg0)
+s32 func_001f0ff0(u32 arg0)
 {
-    s32 index;
-
+    u16 index;
     index = *(u16 *)(arg0 + 0x6E);
-    return (func_001d7f10(0, 0, index, 0) & 0xFFFF) == 0;
+    return (func_001d7f10(arg0, 0, index, 0) & 0xFFFF) == 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f0ff0);
-#endif
+/* measured: close optimization_level 1 probe for func_001f0ff0. */
+#pragma optimization_level 2
 // FUN_001F1030
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f1030);
 // FUN_001F11E0
@@ -850,54 +773,7 @@ void func_001f39b0(u8 **arg0)
     *(u16 *)(temp_4 + 0xA0) = (u16)(*(u16 *)(temp_4 + 0xA0) + 1);
 }
 // FUN_001F39D0
-#ifdef NON_MATCHING
-s32 func_001f39d0(u8 **arg0)
-{
-    u8 *temp_4;
-    u8 *temp_16;
-    s32 temp_2_2;
-    s32 temp_2;
-    u16 temp_17;
-    u16 temp_3;
-    u8 temp_4_2;
-
-    temp_4 = *arg0;
-    temp_16 = *(u8 **)(temp_4 + 0x30);
-    temp_3 = *(u16 *)(temp_4 + 0x6C);
-    switch (temp_3) {
-    case 2:
-        temp_17 = *(u16 *)(temp_4 + 0x6E);
-        temp_2 = func_0023d9b0(*(s32 *)(temp_16 + 0xA64), temp_17);
-        if (temp_2 != 0) {
-            temp_4_2 = *(u8 *)((u8 *)addOffsetAfterBase(
-                (u32)iGpffffb3bc,
-                (u32)((temp_17 & 0xFFFF) * 0x28)) + 3);
-            switch (temp_4_2) {
-            case 1:
-                func_002325a0(*(s32 *)(temp_16 + 0xA64), -temp_2);
-                break;
-            case 2:
-                func_00232610(*(s32 *)(temp_16 + 0xA64), -temp_2);
-                break;
-            }
-        }
-        break;
-    case 3:
-        if (*(u8 *)(temp_16 + 0xA2) == 0) {
-            temp_2_2 = promoteS16(*(s16 *)(temp_4 + 0x70));
-            func_00106620(temp_2_2,
-                          ((func_00106600(temp_2_2) & 0xFF) - 1) & 0xFF);
-        }
-        break;
-    case 9:
-    case 1:
-        break;
-    }
-    return 1;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f39d0);
-#endif
 // FUN_001F3B20
 u8 *func_001f3b20(u8 *arg0)
 {
@@ -2067,71 +1943,7 @@ void func_001f7260(void)
 /* Parked candidate: the five-pointer loop shape matches the first block and
    leaves a 19-word residual with the object three words short. Committed at nd 19. */
 // FUN_001F72E0
-#ifdef NON_MATCHING
-/* measured: opt_loop_invariants on probe for func_001f72e0. */
-#pragma opt_loop_invariants on
-/* measured: schedule off probe for func_001f72e0 load/mask order. */
-#pragma schedule off
-/* measured: optimization_level 1 probe for func_001f72e0 scheduling. */
-#pragma optimization_level 1
-void func_001f72e0(void)
-{
-    u8 *temp_3;
-    u8 *temp_3_7;
-    u8 *temp_3_4;
-    u8 *temp_3_8;
-    u8 *temp_3_9;
-    s32 empty;
-    s32 temp_3_2;
-    s32 temp_3_5;
-    s32 temp_6;
-    s32 index_8;
-    s32 var_8;
-
-    temp_3 = iGpffffb3ac;
-    temp_3_7 = temp_3 + 0xACA;
-    temp_3_2 = *(s8 *)temp_3_7;
-    if (temp_3_2 >= 0) {
-        temp_3_2 = temp_3_2 + 1;
-        *(s8 *)temp_3_7 = (s8)temp_3_2;
-        if ((s8)temp_3_2 >= 3) {
-            *(s8 *)(iGpffffb3ac + 0xACA) = -1;
-        }
-    }
-    var_8 = 0;
-    empty = -1;
-    goto loop_test_8;
-loop_8:
-    temp_3_4 = iGpffffb3ac;
-    index_8 = var_8 & 0xFFFF;
-    temp_6 = index_8 * 6;
-    temp_3_8 = temp_3_4 + temp_6;
-    temp_3_9 = temp_3_8 + 0xAD0;
-    temp_3_5 = *(s8 *)(temp_3_8 + 0xAD0);
-    if (temp_3_5 >= 0) {
-        temp_3_5 = temp_3_5 + 1;
-        *(s8 *)temp_3_9 = (s8)temp_3_5;
-        if ((s8)temp_3_5 >= 3) {
-            *(s16 *)(iGpffffb3ac + temp_6 + 0xACC) = empty;
-            *(s16 *)(iGpffffb3ac + temp_6 + 0xACE) = empty;
-            *(s8 *)(iGpffffb3ac + temp_6 + 0xAD0) = empty;
-        }
-    }
-    var_8 = (var_8 + 1) & 0xFFFF;
-loop_test_8:
-    if ((var_8 & 0xFFFF) < 0x10) {
-        goto loop_8;
-    }
-}
-/* measured: close optimization_level after func_001f72e0 probe. */
-#pragma optimization_level 2
-/* measured: close schedule after func_001f72e0 probe. */
-#pragma schedule on
-/* measured: close opt_loop_invariants after func_001f72e0 probe. */
-#pragma opt_loop_invariants off
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f72e0);
-#endif
 // FUN_001F73C0
 void func_001f73c0(void)
 {
@@ -3319,48 +3131,7 @@ void func_001fae60(s32 arg0, s32 arg1, s32 arg2)
 }
 /* Parked candidate: the C shape matches through the call and switch, with a 7-word residual and object 8 bytes short of the 240-byte window. Committed at nd 11. */
 // FUN_001FAE80
-#ifdef NON_MATCHING
-s32 func_001fae80(s32 arg0, s32 arg1)
-{
-    extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3,
-                              u32 arg4);
-    extern s32 func_001da130(s32 arg0, s32 arg1);
-    u8 sp30[0x38];
-    s32 temp_16;
-    u32 temp_4;
-    u32 temp_5;
-    u32 temp_6;
-    u8 *temp_3;
-
-    if (arg1 <= 0) {
-        return 0;
-    }
-    temp_16 = arg1 * 0x28;
-    temp_3 = (u8 *)((u32)iGpffffb3b8 + temp_16);
-    if ((*(u8 *)temp_3 & 8) == 0) {
-        return 0;
-    }
-    temp_4 = *(u16 *)(temp_3 + 0xC);
-    temp_5 = *(u8 *)(temp_3 + 9);
-    temp_6 = *(u8 *)(temp_3 + 0xA);
-    func_001d7c60((u8 *)arg0, sp30, temp_4, temp_5, temp_6);
-    if (*(u16 *)(sp30 + 0x38) == 0) {
-        return 2;
-    }
-    switch (*(u8 *)((u8 *)iGpffffb3b8 + temp_16 + 0x24)) {
-    case 2:
-        if (func_001da130(arg0, 0) == 0) {
-            return 6;
-        }
-        break;
-    default:
-        break;
-    }
-    return 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fae80);
-#endif
 // FUN_001FAF70
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001faf70);
 // FUN_001FB170

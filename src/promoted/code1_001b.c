@@ -1556,7 +1556,48 @@ void func_001b70a0(u32 arg0, s32 *arg1, s32 *arg2) {
 // FUN_001B70C0
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b70c0);
 // FUN_001B73F0
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b73f0);
+void func_001b73f0(u8 *arg0)
+{
+    s32 index;
+    u16 masked;
+    u8 color[4];
+
+    if (((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x400000) != 0) &&
+        ((*(u16 *)((u8 *)iGpffffb3ac + 0x18) & 0x10) != 0)) {
+        goto done;
+    }
+    if (arg0 != NULL) {
+        color[0] = *(u8 *)(arg0 + 0x30);
+        color[1] = *(u8 *)(arg0 + 0x31);
+        color[2] = *(u8 *)(arg0 + 0x32);
+        color[3] = 0xFF;
+        func_00194f60(arg0, *(s32 *)color);
+        goto done;
+    }
+    index = 0;
+    goto outer_check;
+outer_loop:
+    masked = (u16)index;
+    arg0 = *(u8 **)((u8 *)iGpffffb3ac + ((u32)masked << 3) + 0x178);
+    goto inner_check;
+inner_loop:
+    if (*(u16 *)(arg0 + 0x9FE) == 0) goto next;
+    if ((*(s32 *)(arg0 + 0x9C) & 1) != 0) goto next;
+    color[0] = *(u8 *)(arg0 + 0x30);
+    color[1] = *(u8 *)(arg0 + 0x31);
+    color[2] = *(u8 *)(arg0 + 0x32);
+    color[3] = 0xFF;
+    func_00194f60(arg0, *(s32 *)color);
+next:
+    arg0 = *(u8 **)(arg0 + 0xA6C);
+inner_check:
+    if (arg0 != NULL) goto inner_loop;
+    index = (index + 1) & 0xFFFF;
+outer_check:
+    if ((index & 0xFFFF) < 2) goto outer_loop;
+done:
+    ;
+}
 // FUN_001B7520
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b7520);
 // FUN_001BA0E0
@@ -1881,7 +1922,51 @@ s32 func_001bc1b0(u8 *arg0)
     return 1;
 }
 // FUN_001BC240
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bc240);
+/* measured: opt_propagation off probe for bc240 table-address order. */
+#pragma opt_propagation off
+s32 func_001bc240(s32 arg0)
+{
+    s32 result;
+    u8 *temp;
+    u8 *base;
+
+    if ((*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) != 0) {
+        result = 1;
+        goto done;
+    }
+    temp = *(u8 **)((u8 *)arg0 + 0xE0);
+    arg0 = *(u16 *)(temp + 0x6E);
+    temp = *(u8 **)(*(u8 **)(temp + 0x30) + 0xA0C);
+    if ((temp != NULL) &&
+        ((*(u16 *)(iGpffffb3e0 +
+                   (*(u16 *)(temp + 0xA4) * 0x58))) & 1) != 0) {
+        result = 0;
+        goto check20;
+    }
+    base = iGpffffb3bc;
+    if ((*(u16 *)((u8 *)(((arg0 & 0xFFFF) << 2) + (u32)base) + 2) &
+         0x10) != 0) {
+        result = 0;
+        goto check20;
+    }
+    result = 1;
+check20:
+    if (result == 0) {
+        goto final_zero;
+    }
+    base = iGpffffb3bc;
+    if ((*(u16 *)((u8 *)(((arg0 & 0xFFFF) << 2) + (u32)base) + 2) &
+         0x20) != 0) {
+        result = 1;
+        goto done;
+    }
+final_zero:
+    result = 0;
+done:
+    return result;
+}
+/* measured: close opt_propagation probe for bc240. */
+#pragma opt_propagation on
 // FUN_001BC330
 s32 func_001bc330(u8 *arg0) {
     u8 *ptr = *(u8 **)(arg0 + 0xE0);

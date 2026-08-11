@@ -51,7 +51,10 @@ extern void func_0038c100(u8 *arg0);
 extern void func_0038c770(u8 *arg0);
 extern void func_0038cab0(u8 *arg0);
 extern u8 D_0064F0E0[];
-extern f32 D_0064EEF0[];
+extern u8 D_0064EEF0[];
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern s32 func_003df590(s32 arg0, ...);
+extern void func_003df4d0(s32 *arg0);
 extern void func_00389370();
 extern void func_00389640();
 extern void func_00389e10();
@@ -886,8 +889,93 @@ void func_0038f600(u8 *arg0) {
 }
 
 
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_0038F990
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f990);
+u8 *func_0038f990(u16 arg0, u16 arg1, f32 *arg2, s32 arg3)
+{
+    u8 *temp_6;
+    s32 temp_16;
+    s32 temp_22;
+    s32 temp_4;
+    s32 var_17;
+    u8 *temp_2;
+    f32 temp_f1;
+    f32 temp_f0;
+    f32 temp_f2;
+    f32 temp_f3;
+    s32 fail_words[2];
+    temp_16 = arg1 & 0xFFFF;
+    var_17 = 0x28;
+
+    if (temp_16 > 0) {
+        var_17 += (temp_16 * 0x10) + 0xF;
+    }
+    goto dispatch_0;
+
+add_0:
+    var_17 += ((arg0 & 0xFFFF) * 2) + 1;
+
+alloc_0:
+    temp_2 = jtbl_008873E8[0](var_17, 0x3002C);
+    if (temp_2 == NULL) {
+        goto failure_0;
+    }
+    *(s32 *)(temp_2 + 0) = arg3;
+    temp_6 = temp_2;
+    *(u16 *)(temp_2 + 0x1C) = arg0;
+    *(u16 *)(temp_2 + 0x1E) = arg1;
+    temp_f0 = arg2[0];
+    temp_f1 = arg2[1];
+    temp_f2 = arg2[2];
+    temp_f3 = arg2[3];
+    *(f32 *)(temp_2 + 4) = temp_f0;
+    *(f32 *)(temp_2 + 8) = temp_f1;
+    *(f32 *)(temp_2 + 0xC) = temp_f2;
+    *(f32 *)(temp_2 + 0x10) = temp_f3;
+    temp_f1 = *(f32 *)((u8 *)arg2 + 0x10);
+    temp_f0 = temp_f1;
+    temp_f1 = *(f32 *)((u8 *)arg2 + 0x14);
+    *(f32 *)(temp_2 + 0x14) = temp_f0;
+    *(f32 *)(temp_2 + 0x18) = temp_f1;
+    temp_2 += 0x28;
+    if (temp_16 <= 0) {
+        goto zero_extra;
+    }
+    temp_4 = ((s32)(temp_2 + 0xF)) & ~0xF;
+    temp_2 = (u8 *)(temp_4 + (temp_16 * 0x10));
+    *(s32 *)(temp_6 + 0x20) = temp_4;
+
+pointer_0:
+    if (temp_22 != 0) {
+        *(s32 *)(temp_6 + 0x24) = ((s32)(temp_2 + 1)) & ~1;
+    } else {
+        *(s32 *)(temp_6 + 0x24) = 0;
+    }
+    return temp_6;
+dispatch_0:
+    temp_22 = arg3 & 1;
+    switch (temp_22) {
+    case 0:
+        goto alloc_0;
+    default:
+        goto add_0;
+    }
+
+failure_0:
+    fail_words[0] = 0x11D;
+    fail_words[1] = func_003df590(0x80000013, var_17);
+    func_003df4d0(fail_words);
+    return NULL;
+zero_extra:
+    *(s32 *)(temp_6 + 0x20) = 0;
+    goto pointer_0;
+}
+/* measured: closes the bracket opened above func_0038f990, which matches at
+   object 372 against the 384-byte window at nd 0 with the float copy-chain
+   locals; the explicit off restores the file baseline for what follows. */
+#pragma schedule off
+#pragma no_branch_likely off
 // measured: b210 at -O2 folds (a*0x10)+0x30 into one addiu in the beqz delay
 // slot (11 words); schedule on with the constant materialized first reproduces
 // retail's hoisted addiu $a1,0x30 + addu $v0,$a1,$v0 delay-slot pair (12 words).

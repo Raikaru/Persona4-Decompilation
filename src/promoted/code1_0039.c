@@ -78,7 +78,15 @@ extern u8 D_00884A90[];
 extern s32 func_0039b7c0(s32 arg0, s32 arg1);
 extern void func_0039ba80(s32 arg0);
 extern s32 func_003e8920(void);
-extern s32 func_0038fb20(s32 arg0);
+extern u8 *func_0039ac80(u8 *arg0, u8 *arg1);
+extern s32 func_0039ae90(s32 arg0, s32 arg1);
+extern s32 func_0039b080(s32 arg0, s32 arg1);
+extern s32 func_0039af40(s32 arg0, s32 arg1);
+extern s32 func_003e8930(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)());
+extern s32 func_003c1ab0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
+extern s32 func_003c2b70(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
+extern s32 func_003c2ba0(s32 arg0, s32 (*arg1)(), s32 (*arg2)(), s32 (*arg3)());
+extern s32 func_0038fb20(u8 *arg0);
 extern s32 func_003df240(s32 arg0, s32 *arg1, s32 arg2);
 extern f32 func_0039b250(s32 arg0, f32 arg1);
 extern u8 *func_004115d0(void);
@@ -524,7 +532,6 @@ docall:
 #pragma schedule off
 // FUN_00399320
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399320);
-
 
 /* measured: schedule on preserves the retail setter's return move and
    address calculation order. */
@@ -1831,7 +1838,27 @@ s32 func_0039b290(s32 arg0)
 // FUN_0039B2C0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b2c0);
 // FUN_0039B380
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b380);
+s32 func_0039b380(void)
+{
+    s32 temp_2;
+    s32 temp_2_2;
+
+    if (func_003e8930(0, 0x105, func_0039ac20, func_0039ac40) < 0) {
+        return 0;
+    }
+    temp_2 = func_003c1ab0(0xC, 0x105, func_0039ac60, func_0039ac60,
+                           (s32 (*)())func_0039ac80);
+    iGpffffb5dc = temp_2;
+    if (temp_2 < 0) {
+        return 0;
+    }
+    temp_2_2 = func_003c2b70(0xC, 0x105, func_0039b290, func_0039ae30, func_0039ae90);
+    iGpffffb5e0 = temp_2_2;
+    if (temp_2_2 < 0) {
+        return 0;
+    }
+    return func_003c2ba0(0x105, func_0039b080, func_0039af40, func_0039b210) >= 0;
+}
 // FUN_0039B450
 s32 func_0039b450(s32 arg0)
 {

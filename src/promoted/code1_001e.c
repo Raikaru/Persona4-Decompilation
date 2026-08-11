@@ -1,7 +1,16 @@
 #include "include_asm.h"
 #include "type.h"
 typedef signed __int128 s128;
-
+typedef struct P4Vec4_001EC2B0 {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} P4Vec4_001EC2B0;
+typedef struct P4Vec4Holder_001EC2B0 {
+    P4Vec4_001EC2B0 quat;
+} P4Vec4Holder_001EC2B0;
+extern f32 sqrtf(f32 arg0);
 extern u8 *func_001b0cc0();
 extern void *D_00609850[];
 extern s32 func_00231f80();
@@ -29,6 +38,7 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3bc;
 extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
+extern s32 *gEncountTbl;
 extern void func_00213b80(s32 arg0);
 extern void func_00213b50(s32 arg0);
 extern s32 func_001eb860(void);
@@ -108,6 +118,7 @@ extern u8 *func_001f81f0(s32 arg0, void *arg1);
 extern void func_00442088(void *arg0, void *arg1, s64 arg2);
 extern u8 D_00609E40[];
 extern s32 func_00232710(s32 arg0, s32 arg1);
+extern s32 func_00232c70(s32 arg0, s32 arg1);
 extern s32 func_00231ed0(s32 arg0);
 extern s32 func_002428f0(s32 arg0, s32 arg1);
 extern s32 func_00106330(s32 arg0);
@@ -1359,7 +1370,20 @@ s32 func_001ea360(void) {
     return 1;
 }
 // FUN_001EA390
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea390);
+s32 func_001ea390(void)
+{
+    u8 *work;
+    s32 index;
+
+    work = func_0029d050();
+    index = func_0029cc00_s32(0);
+    if ((iGpffffb3b8[index * 0x28] & 2) == 0) {
+        func_0046d730(D_00609E30, 5711);
+    }
+    *(u16 *)(work + 0x6C) = 1;
+    *(u16 *)(work + 0x6E) = index;
+    return 1;
+}
 // FUN_001EA420
 s32 func_001ea420(void)
 {
@@ -1420,7 +1444,40 @@ s32 func_001ea5f0(void)
 
 
 // FUN_001EA660
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea660);
+s32 func_001ea660(void)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    } first;
+    struct Vec3 first_copy;
+    struct Vec3 second;
+    struct Vec3 second_copy;
+    f32 value;
+
+    func_001a03b0(*(s32 *)(iGpffffb3ac + 0x170));
+    func_00194590(func_001d3700(3, 0xFFF), 0);
+    first.x = func_0029cd50(0);
+    first.y = func_0029cd50(1);
+    first.z = func_0029cd50(2);
+    second.x = func_0029cd50(3);
+    second.y = func_0029cd50(4);
+    second.z = func_0029cd50(5);
+    value = func_0029cd50(6);
+    first_copy = first;
+    second_copy = second;
+    func_00194590(func_001bcb50(
+        *(s32 *)(iGpffffb3ac + 0x170),
+        (f32 *)&first,
+        (f32 *)&second,
+        value,
+        (f32 *)&first_copy,
+        (f32 *)&second_copy,
+        value,
+        1.0f), 0);
+    return 1;
+}
 // FUN_001EA780
 s32 func_001ea780(void) {
     D_00881420[0] = func_0029cd50(0);
@@ -1985,10 +2042,48 @@ void func_001ec1c0(u8 *arg0, u8 *arg1, u8 *arg2) {
         var_f0 = fGpffff8048 * func_0044b950(temp_f12, temp_f13);
     func_003dc740(arg0, D_0060A0E0, var_f0, 0);
 }
+/* measured: opt_propagation off probe for ec2b0 load ordering. */
+#pragma opt_propagation off
 // FUN_001EC2B0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ec2b0);
+f32 func_001ec2b0(P4Vec4Holder_001EC2B0 *right, P4Vec4Holder_001EC2B0 *left)
+{
+    extern f32 func_0044b920(f32 arg0);
+    f32 dot;
+
+    dot = right->quat.x * left->quat.x +
+          right->quat.y * left->quat.y +
+          right->quat.z * left->quat.z;
+    dot += right->quat.w * left->quat.w;
+    if (dot < 0.0f) {
+        dot = right->quat.x * -left->quat.x +
+              right->quat.y * -left->quat.y +
+              right->quat.z * -left->quat.z;
+        dot += right->quat.w * -left->quat.w;
+    }
+    return 2.0f * func_0044b920(dot);
+}
+/* measured: close opt_propagation probe for func_001ec2b0. */
+#pragma opt_propagation on
 // FUN_001EC350
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ec350);
+f32 func_001ec350(f32 *arg0, f32 *arg1)
+{
+    f32 zero;
+    f32 length;
+
+    zero = 0.0f;
+    length = sqrtf(
+        arg0[0] * arg0[0] +
+        arg0[1] * arg0[1] +
+        arg0[2] * arg0[2] +
+        arg0[3] * arg0[3]);
+    if (zero != length) {
+        arg1[0] = arg0[0] / length;
+        arg1[1] = arg0[1] / length;
+        arg1[2] = arg0[2] / length;
+        arg1[3] = arg0[3] / length;
+    }
+    return length;
+}
 // FUN_001EC3D0
 f32 func_001ec3d0(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
 {
@@ -2183,7 +2278,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef4d0);
 // FUN_001EF5F0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef5f0);
 // FUN_001EF720
-s32 func_001ef720(s32 arg0, s32 arg1) {
+s32 func_001ef720(s32 arg0, s32 arg1)
+{
     u8 *var_18;
     s32 var_17;
     u16 temp_3;
@@ -2209,7 +2305,8 @@ s32 func_001ef720(s32 arg0, s32 arg1) {
 // FUN_001EF7E0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef7e0);
 // FUN_001EF8C0
-s32 func_001ef8c0(void) {
+s32 func_001ef8c0(void)
+{
     u8 *base;
     u8 *table;
     u16 index;

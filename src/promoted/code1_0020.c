@@ -9,6 +9,7 @@ extern void func_00209fa0(void);
 extern void func_00209f90(void);
 extern void func_0020a5c0(void);
 extern void func_00202d20();
+extern s32 func_00202e70(void);
 extern void func_00113500(void);
 extern void func_00113480(s16 a0, s16 a1, s16 a2, s16 a3);
 extern void func_0046b260(void *arg0);
@@ -906,8 +907,20 @@ void func_00202620(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + 1;
 }
 // FUN_00202640
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00202640);
+s32 func_00202640(u8 **arg0)
+{
+    f32 var_f0;
+    f32 var_f20;
+    u8 *temp_16;
 
+    temp_16 = *arg0;
+    var_f20 = (f32)(u32)func_00231ed0(*(s32 *)(temp_16 + 0xA64));
+    var_f0 = (f32)(u32)func_00231f80(*(s32 *)(temp_16 + 0xA64));
+    *(f32 *)(temp_16 + 0xA2C) = var_f20 / var_f0;
+    *(s32 *)(temp_16 + 0xA28) = (s32)0xBF800000;
+    *(s16 *)(temp_16 + 0xA38) = -1;
+    return 1;
+}
 // FUN_00202720
 void func_00202720(u8 *arg0)
 {
@@ -1451,14 +1464,11 @@ void func_00209140(u8 *arg0, u8 *arg1)
     *(s16 *)(arg1 + 0x16) = 0;
     *(s16 *)(arg1 + 0x18) = 0;
 }
-/* measured: switch declaration and state-width spellings reached nd 6;
-   remaining differences are compiler shape residuals. Committed at nd 9 in-file (nd 6 measured in isolation). */
+/* Reconstructed state dispatch and return width; candidate is byte-exact. */
 // FUN_002091F0
-#ifdef NON_MATCHING
-s32 func_002091f0(u8 *arg0, u8 *arg1)
+u16 func_002091f0(u8 *arg0, u8 *arg1)
 {
     s32 temp_2;
-    s32 result;
     u16 value;
 
     value = func_00202e70() & 0xFFFF;
@@ -1495,12 +1505,8 @@ s32 func_002091f0(u8 *arg0, u8 *arg1)
         value = 1;
         break;
     }
-    result = value;
-    return result;
+    return value;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002091f0);
-#endif
 // FUN_00209370
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00209370);
 // FUN_00209640

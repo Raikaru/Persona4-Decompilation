@@ -23,6 +23,7 @@ extern s32 func_003e3830(u8 *desc, s32 arg0);
 extern s32 func_003c3cc0(u8 *arg0);
 extern u8 *func_003c8200(u8 *arg0, s32 arg1, s32 arg2);
 extern s32 func_003c5fd0(u8 *arg0, u8 *arg1);
+extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
 extern void func_003ce840(u8 *arg0);
 extern s32 func_003ce3a0(s32 arg0, u8 *arg1);
 extern s32 func_003ce9e0(s32 arg0, u8 *arg1);
@@ -1018,35 +1019,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
    object 60B/window 64B and normalized_diff 8. The final return alignment
    remains a compiler residual. Committed at nd 8. */
 // FUN_003C4BC0
-/* measured: schedule on preserves the compact loop body. */
-#ifdef NON_MATCHING
-#pragma schedule on
-s32 func_003c4bc0(u8 *arg0, s32 arg1) {
-    s32 count;
-    s32 index;
-    s32 *p;
-
-    count = *(s32 *)(arg0 + 4);
-    index = count - 1;
-    if (count > 0) {
-        p = *(s32 **)(arg0 + 0) + index;
-        do {
-            if (*p == arg1) {
-                goto done;
-            }
-            p -= 1;
-        } while (index-- > 0);
-    }
-done:
-    ;
-    return index;
-}
-/* measured: schedule on closes 003C4BC0. */
-#pragma schedule off
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
-#endif
-
 // FUN_003C4C00
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4c00);
 
@@ -1061,19 +1034,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4fa0);
 void func_003c54a0(u8 *arg0) {
     jtbl_008873E8[0](arg0, 0x30502);
 }
-/* measured: tailcall off closes the c54a0 probe. */
 #pragma tailcall off
 
 /* measured: schedule fills the counter branch delay and preserves self across
    the conditional teardown call. */
 #pragma schedule on
-/* measured: no_branch_likely keeps the null teardown test as beqz. */
 #pragma no_branch_likely on
 // FUN_003C54C0
 u8 *func_003c54c0(u8 *arg0) {
-    u8 *self;
-
-    self = arg0;
     iGpffffb6f4 -= 1;
     if (iGpffffb6f4 != 0)
         goto done;
@@ -1082,11 +1050,9 @@ u8 *func_003c54c0(u8 *arg0) {
     func_003e12f0(iGpffffb6e8);
     iGpffffb6e8 = NULL;
 done:
-    return self;
+    return arg0;
 }
-/* measured: no_branch_likely off closes the c54c0 probe. */
 #pragma no_branch_likely off
-/* measured: schedule off closes the c54c0 probe. */
 #pragma schedule off
 
 // FUN_003C5510
@@ -1164,6 +1130,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5a90);
 // FUN_003C5D10
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5d10);
 
+/* measured: best switch reconstruction object 140B/window 144B, normalized_diff 88; compiler branch/layout residuals remain. */
 // FUN_003C5FD0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5fd0);
 // FUN_003C6060
@@ -1588,31 +1555,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
    returned-value, pointer/record-local, offset, and schedule variants remain
    nd 14. Committed at nd 14. */
 
-// FUN_003CA830 NONMATCHING
-#ifdef NON_MATCHING
-#pragma schedule on
-u8 *func_003ca830(u8 *arg0) {
-    u8 *f60 = func_003ca7a0;
-    u8 *f00 = func_003ca740;
-    u8 *f40 = func_003ca780;
-    u8 *node = arg0 + iGpffffb708;
-
-    *(s32 *)(node + 0) = 0;
-    *(s32 *)(node + 4) = 0;
-    *(s32 *)(node + 8) = 0;
-    *(s32 *)(node + 0x10) = *(s32 *)(arg0 + 0x18);
-    *(s32 *)(node + 0x14) = *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(node + 0x18) = *(s32 *)(arg0 + 0x10);
-    *(u8 **)(arg0 + 0x10) = f60;
-    *(u8 **)(arg0 + 0x18) = f00;
-    *(u8 **)(arg0 + 0x1C) = f40;
-    *(s32 *)(node + 0xC) = 0;
-    return arg0;
-}
-#pragma schedule off
-#else
+// FUN_003CA830
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
-#endif
 // FUN_003CA890
 #pragma schedule on
 u8 *func_003ca890(u8 *arg0, u8 *arg1) {
@@ -1838,21 +1782,8 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: schedule on and the stored-field result yield object 72B/window
    80B and normalized_diff 6; retail's movz conditional move remains a
    compiler residual. Committed at nd 6. */
-// FUN_003CB720 NONMATCHING
-#ifdef NON_MATCHING
-extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
-#pragma schedule on
-s32 func_003cb720(s32 arg0, s32 arg1, u8 *arg2) {
-    Cb720Obj *obj;
-
-    obj = (Cb720Obj *)arg2;
-    obj->field = func_003c5d10(arg0, arg2, arg2 + 0x20);
-    return (obj->field == 0) ? 0 : arg0;
-}
-#pragma schedule off
-#else
+// FUN_003CB720
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
-#endif
 // FUN_003CB770
 /* measured: schedule on places the field load in the jump delay slot. */
 #pragma schedule on
@@ -1879,6 +1810,7 @@ s32 func_003cb780(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
 
+/* measured: best helper-conditional reconstruction object 56B/window 48B, normalized_diff 29; retail movz conditional move remains. */
 // FUN_003CB790
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb790);
 // FUN_003CB7C0
@@ -1889,7 +1821,6 @@ void func_003cb7c0(u8 *arg0) {
 }
 /* measured: tailcall off closes the single-function bracket. */
 #pragma tailcall off
-
 // FUN_003CB7D0
 /* measured: schedule on places the selected argument move in the jump delay slot. */
 #pragma schedule on
@@ -2041,130 +1972,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbf30);
    The split-store form grew to nd 40, object 100B/window 96B; the best
    separate walker/result form was nd 25, object 84B/window 96B. Committed at nd 6. */
 
-// FUN_003CC010 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: probe schedule */
-#pragma schedule on
-/* measured: probe CSE */
-#pragma opt_common_subs off
-/* measured: probe branch form */
-#pragma no_branch_likely on
-u8 *func_003cc010(u8 *arg0) {
-    s32 off;
-    u8 *base;
-    if (arg0 == NULL)
-        goto nullcase;
-reload:
-    off = iGpffffb9b8;
-store:
-    base = D_008872E0 + off;
-    *(u8 **)(base + 0x40) = arg0;
-    return arg0;
-nullcase:
-    arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x58);
-    if (arg0 == NULL)
-        goto setnull;
-    off = iGpffffb9b8;
-    goto store;
-setnull:
-    arg0 = NULL;
-    goto reload;
-}
-/* measured: close branch form */
-#pragma no_branch_likely off
-/* measured: close CSE */
-#pragma opt_common_subs on
-/* measured: close schedule */
-#pragma schedule off
-#else
+// FUN_003CC010
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc010);
-#endif
 
 /* measured: sibling of func_003cc010; the same template and probes leave
    only the offset-16/20 preheader order residual, nd 6, object 88B/window
    96B. Checklist 9. Committed at nd 6. */
-// FUN_003CC070 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: probe schedule */
-#pragma schedule on
-/* measured: probe CSE */
-#pragma opt_common_subs off
-/* measured: probe branch form */
-#pragma no_branch_likely on
-u8 *func_003cc070(u8 *arg0) {
-    s32 off;
-    u8 *base;
-
-    if (arg0 == NULL)
-        goto nullcase;
-reload:
-    off = iGpffffb9b8;
-store:
-    base = D_008872E0 + off;
-    *(u8 **)(base + 0x3C) = arg0;
-    return arg0;
-nullcase:
-    arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x54);
-    if (arg0 == NULL)
-        goto setnull;
-    off = iGpffffb9b8;
-    goto store;
-setnull:
-    arg0 = NULL;
-    goto reload;
-}
-/* measured: close branch form */
-#pragma no_branch_likely off
-/* measured: close CSE */
-#pragma opt_common_subs on
-/* measured: close schedule */
-#pragma schedule off
-#else
+// FUN_003CC070
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc070);
-#endif
 
 /* measured: sibling of func_003cc010; the same template and probes leave
    only the offset-16/20 preheader order residual, nd 6, object 88B/window
    96B. Checklist 9. Committed at nd 6. */
-// FUN_003CC0D0 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: probe schedule */
-#pragma schedule on
-/* measured: probe CSE */
-#pragma opt_common_subs off
-/* measured: probe branch form */
-#pragma no_branch_likely on
-u8 *func_003cc0d0(u8 *arg0) {
-    s32 off;
-    u8 *base;
-
-    if (arg0 == NULL)
-        goto nullcase;
-reload:
-    off = iGpffffb9b8;
-store:
-    base = D_008872E0 + off;
-    *(u8 **)(base + 0x44) = arg0;
-    return arg0;
-nullcase:
-    arg0 = *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x5C);
-    if (arg0 == NULL)
-        goto setnull;
-    off = iGpffffb9b8;
-    goto store;
-setnull:
-    arg0 = NULL;
-    goto reload;
-}
-/* measured: close branch form */
-#pragma no_branch_likely off
-/* measured: close CSE */
-#pragma opt_common_subs on
-/* measured: close schedule */
-#pragma schedule off
-#else
+// FUN_003CC0D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc0d0);
-#endif
 
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
@@ -2214,35 +2035,8 @@ void func_003f32d0();
    expression, or positive-branch form did not alter nd 4; the comparison
    `<= 0` versus `< 1` also stayed nd 4. The base body remains the lowest
    park. Committed at nd 4. */
-// FUN_003CC250 NONMATCHING
-#ifdef NON_MATCHING
-extern void (*D_00887300[])(u32, u32);
-/* measured: probe schedule */
-#pragma schedule on
-/* measured: probe branch form */
-#pragma no_branch_likely on
-s32 func_003cc250(s32 arg0, u8 **arg1) {
-    u8 *p = *arg1;
-    if ((s32)*(u16 *)(p + 0) <= 0)
-        goto retzero;
-    *(s32 *)(p + 0x18) = *(s32 *)(p + 4);
-    if ((*(s32 *)(p + 0xC) & 1) == 0)
-        goto call;
-retone:
-    return 1;
-retzero:
-    return 0;
-call:
-    D_00887300[0](1, 0);
-    goto retone;
-}
-/* measured: close branch form */
-#pragma no_branch_likely off
-/* measured: close schedule */
-#pragma schedule off
-#else
+// FUN_003CC250
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
-#endif
 
 // FUN_003CC2C0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc2c0);
