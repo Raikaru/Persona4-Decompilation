@@ -4,6 +4,8 @@
 
 
 extern u8 *D_00745888[];
+extern u8 *D_007458B8[];
+void func_00514d80(u8 *, u8 *, u8 *);
 extern void func_004d3cd8();
 extern s32 func_004d43f8();
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot

@@ -29,6 +29,7 @@ extern void func_00202460(u8 *arg0);
 extern s32 func_00202480(u8 *arg0);
 extern void func_00202570(u8 *arg0);
 extern s32 func_001067f0(s16 arg0);
+extern s32 func_001eb860(void);
 
 typedef struct {
     f32 x;

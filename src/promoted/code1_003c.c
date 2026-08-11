@@ -808,7 +808,6 @@ u8 *func_003c3e10(u8 *arg0) {
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
-
 /* measured: explicit-label block order and the six-argument helper setup
    remain a compiler residual at this 144-byte window; no real C body was
    retained, so the bare INCLUDE_ASM fallback remains. */
@@ -1973,19 +1972,123 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbf30);
    separate walker/result form was nd 25, object 84B/window 96B. Committed at nd 6. */
 
 // FUN_003CC010
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc010);
+/* measured: Cluster-A archive probe showed the four-block setter/lookup body; schedule, no_branch_likely, and common-subexpression probes are retained from the nd 6 measurement. */
+/* measured: schedule on is required for the four-block delay-slot layout; the off probe above was object 100B/window 96B. */
+#pragma schedule on
+/* measured: no_branch_likely on preserves the four ordinary null-test branches. */
+#pragma no_branch_likely on
+/* measured: common-subexpression suppression remains required for the repeated gp load. */
+#pragma opt_common_subs off
+u8 *func_003cc010(u8 *arg0) {
+    s32 off;
+    u8 *base;
 
-/* measured: sibling of func_003cc010; the same template and probes leave
-   only the offset-16/20 preheader order residual, nd 6, object 88B/window
-   96B. Checklist 9. Committed at nd 6. */
+    if (arg0 == NULL)
+        goto nullcase;
+reload:
+    off = iGpffffb9b8;
+store:
+    *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x40) = arg0;
+    return arg0;
+nullcase:
+    off = iGpffffb9b8;
+    base = D_008872E0 + off;
+    arg0 = *(u8 **)(base + 0x58);
+    switch ((u32)arg0) {
+    case 0:
+        goto setnull;
+    default:
+        goto store;
+    }
+setnull:
+    arg0 = NULL;
+    goto reload;
+}
+#pragma opt_common_subs on
+#pragma no_branch_likely off
+#pragma schedule off
+
+/* MATCHED: Cluster-A source shape transferred from func_003cc010; the
+   direct GP store, base-local null lookup, and integer switch preserve the
+   96-byte retail window (normalized_diff 0). */
 // FUN_003CC070
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc070);
+/* measured: Cluster-A match uses the schedule, ordinary-branch, and
+   common-subexpression settings from func_003cc010. */
+#pragma schedule on
+#pragma no_branch_likely on
+/* measured: opt_common_subs off is part of the func_003cc010 recipe; with
+   it on the shared base load is folded and the store loses its GP form. */
+#pragma opt_common_subs off
+u8 *func_003cc070(u8 *arg0) {
+    s32 off;
+    u8 *base;
 
-/* measured: sibling of func_003cc010; the same template and probes leave
-   only the offset-16/20 preheader order residual, nd 6, object 88B/window
-   96B. Checklist 9. Committed at nd 6. */
+    if (arg0 == NULL)
+        goto nullcase;
+reload:
+    off = iGpffffb9b8;
+store:
+    *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x3C) = arg0;
+    return arg0;
+nullcase:
+    off = iGpffffb9b8;
+    base = D_008872E0 + off;
+    arg0 = *(u8 **)(base + 0x54);
+    switch ((u32)arg0) {
+    case 0:
+        goto setnull;
+    default:
+        goto store;
+    }
+setnull:
+    arg0 = NULL;
+    goto reload;
+}
+#pragma opt_common_subs on
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket opened above. */
+#pragma schedule off
+
+/* MATCHED: Cluster-A source shape transferred from func_003cc010; the
+   direct GP store, base-local null lookup, and integer switch preserve the
+   96-byte retail window (normalized_diff 0). */
 // FUN_003CC0D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc0d0);
+/* measured: Cluster-A match uses the schedule, ordinary-branch, and
+   common-subexpression settings from func_003cc010. */
+#pragma schedule on
+#pragma no_branch_likely on
+/* measured: opt_common_subs off is part of the func_003cc010 recipe; with
+   it on the shared base load is folded and the store loses its GP form. */
+#pragma opt_common_subs off
+u8 *func_003cc0d0(u8 *arg0) {
+    s32 off;
+    u8 *base;
+
+    if (arg0 == NULL)
+        goto nullcase;
+reload:
+    off = iGpffffb9b8;
+store:
+    *(u8 **)(D_008872E0 + iGpffffb9b8 + 0x44) = arg0;
+    return arg0;
+nullcase:
+    off = iGpffffb9b8;
+    base = D_008872E0 + off;
+    arg0 = *(u8 **)(base + 0x5C);
+    switch ((u32)arg0) {
+    case 0:
+        goto setnull;
+    default:
+        goto store;
+    }
+setnull:
+    arg0 = NULL;
+    goto reload;
+}
+#pragma opt_common_subs on
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket opened above. */
+#pragma schedule off
 
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot

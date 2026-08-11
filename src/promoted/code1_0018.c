@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+typedef unsigned int u_long128 __attribute__((mode(TI)));
 static inline s32 code1_0018_shift4(s32 value)
 {
     return value << 4;
@@ -17,12 +18,15 @@ extern void func_003a2760(s32 arg0);
 extern void func_003e9390(s32 arg0);
 extern void func_003c21e0();
 extern void func_004787e0(s32 arg0);
+extern void func_003f3eb0(s32 arg0, s32 arg1);
 extern void func_00185370();
+extern void func_00183b80(u8 *arg0);
 
 extern u8 *(*jtbl_008873EC[])(u8 *);
 
 extern s32 D_0076428C;
 extern s32 iGpffffb27c;
+extern u64 iGpffffb8c8;
 extern s32 iGpffffb278;
 extern s32 func_0029d2e0(void);
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -65,6 +69,7 @@ extern void func_0018a010(s32 arg0);
 extern u8 D_005F54E8[];
 extern s32 func_0018dde0(u8 *arg0);
 extern u8 D_005F1D80[];
+extern u8 D_005F1D90[];
 extern s32 iGpffff9f60;
 extern void func_00182bc0(u8 *arg0);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 prio, s32 arg3,
@@ -213,8 +218,38 @@ INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185150);
 // FUN_001852F0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001852f0);
 
+/* measured: enable_vu0_registers + vu0_mmi_reg_binding with optimization_level 1
+   reproduces the sibling 112-byte pcpyld/sq skeleton; direct _pcpyld on separate
+   u64 pairs gives the retail register order and reload. */
+#pragma enable_vu0_registers on
+#pragma vu0_mmi_reg_binding on
+/* measured: optimization_level 1 is required with the VU0 pragmas above;
+   at -O2 the packet stores are reordered and the pcpyld pairs are folded. */
+#pragma optimization_level 1
 // FUN_00185370
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185370);
+void func_00185370(void)
+{
+    u_long128 *packet;
+    u_long128 packed;
+    u64 a, b, c, d;
+
+    func_003f3eb0((s32)0x80000000, 2);
+    a = 0xE;
+    b = 0x1000000000008001ULL;
+    packed = _pcpyld(a, b);
+    packet = (u_long128 *)(u32)iGpffffb27c;
+    *packet = packed;
+    c = 0x4C;
+    d = iGpffffb8c8;
+    packed = _pcpyld(c, d);
+    packet[1] = packed;
+    iGpffffb27c += 0x20;
+}
+/* measured: closes the cluster pcpyld pragma scope and restores the file's -O2
+   baseline. */
+#pragma optimization_level 2
+#pragma vu0_mmi_reg_binding off
+#pragma enable_vu0_registers off
 
 /* measured: the saved callback argument and D_00887300 base reproduce the
    retail s17/s16 frame layout under opt_propagation off. */

@@ -1,6 +1,8 @@
 #include "include_asm.h"
 #include "type.h"
 extern u8 D_008872E0[];
+extern u8 D_00885A90[];
+extern s32 iGpffffb680;
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
 extern u64 func_003b7060(void);
@@ -145,16 +147,9 @@ u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
 #pragma schedule off
 // FUN_003B6CC0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
-#pragma schedule on
-#pragma no_branch_likely on
-#pragma opt_propagation off
-/* measured: best plain-C attempt object 84B/window 96B, normalized_diff 6;
-   archived at build/FP3B_003b6da0_body.c and restored to INCLUDE_ASM. */
+/* measured: best plain-C attempt object 84B/window 96B, normalized_diff 7; archived at build/W3C3B_003b6da0_body.c. */
 // FUN_003B6DA0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
-#pragma opt_propagation on
-#pragma schedule off
-#pragma no_branch_likely off
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003B6E00
@@ -596,6 +591,8 @@ s32 func_003bcbc0(s32 arg0, s32 arg1) {
     return arg0;
 }
 /* measured: closes schedule around func_003bcbc0. */
+#pragma schedule off
+/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 7; archived at build/W3C3B_003bcbe0_body.c. */
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
 
@@ -617,13 +614,9 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-/* measured: schedule off is retained for func_003bcf10's loop order. */
-#pragma schedule off
-/* measured: best plain-C attempt object 76B/window 80B, normalized_diff 50;
-   archived at build/FP3B_003bcf10_body.c and restored to INCLUDE_ASM. */
+/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcf10_body.c. */
 // FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
-/* measured: schedule on probes retail's field-load before index shift. */
 #pragma schedule on
 /* measured: no_branch_likely on restores the plain guard form in func_003bcf60. */
 #pragma no_branch_likely on
@@ -648,12 +641,10 @@ done:
 /* measured: no_branch_likely off closes the one-function 003bcf60 probe. */
 #pragma no_branch_likely off
 
-/* measured: best plain-C attempt object 76B/window 80B, normalized_diff 10;
-   archived at build/FP3B_003bcfb0_body.c and restored to INCLUDE_ASM. */
+/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcfb0_body.c. */
 // FUN_003BCFB0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
 
-/* measured: schedule on restores retail's field-load/index ordering. */
 #pragma schedule on
 /* measured: no_branch_likely on restores the plain guard form in func_003bd000. */
 #pragma no_branch_likely on
