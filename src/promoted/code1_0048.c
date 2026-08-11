@@ -979,7 +979,42 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048abd0);
 // FUN_0048AFF0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048aff0);
 // FUN_0048B220
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b220);
+void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
+{
+    s32 func_0048abd0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
+    f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
+    void func_0048a460(void);
+    u_long128 sp50;
+    s32 size;
+
+    size = *(s32 *)(arg1 + 0xB8);
+    *(s32 *)(arg0 + 0x14) =
+        func_0048abd0(arg1 + 0x2C, arg1 + 0x50, arg2, size);
+    size = *(s32 *)(arg1 + 0xB8);
+    *(f32 *)(arg0 + 0x18) =
+        func_0048aff0(arg1 + 0x60, arg2, size);
+    if (*(u8 *)(arg1 + 0x9C) != 2) {
+        size = *(s32 *)(arg1 + 0xB8);
+        *(f32 *)(arg0 + 0x1C) =
+            func_0048aff0(arg1 + 0x8C, arg2, size);
+        return;
+    }
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg0) : "$vf10", "memory");
+    func_0048a460();
+    __asm__ volatile("vmove.xyzw $vf11, $vf10" : : : "$vf10", "$vf11", "memory");
+    __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(arg3) : "$vf10", "memory");
+    func_0048a460();
+    __asm__ volatile("vsub.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "$vf11", "memory");
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(&sp50) : "$vf10", "memory");
+    if ((*(f32 *)((u8 *)&sp50 + 0) != 0.0f) ||
+        (*(f32 *)((u8 *)&sp50 + 4) != 0.0f)) {
+        *(f32 *)(arg0 + 0x1C) =
+            func_0044b950(*(f32 *)((u8 *)&sp50 + 4),
+                          *(f32 *)((u8 *)&sp50 + 0));
+        return;
+    }
+    *(f32 *)(arg0 + 0x1C) = 0.0f;
+}
 // FUN_0048B340
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048b340);
 // FUN_0048B9E0

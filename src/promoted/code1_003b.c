@@ -11,6 +11,13 @@ extern s32 iGpffffb668;
 
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_003df590(s32 arg0);
+extern void func_003df4d0(s32 *arg0);
+extern void func_003bbea0(s32 arg0);
+extern void func_003c2a80(s32 arg0);
+extern s32 func_003e3370(u8 *desc, u8 *arg1);
+extern u8 D_0070AF70[];
+extern void func_003e9700(s32 arg0);
 extern s32 D_00764758;
 extern s32 D_00764794;
 extern s32 D_00764790;

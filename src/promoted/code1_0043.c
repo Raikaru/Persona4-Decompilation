@@ -54,9 +54,6 @@ void func_0043c6d8(u8 *, s32, s32);
 s64 func_00444210(s32, s32, s32);
 
 
-/* measured: removing this pragma takes func_00438740 nd 0 -> nd 6: retail fills
-   the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
-#pragma schedule on
 
 // FUN_00430018
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00430018);
@@ -131,19 +128,27 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004319b8);
 // FUN_00431A38
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00431a38);
 // FUN_00431AE8
+/* measured: schedule on is required for the adjacent matched 56-byte helper. */
+#pragma schedule on
 /* measured: opt_propagation off preserves the retail call argument/global
    materialization order (nd 22 -> 0, object 56/56). */
 #pragma opt_propagation off
 s32 func_00431ae8(s32 arg0) { extern s32 D_008968E0[]; extern void func_00421670(s32,s32); s32 g; if(arg0<=0)return 0x81010016; { s32 x; g=D_008968E0[0]; x=arg0; func_00421670(g,x); } return 0; }
 /* measured: closes the opt_propagation scope at the file baseline. */
 #pragma opt_propagation on
+/* measured: closes the schedule-on scope at the file baseline. */
+#pragma schedule off
 // FUN_00431B20
 /* measured: opt_propagation off preserves the retail call argument/global
    materialization order (nd 22 -> 0, object 56/56). */
 #pragma opt_propagation off
+/* measured: schedule on is required for the adjacent matched 56-byte helper. */
+#pragma schedule on
 s32 func_00431b20(s32 arg0) { extern s32 D_008968E0[]; extern void func_00421680(s32,s32); s32 g; if(arg0<=0)return 0x81010016; { s32 x; g=D_008968E0[0]; x=arg0; func_00421680(g,x); } return 0; }
 /* measured: closes the opt_propagation scope at the file baseline. */
 #pragma opt_propagation on
+/* measured: closes the schedule-on scope at the file baseline. */
+#pragma schedule off
 // FUN_00431B58
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00431b58);
 // FUN_00431C08
@@ -310,6 +315,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004384b8);
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438638);
 // FUN_00438700
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438700);
+/* measured: removing this pragma takes func_00438740 nd 0 -> nd 6: retail fills
+   the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
+#pragma schedule on
 // FUN_00438740
 void func_00438740(void) {
     func_00439598();
@@ -342,9 +350,6 @@ void func_00438780(void) {
 #pragma schedule off
 
 
-/* measured: removing this pragma takes func_00438fa0 nd 0 -> nd 6: retail fills
-   the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
-#pragma schedule on
 
 // FUN_004387A0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_004387a0);
@@ -361,6 +366,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438a58);
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438ac8);
 // FUN_00438E60
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438e60);
+/* measured: removing this pragma takes func_00438fa0 nd 0 -> nd 6: retail fills
+   the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
+#pragma schedule on
 // FUN_00438FA0
 void func_00438fa0(void) {
     func_00438e60();
@@ -437,10 +445,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439cc8);
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439e90);
 
 
-/* measured: removing this pragma takes func_0043c0a0 nd 0 -> nd 18: retail fills
-   the jr $ra delay slot with addiu $sp, $sp, 0x10 and materializes the return
-   zero between ld $ra and the jump; baseline -O2 emits ld; move; addiu; jr; nop. */
-#pragma schedule on
 
 // FUN_00439EB0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00439eb0);
@@ -566,20 +570,35 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bcb8);
 // FUN_0043BEC8
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bec8);
 // FUN_0043C008
+/* measured: schedule on preserves the matched 8-byte zero-return helper. */
+#pragma schedule on
 s32 func_0043c008(void) {
     return 0;
 }
+/* measured: closes the schedule-on scope at the file baseline. */
+#pragma schedule off
 // FUN_0043C010
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c010);
 // FUN_0043C098
+/* measured: schedule on preserves the matched 8-byte zero-return helper. */
+#pragma schedule on
 s32 func_0043c098(void) {
     return 0;
 }
+/* measured: closes the schedule-on scope at the file baseline. */
+#pragma schedule off
+/* measured: removing this pragma takes func_0043c0a0 nd 0 -> nd 18: retail fills
+   the jr $ra delay slot with addiu $sp, $sp, 0x10 and materializes the return
+   zero between ld $ra and the jump; baseline -O2 emits ld; move; addiu; jr; nop. */
+#pragma schedule on
 // FUN_0043C0A0
 s32 func_0043c0a0(void) {
     func_00431408();
     return 0;
 }
+/* measured: closes the bracket noted above func_0043c0a0's opening pragma
+   (removing it takes that function nd 0 -> nd 18). */
+#pragma schedule off
 // FUN_0043C0C0
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c0c0);
 
@@ -614,9 +633,6 @@ s32 func_0043c6b0(s32 arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6b0);
 #endif
 
-/* measured: closes the bracket noted above func_0043c0a0's opening pragma
-   (removing it takes that function nd 0 -> nd 18). */
-#pragma schedule off
 
 
 
@@ -652,8 +668,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c6d8);
 
 
 /* measured: raw field stores reproduce the exact 96-byte object except b210 uses $v1/$a1 for the two function/data addresses and leaves the final self-pointer store in the body instead of the jr $ra delay slot. In-function schedule off improves the baseline to normalized_diff 24 (object 92/96); address-local and struct-pointer spellings do not improve it. Committed at nd 24. */
-/* measured: closes the optimization-level 3 scope at the file baseline. */
-#pragma optimization_level 2
 
 
 
