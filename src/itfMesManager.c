@@ -1621,41 +1621,18 @@ void func_00279dd0(u8 *arg0, s32 arg1)
 
 static inline s32 addOff7e90(s32 off, s32 base) { return off + base; }
 
-/* measured: re-measured 2026-08-03: nd 8 confirmed (obj 316B vs window
-   320B). This wave established the full correct body: base/arg0+0x14 declared
-   before id (register coloring), u32 masked = id & 0xFFFF local (retail
-   reuses $a0 for the 0x8000/0x7FFF tests), and the scaled offset in a named
-   s32 local fixes BOTH addu operand orders (retail addu $v0,$v0,$s3 and
-   addu $a0,$v0,$v1 - scaled first; inline expressions emit base first). The
-   ONLY remaining residual is the else-branch 7th-arg load position (off
-   220-244): retail lw $t2,($v0) BEFORE the arg-zero moves, mwcc b210 always
-   sinks it after move $a0..t0/addiu $t1,0xff; the 0x8000 branch's equivalent
-   loads schedules correctly. Tried: inline expr, hoisted p local, precomputed
-   v local - all nd 8. Load-sinking/scheduler floor, not source-drivable.
-   wave14 re-measure (8 attempts): a lever-3 index-first inline helper
-   `addOff7e90(off, base) { return off + base; }` on BOTH branch address
-   chains fixed the addu operand orders previously blamed on alloc (candidate
-   without it: nd 10) AND the else-branch load position, landing this at a NEW
-   BEST nd 7 - the residual is now ONLY the 0x8000-branch 7th-arg load
-   (offsets 136-160): mwcc emits `lw $t2, 0x94($v0)` BEFORE the move $a0..t0/
-   addiu $t1,0xff, retail emits it after (between addiu $t1,0xff and move
-   $t3,$zero). Not moved by: named s32 offset local (nd 10), p7 load local
-   (nd 7), #pragma opt_propagation off (nd 7), #pragma schedule on (base
-   reorder, obj 288B), distinct casts. Load-position scheduler floor. */
-/* measured: nd 15. Reconstructed from scratch this wave; the levers that got it
-   here are worth keeping. Loading the halfword into a saved register BEFORE the
-   call (retail keeps it live across) fixed the frame; emitting the two
-   func_00274570 calls SEPARATELY, one per branch, instead of merging them to a
-   single call after the join reproduced retail's two jals; the else branch
-   re-reads the value from memory rather than reusing the saved copy; and the
-   0x8000 branch needs a named local for the scaled offset plus an index-first
-   addOff helper for the addu. The seven words left are the position of one
-   argument load, which opt_propagation off makes worse (nd 20).
-   Committed at nd 15. */
-// FUN_00279E90 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: func_00279e90 now matches exactly (object 316B, retail window
+   320B, normalized_diff 0). The existing saved halfword/local and index-first
+   addOff7e90 helper preserve retail's frame and address calculation. A
+   block-scoped s32 declaration of func_00274570 makes this function's first
+   branch materialize arguments in retail order while leaving the file-scope
+   u32 prototype intact for func_0027a010; an explicit u32 cast on the second
+   branch's seventh argument preserves its load-before-argument-moves order. */
+// FUN_00279E90
 void func_00279e90(u8 *arg0, u8 *arg1)
 {
+    s32 func_00274570(s32 param_1, s32 param_2, s32 param_3, s32 param_4,
+                      s32 param_5, s32 param_6, s32 param_7, s32 param_8);
     s32 global;
     u8 *base;
     s32 X;
@@ -1687,15 +1664,13 @@ void func_00279e90(u8 *arg0, u8 *arg1)
             s32 v2;
             v2 = *(u16 *)(arg0 + 0x18);
             ep = *(s32 *)((*(s32 *)(*(s32 *)(arg0 + 4) + 0x18) << 3) + *(s32 *)(arg0 + 4) + 0x20);
-            *(s32 *)base = func_00274570(0, 0, 0, 0, 0, 0xFF, *(s32 *)(ep + (v2 << 2)), 0);
+            *(s32 *)base = func_00274570(0, 0, 0, 0, 0, 0xFF,
+                (u32)*(s32 *)(ep + (v2 << 2)), 0);
         }
         func_0027a340((u8 *)*(s32 *)base, *(s32 *)(arg0 + 0xC));
     }
     iGpffffb4b0 = global;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279e90);
-#endif
 // FUN_00279FD0
 int func_00279fd0(int param_1,u32 param_2)
 {
