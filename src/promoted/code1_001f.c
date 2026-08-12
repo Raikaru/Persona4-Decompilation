@@ -51,7 +51,7 @@ extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_0060AB08[];
 extern s32 func_002340c0(s32 arg0, s32 arg1);
 extern void func_0045a3e0(s32 arg0, s32 arg1);
-extern s32 func_001060b0(void);
+extern s16 func_001060b0(void);
 extern s32 func_00110d60(s32 arg0);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -69,7 +69,7 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 extern s32 func_001ef9a0(void);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
-extern void func_00459880(void);
+extern s32 func_00459880(void);
 
 extern void func_00454bd0(u8 *arg0);
 extern void func_00235020(s32 arg0);
@@ -99,7 +99,7 @@ extern void func_00232680(s32 arg0, s32 arg1);
 extern void func_00485b20(s32 arg0);
 extern void func_00486180(s32 arg0);
 extern void func_00120f20(s32 arg0);
-extern void func_00122520(s32 arg0, s32 arg1);
+extern s32 func_00122520(s32 arg0, s32 arg1);
 extern void func_001228a0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0043f810(void *arg0, void *arg1, u32 arg2);
 extern void func_001fa490(void);
@@ -1938,12 +1938,64 @@ void func_001f7260(void)
     }
 }
 // measured: required for exact retail loop codegen in func_001f7260.
+/* measured: optimization_level 1 required for exact func_001f72e0 codegen. */
+#pragma optimization_level 1
+/* measured: opt_loop_invariants off baseline for func_001f72e0. */
 #pragma opt_loop_invariants off
-
-/* Parked candidate: the five-pointer loop shape matches the first block and
-   leaves a 19-word residual with the object three words short. Committed at nd 19. */
 // FUN_001F72E0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f72e0);
+void func_001f72e0(void)
+{
+    s32 var_8;
+    u8 *temp_3_4;
+    u8 *temp_3_8;
+    s32 temp_6;
+    s32 index_8;
+    s32 empty;
+    s32 temp_3_5;
+
+    {
+        u8 *temp_3;
+        u8 *temp_3_7;
+        s32 temp_3_2;
+
+        temp_3 = iGpffffb3ac;
+        temp_3_7 = temp_3 + 0xACA;
+        temp_3_2 = *(s8 *)temp_3_7;
+        if (temp_3_2 >= 0) {
+            temp_3_2 = temp_3_2 + 1;
+            *(s8 *)temp_3_7 = (s8)temp_3_2;
+            if ((s8)temp_3_2 >= 3) {
+                *(s8 *)(iGpffffb3ac + 0xACA) = -1;
+            }
+        }
+    }
+    var_8 = 0;
+    empty = -1;
+    goto loop_test_8;
+loop_8:
+    temp_3_4 = iGpffffb3ac;
+    index_8 = var_8 & 0xFFFF;
+    temp_6 = index_8 * 6;
+    temp_3_8 = temp_3_4 + temp_6;
+    index_8 = (s32)(temp_3_8 + 0xAD0);
+    temp_3_5 = *(s8 *)(temp_3_8 + 0xAD0);
+    if (temp_3_5 >= 0) {
+        temp_3_5 = temp_3_5 + 1;
+        *(s8 *)index_8 = (s8)temp_3_5;
+        if ((s8)temp_3_5 >= 3) {
+            *(s16 *)(iGpffffb3ac + temp_6 + 0xACC) = empty;
+            *(s16 *)(iGpffffb3ac + temp_6 + 0xACE) = empty;
+            *(s8 *)(iGpffffb3ac + temp_6 + 0xAD0) = empty;
+        }
+    }
+    var_8 = (var_8 + 1) & 0xFFFF;
+loop_test_8:
+    if ((var_8 & 0xFFFF) < 0x10) {
+        goto loop_8;
+    }
+}
+/* measured: restore optimization_level 2 after func_001f72e0. */
+#pragma optimization_level 2
 // FUN_001F73C0
 void func_001f73c0(void)
 {
@@ -2910,7 +2962,7 @@ s32 func_001fa7a0(s32 *arg0)
 {
     extern void func_00120f00(s32 arg0);
     extern s32 func_004b1520(s32 arg0);
-    extern void *func_00481450(void);
+    extern s32 func_00481450(void);
     extern void func_00481440(void *arg0);
     extern void func_00485630(s32 arg0);
     extern void func_00485870(s32 arg0);
@@ -2940,7 +2992,7 @@ s32 func_001fa7a0(s32 *arg0)
         if (*arg0 == 0) {
             func_0045af60(1, 0xE, 2, 0x10);
         }
-        temp_17 = func_00481450();
+        temp_17 = (void *)func_00481450();
         func_00481440(&D_005DC8CC);
         func_00485630(*(s32 *)(iGpffffb3ac + 0xB80));
         func_00485870(*(s32 *)(iGpffffb3ac + 0xB80));
