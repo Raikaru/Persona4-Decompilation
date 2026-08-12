@@ -3910,7 +3910,6 @@ func_003f44c0 = 0x003f44c0; // type:data
 func_003f4a80 = 0x003f4a80; // type:data
 func_003f4f90 = 0x003f4f90; // type:data
 RpSkyRenderStateSet = 0x003f6440; // type:data
-func_003F6440 = 0x003f6440; // type:data
 func_003f6440 = 0x003f6440; // type:data
 func_003f6690 = 0x003f6690; // type:data
 func_003f6780 = 0x003f6780; // type:data

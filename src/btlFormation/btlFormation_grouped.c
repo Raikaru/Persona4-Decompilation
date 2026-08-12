@@ -143,9 +143,8 @@ void func_001d7100(u8* packet, s16 value)
     }
 }
 
-/* measured: candidate object 372B/window 384B, normalized_diff 6. Committed at nd 6. */
+/* measured: live MATCH, object 372B/window 384B, normalized_diff 0; integer-domain global base plus source-driven addu operand order. */
 // FUN_001D7140
-#ifdef NON_MATCHING
 void func_001d7140(u8* arg0)
 {
     s16 temp_4_5;
@@ -153,11 +152,12 @@ void func_001d7140(u8* arg0)
     s32 temp_4_2;
     s32 temp_4_3;
     s32 temp_4_4;
-    s32 temp_4_6;
     s32 temp_6;
     u8* temp_17;
     u8* temp_4_7;
+    s32 temp_4_6;
     u8* temp_4_8;
+    s32 temp_4_9;
 
     if ((*(u32*)((u8*)DAT_0076449c + 0xC) & 0x40000) != 0)
     {
@@ -195,8 +195,9 @@ void func_001d7140(u8* arg0)
             temp_4_5 = *(s16*)(arg0 + 0x10);
             if (temp_4_5 != -1)
             {
-                temp_4_6 = (temp_4_7 = DAT_0076449c,
-                            *(s32*)(temp_4_7 + (temp_4_5 * 4) + 0xD04));
+                temp_4 = (s32)DAT_0076449c;
+                temp_4_9 = temp_4_5 * 4;
+                temp_4_6 = *(s32*)((u8*)(temp_4_9 + temp_4 + 0xD04));
                 *(s32*)(arg0 + 0xC) = temp_4_6;
                 func_001d40d0((u8*)temp_4_6);
                 temp_6 = *(s32*)(arg0 + 4);
@@ -216,9 +217,6 @@ void func_001d7140(u8* arg0)
         *(u16*)temp_4_8 &= (u16)~0x30;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlFormation_grouped", func_001d7140);
-#endif
 // FUN_001D72C0
 void func_001d72c0(void* packet, u32 value)
 {
