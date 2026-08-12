@@ -366,10 +366,8 @@ u8 *func_001b0930(void)
     D_005F6E20[0](temp_2);
     return temp_2;
 }
-/* measured: exact-size plain C dispatcher candidate; normalized_diff 9 against the 400B retail window. The remaining residual is confined to the decrement/store instruction order. Parked because nd <= 25. */
-// Committed at nd 9.
-// FUN_001B0A60 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: compound field decrement preserves retail addiu/sh/andi order; normalized_diff 0 in the 400-byte retail window. */
+// FUN_001B0A60
 void func_001b0a60(void)
 {
     u8 *var_18;
@@ -391,9 +389,7 @@ loop_body:
     if (*(u16 *)(var_18 + 0xE) != 0) {
         temp_3 = *(u16 *)(var_18 + 0x12);
         if ((s32)temp_3 > 0) {
-            temp_3 = temp_3 - 1;
-            *(u16 *)(var_18 + 0x12) = temp_3;
-            if ((temp_3 & 0xFFFF) != 0) goto decrement_not_zero;
+            if ((*(u16 *)(var_18 + 0x12) -= 1) != 0) goto decrement_not_zero;
             temp_3_3 = *(u16 *)(var_18 + 0xE);
             *(u16 *)(var_18 + 0x10) = *(u16 *)(var_18 + 0xC);
             *(u16 *)(var_18 + 0xC) = temp_3_3;
@@ -432,9 +428,6 @@ decrement_done:
 loop_check:
     if (var_18 != NULL) goto loop_body;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0a60);
-#endif
 // FUN_001B0BF0
 void func_001b0bf0(void)
 {

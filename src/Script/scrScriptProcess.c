@@ -261,25 +261,17 @@ u8* func_0029d120(ScrPool* pool)
     return elem + 8;
 }
 
-/* REACHABLE, NOT YET REDUCIBLE. tools/permute_ast.py reaches byte-exact here;
-   sweep it with `tools/permute_sweep.py --engine ast --time 150 --targets <json>`.
-   The winning source is not committable -- uninitialized reads, self-assignments,
-   comma operators and up to 21 dead temps. Reducing it to honest C is unfinished
-   work, not a floor: the same sweep produced a ONE-LINE honest fix for sdkLbox
-   func_00470970, which carried a firmer floor verdict than this one. Start from the
-   saved region under build/permute/, not from scratch.
 
-/* Measured nd 10 (object 164 / window 176). The retail call to
-   func_0043f9c8 materializes the pool's offset-0 field as its third
-   argument after decrementing the offset-8 count; using that direct field
-   expression preserves the retail load and leaves only the documented
-   three-word argument-materialisation floor. The two null checks and the
-   linked-list insertion remain ordinary C. Committed at nd 10. */
-// FUN_0029D1C0 NONMATCHING
-#ifdef NON_MATCHING
+/* Measured nd 0 (object 164 / window 176). The offset-0 pool field is
+   materialized through a u32 local and the first call argument through a
+   named pointer local; this reproduces retail's lw $a2 before the two move
+   instructions without barriers or volatile accesses. */
+// FUN_0029D1C0
 void func_0029d1c0(void *arg0, void *arg1)
 {
     u8 *node;
+    void *call0;
+    u32 call2;
 
     if (arg0 == NULL) {
         func_0046d730(D_0063E3D0, 0x6A);
@@ -292,12 +284,11 @@ void func_0029d1c0(void *arg0, void *arg1)
         *(u8 **)(node + 4) = *(u8 **)((u8 *)arg0 + 0xC);
         *(u8 **)((u8 *)arg0 + 0xC) = node;
         *(s32 *)((u8 *)arg0 + 8) = *(s32 *)((u8 *)arg0 + 8) - 1;
-        func_0043f9c8(arg1, 0, *(s32 *)arg0);
+        call2 = *(u32 *)arg0;
+        call0 = arg1;
+        func_0043f9c8(call0, 0, call2);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/scrScriptProcess", func_0029d1c0);
-#endif
 // FUN_0029D270
 void func_0029d270(ScrScriptWork* s)
 {

@@ -759,63 +759,65 @@ s32 func_001d72e0(s32 arg0)
         return -1;
     }
 }
-/* measured: exhaustive switch labels reproduce the retail dispatch and code blocks; object 452B/window 464B, normalized_diff 4. The four default GP loads and stores retain a b210 register-colouring residual. Candidate parked. */
-// Committed at nd 4.
-// FUN_001D7400 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: opt_propagation off plus ascending default loads reproduces retail exactly (object 452B/window 464B, normalized_diff 0). */
+// FUN_001D7400
+/* measured: opt_propagation off is required for the default GP load/store register order. */
+#pragma opt_propagation off
 void func_001d7400(s32 arg0, u8 *arg1)
 {
+    u8 * arg1_p = arg1;
+    s32 arg0_p = arg0;
     u8 temp_0;
     u8 temp_1;
     u8 temp_2;
     u8 temp_3;
 
-    *(u8 *)(arg1 + 3) = 0xFF;
-    switch (arg0) {
+    *(u8 *)(arg1_p + 3) = 0xFF;
+    switch (arg0_p) {
     case 2:
         *(u8 *)(arg1 + 0) = 0xFF;
-        *(u8 *)(arg1 + 1) = 0xB2;
+        *(u8 *)(1 + arg1_p) = 0xB2;
         *(u8 *)(arg1 + 2) = 0x9E;
         break;
     case 4:
-        *(u8 *)(arg1 + 0) = 0xB2;
-        *(u8 *)(arg1 + 1) = 0xA8;
+        *(u8 *)(arg1_p + 0) = 0xB2;
+        *(u8 *)(arg1_p + 1) = 0xA8;
         *(u8 *)(arg1 + 2) = 0xFF;
         break;
     case 8:
-        *(u8 *)(arg1 + 0) = 0xB2;
+        *(u8 *)(arg1_p + 0) = 0xB2;
         *(u8 *)(arg1 + 1) = 0xFF;
-        *(u8 *)(arg1 + 2) = 0xB2;
+        *(u8 *)(2 + arg1_p) = 0xB2;
         break;
     case 0x10:
-        *(u8 *)(arg1 + 0) = 0xEE;
-        *(u8 *)(arg1 + 1) = 0x9B;
+        *(u8 *)(arg1_p + 0) = 0xEE;
+        *(u8 *)(arg1_p + 1) = 0x9B;
         *(u8 *)(arg1 + 2) = 0xDA;
         break;
     case 1:
-        *(u8 *)(arg1 + 0) = 0xFF;
-        *(u8 *)(arg1 + 1) = 0x94;
+        *(u8 *)(arg1_p + 0) = 0xFF;
+        *(u8 *)(arg1_p + 1) = 0x94;
         *(u8 *)(arg1 + 2) = 0x76;
         break;
     case 0x20:
-        *(u8 *)(arg1 + 0) = 0xBC;
-        *(u8 *)(arg1 + 1) = 0xA8;
-        *(u8 *)(arg1 + 2) = 0xFF;
+        *(u8 *)(0 + arg1_p) = 0xBC;
+        *(u8 *)(arg1_p + 1) = 0xA8;
+        *(u8 *)(arg1_p + 2) = 0xFF;
         break;
     case 0x40:
         *(u8 *)(arg1 + 0) = 0x9E;
         *(u8 *)(arg1 + 1) = 0xE4;
-        *(u8 *)(arg1 + 2) = 0xE1;
+        *(u8 *)(arg1_p + 2) = 0xE1;
         break;
     case 0x80:
-        *(u8 *)(arg1 + 0) = 0xCD;
-        *(u8 *)(arg1 + 1) = 0xB9;
-        *(u8 *)(arg1 + 2) = 0xD7;
+        *(u8 *)(0 + arg1_p) = 0xCD;
+        *(u8 *)(arg1_p + 1) = 0xB9;
+        *(u8 *)(arg1_p + 2) = 0xD7;
         break;
     case 0x100:
-        *(u8 *)(arg1 + 0) = 0x94;
-        *(u8 *)(arg1 + 1) = 0x10;
-        *(u8 *)(arg1 + 2) = 0x26;
+        *(u8 *)(0 + arg1_p) = 0x94;
+        *(u8 *)(arg1_p + 1) = 0x10;
+        *(u8 *)(arg1_p + 2) = 0x26;
         break;
     case 0x100000:
     case 0x80000:
@@ -831,9 +833,8 @@ void func_001d7400(s32 arg0, u8 *arg1)
         break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d7400);
-#endif
+/* measured: close opt_propagation after func_001d7400. */
+#pragma opt_propagation on
 // FUN_001D75D0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d75d0);
 // FUN_001D7700
