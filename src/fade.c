@@ -46,13 +46,10 @@ s32 func_00122430(s32 arg0)
 
 
 
-/* Parked near-match: baseline INCLUDE_ASM; object 280B/window 288B, nd19. Retail has one extra success-path `addiu $v0,$zero,1` before the epilogue. Exact fndiff rows: +0x24 candidate `b 0x122620`, retail `b 0x122624`; +0xE8 candidate `b 0x122620`, retail `b 0x122624`; +0x100 candidate `ld $ra,0x20($sp)`, retail `addiu $v0,$zero,1`; +0x104 candidate `lq $s1,0x10($sp)`, retail `ld $ra,0x20($sp)`; +0x108 candidate `xori.b $w0,$w0,0xB0`, retail `lq $s1,0x10($sp)`; +0x10C candidate `addiu $sp,$sp,0x30`, retail `xori.b $w0,$w0,0xB0`; +0x110 candidate `jr $ra`, retail `addiu $sp,$sp,0x30`; +0x114 candidate `nop`, retail `jr $ra`. Relocated GP rows are linker-owned. Ruled out: tail/both increment, direct-return, split-return, state-local, two-constant, and init-zero/increment shapes (all nd19), plus optimization-level-1 pragma (nd129). Committed at nd 19. */
-// FUN_00122520 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00122520
 s32 func_00122520(s32 arg0, s32 arg1)
 {
     u8 *temp_16;
-    s32 ret;
 
     temp_16 = iGpffffb1cc;
     if (temp_16 == NULL) {
@@ -64,8 +61,7 @@ s32 func_00122520(s32 arg0, s32 arg1)
         iGpffffb1d8 = 0;
         iGpffffb1d4 = 0;
         iGpffffb1d0 = 0;
-        ret = 1;
-        return ret;
+        goto done;
     }
     if (*(s32 *)temp_16 == 0) {
         if (arg0 == 0) {
@@ -90,13 +86,9 @@ s32 func_00122520(s32 arg0, s32 arg1)
     iGpffffb1d8 = 0;
     iGpffffb1d4 = 0;
     iGpffffb1d0 = 0;
-    ret = 1;
-    return ret;
+done:
+    return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/fade", func_00122520);
-#endif
-
 
 
 // FUN_00122640

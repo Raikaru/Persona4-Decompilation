@@ -54,7 +54,7 @@ void func_0034b950(void);
 void func_0034ba20(void);
 void func_0034ba30(void);
 void func_0034c500(u8 *arg0, s64 arg1, s32 arg2);
-void func_0034c6c0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+void func_0034c6c0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *arg1);
 void func_0034c820(u8 *arg0);
 void func_0034c860(u8 *arg0, s64 arg1, s32 arg2);
 void func_0034cef0(u8 *arg0);
@@ -419,19 +419,13 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c500);
    f32, f32, f32, f32). With the corrected extern AND the C callsite written
    floats-first (ptr, f0, f1, f2, f3, b0, b1, b2, b3), all four callsites now
    match retail byte-for-byte (move $a0, mov.s $f12-$f15, then lbu $5-$8) —
-   nd 17 -> 6. The ONLY residual (5 words) is the prologue save order: retail
-   saves the 4 float params to $f26/$f25/$f24/$f20 THEN moves arg1 to $s0;
-   mwcc b210 always moves arg1 to $s0 first, then the float saves. Tried
-   named float locals, opt_propagation off (identical), decl orders — the
-   int-arg-first prologue save is a fixed b210 scheduling floor. Lever 1
-   (extern width/class) was the big win here. */
-/* measured: nd 13 against a 352-byte window. The body is right; the residual is
-   the prologue, where retail performs the float moves before saving the second
-   argument into $s0 and b210 does the save first. Capturing the argument into a
-   local first does not reorder it. Committed at nd 13. */
-// FUN_0034C6C0 NONMATCHING
-#ifdef NON_MATCHING
-void func_0034c6c0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+   nd 17 -> 6. */
+/* measured: declaration order is intentionally interleaved (u8* arg0, four f32
+   parameters, then u8* arg1); this makes MWCCPS2 save the float arguments before
+   $s0, matching retail exactly. The grouped integer-first declaration was nd 13;
+   this order is nd 0. */
+// FUN_0034C6C0
+void func_0034c6c0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *arg1) {
     f32 z;
     f32 scale;
 
@@ -442,9 +436,6 @@ void func_0034c6c0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2, f32 f
     func_0034f0d0(arg0 + 0x80, fparg0 + fparg2, fparg1 + fparg3, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
     func_0034f0d0(arg0 + 0xC0, fparg0 + fparg2, fparg1, z, scale, arg1[0], arg1[1], arg1[2], arg1[3]);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c6c0);
-#endif
 
 
 // FUN_0034C820

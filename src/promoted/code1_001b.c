@@ -65,7 +65,7 @@ extern void func_002aaaa0(void);
 extern void func_001fc230(s32 arg0);
 extern s32 func_001faaa0(u8 *arg0);
 extern s32 func_00230210(void);
-extern void func_00198920(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
+extern void func_00198920(u8 *arg0, s16 arg1, u16 arg2, s16 arg3, f32 arg4);
 extern s32 func_001fae10(void);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_00122520(s32 arg0, s32 arg1);
@@ -923,10 +923,10 @@ check:
 done:
     return;
 }
-/* measured: plain C candidate is 372 bytes in the 384-byte retail window with normalized_diff 11; residual is limited to the loop/call-tail schedule. */
-// Committed at nd 11.
+/* measured: narrowing func_00198920's integer parameter declaration to the
+   retail s16/u16/s16 widths reorders the loop call's argument loads; object
+   372 bytes in the 384-byte window, normalized_diff 0. */
 // FUN_001B3870
-#ifdef NON_MATCHING
 s32 func_001b3870(void)
 {
     u8 *temp_3;
@@ -969,9 +969,6 @@ check:
 done:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b3870);
-#endif
 // FUN_001B39F0
 void func_001b39f0(void)
 {

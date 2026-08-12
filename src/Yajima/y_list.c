@@ -354,65 +354,12 @@ u8 *func_002e48a0(s8 arg0, s16 arg1) {
    the named type local, removal of the early named constant, and the
    direct switch rewrite; all retained nd 19 or worsened the object.
    Committed at nd 16. */
-// FUN_002E4960 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002E4960
 void func_002e4960(u8 *arg0, s8 arg1, s16 arg2) {
-    u8 *p;
-    s32 n3;
-    u8 *src;
-    s32 n;
-    p = *(u8 **)(D_00882F70[arg1] + 0x38);
-    switch (*(s32 *)(p + 4)) {
-    case 0:
-    case 7:
-    case 8:
-        src = (u8 *)((s32)arg2 * 0x30) + (u32)p + 0x14;
-        n = 6;
-        do {
-            s32 v0 = *(s32 *)src;
-            s32 v1 = *(s32 *)(src + 4);
-            src += 8;
-            n--;
-            *(s32 *)arg0 = v0;
-            *(s32 *)(arg0 + 4) = v1;
-            arg0 += 8;
-        } while (n > 0);
-        break;
-    case 1:
-    case 10:
-    case 5:
-    case 6:
-        src = (u8 *)((s32)arg2 * 0x30) + (u32)p + 0xA4;
-        n = 6;
-        do {
-            s32 v0 = *(s32 *)src;
-            s32 v1 = *(s32 *)(src + 4);
-            src += 8;
-            n--;
-            *(s32 *)arg0 = v0;
-            *(s32 *)(arg0 + 4) = v1;
-            arg0 += 8;
-        } while (n > 0);
-        break;
-    default:
-        src = (u8 *)((s32)arg2 * 0x30) + (u32)p + 0x14;
-        n3 = 6;
-        do {
-            s32 v0 = *(s32 *)src;
-            s32 v1 = *(s32 *)(src + 4);
-            src += 8;
-            n3--;
-            *(s32 *)arg0 = v0;
-            *(s32 *)(arg0 + 4) = v1;
-            arg0 += 8;
-        } while (n3 > 0);
-        break;
-    }
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e4960);
-#endif
-
+ u8 *p; u8 *p0; u8 *p1; s32 n3; u8 *src; u8 *src2; s32 n; p=*(u8 **)(D_00882F70[arg1]+0x38); switch(*(s32 *)(p+4)) {
+ case 0: case 7: case 8: p0=p; src=p0; src=(u8 *)(u32)src; src=(u8 *)((s32)arg2*0x30)+(u32)src; src+=0x14; n=6; do{s32 v0=*(s32*)src;s32 v1=*(s32*)(src+4);src+=8;n--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n>0);break;
+ case 1: case 10: case 5: case 6: p1=p; src=p1; src=(u8 *)(u32)src; src=(u8 *)((s32)arg2*0x30)+(u32)src; src+=0xa4; n=6; do{s32 v0=*(s32*)src;s32 v1=*(s32*)(src+4);src+=8;n--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n>0);break;
+ default: src2=p; src2=(u8 *)(u32)src2; src2=(u8 *)((s32)arg2*0x30)+(u32)src2; src2+=0x14; n3=6; do{s32 v0=*(s32*)src2;s32 v1=*(s32*)(src2+4);src2+=8;n3--;*(s32*)arg0=v0;*(s32*)(arg0+4)=v1;arg0+=8;}while(n3>0);break;} }
 
 
 
