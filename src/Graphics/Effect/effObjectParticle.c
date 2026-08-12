@@ -214,19 +214,19 @@ void func_004ae930(u8 *arg0, u32 arg1, u8 *arg2)
     }
 }
 
-/* measured park: the aggregate-stack reconstruction has nd 8, object 472B,
-   window 480B. The only fndiff residual rows are offset 0x130 (retail
-   lw $a1, 0x64($sp), candidate move $a0, $s2) and 0x134 (retail move
-   $a0, $s2, candidate lw $a1, 0x64($sp)); the default-call argument
-   materialization remains in the opposite order. Ruled out: pointer-local
-   body (nd 292/object 456), initial aggregate (nd 42/object 472), stack/
-   register variants (nd 28, 75, 77, and 79/object 472), and explicit
-   zero-dispatch forms (nd 8/object 472). The body is guarded pending the
-   b210 call-argument scheduling floor. Committed at nd 8. */
-// FUN_004AEA70 NONMATCHING
-#ifdef NON_MATCHING
+/* measured MATCH: aggregate-stack body is object 472B in the 480B retail
+   window with normalized_diff 0. The decisive source fact is unsigned
+   `u32 value` in the aggregate, which flips the default-call argument
+   materialization to retail's move $a0,$s2 then lw $a1,0x64($sp).
+   Probed and rejected before the type fix: pointer-local body (nd 292/object
+   456), initial aggregate (nd 42/object 472), stack/register variants (nd
+   28, 75, 77, 79/object 472), explicit zero-dispatch forms (nd 8/object
+   472), no-op/cast argument expressions, named argument assignments,
+   optimization_level 1, opt_propagation off, opt_common_subs off, and
+   schedule on. */
+// FUN_004AEA70
 void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
-    struct AeaWork { s32 code; s32 value; u8 pad8[0x18]; s32 in1; s32 in2; s32 outpad; s32 out; } work;
+    struct AeaWork { s32 code; u32 value; u8 pad8[0x18]; s32 in1; s32 in2; s32 outpad; s32 out; } work;
     s32 temp18; u8 *var17; u8 *var16;
     var17 = NULL; var16 = NULL; work.out = 0;
     if (*(u8 **)(arg0 + 0x58) == NULL) func_0046d730(D_00714520, 0x1B3);
@@ -234,14 +234,25 @@ void func_004aea70(u8 *arg0, s32 arg1, s32 arg2) {
     work.in1 = arg1; work.in2 = arg2; temp18 = func_003e2f60(3, 1, &work.in1);
     while (func_003df3c0(temp18, &work.code) != 0) {
       if (work.code == 0) goto done;
-      switch (work.code) { case 22: if (var16 == NULL) { var16 = func_003e6a90(temp18); func_003ef260(var16, func_00463100, &work.out); func_003ef1b0(var16); } break; case 16: if (var17 == NULL) var17 = func_003c0f20(temp18); break; default: func_003e2ce0(temp18, work.value); break; }
+      switch (work.code) {
+      case 22:
+        if (var16 == NULL) {
+          var16 = func_003e6a90(temp18);
+          func_003ef260(var16, func_00463100, &work.out);
+          func_003ef1b0(var16);
+        }
+        break;
+      case 16:
+        if (var17 == NULL) var17 = func_003c0f20(temp18);
+        break;
+      default:
+        func_003e2ce0(temp18, work.value);
+        break;
+      }
     }
   done:
     func_003e2e40(temp18, &work.in1); if (work.out != 0) func_00463250((void *)work.out); if (var17 == NULL) func_0046d730(D_00714520, 0x1DF); *(u8 **)(arg0 + 0x54) = var17; func_003bff30(var17, func_004ae080, NULL);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effObjectParticle", func_004aea70);
-#endif
 
 
 

@@ -586,19 +586,18 @@ s32 func_0025cf70(void) {
 
 
 
-/* measured probe: opt_common_subs off tests retail's independent clamp literal. */
-#pragma opt_common_subs off
 // FUN_0025D000
-#ifdef NON_MATCHING
 s32 func_0025d000(void) {
     s32 temp_16;
     s32 var_4;
-
     temp_16 = func_00105ed0();
+
     var_4 = temp_16 + func_0029cc00(0);
-    if (var_4 >= 0x00989680U) {
-        var_4 = 0x0098967FU;
+    if (var_4 <= 0x0098967F) {
+        goto block_1;
     }
+    var_4 = 0x0098967FU;
+block_1:
     if (var_4 < 0) {
         var_4 = 0;
     }
@@ -606,12 +605,6 @@ s32 func_0025d000(void) {
     func_0029cf50(func_00105ed0());
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025d000);
-#endif
-/* Compiled-C park: object 132B/window 144B, normalized_diff 6. Committed at nd 6. */
-/* measured probe: restore opt_common_subs after the d000 clamp probe. */
-#pragma opt_common_subs on
 // FUN_0025D090
 s32 func_0025d090(void) {
     if (func_0029d020() == 0) {

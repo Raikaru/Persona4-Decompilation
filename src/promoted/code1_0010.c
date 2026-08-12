@@ -181,13 +181,14 @@ loop_1:
     func_00101270();
     goto loop_1;
 }
-/* measured: opt_propagation off preserves the callback table base across calls in func_001013a0; the best legal plain-C spelling is object 264B/window 272B, normalized_diff 6. The remaining four differing instruction rows are the materialization order of the (4, &iGpffffba6c) call arguments. Committed at nd 6. */
-// FUN_001013A0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: func_001013a0 is a live plain-C MATCH (272B window, 272B object, normalized_diff 0); staging kind = 4 before data = &iGpffffba6c reproduces retail's argument materialization order. */
+// FUN_001013A0
 #pragma opt_propagation off
 void func_001013a0(void)
 {
     u32 color;
+    s32 kind;
+    s32 data;
     void (**base)(s32, s32);
 
     if (iGpffffba48 == 1) {
@@ -200,17 +201,17 @@ void func_001013a0(void)
                 (u32)iGpffffba54;
         base[0](0xF, color);
         base[0](0x10, 1);
-        func_003f6440(4, (s32)&iGpffffba6c);
+        kind = 4;
+        data = (s32)&iGpffffba6c;
+        func_003f6440(kind, data);
         base[0](6, 1);
         base[0](8, 1);
         func_003f6440(3, 0x717FB);
         func_003f6440(2, 0x44);
     }
 }
+/* measured: opt_propagation on closes the bracket after the exact-match body. */
 #pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_001013a0);
-#endif
 // FUN_00102780
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00102780);
 // FUN_00102890
