@@ -72,8 +72,7 @@ extern char D_00763170;
    Committed at nd 10. */
 
 
-// FUN_00191E90 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00191E90
 void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
 {
     s32 sp70[8];
@@ -129,7 +128,7 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
                 func_0044ea90(D_005F6500, 0x9A);
                 s3 = D_008873F4[0](1, sp50[1], 0x40000);
                 func_003e2910(s1, s3, sp50[1]);
-                func_003deff0((void *)s0, sp50[0], sp50[1], sp50[2], sp50[3]);
+                func_003deff0((void *)s0, (u32)sp50[0], (u32)sp50[1], sp50[2], sp50[3]);
                 func_003e2ab0(s0, s3, sp50[1]);
                 jtbl_008873EC[0](s3);
                 break;
@@ -143,9 +142,6 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
         func_003e2e40(s0, 0);
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_clumpInstance", func_00191e90);
-#endif
 
 
 /* measured: the body below is a faithful reconstruction whose residual is
