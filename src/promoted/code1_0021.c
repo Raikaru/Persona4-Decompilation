@@ -980,45 +980,11 @@ outer_test:
         goto outer_body;
     }
 }
-/* measured: O2 compiled body is 240B in the 240B retail window at normalized_diff 7. The seven normalized residual units are confined to the negative signed-to-float conversion: retail keeps the OR result in $v1 and the denominator accumulator in $f20, while MWCCPS2 b210 colors those operations through $v0/$f0. Width, temporary, expression-order, declaration-order, and optimization-level probes were measured; this O2 spelling is the best legal plain-C result. Parked because nd <= 25. Committed at nd 7. */
-// FUN_0021B0A0 NONMATCHING
-#ifdef NON_MATCHING
-f32 func_0021b0a0(u8 *arg0)
-{
-    f32 var_f20;
-    f32 var_f0;
-    s32 temp_4;
-    u32 temp_2;
-    u32 temp_2_2;
-    
-    temp_4 = *(s32 *)(arg0 + 0xA64);
-    if (temp_4 == 0) {
-        return 0.0f;
-    }
-    temp_2 = func_00231f80(temp_4);
-    if ((s32)temp_2 >= 0) {
-        var_f20 = (f32)(s32)temp_2;
-    } else {
-        temp_2 = ((temp_2 >> 1) | (temp_2 & 1));
-        var_f20 = (f32)(s32)temp_2;
-        var_f20 = var_f20 + var_f20;
-    }
-    if (var_f20 == 0.0f) {
-        return 0.0f;
-    }
-    temp_2_2 = func_00231ed0(*(s32 *)(arg0 + 0xA64));
-    if ((s32)temp_2_2 >= 0) {
-        var_f0 = (f32)(s32)temp_2_2;
-    } else {
-        temp_2_2 = ((temp_2_2 >> 1) | (temp_2_2 & 1));
-        var_f0 = (f32)(s32)temp_2_2;
-        var_f0 = var_f0 + var_f0;
-    }
-    return var_f0 / var_f20;
-}
-#else
+/* archived body: build/D21B_0021b0a0_body.c; object 240B; retail window 240B;
+   normalized_diff 7; differing offsets 0x58, 0x5C, 0x64, 0x68, 0xB8, 0xBC.
+   Best legal plain-C body; residual is signed-to-float register coloring. */
+// FUN_0021B0A0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b0a0);
-#endif
 // FUN_0021B190
 void func_0021b190(u8 *arg0, s32 arg1)
 {
@@ -1039,112 +1005,18 @@ void func_0021b310(u8 *arg0, s32 arg1)
     }
     *(s32 *)(arg0 + 4) = arg1;
 }
-/* measured: plain-C callback reconstruction reaches object 452B against the
-   464B retail window at normalized_diff 6.  Residuals are the saved FPU
-   parameter-color swap (f20/f24) at the first color call and threshold
-   branch, plus the 12B tail padding.  No tested declaration or helper spelling
-   removed that residual.
-   Parked because nd <= 25. Committed at nd 6. */
-// FUN_0021B330 NONMATCHING
-#ifdef NON_MATCHING
-void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
-{
-    f32 var_f23;
-    s32 *temp_16;
-    s32 temp_3;
-
-    temp_16 = (s32 *)func_00452560();
-    if (*(s32 *)(arg1 + 4) != 0) {
-        temp_3 = *(s32 *)(arg1 + 0) + 1;
-        *(s32 *)(arg1 + 0) = temp_3;
-        var_f23 = (f32)temp_3 / 4.0f;
-        if (!(var_f23 <= 1.0f)) {
-            var_f23 = 1.0f;
-        }
-    } else {
-        var_f23 = 1.0f;
-    }
-    if (var_f23 != 0.0f) {
-        fparg1 = fparg1 + 5.5f * (1.0f - var_f23);
-        func_00201720(temp_16, 1.0f, var_f23);
-        func_00201650(temp_16, 0xA, 0, fparg0, fparg1,
-                      0x19, 0x19, 0x19, 0xFF);
-        if (!(fparg2 <= fGpffff849c)) {
-            func_00201720(temp_16, fparg2, var_f23);
-            func_00201650(temp_16, 0xA, 1,
-                          fparg2 + 5.0f * (1.0f - fparg2), fparg1,
-                          0xFF, 0xFF, 0x51, 0xFF);
-        }
-        func_00201720(temp_16, 1.0f, 1.0f);
-    }
-}
-#else
+/* archived body: build/D21B_0021b330_body.c; object 452B; retail window 464B;
+   normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C.
+   Best legal plain-C body; residual is saved FPU parameter coloring and 12B
+   tail padding. */
+// FUN_0021B330
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b330);
-#endif
-/* measured: union-packed byte conversion reaches object 300B against the
-   304B retail window at normalized_diff 8. Residuals are the four repeated
-   OR/MT1 register-color pairs (retail keeps the shifted value in $a1) plus
-   the four-byte retail tail pad; no tested declaration or helper spelling
-   removed those residuals. Parked because nd <= 25. Committed at nd 8. */
+/* archived body: build/D21B_0021b500_body.c; object 300B; retail window 304B;
+   normalized_diff 8; differing offsets 0x3C, 0x40, 0x7C, 0x80, 0xBC, 0xC0,
+   0xFC, 0x100; retail-only tail pad 0x12C. Best legal plain-C body; residual
+   is repeated OR/MT1 register coloring. */
 // FUN_0021B500
-#ifdef NON_MATCHING
-void func_0021b500(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                   f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5)
-{
-    union {
-        s32 word;
-        u8 bytes[4];
-    } spC;
-    u32 temp_2;
-    f32 var_f0;
-
-    spC.word = arg1;
-    *(f32 *)(arg0 + 0) = fparg0;
-    *(f32 *)(arg0 + 4) = fparg1;
-    *(f32 *)(arg0 + 8) = fparg2;
-    if ((s32)spC.bytes[0] >= 0) {
-        var_f0 = (f32)(s32)spC.bytes[0];
-    } else {
-        temp_2 = (u32)spC.bytes[0] >> 1;
-        temp_2 = temp_2 | ((u32)spC.bytes[0] & 1);
-        var_f0 = (f32)(s32)temp_2;
-        var_f0 = var_f0 + var_f0;
-    }
-    *(f32 *)(arg0 + 0x20) = var_f0;
-    if ((s32)spC.bytes[1] >= 0) {
-        var_f0 = (f32)(s32)spC.bytes[1];
-    } else {
-        temp_2 = (u32)spC.bytes[1] >> 1;
-        temp_2 = temp_2 | ((u32)spC.bytes[1] & 1);
-        var_f0 = (f32)(s32)temp_2;
-        var_f0 = var_f0 + var_f0;
-    }
-    *(f32 *)(arg0 + 0x24) = var_f0;
-    if ((s32)spC.bytes[2] >= 0) {
-        var_f0 = (f32)(s32)spC.bytes[2];
-    } else {
-        temp_2 = (u32)spC.bytes[2] >> 1;
-        temp_2 = temp_2 | ((u32)spC.bytes[2] & 1);
-        var_f0 = (f32)(s32)temp_2;
-        var_f0 = var_f0 + var_f0;
-    }
-    *(f32 *)(arg0 + 0x28) = var_f0;
-    if ((s32)spC.bytes[3] >= 0) {
-        var_f0 = (f32)(s32)spC.bytes[3];
-    } else {
-        temp_2 = (u32)spC.bytes[3] >> 1;
-        temp_2 = temp_2 | ((u32)spC.bytes[3] & 1);
-        var_f0 = (f32)(s32)temp_2;
-        var_f0 = var_f0 + var_f0;
-    }
-    *(f32 *)(arg0 + 0x2C) = var_f0;
-    *(f32 *)(arg0 + 0x10) = fparg3;
-    *(f32 *)(arg0 + 0x14) = fparg4;
-    *(f32 *)(arg0 + 0x18) = fparg5;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b500);
-#endif
 // FUN_0021B630
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b630);
 // FUN_0021BBB0

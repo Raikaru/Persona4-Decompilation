@@ -47,13 +47,13 @@ extern void func_00494f90(void *arg0);
 extern void func_00494ff0(void *arg0);
 extern u8 *func_00483e10(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
 extern u8 *func_00483c40(u16 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
-extern void func_00487650(void *arg0, void *arg1);
-extern void func_004877b0(void *arg0, void *arg1);
-extern void func_00487860(void *arg0, void *arg1);
-extern void func_00487710(void *arg0, void *arg1);
-extern void func_004878c0(void *arg0, void *arg1);
-extern void func_00487a30(void *arg0, void *arg1);
-extern void func_00487ba0(void *arg0, void *arg1);
+extern void func_00487650(u8 *arg0, s32 arg1, s32 arg2);
+extern void func_004877b0(u8 *arg0, s32 arg1);
+extern void func_00487860(u8 *arg0, s32 *arg1);
+extern void func_00487710(u8 *arg0, s32 arg1);
+extern void func_004878c0(u8 *arg0, void *arg1);
+extern void func_00487a30(u8 *arg0, void *arg1);
+extern void func_00487ba0(u8 *arg0, s32 *arg1);
 extern u8 D_00764C54[4];
 extern f32 D_00761134;
 extern u8 D_00922D80[];
@@ -136,14 +136,11 @@ u8 *func_00492f20(u8 *arg0)
     return t2;
 }
 
-/* measured: masked selector residual remains nd 3, object 376B/384B:
-   retail keeps arg1&0xFFFF in $a2 across sltiu and sll, while b210 uses
-   $v0. Tried u16/s32/u32 parameter widths, in-place parameter masks before
-   and after initialization, no-cast switches, saved-pointer/arg2 reuse,
-   selector locals, and explicit assignments; all stayed nd 3 or worsened.
-   Committed at nd 3. */
-// FUN_00493080 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: correcting the direct effect-helper declarations and passing the
+   selector as func_00487650's third argument keeps arg1&0xFFFF in $a2 across
+   the dispatch; object 376B/384B, normalized_diff 0 (jump-table relocations
+   are the only fndiff rows). */
+// FUN_00493080
 void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
     u8 *o;
 
@@ -154,26 +151,26 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
     }
     switch ((u32)arg1) {
     case 1:
-        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
-        func_004877b0(*(void **)(arg0 + 0x2C), (void *)arg2);
+        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        func_004877b0(*(u8 **)(arg0 + 0x2C), (s32)arg2);
         break;
     case 2:
-        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
-        func_00487860(*(void **)(arg0 + 0x2C), (void *)arg2);
+        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        func_00487860(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 4:
-        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
-        func_00487710(*(void **)(arg0 + 0x2C), *(void **)arg2);
+        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        func_00487710(*(u8 **)(arg0 + 0x2C), *(s32 *)arg2);
         break;
     case 5:
-        func_004878c0(*(void **)(arg0 + 0x2C), (void *)arg2);
+        func_004878c0(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 6:
-        func_00487a30(*(void **)(arg0 + 0x2C), (void *)arg2);
+        func_00487a30(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 7:
-        func_00487650(*(void **)(arg0 + 0x2C), *(void **)arg0);
-        func_00487ba0(*(void **)(arg0 + 0x2C), (void *)arg2);
+        func_00487650(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
+        func_00487ba0(*(u8 **)(arg0 + 0x2C), arg2);
         break;
     case 0:
     case 3:
@@ -183,9 +180,6 @@ void func_00493080(u8 *arg0, u16 arg1, s32 *arg2) {
     }
     *(s16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) = (s16)arg1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_00493080);
-#endif
 /* measured: same volatile-anchored arg1 read as FUN_00492F20; plain reads
    swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
 // FUN_00493200

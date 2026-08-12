@@ -399,62 +399,12 @@ void func_004530b0(s32 arg0) {
     func_00453310(arg0, 0x10, 0xA);
     func_00453310(arg0, 0x80, 0xB);
 }
-// Parked register-coloring residual (object exact, normalized_diff 16). Committed at nd 16.
+/* measured: no calls; declaration lever inapplicable. Object 192B vs window 192B, normalized_diff 16; differing byte offsets 17,22,34,42,66,94,102,122,125,126,130,138,142,162,170,182. Best body archived in build/D453_00453250_body.c. */
 // FUN_00453250
-#ifdef NON_MATCHING
-void func_00453250(s32 arg0, s32 arg1, s32 arg2) {
-    s32 temp_4;
-    u8 *temp_6;
-    u16 *temp_4_2;
-    s32 temp_7;
-
-    temp_7 = arg0 * 0x4A;
-    temp_4 = arg1 & 0xFFFF;
-    if (temp_4 & *(u16 *)(D_008C02EE + temp_7)) {
-        *(u8 *)(D_008C0300 + temp_7 + arg2) = 7;
-        return;
-    }
-    if (temp_4 & *(u16 *)(D_008C02EC + temp_7)) {
-        temp_6 = D_008C0300 + temp_7 + arg2;
-        *temp_6 -= 1;
-        if (*temp_6 == 0) {
-            temp_4_2 = (u16 *)(D_008C02F2 + temp_7);
-            *temp_4_2 |= arg1;
-            *temp_6 = 3;
-        }
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00453250);
-#endif
-// Parked register-coloring residual (object exact, normalized_diff 16). Committed at nd 16.
+/* measured: no calls; declaration lever inapplicable. Object 192B vs window 192B, normalized_diff 16; differing byte offsets 17,22,34,42,66,94,102,122,125,126,130,138,142,162,170,182. Best body archived in build/L045_00453310_body.c. */
 // FUN_00453310
-#ifdef NON_MATCHING
-void func_00453310(s32 arg0, s32 arg1, s32 arg2) {
-    s32 temp_7;
-    s32 temp_4;
-    u16 *temp_4_2;
-    u8 *temp_6;
-
-    temp_7 = arg0 * 0x4A;
-    temp_4 = arg1 & 0xFFFF;
-    if (temp_4 & *(u16 *)(D_008C0316 + temp_7)) {
-        *(u8 *)(D_008C031E + temp_7 + arg2) = 7;
-        return;
-    }
-    if (temp_4 & *(u16 *)(D_008C0314 + temp_7)) {
-        temp_6 = D_008C031E + temp_7 + arg2;
-        *temp_6 -= 1;
-        if (*temp_6 == 0) {
-            temp_4_2 = (u16 *)(D_008C031A + temp_7);
-            *temp_4_2 |= arg1;
-            *temp_6 = 3;
-        }
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00453310);
-#endif
 // FUN_004533D0
 void func_004533d0(void)
 {
@@ -620,75 +570,9 @@ s32 func_004556b0(u8* arg0, u32 arg1)
 
 
 
-/* measured: opt_propagation off preserves 00456530's inner-loop preheader; object 348B, retail window 352B, normalized_diff 19. Candidate is parked under NON_MATCHING because nd <= 25. Committed at nd 19. */
-// FUN_00456530 NONMATCHING
-#ifdef NON_MATCHING
-/* measured probe: opt_propagation off preserves the parked candidate's preheader. */
-#pragma opt_propagation off
-void func_00456530(s32 arg0, u8 *arg1, s32 arg2) {
-    u8 sp34C[4];
-    u8 sp240[0x100];
-    u8 sp140[0x100];
-    u8 sp40[0x100];
-    s32 temp_16;
-    s32 var_16;
-    s32 var_3;
-    s32 var_7;
-    u8 *temp_2;
-    s8 temp_5;
-    s32 temp_4;
-    s32 temp_3;
-    s8 temp_2_2;
-
-    func_00454d20(arg0, sp240);
-    var_16 = 0;
-loop_00456530_body:
-    func_0043f810(sp40, sp240, 0xFC);
-    func_0043f810(sp140, arg1 + var_16, 0xFC);
-    if (*(s8 *)sp140 != 0) {
-        func_0043f810(sp34C, arg1 + (var_16 + 0xFC), 4);
-        temp_16 = var_16 + 0x100;
-        func_00442428(sp40, sp140);
-        var_7 = 0;
-        temp_3 = 0x5C;
-        temp_4 = 0x2F;
-        goto loop_00456530_inner_check;
-loop_00456530_inner_body:
-        temp_2 = sp40 + var_7;
-        temp_5 = *(s8 *)temp_2;
-        if ((temp_5 >= 0x61) && (temp_5 < 0x7B)) {
-            *temp_2 = (u8)(temp_5 - 0x20);
-        }
-        temp_2_2 = *(s8 *)temp_2;
-        if (temp_2_2 != 0) {
-            if (temp_2_2 == temp_4) {
-                *temp_2 = (u8)temp_3;
-            }
-            var_7 += 1;
-        }
-loop_00456530_inner_check:
-        if (var_7 < 0xFF) {
-            goto loop_00456530_inner_body;
-        }
-        func_00456400(arg1, arg1 + temp_16, *(s32 *)sp34C, sp40);
-        temp_4 = *(s32 *)sp34C + 0x3F;
-        var_3 = temp_4 >> 6;
-        if (temp_4 < 0) {
-            var_3 = (temp_4 + 0x3F) >> 6;
-        }
-        temp_3 = var_3 << 6;
-        *(s32 *)sp34C = temp_3;
-        var_16 = temp_16 + temp_3;
-        if (arg2 != 1) {
-            goto loop_00456530_body;
-        }
-    }
-}
-/* measured probe: close opt_propagation scope after func_00456530. */
-#pragma opt_propagation on
-#else
+/* measured: archived best body build/D456_00456530_body.c; object 348B, retail window 352B, normalized_diff 18; residual differing offsets 146,150,166,170,174,186,198,202,206,218,226,274,277,278,282,290. */
+// FUN_00456530
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00456530);
-#endif
 // FUN_004566C0
 s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {
     u8 sp50[0x100];

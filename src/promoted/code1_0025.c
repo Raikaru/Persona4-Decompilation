@@ -70,11 +70,11 @@ extern s32 func_00481450(void);
 extern void func_00481440(s32 arg0);
 extern void func_004ab8a0(s32 arg0);
 extern void func_004ab360(s32 arg0);
-extern void func_0046b380(void *arg0, s32 arg1);
+extern void func_0046b380(u8 *arg0, s32 arg1);
 extern void func_0046d280(void *arg0);
-extern u8 *func_0046d200(void *arg0, s32 arg1);
+extern u8 *func_0046d200(u32 arg0, u32 arg1);
 extern u8 *func_00460990(void);
-extern void func_00460ac0(void *arg0, void *arg1);
+extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_0025ec10(s32 arg0, u8 *arg1);
 extern void func_0025ec50(s32 arg0, u8 *arg1);
 extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
@@ -953,60 +953,12 @@ void func_0025e9e0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4,
     func_0025ea20(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4,
                   0, 0, 0.0f, 1.0f, 1.0f);
 }
-/* measured: plain C reproduces the full 0x1E0-byte body and 0x90-byte frame; only the two float-to-u16 conversions retain the MWCCPS2 $v0/$v1 colouring floor (normalized_diff 10, object 484B versus 496B window). Parked because nd <= 25. Committed at nd 10. */
-// FUN_0025EA20 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2,
-                  s32 arg0, s32 arg1, s32 arg2, void *arg3,
-                  s32 arg4, s32 arg5, s32 arg6,
-                  f32 farg3, f32 farg4, f32 farg5) {
-    f32 temp_f1;
-    f32 temp_f1_2;
-    u16 var_3;
-    u16 var_3_2;
-    u8 *temp_2;
-
-    temp_2 = func_0046d200(arg3, arg2);
-    *(f32 *)(temp_2 + 8) = farg0;
-    *(f32 *)(temp_2 + 0xC) = farg1;
-    *(f32 *)(temp_2 + 0x24) = farg2;
-    *(s8 *)(temp_2 + 0x11) = (s8)(0xFF - (arg1 & 0xFF));
-    *(s8 *)(temp_2 + 0x28) = (s8)((u32)arg0 >> 0x10);
-    *(s8 *)(temp_2 + 0x29) = (s8)((u32)arg0 >> 8);
-    *(u8 *)(temp_2 + 0x2A) = (u8)arg0;
-    *(s16 *)(temp_2 + 0x1C) = (s16)arg5;
-    *(s16 *)(temp_2 + 0x1E) = (s16)arg6;
-    *(f32 *)(temp_2 + 0x18) = farg3;
-    temp_f1 = 4096.0f * farg4;
-    if (2147483648.0f > temp_f1) {
-        goto direct_1;
-    }
-    var_3 = ((s32)(temp_f1 - 2147483648.0f) | 0x80000000) & 0xFFFF;
-    goto store_1;
-direct_1:
-    var_3 = (s32)temp_f1 & 0xFFFF;
-store_1:
-    *(u16 *)(temp_2 + 0x20) = var_3;
-    temp_f1_2 = 4096.0f * farg5;
-    if (2147483648.0f > temp_f1_2) {
-        goto direct_2;
-    }
-    var_3_2 = ((s32)(temp_f1_2 - 2147483648.0f) | 0x80000000) & 0xFFFF;
-    goto store_2;
-direct_2:
-    var_3_2 = (s32)temp_f1_2 & 0xFFFF;
-store_2:
-    *(u16 *)(temp_2 + 0x22) = var_3_2;
-    if ((*(u16 *)(temp_2 + 0x20) != 0) &&
-        (*(u16 *)(temp_2 + 0x22) != 0)) {
-        func_0046b380(temp_2, arg4);
-    }
-    func_0046d280(temp_2);
-    return 0;
-}
-#else
+/* measured: best plain-C body object 484B/window 496B, normalized_diff 10; residual offsets 0xE0,0xE8,0x104,0x108,0x10C,0x13C,0x144,0x160,0x164,0x168 (plus three zero-padding tail words). Corrected callee declarations: func_0046d200(u32,u32), func_0046b380(u8*,s32), func_00460ac0(u8*,u8*); func_0046d280 remains caller-specific void* because retail passes $a0 despite its verified void definition. Conversion destination/register probes did not improve nd 10; archived at build/L25_0025ea20_body.c. */
+// FUN_0025EA20
 INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ea20);
-#endif
+/* measured: best plain-C body object 588B/window 592B, normalized_diff 10; residual offsets 0x104,0x10C,0x128,0x12C,0x130,0x160,0x168,0x184,0x188,0x18C (plus one zero-padding tail word). Corrected callee declarations: func_0046d200(u32,u32), func_0046b380(u8*,s32), func_00460ac0(u8*,u8*); func_0046d280 remains caller-specific void* because retail passes $a0 despite its verified void definition. Conversion destination/register probes did not improve nd 10; archived at build/L25_0025ecd0_body.c. */
+// FUN_0025ECD0
+INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ecd0);
 // FUN_0025EC10
 void func_0025ec10(s32 arg0, u8 *arg1) {
     func_0046b380(arg1, 1);
@@ -1024,77 +976,6 @@ void func_0025ec90(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                   0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 /* measured: plain C reproduces the complete 0x24C-byte body and 0xC0-byte frame; only the two float-to-u16 conversions retain the MWCCPS2 $v0/$v1 colouring floor (normalized_diff 10, object 588B versus 592B window). Parked because nd <= 25. Committed at nd 10. */
-// FUN_0025ECD0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
-                  s32 arg0, s32 arg1, s32 arg2, void *arg3,
-                  s32 arg4, s16 arg5, s16 arg6,
-                  f32 farg3, f32 farg4, f32 farg5, void *arg7) {
-    f32 temp_f1;
-    f32 temp_f1_2;
-    u8 *temp_16;
-    u8 *temp_2;
-    u16 var_3;
-    u16 var_3_2;
-
-    temp_16 = func_00460990();
-    temp_2 = func_0046d200(arg3, arg2);
-    *(f32 *)(temp_2 + 8) = farg0;
-    *(f32 *)(temp_2 + 0xC) = farg1;
-    *(f32 *)(temp_2 + 0x24) = farg2;
-    *(s8 *)(temp_2 + 0x11) = (s8)(0xFF - (arg1 & 0xFF));
-    *(s8 *)(temp_2 + 0x28) = (s8)((u32)arg0 >> 0x10);
-    *(s8 *)(temp_2 + 0x29) = (s8)((u32)arg0 >> 8);
-    *(u8 *)(temp_2 + 0x2A) = arg0;
-    *(s16 *)(temp_2 + 0x1C) = arg5;
-    *(s16 *)(temp_2 + 0x1E) = arg6;
-    *(f32 *)(temp_2 + 0x18) = farg3;
-    temp_f1 = 4096.0f * farg4;
-    if (2147483648.0f > temp_f1) {
-        goto direct_1;
-    }
-    var_3 = ((s32)(temp_f1 - 2147483648.0f) | 0x80000000) & 0xFFFF;
-    goto store_1;
-direct_1:
-    var_3 = (s32)temp_f1 & 0xFFFF;
-store_1:
-    *(u16 *)(temp_2 + 0x20) = var_3;
-    temp_f1_2 = 4096.0f * farg5;
-    if (2147483648.0f > temp_f1_2) {
-        goto direct_2;
-    }
-    var_3_2 = ((s32)(temp_f1_2 - 2147483648.0f) | 0x80000000) & 0xFFFF;
-    goto store_2;
-direct_2:
-    var_3_2 = (s32)temp_f1_2 & 0xFFFF;
-store_2:
-    *(u16 *)(temp_2 + 0x22) = var_3_2;
-    if (*(u16 *)(temp_2 + 0x20) == 0) {
-        goto cleanup;
-    }
-    if (*(u16 *)(temp_2 + 0x22) == 0) {
-        goto cleanup;
-    }
-    if (arg4 != 1) {
-        goto callback_2;
-    }
-    *(void **)(temp_16 + 8) = (void *)func_0025ec10;
-    *(u8 **)(temp_16 + 0x10) = temp_2;
-    goto callback_call;
-callback_2:
-    *(void **)(temp_16 + 8) = (void *)func_0025ec50;
-    *(u8 **)(temp_16 + 0x10) = temp_2;
-callback_call:
-    func_00460ac0(arg7, temp_16);
-    goto done;
-cleanup:
-    func_0046d280(temp_2);
-done:
-    return 0;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0025", func_0025ecd0);
-#endif
 // FUN_0025F960
 s32 func_0025f960(void) {
     s32 var_17;

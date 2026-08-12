@@ -3,7 +3,7 @@
 
 
 extern u32 RpRandom(void);
-extern void func_0046d730(u8 *arg0, s32 arg1);
+extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_00635938[];
 
 extern u32 func_003b7060(void);
@@ -93,7 +93,7 @@ extern void func_00233370(u8 *arg0, u8 arg1, s32 arg2);
 extern void func_00233490(u8 *arg0, u8 arg1, s8 arg2);
 
 extern u8 func_00232b40(u8 *arg0, s32 arg1);
-extern u32 func_00109bf0(u32 arg0, s32 arg1);
+extern u8 func_00109bf0(u8 *arg0, s32 arg1);
 extern s32 func_00106940(s16 arg0);
 extern s32 func_00106970(s16 arg0);
 extern u32 func_0023d9b0(u8 *arg0, s32 arg1);
@@ -548,52 +548,13 @@ done_value:
     return value;
 }
 
-/* measured: plain-C tail reconstruction is 260B against the 272B retail window;
-   normalized_diff 4. Remaining rows are the two daddiu immediates and the
-   compare result's $at versus $v1 destination. Committed at nd 4. */
-// FUN_00232C70 NONMATCHING
-#ifdef NON_MATCHING
-u32 func_00232c70(u8 *arg0, s32 arg1)
-{
-    u32 v;
-    s32 temp_3;
-    u32 flag;
-
-    if (((s32)(arg1 & 0xFFFF) < 0) || ((arg1 & 0xFFFF) >= 5)) {
-        func_0046d730(D_00635938, 0x313);
-    }
-    if ((*(u16 *)arg0 & 4) != 0) {
-        v = func_00232b40(arg0, arg1);
-        v &= 0xFF;
-    } else {
-        if (*(u16 *)(arg0 + 2) >= 0xB) {
-            func_0046d730(D_00635938, 0x31A);
-        }
-        v = func_00109bf0(*(u16 *)(arg0 + 2), arg1);
-        v &= 0xFF;
-    }
-    flag = (*(s32 *)(arg0 + 0xC) & 0x80) != 0;
-    if (flag != 0) {
-        v >>= 1;
-        v &= 0xFF;
-    }
-    temp_3 = v & 0xFF;
-    if (temp_3 > 0) {
-        goto clamp_value;
-    }
-    v = 1;
-    goto done_value;
-clamp_value:
-    if (temp_3 < 0x64) {
-        goto done_value;
-    }
-    v = 0x63;
-done_value:
-    return v;
-}
-#else
+/* measured: best archived body build/D232_00232c70_body.c; object_size 260B,
+   retail window 272B, normalized_diff 2, differing offsets 208 and 232.
+   Corrected func_0046d730 to (void *, s32) and func_00109bf0 to (u8 *, s32);
+   remaining daddiu constant-width residual was not closed without a
+   scheduler-only construct. */
+// FUN_00232C70
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
-#endif
 
 /* measured: recipe-A-family re-test 2026-08-03. The u16-table shape now
    matches retail byte-for-byte outside the loop preheader (u16 loads, the
