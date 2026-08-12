@@ -30,9 +30,16 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import verify as V
+
 REPO = Path(__file__).resolve().parent.parent
 ADDR = re.compile(r"([0-9a-fA-F]{8})")
 MEASURED = re.compile(r"^\s*/\*.*\*/\s*$")
+MARKER_LINE = re.compile(r"^\s*//\s*FUN_[0-9A-Fa-f]{8}")
+BANNED_PRAGMA = re.compile(
+    r"^\s*#pragma\s+(optimization_level\s+[013]\b|schedule\s+off\b"
+    r"|opt_common_subs\s+off\b|opt_loop_invariants\b)")
 
 
 def archives() -> dict[str, Path]:
@@ -45,27 +52,104 @@ def archives() -> dict[str, Path]:
     return {a: max(v, key=lambda p: p.stat().st_size) for a, v in by_addr.items()}
 
 
-def body_text(path: Path) -> str:
-    """The archive minus its leading measurement comment lines."""
+UNIT_BLOCK = re.compile(r"^#if defined\(P4_UNIT_([0-9A-Fa-f]{8})\)", re.M)
+# Raw m2c output that cannot compile inside a real translation unit: the
+# `M2C_UNK` placeholder type, the `saved_reg_*` pseudo-globals m2c invents for
+# callee-saved registers it could not attribute, and its explicit error marker.
+UNPORTABLE = ("M2C_UNK", "saved_reg_", "M2C_ERROR")
+
+
+def generated_bodies() -> dict[str, tuple[str, str]]:
+    """Clean m2c candidate bodies from `src/generated/`, keyed by address.
+
+    These are the counterpart to the archives: nobody has hand-ground them, so
+    they are the population the permuter has any chance against. Candidates
+    still carrying raw m2c placeholders are skipped -- they cannot compile in
+    the target unit, so the permuter would only reject them as a broken base.
+
+    Candidate blocks carry their own `// FUN_` marker and `INCLUDE_ASM`
+    fallback, exactly like the archives, so they go through the same stripping:
+    splicing one verbatim produces a DUPLICATE marker, which `decomp_lint`
+    reports as M001 and the gate's marker audit rejects.
+    """
+    out: dict[str, tuple[str, str]] = {}
+    for path in sorted((REPO / "src" / "generated").rglob("*.c")):
+        parts = UNIT_BLOCK.split(path.read_text(errors="replace"))
+        for i in range(1, len(parts), 2):
+            addr, body = parts[i].lower(), parts[i + 1].split("#endif")[0]
+            if any(bad in body for bad in UNPORTABLE):
+                continue
+            lines = [l for l in body.splitlines()
+                     if not l.lstrip().startswith("/* Candidate status:")
+                     and not MARKER_LINE.match(l)
+                     and not l.startswith("INCLUDE_ASM(")
+                     and not l.lstrip().startswith("#pragma")
+                     and l.strip() not in ("#ifdef NON_MATCHING", "#else")]
+            note = ("/* measured: unmodified m2c candidate from src/generated,"
+                    " installed as a permuter seed; not a verified body. */")
+            out[addr] = (note, "\n".join(lines).strip("\n"))
+    return out
+
+
+def body_text(path: Path) -> tuple[str, str]:
+    """The archive's measurement note and its function body, separated.
+
+    Archives are lane output, not clean fragments. Three things are dropped
+    from the body:
+
+    * the leading `/* measured: ... */` note, which describes the archive
+      rather than the code -- it is returned separately, because it has to be
+      re-emitted ABOVE the marker (see below);
+    * an embedded `// FUN_XXXXXXXX` marker or `INCLUDE_ASM` fallback -- 27
+      archives carry one, and splicing it duplicates a marker, which the gate's
+      marker audit rejects and which makes verify.py score one function twice;
+    * every `#pragma`. A lane's pragma bracket is only balanced in the file it
+      was cut from, so re-splicing it silently re-pairs with the neighbouring
+      function's bracket. A seed does not need them: the permuter re-derives
+      the pragma state it wants.
+
+    The note must be re-emitted above the marker because `decomp_lint`'s H003
+    waiver is FUNCTION-scoped -- it looks six lines above the nearest enclosing
+    `// FUN_` marker. Inserting a new marker makes it the nearest enclosing one
+    for every banned pragma below it, orphaning justifications that were valid
+    before. On this tree that alone turned a clean baseline into seven errors.
+    """
     lines = path.read_text(errors="replace").splitlines()
-    start = 0
+    note, start, depth = [], 0, 0
     for i, line in enumerate(lines):
-        if line.strip() and not MEASURED.match(line):
+        stripped = line.strip()
+        if depth == 0 and stripped.startswith("/*"):
+            depth = 0 if stripped.endswith("*/") and len(stripped) > 3 else 1
+            note.append(stripped)
+            continue
+        if depth:
+            note.append(stripped)
+            if stripped.endswith("*/"):
+                depth = 0
+            continue
+        if stripped:
             start = i
             break
-    return "\n".join(lines[start:]).strip("\n")
+    kept = [l for l in lines[start:]
+            if not MARKER_LINE.match(l) and not l.startswith("INCLUDE_ASM(")
+            and not l.lstrip().startswith("#pragma")
+            and l.strip() not in ("#ifdef NON_MATCHING", "#else", "#endif")]
+    return "\n".join(note), "\n".join(kept).strip("\n")
 
 
 def sources() -> dict[Path, list[str]]:
-    """Every tracked source file's lines, read once.
+    """Every buildable source file's lines, read once.
 
-    Lanes running concurrently create and delete temporary files inside src/,
-    so a file that existed when the glob ran can be gone by the time it is
-    read. Those are never real targets, so they are skipped rather than fatal.
+    Two exclusions. Lanes running concurrently create and delete temporary
+    files inside src/, so a file that existed when the glob ran can be gone by
+    the time it is read; those are never real targets. And `src/generated/`
+    holds ~12,000 raw m2c CANDIDATE units that are not part of the build --
+    they sort before `src/promoted/`, so a marker lookup that does not exclude
+    them resolves to a file the compiler never sees.
     """
     out: dict[Path, list[str]] = {}
     for src in sorted((REPO / "src").rglob("*.c")):
-        if src.name.startswith("tmp"):
+        if src.name.startswith("tmp") or V.is_generated(src):
             continue
         try:
             out[src] = src.read_text(encoding="utf-8", errors="replace").splitlines()
@@ -97,13 +181,27 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--exclude", default="", help="comma-separated files to skip")
+    ap.add_argument("--source", choices=("archives", "generated"),
+                    default="archives",
+                    help="archives = hand-ground lane output; generated = "
+                         "untouched m2c candidates, which the permuter cracks "
+                         "far more often")
+    ap.add_argument("--max-lines", type=int, default=0,
+                    help="skip bodies longer than this (0 = no limit)")
     args = ap.parse_args()
 
     skip = {s.strip() for s in args.exclude.split(",") if s.strip()}
     found, edits = [], defaultdict(list)
     cache = sources()
 
-    for addr, archive in archives().items():
+    if args.source == "generated":
+        pool = generated_bodies()
+    else:
+        pool = {a: body_text(p) for a, p in archives().items()}
+
+    for addr, (note, body) in pool.items():
+        if args.max_lines and len(body.splitlines()) > args.max_lines:
+            continue
         hit = locate(addr, cache)
         if hit is None:
             continue
@@ -111,8 +209,8 @@ def main() -> int:
         rel = src.relative_to(REPO).as_posix()
         if rel in skip:
             continue
-        found.append((rel, addr, archive.name))
-        edits[src].append((marker_line, include, body_text(archive)))
+        found.append((rel, addr, "%d lines" % len(body.splitlines())))
+        edits[src].append((marker_line, include, (note, body)))
 
     for rel, addr, name in sorted(found):
         print("%-44s func_%s  <- %s" % (rel, addr, name))
@@ -123,17 +221,33 @@ def main() -> int:
         return 0
 
     for src, items in edits.items():
-        lines = src.read_text(encoding="utf-8", errors="replace").splitlines()
+        raw = src.read_bytes()
+        lines = raw.decode("utf-8", errors="replace").splitlines()
         # Descending so earlier line numbers stay valid as we splice.
-        for marker_line, include, body in sorted(items, reverse=True):
+        for marker_line, include, (note, body) in sorted(items, reverse=True):
             end = next(i for i in range(marker_line + 1, len(lines))
                        if lines[i] == include)
-            block = [lines[marker_line].rstrip()]
-            if not block[0].endswith("NONMATCHING"):
-                block[0] += " NONMATCHING"
-            block += ["#ifdef NON_MATCHING", body, "#else", include, "#endif"]
+            marker = lines[marker_line].rstrip()
+            if not marker.endswith("NONMATCHING"):
+                marker += " NONMATCHING"
+            # The note goes ABOVE the marker: that is where decomp_lint's
+            # function-scoped waiver looks, and it keeps every banned pragma
+            # below this point justified as it was before the splice.
+            block = note.splitlines() if note else [
+                "/* measured: archived permuter seed; see the build/ archive"
+                " header for its object/window/normalized_diff. */"]
+            block.append(marker)
+            # The body is spliced line by line, never as one embedded string:
+            # a multi-line element would keep LF inside a CRLF file.
+            block += ["#ifdef NON_MATCHING", *body.splitlines(),
+                      "#else", include, "#endif"]
             lines[marker_line:end + 1] = block
-        src.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        # Path.write_text would translate "\n" to CRLF on Windows, and forcing
+        # "\n" would flip the files that are committed CRLF. Either way every
+        # line of the file changes. Rejoin with the newline the file already
+        # uses and write bytes, so untouched lines stay byte-identical.
+        eol = "\r\n" if b"\r\n" in raw else "\n"
+        src.write_bytes((eol.join(lines) + eol).encode("utf-8"))
         print("installed %d body/bodies in %s"
               % (len(items), src.relative_to(REPO).as_posix()))
     return 0

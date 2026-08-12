@@ -240,7 +240,12 @@ s32 func_00223270(void)
 // FUN_002232A0
 INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002232a0);
 // FUN_002236B0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_002236b0);
+void func_002236b0(s32 arg0, u16 *arg1, s32 arg2)
+{
+    if ((*arg1 & 2) != 0) {
+        return;
+    }
+}
 // FUN_002236C0
 void func_002236c0(void)
 {
@@ -308,7 +313,12 @@ s32 func_002238c0(void)
 
 
 // FUN_00223ED0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_00223ed0);
+void func_00223ed0(s32 arg0, u16 *arg1, s32 arg2)
+{
+    if ((*arg1 & 2) != 0) {
+        return;
+    }
+}
 // FUN_00223EE0
 void func_00223ee0(void)
 {
