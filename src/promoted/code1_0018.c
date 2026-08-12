@@ -641,30 +641,35 @@ void func_0018c700(f32 fp0) {
     func_003f6800(b, fp0);
 }
 
-// FUN_0018C750 NONMATCHING
-#ifdef NON_MATCHING
+/* At the -O2 file baseline this function is normalized_diff 2: retail reads
+   `mfc1 $a1` and `or $a1,$a1,$v1` where -O2 colours both one register lower.
+   The bracket is closed back to the -O2 baseline immediately below the body.
+   measured: optimization_level 1 for this function alone, plus materialising
+   the 2147483648.0f constant into a named local AFTER the func_003ef650 call
+   rather than inline, gives object 136B/window 144B, normalized_diff 0. */
+#pragma optimization_level 1
+// FUN_0018C750
 void func_0018c750(f32 fparg0)
 {
     s32 temp_2;
     s32 var_5;
-    s32 converted;
+    f32 constant;
 
     temp_2 = func_003ef650(func_003ef6d0(), D_005F5360);
-    if (2147483648.0f <= fparg0) {
+    constant = 2147483648.0f;
+    if (constant <= fparg0) {
         goto positive;
     }
     var_5 = (s32)fparg0;
     goto done;
 positive:
-    converted = (s32)(fparg0 - 2147483648.0f);
-    var_5 = converted;
+    var_5 = (s32)(fparg0 - constant);
     var_5 |= (s32)0x80000000;
 done:
     func_003f68a0(temp_2, var_5);
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c750);
-#endif
+/* measured: restore optimization level after func_0018c750. */
+#pragma optimization_level 2
 // FUN_0018C7E0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
 // FUN_0018CED0

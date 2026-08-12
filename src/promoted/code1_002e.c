@@ -319,10 +319,9 @@ void func_002e7190(void) {
    MWCC's daddiu-vs-addiu loop increment and the resulting saved-register
    source. No inline assembly. Committed at nd 3. */
 // FUN_002E71C0
-#ifdef NON_MATCHING
 s32 func_002e71c0(void)
 {
-    s64 var_17;
+    s32 var_17;
     s64 var_16;
     s16 temp_18;
 
@@ -343,7 +342,7 @@ loop_body:
             var_16 = 1;
         }
     }
-    var_17 = (s32)(var_17 + 1);
+    var_17 = (s16)(var_17 + 1);
 loop_test:
     temp_18 = (s16)var_17;
     if (temp_18 < 0x3FF)
@@ -352,9 +351,6 @@ loop_test:
     }
     return ((s64)(var_16 << 0x38) >> 0x38) == 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e71c0);
-#endif
 // FUN_002E72C0
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e72c0);
 // FUN_002E74E0

@@ -53,19 +53,43 @@ def archives() -> dict[str, Path]:
 
 
 UNIT_BLOCK = re.compile(r"^#if defined\(P4_UNIT_([0-9A-Fa-f]{8})\)", re.M)
-# Raw m2c output that cannot compile inside a real translation unit: the
-# `M2C_UNK` placeholder type, the `saved_reg_*` pseudo-globals m2c invents for
-# callee-saved registers it could not attribute, and its explicit error marker.
-UNPORTABLE = ("M2C_UNK", "saved_reg_", "M2C_ERROR")
+# m2c artefacts that mean the candidate is semantically WRONG, not merely
+# untyped: `M2C_ERROR` is m2c's own "I could not translate this instruction"
+# marker (it expands to 0), and `saved_reg_*` are pseudo-globals it invents
+# when it cannot attribute a callee-saved register. Neither can match retail,
+# so seeding them only burns permuter budget.
+UNPORTABLE = ("M2C_ERROR", "saved_reg_", "M2C_TRAP_IF", "M2C_BREAK")
 
+# The remaining artefacts -- M2C_UNK, M2C_FIELD, M2C_BITWISE and friends -- are
+# merely UNTYPED, and tools/vendor/m2c/m2c_macros.h defines every one of them
+# in 58 lines. The promoted units do not include that header, which is the sole
+# reason 122 of 131 otherwise-clean candidates failed to compile. The prelude
+# is inlined into each seed rather than included once per file because the
+# sweep activates exactly one guarded block at a time: a file-scope prelude
+# under its own guard would stay inactive and the body would not compile.
+M2C_PRELUDE = """typedef s32 M2C_UNK;
+typedef s8 M2C_UNK8;
+typedef s16 M2C_UNK16;
+typedef s32 M2C_UNK32;
+typedef s64 M2C_UNK64;
+#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
+#define M2C_BITWISE(type, expr) ((type)(expr))
+#define M2C_LWL(expr) (expr)
+#define M2C_FIRST3BYTES(expr) (expr)
+#define M2C_UNALIGNED32(expr) (expr)
+#define M2C_CARRY 0
+#define M2C_OVERFLOW(a) (0)
+#define MULT_HI(a, b) (0)
+#define MULTU_HI(a, b) (0)
+#define CLZ(x) (0)"""
 
 def generated_bodies() -> dict[str, tuple[str, str]]:
-    """Clean m2c candidate bodies from `src/generated/`, keyed by address.
+    """m2c candidate bodies from `src/generated/`, keyed by address.
 
     These are the counterpart to the archives: nobody has hand-ground them, so
     they are the population the permuter has any chance against. Candidates
-    still carrying raw m2c placeholders are skipped -- they cannot compile in
-    the target unit, so the permuter would only reject them as a broken base.
+    carrying an artefact from UNPORTABLE are skipped as semantically wrong;
+    the rest get M2C_PRELUDE prepended so their remaining macros resolve.
 
     Candidate blocks carry their own `// FUN_` marker and `INCLUDE_ASM`
     fallback, exactly like the archives, so they go through the same stripping:
@@ -87,7 +111,10 @@ def generated_bodies() -> dict[str, tuple[str, str]]:
                      and l.strip() not in ("#ifdef NON_MATCHING", "#else")]
             note = ("/* measured: unmodified m2c candidate from src/generated,"
                     " installed as a permuter seed; not a verified body. */")
-            out[addr] = (note, "\n".join(lines).strip("\n"))
+            body = "\n".join(lines).strip("\n")
+            if "M2C_" in body:
+                body = M2C_PRELUDE + "\n" + body
+            out[addr] = (note, body)
     return out
 
 
