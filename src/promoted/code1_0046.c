@@ -314,50 +314,7 @@ void func_004633c0(void *arg0, void *arg1)
 /* measured: object 296B/window 304B; residual is two retail OR destination
    colouring words and an all-zero tail. Committed at nd 4. */
 // FUN_004633F0
-#ifdef NON_MATCHING
-s32 func_004633f0(void) {
-    f32 var_f0_2;
-    f32 var_f0;
-    s32 temp_2;
-    s32 temp_4;
-    s32 temp_6;
-    s32 temp_5;
-
-    func_0044f720();
-    iGpffffba8c = func_003e23e0();
-    func_003e82e0(func_00457120(), 0, 0);
-    temp_4 = *(s32 *)0x10000000;
-    iGpffffb198 = temp_4;
-    temp_2 = temp_4 - iGpffffb194;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        temp_6 = (s32)((u32)temp_2 >> 1);
-        temp_5 = temp_2 & 1;
-        temp_6 = temp_6 | temp_5;
-        var_f0 = (f32)temp_6 + (f32)temp_6;
-    }
-    iGpffffbb20 = var_f0;
-    if (temp_4 >= 0) {
-        var_f0_2 = (f32)temp_4;
-    } else {
-        temp_6 = (s32)((u32)temp_4 >> 1);
-        temp_5 = temp_4 & 1;
-        temp_6 = temp_6 | temp_5;
-        var_f0_2 = (f32)temp_6 + (f32)temp_6;
-    }
-    iGpffffbb1c = var_f0_2;
-    iGpffffbb24 = 100.0f * ((*(f32 *)&iGpffffbb20) / 520.0f);
-    *(s32 *)0x10000000 = 0;
-    func_003e5510(0);
-    func_00466600();
-    func_00466c60();
-    func_0050cd80();
-    return 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004633f0);
-#endif
 // FUN_00463520
 void func_00463520(void) {
     func_00451de0(D_00712670, 0x12C, 0, 0, (void *)func_004633f0, 0, 0);

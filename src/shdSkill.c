@@ -353,7 +353,7 @@ void func_00115760(u8 *arg0) {
    `i < count - 1`/`i <= count - 2` scored nd 7. A plain `goto done;`
    shared exit with empty, self-assignment, and both-path tails stayed nd 1.
    The base body remains the lowest park. Committed at nd 1. */
-// FUN_00115670 NONMATCHING
+// FUN_00115670
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
 
 // FUN_00115750

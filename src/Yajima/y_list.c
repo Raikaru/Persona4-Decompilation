@@ -682,95 +682,15 @@ void func_002e68b0(s8 arg0) {
 /* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
 #pragma opt_loop_invariants off
 
-/* measured 2026-08-03 (wave 14 re-attack): old note's nd 70 was DISPROVED as
-   a pure floor. LEVER 6 is the key: retail reloads the type (lw 4(p)) into $v0
-   then $a1 after each jump-table dispatch because the dispatch jr clobbers
-   $v0; mwcc CSEs it into $v1. Spelling the second read with a different
-   integer-domain cast — switch2 on `*(s32 *)((u8 *)p + 4)` (switch1 on
-   `*(s32 *)(p + 4)`) forces a distinct CSE key and the two loads come out
-   (70 -> 25). Then DECLARE/LOAD p before b (`u8 *p; ... p = ...; b = *arg1;`)
-   so allocation lands b->$v1 / p->$a0 like retail (25 -> 6). v1/v2 must be
-   u16 (retail andi 0xffff, not 0xff). Residual is exactly the top load ORDER:
-   retail emits lh a; lh b; lui/lw/lw(p); mwcc emits lh a; p-chain; lh b no
-   matter the spelling — tried #pragma schedule on (89), opt_common_subs off
-   (13), e-split (24), decl orders (24). 4 instruction words + 2 pool-number
-   relocs. Load-order scheduling floor, nd 6. */
-/* measured: the comparator body is structurally recovered at object 368B/window
-   368B and nd 13. The remaining residual is the retail initial load schedule
-   (arg1 loads before the global base) plus final value register coloring; the
-   CSE-off spelling preserves the retail jump-table and record-address shapes.
-   The body and all source probes are archived at
-   build/WBYList_y_list_6b20_candidate.c and
-   build/WCDeepYList_y_list_nd13_6b20.c. Committed at nd 13. */
-// FUN_002E6B20 NONMATCHING
-/* measured: opt_common_subs off is required for the recovered jump-table
-   reloads and must be closed after the guarded body. */
-#pragma opt_common_subs off
-#ifdef NON_MATCHING
-s32 func_002e6b20(s16 *arg0, s16 *arg1) {
-    s16 ia;
-    s16 ib;
-    u8 *base;
-    u8 *pa;
-    u8 *pb;
-    u16 vb;
-    u16 va;
-
-    ia = *arg0;
-    base = *(u8 **)(D_00882F70[0] + 0x38);
-    ib = *arg1;
-    switch ((u32)*(s32 *)(base + 4)) {
-    case 0:
-    case 2:
-    case 7:
-    case 8:
-        pa = base + ia * 0x30 + 0x14;
-        break;
-    case 1:
-    case 5:
-    case 6:
-    case 10:
-        pa = base + ia * 0x30 + 0xA4;
-        break;
-    case 3:
-    case 4:
-    case 9:
-    default:
-        pa = base + ia * 0x30 + 0x14;
-        break;
-    }
-    va = *(u8 *)(pa + 4);
-    switch ((u32)*(s32 *)(base + 4)) {
-    case 0:
-    case 2:
-    case 7:
-    case 8:
-        pb = base + ib * 0x30 + 0x14;
-        break;
-    case 1:
-    case 5:
-    case 6:
-    case 10:
-        pb = base + ib * 0x30 + 0xA4;
-        break;
-    case 3:
-    case 4:
-    case 9:
-    default:
-        pb = base + ib * 0x30 + 0x14;
-        break;
-    }
-    vb = *(u8 *)(pb + 4);
-    if (vb < (va & 0xFFFF)) {
-        return 1;
-    }
-    return -((va & 0xFFFF) < vb);
-}
-#else
+/* measured 2026-08-12: best plain-C comparator body is archived at
+   build/D2E6_002e6b20_body.c (object 360B/window 368B, normalized_diff 10;
+   differing byte offsets 6,7,10,11,12,13,14,16,18,19). The body has no
+   callees, so no declarations were corrected. The remaining residual is the
+   initial retail load order (lh arg0, lh arg1, then the global base) versus
+   MWCCPS2's lh arg0, global base, lh arg1 schedule; schedule-on, propagation,
+   declaration-order, and pointer-load probes all regressed. */
+// FUN_002E6B20
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
-#endif
-/* measured: close opt_common_subs after the NON_MATCHING arm so it cannot leak. */
-#pragma opt_common_subs on
 
 
 

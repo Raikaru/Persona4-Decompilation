@@ -233,6 +233,7 @@ extern f32 DAT_0076112c;
 
 extern void func_0019d990(u8 *arg0, s32 arg1);
 extern void func_0019d7a0(u8 *arg0, s32 arg1);
+extern u8 *func_001f7650(u8 *arg0);
 extern void func_0014b0c0(u16 arg0, u32 arg1);
 
 extern u8 *func_0019d210(s32 arg0);
@@ -2340,8 +2341,7 @@ void func_0019d670(void)
     }
 }
 /* measured: plain-C switch reconstruction reproduces the 488-byte object against the 496-byte retail window; the jump-table base register remains the residual. Committed at nd 61. */
-// FUN_0019D7A0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0019D7A0
 void func_0019d7a0(u8 *arg0, s32 arg1)
 {
     s32 temp_4;
@@ -2395,10 +2395,11 @@ void func_0019d7a0(u8 *arg0, s32 arg1)
                                  0xFFFF) | 0x2000));
             temp_4 = func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0xFFFF;
             temp_4 = temp_4 & -0x801;
+            func_0047a9f0(*(u8 **)(arg0 + 0xA00), (u16)temp_4);
             return;
         case 4:
             *(s32 *)(*(u8 **)(arg0 + 0xA00) + 0x2DC) =
-                func_001f7650();
+                (s32)func_001f7650(arg0);
             temp_4_2 = *(u8 **)(arg0 + 0xA00);
             *(u16 *)(temp_4_2 + 0x2E0) |= 0x10;
             break;
@@ -2408,9 +2409,6 @@ void func_0019d7a0(u8 *arg0, s32 arg1)
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019d7a0);
-#endif
 // FUN_0019D990
 void func_0019d990(u8 *arg0, s32 arg1)
 {

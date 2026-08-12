@@ -633,9 +633,17 @@ def main() -> None:
         _die("slus21782_functions.json does not describe the configured P4 USA target")
     retail = RetailElf(cfg["retail_elf"], target, windows["sha1"])
 
+    # config/gcc_units.txt units are linked from their extracted retail
+    # assembly rather than compiled, because building them needs an ee-gcc
+    # toolchain this repo does not ship. Scoring them here would report
+    # COMPILE_ERROR wherever that toolchain is absent -- CI included -- while
+    # reporting MATCH on a developer machine that happens to have it, so the
+    # same tree would grade differently in two places. They hold no first-party
+    # functions, so excluding them costs the project's metric nothing.
     source_files = sorted(
         path for path in (REPO / "src").rglob("*.c")
-        if args.include_generated or not is_generated(path)
+        if (args.include_generated or not is_generated(path))
+        and not is_gcc_unit(path)
     )
     requested = [Path(file).resolve() for file in args.files] if args.files else source_files
     files: list[Path] = list(requested)

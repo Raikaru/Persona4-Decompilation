@@ -627,8 +627,17 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     # them here made a cold build ~13,000 units instead of ~1,300 and dominated
     # the runtime. The candidate-promotion flow drives them separately through
     # build/m2c_verify_report.json, so they are opt-in here.
+    # config/gcc_units.txt lists five translation units retail built with
+    # ee-gcc rather than MWCCPS2. Building them needs an ee-gcc toolchain that
+    # is not part of this repo, so the build failed outright wherever it was
+    # absent -- including CI. They contain 66 matched functions and ZERO
+    # first-party ones: every address in them falls inside a vendor span, so
+    # they do not move the project's metric. They are therefore linked from
+    # their extracted retail assembly, which is byte-identical by construction,
+    # and the build no longer depends on a second compiler.
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
-                     if include_generated or not V.is_generated(p))
+                     if (include_generated or not V.is_generated(p))
+                     and not V.is_gcc_unit(p))
     for cpath in sources:
         markers = V.scan_markers(cpath)
         real = [m for m in markers if m["name"]]
@@ -849,10 +858,6 @@ def _include_dirs(flags):
 
 def _mwccgap_flags(c, src=None):
     """Return the compiler/assembler flags shared by every C compile path."""
-    if src is not None and V.is_gcc_unit(src):
-        # A different compiler entirely; the key must not collide with the
-        # MWCC object this file would otherwise have produced.
-        return ["--eegcc-shim", *c["compile_flags"]]
     flags = [
         "--mwcc-path", c["mwcc"],
         "--asm-dir-prefix", str(REPO),
@@ -865,19 +870,7 @@ def _mwccgap_flags(c, src=None):
     return flags
 
 
-def _compile_with_eegcc(c, src, output):
-    """Build a config/gcc_units.txt translation unit with ee-gcc 2.96."""
-    sh(
-        [sys.executable, str(REPO / "tools" / "eegcc_shim.py"), "-c",
-         *c["compile_flags"], "-o", str(output), str(src)],
-        cwd=str(REPO),
-    )
-
-
 def _compile_with_mwccgap(c, src, output):
-    if V.is_gcc_unit(src):
-        _compile_with_eegcc(c, src, output)
-        return
     mwccgap = REPO / "tools" / "mwccgap" / "mwccgap.py"
     sh(
         [sys.executable, str(mwccgap), str(src), str(output),
@@ -908,8 +901,9 @@ def _cache_inputs(mode, source=None):
     inputs.extend(sorted((REPO / "tools" / "mwccgap").rglob("*.py")))
     inputs.append(ASM / "macro.inc")
     inputs.extend(_cache_asm_inputs(source))
-    if source is not None and V.is_gcc_unit(source):
-        inputs += [REPO / "tools" / "eegcc_shim.py", V.GCC_UNITS_PATH]
+    # gcc_units.txt is still consulted to EXCLUDE those units from the C build,
+    # so it belongs in the key for every source rather than only for them.
+    inputs.append(V.GCC_UNITS_PATH)
     if mode == "eligibility":
         inputs.append(Path(V.__file__))
     return inputs
