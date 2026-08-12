@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 extern s32 func_00247cb0(s16 arg0);
-extern s32 func_00107ac0(s32 arg0);
+extern u16 func_00107ac0(s32 arg0);
 extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00209d40(u8 *arg0, u8 *arg1);
 extern void func_00209dc0(void);
@@ -11,9 +11,9 @@ extern void func_0020a5c0(void);
 extern void func_00202d20();
 extern s32 func_00202e70(void);
 extern void func_00113500(void);
-extern void func_00113480(s16 a0, s16 a1, s16 a2, s16 a3);
-extern void func_0046b260(void *arg0);
-extern void func_0046b2f0(void *arg0);
+extern void func_00113480(s32 a0, s32 a1, s32 a2, s32 a3);
+extern f32 func_0046b260(u8 *arg0);
+extern f32 func_0046b2f0(u8 *arg0);
 extern s32 func_00201ee0(void);
 extern s32 func_00202820(void);
 extern void func_0021afa0(s32 arg0);
@@ -28,7 +28,7 @@ extern void func_00202e00(u8 *arg0, s16 *arg1);
 extern void func_00202460(u8 *arg0);
 extern s32 func_00202480(u8 *arg0);
 extern void func_00202570(u8 *arg0);
-extern s32 func_001067f0(s16 arg0);
+extern u32 func_001067f0(s16 arg0);
 extern s32 func_001eb860(void);
 
 typedef struct {
@@ -57,16 +57,16 @@ extern void func_00364c90(s64 arg0, s32 arg1, f32 fparg0, f32 fparg1,
                           f32 fparg2, f32 fparg3, s32 arg2);
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
-extern u8 *func_0010ace0(s64 arg0);
+extern u8 *func_0010ace0(s16 arg0);
 extern s32 func_0010b510(void);
 extern s32 func_00109390(u8 *arg0);
-extern s32 func_00109220(u16 arg0);
-extern void func_00272c60(s32 arg0);
-extern void func_00272c80(s32 arg0);
-extern void func_00275020(f32 fparg0, f32 fparg1, f32 fparg2,
-                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                           s32 arg4, s32 arg5);
-extern u32 func_001d8bc0(u8 *arg0);
+extern s32 func_00109220(s32 arg0);
+extern u16 func_00272c60(s16 arg0);
+extern u16 func_00272c80(u16 arg0);
+extern int func_00275020(f32 x, f32 y, f32 scale,
+                         int color, int chr, int id, const char *str,
+                         int flags, int charWidth);
+extern u32 func_001d8bc0(void *arg0);
 extern void func_0011b360(s32 arg0);
 extern void func_00201410(u8 *arg0, s32 a, s32 b);
 extern void func_002119a0(u8 *arg0);
@@ -81,7 +81,7 @@ extern void func_00216d10(s32 arg0);
 
 
 
-extern void *func_00194470(u32 id, u32 size);
+extern u8 *func_00194470(s32 id, s32 size);
 extern s32 func_00202340(u8 *arg0);
 extern s32 func_00202070(u8 *arg0);
 extern s32 func_00202180(u8 *arg0);
@@ -143,7 +143,7 @@ extern void func_00201820(s32 arg0);
 extern void func_00205c20(void);
 extern void func_00205950(void);
 extern s32 func_00202e70(void);
-extern s16 func_00243920(u16 arg0);
+extern u16 func_00243920(s64 arg0);
 extern void func_00207140();
 extern void func_00207320();
 extern void func_00207b00();
@@ -168,7 +168,7 @@ extern void func_0020add0(void *arg0);
 extern void func_0020bb70(void *arg0);
 extern void func_00219130(void *arg0);
 extern void func_0021b1e0(void *arg0);
-extern void func_00460ac0(void *arg0, void *arg1);
+extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00794810[];
 extern u8 D_00794870[];
 extern u8 D_00794FF0[];
@@ -183,9 +183,9 @@ extern void func_0020b5b0(void);
 extern void func_0020bb20(u8 *arg0, s32 arg1);
 extern void func_0020bd70(void);
 extern void func_00211950(u8 *arg0, s32 arg1);
-extern void func_00211ad0(void);
+extern void func_00211ad0(u8 *arg0, u8 *arg1);
 extern void func_00211ba0(void);
-extern void func_00211f90(void);
+extern void func_00211f90(s32 arg0, u8 *arg1);
 extern void func_00213cd0(u8 *arg0, s32 arg1);
 extern void func_002167f0(void);
 extern void func_00216df0(u8 *arg0, s32 arg1);
@@ -221,6 +221,7 @@ void func_00200960(void) {
 }
 // FUN_00200980
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00200980);
+
 // FUN_00200A50
 void func_00200a50(void)
 {

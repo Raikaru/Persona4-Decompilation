@@ -10,6 +10,7 @@
    264/272 nd6; 00474BA0 316/320 nd153; 00475B90 304/320 nd147;
    00473710 332/352 nd202; 00477FB0 388/400 nd272. */
 #include "type.h"
+typedef struct RpMaterial RpMaterial;
 /* measured: index-first addu operand-order carrier (lever 3). Kept at top of
    file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
    does not emit a standalone symbol. */
@@ -21,11 +22,11 @@ extern u8 D_00713180[];
 extern u8 D_007131A0[];
 extern u8 D_007131C0[];
 extern s32 func_00457a90(void* a, u8* b);
-extern f32 func_004579a0(void* a, u8* b);
+extern f32 func_004579a0(const RpMaterial* a, const char* b);
 
 extern u32 func_00397460(void);
 typedef void (*CallbackFn)(void);
-extern void func_003e9af0(void* object, CallbackFn callback, void* data);
+extern u8* func_003e9af0(u8* object, s32 (*callback)(u8*, s32), s32 data);
 
 extern void func_003b83d0(void);
 
@@ -36,8 +37,8 @@ extern f32 DAT_0076112c;
 extern void func_0039a260(void* a, void* b);
 extern void func_0039ab20(void* a, int b, int c, int d);
 extern int func_00475b90(void* buf, void* v, u32 idx, void* obj);
-extern void* func_00457f40(void* obj, void* name, u32 idx);
-extern u8* func_003e9700(void* a);
+extern void* func_00457f40(void* obj, const char* name, s32 idx);
+extern u8* func_003e9700(u8* a);
 extern void func_003d5840(void* a, void* b);
 
 typedef struct RtAnimAnimation RtAnimAnimation;
@@ -95,12 +96,12 @@ extern u8 D_00922BC0_abs[];
 extern void RwMatrixScale(void* matrix, const RwV3d* scale, int combineOp);
 
 extern u32 func_00399d80();
-extern u32 func_0039b6e0();
+extern s32 func_0039b6e0(s32 arg0);
 
 extern u32 func_003b83f0(int object);
-extern u32 func_003b85b0(void* object);
-extern void func_003b8520(void* object, int value);
-extern void func_00399b10(void* object);
+extern s32 func_003b85b0(u8* object);
+extern void func_003b8520(u8* object, s32 value);
+extern s32 func_00399b10(s32 object);
 extern u32 func_003b8500(int object);
 extern void func_00473140(int param_1);
 
@@ -123,13 +124,13 @@ typedef struct MdlAnimResourceEntry
     u8 unk_05[3];
 } MdlAnimResourceEntry;
 
-extern void func_0047fa60(void* resource);
+extern void func_0047fa60(int resource);
 extern void (*DAT_008873ec[])(...);
 
-extern void func_003df7f0();
+extern s32 func_003df7f0(u8* arg0);
 extern void func_003d6230();
 
-extern void* func_003df890();
+extern s32 func_003df890(s32* arg0);
 extern void* func_003df8a0();
 extern void* func_003df6e0(void* list, s32 index);
 
@@ -137,11 +138,11 @@ extern void func_003c21e0(u32 object, u32 arg1, u32 arg2);
 extern void func_003d5e40_typed(f32 frame, void* interpolator);
 
 extern int func_003bcfb0();
-extern void* func_003bd000(void* material, int data);
-extern char* func_003bd040(void* userData);
-extern int func_003bd060(void* object);
-extern int func_003bd050(void* userData);
-extern void* func_003bd0b0(void* object, int index);
+extern s32 func_003bd000(s32 material, s32 data);
+extern s32 func_003bd040(s32* userData);
+extern s32 func_003bd060(void* object);
+extern s32 func_003bd050(u8* userData);
+extern s32 func_003bd0b0(u8* object, s32 index);
 extern int strcmp(const char* s1, const char* s2);
 extern char DAT_007641c8[1];
 
@@ -168,19 +169,19 @@ extern void* func_00397470(void);
 extern void* func_00397470_typed(void* a);
 extern void func_003e05f0(void* a, void* b, void* c);
 
-extern void func_004585c0();
+extern void func_004585c0(u8* arg0);
 extern u8* func_00476e90(u8* a, u8** b);
 extern u32 func_004578b0();
 extern f32 iGpffff8044;
 extern u8 D_00713160[];
-extern u32 func_004581a0(void* object, void* data);
+extern s32 func_004581a0(void* object, const char* data);
 extern u8 D_007131D8[];
 extern f32 DAT_00761130;
 extern u8 D_00713138[];
 extern u8 D_007241d0;
 extern void* D_00922BE0[];
 extern void func_00440b68(void* a, void* b, int c);
-extern u32 func_00454a60(void* a, int b);
+extern u8* func_00454a60(u8* a, s32 b);
 extern void func_0044ea90(void* a, int b);
 extern void func_0043f9c8(void* a, int b, int c);
 extern void* DAT_008873e8[];
@@ -248,8 +249,8 @@ extern void func_0047aee0(Model* mdl, RwMatrix* matrix);
 extern void func_0047ae10(u8* mdl, u16 wpnIdx);
 extern void func_0047d840();
 extern void func_0047dda0();
-extern void func_0047ea70();
-extern void func_0047adf0();
+extern void func_0047ea70(u8* a);
+extern void func_0047adf0(u8* a, u16 b, s32 c);
 extern s32 iGpffffbb28;
 extern f32 iGpffff80cc;
 extern void* func_004779b0();
@@ -327,7 +328,7 @@ u32 func_004711e0(void* param_1, u32* param_2)
     {
         goto store_value;
     }
-    func_003e9af0(param_1, (void (*)(void))func_004711e0, param_2);
+    func_003e9af0(param_1, (s32 (*)(u8*, s32))func_004711e0, (s32)param_2);
     return (u32)param_1;
 store_value:
     *param_2 = value;
@@ -712,7 +713,7 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
 extern void func_003d5bc0(void* a, void* b, f32 c);
 
 extern void func_00473870(void* a);
-extern void func_003d5e40(void* a, f32 b);
+extern s32 func_003d5e40(u8* a, f32 b);
 extern void func_003d5e90(void* a, void* b, void* c, f32 d);
 extern void func_00397c40_1(void* a);
 /* measured: nd 244 after 4 attempts; registers/decl-order/chains/calls all
@@ -767,7 +768,7 @@ void func_004745f0(MdlAnimEntryTable* table)
             entry += i;
 
             if ((entry->resource != NULL) && ((entry->flags & 1) == 0)) {
-                func_0047fa60(entry->resource);
+                func_0047fa60((int)entry->resource);
             }
         }
 
@@ -937,15 +938,15 @@ u32 func_00474ce0(void* param_1)
     iVar1 = func_003bcfb0();
     uVar3 = 0;
     while (uVar3 < iVar1) {
-        iVar7 = func_003bd000(param_1, uVar3);
-        uVar4 = func_003bd040(iVar7);
+        iVar7 = (void*)func_003bd000((s32)param_1, uVar3);
+        uVar4 = (char*)func_003bd040((s32*)iVar7);
         if (strcmp(uVar4, DAT_007641c8) == 0) {
             iVar2 = func_003bd060(iVar7);
             iVar6 = 0;
             while (iVar6 < iVar2) {
-                lVar5 = func_003bd050(iVar7);
+                lVar5 = func_003bd050((u8*)iVar7);
                 if (lVar5 == 3) {
-                    return (u32)func_003bd0b0(iVar7, iVar6);
+                    return (u32)func_003bd0b0((u8*)iVar7, iVar6);
                 }
                 iVar6++;
             }
@@ -982,7 +983,7 @@ void func_00474df0(u8* param_1, void* param_2)
 
         *(u32*)(*(int*)(param_1 + 0x18) + 8) = uVar1;
 
-        for (puVar2 = (u32*)func_003df890(*(u32*)(*(int*)(param_1 + 0x18) + 8));
+        for (puVar2 = (u32*)func_003df890((s32*)(*(u32*)(*(int*)(param_1 + 0x18) + 8)));
              puVar3 = (u32*)func_003df8a0(*(u32*)(*(int*)(param_1 + 0x18) + 8)),
              puVar2 != puVar3; puVar2 = puVar2 + 1) {
             userData = func_00474ce0((void*)*puVar2);
@@ -1042,7 +1043,7 @@ void* func_00474f40(void* arg0)
             break;
         }
     } else if (flag != 0) {
-        func_00399b10(arg0);
+        func_00399b10((s32)arg0);
     }
     return arg0;
 }
@@ -1100,7 +1101,7 @@ void func_00475170(u8* arg0, f32 fparg0)
         *(f32*)(arg0 + 0xC) = fparg0;
         *(f32*)(arg0 + 0x10) = fparg0;
         list = *(u32*)(*(u8**)(arg0 + 0x18) + 8);
-        it = (u32*)func_003df890(list);
+        it = (u32*)func_003df890((s32*)list);
         while (it != (u32*)func_003df8a0(list)) {
             switch (func_00399d80(*it)) {
             case 5:
@@ -1176,7 +1177,7 @@ void* func_00475b10(void* object, void* data)
         return NULL;
     }
 
-    func_003e9af0(object, (void (*)(void))func_00475b10, data);
+    func_003e9af0(object, (s32 (*)(u8*, s32))func_00475b10, (s32)data);
     return object;
 }
 
@@ -1276,7 +1277,7 @@ void* func_00476e10(void* param_1)
     iVar1 = *(int*)((int)param_1 + 0x18);
     uVar2 = *(u32*)(iVar1 + 0x24);
     for (uVar3 = 0; uVar3 < uVar2; uVar3 = uVar3 + 1) {
-        func_004585c0(((u32*)*(int*)(iVar1 + 0x20))[uVar3]);
+        func_004585c0((u8*)((u32*)*(int*)(iVar1 + 0x20))[uVar3]);
     }
 
     return param_1;
@@ -1407,9 +1408,9 @@ void* func_00477510(void* arg0)
         if (func_00457a90(item, D_00713180) != 0 &&
             func_00457a90(item, D_007131A0) != 0 &&
             func_00457a90(item, D_007131C0) != 0) {
-            buf[0] = func_004579a0(item, D_00713180);
-            buf[2] = func_004579a0(item, D_007131A0);
-            buf[1] = func_004579a0(item, D_007131C0);
+            buf[0] = func_004579a0((const RpMaterial*)item, (const char*)D_00713180);
+            buf[2] = func_004579a0((const RpMaterial*)item, (const char*)D_007131A0);
+            buf[1] = func_004579a0((const RpMaterial*)item, (const char*)D_007131C0);
         } else {
             buf[0] = fGpffff809c;
             buf[2] = fGpffff809c;
@@ -1436,12 +1437,10 @@ void* func_00477660(void* param_1, RwV3d* param_2)
 
 /* measured: complete aggregate-buffer reconstruction matches every real
    instruction (264B object versus 272B window); the trailing 8B are two
-   alignment nops after jr/nop. The six residual rows are the
-   filter-result/item-pointer $s1/$s3 allocation swap. Probes covered
-   declaration order, widths, O1, loop scope, pointer forms, inlining,
-   aliases, call order, and register qualifiers. Committed at nd 6. */
-// FUN_004776C0 NONMATCHING
-#ifdef NON_MATCHING
+   alignment nops after jr/nop. The previous six residual rows were the
+   filter-result/item-pointer and loop-counter $s-register allocation swaps;
+   declaration order now reproduces retail exactly (nd 0). */
+// FUN_004776C0
 void *func_004776c0(void *arg0, void *arg1)
 {
     extern s32 func_00442948(s32 value);
@@ -1451,11 +1450,11 @@ void *func_004776c0(void *arg0, void *arg1)
     u8 buf[4];
     u8 *pArg1;
     u32 value;
-    s32 temp_17;
-    u32 temp_22;
-    u32 var_18;
-    u8 *temp_16;
     u8 *temp_19;
+    u32 var_18;
+    u32 temp_22;
+    s32 temp_17;
+    u8 *temp_16;
     pArg1 = (u8 *)arg1;
     temp_16 = *(u8 **)((u8 *)arg0 + 0x18);
     temp_22 = *(u32 *)(temp_16 + 0x24);
@@ -1475,9 +1474,6 @@ void *func_004776c0(void *arg0, void *arg1)
     }
     return arg0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004776c0);
-#endif
 // FUN_004777D0
 void func_004777d0(void* param_1, int param_2, u8 param_3)
 {
@@ -2528,7 +2524,7 @@ s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
     if (*(void**)((u8*)arg0 + 0x2C8) != 0) {
         result = func_00475b90(buf, *(void**)((u8*)arg0 + 0x2C8), arg1 & 0xFFFF, *(void**)((u8*)arg0 + 0xDC));
     } else {
-        src = (u8*)func_00457f40(*(void**)((u8*)arg0 + 0xDC), D_007131D8, arg1);
+        src = (u8*)func_00457f40(*(void**)((u8*)arg0 + 0xDC), (const char*)D_007131D8, (s32)arg1);
         if (src == 0) {
             result = 0;
         } else {
@@ -2560,7 +2556,7 @@ u32 func_0047a7c0(void* param_1)
     if (p != 0) {
         return p[0];
     }
-    return func_004581a0(*(void**)((u8*)param_1 + 0xDC), D_007131D8);
+    return func_004581a0(*(void**)((u8*)param_1 + 0xDC), (const char*)D_007131D8);
 }
 
 // FUN_0047A810
@@ -2847,7 +2843,7 @@ void func_0047aff0(void* param_1, void* param_2)
 {
     void* obj = *(void**)((u8*)param_1 + 0x30C);
     func_00440b68(&D_007241d0, D_00713138, 0x1786);
-    *(u32*)((u8*)obj + 0x38) = func_00454a60(param_2, 0);
+    *(u32*)((u8*)obj + 0x38) = (u32)func_00454a60((u8*)param_2, 0);
     *(u32*)((u8*)obj + 0x0) = 0;
 }
 

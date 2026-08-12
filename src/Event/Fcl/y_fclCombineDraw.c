@@ -14,6 +14,8 @@ typedef struct {
     u8 b2;
     u8 b3;
 } FclByte4;
+typedef FclVec2 f2;
+typedef FclByte4 u4;
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
@@ -39,12 +41,12 @@ static inline void fclZero8(u8 *p)
 
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern s32 func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
-extern s32 func_00117780(s32, s32, s32, s32, s32);
+extern void *func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+extern u8 *func_00117780(s32, s32, s32, s32, s32);
 extern void func_00314010(u8 *arg0);
 extern void func_003142f0(u8 *arg0);
 extern s32 func_00106330(s32);
-extern s32 func_00452490(s32);
+extern s32 func_00452490(void *);
 extern void func_0011b9e0(u8 *arg0);
 extern void func_0011d100(u8 *arg0, f32 *arg1);
 extern void func_0011b480(u8 *, s32, u32, s32);
@@ -53,14 +55,14 @@ extern void func_0011c180(s32, s32, s32, s8);
 extern void func_0011c2c0(s32, s32, s32, s8);
 extern void func_0011bdc0(u8 *arg0);
 extern void func_0011bf10(u8 *arg0);
-extern void func_002b2970(void *out, f32 x, f32 y);
-extern void func_002b6c30(s16 a, s64 b, s32 c, f32 d);
+extern void func_002b2970(void *, f32, f32);
+extern void func_002b6c30(s16, s64, s32, f32);
 extern void func_002b6a70(s16, u8, u8, s32, s32, s32);
 extern void func_002b6b40(s32, s32, s32, s32, f32, f32);
 extern u8 *func_002b6150(s16);
-extern s32 func_002b6970(s16, s32);
-extern void func_002b7750(s64, s16);
-extern void func_002b2a60(void *arg0, u8, u8, u8, u8);
+extern s16 func_002b6970(s16, s16);
+extern void func_002b7750(s16, s16);
+extern void func_002b2a60(void *, s32, s32, s32, s32);
 extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s32 arg1);
 extern u8 *func_0034ae50(u8 *arg0, s64 arg1);
@@ -81,17 +83,17 @@ extern f32 D_00644290[];
 extern f32 D_00644298[];
 extern f32 D_00644350[];
 extern void func_002b83e0(u8 *, s64, s64, s64, u8, u8, s32, s32, f32, f32, s64, s64);
-extern void func_002b6af0(s16, s32, s32, s32, f32, f32, f32, f32);
-extern void func_002b69f0(s16, s64, s64, u32, u32, s16);
-extern s32 func_0046d200(s64, s32);
-extern f32 func_0046b2f0(s32);
-extern void func_0046d280(s32);
-extern void func_002b68d0(s16, s32, s32);
+extern void func_002b6af0(s16, u32, u32, s32, f32, f32, f32, f32);
+extern void func_002b69f0(s16, f2, f2, u32, u32, s16);
+extern u8 *func_0046d200(u32, u32);
+extern f32 func_0046b2f0(u8 *);
+extern void func_0046d280(void);
+extern void func_002b68d0(s16, s16, s8);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];
 extern void func_0045af60(s32, s32, s32, s32);
 extern s32 func_00110140(void);
-extern void func_002b6d60(s32);
+extern void func_002b6d60(s16);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
 extern s16 func_002b2d00(s32, s32, s32, s32, s8);
 extern s16 func_002b2d50(s32, s32, s32, s32, s32);
@@ -100,16 +102,16 @@ extern void func_002b2f90(s16, s16, s32, s8, s16 *, s16 *);
 extern f32 iGpffff8360;
 extern f32 iGpffff8504;
 extern void func_003191c0(u8 *, s64, s32, u16, u8, s32, s32, s8);
-extern s32 func_00331560();
+extern s32 func_00331560(void);
 extern void func_002b77d0(s64, s64, s64, s32, s64, s64, s64, s64, f32, s16, s32);
-extern void func_002b29e0(f32 *, f32, f32);
-extern u8 *func_002b81f0(s32);
-extern f32 func_0046b260(s32);
+extern void func_002b29e0(u8 *, f32, f32);
+extern u8 *func_002b81f0(u8 *);
+extern f32 func_0046b260(u8 *);
 extern void func_00314ef0(u8 *, s64, s64, s32, s64, s32);
 extern void func_0025ecd0(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, void *);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
-extern void func_002777f0(s8 arg0);
+extern void func_002777f0(s32 arg0);
 extern void func_00454bd0(u8 *arg0);
 extern u8 *(*D_008873EC[])(u8 *);
 extern char D_00644D30[];
@@ -135,18 +137,18 @@ extern s32 iGpffffb598;
 extern s32 iGpffffb440;
 extern u8 D_00796310[];
 extern u8 D_00796370[];
-extern void func_00275820(s32, s32, s32, s32, s32, s32, u8 *, s32, f32, f32, f32);
-extern void func_00279350(s32, s32, s32, s32, s32, s32, u8 *, f32, f32, f32);
+extern int func_00275820(f32, f32, f32, int, int, int, const char *, int, int, void *, int);
+extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32);
 extern void func_0034a640(s32, u16, s32);
-extern u8 *func_0034a630(s32);
-extern s32 func_00109280(u16);
-extern void func_0011d1d0(s32, f32);
+extern s32 func_0034a630(u8 *);
+extern u8 func_00109280(s32);
+extern void func_0011d1d0(u8 *, f32);
 extern s8 func_00331640(void);
 extern void func_00330e50(s32, s64, f32, s32, s32, s32, f32, f32, void *);
-extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
-extern void func_002b82d0(u8 *, u8, s32, s32, s32, s32);
+extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
+extern void func_002b82d0(u8 *, u32, u32, u32, u32, s16);
 extern u8 D_00795E60[];
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern void *func_00451de0(void *, s32, s32, s32, void *, void *, void *);
 extern void func_00440b68();
 extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void func_003312e0(u8 *);
@@ -157,7 +159,7 @@ extern f32 D_00644888[];
 extern f32 D_00644890[];
 extern f32 D_00644898[];
 extern f32 D_006440B8[];
-extern void func_002b6140(s32, s32);
+extern void func_002b6140(u8 *, u8);
 extern f32 D_00643D70[];
 extern f32 D_00644CA0[];
 extern f32 D_006441C8[];
@@ -174,10 +176,10 @@ s32 func_00314320(s32 arg0) {
     func_0044ea90(D_00644D30, 0x16D);
     p = (u8 *)D_008873F4[0](1, 0x14, 0x40000);
     func_0043f9c8(p, 0, 0x14);
-    ret = func_00451fc0(arg0, D_00644D50, 0xF, 0, 0, func_00314010,
-                       func_003142f0, p);
+    ret = (s32)func_00451fc0(arg0, D_00644D50, 0xF, 0, 0, func_00314010,
+                             func_003142f0, p);
     *(s8 *)p = 7;
-    *(s32 *)(p + 4) = func_00117780(ret, 0xF, 3, 5, 5);
+    *(s32 *)(p + 4) = (s32)func_00117780(ret, 0xF, 3, 5, 5);
     *(s8 *)(p + 0xD) = 0;
     return ret;
 }
@@ -241,7 +243,7 @@ s32 func_003145e0(u8 *arg0) {
     if (arg0 == 0) {
         return 0;
     }
-    if (func_00452490((s32)arg0) == 0) {
+    if (func_00452490((void *)arg0) == 0) {
         return 0;
     }
     if (*(u32 *)(arg0 + 0x38) == 0) {
@@ -1100,7 +1102,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
    tail padding. Raw-parameter-before-object, u32 pointer-cast, and declaration
    order probes stayed at nd16 (normalizing before the field load was nd408);
    no inline asm. Committed at nd 16. */
-// FUN_0032B770 NONMATCHING
+// FUN_0032B770
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b770);
 
 // measured: nd 1154, object 1768/window 1776 (one faithful reconstruction); discarded because the loop and stack-value register allocation diverged.
@@ -1589,7 +1591,7 @@ void func_00331390(void) {
     }
     func_0044ea90(D_00644D30, 0x16A4);
     p = D_008873F4[0](1, 0x48, 0x40000);
-    iGpffffb598 = func_00451de0(D_00644E48, 0xF, 0, 0, (void *)func_00330f20, (void *)func_003312e0, p);
+    iGpffffb598 = (s32)func_00451de0(D_00644E48, 0xF, 0, 0, (void *)func_00330f20, (void *)func_003312e0, p);
     *(s8 *)(p + 0) = 0;
     *(s8 *)(p + 0x45) = 0;
     func_00440b68(&iGpffffa910, D_00644D30, 0x16B2);
