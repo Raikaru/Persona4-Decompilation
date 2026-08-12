@@ -4626,7 +4626,6 @@ func_00476c70 = 0x00476c70; // type:data
 func_00476e90 = 0x00476e90; // type:data
 func_00477400 = 0x00477400; // type:data
 func_004774e0 = 0x004774e0; // type:data
-func_004776c0 = 0x004776c0; // type:data
 func_004777d0 = 0x004777d0; // type:data
 func_00477c40 = 0x00477c40; // type:data
 func_00477ca0 = 0x00477ca0; // type:data

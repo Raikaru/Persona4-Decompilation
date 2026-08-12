@@ -18,7 +18,7 @@ extern s32 iGpffffb668;
 
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_003df590();
+extern s32 func_003df590(s64 arg0, ...);
 extern void func_003df4d0(s32 *arg0);
 extern void func_003bbea0(s32 arg0);
 extern void func_003c2a80(s32 arg0);
@@ -44,7 +44,7 @@ extern void func_003bb0d0(void);
 extern s32 func_003bb030(s32 arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 extern void func_003bf930(void);
-extern s32 func_003b88c0(void);
+extern u64 func_003b88c0(void);
 extern s32 func_003b84a0(u8 *arg0);
 extern s32 iGpffffb654;
 extern s32 iGpffffb61c;
@@ -53,9 +53,9 @@ extern s32 func_003e8960(s32 arg0);
 extern void func_003b8d40(u8 *arg0, s32 arg1);
 extern s32 func_003e8410(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
 extern s32 func_003c3920(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
-extern void func_003bf1c0(void);
-extern void func_003bf1d0(void);
-extern void func_003bf1f0(void);
+extern u64 func_003bf1c0(u64 value);
+extern s32 func_003bf1d0(s32 arg0);
+extern u64 func_003bf1f0(u64 value);
 extern s32 iGpffffb6b4;
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
@@ -614,7 +614,7 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcf10_body.c and restored to INCLUDE_ASM. Residual words are the outer slt operand register and its paired delayed index move. */
+/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W6C3B_003bcf10_body.c and restored to INCLUDE_ASM. Residual words are the outer slt operand register and its paired delayed index move. */
 // FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 /* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */
@@ -1145,14 +1145,14 @@ u8 *func_003bea60(u8 *arg0, u8 *arg1) {
     u8 *temp_2;
     u8 *temp_2_2;
     s32 pair[2];
-    extern void func_003c02e0(u8 *arg0);
-    extern u8 *func_003c03a0(void);
-    extern void func_003c0850(s32 arg0, u8 *arg1);
+    extern s32 func_003c02e0(u8 *arg0);
+    extern u8 *func_003c03a0(u8 *arg0);
+    extern u8 *func_003c0850(u8 *arg0, u8 *arg1);
     extern void func_003c1b90(u8 *arg0, s32 arg1);
     extern void func_003df4d0(s32 *arg0);
-    extern s32 func_003df590();
+    extern s32 func_003df590(s64 arg0, ...);
 
-    temp_2 = func_003c03a0();
+    temp_2 = func_003c03a0(arg0);
     if (temp_2 == NULL) {
         goto setzero;
     }
@@ -1161,7 +1161,7 @@ u8 *func_003bea60(u8 *arg0, u8 *arg1) {
         goto error;
     }
     func_003c1b90(temp_2, *(s32 *)(temp_2_2 + 0xA0));
-    func_003c0850(*(s32 *)(arg1 + 4), temp_2);
+    func_003c0850((u8 *)*(s32 *)(arg1 + 4), temp_2);
     return arg0;
 setzero:
     *(s32 *)(arg1 + 8) = 0;

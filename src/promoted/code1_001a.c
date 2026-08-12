@@ -2,7 +2,7 @@
 #include "type.h"
 
 void btlActionSetState(u8 *arg0, u16 arg1);
-s32 func_00193bf0();
+u8 *func_00193bf0(u64 arg0, u64 arg1);
 void func_001b0800();
 static inline s32 func_001a_add_offset(s32 offset, s32 base)
 {
@@ -18,8 +18,8 @@ static inline s32 func_001a_fix_var(s32 value)
 void func_001f6cd0(void);
 
 void func_001f14f0(void *arg0);
-void func_001eb3b0(void *arg0);
-void func_001d7f10(void *arg0, void *arg1, s32 arg2, s32 arg3);
+void func_001eb3b0(u8 *arg0);
+u8 func_001d7f10(void *arg0, u8 *arg1, u16 arg2, u32 arg3);
 extern void func_001d7c60(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 void func_001d8cb0(void *arg0, void *arg1);
 
@@ -27,18 +27,18 @@ s32 btlUnitIsMoving(u8 *arg0);
 
 void func_001a03b0(s64 *arg0);
 void func_001dbf20(void *arg0, s32 arg1);
-u8 *func_001d3700(s32 arg0, s32 arg1);
-void func_00194590(u8 *arg0, s32 arg1);
+u8 *func_001d3700(u16 arg0, u16 arg1);
+s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *D_0076449C;
 extern u8 *func_0019b6a0(s32 arg0);
 u8 *btlCameraCreateSetStatePacket(void *arg0, s32 arg1);
-s32 func_001deeb0();
+u32 func_001deeb0(void *arg0);
 void func_001ded30();
-s32 func_001deee0();
+u32 func_001deee0();
 s16 func_0023dfe0(s32 arg0);
-s32 func_001d8bc0(u8 *arg0);
+u32 func_001d8bc0(void *arg0);
 void func_001d8be0(u8 *arg0, s32 arg1);
-u8 *func_001f5f70(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+u8 *func_001f5f70(u8 *arg0, u16 arg1, u32 arg2, u32 arg3, u32 arg4);
 extern u8 *iGpffffb3b8;
 void func_001d8e50(u8 *arg0, u8 *arg1);
 void func_0020b6d0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
@@ -47,10 +47,10 @@ void func_0019faf0(u8 *arg0);
 s32 func_0023e1f0();
 u8 *func_0019e550(u8 *arg0, u8 *arg1, s32 arg2);
 u8 *func_001bc920(u8 *arg0, s32 arg1);
-u8 *func_0019a0c0(u8 *arg0, s32 arg1);
+u8 *func_0019a0c0(u8 *arg0, s16 arg1);
 u8 *func_0019e7c0(s32 arg0, s32 arg1);
 u8 *func_001ba090(s32 arg0);
-u8 *func_001d7a10(s32 arg0);
+u8 *func_001d7a10(u16 arg0);
 u8 *func_00201f20(void);
 s32 func_002428f0(u8 *arg0, s32 arg1);
 u8 *func_001fa720(u8 *arg0);
@@ -70,7 +70,7 @@ s32 func_001f01a0(u8 *arg0, s32 arg1);
 s32 func_0023d8e0(u8 *arg0, s32 arg1);
 u8 *func_001fa9c0(void);
 s32 func_001db5e0(u8 *arg0, s64 arg1);
-s32 func_00193cd0(s32 arg0);
+u32 func_00193cd0(u32 arg0);
 u8 *func_001fa110(s16 *arg0);
 u8 *func_00202850(void);
 void func_002182c0(u8 *arg0, u8 *arg1);
@@ -82,7 +82,7 @@ s32 func_00218390(s32 arg0);
 u8 *func_001f99c0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 u8 *func_001fa450(void);
 u8 *func_002027e0(void);
-u8 *func_001f3870(s64 *arg0, s32 arg1);
+u8 *func_001f3870(s64 *arg0, s8 arg1);
 void func_002183c0(s32 arg0);
 s64 func_001d15a0(s32 arg0);
 void func_001eb7f0(void);
@@ -92,19 +92,19 @@ void func_0022db90(u8 *arg0);
 s32 func_00232710(u8 *arg0, s32 arg1);
 s32 func_00232d80(u8 *arg0);
 s64 func_00235320(u8 *arg0);
-s32 func_00243e30(u8 *arg0);
+s32 func_00243e30(u16 *arg0);
 s32 func_001f6770(u8 *arg0);
-void func_001fac30(void);
+s32 func_001fac30(void);
 s32 func_001a3de0(u8 *arg0);
 
-extern u8 *func_002022e0(u8 *arg0, u16 arg1);
+void func_002022e0(u32 arg0, u16 arg1);
 extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
-extern void func_0010b300(s32 arg0);
+s32 func_0010b300(s32 arg0);
 extern void func_0019ef30(u8 *arg0, u16 arg1);
 extern void func_0010b7f0(void);
 extern s32 func_00106330(s32 arg0);
-extern u8 *func_001d6240(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
-extern u8 *func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
+void func_001d6240(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
+void func_001f7c20(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 s32 func_001fac80(u8 *arg0);
 void func_001fad10(void);

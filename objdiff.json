@@ -15644,7 +15644,7 @@
       "target_path": "build/objdiff/target/Graphics/Model/mdlManager/004776c0.o",
       "base_path": "build/objdiff/base/Graphics/Model/mdlManager/004776c0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -81523,7 +81523,7 @@
       "target_path": "build/objdiff/target/promoted/code1_001f/001f72e0.o",
       "base_path": "build/objdiff/base/promoted/code1_001f/001f72e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
