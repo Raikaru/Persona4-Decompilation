@@ -1395,16 +1395,18 @@ s32 func_003e6750(s32 arg0, s32 *arg1) {
 
 
 
-/* measured: plain C matches 252 of the 256 retail bytes; residual argument-load
-   ordering at the D_00887394 call remains after direct locals, a forced stack
-   load, and an inline wrapper probe. Committed at nd 6. */
-// FUN_003E6770 NONMATCHING
-#ifdef NON_MATCHING
+/* MATCHED: object 252B / retail window 256B / normalized_diff 0. The
+   D_00887394 callback's third parameter must be u32 (not s32); that
+   prototype signedness flips the two residual load-order words at offsets
+   148 and 152 without any volatile barrier. Probed direct locals, named
+   argument assignments, comma ordering, pragma toggles, callback prototypes,
+   and pointer/cast variants. */
+// FUN_003E6770
 /* measured: optimization_level 3 is load-bearing for func_003e6770. */
 #pragma optimization_level 3
 typedef u8 *(*Callback6770)(u8 *, u8 *);
 extern s32 (*D_0088738C[])(s32 *, Callback6770, s32);
-extern s32 (*D_00887394[])(s32, Callback6770, s32);
+extern s32 (*D_00887394[])(s32, Callback6770, u32);
 extern s32 func_003deff0(s32, s32, s32, s32, s32);
 extern u8 *func_003e33f0(u8 *, s32, Callback6770);
 /* measured: no_branch_likely knob retains the func_003e6770 bracket. */
@@ -1431,13 +1433,9 @@ Callback6770 func_003e6770(Callback6770 arg0, u8 *arg1)
     *(s32 *)(arg1 + 4) = 0;
     return NULL;
 }
-/* measured: closes the function pragma bracket. */
+/* measured: closes no_branch_likely and optimization_level 3 for func_003e6770. */
 #pragma no_branch_likely off
-/* measured: closes optimization_level 3 around func_003e6770. */
 #pragma optimization_level 2
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6770);
-#endif
 
 // FUN_003E6870
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e6870);
