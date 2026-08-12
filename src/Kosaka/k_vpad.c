@@ -128,47 +128,8 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
    differences are retail-only zero-padding words at offsets 324, 328, and
    332. While/for loop forms, local offset/request temporaries, and schedule
    pragmas were ruled out. obj 324B/window 336B, nd 5. Committed at nd 8. */
-// FUN_004B5800 NONMATCHING
-#ifdef NON_MATCHING
-void func_004b5800(RuntimeWork* work)
-{
-    s32 i;
-    RuntimeMatrix* firstMatrix;
-    RuntimeMatrix* secondMatrix;
-
-    if (func_004b6de0((RuntimeListNode*)work) == 0)
-    {
-        return;
-    }
-
-    firstMatrix = func_003e0f80();
-    secondMatrix = func_003e0f80();
-    i = 0;
-    while (i < *(s16*)((u8*)(uintptr_t)work->requestFlags + 4))
-    {
-        func_0047a510(
-            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
-            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) + i * 8),
-            firstMatrix);
-        func_0047a510(
-            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
-            *(void**)((u8*)*(void**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
-                      i * 8 + 4),
-            secondMatrix);
-        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =
-            *(RuntimeVec3*)((u8*)firstMatrix + 0x30);
-        ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2 + 1] =
-            *(RuntimeVec3*)((u8*)secondMatrix + 0x30);
-        i++;
-    }
-
-    work->flags |= 2;
-    func_003e0f40(firstMatrix);
-    func_003e0f40(secondMatrix);
-}
-#else
+// FUN_004B5800
 INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5800);
-#endif
 
 
 // FUN_004B5950

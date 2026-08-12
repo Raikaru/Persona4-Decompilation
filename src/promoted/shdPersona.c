@@ -1626,39 +1626,44 @@ void func_0011e370(u8 *);
    integer versus 771.0f spellings, split expressions, address-domain forms,
    and all thirteen pragma wrappers did not change nd. Function-wide FP
    liveness/scheduling floor. Committed at nd 19. */
-// FUN_0011BDC0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_0011BDC0
 void func_0011bdc0(u8 *arg0)
 {
-    u8 *w;
-    Vec2f v2;
-    Vec2f v;
-    f32 ret;
-
-    w = ((SdkTask *)arg0)->work;
-    if (!(*(s32 *)(w + 0x534) & 2)) {
-        func_0011ba40(w);
-        *(u16 *)(w + 0x508) = 0;
-        *(u8 *)(w + 0x504) = *(u8 *)(w + 0x505);
-        *(u8 *)(w + 0x506) = 0xFF;
-        func_0011aaa0(w, 4);
-        v.x = 131.0f + *(f32 *)(w + 0x4FC);
-        v.y = -59.0f + *(f32 *)(w + 0x500);
-        ret = func_0011de80(*(u8 **)(w + 0x4F8), &v2);
-        if (ret == 0.0f || ret == 1.0f) {
-            v2.x = 771.0f + *(f32 *)(w + 0x4FC);
-            v2.y = -59.0f + *(f32 *)(w + 0x500);
-            func_0011e2b0(*(u8 **)(w + 0x4F8), &v2, &v);
-            func_0011e370(*(u8 **)(w + 0x4F8));
-        } else {
-            func_0011e2b0(*(u8 **)(w + 0x4F8), &v2, &v);
-        }
-        *(s32 *)(w + 0x534) |= 0x200000;
+  u8 *baseWork;
+  f32 *xField;
+  Vec2f v2;
+  Vec2f v;
+  f32 result;
+  int isZero;
+    baseWork = (*((SdkTask *) arg0)).work;
+  if (!((*((s32 *) (baseWork + 0x534))) & 2))
+  {
+    func_0011ba40(baseWork);
+    *((u16 *) (baseWork + 0x508)) = 0;
+    *((u8 *) (baseWork + 0x504)) = *((u8 *) (baseWork + 0x505));
+    *((u8 *) (baseWork + 0x506)) = 0xFF;
+    func_0011aaa0(baseWork, 4);
+    v.x = 131.0f + (*((f32 *) (baseWork + 0x4FC)));
+    v.y = (-59.f) + (*((f32 *) (baseWork + 0x500)));
+    result = func_0011de80(*((u8 **) (baseWork + 0x4F8)), &v2);
+    isZero = result == 0.0f;
+    if (isZero || (result == 1.0f))
+    {
+      xField = (f32 *) (baseWork + 0x4FC);
+      result = 771.0f;
+      result = result + (*xField);
+      v2.x = result;
+        v2.y = (-59.0f) + (*((f32 *) (baseWork + 0x500)));
+        func_0011e2b0(*((u8 **) (baseWork + 0x4F8)), &v2, &v);
+        func_0011e370(*((u8 **) (baseWork + 0x4F8)));
     }
+    else
+    {
+      func_0011e2b0(*((u8 **) (0x4F8 + baseWork)), &v2, &v);
+    }
+    *((s32 *) (baseWork + 0x534)) |= 0x200000;
+  }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011bdc0);
-#endif
 
 
 
