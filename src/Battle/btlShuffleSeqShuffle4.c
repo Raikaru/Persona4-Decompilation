@@ -236,8 +236,9 @@ void func_0037d630(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // measured: plain C reproduces the shuffle loop and frame; only the commutative multiply operand order differs at two instructions (normalized_diff 2), with object 540B versus retail window 544B. Parked because nd <= 25.
 // Committed at nd 2.
-// FUN_0037D840 NONMATCHING
-#ifdef NON_MATCHING
+// measured: explicit `(f32)` cast on the right multiply operand preserves retail's mul.s operand order; object 540B, retail window 544B, normalized_diff 0.
+// Verified live MATCH.
+// FUN_0037D840
 void func_0037d840(u8 *arg0) {
     u8 buf[0xFB0];
     u8 *var_8;
@@ -262,7 +263,7 @@ void func_0037d840(u8 *arg0) {
         temp_3 = func_003b7060() & 0xFFF;
         var_f1 = (f32)(u32)temp_3;
         temp_f0 = var_f1 / 4096.0f;
-        temp_f0 = (f32)(var_18 + 1) * temp_f0;
+        temp_f0 = (f32)(var_18 + 1) * (f32)temp_f0;
         var_16 = (s32)temp_f0;
         if ((var_18 < 0) || (var_18 >= n)) {
             func_0046d730(&D_0064EB20[0], 0x243);
@@ -309,9 +310,6 @@ void func_0037d840(u8 *arg0) {
         var_18 -= 1;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeqShuffle4", func_0037d840);
-#endif
 
 // measured evidence from the discarded body: retail hoists $f20 = 1.0f - ((0.5f*(f32)(temp_4-3))/5.0f) into the
 // prologue (mul.s/div.s/sub.s before the switch) and has a -0x120 frame with

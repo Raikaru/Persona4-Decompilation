@@ -1055,8 +1055,7 @@ ret:
    and `i < 0x15` to `i <= 0x14`; each scored nd 3, so the nd 1 base
    remains the lowest body. The daddiu residual did not move; this is a
    settled floor after the comparison lever. Committed at nd 1. */
-// FUN_00108950 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00108950
 /* measured: -O1 is load-bearing for this body - at -O2 mwcc coalesces the
    third func_001070e0 result straight into the level saved register and
    drops retail's andi, costing nd 162. */
@@ -1069,7 +1068,7 @@ s32 func_00108950(s32 arg0) {
     s32 t;
     s32 u;
     s32 lv;
-    s32 ok;
+    u8 ok;
     id = arg0 & 0xFFFF;
     if (id >= 0x1F) {
         func_0046d730(D_005E42C8, 0x66);
@@ -1115,13 +1114,13 @@ ret:
             lv = u & 0xFFFF;
             id = *(u16 *)(id + 8);
             if (id >= *(u16 *)((u8 *)func_002467b0(arg0) + (lv & 0xFFFF) * 2 + 0x10)) {
-                ok = 1;
+                ok = (u8)1;
             } else {
                 ok = 0;
             }
         }
     }
-    if (ok == 0) {
+    if (!ok) {
         goto ret0;
     }
     t = func_001070e0(arg0);
@@ -1142,9 +1141,6 @@ ret0:
 }
 /* measured: closes the -O1 bracket above at the file's -O2 baseline. */
 #pragma optimization_level 2
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108950);
-#endif
 
 /* measured: same slot-search floor as func_00107a00/001075d0 (found-exit
    bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 18
