@@ -2428,7 +2428,6 @@ func_0029d020 = 0x0029d020; // type:data
 func_0029d030 = 0x0029d030; // type:data
 func_0029d040 = 0x0029d040; // type:data
 func_0029d050 = 0x0029d050; // type:data
-func_0029d1c0 = 0x0029d1c0; // type:data
 func_0029d2e0 = 0x0029d2e0; // type:data
 func_0029d950 = 0x0029d950; // type:data
 func_0029d9b0 = 0x0029d9b0; // type:data

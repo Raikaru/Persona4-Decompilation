@@ -332,11 +332,10 @@ struct BtlUnitPacketAnim
     u16 mode;
 };
 
-/* measured: plain-C reconstruction is 632B against the 640B retail window,
-   normalized_diff 10; scaled/rotation/copy body words match, with only the
-   boolean switch tail's register/compare sequence differing. Committed at nd 10. */
-// FUN_00198050 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: plain-C reconstruction matches the 640B retail window with
+   normalized_diff 0; a named u8 boolean plus zero-guard reproduces retail's
+   sltu/bnez tail layout. */
+// FUN_00198050
 s32 func_00198050(u8 *arg0)
 {
     struct Btl980Rot {
@@ -356,6 +355,7 @@ s32 func_00198050(u8 *arg0)
     u8 *temp_2;
     u8 *temp_2_2;
     s32 temp_3;
+    u8 temp_4;
     f32 var_f12;
     f32 var_f13;
 
@@ -415,18 +415,14 @@ s32 func_00198050(u8 *arg0)
             *(u16 *)(temp_17 + 0xC8) |= 2;
         }
     }
-    switch ((*(u16 *)(temp_17 + 0xC8) & 2) != 0)
+    temp_4 = ((*(u16 *)(temp_17 + 0xC8) & 2) != 0) ? 1 : 0;
+    if (temp_4 == 0)
     {
-    case 1:
-        *(s32 *)(arg0 + 0xC) += 1;
-        return 0;
-    default:
         return 1;
+    }
+    *(s32 *)(arg0 + 0xC) += 1;
+    return 0;
 }
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00198050);
-#endif
 BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
 BtlPacket* func_0019a5e0(BtlUnit* unit, s32 param);
 BtlPacket* btlUnitCreateEnmDodgeAnimPacket(BtlUnit* unit, s32 param);
