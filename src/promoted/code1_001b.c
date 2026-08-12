@@ -2313,104 +2313,102 @@ void func_001bd7d0(void)
 /* measured: plain C candidate is 380 bytes in the 384-byte retail window with normalized_diff 6; residual is limited to the global-position load order and one retail tail padding word. */
 // Committed at nd 6.
 // FUN_001BD9E0
-#ifdef NON_MATCHING
 void func_001bd9e0(void)
 {
-    typedef struct {
-        f32 x;
-        f32 y;
-        f32 z;
-    } Bd9Vec3;
-    typedef struct {
-        Bd9Vec3 right;
-        u32 flags;
-        Bd9Vec3 up;
-        u32 pad1;
-        Bd9Vec3 at;
-        u32 pad2;
-        Bd9Vec3 pos;
-        u32 pad3;
-    } Bd9Matrix;
-    u8 color[4];
-    Bd9Matrix matrix;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    f32 temp_f10;
-    f32 temp_f11;
-    f32 temp_f12;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f3;
-    f32 temp_f3_2;
-    f32 temp_f4;
-    f32 temp_f4_2;
-    f32 temp_f5;
-    f32 temp_f6;
-    f32 temp_f7;
-    f32 temp_f8;
-    f32 temp_f9;
-    s32 temp_4;
-    u8 *temp_5;
-    u8 *temp_6;
-
-    temp_5 = D_0076449C;
-    if ((*(s32 *)(temp_5 + 0xC) & 4) == 0) {
-        temp_4 = *(s32 *)(temp_5 + 0x14);
-        if (((temp_4 & 4) == 0) && ((temp_4 & 8) != 0)) {
-            color[0] = 0xFF;
-            color[1] = 0xFF;
-            color[2] = 0;
-            color[3] = 0xFF;
-            temp_f4 = *(f32 *)(temp_5 + 0xD0);
-            temp_f12 = *(f32 *)(temp_5 + 0xCC);
-            temp_f11 = *(f32 *)(temp_5 + 0xD4);
-            temp_f3 = *(f32 *)(temp_5 + 0xD8);
-            temp_f0 =
-                2.0f / ((temp_f12 * temp_f12) +
-                        (temp_f4 * temp_f4) +
-                        (temp_f11 * temp_f11) +
-                        (temp_f3 * temp_f3));
-            temp_f2 = temp_f12 * temp_f0;
-            temp_f1 = temp_f4 * temp_f0;
-            temp_f0_2 = temp_f11 * temp_f0;
-            temp_f10 = temp_f2 * temp_f3;
-            temp_f9 = temp_f1 * temp_f3;
-            temp_f8 = temp_f0_2 * temp_f3;
-            temp_f7 = temp_f12 * temp_f2;
-            temp_f6 = temp_f4 * temp_f1;
-            temp_f5 = temp_f11 * temp_f0_2;
-            temp_f4_2 = temp_f4 * temp_f0_2;
-            temp_f3_2 = temp_f11 * temp_f2;
-            temp_f2_2 = temp_f12 * temp_f1;
-            matrix.right.x = 1.0f - (temp_f6 + temp_f5);
-            matrix.right.y = temp_f2_2 + temp_f8;
-            matrix.right.z = temp_f3_2 - temp_f9;
-            matrix.up.x = temp_f2_2 - temp_f8;
-            matrix.up.y = 1.0f - (temp_f5 + temp_f7);
-            matrix.up.z = temp_f4_2 + temp_f10;
-            matrix.at.x = temp_f3_2 + temp_f9;
-            matrix.at.y = temp_f4_2 - temp_f10;
-            matrix.at.z = 1.0f - (temp_f7 + temp_f6);
-            matrix.pos.x = 0.0f;
-            matrix.pos.y = 0.0f;
-            matrix.pos.z = 0.0f;
-            matrix.flags = 3;
-            temp_6 = temp_5 + 0xC0;
-            temp_f2 = *(f32 *)temp_6;
-            temp_f1 = *(f32 *)(temp_6 + 4);
-            temp_f0 = *(f32 *)(temp_6 + 8);
-            matrix.pos.x = temp_f2;
-            matrix.pos.y = temp_f1;
-            matrix.pos.z = temp_f0;
-            func_0045f0b0((f32 *)temp_6, color, 1, 6.0f);
-            func_0045fa00((f32 *)&matrix, 1, 150.0f);
-        }
+  typedef struct 
+  {
+    f32 x;
+    f32 y;
+    f32 z;
+  } Bd9Vec3;
+  typedef struct 
+  {
+    Bd9Vec3 right;
+    u32 flags;
+    Bd9Vec3 up;
+    u32 pad1;
+    Bd9Vec3 at;
+    u32 pad2;
+    Bd9Vec3 pos;
+    u32 pad3;
+  } Bd9Matrix;
+  u8 color[4];
+  Bd9Matrix matrix;
+  f32 temp_f0;
+  f32 temp_f0_2;
+  f32 temp_f10;
+  f32 temp_f11;
+  f32 temp_f12;
+  f32 temp_f1;
+  f32 temp_f2;
+  f32 temp_f2_2;
+  f32 temp_f3;
+  f32 temp_f3_2;
+  f32 temp_f4;
+  f32 temp_f4_2;
+  f32 temp_f5;
+  f32 temp_f6;
+  f32 temp_f7;
+  f32 temp_f8;
+  f32 temp_f9;
+  s32 temp_4;
+  u8 *temp_5;
+  u8 *temp_6;
+  temp_5 = D_0076449C;
+  if (((*((s32 *) (temp_5 + 0xC))) & 4) == 0)
+  {
+    temp_4 = *((s32 *) (temp_5 + 0x14));
+    if (((temp_4 & 4) == 0) && ((temp_4 & 8) != 0))
+    {
+      color[0] = 0xFF;
+      color[1] = 0xFF;
+      color[2] = 0;
+      color[3] = 0xFF;
+      temp_f4 = *((f32 *) (temp_5 + 0xD0));
+      temp_f12 = *((f32 *) (temp_5 + 0xCC));
+      temp_f11 = *((f32 *) (temp_5 + 0xD4));
+      temp_f3 = *((f32 *) (temp_5 + 0xD8));
+      temp_f0 = 2.0f / ((((temp_f12 * temp_f12) + (temp_f4 * temp_f4)) + (temp_f11 * temp_f11)) + (temp_f3 * temp_f3));
+      temp_f2 = temp_f12 * temp_f0;
+      temp_f1 = temp_f4 * temp_f0;
+      temp_f0_2 = temp_f11 * temp_f0;
+      temp_f10 = temp_f2 * temp_f3;
+      temp_f9 = temp_f1 * temp_f3;
+      temp_f8 = temp_f0_2 * temp_f3;
+      temp_f7 = temp_f12 * temp_f2;
+      temp_f6 = temp_f4 * temp_f1;
+      temp_f5 = temp_f11 * temp_f0_2;
+      temp_f4_2 = temp_f4 * temp_f0_2;
+      temp_f3_2 = temp_f11 * temp_f2;
+      temp_f2_2 = temp_f12 * temp_f1;
+      if (((!temp_f3) && (!temp_f3)) && (!temp_f3))
+      {
+      }
+      matrix.right.x = 1.0f - (temp_f6 + temp_f5);
+      matrix.right.y = temp_f2_2 + temp_f8;
+      matrix.right.z = temp_f3_2 - temp_f9;
+      matrix.up.x = temp_f2_2 - temp_f8;
+      matrix.up.y = 1.0f - (temp_f5 + temp_f7);
+      matrix.up.z = temp_f4_2 + temp_f10;
+      matrix.at.x = temp_f3_2 + temp_f9;
+      matrix.at.y = temp_f4_2 - temp_f10;
+      matrix.at.z = 1.0f - (temp_f7 + temp_f6);
+      matrix.pos.x = 0.0f;
+      matrix.pos.y = 0.0f;
+      matrix.pos.z = 0.0f;
+      matrix.flags = 3;
+      temp_6 = temp_5 + 0xC0;
+      temp_f2 = *((f32 *) temp_6);
+      temp_f1 = *((f32 *) (temp_6 + 4));
+      temp_f0 = *((f32 *) (temp_6 + 8));
+      matrix.pos.x = temp_f2;
+      matrix.pos.y = temp_f1;
+      matrix.pos.z = temp_f0;
+      func_0045f0b0((f32 *) temp_6, color, 1, 6.0f);
+      func_0045fa00((f32 *) (&matrix), 1, 150.0f);
     }
+  }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bd9e0);
-#endif
 // FUN_001BDB60
 void func_001bdb60(void)
 {

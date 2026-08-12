@@ -322,19 +322,25 @@ s32 func_001e7240(void) {
     return 1;
 }
 // FUN_001E7320
-s32 func_001e7320(void) {
-    u16 count;
+s32 func_001e7320(void)
+{
+    int count;
     u8 *work;
-
     work = func_0029d050();
-    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &func_001db580) == 1) {
+    if (func_001dbba0(work, func_0029cc00(0), 0, 0x2D, 0, &func_001db580) == 1)
+    {
         count = *(u16 *)(work + 0x6A);
-        if (count == 1) {
+        if (count == 1)
+        {
             func_0029cf50(*(s32 *)(*(u8 **)(work + 0x38) + 8) | 0x80000000);
-        } else {
+        }
+        else
+        {
             func_0029cf50(*(s32 *)(*(u8 **)(p4_slot_001eb320((u32)func_00231d70(count) * 4, work) + 0x38) + 8) | 0x80000000);
         }
-    } else {
+    }
+    else
+    {
         func_0029cf50(-1);
     }
     return 1;
@@ -2264,11 +2270,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eed10);
 // FUN_001EF110
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef110);
 // FUN_001EF4A0
-s32 func_001ef4a0(s32 arg0) {
+s32 func_001ef4a0(s32 arg0)
+{
     s32 value;
 
     value = iGpffffb3bc[(arg0 & 0xFFFF) * 4];
-    if (value == 0) {
+    if (value == 0)
+    {
         value = 1;
     }
     return value;
@@ -2367,27 +2375,28 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef5f0);
 // FUN_001EF720
 s32 func_001ef720(s32 arg0, s32 arg1)
 {
-    u8 *var_18;
-    s32 var_17;
-    u16 temp_3;
-    u8 *temp_4;
+    u8 *current;
+    s32 count;
+    u8 *entry;
     s32 mask;
 
-    var_17 = 0;
-    var_18 = *(u8 **)(iGpffffb3ac + 0x174);
+    count = 0;
+    current = *(u8 **)(iGpffffb3ac + 0x174);
     mask = arg0 & 0xFFFF;
-    while (var_18 != NULL) {
-        temp_3 = *(u16 *)(var_18 + 0x1A);
-        if ((temp_3 & 1) && (temp_3 & 8)) {
-            temp_4 = *(u8 **)(var_18 + 0x30);
-            if ((mask & (1 << *(u8 *)(temp_4 + 0xA2))) &&
-                (func_00232710(*(s32 *)(temp_4 + 0xA64), arg1) == 0)) {
-                var_17 = (var_17 + 1) & 0xFFFF;
+    while (current != NULL)
+    {
+        if ((*(u16 *)(current + 0x1A) & 1) && (*(u16 *)(current + 0x1A) & 8))
+        {
+            entry = *(u8 **)(current + 0x30);
+            if ((mask & (1 << *(u8 *)(entry + 0xA2))) && (func_00232710(*(s32 *)(entry + 0xA64), arg1) == 0))
+            {
+                count = (count + 1) & 0xFFFF;
             }
         }
-        var_18 = *(u8 **)(var_18 + 0x450);
+        current = *(u8 **)(current + 0x450);
     }
-    return var_17;
+
+    return count;
 }
 #ifdef NON_MATCHING
 // FUN_001EF7E0

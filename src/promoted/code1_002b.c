@@ -365,63 +365,72 @@ exit:
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2f90);
 #endif
 /* measured: explicit-goto candidate is 184B in the 192B retail window with normalized_diff 1; parked at the measured floor. Committed at nd 1. */
-// FUN_002B3050 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002B3050
 void func_002b3050(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s16 *arg5, s16 *arg6)
 {
-    s32 var_3;
-    s32 var_8;
+  int condition_value;
+  s32 value;
+  s32 iterations;
+  if (arg2 != 0)
+  {
+    goto nonzero;
+  }
+  value = arg4 & 0xFF;
+  *arg6 = (*arg5 = value);
+  goto done;
+  nonzero:
+  if ((arg0 - arg1) != 0U)
+  {
+    goto setup;
+  }
+  arg0 = arg4 & 0xFF; arg1 = arg0;
+  goto store;
+  setup:
+  iterations = 0;
 
-    if (arg2 != 0)
-        goto nonzero;
-    var_3 = arg4 & 0xFF;
-    *arg5 = var_3;
-    *arg6 = var_3;
-    goto done;
+  arg2 = (s8) arg3;
+  goto loop_test;
+  loop_body:
+  value = ((s16) (arg0 - arg1)) - 1;
 
-nonzero:
-    if ((arg0 - arg1) != 0)
-        goto setup;
-    arg0 = arg4 & 0xFF;
-    arg1 = arg0;
-    goto store;
+  if (value < 0)
+  {
+    value = 0;
+  }
+  if (value != 0)
+  {
+    goto decrement;
+  }
+  arg0 -= 1;
+  if (arg0 < 0)
+  {
+    arg0 = 0;
+  }
+  if ((!condition_value) && (!condition_value))
+  {
+  }
+  goto store;
+  decrement:
+  arg0 -= 1;
 
-setup:
-    var_8 = 0;
-    arg2 = (s8)arg3;
-    goto loop_test;
+  if (arg0 < 0)
+  {
+    arg0 = 0;
+  }
+  iterations += 1;
+  loop_test:
+  if (iterations < arg2)
+  {
+    goto loop_body;
+  }
 
-loop_body:
-    var_3 = (s16)(arg0 - arg1) - 1;
-    if (var_3 < 0)
-        var_3 = 0;
-    if (var_3 != 0)
-        goto decrement;
-    arg0 -= 1;
-    if (arg0 < 0)
-        arg0 = 0;
-    goto store;
+  store:
+  *arg5 = arg0;
 
-decrement:
-    arg0 -= 1;
-    if (arg0 < 0)
-        arg0 = 0;
-    var_8 += 1;
-
-loop_test:
-    if (var_8 < arg2)
-        goto loop_body;
-
-store:
-    *arg5 = arg0;
-    *arg6 = arg1;
-
-done:
-    return;
+  *arg6 = arg1;
+  done:
+  return;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b3050);
-#endif
 
 /* measured: opt_rebuildconditionals off probe for min/max */
 #pragma opt_rebuildconditionals off

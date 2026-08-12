@@ -1001,25 +1001,20 @@ s32 func_00178af0(void)
 /* measured: plain C body is object 64B in a 64B window; only the retail
    GP load versus zero-argument materialisation order remains (nd 6).
    Committed at nd 6. */
-// FUN_00178B30 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00178B30
 s32 func_00178b30(void)
 {
-    s32 temp_2;
-    s32 var_4;
-    u8 *temp_3;
-
-    temp_3 = D_007643D0;
-    var_4 = (s32)((u32)temp_3 - (u32)temp_3);
-    temp_2 = *(s32 *)(*(u8 **)(temp_3 + 0x160) + 8);
-    if (temp_2 != 0)
-        var_4 = temp_2;
-    func_0029cf50(var_4);
-    return 1;
+  s32 value;
+  s32 result;
+  u8 *state = D_007643D0;
+  if (value && value) {}
+  result = 0;
+  value = *(s32 *)(*(u8 **)(state + 0x160) + 8);
+  if (value)
+    result = value;
+  func_0029cf50(result);
+  return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178b30);
-#endif
 // FUN_00178B70
 s32 func_00178b70(void)
 {

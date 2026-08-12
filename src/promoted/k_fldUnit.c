@@ -211,76 +211,88 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163990);
 
 /* measured: parked nd 5, object/window 808/816. The control flow, 0x50-byte frame, stack aggregate stores, and 35.0f COP1 call match. Exact fndiff residuals are offsets 0x14, 0x18, 0x1C, 0x20, and 0x24: b210 schedules the D_005F1528 lwc1 before the D_005F1520 ld and colors the ld result $v0 instead of retail $v1. Ruled out assignment/declaration-order swaps, named-local versus direct-store forms, pointer and aggregate S8/S12 forms, comma sequencing, register storage, and pragma wrappers; no prototype or symbol changes. Committed at nd 5. */
 // FUN_00163C90
-#ifdef NON_MATCHING
 s32 func_00163c90(s32 arg0)
 {
-    u8 sp40[12];
-    f32 sp30[3];
-    u8 var_5;
-    f32 temp_f0;
-    s32 temp_2;
-    u8 *temp_16;
-    s64 temp_s64;
-    f32 temp_stack;
-
-    temp_s64 = *(s64 *)D_005F1520;
-    temp_stack = *(f32 *)D_005F1528;
-    *(s64 *)sp40 = temp_s64;
-    *(f32 *)(sp40 + 8) = temp_stack;
-    temp_16 = D_007E8C00 + arg0 * 0x750;
-    if (*(s32 *)(temp_16 + 0x48) == 0) {
-        return 1;
-    }
-    if (*(s32 *)(temp_16 + 0x54) != 0) {
-        return 1;
-    }
-    if (*(s32 *)(temp_16 + 0x50) == 0) {
-        return 1;
-    }
-    if (func_004782b0(*(s32 *)(temp_16 + 0x50)) == 0) {
-        return 0;
-    }
-    var_5 = 0;
-    if (*(u8 *)(temp_16 + 0x1CA) == 1) {
-        var_5 = 3;
-    }
-    *(s32 *)(temp_16 + 0x54) = (s32)func_00145270(func_00145540((arg0 + 0x64) & 0xFFFF, var_5, *(u8 **)(temp_16 + 0x50)) & 0xFFFF);
-    func_00479940(*(u8 **)(temp_16 + 0x50), 0, 0, 0x10, 1);
-    func_0047aa30(*(u8 **)(temp_16 + 0x50), D_005DC920);
-    temp_2 = *(s32 *)(temp_16 + 0x1C0) - func_0014c780();
-    if (temp_2 < -3) {
-        *(u8 *)(temp_16 + 0x1CB) = 0;
-    } else if (temp_2 < -1) {
-        *(u8 *)(temp_16 + 0x1CB) = 1;
-    } else if (temp_2 < 3) {
-        *(u8 *)(temp_16 + 0x1CB) = 2;
-    } else if (temp_2 >= 3) {
-        *(u8 *)(temp_16 + 0x1CB) = 3;
-    }
-    if (*(u8 *)(temp_16 + 0x1CA) == 1) {
-        func_0017b9a0(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x224), *(f32 *)(D_005F1340 + *(u8 *)(temp_16 + 0x1CB) * 4));
-    }
-    func_0047a1e0(*(void **)(temp_16 + 0x50), D_005F12E0 + *(u8 *)(temp_16 + 0x1CA) * 0x30 + *(u8 *)(temp_16 + 0x1CB) * 0xC, 2);
-    func_003e05d0(func_0047a2f0(*(s32 *)(temp_16 + 0x50)));
-    func_00168de0(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), sp40, *(f32 *)(*(u8 **)(temp_16 + 0x1AC) + 0x14C));
-    func_00168ae0(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), *(u8 **)(temp_16 + 0x1AC) + 0x140);
-    func_0014b0c0(*(u16 *)(*(u8 **)(temp_16 + 0x54)), 1);
-    func_00168730(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), 0x40000000);
-    func_00168780(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220), 35.0f);
-    *(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x228) = func_00478750(iGpffffb274);
-    temp_f0 = func_00168770(*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x220));
-    sp30[2] = temp_f0;
-    sp30[1] = temp_f0;
-    sp30[0] = temp_f0;
-    func_0047a1e0((void *)*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x228), sp30, 2);
-    func_00478e70((u8 *)*(s32 *)(*(u8 **)(temp_16 + 0x54) + 0x228));
-    *(s32 *)(temp_16 + 0x1B0) = func_00182220(0, temp_16, *(u8 *)(temp_16 + 0x1CA));
-    *(s32 *)(temp_16 + 0x1B8) = func_00167420((u8 *)0, temp_16);
+  u8 sp40[12];
+  f32 sp30[3];
+  u8 var_5;
+  s64 new_var;
+  f32 temp_f0;
+  s32 temp_2;
+  u8 *temp_16;
+  s64 temp_s64;
+  f32 temp_stack;
+  temp_s64 = (new_var = *((s64 *) D_005F1520));
+  temp_stack = *((f32 *) D_005F1528);
+  *((s64 *) sp40) = temp_s64;
+  *((f32 *) (sp40 + 8)) = temp_stack;
+  temp_16 = D_007E8C00 + (arg0 * 0x750);
+  if ((*((s32 *) (temp_16 + 0x48))) == 0)
+  {
     return 1;
+  }
+  if ((*((s32 *) (temp_16 + 0x54))) != 0)
+  {
+    return 1;
+  }
+  if ((*((s32 *) (temp_16 + 0x50))) == 0)
+  {
+    return 1;
+  }
+  if (func_004782b0(*((s32 *) (temp_16 + 0x50))) == 0)
+  {
+    return 0;
+  }
+  var_5 = 0;
+  if ((*((u8 *) (temp_16 + 0x1CA))) == 1)
+  {
+    var_5 = 3;
+  }
+  *((s32 *) (temp_16 + 0x54)) = (s32) func_00145270(func_00145540((arg0 + 0x64) & 0xFFFF, var_5, *((u8 **) (temp_16 + 0x50))) & 0xFFFF);
+  func_00479940(*((u8 **) (temp_16 + 0x50)), 0, 0, 0x10, 1);
+  func_0047aa30(*((u8 **) (temp_16 + 0x50)), D_005DC920);
+  temp_2 = (*((s32 *) (temp_16 + 0x1C0))) - func_0014c780();
+  if (temp_2 < (-3))
+  {
+    *((u8 *) (temp_16 + 0x1CB)) = 0;
+  }
+  else
+    if (temp_2 < (-1))
+  {
+    *((u8 *) (temp_16 + 0x1CB)) = 1;
+  }
+  else
+    if (temp_2 < 3)
+  {
+    *((u8 *) (temp_16 + 0x1CB)) = 2;
+  }
+  else
+    if (temp_2 >= 3)
+  {
+    *((u8 *) (temp_16 + 0x1CB)) = 3;
+  }
+  if ((*((u8 *) (temp_16 + 0x1CA))) == 1)
+  {
+    func_0017b9a0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x224)), *((f32 *) (D_005F1340 + ((*((u8 *) (temp_16 + 0x1CB))) * 4))));
+  }
+  func_0047a1e0(*((void **) (temp_16 + 0x50)), (D_005F12E0 + ((*((u8 *) (temp_16 + 0x1CA))) * 0x30)) + ((*((u8 *) (temp_16 + 0x1CB))) * 0xC), 2);
+  func_003e05d0(func_0047a2f0(*((s32 *) (temp_16 + 0x50))));
+  func_00168de0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), sp40, *((f32 *) ((*((u8 **) (temp_16 + 0x1AC))) + 0x14C)));
+  func_00168ae0(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), (*((u8 **) (temp_16 + 0x1AC))) + 0x140);
+  func_0014b0c0(*((u16 *) (*((u8 **) (0x54 + temp_16)))), 1);
+  func_00168730(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 0x40000000);
+  func_00168780(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)), 35.0f);
+  *((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228)) = func_00478750(iGpffffb274);
+  temp_f0 = func_00168770(*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x220)));
+  sp30[2] = temp_f0;
+  sp30[1] = temp_f0;
+  sp30[0] = temp_f0;
+  func_0047a1e0((void *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))), sp30, 2);
+  func_00478e70((u8 *) (*((s32 *) ((*((u8 **) (temp_16 + 0x54))) + 0x228))));
+  *((s32 *) (temp_16 + 0x1B0)) = func_00182220(0, temp_16, *((u8 *) (temp_16 + 0x1CA)));
+  *((s32 *) (temp_16 + 0x1B8)) = func_00167420((u8 *) 0, temp_16);
+  return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00163c90);
-#endif
 
 
 

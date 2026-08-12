@@ -1467,40 +1467,39 @@ s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
    helper / named or-temp x named-t / inline-div / named-w / parenthesised
    product) all give exactly nd 21. FPU allocation + scheduling floor.
    Committed at nd 21. */
-// FUN_00249960 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00249960(s32 arg0) {
-    u8 *temp_16 = (u8 *)D_008814EC[0];
-    s32 off;
-    u8 *p;
-    s16 y;
-    s32 z;
-    u32 c;
-    u32 n;
-    f32 fz;
-    f32 t;
-    f32 w;
-
-    if (((s32)(arg0 & 0xFFFF) < 0) || ((arg0 & 0xFFFF) > 5)) {
-        func_0046d730(D_006359D0, 0x16B);
-    }
-    off = (u16)arg0 * 14;
-    p = (u8 *)(off + (u32)temp_16 + 8);
-    y = *(s16 *)(off + (u32)temp_16 + 8);
-    z = func_003b7060();
-    if (z >= 0) {
-        fz = (f32)z;
-    } else {
-        c = (u32)z;
-        fz = (f32)(s32)((c >> 1) | (c & 1));
-        fz = fz + fz;
-    }
-    t = fz / 2147483648.0f;
-    return (s32)((f32)y + (f32)*(s16 *)(p + 2) * t);
+// FUN_00249960
+s32 func_00249960(s32 index)
+{
+  u8 *base = (u8 *) D_008814EC[0];
+  s32 offset;
+  u8 *record;
+  s16 base_value;
+  unsigned int random_value;
+  u32 bits;
+  f32 random_float;
+  f32 scale;
+  if ((((s32) (index & 0xFFFF)) < 0) || ((index & 0xFFFF) > 5))
+  {
+    func_0046d730(D_006359D0, 0x16B);
+  }
+  offset = ((u16) index) * 14;
+  record = (u8 *) ((offset + ((u32) base)) + 8);
+  base_value = *((s16 *) ((offset + ((u32) base)) + 8));
+  random_value = func_003b7060();
+  if (random_value >= 0)
+  {
+    random_float = (f32) random_value;
+  }
+  else
+  {
+    bits = (u32) random_value;
+    random_float = (f32) ((s32) ((bits >> 1) | (bits & 1)));
+    random_float = random_float + random_float;
+  }
+  scale = random_float;
+  scale = scale / 2147483648.0f;
+  return (s32) (((f32) base_value) + (((f32) (*((s16 *) (record + 2)))) * scale));
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249960);
-#endif
 
 /* The retail range guard tests the MASKED index twice and lowers the upper
    bound through the $at assembler temp: `andi $v0,$s1,0xffff; bltz $v0;

@@ -440,133 +440,126 @@ void func_00465F20(void)
     D_00764BB8 = 0;
 }
 /* measured: plain C reproduces the complete 800-byte state machine except for the final-state result setup order (retail loads iGpffffbaa8 before materializing 100; b210 reverses those two instructions). Object 796B/window 800B, normalized_diff 6. Committed at nd 6. */
-// FUN_00465F40 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00465F40
 s32 func_00465f40(void)
 {
-    s32 sp1C;
-    s32 sp18;
-    s32 sp14;
-    s32 temp_3;
-    s32 temp_3_2;
-    s32 var_2;
-    s32 temp_6;
-
+  s32 sp1C;
+  s32 sp18;
+  int new_var3;
+  s32 sp14;
+  s32 temp_3;
+  s32 new_var8;
+  int temp_3_2;
+  int var_2;
+  s32 temp_6;
+  int new_var5;
+  int new_var7;
+  if (D_008E4A20 || temp_3_2)
+  {
     func_00440b68(D_00712950, D_00764BC0);
     temp_3 = D_00764BC0;
-    switch (temp_3)
-    {
+  }
+  else
+  {
+    new_var8 = D_00764BC0;
+    func_00440b68(D_00712950, new_var8);
+    temp_3 = D_00764BC0;
+  }
+  switch (new_var5 = temp_3)
+  {
     case 0:
-        iGpffffbaa8 = -1;
-        sp1C = 0;
-        sp18 = 0;
-        iGpffffbaa4 = 0;
-        if (func_00464670(&sp1C, (u32*)&sp18, &sp14) == -1)
-        {
-            sceMc2GetInfoAsync(D_00764BA4, (s32*)D_008E4B20);
-            D_00764BC0 = 1;
-        }
-default:
-        goto block_44;
-    case 1:
-        if (func_00464670(&sp1C, (u32*)&sp18, &sp14) == 1)
-        {
-            if (sp14 == 0)
-            {
-                switch (sp18)
-                {
-                case 0x6F:
-                    return -5;
-                case 0x13:
-                    return -5;
-                case 0x9003:
-                    sceMc2GetInfoAsync(D_00764BA4, (s32*)D_008E4B20);
-                    goto block_44;
-                case 0x2F:
-                    return 100;
-                default:
-                    return -9;
-                }
-            }
-            else
-            {
-                if (D_008E4B20[0] == 2)
-                {
-                    if (D_008E4B28[0] >= 0xE6)
-                    {
-                        return 100;
-                    }
-                    D_00764BC0 = 2;
-                    goto block_44;
-                }
-                return -1;
-            }
-        }
-        else
-        {
-            goto block_44;
-        }
-        break;
-    case 2:
-        if (func_00464670(&sp1C, (u32*)&sp18, &sp14) == -1)
-        {
-            temp_6 = D_00764BB8;
-            func_00442088(D_008E4A20, D_007127D0, temp_6, temp_6);
-            func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
-            D_00764BC0 = 3;
-        }
-        goto block_44;
-    case 3:
-        if (func_00464670(&sp1C, (u32*)&sp18, &sp14) == 1)
-        {
-            if (sp14 == 0)
-            {
-                switch (sp18)
-                {
-                case 0x9003:
-                    return -5;
-                case 0x6F:
-                    return -5;
-                case 0x16:
-                    return -5;
-                case 0x13:
-                    return -5;
-                case 2:
-                    temp_3_2 = D_00764BB8 + 1;
-                    D_00764BB8 = temp_3_2;
-                    if (temp_3_2 == 0x10)
-                    {
-                        temp_6 = iGpffffbaa8;
-                        var_2 = 100;
-                        if (temp_6 != 100)
-                        {
-                            var_2 = -6;
-                        }
-                        return var_2;
-                    }
-                    D_00764BC0 = 2;
-                    goto block_44;
-                default:
-                    goto block_44;
-                }
-            }
-            else
-            {
-                return 100;
-            }
-        }
-        else
-        {
-            goto block_44;
-        }
-        break;
+      iGpffffbaa8 = -1;
+      sp18 = var_2 = sp1C = 0;
+      if (1 != 0)
+    {
+      iGpffffbaa4 = 0;
+      if (func_00464670(&sp1C, (u32 *) (&sp18), &sp14) == -1)
+      {
+        sceMc2GetInfoAsync(D_00764BA4, (s32 *) D_008E4B20);
+        D_00764BC0 = 1;
+      }
     }
-block_44:
-    return 0;
+
+    default:
+      goto block_44;
+
+    case 1:
+      if (func_00464670(&sp1C, (u32 *) (&sp18), &sp14) == 1)
+    {
+ do { if (((((-1) * 0, sp14)) & 0xFFFFFFFF) == (var_2 = 0)) { switch (sp18) { case 0x6F: return -5; case 0x13: return -5; case 0x9003: sceMc2GetInfoAsync(D_00764BA4, (s32 *) D_008E4B20); goto block_44; case 0x2F: return 100; default: return -9; } } else { if (D_008E4B20[0] == 2) { if (D_008E4B28[0] >= 0xE6) { return 100; } D_00764BC0 = 2; goto block_44; } return -1; } }
+ while (0);
+    }
+    else
+    {
+      goto block_44;
+    }
+      break;
+
+    case 2:
+      if (-1 == func_00464670(&sp1C, (u32 *) (&sp18), &sp14))
+    {
+      temp_6 = (new_var8 = D_00764BB8);
+      func_00442088(D_008E4A20, D_007127D0, temp_6, new_var8);
+      func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
+      D_00764BC0 = 3;
+    }
+      goto block_44;
+
+    case 3:
+      new_var7 = -5;
+      if (func_00464670(&sp1C, (u32 *) (&sp18), &sp14) == 1)
+    {
+      if (new_var3 = sp14 == 0)
+      {
+        switch (sp18)
+        {
+          case 0x9003:
+            return new_var7;
+
+          case 0x6F:
+            return new_var7;
+
+          case 0x16:
+            return new_var7;
+
+          case 0x13:
+            return new_var7;
+
+          case 2:
+            temp_3_2 = (D_00764BB8 += 1);
+            if (temp_3_2 == 0x10)
+          {
+            new_var3 = (temp_6 = iGpffffbaa8);
+            var_2 = 100;
+            if (temp_6 != 100)
+            {
+              var_2 = -6;
+            }
+            return var_2;
+          }
+            D_00764BC0 = 2;
+            goto block_44;
+
+          default:
+            goto block_44;
+
+        }
+
+      }
+      return 100;
+    }
+    else
+    {
+      goto block_44;
+    }
+      break;
+
+  }
+
+  block_44:
+  return 0;
+
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/h_memcard", func_00465f40);
-#endif
 
 
 

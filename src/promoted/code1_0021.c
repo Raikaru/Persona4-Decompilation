@@ -1328,53 +1328,8 @@ s32 func_0021de60(void)
    table-float load versus integer-to-float conversion scheduling (retail
    loads the table value first) plus the eight-byte retail tail pad. Parked
    because nd <= 25. Committed at nd 16. */
-// FUN_0021DE90 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0021de90(s32 arg0, u8 *arg1)
-{
-    s32 var_16;
-    f32 temp_f2;
-    s32 var_2;
-    s32 temp_3;
-    s32 var_2_2;
-
-    var_16 = *(s32 *)(arg1 + 4);
-    if (var_16 <= 0) {
-        return 0;
-    }
-    if ((*(u16 *)arg1 & 8) == 0 && func_00106330(0x1403) != 0) {
-        if (func_00106330(0x1428) != 0) {
-            var_16 = (s32)(2.0f * (f32)var_16);
-        } else if (func_00106330(0x1429) != 0) {
-            var_16 = 0;
-        }
-    }
-    temp_f2 = 1.0f / (f32)*(s32 *)(arg1 + 0x20);
-    if ((*(s32 *)(iGpffffb414 + *(s32 *)(arg1 + 0xC) * 0x18) & 0x80) != 0) {
-        var_2 = (s32)((f32)var_16 * temp_f2);
-    } else {
-        temp_3 = *(s32 *)(arg1 + 0x38) - arg0;
-        if (temp_3 >= 0xA) {
-            var_2_2 = 0x14;
-        } else if (temp_3 < -9) {
-            var_2_2 = 0;
-        } else {
-            var_2_2 = temp_3 + 0xA;
-        }
-        var_2 = (s32)((iGpffffb40c[var_2_2] *
-                        (f32)var_16) * temp_f2);
-    }
-    if (var_2 >= 0x10000) {
-        return 0xFFFF;
-    }
-    if (var_2 <= 0) {
-        var_2 = 1;
-    }
-    return var_2;
-}
-#else
+// FUN_0021DE90
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021de90);
-#endif
 // FUN_0021E050
 s32 func_0021e050(u8 *arg0)
 {
