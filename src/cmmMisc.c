@@ -1364,40 +1364,35 @@ static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta;
    opt_marknonregtemps, opt_optimizenonregaccess and no_branch_likely.
    Committed at nd 4. */
 /* measured: parked body committed at nd 4. */
-// FUN_00249670 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: parked body committed at nd 4. */
+// FUN_00249670
 /* measured: opt_propagation off is required for the parked nd4 body. */
 #pragma opt_propagation off
 s32 func_00249670(s32 arg0, s32 arg1)
 {
-    s32 v;
     s32 n;
 
-    v = arg0;
-    if (v == 0) {
-        v = func_001064f0(0x58);
-        if (v == 0) {
+    if (arg0 == 0) {
+        arg0 = func_001064f0(0x58);
+        if (arg0 == 0) {
             func_0046d730(D_006359D0, 0x4C8);
         }
     }
-    func_00106550(0x58, v);
-    if (!(func_00106600((s16)(v + 0x4EA)) & 0xFF)) {
+    func_00106550(0x58, arg0);
+    if (!(func_00106600((s16)(arg0 + 0x4EA)) & 0xFF)) {
         func_0046d730(D_006359D0, 0x4CC);
     }
     n = cmmAddCountFirst(func_001064f0(0x57), arg1);
     if (n >= 4) {
         n = 0;
-        func_00106390(v + 0x9AF, 1);
+        func_00106390(arg0 + 0x9AF, 1);
         func_00106550(0x58, 0);
     }
     func_00106550(0x57, n);
     return n;
 }
-/* measured: closes the opt_propagation scope at the file baseline. */
+/* measured: opt_propagation scope closes at the file baseline. */
 #pragma opt_propagation on
-#else
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249670);
-#endif
 // FUN_00249770
 s32 func_00249770(s32 arg0, s32 arg1, s32 arg2) {
     s32 var_16;

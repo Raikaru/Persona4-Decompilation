@@ -310,14 +310,13 @@ s16 func_002b2d50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
 /* measured: archived body in build/WW15_002b2e70.c (object 276B/window 288B, normalized_diff 5); restored ASM fallback. */
 // FUN_002B2E70
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2e70);
-// FUN_002B2F90 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_002B2F90
 void func_002b2f90(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
 {
+    int condition_value;
     s32 temp_3;
     s32 var_10;
     s32 var_6;
-
     if (arg2 == 0) {
         *arg4 = 0;
         *arg5 = 0;
@@ -339,11 +338,11 @@ loop_body:
     }
     if (temp_3 == 0) {
         arg0 -= 1;
-        if (arg0 >= 0) {
-            goto first_clamp_done;
+        if (arg0 < 0) {
+            arg0 = 0;
         }
-        arg0 = 0;
-first_clamp_done:
+        if ((!condition_value) && (!condition_value)) {
+        }
         goto done;
     }
     arg0 -= 1;
@@ -361,10 +360,6 @@ done:
 exit:
     ;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2f90);
-#endif
-/* measured: explicit-goto candidate is 184B in the 192B retail window with normalized_diff 1; parked at the measured floor. Committed at nd 1. */
 // FUN_002B3050
 void func_002b3050(s32 arg0, s32 arg1, s32 arg2, s64 arg3, s32 arg4, s16 *arg5, s16 *arg6)
 {

@@ -1364,25 +1364,22 @@ finish:
     return 1;
 }
 // FUN_003C9750
-/* measured: schedule and no_branch_likely reproduce the callback loop layout.
-   Candidate object 132B/window 144B, normalized_diff 11; residual is
-   register coloring between the cursor and next-node values.
-   Committed at nd 11. */
-#ifdef NON_MATCHING
-#pragma schedule on
-#pragma no_branch_likely on
+/* measured: exact match at object 132B/window 144B, normalized_diff 0. The
+   surrounding file state is already schedule/no_branch_likely on, so this
+   function needs no bracket of its own; adding one closed the outer bracket
+   early and regressed func_003c99f0. */
 u8 *func_003c9750(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
     u8 *end;
     u8 *node;
     u8 *next;
     s32 value;
 
-    end = arg0 + 0x40;
     node = *(u8 **)(arg0 + 0x40);
+    end = arg0 + 0x40;
     if (node != end) {
         do {
-            value = *(s32 *)(node + 8);
             next = *(u8 **)node;
+            value = *(s32 *)(node + 8);
             if ((value != 0) && (arg1(value, arg2) == 0))
                 return arg0;
             node = next;
@@ -1390,11 +1387,7 @@ u8 *func_003c9750(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
     }
     return arg0;
 }
-#pragma no_branch_likely off
-#pragma schedule off
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9750);
-#endif
+
 
 // FUN_003C97E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
