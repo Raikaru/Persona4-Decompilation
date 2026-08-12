@@ -285,7 +285,7 @@ void func_003146c0(u8 *arg0) {
    materialization and reuses the object register. Exact residuals, probes,
    and ruled-outs remain archived in build/W8FclCombineDraw_003146f0_body.c.txt. */
 /* measured: Retail frame 0x10, no saved registers, 68-byte C object in an 80-byte window. Canonical func_0011b480(u8 *,s32,u32,s32) body is the lowest valid prototype candidate at nd 23 (all-s32 helper probe nd 18 was rejected because the promoted/shdPersona canonical declaration is required). Candidate residuals are the early u8 andi and shifted fourth argument versus retail's raw move $v1 plus late dsll32/dsra32; exact source-order and width/prototype probes were run and no nd <= 0 body was found. Parked at the nd-23 threshold; body archived at build/WCFclCombineDraw_003146f0_u8_body.c.txt. Committed at nd 23. */
-// FUN_003146F0 NONMATCHING
+// FUN_003146F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
 
 

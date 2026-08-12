@@ -34,7 +34,7 @@ extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern u32 func_003b7060(void);
 extern s32 func_0015a160(void);
-extern s32 func_00161630(u16 a, u16 b, u16 c, u16 d);
+extern s32 func_00161630(u16 a, u16 b, u16 c, s32 d);
 extern void func_00182310(s32 arg0);
 extern void func_0018e030(s32 arg0, s32 arg1);
 extern s32 func_0029da90(s32 arg0, s32 arg1, s32 arg2);
@@ -917,19 +917,18 @@ s32 func_00178790(void)
     return 1;
 }
 
-/* measured: nd 8. Keeping the cached scene index as u16 moves its narrowing
-   into $s1 immediately after func_0029cc00; retail keeps the raw value in
-   $s1 and narrows it into $a3 after the two halfword loads. Best measured
-   body: object 108B in a 112B window. Negative evidence: func_0029cc00 is declared
-   and defined s32 in code1_0017.c and src/Script/scrTraceCode.c. Raw s32 plus
-   & 0xFFFF at each use, explicit (u16) casts, separate raw assignment, and the
-   fourth-argument and all-wide func_00161630 prototypes all measured nd 10 or worse.
-   Committed at nd 8. */
+/* measured: the verified MATCH definition of func_00161630 is
+   (u16, u16, u16, s32), so this unit uses that declaration. The best plain-C
+   body measured object 108B in the 112B window, normalized_diff 4, with one
+   residual word at byte offset 56 (retail andi $a3,$s1,0xffff; candidate
+   move $a3,$s1). No tested plain-C spelling or pragma produced the andi
+   without moving the mask before the halfword loads; the body is archived
+   at build/D178_00178870_body.c and the committed form remains bare INCLUDE_ASM. */
 
 // FUN_00178870 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00178870(void) {
-    u16 a = (u16)func_0029cc00(0);
+    s32 a = func_0029cc00(0);
     u8 *p = iGpffff9db0;
     s32 b = func_0015a160();
 
@@ -939,7 +938,6 @@ s32 func_00178870(void) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178870);
 #endif
-
 // FUN_001788E0
 s32 func_001788e0(void)
 {

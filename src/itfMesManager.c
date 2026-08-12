@@ -62,8 +62,8 @@ void func_002784e0(s32 arg0, s32 arg1, s32 arg2);
 s32 func_00442088(char *buf, const char *fmt, ...);
 s32 func_002438b0(s32 arg0);
 s32 func_00243840(s32 arg0);
-s32 func_0010d620(s64 arg0);
-s32 func_001067f0(s64 arg0);
+u32 func_0010d620(s16 arg0);
+u32 func_001067f0(s16 arg0);
 s32 func_00109220(s32 arg0);
 extern char iGpffffa760;
 extern s32 iGpffffb444;
@@ -928,42 +928,8 @@ s16 func_00278260(s32 arg0)
    address in $a2, b210 emits the addiu first (3 words). Naming the buffer in
    an int local and taking &sp30[0] both measure nd 10; schedule on is far
    worse (nd 203). Call-argument setup order floor. Committed at nd 10. */
-// FUN_002782C0 NONMATCHING
-#ifdef NON_MATCHING
-void func_002782c0(int param_1, int param_2, int param_3, u32 param_4) {
-    char sp30[16];
-
-    switch (param_4) {
-    case 0:
-        func_00442088(sp30, &iGpffffa760, param_3);
-        func_00278450(param_1, param_2, (int)sp30);
-        break;
-    case 1:
-        func_002784e0(param_1, param_2, param_3);
-        break;
-    case 2:
-        func_00278450(param_1, param_2, iGpffffb444 + param_3 * 21);
-        break;
-    case 3:
-        func_00278450(param_1, param_2, func_002438b0(param_3 & 0xFF));
-        break;
-    case 4:
-        func_00278450(param_1, param_2, func_0010d620((s16)param_3));
-        break;
-    case 5:
-        func_00278450(param_1, param_2, func_001067f0((s16)param_3));
-        break;
-    case 6:
-        func_00278450(param_1, param_2, func_00243840(param_3 & 0xFFFF));
-        break;
-    case 7:
-        func_00278450(param_1, param_2, func_00109220(param_3 & 0xFFFF));
-        break;
-    }
-}
-#else
+// FUN_002782C0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002782c0);
-#endif
 
 // FUN_00278450
 void func_00278450(s32 arg0, s32 arg1, s32 arg2)

@@ -806,69 +806,15 @@ void func_00356140(u8 *arg0)
 
 
 
-/* measured: retail's missing sd/ld pair for the 64-bit first argument requires
-   a stack array plus the direct pointer-dereference call expression. The
-   full callee prototype is retained; its two explicit 0.0f tail arguments
-   account for the remaining f-register residual. Best candidate nd 19,
-   object 96B/window 96B; archive
-   build/WBCode1_0035_func_00356170_nd19_archive.txt. Ruled out scalar saved0
-   (nd58,obj88/96), no-saved/full-call variants (nd59/58), three-float casts
-   and pragma/order variants (nd61/27/63/76). Committed at nd 19. */
-// FUN_00356170 NONMATCHING
-#ifdef NON_MATCHING
-void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3, f32 f0, f32 f1) {
-    s64 saved0[1];
-    s32 saved1;
-    s32 var8;
-    u8 sel;
-    saved0[0] = arg0;
-    saved1 = arg1;
-    var8 = arg3;
-    sel = ((u8 *)&saved1)[3];
-    if (sel != 0xFF)
-        var8 = 0;
-    func_00365f00(f0, f1, 1.0f, 0.0f, *(s64 *)((u8 *)saved0), saved1, saved1, arg2, var8, 0.0f);
-}
-#else
+/* measured: live-C reconstruction archived in
+   build/D356_00356170_003561d0_body.c. Residual nd 8 at 0x08/0x10. */
+// FUN_00356170
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
-#endif
-/* measured: stack-frame and mixed-ABI call body reaches nd 7 in isolation at
-   object 116B/window 128B; residual call-setup order remains at offsets
-   0x40-0x4C. nd_audit compiles the whole file with NON_MATCHING defined, which
-   activates func_00356170's preserved body alongside this one and shifts it to
-   nd 15. Committed at nd 15. */
-// FUN_003561D0 NONMATCHING
-#ifdef NON_MATCHING
-void func_003561d0(s64 arg0, s32 arg1, s32 arg2, s32 arg3, f32 dummy, f32 f0, f32 f1)
-{
-    struct Frame { s64 saved0; s32 saved1; f32 temp; } frame;
-    s32 var8;
-    u8 sel;
-    f32 scaled;
-    f32 one;
-    f32 shifted;
-    s64 call0;
-    s32 call1;
-
-    frame.saved0 = arg0;
-    frame.saved1 = arg1;
-    scaled = f0 / iGpffff83d4;
-    shifted = iGpffff8544 + f1;
-    var8 = arg2;
-    frame.temp = *(f32 *)((u8 *)&frame.saved1);
-    sel = ((u8 *)&frame.temp)[3];
-    if (sel != 0xFF) {
-        var8 = 0;
-    }
-    one = 1.0f;
-    call0 = *(s64 *)((u8 *)&frame.saved0);
-    call1 = frame.saved1;
-    func_00365f00(dummy, scaled, shifted, one, call0, call1, call1, 4, var8, one);
-}
-#else
+/* measured: live-C reconstruction archived in
+   build/D356_00356170_003561d0_body.c. Residual nd 15; fndiff rows
+   0x40, 0x44, 0x48, 0x4C, 0x50, 0x54, 0x58; relocation gaps at 0x10/0x18. */
+// FUN_003561D0
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003561d0);
-#endif
-
 // FUN_00356250
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356250);
 // FUN_00356820
