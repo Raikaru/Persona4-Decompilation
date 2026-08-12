@@ -241,69 +241,81 @@ s32 func_00285b30(void) {
    308 is the retail-only tail padding. Comparison polarity, >=/< /> forms,
    u32 loads, and loop declaration reorder were ruled out. obj 308B/window
    320B, nd 2. Committed at nd 2. */
-// FUN_00285B80 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00285B80
 u8 *func_00285b80(u8 *arg0, s32 arg1)
 {
-    s32 count;
-    s32 i;
-    s32 matched;
-    u8 *p;
-    u32 j;
-    u16 flags;
-    s32 type;
-    s32 id;
+  s32 line;
+  s32 count;
+  s32 i;
+  s32 matched;
+  u8 *entry_base;
+  u8 *p;
+  u32 j;
+  u16 flags;
+  u8 *arg_base;
+  int is_target;
+  s32 *count_ptr;
+  s32 kind;
+  p = (void *) 0;
+  count_ptr = (s32 *) (arg0 + 0x48);
+  matched = 0;
+  i = *count_ptr;
+  arg_base = arg0;
+  entry_base = arg_base;
+  count = i;
+  i = 0;
+  goto outer_check;
+  process_entry:
+  if (((u32) (*((s32 *) (entry_base + 0x48)))) > ((u32) i))
+  {
+    goto traverse;
+  }
 
-    matched = 0;
-    count = *(s32 *)(arg0 + 0x48);
-    i = 0;
-    goto outer_check;
+  p = (void *) 0;
+  goto classify;
+  traverse:
+  p = *(u8 **) (arg_base + 0x4C);
 
-process_entry:
-    if ((u32)i < (u32)*(s32 *)(arg0 + 0x48)) {
-        goto traverse;
+  j = 0;
+  goto inner_check;
+  inner_body:
+  if ((*((u8 **) (p + 0x90))) == ((void *) 0))
+  {
+    line = 0x18F;
+    func_0046d730(D_0063C2C8, line);
+  }
+
+  p = *((u8 **) (p + 0x90));
+  j += 1;
+  inner_check:
+  if (j < ((u32) i))
+  {
+    goto inner_body;
+  }
+
+  goto classify;
+  classify:
+  flags = *((u16 *) (p + 0xC));
+
+  kind = ((s32) (flags & 0xFFC00)) >> 10;
+  if ((((((((((((kind == ((unsigned char) 3)) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF) & 0xFF)
+  {
+    if (((flags & 0x3FF) >= 0x384) && ((flags & 0x3FF) < 0x387))
+    {
+      is_target = (((((((((matched == arg1) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF) & 0xFFFF;
+      if ((((is_target & 0xFFFF) & 0xFFFF) & 0xFFFF) != (((*((u8 **) (p + 0x90))) == ((void *) 0)) * 0))
+      {
+        return p;
+      }
+      matched += 1;
     }
-    p = NULL;
-    goto classify;
+  }
+  i += 1;
+  outer_check:
+  if (i < count)
+  {
+    goto process_entry;
+  }
 
-traverse:
-    p = *(u8 **)(arg0 + 0x4C);
-    j = 0;
-    goto inner_check;
-
-inner_body:
-    if (*(u8 **)(p + 0x90) == NULL) {
-        func_0046d730(D_0063C2C8, 0x18F);
-    }
-    p = *(u8 **)(p + 0x90);
-    j += 1;
-
-inner_check:
-    if (j < (u32)i) {
-        goto inner_body;
-    }
-    goto classify;
-
-classify:
-    flags = *(u16 *)(p + 0xC);
-    type = (s32)(flags & 0xFFC00) >> 10;
-    if (type == 3) {
-        id = flags & 0x3FF;
-        if (id >= 0x384 && id < 0x387) {
-            if (matched == arg1) {
-                return p;
-            }
-            matched += 1;
-        }
-    }
-    i += 1;
-
-outer_check:
-    if (i < count) {
-        goto process_entry;
-    }
-    return NULL;
+  return (void *) 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtEvent", func_00285b80);
-#endif
