@@ -150,6 +150,7 @@ void func_001d1540(u8 *arg0, s32 arg1, s32 arg2) {
         return;
     }
 }
+/* measured: declaration-corrected body archived in build/K1DA_001d15a0_body.c; object 240B exceeds retail window 224B, normalized_diff 185; differing offsets 0x0,0x4,0x8,0x9,0xA,0xB,0x10,0x12,0x13,0x14,0x16,0x17,0x18,0x1A,0x1B,0x1C. */
 // FUN_001D15A0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d15a0);
 // FUN_001D1680
@@ -1593,6 +1594,7 @@ void func_001da690(u8 *arg0, u32 arg1) {
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
+/* measured: declaration-corrected body archived in build/K1DA_001da930_body.c; object 196B exceeds retail window 192B, normalized_diff 105; differing offsets 0x16,0x1A,0x26,0x2A,0x35,0x3E,0x40-0x46,0x48-0x4A. */
 // FUN_001DA930
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da930);
 // FUN_001DAA00

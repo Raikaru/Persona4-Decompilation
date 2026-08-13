@@ -228,42 +228,11 @@ loop_16:
    move $a2, while every plain-C candidate reverses that order. Roughly thirty
    spellings over four waves reached best nd 5 at object 168; complexity-ordering
    and inline-parameter-position levers are exhausted. */
-// FUN_0022FF70
+// FUN_0022FF70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022ff70);
-/* measured: in-file body recheck is object 200B/window 208B with
-   normalized_diff 6. */
-// FUN_00230020
-#ifdef NON_MATCHING
-s32 func_00230020(u8 *arg0)
-{
-    s32 var_2;
-    u16 temp_4;
-
-    if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0)
-        return 1;
-    var_2 = 1;
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1)
-    {
-        temp_4 = *(u16 *)(arg0 + 0x6E);
-        if ((temp_4 != 0x18B) &&
-            (temp_4 != 0x186) &&
-            (temp_4 != 0x17A) &&
-            (temp_4 != 0x160) &&
-            (temp_4 != 0x177) &&
-            (temp_4 != 0x176) &&
-            (temp_4 != 0x175) &&
-            (temp_4 != 0x174) &&
-            (temp_4 != 0x173) &&
-            (temp_4 != 0x172))
-            return 1;
-        var_2 = 0;
-        return var_2;
-    }
-    return var_2;
-}
-#else
+/* measured: object 200B, retail window 208B, normalized_diff 6; explicit switch body archived below. */
+// FUN_00230020 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230020);
-#endif
 // FUN_002300F0
 u32 func_002300f0(u8 *arg0, u16 *out1, u16 *out2)
 {

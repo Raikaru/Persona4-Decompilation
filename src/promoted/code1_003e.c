@@ -480,10 +480,10 @@ s32 func_003e1e10(s32 arg0)
 #pragma no_branch_likely off
 #pragma schedule off
 
-// FUN_003E1EA0
+// FUN_003E1EA0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ea0);
 
-// FUN_003E1F50
+// FUN_003E1F50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1f50);
 
 // FUN_003E1FF0
@@ -599,7 +599,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
 
 /* measured: archived object 72B/window 80B, normalized_diff 9; loop-join
    branch displacement and store-guard placement remained unresolved. */
-// FUN_003E30C0 NONMATCHING
+// FUN_003E30C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e30c0);
 // FUN_003E3110 NONMATCHING
 #ifdef NON_MATCHING
@@ -707,7 +707,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3110);
 #pragma no_branch_likely on
 /* measured: optimization_level 1 conditional-move probe for 003e32f0. */
 #pragma optimization_level 1
-// FUN_003E32F0 NONMATCHING
+// FUN_003E32F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
 /* measured: closes optimization_level 1 around func_003e32f0. */
 #pragma optimization_level 2
@@ -722,7 +722,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
    do-while, while, explicit-goto, empty-statement and label probes remain
    nd 22-23 under schedule+no_branch_likely; schedule alone costs nd 32.
    This is the same loop-exit block-join artifact as func_003e3020. Committed at nd 22. */
-// FUN_003E3370 NONMATCHING
+// FUN_003E3370
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3370);
 
 // FUN_003E33F0
@@ -774,7 +774,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e36c0);
    normalized_diff 7; branch-join delay scheduling remains unresolved. */
 /* measured: archived object 60B/window 64B, normalized_diff 18; branch-join
    delay-slot placement remained unresolved in the compliant plain-C body. */
-// FUN_003E3830 NONMATCHING
+// FUN_003E3830
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3830);
 // FUN_003E3870
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3870);
@@ -846,9 +846,9 @@ s32 func_003e3c90(s32 arg0, s32 arg1, s32 arg2) {
 
 // FUN_003E3D00
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3d00);
-// FUN_003E3DC0
+// FUN_003E3DC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3dc0);
-// FUN_003E3E60
+// FUN_003E3E60 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3e60);
 // FUN_003E3F00 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3f00);
@@ -1387,7 +1387,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5550);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5830);
 /* measured: best plain-C body archived in build/H3E2_003e5990_body.c;
    object 80B/window 80B, normalized_diff 42; guard and return layout remain. */
-// FUN_003E5990 NONMATCHING
+// FUN_003E5990
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5990);
 
 /* measured: two things are load-bearing here. Retail tests POSITIVELY and puts
@@ -1672,7 +1672,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
 
 /* measured: best plain-C body is archived in build/H3E2_003e8130_body.c;
    object 76B/window 80B, normalized_diff 24, prologue load order remains. */
-// FUN_003E8130 NONMATCHING
+// FUN_003E8130
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8130);
 /* measured: no_branch_likely on forces the retail beqz+nop shape. */
 #pragma no_branch_likely on
@@ -1714,12 +1714,12 @@ u8 *func_003e81c0(u8 *arg0, f32 fparg0) {
 /* measured: close no_branch_likely around func_003e81c0. */
 #pragma no_branch_likely off
 
-// FUN_003E8200
+// FUN_003E8200 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
 
 /* measured: archived object 64B/window 64B, normalized_diff 42; retail movz
    conditional move remains unavailable from compliant plain C. */
-// FUN_003E82A0 NONMATCHING
+// FUN_003E82A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
 // FUN_003E82E0 NONMATCHING
 #ifdef NON_MATCHING
@@ -1782,7 +1782,7 @@ fallback:
 /* measured: schedule on is required for 003e83a0. */
 /* measured: closes optimization_level 3 probe around 003e83a0. */
 #pragma optimization_level 2
-// FUN_003E83A0 NONMATCHING
+// FUN_003E83A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
 
 /* measured: optimization_level 3 is load-bearing for func_003e8410. */
@@ -1994,7 +1994,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8a50);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8b10);
 // FUN_003E8C60
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8c60);
-// FUN_003E8DC0
+/* measured: archived object 136B/window 160B, normalized_diff 37, differing_offsets=0x4c-0x6c; schedule/no_branch_likely probe aligned the call prologue but the success-path store/reload and tail remain unresolved. Ruled out direct versus result-local assignment, reload label, buffer local, and pragma-off shapes. */
+// FUN_003E8DC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8dc0);
 // FUN_003E8E60
 /* measured: schedule/no_branch_likely bracket retained for func_003e8e60. */

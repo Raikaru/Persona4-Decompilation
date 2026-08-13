@@ -274,7 +274,12 @@ def main() -> int:
         # line of the file changes. Rejoin with the newline the file already
         # uses and write bytes, so untouched lines stay byte-identical.
         eol = "\r\n" if b"\r\n" in raw else "\n"
-        src.write_bytes((eol.join(lines) + eol).encode("utf-8"))
+        # Preserve whether the file ended with a newline. src/promoted/code1_0042.c
+        # is committed WITHOUT one, so appending unconditionally rewrote its last
+        # line every run and the declaration-environment check read that as a lost
+        # declaration -- it blocked the wave gate four waves in a row.
+        tail = eol if raw.endswith(eol.encode()) else ""
+        src.write_bytes((eol.join(lines) + tail).encode("utf-8"))
         print("installed %d body/bodies in %s"
               % (len(items), src.relative_to(REPO).as_posix()))
     return 0
