@@ -558,7 +558,19 @@ void func_0033e4b0(u8 *arg0)
                   1, 0, 0, 104.0f, 0.0f, 1.0f, 1.0f, D_007955C0);
 }
 // FUN_0033E540
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033e540);
+void func_0033e540(u8 *arg0, F2_0033 arg1, F2_0033 arg2, s16 arg3, s16 arg4)
+{
+    u8 *temp_4;
+
+    temp_4 = *(u8 **)(arg0 + 0x38);
+    *(F2_0033 *)(temp_4 + 0x1C) = arg1;
+    *(F2_0033 *)(temp_4 + 0x0C) = *(F2_0033 *)(temp_4 + 0x1C);
+    *(F2_0033 *)(temp_4 + 0x14) = arg2;
+    *(s16 *)(temp_4 + 0x24) = arg3;
+    *(s16 *)(temp_4 + 0x26) = 0;
+    *(s16 *)(temp_4 + 0x28) = arg4;
+    *(s8 *)temp_4 = 2;
+}
 // FUN_0033E5A0
 s32 func_0033e5a0(u8 *arg0)
 {

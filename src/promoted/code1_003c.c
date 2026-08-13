@@ -898,13 +898,31 @@ do2:
 #pragma no_branch_likely off
 #pragma schedule off
 
-/* measured: typed three-argument helper and schedule probes reached
-   normalized_diff 15 with object 112B/window 112B; pre-prologue load and
-   final movz remained compiler residuals. No real C body was retained, so
-   the bare INCLUDE_ASM fallback remains. */
-// FUN_003C3FA0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
+/* measured: `func_003df240` takes three s32 arguments; the old two-argument
+   declaration shifted both call sites and prevented the retail call setup. */
+/* measured: best retained body object 112B/window 112B, normalized_diff 48;
+   differing offsets 4, 6, 7, 8, 10, 11, 12, 14, 16, 17, 18, 19, 20, 21, 22.
+   The three-argument helper declaration is corrected in the archived body. */
+// FUN_003C3FA0 NONMATCHING
+#ifdef NON_MATCHING
+extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
+s32 func_003c3fa0(s32 arg0, s32 unused, u8 *arg2) {
+    s32 result;
 
+    result = arg0;
+    if (func_003df240(arg0, *(s32 *)(arg2 + 8) + 0x2C, 4) == 0)
+        goto retzero;
+    goto second;
+retzero:
+    return 0;
+second:
+    if (func_003df240(arg0, *(s32 *)(arg2 + 8) + 0x30, 4) == 0)
+        result = 0;
+    return result;
+}
+#else
+INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
+#endif
 
 // FUN_003C4010
 /* measured: schedule places the successful result in the branch delay slot. */
@@ -1060,7 +1078,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
    +0x0C/+0x10: retail interleaves move $s1,$a0 between sq saves; MWCC b210
    emits both saves first. The corrected callee prototype was measured and
    does not remove this prologue-only residual. */
-// FUN_003C47C0 NONMATCHING
+// FUN_003C47C0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 
 
@@ -2348,15 +2366,47 @@ void func_003cc460(void) {
 }
 /* measured: closes schedule-on probe for cc460 and restores file default. */
 #pragma schedule off
-// FUN_003CC500
+/* measured: best retained body object 136B/window 96B, normalized_diff 99;
+   differing word offsets 9, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+   28, 30, 31. Retail's compact branch-likely chain remains unmatched. */
+// FUN_003CC500 NONMATCHING
+#ifdef NON_MATCHING
+void func_003cc500(s32 arg0) {
+    s64 temp;
+    s64 value;
+
+    temp = iGpffffb8f0;
+    value = temp & ~0x1E0;
+    if (arg0 == 6) {
+        value |= 0x160;
+        goto done;
+    }
+    if (arg0 == 5) {
+        value |= 0xC0;
+        goto done;
+    }
+    if (arg0 == 4) {
+        value |= 0x120;
+        goto done;
+    }
+    if (arg0 == 3) {
+        value |= 0x80;
+        goto done;
+    }
+    if (arg0 == 2)
+        value |= 0x60;
+done:
+    iGpffffb8f0 = value;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
-/* measured: retail uses standalone pexew/ppacw MMI instructions; no plain-C
-   equivalent is permitted. Window 96B; no real C body was retained; the bare
-   INCLUDE_ASM fallback remains. */
+#endif
 
 // FUN_003CC560
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc560);
-// FUN_003CC680
+/* measured: retail uses standalone pexew/ppacw MMI instructions; no plain-C
+   equivalent is permitted. Object 96B/window 96B; exact fallback archived. */
+// FUN_003CC680 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 
 /* measured: the null-first `block_body`/`block_null` graph plus
