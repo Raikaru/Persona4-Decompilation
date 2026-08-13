@@ -21294,7 +21294,7 @@
       "target_path": "build/objdiff/target/Kosaka/k_misc/0014bbe0.o",
       "base_path": "build/objdiff/base/Kosaka/k_misc/0014bbe0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main",
           "linked"
@@ -79163,7 +79163,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0019/00193450.o",
       "base_path": "build/objdiff/base/promoted/code1_0019/00193450.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -85917,7 +85917,7 @@
       "target_path": "build/objdiff/target/promoted/code1_001e/001ef7e0.o",
       "base_path": "build/objdiff/base/promoted/code1_001e/001ef7e0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -92561,7 +92561,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0025/0025ea20.o",
       "base_path": "build/objdiff/base/promoted/code1_0025/0025ea20.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -92605,7 +92605,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0025/0025ecd0.o",
       "base_path": "build/objdiff/base/promoted/code1_0025/0025ecd0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -122344,7 +122344,7 @@
       "target_path": "build/objdiff/target/promoted/code1_0046/004633f0.o",
       "base_path": "build/objdiff/base/promoted/code1_0046/004633f0.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -125050,7 +125050,7 @@
       "target_path": "build/objdiff/target/promoted/code1_004a/004a7c00.o",
       "base_path": "build/objdiff/base/promoted/code1_004a/004a7c00.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]
@@ -144781,7 +144781,7 @@
       "target_path": "build/objdiff/target/sdkDbprt/00450050.o",
       "base_path": "build/objdiff/base/sdkDbprt/00450050.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main"
         ]

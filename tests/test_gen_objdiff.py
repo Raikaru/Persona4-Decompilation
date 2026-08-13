@@ -242,15 +242,23 @@ class UnitBuildingTests(unittest.TestCase):
         # exactly the population that must not be silently counted as either.
         self.assertEqual(units[1]["metadata"]["progress_categories"], ["unclassified"])
 
-    def test_linked_category_is_additive_and_needs_a_linked_report(self) -> None:
-        """No linked report means no linked tag, rather than a guessed one.
+    def test_linked_addresses_falls_back_to_the_committed_endpoint(self) -> None:
+        """A missing build artifact must not silently publish an empty category.
 
-        The category publishes the fully-linked figure to decomp.dev, so a
-        config generated without a report must simply omit it: emitting a WRONG
-        linked number is worse than emitting none.
+        CI regenerates objdiff.json in a job that never runs the linker, so
+        build/linked_report.json is absent there. When the category was declared
+        but tagged zero units, decomp.dev rendered the badge as "0 / 0", which
+        reads as a real measurement rather than as missing data. The committed
+        progress/metrics.json endpoint is therefore the fallback, and it is
+        present in every checkout.
         """
-        self.assertEqual(gen.linked_addresses(None), frozenset())
-        self.assertEqual(gen.linked_addresses("build/does-not-exist.json"), frozenset())
+        from_metrics = gen.linked_addresses(None)
+        self.assertTrue(from_metrics, "committed progress/metrics.json yielded no linked addresses")
+        # A named-but-absent artifact must degrade to the same fallback, never to
+        # an empty set, and never raise.
+        self.assertEqual(gen.linked_addresses("build/does-not-exist.json"), from_metrics)
+        # Every address is a real canonical function address, not a stray token.
+        self.assertTrue(all(isinstance(a, int) and 0 < a < 0x8000000 for a in from_metrics))
 
 
 class TrimWindowPaddingTests(unittest.TestCase):

@@ -165,16 +165,34 @@ void func_0014bbb0(void* arg0)
     jtbl_008873EC[0](rmdFadeTask->workData);
 }
 
-/* Parked at nd 4 with the retail-sized object (432B/432B). Residual rows:
-   0x11C/0x15C: candidate `or $v0,$v1,$v0`, retail `or $v1,$v1,$v0`;
-   0x120/0x160: candidate `mtc1 $v0,$f0`, retail `mtc1 $v1,$f0`.
-   The same two register-coloring residuals repeat for target/current alpha.
-   Tried alternate signed/unsigned half temporaries, declaration order,
-   in-place OR, aggregate/direct color spellings, reversed OR operands
-   (nd 20), differently typed OR operands, a named OR-result local, a
-   separate float-conversion local, distinct target/current-arm locals, and
-   split float assignments that read the OR result after mtc1 (each nd 4).
-   A typed read-after-mtc1 variant grew to 528B/432B at nd 190. All other
-   rows match. Committed at nd 4. */
-// FUN_0014BBE0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/k_misc", func_0014bbe0);
+// FUN_0014BBE0
+s32 func_0014bbe0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    RwRGBA color;
+    u8* rgba;
+    f32 target;
+    f32 current;
+    s32 task;
+    RmdFadeWork* work;
+
+    rgba = func_0047a250((void*)arg1);
+    color = *(RwRGBA *)rgba;
+    if (arg1 == 0) {
+        return 0;
+    }
+    func_0044ea90(D_005EFB28, 0x1C6);
+    work = (RmdFadeWork*)D_008873F4[0](1, sizeof(RmdFadeWork), 0x40000);
+    if (work == NULL) {
+        return 0;
+    }
+    task = func_00451fc0(arg0, D_005EFB80, 0xF, 0, 0,
+                         func_0014ba40, func_0014bbb0, (u8*)work);
+    work->mdl = (Model*)arg1;
+    target = (f32)(u32)arg3;
+    work->targetAlpha = target;
+    work->framesRemaining = arg4;
+    current = (f32)(u32)arg2;
+    work->currentAlpha = current;
+    func_0047a220((void*)arg1, &color);
+    return task;
+}

@@ -54,7 +54,7 @@ extern u8 *func_001d3700(s32 arg0, s32 arg1);
 extern u8 *func_001bc920(s32 arg0, s32 arg1);
 extern s32 func_001dbba0();
 extern void func_001da2f0();
-extern s32 func_00231d70();
+extern u32 func_00231d70(u32 arg0);
 extern u8 *func_001d9280();
 extern u8 *func_001d8c00();
 extern u8 *func_001de370();
@@ -83,7 +83,7 @@ extern u8 D_0060A0E0[];
 
 extern u8 *func_001b1560(void);
 extern void func_001eb410(u8 *arg0);
-extern s32 func_00231d70(s32 arg0);
+extern u32 func_00231d70(u32 arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 
 
@@ -2398,52 +2398,35 @@ s32 func_001ef720(s32 arg0, s32 arg1)
 
     return count;
 }
-// FUN_001EF7E0 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_001EF7E0
 s32 func_001ef7e0(void)
 {
-    union {
-        s32 address;
-        s32 value;
-    } temp_3;
+    s32 *temp_3;
+    s32 temp_3_2;
     s32 var_3;
-    u32 temp_2;
     u16 temp_16;
-    u8 *temp_4;
 
-    temp_3.address = (s32)gEncountTbl + func_001ef9a0() * 24;
-    temp_4 = iGpffffb3ac;
-    if (*(u16 *)(temp_4 + 0xC5A) == 0) {
+    temp_3 = (s32 *)((s32)gEncountTbl + func_001ef9a0() * 24);
+    if (*(u16 *)(iGpffffb3ac + 0xC5A) == 0) {
         return 0;
     }
-    temp_3.value = *(s32 *)temp_3.address;
-    if ((temp_3.value & 2) != 0) {
+    temp_3_2 = *temp_3;
+    if ((temp_3_2 & 2) != 0) {
         return 0;
     }
-    if ((temp_3.value & 4) != 0) {
+    if ((temp_3_2 & 4) != 0) {
         return 1;
     }
-    temp_2 = *(u32 *)(temp_4 + 0x20);
-    if (temp_2 != 0) {
-        goto state_nonzero;
+    if (*(u32 *)(iGpffffb3ac + 0x20) == 0) {
+        var_3 = 0;
+    } else if (*(u32 *)(iGpffffb3ac + 0x20) > 5) {
+        var_3 = 4;
+    } else {
+        var_3 = *(u32 *)(iGpffffb3ac + 0x20) - 1;
     }
-    var_3 = 0;
-    goto state_done;
-state_nonzero:
-    if (temp_2 < 6) {
-        goto state_less;
-    }
-    var_3 = 4;
-    goto state_done;
-state_less:
-    var_3 = temp_2 - 1;
-state_done:
     temp_16 = *(&iGpffffa9b0 + var_3);
     return (u32)func_00231d70(100) < (u32)temp_16;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef7e0);
-#endif
 // FUN_001EF8C0
 s32 func_001ef8c0(void)
 {

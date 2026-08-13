@@ -200,30 +200,47 @@ PROGRESS_CATEGORIES = [
 ]
 
 
+# The committed endpoint tools/progress.py writes. Unlike build/linked_report.json
+# it is IN the repository, so it is the only linked evidence a fresh checkout has.
+LINKED_METRICS = REPO / "progress" / "metrics.json"
+
+
 def linked_addresses(path: str | None) -> frozenset[int]:
     """Addresses of the functions the byte-exact build links into the image.
 
-    Read from tools/build.py's ``--progress-report`` output. Absent or malformed
-    input yields an empty set rather than an error: the category is additive, so
-    a config generated without a linked report is still correct, it simply
-    publishes no linked figure. Silently emitting a WRONG one would be worse,
-    which is why a report whose image is not byte-exact is refused.
+    Prefers tools/build.py's ``--progress-report`` output, which lists every
+    linked function including the assembly fallbacks a linked object still
+    splices. That file is a BUILD ARTIFACT and is absent in a fresh checkout, so
+    it falls back to the committed ``progress/metrics.json`` endpoint, whose
+    ``linked.addresses`` holds the linked functions that are also byte-exact C.
+
+    The fallback matters because CI regenerates objdiff.json from scratch before
+    the report step, in a job that has never run the linker. Without it the
+    `linked` category was DECLARED but tagged zero units, and decomp.dev rendered
+    the badge as "0 / 0" -- worse than publishing nothing, because it reads as a
+    real measurement. An empty set is returned only when neither source exists.
     """
-    if not path:
-        return frozenset()
-    file = Path(path)
-    if not file.is_file():
-        return frozenset()
-    report = json.loads(file.read_text(encoding="utf-8"))
-    if report.get("build_succeeded") is not True:
-        sys.exit(f"gen_objdiff: {path}: linked report says the build did not succeed")
-    out = set()
-    for row in report.get("linked_functions", []):
-        address = row.get("address")
-        if not isinstance(address, str) or not re.fullmatch(r"[0-9a-f]{8}", address):
-            sys.exit(f"gen_objdiff: {path}: bad linked address {address!r}")
-        out.add(int(address, 16))
-    return frozenset(out)
+    for candidate, key in ((path, "linked_functions"), (LINKED_METRICS, "metrics")):
+        if not candidate:
+            continue
+        file = Path(candidate)
+        if not file.is_file():
+            continue
+        report = json.loads(file.read_text(encoding="utf-8"))
+        if report.get("build_succeeded") is not True:
+            sys.exit(f"gen_objdiff: {file}: says the build did not succeed")
+        if key == "linked_functions":
+            rows = [row.get("address") for row in report.get("linked_functions", [])]
+        else:
+            rows = report.get("linked", {}).get("addresses", [])
+        out = set()
+        for address in rows:
+            if not isinstance(address, str) or not re.fullmatch(r"[0-9a-f]{8}", address):
+                sys.exit(f"gen_objdiff: {file}: bad linked address {address!r}")
+            out.add(int(address, 16))
+        if out:
+            return frozenset(out)
+    return frozenset()
 
 
 def progress_category(file_rel: str | None, tu_name: str | None = None) -> str:

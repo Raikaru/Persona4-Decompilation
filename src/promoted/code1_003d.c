@@ -619,10 +619,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d53c0);
 // FUN_003D5600
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5600);
 /* measured: archived live-across-call candidate in build/FP3D_003d5710_body.c
-   (object 60/window 64, normalized_diff 6); source restored to ASM because
+   (object 60/window 64, normalized_diff 6, residual offsets 4/8/12/48/52);
    schedule-on re-colors the pre-call addend and schedule-off leaves prologue
    and epilogue ordering residuals. */
-// FUN_003D5710
+// FUN_003D5710 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5710);
 // FUN_003D5750 NONMATCHING
 #ifdef NON_MATCHING
@@ -1364,7 +1364,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de110);
 /* Parked candidate: the initialized-pointer body in the archive measures
    normalized_diff 5 (object 52B/window 64B). The final pointer-index probes
    retained the retail residual rather than closing it. */
-// FUN_003DE280
+// FUN_003DE280 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de280);
 /* measured: scalar GP slot address and schedule on reproduce retail's
    addiu $v0,$gp,-0x54B0 in the jr delay slot. */
