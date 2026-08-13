@@ -98,7 +98,10 @@ ctx:
 	@test -n "$(CTX_SRC)" || (echo "usage: make ctx CTX_SRC=src/path.c" && exit 2)
 	$(PYTHON) tools/m2ctx.py "$(CTX_SRC)" --decompme
 
-# LINKED_REPORT is defined below, next to the progress targets that share it.
+VERIFY_REPORT ?= build/verify_report.json
+LINKED_REPORT ?= build/linked_report.json
+# Shared by the objdiff, report and progress targets below; defined here because
+# a target NAME referencing a variable is expanded when the rule is parsed.
 #
 # Regenerate objdiff.json from a fresh verifier report.  The config now lists
 # one unit per canonical function (tools/slus21782_functions.json), so it can
@@ -122,20 +125,35 @@ objdiff:
 objdiff-objects: objdiff
 	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json --emit-objects $(if $(wildcard $(LINKED_REPORT)),--linked-report $(LINKED_REPORT),) $(if $(filter 0,$(SKIP_ASM)),,--skip-asm) $(if $(ONLY),--only "$(ONLY)",)
 
-# Progress report for decomp.dev.  Requires every target object the config
-# names to have been emitted (objdiff-objects).  OBJDIFF_CLI=/path/to/objdiff-cli
-# overrides the binary; -c functionRelocDiffs=none matches the project option
-# for one-shot diffs.
-objdiff-report: objdiff-objects
-	$(OBJDIFF_CLI) report generate -o build/report.json -c functionRelocDiffs=none
+# Progress report for decomp.dev, written directly from the verifier's own
+# per-function measurements by tools/gen_decomp_report.py.
+#
+# It deliberately does NOT go through objdiff-cli any more. That path diffed
+# ~26,000 emitted object pairs, and because base objects are built with
+# --skip-asm every function still on an INCLUDE_ASM fallback had no base object
+# and scored zero while its retail bytes still counted in the denominator, so
+# the published number tracked object-emission coverage rather than the
+# byte-exact function count. It also could not express the linked-image claim.
+#
+# objdiff.json and `make objdiff-objects` remain for interactive diffing in the
+# objdiff GUI; they are simply no longer on the publishing path, so a failure to
+# emit one object can no longer break the published report.
+#
+# The verifier runs EVERY time rather than being a file prerequisite: a
+# build/verify_report.json left over from a scoped run silently published stale
+# numbers when this was a file rule, and a published figure that lags the tree
+# is worse than a slow target.
+objdiff-report:
+	$(PYTHON) tools/verify.py --json $(VERIFY_REPORT)
+	$(PYTHON) tools/gen_decomp_report.py --report $(VERIFY_REPORT) \
+	    $(if $(wildcard $(LINKED_REPORT)),--linked-report $(LINKED_REPORT),) \
+	    --output build/report.json
 
 # Regenerate the committed progress endpoints. Without --write-dir the tool only
 # PRINTS a summary, which is why `make progress` used to leave progress/ stale
 # and CI's progress-validate then failed on a total that no longer matched the
 # canonical map. The linked report comes from a successful byte-exact build, so
 # run `make build-progress` first (or point LINKED_REPORT at an existing one).
-VERIFY_REPORT ?= build/verify_report.json
-LINKED_REPORT ?= build/linked_report.json
 
 build-progress:
 	$(PYTHON) tools/build.py --progress-report $(LINKED_REPORT)

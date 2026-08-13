@@ -193,14 +193,13 @@ jobs:
             --env "P4_RETAIL_ELF=/opt/p4/$P4_PRIVATE_RETAIL_ELF_PATH" \
             --workdir /work \
             p4-decomp-ci \
-            sh -c 'python tools/build.py --setup-only && make split && make && make verify && make objdiff-objects'
+            sh -c 'python tools/build.py --setup-only && make split && python tools/build.py --progress-report build/linked_report.json && python tools/verify.py --json build/verify_report.json'
 
-      # The build runs as root inside the container; objdiff-cli runs on the
-      # host as the unprivileged runner user.  Several build outputs are
+      # The build runs as root inside the container; the report generator runs on
+      # the host as the unprivileged runner user. Several build outputs are
       # produced by atomic write (mkstemp + rename), so they land as mode 0600
-      # owned by root and the host cannot even read them:
-      #   Failed to open ./build/objdiff/target/nonmatchings/003dd290.o
-      #   Caused by: Permission denied (os error 13)
+      # owned by root and the host cannot even read them -- build/verify_report.json
+      # and build/linked_report.json among them, which the report step needs.
       # Ownership is corrected here rather than by running the container with
       # --user, deliberately: the build above is byte-exact in this exact
       # configuration and changing the build UID could perturb it.
@@ -215,14 +214,31 @@ jobs:
             exit 1
           fi
 
-      - name: Download objdiff-cli
+      # The report is written from tools/verify.py's own per-function
+      # measurements, so objdiff-cli and the ~26,000 emitted object pairs are no
+      # longer on the publishing path. That removes two failure modes seen here:
+      # a single object failing to emit took the whole step down, and base
+      # objects built with --skip-asm gave every INCLUDE_ASM function a zero
+      # score while its retail bytes still counted in the denominator, so the
+      # published figure tracked object-emission coverage rather than the
+      # byte-exact function count.
+      - name: Generate decomp.dev progress report
         run: |
-          curl -sL -o objdiff-cli https://github.com/encounter/objdiff/releases/download/v3.7.3/objdiff-cli-linux-x86_64
-          chmod +x objdiff-cli
-          ./objdiff-cli --version
-
-      - name: Generate objdiff report
-        run: ./objdiff-cli report generate -o build/report.json -c functionRelocDiffs=none
+          set -eu
+          python tools/gen_decomp_report.py \
+            --report build/verify_report.json \
+            --linked-report build/linked_report.json \
+            --output build/report.json
+          python - <<'PY'
+          import json
+          m = json.load(open('build/report.json'))['measures']
+          # A denominator that is not the whole program means a silent shrink,
+          # which would inflate every published percentage.
+          assert m['total_functions'] == 13101, m['total_functions']
+          assert m['matched_functions'] > 0, m
+          print('published %s/%s byte-exact, fuzzy %.2f%%'
+                % (m['matched_functions'], m['total_functions'], m['fuzzy_match_percent']))
+          PY
 
       - name: Derive report artifact name from target config
         id: serial
