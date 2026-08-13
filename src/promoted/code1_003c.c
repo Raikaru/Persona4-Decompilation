@@ -1949,10 +1949,10 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-/* measured: schedule on and the stored-field result yield object 72B/window
-   80B and normalized_diff 6; retail's movz conditional move remains a
-   compiler residual. Committed at nd 6. */
-// FUN_003CB720
+/* measured: C candidate reproduces the 72B body/window with six differing
+   bytes at offsets 36, 38, 39, 43, 44, 46; retail's `movz $s1,$zero,$v0`
+   conditional move is a MWCCPS2 compiler floor. */
+// FUN_003CB720 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 // FUN_003CB770
 /* measured: schedule on places the field load in the jump delay slot. */
@@ -2042,11 +2042,10 @@ void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: closes the schedule bracket opened above func_003cb820. */
 #pragma schedule off
 
-/* measured: best C reconstruction with schedule/goto is nd 37,
-   object 88B versus the 96B window; call/conditional-move residuals
-   remain; no real C body was retained, so the bare INCLUDE_ASM fallback
-   remains. */
-// FUN_003CB870
+/* measured: C candidate reproduces the 84B body/window with six differing
+   bytes at offsets 48, 50, 51, 55, 56, 58; retail's `movz $s1,$zero,$v0`
+   conditional move is a MWCCPS2 compiler floor. */
+// FUN_003CB870 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
 
 // FUN_003CB8D0

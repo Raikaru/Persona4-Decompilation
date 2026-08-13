@@ -643,61 +643,12 @@ s32 func_00193260(void)
     }
     return 0;
 }
-/* Best attempt: object 352B, window 352B, normalized_diff 1. Residual: initializer emits addiu $s2,$zero,1; retail emits daddiu at offset 108, while the same variable increments with addiu. Probed s64 locals, s64/s32 casts, long-long and declaration initializers, scoped initializer, inline/helper constants, and O1; all either retained the addiu or expanded the loop. */
+/* Best attempt: object 352B, window 352B, normalized_diff 1. Residual is the single width opcode at offset 108: candidate 01001224 (addiu $s2,$zero,1), retail 01001264 (daddiu $s2,$zero,1). The same variable's increments match with addiu. Classification: addiu versus daddiu; the initializer's expression width remains a compiler floor. Ruled out in this lane: 1u, (s32)1LL, 1L/1LL and explicit s64/u64 casts, sizeof(char), pointer differences, !0 and constant/computed comparison results, 64-bit helper return expressions, 64-bit arithmetic identities, separate 64-bit locals assigned immediately above (including zero-plus-one and assignment/cast forms), narrow temporary locals, and assignment/declaration initializer permutations. */
 // FUN_001932F0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_001932f0(void)
-{
-    extern s32 func_00105ee0(s32 arg0);
-    u8 sp50[0x3C];
-    s32 var_19;
-    s32 var_18;
-    u16 temp_17;
-    s32 temp_4;
-    u16 temp_4_2;
-    u16 temp_3;
-    u8 *temp_16;
-
-    func_001fc1b0(1);
-    temp_17 = func_0029cc00(0) & 0xFFFF;
-    temp_16 = (u8 *)(iGpffffb414 + (temp_17 * 0x18));
-    func_0043f9c8(sp50, 0, 0x3C);
-    *(s32 *)(sp50 + 4) = func_00231580(1);
-    var_18 = 1;
-    var_19 = 0;
-    goto loop_5_check;
-loop_5_body:
-    temp_4_2 = func_00105ee0(temp_4) & 0xFFFF;
-    if ((temp_4_2 != 0) && ((u16)var_18 < 4)) {
-        *(s32 *)((u8 *)sp50 - 0x50 +
-                 ((var_18 & 0xFFFF) * 4) + 0x54) =
-            func_00231580(temp_4_2);
-        var_18 = (var_18 + 1) & 0xFFFF;
-    }
-    var_19 = (var_19 + 1) & 0xFFFF;
-loop_5_check:
-    temp_4 = var_19 & 0xFFFF;
-    if (temp_4 < 4) {
-        goto loop_5_body;
-    }
-    *(s32 *)(sp50 + 0x14) = func_00231630(temp_17);
-    temp_3 = *(u16 *)(temp_16 + 0x12);
-    if ((temp_3 == 0) && (*(u16 *)(temp_16 + 0x14) == 0)) {
-        *(u16 *)(sp50 + 0x20) = 0xF0;
-        *(u16 *)(sp50 + 0x22) = 1;
-    } else {
-        *(u16 *)(sp50 + 0x20) = temp_3;
-        *(u16 *)(sp50 + 0x22) = *(u16 *)(temp_16 + 0x14);
-    }
-    func_001029a0(6, sp50, 0x3C, 4);
-    return 1;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001932f0);
-#endif
-/* Best attempt: object 356B, window 368B, normalized_diff 3. Applied the measured guard spelling func_0029d020() > 0xA (equivalent to >= 0xB), which changes slti/bnez to retail $at. Remaining residual is exactly three retail trailing nop words beyond the candidate jr/delay slot. Probed direct <0xB and >=0xB goto forms; both retained $v0. Unprototyped local callee declarations are required for the retail loop argument materialization. */
-// FUN_00193450 NONMATCHING
-#ifdef NON_MATCHING
+
+/* Measured: the archived body compiles to object 356B in the 368B window. Retail words at offsets 356, 360, and 364 are all 00000000 (nop); verify therefore accepts the zero-padded tail and reports MATCH. */
+// FUN_00193450
 s32 func_00193450(void)
 {
     extern s64 func_00105ee0(s32 arg0);
@@ -740,9 +691,6 @@ loop_11_check:
 block_13:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00193450);
-#endif
 // FUN_001935C0
 s32 func_001935c0(void) {
     func_001fc1b0(1);
