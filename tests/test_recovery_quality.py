@@ -263,8 +263,14 @@ class ReadmeBadgeTests(unittest.TestCase):
     """
 
     SLUG = "Raikaru/Persona4-Decompilation"
-    # Verified live against decomp.dev's shield endpoint for this project.
+    # Verified live against decomp.dev's shield endpoint. `code` and
+    # `complete_code` are the conventional short names other projects use --
+    # Gauntlet: Dark Legacy labels `measure=code` "Code" and
+    # `measure=complete_code` "Linked Code" -- and both resolve for this project.
     MEASURES = {
+        "code",
+        "complete_code",
+        "matched_code",
         "matched_code_percent",
         "matched_data_percent",
         "matched_functions",
@@ -273,11 +279,11 @@ class ReadmeBadgeTests(unittest.TestCase):
         "complete_code_percent",
         "complete_units",
     }
-    # decomp.dev's matched_* measures are fuzzy-weighted and credit near misses;
-    # this project counts a function only when it is byte-identical. The two
-    # disagreed by nine functions when the badges were wired up.
-    FUZZY = {"matched_code_percent", "matched_functions", "matched_functions_percent",
-             "fuzzy_match_percent"}
+    # Only `fuzzy_match_percent` gives partial credit now. tools/gen_decomp_report.py
+    # computes the report itself and defines `matched_*` as strictly byte-exact and
+    # `complete_*` as shipped-in-the-linked-image, so the matched family is no
+    # longer fuzzy-weighted the way objdiff-cli's derived report made it.
+    FUZZY = {"fuzzy_match_percent"}
 
     @classmethod
     def setUpClass(cls) -> None:
