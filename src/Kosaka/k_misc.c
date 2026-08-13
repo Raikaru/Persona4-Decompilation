@@ -59,7 +59,11 @@ extern char D_005EFB28[];                   /* "k_misc.c" */
 extern char D_005EFB40[];                   /* "delay model(RMD) destroy" */
 extern char D_005EFB60[];                   /* "script shutdown(kosaka)" */
 extern char D_005EFB80[];                   /* "rmd fade(kosaka)" */
-
+static inline s32 kMiscOr(s32 left, s32 right)
+{
+    left |= right;
+    return left;
+}
 s32 func_0014b780(void*);  /* delay-model-destroy update, sibling unit */
 void func_0014b840(void*); /* delay-model-destroy destroy, sibling unit */
 
@@ -169,49 +173,5 @@ void func_0014bbb0(void* arg0)
    in-place OR, and aggregate/direct color spellings; all other rows match.
    Committed at nd 4. */
 // FUN_0014BBE0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0014bbe0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
-{
-    RwRGBA color;
-    u8* rgba;
-    s32 half;
-    f32 target;
-    f32 current;
-    s32 task;
-    RmdFadeWork* work;
-
-    rgba = func_0047a250((void*)arg1);
-    color = *(RwRGBA *)rgba;
-    if (arg1 == 0) {
-        return 0;
-    }
-    func_0044ea90(D_005EFB28, 0x1C6);
-    work = (RmdFadeWork*)D_008873F4[0](1, sizeof(RmdFadeWork), 0x40000);
-    if (work == NULL) {
-        return 0;
-    }
-    task = func_00451fc0(arg0, D_005EFB80, 0xF, 0, 0,
-                         func_0014ba40, func_0014bbb0, (u8*)work);
-    work->mdl = (Model*)arg1;
-    if (arg3 >= 0) {
-        target = (f32)arg3;
-    } else {
-        half = ((u32)arg3 >> 1) | ((u32)arg3 & 1);
-        target = (f32)half + (f32)half;
-    }
-    work->targetAlpha = target;
-    work->framesRemaining = arg4;
-    if (arg2 >= 0) {
-        current = (f32)arg2;
-    } else {
-        half = ((u32)arg2 >> 1) | ((u32)arg2 & 1);
-        current = (f32)half + (f32)half;
-    }
-    work->currentAlpha = current;
-    func_0047a220((void*)arg1, &color);
-    return task;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/k_misc", func_0014bbe0);
-#endif
 

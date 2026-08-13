@@ -759,8 +759,8 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152e50);
 
 /* measured: 00153300 archive body is 416B/416B with normalized_diff 4; */
-/* parked because the remaining two words are global-load scheduling/type residuals. */
-// FUN_00153300
+/* standalone file-scope `extern f32 D_005EFE40` with the aggregate copy left the same 2 differing words at 0x2C/0x34; parked. */
+// FUN_00153300 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00153300);
 
 // FUN_001534A0

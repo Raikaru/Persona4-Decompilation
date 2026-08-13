@@ -928,8 +928,43 @@ s16 func_00278260(s32 arg0)
    address in $a2, b210 emits the addiu first (3 words). Naming the buffer in
    an int local and taking &sp30[0] both measure nd 10; schedule on is far
    worse (nd 203). Call-argument setup order floor. Committed at nd 10. */
-// FUN_002782C0
+/* object_size=388; window=400; normalized_diff=10; differing_word_offsets=80,84,88; first_diff_bytes=80,81,82,83,85,86,88,89,90,91. Corrected matched-callee declarations: func_0010d620(s16) and func_001067f0(s16), both with u32 return, replacing file-scope s64 declarations. Retail prologue checks for open callees confirmed func_00442088's existing variadic call shape and s32 signatures for func_00243840, func_002438b0 and func_00109220. Residual remains case-0 func_00278450 argument materialization: retail emits move a0,s1; move a1,s0; addiu a2,sp,0x30, while MWCC b210 emits addiu first. Probes retained from prior lane: char sp30[16]; u32/s32 sp30[4]; &sp30[0], integer/pointer casts; named a0/a1/a2 and dst/src/count locals with assignments in retail and reverse order; case-scoped/register locals; pointer local; comma-sequenced arguments; nested old-style callee declaration; fixed and variadic func_00442088 prototypes; optimization_level 1 (object 404, nd67); schedule-on (nd203); fresh permute (best nd10). No volatile or inline asm used. */
+// FUN_002782C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_002782c0(int param_1, int param_2, int param_3, u32 param_4) {
+    char sp30[16];
+
+    switch (param_4) {
+    case 0:
+        func_00442088(sp30, &iGpffffa760, param_3);
+        func_00278450(param_1, param_2, (int)sp30);
+        break;
+    case 1:
+        func_002784e0(param_1, param_2, param_3);
+        break;
+    case 2:
+        func_00278450(param_1, param_2, iGpffffb444 + param_3 * 21);
+        break;
+    case 3:
+        func_00278450(param_1, param_2, func_002438b0(param_3 & 0xFF));
+        break;
+    case 4:
+        func_00278450(param_1, param_2, func_0010d620((s16)param_3));
+        break;
+    case 5:
+        func_00278450(param_1, param_2, func_001067f0((s16)param_3));
+        break;
+    case 6:
+        func_00278450(param_1, param_2, func_00243840(param_3 & 0xFFFF));
+        break;
+    case 7:
+        func_00278450(param_1, param_2, func_00109220(param_3 & 0xFFFF));
+        break;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002782c0);
+#endif
 
 // FUN_00278450
 void func_00278450(s32 arg0, s32 arg1, s32 arg2)
@@ -1211,8 +1246,34 @@ check:
    oversized register-allocation residual, not a valid park. The verbatim body,
    full residual rows and both figures are archived at
    build/WCEvtItf_func_00278d50_body.c. */
-// FUN_00278D50
+/* Verbatim candidate body archived before un-parking. */
+// FUN_00278D50 NONMATCHING
+#ifdef NON_MATCHING
+void func_00278d50(u8 *arg0)
+{
+    u8 *base;
+
+    if (*(u8 *)(arg0 + 0x1C) == 0) {
+        base = arg0 + 0x20;
+        func_00278c60((int *)base, (int)base, arg0 + *(s32 *)(arg0 + 0x10), *(s32 *)(arg0 + 0x14));
+        *(u8 *)(arg0 + 0x1C) = 1;
+    }
+}
+
+/* Measurements: verify normalized_diff 58; tools/fndiff.py differing-word count 19;
+   object 84 B versus retail window 80 B. The candidate frame is -0x20 while
+   retail is -0x10: MWCC saves arg0 in $s0 across func_00278c60, while retail
+   keeps it in caller-saved $t3. This is an oversized spill and is NOT a valid
+   park under the verify normalized_diff <=25 threshold.
+
+   Full fndiff residual row offsets (reloc-masked output):
+   0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 44, 52, 56, 60, 64, 68, 72, 76, 80.
+   Exact residual instruction pairs are preserved in
+   build/WCEvtItf_itfMesManager_78d50_nd19_body_fndiff.txt.
+*/
+#else
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
+#endif
 // FUN_00278DA0
 s32 func_00278da0(u8 *arg0)
 {

@@ -291,7 +291,7 @@ void func_002b6560(u8 *arg0) {
    103,106,107,110,111,114,115,116,117,118,119). Archived at
    build/W2B6_6590_body.c; restored bare INCLUDE_ASM after the reconstruction-
    sized residual. */
-// FUN_002B6590 NONMATCHING
+// FUN_002B6590
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
 
 

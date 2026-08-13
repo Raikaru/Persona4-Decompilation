@@ -346,8 +346,8 @@ s32 func_001e7320(void)
     return 1;
 }
 /* measured: object 264B vs window 272B, normalized_diff 10; remaining differences are register colouring. Committed at nd 10. */
+// FUN_001E7400 NONMATCHING
 #ifdef NON_MATCHING
-// FUN_001E7400
 s32 func_001e7400(void) {
     extern s32 func_001d9390();
     extern s32 func_00231d70();
@@ -517,8 +517,8 @@ loop_test:
     return -1;
 }
 /* measured: object 364B vs window 368B, normalized_diff 1; the sole residual is the retail daddiu/addiu width at the count reset. Committed at nd 1. */
+// FUN_001E7AB0 NONMATCHING
 #ifdef NON_MATCHING
-// FUN_001E7AB0
 s32 func_001e7ab0(void) {
     extern s32 func_001dbba0();
     extern void func_001db5b0();
@@ -2213,10 +2213,10 @@ void func_001ee430(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee490);
 // FUN_001EE610
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee610);
-/* measured: object 172B vs window 176B, normalized_diff 3; the remaining
-   residual is the best-node register assignment. Committed at nd 3. */
+/* measured: object 172B vs window 176B, normalized_diff 2; the remaining
+   residual is the best-node register assignment. Committed at nd 2. */
+// FUN_001EEC60 NONMATCHING
 #ifdef NON_MATCHING
-// FUN_001EEC60
 void func_001eec60(void) {
     f32 value;
     f32 max;
@@ -2281,8 +2281,8 @@ s32 func_001ef4a0(s32 arg0)
     }
     return value;
 }
+// FUN_001EF4D0 NONMATCHING
 #ifdef NON_MATCHING
-// FUN_001EF4D0
 s32 func_001ef4d0(s32 arg0, s32 arg1)
 {
     extern s32 func_00231e20(s32 arg0);
@@ -2327,8 +2327,8 @@ done_value_4d:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef4d0);
 #endif
+// FUN_001EF5F0 NONMATCHING
 #ifdef NON_MATCHING
-// FUN_001EF5F0
 s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *current;
@@ -2398,8 +2398,8 @@ s32 func_001ef720(s32 arg0, s32 arg1)
 
     return count;
 }
+// FUN_001EF7E0 NONMATCHING
 #ifdef NON_MATCHING
-// FUN_001EF7E0
 s32 func_001ef7e0(void)
 {
     union {

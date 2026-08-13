@@ -655,14 +655,125 @@ store:
 }
 // FUN_001B1020
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1020);
-// FUN_001B11C0
+/* Best probe for func_001b11c0: object 192B, retail window 192B, normalized_diff 22. */
+// FUN_001B11C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001b11c0(u32 arg0)
+{
+    u32 count;
+    u32 bound;
+    u32 index;
+    u32 filter;
+    u32 one;
+    u32 swapped;
+    u8 **scan;
+    u8 **list;
+    u8 *left;
+    u8 *right;
+
+    scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
+    count = 0;
+    goto count_check;
+count_loop:
+    if (*scan == NULL) goto count_done;
+    scan += 1;
+    count += 1;
+count_check:
+    if (count < 0xC) goto count_loop;
+count_done:
+    filter = arg0 & 0xFFFF;
+    one = 1;
+    bound = count - 1;
+    do {
+        swapped = 0;
+        list = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
+        index = 0;
+        goto sort_check;
+sort_loop:
+        left = list[0];
+        right = list[1];
+        if (left != NULL && right != NULL) {
+            count = *(u8 *)(*(u8 **)(left + 0x30) + 0xA2);
+            if (count != *(u8 *)(*(u8 **)(right + 0x30) + 0xA2) &&
+                count != filter) {
+                list[0] = right;
+                list[1] = left;
+                swapped = one;
+            }
+        }
+        index += 1;
+        list += 1;
+sort_check:
+        if (index < bound) goto sort_loop;
+    } while (swapped != 0);
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b11c0);
+#endif
 // FUN_001B1280
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1280);
-// FUN_001B13C0
+/* Best probe for func_001b13c0: object 140B, retail window 144B, normalized_diff 33. */
+// FUN_001B13C0 NONMATCHING
+#ifdef NON_MATCHING
+void func_001b13c0(u8 *arg0)
+{
+    register u8 *ptr;
+    register u8 *global;
+
+    ptr = arg0;
+    if ((*(u16 *)(ptr + 0x18) & 4) != 0) {
+        func_001b0d00((s32)iGpffffb3ac + 0x2CC, 0xC);
+        *(u16 *)(ptr + 0x18) &= 0xFFFB;
+        goto done;
+    }
+    global = (u8 *)iGpffffb3ac;
+    if ((*(s32 *)(global + 0xC) & 8) != 0) {
+        *(u8 **)(global + 0x298) = ptr;
+        func_001b0fa0(ptr);
+    }
+done:
+    global = (u8 *)iGpffffb3ac;
+    *(u16 *)(global + 0x290) |= 8;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b13c0);
-// FUN_001B1450
+#endif
+/* Best probe for func_001b1450: object 200B, retail window 192B, normalized_diff 48. */
+// FUN_001B1450 NONMATCHING
+#ifdef NON_MATCHING
+void func_001b1450(u8 *arg0)
+{
+    u32 flags;
+    u8 *global;
+
+    flags = *(u16 *)(arg0 + 0x18) & 4;
+    if (flags != 0) {
+        if (flags != 0) {
+            func_001b0d00((s32)iGpffffb3ac + 0x2CC, 0xC, arg0);
+            *(u16 *)(arg0 + 0x18) &= 0xFFFB;
+        } else {
+            global = (u8 *)iGpffffb3ac;
+            if ((*(s32 *)(global + 0xC) & 8) != 0) {
+                *(u8 **)(global + 0x298) = arg0;
+                func_001b0fa0(arg0);
+            }
+        }
+        global = (u8 *)iGpffffb3ac;
+        *(u16 *)(global + 0x290) |= 8;
+        goto done;
+    }
+    global = (u8 *)iGpffffb3ac;
+    if ((*(s32 *)(global + 0xC) & 8) != 0) {
+        *(u8 **)(global + 0x298) = arg0;
+    }
+    global = (u8 *)iGpffffb3ac;
+    *(u16 *)(global + 0x290) |= 8;
+done:
+    ;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1450);
+#endif
 // FUN_001B1510
 s32 func_001b1510(void)
 {
