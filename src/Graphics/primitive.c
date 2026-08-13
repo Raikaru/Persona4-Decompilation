@@ -728,7 +728,7 @@ s32 func_00480f00(void* arg0)
 {
     return *(const s32*)((const u8*)arg0 + 4) * 0x34;
 }
-// FUN_00480F20
+// FUN_00480F20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f20);
 // FUN_004810C0
 void func_004810c0(void *arg0, void *arg1, void *arg2)

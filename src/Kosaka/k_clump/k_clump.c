@@ -582,10 +582,8 @@ scan_found:
 }
 /* measured: opt_propagation on closes the target-only bracket. */
 #pragma opt_propagation on
-/* measured: in-file body recheck is object 344B/window 336B with
-   normalized_diff 195, over the park threshold; body archived at
-   build/WS19_00463100_nd195.c and restored to INCLUDE_ASM. */
-// FUN_00463100
+/* measured: object 324B/window 336B, normalized_diff 24; differing word offsets 36,40,112,116,208,212. Integer-domain address casts with both s32 and pointer-typed arg0 were probed; they promoted address temporaries and produced oversized 340B/nd196-199 objects. Direct nested calls, explicit argument locals, pointer/address temporaries, declaration-order/reuse, and old-style callee probes were also ruled out. Best body archived at build/FKCL_00463100_body.c. */
+// FUN_00463100 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463100);
 // FUN_00463250
 void func_00463250(u32* arg0)

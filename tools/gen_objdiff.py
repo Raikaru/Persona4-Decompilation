@@ -185,7 +185,45 @@ PROGRESS_CATEGORIES = [
     {"id": "main", "name": "First-party code"},
     {"id": "third_party", "name": "Third-party middleware"},
     {"id": "unclassified", "name": "Not yet attributed to a source file"},
+    # Cross-cutting, so a unit carries it IN ADDITION to one of the three
+    # above. A function is "linked" when it lives in a translation unit the
+    # byte-exact build actually links into SLUS_217.82, which is a strictly
+    # stronger claim than a verifier MATCH: MATCH says the function compiles to
+    # retail's bytes in isolation, linked says those bytes are in the shipped
+    # image at retail's address. The two differ by design, because a linked TU
+    # still splices INCLUDE_ASM for its unfinished functions -- 1863 functions
+    # are linked while 1406 of them are compiled C -- so `complete_units` under
+    # this category is the honest "fully linked perfect match" figure and
+    # `complete_code_percent` is the fraction of linked code that is real C
+    # rather than spliced assembly.
+    {"id": "linked", "name": "Linked into the byte-exact image"},
 ]
+
+
+def linked_addresses(path: str | None) -> frozenset[int]:
+    """Addresses of the functions the byte-exact build links into the image.
+
+    Read from tools/build.py's ``--progress-report`` output. Absent or malformed
+    input yields an empty set rather than an error: the category is additive, so
+    a config generated without a linked report is still correct, it simply
+    publishes no linked figure. Silently emitting a WRONG one would be worse,
+    which is why a report whose image is not byte-exact is refused.
+    """
+    if not path:
+        return frozenset()
+    file = Path(path)
+    if not file.is_file():
+        return frozenset()
+    report = json.loads(file.read_text(encoding="utf-8"))
+    if report.get("build_succeeded") is not True:
+        sys.exit(f"gen_objdiff: {path}: linked report says the build did not succeed")
+    out = set()
+    for row in report.get("linked_functions", []):
+        address = row.get("address")
+        if not isinstance(address, str) or not re.fullmatch(r"[0-9a-f]{8}", address):
+            sys.exit(f"gen_objdiff: {path}: bad linked address {address!r}")
+        out.add(int(address, 16))
+    return frozenset(out)
 
 
 def progress_category(file_rel: str | None, tu_name: str | None = None) -> str:
@@ -615,6 +653,10 @@ def main() -> None:
                         help="with --emit-objects, build base objects without splicing "
                              "INCLUDE_ASM assembly (decomp.dev SKIP_ASM): assembly "
                              "fallbacks then contribute zero matched code")
+    parser.add_argument("--linked-report", metavar="PATH",
+                        help="tools/build.py --progress-report output; tags the "
+                             "functions the byte-exact link actually shipped with "
+                             "the additive `linked` progress category")
     args = parser.parse_args()
 
     report_path = Path(args.report)
@@ -655,13 +697,15 @@ def main() -> None:
     # Units carry `addr` as an int (canonical, source-less) or a hex string
     # (report-derived), so normalise before looking up the recovered TU.
     tu_names = tu_name_by_address(canonical)
+    linked = linked_addresses(args.linked_report)
     for unit in units:
         address = unit["addr"]
         if isinstance(address, str):
             address = int(address, 16)
-        unit["metadata"]["progress_categories"] = [
-            progress_category(unit["file"], tu_names.get(address))
-        ]
+        categories = [progress_category(unit["file"], tu_names.get(address))]
+        if address in linked:
+            categories.append("linked")
+        unit["metadata"]["progress_categories"] = categories
 
     config = {
         "$schema": SCHEMA_URL,

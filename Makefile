@@ -98,12 +98,20 @@ ctx:
 	@test -n "$(CTX_SRC)" || (echo "usage: make ctx CTX_SRC=src/path.c" && exit 2)
 	$(PYTHON) tools/m2ctx.py "$(CTX_SRC)" --decompme
 
+# LINKED_REPORT is defined below, next to the progress targets that share it.
+#
 # Regenerate objdiff.json from a fresh verifier report.  The config now lists
 # one unit per canonical function (tools/slus21782_functions.json), so it can
 # only be regenerated from a FULL verify run.
+#
+# --linked-report additionally tags the functions the byte-exact link shipped
+# with the `linked` category, which is what publishes the fully-linked figure to
+# decomp.dev.  It is passed only when the report exists: it comes from a
+# successful `make build-progress`, and a missing one must degrade to "no linked
+# figure published" rather than failing the config regeneration.
 objdiff:
 	$(PYTHON) tools/verify.py --json build/objdiff_report.json
-	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json
+	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json $(if $(wildcard $(LINKED_REPORT)),--linked-report $(LINKED_REPORT),)
 
 # Emit the per-unit target/base objects that objdiff.json references.
 # ONLY=<substring> restricts emission to matching units.  Base objects are
@@ -112,7 +120,7 @@ objdiff:
 # splicing the retail bytes.  Set SKIP_ASM=0 to emit the spliced bases
 # instead (handy for visually diffing an assembly fallback in the objdiff UI).
 objdiff-objects: objdiff
-	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json --emit-objects $(if $(filter 0,$(SKIP_ASM)),,--skip-asm) $(if $(ONLY),--only "$(ONLY)",)
+	$(PYTHON) tools/gen_objdiff.py --report build/objdiff_report.json --output objdiff.json --emit-objects $(if $(wildcard $(LINKED_REPORT)),--linked-report $(LINKED_REPORT),) $(if $(filter 0,$(SKIP_ASM)),,--skip-asm) $(if $(ONLY),--only "$(ONLY)",)
 
 # Progress report for decomp.dev.  Requires every target object the config
 # names to have been emitted (objdiff-objects).  OBJDIFF_CLI=/path/to/objdiff-cli
