@@ -29,9 +29,9 @@ void func_00311900(s64 arg0)
 {
     func_00246830(arg0 & 0xFFFF);
 }
-// FUN_00311930
+// FUN_00311930 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00311930);
-// FUN_00311B90
+// FUN_00311B90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00311b90);
 // FUN_00311D00
 s64 func_00311d00(s32 arg0)
@@ -158,7 +158,7 @@ s32 func_003136b0(u16 arg0)
 done:
     return result;
 }
-// FUN_00313800
+// FUN_00313800 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313800);
 // FUN_003139D0
 s32 func_003139d0(s64 arg0, s64 arg1)
@@ -218,9 +218,9 @@ loop_test:
 done:
     return result;
 }
-// FUN_00313B50
+// FUN_00313B50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313b50);
-// FUN_00313D20
+// FUN_00313D20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313d20);
 // FUN_00313FB0
 s32 func_00313fb0(u8 *arg0)

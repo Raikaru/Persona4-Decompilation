@@ -216,5 +216,5 @@ s32 func_00481980(void) {
     return 0;
 }
 
-// FUN_00481A20
+// FUN_00481A20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/tnEffect", func_00481a20);

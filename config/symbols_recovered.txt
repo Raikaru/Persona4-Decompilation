@@ -2414,7 +2414,6 @@ func_00298190 = 0x00298190; // type:data
 func_002981f0 = 0x002981f0; // type:data
 func_00298220 = 0x00298220; // type:data
 func_00298250 = 0x00298250; // type:data
-func_00298990 = 0x00298990; // type:data
 func_0029cb00 = 0x0029cb00; // type:data
 func_0029cc00 = 0x0029cc00; // type:data
 func_0029cc00_s32 = 0x0029cc00; // type:data

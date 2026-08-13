@@ -582,7 +582,7 @@ scan_found:
 }
 /* measured: opt_propagation on closes the target-only bracket. */
 #pragma opt_propagation on
-/* measured: object 324B/window 336B, normalized_diff 24; differing word offsets 36,40,112,116,208,212. Integer-domain address casts with both s32 and pointer-typed arg0 were probed; they promoted address temporaries and produced oversized 340B/nd196-199 objects. Direct nested calls, explicit argument locals, pointer/address temporaries, declaration-order/reuse, and old-style callee probes were also ruled out. Best body archived at build/FKCL_00463100_body.c. */
+/* measured: object 324B/window 336B, normalized_diff 24; differing word offsets 36,40,112,116,208,212. Best body archived at build/FKCL_00463100_body.c. The named first-argument locals plus inline second-argument expressions retain the three addiu/move swaps. Corrected-callee check: func_003ef650 retail reads $a0 first (lw 8($a0)), confirming the owner/name parameter order; signed, unsigned, pointer, old-style and variadic prototype variants all regressed or retained the residual. First-argument locals, liveness/reuse, destination locals, direct nested calls, explicit argument locals, pointer/address temporaries, struct-field forms, declaration permutations, and compiler-knob probes were exhausted. */
 // FUN_00463100 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463100);
 // FUN_00463250

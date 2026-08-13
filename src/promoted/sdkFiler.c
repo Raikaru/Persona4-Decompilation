@@ -151,7 +151,7 @@ s32 func_00468260(u8 *arg0) {
    DOES compile (sp30 = (u32)(12.0f*(f32)(s32)*(s32*)(arg0+0x4) + *(f32*)(arg0+0x28))
    emits the madd.s), so the blocker is purely the stack-slot allocation, not the
    instructions. Tried ~8 spellings, all nd 150+. Floor: stack-slot placement. */
-// FUN_004685C0
+// FUN_004685c0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/sdkFiler", func_004685c0);
 
 // FUN_004688A0
