@@ -917,27 +917,20 @@ s32 func_00178790(void)
     return 1;
 }
 
-/* measured: the verified MATCH definition of func_00161630 is
-   (u16, u16, u16, s32), so this unit uses that declaration. The best plain-C
-   body measured object 108B in the 112B window, normalized_diff 4, with one
-   residual word at byte offset 56 (retail andi $a3,$s1,0xffff; candidate
-   move $a3,$s1). No tested plain-C spelling or pragma produced the andi
-   without moving the mask before the halfword loads; the body is archived
-   at build/D178_00178870_body.c and the committed form remains bare INCLUDE_ASM. */
+/* measured: best plain-C body is 108B in the 112B retail window (112B),
+   normalized_diff 4; the sole residual bytes at offset 56 are retail
+   `andi $a3,$s1,0xffff` versus candidate `move $a3,$s1`. The file-scope
+   func_00161630 declaration remains (u16, u16, u16, s32) for matching
+   func_00164570. Probed a block-scope fourth-parameter u16 prototype at
+   the function top, after locals, in an inner block, unnamed, and with
+   explicit narrowed locals/casts: each moved the mask before the two lhu
+   loads (nd 10); mixed third s32/fourth u16 gave nd 6. O1, schedule off,
+   and function-pointer casts did not improve it. Best body remains archived
+   at build/D178_00178870_body.c; committed form is bare INCLUDE_ASM. */
+
 
 // FUN_00178870 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_00178870(void) {
-    s32 a = func_0029cc00(0);
-    u8 *p = iGpffff9db0;
-    s32 b = func_0015a160();
-
-    func_0029cf50(func_00161630(*(u16 *)p, *(u16 *)(p + 4), b, a) & 0xFFFF);
-    return 1;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178870);
-#endif
 // FUN_001788E0
 s32 func_001788e0(void)
 {

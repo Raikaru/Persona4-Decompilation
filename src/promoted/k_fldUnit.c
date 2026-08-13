@@ -692,88 +692,9 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165be0);
 
 
 
-/* measured: parked body improved nd 4 -> 3, object/window 796/800. Source keeps four GP byte loads as color0..color3 locals, writes color3/color1/color2/color0 to destination offsets 4..7, and spells the final lookup address index-first as (u8 *)(temp_18 << 8) + (u32)func_00155280() + (temp_17_2 * 0x10) + 0x56. Exact fndiff residuals: +0x170 (offset 368) candidate sb $v0,4($a2) vs retail sb $a1,4($a2); +0x17C (offset 380) candidate sb $a1,7($a2) vs retail sb $v0,7($a2); +0x2BC (offset 700) candidate addu $v1,$v1,$v0 vs retail addu $v1,$v0,$v1. Ruled out scalar/array/address spellings, pointer/direct-store forms, declaration/register/pragma/order sweeps, 24 load permutations, 24 assignment permutations, and semantic local maps; no prototype or symbol changes. Committed at nd 3. */
+/* measured: archived body is 796/800 bytes at normalized_diff 3. Residuals are retail sb $a1,4($a2) vs candidate sb $v0,4($a2) at +0x170, retail sb $v0,7($a2) vs candidate sb $a1,7($a2) at +0x17C, and retail addu $v1,$v0,$v1 vs candidate addu $v1,$v1,$v0 at +0x2BC. Tested the two true census callee declarations in isolated probes; they are not called by this body, and global changes caused sibling compile errors, so baseline declarations remain. Probed final-address operand/helper spellings, 24 color-load production orders, 24 semantic color mappings, 24 declaration orders, color local signedness/widths, direct/pointer stores, and inline store helpers; best remained nd 3. Archive retained for future work; no sibling regressions. */
 // FUN_00165FB0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
-{
-    s32 temp_17_2;
-    s32 temp_18;
-    s32 temp_17;
-    s32 temp_21;
-    s32 temp_4;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_3;
-    u8 *temp_3_2;
-    u8 *temp_4_2;
-    u8 *temp_6;
-    u8 *var_18;
-    u8 color3;
-    u8 color1;
-    u8 color2;
-    u8 color0;
-
-    if (arg0 != NULL) {
-        temp_17 = (s32)(((*(u8 **)(arg0 + 0x160) + 7)[0] & 1) != 0);
-        *(u16 *)(arg0 + 0xC) = (u16)func_00145ac0(arg2 & 0xFFFF, func_00478750(*(s32 *)(func_0015a320())));
-        temp_2 = func_00145270(*(u16 *)(arg0 + 0xC));
-        func_0047aa30(*(u8 **)(temp_2 + 0x144), D_005DC920);
-        temp_21 = temp_17 * 0xC;
-        func_0047a1e0(*(u8 **)(temp_2 + 0x144), D_005F1530 + temp_21, 2);
-        func_0047a1a0(*(u8 **)(temp_2 + 0x144), D_00756510, *(f32 *)(arg1 + 0x14C), 2);
-        func_0047a180(*(u8 **)(temp_2 + 0x144), (f32 *)(arg1 + 0x140), 2);
-        if (*(s32 *)(arg0 + 8) != 0) {
-            func_00479940(*(u8 **)(temp_2 + 0x144), 0, 2, 0, 0);
-        } else if (temp_17 == 1) {
-            func_00479940(*(u8 **)(temp_2 + 0x144), 0, 3, 0, 0);
-        }
-        temp_3 = *(u8 **)(temp_2 + 0x144);
-        *(s32 *)(temp_3 + 0xD8) |= 0x80;
-        temp_3_2 = *(u8 **)(temp_2 + 0x144);
-        var_18 = *(u8 **)(*(u8 **)(temp_3_2 + 0x2CC));
-        temp_6 = *(u8 **)(temp_3_2 + 0x124);
-        color0 = iGpffff9f28;
-        color1 = iGpffff9f29;
-        color2 = iGpffff9f2a;
-        color3 = iGpffff9f2b;
-        temp_6[4] = color3;
-        temp_6[5] = color1;
-        temp_6[6] = color2;
-        temp_6[7] = color0;
-        while (var_18 != NULL) {
-            temp_4 = *(s32 *)(var_18 + 8);
-            if (temp_4 != 0) {
-                func_004b13f0((u8 *)temp_4, (u8 *)&iGpffff9f28);
-            }
-            var_18 = *(u8 **)(var_18 + 0x10);
-        }
-        if (temp_17 == 1) {
-            func_0047a220((s32)*(u8 **)(temp_2 + 0x144), (u8 *)&iGpffff9f24);
-        } else {
-            func_0047a220((s32)*(u8 **)(temp_2 + 0x144), D_005F1570 + ((func_0015a160() / 20U) * 4));
-        }
-        temp_2_2 = (u8 *)func_00478750(D_00764364);
-        *(u8 **)(temp_2 + 0x16C) = temp_2_2;
-        func_0047a1a0(temp_2_2, D_00756510, *(f32 *)(arg1 + 0x14C), 2);
-        func_0047a1e0(*(u8 **)(temp_2 + 0x16C), D_005F1550 + temp_21, 2);
-        func_0047a180(*(u8 **)(temp_2 + 0x16C), (f32 *)(arg1 + 0x140), 2);
-        temp_4_2 = *(u8 **)(temp_2 + 0x16C);
-        *(u8 **)(arg0 + 0x164) = temp_4_2;
-        func_00478e70(temp_4_2);
-        temp_17_2 = (s32)((600.0f + *(f32 *)(arg1 + 0x140)) / 1200.0f);
-        temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
-        *(u8 **)(temp_2 + 0x140) = func_00145270(*(u16 *)((u8 *)(temp_18 << 8) + (u32)func_00155280() + (temp_17_2 * 0x10) + 0x56));
-        func_0014a0f0(*(u16 *)(arg0 + 0xC), 1);
-        D_007643D8 += 1;
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165fb0);
-#endif
-
-
-
 // FUN_001662D0
 void func_001662d0(void)
 {
