@@ -548,12 +548,8 @@ done_value:
     return value;
 }
 
-/* measured: best archived body build/D232_00232c70_body.c; object_size 260B,
-   retail window 272B, normalized_diff 2, differing offsets 208 and 232.
-   Corrected func_0046d730 to (void *, s32) and func_00109bf0 to (u8 *, s32);
-   remaining daddiu constant-width residual was not closed without a
-   scheduler-only construct. */
-// FUN_00232C70
+/* measured: clean return-expression probe for func_00232c70. */
+// FUN_00232C70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 
 /* measured: recipe-A-family re-test 2026-08-03. The u16-table shape now

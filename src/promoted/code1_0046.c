@@ -313,18 +313,13 @@ void func_004633c0(void *arg0, void *arg1)
 {
     func_003bff30(arg0, func_004632f0, arg1);
 }
-/* measured: object 296B/window 304B; residual is two retail OR destination
-   colouring words and an all-zero tail. Committed at nd 4. */
-/* object_size=296; window=304; normalized_diff=4; differing offsets=112,116,172,176; probes exhausted: func_003e82e0 declaration variants, local declaration order/types, compound/transposed/raw OR forms, block locals, condition/goto forms, optimization_level 1, opt_propagation, inline OR helpers and typed helpers, direct OR expression, result assigned to temp_5, and doubled-arithmetic spelling; all retained nd=4 or grew the object. */
-// FUN_004633F0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_004633f0(void) {
+// FUN_004633F0
+s32 func_004633f0(void)
+{
     f32 var_f0_2;
     f32 var_f0;
     s32 temp_2;
     s32 temp_4;
-    s32 temp_6;
-    s32 temp_5;
 
     func_0044f720();
     iGpffffba8c = func_003e23e0();
@@ -332,23 +327,9 @@ s32 func_004633f0(void) {
     temp_4 = *(s32 *)0x10000000;
     iGpffffb198 = temp_4;
     temp_2 = temp_4 - iGpffffb194;
-    if (temp_2 >= 0) {
-        var_f0 = (f32)temp_2;
-    } else {
-        temp_6 = (s32)((u32)temp_2 >> 1);
-        temp_5 = temp_2 & 1;
-        temp_6 = temp_6 | temp_5;
-        var_f0 = (f32)temp_6 + (f32)temp_6;
-    }
+    var_f0 = (f32)(u32)temp_2;
     iGpffffbb20 = var_f0;
-    if (temp_4 >= 0) {
-        var_f0_2 = (f32)temp_4;
-    } else {
-        temp_6 = (s32)((u32)temp_4 >> 1);
-        temp_5 = temp_4 & 1;
-        temp_6 = temp_6 | temp_5;
-        var_f0_2 = (f32)temp_6 + (f32)temp_6;
-    }
+    var_f0_2 = (f32)(u32)temp_4;
     iGpffffbb1c = var_f0_2;
     iGpffffbb24 = 100.0f * ((*(f32 *)&iGpffffbb20) / 520.0f);
     *(s32 *)0x10000000 = 0;
@@ -358,9 +339,6 @@ s32 func_004633f0(void) {
     func_0050cd80();
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004633f0);
-#endif
 
 // FUN_00463520
 void func_00463520(void) {

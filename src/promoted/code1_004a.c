@@ -679,7 +679,55 @@ void func_004a7bf0(u8 *arg0)
 }
 
 // FUN_004A7C00
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7c00);
+void func_004a7c00(u8 *arg0, s32 arg1)
+{
+    f32 temp_f1;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f0_3;
+    f32 var_f3;
+    s32 temp_6;
+    s32 temp_7;
+    s32 temp_3_2;
+    u32 temp_4;
+    s32 temp_3;
+
+    temp_4 = arg1;
+    temp_7 = *(s32 *)(arg0 + 0);
+    var_f3 = 1.0f;
+    if (temp_7 < (s32)temp_4) {
+        if (temp_7 != 0) {
+            return;
+        }
+    }
+    if (temp_7 > 0) {
+        temp_3 = *(u32 *)(arg0 + 8);
+        if ((u32)temp_4 < temp_3) {
+            temp_f1 = (f32)(s32)temp_4;
+            var_f0 = (f32)(u32)temp_3;
+            var_f3 = temp_f1 / var_f0;
+        } else {
+            temp_6 = *(s32 *)(arg0 + 0xC);
+            if ((u32)(temp_7 - temp_6) < (u32)temp_4) {
+                if (temp_6 != 0) {
+                    temp_3 = temp_7 - (s32)temp_4;
+                    temp_f1 = (f32)temp_3;
+                    var_f0_2 = (f32)(u32)temp_6;
+                    var_f3 = temp_f1 / var_f0_2;
+                } else {
+                    var_f3 = 0.0f;
+                }
+            }
+        }
+    }
+    temp_3_2 = *(u16 *)(arg0 + 4);
+    var_f0_3 = (f32)(u16)temp_3_2;
+    temp_f1 = 10.0f * var_f0_3;
+    fGpffffbb74 = temp_f1;
+    fGpffffbb70 = (f32)((4.0f * temp_f1) / 10.0f);
+    iGpffffb10c = var_f3;
+    iGpffffbb68 = 1;
+}
 // FUN_004A7DA0
 void func_004a7da0(s32 *arg0) {
     func_004a7c00((u8 *)arg0 + 4, *arg0);
