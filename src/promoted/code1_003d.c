@@ -1229,7 +1229,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de110);
 /* Parked candidate: the initialized-pointer body in the archive measures
    normalized_diff 5 (object 52B/window 64B). The final pointer-index probes
    retained the retail residual rather than closing it. */
-// FUN_003DE280 NONMATCHING
+// FUN_003DE280
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de280);
 /* measured: scalar GP slot address and schedule on reproduce retail's
    addiu $v0,$gp,-0x54B0 in the jr delay slot. */

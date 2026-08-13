@@ -432,8 +432,104 @@ u8 *func_00287cc0(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
    (+0x10 frame, sw $a3, 0xcc($sp)), cascading into every branch. Tried 4- and
    5-param signatures and 3 local declaration orders; all nd 121. Saved-
    register allocation floor (locals beat late params). */
-// FUN_00287D90
+/* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
+/* measured: corrected all five target callee declarations in the archived
+   candidate; object_size 672 exceeds the 656-byte retail window and
+   normalized_diff is 399, so this is reconstruction-gated rather than a
+   polish near-miss. */
+// FUN_00287D90 NONMATCHING
+#ifdef NON_MATCHING
+void func_00287d90(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3, s32 arg4) {
+    u32 func_00269820(u16 *, s32, s64, s64, s32, s32, f32);
+    u8 *func_00287cc0(u32, u8 *, s32, s32);
+    s32 func_00479ca0(void *, s32);
+    f32 func_00479f60(void *, s32);
+    s32 spB0;
+    s32 spA0;
+    f32 var_9;
+    f32 var_f12;
+    f32 var_f12_2;
+    s16 temp_2_2;
+    s16 temp_2_3;
+    s16 temp_2_4;
+    s32 temp_4;
+    s32 var_17;
+    s32 var_18;
+    s32 var_22;
+    s32 var_3;
+    s8 temp_23;
+    u8 *temp_2;
+
+    var_18 = 0;
+    temp_4 = (s32)(*(u16 *)arg1 & 0xFFC00) >> 0xA;
+    if (temp_4 == 1) {
+        var_18 = *(s32 *)(arg1 + 0x164);
+    } else if (temp_4 == 3) {
+        var_18 = *(s32 *)(arg1 + 0x164);
+    }
+    if ((var_18 != 0) && (func_00479ca0((void *)var_18, 0) != 0)) {
+        var_17 = 0;
+loop_31:
+        if (var_17 < 4) {
+            if (func_00479ca0((void *)var_18, var_17 & 0xFFFF) != 0) {
+                temp_2 = func_00287cc0((u32)arg3, (u8 *)arg2, arg0, var_17);
+                if (temp_2 != NULL) {
+                    if (*(s8 *)(temp_2 + 0x16) == 0) {
+                        var_3 = 1;
+                        var_22 = 1;
+                    } else {
+                        var_3 = 0;
+                        var_22 = 0;
+                    }
+                    temp_23 = *(s8 *)(temp_2 + 0x22);
+                    if (var_3 == 0) {
+                        func_00479f60((void *)var_18, var_17 & 0xFFFF);
+                    }
+                    if (*(u16 *)temp_2 == arg0) {
+                        if (temp_23 == 0) {
+                            spB0 = *(s8 *)(temp_2 + 0x15);
+                            spA0 = *(s8 *)(temp_2 + 0x17);
+                        }
+                        temp_2_2 = *(s16 *)(temp_2 + 0x20);
+                        if (temp_2_2 > 0) {
+                            var_9 = (f32)temp_2_2;
+                        } else {
+                            var_9 = 0.0f;
+                        }
+                        temp_2_3 = *(s16 *)(temp_2 + 0x28);
+                        if (temp_2_3 < 0) {
+                            var_f12 = 0.0f;
+                        } else {
+                            var_f12 = (f32)temp_2_3 / 100.0f;
+                        }
+                        func_00269820((u16 *)arg1, var_17, spB0, spA0, var_22, var_9, var_f12);
+                        if (*(s8 *)(temp_2 + 0x23) == 1) {
+                            if (temp_23 == 0) {
+                                temp_2_4 = *(s16 *)(temp_2 + 0x2A);
+                                if (temp_2_4 <= 0) {
+                                    var_f12_2 = 1.0f;
+                                } else {
+                                    var_f12_2 = (f32)temp_2_4 / 100.0f;
+                                }
+                                func_002699d0((u32 *)arg1, var_17, *(s8 *)(temp_2 + 0x24), *(s16 *)(temp_2 + 0x26), *(s8 *)(temp_2 + 0x25) == 0, 0, var_f12_2);
+                                goto block_29;
+                            }
+                        } else {
+block_29:
+                            *(u8 **)(arg2 + (var_17 * 4) + 0x70) = temp_2;
+                        }
+                    }
+                }
+            }
+            var_17 += 1;
+            goto loop_31;
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287d90);
+#endif
+
 /* measured: retail holds the inner-loop linked-list walk in $a2 (p) and the
    found-node in $v1 (first loop) / $a0 (second loop); mwcc b210 always puts
    p in $a0 and found in $a2. Tried 3 declaration orders, separate node/node2
@@ -509,8 +605,130 @@ INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288170);
    $f12 first. Tried old-style and full real prototypes (u8 arg forces lbu
    where retail uses lb); all nd 20. Argument-materialization scheduling
    floor. */
-// FUN_00288AF0
+/* measured: corrected all six target callee declarations in the archived
+   candidate; object_size 1252 exceeds the 1072-byte retail window and
+   normalized_diff is 886, so this is reconstruction-gated rather than a
+   polish near-miss. */
+typedef s32 M2C_UNK;
+typedef s8 M2C_UNK8;
+typedef s16 M2C_UNK16;
+typedef s32 M2C_UNK32;
+typedef s64 M2C_UNK64;
+#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
+#define M2C_BITWISE(type, expr) ((type)(expr))
+#define M2C_LWL(expr) (expr)
+#define M2C_FIRST3BYTES(expr) (expr)
+#define M2C_UNALIGNED32(expr) (expr)
+#define M2C_CARRY 0
+#define M2C_OVERFLOW(a) (0)
+#define MULT_HI(a, b) (0)
+#define MULTU_HI(a, b) (0)
+#define CLZ(x) (0)
+u8 *func_00145270(s32);                  /* extern */
+// FUN_00288AF0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00288af0(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4) {
+    void func_00146e60(u64, u64, u64);
+    s32 func_00268f20(u32, void *, u32, u8);
+    s32 func_002690b0(u32, u8 *, u8 *, f32, f32, f32, f32, f32, f32, s32, s8);
+    s32 func_00269340(u32, void *, u32, u8);
+    s32 func_00269690(u32, f32, s32);
+    void func_0026bf70(u32);
+    f32 sp78;
+    f32 sp74;
+    f32 sp70;
+    f32 sp68;
+    f32 sp64;
+    f32 sp60;
+    f32 sp58;
+    f32 sp54;
+    f32 sp50;
+    f32 sp48;
+    f32 sp44;
+    f32 sp40;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 var_f12;
+    f32 var_f13;
+    s8 temp_3;
+    u8 *temp_2;
+
+    switch (arg0) {                                 /* switch 1; irregular */
+    case 0:                                         /* switch 1 */
+        if (D_008821E0[0] != 1) {
+            return 0;
+        }
+        if (arg1 == M2C_FIELD(arg2, s32 *, 0xC)) {
+            func_0026bf70(0x1E58);
+            func_00146e60((u64)M2C_FIELD(arg3, u16 *, 0xC), (u64)(arg3 + 0x38), (u64)(arg3 + 0x44));
+            func_00269740(M2C_FIELD(arg3, u16 *, 0xC));
+            temp_2 = (u8 *)(func_00145270(0x1E58U));
+            if (temp_2 != NULL) {
+                M2C_FIELD(temp_2, f32 *, 0x140) = (f32) M2C_FIELD(arg2, f32 *, 0x750);
+            }
+        }
+        return 1;
+    case 1:                                         /* switch 1 */
+        return 1;
+    case 2:                                         /* switch 1 */
+        if (M2C_FIELD(arg4, u16 *, 0) == arg1) {
+            if ((u8 *)((u8 *)(func_00145270(M2C_FIELD(arg3, u16 *, 0xC)))) == NULL) {
+                return 1;
+            }
+            M2C_FIELD(arg3, s32 *, 0x60) = (s32) M2C_FIELD(arg4, u8 *, 0x34);
+            temp_3 = (s8)(M2C_FIELD(arg4, s8 *, 0x12));
+            switch (temp_3) {                       /* switch 2; irregular */
+            case 0:                                 /* switch 2 */
+                func_0026bf70(0x1E58);
+                sp70 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x18));
+                sp74 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x1C));
+                sp78 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x20));
+                sp60 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x24));
+                sp64 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x28));
+                sp68 = (f32)(s32)(M2C_FIELD(arg4, f32 *, 0x14));
+                func_00268f20(M2C_FIELD(arg3, u16 *, 0xC), &sp70, M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30));
+                func_00269340(M2C_FIELD(arg3, u16 *, 0xC), &sp60, (s16) M2C_FIELD(arg4, u16 *, 2), (u8) M2C_FIELD(arg4, s8 *, 0x30));
+                func_00269690(M2C_FIELD(arg3, u16 *, 0xC), M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, f32 *, 0x2C));
+                func_00440b68((char *)&D_0063C540, (s32) M2C_FIELD(arg4, u16 *, 2));
+                break;
+            case 1:                                 /* switch 2 */
+                func_0026bf70(0x1E58);
+                sp50 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x14) / 16.0f;
+                sp54 = (f32) M2C_FIELD(arg4, s16 *, 0x16) / 16.0f;
+                sp58 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x18) / 16.0f;
+                var_f12 = (f32) M2C_FIELD(arg4, s16 *, 0x1A) / 16.0f;
+                sp40 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x1C) / 16.0f;
+                sp44 = (f32) M2C_FIELD(arg4, s16 *, 0x1E) / 16.0f;
+                sp48 = (f32) (s16) M2C_FIELD(arg4, f32 *, 0x20) / 16.0f;
+                var_f13 = (f32) M2C_FIELD(arg4, s16 *, 0x22) / 16.0f;
+                if ((s8) M2C_FIELD(arg4, u8 *, 0x34) != 0) {
+                    temp_f1 = var_f13 - var_f12;
+                    if ((temp_f1 <= 180.0f) && !(temp_f1 < 0.0f)) {
+                        var_f12 += 360.0f;
+                    } else if (!(temp_f1 < -180.0f) && (temp_f1 <= 0.0f)) {
+                        var_f12 -= 360.0f;
+                    }
+                } else {
+                    temp_f1_2 = var_f13 - var_f12;
+                    if (!(temp_f1_2 <= 180.0f)) {
+                        var_f13 -= 360.0f;
+                    } else if (temp_f1_2 < -180.0f) {
+                        var_f13 += 360.0f;
+                    }
+                }
+                func_002690b0(M2C_FIELD(arg3, u16 *, 0xC), (u8 *)&sp50, (u8 *)&sp40, M2C_FIELD(arg4, u16 *, 2), M2C_FIELD(arg4, s8 *, 0x30), var_f12, var_f13, (f32) M2C_FIELD(arg4, s16 *, 0x26), (f32) M2C_FIELD(arg4, s16 *, 0x2A), (f32) (s16) M2C_FIELD(arg4, f32 *, 0x24), (f32) (s16) M2C_FIELD(arg4, f32 *, 0x28));
+                func_00269690(M2C_FIELD(arg3, u16 *, 0xC), 0U, M2C_FIELD(arg4, f32 *, 0x2C));
+                break;
+            }
+            return 1;
+        }
+    default:                                        /* switch 1 */
+        return 1;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288af0);
+#endif
 // FUN_00288F20
 s32 func_00288f20(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4) {
     s32 v8;

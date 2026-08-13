@@ -133,62 +133,14 @@ void func_00218e50(u8 *arg0, s32 arg1) {
     *(s16 *)(arg0 + 0x2) = 0;
 }
 
-typedef struct { f32 x, y, z, w; } PanelVec4X;
 
-// measured: aggregate vector assignments and paired 32-bit copy loop reproduce the retail body except for 17 reloc-masked instruction words (normalized_diff 19); object 440B, retail window 448B. Parked because nd <= 25.
-// Committed at nd 19.
+/* measured: probed all six callee declarations used by this function.
+   Best archived body is build/F218_func_00218ea0_best_nd14.c.txt; named
+   temporaries reproduce the retail argument-load order. Object 440B versus
+   the 448B retail window, normalized_diff 14. Register-coloring residuals
+   remain after five source-shape probes; retained as bare INCLUDE_ASM. */
 // FUN_00218EA0 NONMATCHING
-#ifdef NON_MATCHING
-void func_00218ea0(u8 *arg0) {
-    PanelVec4X tmp;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *dst;
-    u8 *src_base;
-    u8 *var_6;
-    u8 *var_5;
-    s32 var_4;
-    s32 temp_3;
-    s32 temp_2_3;
-    dst = arg0;
-    func_003e8110(func_00457120());
-    temp_2 = func_004571a0();
-    *(PanelVec4X *)(dst + 0x14) = *(PanelVec4X *)(temp_2 + 0x18);
-    tmp.x = iGpffff80cc;
-    tmp.y = iGpffff80cc;
-    tmp.z = iGpffff80cc;
-    tmp.w = 1.0f;
-    func_003c38b0(temp_2, &tmp);
-    temp_2_2 = func_004571c0();
-    *(PanelVec4X *)(dst + 0x24) = *(PanelVec4X *)(temp_2_2 + 0x18);
-    tmp.x = iGpffff847c;
-    tmp.y = 1.0f;
-    tmp.z = iGpffff847c;
-    tmp.w = 1.0f;
-    func_003c38b0(temp_2_2, &tmp);
-    src_base = temp_2_2 + 4;
-    var_6 = (u8 *)(*(s32 *)src_base + 0x10);
-    var_5 = dst + 0x40;
-    var_4 = 8;
-    do {
-        temp_3 = *(s32 *)var_6;
-        temp_2_3 = *(s32 *)(var_6 + 4);
-        var_6 += 8;
-        var_4 -= 1;
-        *(s32 *)var_5 = temp_3;
-        *(s32 *)(var_5 + 4) = temp_2_3;
-        var_5 += 8;
-    } while (var_4 > 0);
-    func_003e9cb0((void *)*(s32 *)src_base, (u8 *)(*(u32 *)(func_00457120() + 4) + 0x10), 0);
-    *(f32 *)(dst + 0x80) = *(f32 *)(func_00457120() + 0x80);
-    *(f32 *)(dst + 0x84) = *(f32 *)(func_00457120() + 0x84);
-    func_003e8180(func_00457120(), 35.0f);
-    func_003e81c0(func_00457120(), (f32)(s32)0xDAC0);
-    func_003e8120(func_00457120());
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00218ea0);
-#endif
 
 // FUN_00219060
 void func_00219060(u8 *arg0) {
