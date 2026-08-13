@@ -231,8 +231,108 @@ s32 func_00313fb0(u8 *arg0)
     return temp - func_0010c750(arg0, arg0[4]);
 }
  
+/* measured: corrected all six callee declarations from the verified definitions. */
+extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s32 arg3);
+extern void func_0011b9f0(int task, u32 value);
+extern s32 func_0011ba00(u8 *arg0);
+extern void func_0011bb90(u8 *arg0);
+extern void func_0011bc70(u8 *arg0);
+extern u8 func_0011d0c0(u8 *arg0);
 // FUN_00314010
-INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00314010);
+s32 func_00314010(u8 *arg0) {
+    extern void func_0011b480(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
+    s32 temp_5;
+    s8 temp_2;
+    u8 *temp_16;
+    s8 arg3;
+    u32 arg2;
+    s32 task_int;
+    u8 *task;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_2 = *(s8 *)(temp_16 + 0);
+    switch (temp_2) {
+    case 0:
+        arg3 = *(s8 *)(temp_16 + 0xC);
+        arg2 = *(u32 *)(temp_16 + 8);
+        task_int = 0;
+        task = *(u8 **)(temp_16 + 4);
+        func_0011b480(task, task_int, arg2, arg3);
+        func_0011b9f0((int)*(u8 **)(temp_16 + 4), 0);
+        *(s8 *)(temp_16 + 0) = 1;
+        /* fallthrough */
+    case 1:
+        if ((func_0011d0c0(*(u8 **)(temp_16 + 4)) & 0xFF) == 0xFF) {
+            *(s8 *)(temp_16 + 0) = 5;
+        } else if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            func_0011bb90(*(u8 **)(temp_16 + 4));
+        } else {
+            *(s8 *)(temp_16 + 0) = 2;
+        }
+        goto block_33;
+    case 2:
+        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            *(s8 *)(temp_16 + 0) = 5;
+        }
+        goto block_33;
+    case 3:
+        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            func_0011bc70(*(u8 **)(temp_16 + 4));
+        } else {
+            *(s8 *)(temp_16 + 0) = 4;
+        }
+        goto block_33;
+    case 4:
+        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            *(s8 *)(temp_16 + 0) = 6;
+        }
+        goto block_33;
+    case 8:
+        func_0011b480(*(u8 **)(temp_16 + 4), 0, *(u32 *)(temp_16 + 8), *(s8 *)(temp_16 + 0xC));
+        temp_5 = *(s32 *)(temp_16 + 0x10);
+        if (temp_5 != 0) {
+            func_0011b9f0((int)*(u8 **)(temp_16 + 4), temp_5);
+        }
+        *(s8 *)(temp_16 + 0) = 9;
+        /* fallthrough */
+    case 9:
+        if ((func_0011d0c0(*(u8 **)(temp_16 + 4)) & 0xFF) == 0xFF) {
+            *(s8 *)(temp_16 + 0) = 0xD;
+        } else if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            func_0011bb90(*(u8 **)(temp_16 + 4));
+        } else {
+            *(s8 *)(temp_16 + 0) = 0xA;
+        }
+        goto block_33;
+    case 10:
+        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            *(s8 *)(temp_16 + 0) = 0xD;
+        }
+        goto block_33;
+    case 11:
+        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            func_0011bc70(*(u8 **)(temp_16 + 4));
+        } else {
+            *(s8 *)(temp_16 + 0) = 0xC;
+        }
+        goto block_33;
+    case 12:
+        if (func_0011ba00(*(u8 **)(temp_16 + 4)) != 1) {
+            *(s8 *)(temp_16 + 0) = 0xE;
+        }
+        goto block_33;
+    case 15:
+        if (func_0011ba00((u8 *)*(s32 *)(temp_16 + 4)) != 1) {
+            return -1;
+        }
+        goto block_33;
+    case 16:
+        return -1;
+    default:
+block_33:
+        return 0;
+    }
+}
 // FUN_003142F0
 void func_003142f0(u8 *arg0)
 {

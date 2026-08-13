@@ -87,15 +87,9 @@ extern s32 func_001060c0(void);
 extern s8 func_00110960(s32 arg0, s32 arg1);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_003b7060(void);
-typedef struct {
-    s64 q;
-    f32 f;
-} bbSrc;
-static inline f32 cmmScriptAdd(f32 left, f32 right) { return left + right; }
 
 
-
-extern bbSrc D_00635A88[];
+extern u8 D_00635A88[];
 extern u8 D_00635AA0[];
 extern u8 D_00635AC0[];
 extern u8 D_00635AE0[];
@@ -936,7 +930,90 @@ void func_0024ba60(s32 arg0)
     }
 }
 // FUN_0024BB00
-INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024bb00);
+/* measured: O1 probe for global-load scheduling; revert if it does not match. */
+#pragma optimization_level 1
+s32 func_0024bb00(s32 arg0) {
+    extern u8* func_00452380(s8* name);
+    extern s32 func_00452080(struct KwlnTask* task);
+    extern s32 func_00455f70(s32 arg0, s32* arg1);
+    extern u32 func_00452560(void* task);
+    extern s32 func_0025fe50();
+    extern s32 func_0025ff60(s32 arg0);
+    extern void func_004b1250(s32 arg0, void* arg1);
+    s64 sp40;
+    f32 sp48;
+    s32 sp4C;
+    s32 temp_17;
+    s32 temp_2;
+    s32* temp_16;
+    s32* temp_2_2;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    s32 temp_2_5;
+    s32 temp_2_6;
+    s32 temp_2_7;
+    s32 temp_2_8;
+    s32 temp_4;
+    u8 flag;
+    s64 temp_q;
+    f32 temp_f;
+    temp_17 = (s32)func_00452380((s8*)&D_00635A78);
+    temp_q = *(s64*)D_00635A88;
+    temp_f = *(f32*)(D_00635A88 + 8);
+    sp40 = temp_q;
+    sp48 = temp_f;
+    *(f32*)((u8*)&sp40 + 8) = sp48;
+    temp_2 = (s32)func_00452380((s8*)&D_00635A78);
+    if (temp_2 == 0) {
+        func_0046d730(&D_006359F0, 0x392);
+    }
+    flag = (*(u32*)func_00452560((void*)temp_2) & 1U) != 0;
+    if (!flag) {
+        func_0046d730(&D_006359F0, 0x3CD);
+    }
+    temp_16 = (s32*)func_00452560((void*)temp_17);
+    if (arg0 < 0 || arg0 >= 5) {
+        func_0046d730(&D_006359F0, 0x3CF);
+    }
+    temp_2_2 = (s32*)((u32)(arg0 << 2) + (u32)temp_16);
+    temp_16 = temp_2_2 + 3;
+    temp_4 = temp_2_2[3];
+    if (temp_4 != 0) {
+        func_00452080((struct KwlnTask*)(uintptr_t)temp_4);
+    }
+    switch (arg0) {
+    case 0:
+        temp_2_3 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635AA0, &sp4C), 0, &D_005DC7D0);
+        func_004b1250(func_0025ff60(temp_2_3), (void*)&sp40);
+        *temp_16 = temp_2_3;
+        break;
+    case 1:
+        temp_2_4 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635AC0, &sp4C), 0, &D_005DC7D0);
+        func_004b1250(func_0025ff60(temp_2_4), (void*)&sp40);
+        *temp_16 = temp_2_4;
+        break;
+    case 2:
+        temp_2_5 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635AE0, &sp4C), 0, &D_005DC7D0);
+        func_004b1250(func_0025ff60(temp_2_5), (void*)&sp40);
+        *temp_16 = temp_2_5;
+        break;
+    case 3:
+        temp_2_6 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635B00, &sp4C), 0, &D_005DC7D0);
+        temp_2_7 = func_0025ff60(temp_2_6);
+        (*(f32*)((u8*)&sp40 + 4)) -= 10.0f;
+        func_004b1250(temp_2_7, (void*)&sp40);
+        *temp_16 = temp_2_6;
+        break;
+    case 4:
+        temp_2_8 = func_0025fe50(temp_17, func_00455f70((s32)(uintptr_t)&D_00635B20, &sp4C), 0, &D_005DC7D0);
+        func_004b1250(func_0025ff60(temp_2_8), (void*)&sp40);
+        *temp_16 = temp_2_8;
+        break;
+    }
+    return 0;
+}
+/* measured: restore the translation-unit optimization level after func_0024bb00. */
+#pragma optimization_level 2
 // FUN_0024BE40
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
 /* measured: the archived C reconstruction for func_0024c0e0 reached nd 35
