@@ -215,8 +215,37 @@ void func_00185120(u8 *arg0)
 
 // FUN_00185150
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185150);
+/* measured: VU0 MMI builtins and O1 reproduce the target's pcpyld/sq packet. */
+#pragma enable_vu0_registers on
+/* measured: bind MMI packet registers as in retail. */
+#pragma vu0_mmi_reg_binding on
+/* measured: O1 preserves the target's packet construction order. */
+#pragma optimization_level 1
 // FUN_001852F0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001852f0);
+void func_001852f0(void)
+{
+    u_long128 *packet;
+    u_long128 packed;
+    u64 a, b, c;
+
+    func_003f3eb0((s32)0x80000000, 2);
+    a = 0xE;
+    b = 0x1000000000008001ULL;
+    packed = _pcpyld(a, b);
+    packet = (u_long128 *)(u32)iGpffffb27c;
+    *packet = packed;
+    c = 0x4C;
+    b = iGpffffb8c8 | 0xFF00000000000000ULL;
+    packed = _pcpyld(c, b);
+    packet[1] = packed;
+    iGpffffb27c += 0x20;
+}
+/* measured: restore the file's O2 baseline after the target. */
+#pragma optimization_level 2
+/* measured: stop binding MMI packet registers after the target. */
+#pragma vu0_mmi_reg_binding off
+/* measured: stop VU0 register mode after the target. */
+#pragma enable_vu0_registers off
 
 /* measured: enable_vu0_registers + vu0_mmi_reg_binding with optimization_level 1
    reproduces the sibling 112-byte pcpyld/sq skeleton; direct _pcpyld on separate

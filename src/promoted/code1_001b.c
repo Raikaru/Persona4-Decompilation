@@ -518,7 +518,8 @@ store:
     *p = (s32)arg0;
     return 1;
 }
-// FUN_001B0DD0
+/* measured: best plain-C body archived at build/H1B0_001b0dd0_body.c; object 100B versus the 96B retail window, normalized_diff 64, 22 differing words. MWCC b210 retains the loop argument/result in s1/s0 (48B frame) where retail keeps them in a2/a3 (16B frame); declaration, source-shape, and optimization probes did not move this caller-saved/callee-saved coloring floor. */
+// FUN_001B0DD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0dd0);
 // FUN_001B0E30
 s32 func_001b0e30(s32 arg0)

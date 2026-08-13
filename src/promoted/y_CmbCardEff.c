@@ -296,7 +296,7 @@ void func_0033fb10(u8 *arg0, s8 arg1, s64 arg2) {
    ori/addu, leaving the object 4 bytes short. Probed pointer, helper, signed/
    unsigned offset, and optimization spellings; the constant-selection
    residual remained. Committed at nd 8. */
-// FUN_0033FB90 NONMATCHING
+// FUN_0033FB90
 INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033fb90);
 /* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
    lever 3 + opt_propagation: the inline helper cmbAddPtrRev carries the index-first addu
