@@ -253,8 +253,41 @@ u32 func_002bb1e0(int param_1)
 #pragma push
 
 
+// measured target CSE probe
+#pragma optimization_level 1
 // FUN_002BB290
-INCLUDE_ASM("asm/nonmatchings/nmCmdList", func_002bb290);
+s32 func_002bb290(s64 arg0, s32 arg1)
+{
+    extern void func_00276e70(s32 arg0, s8 arg1);
+    extern void func_00277250(s32 arg0);
+    extern void func_00277ad0(s32 arg0, s32 arg1);
+    extern void func_002bbe90(s64 arg0, s32 arg1);
+    u8 **temp_18;
+    u8 *temp_2;
+    s32 temp_4;
+    s32 **temp_16;
+
+    temp_18 = &D_00882F40[(s8)arg0];
+    temp_2 = *temp_18;
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    temp_4 = *(s32 *)temp_2;
+    if (temp_4 < 0) {
+        return 0;
+    }
+    func_00276e70(temp_4, 0);
+    if (arg1 != 0) {
+        func_00277250(*(s32 *)*temp_18);
+    }
+    temp_16 = (s32 **)&D_00882F40[(s8)arg0];
+    func_00277ad0(**temp_16, 0);
+    func_002bbe90(arg0, 1);
+    *(s8 *)((u8 *)*temp_16 + 4) = 0;
+    return 1;
+}
+// measured target CSE probe
+#pragma optimization_level 2
 // FUN_002BB380
 u32 func_002bb380(void)
 

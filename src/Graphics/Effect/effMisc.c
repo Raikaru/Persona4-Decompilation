@@ -43,7 +43,7 @@ typedef struct RwMatrix
     u32 pad3;       // 0x3c
 } RwMatrix;
 
-extern void func_004bd230(const RwV3d* axis, RwMatrix* matrix, f32 angle);
+extern void func_004bd230(f32 angle, const RwV3d* axis, RwMatrix* matrix);
 
 
 
@@ -280,13 +280,98 @@ void func_004bd1a0(f32 angle)
 
 
 // FUN_004BD230
-INCLUDE_ASM("asm/nonmatchings/effMisc", func_004bd230);
+void func_004bd230(f32 angle, const RwV3d* axis, RwMatrix* matrix)
+{
+    f32 xSquared;
+    f32 ySquared;
+    f32 zSquared;
+    f32 xz;
+    const RwV3d* axis_p;
+    RwMatrix* matrix_p;
+    f32 angle_p;
+    RwV4d normalizedAxis;
+    f32 cosine;
+    f32 sine;
+    f32 oneMinusCosine;
+    f32 xy;
+    f32 zSine;
+    f32 x;
+    f32 y;
+    f32 z;
+
+    angle_p = angle;
+    axis_p = axis;
+    matrix_p = matrix;
+    cosine = cosf(angle_p);
+    sine = sinf(angle_p);
+
+    __asm__ volatile (
+        ".set noreorder                              \n"
+        "lqc2 vf10, 0(%0)                            \n"
+        "vmul.xyz vf2, vf10, vf10                    \n"
+        "vmulax.w ACC, vf0, vf2x                     \n"
+        "vmadday.w ACC, vf0, vf2y                    \n"
+        "vmaddz.w vf2, vf0, vf2z                    \n"
+        "vrsqrt Q, vf0w, vf2w                       \n"
+        "vwaitq                                      \n"
+        "vmulq.xyz vf10, vf10, Q                    \n"
+        ".set reorder"
+        :
+        : "r" (axis_p)
+        : "vf2", "vf10", "ACC", "Q", "memory"
+    );
+    __asm__ volatile (
+        ".set noreorder          \n"
+        "sqc2 vf10, 0(%0)        \n"
+        ".set reorder"
+        :
+        : "r" (&normalizedAxis)
+        : "memory"
+    );
+
+    x = normalizedAxis.x;
+    y = normalizedAxis.y;
+    z = normalizedAxis.z;
+    xSquared = x * x;
+    matrix_p->right.x = xSquared + (1.0f - xSquared) * cosine;
+    xy = x * y;
+    oneMinusCosine = 1.0f - cosine;
+    zSine = z * sine;
+    xy = xy * oneMinusCosine;
+    matrix_p->right.y = zSine + xy;
+    xz = x * z;
+    matrix_p->right.z = xz * (1.0f - cosine) - y * sine;
+    matrix_p->flags = 0;
+
+    matrix_p->up.x = xy - zSine;
+    ySquared = y * y;
+    matrix_p->up.y = ySquared + (1.0f - ySquared) * cosine;
+    xSquared = y * z;
+    ySquared = x * sine;
+    matrix_p->up.z = ySquared + xSquared * (1.0f - cosine);
+    matrix_p->pad1 = 0;
+
+    matrix_p->at.x = y * sine + x * z * (1.0f - cosine);
+    matrix_p->at.y = y * z * (1.0f - cosine) - x * sine;
+    zSquared = z * z;
+    matrix_p->at.z = zSquared + (1.0f - zSquared) * cosine;
+    matrix_p->pad2 = 0;
+
+    __asm__ volatile (
+        ".set noreorder          \n"
+        "sqc2 vf0, 0x30(%0)       \n"
+        ".set reorder"
+        :
+        : "r" (matrix_p)
+        : "memory"
+    );
+}
 // FUN_004BD380
 void func_004bd380(const RwV3d* axis, f32 angle)
 {
     RwMatrix matrix;
 
-    func_004bd230(axis, &matrix, angle);
+    func_004bd230(angle, axis, &matrix);
     __asm__ volatile (
         ".set noreorder          \n"
         "lqc2 vf28, 0(%0)        \n"

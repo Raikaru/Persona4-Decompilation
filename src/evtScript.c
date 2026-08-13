@@ -220,44 +220,7 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
 /* The final near-match source probe is retained below the marker. */
 /* Parked near-match: baseline INCLUDE_ASM; the two-argument callback ABI and s32 alpha result are matched, and iGpffff8094 is the configured GP symbol for retail GPREL -0x7F6C. Object 488B/window 496B. Old body nd145; changing the upper comparison to `temp_16 > 0x10E` and splitting the converted delta/scale locals gives nd15. Exact remaining fndiff rows: +0xF8 candidate `lwc1 $f2,0($gp)`, retail `addiu $v0,$s0,-0x10E`; +0xFC candidate `addiu $v0,$s0,-0x10E`, retail `mtc1 $v0,$f0`; +0x100 candidate `mtc1 $v0,$f0`, retail `nop`; +0x104 candidate `nop`, retail `cvt.s.w $f0,$f0`; +0x108 candidate `cvt.s.w $f0,$f0`, retail `lwc1 $f2,-0x7F6C($gp)`. Ruled out: first-argument hoist/local forms (nd8/111), declaration reversal, direct global load, comma assignment (nd202), scheduler-off pragma, and inline helpers evtMulScale/evtRamp (all nd15). Committed at nd 15. */
 // FUN_00298990 NONMATCHING
-#ifdef NON_MATCHING
-void func_00298990(s32 unused, s32 arg1) {
-    f32 temp_f2;
-    f32 temp_f0;
-    s32 var_5;
-    s32 temp_16;
-    s32 temp_19;
-    s32 temp_4;
-    s32 temp_5;
-    s32 var_18;
-    u8 *temp_17;
-
-    temp_17 = (u8 *)func_00452560(arg1);
-    temp_19 = *(s32 *)((u8 *)func_00285480(func_00452560(func_00285af0())) + 0x680);
-    var_18 = 0;
-    while (var_18 < 0xF) {
-        temp_5 = var_18 * 0x28;
-        temp_4 = *(s32 *)(temp_17 + 4);
-        if ((temp_5 < temp_4) && (temp_4 < (temp_5 + 0x12C))) {
-            temp_16 = temp_4 - temp_5;
-            if (temp_16 < 0xB4) {
-                var_5 = (s32)(255.0f * func_0044b7b0((iGpffff8094 * (f32)temp_16) / 180.0f));
-            } else if (temp_16 > 0x10E) {
-                temp_f0 = (f32)(temp_16 - 0x10E);
-                temp_f2 = iGpffff8094;
-                var_5 = (s32)(255.0f * func_0044b7b0(temp_f2 + ((temp_f2 * temp_f0) / 30.0f)));
-            } else {
-                var_5 = 255;
-            }
-            func_002987d0(320.0f, 300.0f - ((230.0f * (f32)temp_16) / 300.0f), 0.0f,
-                          0xFFFFFF, var_5, 0, 0, 0, temp_19, 0, var_18);
-        }
-        var_18 += 1;
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/evtScript", func_00298990);
-#endif
 // FUN_00298B80
 s32 func_00298b80(s32 arg0)
 {

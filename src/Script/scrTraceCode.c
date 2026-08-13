@@ -426,38 +426,23 @@ u32 func_0029AD20(ScrData* scr)
     return 1;
 }
 
-/* measured park: O2 with opt_common_subs off gave nd 38/object 324,
-   while the kept optimization_level 1 probe gives nd 20/object 324
-   against the 336B window. Exact fndiff residual rows are 0x30 (retail
-   lh $s1, candidate lh $s2), 0x34 (bgez $s1/$s2), 0x50 (sra $v0,$s1/$s2),
-   0x58 (sll $s2/$s1), 0x5c (andi $s1/$s2), 0x68 (addu via $s2/$s1),
-   0x70 (retail slt $at,$s1,$v0; candidate slt $v0,$s2,$v0), 0x74
-   (bnez $at/$v0), 0x90 (sll $s4,$s1 / $s3,$s2), 0x9c (addu via
-   $s2/$s1), 0xa0 (lw $s3/$s2), 0xa4 (addu $s2,$s3,$s4 /
-   $s1,$s2,$s3), 0xa8 (lw through $s2/$s1), 0xcc (lw $s1/$s4),
-   0xd0 (retail sCurrScript GP relocation / candidate zero GP offset),
-   0xd4 (lw through $s2/$s1), 0xf4 (addu via $s4/$s2), and 0x10c
-   (bne $s1/$s4). Ruled out: base O2, declaration swaps, split raw/
-   masked locals, type/register qualifiers, rebuildconditionals, and
-   branch-shape probes (nd 38, 71, 108, or 214). The body is guarded
-   pending the saved-register coloring and static-GP residual. Committed at nd 20. */
-// FUN_0029AD40 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: opt_common_subs off is required by the nd 20 probe. */
+/* measured: optimization_level 1 and opt_common_subs off are required for
+   the exact 324-byte object. Saved-local declaration order, the reversed
+   range-guard operands, and the integer-domain second command-pointer sum
+   reproduce retail register coloring and operand order. */
+// FUN_0029AD40
+/* measured: opt_common_subs off is required for the exact object. */
 #pragma opt_common_subs off
-/* measured: optimization_level 1 is required by the nd 20 probe. */
+/* measured: optimization_level 1 is required for the exact object. */
 #pragma optimization_level 1
 u32 func_0029ad40(u8 *arg0) {
-    ScrData *ctx; s32 raw; s32 group; s32 result; s32 prevPc; s32 currPc; s32 hasFunc; s32 cmdOffset; ScrCmdEntry *cmds; ScrCmdEntry *entry;
-    ctx = (ScrData *)arg0; raw = ctx->instrContent[ctx->pc].opOperand16.sOperand; K_ASSERT(raw >= 0, 0x175); group = ((raw >> 12) & 0xFF) << 3; raw &= 0xFFF; K_ASSERT(raw < *(s32 *)((u8 *)D_00748534 + group), 0x176); cmdOffset = raw << 3; cmds = *(ScrCmdEntry **)((u8 *)D_00748530 + group); entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset); hasFunc = (entry->func != 0); K_ASSERT(hasFunc != 0, 0x177); prevPc = ctx->pc; sCurrScript = ctx; result = entry->func(); if (result == 0) return 2; entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset); ctx->sp -= entry->paramCount; currPc = ctx->pc; if (prevPc == currPc) { currPc++; ctx->pc = currPc; } return 1;
+    ScrData *ctx; s32 group; s32 raw; s32 result; s32 cmdOffset; ScrCmdEntry *cmds; ScrCmdEntry *entry; s32 prevPc; s32 currPc; s32 hasFunc;
+    ctx = (ScrData *)arg0; raw = ctx->instrContent[ctx->pc].opOperand16.sOperand; K_ASSERT(raw >= 0, 0x175); group = ((raw >> 12) & 0xFF) << 3; raw &= 0xFFF; K_ASSERT(*(s32 *)((u8 *)D_00748534 + group) > raw, 0x176); cmdOffset = raw << 3; cmds = *(ScrCmdEntry **)((u8 *)D_00748530 + group); entry = (ScrCmdEntry *)((u8 *)cmds + cmdOffset); hasFunc = (entry->func != 0); K_ASSERT(hasFunc != 0, 0x177); prevPc = ctx->pc; sCurrScript = ctx; result = entry->func(); if (result == 0) return 2; entry = (ScrCmdEntry *)((u8 *)((u32)cmdOffset + (u32)cmds)); ctx->sp -= entry->paramCount; currPc = ctx->pc; if (prevPc == currPc) { currPc++; ctx->pc = currPc; } return 1;
 }
-/* measured: restores the default optimization level after the nd 20 probe. */
+/* measured: restores the default optimization level after the exact object. */
 #pragma optimization_level 2
-/* measured: restores common-subexpression optimization after the nd 20 probe. */
+/* measured: restores common-subexpression optimization after the exact object. */
 #pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/scrTraceCode", func_0029ad40);
-#endif
 
 
 

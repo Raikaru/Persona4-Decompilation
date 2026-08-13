@@ -22,8 +22,8 @@ extern void func_00121170();
 extern void func_001211a0();
 extern s32 func_00121690(void);
 extern s32 func_001104a0(s32 arg0);
-extern void func_001104d0(s32 arg0, void *arg1, void *arg2);
-extern s32 func_001060c0(void);
+extern void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2);
+extern u8 func_001060c0(void);
 extern u16 D_008C0276[];
 extern u16 D_008C027A[];
 extern void func_00122520(s32 a, s32 b);
@@ -33,6 +33,13 @@ extern void func_00123850(void);
 extern s32 func_00144af0(s32 a);
 extern s32 func_004522d0(s32 a);
 extern void func_001062f0(s32 a);
+extern s32 func_00110580(s32 arg0);
+extern s32 func_001105b0(s32 arg0);
+extern s32 func_00110600(s32 arg0, s32 arg1);
+extern void func_0045d6e0(void *arg0, void *arg1, s32 arg2, f32 farg0);
+extern void func_00450dd0(s64 arg0, void *arg1, s32 arg2, s32 arg3, f32 farg0);
+extern u8 D_005E5010[];
+extern u8 D_005E5028[];
 
 
 
@@ -172,7 +179,7 @@ void func_00121660(void *arg0)
    var_19=$s0 vs $s3) that no declaration-order permutation fixes, plus the func_
    00450dd0 loop call emits an extra $a3 (4-arg vs 5-arg signature) and the
    var_18+=1 / slti order in the loop. func_00450dd0 is (s64,void*,s32,s32,f32). */
-// FUN_00121690
+// FUN_00121690 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/calendar", func_00121690);
 
 // FUN_00121940

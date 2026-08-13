@@ -48,7 +48,7 @@ extern u8 D_00625160[];
    leave nd 8 (register swap) or nd 4 (instruction-order swap); it is a coupled
    register/order floor, not a declaration-order fix. obj exactly matches the
    688B window apart from this. */
-// FUN_001F9CF0
+// FUN_001F9CF0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlCutin", func_001f9cf0);
 
 
