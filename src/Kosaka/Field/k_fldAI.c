@@ -21,7 +21,7 @@ extern u8 *iGpffffb2c8;
 extern s32 func_0014bff0(u8 *arg0, u8 *arg1, f32 arg2);
 extern s32 func_0014c4c0(u8 *arg0, u8 *arg1, f32 arg2);
 extern s32 func_0016b8a0(void *arg0, void *arg1);
-extern f32 func_003e4180(void *arg0);
+extern f32 func_003e4180(f32 *arg0);
 extern u8 *func_0047a2f0(u8 *arg0);
 
 typedef struct { f32 x, y, z; } FldAIVec3;
@@ -82,87 +82,15 @@ void func_0017e9b0(u8 *arg0) {
     *(s32 *)(p + 0xC) = 0;
 }
 
-/* Measured near-match: the solved 0x90 frame and scalar projection copy
- * (`out.xy = *(s64 *)&ab[0]; out.z = ab[2]`) improve the prior aggregate
- * assignment from nd6 to nd4. Object 808B/window 816B. Exact remaining rows:
- * +0x170 (368): candidate sd $v0,0x70($sp), retail lwc1 $f0,0x58($sp);
- * +0x174 (372): candidate lwc1 $f0,0x58($sp), retail sd $v0,0x70($sp).
- * Named pointer temporaries preserve retail address setup before these loads. */
-// Measured in isolation at nd 4; nd_audit compiles the whole file with
-// NON_MATCHING defined, which activates every preserved body at once and
-// shifts this one. Committed at nd 6.
+/* Measured near-match archived at object 808B/window 816B, normalized_diff 6.
+ * The corrected func_003e4180(f32 *) declaration is required at this callsite.
+ * Residual: retail orders ld 0x50(sp), lwc1 0x58(sp), sd 0x70(sp), while
+ * MWCCPS2 emits ld, sd, lwc1, swc1 for the stack projection copy.
+ * Probed scalar/aggregate copies, assignment reversal, temporary/comma and
+ * shared-pointer staging, field-width variants, and volatile stack staging;
+ * volatile reached nd0 but is rejected as an ordinary-memory claim. */
 // FUN_0017EA10 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0017ea10(u8 *arg0)
-{
-    FldAIVec3 d;
-    FldAIProj out;
-    f32 ab[6];
-    f32 temp_f20;
-    s32 var_17;
-    u8 *temp_16;
-    u8 *temp_17;
-    u8 *temp_18;
-    u8 *temp_2;
-    u8 *temp_2_2;
-
-    var_17 = 0;
-    temp_16 = iGpffffb2c8 + (*(u8 *)(arg0 + 0x1CA) * 0x180) +
-              (*(u16 *)(arg0 + 0x1C8) << 6);
-    if (iGpffffb25c == 1) {
-        return 0;
-    }
-    if (*(u8 *)(arg0 + 0x1CB) == 0) {
-        temp_18 = func_0047a2f0(*(u8 **)(arg0 + 0x50));
-        if (func_0014c4c0(temp_18 + 0x30,
-                          func_0047a2f0(D_007EFA00[0]) + 0x30,
-                          *(f32 *)(temp_16 + 0x14) / 3.0f) == 1) {
-            var_17 = 1;
-        }
-        return var_17;
-    }
-    temp_2 = func_0047a2f0(*(u8 **)(arg0 + 0x50));
-    *(FldAIVec3 *)ab = *(FldAIVec3 *)(temp_2 + 0x30);
-    temp_2_2 = func_0047a2f0(D_007EFA00[0]);
-    *(FldAIVec3 *)(ab + 3) = *(FldAIVec3 *)(temp_2_2 + 0x30);
-    ab[1] += 90.0f;
-    ab[4] += 90.0f;
-    if (func_0016b8a0(ab, &out) == 1) {
-        return 0;
-    }
-    temp_2 = (u8 *)ab;
-    temp_2_2 = (u8 *)&out;
-    out.xy = *(s64 *)&ab[0];
-    out.z = ab[2];
-    *(FldAIVec3 *)ab = *(FldAIVec3 *)(ab + 3);
-    *(FldAIVec3 *)(ab + 3) = *(FldAIVec3 *)&out;
-    if (func_0016b8a0(temp_2, temp_2_2) == 1) {
-        return 0;
-    }
-    temp_17 = func_0047a2f0(*(u8 **)(arg0 + 0x50));
-    if (func_0014bff0(temp_17, func_0047a2f0(D_007EFA00[0]) + 0x30,
-                      *(f32 *)(temp_16 + 0xC)) == 1) {
-        temp_f20 = *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0x50)) + 0x30);
-        d.x = *(f32 *)(func_0047a2f0(D_007EFA00[0]) + 0x30) - temp_f20;
-        temp_f20 = *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0x50)) + 0x34);
-        d.y = *(f32 *)(func_0047a2f0(D_007EFA00[0]) + 0x34) - temp_f20;
-        temp_f20 = *(f32 *)(func_0047a2f0(*(u8 **)(arg0 + 0x50)) + 0x38);
-        d.z = *(f32 *)(func_0047a2f0(D_007EFA00[0]) + 0x38) - temp_f20;
-        if (func_003e4180(&d) < *(f32 *)(temp_16 + 0x10)) {
-            return 1;
-        }
-    }
-    temp_17 = func_0047a2f0(*(u8 **)(arg0 + 0x50));
-    if (func_0014c4c0(temp_17 + 0x30,
-                      func_0047a2f0(D_007EFA00[0]) + 0x30,
-                      *(f32 *)(temp_16 + 0x14)) == 1) {
-        return 1;
-    }
-    return 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017ea10);
-#endif
 
 /* measured: nd 679 with a full C body (object 1832B against a 1872B window).
    Wave 9 ran out of turns here and left it uncommitted, so this is a partial

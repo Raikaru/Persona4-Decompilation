@@ -643,10 +643,106 @@ s32 func_00193260(void)
     }
     return 0;
 }
-// FUN_001932F0
+/* Best attempt: object 352B, window 352B, normalized_diff 1. Residual: initializer emits addiu $s2,$zero,1; retail emits daddiu at offset 108, while the same variable increments with addiu. Probed s64 locals, s64/s32 casts, long-long and declaration initializers, scoped initializer, inline/helper constants, and O1; all either retained the addiu or expanded the loop. */
+// FUN_001932F0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001932f0(void)
+{
+    extern s32 func_00105ee0(s32 arg0);
+    u8 sp50[0x3C];
+    s32 var_19;
+    s32 var_18;
+    u16 temp_17;
+    s32 temp_4;
+    u16 temp_4_2;
+    u16 temp_3;
+    u8 *temp_16;
+
+    func_001fc1b0(1);
+    temp_17 = func_0029cc00(0) & 0xFFFF;
+    temp_16 = (u8 *)(iGpffffb414 + (temp_17 * 0x18));
+    func_0043f9c8(sp50, 0, 0x3C);
+    *(s32 *)(sp50 + 4) = func_00231580(1);
+    var_18 = 1;
+    var_19 = 0;
+    goto loop_5_check;
+loop_5_body:
+    temp_4_2 = func_00105ee0(temp_4) & 0xFFFF;
+    if ((temp_4_2 != 0) && ((u16)var_18 < 4)) {
+        *(s32 *)((u8 *)sp50 - 0x50 +
+                 ((var_18 & 0xFFFF) * 4) + 0x54) =
+            func_00231580(temp_4_2);
+        var_18 = (var_18 + 1) & 0xFFFF;
+    }
+    var_19 = (var_19 + 1) & 0xFFFF;
+loop_5_check:
+    temp_4 = var_19 & 0xFFFF;
+    if (temp_4 < 4) {
+        goto loop_5_body;
+    }
+    *(s32 *)(sp50 + 0x14) = func_00231630(temp_17);
+    temp_3 = *(u16 *)(temp_16 + 0x12);
+    if ((temp_3 == 0) && (*(u16 *)(temp_16 + 0x14) == 0)) {
+        *(u16 *)(sp50 + 0x20) = 0xF0;
+        *(u16 *)(sp50 + 0x22) = 1;
+    } else {
+        *(u16 *)(sp50 + 0x20) = temp_3;
+        *(u16 *)(sp50 + 0x22) = *(u16 *)(temp_16 + 0x14);
+    }
+    func_001029a0(6, sp50, 0x3C, 4);
+    return 1;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001932f0);
-// FUN_00193450
+#endif
+/* Best attempt: object 356B, window 368B, normalized_diff 3. Applied the measured guard spelling func_0029d020() > 0xA (equivalent to >= 0xB), which changes slti/bnez to retail $at. Remaining residual is exactly three retail trailing nop words beyond the candidate jr/delay slot. Probed direct <0xB and >=0xB goto forms; both retained $v0. Unprototyped local callee declarations are required for the retail loop argument materialization. */
+// FUN_00193450 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00193450(void)
+{
+    extern s64 func_00105ee0(s32 arg0);
+    extern s32 func_00105610();
+    extern void func_001056e0();
+    extern void func_00105d50();
+    u32 var_16;
+    u32 dep;
+
+    if (func_0029d020() > 0xA) {
+        if (iGpffffb3ac != NULL) {
+            iGpffffb3b0 = 0;
+            return 0;
+        }
+        if (iGpffffb3b0 == 0) {
+            if (func_002428f0(func_00105510(1), 0) != 0) {
+                dep = iGpffffb280;
+                func_0029db50(0xF, iGpffffb284, dep, 0);
+                func_0014b990(*(s32 *)(func_0029d040() + 0x148));
+                func_00260510();
+                iGpffffb3b0 = 1;
+                goto block_13;
+            }
+            var_16 = 0;
+            goto loop_11_check;
+loop_11_body:
+            if ((((s64)(func_00105ee0((s32)var_16) << 0x30) >> 0x30) != 0) &&
+                (func_00105610(func_00105ee0((s32)var_16)) != 0)) {
+                func_001056e0(func_00105ee0((s32)var_16), 1);
+                func_00105d50(func_00105ee0((s32)var_16), 0x80000);
+            }
+            var_16 += 1;
+loop_11_check:
+            if (var_16 < 3U) {
+                goto loop_11_body;
+            }
+            return 1;
+        }
+    }
+block_13:
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00193450);
+#endif
 // FUN_001935C0
 s32 func_001935c0(void) {
     func_001fc1b0(1);
@@ -1133,8 +1229,76 @@ second_check:
 }
 #pragma optimization_level 2
 /* measured probe at optimization_level 2. Committed at nd 24. */
-// FUN_00194FF0
+/* Best attempt: object 500B, window 512B, normalized_diff 24. Reverted because the candidate remained non-exact. */
+// FUN_00194FF0 NONMATCHING
+#ifdef NON_MATCHING
+void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
+{
+    struct Work {
+        f32 vec[3];
+        u8 gap[4];
+        f32 x;
+        s32 y;
+        f32 z;
+    } frame;
+    s16 temp_6;
+    s32 temp_6_2;
+    u8 temp_5;
+    u8 *temp_2;
+    u8 *temp_4;
+
+    frame.x = (f32)(s32)((*(s16 *)(arg0 + 0x94) * 0x19) - 0x6D6);
+    frame.y = 0;
+    temp_6 = *(s16 *)(arg0 + 0x96);
+    temp_6_2 = temp_6 * 5;
+    frame.z = (f32)((temp_6 * 0x19) - 0x6D6);
+    if (arg1 != NULL) {
+        *(f32 *)(arg1 + 0) = frame.x;
+        *(f32 *)(arg1 + 4) = (f32)frame.y;
+        *(f32 *)(arg1 + 8) = frame.z;
+    }
+    if ((arg3 != NULL) || (arg2 != NULL)) {
+        temp_5 = *(u8 *)(arg0 + 0xA2);
+        switch (temp_5) {
+        case 0:
+            if (func_00232710(*(s32 *)(arg0 + 0xA64), 0x100, temp_6_2) == 0) {
+                func_00196040(2, 1, frame.vec, 0, 0, 1);
+            } else {
+                func_001958f0(
+                    *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
+                    frame.vec);
+            }
+            break;
+        case 1:
+            if (func_0022f7d0(arg0, frame.vec, temp_6_2) != 1) {
+                temp_2 = func_001b1510();
+                if ((temp_2 != NULL) &&
+                    ((temp_4 = *(u8 **)(temp_2 + 0x30)),
+                     (*(u8 *)(temp_4 + 0xA2) == 0)) &&
+                    ((*(u16 *)(temp_2 + 0x18) & 4) == 0 ||
+                     *(u16 *)(temp_2 + 0x16) != 0x1E)) {
+                    func_001958f0(temp_4, frame.vec);
+                } else {
+                    func_001958f0(
+                        *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
+                        frame.vec);
+                }
+            }
+            break;
+        }
+        if (arg3 != NULL) {
+            arg3[0] = frame.vec[0];
+            arg3[1] = frame.vec[1];
+            arg3[2] = frame.vec[2];
+        }
+        if (arg2 != NULL) {
+            func_001ec1c0(arg2, &frame.x, frame.vec);
+        }
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00194ff0);
+#endif
 // FUN_001951F0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001951f0);
 // FUN_00195530
@@ -1784,8 +1948,52 @@ function_done_001998e0:
 #pragma opt_propagation on
 // FUN_001999F0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001999f0);
-// FUN_00199D00
+/* Best attempt: object 300B, window 336B, normalized_diff 185. Reverted because the candidate remained non-exact. */
+// FUN_00199D00 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_00199d00(s32 unused, s32 arg1, s32 arg2, s32 arg3)
+{
+    s32 temp_16;
+    u16 temp_3;
+    s64 raw_3;
+    s16 narrowed_3;
+    register u8 *saved_arg1;
+    register s32 saved_arg2;
+    register s32 saved_arg3;
+
+    saved_arg1 = (u8 *)arg1;
+    saved_arg2 = arg2;
+    saved_arg3 = arg3;
+    temp_16 = (s64)(s16)saved_arg2;
+    if (func_001f11e0(saved_arg2) != 0) {
+        temp_3 = *(u16 *)p4_table_addr_00199d00(
+            temp_16 * 4, 2, iGpffffb3bc);
+        if ((temp_3 & 0x200) == 0) {
+            if ((saved_arg3 == 0) || ((temp_3 & 1) == 0)) {
+                return 1;
+            }
+            return 2;
+        }
+        if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) != 0 &&
+            saved_arg3 == 0) {
+            return 1;
+        }
+        return 0;
+    }
+    raw_3 = func_0023d8e0(*(s32 *)((u8 *)arg1 + 0xA64),
+                          (u16)saved_arg2);
+    narrowed_3 = (s16)raw_3;
+    switch (narrowed_3) {
+    case 0x10:
+    case 0x11:
+        return 1;
+    default:
+        return 3;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00199d00);
+#endif
 // FUN_00199E50
 void func_00199e50(u8 *arg0)
 {

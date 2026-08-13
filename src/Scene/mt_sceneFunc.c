@@ -90,7 +90,7 @@ extern s64 D_0063B110;
 extern f32 D_0063B118;
 extern f32 fGpffff8048;
 extern void func_003e0870(void *dst, void *src, f32 angle, s32 mode);
-extern void func_003e4320(void *dst, void *src, void *mat);
+extern u8 *func_003e4320(void *dst, void *src, void *mat);
 extern s32 func_003e05d0(void *arg0);
 extern s32 func_00168ec0(u16 *arg0, void *arg1, void *arg2);
 extern s32 func_00479dd0(u32 arg0, u16 arg1, s16 arg2);
@@ -888,14 +888,16 @@ void func_0026bf70(u32 arg0)
 }
 
 /* measured: ported from P3FES FUN_003bb450 with the P4 global addresses and
-   interleaved func_003e0870 declaration. Best plain C is nd 9, object
+   interleaved func_003e0870 declaration. Corrected func_003e4320's return
+   declaration to u8 * (verified definition); plain C remains nd 9, object
    460B/window 464B. The first differing fndiff rows are offset 0x70
    (axis2's retail lwc1 versus mwcc's second aggregate ld), 0x78 (retail swc1
    versus mwcc sd), and offsets 0x80/0x88/0x8C (axis3 global-load order and
-   register assignment). Direct axis2-width and direct axis3-load variants
-   measured nd 68 and nd 69; ruled out. Committed at nd 9. */
+   register assignment). Direct axis2-width, direct axis3-load, typed-component,
+   and load-order variants all measured worse or unchanged; committed at nd 9. */
 // FUN_0026BFC0 NONMATCHING
 #ifdef NON_MATCHING
+
 void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *result) {
     typedef struct SceneMatrixLocal {
         RwV3d right;
@@ -975,6 +977,7 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
 #else
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
 #endif
+
 
 
 /* measured: ported P3FES FUN_003bb620 (also nd 4 there). Only residual is the

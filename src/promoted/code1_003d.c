@@ -934,17 +934,90 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc370);
 /* measured: corrected sqrtf/sqrt.s reconstruction is archived in
    build/W3RSQ_003dc490_body.c (object 124/window 128, normalized_diff 24).
    The source fallback remains ASM after the capped register-pressure probes. */
-// FUN_003DC490
+/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+// FUN_003DC490 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003dc490(u8 *arg0, u8 *arg1) {
+    f32 m00;
+    f32 m11;
+    f32 m22;
+    f32 m21;
+    f32 m12;
+    f32 m01;
+    f32 m10;
+    f32 m02;
+    f32 m20;
+    f32 root;
+    f32 scale;
+    extern f32 sqrtf(f32);
+
+    m00 = *(f32 *)(arg1 + 0x00);
+    m11 = *(f32 *)(arg1 + 0x14);
+    m22 = *(f32 *)(arg1 + 0x28);
+    m21 = *(f32 *)(arg1 + 0x18);
+    m12 = *(f32 *)(arg1 + 0x24);
+    m01 = *(f32 *)(arg1 + 0x04);
+    m10 = *(f32 *)(arg1 + 0x10);
+    m02 = *(f32 *)(arg1 + 0x08);
+    m20 = *(f32 *)(arg1 + 0x20);
+    root = sqrtf(1.0f + (m00 - (m11 + m22)));
+    *(f32 *)(arg0 + 0x00) = 0.5f * root;
+    scale = 0.5f / root;
+    *(f32 *)(arg0 + 0x0C) = scale * (m21 - m12);
+    *(f32 *)(arg0 + 0x04) = scale * (m01 + m10);
+    *(f32 *)(arg0 + 0x08) = scale * (m02 + m20);
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc490);
+#endif
 /* measured: corrected sqrtf branch archived in
    build/W3RSQ_003dc510_body.c (object 136/window 128, normalized_diff 33);
    retained ASM after the capped transfer probe. */
-// FUN_003DC510
+/* corrected sqrtf quaternion candidate: object 124B / window 128B / normalized_diff 24 */
+// FUN_003DC510 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003dc510(u8 *arg0, u8 *arg1) {
+    f32 diff;
+    f32 root;
+    f32 scale;
+    extern f32 sqrtf(f32);
+
+    diff = *(f32 *)(arg1 + 0x20) - *(f32 *)(arg1 + 0x8);
+    root = sqrtf(1.0f + (*(f32 *)(arg1 + 0x14) - (*(f32 *)(arg1 + 0x28) + *(f32 *)(arg1 + 0x0))));
+    *(f32 *)(arg0 + 0x4) = 0.5f * root;
+    scale = 0.5f / root;
+    *(f32 *)(arg0 + 0xC) = scale * diff;
+    *(f32 *)(arg0 + 0x8) = scale * (*(f32 *)(arg1 + 0x18) + *(f32 *)(arg1 + 0x24));
+    *(f32 *)(arg0 + 0x0) = scale * (*(f32 *)(arg1 + 0x10) + *(f32 *)(arg1 + 0x4));
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc510);
+#endif
 /* measured: no corrected candidate was retained within the capped transfer
    probe; ASM fallback remains. */
-// FUN_003DC590
+/* corrected sqrtf quaternion candidate: object 124B / window 128B / normalized_diff 24 */
+// FUN_003DC590 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003dc590(u8 *arg0, u8 *arg1) {
+    f32 diff;
+    f32 root;
+    f32 scale;
+    extern f32 sqrtf(f32);
+
+    diff = *(f32 *)(arg1 + 0x4) - *(f32 *)(arg1 + 0x10);
+    root = sqrtf(1.0f + (*(f32 *)(arg1 + 0x28) - (*(f32 *)(arg1 + 0x0) + *(f32 *)(arg1 + 0x14))));
+    *(f32 *)(arg0 + 0x8) = 0.5f * root;
+    scale = 0.5f / root;
+    *(f32 *)(arg0 + 0xC) = scale * diff;
+    *(f32 *)(arg0 + 0x0) = scale * (*(f32 *)(arg1 + 0x20) + *(f32 *)(arg1 + 0x8));
+    *(f32 *)(arg0 + 0x4) = scale * (*(f32 *)(arg1 + 0x24) + *(f32 *)(arg1 + 0x18));
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc590);
+#endif
 
 // FUN_003DC610
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc610);
@@ -1646,16 +1719,8 @@ s32 func_003df860(u8 *arg0) {
    matching gap.  Residual nd 8 (the mult word).
    Committed at nd 8. */
 
-// FUN_003DF870 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003df870(s32 *arg0, s32 arg1) {
-    return arg0[0] + arg0[3] * arg1;
-}
-#else
+// FUN_003DF870
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df870);
-#endif
-
-
 // FUN_003DF890
 /* measured: schedule on places the load in the jr delay slot. */
 #pragma schedule on
@@ -1676,14 +1741,8 @@ s32 func_003df890(s32 *arg0) {
    rule; not a matching gap.  Residual nd 8 (the mult word).
    Committed at nd 8. */
 
-// FUN_003DF8A0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003df8a0(s32 *arg0) {
-    return arg0[0] + arg0[3] * arg0[1];
-}
-#else
+// FUN_003DF8A0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df8a0);
-#endif
 
 // FUN_003DF8C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df8c0);

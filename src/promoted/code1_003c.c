@@ -126,8 +126,32 @@ extern s32 D_007647BC;
    unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
 
 
-// FUN_003C0050
+/* func_003c0050 archive: object 136B, window 144B, normalized_diff 13. */
+// FUN_003C0050 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003c0050(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
+    extern s32 iGpffffb6b4;
+    u8 *end;
+    s32 *node;
+    s32 next;
+
+    end = arg0 + 0x10;
+    node = *(s32 **)(arg0 + 0x10);
+    if (node == (s32 *)end)
+        goto empty;
+loop:
+    next = *node;
+    if (arg1((s32)((u8 *)node - 4) - iGpffffb6b4, arg2) == 0)
+        return arg0;
+    node = (s32 *)next;
+    if (next != (s32)end)
+        goto loop;
+empty:
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0050);
+#endif
 // FUN_003C00E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c00e0);
 // FUN_003C0210
@@ -811,8 +835,42 @@ u8 *func_003c3e10(u8 *arg0) {
 /* measured: explicit-label block order and the six-argument helper setup
    remain a compiler residual at this 144-byte window; no real C body was
    retained, so the bare INCLUDE_ASM fallback remains. */
-// FUN_003C3E90
+/* measured: probe schedule and branch form for func_003c3e90. */
+// FUN_003C3E90 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003c3e90(s32 arg0, s32 arg1) {
+    extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
+    extern s32 iGpffffaa98;
+    extern s32 iGpffffaa9c;
+    extern s32 iGpffffb6d0;
+    extern s32 iGpffffb6d4;
+    extern u8 D_0070AFD0[];
+    extern u8 D_00886550[];
+    extern u8 D_008872E0[];
+    s32 *temp_3;
+    s32 result;
+
+    iGpffffb6d0 = arg1;
+    result = func_003e1220(
+        *(s32 *)D_0070AFD0,
+        iGpffffaa98,
+        0x10,
+        iGpffffaa9c,
+        D_00886550,
+        0x40012);
+    temp_3 = (s32 *)(D_008872E0 + iGpffffb6d0);
+    *temp_3 = result;
+    goto reload_result;
+reload_result:
+    result = *temp_3;
+    if (result == 0)
+        return 0;
+    iGpffffb6d4 += 1;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e90);
+#endif
 /* measured: schedule on and no_branch_likely on are required for the retail
    jal/jr delay slots and plain branch forms. */
 #pragma schedule on
@@ -875,8 +933,34 @@ done:
    144B and nd 17; retail's store/reload and branch ordering remain a
    compiler residual. No real C body was retained, so the bare INCLUDE_ASM
    fallback remains. */
-// FUN_003C4040
+/* func_003c4040 archive: object 124B, window 144B, normalized_diff 17. */
+// FUN_003C4040 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003c4040(s32 arg0, s32 arg1) {
+    extern s32 iGpffffaaa0;
+    extern s32 iGpffffaaa4;
+    extern u8 D_00886580[];
+    s32 *base;
+    s32 result;
+
+    iGpffffb6e0 = arg1;
+    result = func_003e1220(
+        *(s32 *)D_0070AFF0,
+        iGpffffaaa0,
+        4,
+        iGpffffaaa4,
+        D_00886580,
+        0x40007);
+    base = (s32 *)(D_008872E0 + iGpffffb6e0);
+    *base = result;
+    if (*base == 0)
+        return 0;
+    iGpffffb6e4 += 1;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
+#endif
 // FUN_003C40D0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -971,7 +1055,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
    normalized_diff 8; residual words are +0x0C/+0x10 (prologue move/sq
    order). No real C body was retained, so the bare INCLUDE_ASM fallback
    remains. */
-// FUN_003C47C0
+/* measured: archived body in build/FP3C_003c47c0_body.c reaches object 92B
+   against the 96B retail window, normalized_diff 8. Residual words are
+   +0x0C/+0x10: retail interleaves move $s1,$a0 between sq saves; MWCC b210
+   emits both saves first. The corrected callee prototype was measured and
+   does not remove this prologue-only residual. */
+// FUN_003C47C0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 
 
@@ -1551,8 +1640,30 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
    returned-value, pointer/record-local, offset, and schedule variants remain
    nd 14. Committed at nd 14. */
 
-// FUN_003CA830
+/* func_003ca830 near-match archive: object 92 bytes, window 96 bytes, normalized_diff 14. */
+// FUN_003CA830 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003ca830(u8 *arg0) {
+    u8 *f60 = func_003ca7a0;
+    u8 *f00 = func_003ca740;
+    u8 *f40 = func_003ca780;
+    u8 *node = arg0 + iGpffffb708;
+
+    *(s32 *)(node + 0) = 0;
+    *(s32 *)(node + 4) = 0;
+    *(s32 *)(node + 8) = 0;
+    *(s32 *)(node + 0x10) = *(s32 *)(arg0 + 0x18);
+    *(s32 *)(node + 0x14) = *(s32 *)(arg0 + 0x1C);
+    *(s32 *)(node + 0x18) = *(s32 *)(arg0 + 0x10);
+    *(u8 **)(arg0 + 0x10) = f60;
+    *(u8 **)(arg0 + 0x18) = f00;
+    *(u8 **)(arg0 + 0x1C) = f40;
+    *(s32 *)(node + 0xC) = 0;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
+#endif
 // FUN_003CA890
 #pragma schedule on
 u8 *func_003ca890(u8 *arg0, u8 *arg1) {
@@ -1941,15 +2052,82 @@ s32 func_003cbce0(s32 arg0) {
 
 // FUN_003CBCF0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbcf0);
-// FUN_003CBDE0
+/* func_003cbde0 near-match archive: object 144 bytes, window 160 bytes, normalized_diff 86. */
+// FUN_003CBDE0 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003cbde0(u8 *arg0, void (*arg1)(u8 *), u8 *arg2) {
+    u8 *obj;
+    s32 *p;
+    s32 count;
+
+    obj = arg0 + iGpffffb708;
+    count = *(s32 *)(obj + 8);
+    p = *(s32 **)(obj + 0);
+    if (count > 0)
+        goto loop;
+    goto done;
+loop:
+    if (((s32 (*)(s32, s32))arg1)(*p, (s32)arg2) != 0)
+        goto next;
+    goto done;
+next:
+    count -= 1;
+    p += 1;
+    if (count != 0)
+        goto loop;
+done:
+    return (s32)arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbde0);
+#endif
 
 /* measured: archived scheduled body reaches object 160B/window 176B and
    normalized_diff 57; residual branch-delay/layout words begin at +0x2C and
    the low-path tail diverges from +0x64 through +0xA4. No real C body was
    retained, so the bare INCLUDE_ASM fallback remains. */
-// FUN_003CBE80
+/* func_003cbe80 near-match archive: object 160 bytes, window 176 bytes, normalized_diff 57. */
+/* residual: branch-delay/layout words begin at +0x2C; low-path tail diverges from +0x64 through +0xA4. */
+// FUN_003CBE80 NONMATCHING
+#ifdef NON_MATCHING
+u8 *func_003cbe80(u8 *arg0, u8 *arg1) {
+    u8 *self;
+    u8 *obj;
+    u8 *link;
+    u8 *temp;
+    u8 *obj_link;
+    s32 *next;
+
+    self = arg0;
+    *(s32 *)(arg1 + iGpffffb714) = (s32)self;
+    obj = arg1;
+    if (*(u8 *)(obj + 1) < 0x80)
+        goto low;
+    next = *(s32 **)(obj + 4);
+    if (next != NULL)
+        func_003e9680((u8 *)next);
+    link = *(u8 **)(self + 0x34);
+    temp = self + 0x34;
+    obj_link = obj + 0x34;
+    *(u8 **)(obj_link) = link;
+    *(u8 **)(obj_link + 4) = temp;
+    *(u8 **)(*(u8 **)(self + 0x34) + 4) = obj_link;
+    *(u8 **)(self + 0x34) = obj_link;
+    goto done;
+low:
+    link = *(u8 **)(self + 0x3c);
+    temp = self + 0x3c;
+    obj_link = obj + 0x34;
+    *(u8 **)(obj_link) = link;
+    *(u8 **)(obj_link + 4) = temp;
+    *(u8 **)(*(u8 **)(self + 0x3c) + 4) = obj_link;
+    *(u8 **)(self + 0x3c) = obj_link;
+done:
+    return self;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbe80);
+#endif
 /* measured: closes the schedule bracket opened above and restores the file default. */
 #pragma schedule off
 

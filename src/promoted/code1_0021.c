@@ -87,7 +87,6 @@ extern void func_00201650(void *arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4,
                           s32 arg5, s32 arg6, s32 arg7, s32 arg8);
 extern f32 fGpffff849c;
 extern void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2);
-extern s32 func_00231ed0(s32 arg0);
 extern s32 func_00231f80(s32 arg0);
 extern s32 func_002428f0(u8 *arg0, s32 arg1);
 extern f32 fGpffff8498;
@@ -980,11 +979,34 @@ outer_test:
         goto outer_body;
     }
 }
-/* archived body: build/D21B_0021b0a0_body.c; object 240B; retail window 240B;
-   normalized_diff 7; differing offsets 0x58, 0x5C, 0x64, 0x68, 0xB8, 0xBC.
-   Best legal plain-C body; residual is signed-to-float register coloring. */
+/* MATCHED: unsigned-return conversion idiom and block-scope DatUnit pointer
+   declaration reproduce retail exactly; object 240B / window 240B / nd 0.
+   A u16 return declaration matches func_00231f80's definition but regresses
+   this call site to object 244B / nd 137, so the call-site s32 return view is
+   intentional. */
 // FUN_0021B0A0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b0a0);
+f32 func_0021b0a0(u8 *arg0)
+{
+    typedef struct DatUnit DatUnit;
+    extern s32 func_00231ed0(DatUnit *arg0);
+    extern s32 func_00231f80(DatUnit *arg0);
+    f32 var_f20;
+    f32 var_f0;
+    u32 temp_2;
+    u32 temp_2_2;
+
+    if (*(s32 *)(arg0 + 0xA64) == 0) {
+        return 0.0f;
+    }
+    temp_2 = (u32)func_00231f80((DatUnit *)*(s32 *)(arg0 + 0xA64));
+    var_f20 = (f32)temp_2;
+    if (var_f20 == 0.0f) {
+        return 0.0f;
+    }
+    temp_2_2 = (u32)func_00231ed0((DatUnit *)*(s32 *)(arg0 + 0xA64));
+    var_f0 = (f32)temp_2_2;
+    return var_f0 / var_f20;
+}
 // FUN_0021B190
 void func_0021b190(u8 *arg0, s32 arg1)
 {
@@ -1009,8 +1031,43 @@ void func_0021b310(u8 *arg0, s32 arg1)
    normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C.
    Best legal plain-C body; residual is saved FPU parameter coloring and 12B
    tail padding. */
-// FUN_0021B330
+/* object 452B; retail window 464B; normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C; best legal plain-C body; residual is saved FPU parameter-coloring and 12B tail padding. */
+// FUN_0021B330 NONMATCHING
+#ifdef NON_MATCHING
+void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
+{
+    f32 var_f23;
+    s32 *temp_16;
+    s32 temp_3;
+
+    temp_16 = (s32 *)func_00452560((void *)arg0);
+    if (*(s32 *)(arg1 + 4) != 0) {
+        temp_3 = *(s32 *)(arg1 + 0) + 1;
+        *(s32 *)(arg1 + 0) = temp_3;
+        var_f23 = (f32)temp_3 / 4.0f;
+        if (!(var_f23 <= 1.0f)) {
+            var_f23 = 1.0f;
+        }
+    } else {
+        var_f23 = 1.0f;
+    }
+    if (var_f23 != 0.0f) {
+        fparg1 = fparg1 + 5.5f * (1.0f - var_f23);
+        func_00201720(temp_16, 1.0f, var_f23);
+        func_00201650((u8 *)temp_16, 0xA, 0, fparg0, fparg1,
+                      0x19, 0x19, 0x19, 0xFF);
+        if (!(fparg2 <= fGpffff849c)) {
+            func_00201720(temp_16, fparg2, var_f23);
+            func_00201650((u8 *)temp_16, 0xA, 1,
+                          fparg2 + 5.0f * (1.0f - fparg2), fparg1,
+                          0xFF, 0xFF, 0x51, 0xFF);
+        }
+        func_00201720(temp_16, 1.0f, 1.0f);
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b330);
+#endif
 /* archived body: build/D21B_0021b500_body.c; object 300B; retail window 304B;
    normalized_diff 8; differing offsets 0x3C, 0x40, 0x7C, 0x80, 0xBC, 0xC0,
    0xFC, 0x100; retail-only tail pad 0x12C. Best legal plain-C body; residual
@@ -1200,8 +1257,100 @@ s32 func_0021de60(void)
    table-float load versus integer-to-float conversion scheduling (retail
    loads the table value first) plus the eight-byte retail tail pad. Parked
    because nd <= 25. Committed at nd 16. */
-// FUN_0021DE90
+/* measured: artifact replay produced object_size 456B against the 448B retail window, normalized_diff 303, and 108 differing words (reloc-masked). */
+// FUN_0021DE90 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0021de90(s32 arg0, u8 *arg1)
+{
+  s32 var_16;
+  int new_var3;
+  int new_var5;
+  s32 *new_var8;
+  s32 *new_var2;
+  int new_var10;
+  short new_var7;
+  f32 temp_f2;
+  f32 new_var;
+  u8 *new_var6;
+  int new_var4;
+  s32 var_2;
+  s32 temp_3;
+  int new_var12;
+  int new_var9;
+  u8 *new_var11;
+  s32 var_2_2;
+  new_var7 = 4;
+  new_var9 = 0;
+  new_var2 = (s32 *) (arg1 + new_var7);
+  var_16 = *new_var2;
+  if (var_16 <= new_var9)
+  {
+    return new_var9;
+  }
+  new_var3 = ((*((u16 *) arg1)) & 8) == 0;
+  if (new_var3 && (func_00106330(0x1403) != 0))
+  {
+    if (func_00106330(0x1428) != 0)
+    {
+      var_16 = (s32) (2.0f * ((f32) var_16));
+    }
+    else
+      if (func_00106330(0x1429) != 0)
+    {
+ do { var_16 = 0; } while (0);
+    }
+  }
+  temp_f2 = 1.0f / ((f32) (*((s32 *) (arg1 + 0x20))));
+  new_var4 = (new_var3 = *((s32 *) ((new_var11 = arg1) + 0xC)));
+  new_var12 = 0;
+  new_var6 = iGpffffb414 + (new_var4 * 0x18);
+  new_var8 = (s32 *) new_var6;
+  if (((*new_var8) & 0x80) != 0)
+  {
+    var_2 = (s32) (((f32) var_16) * temp_f2);
+  }
+  else
+  {
+    new_var10 = (*((s32 *) (new_var11 + 0x38))) - arg0;
+    temp_3 = new_var10;
+    new_var5 = temp_3 >= ((int) 0xA);
+    if (new_var5)
+    {
+      var_2_2 = 0x14;
+    }
+    else
+      if (temp_3 < (-9))
+    {
+      if (var_2)
+      {
+      }
+      var_2_2 = new_var12;
+    }
+    else
+    {
+      var_2_2 = temp_3 + 0xA;
+    }
+    var_2 = (s32) ((inline_fn(iGpffffb40c, var_2_2) * (new_var = (f32) var_16)) * temp_f2);
+  }
+  if (var_2 > (((0, 0x10000)) - 1))
+  {
+    return 0xFFFF;
+  }
+  if (var_2 <= 0)
+  {
+    var_2 = 1;
+  }
+  return var_2;
+  if (temp_3)
+  {
+    if (new_var11)
+    {
+    }
+  }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021de90);
+#endif
 // FUN_0021E050
 s32 func_0021e050(u8 *arg0)
 {
