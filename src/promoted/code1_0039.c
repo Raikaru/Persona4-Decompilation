@@ -64,6 +64,8 @@ extern s32 func_0039aa40(void);
 extern void func_003e12f0(s32 arg0);
 extern void func_00398410(u8 *arg0);
 extern void (*jtbl_008873FC[])(s32, void *);
+extern void func_003d5830(u8 *arg0);
+extern s32 func_00397120(u8 *arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_007646D0;
 extern void func_0039b830(u8 *arg0);
@@ -83,6 +85,14 @@ extern s32 func_0039ae90(s32 arg0, s32 arg1);
 extern s32 func_0039b080(s32 arg0, s32 arg1);
 extern s32 func_0039af40(s32 arg0, s32 arg1);
 extern s32 func_003e8930(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)());
+extern s32 func_003e5520(s32 arg0, s32 (*arg1)(), s32 (*arg2)(), s32 (*arg3)());
+extern s32 func_003e9eb0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
+extern s32 func_00396750();
+extern s32 func_00396a40();
+extern s32 func_00396c00();
+extern s32 func_00396890();
+extern s32 func_00396940();
+extern s32 func_00396e80();
 extern s32 func_003c1ab0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
 extern s32 func_003c4310(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_003c4370(s32 arg0, s32 arg1);
@@ -323,7 +333,9 @@ s32 func_00396870(s32 arg0)
 }
 /* measured: schedule off closes the scoped schedule bracket. */
 #pragma schedule off
-// FUN_00396890
+/* measured: archived 96890 reconstruction in build/K399_00396890_body.c;
+   object 156B / window 176B / normalized_diff 75. */
+// FUN_00396890 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396890);
 
 // FUN_00396940
@@ -1453,15 +1465,49 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396e80);
 #pragma schedule on
 // measured: retail uses plain branches in the 982e0 dispatch.
 #pragma no_branch_likely on
-
 // FUN_00396F00
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396f00);
+s32 func_00396f00(void)
+{
+    s32 var_2;
+
+    if (func_003e8930(0, 0x11E, func_00396750, func_00396830) < 0) {
+        return 0;
+    }
+    iGpffffb5d8 = func_003e9eb0(8, 0x11E, func_00396870, func_00396890, func_00396940);
+    var_2 = func_003e5520(0x11E, func_00396c00, func_00396a40, func_00396e80) >= 0;
+    if (var_2 != 0) {
+        var_2 = iGpffffb5d8 >= 0;
+    }
+    return var_2;
+}
 
 // FUN_00396FB0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00396fb0);
 
 // FUN_00397120
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00397120);
+s32 func_00397120(u8 *arg0)
+{
+    s32 temp_3;
+    s32 temp_16;
+
+    temp_3 = *(s32 *)arg0;
+    temp_16 = *(s32 *)(arg0 + 0x14);
+    if ((temp_3 & 1) == 0) {
+        if ((temp_3 & 2) == 0) {
+            jtbl_008873EC[0](*(u8 **)(arg0 + 0xC));
+        }
+        jtbl_008873EC[0](*(u8 **)(arg0 + 0x10));
+    }
+    *(s32 *)(arg0 + 0xC) = 0;
+    *(s32 *)(arg0 + 8) = 0;
+    *(s32 *)(arg0 + 0x10) = 0;
+    func_003d5830(*(u8 **)(arg0 + 0x20));
+    jtbl_008873FC[0](iGpffffb5dc, arg0);
+    if (temp_16 != 0) {
+        *(s32 *)((u8 *)temp_16 + iGpffffb5d8 + 4) = 0;
+    }
+    return 0;
+}
 
 // FUN_003971D0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003971d0);
@@ -3192,6 +3238,8 @@ ret0:
 #pragma no_branch_likely off
 /* measured: closes the schedule-on b6e0 probe. */
 #pragma schedule off
+/* measured: archived b720 reconstruction in build/K399_0039b720_body.c;
+   object 148B / window 160B / normalized_diff 81. */
 // FUN_0039B720
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b720);
 // FUN_0039B7C0
@@ -3270,7 +3318,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039d360);
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039dcc0);
 // FUN_0039E740
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039e740);
-// FUN_0039F050
+/* measured: archived f050 reconstruction in build/K399_0039f050_body.c;
+   object 132B / window 144B / normalized_diff 10. */
+// FUN_0039F050 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f050);
 // FUN_0039F0E0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f0e0);

@@ -43,8 +43,7 @@ extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, void *arg2);
 extern s32 *func_003cfa70(void);
 extern s32 func_00412e90(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 D_007084A0[];
-extern void func_003b42e0(s32 arg0, u8 *arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5, s32 arg6);
+extern void func_003b42e0(s32 arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void func_003a76c0(u8 *arg0, s32 *arg2, s32 arg4);
 extern u8 D_008872E0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -58,6 +57,8 @@ extern u8 *func_003cfa30();
 extern s32 func_003a8ca0(void);
 extern s32 func_003a92d0(void);
 extern void func_003a72a0(void);
+extern void func_003a55a0(u8 *arg0, s32 *arg2, s32 arg4);
+extern void func_003a5280();
 
 
 
@@ -186,14 +187,12 @@ void func_003a14b0(u8 *arg0)
     }
     func_003a0aa0(arg0);
 }
-// measured: closing bracket for the schedule-on above; satisfies decomp_lint
-// P001 balance and restores the -O2 default for any following code.
 #pragma schedule off
 
 
 
 
-// FUN_003A14F0
+// FUN_003A14F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a14f0);
 // measured: schedule on preserves retail's callback setup order for func_003a15e0.
 #pragma schedule on
@@ -250,7 +249,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a1730);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a1c40);
 // FUN_003A20E0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a20e0);
-// FUN_003A2290
+// FUN_003A2290 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2290);
 // FUN_003A2340
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2340);
@@ -292,7 +291,7 @@ s32 func_003a2920(s32 arg0)
 #pragma schedule off
 // FUN_003A2950
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2950);
-// FUN_003A29F0
+// FUN_003A29F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a29f0);
 // measured: schedule on for 003a2ad0 materialization order.
 #pragma schedule on
@@ -464,7 +463,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a4850);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a4ab0);
 // FUN_003A4D50
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a4d50);
-// FUN_003A5180
+// FUN_003A5180 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a5180);
 // FUN_003A5280
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a5280);
@@ -484,8 +483,48 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a5fe0);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a6230);
 // FUN_003A63B0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a63b0);
+// measured: probe schedule-on for 003a6570's preheader constants.
+#pragma schedule on
 // FUN_003A6570
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a6570);
+s32 func_003a6570(u8 *arg0, u8 *arg1)
+{
+    s32 temp_10;
+    s32 temp_4;
+    s32 temp_7;
+    s32 temp_8;
+    s32 temp_9;
+    s32 temp_11;
+    s32 temp_12;
+    s32 mask = 0xEFFFFFFF;
+    void (*callback)(u8 *, s32 *, s32) = func_003a55a0;
+    u8 *temp_14;
+    u8 *temp_16;
+    u8 *temp_2;
+    temp_14 = *(u8 **)(arg0 + 0x2C);
+    temp_4 = *(s32 *)(arg0 + 8);
+    temp_16 = *(u8 **)(temp_4 + iGpffffb610);
+    temp_2 = *(u8 **)(temp_16 + 0x9C);
+    temp_7 = *(s32 *)(temp_2 + 0xE4) * 0x24;
+    *(s32 *)((s32)temp_7 + (s32)temp_2 + 0x140) =
+        *(s32 *)(arg1 + 0xC);
+    temp_11 = *(s32 *)(temp_2 + 0xE4) * 0x24;
+    *(s32 *)((s32)temp_11 + (s32)temp_2 + 0x150) =
+        *(s32 *)(arg1 + 0);
+    temp_12 = *(s32 *)(temp_2 + 0xE4) * 0x24;
+    *(s32 *)((s32)temp_12 + (s32)temp_2 + 0x14C) =
+        *(s32 *)(arg1 + 4);
+    temp_9 = *(s32 *)(temp_2 + 0xE4);
+    temp_10 = *(s32 *)(arg1 + 8);
+    temp_8 = temp_9 * 0x24;
+    *(s32 *)((s32)temp_8 + (s32)temp_2 + 0x15C) = temp_10;
+    *(void (**)(u8 *, s32 *, s32))(temp_16 + 0x24) = callback;
+    func_003b42e0(temp_4, temp_16 + 0x50,
+                  *(s32 *)(temp_14 + 4), mask);
+    *(void (**)(void))(temp_16 + 0x24) = func_003a5280;
+    return 1;
+}
+// measured: closes schedule-on probe for 003a6570.
+#pragma schedule off
 // FUN_003A6650
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a6650);
 // FUN_003A6BA0
@@ -588,7 +627,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a93b0);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9880);
 // FUN_003A9C70
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9c70);
-// FUN_003A9E50
+// FUN_003A9E50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9e50);
 // FUN_003A9F40
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9f40);

@@ -629,16 +629,13 @@ u16 func_00247cb0(s64 arg0) {
     }
     return var_16;
 }
-/* measured (wave 14 retest): mask-CSE reconfirmed — my fresh reconstruction
-   of the loop (mask = arg0&0xFFFF; for i in 0..0x1E, base = D_00881480[0];
-   per-iteration checks, *100 ladder, func_002489c0(i&0xFFFF) with the
-   leftover-$4 arg, func_001077f0, return i&0xFFFF) scores nd 48-49
-   (note's earlier nd 31 with the func_002489c0 arg spelled explicitly).
-   mwcc b210 still CSEs i&0xFFFF into a 4th saved register $s2 (frame -0x50
-   vs retail's 3-reg -0x40); `(u16)i`/`i & 0xFFFF` mixes at the 5 sites are
-   normalised away (nd 49), and the cmmMiscAddOff helper on the *100 ladder
-   base-add only takes it to nd 48 (retail `addu $v0,$v0,$s0` mul-first, the
-   helper fixed that one word). Mask-CSE floor. */
+/* measured: best compliant reconstruction object_size=236 window=240
+   normalized_diff=164 (best helper-assisted probe nd48-49). Retail keeps
+   the raw loop counter, masked index, and table base in distinct saved
+   registers; MWCCPS2 CSEs the mask into an extra saved register. Tried
+   while/for/goto loop forms, u16 versus masked target, local declaration
+   order, and opt_common_subs off; all remained non-exact. Body archived in
+   build/KCMM_00247dd0_body.c. */
 // FUN_00247DD0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247dd0);
 
@@ -1275,50 +1272,16 @@ s32 func_00249010(s32 seed) {
     return -1;
 }
 
-/* measured: candidate uses the retail incoming seed as the first argument to
-   func_001104d0 and reproduces the 0x50-byte frame, saved s0/s1/s2, and
-   all code through initialization. Candidate2 object 200B vs retail window
-   208B, nd 24; fndiff rows 68, 80, 92, 95, 100, 102-104, 106-113.
-   Candidate1 (direct stack comparisons) nd 52 and candidate3 (guarded loop
-   test) nd 50 were ruled out. Residual is the loop branch/layout floor.
-   Committed at nd 24. */
-// FUN_002490B0 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_002490b0(s32 seed) {
-    s32 sp4C;
-    s32 sp48;
-    u8 *temp_17;
-    u8 *p;
-    s32 count;
-    s32 a0;
-    s32 b0;
-    s32 i;
-
-    temp_17 = D_008814D0[0] + 8;
-    p = temp_17;
-    count = *(s32 *)(D_008814D0[0] + 4);
-    func_001104d0(seed, &sp4C, &sp48);
-    i = 0;
-    a0 = sp4C;
-    b0 = sp48;
-    while (i < count) {
-        if ((p[0] == a0) && (p[1] == b0)) {
-            break;
-        }
-        p += 0x24;
-        i++;
-    }
-    if (i == count) {
-        i = -1;
-    }
-    if (i != -1) {
-        return temp_17 + i * 0x24;
-    }
-    return NULL;
-}
-#else
+/* measured: best compliant reconstruction object_size=200 window=208
+   normalized_diff=24. Retail emits a bne-to-advance followed by an
+   unconditional b-to-found for the second byte comparison; MWCCPS2
+   collapses that branch in every tested plain-C spelling. Direct stack
+   comparisons, guarded loops, explicit gotos, shared-result locals,
+   declaration-order permutations, and opt_rebuildconditionals off were
+   ruled out. Body archived in build/KCMM_002490b0_body.c. */
+// FUN_002490B0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002490b0);
-#endif
+
 // FUN_00249180
 u8 *func_00249180(u32 arg0) {
     s32 sp3C;
@@ -1334,7 +1297,6 @@ u8 *func_00249180(u32 arg0) {
     }
     return NULL;
 }
-
 // FUN_00249230
 s32 func_00249230(void) {
     s32 seed;
@@ -1353,54 +1315,15 @@ s32 func_00249230(void) {
     return 1;
 }
 
-/* measured (wave 14 retest — nd 26 -> 20, no match): the merged-NULL
-   spelling `if ((A61==0) || (var_17 = temp_17 + func_001064f0(0x6D)*0x24,
-   arg0 < func_00110600(var_17[2],var_17[3]))) var_17 = NULL;` now scores
-   nd 20; #pragma opt_rebuildconditionals off is neutral (nd 20) and a
-   one-case switch wrap regresses to nd 48. Residual: retail puts the shared
-   NULL block OUT OF LINE (.L249334) with positive branches (bnez $v0) and a
-   main-path `b .L249338`, plus `sltu $v0` (not $at) and a different
-   return-block 0/1 ordering; mwcc b210 keeps the NULL body inline with a
-   negated skip (beqz $at -> main) and sltu $at. Original note's claim —
-   switch wraps don't help — reconfirmed. */
-/* measured: shared-tail reconstruction with explicit condition and boolean locals scores nd 25 (object 156B vs retail window 192B). Retail still keeps the NULL block out of line and emits the longer return tail; the candidate's branch layout remains shorter. Committed at nd 25. */
-// FUN_002492B0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_002492b0(u32 arg0) {
-    s32 sp3C;
-    s32 sp38;
-    s32 cond;
-    s32 hit;
-    s32 result;
-    u8 *temp_17;
-    u8 *var_17;
-
-    temp_17 = D_008814D0[0] + 8;
-    func_001104d0(arg0, &sp3C, &sp38);
-    if (func_00106330(0xA61) == 0) {
-        goto null_p;
-    }
-    var_17 = temp_17 + func_001064f0(0x6D) * 0x24;
-    cond = arg0 < func_00110600(var_17[2], var_17[3]);
-    if (cond != 0) {
-        goto null_p;
-    }
-    goto done_p;
-null_p:
-    var_17 = NULL;
-done_p:
-    hit = (var_17 != NULL);
-    if (hit != 0) {
-        result = 1;
-        goto done_result;
-    }
-    result = 0;
-done_result:
-    return result;
-}
-#else
+/* measured: best compliant reconstruction object_size=156 window=192
+   normalized_diff=25. Retail places the NULL assignment in an out-of-line
+   shared block and uses positive branches plus a longer 0/1 return tail;
+   MWCCPS2 keeps the NULL path inline and materializes the opposite branch
+   polarity. Merged conditions, explicit boolean/result locals, switch
+   wrappers, direct returns, shared-tail gotos, and opt_rebuildconditionals
+   off were ruled out. Body archived in build/KCMM_002492b0_body.c. */
+// FUN_002492B0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002492b0);
-#endif
 // FUN_00249370
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249370);
 /* measured (wave 14 retest — nd 33 reproducible, no match): merged-OR form
