@@ -15,7 +15,7 @@ static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
 }
 
 u16 func_00115750(u8 *arg0);
-void func_0046d730(const char *file, s32 line);
+void func_0046d730(void *file, s32 line);
 void func_00115670(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 s64 func_0023d8e0(u32 arg0, u16 arg1);
 extern char D_005E4800[];
@@ -344,16 +344,8 @@ void func_00115760(u8 *arg0) {
     *(u16 *)(arg0 + 0x224) -= 1;
 }
 
-/* measured: indexed loop body matches retail except the initial bnez target
-   (retail branches to the pre-jump, b210 threads directly to loop_test);
-   nd 1, object 220B/224B. Tried explicit pre-jumps, both-path gotos,
-   if/else, do/while, while, switch, result-local and hidden-return forms,
-   plus opt_branch_folding off; all stayed nd 1 or grew. The comparison
-   spellings `i < count`/`i <= count - 1` scored nd 142 and
-   `i < count - 1`/`i <= count - 2` scored nd 7. A plain `goto done;`
-   shared exit with empty, self-assignment, and both-path tails stayed nd 1.
-   The base body remains the lowest park. Committed at nd 1. */
-// FUN_00115670
+/* measured: best archived body is object 220B/window 224B at normalized_diff 1. Corrected func_0046d730 declaration to (void *, s32). Loop-rotation probes (guarded do/while nd 23; unguarded do/while nd 40; explicit goto-test/pre-jump) did not beat the baseline; retail's initial bnez targets the loop pre-jump while b210 threads directly to loop_test. */
+// FUN_00115670 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
 
 // FUN_00115750

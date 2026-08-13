@@ -122,6 +122,8 @@ extern void func_00466600(void);
 
 
 
+
+
 // FUN_004601C0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004601c0);
 // FUN_004604D0
@@ -315,6 +317,7 @@ void func_004633c0(void *arg0, void *arg1)
    colouring words and an all-zero tail. Committed at nd 4. */
 // FUN_004633F0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004633f0);
+
 // FUN_00463520
 void func_00463520(void) {
     func_00451de0(D_00712670, 0x12C, 0, 0, (void *)func_004633f0, 0, 0);

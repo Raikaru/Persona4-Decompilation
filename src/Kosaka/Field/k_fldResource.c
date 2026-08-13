@@ -13,12 +13,12 @@ extern s32 func_004553c0(s32 handle);
 extern u8 *func_00460f80(u8 *list, s32 arg1);
 extern u8 *func_00461080(u8 *list, s32 arg1);
 extern u8 *func_00461180(u8 *list, s32 arg1);
-extern void func_003e9d50(s32 a0, void *a1, f32 f12, s32 a3);
+extern u8 *func_003e9d50(u8 *arg0);
 extern void func_00152170();
 extern s32 func_004581a0(void *object, const char *name);
 extern void func_00458430(s32 *out, void *object, const char *name, s32 index);
 extern void func_0046d730(const char *file, s32 line);
-extern void func_0047a1a0(void *a0, void *a1, f32 f12, s32 a2);
+extern void func_0047a1a0(void);
 extern void func_004b1290(s32 a0, f32 f12, f32 f13, f32 f14);
 extern void func_003c9d40(void *arg0);
 extern void func_003c0700(void *arg0);
@@ -758,85 +758,10 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
 // FUN_00152E50
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152e50);
 
-/* measured: 00153300 plain-C reconstruction is 416B/416B with normalized_diff 8. */
-/* Parked near-match. Committed at nd 8. */
+/* measured: 00153300 archive body is 416B/416B with normalized_diff 4; */
+/* parked because the remaining two words are global-load scheduling/type residuals. */
 // FUN_00153300
-#ifdef NON_MATCHING
-void func_00153300(s8 *arg0, f32 fparg0)
-{
-    struct {
-        s64 sp40;
-        f32 sp48;
-    } sp;
-    u16 temp_4;
-    u32 var_16;
-    u32 var_16_2;
-    u8 *temp_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *temp_3_4;
-    u8 *temp_5;
-    void *ptr;
-
-    ptr = &sp.sp40;
-    sp.sp40 = D_005EFE38[0];
-    sp.sp48 = D_005EFE40[0];
-    if (!(*(u32 *)arg0 & 1)) {
-        temp_3 = *(u8 **)(arg0 + 8);
-        if (temp_3 != NULL) {
-            func_003e9d50(*(s32 *)(temp_3 + 4), ptr, fparg0, 2);
-        }
-        temp_3_2 = *(u8 **)(arg0 + 0x10);
-        if (temp_3_2 != NULL) {
-            func_003e9d50(*(s32 *)(temp_3_2 + 4), &sp.sp40, fparg0, 2);
-        }
-        temp_3_3 = *(u8 **)(arg0 + 0x14);
-        if (temp_3_3 != NULL) {
-            func_003e9d50(*(s32 *)(temp_3_3 + 4), &sp.sp40, fparg0, 2);
-        }
-    }
-    var_16 = 0;
-    goto loop_test_11;
-loop_body_11:
-    temp_3_4 = *(u8 **)(arg0 + var_16 * 4 + 0x1C);
-    if (temp_3_4 != NULL) {
-        func_003e9d50(*(s32 *)(temp_3_4 + 4), &sp.sp40, fparg0, 2);
-    }
-    var_16 += 1;
-loop_test_11:
-    if (var_16 < *(u32 *)(arg0 + 0x18)) {
-        goto loop_body_11;
-    }
-    var_16_2 = 0;
-    goto loop_test_19;
-loop_body_19:
-    temp_5 = (u8 *)arg0 + var_16_2 * 0x18;
-    temp_4 = *(u16 *)(temp_5 + 0x120);
-    if (temp_4 == 0) {
-        goto switch_body_a;
-    }
-    if (temp_4 != 2) {
-        goto switch_case_1_test;
-    }
-switch_body_a:
-    func_0047a1a0((void *)(*(s32 *)(temp_5 + 0x12C)), &sp.sp40, fparg0, 2);
-    goto switch_end;
-switch_case_1_test:
-    if (temp_4 != 1) {
-        goto switch_end;
-    }
-    func_004b1290(*(s32 *)(temp_5 + 0x130), 0.0f, fparg0, 0.0f);
-switch_end:
-    ;
-    var_16_2 += 1;
-loop_test_19:
-    if (var_16_2 < *(u32 *)(arg0 + 0x11C)) {
-        goto loop_body_19;
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00153300);
-#endif
 
 // FUN_001534A0
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_001534a0);

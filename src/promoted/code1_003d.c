@@ -1226,42 +1226,11 @@ void func_003de100(u8 *arg0) {
 #pragma tailcall off
 // FUN_003DE110
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de110);
-/* Parked candidate: retail register coloring keeps the indexed base in
-   $v0 and the 0x70 stride in $v1; MWCC b210 retains the opposite coloring.
-   Residual normalized_diff 13. Committed at nd 13. */
+/* Parked candidate: the initialized-pointer body in the archive measures
+   normalized_diff 5 (object 52B/window 64B). The final pointer-index probes
+   retained the retail residual rather than closing it. */
 // FUN_003DE280 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: no_branch_likely plus schedule on preserves retail's plain
-   branches and fills the unconditional branch delay slot. */
-/* measured: opt_propagation off keeps the base load ahead of the index chain. */
-#pragma opt_propagation off
-#pragma no_branch_likely on
-#pragma schedule on
-s32 func_003de280(u8 *arg0, u32 arg1) {
-    s32 offset;
-    s32 result;
-    if (!(arg1 < *(u32 *)(arg0 + 4))) {
-        goto zero;
-    }
-    result = *(s32 *)(arg0 + 0x58);
-    offset = arg1 << 3;
-    offset -= arg1;
-    offset <<= 4;
-    result = func_003d_add_offset(result, offset);
-    goto done;
-zero:
-    result = 0;
-done:
-    return result;
-}
-/* measured: closes the schedule/no_branch_likely brackets. */
-#pragma schedule off
-/* measured: closes the opt_propagation bracket. */
-#pragma opt_propagation on
-#pragma no_branch_likely off
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de280);
-#endif
 /* measured: scalar GP slot address and schedule on reproduce retail's
    addiu $v0,$gp,-0x54B0 in the jr delay slot. */
 // FUN_003DE2C0
