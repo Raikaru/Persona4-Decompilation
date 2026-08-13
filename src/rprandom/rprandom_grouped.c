@@ -38,7 +38,8 @@ extern void func_003b7a10();
 extern s32 func_003b7a90(s32 arg0);
 extern s32 func_003b7ad0(s32 arg0);
 extern s32 func_003b7b00(s32 arg0, s32 arg1);
-extern s32 func_003b7b20(u8 *arg0);
+extern s32 func_003c1b80(s32 arg0);
+extern s32 func_003b7b20(s32 arg0);
 extern s32 func_003b7bb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_003b7c10(u8 *arg0);
 extern s32 *func_003b7ca0(s32 *arg0, s32 arg1, u8 *arg2);
@@ -108,8 +109,36 @@ s32 func_003b7b00(s32 arg0, s32 arg1)
     *(s32 *)(arg0 + D_00886494[0]) = *(s32 *)(arg1 + D_00886494[0]);
     return arg0;
 }
+/* measured: no_branch_likely on selects retail's plain branches and prologue ordering. */
 // FUN_003B7B20
-INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b7b20);
+#pragma no_branch_likely on
+s32 func_003b7b20(s32 arg0)
+{
+    s32 var_17;
+    u8 *object;
+    var_17 = 1;
+    object = (u8 *)arg0;
+
+    if (func_003e8960(0x120) != -1) {
+        goto check_status;
+    }
+check_object:
+    if (*(u8 **)(object + 0x18) == NULL) {
+        goto done;
+    }
+    if (func_003b83f0((int)*(u8 **)(object + 0x18)) == 0) {
+        goto done;
+    }
+    func_003b7480(object, var_17);
+done:
+    return 1;
+check_status:
+    if (*(u8 *)(object + func_003c1b80(0x120)) != 0) {
+        var_17 = 2;
+    }
+    goto check_object;
+}
+#pragma no_branch_likely off
 
 
 // FUN_003B7BB0
@@ -387,7 +416,7 @@ u64 func_003cad80(u64 value) { return value; }
 /* measured: removing this pragma takes func_003caee0 nd 0 -> nd 8: retail fills the jr $ra delay slot with move $v0,$a0; baseline -O2 emits move; jr; nop. */
 #pragma optimization_level 3
 
-// FUN_003CAD90
+// FUN_003CAD90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003cad90);
 
 // FUN_003CAE70

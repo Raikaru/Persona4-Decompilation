@@ -73,15 +73,18 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412e90);
 // FUN_00412FB0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00412fb0);
 
+/* measured: MWCC frameless (no callee-saved registers); object 164B/window 192B, normalized_diff 79. Archived body: build/K414_00413290_body.c. */
 // FUN_00413290
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413290);
 
+/* measured: MWCC frameless (no callee-saved registers); object 192B/window 192B, normalized_diff 120. Archived body: build/K414_00413350_body.c. */
 // FUN_00413350
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413350);
 
 // FUN_00413410
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413410);
 
+/* measured: MWCC frameless (no callee-saved registers); object 196B/window 192B, normalized_diff 73. Archived body: build/K414_00413640_body.c. */
 // FUN_00413640
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413640);
 
@@ -97,6 +100,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00413e50);
 // FUN_004140F0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004140f0);
 
+/* measured: MWCC sq-prologue; object 200B/window 208B, normalized_diff 119. Archived body: build/K414_004141e0_body.c. */
 // FUN_004141E0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004141e0);
 
@@ -143,7 +147,7 @@ done:
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004143f0);
 
 /* measured: object 132B/window 128B, normalized_diff 49; confirmed MWCC-built via `sq $s0` prologue (`sd $ra` is not a GCC tell). Best body archived in build/H414_004147a0_body.c after ruling out declaration, control-flow, argument-shape, local-width, and pragma levers. */
-// FUN_004147A0 NONMATCHING
+// FUN_004147A0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004147a0);
 
 
@@ -175,6 +179,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414e10);
 // FUN_00414EF0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414ef0);
 
+/* measured: MWCC sq-prologue; object 160B/window 160B, normalized_diff 93. Archived body: build/K414_00414fd0_body.c. */
 // FUN_00414FD0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414fd0);
 
@@ -393,6 +398,7 @@ void func_00417310(u8 *arg0, u8 *arg1, u8 *arg2)
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417310);
 #endif
+/* measured: MWCC frameless (sd ra only; no s saves, immediately before the 00417510 GCC region); object 164B/window 160B, normalized_diff 97. Archived body: build/K414_00417470_body.c. */
 // FUN_00417470
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00417470);
 

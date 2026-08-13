@@ -495,6 +495,7 @@ u8 *func_003c1b90(u8 *arg0, u8 *arg1, s32 arg2) {
 }
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
+/* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
 // FUN_003C1BD0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1bd0);
 /* measured: schedule on and no_branch_likely on reproduce the saved self,
@@ -607,6 +608,11 @@ noarg:
 #pragma no_branch_likely off
 /* measured: schedule off closes the saved-arguments probe. */
 #pragma schedule off
+/* measured: best reconstruction archived in build/K3C2_003c21e0_body.c;
+   object 156B/window 176B, normalized_diff 90. The residual is the
+   initial/loop branch polarity and trampoline layout; direct comparisons,
+   named booleans, declaration orders, explicit gotos, >=1, schedule, and
+   no_branch_likely probes were ruled out. */
 // FUN_003C21E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c21e0);
 // FUN_003C2290
@@ -1004,7 +1010,7 @@ u8 *func_003c40d0(u8 *arg0) {
    so the bare INCLUDE_ASM fallback remains. */
 // FUN_003C4140
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4140);
-// FUN_003C4220
+// FUN_003C4220 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4220);
 // FUN_003C42B0
 /* measured: schedule on fills the branch and jr delay slots (nd 53 -> 4) and
@@ -1089,10 +1095,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 // FUN_003C4820
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
 
-/* measured: generated-shape list teardown reaches nd 76 with object/window
-   148B/160B; the entry slt/beq guard and resulting block layout remain a
-   compiler residual. No real C body was retained, so the bare INCLUDE_ASM
-   fallback remains. */
+/* measured: archived c49a0 body is object 148B/window 160B, normalized_diff
+   74; differing offsets 0x20,0x2c,0x2d,0x2e,0x30,0x33,0x35,0x36,0x37,
+   0x3c-0x40,0x42-0x43. Declaration/order, loop shape, callback teardown,
+   and schedule probes were ruled out; see build/K3C1_003c49a0_body.c. */
 // FUN_003C49A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c49a0);
 // FUN_003C4A40
@@ -1227,10 +1233,11 @@ call:
 // FUN_003C57D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c57d0);
 
-/* measured: direct callback-loop reconstruction reaches nd 34 with
-   object/window 140B/160B; the saved-argument coloring and branch layout
-   remain residuals. No real C body was retained, so the bare INCLUDE_ASM
-   fallback remains. */
+/* measured: archived c59f0 body is object 140B/window 160B,
+   normalized_diff 92; differing offsets 0x10-0x1f. Straight loop,
+   scoped/self-local do/while, callback declaration/order, named argument,
+   and branch-shape probes were ruled out; see
+   build/K3C1_003c59f0_body.c. */
 // FUN_003C59F0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c59f0);
 
@@ -1308,6 +1315,10 @@ u8 *func_003c8910(u8 *arg0) {
 // FUN_003C8920
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8920);
 
+/* measured: best reconstruction archived in build/K3C2_003c8bf0_body.c;
+   object 148B/window 176B, normalized_diff 97. The residual is saved-register
+   coloring and dispatch materialization; all direct/local callback declaration
+   orders were ruled out. */
 // FUN_003C8BF0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8bf0);
 // FUN_003C8CA0
@@ -1430,15 +1441,18 @@ s32 func_003c9530(s32 arg0) {
 /* measured: close schedule */
 #pragma schedule off
 
-/* measured: typed allocator reconstruction reaches normalized_diff 37 with
-   object 152B/window 160B; the store/load check still folds before the
-   retail branch block, so the bare INCLUDE_ASM fallback remains. */
-// FUN_003C95A0
+/* measured: archived c95a0 body is object 176B/window 160B,
+   normalized_diff 100 with differing offsets 0x0c-0x0f,0x12,0x13,
+   0x18-0x1c,0x1e-0x20,0x23,0x28,0x2a; object exceeded the window and
+   was stopped immediately. See build/K3C1_003c95a0_body.c. */
+// FUN_003C95A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c95a0);
-/* measured: reordered dispatch reconstruction reaches normalized_diff 30 with
-   object 136B/window 144B; the conditional-move branch and entry targets
-   remain residuals, so the bare INCLUDE_ASM fallback remains. */
-// FUN_003C9640
+/* measured: archived c9640 body is object 132B/window 144B,
+   normalized_diff 46; differing offsets 0x10,0x30-0x32,0x34,0x37,
+   0x39,0x3b-0x3c,0x50-0x51,0x53,0x5a-0x5b,0x5e. Guard, goto,
+   base-local, schedule/no_branch_likely, and conditional-rebuild probes
+   were ruled out; see build/K3C1_003c9640_body.c. */
+// FUN_003C9640 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9640);
 // FUN_003C96D0
 extern u8 D_008872E4[];
@@ -1498,9 +1512,14 @@ u8 *func_003c9750(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
 
 // FUN_003C97E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
-
-// FUN_003C9940
+/* measured: best reconstruction archived in build/K3C2_003c9940_body.c;
+   object 172B/window 176B, normalized_diff 6. The residual is three
+   relocated global-address materialization words; schedule, declaration
+   order, pointer widths, local address forms, and optimization-level 1 were
+   measured and ruled out. */
+// FUN_003C9940 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9940);
+
 
 /* measured: schedule fills the key-test and found-exit delay slots. */
 #pragma schedule on
@@ -1537,6 +1556,11 @@ done:
 }
 /* measured: schedule off closes the c99f0 probe. */
 #pragma schedule off
+/* measured: best reconstruction archived in build/K3C2_003c9a80_body.c;
+   object 164B/window 176B, normalized_diff 19. The residual is one
+   compiler-emitted nop before the common epilogue plus shifted tail words;
+   loop shape, return-label order, declaration order, and pragma variants
+   were ruled out. */
 // FUN_003C9A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9a80);
 // FUN_003C9B30
@@ -1583,8 +1607,19 @@ default_callback:
 // FUN_003C9EB0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
 
+/* measured: best reconstruction archived in build/K3C2_003ca270_body.c;
+   object 160B/window 176B, normalized_diff 92. The residual is the
+   initial/loop branch polarity and trampoline layout; declaration order,
+   schedule, no_branch_likely, direct comparisons, and boolean/trampoline
+   variants were ruled out. */
 // FUN_003CA270
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca270);
+/* measured: best reconstruction archived in build/K3C2_003ca320_body.c;
+   object 164B/window 176B, normalized_diff 13. The residual is the
+   callback-zero branch target and resulting epilogue displacement: retail
+   has a distinct callback return plus a nop before the shared epilogue.
+   The common-return form was object 160B/nd 24; no declarations, volatile
+   accesses, or asm were used. */
 // FUN_003CA320
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
 // FUN_003CA3D0

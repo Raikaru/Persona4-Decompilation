@@ -211,7 +211,7 @@ block_12:
     temp_6 = var_5 * 2;
     return (s64) ((s64) *((u8 *)(temp_6 + temp_5)) << 0x38) >> 0x38;
 }
-// FUN_00110960
+// FUN_00110960 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110960);
 // FUN_00110A60
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110a60);

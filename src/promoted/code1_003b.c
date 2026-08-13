@@ -67,6 +67,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b0b80);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b12a0);
 // FUN_003B1A10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b1a10);
+/* measured: best plain-C attempt object 168B/window 160B, normalized_diff 124; archived at build/K3B6_003b31a0_nd124.c and restored to INCLUDE_ASM. Object exceeded the window, so reconstruction stopped per wave rule. */
 // FUN_003B31A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b31a0);
 // FUN_003B3240
@@ -119,8 +120,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5fb0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6020);
 // FUN_003B61E0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
+/* measured: best plain-C attempt object 144B/window 144B, normalized_diff 78; archived at build/K3B6_003b6390_nd78.c and restored to INCLUDE_ASM. Residual is register coloring and load/store scheduling across the exact-size loop; declaration and O1 probes were ruled out. */
 // FUN_003B6390
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
+/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 84; archived at build/K3B6_003b6420_nd84.c and restored to INCLUDE_ASM. Residual is register coloring/load-store scheduling and an 8B short object. */
 // FUN_003B6420
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
 /* measured: best plain-C attempt object 124B/window 128B, normalized_diff 90;
@@ -195,7 +198,8 @@ s32 func_003b6e00(s32 arg0) {
 /* measured: close no_branch_likely and schedule around func_003b6e00. */
 #pragma no_branch_likely off
 #pragma schedule off
-// FUN_003B6E70
+/* measured: best plain-C attempt object 124B/window 144B, normalized_diff 44; archived at build/K3B6_003b6e70_nd44.c. Schedule-on, store/reload alias, global-expression, type, and allocation-call-shape probes did not move the residual. */
+// FUN_003B6E70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
 /* measured: in-file body recheck is object 280B/window 352B with
    normalized_diff 210, over the park threshold; body archived at
@@ -1800,7 +1804,9 @@ s32 func_003bfe60(void *arg0) {
 /* measured: list-walk candidate normalized_diff 81; restored assembly fallback. */
 // FUN_003BFE90
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
+/* measured: best plain-C attempt object 120B/window 144B, normalized_diff 41; archived at build/K3B6_003bff30_nd41.c and restored to INCLUDE_ASM. Residual is sentinel/current register and load-order coloring at offsets 36-44, callback branch polarity/layout at 68, and tail layout at 71-86. */
 // FUN_003BFF30
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bff30);
-// FUN_003BFFC0
+/* measured: best plain-C attempt object 128B/window 144B, normalized_diff 41; archived at build/K3B6_003bffc0_nd41.c and restored to INCLUDE_ASM. Residual is sentinel/current register coloring at offsets 36-54, callback branch polarity at 76, and tail layout at 79-94. */
+// FUN_003BFFC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bffc0);

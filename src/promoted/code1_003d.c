@@ -101,6 +101,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0fa0);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2010);
 // FUN_003D20D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d20d0);
+/* measured: object 160B vs 176B window, normalized_diff 64; schedule-on
+   prologue/call ordering solved, but repeated pointer-load and tail residuals
+   remain. Body archived in build/K3D5_003d2240_body.c. */
 // FUN_003D2240
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2240);
 // FUN_003D22F0
@@ -126,7 +129,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2720);
 // FUN_003D2C40
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2c40);
 /* measured: best body archived in build/H3D3_003d30b0_body.c; object 104B/window 112B, normalized_diff 66. */
-// FUN_003D30B0 NONMATCHING
+// FUN_003D30B0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d30b0);
 // FUN_003D3120
 /* measured: schedule on places the zero result in the jr delay slot. */
@@ -590,7 +593,9 @@ s32 func_003d4fc0(void) {
 #pragma schedule off
 // FUN_003D5000
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5000);
-// FUN_003D5130
+/* measured: object 148B vs 144B window, normalized_diff 91; oversized
+   reconstruction archived in build/K3D5_003d5130_body.c. */
+// FUN_003D5130 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5130);
 // FUN_003D51C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d51c0);
@@ -604,9 +609,9 @@ s32 func_003d5300(u8 *arg0) {
 }
 /* measured: closes schedule around func_003d5300. */
 #pragma schedule off
-/* measured: loader wrapper body follows the retail e2f60/df050/53c0/e2e40
-   call sequence. schedule/no_branch_likely reaches nd 23 at object 136 bytes
-   versus the 144-byte window; the two-word tail is padding. Committed at nd 23. */
+/* measured: object 136B vs 144B window, normalized_diff 23; the
+   schedule/no_branch_likely residual and two-word tail padding are archived
+   in build/K3D5_003d5330_body.c. */
 // FUN_003D5330
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5330);
 // FUN_003D53C0
@@ -643,6 +648,8 @@ s32 func_003d5750(u8 *arg0) {
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5750);
 #endif
+/* measured: object 164B vs 160B window, normalized_diff 70; oversized
+   reconstruction archived in build/K3D5_003d5790_body.c. */
 // FUN_003D5790
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5790);
 // FUN_003D59A0
@@ -1031,10 +1038,62 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dcb40);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dcc70);
 // FUN_003DD290
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd290);
+/* measured: object 136B vs 160B window, normalized_diff 79; global-pointer,
+   scheduler, and guard-polarity probes archived with residual loop layout in
+   build/K3D5_003dd390_body.c. */
 // FUN_003DD390
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd390);
-// FUN_003DD430
+// FUN_003DD430 NONMATCHING
+#ifdef NON_MATCHING
+typedef s32 M2C_UNK;
+typedef s8 M2C_UNK8;
+typedef s16 M2C_UNK16;
+typedef s32 M2C_UNK32;
+typedef s64 M2C_UNK64;
+#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
+#define M2C_BITWISE(type, expr) ((type)(expr))
+#define M2C_LWL(expr) (expr)
+#define M2C_FIRST3BYTES(expr) (expr)
+#define M2C_UNALIGNED32(expr) (expr)
+#define M2C_CARRY 0
+#define M2C_OVERFLOW(a) (0)
+#define MULT_HI(a, b) (0)
+#define MULTU_HI(a, b) (0)
+#define CLZ(x) (0)
+s32 func_00442948();                             /* extern */
+extern M2C_UNK D_008873AC();
+s32 func_003dd430(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4) {
+    s32 temp_17;
+    s32 temp_2;
+    s32 var_6;
+    s8 *var_5;
+    s8 temp_4;
+
+    temp_17 = func_00442948(arg2);
+    temp_2 = func_00442948(arg3);
+    if ((arg1 - 1) < (temp_17 + temp_2)) {
+        return 0;
+    }
+    D_008873AC(arg0, arg2);
+    var_6 = 0;
+    if (temp_2 >= 0) {
+        var_5 = (s8 *)(arg0 + temp_17);
+        do {
+            temp_4 = *((u8 *)(arg3 + var_6));
+            if ((temp_4 != 0x2F) && (temp_4 != 0x5C)) {
+                *var_5 = temp_4;
+            } else {
+                *var_5 = arg4;
+            }
+            var_6 += 1;
+            var_5 += 1;
+        } while (temp_2 >= var_6);
+    }
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd430);
+#endif
 // FUN_003DD530
 /* measured: b210 if-converts the ret==0 return into a beql with the move
    annulled in its slot; retail uses a plain beqz with the return-0 block out
@@ -1446,6 +1505,8 @@ s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 #pragma schedule off
 // FUN_003DF050
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df050);
+/* measured: object 184B vs 160B window, normalized_diff 139; oversized
+   reconstruction archived in build/K3D5_003df1a0_body.c. */
 // FUN_003DF1A0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df1a0);
 /* measured: schedule on is required for the callback's call delay slot,

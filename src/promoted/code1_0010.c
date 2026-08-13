@@ -80,7 +80,22 @@ asm void func_00100220(void)
 
 
 // FUN_00100230
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100230);
+extern s32 func_0043ece8(u8 *arg0);
+extern void func_0043ed08(s32 arg0);
+extern u8 D_00559800[];
+extern u8 D_938A00[];
+extern u8 D_A0000[];
+u8 *func_00100230(void) {
+    s32 temp_2;
+    u8 *temp_16;
+    temp_16 = (u8 *)((u32)0x02000000 + (u32)((-0x2000 - (s32)&D_A0000) - (s32)&D_938A00));
+    temp_2 = func_0043ece8(temp_16 - 16);
+    if (temp_2 == 0) {
+        func_00440b68(&D_00559800);
+    }
+    func_0043ed08(temp_2);
+    return temp_16 - 16;
+}
 // FUN_001002C0
 s32 func_001002c0(void) {
     s32 r;
