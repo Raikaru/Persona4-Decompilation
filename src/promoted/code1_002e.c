@@ -116,6 +116,7 @@ void func_002e06d0(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 
 
 
+/* measured: corrected declarations and best plain-C body archived in build/WR04_wave_code1_002e_func_002e0700.c; residual obj 572B / window 576B / normalized_diff 309. */
 // FUN_002E0700
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0700);
 // FUN_002E0940
@@ -351,8 +352,84 @@ loop_test:
     }
     return ((s64)(var_16 << 0x38) >> 0x38) == 1;
 }
+/* measured: corrected callee declarations; variadic call casts preserve retail's
+   extra ignored arguments to the one-parameter routines. */
 // FUN_002E72C0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e72c0);
+s32 func_002e72c0(u8 *arg0)
+{
+    s32 func_00144c90(s32 arg0, s32 arg1);
+    s32 func_00122520(s32 arg0, s32 arg1);
+    s32 func_00122640(s32 arg0, s32 arg1);
+    s32 func_00122720(void);
+    s32 func_00144f60(void);
+    void func_00145080(void);
+    s32 func_0014b450(void);
+    f32 func_0014b4d0(void);
+    s32 func_0015f660(void);
+    s32 func_0033be40(u8 *arg0);
+    u8 *func_003e9cb0(u8 *arg0, ...);
+    s32 func_00452380(s8 *arg0);
+    u8 *func_00457120(void);
+    void func_004577d0(void *arg0, f32 arg1);
+    s32 func_0045a3e0(s16 arg0, ...);
+    extern s8 D_0063FC68[];
+    s8 state;
+    u8 *work;
+    u8 *temp_17;
+
+    work = *(u8 **)(arg0 + 0x38);
+    state = *(s8 *)work;
+    switch (state) {
+    case 1:
+        func_00144c90(8, 6);
+        *(s8 *)work = 2;
+        /* fallthrough */
+    case 2:
+        if ((func_00144f60() != 0) && (func_0015f660() != 0)) {
+            temp_17 = func_00457120();
+            func_004577d0(temp_17, func_0014b4d0());
+            temp_17 = func_00457120();
+            func_003e9cb0(*(u8 **)(temp_17 + 4), func_0014b450(), 0);
+            *(s8 *)work = 3;
+            func_0045a3e0((s16)0x15, 1);
+        }
+        goto block_24;
+    case 3:
+        func_00122640(1, 0);
+        *(s8 *)work = 4;
+        /* fallthrough */
+    case 4:
+        if (func_00122720() != 0) {
+            if (*(s32 *)(work + 4) != 0) {
+                *(s32 *)(work + 4) = 0;
+            }
+            *(s32 *)(work + 4) = func_0033be40(arg0);
+            *(s8 *)work = 0x22;
+        }
+        goto block_24;
+    case 5:
+        func_00122520(1, 0);
+        *(s8 *)work = 6;
+        /* fallthrough */
+    case 6:
+        if (func_00122720() != 0) {
+            func_00145080();
+            *(s8 *)work = 0x23;
+        }
+        goto block_24;
+    case 34:
+        if (func_00452380(D_0063FC68) == 0) {
+            func_00145080();
+            *(s8 *)work = 0x23;
+        }
+        goto block_24;
+    case 35:
+        return -1;
+    default:
+block_24:
+        return 0;
+    }
+}
 // FUN_002E74E0
 void func_002e74e0(u8 *arg0)
 {

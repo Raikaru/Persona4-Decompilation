@@ -120,7 +120,7 @@ extern s32 func_00200ce0(void);
 extern void func_00205170(void);
 extern void func_00205ff0(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
                           void (*callback)(void), u8 *arg3);
-extern void func_002055d0(void);
+extern void func_002055d0(u8 *arg0, s16 arg1, s8 arg2, s32 arg3, s32 arg4, f32 fparg0, f32 fparg1);
 extern void func_00204690(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, f32 fparg2);
 extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
 typedef struct {
@@ -140,8 +140,10 @@ typedef struct {
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern void func_00201820(s32 arg0);
-extern void func_00205c20(void);
-extern void func_00205950(void);
+extern void func_00205c20(u8 *arg0, s16 arg1, f32 fparg0, f32 fparg1,
+                          s8 arg2, s32 arg3);
+extern void func_00205950(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2,
+                          f32 fparg1, s32 arg3);
 extern s32 func_00202e70(void);
 extern u16 func_00243920(s64 arg0);
 extern void func_00207140();
@@ -1326,16 +1328,14 @@ void func_00204d90(void)
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00204dc0);
 // FUN_00205170
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205170);
-// FUN_002055D0
+/* measured: candidate object 920B/window 896B, normalized_diff 663; archived as build/E205_055d0_casts.json. */
+// FUN_002055D0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002055d0);
-/* measured in the shipped translation unit: the candidate object was 716B
-   against a 720B retail window but normalized_diff was 460. The apparent
-   size agreement was an isolated declaration-environment artifact; the
-   candidate is archived as build/WS02_candidate_00205950.c and discarded. */
-// FUN_00205950
+/* measured: candidate object 760B/window 720B, normalized_diff 592; archived as build/E205_05950_archive_source.c. */
+// FUN_00205950 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205950);
-/* measured in the shipped translation unit: func_00205c20 candidate object 504B/window 480B, normalized_diff 358; self-forward could not be reconciled with baseline extern void func_00205c20(void); candidate archived as build/WS02_candidate_00205c20.c and discarded. */
-// FUN_00205C20
+/* measured: candidate object 468B/window 480B, normalized_diff 132; archived as build/E205_05950_archive_source.c. */
+// FUN_00205C20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205c20);
 // FUN_00205E00
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205e00);
@@ -1522,7 +1522,8 @@ void func_00209640(u8 *arg0, u8 *arg1, f32 *arg2)
     s16 temp_3_6;
 
     if (*(u16 *)(arg1 + 2) != 2) {
-        func_00205ff0(arg1, arg0, arg2[0], arg2[1], func_002055d0, arg0);
+        func_00205ff0(arg1, arg0, arg2[0], arg2[1],
+                      (void (*)(void))func_002055d0, arg0);
         temp_3 = *(s16 *)(arg1 + 0x20);
         if (temp_3 < 4) {
             *(s16 *)(arg1 + 0x20) = temp_3 + 1;

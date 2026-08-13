@@ -814,8 +814,101 @@ block_13:
    dominates (mwcc drills var_21&0xFFFF into a saved register; nd 30+ per the
    earlier note's better spelling). Same family as FUN_00248240/FUN_00248B80.
    func_00248a60 extern added as s32(s32). */
-// FUN_002483C0
+/* measured: corrected target callees to func_00248a60(s32), func_00107a00(s32,s32),
+   func_00107ac0(s32), func_0046d730(void *,s32), func_00107ce0(s32), and
+   func_001077f0(s32); active seed measured 552B vs 544B retail window,
+   normalized_diff 109 (oversized reconstruction); archived without further probes. */
+// FUN_002483C0 NONMATCHING
+#ifdef NON_MATCHING
+typedef s32 M2C_UNK;
+typedef s8 M2C_UNK8;
+typedef s16 M2C_UNK16;
+typedef s32 M2C_UNK32;
+typedef s64 M2C_UNK64;
+#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
+#define M2C_BITWISE(type, expr) ((type)(expr))
+#define M2C_LWL(expr) (expr)
+#define M2C_FIRST3BYTES(expr) (expr)
+#define M2C_UNALIGNED32(expr) (expr)
+#define M2C_CARRY 0
+#define M2C_OVERFLOW(a) (0)
+#define MULT_HI(a, b) (0)
+#define MULTU_HI(a, b) (0)
+#define CLZ(x) (0)
+s32 func_001070e0(s32 idx);             /* extern */
+s32 func_001077f0(s32 idx);            /* extern */
+s32 func_00107a00(s32 idx, s32 arg1);  /* extern */
+s32 func_00107ac0(s32 idx);            /* extern */
+void func_00107ce0(s32 idx);           /* extern */
+void func_0046d730(void *file, s32 line); /* extern */
+s32 func_00248a60(s32 idx);            /* static */
+void func_002483c0(s32 arg0) {
+    s32 temp_18;
+    s32 temp_22;
+    s32 var_20;
+    s32 var_21;
+    s32 var_3;
+    s32 var_4;
+    u32 temp_19;
+    u8 *temp_16;
+    u8 *temp_16_2;
+    u8 *temp_2;
+    u8 *var_5;
+
+    var_21 = 1;
+    temp_18 = arg0 & 0xFFFF;
+loop_26:
+    if (var_21 < 0x1F) {
+        if ((temp_18 != var_21) && (func_001077f0(var_21 & 0xFFFF) != 0) && ((func_00107ac0(var_21 & 0xFFFF) & 0xFFFF) == 0xA) && (func_00248a60(var_21 & 0xFFFF) != 0) && (func_00107a00(var_21 & 0xFFFF, 3) == 0)) {
+            var_5 = (u8 *)(D_00881494 + 8);
+            var_4 = 0;
+            temp_19 = var_21 & 0xFFFF;
+loop_11:
+            if (var_4 >= M2C_FIELD(D_00881494, s32 *, 4)) {
+                var_20 = 0;
+            } else if ((M2C_FIELD(var_5, u16 *, 0) == temp_19) && (M2C_FIELD(var_5, u16 *, 2) == temp_18)) {
+                var_20 = (s32)(M2C_FIELD(var_5, s32 *, 4));
+            } else {
+                var_5 += 8;
+                var_4 += 1;
+                goto loop_11;
+            }
+            temp_2 = (u8 *)(func_001070e0(var_21 & 0xFFFF));
+            if (temp_2 == NULL) {
+                var_3 = 0;
+            } else {
+                temp_16 = (u8 *)(D_00881480);
+                if (temp_19 >= (u32) M2C_FIELD(temp_16, u32 *, 4)) {
+                    func_0046d730(&D_006359D0, 0x4C);
+                }
+                temp_22 = (var_21 & 0xFFFF) * 0x64;
+                if (M2C_FIELD((temp_22 + temp_16), u16 *, 0x12) != 0) {
+                    M2C_FIELD(temp_2, u16 *, 0xA) = (u16) (M2C_FIELD(temp_2, u16 *, 0xA) + (var_20 & 0xFFFF));
+                    temp_16_2 = (u8 *)(D_00881480);
+                    if (temp_19 >= (u32) M2C_FIELD(temp_16_2, u32 *, 4)) {
+                        func_0046d730(&D_006359D0, 0x4C);
+                    }
+                    if ((s32) M2C_FIELD(temp_2, u16 *, 0xA) >= (s32) M2C_FIELD((temp_22 + temp_16_2), u16 *, 0x12)) {
+                        var_3 = 1;
+                    } else {
+                        goto block_22;
+                    }
+                } else {
+block_22:
+                    var_3 = 0;
+                }
+            }
+            if (var_3 != 0) {
+                func_00107ce0(var_21 & 0xFFFF);
+            }
+        }
+        var_21 += 1;
+        goto loop_26;
+    }
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002483c0);
+#endif
 
 /* measured: #pragma opt_loop_invariants on/off scoped around this function:
    retail hoists arg1&0xFFFF and var_4&0xFFFF into $s1/$s6 before the loop;
