@@ -513,8 +513,31 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 // FUN_003E2430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
 /* measured: H001 rejects volatile-only exactness; nonvolatile best body is object 120B/window 128B, normalized_diff 14. */
-// FUN_003E2570
+/* object 120B, window 128B, normalized_diff 14; volatile-dependent; without it the object is 2 words undersized because the store/reload accesses fold; nonvolatile best after H001 cleanup; volatile-only exact attempt rejected. */
+/* measured: schedule on probe for the nonvolatile body. */
+// FUN_003E2570 NONMATCHING
+#ifdef NON_MATCHING
+/* measured: no_branch_likely on probe for the nonvolatile body. */
+s32 func_003e2570(s32 arg0, s32 arg1) {
+    s32 *slot;
+    s32 result;
+
+    D_00764878 = arg1;
+    result = func_003e1220(0x24, D_00763C54, 4, D_00763C58, D_00887220, 0x40404);
+    slot = (s32 *)(D_008872E0 + D_00764878);
+    *slot = result;
+    result = *slot;
+    if (result == 0) {
+        return 0;
+    }
+    D_0076487C += 1;
+    return arg0;
+}
+/* measured: close no_branch_likely after the nonvolatile body. */
+/* measured: close schedule after the nonvolatile body. */
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
+#endif
 /* measured: schedule and no_branch_likely bracket retained around func_003e25f0. */
 #pragma schedule on
 #pragma no_branch_likely on
@@ -1546,8 +1569,34 @@ u8 *func_003e8010(u8 *arg0) {
 #pragma schedule off
 
 
-// FUN_003E8080
+/* object 124B, window 144B, normalized_diff 17; volatile-dependent; without it the object is 2 words undersized because the store/reload accesses fold; nonvolatile best after H001 cleanup; volatile-only exact attempt rejected. */
+// FUN_003E8080 NONMATCHING
+#ifdef NON_MATCHING
+extern s32 D_00763C7C;
+extern s32 D_00763C80;
+extern u8 D_008872B0[];
+/* measured: schedule on probe for the nonvolatile body. */
+/* measured: no_branch_likely on probe for the nonvolatile body. */
+s32 func_003e8080(s32 arg0, s32 arg1) {
+    s32 *slot;
+    s32 result;
+
+    D_007648A0 = arg1;
+    result = func_003e1220(*(s32 *)D_0070B710, D_00763C7C, 0x10, D_00763C80, D_008872B0, 0x40005);
+    slot = (s32 *)(D_008872E0 + D_007648A0);
+    *slot = result;
+    result = *slot;
+    if (result == 0) {
+        return 0;
+    }
+    D_007648A4 += 1;
+    return arg0;
+}
+/* measured: close no_branch_likely after the nonvolatile body. */
+/* measured: close schedule after the nonvolatile body. */
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
+#endif
 /* measured: H001 rejects volatile-only exactness; nonvolatile best body is object 124B/window 144B, normalized_diff 17. */
 
 /* measured: two-float load-order reconstruction reaches object 72B/window

@@ -684,12 +684,16 @@ void func_002e68b0(s8 arg0) {
 
 /* measured 2026-08-12: best plain-C comparator body is archived at
    build/D2E6_002e6b20_body.c (object 360B/window 368B, normalized_diff 10;
-   differing byte offsets 6,7,10,11,12,13,14,16,18,19). The body has no
-   callees, so no declarations were corrected. The remaining residual is the
-   initial retail load order (lh arg0, lh arg1, then the global base) versus
-   MWCCPS2's lh arg0, global base, lh arg1 schedule; schedule-on, propagation,
-   declaration-order, and pointer-load probes all regressed. */
-// FUN_002E6B20
+   differing byte offsets 6,7,10,11,12,13,14,16,18,19). The direct body has
+   no calls and its s16 *arg0/s16 *arg1 signature is confirmed. The remaining
+   residual is the initial retail load order (lh arg0, lh arg1, then the
+   global base) versus MWCCPS2's lh arg0, global base, lh arg1 schedule.
+   Retained: s32 vb, s32 va_mask, opt_common_subs off. Ruled out:
+   schedule-on, propagation-off, declaration-order, pointer-load,
+   ordered-assignment/initializer, const/alias typed-load, optimization_level
+   1, dependent-index, and split-global forms. */
+/* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
+// FUN_002E6B20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
 
 
