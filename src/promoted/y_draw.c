@@ -37,19 +37,19 @@ extern void func_002b8370(u8 *arg0, u4 arg1, u4 arg2, u8 arg3, s16 arg4, s32 arg
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern s32 func_00451fc0(s32 arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                        void (*init)(u8 *), void (*close)(u8 *), u8 *arg7);
+                         void (*init)(u8 *), void (*close)(u8 *), u8 *arg7);
 extern void func_003f6440(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);
 
 extern s32 func_002b52a0(u8 *arg0);
-extern void func_002b2970(void *, f32, f32);
+extern void *func_002b2970(void *, f32, f32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
-extern void func_002b2a60(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+extern void func_002b2a60(u8 *, u8, u8, u8, u8);
 extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
 extern u8 *func_0046d200(u32 arg0, u32 arg1);
-extern void func_0046d280(u8 *arg0);
+extern void func_0046d280(u8 *);
 extern void func_002b7cd0(u8 *, s16, s16);
 extern f32 func_002b2aa0(s32, f32, f32, f32, f32);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);
@@ -282,75 +282,17 @@ void func_002b6560(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
-/* measured 2026-08-08: guarded reconstruction of func_002b6590. The body
-   uses the recovered s16 loop-index/s32 temporary shape and an aggregate f2
-   point store. The four u8 temporaries are intentionally permuted, with the
-   destination stores applying the inverse permutation, preserving the color
-   byte order while improving MWCC register coloring. Candidate measured
-   MISMATCH nd 16 with object/window 528B/528B; exact residual rows at offsets
-   156,168,172,196,224,232,280,292,296,308,316,320,324 are archived in
-   build/WCDeepYDraw_6590_nd16_final_fndiff.txt. Committed at nd 16. */
+/* measured 2026-08-13: census-driven corrected-callee probe for func_002b6590.
+   The target-scope declarations now use the verified callee signatures:
+   func_002b2970 returns u8 *, func_00451fc0 returns void * with s32 ABI
+   arguments, func_0044ea90/func_0046d280 are old-style no-parameter calls,
+   and func_002b2a60 takes s32 color components. Live probe measured object
+   524B/window 528B, normalized_diff 296 (first offsets 94,95,98,99,102,
+   103,106,107,110,111,114,115,116,117,118,119). Archived at
+   build/W2B6_6590_body.c; restored bare INCLUDE_ASM after the reconstruction-
+   sized residual. */
 // FUN_002B6590 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
-    f2 point;
-    u4 color;
-    u8 c0;
-    u8 c1;
-    u8 c2;
-    u8 c3;
-    s32 temp_16;
-    s16 var_17;
-    s32 result;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 **temp_2_3;
-    u8 *temp_16_2;
-
-    func_0044ea90(&D_0063F178, 0x236);
-    temp_2 = D_008873F4[0](1, 0x100, 0x40000);
-    result = func_00451fc0(arg0, D_0063F1A0, 0xF, 0, 0,
-                           (void (*)(u8 *))func_002b6340,
-                           (void (*)(u8 *))func_002b6560, temp_2);
-    *(s16 *)(temp_2 + 4) = arg1;
-    *(s32 *)(temp_2 + 0) = arg2;
-    var_17 = 0;
-    while (((s32)var_17) < 3) {
-        temp_16 = (s32)var_17;
-        func_002b2970(&point, 0.0f, 0.0f);
-        temp_2_2 = temp_2 + temp_16 * 8;
-        *(f2 *)(temp_2_2 + 0x28) = point;
-        *(u8 *)(temp_2 + temp_16 + 0x6C) = 0xFF;
-        temp_16_2 = temp_2 + temp_16 * 4;
-        *(s32 *)(temp_16_2 + 0xC8) = 0;
-        *(s32 *)(temp_16_2 + 0xA4) = 0x3F800000;
-        *(s32 *)(temp_16_2 + 0x98) = 0x3F800000;
-        func_002b2a60((u8 *)&color, 0xFF, 0xFF, 0xFF, 0xFF);
-        c0 = color.c3;
-        c1 = color.c0;
-        c2 = color.c1;
-        c3 = color.c2;
-        *(u8 *)(temp_16_2 + 0x7D) = c1;
-        *(u8 *)(temp_16_2 + 0x7E) = c2;
-        *(u8 *)(temp_16_2 + 0x7F) = c3;
-        *(u8 *)(temp_16_2 + 0x80) = c0;
-        var_17 = var_17 + 1;
-    }
-    *(s32 *)(temp_2 + 0x14) = 0x42C80000;
-    *(s32 *)(temp_2 + 8) = 0x55;
-    *(s16 *)(temp_2 + 0x10) = 0;
-    temp_2_3 = (u8 **)func_0046d200(*(u32 *)(temp_2 + 0),
-                                    (u32)(s32)arg1);
-    *(s16 *)(temp_2 + 0xC) =
-        (s16)(s32)(func_0046b260((u8 *)temp_2_3) / 2.0f);
-    *(s16 *)(temp_2 + 0xE) =
-        (s16)(s32)(func_0046b2f0((u8 *)temp_2_3) / 2.0f);
-    func_0046d280((u8 *)temp_2_3);
-    return result;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
-#endif
 
 
 // FUN_002B67A0

@@ -207,24 +207,154 @@ void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
 
 
 
-/* measured: saved-register coloring floor — retail allocates cnt=$16, n=$17,
-   t2=$18, i=$19, arg1=$20, p=$21, tab=$22 (use order), while mwcc b210 under
-   every declaration order tried (m2c order, forward, reverse) colors
-   i=$16, arg1=$17, p=$18, n=$21, cnt=$22, tab=$23 — the whole prologue and
-   every A64 load rotates by 5 registers (nd ~84). Control flow, the 3d8e0
-   sign-extend compares, the shared v=1 goto, and the reload pattern all
-   compile correctly. */
-// FUN_001DB160
+/* measured: declaration-corrected candidate retained as an archive.  The
+   scoped build produced object 512B/window 512B with normalized_diff 268.
+   Corrected locally for this body: func_0023d8e0(u8 *,s32),
+   func_0023e130(u8 *), func_0023e140(u8 *), func_0046d730(void *,s32),
+   func_00232730(u8 *,s32), and func_0023ddc0(u8 *,s32).  Five further
+   source-shape probes were not justified after the residual remained in the
+   hundreds; no sibling changed. */
+// FUN_001DB160 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_001db160(u8 *arg0, s32 arg1) {
+    extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
+    extern u32 func_0023e130(u8 *arg0);
+    extern u8 *func_0023e140(u8 *arg0);
+    extern void func_0046d730(void *file, s32 line);
+    extern s32 func_00232730(u8 *arg0, s32 arg1);
+    extern s32 func_0023ddc0(u8 *arg0, s32 arg1);
+    s32 temp_16;
+    s32 temp_22;
+    s32 var_19;
+    s32 var_2;
+    u16 *temp_16_2;
+    u16 temp_18;
+    u16 temp_5;
+    u8 *temp_16_3;
+    u8 *temp_17;
+
+    temp_17 = *(u8 **)(arg0 + 0x30);
+    if ((s16)func_0023d8e0(*(u8 **)(temp_17 + 0xA64), 0) == arg1) {
+        return 1;
+    }
+    temp_16 = (s32)(func_0023e130(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF);
+    temp_22 = (s32)func_0023e140(*(u8 **)(temp_17 + 0xA64));
+    var_19 = 0;
+loop_21:
+    if ((var_19 & 0xFFFF) >= (temp_16 & 0xFFFF)) {
+        return 0;
+    }
+    temp_16_2 = (u16 *)(temp_22 + ((var_19 & 0xFFFF) * 2));
+    temp_5 = *temp_16_2;
+    if ((temp_5 != 0) && ((s32)temp_5 < 0x1B8) &&
+        ((s16)func_0023d8e0(*(u8 **)(temp_17 + 0xA64), temp_5) == arg1)) {
+        temp_18 = *temp_16_2;
+        if ((s32)temp_18 >= 0x240) {
+            func_0046d730(D_006095E0, 0x45F);
+        }
+        temp_16_3 = *(u8 **)(arg0 + 0x30);
+        if ((s32)temp_18 < 0x1B8) {
+            if (func_00232710((u32)*(u8 **)(temp_16_3 + 0xA64), 0x80008) != 0) {
+                var_2 = 0;
+            } else if (func_00232730(*(u8 **)(temp_16_3 + 0xA64), temp_18) == 0) {
+                var_2 = 0;
+            } else if (func_0023ddc0(*(u8 **)(temp_16_3 + 0xA64), temp_18) != 0) {
+                var_2 = 0;
+            } else {
+                goto block_17;
+            }
+        } else if (func_00232730(*(u8 **)(temp_16_3 + 0xA64), temp_18) == 0) {
+            var_2 = 0;
+        } else {
+block_17:
+            var_2 = 1;
+        }
+        if (var_2 != 0) {
+            return 1;
+        }
+        goto block_20;
+    }
+block_20:
+    var_19 = (var_19 + 1) & 0xFFFF;
+    goto loop_21;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db160);
-/* measured: u64-parameter half-extraction floor — the callers pass a u64
-   formation ($4-$5) whose HIGH half is the s16 index, but mwcc b210 models the
-   u64 param as the low register only: formation >> 32 compiles to dsll32/dsra32
-   no-op pairs instead of retail's move $19,$5, and (u8*)formation gets a
-   dsll32/dsra32-0 pair instead of using $4 raw (nd ~112). The caller-side
-   declaration (u64,u16,s32) must stay for the matched callers, so the m2c
-   (u8*,s64,s32) signature is unreachable. */
-// FUN_001DB360
+#endif
+
+/* measured: declaration-corrected candidate retained as an archive.  The
+   scoped build produced object 544B/window 544B with normalized_diff 318.
+   Corrected locally for this body: func_0010f420(u32,u32),
+   func_00233a90(u8 *,s32), func_0023d6e0(s16), func_0023e140(u8 *), and
+   func_00242800(u8 *,s32); the existing func_001f9ce0(u8 *,s32) call was
+   also restored.  Five further source-shape probes were not justified after
+   the residual remained in the hundreds; no sibling changed. */
+// FUN_001DB360 NONMATCHING
+
+#ifdef NON_MATCHING
+s32 func_001db360(u64 formation, u16 index, s32 enabled) {
+    extern s32 func_0010f420(u32 arg0, u32 arg1);
+    extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
+    extern s8 func_00233a90(u8 *arg0, s32 arg1);
+    extern s32 func_0023d6e0(s16 arg0);
+    extern u32 func_0023e130(u8 *arg0);
+    extern u8 *func_0023e140(u8 *arg0);
+    extern s32 func_00242800(u8 *arg0, s32 arg1);
+    s32 temp_16;
+    s32 temp_16_2;
+    s32 temp_2;
+    s32 var_8;
+    u16 temp_3;
+    u8 *temp_17;
+
+    temp_17 = *(u8 **)((u8 *)formation + 0x30);
+    if ((*(u8 *)(temp_17 + 0xA2) == 1) &&
+        (func_001f9ce0((u8 *)formation, (s16)index) == 0) &&
+        (func_0010f420(*(u16 *)(temp_17 + 0xA4), index) == 0)) {
+        return 1;
+    }
+    temp_16 = func_0023d6e0((s16)index);
+    if ((enabled == 1) && !(temp_16 & 0xE0001)) {
+        if (temp_16 & 2) {
+            if (func_00233a90(*(u8 **)(temp_17 + 0xA64), 0x10) > 0) {
+                return 0;
+            }
+            goto block_12;
+        }
+        if (!(temp_16 & 0x40) &&
+            (func_00233a90(*(u8 **)(temp_17 + 0xA64), 0x11) > 0)) {
+            return 0;
+        }
+        goto block_12;
+    }
+block_12:
+    if (temp_16 & 2) {
+        if (*(u8 *)(temp_17 + 0xA2) == 1) {
+            if (**(u16 **)(temp_17 + 0xA64) & 0x100) {
+                return 0;
+            }
+            goto block_24;
+        }
+        temp_16_2 = (s32)(func_0023e130(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF);
+        temp_2 = (s32)func_0023e140(*(u8 **)(temp_17 + 0xA64));
+        var_8 = 0;
+loop_23:
+        if ((var_8 & 0xFFFF) >= (temp_16_2 & 0xFFFF)) {
+            goto block_24;
+        }
+        temp_3 = *(u16 *)(temp_2 + ((var_8 & 0xFFFF) * 2));
+        if ((temp_3 != 0x1F8) && (temp_3 != 0x1F7) && (temp_3 != 0x1F6)) {
+            var_8 = (var_8 + 1) & 0xFFFF;
+            goto loop_23;
+        }
+        return 0;
+    }
+block_24:
+    return (func_00242800(*(u8 **)(temp_17 + 0xA64), (s16)index) & 0x07000000) == 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db360);
+#endif
 // FUN_001DB580
 void btlCond_MYNOMAL(u64 formation, u16 index)
 {

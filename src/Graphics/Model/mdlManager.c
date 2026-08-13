@@ -779,11 +779,12 @@ void func_004745f0(MdlAnimEntryTable* table)
 
 
 
-extern void func_0047ffc0(void* a);
-extern void func_0047fd10(s32 a, s32 b, f32 c, f32 d);
-extern void func_0047fe90(s32 a, s32 b, f32 c, f32 d);
-extern void func_0047fbf0(s32 a, s32 b, f32 c, f32 d);
-extern f32 func_00480060(s32 a);
+extern void func_0047ffc0(int *a);
+extern void func_0047fd10(u8 **a, f32 b, u8 **c, f32 d, f32 e);
+extern void func_0047fe90(u8 **a, f32 b, f32 c);
+extern void func_0047fbf0(u8 **a, f32 b);
+extern f32 func_00480060(u8 **a);
+extern void* func_00473350(void* a, u8* b);
 /* measured: u8* params fixed the param_2+0xC address-CSE (nd 106 -> 54) and
    the func_0047fd10 call needs FOUR args (e2, e, *(p2+0x14), 0.0f — the
    a1=$s0 move is deliberate, fixing it removes the shift). Residual

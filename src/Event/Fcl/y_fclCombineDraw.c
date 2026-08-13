@@ -1103,9 +1103,9 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00325450);
    absolute array addressing, the 3x func_002b77d0 11-arg calls with sp0/sp8
    s64 stack args, the >=3 && !=12 if/else branch layout. Saved-register
    rotation + load-scheduling floor. */
-// FUN_00329310
+/* measured: declarations corrected for func_002b6150(s16), func_002b2970(void *, f32, f32), func_002b68d0(s16, s16, s8), func_002b2a60(void *, s32, s32, s32, s32), and func_002b7750(s16, s16). Best preserved body measured nd 322 (object 0xE0, retail window 0x4E0); archived at build/WFclCombineDraw_00329310_body.c.txt. Retained as bare INCLUDE_ASM because the body remains a reconstruction near-miss. */
+// FUN_00329310 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
-
 /* measured: nd 322 (best of 4: full-body rebuild with recipe-B q local 322,
    struct-by-value ldr/ldl CE, FclByte4 copies 358, decl-reorder 343). Recipe B
    re-test: the f32* q = D_006440B8 local DOES land in a saved register once

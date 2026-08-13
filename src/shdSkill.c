@@ -345,7 +345,7 @@ void func_00115760(u8 *arg0) {
 }
 
 /* measured: best archived body is object 220B/window 224B at normalized_diff 1. Corrected func_0046d730 declaration to (void *, s32). Loop-rotation probes (guarded do/while nd 23; unguarded do/while nd 40; explicit goto-test/pre-jump) did not beat the baseline; retail's initial bnez targets the loop pre-jump while b210 threads directly to loop_test. */
-// FUN_00115670 NONMATCHING
+// FUN_00115670
 INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115670);
 
 // FUN_00115750
