@@ -41,7 +41,7 @@ extern s32 func_00477c40(s32 arg0, s32 arg1, s32 arg2);
 extern void func_0047aaa0(void *arg0, s32 arg1, s32 arg2, s32 arg3,
                            void *arg4, s32 arg5);
 extern void func_0047ac90(void *arg0, s32 arg1, s32 arg2, s32 arg3,
-                           s32 arg4);
+                          s32 arg4);
 extern void func_0047adf0(void *arg0, s32 arg1, s32 arg2);
 extern char D_006357E0[];
 extern char D_00635800[];
@@ -223,10 +223,61 @@ s32 func_002308a0(s32 arg0, s32 arg1, char *arg2)
     }
     return 1;
 }
-// FUN_00230C00
+// FUN_00230C00 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0023", func_00230c00);
+// measured: optimization level 1 preserves the retail direct field loads and
+// saved-register colouring for this function.
+#pragma optimization_level 1
 // FUN_00230D30
-INCLUDE_ASM("asm/nonmatchings/code1_0023", func_00230d30);
+s32 func_00230d30(void *arg0)
+{
+    extern s32 func_00106cd0(s16 arg0, s16 arg1);
+    extern s32 func_00477c40(s32 arg0, s32 arg1, s32 arg2);
+    extern void func_0047aaa0(void *arg0, s32 arg1, void *arg2, void *arg3,
+                               void *arg4, u32 arg5);
+    extern void func_0047ac90(void *arg0, u32 arg1, void *arg2, void *arg3,
+                              u32 arg4);
+    extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
+    s32 temp_16;
+    u8 sp40[0x100];
+    s32 temp_18;
+
+    if (*(u16 *)((s8 *)arg0 + 0xD4) != 1) return 0;
+    temp_16 = (s32)(func_00106cd0(*(s16 *)((u8 *)arg0 + 0xD6), 0) & 0xFFFF);
+    switch (*(u16 *)((s8 *)arg0 + 0xD6)) {
+    case 2:
+        if (func_00477c40(7, temp_16, 0) == 0) {
+            func_00442088((char *)sp40, D_006357E0,
+                          (char *)&iGpffffb3ac - 0x5A10, temp_16 & 0xFFFF);
+            func_0047aaa0(arg0, 0, (void *)7, (void *)temp_16,
+                          sp40, 0);
+        } else {
+            func_0047ac90(arg0, 0, (void *)7, (void *)temp_16, 0);
+        }
+        temp_18 = (temp_16 & 0xFFFF) + 0x3E8;
+        if (func_00477c40(7, temp_18 & 0xFFFF, 0) == 0) {
+            func_00442088((char *)sp40, D_00635800,
+                          (char *)&iGpffffb3ac - 0x5A10, temp_16 & 0xFFFF);
+            func_0047aaa0(arg0, 1, (void *)7,
+                          (void *)(temp_18 & 0xFFFF),
+                          sp40, 0);
+        } else {
+            func_0047ac90(arg0, 1, (void *)7,
+                          (void *)(temp_18 & 0xFFFF), 0);
+        }
+        break;
+    case 3:
+        return 0;
+    default:
+        func_0047ac90(arg0, 0, (void *)7, (void *)temp_16, 0);
+        goto block_13;
+    }
+block_13:
+    func_0047adf0((u8 *)arg0, 0, 0x1F4);
+    func_0047adf0((u8 *)arg0, 1, 0x1F5);
+    return 1;
+}
+#pragma optimization_level 2
 // FUN_00231380
 void func_00231380(s32 *arg0, s32 arg1)
 {

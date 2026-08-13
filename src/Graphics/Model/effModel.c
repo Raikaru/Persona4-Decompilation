@@ -193,7 +193,99 @@ extern void func_00479100(s32 arg0, void *arg1);
 extern f32 D_00761134;
 
 // FUN_004AC300
-INCLUDE_ASM("asm/nonmatchings/effModel", func_004ac300);
+void func_004ac300(s32 arg0, u8 *arg1)
+{
+    s32 spBC;
+    s32 spB8;
+    s32 spB4;
+    s32 spB0;
+    f32 spA0[3];
+    u8 sp60[0x40];
+    s32 *pt;
+    f32 temp_f0;
+    f32 temp_f20;
+    s32 temp_2;
+    s32 temp_3;
+    u32 temp_17;
+    u32 temp_16;
+    u8 *temp_3_2;
+    u8 *temp_4;
+    f32 scale;
+
+    temp_17 = *(u32 *)(arg1 + 0x98);
+    temp_16 = *(u32 *)(arg1 + 0x8C);
+    if ((temp_16 >= temp_17) || (temp_16 == 0)) {
+        if (temp_16 == 0x4C9) {
+            func_0047a850(*(u8 **)(arg1 + 0x94));
+        }
+        temp_3 = func_0048abd0(arg1 + 0x2C, arg1 + 0x50, temp_17, temp_16);
+        spB8 = *(s32 *)(arg1 + 0x28);
+        pt = &spB8;
+        scale = D_00761134;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10   \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmove.xyzw $vf11, $vf10 \n"
+            :
+            : "r"(pt), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        spB4 = temp_3;
+        __asm__ volatile(
+            "lw $2, 0(%0)          \n"
+            "pextlb $2, $0, $2     \n"
+            "pextlh $2, $0, $2     \n"
+            "qmtc2.ni $2, $vf10   \n"
+            "vitof0.xyzw $vf10, $vf10 \n"
+            "mfc1 $2, %1           \n"
+            "nop                   \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vmul.xyzw $vf10, $vf10, $vf11 \n"
+            "lui $2, 0x437F        \n"
+            "qmtc2.ni $2, $vf2     \n"
+            "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+            "vftoi0.xyzw $vf10, $vf10 \n"
+            "qmfc2.ni $2, $vf10    \n"
+            "ppach $2, $0, $2      \n"
+            "ppacb $2, $0, $2      \n"
+            "sw $2, 176($sp)       \n"
+            :
+            : "r"(&spB4), "f"(scale)
+            : "$2", "$vf2", "$vf10", "$vf11", "memory");
+        spBC = *(s32 *)&spB0;
+        func_0047a220(*(u8 **)(arg1 + 0x94), &spBC);
+        temp_f20 = func_0048aff0(arg1 + 0x60, temp_17, temp_16) / 10.0f;
+        func_0048a150(sp60, arg1 + 0x10);
+        func_0047a1c0(*(u8 **)(arg1 + 0x94), sp60, 0);
+        temp_f0 = *(f32 *)(arg1 + 0x20) * temp_f20;
+        spA0[2] = temp_f0;
+        spA0[1] = temp_f0;
+        spA0[0] = temp_f0;
+        func_0047a1e0(*(u8 **)(arg1 + 0x94), spA0, 2);
+        spA0[0] = *(f32 *)(arg1 + 0);
+        spA0[1] = *(f32 *)(arg1 + 4);
+        spA0[2] = *(f32 *)(arg1 + 8);
+        func_0047a180(*(u8 **)(arg1 + 0x94), spA0, 2);
+        if (*(u8 *)(arg1 + 0x90) != 0) {
+            temp_3_2 = *(u8 **)(arg1 + 0x94);
+            *(s32 *)(temp_3_2 + 0xD8) = *(s32 *)(temp_3_2 + 0xD8) | 0x18;
+        } else {
+            temp_4 = *(u8 **)(arg1 + 0x94);
+            *(s32 *)(temp_4 + 0xD8) = *(s32 *)(temp_4 + 0xD8) & ~0x18;
+        }
+        func_0047a0e0(*(u8 **)(arg1 + 0x94), 0, *(f32 *)(arg1 + 0x24));
+        func_0047aa30(*(u8 **)(arg1 + 0x94), func_00481450());
+        func_00479100(arg0, *(u8 **)(arg1 + 0x94));
+        *(s32 *)(arg1 + 0x24) = 0;
+    }
+}
 // FUN_004AC550
 void func_004ac550(void *arg0)
 {

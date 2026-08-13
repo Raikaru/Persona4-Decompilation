@@ -15,7 +15,8 @@ typedef u32 (*BtlPacketFunc)(void* work);
 typedef struct BtlPacket BtlPacket;
 struct BtlPacket
 {
-    u8 _pad00[0x60];
+    u8 _pad00[0x58];
+    u64 unk58;                 // 0x58
     u64 actionUID;             // 0x60
     BtlPacketFunc initFunc;    // 0x68
     BtlPacketFunc updateFunc;  // 0x6c
@@ -85,7 +86,108 @@ void btlActionUpdateStateStartHome(BtlAction* action)
 
 
 // FUN_001A1190
-INCLUDE_ASM("asm/nonmatchings/btlAction", func_001a1190);
+void func_001a1190(BtlAction* action)
+{
+    extern u8* D_0076449C;
+    extern f32 fGpffff809c;
+    extern void func_001a03b0(BtlAction* action);
+    extern BtlPacket* func_001d3900(u16 param_1);
+    extern BtlPacket* func_001d3700(u16 param_1, u16 param_2);
+    extern BtlPacket* func_001f99c0(BtlAction* action, s32 param_2, s32 param_3,
+                                     s32 param_4, s32 param_5);
+    extern u32 datCalcChkBadStatus(u32 unit, u32 badStatus);
+    extern u32 datCalcIsDead(u32 unit, s32 hpDelta);
+    extern BtlPacket* btlUnitCreateMovePacket(void* unit, const RwV3d* targetPos,
+                                               f32 speed, u32 flags);
+    extern BtlPacket* func_0019beb0(void* unit);
+    extern BtlPacket* btlUnitCreateRotateTowardUnitPacket(void* unit,
+                                                           void* targetUnit,
+                                                           u32 flags);
+    extern BtlPacket* btlCameraCreateSetStatePacket(BtlAction* action, u16 state);
+
+    BtlPacket* rootPacket;
+    u8* unit;
+
+    func_001a03b0(action);
+
+    rootPacket = func_001d3900(1);
+    rootPacket->actionUID = action->uid;
+    func_00194590(rootPacket, 0);
+
+    if (((u8*)action)[0x28] == 0)
+    {
+        BtlPacket* packet;
+
+        packet = func_001f99c0(action, 19, 0, 0, 0);
+        func_00194590(packet, 1);
+    }
+
+    unit = *(u8**)(D_0076449C + 0x178);
+    while (unit != NULL)
+    {
+        if (datCalcChkBadStatus(*(u32*)(unit + 0xA64), 0x180017) == 0 &&
+            datCalcIsDead(*(u32*)(unit + 0xA64), 0) == 0)
+        {
+            BtlPacket* packet;
+
+            packet = btlUnitCreateMovePacket(unit, NULL, fGpffff809c, 24);
+            *(u8*)packet = 4;
+            *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+            packet->actionUID = action->uid;
+            func_00194590(packet, 1);
+        }
+
+        unit = *(u8**)(unit + 0xA6C);
+    }
+
+    {
+        BtlPacket* packet;
+
+        packet = func_001d3700(2, 1);
+        *(u8*)packet = 4;
+        *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+        packet->actionUID = action->uid;
+        func_00194590(packet, 0);
+    }
+
+    unit = *(u8**)(D_0076449C + 0x180);
+    while (unit != NULL)
+    {
+        if (datCalcIsDead(*(u32*)(unit + 0xA64), 0) != 0)
+        {
+            BtlPacket* packet;
+
+            packet = func_0019beb0(unit);
+            *(u8*)packet = 4;
+            *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+            packet->actionUID = action->uid;
+            func_00194590(packet, 0);
+        }
+        else
+        {
+            BtlPacket* packet;
+
+            packet = btlUnitCreateRotateTowardUnitPacket(
+                unit, action->unit, 34);
+            *(u8*)packet = 4;
+            *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+            packet->actionUID = action->uid;
+            func_00194590(packet, 0);
+        }
+
+        unit = *(u8**)(unit + 0xA6C);
+    }
+
+    {
+        BtlPacket* packet;
+
+        packet = btlCameraCreateSetStatePacket(action, 41);
+        *(u8*)packet = 4;
+        *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+        packet->actionUID = action->uid;
+        func_00194590(packet, 0);
+    }
+}
 // FUN_001A13E0
 void btlActionUpdateStateChangeFormation(BtlAction* action)
 {

@@ -172,6 +172,5 @@ void func_0014bbb0(void* arg0)
    Tried alternate signed/unsigned half temporaries, declaration order,
    in-place OR, and aggregate/direct color spellings; all other rows match.
    Committed at nd 4. */
-// FUN_0014BBE0
+// FUN_0014BBE0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_misc", func_0014bbe0);
-

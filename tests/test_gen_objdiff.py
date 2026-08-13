@@ -208,9 +208,18 @@ class UnitBuildingTests(unittest.TestCase):
         self.assertTrue(matched[0]["metadata"]["complete"])
 
     def test_progress_categories_split_first_and_third_party(self) -> None:
-        self.assertEqual(
-            [c["id"] for c in gen.PROGRESS_CATEGORIES],
-            ["main", "third_party", "unclassified"])
+        """The three attribution categories partition every unit exactly once.
+
+        They are mutually exclusive by construction -- a unit is first-party,
+        middleware, or not yet attributed -- so a badge over one of them has a
+        meaningful denominator. `linked` is deliberately NOT one of them: it is
+        additive, carried alongside whichever attribution category a unit has,
+        because being linked into the byte-exact image is orthogonal to which
+        source owns the function.
+        """
+        ids = [c["id"] for c in gen.PROGRESS_CATEGORIES]
+        self.assertEqual(ids[:3], ["main", "third_party", "unclassified"])
+        self.assertIn("linked", ids)
         self.assertEqual(gen.progress_category("src/Battle/btlTarget.c"), "main")
         self.assertEqual(gen.progress_category("src/rw/rwcore.c"), "third_party")
         self.assertEqual(gen.progress_category("src/cri/cri_adx.c"), "third_party")
@@ -232,6 +241,16 @@ class UnitBuildingTests(unittest.TestCase):
         # build_canonical_units emits the source-less remainder, which is
         # exactly the population that must not be silently counted as either.
         self.assertEqual(units[1]["metadata"]["progress_categories"], ["unclassified"])
+
+    def test_linked_category_is_additive_and_needs_a_linked_report(self) -> None:
+        """No linked report means no linked tag, rather than a guessed one.
+
+        The category publishes the fully-linked figure to decomp.dev, so a
+        config generated without a report must simply omit it: emitting a WRONG
+        linked number is worse than emitting none.
+        """
+        self.assertEqual(gen.linked_addresses(None), frozenset())
+        self.assertEqual(gen.linked_addresses("build/does-not-exist.json"), frozenset())
 
 
 class TrimWindowPaddingTests(unittest.TestCase):

@@ -99,8 +99,17 @@ u32 func_0019bd60(void* work);
 u32 func_0019bd80(void* work);
 u32 func_0019bdb0(void* work);
 struct BtlUnit {
-    u8 padding_00[0xa2];
+    u8 padding_00[0x98];
+    u32 flags2;
+    u32 flags3;
+    u8 padding_a0[2];
     u8 genus;
+    u8 padding_a3[0xd];
+    s16 lookAtMode;
+    u8 padding_b2[0x94e];
+    void* mdl;
+    u8 padding_a04[0x64];
+    struct BtlUnit* prev;
 };
 typedef struct BtlUnitResourceWork {
     BtlUnit* unit;
@@ -423,7 +432,65 @@ u32 func_0019e5d0(void *arg0)
     }
 }
 // FUN_0019E5F0
-INCLUDE_ASM("asm/nonmatchings/btlUnit_functions", func_0019e5f0);
+u32 func_0019e5f0(void* work)
+{
+    extern u8* iGpffffb3ac;
+    extern void func_0047a890(void* arg0, f32 arg1);
+    extern void func_0047a8a0(void* arg0, f32 arg1, f32 arg2);
+    extern void func_0047a990(void* arg0);
+    BtlUnitPacketLookAtDeactivate* packet;
+    BtlUnit* curr;
+
+    packet = (BtlUnitPacketLookAtDeactivate*)work;
+
+    if (packet->flags & 3)
+    {
+        if (packet->flags & 1)
+        {
+            curr = *(BtlUnit**)((u8*)iGpffffb3ac + 0x17c);
+            while (curr != NULL)
+            {
+                if ((curr->flags3 & 8) && (curr->flags2 & 2))
+                {
+                    func_0047a890(curr->mdl, 0.25f);
+                    func_0047a8a0(curr->mdl, 70.0f, 60.0f);
+                    func_0047a990(curr->mdl);
+                    curr->lookAtMode = 0;
+                }
+                curr = curr->prev;
+            }
+        }
+
+        if (packet->flags & 2)
+        {
+            curr = *(BtlUnit**)((u8*)iGpffffb3ac + 0x184);
+            while (curr != NULL)
+            {
+                if ((curr->flags3 & 8) && (curr->flags2 & 2))
+                {
+                    func_0047a890(curr->mdl, 0.25f);
+                    func_0047a8a0(curr->mdl, 70.0f, 60.0f);
+                    func_0047a990(curr->mdl);
+                    curr->lookAtMode = 0;
+                }
+                curr = curr->prev;
+            }
+        }
+    }
+    else
+    {
+        curr = packet->unit;
+        if (curr->flags2 & 2)
+        {
+            func_0047a890(curr->mdl, 0.25f);
+            func_0047a8a0(curr->mdl, 70.0f, 60.0f);
+            func_0047a990(curr->mdl);
+            curr->lookAtMode = 0;
+        }
+    }
+
+    return 1;
+}
 // FUN_0019E7A0
 u32 func_0019e7a0(void *arg0)
 {

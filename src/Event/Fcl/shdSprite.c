@@ -53,7 +53,7 @@ extern u8 D_00637280[];
    object 476B / window 496B, normalized_diff 290, fndiff differing words 99.
    The frame and object deficit ruled out the nd25 park threshold; restore the
    assembly fallback. */
-// FUN_0025EF20
+// FUN_0025EF20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
 
 /* Measured compiled-C park: direct field reload after the successful
@@ -62,56 +62,7 @@ INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
    archived in build/WCSmallFiles_shdSprite_f110_nd23_fndiff.txt and the body
    in build/WCSmallFiles_shdSprite_f110_nd23_before_park.c. Committed at nd 23. */
 // FUN_0025F110 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0025f110(u8 *arg0)
-{
-    u32 temp;
-    s32 *table;
-    s32 index;
-    s32 offset;
-    s32 count;
-    u8 *result;
-
-    table = *(s32 **)(arg0 + 4);
-    index = *(s32 *)arg0;
-    count = table[1];
-    if (index >= count) {
-        return 1;
-    }
-    for (;;) {
-        offset = index * 4;
-        if (*(u8 **)(*(u8 **)(arg0 + 8) + offset) == NULL) {
-            result = func_00455f70(
-                *(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4)) + offset),
-                &temp);
-            if (result != NULL) {
-                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
-                    func_0046af60((s32)result);
-            } else {
-                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
-                    func_0046aea0(
-                        (const char *)(*(u8 **)(*(u8 **)
-                            (*(u8 **)(arg0 + 4)) + offset)));
-            }
-        } else {
-            if (func_0046a750(
-                    (s32)*(u8 **)(*(u8 **)(arg0 + 8) + offset)) == 0) {
-                goto fail;
-            }
-            *(s32 *)arg0 = *(s32 *)arg0 + 1;
-        }
-        count = *(s32 *)(*(u8 **)(arg0 + 4) + 4);
-        if (*(s32 *)arg0 >= count) {
-            break;
-        }
-    }
-    return 1;
-fail:
-    return 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f110);
-#endif
 // FUN_0025F230
 void func_0025f230(u32 param_1)
 {

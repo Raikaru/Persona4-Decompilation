@@ -3,6 +3,8 @@
 [![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=complete_units&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=complete_units)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![code](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=code&measure=complete_code_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![fully linked C](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fully%20linked%20C&measure=complete_units&category=linked)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fuzzy%20match&measure=fuzzy_match_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![byte-exact linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 
 Matching decompilation of **Shin Megami Tensei: Persona 4** for PlayStation 2
@@ -21,15 +23,15 @@ before extracting what the build needs.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,101; all mapped to C or owned retail assembly |
-| Byte-identical functions | 6,982 (53.294% of windows) |
-| Under test (a `// FUN_` marker scores them) | 13,101 (100.0% of windows) |
-| Not yet under test, supplied as retail bytes | 0 (0.0% of windows) |
-| In byte-exact linked C objects | 1,406 (10.732% of windows), with 466 assembly fallbacks still inside those objects |
-| First-party matched, scored for recovery | 6,276 |
-| — NAMED (not a `func_<address>` placeholder) | 155 (2.47%) |
-| — TYPED (no raw-offset or `M2C_` access) | 2,171 (34.592%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,306 (68.611%) |
-| — still carrying decompiler local names | 1,731 (27.581%) |
+| Byte-identical functions | 6,972 (53.217% of windows) |
+| Under test (a `// FUN_` marker scores them) | 12,720 (97.092% of windows) |
+| Not yet under test, supplied as retail bytes | 381 (2.908% of windows) |
+| In byte-exact linked C objects | 1,421 (10.847% of windows), with 442 assembly fallbacks still inside those objects |
+| First-party matched, scored for recovery | 6,266 |
+| — NAMED (not a `func_<address>` placeholder) | 155 (2.474%) |
+| — TYPED (no raw-offset or `M2C_` access) | 2,129 (33.977%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,306 (68.72%) |
+| — still carrying decompiler local names | 1,765 (28.168%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.
 <!-- STATUS:END -->

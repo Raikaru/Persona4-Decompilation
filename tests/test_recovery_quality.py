@@ -312,11 +312,23 @@ class ReadmeBadgeTests(unittest.TestCase):
             for measure in self.query(url).get("measure", []):
                 self.assertIn(measure, self.MEASURES, url)
 
-    def test_no_badge_reports_a_fuzzy_measure(self) -> None:
-        """Publishing a fuzzy measure would overstate a byte-identical claim."""
+    def test_fuzzy_measures_are_labelled_fuzzy(self) -> None:
+        """A fuzzy measure may be published, but never under a label that reads
+        as byte-identical.
+
+        decomp.dev's `matched_*` and `fuzzy_match_percent` measures credit near
+        misses, while this project's headline claim is byte-exactness, so the two
+        must never be confusable. Forbidding fuzzy measures outright also hid
+        genuinely useful information -- how close the unfinished 24% actually is
+        -- so the rule is now that the label has to say so. `fuzzy match` is
+        fine; `code` or `functions` over a fuzzy measure is not.
+        """
         for url in self.urls:
-            for measure in self.query(url).get("measure", []):
-                self.assertNotIn(measure, self.FUZZY, url)
+            measures = self.query(url).get("measure", [])
+            if not any(measure in self.FUZZY for measure in measures):
+                continue
+            label = " ".join(self.query(url).get("label", [])).lower()
+            self.assertIn("fuzzy", label, url)
 
     def test_all_badges_point_at_one_slug_matching_the_pages_badge(self) -> None:
         for url in self.urls:

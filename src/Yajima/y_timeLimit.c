@@ -141,7 +141,7 @@ func_002A27C0(float param_1,int param_2,int param_3,int param_4,int param_5,int 
 
 
 
-// FUN_002A2980
+// FUN_002A2980 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/y_timeLimit", func_002a2980);
 // FUN_002A2C10
 u32 func_002A2C10(int param_1,float *param_2)
