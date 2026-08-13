@@ -1007,60 +1007,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045d370);
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045d6e0);
 // FUN_0045D890
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045d890);
-/* measured: object 148B vs window 160B, normalized_diff 8; residual call argument order and zero tail. Committed at nd 8. */
+/* measured: archived body object 148B vs window 160B, normalized_diff 4; residual call-argument materialization/order at offsets 120-123 and zero/padding tail. Scoped callee ABI prototype tested (f32 * second parameter, u8 * sixth parameter); sibling-safe fallback retained. */
 // FUN_0045ED60
-#ifdef NON_MATCHING
-/* measured probe: suppress propagation so the cached colors pointer stays in t1. */
-#pragma opt_propagation off
-/* measured probe: suppress common substitutions for repeated retail byte loads. */
-#pragma opt_common_subs off
-void func_0045ed60(void *arg0, void *arg1, s32 arg2, f32 farg0) {
-    s32 count;
-    struct { u8 b[12]; } colors;
-    u8 *ptr;
-    u8 color0;
-    u8 color1;
-    u8 color2;
-    u8 color3;
-    ptr = colors.b;
-
-    color0 = ((u8 *)arg0)[0];
-    color1 = ((u8 *)arg0)[1];
-    color2 = ((u8 *)arg0)[2];
-    color3 = ((u8 *)arg0)[3];
-    colors.b[0] = color0;
-    colors.b[1] = color1;
-    colors.b[2] = color2;
-    colors.b[3] = color3;
-
-    color0 = ((u8 *)arg0)[0];
-    color1 = ((u8 *)arg0)[1];
-    color2 = ((u8 *)arg0)[2];
-    color3 = ((u8 *)arg0)[3];
-    colors.b[4] = color0;
-    colors.b[5] = color1;
-    colors.b[6] = color2;
-    colors.b[7] = color3;
-
-    color0 = ((u8 *)arg0)[0];
-    color1 = ((u8 *)arg0)[1];
-    color2 = ((u8 *)arg0)[2];
-    color3 = ((u8 *)arg0)[3];
-    colors.b[8] = color0;
-    colors.b[9] = color1;
-    colors.b[10] = color2;
-    colors.b[11] = color3;
-
-    count = 3;
-    func_0045dfd0(ptr, arg1, farg0, count, count, arg2);
-}
-/* measured probe: restore common substitutions after func_0045ed60. */
-#pragma opt_common_subs on
-/* measured probe: restore propagation after func_0045ed60. */
-#pragma opt_propagation on
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045ed60);
-#endif
 // FUN_0045EE00
 void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg1, u8 *arg4) {
     u8 colors[12];

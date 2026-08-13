@@ -592,7 +592,7 @@ s32 func_003bcbc0(s32 arg0, s32 arg1) {
 }
 /* measured: closes schedule around func_003bcbc0. */
 #pragma schedule off
-/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 4; archived at build/FP3B_003bcbe0_body.c and restored to INCLUDE_ASM. */
+/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 7; archived at build/FP3B_003bcbe0_body.c. Retail/candidate residual is the loop comparison and back-edge scheduling at bytes 48-55; optimization, branch, relational, and loop-shape probes did not move it. */
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
 
@@ -614,7 +614,7 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W6C3B_003bcf10_body.c and restored to INCLUDE_ASM. Residual words are the outer slt operand register and its paired delayed index move. */
+/* measured: best plain-C attempt object 72B/window 80B, normalized_diff 2; archived at build/W3C3B_003bcf10_body.c and restored to INCLUDE_ASM. Residual words are the outer slt operand register and its paired delayed index move. */
 // FUN_003BCF10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 /* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */

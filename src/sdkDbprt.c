@@ -130,51 +130,7 @@ INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_0044fa90);
    committed at nd 8. */
 /* measured: object 416B/window 416B. First differing rows: +0xF0 candidate addiu ,,0x60 then addu ,,; retail addu ,, then addiu ,,0x60. All remaining instructions match; GP addend uses registered iGpffffac30 + 0x10. Stack address order floor after read-pointer probes. Committed at nd 7. */
 // FUN_00450050 NONMATCHING
-#ifdef NON_MATCHING
-void func_00450050(s64 arg0, s32 arg1, ...) {
-    va_list args;
-    s8 sp60[0x100];
-    f32 arg0hi;
-    s32 var_19;
-    s32 var_18;
-    s32 var_17;
-    s32 temp_16;
-    s8 temp_5;
-    u8 *read;
-
-    arg0hi = *(f32 *)((u8 *)&arg0 + 4);
-    va_start(args, arg1);
-    func_00446ed8(sp60, (void *)arg1, args);
-    var_18 = (s32)(*(f32 *)&arg0);
-    var_17 = (s32)arg0hi;
-    var_19 = 0;
-    temp_16 = var_18;
-    while (var_19 < 0x100) {
-        if ((*(f32 *)&arg0 < 53.0f) && (arg0hi < 40.0f) && (var_18 < 0x35) && (var_17 < 0x28)) {
-            read = (u8 *)((u32)var_19 + (u32)sp60);
-            temp_5 = *(s8 *)read;
-            if (temp_5 != 0) {
-                if (temp_5 == 0xA) {
-                    var_18 = temp_16;
-                    var_17 += 1;
-                } else {
-                    if ((var_17 == 0x27) && (var_18 >= 0x35)) {
-                        func_00440b68((char *)&iGpffffac30 + 0x10, temp_5);
-                    } else {
-                        *(u8 *)((u32)D_008BF720 + (u32)(var_17 * 0x35) + (u32)var_18) = temp_5;
-                    }
-                    var_18 += 1;
-                }
-                var_19 += 1;
-                continue;
-            }
-        }
-        break;
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/sdkDbprt", func_00450050);
-#endif
 
 // FUN_004501F0
 void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...) {

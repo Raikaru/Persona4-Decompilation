@@ -887,9 +887,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004867e0);
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486840);
 /* measured: opening optimization_level 1 for the parked 00486970 body. */
 #pragma optimization_level 1
-// FUN_00486970 NONMATCHING
-#ifdef NON_MATCHING
-void func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
+// FUN_00486970
+u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
 {
     u32 flags;
     u_long128 sp40;
@@ -899,7 +898,7 @@ void func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
     if (((flags = *(s32 *)(arg0 + 0x68)) & 0x60) == 0) {
         value = *(u_long128 *)(arg0 + 0x50);
         *arg2 = value;
-        return;
+        return value;
     }
     func_0048a2b0(arg1, (u8 *)&sp40);
     if (*(s32 *)(arg0 + 0x68) & 0x40) {
@@ -924,9 +923,6 @@ void func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2)
     }
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(arg2) : "$vf10", "memory");
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486970);
-#endif
 /* measured: closes optimization_level 1 for the parked 00486970 body. */
 #pragma optimization_level 2
 // FUN_00489E00
