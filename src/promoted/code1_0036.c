@@ -17,6 +17,7 @@ typedef union {
     s64 raw;
     PairF32 f;
 } PairBits;
+typedef struct PersonaWork PersonaWork;
 
 extern void func_003642e0(u8 *arg0, void *arg1);
 
@@ -302,6 +303,7 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
         }
     }
 }
+/* measured: best archived candidate is in build/E367_003672D0_body.c; object 340B, window 336B, normalized_diff 102. */
 // FUN_003672D0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003672d0);
 // FUN_00367420

@@ -39,6 +39,9 @@ extern u8* (*D_008873F4[])(s32, s32, s32);
 extern void (*jtbl_008873EC[])(void* ptr);
 
 typedef struct { f32 x, y; } Vec2f;
+static inline u8 *panelSlot(u32 offset, u8 *base) {
+    return (u8 *)(offset + (u32)base);
+}
 typedef struct {
     f32 f20;
     f32 f24;

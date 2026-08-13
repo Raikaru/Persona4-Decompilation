@@ -480,6 +480,12 @@ INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172360);
    return-1 block; mwcc b210 inverts the base/index order, CSEs the loop loads,
    and splits the return blocks. Tried base locals, break-to-shared-return, and
    3 declaration orders, best nd 152. Load-sinking/coalescing floor. */
+/* measured: archived candidate object_size=944 bytes, retail_window=944 bytes,
+   normalized_diff=577; first differing offsets 0,4,8,10,12,14,16,18,20,22,24,26,27,28,30,31.
+   Corrected declarations in archived body: func_001452b0(s32) -> u8 *,
+   func_00452490(void *), func_0018e030(u8 *, s32),
+   func_0029db50(s32, s32, s32, s32), func_00182310(s32),
+   func_001560a0(u8 *, s16, s16, s16), func_0047a0e0(u8 *, s32, f32). */
 // FUN_001727F0
 INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_001727f0);
 // FUN_00172BA0

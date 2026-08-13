@@ -84,6 +84,11 @@ extern s32 func_0039b080(s32 arg0, s32 arg1);
 extern s32 func_0039af40(s32 arg0, s32 arg1);
 extern s32 func_003e8930(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)());
 extern s32 func_003c1ab0(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
+extern s32 func_003c4310(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_003c4370(s32 arg0, s32 arg1);
+extern s32 func_003c1b60(s32 arg0, s32 arg1);
+extern s32 func_003c8d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_003c8d80(s32 arg0, s32 arg1);
 extern s32 func_003c2b70(s32 arg0, s32 arg1, s32 (*arg2)(), s32 (*arg3)(), s32 (*arg4)());
 extern s32 func_003c2ba0(s32 arg0, s32 (*arg1)(), s32 (*arg2)(), s32 (*arg3)());
 extern s32 func_0038fb20(u8 *arg0);
@@ -1963,8 +1968,21 @@ s32 func_0039b570(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 /* measured: no_branch_likely on is probed for b680 plain dispatch. */
 #pragma no_branch_likely on
 
+/* measured: seed expanded with the verified callee declarations above. */
 // FUN_0039B5A0
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b5a0);
+extern s32 D_00884AC0[];
+s32 func_0039b5a0(s32 arg0) {
+    func_0039b7c0((s32)&D_00884ACC, arg0);
+    D_00884ADC[0] = arg0;
+    D_00884AC0[0] = func_003e8930(0, 0x131, func_0039b450, func_0039b4b0);
+    func_003c4310(0, 0x131, 0, 0, 0);
+    func_003c1ab0(0, 0x131, 0, 0, 0);
+    func_003c8d00(0, 0x131, 0, 0, 0);
+    func_003c4370(0x131, (s32)func_0039b510);
+    func_003c1b60(0x131, (s32)func_0039b540);
+    func_003c8d80(0x131, (s32)func_0039b570);
+    return 1;
+}
 // FUN_0039B680
 s32 func_0039b680(s32 arg0)
 {
