@@ -426,69 +426,22 @@ u8 *func_0047ef70(u8 *arg0, f32 fparg0)
 }
 // FUN_0047F040
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f040);
-// FUN_0047F1A0
+// FUN_0047F1A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f1a0);
 // FUN_0047F4D0
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f4d0);
 // FUN_0047F5B0
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f5b0);
-/* measured: object 288/288 bytes, normalized_diff 12; MWCCPS2 integer
- * parameter coloring residual remains. Committed at nd 12. */
-// FUN_0047F710 NONMATCHING
-#ifdef NON_MATCHING
-/* measured opt_rebuildconditionals bracket for func_0047f710 */
-#pragma opt_rebuildconditionals off
-void func_0047f710(u32 arg0, u32 arg1)
+// FUN_0047F710
+void func_0047f710(u8 *arg0, u8 *arg1)
 {
-    f32 value;
     u8 *dst;
 
-    dst = (u8 *)(arg1 + 4);
-    value = 255.0f * ((f32 *)arg0)[1];
-    if (2147483648.0f <= value) {
-        goto overflow_1;
-    } else {
-        arg1 = (s32)value;
-        arg1 &= 0xFF;
-        goto next_1;
-    }
-overflow_1:
-    arg1 = (s32)(value - 2147483648.0f) | 0x80000000;
-    arg1 &= 0xFF;
-next_1:
-    dst[0] = arg1;
-    value = 255.0f * ((f32 *)arg0)[2];
-    if (2147483648.0f <= value) {
-        goto overflow_2;
-    } else {
-        arg1 = (s32)value;
-        arg1 &= 0xFF;
-        goto next_2;
-    }
-overflow_2:
-    arg1 = (s32)(value - 2147483648.0f) | 0x80000000;
-    arg1 &= 0xFF;
-next_2:
-    dst[1] = arg1;
-    value = 255.0f * ((f32 *)arg0)[3];
-    if (2147483648.0f <= value) {
-        goto overflow_3;
-    } else {
-        arg0 = (s32)value;
-        arg0 &= 0xFF;
-        goto next_3;
-    }
-overflow_3:
-    arg0 = (s32)(value - 2147483648.0f) | 0x80000000;
-    arg0 &= 0xFF;
-next_3:
-    dst[2] = arg0;
+    dst = arg1 + 4;
+    dst[0] = (u8)(255.0f * ((f32 *)arg0)[1]);
+    dst[1] = (u8)(255.0f * ((f32 *)arg0)[2]);
+    dst[2] = (u8)(255.0f * ((f32 *)arg0)[3]);
 }
-/* measured opt_rebuildconditionals close for func_0047f710 */
-#pragma opt_rebuildconditionals on
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f710);
-#endif
 // FUN_0047F830
 u8 *func_0047f830(void)
 {

@@ -70,7 +70,42 @@ static inline u32 add_offset_first_0038(u32 offset, u32 base)
 // FUN_00380980
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00380980);
 // FUN_00380BD0
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00380bd0);
+s32 func_00380bd0(u8 **arg0)
+{
+    extern u8 func_00109bf0(u8 *arg0, s32 arg1);
+    extern void func_00104c70(s16 arg0);
+    extern s32 func_00106330(s32 arg0);
+    extern s32 func_003b7060(void);
+    extern u8 D_0064E760[];
+    f32 temp_f1;
+    f32 var_f1;
+    u16 temp_16;
+    u16 temp_2;
+    s32 var_3;
+    u8 var_16;
+    if (*(s32 *)(*arg0 + 0x1F30C) != 0) {
+        return 0;
+    }
+    temp_16 = func_00109bf0((u8 *)1, 4) & 0xFF;
+    func_00104c70(1);
+    if (func_00106330(0x1426) != 0) {
+        var_16 = 0x3C;
+    } else if (func_00106330(0x1427) != 0) {
+        var_16 = 0xA;
+    } else {
+        temp_2 = temp_16 & 0xFF;
+        if (temp_2 == 0) {
+            temp_2 = 1;
+        } else if (temp_2 > 0x63) {
+            temp_2 = 0x63;
+        }
+        var_16 = D_0064E760[((temp_2 & 0xFF) - 1) / 10];
+    }
+    var_f1 = (f32)(u32)(func_003b7060() & 0xFFF);
+    temp_f1 = 100.0f * (var_f1 / 4096.0f);
+    var_3 = (u8)temp_f1;
+    return (var_3 & 0xFF) < (var_16 & 0xFF);
+}
 // FUN_00380D80
 s32 func_00380d80(u8 *arg0, s32 arg1)
 {
@@ -158,7 +193,42 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387750);
 // FUN_00387E70
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387e70);
 // FUN_003889B0
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_003889b0);
+void func_003889b0(s32 arg0, u8 *arg1)
+{
+    extern void func_00387750(u8 *arg0);
+    extern void func_00387e70(u8 *arg0);
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern void func_0045c870(void *arg0, s32 arg1);
+    u8 colors[4];
+    f32 temp_f1;
+    f32 var_f12;
+    u16 *counter;
+    u16 temp_3;
+
+    func_0034f1e0();
+    if ((*(u16 *)(arg1 + 0x4C) & 0x400) != 0) {
+        func_00387750(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 4) != 0) {
+        func_00387e70(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 0x100) != 0) {
+        counter = (u16 *)(arg1 + 0x40);
+        colors[0] = *(u8 *)(arg1 + 0x42);
+        colors[1] = *(u8 *)(arg1 + 0x43);
+        colors[2] = *(u8 *)(arg1 + 0x44);
+        var_f12 = (f32)(u16)*counter;
+        temp_f1 = 128.0f *
+            (1.0f - func_00373cb0(var_f12, 0.0f, 30.0f, 2));
+        colors[3] = (u8)temp_f1;
+        func_0045c870(colors, 1);
+        temp_3 = ++*counter;
+        if (temp_3 >= 0x1E) {
+            *(u16 *)(arg1 + 0x4C) =
+                *(u16 *)(arg1 + 0x4C) & 0xFEFF;
+        }
+    }
+}
 // FUN_00388B40
 s32 func_00388b40(u8 *arg0)
 {

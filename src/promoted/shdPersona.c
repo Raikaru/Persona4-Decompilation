@@ -1147,68 +1147,13 @@ void func_0034c270(Vec2f, u8, s32, f32);
    use retail $v1 while MWCC uses $v0), and the relocation-owned global-address
    pair at 360/364. The object remains four bytes short at the tail. No source
    spelling tested changed these residuals. Committed at nd 18. */
+/* archived body: build/VSHD_0011b110_body.c; object 444B; retail window 448B;
+   normalized_diff 16; differing offsets 0x58, 0x5C, 0x78, 0x7C; retail-only
+   tail 0x1AC. The int-to-float idiom is `(f32)(u32)*(u8 *)(arg0 + 0x505)`.
+   Residual is call-site Vec2f aggregate/float argument materialisation order
+   plus tail padding; declaration and pragma alternatives were ruled out. */
 // FUN_0011B110 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: retail re-issues a value b210 would hoist into a saved
-   register; disabling common-subexpression sharing restores that. */
-#pragma opt_common_subs off
-void func_0011b110(u8 *arg0)
-{
-    Vec2f z;
-    f32 intensity;
-    s32 state;
-    s32 temp;
-    u32 bits;
-    f32 value;
-    f32 norm;
-    s32 work[4];
-    u8 color[4];
-    z.x = 0.0f;
-    z.y = 0.0f;
-    state = *(s32 *)(arg0 + 0x52C);
-    switch (state) {
-    case 0:
-    case 2:
-    case 4:
-        intensity = *(f32 *)(arg0 + 0x53C);
-        func_0034c270(z, *(u8 *)(arg0 + 0x505), 0x10, intensity);
-        return;
-    case 3:
-        intensity = *(f32 *)(arg0 + 0x53C);
-        func_0034c270(z, *(u8 *)(arg0 + 0x505), 0x23, intensity);
-        return;
-    case 1:
-        temp = *(u8 *)(arg0 + 0x505);
-        if (temp >= 0) {
-            value = (f32)temp;
-        } else {
-            bits = (u32)temp;
-            bits = (bits >> 1) | (bits & 1);
-            value = (f32)(s32)bits;
-            value = value + value;
-        }
-        norm = value / 255.0f;
-        work[0] = 0;
-        work[1] = (s32)(231.0f - 166.0f * norm);
-        work[2] = 0x280;
-        work[3] = (s32)(332.0f * norm);
-        color[0] = 0xFF;
-        color[1] = 0xE9;
-        color[2] = 0x2C;
-        color[3] = *(u8 *)(arg0 + 0x505);
-        D_00887300[0](1, 0);
-        func_0045d6e0(color, work, 0, 0.0f);
-        return;
-    default:
-        func_0046d730(D_005E4868, 0xB3D);
-        return;
-    }
-}
-/* measured: closes the scope above at the file's -O2 baseline. */
-#pragma opt_common_subs on
-#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
-#endif
 
 
 
@@ -1937,73 +1882,13 @@ void func_0011c6e0(u8 *arg0, s32 arg1)
    The object remains four bytes short at tail offset 428. In-place OR,
    compound-assignment, reused-local, dual-result-zero, and all thirteen
    pragma wrappers were flat or worse. Committed at nd 18. */
+/* archived body: build/VSHD_0011c780_body.c; object 428B; retail window 432B;
+   normalized_diff 13; differing offsets 0x10, 0x14, 0x132, 0x13A, 0x155,
+   0x15A, 0x15E. The int-to-float idiom is `(f32)(u32)a` for the unsigned
+   byte absolute-value site; the signed halfword ratio stays `(f32)raw`.
+   Residual is prologue load order, GPREL relocation, and output colouring. */
 // FUN_0011C780 NONMATCHING
-#ifdef NON_MATCHING
-void func_0011c780(u8 *arg0)
-{
-    f32 diff;
-    f32 f_abs;
-    f32 acc;
-    f32 ratio;
-    f32 lo;
-    f32 hi;
-    f32 base;
-    f32 delta;
-    s32 n;
-    s32 a;
-    s32 b;
-    s32 v;
-    u32 c;
-    s16 raw;
-
-    raw = *(s16 *)(arg0 + 0x514);
-    lo = *(f32 *)(arg0 + 0x450);
-    ratio = (f32)raw;
-    if (ratio < lo) {
-        ratio = 0.0f;
-    } else {
-        hi = *(f32 *)(arg0 + 0x454);
-        if (ratio > hi) {
-            ratio = 1.0f;
-        } else {
-            ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo)));
-        }
-    }
-    base = *(f32 *)(arg0 + 0x434);
-    delta = *(f32 *)(arg0 + 0x43C) - base;
-    *(f32 *)(arg0 + 0x444) = base + ratio * delta;
-    base = *(f32 *)(arg0 + 0x438);
-    delta = *(f32 *)(arg0 + 0x440) - base;
-    *(f32 *)(arg0 + 0x448) = base + ratio * delta;
-    a = *(u8 *)(arg0 + 0x44C);
-    b = *(u8 *)(arg0 + 0x44D);
-    diff = (f32)(b - a);
-    c = (u32)a;
-    if (a >= 0) {
-        f_abs = (f32)a;
-    } else {
-        v = (s32)((c >> 1) | (c & 1));
-        f_abs = (f32)v;
-        f_abs = f_abs + f_abs;
-    }
-    acc = f_abs + ratio * diff;
-    if (2147483648.0f > acc) {
-        n = (s32)acc & 0xFF;
-    } else {
-        n = ((s32)(acc - 2147483648.0f) | 0x80000000) & 0xFF;
-    }
-    *(u8 *)(arg0 + 0x44E) = n;
-    if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) {
-        *(s32 *)(arg0 + 0x534) &= ~0x1000;
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
-#endif
-
-
-
-
 /* measured: rule 2 confirmed — with the multiplications written ratio-first
    (`base + ratio * delta`, `f + ratio * diff`), the adda.s/madd.s pairs match
    retail byte-for-byte (madd.s $f1,$f0,$f3). Best nd 15 (obj 448B / window
@@ -2031,74 +1916,13 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
    abs colouring, and output $a0 versus MWCC $v1 colouring. Strict,
    inclusive, negated-strict, mask-only, constant-left-inclusive, and all
    pragma-wrapper probes were ruled out or worse. Committed at nd 23. */
+/* archived body: build/VSHD_0011c930_body.c; object 448B; retail window 448B;
+   normalized_diff 18; differing offsets 0x14, 0x18, 0x1C, 0x20, 0x132,
+   0x13A, 0x155, 0x15A, 0x15E. The int-to-float idiom is `(f32)(u32)a` for
+   the unsigned byte site; the signed halfword ratio stays `(f32)(s16)*(s16 *)`.
+   Residual is prologue load order, GPREL relocation, and output colouring. */
 // FUN_0011C930 NONMATCHING
-#ifdef NON_MATCHING
-void func_0011c930(u8 *arg0)
-{
-    f32 diff;
-    f32 f_abs;
-    f32 acc;
-    f32 ratio;
-    f32 lo;
-    f32 hi;
-    f32 base;
-    f32 delta;
-    s32 n;
-    s32 a;
-    s32 b;
-    s32 v;
-    u32 c;
-
-    ratio = (f32)(s16)*(s16 *)(arg0 + 0x514);
-    lo = *(f32 *)(arg0 + 0x450);
-    if (ratio < lo) {
-        ratio = 0.0f;
-    } else {
-        hi = *(f32 *)(arg0 + 0x454);
-        if (ratio > hi) {
-            ratio = 1.0f;
-        } else {
-            ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo)));
-        }
-    }
-    base = *(f32 *)(arg0 + 0x434);
-    delta = *(f32 *)(arg0 + 0x43C) - base;
-    *(f32 *)(arg0 + 0x444) = base + ratio * delta;
-    base = *(f32 *)(arg0 + 0x438);
-    delta = *(f32 *)(arg0 + 0x440) - base;
-    *(f32 *)(arg0 + 0x448) = base + ratio * delta;
-    a = *(u8 *)(arg0 + 0x44C);
-    b = *(u8 *)(arg0 + 0x44D);
-    diff = (f32)(b - a);
-    c = (u32)a;
-    if (a >= 0) {
-        f_abs = (f32)a;
-    } else {
-        v = (s32)((c >> 1) | (c & 1));
-        f_abs = (f32)v;
-        f_abs = f_abs + f_abs;
-    }
-    acc = f_abs + ratio * diff;
-    if (2147483648.0f > acc) {
-        n = (s32)acc & 0xFF;
-    } else {
-        n = ((s32)(acc - 2147483648.0f) | 0x80000000) & 0xFF;
-    }
-    *(u8 *)(arg0 + 0x44E) = n;
-    if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) {
-        *(s32 *)(arg0 + 0x534) &= ~0x800;
-        *(s32 *)(arg0 + 0x534) &= ~0x2000;
-        *(s8 *)(arg0 + 0x88) = -1;
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
-#endif
-
-
-
-
-
 // FUN_0011CAF0
 void func_0011caf0(u8 *arg0)
 {

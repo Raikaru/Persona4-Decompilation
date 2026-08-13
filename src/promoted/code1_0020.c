@@ -221,9 +221,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00200770);
 void func_00200960(void) {
     *(f32 *)(D_0076449C + 0xDC) = fGpffff8184;
 }
-/* Archived best reconstruction: object 208B, window 208B, normalized_diff 7. */
-// FUN_00200980 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00200980
 void func_00200980(u8 *arg0)
 {
     s32 temp_3;
@@ -238,32 +236,14 @@ void func_00200980(u8 *arg0)
     temp_5 = *(s32 *)(temp_6 + 0);
     if ((temp_5 == 0) || ((u32)temp_5 < (u32)temp_3)) return;
     temp_f2 = *(f32 *)(temp_6 + 4);
-    if (temp_3 >= 0) var_f1 = (f32)temp_3;
-    else {
-        u32 temp_7;
-        u32 temp_8;
-        temp_7 = (u32)temp_3 >> 1;
-        temp_8 = (u32)temp_3 & 1;
-        temp_7 |= temp_8;
-        var_f1 = (f32)(s32)temp_7;
-        var_f1 += var_f1;
-    }
-    if (temp_5 >= 0) var_f0 = (f32)temp_5;
-    else {
-        u32 temp_7;
-        temp_7 = (u32)temp_5;
-        var_f0 = (f32)(s32)((temp_7 >> 1) | (temp_7 & 1));
-        var_f0 += var_f0;
-    }
+    var_f1 = (f32)(u32)temp_3;
+    var_f0 = (f32)(u32)temp_5;
     var_f1 /= var_f0;
     var_f0 = *(f32 *)(temp_6 + 8) - temp_f2;
     var_f0 = func_0020_mul(var_f1, var_f0);
     var_f1 = var_f0 + temp_f2;
     *(f32 *)(D_0076449C + 0xDC) = fGpffff81a8 * var_f1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00200980);
-#endif
 
 // FUN_00200A50
 void func_00200a50(void)
@@ -600,7 +580,18 @@ void func_002016e0(u8 *arg0, s16 arg1, s16 arg2, f32 fparg0)
     *(f32 *)(arg0 + 0x28) = (f32)arg2;
 }
 // FUN_00201720
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201720);
+void func_00201720(u8 *arg0, f32 fparg0, f32 fparg1)
+{
+    if ((fparg0 == 1.0f) && (fparg1 == 1.0f)) {
+        *(s16 *)(arg0 + 0x8C) = 0;
+        *(s16 *)(arg0 + 0x8E) = 0;
+    } else {
+        *(u16 *)(arg0 + 0x8C) = (u16)(4096.0f * fparg0);
+        *(u16 *)(arg0 + 0x8E) = (u16)(4096.0f * fparg1);
+    }
+    *(f32 *)(arg0 + 0x1C) = fparg0;
+    *(f32 *)(arg0 + 0x20) = fparg1;
+}
 // FUN_00201820
 void func_00201820(s32 arg0)
 {

@@ -2375,10 +2375,8 @@ done:
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc500);
 #endif
 
-// FUN_003CC560
+// FUN_003CC560 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc560);
-/* measured: retail uses standalone pexew/ppacw MMI instructions; no plain-C
-   equivalent is permitted. Object 96B/window 96B; exact fallback archived. */
 // FUN_003CC680 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc680);
 

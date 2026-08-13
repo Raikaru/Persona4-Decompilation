@@ -32,8 +32,20 @@ u32 func_001b7b30(void* work);
 typedef struct BtlMainColorWork BtlMainColorWork;
 extern u32 func_001b7e70(BtlMainColorWork* param_1); /* retail update target */
 u32 func_001b87e0(void* work);
-typedef struct BtlMainLerpWork BtlMainLerpWork;
-extern u8 func_001b93c0(BtlMainLerpWork* param_1);
+typedef struct BtlMainLerpWork
+{
+    f32 value0;
+    f32 value1;
+    f32 value2;
+    f32 value3;
+    f32 target0;
+    f32 target1;
+    f32 target2;
+    f32 target3;
+    u32 totalFrames;
+    u32 currentFrame;
+} BtlMainLerpWork;
+extern u8* iGpffffb3ac;
 u32 func_001b96e0(void* work);
 u32 func_001b99f0(void* work);
 u32 func_001b9e50(void* work);
@@ -183,7 +195,48 @@ void func_001b9360(s32 arg, s16 mode)
 
 
 // FUN_001B93C0
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b93c0);
+u8 func_001b93c0(BtlMainLerpWork* param_1)
+{
+    f32 currentFloat;
+    f32 totalFloat;
+    f32 ratio;
+    f32 inverse;
+    RwV4d results;
+    u32 totalFrames;
+    u32 currentFrame;
+    u8* global;
+
+    if (param_1->currentFrame == 0)
+    {
+        global = iGpffffb3ac;
+        *(RwV4d*)&param_1->target0 = *(RwV4d*)(global + 0x25c);
+    }
+
+    totalFrames = param_1->totalFrames;
+    currentFrame = param_1->currentFrame;
+    if (currentFrame < totalFrames)
+    {
+        currentFloat = (f32)currentFrame;
+        totalFloat = (f32)totalFrames;
+        ratio = currentFloat / totalFloat;
+        inverse = 1.0f - ratio;
+        results.x = param_1->target0 * inverse + param_1->value0 * ratio;
+        results.y = param_1->target1 * inverse + param_1->value1 * ratio;
+        results.z = param_1->target2 * inverse + param_1->value2 * ratio;
+        results.w = param_1->target3 * inverse + param_1->value3 * ratio;
+        global = iGpffffb3ac;
+        *(RwV4d*)(global + 0x25c) = results;
+    }
+    else
+    {
+        global = iGpffffb3ac;
+        *(RwV4d*)(global + 0x25c) = *(RwV4d*)&param_1->value0;
+        return 1;
+    }
+
+    param_1->currentFrame++;
+    return 0;
+}
 // FUN_001B9560
 BtlPacket* func_001b9560(u32 param_1, u32 param_2)
 {

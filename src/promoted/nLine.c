@@ -402,16 +402,16 @@ void func_0034c4a0(void) {
     func_0034c500(D_00882FF0, sp18, 0xFF);
 }
 
-/* measured: three compounding mwcc b210 defects vs retail, nd 105. (1) The
-   s64 arg1 is kept in $s1 across the edc0 call instead of spilled to 0x38
-   (retail sd/ld $5, 0x38), pushing arg0 to $s2 and cascading through every
-   address — tried passing arg1 directly, s64 local, and 1-element s64 array,
-   all identical. (2) cvt.w.s if/else: only `temp_f1 < 2.1474836e9f` gives
-   retail's layout (cvt inline, sub out of line, shared sb join) but mwcc then
-   encodes c.olt.s $f1,$f0 + bc1f where retail has c.ole.s $f0,$f1 + bc1t; the
-   c.ole.s form only compiles with the inverted (wrong) layout. (3) byte-clamp
-   values land in $a0/$v1/$v0 vs retail's $a1/$v1/$v0. */
-// FUN_0034C500
+/* archived body: build/VNLN_0034c500_body.c; object 444B; retail window 448B;
+   normalized_diff 323; first differing offsets 0x04, 0x08, 0x0A, 0x0C, 0x0E,
+   0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x19, 0x1A, 0x1C.
+   The body uses the plain `(u8)` float-to-unsigned cast at the retail
+   c.ole.s/cvt.w.s/mfc1/lui 0x8000/or/andi site. The aggregate byte buffer
+   prevents dead-store elimination. Ruled out direct arg1, an s64 local, and a
+   one-element s64 array (all preserve the arg1-in-$s1/arg0-in-$s2 prologue
+   coloring); remaining residual is that spill/coloring floor, byte-clamp
+   register order, and a four-byte tail. */
+// FUN_0034C500 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c500);
 
 /* measured (wave 14): the f0d0 extern is floats-first — the true signature is
