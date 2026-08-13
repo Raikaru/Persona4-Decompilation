@@ -879,7 +879,34 @@ void func_004acb50(u8 *arg0) {
 }
 
 // FUN_004ACB80
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004acb80);
+void func_004acb80(u8 *arg0)
+{
+    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    f32 temp_f0;
+    u32 temp_3;
+    u32 temp_3_2;
+    u32 temp_4;
+
+    temp_f0 = func_0047a080(*(s32 *)(arg0 + 0xB4), 0);
+    temp_4 = (u32)temp_f0 + 1;
+    temp_3 = *(u32 *)(arg0 + 0x9C);
+    if (temp_3 >= temp_4 || temp_3 == 0) {
+        if (*(u8 *)(arg0 + 0xB8) == 1) {
+            if (*(u32 *)(arg0 + 0x74) <= temp_4) {
+                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                              (f32)*(s32 *)(arg0 + 0x70) - 1.0f);
+            }
+        } else if (*(u8 *)(arg0 + 0x80) != 0 &&
+                   *(u32 *)(arg0 + 0x70) <= temp_4) {
+            temp_3_2 = *(u32 *)(arg0 + 0x74);
+            if (temp_4 < temp_3_2) {
+                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                              (f32)(s32)temp_3_2 - 1.0f);
+            }
+        }
+        *(f32 *)(arg0 + 8) = 1.0f;
+    }
+}
 // FUN_004ACCC0
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004accc0);
 // FUN_004AD030
@@ -889,7 +916,35 @@ void func_004ad240(u8 *arg0) {
     func_004ad030(func_004814d0(*(u16 *)(arg0 + 0x38)), arg0);
 }
 // FUN_004AD280
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004ad280);
+void func_004ad280(u8 *arg0)
+{
+    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    f32 temp_f0;
+    u32 var_3;
+    u32 temp_2;
+    u32 temp_2_2;
+
+    temp_f0 = func_0047a080(*(s32 *)(arg0 + 0xB4), 0);
+    var_3 = (u32)temp_f0 + 1;
+    temp_2 = *(u32 *)(arg0 + 0x9C);
+    if (temp_2 >= var_3 || temp_2 == 0) {
+        if (*(u8 *)(arg0 + 0xB8) == 1) {
+            if (*(u32 *)(arg0 + 0x74) <= var_3) {
+                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                              (f32)*(s32 *)(arg0 + 0x70) - 1.0f);
+            }
+        } else if (*(u8 *)(arg0 + 0x80) != 0 &&
+                   *(u32 *)(arg0 + 0x70) <= var_3) {
+            temp_2_2 = *(u32 *)(arg0 + 0x74);
+            if (var_3 < temp_2_2) {
+                func_00479e60(*(u8 **)(arg0 + 0xB4), 0,
+                              (f32)(s32)temp_2_2 - 1.0f);
+            }
+        }
+        *(f32 *)(arg0 + 8) = 1.0f;
+    }
+    func_004ad030(func_004814d0(*(u16 *)(arg0 + 0x38)), arg0);
+}
 // FUN_004AD3E0
 void func_004ad3e0(u8 *arg0, f32 *arg1) {
     *(f32 *)(arg0 + 0x0) = arg1[0];

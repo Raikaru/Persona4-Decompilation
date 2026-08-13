@@ -15,10 +15,19 @@ typedef struct {
     u32 pad2[4];
 } Quad_0014;
 typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad0[0x14];
+    u32 color[3];
+    f32 scale;
+    u8 pad1[0x10];
+} Packet_0014;
+typedef struct {
     u8 pad[0x40];
     u8 arg0[8];
     u8 arg1[8];
-    Quad_0014 packet[4];
+    Packet_0014 packet[4];
 } Frame_0014;
 
 extern u8 D_005EF530[];
@@ -442,8 +451,56 @@ void func_001423c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3)
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001424b0);
 // FUN_001427C0
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001427c0);
+/* measured: opt_propagation off probe for func_00142bf0. */
+#pragma opt_propagation off
+/* measured: opt_loop_invariants on probe for func_00142bf0. */
+#pragma opt_loop_invariants on
 // FUN_00142BF0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00142bf0);
+void func_00142bf0(s64 arg0, s64 arg1, s32 arg2, f32 fparg0, s32 arg3)
+{
+    u8 packet[0x100];
+    f32 temp_f20;
+    f32 diff;
+    s32 var_12;
+    u8 *base;
+    u8 *var_10;
+    u8 *temp_8;
+    u8 *temp_7;
+
+    if (arg2 >= 5) {
+        func_0046d730(&D_005EF6C8, 0x5B6);
+    }
+    temp_f20 = D_008872F8[0];
+    D_00887300[0](1, 0);
+    var_12 = 0;
+    base = D_005EF710 + (arg2 << 5);
+    diff = temp_f20 - fparg0;
+    var_10 = (u8 *)&arg1;
+    while (var_12 < 4) {
+        if (var_12 < 2) {
+            var_10 = (u8 *)&arg0;
+        } else {
+            var_10 = (u8 *)&arg1;
+        }
+        temp_8 = base + (var_12 * 8);
+        temp_7 = packet + (var_12 << 6);
+        *(f32 *)(temp_7 + 0) = *(f32 *)var_10 + *(f32 *)(temp_8 + 0);
+        *(f32 *)(temp_7 + 4) = *((f32 *)var_10 + 1) + *(f32 *)(temp_8 + 4);
+        *(f32 *)(temp_7 + 8) = diff;
+        *(u32 *)(temp_7 + 0x20) = 0x437F0000;
+        *(u32 *)(temp_7 + 0x24) = 0x431E0000;
+        *(u32 *)(temp_7 + 0x28) = 0x40C00000;
+        *(f32 *)(temp_7 + 0x2C) = (f32)(u32)arg3;
+        var_12 += 1;
+    }
+    func_00364c50();
+    D_00887310[0](4, packet, 4);
+    func_00364c70();
+}
+/* measured: closes opt_loop_invariants on probe for func_00142bf0. */
+#pragma opt_loop_invariants off
+/* measured: restores opt_propagation after func_00142bf0 probe. */
+#pragma opt_propagation on
 // FUN_00142D80
 void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     Float2_0014 pair;
