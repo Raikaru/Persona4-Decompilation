@@ -1,10 +1,10 @@
 # Persona 4 PS2 Decompilation
 
-[![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=complete_units&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=complete_units)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![code](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=code&measure=complete_code_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
-[![fully linked C](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fully%20linked%20C&measure=complete_units&category=linked)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=perfect%20match&measure=code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fuzzy%20match&measure=fuzzy_match_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![linked code](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=linked%20code&measure=complete_code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![first-party functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=first-party%20functions&measure=matched_functions&category=main)](https://decomp.dev/Raikaru/Persona4-Decompilation)
+[![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![byte-exact linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 
 Matching decompilation of **Shin Megami Tensei: Persona 4** for PlayStation 2
