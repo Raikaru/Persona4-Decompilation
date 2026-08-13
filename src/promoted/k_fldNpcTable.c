@@ -60,7 +60,64 @@ ret1:
 
 
 // FUN_0015C800
-INCLUDE_ASM("asm/nonmatchings/k_fldNpcTable", func_0015c800);
+s32 func_0015c800(u8 *arg0)
+{
+    s32 temp;
+    u8 *table;
+    u8 *work;
+    char sp40[0x4C];
+    u32 sp8C;
+
+    if (arg0 == 0) {
+        return 1;
+    }
+    if (func_0014eec0() == 0) {
+        if (func_004553c0(arg0) == 0) {
+            goto ret0;
+        }
+        func_0044ea90(&D_005F07C0, 0x81);
+        temp = (s32)(*D_008873F4)(1, *(u32 *)(arg0 + 0x118), 0x40000);
+        *(u8 **)(func_00155280() + 0x18E8) = (u8 *)temp;
+        {
+            u8 *state = func_00155280();
+            s32 size = *(s32 *)(arg0 + 0x118);
+            void *dst = *(void **)(state + 0x18E8);
+            void *src = *(void **)(arg0 + 0x110);
+            func_0043f810(dst, src, size);
+        }
+        table = *(u8 **)(func_00155280() + 0x18E8);
+        *(s32 *)(func_00155280() + 0x18EC) = *(s32 *)table;
+        work = table + 0x20;
+        *(u8 **)(func_00155280() + 0x18F0) = work;
+        *(u8 **)(func_00155280() + 0x18F4) =
+            *(u8 **)(func_00155280() + 0x18F0) + *(s32 *)table * 0x20;
+        func_00454bd0(arg0);
+        return 1;
+    }
+    func_00442088(sp40, D_005F07D0, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
+    table = func_00455f70(sp40, &sp8C);
+    if (table != 0) {
+        func_0044ea90(&D_005F07C0, 0xA2);
+        temp = (s32)(*D_008873F4)(1, sp8C, 0x40000);
+        *(u8 **)(func_00155280() + 0x18E8) = (u8 *)temp;
+        {
+            u8 *state = func_00155280();
+            s32 size = sp8C;
+            void *dst = *(void **)(state + 0x18E8);
+            void *src = table;
+            func_0043f810(dst, src, size);
+        }
+        work = *(u8 **)(func_00155280() + 0x18E8);
+        *(s32 *)(func_00155280() + 0x18EC) = *(s32 *)work;
+        table = work + 0x20;
+        *(u8 **)(func_00155280() + 0x18F0) = table;
+        *(u8 **)(func_00155280() + 0x18F4) =
+            *(u8 **)(func_00155280() + 0x18F0) + *(s32 *)work * 0x20;
+    }
+    return 1;
+ret0:
+    return 0;
+}
 
 // FUN_0015CA30
 void *func_0015ca30(void)
@@ -188,7 +245,54 @@ ret1:
 
 
 // FUN_0015CD70
-INCLUDE_ASM("asm/nonmatchings/k_fldNpcTable", func_0015cd70);
+s32 func_0015cd70(u8 *arg0)
+{
+    u8 *arg;
+    s32 temp;
+    char sp30[0x4C];
+    u32 sp7C;
+
+    arg = arg0;
+    if (arg == 0) {
+        return 1;
+    }
+    if (func_0014eec0() == 0) {
+        if (func_004553c0(arg) != 0) {
+            func_0044ea90(&D_005F07C0, 0x158);
+            temp = (s32)(*D_008873F4)(1, *(u32 *)(arg + 0x118), 0x40000);
+            *(u16 **)(func_00155280() + 0x18E0) = (u16 *)temp;
+            *(u32 *)(func_00155280() + 0x18E4) = *(u32 *)(arg + 0x118);
+            {
+                u8 *state = func_00155280();
+                s32 size = *(s32 *)(arg + 0x118);
+                void *dst = *(void **)(state + 0x18E0);
+                void *src = *(void **)(arg + 0x110);
+                func_0043f810(dst, src, size);
+            }
+            func_00454bd0(arg);
+            return 1;
+        }
+        goto ret0;
+    }
+    func_00442088(sp30, D_005F0810, *(s32 *)gMtScene, *(s32 *)(gMtScene + 4));
+    arg = func_00455f70(sp30, &sp7C);
+    if (arg != 0) {
+        func_0044ea90(&D_005F07C0, 0x172);
+        temp = (s32)(*D_008873F4)(1, sp7C, 0x40000);
+        *(u16 **)(func_00155280() + 0x18E0) = (u16 *)temp;
+        *(u32 *)(func_00155280() + 0x18E4) = sp7C;
+        {
+            u8 *state = func_00155280();
+            s32 size = sp7C;
+            void *dst = *(void **)(state + 0x18E0);
+            void *src = arg;
+            func_0043f810(dst, src, size);
+        }
+    }
+    return 1;
+ret0:
+    return 0;
+}
 
 // FUN_0015CF10
 void func_0015cf10(void)

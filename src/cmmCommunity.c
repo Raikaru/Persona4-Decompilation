@@ -115,7 +115,7 @@ end:
    result there and the masked id in $s1, b210 the other way round. Probed four
    declaration orders, both assignment orders (id-first is worse at nd 11) and
    opt_common_subs off (nd 224). Committed at nd 7. */
-// FUN_00106F40
+// FUN_00106F40 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00106f40);
 // FUN_001070B0
 void func_001070b0(void)
@@ -935,9 +935,10 @@ ret:
    initializers (init also emits a zero-fill loop). Arg saved registers also
    rotate ($s3=a1 vs retail $s3=a0). Tried 4+ spellings; nd 125. Scheduler
    load-grouping floor. */
-// FUN_00108590
+/* measured: best retained C body was oversized at 648 bytes against the 592-byte
+   window (normalized_diff 336); archived in build/CMMC_00108590_body.c. */
+// FUN_00108590 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108590);
-
 // FUN_001087E0
 s32 func_001087e0(s32 arg0) {
     s32 id = arg0 & 0xFFFF;

@@ -49,20 +49,72 @@ extern u8 D_00637280[];
    other rows already byte-identical), align operand swaps, chain/align
    statement orderings, #pragma optimization_level 1 (nd 87).  This is the
    known load-sinking floor. */
-/* Compiled-C probe archived in build/WBSmallFiles_shdSprite_0025ef20_probe.txt:
+/* Compiled-C probe archived in build/FSHD_0025ef20_nd290_body.c:
    object 476B / window 496B, normalized_diff 290, fndiff differing words 99.
-   The frame and object deficit ruled out the nd25 park threshold; restore the
-   assembly fallback. */
+   Corrected all available callee declarations once with no codegen movement;
+   the 0x80 frame and 20B object deficit ruled out further grinding. */
 // FUN_0025EF20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
 
-/* Measured compiled-C park: direct field reload after the successful
-   validation increment reproduces retail's caller-saved $v0 tail path.
-   object 288B / window 288B, normalized_diff 23; exact residual rows are
-   archived in build/WCSmallFiles_shdSprite_f110_nd23_fndiff.txt and the body
-   in build/WCSmallFiles_shdSprite_f110_nd23_before_park.c. Committed at nd 23. */
+/* Measured compiled-C park: object 288B / window 288B / normalized_diff 11.
+   Differing word offsets are 0x18, 0x1c, 0x20, 0x54, 0xdc, 0xe0, 0xe4,
+   0xe8. Persistent tail-index, table-pointer, result-pointer, and guard/
+   loop forms were measured; the remaining residual is register coloring. */
 // FUN_0025F110 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_0025f110(u8 *arg0)
+{
+    u8 *func_00455f70(s32, s32 *);
+    u8 *func_0046af60(u32);
+    u8 *func_0046aea0(const char *);
+    s32 func_0046a750(s16 *);
+    s32 temp;
+    s32 index;
+    s32 offset;
+    u8 *result;
+
+    index = *(s32 *)arg0;
+    if (index >= *(s32 *)(*(u8 **)(arg0 + 4) + 4)) {
+        return 1;
+    }
+    for (;;) {
+        result = *(u8 **)(arg0 + 8);
+        offset = index * 4;
+        if (*(u8 **)(result + offset) == NULL) {
+            result = func_00455f70(
+                (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4)) + offset),
+                &temp);
+            if (result != NULL) {
+                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
+                    func_0046af60((s32)result);
+            } else {
+                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
+                    func_0046aea0(
+                        (const char *)(*(u8 **)(*(u8 **)
+                            (*(u8 **)(arg0 + 4)) + offset)));
+            }
+        } else {
+            if (func_0046a750(
+                    (s16 *)*(u8 **)(result + offset)) == 0) {
+                goto fail;
+            }
+            *(s32 *)arg0 = *(s32 *)arg0 + 1;
+        }
+        {
+            s32 tail_index;
+            tail_index = *(s32 *)arg0;
+            if (tail_index >= *(s32 *)(*(u8 **)(arg0 + 4) + 4)) {
+                break;
+            }
+        }
+    }
+    return 1;
+fail:
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f110);
+#endif
 // FUN_0025F230
 void func_0025f230(u32 param_1)
 {

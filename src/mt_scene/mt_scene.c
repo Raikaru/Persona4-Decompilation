@@ -84,7 +84,7 @@ u8 func_0026d400(float* param_1)
 
 
 
-// FUN_0026D440
+// FUN_0026D440 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/mt_scene", func_0026d440);
 // FUN_0026D780
 void func_0026d780(s32 first, s32 second)
