@@ -83,8 +83,32 @@ void func_002852a0(s32 arg0, s32 arg1) {
         }
     }
 }
+/* measured: retail window 128 bytes; derived from complete retail disassembly. */
+/* measured: O1 probe preserves the retail comparison constants. */
+#pragma optimization_level 1
 // FUN_00285330
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285330);
+s32 func_00285330(void) {
+    s32 i;
+    s32 c4;
+    s32 c5;
+    s32 c6;
+    s32 *table;
+
+    i = 0;
+    table = D_00882170;
+    c6 = 6;
+    c5 = 5;
+    c4 = 4;
+    while (i < 0xD) {
+        if ((i != 0) && (i != c4) && (i != c5) && (i != c6) && (table[i] != 0)) {
+            return 0;
+        }
+        i++;
+    }
+    return 1;
+}
+/* measured: restore the translation unit optimization level after func_00285330. */
+#pragma optimization_level 2
 // FUN_002853B0
 s32 func_002853b0(void) {
     return 0;

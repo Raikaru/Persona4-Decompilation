@@ -115,7 +115,7 @@ end:
    result there and the masked id in $s1, b210 the other way round. Probed four
    declaration orders, both assignment orders (id-first is worse at nd 11) and
    opt_common_subs off (nd 224). Committed at nd 7. */
-// FUN_00106F40 NONMATCHING
+// FUN_00106F40
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00106f40);
 // FUN_001070B0
 void func_001070b0(void)

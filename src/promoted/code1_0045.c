@@ -177,32 +177,29 @@ extern u8 D_008D1C98[];
 extern u8 D_008D1CD4[];
 
 
-/* measured: object 92B vs window 96B, normalized_diff 14; residual load ordering and FPU register coloring. */
-// Committed at nd 14.
-// FUN_00450490 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: object 92B vs window 96B, normalized_diff 0; named locals preserve retail load order and FPU register coloring. */
+// FUN_00450490
 f32 func_00450490(f32 fparg0)
 {
+    f32 temp_fc;
     f32 temp_f1;
-    f32 temp_f0;
     f32 temp_f2;
+    f32 temp_f0;
 
-    temp_f1 = D_008872F8_abs[0] - D_008872FC_abs[0];
-    temp_f0 = *(f32 *)(iGpffffb9e0 + 0x80) -
-        *(f32 *)(iGpffffb9e0 + 0x84);
-    temp_f1 = temp_f1 / temp_f0;
-    temp_f0 = fparg0 - *(f32 *)(iGpffffb9e0 + 0x84);
-    temp_f2 = temp_f0 * temp_f1;
-    temp_f0 = *(f32 *)(iGpffffb9e0 + 0x80) / fparg0;
-    temp_f1 = D_008872FC_abs[0] + temp_f0 * temp_f2;
+    temp_fc = *(f32 *)D_008872FC_abs;
+    temp_f2 = *(f32 *)(iGpffffb9e0 + 0x84);
+    temp_f0 = *(f32 *)(iGpffffb9e0 + 0x80);
+    temp_f1 = *(f32 *)D_008872F8_abs - temp_fc;
+    temp_f1 = temp_f1 / (temp_f0 - temp_f2);
+    temp_f2 = fparg0 - temp_f2;
+    temp_f2 = temp_f2 * temp_f1;
+    temp_f0 = temp_f0 / fparg0;
+    temp_f1 = temp_fc + temp_f0 * temp_f2;
     if (temp_f1 < 0.0f) {
         temp_f1 = 0.0f;
     }
     return temp_f1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450490);
-#endif
 // FUN_00450630
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
 // FUN_00450A50

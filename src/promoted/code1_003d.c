@@ -125,7 +125,8 @@ s32 func_003d2710(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2720);
 // FUN_003D2C40
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2c40);
-// FUN_003D30B0
+/* measured: best body archived in build/H3D3_003d30b0_body.c; object 104B/window 112B, normalized_diff 66. */
+// FUN_003D30B0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d30b0);
 // FUN_003D3120
 /* measured: schedule on places the zero result in the jr delay slot. */
@@ -744,7 +745,8 @@ s32 func_003d60d0(u8 *arg0) {
 #pragma schedule off
 // FUN_003D7B40
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7b40);
-// FUN_003D7C50
+/* measured: best body archived in build/H3D3_003d7c50_body.c; object 128B/window 128B, normalized_diff 0 under assembly fallback. */
+// FUN_003D7C50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7c50);
 // FUN_003D7CD0
 /* measured: schedule bracket retained for func_003d7cd0. */
@@ -1143,7 +1145,8 @@ block_exit:
 #pragma no_branch_likely off
 
 
-// FUN_003DD760
+/* measured: best body archived in build/H3D3_003dd760_body.c; object 104B/window 112B, normalized_diff 13. */
+// FUN_003DD760 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
 
 // FUN_003DD7D0

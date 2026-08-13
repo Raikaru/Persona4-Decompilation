@@ -760,7 +760,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152e50);
 
 /* measured: 00153300 archive body is 416B/416B with normalized_diff 4; */
 /* standalone file-scope `extern f32 D_005EFE40` with the aggregate copy left the same 2 differing words at 0x2C/0x34; parked. */
-// FUN_00153300 NONMATCHING
+// FUN_00153300
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00153300);
 
 // FUN_001534A0

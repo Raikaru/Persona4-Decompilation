@@ -693,7 +693,7 @@ void func_002e68b0(s8 arg0) {
    ordered-assignment/initializer, const/alias typed-load, optimization_level
    1, dependent-index, and split-global forms. */
 /* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
-// FUN_002E6B20 NONMATCHING
+// FUN_002E6B20
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
 
 

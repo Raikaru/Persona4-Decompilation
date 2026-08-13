@@ -528,9 +528,36 @@ clear:
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb0d0);
 // FUN_003BB210
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb210);
-/* measured: switch candidate normalized_diff 83; restored assembly fallback. */
-// FUN_003BB330
+/* measured: best plain-C attempt object 104B/window 112B, normalized_diff 56; archived at build/H3BB_003bb330_body.c and restored to INCLUDE_ASM. */
+/* measured: optimization level 1, schedule on, and no_branch_likely on were probed. */
+#pragma optimization_level 1
+#pragma no_branch_likely on
+#pragma schedule on
+// FUN_003BB330 NONMATCHING
+#ifdef NON_MATCHING
+s32 func_003bb330(u8 *arg0) {
+    s32 pair[2];
+    s32 temp_3;
+
+    temp_3 = *(s32 *)(arg0 + 0xC);
+    if (temp_3 == 2) {
+        return *(s32 *)(arg0 + 8) - 3;
+    }
+    if (temp_3 == 1) {
+        return *(s32 *)(arg0 + 8) - 2;
+    }
+    pair[0] = 0x102;
+    pair[1] = func_003df590(1);
+    func_003df4d0(pair);
+    return 0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb330);
+#endif
+/* measured: close schedule/no_branch_likely/optimization probes around func_003bb330. */
+#pragma schedule off
+#pragma no_branch_likely off
+#pragma optimization_level 2
 // FUN_003BB3A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb3a0);
 // FUN_003BB4A0
@@ -1685,10 +1712,34 @@ s32 func_003bf330(s32 arg0) {
 }
 /* measured: close schedule around func_003bf330. */
 #pragma schedule off
-/* measured: best plain-C attempt object 100B/window 112B, normalized_diff 16;
-   archived at build/FP3B_003b360_body.c and restored to INCLUDE_ASM. */
-// FUN_003BF360
+/* measured: best plain-C attempt object 100B/window 112B, normalized_diff 43; archived at build/H3BB_003bf360_body.c and restored to INCLUDE_ASM. */
+/* measured: schedule on, opt_common_subs off, and opt_propagation off were probed. */
+#pragma schedule on
+#pragma opt_common_subs off
+#pragma opt_propagation off
+// FUN_003BF360 NONMATCHING
+#ifdef NON_MATCHING
+extern u8 D_0070AF70[];
+u8 *func_003bf360(u8 *arg0, s32 *arg1) {
+    struct A {
+        s32 value;
+    };
+    struct B {
+        s32 value;
+    };
+
+    ((struct A *)arg1)->value += 0xC;
+    ((struct B *)arg1)->value += 0x1C;
+    ((struct B *)arg1)->value += func_003e3370(D_0070AF70, (s32)arg0) + 0xC;
+    return arg0;
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf360);
+#endif
+/* measured: close opt_common_subs/opt_propagation/schedule probes around func_003bf360. */
+#pragma opt_common_subs on
+#pragma opt_propagation on
+#pragma schedule off
 // FUN_003BF3D0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf3d0);
 // FUN_003BF5F0
