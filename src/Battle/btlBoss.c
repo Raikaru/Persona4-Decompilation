@@ -224,15 +224,42 @@ loop_16:
         }
     }
 }
-/* measured: call-argument materialisation residual; retail does lhu $v0 then
-   move $a2, while every plain-C candidate reverses that order. Roughly thirty
-   spellings over four waves reached best nd 5 at object 168; complexity-ordering
-   and inline-parameter-position levers are exhausted. */
+/* measured archive: object 168B, retail window 176B, normalized_diff 5;
+   differing bytes 78,81,82,85,89.  Corrected callee ground truth was
+   func_001d7f10(u8 *,u8 *,u16,u32), but exact four-argument calls remain
+   register-coloured as lhu $a2 rather than retail lhu $v0/move $a2. */
 // FUN_0022FF70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022ff70);
-/* measured: object 200B, retail window 208B, normalized_diff 6; explicit switch body archived below. */
-// FUN_00230020 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_00230020);
+/* measured: literal-return switch reproduces the retail branch after the zero assignment. */
+// FUN_00230020
+s32 func_00230020(u8 *arg0)
+{
+    u16 temp_4;
+
+    if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0)
+        return 1;
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1)
+    {
+        temp_4 = *(u16 *)(arg0 + 0x6E);
+        switch (temp_4)
+        {
+        case 0x172:
+        case 0x173:
+        case 0x174:
+        case 0x175:
+        case 0x176:
+        case 0x177:
+        case 0x160:
+        case 0x17A:
+        case 0x186:
+        case 0x18B:
+            return 0;
+        default:
+            return 1;
+        }
+    }
+    return 1;
+}
 // FUN_002300F0
 u32 func_002300f0(u8 *arg0, u16 *out1, u16 *out2)
 {

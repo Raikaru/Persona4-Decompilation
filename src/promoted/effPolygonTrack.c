@@ -345,7 +345,11 @@ u8 *func_00493530(u8 *arg0)
    (chained `*(u8**)(arg0+0x2C)+0x4C` spelling, nd 2 — the sw/move pair
    swapped). #pragma schedule on / optimization_level 3 both worsen it
    (hoisted loads + beql if-conversion). Dead-copy placement floor. */
-// FUN_004936D0
+/* measured: object 180B/window 192B, normalized_diff 64; differing offsets
+   60 and 88-106 (reloc-masked 25 words). Tried temp/direct/reload/self/chain
+   spellings, typed allocator argument, schedule on, and optimization level
+   3; residual branch/body layout and delayed tail sequence remained. */
+// FUN_004936D0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_004936d0);
 
 // FUN_00493790
@@ -387,7 +391,9 @@ void func_004938b0(u8 *arg0)
     }
 }
 
-// FUN_004938E0
+/* measured: candidate VU reconstruction reaches object 720B/window 688B,
+   normalized_diff 478; oversized body discarded per lane budget. */
+// FUN_004938E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_004938e0);
 // FUN_00493B90
 void func_00493b90(u8 *arg0)
@@ -475,13 +481,7 @@ void func_00493e30(u8 *arg0, f32 fparg0)
     func_00492e30((u16 *)*(u32 *)(arg0 + 0x30));
 }
 
-/* measured: retail allocates obj->$s0, t17->$s1, t18->$s2 and runs the
-   palette loop with var5 in $a1, 0xFF/0xFE constants hoisted before the
-   loop, dst pointers in $t2/$a1; mwcc b210 colors t17->$s0 in every decl
-   order tried ([t17,t18,obj] nd 93, [obj,t17,t18] nd 96, [t18,t17,obj]
-   nd 93, [t17,obj,t18] nd 96), keeps 0xFF materialization inside the loop,
-   and grows the object to 628B vs a 624B window. s-reg + temp-color and
-   constant-hoisting floor; struct-field byte copies via iGpffffbb64 all
-   match. */
-// FUN_00493E60
+/* measured: candidate palette reconstruction reaches object 628B/window 624B,
+   normalized_diff 233; oversized body discarded per lane budget. */
+// FUN_00493E60 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_00493e60);

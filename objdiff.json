@@ -3259,7 +3259,7 @@
       "target_path": "build/objdiff/target/Battle/btlBoss/00230020.o",
       "base_path": "build/objdiff/base/Battle/btlBoss/00230020.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main",
           "linked"
@@ -61353,7 +61353,7 @@
       "target_path": "build/objdiff/target/evtScript/00298990.o",
       "base_path": "build/objdiff/base/evtScript/00298990.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main",
           "linked"
@@ -131661,7 +131661,7 @@
       "target_path": "build/objdiff/target/promoted/effGeometry/00483270.o",
       "base_path": "build/objdiff/base/promoted/effGeometry/00483270.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main",
           "linked"
@@ -134433,7 +134433,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldNpcTable/0015c800.o",
       "base_path": "build/objdiff/base/promoted/k_fldNpcTable/0015c800.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main",
           "linked"
@@ -134493,7 +134493,7 @@
       "target_path": "build/objdiff/target/promoted/k_fldNpcTable/0015cd70.o",
       "base_path": "build/objdiff/base/promoted/k_fldNpcTable/0015cd70.o",
       "metadata": {
-        "complete": false,
+        "complete": true,
         "progress_categories": [
           "main",
           "linked"

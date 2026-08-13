@@ -5,7 +5,7 @@
 extern s32 func_00481460();
 extern void func_00460ac0();
 extern s32 func_00481390();
-extern void func_003c42b0();
+extern u8 *func_003c42b0(void *arg0, s32 arg1);
 extern void func_003ef3a0();
 extern void func_003a2760();
 extern void func_003c02e0();
@@ -17,27 +17,27 @@ extern void func_003e0a90(void *arg0, f32 *arg1, s32 arg2);
 extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
 extern void func_003e05f0(void *arg0, void *arg1, void *arg2);
 extern void func_003a2950();
-extern void func_0046d730();
+extern void func_0046d730(const void *file, s32 line);
 extern u8 D_00713448[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern s32 func_003e9320();
-extern s32 func_003c00e0();
-extern s32 func_003c4140();
+extern s32 func_003e9320(void);
+extern s32 func_003c00e0(void);
+extern s32 func_003c4140(void);
 extern void *func_003c2630(s32 arg0, s32 arg1, u32 arg2);
-extern void func_003c1b90();
-extern void func_003c0210();
-extern void func_003c2a80();
-extern void func_0043f9c8();
-extern void func_0044ea90();
+extern u8 *func_003c1b90();
+extern u8 *func_003c0210(s32 arg0, void *arg1, s32 arg2);
+extern void func_003c2a80(void *arg0);
+extern void func_0043f9c8(void *dst, s32 value, u32 size);
+extern void func_0044ea90(const void *file, s32 line);
 extern f32 fGpffff8078;
 extern s32 iGpffffb610;
 extern s32 func_003a2340();
 extern u8 D_00713460[];
 extern void func_0043f810(void *dst, const void *src, u32 size);
-extern void func_003c2130();
-extern void func_003c2150();
-extern void func_003c2290();
-extern void func_003c22f0();
+extern s32 func_003c2130(void *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
+extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+extern void func_003c22f0(void *arg0);
 
 typedef struct RwV3d
 {
@@ -65,6 +65,7 @@ void func_00483700(RwMatrix *arg0, RwV3d *arg1, void *arg2, f32 fparg0);
 void func_003e9cb0(void *frame, void *matrix, u32 flags);
 
 void func_00483810(RwMatrix *arg0, RwV3d *arg1, void *arg2, RwV3d *arg3);
+extern u8 *func_00483a00(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 
 
@@ -111,7 +112,7 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
    after func_00482c40; mwcc b210 assigns var_16=$s1, var_17=$s2 (shifted by one)
    regardless of declaration order, because it cannot reuse the dead arg registers
    for the loop counters. Tried 8 declaration orders + mask pre-hoisting, nd 85. */
-// FUN_00482DC0
+// FUN_00482DC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00482dc0);
 
 // FUN_00482F70
@@ -190,12 +191,58 @@ u8 *func_004830f0(u16 arg0, s32 arg1) {
     return p;
 }
 
-/* measured floor: retail allocates arg0=$s2, var_17=$s1, var_20=$s4; mwcc b210
-   assigns arg0=$s1, var_17=$s4, var_20=$s2 regardless of declaration order
-   (parameter register + result register rotation). Tried 5 declaration orders,
-   nd 72. */
 // FUN_00483270
-INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483270);
+u8 *func_00483270(u8 *arg0) {
+    extern u8 *func_003c42b0(void *arg0, s32 arg1);
+    extern u8 *func_003c2290(u8 *arg0, s32 arg1);
+    extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
+    extern void func_003c22f0(void *arg0);
+    u8 *self;
+    u8 *temp_2;
+    s32 temp_16;
+    s32 temp_5;
+    s32 temp_5_2;
+    s32 var_22;
+    u8 *temp_21;
+    u8 *temp_23;
+    u8 *var_20;
+    u8 *var_19;
+    self = arg0;
+
+    if (*(u16 *)self & 2) {
+        temp_2 = func_004830f0(*(u16 *)(self + 0xA), *(s32 *)(self + 4));
+        temp_5 = *(s32 *)(*(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(self + 0x10) + 0x18) + 0x20)));
+        if (temp_5 != 0) {
+            temp_23 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18) + 0x20));
+            func_003c42b0(temp_23, temp_5);
+        }
+    } else {
+        temp_2 = func_00482c40(*(s16 *)(self + 8), *(s16 *)(self + 0xA),
+                               *(s32 *)(self + 4));
+        temp_16 = *(s32 *)(temp_2 + 0x14);
+        temp_21 = *(u8 **)(*(u8 **)(self + 0x10) + 0x18);
+        temp_23 = *(u8 **)(*(u8 **)(temp_2 + 0x10) + 0x18);
+        temp_5_2 = *(s32 *)(*(u8 **)(self + 0x14));
+        if (temp_5_2 != 0) {
+            func_003c42b0((void *)(u32)temp_16, temp_5_2);
+        }
+        func_003c2290(temp_21, 1);
+        var_20 = *(u8 **)(temp_21 + 0x2C);
+        var_19 = *(u8 **)(temp_23 + 0x2C);
+        var_22 = 0;
+        while (var_22 < *(s16 *)(self + 0xA)) {
+            *(u16 *)(var_19 + 0) = *(u16 *)(var_20 + 0);
+            *(u16 *)(var_19 + 2) = *(u16 *)(var_20 + 2);
+            *(u16 *)(var_19 + 4) = *(u16 *)(var_20 + 4);
+            func_003c2150(temp_23, var_19, temp_16);
+            var_20 += 8;
+            var_19 += 8;
+            var_22 += 1;
+        }
+        func_003c22f0(temp_21);
+    }
+    return temp_2;
+}
 
 // FUN_004833F0
 void func_004833f0(void *arg0) {
@@ -402,7 +449,7 @@ void func_004839d0(int param_1, u32 *param_2)
    and places spCC at 0xcc; mwcc b210 assigns arg0=$s6 (rotated) and spCC at 0xdc
    (stack layout shifted by the f32 spDC + sq slots). Tried 3 declaration orders
    and u32 args, nd 108. */
-// FUN_00483A00
+// FUN_00483A00 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483a00);
 
 // FUN_00483C40
@@ -468,5 +515,5 @@ u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
    registers to arg0=$s3, arg1=$s0, arg4=$s2) regardless of declaration order
    or type-mismatch on the check. Tried 3 declaration orders, pre-hoisting and
    type-mismatch, nd 110. */
-// FUN_00483E10
+// FUN_00483E10 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483e10);

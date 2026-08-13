@@ -173,7 +173,7 @@ extern f32 fGpffff80cc;
    spellings this wave: f32 prod local (2 placements, nd 108-111), (f32)
    cast on one product (folds, nd 12), &fGpffff80cc deref (nd 46). Both
    statement orders tried. FMA-CSE fusion floor. */
-// FUN_004A8DA0
+// FUN_004A8DA0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
 
 /* measured: cluster transfer from func_004a8bb0 — changing only the assert
@@ -1335,48 +1335,9 @@ void func_004aad30(u8 *arg0) {
    alloc swapped), nd 25 (14 rows). Tried 5 declaration orders, u16/u32 arg0,
    fn-pointer and mask temps, both assert cast forms - identical result.
    Saved-register rotation floor. */
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+/* measured: archived candidate body in build/BLUR_004aaee0_body.c; object 372B/window 384B, normalized_diff 42. COP2 sqc2 is retained in the archive only; live source is restored to the bare retail include. */
 // FUN_004AAEE0 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_004aaee0(u16 arg0, s32 arg1) {
-    s32 (*temp_2_2)(u8 *);
-    s32 temp_16;
-    s32 temp_18;
-    u8 *temp_2;
-    u8 *temp_4;
-    u8 *s3;
-
-    temp_16 = arg0 & 0xFFFF;
-    temp_18 = *(s32 *)(D_007143A4 + temp_16 * 0x18);
-    if ((u32)(temp_18 + 0x60) >= 0x200U) {
-        func_0046d730(D_00714450, 0x170);
-    }
-    func_0044ea90(D_00714450, 0x171);
-    temp_2 = (u8 *)(*jtbl_008873E8)(temp_18 + 0x60, 0x40000);
-    func_0043f9c8(temp_2, 0, temp_18 + 0x60);
-    if (temp_2 == (u8 *)0) {
-        func_0046d730(D_00714380, 0x63B);
-    }
-    *(s32 *)(temp_2 + 0x18) = temp_16;
-    *(s32 *)(temp_2 + 0x10) = -1;
-    *(s32 *)(temp_2 + 0x14) = 0x3F800000;
-    *(s32 *)(temp_2 + 0x28) = 0;
-    s3 = temp_2;
-    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(s3) : "memory");
-    temp_4 = temp_2 + 0x60;
-    *(u8 **)(temp_2 + 0x24) = temp_4;
-    func_0043f810(temp_4, (const void *)arg1, temp_18);
-    temp_2_2 = (s32 (*)(u8 *))(*(u8 **)(D_00714390 + ((arg0 & 0xFFFF) * 0x18)));
-    if (temp_2_2 != (s32 (*)(u8 *))0) {
-        *(s32 *)(temp_2 + 0x20) = temp_2_2(*(u8 **)(temp_2 + 0x24));
-    }
-    *(s16 *)(temp_2 + 0x44) = 0x16;
-    *(u8 **)(temp_2 + 0x48) = temp_2;
-    return temp_2;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aaee0);
-#endif
 /* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
    body (separate obj/obj2 locals; rest of function byte-identical). The
    only residual is the pre-jal arg-materialisation order: retail emits
@@ -1522,7 +1483,7 @@ void func_004ab410(void *param_1, f32 param_2) {
    `s32 off = 0x60` variable (4-site and 2-site, both nd 89 — register
    pressure), modulo mask, decl orders — identical 3 rows. Constant-cache
    floor, same family as func_004aaee0. */
-// FUN_004AB420
+// FUN_004AB420 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab420);
 // FUN_004AB680
 void func_004ab680(void *param_1) {

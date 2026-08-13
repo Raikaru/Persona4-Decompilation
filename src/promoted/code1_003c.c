@@ -1513,12 +1513,20 @@ u8 *func_003c9750(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
 // FUN_003C97E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
 /* measured: best reconstruction archived in build/K3C2_003c9940_body.c;
-   object 172B/window 176B, normalized_diff 6. The residual is three
-   relocated global-address materialization words; schedule, declaration
-   order, pointer widths, local address forms, and optimization-level 1 were
-   measured and ruled out. */
+   object 172B/window 176B, normalized_diff 6. The true-body residual is
+   three words: the order swap at 0x30/0x34 (candidate emits the base addu
+   before the D_008873F8+0x118 load) plus the relocation word at 0x14.
+   Direct call, named allocator argument, allocator locals before/after the
+   base, direct global expression, schedule, declaration order, pointer
+   widths, local address forms, and optimization-level 1 were already ruled
+   out. Measured first-statement global-value locals (pointer, scalar,
+   function-pointer, aggregate, and escaping forms), integer-domain base
+   sums, and an array-typed absolute D_008873F8 alias also did not improve. */
 // FUN_003C9940 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9940);
+
+
+
 
 
 /* measured: schedule fills the key-test and found-exit delay slots. */
@@ -1615,12 +1623,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
 // FUN_003CA270
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca270);
 /* measured: best reconstruction archived in build/K3C2_003ca320_body.c;
-   object 164B/window 176B, normalized_diff 13. The residual is the
-   callback-zero branch target and resulting epilogue displacement: retail
-   has a distinct callback return plus a nop before the shared epilogue.
-   The common-return form was object 160B/nd 24; no declarations, volatile
-   accesses, or asm were used. */
-// FUN_003CA320
+   object 168B/window 176B, normalized_diff 10. The separate callback-return
+   guard plus schedule/no_branch_likely improves the prior nd 13 body. The
+   residual is callback branch polarity/layout at 0x68 and the resulting
+   continuation/epilogue displacement through 0x8C. Common-return,
+   explicit callback label/goto, distinct return casts, declaration,
+   volatile, and asm probes were ruled out. */
+// FUN_003CA320 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
 // FUN_003CA3D0
 #pragma schedule on
@@ -1629,6 +1638,7 @@ s32 func_003ca3d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     return func_003e3870(D_0070B060, arg0, arg1, arg2, arg3, arg4);
 }
 #pragma tailcall off
+/* measured: closes the schedule bracket for func_003ca3d0 and restores the file default. */
 #pragma schedule off
 
 // FUN_003CA400
@@ -2105,82 +2115,11 @@ s32 func_003cbce0(s32 arg0) {
 
 // FUN_003CBCF0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbcf0);
-/* func_003cbde0 near-match archive: object 144 bytes, window 160 bytes, normalized_diff 86. */
 // FUN_003CBDE0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003cbde0(u8 *arg0, void (*arg1)(u8 *), u8 *arg2) {
-    u8 *obj;
-    s32 *p;
-    s32 count;
-
-    obj = arg0 + iGpffffb708;
-    count = *(s32 *)(obj + 8);
-    p = *(s32 **)(obj + 0);
-    if (count > 0)
-        goto loop;
-    goto done;
-loop:
-    if (((s32 (*)(s32, s32))arg1)(*p, (s32)arg2) != 0)
-        goto next;
-    goto done;
-next:
-    count -= 1;
-    p += 1;
-    if (count != 0)
-        goto loop;
-done:
-    return (s32)arg0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbde0);
-#endif
 
-/* measured: archived scheduled body reaches object 160B/window 176B and
-   normalized_diff 57; residual branch-delay/layout words begin at +0x2C and
-   the low-path tail diverges from +0x64 through +0xA4. No real C body was
-   retained, so the bare INCLUDE_ASM fallback remains. */
-/* func_003cbe80 near-match archive: object 160 bytes, window 176 bytes, normalized_diff 57. */
-/* residual: branch-delay/layout words begin at +0x2C; low-path tail diverges from +0x64 through +0xA4. */
 // FUN_003CBE80 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_003cbe80(u8 *arg0, u8 *arg1) {
-    u8 *self;
-    u8 *obj;
-    u8 *link;
-    u8 *temp;
-    u8 *obj_link;
-    s32 *next;
-
-    self = arg0;
-    *(s32 *)(arg1 + iGpffffb714) = (s32)self;
-    obj = arg1;
-    if (*(u8 *)(obj + 1) < 0x80)
-        goto low;
-    next = *(s32 **)(obj + 4);
-    if (next != NULL)
-        func_003e9680((u8 *)next);
-    link = *(u8 **)(self + 0x34);
-    temp = self + 0x34;
-    obj_link = obj + 0x34;
-    *(u8 **)(obj_link) = link;
-    *(u8 **)(obj_link + 4) = temp;
-    *(u8 **)(*(u8 **)(self + 0x34) + 4) = obj_link;
-    *(u8 **)(self + 0x34) = obj_link;
-    goto done;
-low:
-    link = *(u8 **)(self + 0x3c);
-    temp = self + 0x3c;
-    obj_link = obj + 0x34;
-    *(u8 **)(obj_link) = link;
-    *(u8 **)(obj_link + 4) = temp;
-    *(u8 **)(*(u8 **)(self + 0x3c) + 4) = obj_link;
-    *(u8 **)(self + 0x3c) = obj_link;
-done:
-    return self;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbe80);
-#endif
 /* measured: closes the schedule bracket opened above and restores the file default. */
 #pragma schedule off
 

@@ -170,7 +170,11 @@ void func_0014bbb0(void* arg0)
    0x120/0x160: candidate `mtc1 $v0,$f0`, retail `mtc1 $v1,$f0`.
    The same two register-coloring residuals repeat for target/current alpha.
    Tried alternate signed/unsigned half temporaries, declaration order,
-   in-place OR, and aggregate/direct color spellings; all other rows match.
-   Committed at nd 4. */
+   in-place OR, aggregate/direct color spellings, reversed OR operands
+   (nd 20), differently typed OR operands, a named OR-result local, a
+   separate float-conversion local, distinct target/current-arm locals, and
+   split float assignments that read the OR result after mtc1 (each nd 4).
+   A typed read-after-mtc1 variant grew to 528B/432B at nd 190. All other
+   rows match. Committed at nd 4. */
 // FUN_0014BBE0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_misc", func_0014bbe0);
