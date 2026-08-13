@@ -348,8 +348,103 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003147e0);
    lever-1 finding: m2c's s64 arg3 is WRONG, the caller sets addiu $7,0x16C so the
    checked-in s32 4th param is correct; the 5th param (arg4) IS s64 — sd to stack).
    Floor confirmed. */
-// FUN_00314EF0
+/* measured: raw M2C seed archived at build/EFCL2_00314ef0_body.c; no live C body. */
+/* temporary body measurement */
+// FUN_00314EF0 NONMATCHING
+#ifdef NON_MATCHING
+typedef s32 M2C_UNK;
+typedef s8 M2C_UNK8;
+typedef s16 M2C_UNK16;
+typedef s32 M2C_UNK32;
+typedef s64 M2C_UNK64;
+#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
+#define M2C_BITWISE(type, expr) ((type)(expr))
+#define M2C_LWL(expr) (expr)
+#define M2C_FIRST3BYTES(expr) (expr)
+#define M2C_UNALIGNED32(expr) (expr)
+#define M2C_CARRY 0
+#define M2C_OVERFLOW(a) (0)
+#define MULT_HI(a, b) (0)
+#define MULTU_HI(a, b) (0)
+#define CLZ(x) (0)
+void func_00314ef0(u8 *arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4, s32 arg5) {
+    M2C_UNK spD4;
+    M2C_UNK spD8;
+    M2C_UNK spDC;
+    M2C_UNK unkspCC;
+    M2C_UNK unkspFC;
+    s32 sp10C;
+    s32 sp108;
+    s32 sp104;
+    s32 sp100;
+    s64 spF8;
+    s64 spF0;
+    s64 spE8;
+    s64 spE0;
+    f32 spD0;
+    s64 spC8;
+    f32 temp_f21;
+    f32 temp_f21_2;
+    s32 temp_18_4;
+    s32 temp_22;
+    s32 temp_30;
+    s64 temp_16;
+    s64 temp_17;
+    s64 temp_18;
+    s64 temp_18_2;
+    s64 temp_18_3;
+    s64 temp_23;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+
+    spC8 = arg2;
+    temp_30 = (s32)(M2C_FIELD(arg0, s32 *, 0x38));
+    temp_17 = (s64) (arg1 << 0x38) >> 0x38;
+    temp_22 = temp_17 * 2;
+    temp_18 = (s64) ((temp_22 + 0x1F4) << 0x30) >> 0x30;
+    func_002b7750(temp_18, 0x1AC);
+    temp_16 = (s64) (((s64) (((temp_17 * 5) + 0x66) << 0x30) >> 0x30) << 0x30) >> 0x30;
+    temp_23 = temp_16 + 2;
+    func_002b2970(&spF0, M2C_BITWISE(f32, spC8), unkspCC);
+    func_002b2a60(&sp10C, 0, 0, 0x66, 0xFF);
+    func_002b77d0(temp_18, spF0, 0x1AC, sp10C, (s64) (temp_23 << 0x30) >> 0x30, arg5, 3, 3, 0x43170000, arg4, func_00331560());
+    temp_18_2 = (s64) ((temp_22 + 0x1F5) << 0x30) >> 0x30;
+    func_002b7750(temp_18_2, 0x1B3);
+    temp_f21 = 217.0f + M2C_BITWISE(f32, spC8);
+    func_002b2970(&spE8, temp_f21, unkspCC);
+    func_002b2a60(&sp108, 0, 0, 0x66, 0xFF);
+    func_002b77d0(temp_18_2, spE8, 0x1B3, sp108, (s64) (temp_23 << 0x30) >> 0x30, arg5, 3, 3, 0x43170000, arg4, func_00331560());
+    func_002b2970(&spF8, temp_f21 - 28.0f, unkspCC);
+    temp_18_3 = (s64) ((temp_17 + 0x2FB) << 0x30) >> 0x30;
+    func_002b7750(temp_18_3, 0x131);
+    func_002b2a60(&sp104, 0x25, 0x2F, 0x94, 0xFF);
+    func_002b77d0(temp_18_3, spF8, 0x131, sp104, (s64) ((temp_16 + 3) << 0x30) >> 0x30, arg5, 3, 3, 0x43160000, arg4, func_00331560());
+    func_002b68d0(temp_18_3, 0xE, 0);
+    temp_18_4 = func_0046d200(func_00331560(), 0x131);
+    temp_2 = (u8 *)((temp_17 * 4) + temp_30);
+    temp_2_2 = (u8 *)(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)));
+    M2C_FIELD(temp_2_2, f32 *, 0) = (f32) spF8;
+    M2C_FIELD(temp_2_2, f32 *, 4) = unkspFC;
+    temp_f21_2 = func_0046b260(temp_18_4);
+    func_002b29e0(&spD0, temp_f21_2, func_0046b2f0(temp_18_4));
+    temp_2_3 = (u8 *)(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)));
+    M2C_FIELD(temp_2_3, f32 *, 8) = spD0;
+    M2C_FIELD(temp_2_3, f32 *, 0xC) = spD4;
+    M2C_FIELD(temp_2_3, f32 *, 0x10) = spD8;
+    M2C_FIELD(temp_2_3, f32 *, 0x14) = spDC;
+    M2C_FIELD(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)), s32 *, 0x120) = (s32) temp_16;
+    M2C_FIELD(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)), f32 *, 0x18) = 149.0f;
+    M2C_FIELD(func_002b81f0(M2C_FIELD(temp_2, s32 *, 0x258)), s8 *, 0x124) = 0;
+    func_0046d280(temp_18_4);
+    func_002b7750(arg3, arg3);
+    func_002b2970(&spE0, 6.0f + M2C_BITWISE(f32, spC8), 8.0f + unkspCC);
+    func_002b2a60(&sp100, 0xCC, 0xFF, 0xFF, 0xFF);
+    func_002b77d0(arg3, spE0, arg3, sp100, (s64) ((temp_16 + 4) << 0x30) >> 0x30, arg5, 3, 3, 0x43140000, arg4, func_00331560());
+}
+#else
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00314ef0);
+#endif
 
 /* measured: nd 0, object 740/window 752 (the final 12 retail bytes are zero
    tail padding ignored by verify). Exact recipe: retain raw arg1 in s0, use a
@@ -778,9 +873,9 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031fa20);
    swap (address vs addiu a0) from the func_00320970 note. All bodies are
    correct; object is 48-96B over window. Address-rematerialization + s64/s32
    conversion floor. */
+/* measured: candidate archived at build/EFCL2_003205f0_body.c; object 964/window 896, normalized_diff 621. */
 // FUN_003205F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003205f0);
-
 // FUN_00320970
 void func_00320970(u8 *arg0, s64 arg1) {
     FclByte4 sp5C;
@@ -905,6 +1000,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00323d00);
    at offsets 0x180/0x184. Widening 6af0 as well scored nd 249, object
    612/624. The s16 definition and original helper declarations are therefore
    retained; bare INCLUDE_ASM remains because nd 118 exceeds park threshold. */
+/* measured: candidate archived at build/EFCL2_00324410_body.c; object 616/window 624, normalized_diff 118. */
 // FUN_00324410
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00324410);
 
