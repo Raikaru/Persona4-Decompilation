@@ -1034,12 +1034,27 @@ void func_0021b310(u8 *arg0, s32 arg1)
 /* object 452B; retail window 464B; normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C; best legal plain-C body; residual is saved FPU parameter-coloring and 12B tail padding. */
 // FUN_0021B330 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b330);
-/* archived body: build/D21B_0021b500_body.c; object 300B; retail window 304B;
-   normalized_diff 8; differing offsets 0x3C, 0x40, 0x7C, 0x80, 0xBC, 0xC0,
-   0xFC, 0x100; retail-only tail pad 0x12C. Best legal plain-C body; residual
-   is repeated OR/MT1 register coloring. */
 // FUN_0021B500
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b500);
+void func_0021b500(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                   f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5)
+{
+    union {
+        s32 word;
+        u8 bytes[4];
+    } spC;
+
+    spC.word = arg1;
+    *(f32 *)(arg0 + 0) = fparg0;
+    *(f32 *)(arg0 + 4) = fparg1;
+    *(f32 *)(arg0 + 8) = fparg2;
+    *(f32 *)(arg0 + 0x20) = (f32)(u32)spC.bytes[0];
+    *(f32 *)(arg0 + 0x24) = (f32)(u32)spC.bytes[1];
+    *(f32 *)(arg0 + 0x28) = (f32)(u32)spC.bytes[2];
+    *(f32 *)(arg0 + 0x2C) = (f32)(u32)spC.bytes[3];
+    *(f32 *)(arg0 + 0x10) = fparg3;
+    *(f32 *)(arg0 + 0x14) = fparg4;
+    *(f32 *)(arg0 + 0x18) = fparg5;
+}
 // FUN_0021B630
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b630);
 // FUN_0021BBB0

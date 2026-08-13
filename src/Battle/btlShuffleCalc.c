@@ -218,20 +218,15 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
    adda/madd ACC chains (retail plain mul.s/add.s; split mul/add statements
    tried, identical). Ternary half-scalers (func_003720c0's trick) only
    reverse the srl/andi order here. u16-sign-test residual after recipe. */
-/* measured: best retained C probe reached nd 63, object 312B/320B, with the
-   float-first helper prototype order and the exact temporary zero/add call
-   setup; archived verbatim in build/WBNearMiss1_71a60_floatfirst_active.c.
-   The same body under the file's original helper prototype reached nd 71 and
-   is archived in build/WBNearMiss1_71a60_zero_local_active.c. Retail first
-   residuals at nd 63: off 16/20/28/48/52 are lhu/bltz/mtc1/srl/andi using
-   $a0 where retail uses $v0; off 104 is andi $v0,$a0,0xffff vs retail lhu
-   $v0,($s0); off 208 is lwc1 $f2,0x18($s0) vs retail lwc1 $f5,0x18($s0),
-   followed by the FP lerp register/schedule cascade. Ruled out: direct
-   expression, optimization level 1, extra arg local, named base, split
-   differences/lerps, pointer counter, s32/u16 value locals, opt_propagation
-   off, opt_common_subs off, and alternate helper interleavings; both tested
-   helper prototype edits were restored. Plain INCLUDE_ASM is retained. */
-// FUN_00371A60
+/* measured: archived body in build/VSHF_00371a60_body.c; object 312B /
+   320B window, normalized_diff 26, differing offsets 0x10, 0x14, 0x1C,
+   0x30, 0x34, 0x68, 0xD0, 0xD8-0x118. Both int-to-float sites use the
+   plain `(f32)(u32)value` cast and emit retail's unsigned conversion idiom.
+   Ruled out: u16/u32/s32 value locals, direct casts, typed ShuffleCalcUnit
+   pointer, compound increment, helper argument staging, alternate FP lerp
+   expression orders, optimization-level and propagation pragmas. Residual
+   is argument-register/CSE and FP register/schedule coloring. */
+// FUN_00371A60 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
 // FUN_00371BA0
 void func_00371ba0(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
@@ -404,17 +399,16 @@ void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
 }
 // FUN_003720C0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
-/* measured: re-tested this wave — BEST nd 32 (recorded 121 -> 32) with a full
-   rebuild: u32 value locals, recipe-A half-scalers, compound-assignment
-   increment `value2 = (*(u16 *)arg0 += 1)` (FLBtlresultsimple lever: sh before
-   andi), split store-then-accumulate tail math (`f18 + (p1-p0)*t` then `+= f7`
-   with f7 = field30*(t - 2t*t); split removes the single-expression reorder
-   nd 46->33). Residuals: (1) FP register-allocation cascade — my `t` lands in
-   $f6 vs retail $f8, shifting all factor/diff FP regs ($f4/$f3/$f2 vs retail
-   $f7/$f6/$f5); (2) compare polarity: `if (var_f1 < field4) return 1;` emits
-   `c.olt.s $f0,$f1; bc1f`; goto-form `if (v<f) goto cont; return 1;` gives
-   `bc1t` (nd 32, 1 better). FP-coloring + compare-polarity floor. */
-// FUN_00372200
+/* measured: archived body in build/VSHF_00372200_body.c; object 416B /
+   416B window, normalized_diff 32, differing offsets 0xE0, 0xF0-0x15C
+   (excluding relocation-masked call words). Both int-to-float sites use
+   plain `(f32)(u16)` casts and match retail's unsigned conversion idiom.
+   Ruled out: typed ShuffleCalcUnit pointer, u16/u32 value locals, direct
+   versus compound increment, duration reload/hoist, factor and interpolation
+   temporary orders, declaration-order FP probes, optimization-level and
+   propagation pragmas; residual is FP register/schedule coloring and tail
+   expression order. */
+// FUN_00372200 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372200);
 // FUN_003723A0
 void func_003723a0(u8 *arg0, u32 arg1, u32 arg2, u8 *arg3, u8 *arg4, f32 fparg0) {
@@ -732,20 +726,37 @@ void func_003733d0(u8 *p, s16 a1, s8 a2, s8 a3) {
     *(u8 *)(p + 2) = a3;
 }
 
-/* measured: best nd 27 on the clean s32/u-local spelling. Everything else
-   matches (lhu heads, assert, div, lbu diff, adda/madd f3*f2, the
-   0x4F000000 guard bodies and store) except: (1) the three half-scalers'
-   recorded or-fold + cvt-through-$f0 scratch (4 words each, cf.
-   func_00372960 note); (2) the increment's recorded store/mask 2-reg
-   split (`andi $v0,$v1,0xffff; sh $v1` vs retail `sh; andi` on one reg,
-   cf. 00373610); (3) the guard's branch polarity: retail `c.ole.s
-   $f0,$f1; bc1t` to the out-of-line sub path, mwcc canonicalises the
-   negated compare by swapping the if/else bodies and emits bc1f — all
-   four spellings of the compare probed (`!(t>=C)` -> c.olt.s $f1,$f0,
-   `!(C<=t)` -> c.ole.s + body swap, `t<C` -> c.lt.s, `t<=C` -> c.ole.s
-   $f1,$f0). FP regs fixed via temp_f2-before-var_f1 decl order. */
+/* measured: func_003733f0 is a live MATCH (object 416B / window 416B /
+   normalized_diff 0). Plain casts reproduce all conversion sites:
+   `(f32)(u16)` for both count values, `(f32)(s32)` for the signed
+   byte-difference, `(f32)(u32)` for the byte base, and `(u8)` for the
+   final float-to-byte narrowing. */
 // FUN_003733F0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003733f0);
+s32 func_003733f0(u8 *arg0) {
+    f32 temp_f2;
+    f32 var_f1;
+    f32 var_f3;
+    f32 var_f0;
+    u32 base;
+    s32 diff;
+
+    if ((s32)*(u16 *)(arg0 + 4) >= (s32)*(u16 *)(arg0 + 6)) {
+        return 1;
+    }
+    if ((s32)*(u16 *)(arg0 + 6) <= 0) {
+        func_0046d730(&D_0064E9C0, 0x344);
+    }
+    var_f1 = (f32)(u16)*(u16 *)(arg0 + 6);
+    var_f0 = (f32)(u16)(*(u16 *)(arg0 + 4) += 1);
+    var_f3 = var_f0 / var_f1;
+    base = *(u8 *)(arg0 + 1);
+    diff = (s32)*(u8 *)(arg0 + 2) - (s32)base;
+    temp_f2 = (f32)(s32)diff;
+    var_f0 = (f32)(u32)base;
+    var_f1 = 0.0f + var_f0 + var_f3 * temp_f2;
+    *(u8 *)(arg0 + 0) = (u8)var_f1;
+    return 0;
+}
 
 // FUN_00373590
 void func_00373590(u8 *arg0, s16 arg1, s8 arg2, u8 arg3) {
