@@ -2033,5 +2033,13 @@ s32 *func_003e90f0(u8 *arg0) {
 #pragma no_branch_likely off
 /* measured: closes schedule around func_003e90f0. */
 #pragma schedule off
+/* measured: schedule on probe for func_003e9140's branch-delay and call order. */
+#pragma schedule on
+/* measured: no_branch_likely on pairs with schedule for func_003e9140. */
+#pragma no_branch_likely on
 // FUN_003E9140
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e9140);
+/* measured: close schedule on around func_003e9140. */
+/* measured: close no_branch_likely around func_003e9140. */
+#pragma no_branch_likely off
+#pragma schedule off

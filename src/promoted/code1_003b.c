@@ -82,9 +82,20 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3f50);
 /* measured: current-TU f32 aggregate candidate object 240B/window 256B, normalized_diff 140; fndiff reports 58 differing words. Scalar f32 locals were undersized (204B/nd132); aggregate stack restored frame 0x30 but retail pointer-load ordering and loop/else epilogue layout remain different. Explicit special-label/goto layout did not move the residual; restored fallback. */
 // FUN_003B4020
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4020);
-/* measured: current-TU f32 aggregate candidate object 264B/window 272B, normalized_diff 123; fndiff first differing offsets 4,6,7,8,10,11,12,14,15,18,26,28,29,30,31,32. Retail frame/stack footprint matched, but source-pointer and loop register ordering remained different; restored fallback. */
+/* measured: schedule/no_branch_likely/opt_common_subs/opt_rebuildconditionals/optimization_level probes for 003b4120. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_common_subs off
+#pragma opt_rebuildconditionals off
+#pragma optimization_level 3
 // FUN_003B4120
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4120);
+/* measured: close schedule/no_branch_likely/opt_common_subs/opt_rebuildconditionals/optimization_level around 003b4120. */
+#pragma optimization_level 2
+#pragma opt_rebuildconditionals on
+#pragma opt_common_subs on
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: current-TU plain-C candidate object 168B/window 176B, normalized_diff 109; direct generated logic plus corrected next-base update and explicit source reload still leaves guard/prologue register assignment, pointer-lifetime coloring, and loop-store order mismatched; restored fallback. */
 // FUN_003B4230
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4230);

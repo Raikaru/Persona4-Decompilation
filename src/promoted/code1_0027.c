@@ -701,7 +701,98 @@ node_done:
     }
 }
 // FUN_0027A970
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_0027a970);
+void func_0027a970(u8 *arg0)
+{
+    extern void func_002727f0(u8 *arg0);
+    extern s32 func_002734b0(u8 *arg0);
+    extern void func_002738a0(s32 arg0);
+    extern void func_002746c0(s32 arg0, s32 arg1);
+    extern void func_00279780(u8 *arg0);
+    extern void func_00440b68(void *arg0);
+    extern void func_0045a9a0(s32 arg0, s32 arg1);
+    extern u16 D_008C024C[];
+    extern s32 iGpffffb4b0;
+    extern u8 D_0063BF40[];
+    u8 *state;
+    s32 index;
+    u8 *iter;
+    u32 count;
+
+    state = arg0 + 0x1C;
+    if (*(s8 *)(arg0 + 0x24) == 1) {
+        if ((*(s32 *)arg0 & 7) == 4) {
+            *(s32 *)(state + 0x14) += 1;
+            if (*(s32 *)arg0 & 0x800000) {
+                *(s8 *)(state + 8) = -1;
+                return;
+            }
+            if ((*(s32 *)arg0 & 0x100000) == 0 &&
+                (*(s16 *)(state + 0x18) == 0 ||
+                 *(s16 *)(state + 0x18) == 3)) {
+                *(s16 *)(state + 0x18) = 1;
+            }
+            if ((*(s32 *)arg0 & 0x4000000) == 0) {
+                if ((D_008C024E[0] & 0x40) != 0 ||
+                    (D_008C024E[0] & 0x20) != 0) {
+                    goto do_action;
+                }
+                if ((D_008C024C[0] & 0x10) == 0)
+                    goto state_check;
+                count = *(u32 *)(state + 0x14);
+                if (count > 4U) {
+                    if ((iGpffffb4b0 & 1) == 0)
+                        goto do_action;
+                } else {
+                    goto state_check;
+                }
+            }
+state_check:
+            if (*(u8 *)(state + 9) != 0) {
+                if ((*(s32 *)arg0 & 0x8000000) == 0)
+                    return;
+                if (func_002734b0(*(u8 **)(state + 4)) == 0)
+                    return;
+            }
+do_action:
+                func_00440b68(D_0063BF40);
+                *(s16 *)(state + 0x18) = 3;
+                *(s16 *)(state + 0x10) += 1;
+                func_0045a9a0(1, 0);
+                if (*(s16 *)(state + 0x10) >= *(s16 *)(state + 0x12)) {
+                    *(s8 *)(state + 8) = -1;
+                    return;
+                }
+                index = 0;
+                while (index < 32) {
+                    func_002746c0(index,
+                        *(s32 *)(arg0 + index * 4 + 0x94));
+                    index += 1;
+                }
+                if (*(s32 *)(arg0 + 8) != 0)
+                    func_002738a0(*(s32 *)(arg0 + 8));
+                func_00279780(arg0);
+                *(s32 *)arg0 = *(s32 *)arg0 & ~7;
+                *(s32 *)arg0 |= 3;
+        } else {
+            if ((*(s32 *)arg0 & 0x4000000) == 0 &&
+                ((D_008C024E[0] & 0x40) != 0 ||
+                 (D_008C024E[0] & 0x20) != 0 ||
+                 ((D_008C024C[0] & 0x10) != 0 &&
+                  (iGpffffb4b0 & 1) == 0)) &&
+                (*(s32 *)arg0 & 0x400000) == 0 &&
+                (*(s32 *)arg0 & 0x1000000) == 0) {
+                iter = *(u8 **)(state + 4);
+                while (iter != NULL) {
+                    func_002727f0(iter);
+                    iter = *(u8 **)(iter + 0x24);
+                }
+                if (*(u8 **)(arg0 + 0x14) != NULL)
+                    func_002727f0(*(u8 **)(arg0 + 0x14));
+            }
+            *(s32 *)arg0 = *(s32 *)arg0 & 0xFEFFFFFF;
+        }
+    }
+}
 // FUN_0027AC50
 void func_0027ac50(u8 *arg0)
 {
