@@ -112,9 +112,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5ac0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5bf0);
 // FUN_003B5D20
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5d20);
-/* measured: best plain-C attempt object 112B/window 112B, normalized_diff 26;
-   archived at build/FP3B_003b5fb0_body.c and restored to INCLUDE_ASM. */
-// FUN_003B5FB0
+/* measured: best current-TU body object 112B/window 112B, normalized_diff 26;
+   differing word offsets 0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,104;
+   archived at build/F3B0_003b5fb0_body.c and restored to INCLUDE_ASM. */
+// FUN_003B5FB0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5fb0);
 // FUN_003B6020
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6020);
@@ -126,12 +127,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
 /* measured: best fresh plain-C attempt object 152B/window 160B, normalized_diff 35; archived at build/K3B6_003b6420_nd35.c and restored to INCLUDE_ASM. */
 // FUN_003B6420 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
-/* measured: best plain-C attempt object 124B/window 128B, normalized_diff 90;
-   archived at build/FP3B_003b64c0_body.c and restored to INCLUDE_ASM. */
+/* measured: best plain-C attempt object 124B/window 128B, normalized_diff 94; archived at build/F3B1_003b64c0_body.c and restored to INCLUDE_ASM. */
 // FUN_003B64C0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b64c0);
-/* measured: best plain-C attempt object 144B/window 144B, normalized_diff 31;
-   archived at build/FP3B_003b6540_body.c and restored to INCLUDE_ASM. */
 // FUN_003B6540
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6540);
 // FUN_003B65D0
@@ -510,8 +508,9 @@ clear:
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb0d0);
 // FUN_003BB210
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb210);
-/* measured: best plain-C attempt object 104B/window 112B, normalized_diff 56; archived at build/H3BB_003bb330_body.c and restored to INCLUDE_ASM. */
-/* measured: optimization level 1, schedule on, and no_branch_likely on were probed. */
+/* measured: best current-TU body object 104B/window 112B, normalized_diff 20;
+   differing word offsets 4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,84;
+   archived at build/F3B0_003bb330_body.c and restored to INCLUDE_ASM. */
 #pragma optimization_level 1
 #pragma no_branch_likely on
 #pragma schedule on
@@ -695,7 +694,7 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-/* measured: current plain-C recheck object 76B/window 80B, normalized_diff 32; fndiff differing word offsets 0,4,16,20,24,52,56,60,64,68; archived body retained in build/W3C3B_003bcf10_body.c. */
+/* measured: current-TU body object 76B/window 80B, normalized_diff 32; differing word offsets 0,4,16,20,24,52,56,60,64,68; archived at build/F3B0_003bcf10_body.c. */
 // FUN_003BCF10 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 /* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */
@@ -722,7 +721,7 @@ done:
 #pragma schedule off
 /* measured: no_branch_likely off closes the one-function 003bcf60 probe. */
 #pragma no_branch_likely off
-/* measured: current plain-C recheck object 76B/window 80B, normalized_diff 32; fndiff differing word offsets 0,4,16,20,24,52,56,60,64,68; archived body retained in build/W4C3B_003bcfb0_nd2_body.c. */
+/* measured: current-TU body object 76B/window 80B, normalized_diff 32; differing word offsets 0,4,16,20,24,52,56,60,64,68; archived at build/F3B0_003bcfb0_body.c. */
 // FUN_003BCFB0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
 #pragma schedule on
@@ -870,13 +869,6 @@ do2:
 /* measured: close schedule around func_003bd470. */
 #pragma schedule off
 #pragma no_branch_likely off
-
-/* measured: plain-C recheck object 128B/window 112B, normalized_diff 27;
-   differing offsets 4,8,12,16,20,24,32,40,44,48,56,60,64,68,72,76,84,
-   88,92,96,100,104,108,112,116,120,124.  The object exceeds the retail
-   window, so the body is archived in build/Y3BA_003bd4f0_body.c and the
-   fallback is restored.  Casts written: none.  Levers ruled out: plain-C
-   recheck with no_branch_likely on. */
 // FUN_003BD4F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
 
@@ -946,12 +938,6 @@ do2:
 /* measured: schedule off closes func_003bd590 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: plain-C recheck object 136B/window 112B, normalized_diff 29;
-   differing offsets 4,8,12,16,20,24,32,40,44,48,56,60,64,68,72,76,84,
-   88,92,96,100,104,108,112,116,120,124,128,132.  The object exceeds the
-   retail window, so the body is archived in build/Y3BA_003bd610_body.c and
-   the fallback is restored.  Casts written: none.  Levers ruled out:
-   plain-C recheck with s32/s32/u8* signature. */
 // FUN_003BD610 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
 
@@ -1075,12 +1061,6 @@ do2:
 /* measured: schedule off closes func_003be820 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: plain-C recheck object 136B/window 112B, normalized_diff 29;
-   differing offsets 4,8,12,16,20,24,32,40,44,48,56,60,64,68,72,76,84,
-   88,92,96,100,104,108,112,116,120,124,128,132.  The object exceeds the
-   retail window, so the body is archived in build/Y3BA_003be8a0_body.c and
-   the fallback is restored.  Casts written: none.  Levers ruled out:
-   plain-C recheck with s32/s32/u8* signature. */
 // FUN_003BE8A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
 
@@ -1310,7 +1290,7 @@ s32 func_003bf330(s32 arg0) {
 }
 /* measured: close schedule around func_003bf330. */
 #pragma schedule off
-/* measured: best plain-C attempt object 100B/window 112B, normalized_diff 43; archived at build/H3BB_003bf360_body.c and restored to INCLUDE_ASM. */
+/* measured: best plain-C attempt object 100B/window 112B, normalized_diff 43; archived at build/F3B1_003bf360_body.c and restored to INCLUDE_ASM. */
 /* measured: schedule on, opt_common_subs off, and opt_propagation off were probed. */
 #pragma schedule on
 #pragma opt_common_subs off

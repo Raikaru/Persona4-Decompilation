@@ -39,7 +39,7 @@ extern s32 func_004bceb0(void);
 extern void func_00486400(u8 *arg0, f32 arg1);
 extern void func_00484790(u8 *arg0);
 extern void func_004847e0(u8 *arg0);
-extern u8 *func_00482230(void);
+extern u8 *func_00482230(s32 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 s32 func_00481460(s32 arg0);
@@ -92,7 +92,7 @@ u8 *func_00481d80(s32 arg0) {
 
     var_16 = NULL;
     if (arg0 != 0) {
-        var_16 = func_00482230();
+        var_16 = func_00482230((s32 *)(u32)arg0);
     }
     temp_17 = (*(s32 *)(var_16 + 8) * 0x14) + 0x18;
     func_0044ea90(D_007132F0, 0x72);
@@ -458,36 +458,8 @@ void func_00484ae0(u8 *arg0, s32 arg1) {
    D_00713CE0 lq/sq transfer widths; object 120B / window 128B,
    normalized_diff 6. Exact residual rows are archived in
    build/WBSmallFiles_code1_0048_00484b30_park.txt. Committed at nd 6. */
-/* measured: opening propagation bracket for the parked aggregate probe. */
 // FUN_00484B30 NONMATCHING
-#ifdef NON_MATCHING
-#pragma opt_propagation off
-void func_00484b30(u8 *arg0)
-{
-    s32 temp;
-    u_long128 *quadSrc;
-    func_0043f9c8(arg0, 0, 0x80);
-    __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg0) : "memory");
-    __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(arg0) : "memory");
-    __asm__ volatile("sqc2 vf0, 64(%0)" : : "r"(arg0) : "memory");
-    temp = 0x40A00000;
-    *(s32 *)(arg0 + 0x44) = temp;
-    __asm__ volatile("sqc2 vf0, 80(%0)" : : "r"(arg0) : "memory");
-    quadSrc = (u_long128 *)(void *)D_00713CE0;
-    *(u_long128 *)(arg0 + 0x20) = *quadSrc;
-    temp = 0x3F800000;
-    *(s32 *)(arg0 + 0x60) = temp;
-    *(s32 *)(arg0 + 0x74) = temp;
-    temp = -1;
-    *(s32 *)(arg0 + 0x64) = temp;
-    temp = 0x80;
-    *(s32 *)(arg0 + 0x68) = temp;
-}
-/* measured: close propagation bracket for the parked aggregate probe. */
-#pragma opt_propagation on
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
-#endif
 
 // FUN_00484BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
@@ -855,7 +827,7 @@ loop_00486400_check:
         goto loop_00486400_body;
     }
 }
-// FUN_004865C0
+// FUN_004865C0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004865c0);
 // FUN_00486780
 u8 *func_00486780(u8 *arg0, s32 arg1)
@@ -882,7 +854,21 @@ loop_00486780_check:
     return NULL;
 }
 // FUN_004867E0
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004867e0);
+s32 func_004867e0(u8 *arg0, u8 *arg1)
+{
+    s32 index = 0;
+    u8 *node = *(u8 **)(arg0 + 0x8C);
+
+    while (node != NULL) {
+        if (node == arg1) {
+            return index;
+        }
+        index++;
+        node = *(u8 **)(node + 0xAC);
+    }
+    func_0046d730(D_00713470, 0xA9E);
+    return 0;
+}
 // FUN_00486840
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486840);
 /* measured: opening optimization_level 1 for the parked 00486970 body. */

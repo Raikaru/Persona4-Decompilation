@@ -128,8 +128,9 @@ s32 func_003d2710(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2720);
 // FUN_003D2C40
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d2c40);
-/* measured: best body archived in build/H3D3_003d30b0_body.c; object 104B/window 112B, normalized_diff 66. */
-// FUN_003D30B0
+/* measured: F3D1 legal-C body archived in build/F3D1_003d30b0_body.c;
+   object 112/window 112, normalized_diff 57; restored to ASM after callback branch/delay-slot and store-order probes. */
+// FUN_003D30B0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d30b0);
 // FUN_003D3120
 /* measured: schedule on places the zero result in the jr delay slot. */
@@ -618,41 +619,15 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5330);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d53c0);
 // FUN_003D5600
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5600);
-/* measured: archived live-across-call candidate in build/FP3D_003d5710_body.c
-   (object 60/window 64, normalized_diff 6, residual offsets 4/8/12/48/52);
-   schedule-on re-colors the pre-call addend and schedule-off leaves prologue
-   and epilogue ordering residuals. */
 // FUN_003D5710 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5710);
 // FUN_003D5750 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003d5750(u8 *arg0) {
-    u8 *obj;
-    u8 *head;
-    u8 *node;
-    s32 stride;
-    s32 count;
-    obj = *(u8 **)arg0;
-    head = *(u8 **)(arg0 + 0x10);
-    stride = *(s32 *)(obj + 8);
-    node = *(u8 **)head;
-    count = 0;
-    if (node != head) {
-        do {
-            node += stride;
-            count += 1;
-        } while (*(u8 **)node != head);
-    }
-    return count;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5750);
-#endif
 /* measured: object 164B vs 160B window, normalized_diff 70; oversized
    reconstruction archived in build/K3D5_003d5790_body.c. */
 // FUN_003D5790
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5790);
-// FUN_003D59A0
+// FUN_003D59A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59a0);
 // FUN_003D59D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59d0);
@@ -1379,13 +1354,13 @@ s32 func_003ddf20(u8 *arg0) {
 /* measured: closes the schedule bracket for func_003ddf20. */
 #pragma schedule off
 
-/* measured: legal-C cluster candidate archived in build/FP3D_003ddf80_body.c
-   at object 76/window 80, normalized_diff 12; restored to ASM. */
-// FUN_003DDF80
+/* measured: F3D1 legal-C body archived in build/F3D1_003ddf80_body.c;
+   object 76/window 80, normalized_diff 38; restored to ASM after prologue/epilogue ordering probes. */
+// FUN_003DDF80 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddf80);
-/* measured: the transferred legal-C shape matched the 003ddf80 residual
-   exactly (object 76/window 80, normalized_diff 12); compiler-floor ASM retained. */
-// FUN_003DDFD0
+/* measured: F3D1 legal-C body archived in build/F3D1_003ddfd0_body.c;
+   object 76/window 80, normalized_diff 38; restored to ASM after the same ordering residual. */
+// FUN_003DDFD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ddfd0);
 
 
@@ -1401,9 +1376,9 @@ void func_003de100(u8 *arg0) {
 #pragma tailcall off
 // FUN_003DE110
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de110);
-/* Parked candidate: the initialized-pointer body in the archive measures
-   normalized_diff 5 (object 52B/window 64B). The final pointer-index probes
-   retained the retail residual rather than closing it. */
+/* measured: object 52B/window 64B, normalized_diff 5; best direct-load
+   candidate archived in build/F3D0_003de280_body.c with load/shift ORDER
+   residual at offsets 16 and 20. */
 // FUN_003DE280 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de280);
 /* measured: scalar GP slot address and schedule on reproduce retail's
@@ -1812,18 +1787,13 @@ s32 func_003df860(u8 *arg0) {
 #pragma schedule off
 
 
-/* NONMATCHING: retail schedules the result addu into the jr $ra delay slot
-   (lw 0xc; mult; lw 0; jr; addu).  #pragma schedule on fills the slot but
-   hoists the independent base load above the mult and recolors the stride
-   load to $v1 (nd 8 -> 9); every probed expression order/temp form does the
-   same, and default leaves the slot as nop (nd 8).  Floor.
-   P3FES donor FUN_004c21b0 (rwplcore.c:2337) is itself an inline-asm body
-   emitting the retail 3-operand mult $3,$2,$5 (0x00451818) -- a MIPS32r2
-   rd-form multiply MWCC cannot emit from C.  Blocked per wave rule; not a
-   matching gap.  Residual nd 8 (the mult word).
-   Committed at nd 8. */
-
-// FUN_003DF870
+/* measured: plain C emits retail's rd-form mult word for 003df870; the
+   remaining normalized_diff 8 is a scheduler residual. Retail keeps the
+   addu in the jr delay slot after lw/mult/lw, while MWCC's default C lowering
+   emits addu before jr; schedule-on reorders earlier loads and is worse.
+   Local-product, direct-expression, pointer, declaration, opt_propagation,
+   and optimization probes were ruled out. No inline asm or volatile. */
+// FUN_003DF870 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df870);
 // FUN_003DF890
 /* measured: schedule on places the load in the jr delay slot. */
@@ -1834,18 +1804,14 @@ s32 func_003df890(s32 *arg0) {
 /* measured: schedule off closes the single-function bracket. */
 #pragma schedule off
 
-/* NONMATCHING: retail schedules the result addu into the jr $ra delay slot
-   (lw 0xc; lw 4; mult; lw 0; jr; addu).  #pragma schedule on fills the slot
-   but hoists the independent base load above the mult and recolors the
-   stride load to $v1 (nd 8 -> 10); default leaves the slot as nop (nd 8).
-   Floor.
-   P3FES donor FUN_004c21e0 (rwplcore.c:2357) is itself an inline-asm body
-   emitting the retail 3-operand mult $3,$3,$2 (0x00621818) -- the same
-   MIPS32r2 rd-form multiply MWCC cannot emit from C.  Blocked per wave
-   rule; not a matching gap.  Residual nd 8 (the mult word).
-   Committed at nd 8. */
-
-// FUN_003DF8A0
+/* measured: plain C emits retail's rd-form mult word for 003df8a0; the
+   remaining normalized_diff 8 is a scheduler residual. Retail keeps the
+   addu in the jr delay slot after lw/lw/mult/lw, while MWCC's default C
+   lowering emits addu before jr; schedule-on and opt_serializeassignments
+   reorder the earlier loads and are worse. Local-product, direct-expression,
+   pointer, declaration, and optimization probes were ruled out. No inline
+   asm or volatile. */
+// FUN_003DF8A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df8a0);
 
 // FUN_003DF8C0

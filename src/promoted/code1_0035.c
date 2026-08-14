@@ -780,7 +780,11 @@ void func_003556a0(u8 *arg0, s16 arg1, s32 arg2)
     *(s32 *)(arg0 + 0x208) = (s32)arg0;
     *(s32 *)(arg0 + 0x228) = arg2;
 }
-// FUN_00355740
+/* measured: object 352B/window 352B; normalized_diff 146; first differing
+   offsets 0x48, 0x94, 0x9D, 0xA2-0xAE. Structured plain-C body archived in
+   build/V035_00355740_body.c; first loop and case-0 block matched, but switch
+   case-1 preheader/register staging remained different. */
+// FUN_00355740 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355740);
 // FUN_003558A0
 s32 func_003558a0(u8 *arg0)
@@ -812,7 +816,14 @@ void func_00356140(u8 *arg0)
 /* measured: object 96B/window 96B; normalized_diff 8; differing offsets
    0x08 and 0x10 (prologue save/move order). Archived in
    build/V035_00356170_body.c. Ruled out scalar locals (object 100B) and
-   alternate assignment/call staging; best plain-C candidate remains nd 8. */
+   alternate assignment/call staging; best plain-C candidate remains nd 8.
+   Retail's 0x08/0x10 words are `sd $a0,16($sp)` and `sw $a1,28($sp)` --
+   incoming arguments stored to their home slots, then read back with
+   `lbu $v1,31($sp)` and `ld/lw`. Two argument-homing spellings were measured
+   and both are worse: taking the address of the parameter directly
+   (`((u8 *)&arg1)[3]`) gives object 88B and nd 56, and an old-style K&R
+   parameter list gives object 236B and nd 199. The array-staged ANSI body
+   remains best. */
 // FUN_00356170 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
 /* measured: opt_propagation off probe for staged argument materialisation. */
@@ -1177,7 +1188,12 @@ s32 func_0035afa0(u8 *arg0) {
 
 // FUN_0035AFF0
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035aff0);
-// FUN_0035BAD0
+/* measured: object 320B/window 320B; normalized_diff 14; differing offsets
+   0x22, 0x24-0x28, 0x2C-0x2F, 0xE9-0xEA, 0x115-0x116. Retail uses
+   mula.s/madda.s/madd.s; the remaining candidate residual also includes the
+   temp_2 v1/v0 prologue naming. This is a COP1 accumulator compiler floor;
+   body and all plain-C order/helper probes are archived in build/V035_0035bad0_body.c. */
+// FUN_0035BAD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035bad0);
 // FUN_0035BC10
 void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2)

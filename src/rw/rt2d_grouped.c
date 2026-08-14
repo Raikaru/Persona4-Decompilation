@@ -135,8 +135,6 @@ void func_003d6900(u8 *arg0, u8 *arg1)
 #pragma schedule off
 /* measured: close tailcall for func_003d6900. */
 #pragma tailcall off
-/* measured: close optimization_level 3 for func_003d6900. */
-#pragma optimization_level 2
 // FUN_003D6950
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6950);
 /* measured: schedule-on probe for func_003d6a00 FPU order. */
@@ -349,8 +347,38 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d75b0);
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d76d0);
 // FUN_003D77F0
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d77f0);
+/* measured: schedule on probe for func_003d79b0 call delay. */
+#pragma schedule on
+/* measured: no_branch_likely on probe for func_003d79b0 plain branches. */
+#pragma no_branch_likely on
 // FUN_003D79B0
-INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d79b0);
+s32 func_003d79b0(s32 arg0)
+{
+    extern s32 iGpffffb74c;
+    s32 value;
+    u32 index;
+    u8 *entry;
+
+    if (func_003d8150() != 0) {
+        value = 0xC;
+        entry = (u8 *)(arg0 + iGpffffb74c);
+        value += 4;
+        index = 0;
+        do {
+            if (*(s32 *)(entry + 8) != 0) {
+                value += 0x20;
+            }
+            index++;
+            entry += 4;
+        } while (index < 8);
+        return value;
+    }
+    return 0;
+}
+/* measured: close no_branch_likely on for func_003d79b0. */
+#pragma no_branch_likely off
+/* measured: close schedule on for func_003d79b0. */
+#pragma schedule off
 // FUN_003D7A20
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d7a20);
 // FUN_003D7AC0
