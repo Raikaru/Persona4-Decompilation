@@ -167,7 +167,7 @@ extern void func_00213d20(void *arg0);
 extern void func_00216e50(void *arg0);
 extern void func_00211a10(void *arg0);
 extern void func_0020add0(void *arg0);
-extern void func_0020bb70(void *arg0);
+extern void func_0020bb70(u8 *arg0);
 extern void func_00219130(void *arg0);
 extern void func_0021b1e0(void *arg0);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
@@ -179,11 +179,12 @@ extern u8 D_00795080[];
 
 extern void func_0020ad80(u8 *arg0, s32 arg1);
 extern void func_0020b1a0(void);
+extern void func_0020bb70(u8 *arg0);
 extern void func_0020b3a0(void);
 extern void func_0020b5a0(void);
 extern void func_0020b5b0(void);
 extern void func_0020bb20(u8 *arg0, s32 arg1);
-extern void func_0020bd70(void);
+extern void func_0020bd70(u8 *arg0, u8 *arg1);
 extern void func_00211950(u8 *arg0, s32 arg1);
 extern void func_00211ad0(u8 *arg0, u8 *arg1);
 extern void func_00211ba0(void);
@@ -216,7 +217,79 @@ void func_00200720(s32 *arg0) {
     jtbl_008873EC[0](arg0);
 }
 // FUN_00200770
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00200770);
+void func_00200770(u8 *arg0)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } Vec3;
+    typedef struct {
+        Vec3 sp40;
+        Vec3 sp4C;
+        u8 pad18[8];
+        u8 sp60[0x10];
+        u8 sp70[0x20];
+        u8 sp90[0x40];
+        u8 spD0[0x10];
+        u8 spE0[0x40];
+        Vec3 sp120;
+    } Frame;
+    extern void func_001bc660(u16 arg0, void *arg1, u32 arg2);
+    extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u32 arg4);
+    extern u16 func_001bc7f0(void);
+    extern void func_0048a150(void *arg0, void *arg1);
+    extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+    extern void func_0047a1e0(void *arg0, f32 *arg1, s32 arg2);
+    extern void func_0047a180(void *arg0, f32 *arg1, s32 arg2);
+    extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
+    extern void func_00478e70(void *arg0);
+    extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
+    extern void func_001bd780(void *arg0, const void *arg1, const void *arg2, const void *arg3);
+    extern void func_001bab00(void *arg0, void *arg1);
+    extern u8 *iGpffffb474;
+    Frame frame;
+    u8 *temp_17;
+    u8 *temp_16;
+    u32 temp_4;
+    u32 temp_3;
+    f32 temp_f0;
+
+    temp_17 = *(u8 **)(arg0 + 0x30);
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_4 = *(u32 *)(arg0 + 0x28);
+    temp_3 = *(u32 *)(temp_16 + 0x2C);
+    if ((temp_3 >= temp_4) || (temp_3 == 0)) {
+        if (temp_4 == 0) {
+            if (*(u16 *)(temp_16 + 0x38) == 0) {
+                func_001bc660(1, NULL, 1);
+                func_001bcd40(0.0f, NULL, NULL, NULL, 0x100);
+            } else {
+                func_001bc660(1, NULL, 0);
+            }
+        }
+        if (((func_001bc7f0() & 0xFFFF) == 1) && (*(s32 *)temp_17 != 0)) {
+            func_0048a150(frame.spE0, arg0 + 0x10);
+            func_0047a1c0(*(u8 **)temp_17, frame.spE0, 0);
+            temp_f0 = *(f32 *)(arg0 + 0x20) * *(f32 *)(temp_16 + 0x34);
+            frame.sp120.z = temp_f0;
+            frame.sp120.y = temp_f0;
+            frame.sp120.x = temp_f0;
+            func_0047a1e0(*(u8 **)temp_17, &frame.sp120.x, 2);
+            frame.sp120.x = *(f32 *)(arg0 + 0);
+            frame.sp120.y = *(f32 *)(arg0 + 4);
+            frame.sp120.z = *(f32 *)(arg0 + 8);
+            func_0047a180(*(u8 **)temp_17, &frame.sp120.x, 2);
+            func_0047a0e0(*(u8 **)temp_17, 0, *(f32 *)(temp_16 + 0x30));
+            func_00478e70(*(u8 **)temp_17);
+            func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4), frame.sp60);
+            func_0047a510(*(u8 **)temp_17, *(u16 *)(temp_17 + 4) + 1, frame.sp90 + 0x10);
+            frame.sp40 = *(Vec3 *)frame.sp90;
+            func_001bd780(&frame.sp4C, frame.sp90, frame.spD0, frame.sp70);
+            func_001bab00(iGpffffb474 + 0x24, &frame.sp40);
+        }
+    }
+}
 // FUN_00200960
 void func_00200960(void) {
     *(f32 *)(D_0076449C + 0xDC) = fGpffff8184;
@@ -1859,7 +1932,69 @@ void func_0020bb20(u8 *arg0, s32 arg1) {
 // FUN_0020BB70
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020bb70);
 // FUN_0020BD70
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020bd70);
+void func_0020bd70(u8 *arg0, u8 *arg1)
+{
+    typedef struct {
+        u8 pad[8];
+        f32 sp48[2];
+        f32 sp50[2];
+    } Frame;
+    extern u8 *func_00452560(u8 *arg0);
+    extern void func_00201350(void);
+    extern u8 *func_001b1560(void);
+    extern void func_00195d50(u8 *arg0, f32 *arg1);
+    extern s32 func_001ec4a0(f32 *arg0, f32 *arg1);
+    extern void func_002012d0(u8 *arg0, f32 fparg0, f32 fparg1);
+    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0,
+                               f32 fparg1, s32 arg5, s32 arg6, s32 arg7,
+                               s32 arg8);
+    extern void func_00201820(s32 arg0);
+    extern void func_0020e010(s32 arg0, u8 *arg1, u8 *arg2);
+    Frame frame;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_6;
+    u16 temp_4;
+    s32 temp_16;
+    s32 var_17;
+
+    temp_2 = func_00452560(*(u8 **)(arg1 + 0x18));
+    if ((*(u32 *)temp_2 & 1) != 0) {
+        if ((*(u16 *)arg1 & 1) == 0) {
+            temp_4 = *(u16 *)(arg1 + 2);
+            if ((temp_4 != 3) && (*(u16 *)(arg1 + 4) <= 0)) {
+                func_00201350();
+                temp_16 = *(u16 *)(*(u8 **)(arg1 + 0x10) + 0x38);
+                var_17 = 0;
+                while (var_17 < (s32)temp_16) {
+                    temp_6 = *(u8 **)(*(u8 **)(*(u8 **)(arg1 + 0x10) +
+                                              var_17 * 4) +
+                                      0x30);
+                    func_0020e010(*(s32 *)(arg1 + 0x18), temp_6 + 0xA48,
+                                  temp_6);
+                    var_17 += 1;
+                }
+            }
+        } else {
+            temp_2_2 = func_001b1560();
+            if (temp_2_2 != NULL) {
+                func_00195d50(*(u8 **)(temp_2_2 + 0x30), frame.sp50);
+                if (func_001ec4a0(frame.sp50, frame.sp48) != 0) {
+                    func_002012d0(temp_2, frame.sp48[0] - 46.0f,
+                                  frame.sp48[1] - 17.0f);
+                    func_00201820(2);
+                    func_00201650(temp_2, 10, 0x51, 0.0f, 0.0f,
+                                  0x52, 0xF3, 0, 0xFF);
+                    func_00201650(temp_2, 10, 0x52, 84.0f, 0.0f,
+                                  0x52, 0xF3, 0, 0xFF);
+                    func_00201820(0);
+                    func_00201650(temp_2, 10, 0x4F, 14.0f, 2.0f,
+                                  0x0D, 0x1B, 0, 0xFF);
+                }
+            }
+        }
+    }
+}
 // FUN_0020BF60
 void func_0020bf60(void) {
     u8 *p;

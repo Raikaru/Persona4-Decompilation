@@ -1380,7 +1380,43 @@ s32 func_00401b80(void)
 // FUN_00401B90
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00401b90);
 // FUN_00402390
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402390);
+void func_00402390(u8 *arg0, u8 *arg1, u8 *arg2)
+{
+    __asm__ volatile(
+        ".set noat\n"
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x10($5)\n"
+        "lqc2 $vf3, 0x20($5)\n"
+        "lqc2 $vf4, 0x30($5)\n"
+        "lqc2 $vf5, 0x0($6)\n"
+        "lqc2 $vf6, 0x10($6)\n"
+        "lqc2 $vf7, 0x20($6)\n"
+        "lqc2 $vf8, 0x30($6)\n"
+        "lqc2 $vf13, 0x0($4)\n"
+        "vmulax.xyz $ACC, $vf5, $vf1x\n"
+        "vmadday.xyz $ACC, $vf6, $vf1y\n"
+        "vmaddz.xyz $vf9, $vf7, $vf1z\n"
+        "vmulax.xyz $ACC, $vf5, $vf2x\n"
+        "vmadday.xyz $ACC, $vf6, $vf2y\n"
+        "vmaddz.xyz $vf10, $vf7, $vf2z\n"
+        "vmove.w $vf9, $vf13\n"
+        "vmulax.xyz $ACC, $vf5, $vf3x\n"
+        "vmadday.xyz $ACC, $vf6, $vf3y\n"
+        "vmaddz.xyz $vf11, $vf7, $vf3z\n"
+        "vmulax.xyz $ACC, $vf5, $vf4x\n"
+        "vmadday.xyz $ACC, $vf6, $vf4y\n"
+        "vmaddaz.xyz $ACC, $vf7, $vf4z\n"
+        "vmaddw.xyz $vf12, $vf8, $vf0w\n"
+        "sqc2 $vf9, 0x0($4)\n"
+        "sqc2 $vf10, 0x10($4)\n"
+        "sqc2 $vf11, 0x20($4)\n"
+        "sqc2 $vf12, 0x30($4)\n"
+        ".set reorder\n"
+        :
+        : "r"(arg0), "r"(arg1), "r"(arg2)
+        : "$vf1", "$vf2", "$vf3", "$vf4", "$vf5", "$vf6", "$vf7", "$vf8", "$vf9", "$vf10", "$vf11", "$vf12", "$vf13", "ACC", "memory");
+}
 // FUN_00402410
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00402410);
 // FUN_00402470
@@ -1965,8 +2001,34 @@ s32 func_004114c0(void)
 }
 // FUN_004114D0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004114d0);
+/* measured: retail func_004115d0 uses plain beqz and a nop delay. */
+#pragma no_branch_likely on
 // FUN_004115D0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_004115d0);
+u8 *func_004115d0(void)
+{
+    extern s32 func_003df590();
+    extern void func_003df4d0(void *arg0);
+    struct {
+        s32 sp28;
+        s32 sp2C;
+    } stack;
+    u8 *temp_2;
+
+    temp_2 = D_008873F8[0](
+        *(u8 **)((u8 *)D_008872E0 + iGpffffb9b8),
+        0x30409);
+    if (temp_2 != NULL) {
+        func_0043f9c8(temp_2, 0, 0x34);
+        *(s32 *)temp_2 = 0;
+        return temp_2;
+    }
+    stack.sp28 = 1;
+    stack.sp2C = func_003df590(0x80000013, 0x34);
+    func_003df4d0(&stack.sp28);
+    return NULL;
+}
+/* measured: closes no_branch_likely around func_004115d0. */
+#pragma no_branch_likely off
 // FUN_00411670
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00411670);
 // FUN_00411740

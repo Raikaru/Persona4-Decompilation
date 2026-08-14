@@ -1126,7 +1126,6 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329310);
    reg rotation + ldr/ldl-vs-ld floor. */
 // FUN_003297F0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003297f0);
-
 // measured: nd N/A (ldr/ldl + COP2). M2C_ERROR on ldr/ldl 0x38/0x3f and adda.s; draw-family s64-arg normalization floor. Unaligned-load + COP2 + s64-param floor.
 // FUN_00329E40
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00329e40);

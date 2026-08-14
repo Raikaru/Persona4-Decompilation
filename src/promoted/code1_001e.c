@@ -1324,9 +1324,85 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e9770);
 // FUN_001E9950
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e9950);
 // FUN_001E9F20
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e9f20);
+s32 func_001e9f20(void) {
+    extern s32 func_0029cc00(s32 arg0);
+    extern s32 func_00231ed0(s32 arg0);
+    extern s32 func_00232710(s32 arg0, s32 arg1);
+    extern s32 func_002428f0(s32 arg0, s32 arg1);
+    extern void func_0029cf50(s32 arg0);
+    u16 flags;
+    u32 value;
+    u8 *current;
+    u8 *best;
+    u32 best_value;
+    s32 random;
+
+    random = func_0029cc00(0);
+    best = NULL;
+    best_value = 0;
+    current = *(u8 **)(iGpffffb3ac + 0x174);
+    while (current != NULL) {
+        flags = *(u16 *)(current + 0x1A);
+        if ((flags & 1) && (flags & 8)) {
+            if ((*(u8 *)(*(u8 **)(current + 0x30) + 0xA2) == 1) &&
+                (func_00232710(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), random) != 0) &&
+                (func_002428f0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), 0) == 0)) {
+                value = (u32)(func_00231ed0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF);
+                if (best_value < value) {
+                    best = current;
+                    best_value = value;
+                }
+            }
+        }
+        current = *(u8 **)(current + 0x450);
+    }
+    if (best != NULL) {
+        func_0029cf50(*(s32 *)(best + 8) | 0x80000000);
+    } else {
+        func_0029cf50(-1);
+    }
+    return 1;
+}
 // FUN_001EA050
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ea050);
+s32 func_001ea050(void) {
+    extern s32 func_0029cc00(s32 arg0);
+    extern s32 func_00231ed0(s32 arg0);
+    extern s32 func_00232710(s32 arg0, s32 arg1);
+    extern s32 func_002428f0(s32 arg0, s32 arg1);
+    extern void func_0029cf50(s32 arg0);
+    u16 flags;
+    u32 value;
+    u8 *current;
+    u8 *best;
+    u32 best_value;
+    s32 random;
+
+    random = func_0029cc00(0);
+    best = NULL;
+    best_value = 0x0FFFFFFF;
+    current = *(u8 **)(iGpffffb3ac + 0x174);
+    while (current != NULL) {
+        flags = *(u16 *)(current + 0x1A);
+        if ((flags & 1) && (flags & 8)) {
+            if ((*(u8 *)(*(u8 **)(current + 0x30) + 0xA2) == 1) &&
+                (func_00232710(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), random) != 0) &&
+                (func_002428f0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64), 0) == 0)) {
+                value = (u32)(func_00231ed0(*(s32 *)(*(u8 **)(current + 0x30) + 0xA64)) & 0xFFFF);
+                if (value < best_value) {
+                    best = current;
+                    best_value = value;
+                }
+            }
+        }
+        current = *(u8 **)(current + 0x450);
+    }
+    if (best != NULL) {
+        func_0029cf50(*(s32 *)(best + 8) | 0x80000000);
+    } else {
+        func_0029cf50(-1);
+    }
+    return 1;
+}
 // FUN_001EA180
 s32 func_001ea180(void) {
     u8 *sp10[12];

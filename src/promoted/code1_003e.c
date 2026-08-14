@@ -717,8 +717,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3370);
 
 // FUN_003E33F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e33f0);
+/* measured: schedule probe for 003e3560 delay-slot and epilogue placement. */
+/* measured: no-branch-likely paired with schedule for retail plain branches. */
+#pragma no_branch_likely on
+#pragma schedule on
 // FUN_003E3560
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3560);
+/* measured: closes schedule probe around func_003e3560. */
+/* measured: closes no-branch-likely probe around func_003e3560. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003E3630
 /* measured: schedule bracket retained for func_003e3630. */
 #pragma schedule on
@@ -810,9 +818,10 @@ return_zero:
 #pragma schedule off
 
 
-/* measured: callback-list loop candidate object 96B/window 112B,
-   normalized_diff 12; all loop instructions match, but retail has one
-   additional branch-join nop before the return. */
+/* measured: best plain-C body archived in build/P3E3_003e3c20_body.c;
+   object 96B/window 112B, normalized_diff 22; retail's extra branch-join
+   nop and longer epilogue remain a b210 compiler floor after schedule and
+   no_branch_likely/declaration/loop-shape probes. */
 // FUN_003E3C20
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);
 // FUN_003E3C90
@@ -1116,8 +1125,14 @@ s32 func_003e4510(void) {
 /* measured: discarded nonvolatile candidate nd 31, object 120/128; the nd 0
    volatile spelling is rejected by H001 (ordinary-data compiler steering). */
 
+/* measured: schedule/no-branch-likely probe for func_003e4520. */
+#pragma no_branch_likely on
+#pragma schedule on
 // FUN_003E4520
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4520);
+/* measured: closes schedule/no-branch-likely probe around func_003e4520. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_003E45F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
