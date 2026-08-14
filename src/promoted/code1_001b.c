@@ -2126,8 +2126,54 @@ outer_check:
 #pragma opt_common_subs on
 /* measured: closes opt_propagation for the following translation-unit code. */
 #pragma opt_propagation on
+/* measured: opt_common_subs off preserves the retail per-use masked index. */
+#pragma opt_common_subs off
 // FUN_001BD390
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001bd390);
+void func_001bd390(void)
+{
+    extern void func_00194fa0();
+    extern s32 func_00243d80(u8 *arg0);
+    extern f32 func_003e4180(f32 *arg0);
+    u8 *current;
+    s32 counter;
+    u8 *base;
+    s32 index;
+    s32 ability;
+    f32 values[3];
+    f32 delta[3];
+
+    base = *(u8 **)(func_00457120() + 4) + 0x10;
+    counter = 0;
+    goto outer_check;
+outer_body:
+    index = counter & 0xFFFF;
+    current = *(u8 **)(iGpffffb3ac + (index * 8) + 0x178);
+    goto inner_check;
+inner_body:
+    ability = *(s32 *)(current + 0xA64);
+    if ((ability != 0 && func_00243d80((u8 *)ability) != 0) ||
+        (*(s32 *)(current + 0x9C) & 8) != 0) {
+        func_00195850(current, values);
+        delta[0] = *(f32 *)(base + 0x30) - values[0];
+        delta[1] = *(f32 *)(base + 0x34) - values[1];
+        delta[2] = *(f32 *)(base + 0x38) - values[2];
+        if (func_003e4180(delta) <=
+            0.0f + 200.0f +
+            *(f32 *)(current + 0x90) * *(f32 *)(current + 0x2C)) {
+            func_00194fa0(current, 1);
+        } else {
+            func_00194fc0(current, 1);
+        }
+    }
+    current = *(u8 **)(current + 0xA6C);
+inner_check:
+    if (current != NULL) goto inner_body;
+    counter = (counter + 1) & 0xFFFF;
+outer_check:
+    if ((counter & 0xFFFF) < 2) goto outer_body;
+}
+/* measured: restore common-subexpression optimization after func_001bd390. */
+#pragma opt_common_subs on
 // FUN_001BD4F0
 void func_001bd4f0(u8 *arg0) {
     btlUnitSetFlags(arg0, 0xA);

@@ -411,28 +411,42 @@ u16 func_00221740(void) {
     return temp_2[0] & 1;
 }
 
-/* measured: retail allocates p=$s0, t17/counter=$s1, loop store-addr=$s2 and
-   computes the indexed store address before the call; mwcc b210 allocates
-   p=$s1, t17/counter=$s0, keeps i*4 in $s2 across the call and re-derives the
-   store address after it (nd 52, obj 364B vs window 368B). Tried: declaration
-   orders of w/t17/i/v1, struct-only and pointer-arith spellings, loop-local
-   store pointer, dsll32/dsra32 single-pair cast and boolean idioms (both
-   fixed); the register rotation and pre-call store-address hoist are invariant
-   under all of them. Register-coloring/scheduling floor. */
-/* measured 2026-08-03 (wave 14 re-attack, 6 attempts): best nd 33 after fixing
-   (1) the iGpextern types must be COMPLETE (extern char iGpffffa5b8; extern u8 *iGpffffa5a0[2];
-   extern s32 iGpffffa5a8[2]; — incomplete [] emits absolute lui/addiu, complete types emit
-   retail's GPREL16 addiu $gp; the iGp<off> names ARE resolved by the tools via gp 0x007690F0),
-   (2) the s64->s16 halfword: `func_00110d60((s16)func_001060b0())` emits retail's single
-   dsll32/dsra32 pair (the multi-step s64-shift spelling emits two pairs), (3) r&1==0 boolean
-   via a u32 local. Residual: the pre-call store-address hoist in the field400 loop — retail
-   keeps store-addr (p+i*4+0x400) in $s2 across the func_0046a770 call and indexes iGpffffa5a8
-   in $v1; mwcc re-derives the store address after the call (sll $s2,i,2 first, addu/0x400
-   post-call). plus retail schedules `sw $v0,0x4BC($s0)` in the func_00454a60 jal delay slot.
-   dst-local, separate counters, decl orders, raw-offset spellings: unchanged. Register-
-   rotation + schedule floor (same family as 214d0, which matched with separate i/j counters
-   + addBase helper). */
+/* measured 2026-08-14: retail frame 64B with work=$s0, index=$s1, and
+   field400 destination=$s2. Complete iGp declarations, a u32 masked result
+   local, and the explicit field400 destination expression reproduce the
+   368B window exactly. */
 // FUN_00221770
-INCLUDE_ASM("asm/nonmatchings/btlResultSimple", func_00221770);
+void func_00221770(void) {
+    s32 *dst;
+    s32 i;
+    BtlResultWork *work;
+
+    work = (BtlResultWork *)func_00452560();
+    {
+        u32 r;
+        r = (u32)func_00110d60((s16)func_001060b0()) & 1;
+        i = (0U < r) ^ 1U;
+    }
+    func_00440b68(&iGpffffa5b8, &D_00629610, 1410);
+    work->field4BC = (s32)func_00454a60(iGpffffa5a0[i], 1);
+    if (work->field4BC == 0) {
+        func_0046d730(&D_00629610, 1411);
+    }
+    i = 3;
+    for (; i < 5; i++) {
+        dst = (s32 *)((u8 *)work + i * 4 + 0x400);
+        *dst = func_0046a770(*(s32 *)((u8 *)iGpffffa5a8 + i * 4 - 12));
+        if (*dst == 0) {
+            func_0046d730(&D_00629610, 1419);
+        }
+    }
+    func_00440b68(&iGpffffa5b8, &D_00629610, 1423);
+    ((BtlResultSubWork *)work->field570)->field934 =
+        (s32)func_00454a60((u8 *)iGpffffa5b0, 1);
+    if (((BtlResultSubWork *)work->field570)->field934 == 0) {
+        func_0046d730(&D_00629610, 1424);
+    }
+    work->flags |= 4;
+}
 
 
