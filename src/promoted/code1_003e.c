@@ -270,12 +270,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0a90);
 
 // FUN_003E0C90
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0c90);
-
+/* measured: one-function optimization probe for func_003e0e20. */
+#pragma optimization_level 3
+/* measured: no_branch_likely probe paired with optimization-level probe. */
+#pragma no_branch_likely on
 // FUN_003E0E20
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0e20);
+/* measured: close no_branch_likely probe. */
+#pragma no_branch_likely off
+/* measured: schedule on preserves the callback load in the jalr delay slot. */
+/* measured: close the one-function optimization probe. */
+#pragma optimization_level 2
 
 // FUN_003E0F40
-/* measured: schedule on preserves the callback load in the jalr delay slot. */
 #pragma schedule on
 s32 func_003e0f40(u8 *arg0) {
     u8 *base;
@@ -371,7 +378,43 @@ void func_003e1230(void *arg0) {
 #pragma no_branch_likely on
 
 // FUN_003E12F0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e12f0);
+s32 func_003e12f0(u8 *arg0) {
+    u8 *self;
+    u8 *node;
+    u8 *next;
+    u8 *prev;
+    s32 temp;
+    void (**callback)(u8 *);
+    extern s32 iGpffffb774;
+
+    self = arg0;
+    ((void **) *(void **)(self + 0x20))[0] = *(void **)(self + 0x1C);
+    ((void **) *(void **)(self + 0x1C))[1] = *(void **)(self + 0x20);
+    node = *(u8 **)(self + 0x10);
+    if (node != self + 0x10) {
+        callback = jtbl_008873EC;
+        do {
+            next = *(u8 **)node;
+            prev = *(u8 **)(node + 4);
+            *(u8 **)prev = next;
+            prev = *(u8 **)(node + 4);
+            next = *(u8 **)node;
+            *(u8 **)(next + 4) = prev;
+            (*callback)(node);
+            node = *(u8 **)(self + 0x10);
+        } while (node != self + 0x10);
+    }
+    if ((*(s32 *)(self + 0x18) & 1) == 0) {
+        temp = iGpffffb774;
+        if (temp != (s32)self && temp != 0) {
+            jtbl_008873FC[0]((u8 *)temp, self);
+            goto done;
+        }
+        jtbl_008873EC[0](self);
+    }
+done:
+    return 1;
+}
 /* measured: close no_branch_likely/schedule probe for func_003e12f0. */
 #pragma no_branch_likely off
 #pragma schedule off
@@ -562,7 +605,51 @@ u8 *func_003e25f0(u8 *arg0) {
 #pragma no_branch_likely on
 #pragma schedule on
 // FUN_003E2650
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2650);
+u8 *func_003e2650(u8 *arg0, s32 arg1, u32 arg2) {
+    struct {
+        s32 sp50;
+        s32 sp54;
+        s32 sp58;
+        s32 sp5C;
+    } frame;
+    u8 *result;
+    s32 found;
+    void *source;
+    extern s32 func_003dddf0(u8 *arg0, void *arg1);
+
+    result = NULL;
+    found = 0;
+    source = (u8 *)arg2;
+    switch (arg1) {
+    case 1:
+        found = func_003dddf0(source, (void *)((u8 *)&iGpffffab50 + 0x1C));
+        break;
+    case 2:
+        found = func_003dddf0(source, (void *)((u8 *)&iGpffffab50 + 0x20));
+        break;
+    case 3:
+        found = func_003dddf0(source, (void *)((u8 *)&iGpffffab50 + 0x24));
+        break;
+    default:
+        frame.sp58 = 1;
+        frame.sp5C = func_003df590(0xD);
+        func_003df4d0(&frame.sp58);
+        break;
+    }
+    if (found == 0) {
+        goto fail;
+    }
+    *(s32 *)(arg0 + 0xC) = found;
+    result = arg0;
+    goto done;
+done:
+    return result;
+fail:
+    frame.sp50 = 1;
+    frame.sp54 = func_003df590(0x80000002, source);
+    func_003df4d0(&frame.sp50);
+    goto done;
+}
 /* measured: closes no_branch_likely plus schedule probe for func_003e2650. */
 #pragma schedule off
 #pragma no_branch_likely off

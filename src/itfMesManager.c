@@ -1408,63 +1408,8 @@ s32 func_00279010(s32 arg0)
    (00272b00, 00272ba0, 00274570, 00274a20, 00279740, 0046d730) and added the
    required integer/pointer casts. Candidate is 452B versus the 448B retail
    window, normalized_diff 172; oversized, so this body remains archived. */
-// FUN_00279030 NONMATCHING
-#ifdef NON_MATCHING
-typedef s32 M2C_UNK;
-typedef s8 M2C_UNK8;
-typedef s16 M2C_UNK16;
-typedef s32 M2C_UNK32;
-typedef s64 M2C_UNK64;
-#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
-#define M2C_BITWISE(type, expr) ((type)(expr))
-#define M2C_LWL(expr) (expr)
-#define M2C_FIRST3BYTES(expr) (expr)
-#define M2C_UNALIGNED32(expr) (expr)
-#define M2C_CARRY 0
-#define M2C_OVERFLOW(a) (0)
-#define MULT_HI(a, b) (0)
-#define MULTU_HI(a, b) (0)
-#define CLZ(x) (0)
-void func_00272b00(s32, u8);
-void func_00272ba0(s32, u32);
-u8 *func_00274570(u32, u32, u32, u32, u32, u32, u32, u32);
-void func_00274a20(s32, f32);
-void *func_0046d730(void *, s32);
-u32 func_00279740(s32, s32);
-u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
-    M2C_UNK *temp_2;
-    u8 *temp_16;
-    u8 *temp_16_2;
-    u8 *temp_16_3;
-    u8 *temp_21;
-
-    temp_21 = (u8 *)(*((u8 *)(((s32)&D_00881808 + (arg4 << 5)))));
-    if (temp_21 == NULL) {
-        func_0046d730(&D_0063BE10, 0xBDD);
-    }
-    temp_16_2 = (u8 *)((arg5 * 8) + M2C_FIELD(temp_21, s32 *, 4) + 0x20);
-    if (temp_16_2 == NULL) {
-        func_0046d730(&D_0063BE10, 0xBE0);
-    }
-    temp_16_3 = (u8 *)(M2C_FIELD(temp_16_2, u8 **, 4));
-    if (temp_16_3 == NULL) {
-        func_0046d730(&D_0063BE10, 0xBE3);
-    }
-    temp_2 = (M2C_UNK *)(func_00279740((s32)temp_16_3, 0));
-    if (temp_2 == NULL) {
-        func_0046d730(&D_0063BE10, 0xBE6);
-    }
-    temp_16 = (u8 *)(func_00274570((u32)(s32)(16.0f * fparg0), (u32)(s32)(8.0f * fparg1), (u32)(arg1 & 0xFF), (u32)(arg2 & 0xFF), 0U, 0xFFU, (u32)temp_2, 0U));
-    if (arg3 & 1) {
-        func_00272b00((s32)temp_16, (u8)(arg2 & 0xFF));
-    }
-    func_00272ba0((s32)temp_16, (u32)arg0);
-    func_00274a20((s32)temp_16, fparg2);
-    return (u8 *)(temp_16);
-}
-#else
+// FUN_00279030
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279030);
-#endif
 // FUN_002791F0
 s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {

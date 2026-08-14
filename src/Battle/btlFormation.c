@@ -22,13 +22,13 @@ extern BtlPacket* func_00194470(u32 type, u32 workSize);
 extern u32 func_001d1cc0(int* param_1);
 extern u32 func_001d1f30(u32 *work);
 extern void func_001d2e00(u32 *work);
-extern u32 func_001d2e20(u32 *param_1);
+extern u32 func_001d2e20(u8 *param_1);
 extern void func_001d2fe0(u32 *work);
-extern void func_001d3090();
+extern u32 func_001d3090(u8 *param_1);
 extern u32 func_001d35a0(u16 *param_1);
 extern u32 func_001d3760(u16 *param_1);
-extern void func_001d3950();
-extern void func_001d3ba0();
+extern u32 func_001d3950(u8 **param_1);
+extern u32 func_001d3ba0(void);
 extern u32 func_001d6ce0(u32 param_1);
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 D_00609498[];
@@ -333,7 +333,53 @@ void func_001d3b50(u32 param_1)
     work[0] = param_1;
 }
 // FUN_001D3BA0
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3ba0);
+u32 func_001d3ba0(void)
+{
+    typedef struct FormationVectors {
+        f32 offsets[3];
+        u32 gap0;
+        f32 transformed[3];
+        u32 gap1;
+        u8 padding[32];
+        f32 base[3];
+        u32 gap2;
+        f32 result[3];
+        u32 gap3;
+    } FormationVectors;
+    FormationVectors vectors;
+    u16 index;
+    u8 *node;
+    f32 *offset;
+    extern u8 D_00609470[];
+    extern void func_003dcb40(void *out, const void *in, s32 count, const void *rot);
+
+    node = *(u8 **)(*(u8 **)(D_0076449C + 0x170) + 0x30);
+    func_00194ff0(node, vectors.base, vectors.offsets, NULL);
+    func_00196b70(node);
+    func_00196ba0(node);
+    func_00194ee0(node, vectors.base);
+    func_00194f10(node, vectors.offsets);
+    func_003dcb40(vectors.transformed, D_00609470, 3, vectors.offsets);
+    index = 0;
+    while (index < *(u16 *)(D_0076449C + 0xc58)) {
+        {
+            u32 current;
+
+            current = index;
+            node = *(u8 **)(*(u8 **)(D_0076449C + current * 4 + 0xc48) + 0x30);
+            offset = &vectors.transformed[current * 3];
+        }
+        vectors.result[0] = vectors.base[0] + offset[0];
+        vectors.result[1] = vectors.base[1] + offset[1];
+        vectors.result[2] = vectors.base[2] + offset[2];
+        func_00196b70(node);
+        func_00196ba0(node);
+        func_00194ee0(node, vectors.result);
+        func_00194f10(node, vectors.offsets);
+        index++;
+    }
+    return 1;
+}
 // FUN_001D3D00
 void func_001d3d00(u32 param_1)
 {

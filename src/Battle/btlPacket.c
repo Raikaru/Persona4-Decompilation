@@ -64,8 +64,86 @@ void func_00194c60(BtlPacketCallbackWork* work)
 
 
 
+/* measured probe: opt_loop_invariants on hoists the wait-type constant into the loop preheaders. */
+#pragma opt_loop_invariants on
 // FUN_00194C90
-INCLUDE_ASM("asm/nonmatchings/btlPacket", func_00194c90);
+u8 *func_00194c90(void *arg0, void *arg1)
+{
+    typedef struct BtlPacketWaitCondition BtlPacketWaitCondition;
+    struct BtlPacketWaitCondition
+    {
+        u8 type;
+        u8 unk_01[7];
+        u64 value;
+    };
+    typedef struct BtlPacket BtlPacket;
+    struct BtlPacket
+    {
+        u8 unk_00;
+        u8 unk_01[7];
+        u64 parentUID;
+        BtlPacketWaitCondition preUpdateWait;
+        BtlPacketWaitCondition postUpdateWaits[2];
+        u32 id;
+        u8 type;
+        u8 unk_45;
+        u8 unk_46;
+        u8 unk_47;
+        s16 preUpdateDelay;
+        s16 postUpdateDelay;
+        s32 unk_4c;
+        s32 unk_50;
+        s32 unk_54;
+        u64 uid;
+        u64 actionUID;
+        void *initFunc;
+        BtlPacketCallback updateFunc;
+        void *destroyFunc;
+        void *conditionFunc;
+        void *workData;
+        void *next;
+        void *prev;
+        u8 unkData3[0x0c];
+    };
+    BtlPacket *packet;
+    BtlPacketCallbackWork *callbackWork;
+    u16 i;
+    u16 j;
+    u8 waitType;
+    s32 size;
+
+    extern void func_0044ea90(const void *file, s32 line);
+    extern void func_0043f9c8(void *dst, s32 value, u32 size);
+    extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+    extern u8 D_005F6C00[];
+
+    size = sizeof(BtlPacket) + sizeof(BtlPacketCallbackWork);
+    func_0044ea90(&D_005F6C00, 0x51);
+    packet = (BtlPacket *)jtbl_008873E8[0](size, 0x40000);
+    func_0043f9c8(packet, 0, size);
+    packet->id = 0xFF01;
+    waitType = 1;
+    for (i = 0; i < 2; i++) {
+        ((BtlPacketWaitCondition *)packet)[i].type = waitType;
+    }
+    {
+        BtlPacketWaitCondition *wait;
+
+        wait = packet->postUpdateWaits;
+        for (j = 0; j < 2; j++) {
+            wait[j].type = waitType;
+        }
+    }
+    packet->workData = (u8 *)packet + sizeof(BtlPacket);
+    packet->unk_47 |= 0x31;
+    packet->updateFunc = (BtlPacketCallback)func_00194c60;
+    callbackWork = (BtlPacketCallbackWork *)packet->workData;
+    callbackWork->callback = (BtlPacketCallback)arg0;
+    callbackWork->data = arg1;
+    return (u8 *)packet;
+}
+/* measured probe: closes the opt_loop_invariants scope for func_00194c90. */
+#pragma opt_loop_invariants off
 // FUN_00194DC0
 void func_00194dc0(BtlUnit* unit)
 {

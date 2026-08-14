@@ -58,11 +58,48 @@ void func_0033bdc0(u8 *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));
 }
 
-/* measured: candidate object_size 328/window 336 with normalized_diff 57; the loop body matched but call setup remained wrong, so the candidate was discarded and the bare assembly fallback restored. */
+/* measured: object_size 324/window 336, normalized_diff 0 (retail tail is
+   zero padding). MWCCPS2 needs opt_loop_invariants on to hoist the loop's
+   `1` constant before the entry jump, matching retail's preheader materialisation. */
+#pragma opt_loop_invariants on
 // FUN_0033BE40
-INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033be40);
+u8 *func_0033be40(u8 *arg0) {
+    s32 i;
+    s32 one;
+    u8 *temp_17;
+    s8 *temp_2;
 
-/* measured: retail window 1280 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
+    func_0044ea90(D_0064A380, 0x958);
+    temp_2 = (s8 *)D_008873F4[0](1, 0x42C, 0x40000);
+    temp_17 = func_00451fc0(arg0, D_0064A3D8, 0xF, 0, 0, func_00332bb0, func_0033bdc0, (u8 *)temp_2);
+    *(s8 *)(temp_2 + 0) = 0;
+    *(s32 *)(temp_2 + 0xC) = 0;
+    *(f32 *)(temp_2 + 0x1E0) = (f32)0x28A;
+    *(s32 *)(temp_2 + 0x1E4) = 0x41700000;
+    *(s16 *)(temp_2 + 0x1EA) = 0;
+    *(s16 *)(temp_2 + 0x1EC) = 0;
+    *(s8 *)(temp_2 + 1) = 0;
+    *(s32 *)(temp_2 + 0x2B0) = 0;
+    *(s32 *)(temp_2 + 0x2A8) = 0;
+    *(s32 *)(temp_2 + 0x2AC) = 0;
+    *(s8 *)(temp_2 + 0x424) = 0;
+    one = 1;
+    i = 0;
+    while ((s16)i < 0x24) {
+        *(s8 *)(temp_2 + (s16)i + 0x2D8) = one;
+        i = (s16)(i + 1);
+    }
+    if (func_002e71c0() == 1) {
+        *(s8 *)(temp_2 + 0x424) = 1;
+    }
+    func_002e24a0(0x10000, 0, 2, 1);
+    return temp_17;
+}
+/* measured: closes the opt_loop_invariants scope required by func_0033be40. */
+#pragma opt_loop_invariants off
+
+/* triage: retail window 1280 bytes; COP1 accumulator-chain floor proven at
+   0x0033C0B4/0xC0B8, 0x0033C0EC/0xC0F0, and 0x0033C43C/0xC440; fallback kept. */
 // FUN_0033BF90
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033bf90);
 
@@ -78,14 +115,13 @@ u32 func_0033cbc0(void *arg0, s64 arg1) {
     return (u32)func_00106a90((s64)(s16)(s32)arg1) - d;
 }
 
-/* measured: retail evaluates func_0025ecd0's 14 args in the order [3, 8, f12-f14,
-   1, 2, 4, 5, 6, 7, f15-f17] (nested call first, then arg3/arg8/first floats, then
-   the rest positionally). mwcc b210 emits [2, 3, 6, 7, 8, f12-f14, 1, 4, 5, f15-f17]
-   regardless of spelling: inline, hoisted locals (sibling y_fclShopDraw func_002e0100
-   has the identical residual, nd 66), locals at function top, s32/u16 local types,
-   and #pragma schedule on (which regresses to nd 267). nd 40 (40 of 1216 words).
-   Argument-evaluation-order scheduling floor; the func_002b2a30 constant-first order
-   is the same family. */
+/* triage: retail window 1216 bytes. The best reconstructed candidate measured
+   normalized_diff 40 (40 differing words); retail's final mixed-argument calls
+   at 0x0033D06C and 0x0033D10C materialise func_0025ecd0's 14 arguments in
+   [3, 8, f12-f14, 1, 2, 4, 5, 6, 7, f15-f17], while b210 schedules
+   [2, 3, 6, 7, 8, f12-f14, 1, 4, 5, f15-f17] for every tested spelling.
+   Classification: argument-evaluation-order scheduling floor; the same
+   constant-first residual appears in func_002b2a30. Fallback kept. */
 // FUN_0033CC40
 INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033cc40);
 
