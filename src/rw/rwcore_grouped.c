@@ -887,8 +887,46 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef3a0);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef470);
 // FUN_003EF510
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef510);
+/* measured: retail list-detach branch in func_003ef5b0 is plain bnez. */
+#pragma no_branch_likely on
 // FUN_003EF5B0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003ef5b0);
+u8 *func_003ef5b0(u8 *arg0, u8 *arg1)
+{
+    typedef struct RwLink {
+        struct RwLink *next;
+        struct RwLink *prev;
+    } RwLink;
+    typedef struct RwList {
+        u8 padding[4];
+        u8 *item;
+        RwLink link;
+    } RwList;
+    typedef struct RwNode {
+        u8 padding[8];
+        RwLink link;
+    } RwNode;
+    RwList *list;
+    RwNode *node;
+
+    list = (RwList *)arg1;
+    node = (RwNode *)arg0;
+    if (list->item != NULL) {
+        goto detach;
+    }
+insert:
+    list->item = arg0;
+    list->link.next = node->link.next;
+    list->link.prev = &node->link;
+    node->link.next->prev = &list->link;
+    node->link.next = &list->link;
+    return arg1;
+detach:
+    list->link.prev->next = list->link.next;
+    list->link.next->prev = list->link.prev;
+    goto insert;
+}
+/* measured: closes no_branch_likely around func_003ef5b0. */
+#pragma no_branch_likely off
 /* measured: no_branch_likely preserves the retail list-detach branch. */
 #pragma no_branch_likely on
 // FUN_003EF610
