@@ -683,7 +683,40 @@ void func_0029e9b0(void *arg0, ...)
     va_end(args);
 }
 // FUN_0029E9E0
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_0029e9e0);
+void func_0029e9e0(s32 arg0, f32 farg0, f32 farg1, f32 farg2, f32 farg3,
+                   s32 arg1, s32 arg2)
+{
+    extern u8 *func_0046d200(u32 arg0, u32 arg1);
+    extern f32 func_0046b260(u8 *arg0);
+    extern f32 func_0046b2f0(u8 *arg0);
+    extern void func_0046b380(u8 *arg0, s32 arg1);
+    extern void func_0046d280(u8 *arg0);
+    f32 temp_f0;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f24;
+    u8 *temp_2;
+
+    temp_2 = func_0046d200((u32)iGpffffb510, (u32)arg0);
+    *(s32 *)(temp_2 + 0x24) = 0;
+    *(f32 *)(temp_2 + 8) = farg0;
+    *(f32 *)(temp_2 + 0xC) = farg1;
+    temp_f21 = func_0046b260(temp_2);
+    temp_f20 = func_0046b2f0(temp_2);
+    *(s8 *)(temp_2 + 0x10) = (s8)(0xFF - (arg1 & 0xFF));
+    *(u16 *)(temp_2 + 0x20) = (u16)(4096.0f * farg2);
+    *(u16 *)(temp_2 + 0x22) = (u16)(4096.0f * farg3);
+    if (arg2 == 1) {
+        temp_f24 = func_0046b260(temp_2);
+        temp_f0 = func_0046b2f0(temp_2);
+        *(f32 *)(temp_2 + 8) =
+            farg0 - ((0.5f + (temp_f24 - temp_f21)) / 2.0f);
+        *(f32 *)(temp_2 + 0xC) =
+            farg1 - ((0.5f + (temp_f0 - temp_f20)) / 2.0f);
+    }
+    func_0046b380(temp_2, 1);
+    func_0046d280(temp_2);
+}
 // FUN_0029EBF0
 void func_0029ebf0(u8 *arg0, s32 arg1)
 {

@@ -1014,13 +1014,8 @@ s32 func_0024bb00(s32 arg0) {
 }
 /* measured: restore the translation-unit optimization level after func_0024bb00. */
 #pragma optimization_level 2
-// FUN_0024BE40
+// FUN_0024BE40 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
-/* measured: the archived C reconstruction for func_0024c0e0 reached nd 35
-   at object 892B/window 896B. Its FMA accumulator order, mov.s/address-load
-   scheduling and mfc1 colouring residuals exceed the park threshold; the
-   body and ruled-out probe list are preserved in
-   build/W8CmmScript_c0e0_archive.json, so the bare INCLUDE_ASM fallback remains. */
 // FUN_0024C0E0
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c0e0);
 // FUN_0024C460

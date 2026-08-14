@@ -9,7 +9,7 @@ void func_0046d730(u8 *file, s32 line);
 void *func_00481460(u16 arg0);
 void *func_00481540(u16 arg0);
 void func_00460ac0(void *arg0, void *arg1);
-u16 *func_00482f70(u32 arg0, u32 arg1, u32 arg2, void *arg3, u32 arg4);
+u16 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4);
 u8 *func_00484490(u8 *obj);
 void func_0043f810(void *dst, const void *src, u32 size);
 s32 func_004b4430(u8 *arg1);
@@ -157,11 +157,72 @@ void func_004b3e40(u8 *arg0) {
 }
 
 
-/* measured: retail is scalar allocation plus float conversion code, not a VU0
-   floor. Plain-C probes reached nd 27 (664-byte object against a 672-byte
-   window) but remained non-byte-exact; marker remains ASM. */
 // FUN_004B3ED0
-INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b3ed0);
+u8 *func_004b3ed0(u8 *arg0)
+{
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f2;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f1;
+    s32 temp_5;
+    s32 temp_5_2;
+    s32 var_5;
+    s32 var_5_2;
+    u16 *temp_2_2;
+    u32 temp_16;
+    u32 cnt;
+    u32 temp_4_2;
+    u32 temp_4_3;
+    u32 temp_6;
+    u32 temp_6_2;
+    u32 var_6;
+    u8 temp_4;
+    u8 *temp_2;
+    u8 *var_3;
+
+    temp_16 = *(u32 *)(arg0 + 0x38);
+    func_0044ea90(D_00714628, 0x16D);
+    temp_2 = (u8 *)(*jtbl_008873E8)(temp_16 * 6 + 0x10, 0x40000);
+    if (temp_2 == NULL) {
+        func_0046d730(D_00714628, 0x16E);
+    }
+    *(u8 **)(temp_2 + 0) = temp_2 + 0x10;
+    *(u8 **)(temp_2 + 8) = temp_2;
+    temp_2_2 = func_00482f70(temp_16 & 0xFFFF, 4, 6, D_00713310, 0x48);
+    *(u16 **)(temp_2 + 4) = temp_2_2;
+    *temp_2_2 &= 0xFFFE;
+    cnt = *(u32 *)(arg0 + 0x38);
+    var_3 = *(u8 **)(*(u8 **)(*(u8 **)(*(u8 **)(temp_2 + 4) + 0x10) + 0x18) + 0x30);
+    temp_4 = *(u8 *)(arg0 + 0x92);
+    var_f1 = (f32)(u32)temp_4;
+    temp_f2 = var_f1 / 255.0f;
+    temp_6 = *(u32 *)(arg0 + 0x54);
+    temp_4_2 = temp_6 >> 0x18;
+    var_f0 = (f32)(u32)temp_4_2;
+    temp_f1 = var_f0 * temp_f2;
+    var_5 = (u32)temp_f1;
+    temp_5 = (temp_6 & 0xFFFFFF) | (var_5 << 24);
+    temp_6_2 = *(u32 *)(arg0 + 0x58);
+    temp_4_3 = temp_6_2 >> 0x18;
+    var_f0_2 = (f32)(u32)temp_4_3;
+    temp_f1_2 = var_f0_2 * temp_f2;
+    var_5_2 = (u32)temp_f1_2;
+    temp_5_2 = (temp_6_2 & 0xFFFFFF) | (var_5_2 << 24);
+    var_6 = 0;
+    while (var_6 < cnt) {
+        *(s32 *)(var_3 + 0) = temp_5_2;
+        *(s32 *)(var_3 + 4) = temp_5;
+        *(s32 *)(var_3 + 8) = temp_5_2;
+        *(u32 *)(var_3 + 0xC) = *(u32 *)(arg0 + 0x58);
+        *(u32 *)(var_3 + 0x10) = *(u32 *)(arg0 + 0x54);
+        *(u32 *)(var_3 + 0x14) = *(u32 *)(arg0 + 0x58);
+        var_6++;
+        var_3 += 0x18;
+    }
+    return temp_2;
+}
 
 // FUN_004B4170
 void func_004b4170(u8 *arg0) {

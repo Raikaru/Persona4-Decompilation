@@ -19,6 +19,7 @@ extern s32 D_00882FD0[];
 extern u8 D_00882FF0[];
 extern s16 D_00883988[];
 extern s16 D_00884660[];
+extern f32 D_0088466C[];
 extern s32 D_00884670[];
 extern s16 D_00884674[];
 extern f32 D_00884678[];
@@ -384,8 +385,57 @@ void func_0034c260(s32 arg0) {
    the base float load order (retail loads baseHi first). opt_propagation off
    wrecked it (nd 97). Lever 1 (u32 arg1) + u32-copy recipe + x+x were the
    big wins. FP-coloring + clamp-comparison floor. */
+/* measured: loop-invariant source recipe from the archived c270 probe. */
+#pragma opt_loop_invariants on
 // FUN_0034C270
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c270);
+void func_0034c270(s64 arg0, s32 arg1, s32 arg2, f32 fparg0) {
+    u8 sp50[0x16A0];
+    s32 b;
+    f32 hi;
+    f32 lo;
+    f32 c255;
+    f32 cMax;
+    f32 *srcBase;
+    s32 i;
+    u8 *dst;
+    f32 *src;
+    f32 var_f4;
+    f32 temp_f0;
+    f32 var_f0;
+    u8 var_3;
+
+    b = arg1;
+    srcBase = (f32 *)(D_00749CC0 + arg2 * 0x3C0);
+    D_0088467C[0] = fparg0;
+    func_0043f9c8(sp50, 0, 0x16A0);
+    if ((arg2 <= 0) || (arg2 >= 0x24)) {
+        func_0046d730(&iGpffffa950, 0x2B8);
+    }
+    *(s32 *)((u8 *)sp50 + 0x1680) = arg2;
+    *(s16 *)((u8 *)sp50 + 0x1684) = (s16)(s32)(*(f32 *)(D_007523C4 + arg2 * 0x10));
+    i = 0;
+    hi = *((f32 *)&arg0 + 1);
+    lo = *(f32 *)&arg0;
+    c255 = 255.0f;
+    cMax = 2.1474836e9f;
+    for (; i < 0x14; i++) {
+        dst = sp50 + i * 0x54;
+        src = srcBase + i * 0xC;
+        *(f32 *)(dst + 8) = lo + src[2];
+        *(f32 *)(dst + 0xC) = hi + src[3];
+        *(f32 *)(dst + 0x34) = src[6];
+        *(s16 *)(dst + 0x48) = *(s16 *)((u8 *)src + 0x1C);
+        var_f4 = (f32)(u32)b;
+        temp_f0 = (var_f4 * src[9]) / c255;
+        var_3 = (u8)temp_f0;
+        var_f0 = (f32)var_3;
+        *(f32 *)(dst + 0x24) = var_f0;
+    }
+    func_0034c500(sp50, arg0, b);
+    D_0088467C[0] = 0.0f;
+}
+/* measured: closes the c270 loop-invariant scope. */
+#pragma opt_loop_invariants off
 // FUN_0034C4A0
 void func_0034c4a0(void) {
     s64 sp18;
@@ -778,27 +828,17 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);
 
 // FUN_0034DB60
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
-// FUN_0034DDF0
+/* measured: disabling common-subexpression elimination preserves retail's
+   per-call corner recomputation. */
+#pragma opt_common_subs off
+/* Archived C body: build/VNLN_0034ddf0_body.c; object 688B; retail window
+   704B; normalized_diff 168. The body retains the plain `(f32)(u32)temp_2`
+   unsigned-byte-to-float cast and `(u8)temp_f2_2` float-to-unsigned-byte cast;
+   the residual is documented in the archive header. */
+// FUN_0034DDF0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
-/* measured: nd 87 from 101. Logic is complete and every constant is confirmed
-   (480.0f, 640.0f, 448.0f; the four quad corners are 0x690/0x6D0/0x710/0x750).
-
-   The one real win: `#pragma opt_common_subs off` (101 -> 87). Without it b210
-   caches `y + 480.0f` -- shared by calls 2 and 3 -- in an EIGHTH float saved
-   register, so the prologue pushes $f20..$f27 where retail pushes $f20..$f26 and
-   every subsequent word is offset by one. Retail recomputes the corner offsets
-   per call, including re-materializing the constant.
-
-   What remains is three small residuals repeated across the four calls: `x` and
-   `z` are transposed ($f20 vs $f22), arg0 and the alpha byte are transposed
-   ($s0 vs $s1), and the commutative `add.s` operands come out reversed
-   ($f0 + $f21 rather than $f21 + $f0).
-
-   Measured and rejected: four declaration permutations of {scale, x, y, z,
-   alpha} (all 91, worse), computing z first (94), computing x first (90), and
-   alpha declared last (101). The callee signatures are already confirmed
-   correct -- func_0034f0d0 is (u8*, f32x4, u8x4), func_0034e360 returns s16.
-   Float-register colouring floor. */
+/* measured: closes ddf0 common-subexpression scope after its archived body. */
+#pragma opt_common_subs on
 // Archived C body: build/WBHygiene_func_0034e0b0_archive.txt; no current park body remains.
 // FUN_0034E0B0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e0b0);
