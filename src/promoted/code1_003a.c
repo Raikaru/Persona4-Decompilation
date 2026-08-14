@@ -57,7 +57,8 @@ extern u8 *func_003cfa30();
 extern s32 func_003a8ca0(void);
 extern s32 func_003a92d0(void);
 extern void func_003a72a0(void);
-extern void func_003a55a0(u8 *arg0, s32 *arg2, s32 arg4);
+extern void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3,
+                          u32 arg4);
 extern void func_003a5280();
 
 
@@ -496,7 +497,7 @@ s32 func_003a6570(u8 *arg0, u8 *arg1)
     s32 temp_11;
     s32 temp_12;
     s32 mask = 0xEFFFFFFF;
-    void (*callback)(u8 *, s32 *, s32) = func_003a55a0;
+    void (*callback)(u8 *, u8 *, s32 *, u8 *, u32) = func_003a55a0;
     u8 *temp_14;
     u8 *temp_16;
     u8 *temp_2;
@@ -517,7 +518,7 @@ s32 func_003a6570(u8 *arg0, u8 *arg1)
     temp_10 = *(s32 *)(arg1 + 8);
     temp_8 = temp_9 * 0x24;
     *(s32 *)((s32)temp_8 + (s32)temp_2 + 0x15C) = temp_10;
-    *(void (**)(u8 *, s32 *, s32))(temp_16 + 0x24) = callback;
+    *(void (**)(u8 *, u8 *, s32 *, u8 *, u32))(temp_16 + 0x24) = callback;
     func_003b42e0(temp_4, temp_16 + 0x50,
                   *(s32 *)(temp_14 + 4), mask);
     *(void (**)(void))(temp_16 + 0x24) = func_003a5280;

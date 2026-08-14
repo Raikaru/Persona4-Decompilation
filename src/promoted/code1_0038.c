@@ -68,7 +68,91 @@ static inline u32 add_offset_first_0038(u32 offset, u32 base)
 }
 
 // FUN_00380980
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00380980);
+s32 func_00380980(u8 *arg0)
+{
+    typedef struct {
+        s32 active;
+        u16 value0;
+        u16 value1;
+        u16 value2;
+    } Result;
+    extern s32 func_0036f640(s32 arg0, s32 *arg1);
+    extern u8 *func_00109220(s32 arg0);
+    extern u8 *func_00243840(s32 arg0);
+    extern s32 func_002bad10(s32 arg0);
+    extern void func_002bbd20(s32 arg0, void *arg1);
+    extern void func_0038daf0(u8 *arg0, s32 arg1);
+    extern void func_00442088(void *arg0, const void *arg1, s32 arg2);
+    extern s32 D_0064EB80[];
+    extern s32 D_0064EB84[];
+    extern u8 D_0064EC30[];
+    extern u8 iGpffffa9E8;
+    u8 *base;
+    u8 *state;
+    u32 id;
+    s32 index;
+    s32 channel;
+    s32 packed;
+    s32 result;
+    s32 high;
+    s32 original;
+    s16 *flags;
+    s32 *entry;
+    u8 *resource;
+    u8 text[64];
+    Result output;
+
+    base = *(u8 **)arg0;
+    state = arg0 + 0x18;
+    id = *(u8 *)(arg0 + 0x12);
+    if (id == 1) {
+        id = *(u8 *)(state + 0xC);
+    }
+    id &= 0xFF;
+    index = id - 1;
+    channel = index * 4 + 0x15;
+    packed = (id << 16) | ((*(s32 *)(state + 0x10) != 0) ? 1 : 0);
+    result = func_0036f640(packed, (s32 *)&output);
+    high = ((u32)(result & 0xFFFF0000) >> 16) & 0xFFFF;
+    if (high != 0) {
+        original = ((u32)(packed & 0xFFFF0000) >> 16) & 0xFFFF;
+        if (high != original) {
+            *(s32 *)(state + 0x18) = result;
+        }
+    }
+    if (output.active != 0) {
+        flags = (s16 *)(D_0064EC30 + index * 2);
+        if ((*flags & 1) != 0) {
+            func_002bbd20(0, func_00109220(output.value0));
+        }
+        if ((*flags & 2) != 0) {
+            func_002bbd20(1, func_00243840(output.value1));
+            func_002bbd20(4, func_00243840(output.value2));
+        }
+        if ((*flags & 4) != 0) {
+            func_00442088(text, &iGpffffa9E8, (s16)output.value2);
+            func_002bbd20(2, text);
+        }
+        if ((*flags & 8) != 0) {
+            func_002bbd20(3, func_00109220(output.value2));
+        }
+    } else {
+        func_002bad10(channel + 3);
+        return 1;
+    }
+    if (*(s32 *)(state + 0x10) != 0) {
+        entry = D_0064EB80 + index * 2;
+        resource = *(u8 **)(base + 0x1F29C);
+        func_0038daf0(resource, *entry);
+        func_002bad10(channel + 1);
+    } else {
+        entry = D_0064EB84 + index * 2;
+        resource = *(u8 **)(base + 0x1F29C);
+        func_0038daf0(resource, *entry);
+        func_002bad10(channel + 2);
+    }
+    return 1;
+}
 // FUN_00380BD0
 s32 func_00380bd0(u8 **arg0)
 {

@@ -1592,8 +1592,53 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9a80);
 // FUN_003C9B30
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9b30);
 
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003C9C20
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9c20);
+u8 *func_003c9c20(u32 arg0) {
+    extern u8 *func_003ca320(u8 *arg0, s32 (*arg1)(u8 *, s32 *), s32 *arg2);
+    extern s32 func_003c8da0(u8 *arg0, s32 *arg1);
+    s32 sp[2];
+    u32 value;
+    u8 *cursor;
+    u8 *sentinel;
+    s32 *stack_ptr;
+    u8 *entry;
+    u8 *node;
+
+    cursor = *(u8 **)(D_008872E0 + iGpffffb700 + 4);
+    sentinel = D_008872E0 + iGpffffb700 + 4;
+    if (cursor == sentinel)
+        goto empty;
+    value = arg0;
+    stack_ptr = &sp[1];
+loop:
+    entry = cursor - 8;
+    node = *(u8 **)entry;
+    if ((*(u8 *)(node + 3) & 1) == 0)
+        goto callback;
+    if (value < (u32)node)
+        goto advance;
+    if (value >= (u32)(node + *(s32 *)(entry + 4)))
+        goto advance;
+    return node;
+advance:
+    cursor = *(u8 **)cursor;
+    if (cursor != sentinel)
+        goto loop;
+empty:
+    return NULL;
+callback:
+    sp[0] = (s32)value;
+    *stack_ptr = 0;
+    func_003ca320(*(u8 **)entry, func_003c8da0, sp);
+    if (*stack_ptr != 0)
+        return *(u8 **)entry;
+    goto advance;
+}
+/* measured: closes the schedule/no_branch_likely scope for func_003c9c20. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_003C9D00
 /* measured: schedule preserves the saved argument across the callback helper. */
@@ -2326,8 +2371,64 @@ void func_003cc130(void) {
 /* measured: without #pragma schedule on, MWCC emits addiu $v0, 1 before
    jr $ra with an unfilled delay slot; retail fills the slot (nd 6 -> 0). */
 
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003CC170
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc170);
+s32 func_003cc170(void) {
+    extern s32 func_003d4d80(void);
+    extern s32 func_003d4ea0(void);
+    extern s32 func_003d4e10(void);
+    extern s32 func_003cc370(void);
+    extern void func_003cc460();
+    extern void func_003d4e00(void);
+    extern void func_003d4e90(void);
+    extern void func_003d4d70(void);
+    u8 *temp_2;
+    s32 var_2;
+
+    temp_2 = D_008872E0 + iGpffffb9b8;
+    *(s32 *)(temp_2 + 0x3C) = 0;
+    *(s32 *)(temp_2 + 0x40) = 0;
+    *(s32 *)(temp_2 + 0x44) = 0;
+    *(s32 *)(temp_2 + 0x48) = 0;
+    *(s32 *)(temp_2 + 0x4C) = 0;
+    *(s32 *)(temp_2 + 0x50) = 0;
+    *(s32 *)(temp_2 + 0x54) = 0;
+    *(s32 *)(temp_2 + 0x58) = 0;
+    *(s32 *)(temp_2 + 0x5C) = 0;
+    var_2 = func_003d4d80();
+    if (var_2 != 0)
+        goto call_2;
+check_2:
+    if (var_2 != 0)
+        goto call_3;
+check_3:
+    if (var_2 != 0)
+        goto call_4;
+check_4:
+    if (var_2 != 0)
+        goto success;
+    goto fail;
+call_2:
+    var_2 = func_003d4ea0();
+    goto check_2;
+call_3:
+    var_2 = func_003d4e10();
+    goto check_3;
+call_4:
+    var_2 = func_003cc370();
+    goto check_4;
+fail:
+    func_003cc460();
+    func_003d4e00();
+    func_003d4e90();
+    func_003d4d70();
+    return 0;
+success:
+    return 1;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003CC240
 #pragma schedule on
 s32 func_003cc240(void) {

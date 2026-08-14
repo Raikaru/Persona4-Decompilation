@@ -30,7 +30,7 @@ extern s32 iGpffffb760;
 extern s32 D_00724844;
 extern u8 D_0070C260[];
 extern s32 func_003d2720(void);
-extern void func_003db360(u8 *arg0, u8 *arg1);
+extern u8 *func_003db360(u8 *arg0, u8 *arg1);
 extern u8 *func_003d5790(s32 arg0, s32 arg1);
 extern s32 func_003db480(s32 *arg0, s32 arg1);
 extern s32 func_003dd530(u8 *arg0, s32 arg1);
@@ -63,7 +63,6 @@ extern u8 *func_003df4d0();
 static inline s32 func_003d_add_offset(s32 base, s32 offset) {
     return base + offset;
 }
-
 
 
 // FUN_003D0140
@@ -222,7 +221,6 @@ block_default:
    prototype, in any order of the classes, puts the 0 in $a0 instead (nd 1). The
    call is also placed out of line via a positive test, so the goto graph is
    needed - the plain if form costs nd 13. */
-
 // FUN_003D39A0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d39a0);
 

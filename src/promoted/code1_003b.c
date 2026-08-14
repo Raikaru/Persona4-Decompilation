@@ -20,7 +20,7 @@ extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_003df590(s64 arg0, ...);
 extern void func_003df4d0(s32 *arg0);
-extern void func_003bbea0(s32 arg0);
+extern void func_003bbea0(u8 *arg0);
 extern void func_003c2a80(s32 arg0);
 extern s32 D_00764794;
 extern s32 D_00764790;
@@ -40,7 +40,7 @@ extern s32 func_003bc880(s32 arg0, s32 arg1);
 extern s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2);
 extern s32 D_00764770;
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
-extern void func_003bb0d0(void);
+extern s32 func_003bb0d0(s32 arg0);
 extern s32 func_003bb030(s32 arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 extern void func_003bf930(void);
@@ -50,7 +50,7 @@ extern s32 iGpffffb654;
 extern s32 iGpffffb61c;
 extern u8 D_008864E8[];
 extern s32 func_003e8960(s32 arg0);
-extern void func_003b8d40(u8 *arg0, s32 arg1);
+extern u8 *func_003b8d40(u8 *arg0, s32 arg1);
 extern s32 func_003e8410(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
 extern s32 func_003c3920(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
 extern u64 func_003bf1c0(u64 value);
@@ -125,7 +125,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5fb0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6020);
 // FUN_003B61E0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
-/* measured: current-TU plain-C body object 144B/window 144B, normalized_diff 78; differing word offsets 0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128. Exact-size residual is register coloring and load/store scheduling across the loop. Direct field loads, hoisted stride local, declaration reordering, and optimization_level 1 remain ruled out. */
 // FUN_003B6390
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
 /* measured: best fresh plain-C attempt object 152B/window 160B, normalized_diff 35; archived at build/K3B6_003b6420_nd35.c and restored to INCLUDE_ASM. */
