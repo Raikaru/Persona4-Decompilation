@@ -7,6 +7,8 @@ extern void func_0044ea90(void *msg, s32 id);
 extern void func_0043f810(void *dst, const void *src, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
+extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern s64 iGpffffabe8;
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern void func_0045d890(void);
@@ -99,29 +101,150 @@ void func_0045db40(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4,
 INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045dd30);
 
 
-/* measured: mwcc b210 allocates 8 saved registers (frame 0xC0, saved[6] at
-   0xA0) vs retail's 7 (frame 0xB0, saved[6] at 0x90) -- the extra live value
-   (loop counter or pre-jal operand) pushes the frame 0x10 and shifts the
-   byte-conversion loop codegen (inv/minus land in $f2/$f1 vs retail $f1/$f2,
-   branch inverted to bgez, loads reordered). Tried dedicated v0-v3/c0-c3/f0-f3
-   locals, block-scoped temps, bare u8 loads, and both if(x<0)/if(x>=0) branch
-   orientations: all nd 200 with the same 8-sreg frame. Register-allocation
-   floor. */
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+    u8 pad0[12];
+    f32 inv;
+    u8 pad1[4];
+    f32 color[4];
+    u8 pad2[16];
+} PrimVertex;
 // FUN_0045DFD0
-INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045dfd0);
+
+void func_0045dfd0(u8 *arg0, u8 *arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4) {
+    s32 saved[6];
+    s32 *p;
+    PrimVertex *out;
+    PrimVertex *vertex;
+    u8 *color;
+    u8 *position;
+    f32 z;
+    f32 inv;
+    u32 i;
+    u32 j;
+    u32 k;
+
+    if (arg4 != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)((u8 *)saved + i * 4));
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+    }
+    func_0044ea90(D_007124C0, 0x2DA);
+    out = (PrimVertex *)D_008873F4[0](1, arg2 << 6, 0x40000);
+    inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    z = D_008872F8[0] - fparg0;
+    for (k = 0; k < (u32)arg2; k++) {
+        position = arg1 + k * 8;
+        vertex = &out[k];
+        vertex->x = *(f32 *)position;
+        vertex->y = *(f32 *)(position + 4);
+        vertex->z = z;
+        color = arg0 + k * 4;
+        vertex->color[0] = (f32)(u32)color[0];
+        vertex->color[1] = (f32)(u32)color[1];
+        vertex->color[2] = (f32)(u32)color[2];
+        vertex->color[3] = (f32)(u32)color[3];
+        vertex->inv = inv;
+    }
+    D_00887310[0](arg3, out, arg2);
+    if (arg4 != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], saved[j]);
+        }
+    }
+    jtbl_008873EC[0](out);
+}
 
 
-/* measured: mwcc b210 allocates 8 saved registers (frame 0xC0, saved[6] at
-   0xA0) vs retail's 7 (frame 0xB0, saved[6] at 0x90): the first-loop temp
-   &D_00712490[j] gets a dedicated $s5 instead of reusing out's register
-   ($s0, which is dead until the alloc call), and the D_00887304/00 call
-   arguments evaluate in the wrong order (the recorded db40/e6a0 floor). The
-   byte-conversion loop is otherwise structurally correct (inv/minus land in
-   $f2/$f1 vs retail $f1/$f2). Tried hoisting pos/col/scale all, pos/col only,
-   and every declaration order (probe a/b/c): all nd 225-227. Saved-register
-   rotation + argument-order floor. */
+typedef struct {
+    u8 *colors;
+    void *positions;
+    f32 scale;
+    u32 count;
+    s32 enabled;
+    s8 alpha;
+    u8 pad[3];
+    s32 primType;
+} PrimBatch;
+
 // FUN_0045E310
-INCLUDE_ASM("asm/nonmatchings/sdkPrimitive", func_0045e310);
+void func_0045e310(void *unused, PrimBatch *work) {
+    s32 saved[6];
+    s32 *p;
+    PrimVertex *out;
+    PrimFloat2 *positions;
+    u8 *colors;
+    f32 z;
+    f32 inv;
+    f32 scale;
+    u32 i;
+    u32 count;
+    s32 enabled;
+    u32 j;
+    u32 k;
+    u32 table_addr;
+    void (**release)(void *);
+
+    positions = (PrimFloat2 *)work->positions;
+    colors = work->colors;
+    scale = work->scale;
+    enabled = work->enabled;
+    count = work->count;
+    if (enabled != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)((u8 *)saved + i * 4));
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+    }
+    func_0044ea90(D_007124C0, 0x30D);
+    out = (PrimVertex *)jtbl_008873E8[0](count << 6, 0x40000);
+    inv = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    z = D_008872F8[0] - scale;
+    for (k = 0; k < count; k++) {
+        PrimFloat2 *pos = &positions[k];
+        PrimVertex *vertex = &out[k];
+        u8 *color;
+
+        vertex->x = pos->v[0];
+        vertex->y = pos->v[1];
+        vertex->z = z;
+        color = colors + k * 4;
+        vertex->color[0] = (f32)(u32)color[0];
+        vertex->color[1] = (f32)(u32)color[1];
+        vertex->color[2] = (f32)(u32)color[2];
+        vertex->color[3] = (f32)(u32)color[3];
+        vertex->inv = inv;
+    }
+    if (work->alpha == 1) {
+        iGpffffabe8 |= 0x80;
+    }
+    D_00887310[0](work->primType, out, count);
+    if (work->alpha == 1) {
+        iGpffffabe8 &= ~0x80;
+    }
+    if (enabled != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], saved[j]);
+        }
+    }
+    table_addr = (u32)jtbl_008873EC;
+    release = (void (**)(void *))table_addr;
+    release[0](out);
+    release[0](work);
+}
 
 
 // FUN_0045E6A0

@@ -8,6 +8,9 @@ extern f32 func_0044b7b0(f32 fparg0);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00446ed8(void *buf, s32 fmt, void *va);
 extern void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2);
+extern s32 iGpffffb9e8;
+extern void (*D_00887300[])(u32, u32);
+extern void (*D_00887310[])(s32, void *, s32);
 static inline f32 add_f32(f32 a, f32 b) {
     return a + b;
 }
@@ -202,7 +205,7 @@ f32 func_00450490(f32 fparg0)
 }
 // FUN_00450630
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450630);
-// FUN_00450A50
+// FUN_00450A50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00450a50);
 /* measured: O1 preserves the 00450DD0 mixed save and literal count branch. */
 #pragma optimization_level 1

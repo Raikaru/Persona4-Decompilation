@@ -6373,7 +6373,6 @@ iGpffffb1d0 = 0x007642c0; // type:data
 iGpffffb1d4 = 0x007642c4; // type:data
 iGpffffb1d8 = 0x007642c8; // type:data
 iGpffffb1dc = 0x007642cc; // type:data
-iGpffffb1e0 = 0x007642d0; // type:data
 iGpffffb1ec = 0x007642dc; // type:data
 iGpffffb1f0 = 0x007642e0; // type:data
 D_007642E4 = 0x007642e4; // type:data

@@ -763,6 +763,6 @@ INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152e50);
 // FUN_00153300 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00153300);
 
-// FUN_001534A0
+// FUN_001534A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_001534a0);
 

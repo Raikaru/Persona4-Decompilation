@@ -790,21 +790,15 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257900);
 /* measured: nd 94 with a full C body, object 320B against a 336B window (wave 7
    ran out of turns here and left it uncommitted). The body is undersized, so work
    is missing rather than merely mis-scheduled; re-attempt from the m2c draft. */
-static inline void *rankArg0(f32 *p) { return p; }
-static inline void *rankArg1(u8 *p) { return p; }
-
-/* measured: nd 24. Retail hoists `addiu $a0,$sp,0x5C` (the &fbuf argument)
-   before the fbuf load/store and `addiu $a1,$sp,0x40` between the lq and
-   sq copies; mwcc b210 sinks both to just before the jal. The float-to-
-   unsigned site is exact as `f = ...; buf[3] = (u8)f;`: retail low path
-   `cvt.w.s`/`mfc1`/`andi 0xFF`, high path bias `sub.s`/`cvt.w.s`/`mfc1`/
-   `lui 0x8000`/`or`/`andi 0xFF`. Tried direct addresses, pointer stores
-   (reordering the arr16 store improved only to nd 11), address locals,
-   static-inline helpers, named integer stack-base casts, overlapping pointer
-   lifetimes, repeated address assignments, a live post-store read, and
-   optimization level 1 (nd 17); none moved both materializations without
-   introducing earlier residuals. Rest is byte-exact. Body archived in
-   build/VRNK_0025b0f0_body.c. */
+/* measured: best plain-C probe is object 324B against the 336B retail window;
+   verify normalized_diff 24B (fndiff: 11 differing words), with first differing
+   byte offsets 196, 198, 199, 200, 203, 206, 207, 210, 211, 212, 213, 214,
+   215, 220, 222, 223. The exact float-to-unsigned spelling is
+   `f = (f32)*(s32 *)(sp + 0x4C) * 127.5f / 40.0f; buf[3] = (u8)f;`.
+   Best body is archived in build/VRNK_0025b0f0_body.c. The reordered arr16
+   pointer-store shape improved fndiff from 12 to 11 differing words; the
+   remaining residual is retail's hoisted addiu $a0,$sp,0x5C and addiu
+   $a1,$sp,0x40 versus MWCC's sunk materializations. */
 // FUN_0025B0F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b0f0);
 // FUN_0025B240
