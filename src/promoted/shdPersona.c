@@ -582,7 +582,7 @@ extern f32 iGpffff82fc;
    cleanly (c.ole.s vs retail c.le.s on the 0x4F guard is the only fp row).
    func_0046d4c0 11-arg call shapes and the odd-register arg mapping
    (arg5 in $9) verified against retail. */
-// FUN_00116D40
+// FUN_00116D40 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00116d40);
 
 

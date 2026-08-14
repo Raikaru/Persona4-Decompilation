@@ -23,9 +23,9 @@ extern void func_004842d0(void *, s32);
 extern void func_004843f0(void *, s32);
 extern void func_004a1d70(void *, void *);
 extern void func_004a30e0(u8 *, u8 *);
-extern void func_004a4450(void *, void *);
+extern void func_004a4450(u8 *, u8 *);
 extern s32 func_00484010(void *);
-extern void func_003c2290(void *, s32);
+extern u8 *func_003c2290(u8 *, s32);
 extern void func_0043f810(void *, void *, void *);
 extern char D_00713330[];
 extern char D_00714148[];
@@ -325,7 +325,7 @@ void func_004a3010(u8 *arg0)
    nd 9, order flips), named locals for the whole expr / first operand /
    second operand / both operands, and a static inline `a|b` helper — all
    emit the identical second-operand coalescing. Register-coalescing floor. */
-// FUN_004A30E0
+// FUN_004A30E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a30e0);
 
 // FUN_004A33E0
@@ -600,7 +600,7 @@ void func_004a4380(u8 *arg0)
    inline u32 cast nd 181 (mwcc recursively re-applies its sign idiom to
    the inner cast), named s32 intermediate nd 161, s32 loop counter
    nd 47 (converged), probe batch best nd 48. */
-// FUN_004A4450
+// FUN_004A4450 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a4450);
 
 // FUN_004A4790

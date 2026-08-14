@@ -1150,7 +1150,7 @@ s32 func_002a7330(u8 *arg0) {
    inline helper for the sp60/sp80 base+index (per the y_CmbCardEff combo)
    could not be measured: mwcc b210 rejects the inline-deref expression
    ("pointer/array required") before it can be scored. */
-// FUN_002A73C0
+// FUN_002A73C0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a73c0);
 // FUN_002A7710
 void func_002a7710(s32 arg0, u8 *arg1) {

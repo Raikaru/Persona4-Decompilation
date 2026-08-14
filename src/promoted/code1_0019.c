@@ -17,6 +17,8 @@ typedef struct P4_95730_Bytes4 {
     u8 z;
     u8 w;
 } P4_95730_Bytes4;
+typedef struct DatUnit DatUnit;
+extern u32 func_00231af0(DatUnit *unit, u8 genus, u16 id);
 
 extern void func_00106390(s32 arg0, s32 arg1);
 extern s16 func_0022cb90(void);
@@ -237,7 +239,7 @@ extern u8 *func_001f7650(u8 *arg0);
 extern void func_0014b0c0(u16 arg0, u32 arg1);
 
 extern u8 *func_0019d210(s32 arg0);
-extern void func_0019ea60(u8 *arg0, u16 arg1);
+extern void func_0019ea60(u8 *arg0, s32 arg1);
 
 
 
@@ -2839,7 +2841,83 @@ u8 *func_0019e9f0(u8 *unit, s16 value)
 }
 
 // FUN_0019EA60
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019ea60);
+void func_0019ea60(u8 *arg0, s32 arg1)
+{
+    extern void func_00201280(u8 *arg0, u8 *arg1);
+    u8 *data;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f1;
+    f32 var_f1_2;
+    f32 var_f1_3;
+    u16 temp_6;
+    s32 temp_4_2;
+    s32 temp_4_4;
+    s32 temp_4_5;
+    u16 temp_2;
+    u16 temp_2_2;
+    u16 temp_2_3;
+    u16 temp_2_4;
+    u16 temp_3;
+    u8 temp_4;
+    u8 *temp_4_3;
+
+    temp_6 = arg1 & 0xFFFF;
+    *(u16 *)(arg0 + 0xA4) = arg1;
+    temp_4 = *(u8 *)(arg0 + 0xA2);
+    switch (temp_4) {
+    case 0:
+        *(s16 *)(*(u8 **)(arg0 + 0xA64) + 2) = temp_6;
+        func_00231af0((DatUnit *)*(u8 **)(arg0 + 0xA64), 0, temp_6);
+        temp_4_2 = arg1 * 0x14C;
+        temp_2 = *(u16 *)((u8 *)((u32)temp_4_2 + (u32)iGpffffb3c0) + 0x14);
+        var_f1 = (f32)(u32)temp_2;
+        *(f32 *)(arg0 + 0x2C) = var_f1 / 100.0f;
+        *(s32 *)(arg0 + 0x98) |= 4;
+        data = iGpffffb3c0 + temp_4_2;
+        *(u8 **)(arg0 + 0x9F8) = iGpffffb3c0 + temp_4_2 + 0x3C;
+        *(s16 *)(arg0 + 0x9E4) = 0x1B;
+        if ((u32)(arg1 - 3) < 3U) {
+            temp_4_3 = *(u8 **)(arg0 + 0xA64);
+            *(u16 *)(temp_4_3 + 0) |= 0x1000;
+        }
+        break;
+    case 1:
+        *(s16 *)(*(u8 **)(arg0 + 0xA64) + 2) = temp_6;
+        temp_4_4 = arg1 * 0xE8;
+        temp_2_2 = *(u16 *)((u8 *)((u32)temp_4_4 + (u32)iGpffffb3cc) + 0x14);
+        var_f1_2 = (f32)(u32)temp_2_2;
+        *(f32 *)(arg0 + 0x2C) = var_f1_2 / 100.0f;
+        *(s32 *)(arg0 + 0x98) |= 4;
+        data = iGpffffb3cc + temp_4_4;
+        *(u8 **)(arg0 + 0x9F8) = iGpffffb3cc + temp_4_4 + 0x2A;
+        *(s16 *)(arg0 + 0x9E4) = 0x13;
+        break;
+    case 2:
+        temp_4_5 = arg1 * 0x58;
+        temp_2_3 = *(u16 *)((u8 *)((u32)temp_4_5 + (u32)iGpffffb3e0) + 0x18);
+        var_f1_3 = (f32)(u32)temp_2_3;
+        *(f32 *)(arg0 + 0x2C) = var_f1_3 / 100.0f;
+        *(s32 *)(arg0 + 0x98) |= 4;
+        data = iGpffffb3e0 + temp_4_5 + 2;
+        *(u8 **)(arg0 + 0x9F8) = iGpffffb3e0 + temp_4_5 + 0x1A;
+        *(s16 *)(arg0 + 0x9E4) = 6;
+        break;
+    case 3:
+    default:
+        break;
+    }
+    *(f32 *)(arg0 + 0x80) = (f32)(s16)*(s16 *)(data + 0);
+    *(f32 *)(arg0 + 0x84) = (f32)(s16)*(s16 *)(data + 2);
+    *(f32 *)(arg0 + 0x88) = (f32)(s16)*(s16 *)(data + 4);
+    temp_3 = *(u16 *)(data + 6);
+    var_f0 = (f32)(u32)temp_3;
+    *(f32 *)(arg0 + 0x8C) = var_f0;
+    temp_2_4 = *(u16 *)(data + 8);
+    var_f0_2 = (f32)(u32)temp_2_4;
+    *(f32 *)(arg0 + 0x90) = var_f0_2;
+    func_00201280(arg0, arg0 + 0xA10);
+}
 // FUN_0019EDA0
 s32 func_0019eda0(u8 *arg0, s32 arg1)
 {
@@ -2892,6 +2970,7 @@ s32 func_0019eda0(u8 *arg0, s32 arg1)
 }
 // FUN_0019EF30
 void func_0019ef30(u8 *arg0, u16 arg1) {
+    extern void func_0019ea60(u8 *arg0, u16 arg1);
     if (*(u8 **)(arg0 + 0xA0C) == NULL) {
         *(u8 **)(arg0 + 0xA0C) = func_0019d210(2);
     }

@@ -750,7 +750,7 @@ void func_004a7df0(s32 *arg0) {
 
 
 
-// FUN_004A7E30
+// FUN_004A7E30 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7e30);
 // FUN_004A8250
 /* measured: loop-invariant conversion preloads for func_004a8250. */

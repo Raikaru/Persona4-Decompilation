@@ -42,6 +42,7 @@ extern s32 func_0045af90(s32 arg0);
 extern void memset(void *destination, s32 value, u32 size);
 
 extern s32 func_001ef720(s32 arg0, s32 arg1);
+extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
 
 extern u32 func_00231d70(s32 arg0);
 extern s32 func_00243950(s32 arg0);
@@ -1492,7 +1493,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f56d0);
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f58d0);
 // FUN_001F5A00
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f5a00);
-// FUN_001F5BD0
+// FUN_001F5BD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f5bd0);
 // FUN_001F5EA0
 s32 func_001f5ea0(s32 arg0) {

@@ -76,6 +76,15 @@ void func_0017d240(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
 extern s32 func_0017cd60(u8 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
+extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
+                         s32 arg0, s32 arg1, s32 arg2, void *arg3,
+                         s32 arg4, s16 arg5, s16 arg6,
+                         f32 farg3, f32 farg4, f32 farg5, u8 *arg7);
+extern f32 func_0044b7b0(f32 arg0);
+extern u8 *func_0046a770(char *arg0);
+extern char D_005E5850[];
+extern f32 iGpffff82fc;
+extern u8 D_00794E70[];
 
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
@@ -1522,7 +1531,7 @@ s32 func_0017ccc0(u8 *arg0) {
 }
 
 
-// FUN_0017CD60
+// FUN_0017CD60 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017cd60);
 // FUN_0017D060
 void func_0017d060(u8 *arg0)
