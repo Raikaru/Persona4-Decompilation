@@ -1771,8 +1771,20 @@ void func_0039ab10(void)
 
 #pragma schedule on
 
+/* measured: no_branch_likely on preserves the retail plain branch dispatch. */
+/* measured: opt_propagation off probe preserves retail case-expression order. */
+/* measured: opt_common_subs off probe preserves shared case address order. */
+#pragma opt_common_subs off
+#pragma opt_propagation off
+#pragma no_branch_likely on
 // FUN_0039AB20
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ab20);
+/* measured: closes opt_common_subs probe for func_0039ab20. */
+#pragma opt_common_subs on
+/* measured: closes opt_propagation probe for func_0039ab20. */
+#pragma opt_propagation on
+/* measured: closes the scoped no_branch_likely probe for func_0039ab20. */
+#pragma no_branch_likely off
 // FUN_0039AC20
 s32 func_0039ac20(s32 arg0)
 {

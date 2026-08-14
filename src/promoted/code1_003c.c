@@ -1591,7 +1591,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9a80);
 #endif
 // FUN_003C9B30
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9b30);
-
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003C9C20
@@ -2206,8 +2205,44 @@ s32 func_003cbce0(s32 arg0) {
 /* measured: schedule off closes the single-function bracket. */
 #pragma schedule off
 
+/* measured: schedule and ordinary branches probe cbcf0's field/link setup. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003CBCF0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbcf0);
+u8 *func_003cbcf0(u8 *arg0, u8 *arg1) {
+    extern s32 iGpffffb710;
+    extern void func_003bff30(u8 *arg0, void *arg1, u8 *arg2);
+    extern void func_003c0050(u8 *arg0, void *arg1, u8 *arg2);
+    extern void func_003bffc0(u8 *arg0, void *arg1, u8 *arg2);
+    u8 *field;
+    u8 *old;
+    s32 offset;
+    u8 *base;
+    s32 count;
+
+    field = arg0 + 0x2C;
+    old = *(u8 **)(arg1 + 4);
+    offset = iGpffffb710;
+    base = arg1 + offset;
+    *(u8 **)(arg1 + 0x20) = *(u8 **)(arg0 + 0x2C);
+    *(u8 **)(arg1 + 0x24) = field;
+    *(u8 **)(*(u8 **)(arg0 + 0x2C) + 4) = arg1 + 0x20;
+    *(u8 **)(arg0 + 0x2C) = arg1 + 0x20;
+    count = *(s32 *)(arg0 + 0x24) + 1;
+    *(s32 *)(arg0 + 0x24) = count;
+    *(u8 **)(base + 0) = arg0;
+    func_003bff30(arg1, (void *)func_003cb670, arg0);
+    func_003c0050(arg1, (void *)func_003cb6a0, arg0);
+    func_003bffc0(arg1, (void *)func_003cb6d0, arg0);
+    if (old != NULL) {
+        func_003e03e0(old + 0x10, 0);
+        func_003e9680(old);
+    }
+    *(s32 *)(base + 4) = *(s32 *)(D_008872E0 + (s32)iGpffffb718 + 8);
+    return arg0;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003CBDE0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbde0);
 

@@ -1090,8 +1090,55 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4730);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4950);
 // FUN_003F4A80
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4a80);
+/* measured: closes no_branch_likely around func_003f4be0. */
+#pragma no_branch_likely on
 // FUN_003F4BE0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4be0);
+void func_003f4be0(void)
+{
+    extern void func_00422390(s32 arg0);
+    extern void func_004222c0(s32 arg0);
+    extern void func_00421510(s32 arg0, s32 arg1);
+    extern void func_004214e0(s32 arg0, s32 arg1);
+    extern u8 iGpffffb804;
+    extern u8 iGpffffb800;
+    extern u8 iGpffffb7fc;
+    extern s32 iGpffffabe0;
+    extern s32 iGpffffabdc;
+    extern s32 iGpffffabd8;
+
+    if (iGpffffb804 != 0)
+        goto callback1;
+check2:
+    if (iGpffffb800 != 0)
+        goto callback2;
+check3:
+    if (iGpffffb7fc != 0)
+        goto callback3;
+cleanup:
+    func_00421510(2, iGpffffabe0);
+    iGpffffabe0 = -1;
+    func_00421510(1, iGpffffabdc);
+    iGpffffabdc = -1;
+    func_004214e0(2, iGpffffabd8);
+    iGpffffabd8 = -1;
+    goto done;
+callback1:
+    func_00422390(2);
+    iGpffffb804 = 0;
+    goto check2;
+callback2:
+    func_00422390(1);
+    iGpffffb800 = 0;
+    goto check3;
+callback3:
+    func_004222c0(2);
+    iGpffffb7fc = 0;
+    goto cleanup;
+done:
+    ;
+}
+/* measured: closes no_branch_likely around func_003f4be0. */
+#pragma no_branch_likely off
 // FUN_003F4C90
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003f4c90);
 // FUN_003F4F30

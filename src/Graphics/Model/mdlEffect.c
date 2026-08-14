@@ -694,52 +694,7 @@ void func_0048a2b0(u8 *arg0, u8 *arg1)
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a340);
 /* object 176B / window 176B / normalized_diff 34; residual is FP register assignment and arithmetic sequence from +0x54 through +0x8C; prologue, globals, call setup, stores, and tail match. */
 // FUN_0048A460 NONMATCHING
-#ifdef NON_MATCHING
-f32 *func_0048a460(void)
-{
-    u8 raw[0x30];
-    f32 sp34;
-    f32 sp38;
-    f32 sp30;
-    f32 sp28;
-    f32 sp24;
-    f32 sp20;
-    s32 sp1C;
-    s32 sp18;
-    f32 sp14;
-    f32 sp10;
-
-    __asm__ volatile(
-        "sqc2 $vf10, 0(%0) \n"
-        :
-        : "r"(&D_00713D10)
-        : "$vf10", "memory");
-    *(f32 *)(raw + 0x10) = D_00713D10[0];
-    *(f32 *)(raw + 0x14) = D_00713D14[0];
-    *(f32 *)(raw + 0x18) = D_00713D18[0];
-    func_003e42a0(raw + 0x20, raw + 0x10,
-                  mdlEffect_camera_matrix(func_00457120()));
-    sp38 = *(f32 *)(raw + 0x28);
-    sp30 = *(f32 *)(raw + 0x20);
-    sp10 = 640.0f * (sp30 / sp38);
-    sp34 = *(f32 *)(raw + 0x24);
-    sp14 = 448.0f * (sp34 / sp38);
-    *(f32 *)(raw + 0x0) = sp10;
-    *(f32 *)(raw + 0x4) = sp14;
-    sp18 = 0;
-    sp1C = 0;
-    *(s32 *)(raw + 0x8) = sp18;
-    *(s32 *)(raw + 0xC) = sp1C;
-    __asm__ volatile(
-        "lqc2 $vf10, 0(%0) \n"
-        :
-        : "r"(raw)
-        : "$vf10", "memory");
-    return (f32 *)raw;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
-#endif
 // FUN_0048A510
 s32 func_0048a510(void)
 {
@@ -788,7 +743,93 @@ s32 func_0048a510(void)
     return 0;
 }
 // FUN_0048A650
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a650);
+f32 func_0048a650(f32 fparg0)
+{
+    u8 raw[0x50];
+    f32 temp_f22;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f0;
+    f32 temp_f1;
+    u8 *ptr;
+
+    temp_f20 = fparg0;
+    __asm__ volatile(
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(raw + 0x10)
+        : "$vf10", "memory");
+    __asm__ volatile(
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(&D_00713D10)
+        : "$vf10", "memory");
+    *(f32 *)(raw + 0x30) = D_00713D10[0];
+    *(f32 *)(raw + 0x34) = D_00713D14[0];
+    *(f32 *)(raw + 0x38) = D_00713D18[0];
+    func_003e42a0(raw + 0x40, raw + 0x30,
+                  mdlEffect_camera_matrix(func_00457120()));
+    temp_f22 = *(f32 *)(raw + 0x48);
+    temp_f1 = *(f32 *)(raw + 0x40) / temp_f22;
+    temp_f0 = 640.0f * temp_f1;
+    *(f32 *)(raw + 0) = temp_f0;
+    temp_f1 = *(f32 *)(raw + 0x44) / temp_f22;
+    temp_f0 = 448.0f * temp_f1;
+    *(f32 *)(raw + 4) = temp_f0;
+    *(s32 *)(raw + 8) = 0;
+    *(s32 *)(raw + 0xc) = 0;
+    __asm__ volatile(
+        "lqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(raw)
+        : "$vf10", "memory");
+    __asm__ volatile(
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(raw + 0x20)
+        : "$vf10", "memory");
+    ptr = (u8 *)func_00457120();
+    temp_f21 = *(f32 *)(ptr + 0x80);
+    ptr = (u8 *)func_00457120();
+    temp_f0 = *(f32 *)(ptr + 0x84);
+    if ((temp_f22 <= temp_f21) || !(temp_f22 < temp_f0)) {
+        return 0.0f;
+    }
+    ptr = (u8 *)func_00457120();
+    ptr = *(u8 **)(ptr + 4);
+    __asm__ volatile(
+        "lqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(raw + 0x10)
+        : "$vf10", "memory");
+    *(f32 *)&D_00713D10[0] = *(f32 *)(ptr + 0x40);
+    *(f32 *)&D_00713D14[0] = *(f32 *)(ptr + 0x44);
+    *(f32 *)&D_00713D18[0] = *(f32 *)(ptr + 0x48);
+    __asm__ volatile(
+        "lqc2 $vf11, 0(%1) \n"
+        "vsub.xyzw $vf10, $vf10, $vf11 \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vaddy.x $vf2, $vf2, $vf2y \n"
+        "vaddz.x $vf2, $vf2, $vf2z \n"
+        ".word 0x4A0203BD \n"
+        "vwaitq \n"
+        "cfc2.ni $2, $vi22 \n"
+        "mtc1 $2, %0 \n"
+        : "=f"(temp_f1)
+        : "r"(&D_00713D10)
+        : "$vf10", "$vf11", "$vf2", "$2", "Q", "memory");
+    __asm__ volatile(
+        "lqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(raw + 0x20)
+        : "$vf10", "memory");
+    temp_f0 = (650.0f * temp_f20) / temp_f1;
+    temp_f1 = 1500.0f;
+    if (!(temp_f0 <= temp_f1)) {
+        temp_f0 = temp_f1;
+    }
+    return temp_f0;
+}
 // FUN_0048A810
 void func_0048a810(float param_1, u8 (*param_2)[16])
 {
