@@ -350,10 +350,10 @@ s32 func_001e7320(void)
 #ifdef NON_MATCHING
 s32 func_001e7400(void) {
     extern s32 func_001d9390();
-    extern s32 func_00231d70();
-    extern s64 func_0029cc00();
-    extern void func_0029cf50();
-    extern u8 *func_0029d050();
+    extern u32 func_00231d70(u32 arg0);
+    extern s32 func_0029cc00(s32 arg0);
+    extern void func_0029cf50(s32 arg0);
+    extern u8 *func_0029d050(void);
     extern void func_001db8d0();
     u8 *temp_16;
     s32 temp_6;
@@ -2291,9 +2291,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee490);
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee610);
 /* measured: object 172B vs window 176B, normalized_diff 2; the remaining
    residual is the best-node register assignment. Committed at nd 2. */
-// FUN_001EEC60 NONMATCHING
-#ifdef NON_MATCHING
-void func_001eec60(void) {
+// FUN_001EEC60
+u8 *func_001eec60(void) {
     f32 value;
     f32 max;
     u8 *best;
@@ -2301,7 +2300,6 @@ void func_001eec60(void) {
     u8 **headp;
     u8 *scan;
     u8 *current;
-
     max = (f32)(s32)0x55730;
     base = iGpffffb3ac;
     headp = (u8 **)(base + 0xA3C);
@@ -2331,16 +2329,15 @@ unlink_test:
         goto unlink_body;
 unlink_done:
     if (current == 0)
-        return;
+        goto return_best;
     if (scan != 0) {
         *(u8 **)(scan + 0x24) = *(u8 **)(current + 0x24);
-        return;
+        goto return_best;
     }
     *headp = *(u8 **)(current + 0x24);
+return_best:
+    return best;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eec60);
-#endif
 // FUN_001EED10
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eed10);
 // FUN_001EF110

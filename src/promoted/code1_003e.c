@@ -59,7 +59,7 @@ extern void func_003df4d0(void *arg0);
 extern u8 D_0070B730[];
 s32 func_003e1220(s32, s32, s32, s32, void *, s32);
 extern s32 func_003ec480();
-void func_003e12f0(s32);
+s32 func_003e12f0(u8 *);
 s32 func_003e1740(u8 *);
 void func_003e1230(void *);
 void func_003ed7e0(void);
@@ -142,7 +142,7 @@ u8 *func_003e0250(u8 *arg0) {
 
     p = *(u8 **)(D_008872E0 + (s32)iGpffffb768);
     if (p != NULL) {
-        func_003e12f0((s32)p);
+        func_003e12f0(p);
         *(u8 **)(D_008872E0 + (s32)iGpffffb768) = NULL;
     }
     iGpffffb76c -= 1;
@@ -366,9 +366,15 @@ void func_003e1230(void *arg0) {
 /* measured: close no_branch_likely/schedule around func_003e1230. */
 #pragma no_branch_likely off
 #pragma schedule off
+/* measured: schedule/no_branch_likely probe for func_003e12f0. */
+#pragma schedule on
+#pragma no_branch_likely on
 
 // FUN_003E12F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e12f0);
+/* measured: close no_branch_likely/schedule probe for func_003e12f0. */
+#pragma no_branch_likely off
+#pragma schedule off
 
 // FUN_003E13D0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e13d0);
@@ -541,7 +547,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
 u8 *func_003e25f0(u8 *arg0) {
     s32 v = *(s32 *)&D_008872E0[D_00764878];
     if (v != 0) {
-        func_003e12f0(v);
+        func_003e12f0((void *)v);
     }
     D_0076487C--;
     return arg0;
@@ -552,8 +558,14 @@ u8 *func_003e25f0(u8 *arg0) {
 #pragma no_branch_likely off
 /* measured: closes the function pragma bracket. */
 #pragma schedule off
+/* measured: no_branch_likely plus schedule probe for func_003e2650. */
+#pragma no_branch_likely on
+#pragma schedule on
 // FUN_003E2650
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2650);
+/* measured: closes no_branch_likely plus schedule probe for func_003e2650. */
+#pragma schedule off
+#pragma no_branch_likely off
 
 // FUN_003E2750 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2750);
@@ -1136,9 +1148,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4520);
 
 // FUN_003E45F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
-/* measured: best nonvolatile body archived in build/Y3EB_46e0_body.c;
-   object 120B/window 128B, normalized_diff 14; H001 rejects volatile exactness. */
-/* measured: schedule-on body retained only for the archived 46e0 probe. */
+/* measured: best plain-C body archived in build/Q3EE_003e45f0_body.c; object 240B/window 240B, normalized_diff 152; retail frameless caller-saved coloring across func_003e4420 remains unresolved after source-shape, declaration, width, callee-argument-count, and scoped optimization probes. */
 
 #pragma schedule on
 // FUN_003E46E0 NONMATCHING
@@ -1151,7 +1161,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
 u8 *func_003e4760(u8 *arg0) {
     s32 v = *(s32 *)&D_008872E0[D_00764898];
     if (v != 0) {
-        func_003e12f0(v);
+        func_003e12f0((void *)v);
     }
     D_0076489C--;
     return arg0;
@@ -1636,7 +1646,7 @@ s32 func_003e7fb0(u8 *arg0) {
 u8 *func_003e8010(u8 *arg0) {
     s32 v = *(s32 *)&D_008872E0[D_007648A0];
     if (v != 0) {
-        func_003e12f0(v);
+        func_003e12f0((void *)v);
         *(s32 *)&D_008872E0[D_007648A0] = 0;
     }
     D_007648A4--;
@@ -1988,7 +1998,7 @@ u8 *func_003e8e60(u8 *arg0) {
 
     p = *(u8 **)(D_008872E0 + iGpffffb7c0);
     if (p != NULL) {
-        func_003e12f0((s32)p);
+        func_003e12f0(p);
         *(u8 **)(D_008872E0 + iGpffffb7c0) = NULL;
     }
     iGpffffb7c4 -= 1;

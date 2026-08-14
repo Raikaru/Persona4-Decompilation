@@ -157,7 +157,63 @@ s32 func_00110680(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_001106F0
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001106f0);
+s32 func_001106f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    s32 temp_6;
+    s32 var_11;
+    s32 var_10;
+    s32 var_10_2;
+    s32 temp_9;
+    s32 var_7;
+    s32 lower;
+    s32 upper;
+
+    var_10 = 0;
+    if (arg1 != 4) {
+        var_11 = arg1 - 1;
+        if (var_11 == 0) {
+            var_11 = 0xC;
+        }
+loop_3:
+        temp_9 = var_11 - 1;
+        var_10 += D_005E45E0[temp_9 % 12];
+        if (var_11 != 4) {
+            var_11 = temp_9;
+            if (temp_9 == 0) {
+                var_11 = 0xC;
+            }
+            goto loop_3;
+        }
+    }
+    lower = var_10 + (arg2 - 1);
+    var_10_2 = 0;
+    if (arg3 != 4) {
+        var_7 = arg3 - 1;
+        if (var_7 == 0) {
+            var_7 = 0xC;
+        }
+loop_9:
+        temp_6 = var_7 - 1;
+        var_10_2 += D_005E45E0[temp_6 % 12];
+        if (var_7 != 4) {
+            var_7 = temp_6;
+            if (temp_6 == 0) {
+                var_7 = 0xC;
+            }
+            goto loop_9;
+        }
+    }
+    upper = var_10_2 + (arg4 - 1);
+    if (arg0 < lower) {
+        goto fail;
+    }
+    if (arg0 > upper) {
+        goto fail;
+    }
+    return 1;
+fail:
+    return 0;
+}
 // FUN_00110810
 void func_00110810(s32 arg0, s8 arg1)
 {

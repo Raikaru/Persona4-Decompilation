@@ -1298,7 +1298,7 @@ u8 func_001de800(u8 *p) {
    240, 244, 248; first differing row is offset 48 (`andi $v1,$a1,0xffff`
    vs retail `move $a2,$zero`). A `<= 4` guard variant measured nd43. The
    discarded body is archived in build/WCBattleUI_btlAICommand_prepark_validate.c. */
-// FUN_001DEA90
+// FUN_001DEA90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dea90);
 /* measured: MATCH. Two keys the earlier floor notes missed: (1) c is
    REASSIGNED from func_0029de20's return in the type==0 branch
