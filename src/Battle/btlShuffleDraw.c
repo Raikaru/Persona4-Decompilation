@@ -604,8 +604,23 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 
 
 /* measured: O1 near miss (nd 20, obj 156B/window 160B). Retail keeps arg0 in $s1, idx in $s0, and p in $s2; declaring the base as ((u32)arg0 + (u32)idx) fixes the addu operand order. The second call and final store still recompute the base instead of reusing p; p+ forms collapse the frame under b210. Committed at nd 20. */
-// FUN_00375F00
+// FUN_00375F00 NONMATCHING
+#ifdef NON_MATCHING
+#pragma optimization_level 1
+void func_00375f00(u8 *arg0, s32 arg1) {
+    s32 idx;
+    u8 *p;
+    idx = arg1 * 0xE8;
+    p = (u8 *)((u32)arg0 + (u32)idx);
+    func_00370410(p + 0x1D6AC);
+    *(s32 *)(p + 0x1D6A4) = 5;
+    func_00370a80((u8 *)idx + (u32)arg0 + 0x1D70C);
+    *(s32 *)((u8 *)idx + (u32)arg0 + 0x1D6A8) = 3;
+}
+#pragma optimization_level 2
+#else
 INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00375f00);
+#endif
 
 // FUN_00375FA0
 void func_00375fa0(u8 *arg0, s32 arg1, s32 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {

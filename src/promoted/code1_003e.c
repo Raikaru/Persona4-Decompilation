@@ -559,7 +559,7 @@ u8 *func_003e25f0(u8 *arg0) {
 // FUN_003E2650
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2650);
 
-// FUN_003E2750
+// FUN_003E2750 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2750);
 
 // FUN_003E2800
@@ -707,7 +707,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3110);
 #pragma no_branch_likely on
 /* measured: optimization_level 1 conditional-move probe for 003e32f0. */
 #pragma optimization_level 1
-// FUN_003E32F0
+// FUN_003E32F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
 /* measured: closes optimization_level 1 around func_003e32f0. */
 #pragma optimization_level 2
@@ -716,13 +716,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
 /* measured: closes schedule probe around func_003e32f0. */
 #pragma schedule off
 
-/* measured: recovered guarded body scores nd 22 at object 120/window 128.
-   Every emitted instruction is right, but retail has one extra nop between
-   the loop-exit branch and `move $v0, $s1`, shifting the epilogue by one word.
-   do-while, while, explicit-goto, empty-statement and label probes remain
-   nd 22-23 under schedule+no_branch_likely; schedule alone costs nd 32.
-   This is the same loop-exit block-join artifact as func_003e3020. Committed at nd 22. */
-// FUN_003E3370
+// FUN_003E3370 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3370);
 
 // FUN_003E33F0
@@ -1131,8 +1125,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4520);
 
 // FUN_003E45F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
-/* measured: direct global-slot reconstruction is retained for 003e46e0; candidate under test. */
-/* measured: schedule probe for retail call-argument materialization. */
+/* measured: best nonvolatile body archived in build/Y3EB_46e0_body.c;
+   object 120B/window 128B, normalized_diff 14; H001 rejects volatile exactness. */
+/* measured: schedule-on body retained only for the archived 46e0 probe. */
+
 #pragma schedule on
 // FUN_003E46E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
@@ -1722,29 +1718,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
 // FUN_003E82A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
 // FUN_003E82E0 NONMATCHING
-#ifdef NON_MATCHING
-typedef s32 M2C_UNK;
-typedef s8 M2C_UNK8;
-typedef s16 M2C_UNK16;
-typedef s32 M2C_UNK32;
-typedef s64 M2C_UNK64;
-#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
-#define M2C_BITWISE(type, expr) ((type)(expr))
-#define M2C_LWL(expr) (expr)
-#define M2C_FIRST3BYTES(expr) (expr)
-#define M2C_UNALIGNED32(expr) (expr)
-#define M2C_CARRY 0
-#define M2C_OVERFLOW(a) (0)
-#define MULT_HI(a, b) (0)
-#define MULTU_HI(a, b) (0)
-#define CLZ(x) (0)
-s32 func_003ec480();                             /* extern */
-u8 *func_003e82e0(u8 *arg0) {
-    return (u8 *)((func_003ec480(M2C_FIELD(arg0, s32 *, 0x60)) == 0) ? NULL : arg0);
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
-#endif
 /* measured: no_branch_likely on preserves 8310's plain comparison branches. */
 #pragma no_branch_likely on
 /* measured: optimization_level 3 is load-bearing for func_003e8310. */
@@ -1779,10 +1753,7 @@ fallback:
 #pragma optimization_level 2
 /* measured: closes no_branch_likely around func_003e8310. */
 #pragma no_branch_likely off
-/* measured: schedule on is required for 003e83a0. */
-/* measured: closes optimization_level 3 probe around 003e83a0. */
-#pragma optimization_level 2
-// FUN_003E83A0
+// FUN_003E83A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e83a0);
 
 /* measured: optimization_level 3 is load-bearing for func_003e8410. */

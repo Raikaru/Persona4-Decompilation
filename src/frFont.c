@@ -431,7 +431,6 @@ void func_00271860(void)
    floor. */
 
 // FUN_00271A40 NONMATCHING
-#ifdef NON_MATCHING
 /* measured: nd18. retail keeps the par-load base in $a1 and reuses it for the
    free-slot store at +0x180 (`addu $v0,$a1,$v0; addiu $s1,$v0,0x180` before).
    Expressing the store as `par + ((u8)i - idx)*4` forces b210 to reuse the
@@ -443,6 +442,7 @@ void func_00271860(void)
    optimization_level 1 bracket (with and without opt_common_subs off) leaves
    nd18 unchanged; the load-sinking family remains a floor. Committed at nd
    18. */
+#ifdef NON_MATCHING
 #pragma opt_common_subs off
 void func_00271a40(void)
 {
@@ -452,7 +452,6 @@ void func_00271a40(void)
     u32 tmp;
     u8 *slot;
     u8 *par;
-
     for (i = 0; i < 9; i++) {
         if (*(u32 *)((u8 *)DAT_00881630_abs + i * 0x20 + 0x1c) == 0)
             continue;
