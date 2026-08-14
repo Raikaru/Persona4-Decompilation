@@ -214,8 +214,11 @@ u8 *func_003e9320(void)
 #pragma no_branch_likely off
 // FUN_003E9390
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9390);
+/* measured: no_branch_likely keeps func_003e9460's plain branch guards. */
+#pragma no_branch_likely on
 // FUN_003E9460
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9460);
+#pragma no_branch_likely off
 // FUN_003E95C0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e95c0);
 /* measured: retail uses a plain beqz guard for func_003e9680. */
@@ -283,10 +286,16 @@ u32 func_003e9750(int param_1)
 
 // FUN_003E9760
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9760);
+/* measured: no_branch_likely on preserves plain list branches for func_003e9830. */
+#pragma no_branch_likely on
 // FUN_003E9830
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e9830);
+/* measured: closes no_branch_likely around func_003e9830. */
+#pragma no_branch_likely off
 // FUN_003E99A0
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_003e99a0);
+/* measured: closes no_branch_likely around func_003e99a0. */
+#pragma no_branch_likely off
 /* measured: retail list callback branches are plain beqz/bnez. */
 #pragma no_branch_likely on
 // FUN_003E9AF0

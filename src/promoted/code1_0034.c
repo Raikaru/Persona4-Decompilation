@@ -29,6 +29,10 @@ extern f32 fGpffff8504;
 extern void func_0046d280(u8 *arg0);
 extern f32 D_0088467C[];
 extern f32 D_008872F8[];
+extern u8 D_0064A6E0[];
+extern u8 D_0064A6E8[];
+extern u8 D_0064A6F0[];
+extern u8 D_0064A6F8[];
 extern void func_0034f0d0(f32 fparg0, f32 fparg1, u8 *arg0, f32 fparg2,
                            f32 fparg3, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 
