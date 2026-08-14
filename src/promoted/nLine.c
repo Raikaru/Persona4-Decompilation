@@ -71,7 +71,7 @@ u8 *func_00457120(void);
 f32 func_0044b7b0(f32 arg0);
 f32 func_0044b610(f32 arg0);
 s32 func_00451de0();
-void func_0046d730(const char *file, s32 line);
+void func_0046d730(void *file, s32 line);
 void func_0043f9c8(void *dest, s32 value, s32 size);
 void func_0034edc0(void);
 

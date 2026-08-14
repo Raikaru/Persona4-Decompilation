@@ -982,7 +982,7 @@ s16 func_0045b400(void)
     return D_008D2F34[0];
 }
 
-/* measured: object 532B vs window 544B, normalized_diff 8; residual register coloring and a 12B tail. Committed at nd 8. */
+/* measured: object 532B vs window 544B, normalized_diff 8; differing byte offsets 234, 238, 249, 253, 254, 258, 262, 270 (word offsets 232, 236, 248, 252, 256, 260, 268; relocation fields masked), plus 12B zero tail. Retail keeps D_008E4090 in $v1 and the sign-extended slot index in $a0; candidate uses $a0/$v1 respectively. Re-measured pointer-construction split, base-first split, slot-index inlining, declaration and initialization orders, pointer/base type, callee prototype and variadic forms; none changed nd 8 (some changed object/nd adversely). `arg1`/u16 prototype lever does not apply to this void function. */
 // FUN_0045B430
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045b430);
 // FUN_0045C870

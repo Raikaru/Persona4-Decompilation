@@ -76,12 +76,16 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3240);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3570);
 // FUN_003B3880
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3880);
+/* measured: current-TU reconstructed body object 208B/window 208B, normalized_diff 124; differing word offsets 20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164,168,180,188,192,196,200. Retail's pointer-load/loop ordering, register coloring, and callback branch layout remain mismatched; branch-local pointer-order probe enlarged to 212B, so restored fallback. */
 // FUN_003B3F50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3f50);
+/* measured: current-TU f32 aggregate candidate object 240B/window 256B, normalized_diff 140; fndiff reports 58 differing words. Scalar f32 locals were undersized (204B/nd132); aggregate stack restored frame 0x30 but retail pointer-load ordering and loop/else epilogue layout remain different. Explicit special-label/goto layout did not move the residual; restored fallback. */
 // FUN_003B4020
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4020);
+/* measured: current-TU f32 aggregate candidate object 264B/window 272B, normalized_diff 123; fndiff first differing offsets 4,6,7,8,10,11,12,14,15,18,26,28,29,30,31,32. Retail frame/stack footprint matched, but source-pointer and loop register ordering remained different; restored fallback. */
 // FUN_003B4120
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4120);
+/* measured: current-TU plain-C candidate object 168B/window 176B, normalized_diff 109; direct generated logic plus corrected next-base update and explicit source reload still leaves guard/prologue register assignment, pointer-lifetime coloring, and loop-store order mismatched; restored fallback. */
 // FUN_003B4230
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4230);
 // FUN_003B42E0
@@ -121,7 +125,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b5fb0);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6020);
 // FUN_003B61E0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
-/* measured: best plain-C attempt object 144B/window 144B, normalized_diff 78; archived at build/K3B6_003b6390_nd78.c and restored to INCLUDE_ASM. Residual is register coloring and load/store scheduling across the exact-size loop; declaration and O1 probes were ruled out. */
+/* measured: current-TU plain-C body object 144B/window 144B, normalized_diff 78; differing word offsets 0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128. Exact-size residual is register coloring and load/store scheduling across the loop. Direct field loads, hoisted stride local, declaration reordering, and optimization_level 1 remain ruled out. */
 // FUN_003B6390
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
 /* measured: best fresh plain-C attempt object 152B/window 160B, normalized_diff 35; archived at build/K3B6_003b6420_nd35.c and restored to INCLUDE_ASM. */
@@ -130,8 +134,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
 /* measured: best plain-C attempt object 124B/window 128B, normalized_diff 94; archived at build/F3B1_003b64c0_body.c and restored to INCLUDE_ASM. */
 // FUN_003B64C0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b64c0);
+/* measured: current-TU best archived body object 140B/window 144B, normalized_diff 96; differing word offsets 4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132. The archived nd31/object144 result is stale under the current declaration environment. Direct field/address forms, named positive guard, and opt_propagation-off probe did not reproduce retail's register allocation or load/store order; restored fallback. */
 // FUN_003B6540
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6540);
+/* measured: current-TU reconstructed do-while body object 168B/window 176B, normalized_diff 109; differing word offsets 4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152. Reconstructed retail logic from disassembly; +4/+8 float offsets and do-while shape are correct, but register/scheduling residual remains and named-positive probe was optimized away. Restored fallback. */
+/* measured: current-TU duplicate-loop candidate object 168B/window 176B, normalized_diff 109; same retail slt/beqz prologue, pointer-lifetime coloring, and store order residual as func_003b4230; restored fallback. */
 // FUN_003B65D0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b65d0);
 // FUN_003B6680
@@ -146,6 +153,7 @@ u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
 /* measured: close tailcall and schedule probes. */
 #pragma tailcall off
 #pragma schedule off
+/* measured: current-TU WT05 candidate object 244B/window 224B, normalized_diff 162; fndiff reports 58 differing words. Candidate frame was 0x40 versus retail 0x50, with callback/global addressing, stack temporary placement, branch layout, and epilogue all mismatched; object exceeds window, so restored fallback. */
 // FUN_003B6CC0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
 /* measured: current recheck object 84B/window 96B, normalized_diff 7; differing offsets 32,76,78-80,82-83. Best body archived in build/Z3BF_003b6da0_nd7_body.c; the prior nd6 archive was stale under the current TU. */
@@ -168,13 +176,7 @@ s32 func_003b6e00(s32 arg0) {
 /* measured: close no_branch_likely and schedule around func_003b6e00. */
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: plain-C recheck object 148B/window 144B, normalized_diff 34;
-   differing offsets 0,8,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,
-   80,84,88,92,96,100,104,112,116,120,124,128,132,136,140,144.  The
-   object exceeds the retail window, so the body is archived in
-   build/Y3BA_003b6e70_body.c and the fallback is restored.  Casts written:
-   none.  Levers ruled out: schedule-on plus optimization-level-1 and
-   reload-preserving *base source. */
+/* measured: current-TU archived body object 164B/window 144B, normalized_diff 122; differing word offsets 0,4,6,7,10,11,12,13,14,15,16,17,18,19,22,23,24,25,26,27,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160. Object exceeds the retail window, so the archived body was restored immediately. Current mismatch is dominated by frame size/addressing, callback/table materialization, and branch/epilogue layout; prior schedule/O1/reload-preserving-base probes remain ruled out. */
 // FUN_003B6E70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
 /* measured: in-file body recheck is object 280B/window 352B with
@@ -182,53 +184,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
    build/WS19_003b6f00_nd210.c and restored to INCLUDE_ASM. */
 // FUN_003B6F00
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6f00);
-/* measured: best plain-C attempt object 172B/window 176B, normalized_diff 30;
-   archived at build/FP3B_003b7060_body.c and restored to INCLUDE_ASM. */
-/* func_003b7060 best plain-C attempt: object 172B, window 176B, normalized_diff 30. */
+/* measured: current-TU archived body object 172B/window 176B, normalized_diff 78; differing offsets 24,28,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164. Current body confirms the archived nd30 is stale; global array addressing is correct, while load order, counter/address materialization, signed-compare shape, and branch/return layout remain mismatched; restored fallback. */
 // FUN_003B7060 NONMATCHING
-#ifdef NON_MATCHING
-u64 func_003b7060(void) {
-    s32 *temp_8;
-    s32 *temp_4;
-    u32 *temp_3_2;
-    u32 *temp_4_2;
-    u32 temp_4_3;
-    u32 var_3;
-    u32 raw;
-    u32 max;
-    s64 temp_2;
-    u8 *temp_3;
-    u8 *temp_5;
-
-    temp_3 = D_008872E0 + iGpffffb618;
-    temp_8 = *(s32 **)(temp_3 + 8);
-    temp_4 = *(s32 **)(temp_3 + 4);
-    *temp_4 = *temp_8 + *temp_4;
-    temp_5 = D_008872E0 + iGpffffb618;
-    temp_3_2 = *(u32 **)(temp_5 + 4);
-    raw = *temp_3_2;
-    temp_4_2 = temp_3_2 + 1;
-    *(u32 **)(temp_5 + 4) = temp_4_2;
-    max = *(u32 *)(temp_5 + 0xC);
-    temp_2 = ((s64)(raw >> 1) << 0x21) >> 0x21;
-    if ((u32)temp_4_2 < max) {
-        temp_4_3 = *(u32 *)(temp_5 + 8) + 4;
-        *(u32 *)(temp_5 + 8) = temp_4_3;
-        if (temp_4_3 >= max) {
-            var_3 = *(u32 *)temp_5;
-            goto block_3;
-        }
-        return temp_2;
-    }
-    *(u32 **)(temp_5 + 4) = *(u32 **)(temp_5 + 0);
-    var_3 = *(u32 *)(temp_5 + 8) + 4;
-block_3:
-    *(u32 *)(temp_5 + 8) = var_3;
-    return temp_2;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7060);
-#endif
 /* measured: schedule on reproduces func_003b7110's callback-address setup and return compare. */
 #pragma schedule on
 // FUN_003B7110
@@ -266,6 +224,7 @@ s32 func_003b7150(u8 *arg0) {
 #pragma no_branch_likely off
 /* measured: schedule off closes the linked-object clear bracket. */
 #pragma schedule off
+/* measured: current-TU reconstructed body object 268B/window 224B, normalized_diff 196; fndiff reports 59 differing words. Early-return source shape duplicates branches versus retail's shared return, and argument/register setup, loop tail, and frame layout remain mismatched; object exceeds window, so restored fallback. */
 // FUN_003B71B0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b71b0);
 // FUN_003B7290
@@ -344,14 +303,15 @@ second:
 #pragma schedule off
 /* measured: close no_branch_likely around func_003b7480. */
 #pragma no_branch_likely off
-/* measured: best plain-C attempt object 128B/window 128B, normalized_diff 78;
-   archived at build/FP3B_003b7510_body.c and restored to INCLUDE_ASM. */
+/* measured: current-TU named-boolean probe object 132B/window 128B, normalized_diff 63; differing word offsets 4,5,6,7,8,9,10,11,12,14,16,17,20,21,22,23,24,26,40,44,48,64,68,72,76,84,88,92,96,104,108,112,116,120,124,128. Object exceeds the retail window, so the archived body was restored immediately. The named boolean materialization did produce retail's sltu shape but introduced a four-byte overrun and did not resolve the register/loop ordering residual. */
 // FUN_003B7510
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7510);
+/* measured: current-TU generated-style six-argument body object 236B/window 240B, normalized_diff 174; fndiff reports 58 differing words at offsets 4-220. Unsigned >0 guards and an invariant flag did not alter codegen. Retail custom ABI uses a0-a3/t0-t1 and frame 0x10, but register/lifetime/branch scheduling remains substantially different; restored fallback. */
 // FUN_003B7590
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7590);
 // FUN_003B7680
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7680);
+/* probe failed at translation/link stage after introducing unknown GP aliases iGpffffaa80/aa84; restore fallback without measuring object. Retail body frame is 0x30 with s0/s1 saves; generated logic otherwise follows initialization path. */
 // FUN_003B7860
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7860);
 /* measured: schedule and no_branch_likely reproduce the countdown callback path. */
@@ -539,12 +499,14 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb330);
 #pragma schedule off
 #pragma no_branch_likely off
 #pragma optimization_level 2
+/* measured: current-TU generated switch candidate object 288B/window 256B, normalized_diff 200; object exceeded window and was immediately archived/restored. Generated logic matches retail's switch/error paths, but current schedule/no_branch_likely/optimization environment and stack/register layout over-expand the body. */
 // FUN_003BB3A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb3a0);
 // FUN_003BB4A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb4a0);
 // FUN_003BB5B0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb5b0);
+/* measured: current-TU reconstructed body object 240B/window 208B, normalized_diff 177; fndiff reports 50 differing words concentrated at offsets 4-24, 32-60, 76-168, 176-184, 192-200, and 208-236. The setup-order probe (call before result initialization) improved nd184 to nd177 but object still exceeds the retail window, so restored fallback. */
 // FUN_003BBA90
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bba90);
 /* measured: schedule on fills the final callback argument and epilogue slots. */
@@ -635,6 +597,7 @@ s32 func_003bbe80(s32 arg0) {
    accumulator in a different register class and orders the guard the other
    way. schedule on does not move it (nd 47). Committed at nd 46. */
 
+/* measured: current-TU candidates: local-base body object 220B/window 224B, normalized_diff 118; pointer-typed generated candidate object 204B/window 224B, normalized_diff 146. Retail frame is 0x50; local-base source adds an s4/base frame and pointer-typed source changes register/control-flow order. Restored original fallback; no candidate matched. */
 // FUN_003BBEA0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bbea0);
 
@@ -672,13 +635,15 @@ s32 func_003bcbc0(s32 arg0, s32 arg1) {
 }
 /* measured: closes schedule around func_003bcbc0. */
 #pragma schedule off
-/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 7; archived at build/FP3B_003bcbe0_body.c. Retail/candidate residual is the loop comparison and back-edge scheduling at bytes 48-55; optimization, branch, relational, and loop-shape probes did not move it. */
+/* measured: current-TU plain-C body object 168B/window 160B, normalized_diff 91; differing word offsets 16,20,24,36,48,52,68,76,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164. Object exceeds the retail window, so archived body was restored immediately. Prologue register declaration/order, branch shape, callback materialization, and loop back-edge scheduling are newly ruled out as a viable near-match under the current declaration environment. */
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
 
+/* measured: current-TU WT05 candidate object 224B/window 208B, normalized_diff 135; fndiff reports 46 differing words. Frame size matches retail, but saved-register/prologue order, allocation/table call materialization, branch layout, and loop tail remain mismatched; object exceeds window, so restored fallback. */
 // FUN_003BCC80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcc80);
 
+/* measured: current-TU WU12 candidate object 220B/window 208B, normalized_diff 141; fndiff reports 46 differing words. Frame matches retail, but saved-register/prologue order, table-address/call argument materialization, loop branch layout, and epilogue tail remain mismatched; object exceeds window, so restored fallback. */
 // FUN_003BCD50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcd50);
 
@@ -692,6 +657,7 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* measured: close schedule around func_003bce20. */
 #pragma schedule off
 
+/* measured: current-TU WU12 candidate object 172B/window 192B, normalized_diff 122; differing word offsets 0,4,8,10,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164,172,176,180,184,188. Retail frame/saved-register footprint is 0x60 with a live zero result in s4; plain-C candidate folds that result and remains 20B undersized. Restored fallback. */
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
 /* measured: current-TU body object 76B/window 80B, normalized_diff 32; differing word offsets 0,4,16,20,24,52,56,60,64,68; archived at build/F3B0_003bcf10_body.c. */
@@ -1344,6 +1310,7 @@ s32 func_003bfc40(s32 arg0) {
 }
 /* measured: close schedule around func_003bfc40. */
 #pragma schedule off
+/* measured: generated body with named slot pointer object 224B/window 240B, normalized_diff 136; inline slot recomputation with scalar D_0070AF70 object 248B/window 240B, normalized_diff 127 and was immediately archived for oversized output. Retail frame 0x20 versus named-pointer frame 0x30; inline recomputation removed saved s1 but over-expanded call/address materialization. Restored fallback; no match. */
 // FUN_003BFD00
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfd00);
 // FUN_003BFDF0
@@ -1378,7 +1345,7 @@ s32 func_003bfe60(void *arg0) {
 /* measured: current recheck object 168B/window 160B, normalized_diff 114; object exceeded the retail window. Body archived in build/Z3BF_003bfe90_oversize_body.c; prior object-140/nd24 archive was stale under the current TU. */
 // FUN_003BFE90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
-/* measured: best plain-C attempt object 120B/window 144B, normalized_diff 41; archived at build/K3B6_003bff30_nd41.c and restored to INCLUDE_ASM. Residual is sentinel/current register and load-order coloring at offsets 36-44, callback branch polarity/layout at 68, and tail layout at 71-86. */
+/* measured: current-TU archived body object 136B/window 144B, normalized_diff 65; differing word offsets 16,20,24,28,32,36,40,44,48,52,56,60,68,76,80,84,88,124,128. Declaration swap and callback switch-shape probes did not move the residual; restored fallback. */
 // FUN_003BFF30
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bff30);
 /* measured: best fresh plain-C attempt object 156B/window 144B, normalized_diff 32; archived at build/K3B6_003bffc0_nd32.c and restored to INCLUDE_ASM because object exceeded the retail window. */
