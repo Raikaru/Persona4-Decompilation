@@ -263,8 +263,86 @@ s32 func_00291b30(s32 arg0, u16 *arg1) {
 
 
 
+/* measured: O1 float-local register mapping probe for func_00293710. */
+#pragma optimization_level 1
 // FUN_00293710
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00293710);
+void func_00293710(s16 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                   f32 fparg2, f32 fparg3, s32 arg2, u8 *arg3)
+{
+    extern u8 *func_002e1db0();
+    extern u8 *func_002e2170();
+    extern void func_002930e0();
+    extern void func_002931a0();
+    extern s32 func_00451de0();
+    extern s32 func_00452380(void *arg0);
+    extern u8 **func_00452560(s32 arg0);
+    extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
+    extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+    extern u8 D_0063C930[];
+    extern u8 D_0063C958[];
+    struct {
+        s16 field_0;
+        s16 field_2;
+        s32 field_4;
+        f32 field_8;
+        f32 field_C;
+        f32 field_10;
+        f32 field_14;
+        s32 field_18;
+        f32 field_1C;
+        f32 field_20;
+        f32 field_24;
+        f32 field_28;
+    } data;
+    f32 value_3;
+    f32 value_2;
+    f32 value_1;
+    f32 value_0;
+    s32 result;
+    u8 *work;
+    u8 **work_link;
+    u8 *manager;
+    u8 *list;
+    u8 *record;
+
+    result = func_00452380(D_0063C958);
+    if (result == 0) {
+        work = func_002e1db0(4, 0, 0, 0);
+        work_link = *(u8 ***)(work + 0x24);
+        *work_link = work;
+        result = func_00451de0(D_0063C958, 15, 0, 0,
+                               func_002930e0, func_002931a0, work_link);
+    }
+    manager = (u8 *)func_00452560(result);
+    func_0043f9c8(&data, 0, 0x2C);
+    data.field_0 = arg0;
+    data.field_4 = arg1;
+    data.field_8 = fparg0;
+    data.field_C = fparg1;
+    data.field_10 = fparg2;
+    data.field_14 = fparg3;
+    data.field_18 = arg2;
+    if (arg3 != NULL) {
+        value_3 = *(f32 *)(arg3 + 0);
+        value_2 = *(f32 *)(arg3 + 4);
+        value_1 = *(f32 *)(arg3 + 8);
+        value_0 = *(f32 *)(arg3 + 0xC);
+        data.field_1C = value_3;
+        data.field_20 = value_2;
+        data.field_24 = value_1;
+        data.field_28 = value_0;
+    }
+    list = *(u8 **)manager;
+    record = func_002e2170(list, *(u16 *)(list + 0x10) + 1, 0x4C);
+    manager = *(u8 **)(record + 0x14);
+    func_0043f810(manager, &data, 0x2C);
+    *(s32 *)(manager + 0x2C) =
+        *(s32 *)(D_0063C930 + data.field_4 * 4);
+    if (arg3 != NULL)
+        *(s32 *)(manager + 0x44) |= 2;
+}
+/* measured: closes O1 float-local register mapping probe for func_00293710. */
+#pragma optimization_level 2
 // FUN_00294280
 INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00294280);
 // FUN_002962F0

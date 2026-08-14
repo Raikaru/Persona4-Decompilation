@@ -517,7 +517,96 @@ INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001113b0);
 // FUN_00111BC0
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00111bc0);
 // FUN_00112300
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112300);
+void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
+{
+    u8 buf[256];
+    s32 temp16;
+    s32 temp19;
+    union {
+        s64 whole;
+        f32 values[2];
+    } xy;
+    f32 temp_1;
+    s32 temp_2;
+    void func_00275020(f32, f32, f32, s32, s8, s32, u8 *, s32, s32);
+    void func_00274ed0(f32, f32, f32, s32, s8, s32, void *, s32, s32);
+    s32 func_00106a90(s16);
+    void func_00442088(void *, void *, s32);
+    s32 func_0046a770(void *);
+    void func_0046d730(void *, s32);
+    void func_00112610(s64, f32, u8, u8 *, s32, s32);
+    void func_00112830(s64, f32, u8, u8 *, s32);
+    void func_001130c0(s64, f32, u8, u8 *, s32);
+    extern f32 D_005E4790[];
+    extern f32 D_005E4794[];
+    extern f32 D_005E479C[];
+    extern u8 D_005E5830[];
+    extern u8 D_005E5850[];
+    extern u8 iGpffffb1dc;
+    extern u8 iGpffffb1d4;
+    extern u8 iGpffffb1e4;
+
+    temp16 = func_0046a770(D_005E5830);
+    temp19 = func_0046a770(D_005E5850);
+    if (temp16 == 0) {
+        func_0046d730(&iGpffffb1dc, 0x93);
+    }
+    if (temp19 == 0) {
+        func_0046d730(&iGpffffb1dc, 0x94);
+    }
+    if (*(u16 *)(arg2 + 0x14) != 0) {
+        func_00112610(arg0, fparg0, arg1, arg2, temp16, temp19);
+        *(f32 *)&arg0 = *(f32 *)&arg0 + 45.0f;
+    }
+    if (*(s32 *)(arg2 + 0xC) != 0) {
+        temp19 = arg1 & 0xFF;
+        temp_2 = (s32)func_001067f0(*(s16 *)arg2);
+        func_00275020(
+            *(f32 *)&arg0,
+            *(f32 *)((u8 *)&arg0 + 4),
+            fparg0,
+            temp19 | ~0xFF,
+            *(s8 *)(&iGpffffb1d4 + *(s16 *)(arg2 + 0x16)),
+            1,
+            (u8 *)temp_2,
+            0,
+            -1);
+    }
+    if (*(s32 *)(arg2 + 0x10) != 0) {
+        xy.values[0] = *(f32 *)&arg0 +
+                       D_005E4790[*(s16 *)(arg2 + 0x18) * 4];
+        temp_1 = 9.0f;
+        temp_1 += *(f32 *)((u8 *)&arg0 + 4);
+        xy.values[1] = temp_1;
+        func_00112830(xy.whole, fparg0, arg1, arg2, temp16);
+    }
+    if (*(s16 *)(arg2 + 2) != -1) {
+        xy.values[0] = *(f32 *)&arg0 +
+                       D_005E4794[*(s16 *)(arg2 + 0x18) * 4];
+        temp_1 = 12.0f;
+        temp_1 += *(f32 *)((u8 *)&arg0 + 4);
+        xy.values[1] = temp_1;
+        func_001130c0(xy.whole, fparg0, arg1, arg2, temp16);
+    }
+    if (*(s32 *)(arg2 + 8) != -1) {
+        xy.values[0] = *(f32 *)&arg0 +
+                       D_005E479C[*(s16 *)(arg2 + 0x18) * 4];
+        xy.values[1] = *(f32 *)((u8 *)&arg0 + 4);
+        temp16 = ((arg1 & 0xFF) * 0xFF) / 255U;
+        func_00442088(buf, &iGpffffb1e4,
+                      func_00106a90(*(s16 *)arg2));
+        func_00274ed0(
+            (f32)(s32)xy.values[0],
+            (f32)(s32)xy.values[1],
+            fparg0,
+            temp16 | ~0xFF,
+            *(s8 *)(&iGpffffb1d4 + *(s16 *)(arg2 + 0x16)),
+            0,
+            (void *)buf,
+            0,
+            0);
+    }
+}
 // FUN_001125D0
 void func_001125d0(u8 *arg0) {
     s32 temp_1;

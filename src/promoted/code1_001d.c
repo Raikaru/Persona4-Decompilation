@@ -97,7 +97,40 @@ extern s32 func_001d7b30(u16 *arg0);
 // FUN_001D01C0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d01c0);
 // FUN_001D1310
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d1310);
+void func_001d1310(u16 *arg0) {
+    u8 *node;
+    f32 scale;
+    f32 x;
+    f32 y;
+    func_0043f9c8((u8 *)arg0, 0, 8);
+    node = *(u8 **)(iGpffffb3ac + 0x184);
+    while (node != NULL) {
+        if (func_002428f0(*(u8 **)(node + 0xA64), 0) == 0) {
+            scale = *(f32 *)(node + 0x2C);
+            x = (f32)(s32)(*(f32 *)(node + 0x90) * scale);
+            y = (f32)(s32)(*(f32 *)(node + 0x8C) * scale);
+            if (y <= 200.0f) {
+                if (x <= 75.0f) {
+                    *(u16 *)((u8 *)arg0 + 0) = *(u16 *)((u8 *)arg0 + 0) + 1;
+                } else if (x <= 125.0f) {
+                    *(u16 *)((u8 *)arg0 + 2) = *(u16 *)((u8 *)arg0 + 2) + 1;
+                } else if (x <= 200.0f) {
+                    *(u16 *)((u8 *)arg0 + 4) = *(u16 *)((u8 *)arg0 + 4) + 1;
+                }
+            } else if (y <= 300.0f) {
+                if (x <= 125.0f) {
+                    *(u16 *)((u8 *)arg0 + 2) = *(u16 *)((u8 *)arg0 + 2) + 1;
+                } else if (x <= 200.0f) {
+                    *(u16 *)((u8 *)arg0 + 4) = *(u16 *)((u8 *)arg0 + 4) + 1;
+                }
+            } else {
+                *(u16 *)((u8 *)arg0 + 4) = *(u16 *)((u8 *)arg0 + 4) + 1;
+            }
+            *(u16 *)((u8 *)arg0 + 6) = *(u16 *)((u8 *)arg0 + 6) + 1;
+        }
+        node = *(u8 **)(node + 0xA68);
+    }
+}
 /* measured: opt_propagation off probe for func_001d14b0 loop masks. */
 #pragma opt_propagation off
 // FUN_001D14B0
@@ -953,71 +986,7 @@ u8 *func_001d8c00(u8 *arg0)
    The earlier figure of 18 predates later declaration-environment changes in this file. */
 // Committed at nd 158.
 // FUN_001D8CB0
-#ifdef NON_MATCHING
-s32 func_001d8cb0(u8 *arg0, u8 *arg1)
-{
-    extern void func_001958f0(u8 *arg0, f32 *arg1);
-    extern f32 func_001ec250(f32 *arg0, f32 *arg1);
-    struct Vec4 {
-        f32 x;
-        f32 y;
-        f32 z;
-        f32 pad;
-    };
-    struct Vec4 sp60;
-    struct Vec4 sp50;
-    f32 temp_f0;
-    f32 var_f20;
-    s32 first;
-    s32 index;
-    u64 key;
-    u16 count;
-    s32 key_index;
-
-    *(u16 *)(arg1 + 0x3A) = 0;
-    key = *(u64 *)(arg1 + 0x30);
-    if (key == 0)
-        goto no_key;
-    key_index = 0;
-    count = *(u16 *)(arg1 + 0x38);
-    goto key_test;
-key_loop:
-    if (key != *(u64 *)(u8 *)(u32)*(u32 *)(arg1 + ((key_index & 0xFFFF) * 4)))
-        goto key_next;
-    *(u16 *)(arg1 + 0x3A) = (u16)key_index;
-    return 1;
-key_next:
-    key_index = (key_index + 1) & 0xFFFF;
-key_test:
-    if ((u16)key_index < count)
-        goto key_loop;
-no_key:
-    if (arg0 == NULL)
-        goto return_one;
-    first = 1;
-    func_001958f0((u8 *)(u32)*(u32 *)(arg0 + 0x30), &sp60.x);
-    index = 0;
-    goto distance_test;
-distance_loop:
-    func_001958f0(
-        (u8 *)(u32)*(u32 *)((u8 *)(u32)*(u32 *)(arg1 + ((index & 0xFFFF) * 4)) + 0x30),
-        &sp50.x);
-    temp_f0 = func_001ec250(&sp60.x, &sp50.x);
-    if ((temp_f0 < var_f20) || (first != 0)) {
-        *(u16 *)(arg1 + 0x3A) = (u16)index;
-        var_f20 = temp_f0;
-        first = 0;
-    }
-    index = (index + 1) & 0xFFFF;
-distance_test:
-    if ((u16)index < *(u16 *)(arg1 + 0x38))
-        goto distance_loop;
-return_one:
-    return 1;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8cb0);
-#endif
 // FUN_001D8E50
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8e50);
 // FUN_001D9280
