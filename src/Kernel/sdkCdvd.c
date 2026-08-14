@@ -224,36 +224,9 @@ void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
    the fixup to addiu +0x7e instead of +0x3f). All spellings give nd 9-10;
    closest 9 = 7 real words + 2 window padding. $v0/$v1 temp-pool coalescing
    floor. */
-/* measured: func_00455ea0 plain C is 200B in the 208B retail window at nd 8.
-   Prologue/frame, null-output saved-register test, block scan, both copies,
-   and final store match. Exact residual rows are fndiff offsets 0x54/0x58/0x5C
-   (retail loads size into $v0 and adds 0x3F into $v1; b210's split size/t
-   spelling loads $v1 and adds into $v0), 0x60 (retail bgez tests $v1; mine
-   tests $v0), 0x68/0x6C (retail corrects/re-shifts $v0 from $v1; mine uses
-   $v1 and emits the equivalent +0x7E), and 0x74 (retail adds the rounded
-   amount from $a0; mine already matches). Tried direct/pointer/integer
-   bases, named size/t/q locals and declaration permutations, output pointer
-   widths/copies/goto null tests, operation order, and schedule-on; all legal
-   plain-C variants stayed nd 8-11 or exceeded the window. Committed at nd 8. */
+/* measured: func_00455ea0 current plain-C body is 200B in the 208B retail window at normalized_diff 7, with differing instruction offsets 0x50, 0x58, 0x5C, 0x60, 0x68, 0x74 and one zero-tail word. The block scan, frame, null-output fallback, copies, final store and return match. Residual is temporary/register materialization in the rounded-size update: retail computes the entry+0x100 base in $a0 and size+0x3F in $v1, while b210 uses $v1 for the base and $v0 for size+0x3F; the q=t>>=7 archive mutation improves the stale nd 8 to nd 7 but does not close. Restored assembly fallback; no live mismatch. */
 // FUN_00455EA0 NONMATCHING
-#ifdef NON_MATCHING
-u8* func_00455ea0(u8* arg0, s32 arg1, void* arg2) {
-    struct Header { u8 pad[0xFC]; s32 size; } header;
-    s32 out_local; s32 count; s32* out; s32 i; u8* entry; s32 size; s32 t; s32 q;
-    out = (s32*)arg2; if (out == NULL) out = &out_local; count = arg1; entry = *(u8**)(arg0 + 0x110);
-    for (i = 0; i < count; i++) {
-        func_0043f810(&header, entry, sizeof(header)); entry += sizeof(header);
-        size = header.size; t = size; t += 0x3F; q = t >> 6;
-        if (t < 0) q = (t + 0x3F) >> 6;
-        q <<= 6; entry += q;
-    }
-    func_0043f810(&header, entry, sizeof(header)); *out = header.size;
-    return entry + sizeof(header);
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00455ea0);
-#endif
-
 // FUN_00455F70
 s32 func_00455f70(s32 arg0, s32* arg1) {
     u8 buf1[0x100];

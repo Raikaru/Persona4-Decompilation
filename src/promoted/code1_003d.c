@@ -610,9 +610,7 @@ s32 func_003d5300(u8 *arg0) {
 }
 /* measured: closes schedule around func_003d5300. */
 #pragma schedule off
-/* measured: object 136B vs 144B window, normalized_diff 23; the
-   schedule/no_branch_likely residual and two-word tail padding are archived
-   in build/K3D5_003d5330_body.c. */
+/* measured: current object 164B vs 144B window, normalized_diff 112; oversized candidate archived in build/K3D5_003d5330_body.c and restored to ASM immediately. */
 // FUN_003D5330
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5330);
 // FUN_003D53C0
@@ -727,7 +725,7 @@ s32 func_003d60d0(u8 *arg0) {
 #pragma schedule off
 // FUN_003D7B40
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7b40);
-/* measured: best body archived in build/H3D3_003d7c50_body.c; object 128B/window 128B, normalized_diff 0 under assembly fallback. */
+/* measured: H3D3 body archive remeasured; corrected block externs + s32/u8* body object 124B/window 128B, nd72; M2C-shaped u8** body object 128B/nd69; restored to ASM. */
 // FUN_003D7C50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d7c50);
 // FUN_003D7CD0
@@ -916,7 +914,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dbe40);
 // FUN_003DC370
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dc370);
 /* measured: corrected sqrtf/sqrt.s reconstruction is archived in
-   build/W3RSQ_003dc490_body.c (object 124/window 128, normalized_diff 24).
+   build/W3RSQ_003dc490_body.c (object 124/window 128, current normalized_diff 64).
    The source fallback remains ASM after the capped register-pressure probes. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
 // FUN_003DC490 NONMATCHING
@@ -1013,9 +1011,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dcb40);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dcc70);
 // FUN_003DD290
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd290);
-/* measured: object 136B vs 160B window, normalized_diff 79; global-pointer,
-   scheduler, and guard-polarity probes archived with residual loop layout in
-   build/K3D5_003dd390_body.c. */
+/* measured: best current call-order candidate object 156B / window 160B /
+   normalized_diff 81; differing offsets 16-140 (reloc-masked). Retail
+   prologue/call and loop layout remain register/scheduling residuals.
+   Base-first, fn-load, call, index-init order improved nd 93 to 81;
+   schedule-on collapsed the body to 132B and was ruled out. */
 // FUN_003DD390
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd390);
 // FUN_003DD430 NONMATCHING
@@ -1179,7 +1179,7 @@ block_exit:
 #pragma no_branch_likely off
 
 
-/* measured: best body archived in build/H3D3_003dd760_body.c; object 104B/window 112B, normalized_diff 13. */
+/* measured: best body archived in build/H3D3_003dd760_body.c; object 104B/window 112B, current normalized_diff 18 under schedule on; restored to ASM after global address/load-order residual. */
 // FUN_003DD760 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd760);
 
@@ -1376,9 +1376,9 @@ void func_003de100(u8 *arg0) {
 #pragma tailcall off
 // FUN_003DE110
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de110);
-/* measured: object 52B/window 64B, normalized_diff 5; best direct-load
+/* measured: object 52B/window 64B, current normalized_diff 8; best direct-load
    candidate archived in build/F3D0_003de280_body.c with load/shift ORDER
-   residual at offsets 16 and 20. */
+   residual at offsets 16 and 20 after remeasurement. */
 // FUN_003DE280 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de280);
 /* measured: scalar GP slot address and schedule on reproduce retail's

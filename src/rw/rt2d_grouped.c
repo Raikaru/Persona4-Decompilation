@@ -92,7 +92,7 @@ u32 func_003d60e0(u32 object, u32 value)
 #pragma schedule off
 
 /* Source unit: src/rw/rt2d_003d7b30.c (1 function markers) */
-
+/* measured: object 120B vs window 128B, normalized_diff 25; retail frame is 0x50 while plain-C is 0x40, with a landing/branch shift and final call/epilogue scheduling residual. schedule/no_branch_likely and do-loop body reproduce helper calls, callbacks, branch and return; archive F2D0_003d60f0_body.c. */
 // FUN_003D60F0
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d60f0);
 // FUN_003D6170
@@ -107,6 +107,7 @@ INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d65e0);
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6680);
 // FUN_003D6790
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d6790);
+/* measured: object 68B vs window 80B, normalized_diff 8; differing offsets 0x0C-0x13. Retail prologue interleaves `move $s1,$a0` before `sq $s0`, while the candidate keeps the saves grouped. First-statement object assignment (register and non-register forms, plus pointer-width cast) and no_branch_likely bracket were re-measured without effect; declaration order and delayed object copy remain ruled out. Retail bytes +0x44..+0x4C are zero padding through the 80B window; +0x50 begins func_003d6900. */
 // FUN_003D68B0
 INCLUDE_ASM("asm/nonmatchings/rt2d_grouped", func_003d68b0);
 /* measured: optimization_level 3 probe for func_003d6900 and func_003d6b70. */
