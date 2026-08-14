@@ -180,13 +180,7 @@ void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
 }
 
 
-/* measured: saved-GPR rotation floor. Retail allocates
-   s0=idx, s1=arg0, s2=v18, s3=obj3, s4=obj2, s5=f20; b210 emits
-   s0=obj3, s1=obj2, s2=f20, s3=idx, s4=arg0, s5=v18 in every
-   spelling tried (p local, inline arg0+idx loads, f32 xy[2] spill
-   array which b210 promotes back into FPRs), nd 140. Also b210 keeps
-   px/py in saved FPRs where retail spills to sp88/sp8C. */
-// FUN_00363200
+// FUN_00363200 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmpPartyPanel", func_00363200);
 
 // FUN_00363540

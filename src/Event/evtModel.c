@@ -76,14 +76,97 @@ extern void func_0047a990(s32 a);
 extern s32 func_0047a9d0(s32 a);
 extern f32 func_004bd4a0(void *a, f32 *b);
 
-// FUN_00291B60
+// FUN_00291B60 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/evtModel", func_00291b60);
 
 // FUN_00291FA0
 INCLUDE_ASM("asm/nonmatchings/evtModel", func_00291fa0);
 
 // FUN_00292BB0
-INCLUDE_ASM("asm/nonmatchings/evtModel", func_00292bb0);
+s32 func_00292bb0(s32 arg0, u8 *arg1) {
+    EvtModelRec *rec = (EvtModelRec *)arg1;
+    typedef struct {
+        f32 x;
+        f32 y;
+        f32 z;
+    } F32x3;
+    u8 sp[0x30];
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 var_f12;
+    f32 var_f12_2;
+    s32 handle1;
+    s32 handle2;
+    s32 var_2;
+    u32 var_3;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    u8 *temp_2_4;
+    u8 *temp_2_5;
+
+    temp_f20 = rec->speed;
+    handle1 = func_00291a60(rec->id);
+    handle2 = func_00291a60(rec->id2);
+    if (handle1 == 0) {
+        return 1;
+    }
+    if (handle2 == 0) {
+        return 1;
+    }
+    var_3 = (u32)rec->timer2;
+    if (var_3 == 0) {
+        temp_2 = (u8 *)func_0047a2f0(handle1);
+        *(F32x3 *)(sp + 0x20) = *(F32x3 *)(temp_2 + 0x30);
+        temp_2_2 = (u8 *)func_0047a2f0(handle2);
+        *(F32x3 *)(sp + 0x10) = *(F32x3 *)(temp_2_2 + 0x30);
+        temp_f2 = *(f32 *)(sp + 0x10) - *(f32 *)(sp + 0x20);
+        *(f32 *)(sp + 0x20) = temp_f2;
+        *(f32 *)(sp + 0x28) = *(f32 *)(sp + 0x18) - *(f32 *)(sp + 0x28);
+        *(u32 *)(sp + 0x24) = 0;
+        if (temp_f2 == *(f32 *)(sp + 0x28)) {
+            var_2 = 1;
+        } else {
+            var_2 = 0;
+        }
+        if ((f32)var_2 == 0.0f) {
+            *(f32 *)(sp + 0x28) = 1.0f;
+        }
+        func_003e40b0(sp + 0x20, sp + 0x20);
+        func_0047a900(handle1, sp + 0x20);
+        var_f12 = fGpffff8218 * temp_f20;
+        if (!(var_f12 <= 1.0f)) {
+            var_f12 = 1.0f;
+        } else if (var_f12 < 0.0f) {
+            var_f12 = 0.0f;
+        }
+        func_0047a890(handle1, var_f12);
+        rec->timer2 += 1.0f;
+    } else {
+        if (func_0047a9d0(handle1) == 0) {
+            return 1;
+        }
+        temp_2_3 = (u8 *)func_0047a2f0(handle1);
+        *(F32x3 *)(sp + 0x20) = *(F32x3 *)(temp_2_3 + 0x30);
+        temp_2_4 = (u8 *)func_0047a2f0(handle2);
+        *(F32x3 *)(sp + 0x00) = *(F32x3 *)(temp_2_4 + 0x30);
+        *(f32 *)(sp + 0x20) = *(f32 *)(sp + 0x00) - *(f32 *)(sp + 0x20);
+        *(f32 *)(sp + 0x28) = *(f32 *)(sp + 0x08) - *(f32 *)(sp + 0x28);
+        *(u32 *)(sp + 0x24) = 0;
+        func_003e40b0(sp + 0x20, sp + 0x20);
+        func_0047a900(handle1, sp + 0x20);
+        var_f12_2 = fGpffff8218 * temp_f20;
+        if (!(var_f12_2 <= 1.0f)) {
+            var_f12_2 = 1.0f;
+        } else if (var_f12_2 < 0.0f) {
+            var_f12_2 = 0.0f;
+        }
+        func_0047a890(handle1, var_f12_2);
+    }
+    temp_2_5 = (u8 *)func_0047a980(handle1);
+    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)temp_2_5;
+    return 0;
+}
 
 // FUN_00292EF0
 #pragma push
