@@ -1674,8 +1674,59 @@ void func_001f6710(s32 arg0) {
     *(s16 *)(q + 6) = 0;
 }
 
+/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
+#pragma opt_loop_invariants on
 // FUN_001F6770
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f6770);
+s32 func_001f6770(u8 *arg0)
+{
+    extern u32 func_00231d70(s32 arg0);
+    extern s32 func_00232730(u8 *arg0, s32 arg1);
+    u16 chance;
+    u8 *status;
+    u32 mask;
+    u32 one;
+    u32 i;
+
+    status = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
+    if (func_00232710((s32)status, 0x100000) != 0) {
+        return 1;
+    }
+    if (func_00232710((s32)status, 0x1001DF) == 0) {
+        return 0;
+    }
+    chance = 100;
+    mask = 0;
+    switch (func_002326c0(status)) {
+    case 4:
+        chance = 70;
+        mask = 4;
+        break;
+    default:
+        break;
+    }
+    chance &= 0xFFFF;
+    if (chance == 100) {
+        return 1;
+    }
+    chance = func_00231d70(100) < chance;
+    if (chance == 0 && func_00232730(status, 0x230) != 0) {
+        one = 1;
+        i = 0;
+        while (i < 0x18U) {
+            if ((mask & (one << i)) != 0) {
+                if (*(u8 *)((u8 *)addOffsetFirst(i, (u32)arg0) + 0x3F6) > 0) {
+                    return 1;
+                }
+                *(u8 *)((u8 *)addOffsetFirst(i, (u32)arg0) + 0x3F6) += 1;
+                break;
+            }
+            i++;
+        }
+    }
+    return chance;
+}
+/* measured: close opt_loop_invariants after func_001f6770. */
+#pragma opt_loop_invariants off
 // FUN_001F68E0
 s32 func_001f68e0(u8 *arg0)
 {
