@@ -56,10 +56,10 @@ extern s32 func_002b2960(void);
 extern s32 func_002b2a30(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_002b2bd0(void *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4,
                           f32 arg5);
-extern void func_0025ecd0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5, s32 arg6, void *arg7,
-                          f32 arg8, f32 arg9, f32 arg10, f32 arg11,
-                          f32 arg12, f32 arg13);
+extern void func_0025ecd0(f32 arg0, f32 arg1, f32 arg2, s32 arg3,
+                          s32 arg4, s32 arg5, s32 arg6, s32 arg7,
+                          s16 arg8, s16 arg9, f32 arg10, f32 arg11,
+                          f32 arg12, u8 *arg13);
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
 extern u8 *func_0046d200(s32 arg0, s32 arg1);
@@ -94,14 +94,40 @@ s32 func_002b3990(s32 arg0)
     func_0046d280(t);
     return ret;
 }
-/* discarded C candidate measured nd 118 (object 368 / window 368); retail
-   retains a different argument-materialisation order and saved-FPU register. */
-/* Measured nd 118 (object 368 / window 368), well above the ~25 parking
-   threshold; this full-size candidate preserves the recovered symbol math and
-   argument ABI for future reduction. Committed at nd 118. */
-// Archived C body: build/WBHygiene_func_002b3ae0_archive.txt; no current park body remains.
+/* Re-derived body: the prior nd118 candidate is retained in
+   build/WBHygiene_func_002b3ae0_archive.txt for provenance; this body is
+   verified MATCH after correcting the callee ABI and arithmetic statement
+   order. */
 // FUN_002B3AE0
-INCLUDE_ASM("asm/nonmatchings/y_symbol", func_002b3ae0);
+void func_002b3ae0(u8 *arg0, s64 arg1, f32 fparg0, s32 arg2)
+{
+    f32 fparg0_saved;
+    u8 *p;
+    f32 angle;
+    f32 temp;
+
+    fparg0_saved = fparg0;
+    p = *(u8 **)(arg0 + 0x38);
+    angle = func_0014b5d0(func_0047a2f0(D_007EFA00[0]));
+    if (angle >= 0.0f) {
+        temp = angle - 180.0f;
+    } else {
+        temp = angle;
+        temp += 180.0f;
+    }
+    temp += *(f32 *)(p + 0x10);
+    temp *= -1.0f;
+    if (*(s8 *)(p + 0x20) == 1) {
+        func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved,
+                      arg2, 0xFF, 0x10, func_002ac740(), 1,
+                      *(s16 *)(p + 0x14), *(s16 *)(p + 0x16), temp, 1.0f,
+                      1.0f, D_00794D20);
+        return;
+    }
+    func_0025ecd0(*(f32 *)&arg1, *((f32 *)&arg1 + 1), fparg0_saved, arg2,
+                  0xFF, 0x10, func_002ac740(), 1, *(s16 *)(p + 0x14),
+                  *(s16 *)(p + 0x16), temp, 1.0f, 1.0f, D_00794DE0);
+}
 // FUN_002B3C50
 void func_002b3c50(u8 *arg0, u8 arg1)
 {
