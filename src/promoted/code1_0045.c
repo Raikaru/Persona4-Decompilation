@@ -43,8 +43,8 @@ extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
 extern void func_004533d0(void);
-extern void func_00453310(s32 arg0, s32 arg1, s32 arg2);
-extern void func_00453250(s32 arg0, s32 arg1, s32 arg2);
+extern void func_00453310(s32 arg0, u16 arg1, s32 arg2);
+extern void func_00453250(s32 arg0, u16 arg1, s32 arg2);
 extern u8 *func_004587d0(u8 *arg0, u8 *arg1);
 extern void func_00454d20(s32 arg0, void *arg1);
 extern void func_0043f810(void *dst, void *src, s32 size);
@@ -399,12 +399,54 @@ void func_004530b0(s32 arg0) {
     func_00453310(arg0, 0x10, 0xA);
     func_00453310(arg0, 0x80, 0xB);
 }
-/* measured: no calls; declaration lever inapplicable. Object 192B vs window 192B, normalized_diff 16; differing byte offsets 17,22,34,42,66,94,102,122,125,126,130,138,142,162,170,182. Best body archived in build/D453_00453250_body.c. */
-// FUN_00453250 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00453250);
-/* measured: no calls; declaration lever inapplicable. Object 192B vs window 192B, normalized_diff 16; differing byte offsets 17,22,34,42,66,94,102,122,125,126,130,138,142,162,170,182. Best body archived in build/L045_00453310_body.c. */
-// FUN_00453310 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00453310);
+// FUN_00453250
+void func_00453250(s32 arg0, u16 arg1, s32 arg2) {
+    s32 temp_4;
+    s32 temp_7;
+    u16 *temp_4_2;
+    u8 *temp_6;
+
+    temp_7 = arg0 * 0x4A;
+    temp_4 = arg1 & 0xFFFF;
+    if (temp_4 & *(u16 *)(D_008C02EE + temp_7)) {
+        *(u8 *)(D_008C0300 + temp_7 + arg2) = 7;
+        return;
+    }
+    if (temp_4 & *(u16 *)(D_008C02EC + temp_7)) {
+        temp_6 = D_008C0300 + temp_7;
+        temp_6 = temp_6 + arg2;
+        *temp_6 -= 1;
+        if (*temp_6 == 0) {
+            temp_4_2 = (u16 *)(D_008C02F2 + temp_7);
+            *temp_4_2 |= arg1;
+            *temp_6 = 3;
+        }
+    }
+}
+// FUN_00453310
+void func_00453310(s32 arg0, u16 arg1, s32 arg2) {
+    s32 temp_7;
+    s32 temp_4;
+    u16 *temp_4_2;
+    u8 *temp_6;
+
+    temp_7 = arg0 * 0x4A;
+    temp_4 = arg1 & 0xFFFF;
+    if (temp_4 & *(u16 *)(D_008C0316 + temp_7)) {
+        *(u8 *)(D_008C031E + temp_7 + arg2) = 7;
+        return;
+    }
+    if (temp_4 & *(u16 *)(D_008C0314 + temp_7)) {
+        temp_6 = D_008C031E + temp_7;
+        temp_6 = temp_6 + arg2;
+        *temp_6 -= 1;
+        if (*temp_6 == 0) {
+            temp_4_2 = (u16 *)(D_008C031A + temp_7);
+            *temp_4_2 |= arg1;
+            *temp_6 = 3;
+        }
+    }
+}
 // FUN_004533D0
 void func_004533d0(void)
 {

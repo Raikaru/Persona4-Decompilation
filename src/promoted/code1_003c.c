@@ -844,41 +844,14 @@ u8 *func_003c3e10(u8 *arg0) {
 /* measured: scheduled 124-byte candidate (nd 17) is archived in
    build/YCLS_003c3e90_body.c; the post-call store/reload/branch order remains
    a compiler residual. */
+/* measured: schedule and no_branch_likely reproduce the archived candidate shape. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003C3E90 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003c3e90(s32 arg0, s32 arg1) {
-    extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
-    extern s32 iGpffffaa98;
-    extern s32 iGpffffaa9c;
-    extern s32 iGpffffb6d0;
-    extern s32 iGpffffb6d4;
-    extern u8 D_0070AFD0[];
-    extern u8 D_00886550[];
-    extern u8 D_008872E0[];
-    s32 *temp_3;
-    s32 result;
-
-    iGpffffb6d0 = arg1;
-    result = func_003e1220(
-        *(s32 *)D_0070AFD0,
-        iGpffffaa98,
-        0x10,
-        iGpffffaa9c,
-        D_00886550,
-        0x40012);
-    temp_3 = (s32 *)(D_008872E0 + iGpffffb6d0);
-    *temp_3 = result;
-    goto reload_result;
-reload_result:
-    result = *temp_3;
-    if (result == 0)
-        return 0;
-    iGpffffb6d4 += 1;
-    return arg0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e90);
-#endif
+/* measured: closes the first function's scheduling bracket. */
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: schedule on and no_branch_likely on are required for the retail
    jal/jr delay slots and plain branch forms of func_003c3f20. */
 // FUN_003C3F20
@@ -964,32 +937,7 @@ done:
    a compiler residual. */
 /* func_003c4040 archive: object 124B, window 144B, normalized_diff 17; differing words are offsets 76 through 124. */
 // FUN_003C4040 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_003c4040(s32 arg0, s32 arg1) {
-    extern s32 iGpffffaaa0;
-    extern s32 iGpffffaaa4;
-    extern u8 D_00886580[];
-    s32 result;
-    s32 *base;
-
-    iGpffffb6e0 = arg1;
-    result = func_003e1220(
-        *(s32 *)D_0070AFF0,
-        iGpffffaaa0,
-        4,
-        iGpffffaaa4,
-        D_00886580,
-        0x40007);
-    base = (s32 *)(D_008872E0 + iGpffffb6e0);
-    *base = result;
-    if (*base == 0)
-        return 0;
-    iGpffffb6e4 += 1;
-    return arg0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
-#endif
 // FUN_003C40D0
 #pragma schedule on
 #pragma no_branch_likely on
@@ -1751,29 +1699,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
    the four residual words remain an order mismatch and the body is archived
    in build/YCLS_003ca830_body.c. */
 /* func_003ca830 near-match archive: object 92 bytes, window 96 bytes, normalized_diff 14; differing offsets 24, 28, 32, 36. */
+/* measured: schedule on reproduces ca830's call and return delay slots. */
+#pragma schedule on
 // FUN_003CA830 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_003ca830(u8 *arg0) {
-    u8 *f60 = func_003ca7a0;
-    u8 *f00 = func_003ca740;
-    u8 *f40 = func_003ca780;
-    u8 *node = arg0 + iGpffffb708;
-
-    *(s32 *)(node + 0) = 0;
-    *(s32 *)(node + 4) = 0;
-    *(s32 *)(node + 8) = 0;
-    *(s32 *)(node + 0x10) = *(s32 *)(arg0 + 0x18);
-    *(s32 *)(node + 0x14) = *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(node + 0x18) = *(s32 *)(arg0 + 0x10);
-    *(u8 **)(arg0 + 0x10) = f60;
-    *(u8 **)(arg0 + 0x18) = f00;
-    *(u8 **)(arg0 + 0x1C) = f40;
-    *(s32 *)(node + 0xC) = 0;
-    return arg0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
-#endif
+/* measured: schedule off closes ca830's delay-slot bracket. */
+#pragma schedule off
 /* measured: schedule on preserves func_003ca890's callback delay slots. */
 // FUN_003CA890
 #pragma schedule on
@@ -2397,8 +2328,16 @@ void func_003f32d0();
    expression, or positive-branch form did not alter nd 4; the comparison
    `<= 0` versus `< 1` also stayed nd 4. The base body remains the lowest
    park. Committed at nd 4. */
+/* measured: schedule on fills cc250's helper-call and return delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely on keeps cc250's tests as plain branches. */
+#pragma no_branch_likely on
 // FUN_003CC250 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc250);
+/* measured: no_branch_likely off closes cc250's branch-form bracket. */
+#pragma no_branch_likely off
+/* measured: schedule off closes cc250's delay-slot bracket. */
+#pragma schedule off
 
 /* measured: schedule on fills the helper-call delay slots in this
    initialization and fallback sequence. */

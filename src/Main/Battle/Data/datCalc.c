@@ -548,7 +548,7 @@ done_value:
     return value;
 }
 
-/* measured: clean return-expression probe for func_00232c70. */
+/* measured: archived candidate re-tested at nd 2; return-width and guard probes did not improve it. */
 // FUN_00232C70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
 

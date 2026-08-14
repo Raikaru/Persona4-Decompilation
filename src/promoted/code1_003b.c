@@ -150,7 +150,7 @@ u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
 #pragma schedule off
 // FUN_003B6CC0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
-/* measured: current plain-C recheck object 80B/window 96B, normalized_diff 35; fndiff required after activating the archived body; archived body retained in build/W4C3B_003b6da0_nd6_body.c. */
+/* measured: current recheck object 84B/window 96B, normalized_diff 7; differing offsets 32,76,78-80,82-83. Best body archived in build/Z3BF_003b6da0_nd7_body.c; the prior nd6 archive was stale under the current TU. */
 // FUN_003B6DA0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
 /* measured: schedule on is required for func_003b6e00's callback delay slot. */
@@ -1395,7 +1395,7 @@ s32 func_003bfe60(void *arg0) {
 }
 /* measured: close schedule around func_003bfe60. */
 #pragma schedule off
-/* measured: best fresh plain-C attempt object 140B/window 160B, normalized_diff 24; archived at build/K3B6_003bfe90_nd24.c and restored to INCLUDE_ASM. */
+/* measured: current recheck object 168B/window 160B, normalized_diff 114; object exceeded the retail window. Body archived in build/Z3BF_003bfe90_oversize_body.c; prior object-140/nd24 archive was stale under the current TU. */
 // FUN_003BFE90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
 /* measured: best plain-C attempt object 120B/window 144B, normalized_diff 41; archived at build/K3B6_003bff30_nd41.c and restored to INCLUDE_ASM. Residual is sentinel/current register and load-order coloring at offsets 36-44, callback branch polarity/layout at 68, and tail layout at 71-86. */

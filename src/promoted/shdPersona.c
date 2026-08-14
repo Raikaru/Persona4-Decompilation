@@ -1151,7 +1151,8 @@ void func_0034c270(Vec2f, u8, s32, f32);
    normalized_diff 16; differing offsets 0x58, 0x5C, 0x78, 0x7C; retail-only
    tail 0x1AC. The int-to-float idiom is `(f32)(u32)*(u8 *)(arg0 + 0x505)`.
    Residual is call-site Vec2f aggregate/float argument materialisation order
-   plus tail padding; declaration and pragma alternatives were ruled out. */
+   plus tail padding; declaration, pragma, direct-float, aggregate-dereference,
+   duplicate-local, and initializer alternatives were ruled out. */
 // FUN_0011B110 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
 
@@ -1917,10 +1918,13 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
    inclusive, negated-strict, mask-only, constant-left-inclusive, and all
    pragma-wrapper probes were ruled out or worse. Committed at nd 23. */
 /* archived body: build/VSHD_0011c930_body.c; object 448B; retail window 448B;
-   normalized_diff 18; differing offsets 0x14, 0x18, 0x1C, 0x20, 0x132,
-   0x13A, 0x155, 0x15A, 0x15E. The int-to-float idiom is `(f32)(u32)a` for
-   the unsigned byte site; the signed halfword ratio stays `(f32)(s16)*(s16 *)`.
-   Residual is prologue load order, GPREL relocation, and output colouring. */
+   normalized_diff 13; differing offsets 0x10, 0x14, 0x132, 0x13A, 0x155,
+   0x15A, 0x15E. The int-to-float idiom is `(f32)(u32)a`; the signed halfword
+   ratio stays `(f32)(s16)*(s16 *)`. Source-ordered `lo` load versus halfword
+   conversion leaves the prologue pair; remaining residual is GPREL/output
+   coloring. Retail parameter audit uses only `$a0` (arg0); no hidden args or
+   mixed-class order. Direct stores, raw staging, declaration reorder, and
+   pragma alternatives were ruled out. */
 // FUN_0011C930 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
 // FUN_0011CAF0
