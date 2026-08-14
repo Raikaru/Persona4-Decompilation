@@ -290,8 +290,79 @@ void func_001b9de0(s32 arg1, s16 arg2, s32 arg3)
 
 
 
+typedef struct BtlUnit BtlUnit;
+typedef struct RwRGBA
+{
+    u8 red;
+    u8 green;
+    u8 blue;
+    u8 alpha;
+} RwRGBA;
+extern void func_00194f60(BtlUnit* unit, RwRGBA col);
 // FUN_001B9E50
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b9e50);
+u32 func_001b9e50(void* work)
+{
+    RwRGBA color;
+    f32 temp_f1;
+    f32 var_f0;
+    f32 var_f1;
+    BtlUnit *unit;
+    s32 index;
+    s32 result;
+    s32 compareThreshold;
+    u8 threshold;
+    u32 current;
+    u32 total;
+    u8 *arg0;
+
+    arg0 = (u8 *)work;
+    if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x400000) != 0) &&
+        ((*(u16 *)(iGpffffb3ac + 0x18) & 0x10) != 0))
+    {
+        return 1;
+    }
+
+    result = 1;
+    total = *(u32 *)(arg0 + 0);
+    current = *(u32 *)(arg0 + 4);
+    if (current < total)
+    {
+        var_f1 = (f32)(u32)current;
+        var_f0 = (f32)(u32)total;
+        temp_f1 = 255.0f * (var_f1 / var_f0);
+        threshold = (u8)temp_f1;
+        result = 0;
+    }
+    else
+    {
+        threshold = 0xFF;
+    }
+
+    index = 0;
+    compareThreshold = threshold & 0xFF;
+    while ((index & 0xFFFF) < 2)
+    {
+        unit = *(BtlUnit **)(iGpffffb3ac + (((u16)index) * 8) + 0x178);
+        while (unit != NULL)
+        {
+            if ((*(u16 *)((u8 *)unit + 0x9FE) != 0) &&
+                ((*(s32 *)((u8 *)unit + 0x9C) & 1) == 0))
+            {
+                color = *(RwRGBA *)((u8 *)unit + 0x30);
+                if ((s32)color.alpha < compareThreshold)
+                {
+                    color.alpha = threshold;
+                    func_00194f60(unit, color);
+                }
+            }
+            unit = *(BtlUnit **)((u8 *)unit + 0xA6C);
+        }
+        index = (index + 1) & 0xFFFF;
+    }
+
+    *(u32 *)(arg0 + 4) = *(u32 *)(arg0 + 4) + 1;
+    return result;
+}
 // FUN_001BA090
 void func_001ba090(s32 arg)
 {

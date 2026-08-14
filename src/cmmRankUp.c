@@ -793,15 +793,18 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257900);
 static inline void *rankArg0(f32 *p) { return p; }
 static inline void *rankArg1(u8 *p) { return p; }
 
-/* measured: nd 24. Retail hoists `addiu $a0,$sp,0x5C` (the &fbuf arg for
-   func_0045d6e0) between the fbuf/quad stores and `addiu $a1,$sp,0x40` between
-   the two lq/sq copies; mwcc b210 sinks both address materializations to just
-   before the jal (24 bytes). Tried: direct &fbuf/&arr[16], address locals,
-   `*fp = ...` store-through-pointer, single arr[32] with &arr[16], and
-   static-inline arg helpers - all nd 24. Same documented load-sinking floor as
-   mc.c func_002a4d10 (nd 62 there). Rest of function matches byte-exact:
-   switch jtbl_00747E50 (15 cases, cases 9/10 -> func_00257900), byte-fill
-   loop with beqz-pointer guard, (u8)(s32) float conversion with 2^31 arm. Committed at nd 24. */
+/* measured: nd 24. Retail hoists `addiu $a0,$sp,0x5C` (the &fbuf argument)
+   before the fbuf load/store and `addiu $a1,$sp,0x40` between the lq and
+   sq copies; mwcc b210 sinks both to just before the jal. The float-to-
+   unsigned site is exact as `f = ...; buf[3] = (u8)f;`: retail low path
+   `cvt.w.s`/`mfc1`/`andi 0xFF`, high path bias `sub.s`/`cvt.w.s`/`mfc1`/
+   `lui 0x8000`/`or`/`andi 0xFF`. Tried direct addresses, pointer stores
+   (reordering the arr16 store improved only to nd 11), address locals,
+   static-inline helpers, named integer stack-base casts, overlapping pointer
+   lifetimes, repeated address assignments, a live post-store read, and
+   optimization level 1 (nd 17); none moved both materializations without
+   introducing earlier residuals. Rest is byte-exact. Body archived in
+   build/VRNK_0025b0f0_body.c. */
 // FUN_0025B0F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b0f0);
 // FUN_0025B240

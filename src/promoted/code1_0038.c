@@ -33,7 +33,7 @@ extern u8 *func_00451fc0(s32 arg0, const void *arg1, s32 arg2,
                          s32 arg3, s32 arg4, s32 (*arg5)(u8 *),
                          void (*arg6)(u8 *), u8 *arg7);
 extern void func_00388d10(u8 *arg0);
-extern void func_003874c0(void);
+extern void func_003874c0(s32 arg0, u8 *arg1);
 extern s32 func_00388b40(u8 *arg0);
 extern void func_00388ba0(u8 *arg0);
 extern u8 *iGpffffb5b0;
@@ -187,7 +187,69 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00385970);
 // FUN_00386C00
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00386c00);
 // FUN_003874C0
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_003874c0);
+void func_003874c0(s32 arg0, u8 *arg1)
+{
+    extern void func_00383c40(u8 *arg0);
+    extern void func_00383f80(u8 *arg0);
+    extern void func_00383d70(u8 *arg0);
+    extern void func_00384cc0(u8 *arg0);
+    extern void func_00385380(u8 *arg0);
+    extern void func_00385970(u8 *arg0);
+    extern void func_00386c00(u8 *arg0);
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    u8 *base;
+    u8 *entry;
+    s32 value;
+    f32 var_f12;
+    f32 temp_f1;
+    u8 temp_3;
+    s32 i;
+
+    func_0034f1e0();
+    if ((*(u16 *)(arg1 + 0x4C) & 0x200) != 0) {
+        base = *(u8 **)arg1;
+        entry = arg1 + 0x46;
+        value = *(u16 *)entry;
+        if (value < 0x23) {
+            value = ++*(u16 *)entry;
+            var_f12 = (f32)(u16)value;
+            temp_f1 = 255.0f *
+                func_00373cb0(var_f12, 0.0f, 30.0f, 0);
+            temp_3 = (u8)temp_f1;
+            *(u8 *)(entry + 5) = temp_3;
+        }
+        func_003f6440(3, 0x71801);
+        func_003f6440(2, 0x48);
+        for (i = 0; i < *(s32 *)(base + 0x1F234); i++) {
+            func_00377930(base,
+                          *(s32 *)(base + (i * 4) + 0x1F214),
+                          0, entry + 2, 1);
+        }
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 0x10) != 0) {
+        func_00383c40(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 0x20) != 0) {
+        func_00383f80(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 0x80) != 0) {
+        func_00383d70(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 0x40) != 0) {
+        func_00384cc0(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 8) != 0) {
+        func_00385380(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 1) != 0) {
+        func_00385970(arg1);
+    }
+    if ((*(u16 *)(arg1 + 0x4C) & 2) != 0) {
+        func_00386c00(arg1);
+    }
+}
 // FUN_00387750
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00387750);
 // FUN_00387E70
@@ -587,7 +649,99 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
 // FUN_0038C100
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c100);
 // FUN_0038C770
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038c770);
+void func_0038c770(u8 *arg0)
+{
+    extern void func_00371500(f32 *arg0, f32 fparg0, f32 *arg1);
+    extern s32 func_003717e0(f32 *arg0, f32 *arg1);
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0);
+    extern s32 func_00378530(s32 arg0, s32 arg1);
+    extern void func_00377930(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, s32 arg4);
+    struct Input {
+        f32 in0;
+        f32 in1;
+        f32 in2;
+    };
+    struct Work {
+        struct Input input;
+        f32 pad0;
+        f32 out0;
+        f32 out1;
+        f32 pad1;
+        u8 colors[4];
+    };
+    struct Work work;
+    f32 var_f12;
+    f32 var_f12_2;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    u8 *base;
+    s32 count;
+    s32 i;
+
+    {
+        u8 *state;
+        u16 flags;
+        u16 value;
+        u16 next;
+
+        state = arg0 + 0x1A0;
+        base = *(u8 **)arg0;
+        count = func_00378530(*(s32 *)(base + 0x1F304),
+                              *(s32 *)(base + 0x1F2FC));
+        flags = *(u16 *)(state + 2);
+        if ((flags & 1) == 0) {
+            value = *(u16 *)state;
+            var_f12 = (f32)(u16)value;
+            temp_f1 = 102.0f *
+                func_00373cb0(var_f12, 0.0f, 20.0f, 1);
+            work.colors[3] = (u8)temp_f1;
+            next = ++*(u16 *)state;
+            if (next >= 0x14) {
+                *(u16 *)(state + 2) |= 1;
+                *(u16 *)state = 0;
+            }
+        } else if ((flags & 2) != 0) {
+            value = *(u16 *)state;
+            var_f12_2 = (f32)(u16)value;
+            temp_f1_2 = 102.0f *
+                (1.0f - func_00373cb0(var_f12_2, 0.0f, 20.0f, 1));
+            work.colors[3] = (u8)temp_f1_2;
+            next = ++*(u16 *)state;
+            if (next >= 0x14) {
+                *(u16 *)(arg0 + 4) &= 0xFFFB;
+            }
+        } else {
+            work.colors[3] = 0x66;
+        }
+    }
+    work.colors[0] = 0xDC;
+    work.colors[1] = 0x8D;
+    work.colors[2] = 0;
+    for (i = 0; i < count; i++) {
+        {
+            u8 *entry;
+            entry = base + (i * 0xE8) + 0x1D6B8;
+            work.input = *(struct Input *)entry;
+        }
+        func_003717e0(&work.input.in0, &work.out0);
+        work.out0 += 6.0f;
+        work.out1 += 5.0f;
+        func_00371500(&work.out0, work.input.in2, &work.input.in0);
+        {
+            u8 *draw_base;
+            s32 draw_index;
+            u8 *draw_input;
+            u8 *draw_colors;
+            s32 draw_mode;
+            draw_base = base;
+            draw_index = i;
+            draw_input = (u8 *)&work.input.in0;
+            draw_colors = work.colors;
+            draw_mode = 1;
+            func_00377930((s32)draw_base, draw_index, draw_input, draw_colors, draw_mode);
+        }
+    }
+}
 // FUN_0038CAB0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038cab0);
 // FUN_0038CD70

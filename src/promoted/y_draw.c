@@ -81,7 +81,7 @@ extern u8 *func_00457120(void);
 extern void func_0043f810(void *, s32, s32);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
-extern void *func_00461390(void *, s32, void *, s32);
+extern u8 *func_00461390(u8 *list, s32 arg1, s32 arg2, s32 arg3);
 extern f32 fGpffff8504;
 extern f32 iGpffff84f4;
 extern f32 D_008872F8[];
@@ -684,7 +684,7 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7cd0);
    folds q into $s0-relative stores (nd 110). Walls corroborated in
    y_CmbCardEff func_00347c70 (lui-hoist + or-register) and y_smap
    func_002b0b10 (lui-hoist + register cascade). */
-// FUN_002B7F20
+// FUN_002B7F20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7f20);
 
 // FUN_002B8120

@@ -2623,8 +2623,8 @@ s32 func_0011e460(u8 *arg0)
 
 
 s32 func_003b7060();
-u8 *func_001094d0(u16 *arg0);
-extern u8 *iGpffffb3ec;
+u16 *func_001094d0(s32 arg0);
+extern u16 *iGpffffb3ec;
 /* measured: retail keeps the `bltz` sign-check and the full else-branch
    (srl/andi/or/mtc1/cvt/add.s x2) of an abs-style conditional on
    `func_003b7060() & 0x1000` (and & 0xFFF); mwcc b210's range analysis proves
@@ -2642,7 +2642,7 @@ extern u8 *iGpffffb3ec;
    Wave 7 ran out of turns here and left it uncommitted, so this is a
    partial adaptation rather than a floor: re-attempt from the m2c draft
    with the wave's recipes before treating any of it as settled. */
-// FUN_0011E490
+// FUN_0011E490 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e490);
 
 /* Closes the measured opt_loop_invariants scope opened for func_0011e490

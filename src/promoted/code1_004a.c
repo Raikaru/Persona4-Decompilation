@@ -75,7 +75,7 @@ extern void func_0048a0e0(void);
 extern void func_00489f80(void);
 extern void func_0048a000(void);
 extern u8 *func_00484490();
-extern f32 D_008872F8;
+extern f32 D_008872F8[];
  
 extern void func_0045f0b0(f32 *arg0, u8 *arg1, s32 arg2, f32 arg3);
 extern void func_0045fa00(f32 *arg0, s32 arg1, f32 arg2);
@@ -249,7 +249,7 @@ void func_004a1ca0(u8 *arg0)
 }
 /* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
 #pragma opt_loop_invariants off
-// FUN_004A1D70
+// FUN_004A1D70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a1d70);
 // FUN_004A22C0
 void func_004a22c0(u8 *arg0) {
@@ -753,11 +753,181 @@ void func_004a7df0(s32 *arg0) {
 // FUN_004A7E30
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7e30);
 // FUN_004A8250
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a8250);
+/* measured: loop-invariant conversion preloads for func_004a8250. */
+#pragma opt_loop_invariants on
+void func_004a8250(u8 *arg0, u8 *arg1)
+{
+    f32 temp_f6;
+    f32 temp_f5;
+    u32 temp_19;
+    u32 temp_18;
+    u32 temp_17;
+    u32 temp_16;
+    u32 var_9;
+    u8 *temp_8;
+
+    temp_19 = *(u8 *)(arg0 + 0);
+    temp_18 = *(u8 *)(arg0 + 1);
+    temp_17 = *(u8 *)(arg0 + 2);
+    temp_16 = *(u8 *)(arg0 + 3);
+    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f5 = D_008872F8[0];
+    var_9 = 0;
+    goto loop_004a8250_check;
+loop_004a8250_body:
+    temp_8 = arg1 + (var_9 << 6);
+    *(f32 *)(temp_8 + 0x18) = temp_f6;
+    *(f32 *)(temp_8 + 0x20) = (f32)(u32)temp_19;
+    *(f32 *)(temp_8 + 0x24) = (f32)(u32)temp_18;
+    *(f32 *)(temp_8 + 0x28) = (f32)(u32)temp_17;
+    *(f32 *)(temp_8 + 0x2C) = (f32)(u32)temp_16;
+    *(f32 *)(temp_8 + 8) = temp_f5;
+    var_9 += 1;
+loop_004a8250_check:
+    if (var_9 < 4U) {
+        goto loop_004a8250_body;
+    }
+    *(f32 *)(arg1 + 0) = *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg1 + 4) = *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg1 + 0x40) = *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg1 + 0x44) = *(f32 *)(arg0 + 0x24);
+    *(f32 *)(arg1 + 0x80) = *(f32 *)(arg0 + 0x20);
+    *(f32 *)(arg1 + 0x84) = *(f32 *)(arg0 + 0x24);
+    *(f32 *)(arg1 + 0xC0) = *(f32 *)(arg0 + 0x20);
+    *(f32 *)(arg1 + 0xC4) = *(f32 *)(arg0 + 0x1C);
+    *(s32 *)(arg1 + 0x10) = 0;
+    *(s32 *)(arg1 + 0x14) = 0;
+    *(s32 *)(arg1 + 0x50) = 0;
+    *(s32 *)(arg1 + 0x54) = 0x3F800000;
+    *(s32 *)(arg1 + 0x90) = 0x3F800000;
+    *(s32 *)(arg1 + 0x94) = 0x3F800000;
+    *(s32 *)(arg1 + 0xD0) = 0x3F800000;
+    *(s32 *)(arg1 + 0xD4) = 0;
+}
+/* measured: close loop-invariant conversion scope for func_004a8250. */
+#pragma opt_loop_invariants off
 // FUN_004A8440
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a8440);
+/* measured: loop-invariant conversion preloads for func_004a8440. */
+#pragma opt_loop_invariants on
+void func_004a8440(u8 *arg0, u8 *arg1)
+{
+    extern f32 fGpffff8090;
+    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 func_0044b610(f32 arg0);
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f22;
+    f32 temp_f2;
+    f32 temp_f4;
+    f32 temp_f6;
+    f32 temp_f5;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f0_3;
+    f32 var_f0_4;
+    u32 var_9;
+    u32 temp_18;
+    u32 temp_17;
+    u32 temp_16;
+    u32 temp_21;
+    u8 *temp_8;
+
+    temp_18 = *(u8 *)(arg0 + 0);
+    temp_17 = *(u8 *)(arg0 + 1);
+    temp_16 = *(u8 *)(arg0 + 2);
+    temp_21 = *(u8 *)(arg0 + 3);
+    temp_f22 = fGpffff8090 * *(f32 *)(arg0 + 8);
+    temp_f20 = *(f32 *)(arg0 + 0xC);
+    temp_f21 = temp_f20 * func_0044b7b0(temp_f22);
+    temp_f20 = temp_f20 * func_0044b610(temp_f22);
+    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f5 = D_008872F8[0];
+    var_9 = 0;
+    goto loop_004a8440_check;
+loop_004a8440_body:
+    temp_8 = arg1 + (var_9 << 6);
+    *(f32 *)(temp_8 + 0x18) = temp_f6;
+    *(f32 *)(temp_8 + 0x20) = (f32)(u32)temp_18;
+    *(f32 *)(temp_8 + 0x24) = (f32)(u32)temp_17;
+    *(f32 *)(temp_8 + 0x28) = (f32)(u32)temp_16;
+    *(f32 *)(temp_8 + 0x2C) = (f32)(u32)temp_21;
+    *(f32 *)(temp_8 + 8) = temp_f5;
+    var_9 += 1;
+loop_004a8440_check:
+    if (var_9 < 4U) {
+        goto loop_004a8440_body;
+    }
+    *(f32 *)(arg1 + 0) = *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg1 + 4) = *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg1 + 0x40) = *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg1 + 0x44) = *(f32 *)(arg0 + 0x24);
+    *(f32 *)(arg1 + 0x80) = *(f32 *)(arg0 + 0x20);
+    *(f32 *)(arg1 + 0x84) = *(f32 *)(arg0 + 0x24);
+    *(f32 *)(arg1 + 0xC0) = *(f32 *)(arg0 + 0x20);
+    *(f32 *)(arg1 + 0xC4) = *(f32 *)(arg0 + 0x1C);
+    temp_f4 = (*(f32 *)(arg0 + 0x18) + temp_f21) / D_00922D94[0];
+    temp_f2 = (*(f32 *)(arg0 + 0x1C) + temp_f20) / D_00922D98[0];
+    temp_f1 = (*(f32 *)(arg0 + 0x20) + temp_f21) / D_00922D94[0];
+    temp_f0 = (*(f32 *)(arg0 + 0x24) + temp_f20) / D_00922D98[0];
+    *(f32 *)(arg1 + 0x10) = temp_f4;
+    *(f32 *)(arg1 + 0x14) = temp_f2;
+    *(f32 *)(arg1 + 0x50) = temp_f4;
+    *(f32 *)(arg1 + 0x54) = temp_f0;
+    *(f32 *)(arg1 + 0x90) = temp_f1;
+    *(f32 *)(arg1 + 0x94) = temp_f0;
+    *(f32 *)(arg1 + 0xD0) = temp_f1;
+    *(f32 *)(arg1 + 0xD4) = temp_f2;
+}
+/* measured: close loop-invariant conversion scope for func_004a8440. */
+#pragma opt_loop_invariants off
 // FUN_004A86C0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a86c0);
+/* measured: loop-invariant conversion preloads for func_004a86c0. */
+#pragma opt_loop_invariants on
+void func_004a86c0(u8 *arg0, u8 *arg1)
+{
+    f32 temp_f6;
+    f32 temp_f5;
+    u32 temp_19;
+    u32 temp_18;
+    u32 temp_17;
+    u32 temp_16;
+    u32 var_9;
+    u8 *temp_8;
+
+    temp_19 = *(u8 *)(arg0 + 0);
+    temp_18 = *(u8 *)(arg0 + 1);
+    temp_17 = *(u8 *)(arg0 + 2);
+    temp_16 = *(u8 *)(arg0 + 3);
+    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f5 = D_008872F8[0];
+    var_9 = 0;
+    goto loop_004a86c0_check;
+loop_004a86c0_body:
+    temp_8 = arg1 + (var_9 << 6);
+    *(f32 *)(temp_8 + 0x18) = temp_f6;
+    *(f32 *)(temp_8 + 0x20) = (f32)(u32)temp_19;
+    *(f32 *)(temp_8 + 0x24) = (f32)(u32)temp_18;
+    *(f32 *)(temp_8 + 0x28) = (f32)(u32)temp_17;
+    *(f32 *)(temp_8 + 0x2C) = (f32)(u32)temp_16;
+    *(f32 *)(temp_8 + 8) = temp_f5;
+    var_9 += 1;
+loop_004a86c0_check:
+    if (var_9 < 4U) {
+        goto loop_004a86c0_body;
+    }
+    *(f32 *)(arg1 + 0) = *(f32 *)(arg0 + 8);
+    *(f32 *)(arg1 + 4) = *(f32 *)(arg0 + 0xC);
+    *(f32 *)(arg1 + 0x40) = *(f32 *)(arg0 + 8);
+    *(f32 *)(arg1 + 0x44) = *(f32 *)(arg0 + 0x14);
+    *(f32 *)(arg1 + 0x80) = *(f32 *)(arg0 + 0x10);
+    *(f32 *)(arg1 + 0x84) = *(f32 *)(arg0 + 0x14);
+    *(f32 *)(arg1 + 0xC0) = *(f32 *)(arg0 + 0x10);
+    *(f32 *)(arg1 + 0xC4) = *(f32 *)(arg0 + 0xC);
+}
+/* measured: close loop-invariant conversion scope for func_004a86c0. */
+#pragma opt_loop_invariants off
 // FUN_004A8890
 void func_004a8890(u8 *arg0, s32 *arg1) {
     s32 sp24C;
