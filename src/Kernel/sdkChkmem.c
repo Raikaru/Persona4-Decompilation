@@ -24,9 +24,11 @@ typedef struct ChkMemPool {
     s32 classCount[8];     /* 0x58 */
 } ChkMemPool;
 
+typedef struct E8Node E8Node;
+
 extern char D_007104E0[];
 extern char D_007104F0[];
-extern void func_0046d730(const char *file, s32 line);
+extern void func_0046d730(void *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
 extern s32 func_0043ece8(s32 size);
 extern void func_0044e8d0(void *ptr);
@@ -35,7 +37,7 @@ extern void func_0042ba70(void);
 extern void func_0043f810(void *dst, void *src, s32 size);
 extern void func_0043ed08(void *ptr);
 extern void *func_0044e9e0(void *ptr);
-extern u8 *func_0044e920(u8 *ptr);
+extern u8 *func_0044e920(E8Node *ptr);
 extern s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3);
 extern char iGpffffac30;
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
@@ -79,7 +81,7 @@ void func_0044ec50(s32 arg0) {
 // FUN_0044EC60
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ec60);
 
-/* measured: 0044ee70 candidate is 256B in the 256B retail window at verify normalized_diff 6. The header lookup, pool counters, direct class-byte loads, class accounting, free transition, and lock cleanup match; the only remaining residual is retail storing `sh $0,8($v0)` before copying the result into `$a0`, while b210 emits the argument move first. Named offset/pointer forms and field-load split variants were probed; plain C cannot force that store-vs-argument schedule. Committed at nd 6. */
+/* measured: 0044ee70 candidate is 256B in the 256B retail window at current normalized_diff 6, differing offsets 0xC8 and 0xCC. Corrected callee parameter declarations to func_0046d730(void *, s32) and func_0044e920(E8Node *); an explicit E8Node * cast is required by MWCC. The result remains the same store-vs-argument order residual: retail stores `sh $0,8($v0)` before copying `$v0` into `$a0`, while b210 emits the move first. Restored assembly fallback; no live mismatch. */
 // FUN_0044EE70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ee70);
 

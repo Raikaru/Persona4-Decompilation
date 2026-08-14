@@ -126,7 +126,12 @@ extern s32 D_007647BC;
    unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
 
 
-/* func_003c0050 archive: object 136B, window 144B, normalized_diff 13. */
+/* func_003c0050 archive: current body is object 136B/window 144B,
+   normalized_diff 35; differing offsets 38-46,54,84,94,98,100-105.
+   The stale nd 13 body still has the same size, but declaration order and
+   dependent initialization did not move the end/node/next register and load
+   order; schedule off is oversized at 156B/144B, nd 106. See
+   build/W4C3C_003c0050_body.c. */
 // FUN_003C0050 NONMATCHING
 #ifdef NON_MATCHING
 u8 *func_003c0050(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
@@ -495,8 +500,10 @@ u8 *func_003c1b90(u8 *arg0, u8 *arg1, s32 arg2) {
 }
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-/* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
-// FUN_003C1BD0
+/* func_003c1bd0 archive: current body is object 160B/window 160B,
+   normalized_diff 70; differing offsets 28,48,69,71-83. Residual is
+   branch/call layout; archived schedule/no_branch body remeasured unchanged. */
+// FUN_003C1BD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1bd0);
 /* measured: schedule on and no_branch_likely on reproduce the saved self,
    plain null branch, and final callback order. */
@@ -963,6 +970,10 @@ u8 *func_003c40d0(u8 *arg0) {
    so the bare INCLUDE_ASM fallback remains. */
 // FUN_003C4140
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4140);
+/* func_003c4220 archive: current body is object 148B/window 144B,
+   normalized_diff 81; first differing offsets 4,6-15,20,22-26. The object
+   is oversized, so the stale nd 28 reconstruction is archived without
+   further probes. */
 // FUN_003C4220 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4220);
 // FUN_003C42B0
@@ -1083,8 +1094,12 @@ s32 func_003c4a60(s32 *arg0, s32 arg1) {
 // FUN_003C4A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
 
-/* func_003c4bc0 archive: object 60B/window 64B, normalized_diff 8; see
-   build/F3C0_003c4bc0_body.c for the near-match and ruled-out layout probes. */
+/* func_003c4bc0 archive: object 60B/window 64B, normalized_diff 8; differing
+   offsets 4,28,52,54,55,56,58,59. Schedule + no_branch_likely together are
+   required for the compact body (schedule off is 68B/64B, nd 46). Explicit
+   out-of-line guard/goto labels and a separated epilogue label preserve nd 8;
+   residual remains branch-target/epilogue layout. See
+   build/F3C0_003c4bc0_body.c for the near-match and ruled-out probes. */
 // FUN_003C4BC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
 // FUN_003C4C00
@@ -1184,12 +1199,11 @@ call:
 // FUN_003C57D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c57d0);
 
-/* measured: archived c59f0 body is object 140B/window 160B,
-   normalized_diff 92; differing offsets 0x10-0x1f. Straight loop,
-   scoped/self-local do/while, callback declaration/order, named argument,
-   and branch-shape probes were ruled out; see
-   build/K3C1_003c59f0_body.c. */
-// FUN_003C59F0
+/* func_003c59f0 archive: current body is object 168B/window 160B,
+   normalized_diff 98; first reported differing offsets 16-20,22,24-31,34,36
+   (verify reports the first 16 offsets only). The archived body is oversized,
+   so no further probes were attempted. */
+// FUN_003C59F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c59f0);
 
 // FUN_003C5A90
@@ -1198,6 +1212,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5a90);
 // FUN_003C5D10
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5d10);
 
+/* func_003c5fd0 archive: current body is object 136B/window 144B,
+   normalized_diff 93; differing offsets 2,8,10,20,22-124 (31 differing
+   words). The stale nd 88 switch reconstruction has a large control-flow
+   order residual; restored fallback without further probes. */
 // FUN_003C5FD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5fd0);
 // FUN_003C6060
@@ -1622,13 +1640,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
    variants were ruled out. */
 // FUN_003CA270
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca270);
-/* measured: best reconstruction archived in build/K3C2_003ca320_body.c;
-   object 168B/window 176B, normalized_diff 10. The separate callback-return
-   guard plus schedule/no_branch_likely improves the prior nd 13 body. The
-   residual is callback branch polarity/layout at 0x68 and the resulting
-   continuation/epilogue displacement through 0x8C. Common-return,
-   explicit callback label/goto, distinct return casts, declaration,
-   volatile, and asm probes were ruled out. */
+/* func_003ca320 archive: current body is object 168B/window 176B,
+   normalized_diff 28; differing offsets 104,107,112-126. The residual is
+   callback branch polarity/layout and continuation/epilogue displacement.
+   Inverted callback guard/switch reduced object to 160B (nd 24), while a
+   common finish label was 164B (nd 34); pragma order was unchanged. See
+   build/K3C2_003ca320_body.c for the near-match and ruled-out probes. */
 // FUN_003CA320 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca320);
 // FUN_003CA3D0

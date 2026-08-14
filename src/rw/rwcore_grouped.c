@@ -1612,8 +1612,25 @@ INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040c6d0);
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040ca00);
 // FUN_0040CD60
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040cd60);
+/* measured: retail func_0040d0a0 uses plain blez/beqz branches. */
+#pragma no_branch_likely on
 // FUN_0040D0A0
-INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_0040d0a0);
+s32 func_0040d0a0(s32 arg0, s32 arg1)
+{
+    u8 *base;
+
+    if ((arg0 > 0) && ((u32)arg0 < 6U)) {
+        if ((iGpffffb984 & 1) != 0) {
+            base = D_00753340;
+        } else {
+            base = D_00753330;
+        }
+        D_0070C300[arg0](base, 0, arg1);
+    }
+    return 1;
+}
+/* measured: closes no_branch_likely around func_0040d0a0. */
+#pragma no_branch_likely off
 // FUN_0040D110
 void func_0040d110(void)
 {
@@ -1917,7 +1934,6 @@ void func_00410f40(void)
 }
 // FUN_00410F50
 INCLUDE_ASM("asm/nonmatchings/rwcore_grouped", func_00410f50);
-/* measured: retail cleanup guard is a plain bnez. */
 #pragma no_branch_likely on
 // FUN_00410FF0
 s32 func_00410ff0(void)
