@@ -201,7 +201,43 @@ void func_001838d0(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
     *(s32 *)(temp_2 + 0x30) = arg4;
 }
 // FUN_001839E0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_001839e0);
+void func_001839e0(u8 *arg0, u8 *arg1)
+{
+    u8 *callback;
+    s32 state;
+
+    callback = (u8 *)D_00887300;
+    (*(void (**)(s32, s32))callback)(0xE, 0);
+    (*(void (**)(s32, s32))callback)(6, 0);
+    (*(void (**)(s32, s32))callback)(8, 0);
+    (*(void (**)(s32, s32))callback)(0xC, 1);
+    (*(void (**)(s32, s32))callback)(7, 2);
+    (*(void (**)(s32, s32))callback)(9, 2);
+    (*(void (**)(s32, s32))callback)(2, 1);
+    func_003f6440(3, 0x71801);
+    state = *(s32 *)(arg1 + 0x43C);
+    switch (state) {
+    case 0:
+        func_003f6440(2, 0x44);
+        break;
+    case 1:
+        func_003f6440(2, 0x44);
+        break;
+    case 2:
+        func_003f6440(2, 0x71801);
+        break;
+    case 3:
+        func_003f6440(2, 0x42);
+        break;
+    case 4:
+        func_003f6440(2, 6);
+        break;
+    default:
+        break;
+    }
+    (*(void (**)(s32, s32))callback)(1,
+                                      *(s32 *)(*(u8 **)(arg1 + 0x410)));
+}
  
 // FUN_00183B80
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00183b80);

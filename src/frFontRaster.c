@@ -62,7 +62,65 @@ void func_00275bd0(void)
 }
 
 // FUN_00275C00
-INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275c00);
+void func_00275c00(void)
+{
+    u32 *puVar1;
+    u32 *puVar2;
+    u32 *puVar3;
+
+    puVar2 = (u32 *)0x0;
+    puVar1 = *(u32 **)(iGpffffb954 + 8);
+    while (puVar3 = puVar1, puVar3 != (u32 *)0x0) {
+        if (((*puVar3 & 1) == 0) || (puVar3[4] == 0)) {
+            *(short *)((int)puVar3 + 10) =
+                *(short *)((int)puVar3 + 10) + -1;
+        }
+        if (*(short *)((int)puVar3 + 10) < 0) {
+            if (puVar2 == (u32 *)0x0) {
+                *(u32 *)(iGpffffb954 + 8) = puVar3[6];
+                if (*(int *)(iGpffffb954 + 8) == 0) {
+                    *(int *)(iGpffffb954 + 0xc) = 0;
+                }
+                if (*(int *)(iGpffffb954 + 0x14) != 0) {
+                    *(u32 **)(*(int *)(iGpffffb954 + 0x14) + 0x18) = puVar3;
+                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                } else {
+                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                    *(u32 **)(iGpffffb954 + 0x10) = puVar3;
+                }
+                puVar3[6] = 0;
+                puVar2 = (u32 *)0x0;
+                puVar1 = *(u32 **)(iGpffffb954 + 8);
+            } else if (puVar3[6] == 0) {
+                *(u32 **)(iGpffffb954 + 0xc) = puVar2;
+                puVar2[6] = 0;
+                if (*(int *)(iGpffffb954 + 0x14) != 0) {
+                    *(u32 **)(*(int *)(iGpffffb954 + 0x14) + 0x18) = puVar3;
+                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                } else {
+                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                    *(u32 **)(iGpffffb954 + 0x10) = puVar3;
+                }
+                puVar3[6] = 0;
+                puVar1 = (u32 *)0x0;
+            } else {
+                puVar2[6] = puVar3[6];
+                if (*(int *)(iGpffffb954 + 0x14) != 0) {
+                    *(u32 **)(*(int *)(iGpffffb954 + 0x14) + 0x18) = puVar3;
+                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                } else {
+                    *(u32 **)(iGpffffb954 + 0x14) = puVar3;
+                    *(u32 **)(iGpffffb954 + 0x10) = puVar3;
+                }
+                puVar3[6] = 0;
+                puVar1 = (u32 *)puVar2[6];
+            }
+        } else {
+            puVar2 = puVar3;
+            puVar1 = (u32 *)puVar3[6];
+        }
+    }
+}
 
 // FUN_00275D80
 INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275d80);

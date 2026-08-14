@@ -308,21 +308,18 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
     func_0048a000();
 }
 
-/* measured: d800's copy loop, float block, color packing and += loop all match
-   retail instruction-for-instruction in order; only REGISTER allocation differs.
-   Retail's countdown copy loop uses $t5/$t2/$t1/$t0/$v0, keeping $a0-$a3 alive for
-   the later mtc1 $a0/$a1 conversions and sll $a2 packing; mwcc b210 allocates my
-   loop $a0/$a1/$a2 (free after prologue moves) which cascades: conversions read
-   $t1/$t2, and the prologue copies land in $t1/$t2/$t3 vs retail $t4/$v1/$t3.
-   Tried: F2/U32Pair/u64 struct copies, pointer vs indexed loops, for vs do-while
-   countdown, two-local (lo/hi) copy, 4 declaration-order permutations, src/dst
-   statement order, and inline f32Add helpers (all fuse into adda.s/madd.s).
-   nd 66, all 66 words are register-name-only diffs. Register-coloring floor. */
+/* Near-match archived in build/TWIN_0027d800_body.c: object 364B/window 368B,
+   nd 22 with a one-instruction deficit. The copy loop, aggregate layout, color
+   packing, and += loop match; residuals are confined to the COP1 constant/mul/add
+   block at offsets 76-100 (register assignment and schedule). Probed aggregate
+   gap layout, pointer/indexed for/do-while copy forms, struct field order,
+   statement order, operand order, inline helper fusion, -O1, opt_propagation off,
+   and opt_common_subs off without closing it. No inline asm or live mismatch. */
 // FUN_0027D800
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d800);
 
 /* Skip: retail contains COP1 adda.s/madd.s chains; ordinary FPU-MAC inline asm
-   is prohibited, and this function has no measured plain-C near-match. */
+   is prohibited. The plain-C near-match is archived above. */
 // FUN_0027D970
 INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d970);
 
