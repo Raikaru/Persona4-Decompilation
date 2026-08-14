@@ -100,7 +100,49 @@ void func_001ec6d0(s16* outX, s16* outZ, f32* position)
 
 
 // FUN_001EC790
-INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001ec790);
+/* measured: opt_propagation off keeps zMax materialization before the
+   xMaxWorld conversion, matching retail's instruction order. */
+#pragma opt_propagation off
+void func_001ec790(void* work, s32 x, s32 z, f32 radius)
+{
+    s32 radiusInt;
+    s32 radiusTiles;
+    s16 xMin;
+    s16 zMin;
+    s16 diameterTiles;
+    s16 xMax;
+    s16 zMax;
+    f32 xMinWorld;
+    f32 zMinWorld;
+    f32 xMaxWorld;
+    f32 zMaxWorld;
+
+    radiusInt = (s32)radius;
+    radiusTiles = (s32)(s16)(radiusInt / 25);
+    if (radiusInt % 25 != 0) {
+        radiusTiles = (s32)(s16)(radiusTiles + 1);
+    }
+    xMin = x - radiusTiles;
+    zMin = z - radiusTiles;
+    xMinWorld = (f32)(xMin * 25 - 1750);
+    zMinWorld = (f32)(zMin * 25 - 1750);
+    diameterTiles = (s16)radiusTiles * 2;
+    xMax = xMin + diameterTiles;
+    zMax = zMin + diameterTiles;
+    xMaxWorld = (f32)(xMax * 25 - 1750);
+    zMaxWorld = (f32)(zMax * 25 - 1750);
+
+    *(f32*)((u8*)work + 0x510) = xMinWorld;
+    *(f32*)((u8*)work + 0x514) = zMinWorld;
+    *(f32*)((u8*)work + 0x640) = xMaxWorld;
+    *(f32*)((u8*)work + 0x644) = zMinWorld;
+    *(f32*)((u8*)work + 0x770) = xMaxWorld;
+    *(f32*)((u8*)work + 0x774) = zMaxWorld;
+    *(f32*)((u8*)work + 0x8A0) = xMinWorld;
+    *(f32*)((u8*)work + 0x8A4) = zMaxWorld;
+}
+/* measured: opt_propagation on restores the unit baseline after this match. */
+#pragma opt_propagation on
 // FUN_001EC8C0
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001ec8c0);
 // FUN_001ECA10

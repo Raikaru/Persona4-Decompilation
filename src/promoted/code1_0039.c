@@ -207,7 +207,6 @@ s32 func_00390500(s32 arg0)
 
 // FUN_00390520
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390520);
-
 // FUN_00390680
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00390680);
 
@@ -240,7 +239,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394c70);
 
 // FUN_00394D70
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394d70);
-
 // FUN_00394E70
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394e70);
 
