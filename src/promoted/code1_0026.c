@@ -119,7 +119,7 @@ extern void func_0025f430(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           f32 arg8, f32 arg9, f32 arg10, f32 arg11,
                           f32 arg12, f32 arg13);
 extern void func_00263cb0(s32 arg0);
-extern void func_00274660();
+extern void func_00274660(u32 param_1, int param_2);
 extern s32 func_00266950(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00266a40(u32 arg0, s32 arg1);
 extern void func_00266a90(u8 *arg0);
@@ -1257,9 +1257,12 @@ s32 func_0026eba0(void)
 }
 /* measured: best plain-C body archived at build/W260_0026ebe0_body.c;
    object 288B, retail window 288B, normalized_diff 17; differing offsets
-   0x40,0x44,0x50,0x54,0x5C,0x60,0x64,0x68,0x78,0x7C,0x88,0x90,0x94,0x98,0x9C.
-   Exact-size register-allocation residual remains after declaration, type,
-   loop-shape, operand/order, pragma, and permutation probes. */
+   0x40,0x44,0x50,0x54,0x5C,0x60,0x64,0x68,0x6C,0x78,0x7C,0x88,0x90,0x94,0x98.
+   Common factor is the scan-loop temporary register colouring: retail reuses
+   $v0 for the 0xA sentinel and $v1 for the decoded byte/index, while the
+   candidate uses $a0/$v0; no global or callee occurs at the differing words.
+   Corrected func_00274660(u32, int) declaration was measured and had no
+   effect on this residual. */
 // FUN_0026EBE0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ebe0);
 /* measured: opt_propagation off preserves decode and state-store order for func_0026ed00. */

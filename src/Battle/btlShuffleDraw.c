@@ -603,7 +603,7 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 }
 
 
-/* measured: O1 near miss (nd 20, obj 156B/window 160B). Retail keeps arg0 in $s1, idx in $s0, and p in $s2; declaring the base as ((u32)arg0 + (u32)idx) fixes the addu operand order. The second call and final store still recompute the base instead of reusing p; p+ forms collapse the frame under b210. Committed at nd 20. */
+/* measured: archived near miss (object 156B / window 160B / normalized_diff 20). Retail offsets 0x44-0x54 are the literal-5 store sequence `li $a0,5; move $v1,$s2; lui $v0,2; addu $v0,$v1,$v0; sw $a0,-0x295c($v0)`, not one call's argument set; 0x60 is the second-call `addu $a0,$s2,$at`, and 0x70 is the final-store `move $a0,$s2`. Candidate emits `li $v1,5; lui $v0,2; addu $v0,$s2,$v0; sw $v1,...`, recomputes the base for the second call, and emits `addu $a0,$s0,$s1` for the final base. Probes newly ruled out: full named store/value/base staging and call-argument locals (either optimized back to nd20 or shrink to 128/152B), all declaration permutations tested, opt_propagation off, schedule off (leaked to siblings and reverted), plus prior p+ forms, integer-domain locals, duplicated bases, named constants/values, pointer staging, declaration-order swaps, and operand-order recomputation. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
