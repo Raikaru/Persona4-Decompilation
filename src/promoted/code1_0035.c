@@ -815,13 +815,57 @@ void func_00356140(u8 *arg0)
    alternate assignment/call staging; best plain-C candidate remains nd 8. */
 // FUN_00356170 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
-/* measured: object 116B/window 128B; normalized_diff 15; differing offsets
-   0x10, 0x18, 0x40, 0x44, 0x48, 0x4C, 0x50, 0x54, 0x58 (call setup and
-   relocation-masked tail). The plain-C body is archived in
-   build/V035_003561d0_body.c; declaration and schedule variants were ruled
-   out without changing the residual family. */
-// FUN_003561D0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003561d0);
+/* measured: opt_propagation off probe for staged argument materialisation. */
+#pragma opt_propagation off
+/* measured: object 116B/window 128B; normalized_diff 0. Named call-argument
+   locals preserve retail materialisation order under opt_propagation off; the
+   12-byte tail is retail zero padding. */
+// FUN_003561D0
+void func_003561d0(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
+                   f32 dummy, f32 f0, f32 f1)
+{
+    struct Frame { s64 saved0; s32 saved1; f32 temp; } frame;
+    s32 var8;
+    u8 sel;
+    f32 scaled;
+    f32 one;
+    f32 shifted;
+    f32 call_f0;
+    f32 call_f1;
+    f32 call_f2;
+    f32 call_f3;
+    s64 call_arg0;
+    s32 call_arg1;
+    s32 call_arg2;
+    s32 call_arg4;
+    f32 call_f4;
+
+    frame.saved0 = arg0;
+    frame.saved1 = arg1;
+    scaled = f0 / iGpffff83d4;
+    shifted = iGpffff8544 + f1;
+    var8 = arg2;
+    frame.temp = *(f32 *)((u8 *)&frame.saved1);
+    sel = ((u8 *)&frame.temp)[3];
+    if (sel != 0xFF) {
+        var8 = 0;
+    }
+    one = 1.0f;
+    call_f0 = dummy;
+    call_f1 = scaled;
+    call_f2 = shifted;
+    call_f3 = one;
+    call_arg0 = *(s64 *)((u8 *)&frame.saved0);
+    call_arg1 = frame.saved1;
+    call_arg2 = frame.saved1;
+    call_arg4 = var8;
+    call_f4 = one;
+    func_00365f00(call_f0, call_f1, call_f2, call_f3,
+                  call_arg0, call_arg1, call_arg2, 4,
+                  call_arg4, call_f4);
+}
+/* measured: closes opt_propagation off probe for staged argument materialisation. */
+#pragma opt_propagation on
 // FUN_00356250
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356250);
 // FUN_00356820

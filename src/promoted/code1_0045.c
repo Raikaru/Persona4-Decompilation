@@ -400,10 +400,10 @@ void func_004530b0(s32 arg0) {
     func_00453310(arg0, 0x80, 0xB);
 }
 /* measured: no calls; declaration lever inapplicable. Object 192B vs window 192B, normalized_diff 16; differing byte offsets 17,22,34,42,66,94,102,122,125,126,130,138,142,162,170,182. Best body archived in build/D453_00453250_body.c. */
-// FUN_00453250
+// FUN_00453250 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00453250);
 /* measured: no calls; declaration lever inapplicable. Object 192B vs window 192B, normalized_diff 16; differing byte offsets 17,22,34,42,66,94,102,122,125,126,130,138,142,162,170,182. Best body archived in build/L045_00453310_body.c. */
-// FUN_00453310
+// FUN_00453310 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00453310);
 // FUN_004533D0
 void func_004533d0(void)
@@ -570,8 +570,8 @@ s32 func_004556b0(u8* arg0, u32 arg1)
 
 
 
-/* measured: archived best body build/D456_00456530_body.c; object 348B, retail window 352B, normalized_diff 18; residual differing offsets 146,150,166,170,174,186,198,202,206,218,226,274,277,278,282,290. */
-// FUN_00456530
+/* measured: archived best body build/Y045_00456530_body.c; object 348B, retail window 352B, normalized_diff 74; residual first differing offsets 141,144,146,147,148,150,151,152,153,154,155,156,158,159,160,161. */
+// FUN_00456530 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00456530);
 // FUN_004566C0
 s32 func_004566c0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3) {

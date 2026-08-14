@@ -67,8 +67,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b0b80);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b12a0);
 // FUN_003B1A10
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b1a10);
-/* measured: best plain-C attempt object 168B/window 160B, normalized_diff 124; archived at build/K3B6_003b31a0_nd124.c and restored to INCLUDE_ASM. Object exceeded the window, so reconstruction stopped per wave rule. */
-// FUN_003B31A0
+/* measured: best fresh plain-C attempt object 164B/window 160B, normalized_diff 34; archived at build/K3B6_003b31a0_nd34.c and restored to INCLUDE_ASM because object exceeded the retail window. */
+// FUN_003B31A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b31a0);
 // FUN_003B3240
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b3240);
@@ -123,8 +123,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b61e0);
 /* measured: best plain-C attempt object 144B/window 144B, normalized_diff 78; archived at build/K3B6_003b6390_nd78.c and restored to INCLUDE_ASM. Residual is register coloring and load/store scheduling across the exact-size loop; declaration and O1 probes were ruled out. */
 // FUN_003B6390
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6390);
-/* measured: best plain-C attempt object 152B/window 160B, normalized_diff 84; archived at build/K3B6_003b6420_nd84.c and restored to INCLUDE_ASM. Residual is register coloring/load-store scheduling and an 8B short object. */
-// FUN_003B6420
+/* measured: best fresh plain-C attempt object 152B/window 160B, normalized_diff 35; archived at build/K3B6_003b6420_nd35.c and restored to INCLUDE_ASM. */
+// FUN_003B6420 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6420);
 /* measured: best plain-C attempt object 124B/window 128B, normalized_diff 90;
    archived at build/FP3B_003b64c0_body.c and restored to INCLUDE_ASM. */
@@ -170,7 +170,13 @@ s32 func_003b6e00(s32 arg0) {
 /* measured: close no_branch_likely and schedule around func_003b6e00. */
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: best plain-C attempt object 124B/window 144B, normalized_diff 44; archived at build/K3B6_003b6e70_nd44.c. Schedule-on, store/reload alias, global-expression, type, and allocation-call-shape probes did not move the residual. */
+/* measured: plain-C recheck object 148B/window 144B, normalized_diff 34;
+   differing offsets 0,8,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,
+   80,84,88,92,96,100,104,112,116,120,124,128,132,136,140,144.  The
+   object exceeds the retail window, so the body is archived in
+   build/Y3BA_003b6e70_body.c and the fallback is restored.  Casts written:
+   none.  Levers ruled out: schedule-on plus optimization-level-1 and
+   reload-preserving *base source. */
 // FUN_003B6E70 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6e70);
 /* measured: in-file body recheck is object 280B/window 352B with
@@ -865,18 +871,13 @@ do2:
 #pragma schedule off
 #pragma no_branch_likely off
 
-/* measured: nd 48 of 28 words, obj 112/112 (correct size).  Two residuals
-   no source shape or schedule/optimization knob removes: (1) retail hoists
-   the first `lw *(arg2+0x6C)` to offset 4, before the register saves, to
-   hide load latency; mwcc schedules it after the saves (offsets 4-20
-   shifted).  (2) retail emits `movz $s1,$zero,$v0` for the second
-   conditional return; mwcc emits `bnez; move $s1,$0` instead.  Tried: flat
-   early returns, goto block layout, result variable, ternaries (both
-   directions), nested ifs, &&, cached base local, #pragma schedule on --
-   all nd 48.  #pragma no_branch_likely is load-bearing: without it mwcc
-   emits bnel (nd 57). */
-/* Archived C body: build/WBHygiene_func_003bd4f0_archive.txt; no current park body remains. */
-// FUN_003BD4F0
+/* measured: plain-C recheck object 128B/window 112B, normalized_diff 27;
+   differing offsets 4,8,12,16,20,24,32,40,44,48,56,60,64,68,72,76,84,
+   88,92,96,100,104,108,112,116,120,124.  The object exceeds the retail
+   window, so the body is archived in build/Y3BA_003bd4f0_body.c and the
+   fallback is restored.  Casts written: none.  Levers ruled out: plain-C
+   recheck with no_branch_likely on. */
+// FUN_003BD4F0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd4f0);
 
 /* measured: schedule on is required for func_003bd560's return delay slot. */
@@ -945,19 +946,13 @@ do2:
 /* measured: schedule off closes func_003bd590 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
-   movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
-   shapes tried.  #pragma no_branch_likely is load-bearing (nd 57 without). */
-/* measured: the two guarded func_003df240 calls, the reloaded 0x7C field and
-   the `return 0` block all match. Residual nd 37: retail folds the final
-   `r ? arg0 : 0` into a single `movz $s1,$zero,$v0` where b210 emits
-   `beql` + `move`, and it hoists the first 0x7C load above the prologue
-   stores. Measured: no_branch_likely on turns the beql into a branch pair and
-   costs more (nd 56 with the ternary, nd 48 with an `if (r == 0) arg0 = 0;`),
-   `#pragma conditional_move on` changes nothing, and schedule on changes
-   nothing. Conditional-move materialisation floor. Committed at nd 37. */
-// Archived C body: build/WBHygiene_func_003bd610_archive.txt; no current park body remains.
-// FUN_003BD610
+/* measured: plain-C recheck object 136B/window 112B, normalized_diff 29;
+   differing offsets 4,8,12,16,20,24,32,40,44,48,56,60,64,68,72,76,84,
+   88,92,96,100,104,108,112,116,120,124,128,132.  The object exceeds the
+   retail window, so the body is archived in build/Y3BA_003bd610_body.c and
+   the fallback is restored.  Casts written: none.  Levers ruled out:
+   plain-C recheck with s32/s32/u8* signature. */
+// FUN_003BD610 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd610);
 
 /* measured: schedule on opens func_003bd680's independent probe. */
@@ -1080,19 +1075,13 @@ do2:
 /* measured: schedule off closes func_003be820 before the archived ASM sibling. */
 #pragma schedule off
 
-/* measured: same two residuals as func_003bd4f0 (prologue load hoisting +
-   movz vs branch), nd 48, obj 112/112.  See the func_003bd4f0 note for the
-   shapes tried.  #pragma no_branch_likely is load-bearing (nd 57 without). */
-/* measured: the two guarded func_003df240 calls, the reloaded 0x6C field and
-   the `return 0` block all match. Residual nd 37: retail folds the final
-   `r ? arg0 : 0` into a single `movz $s1,$zero,$v0` where b210 emits
-   `beql` + `move`, and it hoists the first 0x6C load above the prologue
-   stores. Measured: no_branch_likely on turns the beql into a branch pair and
-   costs more (nd 56 with the ternary, nd 48 with an `if (r == 0) arg0 = 0;`),
-   `#pragma conditional_move on` changes nothing, and schedule on changes
-   nothing. Conditional-move materialisation floor. Committed at nd 37. */
-// Archived C body: build/WBHygiene_func_003be8a0_archive.txt; no current park body remains.
-// FUN_003BE8A0
+/* measured: plain-C recheck object 136B/window 112B, normalized_diff 29;
+   differing offsets 4,8,12,16,20,24,32,40,44,48,56,60,64,68,72,76,84,
+   88,92,96,100,104,108,112,116,120,124,128,132.  The object exceeds the
+   retail window, so the body is archived in build/Y3BA_003be8a0_body.c and
+   the fallback is restored.  Casts written: none.  Levers ruled out:
+   plain-C recheck with s32/s32/u8* signature. */
+// FUN_003BE8A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be8a0);
 
 /* measured: schedule on opens func_003be910's independent probe. */
@@ -1406,12 +1395,12 @@ s32 func_003bfe60(void *arg0) {
 }
 /* measured: close schedule around func_003bfe60. */
 #pragma schedule off
-/* measured: list-walk candidate normalized_diff 81; restored assembly fallback. */
-// FUN_003BFE90
+/* measured: best fresh plain-C attempt object 140B/window 160B, normalized_diff 24; archived at build/K3B6_003bfe90_nd24.c and restored to INCLUDE_ASM. */
+// FUN_003BFE90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
 /* measured: best plain-C attempt object 120B/window 144B, normalized_diff 41; archived at build/K3B6_003bff30_nd41.c and restored to INCLUDE_ASM. Residual is sentinel/current register and load-order coloring at offsets 36-44, callback branch polarity/layout at 68, and tail layout at 71-86. */
 // FUN_003BFF30
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bff30);
-/* measured: best plain-C attempt object 128B/window 144B, normalized_diff 41; archived at build/K3B6_003bffc0_nd41.c and restored to INCLUDE_ASM. Residual is sentinel/current register coloring at offsets 36-54, callback branch polarity at 76, and tail layout at 79-94. */
+/* measured: best fresh plain-C attempt object 156B/window 144B, normalized_diff 32; archived at build/K3B6_003bffc0_nd32.c and restored to INCLUDE_ASM because object exceeded the retail window. */
 // FUN_003BFFC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bffc0);

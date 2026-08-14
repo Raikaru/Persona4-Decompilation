@@ -1256,9 +1256,11 @@ s32 func_0026eba0(void)
     return 1;
 }
 /* measured: best plain-C body archived at build/W260_0026ebe0_body.c;
-   object 288B, retail window 288B, normalized_diff 17. Bare INCLUDE_ASM is
-   retained because the remaining residual is register allocation/scheduling. */
-// FUN_0026EBE0
+   object 288B, retail window 288B, normalized_diff 17; differing offsets
+   0x40,0x44,0x50,0x54,0x5C,0x60,0x64,0x68,0x78,0x7C,0x88,0x90,0x94,0x98,0x9C.
+   Exact-size register-allocation residual remains after declaration, type,
+   loop-shape, operand/order, pragma, and permutation probes. */
+// FUN_0026EBE0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026ebe0);
 /* measured: opt_propagation off preserves decode and state-store order for func_0026ed00. */
 #pragma opt_propagation off

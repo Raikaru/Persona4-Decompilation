@@ -265,7 +265,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00395bd0);
 // FUN_003961F0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003961f0);
 
-// FUN_003962E0
+/* measured: archived 962e0 reconstruction in build/Y039_962e0_body.c; object 188B / window 208B / normalized_diff 49. */
+// FUN_003962E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_003962e0);
 // FUN_003963B0
 s32 func_003963b0(u8 *arg0)
@@ -1811,8 +1812,9 @@ docall:
 // FUN_00399450
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399450);
 
-// FUN_00399470
+// FUN_00399470 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399470);
+
 
 // FUN_00399530
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399530);
@@ -2971,7 +2973,7 @@ s32 func_0039ae30(s32 arg0)
 /* measured: retail uses a plain beqz for the initialization test. */
 #pragma no_branch_likely on
 
-// FUN_0039AE90
+// FUN_0039AE90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039ae90);
 // FUN_0039AF40
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039af40);
@@ -3018,7 +3020,7 @@ s32 func_0039b290(s32 arg0)
     *(s32 *)(p + 4) = (s32)func_0039b250;
     return arg0;
 }
-// FUN_0039B2C0
+// FUN_0039B2C0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039b2c0);
 // FUN_0039B380
 s32 func_0039b380(void)

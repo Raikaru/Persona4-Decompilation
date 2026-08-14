@@ -104,7 +104,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004140f0);
 // FUN_004141E0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004141e0);
 
-// FUN_004142B0
+/* measured: frameless MWCC candidate archived at object 224B/window 224B, normalized_diff 49; compiler has sd $ra only and no callee-saved save (no sq/sd diagnostic), while addiu/addu/sltu style and pre-transition location retain MWCC classification. Body archived in build/Y041_004142b0_body.c after schedule-on and opt_rebuildconditionals-off probes. */
+// FUN_004142B0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004142b0);
 
 
@@ -161,22 +162,19 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414930);
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414a30);
 
 
-/* Probed: scheduler, no_branch_likely-on and opt_rebuildconditionals-off were
-   each measured around a candidate body for func_00414b50, which reached
-   object 192B against a 192B window at normalized_diff 19; residual was
-   register colouring, float load ordering and branch-delay scheduling.
-   The candidate was reverted, so no pragma bracket is kept here: pragmas do
-   not affect an INCLUDE_ASM body. Reinstate them only alongside a real body. */
-// FUN_00414B50
+/* measured: MWCC candidate archived at object 200B/window 192B, normalized_diff 102; fndiff differing offsets 0x0C, 0x2A, 0x2C, 0x34-0xC4. Compiler check was frameless (no callee-saved save; no sq/sd diagnostic), so this pre-transition function is retained as MWCC candidate. Body archived in build/Y041_00414b50_body.c after schedule-on, no_branch_likely-on, opt_rebuildconditionals-off, typed-body, and cast/order probes. */
+// FUN_00414B50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414b50);
 
 // FUN_00414C10
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414c10);
 
-// FUN_00414E10
+/* measured: MWCC sq-prologue archived body object 244B/window 224B, normalized_diff 197; fndiff differing offsets 0x04-0x58, 0x60-0xF0. Body archived in build/Y041_00414e10_body.c after schedule-on (204B/48), helper declaration, argument-shape, and mask-order probes. */
+// FUN_00414E10 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414e10);
 
-// FUN_00414EF0
+/* measured: MWCC sq-prologue archived body object 204B/window 224B, normalized_diff 141; fndiff differing offsets 0x00-0xDC except relocation-masked helper calls. Corrected post-loop sentinel reload retained in build/Y041_00414ef0_body.c; schedule+no_branch_likely-on (188B/39) and direct/old-style helper probes ruled out. */
+// FUN_00414EF0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00414ef0);
 
 /* measured: MWCC sq-prologue; object 160B/window 160B, normalized_diff 93. Archived body: build/K414_00414fd0_body.c. */
