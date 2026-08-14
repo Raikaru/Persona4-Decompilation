@@ -27,6 +27,10 @@ extern u8 D_00793E80[];
 extern void func_0034a8b0(void *arg0);
 extern f32 fGpffff8504;
 extern void func_0046d280(u8 *arg0);
+extern f32 D_0088467C[];
+extern f32 D_008872F8[];
+extern void func_0034f0d0(f32 fparg0, f32 fparg1, u8 *arg0, f32 fparg2,
+                           f32 fparg3, u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 
 // struct passed by value to func_0034b820 (64-bit: two floats in $a1-$a2)
 typedef struct {
@@ -204,11 +208,54 @@ void func_0034edc0(void)
 /* measured: close opt_propagation bracket for func_0034edc0. */
 #pragma opt_propagation on
 // FUN_0034EE90
-INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034ee90);
-// FUN_0034F0D0
-void func_0034f0d0(u8 *arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4,
-                   f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3) {
+void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
+{
+    f32 temp_f1;
+    f32 temp_f0;
+    f32 temp_f23;
+    f32 temp_f22;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 var_f1;
+    u8 temp_3;
+    u8 *temp_17;
+    u8 *temp_16;
+    u8 *var_4;
 
+    var_4 = (u8 *)(arg0);
+    temp_3 = (u8)((u8)(*(u8 *)(arg0 + 0x994)));
+    var_f1 = (f32)(u32)temp_3;
+    temp_f1 = var_f1 / 255.0f;
+    temp_17 = (u8 *)(arg0);
+    temp_f20 = fparg0;
+    if (!(fparg2 <= 0.0f)) {
+        temp_f23 = D_008872F8[0] - D_0088467C[0];
+        temp_f22 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        temp_16 = (u8 *)((s32)(temp_17) + 0x790);
+        *(s32 *)(temp_17 + 0x990) = 1;
+        temp_f21 = 448.0f + fparg1;
+        temp_f0 = temp_f20 - 208.0f;
+        temp_f0 += *(f32 *)(temp_17 + 0x99C);
+        func_0034f0d0(temp_f0,
+                      temp_f21 + *(f32 *)(temp_17 + 0x9A0), temp_16, temp_f23, temp_f22,
+                      0xFF, 0xE9, 0x36, 0);
+        temp_f20 = 640.0f + (f32)temp_f20;
+        temp_f1 = 51.0f * fparg2 * (f32)temp_f1;
+        func_0034f0d0(temp_f20 + *(f32 *)(temp_17 + 0x99C),
+                      temp_f21 + *(f32 *)(temp_17 + 0x9A0),
+                      (u8 *)((s32)(temp_16) + 0x40), temp_f23, temp_f22,
+                      0xFF, 0xE9, 0x36, (u8)temp_f1);
+        func_0034f0d0(temp_f20 + *(f32 *)(temp_17 + 0x99C),
+                      fparg1 + *(f32 *)(temp_17 + 0x9A0),
+                      (u8 *)((s32)(temp_16) + 0x80), temp_f23, temp_f22,
+                      0xFF, 0xE9, 0x36, 0);
+        return;
+    }
+    *(s32 *)(temp_17 + 0x990) = 0;
+}
+// FUN_0034F0D0
+void func_0034f0d0(f32 fparg0, f32 fparg1, u8 *arg0, f32 fparg2,
+                   f32 fparg3, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
     *(f32 *)(arg0 + 0) = fparg0;
     *(f32 *)(arg0 + 4) = fparg1;
     *(f32 *)(arg0 + 8) = fparg2;

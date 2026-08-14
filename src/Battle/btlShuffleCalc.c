@@ -205,29 +205,41 @@ void func_00371990(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0, f32 fparg1) {
     *(ShuffleVec3 *)(arg0 + 0x24) = *(ShuffleVec3 *)(arg2 + 0);
 }
 
-/* measured: recipe A applied (s32 lhu local, u32 copy, (s32) cast on the
-   or-result, x+x doubling) — the old s16-cast note is stale: b210 now emits
-   the single bare bltz with clean srl/andi/or in both half-scalers. Residual
-   (best nd 60): (1) the increment re-load `lhu` is CSE'd away (candidate
-   `addiu $v0,$a0,1` reuses the 1st load, which stays live across the whole
-   half-scaler and colors $a0 vs retail $v0 — the recorded Load-CSE floor,
-   cf. func_003720c0); (2) the recorded or-fold/cvt-scratch in both arms
-   (`or $v0,$v1,$v0` + `cvt.s.w $f0,$f0` vs retail `or $v1,$v1,$v0` +
-   `cvt.s.w $f1,$f0`, cf. func_00372960); (3) b210 folds the +0.0f call-arg
-   add (retail mtc1 $0/add.s into $f12); (4) the store-lerp compiles to
-   adda/madd ACC chains (retail plain mul.s/add.s; split mul/add statements
-   tried, identical). Ternary half-scalers (func_003720c0's trick) only
-   reverse the srl/andi order here. u16-sign-test residual after recipe. */
-/* measured: archived body in build/VSHF_00371a60_body.c; object 312B /
-   320B window, normalized_diff 26, differing offsets 0x10, 0x14, 0x1C,
-   0x30, 0x34, 0x68, 0xD0, 0xD8-0x118. Both int-to-float sites use the
-   plain `(f32)(u32)value` cast and emit retail's unsigned conversion idiom.
-   Ruled out: u16/u32/s32 value locals, direct casts, typed ShuffleCalcUnit
-   pointer, compound increment, helper argument staging, alternate FP lerp
-   expression orders, optimization-level and propagation pragmas. Residual
-   is argument-register/CSE and FP register/schedule coloring. */
-// FUN_00371A60 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371a60);
+/* measured: func_00371a60 is a live MATCH (object 312B / 320B window /
+   normalized_diff 0). Both int-to-float sites use plain `(f32)(u32)`
+   casts. Difference-first float locals reproduce retail's separate
+   subtraction, multiply, and add sequence; `*(u16 *)arg0 += 1` preserves
+   the retail count reload. */
+// FUN_00371A60
+s32 func_00371a60(u8 *arg0, s32 arg1) {
+    f32 half;
+    f32 zero;
+    f32 temp_f0;
+    f32 temp_f5;
+    f32 diff0;
+    f32 diff1;
+    f32 diff2;
+
+    zero = 0.0f;
+    half = (f32)(u32)*(u16 *)arg0;
+    if (!(half < *(f32 *)(arg0 + 4))) {
+        return 1;
+    }
+    *(u16 *)arg0 += 1;
+    half = (f32)(u32)*(u16 *)arg0;
+    temp_f0 = func_00373cb0(half + zero, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 4), arg1);
+    temp_f5 = *(f32 *)(arg0 + 0x18);
+    diff0 = *(f32 *)(arg0 + 0x24) - temp_f5;
+    diff1 = *(f32 *)(arg0 + 0x28) - *(f32 *)(arg0 + 0x1C);
+    diff2 = *(f32 *)(arg0 + 0x2C) - *(f32 *)(arg0 + 0x20);
+    diff0 = diff0 * temp_f0;
+    diff1 = diff1 * temp_f0;
+    diff2 = diff2 * temp_f0;
+    *(f32 *)(arg0 + 0xC) = diff0 + temp_f5;
+    *(f32 *)(arg0 + 0x10) = diff1 + *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg0 + 0x14) = diff2 + *(f32 *)(arg0 + 0x20);
+    return 0;
+}
 // FUN_00371BA0
 void func_00371ba0(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
     f32 f0;
@@ -399,17 +411,53 @@ void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
 }
 // FUN_003720C0
 INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
-/* measured: archived body in build/VSHF_00372200_body.c; object 416B /
-   416B window, normalized_diff 32, differing offsets 0xE0, 0xF0-0x15C
-   (excluding relocation-masked call words). Both int-to-float sites use
-   plain `(f32)(u16)` casts and match retail's unsigned conversion idiom.
-   Ruled out: typed ShuffleCalcUnit pointer, u16/u32 value locals, direct
-   versus compound increment, duration reload/hoist, factor and interpolation
-   temporary orders, declaration-order FP probes, optimization-level and
-   propagation pragmas; residual is FP register/schedule coloring and tail
-   expression order. */
-// FUN_00372200 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372200);
+/* measured: func_00372200 is a live MATCH (object 416B / 416B window /
+   normalized_diff 0). Both int-to-float sites use plain `(f32)(u16)`
+   casts. Difference-first locals reproduce retail's separate interpolation
+   subtraction and multiply sequence. */
+// FUN_00372200
+s32 func_00372200(u8 *arg0) {
+    f32 t;
+    f32 t2;
+    f32 d0;
+    f32 d1;
+    f32 d2;
+    f32 diff0;
+    f32 diff1;
+    f32 diff2;
+
+    d2 = *(f32 *)(arg0 + 4);
+    t = (f32)(u16)*(u16 *)(arg0 + 0);
+    if (!(t < d2)) {
+        return 1;
+    }
+    if (*(f32 *)(arg0 + 4) <= 0.0f) {
+        func_0046d730(&D_0064E9C0, 0x22F);
+    }
+    t = (f32)(u16)(*(u16 *)(arg0 + 0) += 1);
+    t = t + 0.0f;
+    d2 = *(f32 *)(arg0 + 4);
+    t = t / d2;
+    t2 = 2.0f * t;
+    t2 = t2 * t;
+    t2 = t - t2;
+    d0 = *(f32 *)(arg0 + 0x30) * t2;
+    d1 = *(f32 *)(arg0 + 0x34) * t2;
+    d2 = *(f32 *)(arg0 + 0x38) * t2;
+    diff0 = *(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0x18);
+    diff1 = *(f32 *)(arg0 + 0x28) - *(f32 *)(arg0 + 0x1C);
+    diff2 = *(f32 *)(arg0 + 0x2C) - *(f32 *)(arg0 + 0x20);
+    diff0 = diff0 * t;
+    diff1 = diff1 * t;
+    diff2 = diff2 * t;
+    *(f32 *)(arg0 + 0xC) = diff0 + *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg0 + 0x10) = diff1 + *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg0 + 0x14) = diff2 + *(f32 *)(arg0 + 0x20);
+    *(f32 *)(arg0 + 0xC) += d0;
+    *(f32 *)(arg0 + 0x10) += d1;
+    *(f32 *)(arg0 + 0x14) += d2;
+    return 0;
+}
 // FUN_003723A0
 void func_003723a0(u8 *arg0, u32 arg1, u32 arg2, u8 *arg3, u8 *arg4, f32 fparg0) {
     f32 f0;

@@ -928,15 +928,7 @@ ret:
 }
 
 
-/* measured: retail groups the three float-constant loads (lui/lwc1 f2,f1,f0)
-   before the three stack stores (swc1 0x70/74/78); mwcc b210's scheduler always
-   interleaves them into load/store pairs (one $f0 reused) whether written as
-   direct assignments, temp float locals, struct field stores, or struct
-   initializers (init also emits a zero-fill loop). Arg saved registers also
-   rotate ($s3=a1 vs retail $s3=a0). Tried 4+ spellings; nd 125. Scheduler
-   load-grouping floor. */
-/* measured: best retained C body was oversized at 648 bytes against the 592-byte
-   window (normalized_diff 336); archived in build/CMMC_00108590_body.c. */
+/* measured: object 604 bytes against the 592-byte retail window, normalized_diff 206, first differing offsets 42,44,46,47,50,51,54-59,62,63,66,67; archived in build/CMMC_00108590_body.c. Retail's int-to-float bltz/mtc1/cvt.s.w and srl/andi/or/mtc1/cvt.s.w/add.s paths are represented by (f32)(u32)arg1, and its c.le.s/trunc.w.s/mfc1/andi or sub.s/trunc.w.s/mfc1/lui 0x8000/or/andi paths by (u16)temp_f1. Corrected block-scope callee declarations; direct/aggregate layouts, aliases, parameter mutation, O1, loop forms, floating guard polarity, explicit branch labels, and declaration variants were ruled out. */
 // FUN_00108590 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00108590);
 // FUN_001087E0

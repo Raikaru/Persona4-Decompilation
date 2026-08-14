@@ -635,20 +635,69 @@ void func_002b2500(void) {
     ((void (**)(s32, s32))fp)[0](1, 0);
 }
 
-/* measured: re-tested wave 4 (nd 48 -> 45 with `#pragma opt_loop_invariants on`,
-   which hoists the lui %hi(D_008872F8) to the preheader as retail does, but
-   ALSO hoists the lwc1 itself — retail re-loads in the loop (lwc1 $f1,
-   %lo($v0) at loop top), keeping the base $v0 live across iterations, which
-   is what pushes its registers up to $a2/$a1/$v1/$a0; with the load hoisted
-   the base dies and mwcc packs the loop one register lower ($a1/$a0/$v0/$v1)
-   — ~40 words of pure rotation, and the count can never reach 0 while the
-   load is out of the loop. Manual bases (u32 gbase = (u32)D_008872F8;
-   f32 *gp = D_008872F8;) keep the reload but materialise lui+addiu into
-   $a1 instead of retail's lui-only $v0 (nd 121). Tried: 4 decl orders,
-   gbase/gp forms with and without the pragma. Load-hoist + register-
-   rotation floor (same family as func_002b0b10). */
+/* measured: four unsigned-byte-to-float sites use plain `(f32)(u32)` casts;
+   spelling the compiler's sign-fixup by hand left the candidate at nd 45.
+   The final body is object 552B/window 560B and verifier MATCH (normalized
+   diff 0). `opt_loop_invariants on`, `schedule off`, and `opt_propagation off`
+   keep the global base hoist, loop reload, and retail load order. */
+// measured: probe loop invariant placement for the target's global load.
+// measured: isolate the target's optimizer probes from following siblings.
+#pragma push
+#pragma opt_loop_invariants on
+// measured: probe scheduler-off load ordering.
+#pragma schedule off
+// measured: probe propagation-off load ordering.
+#pragma opt_propagation off
 // FUN_002B25D0
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b25d0);
+s32 func_002b25d0(u8 *arg0) {
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+    s32 var_6;
+    u8 *temp_16;
+    u8 *temp_2;
+    u8 *temp_5;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_f2 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    *(f32 *)(temp_16 + 0x1C) = temp_f2;
+    if (D_0076464C == 0) {
+        return 0;
+    }
+    for (var_6 = 0; var_6 < 4; var_6++) {
+        temp_5 = temp_16 + (var_6 << 6);
+        temp_f1 = *(f32 *)D_008872F8;
+        temp_f0 = *(f32 *)(temp_16 + 0x18);
+        *(f32 *)(temp_5 + 0x28) = temp_f1 - temp_f0;
+        *(f32 *)(temp_5 + 0x38) = temp_f2;
+        *(f32 *)(temp_5 + 0x40) =
+            (f32)(u32)*(u8 *)(temp_16 + 0x14);
+        *(f32 *)(temp_5 + 0x44) =
+            (f32)(u32)*(u8 *)(temp_16 + 0x15);
+        *(f32 *)(temp_5 + 0x48) =
+            (f32)(u32)*(u8 *)(temp_16 + 0x16);
+        *(f32 *)(temp_5 + 0x4C) =
+            (f32)(u32)*(u8 *)(temp_16 + 0x17);
+    }
+    *(f32 *)(temp_16 + 0x20) = *(f32 *)(temp_16 + 4);
+    *(f32 *)(temp_16 + 0x24) = *(f32 *)(temp_16 + 8);
+    *(f32 *)(temp_16 + 0x60) =
+        *(f32 *)(temp_16 + 4) + *(f32 *)(temp_16 + 0xC);
+    *(f32 *)(temp_16 + 0x64) = *(f32 *)(temp_16 + 8);
+    *(f32 *)(temp_16 + 0xA0) = *(f32 *)(temp_16 + 4);
+    *(f32 *)(temp_16 + 0xA4) =
+        *(f32 *)(temp_16 + 8) + *(f32 *)(temp_16 + 0x10);
+    *(f32 *)(temp_16 + 0xE0) =
+        *(f32 *)(temp_16 + 4) + *(f32 *)(temp_16 + 0xC);
+    *(f32 *)(temp_16 + 0xE4) =
+        *(f32 *)(temp_16 + 8) + *(f32 *)(temp_16 + 0x10);
+    temp_2 = func_00461390(D_00794D50, 4, temp_16 + 0x20, 4);
+    *(void (**)(void))(temp_2 + 8) = func_002b2500;
+    *(u8 **)(temp_2 + 0x10) = temp_16;
+    return 0;
+}
+// measured: restore the file optimizer state after the target.
+#pragma pop
 
 // FUN_002B2800
 void func_002b2800(u8 *arg0)
