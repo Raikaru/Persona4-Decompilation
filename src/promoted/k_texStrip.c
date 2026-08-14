@@ -109,6 +109,13 @@ s32 func_00191850(u8 *arg0);
 // adding a 5th/6th saved reg, so the whole allocation shifts (retail wants var_16->$s0, arg1/
 // temp_2->$s1, temp_18->$s2, temp_19->$s3, var_20->$s4). Making sp60/sp64/sp68 overlap via a
 // 5-word array (nd 138) or a 3-field struct (nd 141) is worse. Core regs are otherwise right.
+// QTEX lane: plain-C candidate reached object 668/window 672, normalized_diff 20.
+// s32 sp[2], s32 spill[4], and buffer[5] reproduce the 0xA0 frame and saved-register
+// coloring; only two func_003deff0 calls retain b210's move-before-stack-load order.
+// Shared-callee probe: retail func_003deff0 first-uses a0 as a forwarded pointer,
+// saves a1/a2, and masks a3/t0, proving five args `(void *,s32,s32,s32,s32)`.
+// Existing calls already pass all five; block-scope pointer declarations, explicit
+// pointer casts, and the canonical s32 return produced no nd change.
 // FUN_00190680
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190680);
 
@@ -120,6 +127,9 @@ INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190680);
 // ADDIU address computation, not a memory load, so reaching it through a struct field produces
 // a hoisted base local (nd 32+) and the u8* pointer spelling rotates the whole frame (nd 46).
 // Floor appears to be mwcc right-to-left arg scheduling for a computed address operand.
+// QTEX lane: baseline candidate object 196/window 208, normalized_diff 37; the 12-byte
+// tail is zero padding. Pointer-signature/block-prototype probe was a redeclaration error;
+// hoisted address local was optimized away or produced nd 120. Archived in build/QTEX_00190920_body.c.
 // FUN_00190920
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190920);
 
@@ -135,6 +145,11 @@ INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190920);
 // form and the reversed `!=0x16` form are worse, nd 108/104); (3) the same argument-order floor
 // as func_00190920/func_001916a0 (func_003deff0/func_003e2910/func_003e2ab0 emit the last arg
 // first).
+// QTEX lane: switch/goto candidate object 532/window 544, normalized_diff 10; all six
+// differing words are the same func_003deff0 move-before-stack-load order. Archived in
+// build/QTEX_001909f0_body.c.
+// Shared-callee probe confirmed the same canonical five-argument signature and no
+// improvement (nd remained 10), so this is not an argument-count/width defect.
 // FUN_001909F0
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_001909f0);
 
@@ -146,6 +161,9 @@ INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_001909f0);
 // = &D_00764498. Complex: nested loops over 0x254/0xA58 element lists, sceRead/sceWrite file I/O,
 // and the func_00190680/func_001909f0/func_00190c10 cross-call chain. High risk of the same
 // argument-order floor as the other four functions; left for a dedicated pass.
+// QTEX lane: full state-machine candidate object 2444/window 2480, normalized_diff 1628;
+// its 0x8F0 frame versus retail 0x6F0 triggered automatic archive as a materially
+// different reconstruction. No confirmed compiler-floor instruction was present.
 // FUN_00190C10
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190c10);
 
@@ -187,6 +205,11 @@ s32 func_00191610(void)
 // taking a computed address/lvalue, e.g. func_003deff0(temp_17,spill[0],spill[1],spill[2],
 // spill[3]) and func_003e2910(temp_18,var_16,spill[1])), plus a stubborn sp68/sp6C stack
 // offset swap (declaration order does not move it).
+// QTEX lane: s32 sp[2] plus s32 spill[4], switch/goto loop layout, and declaration
+// order reached object 420/window 432, normalized_diff 10; the six differing words
+// are only func_003deff0 argument materialization. Archived in build/QTEX_001916a0_body.c.
+// Shared-callee probe confirmed the same canonical five-argument signature and no
+// improvement (nd remained 10), so this is not an argument-count/width defect.
 // FUN_001916A0
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_001916a0);
 
