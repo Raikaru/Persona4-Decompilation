@@ -221,8 +221,86 @@ loop_00492d10_check:
 void func_00492e30(u16 *arg0) {
     D_00713D54[*arg0 * 4]();
 }
+/* measured: probing opt_propagation off for func_004940d0 load and branch order. */
+#pragma opt_propagation off
+/* measured: probing opt_common_subs off for color byte reloads. */
+#pragma opt_common_subs off
 // FUN_004940D0
-INCLUDE_ASM("asm/nonmatchings/code1_0049", func_004940d0);
+void func_004940d0(u8 *arg0, u16 arg1, Code1_0049Color *arg2)
+{
+    u32 var_3;
+    u32 max_1;
+    u32 max_2;
+    u32 c0;
+    u32 c1;
+    u32 c2;
+    u32 c3;
+    u8 *temp_10;
+    u8 *temp_10_2;
+    u8 *temp_5;
+    u8 *temp_7;
+    u8 *temp_8;
+    u8 *temp_8_2;
+
+    temp_7 = *(u8 **)(arg0 + 0x10);
+    c3 = arg2->c3;
+    max_1 = 0xFF;
+    if (c3 != max_1) {
+        var_3 = (arg1 & 0xFFFF) * 4;
+        temp_10 = *(u8 **)(*(u8 **)(temp_7 + 0x54) + var_3);
+        c0 = arg2->c0;
+        c1 = arg2->c1;
+        c2 = arg2->c2;
+        c3 = arg2->c3;
+        temp_10[4] = c0;
+        temp_10[5] = c1;
+        temp_10[6] = c2;
+        temp_10[7] = c3;
+    } else {
+        arg2->c3 = 0xFE;
+        var_3 = (arg1 & 0xFFFF) * 4;
+        temp_10_2 = *(u8 **)(*(u8 **)(temp_7 + 0x54) + var_3);
+        c0 = arg2->c0;
+        c1 = arg2->c1;
+        c2 = arg2->c2;
+        c3 = arg2->c3;
+        temp_10_2[4] = c0;
+        temp_10_2[5] = c1;
+        temp_10_2[6] = c2;
+        temp_10_2[7] = c3;
+        arg2->c3 = max_1;
+    }
+    temp_5 = *(u8 **)(arg0 + 0x14);
+    c3 = arg2->c3;
+    max_2 = 0xFF;
+    if (c3 != max_2) {
+        temp_8 = *(u8 **)(*(u8 **)(temp_5 + 0x54) + var_3);
+        c0 = arg2->c0;
+        c1 = arg2->c1;
+        c2 = arg2->c2;
+        c3 = arg2->c3;
+        temp_8[4] = c0;
+        temp_8[5] = c1;
+        temp_8[6] = c2;
+        temp_8[7] = c3;
+        return;
+    }
+    arg2->c3 = 0xFE;
+    temp_8_2 = *(u8 **)(*(u8 **)(temp_5 + 0x54) + var_3);
+    c0 = arg2->c0;
+    c1 = arg2->c1;
+    c2 = arg2->c2;
+    c3 = arg2->c3;
+    temp_8_2[4] = c0;
+    temp_8_2[5] = c1;
+    temp_8_2[6] = c2;
+    temp_8_2[7] = c3;
+    arg2->c3 = max_2;
+}
+/* measured: closing opt_common_subs after func_004940d0 probe. */
+#pragma opt_common_subs on
+/* measured: closing opt_propagation after func_004940d0 probe. */
+#pragma opt_propagation on
 // FUN_004941F0
 INCLUDE_ASM("asm/nonmatchings/code1_0049", func_004941f0);
 // FUN_00494680

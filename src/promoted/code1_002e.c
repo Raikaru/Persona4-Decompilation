@@ -316,9 +316,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7010);
 void func_002e7190(void) {
     ((void (*)(void))jtbl_008873EC[0])();
 }
-/* measured: plain C reaches nd 5 with object 248/256; the only residual is
-   MWCC's daddiu-vs-addiu loop increment and the resulting saved-register
-   source. No inline assembly. Committed at nd 3. */
 // FUN_002E71C0
 s32 func_002e71c0(void)
 {
@@ -472,7 +469,42 @@ u8 func_002e78e0(void)
 
 
 // FUN_002E7920
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7920);
+void func_002e7920(s32 *arg0, s32 *arg1)
+{
+    s32 func_001104a0(s32 arg0);
+    s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
+    s32 *out0;
+    u8 count;
+    s32 *out1;
+    s32 sp6C;
+    s32 sp68;
+    s32 sp64;
+    s32 sp60;
+    s32 sp5C;
+    s32 sp58;
+    s32 sp54;
+    s32 sp50;
+    s32 sp4C;
+    s32 sp48;
+
+    out0 = arg0;
+    count = 0;
+    out1 = arg1;
+
+    func_001104d0(func_001060b0(), (s32 *)&sp60, (s32 *)&sp64);
+    count = *(u8 *)&sp64;
+    func_001104d0(func_001060b0(), (s32 *)&sp68, (s32 *)&sp6C);
+    if (func_001104a0(*(u8 *)&sp68) < (count + 1)) {
+        func_001104d0(func_001060b0(), &sp58, &sp5C);
+        *out0 = func_002b2cb0(*(u8 *)&sp58, 1, 0xC, 1, 2);
+        *out1 = 1;
+        return;
+    }
+    func_001104d0(func_001060b0(), &sp50, &sp54);
+    *out0 = *(u8 *)&sp50;
+    func_001104d0(func_001060b0(), &sp48, &sp4C);
+    *out1 = *(u8 *)&sp4C + 1;
+}
 // FUN_002E7A60
 void func_002e7a60(void)
 {
@@ -488,4 +520,45 @@ void func_002e7a80(s32 arg0)
 // FUN_002E7AC0
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7ac0);
 // FUN_002E82B0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e82b0);
+void func_002e82b0(u8 *arg0)
+{
+    s32 func_0010b5b0(void);
+    s8 func_002e4820(s8 arg0);
+    s32 func_00452080(struct KwlnTask *arg0);
+    s16 i;
+    s64 j;
+    u8 *work;
+
+    work = *(u8 **)(arg0 + 0x38);
+    i = 0;
+    while (i < 15) {
+        func_002e4820((s8)i);
+        i++;
+    }
+    i = 0;
+    goto loop_7_test;
+loop_7_body:
+    if (*(s32 *)(work + ((s16)j * 4) + 0x154) != 0) {
+        func_00452080(*(struct KwlnTask **)(work + ((s16)j * 4) + 0x154));
+    }
+    i++;
+loop_7_test:
+    j = (s16)i;
+    if ((s16)j < (u16)func_0010b5b0()) {
+        goto loop_7_body;
+    }
+    i = 0;
+    while (i < 2) {
+        if (*(s32 *)(work + (i * 4) + 0x184) != 0) {
+            func_00452080(*(struct KwlnTask **)(work + (i * 4) + 0x184));
+        }
+        i++;
+    }
+    if (*(s32 *)(work + 0x24C) != 0) {
+        func_00452080(*(struct KwlnTask **)(work + 0x24C));
+    }
+    if (*(s32 *)(work + 0x250) != 0) {
+        func_00452080(*(struct KwlnTask **)(work + 0x250));
+    }
+    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+}

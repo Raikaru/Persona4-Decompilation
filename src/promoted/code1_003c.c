@@ -139,7 +139,6 @@ u8 *func_003c0050(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
     u8 *end;
     s32 *node;
     s32 next;
-
     end = arg0 + 0x10;
     node = *(s32 **)(arg0 + 0x10);
     if (node == (s32 *)end)

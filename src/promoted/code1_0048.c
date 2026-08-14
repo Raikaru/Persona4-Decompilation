@@ -870,7 +870,120 @@ s32 func_004867e0(u8 *arg0, u8 *arg1)
     return 0;
 }
 // FUN_00486840
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00486840);
+u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2)
+{
+    /* measured: O1 probe for initial flag and aggregate register colours. */
+    #pragma optimization_level 1
+    u32 values[3];
+    u8 work[0x10];
+    s32 flags;
+    u_long128 value;
+    s32 mask;
+
+    {
+
+        flags = *(s32 *)(arg0 + 0x68);
+        mask = flags & 0x18;
+        if (mask == 0) {
+            value = *(u_long128 *)(arg0 + 0x40);
+            *(u_long128 *)arg2 = value;
+            return value;
+        }
+        __asm__ volatile(
+            "lqc2 $vf10, 64(%0) \n"
+            :
+            : "r"(arg0)
+            : "$vf10", "memory");
+        mask = flags & 0x10;
+        if (mask != 0) {
+            u32 zero_value;
+
+            __asm__ volatile(
+                "mtc1 $zero, $f0 \n"
+                "nop \n"
+                "mfc1 %0, $f0 \n"
+                "nop \n"
+                "qmtc2 %0, $vf2 \n"
+                "vaddx.y $vf10y, $vf0y, $vf2x \n"
+                : "=r"(zero_value)
+                :
+                : "$f0", "$vf2", "$vf10", "memory");
+        }
+        __asm__ volatile(
+            "vmul.xyz $vf2xyz, $vf10xyz, $vf10xyz \n"
+            "vaddy.x $vf2x, $vf2x, $vf2y \n"
+            "vaddz.x $vf2x, $vf2x, $vf2z \n"
+            ".word 0x4a0203bd \n"
+            "vwaitq \n"
+            "cfc2 $2, $vi22 \n"
+            "mtc1 $2, $f0 \n"
+            "sw $2, 64($sp) \n"
+            "sw $2, 68($sp) \n"
+            "sw $2, 72($sp) \n"
+            :
+            :
+            : "$2", "$f0", "$vf2", "$vf10", "Q", "memory");
+    }
+    func_0048a2b0(arg1, work);
+    {
+        u32 mask;
+
+        __asm__ volatile(
+            "lqc2 $vf10, 0(%0) \n"
+            "vsub.xyz $vf10xyz, $vf0xyz, $vf10xyz \n"
+            :
+            : "r"(work)
+            : "$vf10", "memory");
+        flags = *(u32 *)(arg0 + 0x68);
+        mask = flags & 0x10;
+        if (mask != 0) {
+            __asm__ volatile(
+                "mtc1 $zero, $f0 \n"
+                "nop \n"
+                "mfc1 $2, $f0 \n"
+                "nop \n"
+                "qmtc2 $2, $vf2 \n"
+                "vaddx.y $vf10y, $vf0y, $vf2x \n"
+                :
+                :
+                : "$2", "$f0", "$vf2", "$vf10", "memory");
+        }
+        __asm__ volatile(
+            "vmul.xyz $vf2xyz, $vf10xyz, $vf10xyz \n"
+            "vmulax.w $ACCw, $vf0w, $vf2x \n"
+            "vmadday.w $ACCw, $vf0w, $vf2y \n"
+            "vmaddz.w $vf2w, $vf0w, $vf2z \n"
+            "vrsqrt $Q, $vf0w, $vf2w \n"
+            "vwaitq \n"
+            "vmulq.xyz $vf10xyz, $vf10xyz, $Q \n"
+            :
+            :
+            : "$vf10", "$vf2", "ACC", "Q", "memory");
+        __asm__ volatile(
+            "lqc2 $vf11, 0(%0) \n"
+            "vmul.xyzw $vf10xyzw, $vf10xyzw, $vf11xyzw \n"
+            :
+            : "r"(values)
+            : "$vf10", "$vf11", "memory");
+        if (mask != 0) {
+            __asm__ volatile(
+                "lw $2, 68(%0) \n"
+                "nop \n"
+                "qmtc2 $2, $vf2 \n"
+                "vaddx.y $vf10y, $vf0y, $vf2x \n"
+                :
+                : "r"(arg0)
+                : "$2", "$vf2", "$vf10", "memory");
+        }
+    }
+    __asm__ volatile(
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(arg2)
+        : "$vf10", "memory");
+    /* measured: closes O1 probe for initial flag and aggregate register colours. */
+    #pragma optimization_level 2
+}
 /* measured: opening optimization_level 1 for the parked 00486970 body. */
 #pragma optimization_level 1
 // FUN_00486970

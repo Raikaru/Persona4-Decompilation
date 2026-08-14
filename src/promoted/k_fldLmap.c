@@ -201,7 +201,59 @@ void func_00186a60(u8 *arg0)
    sw $0 and leaves the candidate 8 bytes short of the retail window. Best
    candidate: normalized_diff 103, object 456/464; discarded. */
 // FUN_00186AC0
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00186ac0);
+s32 func_00186ac0(u8 *arg0)
+{
+    s32 *temp_3_2;
+    s32 *temp_3_3;
+    s32 temp_2;
+    s32 temp_2_2;
+    s32 temp_3;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_3 = *(s32 *)temp_16;
+    switch (temp_3) {
+    case 0:
+        if (!((*(f32 *)(temp_16 + 0x10) - *(f32 *)(temp_16 + 0xC)) <= 0.0f)) {
+            *(f32 *)(temp_16 + 0x14) = -1.0f;
+        } else {
+            *(f32 *)(temp_16 + 0x14) = 1.0f;
+        }
+        *(s32 *)temp_16 = *(s32 *)temp_16 + 1;
+    case 1:
+        temp_2 = *(s32 *)(temp_16 + 0x24);
+        if (temp_2 > 0) {
+            *(s32 *)(temp_16 + 0x24) = temp_2 - 1;
+            goto block_19;
+        }
+        if (*(f32 *)(temp_16 + 0x14) < 0.0f) {
+            *(f32 *)(*(u8 **)(temp_16 + 4)) = (*(f32 *)(temp_16 + 0x10) - *(f32 *)(temp_16 + 0xC)) * -func_0044b7b0((iGpffff84a4 * (f32)*(s32 *)(temp_16 + 0x20)) / (f32)*(s32 *)(temp_16 + 0x1C));
+        } else {
+            *(f32 *)(*(u8 **)(temp_16 + 4)) = (*(f32 *)(temp_16 + 0x10) - *(f32 *)(temp_16 + 0xC)) * func_0044b610((iGpffff84a4 * (f32)*(s32 *)(temp_16 + 0x20)) / (f32)*(s32 *)(temp_16 + 0x1C));
+        }
+        *(f32 *)(*(u8 **)(temp_16 + 4) + 4) = 0.0f;
+        temp_2_2 = *(s32 *)(temp_16 + 0x20);
+        if (temp_2_2 > 0) {
+            *(s32 *)(temp_16 + 0x20) = temp_2_2 - 1;
+            goto block_19;
+        }
+        *(f32 *)(*(u8 **)(temp_16 + 4)) = *(f32 *)(temp_16 + 0x10);
+        *(f32 *)(*(u8 **)(temp_16 + 4) + 4) = 0.0f;
+        temp_3_2 = *(s32 **)(temp_16 + 8);
+        if (temp_3_2 != NULL) {
+            *temp_3_2 = 0xC3660000;
+        }
+        temp_3_3 = *(s32 **)(temp_16 + 0x28);
+        if (temp_3_3 != NULL) {
+            *temp_3_3 = 1;
+        }
+        return -1;
+block_19:
+        ;
+    default:
+        return 0;
+    }
+}
 
 // FUN_00186C90
 void func_00186c90(u8 *arg0)
