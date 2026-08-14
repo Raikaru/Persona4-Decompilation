@@ -6607,6 +6607,7 @@ iGpffffb73c = 0x0076482c; // type:data
 iGpffffb744 = 0x00764834; // type:data
 iGpffffb748 = 0x00764838; // type:data
 D_0072483C = 0x0076483c; // type:data
+iGpffffb74c = 0x0076483c; // type:data
 D_00724840 = 0x00764840; // type:data
 iGpffffb754 = 0x00764844; // type:data
 D_0072484C = 0x0076484c; // type:data

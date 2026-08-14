@@ -506,10 +506,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
    compare delay-slot load and loop-join placement remain unresolved. */
 // FUN_003E23E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
-
-/* measured: discarded nonvolatile candidate nd 31, object 120/128; the nd 0
-   volatile spelling is rejected by H001 (ordinary-data compiler steering). */
-
 // FUN_003E2430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
 /* measured: H001 rejects volatile-only exactness; nonvolatile best body is object 120B/window 128B, normalized_diff 14. */
@@ -1715,7 +1711,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
 
 /* measured: archived object 64B/window 64B, normalized_diff 42; retail movz
    conditional move remains unavailable from compliant plain C. */
-// FUN_003E82A0
+// FUN_003E82A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
 // FUN_003E82E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);

@@ -1083,11 +1083,9 @@ s32 func_003c4a60(s32 *arg0, s32 arg1) {
 // FUN_003C4A80
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
 
-/* measured: archived scheduled body reaches object 60B/window 64B and
-   normalized_diff 8; residual words are +0x04/+0x1C/+0x34/+0x38 (branch
-   targets and epilogue jr placement). No real C body was retained, so the
-   bare INCLUDE_ASM fallback remains. */
-// FUN_003C4BC0
+/* func_003c4bc0 archive: object 60B/window 64B, normalized_diff 8; see
+   build/F3C0_003c4bc0_body.c for the near-match and ruled-out layout probes. */
+// FUN_003C4BC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
 // FUN_003C4C00
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4c00);
@@ -1200,8 +1198,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5a90);
 // FUN_003C5D10
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5d10);
 
-/* measured: best switch reconstruction object 140B/window 144B, normalized_diff 88; compiler branch/layout residuals remain. */
-// FUN_003C5FD0
+// FUN_003C5FD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5fd0);
 // FUN_003C6060
 /* measured: a returned old value selects retail v0/v1 coloring. */
@@ -1218,6 +1215,8 @@ s16 func_003c6060(void) {
     *(s16 *)p = old + 1;
     return old;
 }
+/* measured: closes the bracket opened above func_003c6060 and restores the
+   translation-unit baseline. */
 #pragma schedule off
 
 // FUN_003C6080
@@ -1235,6 +1234,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c66c0);
 // FUN_003C67B0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c67b0);
 
+/* measured: c6960 archive in build/F3C0_003c6960_body.c; object 232B/window
+   224B, normalized_diff 150; in-place key normalization and nested pair-check
+   forms were ruled out after an object-over-window result. */
 // FUN_003C6960
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6960);
 
@@ -1365,6 +1367,12 @@ equal:
 }
 #pragma no_branch_likely off
 #pragma schedule off
+/* measured: archived stamp-local candidate object 232B/window 224B,
+   normalized_diff 151; differing offsets 16,20,24,28,32,36,40,44,48,52,
+   56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,124,128,132,
+   136,144,148,156,160,164,168,172,176,180,184,192,196,200,204,208,
+   212,216,224,228. Stamp-local ordering and schedule-on prologue probes
+   were ruled out; body is archived in build/F3C0_003c8dd0_body.c. */
 // FUN_003C8DD0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8dd0);
 // FUN_003C8EB0
@@ -1971,9 +1979,8 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-/* measured: C candidate reproduces the 72B body/window with six differing
-   bytes at offsets 36, 38, 39, 43, 44, 46; retail's `movz $s1,$zero,$v0`
-   conditional move is a MWCCPS2 compiler floor. */
+/* func_003cb720 archive: object 72B/window 80B, normalized_diff 6; see
+   build/F3C0_003cb720_body.c; the residual is retail's movz conditional move. */
 // FUN_003CB720 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 // FUN_003CB770
@@ -2002,8 +2009,9 @@ s32 func_003cb780(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
 
-/* measured: best helper-conditional reconstruction object 56B/window 48B, normalized_diff 29; retail movz conditional move remains. */
-// FUN_003CB790
+/* func_003cb790 archive: object 56B/window 48B, normalized_diff 29; see
+   build/F3C0_003cb790_body.c; object overflow and movz residual ruled out. */
+// FUN_003CB790 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb790);
 // FUN_003CB7C0
 /* measured: tailcall on preserves the helper jump. */
@@ -2025,7 +2033,9 @@ s32 func_003cb7d0(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma tailcall off
 /* measured: closes the schedule bracket for func_003cb7d0; explicit opposite state restores the file default. */
 #pragma schedule off
-// FUN_003CB7E0
+/* func_003cb7e0 archive: object 56B/window 48B, normalized_diff 29; see
+   build/F3C0_003cb7e0_body.c; object overflow and movz residual ruled out. */
+// FUN_003CB7E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7e0);
 // FUN_003CB810
 /* measured: tailcall on preserves the helper jump. */

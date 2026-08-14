@@ -147,7 +147,6 @@ done:
 // FUN_004143F0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004143f0);
 
-/* measured: object 132B/window 128B, normalized_diff 49; confirmed MWCC-built via `sq $s0` prologue (`sd $ra` is not a GCC tell). Best body archived in build/H414_004147a0_body.c after ruling out declaration, control-flow, argument-shape, local-width, and pragma levers. */
 // FUN_004147A0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004147a0);
 
