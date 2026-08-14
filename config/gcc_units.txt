@@ -14,6 +14,12 @@
 # functions.  code1_0041.c is 66 GCC / 24 MWCC with a single transition in
 # address order and code1_0044.c is 53 / 1; both need splitting before they
 # can be listed here.
+# Measured prologue census (2026-08-14): the exact MWCC -> ee-gcc transition
+# in code1_0041.c is 0x00417510, coincident with the 0x417510 vendor boundary.
+# All 38 first-party rows below it save `$s` registers with `sq` or save none;
+# the first vendor row at 0x00417510 saves `$s3/$s2/$s1/$s0` with `sd`, and all
+# later vendor rows with callee-saved registers likewise use `sd` (no vendor
+# `sq` rows).  This enables a future split but does not list the mixed unit.
 #
 # Anything listed here is built by tools/eegcc_shim.py in both tools/verify.py
 # and tools/build.py.  Nothing else changes.

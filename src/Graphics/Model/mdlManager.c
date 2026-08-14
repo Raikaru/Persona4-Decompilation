@@ -309,15 +309,89 @@ u8* func_00470e90(u16 arg0)
 }
 #pragma opt_loop_invariants off
 
-/* measured: retail re-issues andi $3,$19,0xffff on (u16)i in BOTH the loop
-   test (0x471188) and the loop body (0x47106c, feeding the *0x50 chain);
-   mwcc b210 CSEs the mask across the loop back-edge and reuses the test's
-   masked register, leaving the object exactly 1 word (4B) short of retail.
-   Tried (u16) casts on s32 counter, u16-width intermediate, base-load-first
-   statement order, unsigned compares; all nd ~6 with only that andi missing.
-   CSE-of-mask floor family. */
+/* MATCHED this wave (nd 0, object 452B/window 464B): the former CSE-of-mask
+   floor was disproved.  `#pragma opt_common_subs off`, declaration order
+   var19, temp18, var17, var17_2, and explicit (u32) inner guards reproduce
+   the retail body masks and sltiu tests; the prior nd~6 omission is gone. */
+/* measured: opt_common_subs off probe for repeated u16 counter masks. */
+#pragma opt_common_subs off
 // FUN_00471010
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00471010);
+void func_00471010(u8* arg0)
+{
+    extern s32 func_003d5300(u8* arg0);
+    extern void func_003d5830(u8* arg0);
+    s32 offset;
+    u8* temp4;
+    u8* temp4_2;
+    u8* temp4_3;
+    s32 var19;
+    u8* temp18;
+    s32 var17;
+    s32 var17_2;
+    u8* temp2;
+    u8* temp4_4;
+
+    *(u16*)(arg0 + 0xA) -= 1;
+    if (*(u16*)(arg0 + 0xA) == 0) {
+        temp4 = *(u8**)(arg0 + 4);
+        if (temp4 != (u8*)0) {
+            func_003d5300(temp4);
+        }
+        var19 = 0;
+        goto loop20_check;
+loop20_body:
+        temp2 = *(u8**)(arg0 + 0);
+        offset = (var19 & 0xFFFF) * 0x50;
+        temp2 += offset;
+        temp4_2 = *(u8**)(temp2 + 0x40);
+        if ((temp4_2 != (u8*)0) &&
+            ((*(u32*)(temp2 + 0x44) & 1) == 0) &&
+            (temp4_2 != (u8*)D_00922BC0_abs)) {
+            func_003d5300(temp4_2);
+            temp2 = *(u8**)(arg0 + 0);
+            temp2 += offset;
+            temp18 = *(u8**)(temp2 + 0x48);
+            if (temp18 != (u8*)0) {
+                var17 = 0;
+                goto loop10_check;
+loop10_body:
+                func_003d5300(*(u8**)(temp18 + ((var17 & 0xFFFF) * 4)));
+                var17 = (var17 + 1) & 0xFFFF;
+loop10_check:
+                if ((u32)(var17 & 0xFFFF) < 4) {
+                    goto loop10_body;
+                }
+                var17_2 = 0;
+                goto loop15_check;
+loop15_body:
+                temp4_3 = *(u8**)(temp18 + ((var17_2 & 0xFFFF) * 4) + 0x10);
+                if (temp4_3 != (u8*)0) {
+                    func_003d5830(temp4_3);
+                }
+                var17_2 = (var17_2 + 1) & 0xFFFF;
+loop15_check:
+                if ((u32)(var17_2 & 0xFFFF) < 4) {
+                    goto loop15_body;
+                }
+                DAT_008873ec[0](temp18);
+            }
+            temp2 = *(u8**)(arg0 + 0);
+            temp2 += offset;
+            temp4_4 = *(u8**)(temp2 + 0x4C);
+            if (temp4_4 != (u8*)0) {
+                DAT_008873ec[0](temp4_4);
+            }
+        }
+        var19 = (var19 + 1) & 0xFFFF;
+loop20_check:
+        if ((var19 & 0xFFFF) < *(u16*)(arg0 + 8)) {
+            goto loop20_body;
+        }
+        DAT_008873ec[0](arg0);
+    }
+}
+/* measured: closes opt_common_subs off probe around func_00471010. */
+#pragma opt_common_subs on
 // FUN_004711E0
 u32 func_004711e0(void* param_1, u32* param_2)
 {
@@ -680,7 +754,7 @@ void func_004735b0(u8 *arg0)
     }
     if (*(u32*)(arg0 + 0x34) != 0)
     {
-        func_00471010(*(u32*)(arg0 + 0x34));
+        func_00471010((u8*)*(u32*)(arg0 + 0x34));
         *(u32*)(arg0 + 0x34) = 0;
     }
     if ((*(u16*)(arg0 + 0) & 2) != 0)
@@ -1780,17 +1854,65 @@ void* func_00477f10(void* param_1, void* param_2, int param_3, int param_4, u32 
     return obj;
 }
 
-/* measured: re-measured this wave (5 spellings, best nd 74): retail layout is
-   sp9C/sp94/sp90/sp8C/sp88 five scalar slots with tmp values held in s-regs
-   across calls (out in $s6); mwcc b210 coalesces the never-read slots into
-   sp9C's slot pair and DSEs their stores (single tmp[2] nd 76, two tmp[2]
-   arrays nd 76 — disjoint arrays merged, four scalar locals nd 88, block-
-   scoped arrays nd 76, m2c-verbatim five-slot body nd 74), frame 0x90 vs
-   0xA0. The earlier nd-9 body (retail stack layout, only s-reg names differ:
-   retail t1=$s1/path-1 obj=$s3 vs mwcc obj=$s1/t1=$s6) is not reproducible
-   from any spelling found. Slot-coalescing + saved-register-rotation floor. */
+/* MATCHED this wave (nd 0, object 400B/window 400B): the former slot-coalescing
+   / saved-register-rotation floor was disproved.  A return-tail `return arg2;`
+   shape and distinct pair structs reproduce the retail stack layout and
+   return path; the previous nd-74/nd-9 layouts are retained here only as
+   historical probe context. */
 // FUN_00477FB0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477fb0);
+void* func_00477fb0(void* arg0, void* arg1, void* arg2, u32 arg3)
+{
+    extern s32 func_0047d0e0(void);
+    extern void* func_00455ea0(void*, s32, void*);
+    extern void* func_004779b0(void*, void*);
+    extern void func_0047e450(void*, void*, void*, void*, u32);
+    void* obj;
+    void* result;
+    u32 stack9c;
+    u32 retA;
+    u32 retVal;
+    u32 retB;
+    struct {
+        u32 a;
+        u32 b;
+    } pair0;
+    struct {
+        u32 a;
+        u32 b;
+    } pair1;
+
+    if (func_0047d0e0() == 0) {
+        retA = *(u32*)((u8*)arg2 + 0x110);
+        retVal = *(u32*)((u8*)arg2 + 0x118);
+        stack9c = retVal;
+        arg2 = func_004779b0(arg0, arg1);
+        if ((arg3 & 1) != 0) {
+            *(u32*)((u8*)arg2 + 0xD8) |= 0x4000;
+        }
+        func_0047af60(arg2);
+        pair0.a = retA;
+        pair0.b = retVal;
+        func_0047afd0(arg2, &pair0);
+        func_004782b0(arg2);
+        return arg2;
+    }
+    retA = (u32)func_00455ea0(arg2, 0, &stack9c);
+    retVal = stack9c;
+    obj = func_004779b0(arg0, arg1);
+    if ((arg3 & 1) != 0) {
+        *(u32*)((u8*)obj + 0xD8) |= 0x4000;
+    }
+    func_0047af60(obj);
+    pair1.a = retA;
+    pair1.b = retVal;
+    func_0047afd0(obj, &pair1);
+    func_004782b0(obj);
+    retB = (u32)func_00455ea0(arg2, 1, &stack9c);
+    func_0047e450((u8*)obj + 0x2D0, arg0, arg1, (void*)retB, stack9c);
+    result = obj;
+done:
+    return result;
+}
 
 // FUN_00478140
 void* func_00478140(u32 param_1, u32 param_2, u32 param_3)
@@ -1971,7 +2093,7 @@ void func_004789c0(Model* mdl)
 
 extern void func_00475820(void* a, void* b);
 extern u8* func_00473b20(u8* a, u8* b, s32 c);
-extern void func_0047a510(void* a, s32 b, void* c);
+extern s32 func_0047a510(void* a, s32 b, void* c);
 extern void* func_0047a2f0(void* a);
 extern void func_0047dae0(u32 a);
 extern void func_0047de50(u32 a);
