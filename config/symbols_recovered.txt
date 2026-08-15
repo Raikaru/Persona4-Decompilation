@@ -1497,7 +1497,6 @@ func_001F3B20 = 0x001f3b20; // type:data
 func_001f3b20 = 0x001f3b20; // type:data
 func_001f3b80 = 0x001f3b80; // type:data
 func_001f56d0 = 0x001f56d0; // type:data
-func_001f58d0 = 0x001f58d0; // type:data
 func_001f5a00 = 0x001f5a00; // type:data
 func_001f5bd0 = 0x001f5bd0; // type:data
 func_001f5ed0 = 0x001f5ed0; // type:data
