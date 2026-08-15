@@ -694,7 +694,72 @@ void func_002e68b0(s8 arg0) {
    1, dependent-index, and split-global forms. */
 /* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
 // FUN_002E6B20
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6b20);
+#pragma schedule on
+#pragma optimization_level 1
+s32 func_002e6b20(s16 *arg0, s16 *arg1) {
+    s16 * arg1_p = arg1;
+    s16 * arg0_p = arg0;
+    s16 ia;
+    u8 *base;
+    s16 ib;
+    u8 *pa;
+    u8 *pb;
+    s32 vb;
+    u16 va;
+    s32 va_mask;
+    ia = *arg0_p;
+    ib = *arg1_p;
+    base = *(u8 **)(D_00882F70[0] + 0x38);
+    switch ((u32)*(s32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        pa = base + ia * 0x30 + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        pa = base + ia * 0x30 + 0xA4;
+        break;
+    case 3:
+    case 4:
+    case 9:
+    default:
+        pa = base + ia * 0x30 + 0x14;
+        break;
+    }
+    va = *(u8 *)(pa + 4);
+    switch ((u32)*(s32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        pb = base + ib * 0x30 + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        pb = base + ib * 0x30 + 0xA4;
+        break;
+    case 3:
+    case 4:
+    case 9:
+    default:
+        pb = base + ib * 0x30 + 0x14;
+        break;
+    }
+    vb = *(u8 *)(pb + 4);
+    va_mask = va & 0xFFFF;
+    if (vb < va_mask) {
+        return 1;
+    }
+    return -(va_mask < vb);
+}
+#pragma optimization_level 2
+#pragma schedule off
 
 
 
