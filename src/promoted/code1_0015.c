@@ -1,5 +1,12 @@
 #include "include_asm.h"
 #include "type.h"
+typedef struct RwRGBA
+{
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+} RwRGBA;
 extern s32 iGpffffb210;
 extern void func_00454bd0();
 
@@ -138,7 +145,33 @@ void func_001537c0(u8 *arg0, s32 arg1)
     }
 }
 // FUN_001538A0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_001538a0);
+void func_001538a0(u32 *resource, const f32 *color)
+{
+    u32 i;
+    s32 node;
+    RwRGBA rgba;
+    u32 model;
+
+    node = (s32)func_001452b0(10);
+    if ((*resource & 1) != 0)
+    {
+        func_00458cb0(resource[2], color);
+    }
+    for (i = 0; i < resource[6]; i++)
+    {
+        func_00458c80(*(u32 *)((u8 *)resource + i * 4 + 0x1C), color);
+    }
+    while (node != 0)
+    {
+        rgba.r = (s32)(color[0] * 255.0f + 0.5f);
+        rgba.g = (s32)(color[1] * 255.0f + 0.5f);
+        rgba.b = (s32)(color[2] * 255.0f + 0.5f);
+        rgba.a = (s32)(color[3] * 255.0f + 0.5f);
+        model = *(u32 *)(node + 0x144);
+        func_0047a220(model, &rgba);
+        node = *(s32 *)(node + 0x138);
+    }
+}
 // FUN_00153A00
 s32 func_00153a00(void)
 {
