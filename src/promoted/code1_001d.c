@@ -870,7 +870,43 @@ void func_001d7400(s32 arg0, u8 *arg1)
 /* measured: close opt_propagation after func_001d7400. */
 #pragma opt_propagation on
 // FUN_001D75D0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d75d0);
+#pragma opt_propagation off
+void func_001d75d0(u8 *arg0)
+{
+    int iVar1 = 0;
+    u32 firstIndex = 0;
+    u32 uVar2 = 0;
+    int iVar3 = 0;
+    u8 *state;
+
+    if ((*(u32 *)(iGpffffb3ac + 0x14) & 0x4000000) == 0) {
+        for (firstIndex = 0; firstIndex < 0x30; firstIndex = firstIndex + 1) {
+            state = iGpffffb3ac;
+            if (*(int *)(state + firstIndex * 4 + 0xD04) != 0) {
+                func_001d3e00(*(u32 *)(state + firstIndex * 4 + 0xD04));
+                *(u32 *)(iGpffffb3ac + firstIndex * 4 + 0xD04) = 0;
+            }
+        }
+        if (*(int *)(iGpffffb3ac + 0xDC4) != 0) {
+            func_00454bd0((u8 *)(u32)*(u32 *)(iGpffffb3ac + 0xDC4));
+            *(u32 *)(iGpffffb3ac + 0xDC4) = 0;
+        }
+    }
+    else {
+        for (uVar2 = 0; uVar2 < 0x30; uVar2 = uVar2 + 1) {
+            state = iGpffffb3ac;
+            iVar3 = uVar2 * 4;
+            iVar1 = *(int *)(state + iVar3 + 0xD04);
+            if (iVar1 != 0) {
+                (*jtbl_008873EC)((u8 *)(u32)*(u32 *)(iVar1 + 0x634));
+                func_001d3e00(*(u32 *)(iGpffffb3ac + iVar3 + 0xD04));
+                *(u32 *)(iGpffffb3ac + iVar3 + 0xD04) = 0;
+            }
+        }
+    }
+    *(u32 *)(iGpffffb3ac + 0xC) = *(u32 *)(iGpffffb3ac + 0xC) & 0xfffbffff;
+}
+#pragma opt_propagation on
 // FUN_001D7700
 void func_001d7700(void)
 {
