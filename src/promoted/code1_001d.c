@@ -1563,9 +1563,29 @@ void func_001da690(u8 *arg0, u32 arg1) {
 }
 /* Closing state measured: restore opt_rebuildconditionals on after this wrapper. */
 #pragma opt_rebuildconditionals on
-/* measured: declaration-corrected body archived in build/K1DA_001da930_body.c; object 196B exceeds retail window 192B, normalized_diff 105; differing offsets 0x16,0x1A,0x26,0x2A,0x35,0x3E,0x40-0x46,0x48-0x4A. */
+/* Twin port from P3 Battle/btlEffect.c func_002c2510; P4 constants and callees recovered from retail asm. */
 // FUN_001DA930
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001da930);
+s32 func_001da930(u8 *arg0)
+{
+    s32 data;
+    s32 count;
+    u16 *skills;
+    u16 index;
+
+    data = *(s32 *)(arg0 + 0x30);
+    count = (u16)func_0023e130(*(u32 *)(data + 0xA64));
+    skills = (u16 *)func_0023e140(*(u32 *)(data + 0xA64));
+    index = 0;
+    count = (u16)count;
+    while (index < count) {
+        u16 skillId = skills[index];
+
+        if (skillId != 0 && skillId < 0x1B8 && func_0023df20(skillId) != 0)
+            return 1;
+        index++;
+    }
+    return 0;
+}
 // FUN_001DAA00
 void func_001daa00(u8 *arg0, u32 arg1) {
     func_001d94d0((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x180000, 0, (code)func_001da230);
