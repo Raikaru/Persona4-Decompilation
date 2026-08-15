@@ -545,6 +545,74 @@ ground near-misses on documented floors. The productive shape remains a lane
 per file in a unit that is ALREADY 90%+ matched, reading its matched
 neighbours for struct and callee spellings before writing anything.
 
+## The P3 FES twin port is the seam that still yields
+
+After four zero-yield reconstruction waves, eight functions closed in three
+waves by porting from the sibling Persona 3 FES decomp. Build the candidate
+list yourself rather than trusting `build/shared_p3.json`, which read the
+committed P3 metrics snapshot as **1** matched address instead of 6922:
+
+1. Read both `image.bin` files with their window maps
+   (`tools/slus21782_functions.json`, P3 `tools/slus21621_functions.json`,
+   load base `0x00100000`).
+2. Fingerprint every function as sha1 over MASKED words: SPECIAL and MMI
+   (op `0x00`, `0x1C`) kept whole because the registers are the signal; `J`/`JAL`
+   reduced to the opcode; branches and every other I-type masked to
+   `word & 0xFFFF0000`; COP1/COP2 keep opcode plus sub-opcode.
+3. Join on `(window_size, fingerprint)` — exact size equality is required.
+4. Keep only donors listed in the P3 checkout's
+   `progress/metrics.json` -> `matching.addresses`.
+5. Filter P4 rows through BOTH `verify.is_third_party` and
+   `verify.is_vendor_address`.
+
+That produced 41 first-party twins, of which 8 closed. Three facts decide the
+outcome of each port:
+
+- **The residual is always an IMMEDIATE.** The donor supplies the shape; P4
+  supplies every number. Four of the eight closed only after correcting one
+  field offset the donor carried over from P3 (`0x18`->`0x1c`, index `[5]`->`[6]`,
+  `0x2cc`->`0x318`) and one after loading a field the port passed by address.
+  Reconcile differing words one at a time with `tools/fndiff.py`; never rewrite
+  the ported body, which scored worse every time it was tried.
+- **Roughly a third of donors are `asm __volatile__` bodies** — including both
+  `k_vpad` twins, the `mdlEffect` VU matrix builder, and the `rwplcore` pair
+  that P3 matched with raw `.word` directives. Classify the donor body FIRST;
+  copying it is a policy violation and gains nothing over `INCLUDE_ASM`.
+- **An opcode-only re-join adds nothing** (measured: zero extra candidates), and
+  broadening the donor set from "P3 verifier-matched" to "P3 body not marked
+  NONMATCHING" adds four, all of which are inline asm or `TODO window stub`.
+  The twin seam is exhausted at 41.
+
+## Rank the archive corpus by measurement, not by its notes
+
+`archive_to_guard --apply` installs archived bodies as `#ifdef NON_MATCHING`
+blocks, which `verify.py` never scores — so a guarded corpus tells you nothing.
+Two tools now measure it:
+
+- `build/arch_measure.py` activates each guarded body one at a time
+  (`permute_sweep.activate` + `permute.Target.score`) and writes an nd ranking.
+  Measured over 726 archives: **520 first-party scored, 30 at nd <= 10, 53 at
+  nd <= 20.**
+- `build/arch_classify.py` additionally diffs the object against the retail
+  window word by word and names the residual class: `immediate` (same opcode and
+  registers, only the 16-bit field differs — the mechanically fixable case),
+  `width` (`addiu`/`daddiu`, a type fact), `register`, `opcode`, or `size`.
+
+The classification over 686 first-party archives is the campaign's real shape:
+**361 `size`** (the body is missing or carrying a whole block — 75 of them
+within 4 bytes, 220 within 16), 166 that the permuter harness cannot even
+locate, 110 that no longer compile in the current declaration environment, and
+only **~45 with a pure word-level residual**. Of those, exactly four are a
+single-kind residual, and each was then proven a floor by direct probing:
+`001932f0` one `addiu`/`daddiu` word, `00153300` an aggregate `sd` where retail
+emits `swc1` (unmoved by field-wise copy, temporaries, statement order, and
+every scheduling pragma), `0044ee70` a store/argument transposition, `001ee490`
+the `slti $at` versus `slti $v0` branch-temp idiom.
+
+The practical consequence: **stop mining the near-miss tail.** The remaining
+first-party work is dominated by `size` rows, i.e. functions whose C is missing
+real logic, and those are reconstruction problems, not residual problems.
+
 ## Process
 
 - **Disassemble before modeling any multi-call handler.** Resolve ambiguous
