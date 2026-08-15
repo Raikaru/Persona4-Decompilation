@@ -6010,7 +6010,6 @@ fGpffff8100 = 0x007611f0; // type:data
 fGpffff8104 = 0x007611f4; // type:data
 fGpffff8108 = 0x007611f8; // type:data
 DAT_00761200 = 0x00761200; // type:data
-fGpffff8110 = 0x00761200; // type:data
 iGpffff8110 = 0x00761200; // type:data
 fGpffff8114 = 0x00761204; // type:data
 D_0076120C = 0x0076120c; // type:data
