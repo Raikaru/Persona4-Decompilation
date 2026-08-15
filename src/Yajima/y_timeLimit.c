@@ -141,8 +141,88 @@ func_002A27C0(float param_1,int param_2,int param_3,int param_4,int param_5,int 
 
 
 
-// FUN_002A2980 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/y_timeLimit", func_002a2980);
+static inline f32 yTimeBlend(f32 addend, f32 delta, f32 factor)
+{
+  return addend + delta * factor;
+}
+static inline int yTimeLess(int lhs, int rhs)
+{
+  return lhs < rhs;
+}
+extern f32 func_0044b7b0(f32 fparg0);
+extern f32 fGpffff8110;
+// FUN_002A2980
+u32 func_002a2980(int param_1)
+{
+  char cVar1;
+  int iVar3;
+  int lVar4;
+  float *pfVar5;
+  u8 *iVar6;
+  float fVar7;
+  float fVar8;
+  float fVar9;
+
+  if (param_1 == 0) {
+    return 0xffffffff;
+  }
+  iVar6 = (u8 *)(uintptr_t)param_1;
+  if ((*(u32 *)(iVar6 + 0x8c) & 2) != 0) {
+    return 2;
+  }
+  if ((*(u32 *)(iVar6 + 0x8c) & 1) == 0) {
+    return 0;
+  }
+  if ((*(int *)(iVar6 + 0x80) == 0) && (*(int *)(iVar6 + 0x88) == 0)) {
+    *(u32 *)(iVar6 + 0x90) = 0;
+  }
+  pfVar5 = (float *)(iVar6 + *(int *)(iVar6 + 0x80) * 0x20);
+  cVar1 = *(char *)(pfVar5 + 7);
+  lVar4 = *(int *)(iVar6 + 0x88);
+  if (!yTimeLess(lVar4, cVar1)) {
+    iVar3 = (int)cVar1 + (int)*(short *)((int)pfVar5 + 0x1e);
+    if (lVar4 < iVar3) {
+      if (lVar4 == iVar3 + -1) {
+        *pfVar5 = pfVar5[2];
+        pfVar5[1] = pfVar5[3];
+      }
+      else if (pfVar5[6] < 0.0f) {
+        fVar8 = (fGpffff8110 * (float)(*(int *)(iVar6 + 0x88) - (int)cVar1)) /
+                (float)(int)*(short *)((int)pfVar5 + 0x1e);
+        fVar9 = pfVar5[4];
+        fVar7 = func_0044b7b0(fVar8);
+        *pfVar5 = yTimeBlend(fVar9, pfVar5[2] - fVar9, fVar7) + 0.0f;
+        fVar9 = pfVar5[5];
+        fVar7 = func_0044b7b0(fVar8);
+        pfVar5[1] = yTimeBlend(fVar9, pfVar5[3] - fVar9, fVar7) + 0.0f;
+      }
+      else {
+        *pfVar5 = *pfVar5 + pfVar5[4];
+        pfVar5[1] = pfVar5[1] + pfVar5[5];
+        if (pfVar5[6] > 0.0f) {
+          pfVar5[4] = pfVar5[6] * (pfVar5[2] - *pfVar5);
+          pfVar5[5] = pfVar5[6] * (pfVar5[3] - pfVar5[1]);
+        }
+      }
+    }
+    else if (!yTimeLess(lVar4, *(char *)((int)pfVar5 + 0x1d) + iVar3 + -1)) {
+      iVar3 = *(int *)(iVar6 + 0x80) + 1;
+      *(int *)(iVar6 + 0x80) = iVar3;
+      if (!yTimeLess(iVar3, *(int *)(iVar6 + 0x84))) {
+        *(u32 *)(iVar6 + 0x88) = 0;
+        *(u32 *)(iVar6 + 0x90) = 0;
+        *(int *)(iVar6 + 0x80) = *(int *)(iVar6 + 0x80) + -1;
+        *(u32 *)(iVar6 + 0x8c) = *(u32 *)(iVar6 + 0x8c) | 2;
+        return 2;
+      }
+      *(u32 *)(iVar6 + 0x88) = 0;
+      return 1;
+    }
+  }
+  *(int *)(iVar6 + 0x88) = *(int *)(iVar6 + 0x88) + 1;
+  *(int *)(iVar6 + 0x90) = *(int *)(iVar6 + 0x90) + 1;
+  return 1;
+}
 // FUN_002A2C10
 u32 func_002A2C10(int param_1,float *param_2)
 {
