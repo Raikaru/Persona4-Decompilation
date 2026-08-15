@@ -161,7 +161,18 @@ def body_text(path: Path) -> tuple[str, str]:
             if not MARKER_LINE.match(l) and not l.startswith("INCLUDE_ASM(")
             and not l.lstrip().startswith("#pragma")
             and l.strip() not in ("#ifdef NON_MATCHING", "#else", "#endif")]
-    return "\n".join(note), "\n".join(kept).strip("\n")
+    # A measurement note that mentions a pointer type ("parameter u8*/u32* forms")
+    # carries a literal `*/` in its prose, which CLOSES the comment early and
+    # makes the whole translation unit fail to parse. Measured: 56 archives in
+    # code1_003c alone were unmeasurable for this reason, and lanes that pasted
+    # such a note reported it as a mysterious unit-wide COMPILE_ERROR. Only the
+    # final terminator may be a real one.
+    text = "\n".join(note)
+    if text.endswith("*/"):
+        text = text[:-2].replace("*/", "* /") + "*/"
+    else:
+        text = text.replace("*/", "* /")
+    return text, "\n".join(kept).strip("\n")
 
 
 def sources() -> dict[Path, list[str]]:
