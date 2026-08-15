@@ -434,8 +434,78 @@ loop_test:
     }
     return 1;
 }
+#pragma push
+#pragma opt_rebuildconditionals off
+static inline u16 p4_formation_get_opposing_genus(u32 unit)
+{
+    u32 side;
+    if (*(u8 *)(*(s32 *)(unit + 0x30) + 0xA2) != 0)
+        goto nonzero;
+    side = 1;
+    goto done;
+nonzero:
+    side = 0;
+done:
+    return side;
+}
 // FUN_001E7640
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7640);
+s32 func_001e7640(void)
+{
+    extern s32 func_001d7c60(u32, void *, s32, s32, s32);
+    extern u8 *func_0029d050(void);
+    extern u32 func_00231d70(u32);
+    extern s32 func_00231e20(u8 *);
+    extern s32 func_002428f0(s32, s32);
+    extern void func_0029cf50(s32);
+    struct {
+        s32 entries[14];
+        u16 count;
+        u16 selected;
+    } candidates;
+    s32 selected[12];
+    u8 *unit;
+    u16 desired;
+    u32 highest;
+    u16 index;
+    u16 selectedCount;
+    s32 candidate;
+    u32 value;
+    u32 desiredValue;
+
+    unit = func_0029d050();
+    desired = p4_formation_get_opposing_genus((u32)unit);
+    func_001d7c60((u32)unit, &candidates, 2, 0, 0);
+    highest = 0;
+    selectedCount = 0;
+    index = 0;
+    desiredValue = desired;
+    while (index < candidates.count) {
+        candidate = candidates.entries[index];
+        if (((*(u16 *)(candidate + 0x1A) & 1) != 0) &&
+            ((*(u16 *)(candidate + 0x1A) & 8) != 0) &&
+            (*(u8 *)(*(s32 *)(candidate + 0x30) + 0xA2) == desiredValue) &&
+            (func_002428f0(*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64), 0) == 0)) {
+            value = (u32)(func_00231e20((u8 *)*(s32 *)(*(s32 *)(candidate + 0x30) + 0xA64)) & 0xFF);
+            if (value == highest) {
+                selected[selectedCount] = candidate;
+                selectedCount++;
+            } else if (highest < value) {
+                highest = value;
+                selected[0] = candidate;
+                selectedCount = 1;
+            }
+        }
+        index++;
+    }
+    if (selectedCount > 0) {
+        value = func_00231d70(selectedCount);
+        func_0029cf50(*(s32 *)(selected[value] + 8) | 0x80000000);
+    } else {
+        func_0029cf50(-1);
+    }
+    return 1;
+}
+#pragma pop
 // FUN_001E77F0
 s32 func_001e77f0(void) {
     extern s32 func_00231e20();
@@ -517,62 +587,8 @@ loop_test:
     return -1;
 }
 /* measured: object 364B vs window 368B, normalized_diff 1; the sole residual is the retail daddiu/addiu width at the count reset. Committed at nd 1. */
-// FUN_001E7AB0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_001e7ab0(void) {
-    extern s32 func_001dbba0();
-    extern void func_001db5b0();
-    extern s32 func_00231d70();
-    extern s32 func_00231e20();
-    extern s64 func_0029cc00();
-    extern void func_0029cf50();
-    extern u8 *func_0029d050();
-    u8 *temp_20;
-    u32 var_19;
-    u32 var_18;
-    s32 var_17;
-    u8 *temp_16;
-    u32 temp_3;
-    u8 *sp60[12];
-    u8 *var_2;
-
-    temp_20 = func_0029d050();
-    if (func_001dbba0(temp_20, func_0029cc00(0), 0, 0x2C, 1, &func_001db5b0) == 1) {
-        if (*(u16 *)(temp_20 + 0x6A) == 1) {
-            var_2 = *(u8 **)(temp_20 + 0x38);
-        } else {
-            var_17 = 0;
-            var_18 = 0;
-            var_19 = 0;
-            goto loop_test;
-loop_body:
-            temp_16 = *(u8 **)(temp_20 + var_19 * 4 + 0x38);
-            temp_3 = (u32)(func_00231e20(*(s32 *)(*(u8 **)(temp_16 + 0x30) + 0xA64)) & 0xFF);
-            if (temp_3 >= var_18) {
-                if (temp_3 == var_18) {
-                    sp60[var_17 & 0xFFFF] = temp_16;
-                    var_17 = (var_17 + 1) & 0xFFFF;
-                } else {
-                    var_18 = temp_3;
-                    sp60[0] = temp_16;
-                    var_17 = 1;
-                }
-            }
-            var_19 += 1;
-loop_test:
-            if (var_19 < *(u16 *)(temp_20 + 0x6A))
-                goto loop_body;
-            var_2 = sp60[func_00231d70(var_17 & 0xFFFF)];
-        }
-        func_0029cf50(*(s32 *)(var_2 + 8) | 0x80000000);
-    } else {
-        func_0029cf50(-1);
-    }
-    return -1;
-}
-#else
+// FUN_001E7AB0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7ab0);
-#endif
 // FUN_001E7C20
 s32 func_001e7c20(void) {
     extern s32 func_001dbba0();
@@ -2302,7 +2318,115 @@ void func_001ec5e0(u8 *arg0, f32 arg1)
 // FUN_001ECE50
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ece50);
 // FUN_001ED060
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ed060);
+int func_001ed060(float *param_1, float *param_2)
+{
+    u8 *node;
+    int i;
+
+    if (*(u8 **)((u8 *)param_2 + 0x10) == (u8 *)param_1)
+    {
+        return 1;
+    }
+
+    for (node = *(u8 **)(iGpffffb3ac + 0x318); node != NULL; node = *(u8 **)(node + 0x4cc))
+    {
+        for (i = 0; i < 4; ++i)
+        {
+            int wrap = (i + 1) & 3;
+            float *edge = (float *)(node + i * 0x130 + 0x08);
+            float *next;
+
+            if ((edge == param_1) || (edge == param_2))
+            {
+                continue;
+            }
+            next = (float *)(node + wrap * 0x130 + 0x08);
+            if ((next == param_1) || (next == param_2))
+            {
+                continue;
+            }
+            else
+            {
+                int intersects;
+                int side_a = func_001ed330(edge, next, param_1);
+                int side_b = func_001ed330(edge, next, param_2);
+                if (side_a != side_b)
+                {
+                    side_a = func_001ed330(param_1, param_2, edge);
+                    side_b = func_001ed330(param_1, param_2, next);
+                    if (side_a != side_b)
+                    {
+                        intersects = 1;
+                    }
+                    else
+                    {
+                        intersects = 0;
+                    }
+                }
+                else
+                {
+                    intersects = 0;
+                }
+                if (intersects != 0)
+                {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    {
+        u8 *record;
+        float *next;
+        float *edge;
+        u8 *node2;
+        int j;
+        for (node2 = *(u8 **)(iGpffffb3ac + 0x318); node2 != NULL; node2 = *(u8 **)(node2 + 0x4cc))
+        for (j = 0; j < 4; ++j)
+        {
+            record = node2 + j * 0x130;
+            edge = (float *)(record + 0x08);
+
+            if (edge == param_1)
+            {
+                return 0;
+            }
+            if (*(float *)(record + 0x1c) <= 0.0f)
+            {
+                continue;
+            }
+            next = *(float **)(record + 0x18);
+            if (next != NULL)
+            {
+                int intersects;
+                int side_a = func_001ed330(edge, next, param_1);
+                int side_b = func_001ed330(edge, next, param_2);
+                if (side_a != side_b)
+                {
+                    side_a = func_001ed330(param_1, param_2, edge);
+                    side_b = func_001ed330(param_1, param_2, next);
+                    if (side_a != side_b)
+                    {
+                        intersects = 1;
+                    }
+                    else
+                    {
+                        intersects = 0;
+                    }
+                }
+                else
+                {
+                    intersects = 0;
+                }
+                if (intersects != 0)
+                {
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
 // FUN_001ED3A0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ed3a0);
 // FUN_001ED700
@@ -2418,52 +2542,8 @@ s32 func_001ef4a0(s32 arg0)
     }
     return value;
 }
-// FUN_001EF4D0 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_001ef4d0(s32 arg0, s32 arg1)
-{
-    extern s32 func_00231e20(s32 arg0);
-    u8 *current;
-    u8 *entry;
-    s32 total;
-    s32 count;
-    s32 mask;
-    s32 count_mask;
-    s32 value;
-
-    total = 0;
-    count = 0;
-    current = *(u8 **)(iGpffffb3ac + 0x174);
-    mask = arg0 & 0xFFFF;
-    while (current != NULL) {
-        if ((*(u16 *)(current + 0x1A) & 1) != 0) {
-            entry = *(u8 **)(current + 0x30);
-            if ((mask & (1 << *(u8 *)(entry + 0xA2))) != 0) {
-                if ((arg1 == 0) ||
-                    (func_00232710(*(s32 *)(entry + 0xA64), arg1) == 0)) {
-                    total = (total +
-                             (func_00231e20(*(s32 *)(entry + 0xA64)) & 0xFF)) &
-                            0xFFFF;
-                    count = (count + 1) & 0xFFFF;
-                }
-            }
-        }
-        current = *(u8 **)(current + 0x450);
-    }
-    count_mask = count & 0xFFFF;
-    if (count_mask == 0) {
-        value = 1;
-        goto done_value_4d;
-    }
-    value = ((total & 0xFFFF) / count_mask) & 0xFFFF;
-    if (value == 0)
-        value = 1;
-done_value_4d:
-    return value;
-}
-#else
+// FUN_001EF4D0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef4d0);
-#endif
 // FUN_001EF5F0 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)

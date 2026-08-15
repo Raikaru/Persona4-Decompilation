@@ -87,12 +87,15 @@ RwMatrix* RwMatrixRotate(RwMatrix* matrix, const RwV3d* axis, f32 angle, s32 mod
 RwV3d* func_003e4320(RwV3d* out, const RwV3d* in, const RwMatrix* matrix);
 void func_001bd780(void* out, const void* first, const void* second, const void* config);
 void func_001bcd40(f32 param_1, u8* param_2, u8* param_3, u8* param_4, u32 param_5);
+extern f32 func_00196040(u32, u32, void*, f32*, void*, u32);
+extern void func_001958f0(s32, void*);
+extern f32 func_0044b868(f32 x);
+extern f32 func_003e40b0(f32 *out, f32 *in);
 extern void func_00195850(u8 *arg0, f32 *arg1);
 extern void func_0019de70(u8 *arg0, u16 arg1);
 extern void func_001959d0(u8 *arg0, f32 *arg1);
 extern void func_003dcb40(void *out, const void *in, s32 count,
                           const void *quat);
-extern void func_003e40b0(f32 *out, f32 *in);
 extern void func_001bab00(u8 *arg0, void *arg1);
 void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
 void func_001bd560(f32 *out, f32 *in);
@@ -871,7 +874,96 @@ void func_001cca50(void)
 }
 
 // FUN_001CCA60
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cca60);
+void func_001cca60(BtlCamera* camera)
+{
+    int iVar1;
+    int iVar2;
+    f32 distance;
+    f32 minDistance;
+    f32 norm;
+    f32 height;
+    f32 candidate;
+    struct {
+        RwV3d out;
+        RtQuat unk;
+        f32 pad0;
+        RwV3d diff;
+        f32 pad1;
+        RwV3d pos;
+        f32 posPad;
+        RwV3d target;
+    } scratch;
+
+    iVar2 = (int)camera;
+    iVar1 = *(int*)(iVar2 + 0xe0);
+    if (iVar1 != 0)
+    {
+        iVar1 = *(int*)(iVar1 + 0x30);
+    }
+    else
+    {
+        iVar1 = *(int*)(*(int*)(iGpffffb3ac + 0x170) + 0x30);
+    }
+    distance = func_00196040(3, 1, &scratch.target, &height, 0, 1);
+    func_001958f0(iVar1, &scratch.pos);
+    scratch.target.y = 0.0f;
+    scratch.pos.y = 0.0f;
+    if ((scratch.pos.x == scratch.target.x) &&
+        (scratch.pos.z == scratch.target.z))
+    {
+        func_001958f0(*(int*)(*(int*)(iGpffffb3ac + 0x170) + 0x30),
+                      &scratch.pos);
+        scratch.pos.y = 0.0f;
+    }
+    scratch.diff.x = scratch.pos.x - scratch.target.x;
+    scratch.diff.y = scratch.pos.y - scratch.target.y;
+    scratch.diff.z = scratch.pos.z - scratch.target.z;
+    func_003e40b0(&scratch.diff.x, &scratch.diff.x);
+    scratch.diff.x = scratch.diff.x * distance;
+    scratch.diff.y = scratch.diff.y * distance;
+    scratch.diff.z = scratch.diff.z * distance;
+    scratch.pos.x = scratch.target.x + scratch.diff.x;
+    scratch.pos.y = scratch.target.y + scratch.diff.y;
+    scratch.pos.z = scratch.target.z + scratch.diff.z;
+    minDistance = 0.75f *
+                  (*(f32*)(iVar1 + 0x8c) *
+                   *(f32*)(iVar1 + 0x2c));
+    norm = fGpffff80e8 * height;
+    norm = (!(norm > minDistance)) ? minDistance : norm;
+    scratch.pos.y = norm;
+    func_001bd780(&scratch.unk, &scratch.pos, &scratch.target, &D_0060A0E0);
+    minDistance = (0.75f * distance) /
+                  func_0044b868(DAT_00761188 *
+                                 (0.5f * *(f32*)(iVar2 + 0xb8)));
+    scratch.diff.x = scratch.pos.x - scratch.target.x;
+    scratch.diff.y = scratch.pos.y - scratch.target.y;
+    scratch.diff.z = scratch.pos.z - scratch.target.z;
+    norm = func_003e40b0(&scratch.diff.x, &scratch.diff.x);
+    distance = func_0044b868(DAT_00761188 *
+                             (0.5f * *(f32*)(iVar2 + 0xb8)));
+    candidate = norm +
+                (*(f32*)(iVar1 + 0x90) *
+                 *(f32*)(iVar1 + 0x2c) * 2.0f) /
+                distance;
+    if (!(minDistance <= candidate))
+    {
+        minDistance = minDistance;
+    }
+    else
+    {
+        minDistance = candidate;
+    }
+    scratch.diff.x = scratch.diff.x * minDistance;
+    scratch.diff.y = scratch.diff.y * minDistance;
+    scratch.diff.z = scratch.diff.z * minDistance;
+    scratch.out.x = scratch.diff.x + scratch.target.x;
+    scratch.out.y = scratch.diff.y + scratch.target.y;
+    scratch.out.z = scratch.diff.z + scratch.target.z;
+    func_001bc3a0((f32*)&scratch.out, (f32*)&scratch.out);
+    func_001bcd40(0.0f, (u8*)0, (u8*)0, (u8*)0, 0x100);
+    func_001bab00((u8*)(uintptr_t)iVar2, (void*)&scratch.out);
+    func_001bd5a0((f32*)(iVar2 + 0x9c), (f32*)&scratch.out);
+}
 // FUN_001CCDA0
 void func_001ccda0(void)
 {
