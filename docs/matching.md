@@ -613,6 +613,46 @@ The practical consequence: **stop mining the near-miss tail.** The remaining
 first-party work is dominated by `size` rows, i.e. functions whose C is missing
 real logic, and those are reconstruction problems, not residual problems.
 
+## The permuter is seed-limited, not exhausted — and the AST engine works now
+
+An earlier sweep concluded the permuter was spent. That conclusion was about the
+SEED POPULATION, not the tool. Re-seeding it after the archive-note fix produced
+five closures in two sweeps, all in functions no hand wave had ever ground:
+
+| sweep | seeds | engine | budget | cracked |
+|---|---|---|---|---|
+| all first-party archives that compile | 461 | text | 200s x 20 | **3** (`003ca430`, `001ee490`, `002e6b20`) |
+| the 93 seeds text scored 1-30 | 93 | ast | 300s x 16 | **2** (`00296600`, `0027d800`) |
+| the 365 seeds text scored >30 | 365 | ast | 240s x 18 | 0 |
+| `src/generated` m2c candidates | 506 | ast | 200s x 18 | 0, and 0 SCORED — pycparser cannot construct them |
+| the same m2c candidates | 506 | text | 200s x 20 | 0, 56 scored |
+
+Four things follow, each measured:
+
+- **The AST engine had never actually run here.** It needs `pycparser` and
+  `toml`; neither was installed, and both are invisible under
+  `PYTHONNOUSERSITE=1`. Install them and run that engine with the variable
+  UNSET. It restructures code where the text engine only reorders, which is why
+  it cracked `func_00296600` after four hand waves had stalled it at nd 8.
+- **Its reach is the low-score tail.** Two hits from 93 seeds scored 1-30, zero
+  from 365 seeds scored above 30. Do not spend an AST sweep on the bulk.
+- **m2c candidates are worthless as AST seeds** (they do not parse) and produced
+  nothing under the text engine either. Archives are the seed corpus.
+- **Re-sweep after anything that makes new archives measurable.** Every crack
+  this session came from bodies that had just become visible.
+
+Splice trap, measured: `permute_sweep.splice` replaces marker-to-first-closing-
+brace. A target that is still a bare `INCLUDE_ASM` has no brace, so the splice
+runs on and swallows the NEXT function, silently deleting markers (209 -> 207).
+For those targets replace exactly the marker line plus its `INCLUDE_ASM`/guard
+lines, then diff the marker SET against `jj file show -r @-` before believing
+any count.
+
+An AST hit is heavily mutated and is not committable as found: re-verify it by
+splicing and scoring, then reduce with `tools/permute_min.py` and re-verify
+after each round. `func_00296600` reduced from twelve permuter temporaries to
+nine and stayed exact; the rest are load-bearing.
+
 ## Process
 
 - **Disassemble before modeling any multi-call handler.** Resolve ambiguous
