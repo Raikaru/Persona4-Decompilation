@@ -1198,7 +1198,65 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
    order probes stayed at nd16 (normalizing before the field load was nd408);
    no inline asm. Committed at nd 16. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
-// FUN_0032B770 NONMATCHING
+// FUN_0032B770
+void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+{
+  float new_var5;
+  f32 *new_var4;
+  s64 spC8;
+  s64 spC0;
+  u8 *new_var;
+  s64 spB8;
+  f32 new_var11;
+  f32 *new_var10;
+  short new_var3;
+  s32 i;
+  s32 v1;
+  s32 v2;
+  u8 *new_var6;
+  s16 new_var9;
+  s16 *new_var8;
+  u8 b;
+  u8 **new_var2;
+  u8 *obj;
+  f32 f21;
+  s16 new_var7;
+  f32 f20;
+  new_var2 = (u8 **) (arg0 + 0x38);
+  obj = *new_var2;
+  f20 = (*((f32 *) new_var)) + (f20 * f21);
+  func_002b2970(&spC8, 156.0f, (float) ((float) 87.0f));
+  func_0031e5b0(arg0, spC8, 0, arg3, 0, 1, 1);
+  i = 0;
+  v1 = (s16) arg1;
+  new_var9 = (s16) arg2;
+  v2 = new_var9;
+  b = (unsigned char) 0xAA;
+  while (((s16) i) < v2)
+  {
+    func_002b2970(&spC0, 162.0f, 111.0);
+    ;
+    ;
+    func_0031ac10(arg0, spC0, -1, (s8) i, (*((u16 *) (func_002e48a0(0, i) + 2))) & 0xFFFFu, *((u8 *) (func_002e48a0(0, i) + 4)), (s16) (((s16) i) * v1), arg3, 0, 0x99);
+    i = (s16) (i + 1);
+  }
+
+  new_var3 = 0x3C;
+  new_var8 = (s16 *) (obj + 0x11E);
+  func_003297f0(arg0, 0, arg3, 417.0, 220.0f);
+  new_var6 = obj;
+  new_var10 = (f32 *) (obj + 0x124);
+  func_002b2970(&spB8, 472.0f, 112.0f);
+  func_00324f80(arg0, *((FclVec2 *) (&spB8)), 0, arg3);
+  f21 = (new_var7 = *new_var8) - (*((s16 *) (new_var6 + 0x120)));
+  f20 = *new_var10;
+  new_var4 = &f20;
+  new_var = func_002b6150(b) + 0x3C;
+  *((f32 *) (func_002b6150(0xB1) + new_var3)) = (f20 = (*((f32 *) new_var)) + ((*new_var4) * f21));
+  new_var11 = *((f32 *) (func_002b6150(0xB1) + 0x3C));
+  new_var5 = 52.0f + new_var11;
+  *((f32 *) (func_002b6150(0xB5) + 0x3C)) = (f20 = new_var5);
+}
 #ifdef NON_MATCHING
 void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s64 spC8;
