@@ -1626,7 +1626,180 @@ void func_0011bdc0(u8 *arg0)
    field/constant locals, integer versus 771.0f spellings, split expressions,
    address-domain forms, and all thirteen pragma wrappers did not change nd.
    Function-wide FP liveness/scheduling floor. Committed at nd 19. */
-// FUN_0011BF10 NONMATCHING
+// FUN_0011BF10
+void func_0011bf10(u8 *arg0)
+{
+  u8 *w;
+  int new_var27;
+  int new_var8;
+  s32 flags;
+  int new_var11;
+  s32 t1;
+  u8 *new_var13;
+  f32 *new_var12;
+  s32 *new_var19;
+  u16 t7;
+  int new_var24;
+  unsigned char new_var22;
+  s32 t2;
+  s32 *new_var21;
+  u8 **new_var30;
+  int new_var23;
+  u8 *new_var2;
+  float new_var9;
+  s32 *new_var7;
+  int new_var;
+  s32 t3;
+  u8 *new_var15;
+  u8 *new_var20;
+  u8 *new_var3;
+  unsigned int t4;
+  int new_var14;
+  u8 *new_var4;
+  int new_var26;
+  u8 *new_var5;
+  int new_var10;
+  s32 t5;
+  int new_var18;
+  float new_var28;
+  u8 *new_var16;
+  s32 t6;
+  u8 *new_var25;
+  s32 state;
+  s32 new_var17;
+  u8 *new_var6;
+  Vec2f v2;
+  s32 *new_var29;
+  f32 ret;
+  Vec2f v;
+  if ((((!new_var2) && (!new_var2)) && (!new_var2)) != 0)
+  {
+  }
+  ret++;
+  ret--;
+  w = ((SdkTask *) arg0)->work;
+  flags = *((s32 *) (w + 0x534));
+  ;
+  if ((((flags & 1) != 0) && ((flags & 4) == 0)) && (((state = flags) & 0x400000) == 0))
+  {
+    if (new_var15)
+    {
+    }
+    t1 = (*((s32 *) (w - -0x534)) = flags | 4);
+    new_var19 = (s32 *) (w + 0x52C);
+    new_var15 = w - -0x534;
+    *((s32 *) (w + 0x534)) = (t2 = t1 & (~2));
+    t3 = (*((s32 *) new_var15) = t2 & (~0x800));
+    *((s32 *) (w + 0x534)) = (t4 = t3 & (~0x1000));
+    new_var21 = (s32 *) (w + 0x534);
+    *new_var21 = (t5 = t4 & (~0x2000));
+    t6 = (*new_var21 = t5 & (~0x4000));
+    t6 = 0x88;
+    new_var7 = new_var19;
+    new_var10 = -1;
+    *((s8 *) (w + t6)) = new_var10;
+    new_var24 = 0x444 & 0xFFFFFFFF;
+ goto dummy_label_194269;
+ dummy_label_194269: ;
+    t2 = (0, 0);
+    new_var29 = &(*new_var7);
+    *((s32 *) (w + new_var24)) = 0xC3E10000;
+    state = *new_var29;
+    switch (state)
+    {
+      case 0:
+        if (new_var2)
+      {
+      }
+        func_0045af60(0, 1, t2 & 0xFFFFFFFFFFFFFFFF, 4);
+        break;
+
+      case 1:
+        new_var17 = t1;
+      {
+      }
+
+ do { case 3: case 2: case 4: break; default: arg0++; arg0--; func_0046d730(D_005E4868, 0xCCC & 0xFFFFFFFFFFFFFFFF); if (1) { } break; }
+ while (0 * (!new_var2));
+    }
+
+    *((u16 *) (w + 0x508)) = (t6 = 0);
+    new_var2 = w;
+    new_var22 = t3 & (~0x1000);
+    new_var2 = w;
+    new_var16 = w;
+    *((u8 *) (new_var16 + 0x504)) = *((u8 *) (new_var4 = new_var16 + 0x505));
+    *((u8 *) (new_var16 + 0x506)) = 0xFF & 0xFFFFFFFFu;
+    t2 = 771.0f;
+    new_var6 = new_var16;
+    func_0011aaa0(new_var6, 5);
+    new_var20 = new_var16 - -0x4FC;
+    new_var5 = new_var20;
+    v.x = t2 + (*((f32 *) new_var5));
+    new_var27 = 0xFFFFu & 0xFFFFFFFFu;
+    new_var10 = ((new_var16 && new_var16) && w) != 0U;
+    if (new_var10)
+    {
+    }
+    ;
+    v.y = (new_var9 = -59.0f) + (*((f32 *) (new_var2 + 0x500)));
+    new_var = 2;
+    ret = func_0011de80(*((u8 **) (new_var2 + 0x4F8)), &v2);
+    new_var11 = ret == 0.f;
+    if (new_var11 || (1.0f == ret))
+    {
+      new_var30 = (u8 **) (new_var2 + 0x4F8);
+      new_var3 = new_var2;
+      new_var13 = new_var2;
+      new_var13 = new_var13 + 0x4F8;
+      new_var28 = -59.0f;
+      if (w != 0)
+      {
+ do { } while (0);
+      }
+      v2.x = 131.0f + (*((f32 *) (new_var2 + 0x4FC)));
+      v2.y = new_var28 + (*((f32 *) (new_var3 + 0x500)));
+      func_0011e2b0(*new_var30, &v2, &v);
+      func_0011e370(*((u8 **) new_var13));
+    }
+    else
+    {
+      func_0011e2b0(*((u8 **) (new_var2 + 0x4F8)), &v2, &v);
+    }
+    t4 = new_var22;
+    flags = *((s32 *) (new_var2 + 0x534));
+    if ((0x80000 & flags) != 0)
+    {
+      new_var14 = (!new_var2) * 0;
+      t7 = *((u16 *) (new_var2 + 0x458));
+      if ((t7 & new_var) == 0)
+      {
+        if (((unsigned int) ((new_var17 = t1) && t1)) && t1)
+        {
+        }
+        if ((t7 & 1) == ((!new_var2) * 0))
+        {
+          *((s32 *) (w + 0x534)) = flags & (~0x80000);
+        }
+        else
+        {
+          new_var25 = w;
+          new_var22 = t3 & (~0x1000);
+          new_var18 = new_var27;
+          *((0, (u16 *) (new_var25 + 0x45A))) = 0;
+          new_var8 = new_var18;
+          new_var26 = 0x458;
+          *((u16 *) (w + new_var26)) |= 2 & new_var8;
+          if ((double) (!new_var25))
+          {
+          }
+ do { } while (new_var14);
+        }
+        new_var5 = new_var20;
+      }
+    }
+  }
+}
 #ifdef NON_MATCHING
 void func_0011bf10(u8 *arg0)
 {
