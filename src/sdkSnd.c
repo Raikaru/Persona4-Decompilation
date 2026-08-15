@@ -577,8 +577,61 @@ s32 func_0045aa90(void)
 /* FUN_0045AAC0                                                        */
 /* ================================================================== */
 
-/* measured: retail sign-extends varargs arg1 before materializing the D_007122F0 format pointer; b210 emits the two chains in the opposite order. The direct-table C body also has three retail tail nops outside its natural object boundary. Probed direct-table, pointer-temporary, parameter-type, remasked, and pragma spellings; best verify result is nd 12 with object 260B vs window 272B. Argument-materialization order and tail-padding floor. Committed at nd 12. */
-// FUN_0045AAC0 NONMATCHING
+/* measured: found by tools/permute_sweep.py --engine ast at a 1200s budget;
+   earlier hand probes of direct-table, pointer-temporary, parameter-type,
+   remasked and pragma spellings all stalled at normalized_diff 7-12 on the
+   argument-materialization order. */
+// FUN_0045AAC0
+s32 func_0045aac0(s16 arg0, s16 arg1, s32 arg2)
+{
+  int new_var3;
+  unsigned int new_var;
+  short new_var7;
+  int new_var12;
+  s16 new_var10;
+  int new_var2;
+  s32 *new_var6;
+  short new_var8;
+  u8 *new_var5;
+  int new_var13;
+  int new_var11;
+  int new_var4;
+  int new_var9;
+  new_var12 = arg0;
+  new_var10 = new_var12;
+  new_var = arg1;
+  func_00440b68((s32) D_007122F0, new_var10, new_var, arg2);
+  if (arg0 < ((5 - 1) + 1))
+  {
+    new_var = D_008D2B90[arg0].f00;
+    new_var13 = 0;
+    if (new_var != new_var13)
+    {
+      new_var5 = &D_008D2BA0[(7 * arg0) * 44];
+      new_var6 = (s32 *) new_var5;
+      func_004d8eb0(*new_var6, arg2);
+      new_var7 = 0x134;
+      ;
+      new_var3 = D_008D2B90[arg0].f00 != 0;
+      if (new_var3)
+      {
+        func_004d8d90((unsigned long long) (*((s32 *) (&D_008D2BA0[arg0 * new_var7]))));
+        new_var2 = (new_var4 = ((new_var8, arg0)) * 0x134);
+        new_var4 = -1;
+        new_var8 = new_var;
+        new_var10 = (0, 0);
+        *((s16 *) (&D_008D2B9C[new_var2])) = new_var10;
+        new_var9 = 0x134;
+        new_var12 = 0x134 * 0;
+        D_008D2B90[new_var7 = arg0].f00 = new_var12;
+        new_var11 = 0xFFFFFFFFFFFFFFFFu;
+        *((s16 *) (&D_008D2B98[arg0 * new_var9])) = (((((((((new_var4 & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11;
+      }
+      new_var = D_008D2B90[arg0].f00;
+    }
+  }
+  return 1;
+}
 #ifdef NON_MATCHING
 s32 func_0045aac0(s16 arg0, s16 arg1, s32 arg2)
 {
