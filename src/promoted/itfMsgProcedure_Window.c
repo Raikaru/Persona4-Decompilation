@@ -316,7 +316,99 @@ void func_0027d660(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
    statement order, operand order, inline helper fusion, -O1, opt_propagation off,
    and opt_common_subs off without closing it. No inline asm or live mismatch. */
 // FUN_0027D800
-INCLUDE_ASM("asm/nonmatchings/itfMsgProcedure_Window", func_0027d800);
+void func_0027d800(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2)
+{
+  struct 
+  {
+    MsgProcWindowRGBA colors[10];
+    u8 gap[24];
+    MsgProcWindowF2 points[10];
+  } work;
+  MsgProcWindowU32Pair *src;
+  s32 new_var;
+  MsgProcWindowU32Pair *dst;
+  int new_var3;
+  MsgProcWindowF2 *p;
+  MsgProcWindowRGBA *c;
+  s32 count;
+  u32 lo;
+  u32 hi;
+  u32 i;
+  f32 new_var7;
+  f32 new_var6;
+  s32 new_var2;
+  u32 packed;
+  u8 new_var5;
+  u32 red;
+  u32 green;
+  int new_var10;
+  u32 blue;
+  u32 alpha;
+  int new_var9;
+  char pad;
+  u8 new_var8;
+  f32 base;
+  f32 scaled;
+  f32 dx;
+  f32 dy;
+  extern s32 func_0045eb20();
+  MsgProcWindowRGBA *new_var4;
+  new_var3 = 3;
+  new_var = a1;
+  src = (MsgProcWindowU32Pair *) D_0063C030;
+  dst = (MsgProcWindowU32Pair *) work.points;
+  count = 10;
+  do
+  {
+    lo = src->a;
+    hi = src->b;
+    src++;
+    alpha = (new_var9 = packed & 0xFF);
+    count--;
+ do { do { dst->a = lo; } while (0); } while (0);
+    dst->b = hi;
+    dst++;
+  }
+  while (count > 0);
+  scaled = 78.0f * f3;
+  ;
+  work.points[1].y = scaled + 5.0f;
+  work.points[new_var3].y = 2.0f + (scaled + 5.0f);
+  work.points[5].y = ((0, 4)) + (scaled + 5.0f);
+  work.points[7 & 0xFFu].y = 5.0f + (scaled + 5.0f);
+  work.points[9].y = work.points[7].y;
+  alpha = alpha;
+  new_var3 = 10;
+  i = 0;
+  new_var2 = a3;
+  packed = (((u32) a2) << 8) | ((u32) new_var2);
+  red = 0xFF & (packed >> 24);
+  green = (packed >> 16) & 0xFF;
+  blue = (packed >> 8) & ((long) 0xFF);
+  src->a += 0;
+  blue = (packed >> 8) & 0xFF;
+  alpha = packed & 0xFF;
+  dx = (f32) a0;
+  dy = (f32) new_var;
+  for (; i < new_var3; i++)
+  {
+    p = &work.points[i];
+    new_var7 = dx;
+    new_var6 = new_var7;
+    p->x += new_var6;
+    p->y = p->y + dy;
+    new_var5 = (u8) green;
+    c = (new_var4 = &work.colors[i]);
+    new_var10 = blue;
+    c->r = (u8) red;
+    c->g = new_var5;
+    new_var8 = (u8) new_var10;
+    c->b = new_var8;
+    c->a = (u8) alpha;
+  }
+
+  func_0045eb20(&work.colors[(unsigned char) 0], &work.points[alpha * 0], 10, 4, 1, t0, t1, t2);
+}
 
 /* Skip: retail contains COP1 adda.s/madd.s chains; ordinary FPU-MAC inline asm
    is prohibited. The plain-C near-match is archived above. */
