@@ -507,6 +507,44 @@ variants is wasted time.
   main body but before the 1-materialization, which mwcc never emits
   regardless of source shape).
 
+## Target selection: measured cost of choosing wrong (four 16-lane waves, zero closures)
+
+Four consecutive 16-lane waves produced no first-party closure. Every failure
+traces to target SELECTION, not to lane technique, and each rule below is the
+correction:
+
+- **Filter the census with `verify.is_vendor_address`, never by filename.**
+  A whole wave was spent on `code1_0042`/`0043`/`0044`/`004c`/`004d`/`0051`,
+  which look like the largest never-attempted pools in the tree (291, 236, 226,
+  118, 74 rows). They are entirely inside `VENDOR_CODE_RANGES`
+  (`0x00417510-0x0044E830`, `0x004BD628-0x0052D8C0`, `0x0070C850-0x0070E140`)
+  and score ZERO against the first-party metric. The tell before you dispatch:
+  a scoped `verify.py` on the file prints `first-party functions scanned: 0`.
+  Correct first-party never-attempted total at 6084/7866: **1778 rows**, and
+  the largest pools are `code1_003c` (107), `003e` (97), `003d` (94),
+  `003b` (92), `0039` (79), `003a` (64).
+- **The tiny-window seam is exhausted.** Exactly four first-party ASM rows have
+  a window of 32 bytes or less, and all four are documented floors
+  (`00399320`/`00399450` movn; `003df870`/`003df8a0` delay-slot scheduling).
+  Anything reading "smallest window first" below 48 bytes will find nothing.
+- **Do not re-grind the measured near-miss tail.** A wave that attacked the
+  twelve smallest known residuals (nd 5-28: `0011b110` 5, `003d59a0` 5,
+  `003de8c0` 6, `0011c930` 7, `0011c780` 8, `003de280` 8, `00396940` 15,
+  `0032b770` 16, `0039bb70` 16, `003e3830` 18, `003f2760` 28) ran 8-11 distinct
+  hypotheses each — 130 measured source revisions — and moved not one of them.
+  Several nd values also re-measured WORSE than their archived note, confirming
+  archived nd is not a ranking key.
+- **Permuter reach is confirmed exhausted on this tree.** Seeding 4387 m2c
+  candidates as `#ifdef NON_MATCHING` bodies and sweeping the 342 first-party
+  ones with the text engine at 240s x 20 workers cracked **zero**. This
+  reproduces, at 2.6x the seed count, the result already recorded above.
+
+What is left for the first-party metric is 1778 never-attempted functions with
+a median window near 400 bytes in units at 40-60% density, plus roughly 100
+ground near-misses on documented floors. The productive shape remains a lane
+per file in a unit that is ALREADY 90%+ matched, reading its matched
+neighbours for struct and callee spellings before writing anything.
+
 ## Process
 
 - **Disassemble before modeling any multi-call handler.** Resolve ambiguous
