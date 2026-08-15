@@ -346,8 +346,7 @@ s32 func_001e7320(void)
     return 1;
 }
 /* measured: object 264B vs window 272B, normalized_diff 10; remaining differences are register colouring. Committed at nd 10. */
-// FUN_001E7400 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_001E7400
 s32 func_001e7400(void) {
     extern s32 func_001d9390();
     extern u32 func_00231d70(u32 arg0);
@@ -355,46 +354,38 @@ s32 func_001e7400(void) {
     extern void func_0029cf50(s32 arg0);
     extern u8 *func_0029d050(void);
     extern void func_001db8d0();
-    u8 *temp_16;
-    s32 temp_6;
-    s32 var_7;
-    u8 *temp_5;
-    s32 temp_3;
-    u8 *sp20[12];
-    u8 *var_2;
+    u8 *formation;
+    u16 count;
+    int selected;
+    u32 unit;
+    u32 selector;
+    u16 index;
+    int candidates[12];
 
-    temp_16 = func_0029d050();
-    temp_6 = func_001d9390(temp_16, func_0029cc00(0), 0x80000, 1, 1, &func_001db8d0, sp20) & 0xFFFF;
-    if (temp_6 > 0) {
-        var_7 = 0;
-        temp_5 = iGpffffb3ac;
-        goto loop_test;
-loop_body:
-        temp_3 = var_7 & 0xFFFF;
-        if (*(s32 *)(temp_5 + 0x170) != *(s32 *)&sp20[(u16)var_7]) {
-            var_7 = (var_7 + 1) & 0xFFFF;
-            goto loop_test;
+    unit = (u32)func_0029d050();
+    selector = (u32)func_0029cc00(0);
+    count = func_001d9390(unit, selector, 0x80000, 1, 1,
+                          &func_001db8d0, candidates);
+    if (count > 0) {
+        index = 0;
+        formation = iGpffffb3ac;
+        while (index < count) {
+            if (*(s32 *)(formation + 0x170) == candidates[index]) {
+                break;
+            }
+            index++;
         }
-        goto select;
-loop_test:
-        temp_3 = var_7 & 0xFFFF;
-        if (temp_3 < temp_6)
-            goto loop_body;
-select:
-        if (temp_3 == temp_6) {
-            var_2 = sp20[func_00231d70(temp_6 & 0xFFFF)];
+        if (index == count) {
+            selected = candidates[func_00231d70(count)];
         } else {
-            var_2 = *(u8 **)(temp_5 + 0x170);
+            selected = *(s32 *)(formation + 0x170);
         }
-        func_0029cf50(*(s32 *)(var_2 + 8) | 0x80000000);
+        func_0029cf50(*(s32 *)(selected + 8) | 0x80000000);
     } else {
         func_0029cf50(-1);
     }
     return 1;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001e7400);
-#endif
 // FUN_001E7510
 s32 func_001e7510(void) {
     extern s32 func_001d9390();
