@@ -613,6 +613,37 @@ The practical consequence: **stop mining the near-miss tail.** The remaining
 first-party work is dominated by `size` rows, i.e. functions whose C is missing
 real logic, and those are reconstruction problems, not residual problems.
 
+## Where the remaining 1765 first-party functions actually stand
+
+Every search avenue has now been measured to exhaustion, and the numbers are
+worth stating plainly so nobody re-runs them:
+
+| avenue | attempted | closed |
+|---|---|---|
+| P3 FES twin ports (masked-fingerprint join) | 41 | 8 |
+| decomp-permuter, both engines, all seed corpora and score bands | ~1500 sweeps | 8 |
+| archive near-miss tail, hand lanes | ~60 | 0 |
+| m2c near-miss band, hand lanes | 16 | 0 |
+| undersized archives ("missing block"), hand lanes | 32 | 1 |
+| never-attempted functions in 89-98% dense units, hand lanes | 16 | 0 |
+
+The last row is the one that changed this week. Fresh functions in dense units
+used to be the reliable seam — it is how most of the campaign was built — and it
+has now stopped producing at 16 lanes per wave. What those lanes found is
+consistent: the remaining never-attempted functions are large (median window
+near 400 bytes, several over 2 KB), and their residuals land on the SAME walls
+the ground corpus sits on. `func_00250ad0` (2720 B, the only gap in a 98% unit)
+reduces to COP1 `adda.s`/`madd.s` accumulator chains; `func_0036d3e0` (1152 B,
+the only gap in a 97% unit) reduces to a callee-saved register rotation at
+nd 51; `func_00177120` and `func_001774a0` do NOT respond to the exhaustive
+empty-case hypothesis (nd 75 and 348 differing words with cases 2 and 4-9 added
+explicitly, so that idea is now retired).
+
+What is left therefore needs one of: a genuinely new source lever, a donor tree
+we do not have, or acceptance that a large share of these are compiler floors
+under b210. Ranking by window size or by unit density no longer predicts
+closure.
+
 ## The permuter is seed-limited, not exhausted — and the AST engine works now
 
 An earlier sweep concluded the permuter was spent. That conclusion was about the
