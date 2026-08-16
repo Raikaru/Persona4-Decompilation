@@ -628,6 +628,39 @@ worth stating plainly so nobody re-runs them:
 | never-attempted functions in 89-98% dense units, hand lanes | 16 | 0 |
 | P3 twins at +/-4 instructions (`build/twin_nearsize.py`) | 16 | 0 |
 | never-archived LEAF functions (no saved registers) | 20 | 0 |
+| MWCC command-line flag sweep (`build/flag_sweep*.py`) | 15 flag sets x 128 bodies | 0 |
+
+### The command-line flag axis, and why a per-UNIT sweep cannot test it
+
+Every verify in this tree compiles with exactly `-O2 -Iinclude`, and that
+baseline had never been questioned. `build/flag_sweep.py` sweeps 15 flag sets
+per translation unit; `build/flag_sweep_bodies.py` sweeps them per archived
+body. Both are committed because the negative needs to stay re-derivable.
+
+Three things came out of it, in order of importance:
+
+- **A per-unit sweep is structurally incapable of finding anything.** An
+  unmatched function is an `INCLUDE_ASM` line, so it never reaches the
+  compiler; no switch can change bytes that are pasted from retail. The only
+  functions a unit-level sweep can move are ones that already MATCH, and there
+  a change is a regression. Measured: `btlShuffle.c` keeps 21/21 under every
+  neutral flag set, loses 6 at `-O1` and all 21 at `-O3`/`-O4`. That also
+  confirms `-O2` is right, and that the flags do reach the compiler.
+- **In pragma-heavy units the sweep reads as a flat line** because file-scope
+  `#pragma optimization_level` overrides `-O`: `code1_003e.c` (55 such pragmas)
+  reports an identical 73 MATCH at `-O1`, `-O2`, `-O3` and `-O4`. Do not read
+  that as insensitivity.
+- **Per-body, one flag set moved a residual materially**: `func_00311930`
+  (`code1_0031`) goes from nd 48 to nd 6 under `-O1` — but its archive already
+  documents that exact result under a function-scoped `optimization_level 1`
+  bracket, with five residual words confined to FPU destination-register
+  choice. The sweep rediscovered a known floor rather than opening one.
+
+One caveat the sweeper cannot fix: `normalized_diff` rewards a SMALLER object,
+so a body that compiles to an 8-byte stub against a 1120-byte window scores
+better than a real attempt. Two apparent `-O3` wins (`func_001dbf20`,
+`func_004667d0`) were exactly this. Always read `object` against `window`
+before believing an nd improvement.
 
 ### The remaining work is not a toolchain problem
 
