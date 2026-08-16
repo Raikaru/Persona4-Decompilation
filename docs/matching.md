@@ -627,8 +627,41 @@ worth stating plainly so nobody re-runs them:
 | undersized archives ("missing block"), hand lanes | 32 | 1 |
 | never-attempted functions in 89-98% dense units, hand lanes | 16 | 0 |
 | P3 twins at +/-4 instructions (`build/twin_nearsize.py`) | 16 | 0 |
+| never-archived LEAF functions (no saved registers) | 20 | 0 |
 
-That last row retires an idea worth recording so it is not retried. The exact
+### The remaining work is not a toolchain problem
+
+`build/prologue_census.py` applies `config/gcc_units.txt`'s own discriminator —
+retail saves callee-saved registers with `sd` under ee-gcc and `sq` under
+MWCCPS2 — to every FUNCTION rather than per translation unit, straight from
+`image.bin` with no build required. The result settles a question the campaign
+had never actually measured:
+
+| verify status | prologue | count |
+|---|---|---|
+| MATCH | mwcc | 3281 |
+| MATCH | leaf (saves nothing) | 2820 |
+| ASM | mwcc | 1539 |
+| ASM | leaf | 226 |
+| **ASM** | **gcc** | **0** |
+
+**Zero** unmatched first-party functions have a GCC prologue. Every one of them
+was built by b210 and is therefore reachable in principle with the compiler in
+use; nothing is waiting on an ee-gcc split. (The `code1_0041`/`code1_0044` GCC
+populations noted in `config/gcc_units.txt` are all above 0x00417510, i.e.
+inside the vendor ranges, and score nothing either way.)
+
+That census also isolated the 226 unmatched LEAF functions — no saved registers
+at all, so structurally incapable of carrying the saved-register colouring or
+rotation residual that walls most of the corpus. 82 had never been archived,
+and a 16-lane wave over the 20 smallest closed **zero**. Their residuals were
+COP1 accumulator chains (`003e3f00`, `003e4030`, `003963c0`, `00396520`), or
+ordinary word-level walls at nd 12-64 on functions of 80-368 bytes. Leaf-ness
+does not predict closure either.
+
+### Near-size twins are a shape family, not a twin
+
+That row retires an idea worth recording so it is not retried. The exact
 twin join demands IDENTICAL window sizes; relaxing it to +/-4 instructions and
 scoring masked-instruction alignment finds 57 pairs at ratio >= 0.80, of which
 26 are new. They are almost all FALSE POSITIVES: at that tolerance the score
