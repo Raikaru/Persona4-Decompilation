@@ -113,7 +113,16 @@ def generated_bodies() -> dict[str, tuple[str, str]]:
                     " installed as a permuter seed; not a verified body. */")
             body = "\n".join(lines).strip("\n")
             if "M2C_" in body:
-                body = M2C_PRELUDE + "\n" + body
+                # The prelude must go in the NOTE, i.e. above the `// FUN_`
+                # marker, not at the head of the body.  permute.scan_markers
+                # associates a marker with the function on the line after it;
+                # a body that starts with typedefs leaves the marker nameless,
+                # and every permuter run on that seed dies with
+                # "no // FUN_ marker for func_xxxxxxxx".  Measured: 447
+                # first-party generated seeds were unusable for this reason.
+                # The prelude is pure text substitution, so hoisting it cannot
+                # change a byte of the object.
+                note = note + "\n" + M2C_PRELUDE
             out[addr] = (note, body)
     return out
 

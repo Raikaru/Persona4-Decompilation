@@ -646,8 +646,21 @@ Four things follow, each measured:
   `func_0032b770`, a P3 twin port stalled at nd 16. Budget the AST engine
   generously on scores <= 40 and never above it. (Text-engine budget, by
   contrast, was measured to buy nothing.)
-- **m2c candidates are worthless as AST seeds** (they do not parse) and produced
-  nothing under the text engine either. Archives are the seed corpus.
+- **The m2c seed corpus is closed, and it took a tool fix to prove it.**
+  `generated_bodies()` used to prepend the `M2C_` typedef/`#define` prelude to
+  the BODY, so an activated seed put typedefs on the line after its `// FUN_`
+  marker. `permute.scan_markers` names a marker from the line below it, so the
+  marker stayed nameless and every run died with "no `// FUN_` marker for
+  func_xxxxxxxx" — silently, as a harness error rather than a compile failure.
+  447 of the first-party generated seeds were unusable for that reason alone.
+  Hoisting the prelude into the NOTE (above the marker; it is pure text
+  substitution, so it cannot change a byte) took the usable first-party seed
+  count from 503 to 531 and the SCORED population from 56 to 206. Both engines
+  were then run over the unlocked corpus: text at 180s over all 531 cracked
+  **zero**, and AST at 1200s over the 26 that scored 1-40 cracked **zero**.
+  Seven `match` rows in the classification are all vendor addresses and score
+  nothing for the metric. Archives are the seed corpus; m2c candidates are not,
+  and this is now measured rather than assumed.
 - **Re-sweep after anything that makes new archives measurable.** Every crack
   this session came from bodies that had just become visible.
 
