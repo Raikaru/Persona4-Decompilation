@@ -617,7 +617,8 @@ real logic, and those are reconstruction problems, not residual problems.
 
 An earlier sweep concluded the permuter was spent. That conclusion was about the
 SEED POPULATION, not the tool. Re-seeding it after the archive-note fix produced
-five closures in two sweeps, all in functions no hand wave had ever ground:
+eight closures across seven sweeps, all in functions no hand wave had ever
+ground:
 
 | sweep | seeds | engine | budget | cracked |
 |---|---|---|---|---|
@@ -626,6 +627,9 @@ five closures in two sweeps, all in functions no hand wave had ever ground:
 | the 365 seeds text scored >30 | 365 | ast | 240s x 18 | 0 |
 | `src/generated` m2c candidates | 506 | ast | 200s x 18 | 0, and 0 SCORED — pycparser cannot construct them |
 | the same m2c candidates | 506 | text | 200s x 20 | 0, 56 scored |
+| the 41 seeds text scored 1-12 | 41 | ast | **1200s** x 16 | **1** (`0045aac0`) |
+| the 62 seeds text scored 13-40 | 62 | ast | **1200s** x 16 | **2** (`0032b770`, `0011bf10`) |
+| the 110 seeds text scored 41-120 | 110 | ast | 1200s x 16 | 0 |
 
 Four things follow, each measured:
 
@@ -634,8 +638,14 @@ Four things follow, each measured:
   `PYTHONNOUSERSITE=1`. Install them and run that engine with the variable
   UNSET. It restructures code where the text engine only reorders, which is why
   it cracked `func_00296600` after four hand waves had stalled it at nd 8.
-- **Its reach is the low-score tail.** Two hits from 93 seeds scored 1-30, zero
-  from 365 seeds scored above 30. Do not spend an AST sweep on the bulk.
+- **Its reach is the low-score tail, and AST budget keeps paying inside it.**
+  Zero hits from 365 seeds scored above 30 at 240s, and zero from 110 seeds
+  scored 41-120 even at 1200s — but raising the budget to 1200s inside the
+  1-40 band produced three more cracks that 200-300s had missed, including
+  `func_0045aac0`, which had a header full of exhausted hand probes, and
+  `func_0032b770`, a P3 twin port stalled at nd 16. Budget the AST engine
+  generously on scores <= 40 and never above it. (Text-engine budget, by
+  contrast, was measured to buy nothing.)
 - **m2c candidates are worthless as AST seeds** (they do not parse) and produced
   nothing under the text engine either. Archives are the seed corpus.
 - **Re-sweep after anything that makes new archives measurable.** Every crack
