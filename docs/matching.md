@@ -661,6 +661,12 @@ Four things follow, each measured:
   Seven `match` rows in the classification are all vendor addresses and score
   nothing for the metric. Archives are the seed corpus; m2c candidates are not,
   and this is now measured rather than assumed.
+  Hand lanes then attacked the same corpus: 16 lanes over the 16 best-scoring
+  m2c near-misses (scores 5-48, several of them EXACT SIZE) closed **zero**.
+  So the m2c bodies are not a starting point for hand work either — their
+  residuals are the same register-colouring and branch-layout walls the
+  archives already sit on, reached from a different direction. What an m2c
+  seed IS good for is a measurement and a block map, not a candidate.
 - **Re-sweep after anything that makes new archives measurable.** Every crack
   this session came from bodies that had just become visible.
 
