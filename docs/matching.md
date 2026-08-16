@@ -626,8 +626,22 @@ worth stating plainly so nobody re-runs them:
 | m2c near-miss band, hand lanes | 16 | 0 |
 | undersized archives ("missing block"), hand lanes | 32 | 1 |
 | never-attempted functions in 89-98% dense units, hand lanes | 16 | 0 |
+| P3 twins at +/-4 instructions (`build/twin_nearsize.py`) | 16 | 0 |
 
-The last row is the one that changed this week. Fresh functions in dense units
+That last row retires an idea worth recording so it is not retried. The exact
+twin join demands IDENTICAL window sizes; relaxing it to +/-4 instructions and
+scoring masked-instruction alignment finds 57 pairs at ratio >= 0.80, of which
+26 are new. They are almost all FALSE POSITIVES: at that tolerance the score
+matches a shape FAMILY — the same compiler emitting the same idiom over the
+same struct — not the same source function. Lanes reported it directly: the
+`func_001a0f40` donor is a 200-byte function against a 448-byte window, the
+`func_0047ce00` donor uses a different dispatch (jump table versus chain), and
+the `func_001bfc00` donor relies on P3-only `RtQuat` and extended `BtlUnit`
+fields. The strictness of the size constraint was doing real work; a twin is
+only a twin at ratio 1.000 with equal windows.
+
+The dense-unit row is the other one that changed this week. Fresh functions in
+dense units
 used to be the reliable seam — it is how most of the campaign was built — and it
 has now stopped producing at 16 lanes per wave. What those lanes found is
 consistent: the remaining never-attempted functions are large (median window
