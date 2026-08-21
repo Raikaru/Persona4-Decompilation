@@ -846,13 +846,15 @@ u8 *func_003c3e10(u8 *arg0) {
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
-/* measured: explicit-label block order and the six-argument helper setup
-   remain a compiler residual at this 144-byte window; no real C body was
-   retained, so the bare INCLUDE_ASM fallback remains. */
-/* measured: scheduled 124-byte candidate (nd 17) is archived in
-   build/YCLS_003c3e90_body.c; the post-call store/reload/branch order remains
-   a compiler residual. */
-/* measured: schedule and no_branch_likely reproduce the archived candidate shape. */
+/* measured (N3C lane, 2026-08-21): an nd 0 MATCH body was found -- the
+   archived store/reload tail plus a VOLATILE-qualified reload
+   (*(volatile s32 *)temp_3), object 132B/window 144B -- but volatile used
+   purely to steer b210 into emitting retail's post-call lw is banned
+   (lint H001), so the body is parked in build/N3C_003c3e90_volatile_body.c
+   and the bare fallback restored. Without the volatile the same body folds
+   the reload into the branch: nd 31, object 124B/window 144B
+   (build/YCLS_003c3e90_body.c). The older u16/mode-SI union idea forced a
+   reload but narrowed it to lhu (nd 1). */
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003C3E90 NONMATCHING
@@ -2088,8 +2090,14 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-/* func_003cb720 archive: object 72B/window 80B, normalized_diff 6; see
-   build/F3C0_003cb720_body.c; the residual is retail's movz conditional move. */
+/* func_003cb720 archive re-probed (N3C lane, 2026-08-21): object 72B/window
+   80B, normalized_diff 6; see build/F3C0_003cb720_body.c. The residual is
+   retail's movz $s1,$zero,$v0 conditional move. Measured today: ternary,
+   opt_rebuildconditionals off, explicit gotos, -O3, and -O1 all reproduce
+   the same branch pair (b210 normalizes every conditional spelling); a
+   14-shape standalone matrix at -O0/-O1/-O2/-O3 never emitted movz, and
+   matched movz users elsewhere in retail are raw asm blocks. Confirmed
+   compiler floor. */
 // FUN_003CB720 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 // FUN_003CB770
@@ -2185,7 +2193,11 @@ void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
 
 /* measured: C candidate reproduces the 84B body/window with six differing
    bytes at offsets 48, 50, 51, 55, 56, 58; retail's `movz $s1,$zero,$v0`
-   conditional move is a MWCCPS2 compiler floor. */
+   conditional move is a MWCCPS2 compiler floor. Re-probed (N3C lane,
+   2026-08-21): ternary and ternary-with-result-local spellings score the
+   same nd 6 -- b210 normalizes every conditional spelling to the branch
+   pair; a 14-shape standalone matrix at -O0/-O1/-O2/-O3 never emitted movz.
+   Confirmed floor; archived body build/F3C1_003cb870_body.c. */
 // FUN_003CB870 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
 
@@ -2199,6 +2211,7 @@ void func_003cb8d0(u8 *arg0) {
     temp = func_003c9c20((u32)self);
     func_003c5fd0(*(u8 **)(self + 0x78), temp);
 }
+/* measured: closes the schedule bracket opened above func_003cb8d0. */
 #pragma schedule off
 // FUN_003CB900
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb900);
