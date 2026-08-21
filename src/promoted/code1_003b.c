@@ -57,6 +57,10 @@ extern u64 func_003bf1c0(u64 value);
 extern s32 func_003bf1d0(s32 arg0);
 extern u64 func_003bf1f0(u64 value);
 extern s32 iGpffffb6b4;
+extern void (*D_00887300[])(s32, s32);
+extern void (*D_00887304[])(s32, void *);
+extern s32 iGpffffb6f0;
+
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
@@ -96,7 +100,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4120);
 #pragma opt_common_subs on
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: current-TU plain-C candidate object 168B/window 176B, normalized_diff 109; direct generated logic plus corrected next-base update and explicit source reload still leaves guard/prologue register assignment, pointer-lifetime coloring, and loop-store order mismatched; restored fallback. */
+/* measured: best current-TU body object 164B/window 176B, normalized_diff 9; differing word offsets 4,20-24,156-160. Retail's entry guard is slt $at,$zero,$a1 + beqz with i=0 in the delay slot and one extra nop before jr. Every literal/boolean spelling probed colors $v1 or folds to blez/bltz instead (>=0 form reaches bltz nd13); named boolean go = 0 < arg1 under rc-off+propagation-off is the floor at nd9. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, unrotated do-while with bottom i < arg1. Body archived at build/B3B_003b4230_body.c and restored to INCLUDE_ASM. */
 // FUN_003B4230
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4230);
 // FUN_003B42E0
@@ -163,9 +167,36 @@ u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4) {
 /* measured: close tailcall and schedule probes. */
 #pragma tailcall off
 #pragma schedule off
-/* measured: current-TU WT05 candidate object 244B/window 224B, normalized_diff 162; fndiff reports 58 differing words. Candidate frame was 0x40 versus retail 0x50, with callback/global addressing, stack temporary placement, branch layout, and epilogue all mismatched; object exceeds window, so restored fallback. */
+/* measured: schedule on, no_branch_likely on, opt_rebuildconditionals off, and opt_propagation off reproduce retail's hoisted table pointer (one s-reg reused for D_00887304 then D_00887300), the sq save of s0-s2, and the delay-slot calls; sp4C declared before sp48 places the slots at 0x48/0x4C. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
 // FUN_003B6CC0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6cc0);
+s32 func_003b6cc0(s32 arg0, u8 *arg1) {
+    void (**cb)(s32, void *);
+    s32 sp4C;
+    s32 sp48;
+
+    cb = D_00887304;
+    cb[0](0xB, &sp48);
+    cb[0](0xA, &sp4C);
+    if (*(s32 *)(arg1 + 0x64) == 0) {
+        return 1;
+    }
+    cb = (void (**)(s32, void *))D_00887300;
+    cb[0](0xB, (void *)*(s32 **)(arg1 + 0x60));
+    cb[0](0xA, (void *)*(s32 **)(arg1 + 0x5C));
+    (*(void (**)(s32))(*(u8 **)(arg0 + iGpffffb6f0) + 0x10))(arg0);
+    cb[0](0xB, (void *)sp48);
+    cb[0](0xA, (void *)sp4C);
+    return 0;
+}
+/* measured: close schedule/no_branch_likely/opt_rebuildconditionals/opt_propagation probes around func_003b6cc0. */
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: current recheck object 84B/window 96B, normalized_diff 7; differing offsets 32,76,78-80,82-83. Best body archived in build/Z3BF_003b6da0_nd7_body.c; the prior nd6 archive was stale under the current TU. */
 // FUN_003B6DA0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
@@ -653,13 +684,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
 // FUN_003BCC80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcc80);
 
-/* measured: current-TU WU12 candidate object 220B/window 208B, normalized_diff 141; fndiff reports 46 differing words. Frame matches retail, but saved-register/prologue order, table-address/call argument materialization, loop branch layout, and epilogue tail remain mismatched; object exceeds window, so restored fallback. */
+/* measured: best current-TU body object 204B/window 208B, normalized_diff 42; differing words are the entry guard register (slt $v0 vs retail slt $at,$zero,$v0 + beqz, the same $at-guard floor as func_003b4230), i=0 landing after the branch instead of in its delay slot, and one trailing nop. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, goto done, cur = arg0 with return arg0 (arg0 stays live in $s4), volatile work reads for fresh loop-test reloads, decl order sp6C/work/go/cur/i/row. Body archived at build/B3B_003bcd50_body.c and restored to INCLUDE_ASM. */
 // FUN_003BCD50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcd50);
-
+// FUN_003BCE20
 /* measured: schedule on is required for func_003bce20's callback delay slot. */
 #pragma schedule on
-// FUN_003BCE20
 s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     func_003bc880(arg2 + arg3, arg0);
     return arg0;
@@ -667,10 +697,9 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* measured: close schedule around func_003bce20. */
 #pragma schedule off
 
-/* measured: current-TU WU12 candidate object 172B/window 192B, normalized_diff 122; differing word offsets 0,4,8,10,12,14,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164,172,176,180,184,188. Retail frame/saved-register footprint is 0x60 with a live zero result in s4; plain-C candidate folds that result and remains 20B undersized. Restored fallback. */
+/* measured: best current-TU body object 164B/window 192B, normalized_diff 71; differing words are the entry guard register (slt $v0 vs retail slt $at,$zero,$v0 + beqz, the same $at-guard floor as func_003b4230/003bcd50), retail's out-of-line func_003bc620 call placed after the loop exit and reached by bnez while every spelling compiles inline with beqz-skip, i=0 landing after the guard branch instead of in its delay slot, and one trailing nop. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, cached count with volatile loop-tail reload, single-case switch wrap (skill sub-pattern 5), goto next, role-swapped counters, declaration permutations. Body archived at build/B3B_003bce50_body.c and restored to INCLUDE_ASM. */
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-/* measured: current-TU body object 76B/window 80B, normalized_diff 32; differing word offsets 0,4,16,20,24,52,56,60,64,68; archived at build/F3B0_003bcf10_body.c. */
 // FUN_003BCF10 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
 /* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */
