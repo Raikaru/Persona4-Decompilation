@@ -101,6 +101,59 @@ extern s32 iGpffffb78C;
 extern s32 iGpffffb788;
 extern s32 D_008871F0;
 extern u8 D_008873F0[];
+extern s32 func_003ddf20(void *arg0);
+extern s32 func_003e3370(u8 *arg0, s32 arg1);
+extern s32 func_003e2ab0(u8 *arg0, u8 *arg1, s32 arg2);
+extern void func_003e4520(void *arg0, s32 arg1);
+extern void func_003e4960();
+extern void func_003e4920();
+extern void func_003e47c0();
+extern void *D_008873A4;
+extern void *D_008873A8;
+extern void *D_008873AC;
+extern void *D_008873B0;
+extern void *D_008873B4;
+extern void *D_008873B8;
+extern s64 (*D_008873BC)(s8 *, s64);
+extern s64 (*D_008873C0)(s8 *, s64);
+extern void *D_008873C4;
+extern void *D_008873C8;
+extern void *D_008873CC;
+extern void *D_008873D0;
+extern s8 *(*D_008873D8)(s8 *);
+extern s8 *(*D_008873DC)(s8 *);
+extern void *D_008873E0;
+extern void *D_008873E4;
+extern void func_00442088();
+extern void func_00446ed8();
+extern void func_00442830();
+extern void func_00442de8();
+extern void func_00442428();
+extern void func_00442a80();
+extern void func_00443010();
+extern void func_004426e8();
+extern void func_00442c30();
+extern void func_00442948();
+extern void func_00443f18();
+extern void func_00442100();
+typedef struct {
+    void *next;
+    void *prev;
+    s32 size;
+    void *owner;
+    void *dtor;
+    void *cb;
+} Node2430003e;
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+    s32 count;
+    s32 unkC;
+    void *head_next;
+    void *head_prev;
+    void *tail_next;
+    void *tail_prev;
+} Ctx2430003e;
 extern u8 D_008873F4[];
 
 
@@ -1410,6 +1463,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4960);
 
 // FUN_003E49A0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e49a0);
+/* Best candidate archived at build/F3E_003e49a0_body.c: normalized_diff 94,
+   object 220 / window 288 -- undersized, so the table init is incomplete. */
+
 // FUN_003E4AC0
 void func_003e4ac0(void)
 {

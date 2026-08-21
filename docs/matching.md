@@ -629,6 +629,114 @@ worth stating plainly so nobody re-runs them:
 | P3 twins at +/-4 instructions (`build/twin_nearsize.py`) | 16 | 0 |
 | never-archived LEAF functions (no saved registers) | 20 | 0 |
 | MWCC command-line flag sweep (`build/flag_sweep*.py`) | 15 flag sets x 128 bodies | 0 |
+| reconstruction of never-attempted functions <= 256B | 8 | 3 |
+| reconstruction of never-attempted functions > 256B | 12 | 0 |
+
+### Reconstruction is the only avenue that still pays
+
+Every row above except the first two is residual-polishing: take a body that is
+already close and hunt for the source spelling that closes it. Pooled, that is
+**1 closure in ~175 hand lanes, 0.6%**. The first reconstruction wave closed
+**3 of 13, 23%**. The difference is not luck, it is which defect is being
+attacked: polishing can only fix a register or scheduling choice, and most
+remaining functions are wrong because their C is missing logic.
+
+Two census errors had hidden this, and both are easy to repeat:
+
+  * **The `code1_0041..0052` and `code2_0070` families are vendor address
+    spans** (CRI, the Sony SDK, the C runtime), excluded by
+    `verify.is_vendor_address`. They are full of tempting 16-byte accessors and
+    tail-call thunks, and closing every one of them would not move the metric
+    by a single function. Filter with `is_third_party` AND `is_vendor_address`,
+    never by path prefix alone.
+  * **Archives are named both `*_body.c` and `*_body.c.txt`.** Globbing only
+    the first overstates the never-attempted population by about 300.
+
+With both corrected: **791 never-attempted first-party functions, of which 8
+are under 256 bytes and 480 exceed 1 KB.** There is no cheap tail left.
+
+### The 256-byte cliff, and what it leaves to work on
+
+A second wave ran the same method against larger never-attempted functions and
+closed **nothing in 16 attempts**. Pooling both waves by retail window size
+separates the two results completely:
+
+| window | attempted | matched |
+|---|---|---|
+| <= 256 B | 8 | 3 |
+| 257-400 B | 6 | 0 |
+| > 400 B | 6 | 0 |
+
+Every match came from a window of 256 bytes or less. Nothing above it closed.
+Cold reconstruction works, but only at a size where the whole function can be
+held in one piece; past that the reconstruction is right in outline and wrong
+in a dozen small ways at once, and the residual is not attackable.
+
+That is a problem, because the corrected census leaves only 8 never-attempted
+first-party functions under 256 bytes, and this campaign has now consumed
+almost all of them.
+
+**The pool that remains is the archived near-misses.** 117 functions are still
+`INCLUDE_ASM` while carrying an archived body measured at `0 < nd <= 25`, and
+84 of those have a window of 400 bytes or less -- many at nd 1-7 in 64-176 byte
+windows. `build/wave3_pool.json` is that list, mined out of the archive notes
+and filtered against the current verify report so nothing already matched
+appears in it.
+
+The obvious objection is that "archive near-miss tail, hand lanes" is already a
+measured zero in the table above. The distinction is method, and wave 1 proved
+it on exactly this kind of target: `func_0028b6b0` had been parked at nd 8 by
+an earlier lane and every spelling permutation had failed on it. It closed only
+when the logic was re-derived from the retail disassembly, which showed the
+doubled `beqz` came from nested ifs and the body-head order came from a table
+local. So the pool is not exhausted -- the *permutation* of it is. Re-derive
+the logic; do not permute the spelling.
+
+### Abandon on measured nd, not on iteration count
+
+The first reconstruction wave spent roughly half its compute on six targets
+that finished at nd 42, 51, 71, 107, 144 and 309 -- three of them absorbed 25
+to 35 probe variants each. The instruction that failed was "time-box each
+function to about a dozen iterations": an iteration count is estimated loosely
+and every lane overshot it two- to threefold.
+
+The rule that works is keyed to a measurement. Get one candidate whose
+`object_size` is within ~8 bytes of `window`, then read its `normalized_diff`:
+
+  * **nd > 25** -- archive immediately. At that distance the defect is missing
+    or wrong logic, and no source spelling closes it. More variants are waste.
+  * **nd <= 25** -- worth a probe budget, capped at 12 variants.
+
+On the first wave this rule would have cut about half the runtime at zero cost
+in matches.
+
+### Two b210 levers measured during the wave
+
+  * Retail's **doubled `beqz`** comes from **nested `if`s**. b210 CSEs an `&&`
+    chain into a single test but does not collapse nested ifs, so the two
+    shapes are distinguishable in the object.
+  * A **table local declared at the loop-body head** forces retail's
+    `sll`-before-`lw` body-head instruction order.
+
+### Reading EE FPU multiply-accumulate out of rabbitizer
+
+rabbitizer does not know the EE's multiply-accumulate opcodes and prints them
+as `.word 0x46...` tagged INVALID. Two lanes each burned an hour rediscovering
+how to read them, so the rules are recorded here.
+
+  * **In those INVALID words rabbitizer prints float registers using INTEGER
+    register names.** `$a2` means `$f6`, and so on by register number. This is
+    the detail that wastes the hour.
+  * Function field, bits 5-0: `0x18` ADDA.S, `0x19` SUBA.S, `0x1A` MULA.S,
+    `0x1C` MADD.S, `0x1D` MSUB.S, `0x1E` MADDA.S, `0x1F` MSUBA.S.
+  * Accumulator semantics: `mula`/`adda`/`suba` SET the accumulator and their
+    `fd` field is unused; `madd`/`msub` write `fd` from the accumulator
+    combined with the product; `madda`/`msuba` accumulate into it.
+
+All of these come from ordinary C float expressions such as `a*a + b*b + c*c`;
+none of them justifies inline asm. When b210 compiles such a sum it starts the
+accumulator with the SECOND addend, which is why a literal left-to-right
+transcription of the retail order does not reproduce it.
 
 ### The command-line flag axis, and why a per-UNIT sweep cannot test it
 
