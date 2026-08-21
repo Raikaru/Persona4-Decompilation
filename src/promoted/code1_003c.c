@@ -2745,6 +2745,12 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cebb0);
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ceeb0);
 // FUN_003CF070
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cf070);
+/* func_003cf070 archive: best reconstruction object 216B/window 208B (over
+   window), normalized_diff 167. The _pcpyld/u_long128 MMI idiom reproduces the
+   sq tail, but the 0x3D0 constant is materialized late in retail (li t4 at the
+   head feeding sw 0x1c) while every C spelling hoists it early and spills the
+   byte stores. Over-window at every probe; no real C body retained. See
+   build/P3C_003cf070_body.c. */
 // FUN_003CF140
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cf140);
 // FUN_003CF610
@@ -2780,6 +2786,8 @@ sub_none:
 none:
     return NULL;
 }
+/* measured: both closers restore the -O2 baseline for the functions below;
+   the bracket they end is required by func_003cf9b0, which MATCHes with it. */
 #pragma no_branch_likely off
 #pragma schedule off
 
