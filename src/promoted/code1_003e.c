@@ -185,8 +185,13 @@ fallback:
 #pragma schedule off
 /* measured: close no_branch_likely around func_003e00f0. */
 #pragma no_branch_likely off
-/* measured: archived semantic determinant body in build/H3E1_003e0130_body.c;
-   retail uses ordinary COP1 MAC instructions that compliant C cannot spell. */
+/* measured: best candidate archived at build/X3E_003e0130_body.c; object
+   80/80 B, nd 45-46 across schedule / no_branch_likely / optimization_level 3
+   probes (12 variants). Ghidra-verified semantics:
+   (m4*m9-m5*m8)*m2 + (m5*m10-m6*m9)*m0 + (m6*m8-m4*m10)*m1; the older
+   H3E1/F3E1 archives pair the cofactors wrongly and were never compiled.
+   Residual is retail's EE COP1 accumulator-MAC register bank, not
+   reproducible from plain C in b210. */
 // FUN_003E0130 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0130);
 // FUN_003E0180 NONMATCHING

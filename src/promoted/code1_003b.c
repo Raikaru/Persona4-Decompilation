@@ -200,6 +200,7 @@ s32 func_003b6cc0(s32 arg0, u8 *arg1) {
 /* measured: current recheck object 84B/window 96B, normalized_diff 7; differing offsets 32,76,78-80,82-83. Best body archived in build/Z3BF_003b6da0_nd7_body.c; the prior nd6 archive was stale under the current TU. */
 // FUN_003B6DA0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
+/* measured N3B: exact Z3BF archive text reproduces nd7 84B/96B under the current TU (schedule on + opt_propagation off; storing through the D_00885A90 SYMBOL, not a base local, is load-bearing — base-local store scores nd45). Residual is 2 words: retail puts jr $ra in beqz's delay slot and pads after the loop with nop;nop;nop vs our nop;jr;nop — b210 never places an epilogue instruction in that delay slot. All 156 archived 84B shapes sit at nd>=7; dead-multiply spellings (value*factor as statement/comma) score nd44-53. */
 /* measured: schedule on is required for func_003b6e00's callback delay slot. */
 #pragma schedule on
 #pragma no_branch_likely on
@@ -676,10 +677,9 @@ s32 func_003bcbc0(s32 arg0, s32 arg1) {
 }
 /* measured: closes schedule around func_003bcbc0. */
 #pragma schedule off
-/* measured: current-TU plain-C body object 168B/window 160B, normalized_diff 91; differing word offsets 16,20,24,36,48,52,68,76,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140,144,148,152,156,160,164. Object exceeds the retail window, so archived body was restored immediately. Prologue register declaration/order, branch shape, callback materialization, and loop back-edge scheduling are newly ruled out as a viable near-match under the current declaration environment. */
+/* measured N3B: archived W3C3B body no longer compiles as written — its implicit int->u8* call argument predates the typed func_003bbea0(u8*) prototype; with the required cast it compiles 168B/160B nd91 (object overflows window). ~40 distinct mined shapes all measure 152B/nd7 (guard register + loop-tail swap + trailing nop) or overflow; fresh guard spellings (`count>0`, `>=1`, while-form, cached-count) all land in that same tier. Retail needs slt $at,$zero,$v0;beqz $at with s2=0 in the delay slot, and lw v0,4(s0) reloaded AFTER the loop before jalr. Restored fallback; best archive build/WV08_003b_bcbe0_nd5.c is stale under the current TU (172B/105). */
 // FUN_003BCBE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcbe0);
-
 /* measured: current-TU WT05 candidate object 224B/window 208B, normalized_diff 135; fndiff reports 46 differing words. Frame size matches retail, but saved-register/prologue order, allocation/table call materialization, branch layout, and loop tail remain mismatched; object exceeds window, so restored fallback. */
 // FUN_003BCC80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcc80);
@@ -702,6 +702,7 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
 // FUN_003BCF10 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
+/* measured N3B: archive nd2 claims were never reproducible with a live C body (all historical verify JSONs show nd>=31; nd0 rows are INCLUDE_ASM self-compares). Best fresh: while-form `index=0; if (length>0) while(index<length){...}` nd29 76B/80B; plain do-while nd32; schedule-on folds the guard to bgezal $zero (68-84B). Residual: guard colours a named register instead of retail slt $at,$zero,$a0;beqz $at, and body-head order. */
 /* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */
 #pragma schedule on
 /* measured: no_branch_likely on restores the plain guard form in func_003bcf60. */
