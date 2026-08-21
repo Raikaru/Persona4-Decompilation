@@ -699,6 +699,49 @@ doubled `beqz` came from nested ifs and the body-head order came from a table
 local. So the pool is not exhausted -- the *permutation* of it is. Re-derive
 the logic; do not permute the spelling.
 
+### Where `volatile` is actually required
+
+`volatile` is banned as compiler-steering and required for a real device
+access, and that split is only decidable from the retail code.
+`tools/hw_access_census.py` decides it: it reads the retail bytes of every
+first-party function still on `INCLUDE_ASM` and reports the ones that
+dereference a hardware address. **21 functions do.** Three families:
+
+  * **fromSPR/toSPR DMA, 18 functions.** `0x1000D000` `D_CHCR`, `D010` `D_MADR`,
+    `D020` `D_QWC`, `D080` `D_SADR`, `0x1000D400` toSPR, `0x1000E010` `D_STAT`,
+    paired with scratchpad at `0x70000000`. All of `code1_003a.c`'s and
+    `code1_003b.c`'s big transfer routines, plus `sdkUttmx.c`'s
+    `func_00463ea0`.
+  * **Timer 0 init, 1 function.** `func_00100350` writes `T0_COUNT`, `T0_MODE`,
+    `T0_COMP`, `T0_HOLD` at `0x10000000/10/20/30`.
+  * **Direct scratchpad, 2 functions.** `func_0016bdd0` and `func_00174e10`
+    read `0xBF800004`.
+
+None is under the 256-byte cliff -- the smallest is 608 bytes -- so none is a
+near-term target. The point is that when they are attempted, `volatile` there
+is correct and must not be argued away.
+
+Two traps the census had to be taught, both of which produced confident wrong
+answers first:
+
+  * **Segment masking is mandatory.** EE code reaches devices through KSEG1, so
+    the fromSPR channel appears as `lui 0xB000` / `ori 0xD000`. A scan looking
+    for literal `0x1000xxxx` finds almost nothing real.
+  * **A constant in a register is not an access.** `func_0039c730` looked like
+    an `sq` to `0x10000000` and is not: a `lui v0,0x1000` fed an `or` building
+    a GIF tag word, then `lw v0,-0x477c(gp)` reloaded `v0` as a packet pointer
+    while the scan still credited it the stale upper half. Only a load or store
+    whose *base* register holds the address counts. Requiring a real
+    dereference cut 34 candidate functions to 21.
+
+And one collision worth knowing in both directions: **`0xBF800000` is `-1.0f`**
+as well as the KSEG1 mirror of the scratchpad base. Retail's `func_001774a0`
+does `lui v0,0xbf80; mtc1 v0,f1`, which is the float. `decomp_lint` now masks
+KSEG0/KSEG1 before its hardware-range test -- without that it rejects genuine
+`0xBF800004` scratchpad accesses as H001 -- but it excludes `0xBF800000` and
+`0x3F800000` from the mask, because otherwise any line mentioning +/-1.0f
+would earn a free `volatile` waiver.
+
 ### Two ways this pool lies to you
 
 **The nd in an archive note is a claim, not a measurement.** Notes are written

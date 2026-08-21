@@ -304,9 +304,32 @@ VOLATILE_RE = re.compile(r"\bvolatile\b")
 HEX_RE = re.compile(r"0[xX]([0-9a-fA-F]{6,8})")
 
 
+# Bit patterns that are overwhelmingly float constants rather than addresses.
+# 0xBF800000 is -1.0f and it collides exactly with the KSEG1 mirror of the
+# scratchpad base, so masking it would hand a free H001 waiver to any line
+# mentioning -1.0f. Retail's own func_001774a0 does `lui v0,0xbf80; mtc1 v0,f1`
+# -- that is the float, not the scratchpad. Genuine scratchpad accesses carry a
+# non-zero offset (0xBF800004, 0xBF800018, ...) and are unaffected.
+FLOAT_CONSTANTS = frozenset((0x3F800000, 0xBF800000))
+
+
+def _physical(v):
+    """Physical address behind a KSEG0/KSEG1 pointer, else `v` unchanged.
+
+    EE code reaches most devices through the uncached mirror, so the
+    scratchpad at physical 0x1F800000 is written `0xBF800004` in source and
+    the fromSPR DMA channel at 0x1000D000 as `0xB000D000`. Range-testing the
+    literal without masking rejects those as non-hardware and reports a
+    legitimate device access as H001.
+    """
+    if v in FLOAT_CONSTANTS:
+        return v
+    return v & 0x1FFFFFFF if 0x80000000 <= v <= 0xBFFFFFFF else v
+
+
 def _is_hardware_line(line):
     for m in HEX_RE.finditer(line):
-        v = int(m.group(1), 16)
+        v = _physical(int(m.group(1), 16))
         for lo, hi in HARDWARE_RANGES:
             if lo <= v < hi:
                 return True
