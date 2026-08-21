@@ -54,6 +54,8 @@ static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
     return (s32)arg0 + arg1;
 }
 extern void (*jtbl_008873EC[])(void *ptr);
+extern u8 *func_001452b0(s32 arg0);
+extern s32 func_00145300(s32 arg0);
 
 extern u8 iGpffffa790;
 
@@ -361,7 +363,38 @@ s32 func_0028b650(void) {
 }
 
 // FUN_0028B6B0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b6b0);
+/* measured: the table local at the loop-body head reproduces retail's
+   sll-before-lw body order; nd 0, object 244B / window 256B. */
+void func_0028b6b0(u8 *arg0)
+{
+    s32 count;
+    s32 i;
+    s32 *table;
+    s32 tail;
+
+    if (*(s32 *)(arg0 + 0x7A4) == 0) {
+        *(s32 *)(arg0 + 0x7A0) = 0;
+        return;
+    }
+    count = *(s32 *)(arg0 + 0x7A0);
+    i = 0;
+    while (i < count) {
+        table = *(s32 **)(arg0 + 0x7A4);
+        if (table[i] != 0) {
+            if (table[i] != 0) {
+                jtbl_008873EC[0]((void *)table[i]);
+                func_002852a0(0xC, 0);
+                *(s32 *)(*(s32 *)(arg0 + 0x7A4) + i * 4) = 0;
+            }
+        }
+        i++;
+    }
+    tail = *(s32 *)(arg0 + 0x7A0) * 4;
+    jtbl_008873EC[0]((void *)*(s32 *)(arg0 + 0x7A4));
+    func_002852a0(0xC, -tail);
+    *(s32 *)(arg0 + 0x7A4) = 0;
+    *(s32 *)(arg0 + 0x7A0) = 0;
+}
 // FUN_0028B7B0
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b7b0);
 // FUN_0028BE70

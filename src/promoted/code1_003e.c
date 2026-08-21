@@ -94,6 +94,14 @@ extern s32 iGpffffb780;
 extern s32 iGpffffb7a0;
 extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
 extern void func_003efda0(u8 *arg0);
+extern void func_0043ed08(s32 arg0);
+extern s32 iGpffffb770;
+extern s32 iGpffffb77C;
+extern s32 iGpffffb78C;
+extern s32 iGpffffb788;
+extern s32 D_008871F0;
+extern u8 D_008873F0[];
+extern u8 D_008873F4[];
 
 
 // measured: removing this pragma takes func_003e05d0 nd 0 -> nd 16: retail fills the
@@ -468,6 +476,11 @@ void func_003e1b00(s32 arg0, s32 arg1) {
 
 // FUN_003E1B10
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1b10);
+/* measured: best reconstruction archived in build/E3E_003e1b10_body.c at
+   normalized_diff 30, object 284B / window 288B; structure fully decoded
+   (sentinel-address-first init, arg-reuse ok flag, float-register callback
+   copy, goto-web flow); residual is b210 lui/addiu pair ordering plus one
+   branch displacement that no probed source spelling reproduced. */
 // FUN_003E1C30
 /* measured: schedule/no_branch_likely bracket retained for func_003e1c30. */
 #pragma schedule on
@@ -495,8 +508,62 @@ void func_003e1c30(void) {
 #pragma no_branch_likely off
 #pragma schedule off
 
+/* measured: schedule/no_branch_likely reproduce retail's plain beqz/bnez guards. */
 // FUN_003E1CB0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1cb0);
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003e1cb0(u8 *arg0, void *arg1) {
+    struct {
+        s32 sp30;
+        s32 sp34;
+        s32 sp38;
+        s32 sp3C;
+    } frame;
+    u8 *head;
+    u8 *tail;
+    void *handle;
+
+    if (arg1 == NULL) {
+        *(void **)(arg0 + 0xC) = NULL;
+    } else {
+        goto alloc;
+    }
+init:
+    head = arg0 + 0x10;
+    tail = arg0 + 0x18;
+    *(u8 **)(arg0 + 0x10) = head;
+    *(u8 **)(arg0 + 0x14) = head;
+    *(u8 **)(arg0 + 0x18) = tail;
+    *(u8 **)(arg0 + 0x1C) = tail;
+    *(u8 **)(arg0 + 0x24) = head;
+    *(u8 **)(arg0 + 0x20) = tail;
+    *(void **)(arg0 + 0) = arg1;
+    *(s32 *)(arg0 + 4) = 0;
+    *(s32 *)(arg0 + 8) = 0;
+    return arg0;
+alloc:
+    *(void **)(arg0 + 0xC) = jtbl_008873E8[0](arg1, 0x4040B);
+    handle = *(void *volatile *)(arg0 + 0xC);
+    if (handle == NULL) {
+        goto err13;
+    }
+    if (func_003e44b0(handle, arg1) == 0) {
+        jtbl_008873EC[0](*(void *volatile *)(arg0 + 0xC));
+        frame.sp30 = 1;
+        frame.sp34 = func_003df590(0xC, NULL);
+        func_003df4d0(&frame.sp30);
+        return NULL;
+    }
+    goto init;
+err13:
+    frame.sp38 = 1;
+    frame.sp3C = func_003df590(0x80000013, arg1);
+    func_003df4d0(&frame.sp38);
+    return NULL;
+}
+/* measured: closes the function pragma bracket. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003E1DB0
 /* measured: no_branch_likely keeps the success test as retail's plain bnez. */
 #pragma no_branch_likely on
@@ -1007,6 +1074,10 @@ set3:
 #pragma optimization_level 3
 // FUN_003E4030 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4030);
+/* measured: best reconstruction archived in build/E3E_003e4030_body.c at
+   normalized_diff 51, object 108B / window 128B; math byte-exact through the
+   FMA chain, sole residual is b210 hoisting mtc1 zero,$f1 above the FMAs
+   (len kept in $f0) which no probed source shape reproduces. */
 // FUN_003E40B0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e40b0);
 
