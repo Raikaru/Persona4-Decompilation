@@ -64,28 +64,47 @@ def addr_of(row):
 
 
 def archives():
-    """addr -> (best_nd, object, window, path) parsed out of the archive notes."""
+    """addr -> (best_nd, object, window, path) parsed out of the archive notes.
+
+    Lanes have never agreed on a filename. `*_body.c` and `*_body.c.txt` are
+    the common forms, but the tree also holds `WT17_004140F0.c`,
+    `WLFcl_004555d0_base.c` and others -- 137 still-unmatched functions have an
+    attempt recorded under a name the `_body` globs miss, and every one of them
+    would otherwise be handed to a lane as "never attempted". A wave-4 lane
+    burned most of its run rediscovering three such archives.
+
+    So the rule is: any `.c`/`.txt` under `build/` whose NAME encodes an
+    address, whose CONTENT looks like C. The content test is what keeps probe
+    drivers, disassembly dumps and scope reports out; matching on the name
+    alone overstates the attempted population badly.
+    """
     best = {}
-    for path in glob.glob(os.path.join(REPO, "build", "*_body.c")) + \
-            glob.glob(os.path.join(REPO, "build", "*_body.c.txt")):
+    for path in glob.glob(os.path.join(REPO, "build", "*")):
         name = os.path.basename(path)
-        m = re.search(r"_([0-9a-f]{8})_", name)
+        if os.path.splitext(name)[1].lower() not in (".c", ".txt"):
+            continue
+        m = re.search(r"([0-9a-fA-F]{8})", name)
         if not m:
             continue
         try:
             text = open(path, errors="ignore").read()
         except OSError:
             continue
-        nds = [int(g) for mm in ND.finditer(text) for g in mm.groups() if g]
-        if not nds:
+        if "{" not in text or ";" not in text:
             continue
+        nds = [int(g) for mm in ND.finditer(text) for g in mm.groups() if g]
         ow = OW.search(text)
-        entry = (min(nds),
+        entry = (min(nds) if nds else None,
                  int(ow.group(1)) if ow else None,
                  int(ow.group(2)) if ow else None,
                  os.path.relpath(path, REPO).replace("\\", "/"))
         addr = int(m.group(1), 16)
-        if addr not in best or entry[0] < best[addr][0]:
+        prev = best.get(addr)
+        # Prefer the record that actually carries a measurement, then the
+        # lowest one; an archive with no nd still proves the function was
+        # attempted, which is what the `fresh` pool needs to know.
+        if prev is None or (entry[0] is not None
+                            and (prev[0] is None or entry[0] < prev[0])):
             best[addr] = entry
     return best
 
@@ -172,7 +191,12 @@ def main():
                 continue
             nd = None
         else:
-            if hit is None or not (0 < hit[0] <= args.max_nd) or window > args.max_window:
+            # An archive with no parsed nd still proves the function was
+            # attempted, so it stays out of `fresh`, but it cannot be ranked
+            # here and is not a nearmiss candidate.
+            if hit is None or hit[0] is None:
+                continue
+            if not (0 < hit[0] <= args.max_nd) or window > args.max_window:
                 continue
             nd = hit[0]
         out.append({"addr": "%08x" % addr,

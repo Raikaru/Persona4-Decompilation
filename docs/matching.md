@@ -649,17 +649,24 @@ Two census errors had hidden this, and both are easy to repeat:
     tail-call thunks, and closing every one of them would not move the metric
     by a single function. Filter with `is_third_party` AND `is_vendor_address`,
     never by path prefix alone.
-  * **Archives are named both `*_body.c` and `*_body.c.txt`.** Globbing only
-    the first overstates the never-attempted population by about 300.
+  * **Lanes never agreed on an archive filename.** `*_body.c` and
+    `*_body.c.txt` are the common forms, but the tree also holds
+    `WT17_004140F0.c`, `WLFcl_004555d0_base.c` and others. 137 still-unmatched
+    functions carry an attempt recorded under a name the `_body` globs miss,
+    and every one was being handed to lanes as "never attempted" -- a wave-4
+    lane spent most of its run rediscovering three of them. The rule that
+    works is: any `.c`/`.txt` under `build/` whose NAME encodes an address and
+    whose CONTENT looks like C. The content test is load-bearing; matching on
+    the name alone sweeps in probe drivers, disassembly dumps and scope
+    reports and overstates the attempted population badly.
 
-With both corrected there are **1186 never-attempted first-party functions**:
-5 at a window of 128 bytes or less, 46 at 256 or less, 132 at 400 or less, and
-the rest larger. `tools/recon_pool.py --pool fresh` regenerates that list, and
-it is the authority -- do not recount it by hand. An earlier pass here treated
-any filename under `build/` containing an address as evidence of an attempt,
-which swept in probe scripts, disassembly dumps and scope reports and
-undercounted the untouched population by an order of magnitude. Only
-`*_body.c` and `*_body.c.txt` are archived bodies.
+With all three corrected there are **1061 never-attempted first-party
+functions**, and the tractable end of that distribution is all but gone:
+**0 at a window of 128 bytes or less, 7 at 256 or less**, 56 at 400 or less.
+`tools/recon_pool.py --pool fresh` regenerates the list and is the authority;
+do not recount it by hand. This number has now been wrong three times in one
+session -- 2274, then 1186, then 1061 -- always in the optimistic direction,
+and always because the archive-discovery rule was too narrow.
 
 ### The 256-byte cliff, and what it leaves to work on
 
@@ -678,17 +685,22 @@ Cold reconstruction works, but only at a size where the whole function can be
 held in one piece; past that the reconstruction is right in outline and wrong
 in a dozen small ways at once, and the residual is not attackable.
 
-So the size cliff, not the supply of targets, is the binding constraint. There
-are still 46 never-attempted first-party functions at 256 bytes or less
-(`tools/recon_pool.py --pool fresh --max-window 256`), and those remain the
-highest-yield cold work at a measured 3-in-8.
+Wave 4 tested that reading directly: 19 never-attempted targets, every one
+under the cliff, four lanes, **0 matches**. So the cliff is real but it is not
+sufficient -- being small is necessary for a match, not enough for one. Across
+four waves the record is 3 matches in 62 attempts, and all three came from
+wave 1.
 
-**Alongside them sits a second pool: the archived near-misses.** 84 functions
-are still `INCLUDE_ASM` while carrying an archived body measured at
-`0 < nd <= 25` within a 400-byte window -- many at nd 1-7 in 64-176 byte
-windows. `tools/recon_pool.py` (default `--pool nearmiss`) regenerates that
-list, recovering each nd by parsing the archive notes and filtering against a
-fresh verify report so nothing already matched appears in it.
+And the supply below the cliff is now essentially gone: **7 never-attempted
+first-party functions at 256 bytes or less, none at all under 128**
+(`tools/recon_pool.py --pool fresh --max-window 256`).
+
+**The other pool is the archived near-misses**, 113 functions still
+`INCLUDE_ASM` carrying an archived body with a claimed `0 < nd <= 25` inside a
+400-byte window. `tools/recon_pool.py` (default `--pool nearmiss`) regenerates
+it, and `--measure` is mandatory before acting on it, for the reason in the
+next section. Measured, only about six are genuinely close: nd 1, 1, 4, 4, 5,
+and the rest of the top of the list turns out to be nd 30+.
 
 The obvious objection is that "archive near-miss tail, hand lanes" is already a
 measured zero in the table above. The distinction is method, and wave 1 proved
