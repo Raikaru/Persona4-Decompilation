@@ -742,6 +742,53 @@ KSEG0/KSEG1 before its hardware-range test -- without that it rejects genuine
 `0x3F800000` from the mask, because otherwise any line mentioning +/-1.0f
 would earn a free `volatile` waiver.
 
+### Is the rest just C we have not shaped?
+
+Almost entirely, yes -- and that is measurable rather than a matter of faith.
+`tools/reachability_census.py` counts each unusual instruction class over
+MATCHED and over unmatched first-party functions. The matched column is the
+control: a matched function is proof by construction that b210 emits that
+instruction from plain C *in this tree*.
+
+| class | in matched | in unmatched | verdict |
+|---|---|---|---|
+| COP2 (VU0 macro mode) | 45 | 62 | reachable from C |
+| MMI (EE multimedia) | 43 | 95 | reachable from C |
+| lqc2/sqc2 (VU0 quadword) | 38 | 67 | reachable from C |
+| COP0 (mfc0/mtc0/tlb/eret) | 3 | 29 | reachable from C |
+| sync | 3 | 29 | reachable from C |
+| syscall | 1 | 1 | reachable from C |
+| **movz/movn** | **0** | **31** | **never matched** |
+
+So the recurring "VU0 floor" belief is false here: 45 functions we already
+match contain COP2 macro-mode instructions. Same for MMI and the quadword
+VU0 loads.
+
+`movz`/`movn` is the single exception, and two independent lines of evidence
+agree. It appears in zero of 6104 matched functions; and compiling ten
+conditional-select idioms -- ternary, if-assign, inverted, `== 0`, named
+temporary, unsigned, pointer-indexed, select-or-zero, zero-or-select, float
+-- at `-O0/-O1/-O2/-O3/-O4`, with `-inline all`, `-opt speed` and `-opt space`,
+produces **no `movz` or `movn` in `.text` at any setting**. Retail's uses of it
+therefore did not come from C through this compiler; inline asm in the
+original source or an SDK macro is the likely origin.
+
+Beware the obvious way to get this wrong: scanning a whole `.o` for the
+opcode pattern reports a confident 14 hits at every optimisation level,
+because relocation entries and the symbol table contain matching bytes. Scan
+`SHF_EXECINSTR` sections only.
+
+**31 of the 1762 remaining functions contain movz/movn, and 29 have it as
+their only unusual content.** The other 1731 -- 98% -- contain nothing that
+has not already been produced from C elsewhere in this tree.
+
+That is the honest answer to "is the rest just C we have not shaped yet":
+the language is not the obstacle. But "just shaping" understates the
+obstacle considerably. This session shaped 43 functions and matched 3. The
+work that remains is C-shaped and mostly reachable in principle; what is
+scarce is the ability to find the exact shape, and above 256 bytes we have
+not found one yet.
+
 ### Two ways this pool lies to you
 
 **The nd in an archive note is a claim, not a measurement.** Notes are written
