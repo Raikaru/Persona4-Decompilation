@@ -1325,9 +1325,12 @@ void func_003de100(u8 *arg0) {
 #pragma tailcall off
 // FUN_003DE110
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de110);
-/* measured: object 52B/window 64B, current normalized_diff 8; best direct-load
-   candidate archived in build/F3D0_003de280_body.c with load/shift ORDER
-   residual at offsets 16 and 20 after remeasurement. */
+/* measured: NMX re-derivation. Archive build/L3DF_003de280_body.c (ptr-local
+   form) reproduces nd5 obj52/64 under a schedule-on bracket; direct-load
+   forms hit an nd22 wall across 13 probed spellings: b210 fills the beq
+   delay slot with the zero-path move and sinks the lw below the shifts.
+   Residual rows at offsets 12/16 are addiu v1,a0,0x58 + lw v1,0(v1)
+   versus retail nop + folded lw v0,0x58(a0). Committed bare INCLUDE_ASM. */
 // FUN_003DE280 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de280);
 /* measured: scalar GP slot address and schedule on reproduce retail's

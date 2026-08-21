@@ -938,7 +938,7 @@ s32 func_00178790(void)
    at build/D178_00178870_body.c; committed form is bare INCLUDE_ASM. */
 
 
-/* object 108B, retail window 112B, normalized_diff 4; sole differing bytes are at offsets 56-59: retail emits `andi $a3,$s1,0xffff`, while the candidate emits `move $a3,$s1`. The file-scope func_00161630 declaration remains (u16, u16, u16, s32) because it keeps verified MATCH caller func_00164570 matching. Probed the untried block-scope fourth-parameter u16 prototype at function-top, after locals, and in an inner block (with named/unnamed forms): each produced nd 10 by hoisting the a3 mask before the two lhu loads. Mixed third s32/fourth u16 produced nd 6. Explicit narrowed locals/casts, O1, schedule off, and function-pointer casts did not improve the residual. Best plain-C body; no volatile, inline asm, or M2C_ tokens. */
+/* object 108B, retail window 112B, normalized_diff 4; sole differing bytes are at offsets 56-59: retail emits `andi $a3,$s1,0xffff`, while the candidate emits `move $a3,$s1`. NMX re-check: the file-scope func_00161630 declaration has NO other caller in this unit (func_00164570 lives in Kosaka/k_fldUnit.c with its own declaration), yet a file-scope u16 fourth parameter still hoists the a3 mask before the two lhu loads (nd 10), same as the previously probed block-scope prototypes. opt_propagation off, opt_common_subs off, and schedule on brackets with a & 0xFFFF on the fourth argument also fail (nd 81 / nd 10 / nd 57); plain body under propagation-off reproduces nd 4 only. Best plain-C body remains archived at build/D178_00178870_body.c; committed form is bare INCLUDE_ASM. */
 // FUN_00178870 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178870);
 // FUN_001788E0

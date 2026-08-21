@@ -652,8 +652,14 @@ Two census errors had hidden this, and both are easy to repeat:
   * **Archives are named both `*_body.c` and `*_body.c.txt`.** Globbing only
     the first overstates the never-attempted population by about 300.
 
-With both corrected: **791 never-attempted first-party functions, of which 8
-are under 256 bytes and 480 exceed 1 KB.** There is no cheap tail left.
+With both corrected there are **1186 never-attempted first-party functions**:
+5 at a window of 128 bytes or less, 46 at 256 or less, 132 at 400 or less, and
+the rest larger. `tools/recon_pool.py --pool fresh` regenerates that list, and
+it is the authority -- do not recount it by hand. An earlier pass here treated
+any filename under `build/` containing an address as evidence of an attempt,
+which swept in probe scripts, disassembly dumps and scope reports and
+undercounted the untouched population by an order of magnitude. Only
+`*_body.c` and `*_body.c.txt` are archived bodies.
 
 ### The 256-byte cliff, and what it leaves to work on
 
@@ -672,16 +678,17 @@ Cold reconstruction works, but only at a size where the whole function can be
 held in one piece; past that the reconstruction is right in outline and wrong
 in a dozen small ways at once, and the residual is not attackable.
 
-That is a problem, because the corrected census leaves only 8 never-attempted
-first-party functions under 256 bytes, and this campaign has now consumed
-almost all of them.
+So the size cliff, not the supply of targets, is the binding constraint. There
+are still 46 never-attempted first-party functions at 256 bytes or less
+(`tools/recon_pool.py --pool fresh --max-window 256`), and those remain the
+highest-yield cold work at a measured 3-in-8.
 
-**The pool that remains is the archived near-misses.** 117 functions are still
-`INCLUDE_ASM` while carrying an archived body measured at `0 < nd <= 25`, and
-84 of those have a window of 400 bytes or less -- many at nd 1-7 in 64-176 byte
-windows. `build/wave3_pool.json` is that list, mined out of the archive notes
-and filtered against the current verify report so nothing already matched
-appears in it.
+**Alongside them sits a second pool: the archived near-misses.** 84 functions
+are still `INCLUDE_ASM` while carrying an archived body measured at
+`0 < nd <= 25` within a 400-byte window -- many at nd 1-7 in 64-176 byte
+windows. `tools/recon_pool.py` (default `--pool nearmiss`) regenerates that
+list, recovering each nd by parsing the archive notes and filtering against a
+fresh verify report so nothing already matched appears in it.
 
 The obvious objection is that "archive near-miss tail, hand lanes" is already a
 measured zero in the table above. The distinction is method, and wave 1 proved
@@ -691,6 +698,42 @@ when the logic was re-derived from the retail disassembly, which showed the
 doubled `beqz` came from nested ifs and the body-head order came from a table
 local. So the pool is not exhausted -- the *permutation* of it is. Re-derive
 the logic; do not permute the spelling.
+
+### Two ways this pool lies to you
+
+**The nd in an archive note is a claim, not a measurement.** Notes are written
+by hand as a lane ends and they go stale as the tree moves. `func_003bcf10` and
+`func_003bcfb0` are both recorded at nd 2 and both measure **nd 32** when their
+archived bodies are installed today; `func_003b6da0` is recorded at nd 6 and
+measures **55**; several archives no longer compile at all. Some quoted `nd 0`
+values are worse than stale -- they came from an `INCLUDE_ASM` self-compare
+rather than from any compiled body. Rank with `tools/recon_pool.py --measure`,
+which installs each archived body, scores it, and restores the file. It costs
+about two seconds per target. The claimed and measured columns agreed for six
+of the top nine and were wildly wrong for the other three.
+
+**A `measured:` note above a marker waives H001 for the whole function.**
+`decomp_lint`'s waiver has FUNCTION scope: a justification in the six lines
+above a `// FUN_` marker covers every occurrence of a banned construct inside
+that function. So a note written to justify a *pragma* silently licenses a
+banned `volatile` in the same body. That is how a wave-3 lane landed a
+"MATCH" on `func_0045ed60` that reached nd 0 only by casting a plain `void *`
+parameter to `volatile u8 *` to defeat b210's CSE and force retail's twelve
+repeated byte loads -- compiler-steering of exactly the kind this campaign
+bans alongside inline asm. It was reverted and archived as
+`build/NMX_0045ed60_body_REJECTED.c`.
+
+Note also that H001's regex looks for the token `volatile`, and the lane's
+construct was a volatile CAST EXPRESSION rather than a declaration; between the
+cast form and the function-scope waiver it drew no finding at all. When a lane
+reports a match, check its diff for `volatile` by eye rather than trusting a
+clean lint run, and require volatile to be justified at the site.
+
+Before rejecting that body I checked whether retail's repeated loads could be
+honest aliasing, which would make a legitimate shape possible. They cannot: a
+direct `u8 *` cast, a local `u8 *`, a `char *` source, and stores through the
+destination local all let b210 collapse the three load groups into one, scoring
+nd 59-66 and losing about 44 bytes of object.
 
 ### Abandon on measured nd, not on iteration count
 
