@@ -24,7 +24,9 @@ extern s32 func_003c3cc0(u8 *arg0);
 extern u8 *func_003c8200(u8 *arg0, s32 arg1, s32 arg2);
 extern s32 func_003c5fd0(u8 *arg0, u8 *arg1);
 extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
-extern void func_003ce840(u8 *arg0);
+extern s32 func_003ce840(u8 *arg0);
+/* gp - 0x48D0 = 0x00764820 */
+extern s32 iGpffffb730;
 extern s32 func_003ce3a0(s32 arg0, u8 *arg1);
 extern s32 func_003ce9e0(s32 arg0, u8 *arg1);
 extern s32 func_003ceeb0(u8 *arg0);
