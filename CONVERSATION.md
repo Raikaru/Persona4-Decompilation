@@ -58,11 +58,13 @@ body.
   opcode but cannot LOWER the accumulator-chain ones to C; they surface as
   `__asm { ... }` islands in otherwise-correct pseudocode.
 
-**No push credentials are configured on this machine yet.** `git`/`jj` here
-can commit locally but cannot push to `origin` (no SSH key for
-`github.com`, no cached HTTPS credential, `gh` is not installed). Commits
-made here need to be pushed from a machine that has them, or credentials
-need to be added here.
+**Push works.** `gh` (GitHub CLI) is installed at `~/.local/bin/gh` and
+already authenticated (keyring-backed, `repo`+`workflow` scopes), and git's
+`credential.helper` is set to `!gh auth git-credential`, so both `git push`
+and `jj git push` work over HTTPS without any extra setup. An earlier draft
+of this file claimed otherwise; that was wrong -- `which gh` failed only
+because `~/.local/bin` was not yet on `PATH` in the shell that checked it,
+while git itself invokes the credential helper by absolute path regardless.
 
 ## `tools/ida_headstart.py` and `docs/ida_headstart/`
 
