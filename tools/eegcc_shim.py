@@ -36,6 +36,7 @@ or the environment variables `P4_EEGCC_ROOT` and `P4_PS2EEAS`.
 from pathlib import Path
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -243,14 +244,51 @@ def _splice(source: Path) -> str:
     return "\n".join(out) + "\n"
 
 
-def _compile_to_asm(source: Path, includes: list[str], work: Path) -> Path:
-    """Run ee-gcc under WSL and return the generated assembly.
+def _compile_to_asm(root: Path, source: Path, includes: list[str], work: Path) -> Path:
+    """Run ee-gcc and return the generated assembly.
 
-    Everything the compiler reads is staged inside the WSL filesystem: this
-    cc1 fails with "Value too large for defined data type" reading source
-    across the /mnt/c DrvFs mount.
+    Two execution models, chosen by host platform.
+
+    On Windows, ee-gcc 3.2 is a Linux binary that runs under WSL. Everything
+    it reads is staged inside the WSL filesystem first: cc1 fails with
+    "Value too large for defined data type" reading source across the
+    /mnt/c DrvFs mount. A `cmd.exe -> wsl.exe -> bash -c` command line
+    cannot survive a repo path containing spaces, so the whole invocation is
+    written to a script at a space-free staged path instead of passed as
+    arguments.
+
+    On native Linux there is no WSL boundary to cross and nothing to stage:
+    ee-gcc runs directly. This path was added on a machine whose toolchain
+    copy is ee-gcc 2.96 (not 3.2) with its own GNU `as`, patched to run
+    without a system-wide 32-bit glibc install (`patchelf --set-interpreter
+    --set-rpath` against a user-extracted glibc.i686, no root required). The
+    `move`-macro rewrite immediately below already exists specifically to
+    let GNU `as` substitute for Sony's Ps2EeAs, so this path needs nothing
+    the Windows one didn't already carry.
     """
-    (work / "in.c").write_text(_splice(source), encoding="utf-8", newline="\n")
+    source_text = _splice(source)
+    if platform.system() != "Windows":
+        work.mkdir(parents=True, exist_ok=True)
+        (work / "in.c").write_text(source_text, encoding="utf-8", newline="\n")
+        cc_includes = []
+        for index, directory in enumerate(includes):
+            path = Path(directory)
+            if not path.is_absolute():
+                path = REPO / path
+            if not path.is_dir():
+                _die("include directory does not exist: %s" % directory)
+            cc_includes.append("-I%s" % path)
+        asm = work / "out.s"
+        proc = subprocess.run(
+            [str(root / "bin" / "ee-gcc"), *GCC_FLAGS, *cc_includes,
+             "-S", str(work / "in.c"), "-o", str(asm)],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        )
+        if proc.returncode != 0 or not asm.is_file():
+            _die("ee-gcc failed for %s:\n%s" % (source, proc.stdout))
+        return asm
+
+    (work / "in.c").write_text(source_text, encoding="utf-8", newline="\n")
     staged = []
     for index, directory in enumerate(includes):
         path = Path(directory)
@@ -350,12 +388,14 @@ def main() -> int:
              "(or P4_EEGCC_ROOT), and as_path / objcopy alongside it")
 
     source, out, includes = _parse(sys.argv[1:])
-    STAGE_WIN.mkdir(parents=True, exist_ok=True)
-    _stage_toolchain(Path(root))
+    native = platform.system() != "Windows"
+    if not native:
+        STAGE_WIN.mkdir(parents=True, exist_ok=True)
+        _stage_toolchain(Path(root))
 
-    with tempfile.TemporaryDirectory(dir=STAGE_WIN) as tmp:
+    with tempfile.TemporaryDirectory(dir=None if native else STAGE_WIN) as tmp:
         work = Path(tmp)
-        asm = _compile_to_asm(source, includes, work)
+        asm = _compile_to_asm(Path(root), source, includes, work)
         _rewrite_moves(asm)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.unlink(missing_ok=True)
