@@ -25,6 +25,7 @@ typedef struct
 extern void* func_00457120(void);
 extern void func_0046d730(u8 *file, s32 line);
 extern u8 D_0064E480[];
+extern u16 D_00884690[];
 extern void* func_003e89c0(void);
 extern void func_003e8970(void* viewport, void* cameraData);
 
@@ -131,4 +132,65 @@ void func_0036a900(PscLight *dst)
     dst[3].f20 = 0.0f;
 }
 // FUN_0036AA20
-INCLUDE_ASM("asm/nonmatchings/pscModel", func_0036aa20);
+void func_0036aa20(void)
+{
+    u16 *p;
+    s32 v;
+    s32 t1, t2;
+    s32 col;
+    s32 row;
+    s32 parity;
+    s32 i;
+
+    v = 0;
+    p = D_00884690;
+    for (row = 0; row < 8; row++) {
+        col = 0;
+        parity = ~row & 1;
+        for (; col < 6; col++) {
+            if (parity != 0) {
+                p[0] = v;
+                t1 = v + 1;
+                p[1] = t1;
+                t2 = v + 8;
+                p[2] = t2;
+                p[3] = t1;
+                p[4] = v + 9;
+                p[5] = t2;
+                p += 6;
+                v = t1;
+            } else {
+                p[0] = v;
+                t2 = v + 8;
+                p[1] = t2;
+                p[2] = v + 7;
+                p[3] = v;
+                v = v + 1;
+                p[4] = v;
+                p[5] = t2;
+                p += 6;
+            }
+        }
+        if (parity != 0) {
+            p[0] = v;
+            p[1] = v + 1;
+            p[2] = v + 8;
+            p += 3;
+            v = v + 2;
+        } else {
+            p[0] = v;
+            p[1] = v + 8;
+            p[2] = v + 7;
+            p += 3;
+            v = v + 1;
+        }
+    }
+    for (i = 0; i < 0x138; i++) {
+        if (D_00884690[i] >= 0x44) {
+            func_0046d730(D_0064E480, 0x5C8);
+        }
+    }
+    if ((p - D_00884690) != 0x138) {
+        func_0046d730(D_0064E480, 0x5CA);
+    }
+}
