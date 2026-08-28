@@ -309,7 +309,62 @@ s16 func_002b2d50(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
 }
 /* measured: archived body in build/WW15_002b2e70.c (object 276B/window 288B, normalized_diff 5); restored ASM fallback. */
 // FUN_002B2E70
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b2e70);
+void func_002b2e70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
+{
+    s32 var_4;
+    s32 temp_3;
+    s32 var_12;
+    s32 temp_6;
+    s32 var_11;
+    s32 var_10;
+    s32 temp_7;
+    s32 var_7;
+    var_4 = arg0;
+    var_12 = 0;
+    if (arg2 == 0) { *arg4 = 0; *arg5 = 0; return; }
+    var_10 = arg2 - 1;
+    if (var_4 != var_10) {
+        temp_3 = var_4 - arg1;
+        temp_7 = (s8)arg3;
+        temp_6 = arg2 - (temp_3 + temp_7);
+        if (temp_6 <= 0) {
+            arg2 = var_4;
+            var_11 = 0;
+            goto loop_10_test;
+loop_10_body:
+            arg2 += 1;
+            if (var_10 < arg2) arg2 = var_10;
+            var_12 += 1;
+            if (arg2 >= var_10) { arg1 += var_12; goto loop_10_done; }
+            var_11 += 1;
+loop_10_test:
+            if (var_11 < temp_7) goto loop_10_body;
+loop_10_done:
+            var_4 += var_12;
+        } else {
+            if (temp_6 > temp_7) goto loop_18_branch;
+            goto loop_17_branch;
+loop_17_branch:
+            var_7 = 0;
+            goto loop_17_test;
+            do {
+loop_17_body:
+                var_4 += 1;
+                if (var_10 < var_4) var_4 = var_10;
+                var_7 += 1;
+loop_17_test: ;
+            } while (var_7 < temp_6);
+            goto loop_17_done;
+loop_18_branch:
+            temp_3 = var_4 + temp_7;
+            var_10 = (var_10 < temp_3) ? var_10 : temp_3;
+            var_4 = var_10;
+loop_17_done: ;
+        }
+    }
+    *arg4 = var_4;
+    *arg5 = arg1;
+}
 // FUN_002B2F90
 void func_002b2f90(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s16 *arg4, s16 *arg5)
 {
