@@ -113,6 +113,11 @@ extern f32 fGpffff82d4;
 extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
 extern f32 func_00196bd0(u8 *arg0, u8 *arg1, u8 *arg2);
+extern f32 func_0044b950(f32 x, f32 y);
+extern f32 fGpffff8048;
+extern void func_003dc740(void *dst, const void *src, s32 mode, f32 angle);
+extern u8 D_0060A0E0[];
+extern void func_0019dea0(u8 *arg0);
 extern f32 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void func_001ee1c0(void);
@@ -1378,7 +1383,58 @@ void func_00197d50(u8 *arg0)
 }
 
 // FUN_00197D70
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00197d70);
+s32 func_00197d70(u8 *arg0)
+{
+    u8 *unit;
+    P4_95730_Vec4 rotation;
+    P4_95730_Vec3 output;
+    f32 dx;
+    f32 dz;
+    s32 flags;
+    s32 mask;
+    u8 active;
+    s32 result;
+
+    unit = *(u8 **)arg0;
+    if (*(s32 *)(arg0 + 0x14) == 0) {
+        if ((*(s32 *)(arg0 + 0x10) & 0x1000) != 0) {
+            dx = *(f32 *)(arg0 + 4) - *(f32 *)(unit + 4);
+            dz = *(f32 *)(arg0 + 0xC) - *(f32 *)(unit + 0xC);
+            if ((dx != 0.0f) || (dz != 0.0f)) {
+                func_003dc740(&rotation, D_0060A0E0, 0,
+                              fGpffff8048 * func_0044b950(dx, dz));
+                if ((*(s32 *)(unit + 0x9C) & 0x2000) == 0) {
+                    *(P4_95730_Vec4 *)(unit + 0x1C) = rotation;
+                    *(s32 *)(unit + 0x98) |= 4;
+                }
+            }
+            *(s32 *)(unit + 0xC4) &= ~2;
+            *(u16 *)(unit + 0xC8) &= 0xFFFD;
+            func_0019dea0(unit);
+        } else {
+            if ((*(s32 *)(arg0 + 0x10) & 0x20) != 0) {
+                func_00194ff0(unit, NULL, NULL, (f32 *)&output);
+                *(P4_95730_Vec3 *)(arg0 + 4) = output;
+            }
+            flags = *(s32 *)(arg0 + 0x10);
+            *(P4_95730_Vec3 *)(unit + 0xD0) =
+                *(P4_95730_Vec3 *)(arg0 + 4);
+            *(s32 *)(unit + 0x504) = 0;
+            *(s32 *)(unit + 0xE8) = 0;
+            *(s32 *)(unit + 0xC4) = flags;
+            *(u16 *)(unit + 0xC8) |= 2;
+        }
+    }
+    mask = *(u16 *)(unit + 0xC8) & 2;
+    active = (mask != 0);
+    if (active == 0) {
+        result = 1;
+    } else {
+        *(s32 *)(arg0 + 0x14) += 1;
+        result = 0;
+    }
+    return result;
+}
 // FUN_00197F30
 void func_00197f30(u8 *arg0)
 {
@@ -2750,6 +2806,9 @@ void func_0019df00(u8 *arg0) {
         *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
     }
 }
+/* Best clean-C candidate reaches nd 0 only via a `volatile` compiler-steering
+   read-back (banned, H001); see build/Lane0019_misc_0019df20_body.c for the
+   attempt and the pragma substitutes tried. */
 // FUN_0019DF20
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019df20);
 // FUN_0019E130

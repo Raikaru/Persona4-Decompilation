@@ -431,7 +431,116 @@ skip:
 // FUN_004667D0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004667d0);
 // FUN_004669D0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004669d0);
+u8 *func_004669d0(u8 *arg0, s32 *arg1, s32 *arg2)
+{
+    s32 lock;
+    u8 *next;
+    u8 *result;
+    u8 *entry;
+    u8 *table;
+    s16 i;
+
+    if (arg0 == NULL) {
+        return NULL;
+    }
+    lock = func_0042ba20();
+    if (*(s32 *)(arg0 + 0x1A4) != 3) {
+        goto failed;
+    }
+    next = *(u8 **)(arg0 + 4);
+    if (next == NULL) {
+        goto failed;
+    }
+    *(u8 **)(next + 0) = *(u8 **)(arg0 + 0);
+    if (*(u8 **)(arg0 + 0) != NULL) {
+        *(u8 **)(*(u8 **)(arg0 + 0) + 4) = next;
+    }
+    switch (*(s32 *)(arg0 + 0x1AC)) {
+    case 0:
+        result = *(u8 **)(arg0 + 0x1B4);
+        break;
+    case 1:
+        result = *(u8 **)(arg0 + 0x10);
+        *arg2 = *(s32 *)(arg0 + 8);
+        break;
+    case 2:
+        func_003e9680(*(s32 *)(*(u8 **)(arg0 + 0xC) + 4));
+        result = *(u8 **)(arg0 + 0xC);
+        if (arg2 != NULL) {
+            *arg2 = *(s32 *)(arg0 + 8);
+        }
+        break;
+    case 3:
+        result = *(u8 **)(arg0 + 0x14);
+        break;
+    case 4:
+        result = *(u8 **)(arg0 + 0x1BC);
+        if (arg2 != NULL) {
+            *arg2 = *(s32 *)(arg0 + 8);
+        }
+        break;
+    case 5:
+        result = *(u8 **)(arg0 + 0x18);
+        if (arg2 != NULL) {
+            *arg2 = *(s32 *)(arg0 + 8);
+        }
+        break;
+    case 6:
+        result = *(u8 **)(arg0 + 0x1C);
+        break;
+    case 7:
+        result = *(u8 **)(arg0 + 0x1C8);
+        if (arg2 != NULL) {
+            *arg2 = *(s32 *)(arg0 + 8);
+        }
+        break;
+    case 8:
+        result = *(u8 **)(arg0 + 0x1D0);
+        if (arg2 != NULL) {
+            *arg2 = *(s32 *)(arg0 + 8);
+        }
+        break;
+    case 9:
+        result = *(u8 **)(arg0 + 0x1B8);
+        if (arg2 != NULL) {
+            *arg2 = (s32)result;
+        }
+        break;
+    case 10:
+        result = *(u8 **)(arg0 + 0x1C4);
+        if (arg2 != NULL) {
+            *arg2 = (s32)result;
+        }
+        break;
+    case 11:
+        result = *(u8 **)(arg0 + 0x1C);
+        if (arg2 != NULL) {
+            *arg2 = *(s32 *)(arg0 + 8);
+        }
+        break;
+    }
+    i = 0;
+    table = (u8 *)D_008E4D30;
+    while (i < 0x100) {
+        entry = table + i * 0x1DC;
+        if (*(s32 *)entry != 0 && arg0 == entry + 4) {
+            *(s32 *)entry = 0;
+            break;
+        }
+        i++;
+    }
+    *arg1 = 1;
+    if (lock != 0) {
+        func_0042ba70();
+    }
+    return result;
+failed:
+    *arg1 = 0;
+    if (lock != 0) {
+        func_0042ba70();
+    }
+    return NULL;
+}
 // FUN_004673C0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004673c0);
 // FUN_00467880

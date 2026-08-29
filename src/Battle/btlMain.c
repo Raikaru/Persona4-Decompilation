@@ -46,6 +46,19 @@ typedef struct BtlMainLerpWork
     u32 currentFrame;
 } BtlMainLerpWork;
 extern u8* iGpffffb3ac;
+typedef struct BtlMainSlerpResult
+{
+    f32 current0;
+    f32 current1;
+    f32 current2;
+    f32 current3;
+    f32 next0;
+    f32 next1;
+    f32 next2;
+    f32 next3;
+    f32 angle;
+    s32 mode;
+} BtlMainSlerpResult;
 u32 func_001b96e0(void* work);
 u32 func_001b99f0(void* work);
 u32 func_001b9e50(void* work);
@@ -77,6 +90,13 @@ extern f32 fGpffff8434; /* P4 gp -0x7bcc */
 extern void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1);
 extern void func_001bb790(u8* param_2, f32* param_3, f32 param_1);
 extern void func_003bb5b0(void* curve, s32 mode, f32 time, RwV3d* dst, void* aux);
+extern void func_003dcc70(f32* first, f32* second, BtlMainSlerpResult* result);
+extern f32 fGpffff83f8;
+extern f32 fGpffff8054;
+extern f32 fGpffff8058;
+extern f32 fGpffff8344;
+extern f32 fGpffff843c;
+extern f32 fGpffff8440;
 extern void func_001bb9b0(u8* param_2, f32* param_3, f32 param_1);
 extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
@@ -256,9 +276,9 @@ BtlPacket* func_001b9560(u32 param_1, u32 param_2)
 }
 
 
-
 // FUN_001B96E0
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b96e0);
+
 // FUN_001B99A0
 void func_001b99a0(s32 arg)
 {
@@ -775,7 +795,84 @@ void func_001bb8c0(u8* param_2, f32* param_3, f32 param_1)
 
 
 // FUN_001BB9B0
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb9b0);
+void func_001bb9b0(u8* param_2, f32* param_3, f32 param_1)
+{
+    u16 index;
+    u16 nextIndex;
+    u8* currentAddress;
+    u8* nextAddress;
+    f32 period;
+    f32 blend;
+    f32 inverse;
+    f32 f0;
+    f32 f1;
+    f32 f3;
+    f32 f4;
+    BtlMainSlerpResult result;
+
+    blend = param_1;
+    index = *(u16*)(param_2 + 0x74);
+    period = fGpffff8434;
+    while (blend >= period)
+    {
+        index++;
+        blend -= period;
+    }
+    blend = blend / period;
+
+    if (index >= 4)
+        index &= 3;
+    nextIndex = (u16)((index + 1) & 0xffff);
+    if (nextIndex >= 4)
+        nextIndex &= 3;
+
+    nextAddress = param_2 + ((u32)nextIndex * 0x1c) + 0x10;
+    currentAddress = param_2 + ((u32)index * 0x1c) + 0x10;
+    func_003dcc70((f32*)currentAddress, (f32*)nextAddress, &result);
+
+    if (blend <= 0.0f)
+    {
+        *(RwV4d*)param_3 = *(RwV4d*)currentAddress;
+        return;
+    }
+    if (1.0f <= blend)
+    {
+        *(RwV4d*)param_3 = *(RwV4d*)nextAddress;
+        return;
+    }
+
+    inverse = 1.0f - blend;
+    if (result.mode == 0)
+    {
+        f4 = inverse * result.angle;
+        f3 = f4 * f4;
+        f0 = fGpffff83f8 * f3 + fGpffff8054;
+        f0 = f3 * f0 + fGpffff8058;
+        f0 = f3 * f0 + fGpffff8344;
+        f0 = f3 * f0 + fGpffff843c;
+        f1 = f3 * f0 + fGpffff8440;
+        f0 = f3 * f4;
+        inverse = f0 * f1 + f4;
+
+        f4 = blend * result.angle;
+        f3 = f4 * f4;
+        f1 = fGpffff83f8 * f3 + fGpffff8054;
+        f1 = f3 * f1 + fGpffff8058;
+        f1 = f3 * f1 + fGpffff8344;
+        f1 = f3 * f1 + fGpffff843c;
+        f0 = f3 * f1 + fGpffff8440;
+        f1 = f3 * f4;
+        blend = f1 * f0 + f4;
+    }
+
+    param_3[0] = result.current0 * inverse;
+    param_3[1] = result.current1 * inverse;
+    param_3[2] = result.current2 * inverse;
+    param_3[0] = result.next0 * blend + param_3[0];
+    param_3[1] = result.next1 * blend + param_3[1];
+    param_3[2] = result.next2 * blend + param_3[2];
+    param_3[3] = result.current3 * inverse + result.next3 * blend;
+}
 // FUN_001BBC40
 u32 func_001bbc40(u8* param_1, f32* param_2, f32* param_3)
 {

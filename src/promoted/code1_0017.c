@@ -148,6 +148,7 @@ extern void func_002bd3c0(void);
 extern u8 *D_007643D0;
 extern void (*D_00887300[])(s32, s32);
 extern s32 iGpffffba48;
+
 extern void func_003c02e0(u8 *arg0);
 extern void func_003c4220(s32 arg0);
 extern void func_003cbc60(s32 arg0, u8 *arg1);
@@ -507,6 +508,7 @@ s32 func_001714b0(u8 *arg0)
 
 // FUN_00175F70
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00175f70);
+
 
 // FUN_001761D0
 s32 func_001761d0(u8 *arg0)
@@ -1398,12 +1400,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017bc60);
 // FUN_0017C010
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c010);
 
+
+
 // FUN_0017C270
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c270);
 
 // FUN_0017C670
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c670);
-
 
 
 
@@ -1422,6 +1425,7 @@ s32 func_0017c930(u8 *arg0)
     extern void func_0017bbe0(u8 *);
     extern void func_0017bc60(u8 *, u8 *);
     extern void func_0017c010(u8 *);
+
     extern void func_0017c270(u8 *, u8 *);
     extern void func_0017c670(u8 *);
     u8 *list1;

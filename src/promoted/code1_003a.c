@@ -43,7 +43,6 @@ extern u8 *func_003cf9b0(u8 *arg0, s32 arg1, void *arg2);
 extern s32 *func_003cfa70(void);
 extern s32 func_00412e90(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 D_007084A0[];
-extern void func_003b42e0(s32 arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern void func_003a76c0(u8 *arg0, s32 *arg2, s32 arg4);
 extern u8 D_008872E0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);

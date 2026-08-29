@@ -61,6 +61,10 @@ extern u8 D_005F5330[];
 extern u8 *func_00457120(void);
 extern f32 fGpffff8218;
 extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s64 func_00479c30(s32 arg0, s32 arg1);
+extern u8 *func_0047a2f0(u32 arg0);
+extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern u32 D_007EFA00[];
 extern void func_0018a200(u8 *arg0);
 extern s32 func_0015a560(void);
 extern u8 D_005F54D8[];
@@ -564,7 +568,76 @@ s32 func_0018bbf0(u8 *arg0)
     return value >= 4;
 }
 // FUN_0018BC20
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018bc20);
+/* measured: optimization_level 1 preserves retail's FPU scheduling for this
+   vector normalize; -O2 reorders it into a mismatching form. */
+#pragma optimization_level 1
+void func_0018bc20(u8 *arg0)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    f32 *temp_4;
+    f32 *temp_4_2;
+    f32 temp_f20;
+    f32 temp_f20_2;
+    f32 temp_f20_3;
+    f32 guard38;
+    f32 guard44;
+    f32 guard30;
+    f32 guard3c;
+    f32 guard34;
+    f32 guard40;
+    u8 *temp_16;
+    u8 *temp_2;
+    void *target;
+    s32 zero;
+    s32 one;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_2 = func_0047a2f0(*(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164));
+    temp_4 = (f32 *)(temp_16 + 0x30);
+    *(struct Vec3 *)temp_4 = *(struct Vec3 *)(temp_2 + 0x20);
+    func_003e40b0(temp_4, temp_4);
+    temp_f20 = *(f32 *)(func_0047a2f0(
+        *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164)) + 0x30);
+    *(f32 *)(temp_16 + 0x3C) = *(f32 *)(func_0047a2f0(
+        D_007EFA00[0]) + 0x30) - temp_f20;
+    temp_f20_2 = *(f32 *)(func_0047a2f0(
+        *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164)) + 0x34);
+    *(f32 *)(temp_16 + 0x40) = *(f32 *)(func_0047a2f0(
+        D_007EFA00[0]) + 0x34) - temp_f20_2;
+    temp_f20_3 = *(f32 *)(func_0047a2f0(
+        *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164)) + 0x38);
+    *(f32 *)(temp_16 + 0x44) = *(f32 *)(func_0047a2f0(
+        D_007EFA00[0]) + 0x38) - temp_f20_3;
+    temp_4_2 = (f32 *)(temp_16 + 0x3C);
+    func_003e40b0(temp_4_2, temp_4_2);
+    guard38 = *(f32 *)(temp_16 + 0x38);
+    guard44 = *(f32 *)(temp_16 + 0x44);
+    guard30 = *(f32 *)(temp_16 + 0x30);
+    guard3c = *(f32 *)(temp_16 + 0x3C);
+    guard34 = *(f32 *)(temp_16 + 0x34);
+    guard40 = *(f32 *)(temp_16 + 0x40);
+    if ((guard30 * guard3c + guard34 * guard40) +
+        guard38 * guard44 <
+        fGpffff8218) {
+        *(s32 *)(temp_16 + 0x2C) =
+            (s16)func_00479c30(
+                *(u32 *)(*(u8 **)(temp_16 + 0xC) + 0x164), 0);
+        target = *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164);
+        zero = 0;
+        one = 1;
+        func_00479940(target, zero, one, 4, one);
+        *(s32 *)temp_16 = 5;
+        return;
+    }
+    func_00479940(
+        *(void **)(*(u8 **)(temp_16 + 0xC) + 0x164), 0, 3, 8, 0);
+    *(s32 *)temp_16 = 7;
+}
+#pragma optimization_level 2
 /* measured: optimization_level 1 preserves the retail FPU accumulator order. */
 #pragma optimization_level 1
 // FUN_0018BDD0
