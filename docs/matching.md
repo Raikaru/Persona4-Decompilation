@@ -632,6 +632,9 @@ worth stating plainly so nobody re-runs them:
 | reconstruction of never-attempted functions <= 256B | 8 | 3 |
 | reconstruction of never-attempted functions > 256B | 12 | 0 |
 | reconstruction, file-local siblings, 10 parallel lanes (wave 5) | ~40 | 12 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 6) | ~40 | 5 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 7) | ~50 | 7 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 8) | ~37 | 2 |
 
 ### Reconstruction is the only avenue that still pays
 
@@ -723,6 +726,21 @@ entry in the pragma-knob section. Net after reverting both: **+11, not
 asm before it reaches for re-deriving the logic; the fix is to lint every
 lane-touched file before trusting a MATCH claim, not to trust the verify
 status alone.
+
+**Waves 6-8 confirm the method but show declining yield as the easy files
+run out**: 5 of ~40, 7 of ~50, 2 of ~37 (wave 8's files had fewer already-MATCH
+siblings per never-attempted target than the earlier batches -- the
+file-local-sibling predictor holding in the other direction too). Running
+total after wave 8: **26 closed across 4 waves and ~170 attempts, 15.3%
+pooled yield**, against 0.6% for every residual-polishing avenue combined.
+Two more process failures were caught by independent post-wave verification
+and fixed before committing: a lane silently dropping a `// FUN_xxxxxxxx`
+marker comment during an unrelated cut/paste (wave 7 -- caught only by
+diffing the full-project scanned-function COUNT, not by any MISMATCH/error
+signal), and a lane leaving 3 live MISMATCH bodies behind at report time
+(wave 6, `k_fldFrame.c`). Neither is optional to check: run a full
+`tools/verify.py` and confirm both the MATCH set and the total scanned count
+against the pre-wave baseline before ever committing lane output.
 
 **The other pool is the archived near-misses**, 113 functions still
 `INCLUDE_ASM` carrying an archived body with a claimed `0 < nd <= 25` inside a
