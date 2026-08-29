@@ -158,7 +158,78 @@ extern void func_0025f230(s32 arg0);
 extern void func_00454bd0(s32 arg0);
 extern void func_004598e0(s32 arg0);
 extern void func_004787e0(s32 arg0);
-
+extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern s16 func_00353b50(void *arg0);
+extern s32 func_0046d200(void *arg0, u8 arg1);
+extern u8 D_005E5F40[];
+extern u8 D_005E7670[];
+extern u8 D_005E5830[];
+extern u8 D_005E5850[];
+extern u8 D_005E57F0[];
+extern u8 D_005E76C8[];
+extern void func_0012e7c0(u8 *arg0);
+extern s32 func_0012ff60(u8 *arg0, s32 arg1);
+extern void func_0034f1e0(void);
+extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
+                          s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void func_0034f9d0(s64 arg0, u8 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_00364320(s64 arg0, s32 arg1, s32 arg2, f32 fparg0);
+extern void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0,
+                          f32 fparg3, f32 fparg4, s32 arg1, void *arg2);
+extern s32 func_0025f3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                         void *arg4, s32 arg5, f32 farg0, f32 farg1,
+                         f32 farg2);
+extern void func_0025f430(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          u8 *arg4, s32 arg5, s16 arg6, s16 arg7,
+                          f32 arg8, f32 arg9, f32 arg10, f32 arg11,
+                          f32 arg12, f32 arg13);
+extern void func_002aaac0(void);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_00489f80(void);
+extern void func_0048a000(void);
+extern s128 D_005E5590;
+extern s128 D_005E55A0;
+extern f32 fGpffff8230;
+extern f32 fGpffff8234;
+extern f32 fGpffff8238;
+extern f32 fGpffff823C;
+extern f32 fGpffff8240;
+extern f32 fGpffff8244;
+extern f32 fGpffff8248;
+extern f32 fGpffff824C;
+extern f32 fGpffff8250;
+extern f32 fGpffff8254;
+extern f32 fGpffff8258;
+extern f32 fGpffff825C;
+extern f32 fGpffff8260;
+extern f32 fGpffff8264;
+extern f32 fGpffff8268;
+extern f32 fGpffff826C;
+extern f32 fGpffff8270;
+extern f32 fGpffff8274;
+extern f32 fGpffff8278;
+extern f32 fGpffff827C;
+extern f32 fGpffff8280;
+extern f32 fGpffff8284;
+extern f32 fGpffff8288;
+extern f32 fGpffff828C;
+extern f32 fGpffff8290;
+extern f32 fGpffff8294;
+extern f32 fGpffff8298;
+extern f32 fGpffff829C;
+extern u32 func_0010d620(s16 arg0);
+extern u32 func_0010d6d0(s16 arg0);
+extern s32 func_00104ce0(s16 arg0);
+extern s32 func_00104dc0(s16 arg0);
+extern s32 func_00104d50(s16 arg0);
+extern s32 func_00104e30(s16 arg0);
+extern s32 func_00275020(f32 x, f32 y, f32 scale, s32 color, s32 chr,
+                         s32 id, const char *str, s32 flags, s32 charWidth);
+extern void func_0046d2b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
+                          u8 arg2, f32 z, s32 arg3);
+extern u8 D_005E4F88[];
+extern void func_00120ae0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, s32 arg3);
 // FUN_001203A0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001203a0);
 // FUN_00120AE0
