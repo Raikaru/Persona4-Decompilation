@@ -135,6 +135,7 @@ extern s32 func_0029de20(s32 arg0, s32 arg1);
 extern s32 func_001eba20(u8 *arg0);
 extern u8 *iGpffffb428;
 extern s32 func_00107ac0(s32 arg0);
+extern void func_00106550(s32 arg0, s32 arg1);
 extern s32 func_00243e30(s32 arg0);
 extern s32 func_00247cb0(s16 arg0);
 extern u8 *iGpffffb42c;
@@ -2717,6 +2718,121 @@ s32 func_001ef9a0(void) {
 // FUN_001EF9C0
 INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef9c0);
 // FUN_001EFD50
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001efd50);
+u8 *func_001efd50(u8 *arg0)
+{
+    s16 temp_3;
+    u8 *var_19;
+    s32 var_18;
+    s32 var_17;
+    u16 temp_3_2;
+    u8 *temp_16;
+    s32 candidates[4];
+
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 1) {
+        return NULL;
+    }
+    var_17 = 0;
+    temp_3 = *(s16 *)(arg0 + 0x6E);
+    if ((temp_3 < 0x1B8) &&
+        ((*(u8 *)(iGpffffb3b8 + (temp_3 * 0x28)) & 0x80) != 0)) {
+        var_17 = 1;
+    }
+    if ((var_17 == 0) &&
+        (((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) ||
+         (*(u16 *)(arg0 + 0x14) == 9))) {
+        return NULL;
+    }
+    var_18 = 0;
+    var_19 = *(u8 **)(iGpffffb3ac + 0x174);
+    while (var_19 != NULL) {
+        temp_3_2 = *(u16 *)(var_19 + 0x1A);
+        if (((temp_3_2 & 1) != 0) &&
+            ((temp_3_2 & 8) != 0) &&
+            ((var_17 != 0) || ((temp_3_2 & 0x80) == 0)) &&
+            (var_19 != arg0)) {
+            temp_16 = *(u8 **)(var_19 + 0x30);
+            if ((*(u8 *)(temp_16 + 0xA2) == 0) &&
+                (*(u16 *)(temp_16 + 0xA4) != 1) &&
+                ((var_17 != 0) ||
+                 (func_00232710(*(s32 *)(temp_16 + 0xA64), 0x1001FF) == 0)) &&
+                (func_002428f0(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
+                ((var_17 != 0) ||
+                 ((func_00107ac0((func_00247cb0(*(s16 *)(temp_16 + 0xA4)) &
+                                   0xFFFF)) &
+                   0xFFFF) > 0))) {
+                candidates[var_18] = (s32)var_19;
+                var_18 += 1;
+            }
+        }
+        var_19 = *(u8 **)(var_19 + 0x450);
+    }
+    if (var_18 == 0) {
+        return NULL;
+    }
+    return (u8 *)candidates[func_00231d70(var_18)];
+}
 // FUN_001EFF50
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001eff50);
+s32 func_001eff50(u8 *arg0)
+{
+    s32 temp_16_2;
+    s32 temp_5;
+    u8 *var_18;
+    s32 var_17;
+    u16 temp_3;
+    u8 *temp_16;
+    s32 candidates[4];
+
+    if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) ||
+        (*(u16 *)(arg0 + 0x14) == 9)) {
+        return 0;
+    }
+    if (func_00232710(*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+                      0x100117) != 0) {
+        return 0;
+    }
+    if (*(u8 *)(arg0 + 0x28) < 2) {
+        temp_5 = func_001064f0(0x79) -
+                 (*(u8 *)(arg0 + 0x28) + 1);
+        if (temp_5 > 0) {
+            func_00106550(0x79, temp_5);
+            return 0;
+        }
+    }
+    var_17 = 0;
+    var_18 = *(u8 **)(iGpffffb3ac + 0x174);
+    while (var_18 != NULL) {
+        temp_3 = *(u16 *)(var_18 + 0x1A);
+        if (((temp_3 & 1) != 0) &&
+            ((temp_3 & 8) != 0) &&
+            (var_18 != arg0)) {
+            temp_16 = *(u8 **)(var_18 + 0x30);
+            if ((*(u8 *)(temp_16 + 0xA2) == 0) &&
+                (*(u16 *)(temp_16 + 0xA4) != 1) &&
+                (func_00232710(*(s32 *)(temp_16 + 0xA64),
+                                0x1001FF) == 0) &&
+                (func_002428f0(*(s32 *)(temp_16 + 0xA64), 0) == 0) &&
+                (func_00243e30(*(s32 *)(temp_16 + 0xA64)) == 0) &&
+                ((func_00107ac0((func_00247cb0(
+                                    *(s16 *)(temp_16 + 0xA4)) &
+                                  0xFFFF)) &
+                  0xFFFF) >= 3)) {
+                temp_16_2 =
+                    (func_00232950(*(s32 *)(temp_16 + 0xA64), 0x88) &
+                     0xFFFF) *
+                    10;
+                temp_5 = func_00231d70(0x64);
+                if ((u32)temp_5 > (u32)(temp_16_2 + 0x3C)) {
+                } else {
+                    candidates[var_17] = (s32)var_18;
+                    var_17 += 1;
+                }
+            }
+        }
+        var_18 = *(u8 **)(var_18 + 0x450);
+    }
+    if (var_17 == 0) {
+        return 0;
+    }
+    func_00106550(0x79, func_00231d70(3) + 3);
+    return candidates[func_00231d70(var_17)];
+}

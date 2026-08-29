@@ -1061,6 +1061,10 @@ void func_00489f10(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
 // FUN_0048ABD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048abd0);
+/* Best clean-C candidate reaches object 560B == window 560B, nd 12 (97.9%);
+   residual is an MWCC -O2 scheduler reordering of two independent
+   subtractions, not source-order-controllable. See
+   build/L48_0048aff0_body.c for the attempt and what was tried. */
 // FUN_0048AFF0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048aff0);
 // FUN_0048B220
