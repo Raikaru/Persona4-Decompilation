@@ -66,7 +66,7 @@ void func_0016e540(s32, s32);
 void func_0016e560(s32, s32);
 void func_0017d100(u8 *);
 void func_0017d0f0(s32, s32);
-void func_00174e10(u8 *);
+s32 func_00174e10(u8 *);
 s32 func_0018bea0();
 void func_0018bc20(s32);
 void func_0018bed0(s32, s32);
