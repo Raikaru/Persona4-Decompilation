@@ -55,6 +55,31 @@ extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
+typedef signed __int128 code13S128;
+extern s32 func_00104ce0(s32 arg0);
+extern s32 func_00104d50(s32 arg0);
+extern void func_001056e0(s32 arg0, s16 arg1);
+extern void func_00105730(s32 arg0, s16 arg1);
+extern void func_00106390(s32 arg0, s32 arg1);
+extern void func_0010f770(s32 arg0, s16 arg1, s32 arg2, s32 arg3);
+extern s32 func_00354010(void);
+extern void func_0013aa90(u8 *arg0);
+extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern s16 func_00353c10(s16 *arg0);
+extern s32 func_00354a50(s32 arg0, s32 arg1);
+extern s32 func_0046a770(void *arg0);
+extern s32 func_0046d200(void *arg0, u8 arg1);
+extern void func_0046d730(void *arg0, s32 arg1);
+extern void func_00141d80(u8 *arg0, u32 arg1);
+extern u8 D_005E57F0[];
+extern u8 D_005E5810[];
+extern u8 D_005E5830[];
+extern u8 D_005E5850[];
+extern u8 D_005EDEA0[];
+extern u8 D_005EDA00[];
+extern u8 D_005EF6C8[];
+extern u8 D_005ED9E0[];
+extern u8 D_005ED9F0[];
 typedef struct {
     s32 first;
     s32 second;
@@ -634,6 +659,8 @@ void func_0013c5a0(s32 *arg0, u8 *arg1) {
 s32 func_0013c6d0(s16 arg0) {
     return func_0010f540(*(u16 *)(func_00106820() + 0x24)) != 0;
 }
+// FUN_0013CAA0
+INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013caa0);
 // FUN_0013C700 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013c700);
 // FUN_0013CA60
@@ -645,8 +672,6 @@ s32 func_0013ca60(s32 arg0, s32 arg1, s32 arg2) {
     }
     return v;
 }
-// FUN_0013CAA0
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_0013caa0);
 // FUN_0013D470
 s32 func_0013d470(u8 *arg0, s32 *arg1) {
     u8 sp40[0x28];

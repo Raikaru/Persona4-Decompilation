@@ -101,6 +101,36 @@ void func_001bac20(u8* camera, RwV3d* first, RwV3d* second, s32 mode);
 void func_001bd560(f32 *out, f32 *in);
 void func_001cc5d0(u8 *camera, f32 *out);
 void func_001bdd80(u8* camera, void* data, s32 mode);
+extern f32 func_001ec2b0(void* first, void* second);
+extern void func_003dcc70(f32* first, f32* second, void* result);
+extern f32 func_003e41e0(f32* out, f32* in);
+extern f32 fGpffff8104;
+extern f32 fGpffff8054;
+extern f32 fGpffff8058;
+extern f32 fGpffff805c;
+extern f32 fGpffff8060;
+extern f32 fGpffff8108;
+extern f32 fGpffff80e8;
+extern f32 fGpffff80d8[2];
+extern f32 fGpffff8110;
+extern f32 fGpffff8094;
+extern f32 D_0076122C;
+extern f32 D_00761278;
+extern RwV3d D_0060A100;
+extern void func_001ec1c0(void* out, void* first, void* second);
+typedef struct BtlCameraSlerpResult
+{
+    f32 current0;
+    f32 current1;
+    f32 current2;
+    f32 current3;
+    f32 next0;
+    f32 next1;
+    f32 next2;
+    f32 next3;
+    f32 angle;
+    s32 mode;
+} BtlCameraSlerpResult;
 extern s32 func_004bd050(s32 arg0);
 static inline u32 cd600Add(u32 flagOffset, u32 tableAddr)
 {
@@ -851,7 +881,133 @@ void func_001cc5c0(void)
 {
 }
 // FUN_001CC5D0
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cc5d0);
+void func_001cc5d0(u8 *camera, f32 *out)
+{
+    struct C5Scratch
+    {
+        BtlCameraSlerpResult result;
+        u8 pad0[8];
+        f32 selected[4];
+        f32 horizontal[2];
+        f32 target[3];
+        f32 pad1;
+        f32 direction[3];
+        f32 pad2;
+        f32 position[3];
+        f32 pad3;
+        f32 aux;
+        f32 distance;
+    } work;
+    f32 angleScale;
+    f32 value;
+    f32 blend;
+    f32 inverse;
+    f32 f0;
+    f32 f1;
+    f32 f3;
+    f32 f2;
+    f32 f4;
+    f32 minDistance;
+    f32 factor;
+
+    value = func_00196040(3, 1, work.target, &work.distance,
+                           &work.aux, 1);
+    angleScale = func_0044b868(DAT_00761200 *
+                               (0.5f * *(f32 *)(camera + 0xB8)));
+    angleScale = value / angleScale;
+    work.position[0] = 0.0f;
+    work.position[1] = work.distance;
+    work.position[2] = -value;
+    func_001bd780(out + 3, work.position, work.target, &D_0060A0E0);
+    blend = func_001ec2b0(camera + 0xA8, out + 3);
+    if (blend > fGpffff80d8[1]) {
+        blend = fGpffff80d8[1] / blend;
+        func_003dcc70((f32 *)(camera + 0xA8), out + 3, &work.result);
+        if (blend <= 0.0f) {
+            f3 = *(f32 *)(camera + 0xA8);
+            f2 = *(f32 *)(camera + 0xAC);
+            f1 = *(f32 *)(camera + 0xB0);
+            f0 = *(f32 *)(camera + 0xB4);
+            work.selected[0] = f3;
+            work.selected[1] = f2;
+            work.selected[2] = f1;
+            work.selected[3] = f0;
+        }
+        else if (1.0f <= blend) {
+            f3 = out[3];
+            f2 = out[4];
+            f1 = out[5];
+            f0 = out[6];
+            work.selected[0] = f3;
+            work.selected[1] = f2;
+            work.selected[2] = f1;
+            work.selected[3] = f0;
+        }
+        else {
+            inverse = 1.0f - blend;
+            if (work.result.mode == 0) {
+                f4 = inverse * work.result.angle;
+                f3 = f4 * f4;
+                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = f3 * f0 + fGpffff8058;
+                f0 = f3 * f0 + fGpffff805c;
+                f0 = f3 * f0 + fGpffff8060;
+                f1 = f3 * f0 + fGpffff8108;
+                f0 = f3 * f4;
+                inverse = f0 * f1 + f4;
+
+                f4 = blend * work.result.angle;
+                f3 = f4 * f4;
+                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = f3 * f0 + fGpffff8058;
+                f0 = f3 * f0 + fGpffff805c;
+                f0 = f3 * f0 + fGpffff8060;
+                f1 = f3 * f0 + fGpffff8108;
+                f0 = f3 * f4;
+                blend = f0 * f1 + f4;
+            }
+            work.selected[0] = work.result.current0 * inverse;
+            work.selected[1] = work.result.current1 * inverse;
+            work.selected[2] = work.result.current2 * inverse;
+            work.selected[0] = work.result.next0 * blend +
+                               work.selected[0];
+            work.selected[1] = work.result.next1 * blend +
+                               work.selected[1];
+            work.selected[2] = work.result.next2 * blend +
+                               work.selected[2];
+            work.selected[3] = work.result.current3 * inverse +
+                               work.result.next3 * blend;
+        }
+        func_003dcb40(work.direction, &D_0060A100, 1, work.selected);
+        work.position[0] = work.target[0] + work.direction[0];
+        work.position[1] = work.target[1] + work.direction[1];
+        work.position[2] = work.target[2] + work.direction[2];
+        func_001bd780(out + 3, work.position, work.target,
+                      &D_0060A0E0);
+    }
+    if (angleScale < 700.0f) {
+        angleScale = 700.0f;
+    }
+    func_003dcb40(work.direction, &D_0060A100, 1, out + 3);
+    work.direction[0] = work.direction[0] * angleScale;
+    work.direction[1] = work.direction[1] * angleScale;
+    work.direction[2] = work.direction[2] * angleScale;
+    minDistance = func_0044b868(DAT_00761200 *
+                                (0.5f * *(f32 *)(camera + 0xB8)));
+    f1 = angleScale * minDistance;
+    factor = 0.21875f;
+    minDistance = f1 * factor;
+    work.horizontal[0] = work.direction[0];
+    work.horizontal[1] = work.direction[2];
+    func_003e41e0(work.horizontal, work.horizontal);
+    work.target[0] = work.horizontal[1] * minDistance +
+                     work.target[0] + 0.0f;
+    work.target[2] = (work.target[2] + 0.0f) -
+                    work.horizontal[0] * minDistance;
+    out[0] = work.target[0] + work.direction[0];
+    out[1] = work.target[1] + work.direction[1];
+    out[2] = work.target[2] + work.direction[2];
+}
 /* measured: plain-C aggregate reconstruction reproduces every retail
    instruction; the object is 112B against the 128B window, with the retail
    trailing jr/nop pair left as window padding. */
