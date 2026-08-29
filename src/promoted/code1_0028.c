@@ -45,9 +45,35 @@ typedef struct {
 } UnkStruct_002865E0;
 extern void func_0028b160(s32 *arg0, s32 arg1);
 extern u8 *func_0028afe0(void);
-extern void func_00285dd0(void);
+extern s32 func_00285dd0(s32 arg0);
 extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
+extern void func_0028ad90(u8 *arg0, s32 arg1);
+extern void func_002865e0(UnkStruct_002865E0 *arg0);
+extern u8 *func_00457120(void);
+extern f32 func_00457850(u8 *arg0);
+extern s32 func_00293ed0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_00293fc0(s32 arg0);
+extern u8 *func_00294040(s32 arg0);
+extern u8 *func_0028fb90(void);
+extern void func_0028fc40(void *arg0, s32 arg1, s32 arg2, s32 arg3,
+                          s32 arg4);
+extern s32 func_00290f00(void);
+extern void func_00290ec0(s32 arg0, s32 arg1);
+extern void func_00291060(s32 arg0);
+extern s32 func_00291080(s32 arg0);
+extern void func_00296850(s32 arg0, u8 *arg1);
+extern s32 func_00298250(s32 arg0, s32 arg1);
+extern s32 func_00248d00(s32 arg0, s32 arg1, s32 arg2);
+extern void func_00298100(s32 arg0);
+extern void func_0028b7b0(u8 *arg0);
+extern void func_0028b320(u8 *arg0, s32 arg1);
+extern void func_0028b550(u8 *arg0);
+extern void func_00442088(void *arg0, ...);
+extern s32 func_0045b170(s32 arg0);
+extern s32 func_0045b1c0(s32 arg0, s32 arg1, s32 arg2, void *arg3);
+extern char D_0063C340[];
+extern char D_0063C350[];
 
 s32 func_00286430(u8 *arg0);
 static inline s32 func_0028_sum(u16 arg0, s16 arg1) {

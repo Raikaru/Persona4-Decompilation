@@ -15,7 +15,6 @@ extern s8 func_002bab80(void *);
 extern void func_002badc0(s8, s32);
 extern void func_002bbd80(s8, s32, void *);
 extern void *func_001067f0(s16);
-extern s32 func_002be1b0(s16);
 extern void func_00275980(void *, void *, s32);
 extern s32 func_00106330(s32);
 extern u8 func_002e78a0(void);
