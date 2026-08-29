@@ -26,8 +26,10 @@ typedef struct BtlPacket {
 } BtlPacket;
 
 BtlPacket* func_00194470(u32 type, u32 workSize);
+
 extern u32 func_001b7520(float* param_1);
 extern f32 fGpffff81f4; /* P4 gp -0x7e0c */
+
 u32 func_001b7b30(void* work);
 typedef struct BtlMainColorWork BtlMainColorWork;
 extern u32 func_001b7e70(BtlMainColorWork* param_1); /* retail update target */

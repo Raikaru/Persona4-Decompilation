@@ -25,6 +25,9 @@ extern void func_004adb50();
 extern void func_004ade80(u8 *arg0);
 extern void func_00460ac0();
 extern void func_004aec80();
+extern f32 func_004bd0b0(u32 arg0);
+extern u32 func_004bd050(u32 arg0);
+extern f32 iGpffff8080;
 extern void func_004787e0();
 
 extern void func_004841c0(s32 arg0);
@@ -1243,13 +1246,76 @@ void func_004ae010(u8 *arg0, f32 arg1) {
     *(f32 *)(arg0 + 0x20) = arg1;
 }
 // FUN_004AE0A0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004ae0a0);
-/* The two $gp loads inside the COP2 blocks below are written as literal
-   displacements (-0x7e0c) rather than as a relocation against fGpffff81f4.
-   That is deliberate. With no GPREL16 relocation the verifier does NOT mask
-   the immediate, so it is compared directly against retail and is proven
-   equal; the symbolic form assembles to a different sequence (measured nd 4).
-   WIAudit reports these two offsets as missing GPREL16 -- expected, not a bug. */
+void func_004ae0a0(u8 *arg0, u8 *arg1)
+{
+    f32 sp40[4];
+    f32 temp_f0;
+    s32 temp_4;
+
+    if (*(u8 *)(arg0 + 0x10) == 0) {
+        sp40[0] = *(f32 *)(arg0 + 0x14);
+        sp40[1] = *(f32 *)(arg0 + 0x18);
+        sp40[2] = *(f32 *)(arg0 + 0x1C);
+    } else {
+        sp40[0] = 2.0f * (func_004bd0b0(0) - 0.5f);
+        sp40[1] = 2.0f * (func_004bd0b0(0) - 0.5f);
+        sp40[2] = 2.0f * (func_004bd0b0(0) - 0.5f);
+    }
+    __asm__ volatile(
+        "lqc2 $vf10, 0(%1) \n"
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vaddy.x $vf2, $vf2, $vf2y \n"
+        "vaddz.x $vf2, $vf2, $vf2z \n"
+        ".word 0x4A0203BD \n"
+        "vwaitq \n"
+        "cfc2.ni $2, $vi22 \n"
+        "mtc1 $2, %0 \n"
+        : "=f"(temp_f0)
+        : "r"(sp40)
+        : "$2", "$vf2", "$vf10", "Q", "memory");
+    if (temp_f0 == 0.0f) {
+        goto normalized_zero;
+    }
+    __asm__ volatile(
+        "vmul.xyz $vf2, $vf10, $vf10 \n"
+        "vmulax.w $ACC, $vf0, $vf2x \n"
+        "vmadday.w $ACC, $vf0, $vf2y \n"
+        "vmaddz.w $vf2, $vf0, $vf2z \n"
+        "vrsqrt $Q, $vf0w, $vf2w \n"
+        "vwaitq \n"
+        "vmulq.xyz $vf10, $vf10, $Q \n"
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(sp40)
+        : "$vf0", "$vf2", "$vf10", "ACC", "Q", "memory");
+    *(f32 *)(arg1 + 0) = sp40[0];
+    *(f32 *)(arg1 + 4) = sp40[1];
+    *(f32 *)(arg1 + 8) = sp40[2];
+    goto normalized_done;
+normalized_zero:
+    *(f32 *)(arg1 + 0) = 0.0f;
+    *(f32 *)(arg1 + 4) = 1.0f;
+    *(f32 *)(arg1 + 8) = 0.0f;
+normalized_done:
+    temp_f0 = *(f32 *)(arg0 + 0x28);
+    temp_f0 = (1.0f - temp_f0) + temp_f0 * func_004bd0b0(0);
+    *(f32 *)(arg1 + 0x10) = *(f32 *)(arg0 + 0x24) * temp_f0;
+    *(f32 *)(arg1 + 0x0C) = iGpffff8080 * func_004bd0b0(0);
+    temp_4 = *(s32 *)(arg0 + 0x34);
+    switch (temp_4) {
+    case 1:
+        *(u8 *)(arg1 + 0x14) = (u8)(func_004bd050(0) % 6);
+        break;
+    case 2:
+        *(u8 *)(arg1 + 0x14) =
+            (u8)(((u32)((u8 *)arg1 - *(u8 **)(arg0 + 0x5C)) / 0x18) % 6);
+        break;
+    default:
+        *(s8 *)(arg1 + 0x14) = -1;
+        break;
+    }
+}
+
 // FUN_004AE2F0
 void func_004ae2f0(u8 *arg0, u8 *arg1, s32 arg2)
 {

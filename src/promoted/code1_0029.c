@@ -70,6 +70,10 @@ extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, f32 farg0, s32 arg5, s32 arg6,
                           s32 arg7);
 extern f32 fGpffff8204;
+extern void func_002a2980(u8 *arg0);
+extern s32 func_002a2ca0(u8 *arg0);
+extern s32 func_002a2c70(u8 *arg0);
+extern f32 func_002a2cd0(u8 *arg0);
 extern char D_0063C8F0[];
 extern char D_0063C910[];
 extern void func_00440b68();
