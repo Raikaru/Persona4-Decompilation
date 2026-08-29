@@ -82,3 +82,34 @@ unrolled loops that `src/generated/`'s existing m2c output is documented to
 mis-render, and rendered retail's hardware addresses as `MEMORY[0x1000D000]`
 etc. -- independently corroborating `tools/hw_access_census.py`'s findings
 from a completely separate tool.
+
+## Later session: two reconstruction waves, verified 6122/7866 MATCH
+
+Pivoted off a user question ("is there a point to continuing?") by measuring
+that residual-polishing avenues (permuter, flag sweeps, twin joins) were
+exhausted at ~0.6% yield, while cold reconstruction of never-attempted
+functions with an already-MATCH sibling in the same file was untested at
+this scale. Two 10-lane waves against `build/recon_queue.json` /
+`build/recon_queue_fresh.json` (ranked never-attempted functions, filtered to
+real full-length attempts) plus one hand reconstruction
+(`func_0036aa20`) ahead of wave 5 closed 12 + 5 = 17 functions total,
+ending at a verified 6122/7866 first-party MATCH, 0 MISMATCH. Sizes
+432-956B, well above the previously-recorded 256-byte
+cliff -- the real predictor turned out to be a same-file MATCHed sibling
+giving a struct-layout/calling-convention anchor, not absolute size. See
+`docs/matching.md`'s "Wave 5 breaks the cliff" section for the full writeup.
+
+Two lane-reported "matches" from wave 5 were actually `decomp_lint`
+H001/H009 violations (a `volatile` compiler-steering cast, and a
+hand-written `__asm__` block) caught during independent post-wave
+verification and reverted to honest `INCLUDE_ASM`, net -2 before the
+corrected commit. `build/recon_methodology.md` (the standing per-lane
+instruction set for this kind of wave) now has a pitfall entry telling
+future lanes not to reach for either idiom. One live MISMATCH left by a
+wave-6 lane in `k_fldFrame.c` was likewise caught and reverted before commit
+-- always re-verify every lane-touched file yourself; do not trust a lane's
+self-reported MATCH/SKIPPED status.
+
+Commits: `e9b07c44` (wave 5, +11 after reverting 2 violations),
+`cc178a78` (wave 6, +5). Both gate-clean, both output SHA1s unchanged
+(`3d1d3d2b...`, `4eeec036...`), CI green.
