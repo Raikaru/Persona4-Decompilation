@@ -928,6 +928,10 @@ void func_004bc520(u8 *arg0, f32 *arg1)
 {
     *(f32 *)(arg0 + 0x2c) += *arg1;
 }
+/* measured: closest reconstruction reaches object 1960B/window 1968B,
+   normalized_diff 11; retail's scheduler reverses an sll/lw pair at
+   offsets 0x30/0x34 that source-order variants could not reproduce.
+   See build/LaneCode1_004bc540_body.c for the attempt. */
 // FUN_004BC540
 INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004bc540);
 typedef struct {
