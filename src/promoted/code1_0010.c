@@ -60,6 +60,8 @@ extern s32 func_001036d0(u8 *arg0);
 extern void func_00103980(u8 *arg0);
 
 
+
+
 // FUN_00100008
 INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100008);
 // FUN_00100218
