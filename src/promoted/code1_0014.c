@@ -544,7 +544,98 @@ void func_00142d80(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 // FUN_00142F20
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00142f20);
 // FUN_001437B0
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_001437b0);
+void func_001437b0(u8 *arg0, s32 arg1, s32 arg2) {
+    extern f32 D_00761184;
+    extern f32 func_0044b610(f32 fparg0);
+    extern f32 func_0044b7b0(f32 fparg0);
+    f32 temp_f21;
+    f32 temp_f20;
+    s32 temp_17;
+    s32 temp_16;
+    u8 temp_4;
+    u16 temp_4_2;
+    u16 temp_4_3;
+
+    temp_17 = *(s32 *)(arg0 + 0x2C) - *(s32 *)(arg0 + 0x28);
+    if (temp_17 == 0) {
+        *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 8);
+        *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0xC);
+        *(u8 *)(arg0 + 0x1A) = *(u8 *)(arg0 + 0x19);
+        *(u16 *)(arg0 + 0x20) = *(u16 *)(arg0 + 0x1E);
+        *(u16 *)(arg0 + 0x26) = *(u16 *)(arg0 + 0x24);
+        return;
+    }
+    if (*(s32 *)(arg0 + 0x2C) < arg1) {
+        arg1 = *(s32 *)(arg0 + 0x2C);
+    }
+    if (arg1 < *(s32 *)(arg0 + 0x28)) {
+        arg1 = *(s32 *)(arg0 + 0x28);
+    }
+    temp_16 = arg1 - *(s32 *)(arg0 + 0x28);
+    switch (arg2) {
+    case 0:
+        temp_f21 = (D_00761184 * (f32)temp_16) / (f32)temp_17;
+        temp_f20 = *(f32 *)arg0;
+        *(f32 *)(arg0 + 0x10) =
+            temp_f20 + (*(f32 *)(arg0 + 8) - temp_f20) *
+                           func_0044b7b0(temp_f21);
+        temp_f20 = *(f32 *)(arg0 + 4);
+        *(f32 *)(arg0 + 0x14) =
+            temp_f20 + (*(f32 *)(arg0 + 0xC) - temp_f20) *
+                           func_0044b7b0(temp_f21);
+        temp_4 = *(u8 *)(arg0 + 0x18);
+        *(u8 *)(arg0 + 0x1A) =
+            temp_4 + (s32)(temp_16 * (*(u8 *)(arg0 + 0x19) - temp_4)) / temp_17;
+        temp_4_2 = *(u16 *)(arg0 + 0x1C);
+        *(u16 *)(arg0 + 0x20) =
+            temp_4_2 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x1E) - temp_4_2)) / temp_17;
+        temp_4_3 = *(u16 *)(arg0 + 0x22);
+        *(u16 *)(arg0 + 0x26) =
+            temp_4_3 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x24) - temp_4_3)) / temp_17;
+        break;
+    case 1:
+        *(f32 *)(arg0 + 0x10) =
+            *(f32 *)arg0 +
+            ((f32)temp_16 * (*(f32 *)(arg0 + 8) - *(f32 *)arg0)) /
+                (f32)temp_17;
+        *(f32 *)(arg0 + 0x14) =
+            *(f32 *)(arg0 + 4) +
+            ((f32)temp_16 * (*(f32 *)(arg0 + 0xC) - *(f32 *)(arg0 + 4))) /
+                (f32)temp_17;
+        temp_4 = *(u8 *)(arg0 + 0x18);
+        *(u8 *)(arg0 + 0x1A) =
+            temp_4 + (s32)(temp_16 * (*(u8 *)(arg0 + 0x19) - temp_4)) / temp_17;
+        temp_4_2 = *(u16 *)(arg0 + 0x1C);
+        *(u16 *)(arg0 + 0x20) =
+            temp_4_2 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x1E) - temp_4_2)) / temp_17;
+        temp_4_3 = *(u16 *)(arg0 + 0x22);
+        *(u16 *)(arg0 + 0x26) =
+            temp_4_3 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x24) - temp_4_3)) / temp_17;
+        break;
+    case 2:
+        temp_f21 = (D_00761184 * (f32)temp_16) / (f32)temp_17;
+        temp_f20 = *(f32 *)arg0;
+        *(f32 *)(arg0 + 0x10) =
+            temp_f20 + (*(f32 *)(arg0 + 8) - temp_f20) *
+                           (1.0f - func_0044b610(temp_f21));
+        temp_f20 = *(f32 *)(arg0 + 4);
+        *(f32 *)(arg0 + 0x14) =
+            temp_f20 + (*(f32 *)(arg0 + 0xC) - temp_f20) *
+                           (1.0f - func_0044b610(temp_f21));
+        temp_4 = *(u8 *)(arg0 + 0x18);
+        *(u8 *)(arg0 + 0x1A) =
+            temp_4 + (s32)(temp_16 * (*(u8 *)(arg0 + 0x19) - temp_4)) / temp_17;
+        temp_4_2 = *(u16 *)(arg0 + 0x1C);
+        *(u16 *)(arg0 + 0x20) =
+            temp_4_2 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x1E) - temp_4_2)) / temp_17;
+        temp_4_3 = *(u16 *)(arg0 + 0x22);
+        *(u16 *)(arg0 + 0x26) =
+            temp_4_3 + (s32)(temp_16 * (*(u16 *)(arg0 + 0x24) - temp_4_3)) / temp_17;
+        break;
+    default:
+        return;
+    }
+}
 // FUN_00143B70
 void func_00143b70(void)
 {

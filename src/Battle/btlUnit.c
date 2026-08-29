@@ -27,6 +27,7 @@ struct RwV3d
     f32 y;
     f32 z;
 };
+extern RwV3d D_0060A0F0;
 
 typedef struct RtQuat RtQuat;
 struct RtQuat
@@ -120,6 +121,8 @@ struct BtlUnitPacketTwoUnits
 {
     BtlUnit* first;
     BtlUnit* second;
+    u16 flags;
+    u8 _pad06[2];
 };
 
 typedef struct BtlUnitStateWork BtlUnitStateWork;
@@ -147,10 +150,11 @@ typedef struct BtlUnitPacketMoveToUnit BtlUnitPacketMoveToUnit;
 struct BtlUnitPacketMoveToUnit
 {
     BtlUnit* unit;
-    u8 _pad04[0xc];
+    RwV3d targetPos;
     u32 flags;
-    u8 _pad14[8];
-    f32 param;
+    u8 _pad14[4];
+    u32 timer;
+    f32 unk_1c;
     f32 speed;
     BtlUnit* targetUnit;
 };
@@ -175,7 +179,7 @@ void func_00196ce0(BtlUnitPacketMove* work);
 u32 func_00196d00(void* work);
 void func_001973d0(BtlUnitPacketMove* work);
 void func_001974d0(BtlUnitPacketCountRef* work);
-u32 func_001974f0(void* work);
+u32 func_001974f0(BtlUnitPacketMoveToUnit* work);
 void func_001979c0(BtlUnitPacketCountRef* work);
 
 // FUN_00195B60
@@ -257,7 +261,159 @@ INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00196040);
 // FUN_00196610
 INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00196610);
 // FUN_001974F0
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_001974f0);
+u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
+{
+    struct Btl974Work
+    {
+        RwV3d rotateB;
+        f32 pad3c;
+        RwV3d rotateA;
+        f32 pad4c;
+        RwV3d rotate;
+        f32 pad5c;
+        RwV3d transformedF;
+        f32 pad6c;
+        RwV3d scaleF;
+        f32 pad7c;
+        RwV3d transformedE;
+        f32 pad8c;
+        RwV3d scaleE;
+        f32 pad9c;
+        RwV3d transformedD;
+        f32 padAc;
+        RwV3d scaleD;
+        f32 padBc;
+        RwV3d transformedC;
+        f32 padCc;
+        RwV3d scaleC;
+        f32 padDc;
+        RwV3d transformedB;
+        f32 padEc;
+        RwV3d scaleB;
+        f32 padFc;
+        RwV3d transformedA;
+        f32 pad10c;
+        RwV3d scaleA;
+        f32 pad11c;
+        RwV3d positionB;
+        f32 pad12c;
+        RwV3d finalRotation;
+        f32 pad13c;
+        RwV3d positionA;
+    } frame;
+    BtlUnit* target;
+    const BtlUnitAnimBounds* bounds;
+    f32 centerY;
+    f32 centerZ;
+    f32 centerX;
+
+    if (packet->timer == 0)
+    {
+        target = packet->targetUnit;
+        if ((target->flags3 & 0x2000) == 0)
+        {
+            if ((packet->flags & 0x40) == 0)
+            {
+                func_001ec1c0(&frame.rotateA, &target->pos, &packet->unit->pos);
+                frame.scaleA.x = target->sphereCenter.x * target->scale;
+                frame.scaleA.y = target->sphereCenter.y * target->scale;
+                frame.scaleA.z = target->sphereCenter.z * target->scale;
+                func_003dcb40(&frame.transformedA, &frame.scaleA, 1,
+                              &frame.rotateA);
+                frame.positionA.x = frame.transformedA.x + target->pos.x;
+                frame.positionA.y = frame.transformedA.y + target->pos.y;
+                frame.positionA.z = frame.transformedA.z + target->pos.z;
+            }
+            else
+            {
+                func_001ec1c0(&frame.rotateB, &target->pos, &packet->unit->pos);
+                bounds = func_0019eda0(target, 0);
+                centerY = (f32)bounds->centerY;
+                centerZ = (f32)bounds->centerZ;
+                centerX = (f32)bounds->centerX;
+                frame.scaleB.x = centerX * target->scale;
+                frame.scaleB.y = centerY * target->scale;
+                frame.scaleB.z = centerZ * target->scale;
+                func_003dcb40(&frame.transformedB, &frame.scaleB, 1,
+                              &frame.rotateB);
+                frame.positionA.x = frame.transformedB.x + target->pos.x;
+                frame.positionA.y = frame.transformedB.y + target->pos.y;
+                frame.positionA.z = frame.transformedB.z + target->pos.z;
+            }
+            packet->targetPos = frame.positionA;
+            goto finish;
+        }
+
+        if ((packet->flags & 0x40) == 0)
+        {
+            frame.scaleC.x = target->sphereCenter.x * target->scale;
+            frame.scaleC.y = target->sphereCenter.y * target->scale;
+            frame.scaleC.z = target->sphereCenter.z * target->scale;
+            func_003dcb40(&frame.transformedC, &frame.scaleC, 1,
+                          (RwV3d *)((u8 *)target + 0x1c));
+            frame.positionA.x = frame.transformedC.x + target->pos.x;
+            frame.positionA.y = frame.transformedC.y + target->pos.y;
+            frame.positionA.z = frame.transformedC.z + target->pos.z;
+        }
+        else
+        {
+            bounds = func_0019eda0(target, 0);
+            centerY = (f32)bounds->centerY;
+            centerZ = (f32)bounds->centerZ;
+            centerX = (f32)bounds->centerX;
+            frame.scaleD.x = centerX * target->scale;
+            frame.scaleD.y = centerY * target->scale;
+            frame.scaleD.z = centerZ * target->scale;
+            func_003dcb40(&frame.transformedD, &frame.scaleD, 1,
+                          (RwV3d *)((u8 *)target + 0x1c));
+            frame.positionA.x = frame.transformedD.x + target->pos.x;
+            frame.positionA.y = frame.transformedD.y + target->pos.y;
+            frame.positionA.z = frame.transformedD.z + target->pos.z;
+        }
+
+        if ((packet->flags & 0x40) == 0)
+        {
+            target = packet->unit;
+            frame.scaleE.x = target->sphereCenter.x * target->scale;
+            frame.scaleE.y = target->sphereCenter.y * target->scale;
+            frame.scaleE.z = target->sphereCenter.z * target->scale;
+            func_003dcb40(&frame.transformedE, &frame.scaleE, 1,
+                          (RwV3d *)((u8 *)target + 0x1c));
+            frame.positionB.x = frame.transformedE.x + target->pos.x;
+            frame.positionB.y = frame.transformedE.y + target->pos.y;
+            frame.positionB.z = frame.transformedE.z + target->pos.z;
+        }
+        else
+        {
+            target = packet->unit;
+            bounds = func_0019eda0(target, 0);
+            centerY = (f32)bounds->centerY;
+            centerZ = (f32)bounds->centerZ;
+            centerX = (f32)bounds->centerX;
+            frame.scaleF.x = centerX * target->scale;
+            frame.scaleF.y = centerY * target->scale;
+            frame.scaleF.z = centerZ * target->scale;
+            func_003dcb40(&frame.transformedF, &frame.scaleF, 1,
+                          (RwV3d *)((u8 *)target + 0x1c));
+            frame.positionB.x = frame.transformedF.x + target->pos.x;
+            frame.positionB.y = frame.transformedF.y + target->pos.y;
+            frame.positionB.z = frame.transformedF.z + target->pos.z;
+        }
+
+        func_001ec1c0(&frame.rotate, &frame.positionA, &frame.positionB);
+        func_003dcb40(&frame.finalRotation, &D_0060A0F0, 1, &frame.rotate);
+        frame.finalRotation.x *= packet->unk_1c;
+        frame.finalRotation.y *= packet->unk_1c;
+        frame.finalRotation.z *= packet->unk_1c;
+        frame.positionA.x += frame.finalRotation.x;
+        frame.positionA.y += frame.finalRotation.y;
+        frame.positionA.z += frame.finalRotation.z;
+        packet->targetPos = frame.positionA;
+        packet->unk_1c = 0.0f;
+    }
+finish:
+    func_00196d00(packet);
+}
 // FUN_001979E0
 BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32 param, f32 speed, u32 flags)
 {
@@ -267,13 +423,13 @@ BtlPacket* btlUnitCreateMoveToUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, f32
     packet = func_00194470(0x10B, sizeof(BtlUnitPacketMoveToUnit));
 
     packet->initFunc = (BtlPacketFunc)func_001974d0;
-    packet->updateFunc = func_001974f0;
+    packet->updateFunc = (BtlPacketFunc)func_001974f0;
     packet->destroyFunc = (BtlPacketFunc)func_001979c0;
 
     work = (BtlUnitPacketMoveToUnit*)packet->workData;
 
     work->unit = unit;
-    work->param = param;
+    work->unk_1c = param;
     work->speed = speed;
     work->flags = flags;
     work->targetUnit = targetUnit;
@@ -765,7 +921,146 @@ void func_0019e1f0(BtlUnitPacketTwoUnits* packet)
 }
 
 // FUN_0019E220
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_0019e220);
+u32 func_0019e220(u8* packet)
+{
+    extern u8* iGpffffb3ac;
+    extern void func_0047a8a0(void* model, f32 x, f32 y);
+    extern void func_0047a890(void* model, f32 value);
+    extern void func_0019d7a0(void* unit, s32 state);
+    f32 firstHigh;
+    f32 firstLow;
+    f32 secondHigh;
+    f32 secondLow;
+    f32 singleHigh;
+    f32 singleLow;
+    u8* firstCurrent;
+    u8* secondCurrent;
+    u8* singleCurrent;
+    u8* firstTarget;
+    u8* secondTarget;
+    u8* singleTarget;
+
+    if ((*(u16 *)(packet + 8) & 3) != 0)
+    {
+        if ((*(u16 *)(packet + 8) & 1) != 0)
+        {
+            firstCurrent = (u8 *)*(BtlUnit **)(iGpffffb3ac + 0x17c);
+            while (firstCurrent != NULL)
+            {
+                if ((*(u32 *)(firstCurrent + 0x9c) & 8) != 0)
+                {
+                    firstTarget = *(u8 **)(packet + 4);
+                    if (&firstHigh != NULL)
+                    {
+                        firstHigh = 70.0f;
+                    }
+                    if (&firstLow != NULL)
+                    {
+                        firstLow =
+                            (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) ==
+                             firstCurrent) ? 70.0f : 60.0f;
+                    }
+                    {
+                        f32 highArg;
+                        f32 lowArg;
+                        lowArg = firstLow;
+                        highArg = firstHigh;
+                        if ((*(u32 *)(firstCurrent + 0x98) & 2) != 0)
+                        {
+                            func_0047a8a0(*(void **)(firstCurrent + 0xa00),
+                                          highArg, lowArg);
+                        }
+                    }
+                    if ((*(u32 *)(firstCurrent + 0x98) & 2) != 0)
+                    {
+                        func_0047a890(*(void **)(firstCurrent + 0xa00), 0.25f);
+                    }
+                    *(u16 *)(firstCurrent + 0xb0) = 2;
+                    *(u32 *)(firstCurrent + 0xb4) =
+                        *(u32 *)(firstTarget + 0xa8);
+                    func_0019d7a0(firstCurrent, 3);
+            }
+                firstCurrent = (u8 *)*(BtlUnit **)(firstCurrent + 0xa68);
+        }
+        }
+        if ((*(u16 *)(packet + 8) & 2) != 0)
+        {
+            secondCurrent = (u8 *)*(BtlUnit **)(iGpffffb3ac + 0x184);
+            while (secondCurrent != NULL)
+            {
+                if ((*(u32 *)(secondCurrent + 0x9c) & 8) != 0)
+                {
+                    secondTarget = *(u8 **)(packet + 4);
+                    if (&secondHigh != NULL)
+                    {
+                        secondHigh = 70.0f;
+                    }
+                    if (&secondLow != NULL)
+                    {
+                        secondLow =
+                            (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) ==
+                             secondCurrent) ? 70.0f : 60.0f;
+                    }
+                    {
+                        f32 highArg;
+                        f32 lowArg;
+                        lowArg = secondLow;
+                        highArg = secondHigh;
+                        if ((*(u32 *)(secondCurrent + 0x98) & 2) != 0)
+                        {
+                            func_0047a8a0(*(void **)(secondCurrent + 0xa00),
+                                          highArg, lowArg);
+                        }
+                    }
+                    if ((*(u32 *)(secondCurrent + 0x98) & 2) != 0)
+                    {
+                        func_0047a890(*(void **)(secondCurrent + 0xa00), 0.25f);
+                    }
+                    *(u16 *)(secondCurrent + 0xb0) = 2;
+                    *(u32 *)(secondCurrent + 0xb4) =
+                        *(u32 *)(secondTarget + 0xa8);
+                    func_0019d7a0(secondCurrent, 3);
+                }
+                secondCurrent = (u8 *)*(BtlUnit **)(secondCurrent + 0xa68);
+            }
+        }
+    }
+    else
+    {
+        singleTarget = *(u8 **)(packet + 4);
+        singleCurrent = *(u8 **)(packet + 0);
+        if (&singleHigh != NULL)
+        {
+            singleHigh = 70.0f;
+        }
+        if (&singleLow != NULL)
+        {
+            singleLow =
+                (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) ==
+                 singleCurrent) ? 70.0f : 60.0f;
+        }
+        {
+            f32 highArg;
+            f32 lowArg;
+            lowArg = singleLow;
+            highArg = singleHigh;
+            if ((*(u32 *)(singleCurrent + 0x98) & 2) != 0)
+            {
+                func_0047a8a0(*(void **)(singleCurrent + 0xa00),
+                              highArg, lowArg);
+            }
+        }
+        if ((*(u32 *)(singleCurrent + 0x98) & 2) != 0)
+        {
+            func_0047a890(*(void **)(singleCurrent + 0xa00), 0.25f);
+        }
+        *(u16 *)(singleCurrent + 0xb0) = 2;
+        *(u32 *)(singleCurrent + 0xb4) =
+            *(u32 *)(singleTarget + 0xa8);
+        func_0019d7a0(singleCurrent, 3);
+    }
+    return 1;
+}
 // FUN_0019E520
 void func_0019e520(BtlUnitPacketTwoUnits* packet)
 {

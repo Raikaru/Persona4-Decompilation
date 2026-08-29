@@ -30,6 +30,7 @@ void func_001dbf20(void *arg0, s32 arg1);
 u8 *func_001d3700(u16 arg0, u16 arg1);
 s64 func_00194590(u8 *arg0, u32 arg1);
 extern u8 *D_0076449C;
+extern u8 *iGpffffb3ac;
 extern u8 *func_0019b6a0(s32 arg0);
 u8 *btlCameraCreateSetStatePacket(void *arg0, s32 arg1);
 u32 func_001deeb0(void *arg0);
@@ -420,7 +421,118 @@ void func_001a0f40(s64 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a0f40);
 #endif
 // FUN_001A1450
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a1450);
+void func_001a1450(s64 *arg0)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    } sp40;
+    struct Vec3 sp30;
+    u16 temp_3;
+    u16 temp_3_2;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    u8 *temp_2_4;
+    u8 *temp_2_5;
+    u8 *temp_2_6;
+    u8 *temp_2_7;
+    u8 *var_16;
+    u8 *var_16_2;
+
+    extern void func_001958f0(u8 *arg0, f32 *arg1);
+    extern s32 func_00196b50(u8 *arg0);
+    extern u8 *func_00197f50(u8 *arg0, void *arg1, s32 arg2);
+    extern void func_00194590(u8 *arg0, s32 arg1);
+    extern void func_00203670(s32 arg0, u8 *arg1);
+    extern void func_00213c10(s32 arg0);
+
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) &&
+        (*(u16 *)((u8 *)arg0 + 0x1A) & 1) &&
+        (*(u8 **)((u8 *)arg0 + 0x30))[0xA2] == 0) {
+        func_001b0800(arg0, 9);
+        return;
+    }
+    func_001a03b0(arg0);
+    temp_3 = *(u16 *)((u8 *)arg0 + 0x10);
+    if ((temp_3 != 0x25) && (temp_3 != 4) && (temp_3 != 6) &&
+        (temp_3 != 5) && (*(u16 *)(iGpffffb3ac + 0xF4) != 2)) {
+        func_00194ff0(
+            *(u8 **)((u8 *)arg0 + 0x30), NULL, 0, &sp40);
+        var_16 = *(u8 **)(iGpffffb3ac + 0x17C);
+        goto loop_14_test;
+loop_14_body:
+        if (func_00232710(*(u8 **)(var_16 + 0xA64), 0x100) != 0) {
+            func_001958f0(
+                *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30),
+                (f32 *)&sp30);
+        } else {
+            sp30 = sp40;
+        }
+        temp_2 = func_00197f50(var_16, &sp30, 2);
+        *(s64 *)(temp_2 + 0x60) = *arg0;
+        func_00194590(temp_2, 0);
+        var_16 = *(u8 **)(var_16 + 0xA68);
+loop_14_test:
+        if (var_16 != NULL) {
+            goto loop_14_body;
+        }
+        var_16_2 = *(u8 **)(iGpffffb3ac + 0x184);
+        goto loop_19_test;
+loop_19_body:
+        if (func_00196b50(var_16_2) == 0) {
+            func_00194ff0(var_16_2, NULL, 0, &sp40);
+            temp_2_2 = func_00197f50(var_16_2, &sp40, 2);
+            *(s64 *)(temp_2_2 + 0x60) = *arg0;
+            func_00194590(temp_2_2, 0);
+        }
+        var_16_2 = *(u8 **)(var_16_2 + 0xA68);
+loop_19_test:
+        if (var_16_2 != NULL) {
+            goto loop_19_body;
+        }
+        temp_2_3 = func_001d3700(3, 0x8001);
+        *(s64 *)(temp_2_3 + 0x60) = *arg0;
+        func_00194590(temp_2_3, 0);
+        if (*(u8 *)((u8 *)arg0 + 0x28) == 0) {
+            temp_2_4 = func_001f5f70((u8 *)arg0, 0x1D, 0, 0, 0);
+            *(s64 *)(temp_2_4 + 0x60) = *arg0;
+            func_00194590(temp_2_4, 1);
+        }
+    }
+    {
+        u8 *temp_5;
+
+        temp_5 = *(u8 **)((u8 *)arg0 + 0x30);
+        if (temp_5[0xA2] == 0) {
+            temp_2_5 = func_0019e550(NULL, temp_5, 2);
+            *(s64 *)(temp_2_5 + 0x60) = *arg0;
+            func_00194590(temp_2_5, 1);
+        } else {
+            temp_2_6 = func_0019e7c0(0, 2);
+            *(s64 *)(temp_2_6 + 0x60) = *arg0;
+            func_00194590(temp_2_6, 1);
+        }
+    }
+    func_00194590(
+        func_0019e7c0(
+            *(s32 *)(u8 *)func_001a_add_offset(0x30, (s32)arg0), 0),
+        1);
+    temp_2_7 = func_001bc920((u8 *)arg0, 0x21);
+    *(s64 *)(temp_2_7 + 0x60) = *arg0;
+    func_00194590(temp_2_7, 0);
+    func_001eb3b0((u8 *)arg0 + 0x38);
+    temp_3_2 = *(u16 *)(u8 *)func_001a_add_offset(0x10, (s32)arg0);
+    if ((temp_3_2 != 0x25) && (temp_3_2 != 6) && (temp_3_2 != 5)) {
+        func_00203670(*(s32 *)(iGpffffb3ac + 0xDD4), (u8 *)arg0);
+        func_00213c10(*(s32 *)(iGpffffb3ac + 0xDD4));
+    }
+    func_0019faf0((u8 *)arg0);
+    *(s32 *)(iGpffffb3ac + 0xC) |= 0x20000;
+    *(u16 *)((u8 *)arg0 + 0x41C) = 0;
+    *(s32 *)((u8 *)arg0 + 0x420) = 0;
+}
 // FUN_001A17D0
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a17d0);
 // FUN_001A1C80
