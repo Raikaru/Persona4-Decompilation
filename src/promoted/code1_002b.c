@@ -654,6 +654,11 @@ u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
 }
 // FUN_002B3520
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b3520);
+/* measured: closest reconstruction reaches object 576B == window 576B,
+   normalized_diff 3 (retail loads both src floats into f1/f0 before
+   storing either; MWCC's -O2 scheduler reorders this regardless of source
+   statement order or struct-copy idiom -- confirmed by testing three
+   variants). See build/Lane002b_002b3720_body.c for the attempt. */
 // FUN_002B3720
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b3720);
 // FUN_002B3960
