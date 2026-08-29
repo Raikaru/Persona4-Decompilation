@@ -43,6 +43,7 @@ extern s32 D_00724B88;
 extern s32 D_00724B8C;
 
 extern void (*jtbl_008873FC[])(...);
+
 extern void func_00452730(s32 arg0);
 
 extern void (*jtbl_008873EC[])(...);
@@ -119,13 +120,28 @@ extern s32 func_00457120(void);
 extern void func_00466c60(void);
 extern void func_0050cd80(void);
 extern void func_00466600(void);
-
-
-
-
+extern void func_00440b68();
+extern void func_00442088(void *dst, void *fmt, s32 arg2, s32 arg3);
+extern s32 sceMc2GetInfoAsync(s32 socket, void *out);
+extern s32 func_00431d78(s32 socket, void *data, void *result);
+extern char D_007127D0[];
+extern char D_00712950[];
+extern char D_008E4900[];
+extern char D_008E4A20[];
+extern s32 D_00764BA4;
+extern s32 D_00764BB8;
+extern s32 D_00764BC0;
+extern s32 D_008E4B20[];
+extern s32 D_008E4B28[];
 
 // FUN_004601C0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004601c0);
+
+
+
+
+
+
 // FUN_004604D0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004604d0);
 // FUN_00460910
@@ -404,7 +420,89 @@ s32 func_00464670(s32 *arg0, s32 *arg1, s32 *arg2) {
     }
 }
 // FUN_00466280
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00466280);
+s32 func_00466280(void)
+{
+    s32 sp1c;
+    s32 sp18;
+    s32 sp14;
+    s32 temp_6;
+
+    func_00440b68(D_00712950, D_00764BC0);
+    switch (D_00764BC0) {
+    case 0:
+        sp1c = 0;
+        sp18 = 0;
+        if (func_00464670(&sp1c, &sp18, &sp14) == -1) {
+            sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
+            D_00764BC0 = 1;
+        }
+        goto done;
+    case 1:
+        if (func_00464670(&sp1c, &sp18, &sp14) == 1) {
+            if (sp14 == 0) {
+                switch (sp18) {
+                case 0x6F:
+                    return -5;
+                case 0x13:
+                    return -5;
+                case 0x9003:
+                    sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
+                    goto done;
+                case 0x9001:
+                    return -4;
+                case 0x2F:
+                    return 100;
+                default:
+                    return -9;
+                }
+            } else {
+                if (D_008E4B20[0] == 2) {
+                    if (D_008E4B28[0] >= 0xE6) {
+                        return 100;
+                    }
+                    D_00764BC0 = 2;
+                    goto done;
+                }
+                return -1;
+            }
+        }
+        goto done;
+    case 2:
+        if (func_00464670(&sp1c, &sp18, &sp14) == -1) {
+            temp_6 = D_00764BB8;
+            func_00442088(D_008E4A20, D_007127D0, temp_6, temp_6);
+            func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
+            D_00764BC0 = 3;
+        }
+        goto done;
+    case 3:
+        if (func_00464670(&sp1c, &sp18, &sp14) == 1) {
+            if (sp14 == 0) {
+                switch (sp18) {
+                case 0x9003:
+                    return -5;
+                case 0x6F:
+                    return -5;
+                case 0x16:
+                    return -5;
+                case 0x13:
+                    return -5;
+                case 2:
+                    return -6;
+                default:
+                    goto done;
+                }
+            } else {
+                return 100;
+            }
+        }
+        goto done;
+    default:
+        goto done;
+    }
+done:
+    return 0;
+}
 // FUN_00466600
 void func_00466600(void) {
     s32 sp20[12];
