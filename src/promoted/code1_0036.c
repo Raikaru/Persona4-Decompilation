@@ -35,7 +35,7 @@ extern void func_001437b0(u8 *arg0, s16 arg1, s32 arg2);
 
 extern s32 func_0034c210(void);
 extern s32 func_00106330(s32 arg0);
-extern s32 func_0035fa00(s32 arg0, s32 arg1, s16 arg2);
+extern s32 func_0035fa00(u8 *arg0, s32 arg1, s16 arg2);
 extern void func_0034f8f0(void *arg0);
 
 extern u8 *func_00460990(void);
@@ -78,6 +78,68 @@ extern void func_00367f50(void);
 extern void func_0036a900(u8 *arg0);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
+extern void func_00362630(u8 *arg0);
+extern void func_0035f5b0(u8 *arg0);
+extern s32 func_0035fc40(u8 *arg0);
+extern s32 func_0035fa20(u8 *arg0, u32 arg1);
+extern void func_0034bb20(s32 arg0);
+extern void func_00353fb0(void);
+extern void func_00353fe0(void);
+extern s32 func_00354030(void);
+extern void func_00354080(s32 arg0);
+extern s32 func_0035c690(void *arg0, s32 arg1);
+extern s32 func_0035c7d0(u8 *arg0);
+extern s32 func_0035c7f0(u8 *arg0);
+extern void func_002badc0(s8 arg0, s32 arg1);
+extern void func_002bafc0(s8 arg0, s32 arg1);
+extern void func_002bb0a0(s8 arg0, s32 arg1);
+extern void func_002bbf60(void);
+extern s32 func_002bb180(s8 arg0);
+extern void func_002bb290(s8 arg0, s32 arg1);
+extern s32 func_002bb680(s8 arg0);
+extern void func_002bb9e0(s8 arg0, s32 arg1);
+extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00453960(void *arg0);
+extern void func_004598e0(s32 arg0);
+extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
+extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_00122520(s32 arg0, s32 arg1);
+extern s32 func_00122720(void);
+extern u16 D_008C024E[];
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 pad0;
+    f32 u;
+    f32 v;
+    f32 w;
+    f32 pad1;
+    f32 r;
+    f32 g;
+    f32 b;
+    f32 a;
+    f32 pad2[4];
+} P4Vertex66C70;
+typedef struct {
+    s32 matrix[16];
+    P4Vertex66C70 vertices[4];
+    s32 config[8];
+    u8 local[0x30];
+} P4DrawFrame66C70;
+typedef void (*P4RenderState66C70)(s32 state, s32 value);
+extern void *func_003e4320(void *dst, void *src, void *matrix);
+extern f32 func_0044b7b0(f32 arg0);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern s32 D_0064E440[];
+extern f32 D_008872F8;
+extern P4RenderState66C70 D_00887300[];
+extern void (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
+extern f32 iGpffff8040;
+extern f32 fGpffff8198;
+extern f32 fGpffff83fc;
 
 
 // FUN_00361970

@@ -133,6 +133,15 @@ extern s32 D_00764BB8;
 extern s32 D_00764BC0;
 extern s32 D_008E4B20[];
 extern s32 D_008E4B28[];
+extern s32 D_00712490[];
+extern s64 D_007615DC;
+extern f32 fGpffff82fc;
+extern f32 func_0044b610(f32 arg0);
+extern f32 func_0044b7b0(f32 arg0);
+extern void func_0045f790(void *arg0, void *arg1, void *arg2, s32 arg3);
+extern void func_0045fbe0(void *arg0, void *arg1, void *arg2, s32 arg3, f32 fparg0);
+
+
 
 // FUN_004601C0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004601c0);
