@@ -631,6 +631,7 @@ worth stating plainly so nobody re-runs them:
 | MWCC command-line flag sweep (`build/flag_sweep*.py`) | 15 flag sets x 128 bodies | 0 |
 | reconstruction of never-attempted functions <= 256B | 8 | 3 |
 | reconstruction of never-attempted functions > 256B | 12 | 0 |
+| reconstruction, file-local siblings, 10 parallel lanes (wave 5) | ~40 | 12 |
 
 ### Reconstruction is the only avenue that still pays
 
@@ -694,6 +695,34 @@ wave 1.
 And the supply below the cliff is now essentially gone: **7 never-attempted
 first-party functions at 256 bytes or less, none at all under 128**
 (`tools/recon_pool.py --pool fresh --max-window 256`).
+
+### Wave 5 breaks the cliff: parallel lanes at 432-656 bytes, +11
+
+A fifth wave dispatched 10 parallel lanes against `build/recon_queue.json`
+(never-attempted functions, size-ascending, filtered to `abs(object -
+window) <= 8` to exclude the metric-trap stubs) each restricted to one file.
+Each lane was told to re-derive the C from a fresh Ghidra decompile of the
+retail function plus its surrounding matched siblings, not to permute an
+existing near-miss. Result: **11 of ~40 attempted closed to MATCH**, sizes
+432-656 bytes (`func_0018bc20`, `func_0037ed90`, `func_00197d70`,
+`func_0037bac0`, `func_0015a350`, `func_001efd50`, `func_00370410`,
+`func_001eff50`, `func_00370a80`, `func_001bb9b0`, `func_004669d0`), plus a
+twelfth (`func_0036aa20`, 432B) reconstructed by hand ahead of the wave.
+**The 256-byte cliff from waves 2-4 does not hold at this file selection**:
+every wave-5 target had at least one already-MATCH sibling in the same file
+within a few hundred bytes, giving the lane a same-unit struct-layout and
+calling-convention anchor that isolated cold targets in wave 4 did not have.
+Read the file's existing matched functions before reconstructing a new one;
+that context, not size alone, is what predicts a close.
+
+Two of the wave's candidate closures were reverted after the fact for using
+banned compiler-steering idioms to force the match (`decomp_lint` H001/H009):
+see the "Where `volatile` is actually required" section below and the H009
+entry in the pragma-knob section. Net after reverting both: **+11, not
++13**. A lane under schedule pressure will reach for `volatile` or inline
+asm before it reaches for re-deriving the logic; the fix is to lint every
+lane-touched file before trusting a MATCH claim, not to trust the verify
+status alone.
 
 **The other pool is the archived near-misses**, 113 functions still
 `INCLUDE_ASM` carrying an archived body with a claimed `0 < nd <= 25` inside a

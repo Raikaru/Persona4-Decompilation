@@ -25,6 +25,7 @@ extern void func_003a3d50(u8 *arg0);
 extern void func_003a3de0(u8 *arg0);
 extern s32 func_003e8930(s32 a, s32 b, void *c, void *d);
 extern s32 func_003c1ab0(s32 a, s32 b, void *c, void *d, s32 e);
+extern void func_003a4d50();
 extern void func_003e1ea0(s32 arg0);
 extern s32 func_003a2ce0(s32 arg0);
 extern s32 func_003a2d90(s32 arg0);

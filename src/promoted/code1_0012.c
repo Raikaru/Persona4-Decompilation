@@ -12,6 +12,18 @@ extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 func_0044b7b0(void *arg0, f32 arg1);
 extern void func_0045d6e0(void *arg0, s32 *arg1, s32 arg2, f32 arg3);
+extern void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
+                          s32 arg3, s32 arg4);
+extern f32 fGpffff8478;
+extern f32 func_0044b610(f32 fparg0);
+extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
+extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
+extern void func_003e4320(void *arg0, void *arg1, void *arg2);
+extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
+extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+extern void func_002ab550(void *arg0, void *arg1);
+extern void func_00478e70(void *arg0);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
     return index + base;
@@ -1056,7 +1068,71 @@ s32 func_00124830(u8 *arg0)
     return -1;
 }
 // FUN_00124970
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00124970);
+void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
+{
+    u8 spAC[4];
+    u8 sp60[0x4C];
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *var_17;
+    u8 *var_16;
+
+    if (arg0 >= 0xF) {
+        var_17 = NULL;
+    } else {
+        temp_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg3);
+        var_17 = temp_2 + 0x44;
+        if (func_004782b0(*(u8 **)var_17) != 0) {
+            var_17 = *(u8 **)var_17;
+        } else {
+            var_17 = NULL;
+        }
+    }
+    if (var_17 != NULL) {
+        if ((arg0 + 8) >= 0xF) {
+            var_16 = NULL;
+        } else {
+            temp_2_2 = (u8 *)code1_0012_stride(arg0 * 4, (s32)arg3);
+            var_16 = temp_2_2 + 0x64;
+            if (func_004782b0(*(u8 **)var_16) != 0) {
+                var_16 = *(u8 **)var_16;
+            } else {
+                var_16 = NULL;
+            }
+        }
+        if ((var_16 != NULL) && (func_0047a510(var_17, 0x64, sp60) != 0)) {
+            spAC[0] = arg1 >> 0x18;
+            spAC[1] = arg1 >> 0x10;
+            spAC[2] = arg1 >> 8;
+            spAC[3] = arg1;
+            func_0047a1c0(var_16, sp60, 0);
+            if (arg2 & 1) {
+                *(s32 *)(var_16 + 0xD8) |= 8;
+            } else {
+                *(s32 *)(var_16 + 0xD8) &= ~8;
+            }
+            if (arg2 & 2) {
+                *(s32 *)(var_16 + 0xD8) |= 0x10;
+            } else {
+                *(s32 *)(var_16 + 0xD8) &= ~0x10;
+            }
+            if (arg2 & 0x10) {
+                *(s32 *)(var_16 + 0xD8) |= 0x100000;
+            } else {
+                *(s32 *)(var_16 + 0xD8) &= ~0x100000;
+            }
+            if (arg2 & 0x40) {
+                *(s32 *)(var_16 + 0xD8) |= 0x40000;
+            } else {
+                *(s32 *)(var_16 + 0xD8) &= ~0x40000;
+            }
+            func_002ab550(var_16, spAC);
+            if (!(arg2 & 0x10000)) {
+                func_00478e70(var_16);
+            }
+        }
+    }
+}
 // FUN_00124BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00124bb0);
 // FUN_00124F70

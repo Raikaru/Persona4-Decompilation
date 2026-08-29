@@ -8,6 +8,28 @@ typedef struct RwV3d
     f32 y;
     f32 z;
 } RwV3d;
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+extern u8* iGpffff9db0;
+extern s32 func_00145270(s32 arg0);
+extern u8* func_001452b0(s32 arg0);
+extern s32 func_0014a200(void);
+extern s32 func_0014a270(void);
+extern s32 func_0016abc0(s32 collisionWorld, f32* point,
+                         s64 field, f32* vector, f32 fraction);
+extern void* func_00155280(void);
+extern s32 func_001687d0(s32 arg0);
+extern s32 func_001687e0(s32 arg0);
+extern s32 func_00169780(s32 collisionWorld, f32* origin,
+                         f32* vector, f32 fraction);
+extern s32 func_0016a110(s32 collisionWorld, f32* origin,
+                         f32* vector, s32 fieldId, f32 fraction);
+extern u8* func_003e9700(s32 arg0);
+extern u8* func_00457120(void);
+
+extern void func_00394d70(s32 collisionWorld, s32 intersection,
+                          void* callback, s32 param);
+extern void func_003e40b0(f32* dst, const f32* src);
+extern void func_0043f9c8(void* dst, s32 value, s32 size);
 
 extern void func_00394e70(void* collision, void* state,
                           void* callback, void* param);
