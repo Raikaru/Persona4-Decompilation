@@ -15,6 +15,16 @@
 /cands.json
 /cands_*.json
 
+# Compiled scratch objects and disassembly-dump text files accidentally
+# committed to the repo root during matching probes (removed once found:
+# a.out from a stray gcc/mwcc invocation, TL47E_residual.txt from a
+# fndiff/objdump dump, CONVERSATION.md from an agent session-continuity
+# note -- none of these are decomp source or generated build artifacts).
+/a.out
+*.residual.txt
+/*_residual.txt
+/CONVERSATION.md
+
 # Generated split/build output. The leading slash on /build/ only anchors the
 # ROOT build directory: a lane that wrote to a nested path once committed
 # source/Persona4-Decompilation/build/.../*.o straight past it, so ignore a

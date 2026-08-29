@@ -14,8 +14,6 @@ extern s32 func_00145270(s32 arg0);
 extern u8* func_001452b0(s32 arg0);
 extern s32 func_0014a200(void);
 extern s32 func_0014a270(void);
-extern s32 func_0016abc0(s32 collisionWorld, f32* point,
-                         s64 field, f32* vector, f32 fraction);
 extern void* func_00155280(void);
 extern s32 func_001687d0(s32 arg0);
 extern s32 func_001687e0(s32 arg0);
@@ -35,7 +33,6 @@ extern void func_00394e70(void* collision, void* state,
                           void* callback, void* param);
 extern void* func_00169a30(const RwV3d* point, const void* triangle,
                            void* collector);
-extern void* func_00169320(void* point, void* triangle, void* context);
 
 // 44 bytes. Callback state passed through RenderWare field raycasts.
 typedef struct FldFrameRaycast
