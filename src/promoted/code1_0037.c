@@ -14,8 +14,19 @@ extern f32 fGpffff80d8;
 extern f32 fGpffff83e4;
 extern f32 fGpffff837c;
 extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern s32 func_00378530(s32 arg0, s32 arg1);
+extern void func_00376330(u8 *arg0, s32 arg1, f32 *arg2);
+extern s32 func_003717e0(u8 *arg0, u8 *arg1);
+extern f32 func_003e41b0(f32 *arg0);
+extern u32 func_003b7060(void);
+extern void func_00370290(u8 *arg0, f32 *arg1, f32 fparg0);
+extern void func_00375e50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 *arg4);
 static inline f32 add_retail_order(f32 a, f32 b) {
     return a + b;
+}
+static inline u8 *code1_0037_add_offset(u32 offset, u8 *base)
+{
+    return (u8 *)(offset + (u32)base);
 }
 /* Promoted from the canonical function map: every function here is a
    retail window with an INCLUDE_ASM fallback and no C body yet. */
@@ -23,11 +34,151 @@ static inline f32 add_retail_order(f32 a, f32 b) {
 // FUN_00370290
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_00370290);
 // FUN_00370410
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_00370410);
+void func_00370410(u8 *arg0) {
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct {
+        f32 params[3];
+        u32 pad;
+        f32 random[3];
+    } work;
+    u32 value;
+    f32 random_value;
+    f32 scale;
+
+    *(s32 *)(arg0 + 4) = 0x43340000;
+    *(struct Vec3 *)(arg0 + 0x18) = *(struct Vec3 *)(arg0 + 0xC);
+    *(f32 *)(arg0 + 0x54) = 10.0f;
+    *(f32 *)(arg0 + 0x58) = 10.0f;
+    *(s32 *)(arg0 + 0x5C) = 0x3F800000;
+    work.random[0] = 0.0f;
+    work.random[1] = 0.0f;
+    work.random[2] = 0.0f;
+    *(struct Vec3 *)(arg0 + 0x24) = *(struct Vec3 *)work.random;
+
+    scale = *(f32 *)(arg0 + 0x54);
+    value = func_003b7060() & 0xFFF;
+    if (value >= 0) {
+        random_value = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        random_value = (f32)(s32)value;
+        random_value += random_value;
+    }
+    work.random[0] = (scale / 2.0f + 0.0f) -
+                     scale * (random_value / 4096.0f);
+
+    scale = *(f32 *)(arg0 + 0x54);
+    value = func_003b7060() & 0xFFF;
+    if (value >= 0) {
+        random_value = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        random_value = (f32)(s32)value;
+        random_value += random_value;
+    }
+    work.random[1] = (scale / 2.0f + 0.0f) -
+                     (scale * (random_value / 4096.0f)) / 4096.0f;
+
+    scale = *(f32 *)(arg0 + 0x54);
+    value = func_003b7060() & 0xFFF;
+    if (value >= 0) {
+        random_value = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        random_value = (f32)(s32)value;
+        random_value += random_value;
+    }
+    work.random[2] = (scale / 2.0f + 0.0f) -
+                     (scale * (random_value / 4096.0f)) / 4096.0f;
+
+    *(struct Vec3 *)(arg0 + 0x48) = *(struct Vec3 *)work.random;
+    work.params[0] = 0.0f;
+    work.params[1] = 0.0f;
+    work.params[2] = *(f32 *)(arg0 + 0x58);
+    func_00370290(arg0 + 0x24, work.params, work.params[2]);
+}
 // FUN_00370640
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_00370640);
 // FUN_00370A80
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_00370a80);
+void func_00370a80(u8 *arg0) {
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct Vec4 {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    };
+    struct {
+        f32 params[3];
+        u32 pad;
+        f32 random[3];
+    } work;
+    u32 value;
+    f32 random_value;
+    f32 scale;
+
+    *(u16 *)(arg0 + 2) = 0xB4;
+    *(struct Vec4 *)(arg0 + 0x18) = *(struct Vec4 *)(arg0 + 8);
+    *(f32 *)(arg0 + 0x58) = 5.0f;
+    *(f32 *)(arg0 + 0x5C) = 15.0f;
+    *(f32 *)(arg0 + 0x60) = 15.0f;
+    *(s32 *)(arg0 + 0x64) = 0x3F800000;
+    *(s32 *)(arg0 + 0x68) = 0x3F800000;
+    work.random[0] = 0.0f;
+    work.random[1] = 0.0f;
+    work.random[2] = 0.0f;
+    *(struct Vec3 *)(arg0 + 0x28) = *(struct Vec3 *)work.random;
+
+    scale = *(f32 *)(arg0 + 0x58);
+    value = func_003b7060() & 0xFFF;
+    if (value >= 0) {
+        random_value = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        random_value = (f32)(s32)value;
+        random_value += random_value;
+    }
+    work.random[0] = (scale / 2.0f + 0.0f) -
+                     scale * (random_value / 4096.0f);
+
+    scale = *(f32 *)(arg0 + 0x5C);
+    value = func_003b7060() & 0xFFF;
+    if (value >= 0) {
+        random_value = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        random_value = (f32)(s32)value;
+        random_value += random_value;
+    }
+    work.random[1] = (scale / 2.0f + 0.0f) -
+                     scale * (random_value / 4096.0f);
+
+    scale = *(f32 *)(arg0 + 0x60);
+    value = func_003b7060() & 0xFFF;
+    if (value >= 0) {
+        random_value = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        random_value = (f32)(s32)value;
+        random_value += random_value;
+    }
+    work.random[2] = (scale / 2.0f + 0.0f) -
+                     scale * (random_value / 4096.0f);
+
+    *(struct Vec3 *)(arg0 + 0x4C) = *(struct Vec3 *)work.random;
+    work.params[0] = 0.0f;
+    work.params[1] = 0.0f;
+    work.params[2] = *(f32 *)(arg0 + 0x64);
+    func_00370290(arg0 + 0x28, work.params, work.params[2]);
+}
 // FUN_00370CD0
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_00370cd0);
 // FUN_00371160
@@ -193,8 +344,92 @@ void func_0037b8c0(u8 *arg0, s32 arg1, f32 *arg2) {
                   &work.sp70, 0.0f, 0.0f);
 }
 // FUN_0037BAC0
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037bac0);
+void func_0037bac0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct {
+        struct Vec3 base;
+        struct Vec3 first;
+        struct Vec3 second;
+        struct Vec3 output;
+    } points;
+    f32 x_offset;
+    f32 y_offset;
+    s32 remainder;
+
+    x_offset = 150.0f;
+    y_offset = 100.0f;
+    points.base = *(struct Vec3 *)(code1_0037_add_offset(arg1 * 0xE8, arg0) +
+                                   0x1D6B8);
+    func_0037b8c0(arg0, 0, &points.output.x);
+    remainder = arg1 % 3;
+    switch (remainder) {
+    case 0:
+        y_offset = y_offset * (f32)(remainder - remainder);
+        break;
+    case 1:
+        x_offset = x_offset * -1.0f;
+        break;
+    case 2:
+        break;
+    }
+    points.first.x = x_offset +
+                     (points.base.x +
+                      (points.output.x - points.base.x) / 3.0f);
+    points.first.y = y_offset +
+                     (points.base.y +
+                      (points.output.y - points.base.y) / 3.0f);
+    points.first.z = points.base.z +
+                     (points.output.z - points.base.z);
+    points.second.x = x_offset +
+                      (points.base.x +
+                       (2.0f * (points.output.x - points.base.x)) / 3.0f);
+    points.second.y = y_offset +
+                      (points.base.y +
+                       (2.0f * (points.output.y - points.base.y)) / 3.0f);
+    points.second.z = points.first.z;
+    func_00375e50(arg0, arg1, arg2, arg3, &points.base.x);
+}
 // FUN_0037BC80
 INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037bc80);
 // FUN_0037ED90
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_0037ed90);
+s32 func_0037ed90(u8 *arg0, s32 arg1) {
+    f32 work[4];
+    f32 screen[2];
+    f32 delta[2];
+    f32 target_x;
+    f32 best_dist;
+    f32 target_y;
+    f32 dist;
+    s32 count;
+    s32 i;
+    s32 best;
+
+    target_x = (f32)((arg1 / 3 - 1) * 0x6B) + 314.0f;
+    target_y = (f32)(arg1 % 3 - 1) * 120.0f + 236.0f;
+    count = func_00378530(*(s32 *)(arg0 + 0x1F304),
+                          *(s32 *)(arg0 + 0x1F2FC));
+    func_00376330(arg0, 0, work);
+    func_003717e0((u8 *)work, (u8 *)screen);
+    delta[0] = screen[0] - target_x;
+    delta[1] = screen[1] - target_y;
+    best_dist = func_003e41b0(delta);
+    i = 1;
+    best = 0;
+    while (i < count) {
+        func_00376330(arg0, i, work);
+        func_003717e0((u8 *)work, (u8 *)screen);
+        delta[0] = screen[0] - target_x;
+        delta[1] = screen[1] - target_y;
+        dist = func_003e41b0(delta);
+        if (dist < best_dist) {
+            best = i;
+            best_dist = dist;
+        }
+        i++;
+    }
+    return best;
+}

@@ -13,6 +13,7 @@ extern void func_00394e70(void* collision, void* state,
                           void* callback, void* param);
 extern void* func_00169a30(const RwV3d* point, const void* triangle,
                            void* collector);
+extern void* func_00169320(void* point, void* triangle, void* context);
 
 // 44 bytes. Callback state passed through RenderWare field raycasts.
 typedef struct FldFrameRaycast
@@ -34,6 +35,8 @@ extern void func_003bff30(void* collisionWorld, void* callback, void* param);
 extern void* func_0016b430(void* collisionWorld, FldFrameRaycast* raycast);
 extern void* func_0016b770(f32 fraction, const RwV3d* line,
                            void* unused, FldFrameRaycast* raycast);
+
+
 
 
 

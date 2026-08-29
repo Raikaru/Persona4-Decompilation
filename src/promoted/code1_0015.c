@@ -7,6 +7,12 @@ typedef struct RwRGBA
     u8 b;
     u8 a;
 } RwRGBA;
+typedef struct P4_0015_Vec3
+{
+    f32 x;
+    f32 y;
+    f32 z;
+} P4_0015_Vec3;
 extern s32 iGpffffb210;
 extern void func_00454bd0();
 
@@ -33,6 +39,7 @@ extern u8 D_005F06E0[];
 extern u8 D_005F0700[];
 extern u8 D_005F0770[];
 extern u8 D_005F0720[];
+extern u8 D_005F0670[];
 extern s16 D_005F05D0[];
 extern u8 D_005F05CE[];
 extern u8 D_007D3E2B[];
@@ -654,7 +661,58 @@ s32 func_0015a320(void)
     return *(s32 *)(work + 0x38) + 0x38;
 }
 // FUN_0015A350
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015a350);
+void func_0015a350(P4_0015_Vec3 *arg0)
+{
+    P4_0015_Vec3 out;
+    f32 temp_x;
+    f32 temp_z;
+    s32 y;
+    s32 x;
+    s32 min_x;
+    s32 min_y;
+    s32 max_x;
+    s32 max_y;
+    s32 row;
+
+    out.z = 0.0f;
+    out.y = 0.0f;
+    out.x = 0.0f;
+    min_x = 0x10;
+    min_y = 0x18;
+    max_x = 0;
+    max_y = 0;
+    y = 0;
+    while (y < 0x18) {
+        x = 0;
+        row = y << 8;
+        while (x < 0x10) {
+            if (*(u8 *)(wg0015_add_ptr(
+                            (u8 *)(row + (s32)(u8 *)func_00155280()),
+                            x << 4) + 0x54) == 1) {
+                if (x <= min_x) {
+                    min_x = x;
+                }
+                if (y <= min_y) {
+                    min_y = y;
+                }
+                if (x >= max_x) {
+                    max_x = x;
+                }
+                if (y >= max_y) {
+                    max_y = y;
+                }
+            }
+            x += 1;
+        }
+        y += 1;
+    }
+    temp_x = 1200.0f * (f32)min_x;
+    out.x = temp_x + (((1200.0f * (f32)max_x) - temp_x) / 2.0f);
+    temp_z = 1200.0f * (f32)min_y;
+    out.z = temp_z + (((1200.0f * (f32)max_y) - temp_z) / 2.0f);
+    func_00440b68(D_005F0670, min_x, min_y, max_x, max_y);
+    *arg0 = out;
+}
 // FUN_0015A520
 void func_0015a520(s32 arg0)
 {
