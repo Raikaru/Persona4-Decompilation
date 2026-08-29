@@ -60,6 +60,7 @@ extern s32 func_003c8d60();
 extern s32 D_00886E50[];
 extern s32 func_003df590(s64 arg0, ...);
 extern u8 *func_003df4d0();
+
 static inline s32 func_003d_add_offset(s32 base, s32 offset) {
     return base + offset;
 }
