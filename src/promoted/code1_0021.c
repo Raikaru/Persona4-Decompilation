@@ -93,6 +93,10 @@ extern f32 fGpffff8498;
 extern s32 func_0021dba0(void);
 extern void func_00210c70(u8 *arg0, u8 *arg1);
 extern void func_0020ff00(u8 *arg0, u8 *arg1);
+extern void func_0021e110(u8 *arg0, u8 *arg1);
+extern void func_0021e9a0(u8 *arg0, u8 *arg1);
+extern void func_0021eb60(u8 *arg0);
+extern void func_0021ec40(s32 arg0);
 
 static inline f32 ws14_mul(f32 left, f32 right)
 {
@@ -586,7 +590,205 @@ void func_00213cd0(u8 *arg0, s32 arg1) {
 // FUN_00213D20
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00213d20);
 // FUN_00213E20
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00213e20);
+void func_00213e20(u8 *arg0, u8 *arg1)
+{
+    extern s32 func_002326c0(s32 arg0);
+    s32 value;
+
+    value = func_002326c0(*(s32 *)(arg0 + 0xA64));
+    *(s32 *)(arg1 + 0x14) = value;
+    if (value == 0) {
+        *(u8 *)(arg1 + 0) = 0xFF;
+        *(u8 *)(arg1 + 1) = 0xAF;
+        *(u8 *)(arg1 + 2) = 0x20;
+        *(u8 *)(arg1 + 4) = 0xFE;
+        *(u8 *)(arg1 + 5) = 0xFF;
+        *(u8 *)(arg1 + 6) = 0x22;
+        *(u8 *)(arg1 + 8) = 0xFF;
+        *(u8 *)(arg1 + 9) = 0xFF;
+        *(u8 *)(arg1 + 0xA) = 0xFF;
+        *(u8 *)(arg1 + 0xC) = 0;
+        *(u8 *)(arg1 + 0xD) = 0;
+        *(u8 *)(arg1 + 0xE) = 0;
+        *(u8 *)(arg1 + 0x10) = 0xFF;
+        *(u8 *)(arg1 + 0x11) = 0xAF;
+        *(u8 *)(arg1 + 0x12) = 0x20;
+        return;
+    }
+    switch (value) {
+    case 2:
+        *(u8 *)(arg1 + 0) = 0x8E;
+        *(u8 *)(arg1 + 1) = 6;
+        *(u8 *)(arg1 + 2) = 0;
+        *(u8 *)(arg1 + 4) = 0xFF;
+        *(u8 *)(arg1 + 5) = 0x41;
+        *(u8 *)(arg1 + 6) = 0x40;
+        *(u8 *)(arg1 + 8) = 0x7B;
+        *(u8 *)(arg1 + 9) = 0xB;
+        *(u8 *)(arg1 + 0xA) = 1;
+        *(u8 *)(arg1 + 0xC) = 0xFF;
+        *(u8 *)(arg1 + 0xD) = 0x41;
+        *(u8 *)(arg1 + 0xE) = 0x40;
+        *(u8 *)(arg1 + 0x10) = 0xFF;
+        *(u8 *)(arg1 + 0x11) = 0x41;
+        *(u8 *)(arg1 + 0x12) = 0x40;
+        return;
+    case 4:
+        *(u8 *)(arg1 + 0) = 0x4E;
+        *(u8 *)(arg1 + 1) = 0;
+        *(u8 *)(arg1 + 2) = 0xF2;
+        *(u8 *)(arg1 + 4) = 0x76;
+        *(u8 *)(arg1 + 5) = 0x40;
+        *(u8 *)(arg1 + 6) = 0xFF;
+        *(u8 *)(arg1 + 8) = 0xE;
+        *(u8 *)(arg1 + 9) = 1;
+        *(u8 *)(arg1 + 0xA) = 0x7B;
+        *(u8 *)(arg1 + 0xC) = 0x76;
+        *(u8 *)(arg1 + 0xD) = 0x40;
+        *(u8 *)(arg1 + 0xE) = 0xFF;
+        *(u8 *)(arg1 + 0x10) = 0x76;
+        *(u8 *)(arg1 + 0x11) = 0x40;
+        *(u8 *)(arg1 + 0x12) = 0xFF;
+        return;
+    case 8:
+        *(u8 *)(arg1 + 0) = 0x42;
+        *(u8 *)(arg1 + 1) = 0x6D;
+        *(u8 *)(arg1 + 2) = 0;
+        *(u8 *)(arg1 + 4) = 0x76;
+        *(u8 *)(arg1 + 5) = 0xA3;
+        *(u8 *)(arg1 + 6) = 0;
+        *(u8 *)(arg1 + 8) = 5;
+        *(u8 *)(arg1 + 9) = 0x49;
+        *(u8 *)(arg1 + 0xA) = 7;
+        *(u8 *)(arg1 + 0xC) = 0x76;
+        *(u8 *)(arg1 + 0xD) = 0xA3;
+        *(u8 *)(arg1 + 0xE) = 0;
+        *(u8 *)(arg1 + 0x10) = 0x76;
+        *(u8 *)(arg1 + 0x11) = 0xA3;
+        *(u8 *)(arg1 + 0x12) = 0;
+        return;
+    case 0x10:
+        *(u8 *)(arg1 + 0) = 0xAF;
+        *(u8 *)(arg1 + 1) = 0;
+        *(u8 *)(arg1 + 2) = 0xB8;
+        *(u8 *)(arg1 + 4) = 0xCE;
+        *(u8 *)(arg1 + 5) = 0x21;
+        *(u8 *)(arg1 + 6) = 0xFF;
+        *(u8 *)(arg1 + 8) = 0x5F;
+        *(u8 *)(arg1 + 9) = 0;
+        *(u8 *)(arg1 + 0xA) = 0x5C;
+        *(u8 *)(arg1 + 0xC) = 0xCE;
+        *(u8 *)(arg1 + 0xD) = 0x21;
+        *(u8 *)(arg1 + 0xE) = 0xFF;
+        *(u8 *)(arg1 + 0x10) = 0xCE;
+        *(u8 *)(arg1 + 0x11) = 0x21;
+        *(u8 *)(arg1 + 0x12) = 0xFF;
+        return;
+    case 1:
+        *(u8 *)(arg1 + 0) = 0x8E;
+        *(u8 *)(arg1 + 1) = 6;
+        *(u8 *)(arg1 + 2) = 0;
+        *(u8 *)(arg1 + 4) = 0xFF;
+        *(u8 *)(arg1 + 5) = 0x41;
+        *(u8 *)(arg1 + 6) = 0x40;
+        *(u8 *)(arg1 + 8) = 0x7B;
+        *(u8 *)(arg1 + 9) = 0xB;
+        *(u8 *)(arg1 + 0xA) = 1;
+        *(u8 *)(arg1 + 0xC) = 0xFF;
+        *(u8 *)(arg1 + 0xD) = 0x41;
+        *(u8 *)(arg1 + 0xE) = 0x40;
+        *(u8 *)(arg1 + 0x10) = 0xFF;
+        *(u8 *)(arg1 + 0x11) = 0x41;
+        *(u8 *)(arg1 + 0x12) = 0x40;
+        return;
+    case 0x20:
+        *(u8 *)(arg1 + 0) = 0x4E;
+        *(u8 *)(arg1 + 1) = 0;
+        *(u8 *)(arg1 + 2) = 0xF2;
+        *(u8 *)(arg1 + 4) = 0x76;
+        *(u8 *)(arg1 + 5) = 0x40;
+        *(u8 *)(arg1 + 6) = 0xFF;
+        *(u8 *)(arg1 + 8) = 0xE;
+        *(u8 *)(arg1 + 9) = 1;
+        *(u8 *)(arg1 + 0xA) = 0x7B;
+        *(u8 *)(arg1 + 0xC) = 0x76;
+        *(u8 *)(arg1 + 0xD) = 0x40;
+        *(u8 *)(arg1 + 0xE) = 0xFF;
+        *(u8 *)(arg1 + 0x10) = 0x76;
+        *(u8 *)(arg1 + 0x11) = 0x40;
+        *(u8 *)(arg1 + 0x12) = 0xFF;
+        return;
+    case 0x40:
+        *(u8 *)(arg1 + 0) = 0x3B;
+        *(u8 *)(arg1 + 1) = 0x38;
+        *(u8 *)(arg1 + 2) = 0xFF;
+        *(u8 *)(arg1 + 4) = 0x59;
+        *(u8 *)(arg1 + 5) = 0x57;
+        *(u8 *)(arg1 + 6) = 0xE8;
+        *(u8 *)(arg1 + 8) = 0xD;
+        *(u8 *)(arg1 + 9) = 0x30;
+        *(u8 *)(arg1 + 0xA) = 0x6E;
+        *(u8 *)(arg1 + 0xC) = 0x59;
+        *(u8 *)(arg1 + 0xD) = 0x57;
+        *(u8 *)(arg1 + 0xE) = 0xE8;
+        *(u8 *)(arg1 + 0x10) = 0x59;
+        *(u8 *)(arg1 + 0x11) = 0x57;
+        *(u8 *)(arg1 + 0x12) = 0xE8;
+        return;
+    case 0x80:
+        *(u8 *)(arg1 + 0) = 0x96;
+        *(u8 *)(arg1 + 1) = 0x96;
+        *(u8 *)(arg1 + 2) = 0x96;
+        *(u8 *)(arg1 + 4) = 0xFF;
+        *(u8 *)(arg1 + 5) = 0xFF;
+        *(u8 *)(arg1 + 6) = 0xFF;
+        *(u8 *)(arg1 + 8) = 0x2B;
+        *(u8 *)(arg1 + 9) = 0x2B;
+        *(u8 *)(arg1 + 0xA) = 0x2B;
+        *(u8 *)(arg1 + 0xC) = 0xFF;
+        *(u8 *)(arg1 + 0xD) = 0xFF;
+        *(u8 *)(arg1 + 0xE) = 0xFF;
+        *(u8 *)(arg1 + 0x10) = 0xFF;
+        *(u8 *)(arg1 + 0x11) = 0xFF;
+        *(u8 *)(arg1 + 0x12) = 0xFF;
+        return;
+    case 0x80000:
+        *(u8 *)(arg1 + 0) = 0;
+        *(u8 *)(arg1 + 1) = 0;
+        *(u8 *)(arg1 + 2) = 0;
+        *(u8 *)(arg1 + 4) = 0;
+        *(u8 *)(arg1 + 5) = 0;
+        *(u8 *)(arg1 + 6) = 0;
+        *(u8 *)(arg1 + 8) = 0x53;
+        *(u8 *)(arg1 + 9) = 0x53;
+        *(u8 *)(arg1 + 0xA) = 0x53;
+        *(u8 *)(arg1 + 0xC) = 0;
+        *(u8 *)(arg1 + 0xD) = 0;
+        *(u8 *)(arg1 + 0xE) = 0;
+        *(u8 *)(arg1 + 0x10) = 0x89;
+        *(u8 *)(arg1 + 0x11) = 0x89;
+        *(u8 *)(arg1 + 0x12) = 0x89;
+        return;
+    default:
+        *(s32 *)(arg1 + 0x14) = 0;
+        *(u8 *)(arg1 + 0) = 0xFF;
+        *(u8 *)(arg1 + 1) = 0xAF;
+        *(u8 *)(arg1 + 2) = 0x20;
+        *(u8 *)(arg1 + 4) = 0xFE;
+        *(u8 *)(arg1 + 5) = 0xFF;
+        *(u8 *)(arg1 + 6) = 0x22;
+        *(u8 *)(arg1 + 8) = 0xFF;
+        *(u8 *)(arg1 + 9) = 0xFF;
+        *(u8 *)(arg1 + 0xA) = 0xFF;
+        *(u8 *)(arg1 + 0xC) = 0;
+        *(u8 *)(arg1 + 0xD) = 0;
+        *(u8 *)(arg1 + 0xE) = 0;
+        *(u8 *)(arg1 + 0x10) = 0xFF;
+        *(u8 *)(arg1 + 0x11) = 0xAF;
+        *(u8 *)(arg1 + 0x12) = 0x20;
+        return;
+    }
+}
 // FUN_002142B0
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_002142b0);
 // FUN_00215C10
@@ -1095,7 +1297,160 @@ s32 func_0021d470(void)
     return flag ^ 1;
 }
 // FUN_0021D4A0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021d4a0);
+s32 func_0021d4a0(s32 arg0)
+{
+    extern s32 func_0036e8a0(s32 arg0);
+    extern s32 func_002218e0(s32 arg0);
+    extern void func_0036e7e0(s32 arg0);
+    extern void func_0021e110(u8 *arg0, u8 *arg1);
+    extern s32 func_002216b0(s32 arg0);
+    extern s32 func_0036e840(s32 arg0);
+    extern void func_0036e810(s32 arg0);
+    extern s32 func_00221740(s32 arg0);
+    extern void func_002216e0(s32 arg0);
+    extern s32 func_002230e0(s32 arg0);
+    extern s32 func_00223730(s32 arg0);
+    extern s32 func_00223f40(s32 arg0);
+    extern s32 func_00223240(s32 arg0);
+    extern void func_002231e0(s32 arg0);
+    extern s32 func_00223890(s32 arg0);
+    extern void func_00223830(s32 arg0);
+    extern s32 func_00224080(s32 arg0);
+    extern void func_00224040(s32 arg0);
+    extern s32 func_0036e8d0(void);
+    extern s32 func_00221910(void);
+    extern s32 func_00223270(void);
+    extern s32 func_002238c0(void);
+    extern s32 func_002240b0(void);
+    u8 *work;
+    s32 flags;
+    s32 ready;
+
+    work = func_00452560();
+    switch (*(s32 *)(work + 4)) {
+    case 1:
+        *(s32 *)(work + 4) = 2;
+        break;
+    case 2:
+        flags = *(s32 *)work;
+        if ((flags & 1) == 0 || (flags & 4) == 0) {
+            if ((flags & 2) != 0) {
+                ready = 1;
+                if ((*(s32 *)(work + 0x60) & 1) != 0 &&
+                    func_0036e8a0(*(s32 *)(work + 0x938)) != 0) {
+                    ready = 0;
+                }
+                if (func_002218e0(*(s32 *)(work + 0x93C)) != 0) {
+                    ready = 0;
+                }
+                if (ready != 0) {
+                    flags = *(s32 *)work;
+                    flags &= ~2;
+                    *(s32 *)work = flags;
+                    flags |= 4;
+                    *(s32 *)work = flags;
+                }
+            }
+            break;
+        }
+    case 3:
+        flags = *(s32 *)(work + 0x60);
+        if ((flags & 1) != 0) {
+            func_0036e7e0(*(s32 *)(work + 0x938));
+            *(s32 *)(work + 4) = 4;
+        } else {
+            func_0021e110(work + 0x60, work + 8);
+            func_002216b0(*(s32 *)(work + 0x93C));
+            *(s32 *)(work + 4) = 5;
+        }
+        break;
+    case 4:
+        if (func_0036e840(*(s32 *)(work + 0x938)) == 0) {
+            func_0036e810(*(s32 *)(work + 0x938));
+            *(s32 *)(work + 0x938) = 0;
+            func_0021e110(work + 0x60, work + 8);
+            func_002216b0(*(s32 *)(work + 0x93C));
+            *(s32 *)(work + 4) = 5;
+        }
+        break;
+    case 5:
+        if (func_00221740(*(s32 *)(work + 0x93C)) == 0) {
+            func_002216e0(*(s32 *)(work + 0x93C));
+            *(s32 *)(work + 0x93C) = 0;
+            flags = *(s32 *)(work + 0x60);
+            if ((flags & 2) != 0) {
+                func_0021e9a0(work + 0x60, work + 8);
+                *(s32 *)(work + 0x940) = func_002230e0(arg0);
+                *(s32 *)(work + 4) = 6;
+            } else if ((flags & 8) != 0) {
+                func_0021e9a0(work + 0x60, work + 8);
+                *(s32 *)(work + 0x944) = func_00223730(arg0);
+                *(s32 *)(work + 4) = 7;
+            } else if ((flags & 0x10) != 0) {
+                func_0021e9a0(work + 0x60, work + 8);
+                func_0021eb60(work + 0x60);
+                *(s32 *)(work + 0x948) = func_00223f40(arg0);
+                *(s32 *)(work + 4) = 8;
+            } else {
+                func_0021e9a0(work + 0x60, work + 8);
+                func_0021eb60(work + 0x60);
+                func_0021ec40((s32)(work + 0x60));
+                *(s32 *)(work + 4) = 9;
+            }
+        }
+        break;
+    case 6:
+        if (func_00223240(*(s32 *)(work + 0x940)) == 0) {
+            func_002231e0(*(s32 *)(work + 0x940));
+            *(s32 *)(work + 0x940) = 0;
+            flags = *(s32 *)(work + 0x60);
+            if ((flags & 8) != 0) {
+                *(s32 *)(work + 0x944) = func_00223730(arg0);
+                *(s32 *)(work + 4) = 7;
+            } else if ((flags & 0x10) != 0) {
+                func_0021eb60(work + 0x60);
+                *(s32 *)(work + 0x948) = func_00223f40(arg0);
+                *(s32 *)(work + 4) = 8;
+            } else {
+                func_0021eb60(work + 0x60);
+                func_0021ec40((s32)(work + 0x60));
+                *(s32 *)(work + 4) = 9;
+            }
+        }
+        break;
+    case 7:
+        if (func_00223890(*(s32 *)(work + 0x944)) == 0) {
+            func_00223830(*(s32 *)(work + 0x944));
+            *(s32 *)(work + 0x944) = 0;
+            flags = *(s32 *)(work + 0x60);
+            if ((flags & 0x10) != 0) {
+                *(s32 *)(work + 0x948) = func_00223f40(arg0);
+                *(s32 *)(work + 4) = 8;
+            } else {
+            func_0021ec40((s32)(work + 0x60));
+                *(s32 *)(work + 4) = 9;
+            }
+        }
+        break;
+    case 8:
+        if (func_00224080(*(s32 *)(work + 0x948)) == 0) {
+            func_00224040(*(s32 *)(work + 0x948));
+            *(s32 *)(work + 0x948) = 0;
+            *(s32 *)(work + 4) = 9;
+        }
+        break;
+    case 9:
+        if (func_0036e8d0() == 0 &&
+            func_00221910() == 0 &&
+            func_00223270() == 0 &&
+            func_002238c0() == 0 &&
+            func_002240b0() == 0) {
+            *(s32 *)(work + 4) = 0;
+        }
+        break;
+    }
+    return 0;
+}
 // FUN_0021D920
 void func_0021d920(void)
 {
