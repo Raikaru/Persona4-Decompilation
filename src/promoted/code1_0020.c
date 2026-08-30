@@ -68,7 +68,7 @@ extern int func_00275020(f32 x, f32 y, f32 scale,
                          int flags, int charWidth);
 extern u32 func_001d8bc0(void *arg0);
 extern void func_0011b360(s32 arg0);
-extern void func_00201410(u8 *arg0, s32 a, s32 b);
+extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
 extern void func_002119a0(u8 *arg0);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
@@ -614,7 +614,48 @@ void func_00201350(void)
 /* measured: close the vtable propagation probe and restore default state. */
 #pragma opt_propagation on
 // FUN_00201410
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00201410);
+void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1)
+{
+    u8 *entry;
+    u32 offset;
+    f32 value;
+
+    offset = (u32)(arg1 * 4);
+    entry = p4_002091f0_add(offset, arg0);
+    *(s32 *)(arg0 + 0x6C) = *(s32 *)(entry + 0x2C);
+    *(s32 *)(arg0 + 0x70) = arg2;
+    if ((*(f32 *)(arg0 + 0x14) == 1.0f) &&
+        (*(f32 *)(arg0 + 0x18) == 1.0f)) {
+
+        *(f32 *)(arg0 + 0x74) = (f32)*(s32 *)(arg0 + 4) + fparg0;
+        *(f32 *)(arg0 + 0x78) = (f32)*(s32 *)(arg0 + 8) + fparg1;
+        func_0046b380(arg0 + 0x6C, 0);
+        return;
+    }
+    *(f32 *)(arg0 + 0x74) =
+        (f32)*(s32 *)(arg0 + 4) +
+        ((f32)*(s32 *)(arg0 + 0x0C) *
+         (1.0f - *(f32 *)(arg0 + 0x14))) * 0.5f +
+        *(f32 *)(arg0 + 0x14) * fparg0;
+    *(f32 *)(arg0 + 0x78) =
+        (f32)*(s32 *)(arg0 + 8) +
+        ((f32)*(s32 *)(arg0 + 0x10) *
+         (1.0f - *(f32 *)(arg0 + 0x18))) * 0.5f +
+        *(f32 *)(arg0 + 0x18) * fparg1;
+    value = *(f32 *)(arg0 + 0x14) * 4096.0f * *(f32 *)(arg0 + 0x1C);
+    *(u16 *)(arg0 + 0x8C) = (u16)value;
+    value = *(f32 *)(arg0 + 0x18) * 4096.0f * *(f32 *)(arg0 + 0x20);
+    *(u16 *)(arg0 + 0x8E) = (u16)value;
+    if (*(f32 *)(arg0 + 0x84) != 0.0f) {
+        *(s16 *)(arg0 + 0x88) =
+            (s16)(*(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x14));
+        *(s16 *)(arg0 + 0x8A) =
+            (s16)(*(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x18));
+    }
+    func_0046b380(arg0 + 0x6C, 0);
+    *(u16 *)(arg0 + 0x8C) = 0;
+    *(u16 *)(arg0 + 0x8E) = 0;
+}
 // FUN_00201650
 void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
                    s32 arg5, s32 arg6, s32 arg7, s32 arg8) {
@@ -622,7 +663,7 @@ void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1,
     arg0[0x95] = (u8)arg6;
     arg0[0x96] = (u8)arg7;
     arg0[0x7D] = 0xFF - (arg8 & 0xFF);
-    func_00201410(arg0, arg1, arg2);
+    func_00201410(arg0, arg1, arg2, fparg0, fparg1);
     arg0[0x94] = 0xFF;
     arg0[0x95] = 0xFF;
     arg0[0x96] = 0xFF;
