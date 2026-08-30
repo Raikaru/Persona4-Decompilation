@@ -10,16 +10,12 @@ extern f32 fGpffff84a4;
 extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
-extern f32 func_0044b7b0(void *arg0, f32 arg1);
+extern f32 func_0044b7b0();
 extern void func_0045d6e0(void *arg0, s32 *arg1, s32 arg2, f32 arg3);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
                           s32 arg3, s32 arg4);
 extern f32 fGpffff8478;
 extern f32 func_0044b610(f32 fparg0);
-extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
-extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
-extern void func_003e4320(void *arg0, void *arg1, void *arg2);
 extern s32 func_0047a510(void *arg0, s32 arg1, void *arg2);
 extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
 extern void func_002ab550(void *arg0, void *arg1);
@@ -169,67 +165,6 @@ extern u8 D_005E57F0[];
 extern u8 D_005E76C8[];
 extern void func_0012e7c0(u8 *arg0);
 extern s32 func_0012ff60(u8 *arg0, s32 arg1);
-extern void func_0034f1e0(void);
-extern void func_0034f320(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
-                          s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void func_0034f9d0(s64 arg0, u8 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void func_00364320(s64 arg0, s32 arg1, s32 arg2, f32 fparg0);
-extern void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0,
-                          f32 fparg3, f32 fparg4, s32 arg1, void *arg2);
-extern s32 func_0025f3f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         void *arg4, s32 arg5, f32 farg0, f32 farg1,
-                         f32 farg2);
-extern void func_0025f430(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          u8 *arg4, s32 arg5, s16 arg6, s16 arg7,
-                          f32 arg8, f32 arg9, f32 arg10, f32 arg11,
-                          f32 arg12, f32 arg13);
-extern void func_002aaac0(void);
-extern void func_003f6440(s32 arg0, s32 arg1);
-extern void func_00489f80(void);
-extern void func_0048a000(void);
-extern s128 D_005E5590;
-extern s128 D_005E55A0;
-extern f32 fGpffff8230;
-extern f32 fGpffff8234;
-extern f32 fGpffff8238;
-extern f32 fGpffff823C;
-extern f32 fGpffff8240;
-extern f32 fGpffff8244;
-extern f32 fGpffff8248;
-extern f32 fGpffff824C;
-extern f32 fGpffff8250;
-extern f32 fGpffff8254;
-extern f32 fGpffff8258;
-extern f32 fGpffff825C;
-extern f32 fGpffff8260;
-extern f32 fGpffff8264;
-extern f32 fGpffff8268;
-extern f32 fGpffff826C;
-extern f32 fGpffff8270;
-extern f32 fGpffff8274;
-extern f32 fGpffff8278;
-extern f32 fGpffff827C;
-extern f32 fGpffff8280;
-extern f32 fGpffff8284;
-extern f32 fGpffff8288;
-extern f32 fGpffff828C;
-extern f32 fGpffff8290;
-extern f32 fGpffff8294;
-extern f32 fGpffff8298;
-extern f32 fGpffff829C;
-extern u32 func_0010d620(s16 arg0);
-extern u32 func_0010d6d0(s16 arg0);
-extern s32 func_00104ce0(s16 arg0);
-extern s32 func_00104dc0(s16 arg0);
-extern s32 func_00104d50(s16 arg0);
-extern s32 func_00104e30(s16 arg0);
-extern s32 func_00275020(f32 x, f32 y, f32 scale, s32 color, s32 chr,
-                         s32 id, const char *str, s32 flags, s32 charWidth);
-extern void func_0046d2b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, f32 z, s32 arg3);
-extern u8 D_005E4F88[];
-extern void func_00120ae0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, s32 arg3);
 // FUN_001203A0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001203a0);
 // FUN_00120AE0
@@ -460,6 +395,7 @@ typedef struct {
 // FUN_00121DE0
 void func_00121de0(void)
 {
+    extern f32 func_0044b7b0(void *arg0, f32 arg1);
     Frame00121DE0 sp;
     u8 *temp_4;
     s32 temp_3;
@@ -496,7 +432,77 @@ void func_00121de0(void)
     }
 }
 // FUN_00121F20
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00121f20);
+void func_00121f20(void)
+{
+    typedef struct {
+        f32 p0;
+        f32 p1;
+        f32 p2;
+        f32 p3;
+    } Code1Point4;
+    typedef struct {
+        f32 p0;
+        f32 p1;
+    } Code1Point2;
+    typedef struct {
+        u8 c0;
+        u8 c1;
+        u8 c2;
+        u8 c3;
+    } Code1Color4;
+    extern f32 func_0044b7b0(f32 fparg0);
+    Code1Point4 points[0x25];
+    Code1Point2 quad[4];
+    Code1Color4 color[4];
+    u8 *temp_6;
+    Code1Point4 *point;
+    f32 result;
+    f32 angle;
+    f32 scale;
+    f32 x;
+    f32 sine;
+    f32 cosine;
+    s32 i;
+
+    temp_6 = (u8 *)iGpffffb1cc;
+    if (temp_6 != NULL) {
+        color[0].c3 = 0xFF;
+        color[0].c0 = iGpffffb1d8;
+        color[0].c1 = iGpffffb1d4;
+        color[0].c2 = iGpffffb1d0;
+        color[3] = color[0];
+        color[2] = color[3];
+        color[1] = color[2];
+        result = func_0044b7b0(
+            (fGpffff84a4 * (f32)*(s32 *)(temp_6 + 0xC)) /
+            (f32)*(s32 *)(temp_6 + 8));
+        scale = 600.0f - (600.0f * result);
+        angle = 0.0f;
+        i = 0;
+        while (i < 0x25) {
+            x = fGpffff8478 * angle;
+            sine = func_0044b610(x);
+            cosine = func_0044b7b0(x);
+            point = &points[i];
+            point->p0 = ((scale * sine * 1066.0f) / 1000.0f) + 320.0f;
+            point->p1 = (scale * cosine) + 224.0f;
+            point->p2 = ((sine * 600.0f * 1066.0f) / 1000.0f) + 320.0f;
+            point->p3 = (cosine * 600.0f) + 224.0f;
+            angle += 10.0f;
+            i++;
+        }
+        i = 0;
+        while (i < 0x24) {
+            point = &points[i];
+            quad[0] = *(Code1Point2 *)point;
+            quad[1] = *(Code1Point2 *)((u8 *)point + 8);
+            quad[2] = *(Code1Point2 *)(point + 1);
+            quad[3] = *(Code1Point2 *)((u8 *)(point + 1) + 8);
+            func_0045dfd0(color, quad, 0.0f, 4, 4, 1);
+            i++;
+        }
+    }
+}
 // FUN_001221A0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001221a0);
 // FUN_001223D0
