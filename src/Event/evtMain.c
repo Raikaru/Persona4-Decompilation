@@ -128,6 +128,12 @@ extern u32 DAT_00713890;
 extern void func_00113480(s16 a, s16 b, s16 c, s16 d);
 void func_00113500(void);
 extern void func_00269c20(u16, int);
+extern f32 fGpffff815c;
+extern void func_002866c0(void *arg0, void *arg1);
+extern void func_0028c080(void *arg0, void *arg1, s32 arg2, void *arg3, f32 *arg4, f32 *arg5);
+extern void *func_0028b2a0(int arg0, int arg1);
+extern void func_0028d110(s32 *arg0);
+
 
 /* measured: retail dispatches the 20-case switch (arg0->{0} 0..0x39) via a
    jump table (range-check then sll/addu/lw/jr); mwcc b210 emits an if-chain
@@ -137,7 +143,221 @@ extern void func_00269c20(u16, int);
    r=$s2. Tried the complete m2c switch body + 1 declaration order; nd 324
    (obj 1424B vs window 1248B). Jump-table-density + saved-register floor. */
 // FUN_00286780
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00286780);
+u8 *func_00286780(u8 *arg0, s32 arg1, u8 *arg2) {
+    f32 sp8c;
+    f32 sp88;
+    u8 sp60[0x20];
+    u8 *temp_17;
+    u8 *r = NULL;
+
+    switch (*(u32 *)arg0) {
+    case 10:
+        func_0044ea90(D_00748340, 0x52);
+        r = ((u8 *(*)(s32, s32, s32))D_008873F4[0])(1, 0x30, 0x40000);
+        func_002852a0(9, 0x30);
+        if (r == NULL) {
+            func_0046d730(D_0063C3B0, 0x170);
+        }
+        func_0028c080(arg2, arg0, arg1, r, &sp8c, &sp88);
+        break;
+    case 0x18:
+    case 0x19:
+        break;
+    }
+    func_0044ea90(D_00748340, 0x52);
+    temp_17 = ((u8 *(*)(s32, s32, s32))D_008873F4[0])(1, 0x54, 0x40000);
+    func_002852a0(8, 0x54);
+    if (temp_17 == NULL) {
+        func_0046d730(D_0063C3B0, 0x198);
+    }
+    func_0043f9c8(temp_17, 0, 0x54);
+    *(u16 *)(temp_17 + 0) = arg1;
+    *(u32 *)(temp_17 + 4) = -1;
+    *(u32 *)(temp_17 + 0x40) = 0;
+    *(u32 *)(temp_17 + 0x38) = *(u32 *)arg0;
+    func_002866c0(arg0, temp_17);
+    switch (*(u32 *)arg0) {
+    case 2:
+        *(f32 *)(temp_17 + 0x10) = fGpffff815c;
+        break;
+    case 1:
+        *(u8 *)(temp_17 + 0x10) = 0;
+        *(u8 *)(temp_17 + 0x16) = 0;
+        *(u8 *)(temp_17 + 0x17) = 0x14;
+        break;
+    case 0x30:
+        *(u8 *)(temp_17 + 0x10) = 0;
+        *(u8 *)(temp_17 + 0x30) = *(u32 *)(arg0 + 4);
+        break;
+    case 3: {
+        s32 temp_neg = -1;
+        *(s8 *)(temp_17 + 0x10) = temp_neg;
+        *(s16 *)(temp_17 + 0x12) = 0;
+        *(s8 *)(temp_17 + 0x14) = 0;
+        *(s8 *)(temp_17 + 0x15) = temp_neg;
+        *(s16 *)(temp_17 + 0x16) = temp_neg;
+        *(s16 *)(temp_17 + 0x18) = 0;
+        break;
+    }
+    case 0x12: {
+        s32 temp_neg = -1;
+        *(u16 *)(temp_17 + 0x10) = 0;
+        *(s16 *)(temp_17 + 0x12) = temp_neg;
+        *(u8 *)(temp_17 + 0x10) = 0;
+        break;
+    }
+    case 0x14:
+    case 0x15: {
+        s32 temp_neg = -1;
+        *(s8 *)(temp_17 + 0x10) = temp_neg;
+        *(s8 *)(temp_17 + 0x11) = 0;
+        *(s16 *)(temp_17 + 0x12) = 0;
+        *(s8 *)(temp_17 + 0x14) = temp_neg;
+        *(s8 *)(temp_17 + 0x15) = temp_neg;
+        *(s8 *)(temp_17 + 0x16) = temp_neg;
+        *(s8 *)(temp_17 + 0x17) = temp_neg;
+        *(s16 *)(temp_17 + 0x18) = 0;
+        break;
+    }
+    case 0x1A: {
+        s32 temp_neg = -1;
+        *(s8 *)(temp_17 + 0x10) = temp_neg;
+        *(s16 *)(temp_17 + 0x12) = 0;
+        *(s8 *)(temp_17 + 0x14) = 0;
+        *(s8 *)(temp_17 + 0x15) = temp_neg;
+        *(s16 *)(temp_17 + 0x16) = temp_neg;
+        *(s16 *)(temp_17 + 0x18) = 0;
+        break;
+    }
+    case 9: {
+        s32 temp_neg = -1;
+        *(s16 *)(temp_17 + 0x10) = temp_neg;
+        *(s16 *)(temp_17 + 0x12) = 1;
+        break;
+    }
+    case 0xC:
+        *(s16 *)(temp_17 + 0x10) = 1;
+        *(s16 *)(temp_17 + 0x12) = 0x80;
+        *(u32 *)(temp_17 + 0x14) = 0;
+        break;
+    case 0x16:
+        *(s16 *)(temp_17 + 0x10) = 1;
+        break;
+    case 0xA:
+        *(u32 *)(temp_17 + 0x48) = (u32)r;
+        *(f32 *)(temp_17 + 0x10) = sp8c;
+        *(f32 *)(temp_17 + 0x14) = sp88;
+        *(s16 *)(temp_17 + 0x18) = *(u32 *)(arg0 + 4);
+        *(u32 *)(temp_17 + 4) = 0;
+        break;
+    case 6: {
+        s32 temp_neg = -1;
+        *(u16 *)(temp_17 + 0x10) = 0;
+        *(s16 *)(temp_17 + 0x12) = temp_neg;
+        break;
+    }
+    case 0x18:
+        func_0043f9c8(sp60, 0, 0x20);
+        *(u8 *)(temp_17 + 0x10) = *(s32 *)(sp60 + 0x14);
+        *(u8 *)(temp_17 + 0x11) = *(s32 *)(sp60 + 0x18);
+        *(u16 *)(temp_17 + 0x14) = *(s32 *)(sp60 + 0);
+        *(u16 *)(temp_17 + 0x16) = *(s32 *)(sp60 + 4);
+        *(u8 *)(temp_17 + 0x18) = *(u8 *)(sp60 + 8);
+        *(u8 *)(temp_17 + 0x19) = *(u8 *)(sp60 + 9);
+        *(u8 *)(temp_17 + 0x1A) = *(u8 *)(sp60 + 10);
+        *(u8 *)(temp_17 + 0x1B) = *(u8 *)(sp60 + 11);
+        *(f32 *)(temp_17 + 0x1C) = *(f32 *)(sp60 + 0x10);
+        *(f32 *)(temp_17 + 0x20) = *(f32 *)(sp60 + 0xC);
+        *(u8 *)(temp_17 + 0x24) = *(s32 *)(sp60 + 0x1C);
+        break;
+    case 0x21:
+        *(s16 *)(temp_17 + 0x10) = 30;
+        *(u32 *)(temp_17 + 0x18) = 0;
+        *(u32 *)(temp_17 + 0x1C) = 0x44200000;
+        *(u32 *)(temp_17 + 0x20) = 0xC4430000;
+        *(u32 *)(temp_17 + 0x24) = 0x42000000;
+        *(u32 *)(temp_17 + 0x28) = 0;
+        *(u32 *)(temp_17 + 0x2C) = 0x420C0000;
+        break;
+    case 0x23:
+        *(u8 *)(temp_17 + 0x11) = *(u32 *)(arg0 + 4);
+        if (*(u32 *)(arg0 + 4) == 1) {
+            *(u16 *)(temp_17 + 0x14) = 380;
+        }
+        break;
+    case 0x24:
+        *(u8 *)(temp_17 + 0x11) = *(u32 *)(arg0 + 4);
+        break;
+    case 0x27:
+        *(u8 *)(temp_17 + 0x10) = 0;
+        break;
+    case 0x29:
+        *(u8 *)(temp_17 + 0x10) = 0;
+        if (*(s8 *)(temp_17 + 0x10) != 0) {
+            break;
+        }
+        func_0028d110((s32 *)temp_17);
+        break;
+    case 0x34:
+        *(u8 *)(temp_17 + 0x12) = 0x10 * *(u32 *)(arg0 + 4);
+        break;
+    case 0x35:
+        func_0028b2a0((s32)arg2, 0);
+        *(u8 *)(temp_17 + 0x10) = DAT_00764B38;
+        *(u8 *)(temp_17 + 0x14) = DAT_00764B3C;
+        *(u8 *)(temp_17 + 0x15) = DAT_00764B40;
+        *(u8 *)(temp_17 + 0x16) = DAT_00764B44;
+        *(u8 *)(temp_17 + 0x18) = *func_00457130();
+        *(u8 *)(temp_17 + 0x19) = *(func_00457130() + 1);
+        *(u8 *)(temp_17 + 0x1A) = *(func_00457130() + 2);
+        *(f32 *)(temp_17 + 0x1C) = *(f32 *)((u8 *)func_00457120() + 0x88);
+        *(f32 *)(temp_17 + 0x20) = D_00764B5C;
+        *(u16 *)(temp_17 + 2) = 0;
+        break;
+    case 4:
+    case 5:
+    case 7:
+    case 8:
+    case 0xB:
+    case 0xD:
+    case 0xE:
+    case 0xF:
+    case 0x10:
+    case 0x11:
+    case 0x13:
+    case 0x17:
+    case 0x19:
+    case 0x1B:
+    case 0x1C:
+    case 0x1D:
+    case 0x1E:
+    case 0x1F:
+    case 0x20:
+    case 0x22:
+    case 0x25:
+    case 0x26:
+    case 0x28:
+    case 0x2A:
+    case 0x2B:
+    case 0x2C:
+    case 0x2D:
+    case 0x2E:
+    case 0x2F:
+    case 0x31:
+    case 0x32:
+    case 0x33:
+    case 0x36:
+    case 0x37:
+    case 0x38:
+    case 0x39:
+        break;
+    case 0:
+    default:
+        func_0046d730(D_0063C3B0, 0x27E);
+        break;
+    }
+    return temp_17;
+}
 
 // FUN_00286C60
 void func_00286c60(u8 *arg0, u8 *arg1) {

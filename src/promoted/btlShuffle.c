@@ -544,6 +544,7 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
 // FUN_0036F880
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
 
+
 /* measured: retail keeps u16 r in $s0, flag in $s1, s16 s in $s2, u16 counter
  * in $s3, and re-sign-extends r inside the if(arg0) branch while reusing the
  * hoisted s in the else branch. mwcc b210 always colors flag=$s0, counter=$s1,

@@ -36,6 +36,7 @@ extern void func_00144c90(s32 arg0, s32 arg1);
 extern void func_00144e10(s64 arg0);
 extern void func_00144ed0(s16 arg0);
 extern s64 func_001546a0(s32 arg0, s32 arg1);
+extern s32 func_00144f60(void);
 extern void func_00440b68();
 extern u8 D_0063C310[];
 
@@ -45,6 +46,7 @@ typedef struct {
 } UnkStruct_002865E0;
 extern void func_0028b160(s32 *arg0, s32 arg1);
 extern u8 *func_0028afe0(void);
+extern void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
 extern s32 func_00285dd0(s32 arg0);
 extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
@@ -74,6 +76,10 @@ extern s32 func_0045b170(s32 arg0);
 extern s32 func_0045b1c0(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern char D_0063C340[];
 extern char D_0063C350[];
+extern f32 func_0028f960(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
+extern void func_0028f990(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
+                          f32 *arg4);
+
 
 s32 func_00286430(u8 *arg0);
 static inline s32 func_0028_sum(u16 arg0, s16 arg1) {
@@ -524,7 +530,143 @@ done:
 }
 
 // FUN_0028C080
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c080);
+void func_0028c080(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3, f32 *arg4,
+                   f32 *arg5) {
+    u8 *start;
+    u8 *end;
+    f32 value0;
+    f32 end_value0;
+    f32 value1;
+    f32 end_value1;
+    f32 ratio;
+    s32 start_time;
+    s32 end_time;
+    s32 count;
+    f32 *matrix0;
+    f32 *matrix1;
+    f32 *dst;
+    f32 *src;
+    f32 *out;
+    s32 i;
+
+    func_0028bfb0(arg1, arg2, &start, &end);
+    if (start != NULL) {
+        start_time = *(u16 *)start;
+    } else {
+        start_time = *(s32 *)(arg0 + 0xC);
+    }
+    if (end != NULL) {
+        end_time = *(u16 *)end;
+    } else {
+        end_time = *(s32 *)(arg0 + 0x10);
+    }
+    if (end_time - start_time != 0) {
+        ratio = (f32)(arg2 - start_time) / (f32)(end_time - start_time);
+    } else {
+        ratio = 0.0f;
+    }
+    dst = (f32 *)arg3;
+    if (start == NULL) {
+        goto no_start;
+    }
+    matrix0 = *(f32 **)(start + 0x48);
+    value0 = *(f32 *)(start + 0x10);
+    value1 = *(f32 *)(start + 0x14);
+    count = *(s32 *)(start + 4);
+    goto have_start;
+
+no_start:
+    {
+        f32 value;
+
+        value = iGpffff809c;
+        dst[0] = value;
+        dst[1] = value;
+        dst[2] = value;
+        dst[3] = 0.0f;
+        dst[4] = 0.0f;
+        dst[5] = 0.0f;
+        dst[6] = 0.0f;
+        dst[7] = 0.0f;
+        value = iGpffff8218;
+        dst[8] = value;
+        dst[9] = value;
+        dst[10] = value;
+        dst[11] = 0.0f;
+        *arg4 = 7.0f;
+        *arg5 = 0.0f;
+    }
+    goto done;
+have_start:
+    if (end == NULL) {
+        goto no_end;
+    }
+    matrix1 = *(f32 **)(end + 0x48);
+    end_value0 = *(f32 *)(end + 0x10);
+    end_value1 = *(f32 *)(end + 0x14);
+    goto have_end;
+
+no_end:
+    for (i = 0; i < 4; i++) {
+        src = matrix0 + i;
+        out = dst + i;
+        out[0] = src[0];
+        out[4] = src[4];
+        out[8] = src[8];
+    }
+    *arg4 = value0;
+    *arg5 = value1;
+    goto done;
+
+have_end:
+    if (matrix0 != NULL) {
+        goto have_matrix;
+    }
+    if (matrix1 != NULL) {
+        goto have_matrix;
+    }
+    {
+        f32 value;
+
+        value = iGpffff809c;
+        dst[0] = value;
+        dst[1] = value;
+        dst[2] = value;
+        dst[3] = 0.0f;
+        dst[4] = 0.0f;
+        dst[5] = 0.0f;
+        dst[6] = 0.0f;
+        dst[7] = 0.0f;
+        value = iGpffff8218;
+        dst[8] = value;
+        dst[9] = value;
+        dst[10] = value;
+        dst[11] = 0.0f;
+        *arg4 = 7.0f;
+        *arg5 = 0.0f;
+    }
+    goto done;
+
+have_matrix:
+    if (count == 0) {
+        for (i = 0; i < 4; i++) {
+            src = matrix0 + i;
+            out = dst + i;
+            out[0] = src[0];
+            out[4] = src[4];
+            out[8] = src[8];
+        }
+        *arg4 = value0;
+        *arg5 = value1;
+    } else {
+        func_0028f990(count, ratio, matrix0, matrix1, dst);
+        *arg4 = func_0028f960(count, ratio, value0, end_value0);
+        *arg5 = func_0028f960(count, ratio, value1, end_value1);
+    }
+
+done:
+    return;
+}
 // FUN_0028C370
 void func_0028c370(void)
 {
