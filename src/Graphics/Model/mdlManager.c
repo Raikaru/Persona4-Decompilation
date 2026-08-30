@@ -1272,13 +1272,6 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475b90);
 
 // FUN_00475CD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
-
-/* measured: the D3/7000F branch condition is (f&0x200)!=0 && (f&0x400)==0
-   (the 0x400-beqz goes to the D3 part, not the 7000F). Residual: mwcc b210
-   materializes param_1+0xD8 into $s0 (frame 0x40 vs 0x50, retail keeps the
-   D_00887300 base in $s0) and mirrors the block layout (D3 inline + 7000F
-   out-of-line vs retail's 7000F inline + D3 out-of-line). Tried: u8* params
-   (94), condition flips. Address-CSE + if-placement floor. */
 typedef struct MdlFlags78ec0
 {
     u8 pad0[0xD0];
@@ -1304,6 +1297,12 @@ extern void (*D_00887300_abs[])(s32, s32);
    array address into per-call lui/lw (same measured fix as func_00478ec0). */
 #pragma opt_propagation off
 
+/* measured: the D3/7000F branch condition is (f&0x200)!=0 && (f&0x400)==0
+   (the 0x400-beqz goes to the D3 part, not the 7000F). Residual: mwcc b210
+   materializes param_1+0xD8 into $s0 (frame 0x40 vs 0x50, retail keeps the
+   D_00887300 base in $s0) and mirrors the block layout (D3 inline + 7000F
+   out-of-line vs retail's 7000F inline + D3 out-of-line). Tried: u8* params
+   (94), condition flips. Address-CSE + if-placement floor. */
 // FUN_00476C70
 void func_00476c70(MdlFlags78ec0* o)
 {

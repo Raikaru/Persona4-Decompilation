@@ -1242,7 +1242,6 @@ s16 func_003c6060(void) {
 
 // FUN_003C6080
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6080);
-
 // FUN_003C6280
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6280);
 

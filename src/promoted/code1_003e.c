@@ -108,22 +108,23 @@ extern void func_003e4520(void *arg0, s32 arg1);
 extern void func_003e4960();
 extern void func_003e4920();
 extern void func_003e47c0();
-extern void *D_008873A4;
-extern void *D_008873A8;
-extern void *D_008873AC;
-extern void *D_008873B0;
-extern void *D_008873B4;
-extern void *D_008873B8;
-extern s64 (*D_008873BC)(s8 *, s64);
-extern s64 (*D_008873C0)(s8 *, s64);
-extern void *D_008873C4;
-extern void *D_008873C8;
-extern void *D_008873CC;
-extern void *D_008873D0;
-extern s8 *(*D_008873D8)(s8 *);
-extern s8 *(*D_008873DC)(s8 *);
-extern void *D_008873E0;
-extern void *D_008873E4;
+extern u8 D_008873A4[];
+extern u8 D_008873A8[];
+extern u8 D_008873AC[];
+extern u8 D_008873B0[];
+extern u8 D_008873B4[];
+extern u8 D_008873B8[];
+extern u8 D_008873BC[];
+extern u8 D_008873C0[];
+extern u8 D_008873C4[];
+extern u8 D_008873C8[];
+extern u8 D_008873CC[];
+extern u8 D_008873D0[];
+extern s32 (*D_008873D4[])(char *arg0);
+extern u8 D_008873D8[];
+extern u8 D_008873DC[];
+extern u8 D_008873E0[];
+extern u8 D_008873E4[];
 extern void func_00442088();
 extern void func_00446ed8();
 extern void func_00442830();
@@ -682,8 +683,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 // FUN_003E2430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
-/* measured: H001 rejects volatile-only exactness; nonvolatile best body is object 120B/window 128B, normalized_diff 14. */
-/* object 120B, window 128B, normalized_diff 14; volatile-dependent; without it the object is 2 words undersized because the store/reload accesses fold; nonvolatile best after H001 cleanup; volatile-only exact attempt rejected. */
 /* measured: schedule on probe for the nonvolatile body. */
 // FUN_003E2570 NONMATCHING
 #ifdef NON_MATCHING
@@ -1466,8 +1465,29 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4920);
 // FUN_003E4960
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4960);
 
+#pragma schedule on
 // FUN_003E49A0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e49a0);
+s32 func_003e49a0(void) {
+    *(void **)D_008873A4 = (void *)func_00442088;
+    *(void **)D_008873A8 = (void *)func_00446ed8;
+    *(void **)D_008873AC = (void *)func_00442830;
+    *(void **)D_008873B0 = (void *)func_00442de8;
+    *(void **)D_008873B4 = (void *)func_00442428;
+    *(void **)D_008873B8 = (void *)func_00442a80;
+    *(s64 (**)(s8 *, s64))D_008873BC = (s64 (*)(s8 *, s64))func_003e4960;
+    *(s64 (**)(s8 *, s64))D_008873C0 = (s64 (*)(s8 *, s64))func_003e4920;
+    *(void **)D_008873C4 = (void *)func_00443010;
+    *(void **)D_008873C8 = (void *)func_004426e8;
+    *(void **)D_008873CC = (void *)func_00442c30;
+    *(void **)D_008873D0 = (void *)func_003e47c0;
+    D_008873D4[0] = (s32 (*)(char *))func_00442948;
+    *(void **)D_008873D8 = (void *)func_003e4880;
+    *(void **)D_008873DC = (void *)func_003e48d0;
+    *(void **)D_008873E0 = (void *)func_00443f18;
+    *(void **)D_008873E4 = (void *)func_00442100;
+    return 1;
+}
+#pragma schedule off
 /* Best candidate archived at build/F3E_003e49a0_body.c: normalized_diff 94,
    object 220 / window 288 -- undersized, so the table init is incomplete. */
 
@@ -1574,8 +1594,74 @@ s32 func_003e5250(s32 arg0) {
 // FUN_003E5290
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5290);
 
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003E53B0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e53b0);
+u8 *func_003e53b0(s32 arg0) {
+    extern s32 func_003df050(s32, s32, u32 *, u32 *);
+    extern void func_0043f9c8(void *, s32, s32);
+    extern s32 func_003e2910(s32, void *, s32);
+    extern u8 *func_003e3110(u8 *, s32, s32);
+    extern u8 *func_003e84a0(void);
+    extern u8 *func_003e83a0(u8 *, void *);
+    extern void func_003e8130(u8 *, void *);
+    extern u8 *func_003e8310(u8 *, s32);
+    extern u8 *func_003e8180(u8 *, f32);
+    extern u8 *func_003e81c0(u8 *, f32);
+    struct {
+        u8 buffer[0x20];
+        s32 error0;
+        s32 error1;
+        u32 range;
+        u32 size;
+    } frame;
+    u8 *temp;
+
+    if (func_003df050(arg0, 1, &frame.size, &frame.range) == 0) {
+        goto fail_df050;
+    }
+    if (frame.range < 0x35000U) {
+        goto fail_range;
+    }
+    if (frame.range >= 0x37003U) {
+        goto fail_range;
+    }
+    func_0043f9c8(frame.buffer, 0, 0x20);
+    if (frame.size == func_003e2910(arg0, frame.buffer, frame.size)) {
+        goto size_ok;
+    }
+fail_size:
+    return NULL;
+fail_df050:
+    return NULL;
+size_ok:
+    temp = func_003e84a0();
+    if (temp == NULL) {
+        goto fail_temp;
+    }
+    if (func_003e3110(D_0070B710, arg0, (s32)temp) != 0) {
+        goto temp_ok;
+    }
+fail_e3110:
+    return NULL;
+fail_temp:
+    return NULL;
+temp_ok:
+    func_003e83a0(temp, frame.buffer);
+    func_003e8130(temp, &frame.buffer[8]);
+    func_003e8180(temp, *(f32 *)&frame.buffer[0x10]);
+    func_003e81c0(temp, *(f32 *)&frame.buffer[0x14]);
+    *(f32 *)(temp + 0x88) = *(f32 *)&frame.buffer[0x18];
+    func_003e8310(temp, *(s32 *)&frame.buffer[0x1C]);
+    return temp;
+fail_range:
+    frame.error0 = 1;
+    frame.error1 = func_003df590((s32)0x80000004);
+    func_003df4d0(&frame.error0);
+    return NULL;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: optimization_level 3 is load-bearing for func_003e5510. */
 #pragma optimization_level 3
 // FUN_003E5510
@@ -2205,7 +2291,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8a50);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8b10);
 // FUN_003E8C60
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8c60);
-/* measured: archived object 136B/window 160B, normalized_diff 37, differing_offsets=0x4c-0x6c; schedule/no_branch_likely probe aligned the call prologue but the success-path store/reload and tail remain unresolved. Ruled out direct versus result-local assignment, reload label, buffer local, and pragma-off shapes. */
 // FUN_003E8DC0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8dc0);
 // FUN_003E8E60

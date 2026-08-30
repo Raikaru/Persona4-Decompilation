@@ -348,6 +348,8 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252230);
 // FUN_00252710
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252710);
 
+/* measured: skipped; aggregate-stack candidate archived in
+   build/LRankUp_00252a60_body.c but remained a frame/register mismatch. */
 // FUN_00252A60
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
 
@@ -364,6 +366,9 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00252a60);
 // FUN_00253850
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00253850);
 
+/* measured: skipped; D_00887300 base rematerialization and saved-register
+   rotation remained a compiler-floor mismatch. Candidate archived in
+   build/LRankUp_00254a70_body.c. */
 // FUN_00254A70
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00254a70);
 
