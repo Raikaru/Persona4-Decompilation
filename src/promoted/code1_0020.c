@@ -139,6 +139,8 @@ typedef struct {
 } Work4;
 extern void func_003f6440(s32 arg0, s32 arg1);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
+
+
 extern void func_00201820(s32 arg0);
 extern void func_00205c20(u8 *arg0, s16 arg1, f32 fparg0, f32 fparg1,
                           s8 arg2, s32 arg3);
