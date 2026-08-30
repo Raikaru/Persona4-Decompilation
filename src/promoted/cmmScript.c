@@ -123,7 +123,10 @@ extern f32 iGpffff809c;
 extern f32 iGpffff8084;
 extern f32 iGpffff8094;
 extern u8 D_00794E70[];
-extern void func_0025ecd0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, void* arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, f32 arg13);
+extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
+                         s32 arg0, u8 arg1, s32 arg2, void* arg3,
+                         s32 arg4, s16 arg5, s16 arg6,
+                         f32 farg3, f32 farg4, f32 farg5, u8* arg7);
 extern s32 func_00243840(s32 arg0);
 extern void func_002782c0(s32 arg0, s32 arg1, s32 arg2, u32 arg3);
 extern void func_00275980();
@@ -1017,7 +1020,82 @@ s32 func_0024bb00(s32 arg0) {
 // FUN_0024BE40 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024be40);
 // FUN_0024C0E0
-INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c0e0);
+s32 func_0024c0e0(u8 *arg0, u8 *arg1)
+{
+    f32 temp_f1;
+    f32 var_f0;
+    s32 temp_16;
+    s32 temp_2;
+    s32 temp_16_2;
+    s32 temp_3;
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    s32 temp_2_5;
+
+    temp_2 = func_00452380(D_00635A78);
+    temp_16 = func_00452380(D_00635A78);
+    if (temp_16 == 0) {
+        func_0046d730(D_006359F0, 0x392);
+    }
+    temp_2_2 = (*(s32 *)func_00452560(temp_16) & 1) != 0;
+    if (temp_2_2 != 0) {
+        goto block_1;
+    }
+    func_0046d730(D_006359F0, 0x39D);
+block_1:
+    temp_16_2 = *(s32 *)((u8 *)func_00452560(temp_2) + 0x24);
+    temp_3 = *(s32 *)arg1;
+    if (temp_3 & 2) {
+        temp_2_2 = *(s32 *)(arg1 + 8);
+        if (temp_2_2 < 10) {
+            temp_f1 = (f32)temp_2_2;
+            temp_f1 = (iGpffff8094 * temp_f1) / 10.0f;
+            var_f0 = func_0044b7b0(temp_f1);
+        } else {
+            var_f0 = 1.0f;
+        }
+        func_0025ecd0(512.0f,
+                      418.0f + 200.0f * (1.0f - var_f0), 0.0f,
+                      0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)temp_16_2, 1, 0, 0,
+                      -30.0f, 1.0f, 1.0f, D_00794E70);
+        temp_2_3 = *(s32 *)(arg1 + 8) + 1;
+        *(s32 *)(arg1 + 8) = temp_2_3;
+        if (temp_2_3 >= 10) {
+            *(s32 *)arg1 &= ~2;
+            *(s32 *)(arg1 + 8) = 0;
+        }
+        goto block_20;
+    }
+    if (temp_3 & 4) {
+        temp_2_4 = *(s32 *)(arg1 + 8);
+        if (temp_2_4 < 10) {
+            temp_f1 = (f32)temp_2_4;
+            temp_f1 = (iGpffff8094 * temp_f1) / 10.0f;
+            var_f0 = func_0044b7b0(temp_f1);
+        } else {
+            var_f0 = 1.0f;
+        }
+        func_0025ecd0(512.0f, 418.0f, 0.0f,
+                      0xFFFFFF,
+                      (u8)(255.0f * (1.0f - var_f0)),
+                      0, (void *)(uintptr_t)temp_16_2, 1, 0, 0,
+                      -30.0f, 1.0f, 1.0f, D_00794E70);
+        temp_2_5 = *(s32 *)(arg1 + 8) + 1;
+        *(s32 *)(arg1 + 8) = temp_2_5;
+        if (temp_2_5 >= 10) {
+            *(s32 *)arg1 &= ~4;
+            *(s32 *)(arg1 + 8) = 0;
+            return 1;
+        }
+    } else {
+        func_0025ecd0(512.0f, 418.0f, 0.0f,
+                      0xFFFFFF, 0xFF, 0, (void *)(uintptr_t)temp_16_2, 1, 0, 0,
+                      -30.0f, 1.0f, 1.0f, D_00794E70);
+    }
+block_20:
+    return 0;
+}
 // FUN_0024C460
 INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024c460);
 /* measured: same H1 FPU FMA floor as FUN_0024C460 -- the func_0025ecd0 calls

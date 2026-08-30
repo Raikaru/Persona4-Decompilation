@@ -59,7 +59,7 @@ s32 func_0013a040(s16 *, s32, s16);
 void func_0013a060(void *);
 void func_0013a4a0(void *);
 void func_00138bf0(void *);
-s32 func_0013a530(void *, s32);
+s32 func_0013a530(u8 *, s32);
 void func_00138490(void *);
 extern char D_005ED9C0[];
 extern char D_005E57F0[];
@@ -185,16 +185,119 @@ void func_0013a4a0(void *arg0)
 /* measured: opt_common_subs off is required for the retail base+offset access order. */
 #pragma opt_common_subs on
 
-/* measured: switch and both data-copy loops match; the final loop's
-   float->s16 conversion guard (c.ole.s 0x4F000000; bc1t; sub.s/cvt.w.s/or
-   0x80000000) is the documented cmpPersona floor -- mwcc b210 emits bc1f
-   (or c.olt.s) for the out-of-line sub branch and different mfc1/or
-   registers, no spelling reproduces retail's c.ole.s+bc1t. Tried (s32)&
-   0xFFFF, (s16)(s32), explicit if/else in both orders, constant-left
-   comparison, #pragma opt_loop_invariants on (hoists the constants, -17
-   words) -- nd 59 floor, plus register allocation in both loops. */
+/* measured: setup/switch and data-copy loops match with common-subexpression
+   elimination disabled; re-enabling it before the table loop reproduces the
+   retail source/destination registers and hoisted float-conversion constants.
+   Loop-invariant optimization is required for the conversion preheader. */
+#pragma opt_common_subs off
+#pragma opt_loop_invariants on
 // FUN_0013A530
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a530);
+s32 func_0013a530(u8 *arg0, s32 arg1)
+{
+    s32 i;
+    s32 j;
+    u8 *table;
+    u8 *p;
+    u8 *src;
+    f32 value;
+
+    table = 0;
+    if (*(s32 *)(arg0 + 0x18) == arg1) {
+        return 0;
+    }
+    for (i = 0; i < 0x26; i++) {
+        p = arg0 + i * 0x30;
+        *(f32 *)(p + 0x584) = *(f32 *)(p + 0x594);
+        *(f32 *)(p + 0x588) = *(f32 *)(p + 0x598);
+        *(u16 *)(p + 0x5A0) = *(u16 *)(p + 0x5A4);
+        *(u16 *)(p + 0x5A6) = *(u16 *)(p + 0x5AA);
+        *(u8 *)(p + 0x59C) = *(u8 *)(p + 0x59E);
+    }
+    switch (arg1) {
+    case 0:
+        table = D_005EB5D0;
+        *(s32 *)(arg0 + 0x1C) = 0x220B;
+        *(s16 *)(arg0 + 0x582) = 0;
+        break;
+    case 1:
+        table = D_005EBA00;
+        break;
+    case 2:
+        *(s32 *)(arg0 + 0x1C) = 0x220B;
+        table = D_005EBE30;
+        *(s16 *)(arg0 + 0x582) = 0;
+        break;
+    case 3:
+        *(s32 *)(arg0 + 0x1C) = 0x269B;
+        table = D_005EC260;
+        *(s16 *)(arg0 + 0x582) = 1;
+        break;
+    case 4:
+        *(s32 *)(arg0 + 0x1C) = 0x241B;
+        table = D_005EC690;
+        *(s16 *)(arg0 + 0x582) = 1;
+        break;
+    case 5:
+        table = D_005ECAC0;
+        *(s32 *)(arg0 + 0x1C) = 0xC61;
+        *(f32 *)(arg0 + 0x8B8) =
+            34.0f * (f32)*(s16 *)(arg0 + 0x5E);
+        *(s16 *)(arg0 + 0x582) = 0;
+        break;
+    case 6:
+        table = D_005ECAC0;
+        *(s32 *)(arg0 + 0x1C) = 0x1861;
+        *(s16 *)(arg0 + 0x582) = 0;
+        break;
+    case 7:
+        table = D_005ECEF0;
+        *(s32 *)(arg0 + 0x1C) = 0xD61;
+        *(f32 *)(arg0 + 0x8B8) =
+            34.0f * (f32)*(s16 *)(arg0 + 0x5E);
+        *(s16 *)(arg0 + 0x582) = 0;
+        break;
+    case 8:
+        table = D_005ECEF0;
+        *(s32 *)(arg0 + 0x1C) = 0x1961;
+        *(s16 *)(arg0 + 0x582) = 0;
+        break;
+    case 9:
+        table = D_005ED320;
+        *(s32 *)(arg0 + 0x1C) = 0x249B;
+        *(s16 *)(arg0 + 0x582) = 2;
+        break;
+    case 10:
+        table = D_005ED320;
+        *(s32 *)(arg0 + 0x1C) = 0x249B;
+        *(s16 *)(arg0 + 0x582) = 2;
+        break;
+    default:
+        func_0046d730(D_005ED9C0, 0x5C9);
+        break;
+    }
+    if (table != 0) {
+        /* measured: re-enable common-subexpression optimization here to
+           reproduce retail's table-loop register allocation. */
+#pragma opt_common_subs on
+        for (j = 0; j < 0x26; j++) {
+            src = table + j * 0x1C;
+            p = arg0 + j * 0x30;
+            *(f32 *)(p + 0x58C) = *(f32 *)(src + 0);
+            *(f32 *)(p + 0x590) = *(f32 *)(src + 4);
+            *(u8 *)(p + 0x59D) = *(u8 *)(src + 0x10);
+            value = *(f32 *)(src + 8);
+            *(u16 *)(p + 0x5A2) = (u16)value;
+            value = *(f32 *)(src + 0xC);
+            *(u16 *)(p + 0x5A8) = (u16)value;
+            *(s32 *)(p + 0x5AC) = *(s32 *)(src + 0x14);
+            *(s32 *)(p + 0x5B0) = *(s32 *)(src + 0x18);
+        }
+        *(s32 *)(arg0 + 0x18) = arg1;
+        *(s16 *)(arg0 + 0x20) = 0;
+    }
+    return 1;
+}
+#pragma opt_loop_invariants off
 /* measured: retail hoists the lui 0x41c8 (25.0f constant) into the loop
    preheader; mwcc b210 sinks the materialization into the if-branch unless
    #pragma opt_loop_invariants on is active. Tried s32/u32/f32 locals, register,

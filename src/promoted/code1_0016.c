@@ -1134,7 +1134,101 @@ void func_00168de0(u8 *arg0, s32 arg1, f32 fparg0) {
     }
 }
 // FUN_00168EC0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00168ec0);
+s32 func_00168ec0(f32 *arg0, f32 **arg1, f32 *arg2)
+{
+    f32 abs_x;
+    f32 abs_y;
+    f32 abs_z;
+    s32 axis;
+    s32 prev;
+    s32 result;
+
+
+
+    result = 0;
+    abs_x = fabsf(arg2[0]);
+    abs_y = fabsf(arg2[1]);
+    abs_z = fabsf(arg2[2]);
+    axis = 0x7FFFFFFF;
+    if (abs_z > abs_y) {
+        axis = (abs_z > abs_x) ? 2 : 0;
+    } else {
+        if (abs_y > abs_x) {
+            axis = 1;
+        } else {
+            axis = 0;
+        }
+    }
+    if (axis != 0x7FFFFFFF) {
+        prev = 2;
+        switch (axis) {
+        case 0: {
+            f32 coord;
+            s32 i;
+            i = 0;
+            coord = arg0[1];
+            while (i < 3) {
+                if ((arg1[i][1] <= coord && coord < arg1[prev][1]) ||
+                    (arg1[prev][1] <= coord && coord < arg1[i][1])) {
+                    if (arg0[2] <
+                        arg1[i][2] +
+                            ((coord - arg1[i][1]) *
+                             (arg1[prev][2] - arg1[i][2])) /
+                                (arg1[prev][1] - arg1[i][1])) {
+                        result = !result;
+                    }
+                }
+                prev = i;
+                i += 1;
+            }
+            break;
+        }
+        case 1: {
+            f32 coord;
+            s32 i;
+            i = 0;
+            coord = arg0[2];
+            while (i < 3) {
+                if ((arg1[i][2] <= coord && coord < arg1[prev][2]) ||
+                    (arg1[prev][2] <= coord && coord < arg1[i][2])) {
+                    if (arg0[0] <
+                        arg1[i][0] +
+                            ((coord - arg1[i][2]) *
+                             (arg1[prev][0] - arg1[i][0])) /
+                                (arg1[prev][2] - arg1[i][2])) {
+                        result = !result;
+                    }
+                }
+                prev = i;
+                i += 1;
+            }
+            break;
+        }
+        case 2: {
+            f32 coord;
+            s32 i;
+            i = 0;
+            coord = arg0[1];
+            while (i < 3) {
+                if ((arg1[i][1] <= coord && coord < arg1[prev][1]) ||
+                    (arg1[prev][1] <= coord && coord < arg1[i][1])) {
+                    if (arg0[0] <
+                        arg1[i][0] +
+                            ((coord - arg1[i][1]) *
+                             (arg1[prev][0] - arg1[i][0])) /
+                                (arg1[prev][1] - arg1[i][1])) {
+                        result = !result;
+                    }
+                }
+                prev = i;
+                i += 1;
+            }
+            break;
+        }
+    }
+    }
+    return result;
+}
 // FUN_0016B8A0
 INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016b8a0);
 // FUN_0016BDD0
