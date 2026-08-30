@@ -46,6 +46,7 @@ extern char D_0063F0D0[];
 extern f32 D_008872F8[];
 extern u8 D_00794D50[];
 extern void func_002b1520(s32, u8 *);
+extern void func_002b2500(void);
 extern void func_0044ea90(void *msg, s32 id);
 extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
@@ -616,7 +617,6 @@ void func_002b2240(u8 *arg0) {
    normalized_diff 409; fndiff first differing offsets 0,4,8,10,12,14,16,
    18,20,22,23,24,26,27,28,29). It was rejected because the compiler
    allocated the base and loop counters to the wrong saved registers, emitted
-   a 0x50 frame instead of retail's 0x60 frame, and retained a 12B deficit.
    Bare INCLUDE_ASM is retained. */
 // FUN_002B2290
 INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b2290);
