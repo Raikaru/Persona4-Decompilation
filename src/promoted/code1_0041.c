@@ -191,7 +191,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415340);
 
 // FUN_00415580
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_00415580);
-
 // FUN_004156E0
 INCLUDE_ASM("asm/nonmatchings/code1_0041", func_004156e0);
 

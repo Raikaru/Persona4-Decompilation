@@ -70,13 +70,14 @@ static inline f32 p4_00362f00_add(f32 left, f32 right)
     return left + right;
 }
 extern void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1);
-extern void func_00367420(void);
-extern void func_003676f0(void);
+extern void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+extern void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
-extern void func_003679c0(s64 arg0, s32 arg1, u8 *arg2, f32 fparg0);
+extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 /* func_00367b80 is declared at its call site with no prototype so the
  * dispatcher preserves the incoming registers used by the retail call. */
-extern void func_00367d00(void);
+extern void func_00367b80();
+extern void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367f50(void);
 extern void func_0036a900(u8 *arg0);
 extern f32 fGpffff8390;
@@ -421,25 +422,25 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
         temp_3 = *arg2;
         switch (temp_3) {
         case 0:
-            func_00367420();
+            func_00367420(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 1:
             func_003675f0(*(PairBits *)&arg0, arg4, arg1);
             return;
         case 2:
-            func_003676f0();
+            func_003676f0(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 3:
             func_00367940(arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 4:
-            func_003679c0(*(s64 *)&arg0, arg1, (u8 *)arg2, arg4);
+            func_003679c0(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             return;
         case 5:
             func_00367b80();
             return;
         case 6:
-            func_00367d00();
+            func_00367d00(*(s64 *)&arg0, arg4, arg1, (u8 *)arg2);
             break;
         }
     }
@@ -448,7 +449,38 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
 // FUN_003672D0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003672d0);
 // FUN_00367420
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367420);
+void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+{
+    f32 y = *((f32 *)&arg0 + 1);
+    PairBits temp;
+    extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
+
+    if (arg1 & 0xFF) {
+        temp.f.x = *(f32 *)&arg0 - 10.0f;
+        temp.f.y = y + 20.0f;
+        func_003675f0(temp, fparg0, arg1);
+
+        temp.f.x = *(f32 *)&arg0 + 17.0f;
+        temp.f.y = y + 76.0f;
+        func_00367d00(temp.raw, fparg0, arg1, arg2);
+
+        temp.f.x = *(f32 *)&arg0 + 105.0f;
+        temp.f.y = y + 23.0f;
+        func_00367940(*(P4Pair *)&temp, fparg0, arg1, arg2);
+
+        temp.f.x = *(f32 *)&arg0 + 98.0f;
+        temp.f.y = y + 85.0f;
+        func_003679c0(temp.raw, fparg0, arg1, arg2);
+
+        temp.f.x = *(f32 *)&arg0 + 22.0f;
+        temp.f.y = y + 111.0f;
+        func_003676f0(temp.raw, fparg0, arg1, arg2);
+
+        temp.f.x = *(f32 *)&arg0 + 106.0f;
+        temp.f.y = *(f32 *)&arg0 + 108.0f;
+        func_00367b80(temp.raw, fparg0, arg1, arg2);
+    }
+}
 // FUN_003675F0
 void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
 {
@@ -468,7 +500,52 @@ void func_003675f0(PairBits arg0, f32 fparg0, s32 arg1)
                   0xFB, 0xA2, 0, fparg0, 0);
 }
 // FUN_003676F0
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003676f0);
+void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+{
+    f32 factor;
+    s32 alpha;
+    s32 tex0;
+    u8 value;
+    s16 offset;
+    s32 tex1;
+    f32 y;
+    f32 ybase;
+    f32 xbase;
+
+    factor = fparg0;
+    value = *(u8 *)(arg2 + 0x19);
+    tex0 = func_0046a770(D_005E5810);
+    if (tex0 == 0) {
+        func_0046d730(D_0064E460, 0xDD);
+    }
+    tex1 = func_0046a770(D_005E5850);
+    if (tex1 == 0) {
+        func_0046d730(D_0064E460, 0xDF);
+    }
+    alpha = arg1 & 0xFF;
+    alpha = 0xFF - alpha;
+    y = *((f32 *)&arg0 + 1);
+    func_0046d4c0(0, tex1, 0x3C, *(f32 *)&arg0, y,
+                  alpha, 0xFF, 0xFF, 0x81, factor, 0);
+    func_0046d4c0(0, tex1, 0x3B, *(f32 *)&arg0 + 76.0f, y,
+                  alpha, 0xFF, 0xFF, 0x81, factor, 0);
+    func_0046d4c0(0, tex1, 0x2A, *(f32 *)&arg0 + 7.0f, y + 38.0f,
+                  alpha, 0xFB, 0xA2, 0, factor, 0);
+    if (value < 10) {
+        offset = 11;
+    } else {
+        offset = 0;
+    }
+    ybase = y + 31.0f;
+    xbase = *(f32 *)&arg0 + 59.0f;
+    while (value > 0) {
+        func_0046d4c0(0, tex1, (value % 10) + 0x1D,
+                      xbase - (f32)offset, ybase,
+                      alpha, 0xFF, 0xA2, 0, factor, 0);
+        offset += 22;
+        value /= 10;
+    }
+}
 // FUN_00367B80
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367b80);
 // FUN_00367940
@@ -479,7 +556,65 @@ void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 tmp[12]; f3
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003679c0);
 
 // FUN_00367D00
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367d00);
+// measured: test ordered float loads with propagation disabled
+#pragma opt_propagation off
+void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+{
+    s32 alpha;
+    u8 value;
+    s32 tex0;
+    s16 offset;
+    s32 tex1;
+    f32 y;
+    f32 first_y;
+    f32 ybase;
+    f32 xbase;
+    f32 first_const;
+    f32 first_9;
+    f32 first_x;
+    f32 factor;
+
+    value = (u8)func_00104c70(*(s16 *)(arg2 + 4));
+    factor = fparg0;
+    tex0 = func_0046a770(D_005E5850);
+    if (tex0 == 0) {
+        func_0046d730(D_0064E460, 0x1A1);
+    }
+    tex1 = func_0046a770(D_005E57F0);
+    if (tex1 == 0) {
+        func_0046d730(D_0064E460, 0x1A3);
+    }
+    alpha = arg1 & 0xFF;
+    alpha = 0xFF - alpha;
+    y = *((f32 *)&arg0 + 1);
+    first_y = y - 48.0f;
+    first_const = 14.0f;
+    first_9 = 9.0f;
+    first_x = *(f32 *)&arg0;
+    first_x = p4_00362f00_add(first_9, first_x);
+    first_x = p4_00362f00_add(first_const, first_x);
+    func_0046d4c0(0, tex0, 0xC9,
+                  first_x, first_y,
+                  alpha, 0xEF, 0x89, 0, factor, 0);
+    func_0046d4c0(0, tex1, 0x1E, *(f32 *)&arg0 + 58.0f,
+                  y - 23.0f, alpha, 0xD1, 0x6B, 0, factor, 0);
+    if (value < 10) {
+        offset = 11;
+    } else {
+        offset = 0;
+    }
+    ybase = first_y - 5.0f;
+    xbase = *(f32 *)&arg0 + 64.0f;
+    while (value > 0) {
+        func_0046d4c0(0, tex0, (value % 10) + 0x1D,
+                      xbase - (f32)offset, ybase,
+                      alpha, 0xFF, 0xFF, 0x81, factor, 0);
+        offset += 22;
+        value /= 10;
+    }
+}
+// measured: restore default propagation
+#pragma opt_propagation on
 
 // FUN_00368D30
 void func_00368d30(u8 *arg0)
