@@ -17,6 +17,7 @@ extern s32 iGpffffb1a8;
 extern s32 iGpffffb9e8;
 extern u8 D_005DCB58[];
 extern u8 iGpffff85d0;
+extern u8 D_00761690;
 extern u8 D_005DD600[];
 extern u8 D_00796700[];
 extern u8 D_0079671F[];
@@ -58,6 +59,91 @@ extern void func_003b6f00(s32 arg0);
 extern void func_003b6da0(s32 arg0);
 extern s32 func_001036d0(u8 *arg0);
 extern void func_00103980(u8 *arg0);
+extern s32 func_00100e30(void);
+extern void func_00102490(void);
+extern void func_00102610(void);
+extern void func_001028c0(void);
+extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_0010d7b0(void);
+extern void func_00121b20(void);
+extern void func_00122430(s32 arg0);
+extern void func_00149620(s32 arg0);
+extern void func_001605a0(void);
+extern void func_001939a0(void);
+extern void func_002312e0(void);
+extern void func_00231330(void);
+extern void func_00246700(void);
+extern void func_0025ff90(void);
+extern void func_00264e70(void);
+extern void func_0026d840(void);
+extern void func_00274970(void);
+extern void func_00278940(void);
+extern void func_002789a0(void);
+extern void func_0029d950(void);
+extern void func_002aaa10(void);
+extern void func_002bdf20(void);
+extern void func_0034b970(void);
+extern void func_003f67e0(s32 arg0);
+extern void func_003f67f0(s32 arg0);
+extern void func_00418b18(s32 arg0);
+extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void func_0044f570(s32 arg0);
+extern void func_00451ca0(s32 arg0);
+extern void func_004544b0(void);
+extern void func_004559b0(void);
+extern s32 func_00457120(void);
+extern void func_00458fa0(void);
+extern void func_0045a730(s32 arg0, s32 arg1);
+extern void func_0045b430(void);
+extern void func_00460910(s32 arg0, s32 arg1);
+extern void func_00463520(void);
+extern void func_00466680(void);
+extern void func_0046d6b0(s32 arg0);
+extern void func_0047d050(s32 arg0);
+extern void func_00481440(s32 arg0);
+extern void func_00481a20(s32 arg0);
+extern void func_004b3250(s32 arg0);
+extern void func_004b6c90(s32 arg0, s32 arg1);
+extern void func_004c6eb0(s32 arg0);
+extern s32 func_004c6f50(s32 arg0, s32 arg1, s32 arg2);
+extern void func_004c7188(s32 arg0);
+extern void func_004ca720(void);
+extern void func_004cc200(s32 arg0, s32 arg1);
+extern void func_004cc218(s32 arg0);
+extern void func_004cd470(s32 arg0, s32 arg1);
+extern void func_0050b3f8(void *arg0);
+extern void func_004d8c78(void);
+extern void func_004f2798(s32 arg0, s32 arg1);
+extern void func_004f34b0(s32 arg0);
+extern void func_004f5bf0(s32 arg0, s32 arg1, s32 arg2);
+extern void func_00100dd0(void);
+extern void func_00100e00(void);
+extern void func_00111010(void);
+extern u8 D_00559840[];
+extern u8 D_005C4EC0[];
+extern u8 D_005C6350[];
+extern u8 D_005DB850[];
+extern u8 D_005DC788[];
+extern u8 D_005DC798[];
+extern u8 D_005DC7A8[];
+extern u8 D_005DC7B8[];
+extern u8 D_005DC7D0[];
+extern u8 D_005DC878[];
+extern s32 D_00764D00[];
+extern s32 D_00764D04[];
+extern s32 D_00764D08[];
+extern s32 D_00764D0C[];
+extern s32 D_00764D10[];
+extern s32 D_00764D14[];
+extern f32 D_00764D30[];
+extern s32 D_00764D34[];
+extern s32 D_00764D38[];
+extern s32 D_00764D3C[];
+extern u8 D_00764D50[];
+extern u8 D_00794510[];
+extern u8 D_007948A0[];
+extern f32 fGpffff8030;
+extern u8 iGpffff85d0;
 
 
 
@@ -150,8 +236,105 @@ s32 func_00100e30(void)
     );
     return 0;
 }
+/* measured: opt_propagation off keeps each GP-relative queue address in the caller's temporary registers. */
+#pragma opt_propagation off
+/* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
+#pragma opt_loop_invariants off
+/* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
+#pragma opt_common_subs off
 // FUN_00100E60
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00100e60);
+void func_00100e60(void)
+{
+    s32 one;
+    func_0046d6b0((s32)&func_00111010);
+    func_00451ca0(0x190);
+    func_00460910(0x7D0, 0x64);
+    func_004544b0();
+    func_004559b0();
+    func_0010d7b0();
+    func_0045b430();
+    func_00458fa0();
+    func_0043f9c8(&D_00764D10[0], 0, 0x14);
+    D_00764D10[0] = (s32)((u8 *)&D_00761690 + 4);
+    D_00764D14[0] = 0;
+    func_004d32f8((s32)&D_00764D10[0]);
+    func_004cc218(0);
+    one = 5;
+    func_004cd470(one, one);
+    func_004ca720();
+    func_004d8c78();
+    func_004cc200((s32)&func_00100e00, 0);
+    func_00418b18((s32)&func_00100e30);
+    D_00764D00[0] = 6;
+    D_00764D04[0] = 4;
+    D_00764D08[0] = 0x3D2;
+    D_00764D0C[0] = (s32)&D_00764D50;
+    func_004f34b0((s32)&D_00764D00[0]);
+    func_004f5bf0(0, 0, 1);
+    func_004c6eb0(0);
+    do {
+    } while (func_004c6f50((s32)((u8 *)&D_00761690 + 8),
+                           (s32)&D_005DC788, 0) != 0);
+    do {
+    } while (func_004c6f50((s32)((u8 *)&D_00761690 + 12),
+                           (s32)&D_005DC798, 0) != 0);
+    do {
+    } while (func_004c6f50((s32)((u8 *)&D_00761690 + 16),
+                           (s32)&D_005DC7A8, 0) != 0);
+    do {
+    } while (func_004c6f50((s32)((u8 *)&D_00761690 + 20),
+                           (s32)&D_005DC7B8, 0) != 0);
+    func_004f2798((s32)((u8 *)&D_00761690 + 8), (s32)&D_00559840);
+    func_004f2798((s32)((u8 *)&D_00761690 + 12), (s32)&D_005C4EC0);
+    func_004f2798((s32)((u8 *)&D_00761690 + 16), (s32)&D_005C6350);
+    func_004f2798((s32)((u8 *)&D_00761690 + 20), (s32)&D_005DB850);
+    func_004c7188((s32)((u8 *)&D_00761690 + 8));
+    func_0043f9c8(&D_00764D30[0], 0, 0x20);
+    D_00764D30[0] = *(f32 *)((u8 *)&fGpffff8030 + 8);
+    one = 1;
+    D_00764D34[0] = one;
+    D_00764D38[0] = one;
+    D_00764D3C[0] = 0;
+    func_0050b3f8(&D_00764D30[0]);
+    func_004cc200((s32)&func_00100dd0, 0);
+    func_0045a730(0, 1);
+    func_0045a730(1, 2);
+    func_0047d050((s32)&D_005DC878);
+    func_002312e0();
+    func_0044f570(func_00457120());
+    func_003f67e0(1);
+    func_003f67f0(1);
+    func_00466680();
+    func_00481a20(0xC7);
+    func_00481440((s32)&D_005DC7D0);
+    func_004b3250((s32)&D_007948A0);
+    func_004b6c90((s32)&D_00794510, 0xC7);
+    func_001939a0();
+    func_00246700();
+    func_0026d840();
+    func_00231330();
+    func_00274970();
+    func_002789a0();
+    func_00278940();
+    func_002bdf20();
+    func_0029d950();
+    func_00264e70();
+    func_0025ff90();
+    func_00102490();
+    func_00102610();
+    func_00463520();
+    func_001028c0();
+    func_001605a0();
+    func_002aaa10();
+    func_001029a0(0x1E, 0, 0, 0);
+    func_00149620(0);
+    func_00121b20();
+    func_00122430(0);
+    func_0034b970();
+}
+#pragma opt_loop_invariants on
+#pragma opt_common_subs on
+#pragma opt_propagation on
 // FUN_00101270
 s32 func_00101270(void)
 {

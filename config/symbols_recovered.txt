@@ -10,7 +10,6 @@ func_00100350 = 0x00100350; // type:data
 func_00100670 = 0x00100670; // type:data
 func_00100dd0 = 0x00100dd0; // type:data
 func_00100e00 = 0x00100e00; // type:data
-func_00100e60 = 0x00100e60; // type:data
 func_00102490 = 0x00102490; // type:data
 func_00102610 = 0x00102610; // type:data
 func_001026f0 = 0x001026f0; // type:data
