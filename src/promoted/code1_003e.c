@@ -1702,8 +1702,124 @@ void func_003e5520(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* measured: closes optimization_level 3 around func_003e5520. */
 #pragma optimization_level 2
 
+/* measured: schedule on moves the saved input into the initial guard delay
+   slot and preserves retail's recursive call delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely on keeps each NULL-child branch plain, as in
+   the retail recursive walk. */
+#pragma no_branch_likely on
 // FUN_003E5550
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5550);
+s32 func_003e5550(u8 ***arg0, u8 *arg1) {
+    u8 *temp_16;
+    u8 *temp_16_2;
+    u8 *temp_16_3;
+    u8 *temp_16_4;
+    u8 *temp_18;
+    u8 *temp_18_2;
+    u8 *temp_18_3;
+    u8 *temp_18_4;
+    u8 *temp_18_5;
+    u8 *temp_18_6;
+    u8 *temp_19;
+    u8 *temp_19_2;
+    u8 *temp_19_3;
+    u8 *temp_20;
+
+    if (arg1 != NULL) {
+        **arg0 = arg1;
+        *arg0 += 1;
+        temp_20 = *(u8 **)(arg1 + 0x9C);
+        if (temp_20 != NULL) {
+            **arg0 = temp_20;
+            *arg0 += 1;
+            temp_19 = *(u8 **)(temp_20 + 0x9C);
+            if (temp_19 != NULL) {
+                **arg0 = temp_19;
+                *arg0 += 1;
+                temp_18 = *(u8 **)(temp_19 + 0x9C);
+                if (temp_18 != NULL) {
+                    **arg0 = temp_18;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_18 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_18 + 0x98));
+                }
+                temp_18_2 = *(u8 **)(temp_19 + 0x98);
+                if (temp_18_2 != NULL) {
+                    **arg0 = temp_18_2;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_18_2 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_18_2 + 0x98));
+                }
+            }
+            temp_19_2 = *(u8 **)(temp_20 + 0x98);
+            if (temp_19_2 != NULL) {
+                **arg0 = temp_19_2;
+                *arg0 += 1;
+                temp_18_3 = *(u8 **)(temp_19_2 + 0x9C);
+                if (temp_18_3 != NULL) {
+                    **arg0 = temp_18_3;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_18_3 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_18_3 + 0x98));
+                }
+                temp_18_4 = *(u8 **)(temp_19_2 + 0x98);
+                if (temp_18_4 != NULL) {
+                    **arg0 = temp_18_4;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_18_4 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_18_4 + 0x98));
+                }
+            }
+        }
+        temp_19_3 = *(u8 **)(arg1 + 0x98);
+        if (temp_19_3 != NULL) {
+            **arg0 = temp_19_3;
+            *arg0 += 1;
+            temp_18_5 = *(u8 **)(temp_19_3 + 0x9C);
+            if (temp_18_5 != NULL) {
+                **arg0 = temp_18_5;
+                *arg0 += 1;
+                temp_16 = *(u8 **)(temp_18_5 + 0x9C);
+                if (temp_16 != NULL) {
+                    **arg0 = temp_16;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_16 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_16 + 0x98));
+                }
+                temp_16_2 = *(u8 **)(temp_18_5 + 0x98);
+                if (temp_16_2 != NULL) {
+                    **arg0 = temp_16_2;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_16_2 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_16_2 + 0x98));
+                }
+            }
+            temp_16_3 = *(u8 **)(temp_19_3 + 0x98);
+            if (temp_16_3 != NULL) {
+                **arg0 = temp_16_3;
+                *arg0 += 1;
+                temp_18_6 = *(u8 **)(temp_16_3 + 0x9C);
+                if (temp_18_6 != NULL) {
+                    **arg0 = temp_18_6;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_18_6 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_18_6 + 0x98));
+                }
+                temp_16_4 = *(u8 **)(temp_16_3 + 0x98);
+                if (temp_16_4 != NULL) {
+                    **arg0 = temp_16_4;
+                    *arg0 += 1;
+                    func_003e5550(arg0, *(u8 **)(temp_16_4 + 0x9C));
+                    func_003e5550(arg0, *(u8 **)(temp_16_4 + 0x98));
+                }
+            }
+        }
+    }
+    return 1;
+}
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket opened above func_003e5550. */
+#pragma schedule off
 
 // FUN_003E5830
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e5830);

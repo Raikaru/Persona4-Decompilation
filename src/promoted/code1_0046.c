@@ -216,8 +216,155 @@ s32 func_00461530(u8 *arg0, s32 *arg1)
     return (s32)arg0;
 }
 // FUN_00461560
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00461560);
-// measured: opt_propagation off retains the initial D_00887300 callback table and the 0x40-byte frame in func_00461a40.
+void func_00461560(u8 *arg0)
+{
+    s32 sp4C;
+    s32 sp48;
+    s32 temp_4_2;
+    u8 *temp_16;
+    u8 *temp_4;
+    u8 *temp_4_3;
+    u8 *temp_4_4;
+    u8 *temp_4_5;
+    u8 *var_16;
+    u8 *var_17;
+    u8 *var_17_2;
+    u8 *var_17_3;
+
+    temp_16 = *(u8 **)(arg0 + 0x1C);
+    if (temp_16 != NULL) {
+#pragma opt_propagation off
+        if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
+            {
+                void (**table)(s32, s32) =
+                    (void (**)(s32, s32))(u32)D_00887300;
+                table[0](6, 1);
+                table[0](8, 1);
+            }
+        }
+#pragma opt_propagation on
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+        var_17 = *(u8 **)(temp_16 + 8);
+        goto loop_00461560_first_test;
+loop_00461560_first_body:
+        if (func_003e8200(*(s32 *)D_008872E0,
+                          func_003bfae0(*(s32 *)(var_17 + 0))) != 0) {
+            if (*(s32 *)(var_17 + 4) == 1) {
+                D_00887304[0](0xE, &sp4C);
+                D_00887300[0](0xE, 0);
+            }
+            if (*((s32 *)((u8 *)&iGpffffaf60 - 0x18)) == 1) {
+                temp_4 = *(u8 **)(var_17 + 0);
+                ((void (*)(u8 *))(*(void **)(temp_4 + 0x48)))(temp_4);
+            }
+            if (*(s32 *)(var_17 + 4) == 1) {
+                D_00887300[0](0xE, sp4C);
+            }
+        }
+        var_17 = *(u8 **)(var_17 + 0x24);
+loop_00461560_first_test:
+        if (var_17 != NULL) {
+            goto loop_00461560_first_body;
+        }
+        var_17_2 = *(u8 **)(temp_16 + 0x14);
+        goto loop_00461560_second_test;
+loop_00461560_second_body:
+        sp48 = 0;
+        temp_4_2 = *(s32 *)(*(u8 **)(var_17_2 + 0) + 0x18);
+        if (temp_4_2 != 0) {
+            func_003c21e0(temp_4_2, func_00461530, &sp48);
+            if (*(f32 *)(var_17_2 + 0x14) >= 1.0f && sp48 != 0 &&
+                func_003e8200(*(s32 *)D_008872E0,
+                              func_003bfae0(*(s32 *)(var_17_2 + 0))) != 0) {
+                if (*(s32 *)(var_17_2 + 4) == 1) {
+                    D_00887304[0](0xE, &sp4C);
+                    D_00887300[0](0xE, 0);
+                }
+                if (*((s32 *)((u8 *)&iGpffffaf60 - 0x18)) == 1) {
+                    temp_4_3 = *(u8 **)(var_17_2 + 0);
+                    ((void (*)(u8 *))(*(void **)(temp_4_3 + 0x48)))(temp_4_3);
+                }
+                if (*(s32 *)(var_17_2 + 4) == 1) {
+                    D_00887300[0](0xE, sp4C);
+                }
+            }
+        }
+        var_17_2 = *(u8 **)(var_17_2 + 0x24);
+loop_00461560_second_test:
+        if (var_17_2 != NULL) {
+            goto loop_00461560_second_body;
+        }
+#pragma opt_propagation off
+        if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
+            {
+                void (**table)(s32, s32) =
+                    (void (**)(s32, s32))(u32)D_00887300;
+                table[0](6, 1);
+                table[0](8, 0);
+            }
+        }
+#pragma opt_propagation on
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+        var_17_3 = *(u8 **)(temp_16 + 0x18);
+        goto loop_00461560_third_test;
+loop_00461560_third_body:
+        if (func_003e8200(*(s32 *)D_008872E0,
+                          func_003bfae0(*(s32 *)(var_17_3 + 0))) != 0) {
+            if (*(s32 *)(var_17_3 + 4) == 1) {
+                D_00887304[0](0xE, &sp4C);
+                D_00887300[0](0xE, 0);
+            }
+            if (*((s32 *)((u8 *)&iGpffffaf60 - 8)) == 1) {
+                temp_4_4 = *(u8 **)(var_17_3 + 0);
+                ((void (*)(u8 *))(*(void **)(temp_4_4 + 0x48)))(temp_4_4);
+            }
+            if (*(s32 *)(var_17_3 + 4) == 1) {
+                D_00887300[0](0xE, sp4C);
+            }
+        }
+        var_17_3 = *(u8 **)(var_17_3 + 0x24);
+loop_00461560_third_test:
+        if (var_17_3 != NULL) {
+            goto loop_00461560_third_body;
+        }
+#pragma opt_propagation off
+        if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
+            {
+                void (**table)(s32, s32) =
+                    (void (**)(s32, s32))(u32)D_00887300;
+                table[0](6, 1);
+                table[0](8, 1);
+            }
+        }
+#pragma opt_propagation on
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x715FB);
+        var_16 = *(u8 **)(temp_16 + 0x1C);
+        goto loop_00461560_fourth_test;
+loop_00461560_fourth_body:
+        if (func_003e8200(*(s32 *)D_008872E0,
+                          func_003bfae0(*(s32 *)(var_16 + 0))) != 0) {
+            if (*(s32 *)(var_16 + 4) == 1) {
+                D_00887304[0](0xE, &sp4C);
+                D_00887300[0](0xE, 0);
+            }
+            if (*((s32 *)((u8 *)&iGpffffaf60 - 4)) == 1) {
+                temp_4_5 = *(u8 **)(var_16 + 0);
+                ((void (*)(u8 *))(*(void **)(temp_4_5 + 0x48)))(temp_4_5);
+            }
+            if (*(s32 *)(var_16 + 4) == 1) {
+                D_00887300[0](0xE, sp4C);
+            }
+        }
+        var_16 = *(u8 **)(var_16 + 0x24);
+loop_00461560_fourth_test:
+        if (var_16 != NULL) {
+            goto loop_00461560_fourth_body;
+        }
+    }
+}
 #pragma opt_propagation off
 // FUN_00461A40
 void func_00461a40(u8 *arg0)
@@ -272,7 +419,173 @@ loop_00461A40_test:
 // measured: closes opt_propagation around func_00461a40.
 #pragma opt_propagation on
 // FUN_00461BE0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00461be0);
+void func_00461be0(u8 *arg0)
+{
+    s32 sp4C;
+    s32 sp48;
+    s32 temp_4_3;
+    u8 *temp_16;
+    u8 *temp_4;
+    u8 *temp_4_2;
+    u8 *temp_4_4;
+    u8 *temp_4_5;
+    u8 *temp_4_6;
+    u8 *var_16;
+    u8 *var_17;
+    u8 *var_17_2;
+    u8 *var_17_3;
+    u8 *var_17_4;
+
+    temp_16 = *(u8 **)(arg0 + 0x1C);
+    if (temp_16 != NULL) {
+#pragma opt_propagation off
+        if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
+            {
+                void (**table)(s32, s32) =
+                    (void (**)(s32, s32))(u32)D_00887300;
+                table[0](6, 1);
+                table[0](8, 1);
+            }
+        }
+#pragma opt_propagation on
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x715FB);
+        var_17 = *(u8 **)(temp_16 + 0xC);
+        goto loop_00461BE0_first_test;
+loop_00461BE0_first_body:
+        if (func_003e8200(*(s32 *)D_008872E0,
+                          func_003bfae0(*(s32 *)(var_17 + 0))) != 0) {
+            if (*(s32 *)(var_17 + 4) == 1) {
+                D_00887304[0](0xE, &sp4C);
+                D_00887300[0](0xE, 0);
+            }
+            if (*((s32 *)((u8 *)&iGpffffaf60 - 0x14)) == 1) {
+                temp_4 = *(u8 **)(var_17 + 0);
+                ((void (*)(u8 *))(*(void **)(temp_4 + 0x48)))(temp_4);
+            }
+            if (*(s32 *)(var_17 + 4) == 1) {
+                D_00887300[0](0xE, sp4C);
+            }
+        }
+        var_17 = *(u8 **)(var_17 + 0x24);
+loop_00461BE0_first_test:
+        if (var_17 != NULL) {
+            goto loop_00461BE0_first_body;
+        }
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x735FB);
+        var_17_2 = *(u8 **)(temp_16 + 0x10);
+        goto loop_00461BE0_second_test;
+loop_00461BE0_second_body:
+        if (func_003e8200(*(s32 *)D_008872E0,
+                          func_003bfae0(*(s32 *)(var_17_2 + 0))) != 0) {
+            if (*(s32 *)(var_17_2 + 4) == 1) {
+                D_00887304[0](0xE, &sp4C);
+                D_00887300[0](0xE, 0);
+            }
+            if (*((s32 *)((u8 *)&iGpffffaf60 - 0x10)) == 1) {
+                temp_4_2 = *(u8 **)(var_17_2 + 0);
+                ((void (*)(u8 *))(*(void **)(temp_4_2 + 0x48)))(temp_4_2);
+            }
+            if (*(s32 *)(var_17_2 + 4) == 1) {
+                D_00887300[0](0xE, sp4C);
+            }
+        }
+        var_17_2 = *(u8 **)(var_17_2 + 0x24);
+loop_00461BE0_second_test:
+        if (var_17_2 != NULL) {
+            goto loop_00461BE0_second_body;
+        }
+#pragma opt_propagation off
+        if ((*(u16 *)(arg0 + 0x1A) & 2) == 0) {
+            {
+                void (**table)(s32, s32) =
+                    (void (**)(s32, s32))(u32)D_00887300;
+                table[0](6, 1);
+                table[0](8, 0);
+            }
+        }
+#pragma opt_propagation on
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+        var_17_3 = *(u8 **)(temp_16 + 0x14);
+        goto loop_00461BE0_third_test;
+loop_00461BE0_third_body:
+        sp48 = 0;
+        temp_4_3 = *(s32 *)(*(u8 **)(var_17_3 + 0) + 0x18);
+        if (temp_4_3 != 0) {
+            func_003c21e0(temp_4_3, func_00461530, &sp48);
+            if (sp48 == 0 &&
+                func_003e8200(*(s32 *)D_008872E0,
+                              func_003bfae0(*(s32 *)(var_17_3 + 0))) != 0) {
+                if (*(s32 *)(var_17_3 + 4) == 1) {
+                    D_00887304[0](0xE, &sp4C);
+                    D_00887300[0](0xE, 0);
+                }
+                if (*((s32 *)((u8 *)&iGpffffaf60 - 0xC)) == 1) {
+                    temp_4_4 = *(u8 **)(var_17_3 + 0);
+                    ((void (*)(u8 *))(*(void **)(temp_4_4 + 0x48)))(temp_4_4);
+                }
+                if (*(s32 *)(var_17_3 + 4) == 1) {
+                    D_00887300[0](0xE, sp4C);
+                }
+            }
+        }
+        var_17_3 = *(u8 **)(var_17_3 + 0x24);
+loop_00461BE0_third_test:
+        if (var_17_3 != NULL) {
+            goto loop_00461BE0_third_body;
+        }
+        func_003f6440(2, 0x42);
+        func_003f6440(3, 0x71801);
+        var_17_4 = *(u8 **)(temp_16 + 0x28);
+        goto loop_00461BE0_fourth_test;
+loop_00461BE0_fourth_body:
+        if (func_003e8200(*(s32 *)D_008872E0,
+                          func_003bfae0(*(s32 *)(var_17_4 + 0))) != 0) {
+            if (*(s32 *)(var_17_4 + 4) == 1) {
+                D_00887304[0](0xE, &sp4C);
+                D_00887300[0](0xE, 0);
+            }
+            if (*((s32 *)((u8 *)&iGpffffaf60 + 8)) == 1) {
+                temp_4_5 = *(u8 **)(var_17_4 + 0);
+                ((void (*)(u8 *))(*(void **)(temp_4_5 + 0x48)))(temp_4_5);
+            }
+            if (*(s32 *)(var_17_4 + 4) == 1) {
+                D_00887300[0](0xE, sp4C);
+            }
+        }
+        var_17_4 = *(u8 **)(var_17_4 + 0x24);
+loop_00461BE0_fourth_test:
+        if (var_17_4 != NULL) {
+            goto loop_00461BE0_fourth_body;
+        }
+        func_003f6440(2, 0x48);
+        func_003f6440(3, 0x71801);
+        var_16 = *(u8 **)(temp_16 + 0x24);
+        goto loop_00461BE0_fifth_test;
+loop_00461BE0_fifth_body:
+        if (func_003e8200(*(s32 *)D_008872E0,
+                          func_003bfae0(*(s32 *)(var_16 + 0))) != 0) {
+            if (*(s32 *)(var_16 + 4) == 1) {
+                D_00887304[0](0xE, &sp4C);
+                D_00887300[0](0xE, 0);
+            }
+            if (*((s32 *)((u8 *)&iGpffffaf60 + 4)) == 1) {
+                temp_4_6 = *(u8 **)(var_16 + 0);
+                ((void (*)(u8 *))(*(void **)(temp_4_6 + 0x48)))(temp_4_6);
+            }
+            if (*(s32 *)(var_16 + 4) == 1) {
+                D_00887300[0](0xE, sp4C);
+            }
+        }
+        var_16 = *(u8 **)(var_16 + 0x24);
+loop_00461BE0_fifth_test:
+        if (var_16 != NULL) {
+            goto loop_00461BE0_fifth_body;
+        }
+    }
+}
 // measured: opt_propagation off preserves the callback table pointer across jal calls while probing func_00462230.
 #pragma opt_propagation off
 // FUN_00462230

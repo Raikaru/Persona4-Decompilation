@@ -620,7 +620,134 @@ end:
     ;
 }
 // FUN_001D5130
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d5130);
+void func_001d5130(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+{
+    struct Frame {
+        f32 input[16];
+        f32 output[16];
+        f32 vector[4];
+    } frame;
+    u8 type;
+    u8 *entry;
+    s32 flags;
+    s32 lookup;
+    s32 lookup_offset;
+    u8 *lookup_base;
+
+    extern void func_003dcb40(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
+    extern f32 func_0044b950(f32 arg0, f32 arg1);
+    extern s32 func_0047a510(u8 *arg0, s32 arg1, f32 *arg2);
+    extern void func_0048a980(f32 *arg0);
+    extern void func_004bcf20(f32 arg0, f32 arg1, f32 arg2);
+
+    entry = arg2 + 8;
+    type = *(u8 *)(arg2 + 8);
+    switch (type) {
+    case 0:
+        func_003dcb40(frame.vector, (f32 *)D_0060A0F0, 1, arg0 + 0x40);
+        if (frame.vector[0] != 0.0f)
+            goto case0_nonzero;
+        if (frame.vector[2] == 0.0f)
+            goto case0_zero;
+case0_nonzero:
+        func_004bcf20(0.0f,
+                      func_0044b950(frame.vector[0], frame.vector[2]),
+                      0.0f);
+        __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
+        goto case0_done;
+case0_zero:
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+case0_done:
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 0xC:
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        break;
+    case 1:
+    case 0xD:
+        flags = *(s32 *)(arg1 + 0x98);
+        if ((flags & 2) == 0)
+            goto case1_no_flags;
+        if (func_0047a510(*(u8 **)(arg1 + 0xA00),
+                          *(u16 *)(entry + 4), frame.input) == 0)
+            goto case1_failure;
+            frame.output[0] = frame.input[0];
+            frame.output[1] = frame.input[1];
+            frame.output[2] = frame.input[2];
+            frame.output[3] = 0.0f;
+            frame.output[4] = frame.input[4];
+            frame.output[5] = frame.input[5];
+            frame.output[6] = frame.input[6];
+            frame.output[7] = 0.0f;
+            frame.output[8] = frame.input[8];
+            frame.output[9] = frame.input[9];
+            frame.output[10] = frame.input[10];
+            frame.output[11] = 0.0f;
+            frame.output[12] = frame.input[12];
+            frame.output[13] = frame.input[13];
+            frame.output[14] = frame.input[14];
+            frame.output[15] = 0.0f;
+            func_0048a980(frame.output);
+            __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
+        break;
+case1_failure:
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        break;
+case1_no_flags:
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        break;
+    case 8:
+    case 9:
+        flags = *(s32 *)(arg1 + 0x98);
+        if ((flags & 2) != 0) {
+            lookup_offset = 12 * (type == 8);
+            lookup_base = *(u8 **)(arg1 + 0xA00);
+            lookup_base += 0x290;
+            lookup = *(s32 *)(lookup_base + lookup_offset);
+            if (lookup == 0)
+                break;
+            if (func_0047a510((u8 *)lookup,
+                              *(u16 *)(entry + 4), frame.input) == 0)
+                goto case8_failure;
+            frame.output[0] = frame.input[0];
+            frame.output[1] = frame.input[1];
+            frame.output[2] = frame.input[2];
+            frame.output[3] = 0.0f;
+            frame.output[4] = frame.input[4];
+            frame.output[5] = frame.input[5];
+            frame.output[6] = frame.input[6];
+            frame.output[7] = 0.0f;
+            frame.output[8] = frame.input[8];
+            frame.output[9] = frame.input[9];
+            frame.output[10] = frame.input[10];
+            frame.output[11] = 0.0f;
+            frame.output[12] = frame.input[12];
+            frame.output[13] = frame.input[13];
+            frame.output[14] = frame.input[14];
+            frame.output[15] = 0.0f;
+            func_0048a980(frame.output);
+            __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
+            break;
+case8_failure:
+            __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        } else {
+            __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        }
+        break;
+    case 7:
+    case 0xA:
+    case 0xB:
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        break;
+    case 5:
+    case 6:
+        break;
+    default:
+        break;
+    }
+}
 // FUN_001D53E0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d53e0);
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
@@ -1380,7 +1507,85 @@ test:
     return matches;
 }
 // FUN_001D94D0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d94d0);
+int func_001d94d0(int param_1, int param_2, int param_3, int param_4, int param_5, code param_6)
+{
+    typedef signed __int128 s128;
+    u8 *unit;
+    u8 *work;
+    u16 flags;
+    s32 type_mask;
+    s32 options;
+    s32 option_one;
+    s32 option_two;
+    s32 option_four_eight;
+    s32 option_four_value;
+    s32 ignore_dead_value;
+    s32 status;
+    s32 effects;
+
+    extern s32 func_0023d6e0(s16 arg0);
+    extern s8 func_00233a90(u8 *arg0, s32 arg1);
+    extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
+    extern s32 func_0010f420(u16 arg0, u16 arg1);
+
+    (void)param_1;
+    unit = *(u8 **)(iGpffffb3ac + 0x174);
+    type_mask = (u16)param_3;
+    options = (u16)param_5;
+    option_one = options & 1;
+    option_two = options & 2;
+    option_four_eight = options & 0xC;
+    option_four_value = options & 4;
+    ignore_dead_value = param_4 & 0x80000;
+    goto test;
+
+loop:
+    flags = *(u16 *)(unit + 0x1A);
+    if ((flags & 1) != 0 && (flags & 8) != 0) {
+        work = *(u8 **)(unit + 0x30);
+        if ((type_mask & (1 << *(u8 *)(work + 0xA2))) != 0) {
+            if (options == 0)
+                goto check_general;
+            if (option_one != 0 &&
+                func_00232710(*(u8 **)(work + 0xA64), 0x100000) == 0)
+                goto next;
+            if (option_two != 0) {
+                status = func_0023d6e0((s16)param_2);
+                if ((status & 0xE0001) == 0) {
+                    if ((status & 2) != 0) {
+                        effects = func_00233a90(*(u8 **)(work + 0xA64), 0x10);
+                        if (effects > 0)
+                            goto next;
+                    } else if ((status & 0x40) == 0) {
+                        effects = func_00233a90(*(u8 **)(work + 0xA64), 0x11);
+                        if (effects > 0)
+                            goto next;
+                    }
+                }
+            }
+            if (option_four_eight != 0 &&
+                *(u8 *)(work + 0xA2) == 1 &&
+                func_001f9ce0(unit, (s16)param_2) == 0 &&
+                func_0010f420(*(u16 *)(work + 0xA4), (u16)param_2) == 0) {
+                if (option_four_value != 0)
+                    goto next;
+                return 1;
+            }
+check_general:
+            if ((ignore_dead_value == 0 ||
+                 func_002428f0(*(u8 **)(work + 0xA64), 0) == 0) &&
+                func_00232710(*(u8 **)(work + 0xA64), param_4) == 0 &&
+                param_6(unit, param_2) != 0)
+                return 1;
+        }
+    }
+next:
+    unit = *(u8 **)(unit + 0x450);
+test:
+    if (unit != NULL)
+        goto loop;
+    return 0;
+}
 // FUN_001D9740
 s32 func_001d9740(u8 *arg0, s32 arg1)
 {
