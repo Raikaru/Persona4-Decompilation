@@ -833,19 +833,30 @@ fromSPR, `0x1000D400` chan 9 toSPR, `+0x00 CHCR/+0x10 MADR/+0x20 QWC/+0x80
 SADR`), both already partly attested by the existing `0x1000C000`/`0x1000E010`
 reads in `code1_0042.c`.
 
-**Not closed yet.** `func_003a4d50`'s retail control flow is hand-scheduled
-with backward cross-jumps between wait/poll blocks (e.g. after an
-expensive `D_PCR`/`bc0f` drain-wait for channel 8, it jumps back to
-*re-check* channel 9's busy bit from the top rather than falling through) --
-this reads as either genuine hand-written assembly in the original source or
-heavily-macroed C with the wait/poll pairs duplicated at every call site
-(there is no `jal` to a shared subroutine anywhere in the 268-instruction
-body). A faithful reconstruction most likely needs 1:1 goto-per-basic-block
-C, not restructured nested ifs. Left as a queued, fully-scoped lane target
-rather than hand-carried to MATCH in this session: the size (1072-4592
-bytes) and control-flow complexity make it an expensive single function,
-while the 920-function never-attempted backlog (see wave 11/12 above) has a
-much better match-per-hour rate for lanes right now.
+**Attempted, still not closed.** `func_003a4d50`'s retail control flow is
+hand-scheduled with backward cross-jumps between wait/poll blocks: every
+busy-check is a `bnez` branching *forward into* a cold wait-block placed
+after the main body (not a fallthrough `if`), and each wait-block ends
+with an unconditional `goto` back into the middle of the main flow --
+confirmed by manual disassembly of the full 268-instruction body (there is
+no `jal` to a shared subroutine anywhere in it). A goto-per-basic-block C
+reconstruction was written mirroring this exactly (14 labels, matched
+register mapping `arg0`=dest/`arg1`=src confirmed independently via the
+`func_0043f810(dst,src,size)` tail-call argument order, `tail = arg2 - qwc
+* 16` confirmed against retail's `subu` rather than `arg2 % 16`'s `andi`
+codegen) and reached `MATCH19/MISMATCH1`, object 1136B against a 1072B
+window -- *larger* than retail, meaning MWCC duplicated at least one small
+block (most likely the `tail_check` label, `goto`'d from three sites) that
+a straight assembly source would have shared once. Reverted to bare
+`INCLUDE_ASM` per policy. The next attempt should either restructure to
+remove the triple-entry label (duplicate the tiny body at each site
+explicitly, matching whatever the compiler's own duplication threshold
+is) or accept the duplication and instead match its *content* exactly.
+Left as a queued, fully-scoped lane target rather than hand-carried to
+MATCH in this session: the size (1072-4592 bytes) and control-flow
+complexity make it an expensive single function, while the 920-function
+never-attempted backlog (see wave 11/12 above) has a much better
+match-per-hour rate for lanes right now.
 
 ### Is the rest just C we have not shaped?
 
