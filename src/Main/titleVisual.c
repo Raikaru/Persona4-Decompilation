@@ -22,8 +22,8 @@ extern void func_0047a220(void *arg0, void *arg1);
 extern void func_0047a260(void *arg0);
 extern void func_004789c0(void *arg0);
 extern void func_0047a320(void *arg0);
-extern void func_00479910(void *arg0);
-extern void func_0025f3f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
+extern void func_00479910(s32 arg0);
+extern void func_0025f3f0(f32, f32, f32, s32, s32, s32, s32, s32, s32);
 extern void func_001102f0(void *arg0, s32 arg1, s32 arg2, f32 fparg0);
 extern void *func_00457120(void);
 extern u8 *func_003e9700(s32 arg0);
@@ -77,15 +77,78 @@ void func_002aaf20(f32 fparg0, f32 fparg1, f32 fparg2, u8 *arg0, f32 fparg3, f32
     }
 }
 
-/* measured: retail hoists &D_00887300[0] into $s0 (lui+addiu once) and per
-   call emits args then lw $v0,0($s0) -- 13 call sites; mwcc b210
-   rematerializes lui+lw per call (nd 151, frame -0x60 vs -0x70). Same
-   D_00887300 render-vtable hoist floor as func_002ab550 in this file. */
-/* measured: the best exploratory C scored nd 432 (object 700B / window
-   672B); it exceeded the retail slot and was discarded, so no real body is
-   retained. */
+/* measured: opt_propagation off preserves retail's cached render-table base. */
+#pragma opt_propagation off
 // FUN_002AB0E0
-INCLUDE_ASM("asm/nonmatchings/titleVisual", func_002ab0e0);
+void func_002ab0e0(u8 *arg0, u8 *arg1) {
+    f32 temp_5;
+    f32 temp_4;
+    f32 temp_3;
+    u32 temp_2;
+    s32 temp_1;
+    void (**render)(u32 state, u32 value);
+
+    temp_2 = *(u32 *)(arg1 + 0xC);
+    temp_5 = *(f32 *)(arg1 + 0);
+    temp_4 = *(f32 *)(arg1 + 4);
+    temp_3 = *(f32 *)(arg1 + 8);
+    temp_1 = *(s32 *)(arg1 + 0x10);
+    render = &D_00887300[0];
+    (*render)(10, 5);
+    (*render)(11, 6);
+    (*render)(14, 0);
+    (*render)(12, 1);
+    (*render)(7, 2);
+    (*render)(9, 2);
+    (*render)(2, 4);
+    (*render)(20, 1);
+    (*render)(6, 0);
+    (*render)(8, 0);
+    func_003f6440(3, 0x50003);
+    func_003f6440(2, 0x44);
+    (*render)(1, 0);
+    if ((temp_1 & 1) != 0) {
+        (*render)(6, 1);
+    }
+    if ((temp_1 & 2) != 0) {
+        (*render)(8, 1);
+    }
+    if ((temp_1 & 4) != 0) {
+        func_003f6440(3, 0x5000D);
+    }
+    if ((temp_1 & 8) != 0) {
+        func_003f6440(2, 0x54);
+    }
+    if ((temp_1 & 0x20) != 0) {
+        func_003f6440(2, 0x58);
+    }
+    if ((temp_1 & 0x40) != 0) {
+        func_00364c50();
+    }
+    if ((temp_1 & 0x10) != 0) {
+        func_00489f80();
+    }
+    func_0025f3f0(
+        temp_5,
+        temp_4,
+        temp_3,
+        (s32)(temp_2 >> 8),
+        (s32)(temp_2 & 0xFF),
+        *(s32 *)(arg1 + 0x18),
+        0,
+        *(s32 *)(arg1 + 0x14),
+        0
+    );
+    if ((temp_1 & 0x10) != 0) {
+        func_0048a000();
+    }
+    if ((temp_1 & 0x40) != 0) {
+        func_00364c70();
+    }
+    jtbl_008873EC[0](arg1);
+}
+#pragma opt_propagation on
+
 // FUN_002AB380
 void func_002ab380(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5) {
     u8 *temp_2;
@@ -131,16 +194,51 @@ void func_002ab4b0(void *arg0, u8 *arg1) {
     jtbl_008873EC[0](arg1);
 }
 
-/* measured: retail hoists &D_00887300[0] into $s0 (lui+addiu once) and per
-   call emits the args then lw $v0,0($s0); mwcc b210 rematerializes lui+lw
-   per call before the args -- 14 call sites (nd 128 for D_00887300[0](),
-   128 for (*D_00887300)(), 126 for a cached local table pointer). Same
-   D_00887300 render-vtable hoist floor as mainDraw.c func_001015c0. */
-/* measured: the best exploratory C scored nd 356 (object 600B / window
-   576B); it exceeded the retail slot and was discarded, so no real body is
-   retained. */
+/* measured: opt_propagation off preserves retail's cached render-table base. */
+#pragma opt_propagation off
 // FUN_002AB550
-INCLUDE_ASM("asm/nonmatchings/titleVisual", func_002ab550);
+void func_002ab550(u8 *arg0, s8 *arg1) {
+    void (**render)(u32 state, u32 value);
+
+    render = D_00887300;
+    render[0](10, 5);
+    render[0](11, 6);
+    render[0](14, 0);
+    render[0](12, 1);
+    render[0](7, 2);
+    render[0](9, 2);
+    render[0](2, 4);
+    render[0](20, 2);
+    render[0](6, 0);
+    render[0](8, 0);
+    func_003f6440(3, 0x50003);
+    func_003f6440(2, 0x44);
+    render[0](1, 0);
+    if ((*(s32 *)(arg0 + 0xD8) & 8) != 0) {
+        render[0](6, 1);
+    }
+    if ((*(s32 *)(arg0 + 0xD8) & 0x10) != 0) {
+        render[0](8, 1);
+    }
+    if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
+        func_00364c50();
+    }
+    if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
+        func_00489f80();
+    }
+    func_0047a220(arg0, arg1);
+    func_0047a260(arg0);
+    func_004789c0(arg0);
+    func_0047a320(arg0);
+    func_00479910(*(s32 *)(arg0 + 0xDC));
+    if ((*(s32 *)(arg0 + 0xD8) & 0x40000) != 0) {
+        func_00364c70();
+    }
+    if ((*(s32 *)(arg0 + 0xD8) & 0x100000) != 0) {
+        func_0048a000();
+    }
+}
+#pragma opt_propagation on
 
 // FUN_002AB790
 void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 fparg3, s32 arg2, u8 *arg3, void *arg4) {
@@ -276,14 +374,129 @@ void func_002ab790(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, f32 f
     }
 }
 
-/* measured: retail hoists &D_008873F4[0] into $s0 right after the first
-   assert (3 alloc calls, each lw $v0,0($s0)); mwcc b210 never reproduces
-   that placement: a declaration initializer materializes the base at
-   function entry (nd 19, 2-word shift), an assignment at the right spot
-   makes the FIRST alloc call re-derive lui+lw (nd 211, 1-word cascade).
-   Same constant-address base-materialization family as the D_00887300
-   render-vtable hoist floor. */
-/* measured: no real C body was produced for this 1088B retail window; no
-   candidate nd was retained. */
+/* measured: opt_propagation off preserves the retail alloc-table base hoist. */
+#pragma opt_propagation off
 // FUN_002ABB30
-INCLUDE_ASM("asm/nonmatchings/titleVisual", func_002abb30);
+void func_002abb30(
+    f32 fparg0,
+    f32 fparg1,
+    f32 fparg2,
+    s32 arg0,
+    s32 arg1,
+    f32 fparg3,
+    s32 arg2,
+    u8 *arg3,
+    void *arg4
+) {
+    f32 sp90[4];
+    f32 spA0[4];
+    f32 spB0[4];
+    f32 spC8[2];
+    u8 *var;
+    s32 count;
+    u8 *packet;
+    u8 *packet3;
+    u8 *callback;
+    u32 color;
+    u8 *(**alloc)(s32, s32, s32);
+
+    var = (u8 *)&spC8[0];
+    count = 4;
+    if (var != NULL) {
+        do {
+            *var = 0;
+            var += 1;
+            count -= 1;
+        } while (count != 0);
+    }
+    spC8[1] = spC8[0];
+    func_0044ea90(D_0063EE50, 0x91);
+    alloc = D_008873F4;
+    packet = alloc[0](1, 0x1C, 0x40000);
+    var = (u8 *)&sp90[0];
+    count = 0x10;
+    if (var != NULL) {
+        do {
+            *var = 0;
+            var += 1;
+            count -= 1;
+        } while (count != 0);
+    }
+    *(s32 *)&sp90[0] = 0;
+    *(s32 *)&sp90[1] = 0;
+    *(s32 *)&sp90[2] = 640;
+    *(s32 *)&sp90[3] = 480;
+    *(Float4 *)(packet + 0) = *(Float4 *)&sp90[0];
+    *(s32 *)(packet + 0x10) = 0;
+    *(Byte4 *)(packet + 0x14) = *(Byte4 *)&spC8[1];
+    *(s32 *)(packet + 0x18) = 0x12;
+    if (arg4 != NULL) {
+        callback = func_00460990();
+        *(void **)(callback + 8) = (void *)func_002aabf0;
+        *(u8 **)(callback + 0x10) = packet;
+        func_00460ac0(arg4, callback);
+    } else {
+        func_002aabf0(NULL, packet);
+    }
+    func_002ab790(fparg0, fparg1, fparg2, arg0, arg1, fparg3, arg2, arg3, arg4);
+    color = (u32)((arg0 << 8) | arg1);
+    ((u8 *)&spC8[1])[0] = (u8)(color >> 24);
+    ((u8 *)&spC8[1])[1] = (u8)(color >> 16);
+    ((u8 *)&spC8[1])[2] = (u8)(color >> 8);
+    ((u8 *)&spC8[1])[3] = (u8)color;
+    func_0044ea90(D_0063EE50, 0x91);
+    packet = alloc[0](1, 0x1C, 0x40000);
+    var = (u8 *)&spA0[0];
+    count = 0x10;
+    if (var != NULL) {
+        do {
+            *var = 0;
+            var += 1;
+            count -= 1;
+        } while (count != 0);
+    }
+    *(s32 *)&spA0[0] = 0;
+    *(s32 *)&spA0[1] = 0;
+    *(s32 *)&spA0[2] = 640;
+    *(s32 *)&spA0[3] = 480;
+    *(Float4 *)(packet + 0) = *(Float4 *)&spA0[0];
+    *(f32 *)(packet + 0x10) = 1.0f;
+    *(Byte4 *)(packet + 0x14) = *(Byte4 *)&spC8[1];
+    *(s32 *)(packet + 0x18) = 1;
+    if (arg4 != NULL) {
+        callback = func_00460990();
+        *(void **)(callback + 8) = (void *)func_002aabf0;
+        *(u8 **)(callback + 0x10) = packet;
+        func_00460ac0(arg4, callback);
+    } else {
+        func_002aabf0(NULL, packet);
+    }
+    func_0044ea90(D_0063EE50, 0x91);
+    packet3 = alloc[0](1, 0x1C, 0x40000);
+    var = (u8 *)&spB0[0];
+    count = 0x10;
+    if (var != NULL) {
+        do {
+            *var = 0;
+            var += 1;
+            count -= 1;
+        } while (count != 0);
+    }
+    *(s32 *)&spB0[0] = 0;
+    *(s32 *)&spB0[1] = 0;
+    *(s32 *)&spB0[2] = 640;
+    *(s32 *)&spB0[3] = 480;
+    *(Float4 *)(packet3 + 0) = *(Float4 *)&spB0[0];
+    *(s32 *)(packet3 + 0x10) = 0;
+    *(Byte4 *)(packet3 + 0x14) = *(Byte4 *)&spC8[1];
+    *(s32 *)(packet3 + 0x18) = 8;
+    if (arg4 != NULL) {
+        callback = func_00460990();
+        *(void **)(callback + 8) = (void *)func_002aabf0;
+        *(u8 **)(callback + 0x10) = packet3;
+        func_00460ac0(arg4, callback);
+    } else {
+        func_002aabf0(NULL, packet3);
+    }
+}
+#pragma opt_propagation on
