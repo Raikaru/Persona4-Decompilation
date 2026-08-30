@@ -130,9 +130,15 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364c90);
 
 
 
+/* measured: clean-C probe was object 1488B over a 2080B window (nd 495).
+   Retail's vertex path contains COP1 accumulator adda/msub/madd sequences;
+   the archived plain-C probe is not byte-exact and remains uncommitted. */
 // FUN_00364FB0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00364fb0);
 
+/* measured: best clean-C probe was object 748B over a 752B window (nd 163).
+   Five source/declaration-order variants retained the same saved-register and
+   scheduler residual, so the archived probe is intentionally not committed. */
 // FUN_003657D0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_003657d0);
 
@@ -140,12 +146,9 @@ INCLUDE_ASM("asm/nonmatchings/shdMisc", func_003657d0);
 // FUN_00365AC0
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365ac0);
 
-/* measured: nd 787 with a full C body (object 1208B over a 1152B window).
-   Wave 10 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation, not a settled floor. Established along the way: the signature is
-   (s64 arg0, ...) which gives retail's single `sd` spill instead of two `sw`,
-   and D_0064E2F8 needs an array declaration to get absolute lui/addiu rather
-   than GPREL. Re-attempt from there. */
+/* measured: closest clean-C probe was object 1720B over a 1152B window
+   (normalized diff 414); packet stack placement and compiler schedule remained
+   nonmatching, so the archived probe is intentionally not committed. */
 // FUN_00365F00
 INCLUDE_ASM("asm/nonmatchings/shdMisc", func_00365f00);
 
