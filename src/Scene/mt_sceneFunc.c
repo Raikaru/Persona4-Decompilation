@@ -88,6 +88,7 @@ extern void func_0043f9c8(void *dst, s32 value, s32 size);
 extern f32 func_003e40b0();
 extern s64 D_0063B110;
 extern f32 D_0063B118;
+extern u8 D_0063B110_abs[];
 extern f32 fGpffff8048;
 extern void func_003e0870(void *dst, void *src, f32 angle, s32 mode);
 extern u8 *func_003e4320(void *dst, void *src, void *mat);
@@ -107,7 +108,7 @@ extern void func_00440b68(const void *msg, u32 value);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 extern u32 *jtbl_008873E8[];
 extern s32 func_004577d0(void *arg0, f32 arg1);
-extern s32 func_00457120(void);
+extern u8 *func_00457120(void);
 extern u8 *func_003e0f80(void);
 extern void func_003e0c90(void *dst, void *src, s32 mode);
 extern s32 func_0026d400(void *arg0);
@@ -135,6 +136,11 @@ extern s64 D_0063B0B8[];
 extern f32 D_0063B0C0[];
 extern void func_00268a70(u8 *arg0);
 extern void func_00268ad0(u8 *arg0);
+extern u8 D_0063B160_abs[];
+extern u8 D_0063B170_abs[];
+extern u8 D_0063B180_abs[];
+extern u8 D_0063B190_abs[];
+extern void func_0026c190(float *out, void *resource, f32 scale);
 
 // FUN_00268B20
 void func_00268b20(u32 arg0)
@@ -752,12 +758,78 @@ s32 func_00269c20(u32 unk, s32 arg1) {
 // FUN_00269C70
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269c70);
 
-/* measured: nd 337 with a full C body (object 604B against a 624B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
+/* measured: opt_propagation off closes nd 5 -> 0 for global-load ordering. */
+#pragma opt_propagation off
 // FUN_00269DB0
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269db0);
+void func_00269db0(float *param_1, float *param_2)
+{
+    typedef struct SceneMatrixAngles {
+        RwV3d right;
+        u32 flags;
+        RwV3d up;
+        u32 pad1;
+        RwV3d at;
+        u32 pad2;
+        RwV3d pos;
+        u32 pad3;
+    } SceneMatrixAngles;
+    SceneMatrixAngles matrix;
+    RwV3d input;
+    RwV3d zero = {0.0f, 0.0f, 0.0f};
+    RwV3d axis;
+    f32 at_x;
+    f32 axis_x;
+    f32 scale;
+    f32 value;
+    s32 adjusted;
+
+    {
+        s64 xy = *(s64 *)D_0063B110_abs;
+        f32 z = *(f32 *)(D_0063B110_abs + 8);
+        *(s64 *)&axis.x = xy;
+        axis.z = z;
+    }
+    adjusted = 0;
+    func_003e40b0(&input, param_2);
+    matrix.pos = zero;
+    matrix.at = input;
+    func_003e40b0(&matrix.at, &matrix.at);
+
+    matrix.right.x = matrix.at.y * axis.z - matrix.at.z * axis.y;
+    at_x = matrix.at.x;
+    axis_x = axis.x;
+    matrix.right.y = matrix.at.z * axis_x - at_x * axis.z;
+    matrix.right.z = at_x * axis.y - matrix.at.y * axis_x;
+    func_003e40b0(&matrix.right, &matrix.right);
+
+    matrix.up.x = matrix.at.y * matrix.right.z - matrix.at.z * matrix.right.y;
+    matrix.up.y = matrix.at.z * matrix.right.x - matrix.at.x * matrix.right.z;
+    matrix.up.z = matrix.at.x * matrix.right.y - matrix.at.y * matrix.right.x;
+    func_003e40b0(&matrix.up, &matrix.up);
+    func_003e05d0(&matrix);
+
+    param_1[1] = func_0044b950(matrix.at.x, matrix.at.z);
+    param_1[0] = -func_0044b938(matrix.at.y);
+    if (func_0044b610(param_1[0]) != 0.0f) {
+        param_1[2] =
+            func_0044b938(matrix.right.y / func_0044b610(param_1[0]));
+        adjusted = 1;
+    } else {
+        param_1[1] = func_0044b950(-matrix.right.z, matrix.right.x);
+        param_1[0] = -func_0044b938(matrix.at.y);
+        param_1[2] = 0.0f;
+    }
+
+    value = param_1[0];
+    scale = fGpffff8048;
+    param_1[0] = value * scale;
+    param_1[1] = param_1[1] * scale;
+    param_1[2] = param_1[2] * scale;
+    if (adjusted != 0 && matrix.up.y < 0.0f) {
+        param_1[0] = 180.0f - param_1[0];
+    }
+}
+#pragma opt_propagation on
 
 /* measured: not attempted — 6720B window with nested switches (jtbl_00748080),
    half-scaler (u>>1|u&1) patterns and mula/madd MAC chains; complexity exceeds
@@ -988,13 +1060,164 @@ INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
 // FUN_0026C190
 INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026c190);
 
-/* measured: attempted m2c adaptation. Frame/layout mismatch (locals are 12-byte
-   vecs + matrix; my scalar declarations gave frame 0x80 vs retail 0xC0) and the
-   branch has a Gram-Schmidt cross-product MAC chain (mula.s/msub.s) that must
-   match exactly. P4-specific (no P3FES FUN_003bb7a0 equivalent — that lacks the
-   arg0[0x28]&0x08000000 branch). Reverted after 1 attempt; complex MAC-chain floor. */
+/* measured: opt_propagation off closes 15 load-order differences; lverify MATCH. */
+#pragma opt_propagation off
 // FUN_0026C310
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026c310);
+void func_0026c310(u8 *param_1)
+{
+    typedef struct SceneMatrixC310 {
+        RwV3d right;
+        u32 flags;
+        RwV3d up;
+        u32 pad1;
+        RwV3d at;
+        u32 pad2;
+        RwV3d pos;
+        u32 pad3;
+    } SceneMatrixC310;
+    typedef struct SceneC310Locals {
+        u64 leading_pad;
+        union {
+            u64 raw;
+            struct {
+                f32 x;
+                f32 y;
+            } value;
+        } axis;
+        union {
+            f32 axis_z;
+            u64 scratch_pad;
+        } overlap;
+        f32 scratch[6];
+        f32 vec2[4];
+        f32 vec1[4];
+        f32 vec0[4];
+        f32 outv[4];
+    } SceneC310Locals;
+    u8 *scene;
+    s32 model;
+    s32 result;
+    SceneMatrixC310 *matrix;
+    SceneC310Locals locals;
+    f32 fc;
+    f32 fb;
+    f32 fa;
+    f32 axis_y;
+    f32 axis_z;
+    f32 axis_x;
+
+    scene = func_00457120();
+
+    {
+        u64 xy = *(u64 *)D_0063B160_abs;
+        f32 z = *(f32 *)(D_0063B160_abs + 8);
+        *(u64 *)locals.vec0 = xy;
+        locals.vec0[2] = z;
+    }
+    {
+        u64 xy = *(u64 *)D_0063B170_abs;
+        f32 z = *(f32 *)(D_0063B170_abs + 8);
+        *(u64 *)locals.vec1 = xy;
+        locals.vec1[2] = z;
+    }
+    {
+        u64 xy = *(u64 *)D_0063B180_abs;
+        f32 z = *(f32 *)(D_0063B180_abs + 8);
+        *(u64 *)locals.vec2 = xy;
+        locals.vec2[2] = z;
+    }
+
+    model = *(s32 *)(scene + 4);
+    if (((param_1 == NULL) || (scene == NULL)) || (model == 0)) {
+        return;
+    }
+
+    func_0026c190(locals.outv, param_1, 0.0f);
+    fb = locals.outv[0];
+    fc = locals.outv[1];
+    fa = locals.outv[2];
+    *(f32 *)(param_1 + 4) = fb;
+    *(f32 *)(param_1 + 8) = fc;
+    *(f32 *)(param_1 + 0xc) = fa;
+
+    matrix = (SceneMatrixC310 *)func_003e0f80();
+    {
+        u64 xy = *(u64 *)D_0063B190_abs;
+        f32 z = *(f32 *)(D_0063B190_abs + 8);
+        locals.axis.raw = xy;
+        locals.overlap.axis_z = z;
+    }
+    if ((*(u32 *)(param_1 + 0x28) & 0x08000000) != 0) {
+        *(u32 *)(param_1 + 0x28) &= ~0x08000000;
+        fb = *(f32 *)(param_1 + 4);
+        fc = *(f32 *)(param_1 + 8);
+        fa = *(f32 *)(param_1 + 0xc);
+        matrix->pos.x = fb;
+        matrix->pos.y = fc;
+        matrix->pos.z = fa;
+        matrix->at.x = *(f32 *)(param_1 + 0x10) - matrix->pos.x;
+        matrix->at.y = *(f32 *)(param_1 + 0x14) - matrix->pos.y;
+        matrix->at.z = *(f32 *)(param_1 + 0x18) - matrix->pos.z;
+        func_003e40b0(&matrix->at, &matrix->at);
+
+        axis_y = locals.axis.value.y;
+        axis_z = locals.overlap.axis_z;
+        matrix->right.x =
+            matrix->at.y * axis_z - matrix->at.z * axis_y;
+        fc = matrix->at.x;
+        fa = matrix->at.z;
+        axis_x = locals.axis.value.x;
+        matrix->right.y = fa * axis_x - fc * axis_z;
+        matrix->right.z =
+            matrix->at.x * axis_y - matrix->at.y * axis_x;
+        func_003e40b0(&matrix->right, &matrix->right);
+
+        matrix->up.x =
+            matrix->at.y * matrix->right.z -
+            matrix->at.z * matrix->right.y;
+        matrix->up.y =
+            matrix->at.z * matrix->right.x -
+            matrix->at.x * matrix->right.z;
+        matrix->up.z =
+            matrix->at.x * matrix->right.y -
+            matrix->at.y * matrix->right.x;
+        func_003e40b0(&matrix->up, &matrix->up);
+        func_003e05d0(matrix);
+    } else {
+        matrix->at.z = 1.0f;
+        matrix->up.y = 1.0f;
+        matrix->right.x = 1.0f;
+        matrix->up.x = 0.0f;
+        matrix->right.z = 0.0f;
+        matrix->right.y = 0.0f;
+        matrix->at.y = 0.0f;
+        matrix->at.x = 0.0f;
+        matrix->up.z = 0.0f;
+        matrix->pos.z = 0.0f;
+        matrix->pos.y = 0.0f;
+        matrix->pos.x = 0.0f;
+        matrix->flags |= 0x20003;
+
+        func_003e0870(matrix, locals.vec0, *(f32 *)(param_1 + 0x14), 1);
+        func_003e0870(matrix, locals.vec1, *(f32 *)(param_1 + 0x10), 1);
+        func_003e0870(matrix, locals.vec2, *(f32 *)(param_1 + 0x18), 1);
+        func_003e0c90(matrix, locals.outv, 2);
+    }
+
+    result = func_0026d400(&locals.scratch[4]);
+    if (result == 1) {
+        locals.scratch[0] = locals.scratch[4];
+        locals.scratch[1] = locals.scratch[5];
+        locals.scratch[2] = 0.0f;
+        func_003e0c90(matrix, locals.scratch, 1);
+    }
+
+    func_003e9df0((void *)model);
+    func_003e9cb0((void *)model, matrix, 0);
+    func_003e0f40(matrix);
+    func_004577d0(scene, *(f32 *)(param_1 + 0x140));
+}
+#pragma opt_propagation on
 
 /* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bb9b0 (verified MATCH there). */
 /* Removing this loses FUN_003bb9b0 (MATCH nd0 -> MISMATCH nd143) - measured W161. */

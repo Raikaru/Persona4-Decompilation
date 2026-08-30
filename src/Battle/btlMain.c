@@ -47,6 +47,17 @@ typedef struct BtlMainLerpWork
     u32 totalFrames;
     u32 currentFrame;
 } BtlMainLerpWork;
+typedef struct BtlMainColorFadeWork
+{
+    f32 value0;
+    f32 value1;
+    f32 value2;
+    f32 value3;
+    u32 totalFrames;
+    u32 currentFrame;
+} BtlMainColorFadeWork;
+
+extern f32 fGpffffb458; /* target RGBA bytes begin four bytes later */
 extern u8* iGpffffb3ac;
 
 typedef struct BtlMainSlerpResult
@@ -84,6 +95,41 @@ struct RwV4d
     f32 z;
     f32 w;
 };
+extern RwV4d* func_00149ca0(void);
+extern RwV4d* func_00149ce0(void);
+extern void func_001496c0(void* value);
+
+typedef unsigned int u_long128 __attribute__((mode(TI)));
+
+struct BtlMainColorWork
+{
+    RwV4d target0;
+    RwV4d current0;
+    RwV4d target1;
+    RwV4d current1;
+    RwV4d target2;
+    RwV4d current2;
+    u32 totalFrames;
+    u32 currentFrame;
+    u16 flags;
+    u16 padding;
+};
+
+typedef struct BtlMainMatrix
+{
+    RwV3d right;
+    u32 flags;
+    RwV3d up;
+    u32 pad1;
+    RwV3d at;
+    u32 pad2;
+    RwV3d pos;
+    u32 pad3;
+} BtlMainMatrix;
+
+extern u_long128 D_00922C60[4];
+extern f32 D_00922CA0[8];
+extern s32 D_00922CC0[];
 extern void func_001ba790(f32* out, f32* first, f32* second, f32 weight);
 extern f32 fGpffff80c0; /* P4 gp -0x7f40 */
 extern f32 fGpffff80c8; /* P4 gp -0x7f38 */
@@ -147,8 +193,94 @@ BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
 }
 
 
+/* measured: opt_propagation off preserves the retail grouped first-vector products. */
+#pragma opt_propagation off
 // FUN_001B7B30
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b7b30);
+u32 func_001b7b30(void* work)
+{
+    BtlMainLerpWork* lerpWork;
+    u8* global;
+    u32 flags;
+    u32 totalFrames;
+    u32 currentFrame;
+    f32 currentFloat;
+    f32 totalFloat;
+    f32 ratio;
+    f32 inverse;
+    f32 firstX;
+    f32 firstY;
+    f32 firstZ;
+    f32 firstW;
+    f32 secondX;
+    f32 secondY;
+    f32 secondZ;
+    f32 secondW;
+    RwV4d result;
+
+    lerpWork = (BtlMainLerpWork*)work;
+    global = iGpffffb3ac;
+    flags = *(u32*)(global + 0xc);
+    if ((flags & 2) == 0)
+    {
+        return 1;
+    }
+    if ((flags & 0x2000000) == 0)
+    {
+        return 1;
+    }
+
+    if (lerpWork->currentFrame == 0)
+    {
+        *(RwV4d*)&lerpWork->value0 = *func_00149ca0();
+        *(RwV4d*)&lerpWork->target0 = *func_00149ce0();
+    }
+
+    totalFrames = lerpWork->totalFrames;
+    currentFrame = lerpWork->currentFrame;
+    if (currentFrame < totalFrames)
+    {
+        currentFloat = (f32)currentFrame;
+        totalFloat = (f32)totalFrames;
+        ratio = currentFloat / totalFloat;
+        inverse = 1.0f - ratio;
+
+        firstX = lerpWork->value0 * inverse;
+        firstY = lerpWork->value1 * inverse;
+        firstZ = lerpWork->value2 * inverse;
+        firstW = lerpWork->value3 * inverse;
+        global = iGpffffb3ac;
+        secondX = *(f32*)(global + 0x1bc) * ratio;
+        secondY = *(f32*)(global + 0x1c0) * ratio;
+        secondZ = *(f32*)(global + 0x1c4) * ratio;
+        secondW = *(f32*)(global + 0x1c8);
+        result.x = firstX + secondX;
+        result.y = firstY + secondY;
+        result.z = firstZ + secondZ;
+        result.w = firstW + secondW * ratio;
+        *func_00149ca0() = result;
+
+        global = iGpffffb3ac;
+        result.x = lerpWork->target0 * inverse + *(f32*)(global + 0x1cc) * ratio;
+        result.y = lerpWork->target1 * inverse + *(f32*)(global + 0x1d0) * ratio;
+        result.z = lerpWork->target2 * inverse + *(f32*)(global + 0x1d4) * ratio;
+        result.w = lerpWork->target3 * inverse + *(f32*)(global + 0x1d8) * ratio;
+        *func_00149ce0() = result;
+
+    }
+    else
+    {
+        global = iGpffffb3ac;
+        *func_00149ca0() = *(RwV4d*)(global + 0x1bc);
+        global = iGpffffb3ac;
+        *func_00149ce0() = *(RwV4d*)(global + 0x1cc);
+        return 1;
+    }
+
+    lerpWork->currentFrame++;
+    return 0;
+}
+/* measured: restore propagation after func_001b7b30. */
+#pragma opt_propagation on
 // FUN_001B7E20
 void func_001b7e20(u32 value)
 {
@@ -161,8 +293,220 @@ void func_001b7e20(u32 value)
 
 
 
+/* measured: opt_loop_invariants on hoists the unit-loop byte constants into the retail preheader registers. */
+#pragma opt_loop_invariants on
 // FUN_001B7E70
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b7e70);
+u32 func_001b7e70(BtlMainColorWork* work)
+{
+    u8* global;
+    u8* unit;
+    u32 globalFlags;
+    u32 totalFrames;
+    u32 currentFrame;
+    u32 group;
+    u_long128* matrixSrc;
+    u_long128* matrixDst;
+    s32 copyCount;
+    f32 currentFloat;
+    f32 totalFloat;
+    f32 ratio;
+    f32 inverse;
+    f32 firstX;
+    f32 firstY;
+    f32 firstZ;
+    f32 firstW;
+    f32 secondX;
+    f32 secondY;
+    f32 secondZ;
+    f32 secondW;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f10;
+    f32 temp_f11;
+    f32 temp_f12;
+    f32 temp_f13;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    f32 temp_f3;
+    f32 temp_f3_2;
+    f32 temp_f4;
+    f32 temp_f4_2;
+    f32 temp_f5;
+    f32 temp_f6;
+    f32 temp_f7;
+    f32 temp_f8;
+    f32 temp_f9;
+    BtlMainMatrix matrix;
+    RwV4d result;
+
+    global = iGpffffb3ac;
+    globalFlags = *(u32*)(global + 0xc);
+    if ((globalFlags & 2) == 0)
+    {
+        return 1;
+    }
+    if ((globalFlags & 0x2000000) == 0)
+    {
+        return 1;
+    }
+
+    if (work->currentFrame == 0)
+    {
+        work->target0.w = 1.0f;
+        global = iGpffffb3ac;
+        work->current0 = *(RwV4d*)(global + 0x24c);
+        work->current1 = *(RwV4d*)(global + 0x1ec);
+        work->current2 = *(RwV4d*)(global + 0x1fc);
+
+        *(RwV4d*)&D_00922CA0[0] = *(RwV4d*)(global + 0x1bc);
+        *(RwV4d*)&D_00922CA0[4] = *(RwV4d*)(global + 0x1cc);
+
+        temp_f13 = *(f32*)(global + 0x1e0);
+        temp_f12 = *(f32*)(global + 0x1dc);
+        temp_f11 = *(f32*)(global + 0x1e4);
+        temp_f4 = *(f32*)(global + 0x1e8);
+        temp_f1 =
+            2.0f / ((temp_f12 * temp_f12) +
+                    (temp_f13 * temp_f13) +
+                    (temp_f11 * temp_f11) +
+                    (temp_f4 * temp_f4));
+        temp_f3 = temp_f12 * temp_f1;
+        temp_f2 = temp_f13 * temp_f1;
+        temp_f1_2 = temp_f11 * temp_f1;
+        temp_f10 = temp_f3 * temp_f4;
+        temp_f9 = temp_f2 * temp_f4;
+        temp_f8 = temp_f1_2 * temp_f4;
+        temp_f7 = temp_f12 * temp_f3;
+        temp_f6 = temp_f13 * temp_f2;
+        temp_f5 = temp_f11 * temp_f1_2;
+        temp_f4_2 = temp_f13 * temp_f1_2;
+        temp_f3_2 = temp_f11 * temp_f3;
+        temp_f2_2 = temp_f12 * temp_f2;
+        matrix.right.x = 1.0f - (temp_f6 + temp_f5);
+        matrix.right.y = temp_f2_2 + temp_f8;
+        matrix.right.z = temp_f3_2 - temp_f9;
+        matrix.up.x = temp_f2_2 - temp_f8;
+        matrix.up.y = 1.0f - (temp_f5 + temp_f7);
+        matrix.up.z = temp_f4_2 + temp_f10;
+        matrix.at.x = temp_f3_2 + temp_f9;
+        matrix.at.y = temp_f4_2 - temp_f10;
+        matrix.at.z = 1.0f - (temp_f7 + temp_f6);
+        matrix.pos.x = 0.0f;
+        matrix.pos.y = 0.0f;
+        matrix.pos.z = 0.0f;
+        matrix.flags = 3;
+
+        matrixSrc = (u_long128*)&matrix;
+        matrixDst = D_00922C60;
+        copyCount = 4;
+        do
+        {
+            u_long128 matrixRow = *matrixSrc;
+            matrixSrc++;
+            copyCount--;
+            *matrixDst = matrixRow;
+            matrixDst++;
+        }
+        while (copyCount > 0);
+
+        D_00922CC0[0] = 1;
+        if ((work->flags & 4) == 0)
+        {
+            group = 0;
+            while (group < 4)
+            {
+                unit = *(u8**)(iGpffffb3ac + group * 8 + 0x178);
+                while (unit != 0)
+                {
+                    if ((*(u32*)(unit + 0x98) & 2) != 0)
+                    {
+                        if ((work->flags & 1) != 0)
+                        {
+                            (*(u8**)(unit + 0xa00))[0x281] = 0;
+                            (*(u8**)(unit + 0xa00))[0x282] = 6;
+                        }
+                        else
+                        {
+                            (*(u8**)(unit + 0xa00))[0x281] = 0x50;
+                            (*(u8**)(unit + 0xa00))[0x282] = 4;
+                        }
+                    }
+                    unit = *(u8**)(unit + 0xa6c);
+                }
+                group++;
+            }
+        }
+    }
+
+    /* measured: opt_propagation off preserves the retail grouped interpolation products. */
+#pragma opt_propagation off
+    totalFrames = work->totalFrames;
+    currentFrame = work->currentFrame;
+    if (currentFrame < totalFrames)
+    {
+        currentFloat = (f32)currentFrame;
+        totalFloat = (f32)totalFrames;
+        ratio = currentFloat / totalFloat;
+        inverse = 1.0f - ratio;
+
+        firstX = work->current0.x * inverse;
+        firstY = work->current0.y * inverse;
+        firstZ = work->current0.z * inverse;
+        secondX = work->target0.x * ratio;
+        secondY = work->target0.y * ratio;
+        secondZ = work->target0.z;
+        result.x = firstX + secondX;
+        result.y = firstY + secondY;
+        result.z = firstZ + secondZ * ratio;
+        result.w = 1.0f;
+        global = iGpffffb3ac;
+        *(RwV4d*)(global + 0x24c) = result;
+        func_001496c0(&result);
+
+        firstX = work->current1.x * inverse;
+        firstY = work->current1.y * inverse;
+        firstZ = work->current1.z * inverse;
+        firstW = work->current1.w * inverse;
+        secondX = work->target1.x * ratio;
+        secondY = work->target1.y * ratio;
+        secondZ = work->target1.z * ratio;
+        secondW = work->target1.w;
+        *(f32*)(iGpffffb3ac + 0x1ec) = firstX + secondX;
+        *(f32*)(iGpffffb3ac + 0x1f0) = firstY + secondY;
+        *(f32*)(iGpffffb3ac + 0x1f4) = firstZ + secondZ;
+        *(f32*)(iGpffffb3ac + 0x1f8) = firstW + secondW * ratio;
+
+        firstY = work->current2.y * inverse;
+        firstZ = work->current2.z * inverse;
+        firstW = work->current2.w * inverse;
+        secondY = work->target2.y * ratio;
+        secondZ = work->target2.z * ratio;
+        secondW = work->target2.w * ratio;
+        *(f32*)(iGpffffb3ac + 0x1fc) =
+            work->current2.x * inverse + work->target2.x * ratio;
+        *(f32*)(iGpffffb3ac + 0x200) = firstY + secondY;
+        *(f32*)(iGpffffb3ac + 0x204) = firstZ + secondZ;
+        *(f32*)(iGpffffb3ac + 0x208) = firstW + secondW;
+    }
+    else
+    {
+        func_001496c0(work);
+        global = iGpffffb3ac;
+        *(RwV4d*)(global + 0x24c) = work->target0;
+        *(RwV4d*)(global + 0x1ec) = work->target1;
+        *(RwV4d*)(global + 0x1fc) = work->target2;
+        return 1;
+    }
+
+    work->currentFrame++;
+    return 0;
+}
+/* measured: restore loop-invariant extraction after func_001b7e70. */
+#pragma opt_loop_invariants off
+/* measured: restore propagation after func_001b7e70. */
+#pragma opt_propagation on
 // FUN_001B83F0
 BtlPacket* func_001b83f0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5)
 {
@@ -278,8 +622,60 @@ BtlPacket* func_001b9560(u32 param_1, u32 param_2)
 }
 
 
+/* measured: opt_common_subs off preserves the retail per-component scale reloads. */
+#pragma opt_common_subs off
 // FUN_001B96E0
-INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b96e0);
+u32 func_001b96e0(void* work)
+{
+    BtlMainColorFadeWork* colorWork;
+    f32 currentFloat;
+    f32 totalFloat;
+    f32 ratio;
+    f32 inverse;
+    RwV4d results;
+    RwV4d target;
+    u32 totalFrames;
+    u32 currentFrame;
+    u8* global;
+
+    colorWork = (BtlMainColorFadeWork*)work;
+    if (colorWork->currentFrame == 0)
+    {
+        global = iGpffffb3ac;
+        *(RwV4d*)&colorWork->value0 = *(RwV4d*)(global + 0x25c);
+    }
+
+    target.x = fGpffff81f4 * (f32)((u8*)&fGpffffb458)[4];
+    target.y = fGpffff81f4 * (f32)((u8*)&fGpffffb458)[5];
+    target.z = fGpffff81f4 * (f32)((u8*)&fGpffffb458)[6];
+    target.w = fGpffff81f4 * (f32)((u8*)&fGpffffb458)[7];
+    totalFrames = colorWork->totalFrames;
+    currentFrame = colorWork->currentFrame;
+    if (currentFrame < totalFrames)
+    {
+        currentFloat = (f32)currentFrame;
+        totalFloat = (f32)totalFrames;
+        ratio = currentFloat / totalFloat;
+        inverse = 1.0f - ratio;
+        results.x = colorWork->value0 * inverse + target.x * ratio;
+        results.y = colorWork->value1 * inverse + target.y * ratio;
+        results.z = colorWork->value2 * inverse + target.z * ratio;
+        results.w = colorWork->value3 * inverse + target.w * ratio;
+        global = iGpffffb3ac;
+        *(RwV4d*)(global + 0x25c) = results;
+    }
+    else
+    {
+        global = iGpffffb3ac;
+        *(RwV4d*)(global + 0x25c) = target;
+        return 1;
+    }
+
+    colorWork->currentFrame++;
+    return 0;
+}
+/* measured: restore common-subexpression optimization after func_001b96e0. */
+#pragma opt_common_subs on
 // FUN_001B99A0
 void func_001b99a0(s32 arg)
 {
