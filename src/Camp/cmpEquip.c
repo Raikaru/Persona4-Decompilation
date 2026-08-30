@@ -6,27 +6,61 @@
 void func_001437b0(void *arg0, s32 arg1, s32 arg2);
 void func_001344d0(u8 *arg0);
 void func_00131a00(u8 *arg0);
-s16 func_00106cd0(s32 arg0, s16 arg1);
+s16 func_00106cd0(s16 arg0, s16 arg1);
 u8 func_00106600(s16 arg0);
-s32 func_00106c30(s16 arg0, s32 arg1);
+s32 func_00106c30(s16 arg0, s16 arg1);
 s32 func_00106c80(s16 arg0);
 void func_0046d730(void *arg0, s32 arg1);
+extern u8 D_005E9FA0[];
 /* measured: candidate object_size 1192/window 1152 with normalized_diff 904; the oversized, distant body was discarded and the bare assembly fallback restored. */
 // FUN_001312B0
 INCLUDE_ASM("asm/nonmatchings/cmpEquip", func_001312b0);
 
-/* measured: retail materialises the s16 clamp value v into $a0 (dsll32/dsra32
-   $a0, slti $at, addiu $a0,0x63, sh $a0,0x4C) and count's sign-extension
-   in-place into $v1 (dsll32/dsra32/sll all $v1), with `count + 1` reading the
-   home $s2. mwcc b210 always colours v's materialisation into $a1 and count's
-   into $a0, so the increment reads $a0 instead of $s2 (10 words, every other
-   instruction matched). Tried: s16 vs s32 v, `>` vs `>=` clamp forms (the `>`
-   form fixed the slti $at target), pointer-local store base, named s32 c4 =
-   count*4, for-header comma init (fixed the zero-move order), explicit
-   (s16) truncation on the increment, explicit (s32) cast on the compare - all
-   nd 10. s16-materialisation scratch-register colouring floor. */
 // FUN_00131730
-INCLUDE_ASM("asm/nonmatchings/cmpEquip", func_00131730);
+void func_00131730(s16 *arg0) {
+    s16 i;
+    s16 count;
+    s16 id;
+    s32 type;
+    s64 call_type;
+    s32 found;
+    s32 filter;
+    s16 value;
+    s16 *entry;
+
+    id = arg0[arg0[20] + 28];
+    type = arg0[21];
+    call_type = type;
+    for (i = 0, count = 0; i < 0x2FF; i++) {
+        found = i == func_00106cd0(id, call_type);
+        if (!found) {
+            filter = func_00106600(i) != 0;
+            if (filter) {
+                filter = func_00106c30(i, id) != 0;
+            }
+            if (filter) {
+                filter = (s32)type == func_00106c80(i);
+            }
+            if (!filter) {
+                goto skip;
+            }
+        }
+        value = found + func_00106600(i);
+        if (value > 99) {
+            value = 99;
+        }
+        entry = &arg0[2 * count];
+        entry[37] = i;
+        entry[38] = value;
+        count++;
+    skip:
+        ;
+    }
+    arg0[1571] = count;
+    if (count > 0x2FF) {
+        func_0046d730(D_005E9FA0, 0x299);
+    }
+}
 // FUN_001318C0
 s32 func_001318c0(u8 *arg0) {
     s32 v = *(s32 *)(arg0 + 0x14);

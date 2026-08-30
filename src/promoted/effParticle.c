@@ -177,19 +177,133 @@ void *func_00486fb0(u8 *arg0)
     func_00487160(p, arg0);
     return p;
 }
-/* measured: retail keeps the loop locals count/i in HIGH registers ($s2/$s3)
-   and the params arg0/arg1 in LOW ($s1/$s0) because the switch dispatches on
-   arg1+0xC and every case uses the params; mwcc b210 assigns count/i to $s0/$s1
-   and the params to $s3/$s2 (the same layout as the matched func_004878c0) and
-   nothing reorders it. The switch structure is byte-correct (jump table
-   jtbl_00756860 fully decoded: cases 1,2,4,5,6,7 + default, entries 0/3 -> the
-   0x16A error; case 1 and 4 share 0x004871AC; case 5/6 return early on
-   count==0 and on count*4==0, skipping the arg0[0xC] copy) -- only this
-   saved-register rotation differs (77 words). Tried declaration orders,
-   count>i vs i<count, s32/u32 counters, switch-index locals, #pragma
-   opt_propagation off: all nd >= 77. */
+/* measured: case-local count/index pairs make b210 color the loop locals
+   $s2/$s3 and the parameters $s1/$s0, matching retail. The named case-7
+   allocation result remains in $s2 through memset before being stored at
+   arg0+0x5C. Shared function-scope counters rotate all four saved registers.
+   Object/window 1136B, normalized_diff 0. */
 // FUN_00487160
-INCLUDE_ASM("asm/nonmatchings/effParticle", func_00487160);
+void func_00487160(u8 *arg0, u8 *arg1)
+{
+    switch (*(u16 *)(arg1 + 0xC)) {
+    case 1:
+    case 4:
+        *(f32 *)(arg0 + 0x54) = *(f32 *)(arg1 + 0x54);
+        *(f32 *)(arg0 + 0x58) = *(f32 *)(arg1 + 0x58);
+        break;
+    case 2:
+        if (*(s32 *)(arg1 + 0x44) == 0) {
+            func_0046d730(D_00713CD0, 0x10D);
+        }
+        if (*(s32 *)(arg1 + 0x4C) == 0) {
+            func_0046d730(D_00713CD0, 0x10E);
+        }
+        if (*(s32 *)(arg0 + 0x44) != 0) {
+            func_00481ee0(*(s32 *)(arg0 + 0x44));
+        }
+        *(s32 *)(arg0 + 0x44) = func_00481e30(*(s32 *)(arg1 + 0x44));
+        break;
+    case 5: {
+        u32 count5;
+        u32 i5;
+
+        count5 = *(u32 *)(*(u8 **)(arg1 + 0x4C) + 8);
+        if (count5 == 0) {
+            return;
+        }
+        if (*(s32 *)(arg1 + 0x38) == 0) {
+            func_0046d730(D_00713CD0, 0x119);
+        }
+        if (*(s32 *)(arg1 + 0x4C) == 0) {
+            func_0046d730(D_00713CD0, 0x11A);
+        }
+        if (*(s32 *)(arg0 + 0x38) != 0) {
+            for (i5 = 0; i5 < count5; i5++) {
+                func_004846d0(*(u8 **)(*(u8 **)(arg0 + 0x34) + i5 * 4));
+            }
+            jtbl_008873EC[0](*(void **)(arg0 + 0x38));
+            *(u8 **)(arg0 + 0x34) = NULL;
+            *(u8 **)(arg0 + 0x38) = NULL;
+        }
+        if (count5 * 4 == 0) {
+            return;
+        }
+        func_0044ea90(D_00713CD0, 0x12C);
+        *(u8 **)(arg0 + 0x38) = (u8 *)(*jtbl_008873E8)(count5 * 4, 0x40000);
+        if (*(u8 **)(arg0 + 0x38) == NULL) {
+            func_0046d730(D_00713CD0, 0x12D);
+        }
+        *(u8 **)(arg0 + 0x34) = *(u8 **)(arg0 + 0x38);
+        for (i5 = 0; i5 < count5; i5++) {
+            *(u8 **)(*(u8 **)(arg0 + 0x34) + i5 * 4) =
+                func_00484830(*(u8 **)(*(u8 **)(arg1 + 0x34)));
+        }
+        break;
+    }
+    case 6: {
+        u32 count6;
+        u32 i6;
+
+        count6 = *(u32 *)(*(u8 **)(arg1 + 0x4C) + 8);
+        if (count6 == 0) {
+            return;
+        }
+        if (*(s32 *)(arg1 + 0x40) == 0) {
+            func_0046d730(D_00713CD0, 0x139);
+        }
+        if (*(s32 *)(arg1 + 0x4C) == 0) {
+            func_0046d730(D_00713CD0, 0x13A);
+        }
+        if (*(s32 *)(arg0 + 0x40) != 0) {
+            for (i6 = 0; i6 < count6; i6++) {
+                func_00485b20(*(u8 **)(*(u8 **)(arg0 + 0x3C) + i6 * 4));
+            }
+            jtbl_008873EC[0](*(void **)(arg0 + 0x40));
+            *(u8 **)(arg0 + 0x3C) = NULL;
+            *(u8 **)(arg0 + 0x40) = NULL;
+        }
+        if (count6 * 4 == 0) {
+            return;
+        }
+        func_0044ea90(D_00713CD0, 0x14C);
+        *(u8 **)(arg0 + 0x40) = (u8 *)(*jtbl_008873E8)(count6 * 4, 0x40000);
+        if (*(u8 **)(arg0 + 0x40) == NULL) {
+            func_0046d730(D_00713CD0, 0x14D);
+        }
+        *(u8 **)(arg0 + 0x3C) = *(u8 **)(arg0 + 0x40);
+        for (i6 = 0; i6 < count6; i6++) {
+            *(u8 **)(*(u8 **)(arg0 + 0x3C) + i6 * 4) =
+                func_00485c80(*(u8 **)(*(u8 **)(arg1 + 0x3C)));
+        }
+        break;
+    }
+    case 7: {
+        u8 *p;
+
+        if (*(s32 *)(arg1 + 0x48) == 0) {
+            func_0046d730(D_00713CD0, 0x156);
+        }
+        if (*(s32 *)(arg0 + 0x48) != 0) {
+            func_004829c0(*(s32 *)(arg0 + 0x48));
+        }
+        *(s32 *)(arg0 + 0x48) = func_00482a70(*(s32 *)(arg1 + 0x48));
+        if (*(s32 *)(arg0 + 0x5C) != 0) {
+            func_0046d730(D_00713CD0, 0x15F);
+        }
+        func_0044ea90(D_00713CC0, 0x171);
+        p = (u8 *)(*jtbl_008873E8)(0x30, 0x40000);
+        func_0043f9c8(p, 0, 0x30);
+        *(u8 **)(arg0 + 0x5C) = p;
+        *(u16 *)(p + 0x18) = 0x19;
+        *(u8 **)(*(u8 **)(arg0 + 0x5C) + 0x1C) = arg0;
+        break;
+    }
+    default:
+        func_0046d730(D_00713CD0, 0x16A);
+        break;
+    }
+    *(u16 *)(arg0 + 0xC) = *(u16 *)(arg1 + 0xC);
+}
 
 // FUN_004875D0
 void func_004875d0(u8 *arg0, s32 arg1, void *arg2)

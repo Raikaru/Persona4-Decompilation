@@ -16,7 +16,7 @@ extern u8 D_0063EE40[];
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern s32 func_00451fc0(void *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
 extern s32 func_002aa890(u8 *arg0);
-extern void func_002aa450(u8 *arg0);
+extern void func_002aa450(void);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern u8 D_0063EEC0[];
 extern u8 D_0063EED0[];
@@ -84,6 +84,40 @@ extern void func_00308f40(void);
 extern s32 func_003493b0(u8 *arg0);
 extern s32 func_00452490(s32 arg0);
 extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+typedef struct P4_002aa450_Pair {
+    s64 bits;
+    f32 value;
+} P4_002aa450_Pair;
+typedef struct P4_002aa450_Work {
+    u8 matrix[0x40];
+    P4_002aa450_Pair pair4;
+    P4_002aa450_Pair pair3;
+    P4_002aa450_Pair pair2;
+    P4_002aa450_Pair pair1;
+    P4_002aa450_Pair pair0;
+} P4_002aa450_Work;
+static inline f32 p4_002aa450_mul(f32 left, f32 right) {
+    return left * right;
+}
+extern void func_00366960(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          s32 arg4, s32 arg5, s32 arg6, s32 arg7,
+                          f32 farg0, s16 arg_sp0, s32 *arg_sp8, s32 arg_sp10);
+extern void func_003e0870(void *arg0, void *arg1, f32 farg0, s32 arg2);
+extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
+extern void func_003e4320(void *arg0, void *arg1, void *arg2);
+extern f32 fGpffff855c;
+extern u8 D_0063EDF0[];
+extern u8 D_0063EDF8[];
+extern u8 D_0063EE00[];
+extern u8 D_0063EE08[];
+extern u8 D_0063EE10[];
+extern u8 D_0063EE18[];
+extern u8 D_0063EE20[];
+extern u8 D_0063EE28[];
+extern u8 D_0063EE30[];
+extern u8 D_0063EE38[];
+extern u8 D_00882F28[];
+extern u8 D_00882F2C[];
 
 
 
@@ -341,7 +375,87 @@ s32 func_002aa3f0(void) {
 }
 
 // FUN_002AA450
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002aa450);
+void func_002aa450(void) {
+    s64 bits;
+    s32 *state;
+    u8 *source;
+    P4_002aa450_Work work;
+    f32 phase;
+    f32 offset;
+    f32 ratio;
+    f32 angle;
+    f32 value;
+    f32 scale;
+    f32 color_x;
+    f32 color_y;
+    s32 color_value;
+    s32 temp;
+
+    state = (s32 *)D_00882F20;
+    bits = *(s64 *)D_0063EDF0;
+    value = *(f32 *)D_0063EDF8;
+    work.pair0.bits = bits;
+    work.pair0.value = value;
+    bits = *(s64 *)D_0063EE00;
+    value = *(f32 *)D_0063EE08;
+    work.pair1.bits = bits;
+    work.pair1.value = value;
+    bits = *(s64 *)D_0063EE10;
+    value = *(f32 *)D_0063EE18;
+    work.pair2.bits = bits;
+    work.pair2.value = value;
+    bits = *(s64 *)D_0063EE20;
+    value = *(f32 *)D_0063EE28;
+    work.pair3.bits = bits;
+    work.pair3.value = value;
+    source = D_0063EE30;
+    bits = *(s64 *)source;
+    source = D_0063EE38;
+    value = *(f32 *)source;
+    work.pair4.bits = bits;
+    work.pair4.value = value;
+    ratio = (f32)(*(s32 *)D_00882F2C) / 5.0f;
+    bits = *(s32 *)D_00882F28;
+    temp = (s32)bits + 1;
+    *(s32 *)D_00882F28 = temp;
+    if (temp >= 0x3C) {
+        state[2] = 0;
+    }
+    phase = (f32)state[2] / 60.0f;
+    scale = 10.0f;
+    offset = 1.0f - ratio;
+    offset = p4_002aa450_mul(scale, offset);
+    offset = -80.0f - offset;
+    func_003e0870(work.matrix, &work.pair0, offset, 0);
+    func_003e4320(&work.pair3, &work.pair3, work.matrix);
+    angle = 360.0f * phase;
+    func_003e0870(work.matrix, &work.pair3, angle, 2);
+    func_003e0a90(work.matrix, &work.pair4, 2);
+    color_x = (f32)0x1A3;
+    color_y = (f32)0x242;
+    color_value = 397;
+    func_00366960((s32)color_y, (s32)color_x, 0x18, 0x1F, 0xFF00, 0xFF, 1, 0,
+                  0.0f, 0, (s32 *)&work.matrix, 0);
+    func_003e0870(work.matrix, &work.pair0, offset, 0);
+    func_003e0870(work.matrix, &work.pair3, 120.0f + angle, 2);
+    func_003e0a90(work.matrix, &work.pair4, 2);
+    func_00366960((s32)color_y, (s32)color_x, 0x18, 0x1F, 0xFFFF00, 0xFF, 1, 0,
+                  0.0f, 0, (s32 *)&work.matrix, 0);
+    func_003e0870(work.matrix, &work.pair0, offset, 0);
+    func_003e0870(work.matrix, &work.pair3, 240.0f + angle, 2);
+    func_003e0a90(work.matrix, &work.pair4, 2);
+    func_00366960((s32)color_y, (s32)color_x, 0x18, 0x1F, 0xFF0000, 0xFF, 1, 0,
+                  0.0f, 0, (s32 *)&work.matrix, 0);
+    func_003e0870(work.matrix, &work.pair1, fGpffff855c, 0);
+    func_003e0870(work.matrix, &work.pair2, 357.0f * phase + 3.0f, 2);
+    ((f32 *)&work.pair4)[0] *= ratio;
+    ((f32 *)&work.pair4)[1] *= ratio;
+    ((f32 *)&work.pair4)[2] *= ratio;
+    func_003e0a90(work.matrix, &work.pair4, 2);
+    func_00366960((s32)color_y, (s32)(color_value - ratio * 2.0f), 0x22, 0x2C,
+                  0xE6E6E6, 0xFF, 1, 0x11, 0.0f, 0x16,
+                  (s32 *)&work.matrix, 0);
+}
 // FUN_002AA890
 s32 func_002aa890(u8 *arg0) {
     s32 *state;

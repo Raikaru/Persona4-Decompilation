@@ -179,6 +179,7 @@ D_005E57F0 = 0x005E57F0; // type:data evidence: retail func_001356d0 (0x35A28) p
 D_005E5830 = 0x005E5830; // type:data evidence: retail func_001356d0 (0x359C8) passes &D_005E5830 to func_0046a770 via lui/addiu %hi/%lo
 D_005E5850 = 0x005E5850; // type:data evidence: retail func_001356d0 (0x359F8) passes &D_005E5850 to func_0046a770 via lui/addiu %hi/%lo
 D_005E9FB0 = 0x005E9FB0; // type:data evidence: retail func_001356d0 (0x35A88) lbu reads D_005E9FB0[i] via lui/addiu %hi/%lo
+D_005E9FA0 = 0x005E9FA0; // type:data evidence: retail func_00131730 passes it to func_0046d730 via lui/addiu %hi/%lo at 0x00131880/0x00131884
 D_0064A790 = 0x0064A790; // type:data evidence: retail func_001356d0 (0x35B6C) passes &D_0064A790 to func_002baac0 via lui/addiu %hi/%lo
 iGpffff8368 = 0x00761458; // type:data evidence: retail func_00119810 lwc1 -0x7C98($28) as func_00274ed0's 7th arg; gp base 0x007690F0 -> 0x00761458
 D_00636210 = 0x00636210; // type:data evidence: retail func_00252a60 copies 4x8 bytes from it into sp110
