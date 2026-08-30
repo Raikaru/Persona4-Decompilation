@@ -6348,6 +6348,7 @@ D_00764b80 = 0x00764068; // type:data
 iGpffffaf80 = 0x00764070; // type:data
 iGpffffb01c = 0x0076410c; // type:data
 iGpffffb034 = 0x00764124; // type:data
+iGpffffb038 = 0x00764128; // type:data
 D_00724130 = 0x00764130; // type:data
 iGpffffb06c = 0x0076415c; // type:data
 iGpffffb070 = 0x00764160; // type:data

@@ -642,23 +642,109 @@ void func_00372870(u8 *arg0, s16 a1, s16 a2, u8 *arg3, ShuffleVec4 *arg4) {
     *(ShuffleVec4 *)(arg0 + 0x28) = *(ShuffleVec4 *)(arg4 + 0);
 }
 
-/* measured: rule-2 transpose DOES fix the old residual (the two polynomial
-   final madd.s now emit retail's product-first order via `var_f0*var_f1` /
-   `var_f1*var_f2` source order) and the 00373cb0/003dcc70/vec4-copy/Horner/
-   add-back/mula-madd tail all match — but the half-scalers then dominate:
-   with the only clean-structure spelling (s32 lhu temp, `u=(u32)temp`,
-   `(f32)(s32)((u>>1)|(u&1))`, `var=var+var`; u16/u32 locals duplicate the
-   else block, s16/(s16) casts add dsll32/dsra32 or lh) mwcc b210 emits
-   `or $v0,$v1,$v0` (dest = andi-result reg; retail `or $v1,$v1,$v0` dest =
-   srl-result reg — the recorded or-fold) and converts through $f0
-   (`cvt.s.w $f0,$f0; add.s $f12,$f0,$f0` vs retail `cvt.s.w $f12,$f0;
-   add.s $f12,$f12,$f12`) — 4 words x 3 half-scalers, nd 13. Re-tested this
-   wave with recipe A + a fully rebuilt byte-identical tail (ShuffleOut out,
-   0.0f-seeded Horner, var_f0*var_f1/var_f1*var_f2 final products, add-back):
-   every non-half-scaler word matches; nd 13 confirmed = 12 real + 1 pad.
-   or-fold / cvt-scratch coloring floor. */
+/* measured: complete C reconstruction matches the retail 0x2D0-byte window. */
 // FUN_00372960
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372960);
+s32 func_00372960(u8 *arg0) {
+    u32 v3;
+    u32 v2;
+    u32 value;
+    u32 value2;
+    u32 value3;
+    f32 var_f12;
+    f32 var_f13;
+    f32 var_f14;
+    f32 var_f20;
+    f32 var_f0;
+    f32 var_f1;
+    f32 var_f2;
+    f32 var_f3;
+    f32 var_f4;
+    ShuffleOut out;
+
+    v3 = *(u16 *)arg0;
+    v2 = *(u16 *)(arg0 + 2);
+    if (!((s32)v3 < (s32)v2)) {
+        return 1;
+    }
+    *(u16 *)arg0 = v3 + 1;
+    value = *(u16 *)arg0;
+    if (value >= 0) {
+        var_f12 = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        var_f12 = (f32)value;
+        var_f12 += var_f12;
+    }
+    value2 = *(u16 *)(arg0 + 4);
+    if (value2 >= 0) {
+        var_f13 = (f32)value2;
+    } else {
+        value2 = (value2 >> 1) | (value2 & 1);
+        var_f13 = (f32)value2;
+        var_f13 += var_f13;
+    }
+    value3 = *(u16 *)(arg0 + 2);
+    if (value3 >= 0) {
+        var_f14 = (f32)value3;
+    } else {
+        value3 = (value3 >> 1) | (value3 & 1);
+        var_f14 = (f32)value3;
+        var_f14 += var_f14;
+    }
+    var_f20 = func_00373cb0(var_f12, var_f13, var_f14, 0);
+    func_003dcc70(arg0 + 0x18, arg0 + 0x28, &out);
+
+    if (var_f20 <= 0.0f) {
+        var_f3 = *(f32 *)(arg0 + 0x18);
+        var_f2 = *(f32 *)(arg0 + 0x1C);
+        var_f1 = *(f32 *)(arg0 + 0x20);
+        var_f0 = *(f32 *)(arg0 + 0x24);
+        *(f32 *)(arg0 + 8) = var_f3;
+        *(f32 *)(arg0 + 12) = var_f2;
+        *(f32 *)(arg0 + 16) = var_f1;
+        *(f32 *)(arg0 + 20) = var_f0;
+    } else if (1.0f <= var_f20) {
+        var_f3 = *(f32 *)(arg0 + 0x28);
+        var_f2 = *(f32 *)(arg0 + 0x2C);
+        var_f1 = *(f32 *)(arg0 + 0x30);
+        var_f0 = *(f32 *)(arg0 + 0x34);
+        *(f32 *)(arg0 + 8) = var_f3;
+        *(f32 *)(arg0 + 12) = var_f2;
+        *(f32 *)(arg0 + 16) = var_f1;
+        *(f32 *)(arg0 + 20) = var_f0;
+    } else {
+        var_f0 = 1.0f - var_f20;
+        if (out.flag == 0) {
+            var_f4 = var_f0 * out.v[8];
+            var_f3 = var_f4 * var_f4;
+            var_f2 = D_007614E8 * var_f3 + D_00761144;
+            var_f2 = var_f3 * var_f2 + D_00761148;
+            var_f2 = var_f3 * var_f2 + D_00761434;
+            var_f2 = var_f3 * var_f2 + D_00761150;
+            var_f1 = var_f3 * var_f2 + D_00761438;
+            var_f2 = var_f3 * var_f4;
+            var_f0 = var_f2 * var_f1 + var_f4;
+
+            var_f4 = var_f20 * out.v[8];
+            var_f3 = var_f4 * var_f4;
+            var_f1 = D_007614E8 * var_f3 + D_00761144;
+            var_f1 = var_f3 * var_f1 + D_00761148;
+            var_f1 = var_f3 * var_f1 + D_00761434;
+            var_f1 = var_f3 * var_f1 + D_00761150;
+            var_f2 = var_f3 * var_f1 + D_00761438;
+            var_f1 = var_f3 * var_f4;
+            var_f20 = var_f1 * var_f2 + var_f4;
+        }
+        *(f32 *)(arg0 + 8) = out.v[0] * var_f0;
+        *(f32 *)(arg0 + 12) = out.v[1] * var_f0;
+        *(f32 *)(arg0 + 16) = out.v[2] * var_f0;
+        *(f32 *)(arg0 + 8) = *(f32 *)(arg0 + 8) + out.v[4] * var_f20;
+        *(f32 *)(arg0 + 12) = *(f32 *)(arg0 + 12) + out.v[5] * var_f20;
+        *(f32 *)(arg0 + 16) = *(f32 *)(arg0 + 16) + out.v[6] * var_f20;
+        *(f32 *)(arg0 + 20) = out.v[3] * var_f0 + out.v[7] * var_f20;
+    }
+    return 0;
+}
 
 // FUN_00372C30
 void func_00372c30(u8 *arg0, s16 arg1, s16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
@@ -681,17 +767,105 @@ void func_00372c30(u8 *arg0, s16 arg1, s16 arg2, u8 *arg3, u8 *arg4, u8 *arg5) {
     *(ShuffleVec4 *)(arg0 + 0x28) = *(ShuffleVec4 *)(arg4 + 0);
 }
 
-/* measured: same half-scaler floor as func_00372960 (or-fold: mwcc emits
-   `or $v0,$v1,$v0` dest = andi-result reg vs retail `or $v1,$v1,$v0` dest =
-   srl-result reg, plus cvt through $f0 scratch + `add.s $f12,$f0,$f0` vs
-   retail cvt-to-$f12 + `add.s $f12,$f12,$f12`) - 4 words x 3 half-scalers,
-   nd 13 (1 pad). Everything else matches on the s32/u-local spelling:
-   0.5f head, out/B/A decl order (stack slots reverse), both 2.0f muls
-   (branch1 needs the two-statement `t = temp; t = t * 2.0f` form for
-   retail's fs=temp order; branch2 is one-statement), 00373cb0/003dcc70
-   calls, Horner with transposed final madds, mula/madd tail. */
+/* measured: complete C reconstruction matches the retail 0x390-byte window. */
 // FUN_00372D60
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00372d60);
+s32 func_00372d60(u8 *arg0) {
+    ShuffleOut out;
+    f32 B[4];
+    f32 A[4];
+    u32 v3;
+    u32 v2;
+    u32 value;
+    u32 value2;
+    u32 value3;
+    f32 var_f12;
+    f32 var_f13;
+    f32 var_f14;
+    f32 var_f20;
+    f32 var_f0;
+    f32 var_f1;
+    f32 var_f2;
+    f32 var_f3;
+    f32 var_f4;
+    v3 = *(u16 *)arg0;
+    v2 = *(u16 *)(arg0 + 2);
+    if (!((s32)v3 < (s32)v2)) {
+        return 1;
+    }
+    *(u16 *)arg0 = v3 + 1;
+    value = *(u16 *)arg0;
+    if (value >= 0) {
+        var_f12 = (f32)value;
+    } else {
+        value = (value >> 1) | (value & 1);
+        var_f12 = (f32)value;
+        var_f12 += var_f12;
+    }
+    value2 = *(u16 *)(arg0 + 4);
+    if (value2 >= 0) {
+        var_f13 = (f32)value2;
+    } else {
+        value2 = (value2 >> 1) | (value2 & 1);
+        var_f13 = (f32)value2;
+        var_f13 += var_f13;
+    }
+    value3 = *(u16 *)(arg0 + 2);
+    if (value3 >= 0) {
+        var_f14 = (f32)value3;
+    } else {
+        value3 = (value3 >> 1) | (value3 & 1);
+        var_f14 = (f32)value3;
+        var_f14 += var_f14;
+    }
+    var_f20 = func_00373cb0(var_f12, var_f13, var_f14, 0);
+    if (var_f20 < 0.5f) {
+        *(ShuffleVec4 *)B = *(ShuffleVec4 *)(arg0 + 0x18);
+        *(ShuffleVec4 *)A = *(ShuffleVec4 *)(arg0 + 0x38);
+        var_f20 = var_f20 * 2.0f;
+    } else {
+        *(ShuffleVec4 *)B = *(ShuffleVec4 *)(arg0 + 0x38);
+        *(ShuffleVec4 *)A = *(ShuffleVec4 *)(arg0 + 0x28);
+        var_f20 = 2.0f * (var_f20 - 0.5f);
+    }
+    func_003dcc70(B, A, &out);
+
+    if (var_f20 <= 0.0f) {
+        *(ShuffleVec4 *)(arg0 + 8) = *(ShuffleVec4 *)B;
+    } else if (1.0f <= var_f20) {
+        *(ShuffleVec4 *)(arg0 + 8) = *(ShuffleVec4 *)A;
+    } else {
+        var_f0 = 1.0f - var_f20;
+        if (out.flag == 0) {
+            var_f4 = var_f0 * out.v[8];
+            var_f3 = var_f4 * var_f4;
+            var_f2 = D_007614E8 * var_f3 + D_00761144;
+            var_f2 = var_f3 * var_f2 + D_00761148;
+            var_f2 = var_f3 * var_f2 + D_00761434;
+            var_f2 = var_f3 * var_f2 + D_00761150;
+            var_f1 = var_f3 * var_f2 + D_00761438;
+            var_f2 = var_f3 * var_f4;
+            var_f0 = var_f2 * var_f1 + var_f4;
+
+            var_f4 = var_f20 * out.v[8];
+            var_f3 = var_f4 * var_f4;
+            var_f1 = D_007614E8 * var_f3 + D_00761144;
+            var_f1 = var_f3 * var_f1 + D_00761148;
+            var_f1 = var_f3 * var_f1 + D_00761434;
+            var_f1 = var_f3 * var_f1 + D_00761150;
+            var_f2 = var_f3 * var_f1 + D_00761438;
+            var_f1 = var_f3 * var_f4;
+            var_f20 = var_f1 * var_f2 + var_f4;
+        }
+        *(f32 *)(arg0 + 8) = out.v[0] * var_f0;
+        *(f32 *)(arg0 + 12) = out.v[1] * var_f0;
+        *(f32 *)(arg0 + 16) = out.v[2] * var_f0;
+        *(f32 *)(arg0 + 8) = *(f32 *)(arg0 + 8) + out.v[4] * var_f20;
+        *(f32 *)(arg0 + 12) = *(f32 *)(arg0 + 12) + out.v[5] * var_f20;
+        *(f32 *)(arg0 + 16) = *(f32 *)(arg0 + 16) + out.v[6] * var_f20;
+        *(f32 *)(arg0 + 20) = out.v[3] * var_f0 + out.v[7] * var_f20;
+    }
+    return 0;
+}
 
 // FUN_003730F0
 void func_003730f0(u8 *p, s16 a1, s16 a2, ShuffleVec3 *arg3, f32 fparg0, f32 fparg1) {
