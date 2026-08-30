@@ -9,7 +9,7 @@ void func_0041e030();
 u8 **func_004117b0(s32);
 s32 func_00413700(s32);
 s32 func_00413b80(s32);
-s32 func_00413e50(s32, s32 *);
+s32 func_00413e50(s32,s32*);
 s32 func_004140f0(u8 *, u8 **);
 void func_004143f0(s32, s32);
 

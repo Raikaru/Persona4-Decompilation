@@ -57,11 +57,10 @@ extern void func_001582f0(s32 mode, s32 value, s32 arg2);
 extern void func_00450340(s64 arg0, s32 arg1, ...);
 extern void func_0017d1f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                            s32 arg4, f32 arg5, f32 arg6, f32 arg7);
-extern void func_0014def0(s32 arg0, s32 arg1,
-                           f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
-                           void *arg7, s32 arg8,
-                           f32 arg9, f32 arg10, f32 arg11,
-                           s32 arg12, void *arg13, f32 arg14);
+extern void func_0014def0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
+                          f32 farg0, f32 farg1, f32 farg2, f32 farg3,
+                          f32 farg4, f32 farg5, f32 farg6, f32 farg7,
+                          f32 farg8);
 extern u16 D_008C024E[];
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 static inline s32 code1_0018_get_b278(void)
@@ -97,10 +96,28 @@ extern f32 fGpffff8218;
 extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s64 func_00479c30(s32 arg0, s32 arg1);
 extern u8 *func_0047a2f0(u32 arg0);
-extern void func_003e40b0(f32 *arg0, f32 *arg1);
-extern u32 D_007EFA00[];
+extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+extern u8 *func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3);
+extern f32 D_005F2190[];
+extern f32 D_005F2194[];
+extern f32 D_005F2198[];
+extern f32 D_005F219C[];
+extern f32 D_005F21A0[];
+extern f32 D_005F21A4[];
 extern void func_0018a200(u8 *arg0);
 extern s32 func_0015a560(void);
+extern f32 func_0044b7b0(f32 arg0);
+extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          s32 arg4, s32 arg5, s32 arg6, s32 arg7,
+                          s32 arg8, u8 *arg9, f32 farg0, f32 farg1,
+                          f32 farg2, f32 farg3);
+extern void func_00275680(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          s32 arg4, s32 arg5, s32 arg6, s32 arg7,
+                          f32 farg0, f32 farg1, f32 farg2);
+extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
+extern f32 D_008872F8[];
+extern u8 D_00794C60[];
+extern u32 D_007EFA00[];
 extern u8 D_005F54D8[];
 extern s32 func_00189940(u8 *arg0);
 extern void func_0018a010(s32 arg0);
@@ -127,6 +144,16 @@ extern s32 func_003e8200(u8 *arg0, s32 arg1);
 extern void func_003f68a0(s32 arg0, s32 arg1);
 extern u8 D_007E8C00[];
 extern void func_003bff30(u8 *arg0, u8 *(*cb)(u8 *, s32), s32 *result);
+extern s64 func_001060b0(void);
+extern s32 func_001060c0(void);
+extern s64 func_00110960(s64 arg0, s32 arg1);
+extern s32 func_00106330(s32 arg0);
+extern s32 func_0014bdb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_0015a160(void);
+extern void func_004598e0(s32 arg0);
+extern void func_0045a3e0(s16 arg0, s32 arg1);
+extern s32 iGpffffb264;
+extern u8 *iGpffff9db0;
 
 /* measured: loop-invariant hoisting keeps the retail stride/base preheader for
    the 0x750 slot scan. */
@@ -479,7 +506,68 @@ void func_00186640(u8 *arg0)
                   func_00186610, D_008873F4[0](1, 0x88D0, 0x40000));
 }
 // FUN_00189600
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00189600);
+void func_00189600(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    f32 v32[4];
+    f32 v31[4];
+    f32 temp_f0;
+    f32 temp_f20;
+    s32 temp_16;
+    s32 temp_3;
+    s32 temp_4;
+    u8 *temp_18;
+    u8 *temp_16_2;
+    u8 *temp_17;
+
+    temp_17 = *(u8 **)(arg0 + 0x38);
+    func_00457120();
+    temp_4 = *(s32 *)temp_17;
+    if ((temp_4 != 1) || (*(s32 *)(temp_17 + 0x30) != arg2)) {
+        if (fparg0 != 0.0f) {
+            *(s32 *)(temp_17 + 0x2C) = arg1;
+            *(s32 *)(temp_17 + 0x30) = arg2;
+            temp_16 = arg2 * 0x18;
+            v32[0] = *(f32 *)((u8 *)D_005F2190 + temp_16) -
+                     *(f32 *)(temp_17 + 4);
+            v32[1] = *(f32 *)((u8 *)D_005F2194 + temp_16) -
+                     *(f32 *)(temp_17 + 8);
+            v32[2] = *(f32 *)((u8 *)D_005F2198 + temp_16) -
+                     *(f32 *)(temp_17 + 0xC);
+            temp_f20 = func_003e40b0(&v32[0], &v32[0]);
+            v31[0] = *(f32 *)((u8 *)D_005F219C + temp_16) -
+                     *(f32 *)(temp_17 + 0x10);
+            v31[1] = *(f32 *)((u8 *)D_005F21A0 + temp_16) -
+                     *(f32 *)(temp_17 + 0x14);
+            v31[2] = *(f32 *)((u8 *)D_005F21A4 + temp_16) -
+                     *(f32 *)(temp_17 + 0x18);
+            temp_f0 = func_003e40b0(&v31[0], &v31[0]);
+            if (!(temp_f20 <= temp_f0)) {
+                *(s32 *)(temp_17 + 0x28) = (s32)(temp_f20 / fparg0) + 1;
+            } else {
+                *(s32 *)(temp_17 + 0x28) = (s32)(temp_f0 / fparg0) + 1;
+            }
+            *(f32 *)(temp_17 + 0x1C) =
+                temp_f20 / (f32)*(s32 *)(temp_17 + 0x28);
+            *(f32 *)(temp_17 + 0x20) =
+                temp_f0 / (f32)*(s32 *)(temp_17 + 0x28);
+            *(s32 *)(temp_17 + 0x24) = 0;
+            *(s32 *)temp_17 = 2;
+            return;
+        }
+        *(s32 *)(temp_17 + 0x30) = arg2;
+        temp_3 = arg2 * 0x18;
+        temp_18 = (u8 *)D_005F2190 + temp_3;
+        *(struct Vec3 *)(temp_17 + 4) = *(struct Vec3 *)temp_18;
+        temp_16_2 = (u8 *)D_005F219C + temp_3;
+        *(struct Vec3 *)(temp_17 + 0x10) = *(struct Vec3 *)temp_16_2;
+        func_00457630(func_00457120(), temp_18, temp_16_2, 0);
+    }
+}
 /* measured: retail hoists the D_00887300 base across seven indirect calls;
    opt_propagation off preserves the saved-register address materialization. */
 // FUN_00189870

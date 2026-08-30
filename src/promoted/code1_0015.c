@@ -80,7 +80,7 @@ extern u8 D_005F0650[];
 extern s32 func_00106330(s32 arg0);
 extern s32 func_00451fc0();
 extern s32 func_00106390(s32 arg0, s32 arg1);
-extern void func_00159a60();
+extern s32 func_00159a60(u8 *arg0);
 extern void func_00159d50();
 extern void func_001587d0(u16 arg0, u16 arg1, u16 arg2);
 extern s32 func_0014a160(void);
