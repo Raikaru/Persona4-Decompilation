@@ -67,6 +67,10 @@ extern void (*jtbl_008873FC[])(s32, void *);
 extern void func_003d5830(u8 *arg0);
 extern s32 func_00397120(u8 *arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void func_003df4d0(s32 *arg0);
+extern u8 *func_003bfae0(s32 arg0);
+extern s32 func_003e9700(s32 arg0);
+extern void func_003e0960(void *arg0, s32 arg1);
 extern u8 *D_007646D0;
 extern void func_0039b830(u8 *arg0);
 extern void func_0039b8d0(s32 arg0, s32 arg1);
@@ -239,8 +243,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394c70);
 
 // FUN_00394D70
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394d70);
+
 // FUN_00394E70
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394e70);
+
+
 
 // FUN_00394FD0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00394fd0);

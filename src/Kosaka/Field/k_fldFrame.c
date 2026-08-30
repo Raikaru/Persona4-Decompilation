@@ -20,7 +20,7 @@ extern s32 func_001687e0(s32 arg0);
 extern s32 func_00169780(s32 collisionWorld, f32* origin,
                          f32* vector, f32 fraction);
 extern s32 func_0016a110(s32 collisionWorld, f32* origin,
-                         f32* vector, s32 fieldId, f32 fraction);
+                         f32* vector, f32 fraction, s32 fieldId);
 extern u8* func_003e9700(s32 arg0);
 extern u8* func_00457120(void);
 
@@ -122,7 +122,78 @@ void* func_0016a0c0(void* collisionWorld, void* state)
 // FUN_0016A110
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016a110);
 // FUN_0016A960
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016a960);
+s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
+{
+    u8* object;
+    s32 collisionWorld;
+    object = *(u8**)(iGpffff9db0 + 0x28);
+
+    if (object == NULL)
+    {
+        return 0;
+    }
+    if ((*(s32*)object & 1) != 0)
+    {
+        return func_00169780(*(s32*)(object + 0xc), origin, vector, fraction);
+    }
+
+    collisionWorld = 0;
+    if (func_0014a200() == 1 ||
+        (*(s32*)iGpffff9db0 >= 0x33 && *(s32*)iGpffff9db0 < 0x4f))
+    {
+        u8* entry;
+        u8* field;
+    s32 fieldX;
+    s32 fieldY;
+        s32 fieldFlags;
+        entry = (u8*)func_001452b0(0xc);
+        field = (u8*)func_00145270(fieldId);
+        fieldFlags = fieldId & 0xffff;
+        if (fieldFlags == 0xffff)
+        {
+            object = (u8*)func_003e9700(
+                *(s32*)((u8*)func_00457120() + 4));
+            fieldX = (s32)((*(f32*)(object + 0x30) + 600.0f) / 1200.0f);
+            fieldY = (s32)((*(f32*)(object + 0x38) + 600.0f) / 1200.0f);
+        }
+        else
+        {
+            if (((fieldFlags & 0xffc00) >> 10) == 1)
+            {
+                s32* coordinate;
+                coordinate = (s32*)(field + 0x220);
+                fieldX = func_001687d0(*coordinate);
+                fieldY = func_001687e0(*coordinate);
+            }
+            else
+            {
+                s32* coordinate;
+                coordinate = (s32*)(field + 0x228);
+                fieldX = func_001687d0(*coordinate);
+                fieldY = func_001687e0(*coordinate);
+            }
+        }
+        {
+            u32 key;
+            key = *(u16*)((u8*)func_00155280() + (fieldY << 8) +
+                          (fieldX << 4) + 0x56);
+            while (entry != NULL)
+            {
+                if (*(u16*)entry == key)
+                {
+                    collisionWorld = *(s32*)(*(u8**)(entry + 0x1a0) + 8);
+                    break;
+                }
+                entry = *(u8**)(entry + 0x138);
+            }
+        }
+    }
+    else
+    {
+        collisionWorld = *(s32*)(*(u8**)(iGpffff9db0 + 0x28) + 8);
+    }
+    return func_0016a110(collisionWorld, origin, vector, fraction, fieldId);
+}
 // FUN_0016ABC0
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016abc0);
 // FUN_0016B080

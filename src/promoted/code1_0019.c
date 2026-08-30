@@ -261,6 +261,10 @@ extern s32 func_0019f8a0(u8 *arg0);
 extern s32 func_00232830(s32 arg0, s32 arg1);
 extern u8 *func_0019e150(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 func_00242930(u8 *arg0);
+extern s32 func_00243e30(s32 arg0);
+extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_0047a120(void *arg0);
+extern void func_0047a150(void *arg0);
 extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
 extern u32 func_004bd050(u32 arg0);
 extern u16 *func_0010a900();
@@ -2045,8 +2049,7 @@ s32 func_0019a030(u8 *arg0)
     temp_5 = *(s16 *)(temp_4 + 0x9EC);
     if (temp_5 != var_2)
         func_00198920(temp_4, temp_5, *(u16 *)(arg0 + 4),
-                      *(f32 *)(temp_4 + 0x9F0),
-                      (u16)*(s8 *)(temp_4 + 0x9F4));
+                      *(f32 *)(temp_4 + 0x9F0), (u16)*(s8 *)(temp_4 + 0x9F4));
     return 1;
 }
 
