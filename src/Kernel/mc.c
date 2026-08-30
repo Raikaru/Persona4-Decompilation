@@ -692,7 +692,210 @@ s32 func_002a4390(s32 arg0) {
    base; the previous nd-9 body must be reconstructed by hand. Dispatch
    register coloring ($v0 value / $v1 base) remains the known floor. */
 // FUN_002A4570
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a4570);
+s32 func_002a4570(u8 *work) {
+    s32 value;
+    s32 result;
+
+    result = 0;
+    switch (*(s16 *)(work + 2)) {
+    case 1:
+        *(u32 *)(work + 4) |= 0x40000;
+        result = 1;
+        goto return_result;
+    case 0:
+        *(s16 *)(work + 2) = 2;
+        goto return_zero;
+    case 2:
+        *(s16 *)(work + 2) = 3;
+        func_002a2e50(work, 0);
+        /* fallthrough */
+    case 3:
+        result = 0;
+        value = *(s32 *)(work + 8);
+        switch (value) {
+        case 0:
+            result = func_002a3070(work);
+            break;
+        case 1:
+            result = func_002a32c0(work);
+            break;
+        case 2:
+            result = func_002a34e0(work);
+            break;
+        case 3:
+            result = func_002a3d80((s32)work);
+            break;
+        default:
+            break;
+        }
+        switch (result) {
+        case 1:
+            *(s16 *)(work + 2) = 4;
+            break;
+        case 3:
+            *(s16 *)(work + 2) = 2;
+            break;
+        case 4:
+            *(s16 *)(work + 2) = 1;
+            break;
+        default:
+            break;
+        }
+        goto return_zero;
+    case 4:
+        *(s16 *)(work + 2) = 5;
+        /* fallthrough */
+    case 5:
+        *(s16 *)(work + 2) = 6;
+        func_004653f0();
+        /* fallthrough */
+    case 6:
+        func_002a4390((s32)work);
+        if (D_008C024E[0] & 0x40) {
+            if (*(u32 *)(work + 4) & 2) {
+                *(s16 *)(work + 2) = 7;
+                func_0045af60(0, 0, 0, 1);
+            } else if (func_002a6af0(work) == 1) {
+                *(s16 *)(work + 2) = 0xC;
+                func_0045af60(0, 0, 0, 1);
+            } else {
+                func_0045af60(0, 0, 0, 8);
+            }
+        } else if (D_008C024E[0] & 0x20) {
+            *(s16 *)(work + 2) = 1;
+            func_0045af60(0, 0, 0, 2);
+            goto return_zero;
+        }
+        value = func_00465400();
+        switch (value) {
+        case 100:
+        case -1:
+        case -2:
+            break;
+        case 3:
+        case -4:
+        case -5:
+            *(s16 *)(work + 2) = 2;
+            break;
+        }
+        goto return_zero;
+    case 7:
+        *(s16 *)(work + 2) = 8;
+        func_002a2e50(work, 1);
+        /* fallthrough */
+    case 8:
+        result = 0;
+        value = *(s32 *)(work + 8);
+        switch (value) {
+        case 0:
+            result = func_002a3070(work);
+            break;
+        case 1:
+            result = func_002a32c0(work);
+            break;
+        case 2:
+            result = func_002a34e0(work);
+            break;
+        case 3:
+            result = func_002a3d80((s32)work);
+            break;
+        default:
+            break;
+        }
+        switch (result) {
+        case 1:
+            *(s16 *)(work + 2) = 9;
+            break;
+        case 4:
+            *(s16 *)(work + 2) = 2;
+            break;
+        }
+        goto return_zero;
+    case 9:
+        *(s16 *)(work + 2) = 0xB;
+        func_002a2e50(work, 2);
+        /* fallthrough */
+    case 0xB:
+        result = 0;
+        value = *(s32 *)(work + 8);
+        switch (value) {
+        case 0:
+            result = func_002a3070(work);
+            break;
+        case 1:
+            result = func_002a32c0(work);
+            break;
+        case 2:
+            result = func_002a34e0(work);
+            break;
+        case 3:
+            result = func_002a3d80((s32)work);
+            break;
+        default:
+            break;
+        }
+        switch (result) {
+        case 1:
+            D_00764634 = 1;
+            *(s16 *)(work + 2) = 1;
+            *(u32 *)(work + 4) |= 8;
+            break;
+        case 2:
+            *(s16 *)(work + 2) = 5;
+            break;
+        case 4:
+            *(s16 *)(work + 2) = 2;
+            break;
+        default:
+            break;
+        }
+        goto return_zero;
+    case 0xC:
+        *(s16 *)(work + 2) = 0xD;
+        func_002a2e50(work, 3);
+        /* fallthrough */
+    case 0xD:
+        result = 0;
+        value = *(s32 *)(work + 8);
+        switch (value) {
+        case 0:
+            result = func_002a3070(work);
+            break;
+        case 1:
+            result = func_002a32c0(work);
+            break;
+        case 2:
+            result = func_002a34e0(work);
+            break;
+        case 3:
+            result = func_002a3d80((s32)work);
+            break;
+        default:
+            break;
+        }
+        switch (result) {
+        case 1:
+            D_00764634 = 1;
+            *(s16 *)(work + 2) = 1;
+            break;
+        case 2:
+            *(s16 *)(work + 2) = 5;
+            break;
+        case 4:
+            *(s16 *)(work + 2) = 2;
+            break;
+        default:
+            break;
+        }
+        goto return_zero;
+    default:
+        goto return_zero;
+    }
+return_zero:
+    result = 0;
+return_result:
+    return result;
+}
 // FUN_002A4B10
 s32 func_002a4b10(s32 arg0) {
     u8 *w = func_00452560();
