@@ -1396,10 +1396,8 @@ void func_0017bbe0(u8 *arg0, u8 *arg1)
 
 // FUN_0017BC60
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017bc60);
-
 // FUN_0017C010
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c010);
-
 
 
 // FUN_0017C270

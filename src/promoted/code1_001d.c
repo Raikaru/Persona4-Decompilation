@@ -18,6 +18,8 @@ extern u8 *D_0076449C;
 extern s32 func_002428f0(u8 *arg0, s32 arg1);
 extern s32 func_00231e20(u8 *arg0);
 extern s32 func_00232710();
+extern u16 func_00231ed0(u8 *arg0);
+extern u16 func_00231ee0(u8 *arg0);
 extern s32 func_002340c0(s32 arg0, s32 arg1);
 extern void func_001d6de0(s32 arg0, s32 arg1);
 extern s32 func_001d6360(u8 *arg0);
@@ -1102,7 +1104,198 @@ u8 *func_001d8c00(u8 *arg0)
 // FUN_001D8CB0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8cb0);
 // FUN_001D8E50
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d8e50);
+void func_001d8e50(u8 *arg0, u8 *arg1)
+{
+    u16 best_value1;
+    s16 best_index1;
+    u16 best_value2;
+    s16 best_index2;
+    s32 index;
+    u32 offset;
+    s32 target;
+    u16 value;
+    u16 alternate;
+    u8 *work;
+
+    if (*(u16 *)(arg1 + 0x38) <= 1)
+        return;
+    switch (*(u16 *)(arg0 + 0x6C)) {
+    case 2:
+        goto mode_valid;
+    default:
+        switch (*(u16 *)(arg0 + 0x6C)) {
+        case 3:
+            goto mode_valid;
+        default:
+            switch (*(u16 *)(arg0 + 0x6C)) {
+            case 1:
+                goto mode_valid;
+            default:
+                goto mode_done;
+            }
+        }
+    }
+
+mode_valid:
+
+        offset = (u32)*(u16 *)(arg0 + 0x6E) * 0x28;
+        {
+            u8 *entry;
+            entry = (u8 *)((u32)offset + (u32)iGpffffb3b8);
+            if (entry[8] != 0)
+                return;
+
+            if (entry[0x18] == 2) {
+            target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + 0x1C) + offset);
+            if (target != 0) {
+                index = 0;
+                while ((u16)index < *(u16 *)(arg1 + 0x38)) {
+                    if (*(u8 **)(arg0 + 0x30) ==
+                        *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30) &&
+                        func_00232710(
+                            *(u8 **)(*(u8 **)(*(u8 **)(arg1 +
+                                                          (u32)(u16)index * 4) +
+                                                     0x30) +
+                                     0xA64),
+                            target) != 0) {
+                        *(u16 *)(arg1 + 0x3A) = (u16)index;
+                        return;
+                    }
+                    index = (index + 1) & 0xFFFF;
+                }
+
+                index = 0;
+                while ((u16)index < *(u16 *)(arg1 + 0x38)) {
+                    if (func_00232710(
+                            *(u8 **)(*(u8 **)(*(u8 **)(arg1 +
+                                                          (u32)(u16)index * 4) +
+                                                     0x30) +
+                                     0xA64),
+                            target) != 0) {
+                        *(u16 *)(arg1 + 0x3A) = (u16)index;
+                        return;
+                    }
+                    index = (index + 1) & 0xFFFF;
+                }
+            }
+        }
+        }
+
+        target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + 0x20) + offset);
+        if (target != 0) {
+            index = 0;
+            while ((u16)index < *(u16 *)(arg1 + 0x38)) {
+                if (func_002340c0(
+                        *(s32 *)(*(u8 **)(*(u8 **)(arg1 +
+                                                      (u32)(u16)index * 4) +
+                                         0x30) +
+                                 0xA64),
+                        target) == 0) {
+                    *(u16 *)(arg1 + 0x3A) = (u16)index;
+                    return;
+                }
+                index = (index + 1) & 0xFFFF;
+            }
+        }
+
+        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+        case 15:
+            goto mode1_select;
+        default:
+            switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+            case 11:
+                goto mode1_select;
+            default:
+                switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+                case 9:
+                    goto mode1_select;
+                default:
+                    switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+                    case 5:
+                        goto mode1_select;
+                    default:
+                        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x11)) {
+                        case 2:
+                            goto mode1_select;
+                        default:
+                            goto mode2_check;
+                        }
+                    }
+                }
+            }
+        }
+
+mode1_select:
+        {
+            best_value1 = 0xFFFF;
+            best_index1 = -1;
+            index = 0;
+            while ((u16)index < *(u16 *)(arg1 + 0x38)) {
+                work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
+                value = func_00231ed0(*(u8 **)(work + 0xA64));
+                alternate = func_00231f80(*(u8 **)(work + 0xA64));
+                if (value < best_value1 && value < alternate) {
+                    best_value1 = value;
+                    best_index1 = (s16)index;
+                }
+                index = (index + 1) & 0xFFFF;
+            }
+            if (best_index1 != -1) {
+                *(u16 *)(arg1 + 0x3A) = (u16)best_index1;
+                return;
+            }
+        }
+
+mode2_check:
+        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+        case 15:
+            goto mode2_select;
+        default:
+            switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+            case 11:
+                goto mode2_select;
+            default:
+                switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+                case 9:
+                    goto mode2_select;
+                default:
+                    switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+                    case 5:
+                        goto mode2_select;
+                    default:
+                        switch (*(u8 *)((u8 *)((u32)offset + (u32)iGpffffb3b8) + 0x14)) {
+                        case 2:
+                            goto mode2_select;
+                        default:
+                            goto mode_done;
+                        }
+                    }
+                }
+            }
+        }
+
+mode2_select:
+        {
+            best_value2 = 0xFFFF;
+            best_index2 = -1;
+            index = 0;
+            while ((u16)index < *(u16 *)(arg1 + 0x38)) {
+                work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
+                value = func_00231ee0(*(u8 **)(work + 0xA64));
+                alternate = func_00232290(*(u8 **)(work + 0xA64));
+                if (value < best_value2 && value < alternate) {
+                    best_value2 = value;
+                    best_index2 = (s16)index;
+                }
+                index = (index + 1) & 0xFFFF;
+            }
+            if (best_index2 != -1)
+                *(u16 *)(arg1 + 0x3A) = (u16)best_index2;
+        }
+
+mode_done:
+    return;
+}
 // FUN_001D9280
 u8 *func_001d9280(s32 arg0, s32 arg1, s32 arg2) {
     s32 work_flags;
