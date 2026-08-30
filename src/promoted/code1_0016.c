@@ -59,9 +59,7 @@ extern f32 D_007F1730[];
 
 extern u8 D_005F16C8[];
 extern u8 D_005F16D0[];
-extern s32 func_00451fc0(s32 arg0, void *arg1, s32 arg2, s32 arg3,
-                         s32 arg4, void (*arg5)(u8 *), void (*arg6)(u8 *),
-                         u8 *arg7);
+extern s32 func_00451fc0();
 extern s32 D_007EF9F8;
 extern s32 D_007EFA00;
 extern u8 D_005F1698[];
@@ -82,7 +80,7 @@ extern u8 D_005F1630[];
 extern u8 D_005F1610[];
 extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
-extern void func_00168060(u8 *arg0);
+extern s32 func_00168060(u8 *arg0);
 extern void func_0047a180(s32 arg0, void *arg1, s32 arg2);
 extern void func_0047a1a0(s32 arg0, s32 arg1, f32 arg2, s32 arg3);
 extern void func_00478e70(s32 arg0);
@@ -116,12 +114,32 @@ extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
 extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
 
+
 typedef struct E9F0Vec3
 {
     f32 x;
     f32 y;
     f32 z;
 } E9F0Vec3;
+typedef struct F8060Frame
+{
+    E9F0Vec3 sp50;
+    E9F0Vec3 sp5c;
+    u8 pad68[8];
+    E9F0Vec3 sp70;
+    u8 pad7c[4];
+    E9F0Vec3 sp80;
+    u8 pad8c[4];
+    E9F0Vec3 sp90;
+} F8060Frame;
+
+extern s32 func_0014a200(void);
+extern s32 func_0016a960(E9F0Vec3 *arg0, E9F0Vec3 *arg1, f32 fparg0,
+                         u16 arg2);
+extern s32 func_0016b540(E9F0Vec3 *arg0, E9F0Vec3 *arg1);
+extern void func_001823d0(s32 arg0, u16 arg1, u16 arg2);
+
+
 typedef struct E8E0Frame
 {
     s64 sp30;
@@ -156,6 +174,7 @@ extern void func_003e05d0(u8 *arg0);
 
 
 typedef signed __int128 s128;
+
 typedef struct F630Frame
 {
     u8 work[0x40];
@@ -805,7 +824,119 @@ void func_00168030(u8 *arg0)
 
 
 // FUN_00168060
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_00168060);
+s32 func_00168060(u8 *arg0)
+{
+    F8060Frame stack;
+    s32 state;
+    s32 i;
+    s32 offset;
+    s32 *counter_ptr;
+    u32 counter;
+    u8 *object;
+    u8 *source;
+    u8 *target;
+    u8 *work;
+
+    work = *(u8 **)(arg0 + 0x38);
+    if ((*(u32 *)(work + 4) & 0x08000000) != 0) {
+        return 0;
+    }
+
+    state = *(s32 *)work;
+    switch (state) {
+    case 0:
+        object = func_0047a2f0(*(s32 *)(work + 0x10));
+        stack.sp70 = *(E9F0Vec3 *)(object + 0x30);
+
+        if (((*(u32 *)(work + 4) & 0x40000000) != 0) &&
+            ((*(u32 *)(work + 4) & 0x10000000) == 0)) {
+            stack.sp5c = stack.sp70;
+            stack.sp50 = stack.sp5c;
+            if (func_0014a200() != 0) {
+                stack.sp50.y += 600.0f;
+            } else {
+                stack.sp50.y += 200.0f;
+            }
+            stack.sp5c.y -= 1000.0f;
+            if (func_0016b540(&stack.sp50, &stack.sp90) == 1) {
+                *(f32 *)(work + 0x1C) = -(stack.sp70.y - stack.sp90.y);
+            }
+        }
+
+        for (i = 0; i < 3; i++) {
+            stack.sp80.x = *(f32 *)(work + 0x18) / 3.0f;
+            stack.sp80.y = *(f32 *)(work + 0x1C) / 3.0f;
+            stack.sp80.z = *(f32 *)(work + 0x20) / 3.0f;
+            source = func_0047a2f0(*(s32 *)(work + 0x10));
+            stack.sp70 = *(E9F0Vec3 *)(source + 0x30);
+            stack.sp70.y += *(f32 *)(work + 0x24);
+            if ((*(u32 *)(work + 4) & 0x10000000) == 0) {
+                func_0016a960(&stack.sp70, &stack.sp80,
+                              *(f32 *)(work + 0x24), *(u16 *)(work + 8));
+            }
+            func_0047a180(*(s32 *)(work + 0x10), &stack.sp80, 2);
+            if (*(s32 *)(work + 0x14) != 0) {
+                source = func_0047a2f0(*(s32 *)(work + 0x10));
+                target = func_0047a2f0(*(s32 *)(work + 0x14));
+                *(E9F0Vec3 *)(target + 0x30) =
+                    *(E9F0Vec3 *)(source + 0x30);
+                func_00478e70(*(s32 *)(work + 0x14));
+            }
+        }
+
+        if (*(s32 *)(work + 0xC) != 0) {
+            if ((*(u32 *)(work + 4) & 1) == 0) {
+                counter = *(u32 *)(work + 0x3C);
+                if (counter >= 5) {
+                    target = *(u8 **)(work + 0xC);
+                    *(u8 *)(*(s32 *)(target + 0x710) + (s32)target +
+                            0x1D0) = 1;
+                    target = *(u8 **)(work + 0xC);
+                    *(f32 *)((*(u32 *)(target + 0x710) << 3) +
+                             (u32)target + 0x210) =
+                        *(f32 *)(object + 0x30);
+                    target = *(u8 **)(work + 0xC);
+                    *(f32 *)((*(u32 *)(target + 0x710) << 3) +
+                             (u32)target + 0x214) =
+                        *(f32 *)(object + 0x38);
+                    target = *(u8 **)(work + 0xC);
+                    offset = *(s32 *)(target + 0x710) * 12;
+                    offset += (s32)target;
+                    *(E9F0Vec3 *)(offset + 0x410) =
+                        *(E9F0Vec3 *)(object + 0x20);
+                    target = *(u8 **)(work + 0xC);
+                    *(s32 *)(target + 0x710) += 1;
+                    target = *(u8 **)(work + 0xC);
+                    counter_ptr = (s32 *)(target + 0x710);
+                    if (*(s32 *)(target + 0x710) >= 0x40) {
+                        *counter_ptr = 0;
+                    }
+                    *(s32 *)(work + 0x3C) = 0;
+                } else {
+                    *(u32 *)(work + 0x3C) = counter + 1;
+                }
+            } else {
+                *(s32 *)(work + 0x3C) = 0;
+            }
+        }
+
+        *(s32 *)(work + 0x40) =
+            (s32)((*(f32 *)(object + 0x30) + 600.0f) / 1200.0f);
+        *(s32 *)(work + 0x44) =
+            (s32)((*(f32 *)(object + 0x38) + 600.0f) / 1200.0f);
+        if ((*(u16 *)(work + 8) & 0x3FF) < 100) {
+            func_001823d0(*(s32 *)(work + 0x10), *(u16 *)(work + 0xA),
+                          *(u16 *)(work + 8));
+        }
+        *(s32 *)work += 1;
+        break;
+    case 1:
+    case 2:
+    default:
+        break;
+    }
+    return 0;
+}
 // FUN_00168470
 void func_00168470(u8 *arg0)
 {

@@ -33,6 +33,31 @@ extern char D_005EFE90[];
 extern s32 func_0014a2a0();
 extern u8 *iGpffff9db0;
 extern char iGpffff9e18;
+extern char iGpffff9e20;
+extern s32 func_004553c0(u8 *arg0);
+extern u8 *func_00455f70(void *arg0, void *arg1);
+extern void func_0043f810(void *arg0, void *arg1, u32 arg2);
+extern void func_0043f9c8(void *arg0, s32 arg1, u32 arg2);
+extern u8 *func_00457120(void);
+extern void func_004577d0(void *arg0, f32 arg1);
+extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
+extern s32 *func_00155280(void);
+extern void func_0016e590();
+extern void func_0016e9f0(s32 arg0, void *arg1);
+extern void func_0016ea20(s32 arg0, f32 arg1);
+extern void func_0016ea30(s32 arg0, f32 arg1);
+extern void func_0016eaa0(s32 arg0, s32 arg1, void *arg2);
+extern u8 *func_0016eaf0(s32 arg0);
+extern void func_0016eb00(s32 arg0);
+extern void func_0046d700(const char *arg0, s32 arg1, void *arg2, void *arg3);
+extern void func_00454bd0(u8 *arg0);
+extern char D_005EFEF0[];
+
+typedef struct CmrVec3 {
+    f32 x;
+    f32 y;
+    f32 z;
+} CmrVec3;
 
 
 
@@ -182,4 +207,145 @@ s32 func_00154b10(void) {
    if(var_16==NULL){func_0046d700...}` mirrors retail's dead func_0046d700 block.
    func_003e9cb0 first arg is a pointer loaded from [4] (cast to void*). */
 // FUN_00154BE0
-INCLUDE_ASM("asm/nonmatchings/k_fldEnvironment", func_00154be0);
+s32 func_00154be0(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3, s32 *arg4,
+                  u8 *arg5, f32 *arg6, f32 *arg7, s32 *arg_sp0, s32 *arg_sp8)
+{
+    char spEC[4];
+    char spA0[0x4C];
+    u8 *data;
+
+    if (arg0 == 0) {
+        return 1;
+    }
+    if ((func_0014eec0() == 0) && (func_004553c0(arg0) == 0)) {
+        return 0;
+    }
+    if (func_0014eec0() == 0) {
+        data = *(u8 **)(arg0 + 0x110);
+    } else {
+        func_00442088(&spA0, D_005EFEF0,
+                      *(s32 *)iGpffff9db0, *(s32 *)(iGpffff9db0 + 4));
+        data = func_00455f70(&spA0, &spEC);
+        if (data == 0) {
+            return 1;
+        }
+        if (data == 0) {
+            func_0046d700(D_005EFE50, 0x5A1, &iGpffff9e20, &spA0);
+        }
+    }
+    if (arg1 != 0) {
+        s32 *src;
+        s32 count;
+        s32 first;
+        s32 second;
+
+        src = (s32 *)(data + 0x10);
+        count = 8;
+        do {
+            first = src[0];
+            second = src[1];
+            src += 2;
+            count--;
+            *(s32 *)arg1 = first;
+            *(s32 *)(arg1 + 4) = second;
+            arg1 += 8;
+        } while (count > 0);
+        *arg3 = *(f32 *)(data + 8);
+        *arg4 = *(u16 *)(data + 0x50);
+        *(CmrVec3 *)arg5 = *(CmrVec3 *)(data + 0x54);
+        *arg6 = *(f32 *)(data + 0x60);
+        *arg7 = *(f32 *)(data + 0x64);
+        if (*(u32 *)(data + 4) > 0x10000U) {
+            func_0043f810(arg_sp0, data + 0x68, 0x20);
+            func_0043f810(arg_sp8, data + 0x88, 0x180);
+        } else {
+            func_0043f9c8(arg_sp0, 0, 0x20);
+            func_0043f9c8(arg_sp8, 0, 0x180);
+        }
+        if (*(u32 *)(data + 4) > 0x10001U) {
+            src = (s32 *)(data + 0x210);
+            count = 8;
+            do {
+                first = src[0];
+                second = src[1];
+                src += 2;
+                count--;
+                *(s32 *)arg2 = first;
+                *(s32 *)(arg2 + 4) = second;
+                arg2 += 8;
+            } while (count > 0);
+        } else {
+            *(f32 *)(arg2 + 0x28) = 1.0f;
+            *(f32 *)(arg2 + 0x14) = 1.0f;
+            *(f32 *)(arg2 + 0) = 1.0f;
+            *(f32 *)(arg2 + 0x10) = 0.0f;
+            *(f32 *)(arg2 + 8) = 0.0f;
+            *(f32 *)(arg2 + 4) = 0.0f;
+            *(f32 *)(arg2 + 0x24) = 0.0f;
+            *(f32 *)(arg2 + 0x20) = 0.0f;
+            *(f32 *)(arg2 + 0x18) = 0.0f;
+            *(f32 *)(arg2 + 0x38) = 0.0f;
+            *(f32 *)(arg2 + 0x34) = 0.0f;
+            *(f32 *)(arg2 + 0x30) = 0.0f;
+            *(s32 *)(arg2 + 0xC) |= 0x20003;
+        }
+    } else {
+        s32 i;
+        s16 id;
+        s32 *src;
+        s32 count;
+        u8 *dst;
+        s32 first;
+        s32 second;
+
+        func_004577d0(func_00457120(), *(f32 *)(data + 8));
+        func_003e9cb0((void *)*(s32 *)(func_00457120() + 4),
+                      data + 0x10, 0);
+        func_0016e590(func_00155280()[1], *(u16 *)(data + 0x50));
+        func_0016e9f0(func_00155280()[1], data + 0x54);
+        func_0016ea20(func_00155280()[1], *(f32 *)(data + 0x60));
+        func_0016ea30(func_00155280()[1], *(f32 *)(data + 0x64));
+        for (i = 0; i < 0x20; i++) {
+            id = *(s8 *)(data + 0x68 + i);
+            if (id <= -1) {
+                goto CMR_loop_skip;
+            }
+            func_0016eaa0(func_00155280()[1], id,
+                          data + i * 0xC + 0x88);
+CMR_loop_skip:
+            ;
+        }
+        if ((u32)*(s32 *)(data + 4) < 0x10002U) {
+            *(f32 *)(arg2 + 0x28) = 1.0f;
+            *(f32 *)(arg2 + 0x14) = 1.0f;
+            *(f32 *)(arg2 + 0) = 1.0f;
+            *(f32 *)(arg2 + 0x10) = 0.0f;
+            *(f32 *)(arg2 + 8) = 0.0f;
+            *(f32 *)(arg2 + 4) = 0.0f;
+            *(f32 *)(arg2 + 0x24) = 0.0f;
+            *(f32 *)(arg2 + 0x20) = 0.0f;
+            *(f32 *)(arg2 + 0x18) = 0.0f;
+            *(f32 *)(arg2 + 0x38) = 0.0f;
+            *(f32 *)(arg2 + 0x34) = 0.0f;
+            *(f32 *)(arg2 + 0x30) = 0.0f;
+            *(s32 *)(arg2 + 0xC) |= 0x20003;
+        }
+        dst = func_0016eaf0(func_00155280()[1]);
+        src = (s32 *)(data + 0x210);
+        count = 8;
+        do {
+            first = src[0];
+            second = src[1];
+            src += 2;
+            count--;
+            *(s32 *)dst = first;
+            *(s32 *)(dst + 4) = second;
+            dst += 8;
+        } while (count > 0);
+        func_0016eb00(func_00155280()[1]);
+    }
+    if (func_0014eec0() == 0) {
+        func_00454bd0(arg0);
+    }
+    return 1;
+}

@@ -2,7 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 extern void func_0043f9c8();
-void func_00201650(void *arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8);
+void func_00201650(void *arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8);
 s32 func_0023a6b0(s32 arg0, s64 arg1);
 void func_00364c50(void);
 void func_00364c70(void);
@@ -15,6 +15,11 @@ void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 u8 *func_00457120(void);
 u8 *func_004571a0(void);
 u8 *func_004571c0(void);
+void func_00442088(void *dst, const void *fmt, s32 value);
+s32 func_00442948(const char *text);
+void func_0046d730(const void *file, s32 line);
+extern u8 D_00628F80[];
+extern char iGpffffa59c;
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887310[])(s32, void *, s32);
 extern f32 D_008872F8[];
@@ -23,15 +28,114 @@ extern f32 iGpffff80cc;
 
 static inline f32 panelAdd2(f32 left, f32 right) { return left + right; }
 
-/* measured: extreme saved-register pressure (9 saved regs + 3 fp). Retail keeps 7
-   color bytes in $16..$18/$21..$23/$30 and loads them via daddiu (u8 locals); mwcc
-   b210 spills most to the stack (frame 0x120 vs retail 0x150) and shifts the whole
-   allocation (arg0 $s5 vs $s4, arg2 $s4 vs $s3). u8 colors give retail's daddiu but
-   add andi-0xff masking; s32 colors drop the masking but lose the daddiu (nd 192).
-   Tried u8/s32, m2c declaration order (colors last), and reordering; best 192.
-   Saved-register-rotation + stack-layout floor. */
+/* measured: opt_propagation off preserves the split mode live range and
+   retail's parameter-save order (MATCH nd0; without it, nd10). */
+#pragma opt_propagation off
 // FUN_00218760
-INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00218760);
+void func_00218760(void *arg0, u32 arg1, s32 arg2, f32 fparg0, f32 fparg1) {
+    struct {
+        char text[128];
+    } locals;
+    u8 blue;
+    s32 mode;
+    s32 mode2;
+    s32 length;
+    s32 i;
+    u8 color0;
+    u8 color1;
+    u8 color2;
+    u8 color3;
+    u8 color4;
+    u8 color5;
+    u8 color6;
+    f32 py;
+    f32 px;
+    f32 y;
+
+    px = fparg0;
+    py = fparg1;
+    mode = arg2;
+    switch (mode) {
+    case 0:
+    case 1:
+        goto mode01;
+    case 2:
+    case 3:
+        goto mode23;
+    default:
+        goto mode_error;
+    }
+mode01:
+    color0 = 0x89;
+    color1 = 0xFF;
+    blue = 0x1F;
+    color2 = 0xFF;
+    color3 = 0x24;
+    color4 = 0x4C;
+    color5 = 0;
+    color6 = 0xFF;
+    goto mode_done;
+mode23:
+    color0 = 0x70;
+    color1 = color0;
+    blue = color0;
+    color2 = 0xFF;
+    color3 = 8;
+    color4 = 8;
+    color5 = 8;
+    color6 = 0xFF;
+    goto mode_done;
+mode_error:
+    func_0046d730(D_00628F80, 0x12D);
+mode_done:
+    mode2 = mode;
+    func_00201650(arg0, 0xA, 0x40, px, py,
+                  color0, color1, blue, color2);
+    func_00201650(arg0, 0xA, 0x41, 81.0f + px, py,
+                  color0, color1, blue, color2);
+    y = 2.0f + py;
+    func_00201650(arg0, 0xA, 0x46, 6.0f + px, y,
+                  color3, color4, color5, color6);
+    switch (mode2) {
+    case 0:
+    case 2:
+        func_00201650(arg0, 0xA, 0x44, 59.0f + px, y,
+                      color3, color4, color5, color6);
+        break;
+    case 1:
+    case 3:
+        func_00201650(arg0, 0xA, 0x45, 59.0f + px, y,
+                      color3, color4, color5, color6);
+        break;
+    default:
+        func_0046d730(D_00628F80, 0x13F);
+        break;
+    }
+    switch (mode2) {
+    case 0:
+    case 1:
+        px = panelAdd2(96.0f, px);
+        func_00442088(locals.text, &iGpffffa59c, arg1);
+        length = func_00442948(locals.text);
+        i = 0;
+        y = 4.0f + py;
+        while (i < length) {
+            func_00201650(arg0, 0xC, locals.text[i] - 0x27,
+                          px, y, 0x89, 0xFF, 0x1F, 0xFF);
+            px += 16.0f;
+            i += 1;
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    default:
+        func_0046d730(D_00628F80, 0x14E);
+        break;
+    }
+}
+/* measured: restores propagation after func_00218760. */
+#pragma opt_propagation on
 
 typedef struct {
     f32 x, y, z;
