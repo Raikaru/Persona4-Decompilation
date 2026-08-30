@@ -89,7 +89,6 @@ s64 func_001d15a0(s32 arg0);
 void func_001eb7f0(void);
 s32 func_001ef720(s32 arg0, s32 arg1);
 s32 func_001fabe0(u8 *arg0);
-void func_0022db90(u8 *arg0);
 s32 func_00232710(u8 *arg0, s32 arg1);
 s32 func_00232d80(u8 *arg0);
 s64 func_00235320(u8 *arg0);

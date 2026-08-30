@@ -3345,6 +3345,7 @@ func_003a2760 = 0x003a2760; // type:data
 func_003a2770 = 0x003a2770; // type:data
 func_003a2920 = 0x003a2920; // type:data
 func_003a2950 = 0x003a2950; // type:data
+func_003a2bb0 = 0x003a2bb0; // type:data
 func_003a4270 = 0x003a4270; // type:data
 func_003a4850 = 0x003a4850; // type:data
 func_003a4ab0 = 0x003a4ab0; // type:data

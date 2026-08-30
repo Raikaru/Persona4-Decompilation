@@ -595,7 +595,102 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8340);
 // FUN_003A8500
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8500);
 // FUN_003A8640
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8640);
+// measured: schedule on / no_branch_likely on / opt_rebuildconditionals off /
+// opt_propagation off together reproduce retail's index-refresh branch
+// scheduling and delay-slot fills for func_003a8640.
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+#pragma opt_propagation off
+s32 func_003a8640(s32 arg0, u8 *arg1, s32 arg2, s32 arg3)
+{
+    s32 *work;
+    s32 index;
+    s32 value;
+    s32 flags;
+    u8 *dst;
+    u8 byte0;
+    u8 byte1;
+    u8 byte2;
+    u8 byte3;
+    f32 float0;
+    f32 float1;
+
+    extern void func_003a2bb0(u8 *arg0);
+    extern void func_0043f810(void *dst, const void *src, u32 size);
+    work = *(s32 **)(arg1 + 0x4C);
+    flags = arg3;
+    if (work[56] == 1) {
+        index = work[57];
+        if (index >= work[58]) {
+            goto wrap_index;
+        }
+        index += 1;
+apply_index:
+        work[index + 59] |= flags;
+        value = work[work[57] + 59];
+        if (value != 0) {
+            work[work[57] + 59] = 0;
+            flags |= value;
+        }
+    }
+    if (flags == 0) {
+        goto done_index;
+    }
+    if ((flags & 0x10000000) != 0) {
+        goto refresh_index;
+    }
+second_mask:
+    if ((flags & 0x80000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x80000) != 0) {
+        func_0043f810(*(void **)(arg1 + 0x3C), arg1 + 0x90, 0x10);
+    }
+    if ((flags & 0x100000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x100000) != 0) {
+        func_0043f810(*(void **)(arg1 + 0x44), arg1 + 0x90, 0x20);
+    }
+    if ((flags & 0x2000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x40042) == 0) {
+        dst = *(u8 **)(arg1 + 0x24);
+        byte0 = *(u8 *)(arg1 + 0x7C);
+        byte1 = *(u8 *)(arg1 + 0x7D);
+        byte2 = *(u8 *)(arg1 + 0x7E);
+        byte3 = *(u8 *)(arg1 + 0x7F);
+        dst[0] = byte0;
+        dst[1] = byte1;
+        dst[2] = byte2;
+        dst[3] = byte3;
+    }
+    if ((flags & 0x40000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x40000) != 0) {
+        func_0043f810(*(void **)(arg1 + 0x2C), arg1 + 0x80, 0x10);
+    }
+    if ((flags & 0x20000) != 0 && (*(s32 *)(arg1 + 0x58) & 0x20000) != 0) {
+        dst = *(u8 **)(arg1 + 0x34);
+        *(f32 *)dst = *(f32 *)(arg1 + 0x78);
+        *(f32 *)(dst + 4) = *(f32 *)(arg1 + 0x78);
+    }
+    if ((flags & 0x4000) != 0 && (*(s32 *)(arg1 + 0x58) & 4) == 0) {
+        dst = *(u8 **)(arg1 + 0x1C);
+        float0 = *(f32 *)(arg1 + 0x70);
+        float1 = *(f32 *)(arg1 + 0x74);
+        *(f32 *)dst = float0;
+        *(f32 *)(dst + 4) = float1;
+    }
+done_index:
+    return 1;
+wrap_index:
+    index = 0;
+    goto apply_index;
+refresh_index:
+    func_003a2bb0(arg1);
+    goto second_mask;
+return_index:
+    return 1;
+}
+#pragma opt_propagation on
+// measured: closes the schedule/no_branch_likely/rebuildconditionals/
+// propagation bracket opened above func_003a8640 and restores the -O2
+// baseline for the rest of the file.
+#pragma schedule off
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
 // FUN_003A8840
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a8840);
 // measured: schedule on places the prologue sq in func_003a8ca0's jal delay slot.
