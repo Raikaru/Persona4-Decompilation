@@ -14,7 +14,6 @@ extern void func_002baa90(s32 *arg0);
 extern void func_002bb7c0(s32 arg0);
 extern void func_002bd440(void);
 
-extern void func_002bb9e0(u8 *arg0, s32 arg1);
 
 
 extern void func_002bcc60(u8 *arg0);
@@ -34,6 +33,7 @@ extern u8 *D_00882F40[];
 extern void func_00278450(s32 arg0);
 extern s32 D_0063F2B0[];
 extern u8 D_00793E80[];
+extern u8 D_0063F1F0[];
 extern s8 D_007488F8[];
 extern s8 D_00764670;
 extern s8 iGpffffb580;
@@ -710,6 +710,7 @@ void func_002b5120(s32 arg0, u8 *arg1)
 }
 /* measured: restores opt_propagation after func_002b5120. */
 #pragma opt_propagation on
+/* measured: plain-C probe archived to build/LaneEffLineNovaCode1_002b52a0_body.c; direct state/update translation was rejected by MWCC diagnostics in pre-existing helpers before a comparable object could be produced. */
 // FUN_002B52A0
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b52a0);
 // FUN_002B5C60
@@ -717,8 +718,10 @@ void func_002b5c60(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
+/* measured: plain-C probe archived to build/LaneEffLineNovaCode1_002ba080_body.c; explicit stack-local translation reached the 1360-byte window but retained a 0x120 frame and rotated saved GPR/FP registers. */
 // FUN_002BA080
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
+/* measured: plain-C probes archive to build/LaneEffLineNovaCode1_002ba5d0_body.c; MWCCPS2 b210 keeps a 0xD0 frame and rotates saved GPRs versus retail's 0xC0/$s0-$s3 layout (best object 888B vs 928B). */
 // FUN_002BA5D0
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba5d0);
 // FUN_002BA970

@@ -29,8 +29,11 @@ typedef struct { f32 x, y, z, w; } FldAIVec4;
 typedef struct { s64 xy; f32 z; } FldAIProj;
 extern u8 D_005F1B40[];
 extern u8 D_005F1B4C[];
+
 extern u8 *func_00155280(void);
 
+/* Measured plain-C candidate archived at object 4052/window 5248, normalized_diff 2803.
+ * The candidate was reverted because it was not an exact match. */
 // FUN_0017D3C0
 INCLUDE_ASM("asm/nonmatchings/k_fldAI", func_0017d3c0);
 

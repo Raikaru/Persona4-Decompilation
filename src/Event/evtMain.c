@@ -364,6 +364,9 @@ void func_00287310(u8 *arg0) {
     func_002871a0(1, *(u8 **)(arg0 + 0x14), arg0);
 }
 
+/* measured: clean-C register and source-order variants retained a saved-
+   register/argument-rotation residual; stopped at the confirmed compiler
+   floor after the permitted attempts. */
 // FUN_00287360
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287360);
 
@@ -595,6 +598,10 @@ void func_00288020(s32 arg0, u8 *arg1) {
         }
     }
 }
+/* measured: clean-C scratch-struct, source-order, explicit-branch, and
+   materialized-flag variants matched the prologue and case-0 prefix but
+   retained inner-dispatch/compiler residuals; stopped after the permitted
+   compiler-floor attempts. */
 // FUN_00288170
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_00288170);
 

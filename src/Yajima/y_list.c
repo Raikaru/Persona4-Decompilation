@@ -237,6 +237,9 @@ s8 func_002e2a00(void *arg0) {
 // FUN_002E2A10
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e2a10);
 
+/* measured: closest clean-C probe was object 2780B over a 2864B window
+   (normalized diff 639); retail frame 0x3070 and saved-register allocation
+   remained different, so the archived probe is intentionally not committed. */
 // FUN_002E3560
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e3560);
 
