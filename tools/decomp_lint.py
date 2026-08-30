@@ -506,9 +506,12 @@ ASM_KEYWORD_RE = re.compile(
 # with `v` (`vmul`, `vadd`, `vsub`, `vmove`, `vftoi`, `vitof`, `vclip`,
 # `vopmula`, ...), including their `.xyzw`/`.x`/`ACC` suffix forms.  `sync`
 # covers `sync.l`/`sync.p`; the base strips the suffix before lookup.
+# `bc0f`/`bc0t` branch on the COP0 condition line, a hardware side-channel
+# (e.g. the DMAC channel-drain arbitration signal) with no readable GPR
+# expression -- there is no `mfc0` for it, only the branch.
 ASM_ALLOWED = frozenset({
     "syscall", "sync", "ei", "di", "cache",
-    "mfc0", "mtc0", "eret", "tlbwi",
+    "mfc0", "mtc0", "eret", "tlbwi", "bc0f", "bc0t",
     "qmtc2", "qmfc2", "lqc2", "sqc2", "cfc2", "ctc2",
 })
 
