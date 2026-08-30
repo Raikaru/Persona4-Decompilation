@@ -43,8 +43,8 @@ extern s32 func_003b7b20(s32 arg0);
 extern s32 func_003b7bb0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_003b7c10(u8 *arg0);
 extern s32 *func_003b7ca0(s32 *arg0, s32 arg1, u8 *arg2);
-extern void func_003b7e00();
-extern void func_003b8050();
+extern u8 *func_003b7e00(u8 *arg0, s32 arg1, u8 *arg2);
+extern u8 *func_003b8050(u8 *arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4);
 extern s32 func_003b82c0(void);
 extern s32 D_00886494[];
 extern s32 iGpffffb6b4;
@@ -68,6 +68,20 @@ extern void func_003cbcf0(s32 arg0, s32 arg1);
 extern s32 func_003e8960(s32 arg0);
 extern u8 *func_003b85e0(u8 *arg0);
 extern void func_003b8d40(u8 *arg0, s32 arg1);
+extern u8 *(*D_008873F8[])(s32 arg0, s32 arg1);
+extern u8 *func_003b7290(u8 *arg0, void *arg1);
+extern void func_003b7510(u8 *arg0, s32 arg1, u32 arg2);
+extern void func_003b7590(u8 *arg0, void *arg1, void *arg2, void *arg3,
+                          u32 *arg4, u32 arg5);
+extern s32 func_003b7680(u8 *arg0, s32 arg1, u32 arg2, u32 arg3,
+                          void *arg4, void *arg5, void *arg6, s32 arg7);
+extern s32 func_003b8ad0(u8 *arg0, u8 *arg1);
+extern s32 func_003df300(u8 *arg0, void *arg1, s32 arg2);
+extern s32 func_003df360(u8 *arg0, void *arg1, s32 arg2);
+extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
+extern s32 func_003e2ce0(u8 *arg0, s32 arg1);
+extern u8 *func_003b8410(u8 *arg0, u8 *arg1);
+
 
 /* Source unit: src/rprandom/rprandom_003b7a80.c (1 function markers) */
 /* measured: removing this pragma takes func_003b7a80 nd 0 -> nd 8: retail fills the jr $ra delay slot with move $v0,$a0; baseline -O2 emits move; jr; nop. */
