@@ -7,7 +7,7 @@ typedef struct ChkMemEntry {
     s32 size;   /* 0x00 */
     u16 pad_04; /* 0x04 */
     s16 pad_06; /* 0x06 */
-    u8  cls;    /* 0x08 */
+    u8 cls;     /* 0x08 */
 } ChkMemEntry;
 
 typedef struct ChkMemPool {
@@ -107,7 +107,6 @@ INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ef70);
    as func_0044ec60/func_0044f3a0/func_0044ef70. */
 // FUN_0044F140
 INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044f140);
-
 // FUN_0044F3A0
 s32 func_0044f3a0(s32 arg0, s32 arg1)
 {

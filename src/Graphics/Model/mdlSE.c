@@ -22,6 +22,7 @@ extern s32 func_003b7060(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_0047df40(s32 arg0, s32 arg1);
 
 
+
 // FUN_0047DEA0
 void *func_0047dea0(s16 arg0, s16 arg1, s16 arg2)
 {
