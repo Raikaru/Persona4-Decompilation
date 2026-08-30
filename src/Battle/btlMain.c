@@ -48,6 +48,7 @@ typedef struct BtlMainLerpWork
     u32 currentFrame;
 } BtlMainLerpWork;
 extern u8* iGpffffb3ac;
+
 typedef struct BtlMainSlerpResult
 {
     f32 current0;
@@ -144,7 +145,6 @@ BtlPacket* func_001b7880(u32 param_1, u32 param_2, u32 param_3)
     *(u32*)((u8*)color + 0x60) = param_3;
     return (BtlPacket*)packet;
 }
-
 
 
 // FUN_001B7B30
@@ -280,7 +280,6 @@ BtlPacket* func_001b9560(u32 param_1, u32 param_2)
 
 // FUN_001B96E0
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001b96e0);
-
 // FUN_001B99A0
 void func_001b99a0(s32 arg)
 {
