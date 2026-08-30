@@ -96,10 +96,62 @@ void func_004b3420(u8 *arg0) {
 }
 
 
-/* measured: ordinary float/loop candidate reached nd 220 with a 576-byte
-   object, but remained non-byte-exact; partial candidate restored to ASM. */
 // FUN_004B3470
-INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b3470);
+void func_004b3470(u8 *arg0) {
+    u8 *p20;
+    u8 *p17;
+    u32 count;
+    s32 progress;
+    s32 delay;
+    u16 *dst;
+    u32 i;
+    f32 f25;
+    f32 f24;
+    f32 f23;
+    f32 f22;
+    f32 f21;
+    f32 f20;
+    f32 r;
+
+    p20 = *(u8 **)(arg0 + 0x20);
+    p17 = *(u8 **)(arg0 + 0x24);
+    count = *(u32 *)(p17 + 0x38);
+    progress = *(s32 *)(p17 + 0x34);
+    if (progress >= *(s32 *)(arg0 + 0x14) || progress == 0) {
+        delay = *(s32 *)(arg0 + 0x1C) - 1;
+        *(s32 *)(arg0 + 0x1C) = delay;
+        if (delay <= 0) {
+            f23 = *(f32 *)(p17 + 0x84) / 100.0f;
+            f25 = *(f32 *)(p17 + 0x88);
+            f24 = *(f32 *)(p17 + 0x64);
+            dst = *(u16 **)p20;
+            i = 0;
+            f22 = 1.0f - f24;
+            f21 = 1.0f - f25;
+            f20 = 1.0f - f23;
+            while (i < count) {
+                r = 65535.0f * func_004bd0b0(0);
+                *(u16 *)dst = (u16)r;
+                r = 255.0f * (f22 + f24 * func_004bd0b0(0));
+                *(u8 *)(dst + 1) = (u8)r;
+                r = f21 + f25 * func_004bd0b0(0);
+                *(f32 *)((u8 *)dst + 4) =
+                    f23 + f20 * (1.0f - r);
+                i++;
+                dst = (u16 *)((u8 *)dst + 8);
+            }
+            delay = *(s32 *)(p17 + 0x4C);
+            switch (delay) {
+            case 0:
+                delay = 0x7FFFFFFF;
+                break;
+            default:
+                break;
+            }
+            *(s32 *)(arg0 + 0x1C) = delay;
+        }
+    }
+}
 
 
 /* measured: retail contains COP2/VU0 vector work; H009 permits the required
@@ -231,15 +283,61 @@ void func_004b4170(u8 *arg0) {
 }
 
 
-/* measured: plain-C FPU-MAC reconstruction reached nd 266 with a 568-byte
-   object against a 624-byte window; non-byte-exact candidate restored to ASM. */
 // FUN_004B41C0
-INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b41c0);
+void func_004b41c0(u8 *arg0) {
+    u8 *p20;
+    u8 *p17;
+    u32 count;
+    s32 progress;
+    s32 delay;
+    u16 *dst;
+    u32 i;
+    f32 f23;
+    f32 f22;
+    f32 f21;
+    f32 f20;
+    f32 r;
+
+    p20 = *(u8 **)(arg0 + 0x20);
+    p17 = *(u8 **)(arg0 + 0x24);
+    count = *(u32 *)(p17 + 0x38);
+    progress = *(s32 *)(p17 + 0x34);
+    if (progress >= *(s32 *)(arg0 + 0x14) || progress == 0) {
+        delay = *(s32 *)(arg0 + 0x1C) - 1;
+        *(s32 *)(arg0 + 0x1C) = delay;
+        if (delay <= 0) {
+            f23 = *(f32 *)(p17 + 0x64);
+            f22 = *(f32 *)(p17 + 0x94);
+            dst = *(u16 **)p20;
+            i = 0;
+            f21 = 1.0f - f23;
+            f20 = 1.0f - f22;
+            while (i < count) {
+                r = 65535.0f * (f21 + f23 * func_004bd0b0(0));
+                *(u16 *)dst = (u16)r;
+                r = 65535.0f * func_004bd0b0(0);
+                *(u16 *)(dst + 1) = (u16)r;
+                r = 65535.0f * (f20 + f22 * func_004bd0b0(0));
+                *(u16 *)(dst + 2) = (u16)r;
+                i++;
+                dst = (u16 *)((u8 *)dst + 6);
+            }
+            delay = *(s32 *)(p17 + 0x4C);
+            switch (delay) {
+            case 0:
+                delay = 0x7FFFFFFF;
+                break;
+            default:
+                break;
+            }
+            *(s32 *)(arg0 + 0x1C) = delay;
+        }
+    }
+}
 
 
 /* measured: retail contains COP2/VU0 vector work; H009 permits the required
-   inline asm, while the FPU MAC portions must remain plain C. No byte-exact
-   candidate was retained in this wave. */
+   inline asm. No byte-exact candidate was retained in this wave. */
 // FUN_004B4430
 INCLUDE_ASM("asm/nonmatchings/effLineNova", func_004b4430);
 
