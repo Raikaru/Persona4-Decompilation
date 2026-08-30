@@ -105,6 +105,8 @@ extern f32 func_001ec2b0(void* first, void* second);
 extern void func_003dcc70(f32* first, f32* second, void* result);
 extern f32 func_003e41e0(f32* out, f32* in);
 extern f32 fGpffff8104;
+extern f32 fGpffff8184;
+extern f32 fGpffff811c;
 extern f32 fGpffff8054;
 extern f32 fGpffff8058;
 extern f32 fGpffff805c;
@@ -182,6 +184,7 @@ extern void func_001bdeb0(void);
 void func_001cb970(void* camera, f32 speed, int param_3);
 extern f32 fGpffff80e8;
 extern void func_001b73f0();
+extern u8 *func_001b1560(void);
 extern u32 func_001c6f40();
 
 typedef struct BtlCameraKeyFrame
@@ -1257,7 +1260,111 @@ void btlAct_WIN_P(BtlCamera* camera)
 
 
 // FUN_001CDAF0
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cdaf0);
+void func_001cdaf0(u8 *camera)
+{
+    struct CdaWork
+    {
+        f32 selected[4];
+        BtlCameraSlerpResult slerp;
+        u8 pad38[8];
+        RwV3d currentPosition;
+        RtQuat currentRotation;
+        RwV3d targetPosition;
+        f32 targetRotation[6];
+        f32 transformed[4];
+        f32 candidate[4];
+        f32 unitPosition[4];
+    } work;
+    u8 *unit;
+    f32 blend;
+    f32 inverse;
+    f32 f0;
+    f32 f1;
+    f32 f2;
+    f32 f3;
+    f32 f4;
+
+    func_001bd560((f32 *)&work.currentPosition, (f32 *)(camera + 0x9c));
+    unit = *(u8 **)(func_001b1560() + 0x30);
+    func_00195850(unit, work.unitPosition);
+    work.unitPosition[1] = work.unitPosition[1] + 0.0f +
+                           0.25f * (*(f32 *)(unit + 0x8c) *
+                                    *(f32 *)(unit + 0x2c));
+    func_001bd780(work.targetRotation, &work.currentPosition,
+                  work.unitPosition, &D_0060A0E0);
+    work.targetPosition = work.currentPosition;
+    blend = func_001ec2b0(&work.currentRotation, work.targetRotation);
+    if (blend > fGpffff8184)
+    {
+        blend = fGpffff8184 / blend;
+    }
+    else
+    {
+        blend = fGpffff811c;
+    }
+    func_003dcc70((f32 *)&work.currentRotation, work.targetRotation,
+                  &work.slerp);
+    if (blend <= 0.0f)
+    {
+        *(F32Vec4 *)work.selected = *(F32Vec4 *)&work.currentRotation;
+    }
+    else
+    {
+        if (1.0f <= blend)
+        {
+            *(F32Vec4 *)work.selected = *(F32Vec4 *)work.targetRotation;
+        }
+        else
+        {
+            inverse = 1.0f - blend;
+            if (work.slerp.mode == 0)
+            {
+                f4 = inverse * work.slerp.angle;
+                f3 = f4 * f4;
+                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = f3 * f0 + fGpffff8058;
+                f0 = f3 * f0 + fGpffff805c;
+                f0 = f3 * f0 + fGpffff8060;
+                f1 = f3 * f0 + fGpffff8108;
+                f0 = f3 * f4;
+                inverse = f0 * f1 + f4;
+
+                f4 = blend * work.slerp.angle;
+                f3 = f4 * f4;
+                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = f3 * f0 + fGpffff8058;
+                f0 = f3 * f0 + fGpffff805c;
+                f0 = f3 * f0 + fGpffff8060;
+                f1 = f3 * f0 + fGpffff8108;
+                f0 = f3 * f4;
+                blend = f0 * f1 + f4;
+            }
+            work.selected[0] = work.slerp.current0 * inverse;
+            work.selected[1] = work.slerp.current1 * inverse;
+            work.selected[2] = work.slerp.current2 * inverse;
+            work.selected[0] = work.slerp.next0 * blend +
+                               work.selected[0];
+            work.selected[1] = work.slerp.next1 * blend +
+                               work.selected[1];
+            work.selected[2] = work.slerp.next2 * blend +
+                               work.selected[2];
+            work.selected[3] = work.slerp.current3 * inverse +
+                               work.slerp.next3 * blend;
+        }
+    }
+    func_003dcb40(work.transformed, &D_0060A0F0, 1, work.selected);
+    work.candidate[0] = work.currentPosition.x + work.transformed[0];
+    work.candidate[1] = work.currentPosition.y + work.transformed[1];
+    work.candidate[2] = work.currentPosition.z + work.transformed[2];
+    func_001bd780(work.targetRotation, &work.currentPosition,
+                  work.candidate, &D_0060A0E0);
+    func_001bcd40(60.0f, *(u8 **)(camera + 0xe0),
+                  (u8 *)&work.currentPosition,
+                  (u8 *)work.unitPosition, 0x8c0);
+    func_001bac20(camera, &work.currentPosition,
+                  &work.targetPosition, 1);
+    func_001bbef0(camera, 0.75f);
+}
 // FUN_001CDE50
 INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001cde50);
 // FUN_001CE390
