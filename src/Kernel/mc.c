@@ -126,11 +126,11 @@ extern u8 *D_0063EA68;
 extern s32 D_0063EA60[];
 extern void func_00442088(void *, void *, s32, ...);
 extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, void *, s32);
-extern s32 func_00275020(s32, s32, s32, void *, s32, s32, f32, f32, f32);
+extern s32 func_00275020(f32, f32, f32, s32, s32, s32, void *, s32, s32);
 extern s16 D_0063EB30[];
 extern char iGpffffa824;
 extern void func_002a2e10(void);
-extern void func_002a9100(f32, f32, f32, s32, s32, s32, s32, u8 *);
+extern void func_002a9100(f32, f32, f32, s32, s32, u8 *, s32, u8 *);
 extern void func_002a95c0(f32, f32, f32, s32, s32, s32, u8 *, u8 *);
 extern s32 func_003b7060(s32);
 extern s32 D_0063EDB0[];
@@ -1224,12 +1224,123 @@ void func_002a7710(s32 arg0, u8 *arg1) {
 // FUN_002A7920
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a7920);
 
-/* measured: nd 845 with a full C body (object 1232B against a 1216B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
+#pragma opt_common_subs off
+/* measured: #pragma opt_common_subs off preserves retail's saved-register
+   allocation and repeated color shift; plain O2 C is 8 bytes short. */
 // FUN_002A9100
-INCLUDE_ASM("asm/nonmatchings/mc", func_002a9100);
+void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
+                   s32 arg0, s32 arg1, u8 *arg2, s32 arg3, u8 *arg4) {
+    u8 spC0[0x60];
+    s16 *var_6;
+    s16 *var_6_2;
+    s16 *var_6_3;
+    s16 *var_5;
+    s16 *var_5_2;
+    s16 *var_5_3;
+    f32 temp_f21;
+    f32 temp_f24;
+    f32 temp_f23;
+    s16 temp_2_2;
+    s16 temp_2_3;
+    s16 temp_2_4;
+    s16 temp_3_2;
+    s16 temp_3_3;
+    s16 temp_3_4;
+    u8 *temp_17;
+    s32 temp_16_2;
+    s32 temp_19;
+    s32 temp_22;
+    s32 var_4;
+    s32 var_4_2;
+    s32 var_4_3;
+    u32 temp_23;
+    u32 temp_30;
+    u32 temp_3;
+    s32 temp_handle;
+
+    temp_17 = (u8 *)(arg2 + (arg3 * 0x34) + 0x40);
+    func_00110580(*(s16 *)temp_17);
+    temp_3 = *(u32 *)(temp_17 + 4);
+    temp_23 = temp_3 / 108000U;
+    temp_30 = (temp_3 / 1800U) % 60U;
+    arg0 = (arg0 << 8) | arg1;
+    temp_22 = arg0 >> 8;
+    func_0025f3f0(10.0f + fparg0, 31.0f + fparg1, fparg2,
+                  temp_22, (u8)arg1, 0x18, 0, *(s32 *)(arg4 + 0x398), 1);
+    func_00442088(spC0 + 0x58, &iGpffffa824, *(u8 *)(temp_17 + 8));
+    temp_handle = *(s32 *)(arg4 + 0x398);
+    var_6 = D_0063EB30;
+    var_5 = (s16 *)(spC0 + 0x40);
+    var_4 = 6;
+    do {
+        temp_3_2 = var_6[0];
+        temp_2_2 = var_6[1];
+        var_6 += 2;
+        var_4 -= 1;
+        var_5[0] = temp_3_2;
+        var_5[1] = temp_2_2;
+        var_5 += 2;
+    } while (var_4 > 0);
+    func_0025f6b0(46.0f + fparg0, 26.0f + fparg1, fparg2,
+                  temp_22, (u8)arg1, spC0 + 0x58, 0, spC0 + 0x40,
+                  func_002a2e10, temp_handle);
+    if ((*(s32 *)(arg2 + (arg3 * 4)) == 1) &&
+        (*(u8 *)(temp_17 + 0xA) == 0 ||
+         *(s16 *)temp_17 != 9 ||
+         *(s16 *)(temp_17 + 2) != 5)) {
+        temp_19 = arg0 | arg1;
+        temp_f24 = (24.0f + fparg1) - 6.0f;
+        temp_f23 = 99.0f + fparg0;
+        func_00275020(
+            5.0f + (temp_f23 + (f32)func_00275020(
+                temp_f23, temp_f24, fparg2, temp_19, 0, 0,
+                temp_17 + 0x1E, 1, -1)),
+            temp_f24, fparg2, temp_19, 0, 0, temp_17 + 0xC, 0, -1);
+    }
+    temp_16_2 = arg0 >> 8;
+    func_0025f3f0(16.0f + fparg0, 53.0f + fparg1, fparg2,
+                  temp_16_2, (u8)arg1, 0x19, 0, *(s32 *)(arg4 + 0x398), 1);
+    func_00442088(spC0 + 0x58, &iGpffffa824, (s32)temp_23);
+    temp_handle = *(s32 *)(arg4 + 0x398);
+    var_6_2 = D_0063EB30;
+    var_5_2 = (s16 *)(spC0 + 0x20);
+    var_4_2 = 6;
+    do {
+        temp_3_3 = var_6_2[0];
+        temp_2_3 = var_6_2[1];
+        var_6_2 += 2;
+        var_4_2 -= 1;
+        var_5_2[0] = temp_3_3;
+        var_5_2[1] = temp_2_3;
+        var_5_2 += 2;
+    } while (var_4_2 > 0);
+    temp_f21 = 48.0f + fparg1;
+    func_0025f6b0(36.0f + (109.0f + fparg0), temp_f21, fparg2,
+                  temp_16_2, (u8)arg1, spC0 + 0x58, 2, spC0 + 0x20,
+                  func_002a2e10, temp_handle);
+    func_0025f3f0(177.0f + fparg0, temp_f21, fparg2,
+                  temp_16_2, (u8)arg1, 0xB, 0, *(s32 *)(arg4 + 0x398), 1);
+    func_00442088(spC0 + 0x58, &iGpffffa824, (s32)temp_30);
+    temp_handle = *(s32 *)(arg4 + 0x398);
+    var_6_3 = D_0063EB30;
+    var_5_3 = (s16 *)(spC0 + 0x00);
+    var_4_3 = 6;
+    do {
+        temp_3_4 = var_6_3[0];
+        temp_2_4 = var_6_3[1];
+        var_6_3 += 2;
+        var_4_3 -= 1;
+        var_5_3[0] = temp_3_4;
+        var_5_3[1] = temp_2_4;
+        var_5_3 += 2;
+    } while (var_4_3 > 0);
+    func_0025f6b0(24.5f + (205.0f + fparg0), temp_f21, fparg2,
+                  temp_16_2, (u8)arg1, spC0 + 0x58, 2, spC0 + 0x00,
+                  func_002a2e10, temp_handle);
+    func_0025f3f0(250.0f + fparg0, temp_f21, fparg2,
+                  temp_16_2, (u8)arg1, 0xC, 0, *(s32 *)(arg4 + 0x398), 1);
+}
+#pragma opt_common_subs on
 
 /* measured: retail frame is 0x140 with saved regs $s0-$s5 + f20-f23; mwcc b210
    over-allocates the frame to 0x180, mis-allocates saved regs ($s6/$s7/$fp
@@ -1284,7 +1395,8 @@ void func_002a9f50(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1, s32 a
             }
             temp_17 = var_2 >> 8;
             func_0025f3f0(5.0f + (113.0f + fparg0), 10.0f + fparg1, fparg2, temp_17, (u8)arg0, 0x43, 0, *(s32 *)(arg4 + 0x398), 1);
-            func_002a9100(mc_add(fparg0, 107.0f), mc_add(fparg1, 17.0f), fparg2, temp_17, arg0, (s32)arg1, arg2, arg4);
+            func_002a9100(mc_add(fparg0, 107.0f), mc_add(fparg1, 17.0f), fparg2,
+                          temp_17, arg0, (u8 *)arg1, arg2, arg4);
             return;
         }
         func_002a95c0(fparg0, fparg1, fparg2, arg0, (s32)arg1, arg2, (u8 *)arg3, arg4);
