@@ -60,6 +60,28 @@ extern void func_003a72a0(void);
 extern void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3,
                           u32 arg4);
 extern void func_003a5280();
+extern void func_003b0b80(void);
+extern void func_003b12a0(void);
+extern void func_003b1a10(void);
+extern void func_003b31a0(void);
+extern void func_003b3240(void);
+extern void func_003b3570(void);
+extern void func_003b3880(void);
+extern void func_003b3f50(void);
+extern void func_003b4020(void);
+extern void func_003b4120(void);
+extern void func_003b4230(void);
+extern void func_003b6680(void);
+extern void func_003b6cb0(void);
+extern void func_003aa9f0(void);
+extern void func_003ab100(void);
+extern void func_003abf60(void);
+extern void func_003aa370(void);
+extern void func_003adc40(void);
+extern void func_003acb10(void);
+extern void func_003aed60(void);
+extern void func_003af990(void);
+
 
 
 
@@ -452,7 +474,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3670);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3d50);
 // FUN_003A3DE0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3de0);
-// FUN_003A3E90
+// FUN_003A3E90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3e90);
 // FUN_003A4270
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a4270);
@@ -768,8 +790,121 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9c70);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9e50);
 // FUN_003A9F40
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9f40);
+// measured: schedule and no_branch_likely preserve retail callback-selection
+// branch and delay-slot ordering for func_003aa0b0.
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003AA0B0
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003aa0b0);
+void func_003aa0b0(s32 arg0)
+{
+    u8 *obj;
+    u8 *obj2;
+    s32 flags;
+    void (*callback)(void);
+
+    callback = func_003b6680;
+    obj = *(u8 **)((u8 *)arg0 + iGpffffb610);
+    *(void (**)(void))(obj + 0x24) = callback;
+    flags = *(s32 *)(obj + 0xA8);
+    obj2 = obj + 0x50;
+    if ((flags & 8) == 8) {
+        if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003b12a0;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003b0b80;
+        }
+    } else if ((flags & 0x8000) == 0x8000) {
+        if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003aa9f0;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003aa370;
+        }
+    } else if ((flags & 0x20) == 0x20) {
+        if ((flags & 4) == 4) {
+            if ((flags & 0x01000000) == 0x01000000) {
+                *(void (**)(void))(obj + 0x28) = func_003af990;
+            } else {
+                *(void (**)(void))(obj + 0x28) = func_003acb10;
+            }
+        } else if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003adc40;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003ab100;
+        }
+    } else if ((flags & 4) == 4) {
+        if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003aed60;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003abf60;
+        }
+    } else if ((flags & 0x01000000) == 0x01000000) {
+        *(void (**)(void))(obj + 0x28) = func_003aa9f0;
+    } else {
+        *(void (**)(void))(obj + 0x28) = func_003aa370;
+    }
+
+    flags = *(s32 *)(obj2 + 0x58);
+    if ((flags & 0x80) == 0x80) {
+        goto stage2_304;
+    }
+    if ((flags & 0x100) == 0x100) {
+        goto stage2_314;
+    }
+    if ((flags & 0x80000) == 0x80000) {
+        goto stage2_324;
+    }
+    if ((flags & 0x100000) == 0x100000) {
+        *(void (**)(void))(obj + 0x2C) = func_003b4120;
+        goto stage3;
+    }
+    *(void (**)(void))(obj + 0x2C) = NULL;
+
+stage3:
+    flags = *(s32 *)(obj2 + 0x58);
+    if ((flags & 2) == 2) {
+        goto stage3_334;
+    }
+    if ((flags & 0x40) == 0x40) {
+        goto stage3_344;
+    }
+    if ((flags & 0x40000) == 0x40000) {
+        *(void (**)(void))(obj + 0x30) = func_003b3240;
+        goto stage4;
+    }
+    *(void (**)(void))(obj + 0x30) = func_003b3570;
+
+stage4:
+    flags = *(s32 *)(obj2 + 0x58);
+    if ((flags & 0x10) == 0x10) {
+        goto stage4_354;
+    }
+    goto finish;
+
+finish:
+    *(void (**)(void))(obj + 0x38) = func_003b6cb0;
+    return;
+
+stage2_304:
+    *(void (**)(void))(obj + 0x2C) = func_003b3880;
+    goto stage3;
+stage2_314:
+    *(void (**)(void))(obj + 0x2C) = func_003b3f50;
+    goto stage3;
+stage2_324:
+    *(void (**)(void))(obj + 0x2C) = func_003b4020;
+    goto stage3;
+stage3_334:
+    *(void (**)(void))(obj + 0x30) = func_003b1a10;
+    goto stage4;
+stage3_344:
+    *(void (**)(void))(obj + 0x30) = func_003b31a0;
+    goto stage4;
+stage4_354:
+    *(void (**)(void))(obj + 0x34) = func_003b4230;
+    goto finish;
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003AA370
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003aa370);
 // FUN_003AA9F0

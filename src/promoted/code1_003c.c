@@ -2212,8 +2212,121 @@ void func_003cb8d0(u8 *arg0) {
 }
 /* measured: closes the schedule bracket opened above func_003cb8d0. */
 #pragma schedule off
+/* measured: optimization_level 3 preserves the registration-call chain. */
+#pragma optimization_level 3
+/* measured: propagation off probes registration argument ordering. */
+#pragma opt_propagation off
+/* measured: schedule on fills the registration-call delay slots. */
+#pragma schedule on
 // FUN_003CB900
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb900);
+s32 func_003cb900(void) {
+    extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
+    extern s32 func_003e8410(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
+    extern s32 func_003cc240(void);
+    extern s32 iGpffffb710;
+    extern void func_003ca5a0(void);
+    extern void func_003ca830(void);
+    extern void func_003ca8e0(void);
+    extern void func_003ca890(void);
+    extern void func_003cad40(void);
+    extern void func_003cad90(void);
+    extern void func_003cad80(void);
+    extern void func_003cae70(void);
+    extern void func_003caee0(void);
+    extern void func_003caea0(void);
+    extern void func_003cb1e0(void);
+    extern void func_003cb250(void);
+    extern void func_003cb210(void);
+    extern void func_003cb720(void);
+    extern void func_003cb820(void);
+    extern void func_003cb870(void);
+    extern void func_003cb790(void);
+    extern void func_003cb780(void);
+    extern void func_003cb7c0(void);
+    extern void func_003cb7e0(void);
+    extern void func_003cb7d0(void);
+    extern void func_003cb810(void);
+    extern void func_003be820(void);
+    extern void func_003be8a0(void);
+    extern void func_003be910(void);
+    extern void func_003bd470(void);
+    extern void func_003bd4f0(void);
+    extern void func_003bd560(void);
+    extern void func_003bd590(void);
+    extern void func_003bd610(void);
+    extern void func_003bd680(void);
+    extern void func_003c3f20(void);
+    extern void func_003c3fa0(void);
+    extern void func_003c4010(void);
+    s32 result;
+    s32 value;
+    s32 reg_arg0;
+    s32 reg_arg1;
+
+    result = func_003e8930(0xC, 0x509, (void *)func_003ca5a0, (void *)func_003ca6a0);
+    value = func_003e8410(0x1C, 0x509, (void *)func_003ca830,
+                          (void *)func_003ca8e0, (void *)func_003ca890);
+    result |= value;
+    iGpffffb708 = value;
+    reg_arg0 = 8;
+    reg_arg1 = 0x509;
+    value = func_003c1ab0(reg_arg0, reg_arg1, (s32)func_003cad40, (s32)func_003cad90,
+                          (s32)func_003cad80);
+    result |= value;
+    iGpffffb70c = value;
+    reg_arg0 = 8;
+    reg_arg1 = 0x509;
+    value = func_003c1ae0(reg_arg0, reg_arg1, (s32)func_003cae70,
+                          (s32)func_003caee0, (s32)func_003caea0);
+    result |= value;
+    iGpffffb710 = value;
+    reg_arg0 = 8;
+    reg_arg1 = 0x509;
+    value = func_003c3920(reg_arg0, reg_arg1, (s32)func_003cb1e0,
+                          (s32)func_003cb250, (s32)func_003cb210);
+    result |= value;
+    iGpffffb714 = value;
+    result |= func_003c2b70(0, 0x50E, 0, 0, 0);
+    result |= func_003c8d00(0, 0x50E, 0, 0, 0);
+    reg_arg0 = 0x50E;
+    result |= func_003c2ba0(reg_arg0, (s32)func_003cb720, (s32)&func_003cb700,
+                            (s32)&func_003cb770);
+    reg_arg0 = 0x50E;
+    result |= func_003c8d30(reg_arg0, (s32)func_003cb870, (s32)func_003cb820,
+                            (s32)func_003cb8d0);
+    result |= func_003c2b70(0, 0x510, 0, 0, 0);
+    result |= func_003c8d00(0, 0x510, 0, 0, 0);
+    reg_arg0 = 0x510;
+    result |= func_003c2ba0(reg_arg0, (s32)func_003cb790, (s32)func_003cb780,
+                            (s32)func_003cb7c0);
+    reg_arg0 = 0x510;
+    result |= func_003c8d30(reg_arg0, (s32)func_003cb7e0, (s32)func_003cb7d0,
+                            (s32)func_003cb810);
+    result |= func_003c1ab0(0, 0x1F, 0, 0, 0);
+    reg_arg0 = 0x1F;
+    result |= func_003c1b10(reg_arg0, (s32)func_003be820, (s32)func_003be8a0,
+                            (s32)func_003be910);
+    result |= func_003ca3d0(0, 0x1F, 0, 0, 0);
+    reg_arg0 = 0x1F;
+    result |= func_003ca400(reg_arg0, (s32)func_003bd470, (s32)func_003bd4f0,
+                            (s32)func_003bd560);
+    result |= func_003c8d00(0, 0x1F, 0, 0, 0);
+    reg_arg0 = 0x1F;
+    result |= func_003c8d30(reg_arg0, (s32)func_003bd590, (s32)func_003bd610,
+                            (s32)func_003bd680);
+    result |= func_003c4310(0, 0x1F, 0, 0, 0);
+    reg_arg0 = 0x1F;
+    result |= func_003c4340(reg_arg0, (s32)func_003c3f20, (s32)func_003c3fa0,
+                            (s32)func_003c4010);
+    if (result < 0)
+        return 0;
+    value = func_003cc240();
+    return value != 0;
+}
+/* measured: closes cb900's schedule, propagation, and optimization bracket. */
+#pragma schedule off
+#pragma opt_propagation on
+#pragma optimization_level 2
 // FUN_003CBC10
 #pragma schedule on
 u8 *func_003cbc10(u8 *arg0, u8 *arg1) {
