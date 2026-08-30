@@ -244,6 +244,7 @@ D_005EFE78 = 0x005EFE78; // type:data evidence: retail k_fldEnvironment func_001
 D_005EFE90 = 0x005EFE90; // type:data evidence: retail k_fldEnvironment func_00153c00 lui %hi(D_005EFE90)/addiu %lo as func_00442088 fmt arg; rodata string; absolute
 D_005EFED0 = 0x005EFED0; // type:data evidence: retail k_fldEnvironment func_00154b10 lui %hi(D_005EFED0)/addiu %lo as func_00442088 fmt arg; rodata string; absolute
 iGpffff9e18 = 0x00762f08; // type:data evidence: retail k_fldEnvironment func_00153c00/00154b10 addiu $28,-0x61E8 as func_00440b68 msg arg; gp base 0x007690F0 -> 0x00762F08
+iGpffff9e20 = 0x00762f10; // type:data evidence: retail k_fldEnvironment func_00154be0 addiu $28,-0x61E0 as func_0046d700 fmt arg; gp base 0x007690F0 -> 0x00762F10; rodata "%s"
 iGpffffac30 = 0x00763d20; // type:data evidence: retail sdkChkmem func_0044ef70 addiu $28,-0x53D0 (0x00763D20) as func_0046d700 fmt arg; gp base 0x007690F0; rodata "%s %d"
 
 D_007241D8 = 0x007641d8; // type:data evidence: retail mdlSE func_0047dea0/0047e450/0047e6f0 gp-0x4F18 as func_0044ea90 file arg; gp base 0x007690F0 -> 0x007641D8

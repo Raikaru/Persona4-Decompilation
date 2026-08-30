@@ -321,8 +321,60 @@ s32 func_00379150(u8 *arg0, s32 arg1, s32 arg2) {
    match modulo the register shift. GP globals: -0x5620->D_00763AD0,
    -0x561C->D_00763AD4 (GP base 0x007690F0). sp30 must be `char[...]` (s32* ->
    char* is illegal in mwcc). 4 attempts. */
+/* measured probe: hoist loop-invariant record type for func_00379240. */
+#pragma opt_loop_invariants on
 // FUN_00379240
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379240);
+s32 func_00379240(u8 *arg0) {
+    u8 *base;
+    char sp30[64];
+    s32 i;
+    s32 type;
+    s32 count;
+    char *text;
+
+    base = arg0 + 0x1F210;
+    if (func_00106330(0x1403) == 0) {
+        return 0;
+    }
+
+    func_0043f9c8(base, 0, 0x2C);
+    i = 0;
+    type = 2;
+    while (i < *(s32 *)(arg0 + 0x1F304)) {
+        if (*(s32 *)(arg0 + i * 8 + 0x1F250) == type) {
+            count = *(s32 *)(base + 0x24);
+            *(s32 *)(base + 0x24) = count + 1;
+            *(s32 *)(base + count * 4 + 4) = i;
+        }
+        i++;
+    }
+
+    if (*(s32 *)(base + 0x24) > 0) {
+        if (func_00106330(0x142A) != 0) {
+            func_00442830(sp30, D_00763AD0);
+            func_002baac0(*(s32 *)(arg0 + 0x1F2DC));
+            text = func_002438b0(0x14);
+            func_002bbd20(0, text);
+            func_002bbd20(1, sp30);
+            func_002bad10(0xF);
+            *(s32 *)base = 0;
+            return 1;
+        }
+        if (func_00106330(0x142B) != 0) {
+            func_00442830(sp30, D_00763AD4);
+            func_002baac0(*(s32 *)(arg0 + 0x1F2DC));
+            text = func_002438b0(0x14);
+            func_002bbd20(0, text);
+            func_002bbd20(1, sp30);
+            func_002bad10(0xF);
+            *(s32 *)base = 3;
+            return 1;
+        }
+    }
+    return 0;
+}
+/* measured: restore the translation unit's prior loop-invariant setting. */
+#pragma opt_loop_invariants off
 
 
 /* measured: nd 286, deep floor. Switch over *(u32*)(arg0+0x1F210) with jump

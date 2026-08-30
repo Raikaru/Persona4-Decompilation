@@ -78,8 +78,66 @@ void func_0044ec50(s32 arg0) {
    order (8 orders probed), s32 vs u32 arg0, cls local, and m2c decl order all
    stayed at 34 (worse 51 with cls local). Same class-block scheduling floor as
    func_0044eaa0 (arg0->size RHS-first, classCount delta-before-pool-reload). */
+/* measured: preserves retail allocator reload order. */
+#pragma opt_propagation off
 // FUN_0044EC60
-INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ec60);
+s32 func_0044ec60(u32 arg0)
+{
+    s32 temp_17;
+    s32 temp_16;
+    ChkMemEntry *temp_2;
+    s32 temp_18;
+    s32 *temp_20;
+
+    temp_17 = func_0042ba20();
+    if (arg0 == 0) {
+        func_0046d730(D_007104E0, 0x653);
+    }
+    temp_16 = (arg0 + 0x37) & -0x10;
+    temp_2 = (ChkMemEntry *)func_0043ece8(temp_16);
+    if (temp_2 == NULL) {
+        func_0046d700(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes,
+                      arg0);
+    }
+    if (temp_2 == NULL) {
+        func_0046d730(D_007104E0, 0x4BA);
+    }
+    if (((u32)temp_2 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4BB);
+    }
+    temp_2->size = temp_16;
+    temp_2->pad_04 = 0x10;
+    temp_2->pad_06 = 0;
+    temp_16 = (s32)temp_2 + 24 +
+              ((temp_2->pad_04 - 1) &
+               (temp_2->pad_04 -
+                (((s32)temp_2 + 24) & (temp_2->pad_04 - 1))));
+    if (((u32)temp_16 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4C0);
+    }
+    *(ChkMemEntry **)(temp_16 - 4) = temp_2;
+    if (((s32)temp_2 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4C4);
+    }
+    ++D_00763D1C->count;
+    D_00763D1C->bytes += temp_2->size;
+    if ((u8)D_00763D1C->classes < 8) {
+        temp_20 = (s32 *)(((u8)D_00763D1C->classes << 2) +
+                          (s32)D_00763D1C);
+        temp_18 = temp_2->size;
+        temp_20[14] += temp_18;
+        temp_18 = temp_2->size - (temp_2->pad_04 + 24);
+        D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
+    }
+    func_0044e8d0((u8 *)temp_2 + 12);
+    *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
+    if (temp_17 != 0) {
+        func_0042ba70();
+    }
+    return temp_16;
+}
+/* measured: func_0044ec60 matches with propagation disabled. */
+#pragma opt_propagation on
 
 /* measured: 0044ee70 candidate is 256B in the 256B retail window at current normalized_diff 6, differing offsets 0xC8 and 0xCC. Corrected callee parameter declarations to func_0046d730(void *, s32) and func_0044e920(E8Node *); an explicit E8Node * cast is required by MWCC. The result remains the same store-vs-argument order residual: retail stores `sh $0,8($v0)` before copying `$v0` into `$a0`, while b210 emits the move first. Restored assembly fallback; no live mismatch. */
 // FUN_0044EE70 NONMATCHING
@@ -93,8 +151,65 @@ INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ee70);
    (-0x53D0, "%s %d") now MATCH (added to symbol_data_addrs.txt with evidence).
    Same class-block pool-reload-before-delta floor as func_0044eaa0 plus the
    saved-register rotation family of func_0044ec60/func_0044f3a0. */
+/* measured: preserves retail expression and class-array reload order. */
+#pragma opt_propagation off
 // FUN_0044EF70
-INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ef70);
+s32 func_0044ef70(s32 arg0, s32 arg1, s32 arg2)
+{
+    u16 temp_16_2;
+    ChkMemEntry *temp_2;
+    s32 temp_18;
+    s32 temp_18_2;
+    s32 temp_19_2;
+    s32 temp_16;
+    s32 *temp_20;
+
+    temp_16_2 = arg1;
+    temp_18 = 2 * temp_16_2 + 24;
+    temp_18 += arg0;
+    temp_18_2 = temp_18 - 1;
+    temp_19_2 = (-temp_16_2) & temp_18_2;
+    temp_2 = (ChkMemEntry *)func_0043ece8(temp_19_2);
+    if (temp_2 == NULL) {
+        func_0046d700(D_007104E0, 0x69B, (const char *)&iGpffffac30,
+                      D_00763D1C->bytes);
+    }
+    if (temp_2 == NULL) {
+        func_0046d730(D_007104E0, 0x4BA);
+    }
+    if (((u32)temp_2 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4BB);
+    }
+    temp_2->size = temp_19_2;
+    temp_2->pad_04 = temp_16_2;
+    temp_2->pad_06 = 0;
+    temp_16 = (s32)temp_2 + 24 +
+              ((temp_2->pad_04 - 1) &
+               (temp_2->pad_04 -
+                (((s32)temp_2 + 24) & (temp_2->pad_04 - 1))));
+    if (((u32)temp_16 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4C0);
+    }
+    *(ChkMemEntry **)(temp_16 - 4) = temp_2;
+    if (((s32)temp_2 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4C4);
+    }
+    ++D_00763D1C->count;
+    D_00763D1C->bytes += temp_2->size;
+    if ((u8)D_00763D1C->classes < 8) {
+        temp_20 = (s32 *)(((u8)D_00763D1C->classes << 2) +
+                          (s32)D_00763D1C);
+        temp_18 = temp_2->size;
+        temp_20[14] += temp_18;
+        temp_18 = temp_2->size - (temp_2->pad_04 + 24);
+        D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
+    }
+    func_0044e8d0((u8 *)temp_2 + 12);
+    *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
+    return temp_16;
+}
+/* measured: func_0044ef70 matches with propagation disabled. */
+#pragma opt_propagation on
 
 /* measured: func_0044f140 (608B) floor at nd 87 — a pervasive saved-register
    rotation across the two-branch alloc/relocate body. retail: outer lock

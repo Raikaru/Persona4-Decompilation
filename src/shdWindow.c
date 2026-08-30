@@ -17,10 +17,23 @@ extern u16 D_008C024E[];
 extern u16 D_008C0276[];
 extern s32 func_00451fc0(s32, u8 *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 extern s32 func_0025e170(s32);
-extern void func_0025e4a0(s32);
+extern void func_0025e4a0(s32, s32);
 extern void func_0045af60(s32, s32, s32, s32);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
+extern u8 *func_00274570(u32, u32, u32, u32, u32, u32, u32, u32);
+extern s32 func_00273970(u8 *);
+extern u8 *func_002736d0(u8 **, s32);
+extern s32 func_002738d0(u8 *);
+extern void func_00272a10(u8 *, f32, f32);
+extern void func_00272ba0(u8 *, s32);
+extern void func_00273170(u8 *, s32, s32);
+extern void func_00271b70(u8 *);
+extern f32 iGpffff8094;
+extern f32 func_0044b7b0(f32);
+extern void func_00366670(s32, s32, s32, s32, s32, s32, s32, s32,
+                         f32, f32, f32, f32, s32, s32);
+extern void func_0025dd30(f32, f32, s32, u8 *);
 
 
 // Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
@@ -28,16 +41,58 @@ extern void func_00460ac0(void *, void *);
 // in the donor): a typed prototype makes mwcc emit zero-extension codegen
 // retail never has.
 
-// measured: retail saves a1->$s0, a2->$s1 (then reuses $s1 for the loop
-// counter var_17), a3->$s5, f12->$f21, f13->$f20, and allocates var_18->$s2,
-// var_19->$s3, var_20->$s4, temp_22->$s6; mwcc b210 instead emits a spurious
-// `move $s5, $a0` and allocates the counter var_17->$s3 / var_20->$s0, so
-// every reference rotates. Float math is instruction-identical (sub.s/madd.s
-// sequence matches); only the saved-register allocation differs. Tried 3-int
-// and 4-int signatures, 5 declaration orders, and the m2c goto-loop shape, all
-// nd 101. Saved-register rotation floor.
+// measured: opt_loop_invariants on fixes the parameter allocation and pre-loop
+// mask placement; declaring var_17 after the three list-walk locals gives the
+// retail $s4/$s3/$s2/$s1 allocation (old declaration order was nd 22).
+#pragma opt_loop_invariants on
 // FUN_0025DB00
-INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025db00);
+s32 func_0025db00(f32 fparg0, f32 fparg1, s32 arg0, s32 arg1, s32 arg2,
+                  s32 arg3)
+{
+    u8 *sp9C;
+    s32 temp_22;
+    u8 *var_18;
+    u8 *var_19;
+    s32 var_20;
+    s32 var_17;
+
+    arg1 |= -0x100;
+    if (arg2 >= 0x17) {
+        func_0046d730(&D_00637248, 0x75);
+    }
+    temp_22 = *(s32 *)((u8 *)&D_00637190 + arg2 * 8);
+    var_17 = 0;
+    sp9C = func_00274570(0, 0, 2, 0, 0, 0xFF, temp_22, 0);
+    temp_22 = func_00273970(sp9C) * 0x1C;
+
+    while (sp9C != NULL) {
+        var_18 = func_002736d0(&sp9C, 0);
+        if (var_18 == NULL) {
+            var_18 = sp9C;
+            sp9C = NULL;
+        }
+        var_19 = var_18;
+        var_20 = 0;
+        while (var_19 != NULL) {
+            var_20 += func_002738d0(var_19);
+            var_19 = *(u8 **)(var_19 + 0x24);
+        }
+        if (arg3 != 0) {
+            func_00272a10(var_18,
+                          fparg0 - (f32)var_20 / 2.0f,
+                          fparg1 + 28.0f * (f32)var_17 - (f32)temp_22 / 2.0f);
+        } else {
+            func_00272a10(var_18, fparg0, fparg1);
+        }
+        func_00272ba0(var_18, arg1);
+        func_00273170(var_18, 1, 0);
+        func_00271b70(var_18);
+        var_17++;
+    }
+    return var_17 * 0x1C;
+}
+// measured: closes the func_0025db00 loop-invariant bracket.
+#pragma opt_loop_invariants off
 
 // measured: retail allocates arg0->$s3, arg1->$s2, temp_16->$s0, temp_17->$s1
 // and loads D_00637260-6C with absolute lui/lwc1 (fixed by declaring them
@@ -140,22 +195,98 @@ s32 func_0025e170(s32 arg0)
     }
 block_37:
     temp_2_3 = (u8 *)func_00460990();
-    *(void (**)(s32))(temp_2_3 + 8) = func_0025e4a0;
+    *(void (**)(s32, s32))(temp_2_3 + 8) = func_0025e4a0;
     *(s32 *)(temp_2_3 + 0x10) = arg0;
     func_00460ac0(&D_00796670, temp_2_3);
     return 0;
 }
 
-// measured: retail keeps the work pointer in $s0 only (frame 0x40, saves
-// $s0 + $f20), computing temp_5=p+0x18 and temp_4=[p+0x1C] into scratch
-// $a1/$a0/$a2; mwcc b210 instead allocates the pointer to $s1 and saves BOTH
-// $s0 and $s1 (frame 0x50), so every reference and the 14-arg func_00366670
-// call rotate. Logic (accumulator adda.s/madd.s float math, the (s8) byte
-// extraction, and the 14-arg call) is correct; only the saved-register/
-// frame allocation differs. Tried 4 declaration orders and inlining temp_5,
-// all nd 143-187. Saved-register rotation floor.
+// measured: the two-argument callback type keeps the work pointer in $s0;
+// switch(action), an explicit action=0 for the bit-2 arm, and the ternary
+// count clamp reproduce retail's branch layout. Packing the color channels
+// through (s8)(s32) preserves the retail sign-extension sequence.
 // FUN_0025E4A0
-INCLUDE_ASM("asm/nonmatchings/shdWindow", func_0025e4a0);
+void func_0025e4a0(s32 arg0, s32 arg1)
+{
+    u8 *p;
+    u8 *temp_5;
+    s32 action;
+    s32 flags;
+    s32 count;
+    f32 temp_f20;
+    f32 frac;
+    u32 color;
+
+    p = (u8 *)func_00452560(arg1);
+    temp_5 = p + 0x18;
+    action = 0;
+    flags = *(s32 *)(p + 0x1C);
+    if (flags & 1) {
+        count = *(s32 *)(temp_5 + 0x10);
+        if (count < 5) {
+            *(s32 *)(temp_5 + 0x10) = count + 1;
+        } else {
+            *(s32 *)(temp_5 + 4) = flags & ~1;
+            *(s32 *)(temp_5 + 0x10) = 7;
+        }
+        action = 1;
+    } else if (flags & 2) {
+        count = *(s32 *)(temp_5 + 0x10);
+        if (count > 0) {
+            *(s32 *)(temp_5 + 0x10) = count - 1;
+        } else {
+            *(s32 *)(temp_5 + 4) = flags & ~2;
+        }
+        action = 0;
+    }
+
+    switch (action) {
+    case 1:
+        count = *(s32 *)(temp_5 + 0x10);
+        count = count < 3 ? count : 3;
+        temp_f20 = func_0044b7b0((iGpffff8094 * (f32)count) / 3.0f);
+        func_00366670(
+            92,
+            (s32)(74.0f + 150.0f * (1.0f - temp_f20)),
+            456,
+            (s32)(300.0f * temp_f20),
+            0x2D2D2D,
+            255,
+            1,
+            0,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            0,
+            0);
+        func_0025dd30(92.0f, 74.0f, (s32)(255.0f * temp_f20), p);
+        break;
+    case 0:
+        count = *(s32 *)(temp_5 + 0x10);
+        count = count < 3 ? count : 3;
+        frac = (f32)count / 3.0f;
+        temp_f20 = 255.0f * frac;
+        color = 0x2D2D2D00 | (((s8)(s32)(255.0f * frac)) & 0xFF);
+        func_00366670(
+            92,
+            (s32)(74.0f + 150.0f * (1.0f - frac)),
+            456,
+            (s32)(10.0f + 290.0f * frac),
+            color >> 8,
+            color & 0xFF,
+            1,
+            0,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            0,
+            0);
+        func_0025dd30(92.0f, 74.0f, (s32)temp_f20, p);
+        break;
+    }
+}
 
 // FUN_0025E7C0
 void func_0025e7c0(void)

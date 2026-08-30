@@ -1178,18 +1178,162 @@ void func_0024f080(s32 arg0, s32 arg1)
         e->flags = e->flags | 2;
     }
 }
-/* measured: b210's optimizer miscompiles the int->float idiom
-   `(f32)((u32)x >> 1 | (x & 1))` + doubling in this function's FP context:
-   it splits the else-path into a dead defensive `bltz` on the (always
-   non-negative) or-result and puts the add.s doubling in the unreachable
-   fixup block, leaving the taken path undoubled and $f1 unset. Tried the
-   two-statement x+x form, 2.0f* single statement, u32 locals, x+x as one
-   expression, and inverted if/else -- all reproduce the split (best nd 248,
-   object 48B over window). Also persists: r19 gets $s2 instead of $s3 and
-   the unkC sh is scheduled after the dsll32/dsra32 re-extension. Optimizer
-   floor. */
 // FUN_0024F160
-INCLUDE_ASM("asm/nonmatchings/cmmScript", func_0024f160);
+s32 func_0024f160(u8 *arg0)
+{
+    s32 result;
+    s32 i;
+    s32 id;
+    s32 handle;
+    s32 handle2;
+    s32 rec;
+    s32 state;
+    s32 resource;
+    s32 signal;
+    s32 active;
+    u32 random;
+    f32 value;
+    u8 color[4];
+    u8 pos[12];
+    u8 *entry;
+
+    result = 0;
+    switch (*(s32 *)(arg0 + 8)) {
+    case 0:
+        *(s32 *)(arg0 + 8) = 1;
+        *(s32 *)arg0 &= ~4;
+        *(s32 *)arg0 &= ~0x10;
+        *(s32 *)arg0 &= ~0x20;
+        *(s32 *)arg0 &= ~0x40;
+        for (i = 0; i < 5; i++) {
+            func_0024ba60(i);
+        }
+        func_0024bb00(3);
+        func_0024bb00(1);
+        func_0024f080(2, 1);
+        func_0024f080(0, 1);
+        id = func_0024be40();
+        func_00246e90((u16)id);
+        *(s16 *)(arg0 + 0xE) = func_00249960(id);
+    case 1:
+        break;
+    default:
+        goto done;
+    }
+
+    rec = func_00452560(func_00452380(D_00635A78));
+    if (rec == 0) {
+        func_0046d730(D_006359F0, 0x41B);
+    }
+    id = *(s32 *)(rec + 0x20);
+    entry = func_00246e90((u16)id);
+    *(s16 *)(arg0 + 0xC) += 1;
+    if (*(s16 *)(arg0 + 0xC) >= *(s16 *)(arg0 + 0xE)) {
+        *(s16 *)(arg0 + 0xC) = 0;
+        *(s16 *)(arg0 + 0xE) = func_00249960(id);
+        func_0024bb00(4);
+        *(s16 *)(arg0 + 0x10) += 1;
+        func_00249a60(id);
+        state = *(s16 *)(arg0 + 0x10);
+        if (state >= 3) {
+            if (state >= 10 ||
+                (random = (u32)func_003b7060(),
+                 (f32)random / 2147483648.0f > iGpffff809c)) {
+                *(s32 *)arg0 |= 0x40;
+                *(s16 *)(arg0 + 0x12) = 0;
+            }
+        }
+    }
+
+    signal = 0;
+    if ((*(s32 *)arg0 & 0x40) != 0) {
+        *(s16 *)(arg0 + 0x12) += 1;
+        state = *(s16 *)(arg0 + 0x12);
+        if (state == 1) {
+            func_00113480(5, 61, 10, 0);
+            func_0045aeb0(2, D_00635B50);
+        }
+
+        handle = func_00452380(D_00635A78);
+        handle2 = func_00452380(D_00635A78);
+        if (handle2 == 0) {
+            func_0046d730(D_006359F0, 0x392);
+        }
+        active = (*(s32 *)func_00452560(handle2) & 1) != 0;
+        if (active == 0) {
+            func_0046d730(D_006359F0, 0x3A6);
+        }
+        rec = func_00452560(handle);
+        if (*(s32 *)(rec + 0x18) != 0) {
+            resource = func_0025ff60(*(s32 *)(rec + 0x18));
+        } else {
+            resource = 0;
+        }
+        if (resource != 0) {
+            func_004b14f0(resource, color);
+            func_004b1420(resource, pos);
+            value = func_0044b7b0((iGpffff8084 * (f32)state) /
+                                  (f32)*(s16 *)(entry + 4));
+            *(f32 *)(pos + 4) = -55.0f - (20.0f * value);
+            color[3] = (u8)(255.0f * (1.0f - value));
+            func_004b13f0(resource, color);
+            func_004b1250(resource, pos);
+        }
+        if (state <= *(s16 *)(entry + 4)) {
+            signal = 1;
+        } else {
+            signal = 2;
+        }
+    }
+
+    if (signal == 2 || (D_008C024E[0] & 0x20) != 0) {
+        if (signal == 0) {
+            result = 3;
+        } else {
+            result = signal;
+        }
+    }
+    if (result == 0) {
+        goto done;
+    }
+
+    if ((rec = func_00452380(D_00635A78)) != 0) {
+        rec = func_00452560(rec);
+        if (*(s32 *)(rec + 0x10) != 0) {
+            func_00452080(*(s32 *)(rec + 0x10));
+            *(s32 *)(rec + 0x10) = 0;
+        }
+    }
+    if ((rec = func_00452380(D_00635A78)) != 0) {
+        rec = func_00452560(rec);
+        if (*(s32 *)(rec + 0x18) != 0) {
+            func_00452080(*(s32 *)(rec + 0x18));
+            *(s32 *)(rec + 0x18) = 0;
+        }
+    }
+    func_0024bb00(2);
+    func_0024f080(0, 0);
+
+    switch (result) {
+    case 0:
+        break;
+    case 1:
+        func_00113480(10, 101, 10, 0);
+        *(s32 *)arg0 |= 0x10;
+        break;
+    case 2:
+        func_00113480(3, 120, 1, 0);
+        break;
+    case 3:
+        *(s32 *)arg0 |= 0x20;
+        break;
+    }
+    *(s32 *)arg0 |= 4;
+    return 1;
+
+done:
+    return 0;
+}
 /* measured: the 12-byte D_00635B68/D_00635B70 copy pairs (ld+lwc1 batched,
    then sd+swc1 into 16-byte slots at 0x70/0x60) defeat b210: as separate
    locals the f32 halves get dead-store-eliminated, as a { s64 q; f32 f; }

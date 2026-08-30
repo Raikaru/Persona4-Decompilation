@@ -77,15 +77,155 @@ extern u8 D_005ED320[];
 extern u8 D_005ED790[];
 extern f32 DAT_00761640;
 
-/* measured: retail keeps arg0 in $s5 and hoists the D_005EBA00 base plus the
-   0x4F000000/0x80000000 float-conversion constants into pre-loop registers;
-   mwcc b210 rematerializes them per-iteration and runs the float->int guard
-   as c.olt.s where retail has c.ole.s. Tried (s16)(s32) cast, explicit
-   two-branch guard, srcbase pointer hoist, m2c declaration order, and
-   #pragma opt_propagation off — all nd 277-281 with fully divergent $s0..$s5
-   register allocation across all five loops. */
+/* measured: the signed 16-bit bitfield keeps retail's dsll32/dsra32
+   narrowing while the s32 loop carriers reproduce its saved-register
+   allocation. The ordered asset-id loads and chained third-asset assignment,
+   with the two measured optimization settings below, close all 1248 bytes. */
 // FUN_00137FB0
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_00137fb0);
+/* measured: opt_propagation off preserves the retail constant and argument-load schedule. */
+#pragma opt_propagation off
+/* measured: opt_loop_invariants on hoists the table and conversion constants like retail. */
+#pragma opt_loop_invariants on
+void func_00137fb0(u8 *arg0)
+{
+    s16 i;
+    s16 j;
+    s16 k;
+    s32 m;
+    s32 m_index;
+    u8 *src;
+    u8 *dst;
+    u8 asset_id;
+    f32 value;
+    void *asset0;
+    void *asset1;
+    void *asset2;
+    s32 *slot;
+    s32 n;
+    struct {
+        s32 half : 16;
+    } narrow;
+
+    func_0043f9c8(arg0, 0, 0x1338);
+    *(s32 *)(arg0 + 4) = 0;
+    *(s32 *)(arg0 + 8) = 0;
+    *arg0 = 0xFF;
+    *(s32 *)(arg0 + 0x18) = -1;
+
+    for (i = 0; i < 4; i++) {
+        *(s16 *)(arg0 + i * 2 + 0x5C) = 0;
+    }
+
+    for (j = 0; j < 0x26; j++) {
+        src = D_005EBA00 + j * 0x1C;
+        dst = arg0 + j * 0x30;
+        *(f32 *)(dst + 0x594) = *(f32 *)(src + 0);
+        *(f32 *)(dst + 0x598) = *(f32 *)(src + 4);
+        *(u8 *)(dst + 0x59E) = *(u8 *)(src + 0x10);
+        value = *(f32 *)(src + 8);
+        *(u16 *)(dst + 0x5A4) = (u16)value;
+        value = *(f32 *)(src + 0xC);
+        *(u16 *)(dst + 0x5AA) = (u16)value;
+    }
+
+    for (k = 0; k < 0x1C; k++) {
+        dst = arg0 + k * 0x30;
+        *(s32 *)(dst + 0xCB4) = 0;
+        *(s32 *)(dst + 0xCB8) = 0;
+        *(u8 *)(dst + 0xCBE) = 0;
+        *(s32 *)(dst + 0xCCC) = 0;
+        *(s32 *)(dst + 0xCD0) = 8;
+        if (k % 0xE < 6) {
+            *(s16 *)(dst + 0xCC0) = 0x64;
+            *(s16 *)(dst + 0xCC2) = 0x64;
+            *(s16 *)(dst + 0xCC6) = 0x64;
+            *(s16 *)(dst + 0xCC8) = 0x64;
+            *(u8 *)(dst + 0xCBC) = 0;
+            *(u8 *)(dst + 0xCBD) = 0xFF;
+        } else {
+            *(s16 *)(dst + 0xCC0) = 0x64;
+            *(s16 *)(dst + 0xCC2) = 0xB4;
+            *(s16 *)(dst + 0xCC6) = 0x64;
+            *(s16 *)(dst + 0xCC8) = 0xB4;
+            *(u8 *)(dst + 0xCBC) = 0;
+            *(u8 *)(dst + 0xCBD) = 0x7F;
+        }
+        *(s16 *)(arg0 + k * 2 + 0x24) = (k * 3) % 8;
+    }
+
+    m = 0;
+    goto loop4_test;
+loop4_body:
+    narrow.half = m;
+    m_index = narrow.half;
+    dst = arg0 + m_index * 0x30;
+    *(s32 *)(dst + 0x11F4) = 0;
+    *(s32 *)(dst + 0x11E4) = 0;
+    *(s32 *)(dst + 0x11F0) = 0;
+    *(s32 *)(dst + 0x11E8) = 0;
+    *(u8 *)(dst + 0x11FD) = 0;
+    *(u8 *)(dst + 0x11FC) = 0;
+    *(s32 *)(dst + 0x120C) = 0;
+    *(s32 *)(dst + 0x1210) = 3;
+    m = (s16)(m + 1);
+loop4_test:
+    if ((s16)m < 2) {
+        goto loop4_body;
+    }
+
+    *(s16 *)(arg0 + 0xFC) = func_00353b50(arg0 + 0xF4);
+    *(s16 *)(arg0 + 0x580) = 0;
+
+    asset0 = func_0046a770(D_005E5830);
+    if (asset0 == 0) {
+        func_0046d730(D_005ED9C0, 0x25F);
+    }
+    asset1 = func_0046a770(D_005E5850);
+    if (asset1 == 0) {
+        func_0046d730(D_005ED9C0, 0x261);
+    }
+    *(void **)(arg0 + 0x1334) = asset2 = func_0046a770(D_005E57F0);
+    if (asset2 == 0) {
+        func_0046d730(D_005ED9C0, 0x263);
+    }
+
+    n = 0;
+    goto resolve_test;
+resolve_body:
+    if (narrow.half < 0x1B) {
+        narrow.half = n;
+        slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
+        asset_id = D_005ED750[narrow.half];
+        *slot = func_0046d200(asset0, asset_id);
+    } else if (narrow.half < 0x3A) {
+        narrow.half = n;
+        slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
+        asset_id = D_005ED750[narrow.half];
+        *slot = func_0046d200(asset1, asset_id);
+    } else {
+        narrow.half = n;
+        slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
+        asset_id = D_005ED750[narrow.half];
+        *slot = func_0046d200(asset2, asset_id);
+    }
+    if (*slot == 0) {
+        func_0046d730(D_005ED9C0, 0x270);
+    }
+    narrow.half = n + 1;
+    n = narrow.half;
+resolve_test:
+    narrow.half = n;
+    if (narrow.half < 0x3C) {
+        goto resolve_body;
+    }
+
+    func_0013a530(arg0, 0);
+    func_00138490(arg0);
+}
+/* measured: restore propagation after matching func_00137fb0. */
+#pragma opt_propagation on
+/* measured: restore loop-invariant optimization after matching func_00137fb0. */
+#pragma opt_loop_invariants off
 
 /* measured: retail keeps var30 in $fp, var19 in $s3, temp20 in $s4 and uses
    a 0x100 frame with 10 saved registers ($fp/$s7..$s0) across the nested
@@ -151,15 +291,129 @@ s32 func_0013a040(s16 *arg0, s32 arg1, s16 arg2)
     return 1;
 }
 
-/* measured: the bltz int->float random conversion (srl/andi/or/cvt.s.w/
-   add.s) and the overall control flow match; the remaining 258 words are
-   retail's 10-saved-register allocation ($fp/$s7..$s0 holding the base,
-   CA4/CA8/CD0/CBE and counter pointers live across the func_003b7060 calls)
-   vs mwcc b210's own register coloring. Tried pointer hoisting of CD0/CA4/
-   CA8/CBE, m2c declaration order, s16/s32 counter — all nd 258. Register-
-   allocation floor. */
+/* measured: delayed s16 narrowing fixes the loop-counter live ranges, named
+   float temporaries preserve the retail load schedule, and the two settings
+   below close the full 1076-byte object (normalized_diff 0). */
 // FUN_0013A060
-INCLUDE_ASM("asm/nonmatchings/cmpSkill", func_0013a060);
+/* measured: opt_common_subs off preserves the retail per-iteration address formation. */
+#pragma opt_common_subs off
+/* measured: opt_propagation off preserves the retail scalar and FP operand order. */
+#pragma opt_propagation off
+void func_0013a060(void *arg0)
+{
+    s32 i;
+    s32 idx;
+    s16 *counter;
+    u8 *row;
+    s32 *statep;
+    s32 state;
+    s32 count;
+    s32 hundred;
+    s32 hundred_eighty;
+    u8 *flagp;
+    u8 *p;
+    f32 *x;
+    f32 *y;
+    f32 *table;
+    f32 value;
+    f32 divisor;
+    f32 scale;
+    f32 half;
+    f32 temp;
+    u32 random;
+
+    for (i = 0; i < 0x1C; i++) {
+        idx = i * 2;
+        counter = (s16 *)((u8 *)arg0 + idx + 0x24);
+        count = *counter + 1;
+        *counter = count;
+        row = (u8 *)arg0 + (idx + i) * 0x10;
+        statep = (s32 *)(row + 0xCD0);
+        state = *statep;
+        count = (s16)count;
+        if (state < count) {
+            if (i % 0xE < 6) {
+                if (state == 0xA) {
+                    *(s16 *)(row + 0xCC8) =
+                        *(s16 *)(row + 0xCC2) = 0x64;
+                    *(s32 *)(row + 0xCA4) = 0;
+                    *(s32 *)(row + 0xCA8) = 0;
+                    *(s32 *)(row + 0xCAC) = 0;
+                    *(s32 *)(row + 0xCB0) = 0;
+                    *statep = 6;
+                }
+                flagp = row + 0xCBE;
+                if (*flagp != 0) {
+                    p = (u8 *)arg0 + i * 0x30;
+                    *(f32 *)(p + 0xCA4) = *(f32 *)(p + 0xCAC);
+                    *(f32 *)(p + 0xCA8) = *(f32 *)(p + 0xCB0);
+                    *statep = 0x10;
+                } else {
+                    p = (u8 *)arg0 + i * 0x30;
+                    x = (f32 *)(p + 0xCA4);
+                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    *x = (f32)random;
+                    y = (f32 *)(p + 0xCA8);
+                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    *y = (f32)random;
+                    *(f32 *)(p + 0xCAC) = *x;
+                    *(f32 *)(p + 0xCB0) = *y;
+                    *statep = 8;
+                }
+                p = (u8 *)arg0 + i * 0x30;
+                *(u8 *)(p + 0xCBD) = *(u8 *)(p + 0xCBC);
+                *(u8 *)(p + 0xCBC) = *flagp;
+            } else {
+                flagp = row + 0xCBE;
+                if (*flagp != 0) {
+                    if (count < state + 0xA) {
+                        continue;
+                    }
+                    *(f32 *)(row + 0xCA4) = *(f32 *)(row + 0xCAC);
+                    *(f32 *)(row + 0xCA8) = *(f32 *)(row + 0xCB0);
+                    *(u16 *)(row + 0xCC0) = *(u16 *)(row + 0xCC2);
+                    *(u16 *)(row + 0xCC6) = *(u16 *)(row + 0xCC8);
+                    *statep = 4;
+                } else {
+                    x = (f32 *)(row + 0xCA4);
+                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    *x = (f32)random;
+                    y = (f32 *)(row + 0xCA8);
+                    random = (u32)func_003b7060() % 0x28 - 0x14;
+                    *y = (f32)random;
+                    table = (f32 *)(D_005ED790 + i * 0x14);
+                    temp = table[2];
+                    value =
+                        (57.0f * temp) / (divisor = 4096.0f);
+                    scale = DAT_00761640;
+                    value =
+                        (scale * value - value) / (half = 2.0f);
+                    *(f32 *)(row + 0xCAC) = *x - value;
+                    temp = table[3];
+                    value = (60.0f * temp) / divisor;
+                    value = (scale * value - value) / half;
+                    *(f32 *)(row + 0xCB0) = *y - value;
+                    hundred = 0x64;
+                    *(s16 *)(row + 0xCC0) = hundred;
+                    hundred_eighty = 0xB4;
+                    *(s16 *)(row + 0xCC2) = hundred_eighty;
+                    *(s16 *)(row + 0xCC6) = hundred;
+                    *(s16 *)(row + 0xCC8) = hundred_eighty;
+                    *statep = 8;
+                }
+                p = (u8 *)arg0 + i * 0x30;
+                *(u8 *)(p + 0xCBD) = *(u8 *)(p + 0xCBC);
+                *(u8 *)(p + 0xCBC) = *flagp;
+            }
+            *counter = 0;
+        }
+        func_001437b0(row + 0xCA4, *counter, 1);
+    }
+}
+/* measured: restore propagation after matching func_0013a060. */
+#pragma opt_propagation on
+/* measured: restore common-subexpression optimization after matching func_0013a060. */
+#pragma opt_common_subs on
 
 /* measured: without #pragma opt_common_subs off, mwcc b210 CSEs the
    (u8*)arg0 + 0x22 address into a callee-saved pointer (nd 34); with it off
