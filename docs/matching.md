@@ -858,6 +858,44 @@ complexity make it an expensive single function, while the 920-function
 never-attempted backlog (see wave 11/12 above) has a much better
 match-per-hour rate for lanes right now.
 
+**External precedent confirms the goto approach, not the shape I used.**
+`AshfordFamily/recvx-decomp` (Resident Evil Code: Veronica X, confirmed
+MWCCPS2 toolchain via its `compile_config.json` pointing at `mwccps2.exe`,
+64% matched) has the identical `bc0f`/`bc0t` DMA-wait idiom, marked `// 100%
+matching!`, e.g. `ps2_loadtim2.c`'s `D2_SyncTag()`:
+```c
+if ((DGET_D_PCR() & 0x4))
+{
+    asm volatile (bc0t label_0f);
+label_0b:
+    asm volatile { bc0f label_0b; nop }
+}
+label_0f:
+    DPUT_D_PCR(DGET_D_PCR() | tmp);
+```
+Two things this confirms: (1) MWCC really does let inline-asm `bc0t`/`bc0f`
+branch to plain C statement labels, including labels *outside* the
+enclosing block -- the goto-shaped technique from the attempt above is the
+right one, not a wrong turn; (2) their idiom pairs `bc0t` (skip the wait
+entirely if the condition is already true) with `bc0f` (spin while false),
+a "check once, then loop" shape -- `func_003a4d50` uses only `bc0f` (no
+`bc0t` anywhere in its 268 instructions), so its wait is the simpler
+unconditional-entry variant, consistent with the disassembly, not a
+contradiction. The same repository's inline-asm-only handling of
+`movz`/`movn` (whole functions in raw `asm volatile` blocks, e.g.
+`ps2_NaMath.c`) and `pextlw`/`pextlh`/`pcpyld`/`pcpyud` (targeted asm
+snippets, e.g. `ps2_NaMatrix.c`, `ps2_Vu1Strip.c`) independently confirms
+both floors this campaign already found on its own (movz/movn census
+above; the `effPolygonFlash.c` pextlb/pextlh floor wave 15 hit) -- a
+second unrelated MWCCPS2 project reached the same walls.
+
+Next attempt at `func_003a4d50` should retry the goto structure with the
+check-once-then-loop pairing where retail actually pairs `bc0t`+`bc0f`
+(none of its eight wait sites do, per the disassembly, but re-verify per
+site) and fix the block-duplication bug from the reverted attempt (the
+`tail_check` label reached via three `goto`s) before assuming the
+technique itself is wrong.
+
 ### Is the rest just C we have not shaped?
 
 Almost entirely, yes -- and that is measurable rather than a matter of faith.

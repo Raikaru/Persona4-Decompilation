@@ -983,9 +983,6 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119210);
    func_0046d4c0 11-arg calls all verify against retail. */
 // FUN_00119810
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00119810);
-
-
-
 void func_0011ac70(u8 *);
 void func_0011ae90(u8 *);
 void func_0011c780(u8 *);

@@ -53,6 +53,24 @@ extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
 extern void func_00134990(u8 *arg0, s16 arg1, s16 arg2);
 extern void func_0034f2e0(void *arg0, f32 fparg0, f32 fparg1,
                           u8 arg1, u8 arg2, u8 arg3, u8 arg4);
+extern void func_0034f320(void *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 arg1, u8 arg2, u8 arg3, s64 arg4, s64 arg5,
+                          s32 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void func_00113790(s64 arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+extern void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                          f32 fparg0, f32 fparg1, f32 fparg2);
+extern void func_0012e2f0(u8 *arg0);
+extern s32 func_0012e8b0(u8 *arg0);
+extern s32 func_0012ff40(s32 arg0, s32 arg1, s32 arg2);
+extern void func_00353fb0(void);
+extern void func_00353fe0(void);
+extern s32 func_00354030(void);
+extern void func_00354080(s32 arg0);
+extern void func_0034bd60(s32 arg0);
+extern s32 func_0013b9f0(u8 *arg0);
+extern s32 func_0013c700(s32 arg0, s32 arg1, u8 *arg2);
+extern u16 D_008C024E[];
+extern void func_0013c5a0(s32 *arg0, u8 *arg1);
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 typedef signed __int128 code13S128;
