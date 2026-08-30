@@ -27,10 +27,95 @@ extern char D_007130C8[];
 
 static inline u32 sdkAddOffset(u32 offset, u32 base) { return offset + base; }
 
-/* measured: no real C body was produced for this 784B retail window; no
-   candidate nd was retained. */
 // FUN_0046AB90
-INCLUDE_ASM("asm/nonmatchings/sdkSpr", func_0046ab90);
+void func_0046ab90(u8 *arg0)
+{
+    u8 temp[8];
+    u8 temp2[8];
+    s32 i;
+    s32 complete;
+    s16 state;
+
+    state = *(s16 *)arg0;
+    switch (state) {
+    case 0:
+        func_00440b68(&iGpffffb038, D_007130C8, 0xB3);
+        *(u32 *)(arg0 + 0x208) = (u32)func_00454a60(arg0 + 2, 0);
+        *(s16 *)arg0 = 1;
+        break;
+    case 1:
+        if (*(u32 *)(arg0 + 0x208) != 0) {
+            if (func_004553c0((u8 *)*(u32 *)(arg0 + 0x208)) != 1) {
+                break;
+            }
+            *(u32 *)(arg0 + 0x20C) =
+                *(u32 *)(*(u8 **)(arg0 + 0x208) + 0x110);
+        }
+        func_0043f810(arg0 + 0x218, (void *)*(u32 *)(arg0 + 0x20C), 0x20);
+        *(u32 *)(arg0 + 0x210) += 0x20;
+        *(s16 *)arg0 = 2;
+        *(s16 *)(arg0 + 0x214) = 0;
+        if (*(u16 *)(arg0 + 0x22C) == 0) {
+            *(s16 *)arg0 = 4;
+            break;
+        }
+    case 2:
+        do {
+            func_0043f810(temp, (void *)(*(u32 *)(arg0 + 0x20C) +
+                                          *(u32 *)(arg0 + 0x210)), 8);
+            *(u32 *)(arg0 + 0x210) += 8;
+            *(u32 *)(arg0 + (*(s16 *)(arg0 + 0x214) << 2) + 0x184) =
+                func_004667d0(9, 0, 0, 0, 0,
+                              *(u32 *)(arg0 + 0x20C) + *(u32 *)(temp + 4),
+                              0, 0, 0, 0);
+            *(u32 *)(arg0 + (*(s16 *)(arg0 + 0x214) << 2) + 0x104) = 0;
+            *(s16 *)(arg0 + 0x214) += 1;
+        } while (*(u16 *)(arg0 + 0x22C) !=
+                 *(s16 *)(arg0 + 0x214));
+        *(s16 *)arg0 = 3;
+        break;
+    case 3:
+        complete = 1;
+        for (i = 0; i < *(u16 *)(arg0 + 0x22C); i++) {
+            u8 *entry = arg0 + (i << 2);
+            u32 *slot = (u32 *)(entry + 0x104);
+
+            if (*slot == 0) {
+                *slot = func_004669d0(*(u32 *)(entry + 0x184),
+                                      &complete, 0);
+                if (complete == 0) {
+                    *slot = 0;
+                    break;
+                }
+            }
+        }
+        if (complete == 0) {
+            break;
+        }
+        *(s16 *)arg0 = 4;
+    case 4:
+        func_0044ea90(D_007130C8, 0xFD);
+        *(u32 *)(arg0 + 0x204) =
+            (u32)D_008873F4[0](*(u16 *)(arg0 + 0x22E), 0x80, 0x40000);
+        for (i = 0; i < *(u16 *)(arg0 + 0x22E); i++) {
+            func_0043f810(temp2, (void *)(*(u32 *)(arg0 + 0x20C) +
+                                            *(u32 *)(arg0 + 0x210)), 8);
+            *(u32 *)(arg0 + 0x210) += 8;
+            func_0043f810((u8 *)(*(u32 *)(arg0 + 0x204) + (i << 7)),
+                          (void *)(*(u32 *)(arg0 + 0x20C) + *(u32 *)(temp2 + 4)),
+                          0x80);
+        }
+        if (*(u32 *)(arg0 + 0x208) != 0) {
+            func_00454bd0((u8 *)*(u32 *)(arg0 + 0x208));
+        }
+        *(u32 *)(arg0 + 0x208) = 0;
+        *(s16 *)(arg0 + 0x216) = *(u16 *)(arg0 + 0x22E);
+        *(s16 *)arg0 = 5;
+        break;
+    case 5:
+        break;
+    }
+}
 
 // FUN_0046AEA0
 u8 *func_0046aea0(const char *name)

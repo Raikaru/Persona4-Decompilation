@@ -806,25 +806,56 @@ void func_0034d690(u8 *arg0, s32 arg1) {
 #pragma opt_loop_invariants off
 
 // FUN_0034D890
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034d890);
-/* measured: re-tested with recipe A (3 attempts, best nd 161). 4th attempt
-   (plain-C byte chain + unfused FMA) was worse (nd 179, obj 796B > 720B
-   window). The 0x994 byte chain and adda.s/msub.s FMA (247.0f - 82.0f*var_f0)
-   match retail instruction-for-instruction (lbu + single bltz + srl/andi/or
-   + cvt + add.s doubling). Remaining b210 floors: (1) the clamp comparison —
-   only `prod < 2.1474836e9f` gives retail's layout (cvt inline, sub out of
-   line) but mwcc encodes c.olt.s prod,const + bc1f where retail has
-   c.ole.s const,prod + bc1t (same family as c500/ddf0). (2) `y + 448.0f`
-   repeated in calls 2+3 is CSE'd into a saved $f22 (6 saved FP vs retail's
-   5, $f22 hole shifts x/delta/inv to $f23/$f24/$f25); retail re-issues
-   lui/mtc1/add.s per call; operand reversal does not break mwcc's CSE.
-   (3) saved-FP rotation: retail allocates by declaration order (0x9A0 ->
-   $f20, 164.0f*var_f0 -> $f21, 1/x -> $f22, delta -> $f23, x -> $f24),
-   mwcc by first-use (164*var_f0 -> $f20, 0x9A0 -> $f21). (4) int-args-before-
-   float-moves call materialization. Register-coloring + CSE + comparison-
-   shape floor. Re-attacked wave 14 with the corrected floats-first f0d0
-   extern (u8*,f32,f32,f32,f32,u8,u8,u8,u8) + full reconstruction — nd 41
-   (all remaining words are the saved-FP rotation + call-arg FP pairing). */
+void func_0034d890(u8 *arg0, s32 arg1) {
+    f32 temp_f2;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f22;
+    f32 temp_f23;
+    f32 temp_f24;
+    f32 temp_f1;
+    f32 temp_f2_2;
+    f32 temp_f0;
+    f32 var_f1;
+    s32 temp_16;
+    u8 temp_2;
+    u8 temp_3;
+
+    temp_f2 = (2.0f * *(f32 *)(arg0 + 0x1688)) / 3.0f;
+    if (*(s32 *)(arg0 + 0x1690) == 0) {
+        temp_f1 = (f32)*(s16 *)(arg0 + 0x1684);
+        if (temp_f1 < temp_f2) {
+            temp_f0 = func_0044b7b0((iGpffff8094 * temp_f1) / temp_f2);
+        } else {
+            temp_f0 = 1.0f;
+        }
+    } else {
+        temp_f0 = 1.0f;
+    }
+    if (arg1 == 0) {
+        temp_f0 = 1.0f - temp_f0;
+    }
+    temp_f21 = 164.0f * temp_f0;
+    temp_2 = *(u8 *)(arg0 + 0x994);
+    var_f1 = (f32)(u32)temp_2;
+    temp_f2_2 = var_f1 * temp_f0;
+    temp_16 = (u8)temp_f2_2;
+    *(s32 *)(arg0 + 0x990) = 0;
+    temp_f20 = *(f32 *)(arg0 + 0x9A0);
+    temp_f22 = (247.0f - 82.0f * temp_f0) + *(f32 *)(arg0 + 0x99C);
+    temp_f23 = D_008872F8[0] - D_0088467C[0];
+    temp_f24 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_3 = (u8)temp_16;
+    func_0034f0d0(arg0 + 0x690, temp_f22, temp_f20, temp_f23, temp_f24,
+                  0xFF, 0xE9, 0x2C, temp_3);
+    func_0034f0d0(arg0 + 0x6D0, temp_f22, addF(temp_f20, 448.0f), temp_f23, temp_f24,
+                  0xFF, 0xE9, 0x2C, temp_3);
+    func_0034f0d0(arg0 + 0x710, addF(temp_f22, temp_f21), addF(temp_f20, 448.0f),
+                  temp_f23, temp_f24, 0xFF, 0xE9, 0x2C, temp_3);
+    func_0034f0d0(arg0 + 0x750, addF(temp_f22, temp_f21), temp_f20, temp_f23, temp_f24,
+                  0xFF, 0xE9, 0x2C, temp_3);
+}
+/* measured: reconstructed d890 body matches retail byte-for-byte (720-byte window). */
 
 // FUN_0034DB60
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);

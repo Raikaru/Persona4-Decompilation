@@ -116,7 +116,6 @@ void func_002e06d0(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 
 
 
-/* measured: corrected declarations and best plain-C body archived in build/WR04_wave_code1_002e_func_002e0700.c; residual obj 572B / window 576B / normalized_diff 309. */
 // FUN_002E0700
 INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0700);
 // FUN_002E0940
@@ -517,8 +516,171 @@ void func_002e7a80(s32 arg0)
     func_00105fa0(func_002b2cb0(arg0, 0, 0x98967F, 0, 1));
 }
 
+#define P4_002E7AC0_DRAW() \
+    do { \
+        if ((s16)func_002b6970(*(s16 *)(func_002b6150(105) + 0x10), 0) == 1) { \
+            func_00275820(*(f32 *)(func_002b6150(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
+                          func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1, \
+                          func_0010d6d0(1), 0, 0, D_00794E70, 24); \
+        } \
+    } while (0)
 // FUN_002E7AC0
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7ac0);
+s32 func_002e7ac0(u8 *arg0)
+{
+    void func_002e90d0(u8 *arg0);
+    u8 *func_002b6150(s16 arg0);
+    s16 func_002b6970(s16 arg0, s16 arg1);
+    s32 func_002b2a30(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    u32 func_0010d6d0(s16 arg0);
+    int func_00275820(f32 x, f32 y, f32 scale, int color, int chr, int id,
+                      u32 str, int flags, int unused, void *param, int out);
+    void func_00314740(u8 *arg0, s8 arg1);
+    void func_002ed430(u8 *arg0);
+    void func_002f0f00(u8 *arg0);
+    void func_002f6cf0(u8 *arg0);
+    void func_002f9d90(u8 *arg0);
+    void func_002fbea0(u8 *arg0);
+    void func_00302770(u8 *arg0);
+    void func_00304580(u8 *arg0);
+    void func_003097e0(u8 *arg0);
+    void func_0030b060(u8 *arg0);
+    void func_0030b7b0(u8 *arg0);
+    void func_0030c3c0(u8 *arg0);
+    void func_0030f650(u8 *arg0);
+    extern u8 D_00794E70[];
+    u8 *work;
+    u8 state;
+
+    work = *(u8 **)(arg0 + 0x38);
+    state = *(u8 *)work;
+    if (state == 0xD8) {
+        goto done;
+    }
+    if (state == 0x0B) {
+        goto return_minus_one;
+    }
+    if (state == 0x0E) {
+        goto case_0e;
+    }
+    if (state == 0x0D) {
+        goto case_0d;
+    }
+    if (state == 0x0A) {
+        goto case_0a;
+    }
+    if (state == 0x09) {
+        goto case_09;
+    }
+    if (state == 0x0C) {
+        goto case_0c;
+    }
+    if (state == 0x10) {
+        goto case_10;
+    }
+    if (state == 0x0F) {
+        goto case_10;
+    }
+    if (state == 0x08) {
+        goto case_08;
+    }
+    if (state == 0x07) {
+        goto case_07;
+    }
+    if (state == 0x06) {
+        goto case_06;
+    }
+    if (state == 0x05) {
+        goto case_05;
+    }
+    if (state == 0x04) {
+        goto case_04;
+    }
+    if (state == 0x03) {
+        goto case_03;
+    }
+    if (state == 0x02) {
+        goto case_02;
+    }
+    if (state == 0x01) {
+        goto case_01;
+    }
+    switch (state) {
+    case 0:
+        func_002e90d0(arg0);
+        break;
+    default:
+        break;
+    }
+    goto done;
+
+case_01:
+    P4_002E7AC0_DRAW();
+    func_00314740(*(u8 **)(work + 0x148), 0);
+    *(s8 *)(work + 0x1A) = 2;
+    func_002ed430(arg0);
+    goto done;
+case_02:
+    P4_002E7AC0_DRAW();
+    func_00314740(*(u8 **)(work + 0x148), 0);
+    *(s8 *)(work + 0x1A) = 3;
+    func_002f0f00(arg0);
+    goto done;
+case_03:
+    P4_002E7AC0_DRAW();
+    *(s8 *)(work + 0x1A) = 4;
+    func_00314740(*(u8 **)(work + 0x148), 0);
+    func_002f6cf0(arg0);
+    goto done;
+case_04:
+    P4_002E7AC0_DRAW();
+    *(s8 *)(work + 0x1A) = 5;
+    func_00314740(*(u8 **)(work + 0x148), 0);
+    func_002f6cf0(arg0);
+    goto done;
+case_05:
+    P4_002E7AC0_DRAW();
+    *(s8 *)(work + 0x1A) = 6;
+    func_00314740(*(u8 **)(work + 0x148), 0);
+    func_002f6cf0(arg0);
+    goto done;
+case_06:
+    P4_002E7AC0_DRAW();
+    *(s8 *)(work + 0x1A) = 7;
+    func_00314740(*(u8 **)(work + 0x148), 0);
+    func_002f9d90(arg0);
+    goto done;
+case_07:
+    func_00302770(arg0);
+    goto done;
+case_08:
+    P4_002E7AC0_DRAW();
+    func_00304580(arg0);
+    goto done;
+case_10:
+    func_00314740(*(u8 **)(work + 0x148), 1);
+    func_002fbea0(arg0);
+    goto done;
+case_0c:
+    func_0030c3c0(arg0);
+    goto done;
+case_09:
+    func_0030b060(arg0);
+    goto done;
+case_0a:
+    func_0030b7b0(arg0);
+    goto done;
+case_0d:
+    func_003097e0(arg0);
+    goto done;
+case_0e:
+    func_0030f650(arg0);
+    goto done;
+return_minus_one:
+    return -1;
+done:
+    return 0;
+}
+#undef P4_002E7AC0_DRAW
 // FUN_002E82B0
 void func_002e82b0(u8 *arg0)
 {
