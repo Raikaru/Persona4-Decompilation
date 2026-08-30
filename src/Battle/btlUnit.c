@@ -11,11 +11,19 @@ extern f32 fGpffff82d4;
 extern u8 D_005F6D00[];
 extern u8 iGpffffa0b0;
 extern void func_00194ff0(void *arg0, void *arg1, s32 arg2, void *arg3);
-extern void func_003dc740(void *dst, void *src, s32 mode, f32 angle);
+extern void func_003dc740(void *dst, void *src, f32 angle, s32 mode);
+#define func_003dc740(dst, src, mode, angle) \
+    func_003dc740(dst, src, angle, mode)
 extern f32 func_0044b950(f32 x, f32 y);
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern void func_0019dea0(void *unit);
+extern f32 func_003e41e0(f32 *out, f32 *in);
+extern f32 func_003e41b0(f32 *value);
+extern s32 func_0044dcd8(f32 value);
+extern s32 func_0044b310(s32 value);
+extern f32 func_0044e7d8(s32 value);
+extern f32 D_007614c0;
 #include "include_asm.h"
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
@@ -175,6 +183,11 @@ RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const RtQuat* quat);
 void func_001ec1c0(RwV3d* dst, const RwV3d* from, const RwV3d* to);
 extern void func_003dcb40(RwV3d *dst, RwV3d *src, s32 mode, RwV3d *rot);
+extern s32 func_002428f0(void *arg0, s32 arg1);
+extern s32 func_00232710(void *arg0, s32 arg1);
+extern f32 func_003e4180(RwV3d *value);
+extern u8 *iGpffffb3ac;
+extern RwV3d D_00881430;
 void func_00196ce0(BtlUnitPacketMove* work);
 u32 func_00196d00(void* work);
 void func_001973d0(BtlUnitPacketMove* work);
@@ -257,9 +270,372 @@ void func_00195d50(u8 *arg0, u8 *arg1)
 }
 
 // FUN_00196040
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00196040);
+f32 func_00196040(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
+                  f32 *outTop, f32 *outBottom, u32 options)
+{
+    RwV3d center;
+    RwV3d sum;
+    RwV3d delta;
+    RwV3d firstScaled;
+    RwV3d firstRotated;
+    RwV3d secondScaled;
+    RwV3d secondRotated;
+    u8 filters[32];
+    f32 radius;
+    f32 top;
+    f32 bottom;
+    u8 *firstUnit;
+    u8 *singleUnit;
+    u32 group;
+    u32 count;
+    u32 mask;
+    u32 optionFlags;
+
+    top = 0.0f;
+    bottom = (f32)100000000;
+    singleUnit = 0;
+    count = 0;
+    sum = D_00881430;
+    group = 0;
+    mask = groupFlags & 0xFFFF;
+    optionFlags = options & 0xFFFF;
+    *(s32 *)(filters + 0x10) = optionFlags & 2;
+    *(s32 *)(filters + 0x00) = optionFlags & 1;
+    while (group < 4)
+    {
+        if (mask & (1 << group))
+        {
+            firstUnit =
+                *(u8 **)(iGpffffb3ac + (group * 8) + 0x178);
+            while (firstUnit != 0)
+            {
+                u32 flags = *(u32 *)(firstUnit + 0x9C);
+
+                if ((flags & 8) &&
+                    !(flags & excludedFlags) &&
+                    (!*(s32 *)(filters + 0x10) ||
+                     group != 0 ||
+                     (func_002428f0(*(void **)(firstUnit + 0xA64), 0) == 0 &&
+                      func_00232710(*(void **)(firstUnit + 0xA64), 0x100117) == 0)))
+                {
+                    f32 x;
+                    f32 y;
+                    f32 z;
+                    f32 extent;
+                    if (!*(s32 *)(filters + 0x00))
+                    {
+                        firstScaled.x =
+                            *(f32 *)(firstUnit + 0x80) *
+                                *(f32 *)(firstUnit + 0x2C);
+                        firstScaled.y =
+                            *(f32 *)(firstUnit + 0x84) *
+                                *(f32 *)(firstUnit + 0x2C);
+                        firstScaled.z =
+                            *(f32 *)(firstUnit + 0x88) *
+                                *(f32 *)(firstUnit + 0x2C);
+                        func_003dcb40(&firstRotated, &firstScaled, 1,
+                                      (RwV3d *)(firstUnit + 0x1C));
+                        x = firstRotated.x + *(f32 *)(firstUnit + 4);
+                        y = firstRotated.y + *(f32 *)(firstUnit + 8);
+                        z = firstRotated.z + *(f32 *)(firstUnit + 0xC);
+                    }
+                    else
+                    {
+                        x = (f32)(25 * *(s16 *)(firstUnit + 0x94) - 1750);
+                        y = *(f32 *)(firstUnit + 8) +
+                            *(f32 *)(firstUnit + 0x84) *
+                                *(f32 *)(firstUnit + 0x2C);
+                        z = (f32)(25 * *(s16 *)(firstUnit + 0x96) - 1750);
+                    }
+                    sum.x += x;
+                    sum.y += y;
+                    sum.z += z;
+                    extent = y +
+                             0.5f *
+                                 (*(f32 *)(firstUnit + 0x8C) *
+                                  *(f32 *)(firstUnit + 0x2C));
+                    if (top < extent)
+                        top = extent;
+                    if (bottom > extent)
+                        bottom = extent;
+                    singleUnit = firstUnit;
+                    count += 1;
+                }
+                firstUnit = *(u8 **)(firstUnit + 0xA6C);
+            }
+        }
+        group += 1;
+    }
+    if (count == 0)
+        return 0.0f;
+
+    if (count == 1)
+    {
+        f32 extent;
+        center = sum;
+        radius = *(f32 *)(singleUnit + 0x90) *
+                 *(f32 *)(singleUnit + 0x2C);
+        extent = 0.5f *
+                 (*(f32 *)(singleUnit + 0x8C) *
+                  *(f32 *)(singleUnit + 0x2C));
+        if (extent > radius)
+            radius = extent;
+    }
+    else
+    {
+        f32 inverse;
+        f32 centerY;
+        f32 centerZ;
+        u32 secondGroup;
+
+        inverse = 1.0f / (f32)count;
+
+        center.x = sum.x * inverse;
+        centerY = sum.y * inverse;
+        center.y = centerY;
+        centerZ = sum.z * inverse;
+        center.z = centerZ;
+        radius = 0.0f;
+        secondGroup = 0;
+        while (secondGroup < 4)
+        {
+            if (mask & (1 << secondGroup))
+            {
+                u8 *unit;
+                unit = *(u8 **)(iGpffffb3ac + (secondGroup * 8) + 0x178);
+                while (unit != 0)
+                {
+                    u32 flags = *(u32 *)(unit + 0x9C);
+
+                    if ((flags & 8) &&
+                        !(flags & excludedFlags) &&
+                        (!*(s32 *)(filters + 0x10) ||
+                         secondGroup != 0 ||
+                         (func_002428f0(*(void **)(unit + 0xA64), 0) == 0 &&
+                          func_00232710(*(void **)(unit + 0xA64), 0x100117) == 0)))
+                    {
+                        f32 x;
+                        f32 z;
+                        f32 extent;
+                        if (!*(s32 *)(filters + 0x00))
+                        {
+                            secondScaled.x =
+                                *(f32 *)(unit + 0x80) * *(f32 *)(unit + 0x2C);
+                            secondScaled.y =
+                                *(f32 *)(unit + 0x84) * *(f32 *)(unit + 0x2C);
+                            secondScaled.z =
+                                *(f32 *)(unit + 0x88) * *(f32 *)(unit + 0x2C);
+                            func_003dcb40(&secondRotated, &secondScaled, 1,
+                                          (RwV3d *)(unit + 0x1C));
+                            x = secondRotated.x + *(f32 *)(unit + 4);
+                            z = secondRotated.z + *(f32 *)(unit + 0xC);
+                        }
+                        else
+                        {
+                            x = (f32)(25 * *(s16 *)(unit + 0x94) - 1750);
+                            z = (f32)(25 * *(s16 *)(unit + 0x96) - 1750);
+                        }
+                        delta.x = x - center.x;
+                        delta.y = centerY - centerY;
+                        delta.z = z - centerZ;
+                        extent = func_003e4180(&delta);
+                        extent += *(f32 *)(unit + 0x90) *
+                                  *(f32 *)(unit + 0x2C);
+                        if (extent > radius)
+                            radius = extent;
+                        count += 1;
+                    }
+                    unit = *(u8 **)(unit + 0xA6C);
+                }
+            }
+            secondGroup += 1;
+        }
+    }
+    if (outCenter != 0)
+        *outCenter = center;
+    if (outTop != 0)
+        *outTop = top;
+    if (outBottom != 0)
+        *outBottom = bottom;
+    return radius;
+}
 // FUN_00196610
-INCLUDE_ASM("asm/nonmatchings/btlUnit", func_00196610);
+u32 func_00196610(u8 *arg0)
+{
+    struct Btl966XZ
+    {
+        f32 x;
+        f32 z;
+    };
+    struct Btl966Work
+    {
+        RtQuat rotation;
+        f32 pad10;
+        f32 pad14;
+        f32 currentX;
+        f32 currentZ;
+        f32 deltaX;
+        f32 deltaZ;
+        f32 nextDeltaX;
+        f32 nextDeltaZ;
+    } frame;
+    RwV3d finalPos;
+    RwV3d targetPos;
+    u8 *entry;
+    u8 *point;
+    s32 index;
+    s32 count;
+    s32 pointOffset;
+    f32 pathLength;
+    f32 lastDistance;
+    f32 nextX;
+    f32 nextZ;
+    f32 currentZ;
+    f32 turn;
+    f32 angle;
+
+    if ((*(u16 *)(arg0 + 0xC8) & 1) &&
+        (*(u16 *)(arg0 + 0xC8) & 0x10))
+    {
+        entry = arg0 + 0xEC;
+        index = *(u16 *)(arg0 + 0x4EE);
+        count = *(u16 *)(arg0 + 0x4EC);
+        lastDistance = 0.0f;
+        pathLength = *(f32 *)(arg0 + 0xCC);
+        frame.currentX = *(f32 *)(arg0 + 4);
+        frame.currentZ = *(f32 *)(arg0 + 0xC);
+        while (index < count - 1)
+        {
+            pathLength -= lastDistance;
+            point = entry + (index * 8) + 8;
+            frame.deltaX = *(f32 *)(point + 0) - frame.currentX;
+            frame.deltaZ = *(f32 *)(point + 4) - frame.currentZ;
+            lastDistance = func_003e41e0(&frame.deltaX, &frame.deltaX);
+            if (lastDistance < pathLength)
+            {
+                *(struct Btl966XZ *)&frame.currentX =
+                    *(struct Btl966XZ *)point;
+                index += 1;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (*(u32 *)(arg0 + 0xC4) & 1)
+            index = count - 1;
+        if (index < count - 1)
+        {
+            frame.nextDeltaX = frame.deltaX * pathLength;
+            frame.nextDeltaZ = frame.deltaZ * pathLength;
+            nextX = frame.currentX + frame.nextDeltaX;
+            currentZ = frame.currentZ;
+            nextZ = currentZ + frame.nextDeltaZ;
+            pointOffset = count * 8;
+            point = (u8 *)(pointOffset + (u32)entry);
+            frame.nextDeltaX = frame.currentX - *(f32 *)(point - 8);
+            frame.nextDeltaZ = currentZ - *(f32 *)(point - 4);
+            lastDistance = func_003e41b0(&frame.nextDeltaX);
+            if (lastDistance < *(f32 *)(arg0 + 0xE8))
+            {
+                lastDistance = (lastDistance + pathLength) -
+                               *(f32 *)(arg0 + 0xE8);
+                frame.nextDeltaX = frame.deltaX * lastDistance;
+                frame.nextDeltaZ = frame.deltaZ * lastDistance;
+                nextX = frame.currentX + frame.nextDeltaX;
+                nextZ = currentZ + frame.nextDeltaZ;
+                *(u32 *)(arg0 + 0xC4) &= ~1;
+                *(u16 *)(arg0 + 0xC8) &= 0xFFFE;
+                *(u16 *)(arg0 + 0xC8) &= 0xFFEF;
+            }
+            finalPos.x = nextX;
+            finalPos.y = *(f32 *)(arg0 + 8);
+            finalPos.z = nextZ;
+            frame.currentX = nextX + frame.deltaX;
+            frame.currentZ = nextZ + frame.deltaZ;
+            targetPos.x = frame.currentX;
+            targetPos.y = finalPos.y;
+            targetPos.z = frame.currentZ;
+        }
+        else
+        {
+            point = entry + (index * 8);
+            finalPos.x = *(f32 *)(point + 0);
+            finalPos.y = *(f32 *)(arg0 + 8);
+            finalPos.z = *(f32 *)(point + 4);
+            targetPos = finalPos;
+            *(u32 *)(arg0 + 0xC4) &= ~1;
+            *(u16 *)(arg0 + 0xC8) &= 0xFFFE;
+            *(u16 *)(arg0 + 0xC8) &= 0xFFEF;
+        }
+        *(RwV3d *)(arg0 + 4) = finalPos;
+        *(u32 *)(arg0 + 0x98) |= 4;
+        *(u16 *)(entry + 0x402) = index;
+        if (!(*(u32 *)(arg0 + 0xC4) & 0x100))
+        {
+            *(RwV3d *)(arg0 + 0xD0) = targetPos;
+        }
+        else
+        {
+            *(RwV3d *)(arg0 + 0xD0) = *(RwV3d *)(arg0 + 0x4F8);
+        }
+        *(u16 *)(arg0 + 0xC8) |= 2;
+    }
+    if (*(u16 *)(arg0 + 0xC8) & 2)
+    {
+        targetPos.x = *(f32 *)(arg0 + 0xD0) - *(f32 *)(arg0 + 4);
+        targetPos.z = *(f32 *)(arg0 + 0xD8) - *(f32 *)(arg0 + 0xC);
+        if (((targetPos.x != 0.0f) ||
+             (targetPos.z != 0.0f)) &&
+            !(*(u32 *)(arg0 + 0x9C) & 0x2000))
+        {
+            turn = fGpffff8048 *
+                   func_0044b950(targetPos.x, targetPos.z);
+            func_003dcb40(&targetPos, &D_0060A0F0, 1,
+                          (RwV3d *)(arg0 + 0x1C));
+            angle = fGpffff8048 *
+                    func_0044b950(targetPos.x, targetPos.z);
+            nextZ = turn - angle;
+            lastDistance =
+                func_0044e7d8(func_0044b310(func_0044dcd8(nextZ)));
+            if ((lastDistance > D_007614c0) &&
+                !(*(u32 *)(arg0 + 0xC4) & 2))
+            {
+                if (lastDistance > 180.0f)
+                {
+                    if (nextZ > 0.0f)
+                        nextZ -= 360.0f;
+                    else
+                    {
+                        angle = 360.0f + nextZ;
+                        nextZ = angle;
+                    }
+                }
+                nextZ /= *(f32 *)(arg0 + 0x4F4);
+                frame.rotation = *(RtQuat *)(arg0 + 0x1C);
+                func_003dc740(&frame.rotation, D_0060A0E0, 2, nextZ);
+            }
+            else
+            {
+                angle = turn;
+                func_003dc740(&frame.rotation, D_0060A0E0, 0, angle);
+                *(u32 *)(arg0 + 0xC4) &= ~2;
+                *(u16 *)(arg0 + 0xC8) &= 0xFFFD;
+            }
+            if (!(*(u32 *)(arg0 + 0x9C) & 0x2000))
+            {
+                *(RtQuat *)(arg0 + 0x1C) = frame.rotation;
+                *(u32 *)(arg0 + 0x98) |= 4;
+            }
+        }
+        else
+        {
+            *(u32 *)(arg0 + 0xC4) &= ~2;
+            *(u16 *)(arg0 + 0xC8) &= 0xFFFD;
+        }
+    }
+    return 0;
+}
 // FUN_001974F0
 u32 func_001974f0(BtlUnitPacketMoveToUnit* packet)
 {

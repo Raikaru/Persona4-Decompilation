@@ -469,12 +469,142 @@ s32 func_00171fe0(u8 *arg0)
 ret1:
     return 1;
 }
-/* measured: retail keeps the compaction-loop temps in $a0/$a1/$a2 with -1 hoisted
-   into $v1 before the loop; mwcc b210 re-materializes -1 in $v0 per iteration and
-   allocates var_6/temp_4 to $a0/$v1. Tried 4 declaration orders plus a -1 local,
-   all nd 10. Register-coalescing floor. */
+/* measured: separate unsigned counters plus opt_loop_invariants reproduce the
+   retail compaction-loop register allocation and hoisted -1 sentinel (MATCH). */
 // FUN_00172360
-INCLUDE_ASM("asm/nonmatchings/k_fldEvent", func_00172360);
+s32 func_00172360(u8 *arg0)
+{
+    u8 *h;
+    u32 count;
+    u8 *entry;
+    u8 *out;
+    s32 *scan;
+    s32 ids[3];
+    FldEventVec3 pos;
+    s32 id;
+    s32 index;
+    u32 scan_i;
+    u32 i;
+    s32 ambience;
+
+    h = *(u8 **)(arg0 + 0x38);
+    *(u16 *)(h + 0x2C) = func_0014be50(
+        (u8 *)func_0047a2f0(
+            *(s32 *)(*(u8 **)(h + 0x18) + 0x164)) + 0x30,
+        &out);
+    id = *(u16 *)(h + 0x2C);
+    if (id != 0xFFFF) {
+        index = id & 0x3FF;
+        if (index >= 0x3FE) {
+            return 0;
+        }
+        if ((u32)index >=
+            *(u32 *)((u8 *)func_00155280() + 0x18D8)) {
+            func_0046d730(D_005F1798, 0x454);
+        }
+
+        id = *(u16 *)(h + 0x2C);
+        entry = *(u8 **)((u8 *)func_00155280() + 0x18DC) +
+                (id & 0x3FF) * 0x2C;
+        if ((entry[0xD] == 1 || entry[0xD] == 3) &&
+            *(u16 *)(h + 0x2E) == id) {
+            return 0;
+        }
+
+        /* measured: hoists the compaction-loop -1 sentinel into $v1 like retail. */
+#pragma opt_loop_invariants on
+        scan = (s32 *)entry;
+        scan_i = 0;
+        count = 0;
+        while (scan_i < 3) {
+            if ((ambience = *scan) != -1) {
+                ids[count] = ambience;
+                count++;
+            }
+            scan_i++;
+            scan++;
+        }
+        i = 0;
+        while (i < count) {
+            if (func_00106330(ids[i]) == 0) {
+                return 0;
+            }
+            i++;
+        }
+
+        ambience = *(u16 *)(entry + 0xE);
+        if (*(s32 *)(h + 0x130) != ambience) {
+            *(s32 *)(h + 0x130) = ambience;
+            if (ambience != 0) {
+                func_0018a010(ambience);
+            } else {
+                func_0018a010(-1);
+            }
+        }
+
+        if (entry[0xC] == 1) {
+            switch (*(s32 *)(entry + 0x20)) {
+            case 0:
+                pos = *(FldEventVec3 *)(out + 0x144);
+                break;
+            case 1:
+                pos.x = *(f32 *)(out + 0x15C) + *(f32 *)(out + 0x168);
+                pos.y = *(f32 *)(out + 0x160) + *(f32 *)(out + 0x16C);
+                pos.z = *(f32 *)(out + 0x164) + *(f32 *)(out + 0x170);
+                pos.x /= 2.0f;
+                pos.y /= 2.0f;
+                pos.z /= 2.0f;
+                break;
+            case 2:
+                pos.x = *(f32 *)(out + 0x15C) + *(f32 *)(out + 0x174);
+                pos.y = *(f32 *)(out + 0x160) + *(f32 *)(out + 0x178);
+                pos.z = *(f32 *)(out + 0x164) + *(f32 *)(out + 0x17C);
+                pos.x /= 2.0f;
+                pos.y /= 2.0f;
+                pos.z /= 2.0f;
+                break;
+            case 3:
+                pos.x = *(f32 *)(out + 0x174) + *(f32 *)(out + 0x180);
+                pos.y = *(f32 *)(out + 0x178) + *(f32 *)(out + 0x184);
+                pos.z = *(f32 *)(out + 0x17C) + *(f32 *)(out + 0x188);
+                pos.x /= 2.0f;
+                pos.y /= 2.0f;
+                pos.z /= 2.0f;
+                break;
+            case 4:
+                pos.x = *(f32 *)(out + 0x168) + *(f32 *)(out + 0x180);
+                pos.y = *(f32 *)(out + 0x16C) + *(f32 *)(out + 0x184);
+                pos.z = *(f32 *)(out + 0x170) + *(f32 *)(out + 0x188);
+                pos.x /= 2.0f;
+                pos.y /= 2.0f;
+                pos.z /= 2.0f;
+                break;
+            }
+            if (func_0014bff0(120.0f,
+                              (u8 *)func_0047a2f0(D_007EFA00[0]),
+                              &pos) == 0) {
+                return 0;
+            }
+        }
+
+        *(s32 *)(h + 0x14) = 1;
+        if (entry[0xD] == 0 || entry[0xD] == 1 ||
+            (D_008C024E[0] & 0x40) != 0) {
+            *(u16 *)(h + 0x2E) = *(u16 *)(h + 0x2C);
+            *(s32 *)(h + 4) = 0;
+            return 1;
+        }
+    } else {
+        if (*(s32 *)(h + 0x130) != 0) {
+            *(s32 *)(h + 0x130) = 0;
+            func_0018a010(-1);
+        }
+        *(u16 *)(h + 0x2E) = 0xFFFF;
+    }
+    return 0;
+}
+/* measured: restore loop-invariant optimization after func_00172360. */
+#pragma opt_loop_invariants off
 /* measured: retail loads the 0x18DC map base before the index multiply, keeps
    the loop head and bottom-test loads of h[0x1C] separate, and shares one
    return-1 block; mwcc b210 inverts the base/index order, CSEs the loop loads,
