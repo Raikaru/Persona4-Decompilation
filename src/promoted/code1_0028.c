@@ -44,6 +44,8 @@ typedef struct {
     u8 pad[0x76C];
     s32 field_76C[15];
 } UnkStruct_002865E0;
+
+
 extern void func_0028b160(s32 *arg0, s32 arg1);
 extern u8 *func_0028afe0(void);
 extern void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
@@ -79,6 +81,11 @@ extern char D_0063C350[];
 extern f32 func_0028f960(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_0028f990(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
                           f32 *arg4);
+typedef signed __int128 s128;
+extern void func_0044ea90(const void *file, s32 line);
+extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
+extern u8 D_00748340[];
+
 
 
 s32 func_00286430(u8 *arg0);
@@ -202,7 +209,149 @@ s32 func_00285cc0(u8 *arg0) {
     return 1;
 }
 // FUN_00285DD0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00285dd0);
+s32 func_00285dd0(s32 arg0) {
+    u8 *data;
+    u8 *entry;
+    u8 *node;
+    u8 *resource;
+    s32 *info;
+    s32 i;
+    s32 flag;
+    s32 result;
+    char path[64];
+
+    data = (u8 *)func_00452560();
+    switch (*(s32 *)(data + 0x76C)) {
+    case 0:
+        *(s32 *)(data + 0x76C) = 1;
+        *(u32 *)(data + 0x770) |= 2;
+    case 1:
+        if ((*(u32 *)(data + 0x770) & 2) &&
+            (*(u32 *)(data + 0x770) & 1)) {
+            *(s32 *)(data + 0x76C) = 2;
+            *(u32 *)(data + 0x770) &= ~2;
+        }
+        break;
+    case 2:
+        *(s32 *)(data + 0x76C) = 3;
+        if (*(s32 *)(data + 0x77C) == 0) {
+            func_0028ad90(data, (*(u32 *)data & 0x80000000) != 0);
+            func_002865e0((UnkStruct_002865E0 *)data);
+            *(u32 *)data |= 1;
+            *(f32 *)(data + 0x750) = func_00457850(func_00457120());
+            *(s32 *)(data + 0x77C) =
+                func_00293ed0(*(s32 *)(data + 0x78C),
+                              *(s32 *)(data + 0x790),
+                              *(s32 *)(data + 0x794),
+                              *(s32 *)(data + 0x788));
+        }
+    case 3:
+        if (func_00293fc0(*(s32 *)(data + 0x77C)) != 0) {
+            flag = (*(u32 *)data & 0x80000000) != 0;
+            if (flag != 0) {
+                *(s32 *)(data + 0x76C) = 4;
+            } else {
+                *(s32 *)(data + 0x76C) = 8;
+            }
+            info = (s32 *)func_00294040(*(s32 *)(data + 0x77C));
+            *(u8 **)(data + 4) = func_0028fb90();
+            func_0028fc40(data + 0x678, *(s32 *)(data + 4),
+                          info[13], info[14], info[15]);
+        }
+        break;
+    case 4:
+        if (func_00285cc0(*(u8 **)(data + 4)) != 0) {
+            *(s32 *)(data + 0x76C) = 5;
+        } else {
+            *(s32 *)(data + 0x76C) = 8;
+            break;
+        }
+    case 5:
+        if (func_00144f60() != 0) {
+            *(s32 *)(data + 0x76C) = 8;
+        }
+        break;
+    case 8:
+        *(s32 *)(data + 0x76C) = 9;
+        node = func_001452b0(3);
+        while (node != NULL) {
+            node = *(u8 **)(node + 0x138);
+        }
+    case 9:
+        *(s32 *)(data + 0x76C) = 10;
+        *(s32 *)(data + 0x5D0) = func_00290f00();
+        i = 0;
+        goto func_00285dd0_loop_check;
+func_00285dd0_loop_body:
+        resource = *(u8 **)(resource + 0x40);
+        entry = resource + i * 0x10;
+        switch (*(s32 *)(entry + 8)) {
+        case 4:
+            func_00290ec0(*(s32 *)(data + 0x5D0),
+                          *(s32 *)(*(u8 **)(data + 4) + 0x10) +
+                              *(s32 *)(entry + 4));
+            break;
+        }
+        i++;
+func_00285dd0_loop_check:
+        resource = (u8 *)((s32 *)data)[1];
+        if (i < *(s32 *)(resource + 0x44)) {
+            goto func_00285dd0_loop_body;
+        }
+        func_00291060(*(s32 *)(data + 0x5D0));
+    case 10:
+        if (func_00291080(*(s32 *)(data + 0x5D0)) != 0) {
+            *(s32 *)(data + 0x76C) = 11;
+        }
+        break;
+    case 11:
+        *(s32 *)(data + 0x76C) = 12;
+        func_00296850(*(s32 *)(data + 4), data);
+    case 12:
+        *(s32 *)(data + 0x76C) = 13;
+        if (*(s8 *)(data + 0x44) & 1) {
+            if (*(s32 *)(data + 0x78C) >= 500) {
+                func_00442088(path, D_0063C340,
+                              *(s32 *)(data + 0x78C));
+            } else {
+                func_00442088(path, D_0063C350,
+                              *(s32 *)(data + 0x78C),
+                              *(s32 *)(data + 0x790));
+            }
+            *(s32 *)(data + 0x780) = func_0045b1c0(arg0, 2, 0, path);
+        } else {
+            *(s32 *)(data + 0x76C) = 14;
+            break;
+        }
+    case 13:
+        if (func_0045b170(*(s32 *)(data + 0x780)) != 0) {
+            *(s32 *)(data + 0x76C) = 14;
+        }
+        break;
+    case 14:
+        *(s32 *)(data + 0x76C) = 0;
+        *(u32 *)(data + 0x770) &= ~1;
+        result = func_00298250(*(s32 *)(data + 0x78C),
+                               *(s32 *)(data + 0x790));
+        if ((result != 1) && (result != 2)) {
+            func_00294040(arg0);
+            result = func_00248d00(*(s32 *)(data + 0x78C),
+                                   *(s32 *)(data + 0x790),
+                                   *(s32 *)(data + 0x794));
+            if (result > 0) {
+                func_00298100(result);
+            }
+        }
+        flag = (*(u32 *)data & 0x80000000) != 0;
+        if (flag != 0) {
+            func_0028b7b0(data);
+        }
+        func_0028b320(data, 0);
+        func_0028b550(data);
+        break;
+    }
+    return 0;
+}
 // FUN_00286240
 void func_00286240(void) {
     s32 *p;
@@ -428,7 +577,275 @@ void func_0028b6b0(u8 *arg0)
     *(s32 *)(arg0 + 0x7A0) = 0;
 }
 // FUN_0028B7B0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028b7b0);
+void func_0028b7b0(u8 *arg0) {
+    u8 *count_node;
+    u8 *copy;
+    u8 *array;
+    u32 allocator;
+    s128 *src128;
+    s128 *dst128;
+    s32 *src32;
+    s32 *dst32;
+    s128 *src128_one;
+    s128 *dst128_one;
+    s128 q_one;
+    s32 n_one;
+    s32 n32;
+    s32 n;
+    s128 q0;
+    s128 q1;
+    s32 word0;
+    s32 word1;
+    s32 count;
+    s32 index;
+    s32 i;
+    s32 type;
+    s32 valid;
+    s32 size;
+
+    count = 0;
+    index = 0;
+    func_0028b6b0(arg0);
+    for (i = 1; i < 0x16; i++) {
+        count_node = func_001452b0(i);
+        if (count_node != NULL) {
+            type = (*(u16 *)count_node & 0xFFC00) >> 10;
+            if (type == 12) {
+                goto func_0028b7b0_count_valid;
+            }
+            if (type == 7) {
+                goto func_0028b7b0_count_valid;
+            }
+            if (type == 6) {
+                goto func_0028b7b0_count_valid;
+            }
+            if (type == 5) {
+                goto func_0028b7b0_count_valid;
+            }
+            if (type == 3) {
+                goto func_0028b7b0_count_valid;
+            }
+            switch (type) {
+            case 1:
+                goto func_0028b7b0_count_valid;
+            default:
+                goto func_0028b7b0_count_invalid;
+            }
+func_0028b7b0_count_valid:
+            valid = 1;
+            goto func_0028b7b0_count_valid_done;
+func_0028b7b0_count_invalid:
+            valid = 0;
+func_0028b7b0_count_valid_done:
+            if (valid != 0) {
+                while (count_node != NULL) {
+                    count++;
+                    count_node = *(u8 **)(count_node + 0x138);
+                }
+            }
+        }
+    }
+    if (count != 0) {
+        *(s32 *)(arg0 + 0x7A0) = count;
+        func_0044ea90(D_00748340, 0x52);
+        size = count * 4;
+        allocator = (u32)D_008873F4;
+        array = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, size, 0x40000);
+        func_002852a0(12, size);
+        *(u8 **)(arg0 + 0x7A4) = array;
+        for (i = 1; i < 0x16; i++) {
+            array = func_001452b0(i);
+            if (array != NULL) {
+                type = (*(u16 *)array & 0xFFC00) >> 10;
+                if (type == 12) {
+                    goto func_0028b7b0_copy_valid;
+                }
+                if (type == 7) {
+                    goto func_0028b7b0_copy_valid;
+                }
+                if (type == 6) {
+                    goto func_0028b7b0_copy_valid;
+                }
+                if (type == 5) {
+                    goto func_0028b7b0_copy_valid;
+                }
+                if (type == 3) {
+                    goto func_0028b7b0_copy_valid;
+                }
+                switch (type) {
+                case 1:
+                    goto func_0028b7b0_copy_valid;
+                default:
+                    goto func_0028b7b0_copy_invalid;
+                }
+func_0028b7b0_copy_valid:
+                valid = 1;
+                goto func_0028b7b0_copy_valid_done;
+func_0028b7b0_copy_invalid:
+                valid = 0;
+func_0028b7b0_copy_valid_done:
+                if (valid != 0) {
+                    while (array != NULL) {
+                        copy = NULL;
+                        type = (*(u16 *)array & 0xFFC00) >> 10;
+                        switch (type) {
+                        case 1:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x230, 0x40000);
+                            func_002852a0(12, 0x230);
+                            n_one = 0x23;
+                            src128_one = (s128 *)array;
+                            dst128_one = (s128 *)copy;
+                            do {
+                                q_one = *src128_one;
+                                src128_one++;
+                                n_one--;
+                                *dst128_one = q_one;
+                                dst128_one++;
+                            } while (n_one > 0);
+                            break;
+                        case 3:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x370, 0x40000);
+                            func_002852a0(12, 0x370);
+                            n_one = 0x37;
+                            src128_one = (s128 *)array;
+                            dst128_one = (s128 *)copy;
+                            do {
+                                q_one = *src128_one;
+                                src128_one++;
+                                n_one--;
+                                *dst128_one = q_one;
+                                dst128_one++;
+                            } while (n_one > 0);
+                            break;
+                        case 5:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x200, 0x40000);
+                            func_002852a0(12, 0x200);
+                            n = 0x10;
+                            src128 = (s128 *)array;
+                            dst128 = (s128 *)copy;
+                            do {
+                                q0 = src128[0];
+                                q1 = src128[1];
+                                src128 += 2;
+                                n--;
+                                dst128[0] = q0;
+                                dst128[1] = q1;
+                                dst128 += 2;
+                            } while (n > 0);
+                            break;
+                        case 6:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x148, 0x40000);
+                            func_002852a0(12, 0x148);
+                            n32 = 0x29;
+                            src32 = (s32 *)array;
+                            dst32 = (s32 *)copy;
+                            do {
+                                word0 = src32[0];
+                                word1 = src32[1];
+                                src32 += 2;
+                                n32--;
+                                dst32[0] = word0;
+                                dst32[1] = word1;
+                                dst32 += 2;
+                            } while (n32 > 0);
+                            break;
+                        case 7:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x150, 0x40000);
+                            func_002852a0(12, 0x150);
+                            n32 = 0x2A;
+                            src32 = (s32 *)array;
+                            dst32 = (s32 *)copy;
+                            do {
+                                word0 = src32[0];
+                                word1 = src32[1];
+                                src32 += 2;
+                                n32--;
+                                dst32[0] = word0;
+                                dst32[1] = word1;
+                                dst32 += 2;
+                            } while (n32 > 0);
+                            break;
+                        case 8:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x140, 0x40000);
+                            func_002852a0(12, 0x140);
+                            n32 = 0x28;
+                            src32 = (s32 *)array;
+                            dst32 = (s32 *)copy;
+                            do {
+                                word0 = src32[0];
+                                word1 = src32[1];
+                                src32 += 2;
+                                n32--;
+                                dst32[0] = word0;
+                                dst32[1] = word1;
+                                dst32 += 2;
+                            } while (n32 > 0);
+                            break;
+                        case 9:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x148, 0x40000);
+                            func_002852a0(12, 0x148);
+                            n32 = 0x29;
+                            src32 = (s32 *)array;
+                            dst32 = (s32 *)copy;
+                            do {
+                                word0 = src32[0];
+                                word1 = src32[1];
+                                src32 += 2;
+                                n32--;
+                                dst32[0] = word0;
+                                dst32[1] = word1;
+                                dst32 += 2;
+                            } while (n32 > 0);
+                            break;
+                        case 10:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x170, 0x40000);
+                            func_002852a0(12, 0x170);
+                            n32 = 0x2E;
+                            src32 = (s32 *)array;
+                            dst32 = (s32 *)copy;
+                            do {
+                                word0 = src32[0];
+                                word1 = src32[1];
+                                src32 += 2;
+                                n32--;
+                                dst32[0] = word0;
+                                dst32[1] = word1;
+                                dst32 += 2;
+                            } while (n32 > 0);
+                            break;
+                        case 12:
+                            func_0044ea90(D_00748340, 0x52);
+                            copy = ((u8 *(*)(s32, s32, s32))*(u32 *)allocator)(1, 0x1B0, 0x40000);
+                            func_002852a0(12, 0x1B0);
+                            n_one = 0x1B;
+                            src128_one = (s128 *)array;
+                            dst128_one = (s128 *)copy;
+                            do {
+                                q_one = *src128_one;
+                                src128_one++;
+                                n_one--;
+                                *dst128_one = q_one;
+                                dst128_one++;
+                            } while (n_one > 0);
+                            break;
+                        }
+                        *(u8 **)(*(u8 **)(arg0 + 0x7A4) + index * 4) = copy;
+                        array = *(u8 **)(array + 0x138);
+                        index++;
+                    }
+                }
+            }
+        }
+    }
+}
 // FUN_0028BE70
 void func_0028be70(u8 *arg0, s32 arg1)
 {
