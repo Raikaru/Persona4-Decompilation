@@ -44,8 +44,8 @@ extern s32 func_003d4f20(s32 arg0);
 extern void (*jtbl_008873EC[])();
 extern s32 func_003e2ab0();
 extern s32 func_003de8c0(u8 *arg0, s32 arg1);
-extern void func_003d59d0(f32 arg0);
-extern void func_003d5bc0(f32 arg0);
+extern s32 func_003d59d0(u8 *arg0, f32 amount);
+extern s32 func_003d5bc0(u8 *arg0, f32 amount);
 extern s32 iGpffffb738;
 extern s32 iGpffffb734;
 extern void func_003e12f0();
@@ -60,6 +60,13 @@ extern s32 func_003c8d60();
 extern s32 D_00886E50[];
 extern s32 func_003df590(s64 arg0, ...);
 extern u8 *func_003df4d0();
+extern void func_003d5840(u8 *arg0, u8 *arg1);
+
+extern s32 **func_003ddc10(void);
+extern void func_00421800(s32 arg0);
+extern void func_00421820(s32 arg0);
+extern s32 iGpffffb754;
+
 
 static inline s32 func_003d_add_offset(s32 base, s32 offset) {
     return base + offset;
@@ -639,9 +646,9 @@ s32 func_003d5e40(u8 *arg0, f32 fparg0) {
 
     value = fparg0 - *(f32 *)(arg0 + 4);
     if (value < 0.0f) {
-        func_003d59d0(-value);
+        func_003d59d0(arg0, -value);
     } else {
-        func_003d5bc0(value);
+        func_003d5bc0(arg0, value);
     }
     return 1;
 }

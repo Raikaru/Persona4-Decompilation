@@ -60,6 +60,28 @@ extern s32 iGpffffb6b4;
 extern void (*D_00887300[])(s32, s32);
 extern void (*D_00887304[])(s32, void *);
 extern s32 iGpffffb6f0;
+extern s32 func_003e3370(void *arg0, s32 arg1);
+extern void func_003b4ab0(void);
+extern void func_003b4c10(void);
+extern void func_003b4db0(void);
+extern void func_003b4ff0(void);
+extern void func_003b5160(void);
+extern void func_003b53b0(void);
+extern void func_003b5650(void);
+extern void func_003b5820(void);
+extern void func_003b5ac0(void);
+extern void func_003b5bf0(void);
+extern void func_003b5d20(void);
+extern void func_003b5fb0(void);
+extern void func_003b6020(void);
+extern void func_003b61e0(void);
+extern void func_003b6390(void);
+extern void func_003b6420(void);
+extern void func_003b64c0(void);
+extern void func_003b6540(void);
+extern void func_003b65d0(void);
+extern void func_003b6680(void);
+extern u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
@@ -108,8 +130,122 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4230);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b42e0);
 // FUN_003B4470
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4470);
+// measured: schedule on fills callback-selection branch delay slots like retail.
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003B47F0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b47f0);
+void func_003b47f0(s32 arg0) {
+    u8 *obj;
+    u8 *obj2;
+    s32 flags;
+    void (*callback)(void);
+
+    callback = func_003b6680;
+    obj = *(u8 **)((u8 *)arg0 + iGpffffb6f0);
+    *(void (**)(void))(obj + 0x24) = callback;
+    flags = *(s32 *)(obj + 0xA8);
+    obj2 = obj + 0x50;
+    if ((flags & 8) == 8) {
+        if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003b5bf0;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003b5ac0;
+        }
+    } else if ((flags & 0x8000) == 0x8000) {
+        if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003b4c10;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003b4ab0;
+        }
+    } else if ((flags & 0x20) == 0x20) {
+        if ((flags & 4) == 4) {
+            if ((flags & 0x01000000) == 0x01000000) {
+                *(void (**)(void))(obj + 0x28) = func_003b5820;
+            } else {
+                *(void (**)(void))(obj + 0x28) = func_003b5160;
+            }
+        } else if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003b53b0;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003b4db0;
+        }
+    } else if ((flags & 4) == 4) {
+        if ((flags & 0x01000000) == 0x01000000) {
+            *(void (**)(void))(obj + 0x28) = func_003b5650;
+        } else {
+            *(void (**)(void))(obj + 0x28) = func_003b4ff0;
+        }
+    } else if ((flags & 0x01000000) == 0x01000000) {
+        *(void (**)(void))(obj + 0x28) = func_003b4c10;
+    } else {
+        *(void (**)(void))(obj + 0x28) = func_003b4ab0;
+    }
+
+    flags = *(s32 *)(obj2 + 0x58);
+    if ((flags & 0x80) == 0x80) {
+        goto stage2_6390;
+    }
+    if ((flags & 0x100) == 0x100) {
+        goto stage2_6420;
+    }
+    if ((flags & 0x80000) == 0x80000) {
+        goto stage2_64c0;
+    }
+    if ((flags & 0x100000) == 0x100000) {
+        *(void (**)(void))(obj + 0x2C) = func_003b6540;
+        goto stage3;
+    }
+    *(void (**)(void))(obj + 0x2C) = NULL;
+
+stage3:
+    flags = *(s32 *)(obj2 + 0x58);
+    if ((flags & 2) == 2) {
+        goto stage3_5d20;
+    }
+    if ((flags & 0x40) == 0x40) {
+        goto stage3_5fb0;
+    }
+    if ((flags & 0x40000) == 0x40000) {
+        *(void (**)(void))(obj + 0x30) = func_003b6020;
+        goto stage4;
+    }
+    *(void (**)(void))(obj + 0x30) = func_003b61e0;
+
+stage4:
+    flags = *(s32 *)(obj2 + 0x58);
+    if ((flags & 0x10) == 0x10) {
+        *(void (**)(void))(obj + 0x34) = func_003b65d0;
+        goto finish;
+    }
+    *(void (**)(void))(obj + 0x34) = NULL;
+
+finish:
+    *(void (**)(void))(obj + 0x38) = (void (*)(void))func_003b6cb0;
+    return;
+
+stage2_6390:
+    *(void (**)(void))(obj + 0x2C) = func_003b6390;
+    goto stage3;
+
+stage2_6420:
+    *(void (**)(void))(obj + 0x2C) = func_003b6420;
+    goto stage3;
+
+stage2_64c0:
+    *(void (**)(void))(obj + 0x2C) = func_003b64c0;
+    goto stage3;
+
+stage3_5d20:
+    *(void (**)(void))(obj + 0x30) = func_003b5d20;
+    goto stage4;
+
+stage3_5fb0:
+    *(void (**)(void))(obj + 0x30) = func_003b5fb0;
+    goto stage4;
+
+}
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003B4AB0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b4ab0);
 // FUN_003B4C10
@@ -839,15 +975,6 @@ s32 func_003bd110(s32 arg0)
 #pragma schedule off
 /* measured: no_branch_likely off closes the one-function 003bd110 probe. */
 #pragma no_branch_likely off
-
-/* measured: the flat early-return chain is nd 43 -- b210 inverts every test
-   and lays the early exits inline, while retail orders the blocks
-   [func1 test][retarg][ret0][do2].  Writing that exact block order with
-   explicit label targets (retarg = shared `return arg0`, ret0 = `return 0`,
-   do2 = second guarded call) makes it byte-exact (nd 43 -> MATCH).
-   #pragma no_branch_likely is load-bearing: without it the same body measures
-   nd 46 (b210 emits bnel/beql).  Three functions in this file share the shape,
-   differing only in the two gp-relative operands. */
 
 // FUN_003BD160
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd160);

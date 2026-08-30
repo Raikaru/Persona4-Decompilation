@@ -73,6 +73,7 @@ static inline f32 func_00267800_mul(f32 left, f32 right)
 extern char iGpffffa6c4;
 extern void (*D_00887300[])(u32 state, u32 value);
 extern u8 D_00881530[];
+extern u8 D_0063BA30[];
 typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(s32, s32, s8 *, s32, s32, s32, f32, f32, f32);
 static inline u32 *func_0026e010_add_offset(s32 offset, u32 *base)
@@ -96,7 +97,7 @@ extern s32 func_00106880(s16 arg0);
 
 extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
-extern void func_00266cc0(void);
+extern void func_00266cc0(s32 arg0, s32 arg1);
 
 extern void func_0025f230(void *arg0);
 extern void (*jtbl_008873EC[])(u8 *arg0);
@@ -1360,7 +1361,6 @@ s32 func_0026ef00(s32 arg0, u8 *arg1)
     iGpffffb4bc = 0;
     return 0;
 }
-extern u8 D_0063BA30[];
 /* measured: opt_common_subs off reconstructs the retail packed-index sequence for func_0026ef60. */
 #pragma opt_common_subs off
 /* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for func_0026ef60. */
