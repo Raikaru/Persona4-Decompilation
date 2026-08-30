@@ -31,6 +31,9 @@ extern s32 func_002e6b20(s16 *arg0, s16 *arg1);
 extern s32 func_002e6630(s16 *arg0, s16 *arg1);
 extern s32 func_00440bb8();
 extern void *func_0010fcb0();
+extern s32 func_0010aa80(s32 arg0);
+extern u16 *func_0010ac10(s32 arg0);
+
 extern void func_0010cad0(void *dest, u16 id);
 extern s16 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00311d00(u16 id);
@@ -499,24 +502,130 @@ s16 func_002e54c0(s8 arg0, s16 arg1) {
 /* measured: see the annotation above the matching `on` pragma (func_002e54c0). */
 #pragma opt_loop_invariants off
 
-/* measured: structure fully recovered (entry null-check, arg2==0 path with
-   the 748D70 switch + func_0010cad0, else path with func_0010aa80 == -1
-   check, three re-indexed D_00882F70[(s8)arg0]+0x38 chains with the 748D40 /
-   748D10 / 748CE0 switches, q[4]=0 and the ac10/memcpy variants, and the
-   trailing count++ via slotp) but mwcc b210 CSEs re-indexes 2 and 3 into the
-   freed arg0 register (byte-arith `(u8*)D_00882F70+(u32)(s8)arg0*4` keeps
-   re-index 1's full dsll32/dsra32/sll/lui/addiu/addu chain but the result
-   lands in $s0 and survives the cad0 calls, so 2/3 reload from it; retail
-   rematerializes from saved arg0 every time, nd 6 in that region) and the
-   saved registers are rotated (mine arg0=$s0 slotp=$s1 arg1=$s2 vs retail
-   slotp=$s0 arg1=$s1 arg0=$s2). The rotation is independent of declaration
-   order, block scoping, entry-init shape and `<<2`/`*4`/`&D[0]` spellings
-   (9 shapes, all nd 125); a shared slot local inflates the frame to 0x50,
-   per-path slot locals give 904B/nd 125 at a 928B window. Saved-reg
-   rotation + selective load-CSE floor, best nd 125. */
+/* measured: direct C reconstruction. Disabling common-subexpression
+   elimination preserves retail's repeated D_00882F70[arg0] address
+   materialization; explicit (u16)arg1 preserves ac10's 16-bit argument. */
+#pragma opt_common_subs off
 // FUN_002E55C0
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e55c0);
+void func_002e55c0(s8 arg0, s32 arg1, s8 arg2) {
+    u8 **entryp;
+    u8 *entry;
 
+    entryp = &D_00882F70[arg0];
+    entry = *entryp;
+    if (entry != NULL) {
+        if (arg2 == 0) {
+            u8 *p;
+            u8 *q;
+            s16 index;
+
+            p = *(u8 **)(entry + 0x38);
+            index = *(s16 *)(p + 8);
+            switch (*(s32 *)(p + 4)) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+                q = p + ((index * 3) * 0x10) + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                q = p + ((index * 3) * 0x10) + 0xA4;
+                break;
+            default:
+                q = p + ((index * 3) * 0x10) + 0x14;
+                break;
+            }
+            func_0010cad0(q, arg1 & 0xFFFF);
+        } else if ((s16)func_0010aa80(arg1) == -1) {
+            {
+                u8 *p;
+                u8 *q;
+                s16 index;
+
+                p = *(u8 **)(D_00882F70[arg0] + 0x38);
+                index = *(s16 *)(p + 8);
+                switch (*(s32 *)(p + 4)) {
+                case 0:
+                case 2:
+                case 7:
+                case 8:
+                    q = p + ((index * 3) * 0x10) + 0x14;
+                    break;
+                case 1:
+                case 5:
+                case 6:
+                case 10:
+                    q = p + ((index * 3) * 0x10) + 0xA4;
+                    break;
+                default:
+                    q = p + ((index * 3) * 0x10) + 0x14;
+                    break;
+                }
+                func_0010cad0(q, arg1 & 0xFFFF);
+            }
+            {
+                u8 *p;
+                u8 *q;
+                s16 index;
+
+                p = *(u8 **)(D_00882F70[arg0] + 0x38);
+                index = *(s16 *)(p + 8);
+                switch (*(s32 *)(p + 4)) {
+                case 0:
+                case 2:
+                case 7:
+                case 8:
+                    q = p + ((index * 3) * 0x10) + 0x14;
+                    break;
+                case 1:
+                case 5:
+                case 6:
+                case 10:
+                    q = p + ((index * 3) * 0x10) + 0xA4;
+                    break;
+                default:
+                    q = p + ((index * 3) * 0x10) + 0x14;
+                    break;
+                }
+                *(u8 *)(q + 4) = 0;
+            }
+        } else {
+            u8 *p;
+            u8 *q;
+            u16 *src;
+            s16 index;
+
+            p = *(u8 **)(D_00882F70[arg0] + 0x38);
+            index = *(s16 *)(p + 8);
+            switch (*(s32 *)(p + 4)) {
+            case 0:
+            case 2:
+            case 7:
+            case 8:
+                q = p + ((index * 3) * 0x10) + 0x14;
+                break;
+            case 1:
+            case 5:
+            case 6:
+            case 10:
+                q = p + ((index * 3) * 0x10) + 0xA4;
+                break;
+            default:
+                q = p + ((index * 3) * 0x10) + 0x14;
+                break;
+            }
+            src = func_0010ac10((u16)arg1);
+            func_0043f810(q, src, 0x30);
+        }
+        (*(s32 *)(*(u8 **)(*entryp + 0x38) + 8))++;
+    }
+}
+
+/* measured: restore common-subexpression elimination after func_002e55c0. */
+#pragma opt_common_subs on
 // FUN_002E5960
 void func_002e5960(s8 arg0) {
     u8 *p;
