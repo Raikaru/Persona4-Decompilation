@@ -2014,7 +2014,6 @@ func_00249670 = 0x00249670; // type:data
 func_00249770 = 0x00249770; // type:data
 func_00249960 = 0x00249960; // type:data
 func_00249a60 = 0x00249a60; // type:data
-func_0024c0e0 = 0x0024c0e0; // type:data
 func_0024c460 = 0x0024c460; // type:data
 func_0024d1f0 = 0x0024d1f0; // type:data
 func_0024f160 = 0x0024f160; // type:data

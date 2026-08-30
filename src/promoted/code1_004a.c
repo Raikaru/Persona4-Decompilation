@@ -630,6 +630,7 @@ void func_004a77b0(void) {
 
 // FUN_004A7830
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7830);
+
 // FUN_004A7A50
 void func_004a7a50(void) {
     func_003e9c10(D_00724C70, D_00922D80, 0);

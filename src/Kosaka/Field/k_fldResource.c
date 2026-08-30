@@ -117,6 +117,7 @@ extern s32 iGpffffb200;   /* gp - 0x4E00 = 0x007642F0 */
 extern s32 iGpffffb204;   /* gp - 0x4DFC = 0x007642F4 */
 extern u8 iGpffff9df0;    /* gp - 0x6210 = 0x00762EE0 */
 
+
 // FUN_0014EED0
 void func_0014eed0(s32 arg0, s32 arg1)
 {

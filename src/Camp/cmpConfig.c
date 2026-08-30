@@ -17,7 +17,7 @@ s32 func_00451fc0(s32 arg0, u8* name, s32 prio, s32 a3, s32 a4,
                   void (*init)(u8*), void (*close)(u8*), u8* work);
 void func_0034c260(s32 arg0);
 void* func_0046a770(char* arg0);
-s32 func_0046d200(void* arg0, u8 arg1);
+s32 func_0046d200();
 s32 func_00106330(s32 arg0);
 void func_00113480(s32 a, s32 b, s32 c, s32 d);
 void func_0045af60(s32 a, s32 b, s32 c, s32 d);
@@ -111,15 +111,65 @@ s32 func_0035c810(u8 *arg0) {
     return (s32)((*(u8 **)((s8 *)arg0 + 0x38))[4] & 2) != 0;
 }
 
-/* measured: four 16-bit-counter loops (var_3/var_6/var_16/var_16_2) keep
-   sign-extending via dsll32/dsra32. Retail places the sign-extension in the
-   loop CONDITION and reuses $v0 in the body; b210 re-sign-extends the counter
-   at the top of each body (extra 8B/loop) and allocates arg0 to $s1 instead
-   of retail's $s2. s16-while (nd 131), s64-(s64)(x<<0x30)>>0x30-if+goto
-   (bgtz/daddiu 64-bit ops, nd >200), and s64-while(1)+break all diverge.
-   s16 counter loop sign-extension placement + register allocation floor. */
 // FUN_0035C830
-INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035c830);
+void func_0035c830(u8* arg0) {
+    s32 resource;
+    s16 i;
+    s16 j;
+    s16 k;
+    s16 m;
+    u8* table;
+    u8* src;
+    u8* dst;
+    u8 code;
+    s32 result;
+
+    *(s32 *)(arg0 + 0x20) = -1;
+    func_0035ce10(arg0, 0);
+    *(s32 *)(arg0 + 0x08) = 0;
+    *(s32 *)(arg0 + 0x0C) = 0;
+    *(u8 *)(arg0 + 0x00) = 0xFF;
+    *(s32 *)(arg0 + 0x18) = 0;
+    *(s32 *)(arg0 + 0x20) = -1;
+    for (i = 0; i <= 0; i++) {
+        *(s32 *)(arg0 + i * 4 + 0x30) = 0;
+    }
+    j = 0;
+    table = D_0064D070;
+    for (; j < 18; j++) {
+        src = table + j * 20;
+        dst = arg0 + j * 48;
+        *(f32 *)(dst + 0x88) = *(f32 *)(src + 0x00);
+        *(f32 *)(dst + 0x8C) = *(f32 *)(src + 0x04);
+        *(u8 *)(dst + 0x92) = *(u8 *)(src + 0x08);
+    }
+    resource = (s32)(u32)func_0046a770((char *)D_005E5850);
+    if (resource == 0) {
+        func_0046d730(D_0064D3C8, 0x12F);
+    }
+    result = (s32)(u32)func_0046a770((char *)D_005E57F0);
+    *(s32 *)(arg0 + 0x474) = result;
+    for (k = 0; k < 11; k++) {
+        dst = arg0 + k * 4 + 0x448;
+        code = D_0064D3B8[k];
+        *(s32 *)dst = func_0046d200(resource, code);
+        if (*(s32 *)dst == 0) {
+            func_0046d730(D_0064D3C8, 0x136);
+        }
+    }
+    for (m = 0; m < 6; m++) {
+        *(u16 *)(arg0 + m * 2 + 0x3A) = 5;
+        result = func_00106330(D_0064D3A0[m]);
+        if (result != 0) {
+            *(s32 *)(arg0 + m * 4 + 0x60) = 0;
+            *(s32 *)(arg0 + m * 4 + 0x48) = 1;
+        } else {
+            *(s32 *)(arg0 + m * 4 + 0x60) = 1;
+            *(s32 *)(arg0 + m * 4 + 0x48) = 0;
+        }
+    }
+}
+
 
 // FUN_0035CAB0
 s32 func_0035cab0(u8 *arg0, s32 idx, s32 val) {
@@ -138,26 +188,51 @@ s32 func_0035cab0(u8 *arg0, s32 idx, s32 val) {
     return 1;
 }
 
-/* measured: retail computes the (v==0) boolean (sltu/xori) in the entry block
-   and branches on it with bnez (hoisted before the idx==1 bne), keeps `idx*4`
-   in $s2 with the +arg0 sum recomputed as a transient at each use, and merges
-   all r=1 assignments at one join label. mwcc b210 folds every spelling of the
-   test (v==0 / !(v!=0) / v==0||X==0 / !(v!=0&&X!=0), with and without a named
-   bool local, if/else-if chains and goto-join CFGs) to an inline beqz, keeps
-   the sum (not idx*4) persistent in $s2, and fails to merge the r=1 tails;
-   best measured variant nd 60-90 with frame/window equal. Compiler-floor
-   register/booleanization shape; INCLUDE_ASM restored. */
 // FUN_0035CB00
-INCLUDE_ASM("asm/nonmatchings/cmpConfig", func_0035cb00);
+s32 func_0035cb00(u8* arg0, s32 idx) {
+    s32 scaled;
+    s32 scaled2;
+    s32* state_ptr;
+    s32 state;
+    s32 state_zero;
+    s32 allowed;
+    s32 temp;
+
+    scaled = idx * 4;
+    state_ptr = (s32 *)(scaled + (u32)arg0 + 0x48);
+    state = *state_ptr;
+    state_zero = ((u32)*state_ptr != 0) ^ 1;
+    if (idx == 1) {
+        if ((state_zero == 0) && (*(s32 *)(arg0 + 0x50) != 0)) {
+            func_0035cc80(arg0, 2, 0);
+        }
+    } else if ((idx == 2) && (*(s32 *)(arg0 + 0x4C) == 0)) {
+        func_0045af60(0, 0, 0, 8);
+        allowed = 0;
+        goto done;
+    }
+    allowed = 1;
+done:
+    if (allowed != 0) {
+        goto apply;
+    }
+    return 0;
+apply:
+    *(s32 *)(scaled + (int)arg0 + 0x60) = state;
+    *state_ptr = ((u32)state > 0) ^ 1;
+    scaled2 = idx * 2;
+    *(u16 *)(scaled2 + (int)arg0 + 0x3A) = 0;
+    if ((idx == 0) && (*state_ptr == 1)) {
+        temp = func_00106330(D_0064D3A0[0]);
+        func_00106390(D_0064D3A0[0], 1);
+        func_00113480(0xA, 0x96, 0xA, 0);
+        func_00106390(D_0064D3A0[0], temp);
+    }
+    return 1;
+}
 
 
 
-/* matched: a ConfigEntry field-pointer for the first state load preserves
-   retail's addiu 0x48 address materialization while direct scaled
-   base-plus-index expressions preserve the two index-first addu instructions.
-   The final arg1==0 callback test must dereference that same state pointer;
-   using temp_2+0x48 emits the wrong lw displacement. Measured object
-   388B/window 400B, normalized_diff 0. */
 // FUN_0035CC80
 s32 func_0035cc80(u8 *arg0, s32 arg1, s32 arg2)
 {
