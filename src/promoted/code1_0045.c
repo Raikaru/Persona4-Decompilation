@@ -9,12 +9,25 @@ extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3,
 extern void func_00446ed8(void *buf, s32 fmt, void *va);
 extern void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2);
 extern s32 iGpffffb9e8;
-extern void (*D_00887300[])(u32, u32);
+extern void (*D_00887300[])();
 extern void (*D_00887310[])(s32, void *, s32);
 static inline f32 add_f32(f32 a, f32 b) {
     return a + b;
 }
 extern u8 *iGpffffb9e0;
+extern void func_0043f9c8(void *dst, s32 value, s32 size);
+extern void func_003f6440(s32 param, s32 value);
+extern void (*D_00887304[])();
+extern void (*D_008873EC[])();
+extern u8 D_007124C0[];
+typedef struct {
+    f32 v[4];
+} Code45Float4;
+extern s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z);
+extern struct {
+    s32 state;
+    s32 val;
+} D_00712490[6];
 extern s32 iGpffffac74;
 extern s32 iGpffffad88;
 extern s16 iGpffffba1c;
@@ -986,15 +999,196 @@ s16 func_0045b400(void)
 // FUN_0045B430
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045b430);
 // FUN_0045C870
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045c870);
+void func_0045c870(u8 *colors, s32 enabled)
+{
+    struct {
+        s32 saved[6];
+        u8 pad1[8];
+        f32 out[64];
+    } work;
+    f32 depth;
+    s32 state;
+    f32 inv;
+    s32 *p;
+    u32 i;
+    u32 j;
+
+    if (enabled != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)&work.saved[i]);
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+    }
+    depth = D_008872F8_abs[0];
+    state = func_00457120();
+    inv = 1.0f / *(f32 *)((u8 *)state + 0x80);
+
+    work.out[0] = 0.0f;
+    work.out[1] = 0.0f;
+    work.out[2] = depth;
+    work.out[8] = (f32)colors[0];
+    work.out[9] = (f32)colors[1];
+    work.out[10] = (f32)colors[2];
+    work.out[11] = (f32)colors[3];
+    work.out[6] = inv;
+    work.out[16] = 0.0f;
+    work.out[17] = 448.0f;
+    work.out[18] = depth;
+    work.out[24] = (f32)colors[0];
+    work.out[25] = (f32)colors[1];
+    work.out[26] = (f32)colors[2];
+    work.out[27] = (f32)colors[3];
+    work.out[22] = inv;
+    work.out[32] = 640.0f;
+    work.out[33] = 0.0f;
+    work.out[34] = depth;
+    work.out[40] = (f32)colors[0];
+    work.out[41] = (f32)colors[1];
+    work.out[42] = (f32)colors[2];
+    work.out[43] = (f32)colors[3];
+    work.out[38] = inv;
+    work.out[48] = 640.0f;
+    work.out[49] = 448.0f;
+    work.out[50] = depth;
+    work.out[56] = (f32)colors[0];
+    work.out[57] = (f32)colors[1];
+    work.out[58] = (f32)colors[2];
+    work.out[59] = (f32)colors[3];
+    work.out[54] = inv;
+    D_00887310[0](4, work.out, 4);
+    if (enabled != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], work.saved[j]);
+        }
+    }
+    return;
+}
 // FUN_0045CE40
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045ce40);
+s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z)
+{
+    f32 *v7;
+    s32 result;
+    f32 inv;
+
+    v7 = out;
+    result = func_00457120();
+    inv = 1.0f / *(f32 *)((u8 *)result + 0x80);
+    z = D_008872F8_abs[0] - z;
+    v7[0] = (f32)pos[0];
+    v7[1] = (f32)pos[1];
+    v7[2] = z;
+    v7[8] = (f32)colors[0];
+    v7[9] = (f32)colors[1];
+    v7[10] = (f32)colors[2];
+    v7[11] = (f32)colors[3];
+    v7[6] = inv;
+    v7[16] = (f32)(pos[0] + pos[2]);
+    v7[17] = (f32)pos[1];
+    v7[18] = z;
+    v7[24] = (f32)colors[0];
+    v7[25] = (f32)colors[1];
+    v7[26] = (f32)colors[2];
+    v7[27] = (f32)colors[3];
+    v7[22] = inv;
+    v7[32] = (f32)pos[0];
+    v7[33] = (f32)(pos[1] + pos[3]);
+    v7[34] = z;
+    v7[40] = (f32)colors[0];
+    v7[41] = (f32)colors[1];
+    v7[42] = (f32)colors[2];
+    v7[43] = (f32)colors[3];
+    v7[38] = inv;
+    v7[48] = (f32)(pos[0] + pos[2]);
+    v7[49] = (f32)(pos[1] + pos[3]);
+    v7[50] = z;
+    v7[56] = (f32)colors[0];
+    v7[57] = (f32)colors[1];
+    v7[58] = (f32)colors[2];
+    v7[59] = (f32)colors[3];
+    v7[54] = inv;
+    return result;
+}
 // FUN_0045D370
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045d370);
 // FUN_0045D6E0
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045d6e0);
+void func_0045d6e0(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2)
+{
+    struct {
+        s32 saved[6];
+        u8 pad1[8];
+        f32 out;
+        u8 pad2[0xFC];
+        Code45Float4 pos;
+    } work;
+    u32 i;
+    u32 j;
+    s32 *p;
+
+    work.pos = *(Code45Float4 *)arg1;
+    if (arg2 != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)((u8 *)work.saved + i * 4));
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+    }
+    func_0043f9c8(&work.out, 0, 0x100);
+    func_0045ce40(&work.out, arg0, (s32 *)&work.pos, fparg0);
+    D_00887310[0](4, &work.out, 4);
+    if (arg2 != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], *((s32 *)((u8 *)work.saved + j * 4)));
+        }
+    }
+}
 // FUN_0045D890
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045d890);
+void func_0045d890(void *unused, u8 *arg1)
+{
+    struct {
+        Code45Float4 pos;
+        s32 saved[6];
+        u8 pad1[8];
+        f32 out;
+        u8 pad2[0xFC];
+    } work;
+    f32 scale;
+    s32 enabled;
+    s32 *p;
+    u32 i;
+    u32 j;
+
+    work.pos = *(Code45Float4 *)(arg1 + 4);
+    scale = *(f32 *)(arg1 + 0x14);
+    enabled = *(s32 *)(arg1 + 0x18);
+    if (enabled != 0) {
+        for (i = 0; i < 6; i++) {
+            p = (s32 *)&D_00712490[i];
+            D_00887304[0](p[0], (void *)&work.saved[i]);
+            D_00887300[0](p[0], p[1]);
+        }
+        D_00887300[0](1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+    }
+    func_0045ce40(&work.out, arg1, (s32 *)&work.pos, scale);
+    D_00887310[0](4, &work.out, 4);
+    if (enabled != 0) {
+        for (j = 0; j < 6; j++) {
+            p = (s32 *)&D_00712490[j];
+            D_00887300[0](p[0], work.saved[j]);
+        }
+    }
+    D_008873EC[0](arg1);
+}
 /* measured: archived body object 148B vs window 160B, normalized_diff 4; first differing instruction at offset 120 is retail daddu $a3,$a2,$zero while baseline emits li $a3,3; offset 124 is relocated jal. Candidate 148B has zero tail through 159. Residual is 64-bit call-argument materialization: retail words are daddu $a0,$s1; addiu $a2,$zero,3; daddu $a3,$a2,$zero; candidate words are move $a0,$t1; li $a2,3; li $a3,3. Scoped f32 * second-parameter and u8 * sixth-parameter prototype was tested; u64/s64 third/fourth parameter prototypes also tested, but MWCC still emitted the baseline sequence. Ruled out struct-vs-array aggregate, cached pointer declaration/initialization order, direct-vs-local color loads, repeated load aliases, count locals s32/s16/s8/s64/u32 and declaration timing, callee parameter widths u32/s32 and pointer forms, u64/s64 callee third/fourth positions, call-local argument assignments and all declaration/assignment order permutations, pointer arithmetic/identity assignments, O1/schedule/O3/tailcall/propagation/common-subexpression pragmas, mixed literal/count call order, helper wrappers, nested blocks, aliases, unions, and explicit argument locals. volatile and inline asm not used. */
 // FUN_0045ED60
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045ed60);

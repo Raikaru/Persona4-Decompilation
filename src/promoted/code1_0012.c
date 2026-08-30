@@ -1740,8 +1740,126 @@ block_loop:
     }
     return var_16 & func_0034c210();
 }
+/* measured: opt_loop_invariants on hoists the conversion constants into the loop preheader. */
+#pragma opt_loop_invariants on
+#pragma opt_rebuildconditionals off
 // FUN_0012E2F0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012e2f0);
+s32 func_0012e2f0(u8 *arg0)
+{
+    s16 i;
+    s16 j;
+    s16 k;
+    s16 m;
+    s16 n;
+    u8 *temp_2;
+    u8 *temp_3;
+    u8 *temp_4;
+    u8 *base_5f40;
+    u8 *res_1;
+    u8 *res_2;
+    u8 *res_3;
+    u8 *res_slot;
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_18;
+    s32 temp_19;
+    u16 temp_u16;
+    s32 temp_byte;
+    s16 ii;
+
+    func_0043f9c8(arg0, 0, 0x1BE8);
+    *(s32 *)(arg0 + 4) = 0;
+    *(s32 *)(arg0 + 8) = 0;
+    *(u8 *)arg0 = 0xFF;
+    *(s32 *)(arg0 + 0x30) = -1;
+    *(s16 *)(arg0 + 0x1C) = 0;
+    *(s32 *)(arg0 + 0x18) = 0;
+    for (i = 0; i < 3; i++) {
+        *(s16 *)(arg0 + (i * 2) + 0x22) = 0;
+    }
+    j = 0;
+    base_5f40 = D_005E5F40;
+    for (; j < 30; j++) {
+        temp_2 = base_5f40 + (j * 0x1C);
+        temp_3 = arg0 + (j * 0x30);
+        *(f32 *)(temp_3 + 0x12E8) = *(f32 *)temp_2;
+        *(f32 *)(temp_3 + 0x12EC) = *(f32 *)(temp_2 + 4);
+        *(u8 *)(temp_3 + 0x12F2) = *(u8 *)(temp_2 + 0x10);
+        temp_u16 = (u16)*(f32 *)(temp_2 + 8);
+        *(u16 *)(temp_3 + 0x12F8) = temp_u16;
+        temp_u16 = (u16)*(f32 *)(temp_2 + 0xC);
+        *(u16 *)(temp_3 + 0x12FE) = temp_u16;
+    }
+    for (k = 0; k < 12; k++) {
+        *(s32 *)(arg0 + (k * 0x30) + 0x1888) = 0;
+        *(s32 *)(arg0 + (k * 0x30) + 0x1878) = 0;
+        *(s32 *)(arg0 + (k * 0x30) + 0x1884) = -1027080192;
+        *(s32 *)(arg0 + (k * 0x30) + 0x187C) = -1027080192;
+        *(u8 *)(arg0 + (k * 0x30) + 0x1891) = 127;
+        *(u8 *)(arg0 + (k * 0x30) + 0x1890) = 127;
+        *(s32 *)(arg0 + (k * 0x30) + 0x18A0) = 0;
+        *(s32 *)(arg0 + (k * 0x30) + 0x18A4) = 10;
+    }
+    for (m = 0; m < 84; m++) {
+        *(s32 *)(arg0 + (m * 0x14) + 0xC4C) = m % 7;
+        *(s32 *)(arg0 + (m * 0x14) + 0xC54) = 7;
+        *(s32 *)(arg0 + (m * 0x14) + 0xC50) = m / 7;
+        *(s32 *)(arg0 + (m * 0x14) + 0xC58) = 12;
+    }
+    for (n = 0; n < 2; n++) {
+        *(s32 *)(arg0 + (n * 0x30) + 0x1AC8) = 0;
+        *(s32 *)(arg0 + (n * 0x30) + 0x1AB8) = 0;
+        *(s32 *)(arg0 + (n * 0x30) + 0x1AC4) = 0;
+        *(s32 *)(arg0 + (n * 0x30) + 0x1ABC) = 0;
+        *(u8 *)(arg0 + (n * 0x30) + 0x1AD1) = 0;
+        *(u8 *)(arg0 + (n * 0x30) + 0x1AD0) = 0;
+        *(s32 *)(arg0 + (n * 0x30) + 0x1AE0) = 0;
+        *(s32 *)(arg0 + (n * 0x30) + 0x1AE4) = 3;
+    }
+    *(s16 *)(arg0 + 0x3C) = func_00353b50(arg0 + 0x34);
+    res_1 = (u8 *)func_0046a770(D_005E5830);
+    if (res_1 == NULL) {
+        func_0046d730(D_005E76C8, 0x1FA);
+    }
+    res_2 = (u8 *)func_0046a770(D_005E5850);
+    if (res_2 == NULL) {
+        func_0046d730(D_005E76C8, 0x1FC);
+    }
+    temp_16 = (s32)func_0046a770(D_005E57F0);
+    res_3 = (u8 *)temp_16;
+    *(u8 **)(arg0 + 0x1BE4) = (u8 *)temp_16;
+    if (res_3 == NULL) {
+        func_0046d730(D_005E76C8, 0x1FE);
+    }
+    ii = 0;
+    while (ii < 51) {
+        if (ii < 28) {
+            res_slot = arg0 + (ii * 4) + 0x1B18;
+            temp_byte = D_005E7670[ii];
+            temp_16 = func_0046d200(res_1, temp_byte);
+            *(s32 *)res_slot = temp_16;
+        } else if (ii < 49) {
+            res_slot = arg0 + (ii * 4) + 0x1B18;
+            temp_byte = D_005E7670[ii];
+            temp_16 = func_0046d200(res_2, temp_byte);
+            *(s32 *)res_slot = temp_16;
+        } else {
+            res_slot = arg0 + (ii * 4) + 0x1B18;
+            temp_byte = D_005E7670[ii];
+            temp_16 = func_0046d200(res_3, temp_byte);
+            *(s32 *)res_slot = temp_16;
+        }
+        if (*(s32 *)res_slot == 0) {
+            func_0046d730(D_005E76C8, 0x20B);
+        }
+        ii++;
+    }
+    func_0012e7c0(arg0);
+    return func_0012ff60(arg0, 0);
+}
+#pragma opt_rebuildconditionals on
+/* measured: closes the opt_loop_invariants bracket for func_0012e2f0. */
+#pragma opt_loop_invariants off
 /* measured: opt_propagation off probe for temp16 width in func_0012e7c0 */
 #pragma opt_propagation off
 // FUN_0012E7C0
