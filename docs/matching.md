@@ -801,6 +801,52 @@ KSEG0/KSEG1 before its hardware-range test -- without that it rejects genuine
 `0x3F800000` from the mask, because otherwise any line mentioning +/-1.0f
 would earn a free `volatile` waiver.
 
+### The fromSPR/toSPR family's real blocker was a missing allowlist entry, not size
+
+Revisited the 21-function hardware census above after wave 12: six of the
+18 fromSPR/toSPR functions live in `code1_003a.c` (`func_003a4d50` 1072B,
+`func_003a7a30` 1360B, `func_003acb10`/`func_003adc40`/`func_003af990`
+~4.4-4.6KB, `func_003aed60` 3120B). Their retail bytes use a hardware
+primitive `decomp_lint.py`'s `ASM_ALLOWED` did not know about:
+**`bc0f`** (branch on the COP0 condition line). The EE's DMAC channel-drain
+arbitration signal is wired into COP0's condition input and is *only*
+readable via `bc0f`/`bc0t` -- there is no `mfc0` for it, so unlike
+`mfc0 Status` this one genuinely has zero C expression. Added both to the
+allowlist (`tools/decomp_lint.py`).
+
+Confirmed empirically via `build/RECON_probe.py` (full round-trip through
+`tools/verify.py`, so a real MWCCPS2 compile, not a guess) that b210 accepts
+the literal mnemonics `sync.l`, `sync.p`, and `bc0f 1b` inside
+`__asm__ volatile(".set noreorder\n" ... ".set reorder" ::: "memory")` --
+COMPILE_ERROR would have shown immediately if the spelling were wrong; it
+compiled (MISMATCH, as expected for a one-line stub against a 1072-byte
+window).
+
+The idiom, read off `func_003a4d50`'s disassembly: writing global register
+`D_PCR` (`0x1000E020`) arms a stall-control drain condition; the wait is
+`sync.l; sync.p; nop*5; 1: bc0f 1b; nop`. Separately, per-channel busy is an
+*ordinary* `volatile` poll -- `while ((*(vu32*)D9_CHCR & 0x100) != 0) {}` --
+no asm needed there. Global DMAC register map recovered from the offsets
+(`D_CTRL/STAT/PCR/SQWC/RBSR/RBOR/STADR` at `0x1000E000` + 0x10 each) matches
+the known SCE map exactly, as do the per-channel bases (`0x1000D000` chan 8
+fromSPR, `0x1000D400` chan 9 toSPR, `+0x00 CHCR/+0x10 MADR/+0x20 QWC/+0x80
+SADR`), both already partly attested by the existing `0x1000C000`/`0x1000E010`
+reads in `code1_0042.c`.
+
+**Not closed yet.** `func_003a4d50`'s retail control flow is hand-scheduled
+with backward cross-jumps between wait/poll blocks (e.g. after an
+expensive `D_PCR`/`bc0f` drain-wait for channel 8, it jumps back to
+*re-check* channel 9's busy bit from the top rather than falling through) --
+this reads as either genuine hand-written assembly in the original source or
+heavily-macroed C with the wait/poll pairs duplicated at every call site
+(there is no `jal` to a shared subroutine anywhere in the 268-instruction
+body). A faithful reconstruction most likely needs 1:1 goto-per-basic-block
+C, not restructured nested ifs. Left as a queued, fully-scoped lane target
+rather than hand-carried to MATCH in this session: the size (1072-4592
+bytes) and control-flow complexity make it an expensive single function,
+while the 920-function never-attempted backlog (see wave 11/12 above) has a
+much better match-per-hour rate for lanes right now.
+
 ### Is the rest just C we have not shaped?
 
 Almost entirely, yes -- and that is measurable rather than a matter of faith.
