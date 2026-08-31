@@ -281,23 +281,34 @@ void func_0033fb10(u8 *arg0, s8 arg1, s64 arg2) {
     u32 scaled = (s32)arg1 * 0x84;
     func_0036dd10((u8 *)(*(u32 *)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758), &arg2, 90.0f * *(f32 *)(scaled + (u32)obj + 0x8C));
 }
-/* measured: re-measured this wave with levers 3/6/opt_propagation — the residual is
-   unchanged at nd 2-3 (2 real words): retail materializes 0xE398 (out of signed-16-bit
-   range) as `ori $at,$zero,0xE398; addu $a0,$v0,$at`, mwcc b210 always folds it as
-   `addiu $v0,$v0,0x7fff; addiu $a0,$v0,0x6399` — probed plain u32-chain, pointer
-   spelling, lever-3 inline helper param, named u32/u16 locals, helper-return, and
-   `#pragma opt_propagation off` (alone and combined): every spelling folds as the
-   addiu pair (the helper/pointer spellings that did emit ori+addu deferred it past
-   the mul.s block, nd 8). Sibling func_0033fb10 matches because its 0x2758 constant
-   fits in signed-16-bit (plain addiu). Constant-selection floor, corroborated. */
-/* measured: integer-pointer reconstruction reaches nd 8 at retail's 112-byte
-   window. The 0xFB0 stride/address arithmetic, stack s64 argument, and float
-   scaling match; b210 selects an addiu pair for 0xE398 where retail uses
-   ori/addu, leaving the object 4 bytes short. Probed pointer, helper, signed/
-   unsigned offset, and optimization spellings; the constant-selection
-   residual remained. Committed at nd 8. */
+/* measured: MATCHED this wave. The nd-8 candidate had the correct 0xFB0 stride,
+   stack s64 argument, and 90.0f scaling, but fndiff showed the final 0xE398
+   address operation after the float setup (`lui/mtc1/nop/mul.s`) and with the
+   wrong intermediate destination register. Applying the matching guide's
+   pointer-typed staging lever — first compute `tmp = ptr + 0xE398`, then cast
+   that pointer through a u32 local before the call — forces retail's
+   `ori $at,$zero,0xE398; addu $a0,$v0,$at` before the float setup. The residual
+   changed from 8 words (obj 108B/window 112B) to padding-only nd 1, and scoped
+   lverify reports MATCH (normalized_diff 0). */
 // FUN_0033FB90
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033fb90);
+void func_0033fb90(u8 *arg0, s8 arg1, s64 arg2, f32 fparg0) {
+    s64 sp18;
+    u8 *obj;
+    u8 *table;
+    u32 scaled;
+    u8 *ptr;
+    u8 *tmp;
+    u32 dst;
+
+    sp18 = arg2;
+    obj = *(u8 **)(arg0 + 0x38);
+    table = *(u8 **)(*(u8 **)(obj + 4) + 0x38);
+    scaled = (s32)arg1 * 0xFB0;
+    ptr = table + scaled;
+    tmp = ptr + 0xE398;
+    dst = (u32)tmp;
+    func_0036dd10((u8 *)dst, &sp18, 90.0f * fparg0);
+}
 /* measured: MATCHED this wave — the old nd-1 "load-sinking + addu-order floor" is broken by
    lever 3 + opt_propagation: the inline helper cmbAddPtrRev carries the index-first addu
    (`addu $a0,$v1,$a2` vs the old base-first `addu $a0,$a2,$v1`) through its parameters,

@@ -134,24 +134,69 @@ INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190680);
 INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190920);
 
 
-// measured: nd 102 after 5 attempts (best). Same spill-slot rule as func_001916a0: the four
-// func_003df3c0 spill slots MUST be `s32 spill[4]` (else sp74 promotes to a 5th saved reg).
-// Register order that works: declare temp_20,temp_19,temp_18,temp_4,var_17,var_16 (first-declared
-// -> highest saved reg) giving arg1->$s1, arg2->$s5, temp_20->$s4, temp_19->$s3, temp_18->$s2,
-// var_17->$s1, var_16->$s0 -- all matching retail. Residual nd 102 is three floors: (1) the
-// sp88/sp8C stack offset swap (arg0[0x110]->sp88 and [0x118]->sp8C land at 0x8C/0x88 reversed;
-// declaration order does not move it, same as sp68/sp6C in func_001916a0); (2) the case-0x16
-// dispatch: `if (spill[0]==0x16)` emits `bne` skip where retail emits `beq`+`b` (both the switch
-// form and the reversed `!=0x16` form are worse, nd 108/104); (3) the same argument-order floor
-// as func_00190920/func_001916a0 (func_003deff0/func_003e2910/func_003e2ab0 emit the last arg
-// first).
-// QTEX lane: switch/goto candidate object 532/window 544, normalized_diff 10; all six
-// differing words are the same func_003deff0 move-before-stack-load order. Archived in
-// build/QTEX_001909f0_body.c.
-// Shared-callee probe confirmed the same canonical five-argument signature and no
-// improvement (nd remained 10), so this is not an argument-count/width defect.
+// measured: candidate frame, spill arrays, saved-register order, switch/goto layout, and
+// shared-callee five-argument signature reached object 532/window 544 with normalized_diff 10.
+// fndiff isolated the residual to func_003deff0 setup: retail loads spill[0] and spill[1]
+// into $a1/$a2 before moving temp_19 into $a0, while b210 materializes the first argument
+// first. Casting those two stack values to u32 reproduces the retail order and closes this
+// function (normalized_diff 0).
 // FUN_001909F0
-INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_001909f0);
+void func_001909f0(u8 *arg0, void *arg1, u8 *arg2) {
+    s32 sp[2];
+    s32 spill[4];
+    s32 temp_20;
+    s32 temp_19;
+    s32 temp_18;
+    s32 temp_4;
+    u32 var_17;
+    u8 *var_16;
+
+    sp[0] = *(s32 *)(arg0 + 0x110);
+    sp[1] = *(s32 *)(arg0 + 0x118);
+    temp_20 = func_003e2f60(3, 1, &sp[0]);
+    temp_19 = func_003e2f60(2, 2, (s32 *)arg1);
+    if ((temp_20 != 0) && (temp_19 != 0)) {
+        goto loop_check;
+loop_body:
+        switch (spill[0]) {
+        case 0x16:
+            temp_18 = func_003e6a90(temp_20);
+            var_17 = 0;
+            goto item_check;
+item_body:
+            temp_4 = *(s32 *)(arg2 + var_17 * 4 + 0x658);
+            if (temp_4 != 0) {
+                func_003ef260(temp_4, func_00190920, temp_18);
+            }
+            var_17++;
+item_check:
+            if (var_17 < *(u32 *)(arg2 + 0x254)) {
+                goto item_body;
+            }
+            func_003e6870((void *)temp_18, (void *)temp_19);
+            func_003ef1b0(temp_18);
+            break;
+        default:
+            if (spill[1] != 0) {
+                func_0044ea90(D_005F6168, 0x141);
+                var_16 = D_008873F4[0](1, spill[1], 0x40000);
+                func_003e2910(temp_20, var_16, spill[1]);
+            }
+            func_003deff0(temp_19, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
+            if (spill[1] != 0) {
+                func_003e2ab0(temp_19, var_16, spill[1]);
+                jtbl_008873EC[0](var_16);
+            }
+            break;
+        }
+loop_check:
+        if (func_003df3c0(temp_20, &spill[0]) != 0) {
+            goto loop_body;
+        }
+        func_003e2e40(temp_20, 0);
+        func_003e2e40(temp_19, 0);
+    }
+}
 
 // measured: not attempted to a measured nd (m2c draft written but the measurement was lost to a
 // file-overwrite accident; reverted to INCLUDE_ASM). Largest function in the file (2480 B).
