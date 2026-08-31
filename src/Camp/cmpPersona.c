@@ -30,6 +30,14 @@ extern u8 D_005EB560[];
 extern u8 D_005EB570[];
 extern u8 D_005EB578[];
 extern s16 D_005EB590[];
+extern void func_0011cee0(u8* arg0);
+extern u8 D_005E9FD0[];
+extern u8 D_005EA2E0[];
+extern u8 D_005EA5F0[];
+extern u8 D_005EA900[];
+extern u8 D_005EAC10[];
+extern u8 D_005EAF20[];
+extern u8 D_005EB230[];
 typedef struct CmpPair CmpPair;
 struct CmpPair {
     f32 x;
@@ -138,20 +146,154 @@ void func_00136fc0(u8* arg0) {
     }
 }
 
+/* measured: opt_propagation off preserves the retail stack-local value-pointer
+   address sequence (MATCH); leaving propagation on folds the +0x40 into lh. */
+#pragma opt_propagation off
 // FUN_001370E0
-INCLUDE_ASM("asm/nonmatchings/cmpPersona", func_001370e0);
+void func_001370e0(u8* arg0) {
+    s16 values[0x19];
+    s16* src;
+    s16* dst;
+    s16* value;
+    s16 idx;
+    s32 count;
+    s32 i;
+    s32 offset;
+    u8* p;
+
+    src = &D_005EB590[0];
+    dst = &values[0];
+    count = 0x19;
+    do {
+        idx = *src;
+        src++;
+        count--;
+        *dst = idx;
+        dst++;
+    } while (count > 0);
+    for (i = 0; i < 0x19; i++) {
+        offset = i * 2;
+        value = (s16*)((u8*)&values[0] + offset);
+        idx = *value;
+        p = arg0 + idx * 0x14;
+        *(s16*)(p + 0x9C4) = 3;
+        *(s16*)(p + 0x9C6) = (s16)(func_003b7060() % 0x19 + 0xF);
+    }
+}
+#pragma opt_propagation on
 
 
-/* measured: plain `(u16)float` casts compile through MWCC's native
-   overflow-safe conversion sequence (c.le.s 0x4F000000; trunc.w.s; mfc1;
-   andi 0xFFFF with the out-of-line subtract/or path), so the prior explicit
-   overflow-guard floor classification is rejected. The reconstructed
-   candidate object was 828 versus the 816-byte window with normalized_diff
-   291, an oversized/reordered residual. func_0011cee0 receives the pointer
-   loaded from 0x1CB4. The switch jump table has case 9 targeting the default
-   block, so no empty case is needed. */
+/* measured: opt_common_subs off around the setup/switch and
+   opt_loop_invariants on around the table loop reproduce the retail
+   register/constant placement (MATCH). Plain `(u16)float` casts use MWCC's
+   native overflow-safe conversion sequence (c.le.s 0x4F000000; trunc.w.s;
+   mfc1; andi 0xFFFF with the out-of-line subtract/or path). func_0011cee0
+   receives the pointer loaded from 0x1CB4. The switch jump table has case 9
+   targeting the default block, so no empty case is needed. */
+#pragma opt_common_subs off
 // FUN_001371A0
-INCLUDE_ASM("asm/nonmatchings/cmpPersona", func_001371a0);
+s32 func_001371a0(u8* arg0, s32 arg1) {
+    s32 i;
+    s32 j;
+    u8* table;
+    u8* src;
+    u8* dst;
+    f32 value;
+    table = 0;
+    if (*(s32*)(arg0 + 0x18) == arg1) {
+        return 0;
+    }
+    for (i = 0; i < 0x1C; i++) {
+        dst = arg0 + i * 0x30;
+        *(f32*)(dst + 0x1054) = *(f32*)(dst + 0x1064);
+        *(f32*)(dst + 0x1058) = *(f32*)(dst + 0x1068);
+        *(u16*)(dst + 0x1070) = *(u16*)(dst + 0x1074);
+        *(u16*)(dst + 0x1076) = *(u16*)(dst + 0x107A);
+        *(u8*)(dst + 0x106C) = *(u8*)(dst + 0x106E);
+    }
+    switch (arg1) {
+    case 0:
+        table = D_005E9FD0;
+        *(s32*)(arg0 + 0x1C) = 0x243;
+        *(s16*)(arg0 + 0x60) = 0;
+        break;
+    case 1:
+        table = D_005EA2E0;
+        break;
+    case 2:
+        table = D_005EA5F0;
+        *(s32*)(arg0 + 0x1C) = 0xA43;
+        *(s16*)(arg0 + 0x60) = 0;
+        break;
+    case 3:
+        table = D_005EA900;
+        *(s32*)(arg0 + 0x1C) = 0xFE7;
+        *(s16*)(arg0 + 0x60) = 8;
+        break;
+    case 4:
+    case 5:
+        table = D_005EAC10;
+        *(s32*)(arg0 + 0x1C) = 0x5A5;
+        *(s16*)(arg0 + 0x60) = 8;
+        break;
+    case 6:
+        table = D_005EAF20;
+        *(s32*)(arg0 + 0x1C) = 0x48D;
+        *(s16*)(arg0 + 0x60) = -1;
+        func_0011cee0(*(u8**)(arg0 + 0x1CB4));
+        break;
+    case 7:
+        table = D_005EAF20;
+        *(s32*)(arg0 + 0x1C) = 9;
+        break;
+    case 8:
+        table = D_005EB230;
+        *(s32*)(arg0 + 0x1C) = 0xA13;
+        *(s16*)(arg0 + 0x60) = 0xE;
+        func_0011cee0(*(u8**)(arg0 + 0x1CB4));
+        break;
+    case 10:
+        *(s32*)(arg0 + 0x1C) = 8;
+        *(s16*)(arg0 + 0x60) = -1;
+        break;
+    case 11:
+        *(s32*)(arg0 + 0x1C) = 0x5A5;
+        *(s16*)(arg0 + 0x60) = 8;
+        break;
+    case 12:
+        *(s32*)(arg0 + 0x1C) = 0x5A5;
+        *(s16*)(arg0 + 0x60) = 8;
+        break;
+    default:
+        func_0046d730(D_005EB580, 0x3BA);
+        break;
+    }
+#pragma opt_common_subs on
+/* measured: opt_loop_invariants on hoists the table/dst stride multiplies
+   out of the j loop to match retail; without it the function mismatches. */
+#pragma opt_loop_invariants on
+    if (table != 0) {
+        for (j = 0; j < 0x1C; j++) {
+            src = table + j * 0x1C;
+            dst = arg0 + j * 0x30;
+            *(f32*)(dst + 0x105C) = *(f32*)(src + 0);
+            *(f32*)(dst + 0x1060) = *(f32*)(src + 4);
+            value = *(f32*)(src + 8);
+            *(u16*)(dst + 0x1072) = (u16)value;
+            value = *(f32*)(src + 0xC);
+            *(u16*)(dst + 0x1078) = (u16)value;
+            *(u8*)(dst + 0x106D) = *(u8*)(src + 0x10);
+            *(s32*)(dst + 0x107C) = *(s32*)(src + 0x14);
+            *(s32*)(dst + 0x1080) = *(s32*)(src + 0x18);
+        }
+    *(s16*)(arg0 + 0x20) = 0;
+    *(s32*)(arg0 + 0x18) = arg1;
+    }
+    return 1;
+}
+/* measured: closes the opt_loop_invariants on scope opened above for
+   func_001371a0's table loop. */
+#pragma opt_loop_invariants off
 
 // FUN_001374D0
 /* measured: without opt_loop_invariants on, the 200.0f/-200.0f/0x44480000
