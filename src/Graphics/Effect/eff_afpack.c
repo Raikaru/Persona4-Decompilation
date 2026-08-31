@@ -52,7 +52,7 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void func_004b8df0(void* arg0, void* arg1);
 extern s32 func_003c4140(void);
 extern void func_003c42b0(void* a, void* b);
-extern u8* func_004b8350(void* a, void* b, void* c);
+extern u8* func_004b8350(void* a, void* b);
 extern s32 func_003c00e0(void);
 extern void func_003c0210(void* a, void* b, s32 c);
 extern s32 func_003e9320(void);
@@ -65,7 +65,80 @@ extern void func_003c22f0(void* a);
 INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6030);
 
 // FUN_004B6900
-INCLUDE_ASM("asm/nonmatchings/eff_afpack", func_004b6900);
+u8* func_004b6900(u8* arg0)
+{
+    u8* node;
+    u8* base;
+    u8* temp;
+    s32 i;
+    s32 size;
+    typedef struct
+    {
+        u8 c[4];
+    } Color4;
+    Color4 color;
+
+    size = 0;
+    size += 0x24;
+    size += *(s16*)(arg0 + 4) * 0x3C;
+    size += *(s16*)(arg0 + 4) * 8;
+    size += *(s16*)(arg0 + 4) * 0x20;
+    size += *(s16*)(arg0 + 4) * 0x18;
+    func_0044ea90(D_007146B0, 0x287);
+    node = (u8*)(*jtbl_008873E8)(size, 0x40000);
+    base = node + 0x24;
+    *(u8**)(node + 8) = base;
+    base += *(s16*)(arg0 + 4) * 0x3C;
+    *(u8**)(node + 0xC) = base;
+    base += *(s16*)(arg0 + 4) * 8;
+    *(u8**)(node + 0x10) = base;
+    base += *(s16*)(arg0 + 4) * 0x20;
+    *(u8**)(node + 0x14) = base;
+    *(s32*)node = 0;
+    *(u8**)(node + 4) = arg0;
+    node[0x20] = 0xFF;
+    node[0x21] = 0xFF;
+    node[0x22] = 0xFF;
+    node[0x23] = 0xFE;
+
+    i = 0;
+    if (*(s16*)(arg0 + 4) > 0)
+    {
+        color.c[0] = 0xFF;
+        color.c[1] = 0xFF;
+        color.c[2] = 0xFF;
+        color.c[3] = 0xFE;
+        while (i < *(s16*)(arg0 + 4))
+        {
+            func_004b8df0(*(u8**)(node + 8) + i * 0x3C,
+                          *(u8**)(arg0 + 0xC) + i * 0x18);
+            *(s32*)(*(u8**)(node + 0xC) + i * 8 + 4) = func_003c4140();
+            {
+                u8* obj;
+                u8* material;
+                obj = *(u8**)(*(u8**)(node + 8) + i * 0x3C);
+                material = *(u8**)(obj + 4);
+                if ((*(s32*)material & 1) != 0)
+                {
+                    func_003c42b0(*(u8**)(*(u8**)(node + 0xC) + i * 8 + 4),
+                                  *(u8**)(material + 4));
+                }
+            }
+            *(Color4*)(*(u8**)(*(u8**)(node + 0xC) + i * 8 + 4) + 4) = color;
+            temp = func_004b8350(*(u8**)(node + 8) + i * 0x3C,
+                                 *(u8**)(*(u8**)(node + 0xC) + i * 8 + 4));
+            *(s32*)(*(u8**)(node + 0xC) + i * 8) = func_003c00e0();
+            func_003c0210(*(u8**)(*(u8**)(node + 0xC) + i * 8), temp, 0);
+            func_003c1b90(*(u8**)(*(u8**)(node + 0xC) + i * 8),
+                          (void*)func_003e9320());
+            func_003c2a80(temp);
+            func_004bccf0(*(u8**)(node + 8) + i * 0x3C, temp);
+            func_003c22f0(temp);
+            i++;
+        }
+    }
+    return node;
+}
 
 // FUN_004B6BB0
 void func_004b6bb0(RuntimeListNode* node)

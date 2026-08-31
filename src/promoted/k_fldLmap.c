@@ -434,7 +434,48 @@ void func_00188110(void)
    constant-before-load and cross-chain float scheduling. Best candidate:
    normalized_diff 154, object 288/288; discarded. */
 // FUN_00188200
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188200);
+void func_00188200(u8 *arg0, u8 *arg1)
+{
+    f32 x;
+    f32 y;
+
+    x = -32.0f;
+    x += *(f32 *)arg1;
+    y = -7.0f + *(f32 *)(arg1 + 4);
+    func_0025ecd0(
+        (f32)(s32)x,
+        (f32)(s32)y,
+        *(f32 *)(arg1 + 8),
+        0xFFFFFF,
+        0xFF,
+        0,
+        *(s32 *)(arg0 + 0x24),
+        1,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    x = -32.0f;
+    x += *(f32 *)arg1;
+    y = 224.0f + *(f32 *)(arg1 + 4);
+    func_0025ecd0(
+        (f32)(s32)x,
+        (f32)(s32)y,
+        *(f32 *)(arg1 + 8),
+        0xFFFFFF,
+        0xFF,
+        1,
+        *(s32 *)(arg0 + 0x24),
+        1,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+}
 
 
 

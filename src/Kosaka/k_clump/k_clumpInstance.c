@@ -9,7 +9,7 @@ typedef struct ClumpWork
     u8  field_8[0x40]; /* 0x08 */
     char name[0x40];  /* 0x48 */
     u32 field_88[0x31]; /* 0x88 */
-    u32 count;        /* 0x14C */
+    s32 count;        /* 0x14C */
     u32 items[0x80];  /* 0x150 */
     char path[0x100]; /* 0x350 */
     u8 *field_450;    /* 0x450 */
@@ -61,10 +61,10 @@ extern char D_005F6520[];
 extern char D_005F6550[];
 extern char D_005F6570[];
 extern char D_005F65A0[];
-extern char D_0076315C;
-extern char D_00763160;
-extern char D_00763168;
-extern char D_00763170;
+extern char iGpffffa06c;
+extern char iGpffffa070;
+extern char iGpffffa078;
+extern char iGpffffa080;
 
 /* measured floor (nd 10): func_003deff0's 5-arg setup emits [move $a0; lw; lw; lw; lw]
  * where retail emits [lw; lw; move $a0; lw; lw] -- call-argument setup order, a
@@ -144,12 +144,105 @@ void func_00191e90(u8 *arg0, s32 *arg1, u8 *arg2)
 }
 
 
-/* measured: the body below is a faithful reconstruction whose residual is
-   recorded in the notes above; re-measured for nd_audit coverage.
-   Committed at nd 194. */
-// Archived C body: build/WBHygiene_func_001921a0_archive.txt; no current park body remains.
+/* measured: opt_loop_invariants hoists the '.' and '/' loop constants. */
+#pragma opt_loop_invariants on
 // FUN_001921A0
-INCLUDE_ASM("asm/nonmatchings/k_clumpInstance", func_001921a0);
+s32 func_001921a0(u8 *arg0)
+{
+    ClumpWork *work;
+    char *name_cursor;
+    char *path_cursor;
+    s32 i;
+    s32 result;
+    struct Local {
+        char buffer[0x100];
+        char suffix[4];
+        char pad[0x30];
+    } local;
+
+    work = *(ClumpWork **)(arg0 + 0x38);
+    switch (work->state)
+    {
+    case 0:
+        result = func_00428550(D_005F6520);
+        work->field_4 = result;
+        if (result < 0)
+        {
+            return -1;
+        }
+        work->state++;
+        break;
+    case 1:
+        result = func_00428780(work->field_4, work->field_8);
+        if (result > 0)
+        {
+            if (func_004426e8(work->name, &iGpffffa06c) != 0 &&
+                func_004426e8(work->name, &iGpffffa070) != 0)
+            {
+                name_cursor = work->name;
+                while (*name_cursor != '.' && *name_cursor != '\0')
+                {
+                    name_cursor++;
+                }
+                if (func_004426e8(name_cursor, &iGpffffa078) == 0)
+                {
+                    local.suffix[0] = work->name[1];
+                    local.suffix[1] = work->name[2];
+                    local.suffix[2] = work->name[3];
+                    local.suffix[3] = '\0';
+                    if (func_0043c6b0(local.suffix) < 0x14)
+                    {
+                        func_00442830(work->path, D_005F6550);
+                        func_00442428(work->path, work->name);
+                        work->state = 2;
+                    }
+                }
+            }
+        }
+        else
+        {
+            work->state = 6;
+        }
+        break;
+    case 2:
+        func_00440b68(&iGpffffa080, D_005F6500, 0xEB);
+        work->field_450 = func_00454a60(work->path, 0);
+        func_00456150(work->field_450);
+        func_00442830(local.buffer, D_005F6570);
+        path_cursor = work->path;
+        while (*path_cursor != '\0')
+        {
+            path_cursor++;
+        }
+        for (; *path_cursor != '/'; path_cursor--)
+        {
+        }
+        func_00442428(local.buffer, path_cursor + 1);
+        func_00191e90(work->field_450, (s32 *)local.buffer, (u8 *)work);
+        func_00454bd0(work->field_450);
+        work->state = 3;
+        break;
+    case 3:
+    case 4:
+        work->state++;
+        break;
+    case 5:
+        for (i = 0; i < work->count; i++)
+        {
+            if (*(s32 *)((u8 *)work + i * 4 + 0x150) != 0)
+            {
+                func_003c0700((void *)*(s32 *)((u8 *)work + i * 4 + 0x150));
+            }
+        }
+        work->state = 1;
+        break;
+    case 6:
+        return -1;
+    }
+    return 0;
+}
+/* measured: close the loop-invariant optimization scope for func_001921a0. */
+#pragma opt_loop_invariants off
 
 
 
