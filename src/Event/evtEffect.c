@@ -13,7 +13,9 @@ extern void func_0043f9c8(void *dest, s32 value, s32 size);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
 extern u8 D_00748340[];
 extern u8 D_0063C830[];
-extern u8 iGpffff5848;
+extern u8 D_0063C840[];
+extern u8 D_0063C870[];
+extern u8 iGpffffa7b8;
 extern void func_00440b68();
 extern s32 func_004553c0(u8 *arg0);
 extern u8 *func_00455f70(u8 *arg0, u32 *arg1);
@@ -63,4 +65,53 @@ void func_00291060(u32 *param_1)
 }
 
 // FUN_00291080
-INCLUDE_ASM("asm/nonmatchings/evtEffect", func_00291080);
+s32 func_00291080(s32 *arg0)
+{
+    u32 sp5C;
+    s32 result;
+    s32 index;
+    s32 offset;
+    s32 kind;
+    u8 *record;
+    u8 *handle;
+    s32 temp2;
+
+    result = 1;
+    if (arg0[0] != 1) {
+        return result;
+    }
+
+    index = arg0[2];
+    if (index == arg0[1]) {
+        arg0[0] = 2;
+        return result;
+    }
+
+    kind = arg0[index * 11 + 4];
+    if (kind == 0) {
+        func_00440b68(D_0063C840, index);
+        arg0[2] += 1;
+    } else if (kind == 1) {
+        handle = (u8 *)arg0[3];
+        if (handle != NULL) {
+            if (func_004553c0(handle) == 1) {
+                offset = index * 11;
+                record = (u8 *)(arg0 + offset + 5);
+                arg0[offset + 13] = (s32)func_00455f70(record, &sp5C);
+                func_00440b68(D_0063C870, index, record);
+                arg0[3] = 0;
+                arg0[2] += 1;
+            }
+        } else {
+            func_00440b68(&iGpffffa7b8, D_0063C830, 0xB0);
+            offset = index * 11;
+            record = (u8 *)(arg0 + offset + 5);
+            temp2 = (s32)func_00454a60(record, 0);
+            arg0[offset + 14] = temp2;
+            arg0[3] = temp2;
+        }
+    }
+
+    result = 0;
+    return result;
+}
