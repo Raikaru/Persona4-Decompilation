@@ -677,8 +677,47 @@ void func_00389350(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389370);
 // FUN_00389640
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389640);
+/* measured: opt_loop_invariants on hoists the conversion constants into the retail preheader. */
+#pragma opt_loop_invariants on
 // FUN_00389CB0
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389cb0);
+void func_00389cb0(u8 *arg0)
+{
+    u8 *dst;
+    s32 i;
+    f32 scale300;
+    f32 scale20;
+    f32 temp;
+
+    dst = arg0 + 0xA0;
+    i = 0;
+    scale300 = 300.0f;
+    scale20 = 20.0f;
+    for (; i < 4; i++) {
+        u8 *s;
+        u8 *d;
+        d = dst + i * 0x30 + 4;
+        s = D_0064EEF0 + i * 0x30;
+        *(f32 *)(d + 0) = *(f32 *)(s + 0);
+        *(f32 *)(d + 4) = *(f32 *)(s + 4);
+        *(f32 *)(d + 0x10) = *(f32 *)(s + 8);
+        *(f32 *)(d + 0x14) = *(f32 *)(s + 0xC);
+        *(f32 *)(d + 8) = *(f32 *)(s + 0x10);
+        *(f32 *)(d + 0xC) = *(f32 *)(s + 0x14);
+        *(f32 *)(d + 0x18) = *(f32 *)(s + 0x18);
+        *(f32 *)(d + 0x1C) = *(f32 *)(s + 0x1C);
+        temp = scale300 * *(f32 *)(s + 0x20);
+        *(u16 *)(d + 0x24) = (u16)temp;
+        temp = scale300 * *(f32 *)(s + 0x24);
+        *(u16 *)(d + 0x26) = (u16)temp;
+        *(f32 *)(d + 0x28) = scale20 * *(f32 *)(s + 0x28);
+        *(u8 *)(d + 0x2C) = *(u8 *)(s + 0x2C);
+        *(u8 *)(d + 0x2D) = *(u8 *)(s + 0x2D);
+        *(u8 *)(d + 0x2E) = *(u8 *)(s + 0x2E);
+        *(u8 *)(d + 0x2F) = *(u8 *)(s + 0x2F);
+    }
+}
+/* measured: restore loop-invariant optimization after func_00389cb0. */
+#pragma opt_loop_invariants off
 // FUN_00389E10
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_00389e10);
 // FUN_0038A3E0

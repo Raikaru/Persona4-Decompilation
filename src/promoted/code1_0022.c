@@ -130,6 +130,13 @@ extern BtlPacket *func_001f81f0(u16 channel, const char *streamName);
 extern u8 *func_001d6240(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
 extern void func_001d3e00(s32 arg0);
 extern u8 D_006354B0[];
+extern u8 *iGpffffb444;
+extern u8 *iGpffffb3ac;
+extern u8 *func_0029da90(s32 arg0, u8 *arg1, s32 arg2);
+extern void func_0029dfe0(u8 *arg0, u8 *arg1);
+extern u8 *func_0010d740(s16 arg0);
+extern void func_00278450(u8 *arg0, s32 arg1, u8 *arg2);
+extern void func_00452570(u8 *arg0, u8 *arg1);
 extern void func_00225ec0(void);
 // FUN_002218E0
 s32 func_002218e0(void)
@@ -1421,7 +1428,59 @@ s32 func_0022bac0(void)
 }
 
 // FUN_0022BAD0
-INCLUDE_ASM("asm/nonmatchings/code1_0022", func_0022bad0);
+s32 func_0022bad0(u8 *arg0, u16 arg1)
+{
+    u8 *target;
+    u8 *handle;
+    u8 *state;
+    u8 *unit;
+    u8 *slot;
+    u8 *temp;
+
+    slot = &((u8 *)(((u32)arg1 & 0xFFFF) * 4))
+        [(u32)iGpffffb3ac];
+    if (*(s32 *)(slot + 0xBA8) != *(s32 *)(arg0 + 8)) {
+        goto changed;
+    }
+    if (*(s32 *)(slot + 0xBBC) != *(s32 *)(arg0 + 0x20)) {
+        goto changed;
+    }
+    return 0;
+changed:
+    if (arg0 == NULL) {
+        target = *(u8 **)(iGpffffb3ac + 0x170);
+    } else {
+        target = arg0;
+    }
+    temp = func_0022ced0(0);
+    handle = func_0029da90(
+        *(s32 *)(*(u8 **)(iGpffffb3ac + 0xDC8) + 0x20) - 1,
+        temp, arg1);
+    func_0029dfe0(handle, target);
+    state = (u8 *)func_00452560(handle);
+    if (*(s32 *)(state + 0x130) >= 0) {
+        unit = *(u8 **)(target + 0x30);
+        if (*(u8 *)(unit + 0xA2) == 0) {
+            func_00278450(
+                *(u8 **)(state + 0x130), 0,
+                func_0010d740(*(s16 *)(unit + 0xA4)));
+        } else {
+            func_00278450(
+                *(u8 **)(state + 0x130), 0,
+                iGpffffb444 + (u16)(*(u16 *)(unit + 0xA4)) * 0x15);
+        }
+    }
+    func_00452570(*(u8 **)(iGpffffb3ac + 0xDC8), handle);
+    *(u8 **)(iGpffffb3ac + 0xBA0) = handle;
+    *(u16 *)(iGpffffb3ac + 0xBA4) = arg1;
+    *(s32 *)(&((u8 *)(((u32)arg1 & 0xFFFF) * 4))
+              [(u32)iGpffffb3ac] + 0xBA8) =
+        *(s32 *)(arg0 + 8);
+    *(s32 *)(&((u8 *)(((u32)arg1 & 0xFFFF) * 4))
+              [(u32)iGpffffb3ac] + 0xBBC) =
+        *(s32 *)(arg0 + 0x20);
+    return 1;
+}
 // FUN_0022BC80
 s32 func_0022bc80(s32 arg0) {
     u8 *b = DAT_0076449c;

@@ -686,8 +686,39 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb4a0);
 // FUN_003BB5B0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb5b0);
 /* measured: current-TU reconstructed body object 240B/window 208B, normalized_diff 177; fndiff reports 50 differing words concentrated at offsets 4-24, 32-60, 76-168, 176-184, 192-200, and 208-236. The setup-order probe (call before result initialization) improved nd184 to nd177 but object still exceeds the retail window, so restored fallback. */
+/* measured: schedule preserves the stream/callback delay-slot ordering. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003BBA90
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bba90);
+u8 *func_003bba90(u8 *arg0) {
+    u8 *stream;
+    u8 *result;
+    u32 code;
+    s32 pair[2];
+    extern u8 *func_003e2f60(s32 arg0, s32 arg1, void *arg2);
+    extern s32 func_003df050(void *arg0, s32 arg1, s32 arg2, u32 *arg3);
+    extern void func_003e2e40(void *arg0, s32 arg1);
+    extern u8 *func_003bb210(u8 *arg0);
+
+    result = NULL;
+    stream = func_003e2f60(2, 1, arg0);
+    if (stream != NULL) {
+        if (func_003df050(stream, 0xC, 0, &code) != 0) {
+            if ((code >= 0x35000) && (code < 0x37003)) {
+                result = func_003bb210(stream);
+            } else {
+                pair[0] = 0x102;
+                pair[1] = func_003df590(-0x7FFFFFFC);
+                func_003df4d0(pair);
+            }
+        }
+        func_003e2e40(stream, 0);
+    }
+    return result;
+}
+/* measured: close no_branch_likely/schedule around func_003bba90. */
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: schedule on fills the final callback argument and epilogue slots. */
 #pragma schedule on
 /* measured: no_branch_likely on preserves retail's plain null tests. */
