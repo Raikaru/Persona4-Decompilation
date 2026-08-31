@@ -53,6 +53,8 @@ extern void func_003e42a0(void *arg0, void *arg1, u8 *arg2);
 extern f32 D_00713D10[];
 extern f32 D_00713D14[];
 extern f32 D_00713D18[];
+extern f32 func_0044b610(void);
+extern f32 func_0044b7b0(f32 param_1);
 static inline u8 *mdlEffect_camera_matrix(u8 *base)
 {
     return base + 0x20;
@@ -691,7 +693,86 @@ void func_0048a2b0(u8 *arg0, u8 *arg1)
         : "$vf10", "$vf11", "$vf2", "ACC", "Q", "memory");
 }
 // FUN_0048A340
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a340);
+void func_0048a340(f32 param_1)
+{
+    f32 temp_f20;
+    f32 temp_f21;
+    f32 temp_f0;
+    f32 one;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 square;
+    f32 blend;
+    f32 factor;
+    f32 xy;
+    f32 xz;
+    f32 zterm;
+    f32 yterm;
+    f32 xyterm;
+    f32 xzterm;
+    f32 yzterm;
+    f32 xterm;
+    u8 raw[0x50];
+
+    temp_f21 = param_1;
+    temp_f20 = func_0044b610();
+    temp_f0 = func_0044b7b0(temp_f21);
+    __asm__ volatile(
+        "sqc2 $vf10, 0(%0) \n"
+        :
+        : "r"(raw)
+        : "$vf10", "memory");
+
+    x = *(f32 *)(raw + 0x0);
+    square = x * x;
+    one = 1.0f;
+    blend = one - square;
+    blend = blend * temp_f20 + square;
+    *(f32 *)(raw + 0x10) = blend;
+    y = *(f32 *)(raw + 0x4);
+    xy = x * y;
+    factor = one - temp_f20;
+    z = *(f32 *)(raw + 0x8);
+    zterm = z * temp_f0;
+    xyterm = xy * factor;
+    blend = zterm + xyterm;
+    *(f32 *)(raw + 0x14) = blend;
+    xz = x * z;
+    yterm = y * temp_f0;
+    xzterm = xz * factor;
+    blend = xzterm - yterm;
+    *(f32 *)(raw + 0x18) = blend;
+    *(s32 *)(raw + 0x1c) = 0;
+    blend = xyterm - zterm;
+    *(f32 *)(raw + 0x20) = blend;
+    square = y * y;
+    blend = one - square;
+    blend = blend * temp_f20 + square;
+    *(f32 *)(raw + 0x24) = blend;
+    yzterm = y * z;
+    xterm = x * temp_f0;
+    yzterm = yzterm * factor;
+    blend = xterm + yzterm;
+    *(f32 *)(raw + 0x28) = blend;
+    *(s32 *)(raw + 0x2c) = 0;
+    blend = yterm + xzterm;
+    *(f32 *)(raw + 0x30) = blend;
+    blend = yzterm - xterm;
+    *(f32 *)(raw + 0x34) = blend;
+    square = z * z;
+    blend = one - square;
+    blend = blend * temp_f20 + square;
+    *(f32 *)(raw + 0x38) = blend;
+    *(s32 *)(raw + 0x3c) = 0;
+    __asm__ volatile(
+        "lqc2 $vf28, 0(%0) \n"
+        "lqc2 $vf29, 0x10(%0) \n"
+        "lqc2 $vf30, 0x20(%0) \n"
+        :
+        : "r"(raw + 0x10)
+        : "$vf28", "$vf29", "$vf30", "memory");
+}
 /* object 176B / window 176B / normalized_diff 34; residual is FP register assignment and arithmetic sequence from +0x54 through +0x8C; prologue, globals, call setup, stores, and tail match. */
 // FUN_0048A460 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
