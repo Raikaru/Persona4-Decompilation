@@ -251,7 +251,41 @@ s32 func_00176ff0(void)
 
 
 // FUN_00177120
-INCLUDE_ASM("asm/nonmatchings/k_command", func_00177120);
+s32 func_00177120(void)
+{
+    s32 v = func_0029cc00(0);
+    f32 threshold = 0.0f;
+    f32 f = func_0029cd50(1);
+    s32 k = (v & 0xFFC00) >> 10;
+    u8* p;
+    s32 result;
+    switch (k)
+    {
+    case 1:
+        p = func_00145270(v & 0xFFFF);
+        if (p != 0)
+        {
+            threshold = func_0047a080(*(s32*)(p + 0x164), 0);
+        }
+        break;
+    case 3:
+        if (func_00145270(v & 0xFFFF) != 0)
+        {
+            threshold = func_0047a080(*(s32*)(p + 0x164), 0);
+        }
+        break;
+    case 10:
+        if (func_00145270(v & 0xFFFF) != 0)
+        {
+            threshold = func_0047a080(*(s32*)(p + 0x164), 0);
+        }
+        break;
+    default:
+        func_0046d730(D_005F1858, 0x264);
+        break;
+    }
+    return (f >= threshold) ^ 1;
+}
 
 
 

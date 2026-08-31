@@ -16,6 +16,7 @@ extern void func_00273cc0(u8 *arg0, u8 *arg1);
 extern s32 D_008815B0[];
 
 extern void memset(void *arg0, s32 arg1, s32 arg2);
+extern void func_00269a90(u32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 extern s32 func_0027bf10(s32 arg0);
 extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00107930(s64 arg0);
@@ -130,8 +131,127 @@ s32 func_002703d0(s32 arg0, u8 *arg1)
 }
 /* measured: closes opt_propagation off probe for 002703d0. */
 #pragma opt_propagation on
+/* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
+#pragma opt_rebuildconditionals off
 // FUN_002704F0
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_002704f0);
+s32 func_002704f0(s32 arg0, u8 *arg1)
+{
+    s32 key_0;
+    struct code1_record_view {
+        u8 pad0[0x10];
+        s32 offset;
+        u8 pad14[4];
+        u8 *base;
+    };
+    s16 key_1;
+    s16 key_2;
+    s16 key_3;
+    s16 key_4;
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+
+    {
+        u8 *base;
+        s32 offset;
+        s32 var_2;
+        u8 temp_3;
+        s32 low;
+        base = *(u8 **)(arg1 + 0x18);
+        offset = *(s32 *)(arg1 + 0x10);
+        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        low = (((u8 *)base)[0] - 1) & 0xFF;
+        temp_3 = ((u8 *)base)[1];
+        if (temp_3 == 0xFF) {
+            var_2 = 0;
+        } else {
+            var_2 = (temp_3 - 1) & 0xFF;
+        }
+        key_0 = (s32)(s16)(((var_2 & 0xFF) << 8) |
+                           (low & 0xFF));
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 var_2;
+        u8 temp_3;
+        s32 low;
+        base = *(u8 **)((u8 *)arg1 + 0x18);
+        offset = *(s32 *)((u8 *)arg1 + 0x10);
+        base += offset;
+        low = (((u8 *)base)[2] - 1) & 0xFF;
+        temp_3 = ((u8 *)base)[3];
+        if (temp_3 == 0xFF) {
+            var_2 = 0;
+        } else {
+            var_2 = (temp_3 - 1) & 0xFF;
+        }
+        key_1 = (s32)(s16)(((var_2 & 0xFF) << 8) |
+                           (low & 0xFF));
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 var_2;
+        u8 temp_3;
+        s32 low;
+        base = ((struct code1_record_view *)arg1)->base;
+        offset = ((struct code1_record_view *)arg1)->offset;
+        base += offset;
+        low = (((u8 *)base)[4] - 1) & 0xFF;
+        temp_3 = ((u8 *)base)[5];
+        if (temp_3 == 0xFF) {
+            var_2 = 0;
+        } else {
+            var_2 = (temp_3 - 1) & 0xFF;
+        }
+        key_2 = (s32)(s16)(((var_2 & 0xFF) << 8) |
+                           (low & 0xFF));
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 var_2;
+        u8 temp_3;
+        s32 low;
+        base = *(u8 **)((const u8 *)arg1 + 0x18);
+        offset = *(s32 *)((const u8 *)arg1 + 0x10);
+        base += offset;
+        low = (((u8 *)base)[6] - 1) & 0xFF;
+        temp_3 = ((u8 *)base)[7];
+        if (temp_3 == 0xFF) {
+            var_2 = 0;
+        } else {
+            var_2 = (temp_3 - 1) & 0xFF;
+        }
+        key_3 = (s32)(s16)(((var_2 & 0xFF) << 8) |
+                           (low & 0xFF));
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 var_2;
+        u8 temp_3;
+        s32 low;
+        base = *(u8 **)((u8 *)(u32)arg1 + 0x18);
+        offset = *(s32 *)((u8 *)(u32)arg1 + 0x10);
+        base += offset;
+        low = (((u8 *)base)[8] - 1) & 0xFF;
+        temp_3 = ((u8 *)base)[9];
+        if (temp_3 == 0xFF) {
+            var_2 = 0;
+        } else {
+            var_2 = (temp_3 - 1) & 0xFF;
+        }
+        key_4 = (s32)(s16)(((var_2 & 0xFF) << 8) |
+                           (low & 0xFF));
+    }
+
+    func_00269a90(key_0 & 0xFFFF, key_1, key_2, key_3, key_4);
+    return 0;
+}
+/* measured: closes opt_rebuildconditionals off for 002704f0. */
+#pragma opt_rebuildconditionals on
 // FUN_002706F0
 s32 func_002706f0(u8 *arg0, u8 *arg1)
 {

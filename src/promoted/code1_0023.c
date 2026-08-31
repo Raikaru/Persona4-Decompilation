@@ -223,8 +223,37 @@ s32 func_002308a0(s32 arg0, s32 arg1, char *arg2)
     }
     return 1;
 }
-// FUN_00230C00 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0023", func_00230c00);
+// measured: opt_loop_invariants on hoists the two delimiter constants before the scan loop and preserves the retail register schedule.
+#pragma opt_loop_invariants on
+// FUN_00230C00
+s32 func_00230c00(s32 arg0, s32 arg1, char *arg2)
+{
+    char sp40[0x100];
+    s32 var_2;
+
+    if (func_0047d0e0() == 0) {
+        return func_0047d0b0(arg0, arg1, arg2);
+    }
+    func_0047d0b0(arg0, arg1, sp40);
+    var_2 = func_00442948(sp40);
+    sp40[var_2 - 3] = 'p';
+    sp40[var_2 - 2] = 'a';
+    sp40[var_2 - 1] = 'c';
+    while (sp40[var_2] != '\\' && sp40[var_2] != '/') {
+        var_2--;
+    }
+    switch (arg0 & 0xFFFF) {
+    case 2:
+        func_00442088(arg2, D_006357C8, D_00635678, sp40 + var_2);
+        break;
+    default:
+        func_00442088(arg2, D_006357C8, &D_007636e0, sp40 + var_2);
+        break;
+    }
+    return 1;
+}
+// measured: restore loop-invariant optimization after the matched target.
+#pragma opt_loop_invariants off
 // measured: optimization level 1 preserves the retail direct field loads and
 // saved-register colouring for this function.
 #pragma optimization_level 1
