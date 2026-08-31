@@ -67,6 +67,9 @@ extern s32 func_00106c30(s16 arg0, s16 arg1);
 extern s32 func_00106c80(s16 arg0);
 extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern u8 *func_0010d620(s16 arg0);
+extern s64 func_00123ae0(void);
+extern s64 func_00123b10(void);
+extern s64 func_00123b40(void);
 extern u8 D_005E4F70[];
 extern s8 D_005E47F0[];
 static inline s64 p4_0011_signext16(s16 arg0)
@@ -83,6 +86,17 @@ static inline s32 p4_00110850_add(s32 offset, s32 base)
 
     temp = offset;
     return base + temp;
+}
+static inline s32 p4_0011_add_left(s32 left, s32 right)
+{
+    return left + right;
+}
+static inline s64 p4_0011_load_s8(s8 *ptr)
+{
+    s64 temp;
+
+    temp = *ptr;
+    return temp;
 }
 
 
@@ -267,8 +281,49 @@ block_12:
     temp_6 = var_5 * 2;
     return (s64) ((s64) *((u8 *)(temp_6 + temp_5)) << 0x38) >> 0x38;
 }
-// FUN_00110960 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110960);
+/* measured: opt_propagation off retains the retail byte-load staging. */
+#pragma opt_propagation off
+/* measured probe: opt_common_subs off preserves the retail fallback loads. */
+#pragma opt_common_subs off
+// FUN_00110960
+s64 func_00110960(s32 arg0, u32 arg1)
+{
+    s32 loaded;
+    s32 value;
+    s64 result;
+    s32 selection;
+
+    result = -1;
+    if ((arg0 == (s16)func_00123b10()) &&
+        (arg1 == (s16)func_00123b40())) {
+        result = (s8)func_00123ae0();
+    }
+    if ((s8)result == -1) {
+        switch (arg1) {
+        case 0:
+        case 1:
+            selection = 0;
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            selection = 1;
+            break;
+        }
+        value = arg0 * 6;
+        value = p4_00110850_add(value, (s32)&D_005E3A02);
+        selection *= 2;
+        value = p4_0011_add_left(selection, value);
+        loaded = p4_0011_load_s8((s8 *)value);
+        result = loaded;
+    }
+    return result;
+}
+/* measured: restore opt_propagation after func_00110960. */
+#pragma opt_propagation on
+/* measured probe: restore opt_common_subs after func_00110960. */
+#pragma opt_common_subs on
 // FUN_00110A60
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00110a60);
 // FUN_00110C50

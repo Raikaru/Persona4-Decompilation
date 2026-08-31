@@ -1488,7 +1488,70 @@ add:
     return v + 0x11;
 }
 // FUN_001F56D0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f56d0);
+s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    s32 flags;
+    s32 mode;
+    s32 index;
+    s32 value;
+    s32 (*callback)(s32, s32, s32, s32);
+    s32 result;
+    u8 *table;
+
+    extern s32 (*D_0060AB20[])(s32, s32, s32, s32);
+    extern s32 func_001f6220(u16, s32);
+
+    flags = *(s32 *)(iGpffffb3ac + 0xC);
+    if ((flags & 0x1000000) == 0) {
+        return 1;
+    }
+    if (*(u16 *)(iGpffffb3ac + 0xA50) != 0) {
+        return 0;
+    }
+    mode = arg4 & 6;
+    if ((mode == 0) && ((*(u16 *)(iGpffffb3ac + 0xA4E) & 1) != 0)) {
+        return 1;
+    }
+    table = iGpffffb414 + (*(u16 *)(*(u8 **)(iGpffffb3ac + 0xC68) + 8) * 0x18);
+    if ((*(s32 *)table & 0x400) != 0) {
+        return 1;
+    }
+    if ((*(u16 *)(iGpffffb3ac + 0xA4E) & 1) != 0) {
+        index = arg1 & 0xFFFF;
+        if (*(s16 *)(iGpffffb3ac + 0xA5C) == index) {
+            return 1;
+        }
+        if (*(s16 *)(iGpffffb3ac + 0xA64) == index) {
+            return 1;
+        }
+    }
+    callback = D_0060AB20[arg1 & 0xFFFF];
+    if (callback == NULL) {
+        return 1;
+    }
+    value = callback(arg0, arg2, arg3, 0);
+    if (value < 0) {
+        return 1;
+    }
+    if ((*(s32 *)table & 0x1000) != 0) {
+        u8 *pool;
+        u8 *entries;
+        s32 slot;
+        pool = *(u8 **)(iGpffffb3ac + 0xA54);
+        slot = value & 0xFFFF;
+        entries = *(u8 **)(pool + 0x110);
+        if (*(u8 *)(entries + slot * 0xC) != 0) {
+            return 1;
+        }
+    }
+    if ((arg4 & 2) != 0) {
+        func_001f62b0();
+        *(u16 *)(iGpffffb3ac + 0xA6E) = 2;
+    } else {
+        *(u16 *)(iGpffffb3ac + 0xA6E) = 0;
+    }
+    result = func_001f6220(arg1, value);
+    return result;
+}
 // FUN_001F58D0
 void func_001f58d0(void)
 {

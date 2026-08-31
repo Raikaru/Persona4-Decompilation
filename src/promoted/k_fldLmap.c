@@ -507,13 +507,95 @@ void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
    arguments and does not interleave the f13 chain. Best candidate:
    normalized_diff 82, object 344/352; discarded. */
 // FUN_00188690
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188690);
+void func_00188690(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 temp_16;
+    f32 temp_f1;
+    f32 temp_f2;
+
+    temp_16 = arg2 * 0x18;
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B8 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20BC + temp_16);
+    func_0025ecd0(
+        (f32)(s32)temp_f2,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8),
+        0xFFFF81,
+        0xFF,
+        7,
+        *(s32 *)(arg0 + 0x34),
+        1,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F20C0 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20C4 + temp_16);
+    func_0025ecd0(
+        (f32)(s32)temp_f2,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8),
+        0xEC7C00,
+        0xFF,
+        arg2 + 7,
+        *(s32 *)(arg0 + 0x28),
+        1,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+}
 
 /* measured re-triage: corrected two-call body has exact size, but MWCC b210
    sinks the f14 load below the integer arguments and serialises the f13
    chain. Best candidate: normalized_diff 79, object 336/336; discarded. */
 // FUN_001887F0
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_001887f0);
+void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    s32 temp_16;
+    f32 temp_f1;
+    f32 temp_f2;
+
+    temp_16 = arg2 * 0x10;
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F2130 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F2134 + temp_16);
+    func_0025ecd0(
+        (f32)(s32)temp_f2,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8),
+        0x313131,
+        0xFF,
+        6,
+        *(s32 *)(arg0 + 0x34),
+        1,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F2138 + temp_16);
+    temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F213C + temp_16);
+    func_0025ecd0(
+        (f32)(s32)temp_f2,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8),
+        0xFFFFFF,
+        0xFF,
+        arg2 + 7,
+        *(s32 *)(arg0 + 0x28),
+        1,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+}
 
 
 

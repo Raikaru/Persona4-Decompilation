@@ -62,6 +62,10 @@ extern void func_0038a940();
 extern void func_0038b1c0();
 extern void func_0034f460(s32 arg0, f32 arg1, s32 arg2, f32 arg3,
                           s32 arg4, s32 arg5, s32 arg6, s32 arg7);
+extern void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                          f32 fparg2, u8 arg2, u8 arg3, u8 arg4, s64 arg5,
+                          s64 arg6, s32 arg7, f32 fparg3, s16 arg_sp0,
+                          s16 arg_sp8);
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
 {
     return offset + base;
@@ -766,7 +770,69 @@ void func_0038b490(s32 arg0, u8 **arg1)
 // measured: restore propagation default
 #pragma opt_propagation on
 // FUN_0038B530
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b530);
+void func_0038b530(u8 *arg0, s32 arg1, f32 *arg2)
+{
+    s32 handle;
+    f32 x;
+    f32 y;
+
+    handle = *(s32 *)(*(u8 **)arg0 + 0x1F2AC);
+    switch (arg1) {
+    case 1:
+        func_0034f460(handle, 492.0f + arg2[0], 0x40,
+                      407.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 507.0f + arg2[0];
+        y = 403.0f + arg2[1];
+        func_0034f4a0(handle, 0x41, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+                      0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        func_0034f460(handle, 528.0f + arg2[0], 6,
+                      416.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 541.0f + arg2[0];
+        y = 414.0f + arg2[1];
+        func_0034f4a0(handle, 1, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+                      0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        break;
+    case 2:
+        func_0034f460(handle, 528.0f + arg2[0], 6,
+                      417.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 541.0f + arg2[0];
+        y = 414.0f + arg2[1];
+        func_0034f4a0(handle, 3, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+                      0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        break;
+    case 3:
+        func_0034f460(handle, 493.0f + arg2[0], 7,
+                      361.0f + arg2[1], 0xB4, 0xB4, 0xB4, 0xFF);
+        x = 504.0f + arg2[0];
+        y = 358.0f + arg2[1];
+        func_0034f4a0(handle, 4, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+                      0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        func_0034f460(handle, 479.0f + arg2[0], 6,
+                      397.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 492.0f + arg2[0];
+        y = 394.0f + arg2[1];
+        func_0034f4a0(handle, 5, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+                      0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        break;
+    case 4:
+        func_0034f460(handle, 483.0f + arg2[0], 0x14,
+                      413.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 498.0f + arg2[0];
+        y = 410.0f + arg2[1];
+        func_0034f4a0(handle, 0x1D, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+                      0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        func_0034f460(handle, 528.0f + arg2[0], 6,
+                      414.0f + arg2[1], 0xFF, 0xFF, 0xFF, 0xFF);
+        x = 542.0f + arg2[0];
+        y = 414.0f + arg2[1];
+        func_0034f4a0(handle, 0x13, x, y, 0.0f, 0xFF, 0xDB, 0x76,
+                      0xFF, 0x1000, 0x1000, -30.0f, 0, 0);
+        break;
+    default:
+        func_0046d730(D_0064F0E0, 0x3B2);
+        break;
+    }
+}
 // FUN_0038BAB0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038bab0);
 // FUN_0038C100
