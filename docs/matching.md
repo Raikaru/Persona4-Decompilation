@@ -275,6 +275,55 @@ literal word `measured` within three lines of the pragma, and a pragma that
 changes codegen with no recorded reason is the "window fill" defect this campaign
 exists to avoid. Record what the pragma fixed and what the residual was.
 
+### Second sweep: 60 additional knobs pulled from the b210 binary, zero closures
+
+`tools/knob_sweep.py` referenced above no longer exists in this tree (either lost
+or never ported from the P3 FES campaign); the underlying technique is simple
+enough to redo directly: `strings -a mwccps2.exe | grep -E '^[a-z_]{3,40}$'`
+finds identifier-shaped strings, then `tools/pragma_audit.py`'s `_compile_probe`
+helper (imported directly, not via its CLI) validates each with
+`#pragma warn_illpragma on` in a throwaway TU. That found **60 previously-unswept
+base names** (120 spellings with `on`/`off`) beyond the 9 base names already
+proven in this tree — mostly `opt_*` register/loop/scheduling internals plus
+`cse_hard_reg_{gpr,fpr,special,vu0}`, `reg_class_allocs`,
+`enable_vu0_registers`, `vu0_mmi_reg_binding`.
+
+All 120 spellings were swept against **eight representative documented floors**,
+one per distinct floor pattern (scheduler-residual delay-slot `addu`, 128-bit
+`sq`/`lq` slot compare, COP1 `adda`/`madd`/`msub` chains, two independent
+saved-register-rotation floors, FPU-accumulator, VU0/COP2 `s128`
+canonicalization, register/schedule/quad-shape) — 960 total compiles. **Zero
+knobs produced an exact match on any of the eight.** Do not re-run this sweep on
+these floor categories; the result is confirmed exhausted for this knob set.
+
+Findings worth keeping so nobody re-discovers them the hard way:
+
+- **`opt_pointer_analysis on` crashes `mwccgap`** (compile exception, not a
+  normal diagnostic) on every one of the eight probes. Never use it.
+- **`opt_generateconditionalassignments on`** triggers an MWCC *internal
+  compiler error* (`InstrSelection.c:3893`) on multiple probes. Never use it.
+- **`opt_markcounterloops on`** also hit a compile error on at least one probe.
+- **`opt_repositioncode on`** is the only knob that ever *improved*
+  `normalized_diff` by a nontrivial amount (-12 to -34 across three of the eight
+  probes) — but it also *worsened* three other probes by comparable amounts
+  (+20 to +235), and never got closer than 96% of the residual on any of them.
+  It is a real, inconsistent effect, not noise, but it is not source-reachable
+  as a general lever: treat a positive result on one function as
+  function-specific, never assume it generalizes.
+- **`opt_dead_code off` / `opt_dead_assignments off`** move `normalized_diff` by
+  single-digit-to-tens amounts on most probes, always in the *worse* direction
+  except once. Not useful.
+- **`opt_rotateloops on`** improved one saved-register-rotation probe
+  substantially (-42) and worsened a different one (+93) — same
+  inconsistent-per-function pattern as `opt_repositioncode`.
+- **`opt_foldconstants off`** gave one small improvement (-6) on the
+  register/schedule/quad-shape probe; unchanged everywhere else.
+- The other ~53 of the 60 new base names (including every `cse_hard_reg_*`,
+  `reg_class_allocs`, `enable_vu0_registers`, `vu0_mmi_reg_binding`,
+  `opt_scalarizeliveranges`, `opt_marknonregtemps`, `opt_optimizenonregaccess`,
+  `opt_decomposeaggregates`, `opt_recomposeaggregates`, `opt_scalarizebitfields`)
+  had **zero measurable effect** on any of the eight probes, in either state.
+
 ## A function that cannot be matched may have the wrong WINDOW
 
 Before treating a function as unmatchable, check that its boundary is right. Three
