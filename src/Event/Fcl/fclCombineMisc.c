@@ -33,18 +33,13 @@ extern u8 D_00642F04[];
 // FUN_00311EA0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00311ea0);
 
-/* measured: 128-bit-slot wall (same family as FUN_003130E0): retail loads
-   spA0 from D_00642F04+arg1*8 into a quadword slot (lw $2; sq $2,0xA0) and
-   tests the 0x18-iteration loop with `lq $2,0xA0; slt $2,$18,$2` (raw
-   quadword compare, no narrowing). The full C probe was 664B vs the 640B
-   retail window (normalized_diff 381). The old "u_long128 read-back still
-   lowers through a scalar load" claim used the wrong type name/technique --
-   see the corrected note above func_003130e0 and docs/matching.md's
-   "128-bit lq/sq aggregate copy" entry: `typedef signed __int128 s128;`
-   (not `u_long128`) plus a narrowing cast on the reload is the real,
-   working technique, already reducing func_003130e0's residual from
-   nd528 to nd163 (not yet exact). Not yet re-attempted here with the real
-   type; try it before assuming this is unreachable. */
+/* measured: corrected `typedef signed __int128 s128` aggregate-copy probe
+   generated the retail-shaped `lw $2; sq $2,0xA0` and `lq $2,0xA0` reload
+   (with a narrowing scalar cast), but the target did not close. Best probe
+   was 648B vs the 640B retail window, normalized_diff 97 (reloc-masked).
+   Tried scalar s128 storage, separate s64 threshold, explicit control-flow
+   labels, declaration ordering, and register parameter hints; remaining
+   register-allocation/control-flow layout is the floor. */
 // FUN_00312220
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312220);
 
@@ -207,14 +202,138 @@ INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003130e0);
 
 /* measured: identical 128-bit-slot pattern to func_003130e0 (retail sq's
    arg0&0xFF into spA0 at 0xA0 and lq's it back in the 0xC0 i-loop, raw bne
-   compare; 736B retail window). The old "no legal C data-size spelling"
-   claim was wrong about the type -- see the corrected note above
-   func_003130e0 and docs/matching.md's "128-bit lq/sq aggregate copy"
-   entry: `typedef signed __int128 s128;` plus a narrowing (s64) cast on
-   the reload for the compare is the real technique. Not yet re-attempted
-   with it (func_003130e0 got to nd163 with real effort and is still not
-   exact; this sibling was deprioritized behind that one). Try the same
-   technique here before assuming it is unreachable. */
+   compare; 736B retail window). The corrected technique from docs/matching.md's
+   "128-bit lq/sq aggregate copy" entry closes this target: local
+   `typedef signed __int128 s128;`, a narrowing (s64) reload compare, and
+   source-shaped continue/masked-u16 updates produce an exact MATCH
+   (724B object, relocation-normalized diff 0). */
 // FUN_003133B0
-INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003133b0);
+s32 func_003133b0(u32 arg0, s32 arg1, u16 *arg2) {
+    typedef signed __int128 s128;
+    extern u8 *DAT_007644c4;
+    u16 *input;
+    s128 spA0;
+    s16 temp_3_2;
+    s32 temp_16;
+    s32 temp_21;
+    s32 temp_23;
+    s32 temp_3_3;
+    s32 temp_3_4;
+    s32 temp_4_3;
+    s32 temp_4_4;
+    s32 var_20;
+    s32 var_19;
+    s32 var_18;
+    s32 var_22;
+    s32 var_2;
+    s32 var_2_2;
+    s32 var_3;
+    s32 var_3_2;
+    u16 temp_3;
+    u32 var_17;
+    u8 temp_5;
+    u8 *temp_4;
+    u8 *temp_4_2;
+
+    var_19 = 0;
+    var_18 = 0;
+    var_20 = 0;
+    input = arg2;
+    spA0 = arg0 & 0xFF;
+    temp_23 = arg1 & 0xFF;
+    for (; (var_20 & 0xFFFF) < 0xC0;
+         var_20 = (var_20 + 1) & 0xFFFF) {
+        temp_16 = var_20 & 0xFFFF;
+        temp_4 = iGpffffb3d4;
+        temp_21 = (u16)var_20 * 0xE;
+        temp_4 += temp_21;
+        if ((s64)spA0 == *(u8 *)(temp_4 + 2)) {
+            temp_3 = *(u16 *)temp_4;
+            if (temp_3 & 1) {
+                var_2 = 0;
+            } else if (temp_3 & 2) {
+                var_2 = 0;
+            } else {
+                var_2 = 1;
+            }
+            if (var_2 != 0) {
+                var_22 = 1;
+                for (var_17 = 0; var_17 < 0x17U; var_17++) {
+                    temp_4_2 = D_006420A0 + (var_17 * 8);
+                    if (temp_16 != *(s16 *)(temp_4_2 + 4)) {
+                        continue;
+                    }
+                    temp_3_2 = *(s16 *)(temp_4_2 + 6);
+                    if (temp_3_2 & 1) {
+                        if (func_00106330(*(s32 *)temp_4_2) != 0) {
+                            continue;
+                        }
+                        var_3 = 0;
+                        goto block_16;
+                    } else if (temp_3_2 & 2) {
+                        var_22 = 0;
+                        if (func_00106330(*(s32 *)temp_4_2) != 1) {
+                            continue;
+                        }
+                        var_3 = 1;
+                        goto block_16;
+                    }
+                }
+                var_3 = var_22;
+block_16:
+                if (var_3 != 0) {
+                    temp_3_3 = var_18 & 0xFFFF;
+                    if ((temp_3_3 == 0) ||
+                        ((temp_4_3 = (s32)iGpffffb3d4,
+                          (s32)*(u8 *)(temp_4_3 + (temp_3_3 * 0xE) + 3) <
+                          (s32)*(u8 *)(temp_4_3 + temp_21 + 3)) != 0)) {
+                        temp_16 = temp_16 ^ 0;
+                        var_18 = (u32)(u16)var_20;
+                    }
+                    temp_5 = *(u8 *)(iGpffffb3d4 + temp_21 + 3);
+                    if ((s32)temp_5 > temp_23) {
+                        continue;
+                    }
+                    var_3_2 = 0;
+                    goto loop_28_cond;
+loop_28_body:
+                    if (temp_16 == input[var_3_2]) {
+                        var_2_2 = 1;
+                        goto loop_28_done;
+                    }
+                    var_3_2 += 1;
+loop_28_cond:
+                    if (var_3_2 < 0xC) {
+                        goto loop_28_body;
+                    }
+                    var_2_2 = 0;
+loop_28_done:
+                    if ((var_2_2 == 0) &&
+                        ((temp_4_4 = var_19 & 0xFFFF,
+                          (temp_4_4 == 0)) ||
+                         ((temp_4_3 = (s32)DAT_007644c4,
+                           (s32)*(u8 *)(temp_4_3 +
+                                        (temp_4_4 * 0xE) + 3) <
+                           (s32)temp_5)))) {
+                        temp_16 = temp_16 ^ 0;
+                        var_19 = (u32)(u16)var_20;
+                    }
+                }
+            }
+        }
+    }
+    if (var_18 == 0) {
+        func_0046d730(D_00642F30, 0x43A);
+    }
+    if (!(var_19 & 0xFFFF)) {
+        temp_4_3 = (s32)DAT_007644c4;
+        temp_3_4 = var_18 & 0xFFFF;
+        temp_4 = (u8 *)(temp_3_4 * 0xE);
+        temp_4 += temp_4_3;
+        if ((s32)*(u8 *)(temp_4 + 3) < temp_23) {
+            var_19 = temp_3_4;
+        }
+    }
+    return var_19;
+}
 
