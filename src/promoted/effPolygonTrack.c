@@ -337,20 +337,28 @@ u8 *func_00493530(u8 *arg0)
     return t2;
 }
 
-/* measured: retail stores the new object into field_2C, loads field_30,
-   stores it to +0x4C via the call-result register, then emits a dead
-   `move $v0,$v0` (store-forwarding residue) before the next field_2C load;
-   mwcc b210 either CSEs the pointer reload away entirely (temp spelling,
-   nd 25, missing word) or materializes it as `move $v0,$v0` one slot early
-   (chained `*(u8**)(arg0+0x2C)+0x4C` spelling, nd 2 — the sw/move pair
-   swapped). #pragma schedule on / optimization_level 3 both worsen it
-   (hoisted loads + beql if-conversion). Dead-copy placement floor. */
-/* measured: object 180B/window 192B, normalized_diff 64; differing offsets
-   60 and 88-106 (reloc-masked 25 words). Tried temp/direct/reload/self/chain
-   spellings, typed allocator argument, schedule on, and optimization level
-   3; residual branch/body layout and delayed tail sequence remained. */
-// FUN_004936D0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_004936d0);
+// FUN_004936D0
+void func_004936d0(u8 *arg0, u8 *arg1)
+{
+    u8 *v;
+
+    if (*(u32 *)(arg1 + 0x2C) == 0) {
+        func_0046d730(D_00713E30, 0x115);
+    }
+    if (*(u32 *)(arg0 + 0x2C) == 0) {
+        v = func_00486a50(*(s32 *)arg0);
+        *(u8 **)(arg0 + 0x2C) = v;
+        *(u32 *)(*(u8 **)(arg0 + 0x2C) + 0x4C) =
+            *(u32 *)(arg0 + 0x30);
+    }
+    if (*(u32 *)(*(u8 **)(arg1 + 0x2C) + 0x50) != 0) {
+        v = func_00483270(*(u8 **)(*(u8 **)(arg1 + 0x2C) + 0x50));
+        *(u8 **)(*(u8 **)(arg0 + 0x2C) + 0x50) = v;
+    }
+    func_00487160(*(u8 **)(arg0 + 0x2C), *(u8 **)(arg1 + 0x2C));
+    *(u16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) =
+        *(u16 *)(*(u8 **)(arg1 + 0x2C) + 0xC);
+}
 
 // FUN_00493790
 void func_00493790(u8 *arg0, u16 arg1, u8 *arg2)
@@ -481,7 +489,5 @@ void func_00493e30(u8 *arg0, f32 fparg0)
     func_00492e30((u16 *)*(u32 *)(arg0 + 0x30));
 }
 
-/* measured: candidate palette reconstruction reaches object 628B/window 624B,
-   normalized_diff 233; oversized body discarded per lane budget. */
-// FUN_00493E60 NONMATCHING
+// FUN_00493E60
 INCLUDE_ASM("asm/nonmatchings/effPolygonTrack", func_00493e60);
