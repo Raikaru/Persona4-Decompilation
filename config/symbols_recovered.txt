@@ -1298,7 +1298,6 @@ func_001d1f30 = 0x001d1f30; // type:data
 func_001D2D90 = 0x001d2d90; // type:data
 func_001d2e20 = 0x001d2e20; // type:data
 func_001D3000 = 0x001d3000; // type:data
-func_001d3090 = 0x001d3090; // type:data
 func_001D3530 = 0x001d3530; // type:data
 func_001d3530 = 0x001d3530; // type:data
 func_001d3700 = 0x001d3700; // type:data
