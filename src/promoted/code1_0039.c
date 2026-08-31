@@ -754,25 +754,16 @@ ret0:
 /* measured: closes the schedule-on 99b80 probe. */
 #pragma schedule off
 
-/* measured: retail enters the slot loop directly (proves i=0<2, no pre-test)
-   and hoists the compare constant (addiu $v1,$zero,1) into the preheader;
-   b210 materialises the constant in the body and emits a `b` to the bottom
-   test, plus prologue scheduling order and epilogue delay-slot ordering.
-   Probed: do/while (nd 55), schedule on (nd 64), opt_loop_invariants (nd 54),
-   optimization O1 (nd 61) / O3 (nd 56), no_branch_likely. Same family floor as
-   the parked a090/a340/a3a0/a400/a630 (nd 36-46). Committed at nd 44. */
-/* measured: the loop walks an entry pointer and the found-exit is a bne/b pair
-   in retail. Giving the result its OWN pointer, distinct from the walking one,
-   and entering the loop directly with a do/while is worth nd 44 -> 36 - the same
-   separate-result-pointer shape that matched the nine-function cmmCommunity
-   family. What is left is the gp load and the counter zero being transposed,
-   the commutative addu that forms the record address, the compare constant
-   materialising inside the loop instead of the preheader, and two unfilled
-   delay slots; schedule on fills the slots but shrinks the object to 84 bytes
-   (nd 44). #pragma opt_loop_invariants on takes the same body 36 -> 18:
-   retail materialises the compare constant in the preheader and b210 only
-   does so with that pragma. Committed at nd 0. */
-
+/* measured: the prior nd44 -> nd36 -> nd18 slot-loop probe was attached to
+   the wrong marker. It describes the 00399fd0/0039a200 slot-search family;
+   retail 00399bf0 is an allocator/state-switch routine and has no loop.
+   A plain-C reconstruction using schedule/no-branch pragmas and explicit
+   allocator-retry/reset labels reaches object 392B in the 400B window, but
+   the retail post-store reload at p+0x80 (the type field re-read
+   immediately after being written) only reproduces exactly with `volatile`
+   on that ordinary allocator-struct field -- disallowed as H001
+   compiler-steering (not a hardware address). No legal-C lever found to
+   force the reload without it. Bare assembly fallback restored. */
 // FUN_00399BF0
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399bf0);
 
