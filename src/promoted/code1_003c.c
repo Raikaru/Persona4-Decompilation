@@ -108,8 +108,8 @@ extern u8 D_0070AF70[];
 extern u8 D_0070B040[];
 extern u8 D_008872E4[];
 extern s32 func_003c5a90(u8 *arg0, u8 *arg1, s32 arg2, u8 *arg3);
-extern void func_003cbde0(u8 *arg0, void (*arg1)(u8 *), u8 *arg2);
-extern void func_003c8dd0(u8 *arg0);
+extern u8 *func_003cbde0(u8 *arg0, u8 *(*arg1)(u8 *arg0, u8 *arg1), u8 *arg2);
+extern u8 *func_003c8dd0(u8 *arg0, u8 *arg1);
 extern u8 *func_003cbc90(u8 *arg0, u8 *arg1);
 extern void func_003cbe80(u8 *arg0, u8 *arg1);
 extern u8 D_0070AF90[];
@@ -135,29 +135,7 @@ extern s32 D_007647BC;
    order; schedule off is oversized at 156B/144B, nd 106. See
    build/W4C3C_003c0050_body.c. */
 // FUN_003C0050 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_003c0050(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
-    extern s32 iGpffffb6b4;
-    u8 *end;
-    s32 *node;
-    s32 next;
-    end = arg0 + 0x10;
-    node = *(s32 **)(arg0 + 0x10);
-    if (node == (s32 *)end)
-        goto empty;
-loop:
-    next = *node;
-    if (arg1((s32)((u8 *)node - 4) - iGpffffb6b4, arg2) == 0)
-        return arg0;
-    node = (s32 *)next;
-    if (next != (s32)end)
-        goto loop;
-empty:
-    return arg0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0050);
-#endif
 // FUN_003C00E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c00e0);
 // FUN_003C0210
@@ -2416,8 +2394,43 @@ u8 *func_003cbcf0(u8 *arg0, u8 *arg1) {
 }
 #pragma no_branch_likely off
 #pragma schedule off
-// FUN_003CBDE0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbde0);
+/* measured: schedule on fills the callback and shared-return delay slots. */
+#pragma schedule on
+/* measured: no_branch_likely on keeps the callback tests as plain branches. */
+#pragma no_branch_likely on
+// FUN_003CBDE0
+u8 *func_003cbde0(u8 *arg0, u8 *(*arg1)(u8 *arg0, u8 *arg1), u8 *arg2) {
+    u8 *self;
+    u8 **items;
+    s32 count;
+
+    self = arg0;
+    items = *(u8 ***)(self + iGpffffb708);
+    count = *(s32 *)(self + iGpffffb708 + 8);
+    if (count != 0)
+        goto process;
+    goto empty;
+empty:
+    return self;
+process:
+    if (arg1(*items, arg2) == NULL)
+        goto failed;
+    goto callback_ok;
+failed:
+    return self;
+callback_ok:
+    count -= 1;
+    items += 1;
+    if (count == 0)
+        goto complete;
+    goto process;
+complete:
+    goto empty;
+}
+/* measured: no_branch_likely off closes cbde0's plain-test bracket. */
+#pragma no_branch_likely off
+/* measured: schedule off closes cbde0's callback-delay bracket. */
+#pragma schedule off
 
 // FUN_003CBE80 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cbe80);

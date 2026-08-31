@@ -20,7 +20,7 @@ extern u8 iGpffff9f2b;
 extern u8 iGpffff9f24;
 extern s32 func_0014b870(s32 arg0, s32 arg1);
 extern void func_002319c0(s32 arg0);
-extern s32 func_0047ae90(s32 arg0, s32 arg1);
+extern s32 func_0047ae90(s32 arg0, u16 arg1);
 extern s32 func_004553c0(s32 arg0);
 extern void func_00454bd0(s32 arg0);
 extern void func_0043f810(void *arg0, s32 arg1, s32 arg2);
@@ -176,16 +176,64 @@ s32 func_00451fc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4, void (*arg5)
 
 
 
-/* measured: retail schedules the three arg loads of func_0043f810 (arg3 0x118
-   first, then arg1 0x734, then arg2 0x110); mwcc b210 always emits them in
-   source order (0x734, 0x110, 0x118). Tried: inline loads, preloaded t-local,
-   void-star / u32 / s32 prototypes, pointer casts — all give the identical nd 6
-   (3 rows). Argument-evaluation-order floor. */
+/* measured: disable common-subexpression elimination to preserve the retail
+   second unit-base materialization after the allocator call. */
+#pragma opt_common_subs off
 // FUN_00162C30
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162c30);
+s32 func_00162c30(void)
+{
+    s32 field;
+    s32 i;
+    s32 j;
+    s32 k;
+    s32 *v4;
+    s32 *v7;
+    s32 v9;
+    s32 v18;
+    s32 resource;
 
-
-
+    for (i = 0; i < 4; i++) {
+        v4 = ((s32 *)D_007EF9B0) + i * 468;
+        if ((v4[18] != 0) && (v4[21] == 0)) {
+            if (func_004782b0(v4[20]) == 0) {
+                return 0;
+            }
+            for (j = 0; j < 5; j++) {
+                if (func_0047ae90(v4[20], j) == 0) {
+                    return 0;
+                }
+            }
+            if ((v18 = v4[460]) != 0) {
+                if (func_004553c0(v18) == 0) {
+                    return 0;
+                }
+                func_0044ea90(D_005F1500, 0x218);
+                v7 = ((s32 *)D_007EF9B0) + i * 468;
+                field = (s32)(v7 + 460);
+                resource = *(s32 *)(v7[460] + 0x118);
+                v7[461] = (*DAT_008873F4)(1, resource, 0x40000);
+                v7[462] = *(s32 *)(*(s32 *)field + 0x118);
+                resource = *(s32 *)field;
+                v9 = *(s32 *)(resource + 0x118);
+                func_0043f810((void *)v7[461],
+                              *(s32 *)(resource + 0x110), v9);
+                func_00454bd0(*(s32 *)field);
+                *(s32 *)field = 0;
+                for (k = 0; k < 5; k++) {
+                    resource = v7[20];
+                    v9 = *(s32 *)((s32)resource + k * 0xC + 0x290);
+                    if (v9 != 0) {
+                        *((s32 *)((s32)v7 + k * 4) + 453) =
+                            *(s32 *)(v9 + 0x2FC);
+                    }
+                }
+            }
+        }
+    }
+    return 1;
+}
+/* measured: restore common-subexpression elimination after func_00162c30. */
+#pragma opt_common_subs on
 // FUN_00162E10
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00162e10);
 
