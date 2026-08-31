@@ -50,7 +50,7 @@ extern void func_00451de0(void *list, s32 count, s32 a, s32 b,
 extern s32 func_00121af0(void);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(char *name, u8 *task);
-extern void func_001221a0(void);
+extern void func_001221a0(void *arg0, u8 *arg1);
 extern void func_00122a40(void);
 extern char D_00796340[];
 extern char D_00795F50[];
@@ -74,7 +74,7 @@ extern void func_00123850(void);
 extern s32 func_00268990(s32 arg0);
 extern void func_00103b00(void);
 extern void func_0046a340(s32 arg0);
-extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
 extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -504,7 +504,83 @@ void func_00121f20(void)
     }
 }
 // FUN_001221A0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001221a0);
+/* measured: opt_propagation off preserves the single hoisted D_00887300 base
+   used by retail across this callback's state setup sequence. */
+#pragma opt_propagation off
+void func_001221a0(void *arg0, u8 *arg1)
+{
+    typedef struct {
+        s32 s0;
+        s32 s1;
+        s32 s2;
+        s32 s3;
+        u8 pad10[8];
+        u8 c1c;
+        u8 c1d;
+        u8 c1e;
+        u8 c1f;
+    } Frame001221A0;
+    extern s32 (*D_00887304[])(s32 arg0, void *arg1);
+    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    Frame001221A0 sp;
+    void (**base)(s32 arg0, s32 arg1);
+    s32 result;
+    s32 state;
+    s32 alpha;
+
+    if ((*(u32 *)(arg1 + 0x10) & 1) != 0) {
+        D_00887304[0](0xE, &result);
+        base = D_00887300;
+        base[0](0xE, 0);
+        base[0](6, 0);
+        base[0](7, 2);
+        base[0](8, 0);
+        base[0](9, 2);
+        base[0](0xC, 1);
+        base[0](0xB, 6);
+        base[0](0xA, 5);
+        base[0](2, 4);
+        base[0](0xE, 0);
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+        state = *(s32 *)(arg1 + 4);
+        if (state == 3)
+            goto state3;
+        if (state == 2)
+            goto state2;
+        if (state == 4)
+            goto draw;
+        if (state == 1)
+            goto draw;
+        if (state == 0 || state != 0)
+            goto done;
+        goto done;
+    draw:
+        if (iGpffffb1cc != 0) {
+            alpha = ((*(s32 *)(iGpffffb1cc + 0xC) * 0xFF) /
+                     *(s32 *)(iGpffffb1cc + 8));
+            sp.s0 = 0;
+            sp.s1 = 0;
+            sp.s2 = 0x280;
+            sp.s3 = 0x1E0;
+            sp.c1f = (u8)alpha;
+            sp.c1c = iGpffffb1d8;
+            sp.c1d = iGpffffb1d4;
+            sp.c1e = iGpffffb1d0;
+            func_0045d6e0(&sp.c1c, &sp.s0, 1, 0.0f);
+        }
+        goto done;
+    state2:
+        func_00121de0();
+        goto done;
+    state3:
+        func_00121f20();
+    done:
+        base[0](0xE, result);
+    }
+}
+/* measured: closes the opt_propagation bracket for func_001221a0. */
+#pragma opt_propagation on
 // FUN_001223D0
 s32 func_001223d0(void) {
     u8 *p;
@@ -983,7 +1059,153 @@ s32 func_00123e30(void)
 }
 
 // FUN_00123E80
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00123e80);
+s32 func_00123e80(u8 *arg0)
+{
+    extern s32 func_00122520(s32 arg0, s32 arg1);
+    extern void func_00111050(s32 arg0);
+    extern void func_00459880(void);
+    extern void func_0045a8d0(s32 arg0, s32 arg1);
+    extern s32 func_0012c110(void);
+    extern s32 func_0012c1a0(s32 arg0);
+    extern s32 func_0046a110(void *arg0, s32 arg1, void *arg2);
+    extern void func_00121940(void);
+    extern void func_00122640(s32 arg0, s32 arg1);
+    extern s32 func_0012b760(void);
+    extern s32 func_0012b810(s32 arg0);
+    extern s32 iGpffffb1e4;
+    extern s32 iGpffffb1f0;
+    extern u8 D_007963A0[];
+    extern u8 D_0079B698[];
+    extern u8 D_0079B69C[];
+    extern u8 D_0079B6A0[];
+    u8 *temp_16;
+    s32 temp_2;
+    s16 temp_3;
+    typedef struct {
+        s16 s20;
+        s16 s22;
+        s16 s24;
+        s16 s26;
+        s16 s28;
+        u8 pad_short[0x1E];
+    } ShortWork;
+    typedef struct {
+        s32 s48;
+        s32 s4C;
+    } IntWork;
+    ShortWork short_work;
+    IntWork int_work;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    switch (*(u32 *)temp_16) {
+    case 0:
+        temp_2 = func_00122720();
+        if (temp_2 == 0)
+            break;
+        switch (temp_2) {
+        case 2:
+            *(u32 *)temp_16 = 2;
+            break;
+        default:
+            func_00122520(1, 1);
+            *(u32 *)temp_16 = 1;
+            break;
+        }
+        break;
+    case 1:
+        if (func_00122720() != 0) {
+            *(u32 *)temp_16 = 2;
+        }
+        break;
+    case 2:
+        func_00111050(1);
+        func_00459880();
+        func_0045a8d0(3, 0);
+        *(s32 *)(temp_16 + 0xC) = func_0012c110();
+        *(u32 *)temp_16 = 3;
+        break;
+    case 3:
+        if (func_0012c1a0(*(s32 *)(temp_16 + 0xC)) != 0) {
+            *(u32 *)temp_16 = 4;
+        }
+        break;
+    case 4:
+        if (iGpffffb1e4 == 0) {
+            *(s32 *)(temp_16 + 0xC) = func_0046a110(arg0, 0x15, D_007963A0);
+        } else {
+            *(s32 *)(temp_16 + 0xC) = func_0046a110(arg0, 0x16, D_007963A0);
+        }
+        iGpffffb1e4 = ~iGpffffb1e4;
+        *(u32 *)temp_16 = 5;
+        break;
+    case 5:
+        if (func_00452490(*(s32 *)(temp_16 + 0xC)) != 1) {
+            *(u32 *)temp_16 = 6;
+        }
+        break;
+    case 6:
+        *(s32 *)(temp_16 + 0xC) = (s32)func_0012b760();
+        *(u32 *)temp_16 = 7;
+        break;
+    case 7:
+        temp_2 = func_0012b810(*(s32 *)(temp_16 + 0xC));
+        if (temp_2 == 4)
+            goto state4;
+        if (temp_2 == 3)
+            goto state3;
+        if (temp_2 == 2)
+            goto state2;
+        switch (temp_2) {
+        case 1:
+            goto state1;
+        default:
+            goto state_done;
+        }
+    state1:
+        *(u32 *)temp_16 = 2;
+        goto state_done;
+    state2:
+        func_001113b0();
+        func_00111290();
+        func_00123850();
+        func_001238c0(1);
+        func_001029a0(0x19, 0, 0, 0);
+        return -1;
+    state3:
+        iGpffffb1f0 = 1;
+        func_00123850();
+        func_001238c0(1);
+        temp_3 = (s16)func_001060d0();
+        if ((temp_3 == 9) && ((u8)func_001060e0() == 5)) {
+            func_001029a0(0x19, 0, 0, 0);
+            return -1;
+        }
+        if (*(s32 *)D_0079B6A0 != 0) {
+            int_work.s48 = *(s32 *)D_0079B6A0;
+            int_work.s4C = 0xFF;
+            func_001029a0(0xB, &int_work, 8, 2);
+        } else {
+            short_work.s20 = (s16)*(s32 *)D_0079B698;
+            short_work.s22 = (s16)*(s32 *)D_0079B69C;
+            short_work.s24 = 0xFF;
+            short_work.s26 = 0;
+            short_work.s28 = 0;
+            func_001029a0(9, &short_work, 0x1C, 0);
+        }
+        goto state_done;
+    state4:
+        func_001238c0(1);
+        func_00121940();
+        func_00122640(0, 1);
+        *(u32 *)temp_16 = 8;
+        goto state_done;
+    state_done:
+    case 8:
+    default:
+        break;
+    }
+    return 0;
+}
 // FUN_00124210
 void func_00124210(u8 *arg0)
 {
@@ -1263,7 +1485,7 @@ loop_10_test:
     jtbl_008873EC[0](temp_2);
 }
 // FUN_0012B760
-void func_0012b760(void)
+s32 func_0012b760(void)
 {
     u8 *temp_2;
     func_0044ea90(D_005E5548, 0x728);

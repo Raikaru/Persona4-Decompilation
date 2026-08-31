@@ -73,7 +73,7 @@ s32 func_0011d1f0(u8 *);
 void func_0011d3c0(u8 *);
 u8 *func_0011d460(s32, s32, f32, s32, s32);
 void func_0011e390(u8 *, Vec2f);
-void func_00364680(s32, s32 *, s32, s32, f32, f32, f32, f32, f32, f32, f32);
+void func_00364680(f32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 void func_003f6440(s32, s32);
 s32 func_0011f5a0(u8 *);
 void func_0011fb90(u8 *);
@@ -2535,7 +2535,28 @@ void func_0011dc50(u8 *arg0)
    identical. Register-colouring floor. */
 /* measured: full body decompiled (guard chain, two float lerps, func_00364680 + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as func_0011dc50 note). Committed at nd 53. */
 // FUN_0011DD50
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011dd50);
+void func_0011dd50(u8 *arg0)
+{
+    u8 *work;
+    s32 first;
+
+    work = ((SdkTask *)arg0)->work;
+    if (*(s32 *)work == 3 && *(s32 *)(work + 4) != 0 &&
+        *(s32 *)(work + 0x14) != 0) {
+        *(f32 *)(work + 0x40) +=
+            (*(f32 *)(work + 0x28) - *(f32 *)(work + 0x40)) / 3.0f;
+        *(f32 *)(work + 0x44) +=
+            (*(f32 *)(work + 0x2C) - *(f32 *)(work + 0x44)) / 3.0f;
+        first = *(s32 *)(work + 0x0C);
+        func_00364680(*(f32 *)(work + 0x18), first,
+                      *(f32 *)(work + 0x40) + *(f32 *)(work + 0x38),
+                      *(f32 *)(work + 0x44) + *(f32 *)(work + 0x3C),
+                      *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
+                      512.0f, 512.0f, *(s32 *)(work + 0x50), 1, 0);
+        func_003f6440(3, 0x717FB);
+        func_003f6440(2, 0x44);
+    }
+}
 
 
 

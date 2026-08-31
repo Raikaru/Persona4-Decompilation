@@ -1387,7 +1387,48 @@ fail:
     return 0;
 }
 // FUN_0015B240
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015b240);
+void func_0015b240(void)
+{
+    u8 *entry;
+    s32 flag;
+    s32 field_x;
+    s32 field_y;
+
+    entry = func_001452b0(0xA);
+    if (func_0014a200() == 0) {
+        if (func_0014a270() == 0) {
+            return;
+        }
+    }
+    while (entry != NULL) {
+body:
+            field_x = (s32)((*(f32 *)(func_0047a2f0(*(s32 *)(entry + 0x144)) + 0x30) +
+                             600.0f) /
+                            1200.0f);
+            field_y = (s32)((*(f32 *)(func_0047a2f0(*(s32 *)(entry + 0x144)) + 0x38) +
+                             600.0f) /
+                            1200.0f);
+            flag = 0;
+            if ((*(u8 *)((u8 *)func_00155280() + (field_y << 8) +
+                         (field_x << 4) + 0x5F) &
+                 0xF0) != 0) {
+                flag = 1;
+            }
+            if (flag == 1) {
+                if (func_00457c90(
+                        func_0047a310(*(s32 *)(entry + 0x144)),
+                        D_005F0690) != 0) {
+                    func_00479940(*(s32 *)(entry + 0x144), 0, 2, 0, 0);
+                }
+                if (func_00457c90(
+                        func_0047a310(*(s32 *)(entry + 0x144)),
+                        D_005F06A0) != 0) {
+                    *(s32 *)(entry + 0x150) = 0;
+                }
+            }
+            entry = *(u8 **)(entry + 0x138);
+        }
+}
 // FUN_0015B3E0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015b3e0);
 // FUN_0015BAE0

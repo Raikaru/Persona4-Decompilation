@@ -2443,7 +2443,57 @@ void func_001ee1c0(void) {
     *(f32 *)(iGpffffb3ac + 0x6B0) = temp_f0;
 }
 // FUN_001EE250
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ee250);
+void func_001ee250(u8 *arg0, u8 *arg1)
+{
+    extern void func_001ec790(u8 *arg0, s16 arg1, s16 arg2, f32 arg3);
+    f32 coords[3];
+    s16 out_x;
+    s16 out_y;
+    f32 scale;
+    s32 x;
+    s32 y;
+    s32 rounded_x;
+    s32 rounded_y;
+    u8 *work;
+
+    func_00195850(arg0, coords);
+    scale = *(f32 *)(arg0 + 0x90) * *(f32 *)(arg0 + 0x2C);
+    x = (s32)((f32)0x6D6 + coords[0]);
+    y = (s32)((f32)0x6D6 + coords[2]);
+    rounded_x = (s64)(s16)(x / 25);
+    rounded_y = (s64)(s16)(y / 25);
+    if ((x % 25) > 12)
+        rounded_x = (s64)(s16)(rounded_x + 1);
+    if ((y % 25) > 12)
+        rounded_y = (s64)(s16)(rounded_y + 1);
+    if (&out_x != NULL)
+        out_x = rounded_x;
+    if (&out_y != NULL)
+        out_y = rounded_y;
+    work = arg0;
+    func_001ec790(work, out_x, out_y, scale);
+    if (arg1 != NULL) {
+        *(f32 *)(arg1 + 0) = (f32)(out_x * 25 - 0x6D6);
+        *(s32 *)(arg1 + 4) = 0;
+        *(f32 *)(arg1 + 8) = (f32)(out_y * 25 - 0x6D6);
+    }
+    *(s16 *)(arg0 + 0x508) = out_x;
+    *(s16 *)(arg0 + 0x50A) = out_y;
+    *(f32 *)(arg0 + 0x50C) = scale;
+    *(s32 *)(arg0 + 0x9C) |= 4;
+    *(s32 *)(arg0 + 0x9D0) = 0;
+    if (*(u8 **)(iGpffffb3ac + 0x318) == NULL)
+        goto ee250_no_head;
+    *(u8 **)(*(u8 **)(iGpffffb3ac + 0x318) + 0x4C8) =
+        arg0 + 0x508;
+    *(u8 **)(arg0 + 0x9D4) =
+        *(u8 **)(iGpffffb3ac + 0x318);
+    goto ee250_link_done;
+ee250_no_head:
+    *(u8 **)(arg0 + 0x9D4) = NULL;
+ee250_link_done:
+    *(u8 **)(iGpffffb3ac + 0x318) = arg0 + 0x508;
+}
 // FUN_001EE430
 void func_001ee430(u8 *arg0) {
     s32 temp_5;
@@ -2580,9 +2630,50 @@ s32 func_001ef4a0(s32 arg0)
     return value;
 }
 // FUN_001EF4D0
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef4d0);
-// FUN_001EF5F0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: preserve retail count-result branch shape while probing ef4d0. */
+#pragma opt_common_subs off
+s32 func_001ef4d0(s32 arg0, s32 arg1)
+{
+    u8 *current;
+    u8 *entry;
+    s32 total;
+    s32 count;
+    s32 mask;
+    s32 count_mask;
+    s32 value;
+
+    total = 0;
+    count = 0;
+    current = *(u8 **)(iGpffffb3ac + 0x174);
+    mask = arg0 & 0xFFFF;
+    while (current != NULL) {
+        if ((*(u16 *)(current + 0x1A) & 1) != 0) {
+            entry = *(u8 **)(current + 0x30);
+            if ((mask & (1 << *(u8 *)(entry + 0xA2))) != 0) {
+                if ((arg1 == 0) ||
+                    (func_00232710(*(s32 *)(entry + 0xA64), arg1) == 0)) {
+                    total = (total +
+                             (func_00231e20(*(s32 *)(entry + 0xA64)) & 0xFF)) &
+                            0xFFFF;
+                    count = (count + 1) & 0xFFFF;
+                }
+            }
+        }
+        current = *(u8 **)(current + 0x450);
+    }
+    count_mask = count & 0xFFFF;
+    if (count_mask == 0)
+        return 1;
+    value = ((total & 0xFFFF) / count_mask) & 0xFFFF;
+    if (value == 0)
+        return 1;
+    return value;
+}
+/* measured: close ef4d0 branch-shape probe. */
+#pragma opt_common_subs on
+// FUN_001EF5F0
+/* measured: preserve retail count-result branch shape while probing ef5f0. */
+#pragma opt_common_subs off
 s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)
 {
     u8 *current;
@@ -2613,19 +2704,15 @@ s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2)
         current = *(u8 **)(current + 0x450);
     }
     count_mask = count & 0xFFFF;
-    if (count_mask == 0) {
-        value = 1;
-        goto done_value_5f0;
-    }
+    if (count_mask == 0)
+        return 1;
     value = ((total & 0xFFFF) / count_mask) & 0xFFFF;
     if (value == 0)
-        value = 1;
-done_value_5f0:
+        return 1;
     return value;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001e", func_001ef5f0);
-#endif
+/* measured: close ef5f0 branch-shape probe. */
+#pragma opt_common_subs on
 // FUN_001EF720
 s32 func_001ef720(s32 arg0, s32 arg1)
 {

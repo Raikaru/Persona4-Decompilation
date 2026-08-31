@@ -628,7 +628,70 @@ void func_00462230(u8 *arg0)
 // FUN_004623A0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004623a0);
 // FUN_00462BF0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00462bf0);
+void func_00462bf0(u8 *arg0)
+{
+    u8 *current;
+    s32 next;
+
+    if (arg0 == NULL) {
+        return;
+    }
+    while (*(s32 *)(arg0 + 8) != 0) {
+        current = *(u8 **)(arg0 + 8);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 8) = next;
+    }
+    while (*(s32 *)(arg0 + 0x18) != 0) {
+        current = *(u8 **)(arg0 + 0x18);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0x18) = next;
+    }
+    while (*(s32 *)(arg0 + 0x1C) != 0) {
+        current = *(u8 **)(arg0 + 0x1C);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0x1C) = next;
+    }
+    while (*(s32 *)(arg0 + 0xC) != 0) {
+        current = *(u8 **)(arg0 + 0xC);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0xC) = next;
+    }
+    while (*(s32 *)(arg0 + 0x10) != 0) {
+        current = *(u8 **)(arg0 + 0x10);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0x10) = next;
+    }
+    while (*(s32 *)(arg0 + 0x20) != 0) {
+        current = *(u8 **)(arg0 + 0x20);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0x20) = next;
+    }
+    while (*(s32 *)(arg0 + 0x14) != 0) {
+        current = *(u8 **)(arg0 + 0x14);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0x14) = next;
+    }
+    while (*(s32 *)(arg0 + 0x24) != 0) {
+        current = *(u8 **)(arg0 + 0x24);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0x24) = next;
+    }
+    while (*(s32 *)(arg0 + 0x28) != 0) {
+        current = *(u8 **)(arg0 + 0x28);
+        next = *(s32 *)(current + 0x24);
+        jtbl_008873EC[0](current);
+        *(s32 *)(arg0 + 0x28) = next;
+    }
+    jtbl_008873EC[0](arg0);
+}
 // FUN_00462DF0
 s32 func_00462df0(u8 *arg0) {
     if (arg0 == NULL) {
