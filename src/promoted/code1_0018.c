@@ -314,8 +314,63 @@ void func_00185120(u8 *arg0)
 
 
 
+/* measured probe: O1 test for target byte-copy register allocation. */
+#pragma optimization_level 1
 // FUN_00185150
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_00185150);
+s32 func_00185150(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                  f32 fparg2, s16 arg2, s16 arg3, s16 arg4, s16 arg5,
+                  s32 arg6, u8 *arg7)
+{
+    s32 temp_2;
+    u8 *temp_2_2;
+    register u8 *dst;
+    register u8 byte0;
+    register u8 byte1;
+    register u8 byte2;
+    register u8 byte3;
+    register u8 byte4;
+    register u8 byte5;
+    register u8 byte6;
+    register u8 byte7;
+
+    if (arg7[3] == 0 && arg7[7] == 0) {
+        return 0;
+    }
+    func_0044ea90(&D_005F1D80, 0x43A);
+    temp_2_2 = D_008873F4[0](1, 0x460, 0x40000);
+    temp_2 = func_00451fc0((u8 *)arg0, &D_005F1D90, 0xF, 0, 0,
+                           func_00183b80, func_00185120, temp_2_2);
+    *(s32 *)(temp_2_2 + 0x420) = arg1;
+    *(f32 *)(temp_2_2 + 0x414) = fparg1;
+    *(f32 *)(temp_2_2 + 0x418) = fparg2;
+    *(f32 *)(temp_2_2 + 0x424) = fparg0;
+    *(f32 *)(temp_2_2 + 0x428) = fparg0;
+    *(s16 *)(temp_2_2 + 0x434) = arg2;
+    *(s16 *)(temp_2_2 + 0x436) = arg3;
+    *(s16 *)(temp_2_2 + 0x438) = arg4;
+    *(s16 *)(temp_2_2 + 0x43A) = arg5;
+    *(s32 *)(temp_2_2 + 0x43C) = arg6;
+    dst = temp_2_2 + 0x440;
+    byte0 = arg7[0];
+    byte1 = arg7[1];
+    byte2 = arg7[2];
+    byte3 = arg7[3];
+    dst[0] = byte0;
+    dst[1] = byte1;
+    dst[2] = byte2;
+    dst[3] = byte3;
+    byte4 = arg7[4];
+    byte5 = arg7[5];
+    byte6 = arg7[6];
+    byte7 = arg7[7];
+    dst[4] = byte4;
+    dst[5] = byte5;
+    dst[6] = byte6;
+    dst[7] = byte7;
+    return temp_2;
+}
+/* measured probe: restore optimization level after target O1 test. */
+#pragma optimization_level 2
 /* measured: VU0 MMI builtins and O1 reproduce the target's pcpyld/sq packet. */
 #pragma enable_vu0_registers on
 /* measured: bind MMI packet registers as in retail. */

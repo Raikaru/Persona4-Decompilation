@@ -40,6 +40,14 @@ extern s32 func_0047a6d0();
 extern void func_004789c0(u8 *arg0);
 extern void func_0047a320(u8 *arg0);
 extern void func_003dcb40(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
+extern void func_00485870(s32 arg0);
+extern s32 func_00481450(void);
+extern void func_00481440(s32 arg0);
+extern u8 *func_00460990(void);
+extern void func_00460ac0(char *arg0, u8 *arg1);
+extern char D_005DC824[];
+extern char D_00794AE0[];
+extern char D_00794C00[];
 extern void func_001d44a0(f32 arg0, f32 arg1, f32 *arg2, s32 *arg3, u8 *arg4, u8 *arg5);
 extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, u8 *arg3, s32 arg4, s32 arg5);
 extern void func_00194ee0(u8 *arg0, f32 *arg1);
@@ -848,7 +856,56 @@ void func_001d5ac0(void) {
 }
 
 // FUN_001D5B20
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d5b20);
+void func_001d5b20(u8 *arg0)
+{
+    s32 old_state;
+    u8 **entries;
+    s32 count;
+    s32 index;
+    u8 *task;
+
+    if ((*(s32 *)(arg0 + 8) & 0x400) != 0) {
+        return;
+    }
+    entries = *(u8 ***)(arg0 + 0x58);
+    count = (u16)(*(u16 *)(arg0 + 0x54) & 0xFFFF);
+    if ((*(s32 *)(arg0 + 8) & 0x8000) == 0) {
+        index = 0;
+        count = (u16)(count & 0xFFFF);
+        while ((u16)index < count) {
+            if (*entries != NULL) {
+                func_00485870((s32)*entries);
+            }
+            index = (index + 1) & 0xFFFF;
+            entries++;
+        }
+        return;
+    }
+    old_state = func_00481450();
+    func_00481440((s32)D_005DC824);
+    task = func_00460990();
+    *(s32 *)(task + 0) = 0;
+    *(s32 *)(task + 4) = 0;
+    *(void (**)(void))(task + 8) = func_001d5990;
+    *(u8 **)(task + 0x10) = iGpffffb3ac;
+    func_00460ac0(D_00794AE0, task);
+    index = 0;
+    count = (u16)(count & 0xFFFF);
+    while ((u16)index < count) {
+        if (*entries != NULL) {
+            func_00485870((s32)*entries);
+        }
+        index = (index + 1) & 0xFFFF;
+        entries++;
+    }
+    func_00481440(old_state);
+    task = func_00460990();
+    *(s32 *)(task + 0) = 0;
+    *(s32 *)(task + 4) = 0;
+    *(void (**)(void))(task + 8) = func_001d5ac0;
+    *(u8 **)(task + 0x10) = iGpffffb3ac;
+    func_00460ac0(D_00794C00, task);
+}
 // FUN_001D6300
 void func_001d6300(u8 *arg0) {
     u8 *temp_3;

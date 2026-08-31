@@ -292,7 +292,10 @@ extern void func_003c1bd0(s32 arg0);
 extern s32 func_003e8110(u8 *arg0);
 extern u8 *func_00452380(void *arg0);
 extern void func_00452080(s32 arg0);
-extern void func_00192cd0(void);
+extern s32 func_00192cd0(void);
+extern void func_00194a30(void);
+extern void func_0019d670(void);
+extern void func_002319c0(s32 arg0);
 extern void func_003ef3a0(s32 arg0);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
@@ -509,7 +512,53 @@ void func_00192b90(void)
     *(s32 *)(iGpffffb3ac + 0xC) |= 0x1480877C;
 }
 // FUN_00192CD0
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00192cd0);
+s32 func_00192cd0(void)
+{
+    u32 i;
+    s32 temp;
+    s32 *base;
+    func_001b0bf0();
+    func_0019d670();
+    func_001b68d0();
+    func_001b6110();
+    func_001d6a70();
+    func_001f9c40();
+    func_001f73c0();
+    func_001bdd30();
+    func_001f61b0();
+    func_0022cc90();
+    func_00194a30();
+    func_002777f0(*(s32 *)(iGpffffb3ac + 0xC60));
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x4000) != 0) {
+        for (i = 0; (u16)i < 4; i = (u16)(i + 1)) {
+            base = (s32 *)iGpffffb3ac;
+            temp = *(s32 *)((s32)base + (i & 0xFFFF) * 4 + 0xC74);
+            if (temp != 0) {
+                func_002319c0(temp);
+            }
+        }
+        for (i = 0; (u16)i < 3; i = (u16)(i + 1)) {
+            base = (s32 *)iGpffffb3ac;
+            temp = *(s32 *)((s32)base + (i & 0xFFFF) * 4 + 0xC84);
+            if (temp != 0) {
+                func_002319c0(temp);
+            }
+        }
+        for (i = 0; (u16)i < (u32)3; i = (u16)(i + 1)) {
+            base = (s32 *)iGpffffb3ac;
+            temp = *(s32 *)((s32)base + (i & 0xFFFF) * 8 + 0xC94);
+            if (temp != 0) {
+                func_002319c0(temp);
+            }
+        }
+    }
+    if (func_00452380(&iGpffffa088) != 0) {
+        func_00452080(*(s32 *)(iGpffffb3ac + 0xDC8));
+    }
+    jtbl_008873EC[0](iGpffffb3ac);
+    iGpffffb3ac = NULL;
+    return 0;
+}
 // FUN_00192E90
 s32 func_00192e90(s32 arg0)
 {
@@ -654,8 +703,7 @@ s32 func_00193260(void)
     }
     return 0;
 }
-/* Best attempt: object 352B, window 352B, normalized_diff 1. Residual is the single width opcode at offset 108: candidate 01001224 (addiu $s2,$zero,1), retail 01001264 (daddiu $s2,$zero,1). The same variable's increments match with addiu. Classification: addiu versus daddiu; the initializer's expression width remains a compiler floor. Ruled out in this lane: 1u, (s32)1LL, 1L/1LL and explicit s64/u64 casts, sizeof(char), pointer differences, !0 and constant/computed comparison results, 64-bit helper return expressions, 64-bit arithmetic identities, separate 64-bit locals assigned immediately above (including zero-plus-one and assignment/cast forms), narrow temporary locals, and assignment/declaration initializer permutations. */
-// FUN_001932F0 NONMATCHING
+// FUN_001932F0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001932f0);
 
 /* Measured: the archived body compiles to object 356B in the 368B window. Retail words at offsets 356, 360, and 364 are all 00000000 (nop); verify therefore accepts the zero-padded tail and reports MATCH. */
