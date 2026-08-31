@@ -742,6 +742,84 @@ signal), and a lane leaving 3 live MISMATCH bodies behind at report time
 `tools/verify.py` and confirm both the MATCH set and the total scanned count
 against the pre-wave baseline before ever committing lane output.
 
+### The recon-queue-rebuild bug, and what full exhaustion looks like
+
+A later continuation of this campaign (waves 22-32, +66 net first-party
+matches, 6153 -> 6219) had stalled for many prior waves at 0 closures each
+before the actual defect was found: the target-list builder was filtering
+out any FILE that had ever been "touched" by an earlier lane, not just the
+individual functions that had actually been attempted in it. Since most
+files in this tree accumulate matches incrementally over many sessions,
+almost every file looked "touched" and got excluded wholesale, even when it
+still held several genuinely never-attempted functions. The fix: rebuild the
+target list every wave from the FULL `build/recon_queue.json`, filtered only
+by a cumulative set of individually-attempted function NAMES (tracked
+wave-over-wave, e.g. in a scratch file), never by whole-file exclusion. This
+single change turned a run of stalled waves back into 4-19 closures each
+until the pool ran out.
+
+**The pool does run out, and it is worth recognizing when it has.** By wave
+29 the rebuilt target list was down to single-digit functions per file; by
+wave 31 `build/recon_queue.json` had exactly 10 first-party entries left
+that were not already individually attempted, and every one of those 10 was
+a documented hardware floor (the fromSPR/toSPR DMA family in `code1_003a.c`,
+`sdkUttmx.c`'s `func_00463ea0`, `code1_0016.c`'s `func_0016bdd0`). At that
+point `recon_queue.json`'s never-attempted-function avenue is exhausted, not
+merely thinned, and continuing to rebuild-and-redispatch against it wastes a
+wave discovering the same empty result.
+
+**The natural next avenue -- mining source comments for a small recorded
+`nd`/`normalized_diff` next to a still-`INCLUDE_ASM` marker -- pays far less
+than it looks like it should, for the same reason `tools/recon_pool.py
+--measure` already warns about staleness above.** A tight regex scan (marker
+immediately followed by `INCLUDE_ASM`, only trusting an `nd`/`normalized_diff`
+mention that also names the target's own hex address, filtered against the
+VENDOR_CODE_RANGES + THIRD_PARTY_PREFIXES first-party set from a real
+`tools/verify.py --json` run rather than a bare `glob` over `src/**/*.c`)
+found only 12 candidates at `nd <= 10` out of 1647 true first-party ASM
+functions. Dispatching lanes at 5 of them (the clearest, most literally
+worded) closed zero: two were confirmed ee-gcc2.96-vs-3.2 compiler-version
+floors in a *vendor* translation unit that should never have been in the
+candidate pool at all (the regex had matched a comment inside
+`code1_004f.c`, one of the five files in `config/gcc_units.txt` --
+`tools/verify.py`'s own `is_gcc_unit`/`is_third_party`/`is_vendor_address`
+filters exclude these from the first-party count, but a naive `glob` +
+text-scan does not know that), and the other three reconfirmed already-
+documented floors (an argument-evaluation-order floor, a padding-tail floor,
+and a compiler-width floor) with no new lever found. Re-checking the
+remaining 7 candidates by hand found every one was either a *misattributed*
+comment (the `nd`/`normalized_diff` text belonged to an adjacent function's
+bracket-close rationale, not the marked target -- `func_00267800`,
+`func_003e4520`/`func_003e45f0`, `func_001f1030` all read this way) or an
+explicitly pre-flagged false positive already recorded in-tree
+(`y_draw.c`'s `func_002b6ec0`: "fndiff of the INCLUDE_ASM state reads nd 0 by
+construction... do not treat this function as matched", dated 2026-08-03).
+**Conclusion: at this point in the campaign, both the never-attempted-
+function avenue and the naive near-miss-comment-mining avenue are measured
+exhausted.** What is left is either a genuine hardware floor, an
+already-exhaustively-probed register/scheduling floor with the probe history
+recorded in place, or requires the same kind of from-scratch disassembly
+re-derivation described in "Reconstruction is the only avenue that still
+pays" above -- applied one function at a time, not by batch dispatch against
+a generated list.
+
+**A live example of the H001 volatile trap from "Two ways this pool lies to
+you" recurring in this later continuation:** a lane closed `code1_0039.c`'s
+`func_00399bf0` to a clean-looking MATCH (nd 0, scoped verify green, a
+`measured:` comment attached) using `volatile` on an ordinary allocator
+struct field (`p + 0x80`, a heap object this same function allocates, not a
+hardware address) to force a post-store reload. `decomp_lint`'s textual
+waiver check does not distinguish a genuinely justified hardware `volatile`
+from a `measured:`-commented one on ordinary data -- exactly the
+"FUNCTION-scope waiver licenses a banned construct" trap documented above --
+so this passed decomp_lint clean and reported MATCH under scoped verify. It
+was caught only by reading the diff for `volatile` by eye per the existing
+rule and reverted, with the comment rewritten to document the real
+(unresolved) floor and to correct a genuinely misattributed nd44->36->18
+probe history that a much earlier session had pasted onto the wrong marker
+(it describes the unrelated `00399fd0`/`0039a200` slot-search family; retail
+`00399bf0` is an allocator/state-switch routine with no loop at all).
+
 **The other pool is the archived near-misses**, 113 functions still
 `INCLUDE_ASM` carrying an archived body with a claimed `0 < nd <= 25` inside a
 400-byte window. `tools/recon_pool.py` (default `--pool nearmiss`) regenerates
