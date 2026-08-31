@@ -173,8 +173,39 @@ extern f32 fGpffff80cc;
    spellings this wave: f32 prod local (2 placements, nd 108-111), (f32)
    cast on one product (folds, nd 12), &fGpffff80cc deref (nd 46). Both
    statement orders tried. FMA-CSE fusion floor. */
-// FUN_004A8DA0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004a8da0);
+// FUN_004A8DA0
+void func_004a8da0(u8 *arg0, u8 *arg1) {
+    f32 temp_f23;
+    f32 temp_f22;
+    f32 temp_f21;
+    f32 temp_f20;
+    u8 *temp_16;
+
+    *(u32 *)arg1 = func_004bd050(0) % (u32)(*(s32 *)(arg0 + 4) + 1);
+    *(f32 *)(arg1 + 4) = fGpffff80f4;
+    temp_16 = arg1 + 8;
+    *(s32 *)(arg1 + 0x10) = *(s32 *)(arg0 + 0x10);
+    *(f32 *)(arg1 + 0x14) = *(f32 *)(arg0 + 0x14);
+    *(s32 *)(arg1 + 0xC) = *(s32 *)(arg0 + 0xC);
+    temp_f20 = 0.5f * (f32)*(s32 *)(arg0 + 0x28);
+    temp_f22 = fGpffff8084 * (2.0f * (func_004bd0b0(0) - 0.5f));
+    temp_f21 = *(f32 *)(arg0 + 0x30);
+    temp_f21 = temp_f21 + (810.0f - temp_f20 - temp_f21) * func_004bd0b0(0);
+    temp_f21 = (f32)(0.5f * temp_f21);
+    temp_f23 = *(f32 *)(arg0 + 0x2C);
+    temp_f23 = temp_f23 + (650.0f - temp_f20 - temp_f23) * func_004bd0b0(0);
+    temp_f23 = (f32)(0.5f * temp_f23);
+    temp_f21 = temp_f21 + fGpffff80cc * temp_f20;
+    temp_f23 = temp_f23 + fGpffff80cc * temp_f20;
+    temp_f21 = *(f32 *)(arg0 + 0x1C) + temp_f21 * func_0044b610(temp_f22);
+    temp_f23 = *(f32 *)(arg0 + 0x20) + temp_f23 * func_0044b7b0(temp_f22);
+    *(f32 *)(temp_16 + 0x14) = temp_f21;
+    *(f32 *)(temp_16 + 0x18) = temp_f23;
+    *(f32 *)(temp_16 + 0x1C) = temp_f21 - temp_f20;
+    *(f32 *)(temp_16 + 0x20) = temp_f23 - temp_f20;
+    *(f32 *)(temp_16 + 0x24) = temp_f21 + temp_f20;
+    *(f32 *)(temp_16 + 0x28) = temp_f23 + temp_f20;
+}
 
 /* measured: cluster transfer from func_004a8bb0 — changing only the assert
    line to 575 and the recursive helper to func_004a8da0 preserves the exact

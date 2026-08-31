@@ -224,19 +224,42 @@ loop_16:
         }
     }
 }
-/* measured archive: object 168B, retail window 176B, normalized_diff 5;
-   differing bytes 78,81,82,85,89.  Corrected callee ground truth was
-   func_001d7f10(u8 *,u8 *,u16,u32), but the best five-argument body remains
-   register-coloured as lhu $a2 rather than retail lhu $v0/move $a2.
-   Additional probes ruled out: a wider u32 local with explicit (u16) cast,
-   loading the value before all guards/other block statements, and a second
-   post-call field load used in temp_3 (which produced an oversized 188-byte
-   body and did not preserve the target window).  Earlier lanes already ruled
-   out named argument locals and ordering/liveness copies, exact four-argument
-   calls/prototypes, fifth-argument variations, typed widths, return widths,
-   aggregate/helper/identity forms, duplicate loads, and pragmas. */
-// FUN_0022FF70 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlBoss", func_0022ff70);
+/* measured: optimization_level 1 preserves retail's lhu/move halfword
+   argument materialization; object 168B, retail window 176B. */
+#pragma optimization_level 1
+// FUN_0022FF70
+s32 func_0022ff70(u8 *arg0)
+{
+    u16 value;
+    s32 temp_3;
+    s32 result;
+
+    if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0)
+    {
+        result = 0;
+        goto done;
+    }
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1)
+    {
+        result = 0;
+        goto done;
+    }
+    value = *(u16 *)(arg0 + 0x6E);
+    temp_3 = (s32)(func_001d7f10(arg0, NULL, value, 0) & 0xFFFF);
+    switch (temp_3)
+    {
+    case 1:
+    case 2:
+        result = 1;
+        break;
+    default:
+        result = 0;
+        break;
+    }
+done:
+    return result;
+}
+#pragma optimization_level 2
 /* measured: literal-return switch reproduces the retail branch after the zero assignment. */
 // FUN_00230020
 s32 func_00230020(u8 *arg0)

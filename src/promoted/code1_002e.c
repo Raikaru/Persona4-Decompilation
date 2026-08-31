@@ -29,6 +29,22 @@ extern u8 D_0063FB90[];
 extern void func_00110810(s64 arg0, u8 arg1);
 extern s32 func_00110830();
 extern s32 func_002bdff0();
+extern u8 D_0063FC80[];
+extern u8 D_0063FC90[];
+extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
+extern void func_0044ea90(const void *arg0, u32 arg1);
+extern s32 func_00451fc0(s32 arg0, char *arg1, s32 arg2, s32 arg3, s32 arg4,
+                         void (*arg5)(u8 *), void (*arg6)(u8 *), u8 *arg7);
+extern s32 func_002b5c90(s32 arg0, u64 arg1);
+extern void func_002b29e0(void *arg0, f32 arg1, f32 arg2);
+extern void func_002b5db0(s32 arg0, s64 arg1, void *arg2);
+extern void func_002b2a60(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern void func_002b5e30(s32 arg0, u32 arg1);
+extern void func_0045aac0(s16 arg0, s32 arg1, s32 arg2);
+extern s32 func_00106ac0(s16 arg0);
+extern s64 func_00106af0(s16 arg0);
+extern s32 func_00106b20(s16 arg0);
+extern s32 func_00106b50(s16 arg0);
 
 void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 
@@ -309,8 +325,52 @@ s32 func_002e6f90(u8 *arg0, s32 arg1) {
 /* measured: hoist (s16)arg1 normalization out of loop */
 #pragma opt_loop_invariants off
 
+/* measured: loop-invariant sentinel loads are hoisted to retail preheaders */
+#pragma opt_loop_invariants on
 // FUN_002E7010
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7010);
+s32 func_002e7010(u8 *arg0, s16 arg1)
+{
+    u8 v2;
+    s16 i;
+    s16 v4;
+    s16 v5;
+    s16 v7;
+    s16 j;
+    s16 v9;
+    u8 v10;
+    s16 k;
+    s16 minus_one;
+    s16 temp[0x30];
+
+    v2 = 0;
+    minus_one = -1;
+    for (i = 0; i < 0x30; i++) {
+        temp[i] = minus_one;
+    }
+    minus_one = -1;
+    for (v4 = 0, v5 = arg1; v4 < *(s16 *)(arg0 + 0x60); v4++) {
+        if (v5 == *(s16 *)(arg0 + v4 * 2)) {
+            *(s16 *)(arg0 + v4 * 2) = minus_one;
+        }
+    }
+    for (j = 0; j < *(s16 *)(arg0 + 0x60); j++) {
+        v9 = *(s16 *)(arg0 + j * 2);
+        if (v9 != minus_one) {
+            temp[v2++] = v9;
+        }
+    }
+    v10 = 0;
+    minus_one = -1;
+    for (k = (s16)0; *(s16 *)(arg0 + 0x60) > k; k++) {
+        if (temp[k] != minus_one) {
+            *(s16 *)(arg0 + v10++ * 2) = temp[k];
+        }
+    }
+    *(s16 *)(arg0 + 0x60) = *(s16 *)(arg0 + 0x60) - 1;
+    return 1;
+}
+/* measured: scoped loop-invariant optimization for func_002e7010 */
+#pragma opt_loop_invariants off
 // FUN_002E7190
 void func_002e7190(void) {
     ((void (*)(void))jtbl_008873EC[0])();
@@ -433,7 +493,54 @@ void func_002e74e0(u8 *arg0)
 }
 
 // FUN_002E7510
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e7510);
+s32 func_002e7510(s32 arg0)
+{
+    s32 result;
+    u8 *work;
+    u8 color[24];
+    s64 vec60;
+    s64 vec58;
+    s32 color_value;
+    s32 i;
+    extern void func_00110810(s32, u8);
+
+    func_0044ea90(D_0063FC80, 0x11A);
+    work = D_008873F4[0](1, 0x18, 0x40000);
+    result = func_00451fc0(arg0, (char *)D_0063FC90, 0xF, 0, 0,
+                           (void (*)(u8 *))func_002e72c0,
+                           func_002e74e0, work);
+    iGpffffb590 = NULL;
+    func_002b2970(&vec60, 0, 0);
+    iGpffffb590 = (u8 *)func_002b5c90(result, *(u64 *)&vec60);
+    func_002b2970(&vec58, 0, 0);
+    func_002b29e0(color, 640.0f, 448.0f);
+    func_002b5db0((s32)iGpffffb590, vec58, color);
+    func_002b2a60(&color_value, 0, 0, 0, 0xFF);
+    func_002b5e30((s32)iGpffffb590, color_value);
+    *work = 1;
+    func_0045aac0(3, 0, 0x1E);
+
+    for (i = 0; i < 0x2FF; i++) {
+        if (((func_00106b20((s16)i) & 0xFFF00) >> 8) == 0 &&
+            ((func_00106b50((s16)i) & 0xFFF00) >> 8) == 0) {
+            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+        } else if ((func_00106b20((s16)i) & 0xFF) == 0 &&
+                   (func_00106b50((s16)i) & 0xFF) == 0) {
+            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+        }
+    }
+    for (i = 0x300; i < 0x3FF; i++) {
+        if ((func_002be100(func_00106ac0((s16)i) & 0xFF) & 0xFF) <
+            (func_002be100(4) & 0xFF)) {
+            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+        } else if ((func_002be100(func_00106ac0((s16)i) & 0xFF) & 0xFF) ==
+                   (func_002be100(4) & 0xFF) &&
+                   (s8)func_00106af0((s16)i) < 2) {
+            func_00110810(i, (func_00110830(i) & 0xFF) | 4);
+        }
+    }
+    return result;
+}
 // FUN_002E7870
 void func_002e7870(void) {
     u8 *g = iGpffffb590;

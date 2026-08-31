@@ -45,7 +45,7 @@ extern void func_003b83d0(void* object, void* data);
 extern f32 func_003bd090(RpUserDataArray* userData, s32 index);
 
 extern void func_00397390(void* data);
-extern u8* func_003ef650(s32, s32);
+extern u8* func_003ef650(s32, ...);
 extern s32 func_003ef6d0(void);
 extern void func_003ef3a0(void*);
 extern void func_003ef5b0(s32, s32);
@@ -582,9 +582,45 @@ scan_found:
 }
 /* measured: opt_propagation on closes the target-only bracket. */
 #pragma opt_propagation on
-/* measured: object 324B/window 336B, normalized_diff 24; differing word offsets 36,40,112,116,208,212. Best body archived at build/FKCL_00463100_body.c. The named first-argument locals plus inline second-argument expressions retain the three addiu/move swaps. Corrected-callee check: func_003ef650 retail reads $a0 first (lw 8($a0)), confirming the owner/name parameter order; signed, unsigned, pointer, old-style and variadic prototype variants all regressed or retained the residual. First-argument locals, liveness/reuse, destination locals, direct nested calls, explicit argument locals, pointer/address temporaries, struct-field forms, declaration permutations, and compiler-knob probes were exhausted. */
-// FUN_00463100 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/k_clump", func_00463100);
+// FUN_00463100
+s32 func_00463100(u8* arg0, u32** arg1)
+{
+    u8* resource;
+    char* work;
+    u8* current;
+    u32** next;
+
+    resource = func_003ef650(func_003ef6d0(), arg0 + 0x10);
+    if (resource != NULL)
+    {
+        (*(u32*)(resource + 0x54))++;
+    }
+    else
+    {
+        func_003ef5b0(func_003ef6d0(), (s32)arg0);
+    }
+    resource = func_003ef650(func_003ef6d0(), arg0 + 0x10);
+    func_00440b68(D_00712620, resource + 0x10, *(u8*)(resource + 0x50), *(u32*)(resource + 0x54));
+    func_0044ea90(D_00712640, 0x97);
+    work = (char*)D_008873F4[0](1, 0x44, 0x40000);
+    func_00442830(work, (const char*)(arg0 + 0x10));
+    if (*arg1 == NULL)
+    {
+        *arg1 = (u32*)work;
+    }
+    else
+    {
+        current = (u8*)*arg1;
+        next = (u32**)(current + 0x40);
+        while (*next != NULL)
+        {
+            current = (u8*)*next;
+            next = (u32**)(current + 0x40);
+        }
+        *next = (u32*)work;
+    }
+    return (s32)arg0;
+}
 // FUN_00463250
 void func_00463250(u32* arg0)
 {
