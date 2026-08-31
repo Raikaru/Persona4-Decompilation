@@ -1776,7 +1776,69 @@ void func_002746b0(u32 param_1)
    variants (nd104), and direct loop/boolean forms. Bare INCLUDE_ASM is
    retained because this candidate remains above the nd<=25 park threshold. */
 // FUN_002746E0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_002746e0);
+s8 func_002746e0(void *param_1, int param_2)
+{
+    typedef int (*FrFontCommand)(...);
+    typedef struct FrFontCommandGroup {
+        FrFontCommand *handlers;
+        s32 count;
+    } FrFontCommandGroup;
+    FrFontScript *script;
+    FrFontCommandGroup *group;
+    s32 code;
+    s32 command;
+    s32 result;
+
+    script = (FrFontScript *)param_1;
+    if (((((FrFontScript *)param_1)->data[0] & 0xf0) != 0xf0) &&
+        (((FrFontScript *)param_1)->data[1] == 5)) {
+        ((FrFontScript *)param_1)->pos += 4;
+    }
+    D_007637F8 = 0;
+    result = 0;
+    while ((code = script->data[script->pos++]) != 0) {
+        if ((code & 0xf0) == 0xf0) {
+            result = 0;
+            command = (code << 8) | script->data[script->pos++];
+            if ((param_2 == 0) || (command == param_2)) {
+                group = (FrFontCommandGroup *)
+                    (D_0063BA00 + (((command & 0xe0) >> 5) * 8));
+                if (group->count < (command & 0x1f)) {
+                    func_0046d730(D_00748110, 0xa5);
+                }
+                if ((command & 0xff) <= 0) {
+                    func_0046d730(D_00748100, 0xa6);
+                }
+                result =
+                    group->handlers[command & 0x1f](command, script);
+            }
+            script->pos += ((((command & 0xf00) >> 8) - 1) * 2);
+            if (result != 0) {
+                result = 1;
+            } else {
+                switch (command) {
+                case 0xf124:
+                    result = 1;
+                    break;
+                default:
+                    result = 0;
+                    break;
+                }
+            }
+            if (result != 0) {
+                break;
+            }
+            continue;
+        }
+        if (code != 0xa) {
+            result = (code < 0x80);
+            if (result == 0) {
+                script->pos += 1;
+            }
+        }
+    }
+    return 0;
+}
 // FUN_002748E0
 s8 func_002748e0(int param_1, int param_2, int param_3)
 {
