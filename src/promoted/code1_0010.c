@@ -16,6 +16,25 @@ extern void (*D_00887300[])(s32, s32);
 extern s32 iGpffffb1a8;
 extern s32 iGpffffb9e8;
 extern u8 D_005DCB58[];
+extern u8 D_005DCC64[];
+extern u8 D_005DCC68[];
+extern u8 D_005DD6A0[];
+extern u8 D_005DD6C0[];
+extern u8 D_005DD610[];
+extern u8 D_005DD61C[];
+extern u8 D_00796A60[];
+extern u8 D_00796A64[];
+extern u8 D_00796A68[];
+extern u8 D_00796A6C[];
+extern u8 D_00796704[];
+extern u8 D_00796706[];
+extern u8 D_00796708[];
+extern u8 D_0079671C[];
+extern u8 D_0079671D[];
+extern u8 D_0079671E[];
+extern u8 D_00796728[];
+extern u8 D_0079672C[];
+extern u8 D_0079674C[];
 extern u8 iGpffff85d0;
 extern u8 D_00761690;
 extern u8 D_005DD600[];
@@ -413,7 +432,40 @@ void func_001013a0(void)
 /* measured: opt_propagation on closes the bracket after the exact-match body. */
 #pragma opt_propagation on
 // FUN_00102780
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00102780);
+s32 func_00102780(u8 *arg0)
+{
+    s32 temp_2;
+    s32 temp_3;
+    s32 temp_4;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_3 = *(s32 *)(temp_16 + 4);
+    if (temp_3 > -1) {
+        if (*(s32 *)temp_16 & 1) {
+            temp_2 = *(s32 *)(temp_16 + 0xC);
+            if (temp_2 <= 0) {
+                (*(void (**)(s32))((u8 *)D_005DCC64 + temp_3 * 0x50))(*(s32 *)(temp_16 + 0x14));
+                temp_4 = *(s32 *)(temp_16 + 0x14);
+                if (temp_4 != 0) {
+                    jtbl_008873EC[0]((u8 *)(u32)temp_4);
+                }
+                *(s32 *)(temp_16 + 0x14) = 0;
+                *(s32 *)temp_16 &= ~1;
+            } else {
+                *(s32 *)(temp_16 + 0xC) = temp_2 - 1;
+            }
+            goto block_10;
+        }
+        if ((*(s32 (**)(void))((u8 *)D_005DCC68 + temp_3 * 0x50))() == 1) {
+            return 0;
+        }
+        *(s32 *)(temp_16 + 4) = -1;
+        *(s32 *)(temp_16 + 0x10) = 0;
+    }
+block_10:
+    return 0;
+}
 // FUN_00102890
 void func_00102890(u8 *arg0) {
     iGpffffb1a8 = 0;
@@ -485,7 +537,19 @@ void func_001039e0(void) {
     func_00451de0(&iGpffff85d0, 0xF, 0, 0, (void *)func_001036d0, (void *)func_00103980, D_008873F4[0](1, 0x210, 0x40000));
 }
 // FUN_00103A60
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00103a60);
+void func_00103a60(void)
+{
+    s16 i;
+    s16 j;
+
+    for (i = 0; i < 2; ++i) {
+        *(s16 *)(D_00796700 + (i * 0x370)) = 0;
+        *(s32 *)(D_00796700 + (i * 0x370) + 0x50) = 0;
+        for (j = 0; j < 2; ++j) {
+            *(s32 *)(D_00796700 + (i * 0x370) + (j * 4) + 0x14) = 0;
+        }
+    }
+}
 // FUN_00103B00
 void func_00103b00(void) {
     extern u8 D_00796460[];
