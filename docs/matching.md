@@ -531,15 +531,36 @@ variants is wasted time.
   well inside a minute; more time buys nothing. What is left needs a search that
   RESTRUCTURES code rather than reordering lines and swapping operands — i.e.
   `permute_ast.py` and decomp-permuter's AST passes, not a longer budget.
-- **128-bit `lq`/`sq` aggregate copy.** Three unscanned windows in
-  `code1_004a` are exactly `lq $v0,($a1) / sq $v0,($a0) / jr $ra` -- a single
-  16-byte load-store pair. There is no genuine 128-bit type in this repo
-  (`include/type.h` has none, and the `u128` in the m2c drafts under
-  `src/generated/` is a placeholder `typedef u64 u128`), and no matched source
-  anywhere in `src/` emits `lq`/`sq`. A `struct { u32 w[4]; }` assignment
-  compiles to FOUR `lwc1`/`swc1` pairs instead -- 40 bytes against a 16-byte
-  window. Reaching these needs a real quadword type first; do not retry the
-  struct-assignment spelling.
+- **~~128-bit `lq`/`sq` aggregate copy~~ — NOT a floor; `__int128` works.**
+  This entry used to claim "no genuine 128-bit type in this repo... reaching
+  these needs a real quadword type first" and told people not to retry. That
+  was wrong even at the time it was written: `mwccps2.exe` recognizes
+  `__int128` as a real type (confirmed by extracting identifier strings from
+  the compiler binary and a direct compile probe) and lowers a same-size
+  load/store or struct-field copy through it straight to `lq`/`sq` —
+  `typedef signed __int128 s128; s128 t = *(s128*)src; *(s128*)dst = t;`
+  compiles to exactly `lq $v0,($a1) / sq $v0,($a0) / jr $ra`, byte-for-byte.
+  Three functions already MATCH on this exact shape:
+  `effBlurFilter.c func_004ab3f0`/`func_004ab930`
+  (`typedef signed __int128 s128;` declared locally in the file) and
+  `evtPolygonMovie.c` uses the same typedef for a small array of `s128`
+  globals. `shdSprite.c` also declares it. Copy this local-typedef pattern
+  (do not add it to `include/type.h` — it is file-scoped by convention here)
+  into any other file with an `lq`/`sq`-shaped residual.
+  **Limitation found by direct probe:** `__int128` supports assignment
+  (scalar, array element, struct field, function parameter/return) but NOT
+  relational or equality operators — `a == b` on two `__int128` values fails
+  to compile with `illegal data size`. This matches what retail actually
+  does for a "128-bit compare": it is never a real 128-bit compare. Retail
+  uses `lq`/`sq` purely as a fast 16-byte block move (e.g. into a stack
+  scratch slot), then compares only the reloaded value's low word with an
+  ordinary scalar load and `bne`/`sltu`. Model this in C as: move via
+  `s128`, then separately re-read and compare the *narrower* scalar field
+  you actually need — do not try to make the comparison itself go through
+  the 128-bit type.
+  Still genuinely useful before writing off a residual as this floor:
+  confirm with `RECON_dis.py` that the retail window truly contains an
+  `lq`/`sq` pair and not just a coincidental instruction encoding.
 - **Zero padding tail.** A 4–12 byte deficit after retail's last real
   instruction is zero padding, not missing logic. `verify.py` treats an
   all-zero tail as matching (`MATCH`; object 108B in a 112B window, 148B in a
