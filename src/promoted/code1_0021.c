@@ -599,7 +599,43 @@ void func_00213cd0(u8 *arg0, s32 arg1) {
 
 
 // FUN_00213D20
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_00213d20);
+void func_00213d20(u8 *arg0)
+{
+    u8 *entry;
+
+    entry = *(u8 **)(iGpffffb3ac + 0x17C);
+    while (entry != NULL) {
+        if ((*(s32 *)arg0 & 1) != 0) {
+            if (*(s16 *)(entry + 0xA16) > -2) {
+                *(s16 *)(entry + 0xA16) = *(s16 *)(entry + 0xA16) - 1;
+            }
+        } else {
+            if (*(s16 *)(entry + 0xA16) < 0x19) {
+                *(s16 *)(entry + 0xA16) = *(s16 *)(entry + 0xA16) + 1;
+            }
+        }
+        if ((*(s32 *)arg0 & 2) == 0) {
+            *(s16 *)(entry + 0xA14) = *(s16 *)(entry + 0xA14) - 2;
+            if (*(s16 *)(entry + 0xA14) < 0) {
+                *(s16 *)(entry + 0xA14) = 0;
+            }
+        } else {
+            if (*(s16 *)(entry + 0xA14) < 8) {
+                *(s16 *)(entry + 0xA14) = *(s16 *)(entry + 0xA14) + 1;
+            }
+        }
+        entry = *(u8 **)(entry + 0xA68);
+    }
+    if ((*(s32 *)arg0 & 4) != 0) {
+        if (*(s16 *)(arg0 + 4) < 10) {
+            *(s16 *)(arg0 + 4) = *(s16 *)(arg0 + 4) + 1;
+        }
+    } else {
+        if (*(s16 *)(arg0 + 4) > 0) {
+            *(s16 *)(arg0 + 4) = *(s16 *)(arg0 + 4) - 1;
+        }
+    }
+}
 // FUN_00213E20
 void func_00213e20(u8 *arg0, u8 *arg1)
 {
@@ -1245,8 +1281,38 @@ void func_0021b310(u8 *arg0, s32 arg1)
    Best legal plain-C body; residual is saved FPU parameter coloring and 12B
    tail padding. */
 /* object 452B; retail window 464B; normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C; best legal plain-C body; residual is saved FPU parameter-coloring and 12B tail padding. */
-// FUN_0021B330 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b330);
+// FUN_0021B330
+void func_0021b330(s32 arg0, u8 *arg1, f32 fparg0, f32 fparg1, f32 fparg2)
+{
+    extern f32 fGpffff849c;
+    u8 *context;
+    s32 value;
+    f32 amount;
+
+    context = func_00452560();
+    if (*(s32 *)(arg1 + 4) != 0) {
+        value = *(s32 *)arg1;
+        *(s32 *)arg1 = value + 1;
+        amount = (f32)(value + 1) / 4.0f;
+        if (amount > 1.0f) {
+            amount = 1.0f;
+        }
+    } else {
+        amount = 1.0f;
+    }
+    if (amount != 0.0f) {
+        fparg1 = (1.0f - amount) * 5.5f + fparg1 + 0.0f;
+        func_00201720(context, 1.0f, amount);
+        func_00201650(context, 10, 0, fparg0, fparg1, 0x19, 0x19, 0x19, 0xFF);
+        if (!(fparg2 <= fGpffff849c)) {
+            func_00201720(context, fparg2, amount);
+            func_00201650(context, 10, 1,
+                          (1.0f - fparg2) * 5.0f + fparg0 + 0.0f,
+                          fparg1, 0xFF, 0xFF, 0x51, 0xFF);
+        }
+        func_00201720(context, 1.0f, 1.0f);
+    }
+}
 // FUN_0021B500
 void func_0021b500(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
                    f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5)
@@ -1606,98 +1672,7 @@ s32 func_0021de60(void)
    because nd <= 25. Committed at nd 16. */
 /* measured: artifact replay produced object_size 456B against the 448B retail window, normalized_diff 303, and 108 differing words (reloc-masked). */
 // FUN_0021DE90 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_0021de90(s32 arg0, u8 *arg1)
-{
-  s32 var_16;
-  int new_var3;
-  int new_var5;
-  s32 *new_var8;
-  s32 *new_var2;
-  int new_var10;
-  short new_var7;
-  f32 temp_f2;
-  f32 new_var;
-  u8 *new_var6;
-  int new_var4;
-  s32 var_2;
-  s32 temp_3;
-  int new_var12;
-  int new_var9;
-  u8 *new_var11;
-  s32 var_2_2;
-  new_var7 = 4;
-  new_var9 = 0;
-  new_var2 = (s32 *) (arg1 + new_var7);
-  var_16 = *new_var2;
-  if (var_16 <= new_var9)
-  {
-    return new_var9;
-  }
-  new_var3 = ((*((u16 *) arg1)) & 8) == 0;
-  if (new_var3 && (func_00106330(0x1403) != 0))
-  {
-    if (func_00106330(0x1428) != 0)
-    {
-      var_16 = (s32) (2.0f * ((f32) var_16));
-    }
-    else
-      if (func_00106330(0x1429) != 0)
-    {
- do { var_16 = 0; } while (0);
-    }
-  }
-  temp_f2 = 1.0f / ((f32) (*((s32 *) (arg1 + 0x20))));
-  new_var4 = (new_var3 = *((s32 *) ((new_var11 = arg1) + 0xC)));
-  new_var12 = 0;
-  new_var6 = iGpffffb414 + (new_var4 * 0x18);
-  new_var8 = (s32 *) new_var6;
-  if (((*new_var8) & 0x80) != 0)
-  {
-    var_2 = (s32) (((f32) var_16) * temp_f2);
-  }
-  else
-  {
-    new_var10 = (*((s32 *) (new_var11 + 0x38))) - arg0;
-    temp_3 = new_var10;
-    new_var5 = temp_3 >= ((int) 0xA);
-    if (new_var5)
-    {
-      var_2_2 = 0x14;
-    }
-    else
-      if (temp_3 < (-9))
-    {
-      if (var_2)
-      {
-      }
-      var_2_2 = new_var12;
-    }
-    else
-    {
-      var_2_2 = temp_3 + 0xA;
-    }
-    var_2 = (s32) ((inline_fn(iGpffffb40c, var_2_2) * (new_var = (f32) var_16)) * temp_f2);
-  }
-  if (var_2 > (((0, 0x10000)) - 1))
-  {
-    return 0xFFFF;
-  }
-  if (var_2 <= 0)
-  {
-    var_2 = 1;
-  }
-  return var_2;
-  if (temp_3)
-  {
-    if (new_var11)
-    {
-    }
-  }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021de90);
-#endif
 // FUN_0021E050
 s32 func_0021e050(u8 *arg0)
 {
@@ -1724,52 +1699,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021e110);
    the final sign-extension/clamp sequence. Re-measured at nd 94 after later
    declaration-environment changes in this file. */
 // FUN_0021E9A0
-#ifdef NON_MATCHING
-void func_0021e9a0(u8 *arg0, u8 *arg1)
-{
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_2;
-    s32 var_16;
-    s32 var_17;
-    u8 *temp_19;
-    u8 *temp_20;
-    s32 temp_21;
-    s16 temp_22;
-    temp_17 = (s32)func_00105510(1);
-    temp_2 = (s32)func_00105210(1);
-    if ((func_001059e0(temp_2) & 0xFF) < 0x63) {
-        temp_16 = temp_2 + *(s32 *)(arg0 + 4);
-        func_00105990(1, temp_16);
-        func_00231ef0((u8 *)temp_17, func_001059e0(temp_16));
-    }
-    var_16 = *(s32 *)(arg1 + 8);
-    if (var_16 <= 0) {
-        var_16 = 0;
-    } else if ((*(u16 *)arg1 & 8) == 0 && func_00106330(0x1403) != 0) {
-        if (func_00106330(0x1420) != 0) {
-            var_16 = (s32)(2.0f * (f32)var_16);
-        } else if (func_00106330(0x1421) != 0) {
-            var_16 = 1;
-        }
-    }
-    func_00106020(var_16);
-    var_17 = 0;
-    while (var_17 < *(s32 *)(arg1 + 0x30)) {
-        temp_19 = arg1 + var_17 * 4;
-        temp_20 = temp_19 + 0x24;
-        temp_21 = (s16)(func_00106600(*(s16 *)(temp_19 + 0x24)) & 0xFF);
-        temp_22 = *(s16 *)(temp_19 + 0x26);
-        temp_21 = (s16)(temp_21 + temp_22);
-        if (!(temp_21 < 0x64)) {
-            temp_21 = 0x63;
-        }
-        func_00106620(*(s16 *)temp_20, (u8)temp_21);
-    }
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021e9a0);
-#endif
 // FUN_0021EB60
 void func_0021eb60(u8 *arg0)
 {

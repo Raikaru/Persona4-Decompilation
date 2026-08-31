@@ -30,12 +30,17 @@ typedef struct {
     Packet_0014 packet[4];
 } Frame_0014;
 
+extern u8 D_005EDA20[];
+extern u8 D_005EDEA0[];
+extern u8 D_005EE320[];
+extern u8 D_005EE7A0[];
+extern u8 D_005EEC20[];
+extern u8 D_005EF0A0[];
 extern u8 D_005EF530[];
 extern u8 D_005EF540[];
 extern u8 D_005EF548[];
 extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
-
 extern void func_00355070(u8 *arg0, u8 *arg1);
 extern void func_003550d0(u8 *arg0, Float2_0014 *arg1, Float2_0014 *arg2);
 extern void func_003552d0(u8 *arg0, Float2_0014 arg1);
@@ -272,8 +277,92 @@ void func_00141d10(u8 *arg0) {
         func_0034f5d0(arg0 + i * 0x14 + 0xFA0);
     }
 }
+/* measured: opt_loop_invariants on hoists the shared float conversion constants in func_00141d80. */
+#pragma opt_loop_invariants on
 // FUN_00141D80
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00141d80);
+s32 func_00141d80(u8 *arg0, s32 arg1) {
+    s32 i;
+    s32 j;
+    u8 *table;
+    u8 *src;
+    u8 *dst;
+
+    table = NULL;
+    if (*(s32 *)(arg0 + 0x18) == arg1) {
+        return 0;
+    }
+    for (i = 0; i < 0x29; i++) {
+        dst = arg0 + i * 0x30;
+        *(f32 *)(dst + 0x40) = *(f32 *)(dst + 0x50);
+        *(f32 *)(dst + 0x44) = *(f32 *)(dst + 0x54);
+        *(u16 *)(dst + 0x5C) = *(u16 *)(dst + 0x60);
+        *(u16 *)(dst + 0x62) = *(u16 *)(dst + 0x66);
+        *(u8 *)(dst + 0x58) = *(u8 *)(dst + 0x5A);
+    }
+    switch (arg1) {
+    case 0:
+        table = D_005EDA20;
+        *(s32 *)(arg0 + 0x1C) = 0x149;
+        *(s16 *)(arg0 + 0x38) = 0;
+        break;
+    case 1:
+        table = D_005EDEA0;
+        break;
+    case 2:
+        table = D_005EE320;
+        *(s32 *)(arg0 + 0x1C) = 0x949;
+        *(s16 *)(arg0 + 0x38) = 0;
+        break;
+    case 3:
+        table = D_005EE7A0;
+        *(s32 *)(arg0 + 0x1C) = 0xBDB;
+        if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg0 + 0x34) * 2), arg0) + 0x22) == 1) {
+            *(s16 *)(arg0 + 0x38) = 6;
+        } else {
+            *(s16 *)(arg0 + 0x38) = 5;
+        }
+        break;
+    case 4:
+        table = D_005EEC20;
+        *(s32 *)(arg0 + 0x1C) = 0xED2;
+        if (*(s16 *)(p4_00141cf0_add((u32)(*(s16 *)(arg0 + 0x34) * 2), arg0) + 0x22) == 1) {
+            *(s16 *)(arg0 + 0x38) = 6;
+        } else {
+            *(s16 *)(arg0 + 0x38) = 5;
+        }
+        break;
+    case 5:
+        table = D_005EF0A0;
+        *(s32 *)(arg0 + 0x1C) = 0xAF6;
+        *(s16 *)(arg0 + 0x38) = 7;
+        break;
+    case 6:
+        *(s32 *)(arg0 + 0x1C) = 0x874;
+        *(s16 *)(arg0 + 0x38) = 7;
+        break;
+    default:
+        func_0046d730(&D_005EF6C8, 0x425);
+        break;
+    }
+    if (table != NULL) {
+        for (j = 0; j < 0x29; j++) {
+            src = table + j * 0x1C;
+            dst = arg0 + j * 0x30;
+            *(f32 *)(dst + 0x48) = *(f32 *)(src + 0);
+            *(f32 *)(dst + 0x4C) = *(f32 *)(src + 4);
+            *(u16 *)(dst + 0x5E) = (u16)*(f32 *)(src + 8);
+            *(u16 *)(dst + 0x64) = (u16)*(f32 *)(src + 0xC);
+            *(u8 *)(dst + 0x59) = *(u8 *)(src + 0x10);
+            *(s32 *)(dst + 0x68) = *(s32 *)(src + 0x14);
+            *(s32 *)(dst + 0x6C) = *(s32 *)(src + 0x18);
+        }
+        *(s32 *)(arg0 + 0x18) = arg1;
+        *(s16 *)(arg0 + 0x20) = 0;
+    }
+    return 1;
+}
+/* measured: restore loop-invariant hoisting after func_00141d80. */
+#pragma opt_loop_invariants off
 /* measured: opt_loop_invariants on hoists the loop constants to the preheader. */
 #pragma opt_loop_invariants on
 // FUN_00142090
@@ -672,7 +761,6 @@ s32 func_00144af0(void)
     return func_00451de0(&D_005EF7B0, 0x100, 0, 0,
                          func_001441e0, func_00144ac0, (void *)(u32)temp_2);
 }
-/* object 280B / window 272B / normalized_diff 174; differing offsets: 0x00-0x1c, 0x20-0x24, 0x28-0x34, 0x38-0x40, 0x44-0x4c, 0x50-0x58, 0x5c-0x64, 0x68-0x70, 0x74-0x7c, 0x80-0x88, 0x8c-0x94, 0x98-0xa0, 0xa4-0xac, 0xb0-0xb8, 0xbc-0xc4, 0xc8-0xd0, 0xd4-0xdc, 0xe0-0xe8, 0xec-0xf4, 0xf8-0x100, 0x104-0x10c; classification: prologue/frame and saved-register allocation residual (retail frame 0x140, candidate frame 0x150); ruled out comparison temporary removal, direct call comparisons, scalar local declaration reorder, and fixed-arity func_00442088 prototype. */
 // FUN_00144B80 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144b80);
 // FUN_00144C90
