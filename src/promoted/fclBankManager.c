@@ -145,7 +145,38 @@ void func_002e1230(s32 arg0, s64 arg1)
    208B); it was size-deficit and discarded. The historical nd 26 note above
    describes a discarded body, not a retained target. */
 // FUN_002E12E0
-INCLUDE_ASM("asm/nonmatchings/fclBankManager", func_002e12e0);
+/* measured: retail keeps the invariant key mask in the loop preheader. */
+#pragma opt_loop_invariants on
+s32 func_002e12e0(s16 *arg0)
+{
+    s16 *p;
+    s32 i;
+    s32 result;
+
+    result = 1;
+    p = (s16 *)(*(int *)(iGpffffb588 + 0x24) + 4);
+    i = 0;
+    for (; i < 2; i++) {
+        if (p != arg0) {
+            s16 flags = *p;
+            if ((flags & 1) && (flags & 8) &&
+                ((flags & 0x100) == (*arg0 & 0x100)) &&
+                ((flags & 0x1000) == 0)) {
+                *p = (s16)(flags | 0x400);
+                if (((*(u32 *)(p + 2) & 0xFFFF0000) >> 16) ==
+                    ((*(u32 *)(arg0 + 2) & 0xFFFF0000) >> 16)) {
+                    *p = (s16)(*p | 0x40);
+                }
+                if ((*p & 4) == 0) {
+                    result = 0;
+                }
+            }
+        }
+        p += 0xA;
+    }
+    return result;
+}
+#pragma opt_loop_invariants off
 
 /* measured: no real C body was produced for this 1088B retail window; no
    candidate nd was retained. */
