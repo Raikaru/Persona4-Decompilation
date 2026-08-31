@@ -998,7 +998,41 @@ void func_001d6a70(void)
 }
 
 // FUN_001D6AD0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6ad0);
+u8 *func_001d6ad0(void)
+{
+    u8 *array;
+    u32 i;
+    u8 *node;
+    u8 *head;
+    u32 table;
+    func_0044ea90(D_00609558, 0x51);
+    table = (u32)jtbl_008873E8;
+    array = (u8 *)((u8 *(*)(s32, s32))*(u32 *)table)(0xC8, 0x40000);
+    func_0043f9c8(array, 0, 0xC8);
+    i = 0;
+    while (i < 0x30) {
+        func_0044ea90(D_00609558, 0x51);
+        node = (u8 *)((u8 *(*)(s32, s32))*(u32 *)table)(0x24, 0x40000);
+        func_0043f9c8(node, 0, 0x24);
+        *(s32 *)(node + 4) = -1;
+        *(u8 *)(node + 8) = 0x14;
+        *(s32 *)(node + 0xC) = 0;
+        *(u16 *)(node + 0) = 0x200;
+        *(s32 *)(node + 0x1C) = 0;
+        head = *(u8 **)(iGpffffb3ac + 0x1B8);
+        if (head != NULL) {
+            *(u8 **)(head + 0x1C) = node;
+            head = *(u8 **)(iGpffffb3ac + 0x1B8);
+            *(u8 **)(node + 0x20) = head;
+        } else {
+            *(u8 **)(node + 0x20) = NULL;
+        }
+        *(u8 **)(iGpffffb3ac + 0x1B8) = node;
+        *(u8 **)(array + i * 4) = node;
+        i++;
+    }
+    return array;
+}
 // FUN_001D6C10
 void func_001d6c10(u8 *arg0)
 {

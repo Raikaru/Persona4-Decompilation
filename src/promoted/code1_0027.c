@@ -62,7 +62,119 @@ extern void func_00460ac0(u8 *arg0, u8 *arg1);
 
 
 // FUN_00270100
-INCLUDE_ASM("asm/nonmatchings/code1_0027", func_00270100);
+s32 func_00270100(s32 arg0, u8 *arg1)
+{
+    u32 flags;
+    s64 key_0;
+    s16 key_state;
+    s64 key_a;
+
+    {
+        u8 *base;
+        s32 offset;
+        s32 low;
+        u8 high;
+        s32 var;
+        base = *(u8 **)(arg1 + 0x18);
+        offset = *(s32 *)(arg1 + 0x10);
+        base += offset;
+        low = (((u8 *)base)[6] - 1) & 0xFF;
+        high = ((u8 *)base)[7];
+        if (high == 0xFF) {
+            var = 0;
+        } else {
+            var = (high - 1) & 0xFF;
+        }
+        key_0 = (s64)(s16)(((var & 0xFF) << 8) |
+                           (low & 0xFF));
+    }
+    flags = 0;
+    if (func_002746a0() != 0) {
+        return 0;
+    }
+    if (key_0 == 0) {
+        flags |= 0x100U;
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 low;
+        u8 high;
+        s32 var;
+        base = *(u8 **)(arg1 + 0x18);
+        offset = *(s32 *)(arg1 + 0x10);
+        base += offset;
+        low = (((u8 *)base)[4] - 1) & 0xFF;
+        high = ((u8 *)base)[5];
+        if (high == 0xFF) {
+            var = 0;
+        } else {
+            var = (high - 1) & 0xFF;
+        }
+        key_state = (s16)(((var & 0xFF) << 8) |
+                          (low & 0xFF));
+    }
+    if (key_state == -1) {
+        if ((func_00110d60((s16)func_001060b0()) & 1) != 0) {
+            if ((func_00110d60((s16)func_001060b0()) & 2) != 0) {
+                key_state = 4;
+            } else {
+                key_state = 3;
+            }
+        } else if ((func_00110d60((s16)func_001060b0()) & 2) != 0) {
+            key_state = 2;
+        } else {
+            key_state = 1;
+        }
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 low;
+        u8 high;
+        s32 var;
+        base = *(u8 **)(arg1 + 0x18);
+        offset = *(s32 *)(arg1 + 0x10);
+        base = (u8 *)add_retail_ptr((u32)offset, (u32)base);
+        low = (((u8 *)base)[0] - 1) & 0xFF;
+        high = ((u8 *)base)[1];
+        if (high == 0xFF) {
+            var = 0;
+        } else {
+            var = (high - 1) & 0xFF;
+        }
+        key_a = (s64)(s16)(((var & 0xFF) << 8) |
+                           (low & 0xFF));
+    }
+    {
+        u8 *base;
+        s32 offset;
+        s32 low;
+        u8 high;
+        s32 var;
+        s32 key_b;
+        base = *(u8 **)((u8 *)arg1 + 0x18);
+        offset = *(s32 *)((u8 *)arg1 + 0x10);
+        base += offset;
+        low = (((u8 *)base)[2] - 1) & 0xFF;
+        high = ((u8 *)base)[3];
+        if (high == 0xFF) {
+            var = 0;
+        } else {
+            var = (high - 1) & 0xFF;
+        }
+        key_b = (s32)(s16)(((var & 0xFF) << 8) |
+                           (low & 0xFF));
+        func_002e0da0(
+            key_state |
+            (((s64)((((s32)(s16)key_a) & 0xFF) << 0x10)) |
+             ((key_b & 0xFF) << 8)),
+            flags | 0x200,
+            key_a);
+    }
+    func_002e0f90();
+    return 0;
+}
 // FUN_00270390
 s32 func_00270390(void)
 {
