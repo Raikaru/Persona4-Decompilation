@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+extern void func_00442830(void *dst, void *src);
 
 extern u8 *D_00764298;
 extern void func_00440b68();
@@ -582,7 +583,53 @@ void func_001044d0(s64 arg0) {
     *(s16 *)(D_00796700 + ((s16)arg0 * 0x370)) = 5;
 }
 // FUN_00104510
-INCLUDE_ASM("asm/nonmatchings/code1_0010", func_00104510);
+void func_00104510(s16 arg0, s16 arg1, s16 arg2, s16 arg3)
+{
+    u8 buf[0x100];
+    s32 offset;
+    s32 i;
+    s32 found;
+    u8 *entry;
+
+    func_00440b68(D_005DD6A0, arg0);
+    offset = (arg0 * 0x38 - arg0) * 0x10;
+    *(s16 *)(D_00796700 + offset) = 5;
+    *(s32 *)(D_0079674C + offset) = 0;
+    *(s16 *)(D_00796704 + offset) = arg1;
+    *(s16 *)(D_00796706 + offset) = arg2;
+    *(s16 *)(D_00796708 + offset) = arg3;
+    func_00442088(buf, D_005DD6C0,
+                  (s32)arg1, (s32)arg2, (s32)arg3);
+    func_00442830(D_00796700 + offset + 0x60, buf);
+    *(s16 *)(D_00796700 + offset) = 6;
+    *(s32 *)(D_00796A64 + offset) = 0;
+    *(s32 *)(D_00796A68 + offset) = 0;
+    *(s32 *)(D_00796A6C + offset) = 0;
+    *(u8 *)(D_0079671C + offset) = 0xff;
+    *(u8 *)(D_0079671E + offset) = 0xff;
+    *(u8 *)(D_0079671D + offset) = 0xff;
+    *(u8 *)(D_0079671F + offset) = 0xff;
+    *(u32 *)(D_00796728 + offset) = 0x3f800000;
+    *(u32 *)(D_0079672C + offset) = 0x3f800000;
+    i = 0;
+    found = 1;
+    do {
+        entry = D_005DD610 + i * 0x10;
+        if (*(s32 *)entry == -1)
+            break;
+        if ((s32)arg1 == *(s32 *)entry &&
+            (s32)arg2 == *(s32 *)(entry + 4) &&
+            (s32)arg3 == *(s32 *)(entry + 8)) {
+            *(s32 *)(D_00796A60 + offset) =
+                *(s32 *)(D_005DD61C + i * 0x10);
+            found = 0;
+            break;
+        }
+        i++;
+    } while (1);
+    if (found)
+        *(s32 *)(D_00796A60 + offset) = 0x3e;
+}
 // FUN_00104770
 void func_00104770(s64 arg0, s8 arg1) {
     *(s8 *)(D_0079671F + (((s16)arg0) * 0x370)) = arg1;

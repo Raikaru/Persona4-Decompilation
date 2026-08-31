@@ -430,7 +430,79 @@ void func_00296600(u8 *arg0, u8 *arg1)
   return;
 }
 // FUN_00296720
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00296720);
+void func_00296720(u8 *arg0, u8 *arg1)
+{
+  extern u8 *func_00286780();
+  extern u8 *func_00286f00(s32 arg0);
+  s32 temp_16;
+  u8 *new_var3;
+  u8 *new_var;
+  s32 var_17;
+  u8 *temp_19;
+  s32 var_18;
+  s16 field_c;
+  s16 field_e;
+  s16 field_10;
+  s16 field_12;
+  s16 field_14;
+  s16 field_16;
+  s16 field_18;
+  u16 temp_6;
+  u8 *temp_2;
+  u8 *temp_3;
+  u8 *temp_5;
+  temp_19 = func_00286f00(0x13);
+  if ((*((s32 *) ((*((u8 **) (arg0 + 0x80))) + 0x14))) < 6)
+  {
+    var_17 = *((s32 *) (arg0 + 0xAC));
+  }
+  else
+  {
+    var_17 = *((s32 *) (arg0 + 0xA8));
+  }
+  var_18 = 0;
+  goto loop_7_test;
+  loop_7_body:
+  temp_5 = *((u8 **) (arg0 + 0xA4));
+  temp_16 = var_18 * 0x3C;
+  temp_5 += temp_16;
+  if ((*((u16 *) temp_5)) != 0x13)
+  {
+    goto loop_7_increment;
+  }
+  temp_2 = func_00286780((temp_6 = *((u16 *) (temp_5 + 2)), temp_19),
+                          temp_6, arg1);
+  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  field_c = *((s16 *) (temp_3 + 0xC));
+  field_e = *((s16 *) (temp_3 + 0xE));
+  field_10 = *((s16 *) (temp_3 + 0x10));
+  field_12 = *((s16 *) (temp_3 + 0x12));
+  new_var3 = temp_2;
+  *((s16 *) (temp_2 + 8)) = field_c;
+  *((s16 *) (new_var3 + 0xA)) = field_e;
+  *((s16 *) (new_var3 + 0xC)) = field_10;
+  *((s16 *) (((0, new_var3)) + 0xE)) = field_12;
+  new_var = new_var3;
+  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  field_14 = *((s16 *) (temp_3 + 0x14));
+  *((s16 *) (new_var + 0x10)) = field_14;
+  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  field_16 = *((s16 *) (temp_3 + 0x16));
+  *((s16 *) (new_var + 0x12)) = field_16;
+  temp_3 = (*((u8 **) (arg0 + 0xA4))) + temp_16;
+  field_18 = *((s16 *) (temp_3 + 0x18));
+  *((s16 *) (new_var + 0x14)) = field_18;
+  loop_7_increment:
+  var_18 += 1;
+
+  loop_7_test:
+  if (var_18 < var_17)
+  {
+    goto loop_7_body;
+  }
+
+  return;
+}
 // FUN_00296850
 INCLUDE_ASM("asm/nonmatchings/code1_0029", func_00296850);
 // FUN_00298130
