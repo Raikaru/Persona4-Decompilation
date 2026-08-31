@@ -74,7 +74,7 @@ extern u8* func_00105510(s16 arg0);
 extern s32 func_002428f0(DatUnit* unit, s32 arg1);
 extern void func_00233880(DatUnit* unit, u8 index);
 extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table */
-extern EncountTblEntry* gEncountTbl; /* 0x00764504 (gp-0x4BEC) */
+extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
 
 extern u32 func_00231af0(DatUnit* unit, u8 genus, u16 id);
 
@@ -96,17 +96,18 @@ DatUnitPc* func_00231580(u16 pcId)
     return pc;
 }
 
-/* measured: direct three-argument func_00231af0 call fixes the retail lhu $a2 setup; explicit 0x18-byte table stride and < 5U guards produce object 368/368, nd 23. <= 4U measured nd 27. Committed at nd 23. */
-// FUN_00231630 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: canonical iGpffffb414 GP symbol and explicit offset local produce the retail global-load ordering and exact 368-byte object. */
+#pragma opt_loop_invariants on
+// FUN_00231630
 DatUnitEc* func_00231630(u16 encountId)
 {
-    u32 stride;
     u32 count;
     u16 i;
     DatUnitEc* ec;
     u16 j;
+    u32 stride;
     u16 k;
+    u32 ioff;
 
     count = 0;
     i = 0;
@@ -114,10 +115,11 @@ DatUnitEc* func_00231630(u16 encountId)
     {
         EncountTblEntry* entry;
 
-        entry = (EncountTblEntry*)((u8*)gEncountTbl + stride);
+        entry = (EncountTblEntry*)((u8*)iGpffffb414 + stride);
         for (; (u32)(i & 0xFFFF) < 5U; i++)
         {
-            if (entry->enmIds[i] != 0)
+            ioff = (u32)i * 2;
+            if (*(u16 *)((u8 *)entry + ioff + 8) != 0)
             {
                 count = (count + 1) & 0xFFFF;
             }
@@ -136,18 +138,16 @@ DatUnitEc* func_00231630(u16 encountId)
     j = 0;
     for (k = 0; (u32)(k & 0xFFFF) < 5U; k++)
     {
-        if (((EncountTblEntry*)((u8*)gEncountTbl + stride))->enmIds[k] != 0)
+        if (((EncountTblEntry*)((u32)stride + (u32)iGpffffb414))->enmIds[k] != 0)
         {
-            func_00231af0(&ec->base.unit[j], UNIT_GENUS_EC, ((EncountTblEntry*)((u8*)gEncountTbl + stride))->enmIds[k]);
+            func_00231af0(&ec->base.unit[j], UNIT_GENUS_EC, ((EncountTblEntry*)((u32)stride + (u32)iGpffffb414))->enmIds[k]);
             j++;
         }
     }
 
     return ec;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/datUnit", func_00231630);
-#endif
+#pragma opt_loop_invariants off
 
 // FUN_002317A0
 DatUnit* func_002317a0(DatUnitEc* ec, u16 id)
