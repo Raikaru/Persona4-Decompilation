@@ -198,8 +198,59 @@ s32 func_0016a960(f32* origin, f32* vector, f32 fraction, s32 fieldId)
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016abc0);
 // FUN_0016B080
 INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b080);
+/* measured: propagation probe for func_0016b260 register scheduling. */
+#pragma opt_propagation off
 // FUN_0016B260
-INCLUDE_ASM("asm/nonmatchings/k_fldFrame", func_0016b260);
+void* func_0016b260(const RwV3d* line, void* unused,
+                    const void* triangle, u8* raycast)
+{
+    typedef struct FldFrameLine
+    {
+        RwV3d start;
+        RwV3d end;
+    } FldFrameLine;
+    RwV3d delta;
+    FldFrameLine lineCopy;
+    const RwV3d* normal;
+    const RwV3d* point;
+    f32 startX;
+    f32 deltaX;
+    f32 startY;
+    f32 deltaY;
+    f32 startZ;
+    f32 deltaZ;
+    f32 normalX;
+    f32 normalY;
+    f32 normalZ;
+    f32 numerator;
+    f32 denominator;
+    f32 fraction;
+
+    lineCopy = *(const FldFrameLine*)line;
+    startX = lineCopy.start.x;
+    deltaX = startX - lineCopy.end.x;
+    startY = lineCopy.start.y;
+    deltaY = startY - lineCopy.end.y;
+    startZ = lineCopy.start.z;
+    deltaZ = startZ - lineCopy.end.z;
+    normal = (const RwV3d*)triangle;
+    normalY = normal->y;
+    normalX = normal->x;
+    normalZ = normal->z;
+    denominator = normalX * deltaX + normalY * deltaY + normalZ * deltaZ;
+    point = *(const RwV3d**)((const u8*)triangle + 0x1c);
+    numerator = -(-(normalX * point->x + normalY * point->y +
+                    normalZ * point->z) +
+                   (normalX * startX + normalY * startY +
+                    normalZ * startZ));
+    fraction = numerator / denominator;
+    *(f32*)*(u8**)raycast = fraction * deltaX + startX;
+    *(f32*)(*(u8**)raycast + 4) = fraction * deltaY + startY;
+    *(f32*)(*(u8**)raycast + 8) = fraction * deltaZ + startZ;
+    *(u32*)(raycast + 4) = 1;
+    return 0;
+}
+#pragma opt_propagation on
 // FUN_0016B350
 void* func_0016b350(f32 fraction, const RwV3d* line,
                     void* unused, FldFrameRaycast* raycast)
