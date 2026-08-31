@@ -24,7 +24,7 @@ extern u32 func_001d1f30(u32 *work);
 extern void func_001d2e00(u32 *work);
 extern u32 func_001d2e20(u8 *param_1);
 extern void func_001d2fe0(u32 *work);
-extern u32 func_001d3090(u8 *param_1);
+extern u32 func_001d3090(u32 *work);
 extern u32 func_001d35a0(u16 *param_1);
 extern u32 func_001d3760(u16 *param_1);
 extern u32 func_001d3950(u8 **param_1);
@@ -191,7 +191,108 @@ void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 
 
 // FUN_001D3090
-INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d3090);
+u32 func_001d3090(u32 *work)
+{
+    typedef struct RtQuat {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    } RtQuat;
+
+    extern void func_00195590(void *arg0, void *arg1);
+    extern f32 func_00196bd0(void *arg0, void *arg1, s32 arg2);
+    extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
+    extern void func_003dcb40(void *out, const void *in, s32 count, const void *rot);
+    extern f32 D_0060A0E0[3];
+    extern f32 D_0060A0F0[3];
+
+    u16 sel;
+    RtQuat rotation;
+    f32 diff[3];
+    f32 dest[3];
+    f32 scale;
+
+    sel = *(u16 *)(work + 2);
+    switch (sel) {
+    case 0:
+        func_00196b70((void *)work[0]);
+        func_00196ba0((void *)work[0]);
+        func_00195590((void *)work[0], (u8 *)work[1] + 4);
+        func_00195590((void *)work[1], (u8 *)work[0] + 4);
+        diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
+        diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
+        diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
+        diff[1] = 0.0f;
+        func_003e40b0(diff, diff);
+        diff[0] *= 100.0f;
+        diff[1] *= 100.0f;
+        diff[2] *= 100.0f;
+        dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
+        dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
+        dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
+        func_00194ee0((void *)work[0], dest);
+        break;
+    case 1:
+        func_00196b70((void *)work[0]);
+        func_00196ba0((void *)work[0]);
+        func_00195590((void *)work[0], (u8 *)work[1] + 4);
+        func_00195590((void *)work[1], (u8 *)work[0] + 4);
+        diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
+        diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
+        diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
+        diff[1] = 0.0f;
+        func_003e40b0(diff, diff);
+        diff[0] *= 150.0f;
+        diff[1] *= 150.0f;
+        diff[2] *= 150.0f;
+        dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
+        dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
+        dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
+        func_00194ee0((void *)work[0], dest);
+        break;
+    case 2:
+        func_00194ee0((void *)work[0], (u8 *)work[1] + 4);
+        func_00194f10((void *)work[0], (u8 *)work[1] + 0x1c);
+        break;
+    case 3:
+        rotation = *(RtQuat *)((u8 *)work[1] + 0x1c);
+        if ((*(u32 *)(D_0076449C + 0xc) & 0x200000) == 0) {
+            func_003dc740(&rotation, D_0060A0E0, 2, 90.0f);
+        } else {
+            func_003dc740(&rotation, D_0060A0E0, 2, 130.0f);
+        }
+        func_003dcb40(diff, D_0060A0F0, 1, &rotation);
+        diff[0] *= 250.0f;
+        diff[1] *= 250.0f;
+        diff[2] *= 250.0f;
+        dest[0] = *(f32 *)((u8 *)work[0] + 4) + diff[0];
+        dest[1] = *(f32 *)((u8 *)work[0] + 8) + diff[1];
+        dest[2] = *(f32 *)((u8 *)work[0] + 0xc) + diff[2];
+        func_00194ee0((void *)work[1], dest);
+        break;
+    case 4:
+        func_00196b70((void *)work[0]);
+        func_00196ba0((void *)work[0]);
+        func_00195590((void *)work[0], (u8 *)work[1] + 4);
+        func_00195590((void *)work[1], (u8 *)work[0] + 4);
+        scale = func_00196bd0((void *)work[0], (void *)work[1], 7);
+        diff[0] = *(f32 *)((u8 *)work[0] + 4) - *(f32 *)((u8 *)work[1] + 4);
+        diff[1] = *(f32 *)((u8 *)work[0] + 8) - *(f32 *)((u8 *)work[1] + 8);
+        diff[2] = *(f32 *)((u8 *)work[0] + 0xc) - *(f32 *)((u8 *)work[1] + 0xc);
+        diff[1] = 0.0f;
+        func_003e40b0(diff, diff);
+        diff[0] *= scale;
+        diff[1] *= scale;
+        diff[2] *= scale;
+        dest[0] = *(f32 *)((u8 *)work[1] + 4) + diff[0];
+        dest[1] = *(f32 *)((u8 *)work[1] + 8) + diff[1];
+        dest[2] = *(f32 *)((u8 *)work[1] + 0xc) + diff[2];
+        func_00194ee0((void *)work[0], dest);
+        break;
+    }
+    return 1;
+}
 // FUN_001D3530
 void func_001d3530(u32 param_1, u32 param_2, u16 param_3)
 {
