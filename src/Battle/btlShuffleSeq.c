@@ -273,14 +273,40 @@ void func_00378f90(u8 *arg0, s32 arg1, s32 arg2) {
     func_00375dd0(arg0, arg1, NULL, &sp40[0], 0.0f, var_f13);
     func_00376290(arg0, arg1, arg2, 0xFF, 0);
 }
-/* measured: restore optimization level 2 after the O1 probe on
-   func_00378f90; this explicit opposite is required by following functions. */
-#pragma optimization_level 2
-/* measured: in-file body recheck is object 180B/window 192B with
-   normalized_diff 28, over the park threshold; body archived at
-   build/WS19_00379090_nd28.c and restored to INCLUDE_ASM. */
+/* measured: optimization level 1 is required to match func_00379090. */
+#pragma optimization_level 1
+/* reconstructed from the retail disassembly and Ghidra decompile; scoped
+   lverify reports an exact byte match for the 192-byte function window. */
 // FUN_00379090
-INCLUDE_ASM("asm/nonmatchings/btlShuffleSeq", func_00379090);
+void func_00379090(u8 *ctx, s32 idx, s32 mode, s32 arg3) {
+    struct S {
+        u64 pair;
+        u32 pad;
+    };
+    struct S tmp;
+    f32 sp40[4];
+    s32 var_4;
+    u64 pair;
+    f32 value;
+
+    if ((s16)arg3 > 0) {
+        var_4 = 0x5A;
+    } else {
+        var_4 = -0x5A;
+    }
+    {
+        register u8 *tmp_ptr = (u8 *)&tmp;
+
+        pair = D_0064EAB0[0];
+        value = D_0064EAB8[0];
+        tmp.pair = pair;
+        *(f32 *)((u8 *)&tmp + 8) = value;
+        func_003dc740((void *)&sp40[0], (void *)tmp_ptr, 0, (f32)var_4);
+        func_003760f0(ctx, idx, 0, mode, 0, (f32 *)&sp40[0]);
+    }
+}
+/* measured: restore optimization level 2 after the O1 target probe; required by following functions. */
+#pragma optimization_level 2
 
 
 

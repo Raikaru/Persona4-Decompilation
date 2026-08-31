@@ -278,8 +278,7 @@ void func_00371ba0(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3) {
    chain scheduling + $f-register renumbering in component 3. Load-CSE +
    FP-scheduling floor. */
 /* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
-// FUN_00371C70 NONMATCHING
-#ifdef NON_MATCHING
+// FUN_00371C70
 s32 func_00371c70(u8 *arg0) {
     f32 var_f12;
     f32 var_f1;
@@ -288,71 +287,35 @@ s32 func_00371c70(u8 *arg0) {
     f32 f4;
     f32 f5;
     f32 f6;
-    u32 temp_2;
-    u32 temp_2_2;
 
-    temp_2 = *(u16 *)(arg0 + 0);
-    if ((s32)temp_2 >= 0) {
-        var_f1 = (f32)temp_2;
-    } else {
-        var_f1 = (f32)((temp_2 >> 1) | (temp_2 & 1));
-        var_f1 += var_f1;
+    var_f1 = (f32)(u16)*(u16 *)(arg0 + 0);
+    if (!(var_f1 < *(f32 *)(arg0 + 4))) {
+        return 1;
     }
-    if (var_f1 < *(f32 *)(arg0 + 4)) {
-        temp_2_2 = *(u16 *)(arg0 + 0) + 1;
-        *(u16 *)(arg0 + 0) = (u16)temp_2_2;
-        temp_2_2 = *(u16 *)(arg0 + 0);
-        if ((s32)temp_2_2 >= 0) {
-            var_f12 = (f32)temp_2_2;
-        } else {
-            var_f12 = (f32)((temp_2_2 >> 1) | (temp_2_2 & 1));
-            var_f12 += var_f12;
-        }
-        var_f12 = func_00373cb0(0, var_f12, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 4));
-        inv = 1.0f - var_f12;
+    *(u16 *)(arg0 + 0) += 1;
+    var_f12 = (f32)(u16)*(u16 *)(arg0 + 0);
+    var_f12 = func_00373cb0(var_f12, *(f32 *)(arg0 + 8), *(f32 *)(arg0 + 4), 0);
+    inv = 1.0f - var_f12;
 
-        f6 = *(f32 *)(arg0 + 0x3C) * var_f12;
-        f6 = var_f12 * f6;
-        f5 = 3.0f * *(f32 *)(arg0 + 0x30);
-        f5 = f5 * inv;
-        f5 = var_f12 * f5;
-        f4 = *(f32 *)(arg0 + 0x18) * inv;
-        f4 = inv * f4;
-        f3 = 3.0f * *(f32 *)(arg0 + 0x24);
-        f3 = f3 * inv;
-        f3 = inv * f3;
-        *(f32 *)(arg0 + 0xC) = var_f12 * f3 + inv * f4 + var_f12 * f5 + var_f12 * f6;
+    f6 = var_f12 * (*(f32 *)(arg0 + 0x3C) * var_f12);
+    f5 = var_f12 * (3.0f * *(f32 *)(arg0 + 0x30) * inv);
+    f4 = inv * (*(f32 *)(arg0 + 0x18) * inv);
+    f3 = inv * (3.0f * *(f32 *)(arg0 + 0x24) * inv);
+    *(f32 *)(arg0 + 0xC) = inv * f4 + var_f12 * f3 + var_f12 * f5 + var_f12 * f6;
 
-        f6 = *(f32 *)(arg0 + 0x40) * var_f12;
-        f6 = var_f12 * f6;
-        f5 = 3.0f * *(f32 *)(arg0 + 0x34);
-        f5 = f5 * inv;
-        f5 = var_f12 * f5;
-        f4 = *(f32 *)(arg0 + 0x1C) * inv;
-        f4 = inv * f4;
-        f3 = 3.0f * *(f32 *)(arg0 + 0x28);
-        f3 = f3 * inv;
-        f3 = inv * f3;
-        *(f32 *)(arg0 + 0x10) = var_f12 * f3 + inv * f4 + var_f12 * f5 + var_f12 * f6;
+    f6 = var_f12 * (*(f32 *)(arg0 + 0x40) * var_f12);
+    f5 = var_f12 * (3.0f * *(f32 *)(arg0 + 0x34) * inv);
+    f4 = inv * (*(f32 *)(arg0 + 0x1C) * inv);
+    f3 = inv * (3.0f * *(f32 *)(arg0 + 0x28) * inv);
+    *(f32 *)(arg0 + 0x10) = inv * f4 + var_f12 * f3 + var_f12 * f5 + var_f12 * f6;
 
-        f6 = *(f32 *)(arg0 + 0x44) * var_f12;
-        f6 = var_f12 * f6;
-        f5 = 3.0f * *(f32 *)(arg0 + 0x38);
-        f5 = f5 * inv;
-        f5 = var_f12 * f5;
-        f4 = *(f32 *)(arg0 + 0x20) * inv;
-        f4 = inv * f4;
-        f3 = *(f32 *)(arg0 + 0x2C) * 3.0f;
-        f3 = f3 * inv;
-        f3 = inv * f3;
-        *(f32 *)(arg0 + 0x14) = var_f12 * f3 + inv * f4 + var_f12 * f5 + var_f12 * f6;
-        return 0;
-    }
-    return 1;
+    f6 = var_f12 * (*(f32 *)(arg0 + 0x44) * var_f12);
+    f5 = var_f12 * (3.0f * *(f32 *)(arg0 + 0x38) * inv);
+    f4 = inv * (*(f32 *)(arg0 + 0x20) * inv);
+    f3 = inv * (3.0f * *(f32 *)(arg0 + 0x2C) * inv);
+    *(f32 *)(arg0 + 0x14) = inv * f4 + var_f12 * f3 + var_f12 * f5 + var_f12 * f6;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00371c70);
-#endif
 // FUN_00371E50
 void func_00371e50(u8 *arg0, u32 arg1, ShuffleVec3 *arg2, ShuffleVec3 *arg3, ShuffleVec3 *arg4, f32 fparg0, f32 fparg1) {
     ShuffleVec3 sp30;
@@ -410,7 +373,36 @@ void func_00371f40(u8 *arg0, f32 fparg0, u8 *arg1) {
     func_003e0f40(temp_16);
 }
 // FUN_003720C0
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_003720c0);
+s32 func_003720c0(u8 *arg0) {
+    f32 var_f1;
+    f32 count;
+    f32 ratio;
+    f32 startv;
+    f32 diff;
+    f32 zero;
+
+    var_f1 = (f32)(u16)*(u16 *)(arg0 + 0);
+    if (!(var_f1 < *(f32 *)(arg0 + 4))) {
+        return 1;
+    }
+    *(u16 *)(arg0 + 0) += 1;
+    if (*(f32 *)(arg0 + 4) <= 0.0f) {
+        func_0046d730(&D_0064E9C0, 0x1EF);
+    }
+    startv = *(f32 *)(arg0 + 0x18);
+    count = (f32)(u16)*(u16 *)(arg0 + 0);
+    zero = 0.0f;
+    ratio = count + zero;
+    ratio = ratio / *(f32 *)(arg0 + 4);
+    diff = *(f32 *)(arg0 + 0x1C) - startv;
+    func_00371160(
+        arg0 + 0x2C,
+        arg0 + 0x20,
+        arg0 + 0x38,
+        arg0 + 0xC,
+        0.0f + startv + ratio * diff);
+    return 0;
+}
 /* measured: func_00372200 is a live MATCH (object 416B / 416B window /
    normalized_diff 0). Both int-to-float sites use plain `(f32)(u16)`
    casts. Difference-first locals reproduce retail's separate interpolation
@@ -1042,9 +1034,9 @@ s32 func_00373610(u8 *arg0)
     return 0;
 }
 
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
-// FUN_00373750 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: preserving independent switch case bodies matches the retail layout. */
+#pragma opt_propagation off
+// FUN_00373750
 void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
     f32 f0;
     f32 f1;
@@ -1065,7 +1057,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
         f1 = 120.0f;
         f0 = 224.0f;
         f2 = 0.0f;
-        arg2[1] = f0 + f2 * f1;
+        arg2[1] = f0 + f1 * f2;
         return;
     case 5:
         if (arg0 < 3) {
@@ -1077,8 +1069,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
             f2 = 120.0f;
             f1 = -0.5f;
             f0 = 224.0f;
-            f3 = 0.0f;
-            arg2[1] = f0 + f3 + f2 * f1;
+            arg2[1] = f0 + f2 * f1;
             return;
         }
         f3 = (f32)(arg0 - 3);
@@ -1086,11 +1077,10 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
         f3 = f3 - f4;
         f1 = 100.0f;
         f0 = 320.0f;
-        f2 = 0.0f;
-        *arg2 = f0 + f2 + f1 * f3;
+        *arg2 = f0 + f1 * f3;
         f1 = 120.0f;
         f0 = 224.0f;
-        arg2[1] = f0 + f2 * f4;
+        arg2[1] = f0 + f1 * f4;
         return;
     case 6:
         if (arg0 < 3) {
@@ -1102,8 +1092,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
             f2 = 120.0f;
             f1 = -0.5f;
             f0 = 224.0f;
-            f3 = 0.0f;
-            arg2[1] = f0 + f3 + f2 * f1;
+            arg2[1] = f0 + f2 * f1;
             return;
         }
         f3 = (f32)(arg0 - 3);
@@ -1111,11 +1100,11 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
         f2 = f3 - f1;
         f1 = 100.0f;
         f0 = 320.0f;
-        f4 = 0.0f;
-        *arg2 = f0 + f4 + f1 * f2;
-        f1 = 120.0f;
+        *arg2 = f0 + f1 * f2;
+        f2 = 120.0f;
+        f1 = 0.5f;
         f0 = 224.0f;
-        arg2[1] = f0 + f4 * f3;
+        arg2[1] = f0 + f2 * f1;
         return;
     case 7:
         if (arg0 < 4) {
@@ -1127,8 +1116,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
             f2 = 120.0f;
             f1 = -0.5f;
             f0 = 224.0f;
-            f3 = 0.0f;
-            arg2[1] = f0 + f3 + f2 * f1;
+            arg2[1] = f0 + f2 * f1;
             return;
         }
         f3 = (f32)(arg0 - 4);
@@ -1136,11 +1124,11 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
         f2 = f3 - f1;
         f1 = 100.0f;
         f0 = 320.0f;
-        f4 = 0.0f;
-        *arg2 = f0 + f4 + f1 * f2;
-        f1 = 120.0f;
+        *arg2 = f0 + f1 * f2;
+        f2 = 120.0f;
+        f1 = 0.5f;
         f0 = 224.0f;
-        arg2[1] = f0 + f4 * f3;
+        arg2[1] = f0 + f2 * f1;
         return;
     case 8:
         if (arg0 < 4) {
@@ -1152,8 +1140,7 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
             f2 = 120.0f;
             f1 = -0.5f;
             f0 = 224.0f;
-            f3 = 0.0f;
-            arg2[1] = f0 + f3 + f2 * f1;
+            arg2[1] = f0 + f2 * f1;
             return;
         }
         f3 = (f32)(arg0 - 4);
@@ -1161,20 +1148,18 @@ void func_00373750(s32 arg0, s32 arg1, f32 *arg2) {
         f2 = f3 - f1;
         f1 = 100.0f;
         f0 = 320.0f;
-        f4 = 0.0f;
-        *arg2 = f0 + f4 + f1 * f2;
-        f1 = 120.0f;
+        *arg2 = f0 + f1 * f2;
+        f2 = 120.0f;
+        f1 = 0.5f;
         f0 = 224.0f;
-        arg2[1] = f0 + f4 * f3;
+        arg2[1] = f0 + f2 * f1;
         return;
     default:
         func_0046d730(&D_0064E9C0, 0x3BF);
         return;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlShuffleCalc", func_00373750);
-#endif
+#pragma opt_propagation on
 
 // FUN_00373C20
 void func_00373c20(u8 *arg0) {
