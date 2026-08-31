@@ -33,13 +33,18 @@ extern u8 D_00642F04[];
 // FUN_00311EA0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00311ea0);
 
-/* measured: 128-bit-slot wall (same as FUN_003130E0): retail loads spA0 from
-   D_00642F04+arg1*8 into a quadword slot (lw $2; sq $2,0xA0) and tests the
-   0x18-iteration loop with `lq $2,0xA0; slt $2,$18,$2` (raw quadword
-   compare, no narrowing). The full C probe was 664B vs the 640B retail
-   window (normalized_diff 381); mwcc b210's `u_long128` read-back still
-   lowers through a scalar load, so the slot/compare floor remains. Probe
-   discarded. */
+/* measured: 128-bit-slot wall (same family as FUN_003130E0): retail loads
+   spA0 from D_00642F04+arg1*8 into a quadword slot (lw $2; sq $2,0xA0) and
+   tests the 0x18-iteration loop with `lq $2,0xA0; slt $2,$18,$2` (raw
+   quadword compare, no narrowing). The full C probe was 664B vs the 640B
+   retail window (normalized_diff 381). The old "u_long128 read-back still
+   lowers through a scalar load" claim used the wrong type name/technique --
+   see the corrected note above func_003130e0 and docs/matching.md's
+   "128-bit lq/sq aggregate copy" entry: `typedef signed __int128 s128;`
+   (not `u_long128`) plus a narrowing cast on the reload is the real,
+   working technique, already reducing func_003130e0's residual from
+   nd528 to nd163 (not yet exact). Not yet re-attempted here with the real
+   type; try it before assuming this is unreachable. */
 // FUN_00312220
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312220);
 
@@ -181,21 +186,35 @@ s32 func_00312bc0(s8 arg0) {
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312c60);
 
 /* measured: retail sq's arg0&0xFF into spA0 (0xA0) and lq's it back in the
-   0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). A full C
-   probe with `u_long128 spA0` and aliased scalar read-back compiled to 772B
-   against the 720B retail window (normalized_diff 528); mwcc b210 lowers the
-   read-back through lw (not lq), and the full-value compare has no legal C
-   data-size spelling. 128-bit-slot read floor; probe discarded. */
+   0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). The old
+   "u_long128 aliased scalar read-back" probe (720B window, nd528, "no legal
+   C data-size spelling") was WRONG about the type: `typedef signed __int128
+   s128;` (declared locally, see docs/matching.md's corrected "128-bit lq/sq
+   aggregate copy" entry and effBlurFilter.c/evtPolygonMovie.c/shdSprite.c
+   for the proven pattern) genuinely lowers to lq/sq and reproduces retail's
+   exact -0xB0 frame and register coloring for the store/reload; a narrowing
+   (s64) cast on the reload is required for the actual bne compare (s128
+   itself has no legal == in b210 -- "illegal data size" -- matching that
+   retail's bne is not a real 128-bit compare either). Two focused sessions
+   with this real type got the residual down from nd528/541 to nd163 (712B
+   vs 720B, 63 differing words in the tail/bottom-loop control-flow and
+   CSE layout) but not to an exact MATCH. Still a floor for now, but NOT a
+   type-spelling floor -- the residual is ordinary register-allocation/
+   control-flow shape, the same category as any other near-miss. Worth
+   another attempt with fresh eyes on the bottom-loop layout specifically. */
 // FUN_003130E0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003130e0);
 
-/* measured: identical 128-bit-slot wall to func_003130e0 (retail sq's
+/* measured: identical 128-bit-slot pattern to func_003130e0 (retail sq's
    arg0&0xFF into spA0 at 0xA0 and lq's it back in the 0xC0 i-loop, raw bne
-   compare). A full C probe with the same aliased scalar read-back compiled
-   to 788B against the 736B retail window (normalized_diff 541); mwcc b210
-   lowers the read-back through lw (not lq), and the full-value compare has
-   no legal C data-size spelling. The 0x43A tail assert is also retained.
-   128-bit-slot read floor; probe discarded. */
+   compare; 736B retail window). The old "no legal C data-size spelling"
+   claim was wrong about the type -- see the corrected note above
+   func_003130e0 and docs/matching.md's "128-bit lq/sq aggregate copy"
+   entry: `typedef signed __int128 s128;` plus a narrowing (s64) cast on
+   the reload for the compare is the real technique. Not yet re-attempted
+   with it (func_003130e0 got to nd163 with real effort and is still not
+   exact; this sibling was deprioritized behind that one). Try the same
+   technique here before assuming it is unreachable. */
 // FUN_003133B0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_003133b0);
 
