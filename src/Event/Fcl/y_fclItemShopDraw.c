@@ -2,15 +2,33 @@
 
 #include "include_asm.h"
 #include "type.h"
-
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
-extern u8 D_0064A380[];
-extern u8 D_0064A3D8[];
-extern u8 D_0064A3F0[];
-extern f32 D_0064A090[];
+
+typedef struct {
+    f32 x;
+    f32 y;
+} F2_0033;
+
+extern void func_002b2970(F2_0033 *out, f32 x, f32 y);
+extern s32 func_002e7a60(void);
+extern s32 func_002b3170(s32 arg0);
+extern void func_0033d3c0(void *, f32);
+extern void func_0033d3e0(void *, F2_0033, F2_0033, u32, u32, s64);
+extern void func_0033d4b0(void *, u8, u8, u8, s16, s64);
+extern void func_0033d4e0(void *, s8, s16, s64, f32, f32);
+extern f32 D_0064A1D8[];
+extern f32 D_0064A1E0[];
+extern f32 D_0064A1E8[];
+extern f32 D_0064A0E8[];
+
+
 extern f32 iGpffff8504;
 extern u8 D_00793E80[];
+extern f32 D_0064A090[];
+extern f32 D_0064A380[];
+extern u8 D_0064A3D8[];
+extern u8 D_0064A3F0[];
 
 void func_00332bb0(u8 *arg0);
 extern void func_00332a80(void);
@@ -21,9 +39,8 @@ void func_002e29a0(void);
 void func_00454bd0(void *);
 void func_0046b0d0(void *);
 s32 func_00106a90(s64);
-s32 func_002e71c0(void);
+void *func_0046d200(void *, s32, ...);
 void func_002e24a0(s32, s32, s32, s32);
-void *func_0046d200(void *, s32, void *, s32);
 f32 func_0046b260(void *);
 f32 func_0046b2f0(void *);
 void func_0046d280(void *);
@@ -98,10 +115,88 @@ u8 *func_0033be40(u8 *arg0) {
 /* measured: closes the opt_loop_invariants scope required by func_0033be40. */
 #pragma opt_loop_invariants off
 
-/* triage: retail window 1280 bytes; COP1 accumulator-chain floor proven at
-   0x0033C0B4/0xC0B8, 0x0033C0EC/0xC0F0, and 0x0033C43C/0xC440; fallback kept. */
 // FUN_0033BF90
-INCLUDE_ASM("asm/nonmatchings/y_fclItemShopDraw", func_0033bf90);
+void func_0033bf90(u8 *arg0) {
+    s32 i;
+    u8 *work;
+    s32 item_index;
+    s64 layer;
+    f32 *coords;
+    u8 *item;
+    void *font;
+    register u8 *table;
+    f32 x;
+    f32 y;
+    F2_0033 pos0;
+    F2_0033 pos1;
+    F2_0033 pos2;
+    F2_0033 pos3;
+    F2_0033 pos4;
+    F2_0033 pos5;
+    F2_0033 pos6;
+    F2_0033 pos7;
+    F2_0033 pos8;
+    F2_0033 pos9;
+    F2_0033 pos10;
+    F2_0033 pos11;
+
+    work = *(u8 **)(arg0 + 0x38);
+    i = 0;
+    while ((s16)i < 4) {
+        layer = (s64)(s16)((s16)i * 3);
+        item_index = (s16)i + 3;
+        coords = (f32 *)((u8 *)D_0064A090 + (item_index * 8));
+        item = work + (s16)i * 4 + 0x1C;
+        func_0033d4e0((void *)*(s32 *)item, 0, 10, layer, 1.0f, 0.5f);
+        func_0033d4b0((void *)*(s32 *)item, 0xFF, 0, 0, 10, layer);
+        func_0033d3d0((void *)*(s32 *)item, 0xAC);
+        font = func_0046d200((void *)*(s32 *)(work + 0xC), item_index);
+        func_002b2970(&pos0, coords[0], coords[1]);
+        x = (func_0046b260(font) / 10.0f) * 1.5f + coords[0] + 0.0f;
+        y = (func_0046b2f0(font) / 10.0f) * 1.5f + coords[1] + 0.0f;
+        func_002b2970(&pos1, x, y);
+        func_0033d3e0((void *)*(s32 *)item, pos0, pos1, 0, 10, layer);
+        func_0046d280(font);
+        i = (s16)(i + 1);
+    }
+    func_0033d320((void *)*(s32 *)(work + 0x14), 0, 0);
+    func_0033d4b0((void *)*(s32 *)(work + 0x14), 0xFF, 0, 0, 10, 0);
+    func_0033d3d0((void *)*(s32 *)(work + 0x14), 0xAC);
+    table = (u8 *)D_0064A1D8;
+    func_002b2970(&pos2, *(f32 *)(table + 0), *(f32 *)(table + 4));
+    func_002b2970(&pos3, -180.0f, *(f32 *)(table + 4));
+    func_0033d3e0((void *)*(s32 *)(work + 0xB4), pos2, pos3, 0, 0x14, 0);
+    table = (u8 *)D_0064A1E0;
+    func_002b2970(&pos4, *(f32 *)(table + 0), *(f32 *)(table + 4));
+    func_002b2970(&pos5, -200.0f, *(f32 *)(table + 4));
+    func_0033d3e0((void *)*(s32 *)(work + 0xB8), pos4, pos5, 0, 10, 0);
+    table = (u8 *)D_0064A1E8;
+    func_002b2970(&pos6, 153.0f, *(f32 *)(table + 4));
+    func_002b2970(&pos7, -100.0f, *(f32 *)(table + 4));
+    func_0033d3e0((void *)*(s32 *)(work + 0xBC), pos6, pos7, 0, 0x14, 0);
+    func_002b2970(&pos8, 203.0f, *(f32 *)(table + 4));
+    func_002b2970(&pos9, -50.0f, *(f32 *)(table + 4));
+    func_0033d3e0((void *)*(s32 *)(work + 0x178), pos8, pos9, 0, 0x14, 0);
+    table = (u8 *)D_0064A0E8;
+    func_002b2970(&pos10, *(f32 *)(table + 0), *(f32 *)(table + 4));
+    func_002b2970(&pos11, -200.0f, *(f32 *)(table + 4));
+    func_0033d3e0((void *)*(s32 *)(work + 0x3C), pos10, pos11, 0, 0xF, 0);
+    func_0033d4e0((void *)*(s32 *)(work + 0xB0), 0, 0xF, 0, 1.0f, 4.5f);
+    i = 0;
+    while ((s16)i < 3) {
+        func_0033d4e0((void *)*(s32 *)(work + (s16)i * 4 + 0x17C), 0, 0xF, 0, 1.0f, 4.5f);
+        i = (s16)(i + 1);
+    }
+    func_0033d3c0((void *)*(s32 *)(work + 0x110), 84.0f);
+    func_0033d3c0((void *)*(s32 *)(work + 0x114), 84.0f);
+    func_0033d3c0((void *)*(s32 *)(work + 0x60), 83.0f);
+    *(f32 *)(work + 0x1D0) = 580.0f - (f32)func_002b3170(func_002e7a60()) * 21.0f;
+    *(s32 *)(work + 0x1D4) = 0x41700000;
+    *(f32 *)(work + 0x1D8) = (f32)0x28A;
+    *(s32 *)(work + 0x1DC) = 0x41700000;
+    *(s16 *)(work + 0x1EA) = 0;
+    *(s8 *)(work + 0) = 0x11;
+}
 
 /* measured: retail window 1840 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
 // FUN_0033C490

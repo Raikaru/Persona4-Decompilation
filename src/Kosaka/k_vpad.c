@@ -71,7 +71,21 @@ typedef struct RuntimeCommandWork
 } RuntimeCommandWork;
 
 extern void func_004bc4d0(f32 value, RuntimeWork* work);
+extern void (*D_00887300[])(s32 state, s32 value);
+extern void (*D_00887304[])(s32 state, void* value);
+extern void func_003f6440(s32 arg0, s32 arg1);
+extern void func_003e9df0(void* object);
+extern void* func_0047a2f0(void* object);
+extern void func_003e9cb0(void* object, void* matrix, s32 flags);
 
+typedef struct RuntimeVpadWork
+{
+    u32 reserved00;
+    u8* field;
+    u32 reserved08;
+    u8* entries;
+    u8* statuses;
+} RuntimeVpadWork;
 
 // FUN_0015F720. Build, rotate, and translate a four-vertex field quad.
 void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
@@ -146,7 +160,78 @@ void func_004b5c20(RuntimeWork* work)
 
 
 // FUN_004B5C60
-INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5c60);
+#pragma opt_propagation off
+void func_004b5c60(RuntimeVpadWork* work)
+{
+    s32 sp5C;
+    s32 sp58;
+    s32 sp54;
+    s32 sp50;
+    s32 sp4C;
+    s32 sp48;
+    u8* temp_17;
+    s32 var_16;
+
+    {
+        void* base;
+        base = (void*)D_00887304;
+        ((void (*)(s32, void*))*(void**)base)(0x14, &sp5C);
+        ((void (*)(s32, void*))*(void**)base)(0xA, &sp58);
+        ((void (*)(s32, void*))*(void**)base)(0xB, &sp54);
+        ((void (*)(s32, void*))*(void**)base)(8, &sp4C);
+        ((void (*)(s32, void*))*(void**)base)(6, &sp50);
+        ((void (*)(s32, void*))*(void**)base)(0xE, &sp48);
+
+        base = (void*)D_00887300;
+        ((void (*)(s32, s32))*(void**)base)(9, 2);
+        ((void (*)(s32, s32))*(void**)base)(0x14, 1);
+        ((void (*)(s32, s32))*(void**)base)(8, 0);
+        ((void (*)(s32, s32))*(void**)base)(6, 1);
+        ((void (*)(s32, s32))*(void**)base)(0xE, 0);
+        ((void (*)(s32, s32))*(void**)base)(0xC, 1);
+    }
+
+    var_16 = 0;
+    while (var_16 < *(s16*)((u8*)work->field + 4))
+    {
+        func_003f6440(2, 0x48);
+        func_003f6440(3, 0x71801);
+        temp_17 = *(u8**)(*(u8**)(work->entries + var_16 * 8) + 4);
+        if ((*(s32*)(work->statuses + var_16 * 0x20) & 8) != 0)
+        {
+            func_003e9df0(temp_17);
+        }
+        else
+        {
+            func_003e9df0(temp_17);
+            if ((~*(s32*)(*(u8**)((u8*)work->field + 0x20) + 0xD8) & 0x8000) != 0)
+            {
+                func_003e9cb0(temp_17, func_0047a2f0(*(u8**)((u8*)work->field + 0x20)), 0);
+            }
+            else
+            {
+                func_003e9cb0(temp_17, *(u8**)((u8*)work->field + 0x20) + 0x90, 0);
+            }
+        }
+        {
+            u8* entryBase;
+            entryBase = work->entries;
+            ((void (*)(u8*))*(u32*)(*(u8**)(entryBase + var_16 * 8) + 0x48))(*(u8**)(entryBase + var_16 * 8));
+        }
+        var_16++;
+    }
+    {
+        void* base;
+        base = (void*)D_00887300;
+        ((void (*)(s32, s32))*(void**)base)(0xE, sp48);
+        ((void (*)(s32, s32))*(void**)base)(0xB, sp54);
+        ((void (*)(s32, s32))*(void**)base)(0xA, sp58);
+        ((void (*)(s32, s32))*(void**)base)(0x14, sp5C);
+        ((void (*)(s32, s32))*(void**)base)(8, sp4C);
+        ((void (*)(s32, s32))*(void**)base)(6, sp50);
+    }
+}
+#pragma opt_propagation on
 // FUN_004B5F20. Activate a field runtime node and its owner.
 void func_004b5f20(RuntimeWork* work)
 {

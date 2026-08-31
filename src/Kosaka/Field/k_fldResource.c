@@ -152,9 +152,91 @@ s32 func_0014ef80(void)
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014efc0);
 // FUN_0014F310
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_0014f310);
+/* measured: opt_loop_invariants hoists the slash loop constant. */
+#pragma push
+#pragma opt_loop_invariants on
 
 // FUN_00150970
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00150970);
+u8 *func_00150970(char *arg0)
+{
+    u32 base;
+    u8 *resource;
+    u8 *work;
+    s32 valid = 1;
+    struct {
+        char token[4];
+        char pad[4];
+    } local;
+
+    func_0044ea90(D_005EFC80, 0x460);
+    base = (u32)D_008873F4;
+    resource = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(valid, 0xAB0, 0x40000);
+    if (resource == NULL) {
+        return resource;
+    }
+    func_0044ea90(D_005EFC80, 0x462);
+    work = ((u8 *(*)(s32, s32, s32))*(u32 *)base)(valid, 0x12C, 0x40000);
+    *(u8 **)(resource + 0xA44) = work;
+    if (work == NULL) {
+        jtbl_008873EC[0](resource);
+        return NULL;
+    }
+    func_00442830((char *)work, arg0);
+    while (*arg0 != '\0') {
+        arg0++;
+    }
+    for (; *arg0 != '/'; arg0--) {
+    }
+    if (arg0[1] == 'f') {
+        if ((D_00754D88[(s8)arg0[2]] & 4) == 0) {
+            valid = 0;
+        }
+        if ((D_00754D88[(s8)arg0[3]] & 4) == 0) {
+            valid = 0;
+        }
+        if ((D_00754D88[(s8)arg0[4]] & 4) == 0) {
+            valid = 0;
+        }
+        if (arg0[5] != '_') {
+            valid = 0;
+        }
+        if ((D_00754D88[(s8)arg0[6]] & 4) == 0) {
+            valid = 0;
+        }
+        if ((D_00754D88[(s8)arg0[7]] & 4) == 0) {
+            valid = 0;
+        }
+        if ((D_00754D88[(s8)arg0[8]] & 4) == 0) {
+            valid = 0;
+        }
+    } else {
+        valid = 0;
+    }
+    if (valid) {
+        local.token[0] = arg0[2];
+        local.token[1] = arg0[3];
+        local.token[2] = arg0[4];
+        local.token[3] = '\0';
+        *(u16 *)(resource + 4) = (u16)func_0043c6b0(local.token);
+        local.token[0] = arg0[6];
+        local.token[1] = arg0[7];
+        local.token[2] = arg0[8];
+        local.token[3] = '\0';
+        *(u16 *)(resource + 6) = (u16)func_0043c6b0(local.token);
+    } else {
+        *(s16 *)(resource + 4) = -1;
+        *(s16 *)(resource + 6) = -1;
+    }
+    if (iGpffffb204 == 0) {
+        func_00440b68(&iGpffff9df0, D_005EFC80, 0x4A5);
+        *(s32 *)(*(u8 **)(resource + 0xA44) + 0x80) =
+            func_00454a60(*(char **)(resource + 0xA44), 0);
+    } else {
+        *(s32 *)(*(u8 **)(resource + 0xA44) + 0x80) = 1;
+    }
+    return resource;
+}
+#pragma pop
 
 // FUN_00150C80
 s32 func_00150c80(u8 *arg0)

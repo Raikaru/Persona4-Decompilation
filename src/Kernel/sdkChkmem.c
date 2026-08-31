@@ -45,17 +45,53 @@ extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern ChkMemPool *D_00763D1C; /* sdkChkmem pool */
 extern s32 D_00764AC0;         /* sdkChkmem lock */
 
-/* measured: func_0044eaa0 (400B) floor at nd 12 in the classBytes/classCount
-   accounting block. retail loads arg0->size (RHS) BEFORE classBytes[cls] and
-   computes classCount's delta BEFORE reloading the pool; mwcc b210 always loads
-   the compound-assignment LHS (classBytes[cls]) first and hoists the classCount
-   index's pool load above the delta. Tried compound +=, `= rhs + lhs`, named
-   val/delta locals, `(u8)classes` index casts, raw-classBytes-pointer, and
-   arg0-as-ChkMemEntry* forms; all nd 12 (worse: 29/34 with extra locals).
-   Later attempts retried the parent's struct-field load-order lever but the
-   residual is a compound-assignment LHS schedule, not a pre-jal arg order. */
+/* measured: func_0044eaa0 matches with propagation disabled. The explicit
+   class-size temporary preserves retail's classBytes load order. */
+#pragma opt_propagation off
 // FUN_0044EAA0
-INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044eaa0);
+s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3)
+{
+    ChkMemEntry *temp_2;
+    s32 temp_16;
+    s32 temp_18;
+    s32 *temp_20;
+
+    if (arg0 == 0) {
+        func_0046d730(D_007104E0, 0x4BA);
+    }
+    if (((u32)arg0 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4BB);
+    }
+    temp_2 = (ChkMemEntry *)arg0;
+    temp_2->size = arg1;
+    temp_2->pad_04 = arg2;
+    temp_2->pad_06 = arg3;
+    temp_16 = (s32)temp_2 + 24 +
+              ((temp_2->pad_04 - 1) &
+               (temp_2->pad_04 -
+                (((s32)temp_2 + 24) & (temp_2->pad_04 - 1))));
+    if (((u32)temp_16 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4C0);
+    }
+    *(ChkMemEntry **)(temp_16 - 4) = temp_2;
+    if (((s32)temp_2 & 3) != 0) {
+        func_0046d730(D_007104E0, 0x4C4);
+    }
+    ++D_00763D1C->count;
+    D_00763D1C->bytes += temp_2->size;
+    if ((u8)D_00763D1C->classes < 8) {
+        temp_20 = (s32 *)(((u8)D_00763D1C->classes << 2) +
+                          (s32)D_00763D1C);
+        temp_18 = temp_2->size;
+        temp_20[14] = temp_20[14] + temp_18;
+        temp_18 = temp_2->size - (temp_2->pad_04 + 24);
+        D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
+    }
+    func_0044e8d0((u8 *)temp_2 + 12);
+    *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
+    return temp_16;
+}
+#pragma opt_propagation on
 // FUN_0044EC30
 s32 func_0044ec30(void) {
     return D_00763D1C->bytes;
