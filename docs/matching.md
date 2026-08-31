@@ -1318,3 +1318,78 @@ Practical rules:
   `0x007690F0`, and confirm it against the retail instruction that references
   it rather than against the name. The name is a decompiler guess and this
   case proves it can be wrong.
+
+## Targeting: rescan the whole tree by per-file MATCH density, not a fixed queue
+
+A campaign that dispatches lanes only against a pre-built candidate list
+(e.g. `build/recon_queue.json`, generated once early on) silently stalls once
+that list is exhausted, even though hundreds of legitimately fresh, never-
+attempted functions remain — the list was never the full first-party ASM
+set, only a snapshot of it. The symptom is several consecutive waves closing
+zero functions despite lanes reporting real effort.
+
+The fix that turned a stalled campaign productive again: rebuild the target
+list every wave directly from a **fresh full `tools/verify.py --json`
+report**, not from any earlier queue file. Group every non-vendor,
+non-third-party ASM function by its file, compute each file's MATCH density
+(`MATCH / (MATCH + ASM)`), and dispatch lanes at the **highest-density files
+first** — a file that is 80%+ MATCH already encodes the local struct
+layouts, calling conventions, and GP-relative symbol set a lane needs, so a
+fresh Ghidra/retail read of its handful of remaining ASM functions closes at
+a much higher rate than the same functions would in isolation. Exclude the
+vendor ranges (`config/target.json`'s middleware windows) and third-party
+files the same way `tools/verify.py`'s first-party filter does, or the
+density numbers are meaningless.
+
+Recipe (Python, run against the latest `postWaveNN.json`):
+
+```python
+import json, collections
+d = json.load(open('build/postWaveNN.json'))
+VENDOR = (...)  # from config/target.json
+attempted = set(open('/tmp/attempted.txt').read().split())  # cumulative
+byfile = collections.defaultdict(lambda: {'MATCH': 0, 'ASM': 0, 'names': []})
+for x in d['results']:
+    if is_vendor(x['addr']) or is_third_party(x['file']):
+        continue
+    e = byfile[x['file']]
+    if x['status'] == 'MATCH':
+        e['MATCH'] += 1
+    elif x['status'] == 'ASM':
+        e['ASM'] += 1
+        e['names'].append(x['name'])
+candidates = sorted(
+    ((e['MATCH'] / (e['MATCH'] + e['ASM']), e['ASM'], f,
+      [n for n in e['names'] if n not in attempted])
+     for f, e in byfile.items()),
+    key=lambda c: (-c[0], c[1]))
+```
+
+Track cumulative per-function `attempted` names across waves (append after
+every wave's dispatch, whether closed or not) so a re-scan does not
+re-assign a function a sibling lane already spent budget on the same
+session — but re-running the *file* density scan from scratch every wave is
+what matters; never filter by "file already touched."
+
+Large low-density files (a single file with 60-100+ remaining ASM
+functions) still belong in this method — split the file's remaining target
+list into two (or more) disjoint address-range halves and dispatch one lane
+per half as siblings on the same file. Sibling lanes on a shared file MUST
+coordinate over `hub` before every edit (announce the function about to be
+touched) and edit one function at a time with their own scoped `lverify`
+immediately after, so a crash or a bad probe from one lane never corrupts
+the other's already-landed closures. When one sibling finishes before the
+other, it must re-run its own scoped `lverify` after the other's next
+closure lands (not just once at first-sight-clean) since the shared file's
+content keeps moving.
+
+This method found and closed on the order of 400+ never-before-attempted
+first-party functions across roughly a dozen files that a
+`recon_queue.json`-driven campaign had never surfaced, entirely because the
+queue file predated (and undercounted) the tree's current first-party ASM
+set. Once density-scanned files bottom out below roughly 25% MATCH with no
+fresh (never-attempted) names left, the remaining ASM in that file is
+overwhelmingly genuine floors (register-allocation/scheduling walls, or
+documented hardware) rather than untried low-hanging fruit; a repeat pass
+with the same method on the same file after such a bottom-out reliably
+returns zero closures.
