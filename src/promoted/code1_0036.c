@@ -260,7 +260,42 @@ void func_00361ca0(u8 *arg0) {
 // FUN_00361D20
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00361d20);
 // FUN_00362630
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00362630);
+void func_00362630(u8 *arg0)
+{
+    s32 count;
+    s32 i;
+    s16 difference;
+    s16 offset;
+
+    count = *(s32 *)(arg0 + 0x38);
+    i = 0;
+    while (i < count) {
+        if (func_00106330(i + 0x180) != 0) {
+            if ((s16)i >= count) {
+                func_0046d730(D_0064E280, 0x37);
+            }
+            if ((s16)i < 3) {
+                offset = 0;
+            } else if ((s16)i >= count - 3) {
+                offset = count - 6;
+            } else {
+                offset = (s16)i - 3;
+            }
+            difference = i - offset;
+            if (difference + offset >= count) {
+                func_0046d730(D_0064E280, 0x54);
+            }
+            func_0035fa00(arg0, 1, difference);
+            func_0035fa00(arg0, 2, offset);
+            break;
+        }
+        i++;
+    }
+    if (i == count) {
+        func_0035fa00(arg0, 1, 0);
+        func_0035fa00(arg0, 2, 0);
+    }
+}
 // FUN_003627B0
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003627b0);
 // FUN_00362F00
@@ -319,84 +354,8 @@ void func_003642e0(u8 *arg0, void *arg1)
         *temp &= (u16)~1;
     }
 }
-/* object 744, window 752, normalized_diff 173 */
-// FUN_00366380 NONMATCHING
-#ifdef NON_MATCHING
-void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                   s32 arg4, s32 arg5, s32 arg6, s32 arg7,
-                   f32 fparg2, f32 fparg3, s16 arg_sp0, s32 arg_sp8)
-{
-    typedef union {
-        P4Pair raw;
-        PairF32 f;
-    } PointBits;
-    PointBits points[18];
-    u8 colors[18][4];
-    s32 i;
-    s64 dx;
-    s64 dy;
-    u32 packed;
-    f32 x;
-    f32 y;
-    f32 tmp;
-    extern P4Pair D_0064E320[];
-    extern void func_0045e6a0(void *, void *, s32, s32, s32, s64, s64, s64);
-    extern void func_0045e8e0(void *, void *, s32, s32, s32, s64, s64, s64);
-    extern void func_0045eb20(void *, void *, s32, s32, s32, s64, s64, s64);
-    extern s64 iGpffffabe8;
-
-    for (i = 0; i < 18; i++) {
-        points[i].raw = D_0064E320[i];
-    }
-
-    x = (f32)(arg2 - 10) * fparg2;
-    y = (f32)(arg3 - 10) * fparg3;
-    tmp = 5.0f + x * 0.5f;
-    points[0].f.x = tmp;
-    tmp = 5.0f + y * 0.5f;
-    points[0].f.y = tmp;
-
-    points[5].f.x = x + 5.0f;
-    points[7].f.x = x + 7.0f;
-    points[9].f.x = x + 9.0f;
-    points[11].f.x = x + 10.0f;
-    points[12].f.x = points[11].f.x;
-    points[13].f.x = x + 5.0f;
-    points[14].f.x = y + 5.0f;
-    points[15].f.x = y + 7.0f;
-    points[16].f.x = x + 7.0f;
-    points[17].f.x = y + 9.0f;
-
-    dx = (s64)(s16)(s32)((f32)arg7 - points[0].f.x);
-    dy = (s64)(s16)(s32)((f32)arg_sp0 - points[0].f.y);
-    packed = ((u32)arg4 << 8) | (u32)arg5;
-    for (i = 0; i < 18; i++) {
-        points[i].f.x += (f32)arg0;
-        points[i].f.y += (f32)arg1;
-        colors[i][0] = (u8)(packed >> 24);
-        colors[i][1] = (u8)(packed >> 16);
-        colors[i][2] = (u8)(packed >> 8);
-        colors[i][3] = (u8)packed;
-    }
-    if (arg_sp8 != 0) {
-        if (arg5 == 0xFF) {
-            func_0045eb20(colors, points, 18, 5, arg6, dx, dy, arg_sp8);
-        } else {
-            func_0045e8e0(colors, points, 18, 5, arg6, dx, dy, arg_sp8);
-        }
-        return;
-    }
-    if (arg5 == 0xFF) {
-        iGpffffabe8 |= 0x80;
-        func_0045e6a0(colors, points, 18, 5, arg6, dx, dy, dx);
-        iGpffffabe8 &= ~0x80;
-    } else {
-        func_0045e6a0(colors, points, 18, 5, arg6, dx, dy, dx);
-    }
-}
-#else
+// FUN_00366380
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366380);
-#endif
 // FUN_00366670
 INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00366670);
 // FUN_00366960

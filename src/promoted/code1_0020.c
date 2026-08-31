@@ -184,7 +184,7 @@ extern void func_0020b1a0(void);
 extern void func_0020bb70(u8 *arg0);
 extern void func_0020b3a0(void);
 extern void func_0020b5a0(void);
-extern void func_0020b5b0(void);
+extern void func_0020b5b0(s32 arg0, u8 *arg1);
 extern void func_0020bb20(u8 *arg0, s32 arg1);
 extern void func_0020bd70(u8 *arg0, u8 *arg1);
 extern void func_00211950(u8 *arg0, s32 arg1);
@@ -1916,8 +1916,38 @@ void func_0020b5a0(void)
    `x = x & mask` all leave it at nd 41, and retail additionally carries a nop
    at the loop's condition label that b210 never emits. Committed at nd 41. */
 
+/* measured: opt_propagation off keeps D_00887300 cached across its callback sequence. */
+#pragma opt_propagation off
 // FUN_0020B5B0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020b5b0);
+void func_0020b5b0(s32 arg0, u8 *arg1)
+{
+    extern void func_0045c870(u8 *arg0, s32 arg1);
+    u8 *temp_2;
+    void (**base)(u32, u32);
+    u8 work[4];
+
+    temp_2 = (u8 *)func_00452560(*(s32 *)(arg1 + 0x5B0));
+    if (((*(u32 *)temp_2 & 1) != 0) &&
+        (*(u16 *)arg1 != 0) &&
+        (*(s16 *)(arg1 + 0x5AC) == -1)) {
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+        base = D_00887300;
+        base[0](0xE, 0);
+        base[0](6, 0);
+        base[0](8, 0);
+        base[0](9, 2);
+        base[0](0xC, 1);
+        base[0](1, 0);
+        work[0] = 0;
+        work[1] = 0;
+        work[2] = 0;
+        work[3] = 0;
+        func_0045c870(work, 0);
+    }
+}
+/* measured: restore opt_propagation after func_0020b5b0. */
+#pragma opt_propagation on
 
 // FUN_0020B6D0
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020b6d0);
