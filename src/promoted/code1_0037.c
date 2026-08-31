@@ -33,7 +33,52 @@ static inline u8 *code1_0037_add_offset(u32 offset, u8 *base)
    retail window with an INCLUDE_ASM fallback and no C body yet. */
 
 // FUN_00370290
-INCLUDE_ASM("asm/nonmatchings/code1_0037", func_00370290);
+void func_00370290(u8 *arg0, f32 *arg1, f32 fparg0) {
+    f32 first[3];
+    f32 second[3];
+    s8 buf[0xC];
+    s8 *p;
+    s32 count;
+    f32 cross[3];
+    f32 result[3];
+
+    p = buf;
+    count = 0xC;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p += 1;
+            count -= 1;
+        } while (count != 0);
+    }
+    *(f32 *)(arg0 + 0x0C) = *(f32 *)(arg0 + 0x00) + arg1[0];
+    *(f32 *)(arg0 + 0x10) = *(f32 *)(arg0 + 0x04) + arg1[1];
+    *(f32 *)(arg0 + 0x14) = *(f32 *)(arg0 + 0x08) + arg1[2];
+
+    first[0] = ((f32 *)buf)[0] - *(f32 *)(arg0 + 0x24);
+    first[1] = ((f32 *)buf)[1] - ((f32 *)(arg0 + 0x24))[1];
+    first[2] = ((f32 *)buf)[2] - ((f32 *)(arg0 + 0x24))[2];
+    second[0] = *(f32 *)(arg0 + 0x24) - *(f32 *)(arg0 + 0x00);
+    second[1] = *(f32 *)(arg0 + 0x28) - *(f32 *)(arg0 + 0x04);
+    second[2] = *(f32 *)(arg0 + 0x2C) - *(f32 *)(arg0 + 0x08);
+    func_003e40b0(&first[0], &first[0]);
+    func_003e40b0(&second[0], &second[0]);
+
+    cross[0] = second[1] * first[2] - second[2] * first[1];
+    cross[1] = second[2] * first[0] - second[0] * first[2];
+    cross[2] = second[0] * first[1] - second[1] * first[0];
+    result[0] = cross[1] * first[2] - cross[2] * first[1];
+    result[1] = cross[2] * first[0] - cross[0] * first[2];
+    result[2] = cross[0] * first[1] - cross[1] * first[0];
+
+    result[0] *= fparg0;
+    result[1] *= fparg0;
+    result[2] *= fparg0;
+
+    *(f32 *)(arg0 + 0x18) = *(f32 *)(arg0 + 0x24) + result[0];
+    *(f32 *)(arg0 + 0x1C) = *(f32 *)(arg0 + 0x28) + result[1];
+    *(f32 *)(arg0 + 0x20) = *(f32 *)(arg0 + 0x2C) + result[2];
+}
 // FUN_00370410
 void func_00370410(u8 *arg0) {
     struct Vec3 {
