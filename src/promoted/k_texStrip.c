@@ -109,15 +109,70 @@ s32 func_00191850(u8 *arg0);
 // adding a 5th/6th saved reg, so the whole allocation shifts (retail wants var_16->$s0, arg1/
 // temp_2->$s1, temp_18->$s2, temp_19->$s3, var_20->$s4). Making sp60/sp64/sp68 overlap via a
 // 5-word array (nd 138) or a 3-field struct (nd 141) is worse. Core regs are otherwise right.
-// QTEX lane: plain-C candidate reached object 668/window 672, normalized_diff 20.
+// QTEX lane: plain-C candidate object 668/window 672; baseline fndiff was nd 20
+// (six differing instruction words plus one zero-padding tail word), with both
+// func_003deff0 calls materializing move $a0 before the spill[0]/spill[1] loads.
+// The targeted `(u32)` casts on spill[0] and spill[1] at both calls produce nd 0.
 // s32 sp[2], s32 spill[4], and buffer[5] reproduce the 0xA0 frame and saved-register
-// coloring; only two func_003deff0 calls retain b210's move-before-stack-load order.
-// Shared-callee probe: retail func_003deff0 first-uses a0 as a forwarded pointer,
-// saves a1/a2, and masks a3/t0, proving five args `(void *,s32,s32,s32,s32)`.
-// Existing calls already pass all five; block-scope pointer declarations, explicit
-// pointer casts, and the canonical s32 return produced no nd change.
+// coloring. Shared-callee probe: retail func_003deff0 first-uses a0 as a forwarded
+// pointer, saves a1/a2, and masks a3/t0, proving five args `(void *,s32,s32,s32,s32)`;
+// existing calls already pass all five, so no prototype change was needed.
 // FUN_00190680
-INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190680);
+s32 func_00190680(u8 *arg0, void *arg1) {
+    s32 sp[2];
+    s32 spill[4];
+    s32 buffer[5];
+    s32 var_20;
+    s32 temp_19;
+    s32 temp_18;
+    u8 *temp_2;
+    u8 *var_16;
+
+    var_20 = 0;
+    sp[0] = *(s32 *)(arg0 + 0x110);
+    sp[1] = *(s32 *)(arg0 + 0x118);
+    temp_19 = func_003e2f60(3, 1, &sp[0]);
+    temp_18 = func_003e2f60(2, 2, (s32 *)arg1);
+    if ((temp_19 != 0) && (temp_18 != 0)) {
+        goto loop_check;
+loop_body:
+        switch (spill[0]) {
+        case 0x16:
+            var_20 = func_003e6a90(temp_19);
+            break;
+        case 0xF0F000E0:
+            func_003e2910(temp_19, &buffer[0], 0x14);
+            func_003deff0(temp_18, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
+            func_003e2ab0(temp_18, &buffer[0], 0x14);
+            func_003e2ce0(temp_19, buffer[2]);
+            func_0044ea90(D_005F6168, 0xBB);
+            temp_2 = D_008873F4[0](1, buffer[1] + buffer[2], 0x40000);
+            func_003e2910(temp_19, temp_2 + buffer[2], buffer[1]);
+            func_003e2ab0(temp_18, temp_2, buffer[1] + buffer[2]);
+            jtbl_008873EC[0](temp_2);
+            break;
+        default:
+            if (spill[1] != 0) {
+                func_0044ea90(D_005F6168, 0xCA);
+                var_16 = D_008873F4[0](1, spill[1], 0x40000);
+                func_003e2910(temp_19, var_16, spill[1]);
+            }
+            func_003deff0(temp_18, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
+            if (spill[1] != 0) {
+                func_003e2ab0(temp_18, var_16, spill[1]);
+                jtbl_008873EC[0](var_16);
+            }
+            break;
+        }
+loop_check:
+        if (func_003df3c0(temp_19, &spill[0]) != 0) {
+            goto loop_body;
+        }
+        func_003e2e40(temp_19, 0);
+        func_003e2e40(temp_18, 0);
+    }
+    return var_20;
+}
 
 // measured: nd 16 after 4 attempts (baseline edit-fndiff, hoisted-local probe, u8*-ptr probe, struct-field probe).
 // Residual is pure argument MATERIALIZATION order: retail emits the first arg (move $a0,$s0)
