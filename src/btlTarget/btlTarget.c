@@ -10,6 +10,8 @@ typedef struct RwV3d
 } RwV3d;
 
 extern f32 RwV3dLength(const RwV3d* vector);
+extern f32 func_003e41e0(f32* out, f32* in);
+extern f32 fabsf(f32 x);
 
 typedef u32 (*BtlPacketUpdateFunc)(void* work);
 
@@ -143,8 +145,38 @@ void func_001ec790(void* work, s32 x, s32 z, f32 radius)
 }
 /* measured: opt_propagation on restores the unit baseline after this match. */
 #pragma opt_propagation on
+/* measured: opt_propagation off is required for this function's exact
+   floating-point scheduling. */
+#pragma opt_propagation off
 // FUN_001EC8C0
-INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001ec8c0);
+s32 func_001ec8c0(RwV3d* first, RwV3d* second, RwV3d* point, f32 threshold)
+{
+    f32 delta[2];
+    f32 pointDeltaX;
+    f32 pointDeltaY;
+    f32 cross;
+    f32 projectedX;
+    f32 projectedY;
+
+    delta[0] = first->x - second->x;
+    delta[1] = first->y - second->y;
+    func_003e41e0(delta, delta);
+    pointDeltaX = point->x - first->x;
+    pointDeltaY = point->y - first->y;
+    cross = pointDeltaX * delta[1] + pointDeltaY * -delta[0];
+    projectedX = point->x - cross * delta[1];
+    projectedY = point->y - cross * -delta[0];
+    if (((first->x < projectedX || second->x > projectedX) &&
+         (first->x > projectedX || second->x < projectedX)) ||
+        ((first->y < projectedY || second->y > projectedY) &&
+         (first->y > projectedY || second->y < projectedY)))
+    {
+        return 0;
+    }
+    return fabsf(cross) < threshold;
+}
+/* measured: opt_propagation on restores the unit baseline after this match. */
+#pragma opt_propagation on
 // FUN_001ECA10
 INCLUDE_ASM("asm/nonmatchings/btlTarget", func_001eca10);
 // FUN_001ECDE0

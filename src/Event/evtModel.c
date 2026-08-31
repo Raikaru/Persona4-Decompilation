@@ -76,8 +76,110 @@ extern void func_0047a990(s32 a);
 extern s32 func_0047a9d0(s32 a);
 extern f32 func_004bd4a0(void *a, f32 *b);
 
-// FUN_00291B60 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/evtModel", func_00291b60);
+// FUN_00291B60
+#pragma push
+#pragma opt_rebuildconditionals off
+s32 func_00291b60(s32 arg0, u8 *arg1) {
+    EvtModelRec *rec = (EvtModelRec *)arg1;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 var_f12;
+    s32 model;
+    s32 state;
+    s32 var_2;
+    s32 temp_3;
+
+    temp_f21 = rec->speed;
+    model = func_00291a60(rec->id);
+    if (model == 0) {
+        return 1;
+    }
+    if (2.1474836e9f <= rec->timer2) {
+        goto state_large;
+    }
+    state = (s32)rec->timer2;
+    goto state_ready;
+state_large:
+    state = (s32)(rec->timer2 - 2.1474836e9f) | 0x80000000;
+state_ready:
+    if (state == 0) {
+        if (func_0047a9d0(model) == 0) {
+            rec->flags |= 1;
+        }
+        func_0047a950(model, 30.0f, 0.0f);
+        var_f12 = fGpffff8218 * temp_f21;
+        if (!(var_f12 <= 1.0f)) {
+            var_f12 = 1.0f;
+        } else if (var_f12 < 0.0f) {
+            var_f12 = 0.0f;
+        }
+        func_0047a890(model, var_f12);
+        rec->timer2 += 1.0f;
+        goto common;
+    }
+    if (state == 1) {
+        temp_f20 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
+            func_0046d730(&D_0063C948, 0x176);
+        }
+        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f20)))) < fGpffff8478) {
+            rec->counterA = rec->counterA + 1;
+            if (rec->counterA >= 2) {
+                rec->counterA = 0;
+                var_2 = 1;
+            } else {
+                goto state1_counter;
+            }
+        } else {
+            rec->counterA = 0;
+state1_counter:
+            var_2 = 0;
+        }
+        if (var_2 != 0) {
+            func_0047a950(model, 0.0f, 0.0f);
+            var_f12 = fGpffff8218 * temp_f21;
+            if (!(var_f12 <= 1.0f)) {
+                var_f12 = 1.0f;
+            } else if (var_f12 < 0.0f) {
+                var_f12 = 0.0f;
+            }
+            func_0047a890(model, var_f12);
+            rec->timer2 += 1.0f;
+        }
+        goto common;
+    }
+    if (state == 2) {
+        temp_f20 = func_004bd4a0(func_0047a980(func_00291a60(rec->id)), rec->dst);
+        if ((temp_f20 < -1.0f) || !(temp_f20 <= 1.0f)) {
+            func_0046d730(&D_0063C948, 0x176);
+        }
+        if (func_0044b920(func_0044e7d8(func_0044b310(func_0044dcd8(temp_f20)))) < fGpffff8514) {
+            rec->counterB = rec->counterB + 1;
+            if (rec->counterB >= 2) {
+                rec->counterA = 0;
+                var_2 = 1;
+            } else {
+                goto state2_counter;
+            }
+        } else {
+            rec->counterB = 0;
+state2_counter:
+            var_2 = 0;
+        }
+        if (var_2 != 0) {
+            temp_3 = rec->flags;
+            if (temp_3 & 1) {
+                rec->flags = temp_3 & ~1;
+                func_0047a990(model);
+            }
+            return 1;
+        }
+    }
+common:
+    *(F32x4 *)(arg1 + 0x34) = *(F32x4 *)func_0047a980(model);
+    return 0;
+}
+#pragma pop
 
 // FUN_00291FA0
 #pragma push

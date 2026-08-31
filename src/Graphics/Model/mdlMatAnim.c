@@ -413,15 +413,48 @@ u64 func_00480630(u64 param_1,u64 param_2)
 
 
 
-/* measured: retail stores the s128-returning func_003bcfb0/func_003bd060 results with
-   sq and reloads them with lq, then compares raw (lq $v0; slt $v0, $s0, $v0). The sq/lq
-   side matches with u_long128/u64 locals + aliased s128-returning externs, but mwcc b210
-   ALWAYS emits a dsll32/dsra32 sign-extension for the mixed-width loop compare that
-   retail lacks (tried s128 signed/unsigned, u64, u_long128; direct, (s32)/(s64)/(u32)
-   casts; s32/u32/s64 counters; 8 decl orders; best nd 38). Same wall as P3 FUN_00320de0
-   (W414, nd17). Also a 3-way saved-reg rotation (var_18/var_17/temp_2). */
 // FUN_00480670
-INCLUDE_ASM("asm/nonmatchings/mdlMatAnim", func_00480670);
+u8 *func_00480670(u8 *arg0, u8 *arg1)
+{
+    s32 spB0;
+    s32 spA0;
+    s32 temp_21;
+    s32 temp_2;
+    s32 temp_30;
+    s32 i;
+    s32 j;
+    s32 k;
+    u8 *list;
+
+    list = *(u8 **)(arg0 + 0x18);
+    temp_30 = *(s32 *)(list + 0x24);
+    i = 0;
+    while (i < temp_30) {
+        temp_21 = *(s32 *)(*(u8 **)(list + 0x20) + i * 4);
+        spB0 = func_003bcfb0(temp_21);
+        j = 0;
+        while (j < spB0) {
+            temp_2 = func_003bd000(temp_21, j);
+            if (strcmp((char *)func_003bd040(temp_2), (char *)&DAT_007641e0) == 0) {
+                spA0 = func_003bd060(temp_2);
+                k = 0;
+                while (k < spA0) {
+                    if (func_003bd050(temp_2) == 3 &&
+                        strcmp((char *)*(u32 *)arg1,
+                               (char *)func_003bd0b0(temp_2, k)) == 0) {
+                        *(u16 *)(arg1 + 4) = *(u16 *)(arg1 + 4) + 1;
+                        break;
+                    } else {
+                        k++;
+                    }
+                }
+            }
+            j++;
+        }
+        i++;
+    }
+    return arg0;
+}
 
 // FUN_00480800
 u16 func_00480800(u64 param_1,u32 param_2)
