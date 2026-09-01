@@ -1,0 +1,52 @@
+003146f0 reconstruction archive (not compiled source)
+
+Baseline/final source state:
+- File baseline before this lane: 70 scanned, MATCH 32, ASM 38; 003146f0 was bare INCLUDE_ASM.
+- Final source keeps 003146f0 bare because every complete C candidate remained either above nd 25 or materially undersized. The target helper declaration was corrected to the canonical callee types `extern void func_0011b480(u8 *, s32, u32, s32);` (the helper dereferences arg0 at +0x38; promoted/shdPersona.c carries this prototype).
+
+Best complete C candidate with the original all-s32 helper declaration:
+void func_003146f0(u8 *arg0, s32 arg1, s32 arg2) {
+    u8 *p;
+    s32 v1;
+
+    v1 = arg2;
+    p = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(p + 8) = arg1;
+    *(s8 *)(p + 0xC) = (s8)v1;
+    func_0011b480(*(s32 *)(p + 4), 0, *(s32 *)(p + 8), v1);
+}
+
+Measured: normalized_diff nd 18, object 60/window 80. This is the lowest nd measured, but object is 20 bytes (five words) short and omits the retail sign-extension pair / trailing call sequence in the generated object; no park was made.
+
+Best candidate under the canonical pointer prototype:
+void func_003146f0(u8 *arg0, s32 arg1, s8 arg2) {
+    u8 *p;
+
+    p = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(p + 8) = arg1;
+    *(s8 *)(p + 0xC) = arg2;
+    func_0011b480(*(u8 **)(p + 4), 0, *(s32 *)(p + 8), arg2);
+}
+
+Measured: normalized_diff nd 28, object 68/window 80; no park because nd exceeds 25. Fresh fndiff residual (retail rows versus candidate rows):
+- 0x08 retail `move $v1,$a2`; candidate `lw $v1,0x38($a0)`.
+- 0x0C retail `lw $v0,0x38($a0)`; candidate `sw $a1,8($v1)`.
+- 0x10 retail `sw $a1,8($v0)`; candidate `sb $a2,0xc($v1)`.
+- 0x14 retail `sb $v1,0xc($v0)`; candidate `lw $v0,8($v1)`.
+- 0x18 retail `lw $a0,4($v0)`; candidate `dsll32 $a3,$a2,24`.
+- 0x1C retail `move $a1,$zero`; candidate `dsra32 $a3,$a3,24`.
+- 0x20 retail `lw $a2,8($v0)`; candidate `lw $a0,4($v1)`.
+- 0x24 retail `dsll32 $a3,$v1,24`; candidate `move $a1,$zero`.
+- 0x28 retail `dsra32 $a3,$a3,24`; candidate `move $a2,$v0`.
+- 0x2C retail `jal func_0011b480`; candidate `jal func_0011b480` (relocation-normalized equal).
+- 0x30 onward tail (`nop`, `ld ra`, `addiu`, `jr`, `nop`) matched; object ends at 0x44 while retail continues to 0x50.
+
+Other measured candidates / ruled-outs:
+- Archived s8 parameter transcription (direct helper call): nd45 obj64/80.
+- Named s8 local, explicit cast, declaration-order swaps, register-qualified locals, assignment-order swaps: nd28-45 depending helper prototype; none reached nd25 with a near-window object.
+- s32 local variants: direct nd18 obj60/80; s32 u8-local nd25 obj68/80 (extra `andi` at 0x08 and wrong source byte register); s32 s8-local nd43 obj64/80.
+- Canonical pointer first-argument spelling (`*(u8 **)(p+4)`) nd28 obj68/80; typed `u32` third argument nd45 obj64/80; pointer-local/struct-field/union variants nd28-29 obj68/80.
+- Explicit Ghidra/M2C-style sign-extension shifts, with and without outer casts: nd46-47 obj72-80/80 due duplicate shift pairs or wrong order.
+- Helper last-parameter probes s8/s16/s64/u8: nd18-45 but all materially undersized; canonical s32 retained. No volatile, inline asm, pragma, or window-fill padding used.
+
+Retail prologue/body facts: frame 0x10; no saved s-registers; retail window 0x50. Retail copies arg2 to `$v1` at 0x08, loads the object into `$v0`, stores arg1, stores arg2 byte, loads call args, sign-extends `$v1` into `$a3` immediately before the call, then executes the complete 0x50-byte tail. The remaining defect is MWCC register/materialization order plus the 20-byte object deficit, not missing semantic assignments in the C transcription.

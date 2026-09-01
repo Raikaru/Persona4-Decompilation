@@ -1,0 +1,1 @@
+/* floor: retail func_003bb5b0 contains COP1 accumulator chains (adda.s, madda.s, madd.s) in the main interpolation path, including adda.s $f0,$f1 and madda.s $f2,$f12 plus repeated madd.s chains; plain MWCCPS2 C cannot emit these accumulator instructions. Triage-only; no source probe attempted. */

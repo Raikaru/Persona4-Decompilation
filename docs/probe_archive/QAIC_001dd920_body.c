@@ -1,0 +1,2 @@
+/* object 944B / window 944B / normalized_diff n/a / differing offsets n/a / classification confirmed compiler floor: retail's 0xA0 stack slot uses `andi $v0,$s1,0xffff; sq $v0,160($sp)` and loop test uses `lq $v0,160($sp)` followed by `slt`; b210 conversion probes (u_long128 locals, aligned u64, wide-return helpers, all -O levels) insert dsll32/dsra32 or dsll32/dsrl32 pairs. No pair-free plain-C spelling; no body probe run. */
+/* INCLUDE_ASM retained in src; retail disassembly is the authoritative body. */

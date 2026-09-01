@@ -1,0 +1,1 @@
+// floor=COP1 accumulator chain; retail 0x001884DC adda.s $f15,$f0 and 0x001884E0 madd.s $f2,$f3,$f2 (also 0x001884DC-0x001884E0 chain); classification=compiler-floor; frame=96 bytes with s3=arg0,s2=arg1,s1/s0 loop counters,f20 saved; ruled_out=not a source scheduling residual because b210 cannot emit adda.s/madd.s; no body attempted

@@ -1,0 +1,2 @@
+/* object 272B vs window 272B, normalized_diff 0 (ASM), differing offsets none; classification confirmed COP1 accumulator-chain compiler floor; ruled out plain-C probing because retail uses adda.s $f2,$f3/$f1 and madd.s $f0,$f13/$f14 repeatedly. */
+/* Retail-only observation: framed 0xC30 function converts integer coordinates to float, writes a 0x400-byte local vector array and a 0x400-byte local color array, then calls func_00364c50, func_0045dfd0 and func_00364c70. */

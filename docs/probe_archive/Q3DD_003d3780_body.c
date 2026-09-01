@@ -1,0 +1,5 @@
+/* object 372B/window 352B/normalized_diff 241; differing offsets 16-23,28-35,...; classification OVERSIZED; no movz/movn, COP1 accumulator, standalone MMI, framed tail jump, or custom COP1 opcode observed. Direct body followed generated logic and rd-form mult; frame matched (-0x40) but early-return/allocator loop layout and pointer stepping differed materially, so restored immediately. */
+u8 *func_003d3780(u8 *arg0, s32 arg1, s32 arg2) {
+    extern s32 *func_00412520(u8 *arg0, s32 arg1); extern s32 *func_004125d0(); s32 *obj; s32 *cursor; s32 index;
+    if (arg0 == NULL) return NULL; if (arg1 <= 0) return NULL; if (arg2 <= 0) return NULL; obj=func_004125d0(arg0); if(obj!=NULL){if((obj[15]&0xF)!=0)return NULL;} else {obj=func_00412520(arg0,0x40);if(obj==NULL)return NULL;cursor=obj;for(index=0;index<10;index+=5){cursor[0]=0;cursor[1]=0;cursor[2]=0;cursor[3]=0;cursor[4]=0;cursor+=5;}obj[15]=0;obj[14]=4;obj[13]=obj[14]*0x45;obj[12]=obj[14]*0x45;obj=func_004125d0(arg0,1);if(obj==NULL)return NULL;}obj[13]=arg2*arg1;obj[14]=arg1;obj[15]=0x10;return arg0;
+}

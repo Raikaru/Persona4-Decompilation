@@ -1,0 +1,1 @@
+/* FLOOR: standalone MMI pcpyld at retail +0x34/+0x4C/+0x60/+0x74/+0x88/+0xBC/+0xD0 (no COP2 in same statements; H009). Prologue frame 0x10, no saved s registers, args a0/a1. Also uses jalr function pointer and absolute globals. No plain-C attempt. */

@@ -1,0 +1,2 @@
+/* object_size=880; window=880; normalized_diff=0; differing_offsets=none; classification=RECONSTRUCTION_SCALE_NOT_ATTEMPTED; ruled_out=no movz/movn, no COP1 accumulator chain, no standalone MMI, no framed tail-j forwarder, no ee-gcc sd sN signature; retail contains a long multi-list traversal, nested state dispatch, 176-byte frame, and matrix/vector construction, so no plain-C probe was run. */
+/* Triage at 15:35:04 UTC; untouched ASM fallback retained. */

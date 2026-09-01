@@ -1,0 +1,107 @@
+/* object 416 bytes, retail window 416 bytes, normalized_diff n/a (INCLUDE_ASM), differing offsets n/a; archived on sight as a compiler floor. Ruled out: all plain-C source levers (callee declarations/argument count and widths, argument materialisation order, hidden return, mixed-parameter order, local declaration/lifetime/register reuse, loop or branch shape, aggregate/scalar spelling, global addressing mode, compound narrow-field access, guard polarity, switch/if-chain shape, and measured optimisation/scheduling pragmas); this function has no calls, globals, loop, switch, or narrow-field access to tune. Inline asm is prohibited for ordinary computation. Retail uses COP1 accumulator instructions mula.s, madda.s, madd.s, and msub.s in the quaternion normalization and multiply chains, which MWCCPS2 plain C cannot emit. No probes attempted after the documented floor check. */
+/* Retail disassembly preserved verbatim below. */
+/*
+00480f20:
+  addiu $sp,$sp,-16
+  lwc1 $f5,8($a0)
+  lwc1 $f4,12($a0)
+  lwc1 $f3,16($a0)
+  lwc1 $f2,20($a0)
+  swc1 $f5,0($sp)
+  swc1 $f4,4($sp)
+  swc1 $f3,8($sp)
+  swc1 $f2,12($sp)
+  lwc1 $f7,12($a1)
+  lwc1 $f6,8($a1)
+  lwc1 $f5,16($a1)
+  lwc1 $f4,20($a1)
+  mula.s $f7,$f7
+  mtc1 $zero,$f3
+  madda.s $f6,$f6
+  madda.s $f5,$f5
+  madd.s $f2,$f4,$f4
+  c.le.s $f2,$f3
+  bc1t .L00480F98
+  nop
+  lui $v1,0x3f80
+  mtc1 $v1,$f0
+  nop
+  div.s $f0,$f0,$f2
+  mul.s $f10,$f4,$f0
+  neg.s $f0,$f0
+  mul.s $f9,$f6,$f0
+  mul.s $f1,$f7,$f0
+  mul.s $f0,$f5,$f0
+.L00480F98:
+  lwc1 $f8,4($sp)
+  lwc1 $f7,8($sp)
+  lwc1 $f6,12($sp)
+  lwc1 $f5,0($sp)
+  mula.s $f1,$f8
+  mtc1 $zero,$f4
+  nop
+  madda.s $f9,$f5
+  madd.s $f3,$f0,$f7
+  mul.s $f2,$f10,$f6
+  sub.s $f2,$f2,$f3
+  swc1 $f2,20($a0)
+  mula.s $f1,$f7
+  msub.s $f2,$f0,$f8
+  swc1 $f2,8($a0)
+  mula.s $f0,$f5
+  msub.s $f2,$f9,$f7
+  swc1 $f2,12($a0)
+  mula.s $f9,$f8
+  msub.s $f2,$f1,$f5
+  swc1 $f2,16($a0)
+  lwc1 $f2,8($a0)
+  adda.s $f4,$f2
+  madd.s $f2,$f5,$f10
+  swc1 $f2,8($a0)
+  lwc1 $f2,12($a0)
+  adda.s $f4,$f2
+  madd.s $f2,$f8,$f10
+  swc1 $f2,12($a0)
+  lwc1 $f2,16($a0)
+  adda.s $f4,$f2
+  madd.s $f2,$f7,$f10
+  swc1 $f2,16($a0)
+  lwc1 $f2,8($a0)
+  adda.s $f4,$f2
+  madd.s $f2,$f9,$f6
+  swc1 $f2,8($a0)
+  lwc1 $f2,12($a0)
+  adda.s $f4,$f2
+  madd.s $f1,$f1,$f6
+  swc1 $f1,12($a0)
+  lwc1 $f1,16($a0)
+  adda.s $f4,$f1
+  madd.s $f0,$f0,$f6
+  swc1 $f0,16($a0)
+  lwc1 $f1,24($a1)
+  lwc1 $f0,24($a0)
+  sub.s $f0,$f0,$f1
+  swc1 $f0,24($a0)
+  lwc1 $f1,28($a1)
+  lwc1 $f0,28($a0)
+  sub.s $f0,$f0,$f1
+  swc1 $f0,28($a0)
+  lwc1 $f1,32($a1)
+  lwc1 $f0,32($a0)
+  sub.s $f0,$f0,$f1
+  swc1 $f0,32($a0)
+  lwc1 $f1,36($a1)
+  lwc1 $f0,36($a0)
+  sub.s $f0,$f0,$f1
+  swc1 $f0,36($a0)
+  lwc1 $f1,40($a1)
+  lwc1 $f0,40($a0)
+  sub.s $f0,$f0,$f1
+  swc1 $f0,40($a0)
+  lwc1 $f1,44($a1)
+  lwc1 $f0,44($a0)
+  sub.s $f0,$f0,$f1
+  swc1 $f0,44($a0)
+  addiu $sp,$sp,16
+  jr $ra
+*/

@@ -1,0 +1,2 @@
+/* object 512B vs window 512B, normalized_diff 0 (ASM), differing offsets none; classification confirmed COP1 accumulator-chain compiler floor; ruled out plain-C probing because retail uses adda.s $f12,$f1, madd.s $f0,$f2,$f0 and msub.s $f0,$f2,$f0 in two switch branches. */
+/* Retail-only observation: dispatches on *(s32 *)resource - 4, computes color components through floating-point truncation, and calls func_00266050 plus func_00265110. */

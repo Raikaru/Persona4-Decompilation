@@ -1,0 +1,2 @@
+/* floor=COP1 accumulator chain; proving instructions retail offsets 0x0034AB68 adda.s $f2,$f0 and 0x0034AB6C madd.s $f0,$f3,$f1 (repeats at 0x0034AB8C/0x0034AB90, 0x0034ABA0/0x0034ABA4, 0x0034ABB4/0x0034ABB8); prologue_saved_s=3 ($s2,$s1,$s0), saved_f20=1; params first-touch: $a0 incoming, $a1 incoming; no C attempt; ruled_out other floors not applicable */
+/* func_0034a8b0 remains INCLUDE_ASM; COP1 accumulator floor archived. */

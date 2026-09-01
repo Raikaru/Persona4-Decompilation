@@ -1,0 +1,2 @@
+/* object 944B / window 944B / normalized_diff n/a / differing offsets n/a / classification confirmed compiler floor: retail contains standalone MMI instruction `paddub $a0,$v0,$zero` at offset 0x104 (0x001dd674), with no COP2/VU0 instruction in the same statement. Plain C cannot emit this under H009; no probe run. */
+/* INCLUDE_ASM retained in src; retail disassembly is the authoritative body. */

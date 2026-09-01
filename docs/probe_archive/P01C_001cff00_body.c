@@ -1,0 +1,1 @@
+/* object 704B / window 704B / normalized_diff 0; differing offsets: none (ASM baseline); classification: COP1 accumulator-chain floor; confirmed retail adda.s/madd.s at +0x09C/+0x0A0, +0x238/+0x23C, and +0x250/+0x254, which plain MWCC C cannot emit; ruled out movz/movn, standalone MMI, framed tail-jump forwarder, and ee-gcc sd $sN signature; no source probing. */

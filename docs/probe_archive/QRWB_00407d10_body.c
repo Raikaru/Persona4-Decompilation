@@ -1,0 +1,1 @@
+/* object_size=224 window=224 normalized_diff=0 differing_offsets=none classification=compiler_floor: movz conditional move at retail 0x00407D7C; ruled_out=plain C ternary/if/assignment forms compile to branches per campaign rule */

@@ -1,0 +1,2 @@
+/* object 720B / window 720B / normalized_diff n/a / differing offsets n/a / classification compiler floor: retail uses COP1 accumulator chain adda.s $f0,$f1 followed by msub.s $f0,$f1,$f2 in the signed-negative conversion block; plain MWCCPS2 C cannot emit this sequence. */
+/* Triage: no movz/movn, standalone MMI, framed tail jump, or ee-gcc sd-$s signature. Surrounding loops and weighted selection are readable, but the adda.s/msub.s chain is an immediate floor under the assignment rules. */

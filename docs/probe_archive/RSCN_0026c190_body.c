@@ -1,0 +1,1 @@
+/* object 384B/window 384B, normalized_diff not measured; classification: COP1 accumulator floor; proving retail instructions at 0xE4/0xF0 are adda.s followed by msub.s (two axis-0/axis-2 products). Frame 0x110, saved s0/s1 and f20, a0/a1 pointers plus interleaved f12 argument reconstructed. Ruled out by triage policy before C probing. */

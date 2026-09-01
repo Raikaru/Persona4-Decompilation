@@ -1,0 +1,1 @@
+u8 *func_004667d0(s32 kind, const char *name, const char *path, s32 requestFlags, void *source, void *buffer, s32 byteCount, const char *cacheName, s32 result2, s32 result3, s32 result4) { /* archived donor port; current source retains live body for further repair */ return 0; }

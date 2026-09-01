@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reinstall archived near-miss bodies as `#ifdef NON_MATCHING` guarded blocks.
 
-Waves archive their best candidate body to `build/<LANE>_<addr>_body.c` and then
+Waves archive their best candidate body to `docs/probe_archive/<LANE>_<addr>_body.c` and then
 revert the source to bare `INCLUDE_ASM`. That is right for the tree -- an unproven
 body must not ship -- but it hides the body from `tools/permute_sweep.py`, which
 discovers its targets by scanning for `#ifdef NON_MATCHING`. The permuter needs a
@@ -45,7 +45,7 @@ BANNED_PRAGMA = re.compile(
 def archives() -> dict[str, Path]:
     """Best archive per address: the largest body wins."""
     by_addr: dict[str, list[Path]] = defaultdict(list)
-    for path in sorted((REPO / "build").glob("*_body.c")):
+    for path in sorted((REPO / "docs" / "probe_archive").glob("*_body.c")):
         match = ADDR.search(path.name)
         if match:
             by_addr[match.group(1).lower()].append(path)
@@ -281,7 +281,7 @@ def main() -> int:
             # function-scoped waiver looks, and it keeps every banned pragma
             # below this point justified as it was before the splice.
             block = note.splitlines() if note else [
-                "/* measured: archived permuter seed; see the build/ archive"
+                "/* measured: archived permuter seed; see the docs/probe_archive/ archive"
                 " header for its object/window/normalized_diff. */"]
             block.append(marker)
             # The body is spliced line by line, never as one embedded string:

@@ -1,0 +1,2 @@
+/* object 304B/window 304B/normalized_diff N/A; classification COMPILER_FLOOR_COP1_ACCUMULATOR; retail is a matrix/vector multiply with repeated mula.s/madda.s/madd.s accumulator chains throughout offsets 0x00-0x12c, which plain MWCCPS2 C cannot emit. */
+/* Retail-only floor evidence: func_003df8c0 begins with mula.s/madda.s/madd.s and repeats the COP1 accumulator sequence for every output block. */

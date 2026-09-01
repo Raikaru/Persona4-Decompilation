@@ -1,0 +1,2 @@
+/* object_size=864B; window=864B; normalized_diff=not measured; differing_offsets=not measured; instruction deficit/surplus=not measured; classification COP1 accumulator compiler floor. */
+/* Retail func_00499e40 contains adda.s at 0x00499F24 and madd.s at 0x00499F28 in the fade interpolation chain. Prologue frame is 0xA0, saving s3/s2/s1/s0 and f23/f22/f21/f20; signature is (u8 *arg0). Plain-C reconstruction was not retained because MWCCPS2 b210 cannot emit the ordinary COP1 accumulator sequence; inline asm is prohibited. */

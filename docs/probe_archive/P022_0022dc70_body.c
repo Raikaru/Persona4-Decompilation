@@ -1,0 +1,2 @@
+/* object_size=2176; window=2176; normalized_diff=0; differing_offsets=none; classification=RECONSTRUCTION_SCALE_NOT_ATTEMPTED; ruled_out=no movz/movn, no COP1 accumulator chain, no standalone MMI, no framed tail-j forwarder, no ee-gcc sd sN signature; retail is an exhaustive 20-entry jump-table event dispatcher with many nested state/counter transitions and linked-list scans, so no plain-C probe was run. */
+/* Triage at 15:39:43 UTC; untouched ASM fallback retained. */

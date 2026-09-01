@@ -1,0 +1,2 @@
+/* object_size=240B; window=240B; normalized_diff=not measured; differing_offsets=not measured; instruction deficit/surplus=not measured; classification standalone-MMI H009 floor. */
+/* Retail func_003a14f0 emits standalone pcpyld at 0x003A153C between ordinary scalar/FPU work, with no COP2 instruction in the statement. Inline asm is prohibited for this ordinary MMI work. Prologue frame is 0x40, saving s2/s1 and storing s0 in the call delay-slot at 0x003A1514; signature is (u8 *arg0, u8 *arg1). Source remains the bare INCLUDE_ASM fallback; no live mismatch retained. */

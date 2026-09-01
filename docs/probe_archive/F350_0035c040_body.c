@@ -1,0 +1,2 @@
+/* object_size=1088B; window=1088B; normalized_diff=not measured; differing_offsets=not measured; COP1 accumulator floor. */
+/* Retail func_0035c040 contains adda.s and madd.s accumulator instructions in four interpolation blocks. This is a documented MWCCPS2 plain-C compiler floor; no source reconstruction or inline-asm workaround was attempted. The source remains the bare INCLUDE_ASM fallback. */

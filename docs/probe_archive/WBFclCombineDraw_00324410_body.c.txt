@@ -1,0 +1,74 @@
+/* Best compiled C body for func_00324410; source intentionally restored to
+   bare INCLUDE_ASM. Probe status: MISMATCH, nd 118, object 616/624. The
+   candidate used func_002b7750(s64, s16); all other TU helper declarations
+   were at the retained baseline. Baseline candidate with 002b7750(s16,s16):
+   MISMATCH nd 249, object 612/624. */
+
+/* First residual rows from tools/fndiff.py (reloc-masked differing words: 39):
+   0x09C: candidate dsll32 $a0,$s2,0x10; retail move $a0,$s2
+   0x0A0: candidate dsra32 $a0,$a0,0x10; retail addiu $a1,$zero,0x1C7
+   0x0A4: candidate addiu $a1,$zero,0x1C7; retail jal func_002b7750
+   0x0AC onward: the extra narrowing pair shifts the 68d0/branch rows
+   0x11C: candidate nop; retail lwc1 $f1,0x6C($sp)
+   0x124: candidate mtc1 $v0,$f1; retail mtc1 $v0,$f0
+   0x128: candidate lwc1 $f0,0x6C($sp); retail nop
+   0x12C: candidate add.s $f20,$f1,$f0; retail add.s $f20,$f0,$f1
+   0x198-0x1A8: 002b6af0 integer/float argument materialization order differs.
+   Retail FPU block is [lwc1 y, lui 20.0f, mtc1, nop, add.s]; MWCC emits
+   [lui 20.0f, mtc1, lwc1, add.s], leaving the object eight bytes short. */
+
+/* Caller/helper width probes (compiled C, not fallback):
+   - arg1 s64 alone: MISMATCH nd399 object648/624; first materialization
+     residual at 0x06C is dsll32/dsra32 for still-s16 6150, with repeats at
+     68d0/69f0/6a70.
+   - arg1 s64 plus s64 first params for 6150/68d0/69f0/6a70, 6af0 left s16:
+     MISMATCH nd117 object616/624; remaining 6af0 narrowing pair is at
+     0x180/0x184.
+   - widening 6af0 first param too: MISMATCH nd249 object612/624. */
+
+/* Ruled out: O1 (nd 421, object 640/624); schedule on (nd 408, object
+   536/624); named/inline/reversed 20.0f expressions; in-place accumulator
+   forms; pointer/address-pinned y loads (all retained nd 118); 002b6150
+   first parameter s64 alone (nd 445, object 632/624); caller-side
+   func_00324410 arg1 s64 alone (nd399, object648/624); and the combined
+   width sets above. */
+void func_00324410(u8 *arg0, s16 arg1, s32 arg2) {
+    FclVec2 sp68;
+    s64 sp60, sp58, sp50;
+    f32 f20;
+    f32 y;
+    u8 *t;
+    s32 v17;
+
+    t = *(u8 **)(arg0 + 0x38);
+    sp68 = *(FclVec2 *)(t + 0x298);
+    v17 = (s8)arg2;
+    switch (*(s8 *)((u8 *)(v17 + (s32)t) + 0x294)) {
+    case 0:
+        if ((s16)func_002b6970(*(s16 *)(func_002b6150(arg1) + 0x10), 2) == 1) { break; }
+        func_002b7750(arg1, 0x1C7);
+        func_002b68d0(arg1, 0, 0);
+        if (v17 == 0) {
+            func_002b2970(&sp60, 280.0f + sp68.x, sp68.y);
+            func_002b69f0(arg1, *(s64 *)&sp68, sp60, 0, 0x32, 0);
+        } else if (v17 == 1) {
+            y = sp68.y;
+            f20 = y + 20.0f;
+            func_002b2970(&sp58, 280.0f + sp68.x, f20);
+            func_002b2970(&sp50, sp68.x, f20);
+            func_002b69f0(arg1, sp58, sp50, 0, 0x32, 0);
+        }
+        func_002b6af0(arg1, 0, 0, 0, 1.0f, 2.0f, 1.0f, 1.0f);
+        func_002b6a70(arg1, 0, 0xFF, 1, 0x32, 0);
+        *(s8 *)(func_002b6150(arg1) + 0x73) = 1;
+        *(s8 *)((u8 *)(v17 + (s32)t) + 0x294) = 1;
+        break;
+    case 1:
+        if ((s16)func_002b6970(*(s16 *)(func_002b6150(arg1) + 0x10), 1) == 1) { break; }
+        *(s8 *)((u8 *)(v17 + (s32)t) + 0x294) = 0;
+        break;
+    case 2:
+        func_002b68d0(arg1, 0, 1);
+        break;
+    }
+}

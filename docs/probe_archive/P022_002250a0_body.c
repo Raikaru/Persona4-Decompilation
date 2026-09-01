@@ -1,0 +1,2 @@
+/* object_size=1696; window=1696; normalized_diff=0; differing_offsets=none; classification=COP1_ACCUMULATOR_CHAIN_FLOOR; floor_instruction=retail uses mula.s/madd.s/msub.s/adda.s accumulator chains throughout vector math; ruled_out=no movz/movn, no standalone MMI, no framed tail-j forwarder, no ee-gcc sd sN signature; no C probe run because inline COP1 MAC is banned by H009. */
+/* Triage at 15:38:44 UTC; untouched ASM fallback retained. */
