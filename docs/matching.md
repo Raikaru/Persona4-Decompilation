@@ -503,7 +503,25 @@ variants is wasted time.
 - **`addiu` vs `daddiu` for small constants.** mwcc may emit the 64-bit
   `daddiu` where retail uses `addiu` (or vice versa) when the operand is a
   small constant; the choice is tied to the surrounding type width and is not
-  generally source-reachable.
+  generally source-reachable. **Now measured directly against b210, so stop
+  probing it.** Constant materialisation never yields `daddiu`: `return 1`,
+  `return 1LL`, `(long long)1`, an `s64` return type, `long long v = 1;`, and
+  a 64-bit store all emit `24020001` (`li`/`addiu`). The only spelling that
+  produced one is a 64-bit add with a REGISTER operand — `long long x;
+  return x + 1;` → `64820001 daddiu $2,$4,1` — while the `int` equivalent
+  gives `addiu`. Nor is it reachable by keeping a 64-bit value live: a
+  function holding two constants (1 and 0x63) in a callee-saved register
+  across a call, which is the exact shape of the retail family, emits
+  `li $16,1` / `li $16,99` and then a trailing `dsll32/dsra32` pair to
+  sign-extend. Retail's `daddiu` produces the sign-extended value directly
+  and needs no fixup, which is why the residual is one word and never
+  closes. Known members: `func_00232c70` (nd2, +0xD0/+0xE8),
+  `func_00209870` (nd6, +0x124), `func_001e7ab0` (nd1, +0xEC),
+  `func_0034ac00` (one of five words, +248). The archive for `001e7ab0`
+  additionally rules out `1u`, `1L`, `(s32)1LL`, explicit `s64`/`u64` casts,
+  `sizeof(char)`, pointer differences, `!0`, computed comparisons, 64-bit
+  helper returns, separate 64-bit locals, narrow temporaries, and
+  `u8`/`s8`/`u16`/`s16` destinations.
 - **Chained-load intermediate register in a delay-slot getter.** The
   `code1_004c`–`code1_0052` getter family: retail is exactly three words,
   `lui $v1,%hi / jr $ra / lw $v0,%lo($v1)` (or `lw $v1,off($a0) / jr $ra /
