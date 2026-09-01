@@ -189,6 +189,22 @@ Rules of engagement:
   what produces the no-save frame. Measured on `func_0047f4d0`, where every
   scalar variant retained `f20`–`f23` (frame 0x40/0x50) against retail's
   smaller frame. Count the saved FPRs before probing anything else.
+- **`shdPersona.c` output-GPR family (open floor, two members).** Two
+  independent reconstructions in this file reached a small residual whose
+  differing words are *the same shape at the same relative offsets*:
+  `func_0011c780` at nd 6 and `func_0011c930` at nd 5, both differing only at
+  0x130/0x138/0x154/0x158/0x15C, where retail writes through `$a0` and mwcc
+  writes through `$v1` in the closing `mfc1`/`andi`/`or`/`sb` sequence. Both
+  lanes reached it via measured `#pragma opt_propagation off`, which fixes the
+  prologue `lh`/`lwc1` ordering, and both then exhausted the colouring levers
+  independently: intermediate split and collapse, block scoping, byte/word
+  input and output type variants, liveness identities, guard polarity,
+  ternary/goto/direct-store forms, and every permitted pragma.
+  Two functions failing identically is a shared cause, not two coincidences —
+  likely that retail's source hands this value onward in `$a0` rather than
+  returning it. Do not re-probe these one function at a time; solve the shape
+  once, on either member, and it should close both. Archives:
+  `docs/probe_archive/EcD_0011c780_body.c`, `LnA_0011c930_body.c`.
 
 ## Read-modify-write and flags
 

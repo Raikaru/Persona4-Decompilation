@@ -1078,7 +1078,47 @@ void func_001cecb0(u8 *arg0) {
     func_001ce8c0(arg0, -16.0f, fGpffff8198, fGpffff80fc);
 }
 // FUN_001CECE0
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cece0);
+void func_001cece0(u8 *arg0)
+{
+    struct Frame {
+        u8 first[0x1C];
+        f32 result[3];
+        u8 second[0x28];
+        f32 source[4];
+        f32 target[4];
+    } frame;
+    f32 scale;
+    f32 length;
+    u8 *work;
+
+    work = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+    func_001bd560(frame.first, arg0 + 0x9C);
+    scale = func_00196040(3, 1, (u8 *)frame.target, 0, 0, 1);
+    frame.target[1] = 0.0f;
+    func_001958f0(work, frame.source);
+    frame.source[1] +=
+        (*(f32 *)(work + 0x8C) * *(f32 *)(work + 0x2C)) * 0.5f;
+    func_001bd780(frame.second, frame.source, frame.target, D_0060A0E0);
+    scale /= func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    *(f32 *)(frame.second + 0x18) = frame.source[0] - frame.target[0];
+    *(f32 *)(frame.second + 0x1C) = frame.source[1] - frame.target[1];
+    *(f32 *)(frame.second + 0x20) = frame.source[2] - frame.target[2];
+    length = func_003e40b0((f32 *)(frame.second + 0x18),
+                           (f32 *)(frame.second + 0x18));
+    length += (*(f32 *)(work + 0x90) * *(f32 *)(work + 0x2C) * 5.0f) /
+              func_0044b868(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+    scale = (scale > length) ? scale : length;
+    *(f32 *)(frame.second + 0x18) *= scale;
+    *(f32 *)(frame.second + 0x1C) *= scale;
+    *(f32 *)(frame.second + 0x20) *= scale;
+    frame.result[0] = *(f32 *)(frame.second + 0x18) + frame.target[0];
+    frame.result[1] = *(f32 *)(frame.second + 0x1C) + frame.target[1];
+    frame.result[2] = *(f32 *)(frame.second + 0x20) + frame.target[2];
+    if ((*(s32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0)
+        func_001bc3a0(frame.result, frame.result);
+    func_001bac20(arg0, (f32 *)frame.first, frame.result, 1);
+    func_001bbef0(arg0, 1.0f);
+}
 /* measured probe: optimization_level 1 preserves 001CEF20 low-bit OR coloring. */
 #pragma optimization_level 1
 // FUN_001CEF20

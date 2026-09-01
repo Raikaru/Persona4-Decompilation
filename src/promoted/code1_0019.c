@@ -31,6 +31,7 @@ extern f32 fGpffff8474;
 extern u8 *func_003c2290(u8 *arg0, s32 arg1);
 extern void func_003c22f0(void *arg0);
 extern u8 D_005F6CA0[];
+extern f32 D_005F6C10[];
 extern u8 func_0023e1f0(u8 *arg0);
 extern u8 *iGpffffb3bc;
 extern u8 *iGpffffb3c0;
@@ -118,7 +119,7 @@ extern f32 fGpffff8048;
 extern void func_003dc740(void *dst, const void *src, s32 mode, f32 angle);
 extern u8 D_0060A0E0[];
 extern void func_0019dea0(u8 *arg0);
-extern f32 D_0060A100;
+extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void func_001ee1c0(void);
 extern void func_00194660(void);
@@ -1413,8 +1414,62 @@ void func_001973d0(u8 *arg0)
     *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) = *(u16 *)(*(u8 **)(arg0 + 0x0) + 0xA0) + -1;
 }
 
+/* measured: opt_propagation off preserves the COP1 chain's intermediate colouring. */
+#pragma opt_propagation off
 // FUN_00197A80
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00197a80);
+s32 func_00197a80(u8 *arg0)
+{
+    u8 *unit;
+    P4_95730_Vec3 transformed;
+    P4_95730_Vec3 delta;
+    P4_95730_Vec3 position;
+    f32 temp_f2;
+    f32 progress;
+    s32 use_scaled;
+    unit = *(u8 **)arg0;
+    if (func_0023df70(*(u16 *)(arg0 + 4)) != 0) {
+        if (*(u16 *)(arg0 + 6) == 0) {
+            *(f32 *)(arg0 + 0x24) = 0.5f;
+            *(P4_95730_Vec3 *)(arg0 + 0xC) =
+                *(P4_95730_Vec3 *)(unit + 4);
+            func_003dcb40(&transformed, &D_0060A100, 1, unit + 0x1C);
+            *(f32 *)(arg0 + 0x18) = 400.0f * transformed.x;
+            *(f32 *)(arg0 + 0x1C) = 400.0f * transformed.y;
+            *(f32 *)(arg0 + 0x20) = 400.0f * transformed.z;
+        }
+        progress = *(f32 *)(arg0 + 0x24);
+        progress += 0.03125f;
+        *(f32 *)(arg0 + 0x24) = progress;
+        temp_f2 = 0.0f + (-1.0f) +
+                  ((-2.0f * progress) * progress) +
+                  (4.0f * progress);
+        progress = 2.0f * (temp_f2 - 0.5f);
+        if (progress < fGpffff82d4) {
+            delta.x = *(f32 *)(arg0 + 0x18) * progress;
+            delta.y = *(f32 *)(arg0 + 0x1C) * progress;
+            delta.z = *(f32 *)(arg0 + 0x20) * progress;
+            use_scaled = 0;
+        } else {
+            delta = *(P4_95730_Vec3 *)(arg0 + 0x18);
+            use_scaled = 1;
+        }
+        position.x = *(f32 *)(arg0 + 0xC) + delta.x;
+        position.y = *(f32 *)(arg0 + 0x10) + delta.y;
+        position.z = *(f32 *)(arg0 + 0x14) + delta.z;
+        *(P4_95730_Vec3 *)(unit + 4) = position;
+        *(s32 *)(unit + 0x98) |= 4;
+        *(u16 *)(arg0 + 6) = *(u16 *)(arg0 + 6) + 1;
+        return use_scaled;
+    }
+    *(s32 *)(unit + 0x10) = 0;
+    *(f32 *)(unit + 0x14) =
+        *(f32 *)(arg0 + 8) * D_005F6C10[*(u16 *)(arg0 + 6)];
+    *(s32 *)(unit + 0x18) = 0;
+    *(s32 *)(unit + 0x98) |= 4;
+    return ++*(u16 *)(arg0 + 6) >= 0x23U;
+}
+/* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
+#pragma opt_propagation on
 // FUN_00197CC0
 u8 *func_00197cc0(s32 arg0, s16 arg1, s16 arg2)
 {
