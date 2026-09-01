@@ -824,10 +824,94 @@ void func_00152cd0(u8 *arg0, u8 *arg1)
 // FUN_00152E50
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00152e50);
 
-/* measured: 00153300 archive body is 416B/416B with normalized_diff 4; */
-/* declaration-form probes are archived in build/L153_00153300_body.c; no C body was retained. */
-// FUN_00153300 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00153300);
+/* measured: opt_propagation off preserves the named scalar global loads; this scalar pair copy suppresses aggregate ld/sd traffic. */
+#pragma push
+#pragma opt_propagation off
+#define COPY_SCALAR_PAIR(dst, src) \
+do { \
+    s64 copy_s64; \
+    f32 copy_f32; \
+    copy_s64 = (src).sp40; \
+    copy_f32 = (src).sp48; \
+    (dst).sp40 = copy_s64; \
+    (dst).sp48 = copy_f32; \
+} while (0)
+// FUN_00153300
+void func_00153300(s8 *arg0, f32 fparg0)
+{
+    extern void func_003e9d50(s32 a0, void *a1, f32 f12, s32 a3);
+    extern void func_0047a1a0(void *a0, void *a1, f32 f12, s32 a2);
+    void *ptr;
+    struct {
+        s64 sp40;
+        f32 sp48;
+    } sp;
+    u16 temp_4;
+    u32 var_16;
+    u32 var_16_2;
+    u8 *temp_3;
+    u8 *temp_3_2;
+    u8 *temp_3_3;
+    u8 *temp_3_4;
+    u8 *temp_5;
+
+    ptr = &sp.sp40;
+    COPY_SCALAR_PAIR(sp, *(typeof(sp) *)D_005EFE38);
+    if (!(*(u32 *)arg0 & 1)) {
+        temp_3 = *(u8 **)(arg0 + 8);
+        if (temp_3 != NULL) {
+            func_003e9d50(*(s32 *)(temp_3 + 4), ptr, fparg0, 2);
+        }
+        temp_3_2 = *(u8 **)(arg0 + 0x10);
+        if (temp_3_2 != NULL) {
+            func_003e9d50(*(s32 *)(temp_3_2 + 4), &sp.sp40, fparg0, 2);
+        }
+        temp_3_3 = *(u8 **)(arg0 + 0x14);
+        if (temp_3_3 != NULL) {
+            func_003e9d50(*(s32 *)(temp_3_3 + 4), &sp.sp40, fparg0, 2);
+        }
+    }
+    var_16 = 0;
+    goto loop_test_11;
+loop_body_11:
+    temp_3_4 = *(u8 **)(arg0 + var_16 * 4 + 0x1C);
+    if (temp_3_4 != NULL) {
+        func_003e9d50(*(s32 *)(temp_3_4 + 4), &sp.sp40, fparg0, 2);
+    }
+    var_16 += 1;
+loop_test_11:
+    if (var_16 < *(u32 *)(arg0 + 0x18)) {
+        goto loop_body_11;
+    }
+    var_16_2 = 0;
+    goto loop_test_19;
+loop_body_19:
+    temp_5 = (u8 *)arg0 + var_16_2 * 0x18;
+    temp_4 = *(u16 *)(temp_5 + 0x120);
+    if (temp_4 == 0) {
+        goto switch_body_a;
+    }
+    if (temp_4 != 2) {
+        goto switch_case_1_test;
+    }
+switch_body_a:
+    func_0047a1a0((void *)(*(s32 *)(temp_5 + 0x12C)), &sp.sp40, fparg0, 2);
+    goto switch_end;
+switch_case_1_test:
+    if (temp_4 != 1) {
+        goto switch_end;
+    }
+    func_004b1290(*(s32 *)(temp_5 + 0x130), 0.0f, fparg0, 0.0f);
+switch_end:
+    ;
+    var_16_2 += 1;
+loop_test_19:
+    if (var_16_2 < *(u32 *)(arg0 + 0x11C)) {
+        goto loop_body_19;
+    }
+}
+/* measured: restore propagation after func_00153300. */
+#pragma pop
 
 // FUN_001534A0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_001534a0);
