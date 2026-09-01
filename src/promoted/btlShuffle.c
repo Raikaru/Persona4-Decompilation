@@ -545,17 +545,39 @@ s32 func_0036f640(s32 arg0, s32 *arg1)
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036f880);
 
 
-/* measured: retail keeps u16 r in $s0, flag in $s1, s16 s in $s2, u16 counter
- * in $s3, and re-sign-extends r inside the if(arg0) branch while reusing the
- * hoisted s in the else branch. mwcc b210 always colors flag=$s0, counter=$s1,
- * s=$s2, r=$s3 and instead re-materializes (s16)r from the CSE'd s in the
- * ELSE branch (if-branch uses the CSE temp directly), giving nd 37. Tried
- * s32/u16 param, every declaration order (r,flag,s,i permutations), s/s2
- * separate locals, inline (s16)r in both branches, mirrored branch args, and
- * pre-branch s2 assignment: all plateau at nd 37 or regress to 60. Saved-
- * register coloring + branch re-materialization scheduling floor. */
+/* matched: s32 `s` and flag temporaries preserve retail's callee-saved
+ * coloring ($s2/$s1) while u16 r and i use $s0/$s3. The explicit s16
+ * conversion for the func_00105610 argument and re-conversion of r in the
+ * flagged branch reproduce retail's sign-extension schedule. */
 // FUN_0036FBE0
-INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_0036fbe0);
+s32 func_0036fbe0(s32 arg0)
+{
+    s32 s;
+    u16 i;
+    u16 r;
+    s32 flag = arg0 & 0xFFFF;
+
+    if (flag != 0) {
+        func_001056e0(1, (s16)func_00104dc0(1));
+    } else {
+        func_001056e0(1, 1);
+    }
+    i = 0;
+    for (; i < 4; i++) {
+        r = (u16)func_00105ee0(i);
+        if (r != 0) {
+            s = (s16)r;
+            if (func_00105610(s) == 0) {
+                if (flag != 0) {
+                    func_001056e0((s16)r, (s16)func_00104dc0((s16)r));
+                } else {
+                    func_001056e0(s, 1);
+                }
+            }
+        }
+    }
+    return 1;
+}
 // FUN_0036FD00
 s32 func_0036fd00(s32 arg0, u8 *arg1)
 {

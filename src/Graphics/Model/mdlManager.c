@@ -997,8 +997,56 @@ void* func_00474af0(void* param_1, u16* param_2)
 
 
 
+/* measured: probing opt_propagation off for first-target register scheduling. */
+#pragma opt_propagation off
 // FUN_00474BA0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00474ba0);
+void* func_00474ba0(void* param_1, void* param_2)
+{
+    struct Mdl74ba0Ctx {
+        u16 flags;
+        u8 pad2[2];
+        s16 rawIndex;
+        u8 pad[0x12];
+        int* list;
+    };
+    s16 rawIndex;
+    u16 count;
+    s64 lVar2;
+    int* piVar1;
+
+    if (param_2 == (void*)0 ||
+        ((rawIndex = ((struct Mdl74ba0Ctx*)param_2)->rawIndex,
+          piVar1 = ((struct Mdl74ba0Ctx*)param_2)->list,
+          piVar1 != (int*)0) &&
+         (lVar2 = (s64)rawIndex,
+          count = *(u16*)((u8*)piVar1 + 0xC),
+          lVar2 < (s64)(u32)count) &&
+         (*(int*)(*piVar1 + rawIndex * 8) != 0) &&
+         ((*(u16*)param_2 & 1) != 0))) {
+        func_003d5840(param_1, *(void**)param_1);
+        *(void**)((u8*)param_1 + 0x40) = (void*)func_00474a50;
+        *(void**)((u8*)param_1 + 0x44) = (void*)func_00474a90;
+        return param_1;
+    }
+
+    rawIndex = *(s16*)((u8*)param_2 + 4);
+    piVar1 = *(int**)((u8*)param_2 + 0x18);
+    if (piVar1 != (int*)0) {
+        lVar2 = (s64)rawIndex;
+        count = *(u16*)((u8*)piVar1 + 0xC);
+        if ((lVar2 < (s64)(u32)count) &&
+            (*(int*)(*piVar1 + rawIndex * 8) != 0) &&
+            ((*(u16*)param_2 & 1) == 0) &&
+            (lVar2 < (s64)(u32)count) &&
+            (rawIndex >= 0)) {
+            func_003d5e40(param_1, *(f32*)(*(int*)param_1 + 0xC));
+            *(u8*)((u8*)param_2 + 2) = 1;
+        }
+    }
+
+    return param_1;
+}
+#pragma opt_propagation on
 // FUN_00474CE0
 u32 func_00474ce0(void* param_1)
 {
