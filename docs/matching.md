@@ -253,6 +253,48 @@ and often not source-reachable. Levers to try, in order:
 When no order matches after trying these, drop the function. Indexed
 getters/setters are the usual victims.
 
+### Float MAC operands: `madd.s`/`msub.s` yes, `adda.s` no
+
+The commutative-operand floor has been over-applied to the FPU accumulator
+family. The two halves behave differently, measured directly against b210:
+
+```c
+float m_ab(float a, float b, float c) { return c + a * b; }   /* madd.s $f0,$f12,$f13 */
+float m_ba(float a, float b, float c) { return c + b * a; }   /* madd.s $f0,$f13,$f12 */
+```
+
+**`madd.s`/`msub.s` operand order follows the source multiply operand order** —
+swap `a * b` to `b * a` and the two register fields swap. It is source-reachable
+and is NOT a floor.
+
+**`adda.s` operand order is invariant.** Six spellings were tried — operand swap
+on the add, `(z + 0.0f)`, `(0.0f + z)`, multiply-first, and both subtract forms —
+and it stayed `adda.s $f0,$f14` in every one. That half is a genuine floor.
+
+So when a MAC row differs, read *which* instruction it is before deciding.
+
+**When a source swap does not move a differing `madd.s`, the slot is decided by
+which operand is freshly computed at the multiply site, not by written order.**
+mwcc puts the value produced right there into `fs`. A source swap changes
+nothing because the subexpression is still the fresh one either way. Confirmed
+on `func_0035bad0`, which had been declared a commutative floor twice and sat
+at nd 2 words for exactly this reason:
+
+```
+candidate 0x4602001c = madd.s fd=f0, fs=f0, ft=f2   /* f0 = the subtraction */
+retail    0x4600101c = madd.s fd=f0, fs=f2, ft=f0
+```
+
+It closed by **inlining the helper calls directly at the multiply sites** so the
+call result, not the subtraction, became the freshly-arrived operand. Naming the
+call results in locals kept the wrong slot; hoisting the subtraction into a local
+ahead of the call was worse (nd 76). The lever is to move *which* operand is
+computed last, and inlining a call at the multiply site is the sharpest way.
+
+If the differing `adda.s` registers hold the wrong *values* rather than sitting
+in the wrong fields, that is upstream colouring — an ordinary, closable problem
+— not the invariant.
+
 ## `slt $at` vs `slt $v0` — try `> K-1` for `>= K`
 
 When the only residual is a comparison row where retail names `$at` and we name

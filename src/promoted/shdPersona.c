@@ -40,7 +40,7 @@ typedef struct {
 } I64;
 void func_00116d40(I64, s32, u8, u8, s16, s32, f32);
 void func_0045d6e0(void *, void *, s32, f32);
-void func_0034c270(Vec2f, u8, s32, f32);
+void func_0034c270(Vec2f, f32, u8, s32);
 extern void (*D_00887300[])(u32, u32);
 extern char D_005E5810[];
 extern char D_005E5830[];
@@ -1134,7 +1134,6 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ae90);
 
 
 
-void func_0034c270(Vec2f, u8, s32, f32);
 /* measured: reconstructed plain-C body, nd 18 (obj 444B / window 448B),
    improved from nd 21 by bracketing only this function with
    `#pragma opt_common_subs off` (restored after the body). The remaining
@@ -1150,8 +1149,52 @@ void func_0034c270(Vec2f, u8, s32, f32);
    Residual is call-site Vec2f aggregate/float argument materialisation order
    plus tail padding; declaration, pragma, direct-float, aggregate-dereference,
    duplicate-local, and initializer alternatives were ruled out. */
-// FUN_0011B110 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011b110);
+/* measured (supersedes the historical nd18 probe above): the ABI-ordered
+   and matching call spelling reproduce the retail `ld`/`lwc1`/`lbu`/constant
+   materialisation at both call sites. The plain-C arithmetic reproduces both
+   retail COP1 accumulator ops (`adda.s`/`msub.s`) exactly; they are not a
+   residual. Final object is 444B against a 448B window; the remaining four
+   bytes are zero tail padding accepted by the verifier (normalized_diff 0). */
+// FUN_0011B110
+void func_0011b110(u8 *arg0)
+{
+    Vec2f z;
+    s32 state;
+    f32 value;
+    f32 norm;
+    s32 work[4];
+    u8 color[4];
+    z.x = 0.0f;
+    z.y = 0.0f;
+    state = *(s32 *)(arg0 + 0x52C);
+    switch (state) {
+    case 0:
+    case 2:
+    case 4:
+        func_0034c270(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x10);
+        return;
+    case 3:
+        func_0034c270(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x23);
+        return;
+    case 1:
+        value = (f32)(u32)*(u8 *)(arg0 + 0x505);
+        norm = value / 255.0f;
+        work[0] = 0;
+        work[1] = (s32)(231.0f - 166.0f * norm);
+        work[2] = 0x280;
+        work[3] = (s32)(332.0f * norm);
+        color[0] = 0xFF;
+        color[1] = 0xE9;
+        color[2] = 0x2C;
+        color[3] = *(u8 *)(arg0 + 0x505);
+        D_00887300[0](1, 0);
+        func_0045d6e0(color, work, 0, 0.0f);
+        return;
+    default:
+        func_0046d730(D_005E4868, 0xB3D);
+        return;
+    }
+}
 
 
 
