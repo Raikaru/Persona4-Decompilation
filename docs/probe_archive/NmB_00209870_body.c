@@ -1,13 +1,18 @@
 /*
- * Archived near miss for func_00209870.
- * object 332B / retail window 336B / normalized_diff 6.
+ * SUPERSEDED six-word floor: a branch-local `u16 result` with `result = 2`
+ * and `result = 1`, plus a `u16` return type, reproduces the retail window.
+ * Final object 332B / retail window 336B / normalized_diff 0; the retail
+ * daddiu at +0x124 is exact. The body below remains the archived near miss.
+ *
+ * Archived near miss object 332B / retail window 336B / normalized_diff 6.
  * Residual offsets: 0x2c, 0x30, 0x38, 0x3c (switch register allocation),
  * and 0x124 (retail daddiu versus compiler addiu).
  * Working shape: s32 return, s32 arg1, u16 dispatch local, u8** out,
  * inline offset-first helper p4_002091f0_add((u32)index, base).
  * Ruled out: direct switch/default-1; reordered switch cases; equivalent
  * if-chain; s64 result; #pragma opt_propagation; #pragma optimization_level.
- * Source was reverted to INCLUDE_ASM because this body did not close.
+ * Source was reverted to INCLUDE_ASM at archive time because this body did
+ * not close; the superseding source body now closes the target.
  */
 s32 func_00209870(u8 *arg0, s32 arg1, u8 **arg2)
 {

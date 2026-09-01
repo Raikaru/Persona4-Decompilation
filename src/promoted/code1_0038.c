@@ -793,7 +793,71 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038a940);
 // FUN_0038ACD0
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038acd0);
 // FUN_0038B1C0
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038b1c0);
+void func_0038b1c0(u8 *arg0)
+{
+    extern f32 func_00373cb0(f32 fparg0, f32 fparg1, f32 fparg2,
+                             s32 arg0);
+    extern void func_0034f460(s32 arg0, s32 arg1, u8 arg2, u8 arg3,
+                              u8 arg4, s64 arg5, f32 fparg0, f32 fparg1);
+    extern s32 D_0064EFB0[];
+    u8 *base;
+    s32 palette;
+    s32 i;
+    u16 *counter;
+    f32 alpha;
+    f32 scaled;
+    s64 alpha_byte;
+    u8 red;
+    u8 green;
+    u8 blue;
+    counter = (u16 *)(arg0 + 0x164);
+    base = *(u8 **)arg0;
+    palette = *(s32 *)(base + 0x1F2AC);
+    if (*counter < 30) {
+        ++*counter;
+    }
+    for (i = 0; i < 11; i++) {
+        u8 *entry;
+        entry = (u8 *)D_0064EFB0 + i * 0x14;
+        if (*counter < *(s32 *)(entry + 8)) {
+            alpha = 0.0f;
+        } else if (*counter < *(s32 *)(entry + 0xC)) {
+            alpha = func_00373cb0(
+                (f32)*counter,
+                (f32)*(s32 *)(entry + 8),
+                (f32)*(s32 *)(entry + 0xC),
+                1);
+        } else {
+            alpha = 1.0f;
+        }
+        if (i == 5) {
+            func_003f6440(3, 0x71801);
+            func_003f6440(2, 0x48);
+        }
+        if (i < 5) {
+            red = 0xFF;
+            green = 0xBE;
+            blue = 0x5A;
+            scaled = 206.0f * alpha;
+            alpha_byte = (u8)scaled;
+        } else {
+            red = 0x2B;
+            green = 0x26;
+            blue = 0x1E;
+            scaled = 255.0f * alpha;
+            alpha_byte = (u8)scaled;
+        }
+        func_0034f460(
+            palette,
+            *(s32 *)((u8 *)D_0064EFB0 + i * 0x14 + 0x10),
+            red, green, blue, alpha_byte,
+            30.0f * (1.0f - alpha) +
+                *(f32 *)((u8 *)D_0064EFB0 + i * 0x14) + 0.0f,
+            *(f32 *)((u8 *)D_0064EFB0 + i * 0x14 + 4));
+    }
+    func_003f6440(3, 0x717FB);
+    func_003f6440(2, 0x44);
+}
 // measured: preserve retail argument materialization order
 #pragma opt_propagation off
 // FUN_0038B490
@@ -807,7 +871,7 @@ void func_0038b490(s32 arg0, u8 **arg1)
     func_0034f460(temp_16, 0.0f, 0, 0.0f, 0xDA, 0x8C, 0x17, 0xC0);
     func_00389e10(arg1);
     func_0038a940(arg1);
-    func_0038b1c0(arg1);
+    func_0038b1c0((u8 *)arg1);
 }
 // measured: restore propagation default
 #pragma opt_propagation on
