@@ -148,6 +148,24 @@ Rules of engagement:
   callee-saved register across several calls, reassigning that same variable
   for the last call forces a `move s,v0`; assign the last result to a
   *different* short-lived local so it stays in `$v0`.
+- **Split one value into two named locals to flip callee-saved colouring.**
+  The mirror of the entry above, and it closed two functions in one session,
+  so reach for it whenever the *only* residual is a saved-register swap. When
+  a value is produced and then used under a second role, giving each role its
+  own local changes which physical register the allocator assigns:
+  - `code1_0020 func_0020e250` had **19** differing words, every one of them
+    `$s0`/`$s1` swapped against retail (the list and the freshly allocated
+    node). Writing `allocated = jtbl_008873E8[0](...); new_node = allocated;`
+    instead of assigning the call result straight into `new_node` flipped the
+    colouring to retail's and took it to MATCH. Nothing else changed.
+  - `code1_004b func_004b53c0` needed the same split for a different reason —
+    separating `work` from `result` and assigning `result = work` at the tail
+    of both arms — see "Shared-tail joins" above.
+
+  The two cases together give the rule: **an intermediate name is a register
+  allocation control, not cosmetic.** If retail holds a value in a different
+  `$s` register than you do, try both directions — collapse two locals into
+  one, or split one into two — before concluding it is a floor.
 - **A `volatile` lvalue can delay an address calculation across a call.** When
   retail calls a size helper before materializing the destination address, but
   mwcc hoists the destination arithmetic, cast the final lvalue — not the
@@ -1310,6 +1328,38 @@ and a 16-lane wave over the 20 smallest closed **zero**. Their residuals were
 COP1 accumulator chains (`003e3f00`, `003e4030`, `003963c0`, `00396520`), or
 ordinary word-level walls at nd 12-64 on functions of 80-368 bytes. Leaf-ness
 does not predict closure either.
+
+### CORRECTION: COP1 accumulator chains ARE emitted by plain C
+
+Several lanes have abandoned targets on the belief that an `adda.s`/`madd.s`/
+`msub.s` chain cannot be produced from compliant C. **That is wrong**, and it
+was measured directly against b210 at `-O2`:
+
+```c
+float c_plain(float acc, int count) { return acc - (float)count * 9.5f; }
+```
+
+```
+  1c:  460c0018   adda.s  $f0,$f12
+  20:  4601101d   msub.s  $f0,$f2,$f1
+```
+
+No pragma, no intrinsic, no `+ 0.0f` trick — an ordinary multiply-and-subtract
+expression fuses. The `+` form gives `adda.s`/`madd.s`, and a three-operand
+`(x + 0.0f) + y * z` fuses as well. b210 forms the accumulator chain whenever a
+float multiply feeds an add or subtract.
+
+So when the retail window contains one of these, **do not stop**: write the
+arithmetic naturally and the chain appears. What actually walls these functions
+is the surrounding code — operand orientation (see the commutative floor),
+saved-register colouring, and load scheduling — not the fused instruction.
+
+Where a chain genuinely is unreachable it is because of *which* registers the
+accumulator reads, not because the instruction cannot be emitted. Treat
+"contains adda.s" as a normal target from now on. Functions previously
+dismissed on this basis are worth re-examining: `func_00208870`,
+`func_0047f040`, `func_0047f5b0`, `func_0035bd20`, and the leaf set
+`003e3f00`, `003e4030`, `003963c0`, `00396520` recorded above.
 
 ### Near-size twins are a shape family, not a twin
 
