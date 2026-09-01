@@ -50,6 +50,7 @@ extern s32 func_0010f420(u16 arg0, u16 arg1);
 extern void func_001d8bf0(u8 *arg0, u8 *arg1);
 extern u8 *D_0072449C;
 extern void *D_00609850[];
+extern u32 D_00609600[];
 extern u32 func_001b1570(u16 arg0);
 extern u32 func_00233880(u32 arg0, u32 arg1);
 extern u16 func_001d7f10(u8 *arg0, u8 *arg1, u16 arg2, u32 arg3);
@@ -1176,14 +1177,95 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dd920);
    (daddiu vs retail's addiu+andi) is a 1-word constant-propagation floor. */
 // FUN_001DE000
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de000);
-/* measured: the mid-loop float block uses the FPU accumulator idiom
-   (adda.s $f0,$f1 / msub.s $f0,$f1,$f2 / cvt.w.s after the signed-negative
-   (x>>1)|(x&1) conversion trick) which m2c marks M2C_ERROR and no C float
-   spelling reproduces byte-for-byte; the surrounding loops (D_00609600 u8
-   table, the list[] s16 entries, the bubble-sort pass, the weighted 31d70
-   pick) are all readable. */
+#pragma push
+/* measured: opt_loop_invariants on is required for the retail-sized frame and
+   bubble-sort register coloring; the COP1 chain is ordinary C arithmetic and
+   D_00609600 is a real, placeable linker symbol. */
+#pragma opt_loop_invariants on
 // FUN_001DE370
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001de370);
+u32 func_001de370(u8 *arg0)
+{
+    u32 i;
+    u32 random;
+    u32 cumulative;
+    s16 scores[16];
+    u32 selectionIndex;
+    u32 total;
+
+    if (*(u16 *)(arg0 + 0xD0) == 1)
+        return *(u32 *)(arg0 + 0x98);
+
+    total = 0;
+    i = 0;
+    while (i < *(u16 *)(arg0 + 0xD0)) {
+        u8 *unit;
+        s16 *score;
+        u32 max;
+        u32 current;
+        f32 scoreFloat;
+        f32 bonus;
+
+        total += D_00609600[i];
+        unit = *(u8 **)(arg0 + i * 4 + 0x98);
+        score = scores + i;
+        *score = 0;
+        max = func_00231f80(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
+        current = func_00231ed0(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
+        *score += (s16)(100.0f - 100.0f * ((f32)current / (f32)max));
+        switch (func_002326c0(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64))) {
+        case 0x40:
+            bonus = 50.0f;
+            scoreFloat = (f32)*score;
+            *score = (s16)(scoreFloat + bonus);
+            break;
+        default:
+            break;
+        }
+        i++;
+    }
+    {
+        u32 bubbleIndex;
+        s16 *sortScore;
+        s32 swapped;
+        u32 one;
+        one = 1;
+        do {
+        swapped = 0;
+        for (bubbleIndex = 0; bubbleIndex < *(u16 *)(arg0 + 0xD0) - 1; bubbleIndex++) {
+            s32 left;
+            s32 right;
+            s16 *nextScore;
+
+            sortScore = scores + bubbleIndex;
+            nextScore = sortScore + 1;
+            right = *nextScore;
+            left = *sortScore;
+            if (left < right) {
+                u8 *entry;
+                u32 temp;
+
+                entry = arg0 + bubbleIndex * 4;
+                temp = *(u32 *)(entry + 0x98);
+                *(u32 *)(entry + 0x98) = *(u32 *)(entry + 0x9C);
+                *(u32 *)(entry + 0x9C) = temp;
+                *sortScore = right;
+                *nextScore = left;
+                swapped = one;
+            }
+        }
+        } while (swapped != 0);
+    }
+    cumulative = 0;
+    random = func_00231d70(total);
+    selectionIndex = 0;
+    for (; selectionIndex < *(u16 *)(arg0 + 0xD0); selectionIndex++) {
+        cumulative += D_00609600[selectionIndex];
+        if (random < cumulative)
+            return *(u32 *)((u8 *)(selectionIndex * 4) + (u32)arg0 + 0x98);
+    }
+    return 0;
+}
+#pragma pop
 /* measured: MATCH. The "coloring floor" was actually a switch-linear-chain
    declaration-order issue: MWCC tests linear-chain case labels in the REVERSE
    of their C declaration order, so the cases must be declared in the reverse
