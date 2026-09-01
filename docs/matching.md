@@ -203,17 +203,26 @@ Rules of engagement:
   `s32` parameter type, and every permitted pragma. Direct branch stores make
   it markedly worse (object shrinks, ~41 words shift).
 
-  Three functions failing identically is one cause. **Standing hypothesis:
-  register liveness, not colouring.** `$a0` holds the first argument; mwcc may
-  only reuse it as a scratch once that argument is dead. Retail reuses `$a0`
-  for the packing tail, so in retail's source arg0 has no live use after that
-  point, while our reconstructions keep it live and the allocator falls back
-  to `$v1`. That would explain why every *naming* lever failed — none of them
-  changes when arg0 dies. The untried experiment is to restructure so the
-  parameter is dead before the tail: hoist every later use of arg0 (field
-  reads, onward calls, stores through it) into locals computed beforehand.
-  Confirm first by checking retail's disassembly for any use of `$a0` after
-  the sequence. Solve it once on any member and it should close all three.
+  Three functions failing identically are one cause. **Measured result:
+  ordinary allocator register pressure from the immediately following load,
+  not arg0 liveness or a helper call.** Retail's `func_0011c780` and
+  `func_0011c930` both write `sb $a0, 0x44e($s0)` and then immediately load
+  `lh $v1, 0x514($s0)`. Retail's `func_0011ac70` writes
+  `sb $a0, 0x2e6($a2)`, then increments the loop and computes `slti $v1`
+  before the next iteration's `lh $a0, 0x508($s1)`. None has a `jal`/`jalr`
+  after the packed-byte store that consumes that byte. Plain cache aliases
+  (`u8 *p = arg0`, renamed/shadowed/typed forms) were coalesced back to the
+  incoming argument even under the scoped `opt_propagation off` probes.
+  A one-shot hoist of the immediately following halfword above the packing
+  statements (and the next-iteration halfword for `func_0011ac70`) was also
+  measured without closing the gap: c780 was 46 differing words
+  (object/window 428/432B), c930 was 45 (448/448B), and ac70 was 83
+  (540/544B). The best archived bodies remain c780 nd 6 including its
+  GPREL relocation (five visible tail words), c930 nd 5 after relocation
+  masking, and ac70 nd 5 after relocation masking; each archive records its
+  object/window sizes, differing offsets, chain result, and ruled-out probes.
+  The residual is therefore a specified allocator-internal next-use pressure
+  floor; all three source entries remain the exact bare `INCLUDE_ASM` form.
   Archives: `docs/probe_archive/EcD_0011c780_body.c`, `LnA_0011c930_body.c`,
   `LAC_0011ac70_body.c`.
 - **A measured pragma keeps applying to every function below it.** `#pragma X

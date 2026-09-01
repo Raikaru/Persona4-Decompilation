@@ -15,6 +15,13 @@
    mask, compound-assignment, signedness, declaration-order, and pragma
    variants. Best body was restored to the exact bare INCLUDE_ASM form.
 */
+/* Follow-up probe: retail has no byte-consuming call after `sb $a0`; after
+   the store it increments the loop and computes `slti $v1` before the next
+   iteration's `lh $a0, 0x508($s1)`. Prefetching that next-iteration halfword
+   before the current packed-byte tail produced object 540B/window 544B and
+   83 differing words. Cache aliases were coalesced; the best body above
+   remains nd5 after relocation masking, with all six accumulator operations
+   still reproduced. */
 void func_0011ac70(u8 *arg0)
 {
     f32 diff;
