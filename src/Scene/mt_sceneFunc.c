@@ -128,10 +128,10 @@ extern u8 D_0063B0A0[];
 extern u8 D_0063B0D0[];
 extern u8 D_0063B080[];
 extern u8 D_0063B088[];
-extern s64 D_0063B0F0;
-extern f32 D_0063B0F8;
-extern s64 D_0063B100;
-extern f32 D_0063B108;
+extern u8 D_0063B0F0[];
+extern u8 D_0063B0F8[];
+extern u8 D_0063B100[];
+extern u8 D_0063B108[];
 extern s64 D_0063B0B8[];
 extern f32 D_0063B0C0[];
 extern void func_00268a70(u8 *arg0);
@@ -746,17 +746,47 @@ s32 func_00269c20(u32 unk, s32 arg1) {
 
 
 
-/* measured: retail batches each group's two global loads (ld D_0063B0F0 + lwc1
-   D_0063B0F8) before both stores, hoists the first call's src-pointer addiu
-   between the groups, and emits mov.s $f12 before move $a2 in the second
-   func_003e0870 call; mwcc b210 emits load-store-load-store per element, the
-   pointer addiu last, and move $a2 before mov.s $f12. Tried: direct stores,
-   temp locals (optimized away), struct-temp copies (extra stack traffic),
-   array-vs-scalar global spellings (array form fixed addressing, kept the
-   layout/frame exact). All give identical nd 13. Load-sinking + argument-
-   evaluation-order floors. */
+/* measured: opt_propagation off closes first-target nd 9 -> 0 by preserving
+   absolute-global and early source-pointer load order; direct stores remain exact. */
+#pragma opt_propagation off
 // FUN_00269C70
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_00269c70);
+void func_00269c70(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 scale)
+{
+    f32 transformed[4];
+    f32 vector1[4];
+    f32 vector0[4];
+    u8 matrix[64];
+    u64 xy;
+    f32 z;
+    f32 *vector0p;
+
+    xy = *(u64 *)D_0063B0F0;
+    z = *(f32 *)D_0063B0F8;
+    *(u64 *)vector1 = xy;
+    vector1[2] = z;
+    vector0p = vector0;
+
+    xy = *(u64 *)D_0063B100;
+    z = *(f32 *)D_0063B108;
+    *(u64 *)vector0 = xy;
+    vector0[2] = z;
+
+    func_003e0870(matrix, vector0p, -angle1, 0);
+    func_003e4320(vector1, vector1, matrix);
+    vector0[0] = 0.0f;
+    vector0[1] = 1.0f;
+    vector0[2] = 0.0f;
+    func_003e0870(matrix, vector0, angle0, 0);
+    func_003e4320(transformed, vector1, matrix);
+    func_003e40b0(transformed, transformed);
+    transformed[0] *= scale;
+    transformed[1] *= scale;
+    transformed[2] *= scale;
+    out[0] = transformed[0] + base[0];
+    out[1] = transformed[1] + base[1];
+    out[2] = transformed[2] + base[2];
+}
+#pragma opt_propagation on
 
 /* measured: opt_propagation off closes nd 5 -> 0 for global-load ordering. */
 #pragma opt_propagation off
@@ -1052,13 +1082,70 @@ INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
 
 
 
-/* measured: ported P3FES FUN_003bb620 (also nd 4 there). Only residual is the
-   direction-vector stores: retail sd $v0,0xd0($sp)/swc1 $f0,0xd8($sp) direct;
-   b210 either stores through a cached dest ptr (nd 4) or materializes the
-   func_003e40b0 $a1 base after the stores (nd 8). Direct/pointer/staged forms
-   probed, all >= nd 4. Cached-dest-pointer scheduling floor. */
+/* measured: direction field temporaries plus opt_propagation off close nd 4 -> 0,
+   preserving retail ld/lwc1/sd/swc1 ordering; object 376B fits the 384B window. */
+#pragma opt_propagation off
 // FUN_0026C190
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026c190);
+void func_0026c190(f32 *out, void *resource, f32 scale)
+{
+    typedef struct SceneDirectionLocal {
+        u64 xy;
+        f32 z;
+        u32 pad;
+    } SceneDirectionLocal;
+    f32 base[4];
+    f32 axis[4];
+    f32 output[4];
+    SceneDirectionLocal direction;
+    f32 normalized[4];
+    u8 matrix_copy[64];
+    u8 matrix[64];
+    u8 *handle;
+    u8 *directionp;
+    s32 *src;
+    s32 *dst;
+    s32 count;
+    u32 first;
+    u32 second;
+    f32 direction_z;
+    u64 direction_xy;
+
+    *(RwV3d *)base = *(RwV3d *)((u8 *)resource + 4);
+    *(RwV3d *)axis = *(RwV3d *)((u8 *)resource + 0x10);
+    if (*(u16 *)((u8 *)resource + 0x14c) != 0) {
+        handle = func_00145270(*(u16 *)((u8 *)resource + 0x14c));
+        if (handle != NULL) {
+            base[0] = *(f32 *)(handle + 4);
+            base[1] = *(f32 *)(handle + 8);
+            base[2] = *(f32 *)(handle + 0xc);
+            scale = *(f32 *)((u8 *)resource + 0x144);
+            func_00146f50(matrix, base, axis);
+            src = (s32 *)matrix;
+            dst = (s32 *)matrix_copy;
+            count = 8;
+            do {
+                first = (u32)src[0];
+                second = (u32)src[1];
+                src += 2;
+                count -= 1;
+                dst[0] = (s32)first;
+                dst[1] = (s32)second;
+                dst += 2;
+            } while (count > 0);
+            directionp = (u8 *)&direction;
+            direction_xy = *(u64 *)matrix_copy;
+            direction_z = *(f32 *)(matrix_copy + 8);
+            direction.xy = direction_xy;
+            direction.z = direction_z;
+            func_003e40b0(normalized, directionp);
+            base[0] = base[0] - 15.0f * normalized[0];
+            base[2] = base[2] - 15.0f * normalized[2];
+        }
+    }
+    func_0026bfc0(base, scale, axis[0], axis[1], axis[2], output);
+    *(RwV3d *)out = *(RwV3d *)output;
+}
+#pragma opt_propagation on
 
 /* measured: opt_propagation off closes 15 load-order differences; lverify MATCH. */
 #pragma opt_propagation off
