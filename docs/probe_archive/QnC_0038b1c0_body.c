@@ -1,5 +1,6 @@
 /*
- * Best plain-C reconstruction for func_0038b1c0.
+ * SUPERSEDED six-word floor: the u8 colour components and u8-typed callee
+ * view in src/promoted/code1_0038.c now reproduce the retail window exactly.
  * Measured object_size=712B, retail window=720B, normalized_diff=6.
  * Differing words (reloc-masked): +0x144 (ff000624 addiu $a2,$zero,0xff
  * versus retail ff000664 daddiu $a2,$zero,0xff), +0x148

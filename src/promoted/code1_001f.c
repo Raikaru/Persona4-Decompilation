@@ -44,7 +44,7 @@ extern void memset(void *destination, s32 value, u32 size);
 extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef5f0(s32 arg0, s32 arg1, s32 arg2);
 
-extern u32 func_00231d70(s32 arg0);
+extern u32 func_00231d70();
 extern s32 func_00243950(s32 arg0);
 extern s32 func_002439c0(s32 arg0);
 extern s32 func_00243a30(s32 arg0, s32 *arg1);
@@ -3151,8 +3151,69 @@ s32 func_001f9080(u8 *arg0) {
     return D_00624FC0[*(u16 *)(p + 0xA4)] + 0x45;
 }
 
+/* measured: opt_propagation off tested for func_001f90e0; retains loop constants. */
+#pragma opt_propagation off
 // FUN_001F90E0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f90e0);
+s32 func_001f90e0(u8 *arg0)
+{
+    s32 temp_16;
+    s32 temp_4;
+    u8 *var_17;
+    s32 var_16;
+    s32 var_5;
+    u32 var_6;
+    s32 var_7;
+    u8 *temp_3;
+    u8 *temp_4_2;
+    u8 *sp60[12];
+
+    if (func_0045af90(3) == 1) {
+        return -1;
+    }
+    temp_3 = *(u8 **)(arg0 + 0x30);
+    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+        return -1;
+    }
+    if (func_00232710(*(s32 *)(temp_3 + 0xA64), 0x110) != 0) {
+        return -1;
+    }
+    var_16 = 0;
+    var_17 = *(u8 **)(iGpffffb3ac + 0x178);
+    while (var_17 != NULL) {
+        if ((func_002428f0(*(u8 **)(var_17 + 0xA64), 0) == 0) &&
+            (func_00232710(*(s32 *)(var_17 + 0xA64), 0x1001D7) == 0) &&
+            (*(u16 *)(var_17 + 0xA4) != 1) &&
+            (var_17 != *(u8 **)(arg0 + 0x30))) {
+            sp60[(u16)var_16] = var_17;
+            var_16 = (u16)(var_16 + 1);
+        }
+        var_17 = *(u8 **)(var_17 + 0xA6C);
+    }
+    temp_4 = (u16)var_16;
+    if (temp_4 == 0) {
+        return -1;
+    }
+    temp_4_2 = sp60[func_00231d70(temp_4)];
+    if (temp_4_2 == NULL) {
+        return -1;
+    }
+    var_6 = 0x32;
+    var_5 = 1;
+    var_7 = 5;
+    while (var_5 <= 8) {
+        if (var_5 == *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4)) {
+            break;
+        }
+        if ((var_5 != var_7) && (var_5 != *(u16 *)(temp_4_2 + 0xA4))) {
+            var_6 += 3;
+        }
+        var_5 += 1;
+    }
+    temp_16 = var_6 + D_00624FC0[*(u16 *)(temp_4_2 + 0xA4)];
+    return temp_16 + func_00231d70(3, var_5, var_6);
+}
+/* measured: close opt_propagation after func_001f90e0. */
+#pragma opt_propagation on
 // FUN_001F92C0
 s32 func_001f92c0(u8 *arg0)
 {

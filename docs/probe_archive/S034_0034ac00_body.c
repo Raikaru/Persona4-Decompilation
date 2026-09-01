@@ -1,17 +1,14 @@
-/* daddiu probe (measured on this compiler, applies to offset 248):
-   constant materialisation NEVER emits daddiu -- return 1, return 1LL,
-   (long long)1, an s64 return type, a 64-bit local and a 64-bit store all
-   emit plain addiu (24020001). The only spelling that produced daddiu was
-   a 64-bit ADD WITH A REGISTER OPERAND: `long long x; return x + 1;` ->
-   64820001. So offset 248 is an addition in 64-bit context, not a constant
-   load; do not chase it with literal suffixes or return-type widening. */
-/* object=320 window=320 normalized_diff=5 differing_offsets=[120,124,248,260,264] instruction_deficit=0 surplus=0 classification=loop-counter register/width plus float global-load order residual; fixed_words=48/52 via entry = base + ((s32)(s64)(s16)counter << 9), fixed_words=252/256 via s16 bumped split (bumped = counter + 1; counter = (s64)(s16)bumped); remaining=120/124 GP-vs-field float load order, 248 daddiu-vs-addiu, 260/264 bottom-counter destination/source; opt_propagation_off=no_effect; prologue_saved_s=4 ($s3,$s2,$s1,$s0); params=(u8*); declarations=callee prototypes block-scope, globals file-scope arrays */
+/* Re-opened daddiu-family probe, measured against MWCCPS2 b210:
+   the archived s64 counter produced daddiu at +248 while retail uses
+   addiu. Retyping the state as s32, while retaining explicit signed-16
+   casts at the loop test and array-index expression, reproduces retail's
+   addiu increment and both dsll32/dsra32 width pairs. */
+/* BEST ATTEMPT: object=320 window=320 normalized_diff=2 differing_offsets=[120,124] instruction_deficit=0 surplus=0; fixed_words=248/252/256/260/264 by s32 counter plus `(s64)(s16)counter` loop test and `((s32)(s64)(s16)(s64)counter << 9)` entry expression. Remaining two words are the documented MWCC RHS-load-first float compare floor: candidate loads GPREL fGpffff8504 before entry+0x194, while retail loads entry+0x194 first; c.ole.s/bc1t and all other words match. Narrow-unsigned rule does not apply: u16 counter was object=324/nd74, u16 bumped object=324/nd22 and inserted 0xffff masks; s16 counter object=316/nd20; u32 counter object=328/nd68. Other ruled out probes: `(s16)counter + 1` object=324/nd23; `(s32)counter + 1` object=328/nd23; removing the outer entry cast object=320/nd5 (extra top dsll/dsra words); `(s64)counter << 48` loop test object=328/nd19 (extra width pair). The float forms `!(fGpffff8504 >= member)` changed c.ole.s/bc1t to c.olt.s/bc1f (nd7). opt_propagation off had no effect in the archived sweep. */
 // FUN_0034AC00
 s32 func_0034ac00(u8 *arg0)
 {
-    extern f32 fGpffff8504;
     extern void func_0034a8b0(void *arg0);
-    s64 counter;
+    s32 counter;
     s16 bumped;
     u8 *entry;
     u8 *base;
@@ -24,8 +21,8 @@ s32 func_0034ac00(u8 *arg0)
     base = *(u8 **)(arg0 + 0x38);
     func_00457120();
     counter = 0;
-    while (((counter << 48) >> 48) < *(u8 *)(base + 0x1800)) {
-        entry = base + ((s32)(s64)(s16)counter << 9);
+    while ((s64)(s16)counter < *(u8 *)(base + 0x1800)) {
+        entry = base + ((s32)(s64)(s16)(s64)counter << 9);
         sub = entry + 0x104;
         func_0043f810(sub, func_002b89a0(sub), 0xF0);
         if (((*(s16 *)(entry + 0x104) & 1) == 1) &&

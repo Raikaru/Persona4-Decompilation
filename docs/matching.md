@@ -350,6 +350,40 @@ and often not source-reachable. Levers to try, in order:
 - **Comma struct-copy for load order**: `(0, p[i].unionField).member` copies
   the whole operand word before extracting the member, reproducing retail's
   `lw`-then-`lh` order where plain `.member` access reorders the loads.
+- **Scalar-copy macro for float aggregate load order.** A struct assignment is
+  not the only aggregate shape, and it is often the wrong one. Borrowed from
+  the Silent Hill decomp and measured against b210:
+
+  ```c
+  #define COPY_VEC4(dst, src) \
+  do { \
+      float w, z, y, x; \
+      x = (src).x; y = (src).y; z = (src).z; w = (src).w; \
+      (dst).x = x; (dst).y = y; (dst).z = z; (dst).w = w; \
+  } while (0)
+  ```
+
+  Four distinct behaviours are available for the same copy:
+
+  | form | codegen |
+  |---|---|
+  | `*d = *s` through pointers | batched, loads `f3,f2,f1,f0` from `0,4,8,12` in order |
+  | `COPY_VEC4` through pointers | batched, loads from `4,8,12,0` — **rotated** |
+  | `g_dst = g_src` on globals | **`lq`/`sq`**, a 128-bit quadword copy |
+  | `COPY_VEC4` or field-by-field on globals | interleaved `lwc1`/`swc1`, no `lq` |
+
+  So the macro does two things nothing else does: it **suppresses the `lq`/`sq`
+  quadword copy** on globals, forcing scalar float traffic, and through
+  pointers it **rotates the load order** by one field relative to a struct
+  assignment while leaving the stores in field order. The reversed declaration
+  `float w, z, y, x;` is load-bearing — it is what sets that register
+  assignment; declaring them `x, y, z, w` gives a different one.
+
+  Reach for it when retail does scalar `lwc1`/`swc1` and your aggregate copy
+  emits `lq`/`sq` or a 64-bit `ld`/`sd` pair, or when the loads are batched
+  correctly but rotated by one. `func_00153300` is the standing example: nd 4
+  at offsets 0x2C/0x34 where retail emits `ld D_005EFE38` then
+  `lwc1 D_005EFE40` and the aggregate copy adds a second `ld`/`sd`.
 
 When no order matches after trying these, drop the function. Indexed
 getters/setters are the usual victims.
