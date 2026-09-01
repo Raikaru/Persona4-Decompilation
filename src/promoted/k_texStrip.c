@@ -295,23 +295,56 @@ s32 func_00191610(void)
                          func_001915c0, mem);
 }
 
-// measured: nd 80 after 7 attempts. Spill-slot fix: the four func_003df3c0 spill slots
-// (sp50/sp54/sp58/sp5C) MUST be a 4-element array `s32 spill[4]` passed as &spill[0] and read
-// as spill[1..3] -- naming them as separate s32 scalars promotes sp54 to a saved reg $s4 and
-// adds a 5th saved reg (nd 92). With the array they stay on the stack at 0x50-0x5C (nd 82).
-// Register order that reproduces retail: arg0[0x110]->sp68, arg0[0x118]->sp6C, arg1->$s1,
-// var_19->$s3, temp_18->$s2, temp_17->$s1, var_16->$s0. Remaining nd 80 is the SAME
-// argument-materialization floor as func_00190920 (mwcc emits the last arg first for calls
-// taking a computed address/lvalue, e.g. func_003deff0(temp_17,spill[0],spill[1],spill[2],
-// spill[3]) and func_003e2910(temp_18,var_16,spill[1])), plus a stubborn sp68/sp6C stack
-// offset swap (declaration order does not move it).
-// QTEX lane: s32 sp[2] plus s32 spill[4], switch/goto loop layout, and declaration
-// order reached object 420/window 432, normalized_diff 10; the six differing words
-// are only func_003deff0 argument materialization. Archived in build/QTEX_001916a0_body.c.
-// Shared-callee probe confirmed the same canonical five-argument signature and no
-// improvement (nd remained 10), so this is not an argument-count/width defect.
+// measured: MATCH (object 420/window 432). The four func_003df3c0 spill slots
+// MUST be a 4-element array `s32 spill[4]` passed as &spill[0] and read as
+// spill[1..3], keeping them on the stack at 0x50-0x5C and preserving the
+// retail saved-register allocation.
+// The `(u32)` casts on spill[0] and spill[1] in func_003deff0 reproduce retail's
+// argument-materialization order (loads before the first-argument move).
 // FUN_001916A0
-INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_001916a0);
+s32 func_001916a0(u8 *arg0, void *arg1)
+{
+    s32 sp[2];
+    s32 spill[4];
+    s32 var_19;
+    s32 temp_18;
+    s32 temp_17;
+    u8 *var_16;
+
+    var_19 = 0;
+    sp[0] = *(s32 *)(arg0 + 0x110);
+    sp[1] = *(s32 *)(arg0 + 0x118);
+    temp_18 = func_003e2f60(3, 1, &sp[0]);
+    temp_17 = func_003e2f60(2, 2, (s32 *)arg1);
+    if ((temp_18 != 0) && (temp_17 != 0)) {
+        goto loop_check;
+loop_body:
+        switch (spill[0]) {
+        case 0x16:
+            var_19 = func_003e6a90(temp_18);
+            break;
+        default:
+            if (spill[1] != 0) {
+                func_0044ea90(D_005F6168, 0x330);
+                var_16 = D_008873F4[0](1, spill[1], 0x40000);
+                func_003e2910(temp_18, var_16, spill[1]);
+            }
+            func_003deff0(temp_17, (u32)spill[0], (u32)spill[1], spill[2], spill[3]);
+            if (spill[1] != 0) {
+                func_003e2ab0(temp_17, var_16, spill[1]);
+                jtbl_008873EC[0](var_16);
+            }
+            break;
+        }
+loop_check:
+        if (func_003df3c0(temp_18, &spill[0]) != 0) {
+            goto loop_body;
+        }
+        func_003e2e40(temp_18, 0);
+        func_003e2e40(temp_17, 0);
+    }
+    return var_19;
+}
 
 // FUN_00191850
 s32 func_00191850(u8 *arg0)

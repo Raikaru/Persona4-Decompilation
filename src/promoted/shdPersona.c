@@ -2058,6 +2058,11 @@ void func_0011c6e0(u8 *arg0, s32 arg1)
    0x15A, 0x15E. The int-to-float idiom is `(f32)(u32)a` for the unsigned
    byte absolute-value site; the signed halfword ratio stays `(f32)raw`.
    Residual is prologue load order, GPREL relocation, and output colouring. */
+/* superseded: docs/probe_archive/EcD_0011c780_body.c reaches nd 6
+   (object 428B/window 432B) -- measured `#pragma opt_propagation off`
+   reproduces retail's top lh/lwc1 order. Remaining: output GPR colouring
+   ($v1 vs retail $a0) at 0x130/0x138/0x154/0x158/0x15C, plus the
+   relocation-owned GP word at 0x06C. */
 // FUN_0011C780 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
 /* measured: rule 2 confirmed — with the multiplications written ratio-first

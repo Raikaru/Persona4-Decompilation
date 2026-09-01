@@ -240,6 +240,59 @@ contain such a comparison produced no match and made five worse, because the
 form has to agree with retail's actual branch at that row. The mirror case is
 `x <= K` → `x < K+1`.
 
+**Operand swap is a second, distinct form of the same lever, and is now the
+highest-yield single trick in this campaign.** Where `>= K` → `> K-1` changes
+the *operator*, this changes the *operand order* while preserving the sense:
+write `a < b` as `b > a`, `x >= y` as `y <= x`. That changes which operand
+reaches the `slt` first and therefore which register the result is assigned.
+It is validated by the `compare_destination` experiment in the mwccps2-debugger
+corpus (`~/mwccdbg/experiments/compare_destination/`), which asks exactly this
+question of b210 and answers yes.
+
+Measured closures and near-misses from the swap and its relatives:
+
+- `cmmMisc func_002480e0` — rewriting a max test as
+  `temp_3 <= (s32)*(u16 *)(var_18 + 6)` took nd 2 → MATCH with no other edit.
+- `btlAICommand func_001dea90` — reversing the second-loop test to
+  `if (random > total)` made that entire loop exact including `slt $at`,
+  taking the function nd 9 → 7.
+- `code1_0035 func_00356870` — spelling the range check inclusively as
+  `>= lower && <= upper` corrected condition register allocation, nd 10 → 0
+  once combined with a direct-field `> 0x168` tail.
+
+As with the operator form, this is **per-comparison**: apply it to the single
+comparison feeding the differing row, not across the function.
+
+## Shared-tail joins: assign one result in every arm, return once
+
+A distinct branch-shape residual, and it has a reliable recipe. Symptom: the
+conditional branches are present and correct but their *targets* are wrong —
+retail branches to an earlier address than the candidate, because retail has a
+shared join block that the candidate lacks. Typically the candidate either
+duplicates the tail inside each arm (so there is nothing to branch to) or has a
+statement between the arms that blocks the merge.
+
+The fix is not a label or a `goto`. Both were tried on `code1_004b
+func_004b53c0` and left it at nd 2. What works:
+
+1. Separate the working variable from the returned one (`work` and `result`).
+2. Assign `result = work` at the **tail of every arm**.
+3. Return `result` exactly once, at the end.
+
+That took `func_004b53c0` nd 2 → MATCH, reproducing retail's `beqz` pair both
+targeting the shared join at `0x4b5490`. The diagnostic that pins it down:
+putting a `return` inside one arm makes the branch targets correct but adds a
+`move` and a `b`. The extra `move` means retail's value is already in the
+return register (so both arms must assign the *same* variable), and the extra
+`b` means one arm should fall through into the tail rather than jump to it.
+When you see that move+b pair appear, the shared-result shape is the answer.
+
+Do not confuse this with the unreachable shared-tail floor recorded under
+"Known compiler floors", where retail emits `bne` plus an unconditional `b` to
+a shared tail and b210 merges to a single `beq` (`code1_0028 func_0028c3f0`,
+`cmmCommunity`). That one is about the *number* of branches and does not yield;
+this one is about their targets and does.
+
 ## b210 accepts 386 pragmas — sweep them before declaring a floor
 
 This campaign spent a long time using **19** pragma spellings. `mwccps2.exe`

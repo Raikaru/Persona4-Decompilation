@@ -691,8 +691,78 @@ s32 func_001f0ff0(u32 arg0)
 }
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma optimization_level 2
+/* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
+#pragma opt_loop_invariants on
 // FUN_001F1030
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f1030);
+s32 func_001f1030(u8 *arg0)
+{
+    u8 *value;
+    s32 i;
+    s32 j;
+    u16 count;
+    u8 state;
+    u8 *base;
+    u8 *unit;
+    u8 *pointer;
+
+    base = *(u8 **)(arg0 + 0x30);
+    state = *(u8 *)(base + 0xA2);
+    if ((*(u16 *)(arg0 + 0x1A) & 1) != 0) {
+        pointer = *(u8 **)(base + 0xA64);
+        if (pointer != NULL && func_00232710((s32)pointer, 0x100) != 0) {
+            if ((state & 0xFF) == 0) {
+                value = (u8 *)1;
+            } else {
+                value = NULL;
+            }
+            state = (u32)value & 0xFF;
+        }
+    }
+    count = *(u16 *)(arg0 + 0x6A);
+    if ((s32)count < 2) {
+        if (count != 1) {
+            goto single_done;
+        }
+        unit = *(u8 **)(arg0 + 0x38);
+        if ((*(u16 *)(unit + 0x1A) & 1) == 0) {
+            return 0;
+        }
+        base = *(u8 **)(unit + 0x30);
+        if (*(u8 *)(base + 0xA2) != (state & 0xFF)) {
+            return 0;
+        }
+        i = 0;
+        goto single_test;
+    single_loop:
+        if ((*(u16 *)(unit + ((u16)i << 5) + 0x10E) & 0x20) != 0) {
+            return 1;
+        }
+        i = (i + 1) & 0xFFFF;
+    single_test:
+        if ((i & 0xFFFF) < *(u8 *)(unit + 0xD9)) {
+            goto single_loop;
+        }
+    single_done:
+        return 0;
+    }
+
+    j = 0;
+    goto many_test;
+many_loop:
+    unit = *(u8 **)(arg0 + ((u16)j * 4) + 0x38);
+    if ((*(u16 *)(unit + 0x1A) & 1) != 0 &&
+        *(u8 *)(*(u8 **)(unit + 0x30) + 0xA2) != (state & 0xFF)) {
+        return 0;
+    }
+    j = (j + 1) & 0xFFFF;
+many_test:
+    if ((j & 0xFFFF) < count) {
+        goto many_loop;
+    }
+    return 1;
+}
+/* measured: close opt_loop_invariants after func_001f1030 probe. */
+#pragma opt_loop_invariants off
 // FUN_001F11E0
 s32 func_001f11e0(s64 arg0) {
     u8 *base;
