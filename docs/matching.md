@@ -267,6 +267,21 @@ Rules of engagement:
   2. declaration order matching retail's `$s` list, highest first;
   3. explicit AND only where retail materialises the mask; `u16` conversions
      everywhere else.
+
+  **Refinement — a local that first becomes live after an intermediate call
+  cannot outrank one that is already assigned.** Every probe behind the rule
+  had all locals live from before the first call. `func_00106f40` showed the
+  boundary: retail has `$s1 = arg0 & 0xffff` and `$s0 = call-result`, with
+  `j` initialised only after that call. Declaring `j, mask, result` and
+  writing the mask after the call still gave `$s1 = result, $s0 = mask` —
+  because at the call site where `result` first needs a register, `mask` is
+  not yet live, so `result` takes the higher slot. Initialising `j` before
+  the call restored retail's mapping but emitted the `j = 0` at the wrong
+  offset. So the list is evaluated per call site over the values live there;
+  to place a later value above an earlier one it must already be live at the
+  call where the earlier one is assigned. Measured in isolation, declaration
+  order still wins whenever both are live at the same first call
+  (`q1`/`q2`), so the base rule stands; this is the exception at the edge.
 - **Saved-FPR count tells you whether retail cached a float across a call.**
   `f20`–`f23` are only allocated when a float value must survive a call. If
   retail's prologue saves none and yours saves two, the frame-size gap is

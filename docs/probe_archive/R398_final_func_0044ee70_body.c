@@ -1,4 +1,4 @@
-/* object 256 / window 256 / normalized_diff 6; differing offsets 0xC8 and 0xCC (retail sh $0,8($v0) then daddu $a0,$v0,$0; candidate reverses those words). STORE-vs-ARGUMENT ORDER residual. Current re-measure after declaration correction remains nd 6. Newly ruled out in this wave: func_0046d730(void *, s32) and func_0044e920(E8Node *) parameter declarations (with required E8Node * cast), plus the existing named-pointer, store-destination, comma-sequenced store, typed free-call prototype, return-type, separate-local, and other sdkChkmem_ee70 archive probes. */
+/* object 256 / window 256 / normalized_diff 6; differing offsets 0xC8 and 0xCC (retail sh $0,8($v0) then daddu $a0,$v0,$0; candidate reverses those words). Best candidate retained after clause-1 audit: func_0046d730 receives D_007104E0 in $a0 and 0x670 in $a1; func_0044e920 uses only the block+0xC $a0 argument. Clause 2 does not apply (no constant is both stored and passed). Typed/old-style prototypes, u16 store, and post-store pointer split remained nd 6; classify as independent-instruction hazard scheduling. */
 void func_0044ee70(u8 *arg0)
 {
     s32 lock;
