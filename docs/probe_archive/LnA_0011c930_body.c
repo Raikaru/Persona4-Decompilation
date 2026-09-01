@@ -10,6 +10,13 @@
    optimization_level, schedule, and no-branch alternatives. Retained
    opt_propagation off because it fixes the retail prologue load order but not
    this output-color residual. */
+/* Follow-up probe: retail has no byte-consuming call after `sb $a0`; the
+   immediately following `lh $v1, 0x514($s0)` was hoisted before the
+   packed-byte tail into a named s16 local. Object remained 448B/window 448B
+   but the residual expanded to 45 differing words. Cache aliases were
+   coalesced even under the scoped `opt_propagation off`; the best body above
+   remains nd5 after relocation masking, with all six accumulator operations
+   still reproduced. */
 void func_0011c930(u8 *arg0)
 {
     s32 n; s32 a; s32 b; s16 raw; f32 diff; f32 f_abs; f32 acc; f32 ratio; f32 lo; f32 hi; f32 base; f32 delta;

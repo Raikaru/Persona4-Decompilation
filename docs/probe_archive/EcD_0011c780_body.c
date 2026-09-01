@@ -1,4 +1,10 @@
 /* func_0011c780; object 428B; retail window 432B; best normalized_diff 6 (fndiff differing words, including relocation-owned word); visible differing offsets 0x130, 0x138, 0x154, 0x158, 0x15C; relocation-owned GPREL offset 0x06C (iGpffff8094). Best candidate uses #pragma opt_propagation off, which fixes the retail lh/lwc1 prologue order; no pragma was retained after fallback. Confirmed explicitly: plain C reproduces all six retail COP1 accumulator-chain ops (adda.s/madd.s) byte-for-byte; the chain itself is not the floor. Hex-Rays and Ghidra agree on the clamp/interpolation, two FMA chains, byte interpolation, 0x4F000000 conversion guard, and final flag clear. Ruled out: direct duplicated stores, ternary/shared-mask variants, signed/unsigned/char output locals, declaration permutations and first-use reorderings, raw-first and inline conversion forms, pointer aliases, integer-parameter aliases, register-qualified parameters, four-argument ABI declarations, comparison polarity/spelling variants, no-op liveness reservations, union guard constant, opt_common_subs, opt_rebuildconditionals, schedule, no_branch_likely, and optimization_level 1 probes.
+/* Follow-up probe: retail has no byte-consuming call after `sb $a0`; the
+   immediately following `lh $v1, 0x514($s0)` was hoisted before the
+   packed-byte tail into a named s16 local. Object remained 428B/window 432B
+   but the residual expanded to 46 differing words. Cache aliases were
+   coalesced; the best body above remains nd6 including its relocation (five
+   visible tail words). */
 void func_0011c780(u8 *arg0)
 {
     f32 diff;
