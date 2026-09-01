@@ -173,10 +173,82 @@ Rules of engagement:
   preventing the compiler from scheduling its address calculation before the
   call. `volatile` is banned by `docs/STYLE.md` unless the function carries a
   `measured` waiver.
-- **Declaration order sets callee-saved allocation.** Natural declaration
-  order (not reverse) tends to reproduce retail's `s0/s1` assignment. A
-  **param vs surviving-local fight over `s0`** is generally a floor, not a
-  source problem.
+- **THE saved-register assignment rule — measured, deterministic, no
+  exceptions in 20 probes.** This replaces the earlier "declaration order
+  tends to" hint and the "param vs local fight is a floor" claim, both of
+  which were symptoms of not knowing the rule. b210 assigns callee-saved GPRs
+  like this:
+
+  1. Build one ordered list: **parameters in parameter order, then locals in
+     declaration order.**
+  2. Drop every value that does not survive a call — those never get an `$s`
+     register at all.
+  3. Assign from the **highest** `$s` register downward: first in the list
+     gets `$s3` (or whatever the top is), last gets `$s0`.
+
+  ```c
+  s32 k1(s32 a, s32 b, s32 *p) { s32 x, y; x = p[0]; y = p[1]; call(); ... }
+  /*  a -> s3,  b -> s2,  x -> s1,  y -> s0                                */
+  s32 k2(s32 a, s32 b, s32 *p) { s32 y, x; x = p[0]; y = p[1]; call(); ... }
+  /*  a -> s3,  b -> s2,  y -> s1,  x -> s0     -- only the declaration moved */
+  ```
+
+  Things that were measured and do **NOT** affect it: first-use order,
+  last-use order, how many calls a value survives, whether it is an `int` or a
+  pointer, whether it is declared in an inner block, and whether it comes from
+  a load or a call result (a call result is just a local, ranked by where it
+  is declared). A local assigned from a parameter (`ca = a;`) is coalesced
+  into the parameter's slot and cannot be ranked as a local. A value that dies
+  before the first call takes no slot, and a later value can then reuse the
+  register it would have had.
+
+  **How to use it.** Read retail's prologue and list which value sits in each
+  `$s` register. Then order your declarations so that the value in the
+  highest register is declared first, and so on down. That is the whole
+  procedure; it is no longer trial and error.
+
+  **What it says about the old "param vs local fight".** Parameters always
+  precede locals in the list, so a parameter can never sit *below* a local.
+  If retail shows a local in `$s1` and a parameter in `$s0`, retail's source
+  did not have that shape: either the "parameter" is dead before the call and
+  what you see in `$s0` is something else, or the "local" is really a
+  parameter and the signature is wrong, or the parameter is re-read from
+  memory after the call rather than preserved. That is a diagnosis, not a
+  floor.
+
+  Two entries above still apply within the rule: splitting a value into two
+  named locals or collapsing two into one changes *which names are in the
+  list*, which is why it moved colouring; and the saved-FPR entry below is the
+  same rule for `$f20`–`$f23` (verified: `g1`/`g2`/`g3` probes rank FPRs
+  identically, params first then declaration order, highest first).
+
+  **The second clause, and why `opt_propagation off` works.** Under default
+  propagation, any local derived from a parameter — `x = a;`, `x = (u16)a;`,
+  `x = a & 0xffff;`, even a `u16` parameter itself — is coalesced into the
+  parameter's slot: the compiler keeps the parameter in the saved register and
+  applies the operation at each use. That is why a local can never outrank a
+  parameter. **Under `#pragma opt_propagation off`, the operation is performed
+  at the assignment and the result is a genuine local, ranked by its
+  declaration position.** Measured:
+
+  ```c
+  #pragma opt_propagation off
+  s32 p3(s32 a, s32 *p) { s32 m1, m2, m3; s32 i; s32 x;
+      m1 = p[0]; m2 = p[1]; m3 = p[2]; i = 1; x = a & 0xffff; call(); ... }
+  /*  m1->s4  m2->s3  m3->s2  i->s1 (li s1,1)  x->s0 (andi s0,a0,0xffff)  */
+  ```
+
+  That prologue — a masked parameter in the LOWEST saved register with locals
+  above it, and a counter initialised with `li` — is exactly the shape of
+  `func_002483c0` (nd 7, retail `andi $s2,$a0,0xffff` under `$s3`–`$s6`),
+  which was archived as a colouring floor after declaration-order swaps
+  "didn't work". They cannot work under default propagation, because the
+  masked value is not in the list at all. The recipe for that whole class:
+  measured `opt_propagation off` around the function **and** declare the
+  parameter-derived local at the position retail's register implies.
+
+  So the pragma is not a blunt instrument here. It changes *which names are
+  in the list*, and once you know the list you can place every value.
 - **Saved-FPR count tells you whether retail cached a float across a call.**
   `f20`–`f23` are only allocated when a float value must survive a call. If
   retail's prologue saves none and yours saves two, the frame-size gap is
