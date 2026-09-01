@@ -1,4 +1,4 @@
-/* measured: object 348B, retail window 352B, normalized_diff 18; differing offsets 146,150,166,170,174,186,198,202,206,218,226,274,277,278,282,290; corrected target call shape with block-scope func_00454d20(u8 *,u8 *) and func_00456400(s32,s32,s32,u8 *), explicit pointer-to-int casts; residual is inner-loop register coloring. */
+/* measured: object 348B, retail window 352B, current normalized_diff 32; the archived header's nd18 is stale and no longer reproduces. The body remains the archived D456 candidate; current compile colors the inner-loop counter/constants differently from retail. */
 void func_00456530(u8 *arg0, u8 *arg1, s32 arg2) {
     extern void func_00454d20(u8 *arg0, u8 *arg1);
     extern void func_00456400(s32 arg0, s32 arg1, s32 arg2, u8 *arg3);

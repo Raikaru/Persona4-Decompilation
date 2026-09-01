@@ -1299,50 +1299,7 @@ u8 func_001de800(u8 *p) {
    vs retail `move $a2,$zero`). A `<= 4` guard variant measured nd43. The
    discarded body is archived in build/WCBattleUI_btlAICommand_prepark_validate.c. */
 // FUN_001DEA90 NONMATCHING
-u8 *func_001dea90(u8 *p, u16 index)
-{
-    extern u32 func_00231d70();
-    u8 *node;
-    u8 *base;
-    u8 *result;
-    u32 i;
-    u32 sum;
-    u32 random;
-    u32 weight;
-
-    node = iGpffffb3d0 + *(u16 *)(*(u32 *)(p + 0x30) + 0xA4) * 164;
-    base = node;
-    sum = 0;
-    i = 0;
-    node += (index & 0xffff) * 40;
-    while ((u16)i < 5) {
-        sum = (sum + *(u8 *)(node + (i & 0xffff) * 8 + 0x2c)) & 0xffff;
-        i = (i + 1) & 0xffff;
-    }
-    if ((sum & 0xffff) != 0)
-        goto choose;
-    result = (u8 *)&iGpffffa2a8;
-    goto ret;
-choose:
-    random = func_00231d70((u32)base) & 0xffff;
-    sum = 0;
-    i = 0;
-    while ((u16)i < 5) {
-        weight = *(u8 *)(node + (i & 0xffff) * 8 + 0x2c);
-        sum = (sum + weight) & 0xffff;
-        if (sum < random)
-            goto advance;
-        if (weight <= 0)
-            goto advance;
-        result = node + (i & 0xffff) * 8 + 0x2c;
-        goto ret;
-advance:
-        i = (i + 1) & 0xffff;
-    }
-    result = 0;
-ret:
-    return result;
-}
+INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dea90);
 /* measured: MATCH. Two keys the earlier floor notes missed: (1) c is
    REASSIGNED from func_0029de20's return in the type==0 branch
    (`c = func_0029de20(v, buf);`), so c stays in scratch $v0 at the merge
