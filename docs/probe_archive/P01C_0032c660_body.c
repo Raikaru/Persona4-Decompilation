@@ -1,0 +1,1 @@
+/* object 7952B baseline / window 7952B / normalized_diff N/A (durable prior floor classification; no C measurement in current wave); differing offsets: s64 argument normalization across 26x 2970, 17x 69f0, 8x 68d0, 6x 6c30, and 6x 7750 draw-family calls; classification: s64-parameter-normalization floor; ruled out matched-caller extern declarations/widths; no source probing. */

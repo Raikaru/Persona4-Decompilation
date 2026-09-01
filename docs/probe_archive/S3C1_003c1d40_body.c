@@ -1,0 +1,1 @@
+/* compiler floor: retail contains COP1 accumulator chain at offsets 0x70-0x7c: mula.s $f1,$f1; madda.s $f2,$f2; madd.s $f0,$f0,$f0. Plain C cannot reproduce this MWCC accumulator instruction family under the campaign floor policy; no candidate body attempted. Prologue saves s2/s1/s0 and f20; signature inferred as (u8 *arg0, u8 *arg1). */

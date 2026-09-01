@@ -1,0 +1,1 @@
+/* floor: retail contains COP1 accumulator-chain instructions mula.s, madda.s and madd.s at offsets 0x8C, 0x90 and 0x98; plain MWCCPS2 C cannot emit this chain and inline asm is prohibited for ordinary COP1 computation. No C body attempted. */

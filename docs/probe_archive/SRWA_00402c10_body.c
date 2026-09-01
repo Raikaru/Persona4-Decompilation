@@ -1,0 +1,1 @@
+/* FLOOR: privileged COP0 sequence di/sync.p/mfc0 $c0_sr/ei at retail +0x8C..+0xD0, plus standalone MMI pcpyld at +0x34/+0x50/+0x6C/+0x84 (no COP2 in same statements; H009). Prologue frame 0x10, no saved s registers, no ordinary C attempt. */

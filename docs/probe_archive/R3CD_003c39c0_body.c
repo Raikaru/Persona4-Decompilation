@@ -1,0 +1,2 @@
+/* FLOOR: retail movz $s1,$zero,$v0 at offset 0xDC (normalized compiler floor); object/window 288B/288B; triage stopped before body/probes; ruled out plain-C ternary/if assignment by movz floor rule, COP1 accumulator chain absent, standalone MMI absent, framed tail-jump absent, sd/sq mixed-unit floor absent. Retail prologue: frame 96B, saved s2/s1/s0 (3 long-lived locals), incoming a0/a1. */
+/* No candidate retained; source fallback remains byte-identical INCLUDE_ASM. */

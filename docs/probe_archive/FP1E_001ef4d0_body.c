@@ -1,0 +1,45 @@
+/* current remeasure: object 284B, window 288B, normalized_diff 10; differing byte offsets 224, 227, 232, 234, 235, 236, 239, 240, 242, 243. Pair residual is the same tail branch-shape defect as func_001ef5f0 (retail bnez/inline addiu/b versus candidate beqz/out-of-line addiu); switch, explicit default/goto, inverse-goto, else, and boolean-switch forms ruled out; restored fallback. */
+s32 func_001ef4d0(s32 arg0, s32 arg1)
+{
+    extern s32 func_00231e20(s32 arg0);
+    u8 *current;
+    u8 *entry;
+    s32 total;
+    s32 count;
+    s32 mask;
+    s32 count_mask;
+    s32 value;
+
+    total = 0;
+    count = 0;
+    current = *(u8 **)(iGpffffb3ac + 0x174);
+    mask = arg0 & 0xFFFF;
+    while (current != NULL) {
+        if ((*(u16 *)(current + 0x1A) & 1) != 0) {
+            entry = *(u8 **)(current + 0x30);
+            if ((mask & (1 << *(u8 *)(entry + 0xA2))) != 0) {
+                if ((arg1 == 0) ||
+                    (func_00232710(*(s32 *)(entry + 0xA64), arg1) == 0)) {
+                    total = (total +
+                             (func_00231e20(*(s32 *)(entry + 0xA64)) & 0xFF)) &
+                            0xFFFF;
+                    count = (count + 1) & 0xFFFF;
+                }
+            }
+        }
+        current = *(u8 **)(current + 0x450);
+    }
+    count_mask = count & 0xFFFF;
+    if (count_mask == 0) {
+        value = 1;
+        goto done_value_4d;
+    }
+    value = ((total & 0xFFFF) / count_mask) & 0xFFFF;
+    switch (value) {
+    case 0:
+        value = 1;
+        break;
+    }
+done_value_4d:
+    return value;
+}

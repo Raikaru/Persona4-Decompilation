@@ -1,0 +1,1 @@
+/* Compiler floor: retail 00391400 contains standalone MMI `paddub` at 0x00391980 (`paddub $v0,$v1,$zero`) outside COP2, forbidden for plain C (H009), plus COP1 accumulator chain beginning 0x003919D8 (`mula.s`/`msub.s`/`madda.s`). No candidate installed; INCLUDE_ASM remains. Retail prologue frame 0x3A0 (928B), saved s0-s8 (9), incoming a0/a1/a2/a3 with a2/a3 homed. */

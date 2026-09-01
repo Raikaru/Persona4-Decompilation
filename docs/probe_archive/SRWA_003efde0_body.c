@@ -1,0 +1,1 @@
+/* FLOOR: retail has movz $v0,$a0,$v1 at +0x50 (delay slot of b .L003EFF20); conditional move is compiler floor. Prologue is frameless, args a0 and a1..a3 plus t0..t4 integer values/pointers; retail window 336 bytes. No C attempt. */

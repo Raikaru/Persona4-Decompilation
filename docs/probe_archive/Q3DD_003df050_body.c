@@ -1,0 +1,6 @@
+/* object 356B/window 336B/normalized_diff 254; differing offsets 4-8,10-12,14,16,18,20-24,...; classification OVERSIZED; no movz/movn, COP1 accumulator, standalone MMI, framed tail jump, or custom COP1 opcode observed. Corrected dEea0 ABI usage to (s32 handle, four output pointers) and reconstructed the retry/range-check logic; separate error locals and direct C shape overfilled the retail frame, so archived and restored immediately. */
+s32 func_003df050(s32 arg0, s32 arg1, u32 *arg2, u32 *arg3) {
+    extern s32 func_003deea0(s32,u32*,u32*,u32*,u32*); extern s32 func_003e2ce0(s32,s32); extern s32 func_003df590(s32); extern void func_003df4d0(void*);
+    u32 out3,out2,out1; s32 error1,error1_result,error2,error2_result;
+    if (func_003deea0(arg0,&out3,&out2,&out1,NULL)!=0) { loop: if (out3==(u32)arg1) { if (out1>=0x35000U) { if (out1<0x37003U) { if(arg2)*arg2=out2; if(arg3)*arg3=out1; return 1; } error1=1; error1_result=func_003df590(0x80000004); func_003df4d0(&error1); goto done; } error2=1; error2_result=func_003df590(0x80000004); func_003df4d0(&error2); goto done; } if(func_003e2ce0(arg0,out2)!=0) { if(func_003deea0(arg0,&out3,&out2,&out1,NULL)==0) goto done; goto loop; } } done: return 0;
+}

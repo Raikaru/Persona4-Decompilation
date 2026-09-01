@@ -1,0 +1,2 @@
+/* object 1600B vs window 1600B, normalized_diff 0 (ASM), differing offsets none; classification triaged only (no confirmed compiler-floor instruction in this function), no body probe per lane assignment due 1600-byte window. */
+/* Retail-only observation: framed 0x1860 function copies eleven constant tables into stack buffers, dispatches through a 13-entry jump table on arg3, invokes func_00265f40 for palette branches, and emits a 4-byte color/alpha record before func_0045d6e0. */

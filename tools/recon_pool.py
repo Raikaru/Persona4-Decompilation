@@ -12,7 +12,7 @@ reasons and respond to different work:
 
   --pool nearmiss (default) functions still INCLUDE_ASM that already carry an
                   archived body scoring 0 < nd <= 25. Their nd is recovered by
-                  parsing the archive notes under build/. This is the pool with
+                  parsing the archive notes under docs/probe_archive/. This is the pool with
                   volume left in it. Permuting their spelling is a measured
                   zero; re-deriving their logic from the retail disassembly is
                   not, which is how func_0028b6b0 closed from a parked nd 8.
@@ -79,7 +79,7 @@ def archives():
     alone overstates the attempted population badly.
     """
     best = {}
-    for path in glob.glob(os.path.join(REPO, "build", "*")):
+    for path in glob.glob(os.path.join(REPO, "docs", "probe_archive", "*")):
         name = os.path.basename(path)
         if os.path.splitext(name)[1].lower() not in (".c", ".txt"):
             continue

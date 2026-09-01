@@ -1,0 +1,2 @@
+/* object_size=2832; window=2832; normalized_diff=0; differing_offsets=none; classification=COP1_ACCUMULATOR_CHAIN_FLOOR; floor_instruction=retail uses repeated adda.s/madd.s accumulator chains in the particle/vector coordinate generation path; ruled_out=no movz/movn, no standalone MMI, no framed tail-j forwarder, no ee-gcc sd sN signature; no C probe run because inline COP1 MAC is banned by H009. */
+/* Triage at 15:40:36 UTC; untouched ASM fallback retained. */

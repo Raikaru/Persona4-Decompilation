@@ -1,0 +1,1 @@
+/* FLOOR: retail has movz $t2,$t0,$a0 at +0x4C (delay slot of b .L003F9844); conditional move is compiler floor. Frameless, args a0/a1 plus output pointers a2/a3, no saved s registers, window 336 bytes. */

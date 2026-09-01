@@ -1,0 +1,48 @@
+0032c480 reconstruction archive (not compiled source)
+
+Best measured candidate: fndiff differing words 65, object 480, retail window 480. The one final inline-color probe was worse: fndiff differing words 81, object 480/window 480; it was discarded. Verifier remained one MISMATCH for this function.
+
+Recipe:
+- Keep obj as u8* loaded from arg0+0x38; use typed FclVec2 sp38 for the 2970 output aggregate.
+- Keep color result c as s32 and index as u16; keep n as s16. The 002b2a30 result is named c and passed as the first 275820 argument.
+- Use the 140.0f, 101.0f, 1.0f constants for 275820; the earlier 55.0f spelling produced 0x425c rather than retail 0x430c.
+- Use the interleaved 00330e50 declaration already present in the TU, and declare 00275820 as (s32,s32,s32,s32,s32,s32,u8*,s32,f32,f32,f32) and 00279350's seventh argument as (u8*).
+- Use iGpffffb440 + index*0x11 for the table address; its data symbol was added to config/symbol_data_addrs.txt at 0x00764530 with retail-load evidence.
+
+Best body:
+void func_0032c480(u8 *arg0) {
+    u8 *obj;
+    FclVec2 sp38;
+    s32 c;
+    s16 n;
+    u16 index;
+
+    obj = *(u8 **)(arg0 + 0x38);
+    c = func_002b2a30(0, 0, 0, 0xFF);
+    index = *(u16 *)(func_002e48a0(0, *(s16 *)(obj + 0x11E)) + 2);
+    func_00275820(c, 0, 2, iGpffffb440 + index * 0x11, 0, 0,
+                  D_00796310, 0x15, 140.0f, 101.0f, 1.0f);
+    n = (s16)((func_00109280(*(u16 *)(func_002e48a0(0, *(s16 *)(obj + 0x11E)) + 2)) & 0xFF) + 0x1B);
+    func_002b2970((s64 *)&sp38, 54.0f, 103.0f);
+    func_00330e50(n, *(s64 *)&sp38, 1.0f, 0xFF000000, 0xFF, 1,
+                  1.0f, 1.0f, D_00796310);
+    n = (s16)func_00331640();
+    func_00279350(-1, 1, 0, 1, n,
+                  *(u16 *)(func_002e48a0(0, *(s16 *)(obj + 0x11E)) + 2),
+                  D_00796370, 54.0f, 138.0f, 1.0f);
+    func_0034a640(*(s32 *)(obj + 0x254),
+                  *(u16 *)(func_002e48a0(0, *(s16 *)(obj + 0x11E)) + 2), 1);
+    *(s8 *)(func_0034a630(*(s32 *)(obj + 0x254)) + 1) = 0;
+    func_0011d1d0(*(s32 *)(*(u8 **)(*(u8 **)(obj + 0x148) + 0x38) + 4),
+                  1000.0f);
+}
+
+Register map from best fndiff:
+- Retail obj=$s1, c/color result=$s0; candidate obj=$s0, c/color result=$s1.
+- Retail later n/result is kept in $s0; candidate keeps it in $s1.
+- Retail computes 2e48a0's object-index address after move-a0; candidate emits lh before move-a0 at each site.
+- Retail aggregate is sp+0x38; candidate aggregate is also sp+0x38 and its 2970 call matches.
+
+Best residual rows (retail/candidate) after the 140.0f correction: 0x10 lw s1 vs s0; 0x30/0x34 move a0 then lh(s1) vs lh(s0) then move a0; 0x6c move a0 s0 vs s1; 0x94/0x98 n in s0 vs s1; 0xdc/0xe0 retail f12 setup then move a0 s0/ld a1 vs candidate sign-extend n then f12 setup; 0x114 onward post-31640 register/lifetime rotation; 0x1d8 onward the repeated object loads use s1 vs s0; and 0x1bc/0x1c0 call-tail scheduling differs. All are above the nd<=25 park threshold.
+
+Ruled out: direct untyped/global member accesses; integer pointer arithmetic spellings; s32/s64 parameter variants; separate float locals versus FclVec2 aggregate; f20 declaration/reordering/splitting; explicit/default pointer-order variants; moving the 00330e50 argument materialization; and the final inline-short-lived c/color expression (nd81). The remaining saved-register rotation and call-argument scheduling are not byte-exact; source body therefore reverted to bare INCLUDE_ASM.

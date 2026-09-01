@@ -1,0 +1,1 @@
+/* object 2800B baseline / window 2800B / normalized_diff N/A (durable prior floor classification; no C measurement in current wave); differing offsets: M2C unaligned ldr/ldl reconstruction around packed/stack data and 0x147e0 call; classification: unaligned-load floor; ruled out by confirmed retail aligned call sequence and documented M2C_ERROR on ldr/ldl; no source probing. */

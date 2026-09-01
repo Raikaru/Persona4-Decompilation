@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Classify every archived near-miss body by the shape of its residual.
 
-Waves archive near-misses under build/<LANE>_<addr>_body.c and revert the
+Waves archive near-misses under docs/probe_archive/<LANE>_<addr>_body.c and revert the
 source, which keeps the tree honest but throws away the diagnosis. This
 re-installs each body in turn, runs tools/fndiff.py, and buckets the result, so
 a defect shared by many functions shows up as a family worth one lever rather
@@ -43,7 +43,7 @@ def main() -> int:
     where = {r["name"]: r["file"].replace("\\", "/") for r in report}
 
     found = defaultdict(list)
-    for archive in sorted((REPO / "build").glob("*_body.c")):
+    for archive in sorted((REPO / "docs" / "probe_archive").glob("*_body.c")):
         match = re.search(r"([0-9a-fA-F]{8})", archive.name)
         text = archive.read_text(errors="replace")[:400]
         nd = re.search(r"normalized[_ ]diff[ =:]*(\d+)", text) or \
@@ -55,7 +55,7 @@ def main() -> int:
         if not source:
             continue
         proc = subprocess.run(
-            [sys.executable, "build/probe_archive.py", str(archive), source],
+            [sys.executable, "tools/probe_archive.py", str(archive), source],
             cwd=REPO, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         out = proc.stdout
         head = re.search(r"obj (\d+)B\s+window (\d+)B", out)

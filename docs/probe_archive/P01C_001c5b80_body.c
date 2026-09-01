@@ -1,0 +1,1 @@
+/* object 2528B / window 2528B / normalized_diff 0; differing offsets: none (ASM baseline); classification: COP1 accumulator-chain floor; confirmed retail adda.s/madd.s at +0x3E8/+0x3EC and adda.s/madd.s or msub.s at +0x6AC..+0x6C4, which plain MWCC C cannot emit; ruled out movz/movn, standalone MMI, framed tail-jump forwarder, and ee-gcc sd $sN signature; no source probing. */

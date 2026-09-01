@@ -1,0 +1,1 @@
+/* func_003ebff0 best candidate object=292 window=288 normalized_diff=206 differing_offsets=0,8,16,18,24,26,27,32,34,38,40,42,44,45,46,47 classification=oversized; deficit alternate=3 instructions short at obj276/nd177; frame=48/saved-s=1/f20-f22/arg=f12; ruled_out=typed callee prototype, K&R callee (double-promotion bloat), reciprocal-local variants */

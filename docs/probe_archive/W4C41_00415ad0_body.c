@@ -1,0 +1,88 @@
+#pragma schedule on
+void func_00415ad0(u8 *arg0, u8 *arg1)
+{
+    struct {
+        f32 m00;
+        f32 m01;
+        f32 m02;
+        u32 mode;
+        f32 m10;
+        f32 m11;
+        f32 m12;
+        u32 pad1;
+        f32 m20;
+        f32 m21;
+        f32 m22;
+        u32 unused;
+        u32 pad2;
+        u32 pad3;
+        u32 pad4;
+    } matrix;
+    f32 xx;
+    f32 yy;
+    f32 zz;
+    f32 yz;
+    f32 zx;
+    f32 xy;
+    f32 wx;
+    f32 wy;
+    f32 wz;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+    f32 value30;
+    f32 value34;
+    f32 value38;
+
+    x = *(f32 *)(arg1 + 8);
+    y = *(f32 *)(arg1 + 0xC);
+    z = *(f32 *)(arg1 + 0x10);
+    w = *(f32 *)(arg1 + 0x14);
+    xx = x * x;
+    yy = y * y;
+    zz = z * z;
+    yz = y * z;
+    zx = z * x;
+    xy = x * y;
+    wx = w * x;
+    wy = w * y;
+    wz = w * z;
+    matrix.m00 = 1.0f - (yy + zz) * 2.0f;
+    matrix.m01 = (xy + wz) * 2.0f;
+    matrix.m02 = (zx - wy) * 2.0f;
+    matrix.mode = 3;
+    matrix.m10 = (xy - wz) * 2.0f;
+    matrix.m11 = 1.0f - (xx + zz) * 2.0f;
+    matrix.m12 = (yz + wx) * 2.0f;
+    matrix.pad1 = 0;
+    matrix.m20 = (zx + wy) * 2.0f;
+    matrix.m21 = (yz - wx) * 2.0f;
+    matrix.m22 = 1.0f - (xx + yy) * 2.0f;
+    matrix.unused = 0;
+    matrix.pad2 = 0;
+    matrix.pad3 = 0;
+    matrix.pad4 = 0;
+    value30 = *(f32 *)(arg1 + 0x18);
+    value34 = *(f32 *)(arg1 + 0x1C);
+    value38 = *(f32 *)(arg1 + 0x20);
+    *(f32 *)(arg0 + 0) = matrix.m00;
+    *(f32 *)(arg0 + 4) = matrix.m01;
+    *(f32 *)(arg0 + 8) = matrix.m02;
+    *(s32 *)(arg0 + 0x0C) = matrix.mode;
+    *(f32 *)(arg0 + 0x10) = matrix.m10;
+    *(f32 *)(arg0 + 0x14) = matrix.m11;
+    *(f32 *)(arg0 + 0x18) = matrix.m12;
+    *(f32 *)(arg0 + 0x1C) = matrix.pad1;
+    *(f32 *)(arg0 + 0x20) = matrix.m20;
+    *(f32 *)(arg0 + 0x24) = matrix.m21;
+    *(f32 *)(arg0 + 0x28) = matrix.m22;
+    *(s32 *)(arg0 + 0x2C) = matrix.unused;
+    *(s32 *)(arg0 + 0x30) = matrix.pad2;
+    *(s32 *)(arg0 + 0x34) = matrix.pad3;
+    *(s32 *)(arg0 + 0x38) = matrix.pad4;
+    *(f32 *)(arg0 + 0x30) = value30;
+    *(f32 *)(arg0 + 0x34) = value34;
+    *(f32 *)(arg0 + 0x38) = value38;
+}
+#pragma schedule off
