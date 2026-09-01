@@ -1162,8 +1162,52 @@ void func_0018f390(u8 *arg0)
 {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
 }
+// measured: probe propagation-off code shape with typed 16-bit operands
+#pragma opt_propagation off
 // FUN_0018F7B0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018f7b0);
+void func_0018f7b0(u8 *arg0, s16 *arg1, u16 arg2, u16 arg3, s8 arg4)
+{
+    s32 i;
+    s32 j;
+    s32 one;
+    u8 *data;
+    s32 base;
+    s32 row;
+    s32 flags;
+    s32 source_base;
+    s32 cell;
+    s32 source;
+
+    data = (u8 *)arg1;
+    one = (arg4 == arg4);
+    base = (arg2) * 0x10 + (((arg3) << 8) + (s32)arg0);
+    *(u8 *)(base + 0x2D) = one;
+    i = 0;
+    while (i < (s32)data[2]) {
+        j = 0;
+        row = base + (i << 8);
+        flags = (s32)data + i * 3;
+        source_base = (s32)data + i * 12;
+        while (j < (s32)data[1]) {
+            cell = row + (j << 4);
+            if (*(u8 *)(cell + 0x2C) == 0) {
+                *(u8 *)(cell + 0x2C) = one;
+                *(u8 *)(cell + 0x2D) |= *(u8 *)(flags + j + 13);
+                source = source_base + (j << 2);
+                *(u8 *)(cell + 0x36) = *(u8 *)(source + 0x32);
+                *(u8 *)(cell + 0x32) = data[1];
+                *(u8 *)(cell + 0x33) = data[2];
+                *(s8 *)(cell + 0x30) = *(s8 *)data;
+                *(u8 *)(cell + 0x31) = arg4;
+                *(u8 *)(cell + 0x37) = *(u8 *)(source + 0x33);
+            }
+            j += 1;
+        }
+        i += 1;
+    }
+}
+// measured: restore propagation for following functions
+#pragma opt_propagation on
 // FUN_0018F8A0
 void func_0018f8a0(u8 *arg0, u16 arg1, u16 arg2)
 {

@@ -26,7 +26,8 @@ void func_00266690(s32 arg0, s32 arg1);
 s32 func_00264ec0(u8 *arg0);
 void func_00266890(s32 arg0, u8 *arg1);
 void func_002668f0(u8 *arg0);
-void func_00364c50(void);
+void func_00364c50(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
+                   u8 *arg4, s32 arg5, s32 arg6);
 void func_00364c70(void);
 void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3,
                    s32 arg4);
@@ -300,14 +301,48 @@ void func_00265110(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
     }
 }
 
-/* discarded C candidate measured nd 166 (object 276 / window 272); retail's
-   large stack-backed vertex/color buffers and loop register schedule remain
-   non-byte-exact. */
-/* Measured nd 166 (object 276 / window 272), well above the ~25 parking
-   threshold; this full-size candidate preserves the recovered vertex/color
-   loop for future reduction. Committed at nd 166. */
+/* measured: loop-invariant probe for integer-to-float hoisting in 00265f40. */
+#pragma opt_loop_invariants on
 // FUN_00265F40
-INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00265f40);
+void func_00265f40(s32 arg0, s32 arg1, u32 arg2, s32 arg3, u8 *arg4,
+                   f32 fparg0, s32 arg5, f32 fparg1, f32 fparg2)
+{
+    typedef struct {
+        f32 x;
+        f32 y;
+    } Vec2;
+    Vec2 vertices[0x100];
+    u8 colors[0x400];
+    u32 color;
+    s32 i;
+    s32 c0;
+    s32 c1;
+    s32 c2;
+    s32 c3;
+
+    color = (arg2 << 8) | arg3;
+    i = 0;
+    c0 = (u8)(color >> 24);
+    c1 = (u8)(color >> 16);
+    c2 = (u8)(color >> 8);
+    c3 = (u8)color;
+    while (i < arg5) {
+        vertices[i].x = (f32)arg0 +
+                        fparg1 * ((Vec2 *)arg4)[i].x;
+        vertices[i].y = (f32)arg1 +
+                        fparg2 * ((Vec2 *)arg4)[i].y;
+        colors[i * 4 + 0] = c0;
+        colors[i * 4 + 1] = c1;
+        colors[i * 4 + 2] = c2;
+        colors[i * 4 + 3] = c3;
+        i += 1;
+    }
+    func_00364c50(arg0, arg1, c3, c2, arg4, c1, c0);
+    func_0045dfd0(colors, vertices, fparg0, arg5, 4, 1);
+    func_00364c70();
+}
+/* measured: closes loop-invariant probe for func_00265f40. */
+#pragma opt_loop_invariants off
 
 /* No real C body was produced for this 1600-byte window. The nd 7 result came
    from an 8-byte empty stub and is a size-deficit artifact, not a near miss. */
