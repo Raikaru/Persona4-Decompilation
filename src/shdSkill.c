@@ -310,14 +310,65 @@ loop_test:
     }
 }
 
-/* measured: same rotation as func_00115420 — retail reuses loop-1's dead
-   registers for loop 2 (counter -> $a1, key -> $a3, bound -> $a2), mwcc b210
-   assigns counter $a3 / key $a2 / bound $a1 regardless of declaration and def
-   order (probed), adding a dsll32/dsra32 in the call path. First loop, join,
-   trap and store all match. nd 25, all this rotation; temp-register rotation
-   floor. */
+/* measured: MATCH, object 368/window 368. The second-loop counter is made a
+   block-local s16 and the call uses a block-scope s16 prototype for
+   func_00115670; this makes b210 retain the counter in $a1 and sign-extend
+   through $a0 exactly as retail. The file-scope s32 prototype and helper
+   definition remain unchanged so neighboring func_00115420 and
+   func_00115670 stay MATCH. */
 // FUN_00115500
-INCLUDE_ASM("asm/nonmatchings/shdSkill", func_00115500);
+void func_00115500(u16 arg0, u16 arg1, u8 *arg2) {
+    extern void func_00115670(u8 *, s16, s32, s32);
+    s32 target;
+    s16 i;
+    s16 index;
+    s32 value;
+    s32 bound;
+    i = 0;
+    target = arg0 & 0xFFFF;
+    bound = *(u16 *)(arg2 + 0x60);
+    goto first_test;
+first_body:
+    if (target == *(u16 *)(arg2 + i * 12 + 2)) {
+        index = i;
+        goto index_done;
+    }
+    i++;
+first_test:
+    if (i < bound) {
+        goto first_body;
+    }
+    if (target == (func_00115750(arg2) & 0xFFFF)) {
+        index = 8;
+    } else {
+        index = -1;
+    }
+index_done:
+    if ((index == -1) || (index >= (s32)*(u16 *)(arg2 + 0x60))) {
+        func_0046d730(D_005E4800, 0x4A1);
+    }
+    *(u16 *)(shdSkill_addOff(index * 12, arg2) + 2) = arg1;
+    {
+        s16 j;
+        j = 0;
+        target = arg1 & 0xFFFF;
+        bound = *(u16 *)(arg2 + 0x224);
+        goto second_test;
+second_body:
+        value = *(u16 *)(arg2 + j * 12 + 0x66);
+        if (value != target) {
+            goto second_continue;
+        }
+        func_00115670(arg2, j, bound, target);
+        return;
+second_continue:
+        j++;
+second_test:
+        if (j < bound) {
+            goto second_body;
+        }
+    }
+}
 
 // FUN_00115760
 void func_00115760(u8 *arg0) {

@@ -27,6 +27,8 @@ extern s32 func_00110680(s32 a, s32 b, s32 c);
 extern s32 func_001106f0(s32 a, s32 b, s32 c, s32 d, s32 e);
 extern s32 func_00107240(s64 idx);
 extern s32 func_00107ac0(s32 idx);
+extern s32 func_00107a00(s32 idx, s32 arg1);
+extern u16 func_00108ee0(void);
 extern s32 func_001093a0(s32 idx);
 extern s8 func_00248760(s32 idx);
 extern s32 func_001077f0(u16 idx);
@@ -729,19 +731,50 @@ body:
    to 10 saved registers (best nd 30 without the ret booleanize, 82 with).
    Register-pressure + if-chain-layout floor. */
 // FUN_002480E0
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002480e0);
-/* measured (wave 14 retest — nd 66, no match): fresh reconstruction from the
-   m2c draft (u16 return, arg0=s32 counter target, p = D_00881490[0]+8,
-   8-saved-reg -0x90 frame — prologue matches retail exactly). The match
-   chain `p[0]==arg1 && p[1]==arg2 && func_00107ac0(*(u16*)(p+2))&0xFFFF
-   within [*(u16*)(p+4), *(u16*)(p+6)] && !=0xA && func_00107a00(...,3)==0
-   && *(u16*)(p+2) != func_00108ee0()&0xFFFF` compiles with a systematic
-   saved-reg rotation (my var_16/17/18 in $s3/$s2/$s1 vs retail $s0/$s1/$s2
-   — decl-order changes are neutral, nd 66) plus the documented inlined-
-   fail-skip vs retail's out-of-line booleanized match chain. func_00107a00
-   extern added as (u16, s32); func_00108ee0 as u16(void). Register-pressure
-   + Booleanize-layout floor (note's earlier best nd 30 with ret booleanize
-   avoided; not reproduced this wave). */
+u16 func_002480e0(s32 arg0, s32 arg1, s32 arg2) {
+    s32 temp_22;
+    s32 temp_3;
+    u8 *var_18;
+    s32 var_17;
+    s32 var_2;
+    u16 temp_23;
+    s32 var_16;
+
+    var_18 = D_00881490[0] + 8;
+    temp_22 = *(s32 *)(D_00881490[0] + 4);
+    var_16 = 0;
+    var_17 = 0;
+    goto loop_15;
+body_15:
+    if ((var_18[0] == arg1) && (var_18[1] == arg2)) {
+        temp_3 = (s32)(func_00107ac0(*(u16 *)(var_18 + 2)) & 0xFFFF);
+        if ((temp_3 >= (s32)*(u16 *)(var_18 + 4)) &&
+            (temp_3 <= (s32)*(u16 *)(var_18 + 6)) &&
+            ((func_00107ac0(*(u16 *)(var_18 + 2)) & 0xFFFF) != 0xA) &&
+            (func_00107a00(*(u16 *)(var_18 + 2), 3) == 0) &&
+            ((temp_23 = *(u16 *)(var_18 + 2)), (temp_23 != (func_00108ee0() & 0xFFFF)))) {
+            var_2 = 1;
+        } else {
+            var_2 = 0;
+        }
+        if (var_2 != 0) {
+            if (var_16 == arg0) {
+                return *(u16 *)(var_18 + 2);
+            }
+            var_16 += 1;
+            goto block_14;
+        }
+        goto block_14;
+    }
+block_14:
+    var_18 += 8;
+    var_17 += 1;
+loop_15:
+    if (var_17 < temp_22) {
+        goto body_15;
+    }
+    return 0U;
+}
 /* measured (wave 14 retest — nd 73 reproduced exactly; no match): draft-based
    reconstruction `while (var_20 < 0x1F) { if (func_001077f0(var_20&0xFFFF)
    && func_00107a00(var_20&0xFFFF,3)==0) { temp_2 = func_001070e0(...); ...
