@@ -490,7 +490,7 @@ Rules of engagement:
 
 Cited by 71 archives as a residual and worked by trial and error ("float
 params ahead of `u8`", "delayed first parameter read"). Twenty-two probes
-against b210 reduce it to two clauses.
+against b210 reduce it to four clauses.
 
 **1. Arguments materialise strictly left to right in parameter order, with no
 exceptions.** Loads from a pointer, GP globals, `lui`/`li` constants, values
@@ -526,6 +526,24 @@ call.
 
 Statement order is otherwise honoured exactly: a store written before the
 call is emitted before the argument loads; written after, it comes after.
+
+**3. Wide calls: stack-passed arguments (slot 9 onward) are stored FIRST,
+then registers `$a0`–`$a3`, `$t0`–`$t3` fill left to right.** A call result
+in any slot is evaluated before every load and parked in a saved register;
+the loads then run left to right and the parked value is `move`d into its
+slot at its turn.
+
+**4. An argument that shares an operand with another argument is computed
+early, and the shared loads are hoisted out of order.** `f5(p[0], p[1],
+p[2], p[0]*p[1], p[4])` emits `lw a1,4(a0)` / `lw a0,0(a0)` / `mult a3` /
+`lw a2` / `lw t0` — slot 3's product is built first from `a0`/`a1` loaded
+in reverse, and only then do slots 2 and 4 load. This is the mechanism
+behind `func_0033cc40`'s archived "cannot be made byte-exact" claim: retail
+fills its 14-argument call as `[3, 8, f12-f14, 1, 2, 4, 5, 6, 7, f15-f17]`,
+where 8 is stack-passed (clause 3) and 3 is a derived value sharing operands
+with 1 and 2 (clause 4). That order is reachable; the archived candidate had
+slot 3 as a plain load. Look at which argument is an expression over the
+others.
 
 ## Globals and addressing
 
