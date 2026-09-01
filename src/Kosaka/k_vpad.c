@@ -286,9 +286,40 @@ void func_004b5f80(RuntimeWork* work, const u8* color)
 }
 
 
-/* COP1 multiply-accumulate tail is compiler-blocked; plain C emits mul/add, and COP1 inline asm is banned. */
+/* measured: opt_propagation off is required for exact COP1 tail register coloring. */
+#pragma opt_propagation off
 // FUN_004B7300
-INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b7300);
+f32 func_004b7300(const RuntimeDistanceWork* work, s32 index)
+{
+    extern f32 func_003e4180(RuntimeVec3* vector);
+    s32 firstIndex;
+    s32 nextIndex;
+    RuntimeVec3 delta;
+    f32 total;
+    f32 length;
+    f32 sum;
+    f32 zero;
+    f32 result;
+    firstIndex = func_004b7800((const RuntimeWork*)work, index);
+    nextIndex = func_004b7800((const RuntimeWork*)work, index + 1);
+    total = 0.0f;
+
+    delta.x = work->firstVectors[nextIndex].x - work->firstVectors[firstIndex].x;
+    delta.y = work->firstVectors[nextIndex].y - work->firstVectors[firstIndex].y;
+    delta.z = work->firstVectors[nextIndex].z - work->firstVectors[firstIndex].z;
+    total += func_003e4180(&delta);
+
+    delta.x = work->secondVectors[nextIndex].x - work->secondVectors[firstIndex].x;
+    delta.y = work->secondVectors[nextIndex].y - work->secondVectors[firstIndex].y;
+    delta.z = work->secondVectors[nextIndex].z - work->secondVectors[firstIndex].z;
+    length = func_003e4180(&delta);
+    sum = total + length;
+
+    zero = 0.0f;
+    result = *(f32*)((u8*)work->config[0] + 0x2C);
+    return sum * result + zero;
+}
+#pragma opt_propagation on
 // FUN_004B7800
 s32 func_004b7800(const RuntimeWork* work, s32 index)
 {
