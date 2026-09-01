@@ -189,22 +189,52 @@ Rules of engagement:
   what produces the no-save frame. Measured on `func_0047f4d0`, where every
   scalar variant retained `f20`–`f23` (frame 0x40/0x50) against retail's
   smaller frame. Count the saved FPRs before probing anything else.
-- **`shdPersona.c` output-GPR family (open floor, two members).** Two
-  independent reconstructions in this file reached a small residual whose
-  differing words are *the same shape at the same relative offsets*:
-  `func_0011c780` at nd 6 and `func_0011c930` at nd 5, both differing only at
-  0x130/0x138/0x154/0x158/0x15C, where retail writes through `$a0` and mwcc
-  writes through `$v1` in the closing `mfc1`/`andi`/`or`/`sb` sequence. Both
-  lanes reached it via measured `#pragma opt_propagation off`, which fixes the
-  prologue `lh`/`lwc1` ordering, and both then exhausted the colouring levers
-  independently: intermediate split and collapse, block scoping, byte/word
-  input and output type variants, liveness identities, guard polarity,
-  ternary/goto/direct-store forms, and every permitted pragma.
-  Two functions failing identically is a shared cause, not two coincidences —
-  likely that retail's source hands this value onward in `$a0` rather than
-  returning it. Do not re-probe these one function at a time; solve the shape
-  once, on either member, and it should close both. Archives:
-  `docs/probe_archive/EcD_0011c780_body.c`, `LnA_0011c930_body.c`.
+- **`shdPersona.c` output-GPR family (open floor, THREE members).** Three
+  independent reconstructions in this file reached a small residual with *the
+  same shape at the same relative offsets*: `func_0011c780` (nd 6),
+  `func_0011c930` (nd 5) and `func_0011ac70` (nd 5). All three differ only in
+  the closing float-to-byte `mfc1`/`andi`/`or`/`andi`/`sb` tail, where retail
+  writes through `$a0` and mwcc writes through `$v1`. All three reached it via
+  measured `#pragma opt_propagation off`, which fixes the prologue
+  `lh`/`lwc1` ordering, and all three then exhausted the colouring levers
+  *separately*: intermediate split and collapse, block scoping, byte/word
+  input and output type variants (`u8`/`s8`/`s32`), declaration order,
+  liveness identities, guard polarity, ternary/goto/direct-store forms, an
+  `s32` parameter type, and every permitted pragma. Direct branch stores make
+  it markedly worse (object shrinks, ~41 words shift).
+
+  Three functions failing identically is one cause. **Standing hypothesis:
+  register liveness, not colouring.** `$a0` holds the first argument; mwcc may
+  only reuse it as a scratch once that argument is dead. Retail reuses `$a0`
+  for the packing tail, so in retail's source arg0 has no live use after that
+  point, while our reconstructions keep it live and the allocator falls back
+  to `$v1`. That would explain why every *naming* lever failed — none of them
+  changes when arg0 dies. The untried experiment is to restructure so the
+  parameter is dead before the tail: hoist every later use of arg0 (field
+  reads, onward calls, stores through it) into locals computed beforehand.
+  Confirm first by checking retail's disassembly for any use of `$a0` after
+  the sequence. Solve it once on any member and it should close all three.
+  Archives: `docs/probe_archive/EcD_0011c780_body.c`, `LnA_0011c930_body.c`,
+  `LAC_0011ac70_body.c`.
+- **A measured pragma keeps applying to every function below it.** `#pragma X
+  off` is file-position scoped, not function scoped, so a lane that opens one
+  for its target and never closes it silently changes the codegen of every
+  later function in the translation unit. This has bitten once already: an
+  `opt_propagation off` was left open across ~14 downstream functions.
+  `tools/pragma_scope_audit.py` reports it properly — it simulates
+  `#pragma push`/`pop`, so unlike raw `on`/`off` counting it does not
+  false-positive on push-scoped flips. It currently lists **125 files ending
+  off baseline, 109 of them with functions sitting under an open `off`**.
+  Those are NOT presently wrong: every one of those functions verifies, and a
+  spot check on `btlBoss.c` closed the trailing `opt_loop_invariants off`
+  before its five downstream functions with all 15 still MATCHing, so the
+  inherited state is incidental there rather than load-bearing. Do not
+  mass-balance them — where the state *is* load-bearing, closing it would
+  break a match for no gain.
+  The hazard is for new work: **if you add or reconstruct a function, run the
+  audit and check whether your target sits under an open flip.** If it does,
+  you are not compiling at the `-O2` baseline you think you are, and a pragma
+  you then add may be redundant, or its removal may appear to do nothing.
 
 ## Read-modify-write and flags
 
