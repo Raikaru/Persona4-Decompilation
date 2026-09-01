@@ -7,7 +7,7 @@ extern u32 DAT_0088144c_abs[];
 extern u32 DAT_00881450_abs[];
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
-typedef int (*MdlCallback)(...);
+typedef int (*MdlCallback)();
 
 typedef struct MdlStridedCallback24 {
     MdlCallback callback;

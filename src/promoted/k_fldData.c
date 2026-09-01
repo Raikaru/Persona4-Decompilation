@@ -3,7 +3,7 @@
 #include "type.h"
 #include "include_asm.h"
 
-extern void (*DAT_008873EC[])(...);
+extern void (*DAT_008873EC[])();
 
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
