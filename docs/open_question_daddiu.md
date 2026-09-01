@@ -33,6 +33,12 @@ in a callee-saved register across a call just gives `li` plus a trailing
   widening (372B/nd137, much worse).
 - **Compiler flag.** `-help all` is 412 lines with no ABI, `-mips`,
   instruction-set or long-size option.
+- **Any pragma.** All 255 pragma names were extracted from the compiler
+  binary's own table (which includes width-related knobs absent from `-help`:
+  `longlong`, `longlong_enums`, `longlong_prepeval`, `opt_foldconstants`,
+  `opt_pulloutconstants`, `opt_constnonchanging`) and each was compiled `on`
+  and `off` against the retail shape. Result: **482 successful compiles, 28
+  rejected as invalid, 0 produced `daddiu` for a constant.**
 
 ## Untested
 
