@@ -15,45 +15,30 @@
 // func_00482dc0  addr 0x00482dc0  window 432B
 __int64 __fastcall sub_482DC0(unsigned __int16 a1, int a2, unsigned __int16 a3, __int64 a4)
 {
-  __int64 v13; // $ra
-  int v18; // $v0
-  __int64 v23; // $s4
-  __int64 v24; // $s3
-  __int16 v25; // $s0
+  int v8; // $v0
+  __int64 v13; // $s4
+  __int64 v14; // $s3
+  __int16 v15; // $s0
   __int64 i; // $s2
   __int64 j; // $s1
-  __int64 v48; // [sp+90h] [-40h]
-  int v50; // [sp+B0h] [-20h]
-  int v51; // [sp+CCh] [-4h]
+  int v21; // [sp+B0h] [-20h]
+  int v22; // [sp+CCh] [-4h]
 
-  v48 = v13;
-  __asm
-  {
-    sq      $fp, 0xD0+var_50($sp)
-    sq      $s7, 0xD0+var_60($sp)
-    sq      $s6, 0xD0+var_70($sp)
-    sq      $s5, 0xD0+var_80($sp)
-    sq      $s4, 0xD0+var_90($sp)
-    sq      $s3, 0xD0+var_A0($sp)
-    sq      $s2, 0xD0+var_B0($sp)
-    sq      $s1, 0xD0+var_C0($sp)
-    sq      $s0, 0xD0+var_D0($sp)
-  }
   if ( a1 < 2uLL )
     nullsub_8((unsigned int)aEffgeometryC, 76);
   if ( a3 < 2uLL )
     nullsub_8((unsigned int)aEffgeometryC, 77);
-  v18 = a3 - 1;
-  _$V1 = 2 * v18;
-  _$V0 = 6 * v18;
+  v8 = a3 - 1;
+  _$V1 = 2 * v8;
+  _$V0 = 6 * v8;
   __asm { sq      $v0, 0xD0+var_30($sp) }
   _$S6 = a1;
   __asm { mult1   $a1, $s6, $v1 }
-  v51 = sub_482C40((a1 + 1) * a3, _$A1, a4);
-  v23 = *(int *)(*(_DWORD *)(v51 + 16) + 24);
-  v50 = *(_DWORD *)(v51 + 20);
-  v24 = *(int *)(v23 + 44);
-  v25 = 0;
+  v22 = sub_482C40((a1 + 1) * a3, _$A1, a4);
+  v13 = *(int *)(*(_DWORD *)(v22 + 16) + 24);
+  v21 = *(_DWORD *)(v22 + 20);
+  v14 = *(int *)(v13 + 44);
+  v15 = 0;
   for ( i = 0; i < _$S6; i = (int)i + 1 )
   {
     for ( j = 0; ; j = (int)j + 3 )
@@ -62,194 +47,138 @@ __int64 __fastcall sub_482DC0(unsigned __int16 a1, int a2, unsigned __int16 a3, 
       if ( j >= _$V0 )
         break;
       sub_3C2130(
-        v23,
-        v24,
-        (unsigned __int16)(v25 + *(_WORD *)(a2 + 2 * j)),
-        (unsigned __int16)(v25 + *(_WORD *)(a2 + 2 * j + 2)));
-      sub_3C2150(v23, v24, v50);
-      v24 = (int)v24 + 8;
+        v13,
+        v14,
+        (unsigned __int16)(v15 + *(_WORD *)(a2 + 2 * j)),
+        (unsigned __int16)(v15 + *(_WORD *)(a2 + 2 * j + 2)));
+      sub_3C2150(v13, v14, v21);
+      v14 = (int)v14 + 8;
     }
-    v25 += a3;
+    v15 += a3;
   }
-  __asm
-  {
-    lq      $fp, 0xD0+var_50($sp)
-    lq      $s7, 0xD0+var_60($sp)
-    lq      $s6, 0xD0+var_70($sp)
-    lq      $s5, 0xD0+var_80($sp)
-    lq      $s4, 0xD0+var_90($sp)
-    lq      $s3, 0xD0+var_A0($sp)
-    lq      $s2, 0xD0+var_B0($sp)
-    lq      $s1, 0xD0+var_C0($sp)
-    lq      $s0, 0xD0+var_D0($sp)
-  }
-  return v51;
+  return v22;
 }
 
 
 // func_00483a00  addr 0x00483a00  window 576B
 __int64 __fastcall sub_483A00(unsigned __int16 a1, unsigned __int16 a2, unsigned __int16 a3, int a4)
 {
-  int v12; // $gp
-  __int64 v14; // $ra
-  __int64 v18; // $s6
-  __int64 v19; // $s3
-  __int64 v20; // $s1
-  __int64 v23; // $s2
+  int v4; // $gp
+  __int64 v8; // $s6
+  __int64 v9; // $s3
+  __int64 v10; // $s1
+  __int64 v13; // $s2
   unsigned __int16 i; // $s0
-  int v26; // $v0
-  float *v28; // $v0
-  float v29; // $f0
-  __int64 result; // $v0
-  __int64 v51; // [sp+90h] [-50h]
-  int v54; // [sp+C0h] [-20h]
-  int v55; // [sp+CCh] [-14h]
-  int v56; // [sp+D0h] [-10h]
-  int v57; // [sp+D4h] [-Ch]
-  int v58; // [sp+D8h] [-8h]
-  float v59; // [sp+DCh] [-4h]
+  int v16; // $v0
+  float *v18; // $v0
+  float v19; // $f0
+  int v25; // [sp+C0h] [-20h]
+  int v26; // [sp+CCh] [-14h]
+  int v27; // [sp+D0h] [-10h]
+  int v28; // [sp+D4h] [-Ch]
+  int v29; // [sp+D8h] [-8h]
+  float v30; // [sp+DCh] [-4h]
 
-  v51 = v14;
-  __asm
-  {
-    sq      $fp, 0xE0+var_60($sp)
-    sq      $s7, 0xE0+var_70($sp)
-    sq      $s6, 0xE0+var_80($sp)
-    sq      $s5, 0xE0+var_90($sp)
-    sq      $s4, 0xE0+var_A0($sp)
-    sq      $s3, 0xE0+var_B0($sp)
-    sq      $s2, 0xE0+var_C0($sp)
-    sq      $s1, 0xE0+var_D0($sp)
-    sq      $s0, 0xE0+var_E0($sp)
-  }
-  v55 = a4;
-  v18 = a2 * a1;
-  if ( v18 >= 0x10000 )
+  v26 = a4;
+  v8 = a2 * a1;
+  if ( v8 >= 0x10000 )
     nullsub_8((unsigned int)aEffgeometryC, 459);
   nullsub_7((unsigned int)aEffgeometryC, 461);
-  v19 = dword_8873E8(4 * a1 + 88, 0x40000);
-  v54 = sub_3E9320();
-  v20 = sub_3C00E0();
+  v9 = dword_8873E8(4 * a1 + 88, 0x40000);
+  v25 = sub_3E9320();
+  v10 = sub_3C00E0();
   _$V0 = a3 * a1;
   __asm { sq      $v0, 0xE0+var_30($sp) }
   __asm { paddub  $a1, $v0, $zero }
-  v23 = sub_3C2630(v18, _$A1, v55);
-  _$V0 = (int)v19 + 88;
+  v13 = sub_3C2630(v8, _$A1, v26);
+  _$V0 = (int)v9 + 88;
   __asm { sq      $v0, 0xE0+var_40($sp) }
   for ( i = 0; i < (__int64)a1; ++i )
   {
-    v26 = sub_3C4140();
+    v16 = sub_3C4140();
     __asm { lq      $v1, 0xE0+var_40($sp) }
-    *(_DWORD *)(_$V1 + 4 * i) = v26;
+    *(_DWORD *)(_$V1 + 4 * i) = v16;
   }
-  sub_3C1B90(v20, v54);
-  v56 = 0;
-  v57 = 0;
-  v58 = 0;
-  v59 = *(float *)(v12 - 32648);
-  v28 = *(float **)(v23 + 92);
-  v29 = v59;
-  v28[1] = 0.0;
-  v28[2] = 0.0;
-  v28[3] = 0.0;
-  v28[4] = v29;
-  sub_3C0210(v20, v23, 0);
-  sub_3C2A80(v23);
-  *(_WORD *)v19 = 5;
-  *(_DWORD *)(v19 + 4) = v55;
-  *(_WORD *)(v19 + 8) = a2;
-  *(_WORD *)(v19 + 10) = a3;
-  *(_DWORD *)(v19 + 12) = v54;
-  *(_DWORD *)(v19 + 16) = v20;
-  *(_DWORD *)(v19 + 20) = 0;
-  *(_WORD *)(v19 + 72) = a1;
-  *(_WORD *)(v19 + 74) = v18;
+  sub_3C1B90(v10, v25);
+  v27 = 0;
+  v28 = 0;
+  v29 = 0;
+  v30 = *(float *)(v4 - 32648);
+  v18 = *(float **)(v13 + 92);
+  v19 = v30;
+  v18[1] = 0.0;
+  v18[2] = 0.0;
+  v18[3] = 0.0;
+  v18[4] = v19;
+  sub_3C0210(v10, v13, 0);
+  sub_3C2A80(v13);
+  *(_WORD *)v9 = 5;
+  *(_DWORD *)(v9 + 4) = v26;
+  *(_WORD *)(v9 + 8) = a2;
+  *(_WORD *)(v9 + 10) = a3;
+  *(_DWORD *)(v9 + 12) = v25;
+  *(_DWORD *)(v9 + 16) = v10;
+  *(_DWORD *)(v9 + 20) = 0;
+  *(_WORD *)(v9 + 72) = a1;
+  *(_WORD *)(v9 + 74) = v8;
   __asm { lq      $v0, 0xE0+var_30($sp) }
-  *(_WORD *)(v19 + 76) = _$V0;
+  *(_WORD *)(v9 + 76) = _$V0;
   __asm { lq      $v0, 0xE0+var_40($sp) }
-  *(_DWORD *)(v19 + 84) = _$V0;
-  *(_BYTE *)(v19 + 78) = -1;
-  *(_BYTE *)(v19 + 79) = -1;
-  *(_BYTE *)(v19 + 80) = -1;
-  *(_BYTE *)(v19 + 81) = -1;
-  sub_43F9C8((int)v19 + 24, 0, 48);
-  *(_WORD *)(v19 + 48) = 21;
-  *(_DWORD *)(v19 + 52) = v19;
-  result = v19;
-  __asm
-  {
-    lq      $fp, 0xE0+var_60($sp)
-    lq      $s7, 0xE0+var_70($sp)
-    lq      $s6, 0xE0+var_80($sp)
-    lq      $s5, 0xE0+var_90($sp)
-    lq      $s4, 0xE0+var_A0($sp)
-    lq      $s3, 0xE0+var_B0($sp)
-    lq      $s2, 0xE0+var_C0($sp)
-    lq      $s1, 0xE0+var_D0($sp)
-    lq      $s0, 0xE0+var_E0($sp)
-  }
-  return result;
+  *(_DWORD *)(v9 + 84) = _$V0;
+  *(_BYTE *)(v9 + 78) = -1;
+  *(_BYTE *)(v9 + 79) = -1;
+  *(_BYTE *)(v9 + 80) = -1;
+  *(_BYTE *)(v9 + 81) = -1;
+  sub_43F9C8((int)v9 + 24, 0, 48);
+  *(_WORD *)(v9 + 48) = 21;
+  *(_DWORD *)(v9 + 52) = v9;
+  return v9;
 }
 
 
 // func_00483e10  addr 0x00483e10  window 512B
 __int64 __fastcall sub_483E10(unsigned __int16 a1, unsigned __int16 a2, int a3, unsigned __int16 a4, int a5)
 {
-  __int64 v14; // $ra
-  int v19; // $v0
-  __int64 v24; // $s4
-  __int64 v26; // $s3
-  __int16 v27; // $s0
-  __int64 v28; // $s1
-  __int64 v30; // $s6
+  int v9; // $v0
+  __int64 v14; // $s4
+  __int64 v16; // $s3
+  __int16 v17; // $s0
+  __int64 v18; // $s1
+  __int64 v20; // $s6
   __int64 i; // $s2
-  __int64 v56; // [sp+90h] [-60h]
-  int v61; // [sp+E8h] [-8h]
-  int v62; // [sp+ECh] [-4h]
+  int v32; // [sp+E8h] [-8h]
+  int v33; // [sp+ECh] [-4h]
 
-  v56 = v14;
-  __asm
-  {
-    sq      $fp, 0xF0+var_70($sp)
-    sq      $s7, 0xF0+var_80($sp)
-    sq      $s6, 0xF0+var_90($sp)
-    sq      $s5, 0xF0+var_A0($sp)
-    sq      $s4, 0xF0+var_B0($sp)
-    sq      $s3, 0xF0+var_C0($sp)
-    sq      $s2, 0xF0+var_D0($sp)
-    sq      $s1, 0xF0+var_E0($sp)
-    sq      $s0, 0xF0+var_F0($sp)
-  }
-  v62 = a3;
+  v33 = a3;
   if ( a2 < 2uLL )
     nullsub_8((unsigned int)aEffgeometryC, 577);
   if ( a4 < 2uLL )
     nullsub_8((unsigned int)aEffgeometryC, 578);
-  v19 = a4 - 1;
-  _$V1 = 2 * v19;
-  _$V0 = 6 * v19;
+  v9 = a4 - 1;
+  _$V1 = 2 * v9;
+  _$V0 = 6 * v9;
   __asm { sq      $v0, 0xF0+var_20($sp) }
   _$S7 = a2;
   __asm { mult1   $v0, $s7, $v1 }
-  v61 = sub_483A00(a1, (a2 + 1) * a4, _$V0, a5);
-  v24 = *(int *)(*(_DWORD *)(v61 + 16) + 24);
-  _$V0 = *(int *)(v61 + 84);
+  v32 = sub_483A00(a1, (a2 + 1) * a4, _$V0, a5);
+  v14 = *(int *)(*(_DWORD *)(v32 + 16) + 24);
+  _$V0 = *(int *)(v32 + 84);
   __asm { sq      $v0, 0xF0+var_30($sp) }
-  v26 = *(int *)(v24 + 44);
-  v27 = 0;
-  v28 = 0;
+  v16 = *(int *)(v14 + 44);
+  v17 = 0;
+  v18 = 0;
   _$V0 = a1;
   __asm { sq      $v0, 0xF0+var_40($sp) }
   while ( 1 )
   {
     __asm { lq      $v0, 0xF0+var_40($sp) }
-    if ( v28 >= _$V0 )
+    if ( v18 >= _$V0 )
       break;
-    v30 = 0;
+    v20 = 0;
     __asm { lq      $v0, 0xF0+var_30($sp) }
-    _$V0 = (int)_$V0 + 4 * (int)v28;
+    _$V0 = (int)_$V0 + 4 * (int)v18;
     __asm { sq      $v0, 0xF0+var_50($sp) }
-    while ( v30 < _$S7 )
+    while ( v20 < _$S7 )
     {
       for ( i = 0; ; i = (int)i + 3 )
       {
@@ -257,32 +186,20 @@ __int64 __fastcall sub_483E10(unsigned __int16 a1, unsigned __int16 a2, int a3, 
         if ( i >= _$V0 )
           break;
         sub_3C2130(
-          v24,
-          v26,
-          (unsigned __int16)(v27 + *(_WORD *)(v62 + 2 * i)),
-          (unsigned __int16)(v27 + *(_WORD *)(v62 + 2 * i + 2)));
+          v14,
+          v16,
+          (unsigned __int16)(v17 + *(_WORD *)(v33 + 2 * i)),
+          (unsigned __int16)(v17 + *(_WORD *)(v33 + 2 * i + 2)));
         __asm { lq      $v0, 0xF0+var_50($sp) }
-        sub_3C2150(v24, v26, *(int *)_$V0);
-        v26 = (int)v26 + 8;
+        sub_3C2150(v14, v16, *(int *)_$V0);
+        v16 = (int)v16 + 8;
       }
-      v27 += a4;
-      v30 = (int)v30 + 1;
+      v17 += a4;
+      v20 = (int)v20 + 1;
     }
-    v27 += a4;
-    v28 = (int)v28 + 1;
+    v17 += a4;
+    v18 = (int)v18 + 1;
   }
-  __asm
-  {
-    lq      $fp, 0xF0+var_70($sp)
-    lq      $s7, 0xF0+var_80($sp)
-    lq      $s6, 0xF0+var_90($sp)
-    lq      $s5, 0xF0+var_A0($sp)
-    lq      $s4, 0xF0+var_B0($sp)
-    lq      $s3, 0xF0+var_C0($sp)
-    lq      $s2, 0xF0+var_D0($sp)
-    lq      $s1, 0xF0+var_E0($sp)
-    lq      $s0, 0xF0+var_F0($sp)
-  }
-  return v61;
+  return v32;
 }
 

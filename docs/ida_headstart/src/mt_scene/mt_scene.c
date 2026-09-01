@@ -15,116 +15,103 @@
 // func_0026d440  addr 0x0026d440  window 832B
 void __fastcall sub_26D440(unsigned __int64 a1, __int64 a2)
 {
-  int v4; // $gp
-  __int64 v5; // $ra
-  float v6; // $f20
-  float v7; // $f21
-  float v8; // $f0
+  int v2; // $gp
+  __int64 v3; // $ra
+  float v4; // $f20
+  float v5; // $f21
+  float v6; // $f0
   __int64 i; // $s1
-  float v10; // $f20
-  __int64 v11; // $v0
-  float v12; // $f1
-  float *v17; // $s0
-  float v18; // $f2
-  __int64 v19; // $v0
-  float v20; // $f21
-  float v21; // $f1
-  __int64 v27; // $a2
-  float v33; // [sp+0h] [-50h] BYREF
-  float v34; // [sp+4h] [-4Ch]
-  __int64 v37; // [sp+30h] [-20h]
-  float v38; // [sp+40h] [-10h]
-  float v39; // [sp+44h] [-Ch]
-  float v40[2]; // [sp+48h] [-8h]
+  float v8; // $f20
+  __int64 v9; // $v0
+  float v10; // $f1
+  float v11; // $f4
+  float v12; // $f21
+  float *v13; // $s0
+  float v14; // $f2
+  __int64 v15; // $v0
+  float v16; // $f21
+  float v17; // $f1
+  __int64 v18; // $a2
+  float v22; // [sp+0h] [-50h] BYREF
+  float v23; // [sp+4h] [-4Ch]
+  __int64 v24; // [sp+30h] [-20h]
+  float v25; // [sp+40h] [-10h]
+  float v26; // [sp+44h] [-Ch]
+  float v27[2]; // [sp+48h] [-8h]
 
-  v37 = v5;
-  __asm
+  v24 = v3;
+  v23 = v5;
+  v22 = v4;
+  v6 = *(float *)(v2 - 22796);
+  v25 = *(float *)(v2 - 22800);
+  v26 = v6;
+  if ( *(_WORD *)(v2 - 19312) != 0 )
   {
-    sq      $s1, 0x50+var_30($sp)
-    sq      $s0, 0x50+var_40($sp)
-  }
-  v34 = v7;
-  v33 = v6;
-  v8 = *(float *)(v4 - 22796);
-  v38 = *(float *)(v4 - 22800);
-  v39 = v8;
-  if ( *(_WORD *)(v4 - 19312) != 0 )
-  {
-    if ( *(_WORD *)(v4 - 19308) != 0 )
+    if ( *(_WORD *)(v2 - 19308) != 0 )
     {
-      v40[0] = *(float *)(v4 - 31708) * (float)*(unsigned __int16 *)(v4 - 19304);
-      v40[1] = *(float *)(v4 - 31708) * (float)*(unsigned __int16 *)(v4 - 19300);
+      v27[0] = *(float *)(v2 - 31708) * (float)*(unsigned __int16 *)(v2 - 19304);
+      v27[1] = *(float *)(v2 - 31708) * (float)*(unsigned __int16 *)(v2 - 19300);
       for ( i = 0; i < 2; i = (int)i + 1 )
       {
-        v10 = v40[(_DWORD)i];
-        if ( 0.0 != v10 )
+        v8 = v27[(_DWORD)i];
+        if ( 0.0 != v8 )
         {
-          v11 = sub_3B7060(a1, a2 * 4);
-          if ( v11 < 0 )
-            v12 = (float)(((unsigned int)v11 >> 1) | v11 & 1) + (float)(((unsigned int)v11 >> 1) | v11 & 1);
+          v9 = sub_3B7060(a1, a2 * 4);
+          if ( v9 < 0 )
+            v10 = (float)(((unsigned int)v9 >> 1) | v9 & 1) + (float)(((unsigned int)v9 >> 1) | v9 & 1);
           else
-            v12 = (float)(int)v11;
+            v10 = (float)(int)v9;
           a2 = (int)i;
-          a1 = (int)((int)&v33 + a2 * 4);
-          _$F4 = v40[a2];
-          _$F0 = _$F4 * (float)(v12 / 2147483600.0);
-          __asm { mula.s  $f1, $f0 }
-          __asm { madd.s  $f21, $f1, $f4 }
-          v17 = &flt_881500[a2];
-          v18 = flt_881500[a2];
-          if ( fabsf(v18) < (float)(_$F4 * *(float *)(a1 + 64)) )
+          a1 = (int)((int)&v22 + a2 * 4);
+          v11 = v27[a2];
+          v12 = (float)(0.5 * (float)(v11 * (float)(v10 / 2147483600.0))) + (float)(0.5 * v11);
+          v13 = &flt_881500[a2];
+          v14 = flt_881500[a2];
+          if ( fabsf(v14) < (float)(v11 * *(float *)(a1 + 64)) )
           {
-            v19 = sub_3B7060(a1, a2 * 4);
-            if ( v19 < 0 )
+            v15 = sub_3B7060(a1, a2 * 4);
+            if ( v15 < 0 )
             {
-              a1 = ((unsigned int)v19 >> 1) | (unsigned __int64)(v19 & 1);
-              v21 = (float)(((unsigned int)v19 >> 1) | v19 & 1) + (float)(((unsigned int)v19 >> 1) | v19 & 1);
+              a1 = ((unsigned int)v15 >> 1) | (unsigned __int64)(v15 & 1);
+              v17 = (float)(((unsigned int)v15 >> 1) | v15 & 1) + (float)(((unsigned int)v15 >> 1) | v15 & 1);
             }
             else
             {
-              v21 = (float)(int)v19;
+              v17 = (float)(int)v15;
             }
-            _$F3 = v20 * (float)((float)(v21 / 2147483600.0) - 0.5);
-            _$F2 = 2.0;
-            _$F1 = *v17;
-            __asm
-            {
-              adda.s  $f0, $f1
-              madd.s  $f0, $f2, $f3
-            }
-            *v17 = _$F0;
+            *v13 = (float)(*v13 + 0.0) + (float)(2.0 * (float)(v16 * (float)((float)(v17 / 2147483600.0) - 0.5)));
           }
-          else if ( v18 > 0.0 )
+          else if ( v14 > 0.0 )
           {
-            *v17 = v18 - _$F21;
+            *v13 = v14 - v12;
           }
           else
           {
-            *v17 = v18 + _$F21;
+            *v13 = v14 + v12;
           }
-          if ( *v17 < (float)-v10 )
-            *v17 = -v10;
-          if ( *v17 > v10 )
-            *v17 = v10;
+          if ( *v13 < (float)-v8 )
+            *v13 = -v8;
+          if ( *v13 > v8 )
+            *v13 = v8;
         }
       }
-      v27 = *(__int16 *)(v4 - 19308);
-      if ( v27 > 0 )
+      v18 = *(__int16 *)(v2 - 19308);
+      if ( v18 > 0 )
       {
-        _$A1 = (int)v27 + 5;
-        *(_WORD *)(v4 - 19304) -= *(unsigned __int16 *)(v4 - 19304) / (int)_$A1;
+        _$A1 = (int)v18 + 5;
+        *(_WORD *)(v2 - 19304) -= *(unsigned __int16 *)(v2 - 19304) / (int)_$A1;
         __asm
         {
           div1    $a0, $a1
           mflo1   $v1
         }
-        *(_WORD *)(v4 - 19300) = _$A0 - _$V1;
-        --*(_WORD *)(v4 - 19308);
+        *(_WORD *)(v2 - 19300) = _$A0 - _$V1;
+        --*(_WORD *)(v2 - 19308);
       }
     }
     else
     {
-      *(_WORD *)(v4 - 19312) = 0;
+      *(_WORD *)(v2 - 19312) = 0;
     }
   }
   else
@@ -133,11 +120,6 @@ void __fastcall sub_26D440(unsigned __int64 a1, __int64 a2)
     flt_881504 = 0.0;
     dword_881508 = 0;
     dword_88150C = 0;
-  }
-  __asm
-  {
-    lq      $s1, 0x50+var_30($sp)
-    lq      $s0, 0x50+var_40($sp)
   }
 }
 

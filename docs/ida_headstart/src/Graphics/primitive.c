@@ -15,95 +15,50 @@
 // func_00480f20  addr 0x00480f20  window 416B
 void __fastcall sub_480F20(float *a1, float *a2)
 {
-  float v43; // [sp+Ch] [-4h]
+  float v2; // $f0
+  float v3; // $f1
+  float v4; // $f9
+  float v5; // $f10
+  float v6; // $f7
+  float v7; // $f6
+  float v8; // $f5
+  float v9; // $f4
+  float v10; // $f2
+  float v11; // $f0
+  float v15; // [sp+0h] [-10h]
+  float v16; // [sp+4h] [-Ch]
+  float v17; // [sp+8h] [-8h]
+  float v18; // [sp+Ch] [-4h]
 
-  v43 = a1[5];
-  _$F7 = a2[3];
-  _$F6 = a2[2];
-  _$F5 = a2[4];
-  _$F4 = a2[5];
-  __asm { mula.s  $f7, $f7 }
-  __asm
+  v15 = a1[2];
+  v16 = a1[3];
+  v17 = a1[4];
+  v18 = a1[5];
+  v6 = a2[3];
+  v7 = a2[2];
+  v8 = a2[4];
+  v9 = a2[5];
+  v10 = (float)((float)((float)(v6 * v6) + (float)(v7 * v7)) + (float)(v8 * v8)) + (float)(v9 * v9);
+  if ( v10 > 0.0 )
   {
-    madda.s $f6, $f6
-    madda.s $f5, $f5
-    madd.s  $f2, $f4, $f4
+    v5 = v9 * (float)(1.0 / v10);
+    v11 = -(float)(1.0 / v10);
+    v4 = v7 * v11;
+    v3 = v6 * v11;
+    v2 = v8 * v11;
   }
-  if ( _$F2 > 0.0 )
-  {
-    _$F10 = _$F4 * (float)(1.0 / _$F2);
-    _$F0 = _$F5 * (float)-(float)(1.0 / _$F2);
-  }
-  _$F8 = a1[3];
-  _$F7 = a1[4];
-  _$F6 = v43;
-  _$F5 = a1[2];
-  __asm { mula.s  $f1, $f8 }
-  __asm
-  {
-    madda.s $f9, $f5
-    madd.s  $f3, $f0, $f7
-  }
-  a1[5] = (float)(_$F10 * v43) - _$F3;
-  __asm
-  {
-    mula.s  $f1, $f7
-    msub.s  $f2, $f0, $f8
-  }
-  a1[2] = _$F2;
-  __asm
-  {
-    mula.s  $f0, $f5
-    msub.s  $f2, $f9, $f7
-  }
-  a1[3] = _$F2;
-  __asm
-  {
-    mula.s  $f9, $f8
-    msub.s  $f2, $f1, $f5
-  }
-  a1[4] = _$F2;
-  _$F2 = a1[2];
-  __asm
-  {
-    adda.s  $f4, $f2
-    madd.s  $f2, $f5, $f10
-  }
-  a1[2] = _$F2;
-  _$F2 = a1[3];
-  __asm
-  {
-    adda.s  $f4, $f2
-    madd.s  $f2, $f8, $f10
-  }
-  a1[3] = _$F2;
-  _$F2 = a1[4];
-  __asm
-  {
-    adda.s  $f4, $f2
-    madd.s  $f2, $f7, $f10
-  }
-  a1[4] = _$F2;
-  _$F2 = a1[2];
-  __asm
-  {
-    adda.s  $f4, $f2
-    madd.s  $f2, $f9, $f6
-  }
-  a1[2] = _$F2;
-  _$F2 = a1[3];
-  __asm
-  {
-    adda.s  $f4, $f2
-    madd.s  $f1, $f6
-  }
+  _$F6 = v18;
+  a1[5] = (float)(v5 * v18) - (float)((float)((float)(v3 * v16) + (float)(v4 * v15)) + (float)(v2 * v17));
+  a1[2] = (float)(v3 * v17) - (float)(v2 * v16);
+  a1[3] = (float)(v2 * v15) - (float)(v4 * v17);
+  a1[4] = (float)(v4 * v16) - (float)(v3 * v15);
+  a1[2] = (float)(a1[2] + 0.0) + (float)(v15 * v5);
+  a1[3] = (float)(a1[3] + 0.0) + (float)(v16 * v5);
+  a1[4] = (float)(a1[4] + 0.0) + (float)(v17 * v5);
+  a1[2] = (float)(a1[2] + 0.0) + (float)(v4 * v18);
+  __asm { madd.s  $f1, $f6 }
   a1[3] = _$F1;
-  _$F1 = a1[4];
-  __asm
-  {
-    adda.s  $f4, $f1
-    madd.s  $f0, $f6
-  }
+  __asm { madd.s  $f0, $f6 }
   a1[4] = _$F0;
   a1[6] = a1[6] - a2[6];
   a1[7] = a1[7] - a2[7];
