@@ -77,6 +77,7 @@ extern void func_00442088(void *arg0, ...);
 extern s32 func_0045b170(s32 arg0);
 extern s32 func_0045b1c0(s32 arg0, s32 arg1, s32 arg2, void *arg3);
 extern char D_0063C340[];
+extern char D_0063C380[];
 extern char D_0063C350[];
 extern f32 func_0028f960(s32 arg0, f32 arg1, f32 arg2, f32 arg3);
 extern void func_0028f990(s32 arg0, f32 arg1, f32 *arg2, f32 *arg3,
@@ -409,7 +410,63 @@ void func_002863e0(u32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(s32 *)((u8 *)temp_2 + 0x794) = arg3;
 }
 // FUN_00286430
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_00286430);
+s32 func_00286430(u8 *arg0) {
+    s16 expected;
+    u8 *ptr;
+    s32 val;
+    s32 a1;
+    u8 subtype;
+    s32 case_zero;
+
+    a1 = 0;
+    switch (*(s8 *)(arg0 + 0xC)) {
+    case 0:
+        return 1;
+    case 1:
+        expected = *(s16 *)(arg0 + 0xA);
+        if (expected != func_0028d060(*(s16 *)(arg0 + 8))) {
+            goto fail;
+        }
+        return 1;
+    case 2:
+        subtype = *(u8 *)(arg0 + 0xE);
+        if ((s32)subtype >= 3) {
+            return 0;
+        }
+        switch (subtype) {
+        case 0:
+            a1 = 0;
+            break;
+        case 1:
+            a1 = 0x400;
+            break;
+        case 2:
+            a1 = 0x1200;
+            break;
+        }
+        if (*(s16 *)(arg0 + 0xA) == 0) {
+            case_zero = func_00106330(*(s16 *)(arg0 + 8) + a1) == 0;
+            return case_zero;
+        }
+        val = func_00106330(*(s16 *)(arg0 + 8) + a1) == 1;
+        return val;
+    case 3:
+        val = func_00286350();
+        if (val != 0) {
+            ptr = (u8 *)func_00452560(val);
+            if (ptr != NULL) {
+                return func_00290de0(ptr + 0x678) != 0;
+            }
+        }
+        goto fail;
+    default:
+        func_00440b68(D_0063C380, *(s32 *)(arg0 + 0x38));
+        func_0043f9c8(arg0 + 8, 0, 8);
+        return 1;
+    }
+fail:
+    return 0;
+}
 
 // FUN_002865E0
 void func_002865e0(UnkStruct_002865E0 *arg0) {

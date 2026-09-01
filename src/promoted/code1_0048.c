@@ -238,8 +238,82 @@ loop_00481f30_done:
         *(s16 *)(arg0 + 0x14) = 1;
     }
 }
+/* measured: opt_loop_invariants on hoists the second-loop preheader constants. */
+#pragma opt_loop_invariants on
+/* measured: opt_propagation off preserves the target pointer evaluation order. */
+#pragma opt_propagation off
 // FUN_00482230
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00482230);
+u8 *func_00482230(s32 *arg0)
+{
+    u8 *temp_2;
+    s32 *var_18;
+    s32 temp_17;
+    s32 temp_16;
+    s32 temp_4_2;
+    s32 var_17;
+    s32 var_7;
+    u8 *temp_17_2;
+    u8 *temp_2_3;
+    u8 *temp_4;
+    s32 temp_3;
+    u8 *scratch;
+    extern void func_0043f810(void *dst, void *src, u32 size);
+    {
+        s32 offset;
+        s32 *temp_2_2;
+        offset = *(s32 *)arg0;
+        temp_2_2 = (s32 *)((u8 *)arg0 + offset);
+        temp_16 = *temp_2_2;
+        var_18 = temp_2_2 + 1;
+        temp_17 = offset + 0x1C;
+        temp_17 += temp_16 * 4;
+    }
+    func_0044ea90(D_007132F0, 0x114);
+    temp_2 = (u8 *)jtbl_008873E8[0](temp_17, 0x40000);
+    *(u8 **)(temp_2 + 0x18) = temp_2;
+    temp_17_2 = temp_2 + 0x1C;
+    func_0043f810(temp_17_2, arg0, *arg0);
+    *(u8 **)(temp_2 + 0) = temp_17_2;
+    *(u8 **)(temp_2 + 4) = temp_17_2 + 8;
+    *(s32 *)(temp_2 + 0xC) = temp_16;
+    temp_2_3 = *(u8 **)(temp_2 + 0);
+    scratch = temp_2_3 + 8;
+    temp_4_2 = *(s32 *)temp_2_3;
+    *(u8 **)(temp_2 + 0x14) =
+        (u8 *)((s32)scratch + temp_4_2);
+
+    var_17 = 0;
+    while (var_17 < temp_16) {
+        s32 temp_3;
+        temp_3 = func_00481390((s32)((u8 *)arg0 + *var_18));
+        *(s32 *)(*(u8 **)(temp_2 + 0x14) + (var_17 * 4)) = temp_3;
+        var_18 += 1;
+        var_17 += 1;
+    }
+    *(s32 *)(temp_2 + 0x10) = 1;
+    *(s32 *)(temp_2 + 8) = 1;
+    temp_3 = *(s32 *)(*(u8 **)(temp_2 + 0) + 4);
+    var_7 = 0;
+    while (var_7 < temp_3) {
+        temp_4 = *(u8 **)(temp_2 + 4) + (var_7 * 0x14);
+        if ((*(s32 *)(temp_4 + 0x10) & 0x10000000) != 0) {
+            *(s32 *)(temp_2 + 8) = *(s32 *)(temp_4 + 0xC);
+        } else {
+            temp_4_2 = *(s32 *)(temp_4 + 8);
+            if ((temp_4_2 & 0x40) != 0) {
+                *(s32 *)(temp_2 + 8) = 2;
+            } else if ((temp_4_2 & 0x80) != 0) {
+                *(s32 *)(temp_2 + 8) = 2;
+            }
+        }
+        var_7 += 1;
+    }
+    return temp_2;
+}
+/* measured: restore opt_propagation after func_00482230. */
+#pragma opt_propagation on
+/* measured: restore opt_loop_invariants after func_00482230. */
+#pragma opt_loop_invariants off
 // FUN_004823E0
 void func_004823e0(u8 *arg0) {
     s32 temp_3;
