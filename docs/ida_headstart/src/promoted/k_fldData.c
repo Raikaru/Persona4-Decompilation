@@ -15,337 +15,265 @@
 // func_0015d730  addr 0x0015d730  window 4208B
 __int64 __fastcall sub_15D730(__int64 a1)
 {
-  int v5; // $gp
-  __int64 v6; // $ra
-  int *v8; // $s1
-  __int64 v9; // $v1
+  int v1; // $gp
+  int *v3; // $s1
+  __int64 v4; // $v1
+  __int64 v5; // $s2
+  __int64 v6; // $v0
+  __int64 v8; // $s2
+  __int64 v9; // $v0
   __int64 v10; // $v0
-  int v11; // $s2
+  __int64 v11; // $s2
   __int64 v12; // $v0
-  __int64 result; // $v0
-  __int64 v14; // $s2
-  __int64 v15; // $v0
-  __int64 v16; // $v0
-  __int64 v17; // $s2
-  __int64 v18; // $v0
-  __int64 v19; // $v0
+  __int64 v13; // $v0
   __int64 i; // $s2
-  int *v21; // $s3
+  int *v15; // $v0
+  _DWORD *v16; // $s3
   __int64 j; // $s2
-  int *v23; // $s3
+  int *v18; // $v0
+  _DWORD *v19; // $s3
   __int64 k; // $s2
-  int *v25; // $s3
-  __int64 v26; // $v0
-  __int64 v35; // [sp+50h] [-1A0h]
-  _BYTE v36[128]; // [sp+60h] [-190h] BYREF
-  _BYTE v37[128]; // [sp+E0h] [-110h] BYREF
-  _BYTE v38[140]; // [sp+160h] [-90h] BYREF
-  int v39; // [sp+1ECh] [-4h] BYREF
+  int *v21; // $v0
+  _DWORD *v22; // $s3
+  __int64 v23; // $v0
+  _BYTE v24[128]; // [sp+60h] [-190h] BYREF
+  _BYTE v25[128]; // [sp+E0h] [-110h] BYREF
+  _BYTE v26[140]; // [sp+160h] [-90h] BYREF
+  int v27; // [sp+1ECh] [-4h] BYREF
 
-  v35 = v6;
-  __asm
+  v3 = *(int **)(a1 + 56);
+  v4 = *v3;
+  switch ( v4 )
   {
-    sq      $s3, 0x1F0+var_1B0($sp)
-    sq      $s2, 0x1F0+var_1C0($sp)
-    sq      $s1, 0x1F0+var_1D0($sp)
-    sq      $s0, 0x1F0+var_1E0($sp)
-  }
-  v8 = *(int **)(a1 + 56);
-  v9 = *v8;
-  if ( v9 == 3 )
-  {
-    if ( sub_452490(v8[60]) != 1 )
-    {
-      result = -1;
-      goto LABEL_78;
-    }
-    goto LABEL_77;
-  }
-  if ( v9 == 2 )
-  {
+    case 3LL:
+      if ( sub_452490(v3[60]) != 1 )
+        return -1;
+      break;
+    case 2LL:
 LABEL_53:
-    for ( i = 0; i < 30; i = (int)i + 1 )
-    {
-      v21 = &v8[i + 15];
-      if ( *v21 != 0 )
+      for ( i = 0; i < 30; i = (int)i + 1 )
       {
-        sub_4669D0(*v21, &v39, 0);
-        if ( v39 == 0 )
+        v15 = &v3[i];
+        v16 = v15 + 15;
+        if ( v15[15] != 0 )
         {
-          result = 0;
-          goto LABEL_78;
+          sub_4669D0(v15[15], (int)&v27, 0);
+          if ( v27 == 0 )
+            return 0;
+          *v16 = 0;
         }
-        *v21 = 0;
       }
-    }
-    for ( j = 0; j < 2; j = (int)j + 1 )
-    {
-      v23 = &v8[j + 54];
-      if ( *v23 != 0 )
+      for ( j = 0; j < 2; j = (int)j + 1 )
       {
-        sub_4669D0(*v23, &v39, 0);
-        if ( v39 == 0 )
+        v18 = &v3[j];
+        v19 = v18 + 54;
+        if ( v18[54] != 0 )
         {
-          result = 0;
-          goto LABEL_78;
+          sub_4669D0(v18[54], (int)&v27, 0);
+          if ( v27 == 0 )
+            return 0;
+          *v19 = 0;
         }
-        *v23 = 0;
       }
-    }
-    for ( k = 0; k < 2; k = (int)k + 1 )
-    {
-      v25 = &v8[k + 58];
-      if ( *v25 != 0 )
+      for ( k = 0; k < 2; k = (int)k + 1 )
       {
-        sub_4669D0(*v25, &v39, 0);
-        if ( v39 == 0 )
+        v21 = &v3[k];
+        v22 = v21 + 58;
+        if ( v21[58] != 0 )
         {
-          result = 0;
-          goto LABEL_78;
+          sub_4669D0(v21[58], (int)&v27, 0);
+          if ( v27 == 0 )
+            return 0;
+          *v22 = 0;
         }
-        *v25 = 0;
       }
-    }
-    nullsub_7((unsigned int)aKFlddataC, 443);
-    v26 = dword_8873F4(1, *(int *)(v8[14] + 280), 0x40000);
-    *(_DWORD *)(v5 - 19844) = v26;
-    sub_43F810(v26, *(int *)(v8[14] + 272), *(int *)(v8[14] + 280));
-    *(_DWORD *)(v5 - 19848) = *(_DWORD *)(v8[14] + 280);
-    sub_454BD0(v8[2]);
-    sub_454BD0(v8[8]);
-    sub_454BD0(v8[9]);
-    sub_454BD0(v8[12]);
-    sub_454BD0(v8[13]);
-    sub_454BD0(v8[14]);
-    v8[60] = sub_18C580(a1);
-    ++*v8;
-    goto LABEL_77;
-  }
-  if ( v9 != 1 )
-  {
-    if ( *v8 == 0 )
-    {
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 230);
-      v10 = sub_454A60((unsigned int)aFieldBaseRmd, 0);
-      v11 = v10;
-      sub_456150(v10);
-      *(_DWORD *)(v5 - 19852) = sub_477F10(4, 2000, *(int *)(v11 + 272), *(int *)(v11 + 280), 0);
-      sub_442088((int)v38, aFieldFldSmapBi);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 107);
-      v8[2] = sub_454A60((int)v38, 1);
-      sub_442088((int)v37, aFieldScriptFie);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 137);
-      v8[4] = sub_454A60((int)v37, 0);
-      sub_442088((int)v36, aFieldTableDung);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 169);
-      v8[5] = sub_454A60((int)v36, 0);
-      v8[6] = sub_15CF70();
-      v8[7] = sub_161510();
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 292);
-      v8[8] = sub_454A60((unsigned int)aFieldFldeffRai_0, 0);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 293);
-      v8[9] = sub_454A60((unsigned int)aFieldFldeffRai_1, 0);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 296);
-      v8[12] = sub_454A60((unsigned int)aFieldFldeffTva_0, 0);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 297);
-      v8[13] = sub_454A60((unsigned int)aFieldFldeffTvb_0, 0);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 298);
-      v8[14] = sub_454A60((unsigned int)aFieldScriptSup, 0);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 299);
+      nullsub_7((unsigned int)aKFlddataC, 443);
+      v23 = dword_8873F4(1, *(int *)(v3[14] + 280), 0x40000);
+      *(_DWORD *)(v1 - 19844) = v23;
+      sub_43F810(v23, *(int *)(v3[14] + 272), *(int *)(v3[14] + 280));
+      *(_DWORD *)(v1 - 19848) = *(_DWORD *)(v3[14] + 280);
+      sub_454BD0(v3[2]);
+      sub_454BD0(v3[8]);
+      sub_454BD0(v3[9]);
+      sub_454BD0(v3[12]);
+      sub_454BD0(v3[13]);
+      sub_454BD0(v3[14]);
+      v3[60] = sub_18C580(a1);
+      ++*v3;
+      return 0;
+    case 1LL:
+LABEL_6:
+      if ( sub_4782B0(*(int *)(v1 - 19852)) != 0 )
+      {
+        if ( sub_4553C0(v3[2]) == 0 )
+          return 0;
+        v8 = v3[4];
+        if ( v3[4] != 0 )
+        {
+          if ( sub_4553C0(v3[4]) != 0 )
+          {
+            nullsub_7((unsigned int)aKFlddataC, 148);
+            v10 = dword_8873F4(1, *(int *)(v8 + 280), 0x40000);
+            *(_DWORD *)(v1 - 19836) = v10;
+            *(_DWORD *)(v1 - 19840) = *(_DWORD *)(v8 + 280);
+            sub_43F810(v10, *(int *)(v8 + 272), *(int *)(v8 + 280));
+            sub_454BD0(v8);
+            v9 = 1;
+          }
+          else
+          {
+            v9 = 0;
+          }
+        }
+        else
+        {
+          v9 = 1;
+        }
+        if ( v9 == 0 )
+          return 0;
+        v3[4] = 0;
+        v11 = v3[5];
+        if ( v3[5] != 0 )
+        {
+          if ( sub_4553C0(v3[5]) != 0 )
+          {
+            if ( (unsigned __int64)*(int *)(v11 + 280) >= 0xC00 )
+              nullsub_8((unsigned int)aKFlddataC, 179);
+            sub_43F810((unsigned int)dword_7E3720, *(int *)(v11 + 272), *(int *)(v11 + 280));
+            sub_454BD0(v11);
+            v12 = 1;
+          }
+          else
+          {
+            v12 = 0;
+          }
+        }
+        else
+        {
+          v12 = 1;
+        }
+        if ( v12 == 0 )
+          return 0;
+        v3[5] = 0;
+        if ( sub_15D000(v3[6]) == 0 )
+          return 0;
+        v3[6] = 0;
+        if ( sub_1615A0(v3[7]) == 0 )
+          return 0;
+        v3[7] = 0;
+        if ( sub_4553C0(v3[8]) == 0 )
+          return 0;
+        if ( sub_4553C0(v3[9]) == 0 )
+          return 0;
+        if ( sub_4553C0(v3[12]) == 0 )
+          return 0;
+        if ( sub_4553C0(v3[13]) == 0 )
+          return 0;
+        if ( sub_4553C0(v3[14]) == 0 )
+          return 0;
+        if ( sub_4553C0(dword_7E3710) == 0 )
+          return 0;
+        if ( sub_4553C0(dword_7E3714) == 0 )
+          return 0;
+        if ( sub_4553C0(dword_7E3718) == 0 )
+          return 0;
+        if ( *(_DWORD *)(v1 - 19860) != 0 )
+        {
+          if ( sub_45B170() != 0 )
+          {
+            *(_DWORD *)(v1 - 19860) = 0;
+            v13 = 1;
+          }
+          else
+          {
+            v13 = 0;
+          }
+        }
+        else
+        {
+          v13 = 1;
+        }
+        if ( v13 == 0 )
+          return 0;
+        v3[15] = sub_4667D0(0, (unsigned int)aFieldSmap01Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[16] = sub_4667D0(0, (unsigned int)aFieldSmap02Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[43] = sub_4667D0(0, (unsigned int)aFieldSmap0201T_0, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[44] = sub_4667D0(0, (unsigned int)aFieldSmap0202T_0, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[17] = sub_4667D0(0, (unsigned int)aFieldSmap03Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[18] = sub_4667D0(0, (unsigned int)aFieldSmap04Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[19] = sub_4667D0(0, (unsigned int)aFieldSmap05Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[20] = sub_4667D0(0, (unsigned int)aFieldSmap06Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[21] = sub_4667D0(0, (unsigned int)aFieldSmap07Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[22] = sub_4667D0(0, (unsigned int)aFieldSmap08Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[23] = sub_4667D0(0, (unsigned int)aFieldSmap09Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[24] = sub_4667D0(0, (unsigned int)aFieldSmap0901T_0, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[25] = sub_4667D0(0, (unsigned int)aFieldSmap0902T_0, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[26] = sub_4667D0(0, (unsigned int)aFieldSmap10Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[27] = sub_4667D0(0, (unsigned int)aFieldSmap1001T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[28] = sub_4667D0(0, (unsigned int)aFieldSmap1002T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[29] = sub_4667D0(0, (unsigned int)aFieldSmap11Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[30] = sub_4667D0(0, (unsigned int)aFieldSmap1101T_0, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[31] = sub_4667D0(0, (unsigned int)aFieldSmap1102T_0, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[32] = sub_4667D0(0, (unsigned int)aFieldSmap12Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[33] = sub_4667D0(0, (unsigned int)aFieldSmap1201T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[34] = sub_4667D0(0, (unsigned int)aFieldSmap1202T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[35] = sub_4667D0(0, (unsigned int)aFieldSmap13Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[36] = sub_4667D0(0, (unsigned int)aFieldSmap1301T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[37] = sub_4667D0(0, (unsigned int)aFieldSmap1302T_0, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[38] = sub_4667D0(0, (unsigned int)aFieldSmap1303T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[39] = sub_4667D0(0, (unsigned int)aFieldSmap14Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[40] = sub_4667D0(0, (unsigned int)aFieldSmap1401T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[41] = sub_4667D0(0, (unsigned int)aFieldSmap1402T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[42] = sub_4667D0(0, (unsigned int)aFieldSmap1403T, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[54] = sub_4667D0(0, (unsigned int)aFieldFldeffRai_2, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[55] = sub_4667D0(0, (unsigned int)aFieldFldeffRai_3, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[58] = sub_4667D0(0, (unsigned int)aFieldFldeffTva_1, 0, 0, 0, 0, 0, 0, 0, 0);
+        v3[59] = sub_4667D0(0, (unsigned int)aFieldFldeffTvb_1, 0, 0, 0, 0, 0, 0, 0, 0);
+        ++*v3;
+        goto LABEL_53;
+      }
+      break;
+    default:
+      if ( *v3 != 0 )
+        return 0;
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 230);
+      v5 = sub_454A60((unsigned int)aFieldBaseRmd, 0);
+      sub_456150(v5);
+      *(_DWORD *)(v1 - 19852) = sub_477F10(4, 2000, *(int *)(v5 + 272), *(int *)(v5 + 280), 0);
+      sub_442088((int)v26, aFieldFldSmapBi);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 107);
+      v3[2] = sub_454A60((int)v26, 1);
+      sub_442088((int)v25, aFieldScriptFie);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 137);
+      v3[4] = sub_454A60((int)v25, 0);
+      sub_442088((int)v24, aFieldTableDung);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 169);
+      v3[5] = sub_454A60((int)v24, 0);
+      v3[6] = sub_15CF70();
+      v3[7] = sub_161510();
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 292);
+      v3[8] = sub_454A60((unsigned int)aFieldFldeffRai_0, 0);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 293);
+      v3[9] = sub_454A60((unsigned int)aFieldFldeffRai_1, 0);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 296);
+      v3[12] = sub_454A60((unsigned int)aFieldFldeffTva_0, 0);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 297);
+      v3[13] = sub_454A60((unsigned int)aFieldFldeffTvb_0, 0);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 298);
+      v3[14] = sub_454A60((unsigned int)aFieldScriptSup, 0);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 299);
       dword_7E3710 = sub_454A60((unsigned int)aFieldFIcon01Ep_0, 0);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 300);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 300);
       dword_7E3714 = sub_454A60((unsigned int)aFieldFIcon02Ep_0, 0);
-      sub_440B68((const char *)(v5 - 24872), (unsigned int)aKFlddataC, 301);
+      sub_440B68((const char *)(v1 - 24872), (unsigned int)aKFlddataC, 301);
       dword_7E3718 = sub_454A60((unsigned int)aFieldFIcon03Ep_0, 0);
       nullsub_7((unsigned int)aKFlddataC, 197);
-      v12 = dword_8873F4(1, 1044, 0x40000);
-      *(_DWORD *)(v5 - 19856) = v12;
-      *(_DWORD *)(v5 - 19860) = sub_45B1C0(a1, 6, v12, (unsigned int)aSoundV490001Af);
-      ++*v8;
+      v6 = dword_8873F4(1, 1044, 0x40000);
+      *(_DWORD *)(v1 - 19856) = v6;
+      *(_DWORD *)(v1 - 19860) = sub_45B1C0(a1, 6, v6, (unsigned int)aSoundV490001Af);
+      ++*v3;
       goto LABEL_6;
-    }
-LABEL_77:
-    result = 0;
-    goto LABEL_78;
   }
-LABEL_6:
-  if ( sub_4782B0(*(int *)(v5 - 19852)) == 0 )
-    goto LABEL_77;
-  if ( sub_4553C0(v8[2]) != 0 )
-  {
-    v14 = v8[4];
-    if ( v8[4] != 0 )
-    {
-      if ( sub_4553C0(v8[4]) != 0 )
-      {
-        nullsub_7((unsigned int)aKFlddataC, 148);
-        v16 = dword_8873F4(1, *(int *)(v14 + 280), 0x40000);
-        *(_DWORD *)(v5 - 19836) = v16;
-        *(_DWORD *)(v5 - 19840) = *(_DWORD *)(v14 + 280);
-        sub_43F810(v16, *(int *)(v14 + 272), *(int *)(v14 + 280));
-        sub_454BD0(v14);
-        v15 = 1;
-      }
-      else
-      {
-        v15 = 0;
-      }
-    }
-    else
-    {
-      v15 = 1;
-    }
-    if ( v15 == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    v8[4] = 0;
-    v17 = v8[5];
-    if ( v8[5] != 0 )
-    {
-      if ( sub_4553C0(v8[5]) != 0 )
-      {
-        if ( (unsigned __int64)*(int *)(v17 + 280) >= 0xC00 )
-          nullsub_8((unsigned int)aKFlddataC, 179);
-        sub_43F810((unsigned int)dword_7E3720, *(int *)(v17 + 272), *(int *)(v17 + 280));
-        sub_454BD0(v17);
-        v18 = 1;
-      }
-      else
-      {
-        v18 = 0;
-      }
-    }
-    else
-    {
-      v18 = 1;
-    }
-    if ( v18 == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    v8[5] = 0;
-    if ( sub_15D000(v8[6]) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    v8[6] = 0;
-    if ( sub_1615A0(v8[7]) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    v8[7] = 0;
-    if ( sub_4553C0(v8[8]) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( sub_4553C0(v8[9]) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( sub_4553C0(v8[12]) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( sub_4553C0(v8[13]) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( sub_4553C0(v8[14]) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( sub_4553C0(dword_7E3710) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( sub_4553C0(dword_7E3714) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( sub_4553C0(dword_7E3718) == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    if ( *(_DWORD *)(v5 - 19860) != 0 )
-    {
-      if ( sub_45B170(*(int *)(v5 - 19860)) != 0 )
-      {
-        *(_DWORD *)(v5 - 19860) = 0;
-        v19 = 1;
-      }
-      else
-      {
-        v19 = 0;
-      }
-    }
-    else
-    {
-      v19 = 1;
-    }
-    if ( v19 == 0 )
-    {
-      result = 0;
-      goto LABEL_78;
-    }
-    v8[15] = sub_4667D0(0, (unsigned int)aFieldSmap01Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[16] = sub_4667D0(0, (unsigned int)aFieldSmap02Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[43] = sub_4667D0(0, (unsigned int)aFieldSmap0201T_0, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[44] = sub_4667D0(0, (unsigned int)aFieldSmap0202T_0, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[17] = sub_4667D0(0, (unsigned int)aFieldSmap03Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[18] = sub_4667D0(0, (unsigned int)aFieldSmap04Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[19] = sub_4667D0(0, (unsigned int)aFieldSmap05Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[20] = sub_4667D0(0, (unsigned int)aFieldSmap06Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[21] = sub_4667D0(0, (unsigned int)aFieldSmap07Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[22] = sub_4667D0(0, (unsigned int)aFieldSmap08Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[23] = sub_4667D0(0, (unsigned int)aFieldSmap09Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[24] = sub_4667D0(0, (unsigned int)aFieldSmap0901T_0, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[25] = sub_4667D0(0, (unsigned int)aFieldSmap0902T_0, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[26] = sub_4667D0(0, (unsigned int)aFieldSmap10Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[27] = sub_4667D0(0, (unsigned int)aFieldSmap1001T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[28] = sub_4667D0(0, (unsigned int)aFieldSmap1002T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[29] = sub_4667D0(0, (unsigned int)aFieldSmap11Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[30] = sub_4667D0(0, (unsigned int)aFieldSmap1101T_0, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[31] = sub_4667D0(0, (unsigned int)aFieldSmap1102T_0, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[32] = sub_4667D0(0, (unsigned int)aFieldSmap12Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[33] = sub_4667D0(0, (unsigned int)aFieldSmap1201T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[34] = sub_4667D0(0, (unsigned int)aFieldSmap1202T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[35] = sub_4667D0(0, (unsigned int)aFieldSmap13Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[36] = sub_4667D0(0, (unsigned int)aFieldSmap1301T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[37] = sub_4667D0(0, (unsigned int)aFieldSmap1302T_0, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[38] = sub_4667D0(0, (unsigned int)aFieldSmap1303T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[39] = sub_4667D0(0, (unsigned int)aFieldSmap14Tmx, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[40] = sub_4667D0(0, (unsigned int)aFieldSmap1401T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[41] = sub_4667D0(0, (unsigned int)aFieldSmap1402T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[42] = sub_4667D0(0, (unsigned int)aFieldSmap1403T, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[54] = sub_4667D0(0, (unsigned int)aFieldFldeffRai_2, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[55] = sub_4667D0(0, (unsigned int)aFieldFldeffRai_3, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[58] = sub_4667D0(0, (unsigned int)aFieldFldeffTva_1, 0, 0, 0, 0, 0, 0, 0, 0);
-    v8[59] = sub_4667D0(0, (unsigned int)aFieldFldeffTvb_1, 0, 0, 0, 0, 0, 0, 0, 0);
-    ++*v8;
-    goto LABEL_53;
-  }
-  result = 0;
-LABEL_78:
-  __asm
-  {
-    lq      $s3, 0x1F0+var_1B0($sp)
-    lq      $s2, 0x1F0+var_1C0($sp)
-    lq      $s1, 0x1F0+var_1D0($sp)
-    lq      $s0, 0x1F0+var_1E0($sp)
-  }
-  return result;
+  return 0;
 }
 

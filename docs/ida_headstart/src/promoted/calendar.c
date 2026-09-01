@@ -15,111 +15,74 @@
 // func_00121690  addr 0x00121690  window 688B
 __int64 sub_121690()
 {
-  int v4; // $gp
-  __int64 v5; // $ra
-  int v6; // $s1
-  __int64 result; // $v0
-  __int64 v8; // $v0
-  __int64 v9; // $s2
-  __int64 v10; // $v0
-  int v11; // $s0
-  int v12; // $s3
-  int v13; // $v0
-  unsigned __int8 v14; // $v0
+  int v0; // $gp
+  int v1; // $s1
+  __int64 v3; // $v0
+  __int64 v4; // $s2
+  __int64 v5; // $v0
+  int v6; // $s0
+  int v7; // $s3
+  int v8; // $v0
+  unsigned __int8 v9; // $v0
   __int64 i; // $s0
-  __int64 v29; // [sp+40h] [-40h]
-  int v30; // [sp+50h] [-30h] BYREF
-  int v31; // [sp+54h] [-2Ch]
-  int v32; // [sp+58h] [-28h]
-  int v33; // [sp+5Ch] [-24h]
-  __int64 v34; // [sp+68h] [-18h]
-  _BYTE v35[3]; // [sp+74h] [-Ch] BYREF
-  char v36; // [sp+77h] [-9h]
-  _BYTE v37[4]; // [sp+78h] [-8h] BYREF
-  int v38; // [sp+7Ch] [-4h] BYREF
+  int v11; // [sp+50h] [-30h] BYREF
+  int v12; // [sp+54h] [-2Ch]
+  int v13; // [sp+58h] [-28h]
+  int v14; // [sp+5Ch] [-24h]
+  __int64 v15; // [sp+68h] [-18h]
+  _BYTE v16[3]; // [sp+74h] [-Ch] BYREF
+  char v17; // [sp+77h] [-9h]
+  _BYTE v18[4]; // [sp+78h] [-8h] BYREF
+  int v19; // [sp+7Ch] [-4h] BYREF
 
-  v29 = v5;
-  __asm
-  {
-    sq      $s3, 0x80+var_50($sp)
-    sq      $s2, 0x80+var_60($sp)
-    sq      $s1, 0x80+var_70($sp)
-    sq      $s0, 0x80+var_80($sp)
-  }
-  v6 = *(_DWORD *)(v4 - 20028);
-  if ( v6 != 0 )
-  {
-    if ( *(_DWORD *)(v6 + 4) != 0 )
-    {
-      memset(v35, 64, sizeof(v35));
-      v36 = -1;
-      v30 = 100;
-      v31 = 100;
-      v32 = 250;
-      v33 = 100;
-      sub_45D6E0((int)v35, (int)&v30, 1);
-      sub_1104D0(*(int *)(v6 + 8), (int)&v38, (int)v37);
-      v8 = sub_110600(v38, 1);
-      v9 = sub_110580(v8);
-      v10 = sub_110580(*(int *)(v6 + 8));
-      v11 = v10;
-      if ( v10 < v9 )
-        v12 = 12;
-      else
-        v12 = 0;
-      v13 = sub_1105B0(*(int *)(v6 + 8));
-      v35[0] = 64;
-      v35[1] = 0x80;
-      v35[2] = 0x80;
-      v36 = -1;
-      v30 = 36 * v11 + 100;
-      v31 = v12 + 12 * (v13 - 1) + 124;
-      v32 = 36;
-      v33 = 12;
-      sub_45D6E0((int)v35, (int)&v30, 1);
-      v34 = 0x42C8000042C80000LL;
-      v14 = sub_1060C0();
-      sub_450DD0(v34, "%2d  ##%s##", v38, (const char *)off_5E5010[v14]);
-      _$F3 = 36.0;
-      _$F2 = (float)(int)v9;
-      _$F1 = 100.0;
-      __asm
-      {
-        adda.s  $f0, $f1
-        madd.s  $f0, $f3, $f2
-      }
-      *(float *)&v34 = _$F0;
-      HIDWORD(v34) = 1123549184;
-      for ( i = 0; i < sub_1104A0(v38); i = (int)i + 1 )
-      {
-        sub_450DD0(v34, (const char *)(v4 - 25516), (int)i + 1);
-        v9 = (int)v9 + 1;
-        if ( v9 >= 7 )
-        {
-          LODWORD(v9) = 0;
-          *(float *)&v34 = *(float *)&v34 - 252.0;
-          *((float *)&v34 + 1) = *((float *)&v34 + 1) + 12.0;
-        }
-        *(float *)&v34 = *(float *)&v34 + 36.0;
-      }
-      result = 0;
-    }
-    else
-    {
-      result = 0;
-    }
-  }
+  v1 = *(_DWORD *)(v0 - 20028);
+  if ( v1 == 0 )
+    return 0;
+  if ( *(_DWORD *)(v1 + 4) == 0 )
+    return 0;
+  memset(v16, 64, sizeof(v16));
+  v17 = -1;
+  v11 = 100;
+  v12 = 100;
+  v13 = 250;
+  v14 = 100;
+  sub_45D6E0((int)v16, (int)&v11, 1);
+  sub_1104D0(*(int *)(v1 + 8), (int)&v19, (int)v18);
+  v3 = sub_110600(v19, 1);
+  v4 = sub_110580(v3);
+  v5 = sub_110580(*(int *)(v1 + 8));
+  v6 = v5;
+  if ( v5 < v4 )
+    v7 = 12;
   else
+    v7 = 0;
+  v8 = sub_1105B0(*(int *)(v1 + 8));
+  v16[0] = 64;
+  v16[1] = 0x80;
+  v16[2] = 0x80;
+  v17 = -1;
+  v11 = 36 * v6 + 100;
+  v12 = v7 + 12 * (v8 - 1) + 124;
+  v13 = 36;
+  v14 = 12;
+  sub_45D6E0((int)v16, (int)&v11, 1);
+  v15 = 0x42C8000042C80000LL;
+  v9 = sub_1060C0();
+  sub_450DD0(v15, "%2d  ##%s##", v19, (const char *)off_5E5010[v9]);
+  *(float *)&v15 = (float)(100.0 + 0.0) + (float)(36.0 * (float)(int)v4);
+  HIDWORD(v15) = 1123549184;
+  for ( i = 0; i < sub_1104A0(v19); i = (int)i + 1 )
   {
-    result = 0;
+    sub_450DD0(v15, (const char *)(v0 - 25516), (int)i + 1);
+    v4 = (int)v4 + 1;
+    if ( v4 >= 7 )
+    {
+      LODWORD(v4) = 0;
+      *(float *)&v15 = *(float *)&v15 - 252.0;
+      *((float *)&v15 + 1) = *((float *)&v15 + 1) + 12.0;
+    }
+    *(float *)&v15 = *(float *)&v15 + 36.0;
   }
-  __asm
-  {
-    lq      $s3, 0x80+var_50($sp)
-    lq      $s2, 0x80+var_60($sp)
-    lq      $s1, 0x80+var_70($sp)
-    lq      $s0, 0x80+var_80($sp)
-  }
-  return result;
+  return 0;
 }
 

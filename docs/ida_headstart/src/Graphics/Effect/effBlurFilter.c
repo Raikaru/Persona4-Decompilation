@@ -12,177 +12,72 @@
  * Regenerate: python3 tools/ida_headstart.py --report <verify.json>
  */
 
-// func_004a8da0  addr 0x004a8da0  window 496B
-void __fastcall sub_4A8DA0(int a1, unsigned int a2)
-{
-  int v5; // $gp
-  float v31; // $f21
-
-  __asm
-  {
-    sq      $s2, 0x40+var_10($sp)
-    sq      $s1, 0x40+var_20($sp)
-    sq      $s0, 0x40+var_30($sp)
-  }
-  *(_DWORD *)a2 = (unsigned int)sub_4BD050(0) % (*(_DWORD *)(a1 + 4) + 1);
-  *(_DWORD *)(a2 + 4) = *(_DWORD *)(v5 - 32524);
-  *(_DWORD *)(a2 + 16) = *(_DWORD *)(a1 + 16);
-  *(_DWORD *)(a2 + 20) = *(_DWORD *)(a1 + 20);
-  *(_DWORD *)(a2 + 12) = *(_DWORD *)(a1 + 12);
-  _$F20 = 0.5 * (float)*(int *)(a1 + 40);
-  sub_4BD0B0(0);
-  _$F0 = sub_4BD0B0(0);
-  _$F2 = (float)((float)810 - _$F20) - _$F21;
-  __asm
-  {
-    adda.s  $f1, $f21
-    madd.s  $f1, $f2, $f0
-  }
-  _$F0 = sub_4BD0B0(0);
-  _$F2 = (float)((float)650 - _$F20) - _$F23;
-  __asm
-  {
-    adda.s  $f1, $f23
-    madd.s  $f1, $f2, $f0
-  }
-  __asm { mula.s  $f0, $f1 }
-  _$F1 = *(float *)(v5 - 32564);
-  __asm { madd.s  $f23, $f1, $f20 }
-  _$F0 = sub_44B610();
-  _$F2 = *(float *)(a1 + 28);
-  __asm
-  {
-    adda.s  $f1, $f2
-    madd.s  $f21, $f0
-  }
-  _$F0 = sub_44B7B0();
-  _$F2 = *(float *)(a1 + 32);
-  __asm
-  {
-    adda.s  $f1, $f2
-    madd.s  $f1, $f23, $f0
-  }
-  *(float *)(a2 + 28) = v31;
-  *(float *)(a2 + 32) = _$F1;
-  *(float *)(a2 + 36) = v31 - _$F20;
-  *(float *)(a2 + 40) = _$F1 - _$F20;
-  *(float *)(a2 + 44) = v31 + _$F20;
-  *(float *)(a2 + 48) = _$F1 + _$F20;
-  __asm
-  {
-    lq      $s2, 0x40+var_10($sp)
-    lq      $s1, 0x40+var_20($sp)
-    lq      $s0, 0x40+var_30($sp)
-  }
-}
-
-
 // func_004aaee0  addr 0x004aaee0  window 384B
 __int64 __fastcall sub_4AAEE0(unsigned __int16 a1, __int64 a2)
 {
-  int v10; // $s0
-  __int64 v11; // $s2
-  __int64 v12; // $s3
-  __int64 v13; // $a0
-  unsigned int v14; // $v0
-  __int64 result; // $v0
+  int v4; // $s0
+  __int64 v5; // $s2
+  __int64 v6; // $s3
+  __int64 v7; // $a0
+  unsigned int v8; // $v0
 
-  __asm
-  {
-    sq      $s5, 0x60+var_10($sp)
-    sq      $s4, 0x60+var_20($sp)
-    sq      $s3, 0x60+var_30($sp)
-    sq      $s2, 0x60+var_40($sp)
-    sq      $s1, 0x60+var_50($sp)
-    sq      $s0, 0x60+var_60($sp)
-  }
-  v10 = a1;
-  v11 = dword_7143A4[6 * a1];
-  if ( (unsigned __int64)((int)v11 + 96) >= 0x200 )
+  v4 = a1;
+  v5 = dword_7143A4[6 * a1];
+  if ( (unsigned __int64)((int)v5 + 96) >= 0x200 )
     nullsub_8((unsigned int)aEffmiscH_0, 368);
   nullsub_7((unsigned int)aEffmiscH_0, 369);
-  v12 = dword_8873E8((int)v11 + 96, 0x40000);
-  sub_43F9C8(v12, 0, (int)v11 + 96);
-  if ( v12 == 0 )
+  v6 = dword_8873E8((int)v5 + 96, 0x40000);
+  sub_43F9C8(v6, 0, (int)v5 + 96);
+  if ( v6 == 0 )
     nullsub_8((unsigned int)aEffblurfilterC, 1595);
-  *(_DWORD *)(v12 + 24) = v10;
-  *(_DWORD *)(v12 + 16) = -1;
-  *(_DWORD *)(v12 + 20) = 1065353216;
-  *(_DWORD *)(v12 + 40) = 0;
+  *(_DWORD *)(v6 + 24) = v4;
+  *(_DWORD *)(v6 + 16) = -1;
+  *(_DWORD *)(v6 + 20) = 1065353216;
+  *(_DWORD *)(v6 + 40) = 0;
   __asm { sqc2    $0, 0($s3) }
-  v13 = (int)v12 + 96;
-  *(_DWORD *)(v12 + 36) = v13;
-  sub_43F810(v13, a2, v11);
-  v14 = dword_714390[6 * a1];
-  if ( v14 != 0 )
-    *(_DWORD *)(v12 + 32) = ((__int64 (__fastcall *)(_QWORD))v14)(*(int *)(v12 + 36));
-  *(_WORD *)(v12 + 68) = 22;
-  *(_DWORD *)(v12 + 72) = v12;
-  result = v12;
-  __asm
-  {
-    lq      $s5, 0x60+var_10($sp)
-    lq      $s4, 0x60+var_20($sp)
-    lq      $s3, 0x60+var_30($sp)
-    lq      $s2, 0x60+var_40($sp)
-    lq      $s1, 0x60+var_50($sp)
-    lq      $s0, 0x60+var_60($sp)
-  }
-  return result;
+  v7 = (int)v6 + 96;
+  *(_DWORD *)(v6 + 36) = v7;
+  sub_43F810(v7, a2, v5);
+  v8 = dword_714390[6 * a1];
+  if ( v8 != 0 )
+    *(_DWORD *)(v6 + 32) = ((__int64 (__fastcall *)(_QWORD))v8)(*(int *)(v6 + 36));
+  *(_WORD *)(v6 + 68) = 22;
+  *(_DWORD *)(v6 + 72) = v6;
+  return v6;
 }
 
 
 // func_004ab420  addr 0x004ab420  window 384B
 __int64 __fastcall sub_4AB420(unsigned __int16 a1, __int64 a2)
 {
-  int v10; // $s0
-  __int64 v11; // $s2
-  __int64 v12; // $s3
-  __int64 v13; // $a0
-  unsigned int v14; // $v0
-  __int64 result; // $v0
+  int v4; // $s0
+  __int64 v5; // $s2
+  __int64 v6; // $s3
+  __int64 v7; // $a0
+  unsigned int v8; // $v0
 
-  __asm
-  {
-    sq      $s5, 0x60+var_10($sp)
-    sq      $s4, 0x60+var_20($sp)
-    sq      $s3, 0x60+var_30($sp)
-    sq      $s2, 0x60+var_40($sp)
-    sq      $s1, 0x60+var_50($sp)
-    sq      $s0, 0x60+var_60($sp)
-  }
-  v10 = a1;
-  v11 = dword_714474[6 * a1];
-  if ( (unsigned __int64)((int)v11 + 96) >= 0x200 )
+  v4 = a1;
+  v5 = dword_714474[6 * a1];
+  if ( (unsigned __int64)((int)v5 + 96) >= 0x200 )
     nullsub_8((unsigned int)aEffmiscH_0, 368);
   nullsub_7((unsigned int)aEffmiscH_0, 369);
-  v12 = dword_8873E8((int)v11 + 96, 0x40000);
-  sub_43F9C8(v12, 0, (int)v11 + 96);
-  if ( v12 == 0 )
+  v6 = dword_8873E8((int)v5 + 96, 0x40000);
+  sub_43F9C8(v6, 0, (int)v5 + 96);
+  if ( v6 == 0 )
     nullsub_8((unsigned int)aEffblurfilterC, 1798);
-  *(_DWORD *)(v12 + 24) = v10;
-  *(_DWORD *)(v12 + 16) = -1;
-  *(_DWORD *)(v12 + 20) = 1065353216;
-  *(_DWORD *)(v12 + 40) = 0;
+  *(_DWORD *)(v6 + 24) = v4;
+  *(_DWORD *)(v6 + 16) = -1;
+  *(_DWORD *)(v6 + 20) = 1065353216;
+  *(_DWORD *)(v6 + 40) = 0;
   __asm { sqc2    $0, 0($s3) }
-  v13 = (int)v12 + 96;
-  *(_DWORD *)(v12 + 36) = v13;
-  sub_43F810(v13, a2, v11);
-  v14 = dword_714460[6 * a1];
-  if ( v14 != 0 )
-    *(_DWORD *)(v12 + 32) = ((__int64 (__fastcall *)(__int64))v14)(a2);
-  *(_WORD *)(v12 + 68) = 23;
-  *(_DWORD *)(v12 + 72) = v12;
-  result = v12;
-  __asm
-  {
-    lq      $s5, 0x60+var_10($sp)
-    lq      $s4, 0x60+var_20($sp)
-    lq      $s3, 0x60+var_30($sp)
-    lq      $s2, 0x60+var_40($sp)
-    lq      $s1, 0x60+var_50($sp)
-    lq      $s0, 0x60+var_60($sp)
-  }
-  return result;
+  v7 = (int)v6 + 96;
+  *(_DWORD *)(v6 + 36) = v7;
+  sub_43F810(v7, a2, v5);
+  v8 = dword_714460[6 * a1];
+  if ( v8 != 0 )
+    *(_DWORD *)(v6 + 32) = ((__int64 (__fastcall *)(__int64))v8)(a2);
+  *(_WORD *)(v6 + 68) = 23;
+  *(_DWORD *)(v6 + 72) = v6;
+  return v6;
 }
 

@@ -15,84 +15,65 @@
 // func_001f9cf0  addr 0x001f9cf0  window 688B
 __int64 __fastcall sub_1F9CF0(unsigned __int16 *a1)
 {
-  int v6; // $gp
-  __int64 v7; // $ra
-  __int16 v9; // $v0
+  int v1; // $gp
+  __int16 v3; // $v0
   __int64 result; // $v0
-  BOOL v11; // $a1
-  __int64 v12; // $a0
-  __int64 v13; // $s1
-  const char **v14; // $s2
+  BOOL v5; // $a1
+  __int64 v6; // $a0
+  __int64 v7; // $s1
+  const char **v8; // $s2
   __int64 i; // $s3
-  __int64 v16; // $a2
-  __int64 v27; // [sp+50h] [-110h]
-  _BYTE v28[256]; // [sp+60h] [-100h] BYREF
+  __int64 v10; // $a2
+  _BYTE v11[256]; // [sp+60h] [-100h] BYREF
 
-  v27 = v7;
-  __asm
+  v3 = sub_1060B0();
+  result = sub_110D60(v3);
+  v5 = (result & 1) != 0;
+  v6 = *a1;
+  if ( v6 == 4 )
   {
-    sq      $s4, 0x160+var_120($sp)
-    sq      $s3, 0x160+var_130($sp)
-    sq      $s2, 0x160+var_140($sp)
-    sq      $s1, 0x160+var_150($sp)
-    sq      $s0, 0x160+var_160($sp)
-  }
-  v9 = sub_1060B0();
-  result = sub_110D60(v9);
-  v11 = (result & 1) != 0;
-  v12 = *a1;
-  if ( v12 == 4 )
-  {
-    v16 = (__int16)a1[1];
-    if ( v16 >= 11 )
-      sub_442088((int)v28, "battle/cutin/syoukan/SYKN_E%X.EPL", v16);
+    v10 = (__int16)a1[1];
+    if ( v10 >= 11 )
+      sub_442088((int)v11, "battle/cutin/syoukan/SYKN_E%X.EPL", v10);
     else
-      sub_442088((int)v28, "battle/cutin/syoukan/SYKN_%X.EPL", v16);
-    sub_440B68(v6 - 23256, (unsigned int)aBtlcutinC, 64);
-    result = sub_454A60((int)v28, 0);
-    *(_DWORD *)(*(_DWORD *)(v6 - 19540) + 2904) = result;
+      sub_442088((int)v11, "battle/cutin/syoukan/SYKN_%X.EPL", v10);
+    sub_440B68(v1 - 23256, (unsigned int)aBtlcutinC, 64);
+    result = sub_454A60((int)v11, 0);
+    *(_DWORD *)(*(_DWORD *)(v1 - 19540) + 2904) = result;
   }
-  else if ( v12 == 2 )
+  else if ( v6 == 2 )
   {
-    sub_442088((int)v28, "battle/cutin/tokusyu/TOKUS_%X_%s.EPL", (__int16)a1[1], *(const char **)(v6 - 23264 + 4 * v11));
-    sub_440B68(v6 - 23256, (unsigned int)aBtlcutinC, 53);
-    result = sub_454A60((int)v28, 0);
-    *(_DWORD *)(*(_DWORD *)(v6 - 19540) + 2904) = result;
+    sub_442088((int)v11, "battle/cutin/tokusyu/TOKUS_%X_%s.EPL", (__int16)a1[1], *(const char **)(v1 - 23264 + 4 * v5));
+    sub_440B68(v1 - 23256, (unsigned int)aBtlcutinC, 53);
+    result = sub_454A60((int)v11, 0);
+    *(_DWORD *)(*(_DWORD *)(v1 - 19540) + 2904) = result;
   }
   else if ( *a1 == 0 )
   {
-    v13 = (__int16)a1[4];
-    v14 = (const char **)(v6 - 23264 + 4 * v11);
-    sub_442088((int)v28, "battle/cutin/boko/koma%d/%dKOMA_A_1_%s.EPL", v13 + 1, v13 + 1, *v14);
-    sub_440B68(v6 - 23256, (unsigned int)aBtlcutinC, 38);
-    *(_DWORD *)(*(_DWORD *)(v6 - 19540) + 2924) = sub_454A60((int)v28, 0);
-    for ( i = 0; i < v13; i = (int)i + 1 )
+    v7 = (__int16)a1[4];
+    v8 = (const char **)(v1 - 23264 + 4 * v5);
+    sub_442088((int)v11, "battle/cutin/boko/koma%d/%dKOMA_A_1_%s.EPL", v7 + 1, v7 + 1, *v8);
+    sub_440B68(v1 - 23256, (unsigned int)aBtlcutinC, 38);
+    *(_DWORD *)(*(_DWORD *)(v1 - 19540) + 2924) = sub_454A60((int)v11, 0);
+    for ( i = 0; i < v7; i = (int)i + 1 )
     {
       sub_442088(
-        (int)v28,
+        (int)v11,
         "battle/cutin/boko/koma%d/%dKOMA_%s_%X_%s.EPL",
-        v13 + 1,
-        v13 + 1,
+        v7 + 1,
+        v7 + 1,
         (&off_625050)[(_DWORD)i],
         (__int16)a1[(_DWORD)i + 1],
-        *v14);
-      sub_440B68(v6 - 23256, (unsigned int)aBtlcutinC, 44);
-      *(_DWORD *)(*(_DWORD *)(v6 - 19540) + 4 * i + 2928) = sub_454A60((int)v28, 0);
+        *v8);
+      sub_440B68(v1 - 23256, (unsigned int)aBtlcutinC, 44);
+      *(_DWORD *)(*(_DWORD *)(v1 - 19540) + 4 * i + 2928) = sub_454A60((int)v11, 0);
     }
-    sub_442088((int)v28, "battle/cutin/boko/koma%d/%dICON.EPL", v13 + 1, v13 + 1);
-    sub_440B68(v6 - 23256, (unsigned int)aBtlcutinC, 47);
-    result = sub_454A60((int)v28, 0);
-    *(_DWORD *)(*(_DWORD *)(v6 - 19540) + 2904) = result;
+    sub_442088((int)v11, "battle/cutin/boko/koma%d/%dICON.EPL", v7 + 1, v7 + 1);
+    sub_440B68(v1 - 23256, (unsigned int)aBtlcutinC, 47);
+    result = sub_454A60((int)v11, 0);
+    *(_DWORD *)(*(_DWORD *)(v1 - 19540) + 2904) = result;
   }
-  *(_WORD *)(*(_DWORD *)(v6 - 19540) + 2896) = *a1;
-  __asm
-  {
-    lq      $s4, 0x160+var_120($sp)
-    lq      $s3, 0x160+var_130($sp)
-    lq      $s2, 0x160+var_140($sp)
-    lq      $s1, 0x160+var_150($sp)
-    lq      $s0, 0x160+var_160($sp)
-  }
+  *(_WORD *)(*(_DWORD *)(v1 - 19540) + 2896) = *a1;
   return result;
 }
 
