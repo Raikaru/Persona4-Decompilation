@@ -813,6 +813,26 @@ variants is wasted time.
   read, fuse them into one post-increment expression.** That pair of levers
   closed the campaign's oldest one-word near-miss.
 
+  **Three spellings of the split, now all proven.** The retype nearly always
+  reaches the `daddiu` on first application — it did in all eight functions of
+  the first pool wave — and what remains is keeping the masked index apart
+  from the increment. Pick by control flow:
+
+  | shape | when |
+  |---|---|
+  | `sp60[n++] = v;` | increment happens exactly when the store does (`func_001e7ab0`, `func_001932f0`) |
+  | `for (...; n++) { ... a[n] = v; }` | increment is unconditional, store is conditional (`func_00477ca0`) — a fused `[n++]` here would skip the increment on the false path, and adding `else n++` duplicates the update (+50 words) |
+  | `u16` local **and** `u16` return type | the narrow value is returned; a `u16` local with an `s32` return closed neither `func_00209870` nor `func_00209dc0` |
+
+  A fourth wrinkle from `func_001658b0`: the rule can apply in both directions
+  inside one function. Split an `s32` base from a `u16` code so that the two
+  constants retail materialises with `daddiu` come from the `u16` and the two it
+  materialises with `addiu` come from the `s32`.
+
+  Rebuild the target pool with a scan for opcode `0x19` with `rs == 0`
+  (`daddiu $rX,$zero,K`) over the unmatched set: 107 functions, 338
+  instructions, at the time of writing.
+
   Everything the old sweep ruled out stays ruled out, and none of it is a
   substitute: `*p |= 255` on a `u64` gives `ori`, a `u64` local built from
   constants gives `ori`, constants passed to `u64` parameters give neither,
