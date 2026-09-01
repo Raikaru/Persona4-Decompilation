@@ -1,3 +1,4 @@
+/* CLOSED: func_001e7ab0 matches with u16 var_17 and fused sp60[var_17++] (daddiu reset plus unmasked-counter addiu); prior s32 floor is retired. */
 s32 func_001e7ab0(void) {
     extern s32 func_001dbba0();
     extern void func_001db5b0();

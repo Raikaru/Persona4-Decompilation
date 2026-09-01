@@ -38,7 +38,7 @@ extern u16 *func_0010ace0(s16 arg0);
 extern s32 func_0010b5b0(void);
 extern void func_0023a620(s32 arg0, u16 arg1);
 extern s32 func_0010ae30(s32 arg0);
-extern s32 func_0010b3b0(s32 arg0);
+extern s32 func_0010b3b0(); /* old-style: target call preserves s64 argument */
 extern u16 func_0010b460(void);
 
 extern u32 func_0010c750(u8 *arg0, s32 arg1);
@@ -445,7 +445,51 @@ done:
 }
 
 // FUN_0010AE30
-INCLUDE_ASM("asm/nonmatchings/datPersona", func_0010ae30);
+s32 func_0010ae30(s32 arg0)
+{
+    s16 i;
+    s32 id;
+    s16 selected;
+    s32 selected32;
+    s32 count;
+    s64 found;
+    s32 j;
+    u8 *entry;
+    u8 *base;
+
+    id = (s16)arg0;
+    if (id < 0 || id >= (u16)func_0010b5b0()) {
+        func_0046d730(D_005E4318, 0x417);
+    }
+    if ((*(u16 *)((u8 *)D_00797F8C + id * 0x30) & 1) == 0) {
+        return 0;
+    }
+    selected = func_0010b460();
+    for (i = (s16)arg0; (s32)i < 0xB; i++) {
+        func_0043f810((u8 *)D_007973A0 + (s32)i * 0x30 + 0xBEC,
+                      (u8 *)D_007973A0 + ((s32)i + 1) * 0x30 + 0xBEC,
+                      0x30);
+    }
+    func_0043f9c8(D_0079819C, 0, 0x30);
+    count = func_0010b5b0() & 0xFFFF;
+    j = 0;
+    selected32 = selected;
+    base = (u8 *)D_007973A0;
+    for (; (u16)j < count; j = (u16)(j + 1)) {
+        entry = base + (j & 0xFFFF) * 0x30;
+        if ((*(u16 *)(entry + 0xBEC) & 1) != 0 &&
+            *(u16 *)(entry + 0xBEE) == selected32) {
+            found = (s16)j;
+            goto done;
+        }
+    }
+    found = -1;
+done:
+    if ((s16)found != -1) {
+        func_0010b3b0(found);
+    }
+    return 1;
+}
 
 // FUN_0010B010
 u8 *func_0010b010(void)
