@@ -233,6 +233,22 @@ def main():
                   f"({ncompiles[0]} compiles)", flush=True)
         if stale > 80:
             cur_fn, cur_score, stale = best_fn, best_score, 0
+    # Persist the best body even without an exact match. The search tracks
+    # best_fn/best_score throughout but previously only wrote --out on a hit,
+    # so a run that improved a function from 45 to 28 printed the number and
+    # discarded the code -- which makes the archive workflow in
+    # tools/permute_archived.py pointless for exactly the runs that made
+    # progress. Seed variance here is large (90s seeds on func_001dea90
+    # produced 28, 37 and 43), so keeping the good ones matters.
+    if args.out and best_fn is not None and best_score < base_score:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(
+            f"/* permuter best: score {best_score} from base {base_score} "
+            f"(seed {args.seed}, {ncompiles[0]} compiles). NOT a match; raw "
+            f"permuter output, minimize with tools/permute_min.py before use. */\n"
+            + ast_util.to_c(best_fn) + "\n",
+            newline="\n")
+        print(f"[{args.function}] best body -> {args.out}", flush=True)
     print(f"[{args.function}] no match. best={best_score} after "
           f"{ncompiles[0]} compiles / {time.time()-t0:.0f}s", flush=True)
     sys.exit(1)

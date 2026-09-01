@@ -73,6 +73,15 @@ def main() -> int:
     ap.add_argument("--time", type=int, default=300, help="permuter seconds")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="write the permuter's best-found region here. Without this the "
+             "search is throwaway: both back ends only print the score and "
+             "discard the body, so a run that improves 45 -> 28 leaves nothing "
+             "behind. Point it at the archive entry to keep the progress.",
+    )
+    ap.add_argument(
         "--text",
         action="store_true",
         help="drive tools/permute.py (text mutation) instead of permute_ast.py; "
@@ -102,6 +111,8 @@ def main() -> int:
     driver = "tools/permute.py" if args.text else "tools/permute_ast.py"
     cmd = [sys.executable, driver, str(args.source), name,
            "--time", str(args.time)]
+    if args.out is not None:
+        cmd += ["--out", str(args.out)]
     if args.seed is not None:
         cmd += ["--seed", str(args.seed)]
 
