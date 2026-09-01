@@ -1172,9 +1172,106 @@ u8 *func_00272d40(u8 *arg0)
    arg0=$s1/arg1=$s0/arg3=$s7), mwcc saves 7 (frame 0x80, arg0=$s3/arg1=$s2)
    from the very first move; also fixed func_00272d40's call to 1 arg (m2c
    draft wrongly shows 2; retail calls with $18 only). Saved-register
-   rotation floor. */
+   SUPERSEDED: Saved-register rotation floor. */
 // FUN_00272E10
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00272e10);
+s32 func_00272e10(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3)
+{
+    s32 result = 0;
+    s32 amount;
+    u8 normalized;
+    u32 value;
+    u8 limit;
+    u8 type;
+    u8 accepted;
+    u8 found;
+    u8 *temp_18;
+    u8 *valuep;
+    u32 code;
+
+    accepted = 0;
+    limit = 0xff;
+    type = 0;
+    if (*(u8 **)(arg1 + 0x24) == 0) {
+        if (*(u8 **)(arg0 + 0x24) != 0 &&
+            *(u8 **)(*(u8 **)(arg0 + 0x24) + 0x20) != 0) {
+            limit = *(u8 *)(*(u8 **)(*(u8 **)(arg0 + 0x24) + 0x20) + 0x10);
+            type = *(u8 *)(*(u8 **)(*(u8 **)(arg0 + 0x24) + 0x20) + 0x16);
+        }
+    } else {
+        limit = *(u8 *)(*(u8 **)(arg1 + 0x24) + 0x10);
+    }
+    if (arg2 > 0 && *(u16 *)arg1 < 0x80) {
+        arg2 += 0x14;
+    }
+    valuep = arg1 + 0x10;
+    if (type == 0 || type == *(u8 *)(arg1 + 0x16)) {
+        if (limit >= arg2) {
+            accepted = 1;
+        }
+    } else if (limit == 0xff) {
+        accepted = 1;
+    }
+    temp_18 = *(u8 **)(arg0 + 0x24);
+    if (accepted && temp_18 != 0 &&
+        *(u8 **)(arg0 + 0x1c) == arg1 &&
+        *(s32 *)(arg0 + 0x40) == 0) {
+        found = 0;
+        if (func_00272d40(temp_18) != 0) {
+            found = 1;
+            switch (*(s32 *)(temp_18 + 0x30)) {
+            case 0xf222:
+            case 0xf227:
+                *(s32 *)(temp_18 + 0x3c) =
+                    *(s32 *)(temp_18 + 0x3c) - 1;
+                break;
+            case 0xf223:
+            case 0xf226:
+                if (*(s32 *)(temp_18 + 0x3c) == -1) {
+                    func_0045af90(1);
+                } else {
+                    *(s32 *)(temp_18 + 0x3c) =
+                        *(s32 *)(temp_18 + 0x3c) - 1;
+                }
+                break;
+            }
+        }
+        if (found != 0) {
+            accepted = 0;
+        }
+    }
+    if (accepted) {
+        if (arg3 < 0xff) {
+            amount = (s32)((f32)(arg3 << 5) /
+                           (f32)(*(s32 *)(arg1 + 0xc) +
+                                 *(s8 *)(arg0 + 3)));
+        } else {
+            amount = 0xff;
+        }
+        if (amount > 0xff) {
+            normalized = 0xff;
+        } else {
+            amount &= 0xff;
+            normalized = amount & 0xff;
+        }
+        value = *(u32 *)valuep;
+        if ((u32)(0xff - (value & 0xff)) >= (u32)normalized) {
+            *(u32 *)valuep = value + normalized;
+        } else {
+            *(u32 *)valuep = (value & ~0xff) | 0xff;
+        }
+    }
+    code = *(u16 *)(arg1 + 2);
+    if (*(u8 *)valuep < 0xff) {
+        switch (*(u8 *)(arg1 + 0x16)) {
+        case 1:
+            result = -(((((s32)code << 1) % 5) - 2) * 0x10);
+            break;
+        default:
+            break;
+        }
+    }
+    return result;
+}
 // FUN_00273110
 void func_00273110(s32 arg0)
 {
