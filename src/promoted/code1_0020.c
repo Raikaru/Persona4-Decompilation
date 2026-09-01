@@ -1182,9 +1182,9 @@ void func_00202e00(u8 *arg0, s16 *arg1)
 }
 
 // FUN_00202E60
-void func_00202e60(u8 *arg0, s32 arg1)
+void func_00202e60(u8 *arg0, void *arg1)
 {
-    *(s32 *)(arg0 + 0x18) = arg1;
+    *(s32 *)(arg0 + 0x18) = (s32)arg1;
 }
 
 // FUN_00202E70
@@ -1310,7 +1310,6 @@ void func_00203600(u8 *arg0) {
 
 /* measured: callback materialisation residual remains. Committed at nd 73. */
 // FUN_00203670
-#ifdef NON_MATCHING
 void func_00203670(s32 unused, s32 arg1)
 {
     struct {
@@ -1321,6 +1320,7 @@ void func_00203670(s32 unused, s32 arg1)
     s32 mask;
     u8 *temp_2;
     u8 *temp_16;
+    u8 *temp_18;
     temp_2 = func_00452560();
     temp_16 = temp_2 + 0x9C;
     *(s32 *)(temp_2 + 0x214) = arg1;
@@ -1344,7 +1344,9 @@ void func_00203670(s32 unused, s32 arg1)
     func_00202c60(temp_16 + 0x40, 8, 8,
                   (void *)func_00207140, (void *)func_00207320,
                   (void *)func_00207b00, (void *)func_002089e0, temp_16);
-    func_00202e60(temp_16 + 0x40, (s32)func_00208870);
+    temp_18 = temp_16 + 0x40;
+    func_00202e60(temp_18, (void *)func_00208870);
+    func_0043f9c8((s16 *)&sp38, 0, 8);
     sp38.values[0] = 0x1000;
     sp38.values[1] = 0x4000;
     func_00202e00(temp_16 + 0x40, (s16 *)&sp38);
@@ -1353,9 +1355,6 @@ void func_00203670(s32 unused, s32 arg1)
     *(s32 *)(temp_16 + 0x2C) = 0;
     *(s32 *)(temp_16 + 0x30) = 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00203670);
-#endif
 // FUN_002037B0
 void func_002037b0(void) {
     u8 *p;

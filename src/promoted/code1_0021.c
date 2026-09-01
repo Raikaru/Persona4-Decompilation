@@ -1267,7 +1267,55 @@ void func_0021b1e0(void)
 {
 }
 // FUN_0021B1F0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b1f0);
+// measured: loop-invariant constant hoisting probe for func_0021b1f0.
+#pragma opt_loop_invariants on
+void func_0021b1f0(s32 arg0, s32 *arg1)
+{
+    f32 temp_f0;
+    f32 temp_f3;
+    s16 temp_3;
+    u8 *var_7;
+    u32 var_6;
+    u8 *temp_5;
+
+    if ((*(s32 *)func_00452560(*arg1) & 1) != 0) {
+        var_6 = 0;
+        while (var_6 < 2U) {
+            var_7 = *(u8 **)(iGpffffb3ac + var_6 * 8 + 0x178);
+            while (var_7 != NULL) {
+                if (*(s32 *)(var_7 + 0xA64) != 0) {
+                    temp_5 = var_7 + 0xA28;
+                    temp_f0 = *(f32 *)(var_7 + 0xA28);
+                    if (!(temp_f0 < 0.0f)) {
+                        *(f32 *)(temp_5 + 0xC) = temp_f0;
+                        *(f32 *)(temp_5 + 8) = *(f32 *)(temp_5 + 4);
+                        *(s32 *)temp_5 = (s32)0xBF800000;
+                        *(s16 *)(temp_5 + 0x10) = 0;
+                    }
+                    temp_3 = *(s16 *)(temp_5 + 0x10);
+                    if (temp_3 >= 0 && temp_3 < 0xD) {
+                        if (temp_3 < 0xC) {
+                            temp_f3 = *(f32 *)(temp_5 + 8);
+                            temp_f0 = (f32)temp_3 / 12.0f;
+                            *(f32 *)(temp_5 + 4) =
+                                temp_f0 * (*(f32 *)(temp_5 + 0xC) -
+                                           temp_f3) +
+                                (0.0f + temp_f3);
+                        } else {
+                            *(f32 *)(temp_5 + 4) = *(f32 *)(temp_5 + 0xC);
+                        }
+                        *(s16 *)(temp_5 + 0x10) =
+                            *(s16 *)(temp_5 + 0x10) + 1;
+                    }
+                }
+                var_7 = *(u8 **)(var_7 + 0xA6C);
+            }
+            var_6 += 1;
+        }
+    }
+}
+// measured: restore loop-invariant baseline after func_0021b1f0.
+#pragma opt_loop_invariants off
 // FUN_0021B310
 void func_0021b310(u8 *arg0, s32 arg1)
 {

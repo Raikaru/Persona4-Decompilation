@@ -266,10 +266,34 @@ s32 func_001d1cc0(u8 *arg0)
     return 1;
 }
 // FUN_001D41B0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d41b0);
-/* measured: in-file body recheck is object 732B/window 736B with
-   normalized_diff 43, over the park threshold; body archived at
-   build/WS19_001d44a0_nd43.c and restored to INCLUDE_ASM. */
+u8 *func_001d41b0(u8 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4)
+{
+    u32 temp_3;
+    u32 offset;
+    u32 base;
+    u8 *result;
+    u32 size;
+
+    temp_3 = arg2;
+    offset = (u16)arg1 * 0x314;
+    base = (u32)arg0;
+    size = *(u16 *)((u8 *)p4_001d7f10_add((s32)offset, (s32)base) + 0x10) * 4 + 0x68;
+    func_0044ea90(D_00609498, 0x51);
+    result = jtbl_008873E8[0](size, 0x40000);
+    func_0043f9c8(result, 0, size);
+    *(u8 **)(result + 0) = arg0;
+    *(u8 **)(result + 4) = arg0 + offset + 8;
+    *(u16 *)(result + 0x54) = *(u16 *)(*(u8 **)(result + 4) + 8);
+    *(u8 **)(result + 0x58) = result + 0x68;
+    *(s32 *)(result + 0x10) = -1;
+    *(s32 *)(result + 0x18) = temp_3;
+    *(s32 *)(result + 0x1C) = arg3;
+    *(s32 *)(result + 8) = arg4;
+    if ((arg1 & 0xFFFF) == 1) {
+        *(s8 *)(result + 0x14) = func_00231d70(0x64);
+    }
+    return result;
+}
 // FUN_001D44A0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d44a0);
 // FUN_001D4780
