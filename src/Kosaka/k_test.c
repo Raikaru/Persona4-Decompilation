@@ -2,8 +2,8 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 
-extern void (*jtbl_008873EC[])(...);
-extern void *(*D_008873F4[])(...);
+extern void (*jtbl_008873EC[])();
+extern void *(*D_008873F4[])();
 
 extern u8 D_005F5718[];
 extern u8 D_00763098;

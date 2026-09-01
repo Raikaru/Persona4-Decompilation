@@ -183,7 +183,7 @@ void func_0033f660(u8 *arg0) {
 
 /* measured: MATCHED this wave — the recorded nd-22 copy-loop rotation floor is broken
    by three spellings together: (1) recipe B (u32 cast base `u32 base = (u32)D_008873F4;`
-   + per-call `((u8 *(*)(s32,s32,s32))*(u32 *)base)(...)`) for the saved-$20 lui/addiu
+   + per-call `((u8 *(*)(s32,s32,s32))*(u32 *)base)()`) for the saved-$20 lui/addiu
    base hoist (typed-pointer local and array spelling still fold to per-call lui/lw);
    (2) `ret` declared FIRST (before blk1/base) — any other order puts ret in $s0 and
    blk1 in $s1, retail has ret=$s1/blk1=$s0, a pure 40-word rotation; (3) a SEPARATE

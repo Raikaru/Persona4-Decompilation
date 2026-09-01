@@ -4,7 +4,7 @@
 extern void func_0034f5d0(u8 *arg0);
 
 extern void func_002bb550(s8 arg0);
-extern void (*D_008873EC[])(...);
+extern void (*D_008873EC[])();
 
 extern void func_003549d0();
 extern s32 func_001060b0(void);

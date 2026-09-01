@@ -82,7 +82,7 @@ void *func_00486a50(s32 arg0)
    single shared variable, the comma-operator base form, and #pragma
    opt_propagation off + typed base local -- all nd >= 42. The jtbl_008873E8
    base-hoist spelling used here (u32 base = (u32)jtbl_008873E8;
-   ((void (*)(u32,u32))*(u32 *)base)(...)) is correct and matches retail. */
+   ((void (*)(u32,u32))*(u32 *)base)()) is correct and matches retail. */
 // FUN_00486B00
 INCLUDE_ASM("asm/nonmatchings/effParticle", func_00486b00);
 

@@ -46,7 +46,7 @@ void func_00451770(KwlnTask* a0);
 void func_004518e0(KwlnTask* a0);
 /* GP-relative current-task pointer at gp -0x45EC (absolute 0x00764B04). */
 extern KwlnTask* iGpffffba14;
-extern void (*jtbl_008873FC[])(...);
+extern void (*jtbl_008873FC[])();
 extern void func_0046d730(const void* file, u32 line);
 extern char D_00710568[];
 extern void func_0046d740(const void* file, const void* file2, u32 line);

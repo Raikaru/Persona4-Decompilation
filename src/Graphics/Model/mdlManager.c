@@ -125,7 +125,7 @@ typedef struct MdlAnimResourceEntry
 } MdlAnimResourceEntry;
 
 extern void func_0047fa60(int resource);
-extern void (*DAT_008873ec[])(...);
+extern void (*DAT_008873ec[])();
 
 extern s32 func_003df7f0(u8* arg0);
 extern void func_003d6230();

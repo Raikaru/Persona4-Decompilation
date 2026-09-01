@@ -156,7 +156,7 @@ extern u32 DAT_00881634_abs[];
 /* measured: recipe B retest 2026-08-03. The func_002715c0 dual-assignment
    tab pattern ((void *(**) )DAT_008873ec_abs; ((code)tab[0])...) AND the
    wave's u32-cast form (u32 b = (u32)jtbl_008873E8;
-   ((void *(*)(u32,u32))*(u32 *)b)(...)) BOTH hoist the vtable bases (E8 in
+   ((void *(*)(u32,u32))*(u32 *)b)()) BOTH hoist the vtable bases (E8 in
    $22, EC in $s0 in the failure block) - the old EC-rematerialization claim
    is stale; both forms measure nd122 with identical objects. Loop bodies
    also color exactly as retail ($a2/$a3/$t0, load-first order) once the
@@ -1203,7 +1203,7 @@ extern code D_00887300_abs[];
 
 /* measured: recipe B retest 2026-08-03 - nd194..195 (recorded 131 not
    reproducible this wave). Tried the wave's u32-cast vtable form
-   (u32 base = (u32)D_00887300; ((void (*)(s32,s32))*(u32 *)base)(...)) -
+   (u32 base = (u32)D_00887300; ((void (*)(s32,s32))*(u32 *)base)()) -
    nd195, the void *(**) local - nd195, named prologue s8 local, m2c-draft
    mirror, ternary arg1 test + s32 temp_23 - nd194. The hoist itself works in
    all forms (8 vtable calls match); the residual is: mwcc hoists the
@@ -1778,7 +1778,7 @@ void func_002746b0(u32 param_1)
 // FUN_002746E0
 s8 func_002746e0(void *param_1, int param_2)
 {
-    typedef int (*FrFontCommand)(...);
+    typedef int (*FrFontCommand)();
     typedef struct FrFontCommandGroup {
         FrFontCommand *handlers;
         s32 count;

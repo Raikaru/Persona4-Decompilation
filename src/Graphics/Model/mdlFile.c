@@ -48,9 +48,9 @@ void func_0047dcc0(int *param_1)
     }
     *(int*)(*param_1 + 4) = *(int*)(*param_1 + 4) - 1;
     if (*(int*)(*param_1 + 4) == 0) {
-        ((void (*)(...))DAT_008873ec_abs[0])(*param_1);
+        ((void (*)())DAT_008873ec_abs[0])(*param_1);
     }
-    ((void (*)(...))DAT_008873ec_abs[0])(param_1);
+    ((void (*)())DAT_008873ec_abs[0])(param_1);
 }
 
 
@@ -173,7 +173,7 @@ void func_004808b0(int param_1)
 {
   *(u16 *)(param_1 + 8) = *(u16 *)(param_1 + 8) - 1;
   if (*(u16 *)(param_1 + 8) == 0) {
-    ((void (*)(...))(*(u32 *)0x008873ec))();
+    ((void (*)())(*(u32 *)0x008873ec))();
   }
   return;
 }

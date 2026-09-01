@@ -67,7 +67,7 @@ void func_0047fa60(int param_1)
     for (uVar4 = 0; uVar4 < 4; uVar4 = uVar4 + 1) {
       puVar3 = (u32 *)(iVar2 + uVar4 * 0x10);
       if (puVar3[3] != 0) {
-        ((void (*)(...))DAT_008873ec_abs[0])(puVar3[3]);
+        ((void (*)())DAT_008873ec_abs[0])(puVar3[3]);
         puVar3[3] = 0;
       }
       *puVar3 = 0;
@@ -75,10 +75,10 @@ void func_0047fa60(int param_1)
       puVar3[2] = 0;
     }
     func_004808b0(*(u32 *)(iVar2 + 0x50));
-    ((void (*)(...))DAT_008873ec_abs[0])(iVar2);
+    ((void (*)())DAT_008873ec_abs[0])(iVar2);
     iVar2 = iVar1;
   }
-  ((void (*)(...))DAT_008873ec_abs[0])(param_1);
+  ((void (*)())DAT_008873ec_abs[0])(param_1);
   return;
 }
 
