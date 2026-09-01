@@ -126,7 +126,54 @@ void func_0034a890(u8 *arg0)
 // FUN_0034A8B0
 INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034a8b0);
 // FUN_0034AC00
-INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034ac00);
+/* measured: opt_propagation off plus a named local forces the GP global read to its written position, producing retail's field-first/global-second order. */
+#pragma push
+#pragma opt_propagation off
+s32 func_0034ac00(u8 *arg0)
+{
+    extern void func_0034a8b0(void *arg0);
+    s32 counter;
+    s16 bumped;
+    u8 *entry;
+    u8 *base;
+    u8 *sub;
+    u8 *entry2;
+    s16 index;
+    s32 offset;
+    u8 *packet;
+
+    base = *(u8 **)(arg0 + 0x38);
+    func_00457120();
+    counter = 0;
+    while ((s64)(s16)counter < *(u8 *)(base + 0x1800)) {
+        entry = base + ((s32)(s64)(s16)(s64)counter << 9);
+        sub = entry + 0x104;
+        func_0043f810(sub, func_002b89a0(sub), 0xF0);
+        if ((*(s16 *)(entry + 0x104) & 1) == 1) {
+            f32 field;
+            f32 global;
+            field = *(f32 *)(entry + 0x194);
+            global = fGpffff8504;
+            if ((!(field <= global)) &&
+                (*(f32 *)(entry + 0x1A0) > global) &&
+                (*(u8 *)(entry + 0x162) > 0)) {
+                entry2 = base + ((s32)(s16)counter << 9);
+                index = *(s16 *)(entry2 + 0x100);
+                offset = index << 1;
+                offset += index;
+                offset <<= 4;
+                packet = func_00461390(D_00793E80 + offset, 4, entry2, 4);
+                *(void **)(packet + 8) = (void *)func_0034a8b0;
+                *(u8 **)(packet + 0x10) = entry2;
+            }
+        }
+        bumped = counter + 1;
+        counter = (s64)(s16)bumped;
+    }
+    return 0;
+}
+/* measured: restore pragma state after func_0034ac00. */
+#pragma pop
 // FUN_0034AD40
 void func_0034ad40(u8 *arg0) {
     jtbl_008873EC[0](*(void **)(arg0 + 0x38));

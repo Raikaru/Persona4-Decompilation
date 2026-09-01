@@ -396,6 +396,26 @@ Rules of engagement:
   the named local. Also the shape of the `c.ole.s`/`bc1t` scheduling wall
   recorded on `y_draw`. Retry both with the pair.
 
+  **Validated on `func_0034ac00` (closed, nd 2 → 0) and `func_0019df20`
+  (closed, nd 0 with the banned `volatile` removed) — and the validation
+  generalised the rule.** In `func_0034ac00` the *default* C emitted the GP
+  load first and retail wanted the field first: the opposite direction from
+  the isolated probe. The pair still closed it, because what it actually
+  does is **anchor both loads to their written positions** — `f32 field =
+  entry->x; f32 g = fGpffff8504;` under `opt_propagation off` emits those two
+  loads in that order, whatever the default schedule would have been. So
+  the recipe is not "force the global first"; it is "write the loads as
+  named locals in retail's order, under the pragma". One caution measured
+  there: naming only the global hoisted its load above an earlier flag test
+  and shifted five words — name *both* operands, immediately before the
+  expression that consumes them, not earlier.
+
+  `func_0019df20` shows the other use: it had reached a true nd 0 only by
+  `*(volatile f32 *)&angle` read-backs forcing two values to spill before a
+  call. `volatile` is banned; the pragma plus a named read-back local is the
+  legal way to force that spill, and it closed at 520/528 with the casts
+  removed.
+
   Note the distinction from the entry below: that one is two *stack* reloads
   swapping, where neither operand is a global, and the pragma pair was
   measured not to help. This entry is specifically global-versus-field.

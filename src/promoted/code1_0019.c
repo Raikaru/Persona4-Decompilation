@@ -3010,11 +3010,84 @@ void func_0019df00(u8 *arg0) {
         *(u16 *)(temp + 0xA0) = *(u16 *)(temp + 0xA0) + 1;
     }
 }
-/* Best clean-C candidate reaches nd 0 only via a `volatile` compiler-steering
-   read-back (banned, H001); see build/Lane0019_misc_0019df20_body.c for the
-   attempt and the pragma substitutes tried. */
+/* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before func_0047a8a0. */
+#pragma push
+#pragma opt_propagation off
 // FUN_0019DF20
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019df20);
+s32 func_0019df20(u8 *arg0)
+{
+    u8 *unit;
+
+    if ((*(u16 *)(arg0 + 0x10) & 1) != 0) {
+        f32 angle1;
+        f32 angle2;
+        f32 call_angle1;
+        f32 call_angle2;
+        s32 enabled;
+
+        unit = *(u8 **)(iGpffffb3ac + 0x17C);
+        while (unit != NULL) {
+            if ((*(s32 *)(unit + 0x9C) & 8) != 0) {
+                if (&angle1 != NULL) {
+                    angle1 = 70.0f;
+                }
+                if (&angle2 != NULL) {
+                    angle2 =
+                        (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) ==
+                         unit) ? 70.0f : 60.0f;
+                }
+                call_angle2 = angle2;
+                call_angle1 = angle1;
+                enabled = *(s32 *)(unit + 0x98) & 2;
+                if (enabled != 0) {
+                    func_0047a8a0(*(u8 **)(unit + 0xA00),
+                                   call_angle1, call_angle2);
+                }
+                if ((*(s32 *)(unit + 0x98) & 2) != 0) {
+                    func_0047a890(*(u8 **)(unit + 0xA00), 0.25f);
+                }
+                *(s16 *)(unit + 0xB0) = 1;
+                *(P4_95730_Vec3 *)(unit + 0xB8) =
+                    *(P4_95730_Vec3 *)(arg0 + 4);
+                func_0019d7a0(unit, 3);
+            }
+            unit = *(u8 **)(unit + 0xA68);
+        }
+    } else {
+        f32 angle1;
+        f32 angle2;
+        f32 call_angle1;
+        f32 call_angle2;
+        s32 enabled;
+
+        unit = *(u8 **)arg0;
+        if (&angle1 != NULL) {
+            angle1 = 70.0f;
+        }
+        if (&angle2 != NULL) {
+            angle2 =
+                (*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) == unit) ?
+                70.0f : 60.0f;
+        }
+        call_angle2 = angle2;
+        call_angle1 = angle1;
+        enabled = *(s32 *)(unit + 0x98) & 2;
+        if (enabled != 0) {
+            func_0047a8a0(*(u8 **)(unit + 0xA00),
+                           call_angle1, call_angle2);
+        }
+        if ((*(s32 *)(unit + 0x98) & 2) != 0) {
+            func_0047a890(*(u8 **)(unit + 0xA00), 0.25f);
+        }
+        *(s16 *)(unit + 0xB0) = 1;
+        *(P4_95730_Vec3 *)(unit + 0xB8) =
+            *(P4_95730_Vec3 *)(arg0 + 4);
+        func_0019d7a0(unit, 3);
+    }
+    return 1;
+}
+/* measured: restore pragma state after func_0019df20. */
+#pragma pop
 // FUN_0019E130
 void func_0019e130(u8 *arg0) {
     u8 *temp;
