@@ -1,7 +1,7 @@
 /* Source unit: src/comuTimerSequence_0021dd60.c */
 #include "type.h"
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 

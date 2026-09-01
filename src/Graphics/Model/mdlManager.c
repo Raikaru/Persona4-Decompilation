@@ -71,7 +71,7 @@ struct RtAnimInterpolator
     void* keyFrameAddCB;                         // 0x48
 };
 
-typedef int (*code)(...);
+typedef int (*code)();
 
 typedef struct RwV3d
 {

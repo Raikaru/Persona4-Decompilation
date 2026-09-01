@@ -80,7 +80,7 @@ extern u8 iGpffffa4da;
 extern u8 iGpffffa4d9;
 extern u8 iGpffffa4d8;
 
-typedef int (*code)(...);
+typedef int (*code)();
 
 extern int func_001d94d0(int param_1, int param_2, int param_3, int param_4, int param_5, code param_6);
 extern s32 btlCond_MYKYUSYU(u8 *arg0, s16 arg1);

@@ -3,7 +3,7 @@
 #include "include_asm.h"
 
 typedef u8 bool;
-typedef int (*code)(...);
+typedef int (*code)();
 
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
 extern bool btlCond_MYWEAK(int param_1, short param_2);

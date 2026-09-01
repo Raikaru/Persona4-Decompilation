@@ -57,7 +57,7 @@ typedef struct ResrcManager
     Resrc* resLists[RESRC_TYPE_MAX]; /* 0x00. Head of list for every type of resource */
 } ResrcManager;
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 extern void func_0044ea90(const char* file, s32 line);

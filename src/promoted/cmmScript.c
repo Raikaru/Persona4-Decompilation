@@ -154,7 +154,7 @@ extern s32 func_0024c460(u8 *arg0);
 extern s32 func_0024d1f0(void);
 typedef struct { f32 x, y, z, w; } Vec4f;
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 // FUN_0024A200

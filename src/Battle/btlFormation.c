@@ -2,7 +2,7 @@
 #include "include_asm.h"
 #include "type.h"
 
-typedef int (*code)(...);
+typedef int (*code)();
 
 typedef void (*BtlPacketInitFunc)(void* work);
 typedef u32 (*BtlPacketUpdateFunc)(void* work);

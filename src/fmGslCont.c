@@ -1,7 +1,7 @@
 /* Source unit: src/fmGslCont_0026e0e0.c */
 #include "type.h"
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 extern u64 memcpy();

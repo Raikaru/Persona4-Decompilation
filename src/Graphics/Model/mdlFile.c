@@ -4,7 +4,7 @@
 #define MODEL_TYPE_BTLCHAR 1
 #define MODEL_TYPE_ENEMY 2
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern u64 func_004b5f20();
 extern u64 func_0047de90_wide(u32 *param_1);
