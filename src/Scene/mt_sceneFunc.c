@@ -121,7 +121,7 @@ extern u8 *func_00147620(u32 arg0);
 extern f32 func_0044b610(f32 arg0);
 extern f32 func_0044b938(f32 arg0);
 extern f32 func_0044b950(f32 arg0, f32 arg1);
-extern u32 PTR_DAT_00762ea0;
+extern u8 *PTR_DAT_00762ea0;
 extern u32 D_005F08B0[];
 extern u8 D_0063B090[];
 extern u8 D_0063B0A0[];
@@ -873,8 +873,80 @@ INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026a020);
    loop top (before the D_0063B080/B088 loads); a sp40p local forces it early
    but spills to callee-saved $s3 (frame 0x70 vs 0x60). Without sp40p, nd 84
    with frame 0x60. Argument-materialization + load-position scheduling floor. */
+/* measured: opt_propagation off plus block-scoped stack-address and global-load
+   temporaries closes func_0026ba60 (normalized_diff 0). */
+#pragma opt_propagation off
 // FUN_0026BA60
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026ba60);
+s32 func_0026ba60(u16 *arg0)
+{
+    typedef struct {
+        u64 sp40;
+        f32 sp48;
+        u32 pad4c;
+        u8 *sp50;
+        u8 *sp54;
+        u8 *sp58;
+    } LocalFrame;
+    LocalFrame frame;
+    u64 xy;
+    f32 z;
+    f32 temp_f2;
+    f32 temp_f2_2;
+    f32 temp_f3;
+    f32 temp_f3_2;
+    s32 temp_2;
+    s32 index;
+    s32 offset;
+    s32 var_17;
+    u8 *temp_3;
+    u8 *var_16;
+
+    var_16 = (u8 *)func_001452b0(0x15);
+    temp_3 = (u8 *)PTR_DAT_00762ea0;
+    index = *(s32 *)(temp_3 + 0);
+    offset = *(s32 *)(temp_3 + 4);
+    temp_2 = *(s32 *)((u8 *)D_005F08B0 + (index * 4));
+    if (temp_2 == 0) {
+        return 0;
+    }
+    var_17 = *(u8 *)((u8 *)temp_2 + offset);
+    for (; var_16 != NULL; var_16 = *(u8 **)(var_16 + 0x138)) {
+        {
+            u8 *sp40p = (u8 *)&frame.sp40;
+            xy = *(u64 *)D_0063B080;
+            z = *(f32 *)D_0063B088;
+            frame.sp40 = xy;
+            frame.sp48 = z;
+            frame.sp50 = var_16 + 0x15C;
+            frame.sp54 = var_16 + 0x168;
+            frame.sp58 = var_16 + 0x174;
+            if ((func_00168ec0(arg0, &frame.sp50, sp40p) == 1) &&
+                (temp_f3 = *(f32 *)(frame.sp50 + 4),
+                 temp_f2 = *(f32 *)((u8 *)arg0 + 4),
+                 (temp_f2 < (100.0f + temp_f3))) &&
+                !(temp_f2 <= (temp_f3 - 100.0f))) {
+                var_17 = *(s32 *)(var_16 + 0x18C);
+                break;
+            }
+        }
+        frame.sp50 = var_16 + 0x168;
+        frame.sp54 = var_16 + 0x174;
+        frame.sp58 = var_16 + 0x180;
+        {
+            u8 *sp40p = (u8 *)&frame.sp40;
+            if ((func_00168ec0(arg0, &frame.sp50, &frame.sp40) == 1) &&
+                (temp_f3_2 = *(f32 *)(frame.sp50 + 4),
+                 temp_f2_2 = *(f32 *)((u8 *)arg0 + 4),
+                 (temp_f2_2 < (100.0f + temp_f3_2))) &&
+                !(temp_f2_2 <= (temp_f3_2 - 100.0f))) {
+                var_17 = *(s32 *)(var_16 + 0x18C);
+                break;
+            }
+        }
+    }
+    return var_17;
+}
+#pragma opt_propagation on
 
 // FUN_0026BC10
 s32 func_0026bc10(u32 arg0, u32 arg1)
