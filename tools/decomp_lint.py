@@ -636,37 +636,59 @@ def check_asm_function_body(src):
     The legitimate case is real: PS2 kernel syscall trampolines have no C
     expression, and MWCC's assembler rejects the `syscall` mnemonic, so they
     must be `.word` literals.  Those decode as hardware and stay allowed.
+
+    But presence alone must not exempt an arbitrarily large body.  A single
+    privileged op used to whitelist every instruction beside it, so a 136-line
+    transcription of `_start` -- 130 `.word`-encoded `padduw` register clears
+    around a handful of real `syscall`/`ei`/`sync.p` -- passed with zero
+    findings and scored MATCH by construction.  The exemption is therefore
+    proportional: a trampoline is a handful of instructions wrapped around its
+    privileged op, so a body that dwarfs its hardware content is a
+    transcription regardless of what it contains.  Genuine boot stubs are
+    floors and belong in `INCLUDE_ASM`, not in an `asm` body.
     """
+    # A trampoline is small and mostly privileged.  Past both bounds the body
+    # is ordinary code wearing a hardware op as a badge.
+    BULK = 16          # below this, any hardware op still exempts
+    RATIO = 8          # above BULK, ordinary may exceed hardware by this much
     for i, line in enumerate(src.code):
         if not ASM_FUNC_RE.match(line):
             continue
-        depth, ordinary, hardware = 0, 0, False
+        depth, ordinary, hardware = 0, 0, 0
         for j in range(i, len(src.code)):
             body = src.code[j]
             m = WORD_DIRECTIVE_RE.match(body)
             if m:
                 if _word_is_hardware(int(m.group(1), 16)):
-                    hardware = True
+                    hardware += 1
                 else:
                     ordinary += 1
             else:
                 for base in _asm_mnemonics(body if j > i else ''):
                     if base.startswith("v") or base in ASM_ALLOWED:
-                        hardware = True
+                        hardware += 1
                     else:
                         ordinary += 1
             depth += body.count("{") - body.count("}")
             if depth <= 0 and j > i:
                 break
-        if hardware or not ordinary:
+        if not ordinary:
+            continue
+        bulk = ordinary > BULK and ordinary > RATIO * hardware
+        if hardware and not bulk:
             continue
         if waived(src, i, "H009"):
             continue
-        yield Finding("H009", src.rel(), i + 1,
-                      f"whole-function asm body of {ordinary} ordinary instruction(s) "
-                      "with no privileged/COP2/VU0 op; this matches by construction, "
-                      "not by decompilation",
-                      src.lines[i].strip())
+        if hardware:
+            why = (f"whole-function asm body of {ordinary} ordinary instruction(s) "
+                   f"against only {hardware} privileged op(s); a syscall trampoline "
+                   "is a handful of instructions around its privileged op, so this "
+                   "is a transcription that matches by construction")
+        else:
+            why = (f"whole-function asm body of {ordinary} ordinary instruction(s) "
+                   "with no privileged/COP2/VU0 op; this matches by construction, "
+                   "not by decompilation")
+        yield Finding("H009", src.rel(), i + 1, why, src.lines[i].strip())
 
 
 def check_asm_instructions(src):

@@ -616,6 +616,44 @@ def merge_symbol_sections(symbols):
     return sections
 
 
+LINK_FLOOR = REPO / "config" / "link_floor.json"
+
+
+def check_link_floor(count):
+    """Fail when a translation unit silently drops out of the from-source link.
+
+    Both image SHA1s keep verifying when a TU loses eligibility, because an
+    ineligible unit falls back to the retail bytes it was supposed to replace.
+    So SHA1 cannot detect this, and neither can verify.py: a function whose
+    relocation points at data the linker cannot place still compares equal
+    under relocation masking and reports MATCH.
+
+    That combination cost ten functions of proven from-source linking once
+    already. `func_00266690` referenced compiler-local `@165`, resolving into a
+    string literal at 0x00758020 that its object could not place; verify.py
+    said MATCH, both SHA1s said OK, and the whole cldDayChange.c unit quietly
+    left the link (166 -> 165 TUs, 1815 -> 1805 functions).
+
+    The floor only ratchets upward: raise it when a unit is genuinely added.
+    """
+    if not LINK_FLOOR.exists():
+        return
+    floor = json.loads(LINK_FLOOR.read_text())["linked_tu_count"]
+    if count >= floor:
+        return
+    sys.exit(
+        f"build: linked TU count {count} is below the recorded floor {floor}.\n"
+        "  A translation unit lost link eligibility. SHA1 cannot catch this -- "
+        "the unit falls back to retail bytes -- and verify.py cannot either, "
+        "because relocation masking hides an unplaceable operand.\n"
+        "  Find it by diffing linked_functions in the --progress-report JSON "
+        "against the previous run, then check that function's relocations "
+        "resolve to data the object actually places.\n"
+        f"  If a unit was legitimately removed, lower {LINK_FLOOR.name} "
+        "deliberately and say why in the commit."
+    )
+
+
 def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
                        include_generated=False):
     """Select matching C source units that can be placed byte-exact."""
@@ -1187,6 +1225,7 @@ def main():
     )
     print(f"eligible C objects: {len(cobjs)}  "
           f"({', '.join(o['src'].name for o in cobjs) if cobjs else 'none'})")
+    check_link_floor(len(cobjs))
     linked_functions = linked_function_records(cobjs, boundaries)
 
     entries = []

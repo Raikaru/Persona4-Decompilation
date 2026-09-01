@@ -695,6 +695,41 @@ asm void func_00100000(void)
 """)
         self.assertIn("H009", codes(findings))
 
+    def test_fires_when_a_lone_privileged_op_fronts_a_bulk_transcription(self) -> None:
+        # Regression: presence of any hardware op used to whitelist the whole
+        # body, so a 130-word transcription of `_start` -- register clears
+        # wrapped around a real syscall/ei/sync.p -- linted clean and scored
+        # MATCH by construction. The exemption is proportional now.
+        clears = "\n".join("    .word 0x%08X" % (0x70001428 + i * 8)
+                           for i in range(130))
+        findings = lint_text("""// FUN_00100008
+asm void func_00100008(void)
+{
+    .set noat
+    syscall
+    sync.p
+    ei
+%s
+}
+""" % clears)
+        self.assertIn("H009", codes(findings))
+
+    def test_still_silent_on_a_real_trampoline_with_one_privileged_word(self) -> None:
+        # The shape the exemption exists for: a handful of instructions around
+        # the privileged op. `code1_0042` carries ~150 of these.
+        findings = lint_text("""// FUN_004213C0
+asm void func_004213c0(void)
+{
+    .set noreorder
+    .word 0x24030000
+    .word 0x24040001
+    .word 0x0000000C /* syscall */
+    .word 0x03E00008
+    .word 0x00000000
+}
+""")
+        self.assertNotIn("H009", codes(findings))
+
     def test_word_decoder_separates_hardware_from_computation(self) -> None:
         self.assertTrue(lint._word_is_hardware(0x0000000C))    # syscall
         self.assertTrue(lint._word_is_hardware(0x40026000))    # mfc0

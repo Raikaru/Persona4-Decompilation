@@ -4,20 +4,27 @@
  * to force a MATCH. This honest reconstruction, keyframe-interpolation
  * logic confirmed against Ghidra's independent decompile of the retail
  * function, reaches object 560B == window 560B, normalized_diff 12 (97.9%
- * byte match). The residual is 3 symmetric operand-order swaps (subu/div.s)
- * inside the mode==1 and mode==2 sub-range branches: retail computes the
- * interpolation denominator (hi-lo) into $f1 before the numerator (pos-lo)
- * into $f0, then divides f0/f1; MWCC's -O2 instruction scheduler reorders
- * these two independent subtractions based on its own dependency heuristic,
- * NOT source statement order -- confirmed by testing both textual orders
- * (numerator-first single expression, and an explicit denom-temp computed
- * in a separate statement before the numerator) and getting byte-identical
- * output either way. A static helper function for the "frac" computation
- * was not inlined by MWCC at -O2 (became a real call, nd shot up to 313).
- * #pragma schedule off did not change this function's residual and broke
- * 7 unrelated MATCHes later in the file (global toggle, not block-scoped).
- * Left as bare INCLUDE_ASM per project rule (never leave a live non-MATCH
- * body in the tree). A future session may find the right scheduler lever.
+ * byte match).
+ * The residual is 3 symmetric operand-order swaps (subu/div.s)
+ * inside the mode==1 and mode==2 sub-range branches: retail computes
+ * the interpolation denominator (hi-lo) into $f1 before the numerator
+ * (pos-lo) into $f0, then divides f0/f1; MWCC's -O2 instruction
+ * scheduler reorders these two independent subtractions based on its own
+ * dependency heuristic, NOT source statement order -- confirmed by testing
+ * both textual orders (numerator-first single expression, and an explicit
+ * denom-temp computed in a separate statement before the numerator) and
+ * getting byte-identical output either way. Differing word offsets were
+ * 216, 232, 248, 400, 416, 432, 464, 480, and 496. A static helper function
+ * for the "frac" computation was not inlined by MWCC at -O2 (became a real
+ * call, nd shot up to 313). #pragma schedule off did not change this
+ * function's residual and broke 7 unrelated MATCHes later in the file
+ * (global toggle, not block-scoped). The plain-C return reproduced the
+ * retail COP1 accumulator chain (adda.s/madd.s at offsets 544/548); this
+ * was not a floor. The residual was subsequently closed at nd 0 by a
+ * balanced, measured #pragma opt_propagation off around the target.
+ * Ruled out: alternate subtraction statement order, explicit denominator
+ * temporary, static helper call, and #pragma schedule off.
+ * This file preserves the pre-fix nd12 probe candidate for future reference.
  */
 f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2)
 {

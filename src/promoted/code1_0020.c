@@ -183,7 +183,7 @@ extern u8 D_00795080[];
 extern void func_0020ad80(u8 *arg0, s32 arg1);
 extern void func_0020b1a0(void);
 extern void func_0020bb70(u8 *arg0);
-extern void func_0020b3a0(void);
+extern void func_0020b3a0(s32 arg0, u8 *arg1);
 extern void func_0020b5a0(void);
 extern void func_0020b5b0(s32 arg0, u8 *arg1);
 extern void func_0020bb20(u8 *arg0, s32 arg1);
@@ -1902,7 +1902,54 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020add0);
 // FUN_0020B1A0
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020b1a0);
 // FUN_0020B3A0
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020b3a0);
+void func_0020b3a0(s32 arg0, u8 *arg1)
+{
+    extern void func_00204b80(u8 *arg0, f32 farg0, f32 farg1, u8 arg1);
+    extern u8 D_00626BE0[];
+    u8 *temp_2;
+    s16 temp_3;
+    s16 temp_4;
+    f32 temp_f20;
+
+    temp_2 = func_00452560(*(s32 *)(arg1 + 0x5B0));
+    if ((*(s32 *)temp_2 & 1) != 0) {
+        if (*(u16 *)arg1 != 0) {
+            if (*(s16 *)(arg1 + 0x5AC) == -1) {
+                func_00201350();
+                temp_3 = *(s16 *)(arg1 + 0xA);
+                if (temp_3 < 7) {
+                    if (((f32)(6 - temp_3) / 6.0f) < 1.0f) {
+                        temp_f20 = 1.0f -
+                            ((f32)(6 - temp_3) / 6.0f * 2.0f -
+                             (f32)(6 - temp_3) / 6.0f *
+                                 ((f32)(6 - temp_3) / 6.0f));
+                    }
+                } else {
+                    temp_4 = temp_3 - 6;
+                    if (((f32)temp_4 / 5.0f) < 1.0f) {
+                        temp_f20 =
+                            ((f32)temp_4 / 5.0f * 2.0f -
+                             (f32)temp_4 / 5.0f *
+                                 ((f32)temp_4 / 5.0f)) *
+                                0.25f +
+                            1.0f;
+                    }
+                }
+                func_00204a30(temp_2, temp_f20, temp_f20);
+                if (((*(s32 *)(arg1 + 4) & 2) != 0) &&
+                    (*(u16 *)arg1 != 2) &&
+                    (*(s16 *)(arg1 + 0xA) < 7)) {
+                    func_00204b80(temp_2, 1.0f, 1.0f,
+                                  D_00626BE0[*(s16 *)(arg1 + 0x10)]);
+                    if ((u32)(s16)(*(s16 *)(arg1 + 0x10) += 1) >= 0x14) {
+                        *(s16 *)(arg1 + 0x10) = 0x13;
+                    }
+                }
+                func_00203600(arg1 + 0x2C);
+            }
+        }
+    }
+}
 // FUN_0020B5A0
 void func_0020b5a0(void)
 {

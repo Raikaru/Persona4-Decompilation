@@ -104,6 +104,8 @@ extern u8 D_00793E80[];
 extern void func_00365f00(f32 f0, f32 f1, f32 f2, f32 f3, s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 f4);
 extern f32 iGpffff83d4;
 extern f32 iGpffff8544;
+extern f32 func_0044b7b0(f32 arg0);
+extern f32 fGpffff84a4;
 extern void func_002bb7c0();
 extern s32 func_002bb600(void);
 extern void func_002bb1e0(s32 arg0);
@@ -1392,8 +1394,38 @@ INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035aff0);
    mula.s/madda.s/madd.s; the remaining candidate residual also includes the
    temp_2 v1/v0 prologue naming. This is a COP1 accumulator compiler floor;
    body and all plain-C order/helper probes are archived in build/V035_0035bad0_body.c. */
-// FUN_0035BAD0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035bad0);
+/* measured: inline func_0044b7b0 calls at both interpolation sites preserve
+   source multiply order and reproduce the retail madd.s operands; target now
+   matches at normalized_diff 0. */
+// FUN_0035BAD0
+f32 func_0035bad0(u8 *arg0)
+{
+    f32 temp_f20;
+    f32 temp_f22;
+    f32 temp_f21;
+    f32 temp_f21_2;
+    s16 temp_2;
+    s16 temp_2_2;
+
+    *(s16 *)(arg0 + 0x24) = *(s16 *)(arg0 + 0x24) + 1;
+    if (*(s16 *)(arg0 + 0x24) >= 0x64) {
+        *(s16 *)(arg0 + 0x24) = 0;
+    }
+    temp_2_2 = *(s16 *)(arg0 + 0x22);
+    if (temp_2_2 < 0xA) {
+        *(s16 *)(arg0 + 0x22) = (s16)(temp_2_2 + 1);
+    }
+    temp_f20 = (f32)*(s16 *)(arg0 + 0x22) / 10.0f;
+    if ((temp_f20 < 0.0f) || (temp_f20 > 1.0f)) {
+        func_0046d730(&D_0064CC98, 0x881);
+    }
+    temp_f22 = fGpffff84a4 * temp_f20;
+    temp_f21 = *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg0 + 8) = temp_f21 + ((*(f32 *)(arg0 + 0x10) - temp_f21) * func_0044b7b0(temp_f22));
+    temp_f21_2 = *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg0 + 0xC) = temp_f21_2 + ((*(f32 *)(arg0 + 0x14) - temp_f21_2) * func_0044b7b0(temp_f22));
+    return temp_f20;
+}
 // FUN_0035BC10
 void func_0035bc10(u8 *arg0, s8 arg1, s32 arg2)
 {
