@@ -177,6 +177,18 @@ Rules of engagement:
   order (not reverse) tends to reproduce retail's `s0/s1` assignment. A
   **param vs surviving-local fight over `s0`** is generally a floor, not a
   source problem.
+- **Saved-FPR count tells you whether retail cached a float across a call.**
+  `f20`–`f23` are only allocated when a float value must survive a call. If
+  retail's prologue saves none and yours saves two, the frame-size gap is
+  entirely that, and no amount of declaration reordering will close it — the
+  difference is dataflow, not spelling. Retail's source held no float in a
+  named local across the call: it either passed the expression straight into
+  the call, or re-read the value from its struct field / global afterwards.
+  Deleting the local and repeating the memory expression, or recomputing a
+  product on both sides of the call, looks redundant in source and is exactly
+  what produces the no-save frame. Measured on `func_0047f4d0`, where every
+  scalar variant retained `f20`–`f23` (frame 0x40/0x50) against retail's
+  smaller frame. Count the saved FPRs before probing anything else.
 
 ## Read-modify-write and flags
 
@@ -1356,10 +1368,26 @@ saved-register colouring, and load scheduling — not the fused instruction.
 
 Where a chain genuinely is unreachable it is because of *which* registers the
 accumulator reads, not because the instruction cannot be emitted. Treat
-"contains adda.s" as a normal target from now on. Functions previously
-dismissed on this basis are worth re-examining: `func_00208870`,
-`func_0047f040`, `func_0047f5b0`, `func_0035bd20`, and the leaf set
-`003e3f00`, `003e4030`, `003963c0`, `00396520` recorded above.
+"contains adda.s" as a normal target from now on.
+
+**Confirmed by eight independent reconstructions.** A wave was run against the
+reopened pool specifically to test this, and every single lane reproduced the
+retail accumulator chain from ordinary C — 4 ops (`func_0035bad0`), 6
+(`func_0011c780`), 6 (`func_0026bfc0`), 3 (`func_0047f4d0`), the full
+`MULA`/`MSUB`/`MADD` sequence (`func_00208870`), `madd.s` (`func_001bb790`),
+the tail chain (`func_004b7300`), and — decisively — **all 25** ops of
+`func_00480f20`, the densest accumulator function in the corpus. Not one lane
+needed a pragma, an intrinsic or inline asm to emit the chain, and not one
+found the chain itself to be the residual. Two closed outright
+(`func_004b7300`, `func_0026bfc0`); the rest walled on ordinary causes:
+commutative MAC operand order (`madd.s $f0,$f0,$f2` vs retail `$f0,$f2,$f0`),
+FPR colouring, and load scheduling.
+
+A scan of the unmatched first-party set found **308 functions containing an
+accumulator chain**. Rebuild that list with `insn.itype` in `0x13e..0x144`;
+matching on the mnemonic string finds nothing, which is how the pool stayed
+invisible. Those 308 are all ordinary targets and are the largest single block
+of work reopened this session.
 
 ### Near-size twins are a shape family, not a twin
 

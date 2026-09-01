@@ -1063,14 +1063,20 @@ void func_0026bf70(u32 arg0)
 
 /* measured: ported from P3FES FUN_003bb450 with the P4 global addresses and
    interleaved func_003e0870 declaration. Corrected func_003e4320's return
-   declaration to u8 * (verified definition); plain C remains nd 9, object
-   460B/window 464B. The first differing fndiff rows are offset 0x70
+   declaration to u8 * (verified definition); initial plain C was nd 9, object
+   460B/window 464B. The initial fndiff residual rows were offset 0x70
    (axis2's retail lwc1 versus mwcc's second aggregate ld), 0x78 (retail swc1
    versus mwcc sd), and offsets 0x80/0x88/0x8C (axis3 global-load order and
    register assignment). Direct axis2-width, direct axis3-load, typed-component,
-   and load-order variants all measured worse or unchanged; committed at nd 9. */
-// FUN_0026BFC0 NONMATCHING
-#ifdef NON_MATCHING
+   and load-order variants all measured worse or unchanged in the initial
+   probes. The final opt_propagation-off form below uses named axis2_xy/axis2_z
+   field temporaries and a block-scoped axis2p, closing normalized_diff 0 with
+   object 460B/window 464B; the retail six-op COP1 adda.s/msub.s chain is
+   reproduced by the natural float subtraction. */
+/* measured: opt_propagation off plus axis2 field temporaries and block-scoped
+   pointer closes normalized_diff 0; object 460B/window 464B. */
+#pragma opt_propagation off
+// FUN_0026BFC0
 
 void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *result) {
     typedef struct SceneMatrixLocal {
@@ -1107,7 +1113,10 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
     SceneVectorLocal axis2;
     SceneVectorLocal axis3;
     SceneMatrixLocal matrix;
+    SceneVectorLocal *axis2p;
     u64 xy;
+    u64 axis2_xy;
+    f32 axis2_z;
     f32 z;
 
     xy = *(u64 *)D_0063B120;
@@ -1118,7 +1127,11 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
     z = *(f32 *)D_0063B138;
     axis1.raw.xy = xy;
     axis1.raw.z = z;
-    *(SceneVecBits *)&axis2.raw.xy = *(SceneVecBits *)D_0063B140;
+    axis2p = &axis2;
+    axis2_xy = *(u64 *)D_0063B140;
+    axis2_z = *(f32 *)D_0063B148;
+    axis2.raw.xy = axis2_xy;
+    axis2.raw.z = axis2_z;
     xy = *(u64 *)D_0063B150;
     z = *(f32 *)D_0063B158;
     axis3.raw.xy = xy;
@@ -1138,7 +1151,7 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
     matrix.pos.x = 0.0f;
     matrix.flags |= 0x20003;
 
-    func_003e0870(&matrix, &axis2.value, fparg2, 1);
+    func_003e0870(&matrix, axis2p, fparg2, 1);
     func_003e0870(&matrix, &axis1.value, fparg1, 1);
     func_003e0870(&matrix, &axis3.value, fparg3, 1);
     func_003e4320(&transformed, &axis0, &matrix);
@@ -1148,9 +1161,7 @@ void func_0026bfc0(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f
     output.value.z = source.value.z - transformed.value.z * fparg0;
     *(RwV3d *)result = output.value;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/mt_sceneFunc", func_0026bfc0);
-#endif
+#pragma opt_propagation on
 
 
 
