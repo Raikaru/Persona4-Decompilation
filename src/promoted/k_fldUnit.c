@@ -137,7 +137,7 @@ s32 func_00163c90(s32 arg0);
 void func_00164020(u8 *arg0);
 void func_00164fa0(s32 arg0);
 void func_00165670(u8 *arg0, s32 arg1);
-s32 func_00478140(s32 arg0, s32 arg1, s32 arg2);
+s32 func_00478140(s32 arg0, u16 arg1, s32 arg2);
 s32 func_004782b0(s32 arg0);
 void func_00440b68(u8 *arg0, u8 *arg1, s32 arg2);
 s32 func_00454a60(u8 *arg0, s32 arg1);
@@ -686,7 +686,7 @@ void func_00165840(s32 arg0)
 
 
 
-/* measured: nd 63 after four attempts; only registers differ from here on.
+/* SUPERSEDED measured: nd 63 after four attempts; only registers differ from here on.
    (1) var_16 lands in $s2 and var_18 in $s0 where retail has $s0/$s2 — the
    allocator's internal order is fixed ($s4=var_20, $s3=var_19, $s2=var_16,
    $s1=var_17, $s0=var_18) under every declaration permutation tried, so the
@@ -700,7 +700,72 @@ void func_00165840(s32 arg0)
    u16 var_18_2, dsll32/dsra32 via (s16) of the s64 func_001060b0 result,
    andi-then-bgez ordering, temp_21 in $s5/$s6 slot pair. */
 // FUN_001658B0
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001658b0);
+void func_001658b0(void)
+{
+    s32 i;
+    s32 j;
+    u16 code;
+    s32 value;
+    s32 count;
+
+    count = 0;
+    j = 0;
+    func_0043f9c8(D_007E8BE0, 0, 0x20);
+    D_007E8BE8[0] = -1;
+    D_007E8BF8[0] = -1;
+    if (func_0014a200() == 0) {
+        goto done;
+    }
+    if (func_0014a200() != 0) {
+        goto loop;
+    }
+done:
+    return;
+loop:
+    for (i = 0; i < 8; i++) {
+        value = func_0015a160();
+        if (value == func_001064f0(i + 1)) {
+            s32 state;
+            s32 parity;
+            s32 base;
+            base = 10;
+            state = func_00110d60((s16)func_001060b0());
+            parity = state & 1;
+            if (state < 0 && parity != 0) {
+                parity -= 2;
+            }
+            if (parity != 0) {
+                base = 20;
+            }
+            if (i < 6) {
+                value = i + 2;
+                code = (u16)((value << 8) | base);
+            } else if (i == 6) {
+                code = 0x80A;
+                value = i + 2;
+            } else {
+                code = 0x120A;
+                value = 9;
+            }
+            if (count >= 2) {
+                func_0046d730(D_005F1500, 0x916);
+            }
+            if (D_007643C8[count] != 0) {
+                func_0046d730(D_005F1500, 0x917);
+            }
+            D_007643C8[count] = func_00478140(9, code, 0);
+            func_00440b68(D_00763008, D_005F1500, 0x91C);
+            D_007643C0[count] =
+                func_00454a60(D_005F13C0 + value * 0x20, 0);
+            *(s32 *)(D_007E8BE0 + j * 16) = 1;
+            *(u16 *)(D_007E8BE0 + j * 16 + 4) = 9;
+            *(u16 *)(D_007E8BE0 + j * 16 + 6) = code;
+            *(s32 *)(D_007E8BE0 + j * 16 + 0xC) = value;
+            j++;
+            count++;
+        }
+    }
+}
 
 
 
