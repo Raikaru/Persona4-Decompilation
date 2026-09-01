@@ -766,7 +766,61 @@ void func_004b5340(u8 *arg0) {
 }
 
 // FUN_004B53C0
-INCLUDE_ASM("asm/nonmatchings/code1_004b", func_004b53c0);
+u8 *func_004b53c0(u8 *arg0)
+{
+    u8 *result;
+    u8 *work;
+    s32 base;
+    s32 id;
+    s32 off;
+    s32 tex;
+    s32 (*setup4)(s32, s32, s32, s32);
+    void (*post)(u8 *);
+    extern u8 *func_004b50f0();
+
+    id = *(s32 *)(arg0 + 0x2C);
+    base = (s32)iGpffffbba0;
+    off = (base, id * 0x1C);
+    if (*(s32 *)(off + base + 0xC) == 0) {
+        tex = *(s32 *)(arg0 + 0x38);
+        off = id & 0xFFFF;
+        work = func_004b50f0(off, tex);
+        if (iGpffffbba4() != 0) {
+            off = (off & 0xFFFF) * 0x1C;
+            base = (s32)iGpffffbba0;
+            base += 4;
+            base += off;
+            setup4 = *(s32 (**)(s32, s32, s32, s32))base;
+            if (setup4 != NULL) {
+                *(s32 *)(work + 0x30) = setup4(tex, 0, 0, 0);
+            }
+            base = (s32)iGpffffbba0;
+            base += off;
+            post = *(void (**)(u8 *))base;
+            if (post != NULL) {
+                post(work);
+            }
+        }
+        result = work;
+    } else {
+        work = func_004b50f0((id = id & 0xFFFF),
+                             (id, *(s32 *)(arg0 + 0x38)));
+        {
+            s32 idx2;
+            idx2 = *(s32 *)(arg0 + 0x2C) * 0x1C;
+            *(s32 *)(work + 0x30) =
+                (*(s32 (**)(u8 *))((u8 *)(idx2 + (s32)iGpffffbba0 + 0xC)))(arg0);
+        }
+        off = *(s32 *)(arg0 + 0x2C) * 0x1C;
+        base = (s32)iGpffffbba0;
+        post = *(void (**)(u8 *))(base + off);
+        if (post != NULL) {
+            post(work);
+        }
+        result = work;
+    }
+    return result;
+}
 // FUN_004B5530
 void func_004b5530(u8 *arg0) {
     void (*fn)(u8 *);

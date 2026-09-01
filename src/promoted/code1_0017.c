@@ -81,6 +81,10 @@ extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
                          s32 arg4, s16 arg5, s16 arg6,
                          f32 farg3, f32 farg4, f32 farg5, u8 *arg7);
 extern f32 func_0044b7b0(f32 arg0);
+extern f32 func_0044b610(f32 arg0);
+extern f32 iGpffff8304;
+extern void func_003c2290(u8 *arg0, s32 arg1);
+extern void func_003c22f0(u8 *arg0);
 extern u8 *func_0046a770(char *arg0);
 extern char D_005E5850[];
 extern f32 iGpffff82fc;
@@ -1360,7 +1364,50 @@ void func_0017b990(u8 *arg0, s32 arg1)
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 4) = arg1;
 }
 // FUN_0017B9A0
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017b9a0);
+void func_0017b9a0(u8 *arg0, f32 fparg0)
+{
+    u8 *state;
+    s32 object;
+    f32 *particles;
+    f32 *entry;
+    s32 index;
+    f32 angle;
+    f32 speed;
+
+    state = *(u8 **)(arg0 + 0x38);
+    if (*(u8 **)(state + 0x50) != NULL) {
+        **(f32 **)(state + 0x50) = fparg0;
+        object = *(s32 *)(*(s32 *)(state + 0x50) + 4);
+        if (object != 0) {
+            object = *(s32 *)(object + 0x18);
+            func_003c2290((u8 *)object, 0xFFF);
+            if (((*(u16 *)(state + 8) & 0xFFC00) >> 10) == 1)
+                speed = 5.0f;
+            else
+                speed = 2.0f;
+            particles = *(f32 **)(*(s32 *)(object + 0x5C) + 0x14);
+            angle = 0.0f;
+            particles[0] = 0.0f;
+            particles[1] = speed;
+            particles[2] = 0.0f;
+            for (index = 0; index < 0x20; index++) {
+                entry = (f32 *)((u8 *)particles + index * 0xC);
+                entry[3] =
+                    *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b610(angle);
+                entry[4] = speed;
+                entry[5] =
+                    *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b7b0(angle);
+                angle += iGpffff8304;
+            }
+            particles[index * 3 + 3] =
+                *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b610(0.0f);
+            particles[index * 3 + 4] = speed;
+            particles[index * 3 + 5] =
+                *(f32 *)(*(s32 *)(state + 0x50)) * func_0044b7b0(0.0f);
+            func_003c22f0((u8 *)object);
+        }
+    }
+}
 
 // FUN_0017BB50
 void func_0017bb50(u8 *arg0, u8 *arg1)
