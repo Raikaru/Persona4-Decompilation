@@ -17,10 +17,23 @@
  * mwcc reorders anyway, so this is the instruction scheduler rather than
  * source ordering. Hoisting the pair into a local immediately after
  * func_00195850 moved the load to 0x48, ahead of all target math, and
- * produced a large shifted residual. An off/on `#pragma schedule` probe did
- * not alter the two words; the tighter push/pop form was NOT tested and is
- * the obvious next step for whoever picks this up.
- *
+ * produced a large shifted residual. An off/on and tighter push/pop
+ * `#pragma schedule off` probes were tested; neither altered the pair.
+ * Push/pop `#pragma no_branch_likely on`, `#pragma opt_rebuildconditionals
+ * off`, comma-copy expressions, and reversed first-use orders did not close;
+ * reversing the shared helper regressed func_001ce470. Target-local Vec3 and
+ * Pair aggregate copies did not close (708B/nd 138 and 704B/nd 4); Pair32
+ * (u32,u32,f32) emitted an oversized 712B object with shifted math (nd 132).
+ * Value-parameter, input-pointer-reordered, swapped-local-declaration, and
+ * register-local helper variants shifted the frame/tail (nd 150); const locals
+ * and u64 pointer types were COMPILE_ERROR. A packed s64/f32 aggregate sank
+ * the copy before setup (680B/nd 198); `__builtin_memcpy(..., 0xC)` shifted
+ * the tail (696B/nd 154). A byte-pointer helper sank the copy before setup
+ * (680B/nd 198), and `opt_common_subs off` shifted setup/tail (712B/nd 140).
+ * Push/pop `schedule on` shifted body/tail (696B/nd 166); push/pop
+ * `opt_loop_invariants on`, `optimization_level 3`, and `optimization_level 1`
+ * shifted frame/tail (696B/nd 150, 696B/nd 166, 712B/nd 140). All variants
+ * were reverted.
  * NOTE: this body also carried temporary probe declarations
  * (func_003e4180/memcpy helpers) that were removed when the source was
  * reverted; re-add whatever it needs before recompiling.

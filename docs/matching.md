@@ -189,21 +189,43 @@ Rules of engagement:
   what produces the no-save frame. Measured on `func_0047f4d0`, where every
   scalar variant retained `f20`–`f23` (frame 0x40/0x50) against retail's
   smaller frame. Count the saved FPRs before probing anything else.
-- **`shdPersona.c` output-GPR family (open floor, THREE members).** Three
+- **Float-to-byte conversion tail colouring (open floor, SIX members, two
+  files).** Originally recorded as a `shdPersona.c` quirk; it is not
+  file-specific. Any function whose tail converts a float to a byte and packs
+  it can land here, and the reconstruction differs only in which GPR carries
+  the conversion result.
+  - `shdPersona.c`: `func_0011c780` (nd 6), `func_0011c930` (nd 5),
+    `func_0011ac70` (nd 5), `func_0011ae90` (nd 5) — retail `$a0`, mwcc `$v1`.
+  - `k_fldUnit.c`: `func_00167120` (nd 24), `func_00166e30` (nd 15) — the
+    mirror image, retail `$v1`, mwcc `$v0`.
+
+  The direction of the swap varies; what is constant is that the conversion
+  result lands in the register the *next* instruction wants. So do not read
+  "retail uses $a0" as the rule — read the following instruction. Everything
+  else in these six reconstructions is exact, including every accumulator
+  chain, so a solution here is worth six functions at once.
+
+  Reaching this shape is itself progress and the levers that get you here are
+  documented per member: measured `opt_propagation off` fixes the prologue
+  `lh`/`lwc1` order (four members), measured `opt_rebuildconditionals off`
+  reproduces `c.le.s`/`bc1t` guard shapes (`func_00166e30`, 43 → 15 words),
+  and a final flag-condition spelling took `func_0011ae90` from 12 to 5.
+- **`shdPersona.c` output-GPR family (open floor, FOUR members).** Four
   independent reconstructions in this file reached a small residual with *the
   same shape at the same relative offsets*: `func_0011c780` (nd 6),
-  `func_0011c930` (nd 5) and `func_0011ac70` (nd 5). All three differ only in
-  the closing float-to-byte `mfc1`/`andi`/`or`/`andi`/`sb` tail, where retail
-  writes through `$a0` and mwcc writes through `$v1`. All three reached it via
+  `func_0011c930` (nd 5), `func_0011ac70` (nd 5) and `func_0011ae90` (nd 5,
+  offsets 0x160/0x168/0x184/0x188/0x18C, identical to `func_0011ac70`'s). All
+  four differ only in the closing float-to-byte `mfc1`/`andi`/`or`/`andi`/`sb`
+  tail, where retail writes through `$a0` and mwcc writes through `$v1`. All reached it via
   measured `#pragma opt_propagation off`, which fixes the prologue
-  `lh`/`lwc1` ordering, and all three then exhausted the colouring levers
+  `lh`/`lwc1` ordering, and each then exhausted the colouring levers
   *separately*: intermediate split and collapse, block scoping, byte/word
   input and output type variants (`u8`/`s8`/`s32`), declaration order,
   liveness identities, guard polarity, ternary/goto/direct-store forms, an
   `s32` parameter type, and every permitted pragma. Direct branch stores make
   it markedly worse (object shrinks, ~41 words shift).
 
-  Three functions failing identically are one cause. **Measured result:
+  Four functions failing identically are one cause. **Measured result:
   ordinary allocator register pressure from the immediately following load,
   not arg0 liveness or a helper call.** Retail's `func_0011c780` and
   `func_0011c930` both write `sb $a0, 0x44e($s0)` and then immediately load
@@ -224,7 +246,7 @@ Rules of engagement:
   The residual is therefore a specified allocator-internal next-use pressure
   floor; all three source entries remain the exact bare `INCLUDE_ASM` form.
   Archives: `docs/probe_archive/EcD_0011c780_body.c`, `LnA_0011c930_body.c`,
-  `LAC_0011ac70_body.c`.
+  `LAC_0011ac70_body.c`, `QnB_0011ae90_body.c`.
 - **A measured pragma keeps applying to every function below it.** `#pragma X
   off` is file-position scoped, not function scoped, so a lane that opens one
   for its target and never closes it silently changes the codegen of every
@@ -244,6 +266,30 @@ Rules of engagement:
   audit and check whether your target sits under an open flip.** If it does,
   you are not compiling at the `-O2` baseline you think you are, and a pragma
   you then add may be redundant, or its removal may appear to do nothing.
+- **Adjacent independent loads can swap and no pragma fixes it.**
+  `func_001cff00` (code1_001c.c) sits at exactly TWO differing words, object
+  and window both 704B, offsets 0x78/0x7c:
+
+  ```
+  retail     ld    $v0,0xa0($sp)   then  lwc1  $f0,0xa8($sp)
+  candidate  lwc1  $f0,0xa8($sp)   then  ld    $v0,0xa0($sp)
+  ```
+
+  No relocation, no HI16/LO16 pair, no literal difference, identical sizes —
+  only the order of two independent stack reloads. **The source already names
+  the 64-bit value first and mwcc reorders anyway**, so it is not source
+  ordering.
+
+  It is tempting to reach for `#pragma schedule off`, and that is wrong:
+  measured under `push`/`pop`, tightly scoped, it left the two words
+  **unchanged**, as did `no_branch_likely on` and `opt_rebuildconditionals
+  off`. `opt_propagation off` shifted the frame and tail and was worse.
+  Hoisting the pair into a local ahead of the consuming expression moved the
+  load to 0x48, before all the target's math, and produced a large shifted
+  residual. So this reordering happens somewhere the `schedule` knob does not
+  reach; do not spend budget on that pragma for a pure load-order residual.
+  Archive: `docs/probe_archive/PnC_001cff00_body.c`.
+
 
 ## Read-modify-write and flags
 
