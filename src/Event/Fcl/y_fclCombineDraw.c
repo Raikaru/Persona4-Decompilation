@@ -924,7 +924,7 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_00320b80);
    interleaved with the next 2a60 call instead of retail's batched lbu x4/sb x4
    (FclByte4 struct assignment emits lw/sw, not lbu/sb — probed). (3)
    var_16 = (s64)((s32 expr) << 0x30) >> 0x30 emits 4 instrs (dsll32/dsll32/
-   dsra32/dsra32); retail's clean pair needs (s64)(s16)(...). (4) the u8 arg1
+   dsra32/dsra32); retail's clean pair needs (s64)(s16)(). (4) the u8 arg1
    param gets an andi before the sb (s32 param + (u8) cast still andi'd). (5)
    the u_long128 spC0/spB0 pointer writes emit the recorded dsll32/dsrl32
    widening before each sq. Slot-layout + scheduling floor. */

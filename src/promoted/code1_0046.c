@@ -37,16 +37,16 @@ extern s32 D_00922988[];
 extern s32 D_00922934[];
 extern s32 D_00922930[];
 extern s32 D_0092293C[];
-extern u8 *(*D_008873F8[])(...);
+extern u8 *(*D_008873F8[])();
 extern void memset(void *dst, s32 value, s32 size);
 extern s32 D_00724B88;
 extern s32 D_00724B8C;
 
-extern void (*jtbl_008873FC[])(...);
+extern void (*jtbl_008873FC[])();
 
 extern void func_00452730(s32 arg0);
 
-extern void (*jtbl_008873EC[])(...);
+extern void (*jtbl_008873EC[])();
 extern s32 iGpffffbae8;
 extern s32 iGpffffbaec;
 extern u8 D_0070B610[];

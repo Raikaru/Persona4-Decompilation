@@ -16,7 +16,7 @@ typedef struct P4_0015_Vec3
 extern s32 iGpffffb210;
 extern void func_00454bd0();
 
-extern void (*DAT_008873EC[])(...);
+extern void (*DAT_008873EC[])();
 
 extern s32 func_00102980(void);
 extern void func_00145080();
@@ -56,7 +56,7 @@ extern s32 func_0014e710();
 extern void func_0046d730();
 extern void func_0043f810();
 extern void func_0044ea90(const void *msg, s32 line);
-extern void *(*D_008873F4[])(...);
+extern void *(*D_008873F4[])();
 extern s32 func_0014e5e0();
 extern s32 func_00454570(void *arg0);
 extern f32 iGpffff853c;

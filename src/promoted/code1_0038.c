@@ -1292,7 +1292,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f400);
 // FUN_0038F590
 void func_0038f590(void)
 {
-    ((void (*)(...))D_008873ec[0])();
+    ((void (*)())D_008873ec[0])();
 }
 // FUN_0038F600
 void func_0038f600(u8 *arg0) {

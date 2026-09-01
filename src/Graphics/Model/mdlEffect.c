@@ -279,9 +279,9 @@ void func_0047d990(u32 *param_1)
         next = (int*)current[4];
         *(int*)(*current + 8) = *(int*)(*current + 8) - 1;
         if (*(int*)(*current + 8) == 0) {
-            ((void (*)(...))DAT_008873ec_abs[0])(*current);
+            ((void (*)())DAT_008873ec_abs[0])(*current);
         }
-        ((void (*)(...))DAT_008873ec_abs[0])(current);
+        ((void (*)())DAT_008873ec_abs[0])(current);
         current = next;
     }
     *param_1 = 0;

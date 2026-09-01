@@ -57,7 +57,7 @@ typedef struct BtlFormationState
 } BtlFormationState;
 
 extern void func_001d3ff0(int state);
-extern void (*DAT_008873EC[])(...);
+extern void (*DAT_008873EC[])();
 
 extern u64 memcpy();
 extern u32 func_00485c80(u32 param_1);

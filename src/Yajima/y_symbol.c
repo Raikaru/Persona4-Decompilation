@@ -3,7 +3,7 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 
-extern void (*jtbl_008873EC[])(...);
+extern void (*jtbl_008873EC[])();
 extern void *(*D_008873F4[])(s32, s32, s32);
 
 typedef struct
