@@ -870,12 +870,75 @@ void func_003556a0(u8 *arg0, s64 arg1, s32 arg2)
     *(s32 *)(arg0 + 0x208) = (s32)arg0;
     *(s32 *)(arg0 + 0x228) = arg2;
 }
-/* measured: object 352B/window 352B; normalized_diff 146; first differing
-   offsets 0x48, 0x94, 0x9D, 0xA2-0xAE. Structured plain-C body archived in
-   build/V035_00355740_body.c; first loop and case-0 block matched, but switch
-   case-1 preheader/register staging remained different. */
-// FUN_00355740 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355740);
+/* measured: optimization_level 1 with integer/float declaration shaping and
+   an explicit second conversion local closes func_00355740 at normalized_diff 0. */
+#pragma optimization_level 1
+// FUN_00355740
+void func_00355740(u8 *arg0, s64 arg1)
+{
+    f32 step;
+    f32 scale;
+    f32 temp;
+    f32 three_quarters;
+    s32 x;
+    s32 y;
+    s32 i;
+    s32 i2;
+    s32 j;
+    s32 divisor;
+    u8 *p;
+    u8 *q;
+    u8 *r;
+    extern f32 fGpffff83d0;
+
+    i = 0;
+    while (i < 0xF) {
+        p = arg0 + (i << 5);
+        *(f32 *)(p + 0x28) = *(f32 *)(p + 0x20);
+        *(f32 *)(p + 0x2C) = *(f32 *)(p + 0x24);
+        i += 1;
+    }
+    switch (arg1) {
+    case 0:
+        i2 = 0;
+        while (i2 < 0xF) {
+            q = arg0 + (i2 << 5);
+            *(s32 *)(q + 0x18) = 0;
+            *(s32 *)(q + 0x1C) = 0;
+            *(s32 *)(q + 0x30) = 0;
+            *(f32 *)(q + 0x34) = (f32)*(s16 *)(arg0 + 0xC);
+            i2 += 1;
+        }
+        break;
+    case 1:
+        j = 0;
+        divisor = 5;
+        step = fGpffff83d0;
+        three_quarters = 0.75f;
+        while (j < 0xF) {
+            x = (j % divisor) - 2;
+            if (x < 0) {
+                x = -x;
+            }
+            y = (j / divisor) - 1;
+            if (y < 0) {
+                y = -y;
+            }
+            scale = step * (f32)(x + y);
+            r = arg0 + (j << 5);
+            *(s32 *)(r + 0x18) = 0;
+            *(s32 *)(r + 0x1C) = 0;
+            *(f32 *)(r + 0x30) = (f32)*(s16 *)(arg0 + 0xC) * scale;
+            temp = (f32)*(s16 *)(arg0 + 0xC);
+            *(f32 *)(r + 0x34) = temp * (three_quarters + scale);
+            j += 1;
+        }
+        break;
+    default:
+        break;
+    }
+}
+#pragma optimization_level 2
 // FUN_003558A0
 s32 func_003558a0(u8 *arg0)
 {
