@@ -193,7 +193,111 @@ u32 *func_0047d460(u32 *list, u32 *arg1, u16 arg2)
    shapes are the best. mula/madda term-order floor, cf. btlShuffleDraw
    func_00377930 note. */
 // FUN_0047D540
-INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0047d540);
+void func_0047d540(u8 **arg0, u8 *arg1)
+{
+    extern f32 sqrtf(f32 x);
+    f32 in[16];
+    struct Vec3 { f32 x; f32 y; f32 z; };
+    struct MtxRow { f32 x; f32 y; f32 z; s32 flag; } out[4];
+    f32 quat[4];
+    f32 length;
+    f32 factor;
+    f32 x2;
+    f32 y2;
+    f32 z2;
+    f32 xx;
+    f32 yy;
+    f32 zz;
+    f32 xy;
+    f32 xz;
+    f32 yz;
+    f32 wx;
+    f32 wy;
+    f32 wz;
+    u8 *node;
+
+    node = *arg0;
+    while (node != NULL) {
+        if (*(u32 *)(node + 8) == 0) {
+            break;
+        }
+        if (func_0047a510(arg1, *(u16 *)(node + 4), in) == 0) {
+            u32 *src;
+            u32 *dst;
+            s32 count;
+            u32 temp1;
+            u32 temp2;
+            dst = (u32 *)in;
+            count = 8;
+            src = (u32 *)arg1;
+            do {
+                temp1 = src[0];
+                temp2 = src[1];
+                src += 2;
+                count--;
+                dst[0] = temp1;
+                dst[1] = temp2;
+                dst += 2;
+            } while (count > 0);
+            }
+            if (*(u16 *)(node + 4) >= 1000) {
+                out[2].z = 1.0f;
+                out[1].y = 1.0f;
+                out[0].x = 1.0f;
+                out[1].x = 0.0f;
+                out[0].z = 0.0f;
+                out[0].y = 0.0f;
+                out[2].y = 0.0f;
+                out[2].x = 0.0f;
+                out[1].z = 0.0f;
+                out[3].z = 0.0f;
+                out[3].y = 0.0f;
+                out[3].x = 0.0f;
+                out[0].flag |= 0x20003;
+                *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
+            } else {
+                func_003e0670(in, in);
+                func_003dc610(quat, in);
+                length = sqrtf(quat[0] * quat[0] + quat[1] * quat[1] +
+                                quat[2] * quat[2] + quat[3] * quat[3]);
+                if (length != 0.0f) {
+                    quat[0] /= length;
+                    quat[1] /= length;
+                    quat[2] /= length;
+                    quat[3] /= length;
+                }
+                factor = 2.0f / (quat[0] * quat[0] + quat[1] * quat[1] +
+                                 quat[2] * quat[2] + quat[3] * quat[3]);
+                x2 = quat[0] * factor;
+                y2 = quat[1] * factor;
+                z2 = quat[2] * factor;
+                wx = x2 * quat[3];
+                wy = y2 * quat[3];
+                wz = z2 * quat[3];
+                xx = quat[0] * x2;
+                yy = quat[1] * y2;
+                zz = quat[2] * z2;
+                yz = quat[1] * z2;
+                xz = quat[2] * x2;
+                xy = quat[0] * y2;
+                out[0].x = 1.0f - (yy + zz);
+                out[0].y = xy + wz;
+                out[0].z = xz - wy;
+                out[1].x = xy - wz;
+                out[1].y = 1.0f - (zz + xx);
+                out[1].z = yz + wx;
+                out[2].x = xz + wy;
+                out[2].y = yz - wx;
+                out[2].z = 1.0f - (xx + yy);
+                out[3].x = 0.0f; out[3].y = 0.0f; out[3].z = 0.0f;
+                out[0].flag = 3;
+                *(struct Vec3 *)&out[3] = *(struct Vec3 *)&in[12];
+            }
+            func_004b12e0(*(u32 *)(node + 8), (u8 *)out);
+            func_004b1190(*(u32 *)(node + 8));
+            node = *(u8 **)(node + 16);
+    }
+}
 // FUN_0047D7E0
 void func_0047d7e0(s32 arg0, u8 **arg1)
 {

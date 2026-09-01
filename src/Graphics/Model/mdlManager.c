@@ -781,12 +781,143 @@ void func_004735b0(u8 *arg0)
    persists. opt_propagation off + forward externs help compile, not match. */
 // FUN_00473710
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
+extern s32 func_003d5bc0(void* a, f32 b);
 
+/* measured: probing opt_loop_invariants on for loop-constant placement. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_00473870
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473870);
-extern void func_003d5bc0(void* a, void* b, f32 c);
+void func_00473870(u8 *arg0)
+{
+    typedef struct
+    {
+        f32 x;
+        f32 y;
+        f32 z;
+        f32 w;
+    } MdlQuat;
+    typedef struct
+    {
+        u8 pad0[8];
+        MdlQuat quat;
+        f32 values[6];
+    } MdlBlendRecord;
+    u8 *obj;
+    u8 *base2;
+    u8 *base1;
+    u8 *base0;
+    MdlBlendRecord *out;
+    MdlBlendRecord *input;
+    MdlBlendRecord *rotation;
+    s32 i;
+    s32 count;
+    f32 one;
+    f32 zero;
+    f32 norm;
+    f32 inverse;
+    f32 rawY;
+    f32 rawX;
+    f32 rawZ;
+    f32 rawW;
+    f32 normW;
+    f32 normX;
+    f32 normY;
+    f32 normZ;
+    f32 inputY;
+    f32 inputX;
+    f32 inputZ;
+    f32 inputW;
+    f32 quatW;
+    f32 crossX;
+    f32 crossY;
+    f32 crossZ;
+    f32 quatX;
+    f32 quatY;
+    f32 quatZ;
+    MdlQuat savedQuat;
+    f32 diff1;
+    f32 diff2;
+    f32 diff0;
 
-extern void func_00473870(void* a);
+    obj = *(u8 **)(arg0 + 0x2C);
+    if ((obj != 0) && ((*(u16 *)arg0 & 0x80) != 0))
+    {
+        func_003d5bc0(obj, iGpffff8040);
+        count = *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20) + 0x2C);
+        for (i = 0, one = 1.0f, zero = 0.0f; i < count; i++)
+        {
+            base2 = *(u8 **)(*(u8 **)(arg0 + 0x20) + 0x20);
+            out = (MdlBlendRecord *)(addOff(i * *(s32 *)(base2 + 0x24),
+                                             (u32)base2) + 0x4C);
+            base1 = *(u8 **)(arg0 + 0x2C);
+            input = (MdlBlendRecord *)(addOff(i * *(s32 *)(base1 + 0x24),
+                                               (u32)base1) + 0x4C);
+            base0 = *(u8 **)(arg0 + 0x30);
+            rotation = (MdlBlendRecord *)(addOff(i * *(s32 *)(base0 + 0x24),
+                                                  (u32)base0) + 0x4C);
+            rawY = rotation->quat.y;
+            rawX = rotation->quat.x;
+            rawZ = rotation->quat.z;
+            rawW = rotation->quat.w;
+            norm = rawY * rawY;
+            norm += rawX * rawX;
+            norm += rawZ * rawZ;
+            norm += rawW * rawW;
+            if (norm > zero)
+            {
+                inverse = one / norm;
+                normW = rawW * inverse;
+                inverse = -inverse;
+                normX = rawX * inverse;
+                normY = rawY * inverse;
+                normZ = rawZ * inverse;
+            }
+            inputY = input->quat.y;
+            inputX = input->quat.x;
+            inputZ = input->quat.z;
+            inputW = input->quat.w;
+
+            quatW = normW * inputW -
+                    (normX * inputX +
+                     normY * inputY +
+                     normZ * inputZ);
+            crossX = normY * inputZ - normZ * inputY;
+            crossY = normZ * inputX - normX * inputZ;
+            crossZ = normX * inputY - normY * inputX;
+            crossX = crossX + inputX * normW;
+            crossY = crossY + inputY * normW;
+            crossZ = crossZ + inputZ * normW;
+            quatX = crossX + normX * inputW;
+            quatY = crossY + normY * inputW;
+            quatZ = crossZ + normZ * inputW;
+
+            savedQuat = *(MdlQuat *)&out->quat;
+            out->quat.w = savedQuat.w * quatW -
+                          (savedQuat.x * quatX +
+                           savedQuat.y * quatY +
+                           savedQuat.z * quatZ);
+            out->quat.x = savedQuat.y * quatZ - savedQuat.z * quatY;
+            out->quat.y = savedQuat.z * quatX - savedQuat.x * quatZ;
+            out->quat.z = savedQuat.x * quatY - savedQuat.y * quatX;
+            out->quat.x = out->quat.x + quatX * savedQuat.w;
+            out->quat.y = out->quat.y + quatY * savedQuat.w;
+            out->quat.z = out->quat.z + quatZ * savedQuat.w;
+            out->quat.x = out->quat.x + savedQuat.x * quatW;
+            out->quat.y = out->quat.y + savedQuat.y * quatW;
+            out->quat.z = out->quat.z + savedQuat.z * quatW;
+
+            diff1 = rotation->values[1] - input->values[1];
+            diff2 = rotation->values[2] - input->values[2];
+            diff0 = rotation->values[0] - input->values[0];
+            out->values[0] = out->values[0] + diff0;
+            out->values[1] = out->values[1] + diff1;
+            out->values[2] = out->values[2] + diff2;
+        }
+    }
+}
+#pragma pop
+
+extern void func_00473870(u8* a);
 extern s32 func_003d5e40(u8* a, f32 b);
 extern void func_003d5e90(void* a, void* b, void* c, f32 d);
 extern void func_00397c40_1(void* a);
