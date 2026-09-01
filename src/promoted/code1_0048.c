@@ -1333,8 +1333,80 @@ void func_00489f10(u8 *arg0)
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048a980);
 // FUN_0048ABD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048abd0);
+/* measured: opt_propagation off tested for target subtraction scheduling. */
+#pragma opt_propagation off
 // FUN_0048AFF0
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_0048aff0);
+f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 mode;
+    f32 from;
+    f32 to;
+    f32 t;
+    f32 fArg2;
+
+    if (arg2 == 0) {
+        return *(f32 *)(arg0 + 4);
+    }
+
+    fArg2 = (f32)arg2;
+    mode = *(u8 *)arg0;
+    switch (mode) {
+    case 0:
+        from = *(f32 *)(arg0 + 4);
+        to = *(f32 *)(arg0 + 8);
+        t = (f32)arg1 / fArg2;
+        break;
+    case 1: {
+        s32 v1 = (s32)(*(f32 *)(arg0 + 0x18) * fArg2);
+        if (arg1 < v1) {
+            from = *(f32 *)(arg0 + 4);
+            to = *(f32 *)(arg0 + 0x14);
+            t = (f32)arg1 / (f32)v1;
+        } else {
+            f32 denom;
+            from = *(f32 *)(arg0 + 0x14);
+            to = *(f32 *)(arg0 + 8);
+            denom = (f32)(arg2 - v1);
+            t = (f32)(arg1 - v1) / denom;
+        }
+        break;
+    }
+    case 2: {
+        s32 t1 = (s32)(*(f32 *)(arg0 + 0x18) * fArg2);
+        if (arg1 < t1) {
+            from = *(f32 *)(arg0 + 4);
+            to = *(f32 *)(arg0 + 0x14);
+            t = (f32)arg1 / (f32)t1;
+        } else {
+            s32 t2 = (s32)(*(f32 *)(arg0 + 0x20) * fArg2);
+            if (arg1 < t2) {
+                from = *(f32 *)(arg0 + 0x14);
+                to = *(f32 *)(arg0 + 0x1c);
+                {
+                    f32 denom = (f32)(t2 - t1);
+                    t = (f32)(arg1 - t1) / denom;
+                }
+            } else {
+                f32 denom;
+                from = *(f32 *)(arg0 + 0x1c);
+                to = *(f32 *)(arg0 + 8);
+                denom = (f32)(arg2 - t2);
+                t = (f32)(arg1 - t2) / denom;
+            }
+        }
+        break;
+    }
+    default:
+        from = *(f32 *)(arg0 + 4);
+        to = *(f32 *)(arg0 + 8);
+        t = 0.0f;
+        break;
+    }
+
+    return from + t * (to - from);
+}
+/* measured: restore opt_propagation after func_0048aff0. */
+#pragma opt_propagation on
 // FUN_0048B220
 void func_0048b220(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3)
 {
