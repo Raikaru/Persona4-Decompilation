@@ -3,7 +3,7 @@
 #include "type.h"
 #include "include_asm.h"
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 typedef signed __int128 s128;

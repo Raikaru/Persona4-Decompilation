@@ -2,7 +2,7 @@
 /* Source unit: src/Graphics/Model/mdlFile_0047d2d0.c (1 function markers) */
 #include "type.h"
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern void func_0047d990(u32 *param_1);
 

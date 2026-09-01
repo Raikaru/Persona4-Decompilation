@@ -23,7 +23,7 @@ extern void func_001d42e0(BtlFormationWork* param_1);
 extern void func_00485b20(u32 param_1);
 extern void func_004787e0(u32 param_1);
 
-typedef int (*code)(...);
+typedef int (*code)();
 
 typedef u32 (*BtlPacketFunc)(void* work);
 typedef struct BtlPacket {

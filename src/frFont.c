@@ -3,7 +3,7 @@
 
 extern void func_002716b0_typed(s32 arg0, u64 arg1, u8 *arg2);
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern u32 DAT_00881630_abs[];
 extern code DAT_008873ec_abs[];
 extern u32 DAT_00881750_abs[];

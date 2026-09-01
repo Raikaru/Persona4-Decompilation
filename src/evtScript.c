@@ -5,7 +5,7 @@
 extern void func_00106390();
 extern void (*jtbl_008873EC[])(void *ptr);
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 

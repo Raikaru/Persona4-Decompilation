@@ -2,7 +2,7 @@
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
-typedef int (*code)(...);
+typedef int (*code)();
 
 /* Canonical grouped function declarations. */
 u32 func_0044db98(u32 *param_1);

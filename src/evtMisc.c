@@ -49,7 +49,7 @@ extern u8 D_0063C638[];
 extern u8 D_0063C690[];
 extern void *(*D_008873F4[])(s32, s32, s32);
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 typedef struct { f32 x, y, z; } SVec3;

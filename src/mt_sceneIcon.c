@@ -8,7 +8,7 @@ extern s32 func_004b1130(s32 arg0);
 extern void func_00268b20(s32 arg0);
 extern s32 D_0063B4F0[];
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 /* gp - 0x5908 = 0x007637E8. */

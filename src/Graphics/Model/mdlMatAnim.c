@@ -3,7 +3,7 @@
 #include "type.h"
 #include "include_asm.h"
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern void func_004808b0(int param_1);
 extern void func_0044ea90(u8 *file, s32 line);

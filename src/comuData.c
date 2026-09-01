@@ -2,7 +2,7 @@
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "type.h"
 
-typedef int (*code)(...);
+typedef int (*code)();
 
 typedef struct NmlistNode {
     u32 unk0[3];

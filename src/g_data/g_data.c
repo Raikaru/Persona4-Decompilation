@@ -200,7 +200,7 @@ extern s16 D_00797B84[];
 
 extern u8 D_00797B86[];
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 extern char D_005e4308[];

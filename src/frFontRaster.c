@@ -5,7 +5,7 @@
 
 /* Ported from P3FES frFontRaster.c (verified MATCH there), adapted to P4
  * addresses, assert lines, and callee names. */
-typedef int (*code)(...);
+typedef int (*code)();
 
 /* Defined below in this file; called at line 347, above its definition. */
 extern void func_00276420(int param_1, u8 *param_2, int param_3);

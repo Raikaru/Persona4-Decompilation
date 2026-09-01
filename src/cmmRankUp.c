@@ -102,7 +102,7 @@ void func_00254a70();
 void func_0025b240();
 void func_0025c100();
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 
 
