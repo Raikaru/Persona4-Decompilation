@@ -517,7 +517,12 @@ variants is wasted time.
   and needs no fixup, which is why the residual is one word and never
   closes. Known members: `func_00232c70` (nd2, +0xD0/+0xE8),
   `func_00209870` (nd6, +0x124), `func_001e7ab0` (nd1, +0xEC),
-  `func_0034ac00` (one of five words, +248). The archive for `001e7ab0`
+  `func_0034ac00` (one of five words, +248). Not a pragma either: all 255
+  pragma names were extracted from the compiler binary and compiled on and
+  off against the retail shape (482 compiles, 28 rejected, zero `daddiu`),
+  including the width knobs missing from `-help` (`longlong`,
+  `longlong_prepeval`, `opt_foldconstants`, `opt_pulloutconstants`).
+  The archive for `001e7ab0`
   additionally rules out `1u`, `1L`, `(s32)1LL`, explicit `s64`/`u64` casts,
   `sizeof(char)`, pointer differences, `!0`, computed comparisons, 64-bit
   helper returns, separate 64-bit locals, narrow temporaries, and

@@ -564,8 +564,98 @@ outer_test:
 }
 /* measured: closes the invariant-hoist bracket for func_001f0d30. */
 #pragma opt_loop_invariants off
+/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
+#pragma opt_loop_invariants on
 // FUN_001F0DD0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f0dd0);
+s32 func_001f0dd0(u8 *arg0, s32 arg1)
+{
+    s32 result;
+    s32 one;
+    s32 i_one;
+    s32 j_one;
+    s32 n;
+    u8 *target;
+    s32 innerCount;
+    u8 *entry;
+    s32 i_zero;
+    s32 j_zero;
+
+    result = 0;
+    if (arg1 == 0) {
+        goto path_zero;
+    }
+i_one = 0;
+n = *(u16 *)(arg0 + 0x6A);
+one = 1;
+while ((i_one & 0xFFFF) < n) {
+    target = *(u8 **)(arg0 + ((u16)i_one * 4) + 0x38);
+    if (*(s32 *)(target + 0xE4) != 0) {
+        result = 0;
+        goto done;
+    }
+    if ((*(u16 *)(target + 0xDC) & 0x500) != 0) {
+        result = 0;
+        goto done;
+    }
+    if (result == 0) {
+        innerCount = *(u8 *)(target + 0xD9);
+        j_one = 0;
+        goto inner_test_one;
+inner_one:
+        if (*(s32 *)(target + ((u16)j_one << 5) + 0xF0) < 0) {
+            result = one;
+            goto outer_step_one;
+        }
+        j_one = (j_one + 1) & 0xFFFF;
+inner_test_one:
+        if ((j_one & 0xFFFF) < innerCount) {
+            goto inner_one;
+        }
+    }
+outer_step_one:
+    i_one = (i_one + 1) & 0xFFFF;
+}
+goto done;
+
+path_zero:
+    i_zero = 0;
+    n = *(u16 *)(arg0 + 0x6A);
+    goto outer_test_zero;
+outer_zero:
+    target = *(u8 **)(arg0 + ((u16)i_zero * 4) + 0x38);
+    if ((*(u16 *)(target + 0xDC) & 0x106) != 0) {
+        result = 1;
+        goto done;
+    }
+    innerCount = *(u8 *)(target + 0xD9);
+    j_zero = 0;
+    goto inner_test_zero;
+inner_zero:
+    entry = target + ((u16)j_zero << 5);
+    if (*(s32 *)(entry + 0xF0) == 0) {
+        if (*(s32 *)(entry + 0xF8) != 0) {
+            result = 1;
+            goto done;
+        }
+    } else if (*(s32 *)(entry + 0xF0) < 0) {
+        result = 1;
+        goto done;
+    }
+    j_zero = (j_zero + 1) & 0xFFFF;
+inner_test_zero:
+    if ((j_zero & 0xFFFF) < innerCount) {
+        goto inner_zero;
+    }
+    i_zero = (i_zero + 1) & 0xFFFF;
+outer_test_zero:
+    if ((i_zero & 0xFFFF) < n) {
+        goto outer_zero;
+    }
+done:
+    return result;
+}
+/* measured: close opt_loop_invariants after func_001f0dd0. */
+#pragma opt_loop_invariants off
 // FUN_001F0F70
 u32 func_001f0f70(u8 *arg0)
 {
