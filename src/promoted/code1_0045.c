@@ -11,6 +11,11 @@ extern void func_00450a50(s32 arg0, s64 arg1, f32 fparg0, void *arg2);
 extern s32 iGpffffb9e8;
 extern void (*D_00887300[])();
 extern void (*D_00887310[])(s32, void *, s32);
+extern void func_003e05d0(void *arg0);
+extern void func_003e40b0(f32 *arg0, f32 *arg1);
+extern void func_003e9680(void *arg0);
+extern s64 D_00711858[];
+extern f32 D_00711860[];
 static inline f32 add_f32(f32 a, f32 b) {
     return a + b;
 }
@@ -23,6 +28,11 @@ extern u8 D_007124C0[];
 typedef struct {
     f32 v[4];
 } Code45Float4;
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+} Code45Vec3;
 extern s32 func_0045ce40(f32 *out, u8 *colors, s32 *pos, f32 z);
 extern struct {
     s32 state;
@@ -869,8 +879,71 @@ s32 func_004571c0(void)
     return iGpffffba7c;
 }
 
+/* measured: opt_propagation off preserves the retail global-load destination register. */
+#pragma opt_propagation off
 // FUN_00457630
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00457630);
+void func_00457630(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3) {
+    struct {
+        s64 qword;
+        f32 value;
+    } local;
+    s64 source_qword;
+    f32 source_value;
+    f32 *fallback;
+    u8 *temp_18;
+    u8 *temp_17;
+    f32 *temp_16;
+    u8 *temp_4;
+    u8 *temp_4_2;
+    f32 first_a;
+    f32 first_c;
+
+    fallback = (f32 *)&local;
+    source_qword = D_00711858[0];
+    source_value = D_00711860[0];
+    local.qword = source_qword;
+    local.value = source_value;
+    if (arg3 == NULL) {
+        temp_16 = fallback;
+    } else {
+        temp_16 = arg3;
+    }
+    temp_18 = *(u8 **)(arg0 + 4);
+    temp_17 = temp_18 + 0x10;
+    *(Code45Vec3 *)(temp_18 + 0x40) = *(Code45Vec3 *)arg1;
+    *(f32 *)(temp_18 + 0x30) = *(f32 *)(arg2 + 0) - *(f32 *)(temp_18 + 0x40);
+    *(f32 *)(temp_18 + 0x34) = *(f32 *)(arg2 + 4) - *(f32 *)(temp_18 + 0x44);
+    *(f32 *)(temp_18 + 0x38) = *(f32 *)(arg2 + 8) - *(f32 *)(temp_18 + 0x48);
+    temp_4 = temp_17 + 0x20;
+    func_003e40b0((f32 *)temp_4, (f32 *)temp_4);
+    *(f32 *)(temp_17 + 0) =
+        *(f32 *)(temp_17 + 0x24) * temp_16[2] -
+        *(f32 *)(temp_17 + 0x28) * temp_16[1];
+    *(f32 *)(temp_17 + 4) =
+        *(f32 *)(temp_17 + 0x28) * temp_16[0] -
+        *(f32 *)(temp_17 + 0x20) * temp_16[2];
+    first_a = *(f32 *)(temp_17 + 0x24);
+    first_c = *(f32 *)(temp_17 + 0x20);
+    *(f32 *)(temp_17 + 8) =
+        first_c * temp_16[1] -
+        first_a * temp_16[0];
+    func_003e40b0((f32 *)temp_17, (f32 *)temp_17);
+    *(f32 *)(temp_17 + 0x10) =
+        *(f32 *)(temp_17 + 0x24) * *(f32 *)(temp_17 + 8) -
+        *(f32 *)(temp_17 + 0x28) * *(f32 *)(temp_17 + 4);
+    *(f32 *)(temp_17 + 0x14) =
+        *(f32 *)(temp_17 + 0x28) * *(f32 *)(temp_17 + 0) -
+        *(f32 *)(temp_17 + 0x20) * *(f32 *)(temp_17 + 8);
+    *(f32 *)(temp_17 + 0x18) =
+        *(f32 *)(temp_17 + 0x20) * *(f32 *)(temp_17 + 4) -
+        *(f32 *)(temp_17 + 0x24) * *(f32 *)(temp_17 + 0);
+    temp_4_2 = temp_17 + 0x10;
+    func_003e40b0((f32 *)temp_4_2, (f32 *)temp_4_2);
+    func_003e05d0(temp_17);
+    func_003e9680(temp_18);
+}
+/* measured: close propagation-off probe for func_00457630. */
+#pragma opt_propagation on
 // FUN_004585C0
 void func_004585c0(u8 *arg0) {
     s32 temp_17;

@@ -90,6 +90,7 @@ extern s32 func_00202180(u8 *arg0);
 extern s32 func_00202640(u8 **arg0);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern u8 D_00626C30[];
 extern u8 D_00626500[];
 extern u8 D_006265B0[];
 extern void func_0044ea90(const void *file, s32 line);
@@ -2175,7 +2176,58 @@ void func_0020e1d0(u8 *arg0, u8 *arg1) {
 
 
 // FUN_0020E250
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020e250);
+void func_0020e250(u8 *arg0, s32 arg1, s32 *arg2, f32 *arg3, u16 arg4)
+{
+    u8 *state;
+    u8 **list;
+    u8 *node;
+    u8 *new_node;
+    u8 *allocated;
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+
+    state = (u8 *)func_00452560(arg0);
+    list = (u8 **)(state + 0x75C);
+    if (*(s32 *)arg2 != 0 || *(s32 *)(arg2 + 1) != 0 ||
+        *(u16 *)((u8 *)arg2 + 8) != 0) {
+        func_0044ea90(&D_00626C30, 0x3A);
+        allocated = (u8 *)jtbl_008873E8[0](0x28, 0x40000);
+        new_node = allocated;
+        temp_f2 = arg3[0];
+        temp_f1 = arg3[1];
+        temp_f0 = arg3[2];
+        *(f32 *)(new_node + 4) = temp_f2;
+        *(f32 *)(new_node + 8) = temp_f1;
+        *(f32 *)(new_node + 0xC) = temp_f0;
+        func_0043f810(new_node + 0x18, arg2, 0xC);
+        *(s32 *)(new_node + 0x10) = 0;
+        *(u16 *)(new_node + 0x14) = arg4;
+        *(s32 *)new_node = arg1;
+        *(u16 *)(new_node + 0x14) |= 1;
+        *(u16 *)(*(u8 **)new_node + 0xA0) += 1;
+        for (node = *(u8 **)list; node != NULL; node = *(u8 **)(node + 0x24)) {
+            if ((*(u16 *)(node + 0x20) & 0xF) == 0 &&
+                *(s32 *)node == arg1) {
+                if ((*(u16 *)(node + 0x14) & 2) == 0) {
+                    *(s32 *)(node + 0x10) = 0;
+                    *(u16 *)(node + 0x14) |= 2;
+                }
+                if ((*(u16 *)(new_node + 0x14) & 4) == 0) {
+                    temp_f2 = *(f32 *)(node + 4);
+                    temp_f1 = *(f32 *)(node + 8);
+                    temp_f0 = *(f32 *)(node + 0xC);
+                    *(f32 *)(new_node + 4) = temp_f2;
+                    *(f32 *)(new_node + 8) = temp_f1;
+                    *(f32 *)(new_node + 0xC) = temp_f0;
+                    *(u16 *)(new_node + 0x14) |= 4;
+                }
+            }
+        }
+        *(u8 **)(new_node + 0x24) = *(u8 **)list;
+        *(u8 **)list = new_node;
+    }
+}
 // FUN_0020E3F0
 void func_0020e3f0() {
     func_002119a0(func_00452560() + 0x75C);
