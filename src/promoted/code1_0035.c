@@ -93,6 +93,12 @@ extern u8 D_0064B380[];
 extern void func_0044ea90(const void *arg0, s32 arg1);
 extern u8 *func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
                          s32 arg4, void *arg5, void *arg6, u8 *arg7);
+extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
+                         void *init, void *close, void *buf);
+extern u8 D_0064B410[];
+extern s32 func_003558a0(u8 *arg0);
+extern void func_00356140(u8 *arg0);
+extern void func_003556a0(u8 *arg0, s64 arg1, s32 arg2);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern u8 D_00793E80[];
 extern void func_00365f00(f32 f0, f32 f1, f32 f2, f32 f3, s64 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, f32 f4);
@@ -810,10 +816,42 @@ void func_003554b0(u8 *arg0)
 /* measured: object 328B/window 336B; normalized_diff 33; differing offsets
    0x2C-0x44, 0xDC-0xF4, 0xFC-0x100, 0x10C-0x140. Trial body archived in
    build/V035_00355550_body.c; no conversion idiom present. */
-// FUN_00355550 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00355550);
+/* measured: optimization_level 1 probe for byte-load register order. */
+#pragma optimization_level 1
+// FUN_00355550
+s32 func_00355550(s16 arg0, s32 arg1, s16 arg2, s16 arg3,
+                  s64 arg4, s32 arg5, s32 arg6, s32 arg7)
+{
+    s32 result;
+    u8 *temp_2;
+    func_0044ea90(&D_0064B310, 0x63D);
+    temp_2 = D_008873F4[0](1, 0x22C, 0x40000);
+    if (temp_2 == NULL) {
+        func_0046d730(&D_0064B310, 0x63E);
+    }
+    result = func_00451de0(&D_0064B410, arg6, 0, 0,
+                           (void *)func_003558a0, (void *)func_00356140,
+                           temp_2);
+    *(s16 *)(temp_2 + 0x0) = arg0;
+    *(s32 *)(temp_2 + 0x4) = arg5;
+    *(s16 *)(temp_2 + 0xC) = arg2;
+    *(s16 *)(temp_2 + 0xE) = arg3;
+    {
+        u8 color_0 = ((u8 *)&arg1)[0];
+        u8 color_1 = ((u8 *)&arg1)[1];
+        u8 color_2 = ((u8 *)&arg1)[2];
+        u8 color_3 = ((u8 *)&arg1)[3];
+        *(u8 *)(temp_2 + 0x14) = color_0;
+        *(u8 *)(temp_2 + 0x15) = color_1;
+        *(u8 *)(temp_2 + 0x16) = color_2;
+        *(u8 *)(temp_2 + 0x17) = color_3;
+    }
+    func_003556a0(temp_2, arg4, arg7);
+    return result;
+}
+#pragma optimization_level 2
 // FUN_003556A0
-void func_003556a0(u8 *arg0, s16 arg1, s32 arg2)
+void func_003556a0(u8 *arg0, s64 arg1, s32 arg2)
 {
     s32 i;
     u8 *p;
@@ -826,7 +864,7 @@ void func_003556a0(u8 *arg0, s16 arg1, s32 arg2)
         *(s32 *)(p + 0x24) = 0;
         i += 1;
     }
-    func_00355740(arg0, arg1);
+    func_00355740(arg0, (s16)arg1);
     func_0043f9c8(arg0 + 0x1F8, 0, 0x30);
     *(s32 *)(arg0 + 0x200) = (s32)func_00355920;
     *(s32 *)(arg0 + 0x208) = (s32)arg0;
