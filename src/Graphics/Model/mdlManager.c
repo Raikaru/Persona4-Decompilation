@@ -1987,7 +1987,7 @@ void* func_00477c40(u32 param_1, u32 param_2, u32 param_3)
 }
 
 extern void func_0047b060(void* a);
-/* measured: retry disproved the old daddiu floor: u8 var k with `k = 1;` DOES
+/* SUPERSEDED: measured: retry disproved the old daddiu floor: u8 var k with `k = 1;` DOES
    emit daddiu $s1,$zero,1 (attempt 1), but only as a u8 loop counter, which
    makes mwcc fold every (u16)k/&0xFFFF use to 0xFF or nothing (type-based
    range fold). With an s32 counter the masks are right (test andi+slti, body
@@ -1999,8 +1999,70 @@ extern void func_0047b060(void* a);
    with the loop-test mask (loop-test-CSE family, same as 47aa30; object lands
    exactly 1 word short). Residual also: func_003971d0 args materialize
    move-first vs retail's load-first (2 words). Best nd 76. */
+/* measured: MATCH (object 468B / window 480B / normalized_diff 0); u16
+   loop counter with a for-header increment and pointer-to-array entry view
+   reproduces the retail daddiu and loop masks; u32 old-style helper view
+   preserves func_003971d0 load-before-move argument materialization. */
 // FUN_00477CA0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00477ca0);
+void func_00477ca0(u8* arg0)
+{
+    extern void func_003bff30(void*, void*, void*);
+    extern u8* func_00477900(void*);
+    extern void* func_00474df0(u8*, void*);
+    extern u8* func_00476e10(void*);
+    extern u8* func_00477510(void*);
+    extern u8* func_00477660(void*, void*);
+    extern s32 func_00462ae0(void*);
+    extern u32 func_003971d0();
+    extern void func_00479940(void*, s32, s32, s32, s32);
+    extern void func_0047da30(u32*);
+    extern f32 fGpffff80cc;
+    f32 values[3];
+    u8 (*entries)[0xA4];
+    s32* temp_4;
+    u16 var_17;
+    u16 temp_3;
+    u32 temp_4_2;
+    u8* temp_16;
+
+    entries = (u8 (*)[0xA4])arg0;
+    func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00477900, (void*)0);
+    if (*(s32*)(arg0 + 0x254) != 0) {
+        func_00474df0(arg0 + 0x23C, *(void**)(arg0 + 0xDC));
+    }
+    if (func_00479ca0(arg0, 0) != 0) {
+        func_00473710(arg0 + 0xEC, *(void**)(arg0 + 0xDC), 1);
+        func_00479940(arg0, 0, 0, 0, 1);
+        for (var_17 = (u64)1; (var_17 & 0xFFFF) < 2; var_17++) {
+            temp_16 = entries[var_17];
+            if (*(s32*)(temp_16 + 0x120) != 0) {
+                *(u16*)(temp_16 + 0xEC) = *(u16*)(temp_16 + 0xEC) | 2;
+                temp_4 = *(s32**)(arg0 + 0x10C);
+                temp_4_2 = *temp_4;
+                *(s32*)(temp_16 + 0x10C) = (s32)func_003971d0((u8*)temp_4, 0, temp_4_2, -1);
+            }
+        }
+    }
+    *(s32*)(arg0 + 0xE0) = func_00462ae0(*(void**)(arg0 + 0xDC));
+    func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00476e10, (void*)0);
+    temp_3 = *(u16*)(arg0 + 0xD4);
+    switch (temp_3) {
+    case 1:
+    case 2:
+        values[0] = fGpffff80cc;
+        values[2] = 1.0f;
+        values[1] = fGpffff809c;
+        func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00477660, values);
+        break;
+    default:
+        func_003bff30(*(void**)(arg0 + 0xDC), (void*)func_00477510, (void*)0);
+        break;
+    }
+    temp_4_2 = *(u32*)(arg0 + 0x2CC);
+    if (temp_4_2 != 0) {
+        func_0047da30((u32*)temp_4_2);
+    }
+}
 // FUN_00477E80
 void* func_00477e80(void* param_1, void* param_2, void* param_3, u32 param_4)
 {

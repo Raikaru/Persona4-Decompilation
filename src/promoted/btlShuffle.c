@@ -649,7 +649,8 @@ s32 func_0036fed0(s32 arg0)
  * matches ($s2/$s1/$s0). Residual nd 132: retail sign-extends v16 with a
  * dsll32/dsra32 pair at each use (s16 and s32 declarations both fail) and loads
  * the v17 switch constants with daddiu (s32/s64 declarations both emit addiu).
- * Re-extension + daddiu-constant scheduling floor. */
+ * Re-extension + daddiu-constant scheduling floor. SUPERSEDED: re-deriving
+ * the body with the narrow-unsigned switch local. */
 // FUN_00370020
 INCLUDE_ASM("asm/nonmatchings/btlShuffle", func_00370020);
 
