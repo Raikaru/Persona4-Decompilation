@@ -249,6 +249,24 @@ Rules of engagement:
 
   So the pragma is not a blunt instrument here. It changes *which names are
   in the list*, and once you know the list you can place every value.
+
+  **Validated on `func_002483c0` — and it took a third part.** With
+  `opt_propagation off` and the declarations ordered to retail's list, mwcc
+  produced the intended `$s6`..`$s2` assignment exactly — but also hoisted the
+  loop's `0xffff` into a new `$s7` (`ori $s7,0xffff` / `and $v1,$s5,$s7`),
+  because under propagation off an explicit `& 0xffff` is a real constant
+  that CSE keeps in a register, whereas retail's in-loop masks are `andi`
+  immediates. The fix: keep the ENTRY mask as an explicit AND (it is meant
+  to materialise, into `$s2`), and replace every OTHER `& 0xffff` with a
+  **per-use `u16` conversion temporary** — `u16 call_idx = (u16)var_20;`
+  immediately before each masked use. A narrowing has no constant operand to
+  hoist, so it stays an `andi` immediate. `$s7` vanished, the frame returned
+  to 0x80, and the function closed at 544/544. The recipe for this class is
+  therefore three parts, all required:
+  1. measured `opt_propagation off` under `push`/`pop`;
+  2. declaration order matching retail's `$s` list, highest first;
+  3. explicit AND only where retail materialises the mask; `u16` conversions
+     everywhere else.
 - **Saved-FPR count tells you whether retail cached a float across a call.**
   `f20`–`f23` are only allocated when a float value must survive a call. If
   retail's prologue saves none and yours saves two, the frame-size gap is
