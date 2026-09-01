@@ -282,6 +282,17 @@ Rules of engagement:
   call where the earlier one is assigned. Measured in isolation, declaration
   order still wins whenever both are live at the same first call
   (`q1`/`q2`), so the base rule stands; this is the exception at the edge.
+
+  **Pragma granularity — measured.** `#pragma opt_propagation off` placed
+  INSIDE a function body, even in a tight `push`/`pop` bracket around four
+  statements, has no effect: the state in force at the function's opening
+  brace governs the entire body (`func_0017ea10`, nd 6 unchanged with the
+  bracket inside; the same pragma before the function changed the copy
+  sequence). So the pair cannot be applied to one expression while leaving
+  the rest at default — when it fixes the target words but drifts the frame
+  or other code (`func_0017ea10` went to nd 121 whole-function), the drift
+  must be closed by the rest of the recipe (declaration order, `u16`
+  conversions in place of explicit masks), not by narrowing the bracket.
 - **Saved-FPR count tells you whether retail cached a float across a call.**
   `f20`–`f23` are only allocated when a float value must survive a call. If
   retail's prologue saves none and yours saves two, the frame-size gap is
