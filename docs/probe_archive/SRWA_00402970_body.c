@@ -1,0 +1,1 @@
+/* FLOOR: standalone MMI pcpyld at retail +0x48/+0x78/+0xB8/+0xC8/+0xE0/+0xF0 (no COP2 instruction in same statements; H009). Prologue frame 0x90, saved s7/s6/s5/s4/s3/s2/s1/s0 (8), args a0-a3 plus t0-t3 (12 interleaved integer args). No C attempt; proving instruction pcpyld. */

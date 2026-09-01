@@ -1,0 +1,1 @@
+/* object_size=240B window=240B normalized_diff=0 differing_offsets=; ruled out plain-C reconstruction because retail uses COP1 accumulator chain mula.s/madda.s/madd.s/adda.s, a confirmed MWCCPS2 compiler floor; no body retained. */

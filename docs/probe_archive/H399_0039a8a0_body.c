@@ -1,0 +1,18 @@
+/* object 100 / window 112 / normalized_diff 76; differing offsets 0x02,0x04,0x08,0x0A,0x0C,0x10,0x14,0x18,0x1C,0x20,0x24,0x28,0x2C,0x30,0x34,0x38,0x3C,0x40,0x44,0x48,0x4C,0x50,0x54,0x58,0x5C,0x60,0x64,0x68,0x6C; ruled out direct/64-bit ternaries, assigned s64/u64 locals, reused value local, and scoped scheduler/conditional branch probes. */
+void func_0039a8a0(s32 arg0)
+{
+    u8 *p;
+    s64 value;
+
+    p = *(u8 **)(arg0 + iGpffffb5e0);
+    value = ((s64)0x80 << 32) | 0x68;
+    if (*(s32 *)(p + 0x80) == 3) {
+        if (*(s32 *)(p + 0x4C) != 0)
+            value = 0x58;
+        *(s64 *)(p + 0x68) = value;
+    } else {
+        if (*(s32 *)(p + 0xC) != 0)
+            value = 0x58;
+        *(s64 *)(p + 0x28) = value;
+    }
+}

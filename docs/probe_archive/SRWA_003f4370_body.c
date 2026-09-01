@@ -1,0 +1,1 @@
+/* FLOOR: retail uses privileged sync/sync.p and bc0f coprocessor branch at +0xA0/+0xA4/+0xF8/+0xFC/+0x124/+0x128 (no plain C; privileged hardware synchronization). Frameless function, no saved s registers, no explicit args (GP globals). */
