@@ -6,7 +6,7 @@ extern s32 func_00452490();
 extern s32 func_00452380();
 extern u8 D_00636A30[];
 
-typedef int (*code)(...);
+typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);

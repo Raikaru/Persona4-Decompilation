@@ -239,7 +239,7 @@ s32 func_004b6e40(void)
 
 // FUN_004B6E80
 void func_004b6e80(void) {
-    typedef int (*code)(...);
+    typedef int (*code)();
     extern code DAT_008873ec_abs[];
     void *(**table);
     extern void func_004b5950(void *arg0);

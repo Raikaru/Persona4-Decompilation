@@ -14,7 +14,7 @@ extern u32 func_00193c70(void);
 extern u32 func_001f6290(void);
 extern void func_001f75b0(void);
 
-typedef int (*code)(...);
+typedef int (*code)();
 typedef u32 (*BtlPacketFunc)(void* work);
 typedef struct BtlPacket {
     u8 padding_00[0x68];

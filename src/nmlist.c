@@ -10,7 +10,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_0063FC38[];
 
-typedef int (*code)(...);
+typedef int (*code)();
 
 typedef struct NmlistNode {
     u32 unk0[3];
