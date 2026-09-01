@@ -726,33 +726,81 @@ variants is wasted time.
   while retail emits fresh-first (`mul.s $f0,$f0,$f2`); neither source
   operand order changes it. Indexed getters/setters and float math are the
   usual victims.
-- **`addiu` vs `daddiu` for small constants.** mwcc may emit the 64-bit
-  `daddiu` where retail uses `addiu` (or vice versa) when the operand is a
-  small constant; the choice is tied to the surrounding type width and is not
-  generally source-reachable. **Now measured directly against b210, so stop
-  probing it.** Constant materialisation never yields `daddiu`: `return 1`,
-  `return 1LL`, `(long long)1`, an `s64` return type, `long long v = 1;`, and
-  a 64-bit store all emit `24020001` (`li`/`addiu`). The only spelling that
-  produced one is a 64-bit add with a REGISTER operand — `long long x;
-  return x + 1;` → `64820001 daddiu $2,$4,1` — while the `int` equivalent
-  gives `addiu`. Nor is it reachable by keeping a 64-bit value live: a
-  function holding two constants (1 and 0x63) in a callee-saved register
-  across a call, which is the exact shape of the retail family, emits
-  `li $16,1` / `li $16,99` and then a trailing `dsll32/dsra32` pair to
-  sign-extend. Retail's `daddiu` produces the sign-extended value directly
-  and needs no fixup, which is why the residual is one word and never
-  closes. Known members: `func_00232c70` (nd2, +0xD0/+0xE8),
-  `func_00209870` (nd6, +0x124), `func_001e7ab0` (nd1, +0xEC),
-  `func_0034ac00` (one of five words, +248). Not a pragma either: all 255
-  pragma names were extracted from the compiler binary and compiled on and
-  off against the retail shape (482 compiles, 28 rejected, zero `daddiu`),
-  including the width knobs missing from `-help` (`longlong`,
-  `longlong_prepeval`, `opt_foldconstants`, `opt_pulloutconstants`).
-  The archive for `001e7ab0`
-  additionally rules out `1u`, `1L`, `(s32)1LL`, explicit `s64`/`u64` casts,
-  `sizeof(char)`, pointer differences, `!0`, computed comparisons, 64-bit
-  helper returns, separate 64-bit locals, narrow temporaries, and
-  `u8`/`s8`/`u16`/`s16` destinations.
+- **`addiu` vs `daddiu` for small constants — SOLVED: narrow unsigned
+  destination.** This entry previously said constant materialisation never
+  yields `daddiu` and told you to stop probing. That was wrong. The sweep
+  explored *arithmetic* spellings exhaustively but never varied the
+  destination's signedness and width together. Measured against b210:
+
+  > A constant that fits a signed 16-bit immediate, assigned to an **unsigned
+  > destination narrower than 32 bits**, materialises as `daddiu $rX,$zero,K`.
+
+  | destination | constant | result |
+  |---|---|---|
+  | `u8`, `u16` | 1 | **`daddiu v0,zero,1`** |
+  | `u16` | 0x1234 | **`daddiu v0,zero,4660`** |
+  | `u16` | 0xffff | `ori` — exceeds a signed 16-bit immediate |
+  | `u32` | 1 | `addiu`/`li` |
+  | `s8`, `s16` | 1 | `addiu`/`li` |
+  | unsigned bitfield (`u64 NLOOP:15`, `u32 a:15`) | any | **`daddiu`** |
+
+  Unsignedness and narrowness are both required; signed narrow types do not do
+  it; bitfields are just the special case. Liveness across a call is NOT
+  required — a leaf function with no calls still emits it.
+
+  **Detection:** a repeated `andi $rX,$rY,0xffff` after every arithmetic op is
+  the signature of a `u16` local (`0xff` for `u8`). If that masking surrounds
+  a `daddiu` you cannot produce, your variable is `u32` or `s32` where retail's
+  is `u16`. Reproduced exactly on `func_001e7ab0`: a `u16` loop counter reset
+  to 1 inside a branch gives retail's `andi`/`daddiu`/`andi` sequence
+  instruction for instruction.
+
+  **Second half of the same closure — the fused post-increment.** Retyping the
+  counter reaches the `daddiu` but can cost more than it gains: on
+  `func_001e7ab0` it went from 1 differing word to 4, because mwcc then CSE'd
+  the `0xffff` mask between the array index and the increment, so the
+  increment read the masked temp where retail reads the counter register.
+  Retail's five-instruction idiom is a subscript post-increment:
+
+  ```
+  andi  v0, s1, 0xffff     |   sp60[n++] = value;      /* n is u16 */
+  sll   v0, v0, 2          |
+  addu  v0, v0, sp         |   masked value feeds ONLY the address;
+  sw    s0, 0x60(v0)       |   the increment comes from the unmasked
+  addiu v0, s1, 1          |   counter register, then re-narrows
+  andi  s1, v0, 0xffff     |
+  ```
+
+  Writing it as two statements (`sp60[n] = value; n = n + 1;`) invites the
+  reuse; fusing it into `sp60[n++]` does not. `#pragma opt_common_subs off` is
+  the wrong instrument — measured, it disabled CSE far too broadly and blew the
+  residual out to 64 words at 372B against a 368B window. **If a masked index
+  and an increment of the same variable differ only in which register they
+  read, fuse them into one post-increment expression.** That pair of levers
+  closed the campaign's oldest one-word near-miss.
+
+  Everything the old sweep ruled out stays ruled out, and none of it is a
+  substitute: `*p |= 255` on a `u64` gives `ori`, a `u64` local built from
+  constants gives `ori`, constants passed to `u64` parameters give neither,
+  and `1`/`1LL`/`(long long)1`/`s64` returns/64-bit locals/64-bit stores all
+  give `addiu`. A 64-bit add with a live REGISTER operand also emits `daddiu`
+  (`long long x; return x + 1;` → `64820001`), but that is a different shape
+  from the `$zero`-source constants in the retail family.
+
+  These are PS2 GS/GIF packet structures, so bitfields in 64-bit words are
+  what retail's source almost certainly used; reconstructions that build the
+  same words with shifts and ORs emit `ori`/`addiu` and miss. **If retail has
+  `daddiu` where you have `addiu` and the value is a packed field, write it as
+  a bitfield assignment.**
+
+  Members to re-open, all previously archived as unreachable:
+  `func_001e7ab0` (nd 1, +0xEC — the campaign's closest near-miss),
+  `func_00232c70` (nd 2), `func_00209870` (nd 6), `func_0034ac00` (5 words),
+  `func_0038b1c0` (nd 6, whose residuals decode as `daddiu a2,zero,0xff` /
+  `a3,zero,0xbe` / `t0,zero,0x5a` / `a2,zero,0x2b` / `a3,zero,0x26` /
+  `t0,zero,0x1e` — three-channel colour values in consecutive argument
+  registers, exactly what a packed-colour bitfield write produces).
+  Full write-up: `docs/open_question_daddiu.md`.
 - **Chained-load intermediate register in a delay-slot getter.** The
   `code1_004c`–`code1_0052` getter family: retail is exactly three words,
   `lui $v1,%hi / jr $ra / lw $v0,%lo($v1)` (or `lw $v1,off($a0) / jr $ra /

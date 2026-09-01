@@ -1060,8 +1060,72 @@ void func_001d6300(u8 *arg0) {
     *(s32 *)(arg0 + 0x18) = func_001d6ce0(*(s32 *)((u8 *)(*(u8 **)(arg0 + 4)) + 0xA08));
 }
 
+/* measured: opt_propagation off probe for func_001d6360 argument setup and register coloring. */
+#pragma push
+#pragma opt_propagation off
 // FUN_001D6360
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d6360);
+s32 func_001d6360(u8 *arg0)
+{
+    extern s32 func_00193b70(s64 arg0, s64 arg1);
+    extern s32 func_001d4120(s32 arg0);
+    extern s32 func_001d4140(s32 arg0, s32 arg1);
+    extern s32 func_001d41b0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+    s32 count;
+    s32 value;
+    s32 arg1;
+    s32 index;
+    s32 index_temp;
+    s64 key;
+    u8 *packet;
+    u8 *abort_packet;
+    s32 arg4;
+    if (func_001d4120(*(s32 *)(arg0 + 0)) == 0)
+        return 0;
+    packet = *(u8 **)(arg0 + 0x18);
+    if ((*(s32 *)(packet + 4) & 0xFF000000) == 0)
+        return 1;
+    if ((*(u16 *)(packet + 0) & 0x40) == 0) {
+        if ((*(s32 *)(arg0 + 0x20) & 0x4000) == 0) {
+            index_temp = func_001d4140(*(s32 *)(arg0 + 0), 0) * 2;
+            index = index_temp;
+        } else {
+            index_temp = *(s32 *)(arg0 + 0x1C) + 1;
+            index = index_temp;
+        }
+        count = *(s32 *)(arg0 + 8);
+        if ((count != 0 && *(s32 *)(arg0 + 0x1C) >= count * 2 - 13) ||
+            ((key = *(s64 *)(arg0 + 0x10)) != 0 &&
+             func_00193b70(key, (s64)0x3FFFFFFFFFFFFFFF) == 0) ||
+            (index != 0 && *(s32 *)(arg0 + 0x1C) >= index)) {
+            if ((*(s32 *)(arg0 + 0x20) & 0x2000) != 0)
+                *(s8 *)(*(u8 **)(arg0 + 0x18) + 8) = 7;
+            abort_packet = *(u8 **)(arg0 + 0x18);
+            *(u16 *)(abort_packet + 0) |= 0x100;
+            return 0;
+        } else {
+            value = *(s32 *)(arg0 + 0x1C);
+            if (value == 0) {
+                arg1 = *(s32 *)(arg0 + 4);
+                arg4 = *(s32 *)(arg0 + 0x20);
+                *(s32 *)(packet + 0x10) =
+                    func_001d41b0(*(s32 *)(arg0 + 0), 0, arg1, arg1, arg4);
+            } else if (value == 2) {
+                if ((*(s32 *)(arg0 + 0x20) & 0x10000) == 0) {
+                    *(u16 *)(packet + 0) |= 0xB0;
+                    *(s32 *)(packet + 4) =
+                        (u32)*(u64 *)(packet + 4) & 0x00FFFFFF;
+                } else {
+                    *(u16 *)(packet + 0) |= 0x30;
+                    *(s32 *)(packet + 4) = -1;
+                }
+            }
+            *(s32 *)(arg0 + 0x1C) = *(s32 *)(arg0 + 0x1C) + 2;
+        }
+    }
+    return 0;
+}
+/* measured: restore pragma state after func_001d6360. */
+#pragma pop
 // FUN_001D6570
 void func_001d6570(u8 *arg0)
 {
