@@ -279,6 +279,40 @@ Rules of engagement:
   what produces the no-save frame. Measured on `func_0047f4d0`, where every
   scalar variant retained `f20`–`f23` (frame 0x40/0x50) against retail's
   smaller frame. Count the saved FPRs before probing anything else.
+- **THE saved-register COUNT rule — measured.** "Retail saves fewer registers
+  than any spelling I can write" is cited by 59 archives. Fourteen probes
+  reduce it to one statement: **the count is exactly the number of named C
+  values that are live across a call, and a parameter pointer is such a
+  value.** What does *not* reduce it, measured:
+  - re-reading a field through a parameter pointer after the call
+    (`sink(s->b); call(); sink(s->b);`) — the *pointer* survives instead of
+    the value, still one register;
+  - recomputing an arithmetic result on both sides (`sink(s->b*3); call();
+    sink(s->b*3);`) — same, the pointer survives;
+  - copying a global pointer into a local first (`S *s = g_p;`) — now the
+    local survives.
+
+  What **does** reduce it to zero: accessing through a **global** on both
+  sides, so that after the call the value is re-derived from `$gp` and
+  nothing needs preserving:
+
+  ```c
+  s32 m1(void) { sink(g_s.b);  call(); sink(g_s.b);  }   /* frame 16, no $s */
+  s32 m2(void) { sink(g_p->b); call(); sink(g_p->b); }   /* frame 16, no $s */
+  s32 m4(S *s) { g_p = s; sink(g_p->b); call(); sink(g_p->b); }  /* no $s */
+  s32 m5(S *s) { call(); sink(s->b); sink(s->c); }         /* one $s: the pointer */
+  s32 m6(S *s) { s32 b=s->b, c=s->c; call(); sink(b); sink(c); } /* two $s */
+  ```
+
+  So when retail's frame is smaller than yours by N saved registers, retail's
+  source has N fewer *names* live across that call — and the usual way a
+  game function achieves that is by reaching data through a global (a
+  singleton pointer, a state struct) rather than a parameter. `m4` is the
+  telling case: storing the parameter into a global and reading back through
+  the global drops the save entirely. Look for that assignment near the top
+  of retail: a `sw $a0, -0x…($gp)` before the first call is the signature.
+  Also the mirror of the entry above: `m6` versus `m5` is two names versus
+  one, and picking the wrong one costs a register.
 - **Float-to-byte conversion tail colouring (open floor, SIX members, two
   files).** Originally recorded as a `shdPersona.c` quirk; it is not
   file-specific. Any function whose tail converts a float to a byte and packs
@@ -451,6 +485,47 @@ Rules of engagement:
   chain (`lw; ori a; sw; ori b; sw`). A cached `v = *p; *p = v|a; *p = v|b;`
   gets constant-folded to `ori v0,a` / `ori v0,a|b`. Match whichever the
   disassembly shows.
+
+## Argument materialisation — measured rule
+
+Cited by 71 archives as a residual and worked by trial and error ("float
+params ahead of `u8`", "delayed first parameter read"). Twenty-two probes
+against b210 reduce it to two clauses.
+
+**1. Arguments materialise strictly left to right in parameter order, with no
+exceptions.** Loads from a pointer, GP globals, `lui`/`li` constants, values
+preserved in saved registers, and call results all fill `$a0`, `$a1`, `$a2`…
+in the order the parameters are declared. A GP global in slot 1 is loaded
+between slots 0 and 2 — the global-deferral rule that governs *expressions*
+does not apply to argument lists. A call inside an argument is evaluated
+first, its result parked in a saved register, and then the remaining
+arguments are loaded left to right.
+
+```c
+f3(p[0], g_int, p[2]);   /* lw a0,0(a0)  lw a1,0(gp)  lw a2,8(v0)  jal */
+f3(g_int, p[1], p[2]);   /* lw a0,0(gp)  lw a1,4(v0)  lw a2,8(v0)  jal */
+f2(p[3], 0x40000);       /* lw a0,12(a0) lui a1,0x4               jal */
+```
+
+So **if your argument loads come out in the wrong order, the prototype's
+parameter order is wrong** — reorder the declaration, not the call site.
+That is the whole content of the "float parameters ahead of `u8`" lever.
+Where the callee is only declared locally, the order is yours to choose;
+where it is a real definition, check every caller by name after changing it.
+
+**2. A constant that is both stored and passed is materialised once, early,
+into the argument register.** `s32 k = 0x40000; *d = k; f2(g_int, k);` emits
+`lui a1,0x4` *before* `lw a0,0(gp)`, because the shared constant is built
+directly in `$a1` and the store reads it from there. If retail shows the
+argument load first and the constant afterwards in a temp (`lw a3,…(gp)`
+then `lui v0,4` — `func_00398350`'s nd 6 residual), retail's constant is
+**not** shared with the argument: it is a separate literal at the store, and
+the argument is a different value or the same value re-derived. Write the
+store with its own literal rather than through a local that also feeds the
+call.
+
+Statement order is otherwise honoured exactly: a store written before the
+call is emitted before the argument loads; written after, it comes after.
 
 ## Globals and addressing
 
