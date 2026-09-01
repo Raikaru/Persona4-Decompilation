@@ -356,6 +356,49 @@ Rules of engagement:
   audit and check whether your target sits under an open flip.** If it does,
   you are not compiling at the `-O2` baseline you think you are, and a pragma
   you then add may be redundant, or its removal may appear to do nothing.
+- **THE load-ordering rule for a global versus a field — measured.** The
+  "float-load scheduling floor" cited in 29 archives is one rule, and it has
+  a source-level fix. Thirty probes against b210:
+
+  | operands | order emitted |
+  |---|---|
+  | two register-pointer loads, any offsets (`a[7] - b[9]`) | **source order** |
+  | two GP globals (`g1 - g2`) | source order |
+  | a global vs a field at **offset 0** (`g - p[0]`) | source order |
+  | a global vs a field at **any non-zero offset** (`g - p[1]`, `g - p[101]`) | **field first, always** |
+
+  The last row holds for GP-relative and absolute (`lui`/`lwc1`) globals,
+  for `+`, `-`, `*`, and every comparison, in both written orders, for
+  `int` and `float`, and through a struct member. Eleven comparison
+  spellings and `!(a >= b)` all produced the identical field-first sequence.
+  Rebasing the pointer (`q = p + 101; g - q[0]`) does not help — mwcc folds
+  it back into a `404(a0)` access — and naming the global into a local
+  (`f32 g = g_flt;`) is propagated straight back into the expression. So
+  under default optimisation the global is deferred behind the field and no
+  spelling reaches retail's global-first order.
+
+  **The fix is the same two-part lever as the register rule:** measured
+  `opt_propagation off` **and** the global read into a named local.
+
+  ```c
+  #pragma opt_propagation off
+  f32 p1(f32 *p) { return g_flt - p[101]; }            /* still field first  */
+  f32 p2(f32 *p) { f32 g = g_flt; return g - p[101]; } /* lwc1 0(gp) FIRST   */
+  ```
+
+  With propagation off, the assignment is honoured as a real load at its
+  written position instead of being folded into the use. Either half alone
+  does nothing: the pragma without the local leaves the fold in place, and
+  the local without the pragma is propagated away. This is precisely
+  `func_0034ac00`'s remaining nd 2 (`fGpffff8504` loaded before
+  `entry+0x194`, retail the reverse), where the lane reported
+  "opt_propagation off no effect" — because it applied the pragma without
+  the named local. Also the shape of the `c.ole.s`/`bc1t` scheduling wall
+  recorded on `y_draw`. Retry both with the pair.
+
+  Note the distinction from the entry below: that one is two *stack* reloads
+  swapping, where neither operand is a global, and the pragma pair was
+  measured not to help. This entry is specifically global-versus-field.
 - **Adjacent independent loads can swap and no pragma fixes it.**
   `func_001cff00` (code1_001c.c) sits at exactly TWO differing words, object
   and window both 704B, offsets 0x78/0x7c:
