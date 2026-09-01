@@ -477,8 +477,53 @@ test:
     return 0;
 }
 
+/* measured: loop-invariant probe for func_001f0c50's shared true value. */
+#pragma opt_loop_invariants on
 // FUN_001F0C50
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f0c50);
+s32 func_001f0c50(u8 *arg0)
+{
+    s32 result;
+    s32 i;
+    s32 n;
+    u8 *target;
+    s32 j;
+    s32 innerCount;
+    s32 one;
+
+    result = 0;
+    i = 0;
+    n = *(u16 *)(arg0 + 0x6A);
+    one = 0x10000 >> 16;
+    while ((i & 0xFFFF) < n) {
+        target = *(u8 **)(arg0 + ((u16)i << 2) + 0x38);
+        if (target != arg0) {
+            if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) !=
+                *(u8 *)(*(u8 **)(target + 0x30) + 0xA2)) {
+                return 0;
+            }
+            if (result == 0) {
+                j = 0;
+                innerCount = *(u8 *)(target + 0xD9);
+                while ((j & 0xFFFF) < innerCount) {
+                    if (*(s32 *)(target + ((u16)j << 5) + 0xF0) > 0) {
+                        result = one;
+                    }
+                    if (*(s32 *)(target + ((u16)j << 5) + 0xF4) > 0) {
+                        result = one;
+                    }
+                    if (*(s32 *)(target + ((u16)j << 5) + 0xFC) != 0) {
+                        result = one;
+                    }
+                    j = (j + 1) & 0xFFFF;
+                }
+            }
+        }
+        i = (i + 1) & 0xFFFF;
+    }
+    return result;
+}
+/* measured: close opt_loop_invariants after func_001f0c50 probe. */
+#pragma opt_loop_invariants off
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
    place the retail `lui` in the preheader. */
 #pragma opt_loop_invariants on

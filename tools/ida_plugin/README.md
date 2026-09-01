@@ -108,3 +108,34 @@ real work mid-body must never be marked.
 `set_ignore_micro`/`IM_*` are **not** exposed in IDA 9.4's Python API
 (`ida_hexrays` exports only `NORET_IGNORE_WAS_NORET_ICALL`), so this cannot
 be prototyped from idalib and requires the C++ SDK.
+
+## Companion: COP2/VU0 disassembly (`ida-emotionengine.py`)
+
+Third-party plugin by oct0xor (https://github.com/oct0xor/ida-emotionengine),
+vendored here so the toolchain is reproducible. Install alongside the C++
+plugin by copying into `~/ida-pro-9.4/plugins/`.
+
+Without it, COP2 decodes as a raw encoded word -- `cop2 0x1EB593C` -- which is
+unreadable. With it the same addresses disassemble properly:
+
+```
+0x0019b93c  vitof0.xyzw  $vf11, $vf11
+0x0019b94c  vmulx.xyzw   $vf11, $vf11, $vf2
+0x0019b9b0  vadd.xyzw    $vf10, $vf10, $vf11
+0x0019b9c0  vftoi0.xyzw  $vf10, $vf10
+```
+
+Scope: this fixes *disassembly*, not decompilation. Hex-Rays still cannot
+model VU0, so these remain `__asm{}` islands -- they just contain legible
+instructions now. Same situation as the bc0f fix. It does not move the
+island count.
+
+Verified against the standard acceptance run with it installed: MMI 142 ok /
+0 fail, sq/lq 5085 ok / 0 fail -- no decompiler regression.
+
+Surveyed and rejected for this project: `Goatman13/ida-psx-gte` (PS1, wrong
+console), `Goatman13/ida_ppc_iop` (PS2 IOP, we decompile the EE executable),
+`Goatman13/ps2_ida_vu_micro` (VU1 microcode data blobs, not the C functions
+being matched), `grimdoomer/IDAPy-PS2` (syscall/import labelling, already
+covered by `tools/promote_syscall_stubs.py` and the 6946 entries in
+`config/symbols_recovered.txt`; naming does not affect byte-exact matching).
