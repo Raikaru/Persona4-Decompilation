@@ -15,134 +15,87 @@
 // func_0025ef20  addr 0x0025ef20  window 496B
 __int64 __fastcall sub_25EF20(__int64 a1)
 {
-  int v8; // $s2
+  int v2; // $s2
   __int64 i; // $s1
-  __int64 v10; // $v1
-  __int64 v11; // $s1
-  __int64 v12; // $s5
-  int v13; // $v1
-  __int64 v14; // $s4
+  __int64 v4; // $v1
+  __int64 v5; // $s1
+  __int64 v6; // $s5
+  int v7; // $v1
+  __int64 v8; // $s4
   __int64 j; // $s3
-  int v16; // $s1
-  __int64 result; // $v0
+  __int64 v10; // $s1
 
-  __asm
-  {
-    sq      $s5, 0x60+var_10($sp)
-    sq      $s4, 0x60+var_20($sp)
-    sq      $s3, 0x60+var_30($sp)
-    sq      $s2, 0x60+var_40($sp)
-    sq      $s1, 0x60+var_50($sp)
-    sq      $s0, 0x60+var_60($sp)
-  }
-  v8 = 16;
+  v2 = 16;
   for ( i = 0; ; i = (int)i + 1 )
   {
-    v10 = *(int *)(a1 + 4);
-    if ( i >= v10 )
+    v4 = *(int *)(a1 + 4);
+    if ( i >= v4 )
       break;
-    v8 += sub_442948(*(int *)(*(_DWORD *)a1 + 4 * i)) + 1;
+    v2 += sub_442948(*(int *)(*(_DWORD *)a1 + 4 * i)) + 1;
   }
-  v11 = (int)(8 * v10 + 8 * *(_DWORD *)(a1 + 12) + 20 + v8 + (v8 & 1));
+  v5 = (int)(8 * v4 + 8 * *(_DWORD *)(a1 + 12) + 20 + v2 + (v2 & 1));
   nullsub_7((unsigned int)aShdspriteC, 126);
-  v12 = dword_8873F4(1, v11, 0x40000);
-  *(_DWORD *)v12 = 0;
-  *(_DWORD *)(v12 + 4) = v12 + 20;
-  *(_DWORD *)(v12 + 8) = v12 + 36;
-  sub_43F810(*(int *)(v12 + 4), a1, 16);
-  v13 = *(_DWORD *)(v12 + 8) + 4 * *(_DWORD *)(a1 + 4);
-  **(_DWORD **)(v12 + 4) = v13;
-  v14 = v13 + 4 * *(_DWORD *)(a1 + 4);
+  v6 = dword_8873F4(1, v5, 0x40000);
+  *(_DWORD *)v6 = 0;
+  *(_DWORD *)(v6 + 4) = v6 + 20;
+  *(_DWORD *)(v6 + 8) = v6 + 36;
+  sub_43F810(*(int *)(v6 + 4), a1, 16);
+  v7 = *(_DWORD *)(v6 + 8) + 4 * *(_DWORD *)(a1 + 4);
+  **(_DWORD **)(v6 + 4) = v7;
+  v8 = v7 + 4 * *(_DWORD *)(a1 + 4);
   for ( j = 0; j < *(int *)(a1 + 4); j = (int)j + 1 )
   {
-    v16 = sub_442948(*(int *)(*(_DWORD *)a1 + 4 * j)) + 1;
-    sub_43F810(v14, *(int *)(*(_DWORD *)a1 + 4 * j), v16);
-    *(_DWORD *)(**(_DWORD **)(v12 + 4) + 4 * j) = v14;
-    v14 = (int)v14 + v16;
+    v10 = (int)(sub_442948(*(int *)(*(_DWORD *)a1 + 4 * j)) + 1);
+    sub_43F810(v8, *(int *)(*(_DWORD *)a1 + 4 * j), v10);
+    *(_DWORD *)(**(_DWORD **)(v6 + 4) + 4 * j) = v8;
+    v8 = (int)v8 + (int)v10;
   }
-  if ( (v14 & 1) != 0 )
-    v14 = (int)v14 + 1;
+  if ( (v8 & 1) != 0 )
+    v8 = (int)v8 + 1;
   if ( *(_DWORD *)(a1 + 8) != 0 )
   {
-    sub_43F810(v14, *(int *)(a1 + 8), 8 * *(_DWORD *)(a1 + 12));
-    *(_DWORD *)(*(_DWORD *)(v12 + 4) + 8) = v14;
-    *(_DWORD *)(v12 + 12) = *(_DWORD *)(*(_DWORD *)(v12 + 4) + 8);
+    sub_43F810(v8, *(int *)(a1 + 8), 8 * *(_DWORD *)(a1 + 12));
+    *(_DWORD *)(*(_DWORD *)(v6 + 4) + 8) = v8;
+    *(_DWORD *)(v6 + 12) = *(_DWORD *)(*(_DWORD *)(v6 + 4) + 8);
   }
-  *(_DWORD *)(v12 + 16) = *(_DWORD *)(a1 + 12);
-  result = v12;
-  __asm
-  {
-    lq      $s5, 0x60+var_10($sp)
-    lq      $s4, 0x60+var_20($sp)
-    lq      $s3, 0x60+var_30($sp)
-    lq      $s2, 0x60+var_40($sp)
-    lq      $s1, 0x60+var_50($sp)
-    lq      $s0, 0x60+var_60($sp)
-  }
-  return result;
+  *(_DWORD *)(v6 + 16) = *(_DWORD *)(a1 + 12);
+  return v6;
 }
 
 
 // func_0025f110  addr 0x0025f110  window 288B
 __int64 __fastcall sub_25F110(int *a1)
 {
-  __int64 v4; // $ra
-  int v6; // $v1
-  __int64 v7; // $s1
-  __int64 result; // $v0
-  int *v9; // $v0
-  __int64 v10; // $v0
-  __int64 v17; // [sp+30h] [-20h]
-  char v18; // [sp+4Ch] [-4h] BYREF
+  int v2; // $v1
+  __int64 v3; // $s1
+  int *v5; // $v0
+  __int64 v6; // $v0
+  char v7; // [sp+4Ch] [-4h] BYREF
 
-  v17 = v4;
-  __asm
+  v2 = a1[1];
+  v3 = *a1;
+  if ( v3 >= *(int *)(v2 + 4) )
+    return 1;
+  while ( 1 )
   {
-    sq      $s2, 0x50+var_30($sp)
-    sq      $s1, 0x50+var_40($sp)
-    sq      $s0, 0x50+var_50($sp)
-  }
-  v6 = a1[1];
-  v7 = *a1;
-  if ( v7 < *(int *)(v6 + 4) )
-  {
-    while ( 1 )
+    v5 = (int *)(a1[2] + 4 * v3);
+    if ( *v5 == 0 )
     {
-      v9 = (int *)(a1[2] + 4 * v7);
-      if ( *v9 != 0 )
-      {
-        if ( sub_46A750(*v9) == 0 )
-        {
-          result = 0;
-          goto LABEL_12;
-        }
-        ++*a1;
-      }
+      v6 = sub_455F70(*(int *)(*(_DWORD *)v2 + 4 * v3), (int)&v7);
+      if ( v6 != 0 )
+        *(_DWORD *)(a1[2] + 4 * v3) = sub_46AF60(v6);
       else
-      {
-        v10 = sub_455F70(*(int *)(*(_DWORD *)v6 + 4 * v7), (int)&v18);
-        if ( v10 != 0 )
-          *(_DWORD *)(a1[2] + 4 * v7) = sub_46AF60(v10);
-        else
-          *(_DWORD *)(a1[2] + 4 * v7) = sub_46AEA0(*(int *)(*(_DWORD *)a1[1] + 4 * v7));
-      }
-      v6 = a1[1];
-      v7 = *a1;
-      if ( v7 >= *(int *)(v6 + 4) )
-      {
-        result = 1;
-        goto LABEL_12;
-      }
+        *(_DWORD *)(a1[2] + 4 * v3) = sub_46AEA0(*(int *)(*(_DWORD *)a1[1] + 4 * v3));
+      goto LABEL_9;
     }
+    if ( sub_46A750(*v5) == 0 )
+      return 0;
+    ++*a1;
+LABEL_9:
+    v2 = a1[1];
+    v3 = *a1;
+    if ( v3 >= *(int *)(v2 + 4) )
+      return 1;
   }
-  result = 1;
-LABEL_12:
-  __asm
-  {
-    lq      $s2, 0x50+var_30($sp)
-    lq      $s1, 0x50+var_40($sp)
-    lq      $s0, 0x50+var_50($sp)
-  }
-  return result;
 }
 

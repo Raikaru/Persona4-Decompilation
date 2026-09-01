@@ -15,33 +15,28 @@
 // func_00245030  addr 0x00245030  window 5152B
 __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
 {
-  int v4; // $gp
-  unsigned __int16 v5; // $s0
+  int v2; // $gp
+  unsigned __int16 v3; // $s0
   __int64 result; // $v0
-  unsigned __int16 v7; // $v0
-  unsigned __int16 v8; // $v0
-  __int64 v9; // $s0
-  __int64 v10; // $s1
+  unsigned __int16 v5; // $v0
+  unsigned __int16 v6; // $v0
+  __int64 v7; // $s0
+  __int64 v8; // $s1
+  unsigned int v9; // $v1
+  unsigned int v10; // $a0
   unsigned int v11; // $v1
-  unsigned int v12; // $a0
-  unsigned int v13; // $v1
+  __int16 v12; // $s0
+  __int64 v13; // $s0
   __int16 v14; // $s0
-  __int64 v15; // $s0
-  __int16 v16; // $s0
-  __int64 v17; // $v1
-  __int16 v18; // $v0
-  __int64 v19; // $a0
-  __int64 v20; // $v0
-  __int64 v21; // $v0
-  __int16 v22; // $s0
-  __int64 v23; // $s0
+  __int64 v15; // $v1
+  __int16 v16; // $v0
+  __int64 v17; // $a0
+  __int64 v18; // $v0
+  __int64 v19; // $v0
+  __int16 v20; // $s0
+  __int64 v21; // $s0
 
-  __asm
-  {
-    sq      $s1, 0x30+var_10($sp)
-    sq      $s0, 0x30+var_20($sp)
-  }
-  v5 = a2;
+  v3 = a2;
   switch ( a1 )
   {
     case 1LL:
@@ -113,8 +108,8 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
     case 11LL:
       if ( dword_881460 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 205);
-      v7 = sub_23D8E0(dword_881460, (unsigned __int16)word_88146C);
-      sub_23A6B0(dword_881460, v7);
+      v5 = sub_23D8E0(dword_881460, (unsigned __int16)word_88146C);
+      sub_23A6B0(dword_881460, v5);
       result = 1120403456;
       break;
     case 12LL:
@@ -122,8 +117,8 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
         nullsub_8((unsigned int)aDatscriptC, 211);
       if ( dword_881464 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 212);
-      v8 = sub_23D8E0(dword_881460, (unsigned __int16)word_88146C);
-      sub_23A6B0(dword_881464, v8);
+      v6 = sub_23D8E0(dword_881460, (unsigned __int16)word_88146C);
+      sub_23A6B0(dword_881464, v6);
       result = 1120403456;
       break;
     case 13LL:
@@ -131,7 +126,7 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
         nullsub_8((unsigned int)aDatscriptC, 247);
       if ( dword_881460 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 248);
-      result = sub_232C70(dword_881460, v5);
+      result = sub_232C70(dword_881460, v3);
       if ( result < 0 )
         result &= 1u;
       break;
@@ -140,28 +135,28 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
         nullsub_8((unsigned int)aDatscriptC, 257);
       if ( dword_881464 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 258);
-      result = sub_232C70(dword_881464, v5);
+      result = sub_232C70(dword_881464, v3);
       if ( result < 0 )
         result &= 1u;
       break;
     case 15LL:
     case 16LL:
       if ( a1 == 15 )
-        v9 = dword_881460;
+        v7 = dword_881460;
       else
-        v9 = dword_881464;
-      v10 = (__int16)sub_23D740(word_88146C, dword_881470);
-      if ( v10 >= 19 )
+        v7 = dword_881464;
+      v8 = (__int16)sub_23D740(word_88146C, dword_881470);
+      if ( v8 >= 19 )
         nullsub_8((unsigned int)aDatscriptC, 227);
-      if ( v10 != 17 && v10 != 16 && v10 != -1 )
-        sub_23A6B0(v9, v10);
+      if ( v8 != 17 && v8 != 16 && v8 != -1 )
+        sub_23A6B0(v7, v8);
       result = 1120403456;
       break;
     case 17LL:
       if ( (unsigned __int16)word_88146C >= 0x1B8uLL )
         nullsub_8((unsigned int)aDatscriptC, 262);
-      v11 = *(_DWORD *)(v4 - 19528) + 40 * (unsigned __int16)word_88146C;
-      if ( (*(_BYTE *)v11 & 2) != 0 )
+      v9 = *(_DWORD *)(v2 - 19528) + 40 * (unsigned __int16)word_88146C;
+      if ( (*(_BYTE *)v9 & 2) != 0 )
       {
         if ( dword_881460 == 0 )
           nullsub_8((unsigned int)aDatscriptC, 265);
@@ -171,19 +166,19 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
       }
       else
       {
-        result = *(unsigned __int8 *)(v11 + 14);
+        result = *(unsigned __int8 *)(v9 + 14);
       }
       break;
     case 18LL:
       if ( (unsigned __int16)word_88146C >= 0x1B8uLL )
         nullsub_8((unsigned int)aDatscriptC, 272);
-      result = *(unsigned __int8 *)(40 * (unsigned __int16)word_88146C + *(_DWORD *)(v4 - 19528) + 25);
+      result = *(unsigned __int8 *)(40 * (unsigned __int16)word_88146C + *(_DWORD *)(v2 - 19528) + 25);
       break;
     case 19LL:
       if ( (unsigned __int16)word_88146C >= 0x1B8uLL )
         nullsub_8((unsigned int)aDatscriptC, 276);
-      v12 = *(_DWORD *)(v4 - 19528) + 40 * (unsigned __int16)word_88146C;
-      if ( (*(_BYTE *)v12 & 2) != 0 || *(_BYTE *)(v12 + 17) == 16 )
+      v10 = *(_DWORD *)(v2 - 19528) + 40 * (unsigned __int16)word_88146C;
+      if ( (*(_BYTE *)v10 & 2) != 0 || *(_BYTE *)(v10 + 17) == 16 )
       {
         if ( dword_881460 == 0 )
           nullsub_8((unsigned int)aDatscriptC, 280);
@@ -193,11 +188,11 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
       }
       else if ( dword_881470 == 1 )
       {
-        result = *(__int16 *)(v12 + 18);
+        result = *(__int16 *)(v10 + 18);
       }
       else if ( dword_881470 == 2 )
       {
-        result = *(__int16 *)(v12 + 22);
+        result = *(__int16 *)(v10 + 22);
       }
       else
       {
@@ -207,8 +202,8 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
     case 20LL:
       if ( (unsigned __int16)word_88146C >= 0x1B8uLL )
         nullsub_8((unsigned int)aDatscriptC, 296);
-      v13 = *(_DWORD *)(v4 - 19528) + 40 * (unsigned __int16)word_88146C;
-      if ( (*(_BYTE *)v13 & 2) != 0 )
+      v11 = *(_DWORD *)(v2 - 19528) + 40 * (unsigned __int16)word_88146C;
+      if ( (*(_BYTE *)v11 & 2) != 0 )
       {
         if ( dword_881460 == 0 )
           nullsub_8((unsigned int)aDatscriptC, 299);
@@ -218,7 +213,7 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
       }
       else
       {
-        result = *(unsigned __int8 *)(v13 + 37);
+        result = *(unsigned __int8 *)(v11 + 37);
       }
       break;
     case 21LL:
@@ -234,63 +229,63 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
         nullsub_8((unsigned int)aDatscriptC, 313);
       if ( dword_881464 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 314);
-      v14 = (unsigned __int8)sub_231E20(dword_881460);
-      v15 = (__int16)(v14 - (unsigned __int8)sub_231E20(dword_881464));
-      if ( v15 >= -31 )
+      v12 = (unsigned __int8)sub_231E20(dword_881460);
+      v13 = (__int16)(v12 - (unsigned __int8)sub_231E20(dword_881464));
+      if ( v13 >= -31 )
       {
-        if ( v15 >= 32 )
-          LOWORD(v15) = 31;
+        if ( v13 >= 32 )
+          LOWORD(v13) = 31;
       }
       else
       {
-        LOWORD(v15) = -31;
+        LOWORD(v13) = -31;
       }
       if ( sub_243CE0(dword_881460) != 0 || sub_243CE0(dword_881464) != 0 )
-        result = *(_DWORD *)(v4 - 19468) + 4 * (__int16)(v15 + 94);
+        result = *(_DWORD *)(v2 - 19468) + 4 * (__int16)(v13 + 94);
       else
-        result = *(_DWORD *)(v4 - 19468) + 4 * (__int16)(v15 + 31);
+        result = *(_DWORD *)(v2 - 19468) + 4 * (__int16)(v13 + 31);
       break;
     case 24LL:
       if ( dword_881460 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 352);
       if ( dword_881464 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 353);
-      v16 = (unsigned __int8)sub_231E20(dword_881460);
-      v17 = (unsigned __int8)sub_231E20(dword_881464);
-      if ( v17 >= v16 )
-        v18 = v16 - v17 + 1;
+      v14 = (unsigned __int8)sub_231E20(dword_881460);
+      v15 = (unsigned __int8)sub_231E20(dword_881464);
+      if ( v15 >= v14 )
+        v16 = v14 - v15 + 1;
       else
-        v18 = v16 - v17 - 1;
-      v19 = v18 / 3;
-      if ( v19 >= -6 )
+        v16 = v14 - v15 - 1;
+      v17 = v16 / 3;
+      if ( v17 >= -6 )
       {
-        if ( v19 >= 7 )
-          LOWORD(v19) = 6;
+        if ( v17 >= 7 )
+          LOWORD(v17) = 6;
       }
       else
       {
-        LOWORD(v19) = -6;
+        LOWORD(v17) = -6;
       }
-      result = 4 * (__int16)v19 + *(_DWORD *)(v4 - 19464);
+      result = 4 * (__int16)v17 + *(_DWORD *)(v2 - 19464);
       break;
     case 25LL:
       if ( dword_881460 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 371);
-      v20 = (unsigned __int8)sub_232C70(dword_881460, 1) / 10;
-      if ( v20 >= 10 )
-        LOWORD(v20) = 9;
-      result = *(__int16 *)(*(_DWORD *)(v4 - 19456) + 2 * (__int16)v20);
+      v18 = (unsigned __int8)sub_232C70(dword_881460, 1) / 10;
+      if ( v18 >= 10 )
+        LOWORD(v18) = 9;
+      result = *(__int16 *)(*(_DWORD *)(v2 - 19456) + 2 * (__int16)v18);
       break;
     case 26LL:
       if ( dword_881460 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 379);
-      v21 = (unsigned __int8)sub_232C70(dword_881460, 1) / 5;
-      if ( v21 >= 21 )
-        LOWORD(v21) = 20;
-      result = *(__int16 *)(*(_DWORD *)(v4 - 19452) + 2 * (__int16)v21);
+      v19 = (unsigned __int8)sub_232C70(dword_881460, 1) / 5;
+      if ( v19 >= 21 )
+        LOWORD(v19) = 20;
+      result = *(__int16 *)(*(_DWORD *)(v2 - 19452) + 2 * (__int16)v19);
       break;
     case 27LL:
-      result = *(unsigned __int16 *)(*(_DWORD *)(v4 - 19540) + 3160) + 1;
+      result = *(unsigned __int16 *)(*(_DWORD *)(v2 - 19540) + 3160) + 1;
       break;
     case 28LL:
       result = 8912896;
@@ -328,33 +323,28 @@ __int64 __fastcall sub_245030(__int64 a1, __int64 a2)
         nullsub_8((unsigned int)aDatscriptC, 409);
       if ( dword_881464 == 0 )
         nullsub_8((unsigned int)aDatscriptC, 410);
-      v22 = (unsigned __int8)sub_231E20(dword_881460);
-      v23 = (__int16)(v22 - (unsigned __int8)sub_231E20(dword_881464));
-      if ( v23 >= -31 )
+      v20 = (unsigned __int8)sub_231E20(dword_881460);
+      v21 = (__int16)(v20 - (unsigned __int8)sub_231E20(dword_881464));
+      if ( v21 >= -31 )
       {
-        if ( v23 >= 32 )
-          LOWORD(v23) = 31;
+        if ( v21 >= 32 )
+          LOWORD(v21) = 31;
       }
       else
       {
-        LOWORD(v23) = -31;
+        LOWORD(v21) = -31;
       }
       if ( sub_243CE0(dword_881460) != 0 || sub_243CE0(dword_881464) != 0 )
-        result = *(_DWORD *)(v4 - 19468) + 4 * (__int16)(v23 + 94);
+        result = *(_DWORD *)(v2 - 19468) + 4 * (__int16)(v21 + 94);
       else
-        result = *(_DWORD *)(v4 - 19468) + 4 * (__int16)(v23 + 31);
+        result = *(_DWORD *)(v2 - 19468) + 4 * (__int16)(v21 + 31);
       break;
     case 34LL:
-      result = *(unsigned __int16 *)(*(_DWORD *)(v4 - 19540) + 3166);
+      result = *(unsigned __int16 *)(*(_DWORD *)(v2 - 19540) + 3166);
       break;
     default:
       result = nullsub_8((unsigned int)aDatscriptC, 451);
       break;
-  }
-  __asm
-  {
-    lq      $s1, 0x30+var_10($sp)
-    lq      $s0, 0x30+var_20($sp)
   }
   return result;
 }

@@ -15,19 +15,13 @@
 // func_00463ea0  addr 0x00463ea0  window 608B
 __int64 __fastcall sub_463EA0(int a1, int a2, unsigned int a3)
 {
-  unsigned __int64 v8; // $s0
+  unsigned __int64 v5; // $s0
   __int64 result; // $v0
 
-  __asm
-  {
-    sq      $s2, 0x30+var_10($sp)
-    sq      $s1, 0x30+var_20($sp)
-    sq      $s0, 0x30+var_30($sp)
-  }
-  v8 = a3 >> 4;
+  v5 = a3 >> 4;
   sub_421A60(0);
   result = sub_3F4370();
-  while ( v8 >= 0x401 )
+  while ( v5 >= 0x401 )
   {
     MEMORY[0x1000E010] = 512;
     MEMORY[0x1000D410] = a2;
@@ -38,7 +32,7 @@ __int64 __fastcall sub_463EA0(int a1, int a2, unsigned int a3)
     MEMORY[0x1000E020] = 512;
     _sync();
     _sync();
-    __asm { mfthc1  $ra, $f0 }
+    __asm { bc0f    loc_463F3C }
     while ( (MEMORY[0x1000D400] & 0x100) != 0 )
       ;
     MEMORY[0x1000E010] = 256;
@@ -47,38 +41,32 @@ __int64 __fastcall sub_463EA0(int a1, int a2, unsigned int a3)
     MEMORY[0x1000D080] = 1879048192;
     MEMORY[0x1000D000] = 256;
     a1 += 0x4000;
-    v8 = (int)v8 - 1024;
+    v5 = (int)v5 - 1024;
     MEMORY[0x1000E020] = 256;
     _sync();
     _sync();
-    __asm { mfthc1  $ra, $f0 }
+    __asm { bc0f    loc_463FBC }
   }
   MEMORY[0x1000E010] = 512;
   MEMORY[0x1000D410] = a2;
-  MEMORY[0x1000D420] = v8;
+  MEMORY[0x1000D420] = v5;
   MEMORY[0x1000D480] = 1879048192;
   MEMORY[0x1000D400] = 257;
   MEMORY[0x1000E020] = 512;
   _sync();
   _sync();
-  __asm { mfthc1  $ra, $f0 }
+  __asm { bc0f    loc_464038 }
   while ( (MEMORY[0x1000D400] & 0x100) != 0 )
     ;
   MEMORY[0x1000E010] = 256;
   MEMORY[0x1000D010] = a1;
-  MEMORY[0x1000D020] = v8;
+  MEMORY[0x1000D020] = v5;
   MEMORY[0x1000D080] = 1879048192;
   MEMORY[0x1000D000] = 256;
   MEMORY[0x1000E020] = 256;
   _sync();
   _sync();
-  __asm { mfthc1  $ra, $f0 }
-  __asm
-  {
-    lq      $s2, 0x30+var_10($sp)
-    lq      $s1, 0x30+var_20($sp)
-    lq      $s0, 0x30+var_30($sp)
-  }
+  __asm { bc0f    loc_4640C4 }
   return result;
 }
 

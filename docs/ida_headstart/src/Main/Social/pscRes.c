@@ -15,16 +15,17 @@
 // func_0036d3e0  addr 0x0036d3e0  window 1152B
 __int64 __fastcall sub_36D3E0(int a1)
 {
-  char v7; // $s1
-  __int64 v10; // $s3
-  __int64 v11; // $v1
-  _BYTE *v12; // $s0
-  __int64 v13; // $s4
-  __int64 v14; // $s4
-  unsigned int v15; // $v0
+  _DWORD *v1; // $s2
+  char v2; // $s1
+  __int64 v5; // $s3
+  __int64 v6; // $v1
+  _BYTE *v7; // $s0
+  __int64 v8; // $s4
+  __int64 v9; // $s4
+  unsigned int v10; // $v0
   __int64 j; // $a0
   __int64 i; // $a0
-  unsigned int v18; // $v0
+  unsigned int v13; // $v0
   __int64 mm; // $a0
   __int64 nn; // $a1
   __int64 jj; // $a2
@@ -33,112 +34,100 @@ __int64 __fastcall sub_36D3E0(int a1)
   __int64 ii; // $a0
   __int64 k; // $a1
   __int64 m; // $a0
-  __int64 result; // $v0
 
-  __asm
-  {
-    sq      $s5, 0x60+var_10($sp)
-    sq      $s4, 0x60+var_20($sp)
-    sq      $s3, 0x60+var_30($sp)
-    sq      $s2, 0x60+var_40($sp)
-    sq      $s1, 0x60+var_50($sp)
-    sq      $s0, 0x60+var_60($sp)
-  }
-  v7 = 0;
-  v10 = 0;
-  v11 = *(unsigned __int8 *)(a1 + 22);
-  switch ( v11 )
+  v2 = 0;
+  v5 = 0;
+  v6 = *(unsigned __int8 *)(a1 + 22);
+  switch ( v6 )
   {
     case 44LL:
     case 36LL:
     case 20LL:
-      v10 = 4;
+      v5 = 4;
       break;
     case 27LL:
     case 19LL:
-      v10 = 8;
+      v5 = 8;
       break;
     case 10LL:
     case 2LL:
-      v10 = 16;
+      v5 = 16;
       break;
     case 1LL:
-      v10 = 24;
+      v5 = 24;
       break;
     default:
       if ( *(_BYTE *)(a1 + 22) == 0 )
-        v10 = 32;
+        v5 = 32;
       break;
   }
-  if ( v10 == 0 )
+  if ( v5 == 0 )
     nullsub_8((unsigned int)aPscresC, 1033);
-  v12 = (_BYTE *)(a1 + 64);
-  if ( v10 == 4 )
+  v7 = (_BYTE *)(a1 + 64);
+  if ( v5 == 4 )
   {
-    LODWORD(_$S2) = v12;
-    v12 += 64 * *(unsigned __int8 *)(a1 + 16);
-    v7 = 1;
+    v1 = v7;
+    v7 += 64 * *(unsigned __int8 *)(a1 + 16);
+    v2 = 1;
   }
-  else if ( v10 == 8 )
+  else if ( v5 == 8 )
   {
-    LODWORD(_$S2) = v12;
-    v12 += 1024 * *(unsigned __int8 *)(a1 + 16);
-    v7 = 1;
+    v1 = v7;
+    v7 += 1024 * *(unsigned __int8 *)(a1 + 16);
+    v2 = 1;
   }
-  v13 = 4;
-  switch ( v10 )
+  v8 = 4;
+  switch ( v5 )
   {
     case 4LL:
-      v13 = 17668;
+      v8 = 17668;
       break;
     case 8LL:
-      v13 = 9476;
+      v8 = 9476;
       break;
     case 24LL:
-      v13 = 1540;
+      v8 = 1540;
       break;
     case 32LL:
-      v13 = 1284;
+      v8 = 1284;
       break;
     default:
       nullsub_8((unsigned int)aPscresC, 1073);
       break;
   }
-  v14 = sub_3EC590(*(unsigned __int16 *)(a1 + 18), *(unsigned __int16 *)(a1 + 20), v10, v13);
-  if ( (v7 & 1) != 0 )
+  v9 = sub_3EC590(*(unsigned __int16 *)(a1 + 18), *(unsigned __int16 *)(a1 + 20), v5, v8);
+  if ( (v2 & 1) != 0 )
   {
-    v15 = sub_3EC3D0(v14, 1);
-    if ( v10 == 4 )
+    v10 = sub_3EC3D0(v9, 1);
+    if ( v5 == 4 )
     {
       for ( i = 0; i < 16; i = (int)i + 1 )
       {
-        *(_DWORD *)v15 = *(_DWORD *)_$S2;
-        LODWORD(_$S2) = _$S2 + 4;
-        v15 += 4;
+        *(_DWORD *)v10 = *v1++;
+        v10 += 4;
       }
     }
-    else if ( v10 == 8 )
+    else if ( v5 == 8 )
     {
       for ( j = 0; j < 256; j = (int)j + 1 )
       {
-        *(_DWORD *)v15 = *(_DWORD *)_$S2;
-        LODWORD(_$S2) = _$S2 + 4;
-        v15 += 4;
+        *(_DWORD *)v10 = *v1++;
+        v10 += 4;
       }
     }
-    sub_3EC2E0(v14);
+    sub_3EC2E0(v9);
   }
-  v18 = sub_3EC6A0(v14, 0, 1);
-  switch ( v10 )
+  v13 = sub_3EC6A0(v9, 0, 1);
+  switch ( v5 )
   {
     case 4LL:
       for ( k = 0; k < *(unsigned __int16 *)(a1 + 20); k = (int)k + 1 )
       {
         for ( m = 0; m < (int)*(unsigned __int16 *)(a1 + 18) >> 3; m = (int)m + 1 )
         {
-          *(_DWORD *)v18 = *(_DWORD *)v12;
-          v12 += 4;
-          v18 += 4;
+          *(_DWORD *)v13 = *(_DWORD *)v7;
+          v7 += 4;
+          v13 += 4;
         }
       }
       break;
@@ -146,14 +135,14 @@ __int64 __fastcall sub_36D3E0(int a1)
       for ( n = 0; n < *(unsigned __int16 *)(a1 + 20); n = (int)n + 1 )
       {
         for ( ii = 0; ii < *(unsigned __int16 *)(a1 + 18); ii = (int)ii + 1 )
-          *(_BYTE *)v18++ = *v12++;
+          *(_BYTE *)v13++ = *v7++;
       }
       break;
     case 24LL:
       for ( jj = 0; jj < *(unsigned __int16 *)(a1 + 20); jj = (int)jj + 1 )
       {
         for ( kk = 0; kk < 3 * *(unsigned __int16 *)(a1 + 18); kk = (int)kk + 1 )
-          *(_BYTE *)v18++ = *v12++;
+          *(_BYTE *)v13++ = *v7++;
       }
       break;
     case 32LL:
@@ -161,26 +150,16 @@ __int64 __fastcall sub_36D3E0(int a1)
       {
         for ( nn = 0; nn < *(unsigned __int16 *)(a1 + 18); nn = (int)nn + 1 )
         {
-          *(_DWORD *)v18 = *(_DWORD *)v12;
-          v12 += 4;
-          v18 += 4;
+          *(_DWORD *)v13 = *(_DWORD *)v7;
+          v7 += 4;
+          v13 += 4;
         }
       }
       break;
     default:
       break;
   }
-  sub_3EC2A0(v14);
-  result = v14;
-  __asm
-  {
-    lq      $s5, 0x60+var_10($sp)
-    lq      $s4, 0x60+var_20($sp)
-    lq      $s3, 0x60+var_30($sp)
-    lq      $s2, 0x60+var_40($sp)
-    lq      $s1, 0x60+var_50($sp)
-    lq      $s0, 0x60+var_60($sp)
-  }
-  return result;
+  sub_3EC2A0(v9);
+  return v9;
 }
 

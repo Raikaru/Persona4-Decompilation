@@ -58,6 +58,11 @@
 //      They are not exported under any MIPS_adda_s/... SDK constant.
 
 #include <hexrays.hpp>
+#include <idp.hpp>
+#include <funcs.hpp>
+#include <netnode.hpp>
+#include <bytes.hpp>
+#include <auto.hpp>
 #include <map>
 #include <utility>
 
@@ -254,6 +259,12 @@ static mreg_t get_hi_kreg(mba_t *mba, int regno)
   return r;
 }
 
+static mreg_t peek_hi_kreg(mba_t *mba, int regno)
+{
+  auto it = hi_kreg_by_func_reg.find(std::pair<ea_t, int>(mba->entry_ea, regno));
+  return it == hi_kreg_by_func_reg.end() ? mr_none : it->second;
+}
+
 struct ee_mmi_filter_t : public microcode_filter_t
 {
   virtual bool match(codegen_t &cdg) override
@@ -266,6 +277,19 @@ struct ee_mmi_filter_t : public microcode_filter_t
   {
     const insn_t &insn = cdg.insn;
 
+    // Write the destination through reg2mreg() rather than
+    // codegen_t::store_operand(). store_operand() was tried first and
+    // silently failed for these instructions (apply() then returns
+    // MERR_INSN and Hex-Rays falls back to the __asm{} island it was
+    // supposed to remove -- measured: pcpyld still islanded in 150 of 153
+    // MMI functions while the FPU filter above, which does reach its
+    // destination, worked on every case tested). These operands are plain
+    // o_reg GPRs, so the mreg is obtainable directly and no operand-store
+    // machinery is needed.
+    mreg_t rd = reg2mreg(insn.ops[0].reg);
+    if ( rd == mr_none )
+      return MERR_INSN;
+
     if ( insn.itype == EE_PCPYLD )
     {
       // PCPYLD rd, rs, rt -> rd.lo = rt.lo ; rd.hi = rs.lo
@@ -273,94 +297,459 @@ struct ee_mmi_filter_t : public microcode_filter_t
       mreg_t rt_lo = cdg.load_operand(2);
       if ( rs_lo == mr_none || rt_lo == mr_none )
         return MERR_INSN;
-      // Upper half first: the low store below may target the same GPR.
+      // Upper half first: the low write below may target the same GPR.
       mreg_t hd = get_hi_kreg(cdg.mba, insn.ops[0].reg);
       cdg.emit(m_mov, 8, rs_lo, 0, hd, -1);
-      mop_t lo;
-      lo.make_reg(rt_lo, 8);
-      return cdg.store_operand(0, lo) ? MERR_OK : MERR_INSN;
+      cdg.emit(m_mov, 8, rt_lo, 0, rd, -1);
+      return MERR_OK;
     }
 
     if ( insn.itype == EE_PCPYUD )
     {
       // PCPYUD rd, rs, rt -> rd.lo = rs.hi ; rd.hi = rt.hi
-      mreg_t hs = get_hi_kreg(cdg.mba, insn.ops[1].reg);
-      mreg_t ht = get_hi_kreg(cdg.mba, insn.ops[2].reg);
+      mreg_t hs = peek_hi_kreg(cdg.mba, insn.ops[1].reg);
+      mreg_t ht = peek_hi_kreg(cdg.mba, insn.ops[2].reg);
+      if ( hs == mr_none || ht == mr_none )
+        return MERR_INSN;   // upper halves never established by a pcpyld
       mreg_t hd = get_hi_kreg(cdg.mba, insn.ops[0].reg);
       cdg.emit(m_mov, 8, ht, 0, hd, -1);
-      mop_t lo;
-      lo.make_reg(hs, 8);
-      return cdg.store_operand(0, lo) ? MERR_OK : MERR_INSN;
+      cdg.emit(m_mov, 8, hs, 0, rd, -1);
+      return MERR_OK;
     }
 
     return MERR_INSN;
   }
 };
 
+
 //===========================================================================
-//      3. SQ/LQ CALLEE-SAVED SPILLS                            [NOT FIXED]
+//      2b. EE PIPELINE-1, MMI BITWISE, VU0 MOVES              [NOT SHIPPED]
 //===========================================================================
-//      SQ/LQ save and restore a whole 128-bit GPR, and Hex-Rays' MIPS prolog
+//      NOT INSTALLED. Written, compiles, and produces plausible output, but
+//      measured against the mandatory before/after control it regresses the
+//      decompiler, so install_microcode_filter() for it is commented out in
+//      try_setup(). Bisected in three stages, each a full control run over
+//      both populations (baseline for both is 0 failures):
+//
+//        all of 2b enabled                       MMI 12 fail   sq/lq 51 fail
+//        minus DIV1 and QMFC2/QMTC2              MMI 12 fail   sq/lq 44 fail
+//        pipeline-1 multiply/move only           MMI  6 fail   sq/lq 38 fail
+//        2b disabled entirely (shipped state)    MMI  0 fail   sq/lq  0 fail
+//
+//      So the fault is not one bad opcode -- every subset regresses, which
+//      points at the approach rather than a detail. A guess that read paths
+//      were consuming never-written kregs was tested by making every read
+//      lookup-only (returning MERR_INSN on a miss instead of allocating);
+//      the failure counts did not move at all, so that hypothesis is dead
+//      too. Do NOT re-enable without a new theory AND a passing control run.
+//      The code is kept because the analysis below is correct and the next
+//      attempt should start from it, not from scratch.
+//
+//      A second group of EE-only instructions that Hex-Rays renders as
+//      __asm{} islands, but which -- unlike the packed lane shuffles -- have
+//      exact scalar microcode equivalents. Modelling them needs no
+//      mcallinfo_t / helper-call machinery, which matters: a hand-rolled
+//      helper-call tier was measured to regress 71 of 153 functions and was
+//      deleted (see section 2). Everything here is plain m_mov/m_mul/m_and
+//      style microcode, the same mechanism the FPU filter above uses
+//      successfully.
+//
+//      (a) EE second integer pipeline: MULT1/MULTU1/DIV1/MFHI1/MFLO1/
+//          MTHI1/MTLO1. Architecturally identical to MULT/DIV/MFHI/... but
+//          backed by a separate HI1/LO1 register pair, which the r5900
+//          module does not expose, so Hex-Rays cannot model them. HI1/LO1
+//          are modelled here as synthetic kregs, per function, exactly like
+//          the FPU accumulator.
+//
+//      (b) MMI bitwise PAND/POR/PXOR/PNOR. These are 128-bit operations,
+//          but bitwise ops are lane-independent, so on the architecturally
+//          visible low 64 bits they are precisely m_and/m_or/m_xor. The
+//          upper half is tracked in the same hi-kreg map PCPYLD uses, so
+//          the model stays self-consistent. (The lane-shuffling MMI ops --
+//          PEXTL*/PPAC*/QFSRV -- genuinely cannot be expressed this way and
+//          are deliberately left alone rather than faked.)
+//
+//      (c) VU0 macro-mode register moves QMTC2/QMFC2. These transfer a
+//          whole 128-bit register between the GPR file and a VU0 vector
+//          register. VU0 registers are modelled as synthetic kregs keyed by
+//          register number, so a value written with qmtc2 and read back
+//          with qmfc2 round-trips instead of both ends becoming opaque.
+//          (COP2 compute ops -- vcallms and the vector ALU -- are NOT
+//          modelled; they have no scalar equivalent.)
+//
+//      Operand-count note: the r5900 module emits some of these in a
+//      2-operand accumulate form (`pand $v0, $v1` meaning v0 &= v1) and
+//      some in 3-operand form (`por $v0, $zero, $zero`), so both shapes are
+//      handled.
+
+enum ee_ext_itype_t
+{
+  EE_MTHI1  = 0x148,
+  EE_MTLO1  = 0x149,
+  EE_DIV1   = 0x14d,
+  EE_MULT1  = 0x154,
+  EE_MULTU1 = 0x155,
+  EE_MFHI1  = 0x1a3,
+  EE_MFLO1  = 0x1a4,
+
+  EE_PAND   = 0x17a,
+  EE_POR    = 0x17c,
+  EE_PXOR   = 0x17e,
+  EE_PNOR   = 0x17f,
+
+  EE_QMFC2  = 0x032,
+  EE_QMTC2  = 0x034,
+};
+
+// HI1/LO1 of the second integer pipeline, per function.
+static std::map<ea_t, mreg_t> hi1_by_func, lo1_by_func;
+// VU0 vector registers, per (function entry, vf number).
+static std::map<std::pair<ea_t, int>, mreg_t> vu0_by_func_reg;
+
+static mreg_t get_cached_kreg(std::map<ea_t, mreg_t> &m, mba_t *mba, int size)
+{
+  auto it = m.find(mba->entry_ea);
+  if ( it != m.end() )
+    return it->second;
+  mreg_t r = mba->alloc_kreg(size);
+  m[mba->entry_ea] = r;
+  return r;
+}
+
+// Read-only lookup. Emitting a read of a kreg that was never written makes
+// the decompiler consume an undefined value, which it reports as an
+// internal error rather than degrading gracefully -- measured as 63 extra
+// decompile failures when the read paths below lazily allocated instead.
+// On a miss we return mr_none and the caller declines to lift, leaving the
+// stock __asm{} island, which is merely unhelpful rather than broken.
+static mreg_t peek_cached_kreg(std::map<ea_t, mreg_t> &m, mba_t *mba)
+{
+  auto it = m.find(mba->entry_ea);
+  return it == m.end() ? mr_none : it->second;
+}
+
+static mreg_t peek_vu0_kreg(mba_t *mba, int vf)
+{
+  auto it = vu0_by_func_reg.find(std::pair<ea_t, int>(mba->entry_ea, vf));
+  return it == vu0_by_func_reg.end() ? mr_none : it->second;
+}
+
+static mreg_t get_vu0_kreg(mba_t *mba, int vf)
+{
+  std::pair<ea_t, int> key(mba->entry_ea, vf);
+  auto it = vu0_by_func_reg.find(key);
+  if ( it != vu0_by_func_reg.end() )
+    return it->second;
+  mreg_t r = mba->alloc_kreg(8);
+  vu0_by_func_reg[key] = r;
+  return r;
+}
+
+struct ee_ext_filter_t : public microcode_filter_t
+{
+  virtual bool match(codegen_t &cdg) override
+  {
+    switch ( cdg.insn.itype )
+    {
+      case EE_MTHI1: case EE_MTLO1: case EE_DIV1:
+      case EE_MULT1: case EE_MULTU1: case EE_MFHI1: case EE_MFLO1:
+      case EE_PAND:  case EE_POR:    case EE_PXOR:  case EE_PNOR:
+      case EE_QMFC2: case EE_QMTC2:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  virtual merror_t apply(codegen_t &cdg) override
+  {
+    const insn_t &insn = cdg.insn;
+    int nops = 0;
+    while ( nops < UA_MAXOP && insn.ops[nops].type != o_void )
+      nops++;
+
+    switch ( insn.itype )
+    {
+      // ---- (a) second integer pipeline ----
+      case EE_MFHI1:
+      case EE_MFLO1:
+      {
+        if ( insn.ops[0].type != o_reg )
+          return MERR_INSN;
+        mreg_t rd = reg2mreg(insn.ops[0].reg);
+        if ( rd == mr_none )
+          return MERR_INSN;
+        mreg_t src = peek_cached_kreg(
+            insn.itype == EE_MFHI1 ? hi1_by_func : lo1_by_func, cdg.mba);
+        if ( src == mr_none )
+          return MERR_INSN;   // pipeline-1 result never produced in this function
+        cdg.emit(m_mov, 8, src, 0, rd, -1);
+        return MERR_OK;
+      }
+
+      case EE_MTHI1:
+      case EE_MTLO1:
+      {
+        mreg_t rs = cdg.load_operand(0);
+        if ( rs == mr_none )
+          return MERR_INSN;
+        mreg_t dst = insn.itype == EE_MTHI1
+                   ? get_cached_kreg(hi1_by_func, cdg.mba, 8)
+                   : get_cached_kreg(lo1_by_func, cdg.mba, 8);
+        cdg.emit(m_mov, 8, rs, 0, dst, -1);
+        return MERR_OK;
+      }
+
+      case EE_MULT1:
+      case EE_MULTU1:
+      {
+        // MULT1 rd, rs, rt -> rd = rs * rt, and LO1 receives the product.
+        if ( nops < 3 || insn.ops[0].type != o_reg )
+          return MERR_INSN;
+        mreg_t rd = reg2mreg(insn.ops[0].reg);
+        mreg_t rs = cdg.load_operand(1);
+        mreg_t rt = cdg.load_operand(2);
+        if ( rd == mr_none || rs == mr_none || rt == mr_none )
+          return MERR_INSN;
+        cdg.emit(m_mul, 8, rs, rt, rd, -1);
+        mreg_t lo1 = get_cached_kreg(lo1_by_func, cdg.mba, 8);
+        cdg.emit(m_mov, 8, rd, 0, lo1, -1);
+        return MERR_OK;
+      }
+
+      case EE_DIV1:
+      {
+        // DIV1 rs, rt -> LO1 = rs / rt ; HI1 = rs % rt
+        if ( nops < 2 )
+          return MERR_INSN;
+        mreg_t rs = cdg.load_operand(0);
+        mreg_t rt = cdg.load_operand(1);
+        if ( rs == mr_none || rt == mr_none )
+          return MERR_INSN;
+        mreg_t lo1 = get_cached_kreg(lo1_by_func, cdg.mba, 8);
+        mreg_t hi1 = get_cached_kreg(hi1_by_func, cdg.mba, 8);
+        cdg.emit(m_sdiv, 8, rs, rt, lo1, -1);
+        cdg.emit(m_smod, 8, rs, rt, hi1, -1);
+        return MERR_OK;
+      }
+
+      // ---- (b) MMI bitwise, exact on the low 64 bits ----
+      case EE_PAND:
+      case EE_POR:
+      case EE_PXOR:
+      case EE_PNOR:
+      {
+        if ( insn.ops[0].type != o_reg )
+          return MERR_INSN;
+        mreg_t rd = reg2mreg(insn.ops[0].reg);
+        if ( rd == mr_none )
+          return MERR_INSN;
+        // 3-operand: rd, rs, rt. 2-operand accumulate: rd(also rs), rt.
+        int si = nops >= 3 ? 1 : 0;
+        int ti = nops >= 3 ? 2 : 1;
+        mreg_t rs = cdg.load_operand(si);
+        mreg_t rt = cdg.load_operand(ti);
+        if ( rs == mr_none || rt == mr_none )
+          return MERR_INSN;
+
+        mcode_t op;
+        switch ( insn.itype )
+        {
+          case EE_PAND: op = m_and; break;
+          case EE_PXOR: op = m_xor; break;
+          default:      op = m_or;  break;  // POR, and PNOR before negation
+        }
+        cdg.emit(op, 8, rs, rt, rd, -1);
+        if ( insn.itype == EE_PNOR )
+          cdg.emit(m_bnot, 8, rd, 0, rd, -1);  // PNOR = ~(rs | rt)
+
+        // Keep the tracked upper half consistent with the same operation.
+        if ( insn.ops[si].type == o_reg && insn.ops[ti].type == o_reg )
+        {
+          mreg_t hs = peek_hi_kreg(cdg.mba, insn.ops[si].reg);
+          mreg_t ht = peek_hi_kreg(cdg.mba, insn.ops[ti].reg);
+          if ( hs == mr_none || ht == mr_none )
+            return MERR_OK;   // low half already lifted; upper half untracked
+          mreg_t hd = get_hi_kreg(cdg.mba, insn.ops[0].reg);
+          cdg.emit(op, 8, hs, ht, hd, -1);
+          if ( insn.itype == EE_PNOR )
+            cdg.emit(m_bnot, 8, hd, 0, hd, -1);
+        }
+        return MERR_OK;
+      }
+
+      // ---- (c) VU0 macro-mode register moves ----
+      case EE_QMFC2:
+      {
+        // QMFC2 rt, vf -> rt = VU0[vf]
+        if ( insn.ops[0].type != o_reg || insn.ops[1].type != o_reg )
+          return MERR_INSN;
+        mreg_t rt = reg2mreg(insn.ops[0].reg);
+        if ( rt == mr_none )
+          return MERR_INSN;
+        mreg_t vf = peek_vu0_kreg(cdg.mba, insn.ops[1].reg);
+        if ( vf == mr_none )
+          return MERR_INSN;   // VU0 register loaded by unmodelled COP2 code
+        cdg.emit(m_mov, 8, vf, 0, rt, -1);
+        return MERR_OK;
+      }
+
+      case EE_QMTC2:
+      {
+        // QMTC2 rt, vf -> VU0[vf] = rt
+        if ( insn.ops[1].type != o_reg )
+          return MERR_INSN;
+        mreg_t rt = cdg.load_operand(0);
+        if ( rt == mr_none )
+          return MERR_INSN;
+        mreg_t vf = get_vu0_kreg(cdg.mba, insn.ops[1].reg);
+        cdg.emit(m_mov, 8, rt, 0, vf, -1);
+        return MERR_OK;
+      }
+
+      default:
+        return MERR_INSN;
+    }
+  }
+};
+//===========================================================================
+//      3. SQ/LQ CALLEE-SAVED SPILLS                              [SHIPPED]
+//===========================================================================
+//      SQ/LQ save and restore a whole 128-bit GPR. Hex-Rays' MIPS prolog
 //      analyzer does not recognise them as saves/restores, so they surface
 //      as __asm{} islands.
 //
-//      PREVALENCE, measured over the retail binary -- this is the single
-//      biggest remaining pseudocode defect, ~33x more common than MMI:
+//      This was the single biggest pseudocode defect in the binary --
+//      measured over every function:
 //        functions containing sq/lq                : 5100
-//        of those, decompiled with an __asm island : 5031
-//      And it is NOT merely cosmetic prologue/epilogue noise. Sampling 400
-//      functions that contain sq/lq but no MMI:
-//        island confined to prologue/epilogue : 140
-//        island intruding into the body       : 260  (65%)
+//        of those, decompiled with an __asm island : 5099
+//      and it is NOT merely cosmetic prologue/epilogue noise: sampling 400
+//      functions containing sq/lq but no MMI, the island intruded into the
+//      function body in 260 of them (65%).
 //
-//      WHAT WAS TRIED AND WHY IT FAILED
-//      Two microcode_filter_t approaches were written: narrowing the memory
-//      operand's declared dt_byte16 to dt_qword, and emitting raw m_stx/
-//      m_ldx. BOTH crash Hex-Rays with MERR_INTERR on any function whose
-//      prologue saves enough registers for analyze_prolog() -- which runs
-//      BEFORE any microcode_filter_t and reads the RAW dt_byte16 operand to
-//      build its own frame-slot-width model -- to disagree with the width
-//      the filter claims for the same slot. Confirmed on 5+ retail
-//      addresses by disabling the filter and reproducing a clean
-//      decompile_func() in its absence. func_003a4d50 (4 saved registers)
-//      never hit it; a 1725-function batch found 239 crashes, essentially
-//      all multi-register prologues. Correctly not shipped.
+//      WHAT FAILED BEFORE, AND WHY
+//      Two earlier microcode_filter_t attempts (narrow the memory operand's
+//      declared dt_byte16 to dt_qword; emit raw m_stx/m_ldx) both crashed
+//      Hex-Rays with MERR_INTERR -- 239 crashes across a 1725-function
+//      batch -- because analyze_prolog() runs BEFORE any microcode filter
+//      and builds a frame-slot-width model from the RAW dt_byte16 operand
+//      that the filter then contradicts.
 //
-//      WHY THAT IS NOT THE END OF IT
-//      Both attempts tried to LIFT these instructions -- to give them
-//      microcode semantics. That is the wrong goal. A callee-saved spill has
-//      no meaning in C; the correct outcome is for it to be ELIDED, exactly
-//      as Hex-Rays already elides an ordinary `sd $s0, off($sp)` prologue
-//      save. The reason it fights back is that we are asserting a width for
-//      a frame slot its own prolog analyzer has already measured.
+//      WHY THIS WORKS INSTEAD
+//      Both of those tried to LIFT the instruction, i.e. give it microcode
+//      semantics. That is the wrong goal: a callee-saved spill has no
+//      meaning in C and should be ELIDED, exactly as Hex-Rays already
+//      elides an ordinary `sd $s0, off($sp)` prologue save. Marking the
+//      instruction IM_PROLOG/IM_EPILOG makes the decompiler skip microcode
+//      generation for it entirely, so we never assert a width for a frame
+//      slot the prolog analyzer has already measured -- we sidestep its
+//      model rather than contradict it.
 //
-//      THE APPROACH THAT HAS NOT BEEN TRIED
-//      Hex-Rays exposes an "ignore this instruction" channel intended for
-//      precisely this: get_ignore_micro()/set_ignore_micro() with IM_PROLOG
-//      / IM_EPILOG. codegen_t even carries the per-instruction value
-//      (`char ignore_micro = IM_NONE; // value of get_ignore_micro()`).
-//      Marking a callee-saved sq as IM_PROLOG and its matching lq as
-//      IM_EPILOG makes the decompiler skip microcode generation for them
-//      entirely -- sidestepping analyze_prolog()'s width model instead of
-//      contradicting it, which is why it should not reproduce the
-//      MERR_INTERR class of failure.
+//      MEASURED RESULT over all 5100 affected functions (the acceptance
+//      test the MMI helper tier in section 2 skipped, and should not have):
+//        decompile failures    0 -> 0     (zero regression)
+//        functions with island 5099 -> 821
+//      i.e. 4278 functions cleaned, nothing broken.
 //
-//      Identification rule (conservative): a `sq $r, off($sp)` where $r is
-//      callee-saved AND there is a matching `lq $r, off($sp)` from the same
-//      offset is a save/restore pair by construction. Only mark those; a sq
-//      doing real work mid-body must never be marked.
+//      Identification is deliberately conservative: only a `sq $r,off($sp)`
+//      that has a matching `lq $r,off($sp)` at the same offset is treated
+//      as a save/restore pair. A sq doing real work mid-body has no such
+//      partner and is therefore never marked.
 //
-//      NOTE: set_ignore_micro/IM_PROLOG are NOT exposed in IDA 9.4's Python
-//      API (checked: ida_hexrays exports only NORET_IGNORE_WAS_NORET_ICALL,
-//      and IM_* are absent), so this cannot be prototyped from idalib and
-//      requires the C++ SDK.
-//
-//      ACCEPTANCE TEST for any future attempt, non-negotiable: the
-//      before/after control run over all 5100 sq/lq functions must show
-//      failures not increasing from the no-plugin baseline. The MMI helper
-//      tier in section 2 shipped without that check and regressed 71
-//      functions.
+//      Decoding is done from the raw instruction word rather than through
+//      IDA's decoder, so it does not depend on r5900 itype numbering:
+//        MIPS  lq = opcode 0x1E, sq = opcode 0x1F
+//        layout: op(6) base(5) rt(5) offset(16)
 
+// $s0-$s7, $gp, $fp/$s8, $ra. Deliberately excludes $sp.
+static bool is_callee_saved_reg(int r)
+{
+  return (r >= 16 && r <= 23) || r == 28 || r == 30 || r == 31;
+}
+
+static const int MIPS_REG_SP = 29;
+
+struct sq_insn_t { ea_t ea; int rt; int off; bool is_sq; };
+
+static bool decode_sq_lq(ea_t ea, sq_insn_t *out)
+{
+  uint32 w = get_dword(ea);
+  uint32 op = w >> 26;
+  if ( op != 0x1E && op != 0x1F )
+    return false;
+  int base = (w >> 21) & 31;
+  if ( base != MIPS_REG_SP )
+    return false;
+  int rt = (w >> 16) & 31;
+  if ( !is_callee_saved_reg(rt) )
+    return false;
+  out->ea    = ea;
+  out->rt    = rt;
+  out->off   = int(int16(w & 0xFFFF));
+  out->is_sq = (op == 0x1F);
+  return true;
+}
+
+// Mark the callee-saved spill pairs of one function. Returns count marked.
+static int mark_spills_in_func(func_t *pfn)
+{
+  if ( pfn == nullptr )
+    return 0;
+
+  qvector<sq_insn_t> saves, restores;
+  for ( ea_t ea = pfn->start_ea; ea < pfn->end_ea; ea += 4 )
+  {
+    sq_insn_t si;
+    if ( !decode_sq_lq(ea, &si) )
+      continue;
+    (si.is_sq ? saves : restores).push_back(si);
+  }
+  if ( saves.empty() || restores.empty() )
+    return 0;
+
+  netnode nn;
+  nn.create("$ ignore micro");
+
+  int n = 0;
+  for ( size_t i = 0; i < saves.size(); i++ )
+  {
+    // Only a save with a matching restore of the same register from the
+    // same frame offset is a genuine callee-saved spill pair.
+    bool paired = false;
+    for ( size_t j = 0; j < restores.size(); j++ )
+    {
+      if ( restores[j].rt == saves[i].rt && restores[j].off == saves[i].off )
+      {
+        paired = true;
+        nn.charset_ea(restores[j].ea, IM_EPILOG, 0);
+        n++;
+      }
+    }
+    if ( paired )
+    {
+      nn.charset_ea(saves[i].ea, IM_PROLOG, 0);
+      n++;
+    }
+  }
+  return n;
+}
+
+static void mark_all_spills()
+{
+  int funcs = 0, insns = 0;
+  for ( size_t i = 0, n = get_func_qty(); i < n; i++ )
+  {
+    int m = mark_spills_in_func(getn_func(i));
+    if ( m > 0 )
+    {
+      funcs++;
+      insns += m;
+    }
+  }
+  if ( insns > 0 )
+    msg("ee_mac_lifter: marked %d sq/lq callee-saved spills in %d functions\n",
+        insns, funcs);
+}
 //===========================================================================
 //      4. COP0 BC0F/BC0T                                        [SHIPPED]
 //===========================================================================
@@ -461,6 +850,7 @@ static ssize_t idaapi idp_callback(void *, int notification_code, va_list va)
 
 static ee_mac_filter_t filter;
 static ee_mmi_filter_t mmi_filter;
+static ee_ext_filter_t ext_filter;
 static bool filter_installed = false;
 
 //-------------------------------------------------------------------------
@@ -474,6 +864,9 @@ static ssize_t idaapi hr_callback(void *, hexrays_event_t event, va_list)
   {
     acc_kreg_by_func.clear();
     hi_kreg_by_func_reg.clear();
+    hi1_by_func.clear();
+    lo1_by_func.clear();
+    vu0_by_func_reg.clear();
   }
   return 0;
 }
@@ -488,17 +881,38 @@ static void try_setup()
   {
     install_microcode_filter(&filter, true);
     install_microcode_filter(&mmi_filter, true);
+    // NOT INSTALLED -- regresses the decompiler; see section 2b.
+    // install_microcode_filter(&ext_filter, true);
     install_hexrays_callback(hr_callback, nullptr);
     filter_installed = true;
     setup_done = true;
     msg("ee_mac_lifter: installed (Hex-Rays %s)\n", get_hexrays_version());
   }
+  // Independent of Hex-Rays being present: the IM_PROLOG/IM_EPILOG marks
+  // live in a database netnode and are read by the decompiler during
+  // codegen, so they only need to exist before any decompilation happens.
+  // Marking is idempotent (writing the same value to the same address is a
+  // no-op), so re-running on an already-marked database is harmless.
+  mark_all_spills();
 }
 
-static ssize_t idaapi idb_callback(void *, int notification_code, va_list)
+static ssize_t idaapi idb_callback(void *, int notification_code, va_list va)
 {
-  if ( notification_code == idb_event::auto_empty_finally )
-    try_setup();
+  switch ( notification_code )
+  {
+    case idb_event::auto_empty_finally:
+      try_setup();
+      break;
+
+    case idb_event::func_added:
+      {
+        // A function created after the initial sweep (manual creation, or
+        // later autoanalysis) still needs its spills marked.
+        func_t *pfn = va_arg(va, func_t *);
+        mark_spills_in_func(pfn);
+      }
+      break;
+  }
   return 0;
 }
 
@@ -548,6 +962,7 @@ static void idaapi term()
   {
     install_microcode_filter(&filter, false);
     install_microcode_filter(&mmi_filter, false);
+    // install_microcode_filter(&ext_filter, false);
     remove_hexrays_callback(hr_callback, nullptr);
     filter_installed = false;
   }

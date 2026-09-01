@@ -15,221 +15,186 @@
 // func_00250ad0  addr 0x00250ad0  window 2720B
 __int64 __fastcall sub_250AD0(__int64 a1, __int64 a2, __int64 a3, __int64 a4)
 {
-  int v6; // $gp
-  _DWORD *v7; // $s1
-  int v8; // $s0
-  int v9; // $v1
-  float v10; // $f22
-  __int64 v11; // $a0
-  __int64 v12; // $a1
-  __int64 v13; // $a2
-  __int64 v14; // $a3
-  float v16; // $f21
-  float v17; // $f20
-  float v22; // $f1
-  __int64 v23; // $a1
+  int v4; // $gp
+  _DWORD *v5; // $s1
+  int v6; // $s0
+  int v7; // $v1
+  float v8; // $f22
+  __int64 v9; // $a0
+  __int64 v10; // $a1
+  __int64 v11; // $a2
+  __int64 v12; // $a3
+  float v13; // $f0
+  float v14; // $f21
+  float v15; // $f20
+  float v16; // $f1
+  __int64 v17; // $a1
+  __int64 v18; // $a0
+  __int64 v19; // $a1
+  __int64 v20; // $v0
+  float v21; // $f0
+  float v22; // $f0
+  int v23; // $f0
   __int64 v24; // $a0
   __int64 v25; // $a1
-  __int64 v26; // $v0
-  float v27; // $f0
-  float v33; // $f0
-  int v34; // $f0
-  __int64 v35; // $a0
-  __int64 v36; // $a1
-  __int64 v37; // $a2
-  __int64 v38; // $a3
-  float v39; // $f20
-  float v40; // $f1
-  __int64 v41; // $a1
-  __int64 v42; // $a0
-  __int64 v43; // $a1
-  __int64 v44; // $v0
-  float v45; // $f1
-  float v46; // $f20
-  float v47; // $f1
-  __int64 v48; // $a1
-  __int64 v49; // $a0
-  __int64 v50; // $a1
-  __int64 v51; // $v1
-  __int64 v52; // $v0
-  float v53; // $f1
-  __int64 v59; // $v0
-  __int64 result; // $v0
-  float v61; // $f20
-  __int64 v62; // $a0
-  __int64 v63; // $a1
-  __int64 v64; // $a0
-  __int64 v65; // $a1
-  __int64 v66; // $a0
-  __int64 v67; // $a1
-  __int64 v68; // $a0
-  __int64 v69; // $a1
-  float v70; // $f23
-  float v71; // $f1
-  unsigned int v72; // $v1
-  __int64 v73; // $v0
-  float v74; // $f0
-  float v75; // $f1
-  __int64 v76; // $a1
-  __int64 v77; // $v0
+  __int64 v26; // $a2
+  __int64 v27; // $a3
+  float v28; // $f20
+  float v29; // $f1
+  __int64 v30; // $a1
+  __int64 v31; // $a0
+  __int64 v32; // $a1
+  __int64 v33; // $v0
+  float v34; // $f1
+  float v35; // $f20
+  float v36; // $f1
+  __int64 v37; // $a1
+  __int64 v38; // $a0
+  __int64 v39; // $a1
+  __int64 v40; // $v1
+  __int64 v41; // $v0
+  float v42; // $f1
+  __int64 v43; // $v0
+  float v45; // $f20
+  __int64 v46; // $a0
+  __int64 v47; // $a1
+  __int64 v48; // $a0
+  __int64 v49; // $a1
+  __int64 v50; // $a0
+  __int64 v51; // $a1
+  __int64 v52; // $a0
+  __int64 v53; // $a1
+  float v54; // $f23
+  float v55; // $f1
+  unsigned int v56; // $v1
+  __int64 v57; // $v0
+  float v58; // $f0
+  float v59; // $f1
+  __int64 v60; // $a1
+  __int64 v61; // $v0
 
-  __asm
+  v5 = (_DWORD *)a1;
+  v6 = a2;
+  v7 = *(_DWORD *)a1;
+  if ( (*(_DWORD *)a1 & 2LL) != 0 || (v7 & 4) != 0 )
   {
-    sq      $s1, 0x30+var_10($sp)
-    sq      $s0, 0x30+var_20($sp)
-  }
-  v7 = (_DWORD *)a1;
-  v8 = a2;
-  v9 = *(_DWORD *)a1;
-  if ( (*(_DWORD *)a1 & 2LL) == 0 && (v9 & 4) == 0 )
-  {
-    v61 = sub_44B7B0(a1, a2, a3, a4);
-    sub_3B7060(v62, v63);
-    sub_3B7060(v64, v65);
-    sub_3B7060(v66, v67);
-    sub_3B7060(v68, v69);
-    v71 = 127.0 * v70;
-    if ( (float)(127.0 * v70) >= 2147483600.0 )
-      v72 = (int)(float)(v71 - 2147483600.0) | 0x80000000;
+    if ( (v7 & 8) != 0 )
+      ++*(_DWORD *)(a1 + 16);
+    v8 = sub_44B7B0(a1, a2, a3, a4);
+    v13 = sub_44B7B0(v9, v10, v11, v12);
+    v15 = 42.0 * v14;
+    v16 = (float)(255.0 * (float)((float)(*(float *)(v4 - 32720) + 0.0) + (float)(*(float *)(v4 - 32232) * v13))) * v8;
+    if ( v16 >= 2147483600.0 )
+      v17 = (unsigned __int8)(int)(float)(v16 - 2147483600.0);
     else
-      v72 = (int)v71;
-    v73 = (int)(v72 + 128);
-    if ( v73 < 0 )
-      v74 = (float)(((v72 + 128) >> 1) | ((_BYTE)v72 + 0x80) & 1)
-          + (float)(((v72 + 128) >> 1) | ((_BYTE)v72 + 0x80) & 1);
+      v17 = (unsigned __int8)(int)v16;
+    sub_25F430(0xFFFFFF, v17, 27, 0, *(int *)(v6 + 16), 1, (__int16)(int)v15, (__int16)(int)v15);
+    v20 = sub_3B7060(v18, v19);
+    if ( v20 < 0 )
+      v21 = (float)(((unsigned int)v20 >> 1) | v20 & 1) + (float)(((unsigned int)v20 >> 1) | v20 & 1);
     else
-      v74 = (float)(int)v73;
-    v75 = v61 * v74;
-    if ( (float)(v61 * v74) >= 2147483600.0 )
-      v76 = (unsigned __int8)(int)(float)(v75 - 2147483600.0);
+      v21 = (float)(int)v20;
+    v22 = (float)(255.0
+                * (float)((float)(*(float *)(v4 - 32720) + 0.0)
+                        + (float)(*(float *)(v4 - 32452) * (float)(v21 / 2147483600.0))))
+        * v8;
+    if ( v22 >= 2147483600.0 )
+      v23 = (int)(float)(v22 - 2147483600.0);
     else
-      v76 = (unsigned __int8)(int)v75;
-    sub_25F430(0xFFFFFF, v76, 47, 0, *(int *)(v8 + 16), 1, 0, 0);
-    v77 = v7[3] + 1;
-    v7[3] = v77;
-    if ( v77 >= 30 )
+      v23 = (int)v22;
+    sub_25F430(0xFFFFFF, (unsigned __int8)v23, 27, 0, *(int *)(v6 + 16), 1, (__int16)(int)v15, (__int16)(int)v15);
+    v28 = (float)(sub_44B7B0(v24, v25, v26, v27) + 1.0) / 2.0;
+    v29 = (float)(255.0 * (float)(*(float *)(v4 - 32360) * v28)) * v8;
+    if ( v29 >= 2147483600.0 )
+      v30 = (unsigned __int8)(int)(float)(v29 - 2147483600.0);
+    else
+      v30 = (unsigned __int8)(int)v29;
+    sub_25F430(
+      0xFFFFFF,
+      v30,
+      27,
+      0,
+      *(int *)(v6 + 16),
+      1,
+      (__int16)(int)*(float *)(v4 - 32088),
+      (__int16)(int)*(float *)(v4 - 32088));
+    v33 = sub_3B7060(v31, v32);
+    if ( v33 < 0 )
+      v34 = (float)(((unsigned int)v33 >> 1) | v33 & 1) + (float)(((unsigned int)v33 >> 1) | v33 & 1);
+    else
+      v34 = (float)(int)v33;
+    v35 = v28 + (float)((float)(*(float *)(v4 - 32232) * (float)(v34 / 2147483600.0)) - *(float *)(v4 - 32720));
+    if ( v35 >= 0.0 )
     {
-      result = 1;
-      goto LABEL_48;
+      if ( v35 > 1.0 )
+        v35 = 1.0;
     }
-LABEL_47:
-    result = 0;
-    goto LABEL_48;
-  }
-  if ( (v9 & 8) != 0 )
-    ++*(_DWORD *)(a1 + 16);
-  v10 = sub_44B7B0(a1, a2, a3, a4);
-  _$F0 = sub_44B7B0(v11, v12, v13, v14);
-  v17 = 42.0 * v16;
-  _$F3 = *(float *)(v6 - 32232);
-  _$F2 = *(float *)(v6 - 32720);
-  __asm
-  {
-    adda.s  $f1, $f2
-    madd.s  $f1, $f3, $f0
-  }
-  v22 = (float)(255.0 * _$F1) * v10;
-  if ( v22 >= 2147483600.0 )
-    v23 = (unsigned __int8)(int)(float)(v22 - 2147483600.0);
-  else
-    v23 = (unsigned __int8)(int)v22;
-  sub_25F430(0xFFFFFF, v23, 27, 0, *(int *)(v8 + 16), 1, (__int16)(int)v17, (__int16)(int)v17);
-  v26 = sub_3B7060(v24, v25);
-  if ( v26 < 0 )
-    v27 = (float)(((unsigned int)v26 >> 1) | v26 & 1) + (float)(((unsigned int)v26 >> 1) | v26 & 1);
-  else
-    v27 = (float)(int)v26;
-  _$F3 = v27 / 2147483600.0;
-  _$F2 = *(float *)(v6 - 32452);
-  _$F1 = *(float *)(v6 - 32720);
-  __asm
-  {
-    adda.s  $f0, $f1
-    madd.s  $f1, $f2, $f3
-  }
-  v33 = (float)(255.0 * _$F1) * v10;
-  if ( v33 >= 2147483600.0 )
-    v34 = (int)(float)(v33 - 2147483600.0);
-  else
-    v34 = (int)v33;
-  sub_25F430(0xFFFFFF, (unsigned __int8)v34, 27, 0, *(int *)(v8 + 16), 1, (__int16)(int)v17, (__int16)(int)v17);
-  v39 = (float)(sub_44B7B0(v35, v36, v37, v38) + 1.0) / 2.0;
-  v40 = (float)(255.0 * (float)(*(float *)(v6 - 32360) * v39)) * v10;
-  if ( v40 >= 2147483600.0 )
-    v41 = (unsigned __int8)(int)(float)(v40 - 2147483600.0);
-  else
-    v41 = (unsigned __int8)(int)v40;
-  sub_25F430(
-    0xFFFFFF,
-    v41,
-    27,
-    0,
-    *(int *)(v8 + 16),
-    1,
-    (__int16)(int)*(float *)(v6 - 32088),
-    (__int16)(int)*(float *)(v6 - 32088));
-  v44 = sub_3B7060(v42, v43);
-  if ( v44 < 0 )
-    v45 = (float)(((unsigned int)v44 >> 1) | v44 & 1) + (float)(((unsigned int)v44 >> 1) | v44 & 1);
-  else
-    v45 = (float)(int)v44;
-  v46 = v39 + (float)((float)(*(float *)(v6 - 32232) * (float)(v45 / 2147483600.0)) - *(float *)(v6 - 32720));
-  if ( v46 >= 0.0 )
-  {
-    if ( v46 > 1.0 )
-      v46 = 1.0;
-  }
-  else
-  {
-    v46 = 0.0;
-  }
-  v47 = (float)(255.0 * (float)(*(float *)(v6 - 32360) * v46)) * v10;
-  if ( v47 >= 2147483600.0 )
-    v48 = (unsigned __int8)(int)(float)(v47 - 2147483600.0);
-  else
-    v48 = (unsigned __int8)(int)v47;
-  sub_25F430(
-    0xFFFFFF,
-    v48,
-    27,
-    0,
-    *(int *)(v8 + 16),
-    1,
-    (__int16)(int)*(float *)(v6 - 32088),
-    (__int16)(int)*(float *)(v6 - 32088));
-  v51 = v7[5] + 1;
-  v7[5] = v51;
-  if ( v51 >= (int)v7[6] )
-  {
-    v7[5] = 0;
-    v52 = sub_3B7060(v49, v50);
-    if ( v52 < 0 )
-      v53 = (float)(((unsigned int)v52 >> 1) | v52 & 1) + (float)(((unsigned int)v52 >> 1) | v52 & 1);
     else
-      v53 = (float)(int)v52;
-    _$F3 = v53 / 2147483600.0;
-    _$F2 = 40.0;
-    _$F1 = 60.0;
-    __asm
     {
-      adda.s  $f0, $f1
-      madd.s  $f0, $f2, $f3
+      v35 = 0.0;
     }
-    v7[6] = (int)_$F0;
+    v36 = (float)(255.0 * (float)(*(float *)(v4 - 32360) * v35)) * v8;
+    if ( v36 >= 2147483600.0 )
+      v37 = (unsigned __int8)(int)(float)(v36 - 2147483600.0);
+    else
+      v37 = (unsigned __int8)(int)v36;
+    sub_25F430(
+      0xFFFFFF,
+      v37,
+      27,
+      0,
+      *(int *)(v6 + 16),
+      1,
+      (__int16)(int)*(float *)(v4 - 32088),
+      (__int16)(int)*(float *)(v4 - 32088));
+    v40 = v5[5] + 1;
+    v5[5] = v40;
+    if ( v40 >= (int)v5[6] )
+    {
+      v5[5] = 0;
+      v41 = sub_3B7060(v38, v39);
+      if ( v41 < 0 )
+        v42 = (float)(((unsigned int)v41 >> 1) | v41 & 1) + (float)(((unsigned int)v41 >> 1) | v41 & 1);
+      else
+        v42 = (float)(int)v41;
+      v5[6] = (int)(float)((float)(60.0 + 0.0) + (float)(40.0 * (float)(v42 / 2147483600.0)));
+    }
+    v43 = v5[3] + 1;
+    v5[3] = v43;
+    if ( v43 >= 120 )
+      v5[3] = 0;
+    if ( (int)v5[4] >= 30LL )
+      return 1;
   }
-  v59 = v7[3] + 1;
-  v7[3] = v59;
-  if ( v59 >= 120 )
-    v7[3] = 0;
-  if ( (int)v7[4] < 30LL )
-    goto LABEL_47;
-  result = 1;
-LABEL_48:
-  __asm
+  else
   {
-    lq      $s1, 0x30+var_10($sp)
-    lq      $s0, 0x30+var_20($sp)
+    v45 = sub_44B7B0(a1, a2, a3, a4);
+    sub_3B7060(v46, v47);
+    sub_3B7060(v48, v49);
+    sub_3B7060(v50, v51);
+    sub_3B7060(v52, v53);
+    v55 = 127.0 * v54;
+    if ( (float)(127.0 * v54) >= 2147483600.0 )
+      v56 = (int)(float)(v55 - 2147483600.0) | 0x80000000;
+    else
+      v56 = (int)v55;
+    v57 = (int)(v56 + 128);
+    if ( v57 < 0 )
+      v58 = (float)(((v56 + 128) >> 1) | ((_BYTE)v56 + 0x80) & 1)
+          + (float)(((v56 + 128) >> 1) | ((_BYTE)v56 + 0x80) & 1);
+    else
+      v58 = (float)(int)v57;
+    v59 = v45 * v58;
+    if ( (float)(v45 * v58) >= 2147483600.0 )
+      v60 = (unsigned __int8)(int)(float)(v59 - 2147483600.0);
+    else
+      v60 = (unsigned __int8)(int)v59;
+    sub_25F430(0xFFFFFF, v60, 47, 0, *(int *)(v6 + 16), 1, 0, 0);
+    v61 = v5[3] + 1;
+    v5[3] = v61;
+    if ( v61 >= 30 )
+      return 1;
   }
-  return result;
+  return 0;
 }
 

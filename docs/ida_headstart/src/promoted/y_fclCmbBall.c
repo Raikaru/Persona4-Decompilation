@@ -15,31 +15,19 @@
 // func_0034ae70  addr 0x0034ae70  window 1296B
 __int64 __fastcall sub_34AE70(__int64 a1, int a2)
 {
-  __int64 v5; // $ra
-  float v7; // $f20
-  unsigned int v8; // $s1
+  float v3; // $f20
+  unsigned int v4; // $s1
   __int16 i; // $v1
-  int v10; // $v0
-  float v11; // $f0
-  __int64 v12; // $v1
-  float v13; // $f1
-  float v14; // $f3
-  float v15; // $f2
+  int v6; // $v0
+  __int64 v7; // $v1
+  float v8; // $f1
   __int64 result; // $v0
-  __int64 v23; // [sp+40h] [-20h]
-  float v24; // [sp+50h] [-10h]
-  float v25; // [sp+54h] [-Ch]
-  _BYTE v26[4]; // [sp+5Ch] [-4h] BYREF
+  float v10; // [sp+50h] [-10h]
+  float v11; // [sp+54h] [-Ch]
+  _BYTE v12[4]; // [sp+5Ch] [-4h] BYREF
 
-  v23 = v5;
-  __asm
-  {
-    sq      $s2, 0x60+var_30($sp)
-    sq      $s1, 0x60+var_40($sp)
-    sq      $s0, 0x60+var_50($sp)
-  }
-  v7 = 1.0 / *(float *)(sub_457120(a1) + 128);
-  v8 = sub_3315E0();
+  v3 = 1.0 / *(float *)(sub_457120(a1) + 128);
+  v4 = sub_3315E0();
   dword_887300(6, 1);
   dword_887300(7, 2);
   dword_887300(8, 1);
@@ -60,50 +48,40 @@ __int64 __fastcall sub_34AE70(__int64 a1, int a2)
   *(_DWORD *)((*(__int16 *)(a2 + 2) << 8) + a2 + 228) = 1065353216;
   if ( *(_BYTE *)(a2 + 3840) == 1 )
   {
-    sub_2B2A60((int)v26, 45, 45, 45, *(unsigned __int8 *)(a2 + 3694));
+    sub_2B2A60((int)v12, 45, 45, 45, *(unsigned __int8 *)(a2 + 3694));
   }
   else
   {
-    sub_2B2A60((int)v26, 0, 0, 102, *(unsigned __int8 *)(a2 + 3694));
+    sub_2B2A60((int)v12, 0, 0, 102, *(unsigned __int8 *)(a2 + 3694));
     if ( *(__int16 *)(a2 + 2) >= 3LL )
-      sub_2B2A60((int)v26, 204, 255, 255, *(_BYTE *)(a2 + 3694) >> 1);
+      sub_2B2A60((int)v12, 204, 255, 255, *(_BYTE *)(a2 + 3694) >> 1);
   }
   for ( i = 0; i < 4LL; ++i )
   {
-    v10 = i << 6;
-    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v10 + 24) = *(float *)&dword_8872F8 - *(float *)(a2 + 3604);
-    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v10 + 40) = v7;
-    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v10 + 48) = (float)v26[0];
-    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v10 + 52) = (float)v26[1];
-    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v10 + 56) = (float)v26[2];
-    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v10 + 60) = (float)v26[3];
+    v6 = i << 6;
+    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v6 + 24) = *(float *)&dword_8872F8 - *(float *)(a2 + 3604);
+    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v6 + 40) = v3;
+    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v6 + 48) = (float)v12[0];
+    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v6 + 52) = (float)v12[1];
+    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v6 + 56) = (float)v12[2];
+    *(float *)(a2 + (*(__int16 *)(a2 + 2) << 8) + v6 + 60) = (float)v12[3];
   }
   v11 = *(float *)(a2 + 3644);
-  v24 = *(float *)(a2 + 3640);
-  v25 = v11;
-  v12 = *(__int16 *)(a2 + 2);
-  v13 = v24 + (float)(19 * v12);
-  v24 = v13;
-  if ( v12 >= 3 )
-    v24 = v13 + 12.0;
-  v14 = v24;
-  *(float *)(((_DWORD)v12 << 8) + a2 + 16) = v24;
-  v15 = v25;
-  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 20) = v25;
-  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 80) = v14 + 16.0;
-  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 84) = v15;
-  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 144) = v14;
-  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 148) = v15 + 16.0;
-  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 208) = v14 + 16.0;
-  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 212) = v15 + 16.0;
-  result = dword_887300(1, *(int *)v8);
+  v7 = *(__int16 *)(a2 + 2);
+  v8 = *(float *)(a2 + 3640) + (float)(19 * v7);
+  v10 = v8;
+  if ( v7 >= 3 )
+    v10 = v8 + 12.0;
+  *(float *)(((_DWORD)v7 << 8) + a2 + 16) = v10;
+  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 20) = v11;
+  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 80) = v10 + 16.0;
+  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 84) = v11;
+  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 144) = v10;
+  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 148) = v11 + 16.0;
+  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 208) = v10 + 16.0;
+  *(float *)((*(__int16 *)(a2 + 2) << 8) + a2 + 212) = v11 + 16.0;
+  result = dword_887300(1, *(int *)v4);
   ++*(_WORD *)(a2 + 2);
-  __asm
-  {
-    lq      $s2, 0x60+var_30($sp)
-    lq      $s1, 0x60+var_40($sp)
-    lq      $s0, 0x60+var_50($sp)
-  }
   return result;
 }
 
@@ -111,93 +89,71 @@ __int64 __fastcall sub_34AE70(__int64 a1, int a2)
 // func_0034b380  addr 0x0034b380  window 912B
 __int64 __fastcall sub_34B380(int a1)
 {
-  __int16 *v3; // $s0
-  __int16 v4; // $v1
-  __int64 result; // $v0
+  __int16 *v1; // $s0
+  __int16 v2; // $v1
+  float v4; // $f0
+  int v5; // $f0
   float v6; // $f0
   int v7; // $f0
-  float v8; // $f0
-  int v9; // $f0
-  __int64 v10; // $a2
-  __int64 v11; // $a0
+  __int64 v8; // $a2
+  __int64 v9; // $a0
   __int16 i; // $s1
-  int v13; // $v0
+  int v11; // $v0
 
-  __asm
+  v1 = *(__int16 **)(a1 + 56);
+  v2 = v1[1800];
+  if ( (v2 & 1) == 0 )
+    return 0;
+  if ( (v2 & 4) >> 2 == 1 )
   {
-    sq      $s1, 0x20+var_10($sp)
-    sq      $s0, 0x20+var_20($sp)
-  }
-  v3 = *(__int16 **)(a1 + 56);
-  v4 = v3[1800];
-  if ( (v4 & 1) != 0 )
-  {
-    if ( (v4 & 4) >> 2 == 1 )
+    if ( v1[1848] != 0 )
     {
-      if ( v3[1848] != 0 )
-      {
-        v3[1848] = sub_2B2D00(v3[1848], 1, 0, 0, 1);
-      }
-      else
-      {
-        if ( *((_BYTE *)v3 + 3699) != 0 )
-        {
-          v8 = sub_2B2AA0(*((char *)v3 + 3698));
-          if ( v8 >= 2147483600.0 )
-            v9 = (int)(float)(v8 - 2147483600.0);
-          else
-            v9 = (int)v8;
-          *((_BYTE *)v3 + 3694) = v9;
-        }
-        else
-        {
-          v6 = sub_2B2AA0(*((char *)v3 + 3698));
-          if ( v6 >= 2147483600.0 )
-            v7 = (int)(float)(v6 - 2147483600.0);
-          else
-            v7 = (int)v6;
-          *((_BYTE *)v3 + 3694) = v7;
-        }
-        v10 = v3[1844];
-        v11 = v3[1845];
-        if ( v11 >= v10 )
-        {
-          *((_BYTE *)v3 + 3694) = *((_BYTE *)v3 + 3693);
-          if ( *((_BYTE *)v3 + 3699) == 1 )
-            *((_BYTE *)v3 + 3694) = *((_BYTE *)v3 + 3692);
-          v3[1800] |= 4u;
-        }
-        else
-        {
-          v3[1845] = sub_2B2CB0(v11, 1, v10, 0, 1);
-        }
-      }
-    }
-    if ( *((_BYTE *)v3 + 3694) != 0 )
-    {
-      v3[1] = 0;
-      for ( i = 0; i < 14LL; ++i )
-      {
-        v13 = sub_461390((int)&dword_793E80[12 * *v3], 4, (int)&v3[128 * i + 8], 4);
-        *(_DWORD *)(v13 + 8) = sub_34AE70;
-        *(_DWORD *)(v13 + 16) = v3;
-      }
-      result = 0;
+      v1[1848] = sub_2B2D00(v1[1848], 1, 0, 0, 1);
     }
     else
     {
-      result = 0;
+      if ( *((_BYTE *)v1 + 3699) != 0 )
+      {
+        v6 = sub_2B2AA0(*((char *)v1 + 3698));
+        if ( v6 >= 2147483600.0 )
+          v7 = (int)(float)(v6 - 2147483600.0);
+        else
+          v7 = (int)v6;
+        *((_BYTE *)v1 + 3694) = v7;
+      }
+      else
+      {
+        v4 = sub_2B2AA0(*((char *)v1 + 3698));
+        if ( v4 >= 2147483600.0 )
+          v5 = (int)(float)(v4 - 2147483600.0);
+        else
+          v5 = (int)v4;
+        *((_BYTE *)v1 + 3694) = v5;
+      }
+      v8 = v1[1844];
+      v9 = v1[1845];
+      if ( v9 >= v8 )
+      {
+        *((_BYTE *)v1 + 3694) = *((_BYTE *)v1 + 3693);
+        if ( *((_BYTE *)v1 + 3699) == 1 )
+          *((_BYTE *)v1 + 3694) = *((_BYTE *)v1 + 3692);
+        v1[1800] |= 4u;
+      }
+      else
+      {
+        v1[1845] = sub_2B2CB0(v9, 1, v8, 0, 1);
+      }
     }
   }
-  else
+  if ( *((_BYTE *)v1 + 3694) == 0 )
+    return 0;
+  v1[1] = 0;
+  for ( i = 0; i < 14LL; ++i )
   {
-    result = 0;
+    v11 = sub_461390((int)&dword_793E80[12 * *v1], 4, (int)&v1[128 * i + 8], 4);
+    *(_DWORD *)(v11 + 8) = sub_34AE70;
+    *(_DWORD *)(v11 + 16) = v1;
   }
-  __asm
-  {
-    lq      $s1, 0x20+var_10($sp)
-    lq      $s0, 0x20+var_20($sp)
-  }
-  return result;
+  return 0;
 }
 
