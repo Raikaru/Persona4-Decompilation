@@ -126,6 +126,10 @@ extern s32 func_00266a40(u32 arg0, s32 arg1);
 extern void func_00266a90(u8 *arg0);
 extern s32 func_00266ae0(s32 arg0);
 extern void func_00106390(s32 arg0, s32 arg1);
+extern s32 func_00108e10(void);
+extern s32 func_00107ce0(s32 arg0);
+extern s32 func_00107dc0(s32 arg0);
+extern void func_00108290(s32 arg0, s32 arg1);
 extern void func_00264cb0(s32 arg0, s32 arg1);
 extern s32 func_00110c50(s32 arg0, s32 arg1);
 extern s32 func_0043c6a0(s32 arg0);
@@ -1605,8 +1609,121 @@ s32 func_0026f5a0(void)
 }
 /* measured: closes optimization_level 0 around func_0026f5a0. */
 #pragma optimization_level 2
+/* measured: opt_common_subs off preserves the per-decode pointer recompute for func_0026f5e0. */
+/* measured: opt_propagation off preserves the byte-decode temporary liveness for func_0026f5e0. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_0026F5E0
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f5e0);
+s32 func_0026f5e0(s32 arg0, u8 *arg1)
+{
+    s32 first;
+    s32 second;
+    s32 third;
+    s32 fourth;
+    s32 sp20[5];
+    s32 temp_3_4;
+    s32 temp_3_5;
+    s32 temp_3_3;
+    s32 temp_3_2;
+    s32 var_2_1;
+    s32 var_2_2;
+    s32 var_2_3;
+    s32 var_2_4;
+    s32 temp_2;
+    s32 *src;
+    s32 *dst;
+    s32 i;
+    u8 *temp_3;
+
+    if (func_002746a0() != 3) {
+        return 0;
+    }
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
+    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
+    temp_3_2 = temp_3[1];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_1 = 0;
+    } else {
+        var_2_1 = (temp_3_2 - 1) & 0xFF;
+    }
+    first = (s64)(s16)(((var_2_1 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_3_3 = (s32)((temp_3[2] - 1) & 0xFF);
+    temp_3_2 = temp_3[3];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_2 = 0;
+    } else {
+        var_2_2 = (temp_3_2 - 1) & 0xFF;
+    }
+    second = (s64)(s16)(((var_2_2 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_3_3 = (s32)((temp_3[4] - 1) & 0xFF);
+    temp_3_2 = temp_3[5];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_3 = 0;
+    } else {
+        var_2_3 = (temp_3_2 - 1) & 0xFF;
+    }
+    third = (s64)(s16)(((var_2_3 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    temp_3_4 = *(s32 *)(arg1 + 0x18);
+    temp_3_5 = *(s32 *)(arg1 + 0x10);
+    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
+    temp_3_3 = (s32)((temp_3[6] - 1) & 0xFF);
+    temp_3_2 = temp_3[7];
+    if ((u8)temp_3_2 == 0xFF) {
+        var_2_4 = 0;
+    } else {
+        var_2_4 = (temp_3_2 - 1) & 0xFF;
+    }
+    fourth = (s64)(s16)(((var_2_4 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+
+    switch (first) {
+    case 0:
+        src = (s32 *)&D_0063BA30[0];
+        dst = &sp20[0];
+        i = 5;
+        do {
+            temp_2 = *src;
+            src += 1;
+            i -= 1;
+            *dst = temp_2;
+            dst += 1;
+        } while (i > 0);
+        func_00106390(third + sp20[second], fourth);
+        break;
+    case 1:
+        if (fourth != 0) {
+            func_00107ce0(func_00108e10());
+        } else {
+            func_00107dc0(func_00108e10());
+        }
+        break;
+    case 2:
+    case 3:
+        func_00108290(func_00108e10(), fourth & 0xFFFF);
+        break;
+    case 6:
+    default:
+        break;
+    }
+    return 0;
+}
+/* measured: closing opt_common_subs off for func_0026f5e0. */
+#pragma opt_common_subs on
+/* measured: closing opt_propagation off for func_0026f5e0. */
+#pragma opt_propagation on
+#pragma pop
 // FUN_0026F860
 INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026f860);
 // FUN_0026FBA0
