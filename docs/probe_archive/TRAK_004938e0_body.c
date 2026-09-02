@@ -1,5 +1,9 @@
 /* object 720B / window 688B / normalized_diff 478; oversized and archived immediately. */
 /* VU inline-asm candidate; call-site and declaration levers were measured, but object remained oversized. */
+/* MWCC intrinsic map (measured, not a closing body): with enable_vu0_registers on and
+   vu0_mmi_reg_binding on, _vitof0(dest,dummy,src) and _vmul(dest,dummy,a,b) compile
+   to VU ops. All _vmulbc/_vaddbc forms tested fail with "illegal storage class";
+   _qmtc2/_lqc2 spellings resolve to external calls. */
 void func_004938e0(u8 *arg0) {
     s32 sp9C;
     s32 sp98;

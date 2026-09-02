@@ -75,11 +75,26 @@ Rules of engagement:
   literal `<= N` through the `$at` pseudo. Rewriting as the equivalent
   `< N+1` keeps the value's register. If the value *is* reused after the test,
   retail itself uses `$at` — then keep `<= N`.
-- **Switch case order is numeric-ascending in the object.** mwcc emits switch
-  compares in **numeric-ascending** case order. If retail tests a higher case
-  first, no switch or if-chain reproduces it. When retail *does* check the
-  lowest case first, `switch (e) { case a: case b: ... }` reproduces its
-  `beq → body` dispatch with a deferred default.
+- **Switch case test order follows REVERSE written order — SOLVED, it was
+  never a floor.** This entry used to say mwcc emits compares in
+  numeric-ascending case order and that a higher-case-first retail dispatch
+  was unreachable. Measured against b210:
+
+  ```c
+  switch (k) { case 0: f0(); break; case 1: f1(); break; }  /* beq (1) first, then beqz (0) */
+  switch (k) { case 1: f1(); break; case 0: f0(); break; }  /* beqz (0) first, then beq (1) */
+  switch (k) { case 2: ..; case 1: ..; case 0: ..; }        /* tests 0, then 1, then 2 */
+  ```
+
+  **The last-written case is tested first.** So retail testing case 1 before
+  case 0 means retail's source wrote `case 0` before `case 1` — reorder the
+  cases in the source to the reverse of retail's test order. An `if`/`else
+  if` chain, by contrast, tests in *written* order and uses `bne`
+  fall-throughs rather than the switch's `beq` jumps to bodies; the two
+  forms are distinguishable in the object by that. A `default:` written
+  between cases does not change the case test order. Numeric value has no
+  effect on the order at all; the earlier claim came from functions whose
+  source happened to list cases ascending.
 - **A matching function body does not prove a matching switch table.**
   `verify.py` masks relocation-owned bytes, including the `R_MIPS_32`
   jump-table entries in `.rodata`, so a permuted table can hide behind an
