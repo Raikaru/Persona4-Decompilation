@@ -1045,15 +1045,34 @@ keep the best source, tag the marker `// FUN_XXXXXXXX NONMATCHING` (with a
 short comment recording what was tried), and move on. Retrying exhausted
 variants is wasted time.
 
-- **Call-argument setup order before a JAL.** The order in which independent
-  arguments are materialized (`addiu $a0,...` before `move $a1,...` or vice
-  versa) is a scheduler choice; the C argument list cannot always reproduce
-  it while keeping the required register assignments.
+- **Call-argument setup order before a JAL — SOLVED for the address case.**
+  Used to read "a scheduler choice the C argument list cannot always
+  reproduce". Measured: a stack-buffer address argument is materialised
+  *first* (`addiu $a2,$sp` before the `move $a0/$a1`) when the source casts
+  it to an integer (`(s32)buf`, `(s32)p`, `(s32)&buf[0]`) or the callee's
+  parameter is integer-typed; it is materialised *last*, after the register
+  moves, when `buf` is passed as-is to a **pointer-typed parameter**. The
+  cast turns the address into a computed value that goes into the argument
+  order first; the plain pointer is a "load-like" operand and follows.
+  Closed `func_002782c0` (itfMesManager.c, nd10 -> 0) by retyping
+  `func_00278450`'s third parameter `char *` (the callee stayed MATCH; its
+  body only passes the value on). `#pragma schedule on` also reorders the
+  pair but wrecks everything else. The mirror case — retail materialises an
+  argument address *early*, e.g. `addiu $a0,$sp,0x5C` before the store into
+  that very slot, or `addiu $a1,$sp,0x40` between two quad stores — is the
+  address taken into a pointer local at that point in the source, under
+  `opt_propagation off` so it is not folded back to the call:
+  `pf = &fbuf; fbuf = ...; ...; a16 = (u_long128 *)&arr[16]; *(u_long128 *)&arr[16] = q; call(pf, a16, ...)`
+  (the store itself stays direct so it addresses `$sp`). Closed
+  `func_0025b0f0` (cmmRankUp.c, nd24 -> 0). Both members of this entry are
+  now closed.
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
   loop (or the reverse — see the `opt_loop_invariants` waiver in
   `src/Battle/btlTarget.c`, where retail hoists and mwcc rematerializes with
-  swapped `addiu/sllv` operands). Not always source-reachable.
+  swapped `addiu/sllv` operands). `opt_loop_invariants on` under push/pop has
+  since closed six functions (0012d410, 0012dea0, 00359400, 002b7f20,
+  0016f3b0, 00473870) — measure it before calling this a floor.
 - **Saved-register coloring cycles.** A parameter and a surviving local both
   wanting the same callee-saved register (the param-vs-local `s0/s1` fight),
   or a register reused as an unrelated counter on a sibling branch — these are
