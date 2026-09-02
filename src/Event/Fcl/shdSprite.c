@@ -38,23 +38,67 @@ extern u8 *(*D_008873F4[])(s32, s32, s32);
 /* Assert source file string. */
 extern u8 D_00637280[];
 
-/* measured: retail computes the alignment `size + (size & 1)` immediately after
-   the string-length loop (andi/addu into $a0), then the allocation size sum
-   (sll $v1 / lw+sll $v0 / addu / addiu / addu $s1, $v0, $a0).  mwcc b210
-   sinks the independent align computation to just before its use and renames
-   the sum into $v1 (addiu $v1, $v0, 0x14), giving nd 9 with zero structural
-   differences elsewhere.  Tried: inline single expression (nd 93, folds
-   count*8+fieldC*8 into (count+fieldC)*8), split statements into size or a
-   separate total (nd 9), every saved-register declaration order (nd 9, all
-   other rows already byte-identical), align operand swaps, chain/align
-   statement orderings, #pragma optimization_level 1 (nd 87).  This is the
-   known load-sinking floor. */
-/* Compiled-C probe archived in build/FSHD_0025ef20_nd290_body.c:
-   object 476B / window 496B, normalized_diff 290, fndiff differing words 99.
-   Corrected all available callee declarations once with no codegen movement;
-   the 0x80 frame and 20B object deficit ruled out further grinding. */
-// FUN_0025EF20 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025ef20);
+// FUN_0025EF20
+u8 *func_0025ef20(u8 *arg0)
+{
+    s32 size;
+    s32 i;
+    s32 totalSize;
+    u8 *result;
+    u8 *cursor;
+    u8 *data;
+    s32 j;
+    s32 length;
+    s32 offset;
+
+    size = 0x10;
+    i = 0;
+    for (; i < *(s32 *)(arg0 + 4); i += 1) {
+        offset = i * 4;
+        size += func_00442948(
+            *(const char **)((u8 *)(u32)(*(s32 *)arg0) + offset)) + 1;
+    }
+    totalSize = size + (size & 1);
+    i = *(s32 *)(arg0 + 4) * 8;
+    i += *(s32 *)(arg0 + 0xC) * 8;
+    i += 0x14;
+    totalSize = (u32)((u8 *)(i) + totalSize);
+    func_0044ea90(&D_00637280, 0x7E);
+    result = D_008873F4[0](1, totalSize, 0x40000);
+    *(s32 *)result = 0;
+    data = result + 0x14;
+    *(u8 **)(result + 4) = data;
+    *(u8 **)(result + 8) = data + 0x10;
+    func_0043f810(*(void **)(result + 4), arg0, 0x10);
+    cursor = *(u8 **)(result + 8) + *(s32 *)(arg0 + 4) * 4;
+    *(u8 **)(*(u8 **)(result + 4)) = cursor;
+    cursor += *(s32 *)(arg0 + 4) * 4;
+    j = 0;
+    for (; j < *(s32 *)(arg0 + 4); j += 1) {
+        offset = j * 4;
+        length = func_00442948(
+            *(const char **)((u8 *)(u32)(*(s32 *)arg0) + offset)) + 1;
+        func_0043f810(
+            cursor,
+            *(const void **)((u8 *)(u32)(*(s32 *)arg0) + offset),
+            length);
+        *(u8 **)(*(u8 **)(*(u8 **)(result + 4)) + offset) = cursor;
+        cursor += length;
+    }
+    if (((u32)cursor & 1) != 0) {
+        cursor += 1;
+    }
+    if (*(u8 **)(arg0 + 8) != NULL) {
+        func_0043f810(
+            cursor,
+            *(u8 **)(arg0 + 8),
+            *(s32 *)(arg0 + 0xC) * 8);
+        *(u8 **)(*(u8 **)(result + 4) + 8) = cursor;
+        *(u8 **)(result + 0xC) = *(u8 **)(*(u8 **)(result + 4) + 8);
+    }
+    *(s32 *)(result + 0x10) = *(s32 *)(arg0 + 0xC);
+    return result;
+}
 
 /* Measured compiled-C park: object 288B / window 288B / normalized_diff 11.
    Differing word offsets are 0x18, 0x1c, 0x20, 0x54, 0xdc, 0xe0, 0xe4,

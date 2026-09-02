@@ -1128,8 +1128,93 @@ s32 func_003593e0(s32 arg0, s32 arg1, s16 arg2)
     *(s16 *)(p + 0x24) = arg2;
     return 1;
 }
+#pragma push
+/* measured: opt_loop_invariants on hoists conversion constants for target. */
+#pragma opt_loop_invariants on
 // FUN_00359400
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00359400);
+s32 func_00359400(u8 *arg0, s32 arg1)
+{
+    extern u8 D_0064B420[];
+    extern u8 D_0064B8E0[];
+    extern u8 D_0064BDA0[];
+    extern u8 D_0064C260[];
+    extern u8 D_0064C720[];
+    u8 *table;
+    f32 value1;
+    f32 value2;
+    s32 i;
+    s32 j;
+    s32 off;
+    u8 *dst;
+    u8 *src;
+
+    if (arg1 == *(s32 *)(arg0 + 0x18)) {
+        return 0;
+    }
+    for (i = 0; i < 43; i++) {
+        off = i * 0x30;
+        dst = arg0 + off;
+        *(f32 *)(dst + 0x150) = *(f32 *)(dst + 0x160);
+        *(f32 *)(dst + 0x154) = *(f32 *)(dst + 0x164);
+        *(u16 *)(dst + 0x16C) = *(u16 *)(dst + 0x170);
+        *(u16 *)(dst + 0x172) = *(u16 *)(dst + 0x176);
+        *(u8 *)(dst + 0x168) = *(u8 *)(dst + 0x16A);
+    }
+    switch (arg1) {
+    case 0:
+        table = D_0064B420;
+        *(s32 *)(arg0 + 0x1C) = 53;
+        *(s16 *)(arg0 + 0x14C) = 16;
+        break;
+    case 1:
+        table = D_0064BDA0;
+        *(s16 *)(arg0 + 0x14C) = 16;
+        break;
+    case 2:
+        table = D_0064C260;
+        *(s32 *)(arg0 + 0x1C) = 55;
+        break;
+    case 3:
+        table = D_0064C720;
+        *(s32 *)(arg0 + 0x1C) = 70;
+        *(s16 *)(arg0 + 0x14C) = 17;
+        break;
+    case 4:
+        table = D_0064B8E0;
+        *(s32 *)(arg0 + 0x1C) = 53;
+        *(s16 *)(arg0 + 0x14C) = 16;
+        break;
+    default:
+        func_0046d730(&D_0064CC98, 0x51F);
+        break;
+    }
+    if (table != NULL) {
+        j = 0;
+        goto table_loop_test;
+table_loop_body:
+        off = j * 0x1C;
+        src = table + off;
+        dst = arg0 + j * 0x30;
+        *(f32 *)(dst + 0x158) = *(f32 *)(src + 0);
+        *(f32 *)(dst + 0x15C) = *(f32 *)(src + 4);
+        value1 = *(f32 *)(src + 8);
+        *(u16 *)(dst + 0x16E) = (u16)value1;
+        value2 = *(f32 *)(src + 0xC);
+        *(u16 *)(dst + 0x174) = (u16)value2;
+        *(u8 *)(dst + 0x169) = *(u8 *)(src + 0x10);
+        *(s32 *)(dst + 0x178) = *(s32 *)(src + 0x14);
+        *(s32 *)(dst + 0x17C) = *(s32 *)(src + 0x18);
+        j += 1;
+table_loop_test:
+        if (j < 43) {
+            goto table_loop_body;
+        }
+    }
+    *(s32 *)(arg0 + 0x18) = arg1;
+    *(s16 *)(arg0 + 0x20) = 0;
+    return 1;
+}
+#pragma pop
 // FUN_003596A0
 s32 func_003596a0(u8 *arg0) {
     s32 flag = 1;

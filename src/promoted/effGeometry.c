@@ -108,12 +108,57 @@ u8 *func_00482c40(s32 arg0, s32 arg1, s32 arg2) {
     return p;
 }
 
-/* measured floor: retail reuses $s0 (arg3) for var_16 and $s1 (arg0) for var_17
-   after func_00482c40; mwcc b210 assigns var_16=$s1, var_17=$s2 (shifted by one)
-   regardless of declaration order, because it cannot reuse the dead arg registers
-   for the loop counters. Tried 8 declaration orders + mask pre-hoisting, nd 85. */
-// FUN_00482DC0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00482dc0);
+// FUN_00482DC0
+u8 *func_00482dc0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    s32 temp_2;
+    u16 temp_22;
+    s32 temp_23;
+    u8 *temp_20;
+    u8 *var_19;
+    s32 var_18;
+    s32 var_17;
+    s32 var_16;
+    u8 *temp_2_2;
+    u8 *temp_3;
+    u8 *spCC;
+    s32 spB0;
+    s32 spA0;
+
+    if ((arg0 & 0xFFFF) < 2) {
+        func_0046d730(D_00713448, 0x4C);
+    }
+    if ((arg2 & 0xFFFF) < 2) {
+        func_0046d730(D_00713448, 0x4D);
+    }
+    temp_2 = (arg2 & 0xFFFF) - 1;
+    spA0 = temp_2 * 4 + temp_2 * 2;
+    temp_22 = (u16)arg0;
+    temp_2_2 = (u8 *)func_00482c40((temp_22 + 1) * (arg2 & 0xFFFF),
+                                   temp_22 * (temp_2 * 2), arg3);
+    spCC = temp_2_2;
+    temp_20 = *(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18);
+    spB0 = *(s32 *)(temp_2_2 + 0x14);
+    var_19 = *(u8 **)(temp_20 + 0x2C);
+    var_16 = 0;
+    var_18 = 0;
+    while (var_18 < temp_22) {
+        var_17 = 0;
+        temp_23 = var_16 & 0xFFFF;
+        while (var_17 < spA0) {
+            temp_3 = (u8 *)(arg1 + (var_17 * 2));
+            func_003c2130(temp_20, var_19,
+                          (temp_23 + *(u16 *)(temp_3 + 0)) & 0xFFFF,
+                          (temp_23 + *(u16 *)(temp_3 + 2)) & 0xFFFF,
+                          (temp_23 + *(u16 *)(temp_3 + 4)) & 0xFFFF);
+            func_003c2150(temp_20, var_19, spB0);
+            var_19 += 8;
+            var_17 += 3;
+        }
+        var_16 = (var_16 + arg2) & 0xFFFF;
+        var_18 += 1;
+    }
+    return spCC;
+}
 
 // FUN_00482F70
 u8 *func_00482f70(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
