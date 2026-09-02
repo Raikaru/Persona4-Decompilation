@@ -212,26 +212,94 @@ void func_00271380(s32 arg0, u8 *arg1)
 
 
 
-/* measured: recipe B retest 2026-08-03 - best nd88. Pointer locals
-   (FrFontSlot4 *slots / s32 *bb0) DO hoist the &D_00881630/D_008815B0 bases
-   with NO pragma (old note's pragma no longer needed; pragma + locals = same
-   88), and naming the scaled offset in an s32 local fixes the addu operand
-   order in both loops. Residual: the three bit-count loops' entry guard -
-   retail emits [bnez $v1,check; b exit] with the check after the body; mwcc
-   b210 emits [b check] when the condition is provable (loop A: 0x200) and
-   [beqz exit; b check] otherwise (loops B/C, also $v0/$v1 counter colors
-   swapped). The double andi on the loop-exit adjust ((var_2-1)&0xFF then
-   var_2&0xFF at the store) is CSEd by mwcc to one andi per loop. Tried this
-   wave: while-in-if, switch(cond){case 0/default}, m2c empty-if, u32 vars,
-   statement-order swaps - guard shape never changes. Re-tested wave 14:
-   fresh m2c body with direct globals (nd94 - the raw-array spelling is
-   slightly worse than the recorded 88 pointer-local spelling); arg0/16
-   division vs arg0>>4 manual-correction shift (94 vs 97 - the sra/bgez/
-   addiu/sra plain-shift+correction matches retail's rounding, division
-   duplicates it). Loop pre-test branch-layout + mask-CSE floor. */
+/* measured: pointer locals (FrFontSlot4 *slots / s32 *bb0), a named scaled
+   offset, and opt_propagation off reproduce the retail loop guards and
+   register coloring. The body is an exact 528-byte match. */
 
 // FUN_002713B0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_002713b0);
+#pragma push
+#pragma opt_propagation off
+void func_002713b0(s32 arg0, s32 arg1)
+{
+    FrFontSlot4 *slots;
+    s32 *bb0;
+    s32 var_16;
+    s32 var_2;
+    u32 var_3_2;
+    s32 var_2_2;
+    s32 var_2_3;
+    s32 var_4;
+    s32 var_5;
+    s32 offset;
+    u32 var_3;
+    u32 var_3_3;
+
+    DAT_00881750_abs[0] = 0;
+    DAT_00881754_abs[0] = 0;
+    DAT_00881758_abs[0] = 0;
+    var_5 = 0;
+    slots = (FrFontSlot4 *)DAT_00881630_abs;
+    while (var_5 < 9) {
+        offset = var_5 << 5;
+        *(s32 *)((u8 *)slots + offset + 0x1c) = 0;
+        var_5 += 1;
+    }
+    var_16 = arg0 >> 4;
+    if (arg0 < 0) {
+        var_16 = (arg0 + 0xf) >> 4;
+    }
+    var_3 = 0x200;
+    DAT_0088176C_abs[0] = 0x200;
+    var_2 = 0;
+    if (var_3 == 0) {
+    } else {
+        while (var_3 != 0) {
+            var_3 >>= 1;
+            var_2 += 1;
+        }
+        var_2 = (var_2 - 1) & 0xff;
+    }
+    DAT_00881770_abs[0] = var_2 & 0xff;
+    var_3_2 = var_16 << 5;
+    var_2_2 = 0;
+    if (var_3_2 == 0) {
+    } else {
+        while (var_3_2 != 0) {
+            var_3_2 >>= 1;
+            var_2_2 += 1;
+        }
+        var_2_2 = (var_2_2 - 1) & 0xff;
+    }
+    var_2_2 &= 0xff;
+    var_3_3 = 1 << (var_2_2 + 1);
+    DAT_00881774_abs[0] = var_3_3;
+    var_2_3 = 0;
+    if (var_3_3 == 0) {
+    } else {
+        while (var_3_3 != 0) {
+            var_3_3 >>= 1;
+            var_2_3 += 1;
+        }
+        var_2_3 = (var_2_3 - 1) & 0xff;
+    }
+    DAT_00881778_abs[0] = var_2_3 & 0xff;
+    func_00270fb0(DAT_0088177C_abs[0], 0x10, var_16, 0x20, 0x20, 0x10);
+    DAT_0088175c_abs[0] = func_0026e010(0x2c, arg1 * 4);
+    *(s32 *)DAT_00881760_abs = func_0026e010(0x44, arg1);
+    func_00271860();
+    var_4 = 0;
+    bb0 = D_008815B0;
+    while (var_4 < 0x20) {
+        offset = var_4 << 2;
+        *(s32 *)((u8 *)bb0 + offset) = 0;
+        var_4 += 1;
+    }
+    D_007645BC = var_16 * 0x10;
+    func_00275a60(arg1);
+}
+#pragma opt_propagation on
+#pragma pop
+
 
 // FUN_002715C0
 void func_002715c0(void)

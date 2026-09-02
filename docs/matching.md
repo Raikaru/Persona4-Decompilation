@@ -1238,15 +1238,41 @@ variants is wasted time.
   160B window, etc.), and `fndiff.py` counts those tail words in its summary.
   Do not add code to fill it.
 - **Instruction scheduling / subexpression evaluation order** in general;
-  **FPU-register allocation**; **u16-mask propagation** (retail re-masks per
-  use, mwcc elides the repeat); **switch case-order** (retail testing a higher
-  case first); the **`slti $at` branch-temp idiom** (`<` against a small
-  constant lowers through the `$at` pseudo, while `>=`/`!(x<k)` materializes
-  an explicit `slti $v0` — the `$at` layout is not always reachable while
-  preserving the required inline/out-line arrangement); and **boolean-result
-  tail layout** (retail sometimes places the 0-materialization block after the
-  main body but before the 1-materialization, which mwcc never emits
-  regardless of source shape).
+  **FPU-register allocation**; and the **`slti $at` branch-temp idiom** (`<`
+  against a small constant lowers through the `$at` pseudo, while
+  `>=`/`!(x<k)` materializes an explicit `slti $v0` — the `$at` layout is not
+  always reachable while preserving the required inline/out-line
+  arrangement).
+  **u16-mask propagation** used to be listed here as "retail re-masks per
+  use, mwcc elides the repeat". Measured against b210, the number of `andi
+  $r,$r,0xffff` per loop iteration is a source knob (counter passed to a
+  call and compared against a `u16` load):
+
+  ```c
+  u16 i; for (i = 0; i < *p; i++) sink(i);            /* TWO: andi s0,v1 (increment) + andi a0,s0 (compare) */
+  s32 i; for (i = 0; i < *p; i++) sink((u16)i);       /* ONE: at the use only */
+  u16 i = 0; while (i < *p) { sink(i); i = i + 1; }   /* THREE */
+  u32 i; ...            sink(i & 0xffff);             /* ONE, and sltu instead of slt */
+  ```
+
+  Count retail's `andi` per iteration and note which operands carry them
+  (increment result, compare operand, call argument), then pick the counter
+  declaration and loop form that emits exactly that.
+  Two entries used to sit here and are solved: switch case-order (reverse
+  written order, top of this file; closed `func_0019fc70`), and the
+  **boolean-result tail layout** — "retail places the 0-materialization
+  block after the main body but before the 1-materialization, which mwcc
+  never emits". Measured: it emits it whenever the `1` return is a labelled
+  block written *after* the `return 0`, reached by `goto`:
+
+  ```c
+  for (...) { if (hit) return 1; }  return 0;             /* li v0,1 in-loop; move v0,zero at tail */
+  for (...) { if (hit) goto yes; }  return 0; yes: return 1;  /* move v0,zero; b; li v0,1; jr — the "impossible" layout */
+  r = 1; for (...) { if (hit) goto out; } r = 0; out: return r;  /* li v0,1 at entry */
+  ```
+
+  Block order in the object follows the written order of the labelled
+  blocks; `return` inside the loop inlines the constant at the branch site.
 
 ## Target selection: measured cost of choosing wrong (four 16-lane waves, zero closures)
 

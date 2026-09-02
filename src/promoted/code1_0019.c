@@ -101,8 +101,8 @@ extern void func_00196040(s32 arg0, s32 arg1, void *arg2,
                           s32 arg3, s32 arg4, s32 arg5);
 extern void func_001958f0(void *arg0, void *arg1);
 extern s32 func_00232710(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_0022f7d0(u8 *arg0, u8 *arg1);
-extern s32 func_001b1510(void);
+extern s32 func_0022f7d0(u8 *arg0, f32 *arg1, s32 arg2);
+extern u8 *func_001b1510(void);
 extern void func_001ec1c0(void *arg0, void *arg1, void *arg2);
 extern void func_00195850(u8 *arg0, f32 *arg1);
 extern void func_00195aa0(void *arg0, void *arg1, void *arg2);
@@ -1283,17 +1283,15 @@ second_check:
     return temp_16;
 }
 #pragma optimization_level 2
-/* measured probe at optimization_level 2. Committed at nd 24. */
-/* Best attempt: object 500B, window 512B, normalized_diff 24. Reverted because the candidate remained non-exact. */
-// FUN_00194FF0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: aggregate Vec3 copies and float frame fields reproduce the 500-byte body. */
+// FUN_00194FF0
 void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
 {
     struct Work {
         f32 vec[3];
         u8 gap[4];
         f32 x;
-        s32 y;
+        f32 y;
         f32 z;
     } frame;
     s16 temp_6;
@@ -1308,9 +1306,7 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
     temp_6_2 = temp_6 * 5;
     frame.z = (f32)((temp_6 * 0x19) - 0x6D6);
     if (arg1 != NULL) {
-        *(f32 *)(arg1 + 0) = frame.x;
-        *(f32 *)(arg1 + 4) = (f32)frame.y;
-        *(f32 *)(arg1 + 8) = frame.z;
+        *(P4_95730_Vec3 *)arg1 = *(P4_95730_Vec3 *)&frame.x;
     }
     if ((arg3 != NULL) || (arg2 != NULL)) {
         temp_5 = *(u8 *)(arg0 + 0xA2);
@@ -1342,18 +1338,13 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
             break;
         }
         if (arg3 != NULL) {
-            arg3[0] = frame.vec[0];
-            arg3[1] = frame.vec[1];
-            arg3[2] = frame.vec[2];
+            *(P4_95730_Vec3 *)arg3 = *(P4_95730_Vec3 *)frame.vec;
         }
         if (arg2 != NULL) {
             func_001ec1c0(arg2, &frame.x, frame.vec);
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_00194ff0);
-#endif
 // FUN_001951F0
 INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001951f0);
 // FUN_00195530
