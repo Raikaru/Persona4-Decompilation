@@ -137,6 +137,16 @@ extern s32 func_00232610(s32 arg0, s32 arg1);
 extern s32 func_0023d9b0(s32 arg0, u16 arg1);
 
 extern s32 func_001f8400(u8 **arg0);
+extern s32 iGpffffb464;
+extern void func_0044ea90(const void *file, s32 line);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void func_00442088(void *dst, void *fmt, ...);
+extern s32 func_00456250(s32 arg0, void *arg1, s32 arg2, void *arg3);
+extern s32 func_004c7ef8(s32 arg0);
+extern u8 D_00624F50[];
+extern u8 D_00624F60[];
+extern u8 D_00624F80[];
+extern u8 D_00624FA0[];
 
 // FUN_001F01A0
 s32 func_001f01a0(u8 *arg0, u8 *arg1)
@@ -2791,7 +2801,66 @@ void func_001f8430(u32 value)
 }
 
 // FUN_001F8480
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f8480);
+void func_001f8480(void)
+{
+    void **allocator;
+    u8 sp30[0x100];
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_17_2;
+    s32 temp_2;
+    s32 temp_2_2;
+    s32 temp_2_3;
+
+    func_0044ea90(&D_00624F50, 0x3A);
+    allocator = (void **)jtbl_008873E8;
+    temp_17 = ((u8 *(*)(u32, u32))allocator[0])(0xBE4, 0x40000);
+    func_00442088(sp30, &D_00624F60);
+    func_00456250(3, sp30, 0, temp_17);
+    goto loop_3_test;
+loop_3_retry:
+    if (temp_2 != 4) {
+        goto loop_3_test;
+    }
+    func_00456250(3, sp30, 0, temp_17);
+loop_3_test:
+    temp_2 = func_004c7ef8(3);
+    if (temp_2 != 3) {
+        goto loop_3_retry;
+    }
+    iGpffffb460 = 1;
+    func_0044ea90(&D_00624F50, 0x3A);
+    temp_17_2 = ((u8 *(*)(u32, u32))allocator[0])(0x630, 0x40000);
+    func_00442088(sp30, &D_00624F80);
+    func_00456250(4, sp30, 0, temp_17_2);
+    goto loop_7_test;
+loop_7_retry:
+    if (temp_2_2 != 4) {
+        goto loop_7_test;
+    }
+    func_00456250(4, sp30, 0, temp_17_2);
+loop_7_test:
+    temp_2_2 = func_004c7ef8(4);
+    if (temp_2_2 != 3) {
+        goto loop_7_retry;
+    }
+    func_0044ea90(&D_00624F50, 0x3A);
+    temp_16 = ((u8 *(*)(u32, u32))allocator[0])(0x4A0, 0x40000);
+    func_00442088(sp30, &D_00624FA0);
+    func_00456250(5, sp30, 0, temp_16);
+    goto loop_11_test;
+loop_11_retry:
+    if (temp_2_3 != 4) {
+        goto loop_11_test;
+    }
+    func_00456250(5, sp30, 0, temp_16);
+loop_11_test:
+    temp_2_3 = func_004c7ef8(5);
+    if (temp_2_3 != 3) {
+        goto loop_11_retry;
+    }
+    iGpffffb464 = 1;
+}
 // FUN_001F8690
 void func_001f8690(s32 arg0) {
     s32 value;

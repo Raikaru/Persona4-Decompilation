@@ -64,6 +64,16 @@ extern u8 D_007EF9F8[];
 extern u8 D_007EFA00[];
 extern u8 D_005F1698[];
 extern u8 D_005F16E0[];
+extern char D_005F16B0[];
+extern u8 D_007948D0[];
+extern void *func_003e9320(void);
+extern void func_003e9df0(void *arg0);
+extern s32 func_003e0f80(void);
+extern void func_0016bdd0(void *arg0);
+extern s32 func_0014d510(s32 arg0, s32 arg1, void *arg2);
+extern s32 func_0014d700(s32 arg0, void *arg1);
+extern s32 func_0014d910(s32 arg0, void *arg1);
+extern void func_0014d800(void *arg0, void *arg1);
 extern f32 fabsf(f32 x);
 extern f32 func_0014b5d0(u8 *arg0);
 extern f32 func_00457850(u8 *arg0);
@@ -1382,8 +1392,76 @@ void func_0016e210(u8 *arg0) {
     func_003e0f40(*(s32 *)(temp_16 + 0x2C4));
     (*DAT_008873EC)(*(void **)(arg0 + 0x38));
 }
+/* measured: opt_common_subs off preserves the retail per-call table address
+   materialization and five-register frame in func_0016e2e0. */
 // FUN_0016E2E0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016e2e0);
+#pragma push
+#pragma opt_common_subs off
+s32 func_0016e2e0(s32 arg0)
+{
+    s32 temp_18;
+    s32 temp_5;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_19;
+
+    func_0044ea90(D_005F1698, 0x4CE);
+    temp_2 = (u8 *)D_008873F4[0](1, 0x2D8, 0x40000);
+    if (temp_2 == NULL) {
+        return 0;
+    }
+    temp_18 = func_00451fc0(arg0, D_005F16B0, 0x11, 0, 0,
+                            func_0016bdd0, func_0016e210, temp_2);
+    temp_16 = temp_2 + 0xC;
+    temp_2_2 = (u8 *)func_003e9320();
+    *(u8 **)(temp_16 + 0) = temp_2_2;
+    if (temp_2_2 == NULL) {
+        func_00452080(temp_18);
+        return 0;
+    }
+    func_003e9df0(temp_2_2);
+    temp_16 = temp_2 + 0x10;
+    temp_2_3 = *(u8 **)(*(u8 **)(func_00457120() + 4) + 4);
+    *(u8 **)(temp_16 + 0) = temp_2_3;
+    if (temp_2_3 != NULL) {
+        func_003e99a0(*(void **)(func_00457120() + 4));
+        temp_17 = temp_2 + 0xC;
+        func_003e9830(*(s32 *)(temp_16 + 0),
+                      *(s32 *)(temp_17 + 0));
+        func_003e9830(*(s32 *)(temp_17 + 0),
+                      *(s32 *)(func_00457120() + 4));
+    } else {
+        func_0046d730(D_005F1698, 0x4F6);
+    }
+    *(s32 *)(temp_2 + 0x2BC) = func_003e0f80();
+    *(s32 *)(temp_2 + 0x2C0) = func_003e0f80();
+    *(s32 *)(temp_2 + 0x2C4) = func_003e0f80();
+    *(s32 *)(temp_2 + 0x2C8) = func_0014d910(temp_18, D_007948D0);
+    temp_5 = *(s32 *)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20);
+    if (temp_5 != 0) {
+        temp_19 = temp_2 + 0x2CC;
+        *(s32 *)(temp_19 + 0) = func_0014d510(temp_18, temp_5,
+                                              D_007948D0);
+        temp_17 = temp_2 + 0x2D0;
+        *(s32 *)(temp_17 + 0) = func_0014d700(temp_18,
+                                              D_007948D0);
+        temp_16 = temp_2 + 0x2D4;
+        *(s32 *)(temp_16 + 0) = func_0014d700(temp_18,
+                                              D_007948D0);
+        func_0014d5f0(*(void **)(temp_19 + 0),
+                      (u8 *)&iGpffff9f00 + 0x30);
+        func_0014d800(*(void **)(temp_17 + 0),
+                      (u8 *)&iGpffff9f00 + 0x30);
+        func_0014d800(*(void **)(temp_16 + 0),
+                      (u8 *)&iGpffff9f00 + 0x34);
+    }
+    return temp_18;
+}
+#pragma opt_common_subs on
+#pragma pop
 // FUN_0016E540
 void func_0016e540(u8 *arg0, s32 arg1)
 {
