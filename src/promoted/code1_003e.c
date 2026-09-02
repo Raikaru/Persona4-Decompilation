@@ -683,30 +683,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 // FUN_003E2430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
-/* measured: schedule on probe for the nonvolatile body. */
-// FUN_003E2570 NONMATCHING
-#ifdef NON_MATCHING
-/* measured: no_branch_likely on probe for the nonvolatile body. */
-s32 func_003e2570(s32 arg0, s32 arg1) {
-    s32 *slot;
-    s32 result;
-
-    D_00764878 = arg1;
-    result = func_003e1220(0x24, D_00763C54, 4, D_00763C58, D_00887220, 0x40404);
-    slot = (s32 *)(D_008872E0 + D_00764878);
-    *slot = result;
-    result = *slot;
-    if (result == 0) {
-        return 0;
-    }
-    D_0076487C += 1;
-    return arg0;
-}
-/* measured: close no_branch_likely after the nonvolatile body. */
-/* measured: close schedule after the nonvolatile body. */
-#else
+/* measured: loop-rotation residual around store/reload remains open after
+   exhaustive while/if/pragma probes; reverting to INCLUDE_ASM for now. */
+// FUN_003E2570
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
-#endif
 /* measured: schedule and no_branch_likely bracket retained around func_003e25f0. */
 #pragma schedule on
 #pragma no_branch_likely on
@@ -816,10 +796,38 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3020);
 // FUN_003E3070
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
 
-/* measured: archived object 72B/window 80B, normalized_diff 9; loop-join
-   branch displacement and store-guard placement remained unresolved. */
+/* measured: schedule on fills the jr delay slot and the alignment nop after
+   the filled back-edge, and no_branch_likely on preserves the plain beq/bne
+   shape for the linked-list search. */
+#pragma schedule on
+#pragma no_branch_likely on
 // FUN_003E30C0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e30c0);
+s32 func_003e30c0(u8 *arg0, s32 arg1, s32 arg2) {
+    u8 *node;
+
+    node = *(u8 **)(arg0 + 0x10);
+    if (node != NULL) {
+    loop:
+        if (*(s32 *)(node + 8) == arg1) {
+            goto found;
+        }
+        node = *(u8 **)(node + 0x30);
+        if (node != NULL) {
+            goto loop;
+        } else {
+            ;
+        }
+    }
+found:
+    if (node != NULL) {
+        *(s32 *)(node + 0x1c) = arg2;
+        return *(s32 *)(node + 0);
+    }
+    return -1;
+}
+/* measured: close the schedule/no_branch_likely bracket around func_003e30c0. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003E3110 NONMATCHING
 #ifdef NON_MATCHING
 typedef s32 M2C_UNK;

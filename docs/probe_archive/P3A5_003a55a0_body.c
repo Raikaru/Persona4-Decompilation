@@ -1,4 +1,7 @@
-/* object_size=412 window=416 normalized_diff=15 differing_offsets=262,263,298,299,334,335,370,371,380,381,382,383,384,386,387 classification=register-colouring/operand-order plus shared-exit branch scheduling; ruled_out=callee declarations corrected at block scope (func_003a2bb0 s32*(one arg), func_003f4370 void), mixed parameter count checked (5 args), schedule/no_branch_likely explicit CFG probes, optimization-level probes, switch/if/goto CFG probes, integer-domain address operand-order probes; remaining body branch at offset 380 does not materialize as retail backward shared-exit branch and four address adds use opposite addu operand order */
+/* Best attempted reconstruction for func_003a55a0 under -O2,p; object 412B, retail window 416B, normalized_diff 7. Tried no_branch_likely on and opt_rebuildconditionals off/on, explicit s32 off local with (s32)temp_17 addu ordering. Residual: block_c goto dispatch_end does not materialize as backward shared-exit branch (sw/ld order swapped) and object is 4B short. */
+// FUN_003A55A0
+/* measured: no_branch_likely on for func_003a55a0. */
+#pragma no_branch_likely on
 void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3, u32 arg4)
 {
     extern s32 func_003a2bb0(s32 *arg0);
@@ -8,8 +11,8 @@ void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3, u32 arg4)
     s32 var_3;
     s32 var_3_2;
     s32 var_3_3;
+    s32 off;
     u8 *temp_17;
-
     temp_17 = *(u8 **)(arg2 + 0x4C / 4);
     temp_16 = *(s32 *)(temp_17 + 0xE4);
     if (arg4 & mask_10000000) {
@@ -45,25 +48,28 @@ dispatch_c:
 dispatch_end:
     goto done;
 block_0:
+    off = temp_16 * 0x24;
     *(s32 *)(arg0 + 0x10) =
-        *(s32 *)((u8 *)((u32)temp_17 + (u32)(temp_16 * 0x24)) + 0x140);
+        ((s32 *)(u8 *)(off + (s32)temp_17))[0x50];
     *(s32 *)(arg0 + 0x14) = 0x10;
     goto dispatch_8;
 block_8:
+    off = temp_16 * 0x24;
     *(s32 *)(arg0 + 0x20) =
-        *(s32 *)((u8 *)((u32)(temp_16 * 0x24) + (u32)temp_17) + 0x150);
+        ((s32 *)(u8 *)(off + (s32)temp_17))[0x54];
     *(s32 *)(arg0 + 0x24) = 4;
     goto dispatch_4;
 block_4:
+    off = temp_16 * 0x24;
     *(s32 *)(arg0 + 0x18) =
-        *(s32 *)((u8 *)((u32)(temp_16 * 0x24) + (u32)temp_17) + 0x15C);
+        ((s32 *)(u8 *)(off + (s32)temp_17))[0x57];
     *(s32 *)(arg0 + 0x1C) = 0x10;
     goto dispatch_c;
 block_c:
+    off = temp_16 * 0x24;
     *(s32 *)(arg0 + 0x28) =
-        *(s32 *)((u8 *)((u32)(temp_16 * 0x24) + (u32)temp_17) + 0x14C);
+        ((s32 *)(u8 *)(off + (s32)temp_17))[0x53];
     *(s32 *)(arg0 + 0x2C) = 8;
     goto dispatch_end;
 done:
     ;
-}
