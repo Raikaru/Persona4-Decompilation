@@ -619,6 +619,28 @@ with 1 and 2 (clause 4). That order is reachable; the archived candidate had
 slot 3 as a plain load. Look at which argument is an expression over the
 others.
 
+### A branch-only block at a loop entry is a coalesced copy — measured
+
+Retail sometimes has an outer back-edge land on a block that is only
+`b <inner test>`. mwcc threads jump-to-jump for every plain `while`/`for`/
+`do`/`for(;;)-break` spelling of a nested loop (six measured, none produce
+it). It appears when the inner loop iterates over a **copy** of the outer
+variable that the allocator coalesces away:
+
+```c
+while ((s0 = *(u8 **)(s2 + 0x4C)) != 0) {
+    p = s0;                              /* coalesced: leaves a jump-only block */
+    while (*(s32 *)(p + 0x68)) f1(p);
+    ...
+}
+```
+
+The empty assignment keeps its own basic block; the branch into it is not
+threaded. Seen in `func_0028ad90` (evtMain.c, archived at nd2: the block is
+reproduced, the remaining pair is the inner-test load landing in `$a1`
+rather than `$v0`, which no copy/type/declaration variant moved in
+isolation — whole-function pressure, still open).
+
 ## Globals and addressing
 
 - **Absolute globals outside the gp window** (read as `lui;lw` with HI16/LO16
