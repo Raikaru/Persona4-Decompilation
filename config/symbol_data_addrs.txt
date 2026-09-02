@@ -58,6 +58,7 @@ D_007242A0 = 0x007642a0; // type:data evidence: relocation scan (reported in nam
 // (0x761130+0x7fc0 == 0x761450+0x7ca0 == 0x7690f0); 0x7690f0-0x4b50 = 0x7245a0.
 iGpffffb4b0 = 0x007645a0; // type:data evidence: GPREL -0x4B50($28) in func_00279dd0; 0x007690f0 - 0x4B50 = 0x007645A0 (relocation scan agrees)
 
+D_007645BC = 0x007645bc; // type:data evidence: retail func_002713b0 sw $v0,-0x4B34($28) (0x007645BC); gp base 0x007690F0
 // nLine.c func_0034d890/func_0034db60 load lwc1 at GPREL -0x7F6C($28) and
 // func_0034ddf0 at GPREL -0x7DE0($28). gp = 0x007690F0 (iGpffffb5a4 = 0x00764694
 // = gp - 0x4A5C), so -0x7F6C = 0x00761184 and -0x7DE0 = 0x00761310; both fall
@@ -320,6 +321,7 @@ iGpffffb614 = 0x00764704; // type:data evidence: retail func_003a16c0 sw $2,-0x4
 iGpffffbab0 = 0x00764ba0; // type:data evidence: retail func_004645e0 sw $0,-0x4550($28) (0x00764BA0), cleared beside iGpffffbab4; gp base 0x007690F0
 iGpffffbab4 = 0x00764ba4; // type:data evidence: retail func_004645e0 sw $2,-0x454C($28) (0x00764BA4) caching func_00431928's handle; gp base 0x007690F0
 iGpffffb460 = 0x00764550; // type:data evidence: retail func_001f9750 lw $2,-0x4BA0($28) (0x00764550); gp base 0x007690F0
+iGpffffb464 = 0x00764554; // type:data evidence: retail func_001f8480 sw $3,-0x4B9C($28); gp base 0x007690F0
 iGpffffb6d0 = 0x007647c0; // type:data evidence: retail func_003c3cc0 lw $4,-0x4930($28) (0x007647C0), a byte offset into D_008872E0; gp base 0x007690F0
 iGpffffb6d4 = 0x007647c4; // type:data evidence: retail func_003c3e10 lw/sw $3,-0x492C($28) (0x007647C4), a reference count; gp base 0x007690F0
 iGpffffb6e0 = 0x007647d0; // type:data evidence: retail func_003c40d0 lw $3,-0x4920($28) (0x007647D0), a byte offset into D_008872E0; gp base 0x007690F0
@@ -450,6 +452,7 @@ fGpffff80e8 = 0x007611d8; // type:data evidence: retail btlCamera func_001c73e0 
 iGpffff9f60 = 0x00763050; // type:data evidence: retail code1_0018 func_001838d0 GP -0x60a0; gp base 0x007690F0
 iGpffffb470 = 0x00764560; // type:data evidence: retail code1_0021 func_0021be60 lw gp -0x4b90 (0x00764560); gp base 0x007690F0
 iGpffff853c = 0x0076162c; // type:data evidence: retail code1_0015 GP -0x7ac4; gp base 0x007690F0
+iGpffff8538 = 0x00761628; // type:data evidence: retail func_00188940 lwc1 gp -0x7AC8; gp base 0x007690F0
 iGpffff830c = 0x007613fc; // type:data evidence: retail code1_0015 GP -0x7cf4; gp base 0x007690F0
 iGpffffb288 = 0x00764378; // type:data evidence: retail code1_0015 GP -0x4d78; gp base 0x007690F0
 iGpffffb28c = 0x0076437c; // type:data evidence: retail code1_0015 GP -0x4d74; gp base 0x007690F0

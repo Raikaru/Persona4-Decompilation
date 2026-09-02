@@ -2844,9 +2844,71 @@ loop_test_0014cef0:
 }
 /* measured: restore opt_loop_invariants off after func_0014cef0. */
 #pragma opt_loop_invariants off
-/* object 704B / window 704B / normalized_diff 468; differing offsets 0x20 onward (155 differing words). Classification: exact-size but broad instruction/register residual in generated candidate; callee declarations for func_001452b0 and func_0047a2f0 are verified, and adding func_00155280 declarations (block/file scope) did not improve it. Historical direct-literal variant unchanged. */
-// FUN_0014CFD0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014cfd0);
+// FUN_0014CFD0
+s32 func_0014cfd0(u8 *arg0)
+{
+    s32 temp_21;
+    s32 temp_20;
+    u16 temp_19;
+    s32 var_18;
+    s32 var_17;
+    s32 temp_16;
+    s32 temp_19_2;
+    s32 temp_16_2;
+    s32 temp_3;
+    u8 *var_19;
+    extern u8 *func_00155280(void);
+    {
+        f32 temp_f2;
+
+        temp_f2 = 600.0f;
+        temp_f2 += *(f32 *)(arg0 + 0);
+        var_18 = (s32)(temp_f2 / 1200.0f);
+    }
+    var_17 = (s32)((600.0f + *(f32 *)(arg0 + 8)) / 1200.0f);
+    temp_16 = var_17 << 8;
+    temp_21 = var_18 << 4;
+    temp_19 = *(u16 *)(func_00155280() + temp_16 + temp_21 + 0x56);
+    if ((*(u8 *)(func_00155280() + temp_16 + temp_21 + 0x58) != 9) &&
+        (*(u8 *)(func_00155280() + temp_16 + temp_21 + 0x58) != 0xB) &&
+        (*(u8 *)(func_00155280() + temp_16 + temp_21 + 0x58) != 0xD)) {
+        return 0;
+    }
+    if ((*(u8 *)(func_00155280() + temp_16 + temp_21 + 0x55) & 0x20) == 0) {
+        return 0;
+    }
+    temp_20 = temp_19;
+    if ((temp_20 == *(u16 *)(func_00155280() + temp_16 + temp_21 + 0x46)) &&
+        ((*(u8 *)(func_00155280() + temp_16 + temp_21 + 0x45) & 0x20) != 0)) {
+        var_18 -= 1;
+    }
+    temp_19_2 = var_18 * 0x10;
+    if ((temp_20 == *(u16 *)(func_00155280() + temp_16 + temp_19_2 - 0xAA)) &&
+        ((*(u8 *)(func_00155280() + temp_16 + temp_19_2 - 0xAB) & 0x20) != 0)) {
+        var_17 -= 1;
+    }
+    var_19 = func_001452b0(3);
+    goto loop_test_0014cfd0;
+loop_body_0014cfd0:
+    temp_16_2 = (s32)((600.0f +
+                       *(f32 *)(func_0047a2f0(*(s32 *)(var_19 + 0x164)) + 0x30)) /
+                      1200.0f);
+    temp_3 = (s32)((600.0f +
+                    *(f32 *)(func_0047a2f0(*(s32 *)(var_19 + 0x164)) + 0x38)) /
+                   1200.0f);
+    if (((temp_16_2 == var_18) && (temp_3 == var_17)) ||
+        ((temp_16_2 == (var_18 + 1)) && (temp_3 == var_17)) ||
+        ((temp_16_2 == var_18) && (temp_3 == (var_17 + 1))) ||
+        ((temp_16_2 == (var_18 + 1)) && (temp_3 == (var_17 + 1)))) {
+        return 1;
+    }
+    var_19 = *(u8 **)(var_19 + 0x138);
+loop_test_0014cfd0:
+    if (var_19 != NULL) {
+        goto loop_body_0014cfd0;
+    }
+    return 0;
+}
 // FUN_0014D290
 void func_0014d290(u8 *arg0, u8 *arg1)
 {

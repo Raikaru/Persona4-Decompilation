@@ -599,11 +599,104 @@ void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2)
 
 
 
-/* measured re-triage: corrected four-call body is complete but exceeds the
-   retail window by one word and retains the float argument-order/scheduling
-   residual. Best candidate: normalized_diff 376, object 676/672; discarded. */
 // FUN_00188940
-INCLUDE_ASM("asm/nonmatchings/k_fldLmap", func_00188940);
+void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f1;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    s32 temp_16;
+
+    temp_2 = func_00460990();
+    *(void (**)(void))(temp_2 + 8) = (void (*)(void))func_00187f50;
+    *(s32 *)(temp_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2);
+    temp_f0 = -45.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = -5.0f + *(f32 *)(arg1 + 4);
+    func_0025ecd0(
+        (f32)(s32)temp_f0,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8) - 10.0f,
+        0xFF0000,
+        0xFF,
+        0,
+        *(s32 *)(arg0 + 0x2C),
+        0,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_f0 = -45.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = 224.0f + *(f32 *)(arg1 + 4);
+    func_0025ecd0(
+        (f32)(s32)temp_f0,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8) - 10.0f,
+        0xFF0000,
+        0xFF,
+        1,
+        *(s32 *)(arg0 + 0x2C),
+        0,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+    temp_2_2 = func_00460990();
+    *(void (**)(void))(temp_2_2 + 8) = (void (*)(void))func_00188110;
+    *(s32 *)(temp_2_2 + 0x10) = 0;
+    func_00460ac0(D_00795E60, temp_2_2);
+    temp_f0 = 185.0f;
+    temp_f0 += *(f32 *)arg1;
+    temp_f1 = 0.0f;
+    func_0025ecd0(
+        (f32)(s32)temp_f0,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8) - 10.0f,
+        0xFFFFFF,
+        0,
+        7,
+        *(s32 *)(arg0 + 0x30),
+        0,
+        0,
+        0,
+        0,
+        iGpffff8538,
+        1.0f,
+        D_00795E60);
+    temp_16 = (arg2 ^ *(s32 *)(arg0 + 0x80)) != 0;
+    temp_16 *= 4;
+    temp_2 = (u8 *)(temp_16 + (s32)arg0);
+    temp_f1 = *(f32 *)(temp_2 + 0x88);
+    temp_f0_2 = *(f32 *)arg1 - 1.0f;
+    temp_f0_2 += temp_f1;
+    temp_f1 = *(f32 *)(arg1 + 4);
+    temp_f1 -= 1.0f;
+    temp_16 = arg2 * 4;
+    temp_2 = (u8 *)(temp_16 + (s32)arg0);
+    func_0025ecd0(
+        (f32)(s32)temp_f0_2,
+        (f32)(s32)temp_f1,
+        *(f32 *)(arg1 + 8),
+        0xFFFFFF,
+        0xFF,
+        0,
+        *(s32 *)(temp_2 + 0x38),
+        1,
+        0,
+        0,
+        0.0f,
+        1.0f,
+        1.0f,
+        D_00795E60);
+}
 
 // FUN_00188BE0
 /* measured: without opt_loop_invariants MWCC rematerializes the loop-invariant
