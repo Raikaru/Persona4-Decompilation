@@ -14,6 +14,7 @@ extern f32 fGpffff8198;
 extern f32 fGpffff8110;
 extern f32 fGpffff8100;
 extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
+extern f32 func_003e4180(f32 *arg0);
 extern void func_001bd560();
 extern void func_001958f0(u8 *arg0, f32 *arg1);
 extern f32 func_00196040(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5);
@@ -1253,4 +1254,74 @@ void func_001cfed0(u8 *arg0) {
     func_001cfad0(arg0, fGpffff8114, 2.5f);
 }
 // FUN_001CFF00
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cff00);
+void func_001cff00(u8 *arg0)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    struct Vec3 target;
+    struct Vec3 source;
+    struct {
+        f32 first[10];
+        u8 second[0x28];
+    } fr;
+    f32 speed;
+    f32 half_speed;
+    f32 scale;
+    f32 length;
+    f32 x;
+    f32 y;
+    f32 limit;
+    u8 *work;
+
+    func_001bd560(fr.first, arg0 + 0x9C);
+    work = *(u8 **)(*(u8 **)(arg0 + 0xE0) + 0x30);
+    func_00195850(work, (f32 *)&target);
+    target.y = *(f32 *)(work + 0x84) * *(f32 *)(work + 0x2C);
+    speed = *(f32 *)(work + 0x90) * *(f32 *)(work + 0x2C);
+    half_speed = (*(f32 *)(work + 0x8C) * *(f32 *)(work + 0x2C)) * 0.5f;
+    source = target;
+    source.y += half_speed * 0.25f;
+    if (speed > half_speed) {
+        scale = (3.0f * speed) /
+                func_0044b868(fGpffff8110 *
+                              (0.5f * *(f32 *)(arg0 + 0xB8)));
+    } else {
+        scale = (3.0f * half_speed) /
+                func_0044b868(0.5f * *(f32 *)(arg0 + 0xB8));
+    }
+    *(f32 *)(fr.second + 0x18) =
+        fr.first[0] - source.x;
+    *(f32 *)(fr.second + 0x1C) =
+        fr.first[1] - source.y;
+    *(f32 *)(fr.second + 0x20) =
+        fr.first[2] - source.z;
+    length = func_003e4180((f32 *)(fr.second + 0x18));
+    length *= fGpffff811c;
+    *(f32 *)(fr.second + 0x18) =
+        fr.first[0] - source.x;
+    *(f32 *)(fr.second + 0x1C) =
+        fr.first[1] - source.y;
+    *(f32 *)(fr.second + 0x20) =
+        fr.first[2] - source.z;
+    func_003e40b0((f32 *)(fr.second + 0x18),
+                  (f32 *)(fr.second + 0x18));
+    x = *(f32 *)(fr.second + 0x18) *
+        ((scale > length) ? scale : length);
+    y = *(f32 *)(fr.second + 0x1C) *
+        ((scale > length) ? scale : length);
+    scale = (scale > length) ? scale : length;
+    fr.first[7] = source.x + x;
+    fr.first[8] = source.y + y;
+    fr.first[9] = source.z +
+                      *(f32 *)(fr.second + 0x20) * scale;
+    limit = target.y + half_speed * 1.25f;
+    if (fr.first[8] < limit) {
+        fr.first[8] = limit;
+    }
+    func_001bd780(fr.second, &fr.first[7], &source, D_0060A0E0);
+    func_001bac20(arg0, fr.first, &fr.first[7], 1);
+    func_001bbef0(arg0, 4.5f);
+}
