@@ -612,6 +612,27 @@ reproduced, the remaining pair is the inner-test load landing in `$a1`
 rather than `$v0`, which no copy/type/declaration variant moved in
 isolation — whole-function pressure, still open).
 
+### Parameter parking moves — where they land is the temporary rule
+
+`func_00356170` (nd8, "independent prologue-order floor"): retail spills
+`$a0`/`$a1` to the stack and only then parks `$a2` into `$t1`; mwcc parks
+`$t1` at entry. A parked caller-saved temp is just a value becoming live,
+so name the copy where retail makes it live and stop the copy from being
+folded back into the parameter:
+
+```c
+#pragma opt_propagation off
+saved0[0] = arg0;      /* sd $a0 */
+saved1[0] = arg1;      /* sw $a1 */
+tmp2 = arg2;           /* move $t1,$a2 -- here, not at entry */
+var8 = arg3;           /* move $t0,$a3 */
+```
+
+Closed 96/96. It does NOT transfer to a park into a callee-saved register
+(`func_00117310`, `move $s0,$t0` before the `$a2`/`$a3` parks): there mwcc
+orders the `$sN` parks with `$t0` first regardless of source, and only a
+real conversion instruction moves it — see that archive.
+
 ## Globals and addressing
 
 - **Absolute globals outside the gp window** (read as `lui;lw` with HI16/LO16

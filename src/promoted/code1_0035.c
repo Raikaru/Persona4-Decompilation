@@ -979,8 +979,34 @@ void func_00356140(u8 *arg0)
    (`((u8 *)&arg1)[3]`) gives object 88B and nd 56, and an old-style K&R
    parameter list gives object 236B and nd 199. The array-staged ANSI body
    remains best. */
-// FUN_00356170 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_00356170);
+#pragma push
+/* measured: opt_propagation off keeps the arg2 parking move (move $t1,$a2)
+   after the two stack spills, where the source names the copy; with
+   propagation on mwcc parks it at entry. The "independent prologue-order
+   floor" was this. */
+#pragma opt_propagation off
+// FUN_00356170
+void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3,
+                   f32 f0, f32 f1, f32 f2)
+{
+    s64 saved0[1];
+    s32 saved1[1];
+    s32 var8;
+    s32 tmp2;
+    u8 sel;
+
+    saved0[0] = arg0;
+    saved1[0] = arg1;
+    tmp2 = arg2;
+    var8 = arg3;
+    sel = ((u8 *)saved1)[3];
+    if (sel != 0xFF) {
+        var8 = 0;
+    }
+    func_00365f00(f0, f1, f2, 1.0f, *(s64 *)((u8 *)saved0),
+                  *(s32 *)((u8 *)saved1), saved1[0], tmp2, var8, 1.0f);
+}
+#pragma pop
 /* measured: opt_propagation off probe for staged argument materialisation. */
 #pragma opt_propagation off
 /* measured: object 116B/window 128B; normalized_diff 0. Named call-argument

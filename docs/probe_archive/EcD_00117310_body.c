@@ -1,3 +1,8 @@
+// Main 2026-09-02: the sibling func_00356170 closed by naming the parked copy under opt_propagation off (temp registers).
+// Here the park goes to a callee-saved s0 and mwcc always emits it BEFORE the a2/a3 parks; 20 spellings measured
+// (copies, declaration orders, address-of-parameter spills, opt_propagation off, u32/s64/pointer types). The only
+// thing that moves it after a2/a3 is making it a real conversion (s64 param -> s32 local: dsll32/dsra32), which is two
+// words retail does not have. Address-of-parameter for arg1 (no packed local) does put sw a1 first like retail. Open.
 /* object 388B / window 400B / normalized_diff 4.
    Classification: genuine independent prologue-order floor (fifth member).
    Residual is four mutually independent PROLOGUE words at 0x30,0x34,0x38,0x3c:
