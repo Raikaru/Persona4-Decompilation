@@ -1246,7 +1246,127 @@ void func_001cf1f0(u8 *arg0)
 // FUN_001CF350
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cf350);
 // FUN_001CF730
-INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cf730);
+void func_001cf730(u8 *arg0)
+{
+    struct {
+        f32 sp40;
+        f32 sp44;
+        f32 sp48;
+        f32 sp4C;
+        f32 sp50;
+        f32 sp54;
+        f32 sp58;
+        f32 sp5C;
+        f32 sp60;
+        f32 sp64;
+        f32 sp68;
+        f32 sp6C;
+        f32 sp70;
+        f32 sp74;
+        u8 pad_to_80[8];
+        u8 sp80[0x40];
+        u8 pad_to_C8[8];
+        f32 spC8;
+        f32 spCC;
+        f32 spD0;
+        f32 spD4;
+        f32 spD8;
+        u8 pad_to_E0[4];
+        f32 spE0;
+        f32 spE4;
+        f32 spE8;
+        u8 pad_to_F0[4];
+        f32 spF0;
+        f32 spF4;
+        f32 spF8;
+        u8 pad_to_100[4];
+        f32 sp100;
+        f32 sp104;
+        f32 sp108;
+        u8 pad_to_110[4];
+        f32 sp110;
+        f32 sp114;
+        f32 sp118;
+        u8 pad_tail[4];
+    } frame;
+    u8 *work;
+    f32 var_f21;
+    f32 temp_f20;
+    f32 temp_f1;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 temp_f4;
+    extern f32 DAT_0076112c;
+    extern f32 fGpffff80e8;
+    extern u8 D_0060A100[];
+    extern f32 func_003e41e0(f32 *arg0, f32 *arg1);
+
+    work = *(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30);
+    var_f21 = func_00196040(2, 1, (u8 *)&frame.spD0, 0, 0, 1);
+    func_001958f0(work, &frame.sp110);
+    frame.sp100 = frame.sp110 - frame.spD0;
+    frame.sp104 = frame.sp114 - frame.spD4;
+    frame.sp108 = frame.sp118 - frame.spD8;
+    temp_f1 = DAT_0076112c * func_003e40b0(&frame.sp100, &frame.sp100);
+    frame.spF0 = frame.sp100 * temp_f1;
+    frame.spF4 = frame.sp104 * temp_f1;
+    frame.spF8 = frame.sp108 * temp_f1;
+    frame.spE0 = frame.spD0 + frame.spF0;
+    frame.spE4 = frame.spD4 + frame.spF4;
+    frame.spE8 = frame.spD8 + frame.spF8;
+    if (var_f21 < 450.0f) {
+        var_f21 = 450.0f;
+    }
+    temp_f20 = var_f21 / func_0044b868(fGpffff8110 *
+                                          (0.5f * *(f32 *)(arg0 + 0xB8)));
+    func_001c_rotate(frame.sp80, D_0060A0D0, 35.0f, 0);
+    func_003e4320(&frame.spF0, D_0060A100, frame.sp80);
+    func_003dcb40((s64 *)&frame.sp100, (s64 *)&frame.spF0, 1,
+                  (u8 *)(work + 0x1C));
+    frame.sp110 = frame.sp100 * var_f21;
+    frame.sp114 = frame.sp104 * var_f21;
+    frame.sp118 = frame.sp108 * var_f21;
+    func_001bd780(&frame.sp68, &frame.sp110, &frame.spE0, D_0060A0E0);
+    func_003dcb40((s64 *)&frame.spF0, (s64 *)D_0060A100, 1,
+                  (u8 *)&frame.sp68);
+    temp_f1 = 50.0f + temp_f20;
+    frame.sp100 = frame.spF0 * temp_f1;
+    frame.sp104 = frame.spF4 * temp_f1;
+    frame.sp108 = frame.spF8 * temp_f1;
+    var_f21 = temp_f20 * func_0044b868(fGpffff8110 *
+                                          (0.5f * *(f32 *)(arg0 + 0xB8)));
+    var_f21 = var_f21 * 0.21875f;
+    var_f21 = var_f21 * fGpffff80e8;
+    frame.spC8 = frame.sp100;
+    frame.spCC = frame.sp108;
+    func_003e41e0(&frame.spC8, &frame.spC8);
+    frame.spE0 = 0.0f + frame.spE0 + frame.spCC * var_f21;
+    frame.spE8 = 0.0f + frame.spE8 - frame.spC8 * var_f21;
+    frame.sp5C = frame.spE0 + frame.sp100;
+    frame.sp60 = frame.spE4 + frame.sp104;
+    frame.sp64 = frame.spE8 + frame.sp108;
+    temp_f1 = frame.sp68;
+    temp_f2 = frame.sp6C;
+    temp_f3 = frame.sp70;
+    temp_f4 = frame.sp74;
+    frame.sp4C = temp_f1;
+    frame.sp50 = temp_f2;
+    frame.sp54 = temp_f3;
+    frame.sp58 = temp_f4;
+    temp_f1 = temp_f20 - 50.0f;
+    temp_f2 = frame.spF0 * temp_f1;
+    frame.sp100 = temp_f2;
+    temp_f3 = frame.spF4 * temp_f1;
+    frame.sp104 = temp_f3;
+    temp_f4 = frame.spF8 * temp_f1;
+    frame.sp108 = temp_f4;
+    frame.sp40 = frame.spE0 + temp_f2;
+    frame.sp44 = frame.spE4 + temp_f3;
+    frame.sp48 = frame.spE8 + temp_f4;
+    func_001bcd40(NULL, NULL, NULL, 0.0f, 0x100);
+    func_001bac20(arg0, &frame.sp40, &frame.sp5C, 1);
+    func_001bbef0(arg0, 3.5f);
+}
 // FUN_001CFAD0
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001cfad0);
 // FUN_001CFED0
