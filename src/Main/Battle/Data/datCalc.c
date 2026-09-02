@@ -1990,7 +1990,68 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_002411a0);
    by func_00241de0 but unused in the body (prologue never saves it).
    s16-extension-pair floor, corroborated. */
 // FUN_00241BC0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00241bc0);
+#pragma push
+/* measured: opt_propagation off keeps arg2 raw in $s2 and the masked u16 in $s0;
+   per-use u16 casts for other masks avoid the 0xffff constant cache. */
+#pragma opt_propagation off
+s32 func_00241bc0(arg0, arg1, arg2, arg3, arg4)
+u8 *arg0;
+u8 *arg1;
+s32 arg2;
+s32 arg3;
+s32 arg4;
+{
+    u16 idx;
+    u32 offset;
+    u8 *base;
+    u8 *entry;
+    u32 flag1;
+    s16 value;
+
+    idx = (u16)arg2;
+    if (idx >= 0x1B8) {
+        func_0046d730(D_00635938, 0x1305);
+    }
+    flag1 = *(u32 *)(arg1 + 0xC);
+    if (((u32)((flag1 & 0x100000) != 0) != 0)) {
+        return 0;
+    }
+    if ((u16)arg3 != 1) {
+        return 0;
+    }
+    if ((*(u16 *)arg1 & 8)) {
+        return 0;
+    }
+    offset = (u32)(u16)arg2 * 0x28;
+    base = iGpffffb3b8;
+    entry = (u8 *)(offset + (u32)base);
+    if (entry[0x11] == 0 && (entry[0x18] != 1 || ((*(u32 *)(entry + 0x1C) & 0x80000) == 0))) {
+        return 0;
+    }
+    if (arg0 != 0 && idx < 0x1B8 && ((*(u8 *)(base + offset) & 2))) {
+        if ((*(u16 *)arg0 & 4)) {            s32 partyOffset;
+            u8 *partyPtr;
+
+            partyOffset = (s32)(*(u16 *)(arg0 + 2) * 0x3C);
+            partyPtr = (u8 *)(partyOffset + (s32)iGpffffb3c4);
+            value = (s16)partyPtr[0x38];
+        } else {
+            value = (s16)func_00106a30((s16)(func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
+        }
+    } else {
+        value = *(s8 *)(iGpffffb3cc + (u32)(u16)arg2 * 2);
+    }
+    if (value >= 0x13) {
+        func_0046d730(D_00635938, 0xE47);
+    }
+    if (((1 << (value + 1)) & 0xE0001) == 0) {
+        goto one;
+    }
+    return 0;
+one:
+    return 1;
+}
+#pragma pop
 // FUN_00241DE0
 s32 func_00241de0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
 {

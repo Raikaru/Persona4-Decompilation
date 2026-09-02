@@ -257,7 +257,80 @@ s32 func_0044ef70(s32 arg0, s32 arg1, s32 arg2)
    min-size, GP-relative strings) is correct; same saved-register rotation family
    as func_0044ec60/func_0044f3a0/func_0044ef70. */
 // FUN_0044F140
-INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044f140);
+#pragma push
+/* measured: opt_propagation off preserves retail saved-register mapping and join-block layout. */
+#pragma opt_propagation off
+s32 func_0044f140(void *arg0, u32 arg1)
+{
+    u32 var_18;
+    s32 temp_2;
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_2_2;
+    s32 temp_16_2;
+    s32 temp_17_2;
+    s32 temp_21;
+    s32 temp_23;
+    s32 **temp_3;
+    s32 work;
+    s32 result;
+    s32 *temp_18;
+
+    temp_21 = func_0042ba20();
+    if (arg0 == NULL) {
+        temp_17 = func_0042ba20();
+        if (arg1 == 0) {
+            func_0046d730(D_007104E0, 0x653);
+        }
+        temp_16 = (arg1 + 0x37) & ~0xF;
+        temp_2 = func_0043ece8(temp_16);
+        if (temp_2 == 0) {
+            func_0046d700(D_007104E0, 0x65F, D_007104F0,
+                          D_00763D1C->bytes, arg1);
+        }
+        work = func_0044eaa0(temp_2, temp_16, 0x10, 0);
+        if (temp_17 != 0) {
+            func_0042ba70();
+        }
+        result = work;
+    } else {
+        temp_3 = (s32 **)((u8 *)arg0 - 4);
+        var_18 = **temp_3;
+        if (arg1 < var_18) {
+            var_18 = arg1;
+        }
+        temp_23 = func_0042ba20();
+        if (arg1 == 0) {
+            func_0046d730(D_007104E0, 0x653);
+        }
+        temp_16_2 = (arg1 + 0x37) & ~0xF;
+        temp_2_2 = func_0043ece8(temp_16_2);
+        if (temp_2_2 == 0) {
+            func_0046d700(D_007104E0, 0x65F, D_007104F0,
+                          D_00763D1C->bytes, arg1);
+        }
+        work = func_0044eaa0(temp_2_2, temp_16_2, 0x10, 0);
+        if (temp_23 != 0) {
+            func_0042ba70();
+        }
+        func_0043f810((void *)work, arg0, var_18);
+        temp_17_2 = func_0042ba20();
+        if (arg0 == NULL) {
+            func_0046d730(D_007104E0, 0x670);
+        }
+        temp_18 = *temp_3;
+        func_0043ed08(func_0044e9e0((void *)(u64)temp_18));
+        if (temp_17_2 != 0) {
+            func_0042ba70();
+        }
+        result = work;
+    }
+    if (temp_21 != 0) {
+        func_0042ba70();
+    }
+    return result;
+}
+#pragma pop
 // FUN_0044F3A0
 s32 func_0044f3a0(s32 arg0, s32 arg1)
 {
