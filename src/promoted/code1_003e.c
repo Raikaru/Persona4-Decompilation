@@ -2440,8 +2440,44 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8a50);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8b10);
 // FUN_003E8C60
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8c60);
-// FUN_003E8DC0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8dc0);
+/* measured: the reload of the slot before the branch is a store-to-load forwarding
+   that b210 does as a peephole; peephole off keeps it (the archive left this open).
+   Under peephole off the redundant-lui merge is gone too, so the list head is
+   written through a pointer local and D_008873A0 through its own symbol. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma peephole off
+// FUN_003E8DC0
+s32 func_003e8dc0(s32 arg0, s32 arg1)
+{
+    extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
+    extern s32 iGpffffab94;
+    extern s32 iGpffffab98;
+    extern u8 D_0088B2E0[];
+    extern u8 *D_0088739C[];
+    extern u8 *D_008873A0[];
+    s32 *slot;
+    s32 result;
+    u8 *head;
+
+    iGpffffb7c0 = arg1;
+    result = func_003e1220(*(s32 *)D_0070B7A0, iGpffffab94, 0x10, iGpffffab98, D_0088B2E0, 0x4000E);
+    slot = (s32 *)(D_008872E0 + iGpffffb7c0);
+    *slot = result;
+    result = *slot;
+    if (result == 0) {
+        return 0;
+    }
+    head = (u8 *)D_0088739C;
+    D_008873A0[0] = head;
+    *(u8 **)head = head;
+    iGpffffb7c4 += 1;
+    return arg0;
+}
+/* measured: closes the peephole/no_branch_likely/schedule bracket for func_003e8dc0. */
+#pragma peephole on
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003E8E60
 /* measured: schedule/no_branch_likely bracket retained for func_003e8e60. */
 #pragma schedule on
