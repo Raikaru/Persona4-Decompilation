@@ -1201,6 +1201,13 @@ variants is wasted time.
   park). Second exclusive case: `func_003d0460` - the same `peephole off`
   that keeps its six `*arg1` reloads removes retail's tail-merge branch into
   the epilogue with `ld $ra` in the delay slot (archived at nd34).
+- **A call result used directly as an argument and parked across an inner
+  call takes the LOWEST saved register, below declared locals.** Retail
+  `obj=$s1, colour=$s0` (`func_0032c480`, y_fclCombineDraw.c) is not reachable
+  by declaring `colour` in any order or scope (every permutation gives
+  `obj=$s0`); writing `func_00275820(func_002b2a30(0, 0, 0, 0xFF), ...)` with
+  the inner `func_002e48a0` call in a later argument parks the result in `$s0`
+  under the declared `obj`. Took that function from nd31 to nd13.
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
   loop (or the reverse — see the `opt_loop_invariants` waiver in
