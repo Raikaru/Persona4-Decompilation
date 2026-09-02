@@ -483,7 +483,7 @@ def _mwccgap_command(cpath: Path, cfg: dict, output: Path) -> list[str]:
         "--asm-dir-prefix", str(REPO),
         "--macro-inc-path", str(REPO / "asm" / "macro.inc"),
         "--as-march", "r5900", "--as-mabi", "eabi",
-        *cfg["compile_flags"],
+        *unit_compile_flags(cpath, cfg["compile_flags"]),
     ]
     as_path = cfg.get("as_path") or os.environ.get("P4_AS")
     if as_path:
@@ -533,6 +533,43 @@ def is_gcc_unit(cpath: Path) -> bool:
         return cpath.resolve().relative_to(REPO).as_posix() in gcc_units()
     except ValueError:
         return False
+
+
+# A second per-unit split, this time inside MWCC: retail built some translation
+# units with the "optimize for speed" variant (`-O2,p`).  It is a command-line
+# state -- no #pragma spelling reaches it, and it survives a later `#pragma
+# optimization_level N` -- so it has to be carried per unit.  Measured
+# 2026-09-02: a global `-O2,p` verify loses 962 matched functions, while the
+# units in config/speed_units.txt lose none and only they show the `,p`
+# signature (an alignment nop after a filled back-edge delay slot).
+SPEED_UNITS_PATH = REPO / "config" / "speed_units.txt"
+_SPEED_UNITS: set[str] | None = None
+
+
+def speed_units() -> set[str]:
+    global _SPEED_UNITS
+    if _SPEED_UNITS is None:
+        _SPEED_UNITS = set()
+        if SPEED_UNITS_PATH.is_file():
+            for line in SPEED_UNITS_PATH.read_text().splitlines():
+                line = line.split("#", 1)[0].strip()
+                if line:
+                    _SPEED_UNITS.add(line)
+    return _SPEED_UNITS
+
+
+def is_speed_unit(cpath: Path) -> bool:
+    try:
+        return cpath.resolve().relative_to(REPO).as_posix() in speed_units()
+    except ValueError:
+        return False
+
+
+def unit_compile_flags(cpath: Path, flags: list[str]) -> list[str]:
+    """`-O<n>` becomes `-O<n>,p` for speed units; everything else is unchanged."""
+    if not is_speed_unit(cpath):
+        return list(flags)
+    return [f + ",p" if re.fullmatch(r"-O[0-4]", f) else f for f in flags]
 
 
 def _compile_gcc(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
