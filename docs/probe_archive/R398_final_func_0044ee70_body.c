@@ -1,3 +1,8 @@
+/* Re-measured 2026-09-02 (Main, isolation harness, 18 spellings): b210 always emits `move $a0,$v0`
+   before `sh $zero,8($v0)` when the call result is stored through and then passed - comma
+   argument, inline clear helper, struct-typed node, void*/s32 pointer types, second alias,
+   old-style callee, opt_propagation off all identical; `schedule on` moves the copy into the
+   jal delay slot (retail has a nop there). Store-before-argument-move floor. */
 /* object 256 / window 256 / normalized_diff 6; differing offsets 0xC8 and 0xCC (retail sh $0,8($v0) then daddu $a0,$v0,$0; candidate reverses those words). Best candidate retained after clause-1 audit: func_0046d730 receives D_007104E0 in $a0 and 0x670 in $a1; func_0044e920 uses only the block+0xC $a0 argument. Clause 2 does not apply (no constant is both stored and passed). Typed/old-style prototypes, u16 store, and post-store pointer split remained nd 6; classify as independent-instruction hazard scheduling. */
 void func_0044ee70(u8 *arg0)
 {
