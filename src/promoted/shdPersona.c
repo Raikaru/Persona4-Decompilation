@@ -1108,7 +1108,57 @@ void func_0011aaa0(u8 *arg0, u32 arg1)
    register allocation. opt_propagation off (FLYDraw's lever) is NOT
    applicable here — multi-use loop, not a single-use base wrapper. */
 // FUN_0011AC70
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ac70);
+void func_0011ac70(u8 *arg0)
+{
+    f32 diff;
+    f32 f_abs;
+    f32 acc;
+    f32 ratio;
+    f32 base;
+    f32 delta;
+    s32 i;
+    s32 a;
+    s32 b;
+    s32 total;
+    s16 raw2;
+
+    for (i = 0; i < 0xA; i++) {
+        {
+            s16 raw;
+            raw = *(s16 *)(arg0 + 0x508);
+            if ((f32)raw < *(f32 *)(arg0 + i * 36 + 0x2E8)) {
+                ratio = 0.0f;
+            } else {
+                if ((f32)raw > *(f32 *)(arg0 + i * 36 + 0x2EC)) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = func_0044b7b0(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
+                }
+            }
+        }
+        base = *(f32 *)((s32)arg0 + i * 36 + 0x2CC);
+        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D4) - base;
+        *(f32 *)((s32)arg0 + i * 36 + 0x2DC) = base + ratio * delta;
+        base = *(f32 *)((s32)arg0 + i * 36 + 0x2D0);
+        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D8) - base;
+        *(f32 *)((s32)arg0 + i * 36 + 0x2E0) = base + ratio * delta;
+        a = *(u8 *)((s32)arg0 + i * 36 + 0x2E4);
+        b = *(u8 *)((s32)arg0 + i * 36 + 0x2E5);
+        diff = (f32)(b - a);
+        f_abs = (f32)(u32)a;
+        acc = f_abs + ratio * diff;
+        *(u8 *)((s32)arg0 + i * 36 + 0x2E6) = (u8)acc;
+    }
+    total = *(s32 *)(arg0 + 0x50C);
+    raw2 = *(s16 *)(arg0 + 0x508);
+    if (raw2 < total) {
+        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x504) +
+            (raw2 * (*(u8 *)(arg0 + 0x506) - *(u8 *)(arg0 + 0x504))) / total;
+    } else {
+        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x506);
+        *(s32 *)(arg0 + 0x534) &= ~2;
+    }
+}
 
 
 
@@ -1129,8 +1179,73 @@ extern f32 iGpffff8094;
    the post-loop differs: 0x510 vs 0x50C and the four chained mask clears
    ~4/~0x80000/~0x200000/~0x800000 + the 0x505==0 ?? 0x400000 clear/or).
    opt_propagation off (FLYDraw) does NOT apply — multi-use loop base. */
+#pragma push
+/* measured: opt_propagation off reproduces the retail loop's halfword/float
+   load order. The float-to-byte tail is a plain `(u8)acc` cast: the compiler's
+   own float->unsigned sequence lands in $a0 like retail; hand-expanding the
+   2^31 branch (the old "output-GPR floor") is what moved it to $v1. */
+#pragma opt_propagation off
 // FUN_0011AE90
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011ae90);
+void func_0011ae90(u8 *arg0)
+{
+    f32 diff;
+    f32 f_abs;
+    f32 acc;
+    f32 ratio;
+    f32 base;
+    f32 delta;
+    s32 i;
+    s32 a;
+    s32 b;
+    s32 total;
+    s16 raw2;
+
+    for (i = 0; i < 0xA; i++) {
+        {
+            s16 raw;
+            raw = *(s16 *)(arg0 + 0x508);
+            if ((f32)raw < *(f32 *)(arg0 + i * 36 + 0x2E8)) {
+                ratio = 0.0f;
+            } else {
+                if ((f32)raw > *(f32 *)(arg0 + i * 36 + 0x2EC)) {
+                    ratio = 1.0f;
+                } else {
+                    ratio = func_0044b7b0(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
+                }
+            }
+        }
+        base = *(f32 *)((s32)arg0 + i * 36 + 0x2CC);
+        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D4) - base;
+        *(f32 *)((s32)arg0 + i * 36 + 0x2DC) = base + ratio * delta;
+        base = *(f32 *)((s32)arg0 + i * 36 + 0x2D0);
+        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D8) - base;
+        *(f32 *)((s32)arg0 + i * 36 + 0x2E0) = base + ratio * delta;
+        a = *(u8 *)((s32)arg0 + i * 36 + 0x2E4);
+        b = *(u8 *)((s32)arg0 + i * 36 + 0x2E5);
+        diff = (f32)(b - a);
+        f_abs = (f32)(u32)a;
+        acc = f_abs + ratio * diff;
+        *(u8 *)((s32)arg0 + i * 36 + 0x2E6) = (u8)acc;
+    }
+    total = *(s32 *)(arg0 + 0x510);
+    raw2 = *(s16 *)(arg0 + 0x508);
+    if (raw2 < total) {
+        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x504) +
+            (raw2 * (*(u8 *)(arg0 + 0x506) - *(u8 *)(arg0 + 0x504))) / total;
+    } else {
+        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x506);
+        *(s32 *)(arg0 + 0x534) &= ~4;
+        *(s32 *)(arg0 + 0x534) &= ~0x80000;
+        *(s32 *)(arg0 + 0x534) &= ~0x200000;
+        *(s32 *)(arg0 + 0x534) &= ~0x800000;
+        if (*(u8 *)(arg0 + 0x505) == 0) {
+            *(s32 *)(arg0 + 0x534) &= ~1;
+        } else {
+            *(s32 *)(arg0 + 0x534) |= 0x400000;
+        }
+    }
+}
+#pragma pop
 
 
 
@@ -2106,8 +2221,37 @@ void func_0011c6e0(u8 *arg0, s32 arg1)
    reproduces retail's top lh/lwc1 order. Remaining: output GPR colouring
    ($v1 vs retail $a0) at 0x130/0x138/0x154/0x158/0x15C, plus the
    relocation-owned GP word at 0x06C. */
-// FUN_0011C780 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
+#pragma push
+/* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
+   the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
+#pragma opt_propagation off
+// FUN_0011C780
+void func_0011c780(u8 *arg0)
+{
+    f32 diff;
+    f32 f_abs;
+    f32 acc;
+    f32 ratio;
+    f32 lo;
+    f32 hi;
+    f32 base;
+    f32 delta;
+    s32 a;
+    s32 b;
+    s16 raw;
+    raw = *(s16 *)(arg0 + 0x514);
+    lo = *(f32 *)(arg0 + 0x450);
+    ratio = (f32)raw;
+    if (ratio < lo) ratio = 0.0f;
+    else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
+    base = *(f32 *)(arg0 + 0x434); delta = *(f32 *)(arg0 + 0x43C) - base; *(f32 *)(arg0 + 0x444) = base + ratio * delta;
+    base = *(f32 *)(arg0 + 0x438); delta = *(f32 *)(arg0 + 0x440) - base; *(f32 *)(arg0 + 0x448) = base + ratio * delta;
+    a = *(u8 *)(arg0 + 0x44C); b = *(u8 *)(arg0 + 0x44D); diff = (f32)(b - a); f_abs = (f32)(u32)a;
+    acc = f_abs + ratio * diff;
+    *(u8 *)(arg0 + 0x44E) = (u8)acc;
+    if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) *(s32 *)(arg0 + 0x534) &= ~0x1000;
+}
+#pragma pop
 /* measured: rule 2 confirmed — with the multiplications written ratio-first
    (`base + ratio * delta`, `f + ratio * diff`), the adda.s/madd.s pairs match
    retail byte-for-byte (madd.s $f1,$f0,$f3). Best nd 15 (obj 448B / window
@@ -2143,8 +2287,22 @@ INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c780);
    coloring. Retail parameter audit uses only `$a0` (arg0); no hidden args or
    mixed-class order. Direct stores, raw staging, declaration reorder, and
    pragma alternatives were ruled out. */
-// FUN_0011C930 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011c930);
+#pragma push
+/* measured: opt_propagation off reproduces the retail lh/lwc1 prologue order;
+   the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
+#pragma opt_propagation off
+// FUN_0011C930
+void func_0011c930(u8 *arg0)
+{ s32 a; s32 b; s16 raw; f32 diff; f32 f_abs; f32 acc; f32 ratio; f32 lo; f32 hi; f32 base; f32 delta;
+    raw = *(s16 *)(arg0 + 0x514); lo = *(f32 *)(arg0 + 0x450); ratio = (f32)raw;
+    if (ratio < lo) ratio = 0.0f; else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = func_0044b7b0(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
+    base = *(f32 *)(arg0 + 0x434); delta = *(f32 *)(arg0 + 0x43C) - base; *(f32 *)(arg0 + 0x444) = base + ratio * delta;
+    base = *(f32 *)(arg0 + 0x438); delta = *(f32 *)(arg0 + 0x440) - base; *(f32 *)(arg0 + 0x448) = base + ratio * delta;
+    a = *(u8 *)(arg0 + 0x44C); b = *(u8 *)(arg0 + 0x44D); diff = (f32)(b - a); f_abs = (f32)(u32)a; acc = f_abs + ratio * diff;
+    *(u8 *)(arg0 + 0x44E) = (u8)acc;
+    if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) { *(s32 *)(arg0 + 0x534) &= ~0x800; *(s32 *)(arg0 + 0x534) &= ~0x2000; *(s8 *)(arg0 + 0x88) = -1; }
+}
+#pragma pop
 // FUN_0011CAF0
 void func_0011caf0(u8 *arg0)
 {

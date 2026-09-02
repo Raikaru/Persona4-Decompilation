@@ -1281,7 +1281,89 @@ s32 func_00166c80(u8 *arg0)
    copies interleave lbu/sb. The madd.s (175+70x) and msub.s (37-10x,
    255-200x) fused expressions and the 0x28 store match. */
 // FUN_00166E30
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00166e30);
+s32 func_00166e30(u8 *arg0)
+{
+    u8 sp4C[4];
+    u8 sp48[4];
+    u8 sp44[4];
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f1_3;
+    f32 temp_f20;
+    s32 temp_3;
+    u8 temp_3_2;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_2;
+    u8 *temp_4;
+    u8 *var_17;
+    u8 temp_byte0;
+    u8 temp_byte1;
+    u8 temp_byte2;
+    u8 temp_byte3;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_f20 = func_0044b7b0(D_007613EC *
+                             (f32)(*(s32 *)(temp_16 + 8)) /
+                             (f32)(*(s32 *)(temp_16 + 0xC)));
+    temp_2 = func_0047a250(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x50));
+    temp_byte0 = *temp_2++;
+    temp_byte1 = *temp_2++;
+    temp_byte2 = *temp_2++;
+    temp_byte3 = *temp_2++;
+    sp4C[0] = temp_byte0;
+    sp4C[1] = temp_byte1;
+    sp4C[2] = temp_byte2;
+    sp4C[3] = temp_byte3;
+    *(s32 *)(temp_16 + 0xC) = 0x28;
+    temp_f1 = (175.0f + 0.0f) + (70.0f * temp_f20);
+    sp4C[0] = (u8)temp_f1;
+    temp_f1_2 = (37.0f + 0.0f) - (10.0f * temp_f20);
+    sp4C[1] = (u8)temp_f1_2;
+    temp_f1_3 = (255.0f + 0.0f) - (208.0f * temp_f20);
+    sp4C[2] = (u8)temp_f1_3;
+    temp_3 = *(s32 *)(temp_16 + 8) + 1;
+    *(s32 *)(temp_16 + 8) = temp_3;
+    if (*(s32 *)(temp_16 + 0xC) < temp_3) {
+        *(s32 *)(temp_16 + 8) = 0;
+    }
+    temp_4 = *(u8 **)(temp_16 + 4);
+    temp_3_2 = *(u8 *)(temp_4 + 0x1CA);
+    if (temp_3_2 == 0) {
+        var_17 = *(u8 **)(*(u8 **)(temp_4 + 0x50) + 0x2CC);
+        var_17 = *(u8 **)var_17;
+        goto loop_16_check;
+loop_16_body:
+        if (*(s32 *)(var_17 + 8) != 0) {
+            func_004b14f0(*(u8 **)(var_17 + 8), sp48);
+            sp48[0] = 0xFF;
+            sp48[1] = 0xFF;
+            sp48[2] = 0xFF;
+            func_004b13f0(*(u8 **)(var_17 + 8), sp48);
+        }
+        var_17 = *(u8 **)(var_17 + 0x10);
+loop_16_check:
+        if (var_17 == NULL) {
+            goto mode_done;
+        }
+        goto loop_16_body;
+    } else if (temp_3_2 == 1) {
+        temp_17 = *(u8 **)(*(u8 **)(temp_4 + 0x50) + 0x2CC);
+        temp_17 = *(u8 **)temp_17;
+        temp_17 = *(u8 **)(temp_17 + 0x10);
+        temp_17 = *(u8 **)(temp_17 + 0x10);
+        if (*(s32 *)(temp_17 + 8) != 0) {
+            func_004b14f0(*(u8 **)(temp_17 + 8), sp44);
+            sp44[0] = sp4C[0];
+            sp44[1] = sp4C[1];
+            sp44[2] = sp4C[2];
+            func_004b13f0(*(u8 **)(temp_17 + 8), sp44);
+        }
+    }
+mode_done:
+    func_0047a220(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x50), sp4C);
+    return 0;
+}
 
 
 
@@ -1300,7 +1382,89 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00166e30);
    198+57*f20, mul.s 100*f20, the f20 spill at 0x0, byte copies, node loops,
    func_0047a220 tail) matches. */
 // FUN_00167120
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167120);
+s32 func_00167120(u8 *arg0)
+{
+    u8 sp4C[4];
+    u8 sp48[4];
+    u8 sp44[4];
+    f32 byte0;
+    f32 temp_f1;
+    f32 temp_f1_2;
+    f32 temp_f20;
+    s32 temp_3;
+    u8 temp_3_2;
+    u8 *temp_16;
+    u8 *temp_17;
+    u8 *temp_2;
+    u8 *temp_4;
+    u8 *var_17;
+    u8 temp_byte0;
+    u8 temp_byte1;
+    u8 temp_byte2;
+    u8 temp_byte3;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    temp_f20 = func_0044b7b0(D_007613EC *
+                             (f32)(*(s32 *)(temp_16 + 8)) /
+                             (f32)(*(s32 *)(temp_16 + 0xC)));
+    temp_2 = func_0047a250(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x50));
+    temp_byte0 = *temp_2++;
+    temp_byte1 = *temp_2++;
+    temp_byte2 = *temp_2++;
+    temp_byte3 = *temp_2++;
+    sp4C[0] = temp_byte0;
+    sp4C[1] = temp_byte1;
+    sp4C[2] = temp_byte2;
+    sp4C[3] = temp_byte3;
+    *(s32 *)(temp_16 + 0xC) = 0x14;
+    byte0 = 255.0f;
+    sp4C[0] = (u8)byte0;
+    temp_f1 = (198.0f + 0.0f) + (57.0f * temp_f20);
+    sp4C[1] = (u8)temp_f1;
+    temp_f1_2 = 100.0f * temp_f20;
+    sp4C[2] = (u8)temp_f1_2;
+    temp_3 = *(s32 *)(temp_16 + 8) + 1;
+    *(s32 *)(temp_16 + 8) = temp_3;
+    if (*(s32 *)(temp_16 + 0xC) < temp_3) {
+        *(s32 *)(temp_16 + 8) = 0;
+    }
+    temp_4 = *(u8 **)(temp_16 + 4);
+    temp_3_2 = *(u8 *)(temp_4 + 0x1CA);
+    if (temp_3_2 == 0) {
+        var_17 = *(u8 **)(*(u8 **)(temp_4 + 0x50) + 0x2CC);
+        var_17 = *(u8 **)var_17;
+        goto loop_16_check;
+loop_16_body:
+        if (*(s32 *)(var_17 + 8) != 0) {
+            func_004b14f0(*(u8 **)(var_17 + 8), sp48);
+            sp48[0] = 0xFF;
+            sp48[1] = 0xFF;
+            sp48[2] = 0xFF;
+            func_004b13f0(*(u8 **)(var_17 + 8), sp48);
+        }
+        var_17 = *(u8 **)(var_17 + 0x10);
+loop_16_check:
+        if (var_17 == NULL) {
+            goto mode_done;
+        }
+        goto loop_16_body;
+    } else if (temp_3_2 == 1) {
+        temp_17 = *(u8 **)(*(u8 **)(temp_4 + 0x50) + 0x2CC);
+        temp_17 = *(u8 **)temp_17;
+        temp_17 = *(u8 **)(temp_17 + 0x10);
+        temp_17 = *(u8 **)(temp_17 + 0x10);
+        if (*(s32 *)(temp_17 + 8) != 0) {
+            func_004b14f0(*(u8 **)(temp_17 + 8), sp44);
+            sp44[0] = sp4C[0];
+            sp44[1] = sp4C[1];
+            sp44[2] = sp4C[2];
+            func_004b13f0(*(u8 **)(temp_17 + 8), sp44);
+        }
+    }
+mode_done:
+    func_0047a220(*(s32 *)(*(u8 **)(temp_16 + 4) + 0x50), sp4C);
+    return 0;
+}
 
 
 
