@@ -1723,26 +1723,159 @@ extern s32 func_00442948(const void *param_1);
 
 
 
-/* measured: nd124. mwcc b210 places the sp8C/sp8D stack bytes at 0x8f (top
-   byte) with s8 locals; declaring `int sp8` + (s8*)&sp8 fixes the 0x8c slot.
-   Remaining: zero-loop ptr/counter registers (v1/a0 vs a0/v1), outer loop
-   check-at-top vs retail's b-to-bottom, func_00273650 bodies inline vs
-   retail's out-of-line - all layout/alloc floors (like FUN_00273F70). */
+/* measured: MATCH. no_branch_likely on with opt_rebuildconditionals off
+   preserves the retail positive helper branches and natural relink loop;
+   typed node/child locals preserve the field offsets and tail allocation. */
 // FUN_00273CC0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00273cc0);
-/* measured: retail places the if(temp_5 != 0){func_00273650 call} body
-   OUT-OF-LINE with a positive branch (bnez $a1,Lbody; b Lafter; Lbody:
-   call; Lafter: sw) - nd49 with the whole tail shifted; mwcc b210 compiles
-   the same call inline-with-negated-skip (beqz) in every spelling tried
-   (plain if, switch case0/default in both declaration orders, empty-if +
-   else). The remaining 48 words are the resulting layout shift only.
-   If-body placement floor. Re-tested wave 14 (fresh m2c reconstruction with
-   D_007645B4/&D_00763838 globals, nd51): #pragma opt_propagation off (lever
-   2) and the goto out-of-line form both leave nd51 - b210 still inlines the
-   func_00273650 call block with beqz, retail branches positively to it. The
-   assert-branch (if arg0->0x14 && arg0->0x14->0x1C==0) and the register map
-   (retail var_18=$s2, mwcc $s1) also rotate. If-body placement + saved-
-   register rotation floors. */
+#pragma push
+#pragma no_branch_likely on
+#pragma opt_rebuildconditionals off
+void func_00273cc0(u8 *arg0, u8 *arg1)
+{
+    extern s32 func_00442948(const void *param_1);
+    extern s8 iGpffffa748;
+    struct FrFontNode3 {
+        u8 unknown_00[0x1C];
+        s32 flag_1C;
+        u8 unknown_20[4];
+        struct FrFontNode3 *next;
+    };
+    struct FrFontChild3 {
+        u8 unknown_00[0x28];
+        struct FrFontChild3 *next;
+    };
+    union {
+        s32 value;
+        s8 bytes[4];
+    } sp8;
+    s32 temp_22;
+    s32 var_18;
+    s8 *var_4;
+    s32 var_3;
+    s32 var_4_2;
+    s64 temp_17;
+    s8 temp_21_2;
+    s64 temp_3;
+    s8 var_16;
+    u8 temp_21;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_2_3;
+    struct FrFontNode3 *var_16_2;
+    struct FrFontNode3 *var_16_4;
+    struct FrFontNode3 *var_16_3;
+    struct FrFontChild3 *var_5;
+
+    var_4 = sp8.bytes;
+    var_3 = 3;
+    if (var_4 != NULL) {
+        do {
+            *var_4 = 0;
+            var_4 += 1;
+            var_3 -= 1;
+        } while (var_3 != 0);
+    }
+    if (arg0 != NULL) {
+        temp_22 = func_00442948(arg0);
+        var_16 = *(s8 *)(arg1 + 0xC);
+        var_18 = 0;
+        goto loop_test_30;
+loop_body_30:
+            temp_3 = *(s8 *)(arg0 + var_18);
+            sp8.bytes[0] = temp_3;
+            if (temp_3 == 0x20) {
+                sp8.bytes[0] = -0x7D;
+                sp8.bytes[1] = -0xA;
+            } else {
+                sp8.bytes[1] = 0;
+                if (((((s64)temp_3 << 56) >> 56) & 0xFF) >= 0x80) {
+                    var_18 += 1;
+                    sp8.bytes[1] = *(s8 *)(arg0 + var_18);
+                }
+            }
+            temp_17 = *(s8 *)(arg1 + 0xC);
+            if (temp_17 != (s64)var_16) {
+                var_16_2 = (struct FrFontNode3 *)*(u8 **)(arg1 + 0x14);
+                if (var_16_2 == NULL) {
+                    goto null_node_1;
+                }
+                if (var_16_2->flag_1C == 0) {
+                    goto common_node_1;
+                }
+                temp_2 = func_002724d0((u8 *)&iGpffffa748, 0,
+                                       *(s8 *)(arg1 + 0xD),
+                                       *(s8 *)(arg1 + 0xE), NULL);
+                if (temp_2 != NULL) {
+                    goto call_node_1;
+                }
+                var_16_4 = var_16_2;
+                goto store_node_1;
+call_node_1:
+                var_16_4 = (struct FrFontNode3 *)func_00273650(
+                    (s32)var_16_2, (s32)temp_2, 1);
+                goto store_node_1;
+store_node_1:
+                var_16_2 = var_16_4;
+                *(u8 **)(arg1 + 0x14) = (u8 *)var_16_2;
+                goto common_node_1;
+null_node_1:
+                temp_2_2 = func_002724d0((u8 *)&iGpffffa748, 0,
+                                         *(s8 *)(arg1 + 0xD),
+                                         *(s8 *)(arg1 + 0xE), NULL);
+                if (temp_2_2 != NULL) {
+                    goto call_node_2;
+                }
+                var_16_4 = var_16_2;
+                goto store_node_2;
+call_node_2:
+                var_16_4 = (struct FrFontNode3 *)func_00273650(
+                    (s32)var_16_2, (s32)temp_2_2, 1);
+                goto store_node_2;
+store_node_2:
+                var_16_2 = var_16_4;
+                *(u8 **)(arg1 + 0x14) = (u8 *)var_16_2;
+common_node_1:
+                temp_21 = *(u8 *)(arg1 + 0xF);
+                var_16_3 = (struct FrFontNode3 *)*(u8 **)(arg1 + 0x14);
+                if (var_16_3 == NULL) {
+                    func_0046d730(&D_0063BAE8, 0x69B);
+                }
+                while (var_16_3 != NULL) {
+                    *(u8 *)((u8 *)var_16_3 + 2) = temp_21;
+                    var_16_3 = var_16_3->next;
+                }
+                var_16 = (s8)temp_17;
+            }
+            *(u8 **)(arg1 + 0x14) =
+                func_002724d0((u8 *)sp8.bytes, temp_17,
+                              *(s8 *)(arg1 + 0xD),
+                              *(s8 *)(arg1 + 0xE),
+                              *(u8 **)(arg1 + 0x14));
+            temp_21_2 = D_0076380C;
+            temp_2_3 = *(u8 **)(arg1 + 0x14);
+            if (temp_2_3 == NULL) {
+                func_0046d730(&D_0063BAE8, 0x6C3);
+            }
+            *(s8 *)(temp_2_3 + 3) = temp_21_2;
+            var_4_2 = 0;
+            var_5 = *(struct FrFontChild3 **)(temp_2_3 + 0x1C);
+            while (var_5 != NULL) {
+                var_4_2 += *(s32 *)((u8 *)var_5 + 0xC);
+                var_4_2 += *(s8 *)(temp_2_3 + 3);
+                var_5 = var_5->next;
+            }
+            *(s32 *)(temp_2_3 + 0xC) = var_4_2;
+            var_18 += 1;
+            goto loop_test_30;
+loop_test_30:
+        if (var_18 < temp_22) {
+            goto loop_body_30;
+        }
+    }
+}
+#pragma opt_rebuildconditionals on
+#pragma no_branch_likely off
+#pragma pop
 // FUN_00273F70
 /* measured: full func_002736d0 recipe stack. */
 #pragma optimization_level 1

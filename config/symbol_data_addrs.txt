@@ -500,3 +500,8 @@ iGpffffb578 = 0x00764668; // type:data evidence: retail gp -0x4a88; gp base 0x00
 iGpffff9c0c = 0x00762cfc; // type:data evidence: retail shdPersona func_00116610 gp -0x63f4; gp base 0x007690F0
 fGpffff8010 = 0x00761100; // type:data evidence: retail effBlurFilter func_004a8f90 instruction at 0x004a909c is `ld $a0, -0x7ff0($gp)`; gp base 0x007690F0. The decompiled source first named this fGpffff8020, which verify.py accepted because it masks relocations; the linked image caught it.
 fGpffff8020 = 0x00761110; // type:data evidence: retail effBlurFilter func_004a8bb0 instruction at 0x004a8cbc is `ld $a0, -0x7fe0($gp)`; gp base 0x007690F0. Its cluster twin func_004a8f90 uses fGpffff8010 instead, which is why the two must not share a spelling.
+// code1_0010.c func_001036d0 loads the 64-bit mode value at GPREL -0x7A38.
+// GP base 0x007690F0 gives 0x007616B8.
+iGpffff85c8 = 0x007616b8; // type:data evidence: retail func_001036d0 ld $a0,-0x7A38($gp) at 0x001038FC; gp base 0x007690F0
+D_005E55E0 = 0x005e55e0; // type:data evidence: retail func_00125e80 lui/addiu %hi/%lo(D_005E55E0) at 0x00125EB0/0x00125EB4; absolute address encoded by symbol name
+D_005E5610 = 0x005e5610; // type:data evidence: retail func_00125e80 lui/addiu %hi/%lo(D_005E5610) at 0x00125EE4/0x00125EE8; absolute address encoded by symbol name

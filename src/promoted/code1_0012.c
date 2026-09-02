@@ -1436,8 +1436,104 @@ void func_00124970(s32 arg0, u32 arg1, s32 arg2, u32 *arg3)
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00124bb0);
 // FUN_00124F70
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00124f70);
+extern s32 func_0025f3f0(f32 farg0, f32 farg1, f32 farg2,
+                         s32 arg0, u8 arg1, s32 arg2, s32 arg3,
+                         s32 arg4, s32 arg5);
+extern void func_002aaac0(void);
+extern s32 func_003f6440(s32 arg0, s32 arg1);
+extern void func_0045e6a0(void *arg0, void *arg1, f32 fparg0, s32 arg2,
+                          s32 arg3, s32 arg4, s32 arg5, s32 arg6,
+                          f32 fparg1, f32 fparg2, f32 fparg3);
+extern void func_00489f80(void);
+extern void func_0048a000(void);
+extern s32 D_005E55E0[];
+extern s8 D_005E5610[];
+extern void (*D_00887300[])(s32 arg0, s32 arg1);
+
 // FUN_00125E80
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00125e80);
+void func_00125e80(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1)
+{
+    u8 spCC[4];
+    s32 sp90[12];
+    s8 sp70[0x20];
+    f32 sp40[12];
+    s32 *src;
+    s32 *dst;
+    s32 count;
+    s32 temp1;
+    s32 temp2;
+    s8 *src8;
+    s8 *dst8;
+    s32 count8;
+    s8 temp8_1;
+    s8 temp8_2;
+    u8 *p;
+    s32 n;
+    s32 i;
+    f32 x;
+    f32 y;
+    f32 *out;
+    f32 *in;
+
+    src = D_005E55E0;
+    dst = sp90;
+    count = 6;
+    do {
+        temp1 = src[0];
+        temp2 = src[1];
+        src += 2;
+        count--;
+        dst[0] = temp1;
+        dst[1] = temp2;
+        dst += 2;
+    } while (count > 0);
+
+    src8 = D_005E5610;
+    dst8 = sp70;
+    count8 = 0xC;
+    do {
+        temp8_1 = src8[0];
+        temp8_2 = src8[1];
+        src8 += 2;
+        count8--;
+        dst8[0] = temp8_1;
+        dst8[1] = temp8_2;
+        dst8 += 2;
+    } while (count8 > 0);
+
+    p = spCC;
+    n = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+            n--;
+        } while (n != 0);
+    }
+
+    func_00489f80();
+    func_0025f3f0(0.0f, 0.0f, fparg2, 0xFFFFFF, arg0 & 0xFF, 0x1000D,
+                  0, *(s32 *)(arg1 + 0x3C), 1);
+    func_0048a000();
+
+    i = 0;
+    x = -100.0f + fparg0;
+    y = -200.0f + fparg1;
+    while ((u32)i < 6) {
+        in = &((f32 *)sp90)[i * 2];
+        out = &sp40[i * 2];
+        out[0] = x + in[0];
+        out[1] = y + in[1];
+        i++;
+    }
+
+    func_002aaac0();
+    D_00887300[0](6, 1);
+    func_003f6440(3, 0x5000D);
+    func_003f6440(2, 0x58);
+    func_0045e6a0(sp70, sp40, fparg2, 6, 4, 0, 0, 0,
+                  -20.0f, 1.0f, 1.0f);
+}
 // FUN_00126090
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_00126090);
 // FUN_001265A0

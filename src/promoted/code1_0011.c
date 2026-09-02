@@ -681,7 +681,63 @@ void func_001125d0(u8 *arg0) {
     *(s16 *)(arg0 + 0x16) = 0;
 }
 // FUN_00112610
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112610);
+void func_00112610(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4)
+{
+    typedef struct {
+        u8 b[4];
+    } Color4;
+    extern u8 D_005E4710[];
+    extern u8 D_005E4730[];
+    void func_00113280(s64, f32, Color4, s16, s32, s32);
+    Color4 color_a;
+    Color4 color_b;
+    Vec2f pos;
+    s32 flags;
+    s32 mode;
+    s32 selected;
+    u8 *table;
+    s32 alpha;
+
+    flags = func_00106880(*(s16 *)(arg2 + 0));
+    if (*(u16 *)(arg2 + 0x14) & 2) {
+        table = &D_005E4710[(*(s16 *)(arg2 + 0x16)) * 4];
+        color_a = *(Color4 *)table;
+        mode = -1;
+        if (flags & 0x3FFF) {
+            mode = 2;
+            selected = arg3;
+        } else if (flags & 0xC000) {
+            mode = 3;
+            selected = arg3;
+        } else if (flags & 0x10000) {
+            mode = 2;
+            selected = arg3;
+        } else if (flags & 0x20000) {
+            mode = 2;
+            selected = arg3;
+        } else if (flags & 0x40000) {
+            mode = 2;
+            selected = arg3;
+        }
+        if (mode != -1) {
+            alpha = 255;
+            alpha -= arg1 & 0xFF;
+            func_0046d4c0(0, selected, mode, arg0.x, arg0.y,
+                          alpha & 0xFF,
+                          color_a.b[0], color_a.b[1], color_a.b[2],
+                          fparg0, 0);
+        }
+    }
+    if (*(u16 *)(arg2 + 0x14) & 1) {
+        table = &D_005E4730[(*(s16 *)(arg2 + 0x16)) * 4];
+        color_b = *(Color4 *)table;
+        color_b.b[3] = arg1;
+        pos.x = arg0.x + 3.0f;
+        pos.y = arg0.y + 2.0f;
+        func_00113280(*(s64 *)&pos, fparg0, color_b,
+                      *(s16 *)(arg2 + 0), arg3, arg4);
+    }
+}
 // FUN_00112830
 INCLUDE_ASM("asm/nonmatchings/code1_0011", func_00112830);
 // FUN_001130C0
