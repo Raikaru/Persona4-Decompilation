@@ -3673,4 +3673,42 @@ s32 func_0019fe60(u8 *arg0, s32 arg1, s32 arg2)
 /* measured: closes opt_propagation around func_0019fe60. */
 #pragma opt_propagation on
 // FUN_0019FF60
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019ff60);
+s32 func_0019ff60(u8 *arg0)
+{
+    extern s32 func_00232710();
+    u8 *state;
+    u8 *current;
+    u8 *unit;
+    u16 enemyCount;
+
+    state = *(u8 **)(iGpffffb3ac + 0x170);
+    if (func_002428f0(*(u8 **)(*(u8 **)(state + 0x30) + 0xA64), 0) != 0 ||
+        func_00232710(*(s32 *)(*(u8 **)(state + 0x30) + 0xA64),
+                       0x100117) != 0) {
+        return 0;
+    }
+    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1 &&
+        func_002428f0(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), 0) != 0) {
+        return 0;
+    }
+    *(u16 *)(iGpffffb3ac + 0xC58) = 0;
+    enemyCount = 0;
+    current = *(u8 **)(iGpffffb3ac + 0x174);
+    for (; current != NULL; current = *(u8 **)(current + 0x450)) {
+        if ((*(u16 *)(current + 0x1A) & 1) == 0) continue;
+        unit = *(u8 **)(current + 0x30);
+        if ((*(s32 *)(unit + 0x9C) & 8) == 0 ||
+            func_002428f0(*(u8 **)(unit + 0xA64), 0) != 0) continue;
+        if (*(u8 *)(unit + 0xA2) == 1) {
+            if (func_00232710(*(s32 *)(unit + 0xA64), 0x100000) == 0) return 0;
+            enemyCount++;
+        } else if (func_00232710(*(s32 *)(unit + 0xA64), 0x100117) == 0 &&
+                   state != current) {
+            *(u8 **)(iGpffffb3ac +
+                     (*(u16 *)(iGpffffb3ac + 0xC58) * 4) + 0xC48) = current;
+            (*(u16 *)(iGpffffb3ac + 0xC58))++;
+        }
+    }
+    if (enemyCount == 0) return 0;
+    return *(u16 *)(iGpffffb3ac + 0xC58) >= 1;
+}
