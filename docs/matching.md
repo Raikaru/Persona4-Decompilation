@@ -387,64 +387,35 @@ Rules of engagement:
   of retail: a `sw $a0, -0x…($gp)` before the first call is the signature.
   Also the mirror of the entry above: `m6` versus `m5` is two names versus
   one, and picking the wrong one costs a register.
-- **Float-to-byte conversion tail colouring (open floor, SIX members, two
-  files).** Originally recorded as a `shdPersona.c` quirk; it is not
-  file-specific. Any function whose tail converts a float to a byte and packs
-  it can land here, and the reconstruction differs only in which GPR carries
-  the conversion result.
-  - `shdPersona.c`: `func_0011c780` (nd 6), `func_0011c930` (nd 5),
-    `func_0011ac70` (nd 5), `func_0011ae90` (nd 5) — retail `$a0`, mwcc `$v1`.
-  - `k_fldUnit.c`: `func_00167120` (nd 24), `func_00166e30` (nd 15) — the
-    mirror image, retail `$v1`, mwcc `$v0`.
+- **Float-to-byte conversion tail colouring — SOLVED, six for six.** This
+  used to be two entries ("open floor, SIX members" and "`shdPersona.c`
+  output-GPR family, FOUR members"): every archive had the conversion result
+  landing in `$v1` (or `$v0`) where retail uses `$a0` (or `$v1`), and each
+  concluded "allocator-internal next-use pressure". The cause was in the
+  archives, not the allocator: every one of them had **hand-expanded** the
+  float→unsigned conversion into
+  `if (2147483648.0f > acc) n = (s32)acc & 0xFF; else n = ((s32)(acc - 2147483648.0f) | 0x80000000) & 0xFF;`
+  (or the goto/ternary equivalents). That makes `n` a real integer local
+  with its own live range, and the allocator colours it differently from
+  the compiler's own conversion temporary. Write the cast:
 
-  The direction of the swap varies; what is constant is that the conversion
-  result lands in the register the *next* instruction wants. So do not read
-  "retail uses $a0" as the rule — read the following instruction. Everything
-  else in these six reconstructions is exact, including every accumulator
-  chain, so a solution here is worth six functions at once.
+  ```c
+  *(u8 *)(p + off) = (u8)acc;      /* c.le.s 2^31 / cvt.w.s / mfc1 $a0 / andi / or 0x80000000 / sb — retail's exact tail */
+  ```
 
-  Reaching this shape is itself progress and the levers that get you here are
-  documented per member: measured `opt_propagation off` fixes the prologue
-  `lh`/`lwc1` order (four members), measured `opt_rebuildconditionals off`
-  reproduces `c.le.s`/`bc1t` guard shapes (`func_00166e30`, 43 → 15 words),
-  and a final flag-condition spelling took `func_0011ae90` from 12 to 5.
-- **`shdPersona.c` output-GPR family (open floor, FOUR members).** Four
-  independent reconstructions in this file reached a small residual with *the
-  same shape at the same relative offsets*: `func_0011c780` (nd 6),
-  `func_0011c930` (nd 5), `func_0011ac70` (nd 5) and `func_0011ae90` (nd 5,
-  offsets 0x160/0x168/0x184/0x188/0x18C, identical to `func_0011ac70`'s). All
-  four differ only in the closing float-to-byte `mfc1`/`andi`/`or`/`andi`/`sb`
-  tail, where retail writes through `$a0` and mwcc writes through `$v1`. All reached it via
-  measured `#pragma opt_propagation off`, which fixes the prologue
-  `lh`/`lwc1` ordering, and each then exhausted the colouring levers
-  *separately*: intermediate split and collapse, block scoping, byte/word
-  input and output type variants (`u8`/`s8`/`s32`), declaration order,
-  liveness identities, guard polarity, ternary/goto/direct-store forms, an
-  `s32` parameter type, and every permitted pragma. Direct branch stores make
-  it markedly worse (object shrinks, ~41 words shift).
-
-  Four functions failing identically are one cause. **Measured result:
-  ordinary allocator register pressure from the immediately following load,
-  not arg0 liveness or a helper call.** Retail's `func_0011c780` and
-  `func_0011c930` both write `sb $a0, 0x44e($s0)` and then immediately load
-  `lh $v1, 0x514($s0)`. Retail's `func_0011ac70` writes
-  `sb $a0, 0x2e6($a2)`, then increments the loop and computes `slti $v1`
-  before the next iteration's `lh $a0, 0x508($s1)`. None has a `jal`/`jalr`
-  after the packed-byte store that consumes that byte. Plain cache aliases
-  (`u8 *p = arg0`, renamed/shadowed/typed forms) were coalesced back to the
-  incoming argument even under the scoped `opt_propagation off` probes.
-  A one-shot hoist of the immediately following halfword above the packing
-  statements (and the next-iteration halfword for `func_0011ac70`) was also
-  measured without closing the gap: c780 was 46 differing words
-  (object/window 428/432B), c930 was 45 (448/448B), and ac70 was 83
-  (540/544B). The best archived bodies remain c780 nd 6 including its
-  GPREL relocation (five visible tail words), c930 nd 5 after relocation
-  masking, and ac70 nd 5 after relocation masking; each archive records its
-  object/window sizes, differing offsets, chain result, and ruled-out probes.
-  The residual is therefore a specified allocator-internal next-use pressure
-  floor; all three source entries remain the exact bare `INCLUDE_ASM` form.
-  Archives: `docs/probe_archive/EcD_0011c780_body.c`, `LnA_0011c930_body.c`,
-  `LAC_0011ac70_body.c`, `QnB_0011ae90_body.c`.
+  mwcc emits the full `c.le.s`/`bc1t`/`sub.s`/`or` sequence itself, and its
+  internal temporary takes the register retail has. (`cvt.w.s` in Ghidra is
+  the same word binutils prints as `trunc.w.s`, 0x46000824.) Two
+  corollaries measured on the way: a **constant** converted at runtime
+  (`lui 0x437f; mtc1; c.le.s ...` for 255.0f) is a named `f32` local
+  holding the constant — `f32 b = 255.0f; x = (u8)b;` — no union pun
+  needed; and the `opt_rebuildconditionals off` several archives carried
+  existed only to shape the hand-written branches, so it goes away too.
+  Closed: `func_0011ae90`, `func_0011c780`, `func_0011c930`,
+  `func_0011ac70` (shdPersona.c; c780/c930 keep the measured
+  `opt_propagation off` for the `lh`/`lwc1` prologue order) and
+  `func_00166e30`, `func_00167120` (k_fldUnit.c). The archives are left in
+  place as the record of the wrong turn.
 - **A measured pragma keeps applying to every function below it.** `#pragma X
   off` is file-position scoped, not function scoped, so a lane that opens one
   for its target and never closes it silently changes the codegen of every
