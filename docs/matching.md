@@ -1196,6 +1196,11 @@ variants is wasted time.
   had needed: `func_003c3e90`, `func_003e2570`, `func_003e8080` (all the
   `*slot = result; result = *slot;` allocator idiom). `func_003de8c0`'s
   archived volatile turned out unnecessary under the unit's `-O2,p`.
+  Also `func_003d5fb0` (84/96; plus a named `self` copy under
+  `opt_propagation off` so the flags load is issued from `$a0` before the
+  park). Second exclusive case: `func_003d0460` - the same `peephole off`
+  that keeps its six `*arg1` reloads removes retail's tail-merge branch into
+  the epilogue with `ld $ra` in the delay slot (archived at nd34).
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
   loop (or the reverse — see the `opt_loop_invariants` waiver in
