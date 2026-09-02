@@ -685,8 +685,32 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
 /* measured: loop-rotation residual around store/reload remains open after
    exhaustive while/if/pragma probes; reverting to INCLUDE_ASM for now. */
+/* measured: the reload of the slot before the branch is a store-to-load forwarding
+   that b210 does as a peephole; peephole off keeps it (the archive needed volatile). */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma peephole off
 // FUN_003E2570
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2570);
+s32 func_003e2570(s32 arg0, s32 arg1)
+{
+    s32 *slot;
+    s32 result;
+
+    D_00764878 = arg1;
+    result = func_003e1220(0x24, D_00763C54, 4, D_00763C58, D_00887220, 0x40404);
+    slot = (s32 *)(D_008872E0 + D_00764878);
+    *slot = result;
+    result = *slot;
+    if (result == 0) {
+        return 0;
+    }
+    D_0076487C += 1;
+    return arg0;
+}
+/* measured: closes the peephole/no_branch_likely/schedule bracket for func_003e2570. */
+#pragma peephole on
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: schedule and no_branch_likely bracket retained around func_003e25f0. */
 #pragma schedule on
 #pragma no_branch_likely on
@@ -2086,15 +2110,17 @@ u8 *func_003e8010(u8 *arg0) {
 #pragma schedule off
 
 
-/* object 124B, window 144B, normalized_diff 17; volatile-dependent; without it the object is 2 words undersized because the store/reload accesses fold; nonvolatile best after H001 cleanup; volatile-only exact attempt rejected. */
-// FUN_003E8080 NONMATCHING
-#ifdef NON_MATCHING
-extern s32 D_00763C7C;
-extern s32 D_00763C80;
-extern u8 D_008872B0[];
-/* measured: schedule on probe for the nonvolatile body. */
-/* measured: no_branch_likely on probe for the nonvolatile body. */
-s32 func_003e8080(s32 arg0, s32 arg1) {
+/* measured: the reload of the slot before the branch is a store-to-load forwarding
+   that b210 does as a peephole; peephole off keeps it (the archive needed volatile). */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma peephole off
+// FUN_003E8080
+s32 func_003e8080(s32 arg0, s32 arg1)
+{
+    extern s32 D_00763C7C;
+    extern s32 D_00763C80;
+    extern u8 D_008872B0[];
     s32 *slot;
     s32 result;
 
@@ -2109,11 +2135,10 @@ s32 func_003e8080(s32 arg0, s32 arg1) {
     D_007648A4 += 1;
     return arg0;
 }
-/* measured: close no_branch_likely after the nonvolatile body. */
-/* measured: close schedule after the nonvolatile body. */
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8080);
-#endif
+/* measured: closes the peephole/no_branch_likely/schedule bracket for func_003e8080. */
+#pragma peephole on
+#pragma no_branch_likely off
+#pragma schedule off
 /* measured: H001 rejects volatile-only exactness; nonvolatile best body is object 124B/window 144B, normalized_diff 17. */
 
 /* measured: best plain-C body is archived in build/H3E2_003e8130_body.c;
