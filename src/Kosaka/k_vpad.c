@@ -77,6 +77,15 @@ extern void func_003f6440(s32 arg0, s32 arg1);
 extern void func_003e9df0(void* object);
 extern void* func_0047a2f0(void* object);
 extern void func_003e9cb0(void* object, void* matrix, s32 flags);
+extern void func_003e0960(void* matrix, const void* source);
+extern void func_003e42a0(void* destination, const void* source,
+                          RuntimeMatrix* matrix);
+extern void func_004bad70(u8* data, const RuntimeVec3* position,
+                          const RuntimeVec3* normal);
+extern void func_004bc520(u8* data, f32* value);
+extern void func_004b8f40(u8* data, u32* value);
+extern void func_004baed0(RuntimeCommandWork* work, u32* unused);
+extern f32 iGpffff8040;
 
 typedef struct RuntimeVpadWork
 {
@@ -147,7 +156,140 @@ INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5800);
 
 
 // FUN_004B5950
-INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5950);
+void func_004b5950(u8* workData)
+{
+    typedef struct RuntimeVpadColor
+    {
+        u8 red;
+        u8 green;
+        u8 blue;
+        u8 alpha;
+    } RuntimeVpadColor;
+    typedef struct RuntimeVpadUpdateWork
+    {
+        u32 flags;
+        u8* field;
+        u8* renderData;
+        u8* entries;
+        u8* commands;
+        u8* vectors;
+        u8 reserved18[8];
+        RuntimeVpadColor color;
+    } RuntimeVpadUpdateWork;
+    RuntimeVpadUpdateWork* work;
+    s32 i;
+    s32 hasField;
+    s32 vectorOffset;
+    RuntimeMatrix* matrix;
+    u8 d1;
+    u8 d2;
+    u8 d0;
+    u8 d3;
+    typedef struct RuntimeVpadLocals
+    {
+        u8 position[12];
+        u8 normal[20];
+        RuntimeVpadColor color;
+        f32 delta;
+        u8 unused[4];
+        u32 value;
+    } RuntimeVpadLocals;
+    RuntimeVpadLocals locals;
+    RuntimeVec3* sample;
+    u8* entry;
+
+    work = (RuntimeVpadUpdateWork*)workData;
+    hasField = 0;
+    if (*(f32*)(*(u8**)(work->field + 0x20) + 0xF4) != 0.0f)
+    {
+        hasField = 1;
+    }
+    i = 0;
+    while (i < *(s16*)(work->field + 4))
+    {
+        if (hasField != 0)
+        {
+            vectorOffset = i * 0x20;
+            func_004baed0((RuntimeCommandWork*)(work->commands + vectorOffset),
+                          (u32*)locals.unused);
+            if ((~work->flags & 8) != 0)
+            {
+                if ((*(u32*)(work->commands + vectorOffset) & 2) != 0)
+                {
+                    if ((*(u32*)(work->commands + vectorOffset) & 8) != 0)
+                    {
+                        vectorOffset = i * 3 * 8;
+                        sample = (RuntimeVec3*)(work->vectors + vectorOffset);
+                        func_004bad70(work->renderData + i * 0x3C, sample,
+                                      (RuntimeVec3*)((u8*)sample + 0xC));
+                    }
+                    else
+                    {
+                        matrix = func_003e0f80();
+                        if ((~*(u32*)(*(u8**)(work->field + 0x20) + 0xD8) &
+                             0x8000) != 0)
+                        {
+                            func_003e0960(matrix,
+                                          func_0047a2f0(*(u8**)(work->field +
+                                                               0x20)));
+                        }
+                        else
+                        {
+                            func_003e0960(matrix,
+                                          *(u8**)(work->field + 0x20) + 0x90);
+                        }
+                        vectorOffset = i * 3 * 8;
+                        func_003e42a0(locals.position,
+                                      work->vectors + vectorOffset, matrix);
+                        func_003e42a0(locals.normal,
+                                      work->vectors + vectorOffset + 0xC,
+                                      matrix);
+                        func_004bad70(work->renderData + i * 0x3C,
+                                      (RuntimeVec3*)locals.position,
+                                      (RuntimeVec3*)locals.normal);
+                        func_003e0f40(matrix);
+                    }
+                }
+            }
+        }
+        if (hasField != 0)
+        {
+            locals.delta = iGpffff8040;
+        }
+        else
+        {
+            locals.delta = 0.0f;
+        }
+        if ((work->flags & 0x10) != 0)
+        {
+            d1 = work->color.red;
+            d2 = work->color.green;
+            d3 = work->color.blue;
+            d0 = work->color.alpha;
+            locals.color.red = d1;
+            locals.color.green = d2;
+            locals.color.blue = d3;
+            locals.color.alpha = d0;
+            if (locals.color.alpha == 0xFF)
+            {
+                locals.color.alpha = 0xFE;
+            }
+            entry = *(u8**)(work->entries + i * 8 + 4);
+            d1 = locals.color.red;
+            d2 = locals.color.green;
+            d3 = locals.color.blue;
+            d0 = locals.color.alpha;
+            entry[4] = d1;
+            entry[5] = d2;
+            entry[6] = d3;
+            entry[7] = d0;
+        }
+        func_004bc520(work->renderData + i * 0x3C, &locals.delta);
+        locals.value = *(u32*)(*(u8**)(work->entries + i * 8) + 0x18);
+        func_004b8f40(work->renderData + i * 0x3C, &locals.value);
+        i++;
+    }
+}
 // FUN_004B5C20. Mark an active field runtime node for processing.
 void func_004b5c20(RuntimeWork* work)
 {

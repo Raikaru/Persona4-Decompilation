@@ -1385,7 +1385,77 @@ void func_0021b500(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
 // FUN_0021B630
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021b630);
 // FUN_0021BBB0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021bbb0);
+void func_0021bbb0(s32 arg0, u16 arg1)
+{
+    extern void (*D_00887300[])(s32 arg0, s32 arg1);
+    extern void func_00365f00(f32 f0, s64 arg0, s32 arg1, s32 arg2,
+                              f32 f1, f32 f2, s32 arg3, f32 f3, s32 arg4,
+                              f32 f4);
+    extern void func_003f6440(s32 arg0, s32 arg1);
+    extern void func_0045c870(u8 *arg0, s32 arg1);
+    extern void func_00489f80(void);
+    extern void func_0048a000(void);
+    extern f32 fGpffff84a4;
+    extern f32 fGpffff84cc;
+    union {
+        f32 value;
+        u8 bytes[4];
+    } color;
+    union {
+        f32 f;
+        s32 i;
+    } color_value;
+    union {
+        f32 f;
+        s32 i;
+    } arg_color_copy;
+    struct {
+        s32 low;
+        s32 high;
+    } coords;
+    f32 scale;
+
+    coords.low = 0x43A00000;
+    coords.high = 0x43640000;
+    D_00887300[0](1, 0);
+    arg1 = arg1 & 0xFFFF;
+    if ((arg1 >= 0x21) && (arg1 < 0x30)) {
+        color.bytes[0] = 0;
+        color.bytes[1] = 0;
+        color.bytes[2] = 0;
+        scale = 400.0f *
+                (1.0f - func_0044b610(
+                    fGpffff84a4 * ((f32)(arg1 - 0x21) / 15.0f)));
+        func_00489f80();
+        func_003f6440(3, 0x31801);
+        color.bytes[3] = 0;
+        func_0045c870(color.bytes, 0);
+        color.bytes[3] = 0xFF;
+        color_value.f = color.value;
+        func_00365f00(0.0f, *(s64 *)&coords,
+                      color_value.i, color_value.i,
+                      scale, 0.0f, 0x24, fGpffff84cc, 0, 1.0f);
+        func_0048a000();
+        func_003f6440(3, 0x37801);
+    }
+    if (arg1 >= 3) {
+        if (arg1 < 0x21) {
+            func_003f6440(2, 0x48);
+            scale = 400.0f *
+                    func_0044b7b0(
+                        fGpffff84a4 * ((f32)(arg1 - 3) / 30.0f));
+            arg_color_copy.f = *(f32 *)&arg0;
+            func_00365f00(0.0f, *(s64 *)&coords,
+                          arg_color_copy.i, arg_color_copy.i,
+                          scale, 0.0f, 0x24, fGpffff84cc, 0, 1.0f);
+            func_003f6440(2, 0x44);
+        } else if (arg1 < 0x30) {
+            func_003f6440(2, 0x48);
+            func_0045c870((u8 *)&arg0, 0);
+            func_003f6440(2, 0x44);
+        }
+    }
+}
 // FUN_0021BE10
 void func_0021be10(u8 *arg0, s32 arg1)
 {

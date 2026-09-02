@@ -1523,8 +1523,103 @@ u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
 }
 // FUN_0035C040
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035c040);
+/* measured: opt_propagation off preserves paired field-load order. */
+#pragma push
+#pragma opt_propagation off
+
 // FUN_0035C480
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035c480);
+void func_0035c480(s32 arg0, u16 arg1, s32 arg2)
+{
+    s8 sp168[8];
+    u8 sp60[0x100];
+    f32 temp_f1;
+    f32 temp_f0;
+    s64 var_18;
+    u32 temp_17;
+    u8 *temp_16;
+    extern u8 iGpffffa968;
+    extern u8 iGpffffa96c;
+    extern u8 D_0064CD60[];
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    *(s16 *)(temp_16 + 0x22) = 0;
+    temp_f1 = *(f32 *)(temp_16 + 8);
+    temp_f0 = *(f32 *)(temp_16 + 0xC);
+    *(f32 *)(temp_16 + 0x18) = temp_f1;
+    *(f32 *)(temp_16 + 0x1C) = temp_f0;
+    temp_f1 = *(f32 *)(temp_16 + 8);
+    temp_f0 = *(f32 *)(temp_16 + 0xC);
+    *(f32 *)(temp_16 + 0) = temp_f1;
+    *(f32 *)(temp_16 + 4) = temp_f0;
+    temp_17 = arg1 & 0xFFFF;
+    if ((*(u16 *)(temp_16 + 0x20) != temp_17) ||
+        (*(s32 *)(temp_16 + 0x24) != arg2)) {
+        switch (temp_17) {
+        case 0:
+            goto zero_case;
+        default:
+            goto nonzero_case;
+        }
+zero_case:
+        func_003547c0((s32 *)(temp_16 + 0x30), NULL);
+        goto done;
+nonzero_case:
+        if (arg2 & 1) {
+            *(s32 *)(temp_16 + 0x28) = 0xF6001600;
+            var_18 = 0x62;
+        } else if (arg2 & 2) {
+            *(s32 *)(temp_16 + 0x28) = 0xF600B000;
+            var_18 = 0x63;
+        } else {
+            *(s32 *)(temp_16 + 0x28) = 0xFFD13400;
+            var_18 = 0x61;
+        }
+        switch (temp_17) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 19:
+        case 21:
+        case 24:
+        case 26:
+        case 27:
+        case 29:
+            if (func_00110d60((s64)(s16)func_001060b0()) & 1) {
+                func_00442088(sp168, &iGpffffa968);
+            } else {
+                func_00442088(sp168, &iGpffffa96c);
+            }
+            break;
+        case 8:
+        case 16:
+        case 17:
+        case 18:
+        case 20:
+        case 22:
+        case 23:
+        case 25:
+        case 28:
+        case 30:
+            sp168[0] = 0;
+            break;
+        default:
+            func_0046d730(&D_0064CC98, 0xA05);
+            break;
+        }
+        func_00442088(sp60, D_0064CD60, temp_17, (s8)var_18, sp168);
+        func_003547c0((s32 *)(temp_16 + 0x30), sp60);
+        goto done;
+done:
+        *(u16 *)(temp_16 + 0x20) = arg1;
+        *(s32 *)(temp_16 + 0x24) = arg2;
+        *(s32 *)(temp_16 + 0x2C) = 0;
+    }
+}
+#pragma pop
 // FUN_0035C670
 void func_0035c670(u8 *arg0, f32 *arg1)
 {

@@ -4,6 +4,10 @@
 // Tried explicit loop labels/gotos, duplicated outer load to preserve the retail branch stub,
 // direct and named inner conditions, pointer/type/declaration-order variants, and allowed
 // optimization pragmas. Best candidate body follows.
+// Main measured after revert: the retail branch-only block at the outer loop entry (0x28AF40: b inner_test)
+// is produced by iterating the inner loop over a coalesced copy `p = s0;` (six plain loop spellings never
+// emit it). That reproduces the structure; the $a1 vs $v0 pair did not move for any copy/type/declaration
+// variant in isolation - whole-function register pressure, still open.
 
 void func_0028ad90(u8 *arg0, s32 arg1) {
     s32 temp_4;

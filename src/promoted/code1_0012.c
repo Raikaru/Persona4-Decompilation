@@ -156,12 +156,16 @@ extern void func_004598e0(s32 arg0);
 extern void func_004787e0(s32 arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern s16 func_00353b50(void *arg0);
-extern s32 func_0046d200(void *arg0, u8 arg1);
+extern s32 func_0046d200(void *arg0, s32 arg1);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];
 extern u8 D_005E57F0[];
+extern s32 func_00106330(s32 arg0);
+extern u8 D_005E5810[];
+extern s32 D_005E5B60[];
+extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
 extern void func_0012e7c0(u8 *arg0);
 extern s32 func_0012ff60(u8 *arg0, s32 arg1);
@@ -1829,8 +1833,97 @@ s32 func_0012c460(s32 arg0) {
     }
     return var_2;
 }
+#pragma push
+/* measured: opt_loop_invariants on hoists the loop constants into the
+   retail preheader and opt_propagation off keeps the pre-call indexed
+   destination address materialised; 92 differing words -> 0 (532/544). */
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 // FUN_0012D410
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012d410);
+void func_0012d410(u8 *arg0)
+{
+    u8 *temp_2_2;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    s32 temp_3;
+    s32 var_18_2;
+    s32 var_18;
+    s32 var_17;
+    s32 var_2;
+    s32 var_5;
+    s32 temp_5;
+    s32 temp_6;
+    s32 *temp_4;
+
+    *(s16 *)(arg0 + 0xC) = 0;
+    *(s32 *)(arg0 + 0x18) = -1;
+    var_5 = 0;
+    temp_5 = 0x42700000;
+    temp_6 = 0x1000;
+    while (var_5 < 0xB) {
+        *(s32 *)(arg0 + (var_5 * 0x30) + 0xA4) = temp_5;
+        *(s32 *)(arg0 + (var_5 * 0x30) + 0xA8) = 0;
+        *(s16 *)(arg0 + (var_5 * 0x30) + 0xBA) = temp_6;
+        *(s8 *)(arg0 + (var_5 * 0x30) + 0xAE) = 0;
+        var_5++;
+    }
+    temp_2_2 = (u8 *)func_0046a770(D_005E5810);
+    if (temp_2_2 == 0) {
+        func_0046d730(D_005E5BB8, 0xC1);
+    }
+    temp_2_3 = func_0046a770(D_005E57F0);
+    *(s32 *)(arg0 + 0x90) = temp_2_3;
+    if (temp_2_3 == 0) {
+        func_0046d730(D_005E5BB8, 0xC3);
+    }
+    var_18 = 0;
+    while (var_18 < 0x15) {
+        temp_3 = var_18 * 4;
+        temp_4 = (s32 *)(arg0 + temp_3 + 0x3C);
+        temp_2_4 = func_0046d200(temp_2_2,
+                                 *(s32 *)((u8 *)D_005E5B60 + temp_3));
+        *temp_4 = temp_2_4;
+        if (temp_2_4 == 0) {
+            func_0046d730(D_005E5BB8, 0xC9);
+        }
+        var_18++;
+    }
+    var_17 = 0;
+    var_18_2 = 0;
+    while (var_17 < 7) {
+        switch (var_17) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 6:
+            var_2 = 1;
+            break;
+        case 5:
+            if (func_00106330(0x1F) != 0) {
+                var_2 = 0;
+            } else {
+                var_2 = 1;
+            }
+            break;
+        default:
+            func_0046d730(D_005E5BB8, 0xA7);
+            var_2 = 0;
+            break;
+        }
+        if (var_2 != 0) {
+            *(s32 *)(arg0 + (var_18_2 * 4) + 0x1C) = var_17;
+            var_18_2++;
+        }
+        var_17++;
+    }
+    *(s32 *)(arg0 + 0x38) = var_18_2;
+    func_0012dea0(arg0, 0);
+}
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
+#pragma pop
 // FUN_0012D630
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012d630);
 // FUN_0012DB80

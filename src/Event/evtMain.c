@@ -650,38 +650,35 @@ u8 *func_00287cc0(u32 arg0, u8 *arg1, s32 arg2, s32 arg3) {
     return found;
 }
 
-/* measured: retail keeps the 4th arg in $30 ($fp) and v23 in $23; mwcc b210
-   always gives $30 to the v23 local first and spills arg3 to the stack
-   (+0x10 frame, sw $a3, 0xcc($sp)), cascading into every branch. Tried 4- and
-   5-param signatures and 3 local declaration orders; all nd 121. Saved-
-   register allocation floor (locals beat late params). */
-/* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
-/* measured: corrected all five target callee declarations in the archived
-   candidate; object_size 672 exceeds the 656-byte retail window and
-   normalized_diff is 399, so this is reconstruction-gated rather than a
-   polish near-miss. */
-// FUN_00287D90 NONMATCHING
-#ifdef NON_MATCHING
-void func_00287d90(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3, s32 arg4) {
-    u32 func_00269820(u16 *, s32, s64, s64, s32, s32, f32);
+// FUN_00287D90
+void func_00287d90(arg0, arg1, arg2, arg3)
+s32 arg0;
+u8 *arg1;
+s32 arg2;
+u8 *arg3;
+{
+    u32 func_00269820(u16 *, s32, s32, s32, s32, s32, f32);
     u8 *func_00287cc0(u32, u8 *, s32, s32);
     s32 func_00479ca0(void *, s32);
     f32 func_00479f60(void *, s32);
     s32 spB0;
     s32 spA0;
-    f32 var_9;
+    s32 var_9;
     f32 var_f12;
-    f32 var_f12_2;
     s16 temp_2_2;
     s16 temp_2_3;
     s16 temp_2_4;
     s32 temp_4;
-    s32 var_17;
     s32 var_18;
+    s32 var_17;
     s32 var_22;
     s32 var_3;
-    s8 temp_23;
+    s32 temp_23;
     u8 *temp_2;
+    s32 call_arg2;
+    s32 call_arg3;
+    s32 call_arg4;
+    u16 call_idx;
 
     var_18 = 0;
     temp_4 = (s32)(*(u16 *)arg1 & 0xFFC00) >> 0xA;
@@ -692,9 +689,9 @@ void func_00287d90(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3, s32 arg4) {
     }
     if ((var_18 != 0) && (func_00479ca0((void *)var_18, 0) != 0)) {
         var_17 = 0;
-loop_31:
-        if (var_17 < 4) {
-            if (func_00479ca0((void *)var_18, var_17 & 0xFFFF) != 0) {
+        while (var_17 < 4) {
+            call_idx = (u16)var_17;
+            if (func_00479ca0((void *)var_18, call_idx) != 0) {
                 temp_2 = func_00287cc0((u32)arg3, (u8 *)arg2, arg0, var_17);
                 if (temp_2 != NULL) {
                     if (*(s8 *)(temp_2 + 0x16) == 0) {
@@ -706,7 +703,8 @@ loop_31:
                     }
                     temp_23 = *(s8 *)(temp_2 + 0x22);
                     if (var_3 == 0) {
-                        func_00479f60((void *)var_18, var_17 & 0xFFFF);
+                        call_idx = (u16)var_17;
+                        func_00479f60((void *)var_18, call_idx);
                     }
                     if (*(u16 *)temp_2 == arg0) {
                         if (temp_23 == 0) {
@@ -717,7 +715,7 @@ loop_31:
                         if (temp_2_2 > 0) {
                             var_9 = (f32)temp_2_2;
                         } else {
-                            var_9 = 0.0f;
+                            var_9 = 0;
                         }
                         temp_2_3 = *(s16 *)(temp_2 + 0x28);
                         if (temp_2_3 < 0) {
@@ -728,13 +726,11 @@ loop_31:
                         func_00269820((u16 *)arg1, var_17, spB0, spA0, var_22, var_9, var_f12);
                         if (*(s8 *)(temp_2 + 0x23) == 1) {
                             if (temp_23 == 0) {
+                                call_arg2 = *(s8 *)(temp_2 + 0x24);
+                                call_arg4 = *(s8 *)(temp_2 + 0x25) == 0;
+                                call_arg3 = *(s16 *)(temp_2 + 0x26);
                                 temp_2_4 = *(s16 *)(temp_2 + 0x2A);
-                                if (temp_2_4 <= 0) {
-                                    var_f12_2 = 1.0f;
-                                } else {
-                                    var_f12_2 = (f32)temp_2_4 / 100.0f;
-                                }
-                                func_002699d0((u32 *)arg1, var_17, *(s8 *)(temp_2 + 0x24), *(s16 *)(temp_2 + 0x26), *(s8 *)(temp_2 + 0x25) == 0, 0, var_f12_2);
+                                func_002699d0((u32 *)arg1, var_17, call_arg2, call_arg3, call_arg4, 0, (temp_2_4 <= 0) ? 1.0f : (f32)temp_2_4 / 100.0f);
                                 goto block_29;
                             }
                         } else {
@@ -745,13 +741,9 @@ block_29:
                 }
             }
             var_17 += 1;
-            goto loop_31;
         }
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_00287d90);
-#endif
 
 /* measured: retail holds the inner-loop linked-list walk in $a2 (p) and the
    found-node in $v1 (first loop) / $a0 (second loop); mwcc b210 always puts
