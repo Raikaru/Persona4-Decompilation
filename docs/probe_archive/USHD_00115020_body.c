@@ -1,13 +1,13 @@
-/* object_size=652B; window=656B; normalized_diff=8; differing_offsets=0x00A,0x011,0x016,0x021,0x15E,0x1A6,0x21A,0x22E; differing_words=8; instruction_deficit=0 (body ends 4B before window; zero tail padding); retail_prologue=frame0B,saved_s0=0,arguments=(u8*,s32),first-touches=a0 pointer,a1 read,a2 scratch,a3 field-byte; candidate_prologue=frame0B,saved_s0=0,other-byte in a2 versus retail a3,active flag in a3 versus retail a2; classification=register/temp-register rotation residual; ruled_out=movz/movn,COP1 accumulator chain,standalone MMI,framed tail-jump,ee-gcc sd-$sN signature; plain-C signed-byte arithmetic, explicit u16 promotion mask, signed %4 fixup, shared high-range modulo path, absolute D_008C027A array addressing, and all five named floor signatures. */
+/* 2026-08-15 caller-saved temporary-rule probe: best candidate object_size=652B/window=656B, fndiff differing_words=45 (verifier normalized_diff=48), attempted-not-closed. Retail first definitions/registers: temp_2=lb->$v0, var_8=move->$t0, temp_7=lb->$a3, count=lhu->$v1, var_6(active)=sltu->$a2. Candidate emits the same order but colors temp_7->$a2 and var_6->$a3; arithmetic temp_5/var_3 are candidate $v1/$a1 versus retail $a1/$v1. Applied the derived liveness rule: rebuilt shared s8/s32 body and tried opt_propagation off, split/block-scoped temporaries, active aliases/gotos, staged/inline expressions, and type/control-flow variants; propagation/split/block probes left 45 words unchanged, while neutral liveness/type variants drifted size or control flow. Source reverted to INCLUDE_ASM after archive update; no pragma retained. */
 s32 func_00115020(u8 *arg0, s32 arg1) {
     extern u16 D_008C027A[];
     s8 temp_2;
-    s32 var_6;
     s8 var_8;
-    u16 count;
     s8 temp_7;
-    s32 var_3;
+    s32 var_6;
+    u16 count;
     s32 temp_5;
+    s32 var_3;
 
     temp_2 = *(s8 *)(arg0 + 4);
     var_8 = temp_2;

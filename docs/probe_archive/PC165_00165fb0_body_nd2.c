@@ -1,6 +1,6 @@
-/* object_size: 796; window: 800; normalized_diff: 2; differing offsets: 0x170, 0x17c */
-/* Best body after raw byte-offset pointer-base rewrite. Retail still uses sb $a1,4($a2) and sb $v0,7($a2), while candidate uses sb $v0,4($a2) and sb $a1,7($a2); the saved-register prologue already matches (s5=temp_21, s4=arg0, s3=arg1, s2=var_18, s1=temp_17, s0=arg2). */
-/* 2026-09 remeasurement: assignment-order probes (c0/c3 and c1/c2 swaps), endpoint/direct semantic store mappings, endpoint global-name swaps, endpoint declaration swaps, comma-expression reorderings, and a late c0 computation all remained nd2 or worsened to nd4/15. Named-local probes (separate color3/color0 copies, shared temp copies, and block-scoped initialized locals) left nd2 unchanged; scoped opt_propagation off (whole function nd119, color block nd2), opt_common_subs off (color block nd2), and declaration-order variants likewise did not move the two sb words. Retail's next instructions are the following middle sb and the branch, with no reuse of $a1/$v0; classify this as the measured two-stores transient-register-pressure class, not the mfc1/andi/sb float-to-byte tail floor. */
+/* object_size: 796; window: 800; normalized_diff: 0; differing offsets: none */
+/* 2026-09 caller-saved temporary result: retail loads the byte stored at +4 first and holds it in $a1 while computing the +7 byte into $v0; the original body had those endpoint lifetimes reversed. Reusing the existing temp_4 loop temporary for the +4 assignment before the color1/color2/+7 computations changes the liveness order without changing the generated instruction count and produces the retail sb $a1,4($a2) / sb $v0,7($a2). */
+/* Prior naming/order/declaration probes and named-local copies stayed at nd2 or regressed; direct endpoint/middle sink probes in this pass regressed to nd13/15. Reusing temp_4 for the first (+4) byte before color1/color2 and the later (+7) byte was the first exact result: object 796B/window 800B, normalized_diff 0. */
 void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
 {
     s32 temp_17_2;
@@ -39,11 +39,11 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         temp_3_2 = *(u8 **)(temp_2 + 0x144);
         var_18 = *(u8 **)(*(u8 **)(temp_3_2 + 0x2CC));
         temp_6 = *(u8 **)(temp_3_2 + 0x124);
-        color0 = iGpffff9f28;
+        temp_4 = iGpffff9f28;
         color1 = iGpffff9f29;
         color2 = iGpffff9f2a;
-        color3 = iGpffff9f2b;
-        temp_6[4] = color3;
+        color0 = iGpffff9f2b;
+        temp_6[4] = temp_4;
         temp_6[5] = color1;
         temp_6[6] = color2;
         temp_6[7] = color0;
