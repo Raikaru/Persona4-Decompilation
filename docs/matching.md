@@ -1135,6 +1135,17 @@ variants is wasted time.
   (the store itself stays direct so it addresses `$sp`). Closed
   `func_0025b0f0` (cmmRankUp.c, nd24 -> 0). Both members of this entry are
   now closed.
+- **Argument masks before or after the loads — the prototype decides.**
+  With a prototyped `u16` parameter mwcc emits every conversion (`andi
+  $aN,$rX,0xffff`) *before* the memory-operand arguments (`lhu $a0/$a1`),
+  and a plain register move after them. Retail `andi $a2,$v0` / `lhu` /
+  `lhu` / `andi $a3,$s1` (one mask before, one after) is an **unprototyped
+  call**: `extern s32 func_00161630();` with a `u16 b` local (its mask is
+  the assignment, allocated straight into `$a2`) and an explicit `(u16)a`
+  cast on the last argument (default promotion, emitted in argument order
+  after the loads). Both masks written as casts under the old-style
+  declaration put the loads first instead. Closed `func_00178870`
+  (code1_0017.c, nd4 -> 0); measured in isolation across 22 spellings.
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
   loop (or the reverse — see the `opt_loop_invariants` waiver in
@@ -1164,6 +1175,13 @@ variants is wasted time.
   — retail's slot spacing (0x90/0xA0 for the two Vec3s, `first`/`second`
   contiguous) is exactly what mwcc's per-local 16-byte slots produce, and
   is how to tell packed-frame locals from separate ones.
+  Second closure `func_0017ea10` (k_fldAI.c, nd4 -> 0): the 24-byte slot
+  holding two Vec3s is `FldAIVec3 ab[2]`, and `out = ab[0]` (element 0 is the
+  local's own aligned address) gives `ld/lwc1/sd/swc1`, while `ab[0] = ab[1]`
+  and `ab[1] = out` (0x5c, unaligned) are the three-`lwc1` form — all from
+  plain struct assignment. `f32 ab[6]` with `*(FldAIVec3 *)ab` casts blinds
+  the alignment (three `lwc1`, nd290); a `{s64; f32}` destination type gives
+  scalar order `ld/sd/lwc1/swc1` (nd4).
 - **~~Framed tail jump~~ and ~~absolute-getter address register~~ — NOT floors,
   wrong compiler.** Both were listed here for a long time and both are **ee-gcc
   code**; see "The retail binary is a MIXED-toolchain build" above. Kept as a
