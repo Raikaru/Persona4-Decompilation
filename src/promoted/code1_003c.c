@@ -953,8 +953,40 @@ done:
    build/YCLS_003c4040_body.c; the post-call store/reload/branch order remains
    a compiler residual. */
 /* func_003c4040 archive: object 124B, window 144B, normalized_diff 17; differing words are offsets 76 through 124. */
-// FUN_003C4040 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4040);
+/* measured: the post-store reload of the slot before the branch is a
+   store-to-load forwarding that b210 does as a peephole; peephole off keeps it. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma peephole off
+// FUN_003C4040
+s32 func_003c4040(s32 arg0, s32 arg1)
+{
+    extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
+    extern s32 iGpffffaaa0;
+    extern s32 iGpffffaaa4;
+    extern u8 D_00886580[];
+    extern s32 iGpffffb6e0;
+    extern s32 iGpffffb6e4;
+    extern u8 D_0070AFF0[];
+    extern u8 D_008872E0[];
+    s32 *base;
+    s32 result;
+
+    iGpffffb6e0 = arg1;
+    result = func_003e1220(*(s32 *)D_0070AFF0, iGpffffaaa0, 4, iGpffffaaa4, D_00886580, 0x40007);
+    base = (s32 *)(D_008872E0 + iGpffffb6e0);
+    *base = result;
+    result = *base;
+    if (result == 0) {
+        return 0;
+    }
+    iGpffffb6e4 += 1;
+    return arg0;
+}
+/* measured: closes the peephole/no_branch_likely/schedule bracket for func_003c4040. */
+#pragma peephole on
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003C40D0
 #pragma schedule on
 #pragma no_branch_likely on
