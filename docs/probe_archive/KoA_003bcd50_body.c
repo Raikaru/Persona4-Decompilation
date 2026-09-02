@@ -1,3 +1,6 @@
+// Main 2026-09-02: the reload is a peephole (`#pragma peephole off` keeps it) but that also keeps the
+// s32->s64 guard extension (dsll32/dsra32) that retail lacks; no guard spelling gives `slt $at,$zero,$v0`
+// under peephole off (11 tried). MATCH is reachable only with volatile (banned). See matching.md.
 // Main follow-up (2026-09-02): with code1_003b.c listed in config/speed_units.txt (-O2,p) the stray nop is supplied by the
 // compiler. Remaining residual then: retail calls func_003df360 with the incoming $a0 (needs opt_common_subs ON) but also
 // reloads *work after storing it (lw v1,(s0) right after sw v1,(s0)), which under CSE on no spelling tried reproduces

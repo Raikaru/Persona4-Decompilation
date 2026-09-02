@@ -832,11 +832,40 @@ u8 *func_003c3e10(u8 *arg0) {
    and the bare fallback restored. Without the volatile the same body folds
    the reload into the branch: nd 31, object 124B/window 144B
    (build/YCLS_003c3e90_body.c). The older u16/mode-SI union idea forced a
-   reload but narrowed it to lhu (nd 1). */
+   reload but narrowed it to lhu (nd 1). Resolved 2026-09-02 with peephole off. */
 #pragma schedule on
 #pragma no_branch_likely on
-// FUN_003C3E90 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3e90);
+/* measured: the post-store reload `lw` of the slot before the branch is a
+   store-to-load forwarding that b210 does as a peephole; `peephole off`
+   keeps it (the older archive needed a banned volatile for the same word). */
+#pragma peephole off
+// FUN_003C3E90
+s32 func_003c3e90(s32 arg0, s32 arg1)
+{
+    extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
+    extern s32 iGpffffaa98;
+    extern s32 iGpffffaa9c;
+    extern s32 iGpffffb6d0;
+    extern s32 iGpffffb6d4;
+    extern u8 D_0070AFD0[];
+    extern u8 D_00886550[];
+    extern u8 D_008872E0[];
+    s32 *temp_3;
+    s32 result;
+
+    iGpffffb6d0 = arg1;
+    result = func_003e1220(*(s32 *)D_0070AFD0, iGpffffaa98, 0x10, iGpffffaa9c, D_00886550, 0x40012);
+    temp_3 = (s32 *)(D_008872E0 + iGpffffb6d0);
+    *temp_3 = result;
+    result = *temp_3;
+    if (result == 0) {
+        return 0;
+    }
+    iGpffffb6d4 += 1;
+    return arg0;
+}
+/* measured: closes the peephole-off bracket for func_003c3e90. */
+#pragma peephole on
 /* measured: closes the first function's scheduling bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
