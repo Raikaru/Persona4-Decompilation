@@ -804,8 +804,66 @@ INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_00257900);
    pointer-store shape improved fndiff from 12 to 11 differing words; the
    remaining residual is retail's hoisted addiu $a0,$sp,0x5C and addiu
    $a1,$sp,0x40 versus MWCC's sunk materializations. */
-// FUN_0025B0F0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b0f0);
+#pragma push
+/* measured: opt_propagation off keeps the two argument addresses where they
+   are taken - &fbuf before the fbuf store, &arr[16] between the two quad
+   stores - reproducing retail's hoisted addiu $a0/$a1 (nd24 -> 0). */
+#pragma opt_propagation off
+// FUN_0025B0F0
+void func_0025b0f0(s32 arg0, u8 *arg1) {
+    extern u32 *func_00452560();
+    u8 *sp;
+    u8 *p;
+    s32 i;
+    f32 fbuf;
+    u8 buf[4];
+    u8 arr[32];
+    u_long128 quad;
+    u_long128 *arr16;
+    f32 *pfbuf;
+    f32 f;
+
+    sp = (u8 *)func_00452560(arg1);
+    p = buf;
+    i = 4;
+    if (p != NULL) {
+        do {
+            *p = 0;
+            p++;
+        } while (--i != 0);
+    }
+    f = (f32)*(s32 *)(sp + 0x4C) * 127.5f / 40.0f;
+    buf[3] = (u8)f;
+    pfbuf = &fbuf;
+    fbuf = *(f32 *)buf;
+    quad = D_00636730;
+    *(u_long128 *)&arr[0] = quad;
+    arr16 = (u_long128 *)&arr[16];
+    *(u_long128 *)&arr[16] = quad;
+    func_0045d6e0(pfbuf, arr16, 1, 0.0f);
+    switch (*(u32 *)(sp + 4)) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        break;
+    case 9:
+    case 10:
+        func_00257900(arg1);
+        break;
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+        break;
+    }
+}
+#pragma pop
 // FUN_0025B240
 INCLUDE_ASM("asm/nonmatchings/cmmRankUp", func_0025b240);
 

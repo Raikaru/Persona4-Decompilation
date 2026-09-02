@@ -9,7 +9,7 @@ void func_00440b68();
 extern char D_0063BE20[];
 void func_002782c0(int param_1,int param_2,int param_3,u32 param_4);
 u32 func_002786c0(int param_1,int param_2,int param_3);
-extern void func_00278450(int a, int b, int c);
+extern void func_00278450(int a, int b, char *c);
 extern int func_002438b0(int arg0);
 extern int func_00243840(int arg0);
 extern int func_00109220(int arg0);
@@ -57,7 +57,7 @@ s32 func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_
 u32 func_00279740(int param_1, int param_2);
 void func_0027a340(u8 *arg0, s32 arg1);
 void func_0027a4d0(int param_1, u32 param_2);
-void func_00278450(s32 arg0, s32 arg1, s32 arg2);
+void func_00278450(s32 arg0, s32 arg1, char *arg2);
 void func_002784e0(s32 arg0, s32 arg1, s32 arg2);
 s32 func_00442088(char *buf, const char *fmt, ...);
 s32 func_002438b0(s32 arg0);
@@ -929,49 +929,49 @@ s16 func_00278260(s32 arg0)
    an int local and taking &sp30[0] both measure nd 10; schedule on is far
    worse (nd 203). Call-argument setup order floor. Committed at nd 10. */
 /* object_size=388; window=400; normalized_diff=10; differing_word_offsets=80,84,88; first_diff_bytes=80,81,82,83,85,86,88,89,90,91. Corrected matched-callee declarations: func_0010d620(s16) and func_001067f0(s16), both with u32 return, replacing file-scope s64 declarations. Retail prologue checks for open callees confirmed func_00442088's existing variadic call shape and s32 signatures for func_00243840, func_002438b0 and func_00109220. Residual remains case-0 func_00278450 argument materialization: retail emits move a0,s1; move a1,s0; addiu a2,sp,0x30, while MWCC b210 emits addiu first. Probes retained from prior lane: char sp30[16]; u32/s32 sp30[4]; &sp30[0], integer/pointer casts; named a0/a1/a2 and dst/src/count locals with assignments in retail and reverse order; case-scoped/register locals; pointer local; comma-sequenced arguments; nested old-style callee declaration; fixed and variadic func_00442088 prototypes; optimization_level 1 (object 404, nd67); schedule-on (nd203); fresh permute (best nd10). No volatile or inline asm used. */
-// FUN_002782C0 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: the case-0 argument order (move a0 / move a1 / addiu a2,sp) is
+   produced by passing the buffer to a pointer-typed parameter; casting it
+   to an integer materialises the address first. Same lever as the "call-
+   argument setup order" floor entry, which this closes. */
+// FUN_002782C0
 void func_002782c0(int param_1, int param_2, int param_3, u32 param_4) {
     char sp30[16];
 
     switch (param_4) {
     case 0:
         func_00442088(sp30, &iGpffffa760, param_3);
-        func_00278450(param_1, param_2, (int)sp30);
+        func_00278450(param_1, param_2, sp30);
         break;
     case 1:
         func_002784e0(param_1, param_2, param_3);
         break;
     case 2:
-        func_00278450(param_1, param_2, iGpffffb444 + param_3 * 21);
+        func_00278450(param_1, param_2, (char *)(iGpffffb444 + param_3 * 21));
         break;
     case 3:
-        func_00278450(param_1, param_2, func_002438b0(param_3 & 0xFF));
+        func_00278450(param_1, param_2, (char *)func_002438b0(param_3 & 0xFF));
         break;
     case 4:
-        func_00278450(param_1, param_2, func_0010d620((s16)param_3));
+        func_00278450(param_1, param_2, (char *)func_0010d620((s16)param_3));
         break;
     case 5:
-        func_00278450(param_1, param_2, func_001067f0((s16)param_3));
+        func_00278450(param_1, param_2, (char *)func_001067f0((s16)param_3));
         break;
     case 6:
-        func_00278450(param_1, param_2, func_00243840(param_3 & 0xFFFF));
+        func_00278450(param_1, param_2, (char *)func_00243840(param_3 & 0xFFFF));
         break;
     case 7:
-        func_00278450(param_1, param_2, func_00109220(param_3 & 0xFFFF));
+        func_00278450(param_1, param_2, (char *)func_00109220(param_3 & 0xFFFF));
         break;
     }
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002782c0);
-#endif
 
 // FUN_00278450
-void func_00278450(s32 arg0, s32 arg1, s32 arg2)
+void func_00278450(s32 arg0, s32 arg1, char *arg2)
 {
     if (arg0 < 0 || arg0 >= 0x40)
         func_0046d730(D_0063BE10, 0x134);
-    func_00279a80(D_00881808[arg0].unk0, arg1, arg2, 0);
+    func_00279a80(D_00881808[arg0].unk0, arg1, (s32)arg2, 0);
 }
 
 // FUN_002784E0
