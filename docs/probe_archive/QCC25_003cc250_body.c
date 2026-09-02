@@ -1,3 +1,7 @@
+/* Re-measured 2026-09-02 (Main): retail hoists lw $v1,($a1) above sd $ra; b210 never does under
+   -O2/-O2,p/-O3/-O4, opt_propagation/common_subs/loop_invariants/rebuildconditionals off,
+   optimization_level 3/4, initialiser/named-count spellings; 3.0.1-020123 and 3.0.3-020716
+   do not either (their bodies differ more). Prologue-order floor. */
 /* object 104B / window 112B / normalized_diff 4; residual is prologue load ordering: retail loads lw v1,0(a1) before saving ra, while MWCCPS2 saves ra first. */
 #pragma schedule on
 #pragma no_branch_likely on

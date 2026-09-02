@@ -34,7 +34,12 @@ extern s32 func_0016fd00(void);
 extern s32 func_00162510(u16 arg0, u16 arg1);
 extern u32 func_003b7060(void);
 extern s32 func_0015a160(void);
-extern s32 func_00161630(u16 a, u16 b, u16 c, s32 d);
+/* measured: func_00178870 needs this call unprototyped - retail masks $a2 (b)
+   before the two lhu loads and $a3 (a) after them, which is the default-
+   promotion order of an old-style call with a u16 local for b and an explicit
+   (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
+   loads (nd4). Sole caller in this unit. */
+extern s32 func_00161630();
 extern void func_00182310(s32 arg0);
 extern void func_0018e030(s32 arg0, s32 arg1);
 extern s32 func_0029da90(s32 arg0, s32 arg1, s32 arg2);
@@ -944,9 +949,16 @@ s32 func_00178790(void)
    at build/D178_00178870_body.c; committed form is bare INCLUDE_ASM. */
 
 
-/* object 108B, retail window 112B, normalized_diff 4; sole differing bytes are at offsets 56-59: retail emits `andi $a3,$s1,0xffff`, while the candidate emits `move $a3,$s1`. NMX re-check: the file-scope func_00161630 declaration has NO other caller in this unit (func_00164570 lives in Kosaka/k_fldUnit.c with its own declaration), yet a file-scope u16 fourth parameter still hoists the a3 mask before the two lhu loads (nd 10), same as the previously probed block-scope prototypes. opt_propagation off, opt_common_subs off, and schedule on brackets with a & 0xFFFF on the fourth argument also fail (nd 81 / nd 10 / nd 57); plain body under propagation-off reproduces nd 4 only. Best plain-C body remains archived at build/D178_00178870_body.c; committed form is bare INCLUDE_ASM. */
-// FUN_00178870 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00178870);
+// FUN_00178870
+s32 func_00178870(void)
+{
+    s32 a = func_0029cc00(0);
+    u8 *p = iGpffff9db0;
+    u16 b = func_0015a160();
+
+    func_0029cf50(func_00161630(*(u16 *)p, *(u16 *)(p + 4), b, (u16)a) & 0xFFFF);
+    return 1;
+}
 // FUN_001788E0
 s32 func_001788e0(void)
 {
