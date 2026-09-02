@@ -81,7 +81,7 @@ extern u8 *func_00457120(void);
 extern void func_0043f810(void *, s32, s32);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *, void *);
-extern u8 *func_00461390(u8 *list, s32 arg1, s32 arg2, s32 arg3);
+extern u8 *func_00461390(u8 *list, s32 arg1, void *arg2, s32 arg3);
 extern f32 fGpffff8504;
 extern f32 iGpffff84f4;
 extern f32 D_008872F8[];
@@ -684,8 +684,64 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7cd0);
    folds q into $s0-relative stores (nd 110). Walls corroborated in
    y_CmbCardEff func_00347c70 (lui-hoist + or-register) and y_smap
    func_002b0b10 (lui-hoist + register cascade). */
-// FUN_002B7F20 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b7f20);
+#pragma push
+/* measured: opt_loop_invariants on hoists D_008872F8's high-half constant into the
+   loop preheader; the push/pop keeps this target's setting local. */
+#pragma opt_loop_invariants on
+/* measured: opt_propagation off keeps the local load and index-extension
+   ordering stable for this target. */
+#pragma opt_propagation off
+/* measured: schedule off preserves the D_008872F8 base register through the
+   loop body and matches the retail issue order. */
+#pragma schedule off
+// FUN_002B7F20
+s32 func_002b7f20(u8 *arg0) {
+    u8 *p;
+    f32 scale;
+    u8 *q;
+    s32 off;
+    s16 i;
+    s16 j;
+    f32 d;
+
+    p = *(u8 **)(arg0 + 0x38);
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    if (*(s8 *)(p + 0x124) == 1) {
+        return 0;
+    }
+    for (i = 0; i < 4; i++) {
+        j = i;
+        q = p;
+        q = (u8 *)((s32)q + (off = (s32)j << 6));
+        d = *(f32 *)D_008872F8;
+        *(f32 *)(q + 0x28) = d - *(f32 *)(p + 0x18);
+        *(f32 *)(q + 0x38) = scale;
+        *(s32 *)(q + 0x40) = 0;
+        *(s32 *)(q + 0x44) = 0;
+        *(s32 *)(q + 0x48) = 0;
+        *(f32 *)(q + 0x4C) = (f32)(u32)*(u8 *)(p + 0x125);
+    }
+    *(f32 *)(p + 0x20) = *(f32 *)(p + 0);
+    *(f32 *)(p + 0x24) = *(f32 *)(p + 4);
+    *(f32 *)(p + 0x60) = *(f32 *)(p + 0) + (f32)*(s32 *)(p + 0x10);
+    *(f32 *)(p + 0x64) = *(f32 *)(p + 4);
+    *(f32 *)(p + 0xA0) = *(f32 *)(p + 0);
+    *(f32 *)(p + 0xA4) = *(f32 *)(p + 4) + (f32)*(s32 *)(p + 0x14);
+    *(f32 *)(p + 0xE0) = *(f32 *)(p + 0) + (f32)*(s32 *)(p + 0x10);
+    *(f32 *)(p + 0xE4) = *(f32 *)(p + 4) + (f32)*(s32 *)(p + 0x14);
+    q = func_00461390(D_00793E80 + *(s32 *)(p + 0x120) * 0x30,
+                      4, (void *)(p + 0x20), 4);
+    *(void **)(q + 8) = (void *)func_002b6da0;
+    *(u8 **)(q + 0x10) = p;
+    q = func_00460990();
+    *(void **)(q + 8) = (void *)func_002b6ea0;
+    *(u8 **)(q + 0x10) = p;
+    func_00460ac0(D_00793E80 + (*(s32 *)(p + 0x120) + 1) * 0x30, q);
+    return 0;
+}
+/* measured: restore opt_loop_invariants after the target. */
+#pragma opt_loop_invariants off
+#pragma pop
 
 // FUN_002B8120
 void func_002b8120(u8 *arg0) {

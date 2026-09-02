@@ -93,7 +93,7 @@ extern void func_0025e8b0(s32 arg0);
 extern s32 func_0025e8f0(s32 arg0);
 extern s32 func_002aa300(u8 *arg0, s32 arg1);
 extern s32 func_002aa3f0(void);
-extern void func_0012dea0(u8 *arg0, s32 arg1);
+extern s32 func_0012dea0(u8 *arg0, s32 arg1);
 extern void func_0046d280(s32 arg0);
 extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
@@ -2087,8 +2087,112 @@ loop_0012dc00_21_check:
 }
 /* measured: closes the opt_loop_invariants bracket opened above func_0012dc00. */
 #pragma opt_loop_invariants off
+extern u8 D_005E58C0[];
+extern u8 D_005E59A0[];
+extern u8 D_005E5A80[];
+extern void func_0012dc00(u8 *arg0);
+
+#pragma push
+/* measured: opt_loop_invariants on is load-bearing: removing it yields MISMATCH nd 383 (obj 684B/window 688B); on yields MATCH nd 0 (obj 680B/window 688B) by hoisting the case-zero constants. */
+#pragma opt_loop_invariants on
 // FUN_0012DEA0
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012dea0);
+s32 func_0012dea0(u8 *arg0, s32 arg1)
+{
+    s32 i;
+    s32 i0;
+    s32 i1;
+    s32 i3;
+    u8 *p;
+    u8 *src0;
+    u8 *dst0;
+    u8 *src1;
+    u8 *dst1;
+    u8 *src3;
+    u8 *dst3;
+
+    if (*(s32 *)(arg0 + 0x18) == arg1) {
+        return 0;
+    }
+    *(s32 *)(arg0 + 0x18) = arg1;
+    *(s16 *)(arg0 + 0xC) = 0;
+    i = 0;
+    while (i < 0xB) {
+        p = arg0 + i * 0x30;
+        *(f32 *)(p + 0x94) = *(f32 *)(p + 0xA4);
+        *(f32 *)(p + 0x98) = *(f32 *)(p + 0xA8);
+        *(u8 *)(p + 0xAC) = *(u8 *)(p + 0xAE);
+        *(u16 *)(p + 0xB0) = *(u16 *)(p + 0xB4);
+        *(u16 *)(p + 0xB6) = *(u16 *)(p + 0xBA);
+        i++;
+    }
+    switch (arg1) {
+    case 0:
+        i0 = 0;
+        while (i0 < 0xB) {
+            if (i0 != *(s32 *)(arg0 + 0x10)) {
+                src0 = D_005E58C0 + i0 * 0x14;
+                dst0 = arg0 + i0 * 0x30;
+                *(f32 *)(dst0 + 0x9C) = *(f32 *)(src0 + 0);
+                *(f32 *)(dst0 + 0xA0) = *(f32 *)(src0 + 4);
+                *(u8 *)(dst0 + 0xAD) = *(u8 *)(src0 + 8);
+                *(u16 *)(dst0 + 0xB8) = *(u16 *)(src0 + 0xA);
+                *(s32 *)(dst0 + 0xBC) = *(s32 *)(src0 + 0xC);
+                *(s32 *)(dst0 + 0xC0) = *(s32 *)(src0 + 0x10);
+            } else {
+                dst0 = arg0 + i0 * 0x30;
+                *(s32 *)(dst0 + 0x94) = 0;
+                *(s32 *)(dst0 + 0x9C) = 0;
+                *(s32 *)(dst0 + 0x98) = 0x41B80000;
+                *(s32 *)(dst0 + 0xA0) = 0;
+                *(u8 *)(dst0 + 0xAC) = 0;
+                *(u8 *)(dst0 + 0xAD) = 0xFF;
+                *(u16 *)(dst0 + 0xB6) = 1;
+                *(u16 *)(dst0 + 0xB8) = 0x1000;
+                *(s32 *)(dst0 + 0xBC) = 0xB;
+                *(s32 *)(dst0 + 0xC0) = 0xD;
+            }
+            i0++;
+        }
+        break;
+    case 1:
+        i1 = 0;
+        while (i1 < 0xB) {
+            src1 = D_005E59A0 + i1 * 0x14;
+            dst1 = arg0 + i1 * 0x30;
+            *(f32 *)(dst1 + 0x9C) = *(f32 *)(src1 + 0);
+            *(f32 *)(dst1 + 0xA0) = *(f32 *)(src1 + 4);
+            *(u8 *)(dst1 + 0xAD) = *(u8 *)(src1 + 8);
+            *(u16 *)(dst1 + 0xB8) = *(u16 *)(src1 + 0xA);
+            *(s32 *)(dst1 + 0xBC) = *(s32 *)(src1 + 0xC);
+            *(s32 *)(dst1 + 0xC0) = *(s32 *)(src1 + 0x10);
+            i1++;
+        }
+        break;
+    case 2:
+        func_0012dc00(arg0);
+        break;
+    case 3:
+        i3 = 0;
+        while (i3 < 0xB) {
+            dst3 = arg0 + i3 * 0x30;
+            *(s32 *)(dst3 + 0x94) = 0;
+            *(s32 *)(dst3 + 0x98) = 0;
+            src3 = D_005E5A80 + i3 * 0x14;
+            *(f32 *)(dst3 + 0x9C) = *(f32 *)(src3 + 0);
+            *(f32 *)(dst3 + 0xA0) = *(f32 *)(src3 + 4);
+            *(u8 *)(dst3 + 0xAD) = *(u8 *)(src3 + 8);
+            *(u16 *)(dst3 + 0xB8) = *(u16 *)(src3 + 0xA);
+            *(s32 *)(dst3 + 0xBC) = *(s32 *)(src3 + 0xC);
+            *(s32 *)(dst3 + 0xC0) = *(s32 *)(src3 + 0x10);
+            i3++;
+        }
+        break;
+    }
+    return 1;
+}
+/* measured: closes the opt_loop_invariants bracket for func_0012dea0. */
+#pragma opt_loop_invariants off
+#pragma pop
 // FUN_0012E150
 void func_0012e150(s32 arg0)
 {

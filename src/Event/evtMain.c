@@ -1699,7 +1699,87 @@ s32 func_0028a970(s32 arg0, s32 arg1, u8 *arg2) {
    or the slt register ($v0 vs $at). Instruction stream is identical; pure
    saved-register rotation. nd 48. */
 // FUN_0028AAF0
-INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028aaf0);
+void func_0028aaf0(s32 arg0, u8 *arg1) {
+    s32 temp_18;
+    s32 temp_3;
+    s32 temp_3_2;
+    s32 temp_4;
+    s32 var_2;
+    u8 *var_18;
+    u8 *var_18_2;
+    u8 *var_18_3;
+    u8 *var_20;
+    u8 *var_19;
+
+    temp_3 = *(s32 *)arg1 & ~2;
+    *(s32 *)arg1 = temp_3;
+    *(s32 *)arg1 = temp_3 & ~4;
+    func_0028c370();
+    func_00288020(arg0, arg1);
+    var_18 = *(u8 **)(arg1 + 0x4C);
+    while (var_18 != NULL) {
+        func_0043f9c8(D_008821E0, 0, 0x28);
+        *(u32 *)D_00882204 = (u32)D_0063C420;
+        D_008821E0[0] = 1;
+        func_0028a970(arg0, (s32)arg1, var_18);
+        var_18 = *(u8 **)(var_18 + 0x90);
+    }
+    var_18_2 = *(u8 **)(arg1 + 0x4C);
+    while (var_18_2 != NULL) {
+        func_0043f9c8(D_008821E0, 0, 0x28);
+        *(u32 *)D_00882204 = (u32)D_0063C420;
+        D_008821E0[0] = 2;
+        func_0028a970(arg0, (s32)arg1, var_18_2);
+        var_18_2 = *(u8 **)(var_18_2 + 0x90);
+    }
+    var_20 = *(u8 **)(arg1 + 0x4C);
+    while (var_20 != NULL) {
+        temp_3_2 = *(s32 *)var_20;
+        switch (temp_3_2) {
+        case 6:
+        case 0xA:
+        case 0x27:
+        case 0x2B:
+        case 0x24:
+            var_2 = 1;
+            break;
+        default:
+            var_2 = 0;
+            break;
+        }
+        if (var_2 != 0) {
+            temp_18 = *(s16 *)(var_20 + 0x1C);
+            var_19 = *(u8 **)(var_20 + 0x68);
+            while (var_19 != NULL) {
+                if (func_00286430(var_19) != 0) {
+                    if (((s32)*(u16 *)var_19 + temp_18) > arg0) {
+                        break;
+                    }
+                }
+                var_19 = *(u8 **)(var_19 + 0x4C);
+            }
+            if (var_19 != NULL) {
+                var_18_3 = *(u8 **)(var_19 + 0x50);
+            } else {
+                var_18_3 = *(u8 **)(var_20 + 0x6C);
+            }
+            while (var_18_3 != NULL) {
+                if (func_00286430(var_18_3) == 1) {
+                    break;
+                }
+                var_18_3 = *(u8 **)(var_18_3 + 0x50);
+            }
+            func_00287360(var_20, var_19, var_18_3, arg0, arg1);
+        }
+        var_20 = *(u8 **)(var_20 + 0x90);
+    }
+    func_00287ad0(arg0, (s32)arg1);
+    func_00287bf0(arg0, arg1);
+    temp_4 = *(s32 *)arg1;
+    if ((temp_4 & 1) && !(temp_4 & 2)) {
+        func_0026d810();
+    }
+}
 
 void func_00286c60();
 
