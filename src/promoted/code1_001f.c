@@ -2145,8 +2145,113 @@ s32 func_001f68e0(u8 *arg0)
    an explicit goto loop with the test at the bottom. Preheader hoist-order
    floor. Committed at nd 9. */
 
+#pragma push
+#pragma opt_propagation off
 // FUN_001F6930
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f6930);
+s32 func_001f6930(u8 *arg0)
+{
+    extern s32 func_00232730(s32 arg0, s32 arg1);
+    extern s32 func_00244f60(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
+    s32 var_22;
+    u32 var_21;
+    s32 var_20;
+    s32 var_19;
+    s32 var_3;
+    u8 *temp_17;
+    s32 temp_16;
+    s32 temp_30;
+    u16 *temp_5;
+    u16 *temp_5_2;
+    u16 *temp_5_3;
+    u16 *temp_5_4;
+    u16 *temp_5_5;
+    u16 *temp_5_6;
+    s32 temp_3;
+
+    temp_17 = *(u8 **)(arg0 + 0x30);
+    temp_30 = func_002326e0(*(s32 *)(temp_17 + 0xA64));
+    var_22 = 0;
+    var_21 = 0;
+    goto loop_31_test;
+loop_31_body:
+    var_3 = 1;
+    temp_16 = 1 << var_21;
+    if (temp_30 & temp_16) {
+        switch (temp_16) {
+        case 0x10:
+            temp_5 = *(u16 **)(temp_17 + 0xA64);
+            var_20 = func_00244f60(8, temp_5, temp_5, 0xFFFF, 0x10);
+            var_19 = 3;
+            temp_3 = var_3;
+            break;
+        case 0x4:
+            temp_5_2 = *(u16 **)(temp_17 + 0xA64);
+            var_20 = func_00244f60(8, temp_5_2, temp_5_2, 0xFFFF, 4);
+            var_19 = 3;
+            temp_3 = var_3;
+            break;
+        case 0x2:
+            temp_5_3 = *(u16 **)(temp_17 + 0xA64);
+            var_20 = func_00244f60(8, temp_5_3, temp_5_3, 0xFFFF, 2);
+            var_19 = 3;
+            temp_3 = var_3;
+            break;
+        case 0x40:
+            temp_5_4 = *(u16 **)(temp_17 + 0xA64);
+            var_20 = func_00244f60(8, temp_5_4, temp_5_4, 0xFFFF, 0x40);
+            var_19 = 3;
+            temp_3 = var_3;
+            break;
+        case 0x80:
+            temp_5_5 = *(u16 **)(temp_17 + 0xA64);
+            var_20 = func_00244f60(8, temp_5_5, temp_5_5, 0xFFFF, 0x80);
+            var_19 = 6;
+            temp_3 = var_3;
+            break;
+        case 8:
+            temp_5_6 = *(u16 **)(temp_17 + 0xA64);
+            var_20 = func_00244f60(8, temp_5_6, temp_5_6, 0xFFFF, 8);
+            var_19 = 6;
+            temp_3 = var_3;
+            break;
+        default:
+            var_20 = 0;
+            var_19 = 0;
+            temp_3 = 0;
+            break;
+        }
+        if ((temp_3 == 1) && (var_19 != 0)) {
+            if (func_00232730(*(s32 *)(temp_17 + 0xA64), 0x22F) != 0) {
+                var_19 = var_19 >> 1;
+                if (var_19 <= 0) {
+                    var_19 = 1;
+                }
+            }
+            if (func_00232730(*(s32 *)(temp_17 + 0xA64), 0x230) != 0) {
+                var_19 = 1;
+            }
+        }
+        if (var_3 == 1) {
+            if (*(u8 *)(arg0 + var_21 + 0x3F6) <= 1) {
+                goto loop_31_increment;
+            }
+        }
+        if ((*(u8 *)(arg0 + var_21 + 0x3F6) >= var_19) && (var_19 != 0)) {
+            var_22 |= temp_16;
+        } else if ((s32)func_00231d70(0x64) < var_20) {
+            var_22 |= temp_16;
+        }
+    }
+loop_31_increment:
+    var_21 += 1;
+loop_31_test:
+    if (var_21 < 0x18U) {
+        goto loop_31_body;
+    }
+    return var_22;
+}
+#pragma opt_propagation on
+#pragma pop
 // FUN_001F6BF0
 /* measured: retail materialises this loop's invariant in the preheader; plain
    -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
