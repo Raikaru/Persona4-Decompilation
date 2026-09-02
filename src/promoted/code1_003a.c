@@ -470,8 +470,32 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3050);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3500);
 // FUN_003A3670
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3670);
-// FUN_003A3D50 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3d50);
+/* measured: schedule on fills the loop back-edge delay slot and the jr $ra delay slot for func_003a3d50. */
+#pragma schedule on
+// FUN_003A3D50
+void func_003a3d50(u8 *arg0)
+{
+    s32 count;
+    u8 *base;
+    u8 *list;
+    u8 *node;
+
+    base = *(u8 **)(arg0 + iGpffffb610);
+    if ((*(s32 *)(base + 0x44) & 0x10) == 0) {
+        list = *(u8 **)(base + 0x9C);
+        count = 0;
+        node = list;
+        do {
+            if (*(s32 *)(node + 0x138) != 0) {
+                func_003e1ea0(*(s32 *)(node + 0x138));
+                *(s32 *)(node + 0x138) = 0;
+            }
+            node += 4;
+        } while ((u32)*(s32 *)(list + 0xE8) >= (u32)++count);
+    }
+}
+/* measured: closing schedule for func_003a3d50. */
+#pragma schedule off
 // FUN_003A3DE0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3de0);
 // FUN_003A3E90 NONMATCHING
