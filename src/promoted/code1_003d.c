@@ -675,8 +675,37 @@ void func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 /* measured: closes the single-function schedule bracket for func_003d5f50. */
 #pragma schedule off
-// FUN_003D5FB0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5fb0);
+/* measured: schedule on fills the call delay slot; the reload of the allocated
+   slot before the branch is a store-to-load forwarding that b210 does as a
+   peephole, so peephole off keeps it; opt_propagation off keeps the named
+   self copy a statement so the flags load is issued from $a0 before the park. */
+#pragma schedule on
+#pragma no_branch_likely on
+#pragma peephole off
+#pragma opt_propagation off
+// FUN_003D5FB0
+s32 func_003d5fb0(u8 *arg0)
+{
+    extern s32 func_003df5d0(s32 arg0, s32 arg1);
+    u8 *self;
+    s32 result;
+
+    self = arg0;
+    *(s32 *)(self + 0x10) = func_003df5d0(4, *(s32 *)(arg0 + 4) | 0x40000);
+    result = *(s32 *)(self + 0x10);
+    if (result == 0) {
+        return 0;
+    }
+    *(s32 *)(self + 0x14) = 0;
+    return (s32)self;
+}
+/* measured: closes the opt_propagation/peephole bracket for func_003d5fb0. */
+#pragma opt_propagation on
+#pragma peephole on
+/* measured: closes no_branch_likely for func_003d5fb0. */
+#pragma no_branch_likely off
+/* measured: closes the schedule-on bracket for func_003d5fb0. */
+#pragma schedule off
 // FUN_003D6010
 /* measured: schedule bracket retained for func_003d6010. */
 #pragma schedule on
