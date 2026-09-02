@@ -1,3 +1,8 @@
+// Main follow-up (2026-09-02): with code1_003b.c listed in config/speed_units.txt (-O2,p) the stray nop is supplied by the
+// compiler. Remaining residual then: retail calls func_003df360 with the incoming $a0 (needs opt_common_subs ON) but also
+// reloads *work after storing it (lw v1,(s0) right after sw v1,(s0)), which under CSE on no spelling tried reproduces
+// (cast/struct-member/shift/u32/recomputed-address forms all forward the store). With opt_common_subs off the reload
+// appears but the call gains a move a0,s4. Mid-function pragma flips are function-granular. Open.
 // FUN_003BCD50 archive (wave Ko lane KoA, killed by provider rate limit; live state at cutoff, MISMATCH nd28 200/208).
 // The (s64)0 < length guard is now exact (slt $at,$zero,$v0; beqz). ALL remaining words are one stray retail nop at +164
 // (after the filled back-edge delay slot, before move $v0,$s4) shifting the epilogue. Same nop as func_003b4230 (+0x9c).

@@ -901,7 +901,8 @@ def _mwccgap_flags(c, src=None):
         "--asm-dir-prefix", str(REPO),
         "--macro-inc-path", str(ASM / "macro.inc"),
         "--as-march", "r5900", "--as-mabi", "eabi",
-        *c["cflags"], "-Iinclude",
+        *(V.unit_compile_flags(Path(src), c["cflags"]) if src is not None else c["cflags"]),
+        "-Iinclude",
     ]
     if AS_TOOL is not None and not AS_TOOL.wsl and len(AS_TOOL.argv) == 1:
         flags[0:0] = ["--as-path", AS_TOOL.argv[0]]
@@ -912,7 +913,7 @@ def _compile_with_mwccgap(c, src, output):
     mwccgap = REPO / "tools" / "mwccgap" / "mwccgap.py"
     sh(
         [sys.executable, str(mwccgap), str(src), str(output),
-         *_mwccgap_flags(c)],
+         *_mwccgap_flags(c, src)],
         cwd=str(REPO),
     )
 
