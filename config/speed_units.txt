@@ -1,0 +1,23 @@
+# Translation units that retail built with MWCCPS2's "optimize for speed"
+# variant (`-O2,p`) rather than plain `-O2`.
+#
+# `,p` is command-line state.  No #pragma spelling reaches it (optimize_for_size
+# off is recognised but does not reproduce it), and it survives a later
+# `#pragma optimization_level N`, so it is carried per unit here and applied by
+# tools/verify.py::unit_compile_flags in both verify and build.
+#
+# Signature: with scheduling on, `,p` inserts an alignment nop after a filled
+# back-edge delay slot so the following forward-branch target is 8-aligned
+# (func_003b4230 +0x9c, func_003bcd50 +164).  Plain -O2 never emits it, and no
+# matched function anywhere in the tree has that shape.
+#
+# Measured 2026-09-02 by a full verify under a global `-O2,p`: 962 matched
+# functions regress tree-wide, but every unit below loses ZERO of its matches
+# (0039: 70, 003a: 21, 003b: 56, 003d: 69, 003e: 77), while ordinary game
+# units lose 20-35% each.  code1_003c.c lost 1 of 105 (func_003c99f0) and is
+# held back until that one is understood.
+src/promoted/code1_0039.c
+src/promoted/code1_003a.c
+src/promoted/code1_003b.c
+src/promoted/code1_003d.c
+src/promoted/code1_003e.c

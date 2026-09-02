@@ -118,7 +118,8 @@ extern void func_003f6440(s32 arg0, s32 arg1);
 extern s32 func_0036be00(void);
 extern void func_00410420(s32 arg0, s32 arg1, void *arg2, s32 arg3);
 extern void func_004106a0(s32 arg0);
-extern void func_00378280(s32 arg0, s32 arg1);
+extern f32 DAT_007613f8;
+extern f32 iGpffff8218;
 extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 fparg0);
 extern f32 func_0044b610(f32 fparg0);
 extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
@@ -973,19 +974,70 @@ void func_00378260(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
 }
 
 
-/* measured: retail's loop body uses the FPU accumulator idiom (adda.s $f2,$f3 /
-   msuba.s $f6,$f0 / msub.s $f4,$f5,$f4 after the signed (3-i)/2 and (3-i)%2
-   splits) which m2c marks M2C_ERROR; no C float spelling reproduces the
-   ACC-fused instructions byte-for-byte (same floor as btlAICommand func_001de370
-   and effBlurFilter func_004a8da0). The rest decodes cleanly: u8 arg1 stored to
-   p[0x11F], p = *(u8**)(arg0+0x38), the (*(s32*)(p+4)!=0) branch loading
-   iGpffff8308/iGpffff8218, the byte-to-float (x>>1)|(x&1) doubling idiom, the
-   float-to-byte clamp via c.le.s 0x4F000000 with 0x80000000 or, and the
-   4-iteration loop storing 0xFF/alpha to p[i*0x24+0x12C..]. FPU FMA-fusion
-   floor. */
+/* measured: u32->f32 and f32->u8 written as plain (f32)/(u8) casts;
+   opt_loop_invariants on hoists the FMA constants and 0x4f00/0xff. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_00378280
-INCLUDE_ASM("asm/nonmatchings/btlShuffleDraw", func_00378280);
+void func_00378280(u8 *arg0, u8 arg1) {
+    u8 *temp_4;
+    u8 *temp_11;
+    u8 *temp_10;
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f0_3;
+    f32 temp_f4;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f0_3;
+    f32 global_a;
+    f32 global_b;
+    s32 var_5;
+    s32 temp_8;
+    u32 temp_6;
+    u32 temp_6_2;
+    u32 temp_6_3;
 
+    temp_4 = *(u8 **)(arg0 + 0x38);
+    temp_4[0x11F] = arg1;
+    if (*(s32 *)(temp_4 + 4) != 0) {
+        global_a = DAT_007613f8;
+        global_b = iGpffff8218;
+    } else {
+        global_a = 0.0f;
+        global_b = 0.0f;
+    }
+    for (var_5 = 0; var_5 < 4; var_5++) {
+        temp_8 = 3 - var_5;
+        temp_f4 = (1.0f + 0.0f) - global_a * (f32)(temp_8 % 2) -
+            global_b * (f32)(temp_8 / 2);
+
+        temp_11 = temp_4 + var_5 * 0x24;
+        temp_10 = temp_11 + 0x12C;
+
+        temp_6 = temp_4[0x11C];
+        var_f0 = (f32)temp_6;
+        temp_f0 = var_f0 * temp_f4;
+        temp_10[0] = (u8)temp_f0;
+
+        temp_6_2 = temp_4[0x11D];
+        var_f0_2 = (f32)temp_6_2;
+        temp_f0_2 = var_f0_2 * temp_f4;
+        temp_10[1] = (u8)temp_f0_2;
+
+        temp_6_3 = temp_4[0x11E];
+        var_f0_3 = (f32)temp_6_3;
+        temp_f0_3 = var_f0_3 * temp_f4;
+        temp_10[2] = (u8)temp_f0_3;
+
+        temp_10[3] = temp_4[0x11F];
+        temp_11[0x1BC] = 0xFF;
+        temp_11[0x1BD] = 0xFF;
+        temp_11[0x1BE] = 0xFF;
+        temp_11[0x1BF] = temp_4[0x11F];
+    }
+}
+#pragma pop
 
 // FUN_00378500
 s32 func_00378500(u8 *arg0) {

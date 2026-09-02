@@ -1038,6 +1038,34 @@ instead. On that test, of 7,705 unscanned windows **2,723 are flanked by
 third-party on both sides** (likely middleware), 4,099 are flanked by first-party,
 and 883 are mixed and need real attribution.
 
+### ...and a mixed-FLAGS build within MWCC: `-O2` versus `-O2,p`
+
+Retail also mixes MWCCPS2 optimisation *variants* per translation unit. The
+`0x390000`–`0x3f0000` block (`code1_0039`..`003e`) was built with the
+"optimize for speed" variant, `-O2,p`. Measured 2026-09-02:
+
+- The signature is an **alignment `nop` after a filled back-edge delay
+  slot** so that the following forward-branch target is 8-aligned
+  (`func_003b4230` +0x9c, `func_003bcd50` +164). Plain `-O2` never emits
+  it; no matched function anywhere in the tree has that shape; every
+  archive in that block that mentions "one trailing nop retail keeps" was
+  looking at it.
+- `,p` is command-line state. No `#pragma` reaches it (`optimize_for_size
+  off` is recognised but does not reproduce it; every other spelling tried
+  is unrecognised), and it **survives** a later `#pragma optimization_level
+  N`, so it cannot be bracketed per function — it is carried per unit in
+  `config/speed_units.txt` and applied by `tools/verify.py::unit_compile_flags`
+  in both verify and build (the same shape as `config/gcc_units.txt`).
+- A full verify under a *global* `-O2,p` loses 962 matched functions, while
+  the listed units lose zero of their 293 matches and `code1_003c.c` loses
+  1 of 105 (`func_003c99f0`, held back until understood). Ordinary game
+  units (`code1_001e`, `mdlManager`, `code1_0014`...) lose 20–35% each, so
+  this is per-unit, not global.
+- With `,p` on, the functions in that block that stalled on the nop are
+  re-openable; what remains on `func_003bcd50` is a store-to-load reload
+  under CSE (see its archive), and on `func_003b4230` an `s32` counter
+  compared against an `s64` parameter without extension.
+
 ## Known compiler floors (do not fight these)
 
 When the only residual is one of these, the function is a compiler floor:
