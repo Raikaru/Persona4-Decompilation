@@ -50,6 +50,15 @@ extern void func_0038bab0(u8 *arg0);
 extern void func_0038c100(u8 *arg0);
 extern void func_0038c770(u8 *arg0);
 extern void func_0038cab0(u8 *arg0);
+
+extern f32 D_00761470;
+extern f32 D_008872F8[];
+extern void (*D_00887300[])(u32, u32);
+extern void (*D_00887310[])(s32, void *, s32);
+extern u8 *func_00457120(void);
+extern f32 func_0044b610(f32 fparg0);
+extern void func_00364c50(void);
+extern void func_00364c70(void);
 extern u8 D_0064F0E0[];
 extern u8 D_0064EEF0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -1037,8 +1046,104 @@ void func_0038c770(u8 *arg0)
         }
     }
 }
+typedef struct {
+    u16 counter;
+    u16 pad;
+    f32 x;
+    f32 z;
+    f32 y;
+    f32 w;
+} State_0038CAB0;
+
+typedef struct {
+    f32 x;
+    f32 y;
+    f32 z;
+    u32 pad0;
+    u32 pad1;
+    u32 pad2;
+    f32 scale;
+    u32 pad3;
+    f32 color[4];
+    u32 tail[4];
+} Vertex_0038CAB0;
 // FUN_0038CAB0
-INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038cab0);
+void func_0038cab0(u8 *arg0)
+{
+    u8 *base;
+    s32 mode;
+    f32 zval;
+    f32 inv_scale;
+    f32 blend;
+    f32 fade;
+    f32 xcoord;
+    f32 half;
+    f32 left;
+    f32 right;
+    f32 y2;
+    Vertex_0038CAB0 work[4];
+    State_0038CAB0 *state;
+
+    state = (State_0038CAB0 *)(arg0 + 0x1A0);
+    base = *(u8 **)arg0 + 0x1F1D0;
+    zval = D_008872F8[0];
+    inv_scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    mode = *(u16 *)(base + 4);
+    mode = (mode < 3) ? mode : 2;
+    if (state->counter < 10) {
+        state->counter += 1;
+        blend = 1.0f - func_0044b610((D_00761470 * (f32)state->counter) / 10.0f);
+    } else {
+        blend = 1.0f;
+        if (state->w == 0.0f) {
+            *(u16 *)(arg0 + 4) &= 0xFFF7;
+        }
+    }
+    state->x = state->x + 0.25f * (207.0f + 107.0f * (f32)mode - state->x);
+    state->y += blend * (state->w - state->y);
+    fade = state->z;
+    xcoord = state->x;
+    half = state->y / 2.0f;
+    left = xcoord - half;
+    work[0].x = left;
+    work[0].y = fade;
+    work[0].z = zval;
+    work[0].color[0] = 224.0f;
+    work[0].color[1] = 127.0f;
+    work[0].color[2] = 0.0f;
+    work[0].color[3] = 255.0f;
+    work[0].scale = inv_scale;
+    right = xcoord + half;
+    work[1].x = right;
+    work[1].y = fade;
+    work[1].z = zval;
+    work[1].color[0] = 224.0f;
+    work[1].color[1] = 127.0f;
+    work[1].color[2] = 0.0f;
+    work[1].color[3] = 255.0f;
+    work[1].scale = inv_scale;
+    y2 = fade + 448.0f;
+    work[2].x = left;
+    work[2].y = y2;
+    work[2].z = zval;
+    work[2].color[0] = 224.0f;
+    work[2].color[1] = 127.0f;
+    work[2].color[2] = 0.0f;
+    work[2].color[3] = 255.0f;
+    work[2].scale = inv_scale;
+    work[3].x = right;
+    work[3].y = y2;
+    work[3].z = zval;
+    work[3].color[0] = 224.0f;
+    work[3].color[1] = 127.0f;
+    work[3].color[2] = 0.0f;
+    work[3].color[3] = 255.0f;
+    work[3].scale = inv_scale;
+    D_00887300[0](1, 0);
+    func_00364c50();
+    D_00887310[0](4, &work[0], 4);
+    func_00364c70();
+}
 // FUN_0038CD70
 void func_0038cd70(u8 *arg0, u8 *arg1)
 {
