@@ -889,7 +889,77 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0031fa20);
    conversion floor. */
 /* measured: candidate archived at build/EFCL2_003205f0_body.c; object 964/window 896, normalized_diff 621. */
 // FUN_003205F0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003205f0);
+void func_003205f0(u8 *arg0, s64 arg1, s64 arg2) {
+    extern void func_002b2970(u8 *, f32, f32);
+    extern void func_002b6c30(s64, f2, s32, f32);
+    extern void func_002b69f0(s64, f2, f2, u32, u32, s16);
+    extern void func_002b6a70(s64, u8, u8, s32, s32, s32);
+    extern void func_002b2a60(u8 *, s32, s32, s32, s32);
+    extern u8 *func_002b6150(s64);
+    extern void func_002b6140(u8 *, u8);
+    f2 spA0;
+    f2 sp98;
+    f2 sp90;
+    f2 sp88;
+    f2 sp80;
+    f2 sp78;
+    f2 sp70;
+    f2 sp68;
+    f2 sp60;
+    f2 sp58;
+    f2 sp50;
+    FclByte4 spAC;
+    f2 *tbl1;
+    f2 *tbl2;
+    f2 *ca;
+    s16 idx1;
+    s16 idx2;
+    u8 *obj;
+    u8 *temp_2;
+
+    obj = *(u8 **)(arg0 + 0x38);
+    func_002b6140(*(u8 **)(obj + 0x28C), 0);
+    func_002b6140(*(u8 **)(obj + 0x290), 0);
+    idx1 = (s16)arg1;
+    if (idx1 != 0) {
+        tbl1 = (f2 *)&D_00643D70[idx1 * 2];
+        func_002b2970((u8 *)&spA0, tbl1->x - 200.0f, tbl1->y);
+        func_002b6c30(arg1, spA0, 0xAC, 54.0f);
+        func_002b2970((u8 *)&sp98, tbl1->x - 200.0f, tbl1->y);
+        func_002b2970((u8 *)&sp90, tbl1->x, tbl1->y);
+        func_002b69f0(arg1, sp98, sp90, 0, 0xA, 0);
+        func_002b6a70(arg1, 0, 0xFF, 0, 0xA, 0);
+        if (idx1 == 0x92) {
+            ca = (f2 *)D_00644CA0;
+            func_002b2970((u8 *)&sp88, ca->x, ca->y);
+            func_002b6c30(0x1E6, sp88, 0x65, 54.0f);
+            func_002b2970((u8 *)&sp80, 58.0f, ca->y);
+            func_002b2970((u8 *)&sp78, ca->x, ca->y);
+            func_002b69f0(0x1E6, sp80, sp78, 0, 0xA, 3);
+            func_002b6a70(0x1E6, 0, 0xFF, 0, 0xA, 3);
+            func_002b2a60((u8 *)&spAC, 0x49, 0x72, 0xFF, 0xFF);
+            temp_2 = func_002b6150(0x1E6);
+            *(FclByte4 *)(temp_2 + 0x85) = spAC;
+        }
+    }
+    idx2 = (s16)arg2;
+    if (idx2 != 0) {
+        tbl2 = (f2 *)&D_00643D70[idx2 * 2];
+        func_002b2970((u8 *)&sp70, tbl2->x, tbl2->y);
+        func_002b6c30(arg2, sp70, 0xAC, 54.0f);
+        func_002b2970((u8 *)&sp68, tbl2->x, tbl2->y);
+        func_002b2970((u8 *)&sp60, 200.0f + tbl2->x, tbl2->y);
+        func_002b69f0(arg2, sp68, sp60, 0, 0xA, 0);
+        func_002b6a70(arg2, 0xFF, 0, 0, 0xA, 0);
+        if (idx2 == 0x92) {
+            ca = (f2 *)D_00644CA0;
+            func_002b2970((u8 *)&sp58, ca->x, ca->y);
+            func_002b2970((u8 *)&sp50, 122.0f, ca->y);
+            func_002b69f0(0x1E6, sp58, sp50, 0, 6, 2);
+            func_002b6a70(0x1E6, 0xFF, 0, 0, 6, 2);
+        }
+    }
+}
 // FUN_00320970
 void func_00320970(u8 *arg0, s64 arg1) {
     FclByte4 sp5C;
