@@ -285,8 +285,62 @@ s32 func_001bc630(u8 *param_1)
     offset += (u32)iGpffffb3bc;
     return (s32)((*(u16 *)(offset + 2) & 0x4000) != 0);
 }
+/* measured: no COP1 here despite the old "accumulator-chain floor" archive.
+   The state-history shift is retail's dead `while ((n = i) == 0)` (beq to the
+   body); the u16 counter's fresh andi on the store side needs the fused
+   `[i--]` subscript (raw byte-offset forms CSE it with n, nd185), and the
+   pointer-plus-index spelling with the constant last gives addu base,index. */
 // FUN_001BC660
-INCLUDE_ASM("asm/nonmatchings/btlCamera", func_001bc660);
+void func_001bc660(u16 state, BtlAction* action, u32 param_3)
+{
+    extern u8 *func_0022cdb0(void);
+    extern void func_001bd300(void);
+    extern u8 D_005F74C0[];
+    u8 *entry;
+    u8 *camera;
+    u16 i;
+    s32 key;
+    s32 n;
+    void (*callback)(u8 *);
+
+    if ((entry = func_0022cdb0()) == NULL) {
+        entry = &D_005F74C0[state * 0x14];
+    }
+    key = state;
+    if (*(u16 *)(iGpffffb3ac + 0xF4) != key || *(s32 *)(entry + 8) != 0) {
+        i = 2;
+        while ((n = i) == 0) {
+            camera = iGpffffb3ac;
+            *((u16 *)camera + i-- + 0x84) = *((u16 *)camera + n + 0x83);
+        }
+        camera = iGpffffb3ac;
+        *(u16 *)(camera + 0x108) = *(u16 *)(camera + 0xF4);
+        camera = iGpffffb3ac;
+        if (*(u16 *)(camera + 0xF4) == key) {
+            *(u16 *)(camera + 0x10E) += 1;
+        } else {
+            *(u16 *)(camera + 0x10E) = 0;
+        }
+        *(u16 *)(iGpffffb3ac + 0xF4) = state;
+        *(s32 *)(iGpffffb3ac + 0xFC) = 0;
+        *(s32 *)(iGpffffb3ac + 0x100) = 0;
+        *(BtlAction **)(iGpffffb3ac + 0x104) = action;
+        if (*(s32 *)(entry + 0xC) != 0) {
+            camera = iGpffffb3ac;
+            *(s32 *)(camera + 0xF8) |= 2;
+        } else {
+            camera = iGpffffb3ac;
+            *(s32 *)(camera + 0xF8) &= ~2;
+        }
+        if (param_3 != 0) {
+            func_001bd300();
+        }
+        callback = *(void (**)(u8 *))entry;
+        if (callback != NULL) {
+            callback(iGpffffb3ac + 0x24);
+        }
+    }
+}
 // FUN_001BC7F0
 u16 func_001bc7f0(void)
 {

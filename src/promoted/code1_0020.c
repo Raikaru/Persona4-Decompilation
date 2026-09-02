@@ -153,7 +153,7 @@ extern void func_00207140();
 extern void func_00207320();
 extern void func_00207b00();
 extern void func_002089e0();
-extern f32 func_00208870();
+extern void func_00208870(u8 *unused, u8 *arg1, f32 *arg2);
 extern void func_001bc660(u16 arg0, void *arg1, u32 arg2);
 extern void func_001bcd40(f32 arg0, u8 *arg1, u8 *arg2, u8 *arg3, u32 arg4);
 extern u8 *func_001b0c80(s32 arg0);
@@ -1497,8 +1497,43 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207140);
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207320);
 // FUN_00207B00
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207b00);
+/* measured: the float argument to func_0045d6e0 is 0.0f - retail only ever clears
+   $f12, and that hoisted zero is also the `<= 0.0f` compare operand and the
+   accumulator seed of the adda.s/madd.s (the old archive passed temp_f4, nd10). */
 // FUN_00208870
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00208870);
+void func_00208870(u8 *unused, u8 *arg1, f32 *arg2)
+{
+    s32 values[4];
+    Color4 color;
+    f32 temp_f0;
+    f32 temp_f1;
+    f32 temp_f3;
+    f32 temp_f4;
+
+    func_002012d0(func_00452560(*(s32 *)(arg1 + 0x5B0)), arg2[0], arg2[1]);
+    temp_f0 = (f32)*(s16 *)(arg1 + 0xE) / 2.0f;
+    if (temp_f0 > 1.0f) {
+        temp_f1 = 1.0f;
+    } else if (temp_f0 < 0.0f) {
+        temp_f1 = 0.0f;
+    } else {
+        temp_f1 = temp_f0;
+    }
+    temp_f3 = temp_f1 * 2.0f - temp_f1 * temp_f1;
+    if (temp_f3 <= 0.0f) {
+        return;
+    }
+    color.c0 = 0xB4;
+    color.c1 = 0;
+    color.c2 = 0;
+    color.c3 = 0xFF;
+    values[0] = -10;
+    temp_f4 = (1.0f - temp_f3) * 11.0f + 410.0f;
+    values[1] = (s32)temp_f4;
+    values[2] = 0x294;
+    values[3] = (s32)(temp_f3 * 22.0f);
+    func_0045d6e0((u8 *)&color, (f32 *)values, 0.0f, 0);
+}
 // FUN_002089E0
 void func_002089e0(u8 *arg0, u8 *arg1)
 {
@@ -2434,8 +2469,52 @@ void func_0020e3f0() {
     func_002119a0(func_00452560() + 0x75C);
 }
 
+/* measured: entry parks are emitted in PARAMETER order, so the floats sit
+   between $s6 and the $v1/$s4 parks only with (ctx, x, y, text, flag, color);
+   the EE ABI assigns int/float registers independently, so callers are
+   unchanged. arg3 is unsigned (srl, not sra) and the four colour bytes are
+   (s8)(u8) into u64 locals (dsll32/dsra32 canonicalisation, then an in-place
+   andi via `c = (u8)c` that a later s64-parameter call passes with a bare
+   move); the callee is declared with s64 colour parameters at block scope
+   for that reason (its definition takes s32). `i = 0` precedes the masks
+   so the index inherits the dead flag's $s4. */
 // FUN_0020E420
-INCLUDE_ASM("asm/nonmatchings/code1_0020", func_0020e420);
+void func_0020e420(u8 *arg0, f32 fparg0, f32 fparg1, s32 arg1, s32 arg2, u32 arg3)
+{
+    extern s32 iGpffffa580;
+    extern void func_00442088(void *arg0, const char *arg1, ...);
+    extern s32 func_00442948(const void *arg0);
+    extern void func_00201650(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1, s64 arg5, s64 arg6, s64 arg7, s64 arg8);
+    u8 sp90[0x40];
+    u64 c0;
+    u64 c1;
+    u64 c2;
+    u64 c3;
+    s32 count;
+    s32 i;
+
+    c3 = (s8)(u8)((arg3 & 0xFF000000) >> 24);
+    c2 = (s8)(u8)((arg3 & 0x00FF0000) >> 16);
+    c1 = (s8)(u8)((arg3 & 0x0000FF00) >> 8);
+    c0 = (s8)(u8)(arg3 & 0x000000FF);
+    if (c0 != 0) {
+        func_00442088(sp90, (const char *)&iGpffffa580, arg1);
+        count = func_00442948(sp90);
+        if (arg2 != 0) {
+            fparg0 = fparg0 - (f32)count * 9.5f;
+            fparg1 -= 11.0f;
+        }
+        i = 0;
+        c0 = (u8)c0;
+        c1 = (u8)c1;
+        c2 = (u8)c2;
+        c3 = (u8)c3;
+        for (; i < count; i++) {
+            func_00201650(arg0, 10, (s8)sp90[i] - 0x19, fparg0, fparg1, c3, c2, c1, c0);
+            fparg0 += 19.0f;
+        }
+    }
+}
 // FUN_0020E5C0
 f32 func_0020e5c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {

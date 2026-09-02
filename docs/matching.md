@@ -1146,6 +1146,22 @@ variants is wasted time.
   after the loads). Both masks written as casts under the old-style
   declaration put the loads first instead. Closed `func_00178870`
   (code1_0017.c, nd4 -> 0); measured in isolation across 22 spellings.
+- **Entry parks are emitted in PARAMETER order.** Retail `move $s6,$a0 /
+  mov.s $f21,$f12 / mov.s $f20,$f13 / move $v1,$a1 / move $s4,$a2` is not a
+  scheduling floor: the floats sit between the GPR parks because the source
+  declared them second and third (`(ctx, x, y, text, flag, color)`); the EE
+  ABI assigns int and float argument registers independently, so callers are
+  byte-identical under either order. Named copies (`context = arg0`) turn a
+  park into a statement and lose the position. Closed `func_0020e420`
+  (code1_0020.c) together with: unsigned `arg3` (`srl` not `sra`), `(s8)(u8)`
+  colour bytes into `u64` locals (dsll32/dsra32), `c = (u8)c` before the loop
+  (in-place `andi`), a block-scope `s64`-parameter declaration of the callee
+  so the masked values pass with a bare `move`, and `i = 0` written before
+  the masks so the index inherits the dead flag's `$s4`.
+- **"COP1 accumulator-chain floor" archives are not floors.** 41 archives
+  carried that classification with no source probing; the first four opened
+  (`func_001bc660` - no COP1 at all, `func_00208870`, `func_0020e420`,
+  `func_003a9e50`) all closed. Treat every such archive as a fresh target.
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
   loop (or the reverse — see the `opt_loop_invariants` waiver in

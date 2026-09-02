@@ -7,6 +7,7 @@ iGpffff9e28 = 0x00762f18; // type:data evidence: retail func_0015c210/func_0015c
 iGpffffb218 = 0x00764308; // type:data evidence: retail func_0015c210 lw/sw gp-0x4DE8 (0x00764308) caching func_00454a60's handle; gp base 0x007690F0
 iGpffffad88 = 0x00763e78; // type:data evidence: retail func_00456840 addiu $4,$28,-0x5278 (0x00763E78) as func_00428f08's first argument; gp base 0x007690F0
 iGpffffb3e0 = 0x007644d0; // type:data evidence: retail func_00195530 lw $2,-0x4C20($28) (0x007644D0), base of the 0x58-strided unit table; gp base 0x007690F0
+iGpffffa580 = 0x00763670; // type:data evidence: retail func_0020e420 addiu $5,$28,-0x5A80 (0x00763670) as the func_00442088 format-string argument; gp base 0x007690F0; rodata "%d"
 iGpffffa598 = 0x00763688; // type:data evidence: retail func_00216da0 addiu $5,$28,-0x5A68 (0x00763688) as the func_00442088 format-string argument; gp base 0x007690F0
 iGpffffb430 = 0x00764520; // type:data evidence: retail func_00193a80 sw $0,-0x4BD0($28) (0x00764520), first of three consecutive words cleared together; gp base 0x007690F0
 iGpffffb434 = 0x00764524; // type:data evidence: retail func_00193a80 sw $0,-0x4BCC($28) (0x00764524), second of the same three; gp base 0x007690F0
