@@ -1065,6 +1065,14 @@ Retail also mixes MWCCPS2 optimisation *variants* per translation unit. The
   re-openable; what remains on `func_003bcd50` is a store-to-load reload
   under CSE (see its archive), and on `func_003b4230` an `s32` counter
   compared against an `s64` parameter without extension.
+- Cross-build check (2.4-001213, 3.0.1-020123, 3.0.3-020716, b74, b119,
+  b151, b198, b210; all under `-O2,p` and `-O3,p`): none sinks `sd $ra`
+  into a branch delay slot (`func_00390290`), none avoids hoisting a load
+  over `mult` (`func_003df870`), and none turns an `s64` counter's
+  `daddiu` into `addiu` (`func_003b4230`). 2.4 saves `$ra` with `sq`. So
+  the block's remaining scheduler-shaped residuals are not a compiler
+  version question either; they are source-shape or genuinely open.
+  Builds cached under `~/opt/mwcc_all/` for future checks.
 
 ## Known compiler floors (do not fight these)
 
