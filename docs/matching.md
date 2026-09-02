@@ -1162,6 +1162,22 @@ variants is wasted time.
   carried that classification with no source probing; the first four opened
   (`func_001bc660` - no COP1 at all, `func_00208870`, `func_0020e420`,
   `func_003a9e50`) all closed. Treat every such archive as a fresh target.
+- **The "s64-parameter-normalization floor" (y_fclCombineDraw.c draw family)
+  is narrow-type canonicalisation, and it is reachable.** Every `dsll32
+  $r,$r,0x18 / dsra32` (or `0x10`) pair in that family is b210 canonicalising
+  an `s8` (`s16`) value into its 64-bit register form: an `s8` parameter at
+  entry (`dsll32 $s1,$a2,0x18`), an `s16` callee's return value right after
+  the `jal` (`dsll32 $a0,$v0,0x10` after `func_002b6970`), or an `s8`
+  callee *parameter* being materialised. Closed `func_003146f0` (the file's
+  oldest parked entry, 68/80): the late `dsll32/dsra32` into `$a3` is an
+  `s8` parameter of `func_0011b480` declared at **block scope** (the
+  file-scope prototype stays `s32` for the matched callers), fed by the
+  reload of the byte just stored (`*(s8 *)(obj + 0xC)`, store-forwarded from
+  the `$v1` park) - that is emitted in argument order, whereas `(s8)arg2` /
+  `(s64)arg2` casts of the parameter are hoisted ahead of the loaded
+  arguments (nd45). Declaring the callee's parameter `s64` produces the same
+  shifts but still hoisted. The 37 remaining functions in that file carry
+  "floor" notes written before this was understood; treat them as open.
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
   loop (or the reverse — see the `opt_loop_invariants` waiver in

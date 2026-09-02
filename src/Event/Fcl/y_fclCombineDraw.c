@@ -284,9 +284,23 @@ void func_003146c0(u8 *arg0) {
    $v1 into $a3 immediately before func_0011b480; MWCC reverses that
    materialization and reuses the object register. Exact residuals, probes,
    and ruled-outs remain archived in build/W8FclCombineDraw_003146f0_body.c.txt. */
-/* measured: Retail frame 0x10, no saved registers, 68-byte C object in an 80-byte window. Canonical func_0011b480(u8 *,s32,u32,s32) body is the lowest valid prototype candidate at nd 23 (all-s32 helper probe nd 18 was rejected because the promoted/shdPersona canonical declaration is required). Candidate residuals are the early u8 andi and shifted fourth argument versus retail's raw move $v1 plus late dsll32/dsra32; exact source-order and width/prototype probes were run and no nd <= 0 body was found. Parked at the nd-23 threshold; body archived at build/WCFclCombineDraw_003146f0_u8_body.c.txt. Committed at nd 23. */
+/* measured: MATCH (68B in the 80B window). The late dsll32/dsra32 into $a3 is the
+   canonicalisation of an s8 CALLEE parameter (block-scope declaration; the
+   file-scope prototype stays s32 for the matched callers) fed by the reload of
+   the byte just stored (`*(s8 *)(obj + 0xC)`, store-forwarded from the $v1 park),
+   which mwcc materialises in argument order; an (s8)/(s64) cast of the parameter
+   is hoisted ahead of the loaded arguments instead (nd45). */
 // FUN_003146F0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_003146f0);
+void func_003146f0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    extern void func_0011b480(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
+    u8 *obj;
+
+    obj = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(obj + 8) = arg1;
+    *(s8 *)(obj + 0xC) = arg2;
+    func_0011b480(*(u8 **)(obj + 4), 0, *(s32 *)(obj + 8), *(s8 *)(obj + 0xC));
+}
 
 
 
