@@ -329,14 +329,92 @@ void func_00458fa0(void)
 /* measured: see the annotation above the matching `on` pragma (func_00458fa0). */
 #pragma opt_loop_invariants off
 
-/* measured: retail keeps the loop-2 channel pointer in $s2, the f10 field
-   pointer in $s1 and the counter in $s3; mwcc b210 swaps ch/counter to
-   $s3/$s2 for every spelling tried (ch local, f10 local, direct indexing,
-   decl orders) and also emits the D_008D2CC2 decrement store after the s16
-   truncation instead of before (nd 55, ~20 ! rows). Tried 4 shapes; all nd
-   55. Saved-register rotation + store-scheduling floor. */
 // FUN_004594C0
-INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_004594c0);
+void func_004594c0(void)
+{
+    s16 i;
+    s32 j;
+    SndCh *ch;
+    s32 *f10;
+    s16 *state;
+    s16 idx;
+    s32 result;
+
+    func_004ccb50();
+    func_0043c0c0(3, 0x80, 0x7F, 0x7F);
+    for (i = 0; i < 6; i++)
+    {
+        func_00459790(&D_008D3ED0[i]);
+    }
+    if (D_008D2B90[0].f00 != 0)
+    {
+        if (LD32(D_008D2B94, 0) != 0 && LD16(D_008D2CC2, 0) != 0)
+        {
+            LD16(D_008D2CC2, 0)--;
+            if (LD16(D_008D2CC2, 0) == 0)
+            {
+                func_004d8da8(CH_HANDLE(0), 1);
+            }
+        }
+        func_004d9038(CH_HANDLE(0), 0);
+        result = func_004d8dd8(CH_HANDLE(0));
+        if (result == 3 || result == 0)
+        {
+            D_008D2B90[0].f00 = 0;
+        }
+        else if (result == 4)
+        {
+            func_004599d0(0);
+            func_00459ad0(0);
+            func_004d8e98(CH_HANDLE(0), 1);
+        }
+    }
+    for (j = 1; (s16)j < 5; j = (s16)(j + 1))
+    {
+        ch = &D_008D2B90[(s16)j];
+        if (ch->f00 != 0)
+        {
+            f10 = &ch->f10;
+            result = func_004d8dd8(*f10);
+            if (result == 3 || result == 0)
+            {
+                ch->f00 = 0;
+            }
+            else if (result == 4)
+            {
+                idx = (s16)j;
+                func_004599d0(idx);
+                func_00459ad0(idx);
+                func_004d8e98(*f10, 1);
+            }
+            else
+            {
+                state = &ch->f0C;
+                if (*state == 3)
+                {
+                    goto state_three;
+                }
+                switch (*state)
+                {
+                case 2:
+                    goto state_two;
+                default:
+                    goto state_done;
+                }
+state_two:
+                func_004d8d90(*f10);
+                *state = 1;
+                goto state_done;
+state_three:
+                idx = (s16)j;
+                func_00459ad0(idx);
+                *state = 1;
+state_done:
+                ;
+            }
+        }
+    }
+}
 
 // FUN_00459880
 s32 func_00459880(void)

@@ -3775,7 +3775,94 @@ s32 func_001fae80(u8 *arg0, s32 arg1)
     return 0;
 }
 // FUN_001FAF70
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001faf70);
+s32 func_001faf70(u8 *arg0, s32 arg1, s32 arg2)
+{
+    extern s32 func_0023a1e0(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
+    s32 temp_18;
+    u32 var_21;
+    u32 var_20;
+    s32 temp_19;
+    s32 temp_2;
+    s32 var_2;
+    u32 var_18;
+    u8 *temp_3;
+
+    if (arg1 <= 0) {
+        return 0;
+    }
+    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
+    if (!( *(u8 *)(temp_3 + 0) & 8)) {
+        return 0;
+    }
+    temp_18 = *(s32 *)(temp_3 + 0x20);
+    if ((temp_18 & 0x7F7FFFFF) && !(temp_18 & 0x80800000)) {
+        var_21 = 0;
+        goto loop_outer_test;
+loop_outer_body:
+        temp_19 = 1 << var_21;
+        if (temp_18 & temp_19) {
+            var_20 = 0;
+            goto loop_inner_test;
+loop_inner_body:
+            if (func_002340c0(
+                    *(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_20 * 4) + 0x38) +
+                                      0x30) + 0xA64),
+                    temp_19) != 0) {
+                var_20 += 1;
+                goto loop_inner_test;
+            } else {
+                goto loop_inner_exit;
+            }
+loop_inner_test:
+            if (var_20 < *(u16 *)(arg0 + 0x6A)) {
+                goto loop_inner_body;
+            }
+loop_inner_exit:
+            if (var_20 != *(u16 *)(arg0 + 0x6A)) {
+                goto loop_outer_after;
+            }
+        }
+loop_outer_increment:
+        var_21 += 1;
+loop_outer_test:
+        if (var_21 < 0x20U) {
+            goto loop_outer_body;
+        }
+loop_outer_after:
+        if (var_21 == 0x20) {
+            if (temp_18 & 0x3000) {
+                var_2 = 5;
+            } else {
+                var_2 = 3;
+            }
+            return var_2;
+        }
+    }
+    var_18 = 0;
+    goto loop_24_test;
+loop_24_body:
+    temp_2 = func_0023a1e0(
+        arg1 & 0xFFFF,
+        (u8 *)*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
+        (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) +
+                            0x30) + 0xA64),
+        arg2);
+    if (temp_2 != 0 && temp_2 != 0xFFFF) {
+        var_18 += 1;
+        goto loop_24_test;
+    } else {
+        goto loop_24_exit;
+    }
+loop_24_test:
+    if (var_18 < *(u16 *)(arg0 + 0x6A)) {
+        goto loop_24_body;
+    }
+loop_24_exit:
+    if (var_18 == *(u16 *)(arg0 + 0x6A)) {
+        return 4;
+    }
+    return 0;
+}
 // FUN_001FB170
 s32 func_001fb170(s32 arg0) {
     u32 temp_2;
