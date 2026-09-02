@@ -789,6 +789,24 @@ contain such a comparison produced no match and made five worse, because the
 form has to agree with retail's actual branch at that row. The mirror case is
 `x <= K` → `x < K+1`.
 
+**The complete grid, measured (b210, 24 probes).** The register is chosen by
+the *spelling* and by whether the emitted branch is the skip-branch of an
+`if` or the back-edge of a loop / an early `return`. `!(...)` is folded before
+this choice, so `!(x >= k)` behaves as `x < k`. Same table for `slt` with a
+register operand (operands swapped for `<=`/`>`) and for `sltiu`/`sltu`:
+
+| written      | `if (...) body`        | loop back-edge, `if (...) return` |
+|--------------|------------------------|-----------------------------------|
+| `x < k`      | `slti $at` + `beqz`    | `slti $vN` + `bnez`               |
+| `x >= k`     | `slti $vN` + `bnez`    | `slti $at` + `beqz`               |
+| `x <= k-1`   | `slti $at` + `beqz`    | `slti $at` + `bnez`               |
+| `x > k-1`    | `slti $at` + `bnez`    | `slti $at` + `beqz`               |
+
+So `<=`/`>` always go through `$at`; `<`/`>=` go through `$vN` exactly when
+the emitted branch is `bnez`. Three of the four register×sense combinations
+are reachable by spelling alone; `$vN + beqz` is the only one never
+observed. Whether `x` is live afterwards does not change the choice.
+
 **Operand swap is a second, distinct form of the same lever, and is now the
 highest-yield single trick in this campaign.** Where `>= K` → `> K-1` changes
 the *operator*, this changes the *operand order* while preserving the sense:
@@ -1260,11 +1278,13 @@ variants is wasted time.
   160B window, etc.), and `fndiff.py` counts those tail words in its summary.
   Do not add code to fill it.
 - **Instruction scheduling / subexpression evaluation order** in general;
-  **FPU-register allocation**; and the **`slti $at` branch-temp idiom** (`<`
-  against a small constant lowers through the `$at` pseudo, while
-  `>=`/`!(x<k)` materializes an explicit `slti $v0` — the `$at` layout is not
-  always reachable while preserving the required inline/out-line
-  arrangement).
+  and **FPU-register allocation**.
+  The **`slti $at` branch-temp idiom** used to be listed here ("the `$at`
+  layout is not always reachable while preserving the inline/out-line
+  arrangement"). It is reachable: the full spelling grid is under
+  "`slt $at` vs `slt $v0`" above — `<=`/`>` always use `$at`, `<`/`>=` use
+  `$vN` exactly when the branch is `bnez`, and loops/early-returns invert the
+  `if` table. Only `$vN + beqz` is unreachable.
   **u16-mask propagation** used to be listed here as "retail re-masks per
   use, mwcc elides the repeat". Measured against b210, the number of `andi
   $r,$r,0xffff` per loop iteration is a source knob (counter passed to a

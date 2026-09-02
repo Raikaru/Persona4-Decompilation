@@ -868,9 +868,38 @@ s32 func_003bce20(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* measured: best current-TU body object 164B/window 192B, normalized_diff 71; differing words are the entry guard register (slt $v0 vs retail slt $at,$zero,$v0 + beqz, the same $at-guard floor as func_003b4230/003bcd50), retail's out-of-line func_003bc620 call placed after the loop exit and reached by bnez while every spelling compiles inline with beqz-skip, i=0 landing after the guard branch instead of in its delay slot, and one trailing nop. Levers: schedule on, no_branch_likely on, opt_rebuildconditionals off, opt_propagation off, cached count with volatile loop-tail reload, single-case switch wrap (skill sub-pattern 5), goto next, role-swapped counters, declaration permutations. Body archived at build/B3B_003bce50_body.c and restored to INCLUDE_ASM. */
 // FUN_003BCE50
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bce50);
-// FUN_003BCF10 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcf10);
-/* measured N3B: archive nd2 claims were never reproducible with a live C body (all historical verify JSONs show nd>=31; nd0 rows are INCLUDE_ASM self-compares). Best fresh: while-form `index=0; if (length>0) while(index<length){...}` nd29 76B/80B; plain do-while nd32; schedule-on folds the guard to bgezal $zero (68-84B). Residual: guard colours a named register instead of retail slt $at,$zero,$a0;beqz $at, and body-head order. */
+/* measured: the entry guard `slt $at,$zero,$a0; beqz $at` is a 64-bit compare
+   that b210 cannot fold to blez: `(s64)0 < length` reproduces it exactly, the
+   loop compare stays 32-bit. schedule on fills the two delay slots (move a2 /
+   addiu a1) and no_branch_likely on keeps the body beqz plain. 18/18 words. */
+#pragma schedule on
+#pragma no_branch_likely on
+// FUN_003BCF10
+s32 func_003bcf10(s32 arg0) {
+    u32 count;
+    s32 index;
+    s32 length;
+    u8 *base;
+    u8 *entry;
+
+    count = 0;
+    base = (u8 *)(arg0 + iGpffffb668);
+    length = *(s32 *)(base + 0);
+    index = 0;
+    if ((s64)0 < length) {
+        entry = *(u8 **)(base + 4);
+        do {
+            if (*(s32 *)(entry + 0xC) != 0) {
+                count += 1;
+            }
+            index += 1;
+            entry += 0x10;
+        } while (index < length);
+    }
+    return count;
+}
+#pragma schedule off
+#pragma no_branch_likely off
 /* measured: schedule on preserves func_003bcf60's field-load delay slot; object 56B/window 64B, nd 0. */
 #pragma schedule on
 /* measured: no_branch_likely on restores the plain guard form in func_003bcf60. */
@@ -895,9 +924,36 @@ done:
 #pragma schedule off
 /* measured: no_branch_likely off closes the one-function 003bcf60 probe. */
 #pragma no_branch_likely off
-/* measured: current-TU body object 76B/window 80B, normalized_diff 32; differing word offsets 0,4,16,20,24,52,56,60,64,68; archived at build/F3B0_003bcfb0_body.c. */
-// FUN_003BCFB0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bcfb0);
+/* measured: twin of func_003bcf10 over D_00764770; same `(s64)0 < length`
+   guard, schedule on, no_branch_likely on. 18/18 words. */
+#pragma schedule on
+#pragma no_branch_likely on
+// FUN_003BCFB0
+s32 func_003bcfb0(s32 arg0) {
+    u32 count;
+    s32 index;
+    s32 length;
+    u8 *base;
+    u8 *entry;
+
+    count = 0;
+    base = (u8 *)(arg0 + D_00764770);
+    length = *(s32 *)(base + 0);
+    index = 0;
+    if ((s64)0 < length) {
+        entry = *(u8 **)(base + 4);
+        do {
+            if (*(s32 *)(entry + 0xC) != 0) {
+                count += 1;
+            }
+            index += 1;
+            entry += 0x10;
+        } while (index < length);
+    }
+    return count;
+}
+#pragma schedule off
+#pragma no_branch_likely off
 #pragma schedule on
 /* measured: no_branch_likely on restores the plain guard form in func_003bd000. */
 #pragma no_branch_likely on
