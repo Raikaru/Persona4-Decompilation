@@ -132,8 +132,71 @@ void func_002e06d0(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 
 
 
+/* measured: retain pair loads before stores and retail's written load order. */
+#pragma push
+#pragma opt_propagation off
 // FUN_002E0700
-INCLUDE_ASM("asm/nonmatchings/code1_002e", func_002e0700);
+void func_002e0700(u8 *arg0, s64 arg1, f32 fparg0, f32 fparg1,
+                   s32 arg2, s32 arg3, s64 arg4)
+{
+    f2 pos;
+    f2 out1;
+    f2 out2;
+    f2 draw1;
+    f2 draw2;
+    f32 out1_x;
+    f32 out1_y;
+    f32 out2_x;
+    f32 out2_y;
+    f32 pos_x;
+    f32 pos_y;
+    u8 *handle;
+    u8 *temp;
+    extern u8 *func_0046d200(u32 arg0, s16 arg1);
+    extern f32 func_0046b2f0(u8 *arg0);
+    u8 *base;
+    extern void func_0046d280(u8 *arg0);
+    extern void func_002b8300(u8 *arg0,
+                              f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+                              s8 arg1, s32 arg2, s32 arg3);
+    extern void func_002b82d0();
+    temp = *(u8 **)(arg0 + 0x38);
+    pos_x = *(f32 *)(temp + 0x2C);
+    pos_y = *(f32 *)(temp + 0x30);
+    pos.x = pos_x;
+    pos.y = pos_y;
+    if ((s8)arg4 == 1) {
+        handle = func_0046d200(*(u32 *)(temp + 0xF4), (s16)arg1);
+        func_002b2970((s64 *)&out1, pos.x,
+                      pos.y - (func_0046b2f0(handle) / 2.0f));
+        out1_x = out1.x;
+        out1_y = out1.y;
+        draw1.x = out1_x;
+        draw1.y = out1_y;
+        arg3 = (s16)arg3;
+        func_002b8270(*(u8 **)(arg0 + 0x38) + 4, pos, draw1, 0, arg2,
+                       arg3);
+        func_0046d280(handle);
+        func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, 0, 0xFF, 0, arg2, arg3);
+    } else {
+        handle = func_0046d200(*(u32 *)(temp + 0xF4), (s16)arg1);
+        func_002b2970((s64 *)&out2, pos.x,
+                      pos.y + (func_0046b2f0(handle) / 2.0f));
+        out2_x = out2.x;
+        out2_y = out2.y;
+        draw2.x = out2_x;
+        draw2.y = out2_y;
+        arg3 = (s16)arg3;
+        func_002b8270(*(u8 **)(arg0 + 0x38) + 4, pos, draw2, 0, arg2,
+                       arg3);
+        func_0046d280(handle);
+        func_002b82d0(*(u8 **)(arg0 + 0x38) + 4, 0xFF, 0, 0, 0,
+                       (s16)((s32)arg3 + arg2));
+    }
+    base = *(u8 **)(arg0 + 0x38);
+    func_002b8300(base + 4, 1.0f, 1.0f, fparg0, fparg1, 0, arg2, arg3);
+}
+#pragma pop
 // FUN_002E0940
 void func_002e0940(u8 *arg0, s8 arg1, s16 arg2, s64 arg3)
 {

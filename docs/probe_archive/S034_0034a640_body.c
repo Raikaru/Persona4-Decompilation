@@ -1,5 +1,21 @@
-/* object=480 window=480 normalized_diff=18 differing_offsets=[46,48,50,51,54,55,58,59,70,72,74,75,78,79,82,83] instruction_deficit=0 surplus=0 classification=register-colouring (four global ld/sd destinations v1 vs retail a0; slti destination v1 vs retail at); ruled_out=floors movz/movn,COP1 accumulator,standalone MMI,framed tail-jump,sd-vs-sq; prologue_saved_s=4 ($s3,$s2,$s1,$s0); params=(u8*,u16,s64) interleaved; declarations=callee prototypes block-scope, globals file-scope arrays */
+/* object=480 window=480 normalized_diff=0; final MATCH.
+ * Register-colouring closure: a scalar Pair-copy macro under measured
+ * opt_propagation off emits each global qword into $a0, and <= 2 spells the
+ * retail slti $at,$v1,3 branch. The prior direct scalar loads used $v1.
+ */
+#define COPY_SCALAR_PAIR_0034(dst, src) \
+ do { \
+     s64 copy_s64; \
+     f32 copy_f32; \
+     copy_s64 = (src).whole; \
+     copy_f32 = (src).tail; \
+     (dst).whole = copy_s64; \
+     (dst).tail = copy_f32; \
+ } while (0)
 // FUN_0034A640
+/* measured: opt_propagation off preserves scalar Pair-copy source order. */
+#pragma push
+#pragma opt_propagation off
 void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
 {
     extern void func_004787e0(void *arg0);
@@ -19,12 +35,9 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
     u8 *obj;
     Pair sp50;
     Pair sp60;
-
     obj = *(u8 **)(arg0 + 0x38);
-    *(s64 *)&sp50 = *(s64 *)D_0064A6E0;
-    *(f32 *)((u8 *)&sp50 + 8) = *(f32 *)D_0064A6E8;
-    *(s64 *)&sp60 = *(s64 *)D_0064A6F0;
-    *(f32 *)((u8 *)&sp60 + 8) = *(f32 *)D_0064A6F8;
+    COPY_SCALAR_PAIR_0034(sp50, *(Pair *)D_0064A6E0);
+    COPY_SCALAR_PAIR_0034(sp60, *(Pair *)D_0064A6F0);
 
     if (((*(u16 *)(obj + 8) != (u16)arg1) ||
          (*(s8 *)(obj + 0x28) != (s8)arg2) ||
@@ -32,7 +45,7 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
         ((u16)arg1 != 0) &&
         ((s8)arg2 < 2))
     {
-        if ((*(s8 *)(obj + 0) > 0) && (*(s8 *)(obj + 0) < 3))
+        if ((*(s8 *)(obj + 0) > 0) && (*(s8 *)(obj + 0) <= 2))
             return;
         if (*(u8 **)(obj + 0xC) != NULL) {
             func_004787e0(*(u8 **)(obj + 0xC));
@@ -65,3 +78,6 @@ void func_0034a640(u8 *arg0, u16 arg1, s64 arg2)
         }
     }
 }
+#undef COPY_SCALAR_PAIR_0034
+/* measured: restore pragma state after func_0034a640 probe. */
+#pragma pop
