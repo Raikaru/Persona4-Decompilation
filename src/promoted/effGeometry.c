@@ -560,5 +560,66 @@ u8 *func_00483c40(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
    registers to arg0=$s3, arg1=$s0, arg4=$s2) regardless of declaration order
    or type-mismatch on the check. Tried 3 declaration orders, pre-hoisting and
    type-mismatch, nd 110. */
-// FUN_00483E10 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/effGeometry", func_00483e10);
+// FUN_00483E10
+u8 *func_00483e10(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    s32 temp_2;
+    u16 temp_22;
+    s32 temp_23;
+    u8 *temp_20;
+    u8 *var_20;
+    s32 var_19;
+    s32 var_18;
+    s32 var_17;
+    s32 var_16;
+    u8 *temp_2_2;
+    u8 *temp_3;
+    u8 *spE8;
+    s32 spD0;
+    s32 spC0;
+    s32 spB0;
+    u8 *spA0;
+
+    if ((arg1 & 0xFFFF) < 2) {
+        func_0046d730(D_00713448, 0x241);
+    }
+    if ((arg3 & 0xFFFF) < 2) {
+        func_0046d730(D_00713448, 0x242);
+    }
+    temp_2 = (arg3 & 0xFFFF) - 1;
+    spD0 = temp_2 * 4 + temp_2 * 2;
+    temp_22 = (u16)arg1;
+    temp_2_2 = (u8 *)func_00483a00(arg0,
+                                   ((temp_22 + 1) * (arg3 & 0xFFFF)) & 0xFFFF,
+                                   (temp_22 * (temp_2 * 2)) & 0xFFFF,
+                                   arg4);
+    spE8 = temp_2_2;
+    temp_20 = *(u8 **)(*(u8 **)(temp_2_2 + 0x10) + 0x18);
+    spC0 = *(s32 *)(temp_2_2 + 0x54);
+    var_20 = *(u8 **)(temp_20 + 0x2C);
+    var_16 = 0;
+    var_17 = 0;
+    spB0 = arg0 & 0xFFFF;
+    while (var_17 < spB0) {
+        var_19 = 0;
+        spA0 = (u8 *)(spC0 + (var_17 * 4));
+        while (var_19 < temp_22) {
+            var_18 = 0;
+            temp_23 = var_16 & 0xFFFF;
+            while (var_18 < spD0) {
+                temp_3 = (u8 *)(arg2 + (var_18 * 2));
+                func_003c2130(temp_20, var_20,
+                              (temp_23 + *(u16 *)(temp_3 + 0)) & 0xFFFF,
+                              (temp_23 + *(u16 *)(temp_3 + 2)) & 0xFFFF,
+                              (temp_23 + *(u16 *)(temp_3 + 4)) & 0xFFFF);
+                func_003c2150(temp_20, var_20, *(s32 *)spA0);
+                var_20 += 8;
+                var_18 += 3;
+            }
+            var_16 = (var_16 + arg3) & 0xFFFF;
+            var_19 += 1;
+        }
+        var_16 = (var_16 + arg3) & 0xFFFF;
+        var_17 += 1;
+    }
+    return spE8;
+}
