@@ -1178,6 +1178,24 @@ variants is wasted time.
   arguments (nd45). Declaring the callee's parameter `s64` produces the same
   shifts but still hoisted. The 37 remaining functions in that file carry
   "floor" notes written before this was understood; treat them as open.
+- **Store-to-load forwarding is a PEEPHOLE: `#pragma peephole off` keeps the
+  reload.** Retail's `sw $v0,0xc($s2); lw $s3,0xc($s2)` (and the same on the
+  `0x10` field) in the 0039-003e allocator block is not reachable by access
+  types, aliases, `opt_propagation off`, `opt_common_subs off`,
+  `opt_pointer_analysis off`, `global_optimizer off` or `opt_lifetimes off`
+  (all forward the store); `#pragma peephole off` reproduces both reloads
+  exactly (`func_003a8500`, now nd12 = saved-register colouring only,
+  archived as `Main_003a8500_body.c`). `peephole` is recognised by b210
+  (compile-probed) and is function-granular like the other knobs. Cost: the
+  same peephole also removes the `dsll32/dsra32` that an `s32`->`s64`
+  conversion leaves after a fresh `lw`, so a function that needs both a
+  post-store reload and the `slt $at,$zero,$v0` 64-bit guard (`func_003bcd50`)
+  cannot have both - with `peephole off` every guard spelling either keeps the
+  shifts or folds to `blez`. That one closes only with `volatile` (banned).
+  Closed with `peephole off` instead of the banned `volatile` the archives
+  had needed: `func_003c3e90`, `func_003e2570`, `func_003e8080` (all the
+  `*slot = result; result = *slot;` allocator idiom). `func_003de8c0`'s
+  archived volatile turned out unnecessary under the unit's `-O2,p`.
 - **Loop-invariant constant hoisting into the preheader.** mwcc sometimes
   hoists a constant into the preheader where retail rematerializes it in the
   loop (or the reverse — see the `opt_loop_invariants` waiver in
