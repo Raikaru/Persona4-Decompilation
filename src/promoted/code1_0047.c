@@ -365,7 +365,68 @@ void func_0047eaa0(u8 *arg0)
     }
 }
 // FUN_0047EB20
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047eb20);
+void func_0047eb20(u8 *arg0, s16 arg1, u16 arg2)
+{
+    u16 status;
+    s32 temp_4_2;
+    u16 type;
+
+    if ((*(u16 *)(arg0 + 0x10) & 0x10) == 0) {
+        return;
+    }
+    if (*(u8 **)arg0 == NULL) {
+        return;
+    }
+    if ((*(u16 *)(*(u8 **)arg0 + 0x12) & 1) == 0) {
+        return;
+    }
+    if (*(s32 *)(arg0 + 0xC) != 0) {
+        type = *(u16 *)(*(u8 **)arg0 + 0xC);
+        if (type == 1) {
+            status = 2;
+        } else {
+            status = 3;
+        }
+        if ((type == 1 &&
+             (arg1 != 0xE || *(s16 *)(arg0 + 4) != arg1 ||
+              func_0045af90(status) == 0)) ||
+            (*(u16 *)(*(u8 **)arg0 + 0xC) == 2 &&
+             (arg1 != 2 || *(s16 *)(arg0 + 4) != arg1 ||
+              func_0045af90(status) == 0))) {
+            if (func_0047e0f0(arg0, 0, arg1, arg2) != 0) {
+                *(s16 *)(arg0 + 8) = 0;
+                *(s16 *)(arg0 + 4) = arg1;
+                *(u16 *)(arg0 + 6) = arg2;
+                return;
+            }
+            *(s16 *)(arg0 + 8) = -1;
+            return;
+        }
+        *(s16 *)(arg0 + 8) = -1;
+        return;
+    }
+    if (*(u16 *)(*(u8 **)arg0 + 0x10) == 2 &&
+        (arg1 == 4 || arg1 == 5) &&
+        func_0045a890(*(s16 *)(*(u8 **)arg0 + 4)) != 0) {
+        *(s16 *)(arg0 + 0x1C) = *(s32 *)(*(u8 **)arg0 + 4);
+        *(s16 *)(arg0 + 0x24) = arg2;
+        *(s16 *)(arg0 + 0x20) = 0;
+        *(s16 *)(arg0 + 0x22) = arg1 - 4;
+        temp_4_2 = *(s32 *)(*(u8 **)arg0 + 4);
+        switch (temp_4_2) {
+        case 3:
+            *(s16 *)(arg0 + 0x1E) = 1;
+            break;
+        case 4:
+            *(s16 *)(arg0 + 0x1E) = 2;
+            break;
+        case 5:
+            *(s16 *)(arg0 + 0x1E) = 3;
+            break;
+        }
+        *(s16 *)(arg0 + 4) = arg1;
+    }
+}
 // FUN_0047ED60
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047ed60);
 // FUN_0047EF10
