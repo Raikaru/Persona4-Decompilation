@@ -1451,7 +1451,63 @@ INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c010);
 INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c270);
 
 // FUN_0017C670
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_0017c670);
+void func_0017c670(u8 *arg0, u8 *arg1)
+{
+    extern void func_003e8110(void *arg0);
+    extern void func_0047a220(u8 *arg0, s32 arg1);
+    extern void func_00178c20(f32 farg0, f32 farg1, void *arg0, void *arg1,
+                               f32 farg2, f32 farg3, f32 farg4, f32 farg5);
+    extern u8 D_005F1900[];
+    extern u8 D_005F1904[];
+    extern u8 D_005F1908[];
+    extern u8 D_005F190C[];
+    extern f32 D_008872F8[];
+    void *base;
+    u8 *matrix;
+    void *constant;
+    s32 i;
+
+    matrix = *(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38);
+    matrix = *(u8 **)(matrix + 0x44);
+    func_0047a2f0(*(u8 **)(arg1 + 0x164));
+    if (*(s32 *)*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) > 0) {
+        *(s32 *)(*(u8 **)(arg1 + 0x164) + 0xD8) &= ~4;
+        for (i = 0; i < 5; i++)
+            *(u8 *)(*(u8 **)(arg1 + 0x164) + i * 0xC + 0x28C) |= 1;
+        func_0047a220(*(u8 **)(arg1 + 0x164),
+                      (s32)(*(u8 **)(*(u8 **)(arg1 + 0x230) + 0x38) + 0x48));
+        base = (void *)D_00887300;
+        (*(void (**)(s32, s32))base)(0xE, 0);
+        (*(void (**)(s32, s32))base)(6, 0);
+        (*(void (**)(s32, s32))base)(8, 0);
+        (*(void (**)(s32, s32))base)(7, 2);
+        (*(void (**)(s32, s32))base)(1, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+        constant = (void *)D_008872F8;
+        func_00178c20(0.0f, 0.0f, D_005F1900, D_005F1904,
+                      128.0f, 48.0f, *(f32 *)constant,
+                      1.0f / *(f32 *)(matrix + 0x80));
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x3C803);
+        func_00178c20(0.0f, 48.0f, D_005F1904, D_005F1908,
+                      128.0f, 76.0f, *(f32 *)constant,
+                      1.0f / *(f32 *)(matrix + 0x80));
+        {
+            extern void func_00178c20(f32 farg0, f32 farg1, f32 farg2, f32 farg3,
+                                      void *arg0, void *arg1, f32 farg4, f32 farg5);
+            func_00178c20(0.0f, 76.0f, 128.0f, 128.0f,
+                          D_005F1908, D_005F190C, *(f32 *)constant,
+                          1.0f / *(f32 *)(matrix + 0x80));
+        }
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x717FB);
+        (*(void (**)(s32, s32))base)(0x14, 2);
+        if (iGpffffba48 == 1)
+            (*(void (**)(s32, s32))base)(0xE, 1);
+        func_003e8110(matrix);
+    }
+}
 
 
 
