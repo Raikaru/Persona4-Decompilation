@@ -999,7 +999,70 @@ extern void* func_00473350(void* a, u8* b);
    (move/lwc1) swaps. Tried: one=1.0f local, alpha/one decl order, void*
    params. FP/integer register-allocation floor. */
 // FUN_004746B0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004746b0);
+void func_004746b0(u8* arg0, u8* arg1)
+{
+    f32 temp_f14;
+    f32 var_f12;
+    s16 temp_5;
+    s32* temp_3;
+    u8** temp_16;
+    s32 temp_3_2;
+    s32 temp_4;
+    u8** temp_4_2;
+    s32 temp_4_3;
+    u32 temp_4_4;
+    s32 temp_4_5;
+    temp_3 = *(s32**)arg0;
+    if ((temp_3 != NULL) &&
+        ((temp_5 = *(s16*)(arg1 + 4)), (temp_5 >= 0))) {
+        temp_4 = *temp_3;
+        temp_16 = *(u8***)(temp_4 + temp_5 * 8);
+        temp_f14 = *(f32*)(arg1 + 0x1C);
+        if (temp_f14 < 1.0f) {
+            temp_4_2 = *(u8***)(temp_4 + *(s16*)(arg1 + 0x10) * 8);
+            if (temp_4_2 != NULL) {
+                if (temp_16 != NULL) {
+                    func_0047fd10(temp_4_2, *(f32*)(arg1 + 0x14), temp_16,
+                                  0.0f, temp_f14);
+                } else {
+                    func_0047fe90(temp_4_2, 0.0f, temp_f14);
+                }
+            } else if (temp_16 != NULL) {
+                func_0047fe90(temp_16, 0.0f, 1.0f - temp_f14);
+            }
+            *(s32*)(arg0 + 4) = (s32)temp_16;
+            return;
+        }
+        if (temp_16 == NULL) {
+            temp_4_3 = *(s32*)(arg0 + 4);
+            if (temp_4_3 != 0) {
+                func_0047ffc0((int*)temp_4_3);
+            }
+        } else {
+            temp_4_4 = *(u32*)(arg1 + 0x34);
+            if ((temp_4_4 != 0) &&
+                (temp_5 < *(u16*)((u8*)temp_4_4 + 8)) &&
+                ((temp_4_5 = temp_5 * 0x50,
+                 temp_3_2 = *(s32*)((u32)((u32)*(s32*)temp_4_4 + 0x40) +
+                                    (u32)(temp_4_5, temp_4_5))),
+                 (temp_3_2 != 0)) &&
+                ((u8*)temp_3_2 != (u8*)D_00922BC0_abs)) {
+                if (temp_5 < 0) {
+                    var_f12 = 0.0f;
+                } else {
+                    var_f12 = *(f32*)(arg1 + 0xC);
+                }
+                func_0047fbf0(temp_16, var_f12);
+            } else {
+                func_0047fbf0(temp_16, *(f32*)(arg1 + 0xC));
+                if (*(f32*)(arg1 + 0xC) > func_00480060(temp_16)) {
+                    func_00473350(NULL, arg1);
+                }
+            }
+        }
+        *(s32*)(arg0 + 4) = (s32)temp_16;
+    }
+}
 
 // FUN_00474890
 void func_00474890(void* param_1)

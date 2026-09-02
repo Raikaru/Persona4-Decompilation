@@ -1903,8 +1903,65 @@ u8 *func_0016f130(u8 *arg0, s32 arg1, s32 arg2)
 }
 /* measured: close opt_loop_invariants scope after func_0016f130. */
 #pragma opt_loop_invariants off
+/* measured: opt_loop_invariants on reproduces func_0016f3b0's loop schedule
+   and FPU register allocation. */
+#pragma push
+#pragma opt_loop_invariants on
 // FUN_0016F3B0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016f3b0);
+u8 *func_0016f3b0(u8 *arg0, s32 arg1, s32 arg2)
+{
+    u8 *result;
+    u8 *temp_2;
+    f32 temp_f0;
+    f32 temp_f4;
+    f32 temp_f3;
+    f32 temp_f2;
+
+    result = NULL;
+    if (*(s32 *)D_007EF9F8 != 0) {
+        func_0044ea90(D_005F1698, 0x774);
+        temp_2 = (u8 *)D_008873F4[0](1, 0x18, 0x40000);
+        if (temp_2 == NULL) {
+            return NULL;
+        }
+        result = (u8 *)func_00451fc0(arg0, D_005F16E0, 0xF, 0, 0,
+                                     func_0016ee00, func_0016f100, temp_2);
+        *(s32 *)(temp_2 + 4) = arg1;
+        func_0014b5d0(func_0047a2f0(*(s32 *)D_007EFA00));
+        temp_f0 = func_0014b5d0(
+            func_003e9700(*(s32 *)(func_00457120() + 4)));
+        if (temp_f0 < 0.0f) {
+            temp_f0 += 360.0f;
+        }
+        temp_f4 = (f32)arg2;
+        while (temp_f4 > 360.0f) {
+            temp_f4 -= 360.0f;
+        }
+        while (temp_f4 < -360.0f) {
+            temp_f4 += 360.0f;
+        }
+        temp_f3 = temp_f4 - temp_f0;
+        if (temp_f0 > 180.0f) {
+            temp_f2 = (360.0f - temp_f0) + temp_f4;
+        } else {
+            temp_f2 = -((360.0f - temp_f4) + temp_f0);
+        }
+        while (temp_f3 > 360.0f) {
+            temp_f3 -= 360.0f;
+        }
+        while (temp_f2 > 360.0f) {
+            temp_f2 -= 360.0f;
+        }
+        if (fabsf(temp_f3) < fabsf(temp_f2)) {
+            *(f32 *)(temp_2 + 0x10) = temp_f3;
+        } else {
+            *(f32 *)(temp_2 + 0x10) = temp_f2;
+        }
+    }
+    return result;
+}
+#pragma opt_loop_invariants off
+#pragma pop
 /* measured: func_0016f630 compiles to object 276B against the 288B retail
    window (normalized_diff 0; trailing zero padding is normalized). */
 // FUN_0016F630
