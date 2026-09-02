@@ -1082,6 +1082,19 @@ variants is wasted time.
   disagrees with retail and the two accesses are genuinely independent, no
   source order fixes it (see also the commutative-`addu` section — but those
   levers work only when the order is *dependent* on addressing).
+  **Measured exception — 12-byte aggregate copies.** A `ld/lwc1/sd/swc1`
+  copy (retail loads the 64-bit half first) is a struct assignment between
+  two *struct-typed locals*: `Vec3 d, s; d = s;`. The `ld` appears only
+  when mwcc knows the slot is 8-aligned, which it does for top-level locals
+  (each gets its own 16-byte slot) and does **not** for a member of a
+  packed "frame" struct (type alignment 4 → three `lwc1`). A helper taking
+  `(s64 *, f32 *)` pointers gives `lwc1; ld; sd; swc1`; casts on either
+  side (`*(V3 *)arr = ...`) give three `lwc1`. Closed `func_001cff00`
+  (code1_001c.c, nd2 -> 0) by dissolving the lane's frame struct into
+  `Vec3 target; Vec3 source; struct { f32 first[10]; u8 second[0x28]; } fr;`
+  — retail's slot spacing (0x90/0xA0 for the two Vec3s, `first`/`second`
+  contiguous) is exactly what mwcc's per-local 16-byte slots produce, and
+  is how to tell packed-frame locals from separate ones.
 - **~~Framed tail jump~~ and ~~absolute-getter address register~~ — NOT floors,
   wrong compiler.** Both were listed here for a long time and both are **ee-gcc
   code**; see "The retail binary is a MIXED-toolchain build" above. Kept as a
