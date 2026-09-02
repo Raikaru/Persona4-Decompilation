@@ -44,7 +44,7 @@ extern void (*D_00887300[])(u32 state, u32 value);
 extern s32 func_002b52a0(u8 *arg0);
 extern void *func_002b2970(void *, f32, f32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
-extern void func_002b2a60(u8 *, u8, u8, u8, u8);
+extern void func_002b2a60(u8 *, s32, s32, s32, s32);
 extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
@@ -282,17 +282,82 @@ void func_002b6560(u8 *arg0) {
     jtbl_008873EC[0](p);
 }
 
-/* measured 2026-08-13: census-driven corrected-callee probe for func_002b6590.
-   The target-scope declarations now use the verified callee signatures:
-   func_002b2970 returns u8 *, func_00451fc0 returns void * with s32 ABI
-   arguments, func_0044ea90/func_0046d280 are old-style no-parameter calls,
-   and func_002b2a60 takes s32 color components. Live probe measured object
-   524B/window 528B, normalized_diff 296 (first offsets 94,95,98,99,102,
-   103,106,107,110,111,114,115,116,117,118,119). Archived at
-   build/W2B6_6590_body.c; restored bare INCLUDE_ASM after the reconstruction-
-   sized residual. */
+/* measured: func_002b6590 matches with a copied s16 loop index, a named s32
+   offset, and opt_common_subs off to rematerialize the two tail divisors. */
+#pragma push
+/* measured: opt_loop_invariants off preserves the retail loop's per-iteration
+   index-extension and issue order. */
+#pragma opt_loop_invariants off
+/* measured: opt_propagation off preserves saved-register assignment and local
+   load ordering for this target. */
+#pragma opt_propagation off
+/* measured: schedule off preserves the retail loop and call issue order. */
+#pragma schedule off
+/* measured: opt_common_subs off rematerializes the 2.0f divisor after each
+   tail helper call instead of saving it in an FPR. */
+#pragma opt_common_subs off
 // FUN_002B6590
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6590);
+s32 func_002b6590(s32 arg0, s16 arg1, s32 arg2) {
+    s32 result;
+    u8 *p;
+    s16 i;
+    s16 j;
+    s32 off;
+    u32 ff;
+    f2 pos;
+    u4 color;
+    u8 *q;
+    s32 one;
+    u8 c0;
+    u8 c1;
+    u8 c2;
+    u8 c3;
+    f32 zero;
+    func_0044ea90(&D_0063F178, 0x236);
+    p = D_008873F4[0](1, 0x100, 0x40000);
+    result = func_00451fc0(arg0, D_0063F1A0, 0xF, 0, 0,
+                           (void (*)(u8 *))func_002b6340,
+                           (void (*)(u8 *))func_002b6560, p);
+    *(s16 *)(p + 4) = arg1;
+    *(s32 *)(p + 0) = arg2;
+    i = 0;
+    j = i;
+    while (i < 3) {
+        j = i;
+        off = j;
+        zero = 0.0f;
+        func_002b2970(&pos, zero, zero);
+        *(f2 *)((u8 *)((s32)p + off * 8) + 0x28) = pos;
+        ff = 0xFF;
+        *(u8 *)((s32)p + off + 0x6C) = ff;
+        q = (u8 *)((s32)p + off * 4);
+        *(s32 *)(q + 0xC8) = 0;
+        one = 0x3F800000;
+        *(s32 *)(q + 0xA4) = one;
+        *(s32 *)(q + 0x98) = one;
+        func_002b2a60((u8 *)&color, ff, ff, ff, ff);
+        c0 = color.c0;
+        c1 = color.c1;
+        c2 = color.c2;
+        c3 = color.c3;
+        q[0x7D] = c0;
+        q[0x7E] = c1;
+        q[0x7F] = c2;
+        q[0x80] = c3;
+        i++;
+    }
+    *(f32 *)(p + 0x14) = 100.0f;
+    *(s32 *)(p + 8) = 0x55;
+    *(s16 *)(p + 0x10) = 0;
+    q = func_0046d200(*(u32 *)(p + 0), (s32)arg1);
+    *(s16 *)(p + 0xC) = (s16)(s32)(func_0046b260(q) / 2.0f);
+    *(s16 *)(p + 0xE) = (s16)(s32)(func_0046b2f0(q) / 2.0f);
+    func_0046d280(q);
+    return result;
+}
+/* measured: restore opt_loop_invariants after the target. */
+#pragma opt_loop_invariants off
+#pragma pop
 
 
 // FUN_002B67A0

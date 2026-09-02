@@ -2868,25 +2868,92 @@ s32 func_0011e460(u8 *arg0)
 s32 func_003b7060();
 u16 *func_001094d0(s32 arg0);
 extern u16 *iGpffffb3ec;
-/* measured: retail keeps the `bltz` sign-check and the full else-branch
-   (srl/andi/or/mtc1/cvt/add.s x2) of an abs-style conditional on
-   `func_003b7060() & 0x1000` (and & 0xFFF); mwcc b210's range analysis proves
-   the masked value non-negative and eliminates both branches entirely
-   (object 100B under window, nd > 300 with the whole body shifted). Tried the
-   conditional in every spelling (>=0/<0, if/else, ternary, s32/u32 locals,
-   cast-to-s32 compare, macro form) — all eliminated. Also the ptr in $s0
-   colouring differed. Range-analysis elimination floor. */
-/* measured: opt_loop_invariants hoists the per-iteration `andi (temp_4 &
-   0xFFFF)` and the `1` constant used for var_4=1/var_4_2=1 into the
-   preheader (retail keeps them in $6/$7 across the loop); without it they
-   are rematerialised in the body (nd 142 -> lower measured below). */
+/* measured: the explicit `bltz`/negative conversion path for
+   `func_003b7060() & 0x1000` is required for retail's COP1 sequence. */
+/* measured: opt_loop_invariants hoists the per-iteration `andi` and the
+   `1` constant into the preheader; disabling it rematerialises both. */
 #pragma opt_loop_invariants on
-/* measured: nd 364 with a full C body, object 596B against a 688B window, so work is still missing.
-   Wave 7 ran out of turns here and left it uncommitted, so this is a
-   partial adaptation rather than a floor: re-attempt from the m2c draft
-   with the wave's recipes before treating any of it as settled. */
-// FUN_0011E490 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_0011e490);
+/* measured: final reconstruction is byte-exact (object 688B/window 688B,
+   normalized_diff 0). Explicit goto joins preserve the retail false tails,
+   while separate pair values and inner-loop counters preserve the register
+   and load ordering. */
+// FUN_0011E490
+s32 func_0011e490(u8 *arg0)
+{
+    u8 *q;
+    u8 *r;
+    u8 *p16;
+    s32 stack[8];
+    f32 f;
+    s32 t;
+    s32 i;
+    s32 count;
+    s32 found1;
+    s32 found2;
+    s32 j;
+    s32 k;
+    u16 *work;
+    u16 first;
+    u16 second;
+    s32 idx;
+
+    q = *(u8 **)(arg0 + 0x1C);
+    r = *(u8 **)(q + 0x38);
+    p16 = *(u8 **)r;
+    if (!(*(u16 *)p16 & 4)) {
+        return 0;
+    }
+    t = func_003b7060() & 0x1000;
+    f = (f32)(u32)t;
+    f = 100.0f * f / 4096.0f;
+    if (!(f < 0.0f)) {
+        return 0;
+    }
+    work = (u16 *)func_001094d0((s32)p16);
+    i = 0;
+    count = 0;
+    for (; (first = iGpffffb3ec[2 * i]) != 0; i++) {
+        for (j = 0; j < 8; j++) {
+            if (work[j] != 0 && first == work[j]) {
+                found1 = 1;
+                goto found1_done;
+            }
+        }
+        found1 = 0;
+    found1_done:
+        if (found1 == 0) {
+            continue;
+        }
+        second = iGpffffb3ec[2 * i + 1];
+        for (k = 0; k < 8; k++) {
+            if (work[k] != 0 && second == work[k]) {
+                found2 = 1;
+                goto found2_done;
+            }
+        }
+        found2 = 0;
+    found2_done:
+        if (found2 != 0) {
+            continue;
+        }
+        stack[count] = i;
+        count++;
+    }
+    if (count > 0) {
+        t = func_003b7060() & 0xFFF;
+        f = (f32)(u32)t;
+        f = (f32)count * f / 4096.0f;
+        idx = (s32)f;
+        if (!(idx < count)) {
+            func_0046d730(D_005E4868, 0x12CF);
+        }
+        i = stack[idx];
+        *(u16 *)(arg0 + 6) = iGpffffb3ec[2 * i];
+        *(u16 *)(arg0 + 8) = iGpffffb3ec[2 * i + 1];
+        return 1;
+    }
+    return 0;
+}
 
 /* Closes the measured opt_loop_invariants scope opened for func_0011e490
    above. It must stay scoped: leaving it on regresses neighbours. */
