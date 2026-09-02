@@ -54,7 +54,7 @@ extern s32 func_0010a900(u16 arg0);
 extern s32 func_00109390(s32 arg0);
 extern u32 func_00105ed0(void);
 extern u8 *func_00105510(s32 arg0);
-extern u32 func_00232c70(u8 *arg0, s32 arg1);
+extern u8 func_00232c70(u8 *arg0, s32 arg1);
 /* Defined below in this file; used before its definition. */
 extern u16 func_002439c0(u8 *arg0);
 extern u32 func_00106cd0(s16 arg0, s32 arg1);
@@ -549,8 +549,50 @@ done_value:
 }
 
 /* measured: archived candidate re-tested at nd 2; return-width and guard probes did not improve it. */
-// FUN_00232C70 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00232c70);
+/* measured: the two clamp constants are `daddiu $v0,$zero,K` because the
+   value is a u8 (narrow-unsigned rule) and the function returns u8, which
+   keeps it in $v0; `v >>= 1` on the u8 avoids the extra re-mask a spelled-out
+   `(u32)v >> 1` adds; `<= 0x63` before the goto gives the slti $at form. */
+// FUN_00232C70
+u8 func_00232c70(u8 *arg0, s32 arg1)
+{
+    u8 v;
+    s32 temp_3;
+    u8 flag;
+
+    if (((s32)(arg1 & 0xFFFF) < 0) || ((arg1 & 0xFFFF) >= 5)) {
+        func_0046d730(D_00635938, 0x313);
+    }
+    if ((*(u16 *)arg0 & 4) != 0) {
+        v = (u32)func_00232b40(arg0, arg1);
+        v &= 0xFF;
+    } else {
+        if (*(u16 *)(arg0 + 2) >= 0xB) {
+            func_0046d730(D_00635938, 0x31A);
+        }
+        v = (u32)func_00109bf0((u8 *)(u32)*(u16 *)(arg0 + 2), arg1);
+        v &= 0xFF;
+    }
+    flag = (*(s32 *)(arg0 + 0xC) & 0x80) != 0;
+    if (!flag) {
+        goto no_shift;
+    }
+    v >>= 1;
+no_shift:
+    temp_3 = (u32)v & 0xFF;
+    if (temp_3 > 0) {
+        goto clamp_value;
+    }
+    v = 1;
+    goto done_value;
+clamp_value:
+    if (temp_3 <= 0x63) {
+        goto done_value;
+    }
+    v = 0x63;
+done_value:
+    return v;
+}
 
 /* measured: recipe-A-family re-test 2026-08-03. The u16-table shape now
    matches retail byte-for-byte outside the loop preheader (u16 loads, the
@@ -1158,6 +1200,11 @@ INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235520);
 // FUN_002384B0
 s32 func_002384b0(s32 arg0, u8 *arg1, s32 arg2)
 {
+    /* measured: retail compiled this caller against the s32-returning
+       prototype other units use (see datScript.c), so the u8 return of
+       func_00232c70 is not re-masked here; a block-scope declaration
+       reproduces that split inside the merged unit. */
+    extern u32 func_00232c70(u8 *arg0, s32 arg1);
     f32 var_2;
     f32 var_f0;
     f32 var_f0_2;

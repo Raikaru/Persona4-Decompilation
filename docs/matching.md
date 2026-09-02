@@ -722,6 +722,18 @@ and often not source-reachable. Levers to try, in order:
 When no order matches after trying these, drop the function. Indexed
 getters/setters are the usual victims.
 
+### Commutative `add.s` operand order — measured
+
+`x + c` puts the *variable* first (`add.s $fx,$fx,$f0`) whenever the sum is
+assigned back to `x` — `x += c`, `x = x + c`, `x = c + x` all the same.
+The constant comes first (`add.s $fd,$f0,$fx`) when the sum is assigned to
+a **different** variable, even one that inherits `x`'s register because
+`x` is dead: `y = x + 130.0f` (either operand order). So retail
+`add.s $f21,$f0,$f21` after a saved `$f21` is a *new* name, not an update.
+Closed `func_00135520` (code1_0013.c, nd2 -> 0) by assigning the sum to the
+dead `temp_f20` instead of `temp_f21 += 130.0f`; introducing a third float
+name instead re-coloured `$f20`/`$f21`, so reuse a dead one.
+
 ### Float MAC operands: `madd.s`/`msub.s` yes, `adda.s` no
 
 The commutative-operand floor has been over-applied to the FPU accumulator
@@ -1208,6 +1220,22 @@ variants is wasted time.
   is `u16`. Reproduced exactly on `func_001e7ab0`: a `u16` loop counter reset
   to 1 inside a branch gives retail's `andi`/`daddiu`/`andi` sequence
   instruction for instruction.
+
+  **Third case — a `u8` return whose callers do not re-mask.** Retail
+  `daddiu $v0,$zero,K` straight into the return register with no `andi` at
+  the return, while the *matched* caller in the same unit also has no
+  `andi` after the `jal`: the definition returns `u8` (constants land in
+  `$v0` as `daddiu`, `v >>= 1` on the `u8` avoids the extra re-mask that a
+  spelled-out `(u32)v >> 1` adds) but the caller was compiled against the
+  32-bit prototype the other units declare (`datScript.c` says `s32`). A
+  merged unit reproduces that split with a **block-scope declaration** in
+  the caller — `extern u32 func_00232c70(u8 *, s32);` inside the caller's
+  body — which b210 accepts silently over the conflicting `u8` file-scope
+  prototype and compiles the call without the promotion mask. Closed
+  `func_00232c70` (datCalc.c, nd2 -> 0) with `func_002384b0` still MATCH.
+  A file-scope `u32` prototype instead re-masks the callee's return
+  (`daddiu v1` + `andi v0,v1`); a function-pointer cast at the call is a
+  different call shape (nd 482).
 
   **Second half of the same closure — the fused post-increment.** Retyping the
   counter reaches the `daddiu` but can cost more than it gains: on

@@ -1,3 +1,10 @@
+/* Re-measured 2026-09-02 (Main): the two residual words are one commutative-addu
+   pair coupled to load hoisting. `(u32)base + off` hoists the gp load into $a1
+   (retail) but emits addu base,off; every index-first spelling (named s32
+   offset + (s32)base, typed row-struct subscript, pointer arithmetic, hoisted
+   s32/u32 base local, += forms) emits addu off,base but sinks the lw into $v0
+   after the mult chain and swaps the var_5/temp_6 colouring (nd 24-27).
+   Retail has both hoisted-$a1 and index-first; no spelling decouples them. */
 /* Best candidate for func_001a0f40; object 440B, window 448B, normalized_diff 2 words.
    Differing word offsets: 0x134 (0x1A1074), 0x140 (0x1A1080).
    Ruled out: inline table arithmetic (global load sinks after source arithmetic);
