@@ -293,6 +293,39 @@ Rules of engagement:
   or other code (`func_0017ea10` went to nd 121 whole-function), the drift
   must be closed by the rest of the recipe (declaration order, `u16`
   conversions in place of explicit masks), not by narrowing the bracket.
+- **THE caller-saved temporary rule — measured.** After the callee-saved
+  rules were applied to the eight best remaining near-misses, six of the
+  eight turned out to be register choice among `$v0`/`$v1`/`$a1`–`$a3` — the
+  one axis nothing measured. Fourteen probes give the shape:
+
+  1. **Pure computations are sunk to their point of use** under default
+     propagation. `s32 v = k * 7; p[0] = p[1] + 1; p[2] = p[3] + 1; return v;`
+     emits the two stores first and computes `v` last, so `v` never occupies
+     a register across the stores. **`opt_propagation off` stops the sinking**
+     and the computation is emitted where written — the same mechanism as
+     every other use of that pragma this session.
+  2. **The pool fills lowest-free in the order `$v1`, `$v0`, `$a1`, `$a2`,
+     `$a3`, `$t0`…** with `$a0`–`$aN` skipped while they still hold live
+     parameters. Loads go to `$v1` first; a second simultaneous value to
+     `$v0`; a third to `$a1`. `(a + b) * (c + d)` over four loads emits
+     `lw v1 / lw v0 / addu a1,v1,v0 / lw v1 / lw v0 / addu v0 / mult v0,a1,v0`.
+  3. A binary operation's result lands in its **first operand's** register
+     (`mult v1,v1,v0`; `addu v1,v1,v0`).
+  4. Commutative expressions are canonicalised before allocation: `a*b + c`
+     and `c + a*b` produce identical code, so written order does not choose
+     the register there (the documented commutative floor).
+
+  So two temporaries swapped against retail (`sb $a1` / `sb $v0` versus the
+  reverse; `$v0`/`$v1` in an align-up; a loop's `$a0`/`$v1`) come from a
+  different **number or order of simultaneously live values** at that point,
+  not from naming. The levers are the ones that change liveness: sink or
+  hoist a computation (write it at its use, or hold it under
+  `opt_propagation off`), and split or merge the values live across the
+  window. Under propagation off, `u6p` shows the promotion directly: the
+  first held value takes `$a1`, the second `$v1`, and the store traffic runs
+  in `$v0`. Genuine floors remain where the residual is two *independent*
+  adjacent instructions (no liveness difference to change), and the
+  float-to-byte conversion tail.
 - **Saved-FPR count tells you whether retail cached a float across a call.**
   `f20`–`f23` are only allocated when a float value must survive a call. If
   retail's prologue saves none and yours saves two, the frame-size gap is
