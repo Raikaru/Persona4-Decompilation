@@ -810,8 +810,61 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a93b0);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9880);
 // FUN_003A9C70
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9c70);
-// FUN_003A9E50 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9e50);
+// measured: schedule on fills the call-argument and store delay slots in func_003a9e50.
+#pragma schedule on
+// measured: no_branch_likely on keeps func_003a9e50's null tests as plain beqz/bnez.
+#pragma no_branch_likely on
+/* measured: retail keeps two separate `b epilogue; move $v0,$zero` return-0 blocks
+   with the NULL-node one placed between the failed-check return and the main body;
+   a forward goto over both returns reproduces that layout (nested if/else and
+   fall-through forms merge the NULL return into the epilogue, nd61). */
+// FUN_003A9E50
+s32 func_003a9e50(u8 *arg0)
+{
+    extern u8 *func_003c2630(s32 arg0, s32 arg1, s32 arg2);
+    extern s32 func_003c22f0(u8 *arg0);
+    extern void func_003c0210(u8 *arg0, u8 *arg1, s32 arg2);
+    extern void func_003c2a80(u8 *arg0);
+    extern u8 *func_003c4140(void);
+    extern void func_003c4a80(u8 *arg0, u8 *arg1);
+    extern void func_003c4220(u8 *arg0);
+    u8 *node;
+    u8 *frame;
+    u8 *sub;
+    u8 *state;
+
+    node = func_003c2630(0, 0, 0);
+    if (node != NULL) {
+        sub = *(u8 **)(node + 0x5C);
+        *(s32 *)(sub + 4) = 0;
+        *(s32 *)(sub + 8) = 0;
+        *(s32 *)(sub + 0xC) = 0;
+        *(f32 *)(sub + 0x10) = 1.0f;
+        if (func_003c22f0(node) != 0) {
+            goto proceed;
+        }
+        return 0;
+    }
+    return 0;
+proceed:
+    func_003c0210(arg0, node, 0);
+    func_003c2a80(node);
+    frame = func_003c4140();
+    func_003c4a80(node + 0x20, frame);
+    func_003c4220(frame);
+    state = *(u8 **)(arg0 + iGpffffb610);
+    *(s32 *)(state + 0x24) = 0;
+    *(s32 *)(state + 0x28) = 0;
+    *(s32 *)(state + 0x2C) = 0;
+    *(s32 *)(state + 0x30) = 0;
+    *(s32 *)(state + 0x34) = 0;
+    *(s32 *)(state + 0x38) = 0;
+    return 1;
+}
+// measured: closes no_branch_likely for func_003a9e50.
+#pragma no_branch_likely off
+// measured: closes the schedule-on bracket for func_003a9e50.
+#pragma schedule off
 // FUN_003A9F40
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a9f40);
 // measured: schedule and no_branch_likely preserve retail callback-selection
