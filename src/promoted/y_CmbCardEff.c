@@ -262,18 +262,40 @@ void *func_0033fa20(u8 *arg0) {
     return *(void **)(arg0 + 0x38);
 }
 
-/* measured: two scheduler-order defects keep this at nd 12. (1) The &sp40 argument setup
-   (addiu $a1,$sp,0x40) and the load-load-store-store of D_0064A5A0/D_0064A5A8: retail
-   emits [addiu a1][lui][ld][lui][lwc1][sd][swc1], mwcc emits [lui][ld][sd][lui][lwc1]
-   [swc1][addiu a1] for scalar/array/struct-member spellings; the one-statement 16-byte
-   struct copy does hoist the addiu a1 first but then copies ld/ld (16B) instead of
-   ld/lwc1, and a pack(4) 12-byte copy degrades to three lwc1s. (2) The shared
-   (s32)arg1*0x84 mul for the p84 address is CSE-hoisted above the arg0 chain
-   (base+idx+0x2758) in every spelling (inline, locals, u32-cast trees, 132-vs-0x84
-   literals, declaration/statement reorderings); retail computes it in place between
-   arg0 and the float. Both measured across 15+ variants. Scheduler-CSE floor. */
 // FUN_0033FA30
-INCLUDE_ASM("asm/nonmatchings/y_CmbCardEff", func_0033fa30);
+#pragma push
+/* measured: opt_propagation off keeps &sp40 in $a1 before the D_0064A5A0/D_0064A5A8
+   staging loads and the p84 multiply below the arg0 chain (the "scheduler-CSE floor"
+   above was propagation, not scheduling). */
+#pragma opt_propagation off
+void func_0033fa30(u8 *arg0, s8 arg1) {
+    struct { f32 sp30[4]; s64 sp40; f32 sp48; } sp;
+    s64 txy;
+    f32 tz;
+    f32 *p40;
+    u8 *obj;
+    u8 *table;
+    u8 *pFB0;
+    u8 *arg0_for_dd;
+    u8 *p84;
+
+    obj = *(u8 **)(arg0 + 0x38);
+    p40 = (f32 *)&sp.sp40;
+    txy = D_0064A5A0[0];
+    tz = *(f32 *)&D_0064A5A0[1];
+    sp.sp40 = txy;
+    sp.sp48 = tz;
+    func_003dc740(&sp.sp30, p40, 0);
+    table = *(u8 **)(*(u8 **)(obj + 4) + 0x38);
+    if ((s8)*table == 4) {
+        pFB0 = table + (s32)arg1 * 0xFB0;
+        arg0_for_dd = pFB0 + 0x2758;
+        p84 = obj + (s32)arg1 * 0x84;
+        func_0036dd10(arg0_for_dd, p84 + 0x20, 90.0f * *(f32 *)(p84 + 0x8C));
+        func_0036de20(*(u8 **)(*(u8 **)(obj + 4) + 0x38) + (s32)arg1 * 0xFB0 + 0x2758, &sp.sp30);
+    }
+}
+#pragma pop
 
 // FUN_0033FB10
 void func_0033fb10(u8 *arg0, s8 arg1, s64 arg2) {

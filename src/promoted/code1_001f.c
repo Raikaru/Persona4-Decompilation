@@ -1043,7 +1043,56 @@ void func_001f39b0(u8 **arg0)
     *(u16 *)(temp_4 + 0xA0) = (u16)(*(u16 *)(temp_4 + 0xA0) + 1);
 }
 // FUN_001F39D0
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001f39d0);
+/* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
+   index arithmetic and the 0x70 field load in a temporary before its saved copy. */
+#pragma opt_propagation off
+s32 func_001f39d0(u8 **arg0) {
+    u8 *temp_4;
+    u16 temp_17;
+    u8 *temp_16;
+    s32 temp_2;
+    u16 temp_3;
+    u8 temp_4_2;
+    s32 off;
+    u8 *base;
+    u8 *ptr;
+
+    temp_4 = *arg0;
+    temp_16 = *(u8 **)(temp_4 + 0x30);
+    temp_3 = *(u16 *)(temp_4 + 0x6C);
+    switch (temp_3) {
+    case 2:
+        temp_17 = *(u16 *)(temp_4 + 0x6E);
+        temp_2 = func_0023d9b0(*(s32 *)(temp_16 + 0xA64), temp_17);
+        if (temp_2 != 0) {
+            base = iGpffffb3b8;
+            off = (s32)((temp_17 & 0xFFFF) * 0x28);
+            ptr = (u8 *)(off + (s32)base);
+            temp_4_2 = ptr[3];
+            switch (temp_4_2) {
+            case 1:
+                func_002325a0(*(s32 *)(temp_16 + 0xA64), -temp_2);
+                break;
+            case 2:
+                func_00232610(*(s32 *)(temp_16 + 0xA64), -temp_2);
+                break;
+            }
+        }
+        break;
+    case 3:
+        if (*(u8 *)(temp_16 + 0xA2) == 0) {
+            temp_3 = *(u16 *)(temp_4 + 0x70);
+            func_00106620((s16)temp_3, ((func_00106600((s16)temp_3) & 0xFF) - 1) & 0xFF);
+        }
+        break;
+    case 9:
+    case 1:
+        break;
+    }
+    return 1;
+}
+/* measured: restore propagation for the rest of the unit. */
+#pragma opt_propagation on
 // FUN_001F3B20
 u8 *func_001f3b20(u8 *arg0)
 {
