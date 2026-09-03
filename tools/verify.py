@@ -900,7 +900,7 @@ def main() -> None:
     # marker, so a call to such a name is checked the same way.
     defined_at = {}
     for result in results:
-        if result.get("name") and result.get("addr"):
+        if result.get("name") and isinstance(result.get("addr"), str):
             defined_at.setdefault(result["name"], int(result["addr"], 16))
     wrong_callees = []
     for result in results:

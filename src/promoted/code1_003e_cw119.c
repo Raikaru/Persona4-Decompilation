@@ -1,9 +1,5 @@
 #include "include_asm.h"
 #include "type.h"
-#include "batypes.h"
-#include "balibtyp.h"
-#include "bamemory.h"
-#include "rwgrp.h"
 
 /* RenderWare-derived functions verified with MWCCPS2 3.0.1 b119 (see
    config/compiler_units.txt and docs/matching.md). Fallbacks stay under
@@ -313,47 +309,6 @@ s32 func_003e2f60(s32 arg0, s32 arg1, s32 arg2) {
     }
     return (s32)result;
 }
-#pragma schedule off
-
-/* rwgrp.c: chunk group module. Module statics live at their retail
-   addresses (config/symbol_data_addrs.txt) so the unit can be linked. */
-#define RWCHUNKGROUPGLOBAL(var) (RWPLUGINOFFSET(rwChunkGroupGlobals, RwEngineInstance, chunkGroupModule.globalsOffset)->var)
-extern RwModuleInfo chunkGroupModule;
-extern RwInt32 _rwChunkGroupFListBlockSize;
-extern RwInt32 _rwChunkGroupFListPreallocBlocks;
-extern RwFreeList _rwChunkGroupFList;
-#define RwFreeListCreateAndPreallocateSpace func_003e1220
-extern RwFreeList *func_003e1220(RwInt32, RwInt32, RwInt32, RwInt32, RwFreeList *, RwUInt32);
-
-// FUN_003E46E0
-#pragma schedule on
-void *
-_rwChunkGroupOpen(void *instance,
-             RwInt32 __RWUNUSED__ offset ,
-             RwInt32 __RWUNUSED__ size )
-{
-    RWFUNCTION(RWSTRING("_rwChunkGroupOpen"));
-    RWASSERT(instance);
-
-    /* Store the globals offset (same for all instances) */
-    chunkGroupModule.globalsOffset = offset;
-
-    /* Get on with the initialization */
-    RWCHUNKGROUPGLOBAL(groupFList) =
-        RwFreeListCreateAndPreallocateSpace(sizeof(RwChunkGroup), _rwChunkGroupFListBlockSize, sizeof(RwUInt32),
-        _rwChunkGroupFListPreallocBlocks, &_rwChunkGroupFList, rwID_CHUNKGROUPMODULE | rwMEMHINTDUR_GLOBAL);
-    if (!RWCHUNKGROUPGLOBAL(groupFList))
-    {
-        /* Failure */
-        RWRETURN(NULL);
-    }
-
-    /* One more module instance */
-    chunkGroupModule.numInstances++;
-
-    RWRETURN(instance);
-}
-/* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
 // FUN_003E0F80

@@ -1189,6 +1189,7 @@
       "003d4e10",
       "003d4e90",
       "003e1210",
+      "003e46e0",
       "0044eaa0",
       "0044ec30",
       "0044ec40",
@@ -1538,8 +1539,8 @@
       "004bd450"
     ],
     "asm_fallbacks_in_linked_objects": 261,
-    "count": 1524,
-    "percent": 11.632
+    "count": 1525,
+    "percent": 11.639
   },
   "matching": {
     "addresses": [

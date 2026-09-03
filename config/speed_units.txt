@@ -26,3 +26,4 @@ src/promoted/code1_003b_cw119.c
 src/promoted/code1_003d_cw119.c
 src/promoted/code1_003e_cw119.c
 src/promoted/code1_003a_cw119.c
+src/renderware/plcore/rwgrp.c
