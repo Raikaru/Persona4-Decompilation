@@ -1,0 +1,11 @@
+# Extra compile flags per compiler version key (see config/compiler_units.txt):
+# `<version key> <flag> [flag ...]`, appended by tools/verify.py::unit_compile_flags
+# in both verify and build.
+#
+# The b119 units reconstruct the RenderWare 3.7.0.2 block (core/plcore, core,
+# pipe/p2, world) and are compiled against the vendored RenderWare headers in
+# include/rw: `-nosyspath` makes MWCC find the <stdlib.h>-style includes in
+# include/rw/std (the libc shims the headers need, no libc is otherwise
+# available), include/rw/ps2 supplies the PlayStation 2 ostypes.h, and the
+# remaining directories mirror the RenderWare source tree's include paths.
+cw3.0.1b119 -nosyspath -Iinclude/rw/std -Iinclude/rw/ps2 -Iinclude/rw/plcore -Iinclude/rw/core -Iinclude/rw/p2 -Iinclude/rw/drvcommon -Iinclude/rw/drvnull -Iinclude/rw/world -Iinclude/rw/worldp2 -Iinclude/rw/inc

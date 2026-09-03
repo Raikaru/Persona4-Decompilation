@@ -89,6 +89,12 @@ def strip_comments(text):
     return "".join(out)
 
 
+# The vendored RenderWare 3.7 headers carry MSVC/ICL pragmas (`comment`,
+# `pack`, `warning`, `function`, `message`) inside `_MSC_VER`/`__ICL` guards
+# that MWCC never enters; they are not this tree's spellings.
+VENDORED = (REPO / "include" / "rw",)
+
+
 def collect(roots=("src", "include")):
     """Count every distinct pragma spelling under `roots`, ignoring comments."""
     seen = Counter()
@@ -98,6 +104,8 @@ def collect(roots=("src", "include")):
             continue
         for path in sorted(base.rglob("*")):
             if path.suffix not in (".c", ".h") or not path.is_file():
+                continue
+            if any(vendored in path.parents for vendored in VENDORED):
                 continue
             body = strip_comments(path.read_text(errors="replace"))
             for line in body.splitlines():

@@ -28,7 +28,7 @@ before extracting what the build needs.
 | Not yet under test, supplied as retail bytes | 381 (2.908% of windows) |
 | In byte-exact linked C objects | 1,524 (11.632% of windows), with 261 assembly fallbacks still inside those objects |
 | First-party matched, scored for recovery | 6,804 |
-| — NAMED (not a `func_<address>` placeholder) | 155 (2.278%) |
+| — NAMED (not a `func_<address>` placeholder) | 156 (2.293%) |
 | — TYPED (no raw-offset or `M2C_` access) | 2,183 (32.084%) |
 | — DOCUMENTED (prose, or trivially self-evident) | 4,805 (70.62%) |
 | — still carrying decompiler local names | 1,990 (29.248%) |
