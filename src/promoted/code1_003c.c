@@ -136,8 +136,6 @@ extern s32 D_007647BC;
    build/W4C3C_003c0050_body.c. */
 // FUN_003C0050 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0050);
-// FUN_003C00E0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c00e0);
 // FUN_003C0210
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0210);
 /* measured: schedule on fills callback argument delay slots. */
@@ -1234,13 +1232,6 @@ call:
 
 // FUN_003C57D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c57d0);
-
-/* func_003c59f0 archive: current body is object 168B/window 160B,
-   normalized_diff 98; first reported differing offsets 16-20,22,24-31,34,36
-   (verify reports the first 16 offsets only). The archived body is oversized,
-   so no further probes were attempted. */
-// FUN_003C59F0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c59f0);
 
 // FUN_003C5A90
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5a90);
@@ -2734,8 +2725,6 @@ block_6:
 /* measured: schedule off closes the helper-call delay-slot probe. */
 #pragma schedule off
 
-// FUN_003CC370
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cc370);
 /* measured: schedule-on probe for cc460 call delay-slot setup. */
 #pragma schedule on
 // FUN_003CC460

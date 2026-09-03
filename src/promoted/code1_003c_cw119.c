@@ -274,3 +274,127 @@ u8 *func_003c4140(void) {
 #pragma opt_propagation on
 /* measured: closes the schedule bracket for func_003c4140. */
 #pragma schedule off
+
+// FUN_003C59F0
+#pragma schedule on
+u8 *func_003c59f0(u8 *arg0, s32 (*arg1)(u8 *, u8 *, s32), s32 arg2) {
+    s32 remaining;
+    u8 *cursor;
+    u8 *self;
+    s32 (*callback)(u8 *, u8 *, s32);
+    u16 count;
+
+    self = arg0;
+    callback = arg1;
+    count = *(u16 *)(self + 4);
+    remaining = (s32)count - 1;
+    cursor = (u8 *)(*(s32 *)(self + 0xC) + (s32)self + 0x10);
+    if (count != 0) {
+        do {
+            if (callback(cursor, self, arg2) == 0)
+                return self;
+            cursor += 0xC;
+        } while (remaining-- != 0);
+    }
+    return self;
+}
+/* measured: closes the schedule bracket. */
+#pragma schedule off
+
+// FUN_003C00E0
+#pragma schedule on
+u8 *func_003c00e0(void) {
+    extern void func_003e3b70();
+    extern u8 *func_003c1b90();
+    extern u8 func_003be9a0[];
+    extern u8 func_003be9f0[];
+    u8 *obj;
+
+    obj = (u8 *)D_008873F8[0](
+        *(s32 *)(D_008872E0 + iGpffffb6c0), 0x30014);
+    if (obj != NULL) {
+        *(u8 *)(obj + 0) = 1;
+        *(u8 *)(obj + 1) = 0;
+        *(u8 *)(obj + 2) = 0;
+        *(u8 *)(obj + 3) = 0;
+        *(s32 *)(obj + 4) = 0;
+        *(u8 **)(obj + 0x10) = func_003be9a0;
+        *(s32 *)(obj + 0x14) = 0;
+        *(u8 *)(obj + 2) = 5;
+        *(u8 *)(obj + 3) = 1;
+        func_003c1b90(obj, NULL, 1);
+        *(s32 *)(obj + 0x18) = 0;
+        *(s32 *)(obj + 0x28) = 0;
+        *(s32 *)(obj + 0x1C) = 0;
+        *(s32 *)(obj + 0x20) = 0;
+        *(s32 *)(obj + 0x24) = 0;
+        *(s32 *)(obj + 0x38) = 0;
+        *(s32 *)(obj + 0x2C) = 0;
+        *(s32 *)(obj + 0x30) = 0;
+        *(s32 *)(obj + 0x34) = 0;
+        *(u8 **)(obj + 0x48) = func_003be9f0;
+        if (*(u8 **)(obj + 0x48) == NULL)
+            goto reset_callback;
+init:
+        *(s16 *)(obj + 0x50) = 0;
+        *(s16 *)(obj + 0x52) = 0;
+        *(s32 *)(obj + 0x54) = 0x3F800000;
+        *(s32 *)(obj + 0x58) = 0x3F800000;
+        *(s32 *)(obj + 0x5C) = 0;
+        *(s32 *)(obj + 0x4C) = 3;
+        *(s32 *)(obj + 0x44) = 0;
+        *(s32 *)(obj + 0x40) = 0;
+        *(s32 *)(obj + 0x3C) = 0;
+        *(s32 *)(obj + 0x6C) = 0;
+        *(u8 **)(obj + 0x64) = obj + 0x64;
+        *(u8 **)(obj + 0x68) = obj + 0x64;
+        func_003e3b70(D_0070AF70, obj);
+        goto done;
+    }
+null_result:
+    return NULL;
+reset_callback:
+    *(u8 **)(obj + 0x48) = func_003be9f0;
+    goto init;
+done:
+    return obj;
+}
+/* measured: closes the schedule bracket. */
+#pragma schedule off
+
+// FUN_003CC370
+#pragma schedule on
+s32 func_003cc370(void) {
+    extern u8 *func_003cc2c0(void);
+    extern s32 func_0039b6e0(s32 arg0);
+    u8 *temp_20;
+    s32 temp_17;
+    s32 temp_19;
+    s32 temp_16;
+    s32 temp_18;
+    u8 *temp_2;
+
+    temp_20 = func_003cc2c0();
+    temp_17 = func_0039b6e0(4);
+    temp_19 = func_0039b6e0(6);
+    temp_16 = func_0039b6e0(5);
+    temp_18 = func_0039b6e0(7);
+    temp_2 = D_008872E0 + iGpffffb9b0;
+    *(u8 **)(temp_2 + 0x1C) = temp_20;
+    *(s32 *)(temp_2 + 0x20) = temp_19;
+    *(s32 *)(temp_2 + 0x24) = temp_19;
+    *(s32 *)(temp_2 + 0x28) = temp_19;
+    *(s32 *)(temp_2 + 0x2C) = temp_18;
+    *(s32 *)(temp_2 + 0x30) = temp_18;
+    *(s32 *)(temp_2 + 0x38) = temp_17;
+    *(s32 *)(temp_2 + 0x3C) = temp_16;
+    func_00410a40((s32)temp_20);
+    func_00410ab0(temp_19, 3);
+    func_00410ab0(temp_19, 5);
+    func_00410ab0(temp_19, 4);
+    func_00410ab0(temp_18, 1);
+    func_00410ab0(temp_18, 2);
+    return 1;
+}
+/* measured: closes the schedule bracket. */
+#pragma schedule off

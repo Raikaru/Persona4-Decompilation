@@ -496,8 +496,6 @@ void func_003a3d50(u8 *arg0)
 }
 /* measured: closing schedule for func_003a3d50. */
 #pragma schedule off
-// FUN_003A3DE0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3de0);
 // FUN_003A3E90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a3e90);
 // FUN_003A4270

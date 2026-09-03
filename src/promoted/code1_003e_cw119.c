@@ -388,3 +388,32 @@ s32 func_003e47c0(s8 *arg0, s8 *arg1) {
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
+// FUN_003E01E0
+#pragma schedule on
+f32 func_003e01e0(u8 *arg0) {
+    f32 *m = (f32 *)arg0;
+    f32 row0 = m[0] * m[0] + m[1] * m[1] + m[2] * m[2] - 1.0f;
+    f32 row1 = m[4] * m[4] + m[5] * m[5] + m[6] * m[6] - 1.0f;
+    f32 row2 = m[8] * m[8] + m[9] * m[9] + m[10] * m[10] - 1.0f;
+    return row0 * row0 + row1 * row1 + row2 * row2;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003E23E0
+#pragma schedule on
+s32 func_003e23e0(void) {
+    u8 *base = D_008872E0 + iGpffffb780;
+    s32 result = *(s32 *)(base + 8);
+    u8 *head = *(u8 **)(base + 0x24);
+    u8 *node = *(u8 **)head;
+    if (node != head) {
+        do {
+            result += *(s32 *)(node + 8);
+            node = *(u8 **)node;
+        } while (node != head);
+    }
+    return result;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
