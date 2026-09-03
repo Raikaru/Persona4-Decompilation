@@ -70,6 +70,9 @@ THIRD_PARTY_FILES = {"crt0.c", "libc_core.c", "libcdvd.c"}
 
 def is_third_party(rel_file: str) -> bool:
     norm = str(rel_file).replace("\\", "/")
+    if norm.startswith("include/rw/"):
+        # The vendored RenderWare 3.7 headers the b119 units are built against.
+        return True
     if norm.startswith("src/"):
         norm = norm[len("src/"):]
     return norm in THIRD_PARTY_FILES or norm.startswith(THIRD_PARTY_PREFIXES)
@@ -706,11 +709,41 @@ def unit_compiler(cpath: Path, cfg: dict) -> str:
     return path
 
 
+# Extra compile flags per compiler version, `config/version_flags.txt`:
+# `<version key> <flag> [flag ...]`, appended to the flags of every unit
+# compiler_units.txt maps to that key. The RenderWare block (the b119 units)
+# is built against the vendored RenderWare 3.7 headers under include/rw.
+VERSION_FLAGS_PATH = REPO / "config" / "version_flags.txt"
+_VERSION_FLAGS: dict[str, list[str]] | None = None
+
+
+def version_flags() -> dict[str, list[str]]:
+    global _VERSION_FLAGS
+    if _VERSION_FLAGS is None:
+        _VERSION_FLAGS = {}
+        if VERSION_FLAGS_PATH.is_file():
+            for line in VERSION_FLAGS_PATH.read_text().splitlines():
+                line = line.split("#", 1)[0].strip()
+                if not line:
+                    continue
+                key, *extra = line.split()
+                _VERSION_FLAGS.setdefault(key, []).extend(extra)
+    return _VERSION_FLAGS
+
+
 def unit_compile_flags(cpath: Path, flags: list[str]) -> list[str]:
-    """`-O<n>` becomes `-O<n>,p` for speed units; everything else is unchanged."""
-    if not is_speed_unit(cpath):
-        return list(flags)
-    return [f + ",p" if re.fullmatch(r"-O[0-4]", f) else f for f in flags]
+    """`-O<n>` becomes `-O<n>,p` for speed units; units built with a non-default
+    compiler version get that version's extra flags; everything else is unchanged."""
+    out = list(flags)
+    if is_speed_unit(cpath):
+        out = [f + ",p" if re.fullmatch(r"-O[0-4]", f) else f for f in out]
+    try:
+        key = compiler_units().get(cpath.resolve().relative_to(REPO).as_posix())
+    except ValueError:
+        key = None
+    if key is not None:
+        out.extend(version_flags().get(key, []))
+    return out
 
 
 def _compile_gcc(cpath: Path, cfg: dict, output: Path) -> tuple[bool, str]:
@@ -862,6 +895,13 @@ def main() -> None:
     # retail actually calls. This caught a real defect (nmCmdList func_002bbdd0
     # calling func_00278170 where retail calls func_002781e0) that had passed
     # per-function verification and broke the byte-exact image.
+    # Functions ported under their library names (the RenderWare block keeps
+    # `_rwChunkGroupOpen` rather than func_003e46e0) are located by their
+    # marker, so a call to such a name is checked the same way.
+    defined_at = {}
+    for result in results:
+        if result.get("name") and result.get("addr"):
+            defined_at.setdefault(result["name"], int(result["addr"], 16))
     wrong_callees = []
     for result in results:
         # Only meaningful where our layout already agrees with retail. On a
@@ -872,10 +912,12 @@ def main() -> None:
             continue
         for reloc in result.get("relocations", []):
             target = reloc.get("retail_target")
-            named = re.fullmatch(r"(?:func|FUN)_([0-9a-fA-F]{8})", reloc.get("symbol", "") or "")
-            if not target or not named:
+            symbol = reloc.get("symbol", "") or ""
+            named = re.fullmatch(r"(?:func|FUN)_([0-9a-fA-F]{8})", symbol)
+            callee = int(named.group(1), 16) if named else defined_at.get(symbol)
+            if not target or callee is None:
                 continue
-            if int(named.group(1), 16) != int(target, 16):
+            if callee != int(target, 16):
                 wrong_callees.append((result, reloc))
     if wrong_callees:
         print(f"WRONG CALLEE: {len(wrong_callees)} relocation(s) name a function other than the one retail calls")
