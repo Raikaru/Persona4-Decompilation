@@ -1,3 +1,6 @@
+/* Main 2026-09-03: live nd10 (both fallback blocks): retail `lb v0,2(v0); move s1,v0; move v0,s1`, b210 `lb s1`
+   + dsll32/dsra32 for the s8 return. s8/s32 result locals, an s8 temp copy, s32 return type, (s8) casts on the
+   call result, opt_propagation off: the load always lands in $s1 directly. Open. */
 // measured: object_size 488, window 496, normalized_diff 18; differing offsets 264,298,300,301,302,304,305,306,307,420,454,456,457,458,460,461; classification: near-miss register/codegen residual in signed-byte fallback load; ruled out corrected callee declarations (func_00110d30 one s32 arg, func_00110600 two s32 args, func_00123b10/func_00123b40 s16 returns, func_00123ae0 s8 return), s8/s16/s32/s64 result locals, direct/array/pointer load spellings, parameter reuse, declaration order, explicit sentinel casts, and optimization_level 1 (regressed 14 siblings); no compiler-floor instruction observed.
 s8 func_00110a60(s32 arg0, s32 arg1)
 {
