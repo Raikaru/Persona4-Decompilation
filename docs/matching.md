@@ -116,6 +116,17 @@ Rules of engagement:
   mwccgap transplants it with the declared alignment and the concatenation
   is byte-exact again. Use `#` comment lines in a fallback `.s`: a multi-line
   `/* */` block is counted as instructions by the placeholder scan.
+- **A GP-relative symbol name is not evidence; the retail immediate is.**
+  Relocation masking makes `iGpffffXXXX` interchangeable with any other GP
+  symbol under `verify.py`, so a MATCH body can read the wrong global. Sweep:
+  for every `R_MIPS_GPREL16` row in the verify JSON whose symbol is a bare
+  `[ifd]GpffffXXXX`, the name suffix must equal `retail_imm` unless the source
+  expression carries an explicit offset (`&sym + 8`, `sym[1]`, a struct
+  field). A sweep on 2026-09-03 found 26 wrong symbols across 24 MATCH
+  functions in 14 unlinked units (strings mistaken for scalars, pi/2 read as
+  a different constant, sibling pointers off by one slot). Linked units are
+  immune: the full-image SHA1 resolves every relocation. Register the
+  corrected name in `config/symbol_data_addrs.txt` from `GP + signed(imm)`.
 
 ## Loops
 

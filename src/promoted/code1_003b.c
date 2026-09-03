@@ -60,6 +60,7 @@ extern s32 iGpffffb6b4;
 extern void (*D_00887300[])(s32, s32);
 extern void (*D_00887304[])(s32, void *);
 extern s32 iGpffffb6f0;
+extern s32 iGpffffb610;
 extern s32 func_003e3370(void *arg0, s32 arg1);
 extern void func_003b4ab0(void);
 extern void func_003b4c10(void);
@@ -141,7 +142,7 @@ void func_003b47f0(s32 arg0) {
     void (*callback)(void);
 
     callback = func_003b6680;
-    obj = *(u8 **)((u8 *)arg0 + iGpffffb6f0);
+    obj = *(u8 **)((u8 *)arg0 + iGpffffb610);
     *(void (**)(void))(obj + 0x24) = callback;
     flags = *(s32 *)(obj + 0xA8);
     obj2 = obj + 0x50;
@@ -324,7 +325,7 @@ s32 func_003b6cc0(s32 arg0, u8 *arg1) {
     cb = (void (**)(s32, void *))D_00887300;
     cb[0](0xB, (void *)*(s32 **)(arg1 + 0x60));
     cb[0](0xA, (void *)*(s32 **)(arg1 + 0x5C));
-    (*(void (**)(s32))(*(u8 **)(arg0 + iGpffffb6f0) + 0x10))(arg0);
+    (*(void (**)(s32))(*(u8 **)(arg0 + iGpffffb610) + 0x10))(arg0);
     cb[0](0xB, (void *)sp48);
     cb[0](0xA, (void *)sp4C);
     return 0;

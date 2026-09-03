@@ -42,6 +42,7 @@ extern void func_001238c0(s32 arg0);
 extern void func_00267570();
 
 extern s32 iGpffffb1e0;
+extern s32 iGpffffb1e8;
 extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
 extern void func_00103a60(void);
@@ -828,7 +829,7 @@ void func_001238c0(s32 arg0)
     u8 *temp_8;
     u8 *table;
 
-    temp_8 = (u8 *)iGpffffb1cc;
+    temp_8 = (u8 *)iGpffffb1dc;
     if (temp_8 != NULL) {
         if (arg0 != 0) {
             *(s32 *)(temp_8 + 0x18) = 0;
@@ -836,7 +837,7 @@ void func_001238c0(s32 arg0)
         if (*(s32 *)(temp_8 + 0x14) != arg0) {
             *(s32 *)(temp_8 + 0x14) = arg0;
             if (arg0 == 1) {
-                temp_7 = (u8 *)iGpffffb1cc;
+                temp_7 = (u8 *)iGpffffb1dc;
                 var_9 = 0;
                 table = D_005E50D0;
                 while (var_9 < 5) {
@@ -856,7 +857,7 @@ void func_001238c0(s32 arg0)
                 *(s32 *)(temp_8 + 0xC) = 7;
                 return;
             }
-            temp_7_2 = (u8 *)iGpffffb1cc;
+            temp_7_2 = (u8 *)iGpffffb1dc;
             var_8 = 0;
             table = D_005E50D0;
             while (var_8 < 5) {
@@ -1077,7 +1078,7 @@ s32 func_00123e80(u8 *arg0)
     extern s32 func_0012b760(void);
     extern s32 func_0012b810(s32 arg0);
     extern s32 iGpffffb1e4;
-    extern s32 iGpffffb1f0;
+    extern s32 iGpffffb1f0;
     extern u8 D_007963A0[];
     extern u8 D_0079B698[];
     extern u8 D_0079B69C[];
@@ -1242,7 +1243,7 @@ s32 func_00124350(void)
     s32 temp_2_5;
 
     var_16 = 0;
-    if (iGpffffb1e0 > 1) {
+    if (iGpffffb1e8 > 1) {
         temp_2 = func_003b7060();
         var_f0 = (f32)(u32)temp_2;
         temp_f0 = 100.0f * (var_f0 / 2147483648.0f);
@@ -1271,7 +1272,7 @@ block_second:
         var_3_4 = (u32)temp_f0_4;
         if (var_3_4 < 0xA) {
             var_16 = 7;
-        } else if (iGpffffb1e0 >= 0xA) {
+        } else if (iGpffffb1e8 >= 0xA) {
             temp_2_5 = func_003b7060();
             var_f0_5 = (f32)(u32)temp_2_5;
             temp_f0_5 = 3.0f * (var_f0_5 / 2147483648.0f);

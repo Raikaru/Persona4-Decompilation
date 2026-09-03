@@ -2086,7 +2086,7 @@ s32 arg4;
             value = (s16)func_00106a30((s16)(func_00106cd0(*(s16 *)(arg0 + 2), 0) & 0xFFFF));
         }
     } else {
-        value = *(s8 *)(iGpffffb3cc + (u32)(u16)arg2 * 2);
+        value = *(s8 *)(iGpffffb3b4 + (u32)(u16)arg2 * 2);
     }
     if (value >= 0x13) {
         func_0046d730(D_00635938, 0xE47);

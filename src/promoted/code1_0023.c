@@ -2,7 +2,8 @@
 #include "type.h"
 
 /* gp - 0x4C54 = 0x007690f0 - 0x4c54 = 0x0076449c */
-extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3ac;
+extern u8 *iGpffffa5f0;
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern u8 *func_00194470(s32 type, s32 workSize);
 extern void func_00454bd0(u8 *ptr);
@@ -277,7 +278,7 @@ s32 func_00230d30(void *arg0)
     case 2:
         if (func_00477c40(7, temp_16, 0) == 0) {
             func_00442088((char *)sp40, D_006357E0,
-                          (char *)&iGpffffb3ac - 0x5A10, temp_16 & 0xFFFF);
+                          (char *)&iGpffffa5f0, temp_16 & 0xFFFF);
             func_0047aaa0(arg0, 0, (void *)7, (void *)temp_16,
                           sp40, 0);
         } else {
@@ -286,7 +287,7 @@ s32 func_00230d30(void *arg0)
         temp_18 = (temp_16 & 0xFFFF) + 0x3E8;
         if (func_00477c40(7, temp_18 & 0xFFFF, 0) == 0) {
             func_00442088((char *)sp40, D_00635800,
-                          (char *)&iGpffffb3ac - 0x5A10, temp_16 & 0xFFFF);
+                          (char *)&iGpffffa5f0, temp_16 & 0xFFFF);
             func_0047aaa0(arg0, 1, (void *)7,
                           (void *)(temp_18 & 0xFFFF),
                           sp40, 0);

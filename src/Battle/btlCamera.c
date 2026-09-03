@@ -183,6 +183,8 @@ extern void func_001c1f70(void *arg0, s32 arg1);
 extern void func_001bdeb0(void);
 void func_001cb970(void* camera, f32 speed, int param_3);
 extern f32 fGpffff80e8;
+extern f32 fGpffff8180;
+extern f32 fGpffff8170;
 extern void func_001b73f0();
 extern u8 *func_001b1560(void);
 extern u32 func_001c6f40();
@@ -1005,7 +1007,7 @@ void func_001cc5d0(u8 *camera, f32 *out)
             if (work.result.mode == 0) {
                 f4 = inverse * work.result.angle;
                 f3 = f4 * f4;
-                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = fGpffff8180 * f3 + fGpffff8054;
                 f0 = f3 * f0 + fGpffff8058;
                 f0 = f3 * f0 + fGpffff805c;
                 f0 = f3 * f0 + fGpffff8060;
@@ -1015,7 +1017,7 @@ void func_001cc5d0(u8 *camera, f32 *out)
 
                 f4 = blend * work.result.angle;
                 f3 = f4 * f4;
-                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = fGpffff8180 * f3 + fGpffff8054;
                 f0 = f3 * f0 + fGpffff8058;
                 f0 = f3 * f0 + fGpffff805c;
                 f0 = f3 * f0 + fGpffff8060;
@@ -1141,7 +1143,7 @@ void func_001cca60(BtlCamera* camera)
     minDistance = 0.75f *
                   (*(f32*)(iVar1 + 0x8c) *
                    *(f32*)(iVar1 + 0x2c));
-    norm = fGpffff80e8 * height;
+    norm = fGpffff8170 * height;
     norm = (!(norm > minDistance)) ? minDistance : norm;
     scratch.pos.y = norm;
     func_001bd780(&scratch.unk, &scratch.pos, &scratch.target, &D_0060A0E0);
@@ -1375,7 +1377,7 @@ void func_001cdaf0(u8 *camera)
             {
                 f4 = inverse * work.slerp.angle;
                 f3 = f4 * f4;
-                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = fGpffff8180 * f3 + fGpffff8054;
                 f0 = f3 * f0 + fGpffff8058;
                 f0 = f3 * f0 + fGpffff805c;
                 f0 = f3 * f0 + fGpffff8060;
@@ -1385,7 +1387,7 @@ void func_001cdaf0(u8 *camera)
 
                 f4 = blend * work.slerp.angle;
                 f3 = f4 * f4;
-                f0 = fGpffff8104 * f3 + fGpffff8054;
+                f0 = fGpffff8180 * f3 + fGpffff8054;
                 f0 = f3 * f0 + fGpffff8058;
                 f0 = f3 * f0 + fGpffff805c;
                 f0 = f3 * f0 + fGpffff8060;

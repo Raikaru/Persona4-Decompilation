@@ -150,7 +150,8 @@ static inline int yTimeLess(int lhs, int rhs)
   return lhs < rhs;
 }
 extern f32 func_0044b7b0(f32 fparg0);
-extern f32 fGpffff8110;
+extern f32 fGpffff8110;
+extern f32 fGpffff8094;
 // FUN_002A2980
 u32 func_002a2980(int param_1)
 {
@@ -187,7 +188,7 @@ u32 func_002a2980(int param_1)
         pfVar5[1] = pfVar5[3];
       }
       else if (pfVar5[6] < 0.0f) {
-        fVar8 = (fGpffff8110 * (float)(*(int *)(iVar6 + 0x88) - (int)cVar1)) /
+        fVar8 = (fGpffff8094 * (float)(*(int *)(iVar6 + 0x88) - (int)cVar1)) /
                 (float)(int)*(short *)((int)pfVar5 + 0x1e);
         fVar9 = pfVar5[4];
         fVar7 = func_0044b7b0(fVar8);
