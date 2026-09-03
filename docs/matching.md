@@ -127,6 +127,14 @@ Rules of engagement:
   a different constant, sibling pointers off by one slot). Linked units are
   immune: the full-image SHA1 resolves every relocation. Register the
   corrected name in `config/symbol_data_addrs.txt` from `GP + signed(imm)`.
+- **Repeated reloads of the same bytes: `volatile` on the source pointer.**
+  `func_0045ed60` copies `arg0[0..3]` into three consecutive 4-byte slots of
+  a local array and retail reloads the four bytes each time. A plain `u8 *`
+  lets b210 CSE the loads; `opt_common_subs off` restores them but also
+  un-CSEs the `3, 3` argument pair that retail materialises as
+  `li $a2,3 / move $a3,$a2`. `volatile u8 *arg0` keeps the reloads and
+  leaves every other optimisation alone (with `opt_propagation off` to keep
+  the destination pointer computed early in `$t1`).
 
 ## Loops
 

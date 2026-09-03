@@ -1298,9 +1298,48 @@ void func_0045d890(void *unused, u8 *arg1)
     }
     D_008873EC[0](arg1);
 }
-/* measured: archived body object 148B vs window 160B, normalized_diff 4; first differing instruction at offset 120 is retail daddu $a3,$a2,$zero while baseline emits li $a3,3; offset 124 is relocated jal. Candidate 148B has zero tail through 159. Residual is 64-bit call-argument materialization: retail words are daddu $a0,$s1; addiu $a2,$zero,3; daddu $a3,$a2,$zero; candidate words are move $a0,$t1; li $a2,3; li $a3,3. Scoped f32 * second-parameter and u8 * sixth-parameter prototype was tested; u64/s64 third/fourth parameter prototypes also tested, but MWCC still emitted the baseline sequence. Ruled out struct-vs-array aggregate, cached pointer declaration/initialization order, direct-vs-local color loads, repeated load aliases, count locals s32/s16/s8/s64/u32 and declaration timing, callee parameter widths u32/s32 and pointer forms, u64/s64 callee third/fourth positions, call-local argument assignments and all declaration/assignment order permutations, pointer arithmetic/identity assignments, O1/schedule/O3/tailcall/propagation/common-subexpression pragmas, mixed literal/count call order, helper wrappers, nested blocks, aliases, unions, and explicit argument locals. volatile and inline asm not used. */
+/* measured: `volatile u8 *arg0` is what keeps the three identical 4-byte
+   reloads that retail performs (a plain pointer lets b210 CSE them, and
+   `opt_common_subs off` -- the archived workaround -- also un-CSEs the
+   `3, 3` argument pair that retail materialises as li $a2,3 / move $a3,$a2).
+   opt_propagation off keeps the colors pointer computed early in $t1. */
+#pragma opt_propagation off
 // FUN_0045ED60
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045ed60);
+void func_0045ed60(volatile u8 *arg0, void *arg1, s32 arg2, f32 fparg0) {
+    u8 colors[12];
+    u8 *ptr = colors;
+    u8 color0;
+    u8 color1;
+    u8 color2;
+    u8 color3;
+    color0 = arg0[0];
+    color1 = arg0[1];
+    color2 = arg0[2];
+    color3 = arg0[3];
+    colors[0] = color0;
+    colors[1] = color1;
+    colors[2] = color2;
+    colors[3] = color3;
+    color0 = arg0[0];
+    color1 = arg0[1];
+    color2 = arg0[2];
+    color3 = arg0[3];
+    colors[4] = color0;
+    colors[5] = color1;
+    colors[6] = color2;
+    colors[7] = color3;
+    color0 = arg0[0];
+    color1 = arg0[1];
+    color2 = arg0[2];
+    color3 = arg0[3];
+    colors[8] = color0;
+    colors[9] = color1;
+    colors[10] = color2;
+    colors[11] = color3;
+    func_0045dfd0(ptr, arg1, fparg0, 3, 3, arg2);
+}
+/* measured: restores propagation after func_0045ed60. */
+#pragma opt_propagation on
 // FUN_0045EE00
 void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg1, u8 *arg4) {
     u8 colors[12];

@@ -55,3 +55,10 @@ __pycache__/
 *.pyc
 # cloned on first use by tools/permute_ast.py; upstream, not ours
 tools/decomp-permuter/
+
+# Lane scratch files: never part of the tree (jj auto-tracks new files at snapshot time).
+src/**/_probe_*
+src/**/_lane*
+src/**/*.lane*_bak
+*.bak
+*.orig
