@@ -287,20 +287,30 @@ void func_00455d70(u8* arg0, u8* arg1, u8* arg2, u8* arg3) {
     }
 }
 
-/* measured: retail keeps the buf+0xFC load in $v0, computes t=x+0x3F into a fresh
-   $v1, reuses $v0 for q, and bases the p update on a hoisted $a0=p+0x100 addu
-   ($a0 base + $v0 index). mwcc b210 instead coalesces the load into t (addiu
-   $v0,$v0,0x3f), pushing q to $a0 and base to $v1 — tried: named t/q/base/off
-   locals in every declaration and statement order (function- and loop-scope),
-   pointer-typed base, explicit x=load local, `base + off` and `off + base`
-   plain assignments, inline q<<6, nested `q=(t=...);` assignment, if/else form,
-   and duplicated-load CSE (which fixes base→$a0 and the addu order but folds
-   the fixup to addiu +0x7e instead of +0x3f). All spellings give nd 9-10;
-   closest 9 = 7 real words + 2 window padding. $v0/$v1 temp-pool coalescing
-   floor. */
-/* measured: func_00455ea0 current plain-C body is 200B in the 208B retail window at normalized_diff 7, with differing instruction offsets 0x50, 0x58, 0x5C, 0x60, 0x68, 0x74 and one zero-tail word. The block scan, frame, null-output fallback, copies, final store and return match. Residual is temporary/register materialization in the rounded-size update: retail computes the entry+0x100 base in $a0 and size+0x3F in $v1, while b210 uses $v1 for the base and $v0 for size+0x3F; the q=t>>=7 archive mutation improves the stale nd 8 to nd 7 but does not close. Restored assembly fallback; no live mismatch. */
-// FUN_00455EA0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_00455ea0);
+/* measured: the rounded advance is a signed `/ 64 * 64` (retail sra + bgez
+   fix-up), and it must be a SECOND `+=` after `entry += 0x100`: one combined
+   expression colours the base into $v1 and the fix-up into $v0, the split
+   keeps entry+0x100 in $a0 and size+0x3f in $v1 as retail. */
+// FUN_00455EA0
+u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2) {
+    u8 header[0x100];
+    s32 out_local;
+    s32 i;
+    u8 *entry;
+
+    if (arg2 == NULL) {
+        arg2 = &out_local;
+    }
+    entry = *(u8 **)(arg0 + 0x110);
+    for (i = 0; i < arg1; i++) {
+        func_0043f810(header, entry, 0x100);
+        entry += 0x100;
+        entry += ((*(s32 *)(header + 0xFC) + 0x3F) / 64) * 64;
+    }
+    func_0043f810(header, entry, 0x100);
+    *arg2 = *(s32 *)(header + 0xFC);
+    return entry + 0x100;
+}
 // FUN_00455F70
 s32 func_00455f70(s32 arg0, s32* arg1) {
     u8 buf1[0x100];
