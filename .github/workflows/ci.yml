@@ -233,8 +233,11 @@ jobs:
           import json
           m = json.load(open('build/report.json'))['measures']
           # A denominator that is not the whole program means a silent shrink,
-          # which would inflate every published percentage.
-          assert m['total_functions'] == 13101, m['total_functions']
+          # which would inflate every published percentage. The whole program
+          # is the canonical map's function_count (tests/test_reconcile.py pins
+          # that number to the map; a registered hidden sibling moves both).
+          canonical = json.load(open('tools/slus21782_functions.json'))['function_count']
+          assert m['total_functions'] == canonical, (m['total_functions'], canonical)
           assert m['matched_functions'] > 0, m
           print('published %s/%s byte-exact, fuzzy %.2f%%'
                 % (m['matched_functions'], m['total_functions'], m['fuzzy_match_percent']))
