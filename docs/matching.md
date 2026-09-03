@@ -135,6 +135,16 @@ Rules of engagement:
   `li $a2,3 / move $a3,$a2`. `volatile u8 *arg0` keeps the reloads and
   leaves every other optimisation alone (with `opt_propagation off` to keep
   the destination pointer computed early in `$t1`).
+- **A hoisted loop bound is coloured after the body's temporaries.** Retail
+  `func_00275a60` keeps the loop limit in `$a0` and the body's next-node
+  pointer in `$a1`; every named `limit = count - 1` local is coloured before
+  the body and lands in `$a1` (nd 8-9). Writing the bound as the fresh
+  expression `i < count - 1` under measured `opt_loop_invariants on` makes
+  the compiler hoist it itself, after the body's temporaries have taken
+  `$a1`..`$a3`, so the bound gets `$a0`. Without the pragma the fresh bound
+  is re-evaluated per iteration (nd 19). Same rule as the second `+=` in
+  `func_00455ea0`: what decides `$v0`/`$v1`/`$aN` is the ORDER in which
+  values are first allocated, and splitting or hoisting changes that order.
 
 ## Loops
 
