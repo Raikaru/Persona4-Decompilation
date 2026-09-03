@@ -26,7 +26,7 @@ before extracting what the build needs.
 | Byte-identical functions | 7,518 (57.381% of windows) |
 | Under test (a `// FUN_` marker scores them) | 12,721 (97.092% of windows) |
 | Not yet under test, supplied as retail bytes | 381 (2.908% of windows) |
-| In byte-exact linked C objects | 1,524 (11.632% of windows), with 261 assembly fallbacks still inside those objects |
+| In byte-exact linked C objects | 1,525 (11.639% of windows), with 261 assembly fallbacks still inside those objects |
 | First-party matched, scored for recovery | 6,804 |
 | — NAMED (not a `func_<address>` placeholder) | 156 (2.293%) |
 | — TYPED (no raw-offset or `M2C_` access) | 2,183 (32.084%) |
