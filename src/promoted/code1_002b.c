@@ -1445,7 +1445,56 @@ void func_002bc860(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     func_002791f0(arg0, arg1, arg2, 1, D_0063F2C8[0], arg3);
 }
 // FUN_002BC890
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002bc890);
+s32 func_002bc890(u8 *arg0, s32 arg1)
+{
+    s32 temp_3;
+    u8 *temp_16;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u8 *temp_4;
+    u8 *owner;
+    u8 *var_4;
+    u8 *var_5;
+
+    if (arg0 == NULL) func_0046d730(&D_0063F2A0, 0x541);
+    if (arg1 < 0) goto invalid_arg;
+    if (arg1 > 0xB) goto invalid_arg;
+    goto valid_arg;
+invalid_arg:
+    func_0046d730(&D_0063F2A0, 0x542);
+valid_arg:
+    temp_2 = arg0 + (arg1 * 0xC);
+    temp_16 = temp_2 + 0x1C;
+    temp_3 = *(s32 *)temp_16;
+    if (!(temp_3 & 2)) {
+        var_4 = *(u8 **)(*(u8 **)(arg0 + 0x18) + 4);
+        goto loop_test;
+loop_body:
+        var_5 = *(u8 **)(var_4 + 0x14);
+        if (*(s32 *)(var_5 + 4) == arg1) {
+            owner = var_5;
+        } else {
+            var_4 = *(u8 **)(var_4 + 0x10);
+loop_test:
+            if (var_4 != NULL) {
+                goto loop_body;
+            }
+            owner = NULL;
+        }
+        goto loop_done;
+loop_done:
+        if (owner == NULL) {
+            *(s32 *)(temp_16 + 4) = arg1;
+            temp_4 = *(u8 **)(arg0 + 0x18);
+            temp_2_2 = func_002e2170(temp_4, *(u16 *)(temp_4 + 0x10) + 1, 0);
+            if (temp_2_2 == NULL) func_0046d730(&D_007488E8, 0x52);
+            *(u8 **)(temp_2_2 + 0x14) = temp_16;
+            return 1;
+        }
+    }
+    if (temp_3 & 4) *(s32 *)temp_16 = temp_3 & ~4;
+    return 0;
+}
 // FUN_002BC9E0
 s32 func_002bc9e0(u8 *arg0)
 {
