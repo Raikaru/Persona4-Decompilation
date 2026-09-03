@@ -212,16 +212,53 @@ u8* func_004557e0(s32 arg0, u8* arg1, s32 arg2, s32 arg3, s32 arg4) {
     return obj;
 }
 
-/* measured: D_008873AC is a function-pointer table whose base retail hoists into
-   $s0 once (lui/addiu) and reuses across 4 calls, then reloads after $s0 is
-   reused for the func_004557e0 result. Typed base local + opt_propagation off +
-   explicit `base = D_008873AC` reassignment before the final pair reproduces the
-   hoist AND the frame (nd 97 -> 66, frame -0x20 correct). Residual is the
-   tmp==NULL branch shape (retail: beqz $v0 -> separate .L00455A4C: b end; mine:
-   direct beqz $a0 -> end) and the func_003dd830!=0 branch direction (retail
-   bnez $v0 -> body, mine beqz -> error). Budget exhausted; floored. */
+/* measured: opt_propagation off keeps the D_008873AC table address hoisted in
+   $s0 across the first four calls and the final pair after $s0 is reused for
+   the func_004557e0 result; the outer NULL check is written as an
+   assignment-in-condition with an explicit `else { return; }` to place the
+   shared return block at .L00455A4C; a block-scope extern of func_004557e0
+   with u8* 4th/5th parameters makes the call materialise a0,a1,a2,a3,t0
+   left-to-right, while the function still sees the address bits as s32. */
+#pragma opt_propagation off
 // FUN_004559B0
-INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_004559b0);
+void func_004559b0(void) {
+    void (**base)(void*, void*);
+    u8* tmp1;
+    u8* tmp2;
+
+    func_003dd760(-1);
+    base = D_008873AC;
+    base[0](&iGpffffba40, &iGpffffad60);
+    base[0](&iGpffffba38, &iGpffffad68);
+    if ((tmp1 = func_003dea20(5, D_008C5F80, 0x800, &iGpffffba40, &iGpffffba38)) != NULL) {
+        if (func_003dd830(tmp1) == 0) {
+            func_00440b68(D_00711670);
+            return;
+        }
+    } else {
+        return;
+    }
+    base[0](&iGpffffba40, &iGpffffad58);
+    base[0](&iGpffffba38, &iGpffffad70);
+    {
+        extern u8* func_004557e0(s32, u8*, s32, u8*, u8*);
+        tmp2 = func_004557e0(5, D_008C3780, 0x800, &iGpffffba40, &iGpffffba38);
+    }
+    if (func_003dd830(tmp2) == 0) {
+        func_00440b68(D_00711690);
+    } else {
+        func_003ddde0(tmp2);
+    }
+    base = D_008873AC;
+    base[0](&iGpffffba40, &iGpffffad78);
+    base[0](&iGpffffba38, &iGpffffad80);
+    if (func_003dd830(func_00456c60(5, D_008C0F80, 0x800, &iGpffffba40, &iGpffffba38)) == 0) {
+        func_00440b68(D_007116B0);
+    }
+    iGpffffbaa0 = 1;
+}
+/* measured: restores default propagation after func_004559b0. */
+#pragma opt_propagation on
 
 extern u8 D_008C8784[];
 extern u8 D_008C8810[];

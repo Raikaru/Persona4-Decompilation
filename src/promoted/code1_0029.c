@@ -140,8 +140,62 @@ done_91530:
 }
 /* measured probe: close opt_propagation bracket after func_00291530. */
 #pragma opt_propagation on
+
 // FUN_002915F0
-INCLUDE_ASM("asm/nonmatchings/code1_0029", func_002915f0);
+/* measured: opt_propagation off keeps `weapon` materialised between the index
+   shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
+   address is finished before any argument. The index/five locals must stay
+   literal under this pragma or they take a sixth saved register. Callee
+   prototypes are block-scope with u16 parameters so the andi is per call. */
+#pragma opt_propagation off
+s32 func_002915f0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4)
+{
+    extern void func_0047ae10(u8 *arg0, s32 arg1);
+    extern s32 func_0047a510(u8 *arg0, s32 arg1, u8 *arg2);
+    extern s32 func_00477c40(u16 arg0, u16 arg1, s32 arg2);
+    extern void func_0047ab90(u8 *arg0, u16 arg1, s32 arg2, u16 arg3, s32 arg4, s32 arg5, s32 arg6);
+    extern void func_0047ac90(u8 *arg0, u16 arg1, s32 arg2, u16 arg3, s32 arg4);
+    extern void func_0047adf0(u8 *arg0, u16 arg1, s32 arg2);
+    s32 flag;
+    u8 *slot;
+    u8 *entry;
+    u8 work[0x40];
+
+    if (*(s32 *)(arg0 + 0x5D8) <= arg3) {
+        return 0;
+    }
+    if (arg2 >= 3) {
+        return 0;
+    }
+    flag = 0;
+    slot = code29AddOff(arg2 * 0xC, arg1);
+    if ((*(u8 *)(slot + 0x28C) & 1) &&
+        (*(s32 *)(slot + 0x290) != 0)) {
+        flag = 1;
+    }
+    if (flag == 1) {
+        func_0047ae10(arg1, arg2 & 0xFFFF);
+    }
+    if (func_0047a510(arg1, arg4, work) == 0) {
+        return 0;
+    }
+    entry = code29AddOff(arg3 * 2, arg0) + 0x604;
+    if (func_00477c40(5, *(u16 *)entry, 0) == 0) {
+        u16 weapon;
+        u32 idx4;
+        u8 *data;
+        idx4 = arg3 * 4;
+        weapon = (u16)arg2;
+        data = (u8 *)(idx4 + (u32)arg0);
+        func_0047ab90(arg1, weapon, 5, *(u16 *)entry, *(s32 *)(data + 0x5DC), *(s32 *)(data + 0x618), 1);
+    } else {
+        func_0047ac90(arg1, (u16)arg2, 5, *(u16 *)entry, 0);
+    }
+    func_0047adf0(arg1, (u16)arg2, arg4);
+    return 1;
+}
+/* measured: restore propagation for the rest of the unit. */
+#pragma opt_propagation on
 // FUN_00291790
 void func_00291790(u8 *arg0, s32 arg1)
 {
