@@ -1215,6 +1215,20 @@ seven latent wrong-symbol matches: three in cw119 units (`iGpffffb680` for
 `iGpffffb2e8` where one site is `iGpffffb2e4`). Two cautions from the
 measurements:
 
+**2026-09-03: the block is RenderWare Graphics 3.7.** `func_003e46e0` is
+`_rwChunkGroupOpen` (core/src/plcore/rwgrp.c) line for line; its `0x40412` is
+`rwMEMHINTDUR_GLOBAL | rwID_CHUNKGROUPMODULE`, `D_008872E0 + iGpffffXXXX` is
+`RWPLUGINOFFSET(RwEngineInstance, module.globalsOffset)`, `D_008873F8[0]` is
+`RWSRCGLOBAL(memoryAlloc)`, and the retail ELF carries the 3.7.0.x version word.
+The source (rwsrc-v3.7.0.2, checked out beside the repo) ports verbatim: the
+rwgrp.c text with RWFUNCTION/RWASSERT/RWRETURN as written is byte-exact under
+b119 with schedule on, once RwEngineInstance is the static `ourGlobals` array
+(RWGLOBALSIZE) and the module statics are externs at their retail addresses.
+Headers are vendored under include/rw (public misc/inc plus the internal
+plcore/core/p2/world/driver headers, a PS2 ostypes.h with 16-byte matrix
+alignment, and libc shims), reached through config/version_flags.txt for the
+b119 units. Lane rules: build/LANE_RULES.md, RenderWare section.
+
 - **b119's prologue scheduling is unit-state dependent.** The same
   `func_003cb720` body is nd 0 when compiled inside the whole `code1_003c.c`
   (b119 loses only 7 of that unit's 107 matches) but nd 9 in a fresh unit,
