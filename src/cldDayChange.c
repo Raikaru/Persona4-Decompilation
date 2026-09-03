@@ -32,7 +32,7 @@ void func_00364c70(void);
 void func_0045dfd0(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3,
                    s32 arg4);
 extern f32 iGpffff84a4;
-extern f32 iGpffff8570;
+extern f32 iGpffff84a4;
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 void func_00266050(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 fparg0);
@@ -350,13 +350,57 @@ void func_00265f40(s32 arg0, s32 arg1, u32 arg2, s32 arg3, u8 *arg4,
 INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00266050);
 
 
-/* discarded C candidate measured nd 53 (object 504 / window 512); retail's
-   p[4] load scheduling and constant register choices remain non-byte-exact. */
-/* Measured nd 53 (object 504 / window 512), above the ~25 parking threshold;
-   this full-size candidate preserves the recovered state-machine arithmetic.
-   Committed at nd 53. */
+/* measured: the hidden fifth float argument of func_00266050 is 0.0f, not
+   336.0f -- retail's `mtc1 $zero,$f12` is that argument, and the same register
+   is the `adda.s` seed of the 336 + 128*sin chain. The angle scale is
+   iGpffff84a4 (pi/2, retail gp-0x7b5c), not iGpffff8570: relocation masking
+   hid that substitution and the full link caught it. The switch table sits
+   at 0x748020, after func_00266050's table (0x747FE0), so that INCLUDE_ASM
+   fallback carries its own jump table in .rodata to keep the unit's rodata
+   concatenation byte-exact. */
 // FUN_00266690
-INCLUDE_ASM("asm/nonmatchings/cldDayChange", func_00266690);
+void func_00266690(s32 arg0, s32 arg1)
+{
+    extern void func_00266050(s32, s32, s32, s32, f32);
+    extern void func_00265110(s32, s32, f32, s32, u32, s32);
+    extern f32 func_0044b610(f32);
+    extern f32 func_0044b7b0(f32);
+    extern f32 iGpffff84a4;
+    u8 *p;
+    s32 state;
+    s32 alpha;
+    f32 ratio;
+    f32 value;
+
+    p = func_00452560(arg1);
+    state = *(s32 *)(p + 0) - 4;
+    switch (state) {
+    case 0:
+    case 1:
+        ratio = (f32)*(s32 *)(p + 0x18) / 7.0f;
+        alpha = (s32)(255.0f * ratio);
+        value = 336.0f + 128.0f * func_0044b610(iGpffff84a4 * ratio);
+        func_00266050((s32)value, 0, alpha, *(s32 *)(p + 0x10), 0.0f);
+        func_00265110(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
+                      *(s32 *)(p + 0x1C));
+        break;
+    case 2:
+    case 3:
+        func_00266050(0x150, 0, 0xFF, *(s32 *)(p + 0x10), 0.0f);
+        func_00265110(0x150, 0, 0.0f, 0xFF, *(u32 *)(p + 0x10),
+                      *(s32 *)(p + 0x1C));
+        break;
+    case 4:
+    case 5:
+        ratio = (f32)*(s32 *)(p + 0x18) / 10.0f;
+        alpha = (s32)(255.0f * (1.0f - ratio));
+        value = 336.0f - 192.0f * func_0044b7b0(iGpffff84a4 * ratio);
+        func_00266050((s32)value, 0, alpha, *(s32 *)(p + 0x10), 0.0f);
+        func_00265110(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
+                      *(s32 *)(p + 0x1C));
+        break;
+    }
+}
 
 // FUN_00266890
 void func_00266890(s32 arg0, u8 *arg1) {
