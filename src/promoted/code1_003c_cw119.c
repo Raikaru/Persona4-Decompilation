@@ -38,3 +38,34 @@ u8 *func_003ca830(u8 *arg0) {
 
 /* measured: closes the schedule bracket. */
 #pragma schedule off
+
+extern s32 func_003ce560(s32 arg0, u8 *arg1);
+extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
+extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
+extern u8 *func_003c9c20(u8 *arg0);
+extern s32 func_003cebb0(s32 arg0, u8 *arg1);
+
+/* `movz $s0,$zero,$v0` is the b119 lowering of `call() ? arg0 : 0`. */
+// FUN_003CB790
+#pragma schedule on
+s32 func_003cb790(s32 arg0, s32 arg1, u8 *arg2) {
+    return func_003ce560(arg0, arg2) ? arg0 : 0;
+}
+// FUN_003CB7E0
+s32 func_003cb7e0(s32 arg0, s32 arg1, u8 *arg2) {
+    return func_003cebb0(arg0, arg2) ? arg0 : 0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003CB870
+#pragma schedule on
+s32 func_003cb870(s32 arg0, s32 arg1, u8 *arg2) {
+    u8 *temp;
+
+    temp = func_003c9c20(arg2);
+    *(s32 *)(arg2 + 0x78) = func_003c5d10(arg0, temp, temp + 0x10);
+    return *(s32 *)(arg2 + 0x78) ? arg0 : 0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off

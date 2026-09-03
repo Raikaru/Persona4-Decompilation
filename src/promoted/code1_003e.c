@@ -2188,12 +2188,6 @@ u8 *func_003e81c0(u8 *arg0, f32 fparg0) {
 // FUN_003E8200 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e8200);
 
-/* measured: archived object 64B/window 64B, normalized_diff 42; retail movz
-   conditional move remains unavailable from compliant plain C. */
-// FUN_003E82A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82a0);
-// FUN_003E82E0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e82e0);
 /* measured: no_branch_likely on preserves 8310's plain comparison branches. */
 #pragma no_branch_likely on
 /* measured: optimization_level 3 is load-bearing for func_003e8310. */

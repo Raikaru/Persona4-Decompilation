@@ -2143,10 +2143,6 @@ s32 func_003cb780(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
 
-/* func_003cb790 archive: object 56B/window 48B, normalized_diff 29; see
-   build/F3C0_003cb790_body.c; object overflow and movz residual ruled out. */
-// FUN_003CB790 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb790);
 // FUN_003CB7C0
 /* measured: tailcall on preserves the helper jump. */
 #pragma tailcall on
@@ -2167,10 +2163,6 @@ s32 func_003cb7d0(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma tailcall off
 /* measured: closes the schedule bracket for func_003cb7d0; explicit opposite state restores the file default. */
 #pragma schedule off
-/* func_003cb7e0 archive: object 56B/window 48B, normalized_diff 29; see
-   build/F3C0_003cb7e0_body.c; object overflow and movz residual ruled out. */
-// FUN_003CB7E0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb7e0);
 // FUN_003CB810
 /* measured: tailcall on preserves the helper jump. */
 #pragma tailcall on
@@ -2208,15 +2200,6 @@ void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
 /* measured: closes the schedule bracket opened above func_003cb820. */
 #pragma schedule off
 
-/* measured: C candidate reproduces the 84B body/window with six differing
-   bytes at offsets 48, 50, 51, 55, 56, 58; retail's `movz $s1,$zero,$v0`
-   conditional move is a MWCCPS2 compiler floor. Re-probed (N3C lane,
-   2026-08-21): ternary and ternary-with-result-local spellings score the
-   same nd 6 -- b210 normalizes every conditional spelling to the branch
-   pair; a 14-shape standalone matrix at -O0/-O1/-O2/-O3 never emitted movz.
-   Confirmed floor; archived body build/F3C1_003cb870_body.c. */
-// FUN_003CB870 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb870);
 
 // FUN_003CB8D0
 /* measured: schedule preserves the object across both helper calls. */

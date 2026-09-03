@@ -588,8 +588,6 @@ docall:
 #pragma no_branch_likely off
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
-// FUN_00399320 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399320);
 
 /* measured: schedule on preserves the retail setter's return move and
    address calculation order. */
@@ -682,9 +680,6 @@ docall:
    return zero - but retail places the already-initialised case out of line
    while b210 inlines it, and the two returns are coloured the other way round.
    Committed at nd 43. */
-
-// FUN_00399450 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399450);
 
 // FUN_00399470 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_00399470);
@@ -1666,12 +1661,6 @@ void func_0039a7f0(s32 arg0)
 }
 /* measured: schedule off closes the A7F0 scheduler probe. */
 #pragma schedule off
-/* measured: retail window 0x70 uses two movz instructions for conditional
-   64-bit stores; the best plain-C probe was obj 116/112 at nd 83. The
-   movz/branch and paired-store codegen did not close, so the body was
-   discarded and the bare assembly fallback remains. */
-// FUN_0039A8A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039a8a0);
 
 /* measured: -O3 is load-bearing for this body - flipping the whole file to
    -O2 regressed 8 matched functions here. Bracketed per function so it cannot
