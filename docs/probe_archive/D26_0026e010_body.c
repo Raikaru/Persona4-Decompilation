@@ -1,3 +1,6 @@
+/* Main 2026-09-03: `result = sp4C = jtbl(...)` (store the call result to the stack slot first, retail
+   sw v0 / move s0,v0) takes nd20 -> 12; the remaining words are the loop counter in $a1 (retail $v1)
+   and the cascaded temps. AST permuter 14k compiles: 12. */
 /* func_0026e010 reconstruction body — D26 lane 2026-08-21.
  * Best result: normalized_diff 20, object 204B / retail window 208B (MISMATCH).
  * Residual: MWCC colors the loop counter in $a1; retail uses $v1. All other
