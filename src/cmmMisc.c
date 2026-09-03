@@ -1315,15 +1315,43 @@ s32 func_00249010(s32 seed) {
     return -1;
 }
 
-/* measured: best compliant reconstruction object_size=200 window=208
-   normalized_diff=24. Retail emits a bne-to-advance followed by an
-   unconditional b-to-found for the second byte comparison; MWCCPS2
-   collapses that branch in every tested plain-C spelling. Direct stack
-   comparisons, guarded loops, explicit gotos, shared-result locals,
-   declaration-order permutations, and opt_rebuildconditionals off were
-   ruled out. Body archived in build/KCMM_002490b0_body.c. */
+/* measured: the hit path copies the index (`k = i; goto found;`) and the exhausted path sets
+   `k = -1` - the copy keeps retail's bne / b-to-found pair; `if (k != -1) return entry; return NULL;`
+   places the NULL return out of line as retail. */
 // FUN_002490B0
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002490b0);
+u8 *func_002490b0(s32 seed) {
+    s32 sp4C;
+    s32 sp48;
+    u8 *temp_17;
+    u8 *p;
+    s32 count;
+    s32 a0;
+    s32 b0;
+    s32 i;
+    s32 k;
+
+    temp_17 = D_008814D0[0] + 8;
+    p = temp_17;
+    count = *(s32 *)(D_008814D0[0] + 4);
+    func_001104d0(seed, &sp4C, &sp48);
+    i = 0;
+    a0 = sp4C;
+    b0 = sp48;
+    while (i < count) {
+        if ((p[0] == a0) && (p[1] == b0)) {
+            k = i;
+            goto found;
+        }
+        p += 0x24;
+        i++;
+    }
+    k = -1;
+found:
+    if (k != -1) {
+        return temp_17 + k * 0x24;
+    }
+    return NULL;
+}
 
 // FUN_00249180
 u8 *func_00249180(u32 arg0) {
@@ -1358,15 +1386,36 @@ s32 func_00249230(void) {
     return 1;
 }
 
-/* measured: best compliant reconstruction object_size=156 window=192
-   normalized_diff=25. Retail places the NULL assignment in an out-of-line
-   shared block and uses positive branches plus a longer 0/1 return tail;
-   MWCCPS2 keeps the NULL path inline and materializes the opposite branch
-   polarity. Merged conditions, explicit boolean/result locals, switch
-   wrappers, direct returns, shared-tail gotos, and opt_rebuildconditionals
-   off were ruled out. Body archived in build/KCMM_002492b0_body.c. */
+/* measured: both failure paths reach one `p = NULL; t = p;` block (a goto target) and the success
+   path copies `t = p` before the join - the copy keeps retail's b-over-null trampoline; the return
+   is `if (t == NULL) return 0; return 1;` (retail bnez / move v0,zero / li 1 tail). */
 // FUN_002492B0
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002492b0);
+s32 func_002492b0(u32 arg0) {
+    s32 sp3C;
+    s32 sp38;
+    u8 *p;
+    u8 *t;
+
+    p = D_008814D0[0] + 8;
+    func_001104d0(arg0, &sp3C, &sp38);
+    if (func_00106330(0xA61) == 0) {
+        goto null_p;
+    }
+    p += func_001064f0(0x6D) * 0x24;
+    if (arg0 < func_00110600(p[2], p[3])) {
+        goto null_p;
+    }
+    t = p;
+    goto join;
+null_p:
+    p = NULL;
+    t = p;
+join:
+    if (t == NULL) {
+        return 0;
+    }
+    return 1;
+}
 // FUN_00249370
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249370);
 /* measured (wave 14 retest — nd 33 reproducible, no match): merged-OR form
