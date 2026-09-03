@@ -1179,8 +1179,76 @@ void func_0028c370(void)
 /* measured: restore pragma state after func_0028c370. */
 #pragma pop
 
+/* measured: opt_propagation off keeps the `slot = &nodes[i]; node = *slot` pair (retail addiu/lw)
+   and the slot search is a while loop whose hit copies the entry into a second pointer before the
+   goto (`t = match; goto found;`) - the copy keeps retail's bne / b-to-call-tail pair; the
+   fall-through `t = NULL` then reaches the shared call. */
+#pragma opt_propagation off
 // FUN_0028C3F0
-INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c3f0);
+void func_0028c3f0(u8 *arg0)
+{
+    u32 nodes[51];
+    s32 count;
+    s32 i;
+    s32 k;
+    s32 table_count;
+    u8 *node1;
+    u8 *node2;
+    u8 *node3;
+    u8 *node;
+    u8 *match;
+    u32 *slot;
+    u32 id;
+    u8 *t;
+
+    count = 0;
+    i = 0;
+    count += func_00145300(3);
+    count += func_00145300(1);
+    count += func_00145300(0xC);
+    if (count < 0x33) {
+        node1 = func_001452b0(3);
+        while (node1 != NULL) {
+            nodes[i] = (u32)node1;
+            i++;
+            node1 = *(u8 **)(node1 + 0x138);
+        }
+        node2 = func_001452b0(1);
+        while (node2 != NULL) {
+            nodes[i] = (u32)node2;
+            i++;
+            node2 = *(u8 **)(node2 + 0x138);
+        }
+        node3 = func_001452b0(0xC);
+        while (node3 != NULL) {
+            nodes[i] = (u32)node3;
+            i++;
+            node3 = *(u8 **)(node3 + 0x138);
+        }
+        i = 0;
+        while (i < count) {
+            slot = &nodes[i];
+            node = (u8 *)*slot;
+            id = *(u16 *)node;
+            table_count = *(s32 *)(arg0 + 0x7A0);
+            k = 0;
+            while (k < table_count) {
+                match = *(u8 **)(*(u8 **)(arg0 + 0x7A4) + k * 4);
+                if (*(u16 *)match == id) {
+                    t = match;
+                    goto found;
+                }
+                k++;
+            }
+            t = NULL;
+found:
+            func_0028c580(arg0, node, t);
+            i++;
+        }
+    }
+}
+/* measured: restore propagation for the rest of the unit. */
+#pragma opt_propagation on
 // FUN_0028C580
 INCLUDE_ASM("asm/nonmatchings/code1_0028", func_0028c580);
 // FUN_0028CED0
