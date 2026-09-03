@@ -23,7 +23,7 @@ void func_002b82d0(u8 *arg0, s8 arg1, s8 arg2, s8 arg3, s16 arg4, s16 arg5);
 void func_002b8340(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
                     f32 fparg0, f32 fparg1);
 extern void func_002b8300(u8 *arg0, s8 arg1, s16 arg2, s16 arg3,
-                           f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+ f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 extern void func_0046b0d0(void *ptr);
 
 typedef struct {
@@ -387,7 +387,51 @@ void func_0033d520(u8 *arg0, s8 arg1, s16 arg2, s64 arg3, f32 fparg0, f32 fparg1
 }
 
 // FUN_0033D550
-INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d550);
+/* measured: opt_propagation off preserves the per-call field loads and the
+   argument materialisation order for func_002b8300. */
+#pragma opt_propagation off
+void func_0033d550(u8 *arg0)
+{
+    extern void func_002b82d0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3,
+                               s16 arg4, s16 arg5);
+    extern void func_002b8300(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
+                               s8 arg1, s16 arg2, s16 arg3);
+    s16 h;
+    u8 b1;
+    u8 b2;
+    f32 f0;
+    f32 f1;
+    u8 *p;
+
+    *(s16 *)(*(u8 **)(arg0 + 0x38) + 4) |= 1;
+
+    func_002b8270(*(u8 **)(arg0 + 0x38) + 4,
+                  *(F2_0033 *)(*(u8 **)(arg0 + 0x38) + 0x2C),
+                  *(F2_0033 *)(*(u8 **)(arg0 + 0x38) + 0x1C),
+                  0,
+                  *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x36),
+                  0);
+
+    h = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x5E);
+    p = *(u8 **)(arg0 + 0x38) + 4;
+    b1 = *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x62);
+    b2 = *(u8 *)(*(u8 **)(arg0 + 0x38) + 0x60);
+    func_002b82d0(p, b1, b2, 0, h, 0);
+
+    h = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0xC8);
+    p = *(u8 **)(arg0 + 0x38) + 4;
+    f0 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0xC4);
+    f1 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0xBC);
+    func_002b8340(p, 0, h, 0, f0, f1);
+
+    f1 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x8C);
+    f0 = *(f32 *)(*(u8 **)(arg0 + 0x38) + 0x94);
+    h = *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x88);
+    p = *(u8 **)(arg0 + 0x38) + 4;
+    func_002b8300(p, f0, f1, f0, f1, 0, h, 0);
+}
+/* measured: restore opt_propagation for the rest of the translation unit. */
+#pragma opt_propagation on
 // FUN_0033D630
 INCLUDE_ASM("asm/nonmatchings/code1_0033", func_0033d630);
 // FUN_0033D9D0
