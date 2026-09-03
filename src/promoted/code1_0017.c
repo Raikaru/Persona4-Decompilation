@@ -389,8 +389,83 @@ s32 func_00170e50(u8 *arg0)
     return 1;
 }
 
+/* measured: the 12-byte D_005F1758 origin is a plain Vec3 struct assignment
+   (retail ld + lwc1 with separate lui pairs, then sd + swc1); spelling it as
+   an s64/f32 pair through separate globals is what cost the archived nd 8, and
+   it also made a dead `sp60[0] = &sp50` necessary to hoist $a2. */
 // FUN_00170F60
-INCLUDE_ASM("asm/nonmatchings/code1_0017", func_00170f60);
+s32 func_00170f60(u8 *arg0, s32 arg1)
+{
+    Vec3_00178590 sp70;
+    u8 *sp60[3];
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f1;
+    f32 temp_f0;
+    f32 temp_f3;
+    f32 temp_f3_2;
+    s32 var_17;
+    u8 *temp_2;
+    u8 *var_16;
+
+    var_17 = 0;
+    var_16 = func_001452b0(0xD);
+    if ((func_0014a200() == 0) && (func_0014a270() == 0))
+        return 0;
+    temp_2 = func_0047a2f0(*(u8 **)(arg0 + 0x50));
+    sp70 = *(Vec3_00178590 *)(temp_2 + 0x30);
+    goto loop_21_cond;
+loop_21_body:
+    {
+        extern Vec3_00178590 D_005F1758;
+        Vec3_00178590 sp50;
+
+        sp50 = D_005F1758;
+        sp60[0] = var_16 + 0x15C;
+        sp60[1] = var_16 + 0x168;
+        sp60[2] = var_16 + 0x174;
+        if ((func_00168ec0(&sp70, sp60, &sp50) == 1) &&
+            (temp_f3 = *(f32 *)(sp60[0] + 4), (sp70.y < (200.0f + temp_f3))) &&
+            !(sp70.y <= (temp_f3 - 200.0f))) {
+            if (arg1 == 0) {
+                if ((*(u16 *)var_16 & 0x3FF) == 0x3FF)
+                    goto loop_21_found1;
+            }
+            if (arg1 != 1)
+                goto loop_21_done;
+            if ((*(u16 *)var_16 & 0x3FF) != 0x3FE)
+                goto loop_21_done;
+loop_21_found1:
+            var_17 = 1;
+            goto loop_21_done;
+        }
+        sp60[0] = var_16 + 0x168;
+        sp60[1] = var_16 + 0x174;
+        sp60[2] = var_16 + 0x180;
+        if ((func_00168ec0(&sp70, sp60, &sp50) == 1) &&
+            (temp_f3_2 = *(f32 *)(sp60[0] + 4),
+             (sp70.y < (200.0f + temp_f3_2))) &&
+            !(sp70.y <= (temp_f3_2 - 200.0f))) {
+            if (arg1 == 0) {
+                if ((*(u16 *)var_16 & 0x3FF) == 0x3FF)
+                    goto loop_21_found2;
+            }
+            if (arg1 != 1)
+                goto loop_21_done;
+            if ((*(u16 *)var_16 & 0x3FF) != 0x3FE)
+                goto loop_21_done;
+loop_21_found2:
+            var_17 = 1;
+            goto loop_21_done;
+        }
+        var_16 = *(u8 **)(var_16 + 0x138);
+    }
+loop_21_cond:
+    if (var_16 != NULL)
+        goto loop_21_body;
+loop_21_done:
+    return var_17;
+}
 
 // FUN_001711B0
 s32 func_001711b0(u8 *arg0)

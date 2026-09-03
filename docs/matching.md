@@ -145,6 +145,23 @@ Rules of engagement:
   is re-evaluated per iteration (nd 19). Same rule as the second `+=` in
   `func_00455ea0`: what decides `$v0`/`$v1`/`$aN` is the ORDER in which
   values are first allocated, and splitting or hoisting changes that order.
+- **`opt_loop_invariants on` is the lever, not the floor, when retail hoists
+  table bases and constants ahead of a loop.** `func_00161bb0` (nd 45 -> 0)
+  and `func_0045b430` (nd 8 -> 0) both needed it: the file default leaves the
+  bases rematerialised per iteration. An `s16` loop counter is what produces
+  retail's `dsll32`/`dsra32` sign-extension pairs.
+- **The signed align-up idiom is `/ 64 * 64`, not hand-written shifts.**
+  Retail `addiu $v1,$v0,0x3f / sra $v0,$v1,6 / bgez $v1 / addiu +0x3f / sra`
+  is `(size + 0x3F) / 64 * 64` on a signed operand; an explicit negative
+  branch with `>> 6` was the archived "register-class" residual in both
+  `func_00455ea0` (nd 7) and `func_0047e450` (nd 5).
+- **A 12-byte global origin is a `Vec3` struct assignment** (`ld` + `lwc1`
+  with separate `lui` pairs, `sd` + `swc1`): `func_00170f60` spelled it as an
+  `s64`/`f32` pair through two globals and stalled at nd 8.
+- **`pcpyld $v0,$zero,$v0` is reachable from C.** `func_003a2950`'s
+  `*(u64 *)p &= (u64)-0x10000` emits `lui $v0,0xffff / pcpyld $v0,$zero,$v0`
+  exactly; it is how b210 materialises a 64-bit constant whose low word is
+  a `lui` immediate. Do not file every MMI opcode as a floor.
 
 ## Loops
 
