@@ -1,0 +1,152 @@
+#include "include_asm.h"
+#include "type.h"
+
+/* RenderWare-derived functions verified with MWCCPS2 3.0.1 b119 (see
+   config/compiler_units.txt and docs/matching.md). Fallbacks stay under
+   asm/nonmatchings/code1_003d. */
+
+#define va_start(ap, last) (ap = (va_list)(s32)(__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8))
+extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
+extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_004217e0(u8 *arg0);
+extern s32 **func_003ce050();
+extern s32 iGpffffb728;
+extern s32 iGpffffb730;
+extern s32 iGpffffb72c;
+extern s32 iGpffffab50;
+extern s32 D_00887180[];
+extern s32 D_00887184[];
+extern s32 D_00887188[];
+extern s32 D_0088718C[];
+extern void *D_00887194[];
+extern u8 D_008871A0[];
+extern s32 D_008871A4[];
+extern s32 D_008871A8[];
+extern s32 D_00724840;
+extern u8 D_008872E0[];
+extern u8 D_00887150[];
+extern s32 iGpffffab1c;
+extern s32 iGpffffab20;
+extern s32 iGpffffb760;
+extern s32 D_00724844;
+extern u8 D_0070C260[];
+extern s32 func_003d2720(void);
+extern u8 *func_003db360(u8 *arg0, u8 *arg1);
+extern u8 *func_003d5790(s32 arg0, s32 arg1);
+extern s32 func_003db480(s32 *arg0, s32 arg1);
+extern s32 func_003dd530(u8 *arg0, s32 arg1);
+extern s32 D_0070B470[];
+extern void func_003d3e60(void);
+extern void func_003d0fa0(void);
+extern void func_003cdfa0(u8 *arg0);
+extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
+extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+extern s32 func_003d4f20(s32 arg0);
+extern void (*jtbl_008873EC[])();
+extern s32 func_003e2ab0();
+extern s32 func_003de8c0(u8 *arg0, s32 arg1);
+extern s32 func_003d59d0(u8 *arg0, f32 amount);
+extern s32 func_003d5bc0(u8 *arg0, f32 amount);
+extern s32 iGpffffb738;
+extern s32 iGpffffb734;
+extern void func_003e12f0();
+extern void func_0043f810(void *dst, void *src, u32 size);
+extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern void func_00426f80(s32 arg0);
+extern s32 func_003c1ab0();
+extern s32 func_003c1b40();
+extern s32 func_003c2b70();
+extern s32 func_003c8d00();
+extern s32 func_003c8d60();
+extern s32 D_00886E50[];
+extern s32 func_003df590(s64 arg0, ...);
+extern u8 *func_003df4d0();
+extern void func_003d5840(u8 *arg0, u8 *arg1);
+extern s32 **func_003ddc10(void);
+extern void func_00421800(s32 arg0);
+extern void func_00421820(s32 arg0);
+extern s32 iGpffffb754;
+static inline s32 func_003d_add_offset(s32 base, s32 offset) {
+    return base + offset;
+}
+extern s32 D_0072483C;
+extern s32 D_0072484C;
+extern s32 (*D_008873C8[])(u8 *, u8 *);
+extern s32 (*D_008873D0[])(u8 *, s32);
+extern void func_00421800(s32 arg0);
+extern void func_00421820(s32 arg0);
+extern s32 iGpffffb754;
+extern s32 D_0072484C;
+extern s32 D_00724854;
+
+// FUN_003D86A0
+/* F3D1 archive func_003d86a0: object 188B/window 192B, normalized_diff 41, differing words 0x34 (0x1000 addiu vs retail lui), 0x58 (branch target), and 0x84-0xBC (cleanup indirect-call sequence shifted one word; object is 4B short); classification: near-match with exact prologue/first callback/loop body, but cleanup entry needs one retail nop and the immediate materialisation remains addiu. Retail uses sq, not the GCC sd separator. Corrected func_003d8500 to five parameters including hidden t0 argument, swapped temp/count declaration order to recover $s4/$s5, and used explicit count<0 guard plus do/while with no_branch_likely; these made offsets 0x00-0x30 and 0x38-0x80 byte-exact. */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003d86a0(s8 *arg0, s32 arg1, u8 *arg2) {
+    s32 result;
+    s32 count;
+    u8 *temp;
+    s32 value;
+    extern s32 func_003d8500(s8 *, u8 *, s32, s32, u8 *);
+
+    result = 0;
+    temp = jtbl_008873E8[0](3 * *(s32 *)(arg2 + 4), 0x10000);
+    count = *(s32 *)(arg2 + 8) - 1;
+    if (count < 0) {
+        goto cleanup;
+    }
+    do {
+        value = func_003d8500(arg0, arg2, count, arg1, temp);
+        count--;
+        result += value;
+    } while (count >= 0);
+cleanup:
+    jtbl_008873EC[0](temp);
+    return result;
+}
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003DE280
+/* Lane P3DE_0003: func_003de280 under -O2,p. Tried: direct u32 value local with schedule on + no_branch_likely on. Residual: lw $v0,0x58($a0) and the first sll are swapped in the positive branch; object 52 vs window 64. */
+#pragma push
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003de280(u8 *arg0, u32 arg1) {
+    u32 base;
+    u32 offset;
+    if (!(arg1 < *(u32 *)(arg0 + 4))) {
+        goto zero;
+    }
+    offset = arg1 << 3;
+    offset -= arg1;
+    offset <<= 4;
+    base = *(u32 *)(arg0 + 0x58);
+    return base + offset;
+zero:
+    return 0;
+}
+#pragma pop
+
+// FUN_003DF870
+#pragma schedule on
+s32 func_003df870(s32 *arg0, s32 arg1) {
+    return arg0[0] + arg0[3] * arg1;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003DF8A0
+// Main 2026-09-02: under the unit's -O2,p (config/speed_units.txt) + schedule on, the jr delay slot IS filled with the addu
+// but the scheduler also hoists the second lw above the mult (lw lw mult jr addu vs retail lw mult lw jr addu). No level
+// or pragma combination (13 tried) gives fill-without-hoist. Open.
+/* object_size 28B, window 32B, normalized_diff 8, differing offsets 16,17,18,19,20,21,22,23 (retail tail words at +16 = jr $ra 0x0800e003 and +20 = addu $v0,$v0,$v1 0x21104300; candidate reverses them at +16/+20, with nop at +24). Classification: scheduler/epilogue ORDER residual, not an rd-form multiply floor: plain C emits the same retail raw mult word 0x00621818 (mult $v1,$v1,$v0) and matches the preceding lw/lw/mult/lw sequence exactly. Re-measured after declaration changes. Direct-expression and opposite named-result forms both remain 28B/nd8; schedule-on produces 24B/nd10 and reorders earlier loads. Local-product, pointer, declaration, optimization, explicit schedule-off, and opt_serializeassignments probes were ruled out. No inline asm or volatile. */
+#pragma schedule on
+s32 func_003df8a0(s32 *arg0) {
+    s32 product = arg0[3] * arg0[1];
+    return arg0[0] + product;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off

@@ -21,3 +21,6 @@ src/promoted/code1_003a.c
 src/promoted/code1_003b.c
 src/promoted/code1_003d.c
 src/promoted/code1_003e.c
+src/promoted/code1_0039_cw119.c
+src/promoted/code1_003b_cw119.c
+src/promoted/code1_003d_cw119.c

@@ -91,6 +91,7 @@ def cfg():
             except ValueError as exc:
                 sys.exit(f"build: invalid {path.relative_to(REPO)}: {exc}")
     c["mwcc"] = os.environ.get("P4_MWCC", c.get("mwcc"))
+    c["mwcc_versions"] = V.compiler_versions(c)
     c["retail_elf"] = os.environ.get("P4_RETAIL_ELF", c.get("retail_elf"))
     c["ld_exe"] = c.get("ld_exe") or (
         str(Path(c["mwcc"]).with_name("mwldps2.exe")) if c.get("mwcc") else None
@@ -902,7 +903,7 @@ def _include_dirs(flags):
 def _mwccgap_flags(c, src=None):
     """Return the compiler/assembler flags shared by every C compile path."""
     flags = [
-        "--mwcc-path", c["mwcc"],
+        "--mwcc-path", V.unit_compiler(Path(src), c) if src is not None else c["mwcc"],
         "--asm-dir-prefix", str(REPO),
         "--macro-inc-path", str(ASM / "macro.inc"),
         "--as-march", "r5900", "--as-mabi", "eabi",
@@ -948,13 +949,14 @@ def _cache_inputs(mode, source=None):
     # gcc_units.txt is still consulted to EXCLUDE those units from the C build,
     # so it belongs in the key for every source rather than only for them.
     inputs.append(V.GCC_UNITS_PATH)
+    inputs.append(V.COMPILER_UNITS_PATH)
     if mode == "eligibility":
         inputs.append(Path(V.__file__))
     return inputs
 
 
-def _cache_tools(c, mode):
-    tools = {"mwcc": c["mwcc"]}
+def _cache_tools(c, mode, src=None):
+    tools = {"mwcc": V.unit_compiler(Path(src), c) if src is not None else c["mwcc"]}
     if AS_TOOL is not None:
         tools["assembler"] = AS_TOOL.argv
     if mode == "link":
@@ -980,7 +982,7 @@ def compile_eligibility(c, src, cache):
         source=src,
         include_dirs=_include_dirs(c["compile_flags"]),
         flags=flags,
-        tools=_cache_tools(c, "eligibility"),
+        tools=_cache_tools(c, "eligibility", src),
         inputs=_cache_inputs("eligibility", src),
         producer=produce,
     )
@@ -999,7 +1001,7 @@ def compile_c(c, src, obj, cache):
         source=src,
         include_dirs=_include_dirs(c["compile_flags"]),
         flags=_mwccgap_flags(c, src),
-        tools=_cache_tools(c, "link"),
+        tools=_cache_tools(c, "link", src),
         inputs=_cache_inputs("link", src),
         producer=produce,
     )
