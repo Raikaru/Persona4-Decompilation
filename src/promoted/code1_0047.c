@@ -427,8 +427,89 @@ void func_0047eb20(u8 *arg0, s16 arg1, u16 arg2)
         *(s16 *)(arg0 + 4) = arg1;
     }
 }
+static inline void code1_0047_abd0(s16 arg0, s32 arg1, s16 arg2)
+{
+    func_0045abd0(arg0, arg1, arg2);
+}
+
+/* measured: the retry counter is stored as an s32 sum and re-read through the s16 slot
+   (`n = x + 1; x = n; temp = x;`): the reload forwards to a dsll32/dsra32 after the sh,
+   as retail. The call argument re-reads the slot as `*(s16 *)((u32)arg0 + 8)` so it is
+   not CSE'd with the forwarded value and stays a real lh (retail). */
 // FUN_0047ED60
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047ed60);
+void func_0047ed60(u8 *arg0)
+{
+    s16 temp_3_2;
+    s16 temp_3_3;
+    s16 temp_3_4;
+    s16 temp_4;
+    s16 temp_4_2;
+    s32 var_16;
+    u8 *temp_3;
+    s16 call_a0;
+    s16 call_a2;
+    s32 call_a1;
+    s32 n;
+
+    func_0047e6f0(arg0);
+    temp_3 = *(u8 **)arg0;
+    if (temp_3 != NULL && (*(u16 *)(temp_3 + 0x12) & 1) != 0) {
+        var_16 = 1;
+        temp_3_2 = *(s16 *)(arg0 + 0x16);
+        if (temp_3_2 >= 0) {
+            if (temp_3_2 == 0) {
+                temp_3_3 = ((*(u16 *)(arg0 + 0x10) & 0x20) != 0);
+                if (temp_3_3 != 0) {
+                    call_a0 = *(s16 *)(arg0 + 0x12);
+                    call_a2 = *(s16 *)(arg0 + 0x14);
+                    call_a1 = *(s32 *)(arg0 + 0x18);
+                    code1_0047_abd0((s16)call_a0, (s32)call_a1, (s16)call_a2);
+                }
+                *(s16 *)(arg0 + 0x16) = -1;
+            } else {
+                *(s16 *)(arg0 + 0x16) = temp_3_2 - 1;
+                var_16 = 0;
+            }
+        }
+        temp_4 = *(s16 *)(arg0 + 0x24);
+        if (temp_4 >= 0) {
+            if (temp_4 == 0) {
+                call_a0 = *(s16 *)(arg0 + 0x1E);
+                call_a2 = *(s16 *)(arg0 + 0x20);
+                temp_3_3 = *(s16 *)(arg0 + 0x22);
+                func_0045af60(*(s16 *)(arg0 + 0x1C), call_a0, call_a2,
+                              temp_3_3);
+                *(s16 *)(arg0 + 0x26) = *(s16 *)(arg0 + 0x1C);
+                *(s16 *)(arg0 + 0x24) = -1;
+            } else {
+                *(s16 *)(arg0 + 0x24) = temp_4 - 1;
+                var_16 = 0;
+            }
+        } else if (temp_4 == -2) {
+            temp_4_2 = *(s16 *)(arg0 + 0x26);
+            if (temp_4_2 >= 0) {
+                func_0045aa90(temp_4_2, *(s16 *)(arg0 + 0x1E));
+                *(s16 *)(arg0 + 0x26) = -1;
+            }
+            *(s16 *)(arg0 + 0x24) = -1;
+        }
+        if (*(s32 *)(arg0 + 0xC) != 0 && var_16 == 1 &&
+            *(s16 *)(arg0 + 8) != -1) {
+            n = *(s16 *)(arg0 + 8) + 1;
+            *(s16 *)(arg0 + 8) = n;
+            temp_3_4 = *(s16 *)(arg0 + 8);
+            if (temp_3_4 < 8) {
+                call_a1 = *(u16 *)(arg0 + 0x06);
+                if (func_0047e0f0(arg0, *(s16 *)((u32)arg0 + 8),
+                                  *(s16 *)(arg0 + 0x04), (u16)call_a1) == 0) {
+                    *(s16 *)(arg0 + 8) = -1;
+                }
+            } else {
+                *(s16 *)(arg0 + 8) = -1;
+            }
+        }
+    }
+}
 // FUN_0047EF10
 s32 func_0047ef10(u8 *arg0, f32 fparg0)
 {

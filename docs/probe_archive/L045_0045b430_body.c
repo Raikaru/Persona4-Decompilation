@@ -1,3 +1,6 @@
+/* Main 2026-09-03: re-probed. A separate `u8 *tbl = D_008E4090` local (not the reused var_3) keeps nd8
+   (base a0 / index v1 vs retail v1 / a0); inline D_008E4090 in the loop is not hoisted (nd14);
+   all declaration positions of tbl/slot_index/var_5 (120): nd10. Colouring floor. */
 /* remeasured 2026-08-14: object 532B/window 544B, normalized_diff 8; differing byte offsets 234, 238, 249, 253, 254, 258, 262, 270 (word rows 232, 236, 248, 252, 256, 260, 268; relocation fields masked), with a 12B zero tail. Retail keeps D_008E4090 in $v1 and the sign-extended slot index in $a0; candidate uses $a0/$v1. Re-probed pointer construction split/base-first split, slot-index inlining, declaration and initialization order, pointer/base type, callee prototype/variadic forms, and direct-global shapes: nd stayed 8 or worsened. The file's arg1/u16 lever does not apply to this void function; corrected func_0043c008 ABI remains a known nd344 regression when its caller argument is removed. */
 void func_0045b430(void) {
     s32 var_3;

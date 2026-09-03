@@ -1,3 +1,8 @@
+/* Main 2026-09-03: re-probed. Assigning temp_18 before temp_17 gives retail's registers (s1/s2) but
+   moves the pointer arithmetic above the lh (nd4); assigning temp_17 first keeps the order and swaps
+   the registers (nd8). All 120 declaration orders of the five locals: nd8. schedule on: nd148 (the
+   unit is schedule-off). AST permuter 18k compiles: best 6. Allocation follows assignment order here
+   and the emission order follows it too - still open. */
 /* Best near-match body from FBCU_P20 (object_size=688, window=688, normalized_diff=8).
  * Retail saved-register list: arg0->$s4, var_19->$s3, temp_18->$s2,
  * temp_17->$s1, temp_16->$s0. Candidate retained temp_17->$s2 and
