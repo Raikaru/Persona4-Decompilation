@@ -631,8 +631,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5750);
    reconstruction archived in build/K3D5_003d5790_body.c. */
 // FUN_003D5790
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5790);
+/* measured: schedule on moves the pointer addiu instructions into the jal and jr delay slots. */
+#pragma schedule on
 // FUN_003D59A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59a0);
+s32 func_003d59a0(u8 *arg0, u8 *arg1) {
+    u8 *dst = arg0 + 0x4c;
+    s32 size = *(s32 *)(arg0 + 0x24) * *(s32 *)(arg0 + 0x2c);
+    func_0043f810((s32)dst, arg1 + 0x4c, size);
+    return 1;
+}
+/* measured: closes schedule around func_003d59a0. */
+#pragma schedule off
 // FUN_003D59D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59d0);
 // FUN_003D5BC0
