@@ -321,6 +321,15 @@ EPILOGUE_SEPARATED_ENTRIES = {
     # definitively as one that returns. Splitting the fused 352-byte window
     # into 80 + 272 closed func_00101350 outright at nd 0.
     0x001013A0,
+    # 004671C0 is the stream-close callback that func_004672c0 hands to
+    # func_00451fc0: materialised by `lui $a1,0x47` / `addiu $a1,$a1,0x71c0`
+    # (src/promoted/sdkWrap.c passed it as `D_004671C0` before it was named).
+    # Its owner func_00466e80 is a worker loop that never returns: retail ends
+    # at 004671AC with an unconditional `b 0x466e94` plus a nop, then three
+    # words of padding, and a fresh `addiu $sp,-0x40` frame opens at 004671C0.
+    # Splitting the fused 1040-byte window into 832 + 208 closed both
+    # functions at nd 0.
+    0x004671C0,
 }
 
 # Entries the control-flow scan gets BACKWARDS. Each of these is a real, heavily

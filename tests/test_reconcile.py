@@ -85,7 +85,7 @@ class CanonicalMapTests(unittest.TestCase):
             + len(reconcile.JAL_REACHABLE_ENTRIES)
             - len(reconcile.BRANCH_LANDING_ENTRIES)
         )
-        self.assertEqual(expected_total, 13101)
+        self.assertEqual(expected_total, 13102)
         self.assertEqual(function_map["function_count"], expected_total)
         self.assertEqual(len(windows), expected_total)
         for segment_name, expected_count in (("code1", expected_total - 9), ("code2", 9)):
@@ -227,10 +227,11 @@ class CanonicalMapTests(unittest.TestCase):
                 )
                 jr_at, jr = terminator
                 is_register_jump = (jr >> 26) == 0 and (jr & 0x3F) == 0x08
-                # An unconditional branch to itself is also a complete
-                # terminator: func_00101350 ends `b .-3` and loops forever, so
-                # nothing can fall through into the next function. Encoding is
-                # BEQ $zero,$zero with a negative displacement.
+                # An unconditional backward branch is also a complete
+                # terminator: func_00101350 ends `b .-3` and func_00466e80
+                # ends `b` back to its own loop head, so nothing can fall
+                # through into the next function. Encoding is BEQ $zero,$zero
+                # with a negative displacement.
                 is_self_loop = (jr >> 26) == 0x04 and ((jr >> 16) & 0x3FF) == 0 \
                     and (jr & 0x8000) != 0
                 self.assertTrue(
