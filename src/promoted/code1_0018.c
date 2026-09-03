@@ -154,6 +154,7 @@ extern void func_004598e0(s32 arg0);
 extern void func_0045a3e0(s16 arg0, s32 arg1);
 extern s32 iGpffffb264;
 extern u8 *iGpffff9db0;
+extern s32 iGpffffb884;
 
 /* measured: loop-invariant hoisting keeps the retail stride/base preheader for
    the 0x750 slot scan. */
@@ -388,13 +389,13 @@ void func_001852f0(void)
     a = 0xE;
     b = 0x1000000000008001ULL;
     packed = _pcpyld(a, b);
-    packet = (u_long128 *)(u32)iGpffffb27c;
+    packet = (u_long128 *)(u32)iGpffffb884;
     *packet = packed;
     c = 0x4C;
     b = iGpffffb8c8 | 0xFF00000000000000ULL;
     packed = _pcpyld(c, b);
     packet[1] = packed;
-    iGpffffb27c += 0x20;
+    iGpffffb884 += 0x20;
 }
 /* measured: restore the file's O2 baseline after the target. */
 #pragma optimization_level 2
@@ -422,13 +423,13 @@ void func_00185370(void)
     a = 0xE;
     b = 0x1000000000008001ULL;
     packed = _pcpyld(a, b);
-    packet = (u_long128 *)(u32)iGpffffb27c;
+    packet = (u_long128 *)(u32)iGpffffb884;
     *packet = packed;
     c = 0x4C;
     d = iGpffffb8c8;
     packed = _pcpyld(c, d);
     packet[1] = packed;
-    iGpffffb27c += 0x20;
+    iGpffffb884 += 0x20;
 }
 /* measured: closes the cluster pcpyld pragma scope and restores the file's -O2
    baseline. */

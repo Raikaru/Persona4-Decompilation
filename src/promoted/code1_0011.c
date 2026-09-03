@@ -597,17 +597,17 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
     extern f32 D_005E479C[];
     extern u8 D_005E5830[];
     extern u8 D_005E5850[];
-    extern u8 iGpffffb1dc;
-    extern u8 iGpffffb1d4;
-    extern u8 iGpffffb1e4;
+    extern u8 iGpffff9be0;
+    extern u8 iGpffff9bd8;
+    extern u8 iGpffff9be8;
 
     temp16 = func_0046a770(D_005E5830);
     temp19 = func_0046a770(D_005E5850);
     if (temp16 == 0) {
-        func_0046d730(&iGpffffb1dc, 0x93);
+        func_0046d730(&iGpffff9be0, 0x93);
     }
     if (temp19 == 0) {
-        func_0046d730(&iGpffffb1dc, 0x94);
+        func_0046d730(&iGpffff9be0, 0x94);
     }
     if (*(u16 *)(arg2 + 0x14) != 0) {
         func_00112610(arg0, fparg0, arg1, arg2, temp16, temp19);
@@ -621,7 +621,7 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
             *(f32 *)((u8 *)&arg0 + 4),
             fparg0,
             temp19 | ~0xFF,
-            *(s8 *)(&iGpffffb1d4 + *(s16 *)(arg2 + 0x16)),
+            *(s8 *)(&iGpffff9bd8 + *(s16 *)(arg2 + 0x16)),
             1,
             (u8 *)temp_2,
             0,
@@ -648,14 +648,14 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
                        D_005E479C[*(s16 *)(arg2 + 0x18) * 4];
         xy.values[1] = *(f32 *)((u8 *)&arg0 + 4);
         temp16 = ((arg1 & 0xFF) * 0xFF) / 255U;
-        func_00442088(buf, &iGpffffb1e4,
+        func_00442088(buf, &iGpffff9be8,
                       func_00106a90(*(s16 *)arg2));
         func_00274ed0(
             (f32)(s32)xy.values[0],
             (f32)(s32)xy.values[1],
             fparg0,
             temp16 | ~0xFF,
-            *(s8 *)(&iGpffffb1d4 + *(s16 *)(arg2 + 0x16)),
+            *(s8 *)(&iGpffff9bd8 + *(s16 *)(arg2 + 0x16)),
             0,
             (void *)buf,
             0,

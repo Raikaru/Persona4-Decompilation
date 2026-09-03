@@ -943,7 +943,7 @@ void func_0027a970(u8 *arg0)
     extern void func_00440b68(void *arg0);
     extern void func_0045a9a0(s32 arg0, s32 arg1);
     extern u16 D_008C024C[];
-    extern s32 iGpffffb4b0;
+    extern s32 iGpffffb4d0;
     extern u8 D_0063BF40[];
     u8 *state;
     s32 index;
@@ -972,7 +972,7 @@ void func_0027a970(u8 *arg0)
                     goto state_check;
                 count = *(u32 *)(state + 0x14);
                 if (count > 4U) {
-                    if ((iGpffffb4b0 & 1) == 0)
+                    if ((iGpffffb4d0 & 1) == 0)
                         goto do_action;
                 } else {
                     goto state_check;
@@ -1010,7 +1010,7 @@ do_action:
                 ((D_008C024E[0] & 0x40) != 0 ||
                  (D_008C024E[0] & 0x20) != 0 ||
                  ((D_008C024C[0] & 0x10) != 0 &&
-                  (iGpffffb4b0 & 1) == 0)) &&
+                  (iGpffffb4d0 & 1) == 0)) &&
                 (*(s32 *)arg0 & 0x400000) == 0 &&
                 (*(s32 *)arg0 & 0x1000000) == 0) {
                 iter = *(u8 **)(state + 4);

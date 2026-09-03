@@ -30,6 +30,7 @@ extern s32 func_00106330(s32 arg0);
 extern s32 func_0010f420(s32 arg0, s32 arg1);
 extern u8 *iGpffffb3bc;
 extern u8 *iGpffffb3d0;
+extern u8 *iGpffffb3e0;
 
 extern s32 func_001f56d0(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern u16 func_001d7f10();
@@ -791,7 +792,7 @@ s32 func_001f1210(u8 *arg0, s64 arg1, s32 arg2)
         return 0;
     }
     if ((arg2 == 0) ||
-        ((*(u16 *)(iGpffffb3d0 + (*(u16 *)(arg0 + 0xA4) * 0x58)) & 0x10) != 0) ||
+        ((*(u16 *)(iGpffffb3e0 + (*(u16 *)(arg0 + 0xA4) * 0x58)) & 0x10) != 0) ||
         ((*(u16 *)((u32)addOffsetFirst(
             (u32)(index * 4),
             (u32)iGpffffb3bc) + 2) & 1) == 0)) {
@@ -1822,7 +1823,7 @@ void func_001f58d0(void)
     u8 *temp_4_2;
     u8 *temp_6;
 
-    temp_6 = iGpffffb3b8;
+    temp_6 = iGpffffb3ac;
     state_ptr = temp_6 + 0xA50;
     temp_3 = *(u16 *)state_ptr;
     switch (temp_3) {
@@ -1844,23 +1845,23 @@ case1:
     }
     *(u16 *)state_ptr = 2;
 case2:
-    temp_3_2 = iGpffffb3b8;
+    temp_3_2 = iGpffffb3ac;
     temp_4 = *(u8 **)(*(u8 **)(temp_3_2 + 0xA54) + 0x110);
     temp_16 = temp_4 + ((s32 *)(temp_4 + 4))[*(u16 *)(temp_3_2 + 0xA60) * 3];
     func_002bd270(temp_16, state_ptr, temp_6);
-    func_002bd280(*(u16 *)(iGpffffb3b8 + 0xA4C),
+    func_002bd280(*(u16 *)(iGpffffb3ac + 0xA4C),
                   func_00231d70(func_002777a0(temp_16)), 0, 0);
-    temp_3_3 = iGpffffb3b8;
+    temp_3_3 = iGpffffb3ac;
     *(s32 *)(temp_3_3 + 0xA58) = *(s32 *)(temp_3_3 + 0xA60);
-    temp_3_4 = iGpffffb3b8;
+    temp_3_4 = iGpffffb3ac;
     *(s16 *)(temp_3_4 + 0xA5C) = *(s16 *)(temp_3_4 + 0xA64);
-    temp_3_5 = iGpffffb3b8;
+    temp_3_5 = iGpffffb3ac;
     *(u16 *)(temp_3_5 + 0xA4E) =
         (u16)(*(u16 *)(temp_3_5 + 0xA4E) | 1);
-    *(u16 *)(iGpffffb3b8 + 0xA50) = 0;
+    *(u16 *)(iGpffffb3ac + 0xA50) = 0;
 done:
     if (func_002bd340() == 0) {
-        temp_4_2 = iGpffffb3b8;
+        temp_4_2 = iGpffffb3ac;
         *(u16 *)(temp_4_2 + 0xA4E) =
             (u16)(*(u16 *)(temp_4_2 + 0xA4E) & 0xFFFE);
     }

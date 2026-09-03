@@ -87,7 +87,8 @@ extern u32 func_00442948(const void *arg0);
 extern void func_0043f810(void *arg0, void *arg1, s32 arg2);
 extern s32 func_0029ecb0(u8 *arg0);
 extern s32 D_0076462C;
-extern u8 iGpffffa7e8;
+extern u8 iGpffffa7e8;
+extern u8 *iGpffffb540;
 extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 
@@ -981,7 +982,7 @@ void func_0029e9e0(s32 arg0, f32 farg0, f32 farg1, f32 farg2, f32 farg3,
     f32 temp_f24;
     u8 *temp_2;
 
-    temp_2 = func_0046d200((u32)iGpffffb510, (u32)arg0);
+    temp_2 = func_0046d200((u32)iGpffffb540, (u32)arg0);
     *(s32 *)(temp_2 + 0x24) = 0;
     *(f32 *)(temp_2 + 8) = farg0;
     *(f32 *)(temp_2 + 0xC) = farg1;
