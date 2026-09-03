@@ -1227,6 +1227,15 @@ measurements:
   nd 10, `func_003cb250` nd 9, five more) before the block can move.
 - The `lw` before `sd $ra` prologue (below) is NOT explained by the build:
   every cached build keeps the `$ra` store first for that source.
+- Likewise a parameter `move` interleaved between the `sq` saves
+  (`func_003c47c0`: retail `sq $s1; move $s1,$a0; sq $s0`, every build
+  emits `sq $s1; sq $s0; move`, nd 3): measured 2026-09-03 under b74, b119,
+  b151, b198, `-O2,p`, optimization_level 1/3/4, opt_common_subs /
+  opt_loop_invariants / opt_rebuildconditionals off, tailcall off, eleven
+  spellings (self copy, child local, sum orders, `u8 **` parameter,
+  explicit temporaries), inside the whole parent and at every position in
+  the cw119 unit. `func_003e8ed0` (nd 17) is the same shape. Not a lever
+  question; do not re-probe.
 
 ## Known compiler floors (do not fight these)
 
