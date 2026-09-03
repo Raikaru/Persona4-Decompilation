@@ -514,8 +514,76 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a4d50);
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a5180);
 // FUN_003A5280
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a5280);
+/* measured: schedule on fills the beq/jal/b delay slots (move $s3, move $a0,
+   the trailing sw) and puts `ld $ra` in the exit branch's slot; the file is
+   schedule-off here. */
+#pragma schedule on
+/* measured: no_branch_likely on keeps the flag stores as plain bnez/nop. */
+#pragma no_branch_likely on
+/* The offset-first `addu $a0,$a0,$s1` needs the operands to travel through a
+   helper's parameters; a plain `idx * 0x24 + base` is canonicalised to
+   base-first (the k_encount encSlot lever). The goto chain reproduces
+   retail's out-of-line flag bodies, and the `goto dispatch_end` from the last
+   body is what makes the exit a shared backward branch. */
+static inline u32 slot_003a55a0(u32 offset, u32 base)
+{
+    return offset + base;
+}
 // FUN_003A55A0
-INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a55a0);
+void func_003a55a0(u8 *arg0, u8 *arg1, s32 *arg2, u8 *arg3, u32 arg4)
+{
+    extern void func_003a2bb0(s32 *arg0);
+    extern void func_003f4370(void);
+    u8 *base;
+    s32 idx;
+
+    base = *(u8 **)(arg2 + 0x4C / 4);
+    idx = *(s32 *)(base + 0xE4);
+    if (arg4 & 0x10000000) {
+        func_003a2bb0(arg2);
+    }
+    func_003f4370();
+    *(s32 *)(arg0 + 8) = ((arg4 & 2) == 2) || ((arg4 & 0x2000) == 0x2000);
+    *(s32 *)(arg0 + 4) = ((arg4 & 0x80) == 0x80) || ((arg4 & 0x80000) == 0x80000);
+    *(s32 *)(arg0 + 0) = 1;
+    *(s32 *)(arg0 + 0xC) = ((arg4 & 4) == 4) || ((arg4 & 0x4000) == 0x4000);
+    if (*(s32 *)(arg0 + 0) != 0) {
+        goto block_0;
+    }
+dispatch_8:
+    if (*(s32 *)(arg0 + 8) != 0) {
+        goto block_8;
+    }
+dispatch_4:
+    if (*(s32 *)(arg0 + 4) != 0) {
+        goto block_4;
+    }
+dispatch_c:
+    if (*(s32 *)(arg0 + 0xC) != 0) {
+        goto block_c;
+    }
+dispatch_end:
+    return;
+block_0:
+    *(s32 *)(arg0 + 0x10) = *(s32 *)((u8 *)slot_003a55a0(idx * 0x24, (u32)base) + 0x140);
+    *(s32 *)(arg0 + 0x14) = 0x10;
+    goto dispatch_8;
+block_8:
+    *(s32 *)(arg0 + 0x20) = *(s32 *)((u8 *)slot_003a55a0(idx * 0x24, (u32)base) + 0x150);
+    *(s32 *)(arg0 + 0x24) = 4;
+    goto dispatch_4;
+block_4:
+    *(s32 *)(arg0 + 0x18) = *(s32 *)((u8 *)slot_003a55a0(idx * 0x24, (u32)base) + 0x15C);
+    *(s32 *)(arg0 + 0x1C) = 0x10;
+    goto dispatch_c;
+block_c:
+    *(s32 *)(arg0 + 0x28) = *(s32 *)((u8 *)slot_003a55a0(idx * 0x24, (u32)base) + 0x14C);
+    *(s32 *)(arg0 + 0x2C) = 8;
+    goto dispatch_end;
+}
+/* measured: closes both scopes after func_003a55a0. */
+#pragma no_branch_likely off
+#pragma schedule off
 // FUN_003A5740
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a5740);
 // FUN_003A5940

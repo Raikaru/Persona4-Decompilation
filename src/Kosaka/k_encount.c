@@ -103,8 +103,39 @@ s32 func_001619b0(s32 arg0, s32 arg1, s32 arg2) {
 /* measured: restores the file default after the function above. */
 #pragma opt_propagation on
 
+/* The encounter tables and the constants 1/-1 are loop invariants that retail
+   hoists ahead of both loops. */
+/* measured: opt_loop_invariants on does that hoisting (and sign-extends the
+   s16 id once into $t2); without it the bases are rematerialised per iteration
+   (nd 45). `id == *(u16 *)(q + 2)` keeps retail's bne operand order. */
+#pragma opt_loop_invariants on
 // FUN_00161BB0
-INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161bb0);
+s32 func_00161bb0(s16 id) {
+    s32 result;
+    s32 i;
+    s32 j;
+    u8 *p;
+    u8 *q;
+
+    result = 0;
+    for (i = 0; ((s16 *)D_005F1260)[i] != -1; i++) {
+        if (((s16 *)D_005F1260)[i] == id) {
+            for (j = 0; j < 8; j++) {
+                p = D_007E80A0 + j * 0x168;
+                if (*(s32 *)(p + 0) != 0) {
+                    q = *(u8 **)(p + 0x160);
+                    if (q != NULL && *(s32 *)(p + 8) != 1 && id == *(u16 *)(q + 2)) {
+                        result = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+/* measured: closes the hoisting scope after func_00161bb0. */
+#pragma opt_loop_invariants off
 // FUN_00161630
 INCLUDE_ASM("asm/nonmatchings/k_encount", func_00161630);
 
