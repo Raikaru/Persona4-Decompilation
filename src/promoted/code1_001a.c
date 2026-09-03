@@ -366,11 +366,20 @@ void func_001a0670(u8 *arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a06d0);
 // FUN_001A0B00
 INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a0b00);
-/* Best candidate for func_001a0f40; object 440B, window 448B, normalized_diff 32. */
-// FUN_001A0F40 NONMATCHING
-#ifdef NON_MATCHING
+/* measured: opt_propagation off plus one named local per address term. mwcc
+   keeps source operand order for `named + named` (addu off,base / addu idx,sum
+   as retail) but commutes an inline product on the left (`a * k + b` emits
+   addu b,a*k); the table base must be copied first so its lw leads the block. */
+#pragma opt_propagation off
+// FUN_001A0F40
 void func_001a0f40(s64 *arg0)
 {
+    extern void func_00194ff0(void *arg0, void *arg1, void *arg2, void *arg3);
+    extern u8 *func_001973f0(u8 *arg0, f32 *arg1, f32 arg4, s32 arg2, u32 arg3);
+    extern f32 func_001ec250(f32 *arg0, f32 *arg1);
+    extern u8 *iGpffffb3cc;
+    extern f32 D_005F6D20[];
+    extern void func_001b0800(s64 *arg0, u16 arg1);
     f32 sp30[3];
     s32 temp_7;
     u16 var_5;
@@ -378,7 +387,10 @@ void func_001a0f40(s64 *arg0)
     u8 temp_3;
     u8 *temp_16;
     u8 *temp_2;
-    u32 temp_table;
+    u32 source_offset;
+    u32 tbl;
+    u32 sum;
+    u32 idx4;
 
     temp_16 = *(u8 **)((u8 *)arg0 + 0x30);
     if (((*(s32 *)(iGpffffb3ac + 0xC) & 0x1000) != 0) &&
@@ -387,38 +399,38 @@ void func_001a0f40(s64 *arg0)
         *(u16 *)((u8 *)arg0 + 0x14) = 9;
     }
     if (func_001b0e90(arg0) != 0) {
-        temp_6 = *(u16 *)((u8 *)arg0 + 0x14);
-        func_001b0800(func_001a_identity((u8 *)arg0), temp_6);
+        func_001b0800(arg0, *(u16 *)((u8 *)arg0 + 0x14));
         return;
     }
     func_00194ff0(temp_16, &sp30[0], 0, NULL);
-    if (!(func_001ec250(temp_16 + 4, &sp30[0]) <= 75.0f)) {
+    if (!(func_001ec250((f32 *)(temp_16 + 4), &sp30[0]) <= 75.0f)) {
         var_5 = 2;
-        temp_7 = (!(iGpffffb3b8[
-            (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2)) & 0xFFFF;
+        temp_7 = (u16)(!(iGpffffb3b8[
+            (*(u16 *)((u8 *)arg0 + 0x6E) * 0x28)] & 2));
         temp_6 = *(u16 *)(*(u8 **)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) + 2);
         temp_3 = *(u8 *)(*(u8 **)((u8 *)arg0 + 0x30) + 0xA2);
         switch (temp_3) {
         case 0:
             break;
         case 1:
-            temp_table = (u32)iGpffffb3cc;
-            var_5 = *(u16 *)((u8 *)temp_table +
-                (((temp_6 * 0xE8) + ((temp_7 & 0xFFFF) * 4)) + 0x24));
+            tbl = (u32)iGpffffb3cc;
+            source_offset = (u32)temp_6 * 0xE8;
+            sum = source_offset + tbl;
+            idx4 = (u16)temp_7 * 4;
+            var_5 = *(u16 *)(idx4 + sum + 0x24);
             break;
         }
         temp_2 = func_001973f0(
-            *(u8 **)((u8 *)arg0 + 0x30), &sp30[0], 0, temp_7,
-            D_005F6D20[var_5 & 0xFFFF]);
+            *(u8 **)((u8 *)arg0 + 0x30), &sp30[0], D_005F6D20[var_5 & 0xFFFF], 0,
+            temp_7);
         *(s64 *)(temp_2 + 0x60) = *(s64 *)arg0;
         func_00194590(temp_2, 1);
         return;
     }
     func_001b0800(arg0, *(u16 *)((u8 *)arg0 + 0x14));
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_001a", func_001a0f40);
-#endif
+/* measured: restore propagation for the rest of the unit. */
+#pragma opt_propagation on
 // FUN_001A1450
 void func_001a1450(s64 *arg0)
 {
