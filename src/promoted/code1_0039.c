@@ -2171,10 +2171,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039d360);
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039dcc0);
 // FUN_0039E740
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039e740);
-/* measured: archived f050 reconstruction in build/K399_0039f050_body.c;
-   object 132B / window 144B / normalized_diff 10. */
-// FUN_0039F050 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f050);
 // FUN_0039F0E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0039", func_0039f0e0);
 // FUN_0039F160

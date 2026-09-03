@@ -335,9 +335,6 @@ s32 func_003b6cc0(s32 arg0, u8 *arg1) {
 #pragma opt_rebuildconditionals on
 #pragma no_branch_likely off
 #pragma schedule off
-/* measured: current recheck object 84B/window 96B, normalized_diff 7; differing offsets 32,76,78-80,82-83. Best body archived in build/Z3BF_003b6da0_nd7_body.c; the prior nd6 archive was stale under the current TU. */
-// FUN_003B6DA0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b6da0);
 /* measured N3B: exact Z3BF archive text reproduces nd7 84B/96B under the current TU (schedule on + opt_propagation off; storing through the D_00885A90 SYMBOL, not a base local, is load-bearing — base-local store scores nd45). Residual is 2 words: retail puts jr $ra in beqz's delay slot and pads after the loop with nop;nop;nop vs our nop;jr;nop — b210 never places an epilogue instruction in that delay slot. All 156 archived 84B shapes sit at nd>=7; dead-multiply spellings (value*factor as statement/comma) score nd44-53. */
 /* measured: schedule on is required for func_003b6e00's callback delay slot. */
 #pragma schedule on

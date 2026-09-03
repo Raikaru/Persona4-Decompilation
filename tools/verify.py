@@ -165,6 +165,7 @@ def load_config() -> dict:
     for key, env_name in (("mwcc", "P4_MWCC"), ("retail_elf", "P4_RETAIL_ELF")):
         if os.environ.get(env_name):
             cfg[key] = os.environ[env_name]
+    cfg["mwcc_versions"] = compiler_versions(cfg)
     missing = [key for key in ("mwcc", "retail_elf") if not cfg.get(key)]
     if missing:
         _die("missing config value(s): %s\n"
@@ -479,7 +480,7 @@ def window_for(address: int, boundaries: list[int]) -> int | None:
 def _mwccgap_command(cpath: Path, cfg: dict, output: Path) -> list[str]:
     mwccgap = TOOLS / "mwccgap" / "mwccgap.py"
     flags = [
-        "--mwcc-path", cfg["mwcc"],
+        "--mwcc-path", unit_compiler(cpath, cfg),
         "--asm-dir-prefix", str(REPO),
         "--macro-inc-path", str(REPO / "asm" / "macro.inc"),
         "--as-march", "r5900", "--as-mabi", "eabi",
@@ -563,6 +564,69 @@ def is_speed_unit(cpath: Path) -> bool:
         return cpath.resolve().relative_to(REPO).as_posix() in speed_units()
     except ValueError:
         return False
+
+
+# A third per-unit split: the compiler BUILD.  The RenderWare-derived block
+# contains functions that MWCCPS2 3.0.1 b210 cannot produce at any option
+# (`movz` conditional moves, measured 2026-09-03: every `-O` level, `,p`, C and
+# C++) while the 2003-2005 builds b74/b119/b151 emit them byte-exact from a
+# one-line ternary.  Retail linked prebuilt RenderWare objects next to Atlus's
+# b210 code, so the compiler is carried per unit here, the same way
+# config/gcc_units.txt carries ee-gcc units and config/speed_units.txt carries
+# `-O2,p`.  Each line is `<unit path> <version key>`; the key names an entry of
+# `mwcc_versions` in the local config (or the environment variable
+# `P4_MWCC_<KEY>` with non-alphanumerics folded to `_`).  A unit that names a
+# version with no configured compiler is an error, never a silent fallback to
+# b210: that would score its functions against the wrong compiler.
+COMPILER_UNITS_PATH = REPO / "config" / "compiler_units.txt"
+_COMPILER_UNITS: dict[str, str] | None = None
+
+
+def compiler_units() -> dict[str, str]:
+    global _COMPILER_UNITS
+    if _COMPILER_UNITS is None:
+        _COMPILER_UNITS = {}
+        if COMPILER_UNITS_PATH.is_file():
+            for line in COMPILER_UNITS_PATH.read_text().splitlines():
+                line = line.split("#", 1)[0].strip()
+                if not line:
+                    continue
+                parts = line.split()
+                if len(parts) != 2:
+                    _die(f"{COMPILER_UNITS_PATH.name}: expected `<unit> <version>`, got {line!r}")
+                _COMPILER_UNITS[parts[0]] = parts[1]
+    return _COMPILER_UNITS
+
+
+def _version_env_name(key: str) -> str:
+    return "P4_MWCC_" + re.sub(r"[^A-Za-z0-9]", "_", key).upper()
+
+
+def compiler_versions(cfg: dict) -> dict[str, str]:
+    """Version key -> compiler path, from config `mwcc_versions` plus environment."""
+    versions = dict(cfg.get("mwcc_versions") or {})
+    for key in set(compiler_units().values()) | set(versions):
+        env = os.environ.get(_version_env_name(key))
+        if env:
+            versions[key] = env
+    return versions
+
+
+def unit_compiler(cpath: Path, cfg: dict) -> str:
+    """The compiler binary this unit is verified and built with."""
+    try:
+        relative = cpath.resolve().relative_to(REPO).as_posix()
+    except ValueError:
+        return cfg["mwcc"]
+    key = compiler_units().get(relative)
+    if key is None:
+        return cfg["mwcc"]
+    path = (cfg.get("mwcc_versions") or compiler_versions(cfg)).get(key)
+    if not path or not Path(path).is_file():
+        _die(f"{relative} is built with compiler version {key!r}, which is not configured: "
+             f"add it to `mwcc_versions` in tools/verify_config.local.json / "
+             f"tools/build_config.local.json or set {_version_env_name(key)}")
+    return path
 
 
 def unit_compile_flags(cpath: Path, flags: list[str]) -> list[str]:

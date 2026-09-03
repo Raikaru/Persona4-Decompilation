@@ -1,0 +1,17 @@
+# Translation units that retail built with a MWCCPS2 build other than the
+# project default 3.0.1 b210. Format: `<unit path> <version key>`; the key
+# names an entry of `mwcc_versions` in tools/verify_config.local.json /
+# tools/build_config.local.json (or P4_MWCC_<KEY> in the environment).
+#
+# Measured 2026-09-03: the RenderWare-derived block (code1_0039..003e, src/rw)
+# contains `movz` conditional moves that b210 and b198 never emit at any
+# option, while the 2003-2005 builds b74/b119/b151 emit them byte-exact from a
+# plain ternary (func_003cb720 nd 0 under all three). A whole-tree verify under
+# b119 keeps 488 of that block's 529 b210-tuned matches but only 4620 of 7468
+# overall (shdPersona 0/88, datPersona 7/51): b210 is right for Atlus's code,
+# an older build for the prebuilt RenderWare objects. Functions proven under
+# b119 move into *_cw119.c units so each unit has exactly one compiler.
+src/promoted/code1_003c_cw119.c cw3.0.1b119
+src/promoted/code1_003b_cw119.c cw3.0.1b119
+src/promoted/code1_0039_cw119.c cw3.0.1b119
+src/promoted/code1_003d_cw119.c cw3.0.1b119

@@ -1164,6 +1164,54 @@ Retail also mixes MWCCPS2 optimisation *variants* per translation unit. The
   version question either; they are source-shape or genuinely open.
   Builds cached under `~/opt/mwcc_all/` for future checks.
 
+### The `lw` before `sd $ra` prologue -- measured 2026-09-03
+
+22 non-matching first-party windows open `addiu $sp / lw $vN,0($aN) / sd $ra`
+(6 in `code1_003c`, 5 in `rwcore_grouped`, 4 in `code1_003b`, 2 each in
+`code1_0039` and `code1_003e`, one each in `code1_0041`/`0042`/`rt2d`); the
+only MATCH with that shape is an ee-gcc unit. `func_003cc250` (nd 4, the rest
+of the body exact) was compiled from the same source under every cached MWCC
+(2.4, 3.0.1, b74, b119, b151, b198, 3.0.3, b210) at `-O2`, `-O2,p`, `-O3`,
+`-O3,p`, `-O4,p`, and under b210 with `-sym on`, `-g`, `-lang c99`, C++ with
+and without exceptions/RTTI, `-sdatathreshold 0`, `-once`, every `-inline`
+mode and `-opt schedule/nopeephole/speed`: every build saves `$ra` before the
+first parameter load. Not a compiler-version or flag question; treat as a
+prologue-scheduling floor unless a source shape is found that makes b210
+hoist a parameter dereference above the `$ra` store.
+
+### ...and a mixed-COMPILER build: 3.0.1 b210 versus the 2003-2005 builds -- measured 2026-09-03
+
+`movz`/`movn` conditional moves are a compiler-BUILD signature, not a floor.
+MWCCPS2 3.0.1 b210 (the project default) and b198 never emit them at any `-O`
+level, with or without `,p`, in C or C++; 3.0.1 b74 (2003-08), b119 (2004-09)
+and b151 (2005-03) emit them from a plain ternary, and `func_003cb720`'s
+`return field ? arg0 : 0;` is byte-exact under all three. 2.4 and 3.0.3 emit
+them too but save `$ra` with `sq`/hoist the prologue. Whole-tree verify under
+b119 against the b210-tuned sources: 4620 of 7468 kept overall, with ordinary
+game units losing 20-85% each (shdPersona 0/88, datPersona 7/51), but the
+RenderWare-derived block (`code1_0039`..`003e`, `src/rw/`) keeping 488/529.
+So b210 is right for Atlus's code and an older build for the prebuilt
+RenderWare objects that the promoted `code1_003x` units interleave with it.
+
+The compiler is now carried per unit: `config/compiler_units.txt` maps a unit
+to a version key, `mwcc_versions` in the local verify/build config (or
+`P4_MWCC_<KEY>`) maps the key to a binary, and `verify.unit_compiler()` feeds
+both verify and build (cache keys include the binary). `code1_003c_cw119.c`
+is the first such unit. Two cautions from the measurements:
+
+- **b119's prologue scheduling is unit-state dependent.** The same
+  `func_003cb720` body is nd 0 when compiled inside the whole `code1_003c.c`
+  (b119 loses only 7 of that unit's 107 matches) but nd 9 in a fresh unit,
+  where b119 hoists `move $a1,$a2` above `sd $ra`. Bisecting the preceding
+  content found a flip between two adjacent INCLUDE_ASM fallbacks, yet the
+  region from that point on does not reproduce it, and neither pragmas,
+  placeholder asm, padding nor function count do. Carving single functions
+  into a b119 unit is therefore not reliable; the honest split is whole
+  units, which means re-spelling the few b210-only matches (`func_003c9c20`
+  nd 10, `func_003cb250` nd 9, five more) before the block can move.
+- The `lw` before `sd $ra` prologue (below) is NOT explained by the build:
+  every cached build keeps the `$ra` store first for that source.
+
 ## Known compiler floors (do not fight these)
 
 When the only residual is one of these, the function is a compiler floor:
