@@ -950,28 +950,47 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b89a0);
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9ab0);
 
 
-/* measured: retested 2026-08-03, nd 3 with only 2 real words. The old nd 7
-   residual is HALF fixed: hoisting only a = *(f32 *)(q + 0x194) into a local
-   (declarations q,p,r,i in that order for $s0..$s3; i must be declared after
-   r) plus the inline 0x1A0 compare kills the speculative 0x1A0 hoist - the
-   0x1A0 load now lands after the first bc1t exactly as retail. Everything
-   else is byte-identical. The remaining 2 words: compare1's two loads stay
-   swapped - mwcc b210 emits lwc1 $f1, fGpffff8504 (GPREL) BEFORE lwc1 $f0,
-   0x194(q), retail loads 0x194 first (c.ole.s $f0,$f1 identical either way).
-   Tried: f32 g = fGpffff8504; local (load order unchanged), !(g >= a) and
-   !(g < a) flips (both flip the compare to c.olt.s $f1,$f0 + bc1f, nd 4-7),
-   a/b member locals (speculative 0x1A0 hoist, $f2 coloring, nd 7). Only the
-   !(member <= global) form keeps c.ole/bc1t, and it always loads the GPREL
-   global first. mwcc RHS-load-first scheduling wall; the load pair order for
-   a member-vs-GPREL-global c.ole compare appears not source-drivable. */
-/* measured 2026-08-03: re-attempted 4x this wave (full if/else body per m2c
-   draft, hoisted a = *(f32*)(e+0x194) local, (s32) casts, u8* res, decl order
-   q,p,r,i) - best nd 56, the nd-3 recipe's exact declaration order was NOT
-   recovered (register allocation diverges: q=$s0 vs retail $s1). #pragma
-   opt_propagation off does not help the loop-shape/coloring here. Keep the
-   nd-3 note as the closest known state. func_002b89a0 declared s32 (u8*). */
+/* measured: opt_propagation off orders the compare loads as retail (0x194 field
+   into f0, then the fGpffff8504 global into f1 via the g local). The recompute of
+   the entry pointer after the compares is the (u32)i * 0x220 spelling, which mwcc
+   does not CSE with the s32 form above. Declaration order q,p,i,r colours s0..s3. */
+#pragma opt_propagation off
 // FUN_002B9E10
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9e10);
+s32 func_002b9e10(u8 *arg0) {
+    u8 *q;
+    u8 *p;
+    s32 i;
+    s16 *r;
+    f32 a;
+    f32 g;
+
+    q = *(u8 **)(arg0 + 0x38);
+    p = q;
+    for (i = 0; i < *(s16 *)(p + 0x6600); i++) {
+        q = p + i * 0x220;
+        r = (s16 *)(q + 0x104);
+        if ((*(s16 *)(q + 0x104) & 1) == 1) {
+            func_0043f810((void *)r, func_002b89a0((u8 *)r), 0xF0);
+            a = *(f32 *)(q + 0x194);
+            g = fGpffff8504;
+            if (!(a <= g) && !(*(f32 *)(q + 0x1A0) <= g) && (q[0x162] > 0)) {
+                u8 *res;
+                u8 *e;
+                e = p + (u32)i * 0x220;
+                res = func_00461390(D_00793E80 + *(s16 *)(e + 0x100) * 0x30, 4, (void *)e, 4);
+                *(void **)(res + 8) = (void *)func_002b9ab0;
+                *(u8 **)(res + 0x10) = e;
+            } else {
+                if (*r == 1) {
+                    *r &= ~1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+/* measured: restore propagation for the rest of the unit. */
+#pragma opt_propagation on
 // FUN_002B9F60
 void func_002b9f60(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);
