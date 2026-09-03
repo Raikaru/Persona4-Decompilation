@@ -1148,13 +1148,13 @@ void func_001cca60(BtlCamera* camera)
     scratch.pos.y = norm;
     func_001bd780(&scratch.unk, &scratch.pos, &scratch.target, &D_0060A0E0);
     minDistance = (0.75f * distance) /
-                  func_0044b868(DAT_00761188 *
+                  func_0044b868(fGpffff8110 *
                                  (0.5f * *(f32*)(iVar2 + 0xb8)));
     scratch.diff.x = scratch.pos.x - scratch.target.x;
     scratch.diff.y = scratch.pos.y - scratch.target.y;
     scratch.diff.z = scratch.pos.z - scratch.target.z;
     norm = func_003e40b0(&scratch.diff.x, &scratch.diff.x);
-    distance = func_0044b868(DAT_00761188 *
+    distance = func_0044b868(fGpffff8110 *
                              (0.5f * *(f32*)(iVar2 + 0xb8)));
     candidate = norm +
                 (*(f32*)(iVar1 + 0x90) *

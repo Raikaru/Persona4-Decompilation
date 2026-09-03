@@ -7,7 +7,7 @@
 
 extern u8 D_008872E0[];
 extern u8 D_00885A90[];
-extern s32 iGpffffb680;
+extern s32 iGpffffaa7c;
 extern s32 iGpffffb618;
 extern s32 func_003b6e70(s32 arg0);
 extern s32 func_003b6e00(s32 arg0);
@@ -16,6 +16,7 @@ extern s32 iGpffffb6c0;
 extern s32 iGpffffb6c4;
 extern void func_003e18c0(u8 *arg0, void *arg1, s32 arg2);
 extern void func_003e12f0(u8 *arg0);
+extern s32 func_003e9700(s32 arg0);
 extern s32 D_00764758;
 extern s32 iGpffffb668;
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
@@ -99,7 +100,7 @@ void func_003b6da0(s32 arg0) {
 
     base = (u8 *)D_00885A90;
     value = arg0 | 1;
-    iGpffffb680 = 0;
+    iGpffffaa7c = 0;
     ptr = (s32 *)(base + 4);
     count = 0x270;
     count -= 1;
@@ -181,3 +182,104 @@ u8 *func_003bf360(u8 *arg0, s32 *arg1) {
 }
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
+
+// FUN_003BFFC0
+/* measured: no_branch_likely on selects retail's plain beqz/bne branches. */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003bffc0(u8 *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2) {
+    u8 *current;
+    u8 *sentinel;
+    u8 *next;
+
+    sentinel = arg0 + 0x18;
+    current = *(u8 **)sentinel;
+    if (current == sentinel)
+        goto done;
+loop:
+    next = *(u8 **)current;
+    if (arg1((s32)(current - 4) - iGpffffb6b0, arg2) == 0)
+        return (s32)arg0;
+    current = next;
+    if (current != sentinel)
+        goto loop;
+done:
+    return (s32)arg0;
+}
+/* measured: close no_branch_likely around func_003bffc0. */
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003BFF30
+/* measured: no_branch_likely on selects retail's plain beqz/bne branches. */
+#pragma schedule on
+#pragma no_branch_likely on
+s32 func_003bff30(void *arg0, s32 (*arg1)(s32, s32 *), s32 *arg2) {
+    u8 *current;
+    u8 *sentinel;
+    u8 *next;
+
+    sentinel = (u8 *)arg0 + 8;
+    current = *(u8 **)((u8 *)arg0 + 8);
+    if (current == sentinel)
+        goto done;
+loop:
+    next = *(u8 **)current;
+    if (arg1((s32)(current - 0x40), arg2) == 0)
+        return (s32)arg0;
+    current = next;
+    if (current != sentinel)
+        goto loop;
+done:
+    return (s32)arg0;
+}
+/* measured: close no_branch_likely around func_003bff30. */
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003BFE90
+/* measured: schedule on + no_branch_likely on; retail uses plain beq/bne and a delay-slot move. */
+#pragma schedule on
+#pragma no_branch_likely on
+u8 *func_003bfe90(u8 *arg0) {
+    s32 (*callback)(u8 *);
+    u8 *result;
+    u8 *current;
+    u8 *entry;
+    u8 *sentinel;
+
+    sentinel = arg0 + 8;
+    current = *(u8 **)sentinel;
+    result = arg0;
+    if (current == sentinel)
+        goto empty;
+loop:
+    entry = current - 0x40;
+    if ((*(u8 *)(current - 0x3E) & 4) != 0)
+        goto callback_block;
+advance:
+    current = *(u8 **)current;
+    if (current != sentinel)
+        goto loop;
+    if (current == sentinel)
+        goto empty;
+    result = result;
+empty:
+    goto done;
+done:
+    return result;
+callback_block:
+    func_003e9700(*(s32 *)(entry + 4));
+    callback = *(s32 (**)(u8 *))(entry + 0x48);
+    if (callback(entry) != 0)
+        goto advance;
+    result = NULL;
+    goto advance;
+}
+/* measured: closes the no_branch_likely bracket for func_003bfe90. */
+#pragma no_branch_likely off
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+

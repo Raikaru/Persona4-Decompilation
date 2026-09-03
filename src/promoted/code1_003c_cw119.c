@@ -77,33 +77,33 @@ s32 func_003cb870(s32 arg0, s32 arg1, u8 *arg2) {
 // FUN_003C9940
 #pragma schedule on
 void func_003c9940(s32 arg0, s32 arg1) {
-    extern s32 iGpffffb6f8;
+    extern s32 iGpffffb700;
     u8 *base;
     u8 *temp_2;
     u8 *temp_4;
     u8 *(*allocator)(u8 *, u32);
 
-    allocator = (u8 *(*)(u8 *, u32))D_008873F8[0x46];
-    base = D_008872E0 + iGpffffb6f8;
+    allocator = (u8 *(*)(u8 *, u32))D_008873F8[0];
+    base = D_008872E0 + iGpffffb700;
     temp_2 = allocator(*(u8 **)base, 0x40507U);
     if (temp_2 != NULL) {
         *(s32 *)(temp_2 + 0) = arg0;
         *(s32 *)(temp_2 + 4) = arg1;
         *(s32 *)(temp_2 + 8) =
-            *(s32 *)((s8 *)((s32)&D_008872E0 + iGpffffb6f8 + 4));
+            *(s32 *)((s8 *)((s32)&D_008872E0 + iGpffffb700 + 4));
         *(u8 **)(temp_2 + 0xC) =
-            (u8 *)((s32)&D_008872E0 + iGpffffb6f8 + 4);
+            (u8 *)((s32)&D_008872E0 + iGpffffb700 + 4);
         temp_4 = temp_2 + 8;
-        *(u8 **)(*(u8 **)((s8 *)((s32)&D_008872E0 + iGpffffb6f8 + 4) + 0) + 4) =
+        *(u8 **)(*(u8 **)((s8 *)((s32)&D_008872E0 + iGpffffb700 + 4) + 0) + 4) =
             temp_4;
-        *(u8 **)((s8 *)((s32)&D_008872E0 + iGpffffb6f8 + 4)) = temp_4;
+        *(u8 **)((s8 *)((s32)&D_008872E0 + iGpffffb700 + 4)) = temp_4;
     }
 }
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
 extern void (*jtbl_008873EC[])();
-extern void func_003e3b70(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3);
+extern void func_003e3b70(u8 *arg0, u8 *arg1);
 extern void func_003bf320();
 extern s32 func_003df360(s32 arg0, void *arg1, s32 arg2);
 extern s32 func_003c5760(u8 *arg0);
@@ -172,6 +172,9 @@ extern void func_003e12f0(u8 *arg0);
 extern s32 func_003c3890(u8 *arg0);
 extern u8 D_0070AFD0[];
 extern u8 D_0070AFF0[];
+extern f32 D_0070B008[];
+extern f32 D_0070B00C[];
+extern f32 D_0070B010[];
 extern u8 *func_003c9640(u8 *arg0);
 extern u8 D_0070AF70[];
 extern u8 D_0070B040[];
@@ -224,4 +227,50 @@ s32 func_003c95a0(s32 arg0, s32 arg1) {
     return arg0;
 }
 /* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+// FUN_003C4140
+#pragma schedule on
+#pragma opt_propagation off
+u8 *func_003c4140(void) {
+    /* measured: volatile u8 locals force the compiler to keep the four 0xFF
+       bytes in stack slots and read them back for the object stores. */
+    u8 *s0;
+    volatile u8 d;
+    volatile u8 c;
+    volatile u8 b;
+    volatile u8 a;
+    f32 f2;
+    f32 f1;
+    f32 f0;
+
+    s0 = (u8 *)D_008873F8[0](*(s32 *)(D_008872E0 + iGpffffb6e0), 0x30007);
+    if (s0 == NULL) {
+        return NULL;
+    }
+
+    a = 0xFF;
+    b = 0xFF;
+    c = 0xFF;
+    d = 0xFF;
+
+    *(s16 *)(s0 + 0x18) = 1;
+    *(u8 *)(s0 + 4) = a;
+    *(u8 *)(s0 + 5) = b;
+    *(u8 *)(s0 + 6) = c;
+    *(u8 *)(s0 + 7) = d;
+    *(s32 *)(s0 + 0) = 0;
+    *(s32 *)(s0 + 8) = 0;
+
+    f2 = D_0070B008[0];
+    f1 = D_0070B00C[0];
+    f0 = D_0070B010[0];
+
+    *(f32 *)(s0 + 0xC) = f2;
+    *(f32 *)(s0 + 0x10) = f1;
+    *(f32 *)(s0 + 0x14) = f0;
+    func_003e3b70(D_0070AFF0, s0);
+    return s0;
+}
+#pragma opt_propagation on
+/* measured: closes the schedule bracket for func_003c4140. */
 #pragma schedule off

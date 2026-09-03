@@ -532,3 +532,4 @@ iGpffffb7d0 = 0x007648c0; // type:data evidence: GP(0x007690F0) - 0x4830; retail
 iGpffffb7d4 = 0x007648c4; // type:data evidence: GP(0x007690F0) - 0x482C; retail gp-relative immediate 0xb7d4 in rwcore_grouped.c func_003ec6f0 (verify.py retail_imm); image word 0x00000000 at that vaddr
 iGpffffb9c8 = 0x00764ab8; // type:data evidence: GP(0x007690F0) - 0x4638; retail gp-relative immediate 0xb9c8 in rwcore_grouped.c func_004117b0, rwcore_grouped.c func_00411740 (verify.py retail_imm); image word 0x00000000 at that vaddr
 iGpffffb9cc = 0x00764abc; // type:data evidence: GP(0x007690F0) - 0x4634; retail gp-relative immediate 0xb9cc in rwcore_grouped.c func_004117b0, rwcore_grouped.c func_00411740 (verify.py retail_imm); image word 0x00000000 at that vaddr
+iGpffffb788 = 0x00764878; // type:data evidence: retail func_003e2f60 lw $a2,-0x4878($gp) / lw $a0,-0x4878($gp); gp base 0x007690F0

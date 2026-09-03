@@ -4,7 +4,7 @@
 /* RenderWare-derived functions verified with MWCCPS2 3.0.1 b119 (see
    config/compiler_units.txt and docs/matching.md). Fallbacks stay under
    asm/nonmatchings/code1_003d. */
-
+#define M2C_FIELD(expr, type_ptr, offset) (*(type_ptr)((s8 *)(expr) + (offset)))
 #define va_start(ap, last) (ap = (va_list)(s32)(__builtin_args_info(2) >= 8 ? 0 : (8 - __builtin_args_info(2)) * 8))
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
@@ -40,7 +40,8 @@ extern void func_003d3e60(void);
 extern void func_003d0fa0(void);
 extern void func_003cdfa0(u8 *arg0);
 extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
-extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+extern u8 *func_00412520();
+extern u8 **func_004125d0();
 extern s32 func_003d4f20(s32 arg0);
 extern void (*jtbl_008873EC[])();
 extern s32 func_003e2ab0();
@@ -330,3 +331,161 @@ s32 *func_003df1a0(s32 *arg0, s32 arg1, u32 arg2) {
 }
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
+
+/* measured: switch with direct returns in ascending case order; 0xd returns 0. */
+// FUN_003DED20
+#pragma schedule on
+s32 func_003ded20(s32 *arg0) {
+    s32 x = *arg0;
+
+    switch (x) {
+    case 0x1:  return 0;
+    case 0x2:  return 0;
+    case 0x3:  return 0;
+    case 0x5:  return 1;
+    case 0x6:  return 1;
+    case 0x7:  return 1;
+    case 0x8:  return 1;
+    case 0x9:  return 1;
+    case 0xa:  return 1;
+    case 0xb:  return 1;
+    case 0xd:  return 0;
+    case 0xe:  return 1;
+    case 0xf:  return 1;
+    case 0x10: return 1;
+    case 0x12: return 1;
+    case 0x13: return 0;
+    case 0x14: return 1;
+    case 0x1a: return 1;
+    default:   return 0;
+    }
+}
+/* measured: closes the schedule bracket. */
+#pragma schedule off
+
+// FUN_003D3460
+#pragma schedule on
+s32 func_003d3460(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    u8 **var_2;
+    u8 *temp_2;
+    u32 var_5;
+    u8 *var_4;
+    s32 var_5_2;
+
+    if (arg0 == 0) {
+        return 0;
+    }
+    if (arg1 <= 0) {
+        return 0;
+    }
+    if (arg2 < 3) {
+        return 0;
+    }
+    if (arg3 <= 0) {
+        return 0;
+    }
+
+    var_2 = (u8 **)(func_004125d0());
+    if ((var_2 != NULL) && (M2C_FIELD(var_2, s32 *, 0x3C) & 0x1C)) {
+        return 0;
+    }
+    if (var_2 == NULL) {
+        temp_2 = (u8 *)(func_00412520(arg0, 0x40));
+        if (temp_2 != NULL) {
+            var_5 = 0;
+            var_4 = temp_2;
+            do {
+                M2C_FIELD(var_4, s32 *, 0) = 0;
+                var_5 += 5;
+                M2C_FIELD(var_4, s32 *, 4) = 0;
+                M2C_FIELD(var_4, s32 *, 8) = 0;
+                M2C_FIELD(var_4, s32 *, 0xC) = 0;
+                M2C_FIELD(var_4, s32 *, 0x10) = 0;
+                var_4 += 0x14;
+            } while (var_5 < 0xA);
+
+            M2C_FIELD(temp_2, s32 *, 0x3C) = 0;
+            M2C_FIELD(temp_2, s32 *, 0x38) = 4;
+            M2C_FIELD(temp_2, s32 *, 0x34) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
+            M2C_FIELD(temp_2, s32 *, 0x30) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
+            var_5_2 = 1;
+        } else {
+            var_5_2 = 0;
+        }
+        if (var_5_2 == 0) {
+            return 0;
+        }
+        var_2 = (u8 **)(func_004125d0(arg0, var_5_2));
+    }
+
+    M2C_FIELD(var_2, s32 *, 0x34) = (s32) (arg1 * (arg3 * 3));
+    M2C_FIELD(var_2, s32 *, 0x30) = (s32) (arg2 * arg1);
+    M2C_FIELD(var_2, s32 *, 0x38) = arg1;
+    M2C_FIELD(var_2, s32 *, 0x3C) = 3;
+    return arg0;
+}
+#pragma schedule off
+// FUN_003D35F0
+#pragma schedule on
+s32 func_003d35f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    u8 **var_2;
+    u8 *temp_2;
+    u32 var_5;
+    u8 *var_4;
+    s32 var_5_2;
+
+    if (arg0 == 0) {
+        return 0;
+    }
+    if (arg1 <= 0) {
+        return 0;
+    }
+    if (arg2 < 2) {
+        return 0;
+    }
+    if (arg3 <= 0) {
+        return 0;
+    }
+
+    var_2 = (u8 **)(func_004125d0());
+    if ((var_2 != NULL) && (M2C_FIELD(var_2, s32 *, 0x3C) & 0x13)) {
+        return 0;
+    }
+    if (var_2 == NULL) {
+        temp_2 = (u8 *)(func_00412520(arg0, 0x40));
+        if (temp_2 != NULL) {
+            var_5 = 0;
+            var_4 = temp_2;
+            do {
+                M2C_FIELD(var_4, s32 *, 0) = 0;
+                var_5 += 5;
+                M2C_FIELD(var_4, s32 *, 4) = 0;
+                M2C_FIELD(var_4, s32 *, 8) = 0;
+                M2C_FIELD(var_4, s32 *, 0xC) = 0;
+                M2C_FIELD(var_4, s32 *, 0x10) = 0;
+                var_4 += 0x14;
+            } while (var_5 < 0xA);
+
+            M2C_FIELD(temp_2, s32 *, 0x3C) = 0;
+            M2C_FIELD(temp_2, s32 *, 0x38) = 4;
+            M2C_FIELD(temp_2, s32 *, 0x34) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
+            M2C_FIELD(temp_2, s32 *, 0x30) = (s32) (M2C_FIELD(temp_2, s32 *, 0x38) * 0x45);
+            var_5_2 = 1;
+        } else {
+            var_5_2 = 0;
+        }
+        if (var_5_2 == 0) {
+            return 0;
+        }
+        var_2 = (u8 **)(func_004125d0(arg0, var_5_2));
+    }
+
+    M2C_FIELD(var_2, s32 *, 0x34) = (s32) (arg1 * (arg3 * 2));
+    M2C_FIELD(var_2, s32 *, 0x30) = (s32) (arg2 * arg1);
+    M2C_FIELD(var_2, s32 *, 0x38) = arg1;
+    M2C_FIELD(var_2, s32 *, 0x3C) = 0xC;
+    return arg0;
+}
+/* measured: closes the schedule bracket. */
+#pragma schedule off
+

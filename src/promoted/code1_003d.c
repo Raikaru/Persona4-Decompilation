@@ -145,10 +145,6 @@ s32 func_003d3120(void) {
 #pragma schedule off
 // FUN_003D3130
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3130);
-// FUN_003D3460
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3460);
-// FUN_003D35F0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d35f0);
 // FUN_003D3780
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d3780);
 /* measured: separate goto labels preserve retail's distinct null-return targets; exact match nd 0 (obj 52B/window 64B). */
@@ -1500,8 +1496,6 @@ s32 func_003dea10(u8 *arg0, s32 arg1) {
 #pragma tailcall off
 // FUN_003DEA20
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dea20);
-// FUN_003DED20
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003ded20);
 // FUN_003DEEA0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003deea0);
 /* measured: moving the second-field store after the base packing
