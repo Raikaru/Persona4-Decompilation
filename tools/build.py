@@ -629,10 +629,15 @@ def check_link_floor(count):
     under relocation masking and reports MATCH.
 
     That combination cost ten functions of proven from-source linking once
-    already. `func_00266690` referenced compiler-local `@165`, resolving into a
-    string literal at 0x00758020 that its object could not place; verify.py
-    said MATCH, both SHA1s said OK, and the whole cldDayChange.c unit quietly
-    left the link (166 -> 165 TUs, 1815 -> 1805 functions).
+    already. `func_00266690` referenced compiler-local `@165` -- its switch
+    table, which retail places at 0x00748020 AFTER the table of the unit's
+    INCLUDE_ASM neighbour func_00266050 (0x747FE0); the C object's .rodata
+    concatenation could not reproduce that gap, and the body also carried the
+    wrong GP symbol (iGpffff8570 for retail's 0x84a4). verify.py said MATCH,
+    both SHA1s said OK, and the whole cldDayChange.c unit quietly left the
+    link (166 -> 165 TUs, 1815 -> 1805 functions). Both were fixed later: the
+    fallback .s now carries its own jump table (see mwccgap's rodata
+    transplant), and the symbol was corrected against the retail immediate.
 
     The floor only ratchets upward: raise it when a unit is genuinely added.
     """

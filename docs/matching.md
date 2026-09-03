@@ -105,6 +105,17 @@ Rules of engagement:
   permuted table surfaces as a byte difference in the linked image. Reorder
   the source cases to reproduce retail's table (this changes only the table
   addends and restores retail identity).
+- **A switch table behind an INCLUDE_ASM neighbour.** mwld concatenates a
+  unit's `.rodata` in function order, so a C switch function that follows an
+  INCLUDE_ASM switch function in the same unit lands its table where the
+  fallback's table should be, and `tools/build.py` refuses the unit (the
+  cldDayChange.c `func_00266690` case: scoped MATCH, unit silently unlinked).
+  Give the fallback `.s` its own `.section .rodata` / `.align 4` /
+  `dlabel jtbl_XXXXXXXX` block of `.word .Lcase` entries, with `.L` labels
+  on the case heads (`asm/nonmatchings/cldDayChange/func_00266050.s`);
+  mwccgap transplants it with the declared alignment and the concatenation
+  is byte-exact again. Use `#` comment lines in a fallback `.s`: a multi-line
+  `/* */` block is counted as instructions by the placeholder scan.
 
 ## Loops
 

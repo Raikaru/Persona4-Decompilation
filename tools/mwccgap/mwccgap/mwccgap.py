@@ -14,7 +14,7 @@ from .constants import (
     SYMBOL_SINIT,
     IGNORED_RELOCATIONS,
 )
-from .elf import Elf, TextSection, Relocation
+from .elf import Elf, TextSection, Relocation, Symbol
 from .preprocessor import Preprocessor
 
 
@@ -199,8 +199,13 @@ def process_c_file(
                 offset += data_len
                 rodata_section_offsets.append(offset)
 
-                # force 4-byte alignment for .rodata sections (defaults to 16-byte)
-                compiled_elf.sections[idx].sh_addralign = 2  # 1 << 2 = 4
+                # The placeholder array's alignment is whatever mwcc gave a
+                # `const unsigned char[]`; the transplanted data must carry the
+                # alignment the .s declared (`.align 4` for a jump table, which
+                # is what mwcc itself gives its own switch tables), or the
+                # section-group layout drifts from retail and the TU cannot be
+                # placed byte-exact.
+                compiled_elf.sections[idx].sh_addralign = asm_rodata.sh_addralign
 
             rel_rodata_sh_name = compiled_elf.add_sh_symbol(".rel.rodata")
 
@@ -227,6 +232,13 @@ def process_c_file(
         pre_existing_relocations = list(compiled_elf.get_relocations())
 
         # assumes .text relocations precede .rodata relocations
+        #
+        # A .rodata record (a jump table) relocates against LOCAL symbols, and
+        # every local add_symbol() inserts ahead of the global boundary --
+        # shifting every global index the .text record was already given.
+        # Record which relocations were given which symbol object, and resolve
+        # their final indices only once all insertions are done.
+        resolved: list[tuple[Relocation, Symbol, bool]] = []
         for i, relocation_record in enumerate(relocation_records):
             relocation_record.sh_link = compiled_elf.symtab_index
             if has_text and i == 0:
@@ -248,6 +260,7 @@ def process_c_file(
                     force = True
 
                 relocation.symbol_index = compiled_elf.add_symbol(symbol, force=force)
+                resolved.append((relocation, symbol, force))
                 reloc_symbols.add(symbol.name)
 
                 if has_text and i == 1:
@@ -255,6 +268,19 @@ def process_c_file(
                     symbol.st_shndx = text_section_index
 
             compiled_elf.add_section(relocation_record)
+
+        for relocation, symbol, forced in resolved:
+            if forced:
+                # inserted by reference: find that exact object
+                relocation.symbol_index = next(
+                    index
+                    for index, candidate in enumerate(compiled_elf.symtab.symbols)
+                    if candidate is symbol
+                )
+            else:
+                index, _ = compiled_elf.symtab.get_symbol_by_name(symbol.name)
+                assert index is not None, f"lost symbol {symbol.name!r} in {c_file}"
+                relocation.symbol_index = index
 
         new_rodata_relocs = []
         # `local_syms_inserted` counts every local symbol SEEN while walking the
