@@ -26,6 +26,7 @@ extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern u8 D_00793E80[];
 extern void func_0034a8b0(void *arg0);
 extern f32 fGpffff8504;
+extern f32 fGpffff8224;
 extern void func_0046d280(u8 *arg0);
 extern f32 D_0088467C[];
 extern f32 D_008872F8[];
@@ -672,7 +673,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_2 = (u8 *)(func_0046d200(arg3, 0xF));
-            func_0034f320(temp_2_2, 510.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_2, 510.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_2);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -684,7 +685,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_4 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_4, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_4, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_4);
             return;
         case 1:
@@ -698,7 +699,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_6 = (u8 *)(func_0046d200(arg3, 0xF));
-            func_0034f320(temp_2_6, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_6, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_6);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -710,7 +711,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_8 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_8, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_8, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_8);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -722,7 +723,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_10 = (u8 *)(func_0046d200(arg3, 0x11));
-            func_0034f320(temp_2_10, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_10, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_10);
             return;
         case 2:
@@ -736,7 +737,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_12 = (u8 *)(func_0046d200(arg3, 0xF));
-            func_0034f320(temp_2_12, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_12, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_12);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -748,7 +749,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_14 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_14, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_14, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_14);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -760,7 +761,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_16 = (u8 *)(func_0046d200(arg3, 0x12));
-            func_0034f320(temp_2_16, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_16, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_16);
             return;
         case 3:
@@ -774,7 +775,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_18 = (u8 *)(func_0046d200(arg3, 0x18));
-            func_0034f320(temp_2_18, 374.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_18, 374.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_18);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -786,7 +787,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_20 = (u8 *)(func_0046d200(arg3, 0xF));
-            func_0034f320(temp_2_20, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_20, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_20);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -798,7 +799,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_22 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_22, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_22, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_22);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -810,7 +811,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_24 = (u8 *)(func_0046d200(arg3, 0x11));
-            func_0034f320(temp_2_24, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_24, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_24);
             return;
         case 4:
@@ -824,7 +825,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_26 = (u8 *)(func_0046d200(arg3, 0x18));
-            func_0034f320(temp_2_26, 374.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_26, 374.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_26);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -836,7 +837,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_28 = (u8 *)(func_0046d200(arg3, 0xF));
-            func_0034f320(temp_2_28, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_28, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_28);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -848,7 +849,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_30 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_30, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_30, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_30);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -860,7 +861,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_32 = (u8 *)(func_0046d200(arg3, 0x12));
-            func_0034f320(temp_2_32, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_32, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_32);
             return;
         case 5:
@@ -964,7 +965,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_48 = (u8 *)(func_0046d200(arg3, 0x15));
-            func_0034f320(temp_2_48, (f32) 0x16D, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_48, (f32) 0x16D, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_48);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -976,7 +977,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_50 = (u8 *)(func_0046d200(arg3, 0x14));
-            func_0034f320(temp_2_50, 434.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_50, 434.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_50);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -988,7 +989,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_52 = (u8 *)(func_0046d200(arg3, 0x16));
-            func_0034f320(temp_2_52, 508.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_52, 508.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_52);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1000,7 +1001,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_54 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_54, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_54, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_54);
             return;
         case 9:
@@ -1254,7 +1255,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_94 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_94, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_94, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_94);
             return;
         case 16:
@@ -1268,7 +1269,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_96 = (u8 *)(func_0046d200(arg3, 0x19));
-            func_0034f320(temp_2_96, 496.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_96, 496.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_96);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1280,7 +1281,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_98 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_98, (f32) 0x231, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_98, (f32) 0x231, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_98);
             return;
         case 17:
@@ -1320,7 +1321,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_104 = (u8 *)(func_0046d200(arg3, 0x1F));
-            func_0034f320(temp_2_104, 510.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_104, 510.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_104);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1332,7 +1333,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_106 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_106, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_106, (f32) 0x235, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_106);
             return;
         case 19:
@@ -1346,7 +1347,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_108 = (u8 *)(func_0046d200(arg3, 0x20));
-            func_0034f320(temp_2_108, 366.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_108, 366.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_108);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1358,7 +1359,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_110 = (u8 *)(func_0046d200(arg3, 0xF));
-            func_0034f320(temp_2_110, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_110, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_110);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1370,7 +1371,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_112 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_112, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_112, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_112);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1382,7 +1383,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_114 = (u8 *)(func_0046d200(arg3, 0x11));
-            func_0034f320(temp_2_114, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_114, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_114);
             return;
         case 20:
@@ -1396,7 +1397,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_116 = (u8 *)(func_0046d200(arg3, 0x20));
-            func_0034f320(temp_2_116, 366.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_116, 366.0f, 406.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_116);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1408,7 +1409,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_118 = (u8 *)(func_0046d200(arg3, 0xF));
-            func_0034f320(temp_2_118, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_118, (f32) 0x1BB, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_118);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1420,7 +1421,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_120 = (u8 *)(func_0046d200(arg3, 0x10));
-            func_0034f320(temp_2_120, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_120, 498.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_120);
             if (arg3 == 0) {
                 func_0046d730(D_0064B310, 0x94);
@@ -1432,7 +1433,7 @@ void func_0034f9d0(Svec2f_0034b820 unused, f32 fparg0, s64 arg1, s32 arg2, s32 a
                 func_0046d730(D_0064B310, 0x94);
             }
             temp_2_122 = (u8 *)(func_0046d200(arg3, 0x12));
-            func_0034f320(temp_2_122, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8504, (s16) 0);
+            func_0034f320(temp_2_122, 548.0f, 404.0f, fparg0, 0xFF, 0xFF, 0xFF, arg1, 0x1000, 0x1000, 0, fGpffff8224, (s16) 0);
             func_0046d280(temp_2_122);
             return;
         default:

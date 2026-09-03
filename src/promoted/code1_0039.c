@@ -1910,12 +1910,12 @@ s32 func_0039b380(void)
     }
     temp_2 = func_003c1ab0(0xC, 0x105, func_0039ac60, func_0039ac60,
                            (s32 (*)())func_0039ac80);
-    iGpffffb5dc = temp_2;
+    iGpffffb5ec = temp_2;
     if (temp_2 < 0) {
         return 0;
     }
     temp_2_2 = func_003c2b70(0xC, 0x105, func_0039b290, func_0039ae30, func_0039ae90);
-    iGpffffb5e0 = temp_2_2;
+    iGpffffb5f0 = temp_2_2;
     if (temp_2_2 < 0) {
         return 0;
     }

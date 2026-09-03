@@ -11,6 +11,8 @@ extern s32 iGpffffac10;
 extern s32 iGpffffb900;
 extern s32 iGpffffb9c0;
 extern s32 iGpffffb9b8;
+extern s32 iGpffffb9cc;
+extern s32 iGpffffb9c8;
 extern s32 iGpffffb9bc;
 extern void func_003e12f0(s32 arg0);
 extern void func_00414fd0(s32 arg0);
@@ -26,6 +28,8 @@ extern u16 iGpffffabd4;
 extern s32 iGpffffb938;
 extern s32 D_008872E0[];
 extern s32 iGpffffb7c0;
+extern s32 iGpffffb7d4;
+extern s32 iGpffffb7d0;
 extern u8 *(*D_008873F8[])(u8 *arg0, s32 arg1);
 extern s32 iGpffffb7c8;
 extern u8 D_0070B7C0[];
@@ -477,7 +481,7 @@ u8 *func_003ea2c0(s32 arg0, s32 arg1, s32 arg2)
     u8 *temp_2;
 
     temp_2 = D_008873F8[0](
-        *(u8 **)((u8 *)D_008872E0 + iGpffffb7c0),
+        *(u8 **)((u8 *)D_008872E0 + iGpffffb7c8),
         0x30018U);
     if (temp_2 != NULL) {
         *(s32 *)(temp_2 + 4) = arg0;
@@ -504,7 +508,7 @@ s32 func_003ea370(u8 *arg0)
         func_003ea510(arg0);
     }
     func_003e3c20(D_0070B7C0, arg0);
-    jtbl_008873FC[0](*(u8 **)((u8 *)D_008872E0 + iGpffffb7e0), arg0);
+    jtbl_008873FC[0](*(u8 **)((u8 *)D_008872E0 + iGpffffb7c8), arg0);
     return 1;
 }
 /* measured: closes no_branch_likely around func_003ea370. */
@@ -642,7 +646,7 @@ s32 func_003ec330(u8 *arg0)
 
     func_003e3c20(D_0070B7E0, arg0);
     D_0088733C[0](0, (s32)arg0, 0);
-    jtbl_008873FC[0](*(u8 **)((u8 *)D_008872E0 + iGpffffb7e0 + 0x60), arg0);
+    jtbl_008873FC[0](*(u8 **)((u8 *)D_008872E0 + iGpffffb7d0 + 0x60), arg0);
     return 1;
 }
 // FUN_003EC3A0
@@ -732,12 +736,12 @@ s32 func_003ec6f0(s32 arg0)
     extern void func_003e12f0(s32 arg0);
     s32 temp_4;
 
-    temp_4 = *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x60);
+    temp_4 = *(s32 *)((u8 *)D_008872E0 + iGpffffb7d0 + 0x60);
     if (temp_4 != 0) {
         func_003e12f0(temp_4);
-        *(s32 *)((u8 *)D_008872E0 + iGpffffb7e0 + 0x60) = 0;
+        *(s32 *)((u8 *)D_008872E0 + iGpffffb7d0 + 0x60) = 0;
     }
-    iGpffffb9b4 = iGpffffb9b4 - 1;
+    iGpffffb7d4 = iGpffffb7d4 - 1;
     return arg0;
 }
 /* measured: closes no_branch_likely around func_003ec6f0. */
@@ -2100,11 +2104,11 @@ u32 func_00411740(s32 arg0)
     u32 temp_5;
 
     temp_5 = (arg0 + 3) & ~3;
-    temp_2 = (u32)(iGpffffb9b8 - temp_5);
-    iGpffffb9b8 = temp_2;
-    if (temp_2 >= (u32)iGpffffb9bc)
+    temp_2 = (u32)(iGpffffb9c8 - temp_5);
+    iGpffffb9c8 = temp_2;
+    if (temp_2 >= (u32)iGpffffb9cc)
         return temp_2;
-    iGpffffb9b8 = temp_2 + temp_5;
+    iGpffffb9c8 = temp_2 + temp_5;
     stack.sp18 = 1;
     stack.sp1C = func_003df590(0x80000013, temp_5);
     func_003df4d0(&stack.sp18);
@@ -2125,13 +2129,13 @@ u8 **func_004117b0(s32 arg0)
     u32 temp_5;
 
     temp_5 = (arg0 + 3) & ~3;
-    temp_3 = (u32)(iGpffffb9bc + temp_5);
-    iGpffffb9bc = temp_3;
-    if (temp_3 > (u32)iGpffffb9b8)
+    temp_3 = (u32)(iGpffffb9cc + temp_5);
+    iGpffffb9cc = temp_3;
+    if (temp_3 > (u32)iGpffffb9c8)
         goto allocate;
     return (u8 **)(temp_3 - temp_5);
 allocate:
-    iGpffffb9bc = temp_3 - temp_5;
+    iGpffffb9cc = temp_3 - temp_5;
     stack.sp18 = 1;
     stack.sp1C = func_003df590(0x80000013, temp_5);
     func_003df4d0(&stack.sp18);
