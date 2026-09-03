@@ -23,8 +23,8 @@ extern char iGpffffa59c;
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887310[])(s32, void *, s32);
 extern f32 D_008872F8[];
-extern f32 iGpffff847c;
-extern f32 iGpffff80cc;
+extern f32 fGpffff847c;
+extern f32 fGpffff80cc;
 
 static inline f32 panelAdd2(f32 left, f32 right) { return left + right; }
 
@@ -238,13 +238,66 @@ void func_00218e50(u8 *arg0, s32 arg1) {
 }
 
 
-/* measured: probed all six callee declarations used by this function.
-   Best archived body is build/F218_func_00218ea0_best_nd14.c.txt; named
-   temporaries reproduce the retail argument-load order. Object 440B versus
-   the 448B retail window, normalized_diff 14. Register-coloring residuals
-   remain after five source-shape probes; retained as bare INCLUDE_ASM. */
-// FUN_00218EA0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlPanelAnalyze", func_00218ea0);
+/* measured: aggregate vector copies and paired 32-bit copy loop; named
+   temporaries reproduce the 003e9cb0 argument-load order. The dst/src_base
+   saved-register colouring (retail dst $s1, src_base $s0) needs the source
+   pointer re-derived from src_base INSIDE the copy loop (`src = (s32 *)src_base`
+   each iteration, consumed after the loop): a loop-carried alias of src_base
+   drops it to $s0. Found by tools/permute_ast.py, minimised to this one line. */
+// FUN_00218EA0
+void func_00218ea0(u8 *arg0) {
+    typedef struct { f32 x, y, z, w; } PanelVec4X;
+    s32 *src;
+    u8 *temp_2;
+    u8 *temp_2_2;
+    u32 src_base;
+    u8 *var_6;
+    u8 *var_5;
+    u8 *dst;
+    s32 var_4;
+    s32 temp_3;
+    s32 temp_2_3;
+    PanelVec4X tmp;
+
+    dst = arg0;
+    func_003e8110(func_00457120());
+    temp_2 = func_004571a0();
+    *(PanelVec4X *)(dst + 0x14) = *(PanelVec4X *)(temp_2 + 0x18);
+    tmp.x = fGpffff847c;
+    tmp.y = fGpffff847c;
+    tmp.z = fGpffff847c;
+    tmp.w = 1.0f;
+    func_003c38b0(temp_2, &tmp);
+    temp_2_2 = func_004571c0();
+    *(PanelVec4X *)(dst + 0x24) = *(PanelVec4X *)(temp_2_2 + 0x18);
+    tmp.x = fGpffff80cc;
+    tmp.y = 1.0f;
+    tmp.z = fGpffff80cc;
+    tmp.w = 1.0f;
+    func_003c38b0(temp_2_2, &tmp);
+    src_base = (u32)(temp_2_2 + 4);
+    var_6 = (u8 *)(*(s32 *)(u8 *)src_base + 0x10);
+    var_5 = dst + 0x40;
+    var_4 = 8;
+    do {
+        temp_3 = *(s32 *)var_6;
+        src = (s32 *)(u8 *)src_base;
+        temp_2_3 = *(s32 *)(var_6 + 4);
+        var_6 += 8;
+        var_4 -= 1;
+        *(s32 *)var_5 = temp_3;
+        *(s32 *)(var_5 + 4) = temp_2_3;
+        var_5 += 8;
+    } while (var_4 > 0);
+    temp_2_2 = (u8 *)(*(u32 *)(func_00457120() + 4));
+    temp_2 = (u8 *)*src;
+    func_003e9cb0(temp_2, temp_2_2 + 0x10, 0);
+    *(f32 *)(dst + 0x80) = *(f32 *)(func_00457120() + 0x80);
+    *(f32 *)(dst + 0x84) = *(f32 *)(func_00457120() + 0x84);
+    func_003e8180(func_00457120(), 35.0f);
+    func_003e81c0(func_00457120(), (f32)(s32)0xDAC0);
+    func_003e8120(func_00457120());
+}
 
 // FUN_00219060
 void func_00219060(u8 *arg0) {

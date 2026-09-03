@@ -690,8 +690,57 @@ void func_0018a000(u8 *arg0, s32 arg1)
     *(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4) = arg1;
 }
 
+/* measured: the inner mode/index selection assigns a scratch `p` and `base = p`
+   follows the if/else: that copy keeps the join block alive so the two inner
+   exits branch to it (retail's b -> b trampoline) instead of folding to the
+   work setup. `slot` is a named local recomputed per store so the addu keeps
+   index-first operand order and retail's repeated load. */
 // FUN_0018A010
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018a010);
+void func_0018a010(s32 arg0)
+{
+    extern u8 D_005F2210[];
+    extern u8 D_005F4090[];
+    extern u8 D_005F51E0[];
+    s32 mode;
+    s32 *save;
+    s32 *entry;
+    s32 index;
+    u8 *base;
+    u8 *work;
+    s32 slot;
+    u8 *p;
+
+    if (*(s32 *)(func_00155280() + 0x30) == 0) {
+        return;
+    }
+    if (arg0 == -1) {
+        mode = func_0015a160();
+        if (mode == 0) {
+            index = 0;
+            save = (s32 *)iGpffff9db0;
+            if (*save >= 0x28) {
+                p = NULL;
+            } else {
+                entry = (s32 *)(D_005F51E0 + *save * 4);
+                if (*entry != 0) {
+                    index = *(u16 *)((u8 *)*entry + *(save + 1) * 2);
+                }
+                p = D_005F2210 + index * 0x1A;
+            }
+        } else {
+            p = D_005F4090 + mode * 0x1B;
+        }
+        base = p;
+    } else {
+        base = D_005F2210 + arg0 * 0x1A;
+    }
+    work = *(u8 **)(*(u8 **)(func_00155280() + 0x30) + 0x38);
+    slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
+    *(u8 **)(slot + (s32)work + 0x10) = base;
+    slot = ((*(s32 *)(work + 8) != 0) ^ 1) * 4;
+    *(s32 *)(slot + (s32)work + 0x18) = (s32)0xC3210000;
+    *(s32 *)(work + 0xC) = 0;
+}
 // FUN_0018A170
 s32 func_0018a170(s32 arg0, s32 *arg1)
 {

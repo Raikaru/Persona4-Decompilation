@@ -1816,8 +1816,53 @@ INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021e110);
    addressing, and arithmetic all match; the residual is register naming in
    the final sign-extension/clamp sequence. Re-measured at nd 94 after later
    declaration-environment changes in this file. */
+/* measured: the per-slot clamp must be one s16 local (`sum`, compared with `> 0x63`):
+   the dsll32/dsra32 canonicalisation, slti and li then share $v0 as retail; an s32
+   temporary with an (s16) compare colours the sign-extension into $v1. The named
+   call-result operand on the left keeps the addu order (v1 + v0). */
 // FUN_0021E9A0
-INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021e9a0);
+void func_0021e9a0(u8 *arg0, u8 *arg1)
+{
+    s32 temp_16;
+    s32 temp_17;
+    s32 temp_2;
+    s32 var_16;
+    s32 var_17;
+    u8 *temp_19;
+    u8 *temp_20;
+    s32 temp_21;
+    s16 sum;
+    temp_17 = (s32)func_00105510(1);
+    temp_2 = (s32)func_00105210(1);
+    if ((func_001059e0(temp_2) & 0xFF) < 0x63) {
+        temp_16 = temp_2 + *(s32 *)(arg0 + 4);
+        func_00105990(1, temp_16);
+        func_00231ef0((u8 *)temp_17, func_001059e0(temp_16));
+    }
+    var_16 = *(s32 *)(arg1 + 8);
+    if (var_16 <= 0) {
+        var_16 = 0;
+    } else if ((*(u16 *)arg1 & 8) == 0 && func_00106330(0x1403) != 0) {
+        if (func_00106330(0x1420) != 0) {
+            var_16 = (s32)(2.0f * (f32)var_16);
+        } else if (func_00106330(0x1421) != 0) {
+            var_16 = 1;
+        }
+    }
+    func_00106020(var_16);
+    var_17 = 0;
+    while (var_17 < *(s32 *)(arg1 + 0x30)) {
+        temp_19 = arg1 + var_17 * 4;
+        temp_20 = temp_19 + 0x24;
+        temp_21 = (s16)(func_00106600(*(s16 *)(temp_19 + 0x24)) & 0xFF);
+        sum = temp_21 + *(s16 *)(temp_19 + 0x26);
+        if (sum > 0x63) {
+            sum = 0x63;
+        }
+        func_00106620(*(s16 *)temp_20, (u8)sum);
+        var_17 += 1;
+    }
+}
 // FUN_0021EB60
 void func_0021eb60(u8 *arg0)
 {

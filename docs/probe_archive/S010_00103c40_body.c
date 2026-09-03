@@ -1,4 +1,12 @@
-/* FUNC 00103C40 near-match archive: object 700B/window 704B, normalized_diff 4, first differing offsets 0x28,0x2C,0x34 (+ 4B tail size difference); classification switch jump-table address-register allocation plus zero tail; prologue saved-register count 2 ($s0,$s1), argument list (u8 *arg0); declarations corrected block-scope: func_004553c0(u8*) -> s32, func_00456090(u8*,s32)->s32, func_004667d0(s32,u8*,s32,s32,s32,s32,s32,s32,s32,s32)->s32, func_004669d0(s32,s32*,s32)->s32, func_004672c0(s32,u8*), func_00454a60(u8*,s32)->u8*, func_00454bd0(u8*); ruled out local declaration order, explicit switch cases 0/3/4, dispatch alias, register-qualified parameter, explicit common return goto, and compiler-floor families; no live mismatch retained. */
+/* Main 2026-09-03: nd 23 -> 4. Levers: (a) func_003ef3a0(*(u8 **)slot) - retail passes the pointer;
+   (b) `if (*arg0 != 6) *arg0 = 0; else {...}` for retail's block order; (c3) call the allocator
+   FIRST into a temp, then `idx = *(s32 *)(arg0 + 0x4C) * 4; *(s32 *)(idx + (u32)arg0 + 0x14) = temp`
+   (named-local integer form gives retail's addu v1,v1,s1 and the post-call address computation);
+   the loop slot keeps the pointer form (retail addu v1,s1,v1 there). Remaining 4 words: the switch
+   jump-table base lands in $a0 (retail $a1) - not moved by any of the 96 case-body orders, s16/u16
+   switch spellings, case 0/default layouts, or the text permuter (1814 compiles). winetest probes:
+   the table register flips a0<->a1 with unrelated case-body content (e.g. adding g(a) to the last
+   case), i.e. it is a colouring side effect, not a switch-shape property. */
 void func_00103c40(u8 *arg0) {
     extern u8 D_005DD630[];
     extern u8 D_005DD640[];
@@ -10,7 +18,7 @@ void func_00103c40(u8 *arg0) {
     extern void func_004672c0(s32 arg0, u8 *arg1);
     extern u8 *func_00454a60(u8 *arg0, s32 arg1);
     extern void func_00454bd0(u8 *arg0);
-    extern void func_003ef3a0();
+    extern void func_003ef3a0(u8 *arg0);
     s32 sp5C;
     s16 temp_3;
     s32 temp_4;
@@ -19,6 +27,7 @@ void func_00103c40(u8 *arg0) {
     u8 *temp_3_2;
     u8 *temp_4_2;
     u8 *temp_5;
+    s32 idx;
 
     temp_3 = *(u16 *)arg0;
     switch (temp_3) {
@@ -48,10 +57,12 @@ void func_00103c40(u8 *arg0) {
         break;
     case 2:
         *(s32 *)(arg0 + 0x368) = *(s32 *)(arg0 + 0x368) + 1;
-        *(s32 *)(arg0 + (*(s32 *)(arg0 + 0x4C) * 4) + 0x14) =
-            func_004669d0(*(s32 *)(arg0 + 0x48), &sp5C, 0);
+        temp_4 = func_004669d0(*(s32 *)(arg0 + 0x48), &sp5C, 0);
+        idx = *(s32 *)(arg0 + 0x4C) * 4;
+        *(s32 *)(idx + (u32)arg0 + 0x14) = temp_4;
         if (sp5C != 0) {
-            temp_5 = *(u8 **)(arg0 + (*(s32 *)(arg0 + 0x4C) * 4) + 0x14);
+            idx = *(s32 *)(arg0 + 0x4C) * 4;
+            temp_5 = *(u8 **)(idx + (u32)arg0 + 0x14);
             *(s32 *)(temp_5 + 0x50) =
                 (*(s32 *)(temp_5 + 0x50) & 0xFFFF00FF) | 0x3300;
             *(s32 *)(arg0 + 0x48) = 0;
@@ -82,17 +93,17 @@ void func_00103c40(u8 *arg0) {
         while (var_16 < 2) {
             temp_3_2 = arg0 + (var_16 * 4) + 0x14;
             if (*(u8 **)temp_3_2 != 0) {
-                func_003ef3a0();
+                func_003ef3a0(*(u8 **)temp_3_2);
                 *(u8 **)temp_3_2 = 0;
             }
             var_16++;
         }
-        if (*(s16 *)arg0 == 6) {
+        if (*(s16 *)arg0 != 6) {
+            *(s16 *)arg0 = 0;
+        } else {
             func_00440b68((u8 *)&iGpffff85d0 + 8, D_005DD670, 0xC5);
             *(u8 **)(arg0 + 0x24) = func_00454a60(arg0 + 0x60, 1);
             *(s16 *)arg0 = 1;
-        } else {
-            *(s16 *)arg0 = 0;
         }
         break;
     case 0:

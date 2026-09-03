@@ -514,3 +514,4 @@ D_005E5B60 = 0x005e5b60; // type:data evidence: retail func_0012d410 lui/addiu %
 D_005E5BB8 = 0x005e5bb8; // type:data evidence: retail func_0012d410 lui/addiu %hi/%lo(D_005E5BB8) at 0x0012D498/0x0012D49C, 0x0012D4C8/0x0012D4CC, 0x0012D51C/0x0012D520, and 0x0012D5B0/0x0012D5B4; absolute address encoded by symbol name
 fGpffff8504 = 0x007615f4; // type:data evidence: GP(0x007690F0) - 0x7AFC; retail lwc1 -0x7AFC($28) in y_draw func_002b9e10 at 0x002B9E84; image f32 0.1 at that vaddr
 D_00793E80 = 0x00793e80; // type:data evidence: retail func_002b9e10 lui/addiu %hi/%lo(D_00793E80) at 0x002B9ED0/0x002B9ED4 (list base passed to func_00461390); absolute address encoded by symbol name
+fGpffff847c = 0x0076156c; // type:data evidence: GP(0x007690F0) - 0x7B84; retail lwc1 -0x7B84($gp) in btlPanelAnalyze func_00218ea0 at 0x00218EF8; image f32 0.8 at that vaddr

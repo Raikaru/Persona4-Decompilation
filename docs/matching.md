@@ -2418,3 +2418,68 @@ overwhelmingly genuine floors (register-allocation/scheduling walls, or
 documented hardware) rather than untried low-hanging fruit; a repeat pass
 with the same method on the same file after such a bottom-out reliably
 returns zero closures.
+
+## Salvage the lane drafts: an nd < 40 draft is usually one lever from MATCH
+
+Measured across waves 41-43 (2026-09-02/03). Lanes are budget-limited and the
+provider kills them at ~25-30 minutes, often mid-edit; four of six lanes in
+one wave died that way with compiling drafts left in the tree at nd 9, 12,
+30 and 6. Every one of those under nd 40 closed within 15 minutes of
+single-lever probing by Main, and two "documented floors" fell the same way.
+So: instruct lanes to leave a compiling draft IN PLACE (not revert) when they
+run out of time, and finish the small residuals centrally. The levers that
+closed them, all measured against b210 `-O2,p`:
+
+- **Argument materialisation order via a block-scope prototype.** A
+  `func(s32, s32, s64, s32)` redeclaration inside the caller makes mwcc load
+  the third argument (a GP-relative `lw`) before the constant first argument
+  and the second `lw`; the callee's real signature is all-s32 and reads only
+  the low word (`lw` sign-extends), so nothing changes at run time
+  (`func_0018dde0`). Same family as the f32-first reordering already used for
+  `func_002b8300` in `code1_002e.c`/`code1_0033.c` (`func_0033d550`).
+- **Comparison operand side.** `(u32)(elapsed_a - elapsed_b) > (u32)limit`
+  versus `limit < elapsed` picks which operand lands in `$v0`/`$v1` for the
+  `sltu`; try both before anything else when the only residual is a swapped
+  compare pair.
+- **Loop-counter vs count colouring.** Declaring `i` before `count` swaps
+  their `$a2`/`$a3` colouring (`func_001b1280`). Declaration order is the
+  lever, not assignment order.
+- **Shared trampoline branch targets.** When retail's switch dispatches an
+  early-return case through the common `b end` trampoline but the draft
+  `beq`s straight to the epilogue, fold the preceding `if (x == 1) return;`
+  into the switch as `case 1: default: return;` (`func_001b1280`).
+- **`lh v0; move s0,v0` copies.** Loading a field into an *existing* u16
+  temp and casting `(s16)` at each of its two uses reproduces the
+  load-then-copy retail shape; a fresh s16/s32 local, or passing the field
+  expression directly, does not (`func_001f39d0`, together with
+  `opt_propagation off`).
+- **Field-vs-GP-global float compare load order** (`func_002b9e10`, the
+  "RHS-load-first scheduling wall" recorded above in the file — retired).
+  Under `opt_propagation off`, copy the field into a local, THEN the global
+  into a second local, and compare the locals: mwcc loads the field first as
+  retail does. Without the pragma the copy order is ignored.
+- **Recomputed `base + i * N`.** Retail often re-derives an entry pointer
+  after a call rather than keeping it in a saved register. Spelling the second
+  computation `base + (u32)i * N` stops mwcc CSE-ing it with the earlier s32
+  form and reproduces the recompute exactly (`func_002b9e10`, nd 15 -> 3).
+- **Staged 12-byte copies without `volatile`** (`func_0033fa30`, the
+  "scheduler-CSE floor" recorded above — retired). The `[addiu a1][lui][ld]
+  [lui][lwc1][sd][swc1]` order comes from `push`/`pop opt_propagation off`
+  with plain `s64`/`f32` locals staged through a frame struct
+  (`struct { f32 sp30[4]; s64 sp40; f32 sp48; }`). A lane closed it first with
+  `volatile` staging plus a packed struct; that body was rejected (H001) and
+  the legal spelling scores the same nd 0.
+- **32->64 store without `dsll32/dsrl32`** (`func_004555d0`, sdkCdvd.c, the
+  "extension-materialisation floor" retired). Store the u32 result to the s32
+  field, then reload the field into the s64 slot: the `lw` sign-extension
+  feeds `sd`/`lq`/`sq` directly.
+
+Two floors this pass confirmed rather than broke: `func_003b7ca0`
+(rprandom_grouped.c, nd 2) keeps an `lbu`/`sll` pair swapped inside an
+OR-assembly expression through 16 association/temp spellings and every
+scheduling-relevant pragma — the pre-schedule order is identical for all of
+them, so this is a scheduler tie-break; and `func_00396520` (code1_0039.c,
+the COP1 chain) now reproduces retail's f1-f8 operand colouring (a zero-valued
+f32 local assigned first reserves f0; `+=` products give the `mtc1 zero /
+adda.s / madd.s` chain) but the w-product/dot register pair stays swapped
+across 120 shapes and a 41k-compile AST-permuter run.
