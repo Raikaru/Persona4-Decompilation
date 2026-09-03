@@ -449,8 +449,6 @@ void func_00388ba0(u8 *arg0) {
     D_008873ec[0](*(s32 *)(arg0 + 0x38));
 }
 
-
-
 // FUN_00388BD0
 u8 *func_00388bd0(s32 arg0)
 {
@@ -520,8 +518,6 @@ void func_00388e00(u8 *arg0)
 s32 func_00388e20(u8 *arg0) {
     return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 2);
 }
-
-
 
 // FUN_00388E40
 void func_00388e40(u8 *arg0) {
@@ -639,14 +635,10 @@ s32 func_00389160(u8 *arg0) {
     return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 8);
 }
 
-
-
 // FUN_00389180
 void func_00389180(u8 *arg0) {
     func_003891b0(arg0, 0xFF, 0xFF, 0xFF);
 }
-
-
 
 // FUN_003891B0
 void func_003891b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3)
@@ -664,8 +656,6 @@ void func_003891b0(u8 *arg0, u8 arg1, u8 arg2, u8 arg3)
 s32 func_003891e0(u8 *arg0) {
     return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0x100);
 }
-
-
 
 // FUN_00389200
 void func_00389200(u8 *arg0, s8 arg1, s8 arg2, s8 arg3) {
@@ -719,8 +709,6 @@ void func_003892e0(u8 *arg0) {
 s32 func_00389330(u8 *arg0) {
     return !(*(u16 *)(*(u8 **)(arg0 + 0x38) + 0x4C) & 0x400);
 }
-
-
 
 // FUN_00389350
 void func_00389350(u8 *arg0)
@@ -1547,8 +1535,6 @@ s32 func_0038ee10(void) {
     return !datGetFlag(0x1472);
 }
 
-
-
 // FUN_0038F400
 INCLUDE_ASM("asm/nonmatchings/code1_0038", func_0038f400);
 // FUN_0038F590
@@ -1562,7 +1548,6 @@ void func_0038f600(u8 *arg0) {
     *(s32 *)(arg0 + 4) = 0;
     D_007246AC = arg0;
 }
-
 
 #pragma schedule on
 #pragma no_branch_likely on

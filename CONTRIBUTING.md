@@ -9,8 +9,8 @@ authoritative matching build.
 Read these before starting:
 
 - [`README.md`](README.md) — setup, build, and tooling overview.
-- [`ROADMAP.md`](ROADMAP.md) — completion criteria, current priorities, and the
-  operating model (parallel workers, integration gate).
+- The [wiki](https://github.com/Raikaru/Persona4-Decompilation/wiki) — how
+  matching works, the retail build, the RenderWare port, the rules.
 - [`docs/matching.md`](docs/matching.md) — the source-shaping playbook for
   MWCCPS2 codegen.
 - [`docs/STYLE.md`](docs/STYLE.md) — source-quality and honesty rules.
@@ -52,10 +52,9 @@ verifier. Verify your toolchain with `make verify` before starting work
 
 ## How to pick a target function
 
-Priorities live in [`ROADMAP.md`](ROADMAP.md): the P4 synchronization lane
-(unique address-normalized counterparts of P3-verified functions that are
-ready but not yet P4-matched), then the milestone subsystem lists. In practice
-the most productive picks are:
+The scoring tools (`tools/floor_census.py`, `tools/recovery_quality.py`)
+show where the cheap work is; the wiki's *Matching a Function* page walks
+through it. In practice the most productive picks are:
 
 - **Functions in files that already have matches.** Getters, setters, flag
   checks, copy loops, and cleanup/destroy functions match far more reliably
@@ -212,8 +211,8 @@ findable for whoever finishes it:
 
 ## What makes a PR acceptable
 
-A contribution lands when it satisfies the integration gate in
-`ROADMAP.md`. As a contributor, that means your PR includes:
+A contribution lands when it passes the same gate every commit passes (the
+wiki's *Rules* page). As a contributor, that means your PR includes:
 
 - **Focused verifier evidence for every changed function**: the scoped
   `python tools/verify.py --json ... <file.c>` run showing `MATCH` for what you

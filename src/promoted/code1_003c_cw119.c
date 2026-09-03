@@ -16,25 +16,6 @@ extern u8 func_003ca7a0[];
 
 /* measured: schedule on fills ca830's call and return delay slots. */
 #pragma schedule on
-// FUN_003CA830
-u8 *func_003ca830(u8 *arg0) {
-    u8 *f60 = func_003ca7a0;
-    u8 *f00 = func_003ca740;
-    u8 *f40 = func_003ca780;
-    u8 *node = arg0 + iGpffffb708;
-
-    *(s32 *)(node + 0) = 0;
-    *(s32 *)(node + 4) = 0;
-    *(s32 *)(node + 8) = 0;
-    *(s32 *)(node + 0x10) = *(s32 *)(arg0 + 0x18);
-    *(s32 *)(node + 0x14) = *(s32 *)(arg0 + 0x1C);
-    *(s32 *)(node + 0x18) = *(s32 *)(arg0 + 0x10);
-    *(u8 **)(arg0 + 0x10) = f60;
-    *(u8 **)(arg0 + 0x18) = f00;
-    *(u8 **)(arg0 + 0x1C) = f40;
-    *(s32 *)(node + 0xC) = 0;
-    return arg0;
-}
 
 /* measured: closes the schedule bracket. */
 #pragma schedule off
@@ -53,22 +34,10 @@ extern s32 func_003cebb0(s32 arg0, u8 *arg1);
 s32 func_003cb790(s32 arg0, s32 arg1, u8 *arg2) {
     return func_003ce560(arg0, arg2) ? arg0 : 0;
 }
-// FUN_003CB7E0
-s32 func_003cb7e0(s32 arg0, s32 arg1, u8 *arg2) {
-    return func_003cebb0(arg0, arg2) ? arg0 : 0;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-// FUN_003CB870
 #pragma schedule on
-s32 func_003cb870(s32 arg0, s32 arg1, u8 *arg2) {
-    u8 *temp;
-
-    temp = func_003c9c20(arg2);
-    *(s32 *)(arg2 + 0x78) = func_003c5d10(arg0, temp, temp + 0x10);
-    return *(s32 *)(arg2 + 0x78) ? arg0 : 0;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
@@ -275,29 +244,7 @@ u8 *func_003c4140(void) {
 /* measured: closes the schedule bracket for func_003c4140. */
 #pragma schedule off
 
-// FUN_003C59F0
 #pragma schedule on
-u8 *func_003c59f0(u8 *arg0, s32 (*arg1)(u8 *, u8 *, s32), s32 arg2) {
-    s32 remaining;
-    u8 *cursor;
-    u8 *self;
-    s32 (*callback)(u8 *, u8 *, s32);
-    u16 count;
-
-    self = arg0;
-    callback = arg1;
-    count = *(u16 *)(self + 4);
-    remaining = (s32)count - 1;
-    cursor = (u8 *)(*(s32 *)(self + 0xC) + (s32)self + 0x10);
-    if (count != 0) {
-        do {
-            if (callback(cursor, self, arg2) == 0)
-                return self;
-            cursor += 0xC;
-        } while (remaining-- != 0);
-    }
-    return self;
-}
 /* measured: closes the schedule bracket. */
 #pragma schedule off
 

@@ -102,19 +102,14 @@ _rwPluginRegistryAddPluginStream(RwPluginRegistry * reg, RwUInt32 pluginID,
     RWASSERT(reg);
 
     /* Search for pluginID in the registry list */
-    /* P4: retail's loop is top-tested (b119 inverts a plain while); the
-       do/while spelling reproduces it. */
     entry = reg->firstRegEntry;
-    if (entry)
+    while (entry)
     {
-        do
+        if (entry->pluginID == pluginID)
         {
-            if (entry->pluginID == pluginID)
-            {
-                break;
-            }
-            entry = entry->nextRegEntry;
-        } while (entry);
+            break;
+        }
+        entry = entry->nextRegEntry;
     }
 
     if (entry)
@@ -158,19 +153,14 @@ _rwPluginRegistryAddPlgnStrmlwysCB(
     RWASSERT(reg);
 
     /* Search for pluginID in the registry list */
-    /* P4: retail's loop is top-tested (b119 inverts a plain while); the
-       do/while spelling reproduces it. */
     entry = reg->firstRegEntry;
-    if (entry)
+    while (entry)
     {
-        do
+        if (entry->pluginID == pluginID)
         {
-            if (entry->pluginID == pluginID)
-            {
-                break;
-            }
-            entry = entry->nextRegEntry;
-        } while (entry);
+            break;
+        }
+        entry = entry->nextRegEntry;
     }
 
     if (entry)
@@ -213,19 +203,14 @@ _rwPluginRegistryAddPlgnStrmRightsCB(RwPluginRegistry *reg, RwUInt32 pluginID,
     RWASSERT(reg);
 
     /* Search for pluginID in the registry list */
-    /* P4: retail's loop is top-tested (b119 inverts a plain while); the
-       do/while spelling reproduces it. */
     entry = reg->firstRegEntry;
-    if (entry)
+    while (entry)
     {
-        do
+        if (entry->pluginID == pluginID)
         {
-            if (entry->pluginID == pluginID)
-            {
-                break;
-            }
-            entry = entry->nextRegEntry;
-        } while (entry);
+            break;
+        }
+        entry = entry->nextRegEntry;
     }
 
     if (entry)
@@ -279,70 +264,62 @@ _rwPluginRegistryReadDataChunks(const RwPluginRegistry * reg, RwStream * stream,
         /* Read a chunk from the stream.  If we can identify it as one for a registered
          * plugin, then allow the plugin to read it, else skip it
          */
-        /* P4: retail keeps this loop top-tested; b119 inverts a plain while. */
-        if (length > 0)
+        while (length > 0)
         {
-            do
-            {
-                /* Read a chunk header */
-                RwUInt32 readType, readLength;
+            /* Read a chunk header */
+            RwUInt32 readType, readLength;
 
-                if (!_rwStreamReadChunkHeader(stream, &readType, &readLength,
-                        (RwUInt32 *) NULL, (RwUInt32 *) NULL))
+            if (!_rwStreamReadChunkHeader(stream, &readType, &readLength,
+                    (RwUInt32 *) NULL, (RwUInt32 *) NULL))
+            {
+                RWRETURN((const RwPluginRegistry *)NULL);
+            }
+
+            /* Search for chunkID in the registry list */
+            entry = reg->firstRegEntry;
+            while (entry)
+            {
+                if (entry->pluginID == readType)
+                {
+                    break;
+                }
+                entry = entry->nextRegEntry;
+            }
+
+            if (entry && entry->readCB)
+            {
+                if (!entry->readCB(stream, readLength, object, entry->offset, entry->size))
+                {
+                    /* Failed to read, return fail */
+                    RWRETURN((const RwPluginRegistry *)NULL);
+                }
+            }
+            else
+            {
+#ifdef RWDEBUG
+                {
+                    RwChar      tmpStr[128];
+                    RwUInt32    venderID, objectID;
+
+                    venderID = GETVENDORID(readType);
+                    objectID = GETOBJECTID(readType);
+
+                    rwsprintf(tmpStr,
+                         "Plugin [Vendor ID 0x%x, Object ID 0x%x] "
+                         "data found but not attached. "
+                         "Data will be skipped and not read. ", venderID, objectID);
+
+                    RWMESSAGE(RWSTRING((tmpStr)));
+                }
+
+#endif /* RWDEBUG */
+                if (!RwStreamSkip(stream, readLength))
                 {
                     RWRETURN((const RwPluginRegistry *)NULL);
                 }
+            }
 
-                /* Search for chunkID in the registry list */
-                entry = reg->firstRegEntry;
-                /* P4: retail keeps this loop top-tested; b119 inverts a plain while. */
-                if (entry)
-                {
-                    do
-                    {
-                        if (entry->pluginID == readType)
-                        {
-                            break;
-                        }
-                        entry = entry->nextRegEntry;
-                    } while (entry);
-                }
-
-                if (entry && entry->readCB)
-                {
-                    if (!entry->readCB(stream, readLength, object, entry->offset, entry->size))
-                    {
-                        /* Failed to read, return fail */
-                        RWRETURN((const RwPluginRegistry *)NULL);
-                    }
-                }
-                else
-                {
-    #ifdef RWDEBUG
-                    {
-                        RwChar      tmpStr[128];
-                        RwUInt32    venderID, objectID;
-
-                        venderID = GETVENDORID(readType);
-                        objectID = GETOBJECTID(readType);
-
-                        rwsprintf(tmpStr,
-                             "Plugin [Vendor ID 0x%x, Object ID 0x%x] "
-                             "data found but not attached. "
-                             "Data will be skipped and not read. ", venderID, objectID);
-
-                        RWMESSAGE(RWSTRING((tmpStr)));
-                    }
-
-    #endif /* RWDEBUG */
-                    if (!RwStreamSkip(stream, readLength))
-                    {
-                        RWRETURN((const RwPluginRegistry *)NULL);
-                    }
-                }
-
-                length -= (readLength + rwCHUNKHEADERSIZE);
-            } while (length > 0);
+            length -= (readLength + rwCHUNKHEADERSIZE);
         }
 
 #ifdef RWDEBUG
@@ -355,21 +332,17 @@ _rwPluginRegistryReadDataChunks(const RwPluginRegistry * reg, RwStream * stream,
         /* Call alwaysCBs for all the plugins (including those
          * poor ickle 'uns that didn't get any data to read) */
         entry = reg->firstRegEntry;
-        /* P4: retail keeps this loop top-tested; b119 inverts a plain while. */
-        if (entry)
+        while (entry)
         {
-            do
+            if (entry->alwaysCB)
             {
-                if (entry->alwaysCB)
+                if (!entry->alwaysCB(object, entry->offset, entry->size))
                 {
-                    if (!entry->alwaysCB(object, entry->offset, entry->size))
-                    {
-                        /* Failure, return fail */
-                        RWRETURN((const RwPluginRegistry *)NULL);
-                    }
+                    /* Failure, return fail */
+                    RWRETURN((const RwPluginRegistry *)NULL);
                 }
-                entry = entry->nextRegEntry;
-            } while (entry);
+            }
+            entry = entry->nextRegEntry;
         }
 
         RWRETURN(reg);
@@ -403,17 +376,13 @@ _rwPluginRegistryInvokeRights(const RwPluginRegistry *reg, RwUInt32 id,
     RWASSERT(reg);
 
     entry = reg->firstRegEntry;
-    /* P4: retail keeps this loop top-tested; b119 inverts a plain while. */
-    if (entry)
+    while (entry)
     {
-        do
+        if (entry->pluginID == id)
         {
-            if (entry->pluginID == id)
-            {
-                break;
-            }
-            entry = entry->nextRegEntry;
-        } while (entry);
+            break;
+        }
+        entry = entry->nextRegEntry;
     }
     if ((entry) && (entry->rightsCB))
     {
@@ -459,27 +428,23 @@ _rwPluginRegistryGetSize(const RwPluginRegistry * reg, const void *object)
 
     /* Go through the list of toolkits and call each one to get a size */
     entry = reg->firstRegEntry;
-    /* P4: retail keeps this loop top-tested; b119 inverts a plain while. */
-    if (entry)
+    while (entry)
     {
-        do
+        RwInt32 thisSize;
+
+        if (entry->getSizeCB)
         {
-            RwInt32 thisSize;
+            thisSize = entry->getSizeCB(object, entry->offset, entry->size);
 
-            if (entry->getSizeCB)
+            /* If we get a negative size, we'll skip this plugin - it's obviously just stupid */
+            if (thisSize > 0)
             {
-                thisSize = entry->getSizeCB(object, entry->offset, entry->size);
-
-                /* If we get a negative size, we'll skip this plugin - it's obviously just stupid */
-                if (thisSize > 0)
-                {
-                    /* Add it on, and don't forget the header which isn't included in the size */
-                    size += (thisSize + rwCHUNKHEADERSIZE);
-                }
+                /* Add it on, and don't forget the header which isn't included in the size */
+                size += (thisSize + rwCHUNKHEADERSIZE);
             }
+        }
 
-            entry = entry->nextRegEntry;
-        } while (entry);
+        entry = entry->nextRegEntry;
     }
 
 #ifdef RWDEBUG
@@ -530,34 +495,30 @@ _rwPluginRegistryWriteDataChunks(const RwPluginRegistry * reg, RwStream * stream
 
     /* Go though the list of toolkits and call each one to write out its data */
     entry = reg->firstRegEntry;
-    /* P4: retail keeps this loop top-tested; b119 inverts a plain while. */
-    if (entry)
+    while (entry)
     {
-        do
+        if (entry->getSizeCB && entry->writeCB)
         {
-            if (entry->getSizeCB && entry->writeCB)
+            RwInt32 size = entry->getSizeCB(object, entry->offset, entry->size);
+
+            /* If we get a negative size, we'll skip this plugin - it's obviously just stupid */
+            if (size > 0)
             {
-                RwInt32 size = entry->getSizeCB(object, entry->offset, entry->size);
-
-                /* If we get a negative size, we'll skip this plugin - it's obviously just stupid */
-                if (size > 0)
+                /* Write out a header using the size */
+                if (!RwStreamWriteChunkHeader(stream, entry->pluginID, size))
                 {
-                    /* Write out a header using the size */
-                    if (!RwStreamWriteChunkHeader(stream, entry->pluginID, size))
-                    {
-                        RWRETURN((const RwPluginRegistry *)NULL);
-                    }
+                    RWRETURN((const RwPluginRegistry *)NULL);
+                }
 
-                    /* Then write out the data block */
-                    if (!entry->writeCB(stream, size, object, entry->offset, entry->size))
-                    {
-                        RWRETURN((const RwPluginRegistry *)NULL);
-                    }
+                /* Then write out the data block */
+                if (!entry->writeCB(stream, size, object, entry->offset, entry->size))
+                {
+                    RWRETURN((const RwPluginRegistry *)NULL);
                 }
             }
+        }
 
-            entry = entry->nextRegEntry;
-        } while (entry);
+        entry = entry->nextRegEntry;
     }
 
 #ifdef RWDEBUG
@@ -605,28 +566,24 @@ _rwPluginRegistrySkipDataChunks(const RwPluginRegistry * reg, RwStream * stream)
     }
 
     /* Read a chunk from the stream, and then skip it.  */
-    /* P4: retail keeps this loop top-tested; b119 inverts a plain while. */
-    if (length > 0)
+    while (length > 0)
     {
-        do
+        /* Read a chunk header */
+        RwUInt32 readLength;
+
+        if (!_rwStreamReadChunkHeader(stream, (RwUInt32 *)NULL,
+                                     &readLength, (RwUInt32 *)NULL,
+                                     (RwUInt32 *)NULL))
         {
-            /* Read a chunk header */
-            RwUInt32 readLength;
+            RWRETURN((const RwPluginRegistry *)NULL);
+        }
 
-            if (!_rwStreamReadChunkHeader(stream, (RwUInt32 *)NULL,
-                                         &readLength, (RwUInt32 *)NULL,
-                                         (RwUInt32 *)NULL))
-            {
-                RWRETURN((const RwPluginRegistry *)NULL);
-            }
+        if (!RwStreamSkip(stream, readLength))
+        {
+            RWRETURN((const RwPluginRegistry *)NULL);
+        }
 
-            if (!RwStreamSkip(stream, readLength))
-            {
-                RWRETURN((const RwPluginRegistry *)NULL);
-            }
-
-            length -= (readLength + rwCHUNKHEADERSIZE);
-        } while (length > 0);
+        length -= (readLength + rwCHUNKHEADERSIZE);
     }
 
     RWRETURN(reg);

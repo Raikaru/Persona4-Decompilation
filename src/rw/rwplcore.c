@@ -3,7 +3,6 @@
 
 extern long func_003e1030(int, u32, long, int, long, u32);
 
-
 #pragma optimization_level 3
 
 // FUN_003E1210

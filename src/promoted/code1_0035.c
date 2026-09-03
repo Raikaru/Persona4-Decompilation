@@ -56,8 +56,6 @@ static inline u32 add_offset_first(u32 offset, u32 base)
     return offset + base;
 }
 
-
-
 extern s32 func_0034c210(void);
 
 extern void FUN_0046d730(const char *file, s32 line);
@@ -494,8 +492,6 @@ void func_003547c0(s32 *arg0, u8 *arg1)
     *arg0 = 0;
 }
 
-
-
 // FUN_00354830
 s32 func_00354830(u8 *arg0) {
     s32 sp3C;
@@ -728,8 +724,6 @@ void func_00355370(u8 *arg0, u8 *arg1)
     }
 }
 
-
-
 // FUN_003553B0
 void func_003553b0(u8 *arg0, f32 *arg1)
 {
@@ -742,8 +736,6 @@ void func_003553b0(u8 *arg0, f32 *arg1)
     arg1[0] = *(f32 *)(temp_16 + 0x38);
     arg1[1] = *(f32 *)(temp_16 + 0x3C);
 }
-
-
 
 /* measured: the read and the write of the same field must use DIFFERENT
    spellings. Written identically both times, b210 CSEs the address into a
@@ -966,8 +958,6 @@ void func_00356140(u8 *arg0)
     (*D_008873EC)(*(u8 **)(arg0 + 0x38));
 }
 
-
-
 /* measured: object 96B/window 96B; normalized_diff 8; differing offsets
    0x08 and 0x10 (prologue save/move order). Archived in
    build/V035_00356170_body.c. Ruled out scalar locals (object 100B) and
@@ -1141,8 +1131,6 @@ void func_003593b0(u8 *arg0)
     *(f32 *)(arg0 + 0x34) *= 0.5f;
     *(f32 *)(arg0 + 0x30) *= -0.5f;
 }
-
-
 
 // FUN_003593E0
 s32 func_003593e0(s32 arg0, s32 arg1, s16 arg2)
@@ -1386,8 +1374,6 @@ void func_003599a0(u8 *arg0)
     *(f32 *)(arg0 + 0x34) = D_00761260;
 }
 
-
-
 // FUN_003599C0
 INCLUDE_ASM("asm/nonmatchings/code1_0035", func_003599c0);
 // FUN_0035AC60
@@ -1467,8 +1453,6 @@ void func_0035af10(u8 *arg0)
     func_003549d0(temp_16 + 0x30);
     (*D_008873EC)(temp_16);
 }
-
-
 
 // FUN_0035AF60
 s32 func_0035af60(u8 *arg0)
@@ -1606,8 +1590,6 @@ void func_0035bec0(u8 *arg0)
     func_003549d0(temp_16 + 0x30);
     (*D_008873EC)(temp_16);
 }
-
-
 
 // FUN_0035BF10
 u8 *func_0035bf10(s32 arg0, u16 arg1, s32 arg2)
