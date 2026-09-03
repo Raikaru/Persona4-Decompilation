@@ -640,8 +640,6 @@ s32 func_003d5e40(u8 *arg0, f32 fparg0) {
 }
 /* measured: closes the single-function schedule bracket for func_003d5e40. */
 #pragma schedule off
-// FUN_003D5E90 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5e90);
 /* measured: the explicit -1 fallback and scheduled callback setup reproduce
    the 96-byte retail frame and call delay slot exactly. */
 #pragma schedule on
