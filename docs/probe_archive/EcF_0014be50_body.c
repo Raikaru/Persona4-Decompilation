@@ -1,3 +1,8 @@
+/* Main 2026-09-03: file-scope D_005EFB98/D_005EFBA0 must be array externs (absolute addressing) - the
+   scalar externs give gp-relative loads (nd82). `while (var_16 != NULL)` fixes the entry branch (nd13).
+   Loading both globals into locals under opt_propagation off gives retail's ld/lwc1/sd/swc1 order, but
+   then the early `return 0xFFFF` reuses $s1 (nd16); a `hdr = &stack.sp50` local takes a saved register
+   (nd103). Remaining: `addiu a2,sp,0x50` at the loop head before the header copy. */
 /* object 416B / window 416B / normalized_diff 14.
  * Differing word offsets (relocations masked): 0x44; 0x58,0x5C,0x60,
  * 0x6C,0x70,0x74,0x78,0x7C,0x80,0x84,0x88,0x8C,0x90.
