@@ -2474,6 +2474,23 @@ closed them, all measured against b210 `-O2,p`:
   field, then reload the field into the s64 slot: the `lw` sign-extension
   feeds `sd`/`lq`/`sq` directly.
 
+- **Unsigned-to-float is a cast, not a hand-written idiom** (`func_003657d0`).
+  Retail's `bltz / mtc1+cvt.s.w / srl-andi-or+mtc1+cvt+add.s` sequence is what
+  b210 emits for `(f32)(u32)x`; spelling it out in C reproduces the words but
+  colours the OR into `$v0` instead of retail's `$v1`. The float-to-int twin
+  (`trunc/cvt.w.s`, `lui 0x4f00` compare, `0x80000000` fixup) is `(s32)(u32)f`.
+- **Constant-first `mul.s`.** `iGpffff8094 * (f32)i` in ONE expression puts
+  the GP constant in the first operand; splitting the cast into a named local
+  and multiplying afterwards (either operand order) gives the local first.
+- **Recompute-vs-CSE spellings.** `*(s16 *)((u32)p + 8)` is not merged with an
+  earlier `*(s16 *)(p + 8)` (`func_0047ed60`: retail re-reads a slot the compare
+  already forwarded), exactly as `base + (u32)i * N` is not merged with the s32
+  form. Use these when retail repeats a load/address b210 would otherwise CSE.
+- **A statement of its own survives propagation-off, not propagation-on**
+  (`func_004bc540`): `arg1 = arg1 << 3;` before the address expression keeps the
+  sll ahead of the loads only under `opt_propagation off`; with propagation on
+  it folds into the address and is emitted after them.
+
 Two floors this pass confirmed rather than broke: `func_003b7ca0`
 (rprandom_grouped.c, nd 2) keeps an `lbu`/`sll` pair swapped inside an
 OR-assembly expression through 16 association/temp spellings and every
