@@ -1104,9 +1104,48 @@ s16 func_0045b400(void)
     return D_008D2F34[0];
 }
 
-/* measured: object 532B vs window 544B, normalized_diff 8; differing byte offsets 234, 238, 249, 253, 254, 258, 262, 270 (word offsets 232, 236, 248, 252, 256, 260, 268; relocation fields masked), plus 12B zero tail. Retail keeps D_008E4090 in $v1 and the sign-extended slot index in $a0; candidate uses $a0/$v1 respectively. Re-measured pointer-construction split, base-first split, slot-index inlining, declaration and initialization orders, pointer/base type, callee prototype and variadic forms; none changed nd 8 (some changed object/nd adversely). `arg1`/u16 prototype lever does not apply to this void function. */
+/* The slot loop indexes the global array directly with an s16 counter (the
+   dsll32/dsra32 pairs are that counter's sign extension); the second loop is
+   a separate s16 counter zeroed BEFORE the D_008E4018 store, which is what
+   gives it $v1 and leaves the first counter's $a1 alone. */
+/* measured: opt_loop_invariants on hoists the array base into $v1 ahead of
+   the loop as retail; a named base local is coloured $a0 (archived nd 8). */
+#pragma opt_loop_invariants on
 // FUN_0045B430
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_0045b430);
+void func_0045b430(void) {
+    s16 i;
+    s16 j;
+
+    func_00430e28();
+    func_0043c008(0);
+    func_0043c010(0x20);
+    func_0043bb70(D_008E4230, 0x20, 0);
+    func_0043c0c0(0, 0x8F, 0);
+    func_0043c0c0(3, 0x83, 0x105, 0x3C, 0);
+    func_0043c0c0(3, 0x84, 0x3C, 0x3C);
+    func_0043c0c0(3, 0x82, 1);
+    func_00430f80(1, 0x8010, 0x800, 0xFC0);
+    func_00430f80(1, 0x8010, 0x801, 0xFCC);
+    func_0043c0c0(3, 0x80, 0x7F, 0x7F);
+    for (i = 0; i < 6; i++) {
+        *(s16 *)(D_008E4090 + i * 0x44 + 0) = 0;
+        *(s32 *)(D_008E4090 + i * 0x44 + 4) = 0;
+        *(s32 *)(D_008E4090 + i * 0x44 + 0x18) = 0;
+        *(s16 *)(D_008E4090 + i * 0x44 + 0xA) = i;
+    }
+    j = 0;
+    D_008E4018_abs[0] = 0;
+    for (; j < 0x10; j++) {
+    }
+    D_008E40B4_abs[0] = func_0043bcb8(0x64000);
+    D_008E40F8_abs[0] = func_0043bcb8(0xE1000);
+    D_008E413C_abs[0] = func_0043bcb8(0x19000);
+    D_008E4180_abs[0] = func_0043bcb8(0x19000);
+    D_008E41C4_abs[0] = func_0043bcb8(0x19000);
+    D_008E4208_abs[0] = func_0043bcb8(0x19000);
+}
+/* measured: closes the hoisting scope after func_0045b430. */
+#pragma opt_loop_invariants off
 // FUN_0045C870
 void func_0045c870(u8 *colors, s32 enabled)
 {
