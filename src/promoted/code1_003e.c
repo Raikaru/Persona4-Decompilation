@@ -1274,7 +1274,7 @@ s32 func_003e43c0(s32 arg0, s32 arg1) {
         (Fn3f80A)func_003e3f00;
     *(Fn3f80B *)((u8 *)D_008872E0 + D_00764890 + 0x14) =
         (Fn3f80B)func_003e3e60;
-    D_0076489C += 1;
+    iGpffffb7a4 += 1;
     return arg0;
 }
 /* measured: closes schedule-on callback initializer, object 84B/window 96B,

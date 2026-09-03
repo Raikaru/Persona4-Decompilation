@@ -9,7 +9,6 @@ struct BtlMain
     u32 flags;
 };
 
-extern u32 D_00764580;
 extern u32 func_00193c70(void);
 extern u32 func_001f6290(void);
 extern void func_001f75b0(void);
@@ -159,7 +158,7 @@ u32 btlMainUpdateStateExit(void* work)
     if (func_00193c70() == 0 && func_001f6290() == 0)
     {
         func_001f75b0();
-        btl = *(BtlMain**)((u8*)&D_00764580 - 0xe4);
+        btl = (BtlMain*)iGpffffb3ac;
         btl->flags &= ~1;
     }
 

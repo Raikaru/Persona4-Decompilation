@@ -1767,7 +1767,6 @@ s32 func_003ca430(void) {
     extern void func_003c4040(void);
     extern void func_003c40d0(void);
     extern void func_003c5510(void);
-    extern void func_003c54a0(void);
     extern void func_003c1d00(void);
     extern void func_003c1d20(void);
     extern void func_003bfd00(void);
@@ -1785,7 +1784,7 @@ s32 func_003ca430(void) {
     result = 0;
     result |= func_003e8930(4, 0x501, (void *)func_003c4040, (void *)func_003c40d0);
     result |= func_003e8930(0x30, 0x502, (void *)func_003c5510,
-                            (void *)((u8 *)func_003c54a0 + 0x20));
+                            (void *)func_003c54c0);
     result |= func_003e8930(4, 0x503, (void *)func_003c1d00, (void *)func_003c1d20);
     result |= func_003e8930(8, 0x504, (void *)func_003bfd00, (void *)func_003bfc40);
     result |= func_003e8930(4, 0x505, (void *)func_003c3e90, (void *)func_003c3e10);
