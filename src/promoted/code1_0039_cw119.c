@@ -11,6 +11,7 @@ extern void func_0038fb10(s32 arg0);
 extern s32 func_00399b10(s32 arg0);
 extern s32 func_00399b80(s32 arg0);
 extern void func_0039a8a0(s32 arg0);
+extern s32 iGpffffb5e0;
 extern s32 iGpffffb5e4;
 extern s32 iGpffffb5e8;
 extern s32 iGpffffb5ec;
@@ -128,3 +129,36 @@ void func_0039f050(u8 *arg0)
     *(s32 *)(*(u8 **)(obj + 4) + 0x18) = temp_17;
 }
 #pragma pop
+
+/* gp - 0x4A1C / -0x4A18 = 0x007646D4 / 0x007646D8 */
+extern s32 iGpffffb5e0;
+extern s32 iGpffffb5e4;
+extern s32 iGpffffb5e8;
+
+/* `movn $v0,$v1,$a0` is the b119 lowering of `x == 0 ? 0 : 4` (the
+   `x ? 4 : 0` spelling lowers to movz, 24 bytes). */
+// FUN_00399320
+#pragma schedule on
+s32 func_00399320(u8 *arg0) {
+    return (*(s32 *)(arg0 + iGpffffb5e4) == 0) ? 0 : 4;
+}
+// FUN_00399450
+s32 func_00399450(u8 *arg0) {
+    return (*(s32 *)(arg0 + iGpffffb5e8) == 0) ? 0 : 4;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+/* 64-bit flag words: `x ? 0x58 : 0x8000000068` is the b119 movz. */
+// FUN_0039A8A0
+#pragma schedule on
+void func_0039a8a0(s32 arg0) {
+    u8 *obj = *(u8 **)(arg0 + iGpffffb5e0);
+    if (*(s32 *)(obj + 0x80) == 3) {
+        *(s64 *)(obj + 0x68) = *(s32 *)(obj + 0x4C) ? 0x58 : 0x8000000068LL;
+    } else {
+        *(s64 *)(obj + 0x28) = *(s32 *)(obj + 0xC) ? 0x58 : 0x8000000068LL;
+    }
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off

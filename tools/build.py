@@ -586,6 +586,14 @@ def object_layout_is_placeable(addrs):
       bytes from the splat asm without any object emitting them;
     * two functions sharing one .text section cannot be split apart, because the
       rename gives the whole section a single name.
+
+    Measured 2026-09-03: carving per function window and placing the splat
+    chunk BETWEEN two sections of the same object is well-formed in the LCF
+    (`. = a; obj(.text.f1)` / `. = b; chunk.o(.text)` / `. = c; obj(.text.f2)`)
+    but mwldps2 segfaults on it, even for a single such object. Lifting the
+    gap rule therefore needs the object split into one file per contiguous
+    run first (objcopy -j on the renamed .text sections); 125 units with
+    matches wait on that.
     """
     sections = {section for _address, _window, _size, section in addrs}
     if len(sections) != len(addrs):
@@ -740,6 +748,7 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
             src=cpath,
             start=addrs[0][0],
             end=addrs[-1][0] + addrs[-1][1],
+            ranges=[(address, address + window) for address, window, _size, _section in addrs],
             funcs=real,
             sections=sections,
         ))
@@ -784,7 +793,7 @@ def build_code_carved(c, name, lo, hi, cobjs, entries):
     src = ASM / f"{name}.s"
     preamble, blocks = split_blocks(src.read_text())
     seg_lo, seg_hi = VRAM + lo, VRAM + hi
-    ranges = [(o["start"], o["end"], o) for o in cobjs if seg_lo <= o["start"] < seg_hi]
+    ranges = [(s, e, o) for o in cobjs for s, e in o["ranges"] if seg_lo <= s < seg_hi]
     ranges.sort()
     starts = [r[0] for r in ranges]
     import bisect
@@ -1266,7 +1275,7 @@ def main():
             if isinstance(address, str):
                 address = int(address, 16)
             entries.append((address, cobj, f".text.{marker['name']}"))
-        c_text_ranges.append((o["start"], o["end"], o))
+        c_text_ranges.extend((s, e, o) for s, e in o["ranges"])
         for sname, (base, size) in o["sections"].items():
             entries.append((base, cobj, sname))
             data_carves.append((base, base + size))
