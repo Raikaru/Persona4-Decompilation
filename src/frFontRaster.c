@@ -51,8 +51,54 @@ extern void func_00271310(u32 param_1);
 // donor's implicit old-style declarations (FUN_003b3e00_raw/FUN_003b3e60_raw)
 // so the arguments are passed without prototype-driven zero-extension.
 
+/* The loop bound is the fresh expression `i < count - 1`; a named `limit`
+   local is coloured first and lands in $a1 (archived at nd 8). */
+/* measured: opt_loop_invariants on hoists that bound AFTER the body's
+   temporaries are coloured, which is what puts the bound in $a0 and the
+   next-node pointer in $a1 as retail. */
+#pragma opt_loop_invariants on
 // FUN_00275A60
-INCLUDE_ASM("asm/nonmatchings/frFontRaster", func_00275a60);
+void func_00275a60(s32 count)
+{
+    s32 i;
+    s32 *node;
+    s32 size;
+    u32 memory;
+    u32 block;
+    s32 *current;
+
+    size = count * 0x21c + 0x18;
+    if (piGpffffb954 != NULL) {
+        func_0046d730(D_0063bc88, 0x26);
+    }
+    func_0044ea90(D_0063bc88, 0x27);
+    memory = D_008873e8_abs[0](size, 0x40000);
+    piGpffffb954 = (s32 *)memory;
+    func_0043f9c8(memory, 0, size);
+    *piGpffffb954 = count;
+    piGpffffb954[1] = (s32)(piGpffffb954 + 6);
+    node = (s32 *)piGpffffb954[1];
+    node[3] = (s32)(node + 7);
+    piGpffffb954[4] = (s32)node;
+    for (i = 0; i < count - 1; i++) {
+        node[6] = (s32)(node[3] + 0x200);
+        node = (s32 *)node[6];
+        node[3] = (s32)(node + 7);
+    }
+    piGpffffb954[5] = (s32)node;
+    current = (s32 *)piGpffffb954[4];
+    while (current != NULL) {
+        block = func_003ec590(0x20, 0x20, 4, 0x4504);
+        current[5] = block;
+        if (block == 0) {
+            func_00440b68(D_0063bca0);
+        } else {
+            current = (s32 *)current[6];
+        }
+    }
+}
+/* measured: closes the hoisting scope after func_00275a60. */
+#pragma opt_loop_invariants off
 
 // FUN_00275BD0
 void func_00275bd0(void)
