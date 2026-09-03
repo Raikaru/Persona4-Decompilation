@@ -1,3 +1,8 @@
+/* Main 2026-09-03: this function needs `schedule on` + `no_branch_likely on` (the unit is schedule-off /
+   branch-likely at this point; without them the archive scores nd73-88, with them nd12). The remaining
+   12 words are the six-float rotation: retail loads all six (f5..f0) then stores; b210 does two 3-float
+   groups (f2..f0 twice) for named temps, V3 struct copies, V3 struct temporaries, array stores, and
+   under opt_propagation off. Load-sinking floor for a two-copy sequence. */
 /* measured: object 340B, retail window 352B, normalized_diff 12; differing offsets 92,100,108,116,124,128,132,136,140. Shared return label plus null-block ordering fixed all integer/control words and df2a0 branch polarity; remainder is retail deferring f5/f4/f3 loads while this candidate stores f2/f1/f0 early. Tried schedule/no_branch_likely/opt_propagation scopes, declaration and output aggregate forms, alias/raw stack forms, and branch restructurings. */
 u8 *func_0038fd30(u8 *arg0)
 {
