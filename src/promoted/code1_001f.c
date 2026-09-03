@@ -4234,5 +4234,95 @@ void func_001fc280(void) {
     func_00122520(1, 1);
     func_001228a0(0xFF, 0xFF, 0xFF);
 }
+/* measured: opt_loop_invariants on keeps the table base and the constant 1 hoisted above the
+   scan loop as retail; the mode-1 blocks are `var = 1; if (slot == arg0) { t = var; } else
+   { var = 0; t = var; } return (s8)t;` - the copy at the join keeps the then-branch as
+   retail's `b join` trampoline (the plain if/else folds to xor/sltiu under rebuildconditionals,
+   which must stay off for these two blocks). */
 // FUN_001FC300
-INCLUDE_ASM("asm/nonmatchings/code1_001f", func_001fc300);
+#pragma opt_loop_invariants on
+#pragma opt_rebuildconditionals off
+s64 func_001fc300(u8 *arg0, u8 *arg1)
+{
+    extern s32 D_00881440_abs[];
+    u8 *table;
+    s32 temp_8;
+    s32 var_10;
+    s32 one;
+    s64 var_2;
+    s64 t;
+    s64 var_2_2;
+    u32 temp_6;
+    u8 temp_3;
+    u8 temp_3_2;
+
+    if (*(u8 *)(arg1 + 3) != 0) {
+        return 1;
+    }
+    var_10 = 0;
+    table = (u8 *)D_00881440_abs;
+    one = 1;
+    goto loop_test;
+loop_body:
+    temp_8 = *(s32 *)(table + ((u16)var_10 * 4) + 8);
+    if (temp_8 != 0) {
+        if ((*(u8 *)(arg1 + 2) & (one << temp_6)) &&
+            ((u8 *)temp_8 == arg0)) {
+            return 1;
+        }
+        var_10 = (var_10 + 1) & 0xFFFF;
+        goto loop_test;
+    }
+    goto block_9;
+loop_test:
+    temp_6 = var_10 & 0xFFFF;
+    if (temp_6 < 3U) {
+        goto loop_body;
+    }
+block_9:
+    if ((D_00881440_abs[0] != 0) &&
+        (*(u8 *)(arg0 + 0xA2) ==
+         *(u8 *)(D_00881440_abs[0] + 0xA2))) {
+        temp_3 = *(u8 *)(arg1 + 0);
+        switch (temp_3) {
+        case 0:
+            return 0;
+        case 1:
+            var_2_2 = 1;
+            if (D_00881440_abs[0] == (s32)arg0) {
+                t = var_2_2;
+            } else {
+                var_2_2 = 0;
+                t = var_2_2;
+            }
+            return (s64)(t << 0x38) >> 0x38;
+        case 2:
+            return 1;
+        }
+    }
+    if ((D_00881440_abs[1] != 0) &&
+        (*(u8 *)(arg0 + 0xA2) ==
+         *(u8 *)(D_00881440_abs[1] + 0xA2))) {
+        temp_3_2 = *(u8 *)(arg1 + 1);
+        switch (temp_3_2) {
+        case 0:
+            return 0;
+        case 1:
+            var_2 = 1;
+            if (D_00881440_abs[1] == (s32)arg0) {
+                t = var_2;
+            } else {
+                var_2 = 0;
+                t = var_2;
+            }
+            return (s64)(t << 0x38) >> 0x38;
+        case 2:
+            return 1;
+        }
+    }
+    return 0;
+}
+/* measured: restore rebuildconditionals after func_001fc300. */
+#pragma opt_rebuildconditionals on
+/* measured: restore the unit default after func_001fc300. */
+#pragma opt_loop_invariants off
