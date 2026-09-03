@@ -800,9 +800,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2ce0);
 // FUN_003E2E40
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2e40);
 
-// FUN_003E2F60
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2f60);
-
 
 
 
