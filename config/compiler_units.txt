@@ -16,3 +16,4 @@ src/promoted/code1_003b_cw119.c cw3.0.1b119
 src/promoted/code1_0039_cw119.c cw3.0.1b119
 src/promoted/code1_003d_cw119.c cw3.0.1b119
 src/promoted/code1_003e_cw119.c cw3.0.1b119
+src/promoted/code1_003a_cw119.c cw3.0.1b119

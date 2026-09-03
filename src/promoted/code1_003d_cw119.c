@@ -489,3 +489,44 @@ s32 func_003d35f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 /* measured: closes the schedule bracket. */
 #pragma schedule off
 
+
+// FUN_003D5E90
+#pragma schedule on
+s32 func_003d5e90(u8 *arg0, u8 *arg1, u8 *arg2, f32 fparg0) {
+    s32 index;
+    s32 has_items;
+    s32 count;
+
+    index = 0;
+    count = *(s32 *)(arg0 + 0x2C);
+    has_items = (0 < count);
+    if (has_items == 0) {
+        goto done;
+    }
+    do {
+        s32 off0;
+        s32 off1;
+        s32 off2;
+        u8 *p0;
+        u8 *p1;
+        u8 *p2;
+
+        off0 = index * *(s32 *)(arg0 + 0x24);
+        p0 = (u8 *)(off0 + (s32)arg0);
+        off1 = index * *(s32 *)(arg1 + 0x24);
+        p1 = (u8 *)(off1 + (s32)arg1);
+        off2 = index * *(s32 *)(arg2 + 0x24);
+        p2 = (u8 *)(off2 + (s32)arg2);
+        ((void (*)(u8 *, u8 *, u8 *, f32))(*(u32 *)(arg0 + 0x40)))(
+            p0 + 0x4C,
+            p1 + 0x4C,
+            p2 + 0x4C,
+            fparg0);
+        index += 1;
+    } while (*(s32 *)(arg0 + 0x2C) > index);
+done:
+    return 1;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+

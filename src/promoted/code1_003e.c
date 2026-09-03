@@ -197,8 +197,6 @@ fallback:
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0130);
 // FUN_003E0180 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0180);
-// FUN_003E01E0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e01e0);
 // FUN_003E0250
 /* measured: schedule bracket retained for func_003e0250. */
 #pragma schedule on
@@ -675,8 +673,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
    did not improve nd 7. Object 68/window 80. Committed at nd 7. */
 /* measured: archived object 72B/window 80B, normalized_diff 24; initial
    compare delay-slot load and loop-join placement remain unresolved. */
-// FUN_003E23E0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e23e0);
 // FUN_003E2430
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2430);
 /* measured: loop-rotation residual around store/reload remains open after
