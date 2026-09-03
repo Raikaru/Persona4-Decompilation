@@ -1382,12 +1382,6 @@ u8 *func_003e4760(u8 *arg0) {
 #pragma schedule off
 
 
-/* measured: schedule on plus no_branch_likely on. schedule alone gets nd 26
-   (retail fills the loop's branch delay slots), and b210 then wants beql/bnel
-   where retail has plain bne/bnez, which is the rest of it. */
-
-// FUN_003E47C0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e47c0);
 /* measured: schedule/no_branch_likely bracket retained for func_003e4880. */
 #pragma schedule on
 #pragma no_branch_likely on

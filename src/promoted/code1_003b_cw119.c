@@ -283,3 +283,61 @@ callback_block:
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
+
+// FUN_003BB4A0
+#pragma schedule on
+#pragma opt_propagation off
+u8 *func_003bb4a0(u8 *arg0, s32 arg1, f32 *arg2) {
+    s32 err[2];
+    s32 pair[2];
+    s32 temp_3;
+    s32 count;
+    u8 *temp_2;
+    f32 f2;
+    f32 f1;
+    f32 f0;
+    extern s32 func_003b9a40(u8 *arg0, u8 *arg1);
+    extern s32 func_003df590(s32 arg0, ...);
+    extern void func_003df4d0(s32 *arg0);
+    extern u8 D_0070AF50[];
+
+    if (arg1 < 0) {
+        goto block_9;
+    }
+    temp_3 = *(s32 *)(arg0 + 0xC);
+    switch (temp_3) {
+    case 1:
+        count = *(s32 *)(arg0 + 8) - 2;
+        break;
+    case 2:
+        count = *(s32 *)(arg0 + 8) - 3;
+        break;
+    default:
+        pair[0] = 0x102;
+        pair[1] = func_003df590(1);
+        func_003df4d0(pair);
+        count = 0;
+        break;
+    }
+    if (arg1 < count) {
+        temp_2 = *(u8 **)(arg0 + 0x14) + arg1 * 0xC;
+        f2 = arg2[0];
+        f1 = arg2[1];
+        f0 = arg2[2];
+        *(f32 *)(temp_2 + 0) = f2;
+        *(f32 *)(temp_2 + 4) = f1;
+        *(f32 *)(temp_2 + 8) = f0;
+        return func_003b9a40(arg0, *(u8 **)(arg0 + 0x14)) ? arg0 : NULL;
+    }
+block_9:
+    err[0] = 0x102;
+    err[1] = func_003df590(0x80000003, D_0070AF50);
+    func_003df4d0(err);
+    return NULL;
+}
+#pragma opt_propagation on
+#pragma schedule off
+
+
+
+
