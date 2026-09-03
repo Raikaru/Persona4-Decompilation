@@ -120,3 +120,64 @@ done:
 #pragma opt_propagation on
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
+
+extern u64 func_003b7060(void);
+extern u64 func_003b88c0(void);
+extern u64 func_003bf1c0(u64 value);
+extern u64 func_003bf1f0(u64 value);
+extern s32 func_003b8d20(void);
+/* Archived b210 near-miss (R3BB_003b7860); exact under b119 with schedule on. */
+// FUN_003B7860
+#pragma schedule on
+s32 func_003b7860(s32 arg0) {
+    extern s32 func_003b8d20(s32 arg0);
+    extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
+    extern s32 func_003e8960(s32 arg0);
+    extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+    extern s32 iGpffffaa80;
+    extern s32 iGpffffaa84;
+    extern u8 D_00886460[];
+    extern s32 D_0088649C[];
+    extern u8 *D_008864A0[];
+    extern s32 D_008864A8[];
+    extern s32 D_008864B0[];
+    extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+    s32 flags;
+
+    if (D_008864B0[0] != 0) {
+        goto increment;
+    }
+initialize:
+    flags = 1;
+    if (func_003e8960(0x120) != -1) {
+        flags |= 2;
+    }
+    if (func_003e8960(0x12E) != -1) {
+        flags |= 4;
+    }
+    func_003b8d20(flags);
+    D_008864A8[0] = func_003e1220(0x48, iGpffffaa80, 4, iGpffffaa84, D_00886460, 0x40116);
+    D_008864A0[0] = jtbl_008873E8[0](0x400F, 0x40116);
+    func_0043f9c8(D_008864A0[0], 0, 0x400F);
+    D_0088649C[0] = (s32)(D_008864A0[0] + 0xF) & ~0xF;
+increment:
+    D_008864B0[0] += 1;
+    return arg0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+/* Archived b210 near-miss (F3B1_003bf360); exact under b119 with schedule on. */
+// FUN_003BF360
+#pragma schedule on
+u8 *func_003bf360(u8 *arg0, s32 *arg1) {
+    extern u8 D_0070AF70[];
+    extern s32 func_003e3370(u8 *desc, u8 *arg1);
+
+    *arg1 += 0xC;
+    *arg1 += 0x1C;
+    *arg1 += func_003e3370(D_0070AF70, arg0) + 0xC;
+    return arg0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
