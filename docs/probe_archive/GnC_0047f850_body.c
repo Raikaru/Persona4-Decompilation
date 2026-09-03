@@ -1,3 +1,7 @@
+/* Main 2026-09-03: the inner index was scaled by 16 (`*(u32 **)tbl + j * 4` is u32 pointer arithmetic);
+   `*(u8 **)tbl + j * 4` fixes it (nd16 -> 13). Remaining 13 words are one colouring rotation:
+   retail count s0 / tbl s1 / entry s2, b210 entry s0 / count s1 / tbl s2. All 24 declaration orders
+   with count at either scope, and the AST permuter (700s): no change. */
 /* object_size=412; window=416; normalized_diff=16; differing_offsets=[74,78,105,110,166,192,193,198,214,230,262,288,289,294,310,326]; classification=MISMATCH; ruled_out=retail has no adda.s/madd.s COP1 accumulator chain, no movz/movn, no standalone MMI, no tail-jump forwarder, and no sd-saved s-register; measured exact setup/branch/loop shape with interleaved mixed signature, split branch work values, s64 callback results, integer table and dispatch addresses, and explicit u16-to-u32 count widening; residual is callee-saved register coloring and inner-index scale after the explicit count temporary. Hex-Rays and Ghidra corpora agree on the four-entry dispatch loop and callback offsets. */
 void func_0047f850(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1, f32 fparg2)
 {
@@ -26,7 +30,7 @@ void func_0047f850(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1, f32 fparg2)
                         work1 = ((InitFunc)*(u32 *)(entry + 4))((u8 *)arg0 + i * 0x10, fparg0, (u8 *)arg1 + i * 0x10, fparg1, fparg2);
                         j = 0;
                         while (j < count) {
-                            ((ApplyFunc)*(u32 *)(entry + 0xC))(work1, *(u32 *)(*(u32 **)tbl + j * 4));
+                            ((ApplyFunc)*(u32 *)(entry + 0xC))(work1, *(u32 *)(*(u8 **)tbl + j * 4));
                             j = (s32)j + 1;
                         }
                     } else {
@@ -34,7 +38,7 @@ void func_0047f850(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1, f32 fparg2)
                         work2 = ((InitAltFunc)*(u32 *)(entry + 8))((u8 *)arg0 + i * 0x10, fparg0, (u8 *)arg0 + 0x40, fparg2);
                         j = 0;
                         while (j < count) {
-                            ((ApplyFunc)*(u32 *)(entry + 0xC))(work2, *(u32 *)(*(u32 **)tbl + j * 4));
+                            ((ApplyFunc)*(u32 *)(entry + 0xC))(work2, *(u32 *)(*(u8 **)tbl + j * 4));
                             j = (s32)j + 1;
                         }
                     }

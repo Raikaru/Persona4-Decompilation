@@ -754,8 +754,154 @@ void func_004a7df0(s32 *arg0) {
 
 
 
-// FUN_004A7E30 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004a7e30);
+/* measured: the byte->float sites are `(f32)(u32)x`; the eight rotated-corner stores add the
+   centre offset inside the store expression (`*(f32 *)(arg1 + 0x10) = temp_f26 + temp_f1;`):
+   assigning back into temp_f1 makes mwcc put the coalesced operand first (add.s f1,f1,f26),
+   a fresh destination keeps retail's add.s f1,f26,f1. */
+/* measured: loop-invariant conversion preloads for func_004a7e30. */
+#pragma opt_loop_invariants on
+// FUN_004A7E30
+s32 func_004a7e30(u8 *arg0, u8 *arg1)
+{
+    extern f32 func_0044b610(f32 arg0);
+    extern f32 func_0044b7b0(f32 arg0);
+    extern f32 fabsf(f32 arg0);
+    f32 temp_f0;
+    f32 temp_f0_2;
+    f32 temp_f1;
+    f32 temp_f26;
+    f32 temp_f25;
+    f32 temp_f24;
+    f32 temp_f23;
+    f32 temp_f22;
+    f32 temp_f21;
+    f32 temp_f20;
+    f32 temp_f2;
+    f32 temp_f3;
+    f32 temp_f4;
+    f32 temp_f6;
+    f32 temp_f5;
+    f32 var_f0;
+    f32 var_f0_2;
+    f32 var_f0_3;
+    f32 var_f0_4;
+    s32 temp_6;
+    s32 temp_5;
+    s32 temp_4;
+    s32 temp_3;
+    u32 var_8;
+    u32 temp_19;
+    u32 temp_18;
+    u32 temp_17;
+    u32 temp_16;
+    u8 *temp_7;
+
+    if (*(f32 *)(arg0 + 0x18) > 640.0f ||
+        *(f32 *)(arg0 + 0x1C) > 448.0f ||
+        *(f32 *)(arg0 + 0x20) < 0.0f ||
+        *(f32 *)(arg0 + 0x24) < 0.0f) {
+        return 0;
+    }
+    temp_19 = *(u8 *)(arg0 + 0);
+    temp_18 = *(u8 *)(arg0 + 1);
+    temp_17 = *(u8 *)(arg0 + 2);
+    temp_16 = *(u8 *)(arg0 + 3);
+    temp_f6 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    temp_f5 = D_008872F8[0];
+    var_8 = 0;
+    goto loop_004a7e30_check;
+loop_004a7e30_body:
+    temp_7 = arg1 + (var_8 << 6);
+    *(f32 *)(temp_7 + 0x18) = temp_f6;
+    *(f32 *)(temp_7 + 0x20) = (f32)(u32)temp_19;
+    *(f32 *)(temp_7 + 0x24) = (f32)(u32)temp_18;
+    *(f32 *)(temp_7 + 0x28) = (f32)(u32)temp_17;
+    *(f32 *)(temp_7 + 0x2C) = (f32)(u32)temp_16;
+    *(f32 *)(temp_7 + 8) = temp_f5;
+    var_8 += 1;
+loop_004a7e30_check:
+    if (var_8 < 4U) {
+        goto loop_004a7e30_body;
+    }
+    temp_f26 = *(f32 *)(arg0 + 0x10) / D_00922D94[0];
+    temp_f25 = *(f32 *)(arg0 + 0x14) / D_00922D98[0];
+    temp_f6 = *(f32 *)(arg0 + 0x0C);
+    temp_f5 = *(f32 *)(arg0 + 0x18);
+    temp_f4 = temp_f5 / D_00922D94[0];
+    temp_f3 = *(f32 *)(arg0 + 0x1C) / D_00922D98[0];
+    temp_f2 = *(f32 *)(arg0 + 0x20) / D_00922D94[0];
+    temp_f1 = *(f32 *)(arg0 + 0x24) / D_00922D98[0];
+    temp_f0 = temp_f4 - temp_f26;
+    temp_f24 = temp_f6 * temp_f0;
+    temp_f0 = temp_f3 - temp_f25;
+    temp_f23 = temp_f6 * temp_f0;
+    temp_f0 = temp_f2 - temp_f26;
+    temp_f22 = temp_f6 * temp_f0;
+    temp_f0 = temp_f1 - temp_f25;
+    temp_f21 = temp_f6 * temp_f0;
+    temp_f0 = temp_f24 - temp_f22;
+    temp_f3 = fabsf(temp_f0);
+    temp_f0 = temp_f23 - temp_f21;
+    temp_f2 = fabsf(temp_f0);
+    if (!(temp_f3 > 0.0f &&
+          temp_f2 > 0.0f &&
+          temp_f3 < 7.0f &&
+          temp_f2 < 7.0f)) {
+        return 0;
+    }
+    *(f32 *)(arg1 + 0) = temp_f5;
+    *(f32 *)(arg1 + 4) = *(f32 *)(arg0 + 0x1C);
+    *(f32 *)(arg1 + 0x40) = *(f32 *)(arg0 + 0x18);
+    *(f32 *)(arg1 + 0x44) = *(f32 *)(arg0 + 0x24);
+    *(f32 *)(arg1 + 0x80) = *(f32 *)(arg0 + 0x20);
+    *(f32 *)(arg1 + 0x84) = *(f32 *)(arg0 + 0x24);
+    *(f32 *)(arg1 + 0xC0) = *(f32 *)(arg0 + 0x20);
+    *(f32 *)(arg1 + 0xC4) = *(f32 *)(arg0 + 0x1C);
+    if (*(f32 *)(arg0 + 8) == 0.0f) {
+        temp_f3 = temp_f24 + temp_f26;
+        temp_f2 = temp_f22 + temp_f26;
+        temp_f1 = temp_f23 + temp_f25;
+        temp_f0 = temp_f21 + temp_f25;
+        *(f32 *)(arg1 + 0x10) = temp_f3;
+        *(f32 *)(arg1 + 0x14) = temp_f1;
+        *(f32 *)(arg1 + 0x50) = temp_f3;
+        *(f32 *)(arg1 + 0x54) = temp_f0;
+        *(f32 *)(arg1 + 0x90) = temp_f2;
+        *(f32 *)(arg1 + 0x94) = temp_f0;
+        *(f32 *)(arg1 + 0xD0) = temp_f2;
+        *(f32 *)(arg1 + 0xD4) = temp_f1;
+    } else {
+        temp_f20 = func_0044b610(*(f32 *)(arg0 + 8));
+        temp_f0_2 = func_0044b7b0(*(f32 *)(arg0 + 8));
+        temp_f6 = temp_f23 * temp_f0_2;
+        temp_f3 = temp_f24 * temp_f20;
+        temp_f1 = temp_f3 - temp_f6;
+                *(f32 *)(arg1 + 0x10) = temp_f26 + temp_f1;
+        temp_f5 = temp_f23 * temp_f20;
+        temp_f2 = temp_f24 * temp_f0_2;
+        temp_f1 = temp_f2 + temp_f5;
+                *(f32 *)(arg1 + 0x14) = temp_f25 + temp_f1;
+        temp_f4 = temp_f21 * temp_f0_2;
+        temp_f1 = temp_f3 - temp_f4;
+                *(f32 *)(arg1 + 0x50) = temp_f26 + temp_f1;
+        temp_f3 = temp_f21 * temp_f20;
+        temp_f1 = temp_f2 + temp_f3;
+                *(f32 *)(arg1 + 0x54) = temp_f25 + temp_f1;
+        temp_f2 = temp_f22 * temp_f20;
+        temp_f1 = temp_f2 - temp_f4;
+                *(f32 *)(arg1 + 0x90) = temp_f26 + temp_f1;
+        temp_f1 = temp_f22 * temp_f0_2;
+        temp_f0 = temp_f1 + temp_f3;
+                *(f32 *)(arg1 + 0x94) = temp_f25 + temp_f0;
+        temp_f0 = temp_f2 - temp_f6;
+                *(f32 *)(arg1 + 0xD0) = temp_f26 + temp_f0;
+        temp_f0 = temp_f1 + temp_f5;
+                *(f32 *)(arg1 + 0xD4) = temp_f25 + temp_f0;
+    }
+    return 1;
+}
+/* measured: close the loop-invariant bracket after func_004a7e30. */
+#pragma opt_loop_invariants off
 // FUN_004A8250
 /* measured: loop-invariant conversion preloads for func_004a8250. */
 #pragma opt_loop_invariants on
