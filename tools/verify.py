@@ -462,14 +462,91 @@ def compare(body: bytes, relocations: list[dict], retail: bytes) -> tuple[int, l
     return len(differences), differences[:16]
 
 
-def decode_reloc_values(relocations: list[dict], retail: bytes) -> list[dict]:
+def decode_reloc_values(relocations: list[dict], retail: bytes, body: bytes = b"") -> list[dict]:
     for relocation in relocations:
         offset = relocation["offset"] & ~3
         if offset + 4 > len(retail): continue
         word = struct.unpack_from("<I", retail, offset)[0]
         if relocation["r_type"] == 4: relocation["retail_target"] = f"{(word & 0x03ffffff) << 2:#010x}"
-        elif relocation["r_type"] in (5, 6, 7): relocation["retail_imm"] = f"{word & 0xffff:#06x}"
+        elif relocation["r_type"] in (5, 6, 7):
+            relocation["retail_imm"] = f"{word & 0xffff:#06x}"
+            # The candidate's immediate is the relocation addend (MWCC emits REL,
+            # not RELA): what the linker adds to the symbol's address. Kept so a
+            # wrong-but-plausible symbol can be caught without a full link.
+            if offset + 4 <= len(body):
+                relocation["addend"] = f"{struct.unpack_from('<I', body, offset)[0] & 0xffff:#06x}"
     return relocations
+
+
+SYMBOL_ADDRESSES_PATH = REPO / "config" / "symbols_recovered.txt"
+
+
+def symbol_addresses() -> tuple[int | None, dict[str, int]]:
+    """gp and every data symbol the linker will define, from the recovered symbol
+    table; a symbol whose name encodes its own address resolves without an entry."""
+    gp, table = None, {}
+    if SYMBOL_ADDRESSES_PATH.is_file():
+        for line in SYMBOL_ADDRESSES_PATH.read_text().splitlines():
+            found = re.match(r"\s*([A-Za-z_.$][\w.$]*)\s*=\s*(0x[0-9A-Fa-f]+).*?type:(\w+)", line)
+            if not found: continue
+            if found.group(3) == "gp": gp = int(found.group(2), 16)
+            elif found.group(3) == "data": table[found.group(1)] = int(found.group(2), 16)
+    return gp, table
+
+
+def resolve_symbol(name: str, gp: int | None, table: dict[str, int]) -> int | None:
+    if name in table: return table[name]
+    encoded = re.fullmatch(r"(?:func|FUN|D|DAT|jtbl|LAB)_([0-9a-fA-F]{8})(?:_abs)?", name)
+    if encoded: return int(encoded.group(1), 16)
+    gp_relative = re.fullmatch(r"[a-z]Gp([0-9a-f]{8})", name)
+    if gp_relative and gp is not None:
+        return gp + struct.unpack("<i", struct.pack("<I", int(gp_relative.group(1), 16)))[0]
+    return None
+
+
+def wrong_symbol_relocations(result: dict, gp: int | None, table: dict[str, int]) -> list[str]:
+    """Relocations of a MATCH function whose symbol+addend cannot produce the
+    immediate retail encodes. Byte comparison masks these fields, so a sibling
+    symbol a few bytes off scores MATCH; the link would catch it only for units
+    that are link-eligible, and the b119 units are not."""
+    problems, pending_hi = [], None
+    for reloc in result.get("relocations", []):
+        rtype, name = reloc["r_type"], reloc.get("symbol") or ""
+        if rtype not in (5, 6, 7) or "retail_imm" not in reloc or "addend" not in reloc:
+            pending_hi = None
+            continue
+        address = resolve_symbol(name, gp, table)
+        if address is None:
+            pending_hi = None
+            continue
+        retail_imm, addend = int(reloc["retail_imm"], 16), int(reloc["addend"], 16)
+        signed = addend - 0x10000 if addend & 0x8000 else addend
+        if rtype == 7:
+            if gp is None: continue
+            displacement = address - gp + signed
+            expected = displacement & 0xffff
+            if not -0x8000 <= displacement < 0x8000:
+                # Only the low half is compared, so a symbol a multiple of 64K
+                # away from the real one (D_008872F8 for the float at 0x7672F8)
+                # would otherwise pass; nothing outside gp's reach can be right.
+                problems.append(f"+{reloc['offset']}: gp-relative {name}{signed:+#x} is {displacement:#x} from gp, out of reach")
+            elif expected != retail_imm:
+                problems.append(f"+{reloc['offset']}: gp-relative {name}{signed:+#x} encodes {expected:#06x}, retail {retail_imm:#06x}")
+            pending_hi = None
+        elif rtype == 5:
+            pending_hi = (name, addend, reloc)
+        else:
+            if pending_hi and pending_hi[0] == name:
+                value = address + (pending_hi[1] << 16) + signed
+                expected_hi = ((value + 0x8000) >> 16) & 0xffff
+                hi_retail = int(pending_hi[2]["retail_imm"], 16)
+                if expected_hi != hi_retail:
+                    problems.append(f"+{pending_hi[2]['offset']}: %hi({name}{signed:+#x}) encodes {expected_hi:#06x}, retail {hi_retail:#06x}")
+            expected = (address + signed) & 0xffff
+            if expected != retail_imm:
+                problems.append(f"+{reloc['offset']}: %lo({name}{signed:+#x}) encodes {expected:#06x}, retail {retail_imm:#06x}")
+            pending_hi = None
+    return problems
 
 
 def window_for(address: int, boundaries: list[int]) -> int | None:
@@ -717,7 +794,7 @@ def verify_file(
                     elif marker["nonmatching"]:
                         entry.update(status="STALE_NONMATCHING", detail="function now matches; remove the NONMATCHING tag")
                     else: entry["status"] = "MATCH"
-                    entry["relocations"] = decode_reloc_values(relocs, target)
+                    entry["relocations"] = decode_reloc_values(relocs, target, body)
         results.append(entry)
     return results
 
@@ -805,6 +882,22 @@ def main() -> None:
         for result, reloc in wrong_callees:
             print(f"  {result['file']}:{result.get('line', '?')} {result.get('name')} "
                   f"+{reloc['offset']}: calls {reloc['symbol']}, retail calls {reloc['retail_target']}")
+    # Data symbols have the same blind spot: %hi/%lo and gp-relative immediates
+    # are masked, so a MATCH can name a symbol whose address plus addend does
+    # not produce retail's immediate. The full link exposes that only for
+    # link-eligible units; the b119 units are not linked, and three of their
+    # functions carried a sibling symbol off by 8..0xC04 bytes until this check.
+    gp, table = symbol_addresses()
+    wrong_symbols = []
+    for result in results:
+        if result["status"] != "MATCH":
+            continue
+        for problem in wrong_symbol_relocations(result, gp, table):
+            wrong_symbols.append((result, problem))
+    if wrong_symbols:
+        print(f"WRONG SYMBOL: {len(wrong_symbols)} relocation(s) name a data symbol whose address cannot encode retail's immediate")
+        for result, problem in wrong_symbols:
+            print(f"  {result['file']}:{result.get('line', '?')} {result.get('name')} {problem}")
 
     # ASM is a healthy in-progress state (byte-correct assembly fallback), so it
     # does not fail the run -- but it is deliberately excluded from MATCH above.
@@ -812,6 +905,8 @@ def main() -> None:
     bad = [result for result in results if result["status"] not in ("MATCH", "ASM", "STUB", "NONMATCHING")]
     if wrong_callees:
         bad.append({"status": "WRONG_CALLEE", "file": "", "name": None, "addr": None})
+    if wrong_symbols:
+        bad.append({"status": "WRONG_SYMBOL", "file": "", "name": None, "addr": None})
     if args.show_mismatches:
         for result in bad:
             print(f"\n{result['status']}: {result['file']}:{result.get('line', '?')} {result.get('name')} @ {result.get('addr')}")

@@ -109,7 +109,6 @@ extern u8 D_005F15C0[];
 extern u8 D_005F15E0[];
 extern u8 D_007E80A0[];
 
-static s32 D_007643D8;
 static s32 D_007643C8[2];
 static s32 D_007643C0[2];
 static u8 D_00763008[4];
@@ -533,7 +532,7 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00164880);
 // FUN_00164F40
 s32 func_00164f40(void)
 {
-    return D_007643D8;
+    return iGpffffb2e8;
 }
 
 
@@ -878,7 +877,7 @@ void func_00165fb0(u8 *arg0, u8 *arg1, s32 arg2)
         temp_18 = (s32)((600.0f + *(f32 *)(arg1 + 0x148)) / 1200.0f);
         *(u8 **)(temp_2 + 0x140) = func_00145270(*(u16 *)((u8 *)func_00155280() + (temp_18 << 8) + (temp_17_2 * 0x10) + 0x56));
         func_0014a0f0(*(u16 *)(arg0 + 0xC), 1);
-        D_007643D8 += 1;
+        iGpffffb2e4 += 1;
     }
 }
 
@@ -1108,7 +1107,7 @@ s32 func_001668e0(u8 *arg0)
     }
     switch (*(s32 *)temp_16) {
     case 0:
-        D_007643D8 = 0;
+        iGpffffb2e8 = 0;
         var_17 = *(u32 *)(temp_16 + 0xC);
         if (var_17 == -1U) {
             temp_17 = iGpffff9db0;
@@ -1157,7 +1156,7 @@ s32 func_001668e0(u8 *arg0)
     case 3:
         temp_17 = iGpffff9db0;
         temp_2 = func_00161a70(*(u16 *)temp_17, *(u16 *)(temp_17 + 4), (u16)(func_0015a160() & 0xFFFF));
-        if ((u32)D_007643D8 < temp_2 && func_00164570(temp_2, 1) > 0) {
+        if ((u32)iGpffffb2e8 < temp_2 && func_00164570(temp_2, 1) > 0) {
             *(s32 *)temp_16 = 2;
         }
         break;

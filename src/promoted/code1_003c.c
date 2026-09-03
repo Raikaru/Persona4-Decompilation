@@ -1006,12 +1006,6 @@ u8 *func_003c40d0(u8 *arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-/* measured: typed helper reconstruction reaches object 128B/window 144B
-   and nd 74; saved-self branch placement, callback address ordering, and
-   the callback branch layout remain residuals. No real C body was retained,
-   so the bare INCLUDE_ASM fallback remains. */
-// FUN_003C4140
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4140);
 /* func_003c4220 archive: current body is object 148B/window 144B,
    normalized_diff 81; first differing offsets 4,6-15,20,22-26. The object
    is oversized, so the stale nd 28 reconstruction is archived without

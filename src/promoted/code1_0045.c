@@ -2,7 +2,7 @@
 #include "type.h"
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
-extern f32 D_008872F8;
+extern f32 fGpffff8200;
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern void func_0045dfd0(void *arg0, void *arg1, f32 farg0, s32 arg2, s32 arg3, s32 arg4);
@@ -1392,7 +1392,7 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     f32 temp_f22_3;
     f32 temp_f21;
     f32 temp_f0;
-    temp_f23 = D_008872F8 * fparg0;
+    temp_f23 = fGpffff8200 * fparg0;
     temp_f22 = func_0044b7b0(temp_f23);
     temp_f0 = func_0044b610(temp_f23);
     arg3 = -arg3;
@@ -1421,7 +1421,7 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     if (!(fparg0 < 360.0f)) {
         fparg0 -= 360.0f;
     }
-    temp_f23 = D_008872F8 * fparg0;
+    temp_f23 = fGpffff8200 * fparg0;
     temp_f22 = func_0044b7b0(temp_f23);
     temp_f0 = func_0044b610(temp_f23);
     {
@@ -1449,7 +1449,7 @@ void func_0045ee00(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, f32 fparg0, f32 fparg
     if (!(fparg0 < 360.0f)) {
         fparg0 -= 360.0f;
     }
-    temp_f22_3 = D_008872F8 * fparg0;
+    temp_f22_3 = fGpffff8200 * fparg0;
     temp_f21 = func_0044b7b0(temp_f22_3);
     temp_f0 = func_0044b610(temp_f22_3);
     {
