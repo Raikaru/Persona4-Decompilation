@@ -364,7 +364,43 @@ void func_00452730(void *arg0)
     func_003e18c0(arg0, func_004526f0, (s32)arg0);
 }
 // FUN_00452760
-INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00452760);
+/* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
+#pragma push
+#pragma opt_propagation off
+void func_00452760(void)
+{
+    extern u8 D_008C032A[];
+    extern u8 D_008C0240[];
+    extern u8 D_008C028A[];
+    extern u8 D_008C0040[];
+    extern u8 D_008C0140[];
+    extern s32 func_0042f6f8(s32);
+    extern s32 func_0042fb50(s32, s32, u8 *);
+    s32 i;
+    u8 *base;
+    s32 three;
+    u8 *ptr;
+
+    func_0043f9c8(D_008C02E0, 0, 0x4A);
+    func_0043f9c8(D_008C032A, 0, 0x4A);
+    func_0043f9c8(D_008C0240, 0, 0x4A);
+    func_0043f9c8(D_008C028A, 0, 0x4A);
+    func_0042f6f8(0);
+    func_0042fb50(0, 0, D_008C0140);
+    func_0042fb50(1, 0, D_008C0040);
+    i = 0;
+    base = D_008C02E0;
+    three = 3;
+    for (; i < 2; i++) {
+        ptr = base + i * 0x4A;
+        *(s16 *)(ptr + 8) = i;
+        *(s16 *)(ptr + 0xA) = 0;
+        *(s16 *)(ptr + 2) = 0;
+        *(s16 *)(ptr + 0) = 0;
+        *(s16 *)(ptr + 4) = three;
+    }
+}
+#pragma pop
 // FUN_00452870
 INCLUDE_ASM("asm/nonmatchings/code1_0045", func_00452870);
 // FUN_00452CE0

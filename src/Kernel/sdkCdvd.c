@@ -84,22 +84,60 @@ u8* func_00454a60(u8* arg0, s32 arg1) {
 void func_00455510(void) {
 }
 
-/* measured: retail stores a 32-bit-computed position into the s64 slot of the
-   s128 output with a BARE sd ($a1/$v1 straight from the 32-bit addu) followed
-   by lq/sq; mwcc b210 -O2 always materializes a dsll32/dsrl32 (zero-ext) or
-   dsll32/dsra32 (sign-ext) pair for ANY 32-bit-to-64-bit store. Probes of 20+
-   shapes all emit the extension: s64/s128 stack locals, (s64)(s32)/(s64)(u64)/
-   implicit conversions, pointer-typed fields/casts, s64-field ld/daddu
-   arithmetic (tz1 keeps ld/daddu/sd un-narrowed), u32 slots with 16-byte reads
-   (tx/tx5 give a bare sw + lq/sq but store 4 bytes, retail stores 8), direct
-   s128-from-u32 stores (register sq), and if/else-if + switch dispatch forms
-   (dispatch chain itself matches retail 1:1; frame layout 0x10 matches). The
-   s128 copy machinery matches; only the extension words (2 per case, 3 cases)
-   plus the register-color fallout differ. 32->64 extension-materialization
-   floor; sibling func_004569c0 shows the same family style (its conversions
-   appear in retail as dsll32/dsra32, confirming the compiler emits them). */
+/* measured: long128 local with s64 position; reload the just-stored s32
+   fileOffset into out.position so the compiler's lw sign-extend feeds the
+   sd/lq/sq without a separate dsll32/dsrl32 pair. u32 arithmetic for sltu. */
 // FUN_004555D0
-INCLUDE_ASM("asm/nonmatchings/sdkCdvd", func_004555d0);
+void func_004555d0(void* resultData, void* slotData, s32 amount, s32 mode)
+{
+    typedef signed __int128 long128;
+    struct HCdvdStreamData
+    {
+        u8 reserved[0x88];
+        u8* fileMemory;
+        s32 fileSize;
+        s32 fileOffset;
+    } *data;
+    struct HCdvdStreamPosition
+    {
+        s64 position;
+        u32 unused0;
+        u32 unused1;
+    } out;
+
+    data = (struct HCdvdStreamData*)((u8*)slotData + 0x70);
+    if (mode == 1) {
+        u32 newOffset;
+        newOffset = (u32)data->fileOffset + (u32)amount;
+        if ((u32)data->fileSize < newOffset) {
+            newOffset = (u32)data->fileSize;
+        }
+        data->fileOffset = newOffset;
+        out.position = data->fileOffset;
+        *(long128*)resultData = *(long128*)&out;
+    } else if (mode == 2) {
+        u32 newOffset;
+        if ((u32)data->fileSize < (u32)amount) {
+            amount = data->fileSize;
+        }
+        newOffset = (u32)data->fileOffset + (u32)amount;
+        data->fileOffset = newOffset;
+        out.position = data->fileOffset;
+        *(long128*)resultData = *(long128*)&out;
+    } else if (mode == 3) {
+        u32 newOffset;
+        newOffset = (u32)data->fileSize + (u32)amount;
+        if ((u32)data->fileSize < newOffset) {
+            newOffset = (u32)data->fileSize - 1;
+        }
+        data->fileOffset = newOffset;
+        out.position = data->fileOffset;
+        *(long128*)resultData = *(long128*)&out;
+    } else {
+        out.position = 1;
+        *(long128*)resultData = *(long128*)&out;
+    }
+}
 
 s32 func_003dd900(s32 a0);
 void func_0044ea90(const void* file, s32 line);
@@ -110,7 +148,6 @@ extern void func_004553e0(void);
 extern void func_00455520(void);
 extern void func_004555b0(void);
 extern void func_00455720(void);
-extern void func_004555d0(void);
 extern char D_00711658[];
 s32 func_003dd290(void* a0, s32 a1, s32 a2, s32 a3);
 void func_003dd760(s32 a0);
