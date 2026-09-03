@@ -1573,14 +1573,3 @@ s32 func_003bfe60(void *arg0) {
 }
 /* measured: close schedule around func_003bfe60. */
 #pragma schedule off
-/* measured: current recheck object 168B/window 160B, normalized_diff 114; object exceeded the retail window. Body archived in build/Z3BF_003bfe90_oversize_body.c; prior object-140/nd24 archive was stale under the current TU. */
-// FUN_003BFE90 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfe90);
-/* measured: current-TU archived body object 136B/window 144B, normalized_diff 65; differing word offsets 16,20,24,28,32,36,40,44,48,52,56,60,68,76,80,84,88,124,128. Declaration swap and callback switch-shape probes did not move the residual; restored fallback. */
-// FUN_003BFF30
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bff30);
-/* measured P3B: best current-TU body object 136B/window 144B, normalized_diff 54; archived at build/P3B_003bff30_nd54.c and restored to INCLUDE_ASM. Requires schedule on + no_branch_likely on. Same floor family as func_003bffc0: retail materializes addiu s1,s4,0x8 after the guard branch and colors sentinel s1/next s0 with the loop-back bne carrying the move in its delay slot; every spelling colors s0/s1 and hoists the addiu. goto-done nested form reaches nd41 but at 120B is structurally undersized (merged guard); declaration permutations probed identical. Saved-register coloring + loop-back delay-slot fill are compiler floors per campaign census. */
-/* measured: best fresh plain-C attempt object 156B/window 144B, normalized_diff 32; archived at build/K3B6_003bffc0_nd32.c and restored to INCLUDE_ASM because object exceeded the retail window. */
-/* measured P3B: best current-TU body object 140B/window 144B, normalized_diff 22; archived at build/P3B_003bffc0_nd22.c and restored to INCLUDE_ASM. Requires schedule on + no_branch_likely on (K3B6 nd18 archive does not reproduce: exact text 156B/nd106, schedule-on-only 136B/nd45). Residual: retail materializes addiu s1,s4,0x18 before the head load and colors sentinel s1/next s0 (ours s0/s1, addiu sunk after the guard), and the loop-back bne carries the pointer move in its delay slot; declaration permutations, goto/nested-if/for-break shapes, chained-load cast, and named return-local all probed (9 variants) without moving it - saved-register first-use coloring + loop-back delay-slot fill, compiler floors per campaign census. */
-// FUN_003BFFC0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bffc0);

@@ -360,10 +360,6 @@ s32 func_003e0f40(u8 *arg0) {
 /* measured: closes the single-function schedule bracket for func_003e0f40. */
 #pragma schedule off
 
-/* A schedule-on reconstruction for func_003e0f80 was three spellings short
-   of the retail callback-load order and was removed after the probe limit. */
-// FUN_003E0F80
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e0f80);
 // measured: removing this pragma takes func_003e1020 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with sw $a0, -0x54a0($gp); baseline -O2 emits sw; jr; nop.
 
@@ -1369,10 +1365,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4520);
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
 /* measured: best plain-C body archived in build/Q3EE_003e45f0_body.c; object 240B/window 240B, normalized_diff 152; retail frameless caller-saved coloring across func_003e4420 remains unresolved after source-shape, declaration, width, callee-argument-count, and scoped optimization probes. */
 
-#pragma schedule on
-// FUN_003E46E0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e46e0);
-#pragma schedule off
 /* measured: schedule/no_branch_likely bracket retained for func_003e4760. */
 #pragma schedule on
 #pragma no_branch_likely on

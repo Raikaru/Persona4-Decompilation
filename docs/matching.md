@@ -1202,7 +1202,18 @@ Dockerfile installs `/usr/local/bin/mwccps2-cw3.0.1b119.exe` (a wibo wrapper
 over `P4_MWCC_CW3_0_1B119_BINARY`, mounted from `cw3.0.1b119/mwccps2.exe` in
 the private dependencies repository) and exports `P4_MWCC_CW3_0_1B119` to it;
 a unit naming an unconfigured version fails verify outright rather than
-scoring against b210. Two cautions from the measurements:
+scoring against b210. The cw119 units are not link-eligible (their functions
+are not contiguous with the unit's first), so the full-link SHA1 never sees
+their relocations; `verify.py` now cross-checks every gp-relative and
+%hi/%lo relocation of a MATCH function against retail's immediate using the
+candidate's addend (`WRONG SYMBOL`, a hard failure). Its first run found
+seven latent wrong-symbol matches: three in cw119 units (`iGpffffb680` for
+`iGpffffaa7c`, `iGpffffb6f8` for `iGpffffb700` plus `D_008873F8[0x46]` for
+`[0]`, `iGpffffb768` for `iGpffffb788`) and three in unlinked b210 units
+(btlCamera `DAT_00761188` for `fGpffff8110`, code1_0045 `D_008872F8` for
+`fGpffff8200` - 64K out of gp's reach, k_fldUnit a file-static shadowing
+`iGpffffb2e8` where one site is `iGpffffb2e4`). Two cautions from the
+measurements:
 
 - **b119's prologue scheduling is unit-state dependent.** The same
   `func_003cb720` body is nd 0 when compiled inside the whole `code1_003c.c`

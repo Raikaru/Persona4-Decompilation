@@ -56,6 +56,7 @@ extern s32 iGpffffb7b8;
 extern u8 D_008872E0[];
 extern u8 D_008871C0[];
 extern s32 iGpffffab50;
+extern s32 iGpffffb788;
 extern s32 iGpffffb768;
 extern u8 *iGpffffb778;
 extern s32 D_00724870;
@@ -298,14 +299,60 @@ s32 func_003e2f60(s32 arg0, s32 arg1, s32 arg2) {
     s32 gp;
     u8 *result;
 
-    gp = iGpffffb768;
+    gp = iGpffffb788;
     result = D_008873F8[0](
         *(s32 *)(D_008872E0 + gp), 0x30404, gp);
     if (func_003e2800(result, 1, arg0, arg1, arg2) == NULL) {
         jtbl_008873FC[0](
-            *(u8 **)(D_008872E0 + (s32)iGpffffb768), result);
+            *(u8 **)(D_008872E0 + (s32)iGpffffb788), result);
         result = NULL;
     }
     return (s32)result;
 }
+#pragma schedule off
+
+// FUN_003E46E0
+#pragma schedule on
+s32 func_003e46e0(s32 arg0, s32 arg1) {
+    extern s32 func_003e1220(s32, s32, s32, s32, void *, s32);
+    s32 result;
+
+    D_00764898 = arg1;
+    result = func_003e1220(0x21, D_00763C70, 4, D_00763C74, D_00887280, 0x40412);
+    *(s32 *)&D_008872E0[D_00764898] = result;
+    if (*(s32 *)&D_008872E0[D_00764898] == 0) {
+        return 0;
+    }
+    D_0076489C += 1;
+    return arg0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003E0F80
+#pragma schedule on
+void func_003e0f80(void) {
+    extern u8 *(*D_008873F8[])(s32, s32);
+    u8 *p;
+
+    p = D_008873F8[0](*(s32 *)(D_008872E0 + iGpffffb768), 0x3000d);
+    if (p == NULL) {
+        return;
+    }
+    *(s32 *)(p + 0xc) = 3;
+    *(s32 *)(p + 0x28) = 0x3F800000;
+    *(s32 *)(p + 0x14) = 0x3F800000;
+    *(s32 *)(p + 0x0) = 0x3F800000;
+    *(s32 *)(p + 0x10) = 0;
+    *(s32 *)(p + 0x8) = 0;
+    *(s32 *)(p + 0x4) = 0;
+    *(s32 *)(p + 0x24) = 0;
+    *(s32 *)(p + 0x20) = 0;
+    *(s32 *)(p + 0x18) = 0;
+    *(s32 *)(p + 0x38) = 0;
+    *(s32 *)(p + 0x34) = 0;
+    *(s32 *)(p + 0x30) = 0;
+    *(s32 *)(p + 0xc) = *(s32 *)(p + 0xc) | 0x20003;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
