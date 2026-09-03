@@ -498,20 +498,12 @@ void func_00271860(void)
    0x1C into the base addiu where retail keeps it in the lw. CSE-of-mask
    floor. */
 
-// FUN_00271A40 NONMATCHING
-/* measured: nd18. retail keeps the par-load base in $a1 and reuses it for the
-   free-slot store at +0x180 (`addu $v0,$a1,$v0; addiu $s1,$v0,0x180` before).
-   Expressing the store as `par + ((u8)i - idx)*4` forces b210 to reuse the
-   live par temp (call-clobbered) so the address is computed before the jal
-   instead of re-materialising the base (nd67); the residual 18 is the subu
-   from the (u8)i-idx delta plus the par-load temp register names
-   ($a0/$v1 vs retail $v1/$a1). opt_common_subs off is required for the three
-   re-issued andi masks (retail andi $s2/$s1/$v0 from $s3). A measured
-   optimization_level 1 bracket (with and without opt_common_subs off) leaves
-   nd18 unchanged; the load-sinking family remains a floor. Committed at nd
-   18. */
-#ifdef NON_MATCHING
-#pragma opt_common_subs off
+/* measured: opt_propagation off, three differently spelled masks of the loop index (`i & 0xff`,
+   `(u32)i & 0xff`, `(u32)(u8)i`) so none is CSE'd with another (retail andi s2/s1/v0 from s3), and
+   the free-slot pointer computed into a saved local BEFORE func_00454bd0 (retail addiu s1 before
+   the jal); the table base stays in $a1 for both the par load and the slot address. */
+// FUN_00271A40
+#pragma opt_propagation off
 void func_00271a40(void)
 {
     s32 i;
@@ -520,13 +512,15 @@ void func_00271a40(void)
     u32 tmp;
     u8 *slot;
     u8 *par;
+    u32 *pslot;
+
     for (i = 0; i < 9; i++) {
         if (*(u32 *)((u8 *)DAT_00881630_abs + i * 0x20 + 0x1c) == 0)
             continue;
         mask = i & 0xff;
         if (mask >= 9)
             func_0046d740(D_0063BBB0, D_0063BAE8, 0x319);
-        idx = i & 0xff;
+        idx = (u32)i & 0xff;
         slot = (u8 *)DAT_00881630_abs + idx * 0x20;
         if (*(u32 *)(slot + 0x1c) == 0)
             func_0046d730(D_0063BAE8, 0x31D);
@@ -534,17 +528,15 @@ void func_00271a40(void)
         tmp = *(u32 *)(par + 0x180);
         if (tmp == 0)
             continue;
-        *(u32 *)(par + ((u8)i - idx) * 4 + 0x180) = 0;
-        func_00454bd0(tmp);
+        pslot = (u32 *)((u8 *)DAT_00881630_abs + (u32)(u8)i * 4 + 0x180);
+        func_00454bd0((u8 *)tmp);
+        *pslot = 0;
         func_00440b68(D_0063BBF0, mask);
         *(u32 *)slot = 0;
         *(u32 *)(slot + 0x1c) = 0;
     }
 }
-#pragma opt_common_subs on
-#else
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00271a40);
-#endif
+#pragma opt_propagation on
 
 // FUN_00271B70
 int func_00271b70(int param_1)
@@ -1502,6 +1494,7 @@ extern int func_00273970(int param_1);
 // FUN_002736D0
 /* measured: opens the optimization_level 1 scope for func_002736d0; the
    common-substitution setting is required for MATCH nd 0. */
+#pragma push
 #pragma optimization_level 1
 #pragma opt_common_subs on
 u8 *func_002736d0(u8 **arg0, s32 arg1)
@@ -1625,6 +1618,7 @@ loop32_check:
 /* measured: closes the optimization_level 1 scope; func_002736d0 remains
    MATCH nd 0, object 464/window 464 at the file's O2 baseline. */
 #pragma optimization_level 2
+#pragma pop
 
 
 
@@ -1878,6 +1872,7 @@ loop_test_30:
 #pragma pop
 // FUN_00273F70
 /* measured: full func_002736d0 recipe stack. */
+#pragma push
 #pragma optimization_level 1
 #pragma opt_common_subs on
 void func_00273f70(u8 *arg0)
@@ -1972,6 +1967,7 @@ return_point:
 }
 /* measured: close recipe stack. */
 #pragma optimization_level 2
+#pragma pop
 
 
 
