@@ -273,25 +273,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a1c40);
 // FUN_003A20E0
 INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a20e0);
 // FUN_003A2290
-// measured: b210 at -O2 leaves branch/jal delay slots unfilled and orders the
-// global-address load after the argument moves; schedule on reproduces retail order.
-#pragma optimization_level 3
+INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2290);
 // FUN_003A2340
-u8 *func_003a2340(s32 arg0, s32 arg1, s32 arg2)
-{
-    extern s32 func_003a20e0(s32 arg0);
-    extern u8 *func_003a2390(s32 arg0, s32 arg1, s32 arg2, u8 *arg3);
-    extern u8 D_00708460[];
-    s32 t;
-    u8 *r;
-
-    t = func_003a20e0(arg1);
-    r = func_003a2390(arg0, t, arg2, D_00708460);
-// measured: closing bracket for the schedule-on above; satisfies decomp_lint
-// P001 balance and restores the -O2 default for any following code.
-#pragma schedule off
-
-}
+INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2340);
 
 
 
