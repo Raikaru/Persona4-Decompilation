@@ -672,7 +672,59 @@ INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1020);
 // FUN_001B11C0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b11c0);
 // FUN_001B1280
-INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1280);
+void func_001b1280(s32 arg0)
+{
+    u8 *base;
+    u8 **scan;
+    u8 *obj;
+    u8 **start;
+    s32 key;
+    u32 i;
+    s32 count;
+    s32 reverse_count;
+    u32 j;
+
+    key = arg0 & 0xFFFF;
+    if (key != 1) {
+        return;
+    }
+    base = D_0076449C;
+    scan = (u8 **)(base + 0x29C);
+    for (count = 0, i = 0; i < 0xCU; i++) {
+        obj = *scan;
+        if (obj == NULL) {
+            break;
+        }
+        if ((*(u8 *)(*(u8 **)(obj + 0x30) + 0xA2) != key)) {
+            break;
+        }
+        count++;
+        scan++;
+    }
+    reverse_count = 2;
+    switch (count) {
+    case 5:
+        reverse_count = 2;
+        break;
+    case 4:
+        reverse_count = 2;
+        break;
+    case 3:
+        reverse_count = 1;
+        break;
+    case 2:
+        reverse_count = 1;
+        break;
+    case 1:
+    default:
+        return;
+    }
+    start = (u8 **)(base + (count - 1) * 4 + 0x29C);
+    for (j = 0; j < (u32)reverse_count; j++) {
+        func_001b0fa0(*start);
+        start--;
+    }
+}
 /* Best probe archived in build/F1B0_001b13c0_body.c: object 144B, retail window 144B, normalized_diff 33. */
 // FUN_001B13C0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b13c0);

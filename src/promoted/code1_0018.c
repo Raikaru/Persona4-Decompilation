@@ -990,7 +990,50 @@ INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
 // FUN_0018CED0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018ced0);
 // FUN_0018DDE0
-INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018dde0);
+s32 func_0018dde0(u8 *arg0)
+{
+    u8 *work;
+    s32 state;
+
+    work = *(u8 **)(arg0 + 0x38);
+    if ((*(s32 *)(work + 4) == 1))
+        return 0;
+    if (func_0029d2e0() > 0)
+        return 0;
+    state = *(s32 *)(work + 0);
+    switch (state) {
+    default:
+        break;
+    case 0:
+        *(s32 *)(work + 0xC) = D_0076428C;
+        *(s32 *)(work + 0) = *(s32 *)(work + 0) + 1;
+        /* fallthrough */
+    case 1:
+        if ((u32)(D_0076428C - *(s32 *)(work + 0xC)) > (u32)(*(s32 *)(work + 8))) {
+            /* measured: an s64 third parameter in a block-scope prototype makes
+               mwcc materialise iGpffffb278 into $a2 before the constant and $a1
+               (retail order); the callee reads a 32-bit value, lw sign-extends. */
+            {
+                extern s32 func_0029db50(s32, s32, s64, s32);
+                *(s32 *)(work + 0x10) = func_0029db50(0xF, iGpffffb27c, iGpffffb278, 0);
+            }
+            *(s32 *)(work + 0) = 2;
+            *(u32 *)(work + 8) = 0x384U;
+            *(s32 *)(work + 0xC) = D_0076428C;
+        }
+        break;
+    case 2:
+        if (func_00452490(*(s32 *)(work + 0x10)) == 1)
+            return 0;
+        *(s32 *)(work + 0x10) = 0;
+        *(s32 *)(work + 0xC) = D_0076428C;
+        *(s32 *)(work + 0) = 1;
+        break;
+    case 3:
+        return -1;
+    }
+    return 0;
+}
 // FUN_0018DF30
 void func_0018df30(u8 *arg0)
 {
