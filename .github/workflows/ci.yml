@@ -148,6 +148,7 @@ jobs:
           P4_PRIVATE_MWCC_PATH: ${{ vars.P4_PRIVATE_MWCC_PATH || 'mwccps2.exe' }}
           P4_PRIVATE_MWLD_PATH: ${{ vars.P4_PRIVATE_MWLD_PATH || 'mwldps2.exe' }}
           P4_PRIVATE_RETAIL_ELF_PATH: ${{ vars.P4_PRIVATE_RETAIL_ELF_PATH || 'SLUS_217.82' }}
+          P4_PRIVATE_MWCC_B119_PATH: ${{ vars.P4_PRIVATE_MWCC_B119_PATH || 'cw3.0.1b119/mwccps2.exe' }}
         run: |
           set -eu
           private_root="$RUNNER_TEMP/p4-private"
@@ -168,7 +169,7 @@ jobs:
           git clone --depth=1 \
             "https://x-access-token:${P4_PRIVATE_DEPS_TOKEN}@github.com/${P4_PRIVATE_DEPS_REPO}.git" \
             "$private_root"
-          for f in "$P4_PRIVATE_MWCC_PATH" "$P4_PRIVATE_MWLD_PATH" "$P4_PRIVATE_RETAIL_ELF_PATH"; do
+          for f in "$P4_PRIVATE_MWCC_PATH" "$P4_PRIVATE_MWLD_PATH" "$P4_PRIVATE_RETAIL_ELF_PATH" "$P4_PRIVATE_MWCC_B119_PATH"; do
             if [ ! -f "$private_root/$f" ]; then
               echo "::error::${P4_PRIVATE_DEPS_REPO} is readable but does not contain '$f'. Repo root holds: $(ls -A "$private_root" | tr '\n' ' ')"
               exit 1
@@ -178,6 +179,7 @@ jobs:
           echo "P4_PRIVATE_MWCC_PATH=$P4_PRIVATE_MWCC_PATH" >> "$GITHUB_ENV"
           echo "P4_PRIVATE_MWLD_PATH=$P4_PRIVATE_MWLD_PATH" >> "$GITHUB_ENV"
           echo "P4_PRIVATE_RETAIL_ELF_PATH=$P4_PRIVATE_RETAIL_ELF_PATH" >> "$GITHUB_ENV"
+          echo "P4_PRIVATE_MWCC_B119_PATH=$P4_PRIVATE_MWCC_B119_PATH" >> "$GITHUB_ENV"
 
       - name: Build Linux container
         run: docker build --tag p4-decomp-ci .
@@ -189,6 +191,7 @@ jobs:
             --mount "type=bind,src=$GITHUB_WORKSPACE,dst=/work" \
             --mount "type=bind,src=$P4_PRIVATE_ROOT,dst=/opt/p4,readonly" \
             --env "P4_MWCC_BINARY=/opt/p4/$P4_PRIVATE_MWCC_PATH" \
+            --env "P4_MWCC_CW3_0_1B119_BINARY=/opt/p4/$P4_PRIVATE_MWCC_B119_PATH" \
             --env "P4_MWLD_BINARY=/opt/p4/$P4_PRIVATE_MWLD_PATH" \
             --env "P4_RETAIL_ELF=/opt/p4/$P4_PRIVATE_RETAIL_ELF_PATH" \
             --workdir /work \

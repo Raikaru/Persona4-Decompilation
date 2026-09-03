@@ -1197,7 +1197,12 @@ The compiler is now carried per unit: `config/compiler_units.txt` maps a unit
 to a version key, `mwcc_versions` in the local verify/build config (or
 `P4_MWCC_<KEY>`) maps the key to a binary, and `verify.unit_compiler()` feeds
 both verify and build (cache keys include the binary). `code1_003c_cw119.c`
-is the first such unit. Two cautions from the measurements:
+is the first such unit. CI resolves the key through the container: the
+Dockerfile installs `/usr/local/bin/mwccps2-cw3.0.1b119.exe` (a wibo wrapper
+over `P4_MWCC_CW3_0_1B119_BINARY`, mounted from `cw3.0.1b119/mwccps2.exe` in
+the private dependencies repository) and exports `P4_MWCC_CW3_0_1B119` to it;
+a unit naming an unconfigured version fails verify outright rather than
+scoring against b210. Two cautions from the measurements:
 
 - **b119's prologue scheduling is unit-state dependent.** The same
   `func_003cb720` body is nd 0 when compiled inside the whole `code1_003c.c`

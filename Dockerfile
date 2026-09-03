@@ -25,6 +25,8 @@ ARG WIBO_VERSION=0.6.13
 
 ENV P4_MWCC=/usr/local/bin/mwccps2.exe \
     P4_MWCC_BINARY=/opt/p4/mwccps2.exe \
+    P4_MWCC_CW3_0_1B119=/usr/local/bin/mwccps2-cw3.0.1b119.exe \
+    P4_MWCC_CW3_0_1B119_BINARY=/opt/p4/cw3.0.1b119/mwccps2.exe \
     P4_MWLD_BINARY=/opt/p4/mwldps2.exe \
     P4_RETAIL_ELF=/opt/p4/SLUS_217.82 \
     P4_AS=/usr/local/bin/mipsel-linux-gnu-as \
@@ -62,6 +64,8 @@ RUN set -eux; \
 
 # wibo runs the supplied Win32 CodeWarrior executables on Linux.  The wrapper
 # names end in .exe intentionally: build.py derives mwldps2.exe from P4_MWCC.
+# The second compiler wrapper serves the units config/compiler_units.txt marks
+# `cw3.0.1b119` (tools/verify.py resolves that key through P4_MWCC_CW3_0_1B119).
 RUN set -eux; \
     wget -q -O /usr/local/bin/wibo \
       "https://github.com/decompals/wibo/releases/download/${WIBO_VERSION}/wibo"; \
@@ -70,9 +74,12 @@ RUN set -eux; \
       'exec /usr/local/bin/wibo "${P4_MWCC_BINARY:-/opt/p4/mwccps2.exe}" "$@"' \
       > /usr/local/bin/mwccps2.exe; \
     printf '%s\n' '#!/bin/sh' 'set -eu' \
+      'exec /usr/local/bin/wibo "${P4_MWCC_CW3_0_1B119_BINARY:-/opt/p4/cw3.0.1b119/mwccps2.exe}" "$@"' \
+      > /usr/local/bin/mwccps2-cw3.0.1b119.exe; \
+    printf '%s\n' '#!/bin/sh' 'set -eu' \
       'exec /usr/local/bin/wibo "${P4_MWLD_BINARY:-/opt/p4/mwldps2.exe}" "$@"' \
       > /usr/local/bin/mwldps2.exe; \
-    chmod 0755 /usr/local/bin/mwccps2.exe /usr/local/bin/mwldps2.exe
+    chmod 0755 /usr/local/bin/mwccps2.exe /usr/local/bin/mwccps2-cw3.0.1b119.exe /usr/local/bin/mwldps2.exe
 
 COPY requirements-python.txt /tmp/requirements-python.txt
 RUN python -m pip install --no-cache-dir --disable-pip-version-check \
