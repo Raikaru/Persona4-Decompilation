@@ -9,7 +9,12 @@
    z,x,y,w is required. Remaining residual (4 words in the w block): with `ww` named, b210 puts
    ww in f2 and the dot in f1 (retail: ww f1, dot f3); without `ww`, aw/by swap colours (aw f3,
    by f2). Retail also parks `mtc1 zero,f0; nop` between the cross-product loads and its mula
-   (b210 places it after that mula, no nop). AST permuter (41k compiles) bottomed at score 179. */
+   (b210 places it after that mula, no nop). AST permuter (41k compiles) bottomed at score 179.
+   Follow-up sweep (120 shapes: aw*bw vs bw*aw, all six dot term orders, a*b vs b*a, plain /
+   negated / named ww / named dot / both, zero kept alive by a trailing use): every shape
+   colours aw f3 / by f2 with the `+=` block; the retail aw f2 / by f3 colouring only appeared
+   with the `zero + out->x + p` block spelling (which emits add.s instead of adda). The
+   colouring is decided globally by the whole function's use pattern, not by the w block. */
 /* Re-measured 2026-09-02 (Main): NOT a COP1 floor. This body is instruction-for-instruction
    retail's sequence at the exact size (344B, retail window 352B = body + 2 nops); nd217 is
    FPR colouring only. Findings: retail has scheduling OFF (unfilled `clear f0; nop; mula`
