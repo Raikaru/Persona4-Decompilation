@@ -1842,25 +1842,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
 #pragma schedule off
 
 
-/* measured: nd 14 at the retail's 96B window (candidate obj 92B/window 96B).
-   Retail materializes the handlers directly as lui/addiu references to
-   func_003ca740 + 0, +0x40, and +0x60; it does not load them through a
-   function-pointer table. Direct-symbol C is nd 14; table-base/lw probes
-   scored nd 64 and nd 59 with object 88B. The remaining three words are the
-   order of `move $v0,$a0`, `addu $t0,$a0,$a3`, and the first store; all
-   returned-value, pointer/record-local, offset, and schedule variants remain
-   nd 14. Committed at nd 14. */
-
-/* measured: schedule-on reproduces the archived 92-byte candidate (nd 14);
-   the four residual words remain an order mismatch and the body is archived
-   in build/YCLS_003ca830_body.c. */
-/* func_003ca830 near-match archive: object 92 bytes, window 96 bytes, normalized_diff 14; differing offsets 24, 28, 32, 36. */
-/* measured: schedule on reproduces ca830's call and return delay slots. */
-#pragma schedule on
-// FUN_003CA830 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca830);
-/* measured: schedule off closes ca830's delay-slot bracket. */
-#pragma schedule off
 /* measured: schedule on preserves func_003ca890's callback delay slots. */
 // FUN_003CA890
 #pragma schedule on
@@ -2127,14 +2108,13 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-/* func_003cb720 archive re-probed (N3C lane, 2026-08-21): object 72B/window
-   80B, normalized_diff 6; see build/F3C0_003cb720_body.c. The residual is
-   retail's movz $s1,$zero,$v0 conditional move. Measured today: ternary,
-   opt_rebuildconditionals off, explicit gotos, -O3, and -O1 all reproduce
-   the same branch pair (b210 normalizes every conditional spelling); a
-   14-shape standalone matrix at -O0/-O1/-O2/-O3 never emitted movz, and
-   matched movz users elsewhere in retail are raw asm blocks. Confirmed
-   compiler floor. */
+/* func_003cb720: retail's movz $s1,$zero,$v0 is a 3.0.1 b74/b119/b151 idiom
+   (`return field ? arg0 : 0;`), never emitted by b198/b210 at any option
+   (measured 2026-09-03). Under b119 that body is byte-exact ONLY when compiled
+   inside this whole unit; in a fresh cw119 unit b119 hoists `move $a1,$a2`
+   above `sd $ra` (nd 9), and the trigger is unit state that neither pragmas,
+   placeholder asm, padding nor function count reproduce. Stays a fallback
+   until the b119 split of this unit is decided; see docs/matching.md. */
 // FUN_003CB720 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 // FUN_003CB770

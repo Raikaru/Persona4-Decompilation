@@ -316,3 +316,19 @@ class CanonicalMapTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CompilerUnitsTests(unittest.TestCase):
+    """config/compiler_units.txt names real units and well-formed keys."""
+
+    def test_compiler_units_point_at_existing_units(self) -> None:
+        sys.path.insert(0, str(REPO / "tools"))
+        import verify
+
+        units = verify.compiler_units()
+        self.assertTrue(units, "config/compiler_units.txt should list at least one unit")
+        for unit, key in units.items():
+            with self.subTest(unit=unit):
+                self.assertTrue((REPO / unit).is_file(), f"{unit} is not a file")
+                self.assertRegex(key, r"^[A-Za-z0-9][\w.\-]*$")
+                self.assertTrue(verify._version_env_name(key).startswith("P4_MWCC_"))

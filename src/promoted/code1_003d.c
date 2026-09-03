@@ -868,8 +868,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d81d0);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8300);
 // FUN_003D8500
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8500);
-// FUN_003D86A0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d86a0);
 // FUN_003D8760
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d8760);
 // FUN_003D8C00
@@ -1362,14 +1360,6 @@ void func_003de100(u8 *arg0) {
 #pragma tailcall off
 // FUN_003DE110
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de110);
-/* measured: NMX re-derivation. Archive build/L3DF_003de280_body.c (ptr-local
-   form) reproduces nd5 obj52/64 under a schedule-on bracket; direct-load
-   forms hit an nd22 wall across 13 probed spellings: b210 fills the beq
-   delay slot with the zero-path move and sinks the lw below the shifts.
-   Residual rows at offsets 12/16 are addiu v1,a0,0x58 + lw v1,0(v1)
-   versus retail nop + folded lw v0,0x58(a0). Committed bare INCLUDE_ASM. */
-// FUN_003DE280 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003de280);
 /* measured: scalar GP slot address and schedule on reproduce retail's
    addiu $v0,$gp,-0x54B0 in the jr delay slot. */
 // FUN_003DE2C0
@@ -1821,14 +1811,6 @@ s32 func_003df860(u8 *arg0) {
 #pragma schedule off
 
 
-/* measured: plain C emits retail's rd-form mult word for 003df870; the
-   remaining normalized_diff 8 is a scheduler residual. Retail keeps the
-   addu in the jr delay slot after lw/mult/lw, while MWCC's default C lowering
-   emits addu before jr; schedule-on reorders earlier loads and is worse.
-   Local-product, direct-expression, pointer, declaration, opt_propagation,
-   and optimization probes were ruled out. No inline asm or volatile. */
-// FUN_003DF870 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df870);
 // FUN_003DF890
 /* measured: schedule on places the load in the jr delay slot. */
 #pragma schedule on
@@ -1837,16 +1819,6 @@ s32 func_003df890(s32 *arg0) {
 }
 /* measured: schedule off closes the single-function bracket. */
 #pragma schedule off
-
-/* measured: plain C emits retail's rd-form mult word for 003df8a0; the
-   remaining normalized_diff 8 is a scheduler residual. Retail keeps the
-   addu in the jr delay slot after lw/lw/mult/lw, while MWCC's default C
-   lowering emits addu before jr; schedule-on and opt_serializeassignments
-   reorder the earlier loads and are worse. Local-product, direct-expression,
-   pointer, declaration, and optimization probes were ruled out. No inline
-   asm or volatile. */
-// FUN_003DF8A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df8a0);
 
 // FUN_003DF8C0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df8c0);
