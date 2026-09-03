@@ -288,3 +288,24 @@ u8 *func_003e3c20(u8 *arg0, s32 arg1) {
 }
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
+
+/* The archived b210 near miss carried 0x330404; retail loads 0x30404. Exact under b119 with schedule on. */
+// FUN_003E2F60
+#pragma schedule on
+s32 func_003e2f60(s32 arg0, s32 arg1, s32 arg2) {
+    extern u8 *(*D_008873F8[])(s32, s32, s32);
+    extern u8 *func_003e2800(u8 *, s32, s32, s32, s32);
+    s32 gp;
+    u8 *result;
+
+    gp = iGpffffb768;
+    result = D_008873F8[0](
+        *(s32 *)(D_008872E0 + gp), 0x30404, gp);
+    if (func_003e2800(result, 1, arg0, arg1, arg2) == NULL) {
+        jtbl_008873FC[0](
+            *(u8 **)(D_008872E0 + (s32)iGpffffb768), result);
+        result = NULL;
+    }
+    return (s32)result;
+}
+#pragma schedule off
