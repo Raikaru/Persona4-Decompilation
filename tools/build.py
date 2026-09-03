@@ -741,6 +741,16 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
         addrs.sort()
         if not object_layout_is_placeable(addrs):
             continue
+        # A verbatim RenderWare unit compiles every function in the source
+        # file, marked or not; code no marker owns cannot be placed, so the
+        # unit waits until each of its functions is claimed (or the unclaimed
+        # ones are guarded out).
+        marked_funcs = {m["name"] for m in real}
+        unowned = [s for s in obj.symbols
+                   if (s["info"] & 0xF) == 2 and s["size"] and s["name"] not in marked_funcs
+                   and s["shndx"] not in (0, 0xFFF1)]
+        if unowned:
+            continue
         data_ok, sections = plan_data_sections(obj, real, retail, gp, resolvable)
         if not data_ok:
             continue

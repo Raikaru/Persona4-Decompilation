@@ -1229,6 +1229,29 @@ plcore/core/p2/world/driver headers, a PS2 ostypes.h with 16-byte matrix
 alignment, and libc shims), reached through config/version_flags.txt for the
 b119 units. Lane rules: build/LANE_RULES.md, RenderWare section.
 
+**2026-09-04: the block's build flags are `-O4,p -inline auto -DRWBUILDNUMBER=55`,
+and the port is mostly automatic.** At `-O2` b119 inverts a plain `while` into a
+bottom-tested loop; retail's are top-tested, and `optimization_level 3`/`4` keep
+the verbatim source exact (batkbin.c was the probe). `-inline auto` reproduces
+the inlined same-unit callees (WriteDataChunks carries GetSize inline next to the
+out-of-line copy), and every chunk header is written with build 55 where the
+3.7.0.2 tree defaults to 101. `build/rw_fid.py` compiles the sources with those
+flags and fingerprints them against the block (relocation fields masked, equal
+length, strictly increasing addresses per source file): 360 byte-exact hits at
+`-O4,p` against 259 at `-O3,p` and 130 at `-O2,p`. `build/rw_port.py` turns a
+source file into a `src/renderware/<dir>/<file>.c` unit (verbatim text, markers
+for the mapped functions, statics to retail-addressed externs, aliases for
+unported callees) and keeps only what verifies; `build/rw_dedupe.py` then
+arbitrates the identical-body ties (every module's RegisterPluginStream /
+GetPluginOffset / Close) by requiring each file static to resolve to one address
+from its unique-window functions and every caller's retail `jal` to agree. Result
+of the first pass: 45 units, 291 functions, all verbatim. What did not verify is
+a short list (RwEngine subsystem getters the PS2 driver overrides, `,p`
+alignment shapes, texture/stream functions that changed between build 55 and
+build 101) and is worked by hand. `src/renderware/` is classified third-party
+like `src/rw/`: the block was never Atlus's code, so the first-party denominator
+shrinks as it is ported out of the promoted code1_003x units.
+
 - **b119's prologue scheduling is unit-state dependent.** The same
   `func_003cb720` body is nd 0 when compiled inside the whole `code1_003c.c`
   (b119 loses only 7 of that unit's 107 matches) but nd 9 in a fresh unit,

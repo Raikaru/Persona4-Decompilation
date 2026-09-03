@@ -8,7 +8,13 @@ a few attempts.
 
 ## Conditional moves (`movz` / `movn`)
 
-**No MWCCPS2 build emits a conditional move.** Established four independent
+**Superseded 2026-09-03.** The functions that need `movz`/`movn` are the
+RenderWare block, which retail built with MWCCPS2 3.0.1 **build 119**; that
+build (and b74, b151) emits a conditional move from a plain ternary, byte-exact.
+The block is now compiled with b119 per `config/compiler_units.txt`. The
+measurements below remain true for build 210 and for Atlus's own code.
+
+**No MWCCPS2 build 210 emits a conditional move.** Established four independent
 ways:
 
 1. b210 locally against six source shapes - `c ? v : 0`, `s = v; if (!c) s = 0;`,

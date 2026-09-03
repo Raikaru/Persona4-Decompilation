@@ -8,7 +8,6 @@ extern int func_003cc010(int);
 
 extern int func_003cc070(int);
 
-
 #pragma optimization_level 3
 
 // FUN_003D4D70
@@ -17,7 +16,6 @@ int func_003d4d70(void)
     return func_003cc0d0(0);
 }
 #pragma optimization_level 2
-
 
 #pragma optimization_level 3
 
@@ -51,7 +49,6 @@ int func_003d4e00(void)
     return func_003cc010(0);
 }
 #pragma optimization_level 2
-
 
 #pragma optimization_level 3
 

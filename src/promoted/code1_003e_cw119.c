@@ -9,15 +9,7 @@ extern s32 (*DAT_0088737c_abs[])(void);
 extern s32 func_003ec480(s32 arg0);
 
 /* `movz $s0,$zero,$v0` is the b119 lowering of `call() ? arg0 : 0`. */
-// FUN_003E82A0
 #pragma schedule on
-u8 *func_003e82a0(u8 *arg0) {
-    return DAT_0088737c_abs[0]() ? arg0 : NULL;
-}
-// FUN_003E82E0
-u8 *func_003e82e0(u8 *arg0) {
-    return func_003ec480(*(s32 *)(arg0 + 0x60)) ? arg0 : NULL;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
@@ -118,25 +110,8 @@ extern s32 (*D_00887394[])(s32, Callback6770, u32);
 extern s32 func_003deff0(s32, s32, s32, s32, s32);
 extern u8 *func_003e33f0(u8 *, s32, Callback6770);
 /* The archived nd 18 residual (b210) is gone under b119. */
-// FUN_003E3830
 #pragma schedule on
-s32 func_003e3830(u8 *arg0, s32 arg1) {
-    u8 *node;
-    node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-    loop:
-        if (*(s32 *)(node + 8) == arg1) {
-            return *(s32 *)(node + 0);
-        }
-        node = *(u8 **)(node + 0x30);
-        if (node == NULL) {
-            goto done;
-        }
-        goto loop;
-    }
-done:
-    return -1;
-}
+extern s32 func_003e3830(u8 *arg0, s32 arg1); /* P4: ported verbatim into src/renderware */
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
@@ -197,128 +172,28 @@ extern void func_00442948();
 extern void func_00443f18();
 extern void func_00442100();
 /* Archived b210 near-miss (P3E3_003e3c20); exact under b119 with schedule on. */
-// FUN_003E3C20
 #pragma schedule on
-u8 *func_003e3c20(u8 *arg0, s32 arg1) {
-    u8 *node = *(u8 **)(arg0 + 0x14);
-    if (node) {
-        do {
-            ((void (*)(s32, s32, s32))(*(s32 *)(node + 0x24)))(
-                arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
-            node = *(u8 **)(node + 0x34);
-        } while (node);
-    }
-    return arg0;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
 /* The archived b210 near miss carried 0x330404; retail loads 0x30404. Exact under b119 with schedule on. */
-// FUN_003E2F60
 #pragma schedule on
-s32 func_003e2f60(s32 arg0, s32 arg1, s32 arg2) {
-    extern u8 *(*D_008873F8[])(s32, s32, s32);
-    extern u8 *func_003e2800(u8 *, s32, s32, s32, s32);
-    s32 gp;
-    u8 *result;
-
-    gp = iGpffffb788;
-    result = D_008873F8[0](
-        *(s32 *)(D_008872E0 + gp), 0x30404, gp);
-    if (func_003e2800(result, 1, arg0, arg1, arg2) == NULL) {
-        jtbl_008873FC[0](
-            *(u8 **)(D_008872E0 + (s32)iGpffffb788), result);
-        result = NULL;
-    }
-    return (s32)result;
-}
+/* measured: schedule bracket retained around a function ported into src/renderware. */
 #pragma schedule off
 
-// FUN_003E0F80
 #pragma schedule on
-void func_003e0f80(void) {
-    extern u8 *(*D_008873F8[])(s32, s32);
-    u8 *p;
-
-    p = D_008873F8[0](*(s32 *)(D_008872E0 + iGpffffb768), 0x3000d);
-    if (p == NULL) {
-        return;
-    }
-    *(s32 *)(p + 0xc) = 3;
-    *(s32 *)(p + 0x28) = 0x3F800000;
-    *(s32 *)(p + 0x14) = 0x3F800000;
-    *(s32 *)(p + 0x0) = 0x3F800000;
-    *(s32 *)(p + 0x10) = 0;
-    *(s32 *)(p + 0x8) = 0;
-    *(s32 *)(p + 0x4) = 0;
-    *(s32 *)(p + 0x24) = 0;
-    *(s32 *)(p + 0x20) = 0;
-    *(s32 *)(p + 0x18) = 0;
-    *(s32 *)(p + 0x38) = 0;
-    *(s32 *)(p + 0x34) = 0;
-    *(s32 *)(p + 0x30) = 0;
-    *(s32 *)(p + 0xc) = *(s32 *)(p + 0xc) | 0x20003;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-// FUN_003E47C0
 #pragma schedule on
-s32 func_003e47c0(s8 *arg0, s8 *arg1) {
-    s8 c1;
-    s8 c2;
-
-    if ((arg0 != NULL) && (arg1 != NULL)) {
-        do {
-            c1 = *arg0;
-            c2 = *arg1;
-            if ((c1 >= 'A') && (c1 <= 'Z')) {
-                c1 += 0x20;
-            }
-            if ((c2 >= 'A') && (c2 <= 'Z')) {
-                c2 += 0x20;
-            }
-            if (c1 != c2) {
-                return (s32)(c1 - c2);
-            }
-            arg0++;
-            arg1++;
-        } while (c1 && c2);
-        if (c1 != c2) {
-            return (s32)(c1 - c2);
-        }
-    }
-    return 0;
-}
+extern s32 func_003e47c0(s8 *arg0, s8 *arg1); /* P4: ported verbatim into src/renderware */
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-// FUN_003E01E0
 #pragma schedule on
-f32 func_003e01e0(u8 *arg0) {
-    f32 *m = (f32 *)arg0;
-    f32 row0 = m[0] * m[0] + m[1] * m[1] + m[2] * m[2] - 1.0f;
-    f32 row1 = m[4] * m[4] + m[5] * m[5] + m[6] * m[6] - 1.0f;
-    f32 row2 = m[8] * m[8] + m[9] * m[9] + m[10] * m[10] - 1.0f;
-    return row0 * row0 + row1 * row1 + row2 * row2;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-// FUN_003E23E0
 #pragma schedule on
-s32 func_003e23e0(void) {
-    u8 *base = D_008872E0 + iGpffffb780;
-    s32 result = *(s32 *)(base + 8);
-    u8 *head = *(u8 **)(base + 0x24);
-    u8 *node = *(u8 **)head;
-    if (node != head) {
-        do {
-            result += *(s32 *)(node + 8);
-            node = *(u8 **)node;
-        } while (node != head);
-    }
-    return result;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off

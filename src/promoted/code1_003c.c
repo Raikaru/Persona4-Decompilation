@@ -121,12 +121,10 @@ extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern s32 D_007647CC;
 extern s32 D_007647C8;
 
-
 extern s32 D_007647BC;
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final store (nd 15 -> 0). */
-
 
 /* func_003c0050 archive: current body is object 136B/window 144B,
    normalized_diff 35; differing offsets 38-46,54,84,94,98,100-105.
@@ -181,86 +179,6 @@ s32 func_003c02e0(u8 *arg0) {
    callback delays and plain null branches. */
 #pragma schedule on
 #pragma no_branch_likely on
-// FUN_003C03A0
-u8 *func_003c03a0(u8 *arg0) {
-    extern u8 *func_003c00e0(void);
-    extern u8 *func_003c1b90(u8 *arg0, u8 *arg1);
-    extern void func_003c2a60(u8 *arg0);
-    extern void func_003c2a80(u8 *arg0);
-    extern s32 func_003cbce0(s32 arg0);
-    extern void func_003e3c90(u8 *arg0, u8 *arg1, u8 *arg2);
-    s32 temp_18_2;
-    u8 *temp_18;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_4;
-    f32 f3;
-    f32 f2;
-    f32 f1;
-    f32 f0;
-
-    temp_2 = func_003c00e0();
-    if (temp_2 != NULL) {
-        *(u8 *)(temp_2 + 0) = *(u8 *)(arg0 + 0);
-        *(u8 *)(temp_2 + 1) = *(u8 *)(arg0 + 1);
-        *(u8 *)(temp_2 + 2) = *(u8 *)(arg0 + 2);
-        *(u8 *)(temp_2 + 3) = *(u8 *)(arg0 + 3);
-        *(s32 *)(temp_2 + 4) = 0;
-        *(u8 *)(temp_2 + 2) = *(u8 *)(arg0 + 2);
-        func_003c1b90(temp_2, NULL);
-        temp_18 = *(u8 **)(arg0 + 0x18);
-        if (temp_18 != *(u8 **)(temp_2 + 0x18)) {
-            if (temp_18 != NULL) {
-                func_003c2a60(temp_18);
-            }
-            temp_4 = *(u8 **)(temp_2 + 0x18);
-            if (temp_4 != NULL) {
-                func_003c2a80(temp_4);
-            }
-            *(u8 **)(temp_2 + 0x18) = temp_18;
-            if (temp_18 != NULL) {
-                temp_2_2 = *(u8 **)(temp_18 + 0x5C);
-                f3 = *(f32 *)(temp_2_2 + 4);
-                f2 = *(f32 *)(temp_2_2 + 8);
-                f1 = *(f32 *)(temp_2_2 + 0xC);
-                f0 = *(f32 *)(temp_2_2 + 0x10);
-                *(f32 *)(temp_2 + 0x1C) = f3;
-                *(f32 *)(temp_2 + 0x20) = f2;
-                *(f32 *)(temp_2 + 0x24) = f1;
-                *(f32 *)(temp_2 + 0x28) = f0;
-            }
-            temp_18_2 = *(s32 *)(temp_2 + 4);
-            if (temp_18_2 != 0) {
-                if (func_003cbce0((s32)temp_2) != 0) {
-                    func_003e9680((u8 *)temp_18_2);
-                }
-            }
-        }
-        f3 = *(f32 *)(arg0 + 0x1C);
-        f2 = *(f32 *)(arg0 + 0x20);
-        f1 = *(f32 *)(arg0 + 0x24);
-        f0 = *(f32 *)(arg0 + 0x28);
-        *(f32 *)(temp_2 + 0x1C) = f3;
-        *(f32 *)(temp_2 + 0x20) = f2;
-        *(f32 *)(temp_2 + 0x24) = f1;
-        *(f32 *)(temp_2 + 0x28) = f0;
-        *(s32 *)(temp_2 + 0x48) = *(s32 *)(arg0 + 0x48);
-        *(s32 *)(temp_2 + 0x6C) = *(s32 *)(arg0 + 0x6C);
-        f3 = *(f32 *)(arg0 + 0x4C);
-        f2 = *(f32 *)(arg0 + 0x50);
-        f1 = *(f32 *)(arg0 + 0x54);
-        f0 = *(f32 *)(arg0 + 0x58);
-        *(f32 *)(temp_2 + 0x4C) = f3;
-        *(f32 *)(temp_2 + 0x50) = f2;
-        *(f32 *)(temp_2 + 0x54) = f1;
-        *(f32 *)(temp_2 + 0x58) = f0;
-        f0 = *(f32 *)(arg0 + 0x5C);
-        *(f32 *)(temp_2 + 0x5C) = f0;
-        func_003e3c90(D_0070AF70, temp_2, arg0);
-        return temp_2;
-    }
-    return NULL;
-}
 /* measured: no_branch_likely off closes object-copy branch probe. */
 #pragma no_branch_likely off
 /* measured: schedule off closes object-copy callback delays. */
@@ -314,25 +232,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c0700);
 #pragma schedule off
 /* measured: schedule on probes retail's load/store order for the linked node. */
 #pragma schedule on
-// FUN_003C0850
-u8 *func_003c0850(u8 *arg0, u8 *arg1) {
-    u8 *result;
-    u8 *next;
-    u8 *link;
-    u8 *temp_6;
-
-    result = arg0;
-    next = *(u8 **)(arg0 + 8);
-    link = arg0 + 8;
-    temp_6 = arg1 + 0x40;
-    *(u8 **)(arg1 + 0x40) = next;
-    *(u8 **)(arg1 + 0x44) = link;
-    next = *(u8 **)(arg0 + 8);
-    *(u8 **)(next + 4) = temp_6;
-    *(u8 **)(arg0 + 8) = temp_6;
-    *(u8 **)(arg1 + 0x3C) = arg0;
-    return result;
-}
 /* measured: schedule off closes the linked-node order probe. */
 #pragma schedule off
 /* measured: schedule on places the linked-list clear in the jr delay slot. */
@@ -359,38 +258,10 @@ s32 func_003c0880(s32 arg0, s32 arg1) {
 #pragma schedule off
 /* measured: schedule on places the linked-list clear in the jr delay slot. */
 #pragma schedule on
-// FUN_003C08C0
-s32 func_003c08c0(s32 arg0, s32 arg1) {
-    u8 *temp;
-    u8 *next;
-    u8 *prev;
-
-    temp = (u8 *)(arg1 + iGpffffb6b0);
-    next = *(u8 **)(temp + 4);
-    prev = *(u8 **)(temp + 8);
-    *(u8 **)(prev + 0) = next;
-    next = *(u8 **)(temp + 8);
-    prev = *(u8 **)(temp + 4);
-    *(u8 **)(prev + 4) = next;
-    *(s32 *)(temp + 8) = 0;
-    *(s32 *)(temp + 4) = 0;
-    *(s32 *)(temp + 0) = 0;
-    return arg0;
-}
 /* measured: schedule off closes the linked-list clear probe. */
 #pragma schedule off
 /* measured: schedule on probes the two-call saved-register order. */
 #pragma schedule on
-// FUN_003C0900
-s32 func_003c0900(u8 *arg0) {
-    s32 total;
-    u8 *self;
-
-    total = 0x1C;
-    self = arg0;
-    total += func_003c2c90(*(u8 **)(arg0 + 0x18)) + 0xC;
-    return total + (func_003e3370(D_0070AF70, self) + 0xC);
-}
 /* measured: schedule off closes the two-call saved-register probe. */
 #pragma schedule off
 // FUN_003C0960
@@ -509,14 +380,9 @@ s32 func_003c1c70(u8 *arg0) {
 #pragma no_branch_likely off
 /* measured: schedule off closes the saved-self callback probe. */
 #pragma schedule off
-// FUN_003C1D00
 /* measured: schedule places the increment store in the return delay slot. */
 #pragma schedule on
-s32 func_003c1d00(s32 arg0, s32 arg1) {
-    iGpffffb6c8 = arg1;
-    iGpffffb6cc += 1;
-    return arg0;
-}
+extern s32 func_003c1d00(s32 arg0, s32 arg1); /* P4: ported verbatim into src/renderware */
 #pragma schedule off
 // FUN_003C1D20
 #pragma schedule on
@@ -528,7 +394,6 @@ s32 func_003c1d20(s32 arg0) {
 // baseline for the rest of the file.
 #pragma schedule off
 
-
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final store (nd 13 -> 0). */
 
@@ -536,18 +401,10 @@ s32 func_003c1d20(s32 arg0) {
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1d40);
 // FUN_003C1EA0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c1ea0);
-// FUN_003C2130
 #pragma schedule on
-s32 func_003c2130(s32 arg0, u8 *arg1, s16 arg2, s16 arg3, s16 arg4) {
-    ((s16 *)arg1)[0] = arg2;
-    ((s16 *)arg1)[1] = arg3;
-    ((s16 *)arg1)[2] = arg4;
-    return arg0;
-}
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
-
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop) and colors the halfword scratch $v0; retail fills the slot
@@ -561,33 +418,6 @@ s32 func_003c2130(s32 arg0, u8 *arg1, s16 arg2, s16 arg3, s16 arg4) {
    arguments, plain sign branches, and shared store/return path. */
 #pragma schedule on
 #pragma no_branch_likely on
-// FUN_003C2150
-s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2) {
-    s32 result;
-    u16 value;
-
-    if (arg2 == 0) {
-        goto noarg;
-    }
-    result = func_003c4bc0(arg0 + 0x20, arg2);
-    if (result < 0) {
-        goto fallback;
-    }
-store:
-    *(s16 *)(arg1 + 6) = result;
-return_path:
-    return (s32)arg0;
-fallback:
-    result = func_003c4a80(arg0 + 0x20, arg2);
-    if (result >= 0) {
-        goto store;
-    }
-    return 0;
-noarg:
-    value = 0xFFFFu;
-    *(u16 *)(arg1 + 6) = value;
-    goto return_path;
-}
 /* measured: no_branch_likely off closes the signed-result branch probe. */
 #pragma no_branch_likely off
 /* measured: schedule off closes the saved-arguments probe. */
@@ -597,8 +427,6 @@ noarg:
    initial/loop branch polarity and trampoline layout; direct comparisons,
    named booleans, declaration orders, explicit gotos, >=1, schedule, and
    no_branch_likely probes were ruled out. */
-// FUN_003C21E0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c21e0);
 // FUN_003C2290
 #pragma schedule on
 #pragma no_branch_likely on
@@ -629,16 +457,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c22f0);
 
 // FUN_003C2630
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2630);
-// FUN_003C2A60
 #pragma schedule on
-u8 *func_003c2a60(u8 *arg0) {
-    ((s16 *)arg0)[7] = (s16)(((s16 *)arg0)[7] + 1);
-    return arg0;
-}
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
-
 
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop); retail fills it with the final store (nd 11 -> 0). */
@@ -666,25 +488,16 @@ s32 func_003c2ba0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 #pragma schedule off
 // FUN_003C2BD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2bd0);
-// FUN_003C2C90
 /* measured: schedule on fills the four jal/jr delay slots; without it the
    object is 104 bytes against a 96-byte window (nd 58). */
 #pragma schedule on
-s32 func_003c2c90(u8 *arg0) {
-    s32 total;
-
-    total = func_003c2bd0(arg0) + 0xC;
-    total += func_003c4c00(arg0 + 0x20) + 0xC;
-    return total + (func_003e3370(D_0070AFB0, arg0) + 0xC);
-}
+extern s32 func_003c2c90(u8 *arg0); /* P4: ported verbatim into src/renderware */
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
 
 // FUN_003C2CF0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c2cf0);
-// FUN_003C30B0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c30b0);
 // FUN_003C3890
 /* measured: tailcall on reproduces the direct helper jump. */
 #pragma tailcall on
@@ -693,7 +506,6 @@ s32 func_003c3890(u8 *arg0) {
 }
 /* measured: tailcall off closes this function's bracket. */
 #pragma tailcall off
-// FUN_003C38B0
 /* The four floats are copied as one Vec4f assignment because retail loads all
    four before storing any; per-field assignments interleave lwc1/swc1 (nd 8).
    The result blocks are reached by goto so the zero case lands before the
@@ -701,22 +513,7 @@ s32 func_003c3890(u8 *arg0) {
    on are needed for the delay slots and the plain bc1t/bc1f (nd 53 -> 17). */
 #pragma schedule on
 #pragma no_branch_likely on
-u8 *func_003c38b0(u8 *arg0, Vec4f *arg1) {
-    *(Vec4f *)(arg0 + 0x18) = *arg1;
-    if (*(f32 *)(arg0 + 0x18) == *(f32 *)(arg0 + 0x1C)) {
-        goto chk;
-    }
-zero:
-    arg0[3] = 0;
-out:
-    return arg0;
-chk:
-    if (*(f32 *)(arg0 + 0x18) != *(f32 *)(arg0 + 0x20)) {
-        goto zero;
-    }
-    arg0[3] = 1;
-    goto out;
-}
+extern u8 *func_003c38b0(u8 *arg0, Vec4f *arg1); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
 /* measured: closes the bracket noted above func_003c38b0's marker. */
 #pragma schedule off
@@ -869,27 +666,9 @@ s32 func_003c3e90(s32 arg0, s32 arg1)
 #pragma schedule off
 /* measured: schedule on and no_branch_likely on are required for the retail
    jal/jr delay slots and plain branch forms of func_003c3f20. */
-// FUN_003C3F20
 #pragma schedule on
 #pragma no_branch_likely on
-s32 func_003c3f20(s32 arg0, s32 arg1)
-{
-    if (func_003df360(arg0, &D_007647CC, 4) == 0) {
-        goto ret0;
-    }
-    if (arg1 == 8) {
-        goto do2;
-    }
-retarg:
-    return arg0;
-ret0:
-    return 0;
-do2:
-    if (func_003df360(arg0, &D_007647C8, 4) != 0) {
-        goto retarg;
-    }
-    return 0;
-}
+extern s32 func_003c3f20(s32 arg0, s32 arg1); /* P4: ported verbatim into src/renderware */
 /* measured: closes the branch and schedule pragmas above at the file baseline. */
 #pragma no_branch_likely off
 #pragma schedule off
@@ -899,47 +678,12 @@ do2:
 /* measured: best retained body object 112B/window 112B, normalized_diff 48;
    differing offsets 4, 6, 7, 8, 10, 11, 12, 14, 16, 17, 18, 19, 20, 21, 22.
    The three-argument helper declaration is corrected in the archived body. */
-// FUN_003C3FA0 NONMATCHING
-#ifdef NON_MATCHING
-extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
-s32 func_003c3fa0(s32 arg0, s32 unused, u8 *arg2) {
-    s32 result;
 
-    result = arg0;
-    if (func_003df240(arg0, *(s32 *)(arg2 + 8) + 0x2C, 4) == 0)
-        goto retzero;
-    goto second;
-retzero:
-    return 0;
-second:
-    if (func_003df240(arg0, *(s32 *)(arg2 + 8) + 0x30, 4) == 0)
-        result = 0;
-    return result;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c3fa0);
-#endif
-
-// FUN_003C4010
 /* measured: schedule places the successful result in the branch delay slot. */
 #pragma schedule on
 /* measured: no_branch_likely keeps both null checks as ordinary branches. */
 #pragma no_branch_likely on
-s32 func_003c4010(u8 *arg0) {
-    u8 *p;
-    s32 result;
-    p = *(u8 **)(arg0 + 8);
-    if (p == NULL)
-        goto zero;
-    if (*(s32 *)(p + 0x2C) == 0)
-        goto zero;
-    result = 8;
-    goto done;
-zero:
-    result = 0;
-done:
-    return result;
-}
+extern s32 func_003c4010(u8 *arg0); /* P4: ported verbatim into src/renderware */
 /* measured: no_branch_likely off closes this function's bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
@@ -1010,21 +754,11 @@ u8 *func_003c40d0(u8 *arg0) {
    further probes. */
 // FUN_003C4220 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4220);
-// FUN_003C42B0
 /* measured: schedule on fills the branch and jr delay slots (nd 53 -> 4) and
    no_branch_likely on stops b210 emitting beql on the two null tests. */
 #pragma schedule on
 #pragma no_branch_likely on
-u8 *func_003c42b0(u8 **arg0, u8 *arg1) {
-    if (arg1 != NULL) {
-        *(s32 *)(arg1 + 0x54) += 1;
-    }
-    if (*arg0 != NULL) {
-        func_003ef3a0(*arg0);
-    }
-    *arg0 = arg1;
-    return (u8 *)arg0;
-}
+extern u8 *func_003c42b0(u8 **arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 /* measured: closes the no_branch_likely bracket for func_003c42b0. */
 #pragma no_branch_likely off
 /* measured: closes the schedule bracket for func_003c42b0; explicit opposite state restores the file default. */
@@ -1085,11 +819,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4390);
 // FUN_003C47C0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c47c0);
 
-
-
-
-
-
 // FUN_003C4820
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
 
@@ -1099,29 +828,17 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4820);
    and schedule probes were ruled out; see build/K3C1_003c49a0_body.c. */
 // FUN_003C49A0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c49a0);
-// FUN_003C4A40
 #pragma schedule on
-u8 *func_003c4a40(u8 *arg0) {
-    ((s32 *)arg0)[2] = 0;
-    ((s32 *)arg0)[0] = 0;
-    ((s32 *)arg0)[1] = 0;
-    return arg0;
-}
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
-
 
 extern s32 D_007647EC;
 
 /* measured: the indexed table accessor is reproduced by a direct scaled
    pointer load; schedule on places its final load in the jr delay slot. */
 
-// FUN_003C4A60
 /* measured: schedule on places the final indexed load in the jr delay slot. */
 #pragma schedule on
-s32 func_003c4a60(s32 *arg0, s32 arg1) {
-    return ((s32 *)*arg0)[arg1];
-}
 /* measured: schedule off closes the single-function bracket. */
 #pragma schedule off
 
@@ -1134,13 +851,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4a80);
    out-of-line guard/goto labels and a separated epilogue label preserve nd 8;
    residual remains branch-target/epilogue layout. See
    build/F3C0_003c4bc0_body.c for the near-match and ruled-out probes. */
-// FUN_003C4BC0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4bc0);
-// FUN_003C4C00
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4c00);
-
-// FUN_003C4CF0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4cf0);
 
 // FUN_003C4FA0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c4fa0);
@@ -1156,18 +866,7 @@ void func_003c54a0(u8 *arg0) {
    the conditional teardown call. */
 #pragma schedule on
 #pragma no_branch_likely on
-// FUN_003C54C0
-u8 *func_003c54c0(u8 *arg0) {
-    iGpffffb6f4 -= 1;
-    if (iGpffffb6f4 != 0)
-        goto done;
-    if (iGpffffb6e8 == NULL)
-        goto done;
-    func_003e12f0(iGpffffb6e8);
-    iGpffffb6e8 = NULL;
-done:
-    return arg0;
-}
+extern u8 *func_003c54c0(u8 *arg0); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
 #pragma schedule off
 
@@ -1233,18 +932,9 @@ call:
 // FUN_003C57D0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c57d0);
 
-// FUN_003C5A90
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5a90);
-
 // FUN_003C5D10
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5d10);
 
-/* func_003c5fd0 archive: current body is object 136B/window 144B,
-   normalized_diff 93; differing offsets 2,8,10,20,22-124 (31 differing
-   words). The stale nd 88 switch reconstruction has a large control-flow
-   order residual; restored fallback without further probes. */
-// FUN_003C5FD0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c5fd0);
 // FUN_003C6060
 /* measured: a returned old value selects retail v0/v1 coloring. */
 #pragma schedule on
@@ -1281,14 +971,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c67b0);
 /* measured: c6960 archive in build/F3C0_003c6960_body.c; object 232B/window
    224B, normalized_diff 150; in-place key normalization and nested pair-check
    forms were ruled out after an object-over-window result. */
-// FUN_003C6960
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6960);
-
-// FUN_003C6A40
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6a40);
-
-// FUN_003C6C10
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c6c10);
 
 // FUN_003C70E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c70e0);
@@ -1318,8 +1000,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8920);
    object 148B/window 176B, normalized_diff 97. The residual is saved-register
    coloring and dispatch materialization; all direct/local callback declaration
    orders were ruled out. */
-// FUN_003C8BF0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8bf0);
 // FUN_003C8CA0
 #pragma schedule on
 s32 func_003c8ca0(s32 arg0) {
@@ -1328,7 +1008,6 @@ s32 func_003c8ca0(s32 arg0) {
 }
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
-
 
 void func_003cc460();
 void func_003d4e00();
@@ -1362,13 +1041,10 @@ s32 func_003c8d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 }
 #pragma tailcall off
 #pragma schedule off
-// FUN_003C8D30
 /* measured: schedule and tailcall reproduce the five-argument shared-helper jump. */
 #pragma schedule on
 #pragma tailcall on
-s32 func_003c8d30(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    return func_003e3020(D_0070B040, arg0, arg1, arg2, arg3);
-}
+extern s32 func_003c8d30(s32 arg0, s32 arg1, s32 arg2, s32 arg3); /* P4: ported verbatim into src/renderware */
 #pragma tailcall off
 /* measured: closes the schedule bracket for func_003c8d30; explicit opposite state restores the file default. */
 #pragma schedule off
@@ -1396,19 +1072,11 @@ s32 func_003c8d80(s32 arg0, s32 arg1) {
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
 #pragma schedule off
-// FUN_003C8DA0
 /* measured: schedule fills the branch and return delay slots. */
 #pragma schedule on
 /* measured: no_branch_likely keeps the equality test as an ordinary branch. */
 #pragma no_branch_likely on
-s32 func_003c8da0(s32 arg0, u8 *arg1) {
-    if (*(s32 *)arg1 == arg0)
-        goto equal;
-    return arg0;
-equal:
-    *(s32 *)(arg1 + 4) = 1;
-    return 0;
-}
+extern s32 func_003c8da0(s32 arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 #pragma no_branch_likely off
 #pragma schedule off
 /* measured: archived stamp-local candidate object 232B/window 224B,
@@ -1421,8 +1089,6 @@ equal:
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8dd0);
 // FUN_003C8EB0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c8eb0);
-// FUN_003C91D0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c91d0);
 // FUN_003C9300
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9300);
 // FUN_003C9530
@@ -1483,38 +1149,10 @@ check:
 finish:
     return 1;
 }
-// FUN_003C9750
 /* measured: exact match at object 132B/window 144B, normalized_diff 0. The
    surrounding file state is already schedule/no_branch_likely on, so this
    function needs no bracket of its own; adding one closed the outer bracket
    early and regressed func_003c99f0. */
-u8 *func_003c9750(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
-    u8 *end;
-    u8 *node;
-    u8 *next;
-    s32 value;
-
-    node = *(u8 **)(arg0 + 0x40);
-    end = arg0 + 0x40;
-    if (node != end) {
-        do {
-            next = *(u8 **)node;
-            value = *(s32 *)(node + 8);
-            if ((value != 0) && (arg1(value, arg2) == 0))
-                return arg0;
-            node = next;
-        } while (node != end);
-    }
-    return arg0;
-}
-
-
-// FUN_003C97E0
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
-
-
-
-
 
 /* measured: schedule fills the key-test and found-exit delay slots. */
 #pragma schedule on
@@ -1554,51 +1192,6 @@ done:
 /* measured: schedule-on candidate (nd 19) is archived in
    build/YCLS_003c9a80_body.c; branch-target/tail displacement remains a
    compiler residual after the ruled-out loop and label-order forms. */
-// FUN_003C9A80 NONMATCHING
-#ifdef NON_MATCHING
-u8 *func_003c9a80(u8 *arg0) {
-    u8 *stack[64];
-    u8 *self;
-    u8 *current;
-    s32 depth;
-    s32 value;
-    u8 *temp;
-
-    self = arg0;
-    current = *(u8 **)(self + 0x1C);
-    depth = 0;
-    if (current == NULL)
-        goto done_null;
-loop:
-    if (*(s32 *)current < 0)
-        goto negative;
-    value = *(s32 *)(current + 0xC);
-    depth += 1;
-    current = *(u8 **)(current + 8);
-    stack[depth] = (u8 *)value;
-check:
-    if (depth >= 0)
-        goto loop;
-    goto done_self;
-done_self:
-    return self;
-done_null:
-    return NULL;
-negative:
-    temp = *(u8 **)(current + 0x78);
-    if (temp != NULL) {
-        func_003c5760(temp);
-        *(u8 **)(current + 0x78) = NULL;
-    }
-    current = stack[depth];
-    depth -= 1;
-    goto check;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9a80);
-#endif
-// FUN_003C9B30
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9b30);
 #pragma schedule on
 #pragma no_branch_likely on
 // FUN_003C9C20
@@ -1662,21 +1255,10 @@ s32 func_003c9d00(u8 *arg0) {
 // FUN_003C9D40
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9d40);
 
-// FUN_003C9E80
 /* measured: schedule places store and callback-address materialization in retail delay slots. */
 #pragma schedule on
 /* measured: no_branch_likely keeps the null callback test as retail beqz. */
 #pragma no_branch_likely on
-u8 *func_003c9e80(u8 *arg0, u8 *(*arg1)(u8 *)) {
-    if (arg1 == NULL)
-        goto default_callback;
-store:
-    *(u8 **)(arg0 + 0x68) = (u8 *)arg1;
-    return arg0;
-default_callback:
-    arg1 = func_003c9640;
-    goto store;
-}
 /* measured: no_branch_likely off closes this function's bracket. */
 #pragma no_branch_likely off
 /* measured: schedule off closes this function's bracket. */
@@ -1690,8 +1272,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9eb0);
    initial/loop branch polarity and trampoline layout; declaration order,
    schedule, no_branch_likely, direct comparisons, and boolean/trampoline
    variants were ruled out. */
-// FUN_003CA270
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca270);
 /* func_003ca320 archive: current body is object 168B/window 176B,
    normalized_diff 28; differing offsets 104,107,112-126. The residual is
    callback branch polarity/layout and continuation/epilogue displacement.
@@ -1808,21 +1388,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003ca740);
    opposite state restores this unit's `schedule off` file default. */
 #pragma schedule off
 
-
 /* measured: schedule on preserves func_003ca890's callback delay slots. */
-// FUN_003CA890
 #pragma schedule on
-u8 *func_003ca890(u8 *arg0, u8 *arg1) {
-    u8 *node = arg1 + iGpffffb708;
-    u8 *node0 = arg0 + iGpffffb708;
-    s32 guard = *(s32 *)(node + 0xC);
-    *(s32 *)(node0 + 0) = 0;
-    *(s32 *)(node0 + 4) = 0;
-    *(s32 *)(node0 + 8) = 0;
-    if (guard != 0)
-        func_003cbc10((u8 *)guard, arg0);
-    return arg0;
-}
+extern u8 *func_003ca890(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
@@ -1943,16 +1511,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003caef0);
 
 /* measured: schedule on places the callback store in the jr delay slot. */
 #pragma schedule on
-// FUN_003CB1E0
-u8 *func_003cb1e0(u8 *arg0) {
-    u8 *temp;
-
-    temp = (u8 *)(arg0 + iGpffffb714);
-    *(s32 *)(temp + 0) = 0;
-    *(u8 **)(temp + 4) = *(u8 **)(arg0 + 0x10);
-    *(u8 **)(arg0 + 0x10) = func_003caef0;
-    return arg0;
-}
+extern u8 *func_003cb1e0(u8 *arg0); /* P4: ported verbatim into src/renderware */
 /* measured: schedule off closes the callback-store probe. */
 #pragma schedule off
 
@@ -1960,18 +1519,7 @@ u8 *func_003cb1e0(u8 *arg0) {
 #pragma schedule on
 /* measured: no_branch_likely on keeps the null test as retail's plain beqz. */
 #pragma no_branch_likely on
-// FUN_003CB210
-u8 *func_003cb210(u8 *arg0, u8 *arg1) {
-    u8 *self;
-    u8 *temp;
-
-    self = arg0;
-    temp = (u8 *)(arg1 + iGpffffb714);
-    if (*(u8 **)(temp + 0) != NULL) {
-        func_003cbe80(*(u8 **)(temp + 0), self);
-    }
-    return self;
-}
+extern u8 *func_003cb210(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 /* measured: no_branch_likely off closes the null-test probe. */
 #pragma no_branch_likely off
 /* measured: schedule off closes the saved-self probe. */
@@ -2049,28 +1597,17 @@ s32 func_003cb6a0(u8 *arg0, u8 *arg1) {
 /* measured: closes the schedule bracket for func_003cb6a0; explicit opposite state restores the file default. */
 #pragma schedule off
 
-// FUN_003CB6D0
 /* measured: schedule places the saved object in the helper call delay slot. */
 #pragma schedule on
-s32 func_003cb6d0(u8 *arg0, u8 *arg1) {
-    u8 *self;
-    self = arg0;
-    func_003cbc10(arg1, self);
-    return (s32)self;
-}
+extern s32 func_003cb6d0(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 /* measured: closes the schedule bracket for func_003cb6d0; explicit opposite state restores the file default. */
 #pragma schedule off
 
-// FUN_003CB700
 /* measured: schedule and tailcall reproduce the four-argument helper jump. */
 #pragma schedule on
 /* measured: tailcall on preserves the frameless helper jump. */
 #pragma tailcall on
-s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
-    u8 *self;
-    self = arg2;
-    return func_003c5a90(*(u8 **)(self + 0x54), self, arg0, self + 0x20);
-}
+extern s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2); /* P4: ported verbatim into src/renderware */
 /* measured: tailcall off closes func_003cb700's bracket and restores the file default. */
 #pragma tailcall off
 /* measured: schedule off closes this function's bracket. */
@@ -2082,8 +1619,6 @@ s32 func_003cb700(s32 arg0, s32 arg1, u8 *arg2) {
    above `sd $ra` (nd 9), and the trigger is unit state that neither pragmas,
    placeholder asm, padding nor function count reproduce. Stays a fallback
    until the b119 split of this unit is decided; see docs/matching.md. */
-// FUN_003CB720 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003cb720);
 // FUN_003CB770
 /* measured: schedule on places the field load in the jump delay slot. */
 #pragma schedule on
@@ -2153,31 +1688,17 @@ s32 func_003cb810(u8 *arg0) {
    load, `0x10 + temp_2`, casts, pointer-return variants, and all-s32 or
    old-style callee prototypes were all measured at nd 8. Committed at nd 8. */
 
-// FUN_003CB820
 /* measured: schedule on places the second call in the jr delay slot as retail
    does; the fourth argument to func_003c5a90 is a u8 *, and casting it to s32
    was what kept this body from compiling under NON_MATCHING and from matching. */
 #pragma schedule on
-void func_003cb820(s32 arg0, s32 arg1, u8 *arg2) {
-    u8 *temp_2;
-
-    temp_2 = func_003c9c20((u32)arg2);
-    func_003c5a90((u8 *)*(s32 *)(arg2 + 0x78), temp_2, arg0, temp_2 + 0x10);
-}
+extern void func_003cb820(s32 arg0, s32 arg1, u8 *arg2); /* P4: ported verbatim into src/renderware */
 /* measured: closes the schedule bracket opened above func_003cb820. */
 #pragma schedule off
 
-
-// FUN_003CB8D0
 /* measured: schedule preserves the object across both helper calls. */
 #pragma schedule on
-void func_003cb8d0(u8 *arg0) {
-    u8 *self;
-    u8 *temp;
-    self = arg0;
-    temp = func_003c9c20((u32)self);
-    func_003c5fd0(*(u8 **)(self + 0x78), temp);
-}
+extern void func_003cb8d0(u8 *arg0); /* P4: ported verbatim into src/renderware */
 /* measured: closes the schedule bracket opened above func_003cb8d0. */
 #pragma schedule off
 /* measured: optimization_level 3 preserves the registration-call chain. */
@@ -2295,16 +1816,8 @@ s32 func_003cb900(void) {
 #pragma schedule off
 #pragma opt_propagation on
 #pragma optimization_level 2
-// FUN_003CBC10
 #pragma schedule on
-u8 *func_003cbc10(u8 *arg0, u8 *arg1) {
-    u8 *node = arg1 + iGpffffb708;
-    u8 *v = *(u8 **)(arg1 + 4);
-    if (v != 0)
-        func_003e9680(v);
-    *(s32 *)(node + 0xC) = (s32)arg0;
-    return arg0;
-}
+extern u8 *func_003cbc10(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
@@ -2337,12 +1850,9 @@ u8 *func_003cbc90(u8 *arg0, u8 *arg1) {
     *(s32 *)(node + 0x0) = (s32)arg0;
     return arg0;
 }
-// FUN_003CBCE0
 /* measured: schedule on places the GP-derived field load in the jr delay slot. */
 #pragma schedule on
-s32 func_003cbce0(s32 arg0) {
-    return *(s32 *)(arg0 + iGpffffb70c);
-}
+extern s32 func_003cbce0(s32 arg0); /* P4: ported verbatim into src/renderware */
 /* measured: schedule off closes the single-function bracket. */
 #pragma schedule off
 
@@ -2388,35 +1898,7 @@ u8 *func_003cbcf0(u8 *arg0, u8 *arg1) {
 #pragma schedule on
 /* measured: no_branch_likely on keeps the callback tests as plain branches. */
 #pragma no_branch_likely on
-// FUN_003CBDE0
-u8 *func_003cbde0(u8 *arg0, u8 *(*arg1)(u8 *arg0, u8 *arg1), u8 *arg2) {
-    u8 *self;
-    u8 **items;
-    s32 count;
-
-    self = arg0;
-    items = *(u8 ***)(self + iGpffffb708);
-    count = *(s32 *)(self + iGpffffb708 + 8);
-    if (count != 0)
-        goto process;
-    goto empty;
-empty:
-    return self;
-process:
-    if (arg1(*items, arg2) == NULL)
-        goto failed;
-    goto callback_ok;
-failed:
-    return self;
-callback_ok:
-    count -= 1;
-    items += 1;
-    if (count == 0)
-        goto complete;
-    goto process;
-complete:
-    goto empty;
-}
+extern u8 *func_003cbde0(u8 *arg0, u8 *(*arg1)(u8 *arg0, u8 *arg1), u8 *arg2); /* P4: ported verbatim into src/renderware */
 /* measured: no_branch_likely off closes cbde0's plain-test bracket. */
 #pragma no_branch_likely off
 /* measured: schedule off closes cbde0's callback-delay bracket. */
@@ -2563,7 +2045,6 @@ setnull:
 /* measured: closes the schedule bracket opened above. */
 #pragma schedule off
 
-
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled: MISMATCH nd 6, object 56 bytes in a 64-byte window. */
 // FUN_003CC130
@@ -2577,7 +2058,6 @@ void func_003cc130(void) {
 // measured: closes the schedule bracket opened above and restores the -O2
 // baseline for the rest of the file.
 #pragma schedule off
-
 
 /* measured: without #pragma schedule on, MWCC emits addiu $v0, 1 before
    jr $ra with an unfilled delay slot; retail fills the slot (nd 6 -> 0). */
@@ -2647,7 +2127,6 @@ s32 func_003cc240(void) {
 }
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
-
 
 void func_003f32d0();
 

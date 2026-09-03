@@ -1481,29 +1481,11 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003deea0);
 /* measured: moving the second-field store after the base packing
    computation lets schedule on reproduce the retail aggregate order exactly
    (nd 0, object 88 bytes/window 96 bytes). */
-// FUN_003DEFF0
 /* measured: schedule bracket retained for func_003deff0. */
 #pragma schedule on
-s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    s32 temp_8;
-    u32 temp_7;
-    struct {
-        s32 first;
-        s32 second;
-        s32 third;
-    } data;
-
-    temp_8 = arg3 + 0xFFFD0000;
-    data.first = arg1;
-    temp_7 = (temp_8 & 0x3FF00) << 0xE;
-    data.second = arg2;
-    data.third = (arg4 & 0xFFFF) | (temp_7 | ((arg3 & 0x3F) << 0x10));
-    func_003e2ab0(arg0, &data.first, 0xC);
-}
+extern s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4); /* P4: ported verbatim into src/renderware */
 /* measured: closes schedule around func_003deff0. */
 #pragma schedule off
-// FUN_003DF050
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df050);
 /* measured: schedule on is required for the callback's call delay slot,
    copied from the exact 003bf330 twin. */
 #pragma schedule on
@@ -1576,60 +1558,25 @@ s32 func_003df300(s32 arg0) {
 #pragma schedule off
 /* measured: sibling of func_003df2a0; the same compact frame and
    schedule/no_branch_likely bracket reproduce MATCH nd 0. */
-// FUN_003DF360
 #pragma schedule on
 /* measured: no_branch_likely knob retains the func_003df360 bracket. */
 #pragma no_branch_likely on
-s32 func_003df360(s32 arg0) {
-    extern s32 func_003df590(s32 arg0);
-    struct {
-        u8 pad[8];
-        s32 sp28;
-        s32 sp2C;
-    } frame;
-    if (func_003e2910() != 0) {
-        return arg0;
-    }
-    frame.sp28 = 1;
-    frame.sp2C = func_003df590(0x8000001A);
-    func_003df4d0(&frame.sp28);
-    return 0;
-}
+extern s32 func_003df360(s32 arg0); /* P4: ported verbatim into src/renderware */
 /* measured: closes schedule/no_branch_likely around func_003df360. */
 #pragma no_branch_likely off
 #pragma schedule off
 /* measured: func_003deea0 retains the incoming arg0 as its hidden first
    argument before four stack-output pointers. Preserving that ABI order with
    schedule/no_branch_likely yields exact MATCH at nd 0, object/window 128B. */
-// FUN_003DF3C0
 /* measured: schedule/no_branch_likely bracket retained for func_003df3c0. */
 #pragma schedule on
 #pragma no_branch_likely on
-s32 func_003df3c0(s32 arg0, u32 *arg1) {
-    u32 sp3C;
-    u32 sp38;
-    u32 sp34;
-    u32 sp30;
-    if (func_003deea0(arg0, &sp3C, &sp38, &sp34, &sp30) == 0) {
-        return 0;
-    }
-    *(u32 *)((u8 *)(arg1) + 0) = sp3C;
-    *(u32 *)((u8 *)(arg1) + 4) = sp38;
-    *(u32 *)((u8 *)(arg1) + 8) = sp34;
-    *(u32 *)((u8 *)(arg1) + 0xC) = sp30;
-    *(s32 *)((u8 *)(arg1) + 0x10) = func_003ded20(arg1);
-    return arg0;
-}
+extern s32 func_003df3c0(s32 arg0, u32 *arg1); /* P4: ported verbatim into src/renderware */
 /* measured: closes schedule/no_branch_likely around func_003df3c0. */
 #pragma no_branch_likely off
 #pragma schedule off
-// FUN_003DF440
 /* measured: schedule bracket retained for func_003df440. */
 #pragma schedule on
-s32 func_003df440(s32 arg0) {
-    D_0072484C += 1;
-    return arg0;
-}
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
@@ -1660,9 +1607,5 @@ s32 func_003df590(s64 arg0, ...) {
 /* measured: closes the bracket noted above the marker. */
 #pragma schedule off
 
-// FUN_003DF8C0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df8c0);
 // FUN_003DF9F0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df9f0);
-// FUN_003DFF20
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dff20);

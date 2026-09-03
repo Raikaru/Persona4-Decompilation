@@ -95,15 +95,11 @@ extern void func_0025ecd0(f32 fparg0, f32 fparg1,
                            void *arg7);
 extern u8 D_007955C0[];
 
-
-
 // FUN_00331560
 s32 func_00331560(void)
 {
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 4);
 }
-
-
 
 // FUN_00331580
 s32 func_00331580(void)
@@ -116,15 +112,11 @@ void func_003315a0(void)
     *(s8 *)(*(int *)(iGpffffb598 + 0x38) + 0x45) = 1;
 }
 
-
-
 // FUN_003315C0
 s32 func_003315c0(void)
 {
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x24);
 }
-
-
 
 // FUN_003315E0
 s32 func_003315e0(void)
@@ -132,15 +124,11 @@ s32 func_003315e0(void)
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x28);
 }
 
-
-
 // FUN_00331600
 s32 func_00331600(void)
 {
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x2C);
 }
-
-
 
 // FUN_00331620
 s32 func_00331620(void)
@@ -148,23 +136,17 @@ s32 func_00331620(void)
     return *(s32 *)(*(int *)(iGpffffb598 + 0x38) + 0x30);
 }
 
-
-
 // FUN_00331640
 s8 func_00331640(void)
 {
     return *(s8 *)(*(int *)(iGpffffb598 + 0x38) + 0x44);
 }
 
-
-
 // FUN_00331660
 s32 func_00331660(void)
 {
     return *(s32 *)(*(int *)(*(int *)(iGpffffb598 + 0x38) + 0x20) + 0x110);
 }
-
-
 
 // FUN_00331680
 s32 func_00331680(void)

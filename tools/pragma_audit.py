@@ -91,8 +91,9 @@ def strip_comments(text):
 
 # The vendored RenderWare 3.7 headers carry MSVC/ICL pragmas (`comment`,
 # `pack`, `warning`, `function`, `message`) inside `_MSC_VER`/`__ICL` guards
-# that MWCC never enters; they are not this tree's spellings.
-VENDORED = (REPO / "include" / "rw",)
+# that MWCC never enters; they are not this tree's spellings. The verbatim
+# RenderWare sources under src/renderware carry the same guarded pragmas.
+VENDORED = (REPO / "include" / "rw", REPO / "src" / "renderware")
 
 
 def collect(roots=("src", "include")):
