@@ -1,3 +1,8 @@
+/* Main 2026-09-03: re-probed, nd12 -> 6 words (3 sites): (1) `andi a1` before `lhu a0` for the func_001f0950
+   call - retail materialises the (u16)code argument first; u16 callee signatures, a named u16 local,
+   `*(u16 *)((u32)arg0 + 0xA4)`, `code & 0xFFFF` do not move it (the callee is defined in-TU with s32,s32);
+   (2) two `addu v0,v0,s6` (retail temp-first for `(base + i*2) + offset`; b210 puts the s6 variable first;
+   inlining `mode * 0x1E` hoists it into a new saved register, nd170). AST permuter 8k compiles: best 7. */
 /* Best candidate for func_001f62f0; reverted because scoped lverify remained MISMATCH.
  * Lane UnD62: object 728B, retail window 736B, normalized_diff 12.
  * Four non-relocation instruction words remained: the func_001f0950 argument
