@@ -676,8 +676,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb330);
 /* measured: current-TU generated switch candidate object 288B/window 256B, normalized_diff 200; object exceeded window and was immediately archived/restored. Generated logic matches retail's switch/error paths, but current schedule/no_branch_likely/optimization environment and stack/register layout over-expand the body. */
 // FUN_003BB3A0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb3a0);
-// FUN_003BB4A0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb4a0);
 // FUN_003BB5B0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bb5b0);
 /* measured: current-TU reconstructed body object 240B/window 208B, normalized_diff 177; fndiff reports 50 differing words concentrated at offsets 4-24, 32-60, 76-168, 176-184, 192-200, and 208-236. The setup-order probe (call before result initialization) improved nd184 to nd177 but object still exceeds the retail window, so restored fallback. */

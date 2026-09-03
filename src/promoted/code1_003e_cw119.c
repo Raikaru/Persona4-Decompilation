@@ -260,7 +260,7 @@ extern void func_0043ed08(s32 arg0);
 extern void func_003e4520(void *arg0, s32 arg1);
 extern void func_003e4960();
 extern void func_003e4920();
-extern void func_003e47c0();
+extern s32 func_003e47c0(s8 *arg0, s8 *arg1);
 extern void func_00442088();
 extern void func_00446ed8();
 extern void func_00442830();
@@ -356,3 +356,35 @@ void func_003e0f80(void) {
 }
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
+
+// FUN_003E47C0
+#pragma schedule on
+s32 func_003e47c0(s8 *arg0, s8 *arg1) {
+    s8 c1;
+    s8 c2;
+
+    if ((arg0 != NULL) && (arg1 != NULL)) {
+        do {
+            c1 = *arg0;
+            c2 = *arg1;
+            if ((c1 >= 'A') && (c1 <= 'Z')) {
+                c1 += 0x20;
+            }
+            if ((c2 >= 'A') && (c2 <= 'Z')) {
+                c2 += 0x20;
+            }
+            if (c1 != c2) {
+                return (s32)(c1 - c2);
+            }
+            arg0++;
+            arg1++;
+        } while (c1 && c2);
+        if (c1 != c2) {
+            return (s32)(c1 - c2);
+        }
+    }
+    return 0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
