@@ -1461,12 +1461,6 @@ s32 func_003c9530(s32 arg0) {
 /* measured: close schedule */
 #pragma schedule off
 
-/* measured: archived c95a0 body is object 176B/window 160B,
-   normalized_diff 100 with differing offsets 0x0c-0x0f,0x12,0x13,
-   0x18-0x1c,0x1e-0x20,0x23,0x28,0x2a; object exceeded the window and
-   was stopped immediately. See build/K3C1_003c95a0_body.c. */
-// FUN_003C95A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c95a0);
 /* measured: archived c9640 body is object 132B/window 144B,
    normalized_diff 46; differing offsets 0x10,0x30-0x32,0x34,0x37,
    0x39,0x3b-0x3c,0x50-0x51,0x53,0x5a-0x5b,0x5e. Guard, goto,
@@ -1532,18 +1526,6 @@ u8 *func_003c9750(u8 *arg0, s32 (*arg1)(s32, s32), s32 arg2) {
 
 // FUN_003C97E0
 INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c97e0);
-/* measured: best reconstruction archived in build/K3C2_003c9940_body.c;
-   object 172B/window 176B, normalized_diff 6. The true-body residual is
-   three words: the order swap at 0x30/0x34 (candidate emits the base addu
-   before the D_008873F8+0x118 load) plus the relocation word at 0x14.
-   Direct call, named allocator argument, allocator locals before/after the
-   base, direct global expression, schedule, declaration order, pointer
-   widths, local address forms, and optimization-level 1 were already ruled
-   out. Measured first-statement global-value locals (pointer, scalar,
-   function-pointer, aggregate, and escaping forms), integer-domain base
-   sums, and an array-typed absolute D_008873F8 alias also did not improve. */
-// FUN_003C9940 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003c", func_003c9940);
 
 
 

@@ -488,9 +488,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7510);
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7590);
 // FUN_003B7680
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7680);
-/* probe failed at translation/link stage after introducing unknown GP aliases iGpffffaa80/aa84; restore fallback without measuring object. Retail body frame is 0x30 with s0/s1 saves; generated logic otherwise follows initialization path. */
-// FUN_003B7860
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b7860);
 /* measured: schedule and no_branch_likely reproduce the countdown callback path. */
 #pragma schedule on
 #pragma no_branch_likely on
@@ -1514,25 +1511,6 @@ s32 func_003bf330(s32 arg0) {
 #pragma schedule on
 #pragma opt_common_subs off
 #pragma opt_propagation off
-// FUN_003BF360 NONMATCHING
-#ifdef NON_MATCHING
-extern u8 D_0070AF70[];
-u8 *func_003bf360(u8 *arg0, s32 *arg1) {
-    struct A {
-        s32 value;
-    };
-    struct B {
-        s32 value;
-    };
-
-    ((struct A *)arg1)->value += 0xC;
-    ((struct B *)arg1)->value += 0x1C;
-    ((struct B *)arg1)->value += func_003e3370(D_0070AF70, (s32)arg0) + 0xC;
-    return arg0;
-}
-#else
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf360);
-#endif
 /* measured: close opt_common_subs/opt_propagation/schedule probes around func_003bf360. */
 #pragma opt_common_subs on
 #pragma opt_propagation on

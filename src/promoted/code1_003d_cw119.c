@@ -150,3 +150,183 @@ s32 func_003df8a0(s32 *arg0) {
 }
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
+
+#define va_end(ap) ((void)0)
+/* Archived b210 near-miss (Y3D5_003d0460); exact under b119 with schedule on. */
+// FUN_003D0460
+#pragma schedule on
+void func_003d0460(u8 *arg0, u32 **arg1, s32 arg2, s32 arg3) {
+    extern u8 *func_003e1ff0(u8 *arg0);
+    u32 *var_2;
+    u8 *temp_16;
+
+    if (*(s32 *)(arg0 + 0x24) == 0) {
+        temp_16 = *(u8 **)(*(u8 **)(arg0 + 8) + 0x18);
+        if (*(s32 *)(temp_16 + 8) & 0x02000000) {
+            *arg1 = (u32 *)(*jtbl_008873E8)(arg2 + 0x18, 0x3050D);
+            *(u32 *)(*arg1) = 0;
+            *(s32 *)((u8 *)(*arg1) + 4) = 0;
+            *(u8 **)((u8 *)(*arg1) + 0xC) = temp_16;
+            *(s32 *)((u8 *)(*arg1) + 8) = arg2;
+            *(s32 *)((u8 *)(*arg1) + 0x10) = (s32)arg1;
+            *(s32 *)((u8 *)(*arg1) + 0x14) = arg3;
+        } else {
+            var_2 = (u32 *)func_003e1ff0(temp_16);
+            *arg1 = var_2;
+        }
+    } else {
+        var_2 = (u32 *)func_003e1ff0(*(u8 **)(arg0 + 8));
+        *arg1 = var_2;
+    }
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+/* Archived b210 near-miss (Y3D5_003d0850); exact under b119 with schedule on. */
+// FUN_003D0850
+#pragma schedule on
+u32 *func_003d0850(u8 *arg0, u32 **arg1, s32 arg2, s32 arg3) {
+    extern u8 D_008872E4[];
+    extern u8 *func_003e1ff0(u8 *arg0);
+    extern void func_003d0460(u8 *arg0, u32 **arg1, s32 arg2, s32 arg3);
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 8);
+    if (*temp_16 == 0xFF) {
+        if (*(s32 *)(*(u8 **)(D_008872E4) + 8) & 0x02000000) {
+            *arg1 = (u32 *)(*jtbl_008873E8)(arg2 + 0x18, 0x3050D);
+            *(u32 *)(*arg1) = 0;
+            *(s32 *)((u8 *)(*arg1) + 4) = 0;
+            *(u8 **)((u8 *)(*arg1) + 0xC) = temp_16;
+            *(s32 *)((u8 *)(*arg1) + 8) = arg2;
+            *(s32 *)((u8 *)(*arg1) + 0x10) = (s32)arg1;
+            *(s32 *)((u8 *)(*arg1) + 0x14) = arg3;
+        } else {
+            *arg1 = (u32 *)func_003e1ff0(temp_16);
+        }
+    } else {
+        func_003d0460(arg0, arg1, arg2, arg3);
+    }
+    return *arg1;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+/* Archived b210 near-miss (K3D5_003d5790); exact under b119 with schedule on. */
+// FUN_003D5790
+#pragma schedule on
+u8 *func_003d5790(s32 arg0, s32 arg1) {
+    u8 *temp_2;
+    s32 size;
+
+    size = arg0 * arg1;
+    temp_2 = jtbl_008873E8[0](size + 0x4C, 0x3001B);
+    *(s32 *)(temp_2 + 0x2C) = arg0;
+    *(s32 *)(temp_2 + 0x0) = 0;
+    *(s32 *)(temp_2 + 0x8) = 0;
+    *(s32 *)(temp_2 + 0x4) = 0;
+    *(s32 *)(temp_2 + 0xC) = 0;
+    *(s32 *)(temp_2 + 0x14) = 0xBF800000;
+    *(s32 *)(temp_2 + 0x10) = 0;
+    *(s32 *)(temp_2 + 0x18) = 0;
+    *(s32 *)(temp_2 + 0x1C) = 0;
+    *(s32 *)(temp_2 + 0x24) = arg1;
+    *(s32 *)(temp_2 + 0x28) = -1;
+    *(s32 *)(temp_2 + 0x20) = arg1;
+    *(s32 *)(temp_2 + 0x30) = 0;
+    *(s32 *)(temp_2 + 0x34) = 0;
+    *(s32 *)(temp_2 + 0x38) = (s32)temp_2;
+    *(s32 *)(temp_2 + 0x3C) = 0;
+    *(s32 *)(temp_2 + 0x44) = 0;
+    *(s32 *)(temp_2 + 0x40) = 0;
+    *(s32 *)(temp_2 + 0x48) = 0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+/* Archived b210 near-miss (F3D0_003d59a0); exact under b119 with schedule on. */
+// FUN_003D59A0
+#pragma schedule on
+s32 func_003d59a0(u8 *arg0, u8 *arg1) {
+    func_0043f810(arg0 + 0x4C, arg1 + 0x4C,
+        *(s32 *)(arg0 + 0x24) * *(s32 *)(arg0 + 0x2C));
+    return 1;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+extern s32 func_003db440(s32 arg0, u8 *arg1);
+/* Archived b210 near-miss (Y3DB_003db490); exact under b119 with schedule on. */
+// FUN_003DB490
+#pragma schedule on
+s32 func_003db490(s32 arg0, u8 *arg1) {
+    f32 value;
+    s32 count;
+    extern u8 *func_003ca320(u8 *arg0, s32 (*arg1)(u8 *, s32), s32 arg2);
+    extern s32 func_003db440(s32 arg0, u8 *arg1);
+    extern f32 func_0044b968(f32 arg0);
+    extern s32 *func_003f6800(s32 *arg0, f32 fparg0);
+
+    *(s32 *)(arg1 + 8) = arg0;
+    *(s32 *)(arg1 + 0xC) = 0;
+    *(s32 *)(arg1 + 0x10) = 0;
+    func_003ca320(*(u8 **)(arg1 + 4),
+                  (s32 (*)(u8 *, s32))func_003db440, (s32)arg1);
+    count = *(s32 *)(arg1 + 0x10);
+    if (count > 0) {
+        value = func_0044b968(*(f32 *)(arg1 + 0xC) / (f32)count);
+        func_003f6800((s32 *)arg0, -(value / func_0044b968(2.0f)));
+    }
+    return arg0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+extern s32 *func_003ddc20(u8 *arg0);
+/* Archived b210 near-miss (Y3DA_003dd620); exact under b119 with schedule on. */
+// FUN_003DD620
+#pragma schedule on
+s32 func_003dd620(u8 *arg0, u8 *arg1) {
+    extern s32 *func_003ddc20(u8 *arg0);
+    extern void (*D_008873AC[])(u8 *arg0, u8 *arg1);
+    extern s32 (*D_008873D4[])(u8 *arg0);
+
+    if (func_003ddc20(arg1) != NULL) {
+        return 7;
+    }
+    if (*(u8 **)(arg0 + 0xC) != NULL) {
+        (*jtbl_008873EC)(*(u8 **)(arg0 + 0xC));
+    }
+    *(u8 **)(arg0 + 0xC) = (*jtbl_008873E8)(D_008873D4[0](arg1) + 1, 0x401BE);
+    D_008873AC[0](*(u8 **)(arg0 + 0xC), arg1);
+    return 1;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+/* Archived b210 near-miss (K3D5_003df1a0); exact under b119 with schedule on. */
+// FUN_003DF1A0
+#pragma schedule on
+s32 *func_003df1a0(s32 *arg0, s32 arg1, u32 arg2) {
+    u8 buffer[0x100];
+    u32 chunk;
+
+    if (arg2 != 0) {
+        do {
+            if (arg2 < 0x100U) {
+                chunk = arg2;
+            } else {
+                chunk = 0x100;
+            }
+            func_0043f810(buffer, (void *)arg1, chunk);
+            if (func_003e2ab0(arg0, buffer, chunk) == 0) {
+                return NULL;
+            }
+            arg2 -= chunk;
+            arg1 += chunk;
+        } while (arg2 != 0);
+    }
+    return arg0;
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off

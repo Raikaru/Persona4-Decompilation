@@ -77,14 +77,10 @@ static inline s32 func_003d_add_offset(s32 base, s32 offset) {
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0140);
 // FUN_003D0230
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0230);
-// FUN_003D0460 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0460);
 // FUN_003D0540
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0540);
 // FUN_003D0790 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0790);
-// FUN_003D0850 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d0850);
 /* measured: a local 0xFF limit plus schedule on reproduces retail's
    constant materialization and branch delay-slot layout exactly (nd 0). */
 // FUN_003D0930
@@ -627,12 +623,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5600);
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5710);
 // FUN_003D5750 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5750);
-/* measured: object 164B vs 160B window, normalized_diff 70; oversized
-   reconstruction archived in build/K3D5_003d5790_body.c. */
-// FUN_003D5790
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d5790);
-// FUN_003D59A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59a0);
 // FUN_003D59D0
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003d59d0);
 // FUN_003D5BC0
@@ -934,8 +924,6 @@ s32 func_003db480(s32 *arg0, s32 arg1) {
 }
 /* measured: schedule off closes the single-function bracket. */
 #pragma schedule off
-// FUN_003DB490 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db490);
 // FUN_003DB550
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003db550);
 // FUN_003DB630
@@ -1118,8 +1106,6 @@ void func_003dd5c0(u8 **arg0, s32 arg1) {
 /* measured: closes schedule/no_branch_likely around func_003dd5c0. */
 #pragma schedule off
 #pragma no_branch_likely off
-// FUN_003DD620 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003dd620);
 /* measured: schedule/no_branch_likely reproduce func_003dd6d0's branch graph. */
 #pragma schedule on
 #pragma no_branch_likely on
@@ -1544,10 +1530,6 @@ s32 func_003deff0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 #pragma schedule off
 // FUN_003DF050
 INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df050);
-/* measured: object 184B vs 160B window, normalized_diff 139; oversized
-   reconstruction archived in build/K3D5_003df1a0_body.c. */
-// FUN_003DF1A0
-INCLUDE_ASM("asm/nonmatchings/code1_003d", func_003df1a0);
 /* measured: schedule on is required for the callback's call delay slot,
    copied from the exact 003bf330 twin. */
 #pragma schedule on

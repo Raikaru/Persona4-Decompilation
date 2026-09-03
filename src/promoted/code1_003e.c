@@ -810,16 +810,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2f60);
 
 
 
-/* measured: linked-list search/store reconstruction reaches object 80B/window
-   80B, normalized_diff 16-20; retail's two loop-exit nops are unresolved. */
-// FUN_003E3020
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3020);
-
-/* measured: linked-list search/store reconstruction reaches object 72B/window
-   80B, normalized_diff 16; branch/delay-slot sequence remains unresolved. */
-// FUN_003E3070
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3070);
-
 /* measured: schedule on fills the jr delay slot and the alignment nop after
    the filled back-edge, and no_branch_likely on preserves the plain beq/bne
    shape for the linked-list search. */
@@ -967,9 +957,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
 /* measured: closes schedule probe around func_003e32f0. */
 #pragma schedule off
 
-// FUN_003E3370 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3370);
-
 // FUN_003E33F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e33f0);
 /* measured: schedule probe for 003e3560 delay-slot and epilogue placement. */
@@ -1023,12 +1010,6 @@ void func_003e3680(u8 *arg0, u8 *arg1) {
 #pragma tailcall off
 // FUN_003E36C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e36c0);
-/* measured: archived linked-list reconstruction object 60B/window 64B,
-   normalized_diff 7; branch-join delay scheduling remains unresolved. */
-/* measured: archived object 60B/window 64B, normalized_diff 18; branch-join
-   delay-slot placement remained unresolved in the compliant plain-C body. */
-// FUN_003E3830
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3830);
 // FUN_003E3870
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3870);
 /* measured: schedule/no_branch_likely preserve the two callback-loop paths. */
@@ -1073,12 +1054,6 @@ return_zero:
 #pragma schedule off
 
 
-/* measured: best plain-C body archived in build/P3E3_003e3c20_body.c;
-   object 96B/window 112B, normalized_diff 22; retail's extra branch-join
-   nop and longer epilogue remain a b210 compiler floor after schedule and
-   no_branch_likely/declaration/loop-shape probes. */
-// FUN_003E3C20
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3c20);
 // FUN_003E3C90
 #pragma schedule on
 /* measured: no_branch_likely knob retains the func_003e3c90 bracket. */
