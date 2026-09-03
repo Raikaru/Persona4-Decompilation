@@ -1,3 +1,8 @@
+/* Main 2026-09-03: re-probed. `k = index + found` as its own temp under opt_propagation off gives retail's
+   addu v1 / move / move / multiply order; the residual is only the s0/s2 pairing: mwcc coalesces the element
+   pointer into base's dying $s0 and gives the second loop counter $s2, retail the reverse. Separate `elem` var,
+   s32 flag, all 14 declaration positions, `&base[k*6]`, `k*6 + (u32)base`, `found = base; found += k*6`,
+   AST permuter 20k compiles: all nd8. Colouring floor. */
 /* object 672B/window 672B (exact size), normalized_diff 8; differing offsets 196, 236, 480, 492, 520, 544, 556, 560 are table index/element-pointer register cycling. Retail int-to-float sites: +0x118 (bltz/mtc1/cvt.s.w; negative srl/andi/or/mtc1/cvt.s.w/add.s) and +0x16C (same sequence), both written as (f32)(u32); retail float-to-int site +0x1BC/+0x1D0 (trunc.w.s/mfc1, high path adds 0x80000000), written as (s32)(u32)product. Corrected func_00246e10 is block-scope extern s32(s32); file-scope u8*(u16) retained for cmmScript.c:1477. Fresh probes ruled out declaration-order/statement variants (base/found/i positions, scoped i, second-loop for form, swapped initializers), pointer split/integer-domain/reversed-operand forms, split found flag, and found declaration initialization; all preserve nd 8 except second-loop initializer swap nd 9 and i-after-base/inner-scope variants nd 12. O1 grows to 680B/window 672B (nd 467). Hoisting the pointer assignment above the first-loop call worsened the residual to nd 13; the $s2/$s0 pointer/counter cycle survived declaration swap, scoped propagation-off, and hoist probes. The archived body remains the best near-miss. */
 // FUN_0024BE40
 s32 func_0024be40(void)
