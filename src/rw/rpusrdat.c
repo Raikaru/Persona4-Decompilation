@@ -7,7 +7,6 @@ extern s32 func_003bc9c0(void* object, char* name, s32 format, s32 numElements);
 
 #pragma optimization_level 3
 
-
 // FUN_003BCFA0
 s32 func_003bcfa0(RpMaterial* material, char* name, s32 format, s32 numElements)
 {

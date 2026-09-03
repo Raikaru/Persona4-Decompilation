@@ -285,60 +285,12 @@ s32 func_003dd620(u8 *arg0, u8 *arg1) {
 #pragma schedule off
 
 /* Archived b210 near-miss (K3D5_003df1a0); exact under b119 with schedule on. */
-// FUN_003DF1A0
 #pragma schedule on
-s32 *func_003df1a0(s32 *arg0, s32 arg1, u32 arg2) {
-    u8 buffer[0x100];
-    u32 chunk;
-
-    if (arg2 != 0) {
-        do {
-            if (arg2 < 0x100U) {
-                chunk = arg2;
-            } else {
-                chunk = 0x100;
-            }
-            func_0043f810(buffer, (void *)arg1, chunk);
-            if (func_003e2ab0(arg0, buffer, chunk) == 0) {
-                return NULL;
-            }
-            arg2 -= chunk;
-            arg1 += chunk;
-        } while (arg2 != 0);
-    }
-    return arg0;
-}
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
 /* measured: switch with direct returns in ascending case order; 0xd returns 0. */
-// FUN_003DED20
 #pragma schedule on
-s32 func_003ded20(s32 *arg0) {
-    s32 x = *arg0;
-
-    switch (x) {
-    case 0x1:  return 0;
-    case 0x2:  return 0;
-    case 0x3:  return 0;
-    case 0x5:  return 1;
-    case 0x6:  return 1;
-    case 0x7:  return 1;
-    case 0x8:  return 1;
-    case 0x9:  return 1;
-    case 0xa:  return 1;
-    case 0xb:  return 1;
-    case 0xd:  return 0;
-    case 0xe:  return 1;
-    case 0xf:  return 1;
-    case 0x10: return 1;
-    case 0x12: return 1;
-    case 0x13: return 0;
-    case 0x14: return 1;
-    case 0x1a: return 1;
-    default:   return 0;
-    }
-}
 /* measured: closes the schedule bracket. */
 #pragma schedule off
 

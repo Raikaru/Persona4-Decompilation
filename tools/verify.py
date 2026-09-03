@@ -64,7 +64,10 @@ def is_generated(path: Path) -> bool:
 # "middleware/" holds code proven to be ee-gcc output rather than MWCCPS2 (see
 # src/middleware/gcc_ee_grouped.c for the per-signature evidence); the vendor is
 # unknown so it is filed by toolchain instead of under cri/ or sce/.
-THIRD_PARTY_PREFIXES = ("rw/", "cri/", "sce/", "middleware/")
+# renderware/ is RenderWare Graphics 3.7 recovered from its source; it is the
+# same middleware as rw/, not Atlus's code, and leaves the first-party count as
+# it is ported out of the promoted code1_003x units.
+THIRD_PARTY_PREFIXES = ("rw/", "renderware/", "cri/", "sce/", "middleware/")
 THIRD_PARTY_FILES = {"crt0.c", "libc_core.c", "libcdvd.c"}
 
 
@@ -735,14 +738,20 @@ def unit_compile_flags(cpath: Path, flags: list[str]) -> list[str]:
     """`-O<n>` becomes `-O<n>,p` for speed units; units built with a non-default
     compiler version get that version's extra flags; everything else is unchanged."""
     out = list(flags)
-    if is_speed_unit(cpath):
-        out = [f + ",p" if re.fullmatch(r"-O[0-4]", f) else f for f in out]
     try:
         key = compiler_units().get(cpath.resolve().relative_to(REPO).as_posix())
     except ValueError:
         key = None
     if key is not None:
-        out.extend(version_flags().get(key, []))
+        # A version's own `-O<n>` replaces the default level (the RenderWare
+        # block is `-O4`); its other flags are appended.
+        extra = version_flags().get(key, [])
+        level = [f for f in extra if re.fullmatch(r"-O[0-4]", f)]
+        if level:
+            out = [level[-1] if re.fullmatch(r"-O[0-4]", f) else f for f in out]
+        out.extend(f for f in extra if not re.fullmatch(r"-O[0-4]", f))
+    if is_speed_unit(cpath):
+        out = [f + ",p" if re.fullmatch(r"-O[0-4]", f) else f for f in out]
     return out
 
 

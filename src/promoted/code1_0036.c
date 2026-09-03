@@ -31,8 +31,6 @@ extern void func_0036b750(void);
 extern s32 func_0036bb60(void);
 extern void func_001437b0(u8 *arg0, s16 arg1, s32 arg2);
 
-
-
 extern s32 func_0034c210(void);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_0035fa00(u8 *arg0, s32 arg1, s16 arg2);
@@ -145,7 +143,6 @@ extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 extern f32 fGpffff83fc;
 
-
 // FUN_00361970
 void func_00361970(u8 *arg0)
 {
@@ -157,8 +154,6 @@ void func_00361970(u8 *arg0)
     }
     *(s16 *)(arg0 + 0x26) = 0;
 }
-
-
 
 // FUN_003619B0
 s32 func_003619b0(u8 *arg0) {
@@ -340,8 +335,6 @@ void func_003642a0(u8 *arg0)
     *temp |= 2;
 }
 
-
-
 // FUN_003642E0
 void func_003642e0(u8 *arg0, void *arg1)
 {
@@ -368,8 +361,6 @@ void func_003671d0(s16 *arg0)
     memset((u8 *)arg0 + 4, 0, 0x18);
     *arg0 = 0;
 }
-
-
 
 // FUN_00367210
 void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
@@ -658,8 +649,6 @@ void func_0036d860(u8 *arg0, s32 arg1)
         func_0036d8b0();
     }
 }
-
-
 
 // FUN_0036D8B0
 void func_0036d8b0(void)

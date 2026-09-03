@@ -1,4 +1,4 @@
-# Persona 4 PS2 Decompilation
+# Persona 4 (PS2) Decompilation
 
 [![perfect match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=perfect%20match&measure=code)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![fuzzy match](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=fuzzy%20match&measure=fuzzy_match_percent)](https://decomp.dev/Raikaru/Persona4-Decompilation)
@@ -7,13 +7,21 @@
 [![all functions](https://decomp.dev/Raikaru/Persona4-Decompilation.svg?mode=shield&label=all%20functions&measure=matched_functions)](https://decomp.dev/Raikaru/Persona4-Decompilation)
 [![byte-exact linked C](https://img.shields.io/endpoint?url=https%3A%2F%2FRaikaru.github.io%2FPersona4-Decompilation%2Fprogress%2Flinked.json)](https://Raikaru.github.io/Persona4-Decompilation/progress/linked.json)
 
-Matching decompilation of **Shin Megami Tensei: Persona 4** for PlayStation 2
-(USA, version 1.00, `SLUS_217.82`). The build reproduces the retail load image
-and ELF byte-for-byte.
+A matching decompilation of **Shin Megami Tensei: Persona 4** for the
+PlayStation 2 (USA, v1.00, `SLUS_217.82`). "Matching" means exact: every
+function in this tree is compiled with the compiler Atlus used and compared
+against the retail executable byte for byte, and the build reproduces the
+loadable image and the ELF with the same SHA-1 as the disc.
 
-Source and tooling only — no executable, disc image, or game data. `make setup`
-checks your disc against the [Redump record](http://redump.org/disc/5576/)
-before extracting what the build needs.
+This repository contains source and tooling only. There is no executable, disc
+image, or game data here; `make setup` extracts what the build needs from a
+disc image you own, after checking it against the
+[Redump record](http://redump.org/disc/5576/).
+
+**Documentation:** the [wiki](https://github.com/Raikaru/Persona4-Decompilation/wiki)
+has the long-form guides (how matching works, what the verifier checks, how
+to pick and match a function, the compiler findings). This file is the short
+version.
 
 ## Status
 
@@ -23,113 +31,161 @@ before extracting what the build needs.
 | Retail executable | `SLUS_217.82`; SHA-1 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` |
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
-| Byte-identical functions | 7,523 (57.419% of windows) |
+| Byte-identical functions | 7,653 (58.411% of windows) |
 | Under test (a `// FUN_` marker scores them) | 12,721 (97.092% of windows) |
 | Not yet under test, supplied as retail bytes | 381 (2.908% of windows) |
-| In byte-exact linked C objects | 1,530 (11.678% of windows), with 261 assembly fallbacks still inside those objects |
-| First-party matched, scored for recovery | 6,810 |
-| — NAMED (not a `func_<address>` placeholder) | 177 (2.599%) |
-| — TYPED (no raw-offset or `M2C_` access) | 2,198 (32.276%) |
-| — DOCUMENTED (prose, or trivially self-evident) | 4,808 (70.602%) |
-| — still carrying decompiler local names | 1,989 (29.207%) |
+| In byte-exact linked C objects | 1,532 (11.693% of windows), with 261 assembly fallbacks still inside those objects |
+| First-party matched, scored for recovery | 6,687 |
+| — NAMED (not a `func_<address>` placeholder) | 154 (2.303%) |
+| — TYPED (no raw-offset or `M2C_` access) | 2,141 (32.017%) |
+| — DOCUMENTED (prose, or trivially self-evident) | 4,696 (70.226%) |
+| — still carrying decompiler local names | 1,973 (29.505%) |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.
 <!-- STATUS:END -->
 
-See [`ROADMAP.md`](ROADMAP.md) for current priorities.
+"First-party" is Atlus's own code. The retail image also links prebuilt
+middleware (RenderWare, CRI, the Sony SDK, the C runtime); those windows are
+tracked so the image stays byte-exact, but they are reported separately.
+
+## How it works
+
+Every function has a marker comment in exactly one source file:
+
+```c
+// FUN_00195850
+s32 func_00195850(BattleUnit *unit) { ... }
+```
+
+`tools/verify.py` compiles each file with the compiler that file is
+configured for, cuts the function out of the object, masks the relocation
+fields, and compares it with the bytes at that address in the retail
+executable. A function is `MATCH` only when nothing differs; otherwise its
+`INCLUDE_ASM` fallback (the retail assembly) is what gets linked. Beyond the
+byte comparison the verifier cross-checks every call target and every data
+symbol against what retail actually references, because relocation masking
+would otherwise let a plausible-but-wrong symbol through.
+
+`tools/build.py` links the matched objects with the retail assembly for
+everything else and checks the image and ELF SHA-1s. CI runs the same
+pipeline against the private toolchain.
+
+The retail executable is a mixed build, and the tree is configured per unit
+to reproduce it:
+
+| Code | Compiler | Flags | Configured in |
+| --- | --- | --- | --- |
+| Atlus game code (most of `src/`) | MWCCPS2 3.0.1 build 210 | `-O2` | `tools/verify_config.json` |
+| RenderWare Graphics 3.7 (`src/renderware/`) | MWCCPS2 3.0.1 build 119 | `-O4,p -inline auto` | `config/compiler_units.txt`, `config/version_flags.txt` |
+| A few speed-tuned units | build 210 | `-O2,p` | `config/speed_units.txt` |
+| Five units of GCC-built code | ee-gcc 2.96 | `-O2 -G0` | `config/gcc_units.txt` |
+
+The RenderWare block is being ported verbatim from the RenderWare 3.7.0.2
+source, compiled against the vendored headers in `include/rw/`; the
+`src/renderware/` layout mirrors the original tree.
 
 ## Setup
 
-Requirements:
+You need:
 
-- Python 3.10 or newer.
-- Python dependencies: `python -m pip install -r requirements-python.txt`.
-- GNU `mipsel-linux-gnu-as` and `mipsel-linux-gnu-objcopy` with R5900 support.
-- MWCCPS2/MWLDPS2, currently `mwcps2-3.0.1b210-060308` with `-O2`.
-- A legally owned Persona 4 USA disc image.
+- Python 3.10+ and `python -m pip install -r requirements-python.txt`
+- GNU binutils for MIPS with R5900 support (`mipsel-linux-gnu-as`,
+  `mipsel-linux-gnu-objcopy`; the
+  [decompals build](https://github.com/decompals/binutils-mips-ps2-decompals)
+  works)
+- MWCCPS2 / MWLDPS2 3.0.1 build 210 (`mwcps2-3.0.1b210-060308`); on Linux
+  run the Windows binaries through [wibo](https://github.com/decompals/wibo)
+- MWCCPS2 3.0.1 build 119 (`040914`) for the RenderWare units
+- ee-gcc 2.96 for the GCC units (`tools/eegcc_shim.py` drives it)
+- A Persona 4 USA disc image you own
 
-Set `P4_MWCC`, `P4_RETAIL_ELF`, `P4_AS`, and `P4_OBJCOPY`, or create the
-machine-local `tools/verify_config.local.json` and
-`tools/build_config.local.json` files. The build config also accepts `ld_exe`.
+Point the tools at your toolchain with environment variables (`P4_MWCC`,
+`P4_RETAIL_ELF`, `P4_AS`, `P4_OBJCOPY`, `P4_MWCC_CW3_0_1B119`) or with the
+machine-local, git-ignored `tools/verify_config.local.json` and
+`tools/build_config.local.json`:
 
 ```json
 {
-  "mwcc": "D:/mwcps2-3.0.1b210-060308/mwccps2.exe",
-  "retail_elf": "C:/path/to/SLUS_217.82",
-  "ld_exe": "D:/mwcps2-3.0.1b210-060308/mwldps2.exe"
+  "mwcc": "/opt/mwcps2-3.0.1b210-060308/mwccps2.exe",
+  "ld_exe": "/opt/mwcps2-3.0.1b210-060308/mwldps2.exe",
+  "retail_elf": "/path/to/SLUS_217.82",
+  "mwcc_versions": { "cw3.0.1b119": "/opt/mwcps2-3.0.1b119-040914/mwccps2.exe" }
 }
 ```
 
-Use the same `mwcc` and `retail_elf` values in both local files.
+Use the same values in both files. The committed `tools/verify_config.json`
+holds only the shared defaults; never put machine-local paths there.
+
+The `Dockerfile` builds a Linux image with binutils and wibo installed; mount
+the compilers and the retail ELF at `/opt/p4`.
 
 ## Build
 
 ```sh
-python -m pip install -r requirements-python.txt
-make setup ISO="D:/path/to/Shin Megami Tensei - Persona 4 (USA).iso"
-make split
-make
-make test
+make setup ISO="/path/to/Shin Megami Tensei - Persona 4 (USA).iso"
+make split      # extract the retail assembly for functions not yet matched
+make            # build the image and verify the retail hashes
+make test       # unit tests for the tooling
 ```
 
-`make setup` writes the ignored `orig/SYSTEM.CNF`, `orig/SLUS_217.82`, and
-`image.bin`. `make` builds the retail image and runs the authoritative verifier.
-
-Useful targets:
+`make setup` writes the ignored `orig/SYSTEM.CNF`, `orig/SLUS_217.82` and
+`image.bin`. Other useful targets:
 
 ```sh
-make build              # build and verify retail hashes
-make verify             # verify every authoritative // FUN_ marker
-make test               # deterministic unit tests
-make progress-validate  # validate committed progress endpoints
+make verify             # score every // FUN_ marker (python tools/verify.py)
+make lint               # tools/decomp_lint.py: style, pragma and honesty rules
+make progress           # regenerate the progress endpoints and this README's table
+make objdiff            # objdiff-cli report for the matching build
 ```
 
-## Decompiling
-
-Use m2c for a first draft, replace inferred names and types with project
-definitions, then require an exact verifier match:
+## Matching a function
 
 ```sh
-make m2c FILE=src/Battle/btlUnit.c FUNC=func_00195850
-python tools/fndiff.py src/Battle/btlUnit.c func_00195850
-python tools/verify.py src/Battle/btlUnit.c
+make m2c FILE=src/Battle/btlUnit.c FUNC=func_00195850   # decompiler first draft
+python tools/fndiff.py src/Battle/btlUnit.c func_00195850  # word-by-word diff against retail
+python tools/verify.py src/Battle/btlUnit.c                 # score the whole file
+python tools/decomp_lint.py src/Battle/btlUnit.c            # before committing
 ```
 
-Function markers use `// FUN_XXXXXXXX`; only `MATCH` functions enter the
-authoritative matching build.
+`fndiff.py` prints the differing words with the retail instruction beside
+yours; `docs/matching.md` catalogues what each kind of residual means and
+which source shape fixes it. The rules of the road:
 
-For grouped candidate generation:
+- A function that is not `MATCH` keeps its `INCLUDE_ASM` line. Nothing
+  non-matching is committed as live C.
+- The `// FUN_` marker is the verifier's denominator: never delete or move
+  one without moving the function.
+- Pragmas that steer the compiler need a `/* measured: ... */` note saying
+  what they fixed; the linter enforces it, and it fails on pragmas the
+  compiler would silently ignore.
+- No inline assembly for ordinary computation; the linter allows only the
+  privileged instructions C cannot express.
 
-```sh
-make m2c-bulk
-python tools/m2c_bulk.py --check
-python tools/verify.py --include-generated --json build/m2c_verify_report.json
-```
-
-`src/generated/` holds m2c candidates, not authoritative source: whole
-translation units of `// FUN_xxxxxxxx M2C_CANDIDATE` functions.
-
-## Tools
-
-```sh
-make reconcile
-make shared-p3 P3_ROOT=../Persona3-FES-Decompilation
-python tools/progress.py
-```
-
-`make shared-p3` compares Persona 3 FES against Persona 4 without copying
-proprietary files into this repository.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to pick a target and what a
+finished function looks like, and the wiki for the long version.
 
 ## Layout
 
 ```text
-config/      target identity, symbols, and progress metadata
-asm/         assembler support; generated split files are ignored
-include/     shared PS2 types and headers
-src/         matching C and generated candidate ownership files
-tools/       setup, build, verification, and analysis tools
-tests/       deterministic parser, ELF, ISO, and reconciliation tests
-orig/        extracted retail files (ignored)
-image.bin    extracted load image (ignored)
-build/       objects, reports, and linked outputs (ignored)
+src/            matching C, one file per original translation unit
+  renderware/   RenderWare Graphics 3.7 ported verbatim (build 119 units)
+  promoted/     game units named by address range (code1_XXXX.c) until identified
+  rw/ cri/ sce/ middleware tracked for the byte-exact image, not decompiled
+  generated/    raw m2c candidates (M2C_CANDIDATE); never authoritative
+include/        project types and headers; include/rw/ is the RenderWare SDK
+config/         target identity, symbol addresses, per-unit compiler/flag lists
+asm/            assembler support; the split retail assembly is ignored
+tools/          setup, build, verify, lint, progress and analysis tools
+tests/          deterministic tests for the tooling
+docs/           matching playbook, style rules, compiler floors, probe archive
+progress/       published progress endpoints (GitHub Pages)
+orig/ build/    extracted retail files and build output (ignored)
 ```
+
+## Related
+
+- [Persona 3 FES decompilation](https://github.com/Raikaru/Persona3-FES-Decompilation)
+  shares a large part of this engine; `make shared-p3` cross-references the
+  two without copying anything between them.
+- [decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation) tracks the
+  progress reported by CI.

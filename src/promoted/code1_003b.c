@@ -84,7 +84,6 @@ extern void func_003b65d0(void);
 extern void func_003b6680(void);
 extern u8 **func_003b6cb0(void *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
 
-
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 15 -> 0).
@@ -760,7 +759,6 @@ s32 func_003bbe60(s32 arg0) {
 /* measured: close schedule around func_003bbe60. */
 #pragma schedule off
 
-
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 15 -> 0).
@@ -774,7 +772,6 @@ s32 func_003bbe80(s32 arg0) {
 }
 /* measured: close schedule around func_003bbe80. */
 #pragma schedule off
-
 
 // measured: with -O2 alone MWCC leaves the addiu $v0, 8 inline with the
 //   b's delay slot unfilled (12 instr, 48B, nd 17).  schedule on
@@ -1107,7 +1104,6 @@ s32 func_003bd560(u8 *arg0) {
 /* measured: close schedule around func_003bd560. */
 #pragma schedule off
 
-
 // measured: with -O2 alone MWCC leaves the addiu $v0, 8 inline with the
 //   b's delay slot unfilled (12 instr, 48B, nd 17).  schedule on
 //   fills the b slot (11 instr, 44B, nd 4) but the scheduler also converts
@@ -1176,15 +1172,12 @@ s32 func_003bd680(u8 *arg0) {
 /* measured: close schedule around func_003bd680/003bd590 scope. */
 #pragma schedule off
 
-
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 16 -> 0).
 
 // FUN_003BD6B0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bd6b0);
-// FUN_003BDD00
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bdd00);
 // FUN_003BE180
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003be180);
 // FUN_003BE7C0
@@ -1196,7 +1189,6 @@ s32 func_003be7c0(s32 arg0) {
 }
 /* measured: close schedule around func_003be7c0. */
 #pragma schedule off
-
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
@@ -1211,7 +1203,6 @@ s32 func_003be7e0(s32 arg0) {
 }
 /* measured: close schedule around func_003be7e0. */
 #pragma schedule off
-
 
 // measured: with -O2 alone MWCC leaves the addiu $v0, 8 inline with the
 //   b's delay slot unfilled (12 instr, 48B, nd 17).  schedule on
@@ -1299,7 +1290,6 @@ s32 func_003be910(u8 *arg0) {
 /* measured: close schedule around func_003be910/003be820 scope. */
 #pragma schedule off
 
-
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 15 -> 0).
@@ -1314,7 +1304,6 @@ s32 func_003be940(s32 arg0, s32 *arg1) {
 /* measured: close schedule around func_003be940. */
 #pragma schedule off
 
-
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
 //   the sw and colours it $v1 (nd 15 -> 0).
@@ -1328,7 +1317,6 @@ s32 func_003be960(s32 arg0, s32 *arg1) {
 }
 /* measured: close schedule around func_003be960. */
 #pragma schedule off
-
 
 // measured: without schedule on, MWCC leaves the jr $ra delay slot
 //   unfilled (nop) and colours the increment $v0; retail fills the slot with
@@ -1346,23 +1334,6 @@ s32 func_003be980(s32 arg0, s32 *arg1) {
 
 /* measured: schedule on reproduces the shared load/store and callback order. */
 #pragma schedule on
-// FUN_003BE9A0
-u8 *func_003be9a0(u8 *arg0) {
-    s32 value;
-
-    if ((*(s32 *)(arg0 + 0x4C) & 2) != 0) {
-        goto callback;
-    }
-load:
-    value = *(u8 *)(arg0 + 3);
-update:
-    value |= 1;
-    *(u8 *)(arg0 + 3) = (u8)value;
-    return arg0;
-callback:
-    func_003bf930();
-    goto load;
-}
 /* measured: schedule off closes the callback bracket. */
 #pragma schedule off
 /* measured: schedule and no_branch_likely reproduce the callback dispatch and return blocks. */
@@ -1396,40 +1367,7 @@ done:
 /* measured: schedule on preserves func_003bea60's call and store ordering;
    no_branch_likely stays on from the bracket opened above func_003be9f0. */
 #pragma schedule on
-// FUN_003BEA60
-u8 *func_003bea60(u8 *arg0, u8 *arg1) {
-    u8 *temp_2;
-    u8 *temp_2_2;
-    s32 pair[2];
-    extern s32 func_003c02e0(u8 *arg0);
-    extern u8 *func_003c03a0(u8 *arg0);
-    extern u8 *func_003c0850(u8 *arg0, u8 *arg1);
-    extern void func_003c1b90(u8 *arg0, s32 arg1);
-    extern void func_003df4d0(s32 *arg0);
-    extern s32 func_003df590(s64 arg0, ...);
-
-    temp_2 = func_003c03a0(arg0);
-    if (temp_2 == NULL) {
-        goto setzero;
-    }
-    temp_2_2 = *(u8 **)(arg0 + 4);
-    if (temp_2_2 == NULL) {
-        goto error;
-    }
-    func_003c1b90(temp_2, *(s32 *)(temp_2_2 + 0xA0));
-    func_003c0850((u8 *)*(s32 *)(arg1 + 4), temp_2);
-    return arg0;
-setzero:
-    *(s32 *)(arg1 + 8) = 0;
-    return NULL;
-error:
-    func_003c02e0(temp_2);
-    pair[0] = 2;
-    pair[1] = func_003df590(5);
-    func_003df4d0(pair);
-zero:
-    return NULL;
-}
+extern u8 *func_003bea60(u8 *arg0, u8 *arg1); /* P4: ported verbatim into src/renderware */
 /* measured: closes the schedule bracket opened above func_003bea60. */
 #pragma schedule off
 /* measured: closes the no_branch_likely bracket opened above func_003be9f0. */
@@ -1474,25 +1412,14 @@ loop_entry:
 #pragma schedule off
 // FUN_003BEBB0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bebb0);
-// FUN_003BED10
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bed10);
 // FUN_003BEE80
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bee80);
 /* measured: -0x4950($gp) is registered as iGpffffb6b0. The scalar GP
    declaration reproduces retail's single gp-relative load before the three
    zero stores. */
-// FUN_003BF1A0
 /* measured: schedule on is required for func_003bf1a0's store delay slot. */
 #pragma schedule on
-s32 func_003bf1a0(s32 arg0) {
-    u8 *temp_3;
-
-    temp_3 = (u8 *)(arg0 + iGpffffb6b0);
-    *(s32 *)(temp_3 + 8) = 0;
-    *(s32 *)(temp_3 + 4) = 0;
-    *(s32 *)(temp_3 + 0) = 0;
-    return arg0;
-}
+extern s32 func_003bf1a0(s32 arg0); /* P4: ported verbatim into src/renderware */
 /* measured: closes schedule around func_003bf1a0. */
 #pragma schedule off
 /* measured: schedule on is required for func_003bf330's call delay slot. */
@@ -1513,12 +1440,6 @@ s32 func_003bf330(s32 arg0) {
 #pragma opt_common_subs on
 #pragma opt_propagation on
 #pragma schedule off
-// FUN_003BF3D0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf3d0);
-// FUN_003BF5F0
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf5f0);
-// FUN_003BF930
-INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bf930);
 // FUN_003BFAE0
 INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003bfae0);
 /* measured: schedule on probe for func_003bfc40 call setup and cleanup. */
