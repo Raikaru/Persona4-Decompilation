@@ -39,6 +39,8 @@ extern RwFreeList _rwChunkGroupFList;
 /* P4: not yet ported; keeps the func_ name until it is. */
 #define RwFreeListCreateAndPreallocateSpace func_003e1220
 extern RwFreeList *func_003e1220(RwInt32, RwInt32, RwInt32, RwInt32, RwFreeList *, RwUInt32);
+#define RwFreeListDestroy func_003e12f0
+extern RwBool func_003e12f0(RwFreeList *);
 
 // FUN_003E46E0
 #pragma schedule on
@@ -66,6 +68,30 @@ _rwChunkGroupOpen(void *instance,
     /* One more module instance */
     chunkGroupModule.numInstances++;
 
+    RWRETURN(instance);
+}
+/* measured: closes the schedule bracket; the unit default is off. */
+#pragma schedule off
+
+// FUN_003E4760
+#pragma schedule on
+void *
+_rwChunkGroupClose(void *instance,
+              RwInt32 __RWUNUSED__ offset,
+              RwInt32 __RWUNUSED__ size )
+{
+    RWFUNCTION(RWSTRING("_rwChunkGroupClose"));
+    RWASSERT(instance);
+
+    if (RWCHUNKGROUPGLOBAL(groupFList))
+    {
+        RwFreeListDestroy(RWCHUNKGROUPGLOBAL(groupFList));
+    }
+
+    /* One less module instance */
+    chunkGroupModule.numInstances--;
+
+    /* All done */
     RWRETURN(instance);
 }
 /* measured: closes the schedule bracket; the unit default is off. */

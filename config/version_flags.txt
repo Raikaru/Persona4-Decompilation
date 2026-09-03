@@ -8,4 +8,10 @@
 # include/rw/std (the libc shims the headers need, no libc is otherwise
 # available), include/rw/ps2 supplies the PlayStation 2 ostypes.h, and the
 # remaining directories mirror the RenderWare source tree's include paths.
-cw3.0.1b119 -nosyspath -Iinclude/rw/std -Iinclude/rw/ps2 -Iinclude/rw/plcore -Iinclude/rw/core -Iinclude/rw/p2 -Iinclude/rw/drvcommon -Iinclude/rw/drvnull -Iinclude/rw/world -Iinclude/rw/worldp2 -Iinclude/rw/inc
+# `-inline auto`: retail inlines small same-unit callees (batkbin.c
+# _rwPluginRegistryWriteDataChunks carries _rwPluginRegistryGetSize inline
+# while the out-of-line copy is also emitted; plain -O2 keeps the call).
+# `-DRWBUILDNUMBER=55`: the tree defaults to build 101, retail's chunk headers
+# are written with build 55 (the `addiu $t0, 0x37` before every
+# _rwStreamWriteVersionedChunkHeader call).
+cw3.0.1b119 -inline auto -DRWBUILDNUMBER=55 -nosyspath -Iinclude/rw/std -Iinclude/rw/ps2 -Iinclude/rw/plcore -Iinclude/rw/core -Iinclude/rw/p2 -Iinclude/rw/drvcommon -Iinclude/rw/drvnull -Iinclude/rw/world -Iinclude/rw/worldp2 -Iinclude/rw/p2null -Iinclude/rw/worldp2null -Iinclude/rw/inc

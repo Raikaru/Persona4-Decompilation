@@ -539,3 +539,11 @@ _rwChunkGroupFListBlockSize = 0x00763c70; // type:data evidence: rwgrp.c static 
 _rwChunkGroupFListPreallocBlocks = 0x00763c74; // type:data evidence: rwgrp.c static RwInt32 = 1; retail func_003e46e0 lw $7,-0x547C($gp); gp base 0x007690F0
 _rwChunkGroupFList = 0x00887280; // type:data evidence: rwgrp.c static RwFreeList; retail func_003e46e0 lui/addiu D_00887280 passed as inPlaceSpaceForFreeListStruct
 ourGlobals = 0x008872e0; // type:data evidence: RwEngineInstance under RWGLOBALSIZE (baplcore.c); the RenderWare block addresses it as lui 0x88/addiu 0x72e0 + module globalsOffset (same address as D_008872E0)
+
+// RwPlcoreMath lane: matrix/vector module and freelist statics
+matrixModule = 0x00764858; // type:data evidence: rwMatrixGlobals module info; retail _rwMatrixOpen sw -0x4898($gp) / _rwMatrixClose lw+sw -0x4894($gp); gp base 0x007690F0
+vectorModule = 0x00764890; // type:data evidence: rwVectorGlobals module info; retail _rwVectorOpen sw -0x4860($gp) / numInstances -0x485c($gp); gp base 0x007690F0
+_rwMatrixFreeListBlockSize = 0x00763c48; // type:data evidence: retail _rwMatrixOpen lw $5,-0x54A8($gp); gp base 0x007690F0
+_rwMatrixFreeListPreallocBlocks = 0x00763c4c; // type:data evidence: retail _rwMatrixOpen lw $7,-0x54A4($gp); gp base 0x007690F0
+_rwMatrixFreeList = 0x008871c0; // type:data evidence: retail _rwMatrixOpen lui 0x88/addiu 0x71c0 as inPlaceSpaceForFreeListStruct
+errorModule = 0x00764850; // type:data evidence: retail code1_003d _rwErrorOpen sw $5,-0x48A0(gp) (0x00764850) globalsOffset; gp base 0x007690F0
