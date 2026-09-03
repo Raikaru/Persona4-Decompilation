@@ -1,3 +1,15 @@
+/* Re-probed 2026-09-02 (Main, later): two more levers measured against b210 -O2,p with
+   opt_propagation off + schedule on. (1) `+=` product statements (`out->x += b->x * a->w`)
+   emit retail's `mtc1 zero; adda.s f0,fN; madd.s` chain exactly (all six, plus the tail adds:
+   lines 15-86 byte-identical except the zero's position). (2) A zero-valued f32 local declared
+   AND assigned first (`f32 zero; zero = 0.0f;` kept alive by one later use) reserves f0 and
+   makes the eight operand locals colour exactly as retail (bw f1, aw f2, by f3, ay f4, bx f5,
+   ax f6, bz f7, az f8) -- the earlier "regardless of declaration order" finding was because f0
+   was free. Declaration order is irrelevant (48 permutations, identical); assignment order
+   z,x,y,w is required. Remaining residual (4 words in the w block): with `ww` named, b210 puts
+   ww in f2 and the dot in f1 (retail: ww f1, dot f3); without `ww`, aw/by swap colours (aw f3,
+   by f2). Retail also parks `mtc1 zero,f0; nop` between the cross-product loads and its mula
+   (b210 places it after that mula, no nop). AST permuter (41k compiles) bottomed at score 179. */
 /* Re-measured 2026-09-02 (Main): NOT a COP1 floor. This body is instruction-for-instruction
    retail's sequence at the exact size (344B, retail window 352B = body + 2 nops); nd217 is
    FPR colouring only. Findings: retail has scheduling OFF (unfilled `clear f0; nop; mula`
