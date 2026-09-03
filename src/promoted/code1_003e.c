@@ -157,7 +157,6 @@ typedef struct {
 } Ctx2430003e;
 extern u8 D_008873F4[];
 
-
 // measured: removing this pragma takes func_003e05d0 nd 0 -> nd 16: retail fills the
 // jr $ra delay slot with sw $v1, 0xc($a0) and hoists move $v0,$a0 before the and;
 // baseline -O2 emits lw; lui; ori; and; sw; move; jr; nop.
@@ -264,8 +263,6 @@ u8 *RwMatrixUpdate(u8 *arg0) {
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
-
-
 /* measured: schedule on keeps the returned pointer in retail's jr delay slot. */
 #pragma schedule on
 // FUN_003E05F0
@@ -368,8 +365,6 @@ void func_003e1020(s32 arg0) {
 }
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
-
-
 
 /* measured: the circular-list sum reconstruction for func_003e1a70 stalled
    at nd 45 in its 112B window: register colouring and the entry comparison
@@ -661,8 +656,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e1ff0);
 // FUN_003E22C0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e22c0);
 
-
-
 /* measured: sum's initial load is written before base setup so b210 keeps
    the D_008872E0 + offset base in $v1 while retail uses $v0 for the running
    sum (nd 10 -> nd 7). The remaining difference is one missing nop before
@@ -792,45 +785,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2ce0);
 // FUN_003E2E40
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e2e40);
 
-
-
-
-
-
-
-
 /* measured: schedule on fills the jr delay slot and the alignment nop after
    the filled back-edge, and no_branch_likely on preserves the plain beq/bne
    shape for the linked-list search. */
-#pragma schedule on
-#pragma no_branch_likely on
-// FUN_003E30C0
-s32 func_003e30c0(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-    loop:
-        if (*(s32 *)(node + 8) == arg1) {
-            goto found;
-        }
-        node = *(u8 **)(node + 0x30);
-        if (node != NULL) {
-            goto loop;
-        } else {
-            ;
-        }
-    }
-found:
-    if (node != NULL) {
-        *(s32 *)(node + 0x1c) = arg2;
-        return *(s32 *)(node + 0);
-    }
-    return -1;
-}
-/* measured: close the schedule/no_branch_likely bracket around func_003e30c0. */
-#pragma no_branch_likely off
-#pragma schedule off
 // FUN_003E3110 NONMATCHING
 #ifdef NON_MATCHING
 typedef s32 M2C_UNK;
@@ -931,33 +888,7 @@ block_27:
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3110);
 #endif
-/* measured: schedule probe for 003e32f0 branch delay placement. */
-#pragma schedule on
-/* measured: no_branch_likely probe for plain list branches. */
-#pragma no_branch_likely on
-/* measured: optimization_level 1 conditional-move probe for 003e32f0. */
-#pragma optimization_level 1
-// FUN_003E32F0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e32f0);
-/* measured: closes optimization_level 1 around func_003e32f0. */
-#pragma optimization_level 2
-/* measured: closes no_branch_likely probe around func_003e32f0. */
-#pragma no_branch_likely off
-/* measured: closes schedule probe around func_003e32f0. */
-#pragma schedule off
 
-// FUN_003E33F0
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e33f0);
-/* measured: schedule probe for 003e3560 delay-slot and epilogue placement. */
-/* measured: no-branch-likely paired with schedule for retail plain branches. */
-#pragma no_branch_likely on
-#pragma schedule on
-// FUN_003E3560
-INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3560);
-/* measured: closes schedule probe around func_003e3560. */
-/* measured: closes no-branch-likely probe around func_003e3560. */
-#pragma no_branch_likely off
-#pragma schedule off
 // FUN_003E3630
 /* measured: schedule bracket retained for func_003e3630. */
 #pragma schedule on
@@ -1042,7 +973,6 @@ return_zero:
 #pragma no_branch_likely off
 #pragma schedule off
 
-
 // FUN_003E3C90
 #pragma schedule on
 /* measured: no_branch_likely knob retains the func_003e3c90 bracket. */
@@ -1060,7 +990,6 @@ s32 func_003e3c90(s32 arg0, s32 arg1, s32 arg2) {
 /* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
-
 
 // FUN_003E3D00
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e3d00);
@@ -1223,7 +1152,6 @@ s32 func_003e43a0(s32 arg0) {
 /* measured: closes the single-function schedule bracket. */
 #pragma schedule off
 
-
 /* measured: schedule-on callback initializer matches object 84B/window 96B,
    normalized_diff 0; direct callback stores reproduce retail order. */
 #pragma schedule on
@@ -1244,9 +1172,6 @@ s32 func_003e43c0(s32 arg0, s32 arg1) {
 /* measured: closes schedule-on callback initializer, object 84B/window 96B,
    normalized_diff 0. */
 #pragma schedule off
-
-
-
 
 /* measured: same out-of-line-body shape as func_003e59e0 - retail branches to
    the initialisation block and falls into the early `return 0`, so the goto
@@ -1341,7 +1266,6 @@ s32 func_003e4510(void) {
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
 
-
 // measured: removing this pragma takes func_003e5510 nd 0 -> nd 6: retail fills the
 // jr $ra delay slot with sw $a0, -0x5478($gp); baseline -O2 emits sw; jr; nop.
 
@@ -1360,23 +1284,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e4520);
 // FUN_003E45F0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e45f0);
 /* measured: best plain-C body archived in build/Q3EE_003e45f0_body.c; object 240B/window 240B, normalized_diff 152; retail frameless caller-saved coloring across func_003e4420 remains unresolved after source-shape, declaration, width, callee-argument-count, and scoped optimization probes. */
-
-/* measured: schedule/no_branch_likely bracket retained for func_003e4760. */
-#pragma schedule on
-#pragma no_branch_likely on
-// FUN_003E4760
-u8 *func_003e4760(u8 *arg0) {
-    s32 v = *(s32 *)&D_008872E0[D_00764898];
-    if (v != 0) {
-        func_003e12f0((void *)v);
-    }
-    D_0076489C--;
-    return arg0;
-}
-/* measured: closes the function pragma bracket. */
-#pragma no_branch_likely off
-#pragma schedule off
-
 
 /* measured: schedule/no_branch_likely bracket retained for func_003e4880. */
 #pragma schedule on
@@ -1432,7 +1339,6 @@ s8 *func_003e48d0(s8 *arg0) {
 /* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
-
 
 /* Parked candidate: the string-search loop and sign-extension sequence are
    structurally right, but b210 keeps the found-pointer value in the wrong
@@ -1657,7 +1563,6 @@ void func_003e5510(s32 arg0) {
 /* measured: closes optimization_level 3 around func_003e5510. */
 #pragma optimization_level 2
 
-
 // measured: removing this pragma takes func_003e6750 nd 0 -> nd 15: retail fills the
 // jr $ra delay slot with sw $v1, ($a1) and hoists move $v0,$a0 before the addiu;
 // baseline -O2 emits lw; addiu; sw; move; jr; nop.
@@ -1873,9 +1778,6 @@ s32 func_003e6240(s32 arg0) {
 /* measured: closes the function pragma bracket. */
 #pragma schedule off
 
-
-
-
 // FUN_003E62B0
 INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e62b0);
 
@@ -1910,8 +1812,6 @@ s32 func_003e6750(s32 arg0, s32 *arg1) {
 }
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2
-
-
 
 /* MATCHED: object 252B / retail window 256B / normalized_diff 0. The
    D_00887394 callback's third parameter must be u32 (not s32); that
@@ -2019,11 +1919,6 @@ s32 func_003e7f50(u8 *arg0) {
 #pragma no_branch_likely off
 #pragma schedule off
 
-
-
-
-
-
 /* measured: schedule+no_branch_likely load-bearing - schedule puts the
    D_008872E0 store in the func_003ed7e0 jal delay slot. */
 // FUN_003E7FB0
@@ -2043,7 +1938,6 @@ s32 func_003e7fb0(u8 *arg0) {
 #pragma no_branch_likely off
 #pragma schedule off
 
-
 /* measured: schedule+no_branch_likely load-bearing, same shape as func_003e25f0
    but with a D_008872E0[D_007648A0]=0 store inside the guard. */
 // FUN_003E8010
@@ -2062,7 +1956,6 @@ u8 *func_003e8010(u8 *arg0) {
 /* measured: closes the function pragma bracket. */
 #pragma no_branch_likely off
 #pragma schedule off
-
 
 /* measured: the reload of the slot before the branch is a store-to-load forwarding
    that b210 does as a peephole; peephole off keeps it (the archive needed volatile). */

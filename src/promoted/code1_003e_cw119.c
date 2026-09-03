@@ -23,30 +23,6 @@ u8 *func_003e82e0(u8 *arg0) {
 
 /* The alignment nop after the filled back-edge slot is the unit's -O2,p; the
    b210 residual (nd 16) is gone under b119. */
-// FUN_003E3070
-#pragma schedule on
-s32 func_003e3070(u8 *arg0, s32 arg1, s32 arg2) {
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-    loop:
-        if (*(s32 *)(node + 8) != arg1) {
-            node = *(u8 **)(node + 0x30);
-            if (node == NULL) {
-            } else {
-                goto loop;
-            }
-        }
-    }
-    if (node != NULL) {
-        *(s32 *)(node + 0x18) = arg2;
-        return *(s32 *)(node + 0);
-    }
-    return -1;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 extern s32 D_008866D8;
 extern s32 D_0088731C;
@@ -164,34 +140,7 @@ done:
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off
 
-
 /* The archived b210 residual is gone under b119. */
-// FUN_003E3020
-#pragma schedule on
-s32 func_003e3020(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    if (node != NULL) {
-    loop:
-        if (*(s32 *)(node + 8) != arg1) {
-            node = *(u8 **)(node + 0x30);
-            if (node == NULL) {
-            } else {
-                goto loop;
-            }
-        }
-    }
-    if (node != NULL) {
-        *(s32 *)(node + 0x0c) = arg2;
-        *(s32 *)(node + 0x10) = arg3;
-        *(s32 *)(node + 0x14) = arg4;
-        return *(s32 *)(node + 0);
-    }
-    return -1;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 typedef void (*Callback003e)(u8 *, u8 *, u8 *);
 typedef struct {
@@ -213,32 +162,6 @@ typedef struct {
     void *tail_prev;
 } Ctx2430003e;
 /* Archived b210 near-miss (Y3EA_003e3370); exact under b119 with schedule on. */
-// FUN_003E3370
-#pragma schedule on
-s32 func_003e3370(u8 *arg0, s32 arg1) {
-    s32 (*callback)(s32, s32, s32);
-    s32 callback_result;
-    s32 total;
-    u8 *node;
-
-    node = *(u8 **)(arg0 + 0x10);
-    total = 0;
-    if (node != NULL) {
-        do {
-            callback = *(s32 (**)(s32, s32, s32))(node + 0x14);
-            if (callback != NULL) {
-                callback_result = callback(arg1, *(s32 *)(node + 0), *(s32 *)(node + 4));
-                if (callback_result > 0) {
-                    total += callback_result + 0xC;
-                }
-            }
-            node = *(u8 **)(node + 0x30);
-        } while (node != NULL);
-    }
-    return total;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 extern void *D_00887408[];
 extern void *D_00764864;
