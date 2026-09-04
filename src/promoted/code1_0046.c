@@ -626,7 +626,155 @@ void func_00462230(u8 *arg0)
 // measured: closes opt_propagation around func_00462230.
 #pragma opt_propagation on
 // FUN_004623A0
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004623a0);
+void func_004623a0(u8 *arg0)
+{
+    u8 *p;
+    s8 sp2C[4];
+    s8 *ptr;
+    s32 count;
+    u16 type;
+    void (*start_cb)(u8 *, s32, void *);
+    void (*end_cb)(u8 *, s32, void *);
+    extern void func_003e82a0(s32, s8 *, s32);
+    extern s32 func_003c9d00(u8 *);
+    extern void *func_00462170(void *);
+    extern void func_00410420(void *, u32, void *, u32);
+    extern void func_004104d0(void);
+    extern void func_00410520(u32, void *, u32);
+    extern void func_004106a0(s32);
+    extern s32 func_00410800(s32, s32, s32);
+    extern s32 func_00410930(s32, s32);
+    extern void func_004815b0(void *);
+    extern void func_00481660(void *);
+    extern void func_004816d0(void *);
+    extern void func_00481740(void *);
+    extern void func_004818a0(void *);
+    extern void func_004818c0(void *);
+    extern void func_00475cd0(void *);
+    extern void (*D_00887310[])(s32, void *, s32);
+    extern void (*D_00887314[])(s32, void *, s32, void *, s32);
+    extern void (*D_00887308[])(s32, s32, s32, s32);
+    extern void (*D_0088730C[])(s32, s32, s32, s32, s32);
+
+    p = arg0;
+    while (p != NULL) {
+        start_cb = (void (*)(u8 *, s32, void *))*(u32 *)(p + 8);
+        if ((start_cb != NULL) && (((*(u16 *)(p + 0x1A) & 1) == 0) || (*(u32 *)p != 0))) {
+            start_cb(p + 0x1C, *(s32 *)(p + 0x10), (void *)start_cb);
+        }
+
+        type = *(u16 *)(p + 0x18);
+        switch (type) {
+        case 1:
+            ptr = &sp2C[0];
+            count = 4;
+            if (ptr != NULL) {
+                do {
+                    *ptr = 0;
+                    ptr++;
+                    count--;
+                } while (count != 0);
+            }
+            func_003e82a0(func_00457120(), &sp2C[0], *(s32 *)(p + 0x1C));
+            break;
+        case 2:
+            D_00887300[0](*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20));
+            break;
+        case 3:
+            func_003f6440(*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20));
+            break;
+        case 4:
+            {
+                u8 *obj = *(u8 **)(p + 0x1C);
+                ((void (*)(u8 *))*(u32 *)((u8 *)obj + 0x48))(obj);
+            }
+            break;
+        case 5:
+            func_00461560(p);
+            func_00461a40(p);
+            func_00461be0(p);
+            break;
+        case 6:
+            func_00461560(p);
+            break;
+        case 7:
+            func_00461a40(p);
+            break;
+        case 8:
+            func_00461be0(p);
+            break;
+        case 9:
+            func_003bff30(*(void **)(p + 0x1C), (void *)func_00462170, NULL);
+            break;
+        case 10:
+            func_003c9d00(*(u8 **)(p + 0x1C));
+            break;
+        case 11:
+            D_00887310[0](*(s32 *)(p + 0x1C), *(void **)(p + 0x20), *(s32 *)(p + 0x24));
+            break;
+        case 12:
+            D_00887314[0](*(s32 *)(p + 0x1C), *(void **)(p + 0x20), *(s32 *)(p + 0x24), *(void **)(p + 0x28), *(s32 *)(p + 0x2C));
+            break;
+        case 13:
+            D_00887308[0](*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20), *(s32 *)(p + 0x24), *(s32 *)(p + 0x28));
+            break;
+        case 14:
+            D_0088730C[0](*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20), *(s32 *)(p + 0x24), *(s32 *)(p + 0x28), *(s32 *)(p + 0x2C));
+            break;
+        case 15:
+            func_00410420(*(void **)(p + 0x1C), *(u32 *)(p + 0x20), *(void **)(p + 0x24), *(u32 *)(p + 0x28));
+            break;
+        case 16:
+            func_004104d0();
+            break;
+        case 17:
+            func_00410930(*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20));
+            break;
+        case 18:
+            func_00410800(*(s32 *)(p + 0x1C), *(s32 *)(p + 0x20), *(s32 *)(p + 0x24));
+            break;
+        case 19:
+            func_004106a0(*(s32 *)(p + 0x1C));
+            break;
+        case 20:
+            func_00410520(*(u32 *)(p + 0x1C), *(void **)(p + 0x20), *(u32 *)(p + 0x24));
+            break;
+        case 21:
+            func_004815b0(*(void **)(p + 0x1C));
+            break;
+        case 22:
+            func_00481660(*(void **)(p + 0x1C));
+            break;
+        case 23:
+            func_004816d0(*(void **)(p + 0x1C));
+            break;
+        case 24:
+            func_00481740(*(void **)(p + 0x1C));
+            break;
+        case 25:
+            func_004818a0(*(void **)(p + 0x1C));
+            break;
+        case 26:
+            func_004818c0(*(void **)(p + 0x1C));
+            break;
+        case 27:
+            func_00462230(p);
+            break;
+        case 28:
+            func_00475cd0(*(void **)(p + 0x1C));
+            break;
+        default:
+            break;
+        }
+
+        end_cb = (void (*)(u8 *, s32, void *))*(u32 *)(p + 0xC);
+        if ((end_cb != NULL) && (((*(u16 *)(p + 0x1A) & 1) == 0) || (*(u32 *)p != 0))) {
+            end_cb(p + 0x1C, *(s32 *)(p + 0x14), (void *)end_cb);
+        }
+
+        p = *(u8 **)p;
+    }
+}
 // FUN_00462BF0
 void func_00462bf0(u8 *arg0)
 {
