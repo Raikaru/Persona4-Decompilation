@@ -761,8 +761,33 @@ s32 func_00144af0(void)
     return func_00451de0(&D_005EF7B0, 0x100, 0, 0,
                          func_001441e0, func_00144ac0, (void *)(u32)temp_2);
 }
-// FUN_00144B80 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0014", func_00144b80);
+/* Return zero for a missing path; otherwise retain retail's short-circuited
+   predicate calls and always-one result. Distinct equivalent low-16 forms
+   prevent caching masks across calls without changing the predicate ABI.
+   measured: object 264B/window 272B; exact instructions and 8B zero tail. */
+// FUN_00144B80
+s32 func_00144b80(s32 arg0, s32 arg1)
+{
+    char path[128];
+    char part[128];
+    s32 result;
+
+    func_00442830(path, (char *)D_005EF7C0);
+    func_00442088(part, (char *)&iGpffff9db8, arg0);
+    func_00442428(path, part);
+    func_00442088(part, (char *)&iGpffff9dc0, arg1);
+    func_00442428(path, part);
+    func_00442428(path, &iGpffff9dc8);
+    if (func_00454570(path) == 0) {
+        return 0;
+    }
+    result = 1;
+    if (func_0014a230((u16)arg0, (u16)arg1) == 1 ||
+        func_0014a2a0(arg0 & 0xFFFF, arg1 & 0xFFFF) == 1) {
+        result = 1;
+    }
+    return result;
+}
 // FUN_00144C90
 void func_00144c90(s32 arg0, s32 arg1) {
     u8 *temp_3;
