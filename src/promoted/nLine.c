@@ -110,28 +110,52 @@ void func_0034ba20(void) {
     iGpffffb5a4 = 0xB0;
 }
 
-/* measured: retail colors the D_00882FF0 base $a2 and D_00749B30 base $a0
-   (loop dst-temp in $a1); mwcc b210 always colors the second preheader base
-   load $a1 and the dst-temp $a0, cascading through every store, nd 25. Tried
-   named pointer locals, inline expressions, f32* pointers, s32 base/offset
-   locals, m2c goto shape, and src/dst declaration+assignment order swaps —
-   best identical nd 25. Re-attacked this wave: hoisting both bases into
-   locals before the loop reproduces retail's preheader exactly (lui/addiu
-   $a2 dst, $a0 src, move $a3 counter) and the store body matches byte-
-   for-byte; the ONLY residual is a clean $a0/$a1 swap between the src base
-   and the dst-temp (retail src=$a0/dst-temp=$a1, mwcc src=$a1/dst-temp=$a0)
-   across all 19 stores, nd 25. Lever 1 (signature) N/A: void, no args, no
-   externs. Register-coloring floor. */
-/* measured: nd 64 against retail's 224-byte window (object 212, retail's real
-   body is the same 212 with three trailing nops). Every instruction is right -
-   an earlier probe measured zero differing WORDS - and the residual is register
-   colouring across the nineteen stores plus the order in which the two table
-   base addresses are materialised: retail loads the destination base first.
-   Declaring and assigning the destination pointer ahead of the source does not
-   move it. Committed at nd 64. */
-// Archived C body: build/WBHygiene_func_0034ba30_archive.txt; no current park body remains.
+/* Initialize 20 records from the compact defaults table, preserving untouched
+   fields. Row pointers formed inside the loop plus invariant hoisting give
+   retail's destination-first address schedule and register allocation.
+   measured: object 212B/window 224B; exact instructions, 12B zero tail. */
+#pragma opt_loop_invariants on
 // FUN_0034BA30
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ba30);
+void func_0034ba30(void) {
+    u8 *dst;
+    u8 *src;
+    s32 i;
+    f32 t0;
+    f32 t1;
+    f32 t2;
+    f32 t3;
+
+    D_00884670[0] = 0;
+    D_00884674[0] = 0;
+    D_00884678[0] = 0;
+    D_00884680[0] = 0;
+    D_00884684[0] = 0;
+    for (i = 0; i < 20; i++) {
+        dst = D_00882FF0 + i * 84;
+        src = D_00749B30 + i * 20;
+        t0 = *(f32 *)(src + 0);
+        *(f32 *)(dst + 0x18) = t0;
+        *(f32 *)(dst + 0x08) = t0;
+        *(f32 *)(dst + 0x00) = t0;
+        t1 = *(f32 *)(src + 4);
+        *(f32 *)(dst + 0x1C) = t1;
+        *(f32 *)(dst + 0x0C) = t1;
+        *(f32 *)(dst + 0x04) = t1;
+        t2 = *(f32 *)(src + 0xC);
+        *(f32 *)(dst + 0x2C) = t2;
+        *(f32 *)(dst + 0x24) = t2;
+        *(f32 *)(dst + 0x20) = t2;
+        t3 = *(f32 *)(src + 0x10);
+        *(f32 *)(dst + 0x34) = t3;
+        *(f32 *)(dst + 0x30) = t3;
+        *(s16 *)(dst + 0x48) = *(s16 *)(src + 8);
+        *(s32 *)(dst + 0x4C) = 0;
+        *(s32 *)(dst + 0x10) = 0;
+        *(s32 *)(dst + 0x14) = 0;
+    }
+}
+/* measured: close the exact ba30 loop-invariant scope at the TU baseline. */
+#pragma opt_loop_invariants off
 
 // FUN_0034BB10
 s32 func_0034bb10(void) {
