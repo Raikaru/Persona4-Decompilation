@@ -215,8 +215,64 @@ void func_00160440(void)
 }
 
 
+/* Build a 7-by-8 grid of 80-by-64 quads, snapshotting depth before any stores.
+   measured: natural vertex assignment order, invariant hoisting and disabled
+   propagation preserve retail's coordinate preparation and float registers.
+   Object 252B/window 256B; exact instructions and a four-byte zero tail. */
+#pragma opt_loop_invariants on
+#pragma opt_propagation off
 // FUN_001604A0
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_001604a0);
+void func_001604a0(u8 *arg0)
+{
+    f32 depth = *(f32 *)(arg0 + 0x80);
+    f32 inv = 1.0f / depth;
+    s32 i;
+    s32 j;
+    u8 *row;
+    u8 *p;
+    f32 left;
+    f32 top;
+    f32 right;
+    f32 bottom;
+    s32 x;
+    s32 top_y;
+    s32 bottom_y;
+
+    for (i = 0; i < 7; i++) {
+        j = 0;
+        row = D_007E4320 + (i << 11);
+        while (j < 8) {
+            x = (j * 5) << 4;
+            p = row + (j << 8);
+            left = (f32)x;
+            *(f32 *)(p + 0) = left;
+            top_y = i << 6;
+            bottom_y = top_y + 64;
+            top = (f32)top_y;
+            *(f32 *)(p + 4) = top;
+            *(f32 *)(p + 8) = depth;
+            j++;
+            right = (f32)((j * 5) << 4);
+            *(f32 *)(p + 64) = right;
+            *(f32 *)(p + 68) = top;
+            *(f32 *)(p + 72) = depth;
+            *(f32 *)(p + 128) = left;
+            bottom = (f32)bottom_y;
+            *(f32 *)(p + 132) = bottom;
+            *(f32 *)(p + 136) = depth;
+            *(f32 *)(p + 192) = right;
+            *(f32 *)(p + 196) = bottom;
+            *(f32 *)(p + 200) = depth;
+            *(f32 *)(p + 24) = inv;
+            *(f32 *)(p + 88) = inv;
+            *(f32 *)(p + 152) = inv;
+            *(f32 *)(p + 216) = inv;
+        }
+    }
+}
+/* measured: restore propagation and invariant baselines after the exact grid. */
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
 // FUN_001605A0
 void func_001605a0(void)
 {
