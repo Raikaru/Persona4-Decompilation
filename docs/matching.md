@@ -170,6 +170,15 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   the old address-order/register-coloring floor: 212B of exact instructions
   in a 224B window, with 12B of zero padding. Merely declaring both table
   bases before the loop did not reproduce that schedule.
+- **Let invariant hoisting move natural vertex assignments, not vice versa.**
+  In `func_001604a0`, assign left X, top Y, right X, then bottom Y in vertex
+  store order. With `opt_loop_invariants on` and `opt_propagation off`,
+  b210 moves the row-only Y work out of the inner loop while retaining the
+  required float register allocation. Preparing those floats explicitly
+  before the inner loop left 14 instruction-word differences.
+  The matching body is 252B in a 256B window. Reconstruct coordinates and
+  load lifetimes before probing: the obsolete archive used the wrong
+  right-edge X and top Y and reloaded depth instead of snapshotting it.
 - **Correct pointer types before diagnosing computed-address argument order.**
   `func_00190920` needs the lookup declaration
   `void *func_003ef650(void *, const char *)` and byte-pointer name expressions
