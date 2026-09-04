@@ -1,11 +1,4 @@
-"""Tests for tools/probe_variants.py.
-
-The prober edits a real source file in place and is expected to put it back.
-The behaviour that actually matters is therefore restoration: a candidate that
-fails to compile, or a run that raises, must not leave a half-written function
-behind. These tests drive the region logic and the restore path directly with a
-stubbed diff, so they do not need the compiler.
-"""
+"""Regression tests for the isolated probe workflow."""
 
 from __future__ import annotations
 
@@ -36,24 +29,41 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246970);
 
 
 class RegionTests(unittest.TestCase):
-    def test_region_stops_at_the_next_marker(self) -> None:
-        start, end = probe.region_for(SOURCE, "FUN_00246940")
-        body = SOURCE[start:end]
-        self.assertIn("func_00246940", body)
-        self.assertNotIn("func_00246910", body)
-        self.assertNotIn("func_00246970", body)
+    def test_region_is_only_the_target_definition(self) -> None:
+        source = """\
+// FUN_00246940
+static int helper_value;
+void func_00246940(void)
+{
+    return;
+}
+static int neighboring_value;
+// FUN_00246970
+INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246970);
+"""
+        start, end = probe.region_for(source, "FUN_00246940", "func_00246940")
+        span = source[start:end]
+        self.assertIn("void func_00246940", span)
+        self.assertNotIn("helper_value", span)
+        self.assertNotIn("neighboring_value", span)
 
-    def test_region_of_last_marker_runs_to_eof(self) -> None:
+    def test_single_line_definition_preserves_following_declaration(self) -> None:
+        source = "// FUN_00246940\nint func_00246940(void) { return 2; } int next;\n"
+        start, end = probe.region_for(source, "FUN_00246940")
+        self.assertEqual(source[start:end], "int func_00246940(void) { return 2; }")
+        self.assertEqual(source[end:], " int next;\n")
+
+    def test_bare_fallback_span_does_not_consume_the_next_marker(self) -> None:
+        start, end = probe.region_for(SOURCE, "FUN_00246940")
+        span = SOURCE[start:end]
+        self.assertIn("func_00246940", span)
+        self.assertNotIn("func_00246910", span)
+        self.assertNotIn("func_00246970", span)
+
+    def test_last_fallback_span_reaches_end_of_file_only_when_needed(self) -> None:
         start, end = probe.region_for(SOURCE, "FUN_00246970")
         self.assertEqual(end, len(SOURCE))
         self.assertIn("func_00246970", SOURCE[start:end])
-
-    def test_region_excludes_the_marker_line_itself(self) -> None:
-        """The marker must survive replacement; it is how verify.py tracks it."""
-        start, end = probe.region_for(SOURCE, "FUN_00246940")
-        replaced = SOURCE[:start] + "int f(void) { return 0; }\n" + SOURCE[end:]
-        self.assertIn("// FUN_00246940", replaced)
-        self.assertEqual(replaced.count("// FUN_"), SOURCE.count("// FUN_"))
 
     def test_unknown_marker_is_rejected(self) -> None:
         with self.assertRaises(SystemExit):
@@ -67,32 +77,27 @@ class RegionTests(unittest.TestCase):
             probe.address_of("memset")
 
 
-class RestoreTests(unittest.TestCase):
-    """A probe run must never leave the file in a candidate state."""
-
+class IsolationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.path = Path(self.tmp.name) / "cmmMisc.c"
-        with open(self.path, "wb") as handle:
-            handle.write(SOURCE.encode("utf-8"))
+        self.path.write_bytes(SOURCE.encode("utf-8"))
         self.original = self.path.read_bytes()
         self.addCleanup(self.tmp.cleanup)
 
-    def run_probe(self, scores, candidates, keep=None):
-        """Drive main() with a stubbed compiler."""
+    def run_probe(self, scores, candidates):
+        """Drive main() with a stubbed score while recording scratch copies."""
         seen = []
         real = probe.differing_words
 
         def fake(source: Path, function: str):
-            seen.append(Path(source).read_text(encoding="utf-8"))
+            seen.append(Path(source).read_bytes())
             return scores[len(seen) - 1]
 
         probe.differing_words = fake
         argv = [str(self.path), "func_00246940"]
         for name, path in candidates:
             argv += ["--candidate", f"{name}={path}"]
-        if keep:
-            argv += ["--keep", keep]
         try:
             import sys
 
@@ -108,76 +113,71 @@ class RestoreTests(unittest.TestCase):
 
     def candidate(self, name: str, text: str) -> tuple[str, str]:
         path = Path(self.tmp.name) / f"{name}.c"
-        with open(path, "wb") as handle:
-            handle.write(text.encode("utf-8"))
+        path.write_text(text, encoding="utf-8")
         return name, str(path)
 
-    def test_no_match_restores_the_file_exactly(self) -> None:
-        cand = self.candidate("a", "int func_00246940(void) { return 1; }\n")
-        # The INCLUDE_ASM baseline is not compiled, so `scores` covers the
-        # candidates only.
-        status, seen = self.run_probe([4], [cand])
+    def test_compile_failure_leaves_source_and_neighbor_unchanged(self) -> None:
+        candidate = self.candidate("bad", "this is not C\n")
+        status, seen = self.run_probe([None], [candidate])
         self.assertEqual(status, 1)
         self.assertEqual(self.path.read_bytes(), self.original)
-        # The candidate really was compiled, so restoration is not a no-op.
-        self.assertIn("return 1", seen[0])
-
-    def test_compile_error_still_restores(self) -> None:
-        cand = self.candidate("bad", "this is not C\n")
-        status, _ = self.run_probe([None], [cand])
-        self.assertEqual(status, 1)
-        self.assertEqual(self.path.read_bytes(), self.original)
-
-    def test_include_asm_baseline_is_never_scored_or_crowned(self) -> None:
-        """The fallback assembles the retail bytes, so it would score a perfect
-        0 while matching nothing -- crowning it and burying every candidate."""
-        cand = self.candidate("a", "int func_00246940(void) { return 1; }\n")
-        status, seen = self.run_probe([6], [cand])
-        # One compile only: the candidate. The baseline was skipped.
         self.assertEqual(len(seen), 1)
-        self.assertIn("return 1", seen[0])
-        # No candidate reached zero, so nothing is kept and the run reports failure.
-        self.assertEqual(status, 1)
+        self.assertIn(b"this is not C", seen[0])
+        self.assertIn(b"// FUN_00246970", seen[0])
+        self.assertIn(b"func_00246970", seen[0])
+
+    def test_match_is_reported_but_source_and_neighbor_stay_unchanged(self) -> None:
+        candidate = self.candidate(
+            "win", "int func_00246940(void) { return 2; }\n"
+        )
+        status, seen = self.run_probe([0], [candidate])
+        self.assertEqual(status, 0)
         self.assertEqual(self.path.read_bytes(), self.original)
+        self.assertEqual(len(seen), 1)
+        self.assertIn(b"return 2", seen[0])
+        self.assertIn(b"// FUN_00246910", seen[0])
+        self.assertIn(b"// FUN_00246970", seen[0])
 
     def test_candidate_without_trailing_newline_keeps_the_next_marker(self) -> None:
-        """A body with no trailing newline used to splice onto the following
-        `// FUN_` marker, merging them so the next function lost its marker and
-        vanished from the file."""
-        path = Path(self.tmp.name) / "nonl.c"
-        with open(path, "wb") as handle:
-            handle.write(b"int func_00246940(void) { return 4; }")  # no newline
-        status, _ = self.run_probe([0], [("nonl", str(path))])
+        candidate = self.candidate("nonl", "int func_00246940(void) { return 4; }")
+        status, seen = self.run_probe([0], [candidate])
         self.assertEqual(status, 0)
-        kept = self.path.read_text(encoding="utf-8")
-        self.assertIn("return 4", kept)
-        # The neighbour below still owns its own marker line.
-        self.assertRegex(kept, r"(?m)^//\s*FUN_00246970\b")
-        self.assertIn("func_00246970", kept)
+        self.assertEqual(self.path.read_bytes(), self.original)
+        self.assertIn(b"return 4", seen[0])
+        self.assertRegex(seen[0], rb"(?m)^//\s*FUN_00246970\b")
 
-    def test_zero_diff_candidate_is_kept(self) -> None:
-        cand = self.candidate("win", "int func_00246940(void) { return 2; }\n")
-        status, _ = self.run_probe([0], [cand])
-        self.assertEqual(status, 0)
-        kept = self.path.read_text(encoding="utf-8")
-        self.assertIn("return 2", kept)
-        self.assertIn("// FUN_00246940", kept)
-        self.assertNotIn("INCLUDE_ASM(\"asm/nonmatchings/cmmMisc\", func_00246940)", kept)
-        # Neighbours are untouched.
-        self.assertIn("func_00246910", kept)
-        self.assertIn("func_00246970", kept)
-
-    def test_keep_forces_a_non_matching_candidate_to_stay(self) -> None:
-        cand = self.candidate("near", "int func_00246940(void) { return 3; }\n")
-        status, _ = self.run_probe([5], [cand], keep="near")
+    def test_include_asm_baseline_is_never_scored(self) -> None:
+        candidate = self.candidate(
+            "a", "int func_00246940(void) { return 1; }\n"
+        )
+        status, seen = self.run_probe([6], [candidate])
         self.assertEqual(status, 1)
-        self.assertIn("return 3", self.path.read_text(encoding="utf-8"))
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(self.path.read_bytes(), self.original)
 
-    def test_restore_writes_lf_not_crlf(self) -> None:
-        """Round-tripping through text mode would reflow the whole file."""
-        cand = self.candidate("a", "int func_00246940(void) { return 1; }\n")
-        self.run_probe([7, 4], [cand])
-        self.assertNotIn(b"\r\n", self.path.read_bytes())
+    def test_interrupt_does_not_restore_over_concurrent_source_edit(self) -> None:
+        import sys
+        from unittest.mock import patch
+
+        candidate = self.candidate("interrupt", "int func_00246940(void) { return 2; }")
+        changed = self.original + b"/* concurrent editor change */\n"
+        scratch_paths = []
+
+        def interrupted(source, function):
+            scratch_paths.append(source)
+            self.path.write_bytes(changed)
+            raise KeyboardInterrupt
+
+        args = ["probe_variants.py", str(self.path), "func_00246940",
+                "--candidate", f"{candidate[0]}={candidate[1]}"]
+        with patch.object(sys, "argv", args), patch.object(
+            probe, "differing_words", interrupted
+        ):
+            with self.assertRaises(KeyboardInterrupt):
+                probe.main()
+        self.assertEqual(self.path.read_bytes(), changed)
+        self.assertEqual(len(scratch_paths), 1)
+        self.assertFalse(scratch_paths[0].exists())
 
 
 if __name__ == "__main__":

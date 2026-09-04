@@ -18,9 +18,117 @@ Rules of engagement:
   a nonzero count on a `!`-free listing is padding, not a bug.
 - If only register allocation, instruction scheduling, evaluation order,
   FPU-register choice, or commutative operand orientation remains after
-  exhausting the levers below, it is a compiler floor — see the list at the
-  bottom, tag the marker `// FUN_XXXXXXXX NONMATCHING`, and move on. Never
-  keep grinding a proven wall.
+  exhausting the levers below, it is a compiler floor. Keep production as
+  `INCLUDE_ASM`/ASM; do not leave a `NONMATCHING` C body in `src/`. Preserve
+  the best semantically faithful C only in the existing `docs/probe_archive/`
+  record with its measured result, then move on. Never claim that a floor is
+  impossible.
+
+## Operating procedure
+
+Use this six-step loop for every target:
+
+1. **Stage the shape before tuning.** Recover the EE ABI and types/prototypes,
+   then match the frame and values live across calls, then reconstruct the
+   CFG/branch layout. Only after those agree, try instruction scheduling,
+   register coloring, or operand orientation.
+2. **Reuse the proven catalogue.** Start with the symptom table below and its
+   linked technique section. Write one named hypothesis (`H: ...`) and change
+   only the source shape that tests it; do not invent a new steering form when
+   a measured lever applies.
+3. **Probe in isolation.** Use a bounded family against one target:
+
+   ```
+   python tools/probe_variants.py SOURCE FUNCTION --candidate NAME=PATH
+   python tools/probe_archive.py ARCHIVE SOURCE
+   ```
+
+   These are read-only probes: they never write production `SOURCE` on
+   success, failure, or interruption, and there is no `--keep` mode. If the
+   family yields no new evidence, stop and record a measured floor; do not
+   call it impossible.
+4. **Rank for payoff.** Prefer untried ordinary-C targets with a known matched
+   analogue, sibling, or TU above hardware-only targets and floor families
+   already exhausted by repeated measured probes.
+5. **Bound the batch.** Keep at most four independent owners on disjoint
+   targets; use no nested workers. Do not poll or send checkpoint chatter, and
+   do not run broad validation mid-flight. Finish with one final reproducible
+   result for the batch.
+6. **Gate before installing.** A low or zero score is only a proposal. Reject
+   semantic changes, wrong relocation/addend matches, and forbidden steering
+   below. After target and semantic verification, install a winner with a
+   separate deliberate source edit. Any TU, declaration, or relocation change
+   requires a full `tools/build.py` link and linked-image comparison.
+
+### Symptom → technique → measured anchor
+
+| Symptom | Technique (see) | Measured anchor |
+| --- | --- | --- |
+| Integer/float arguments land in the wrong registers or order | Independent ABI counters; [Types and the EE ABI](#types-and-the-ee-abi) | `func_0047f4d0`: pointer-first signature puts `$a0` before `$f12` |
+| A known helper leaves extra saves or a final scheduling residual | Static helper/caller cluster; [Types and the EE ABI](#types-and-the-ee-abi) | `sdkChkmem`: reuniting `func_0044e8d0`, `func_0044e920`, `func_0044e9e0`, and `func_0044ee70` removed the last store/move residual |
+| Call-crossing spills or frame size are too small | Aggregate snapshots; [Types and the EE ABI](#types-and-the-ee-abi) | `func_0047f040`: two `Pair` snapshots produce retail's `0x20` frame (scalar locals produced `0x10`) |
+| Saved-register colors are wrong while the body shape is right | Declaration order; [Register allocation and caching](#register-allocation-and-caching) | `frFont func_002739e0`: declaration-order closure, object/window `724/736`, normalized diff `0` |
+| Loop bases or constants rematerialize in the body | `opt_loop_invariants on`; [Loops](#loops) | `func_00161bb0` nd `45 → 0`; `func_0045b430` nd `8 → 0` |
+| A reloc-masked `MATCH` names the wrong global | Check the retail immediate/addend; [Globals and addressing](#globals-and-addressing) | `func_004a8bb0`/`func_004a8f90` both masked `MATCH` but had wrong GP references; only the linked image exposed it |
+
+### Semantic and target gate
+
+- Reject a candidate that moves an observable load across a call whose
+  mutation set is unknown. In `nLine` `func_0034e0b0`, the alpha-last probe
+  reached nd23 by moving the alpha field load across `func_00457120`; reject
+  it and retain the semantically faithful nd35 body.
+- Reject wrong GP addends and relocation-masked false matches: compare every
+  GP-relative or `%hi`/`%lo` reference with the retail immediate, not the
+  guessed symbol name, and use the full link when relocation ownership changes.
+- Reject ordinary-memory `volatile`, inline asm, and other forbidden
+  compiler-steering even when the score is zero; hardware `volatile` is valid
+  only when the retail access proves a device access. Verify the intended
+  target/function owner separately before installation.
+- Independently check signedness, truncation and extension at calls and stores;
+  aliasing and alignment assumptions; every cross-TU caller before making a
+  helper static; and switch tables or other owned data. Record unresolved
+  assumptions rather than treating a low instruction score as proof.
+
+### Acceptance levels and evidence
+
+Report these separately; an unmeasured level is **unverified**, not passed:
+
+| Level | Required evidence | Does not prove |
+| --- | --- | --- |
+| Instruction match | `tools/verify.py` reports `MATCH`; inspect `tools/fndiff.py` residuals and accepted zero-tail padding | Correct relocation targets, data sections, or link eligibility |
+| TU link eligibility | `tools/build.py --progress-report` confirms the TU is C-linked with owned sections and resolved relocations accepted | That every other TU is C-linked |
+| Retail identity | The complete linked image and rebuilt ELF have the expected retail hashes | That fallback assembly has been replaced with C |
+
+For each installed match or archived floor, retain this record with the existing
+archive/comment or batch evidence (do not create a second archive system):
+
+```
+Target: source path, function, retail address
+Candidate: path and SHA-256; full TU/context SHA-256
+Compiler: exact version, flags, relevant scoped pragmas
+Commands: exact probe, verify, and build invocations actually run
+Instruction result: object/window bytes, normalized diff, residual explanation
+TU eligibility: verified C-linked / rejected with reason / unverified
+Retail identity: measured image and ELF hashes / unverified
+Semantic review: assumptions checked, remaining caveats, rejected alternatives
+```
+
+Use `sha256sum SOURCE CANDIDATE` to bind evidence to measured inputs. A later
+edit invalidates the recorded measurement until replayed; a command written in
+a note but not executed is not evidence.
+
+### Integration baseline and commits
+
+Before starting a new batch, run the tooling tests, full verifier, and full link.
+Keep their reports and hash outputs together as the baseline. Account for every
+missing canonical owner before changing marker-count expectations. Splat output
+can include curated symbols from its input symbol map, so it is not independent
+evidence that a curated boundary was discovered automatically.
+
+Commit coherent verified batches: probe tooling separately from matching
+closures, and source/TU changes together with their required symbol or data
+updates. Record commands and outcomes in the commit message. Do not commit
+temporary probes or imply that instruction `MATCH` alone proves retail identity.
 
 ## Types and the EE ABI
 
@@ -30,6 +138,35 @@ Rules of engagement:
   `$f12` (not `$a1`). Source argument order controls the *materialization*
   order of the two moves: if retail computes `addiu $a0,...` before
   `mov.s $f12,...`, put the pointer first in the C signature.
+- **Keep a known local callee `static` in the caller's translation unit.**
+  An `extern` declaration can make b210 preserve every live caller-save value
+  across the call, even when the retail compiler knew the callee's narrower
+  clobber set. Restoring the exact helper body beside its caller and marking
+  it `static` lets register-use analysis retain untouched `$t`/FPU argument
+  registers. In `func_0047f4d0`, this removed `$s0`/`$f20`/`$f21` saves and
+  shrank the frame from `0x50` to retail's `0x30`; the adjacent pointer-first
+  signature rule then ordered `$a0` before `$f12`.
+  Do not internalize a helper while another object still references it: move
+  the complete helper/caller cluster into the recovered original TU. Reuniting
+  `func_0044e8d0`, `func_0044e920`, `func_0044e9e0`, and
+  `func_0044ee70` in `sdkChkmem.c` removed the latter's final store/move
+  scheduling residual while preserving every helper exactly.
+- **Split dependencies before an inline `madd.s` source-order helper.** If a
+  direct `0.0f + addend + left * right` has the final two FPU operands
+  transposed, pass `(left, right, addend)` to a tiny inline helper containing
+  that expression. Compute `left` first and load `addend` into a separate local
+  afterward; passing the load expression directly lets b210 hoist it and shifts
+  otherwise exact conversion code. This produced retail's final
+  `madd.s` operand order in `func_0047f1a0` without inline assembly.
+  When the result register aliases `left`, the same source order may commute
+  during fusion; a second helper spelling `right * left` closed all three
+  `func_0047f5b0` accumulators.
+- **Snapshot adjacent globals through a matching aggregate to force exact
+  call-crossing spills.** Writing a two-float global pair, then assigning
+  `local = *(Pair *)&global` gives b210 one aggregate copy to preserve. In
+  `func_0047f040`, two such snapshots produced retail's `0x20` frame and exact
+  `sp+0x10..0x1c` stores/loads; scalar locals stayed in FPU registers and
+  incorrectly shrank the frame to `0x10`.
 - **Ghidra mistypes float returns and args as `int`.** A callee returning
   `float` shows as `undefined4`/`uint`; a `float` parameter shows as
   `undefined4`. Trust the disassembly: `mov.s`, `swc1`, `lwc1`, `cvt.*` mean
@@ -55,6 +192,21 @@ Rules of engagement:
 - **u16 field load width.** A direct `*(u16*)((int)p + off)` emits `lhu`;
   `*(short*)` emits `lh`. Only add a `(u16)`/`(short)` cast on the *other*
   operand when retail actually emits `andi`/sign-extend.
+
+- **Address-take incoming stack slots to prevent parameter homing.** When
+  retail reloads several stack arguments from their incoming slots after
+  calls, declaring the slots as `s64` and reading the needed width through
+  their addresses (`*(s32 *)&argN`, `*(u8 *)&argN`) keeps plain `lw`/`lbu`
+  reloads at those offsets. Declaring them as `s32`/`u8` parameters can make
+  b210 home a reused value into an `$s` register or byte spill at entry,
+  shifting both the saved-register set and the frame. This closed
+  `k_field.c` `func_00155e10`.
+- **Split a narrow branch result from its widened join role.** If two arms
+  return an `s8` and retail extends exactly once at their common join, assign
+  both arms to an `s8 pick`, then write `s32 cur = pick` after the label.
+  Using one `s32` throughout extends in each arm; keeping one `s8` throughout
+  re-extends at later comparisons. The two-name spelling closed
+  `y_fclCombine.c` `func_003040d0`.
 
 ## Control flow and branch polarity
 
@@ -149,7 +301,12 @@ Rules of engagement:
   table bases and constants ahead of a loop.** `func_00161bb0` (nd 45 -> 0)
   and `func_0045b430` (nd 8 -> 0) both needed it: the file default leaves the
   bases rematerialised per iteration. An `s16` loop counter is what produces
-  retail's `dsll32`/`dsra32` sign-extension pairs.
+  retail's `dsll32`/`dsra32` sign-extension pairs. The same pragma closed
+  `func_002a1fa0` by hoisting its case-zero store constant into the preheader,
+  before retail's loop-entry branch.
+  `func_0012ff60` also proves that `opt_common_subs off` may cover only the
+  first loop and switch, then return `on` before an independently measured
+  `opt_loop_invariants on` table loop inside the same function.
 - **The signed align-up idiom is `/ 64 * 64`, not hand-written shifts.**
   Retail `addiu $v1,$v0,0x3f / sra $v0,$v1,6 / bgez $v1 / addiu +0x3f / sra`
   is `(size + 0x3F) / 64 * 64` on a signed operand; an explicit negative
@@ -157,11 +314,23 @@ Rules of engagement:
   `func_00455ea0` (nd 7) and `func_0047e450` (nd 5).
 - **A 12-byte global origin is a `Vec3` struct assignment** (`ld` + `lwc1`
   with separate `lui` pairs, `sd` + `swc1`): `func_00170f60` spelled it as an
-  `s64`/`f32` pair through two globals and stalled at nd 8.
+  `s64`/`f32` pair through two globals and stalled at nd 8. If the global base
+  itself must carry 8-byte alignment, declare it as
+  `union { Vec3 value; s64 align; }` and assign its `.value`; three separate
+  locals in declaration order produced retail's `0xc0`, `0xb0`, `0xa0`
+  stack slots and exact copy sequence in `func_004accc0`.
 - **`pcpyld $v0,$zero,$v0` is reachable from C.** `func_003a2950`'s
   `*(u64 *)p &= (u64)-0x10000` emits `lui $v0,0xffff / pcpyld $v0,$zero,$v0`
   exactly; it is how b210 materialises a 64-bit constant whose low word is
   a `lui` immediate. Do not file every MMI opcode as a floor.
+
+- **Converge scan matches at a label immediately before the return.** For a
+  byte scanner with several fixed tags, `goto found` from every successful
+  compare and one `return count` at `found:` can make the final byte compare
+  branch directly to the epilogue instead of materializing a shared boolean.
+  In `code1_002b.c` `func_002b3520`, measured
+  `opt_loop_invariants on` additionally hoisted all tag bytes into the
+  preheader; `uc > 0x80` produced the retail SJIS lead-byte `slti $at` form.
 
 ## Loops
 
@@ -318,6 +487,9 @@ Rules of engagement:
   masked value is not in the list at all. The recipe for that whole class:
   measured `opt_propagation off` around the function **and** declare the
   parameter-derived local at the position retail's register implies.
+  `func_001999f0` is the corresponding narrow-use case: a direct `s64`
+  parameter plus propagation off keeps the entry `arg1 & 0xffff` mask
+  distinct from later per-use `(u16)arg1` conversions.
 
   So the pragma is not a blunt instrument here. It changes *which names are
   in the list*, and once you know the list you can place every value.
@@ -614,6 +786,11 @@ parameter order is wrong** — reorder the declaration, not the call site.
 That is the whole content of the "float parameters ahead of `u8`" lever.
 Where the callee is only declared locally, the order is yours to choose;
 where it is a real definition, check every caller by name after changing it.
+Do not omit later parameters merely because the call site shows no moves.
+In `func_004accc0`, the converted frame index and frame count were already
+live in `$a1`/`$a2`; declaring `func_0048aff0` with only its first parameter
+let the allocator recolour both and left nd 6. Its correct three-parameter
+signature preserved those registers and matched.
 
 **2. A constant that is both stored and passed is materialised once, early,
 into the argument register.** `s32 k = 0x40000; *d = k; f2(g_int, k);` emits
@@ -720,6 +897,11 @@ real conversion instruction moves it — see that archive.
   `extern void* DAT_addr[];` and call `((Ret (*)(Args...))DAT_addr[0])(...)`.
   Declaring `extern Ret (*DAT_addr)(Args...)` can place the slot in small data
   and emit `lw ..., GPREL16(gp); jalr`, one instruction shorter than retail.
+- **A heterogeneous callback table can be declared as `void *` and cast at
+  each call.** In `func_00467880`, a single concrete function-pointer type
+  distorted calls whose callbacks have different signatures. A `void *`
+  table plus an explicit function-pointer cast at each use retained the exact
+  argument materialisation without volatile staging.
 - **gp base = `0x007690f0`** (recorded in `config/target.json` as `_gp`, also
   in `config/symbols_recovered.txt`). This maps gp-relative offsets (the
   `saved_reg_gp - 0xXXXX` idiom in m2c output) to the absolute addresses they

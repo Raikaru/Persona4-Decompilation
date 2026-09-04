@@ -3,9 +3,9 @@
 
 Waves archive near-misses under docs/probe_archive/<LANE>_<addr>_body.c and revert the
 source, which keeps the tree honest but throws away the diagnosis. This
-re-installs each body in turn, runs tools/fndiff.py, and buckets the result, so
-a defect shared by many functions shows up as a family worth one lever rather
-than as N unrelated grinds.
+probes each archived body in an isolated translation-unit copy, runs
+tools/fndiff.py, and buckets the result, so a defect shared by many functions
+shows up as a family worth one lever rather than as N unrelated grinds.
 
     python tools/residual_census.py [max_nd]
 """
