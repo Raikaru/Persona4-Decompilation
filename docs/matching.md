@@ -151,6 +151,17 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   `func_0044e8d0`, `func_0044e920`, `func_0044e9e0`, and
   `func_0044ee70` in `sdkChkmem.c` removed the latter's final store/move
   scheduling residual while preserving every helper exactly.
+- **Use scoped `auto_inline` when the standalone callee must survive.**
+  In `btlOrder_grouped.c`, `auto_inline on` retained `func_001b13c0` while
+  inlining its body into `func_001b1450`; plain `inline` removed the standalone
+  symbol. Both retail windows are required. The emitted bodies are 132/144B
+  and 188/192B respectively, with only zero-filled tail padding; full linkage
+  reproduces the retail image and ELF hashes. Restore `auto_inline off`
+  after the cluster rather than changing unrelated callers.
+  When internalizing helpers, the linker's export set must exclude local
+  symbols: only global and weak definitions satisfy references from other
+  objects. A same-named local definition must not suppress a required
+  canonical address definition.
 - **Split dependencies before an inline `madd.s` source-order helper.** If a
   direct `0.0f + addend + left * right` has the final two FPU operands
   transposed, pass `(left, right, addend)` to a tiny inline helper containing
