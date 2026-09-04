@@ -45,8 +45,9 @@ Byte-identical is not recovered: a matching function can still have an address f
 <!-- STATUS:END -->
 
 "First-party" is Atlus's own code. The retail image also links prebuilt
-middleware (RenderWare, CRI, the Sony SDK, the C runtime); those windows are
-tracked so the image stays byte-exact, but they are reported separately.
+middleware (RenderWare at `0x0038F990`-`0x00417510`, then CRI, the Sony SDK
+and the C runtime); those address spans are tracked so the image stays
+byte-exact, but they are reported separately.
 
 ## How it works
 

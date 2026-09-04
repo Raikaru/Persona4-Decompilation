@@ -1252,6 +1252,16 @@ build 101) and is worked by hand. `src/renderware/` is classified third-party
 like `src/rw/`: the block was never Atlus's code, so the first-party denominator
 shrinks as it is ported out of the promoted code1_003x units.
 
+The block is now a vendor address span in `tools/verify.py` (`0x0038F990`, the
+first function after ed_res.c and a caller of `_rwerror`/`RwErrorSet`, up to the
+CRI span at `0x00417510`), so the whole of it - core, plugins, sky2 driver - is
+third-party whatever unit it currently sits in: first-party is 6023/6861
+(87.8%) with the block out. The RenderWare 3.5 PS2 SDK (`../rwsdk-v3.5-ps2`,
+binary libraries plus the sky2 headers) confirms the layout - its sky2
+`rwplcore.h` carries exactly the alignment settings `include/rw/ps2/ostypes.h`
+reproduces - and names the driver/plugin functions no source exists for, but
+its bytes are a different version and do not fingerprint (build/rw35_fid.json).
+
 - **b119's prologue scheduling is unit-state dependent.** The same
   `func_003cb720` body is nd 0 when compiled inside the whole `code1_003c.c`
   (b119 loses only 7 of that unit's 107 matches) but nd 9 in a fresh unit,
