@@ -32,6 +32,12 @@ Use this six-step loop for every target:
    then match the frame and values live across calls, then reconstruct the
    CFG/branch layout. Only after those agree, try instruction scheduling,
    register coloring, or operand orientation.
+   Compare M2C (`src/generated/`) with available IDA
+   (`docs/ida_headstart/`) and Ghidra (`docs/ghidra_headstart/`) bodies.
+   They are independent references, not authoritative source: resolve
+   disagreements against retail assembly. IDA's register annotations can
+   clarify lifetimes, but guessed extra arguments and register-width
+   pseudo-types are not proof of an ABI.
 2. **Reuse the proven catalogue.** Start with the symptom table below and its
    linked technique section. Write one named hypothesis (`H: ...`) and change
    only the source shape that tests it; do not invent a new steering form when
@@ -170,6 +176,20 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   the old address-order/register-coloring floor: 212B of exact instructions
   in a 224B window, with 12B of zero padding. Merely declaring both table
   bases before the loop did not reproduce that schedule.
+- **Separate equivalent narrowing forms when only masks must escape CSE.**
+  `func_00144b80` uses `(u16)arg` at its first predicate call and
+  `arg & 0xFFFF` at the second. Both pass the same nonnegative low-16 value
+  to the unchanged `s32` parameters. b210 recomputes the masks at each call
+  while still sharing the success literal. Disabling CSE globally lost that
+  literal sharing; narrowing the predicate signatures instead regressed a
+  sibling and introduced cross-TU type conflicts. The ABI-preserving body
+  matches 264B in a 272B window, with eight zero-tail bytes.
+- **Try the equivalent comparison orientation before a register sweep.**
+  With propagation disabled in `func_0034f5d0`, `distance <= half`
+  closes twelve differing words left by `half >= distance`: the comparison
+  temporary and surrounding register allocation change together. Direct
+  short predecrement and a separately staged random remainder also preserve
+  the required store order and post-call field loads. All 336B match.
 - **Let invariant hoisting move natural vertex assignments, not vice versa.**
   In `func_001604a0`, assign left X, top Y, right X, then bottom Y in vertex
   store order. With `opt_loop_invariants on` and `opt_propagation off`,
