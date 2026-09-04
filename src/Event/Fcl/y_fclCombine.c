@@ -508,8 +508,82 @@ void func_00303a20(u8 *arg0) {
    source-drivable after all. */
 // FUN_00303DE0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303de0);
+/* measured: object 532B/window 544B, nd 0. The five-byte weight table copy is
+   the tree's load / advance / decrement / store order through a named byte
+   temporary. The random roll is an s32 holding the (s8) remainder (extended
+   once, retail $a0); the running sum and the s16 index are narrow locals that
+   re-extend at each use. The picked stage is an s8 assigned from the call
+   (extension at the assignment), then copied into a separate s32 `cur`
+   (second extension after the join) that the retry loop compares without a
+   further extension; count is an s32 narrowed with `(s8)(count + 1)` so the
+   final call passes it raw. Declaration order colours k/limit/count into
+   $s5/$s4/$s3 (count reuses arg1's register after its last use). */
 // FUN_003040D0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_003040d0);
+s32 func_003040d0(u8 *arg0, s16 arg1, s32 arg2)
+{
+    s8 weights[5];
+    u8 *work;
+    s8 *src;
+    s8 *dst;
+    s32 n;
+    s8 v;
+    s16 i;
+    s8 acc;
+    s32 roll;
+    s16 k;
+    s8 limit;
+    s32 count;
+    s8 stage;
+    s8 pick;
+    s32 cur;
+
+    work = *(u8 **)(arg0 + 0x38);
+    src = &iGpffffa8a8;
+    dst = weights;
+    n = 5;
+    do {
+        v = *src;
+        src += 1;
+        n -= 1;
+        *dst = v;
+        dst += 1;
+    } while (n > 0);
+    roll = (s8)(func_003b7060() % 100);
+    acc = weights[0];
+    i = 0;
+    goto check;
+body:
+    if (roll < acc) {
+        stage = i;
+        goto found;
+    }
+    acc += weights[i + 1];
+    i += 1;
+check:
+    if (i < 4) goto body;
+    stage = 4;
+found:
+    limit = 10;
+    if (func_003b7060() % 100 < 30) {
+        pick = func_002b2d00(arg1, stage, 1, 0x63, 1);
+    } else {
+        pick = func_002b2cb0(arg1, stage, 0x63, 1, 1);
+    }
+    cur = pick;
+    k = 0;
+    count = 0;
+    goto check2;
+body2:
+    if (cur < limit) goto done;
+    limit = func_002b2cb0(limit, 10, 0x63, 1, 1);
+    count = (s8)(count + 1);
+    k += 1;
+check2:
+    if (k < 10) goto body2;
+done:
+    *(s8 *)(work + 0x1E) = count;
+    return func_003042f0(count, arg2);
+}
 // FUN_003042F0
 s32 func_003042f0(s32 arg0, s32 arg1)
 {

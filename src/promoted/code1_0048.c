@@ -796,13 +796,14 @@ void func_00484ae0(u8 *arg0, s32 arg1) {
     }
 }
 
-/* Measured compiled-C park: typed 16-byte aggregate copy reproduces retail
-   D_00713CE0 lq/sq transfer widths; object 120B / window 128B,
-   normalized_diff 6. Exact residual rows are archived in
-   build/WBSmallFiles_code1_0048_00484b30_park.txt. Committed at nd 6. */
+/* Measured honest-C floor: the zero-fill call, typed u_long128 zero stores,
+   and D_00713CE0 aggregate copy compile to object 116B for the 128B retail
+   window; normalized_diff 45 and 24 reloc-masked differing words at offsets
+   0x20-0x7C inclusive. Retail's four sqc2 vf0 stores are COP2 register side
+   effects with no honest C expression; the best body is archived at
+   docs/probe_archive/W50Code48_00484b30_body.c. */
 // FUN_00484B30 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
-
 // FUN_00484BB0
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484bb0);
 // FUN_00485630

@@ -118,6 +118,20 @@ extern u8 D_0063EE30[];
 extern u8 D_0063EE38[];
 extern u8 D_00882F28[];
 extern u8 D_00882F2C[];
+typedef signed __int128 s128;
+extern s32 (*D_0063E8C0[])(u8 *, s32);
+extern s128 D_0063E8D0;
+extern u8 D_00882ED0[];
+extern u8 D_00882EF0[];
+extern u8 *iGpffffb540;
+extern u8 iGpffffa7e8;
+extern void func_0010d490(u8 *arg0, u8 *arg1);
+extern void func_00122520(s32 arg0, s32 arg1);
+extern void func_00122640(s32 arg0, s32 arg1);
+extern void func_0029ebf0(u8 *arg0, s32 arg1);
+extern s32 func_0029f070(u8 *arg0);
+extern void func_002a12e0(u8 *arg0, s32 arg1);
+extern s32 func_00442c30(void *arg0, void *arg1, s32 arg2);
 
 
 
@@ -324,8 +338,143 @@ s32 func_002a1f20(u8 *arg0) {
 success:
     return 0;
 }
+/* measured: opt_loop_invariants on hoists the case-zero store constant into the
+   preheader, matching retail's li $v1 before the loop-entry branch. */
+#pragma opt_loop_invariants on
 // FUN_002A1FA0
-INCLUDE_ASM("asm/nonmatchings/code1_002a", func_002a1fa0);
+s32 func_002a1fa0(u8 *arg0) {
+
+    u8 colors[4];
+    s128 sp40;
+    f32 *sp40_ptr;
+    s32 temp_2_2;
+    s32 temp_2_3;
+    s32 temp_2_4;
+    s32 temp_3;
+    s32 temp_3_2;
+    s32 temp_5;
+    s32 var_17;
+    s32 var_17_2;
+    s32 var_4;
+    u8 *temp_16;
+
+    temp_16 = *(u8 **)(arg0 + 0x38);
+    sp40_ptr = (f32 *)&sp40;
+    sp40 = D_0063E8D0;
+    if (iGpffffb540 == 0) {
+        return 0;
+    }
+    colors[0] = 0;
+    colors[1] = 0;
+    colors[2] = 0;
+    colors[3] = 0xFF;
+    func_0045d6e0(colors, sp40_ptr, 0.0f, 1);
+    temp_5 = *(s32 *)(temp_16 + 4);
+    switch (temp_5) {
+    case 0:
+        func_00122640(1, 1);
+        var_4 = 0;
+        for (; var_4 < 6; var_4++) {
+            *(s16 *)(temp_16 + (var_4 * 4) + 0x1C38) = 3;
+            *(s16 *)(temp_16 + (var_4 * 4) + 0x1C3A) = 0;
+        }
+        *(s32 *)(temp_16 + 0) = 0;
+        *(s32 *)(temp_16 + 0x14) = 0;
+        *(s32 *)(temp_16 + 4) = 1;
+        goto block_39;
+    case 1:
+        temp_2_2 = *(s32 *)(temp_16 + 0xC);
+        if ((temp_2_2 < 3) && (D_0063E8C0[temp_2_2](arg0, temp_5) == 1)) {
+            *(s32 *)(temp_16 + 0xC) = *(s32 *)(temp_16 + 0xC) + 1;
+        }
+        func_002a12e0(arg0, *(s32 *)(temp_16 + 0xC));
+        if (*(s32 *)(temp_16 + 0xC) >= 3) {
+            *(s32 *)(temp_16 + 0xC) = 0;
+            *(s32 *)(temp_16 + 8) = 0;
+            *(s32 *)(temp_16 + 0x18) = 0;
+            *(s32 *)(temp_16 + 0x14) = 1;
+            *(s32 *)(temp_16 + 4) = 2;
+            *(s32 *)(temp_16 + 0x1C34) = 0;
+            func_0029ebf0(arg0, 0);
+        }
+        goto block_39;
+    case 2:
+        temp_2_3 = *(s32 *)(temp_16 + 0x14);
+        if (temp_2_3 == 1) {
+            func_0029f070(arg0);
+            temp_3 = *(s32 *)(temp_16 + 0x14);
+            if ((temp_3 != 2) && (temp_3 == 3)) {
+                *(s32 *)(temp_16 + 8) = 0;
+                *(s32 *)(temp_16 + 0x10) = 0;
+            }
+            goto block_37;
+        }
+        if (temp_2_3 == 3) {
+            if (*(s32 *)(temp_16 + 8) == 0) {
+                temp_2_4 = func_002a1a10(arg0);
+                if (temp_2_4 == 0) {
+                    var_17 = 0xE;
+                    goto loop_25_cond;
+loop_25_body:
+                    *(s8 *)(D_00882EF0 + var_17) = 0;
+                    *(s8 *)(D_00882EF0 + var_17 + 1) = 0;
+                    var_17 -= 2;
+                    if (var_17 < 0) {
+                        goto loop_28_init;
+                    }
+loop_25_cond:
+                    if (func_00442c30(&iGpffffa7e8,
+                                      D_00882EF0 + var_17, 2) == 0) {
+                        goto loop_25_body;
+                    }
+loop_28_init:
+                    var_17_2 = 0xE;
+                    goto loop_28_cond;
+loop_28_body:
+                    *(s8 *)(D_00882ED0 + var_17_2) = 0;
+                    *(s8 *)(D_00882ED0 + var_17_2 + 1) = 0;
+                    var_17_2 -= 2;
+                    if (var_17_2 < 0) {
+                        goto clear_done;
+                    }
+loop_28_cond:
+                    if (func_00442c30(&iGpffffa7e8,
+                                      D_00882ED0 + var_17_2, 2) == 0) {
+                        goto loop_28_body;
+                    }
+clear_done:
+                    func_0010d490(D_00882EF0, D_00882ED0);
+                    *(s32 *)(temp_16 + 0x18) = 0;
+                    *(s32 *)(temp_16 + 8) = 1;
+                } else if (temp_2_4 == 1) {
+                    *(s32 *)(temp_16 + 0x14) = 1;
+                }
+                goto block_37;
+            }
+            if (*(s32 *)(temp_16 + 0x18) == 0) {
+                func_00122520(1, 0x1E);
+            }
+            temp_3_2 = *(s32 *)(temp_16 + 0x18);
+            if (temp_3_2 >= 0x1E) {
+                *(s32 *)(temp_16 + 0x18) = 0;
+                *(s32 *)(temp_16 + 4) = 3;
+                goto block_39;
+            }
+            *(s32 *)(temp_16 + 0x18) = temp_3_2 + 1;
+        }
+block_37:
+        func_002a03b0(arg0);
+        goto block_39;
+    case 3:
+        return -1;
+    default:
+        goto block_39;
+    }
+block_39:
+    return 0;
+}
+/* measured: closes opt_loop_invariants around func_002a1fa0. */
+#pragma opt_loop_invariants off
 // FUN_002A2310
 void func_002a2310(u8 *arg0) {
     jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));

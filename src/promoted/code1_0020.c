@@ -298,6 +298,7 @@ void func_00200770(u8 *arg0)
 void func_00200960(void) {
     *(f32 *)(D_0076449C + 0xDC) = fGpffff8184;
 }
+/* measured: clean-C body is byte-exact in the current TU (object/window 208B, normalized_diff 0). */
 // FUN_00200980
 void func_00200980(u8 *arg0)
 {

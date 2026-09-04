@@ -113,8 +113,48 @@ s32 func_001104a0(s32 arg0)
 
 
  
+/* measured: opt_loop_invariants on hoists the divisor and table base into the loop preheader. */
+#pragma opt_loop_invariants on
+/* measured: opt_propagation off preserves the retail duplicate table loads and local colouring. */
+#pragma opt_propagation off
 // FUN_001104D0
-INCLUDE_ASM("asm/nonmatchings/code1_0011", func_001104d0);
+void func_001104d0(s32 arg0, s32 *arg1, s32 *arg2)
+{
+    s32 temp_8;
+    s32 temp_9;
+    s32 var_12;
+    s32 var_11;
+    s32 var_10;
+
+    var_11 = arg0 % 0x16D;
+    var_12 = 3;
+    var_10 = 0;
+    goto loop_test;
+loop_body:
+    temp_9 = var_12 + 1;
+    temp_8 = temp_9 - 1;
+    if (var_11 < D_005E45E0[(temp_9 - 1) % 0xC]) {
+        goto done;
+    }
+    var_11 = var_11 - D_005E45E0[temp_8 % 0xC];
+    var_12 = temp_9;
+    if (temp_9 < 0xC) {
+        goto loop_increment;
+    }
+    var_12 = 0;
+loop_increment:
+    var_10 = var_10 + 1;
+loop_test:
+    if (var_10 < 0xC) {
+        goto loop_body;
+    }
+done:
+    *arg1 = var_12 + 1;
+    *arg2 = var_11 + 1;
+}
+/* measured: restore opt_propagation after func_001104d0. */
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
 // FUN_00110580
 s32 func_00110580(s32 arg0) {
     return (((arg0 % 0x16D) % 7) + 5) % 7;

@@ -112,59 +112,6 @@ void func_0047f2c0(f32 *param_1,u32 param_2)
 
 
 
-// FUN_0047F3A0
-u32 * func_0047f3a0(float param_1,int *param_2)
-{
-  float *key;
-  float fraction;
-  float start;
-  float output;
-  float difference;
-  int high;
-  int low;
-  int stride;
-  u8 *data;
-  int mid;
-  u32 address;
-
-  data = (u8 *)param_2[3];
-  low = 0;
-  high = *param_2 - 1;
-  stride = param_2[2];
-  do {
-    mid = (low + high + 1) >> 1;
-    if (param_1 < *(float *)(data + stride * mid)) {
-      high = --mid;
-    }
-    else {
-      low = mid;
-    }
-  } while (low < high);
-  if ((u32)mid >= (u32)(*param_2 - 1)) {
-    address = mid * 0x10;
-    address += (u32)data;
-    *(float *)(DAT_00922c30_abs + 4) = *(float *)(address + 4);
-    *(float *)(DAT_00922c30_abs + 8) = *(float *)(address + 8);
-    *(float *)(DAT_00922c30_abs + 12) = *(float *)(address + 0xc);
-  }
-  else {
-    key = (float *)((u32)(mid * 0x10) + (u32)data);
-    start = key[0];
-    fraction = param_1 - start;
-    fraction /= key[4] - start;
-    output = key[1];
-    difference = key[5] - output;
-    *(float *)(DAT_00922c30_abs + 4) = fraction * difference + output;
-    output = key[2];
-    difference = key[6] - output;
-    *(float *)(DAT_00922c30_abs + 8) = fraction * difference + output;
-    output = key[3];
-    difference = key[7] - output;
-    *(float *)(DAT_00922c30_abs + 12) = fraction * difference + output;
-  }
-  *(float *)DAT_00922c30_abs = param_1;
-  return (u32 *)DAT_00922c30_abs;
-}
 
 
 

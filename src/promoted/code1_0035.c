@@ -958,22 +958,10 @@ void func_00356140(u8 *arg0)
     (*D_008873EC)(*(u8 **)(arg0 + 0x38));
 }
 
-/* measured: object 96B/window 96B; normalized_diff 8; differing offsets
-   0x08 and 0x10 (prologue save/move order). Archived in
-   build/V035_00356170_body.c. Ruled out scalar locals (object 100B) and
-   alternate assignment/call staging; best plain-C candidate remains nd 8.
-   Retail's 0x08/0x10 words are `sd $a0,16($sp)` and `sw $a1,28($sp)` --
-   incoming arguments stored to their home slots, then read back with
-   `lbu $v1,31($sp)` and `ld/lw`. Two argument-homing spellings were measured
-   and both are worse: taking the address of the parameter directly
-   (`((u8 *)&arg1)[3]`) gives object 88B and nd 56, and an old-style K&R
-   parameter list gives object 236B and nd 199. The array-staged ANSI body
-   remains best. */
+/* measured: object 96B/window 96B, normalized_diff 0. One-element integer
+   arrays home arg0/arg1 to their retail stack slots; opt_propagation off keeps
+   the arg2 parking move after those stores. */
 #pragma push
-/* measured: opt_propagation off keeps the arg2 parking move (move $t1,$a2)
-   after the two stack spills, where the source names the copy; with
-   propagation on mwcc parks it at entry. The "independent prologue-order
-   floor" was this. */
 #pragma opt_propagation off
 // FUN_00356170
 void func_00356170(s64 arg0, s32 arg1, s32 arg2, s32 arg3,

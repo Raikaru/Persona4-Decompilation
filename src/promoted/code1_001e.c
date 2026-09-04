@@ -2907,6 +2907,7 @@ s32 func_001ef720(s32 arg0, s32 arg1)
 
     return count;
 }
+/* measured: object 224B / window 224B / normalized_diff 0; direct pointer/index locals reproduce retail order. */
 // FUN_001EF7E0
 s32 func_001ef7e0(void)
 {

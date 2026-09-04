@@ -19,10 +19,10 @@ s32 func_00442948(const char *text);
 void func_0044ea90(const void *msg, s32 id);
 void func_0043f810(void *dst, const void *src, u32 size);
 void func_0043f9c8(void *dst, s32 value, u32 size);
-u8 *func_00455f70(void *arg0, u32 *arg1);
+s32 func_00455f70(s32 arg0, s32 *arg1);
 u8 *func_0046af60(s32 arg0);
 u8 *func_0046aea0(const char *name);
-s32 func_0046a750(s32 param);
+u32 func_0046a750(s16 *param);
 f32 func_0046b1f0(void *ptr, s32 index);
 f32 func_0046d5f0(void *ptr, s32 index);
 void func_0046d730(const void *file, s32 line);
@@ -100,65 +100,60 @@ u8 *func_0025ef20(u8 *arg0)
     return result;
 }
 
-/* Measured compiled-C park: object 288B / window 288B / normalized_diff 11.
-   Differing word offsets are 0x18, 0x1c, 0x20, 0x54, 0xdc, 0xe0, 0xe4,
-   0xe8. Persistent tail-index, table-pointer, result-pointer, and guard/
-   loop forms were measured; the remaining residual is register coloring. */
-// FUN_0025F110 NONMATCHING
-#ifdef NON_MATCHING
+/* Measured exact: object 288B / window 288B / normalized_diff 0.
+   A typed s32 *table preserves retail's table/index materialization order. */
+// FUN_0025F110
 s32 func_0025f110(u8 *arg0)
 {
-    u8 *func_00455f70(s32, s32 *);
-    u8 *func_0046af60(u32);
+    s32 func_00455f70(s32, s32 *);
+    u8 *func_0046af60(s32);
     u8 *func_0046aea0(const char *);
-    s32 func_0046a750(s16 *);
+    u32 func_0046a750(s16 *);
     s32 temp;
     s32 index;
     s32 offset;
     u8 *result;
+    s32 *table;
+    s32 loaded;
 
+    table = *(s32 **)(arg0 + 4);
     index = *(s32 *)arg0;
-    if (index >= *(s32 *)(*(u8 **)(arg0 + 4) + 4)) {
+    if (index >= table[1]) {
         return 1;
     }
     for (;;) {
         result = *(u8 **)(arg0 + 8);
         offset = index * 4;
         if (*(u8 **)(result + offset) == NULL) {
-            result = func_00455f70(
-                (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4)) + offset),
+            loaded = func_00455f70(
+                (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg0 + 4)) + index * 4),
                 &temp);
-            if (result != NULL) {
-                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
-                    func_0046af60((s32)result);
+            if (loaded != 0) {
+                *(u8 **)(*(u8 **)(arg0 + 8) + index * 4) =
+                    func_0046af60((u32)loaded);
             } else {
-                *(u8 **)(*(u8 **)(arg0 + 8) + offset) =
+                *(u8 **)(*(u8 **)(arg0 + 8) + index * 4) =
                     func_0046aea0(
                         (const char *)(*(u8 **)(*(u8 **)
-                            (*(u8 **)(arg0 + 4)) + offset)));
+                            (*(u8 **)(arg0 + 4)) + index * 4)));
             }
         } else {
             if (func_0046a750(
-                    (s16 *)*(u8 **)(result + offset)) == 0) {
+                    (s16 *)*(u8 **)(result + index * 4)) == 0) {
                 goto fail;
             }
             *(s32 *)arg0 = *(s32 *)arg0 + 1;
         }
-        {
-            s32 tail_index;
-            tail_index = *(s32 *)arg0;
-            if (tail_index >= *(s32 *)(*(u8 **)(arg0 + 4) + 4)) {
-                break;
-            }
+        table = *(s32 **)(arg0 + 4);
+        index = *(s32 *)arg0;
+        if (index >= table[1]) {
+            break;
         }
     }
     return 1;
 fail:
     return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/shdSprite", func_0025f110);
-#endif
 // FUN_0025F230
 void func_0025f230(u32 param_1)
 {

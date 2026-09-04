@@ -946,8 +946,80 @@ INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b83e0);
 // FUN_002B89A0
 INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b89a0);
 
+/* measured: opt_loop_invariants on is required for the signed-short loop
+   preheader/register shape; removing it produced obj 860B/window 864B with
+   50 differing words. */
+#pragma opt_loop_invariants on
+/* measured: opt_propagation off is required for ordered global/field loads and
+   final-call argument setup; removing it produced obj 852B/window 864B with
+   130 differing words. */
+#pragma opt_propagation off
 // FUN_002B9AB0
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b9ab0);
+void func_002b9ab0(u8 *arg0, u8 *arg1) {
+    f32 scale;
+    s16 i;
+    s16 j;
+    s32 off;
+    u8 *p;
+    u8 *q;
+    f32 d;
+    f32 h;
+    u32 one;
+    u8 *r;
+    void (*const *tbl)(u32, u32);
+
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    tbl = D_00887300;
+    tbl[0](6, 1);
+    tbl[0](7, 2);
+    tbl[0](8, 1);
+    tbl[0](9, 2);
+    tbl[0](0xC, 1);
+    tbl[0](2, 3);
+    tbl[0](0xB, 6);
+    tbl[0](0xA, 5);
+    func_003f6440(2, 0x44);
+    func_003f6440(3, 0x717FB);
+    *(f32 *)(arg1 + 0x10) = *(f32 *)(arg1 + 0x1F4);
+    *(f32 *)(arg1 + 0x14) = *(f32 *)(arg1 + 0x1F8);
+    *(f32 *)(arg1 + 0x50) = *(f32 *)(arg1 + 0x1FC);
+    *(f32 *)(arg1 + 0x54) = *(f32 *)(arg1 + 0x1F8);
+    *(f32 *)(arg1 + 0x90) = *(f32 *)(arg1 + 0x1F4);
+    *(f32 *)(arg1 + 0x94) = *(f32 *)(arg1 + 0x200);
+    *(f32 *)(arg1 + 0xD0) = *(f32 *)(arg1 + 0x1FC);
+    *(f32 *)(arg1 + 0xD4) = *(f32 *)(arg1 + 0x200);
+    for (i = 0; i < 4; i++) {
+        j = i;
+        p = arg1;
+        q = (u8 *)((s32)p + (off = (s32)j << 6));
+        d = *(f32 *)D_008872F8;
+        h = *(f32 *)(arg1 + 0x108);
+        *(f32 *)(q + 8) = d - h;
+        *(f32 *)(q + 0x18) = scale;
+        *(f32 *)(q + 0x20) = (f32)(u32)arg1[0x179];
+        *(f32 *)(q + 0x24) = (f32)(u32)arg1[0x17A];
+        *(f32 *)(q + 0x28) = (f32)(u32)arg1[0x17B];
+        *(f32 *)(q + 0x2C) = (f32)(u32)arg1[0x162];
+    }
+    *(f32 *)(arg1 + 0x0) = *(f32 *)(arg1 + 0x12C);
+    *(f32 *)(arg1 + 0x4) = *(f32 *)(arg1 + 0x130);
+    *(f32 *)(arg1 + 0x40) = *(f32 *)(arg1 + 0x12C) +
+                            (f32)*(s32 *)(arg1 + 0x20C) * *(f32 *)(arg1 + 0x194);
+    *(f32 *)(arg1 + 0x44) = *(f32 *)(arg1 + 0x130);
+    *(f32 *)(arg1 + 0x80) = *(f32 *)(arg1 + 0x12C);
+    *(f32 *)(arg1 + 0x84) = *(f32 *)(arg1 + 0x130) +
+                            (f32)*(s32 *)(arg1 + 0x210) * *(f32 *)(arg1 + 0x1A0);
+    *(f32 *)(arg1 + 0xC0) = *(f32 *)(arg1 + 0x12C) +
+                            (f32)*(s32 *)(arg1 + 0x20C) * *(f32 *)(arg1 + 0x194);
+    *(f32 *)(arg1 + 0xC4) = *(f32 *)(arg1 + 0x130) +
+                            (f32)*(s32 *)(arg1 + 0x210) * *(f32 *)(arg1 + 0x1A0);
+    r = *(u8 **)(arg1 + 0x214);
+    one = 1;
+    tbl[0](one, *(s32 *)r);
+}
+#pragma opt_propagation on
+/* measured probe: restore opt_loop_invariants after func_002b9ab0. */
+#pragma opt_loop_invariants off
 
 
 /* measured: opt_propagation off orders the compare loads as retail (0x194 field

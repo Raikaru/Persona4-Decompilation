@@ -180,6 +180,9 @@ void func_00363080(f32 fparg0, f32 fparg1, f32 fparg2) {
 }
 
 
+/* measured: a temporary indexed-row pointer with opt_propagation off
+   reached object 840B/window 832B and 135 differing words; residual drift
+   remains, so the retail ASM is kept authoritative. */
 // FUN_00363200 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/cmpPartyPanel", func_00363200);
 

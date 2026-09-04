@@ -358,20 +358,12 @@ void func_00115dc0(Vec2f arg0, f32 fparg0, s32 arg1, s16 *arg2)
    f32 sp78[2] array read as *(s64 *)sp78 kept both stores. Layout 0x58
    arg0 home / 0x60 sp60[4] / 0x78 pair matches retail with declarations
    [base, y, sp78[2], sp60[4]]. Frame 0x80, all stores reproduce. */
-/* measured: the unguarded nd 582 candidate (obj 796B / window 768B) was
-   archived verbatim in build/WBShdPersona_func_00115e90_archive.txt and
-   reverted to bare INCLUDE_ASM because it is oversized and above the
-   nd-25 guarded-park threshold. */
+/* measured: object/window 768/768 bytes, normalized_diff 39. The
+   semantically unverified scheduling probe is archived in
+   docs/probe_archive/W56ShdPersona_00115e90_body.c; retain assembly. */
 // FUN_00115E90
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00115e90);
-
-
-
 u8 *func_0010d6d0(s16 arg0);
-
-/* measured: declaration-order lever assigns the input float to $f20 and
-   delayed high-coordinate assignment keeps retail's $f21 load at the call
-   site. Exact MATCH: object 344B against the 352B retail window. */
 // FUN_00116190
 void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 {

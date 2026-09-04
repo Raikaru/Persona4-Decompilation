@@ -1239,41 +1239,17 @@ check:
 
 
 
-/* measured: the candidate body was not retainable. verify normalized_diff 58
-   (tools/fndiff.py differing-word count 19), object 84B versus retail window
-   80B. Retail keeps arg0 in caller-saved $t3 with frame -0x10; b210 spills
-   arg0 into $s0 across func_00278c60 and emits frame -0x20. This is an
-   oversized register-allocation residual, not a valid park. The verbatim body,
-   full residual rows and both figures are archived at
-   build/WCEvtItf_func_00278d50_body.c. */
-/* Verbatim candidate body archived before un-parking. */
-// FUN_00278D50 NONMATCHING
-#ifdef NON_MATCHING
-void func_00278d50(u8 *arg0)
-{
-    u8 *base;
-
-    if (*(u8 *)(arg0 + 0x1C) == 0) {
-        base = arg0 + 0x20;
-        func_00278c60((int *)base, (int)base, arg0 + *(s32 *)(arg0 + 0x10), *(s32 *)(arg0 + 0x14));
-        *(u8 *)(arg0 + 0x1C) = 1;
-    }
-}
-
-/* Measurements: verify normalized_diff 58; tools/fndiff.py differing-word count 19;
-   object 84 B versus retail window 80 B. The candidate frame is -0x20 while
-   retail is -0x10: MWCC saves arg0 in $s0 across func_00278c60, while retail
-   keeps it in caller-saved $t3. This is an oversized spill and is NOT a valid
-   park under the verify normalized_diff <=25 threshold.
-
-   Full fndiff residual row offsets (reloc-masked output):
-   0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 44, 52, 56, 60, 64, 68, 72, 76, 80.
-   Exact residual instruction pairs are preserved in
-   build/WCEvtItf_itfMesManager_78d50_nd19_body_fndiff.txt.
-*/
-#else
+/* measured floor: the best honest plain-C body (archived at
+   docs/probe_archive/W50MesManager_00278d50_body.c) is object 84B against
+   the retail 80B window, with verify normalized_diff 58 and fndiff
+   19 differing words after relocation masking. Residual word offsets are
+   0,4,8,12,16,20,24,28,32,36,44,52,56,60,64,68,72,76,80; verify first
+   differing byte offsets are 0,4,8,9,10,11,12,13,14,15,16,18,19,20,22,23.
+   Retail frame -0x10 keeps arg0 in $t3 across func_00278c60; the candidate
+   frame -0x20 spills arg0 in $s0. Probes A-P did not improve nd58; rejected
+   pointer-to-integer parameters and restrict syntax were not retained. */
+// FUN_00278D50
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
-#endif
 // FUN_00278DA0
 s32 func_00278da0(u8 *arg0)
 {
