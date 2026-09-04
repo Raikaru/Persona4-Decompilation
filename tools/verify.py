@@ -124,7 +124,16 @@ def is_third_party(rel_file: str) -> bool:
 # 16-40 byte leaf accessors where GCC and MWCCPS2 happen to emit identical
 # bytes, which is also why some already report MATCH. Membership is decided by
 # the span, not by the instruction mix of an individual function.
+# The fourth span is RenderWare Graphics 3.7 (core, world, the rp*/rt* plugins
+# and the sky2 driver), prebuilt by Criterion with MWCCPS2 3.0.1 b119 and
+# linked after Atlus's last unit (ed_res.c ends at 0x0038F950) and before the
+# CRI span. Evidence: the module registration table and every rwID/memory-hint
+# constant sit inside it; 291 functions between 0x003BDD00 and 0x00412520 are
+# byte-exact from the RenderWare 3.7.0.2 source (src/renderware); the first
+# function of the span, 0x0038F990, calls _rwerror/RwErrorSet; and the sky2
+# DMA/VU code of code1_003a.c is driver code with no game counterpart.
 VENDOR_CODE_RANGES = (
+    (0x0038F990, 0x00417510),
     (0x00417510, 0x0044E830),
     (0x004BD628, 0x0052D8C0),
     (0x0070C850, 0x0070E140),
