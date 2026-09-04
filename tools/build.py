@@ -379,7 +379,7 @@ def c_object_exports(obj_path):
     """Global defined symbol names exported by a compiled C object."""
     obj = V.ObjectFile(obj_path)
     return {s["name"] for s in obj.symbols
-            if s["name"] and s.get("shndx", 0) != 0}
+            if s["name"] and s.get("shndx", 0) != 0 and (s["info"] >> 4) in (1, 2)}
 
 def c_object_undefineds(obj_path):
     """Named undefined symbols referenced by a compiled C object."""
