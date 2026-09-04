@@ -635,6 +635,14 @@ RwResourcesUseResEntry(RwResEntry * entry)
  * \see RwResourcesGetArenaUsage
  *
  */
+/* measured (func_003e22c0, marker in code1_003e.c): with a schedule-on
+   bracket this body is object 284B / window 288B, nd 13 - every word matches
+   except a $s0/$s1 rotation: retail colours the hoisted &rwfree address $s0
+   and `res` $s1; b119 gives `res` $s0. Tried: opt_propagation off,
+   opt_common_subs off, opt_loop_invariants off, optimization_level 2/3,
+   opt_rebuildconditionals off, block-scoped res, heap local, memFuncs local,
+   macro-everywhere (no res local: nd 78). Saved-register colouring floor;
+   unmarked, marker stays INCLUDE_ASM. */
 RwBool
 RwResourcesSetArenaSize(RwUInt32 size)
 {

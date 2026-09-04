@@ -676,3 +676,14 @@ writeNativeTexture = 0x003e6770; // type:data evidence: babintex.c file static; 
 // W38c46 code1_0046 float gp symbols
 fGpffff81f0 = 0x007612E0; // type:data evidence: retail func_004601c0/004604d0 lwc1 GPREL -0x7E10($28); gp = 0x007690F0 -> 0x007612E0
 fGpffff81b0 = 0x007612A0; // type:data evidence: retail func_004604d0 lwc1 GPREL -0x7E50($28); gp = 0x007690F0 -> 0x007612A0
+// W41c46 code1_0046 data symbols
+D_00712508 = 0x00712508; // type:data evidence: retail func_004601c0 ld D_00712508 at 0x004601f8, low16 0x2508
+D_00712510 = 0x00712510; // type:data evidence: retail func_004601c0 lwc1 D_00712510 at 0x00460204, low16 0x2510
+// solo code1_0015 func_00159a60 data symbols
+D_005F0630 = 0x005f0630; // type:data evidence: retail func_00159a60 lui $a2,0x5f / addiu $a2,0x630 at 0x00159ac0; string "field/grmd/fobj103.RMD"
+D_007E3720 = 0x007e3720; // type:data evidence: retail func_00159a60 lui $v0,0x7e / addiu $v0,0x3720 at 0x00159b40; 16-byte record table stored to work+0x20
+// LANE W43c14 func_001424b0 data symbols
+fGpffff9ce0 = 0x00762dd0; // type:data evidence: retail func_001424b0 lwc1 gp-0x6320 (0x00762DD0) color; gp base 0x007690F0
+D_005EF6C8 = 0x005ef6c8; // type:data evidence: retail func_001424b0 lui $a0,0x5f / addiu $a0,-0x938 at 0x001424f4/0x001424f8
+D_005EF6E0 = 0x005ef6e0; // type:data evidence: retail func_001424b0 lui $v1,0x5f / addiu $v1,-0x920 at 0x00142728/0x0014272c
+D_005EF6E4 = 0x005ef6e4; // type:data evidence: retail func_001424b0 lui $v1,0x5f / addiu $v1,-0x91c at 0x0014274c/0x00142750
