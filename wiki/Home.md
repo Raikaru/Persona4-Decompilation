@@ -28,8 +28,8 @@ version.
 
 The README's status table is regenerated from the verifier on every push and
 the badges come from [decomp.dev](https://decomp.dev/Raikaru/Persona4-Decompilation).
-In prose: Atlus's own code ("first-party", about 7,650 functions once the
-RenderWare block is filed under middleware) is a little over 83% byte-exact; the remainder is retail assembly linked verbatim so the
+In prose: Atlus's own code ("first-party", 6,861 functions once the
+RenderWare span is filed under middleware) is about 88% byte-exact; the remainder is retail assembly linked verbatim so the
 image still reproduces. The RenderWare, CRI, Sony SDK and C-runtime windows
 are tracked separately - the RenderWare part is being recovered from source,
 the rest is prebuilt vendor code that stays as assembly.

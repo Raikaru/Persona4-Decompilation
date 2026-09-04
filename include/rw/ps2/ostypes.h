@@ -46,7 +46,8 @@ typedef unsigned long long RwUInt64;
  * (`ourGlobals`, retail 0x008872E0) rather than behind a pointer: balibtyp.h
  * turns RwEngineInstance into that array when RWGLOBALSIZE is defined. The
  * size only sizes the array declaration; the plugin globals appended by the
- * toolkit registry are what actually fill it at run time. */
-#define RWGLOBALSIZE 0x400
+ * toolkit registry are what actually fill it at run time. The value is the
+ * one the RenderWare 3.5 PS2 SDK's sky2 rwplcore.h uses. */
+#define RWGLOBALSIZE (16*1024)
 
 #endif /* PS2_OSTYPES_H */
