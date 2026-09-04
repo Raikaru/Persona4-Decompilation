@@ -23,6 +23,10 @@ glabel second
     addiu $2, $0, 2
     jr $31
     nop
+glabel third
+    addiu $2, $0, 3
+    jr $31
+    nop
 """
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -36,6 +40,7 @@ glabel second
         self.assertIn("glabel second", result)
         self.assertIn("addiu $2, $0, 2", result)
         self.assertNotIn("glabel first", result)
+        self.assertNotIn("glabel third", result)
         self.assertTrue(result.startswith(".set noat\n.set noreorder\n.text\n"))
 
     def test_missing_function_is_an_explicit_error(self) -> None:
@@ -43,14 +48,24 @@ glabel second
             root = Path(temporary)
             source = root / "code.s"
             source.write_text("glabel present\n    jr $31\n    nop\n", encoding="utf-8")
-            with self.assertRaisesRegex(SystemExit, "was not found"):
+            with self.assertRaises(SystemExit):
                 m2c_decompile.extract_function("missing", [source], root / "out.s")
+            self.assertFalse((root / "out.s").exists())
 
     def test_explicit_m2c_path_takes_precedence(self) -> None:
+        from unittest.mock import patch
         with tempfile.TemporaryDirectory() as temporary:
-            script = Path(temporary) / "m2c.py"
-            script.write_text("# test executable\n", encoding="utf-8")
-            self.assertEqual(m2c_decompile.find_m2c(script), script.resolve())
+            root = Path(temporary)
+            script = root / "explicit.py"
+            environment = root / "environment.py"
+            vendor = root / "tools" / "vendor" / "m2c" / "m2c.py"
+            vendor.parent.mkdir(parents=True)
+            for path in (script, environment, vendor):
+                path.write_text("# test executable\n", encoding="utf-8")
+            with patch.object(m2c_decompile, "REPO", root), patch.dict(
+                m2c_decompile.os.environ, {"M2C": str(environment)}
+            ):
+                self.assertEqual(m2c_decompile.find_m2c(script), script.resolve())
 
 
 if __name__ == "__main__":

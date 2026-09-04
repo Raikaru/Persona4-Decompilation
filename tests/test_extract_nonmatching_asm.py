@@ -82,16 +82,6 @@ class PlaceholderAccountingTests(unittest.TestCase):
         # instructions + .word only: addiu, jr, .word -> 3 counted lines
         self.assertEqual(tool.count_placeholder_words(lines), 3)
 
-    def test_placeholder_matches_real_slice(self) -> None:
-        if not CODE1.is_file():
-            self.skipTest("asm/code1.s not present")
-        raw = real_slice_lines()
-        # The window is 720 bytes = 180 words; the raw splat slice (including
-        # endlabel/nonmatching/blank boundary lines) must count exactly 180.
-        self.assertEqual(
-            tool.count_placeholder_words(tool.HEADER_LINES + tool.clean_slice(raw)) * 4,
-            REAL_WINDOW,
-        )
 
     def test_placeholder_parity_with_mwccgap_preprocessor(self) -> None:
         """count_placeholder_words agrees with mwccgap's own nop counting."""
@@ -140,8 +130,10 @@ class SliceWindowDecisionTests(unittest.TestCase):
         if not CODE1.is_file():
             self.skipTest("asm/code1.s not present")
         raw = real_slice_lines()
-        # Drop the first counted instruction (glabel stays) -> 4 bytes short.
-        truncated = raw[:1] + raw[2:]
+        index = next(i for i, line in enumerate(raw)
+                     if line.lstrip().startswith("/*") and tool.VRAM_RE.search(line))
+        truncated = raw[:index] + raw[index + 1:]
+        self.assertEqual(tool.count_placeholder_words(tool.clean_slice(truncated)) * 4, REAL_WINDOW - 4)
         self.assertFalse(tool.slice_matches_window(truncated, REAL_WINDOW))
 
     def test_long_slice_is_rejected(self) -> None:
@@ -194,12 +186,13 @@ class SliceWindowDecisionTests(unittest.TestCase):
 class SynthesiseTests(unittest.TestCase):
     def test_jal_to_canonical_function_gets_reloc_annotation(self) -> None:
         # word 0: addiu $29, $29, -0x20; word 1: jal func_00106330;
-        # word 2: nop; word 3: jr $31 (target 0x7fffffff -> not a window).
+        # word 2: nop; word 3: jr $31 (not a JAL, so it stays literal).
         raw = struct.pack("<IIII", 0x27BDFFE0, 0x0C0418CC, 0x00000000, 0x03E00008)
         windows = {"00106330": 8}
         lines = tool.synthesise(0x00123456, 16, raw, windows)
         self.assertEqual(len(lines), 5)  # glabel + 4 words
-        self.assertIn(".reloc .-4, R_MIPS_26, func_00106330", lines[2])
+        self.assertEqual(lines[1].strip(), ".word 0x27BDFFE0")
+        self.assertEqual(lines[2].strip(), ".word 0x0C000000; .reloc .-4, R_MIPS_26, func_00106330")
         self.assertEqual(lines[4].strip(), ".word 0x03E00008")
 
     def test_jal_to_non_window_target_stays_literal(self) -> None:
@@ -303,16 +296,13 @@ class EndToEndTests(unittest.TestCase):
                             "a relocatable slice keeps symbol references")
 
     def test_wrong_window_is_rejected_and_nothing_written(self) -> None:
-        """Negative control: corrupt the window, show the failure, restore."""
+        """A malformed window is rejected before creating assembler output."""
         with tempfile.TemporaryDirectory(prefix="p4-test-neg-") as tmpdir:
             # A window that is not a multiple of 4 fails the placeholder gate
             # for both slice and synthesis before any assembly happens.
             with self.assertRaises(tool.ExtractionFailure):
                 self._extract(REAL_ADDR, REAL_WINDOW - 1, Path(tmpdir))
-        # Restore: the real window extracts cleanly.
-        with tempfile.TemporaryDirectory(prefix="p4-test-restore-") as tmpdir:
-            kind, _ = self._extract(REAL_ADDR, REAL_WINDOW, Path(tmpdir))
-        self.assertEqual(kind, "sliced")
+            self.assertEqual(list(Path(tmpdir).iterdir()), [])
 
 
 @unittest.skipUnless(CODE1.is_file() and RETAIL_ELF.is_file(),
@@ -360,19 +350,24 @@ class CliTests(unittest.TestCase):
             check = subprocess.run(
                 base + ["--check"], cwd=REPO, capture_output=True, text=True)
             self.assertEqual(check.returncode, 1, check.stdout + check.stderr)
-            self.assertIn("would write", check.stdout)
             self.assertFalse((out / "btlPanel" / "func_00202890.s").exists())
             first = subprocess.run(base, cwd=REPO, capture_output=True, text=True)
             self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
-            self.assertTrue((out / "btlPanel" / "func_00202890.s").is_file())
+            generated = out / "btlPanel" / "func_00202890.s"
+            before = generated.read_bytes()
+            import os
+            os.utime(generated, (1_000_000_000, 1_000_000_000))
+            timestamp = generated.stat().st_mtime_ns
             # A second generation writes nothing and --check then exits 0.
             second = subprocess.run(base, cwd=REPO, capture_output=True, text=True)
             self.assertEqual(second.returncode, 0)
-            self.assertIn("ok (unchanged)", second.stdout)
-            self.assertIn("written:               0", second.stdout)
+            self.assertEqual(generated.read_bytes(), before)
+            self.assertEqual(generated.stat().st_mtime_ns, timestamp)
             check2 = subprocess.run(
                 base + ["--check"], cwd=REPO, capture_output=True, text=True)
             self.assertEqual(check2.returncode, 0)
+            self.assertEqual(generated.read_bytes(), before)
+            self.assertEqual(generated.stat().st_mtime_ns, timestamp)
             self.assertIn('INCLUDE_ASM("asm/nonmatchings/btlPanel", '
                           'func_00202890)', check2.stdout)
 

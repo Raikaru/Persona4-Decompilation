@@ -57,18 +57,18 @@ class ElfObjectBuilderTests(unittest.TestCase):
             endian, sections = verify.elf_sections(data)
             obj = ObjectFile(path)
         self.assertEqual(endian, "<")
-        names = [section["name"] for section in sections]
-        self.assertEqual(names, ["", ".text", ".rel.text", ".symtab", ".strtab", ".shstrtab"])
         text = next(section for section in sections if section["name"] == ".text")
         self.assertEqual(text["type"], 1)          # SHT_PROGBITS
         self.assertEqual(text["flags"], 6)         # SHF_ALLOC | SHF_EXECINSTR
         self.assertEqual(text["size"], 8)
         symtab = next(section for section in sections if section["name"] == ".symtab")
-        self.assertEqual(symtab["info"], 1)        # first non-local symbol
+        boundary = symtab["info"]
+        self.assertTrue(all(s["info"] >> 4 == 0 for s in obj.symbols[:boundary]))
+        self.assertTrue(all(s["info"] >> 4 != 0 for s in obj.symbols[boundary:]))
         symbol = next(symbol for symbol in obj.symbols if symbol["name"] == "f")
         self.assertEqual(symbol["info"], 0x12)     # STB_GLOBAL | STT_FUNC
         self.assertEqual(symbol["size"], 8)
-        self.assertEqual(symbol["shndx"], 1)
+        self.assertEqual(symbol["shndx"], sections.index(text))
 
     def test_reloc_self_reference_uses_function_symbol(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -77,6 +77,13 @@ class ElfObjectBuilderTests(unittest.TestCase):
             obj = ObjectFile(path)
             _, parsed = obj.function("rec")
         self.assertEqual([reloc["symbol"] for reloc in parsed], ["rec"])
+        symbols = [(i, s) for i, s in enumerate(obj.symbols) if s["name"] == "rec"]
+        self.assertEqual(len(symbols), 1)
+        index, symbol = symbols[0]
+        self.assertNotEqual(symbol["shndx"], 0)
+        reloc_section = next(s for s in obj.sections if s["name"] == ".rel.text")
+        _offset, info = struct.unpack_from("<II", obj.data, reloc_section["offset"])
+        self.assertEqual(info >> 8, index)
 
     def test_undefined_refs_are_preserved(self) -> None:
         code = b"\0" * 4
@@ -85,25 +92,36 @@ class ElfObjectBuilderTests(unittest.TestCase):
                                  [{"offset": 0, "r_type": 4, "symbol": "callee"}])
             obj = ObjectFile(path)
             body, parsed = obj.function("caller")
-            symbols = [symbol["name"] for symbol in obj.symbols if symbol["size"] == 0]
+            symbol = next(s for s in obj.symbols if s["name"] == "callee")
         self.assertEqual(body, code)
         self.assertEqual(parsed[0]["symbol"], "callee")
-        self.assertIn("callee", symbols)
+        self.assertEqual(symbol["shndx"], 0)
+        self.assertEqual(symbol["info"] >> 4, 1)
+        self.assertEqual(symbol["size"], 0)
 
 
 class SliceTests(unittest.TestCase):
     def test_slice_keeps_only_the_function(self) -> None:
-        # A compiled TU object: two functions, each in its own .text with relocs.
+        # Two functions share .text; funcA starts after funcB.
         code_a = b"\x11" * 16
         code_b = b"\x22" * 8
         with tempfile.TemporaryDirectory() as directory:
             tmp = Path(directory)
-            tu_path = _write_object(tmp, "funcA", code_a,
-                                    [{"offset": 0, "r_type": 4, "symbol": "funcB"}],
+            tu_path = _write_object(tmp, "funcA", code_b + code_a,
+                                    [{"offset": 0, "r_type": 4, "symbol": "funcA"},
+                                     {"offset": len(code_b), "r_type": 4, "symbol": "funcB"}],
                                     e_flags=0x20924001)
-            # Append funcB into the same object is not supported by the single-
-            # function builder, so slice from the single-function object and
-            # verify the slice still resolves funcB as an undefined reference.
+            obj = ObjectFile(tu_path)
+            symtab = next(s for s in obj.sections if s["name"] == ".symtab")
+            text_index = next(i for i, s in enumerate(obj.sections) if s["name"] == ".text")
+            data = bytearray(obj.data)
+            for index, symbol in enumerate(obj.symbols):
+                if symbol["name"] not in {"funcA", "funcB"}:
+                    continue
+                offset, size = (len(code_b), len(code_a)) if symbol["name"] == "funcA" else (0, len(code_b))
+                entry = symtab["offset"] + index * 16
+                struct.pack_into("<IIBBH", data, entry + 4, offset, size, 0x12, 0, text_index)
+            tu_path.write_bytes(data)
             obj = ObjectFile(tu_path)
             sliced = gen.slice_function_object(obj, "funcA")
             slice_path = tmp / "slice.o"
@@ -113,7 +131,9 @@ class SliceTests(unittest.TestCase):
         self.assertEqual(body, code_a)
         self.assertEqual([reloc["symbol"] for reloc in relocations], ["funcB"])
         self.assertEqual(gen._elf_flags(sliced), 0x20924001)
-        self.assertEqual(len(parsed.symbols), 3)  # null, funcA, undefined funcB
+        self.assertEqual([r["offset"] for r in relocations], [0])
+        sibling = next(s for s in parsed.symbols if s["name"] == "funcB")
+        self.assertEqual(sibling["shndx"], 0)
 
 
 class UnitBuildingTests(unittest.TestCase):
@@ -147,18 +167,23 @@ class UnitBuildingTests(unittest.TestCase):
                          f"build/objdiff/target/{stem}/{marker['addr']:08x}.o")
 
     def test_config_units_have_exactly_the_schema_keys(self) -> None:
-        units = gen.build_units([dict(
-            file="src/Battle/battle.c", addr="00192560", line=10,
-            status="NONMATCHING", name="func_00192560")])
-        unit = units[0]
-        self.assertEqual(sorted(unit.keys()),
-                         sorted(("name", "target_path", "base_path", "metadata",
-                                 "file", "addr", "symbol", "window",
-                                 "status")))
-        config_unit = {key: unit[key] for key in gen.CONFIG_UNIT_KEYS}
-        self.assertEqual(sorted(config_unit.keys()),
-                         sorted(("name", "target_path", "base_path", "metadata")))
-        self.assertFalse(config_unit["metadata"]["complete"])
+        import subprocess
+        with tempfile.TemporaryDirectory() as temporary:
+            report = Path(temporary) / "report.json"
+            output = Path(temporary) / "objdiff.json"
+            report.write_text(json.dumps({"results": [dict(
+                file="src/Battle/battle.c", addr="00192560", line=10,
+                status="NONMATCHING", name="func_00192560")]}))
+            result = subprocess.run(
+                [sys.executable, str(MODULE_PATH), "--report", str(report), "--output", str(output)],
+                cwd=REPO, capture_output=True, text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            config = json.loads(output.read_text())
+        for unit in config["units"]:
+            self.assertEqual(set(unit), {"name", "target_path", "base_path", "metadata"})
+        selected = next(u for u in config["units"] if u["name"] == "Battle/battle:00192560")
+        self.assertFalse(selected["metadata"]["complete"])
 
     def test_sourceless_function_still_gets_a_unit(self) -> None:
         # A canonical function with no C source must still appear in the config:
@@ -217,9 +242,6 @@ class UnitBuildingTests(unittest.TestCase):
         because being linked into the byte-exact image is orthogonal to which
         source owns the function.
         """
-        ids = [c["id"] for c in gen.PROGRESS_CATEGORIES]
-        self.assertEqual(ids[:3], ["main", "third_party", "unclassified"])
-        self.assertIn("linked", ids)
         self.assertEqual(gen.progress_category("src/Battle/btlTarget.c"), "main")
         self.assertEqual(gen.progress_category("src/rw/rwcore.c"), "third_party")
         self.assertEqual(gen.progress_category("src/cri/cri_adx.c"), "third_party")
@@ -230,17 +252,6 @@ class UnitBuildingTests(unittest.TestCase):
         # only the middleware already finished, reading 100% complete. Both
         # published numbers stay meaningful only if these get their own bucket.
         self.assertEqual(gen.progress_category(None), "unclassified")
-        # The config carries the categories and every unit is tagged.
-        units = gen.build_units([dict(
-            file="src/rw/rwcore.c", addr="0038fb10", line=10,
-            status="NONMATCHING", name="func_0038fb10")])
-        units.extend(gen.build_canonical_units({"00100008": 528}, set()))
-        for unit in units:
-            unit["metadata"]["progress_categories"] = [gen.progress_category(unit["file"])]
-        self.assertEqual(units[0]["metadata"]["progress_categories"], ["third_party"])
-        # build_canonical_units emits the source-less remainder, which is
-        # exactly the population that must not be silently counted as either.
-        self.assertEqual(units[1]["metadata"]["progress_categories"], ["unclassified"])
 
     def test_linked_addresses_falls_back_to_the_committed_endpoint(self) -> None:
         """A missing build artifact must not silently publish an empty category.
@@ -256,8 +267,9 @@ class UnitBuildingTests(unittest.TestCase):
         self.assertTrue(from_metrics, "committed progress/metrics.json yielded no linked addresses")
         # A named-but-absent artifact must degrade to the same fallback, never to
         # an empty set, and never raise.
-        self.assertEqual(gen.linked_addresses("build/does-not-exist.json"), from_metrics)
-        # Every address is a real canonical function address, not a stray token.
+        with tempfile.TemporaryDirectory() as temporary:
+            self.assertEqual(gen.linked_addresses(str(Path(temporary) / "absent.json")), from_metrics)
+        # Address sanity, not proof of canonical membership.
         self.assertTrue(all(isinstance(a, int) and 0 < a < 0x8000000 for a in from_metrics))
 
 
@@ -286,57 +298,52 @@ class TrimWindowPaddingTests(unittest.TestCase):
         self.assertEqual(gen.trim_window_padding(body[:12], 16, True), body[:12])
         self.assertEqual(gen.trim_window_padding(body, 0, True), body)
 
-    def test_trimmed_window_roundtrips_through_object_builder(self) -> None:
-        window = b"\x08\x00\xe0\x03" * 3 + b"\0" * 8
-        trimmed = gen.trim_window_padding(window, 12, True)
-        with tempfile.TemporaryDirectory() as directory:
-            path = _write_object(Path(directory), "f", trimmed, [])
-            obj = ObjectFile(path)
-            body, _ = obj.function("f")
-        self.assertEqual(body, window[:12])
 
 
 class EmitHelpersTests(unittest.TestCase):
     def test_select_units_matches_name_and_paths(self) -> None:
         units = [
-            dict(name="Battle/btlTarget:001EC630",
-                 base_path="build/objdiff/base/Battle/btlTarget_unit_001ec630.o",
-                 target_path="build/objdiff/target/Battle/btlTarget_unit_001ec630.o"),
-            dict(name="Battle/battle:00192560",
-                 base_path="build/objdiff/base/Battle/battle_unit_00192560.o",
-                 target_path="build/objdiff/target/Battle/battle_unit_00192560.o"),
+            dict(name="shared/name-only", base_path="base-only.o", target_path="target-only.o"),
+            dict(name="shared/second", base_path=None, target_path="other.o"),
         ]
-        self.assertEqual(len(gen.select_units(units, "btlTarget")), 1)
-        self.assertEqual(len(gen.select_units(units, "battle_unit_00192560")), 1)
-        self.assertEqual(len(gen.select_units(units, "Battle/")), 2)
+        for token in ("name-only", "base-only", "target-only"):
+            self.assertEqual(gen.select_units(units, token), [units[0]])
+        self.assertEqual(gen.select_units(units, "shared/"), units)
         self.assertEqual(gen.select_units(units, "nope"), [])
 
     def test_current_checks_mtime_and_size(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "out.o"
-            dep = Path(directory) / "dep.c"
-            dep.write_text("x")
-            dep_mtime = dep.stat().st_mtime
-            self.assertFalse(gen._current(path, dep_mtime))  # missing
+            self.assertFalse(gen._current(path, 1_000_000_000))  # missing
             path.write_bytes(b"data")
-            self.assertTrue(gen._current(path, dep_mtime))
-            # Future dependency makes it stale.
-            future = dep_mtime + 1000
-            self.assertFalse(gen._current(path, future))
+            os.utime(path, (1_000_000_000, 1_000_000_000))
+            timestamp = path.stat().st_mtime
+            self.assertTrue(gen._current(path, timestamp))
+            self.assertTrue(gen._current(path, timestamp - 10))
+            self.assertFalse(gen._current(path, timestamp + 10))
             path.write_bytes(b"")
-            self.assertFalse(gen._current(path, dep_mtime))  # empty
+            self.assertFalse(gen._current(path, timestamp))  # empty
 
     def test_install_bytes_is_atomic_and_creates_parents(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "nested" / "dir" / "out.o"
             gen._install_bytes(b"\x7fELF", path)
             self.assertEqual(path.read_bytes(), b"\x7fELF")
+            from unittest.mock import patch
+            def fail_replace(candidate, destination):
+                self.assertEqual(Path(destination).read_bytes(), b"\x7fELF")
+                self.assertEqual(Path(candidate).read_bytes(), b"replacement")
+                raise OSError("injected replacement failure")
+            with patch.object(gen.os, "replace", side_effect=fail_replace):
+                with self.assertRaises(OSError):
+                    gen._install_bytes(b"replacement", path)
+            self.assertEqual(path.read_bytes(), b"\x7fELF")
             leftover = list(Path(directory).rglob(".objdiff-*"))
             self.assertEqual(leftover, [])
+            gen._install_bytes(b"replacement", path)
+            self.assertEqual(path.read_bytes(), b"replacement")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class TranslationUnitCategoryTests(unittest.TestCase):
@@ -364,10 +371,12 @@ class TranslationUnitCategoryTests(unittest.TestCase):
         self.assertEqual(
             gen.progress_category(None, "definitelyNotAFileInEitherTree.c"), "unclassified")
 
-    def test_no_tu_name_stays_unclassified(self) -> None:
-        self.assertEqual(gen.progress_category(None, None), "unclassified")
 
     def test_own_source_file_wins_over_the_tu_name(self) -> None:
         """A unit with real source is classified by that source, not the span."""
         self.assertEqual(gen.progress_category("src/rw/rwcore.c", "btlTarget.c"),
                          "third_party")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -35,7 +35,7 @@ s32 func_00100010(s32 arg0) {
         self.assertIn("func_00400020", parsed[0x00100000].body)
         self.assertEqual(parsed[0x00100010].declarations, ("M2C_UNK func_00400020(); /* extern */",))
     def test_ignores_calls_that_look_like_function_definitions(self) -> None:
-        output = """if (func_00100010()) {
+        output = """if (func_00100020()) {
     return 1;
 }
 
@@ -324,7 +324,8 @@ s32 func_00100010(void) {
             source = directory / "code1_0010.c"
             source.write_text(
                 "// FUN_00100000 NONMATCHING\n"
-                "// FUN_00100010 NONMATCHING\n",
+                "// FUN_00100010 NONMATCHING\n"
+                "// FUN_00100020 NONMATCHING\n",
                 encoding="utf-8",
             )
             report = directory / "report.json"
@@ -341,8 +342,14 @@ s32 func_00100010(void) {
                             {
                                 "file": "src\\generated\\code1_0010.c",
                                 "addr": "00100010",
-                                "status": "NONMATCHING",
+                                "status": "MATCH",
                                 "normalized_diff": 4,
+                            },
+                            {
+                                "file": "src\\generated\\code1_0010.c",
+                                "addr": "00100020",
+                                "status": "NONMATCHING",
+                                "normalized_diff": 0,
                             },
                         ]
                     }
@@ -350,12 +357,12 @@ s32 func_00100010(void) {
                 encoding="utf-8",
             )
             promoted, verified = bulk.promote_verified_matches(
-                directory, report, {0x00100000, 0x00100010}
+                directory, report, {0x00100000, 0x00100010, 0x00100020}
             )
             self.assertEqual((promoted, verified), (1, 1))
             self.assertEqual(
                 source.read_text(encoding="utf-8"),
-                "// FUN_00100000\n// FUN_00100010 NONMATCHING\n",
+                "// FUN_00100000\n// FUN_00100010 NONMATCHING\n// FUN_00100020 NONMATCHING\n",
             )
 
     @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
@@ -430,8 +437,9 @@ endlabel func_00100010
             first, {0x00100000: first, 0x00100010: second}
         )
         self.assertIn(".L00100010:", prepared)
-        self.assertIn("jr         $31", prepared)
-        self.assertIn("    nop", prepared)
+        self.assertIn("b          .L00100010", prepared)
+        self.assertNotIn("b          func_00100010", prepared)
+        self.assertIn("jr         $31\n    nop", prepared)
 
     def test_renders_multiple_units_in_one_c_file(self) -> None:
         fallbacks = {
@@ -521,6 +529,8 @@ void func_00100010(void) {
             grouped_text = (grouped / "code1_0010.c").read_text(encoding="utf-8")
             self.assertNotIn("#if defined", grouped_text)
             self.assertIn("// FUN_00100000 NONMATCHING", grouped_text)
+            self.assertIn("void func_00100000(void) {\n    return;\n}", grouped_text)
+            self.assertNotIn("func_00100010", grouped_text)
 
             grouped_report = root / "grouped.json"
             grouped_report.write_text(
@@ -545,6 +555,10 @@ void func_00100010(void) {
             remaining = source_path.read_text(encoding="utf-8")
             self.assertNotIn("FUN_00100000", remaining)
             self.assertIn("// FUN_00100010 NONMATCHING", remaining)
+            self.assertIn("void func_00100010(void) {\n    return;\n}", remaining)
+            installed = (grouped / "code1_0010.c").read_text(encoding="utf-8")
+            self.assertIn("void func_00100000(void) {\n    return;\n}", installed)
+            self.assertNotIn("func_00100010", installed)
 
     def test_rewrites_retail_words_for_mwcc_inline_asm(self) -> None:
         body = (

@@ -106,14 +106,17 @@ class MarkerScanTests(unittest.TestCase):
 
     def test_ifdef_without_a_fallback_is_not_treated_as_assembly(self) -> None:
         """A guard that never reaches INCLUDE_ASM must fall through to normal parsing."""
-        markers = markers_for(
-            "// FUN_00100010\n"
-            "#ifdef SOMETHING_ELSE\n"
-            "s32 func_00100010(void)\n{\n    return 1;\n}\n"
-            "#endif\n"
-        )
-        self.assertEqual(len(markers), 1)
-        self.assertFalse(markers[0].get("asm"))
+        for guard in ("SOMETHING_ELSE", "NON_MATCHING"):
+            with self.subTest(guard=guard):
+                markers = markers_for(
+                    "// FUN_00100010\n"
+                    f"#ifdef {guard}\n"
+                    "s32 func_00100010(void)\n{\n    return 1;\n}\n"
+                    "#endif\n"
+                )
+                self.assertEqual(len(markers), 1)
+                self.assertFalse(markers[0].get("asm"))
+                self.assertEqual(markers[0]["name"], "func_00100010")
 
     def test_following_marker_is_still_found_after_a_fallback(self) -> None:
         """The scanner must resume after the #endif, not swallow the next function."""

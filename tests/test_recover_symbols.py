@@ -48,8 +48,8 @@ class AbsPairDecodeTests(unittest.TestCase):
 
 class GprelDecodeTests(unittest.TestCase):
     def test_positive_offset(self):
-        # sw $zero, 0xb1c0($gp) -> 0x007690f0 + 0xb1c0.
-        self.assertEqual(rs.decode_gprel(GP, 0, 0xB1C0), 0x007642B0)
+        # 0x1234 is a positive signed 16-bit displacement.
+        self.assertEqual(rs.decode_gprel(GP, 0, 0x1234), 0x0076A324)
 
     def test_negative_offset_is_sign_extended(self):
         # lw $t0, 0x81f4($gp): the 16-bit field is negative.
@@ -62,12 +62,13 @@ class GprelDecodeTests(unittest.TestCase):
 class Jump26DecodeTests(unittest.TestCase):
     def test_jal_target_reconstruction(self):
         # jal at 0x00202be0 (pc+4 = 0x00202be4) with field 0x1152f4.
-        self.assertEqual(rs.decode_jump26(0, 0x1152F4, 0x00202BE4), 0x00454BD0)
+        self.assertEqual(rs.decode_jump26(0, 0x1152F4, 0x00202BE0), 0x00454BD0)
+        self.assertEqual(rs.decode_jump26(0, 0x1152F4, 0x0FFFFFFC), 0x10454BD0)
 
     def test_compiled_addend_is_backed_out(self):
         # jal sym+4: the compiled field holds the addend in 4-byte units, the
         # linked field encodes (S + A) >> 2.
-        self.assertEqual(rs.decode_jump26(1, 0x1152F5, 0x00202BE4), 0x00454BD0)
+        self.assertEqual(rs.decode_jump26(1, 0x1152F5, 0x00202BE0), 0x00454BD0)
 
 
 class NameEncodingTests(unittest.TestCase):
@@ -123,8 +124,7 @@ class SelectionPolicyTests(unittest.TestCase):
         emitted, _conflicts, agree, disagree, _failures = select(recovered)
         self.assertEqual(emitted, {"D_00600000": 0x00600010})
         self.assertEqual(agree, [])
-        self.assertEqual(len(disagree), 1)
-        self.assertEqual(disagree[0][:2], ("D_00600000", 0x00600010))
+        self.assertEqual(disagree, [("D_00600000", 0x00600010, 0x00600000)])
 
     def test_data_kind_address_inside_function_window_is_rejected(self):
         recovered = {"D_00400004": Counter({0x00400004: 1})}
@@ -136,14 +136,18 @@ class SelectionPolicyTests(unittest.TestCase):
         recovered = {"func_00400004": Counter({0x00400004: 1})}
         emitted, _conflicts, _agree, _disagree, failures = select(recovered)
         self.assertNotIn("func_00400004", emitted)
-        self.assertTrue(any("window start" in f for f in failures))
+        self.assertTrue(failures)
+        emitted, _conflicts, _agree, _disagree, failures = select(
+            {"callee": Counter({0x00600000: 1})}, kinds={"callee": {"func"}})
+        self.assertNotIn("callee", emitted)
+        self.assertTrue(failures)
 
     def test_function_pointer_to_window_start_is_allowed(self):
         # %hi/%lo of a function address (function pointer argument) carries no
         # "func" evidence, but landing exactly on a window start is the
         # signature of a function reference and must be accepted.
         recovered = {"btlCond_MYBAD": Counter({0x00454BD0: 2})}
-        emitted, _conflicts, _agree, _disagree, failures = select(recovered)
+        emitted, _conflicts, _agree, _disagree, failures = select(recovered, kinds={"btlCond_MYBAD": {"abs"}})
         self.assertEqual(emitted, {"btlCond_MYBAD": 0x00454BD0})
         self.assertEqual(failures, [])
 

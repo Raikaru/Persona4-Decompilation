@@ -5,11 +5,7 @@ import unittest
 _SPEC = importlib.util.spec_from_file_location(
     'nd_audit', os.path.join(os.path.dirname(__file__), '..', 'tools', 'nd_audit.py'))
 nd = importlib.util.module_from_spec(_SPEC)
-try:
-    _SPEC.loader.exec_module(nd)
-    _LOADED = True
-except BaseException:
-    _LOADED = False
+_SPEC.loader.exec_module(nd)
 
 
 def claim(note_text, marker='// FUN_00100000'):
@@ -17,7 +13,6 @@ def claim(note_text, marker='// FUN_00100000'):
     return nd.claimed_nd(lines, len(lines) - 1)
 
 
-@unittest.skipUnless(_LOADED, 'nd_audit did not import')
 class ClaimExtraction(unittest.TestCase):
     """Only the note's closing statement is the claim.
 
@@ -60,7 +55,6 @@ class ClaimExtraction(unittest.TestCase):
         self.assertEqual(claim('/* measured: fine. nd 7. */\n\n'), 7)
 
 
-@unittest.skipUnless(_LOADED, 'nd_audit did not import')
 class BlockDetection(unittest.TestCase):
     def test_finds_a_preserved_body(self):
         lines = ['// FUN_00100000', '#ifdef NON_MATCHING', 'void f(void) {}',

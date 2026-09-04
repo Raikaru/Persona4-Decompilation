@@ -80,8 +80,6 @@ def classify(
 
 
 class JunkNameTests(unittest.TestCase):
-    def test_accepts_a_real_name(self) -> None:
-        self.assertIsNone(port.name_junk("H_Cursor_DestroyTask"))
 
     def test_rejects_placeholder(self) -> None:
         for name in ("func_00100008", "FUN_00100008", "func_0", "FUN_ABCDEF00"):
@@ -89,7 +87,7 @@ class JunkNameTests(unittest.TestCase):
 
     def test_rejects_address_suffixed_pseudo_name(self) -> None:
         """A placeholder wearing a prefix must not be ported as a real name."""
-        for name in ("datPersona00173340", "kwln00197fb0", "H_Cdvd_001007f0", "H_Snd_FUN_00109ae0"):
+        for name in ("datPersona00173340", "kwln00197fb0", "H_Cdvd_001007f0", "H_Snd_FUN_00109ae0", "kwln197fb0"):
             self.assertEqual(port.name_junk(name), "address_suffixed")
 
     def test_rejects_embedded_address_pseudo_name(self) -> None:
@@ -102,6 +100,7 @@ class JunkNameTests(unittest.TestCase):
         self.assertIsNone(port.name_junk("H_Pad_UpdateFaceButtonRepeat"))  # 6-run mid-name
         self.assertIsNone(port.name_junk("datUnitEcAddEnemy"))  # 6-run mid-name
         self.assertIsNone(port.name_junk("UpdateDead"))  # trailing run of 4
+        self.assertIsNone(port.name_junk("H_Cursor_DestroyTask"))
 
 
 class RejectionClassTests(unittest.TestCase):
@@ -153,7 +152,7 @@ class RejectionClassTests(unittest.TestCase):
         self.assertEqual(counts["p3_name_missing"], 1)
 
     def test_skips_duplicate_name_after_first_acceptance(self) -> None:
-        """Two addresses sharing one symbol would break the link; keep the lowest."""
+        """Two addresses sharing one symbol would break the link; emit only one."""
         second = match(0x00100570, 0x00100218)  # same P3 name, different P4 target
         accepted, counts = classify([match(0x00100218, 0x00100218), second])
         self.assertEqual([entry["p4_address"] for entry in accepted], [0x00100218])
@@ -218,11 +217,11 @@ class OutputContractTests(unittest.TestCase):
         self.assertIsNone(reconcile.PLACEHOLDER.match(parsed["name"]))
 
     def test_output_is_deterministic_and_wholesale(self) -> None:
-        accepted, _counts = classify(
-            [
-                match(0x00100740, 0x00100570, verified=True),
-                match(0x00100218, 0x00100218, verified=True),
-            ],
+        matches = [
+            match(0x00100740, 0x00100570, verified=True),
+            match(0x00100218, 0x00100218, verified=True),
+        ]
+        options = dict(
             p3_names={
                 0x00100218: "H_Cursor_DestroyTask",
                 0x00100570: "datGetFlag",
@@ -232,8 +231,10 @@ class OutputContractTests(unittest.TestCase):
                 0x00100740: "src/Battle/btlMain.c",
             },
         )
+        accepted, _counts = classify(matches, **options)
+        reversed_accepted, _counts = classify(list(reversed(matches)), **options)
         first = port.build_lines(accepted, total=2)
-        second = port.build_lines(accepted, total=2)
+        second = port.build_lines(reversed_accepted, total=2)
         self.assertEqual(first, second)
         entries = [line for line in first if reconcile.NAME_LINE.match(line)]
         self.assertEqual(len(entries), 2)
@@ -243,16 +244,28 @@ class OutputContractTests(unittest.TestCase):
             for line in first
             if reconcile.NAME_LINE.match(line)
         ]
-        self.assertEqual(addresses, sorted(addresses))
+        self.assertEqual(addresses, [0x00100218, 0x00100740])
 
     def test_write_output_is_atomic_binary_and_repeatable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "symbol_names.p3.txt"
-            port.write_output(path, ["// header", "Name = 0x00100008; // type:func  evidence: p3:X@0x00100008 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)"])
-            first = path.read_bytes()
-            port.write_output(path, ["// header", "Name = 0x00100008; // type:func  evidence: p3:X@0x00100008 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)"])
-            self.assertEqual(path.read_bytes(), first)
-            self.assertNotIn(b"\r\n", first)
+            path.write_bytes(b"stale contents that must be replaced entirely\n")
+            lines = ["// caf\u00e9", "Name = 0x00100008;"]
+            expected = b"// caf\xc3\xa9\nName = 0x00100008;\n"
+            port.write_output(path, lines)
+            self.assertEqual(path.read_bytes(), expected)
+            port.write_output(path, lines)
+            self.assertEqual(path.read_bytes(), expected)
+            from unittest.mock import patch
+            def fail_publish(staged, destination):
+                self.assertEqual(Path(destination).read_bytes(), expected)
+                self.assertEqual(staged.read_bytes(), b"replacement\n")
+                raise OSError("injected publication failure")
+            with patch.object(Path, "replace", fail_publish):
+                with self.assertRaises(OSError):
+                    port.write_output(path, ["replacement"])
+            self.assertEqual(path.read_bytes(), expected)
+            port.write_output(path, lines)
             self.assertFalse(path.with_name(path.name + ".tmp").exists())
 
     def test_parse_recovered_collects_function_addresses_only(self) -> None:

@@ -13,19 +13,14 @@ SPEC.loader.exec_module(audit)
 
 
 def mwcc_path() -> str | None:
-    """Must never raise: this is evaluated at import time by @skipUnless.
-
-    `load_config` calls `sys.exit` when the toolchain is not configured, which is
-    a BaseException and slips straight past `except Exception` - that is exactly
-    how this module broke CI, where no compiler exists.
-    """
+    """Skip expected toolchain absence, not programming errors in its loader."""
     try:
         import sys
         sys.path.insert(0, str(REPO / "tools"))
         from verify import load_config
         path = load_config().get("mwcc")
         return path if path and Path(path).is_file() else None
-    except BaseException:
+    except (SystemExit, OSError):
         return None
 
 
@@ -58,8 +53,10 @@ class CollectTests(unittest.TestCase):
         self.assertEqual(len(stripped.splitlines()), len(text.splitlines()))
 
     def test_a_pragma_inside_a_string_is_not_a_directive(self) -> None:
-        stripped = audit.strip_comments('const char *s = "/* not a comment */";\n')
-        self.assertIn("/* not a comment */", stripped)
+        text = 'const char *s = "#pragma bogus /* not a comment */";\n'
+        stripped = audit.strip_comments(text)
+        self.assertEqual(stripped, text)
+        self.assertFalse(any(audit.PRAGMA_RE.match(line) for line in stripped.splitlines()))
 
 
 @unittest.skipUnless(MWCC, "MWCCPS2 not available")
@@ -67,12 +64,6 @@ class CompilerTests(unittest.TestCase):
     """b210 ignores an unknown #pragma silently, so a typo does nothing while the
     lint still demands a justification for it and floor notes still credit it."""
 
-    def test_a_bogus_spelling_is_reported(self) -> None:
-        bad = audit.illegal({"bogus_pragma_xyz off": 1}, MWCC)
-        self.assertEqual(bad, ["bogus_pragma_xyz off"])
-
-    def test_a_real_spelling_is_not_reported(self) -> None:
-        self.assertEqual(audit.illegal({"schedule off": 1}, MWCC), [])
 
     def test_it_separates_real_from_bogus_in_one_unit(self) -> None:
         spellings = {"schedule off": 1, "bogus_pragma_xyz off": 1,

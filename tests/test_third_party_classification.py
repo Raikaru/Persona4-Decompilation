@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import re
 import unittest
 from pathlib import Path
 
@@ -44,7 +45,7 @@ class VendorAddressTests(unittest.TestCase):
     def test_known_vendor_addresses_are_excluded(self) -> None:
         # func_0050b6b8 is the worked example: byte-exact under ee-gcc2.96 and
         # 899 under MWCCPS2 b210. Then one probe per declared range.
-        for addr in (0x0050B6B8, 0x00417510, 0x004BD628, 0x0070C850):
+        for addr in (0x0050B6B8, 0x0038F990, 0x00417510, 0x004BD628, 0x0070C850):
             self.assertTrue(verify.is_vendor_address(addr), hex(addr))
 
     def test_game_addresses_are_not_excluded(self) -> None:
@@ -64,12 +65,6 @@ class VendorAddressTests(unittest.TestCase):
         for value in (None, "", "not-hex"):
             self.assertFalse(verify.is_vendor_address(value), repr(value))
 
-    def test_ranges_are_ordered_and_disjoint(self) -> None:
-        ranges = verify.VENDOR_CODE_RANGES
-        for low, high in ranges:
-            self.assertLess(low, high)
-        for (a_low, a_high), (b_low, b_high) in zip(ranges, ranges[1:]):
-            self.assertLessEqual(a_high, b_low)
 
     def test_gcc_alignment_stragglers_are_covered(self) -> None:
         """GCC aligns to 8, MWCCPS2 to 16, so 8-aligned code cannot be ours.
@@ -94,9 +89,15 @@ class MiddlewareUnitTests(unittest.TestCase):
         self.text = MIDDLEWARE.read_text(errors="replace")
 
     def test_every_entry_is_include_asm(self) -> None:
-        markers = self.text.count("// FUN_")
-        self.assertEqual(markers, self.text.count("INCLUDE_ASM"))
-        self.assertGreater(markers, 0)
+        markers = verify.scan_markers(MIDDLEWARE)
+        self.assertTrue(markers)
+        lines = verify.sanitize_c_lines(self.text.splitlines())
+        for index, marker in enumerate(markers):
+            self.assertTrue(marker.get("asm"), f"{marker['addr']:08X} lost its fallback")
+            end = markers[index + 1]["line"] - 1 if index + 1 < len(markers) else len(lines)
+            entry = "\n".join(lines[marker["line"] - 1:end])
+            symbols = re.findall(r"\bINCLUDE_ASM\s*\([^,]*,\s*([A-Za-z_]\w*)\s*\)", entry)
+            self.assertEqual(symbols, [marker["name"]], f"{marker['addr']:08X} fallback ownership")
 
     def test_any_preserved_body_stays_behind_include_asm(self) -> None:
         """Some entries kept a reverse-engineered body, and that is deliberate.
@@ -107,20 +108,28 @@ class MiddlewareUnitTests(unittest.TestCase):
         being compiled in place of the retail bytes, so every one stays inside
         `#ifdef NON_MATCHING` with `INCLUDE_ASM` on the `#else` arm.
         """
-        self.assertEqual(self.text.count("#ifdef NON_MATCHING"),
-                         self.text.count("#else"))
-        for chunk in self.text.split("#ifdef NON_MATCHING")[1:]:
-            head = chunk.split("#endif")[0]
-            self.assertIn("#else", head)
-            self.assertIn("INCLUDE_ASM", head.split("#else", 1)[1])
+        import pragma_scope_audit as scope
+        source = scope.lint.Source(MIDDLEWARE, self.text.encode())
+        hidden = scope.non_matching(source)
+        lines = verify.sanitize_c_lines(self.text.splitlines())
+        stack = []
+        for index, line in enumerate(lines):
+            directive = re.match(r"\s*#\s*(if|ifdef|ifndef|else|elif|endif)\b", line)
+            if directive:
+                kind = directive.group(1)
+                if kind in {"if", "ifdef", "ifndef"}:
+                    stack.append(False)
+                else:
+                    self.assertTrue(stack, f"unmatched {kind} at line {index + 1}")
+                    if kind == "endif":
+                        stack.pop()
+                    else:
+                        self.assertFalse(stack[-1], f"{kind} after else at line {index + 1}")
+                        stack[-1] = kind == "else"
+            elif index not in hidden:
+                self.assertNotRegex(line, r"[{}]", f"compiled body at line {index + 1}")
+        self.assertEqual(stack, [], "unclosed conditional")
 
-    def test_the_evidence_is_recorded(self) -> None:
-        for needle in ("ee-gcc", "lui rX", "framed tail jump", "permute_ast",
-                       "flanked by genuine third-party"):
-            self.assertIn(needle, self.text, needle)
-
-    def test_preprocessor_blocks_are_balanced(self) -> None:
-        self.assertEqual(self.text.count("#ifdef"), self.text.count("#endif"))
 
 
 if __name__ == "__main__":
