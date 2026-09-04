@@ -9,7 +9,7 @@ extern void func_00428618(s32 arg0);
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_00440b68(const char *fmt, ...);
 extern void *(*D_008873F4[])(s32, s32, s32);
-extern s32 func_003ef650(s32 arg0, s32 arg1);
+extern void *func_003ef650(void *arg0, const char *arg1);
 extern void func_003ef610(s32 arg0);
 extern void func_003ef5b0(s32 arg0, s32 arg1);
 extern s32 func_00451fc0(s32 arg0, const char *arg1, s32 arg2, s32 arg3,
@@ -174,19 +174,27 @@ loop_check:
     return var_20;
 }
 
-// measured: nd 16 after 4 attempts (baseline edit-fndiff, hoisted-local probe, u8*-ptr probe, struct-field probe).
-// Residual is pure argument MATERIALIZATION order: retail emits the first arg (move $a0,$s0)
-// then the second (addiu $a1,$s1,0x10); mwcc b210 always emits the `addiu $s1,0x10` (last arg)
-// first. Call sites: func_003ef650(arg1, arg0+0x10), func_00440b68(str, arg0+0x10). The named
-// "argument order / struct field" recipe (mgr->size) does not apply: the second arg is an
-// ADDIU address computation, not a memory load, so reaching it through a struct field produces
-// a hoisted base local (nd 32+) and the u8* pointer spelling rotates the whole frame (nd 46).
-// Floor appears to be mwcc right-to-left arg scheduling for a computed address operand.
-// QTEX lane: baseline candidate object 196/window 208, normalized_diff 37; the 12-byte
-// tail is zero padding. Pointer-signature/block-prototype probe was a redeclaration error;
-// hoisted address local was optimized away or produced nd 120. Archived in build/QTEX_00190920_body.c.
+/* Look up the texture name, detach and insert it when absent, then report
+   the lookup result. Pointer-typed lookup/print arguments and disabled CSE
+   preserve retail's first-argument-before-name-address materialization.
+   measured: object 196B/window 208B; exact instructions, 12B zero tail. */
+#pragma opt_common_subs off
 // FUN_00190920
-INCLUDE_ASM("asm/nonmatchings/k_texStrip", func_00190920);
+s32 func_00190920(s32 arg0, s32 arg1) {
+    if (func_003ef650((void *)arg1, (char *)arg0 + 0x10) == 0) {
+        func_003ef610(arg0);
+        func_003ef5b0(arg1, arg0);
+        func_00440b68(D_005F6178, (char *)arg0 + 0x10);
+        if (func_003ef650((void *)arg1, (char *)arg0 + 0x10) != 0) {
+            func_00440b68(D_005F6190, (char *)arg0 + 0x10);
+        }
+    } else {
+        func_00440b68(D_005F61B0, (char *)arg0 + 0x10);
+    }
+    return arg0;
+}
+/* measured: restore CSE after the exact 00190920 call sequence. */
+#pragma opt_common_subs on
 
 
 // measured: candidate frame, spill arrays, saved-register order, switch/goto layout, and

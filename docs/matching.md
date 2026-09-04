@@ -162,6 +162,23 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   symbols: only global and weak definitions satisfy references from other
   objects. A same-named local definition must not suppress a required
   canonical address definition.
+- **Form destination and source row pointers inside the loop before hoisting.**
+  In `func_0034ba30`, explicit `dst = table + i * 84` followed by
+  `src = defaults + i * 20`, inside the loop, gives b210 the required
+  destination-first address dependencies. Scoped `opt_loop_invariants on`
+  then hoists the table bases after the counter initialization. This closes
+  the old address-order/register-coloring floor: 212B of exact instructions
+  in a 224B window, with 12B of zero padding. Merely declaring both table
+  bases before the loop did not reproduce that schedule.
+- **Correct pointer types before diagnosing computed-address argument order.**
+  `func_00190920` needs the lookup declaration
+  `void *func_003ef650(void *, const char *)` and byte-pointer name expressions
+  for both lookup and variadic printing. Combined with scoped
+  `opt_common_subs off`, these restore first-argument materialization before
+  the name's `+0x10` address computation. Pointer types alone did not close
+  the floor, nor did disabling CSE with the old integer lookup declaration.
+  The result is 196B of exact instructions plus 12B of retail zero padding;
+  the caller's existing ABI remains unchanged.
 - **Split dependencies before an inline `madd.s` source-order helper.** If a
   direct `0.0f + addend + left * right` has the final two FPU operands
   transposed, pass `(left, right, addend)` to a tiny inline helper containing
