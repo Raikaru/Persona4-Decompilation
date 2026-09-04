@@ -1319,7 +1319,160 @@ loop_004adab0_check:
     *(s32 *)(arg0 + 0x2C) = 0;
 }
 // FUN_004ADB50
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004adb50);
+/* measured: object 816B/window 816B, nd 0. K&R definition so the unprototyped
+   caller func_004adfa0 stays byte-exact. The VU0 colour-pack island and the
+   `color = *(s32 *)&sp134` read are the effModel.c func_004ac300 idiom - reading
+   the packed word through its address is what makes b210 reload it into $s5
+   right after the island and, with it, rank the saved registers as retail does
+   (n $s4, arg0 $s3, objs $s2, count $s1, total $s0; a plain `color = sp134`
+   read left the load floating and flipped the whole ranking). Locals in
+   declaration order; the loop is a goto loop with `objs++`; `zero` is a hoisted
+   0.0f local ($f20); `t = call / 10.0f; speed = t * field` for the mul.s order. */
+void func_004adb50(arg0)
+u8 *arg0;
+{
+    extern void func_0048a150(void *arg0, void *arg1);
+    extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
+    extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
+    extern void func_0047a180(void *arg0, f32 *arg1, s32 arg2);
+    extern void func_00478e70(void *arg0);
+    extern s32 func_0048abd0(void *arg0, void *arg1, u32 arg2, u32 arg3);
+    extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
+    extern void func_004861f0(void *arg0, f32 *arg1);
+    extern void func_0048a980(f32 *arg0);
+    extern void func_00486330(void *arg0, void *arg1);
+    extern void func_00486400(void *arg0, f32 arg1);
+    extern void func_004865c0(void *arg0, s32 arg1);
+    extern void func_00485630(void *arg0);
+    extern f32 D_00761134;
+    s32 sp13C;
+    s32 sp138;
+    s32 sp134;
+    f32 vec[3];
+    f32 pos[4];
+    u8 out[0x10];
+    u8 frame[0x40];
+    f32 mat[16];
+    u32 n;
+    s32 *objs;
+    s32 count;
+    s32 total;
+    u32 i;
+    f32 temp_f0;
+    f32 speed;
+    s32 color;
+    f32 scale;
+    f32 zero;
+    f32 t;
+    s32 *pt;
+
+    count = *(s32 *)(arg0 + 0x2C);
+    total = *(s32 *)(arg0 + 0x90);
+    n = *(u32 *)(arg0 + 0x28);
+    objs = *(s32 **)(arg0 + 0x98);
+    if (count < total || total == 0) {
+        func_0048a150(frame, arg0 + 0x10);
+        func_0047a1c0(*(void **)(arg0 + 0xA0), frame, 0);
+        temp_f0 = *(f32 *)(arg0 + 0x20);
+        vec[2] = temp_f0;
+        vec[1] = temp_f0;
+        vec[0] = temp_f0;
+        func_0047a1e0(*(void **)(arg0 + 0xA0), vec, 2);
+        vec[0] = *(f32 *)(arg0 + 0);
+        vec[1] = *(f32 *)(arg0 + 4);
+        vec[2] = *(f32 *)(arg0 + 8);
+        func_0047a180(*(void **)(arg0 + 0xA0), vec, 2);
+        func_0047a0e0(*(void **)(arg0 + 0xA0), 0, *(f32 *)(arg0 + 0x94));
+        func_00478e70(*(void **)(arg0 + 0xA0));
+        if (*(s32 *)(arg0 + 0x9C) != 0) {
+            color = func_0048abd0(arg0 + 0x30, arg0 + 0x54, count, total);
+            sp13C = *(s32 *)(arg0 + 0x24);
+            pt = &sp13C;
+            scale = D_00761134;
+            __asm__ volatile(
+                "lw $2, 0(%0)          \n"
+                "pextlb $2, $0, $2     \n"
+                "pextlh $2, $0, $2     \n"
+                "qmtc2.ni $2, $vf10   \n"
+                "vitof0.xyzw $vf10, $vf10 \n"
+                "mfc1 $2, %1           \n"
+                "nop                   \n"
+                "qmtc2.ni $2, $vf2     \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "vmove.xyzw $vf11, $vf10 \n"
+                :
+                : "r"(pt), "f"(scale)
+                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+            sp138 = color;
+            __asm__ volatile(
+                "lw $2, 0(%0)          \n"
+                "pextlb $2, $0, $2     \n"
+                "pextlh $2, $0, $2     \n"
+                "qmtc2.ni $2, $vf10   \n"
+                "vitof0.xyzw $vf10, $vf10 \n"
+                "mfc1 $2, %1           \n"
+                "nop                   \n"
+                "qmtc2.ni $2, $vf2     \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "vmul.xyzw $vf10, $vf10, $vf11 \n"
+                "lui $2, 0x437F        \n"
+                "qmtc2.ni $2, $vf2     \n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x \n"
+                "vftoi0.xyzw $vf10, $vf10 \n"
+                "qmfc2.ni $2, $vf10    \n"
+                "ppach $2, $0, $2      \n"
+                "ppacb $2, $0, $2      \n"
+                "sw $2, 0x134($sp)     \n"
+                :
+                : "r"(&sp138), "f"(scale)
+                : "$2", "$vf2", "$vf10", "$vf11", "memory");
+            color = *(s32 *)&sp134;
+            t = func_0048aff0(arg0 + 0x64, count, total) / 10.0f;
+            speed = t * *(f32 *)(arg0 + 0x20);
+            i = 0;
+            zero = 0.0f;
+            goto loop_check;
+loop_body:
+
+                if (func_0047a510(*(u8 **)(arg0 + 0xA0), i, frame) != 0) {
+                    pos[0] = *(f32 *)(frame + 0x30);
+                    pos[1] = *(f32 *)(frame + 0x34);
+                    pos[2] = *(f32 *)(frame + 0x38);
+                    pos[3] = zero;
+                    func_004861f0((void *)*objs, pos);
+                    mat[0] = *(f32 *)(frame + 0x00);
+                    mat[1] = *(f32 *)(frame + 0x04);
+                    mat[2] = *(f32 *)(frame + 0x08);
+                    mat[3] = zero;
+                    mat[4] = *(f32 *)(frame + 0x10);
+                    mat[5] = *(f32 *)(frame + 0x14);
+                    mat[6] = *(f32 *)(frame + 0x18);
+                    mat[7] = zero;
+                    mat[8] = *(f32 *)(frame + 0x20);
+                    mat[9] = *(f32 *)(frame + 0x24);
+                    mat[10] = *(f32 *)(frame + 0x28);
+                    mat[11] = zero;
+                    mat[12] = *(f32 *)(frame + 0x30);
+                    mat[13] = *(f32 *)(frame + 0x34);
+                    mat[14] = *(f32 *)(frame + 0x38);
+                    mat[15] = zero;
+                    func_0048a980(mat);
+                    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(out) : "$vf10", "memory");
+                    func_00486330((void *)*objs, out);
+                    func_00486400((void *)*objs, speed);
+                    func_004865c0((void *)*objs, color);
+                    func_00485630((void *)*objs);
+                }
+                i += 1;
+                objs += 1;
+loop_check:
+                if (i < n) {
+                    goto loop_body;
+                }
+        }
+    }
+    *(s32 *)(arg0 + 0x2C) += 1;
+}
 // FUN_004ADE80
 void func_004ade80(u8 *arg0)
 {

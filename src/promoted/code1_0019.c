@@ -1345,8 +1345,100 @@ void func_00194ff0(u8 *arg0, u8 *arg1, f32 *arg2, f32 *arg3)
         }
     }
 }
+/* measured: object 832B/window 832B, nd 0. arg6 is an s32 param copied to a u8
+   temporary before each use (retail keeps the raw value in $s0 and re-masks);
+   `kind` is a plain u16 local (a redundant & 0xFFFF becomes a hoisted $s
+   constant under propagation off) and arg3 goes through a u16 temporary. The
+   table addresses: `(u8 *)off + (s32)((u8 *)(kind * 0x58) + (s32)iGpffffb3e0)`
+   for the deferred GP load with addu kind,base / off,sum; and a `tbl = gp`
+   local plus `(u8 *)(kind * 0x58) + (s32)tbl` where retail loads the base first.
+   `dist = call; dist += 50.0f` gives the result-first add.s; stack arrays in
+   declaration order tmp, pos, scaled, origin, rot. */
 // FUN_001951F0
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001951f0);
+/* measured: opt_propagation off keeps the per-use u8/u16 conversions and the
+   named scaled index (`off = k * 6`) from being folded into one address. */
+#pragma opt_propagation off
+void func_001951f0(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, f32 *arg4, f32 *arg5, s32 arg6)
+{
+    f32 tmp[3];
+    f32 pos[3];
+    f32 scaled[3];
+    f32 origin[3];
+    f32 rot[4];
+    u16 kind;
+    u8 *entry;
+    f32 dist;
+    f32 fx;
+    f32 fz;
+    f32 side;
+    u8 k;
+    f32 sx;
+    f32 sz;
+    f32 t;
+    u8 *tbl;
+    s32 off;
+    u16 a3;
+
+    kind = *(u16 *)(arg0 + 0xA4);
+    k = arg6;
+    if (k == 2) {
+        if (*(s32 *)(iGpffffb3ac + 0x10) & 0x01000000) {
+            arg6 = 0;
+        }
+    }
+    k = arg6;
+    if (k != 2) {
+        if (arg5 != NULL) {
+            *(P4_95730_Vec4 *)arg5 = *(P4_95730_Vec4 *)(arg1 + 0x1C);
+        }
+        if (arg4 != NULL) {
+            func_00195850(arg1, origin);
+            origin[1] = 0.0f;
+            k = arg6;
+            off = k * 6;
+            entry = (u8 *)off + (s32)((u8 *)(kind * 0x58) + (s32)iGpffffb3e0);
+            pos[0] = *(s16 *)(entry + 0xC);
+            pos[1] = *(s16 *)(entry + 0xE);
+            pos[2] = *(s16 *)(entry + 0x10);
+            scaled[0] = pos[0] * *(f32 *)(arg0 + 0x2C);
+            scaled[1] = pos[1] * *(f32 *)(arg0 + 0x2C);
+            scaled[2] = pos[2] * *(f32 *)(arg0 + 0x2C);
+            func_003dcb40(pos, scaled, 1, arg1 + 0x1C);
+            arg4[0] = pos[0] + origin[0];
+            arg4[1] = pos[1] + origin[1];
+            arg4[2] = pos[2] + origin[2];
+        }
+    } else {
+        func_00195aa0(arg2, arg1, origin);
+        a3 = arg3;
+        dist = func_00196bd0(arg0, arg2, (u8 *)a3);
+        dist = dist + 50.0f;
+        func_001ec1c0(rot, arg1 + 4, origin);
+        func_003dcb40(tmp, &D_0060A100, 1, rot);
+        fx = tmp[0] * dist;
+        fz = tmp[2] * dist;
+        tbl = iGpffffb3e0;
+        t = *(s16 *)((u8 *)(kind * 0x58) + (s32)tbl + 0xC);
+        side = t * *(f32 *)(arg0 + 0x2C);
+        func_003dcb40(tmp, &D_0060A0D0, 1, rot);
+        tmp[0] *= side;
+        tmp[1] *= side;
+        tmp[2] *= side;
+        sx = fx + tmp[0];
+        sz = fz + tmp[2];
+        pos[0] = origin[0] + sx;
+        pos[2] = origin[2] + sz;
+        pos[1] = 0.0f;
+        if (arg4 != NULL) {
+            *(P4_95730_Vec3 *)arg4 = *(P4_95730_Vec3 *)pos;
+        }
+        if (arg5 != NULL) {
+            func_001ec1c0(arg5, pos, origin);
+        }
+    }
+}
+/* measured: closes the propagation bracket; the file default is on. */
+#pragma opt_propagation on
 // FUN_00195530
 s32 func_00195530(u8 *arg0) {
     u8 *e;
@@ -2984,7 +3076,97 @@ void func_0019d990(u8 *arg0, s32 arg1)
     }
 }
 // FUN_0019DB40
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_0019db40);
+/* measured: object 812B/window 816B, nd 0. The mode dispatch is an explicit goto
+   chain (`== 0x11` -> case11, `!= 0` -> def, fall to case0; a switch sorts the
+   zero test first and drops the `b default`). func_00232710 is called with two
+   arguments through an unprototyped block-scope extern; func_0019efe0 needs its
+   real prototype at block scope (it is defined later in the unit). The scale
+   multiplies are inline `*(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C)` so the
+   0x80 load precedes the 0x2C load. */
+void func_0019db40(u8 *arg0)
+{
+    extern void func_0047a8b0(void *arg0, void *arg1);
+    extern s32 func_0047a6d0(void *arg0, s32 arg1, void *arg2);
+    extern f32 DAT_007613f8;
+    extern s32 func_00232710();
+    extern u8 *func_0019efe0(s32 arg0);
+    P4_95730_Vec3 pos;
+    P4_95730_Vec3 scaled;
+    P4_95730_Vec3 rotated;
+    P4_95730_Vec3 scaled2;
+    P4_95730_Vec3 rotated2;
+    s16 mode;
+    u8 *target;
+
+    if (*(s32 *)(arg0 + 0x98) & 2) {
+        if (*(s32 *)(arg0 + 0x98) & 2) {
+            mode = *(s16 *)(arg0 + 0x9DA);
+        } else {
+            mode = 0;
+        }
+        if (mode == 0x11) {
+            goto case11;
+        }
+        if (mode != 0) {
+            goto def;
+        }
+        goto case0;
+    case11:
+        if (func_0047a9d0(*(u8 **)(arg0 + 0xA00)) != 0) {
+            func_0047a990(*(u8 **)(arg0 + 0xA00));
+        }
+        return;
+    def:
+        if (func_0047a9d0(*(u8 **)(arg0 + 0xA00)) != 0) {
+            func_0047a9b0(*(u8 **)(arg0 + 0xA00));
+            func_0047a990(*(u8 **)(arg0 + 0xA00));
+        }
+        return;
+    case0:
+            if (*(s32 *)(arg0 + 0xA64) != 0 && func_00232710(*(s32 *)(arg0 + 0xA64), 0x100) != 0) {
+                if (func_0047a9d0(*(u8 **)(arg0 + 0xA00)) != 0) {
+                    func_0047a990(*(u8 **)(arg0 + 0xA00));
+                }
+                return;
+            }
+            if (*(u16 *)(arg0 + 0xB0) != 0 && !(*(f32 *)(*(u8 **)(arg0 + 0xA00) + 0x108) < 1.0f) && !(func_0047aa00(*(u8 **)(arg0 + 0xA00)) & 0x200)) {
+                switch (*(u16 *)(arg0 + 0xB0)) {
+                case 1:
+                    func_0047a8b0(*(u8 **)(arg0 + 0xA00), arg0 + 0xB8);
+                    return;
+                case 2:
+                    if (*(s32 *)(arg0 + 0xB4) != 0) {
+                        target = func_0019efe0(*(s32 *)(arg0 + 0xB4) & 0xFFFF);
+                        if (target != NULL && target != arg0) {
+                            if (!(*(s32 *)(target + 0x98) & 2)) {
+                                scaled.x = *(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C);
+                                scaled.y = *(f32 *)(target + 0x84) * *(f32 *)(target + 0x2C);
+                                scaled.z = *(f32 *)(target + 0x88) * *(f32 *)(target + 0x2C);
+                                func_003dcb40(&rotated, &scaled, 1, target + 0x1C);
+                                pos.x = rotated.x + *(f32 *)(target + 4);
+                                pos.y = rotated.y + *(f32 *)(target + 8);
+                                pos.z = rotated.z + *(f32 *)(target + 0xC);
+                            } else if (func_0047a6d0(*(u8 **)(target + 0xA00), 0, &pos) == 0) {
+                                scaled2.x = *(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C);
+                                scaled2.y = *(f32 *)(target + 0x84) * *(f32 *)(target + 0x2C);
+                                scaled2.z = *(f32 *)(target + 0x88) * *(f32 *)(target + 0x2C);
+                                func_003dcb40(&rotated2, &scaled2, 1, target + 0x1C);
+                                pos.x = rotated2.x + *(f32 *)(target + 4);
+                                pos.y = rotated2.y + *(f32 *)(target + 8);
+                                pos.z = rotated2.z + *(f32 *)(target + 0xC);
+                            }
+                            pos.y += *(f32 *)(target + 0x8C) * *(f32 *)(target + 0x2C) * DAT_007613f8;
+                            func_0047a8b0(*(u8 **)(arg0 + 0xA00), &pos);
+                            return;
+                        }
+                        func_0047a990(*(u8 **)(arg0 + 0xA00));
+                        *(s32 *)(arg0 + 0xB4) = 0;
+                    }
+                    break;
+                }
+            }
+    }
+}
 // FUN_0019DEA0
 void func_0019dea0(u8 *arg0)
 {

@@ -1481,7 +1481,112 @@ s32 func_0016e580(u8 *arg0)
 }
 
 // FUN_0016E590
-INCLUDE_ASM("asm/nonmatchings/code1_0016", func_0016e590);
+/* measured: object 804B/window 816B, nd 0. The 3/4 test is two separate compares
+   (goto body / goto skip; `== 3 || == 4` folds to sltiu). The count guard is
+   `> 0x20` for the $at slti form. Locals in stack order: diff, prev, cur, then
+   the two 64-byte matrix copies (case 6 at sp+0x70, case 7 at sp+0x30), each a
+   two-word copy loop from func_00457120()->frame + 0x10; `prev = cur` is the
+   E9F0Vec3 struct copy (ld/sd + lwc1/swc1). */
+void func_0016e590(u8 *arg0, s32 arg1)
+{
+    extern s32 func_003bb330(u8 *arg0);
+    extern void func_003bb3a0(u8 *arg0, s32 arg1, void *arg2);
+    extern void func_003bb5b0(u8 *curve, s32 mode, f32 time, void *dst, void *aux);
+    extern f32 func_003e4180(void *arg0);
+    extern void func_0046d730(const void *arg0, s32 arg1);
+    E9F0Vec3 diff;
+    E9F0Vec3 prev;
+    E9F0Vec3 cur;
+    u8 mat6[0x40];
+    u8 mat7[0x40];
+    u8 *work;
+    s32 i;
+    f32 t;
+    u8 *src;
+    u8 *dst;
+    s32 n;
+    s32 t1;
+    s32 t2;
+
+    work = *(u8 **)(arg0 + 0x38);
+    *(s32 *)(work + 8) = arg1;
+    if (arg1 == 3) {
+        goto body;
+    }
+    if (arg1 != 4) {
+        goto skip;
+    }
+body:
+    {
+        if (*(s32 *)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20) != 0) {
+            func_003e9df0(*(void **)(func_00457120() + 4));
+            *(s32 *)(work + 0x34) = func_003bb330(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20));
+            if (*(s32 *)(work + 0x34) > 0x20) {
+                func_0046d730(D_005F1698, 0x557);
+            }
+            func_003bb3a0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0, &prev);
+            for (i = 1; i < *(s32 *)(work + 0x34); i++) {
+                func_003bb3a0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), i, &cur);
+                diff.x = cur.x - prev.x;
+                diff.y = cur.y - prev.y;
+                diff.z = cur.z - prev.z;
+                *(f32 *)(work + i * 4 + 0x34) = func_003e4180(&diff);
+                prev = cur;
+            }
+            t = 1.0f / (f32)(*(s32 *)(work + 0x34) - 1);
+            *(f32 *)(work + 0xBC) = 1.0f - t;
+            *(f32 *)(work + 0xC0) = t;
+            *(f32 *)(work + 0xB8) = 0.5f;
+            func_003bb5b0(*(u8 **)(*(u8 **)(iGpffff9db0 + 0x28) + 0xA20), 0xA, *(f32 *)(work + 0xB8), work + 0xC4, work + 0xD0);
+            func_003e40b0(work + 0xD0, work + 0xD0);
+            if (*(s32 *)(*(u8 **)(func_00457120() + 4) + 4) != 0) {
+                func_003e99a0(*(void **)(func_00457120() + 4));
+            }
+            if (*(s32 *)(*(u8 **)(work + 0xC) + 4) != 0) {
+                func_003e99a0(*(void **)(work + 0xC));
+            }
+            func_003e9830(*(s32 *)(work + 0x10), *(s32 *)(func_00457120() + 4));
+        }
+    }
+skip:
+    if (*(s32 *)(work + 8) == 6) {
+        src = *(u8 **)(func_00457120() + 4) + 0x10;
+        dst = mat6;
+        n = 8;
+        do {
+            t1 = *(s32 *)src;
+            t2 = *(s32 *)(src + 4);
+            src += 8;
+            n -= 1;
+            *(s32 *)dst = t1;
+            *(s32 *)(dst + 4) = t2;
+            dst += 8;
+        } while (n > 0);
+        t = func_003e4180(mat6 + 0x30);
+        *(f32 *)(work + 0x28C) = t;
+        *(f32 *)(work + 0x294) = t;
+        *(E9F0Vec3 *)(work + 0x29C) = *(E9F0Vec3 *)(mat6 + 0x30);
+    } else if (*(s32 *)(work + 8) == 7) {
+        src = *(u8 **)(func_00457120() + 4) + 0x10;
+        dst = mat7;
+        n = 8;
+        do {
+            t1 = *(s32 *)src;
+            t2 = *(s32 *)(src + 4);
+            src += 8;
+            n -= 1;
+            *(s32 *)dst = t1;
+            *(s32 *)(dst + 4) = t2;
+            dst += 8;
+        } while (n > 0);
+        *(E9F0Vec3 *)(work + 0x29C) = *(E9F0Vec3 *)(mat7 + 0x30);
+        *(f32 *)(mat7 + 0x34) = 0.0f;
+        t = func_003e4180(mat7 + 0x30);
+        *(f32 *)(work + 0x28C) = t;
+        *(f32 *)(work + 0x294) = t;
+    }
+    *(f32 *)(work + 0x290) = *(f32 *)(func_00457120() + 0x80);
+}
 // FUN_0016E8C0
 u8 *func_0016e8c0(u8 *arg0)
 {

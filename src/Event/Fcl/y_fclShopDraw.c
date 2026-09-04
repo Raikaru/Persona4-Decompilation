@@ -184,7 +184,10 @@ void func_0043f810(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
-s32 func_002b2a30(s32, s32, s32, s32);
+/* measured: the second parameter is u8 - a u8 lvalue passed to a u8 parameter is a
+   plain load and materialises in slot order (li $a0 before lbu $a1); passed to an
+   s32 parameter it counts as a conversion and is hoisted ahead of the constant. */
+s32 func_002b2a30(s32, u8, s32, s32);
 void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
 s8 func_002e0570(void *, s32);
 void *func_002e04e0(void *);
@@ -212,7 +215,8 @@ s32 func_002dfec0(void *, s32, void *, s8);
 s32 func_002dff90(void *, s32, void *, void *, s8);
 u32 func_003b7060(void);
 void func_0043f9c8(void *, s32, s32);
-void func_0025ec90(s32, s32, s32, s32, s32, void *, f32, f32, f32);
+/* measured: floats first - retail materialises $f12-$f14 before $a0..$t1. */
+void func_0025ec90(f32, f32, f32, s32, s32, s32, s32, s32, void *);
 void func_002e0700(void *, s32, f32, f32, s32, s32, s32);
 void func_002e09e0(void *, s32, f32);
 void func_002e0690(void *, s32, s32, s32, f32, f32);
@@ -229,7 +233,7 @@ u16 func_00106940(s16);
 u16 func_00106970(s16);
 s16 func_002b3170(s32);
 void func_002b2a60(void *, s32, s32, s32, s32);
-void func_002cacd0(u64, s32, s32, s16, u32, s64, s64, s32, f32, s32, s32);
+void func_002cacd0(u64, f32, RGBA, s32, s16, u32, s32, s32, s32, s32, s32);
 s64 func_0046a770(void *);
 s16 func_002e2830(void *, s32);
 u8 func_00106600(s64);
@@ -371,12 +375,57 @@ void func_002caa00(void *arg0, s8 arg1) {
 // FUN_002CAA10
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
 
-/* Signature audit: func_002cacd0 currently has 11 parameters
-   (u64, s32, s32, s16, u32, s64, s64, s32, f32, s32, s32), corroborated by
-   generated/code1_002c.c:183. The previously noted 12-argument diagnosis
-   is historical and closed; no prototype change remains. */
+/* measured: object 536B/window 544B, nd 0. Signature (u64, f32, RGBA, s32, s16, u32,
+   s32, s32, s32, s32, s32): fparg0 second so it homes to $f22 right after $a0; RGBA
+   by value so the colour bytes are lbu from the $a1 home slot; arg5/arg6 are s32
+   (dsll32 in place). Stack layout is first-use order high-to-low: 16-byte memset
+   target 0xD0, arg1 0xCC, arg0 0xC0, arg3 0xBE, arg7 0xB8. Levers: s32 colour
+   locals (u8 locals go through sq/lq spills), `arg4 = arg4_` copy before `count = 0`
+   so $t0 homes last, comma local declared last for $s7, count s32 with (s8) cast,
+   the three `x -= arg2` branches spelled out. */
 // FUN_002CACD0
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002cacd0);
+void func_002cacd0(u64 arg0, f32 fparg0, RGBA arg1, s32 arg2, s16 arg3, u32 arg4_, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9)
+{
+    u8 spD0[16];
+    u32 arg4;
+    s32 count;
+    u8 *entry;
+    f32 x;
+    f32 y;
+    s32 base;
+    s32 a;
+    s32 b;
+    s32 g;
+    s32 comma;
+
+    arg4 = arg4_;
+    count = 0;
+    x = ((f32 *)&arg0)[0];
+    func_0043f9c8(spD0, 0, 1);
+    entry = D_00793E80 + arg9 * 0x30;
+    base = (s16)arg5;
+    a = arg1.a;
+    b = arg1.b;
+    g = arg1.g;
+    y = ((f32 *)&arg0)[1];
+    comma = (s16)arg6;
+    do {
+        func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, ((u8 *)&arg1)[0], g, b), a, base + arg4 % 10, arg7, 1, entry);
+        arg4 /= 10;
+        count = (s8)(count + 1);
+        if (count % 3 == 0) {
+            if (arg4 != 0) {
+                x -= (f32)arg3;
+                func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, ((u8 *)&arg1)[0], g, b), a, comma, arg8, 1, entry);
+                x -= (f32)arg2;
+            } else {
+                x -= (f32)arg2;
+            }
+        } else {
+            x -= (f32)arg2;
+        }
+    } while (arg4 != 0);
+}
 // FUN_002CAEF0
 void func_002caef0(void *arg0) {
     u64 sp110;
