@@ -201,6 +201,31 @@ class MissingDefinitionTests(unittest.TestCase):
             },
         )
 
+    def test_only_external_bindings_satisfy_references_from_other_objects(self) -> None:
+        import struct
+        from gen_objdiff import build_elf_object
+
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "helper.o"
+            for binding in (0, 1, 2):  # STB_LOCAL, STB_GLOBAL, STB_WEAK
+                with self.subTest(binding=binding):
+                    data = bytearray(build_elf_object(
+                        b"\x08\x00\xe0\x03\0\0\0\0", [], "helper", 0))
+                    path.write_bytes(data)
+                    obj = build.V.ObjectFile(path)
+                    table = next(s for s in obj.sh if s["name"] == ".symtab")
+                    index = next(i for i, s in enumerate(obj.symbols) if s["name"] == "helper")
+                    data[table["offset"] + index * 16 + 12] = (binding << 4) | 2
+                    shoff = struct.unpack_from("<I", data, 32)[0]
+                    struct.pack_into("<I", data, shoff + table["idx"] * 40 + 28,
+                                     2 if binding == 0 else 1)
+                    path.write_bytes(data)
+                    definitions = {}
+                    build.complete_missing_definitions(
+                        definitions, {"helper"}, build.c_object_exports(path),
+                        {"helper": 0x1000})
+                    self.assertEqual(definitions, {"helper": 0x1000} if binding == 0 else {})
+
 
 class CompileCacheIntegrationTests(unittest.TestCase):
     def test_link_compile_is_restored_without_running_mwccgap(self) -> None:

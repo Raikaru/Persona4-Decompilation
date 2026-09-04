@@ -66,7 +66,7 @@ extern void func_002b2a60(void *, s32, s32, s32, s32);
 extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s32 arg1);
 extern u8 *func_0034ae50(u8 *arg0, s64 arg1);
-extern void func_002ba970(u8 *, s64, s32);
+extern void func_002ba970(u8 *, s16, u32);
 extern s32 func_002b2a30(s32, s32, s32, s32);
 extern s32 func_0010b5b0(void);
 extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);

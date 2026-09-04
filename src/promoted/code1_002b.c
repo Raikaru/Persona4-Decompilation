@@ -829,8 +829,43 @@ INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba080);
 /* measured: plain-C probes archive to build/LaneEffLineNovaCode1_002ba5d0_body.c; MWCCPS2 b210 keeps a 0xD0 frame and rotates saved GPRs versus retail's 0xC0/$s0-$s3 layout (best object 888B vs 928B). */
 // FUN_002BA5D0
 INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba5d0);
+/* Preserve the RGBA snapshot and later alpha reload across byte stores.
+   Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
+#pragma opt_common_subs off
 // FUN_002BA970
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002ba970);
+void func_002ba970(u8 *arg0, s16 arg1, u32 color)
+{
+    s32 first;
+    s32 second;
+    u8 *p;
+    u8 r, g, b, a;
+    s32 index;
+    u8 alpha;
+
+    index = arg1 * 2;
+    first = (s16)index * 0x220;
+    p = *(u8 **)(arg0 + 0x38) + first;
+    r = ((u8 *)&color)[0];
+    g = ((u8 *)&color)[1];
+    b = ((u8 *)&color)[2];
+    a = ((u8 *)&color)[3];
+    p[0x179] = r;
+    p[0x17A] = g;
+    p[0x17B] = b;
+    p[0x17C] = a;
+    second = (s16)(index + 1) * 0x220;
+    p = *(u8 **)(arg0 + 0x38) + second;
+    p[0x179] = r;
+    p[0x17A] = g;
+    p[0x17B] = b;
+    p[0x17C] = a;
+    p = *(u8 **)(arg0 + 0x38) + first;
+    alpha = ((u8 *)&color)[3];
+    p[0x162] = alpha;
+    p = *(u8 **)(arg0 + 0x38) + second;
+    p[0x162] = alpha;
+}
+#pragma opt_common_subs on
 // FUN_002BAA20
 void func_002baa20(void)
 {

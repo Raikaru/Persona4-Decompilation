@@ -1,50 +1,54 @@
-/* object 192B, retail window 192B, normalized_diff 29; differing byte offsets 0x34, 0x38, 0x3C, 0x40, 0x48, 0x4C, 0x50, 0x54, 0x58, 0x5C, 0x60, 0x64, 0x68, 0x6C, 0x70, 0x74, 0x78, 0x7C, 0x80, 0x84, 0x88, 0x90, 0x94, 0x98, 0x9C, 0xA0, 0xA4, 0xA8, 0xB0, 0xB4; classification: register coloring and source-shape near miss; best tested shape uses u8 filter, integer list/left/right locals, and index initialization before list materialization. */
-void func_001b11c0(u32 arg0)
+/* MWCCPS2 b210, -O2 -Iinclude; opt_loop_invariants on.
+ * Object/window 192B/192B; five differing words, all register coloring:
+ * key is t1 instead of t3 at 0x34/0x88; index is t3 instead of t1 at
+ * 0x4C/0x9C/0xA4. Explicit bound: 26 words; compiler-hoisted fresh bound:
+ * 11 words; declaration-order rotation: 5 words. Reusing/narrowing the key,
+ * signed/register induction variables and alternate key hoisting did not
+ * close the residual; disabling propagation worsened it.
+ * The former u8 filter silently discarded bits 8..15 and is not retained.
+ * This body preserves the retail 16-bit key and unsigned count-1 bound;
+ * it does not add a non-retail empty-list guard or cache the global base
+ * across pointer stores. Production keeps its INCLUDE_ASM fallback.
+ */
+#pragma opt_loop_invariants on
+void func_001b11c0(s32 arg0)
 {
+    u8 **count_scan;
     u32 count;
-    u8 filter;
-    u32 one;
-    s32 bound;
-    u32 swapped;
-    u32 index;
+    u32 key;
+    s32 changed;
+    u32 i;
     u8 **scan;
-    s32 *list;
-    s32 left;
-    s32 right;
+    u8 *left;
+    u8 *right;
+    u32 kind;
 
-    scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
+    count_scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
     count = 0;
-    goto count_check;
-count_loop:
-    if (*scan == NULL) goto count_done;
-    scan += 1;
-    count += 1;
-count_check:
-    if (count < 0xC) goto count_loop;
-count_done:
-    filter = arg0 & 0xFFFF;
-    one = 1;
-    bound = count - 1;
+    while (count < 0xC) {
+        if (*count_scan == NULL) break;
+        count_scan++;
+        count++;
+    }
+    key = arg0 & 0xFFFF;
     do {
-        swapped = 0;
-        index = 0;
-        list = (s32 *)((u8 *)iGpffffb3ac + 0x29C);
-        goto sort_check;
-sort_loop:
-        left = *(s32 *)list;
-        right = *(s32 *)(list + 1);
-        if (left != 0 && right != 0) {
-            count = *(u8 *)(*(u8 **)((u8 *)left + 0x30) + 0xA2);
-            if (count != *(u8 *)(*(u8 **)((u8 *)right + 0x30) + 0xA2) &&
-                count != filter) {
-                *(s32 *)list = right;
-                *(s32 *)(list + 1) = left;
-                swapped = one;
+        changed = 0;
+        scan = (u8 **)((u8 *)iGpffffb3ac + 0x29C);
+        i = 0;
+        while (i < count - 1) {
+            left = scan[0];
+            right = scan[1];
+            if (left != NULL && right != NULL) {
+                kind = *(u8 *)(*(u8 **)(left + 0x30) + 0xA2);
+                if (kind != *(u8 *)(*(u8 **)(right + 0x30) + 0xA2) && kind != key) {
+                    scan[0] = right;
+                    scan[1] = left;
+                    changed = 1;
+                }
             }
+            i++;
+            scan++;
         }
-        index += 1;
-        list += 1;
-sort_check:
-        if (index < bound) goto sort_loop;
-    } while (swapped != 0);
+    } while (changed != 0);
 }
+#pragma opt_loop_invariants off
