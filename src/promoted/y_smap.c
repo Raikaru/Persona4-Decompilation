@@ -612,14 +612,86 @@ void func_002b2240(u8 *arg0) {
     }
 }
 
-/* measured: generated-shape C candidate archived at
-   build/WBYList_y_smap_2290_candidate.c (object 612B/window 624B,
-   normalized_diff 409; fndiff first differing offsets 0,4,8,10,12,14,16,
-   18,20,22,23,24,26,27,28,29). It was rejected because the compiler
-   allocated the base and loop counters to the wrong saved registers, emitted
-   Bare INCLUDE_ASM is retained. */
+/* measured: object 620B/window 624B, normalized_diff 0. Levers: (1) the
+   slot pointer is `p = &q->b[j]` (struct-member address), which makes the
+   compiler redo the s16 sign-extension at the loop head instead of reusing
+   the tail's copy; (2) `opt_loop_invariants on` hoists the two loop-3 float
+   constants into `$a0`/`$v1` and fixes loop 1's commutative `addu`; (3) the
+   unfused `add.s $f20,$f0,$f1` is `y = t; z = -99.0f + y;` - the copy stops
+   b210 fusing `c + a*b` into `adda.s`/`madd.s`, and the fresh name `z`
+   gives the constant-first operand order (a self-update `y = -99.0f + y`
+   is variable-first). Prior archive: build/WBYList_y_smap_2290_candidate.c
+   (nd 409). */
 // FUN_002B2290
-INCLUDE_ASM("asm/nonmatchings/y_smap", func_002b2290);
+/* measured: opt_loop_invariants on hoists the loop-3 float constants into
+   $a0/$v1 and fixes loop 1 addu operand order (nd 18 -> 0 with it). */
+#pragma opt_loop_invariants on
+void func_002b2290(u8 *arg0)
+{
+    typedef struct {
+        u8 pad0[0x8];
+        f32 x;
+        f32 y;
+    } SmapItem;
+    typedef struct {
+        u8 pad0[0x24];
+        SmapItem *a[4];
+        SmapItem *b[6];
+        SmapItem *c[6];
+        SmapItem *d[6];
+        SmapItem *e[2];
+        u8 tail[0x30];
+    } SmapWork;
+    s16 i;
+    SmapWork *q;
+    s16 j;
+    SmapItem **p;
+    s16 k;
+    f32 y;
+    f32 t;
+    f32 z;
+
+    q = *(SmapWork **)(arg0 + 0x38);
+    for (i = 0; i < 4; i++) {
+        q->a[i] = (SmapItem *)func_0046d200(D_00764644, i + 3);
+    }
+    q->a[0]->x = 17.0f;
+    q->a[0]->y = 264.0f;
+    q->a[1]->x = 94.0f;
+    q->a[1]->y = 264.0f;
+    q->a[2]->x = 17.0f;
+    q->a[2]->y = 341.0f;
+    q->a[3]->x = 94.0f;
+    q->a[3]->y = 341.0f;
+    for (j = 0; j < 6; j++) {
+        p = &q->b[j];
+        *p = (SmapItem *)func_0046d200(D_00764644, 8);
+        (*p)->x = 190.0f;
+        t = 108.0f * (f32)j;
+        y = t;
+        z = -99.0f + y;
+        (*p)->y = z;
+        p = &q->c[j];
+        *p = (SmapItem *)func_0046d200(D_00764644, 8);
+        (*p)->x = 298.0f;
+        (*p)->y = z;
+        p = &q->d[j];
+        *p = (SmapItem *)func_0046d200(D_00764644, 9);
+        (*p)->x = 406.0f;
+        (*p)->y = z;
+    }
+    q->e[0] = (SmapItem *)func_0046d200(D_00764644, 0xA);
+    q->e[1] = (SmapItem *)func_0046d200(D_00764644, 0xB);
+    for (k = 0; k < 2; k++) {
+        q->e[k]->x = 312.0f;
+        q->e[k]->y = -10.0f;
+    }
+    func_0043f9c8(q->tail, 0, 0x30);
+    *(void (**)(s32, u8 *))(q->tail + 0x8) = func_002b1520;
+    *(SmapWork **)(q->tail + 0x10) = q;
+}
+/* measured: closes the loop-invariant bracket; the file default is off. */
+#pragma opt_loop_invariants off
 
 // FUN_002B2500
 void func_002b2500(void) {

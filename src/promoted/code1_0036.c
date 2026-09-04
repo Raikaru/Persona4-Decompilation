@@ -72,9 +72,9 @@ extern void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367940(P4Pair arg0, f32 arg1, s32 arg2, u8 *arg3);
 extern void func_003679c0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
-/* func_00367b80 is declared at its call site with no prototype so the
- * dispatcher preserves the incoming registers used by the retail call. */
-extern void func_00367b80();
+/* func_00367b80: retail prototype (the dispatcher keeps its own block-scope (void) declaration so
+   it still preserves the incoming registers as retail does). */
+extern void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367d00(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2);
 extern void func_00367f50(void);
 extern void func_0036a900(u8 *arg0);
@@ -497,7 +497,39 @@ void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
     }
 }
 // FUN_00367B80
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_00367b80);
+/* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
+   its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
+   masks once into $s0 (nd 78). */
+#pragma opt_common_subs off
+void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
+{
+    extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s32 chr, s32 id, s32 str, s32 flags, s32 arg8);
+    f32 scale;
+    s32 color;
+    s32 tex;
+    s32 value;
+    f32 y;
+
+    scale = fparg0;
+    color = (arg1 & 0xFF) | 0xFFFFFF00;
+    tex = func_0046a770(D_005E5810);
+    if (tex == 0) {
+        func_0046d730(D_0064E460, 0x174);
+    }
+    if (func_0046a770(D_005E5830) == 0) {
+        func_0046d730(D_0064E460, 0x176);
+    }
+    y = *((f32 *)&arg0 + 1);
+    func_00274ed0((f32)(s32)*(f32 *)&arg0, (f32)(s32)y, 0.0f, color, 6, 1, *(s32 *)(arg2 + 0x14), 0, 0);
+    value = *(u8 *)(arg2 + 0x18);
+    if (value <= 0 || value >= 0x20) {
+        func_0046d730(D_0064E460, 0x186);
+    }
+    func_0046d4c0(0, tex, (u8)((u8)value - 1) + 0x21, *(f32 *)&arg0, 30.0f + y,
+                  (u8)(0xFF - (arg1 & 0xFF)), 0xEC, 0x7C, 0, scale, 0);
+}
+
+#pragma opt_common_subs on
 // FUN_00367940
 void func_00367940(P4Pair arg0, f32 fparg0, s32 arg1, u8 *arg2) { u8 tmp[12]; f32 factor; factor = fparg0; func_0011fd30(tmp); *(s32 *)(tmp + 8) = 3; *(s16 *)(tmp + 6) = 1; *(s16 *)tmp = *(s16 *)(arg2 + 4); func_0011fd50(*(s64 *)&arg0, factor, arg1, tmp, 1); }
 

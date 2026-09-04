@@ -426,6 +426,7 @@ void func_00156750(u8 *arg0)
 
 // FUN_00156800
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156800);
+
 // FUN_00156CF0
 INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00156cf0);
 // FUN_00157310
@@ -1148,7 +1149,107 @@ u8 func_0015a740(s32 arg0) {
 }
 
 // FUN_0015A7C0
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_0015a7c0);
+s32 func_0015a7c0(s32 arg0)
+{
+    s32 threshold_index;
+    s32 threshold_offset;
+    s16 threshold;
+    s32 map_index;
+    s32 copy_inner;
+    s32 copy_outer;
+    s32 source_row;
+    s32 source_col;
+    u8 *dest_cell;
+    s32 slot_index;
+    u8 *slot;
+    u8 *slot_entry;
+    extern s32 func_00164f40();
+
+    threshold_index = 0;
+    goto threshold_test;
+threshold_body:
+    if (arg0 < threshold) {
+        goto threshold_done;
+    }
+    threshold_index++;
+threshold_test:
+    threshold_offset = threshold_index * 2;
+    threshold = *(s16 *)((u8 *)D_005F05D0 + threshold_offset);
+    if (threshold >= 0) {
+        goto threshold_body;
+    }
+threshold_done:
+    if (threshold_index == 0) {
+        return 0;
+    }
+
+    map_index = arg0 - *(s16 *)(D_005F05CE + threshold_offset);
+    if (map_index >= 0x14) {
+        func_0046d730(D_005F05E8, 0x889);
+    }
+
+    if (D_007D3E10[map_index] == 0) {
+        D_007D3E10[map_index] = 1;
+
+        copy_outer = 0;
+        goto copy_outer_test;
+copy_outer_body:
+        copy_inner = 0;
+        source_row = copy_outer * 0x100;
+        goto copy_inner_test;
+copy_inner_body:
+        source_col = copy_inner * 0x10;
+        dest_cell = (u8 *)D_007D3E10 + map_index * 0xC00 + (copy_outer * 0x80) + (copy_inner * 8);
+        dest_cell[0x14] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x54);
+        dest_cell[0x15] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x55);
+        dest_cell[0x16] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x58);
+        dest_cell[0x17] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x59);
+        dest_cell[0x18] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5A);
+        dest_cell[0x19] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5B);
+        dest_cell[0x1A] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5E);
+        dest_cell[0x1B] = (u8) * ((u8 *)func_00155280() + source_row + source_col + 0x5F);
+        copy_inner++;
+copy_inner_test:
+        if (copy_inner < 0x10) {
+            goto copy_inner_body;
+        }
+        copy_outer++;
+copy_outer_test:
+        if (copy_outer < 0x18) {
+            goto copy_outer_body;
+        }
+        return 1;
+    }
+
+    func_0043f810(D_007D3E10 + map_index * 0x30 + 0xF014, func_002ac3b0(), 0x30);
+
+    slot_index = 0;
+    goto slot_test;
+slot_body:
+    slot = D_007E80A0 + slot_index * 0x168;
+    if (*(s32 *)slot == 0) {
+        *(s8 *)(D_007D3E10 + map_index * 0x40 + slot_index * 8 + 0xF3D4) = 0;
+    } else {
+        slot_entry = (u8 *)(D_007D3E10 + map_index * 0x40 + slot_index * 8);
+        slot_entry[0xF3D4] = 1;
+        slot_entry[0xF3D5] = (s8)(*(s32 *)(slot + 8) != 0);
+        *(u16 *)(slot_entry + 0xF3D6) = *(u16 *)(slot + 0xE);
+        if ((*(u8 *)(*(u8 **)(slot + 0x160) + 7) & 1) != 0) {
+            *(s32 *)(slot_entry + 0xF3D8) = 1;
+        } else {
+            *(s32 *)(slot_entry + 0xF3D8) = 0;
+        }
+    }
+    slot_index++;
+slot_test:
+    if (slot_index < 8) {
+        goto slot_body;
+    }
+
+    D_007E36E4[map_index] = (u8)func_00164f40(slot_index, slot_index < 8);
+    return 0;
+}
+
 /* measured: opt_rebuildconditionals off preserves the retail threshold loop branch shape in func_0015ab20. */
 #pragma opt_rebuildconditionals off
 // FUN_0015AB20
