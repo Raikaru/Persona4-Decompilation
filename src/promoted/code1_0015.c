@@ -771,7 +771,107 @@ loop_5_test:
 /* measured: closes opt_propagation off probe for func_001599d0. */
 #pragma opt_propagation on
 // FUN_00159A60
-INCLUDE_ASM("asm/nonmatchings/code1_0015", func_00159a60);
+/* measured: object 748B/window 752B, nd 0. Shape: the case-1 conditions are nested
+   ifs that fall out to `break` (every early exit shares the single `return 0` after
+   the switch; `default:` is the last label so the out-of-range jump lands there
+   too). The two record-address forms differ: the flag read is `base = ...;
+   (u8 *)(idx * 0x10) + (s32)base` (base loaded first, addu idx,base) and `rec`
+   is the same cast form inline (idx loaded first). func_00155e10's 4th parameter
+   is s32 at block scope so the u16 load is a conversion materialised before $a0.
+   Zeroing loop: u32 counter for bnez. */
+s32 func_00159a60(u8 *arg0)
+{
+    extern s32 func_00155e10(u8 *arg0, u16 arg1, u16 arg2, s32 arg3, s16 arg4, s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9, s64 arg10, s64 arg11, s64 arg12, s64 arg13);
+    extern s32 func_00477e80(s32 arg0, s32 arg1, const char *arg2, s32 arg3);
+    extern s32 func_003641a0(s32 arg0);
+    extern void func_0015bae0(void);
+    extern void func_0015c210(void);
+    extern s32 func_0015c280(void);
+    extern s32 func_0015c360(void);
+    extern s32 func_0015c440(void);
+    extern s32 func_0015c4b0(u8 *arg0);
+    extern char D_005F0630[];
+    extern u8 D_007E3720[];
+    u8 sp60[12];
+    u8 *work;
+    u8 *rec;
+    u8 *p;
+    u32 n;
+    u8 *base;
+
+    work = *(u8 **)(arg0 + 0x38);
+    func_0015bae0();
+    switch (*(s32 *)work) {
+    case 0:
+        *(s32 *)(work + 0x14) = func_0015c440();
+        *(s32 *)(work + 0x38) = func_00477e80(4, 0xFFFF, D_005F0630, 0);
+        func_0015c210();
+        *(s32 *)work += 1;
+    case 1:
+        if (func_0015c4b0(*(u8 **)(work + 0x14)) != 0) {
+            *(s32 *)(work + 0x14) = 0;
+            if (*(s32 *)(work + 0x38) == 0 || func_004782b0(*(s32 *)(work + 0x38)) != 0) {
+                if (func_0015c280() != 0 && func_0015c360() != 0) {
+                    *(u8 **)(work + 0x20) = D_007E3720;
+                    if (*(s32 *)(work + 4) != 0x9F) {
+                        *(s32 *)(work + 0x1C) = func_003641a0(0);
+                    }
+                    *(s32 *)work += 1;
+    case 2:
+                    *(s32 *)work += 1;
+    case 3:
+                    base = *(u8 **)(work + 0x20);
+                    *(s32 *)(work + 0x24) = *((u16 *)((u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)base) + 5) | 0x80000000;
+                    rec = (u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)*(u8 **)(work + 0x20);
+                    *(s32 *)(work + 0x18) = func_00155e10(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
+                                                          *(s32 *)(work + 0x24), *(u8 *)(rec + 8), *(u8 *)(rec + 9),
+                                                          *(s32 *)(rec + 4), -1, -1, -1, -1);
+                    *(s32 *)(work + 0x24) = 0;
+                    *(s32 *)work += 1;
+                }
+            }
+        }
+        break;
+    case 4:
+        if (*(s32 *)(work + 0xC) == 1) {
+            *(s32 *)work = 0xC;
+        }
+        break;
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+        *(s32 *)work += 1;
+        break;
+    case 10:
+        p = sp60;
+        n = 12;
+        if (p != NULL) {
+            do {
+                *p++ = 0;
+                n--;
+            } while (n != 0);
+        }
+        if (func_0015c4b0(*(u8 **)(work + 0x14)) != 0) {
+            *(s32 *)(work + 0x14) = 0;
+            base = *(u8 **)(work + 0x20);
+            *(s32 *)(work + 0x24) |= *((u16 *)((u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)base) + 5);
+            rec = (u8 *)(*(s32 *)(work + 4) * 0x10) + (s32)*(u8 **)(work + 0x20);
+            *(s32 *)(work + 0x18) = func_00155e10(arg0, *(u16 *)rec, *(u16 *)(rec + 2), *(u16 *)(work + 8), 0, 0,
+                                                  *(s32 *)(work + 0x24), *(u8 *)(rec + 8), *(u8 *)(rec + 9),
+                                                  *(s32 *)(rec + 4), -1, -1, -1, -1);
+            *(s32 *)(work + 0x24) = 0;
+            *(s32 *)work = 4;
+        }
+        break;
+    case 12:
+        return -1;
+    default:
+        break;
+    }
+    return 0;
+}
 // FUN_00159D50
 void func_00159d50(u8 *arg0)
 {

@@ -635,6 +635,26 @@ in any slot is evaluated before every load and parked in a saved register;
 the loads then run left to right and the parked value is `move`d into its
 slot at its turn.
 
+**3a. A narrowing lvalue in an argument slot is a conversion and is hoisted
+ahead of constants unless the callee parameter has the same narrow type.**
+`f(0xFF, ((u8 *)&arg1)[0], g, b)` against `f(s32, s32, s32, s32)` emits
+`lbu $a1` BEFORE `addiu $a0,$zero,0xff` - the byte load is a u8->s32
+conversion and goes with the computed operands. Declare the slot `u8`
+(`f(s32, u8, s32, s32)`) and the load is a plain load, materialised in slot
+order after the constant. Measured on `func_002cacd0` (y_fclShopDraw.c,
+nd 4 -> 0); `func_002e0100`'s archived "constant-first arg order" floor is
+the same thing. Making the OTHER slots `u8` costs `andi` masks on s32
+values, so narrow only the slot retail loads narrow.
+
+**3b. Colour bytes from an integer argument: pass it as a 4-byte struct by
+value, keep the bytes in `s32` locals.** Retail `sw $a1,0xCC($sp)` then
+`lbu $s1,0xCF / lbu $s0,0xCE / lbu $s6,0xCD` and a per-call `lbu $a1,0xCC`
+is an `RGBA arg1` parameter (struct { u8 r,g,b,a; }) with `a = arg1.a` etc.
+into `s32` locals; `u8` locals for the bytes go through `sq`/`lq` stack
+temporaries (+16 words). The per-call byte is `((u8 *)&arg1)[0]`, not
+`arg1.r` - the member form is CSE'd into a tenth saved register and spills
+something else.
+
 **4. An argument that shares an operand with another argument is computed
 early, and the shared loads are hoisted out of order.** `f5(p[0], p[1],
 p[2], p[0]*p[1], p[4])` emits `lw a1,4(a0)` / `lw a0,0(a0)` / `mult a3` /
@@ -1392,6 +1412,26 @@ variants is wasted time.
   swapped `addiu/sllv` operands). `opt_loop_invariants on` under push/pop has
   since closed six functions (0012d410, 0012dea0, 00359400, 002b7f20,
   0016f3b0, 00473870) — measure it before calling this a floor.
+- **A `base + i*stride` slot address that retail rematerialises several times
+  is NOT a GVN floor.** `func_00165380` (k_fldUnit.c, nd 148 -> 0): retail
+  recomputes `D_007E8C00 + i*0x750` (mult/lui/addiu/addu) at the head of each
+  section and again for a call argument, while mwcc folds every use onto one
+  saved register. Write a fresh `slot = D_007E8C00 + i * 0x750;` at the head
+  of each section (and the bare expression as the call argument) under
+  `opt_common_subs off`; each reassignment then rematerialises. A pointer bump
+  that must stay an `addiu $s0,$s0,0x54` between two calls (instead of being
+  folded into the store offset) additionally needs `opt_propagation off`, with
+  the argument mask computed first (`t2 = t1 & 0xFFFF; slot += 0x54;`) so the
+  `andi` precedes it. A recompute that must precede a call's first argument
+  load is its own statement (`p = ...;`) before the call.
+- **A value written by an asm island must be read back through its
+  address.** `func_004adb50` (code1_004a.c, nd 118 -> 0): the VU0 colour-pack
+  island ends with `sw $2, 0x134($sp)`; reading it as `color = sp134` leaves
+  the compiler free to float the load (the local is uninitialised from its
+  point of view), which also flipped the entire saved-register ranking
+  (param and loop bound at the bottom). `color = *(s32 *)&sp134;` - the
+  effModel.c form - pins the `lw $s5` right after the island and restores
+  the documented ranking (params first, locals in declaration order).
 - **Saved-register coloring cycles.** A parameter and a surviving local both
   wanting the same callee-saved register (the param-vs-local `s0/s1` fight),
   or a register reused as an unrelated counter on a sibling branch — these are
@@ -2366,6 +2406,26 @@ accumulator chain**. Rebuild that list with `insn.itype` in `0x13e..0x144`;
 matching on the mnemonic string finds nothing, which is how the pool stayed
 invisible. Those 308 are all ordinary targets and are the largest single block
 of work reopened this session.
+
+### The reverse case: retail has a plain `add.s` after `mul.s` (no fusion)
+
+When retail shows `mul.s $f1 ... ; mtc1 const,$f0 ; add.s $fd,$f0,$f1` where
+plain C would fuse into `adda.s`/`madd.s`, the lever is a copy through a
+named local between the product and the add - measured on `func_002b2290`
+(y_smap.c, nd 409 -> 0):
+```c
+t = 108.0f * (f32)j;
+y = t;                /* the copy is what blocks the c + a*b fusion */
+z = -99.0f + y;       /* fresh name z: constant-first add.s $f20,$f0,$f1 */
+```
+`y = -99.0f + t` (no copy) fuses; `y = t; y = -99.0f + y` (self-update) is
+unfused but variable-first (`add.s $f20,$f1,$f0`, nd 1); `y = t; t = y + c`
+coalesces back to the self-update. `opt_propagation off` also unfuses the
+plain `y = -99.0f + t` form, but in that function it changed the loop-head
+sign-extension sharing and let `opt_loop_invariants` hoist every float
+constant, so the copy is the cheaper lever. Doubles are real software
+doubles on b210 (`-99.0 + 108.0 * j` grows the object by 60B) - not a way
+to dodge fusion.
 
 ### Near-size twins are a shape family, not a twin
 

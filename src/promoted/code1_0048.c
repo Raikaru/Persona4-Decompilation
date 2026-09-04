@@ -861,8 +861,103 @@ loop_00485b20_check:
     }
     jtbl_008873EC[0](arg0);
 }
+extern void func_00486330(u8 *arg0, u8 *arg1);
+extern void func_00484b30(u8 *arg0);
+extern void func_00486710(u8 *arg0, u8 *arg1);
+extern void func_004865c0(u8 *arg0, s32 arg1);
+/* measured: object 852B/window 864B, nd 0. The allocator table address lives in
+   a saved register (`alloc = jtbl_008873E8` after the first assert-log call),
+   which needs opt_propagation off so the first call does not fold the constant
+   back in; `> 0xD2` gives retail's `sltiu $at` form where `>= 0xD3` colours
+   into $v0; the 16-byte stack quadword is zeroed with the tree's `sqc2 vf0`
+   idiom before the two calls that read it. */
 // FUN_00485C80
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00485c80);
+/* measured: opt_propagation off keeps `alloc` live in $s1 across all three
+   allocations instead of re-materialising the table address at the first use. */
+#pragma opt_propagation off
+u8 *func_00485c80(u8 *arg0)
+{
+    u_long128 sp80;
+    u8 *clone;
+    u8 *node;
+    u8 *nodeClone;
+    u8 *src;
+    u8 *prim;
+    u16 kind;
+    void *(**alloc)(u32, u32);
+
+    if (*(u8 **)(arg0 + 0x8C) == NULL) {
+        func_0046d730(D_00713470, 0x6B7);
+    }
+    func_0044ea90(D_00713470, 0x546);
+    alloc = jtbl_008873E8;
+    clone = (u8 *)alloc[0](0x90, 0x40000);
+    if (clone == NULL) {
+        func_0046d730(D_00713470, 0x547);
+    }
+    func_0043f9c8(clone, 0, 0x90);
+    *(s32 *)(clone + 0x80) = 0;
+    *(s32 *)(clone + 0x84) = 0;
+    func_00484b30(clone);
+    *(u_long128 *)clone = *(u_long128 *)arg0;
+    *(u_long128 *)(clone + 0x10) = *(u_long128 *)(arg0 + 0x10);
+    *(f32 *)(clone + 0x74) = *(f32 *)(arg0 + 0x74);
+    *(s32 *)(clone + 0x68) = *(s32 *)(arg0 + 0x68);
+    for (node = *(u8 **)(arg0 + 0x8C); node != NULL; node = *(u8 **)(node + 0xAC)) {
+        func_0044ea90(D_00713470, 0x559);
+        nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
+        if (nodeClone == NULL) {
+            func_0046d730(D_00713470, 0x55A);
+        }
+        func_0043f9c8(nodeClone, 0, 0xC0);
+        func_0043f9c8(nodeClone, 0, 0x90);
+        *(s32 *)(nodeClone + 0x84) = 1;
+        *(u8 *)(nodeClone + 0x88) = 8;
+        *(u8 *)(nodeClone + 0x89) = 0;
+        *(u8 *)(nodeClone + 0x8A) = 0;
+        func_00484b30(nodeClone);
+        src = *(u8 **)(node + 0x90);
+        if (*(u32 *)src > 0xD2) {
+            func_0046d730(D_00713470, 0x318);
+        }
+        kind = *(u16 *)(src + 4);
+        func_0044ea90(D_00713470, 0x21);
+        prim = (u8 *)alloc[0](0x2C, 0x40000);
+        if (prim == NULL) {
+            func_0046d730(D_00713470, 0x22);
+        }
+        func_0043f9c8(prim, 0, 0x2C);
+        *(s32 *)prim = 0xD2;
+        *(u16 *)(prim + 4) = kind;
+        *(u16 *)(prim + 0xC) = *(u16 *)(src + 0xC);
+        *(u16 *)(prim + 0x1C) = *(u16 *)(src + 0x1C);
+        if (*(s32 *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == 0) {
+            func_0046d730(D_00713470, 0x321);
+        }
+        *(s32 *)(prim + 8) =
+            (*(s32 (**)(s32))(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(s32 *)(src + 8));
+        *(u8 **)(nodeClone + 0x90) = prim;
+        func_00486710(nodeClone, node);
+        *(s32 *)(nodeClone + 0xAC) = 0;
+        if (*(u8 **)(clone + 0x88) != NULL) {
+            *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
+            *(u8 **)(nodeClone + 0xB0) = *(u8 **)(clone + 0x88);
+        } else {
+            *(u8 **)(clone + 0x8C) = nodeClone;
+            *(u8 **)(nodeClone + 0xB0) = NULL;
+        }
+        *(u8 **)(clone + 0x88) = nodeClone;
+        *(s32 *)(clone + 0x80) += 1;
+    }
+    __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(&sp80) : "memory");
+    func_004861f0(clone, (f32 *)&sp80);
+    func_00486330(clone, (u8 *)&sp80);
+    func_00486400(clone, 1.0f);
+    func_004865c0(clone, -1);
+    return clone;
+}
+/* measured: closes the propagation bracket; the file default is on. */
+#pragma opt_propagation on
 // FUN_00485FE0
 void func_00485fe0(u8 *arg0) {
     u8 *n = *(u8 **)(arg0 + 0x8C);

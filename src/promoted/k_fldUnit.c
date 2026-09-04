@@ -591,21 +591,94 @@ s32 func_00165300(void)
 
 
 
-/* measured: nd 148 after four attempts. Locked in: frame 0x60 with saved
-   $16/$17/$18/$19, u8 var_5 gives the daddiu $5,0,3, and func_00145540's
-   true prototype (s32, u8, u8*) — the s64 arg1 in the old extern shifts
-   every arg (retail passes arg1 in $5, arg2 in $6; the u8 param kills the
-   andi re-mask mwcc emits for u8->s32 promotion). Field-pointer locals
-   (f1ca/f50/f54 = slot+offset) reproduce the $18/$19 re-pointing. The
-   blocker: mwccgap GVNs the D_007E8C00 + var_17*0x750 address into ONE
-   saved register held across the whole body (folded 0x50($s0)-style
-   offsets, no per-section mult+lui+addu), where retail re-materializes it
-   FOUR times (sections B/C, the 1CB read, func_00167420) — tried inline
-   expressions, separate locals, slot += 0x54 reassignment, expression-form
-   swaps; every spelling merges (~14 words short). Copy-loop load/store
-   batching order also differs (interleaved in retail). */
 // FUN_00165380
-INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00165380);
+/* nd 148 -> 0 (the old "GVN merges the slot address" floor). Each section-local
+   `slot = D_007E8C00 + i * 0x750` reassignment (A, B, C, the 0x1CB read, the
+   func_00167420 argument) must rematerialise; `slot += 0x54` must stay an addiu
+   between the two calls (`t2 = t1 & 0xFFFF` first so the andi precedes it); the
+   0x1CB read goes through `p = ...` so its recompute precedes the arg-0 load. */
+/* measured: opt_common_subs off rematerialises the slot address per assignment;
+   opt_propagation off keeps the pointer bump out of the store offset. */
+#pragma opt_common_subs off
+#pragma opt_propagation off
+void func_00165380(void)
+{
+    s32 i;
+    u8 *slot;
+    u8 *f1ca;
+    u8 *f50;
+    u8 *f54;
+    u8 *f1b8;
+    u8 *p;
+    u8 var_5;
+    u8 *src;
+    s32 n;
+    u8 *dst;
+    s32 t1;
+    s32 t2;
+    f32 sp50[3];
+    f32 temp_f0;
+
+    for (i = 0; i < 0xF; i++) {
+        slot = D_007E8C00 + i * 0x750;
+        if (*(s32 *)(slot + 0x48) != 0) {
+            var_5 = 0;
+            *(s32 *)(slot + 0x40) &= ~2;
+            f1ca = slot + 0x1CA;
+            if (*f1ca == 1) {
+                var_5 = 3;
+            }
+            slot = D_007E8C00 + i * 0x750;
+            f50 = slot + 0x50;
+            t1 = func_00145540((i + 0x64) & 0xFFFF, var_5, *(u8 **)(slot + 0x50));
+            t2 = t1 & 0xFFFF;
+            slot += 0x54;
+            *(s32 *)slot = (s32)func_00145270(t2);
+            func_0047aa30(*(u8 **)f50, D_005DC920);
+            if (*f1ca == 1) {
+                p = D_007E8C00 + i * 0x750;
+                func_0017b9a0(*(s32 *)(*(u8 **)slot + 0x224), *(f32 *)(D_005F1340 + *(u8 *)(p + 0x1CB) * 4));
+            }
+            slot = D_007E8C00 + i * 0x750;
+            f1ca = slot + 0x1CA;
+            f50 = slot + 0x50;
+            func_0047a1e0(*(void **)f50, D_005F12E0 + *f1ca * 0x30 + *(u8 *)(slot + 0x1CB) * 0xC, 2);
+            dst = func_0047a2f0(*(s32 *)f50);
+            n = 8;
+            src = slot;
+            do {
+                t1 = *(s32 *)src;
+                t2 = *(s32 *)(src + 4);
+                src += 8;
+                n -= 1;
+                *(s32 *)dst = t1;
+                *(s32 *)(dst + 4) = t2;
+                dst += 8;
+            } while (n > 0);
+            func_003e05d0(func_0047a2f0(*(s32 *)f50));
+            f54 = slot + 0x54;
+            func_0014b0c0(*(u16 *)(*(u8 **)f54), 1);
+            func_00168730(*(s32 *)(*(u8 **)f54 + 0x220), 0x40000000);
+            func_00168c00(*(s32 *)(*(u8 **)f54 + 0x220));
+            func_00168780(*(s32 *)(*(u8 **)f54 + 0x220), 35.0f);
+            *(s32 *)(*(u8 **)f54 + 0x228) = func_00478750(iGpffffb274);
+            temp_f0 = func_00168770(*(s32 *)(*(u8 **)f54 + 0x220));
+            sp50[2] = temp_f0;
+            sp50[1] = temp_f0;
+            sp50[0] = temp_f0;
+            func_0047a1e0((void *)*(s32 *)(*(u8 **)f54 + 0x228), sp50, 2);
+            func_00478e70((u8 *)*(s32 *)(*(u8 **)f54 + 0x228));
+            *(s32 *)(slot + 0x1B0) = func_00182220(0, slot, *f1ca);
+            f1b8 = slot + 0x1B8;
+            if (*(s32 *)f1b8 == 0) {
+                *(s32 *)f1b8 = func_00167420((u8 *)0, D_007E8C00 + i * 0x750);
+            }
+        }
+    }
+}
+/* measured: closes the two brackets above; the file default is on. */
+#pragma opt_common_subs on
+#pragma opt_propagation on
 
 
 
