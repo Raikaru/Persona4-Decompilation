@@ -614,58 +614,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e7d8);
 /* measured: declaration-corrected body archived in build/K1DA_0044e830_body.c; object 204B exceeds retail window 160B, normalized_diff 167; differing offsets 0x0,0x4,0x6,0x8-0xC,0xE,0x10-0x14,0x16,0x1C. */
 // FUN_0044E830
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e830);
-// FUN_0044E8D0
-void func_0044e8d0(E8Node *node) {
-    E8Pool *pool;
-    pool = D_00763D1C;
-    if (pool->first == 0) {
-        pool->last = node;
-        D_00763D1C->first = node;
-        node->prev = 0;
-        node->next = 0;
-        return;
-    }
-    node->next = pool->last;
-    D_00763D1C->last = node;
-    node->next->prev = node;
-    node->prev = 0;
-}
-// FUN_0044E920
-void func_0044e920(E8Node *node) {
-    E8Node *next;
-    next = node->next;
-    if (next == 0) {
-        if (node->prev != 0) {
-            D_00763D1C->first = node->prev;
-            node->prev->next = 0;
-            goto done;
-        }
-        D_00763D1C->last = 0;
-        D_00763D1C->first = 0;
-        goto done;
-    }
-    if (node->prev == 0) {
-        if (next != 0) {
-            D_00763D1C->last = next;
-            node->next->prev = 0;
-        } else {
-            D_00763D1C->last = 0;
-            D_00763D1C->first = 0;
-        }
-    } else {
-        next->prev = node->prev;
-        node->prev->next = node->next;
-    }
-done:
-    if (node == D_00763D1C->current) {
-        D_00763D1C->current = 0;
-    }
-}
-/* measured: declaration-corrected body archived in build/K1DA_0044e9e0_body.c; object 176B equals retail window, normalized_diff 133; differing offsets 0x0,0x4,0x8-0xF,0x12-0x17. */
-// FUN_0044E9E0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e9e0);
-// FUN_0044EA90
-void func_0044ea90(void) {}
 // FUN_0044F4D0
 s32 func_0044f4d0(void) {
     s32 temp;

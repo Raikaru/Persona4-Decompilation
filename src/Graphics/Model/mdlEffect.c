@@ -64,6 +64,7 @@ static inline u8 *mdlEffect_camera_matrix(u8 *base)
 
 
 
+
 // FUN_0047D1A0
 u32 func_0047d1a0(void)
 {
@@ -877,7 +878,13 @@ void func_0048a340(f32 param_1)
         : "r"(raw + 0x10)
         : "$vf28", "$vf29", "$vf30", "memory");
 }
-/* object 176B / window 176B / normalized_diff 34; residual is FP register assignment and arithmetic sequence from +0x54 through +0x8C; prologue, globals, call setup, stores, and tail match. */
+/* Measured floor: this first-party 176B function has a best plain-C candidate
+   with object/window 176B and normalized_diff 11.  Retail assigns the
+   projection divisor to f0, dividend/product to f1, and quotient to f2;
+   MWCCPS2 3.0.1b210 consistently rotates those three FPRs.  Raw and typed
+   vector aggregates, arithmetic/lifetime/declaration variants, helper forms,
+   and optimization controls did not reach MATCH without compiler steering.
+   Restored to the authoritative COP2 transfer INCLUDE_ASM. */
 // FUN_0048A460 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
 // FUN_0048A510

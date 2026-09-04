@@ -13,8 +13,8 @@ extern s32 func_003bbb60(u8 *arg0);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
 extern u8 *iGpffffb3bc;
-extern void func_001b0d00(s32 arg0, s32 arg1);
 extern void *func_0014acd0(void);
+extern void func_001b0d00(s32 arg0, s32 arg1);
 extern void *func_0014ad10(void);
 extern void func_001b6990();
 extern void func_00193d30(void);
@@ -530,7 +530,9 @@ store:
     *p = (s32)arg0;
     return 1;
 }
-/* measured: best plain-C body archived at build/H1B0_001b0dd0_body.c; object 100B versus the 96B retail window, normalized_diff 64, 22 differing words. MWCC b210 retains the loop argument/result in s1/s0 (48B frame) where retail keeps them in a2/a3 (16B frame); declaration, source-shape, and optimization probes did not move this caller-saved/callee-saved coloring floor. */
+
+/* measured exact-but-ineligible static-callee probe: object 84B/window 96B,
+   normalized_diff 0; the extra unowned helper FUNC section blocks this TU. */
 // FUN_001B0DD0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b0dd0);
 // FUN_001B0E30
@@ -725,10 +727,9 @@ void func_001b1280(s32 arg0)
         start--;
     }
 }
-/* Best probe archived in build/F1B0_001b13c0_body.c: object 144B, retail window 144B, normalized_diff 33. */
+/* Best probe archived in docs/probe_archive/W49Code1b_001b13c0_body.c: object 140B, retail window 144B, normalized_diff 33; no exact C body under the tested natural control flow and saved-register calling-convention variant. */
 // FUN_001B13C0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b13c0);
-/* Best probe archived in build/F1B0_001b1450_body.c: object 204B, retail window 192B, normalized_diff 46; object exceeds window. */
 // FUN_001B1450 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b1450);
 // FUN_001B1510

@@ -138,11 +138,11 @@ class CanonicalMapTests(unittest.TestCase):
         self.assertEqual(orphans, [], f"markers outside the canonical map: {orphans}")
 
     def test_data_reachable_entries_are_backed_by_a_retail_pointer(self) -> None:
-        """Each curated override must be a real entry the control-flow scan cannot see.
+        """Each curated boundary must have independent retail pointer evidence.
 
-        Guards two failure modes: a mistyped pointer site (the address recorded in
-        the tool does not actually hold the entry), and an override that has become
-        redundant because Splat now finds the entry itself.
+        Splat consumes config/symbol_addrs.txt, which reconciliation populates
+        with these boundaries. Its output is not independent discovery evidence:
+        a subsequent split is expected to contain the curated entries.
 
         The map IS regenerable now, so every override must actually appear in the
         committed map. That was previously impossible: the control-flow scan does
@@ -164,7 +164,6 @@ class CanonicalMapTests(unittest.TestCase):
         import verify
 
         retail = verify.RetailElf(str(elf), target, function_map["sha1"])
-        splat = reconcile.splat_entries(REPO / "asm" / "code1.s")
 
         for address, evidence in reconcile.DATA_REACHABLE_ENTRIES.items():
             with self.subTest(address=f"{address:08X}"):
@@ -174,7 +173,6 @@ class CanonicalMapTests(unittest.TestCase):
                     address,
                     f"pointer site {evidence['pointer']:08X} holds {word:08X}, not {address:08X}",
                 )
-                self.assertNotIn(address, splat, "override is redundant; Splat finds this entry")
                 self.assertIn(
                     address,
                     windows,
@@ -203,7 +201,6 @@ class CanonicalMapTests(unittest.TestCase):
         import verify
 
         retail = verify.RetailElf(str(elf), target, function_map["sha1"])
-        splat = reconcile.splat_entries(REPO / "asm" / "code1.s")
 
         self.assertTrue(reconcile.EPILOGUE_SEPARATED_ENTRIES)
         for address in sorted(reconcile.EPILOGUE_SEPARATED_ENTRIES):
@@ -242,9 +239,6 @@ class CanonicalMapTests(unittest.TestCase):
                 delay = struct.unpack("<I", retail.bytes_at(jr_at + 4, 4))[0]
                 self.assertEqual(
                     delay, 0x00000000, f"{jr_at + 4:08X} is not a nop delay slot"
-                )
-                self.assertNotIn(
-                    address, splat, "override is redundant; Splat finds this entry"
                 )
                 self.assertNotIn(
                     address,

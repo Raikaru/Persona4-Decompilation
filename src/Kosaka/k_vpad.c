@@ -145,12 +145,12 @@ void func_0015f720(RuntimeVec3* vertices, const RuntimeVec3* translation,
 }
 
 
-/* The loop body is executable-equivalent but MWCC b210 schedules the
-   per-entry pair as `sll $s0,$s3,3` before `lw $v1,4($s4)`; retail has
-   those two words reversed at fndiff offsets 84 and 88. The remaining
-   differences are retail-only zero-padding words at offsets 324, 328, and
-   332. While/for loop forms, local offset/request temporaries, and schedule
-   pragmas were ruled out. obj 324B/window 336B, nd 5. Committed at nd 8. */
+/* measured: func_004b5800's best honest C is 324B in a 336B window at
+   normalized_diff 5. MWCC b210 schedules `sll $s0,$s3,3` before
+   `lw $v1,4($s4)` while retail reverses those independent words; the other
+   three differences are retail zero-tail padding. Loop forms, offset/request
+   locals, optimizer pragmas, and 2,584 AST permutations did not close it.
+   Archived in docs/probe_archive/W47Vpad_004b5800_body.c; assembly restored. */
 // FUN_004B5800
 INCLUDE_ASM("asm/nonmatchings/k_vpad", func_004b5800);
 

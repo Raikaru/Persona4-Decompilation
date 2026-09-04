@@ -14,6 +14,7 @@ extern void func_004b5800(u8 *arg0);
 extern void func_004b5f70(u8 *arg0);
 extern void func_004b5f80(u8 *arg0);
 extern u8 D_00922C50[];
+extern u8 DAT_00922c30_abs[];
 
 extern u8 *func_00470d10(u8 *arg0, s32 arg1);
 extern void func_004704d0(u8 *arg0);
@@ -60,9 +61,19 @@ extern s32 func_0047c660(u8 *arg0);
 extern void func_0047e450(u8 *arg0, s16 arg1, s16 arg2, s32 arg3, u32 arg4);
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
+extern f32 fGpffffbb50;
+extern f32 fGpffffbb54;
 static inline f32 code1_0047_mul(f32 left, f32 right)
 {
     return left * right;
+}
+static inline f32 code1_0047_madd(f32 left, f32 right, f32 addend)
+{
+    return 0.0f + addend + left * right;
+}
+static inline f32 code1_0047_madd_reverse(f32 left, f32 right, f32 addend)
+{
+    return 0.0f + addend + right * left;
 }
 
 
@@ -511,7 +522,7 @@ void func_0047ed60(u8 *arg0)
     }
 }
 // FUN_0047EF10
-s32 func_0047ef10(u8 *arg0, f32 fparg0)
+static s32 func_0047ef10(u8 *arg0, f32 fparg0)
 {
     s32 temp_2;
     s32 var_7;
@@ -578,14 +589,251 @@ u8 *func_0047ef70(u8 *arg0, f32 fparg0)
     fGpffffbb48 = fparg0;
     return (u8 *)&fGpffffbb48;
 }
+/* measured: duplicating the scalar sampler around the static exact
+ * func_0047ef10 preserves both track pointers, times, and the blend factor.
+ * Assigning each GP result pair to a two-float aggregate forces retail's
+ * 0x20 frame and exact stack snapshots across the second call; the staged
+ * inline madd helper closes the final blend. Object 340B/window 352B,
+ * normalized_diff 0 with three retail zero-tail words. */
 // FUN_0047F040
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f040);
-// FUN_0047F1A0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f1a0);
+f32 *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
+                   f32 fparg2)
+{
+    s32 index;
+    u8 *base;
+    typedef struct Code47Pair {
+        f32 time;
+        f32 value;
+    } Code47Pair;
+    Code47Pair first;
+    Code47Pair second;
+    f32 difference;
+
+    base = *(u8 **)(arg0 + 0xC);
+    index = func_0047ef10(arg0, fparg0);
+    if ((u32)index >= (u32)(*(s32 *)arg0 - 1)) {
+        index *= 8;
+        fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
+    } else {
+        u8 *point;
+        f32 x0;
+        f32 y0;
+        f32 x1;
+        f32 y1;
+        f32 ratio;
+
+        index *= 8;
+        point = base + index;
+        x0 = *(f32 *)(point + 0);
+        y0 = *(f32 *)(point + 4);
+        ratio = fparg0 - x0;
+        x1 = *(f32 *)(point + 8);
+        ratio = ratio / (x1 - x0);
+        y1 = *(f32 *)(point + 0xC);
+        fGpffffbb4c = 0.0f + y0 +
+            code1_0047_mul(y1 - y0, ratio);
+    }
+    fGpffffbb48 = fparg0;
+    first = *(Code47Pair *)&fGpffffbb48;
+
+    base = *(u8 **)(arg1 + 0xC);
+    index = func_0047ef10(arg1, fparg1);
+    if ((u32)index >= (u32)(*(s32 *)arg1 - 1)) {
+        index *= 8;
+        fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
+    } else {
+        u8 *point;
+        f32 x0;
+        f32 y0;
+        f32 x1;
+        f32 y1;
+        f32 ratio;
+
+        index *= 8;
+        point = base + index;
+        x0 = *(f32 *)(point + 0);
+        y0 = *(f32 *)(point + 4);
+        ratio = fparg1 - x0;
+        x1 = *(f32 *)(point + 8);
+        ratio = ratio / (x1 - x0);
+        y1 = *(f32 *)(point + 0xC);
+        fGpffffbb4c = 0.0f + y0 +
+            code1_0047_mul(y1 - y0, ratio);
+    }
+    fGpffffbb48 = fparg1;
+    second = *(Code47Pair *)&fGpffffbb48;
+
+    difference = second.value - first.value;
+    fGpffffbb54 = code1_0047_madd(difference, fparg2, first.value);
+    return &fGpffffbb50;
+}
+/* measured: keeping the exact func_0047ef10 helper static exposes its narrow
+ * clobber set, preserving the caller's $t2/$t1/$f13 values. Caching the track
+ * base before the call, scaling `index` in place in each branch, and carrying
+ * the GP output address as an integer reproduce retail's register lifetimes.
+ * Splitting the final difference/addend before the inline madd helper preserves
+ * both evaluation order and FMA operand order. The object is 276B in a 288B
+ * retail window with only three retail zero-tail words. */
+// FUN_0047F1A0
+f32 *func_0047f1a0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+{
+    s32 index;
+    u8 *base;
+    s32 out;
+    f32 difference;
+    f32 addend;
+
+    base = *(u8 **)(arg0 + 0xC);
+    index = func_0047ef10(arg0, fparg0);
+    if ((u32)index >= (u32)(*(s32 *)arg0 - 1)) {
+        index *= 8;
+        fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
+    } else {
+        u8 *point;
+        f32 x0;
+        f32 y0;
+        f32 x1;
+        f32 y1;
+        f32 ratio;
+
+        index *= 8;
+        point = base + index;
+        x0 = *(f32 *)(point + 0);
+        y0 = *(f32 *)(point + 4);
+        ratio = fparg0 - x0;
+        x1 = *(f32 *)(point + 8);
+        ratio = ratio / (x1 - x0);
+        y1 = *(f32 *)(point + 0xC);
+        fGpffffbb4c = 0.0f + y0 +
+            code1_0047_mul(y1 - y0, ratio);
+    }
+    fGpffffbb48 = fparg0;
+    out = (s32)&fGpffffbb48;
+    difference = (1.0f -
+        ((f32)(u32)*(u8 *)(arg1 + 3)) / 255.0f);
+    addend = *(f32 *)(out + 4);
+    difference -= addend;
+    *(f32 *)(out + 4) = code1_0047_madd(
+        difference, fparg1, addend);
+    return (f32 *)out;
+}
+/* measured: func_0047f3a0 remains 300B in a 304B retail window with
+ * only one retail zero-tail word. Keeping the exact helper static in this
+ * code1 TU exposes its real register clobbers to MWCC, so func_0047f4d0
+ * retains $t1/$f13/$f14 across both calls. The pointer-first source signature
+ * preserves the independent integer/float ABI while ordering the second
+ * call's $a0 setup before $f12; func_0047f4d0 is 216B in a 224B window with
+ * only two retail zero-tail words. */
+// FUN_0047F3A0
+static u32 *func_0047f3a0(int *param_2, float param_1)
+{
+  float *key;
+  float fraction;
+  float start;
+  float output;
+  float difference;
+  int high;
+  int low;
+  int stride;
+  u8 *data;
+  int mid;
+  u32 address;
+
+  data = (u8 *)param_2[3];
+  low = 0;
+  high = *param_2 - 1;
+  stride = param_2[2];
+  do {
+    mid = (low + high + 1) >> 1;
+    if (param_1 < *(float *)(data + stride * mid)) {
+      high = --mid;
+    }
+    else {
+      low = mid;
+    }
+  } while (low < high);
+  if ((u32)mid >= (u32)(*param_2 - 1)) {
+    address = mid * 0x10;
+    address += (u32)data;
+    *(float *)(DAT_00922c30_abs + 4) = *(float *)(address + 4);
+    *(float *)(DAT_00922c30_abs + 8) = *(float *)(address + 8);
+    *(float *)(DAT_00922c30_abs + 12) = *(float *)(address + 0xc);
+  }
+  else {
+    key = (float *)((u32)(mid * 0x10) + (u32)data);
+    start = key[0];
+    fraction = param_1 - start;
+    fraction /= key[4] - start;
+    output = key[1];
+    difference = key[5] - output;
+    *(float *)(DAT_00922c30_abs + 4) = fraction * difference + output;
+    output = key[2];
+    difference = key[6] - output;
+    *(float *)(DAT_00922c30_abs + 8) = fraction * difference + output;
+    output = key[3];
+    difference = key[7] - output;
+    *(float *)(DAT_00922c30_abs + 12) = fraction * difference + output;
+  }
+  *(float *)DAT_00922c30_abs = param_1;
+  return (u32 *)DAT_00922c30_abs;
+}
+typedef struct Code47Vec4 {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} Code47Vec4;
+extern Code47Vec4 D_00922C40;
 // FUN_0047F4D0
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f4d0);
+Code47Vec4 *func_0047f4d0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
+                          f32 fparg2)
+{
+    Code47Vec4 first;
+    Code47Vec4 second;
+
+    first = *(Code47Vec4 *)func_0047f3a0((int *)arg0, fparg0);
+    second = *(Code47Vec4 *)func_0047f3a0((int *)arg1, fparg1);
+    D_00922C40.y = 0.0f + first.y + fparg2 * (second.y - first.y);
+    D_00922C40.z = 0.0f + first.z + fparg2 * (second.z - first.z);
+    D_00922C40.w = 0.0f + first.w + fparg2 * (second.w - first.w);
+    return &D_00922C40;
+}
+/* measured: the static exact func_0047f3a0 body preserves $t1/$f13 across
+ * the call. Computing bytes 1 and 2 before byte 0 assigns retail's $f4/$f3
+ * roles; staging each addend after its normalized value prevents load
+ * hoisting, and the reverse-order inline madd helper reproduces all three
+ * accumulator operand orders. Object 348B/window 352B, normalized_diff 0;
+ * the final retail word is zero tail padding. */
 // FUN_0047F5B0
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f5b0);
+void func_0047f5b0(s32 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+{
+    f32 *out;
+    f32 second;
+    f32 third;
+    f32 first;
+    f32 addend;
+    f32 difference;
+
+    out = (f32 *)func_0047f3a0((int *)arg0, fparg0);
+    second = (f32)(u32)arg1[1] / 255.0f;
+    third = (f32)(u32)arg1[2] / 255.0f;
+    first = (f32)(u32)arg1[0] / 255.0f;
+
+    difference = first;
+    addend = out[1];
+    difference -= addend;
+    out[1] = code1_0047_madd_reverse(difference, fparg1, addend);
+
+    difference = second;
+    addend = out[2];
+    difference -= addend;
+    out[2] = code1_0047_madd_reverse(difference, fparg1, addend);
+
+    difference = third;
+    addend = out[3];
+    difference -= addend;
+    out[3] = code1_0047_madd_reverse(difference, fparg1, addend);
+}
 // FUN_0047F710
 void func_0047f710(u8 *arg0, u8 *arg1)
 {
@@ -601,5 +849,9 @@ u8 *func_0047f830(void)
 {
     return D_00922C50;
 }
-// FUN_0047F850
+/* measured: clean reconstruction reaches object 412B/window 416B,
+ * normalized_diff 13. Every structural instruction matches; only the
+ * target-list/count/dispatch saved-register cycle differs. See
+ * docs/probe_archive/W52Main_0047f850_body.c. */
+// FUN_0047F850 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f850);

@@ -10,10 +10,11 @@ typedef struct ChkMemEntry {
     u8 cls;     /* 0x08 */
 } ChkMemEntry;
 
+typedef struct E8Node E8Node;
 typedef struct ChkMemPool {
-    ChkMemEntry *first;    /* 0x00 */
-    ChkMemEntry *last;     /* 0x04 */
-    s32 total;             /* 0x08 */
+    E8Node *first;           /* 0x00 */
+    E8Node *last;            /* 0x04 */
+    E8Node *current;         /* 0x08 */
     u8 pad_0C[0x0C];       /* 0x0C */
     s32 count;             /* 0x18 */
     s32 bytes;             /* 0x1C */
@@ -24,27 +25,121 @@ typedef struct ChkMemPool {
     s32 classCount[8];     /* 0x58 */
 } ChkMemPool;
 
-typedef struct E8Node E8Node;
+struct E8Node {
+    E8Node *next;
+    E8Node *prev;
+};
 
 extern char D_007104E0[];
 extern char D_007104F0[];
 extern void func_0046d730(void *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, const char *msg, ...);
 extern s32 func_0043ece8(s32 size);
-extern void func_0044e8d0(void *ptr);
 extern s32 func_0042ba20(void);
 extern void func_0042ba70(void);
 extern void func_0043f810(void *dst, void *src, s32 size);
 extern void func_0043ed08(void *ptr);
-extern void *func_0044e9e0(void *ptr);
-extern u8 *func_0044e920(E8Node *ptr);
 extern s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3);
 extern char iGpffffac30;
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 
 extern ChkMemPool *D_00763D1C; /* sdkChkmem pool */
 extern s32 D_00764AC0;         /* sdkChkmem lock */
+static inline u32 e8Slot(u32 offset, u32 base)
+{
+    return offset + base;
+}
 
+// FUN_0044E8D0
+void func_0044e8d0(E8Node *node)
+{
+    ChkMemPool *pool;
+
+    pool = D_00763D1C;
+    if (pool->first == 0) {
+        pool->last = node;
+        D_00763D1C->first = node;
+        node->prev = 0;
+        node->next = 0;
+        return;
+    }
+    node->next = pool->last;
+    D_00763D1C->last = node;
+    node->next->prev = node;
+    node->prev = 0;
+}
+
+// FUN_0044E920
+static void func_0044e920(E8Node *node)
+{
+    E8Node *next;
+
+    next = node->next;
+    if (next == 0) {
+        if (node->prev != 0) {
+            D_00763D1C->first = node->prev;
+            node->prev->next = 0;
+            goto done;
+        }
+        D_00763D1C->last = 0;
+        D_00763D1C->first = 0;
+        goto done;
+    }
+    if (node->prev == 0) {
+        if (next != 0) {
+            D_00763D1C->last = next;
+            node->next->prev = 0;
+        } else {
+            D_00763D1C->last = 0;
+            D_00763D1C->first = 0;
+        }
+    } else {
+        next->prev = node->prev;
+        node->prev->next = node->next;
+    }
+done:
+    if (node == D_00763D1C->current) {
+        D_00763D1C->current = 0;
+    }
+}
+
+/* Measured: object 168B / retail window 176B / normalized_diff 0; the final
+ * 8B are retail zero-tail words. Keeping the allocator unlink helper static
+ * in its recovered sdkChkmem translation unit preserves its narrow clobber
+ * set. Staging the pool load before e8Slot preserves the retail load and
+ * offset-first addu order at both class-index updates. */
+// FUN_0044E9E0
+static void func_0044e9e0(u8 *arg0)
+{
+    s32 var_5;
+    u8 temp_3;
+    u8 *temp_4;
+    u8 *temp_5;
+    u8 *temp_5_2;
+    u8 *temp_7;
+
+    temp_5 = (u8 *)D_00763D1C;
+    *(s32 *)(temp_5 + 0x18) = *(s32 *)(temp_5 + 0x18) - 1;
+    temp_7 = (u8 *)D_00763D1C;
+    var_5 = *(s32 *)(temp_7 + 0x1C);
+    *(s32 *)(temp_7 + 0x1C) = var_5 - *(s32 *)arg0;
+    temp_3 = *(u8 *)(arg0 + 8);
+    if ((s32)temp_3 < 8) {
+        temp_5_2 = (u8 *)D_00763D1C;
+        temp_5_2 = (u8 *)e8Slot(temp_3 * 4, (u32)temp_5_2);
+        *(s32 *)(temp_5_2 + 0x38) =
+            *(s32 *)(temp_5_2 + 0x38) - *(s32 *)arg0;
+        var_5 = *(s32 *)arg0 - (*(u16 *)(arg0 + 4) + 0x18);
+        temp_4 = (u8 *)e8Slot(*(u8 *)(arg0 + 8) * 4,
+                              (u32)D_00763D1C);
+        *(s32 *)(temp_4 + 0x58) = *(s32 *)(temp_4 + 0x58) - var_5;
+    }
+    func_0044e920((E8Node *)(arg0 + 0xC));
+    *(s16 *)(arg0 + 8) = 0;
+}
+
+// FUN_0044EA90
+void func_0044ea90(void) {}
 /* measured: func_0044eaa0 matches with propagation disabled. The explicit
    class-size temporary preserves retail's classBytes load order. */
 #pragma opt_propagation off
@@ -87,7 +182,7 @@ s32 func_0044eaa0(s32 arg0, s32 arg1, u16 arg2, s16 arg3)
         temp_18 = temp_2->size - (temp_2->pad_04 + 24);
         D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
     }
-    func_0044e8d0((u8 *)temp_2 + 12);
+    func_0044e8d0((E8Node *)((u8 *)temp_2 + 12));
     *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
     return temp_16;
 }
@@ -165,7 +260,7 @@ s32 func_0044ec60(u32 arg0)
         temp_18 = temp_2->size - (temp_2->pad_04 + 24);
         D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
     }
-    func_0044e8d0((u8 *)temp_2 + 12);
+    func_0044e8d0((E8Node *)((u8 *)temp_2 + 12));
     *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
     if (temp_17 != 0) {
         func_0042ba70();
@@ -175,9 +270,54 @@ s32 func_0044ec60(u32 arg0)
 /* measured: func_0044ec60 matches with propagation disabled. */
 #pragma opt_propagation on
 
-/* measured: 0044ee70 candidate is 256B in the 256B retail window at current normalized_diff 6, differing offsets 0xC8 and 0xCC. Corrected callee parameter declarations to func_0046d730(void *, s32) and func_0044e920(E8Node *); an explicit E8Node * cast is required by MWCC. The result remains the same store-vs-argument order residual: retail stores `sh $0,8($v0)` before copying `$v0` into `$a0`, while b210 emits the move first. Restored assembly fallback; no live mismatch. */
-// FUN_0044EE70 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044ee70);
+/* Measured after restoring the recovered same-TU static func_0044e920:
+ * object 256B / retail window 256B / normalized_diff 0. Static clobber
+ * visibility keeps `block` live in $v0 across unlink, which emits the clear
+ * before the following $a0 move exactly as retail. */
+// FUN_0044EE70
+void func_0044ee70(u8 *arg0)
+{
+    s32 lock;
+    u8 *block;
+    u8 *pool;
+    u8 *pool2;
+    s32 size;
+    s32 delta;
+    u16 payload;
+    s32 block_size;
+    u32 offset;
+
+    lock = func_0042ba20();
+    if (arg0 == NULL) {
+        func_0046d730(D_007104E0, 0x670);
+    }
+    block = *(u8 **)(arg0 - 4);
+    pool = (u8 *)D_00763D1C;
+    *(s32 *)(pool + 0x18) = *(s32 *)(pool + 0x18) - 1;
+    pool2 = (u8 *)D_00763D1C;
+    *(s32 *)(pool2 + 0x1C) = *(s32 *)(pool2 + 0x1C) - *(s32 *)block;
+    if ((s32)*(u8 *)(block + 8) < 8) {
+        pool = (u8 *)D_00763D1C;
+        offset = *(u8 *)(block + 8) * 4;
+        pool2 = (u8 *)(offset + (u32)pool);
+        *(s32 *)(pool2 + 0x38) =
+            *(s32 *)(pool2 + 0x38) - *(s32 *)block;
+        payload = *(u16 *)(block + 4);
+        size = payload + 0x18;
+        block_size = *(s32 *)block;
+        size = block_size - size;
+        offset = *(u8 *)(block + 8) * 4;
+        pool2 = (u8 *)(offset + (u32)D_00763D1C);
+        delta = *(s32 *)(pool2 + 0x58) - size;
+        *(s32 *)(pool2 + 0x58) = delta;
+    }
+    func_0044e920((E8Node *)(block + 0xC));
+    *(s16 *)(block + 8) = 0;
+    func_0043ed08(block);
+    if (lock != 0) {
+        func_0042ba70();
+    }
+}
 
 /* measured: func_0044ef70 (464B) floor at nd 54 — a saved-register rotation
    plus the classBytes/classCount pool-reload scheduling floor. retail allocates
@@ -240,97 +380,19 @@ s32 func_0044ef70(s32 arg0, s32 arg1, s32 arg2)
         temp_18 = temp_2->size - (temp_2->pad_04 + 24);
         D_00763D1C->classCount[(u8)D_00763D1C->classes] += temp_18;
     }
-    func_0044e8d0((u8 *)temp_2 + 12);
+    func_0044e8d0((E8Node *)((u8 *)temp_2 + 12));
     *(u16 *)((u8 *)temp_2 + 8) = D_00763D1C->classes;
     return temp_16;
 }
 /* measured: func_0044ef70 matches with propagation disabled. */
 #pragma opt_propagation on
 
-/* measured: func_0044f140 (608B) floor at nd 87 — a pervasive saved-register
-   rotation across the two-branch alloc/relocate body. retail: outer lock
-   temp_21=$s5, first-branch lock=$s1, aligned=$s0, block=$s2, else-branch base
-   arg0-4=$s6, temp_23=$s7; mwcc b210 puts outer lock in $s6, first lock in $s0,
-   and caches the else block in $s5 instead of keeping arg0-4 in $s6. Declaration
-   order (3 orders), block-cache vs inline `*(u8**)(arg0-4)` (raw inline went to
-   128), all failed. Logic (func_0044eaa0/0043f810/0044e9e0/0043ed08 calls,
-   min-size, GP-relative strings) is correct; same saved-register rotation family
-   as func_0044ec60/func_0044f3a0/func_0044ef70. */
-// FUN_0044F140
-#pragma push
-/* measured: opt_propagation off preserves retail saved-register mapping and join-block layout. */
-#pragma opt_propagation off
-s32 func_0044f140(void *arg0, u32 arg1)
-{
-    u32 var_18;
-    s32 temp_2;
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_2_2;
-    s32 temp_16_2;
-    s32 temp_17_2;
-    s32 temp_21;
-    s32 temp_23;
-    s32 **temp_3;
-    s32 work;
-    s32 result;
-    s32 *temp_18;
-
-    temp_21 = func_0042ba20();
-    if (arg0 == NULL) {
-        temp_17 = func_0042ba20();
-        if (arg1 == 0) {
-            func_0046d730(D_007104E0, 0x653);
-        }
-        temp_16 = (arg1 + 0x37) & ~0xF;
-        temp_2 = func_0043ece8(temp_16);
-        if (temp_2 == 0) {
-            func_0046d700(D_007104E0, 0x65F, D_007104F0,
-                          D_00763D1C->bytes, arg1);
-        }
-        work = func_0044eaa0(temp_2, temp_16, 0x10, 0);
-        if (temp_17 != 0) {
-            func_0042ba70();
-        }
-        result = work;
-    } else {
-        temp_3 = (s32 **)((u8 *)arg0 - 4);
-        var_18 = **temp_3;
-        if (arg1 < var_18) {
-            var_18 = arg1;
-        }
-        temp_23 = func_0042ba20();
-        if (arg1 == 0) {
-            func_0046d730(D_007104E0, 0x653);
-        }
-        temp_16_2 = (arg1 + 0x37) & ~0xF;
-        temp_2_2 = func_0043ece8(temp_16_2);
-        if (temp_2_2 == 0) {
-            func_0046d700(D_007104E0, 0x65F, D_007104F0,
-                          D_00763D1C->bytes, arg1);
-        }
-        work = func_0044eaa0(temp_2_2, temp_16_2, 0x10, 0);
-        if (temp_23 != 0) {
-            func_0042ba70();
-        }
-        func_0043f810((void *)work, arg0, var_18);
-        temp_17_2 = func_0042ba20();
-        if (arg0 == NULL) {
-            func_0046d730(D_007104E0, 0x670);
-        }
-        temp_18 = *temp_3;
-        func_0043ed08(func_0044e9e0((void *)(u64)temp_18));
-        if (temp_17_2 != 0) {
-            func_0042ba70();
-        }
-        result = work;
-    }
-    if (temp_21 != 0) {
-        func_0042ba70();
-    }
-    return result;
-}
-#pragma pop
+/* measured: the recovered same-TU static func_0044e9e0 shape improves the
+ * reallocator to object 604B/window 608B, normalized_diff 60, but the saved
+ * registers remain rotated across both branches. Best source:
+ * docs/probe_archive/W54Sdk_0044f140_body.c. */
+// FUN_0044F140 NONMATCHING
+INCLUDE_ASM("asm/nonmatchings/sdkChkmem", func_0044f140);
 // FUN_0044F3A0
 s32 func_0044f3a0(s32 arg0, s32 arg1)
 {

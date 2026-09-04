@@ -1227,8 +1227,116 @@ void func_004acb80(u8 *arg0)
         *(f32 *)(arg0 + 8) = 1.0f;
     }
 }
+/* measured: an s64-aligned union gives retail's ld/lwc1 Vec3 copies; the
+   three-argument helper signature keeps frame_index/frame_count in a1/a2. */
 // FUN_004ACCC0
-INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004accc0);
+void func_004accc0(u8 *arg0)
+{
+    struct Vec3 {
+        f32 x;
+        f32 y;
+        f32 z;
+    };
+    union BasisConst {
+        struct Vec3 value;
+        s64 align;
+    };
+    struct Frame {
+        f32 matrix[16];
+        struct Vec3 transformed;
+        s32 pad4c;
+        struct Vec3 scale;
+        s32 pad5c;
+    };
+    struct Vec3 basis1;
+    struct Vec3 basis2;
+    struct Vec3 basis3;
+    struct Frame frame;
+    extern union BasisConst D_007144C8[];
+    extern union BasisConst D_007144D8[];
+    extern union BasisConst D_007144E8[];
+    extern f32 func_0047a080(s32 arg0, s32 arg1);
+    extern f32 func_0048aff0(u8 *arg0, s32 arg1, s32 arg2);
+    extern u8 *func_003e9700(s32 arg0);
+    extern u8 *func_0047a2f0(s32 arg0);
+    extern u8 *func_003e05f0(void *arg0, void *arg1, void *arg2);
+    extern void func_003e0870(void *arg0, void *arg1, f32 fparg0, s32 arg2);
+    extern void func_003e0a90(void *arg0, void *arg1, s32 arg2);
+    extern void func_003e4320(void *arg0, void *arg1, void *arg2);
+    extern void func_004789c0(s32 arg0);
+    extern void func_0047a320(s32 arg0);
+    s32 frame_count;
+    u32 frame_index;
+    u8 *node;
+    u8 *camera;
+    u8 *matrix;
+    u8 *object;
+    f32 depth;
+    f32 width;
+    f32 near_height;
+    f32 scale;
+    f32 far_z;
+    f32 temp;
+
+    basis1 = D_007144C8[0].value;
+    basis2 = D_007144D8[0].value;
+    basis3 = D_007144E8[0].value;
+    frame_index = (u32)func_0047a080(*(s32 *)(arg0 + 0xB4), 0);
+    frame_count = *(s32 *)(arg0 + 0x9C);
+    if (frame_count >= (s32)frame_index || frame_count == 0) {
+        scale = func_0048aff0(arg0 + 0x44, frame_index, frame_count) / 10.0f;
+        node = func_00457120() + 0x68;
+        camera = func_00457120();
+        near_height = *(f32 *)(camera + 0x80);
+        camera = func_00457120();
+        far_z = *(f32 *)(camera + 0x84);
+        depth = (((f32)-0xFFFF * near_height) * far_z) /
+                (((f32)-0xFFFF * far_z) -
+                 (-31.0f * (far_z - near_height)));
+        width = 2.0f * (*(f32 *)(node + 0) * depth);
+        near_height = 2.0f * (*(f32 *)(node + 4) * depth);
+        camera = func_00457120();
+        matrix = func_003e9700(*(s32 *)(camera + 4));
+        func_003e0870(frame.matrix, &basis1,
+                      *(f32 *)(arg0 + 0x90), 0);
+        if (*(f32 *)(arg0 + 0x94) != 0.0f) {
+            func_003e0870(frame.matrix, &basis2,
+                          *(f32 *)(arg0 + 0x94), 2);
+        }
+        if (*(f32 *)(arg0 + 0x98) != 0.0f) {
+            func_003e0870(frame.matrix, &basis3,
+                          *(f32 *)(arg0 + 0x98), 2);
+        }
+        temp = (width / 640.0f) * scale;
+        frame.scale.z = temp;
+        frame.scale.y = temp;
+        frame.scale.x = temp;
+        func_003e0a90(frame.matrix, &frame.scale, 2);
+        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
+        func_003e05f0(object, frame.matrix, matrix);
+        frame.scale.x =
+            width * (0.5f + (-(f32)(*(f32 *)(arg0 + 0) +
+                                    *(f32 *)(arg0 + 0x84)) /
+                              640.0f));
+        frame.scale.y =
+            near_height * (0.5f + (-(f32)(*(f32 *)(arg0 + 4) +
+                                          *(f32 *)(arg0 + 0x88)) /
+                                    448.0f));
+        frame.scale.z = *(f32 *)(arg0 + 0x8C) + depth;
+        func_003e4320(&frame.transformed, &frame.scale, matrix);
+        scale = *(f32 *)(matrix + 0x30) + frame.transformed.x;
+        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
+        *(f32 *)(object + 0x30) = scale;
+        scale = *(f32 *)(matrix + 0x34) + frame.transformed.y;
+        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
+        *(f32 *)(object + 0x34) = scale;
+        scale = *(f32 *)(matrix + 0x38) + frame.transformed.z;
+        object = func_0047a2f0(*(s32 *)(arg0 + 0xB4));
+        *(f32 *)(object + 0x38) = scale;
+        func_004789c0(*(s32 *)(arg0 + 0xB4));
+        func_0047a320(*(s32 *)(arg0 + 0xB4));
+    }
+}
 // FUN_004AD030
 INCLUDE_ASM("asm/nonmatchings/code1_004a", func_004ad030);
 // FUN_004AD240
