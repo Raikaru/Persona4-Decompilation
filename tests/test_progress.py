@@ -81,23 +81,16 @@ class ProgressTests(unittest.TestCase):
         """
         report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
         linked = copy.deepcopy(LINKED_REPORT)
-        linked["linked_functions"][0]["address"] = "00100018"   # linked, not matching
+        linked["linked_functions"].append(
+            {"address": "00100018", "name": "fallback", "file": "src/first.c"}
+        )
+        linked["linked_function_count"] = 2
         linked = progress.validate_linked_report(linked, WINDOWS)
         metrics, _matching, linked_badge = progress.make_metrics(
             report, WINDOWS, linked, "verify.json", "build.json")
-        self.assertEqual(metrics["linked"]["addresses"], [])
-        self.assertEqual(metrics["linked"]["count"], 0)
-        self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 1)
-        self.assertIn("0/", linked_badge["message"])
-
-    def test_linked_matching_function_still_counts(self) -> None:
-        """The exclusion must not swallow genuinely decompiled linked code."""
-        report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
-        linked = progress.validate_linked_report(copy.deepcopy(LINKED_REPORT), WINDOWS)
-        metrics, _matching, _badge = progress.make_metrics(
-            report, WINDOWS, linked, "verify.json", "build.json")
         self.assertEqual(metrics["linked"]["addresses"], ["00100008"])
-        self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 0)
+        self.assertEqual(metrics["linked"]["count"], 1)
+        self.assertEqual(metrics["linked"]["asm_fallbacks_in_linked_objects"], 1)
 
     def test_validates_generated_endpoints_and_rejects_non_subset(self) -> None:
         report = {"results": [{"addr": "00100008", "status": "MATCH", "object_size": 8}]}
