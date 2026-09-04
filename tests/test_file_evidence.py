@@ -93,7 +93,7 @@ class FindStringsTests(unittest.TestCase):
     def test_records_every_address_for_a_repeated_string(self) -> None:
         image = b"item.c\x00" * 3
         out = fe.find_strings(image, 0)
-        self.assertEqual(len(out["item.c"]), 3)
+        self.assertEqual(out["item.c"], [0, 7, 14])
 
     def test_ignores_names_that_are_too_short(self) -> None:
         self.assertEqual(fe.find_strings(b"a.c\x00", 0), {})

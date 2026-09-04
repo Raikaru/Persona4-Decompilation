@@ -172,7 +172,7 @@ class UnattributedNoteTests(unittest.TestCase):
             """
             // measured: nd 5, saved-register rotation.
             // FUN_00100000
-            INCLUDE_ASM("asm/x", func_00100000);
+            void func_00100000(void) { return; }
             """
         )
         self.assertEqual(fc.unattributed_notes(lines), [])
@@ -181,11 +181,12 @@ class UnattributedNoteTests(unittest.TestCase):
 class CensusTests(unittest.TestCase):
     def test_census_splits_untried_from_floored(self) -> None:
         import tempfile
+        from unittest.mock import patch
 
         with tempfile.TemporaryDirectory() as tmp:
             rel = "src/probe_census.c"
-            path = REPO / rel
-            self.assertFalse(path.exists(), "fixture name collides with a real file")
+            path = Path(tmp) / rel
+            path.parent.mkdir()
             path.write_bytes(
                 b"// measured: nd 8, CSE of the loop-test load.\n"
                 b"// FUN_00100000\n"
@@ -194,7 +195,7 @@ class CensusTests(unittest.TestCase):
                 b"// FUN_00100100\n"
                 b'INCLUDE_ASM("asm/x", func_00100100);\n'
             )
-            try:
+            with patch.object(fc, "REPO", Path(tmp)):
                 report = {
                     "results": [
                         {"file": rel, "addr": "00100000", "line": 2, "status": "ASM", "window": 48},
@@ -206,8 +207,6 @@ class CensusTests(unittest.TestCase):
                 self.assertEqual([e["addr"] for e in out["floored"]], ["00100000"])
                 self.assertEqual([e["addr"] for e in out["untried"]], ["00100100"])
                 self.assertEqual(out["untried_by_file"][rel], 1)
-            finally:
-                path.unlink()
 
 
 if __name__ == "__main__":

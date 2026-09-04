@@ -106,12 +106,10 @@ class MutatorTests(unittest.TestCase):
             if out is None:
                 continue
             seen.update(l.strip() for l in out)
-        self.assertTrue(any(s.startswith("second = first + arg0") for s in seen),
-                        "identifier operands were never transposed")
+        self.assertIn("second = first + arg0;", seen)
         # widened here versus the P3 original: a numeric literal is a valid
         # operand, so `arg1 + 4` must be transposable too
-        self.assertTrue(any(s.startswith("first = 4 + arg1") for s in seen),
-                        "an identifier-plus-literal was never transposed")
+        self.assertIn("first = 4 + arg1;", seen)
 
     def test_parse_params_returns_type_and_name_pairs(self) -> None:
         self.assertEqual(permute.parse_params(REGION[1]),

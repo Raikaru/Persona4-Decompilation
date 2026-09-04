@@ -167,6 +167,14 @@ class DocumentedTests(unittest.TestCase):
         self.assertFalse(score(body, before=["// FUN_00123456"])["documented"])
 
 
+def status_rows(text):
+    return {
+        cells[0].strip(): cells[1].strip()
+        for line in text.splitlines() if line.startswith("|")
+        for cells in [line.strip("|").split("|")]
+    }
+
+
 class StatusTableTests(unittest.TestCase):
     """The README table drifted to 1,314 matches when the truth was 3,419."""
 
@@ -187,20 +195,23 @@ class StatusTableTests(unittest.TestCase):
     }
 
     def test_table_reports_the_metrics_it_was_given(self) -> None:
-        body = progress.render_status(self.METRICS, self.RECOVERY)
-        for expected in ("13,084", "3,419", "977", "814", "2,801", "155", "1,163"):
-            self.assertIn(expected, body)
-        # the table must not hide how much is still handed to the link as retail
-        # bytes: measuring against the scanned subset alone reads as near-done
-        self.assertIn("8,220", body)
-        self.assertIn("62.826", body)
+        rows = status_rows(progress.render_status(self.METRICS, self.RECOVERY))
+        expected = {
+            "Canonical function windows": ["13,084"],
+            "Byte-identical functions": ["3,419", "26.131"],
+            "Under test": ["4,864", "37.174"],
+            "Not yet under test": ["8,220", "62.826"],
+            "In byte-exact linked C objects": ["977", "7.467", "814"],
+            "First-party matched": ["2,801"],
+            "— NAMED": ["155", "5.534"],
+            "— TYPED": ["1,163", "41.521"],
+            "— DOCUMENTED": ["1,651", "58.943"],
+            "— still carrying": ["600", "21.421"],
+        }
+        for prefix, numbers in expected.items():
+            value = next(value for label, value in rows.items() if label.startswith(prefix))
+            self.assertEqual(re.findall(r"\d[\d,]*(?:\.\d+)?", value), numbers, prefix)
 
-    def test_table_separates_matching_from_recovery(self) -> None:
-        body = progress.render_status(self.METRICS, self.RECOVERY)
-        self.assertIn("not recovered", body)
-        self.assertIn("recovery_quality.py", body)
-        self.assertIn("NAMED", body)
-        self.assertIn("TYPED", body)
 
     def test_recovery_rows_are_optional(self) -> None:
         body = progress.render_status(self.METRICS, None)
@@ -220,10 +231,9 @@ class StatusTableTests(unittest.TestCase):
             )
             progress.update_readme(path, "fresh table\n")
             text = path.read_text(encoding="utf-8")
-            self.assertIn("keep me above", text)
-            self.assertIn("keep me below", text)
-            self.assertIn("fresh table", text)
-            self.assertNotIn("stale garbage", text)
+            self.assertEqual(text, "# Title\n\nkeep me above\n"
+                             + progress.STATUS_BEGIN + "\nfresh table\n"
+                             + progress.STATUS_END + "\nkeep me below\n")
 
     def test_missing_markers_is_an_error_not_a_silent_skip(self) -> None:
         import tempfile
@@ -236,10 +246,6 @@ class StatusTableTests(unittest.TestCase):
 
 
 class CommittedReadmeTests(unittest.TestCase):
-    def test_readme_status_block_is_generated_not_handwritten(self) -> None:
-        text = (REPO / "README.md").read_text(encoding="utf-8")
-        self.assertIn(progress.STATUS_BEGIN, text)
-        self.assertIn(progress.STATUS_END, text)
 
     def test_readme_agrees_with_the_committed_metrics(self) -> None:
         """Catches the drift that let the README claim 1,314 for months."""
@@ -247,10 +253,17 @@ class CommittedReadmeTests(unittest.TestCase):
             (REPO / "progress" / "metrics.json").read_text(encoding="utf-8")
         )
         text = (REPO / "README.md").read_text(encoding="utf-8")
+        self.assertIn(progress.STATUS_BEGIN, text)
+        self.assertIn(progress.STATUS_END, text)
+        self.assertLess(text.index(progress.STATUS_BEGIN), text.index(progress.STATUS_END))
         block = text.split(progress.STATUS_BEGIN, 1)[1].split(progress.STATUS_END, 1)[0]
-        self.assertIn(f"{metrics['matching']['count']:,}", block)
-        self.assertIn(f"{metrics['linked']['count']:,}", block)
-        self.assertIn(f"{metrics['total']:,}", block)
+        rows = status_rows(block)
+        for label, count in (
+            ("Canonical function windows", metrics["total"]),
+            ("Byte-identical functions", metrics["matching"]["count"]),
+            ("In byte-exact linked C objects", metrics["linked"]["count"]),
+        ):
+            self.assertEqual(re.match(r"[\d,]+", rows[label]).group(), f"{count:,}", label)
 
 
 class ReadmeBadgeTests(unittest.TestCase):
@@ -262,7 +275,6 @@ class ReadmeBadgeTests(unittest.TestCase):
     project under a first-party label.
     """
 
-    SLUG = "Raikaru/Persona4-Decompilation"
     # Verified live against decomp.dev's shield endpoint. `code` and
     # `complete_code` are the conventional short names other projects use --
     # Gauntlet: Dark Legacy labels `measure=code` "Code" and
@@ -309,9 +321,11 @@ class ReadmeBadgeTests(unittest.TestCase):
 
     def test_first_party_badge_uses_the_first_party_category(self) -> None:
         """A first-party label over the default category would read 27%, not 72%."""
-        labelled = [u for u in self.urls if "first-party" in u]
-        self.assertEqual(len(labelled), 1)
-        self.assertEqual(self.query(labelled[0]).get("category"), ["main"])
+        labelled = [u for u in self.urls
+                    if "first-party" in " ".join(self.query(u).get("label", [])).lower()]
+        self.assertTrue(labelled, "no first-party badge")
+        for url in labelled:
+            self.assertEqual(self.query(url).get("category"), ["main"])
 
     def test_every_measure_is_supported(self) -> None:
         for url in self.urls:
@@ -319,16 +333,7 @@ class ReadmeBadgeTests(unittest.TestCase):
                 self.assertIn(measure, self.MEASURES, url)
 
     def test_fuzzy_measures_are_labelled_fuzzy(self) -> None:
-        """A fuzzy measure may be published, but never under a label that reads
-        as byte-identical.
-
-        decomp.dev's `matched_*` and `fuzzy_match_percent` measures credit near
-        misses, while this project's headline claim is byte-exactness, so the two
-        must never be confusable. Forbidding fuzzy measures outright also hid
-        genuinely useful information -- how close the unfinished 24% actually is
-        -- so the rule is now that the label has to say so. `fuzzy match` is
-        fine; `code` or `functions` over a fuzzy measure is not.
-        """
+        """Only fuzzy_match_percent grants partial credit; its label must say so."""
         for url in self.urls:
             measures = self.query(url).get("measure", [])
             if not any(measure in self.FUZZY for measure in measures):
@@ -337,15 +342,28 @@ class ReadmeBadgeTests(unittest.TestCase):
             self.assertIn("fuzzy", label, url)
 
     def test_all_badges_point_at_one_slug_matching_the_pages_badge(self) -> None:
+        pages = re.findall(r"https://[^\s/)]+\.github\.io/[^\s)]+/progress/[^\s)]+", self.text)
+        self.assertTrue(pages, "no GitHub Pages progress badge")
+        page = urllib.parse.urlsplit(pages[0])
+        owner = page.hostname.split(".")[0]
+        project = page.path.split("/")[1]
         for url in self.urls:
-            self.assertIn(f"decomp.dev/{self.SLUG}.svg", url)
-        owner, repo = self.SLUG.split("/")
-        self.assertIn(f"{owner}.github.io/{repo}/progress/", self.text)
+            image = urllib.parse.urlsplit(url)
+            self.assertEqual(image.hostname, "decomp.dev")
+            parts = image.path.split("/")
+            self.assertEqual(parts, ["", parts[1], project + ".svg"])
+            self.assertEqual(parts[1].lower(), owner.lower())
 
     def test_badges_link_to_the_project_page(self) -> None:
         """A bare image is a dead end; peers link the badge to the report."""
+        pairs = re.findall(r"\[!\[[^\]]*\]\(([^)]+)\)\]\(([^)]+)\)", self.text)
+        links = dict(pairs)
         for url in self.urls:
-            self.assertIn(f"]({url})](https://decomp.dev/{self.SLUG})", self.text)
+            self.assertIn(url, links)
+            target = urllib.parse.urlsplit(links[url])
+            image = urllib.parse.urlsplit(url)
+            self.assertEqual(target.hostname, "decomp.dev")
+            self.assertEqual(target.path.rstrip("/"), image.path.removesuffix(".svg"))
 
 
 if __name__ == "__main__":

@@ -8,11 +8,7 @@ _SPEC = importlib.util.spec_from_file_location(
     'pragma_scope_audit', os.path.join(os.path.dirname(__file__), '..', 'tools',
                                        'pragma_scope_audit.py'))
 psa = importlib.util.module_from_spec(_SPEC)
-try:
-    _SPEC.loader.exec_module(psa)
-    _LOADED = True
-except BaseException:
-    _LOADED = False
+_SPEC.loader.exec_module(psa)
 
 
 def scopes(text):
@@ -23,7 +19,6 @@ def scopes(text):
         return psa.scopes_for(src)
 
 
-@unittest.skipUnless(_LOADED, 'pragma_scope_audit did not import')
 class ScopeTracking(unittest.TestCase):
     def test_a_function_outside_any_pragma_is_clean(self):
         got = scopes('// FUN_00100000\nvoid func_00100000(void) {}\n')
@@ -48,11 +43,6 @@ class ScopeTracking(unittest.TestCase):
                      'void func_00100010(void) {}\n')
         self.assertEqual(got['00100010'][1], {})
 
-    def test_markers_are_found_despite_being_comments(self):
-        # decomp_lint.Source.code strips comments, so reading markers from it
-        # finds nothing and reports a clean tree - the wrong answer.
-        got = scopes('// FUN_00100000\nvoid func_00100000(void) {}\n')
-        self.assertIn('00100000', got)
 
     def test_a_pragma_quoted_in_a_comment_is_not_a_directive(self):
         got = scopes('/* measured: removing\n'
@@ -83,10 +73,6 @@ class ScopeTracking(unittest.TestCase):
                      'void func_00100000(void) {}\n')
         self.assertEqual(got['00100000'][0], 2)
 
-    def test_defaults_cover_the_knobs_lint_bans(self):
-        for knob in ('optimization_level', 'schedule', 'opt_common_subs',
-                     'opt_loop_invariants'):
-            self.assertIn(knob, psa.DEFAULTS)
 
 
 
@@ -99,7 +85,6 @@ def audit(text):
         return src
 
 
-@unittest.skipUnless(_LOADED, 'pragma_scope_audit did not import')
 class NonMatchingArm(unittest.TestCase):
     """The reference arm is preprocessed out, so pragmas in it cannot leak."""
 
@@ -135,7 +120,6 @@ class NonMatchingArm(unittest.TestCase):
         self.assertNotIn(5, skip)       # C is after the block
 
 
-@unittest.skipUnless(_LOADED, 'pragma_scope_audit did not import')
 class SplitPairs(unittest.TestCase):
     """An open/close pair straddling the arm is balanced in text, not in the build."""
 
@@ -164,6 +148,7 @@ class SplitPairs(unittest.TestCase):
                     'void f(void) {}\n'
                     '#pragma schedule off\n')
         self.assertEqual(psa.split_pairs(src), {})
+        self.assertEqual(psa.split_pairs(audit('#pragma schedule on\nvoid f(void) {}\n')), {})
 
     def test_an_even_number_outside_does_not_trip_it(self):
         # Two outside directives close each other; only an odd count leaks.

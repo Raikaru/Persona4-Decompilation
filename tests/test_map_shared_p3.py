@@ -40,13 +40,13 @@ class NormalizationTests(unittest.TestCase):
             0x3C03003F,  # lui v1, 0x3f
             0xAC830094,  # sw v1, 0x94(a0)
             0x94830000,  # lhu v1, 0(a0): replaces the address-bearing value
-            0x3063FFFD,  # andi v1, v1, semantic flag mask
+            0x3463FFFD,  # ori v1, v1, semantic flag mask
         )
         changed_mask = pack(
             0x3C03003F,
             0xAC830094,
             0x94830000,
-            0x3063FFF5,
+            0x3463FFF5,
         )
         self.assertNotEqual(
             mapper.normalize_mips(baseline),
@@ -137,7 +137,8 @@ class SourceEvidenceTests(unittest.TestCase):
             matched, sources, metrics_sha1 = mapper.load_source_evidence(root)
             self.assertEqual(matched, {0x00123450})
             self.assertEqual(sources, {0x00123450: ["src/example.c"]})
-            self.assertEqual(len(metrics_sha1), 40)
+            import hashlib
+            self.assertEqual(metrics_sha1, hashlib.sha1((root / "progress" / "metrics.json").read_bytes()).hexdigest())
 
 
 if __name__ == "__main__":

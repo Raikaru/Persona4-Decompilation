@@ -42,7 +42,7 @@ def lo(offset: int, symbol: str, retail: int, addend: int = 0) -> dict:
 
 class ResolveSymbolTests(unittest.TestCase):
     def test_table_entry_wins_over_name_encoding(self) -> None:
-        self.assertEqual(verify.resolve_symbol("fGpffff8200", GP, TABLE), 0x007612F0)
+        self.assertEqual(verify.resolve_symbol("fGpffff8200", GP, {"fGpffff8200": 0x00761300}), 0x00761300)
 
     def test_gp_name_encodes_signed_displacement(self) -> None:
         self.assertEqual(verify.resolve_symbol("iGpffffb2e4", GP, {}), 0x007643D4)
@@ -108,10 +108,34 @@ class WrongSymbolTests(unittest.TestCase):
         self.assertEqual(verify.wrong_symbol_relocations(result, GP, TABLE), [])
 
     def test_only_match_rows_are_considered_by_main_contract(self) -> None:
-        # wrong_symbol_relocations itself is status-agnostic; main() filters on
-        # MATCH because a MISMATCH row's retail word need not be a load at all.
-        result = {"status": "MISMATCH", "relocations": [gprel(0, "iGpffffb680", 0xAA7C)]}
-        self.assertEqual(len(verify.wrong_symbol_relocations(result, GP, TABLE)), 1)
+        import contextlib
+        import io
+        import tempfile
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "src").mkdir()
+            target = {"elf": {"sha1": "fixture"}}
+            windows = {"program": "SLUS_217.82", "sha1": "fixture", "windows": {}}
+            for status in ("MATCH", "MISMATCH", "NONMATCHING", "ASM", "STUB"):
+                with self.subTest(status=status):
+                    result = dict(status=status, file="src/example.c", name="example",
+                                  addr="00100000", relocations=[gprel(0, "iGpffffb680", 0xAA7C)])
+                    output = io.StringIO()
+                    with contextlib.ExitStack() as stack:
+                        stack.enter_context(patch.object(verify, "REPO", root))
+                        stack.enter_context(patch.object(sys, "argv", ["verify.py", str(root / "example.c")]))
+                        stack.enter_context(patch.object(verify, "load_config", return_value={"retail_elf": "fixture"}))
+                        stack.enter_context(patch.object(verify, "_read_json", side_effect=[target, windows]))
+                        stack.enter_context(patch.object(verify, "RetailElf"))
+                        stack.enter_context(patch.object(verify, "verify_file", return_value=[result]))
+                        stack.enter_context(patch.object(verify, "symbol_addresses", return_value=(GP, TABLE)))
+                        stack.enter_context(contextlib.redirect_stdout(output))
+                        with self.assertRaises(SystemExit) as exit:
+                            verify.main()
+                    self.assertEqual(exit.exception.code, int(status in {"MATCH", "MISMATCH"}))
+                    self.assertEqual("WRONG SYMBOL:" in output.getvalue(), status == "MATCH")
 
 
 if __name__ == "__main__":
