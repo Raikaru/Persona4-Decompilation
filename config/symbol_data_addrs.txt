@@ -672,3 +672,7 @@ toolkitNonFLRegList = 0x00764880; // type:data evidence: batkreg.c file static; 
 toolkitRegEntries = 0x00764888; // type:data evidence: batkreg.c file static; retail relocations of the ported functions resolve to this address
 vsprintf = 0x00446ed8; // type:data evidence: rwstring.c file static; retail relocations of the ported functions resolve to this address
 writeNativeTexture = 0x003e6770; // type:data evidence: babintex.c file static; retail relocations of the ported functions resolve to this address
+
+// W38c46 code1_0046 float gp symbols
+fGpffff81f0 = 0x007612E0; // type:data evidence: retail func_004601c0/004604d0 lwc1 GPREL -0x7E10($28); gp = 0x007690F0 -> 0x007612E0
+fGpffff81b0 = 0x007612A0; // type:data evidence: retail func_004604d0 lwc1 GPREL -0x7E50($28); gp = 0x007690F0 -> 0x007612A0
