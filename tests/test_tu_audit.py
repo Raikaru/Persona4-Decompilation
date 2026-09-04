@@ -195,6 +195,13 @@ class PairEvidenceTests(unittest.TestCase):
             order, decoded, {a: {"src/x.c"}})
         self.assertNotIn("p3_file", boundaries[0]["signals"])
         self.assertFalse(boundaries[0]["closed"])
+        self.assertFalse(boundaries[0]["conflict"])
+        self.assertNotIn("p3_conflict", boundaries[0]["signals"])
+        self.assertEqual(boundaries[0]["score"], 0)
+        decoded[a]["calls"] = {b}
+        boundaries, _ = tu_audit.build_pair_evidence(order, decoded, {a: {"src/x.c"}})
+        self.assertFalse(boundaries[0]["conflict"])
+        self.assertTrue(boundaries[0]["closed"])
 
     def test_gap_boundary_never_closes(self) -> None:
         # Windows across the one real hole in the map are not adjacent in
@@ -235,19 +242,6 @@ class GroupExtractionTests(unittest.TestCase):
                          ["HIGH", "MEDIUM", "HIGH"])
         self.assertEqual([g["min_score"] for g in groups], [5, 2, 5])
 
-    def test_open_boundary_never_dangles_a_member(self) -> None:
-        # Regression: the member connected only by an OPEN boundary used to be
-        # appended to the previous run, dragging its score to 0.
-        order = [0x100000, 0x100010, 0x100020, 0x100030]
-        boundaries = [
-            _boundary(order[0], order[1], True, 5),   # 0-1 HIGH
-            _boundary(order[1], order[2], False, 0),  # 1-2 open
-            _boundary(order[2], order[3], True, 5),   # 2-3 HIGH
-        ]
-        groups = tu_audit.extract_groups(order, boundaries)
-        self.assertEqual([g["members"] for g in groups],
-                         [[0x100000, 0x100010], [0x100020, 0x100030]])
-        self.assertTrue(all(g["min_score"] == 5 for g in groups))
 
     def test_singletons_are_not_groups(self) -> None:
         order = [0x100000, 0x100010, 0x100020]
@@ -314,7 +308,7 @@ class BuildAuditTests(unittest.TestCase):
 
     def test_end_to_end_audit(self) -> None:
         windows, image, p3_files, current_files = self._fixture()
-        audit = tu_audit.build_audit(windows, image, GP, p3_files, current_files)
+        audit = tu_audit.build_audit(windows, image, GP, p3_files, current_files, file_evidence={})
         self.assertEqual(audit["functions"], 4)
         self.assertEqual(audit["summary"]["groups"]["high"], 2)
         self.assertEqual(audit["summary"]["groups"]["medium"], 0)

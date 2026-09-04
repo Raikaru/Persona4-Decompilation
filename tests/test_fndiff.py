@@ -68,9 +68,8 @@ class IncludeAsmDetectionTests(unittest.TestCase):
         self.assertFalse(fndiff._is_include_asm(path, "func_00100000"))
 
     def test_a_missing_file_is_not_a_fallback(self) -> None:
-        self.assertFalse(
-            fndiff._is_include_asm(Path("nope/does/not/exist.c"), "func_00100000")
-        )
+        with tempfile.TemporaryDirectory() as temporary:
+            self.assertFalse(fndiff._is_include_asm(Path(temporary) / "missing.c", "func_00100000"))
 
 
 if __name__ == "__main__":

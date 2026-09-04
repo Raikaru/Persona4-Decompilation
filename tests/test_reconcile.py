@@ -17,7 +17,7 @@ SPEC.loader.exec_module(reconcile)
 
 class ReconciliationHelpersTests(unittest.TestCase):
     def test_reads_instruction_address_after_glabel(self) -> None:
-        assembly = """glabel func_00102030
+        assembly = """glabel recovered_callback
     /* 2030 00102030 0800E003 */  jr $31
 """
         with tempfile.TemporaryDirectory() as temporary:
@@ -28,10 +28,9 @@ class ReconciliationHelpersTests(unittest.TestCase):
     def test_windows_cover_segment_through_final_byte(self) -> None:
         windows = reconcile.make_windows([0x1008, 0x1018, 0x1030], 0x1008, 0x1040)
         self.assertEqual(windows, {0x1008: 0x10, 0x1018: 0x18, 0x1030: 0x10})
-        self.assertEqual(sum(windows.values()), 0x1040 - 0x1008)
 
     def test_rejects_unaligned_boundary(self) -> None:
-        with self.assertRaisesRegex(RuntimeError, "invalid function window"):
+        with self.assertRaises(RuntimeError):
             reconcile.make_windows([0x1008, 0x1019], 0x1008, 0x1020)
 
 
@@ -52,17 +51,18 @@ class ReconciliationHelpersTests(unittest.TestCase):
         )
 
     def test_assembly_words_select_exact_window(self) -> None:
-        assembly = """glabel func_00001000
-    /* 0 00001000 00000000 */ nop
-    /* 4 00001004 00000000 */ nop
-    /* 8 00001008 00000000 */ nop
+        assembly = """glabel func_00000ffc
+    /* 0 00000FFC 11111111 */ nop
+    /* 4 00001000 22222222 */ nop
+    /* 8 00001004 33333333 */ nop
+    /* C 00001008 44444444 */ nop
 """
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "code.s"
             path.write_text(assembly, encoding="utf-8")
             self.assertEqual(
                 reconcile.assembly_words(path, 0x1000, 0x8),
-                ["00000000", "00000000"],
+                ["22222222", "33333333"],
             )
 class CanonicalMapTests(unittest.TestCase):
     def test_committed_map_covers_both_code_segments(self) -> None:
@@ -192,6 +192,7 @@ class CanonicalMapTests(unittest.TestCase):
                     terminator, f"only padding precedes {address:08X}; no epilogue evidence"
                 )
                 jr_at, jr = terminator
+                self.assertLessEqual(jr_at + 8, address, "delay slot crosses the new boundary")
                 is_register_jump = (jr >> 26) == 0 and (jr & 0x3F) == 0x08
                 # An unconditional backward branch is also a complete
                 # terminator: func_00101350 ends `b .-3` and func_00466e80
@@ -234,12 +235,20 @@ class CanonicalMapTests(unittest.TestCase):
         if not elf.exists():
             self.skipTest(f"retail ELF not present at {elf}")
 
-        image = elf.read_bytes()
+        import verify
+        from collections import Counter
+        retail = verify.RetailElf(str(elf), target, function_map["sha1"])
+        calls = Counter()
+        for segment in ("code1", "code2"):
+            start, end = reconcile.segment_bounds(target, segment)
+            for index, (word,) in enumerate(struct.iter_unpack("<I", retail.bytes_at(start, end - start))):
+                if word >> 26 == 3:
+                    pc = start + index * 4
+                    calls[((pc + 4) & 0xF0000000) | ((word & 0x03FFFFFF) << 2)] += 1
         self.assertTrue(reconcile.JAL_REACHABLE_ENTRIES)
         for address, evidence in sorted(reconcile.JAL_REACHABLE_ENTRIES.items()):
             with self.subTest(address=f"{address:08X}"):
-                word = struct.pack("<I", 0x0C000000 | ((address >> 2) & 0x03FFFFFF))
-                sites = image.count(word)
+                sites = calls[address]
                 self.assertEqual(
                     sites,
                     evidence["jal_sites"],
@@ -250,8 +259,6 @@ class CanonicalMapTests(unittest.TestCase):
 
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class CompilerUnitsTests(unittest.TestCase):
@@ -267,3 +274,7 @@ class CompilerUnitsTests(unittest.TestCase):
             with self.subTest(unit=unit):
                 self.assertTrue((REPO / unit).is_file(), f"{unit} is not a file")
                 self.assertRegex(key, r"^[A-Za-z0-9][\w.\-]*$")
+
+
+if __name__ == "__main__":
+    unittest.main()

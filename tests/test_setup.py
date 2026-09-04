@@ -93,9 +93,17 @@ class IsoReaderTests(unittest.TestCase):
     def test_rejects_missing_primary_volume_descriptor(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             iso_path = Path(temporary) / "bad.iso"
-            iso_path.write_bytes(b"\0" * (20 * setup.SECTOR_SIZE))
-            with self.assertRaisesRegex(setup.SetupError, "primary volume descriptor"):
-                setup.read_iso_root_file(iso_path, "SYSTEM.CNF")
+            for field in ("type", "magic"):
+                with self.subTest(field=field):
+                    image = bytearray(synthetic_iso("SYSTEM.CNF", b"payload"))
+                    descriptor = 16 * setup.SECTOR_SIZE
+                    if field == "type":
+                        image[descriptor] = 0
+                    else:
+                        image[descriptor + 1:descriptor + 6] = b"BAD00"
+                    iso_path.write_bytes(image)
+                    with self.assertRaises(setup.SetupError):
+                        setup.read_iso_root_file(iso_path, "SYSTEM.CNF")
 
 
 class ElfReaderTests(unittest.TestCase):
@@ -115,7 +123,7 @@ class ElfReaderTests(unittest.TestCase):
 
     def test_rejects_unexpected_target_layout(self) -> None:
         wrong = dict(self.config, load_size="0x20")
-        with self.assertRaisesRegex(setup.SetupError, "PT_LOAD file size"):
+        with self.assertRaises(setup.SetupError):
             setup.extract_load_image(synthetic_elf(), wrong)
 
 

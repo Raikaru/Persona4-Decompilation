@@ -54,9 +54,15 @@ INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246970);
         self.assertEqual(source[end:], " int next;\n")
 
     def test_last_fallback_span_reaches_end_of_file_only_when_needed(self) -> None:
-        start, end = probe.region_for(SOURCE, "FUN_00246970")
-        self.assertEqual(end, len(SOURCE))
-        self.assertIn("func_00246970", SOURCE[start:end])
+        row = 'INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246970);\n'
+        for suffix in ("", "static int trailing_value;\n"):
+            with self.subTest(suffix=suffix):
+                source = SOURCE + suffix
+                start, end = probe.region_for(source, "FUN_00246970")
+                self.assertEqual(source[start:end], row)
+                self.assertEqual(start, SOURCE.index(row))
+                self.assertEqual(end, len(SOURCE))
+                self.assertEqual(source[end:], suffix)
 
     def test_unknown_marker_is_rejected(self) -> None:
         with self.assertRaises(SystemExit):
@@ -81,6 +87,8 @@ class IsolationTests(unittest.TestCase):
         real = probe.differing_words
 
         def fake(source: Path, function: str):
+            self.assertNotEqual(Path(source).resolve(), self.path.resolve())
+            self.assertEqual(self.path.read_bytes(), self.original)
             seen.append(Path(source).read_bytes())
             return scores[len(seen) - 1]
 
@@ -119,9 +127,15 @@ class IsolationTests(unittest.TestCase):
         status, seen = self.run_probe([0], [candidate])
         self.assertEqual(status, 0)
         self.assertEqual(self.path.read_bytes(), self.original)
-        self.assertIn(b"// FUN_00246910", seen[0])
-        self.assertIn(b"// FUN_00246970", seen[0])
-        self.assertRegex(seen[0], rb"(?m)^//\s*FUN_00246970\b")
+        expected = self.original.replace(
+            b'INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246940);\n',
+            b"int func_00246940(void) { return 2; }\n",
+        )
+        # Scratch splicing may normalize blank separators, never code or markers.
+        self.assertEqual(
+            [[line for line in source.splitlines() if line.strip()] for source in seen],
+            [[line for line in expected.splitlines() if line.strip()]],
+        )
 
     def test_include_asm_baseline_is_never_scored(self) -> None:
         candidate = self.candidate(
@@ -129,7 +143,14 @@ class IsolationTests(unittest.TestCase):
         )
         status, seen = self.run_probe([6], [candidate])
         self.assertEqual(status, 1)
-        self.assertEqual(len(seen), 1)
+        expected = self.original.replace(
+            b'INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00246940);\n',
+            b"int func_00246940(void) { return 1; }\n",
+        )
+        self.assertEqual(
+            [[line for line in source.splitlines() if line.strip()] for source in seen],
+            [[line for line in expected.splitlines() if line.strip()]],
+        )
         self.assertEqual(self.path.read_bytes(), self.original)
 
     def test_interrupt_does_not_restore_over_concurrent_source_edit(self) -> None:

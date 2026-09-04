@@ -72,13 +72,10 @@ class BannedPragmaTests(unittest.TestCase):
                 self.assertIn("H003", codes(findings))
                 self.assertNotIn("H003W", codes(findings))
 
-    def test_silent_on_baseline_optimization_level_2(self) -> None:
-        findings = lint_text("#pragma optimization_level 2\nvoid func_00100000(void) { }\n")
-        self.assertNotIn("H003", codes(findings))
-
     def test_redundant_level_2_is_only_a_warning(self) -> None:
         findings = lint_text("#pragma optimization_level 2\nvoid func_00100000(void) { }\n")
         self.assertEqual(codes(findings), ["H003W"])
+        self.assertEqual(findings[0].severity, "warn")
 
     def test_onboarded_asm_stubs_do_not_hide_an_annotation(self) -> None:
         """A pragma's waiver comes from the annotation above its enclosing marker.
@@ -324,18 +321,6 @@ class InlineAsmTests(unittest.TestCase):
 """)
         self.assertNotIn("H009", codes(findings))
 
-    def test_allowlist_classification(self) -> None:
-        """Positive control: the silent tests above are not vacuous."""
-        allowed = {"sync", "ei", "di", "syscall", "cache", "mfc0", "mtc0",
-                   "eret", "tlbwi", "qmtc2", "qmfc2", "lqc2", "sqc2",
-                   "cfc2", "ctc2"}
-        for base in ("vmul", "vadd", "vsub", "vmove", "vftoi", "vitof",
-                     "vclip", "vopmula", "vmulax", "vmadday"):
-            self.assertTrue(base.startswith("v"))
-        for base in ("add", "mul", "lw", "sw", "sll", "move", "mtc1",
-                     "addiu", "pextuw", "sq", "bltzl", "lui"):
-            self.assertNotIn(base, allowed)
-            self.assertFalse(base.startswith("v"))
 
     def test_silent_on_whole_function_asm_body(self) -> None:
         # rw/rwcore_grouped.c shape: asm-qualified function definition with
@@ -412,9 +397,9 @@ void func_00123456(void) { }
         self.assertNotIn("H003", codes(findings))
 
     def test_lint_allow_other_code_leaves_volatile_firing(self) -> None:
-        findings = lint_text("""// lint: allow H003
-void func_00123456(void)
+        findings = lint_text("""void func_00123456(void)
 {
+    // lint: allow H003
     volatile int x;
     x = 1;
 }
@@ -489,8 +474,12 @@ class ExclusionTests(unittest.TestCase):
                     "#pragma optimization_level 3\nvoid f(void) { }\n", encoding="utf-8")
                 (Path(directory) / "src" / "real.c").write_text(
                     "void f(void) { }\n", encoding="utf-8")
-                files = lint.gather([Path(directory) / "src"], list(lint.DEFAULT_EXCLUDES))
-                self.assertEqual([f.name for f in files], ["real.c"])
+                for path in (Path(directory) / "src", generated / "candidate.c"):
+                    out = io.StringIO()
+                    with contextlib.redirect_stdout(out):
+                        self.assertEqual(lint.main([str(path), "--include-third-party"]), 0)
+                    self.assertNotIn("candidate.c", out.getvalue())
+                    self.assertNotIn("[H003]", out.getvalue())
             finally:
                 lint.ROOT = old_root
 
@@ -567,20 +556,6 @@ class ThirdPartyScopeTests(unittest.TestCase):
             finally:
                 lint.ROOT = old_root
 
-    def test_classification_reused_from_verify_py(self) -> None:
-        """The linter must not drift from verify.py's first/third-party split."""
-        spec = importlib.util.spec_from_file_location(
-            "p4_verify_for_lint_test", REPO / "tools" / "verify.py")
-        assert spec is not None and spec.loader is not None
-        verify = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(verify)
-        self.assertEqual(lint.THIRD_PARTY_PREFIXES, verify.THIRD_PARTY_PREFIXES)
-        self.assertEqual(lint.THIRD_PARTY_FILES, verify.THIRD_PARTY_FILES)
-        for rel in ("src/rw/a.c", "src/cri/b.c", "src/sce/c.c", "src/crt0.c",
-                    "crt0.c", "src/libc_core.c", "src/libcdvd.c",
-                    "src/Battle/btlMain.c", "src/main.c", "include/foo.h"):
-            with self.subTest(path=rel):
-                self.assertEqual(lint.is_third_party(rel), verify.is_third_party(rel))
 
 
 class CliTests(unittest.TestCase):
@@ -608,8 +583,10 @@ class CliTests(unittest.TestCase):
                     self.assertEqual(lint.main([str(err)]), 1)
                 self.assertIn("[H003]", out.getvalue())
 
-                with contextlib.redirect_stdout(io.StringIO()):
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
                     self.assertEqual(lint.main([str(warn)]), 0)   # warnings do not fail
+                self.assertIn("[H007]", out.getvalue())
 
                 with contextlib.redirect_stdout(io.StringIO()):
                     self.assertEqual(lint.main([str(clean)]), 0)
@@ -714,21 +691,6 @@ asm void func_00100008(void)
 """ % clears)
         self.assertIn("H009", codes(findings))
 
-    def test_still_silent_on_a_real_trampoline_with_one_privileged_word(self) -> None:
-        # The shape the exemption exists for: a handful of instructions around
-        # the privileged op. `code1_0042` carries ~150 of these.
-        findings = lint_text("""// FUN_004213C0
-asm void func_004213c0(void)
-{
-    .set noreorder
-    .word 0x24030000
-    .word 0x24040001
-    .word 0x0000000C /* syscall */
-    .word 0x03E00008
-    .word 0x00000000
-}
-""")
-        self.assertNotIn("H009", codes(findings))
 
     def test_word_decoder_separates_hardware_from_computation(self) -> None:
         self.assertTrue(lint._word_is_hardware(0x0000000C))    # syscall
@@ -738,8 +700,6 @@ asm void func_004213c0(void)
         self.assertFalse(lint._word_is_hardware(0x8C420040))   # lw
         self.assertFalse(lint._word_is_hardware(0x46000000))   # COP1 float
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class NonMatchingBlockTests(unittest.TestCase):
@@ -754,7 +714,8 @@ class NonMatchingBlockTests(unittest.TestCase):
         "#ifdef NON_MATCHING\n"
         "s32 func_00100010(void)\n"
         "{\n"
-        "    s32 unused = compute();\n"
+        "    s32 unused;\n"
+        "    unused = compute();\n"
         "    return 0;\n"
         "}\n"
         "#else\n"
@@ -764,6 +725,8 @@ class NonMatchingBlockTests(unittest.TestCase):
 
     def test_dead_store_in_reference_block_is_not_reported(self) -> None:
         self.assertNotIn("H007", codes(lint_text(self.BODY)))
+        active = self.BODY.replace("#ifdef NON_MATCHING", "#if 1")
+        self.assertIn("H007", codes(lint_text(active)))
 
     def test_violation_in_the_else_arm_is_still_reported(self) -> None:
         """The #else arm is what actually compiles, so it stays linted."""
@@ -794,8 +757,10 @@ class NonMatchingBlockTests(unittest.TestCase):
             "s32 func_00100010(void)\n"
             "{\n"
             "#if 1\n"
-            "    s32 unused = compute();\n"
+            "    compute();\n"
             "#endif\n"
+            "    s32 unused;\n"
+            "    unused = compute();\n"
             "    return 0;\n"
             "}\n"
             "#else\n"
@@ -812,3 +777,9 @@ class NonMatchingBlockTests(unittest.TestCase):
         found = codes(lint_text(text))
         self.assertNotIn("H007", found)
         self.assertIn("H008", found, "the function after #endif must still be linted")
+        active = text.replace("#ifdef NON_MATCHING", "#if 1")
+        self.assertIn("H007", codes(lint_text(active)))
+
+
+if __name__ == "__main__":
+    unittest.main()

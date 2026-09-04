@@ -31,19 +31,15 @@ class LinkResponseFileTests(unittest.TestCase):
             output = Path(temporary)
             with mock.patch.object(build, "BUILD", output), mock.patch.object(build, "sh") as sh:
                 build.link({"ld_exe": "mwldps2.exe"}, entries)
-            entry_symbol = build.ELF_TARGET.get(
-                "entry_symbol", f"func_{build.parse_int(build.ELF_TARGET['entry']):08x}"
-            )
-            args = [
-                "-nostdlib", "-nodeadstrip", "-m", entry_symbol,
-                "-o", str(output / "slus21782.elf"), str(output / "slus21782.lcf"),
-                "first.o", "second object.o",
-            ]
-            self.assertEqual(
-                (output / "slus21782.rsp").read_text(encoding="utf-8"),
-                subprocess.list2cmdline(args),
-            )
-            sh.assert_called_once_with(["mwldps2.exe", f"@{output / 'slus21782.rsp'}"])
+            sh.assert_called_once()
+            command = sh.call_args.args[0]
+            self.assertEqual(len(command), 2)
+            self.assertEqual(command[0], "mwldps2.exe")
+            self.assertTrue(command[1].startswith("@"))
+            response = Path(command[1][1:]).read_text(encoding="utf-8")
+            self.assertTrue(response.endswith(' first.o "second object.o"'))
+            self.assertEqual(response.count("first.o"), 1)
+            self.assertEqual(response.count("second object.o"), 1)
 
 
 class ObjectLayoutTests(unittest.TestCase):
@@ -191,9 +187,10 @@ class MissingDefinitionTests(unittest.TestCase):
             unresolved={"already_defined", "exported", "missing", "unknown"},
             exported={"exported"},
             addresses={
-                "already_defined": 0x1000,
+                "already_defined": 0x9000,
                 "exported": 0x2000,
                 "missing": 0x3000,
+                "not_referenced": 0x4000,
             },
         )
         self.assertEqual(

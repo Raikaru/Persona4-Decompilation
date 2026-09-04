@@ -54,17 +54,10 @@ class MarkerCountTripwireTests(unittest.TestCase):
             )
 
     def test_nothing_sits_between_a_marker_and_its_include_asm(self) -> None:
-        """A note wedged under the marker hides the function from the verifier.
-
-        `verify.py` pairs a `// FUN_` marker with the body directly beneath it, so
-        prose in between silently drops the function from the census -- it reads as
-        `NO_SYMBOL`, and the matched count falls with no other symptom. This is a
-        recurring wave mistake: it cost three functions in `y_smap.c` while the
-        `#ifdef NON_MATCHING` blocks there were being removed, because stripping
-        the conditional left the floor note under the marker.
-        """
-        sys.path.insert(0, str(REPO / "tools"))
-        import floor_census
+        """A note before plain INCLUDE_ASM defeats immediate fallback recognition."""
+        from unittest.mock import patch
+        with patch.object(sys, "path", [str(REPO / "tools"), *sys.path]):
+            import floor_census
 
         for path in first_party_sources():
             lines = floor_census.read_lines(path)

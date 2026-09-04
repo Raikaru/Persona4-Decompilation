@@ -7,18 +7,13 @@ _SPEC = importlib.util.spec_from_file_location(
     'delayslot_census', os.path.join(os.path.dirname(__file__), '..', 'tools',
                                      'delayslot_census.py'))
 ds = importlib.util.module_from_spec(_SPEC)
-try:
-    _SPEC.loader.exec_module(ds)
-    _LOADED = True
-except BaseException:
-    _LOADED = False
+_SPEC.loader.exec_module(ds)
 
 
 def pack(*words):
     return b''.join(struct.pack('<I', w) for w in words)
 
 
-@unittest.skipUnless(_LOADED, 'delayslot_census did not import')
 class WordsOf(unittest.TestCase):
     def test_drops_trailing_alignment_padding(self):
         self.assertEqual(ds.words_of(pack(0x12345678, 0, 0)), [0x12345678])
@@ -31,7 +26,6 @@ class WordsOf(unittest.TestCase):
         self.assertEqual(ds.words_of(pack(7) + b'\x01\x02'), [7])
 
 
-@unittest.skipUnless(_LOADED, 'delayslot_census did not import')
 class SlotAfterJr(unittest.TestCase):
     def test_reports_the_filled_slot(self):
         sw = 0xAC4600AC          # sw $a2, 0xac($v0) - func_0041f2b8's slot
@@ -61,11 +55,11 @@ class SlotAfterJr(unittest.TestCase):
             ds.slot_after_jr([ds.JR_RA, first, ds.JR_RA, second]), first)
 
 
-@unittest.skipUnless(_LOADED, 'delayslot_census did not import')
 class StoreClassification(unittest.TestCase):
     def test_sw_sh_sd_sq_are_stores(self):
-        for op in (ds.SW, ds.SH, ds.SD, ds.SQ):
-            self.assertIn(op, ds.STORE_OPS)
+        for opcode, name in ((43, "sw"), (41, "sh"), (63, "sd"), (57, "sq")):
+            with self.subTest(instruction=name):
+                self.assertIn(opcode, ds.STORE_OPS)
 
     def test_lw_and_andi_are_not_stores(self):
         # These are the shapes with no precedent among matched functions; the

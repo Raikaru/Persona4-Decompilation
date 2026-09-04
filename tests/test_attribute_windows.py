@@ -50,16 +50,13 @@ class BucketTests(unittest.TestCase):
     def test_every_window_lands_in_exactly_one_bucket(self) -> None:
         windows = [0x10, 0x180, 0x280, 0x380, 0x480, 0x900]
         out = attr.bucket(windows, ADDRS, THIRD)
-        total = sum(len(v) for v in out.values())
-        self.assertEqual(total, len(windows))
         flat = [a for v in out.values() for a in v]
         self.assertEqual(sorted(flat), sorted(windows))
 
     def test_a_span_test_would_disagree_and_that_is_the_point(self) -> None:
-        """0x180 sits inside the 0x100-0x400 span of the third-party run, but its
-        immediate neighbours are both first-party. A whole-file span test calls it
-        middleware; this must not."""
-        out = attr.bucket([0x180], ADDRS, THIRD)
+        """First-party neighbours inside a third-party span stay first-party."""
+        out = attr.bucket([0x180], [0x80, 0x100, 0x200, 0x400], [True, False, False, True])
+        self.assertEqual(out["first_party_flanked"], [0x180])
         self.assertEqual(out["third_party_flanked"], [])
 
 

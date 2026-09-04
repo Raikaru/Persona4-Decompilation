@@ -50,33 +50,45 @@ class CandidateTests(unittest.TestCase):
         self.assertIn("node = new_var1 + 8;", "\n".join(out))
 
     def test_finds_the_noise_rewrites(self) -> None:
-        got = labels(REGION)
-        for want in ("comma", "no-op mask"):
-            self.assertIn(want, got)
+        expected_lines = {
+            "comma": "    *(s32 *)(node + (4 & 0xFFFFFFFFu)) = (1);",
+            "no-op mask": "    *(s32 *)(node + (4)) = (0, 1);",
+        }
+        for label, line in expected_lines.items():
+            out = next(r for lbl, r in pmin.candidates(REGION, OPEN_LINE) if lbl == label)
+            self.assertEqual(out, REGION[:12] + [line] + REGION[13:])
 
     def test_drops_an_unused_declaration_only_when_unused(self) -> None:
         got = labels(REGION)
         self.assertIn("drop unused decl unused_one", got)
         self.assertNotIn("drop unused decl node", got)
         self.assertNotIn("drop unused decl new_var1", got)
+        out = next(r for lbl, r in pmin.candidates(REGION, OPEN_LINE)
+                   if lbl == "drop unused decl unused_one")
+        self.assertEqual(out, REGION[:5] + REGION[6:])
 
     def test_inlines_a_single_use_tool_temp(self) -> None:
         got = labels(REGION)
         self.assertIn("inline new_var1", got)
         out = next(r for lbl, r in pmin.candidates(REGION, OPEN_LINE)
                    if lbl == "inline new_var1")
-        joined = "\n".join(out)
-        self.assertNotIn("new_var1 = ", joined)
-        self.assertIn("((u8 *)arg0)", joined)
+        self.assertEqual(out, REGION[:4] + REGION[5:10]
+                         + ["    node = ((u8 *)arg0) + 8;"] + REGION[12:])
 
     def test_never_inlines_a_name_a_human_chose(self) -> None:
         """`node` is a real name; folding it would rewrite intended source."""
         self.assertNotIn("inline node", labels(REGION))
 
     def test_never_inlines_a_temp_read_twice(self) -> None:
-        region = REGION[:]
-        region[-2] = "    *(s32 *)(new_var1 + 4) = *(s32 *)(new_var1 + 8);"
-        self.assertNotIn("inline new_var1", labels(region))
+        for same_line in (True, False):
+            with self.subTest(same_line=same_line):
+                region = REGION[:]
+                if same_line:
+                    region[11] = "    node = (u8 *)arg0;"
+                    region[12] = "    *(s32 *)(new_var1 + 4) = *(s32 *)(new_var1 + 8);"
+                else:
+                    region[12] = "    *(s32 *)(new_var1 + 4) = 1;"
+                self.assertNotIn("inline new_var1", labels(region))
 
     def test_splits_a_packed_line(self) -> None:
         """The randomizer packs several statements per line; every other pass here
@@ -127,10 +139,11 @@ class CandidateTests(unittest.TestCase):
             "    }",
             "}",
         ]
-        for lbl, out in pmin.candidates(region, OPEN_LINE):
-            if lbl == "drop statement":
-                self.assertIn("*(s32 *)node = 1;", "\n".join(out),
-                              "dropped a statement from inside a block")
+        drops = [out for lbl, out in pmin.candidates(region, OPEN_LINE) if lbl == "drop statement"]
+        self.assertIn(region[:5] + region[6:], drops)
+        for out in drops:
+            self.assertIn("*(s32 *)node = 1;", "\n".join(out),
+                          "dropped a statement from inside a block")
 
 
 if __name__ == "__main__":

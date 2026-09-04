@@ -30,6 +30,7 @@ INCLUDE_ASM("asm/nonmatchings/thing", func_00123456);
 // FUN_00123500
 void func_00123500(void)
 {
+    preserve_sibling(42);
 }
 """
 
@@ -55,25 +56,22 @@ class SpliceTests(unittest.TestCase):
         out = self.path.read_text().splitlines()
         self.assertIn("// FUN_00123456", out)
         self.assertEqual(out.count("// FUN_00123456"), 1)
-
-    def test_strips_the_nonmatching_tag_when_splicing_a_winner(self) -> None:
-        """Splicing a winner in is the moment the body stops being a non-match."""
-        region = ["void func_00123456(void)", "{", "    return;", "}"]
-        sweep.splice(self.path, "func_00123456", region)
         self.assertNotIn("NONMATCHING", self.path.read_text())
 
+
     def test_uses_the_regions_own_marker_when_present(self) -> None:
-        region = ["// FUN_00123456", "void func_00123456(void)", "{", "}"]
-        sweep.splice(self.path, "func_00123456", region)
+        region = ["// FUN_00123456 winner annotation", "void func_00123456(void)", "{", "}"]
+        self.assertTrue(sweep.splice(self.path, "func_00123456", region))
         out = self.path.read_text().splitlines()
-        self.assertEqual(out.count("// FUN_00123456"), 1)
+        self.assertEqual(out.count("// FUN_00123456 winner annotation"), 1)
+        self.assertEqual(sum(line.startswith("// FUN_00123456") for line in out), 1)
 
     def test_leaves_a_sibling_function_alone(self) -> None:
         region = ["void func_00123456(void)", "{", "}"]
-        sweep.splice(self.path, "func_00123456", region)
-        text = self.path.read_text()
-        self.assertIn("// FUN_00123500", text)
-        self.assertIn("void func_00123500(void)", text)
+        marker = b"// FUN_00123500"
+        before = self.path.read_bytes().split(marker, 1)[1]
+        self.assertTrue(sweep.splice(self.path, "func_00123456", region))
+        self.assertEqual(self.path.read_bytes().split(marker, 1)[1], before)
 
     def test_reports_failure_for_an_unknown_function(self) -> None:
         self.assertFalse(sweep.splice(self.path, "func_00999999", ["x"]))
@@ -81,11 +79,7 @@ class SpliceTests(unittest.TestCase):
 
 class ReproducesGuardTests(unittest.TestCase):
     def test_a_missing_marker_is_a_false_not_an_exit(self) -> None:
-        """permute.Target calls sys.exit when it cannot find the marker.
-
-        That SystemExit would tear down the sweep worker instead of failing one
-        target, so the guard must swallow BaseException.
-        """
+        """Missing targets fail locally; interrupted edits restore the source."""
         tmp = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, tmp, True)
         path = tmp / "x.c"
@@ -93,6 +87,13 @@ class ReproducesGuardTests(unittest.TestCase):
         before = path.read_bytes()
         self.assertFalse(sweep._reproduces(path, "func_00123456", ["int f(void){return 0;}"]))
         self.assertEqual(path.read_bytes(), before, "the file must be restored")
+        from unittest.mock import patch
+        def interrupt(*args):
+            path.write_bytes(b"partial edit")
+            raise SystemExit(1)
+        with patch.object(sweep, "splice", side_effect=interrupt):
+            self.assertFalse(sweep._reproduces(path, "func_00123456", []))
+        self.assertEqual(path.read_bytes(), before)
 
 
 if __name__ == "__main__":

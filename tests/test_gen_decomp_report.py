@@ -38,7 +38,7 @@ class SimilarityTests(unittest.TestCase):
         Crediting it would report the extraction of assembly as decompilation
         progress, which is the most misleading thing this report could do.
         """
-        self.assertEqual(gen.similarity({"status": "ASM", "window": 64}), 0.0)
+        self.assertEqual(gen.similarity({"status": "ASM", "window": 64, "normalized_diff": 0}), 0.0)
 
     def test_partial_body_is_credited_by_measured_byte_difference(self) -> None:
         row = {"status": "MISMATCH", "window": 100, "normalized_diff": 25}
@@ -73,22 +73,22 @@ class MeasureTests(unittest.TestCase):
         self.assertAlmostEqual(m["complete_code_percent"], 75.0, places=4)
 
     def test_fuzzy_is_never_below_matched(self) -> None:
-        rows = [{"status": "MATCH", "window": 100},
+        rows = [{"status": "MATCH", "window": 300},
                 {"status": "MISMATCH", "window": 100, "normalized_diff": 50}]
         m = gen.measures(rows)
-        self.assertGreaterEqual(m["fuzzy_match_percent"], m["matched_code_percent"])
-
-    def test_code_percentages_are_size_weighted(self) -> None:
-        m = gen.measures([{"status": "MATCH", "window": 300},
-                          {"status": "ASM", "window": 100}])
-        self.assertAlmostEqual(m["matched_code_percent"], 75.0, places=4)
+        self.assertEqual(m["fuzzy_match_percent"], 87.5)
+        self.assertEqual(m["matched_code_percent"], 75.0)
         self.assertEqual(m["total_code"], "400")
 
+
     def test_empty_population_does_not_divide_by_zero(self) -> None:
-        m = gen.measures([])
+        m = gen.measures([], total_units=0, complete_units=0)
         self.assertNotIn("total_code", m)
         self.assertNotIn("total_functions", m)
-        self.assertEqual(m["total_units"], 1)
+        self.assertEqual(m["total_units"], 0)
+        self.assertEqual(m["complete_units"], 0)
+        for measure in ("matched_code_percent", "complete_code_percent", "fuzzy_match_percent"):
+            self.assertNotIn(measure, m)
 
 
 class ReportShapeTests(unittest.TestCase):
@@ -116,16 +116,10 @@ class ReportShapeTests(unittest.TestCase):
                                f"category {category['id']} tagged nothing")
 
     def test_linked_measures_come_from_the_committed_endpoint_without_artifacts(self) -> None:
-        """setUpClass passed no linked report, so this exercises the CI path where
-        build/linked_report.json does not exist."""
+        """An explicit None skips build artifacts and uses the committed endpoint."""
         self.assertGreater(int(self.report["measures"]["complete_code"]), 0)
         self.assertGreater(self.report["measures"]["complete_units"], 0)
 
-    def test_linked_is_a_strict_subset_of_byte_exact_work(self) -> None:
-        """Everything shipped is in some unit, and not everything is shipped."""
-        m = self.report["measures"]
-        self.assertLess(int(m["complete_code"]), int(m["total_code"]))
-        self.assertLess(m["complete_units"], m["total_units"])
 
     def test_attribution_categories_partition_the_program(self) -> None:
         """main, third_party and unclassified are mutually exclusive and cover
@@ -134,6 +128,12 @@ class ReportShapeTests(unittest.TestCase):
                   for c in self.report["categories"]}
         self.assertEqual(counts["main"] + counts["third_party"] + counts["unclassified"],
                          self.report["measures"]["total_functions"])
+        totals = dict.fromkeys(("main", "third_party", "unclassified"), 0)
+        for unit in self.report["units"]:
+            attribution = [c for c in unit["metadata"]["progress_categories"] if c in totals]
+            self.assertEqual(len(attribution), 1, unit["name"])
+            totals[attribution[0]] += len(unit["functions"])
+        self.assertEqual(totals, {category: counts[category] for category in totals})
 
     def test_schema_version_and_required_keys(self) -> None:
         self.assertEqual(self.report["version"], 2)

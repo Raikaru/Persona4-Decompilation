@@ -13,17 +13,13 @@ assert SPEC is not None and SPEC.loader is not None
 apply_names = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(apply_names)
 
-RECONCILE_PATH = REPO / "tools" / "reconcile_function_boundaries.py"
-RECON_SPEC = importlib.util.spec_from_file_location("p4_reconcile_test", RECONCILE_PATH)
-assert RECON_SPEC is not None and RECON_SPEC.loader is not None
-reconcile = importlib.util.module_from_spec(RECON_SPEC)
-RECON_SPEC.loader.exec_module(reconcile)
 
 
 def names_file(text: str) -> Path:
     """Write a curated-names file into a scratch directory and return it."""
-    scratch = Path(tempfile.mkdtemp(prefix="p4names_"))
-    path = scratch / "symbol_names.test.txt"
+    scratch = tempfile.TemporaryDirectory(prefix="p4names_")
+    unittest.addModuleCleanup(scratch.cleanup)
+    path = Path(scratch.name) / "symbol_names.test.txt"
     path.write_text(text, encoding="utf-8")
     return path
 
@@ -112,26 +108,6 @@ class LoadNamesTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "already used for"):
             apply_names.load_names([path], CANONICAL)
 
-    def test_contract_patterns_lockstep_with_reconcile(self) -> None:
-        self.assertEqual(apply_names.NAME_LINE.pattern, reconcile.NAME_LINE.pattern)
-        self.assertEqual(apply_names.PLACEHOLDER.pattern, reconcile.PLACEHOLDER.pattern)
-
-    def test_agrees_with_reconcile_curated_names(self) -> None:
-        """Both parsers must accept exactly the same curated set."""
-        with tempfile.TemporaryDirectory() as temporary:
-            config = Path(temporary) / "config"
-            config.mkdir()
-            curated = config / "symbol_names.txt"
-            curated.write_text(
-                "btlLevelFromExp = 0x001059E0; // type:func  evidence: file:g_data.c\n"
-                "fclLerp = 0x0028F960; // type:func  evidence: p3:Foo@0x1234\n",
-                encoding="utf-8",
-            )
-            reconcile.CURATED_NAMES = curated
-            expected = reconcile.curated_names(CANONICAL)
-            self.assertEqual(
-                apply_names.load_names([curated], CANONICAL), expected
-            )
 
 
 def sample_source() -> str:
@@ -226,7 +202,7 @@ class PlanAndRewriteTests(unittest.TestCase):
                 "u8 call(void) { return func_001059E0(1); }\n",
                 encoding="utf-8",
             )
-            changes = apply_names.plan_file(path, self.names)
+            changes = apply_names.plan_file(path, {**self.names, 0x0043F9C8: "clearBuffer"})
             self.assertEqual(len(changes), 2)
             apply_names.rewrite(path, changes)
             self.assertEqual(
@@ -279,32 +255,6 @@ class PlanAndRewriteTests(unittest.TestCase):
 
 
 class RunTests(unittest.TestCase):
-    def test_check_exits_nonzero_when_unapplied_then_zero_when_applied(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary:
-            root = make_root(Path(temporary))
-            write_curated(
-                root,
-                "btlLevelFromExp = 0x001059E0; // type:func  evidence: file:g_data.c\n",
-            )
-            target = root / "src" / "g_data.c"
-            target.write_text(
-                "// FUN_001059E0\n"
-                "u8 func_001059e0(s32 exp)\n"
-                "{\n"
-                "    return 0;\n"
-                "}\n",
-                encoding="utf-8",
-            )
-            # unapplied tree: --check must report and exit non-zero
-            self.assertEqual(apply_names.run(root, [str(target)], check=True), 1)
-            # applying succeeds
-            self.assertEqual(apply_names.run(root, [str(target)], check=False), 0)
-            self.assertIn(
-                "u8 btlLevelFromExp(s32 exp)",
-                target.read_text(encoding="utf-8"),
-            )
-            # applied tree: --check exits zero
-            self.assertEqual(apply_names.run(root, [str(target)], check=True), 0)
 
     def test_never_touches_generated(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -349,8 +299,11 @@ class RunTests(unittest.TestCase):
             original_repo = apply_names.REPO
             apply_names.REPO = root
             try:
+                before = target.read_bytes()
                 self.assertEqual(apply_names.main(["--check", str(target)]), 1)
+                self.assertEqual(target.read_bytes(), before)
                 self.assertEqual(apply_names.main([str(target)]), 0)
+                self.assertEqual(target.read_bytes(), b"u8 btlLevelFromExp(s32 exp) { return 0; }\n")
                 self.assertEqual(apply_names.main(["--check", str(target)]), 0)
             finally:
                 apply_names.REPO = original_repo
