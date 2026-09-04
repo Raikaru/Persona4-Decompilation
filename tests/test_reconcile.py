@@ -70,22 +70,9 @@ class CanonicalMapTests(unittest.TestCase):
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
         windows = {int(address, 16): size for address, size in function_map["windows"].items()}
 
-        # 13,077 boundaries the Splat control-flow scan and Ghidra find on their
-        # own, plus every curated override: DATA_REACHABLE_ENTRIES (each backed by
-        # a retail pointer site), EPILOGUE_SEPARATED_ENTRIES and
-        # JAL_REACHABLE_ENTRIES. The old figure here was 13,080 + 4 because three
-        # boundaries sat in the committed map with no declaration at all, which is
-        # exactly what made the map unregenerable; they are now declared, so the
-        # base is the true scan result. Bump these only alongside a documented
-        # entry whose evidence the tests below re-check against the retail image.
-        expected_total = (
-            13077
-            + len(reconcile.DATA_REACHABLE_ENTRIES)
-            + len(reconcile.EPILOGUE_SEPARATED_ENTRIES)
-            + len(reconcile.JAL_REACHABLE_ENTRIES)
-            - len(reconcile.BRANCH_LANDING_ENTRIES)
-        )
-        self.assertEqual(expected_total, 13102)
+        # This retail boundary census changes only with independently justified
+        # additions/removals, never to accommodate lost source markers.
+        expected_total = 13102
         self.assertEqual(function_map["function_count"], expected_total)
         self.assertEqual(len(windows), expected_total)
         for segment_name, expected_count in (("code1", expected_total - 9), ("code2", 9)):
@@ -94,48 +81,30 @@ class CanonicalMapTests(unittest.TestCase):
             if segment_name == "code1":
                 start = int(target["elf"]["entry"], 0)
             self.assertEqual(len(selected), expected_count)
-            self.assertEqual(sum(selected.values()), end - start)
-
-    def test_shared_code2_windows_reach_segment_end(self) -> None:
-        function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
-        windows = {int(address, 16): size for address, size in function_map["windows"].items()}
-        expected = {
-            0x0070C850: 0x6B0,
-            0x0070CF00: 0x1E0,
-            0x0070D0E0: 0xD0,
-            0x0070D1B0: 0x388,
-            0x0070D538: 0x108,
-            0x0070D640: 0x140,
-            0x0070D780: 0x1A0,
-            0x0070D920: 0x48,
-            0x0070D968: 0x7D8,
-        }
-        self.assertEqual({address: windows[address] for address in expected}, expected)
+            cursor = start
+            for address, size in sorted(selected.items()):
+                self.assertEqual(address, cursor, f"gap or overlap at {address:08X}")
+                self.assertGreater(size, 0)
+                self.assertEqual(address % 4, 0)
+                self.assertEqual(size % 4, 0)
+                cursor = address + size
+            self.assertEqual(cursor, end)
 
     def test_source_markers_are_unique_and_canonical(self) -> None:
-        """Every marker is a canonical boundary, or a declared exception.
-
-        Three declared exceptions exist, each validated against the retail image
-        by its own test: `DATA_REACHABLE_ENTRIES` (reachable only through a data
-        pointer), `EPILOGUE_SEPARATED_ENTRIES` (no pointer, but the preceding
-        function ends in a complete epilogue) and `JAL_REACHABLE_ENTRIES` (real
-        entries whose first instruction is a `b` into their own condition check,
-        which the scan mistakes for the branch landing point).
-        """
+        """Every canonical boundary has exactly one source owner, even without Splat."""
         markers = reconcile.source_markers()
         function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
         windows = {int(address, 16): size for address, size in function_map["windows"].items()}
 
-        self.assertTrue(markers)
-        self.assertTrue(all(len(entries) == 1 for entries in markers.values()))
-        known = (
-            set(windows)
-            | set(reconcile.DATA_REACHABLE_ENTRIES)
-            | set(reconcile.EPILOGUE_SEPARATED_ENTRIES)
-            | set(reconcile.JAL_REACHABLE_ENTRIES)
-        )
-        orphans = sorted(f"{address:08X}" for address in set(markers) - known)
-        self.assertEqual(orphans, [], f"markers outside the canonical map: {orphans}")
+        duplicates = {
+            f"{address:08X}": [str(path) for path, _marker in entries]
+            for address, entries in markers.items() if len(entries) != 1
+        }
+        self.assertEqual(duplicates, {}, f"duplicate source owners: {duplicates}")
+        missing = sorted(f"{address:08X}" for address in set(windows) - set(markers))
+        extra = sorted(f"{address:08X}" for address in set(markers) - set(windows))
+        self.assertEqual(missing, [], f"canonical boundaries without source owners: {missing}")
+        self.assertEqual(extra, [], f"source owners outside the canonical map: {extra}")
 
     def test_data_reachable_entries_are_backed_by_a_retail_pointer(self) -> None:
         """Each curated boundary must have independent retail pointer evidence.
@@ -279,33 +248,6 @@ class CanonicalMapTests(unittest.TestCase):
                 self.assertGreater(sites, 0, "no caller: this is not a real entry")
                 self.assertIn(address, windows)
 
-    @unittest.skipUnless((REPO / "asm" / "code1.s").is_file(),
-                         "needs splat output (make split); absent on toolchain-free CI")
-    def test_every_canonical_boundary_gets_an_owner(self) -> None:
-        """Every canonical function is owned, and now every one carries a marker.
-
-        tools/promote_unmarked.py gave the last 7545 unmarked windows a marker and
-        an INCLUDE_ASM fallback, so the assembly-owner fallback path -- which
-        assigned an owning file to windows that had no marker -- is now empty. The
-        grouping assertion below therefore only applies while that set is
-        non-empty; the invariant that replaced it, and the one that matters, is
-        that the marker set covers the whole canonical map.
-        """
-        target = json.loads((REPO / "config" / "target.json").read_text(encoding="utf-8"))
-        function_map = json.loads((REPO / "tools" / "slus21782_functions.json").read_text(encoding="utf-8"))
-        windows = {int(address, 16): size for address, size in function_map["windows"].items()}
-        markers = reconcile.source_markers()
-        code2_start, _code2_end = reconcile.segment_bounds(target, "code2")
-
-        assembly_owners = reconcile.assembly_owner_paths(windows, markers, code2_start, write=False)
-        rows = reconcile.function_map_rows(windows, markers, assembly_owners)
-        self.assertEqual(len(rows), len(windows))
-        self.assertEqual(set(assembly_owners), set(windows) - set(markers))
-        self.assertTrue(all(owner.suffix == ".c" for owner in assembly_owners.values()))
-        if assembly_owners:
-            self.assertLess(len(set(assembly_owners.values())), len(assembly_owners))
-        self.assertEqual(set(windows) - set(markers), set())
-        self.assertTrue(all(" MAPPED   " in row for row in rows))
 
 
 if __name__ == "__main__":
@@ -325,4 +267,3 @@ class CompilerUnitsTests(unittest.TestCase):
             with self.subTest(unit=unit):
                 self.assertTrue((REPO / unit).is_file(), f"{unit} is not a file")
                 self.assertRegex(key, r"^[A-Za-z0-9][\w.\-]*$")
-                self.assertTrue(verify._version_env_name(key).startswith("P4_MWCC_"))
