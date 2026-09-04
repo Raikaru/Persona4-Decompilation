@@ -1254,7 +1254,109 @@ failed:
 // FUN_004673C0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_004673c0);
 // FUN_00467880
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00467880);
+/* measured: honest void *table plus explicit function-pointer casts; object 848B/window 848B/nd 0; no H001 waiver. */
+void func_00467880(u8 *arg0)
+{
+    extern void func_003e8110(s32 arg0);
+    extern s32 func_003e8120(s32 arg0);
+    extern void func_00450050(s64 arg0, char *arg1, ...);
+    extern void func_0045d6e0(u8 *arg0, f32 *arg1, f32 farg0, s32 arg2);
+    extern char iGpffffb01c;
+    extern u8 D_00712A20[];
+    extern u8 D_00712A30[];
+    struct Work {
+        s32 field40;
+        f32 field44;
+        s32 field48;
+        s32 field4c;
+        s32 pair0;
+        f32 pair4;
+        s32 field58;
+        s8 color0;
+        s8 color1;
+        s8 color2;
+        s8 color3;
+    } work;
+    s16 i;
+    u8 *entry;
+    u8 *data;
+    s32 kind;
+    void *table;
+
+    if (func_003e8120(func_00457120()) != 0) {
+        D_00887304[0](0xE, &work.field58);
+        table = D_00887300;
+        (*(void (**)(s32, s32))table)(0xE, 0);
+        work.pair0 = 0x40800000;
+        work.pair4 = 4.0f;
+        func_00450050(*(s64 *)(void *)&work.pair0, &iGpffffb01c, arg0);
+        work.pair4 += 2.0f;
+        i = 0;
+        while (i < 10) {
+            entry = arg0 + (*(s16 *)(arg0 + 0x80F84) + i) * 0x108;
+            data = entry + 0x100;
+            if (*(s32 *)(entry + 0x204) == 0) {
+                break;
+            }
+            kind = *(s32 *)(data + 0x100);
+            switch (kind) {
+            case 0:
+                func_00450050(*(s64 *)(void *)&work.pair0,
+                              &iGpffffb01c, data);
+                break;
+            case 1:
+                func_00450050(*(s64 *)(void *)&work.pair0,
+                              (char *)&D_00712A20, data);
+                break;
+            default:
+                func_00450050(*(s64 *)(void *)&work.pair0,
+                              (char *)&D_00712A30, data);
+                break;
+            }
+            work.pair4 += 1.0f;
+            i++;
+        }
+        work.field40 = 0x30;
+        *(s32 *)(void *)&work.field44 = 0x30;
+        work.field48 = 0x190;
+        work.field4c = 0x90;
+        *(u8 *)(void *)&work.color3 = 0xFF;
+        work.color2 = 0x1E;
+        work.color1 = 0x1E;
+        work.color0 = 0x1E;
+        func_0045d6e0((u8 *)&work.color0,
+                      (f32 *)(void *)&work.field40, 0.0f, 1);
+        work.field40 = 0x30;
+        *(s32 *)(void *)&work.field44 =
+            (s32)(0.0f + 72.0f +
+                  12.0f * (f32)*(s16 *)(arg0 + 0x80F82));
+        work.field48 = 0x184;
+        work.field4c = 0xC;
+        *(u8 *)(void *)&work.color3 = 0xFF;
+        *(u8 *)(void *)&work.color2 = 0xFF;
+        work.color1 = 0x50;
+        work.color0 = 0x50;
+        func_0045d6e0((u8 *)&work.color0,
+                      (f32 *)(void *)&work.field40, 0.0f, 1);
+        work.field40 = 0x1B4;
+        *(s32 *)(void *)&work.field44 =
+            (s32)(72.0f +
+                  (f32)(((*(s16 *)(arg0 + 0x80F82) +
+                          *(s16 *)(arg0 + 0x80F84)) *
+                         0x78) /
+                        *(s16 *)(arg0 + 0x80F86)));
+        work.field48 = 0xC;
+        work.field4c = 0x78 / *(s16 *)(arg0 + 0x80F86);
+        *(u8 *)(void *)&work.color3 = 0xFF;
+        *(u8 *)(void *)&work.color2 = 0x80;
+        *(u8 *)(void *)&work.color1 = 0x80;
+        *(u8 *)(void *)&work.color0 = 0x80;
+        func_0045d6e0((u8 *)&work.color0,
+                      (f32 *)(void *)&work.field40, 0.0f, 1);
+        (*(void (**)(s32, s32))table)(0xE, work.field58);
+        func_003e8110(func_00457120());
+    }
+}
 // FUN_00467BD0
 INCLUDE_ASM("asm/nonmatchings/code1_0046", func_00467bd0);
 // FUN_004680C0
@@ -1490,7 +1592,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046a7f0);
 void func_0046ab40(void)
 {
     u8 *var_16 = D_00724C08;
-
 loop_1:
     if (var_16 != NULL) {
         func_0046ab90(var_16);

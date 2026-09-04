@@ -2189,9 +2189,121 @@ function_done_001998e0:
 }
 /* measured: closes opt_propagation around func_001998e0. */
 #pragma opt_propagation on
+/* measured: direct s64-parameter candidate for func_001999f0; propagation off
+   keeps the entry mask and per-use narrow conversions as separate values. */
+#pragma opt_propagation off
 // FUN_001999F0
-INCLUDE_ASM("asm/nonmatchings/code1_0019", func_001999f0);
-/* Best attempt: object 300B, window 336B, normalized_diff 185. Reverted because the candidate remained non-exact. */
+s16 func_001999f0(u8 *arg0, s32 arg1, f32 fparg0, s64 arg2)
+{
+    u16 index;
+    s16 class_result;
+    u8 type;
+    s64 value;
+    s64 raw_value;
+    s32 numerator;
+    s16 denominator;
+    s32 offset;
+    s32 base;
+    u16 array_index;
+
+    type = *(u8 *)(arg0 + 0xA2);
+    if (type == 1) {
+        index = arg1 & 0xFFFF;
+        switch (index) {
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            class_result = p4_sign16_001991c0(0);
+            goto classification_done_001999f0;
+        default:
+            goto result_invalid_001999f0;
+        }
+    } else {
+        index = arg1 & 0xFFFF;
+        switch (index) {
+        case 5:
+            class_result = p4_sign16_001991c0(0);
+            goto classification_done_001999f0;
+        case 6:
+        case 7:
+            class_result = p4_sign16_001991c0(1);
+            goto classification_done_001999f0;
+        default:
+            goto result_invalid_001999f0;
+        }
+    }
+result_invalid_001999f0:
+    class_result = p4_sign16_001991c0(-1);
+classification_done_001999f0:
+    if (class_result == -1) {
+        return 0;
+    }
+    switch (type) {
+    case 1:
+        {
+            extern s16 func_0022cb90(u8 *arg0, s32 arg1);
+            value = p4_sign16_001991c0(func_0022cb90(arg0, arg1));
+        }
+        switch (value) {
+        case -1:
+            goto lookup_001999f0;
+        default:
+            goto finish_001999f0;
+        }
+    case 0:
+    case 2:
+lookup_001999f0:
+        type = *(u8 *)(arg0 + 0xA2);
+        raw_value = p4_sign16_001991c0(
+            *(u8 *)((u8 *)D_005F6CA0 + type * 0x1E + (u16)arg1));
+        if ((*(s32 *)(arg0 + 0xC4) & 0x100) &&
+            (type == 0) &&
+            (*(u16 *)(arg0 + 0xA4) == 1) &&
+            (index == 1)) {
+            raw_value = p4_sign16_001991c0(0x1C);
+        }
+        goto value_done_001999f0;
+    default:
+        value = 0;
+        goto finish_001999f0;
+    }
+value_done_001999f0:
+    value = p4_sign16_001991c0(raw_value);
+finish_001999f0:
+    if (*(u8 *)(arg0 + 0xA2) == 1) {
+        {
+            s64 product;
+            offset = *(u16 *)(arg0 + 0xA4) * 0xE8;
+            base = (s32)iGpffffb3cc;
+            offset = p4_base_add_00194590(offset, base);
+            offset = p4_base_add_00194590(
+                (s32)(s16)class_result * 4, offset);
+            numerator = *(s16 *)((u8 *)offset + 0x1C);
+            product = (s64)(s16)(numerator * (s16)arg2);
+            numerator = (s32)product +
+                        *(s16 *)((u8 *)(*(s32 *)(arg0 + 0x9F8) +
+                                        (u16)arg1 * 0xA));
+            product = (s64)(s16)numerator;
+            numerator = (s32)product;
+        }
+    } else {
+        offset = *(u16 *)(arg0 + 0xA4) * 0x14C;
+        base = (s32)iGpffffb3c0;
+        offset = p4_base_add_00194590(offset, base);
+        offset = p4_base_add_00194590(
+            (s32)class_result * 0x12, offset);
+        offset = p4_base_add_00194590(
+            (s32)(u16)arg2 * 2, offset);
+        numerator = *(s16 *)((u8 *)(offset + 0x1A));
+    }
+    base = *(s32 *)(arg0 + 0x9F8);
+    denominator = *(s16 *)((u8 *)(p4_base_add_00194590(
+        (s16)value * 0xA, base) + 2));
+    return (s16)(s32)((f32)numerator /
+                      (fparg0 * ((f32)denominator / 100.0f)));
+}
+#pragma opt_propagation on
 // FUN_00199D00 NONMATCHING
 #ifdef NON_MATCHING
 s32 func_00199d00(s32 unused, s32 arg1, s32 arg2, s32 arg3)

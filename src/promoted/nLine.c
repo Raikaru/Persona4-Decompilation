@@ -871,7 +871,7 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
 /* measured: closes ddf0 common-subexpression scope after its archived body. */
 #pragma opt_common_subs on
-// Archived C body: build/WBHygiene_func_0034e0b0_archive.txt; no current park body remains.
+// Archived C body: docs/probe_archive/W52NLine_0034e0b0_body.c; NONMATCHING floor nd35 (468B/480B); no current park body remains.
 // FUN_0034E0B0
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e0b0);
 

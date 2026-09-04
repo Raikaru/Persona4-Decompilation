@@ -169,7 +169,7 @@ extern s32 D_005E5B60[];
 extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
 extern void func_0012e7c0(u8 *arg0);
-extern s32 func_0012ff60(u8 *arg0, s32 arg1);
+extern s32 func_0012ff60(u8 *arg0, u32 arg1);
 // FUN_001203A0
 INCLUDE_ASM("asm/nonmatchings/code1_0012", func_001203a0);
 // FUN_00120AE0
@@ -1078,7 +1078,8 @@ s32 func_00123e80(u8 *arg0)
     extern s32 func_0012b760(void);
     extern s32 func_0012b810(s32 arg0);
     extern s32 iGpffffb1e4;
-    extern s32 iGpffffb1f0;
+    extern s32 iGpffffb1f0;
+
     extern u8 D_007963A0[];
     extern u8 D_0079B698[];
     extern u8 D_0079B69C[];
@@ -2517,5 +2518,118 @@ s32 func_0012ff40(s32 arg0, s32 arg1, s16 arg2)
     *(s16 *)(p + 0x22) = arg2;
     return 1;
 }
+extern u8 D_005E5BF0[];
+extern u8 D_005E6290[];
+extern u8 D_005E65E0[];
+extern u8 D_005E6930[];
+extern u8 D_005E6C80[];
+extern u8 D_005E6FD0[];
+extern u8 D_005E7320[];
+
+/* measured: opt_common_subs off preserves retail's first-loop base/index
+   addressing and setup order; on reverts immediately after the switch. */
+#pragma opt_common_subs off
 // FUN_0012FF60
-INCLUDE_ASM("asm/nonmatchings/code1_0012", func_0012ff60);
+s32 func_0012ff60(u8 *arg0, u32 arg1)
+{
+    s32 i;
+    s32 j;
+    u8 *table;
+    u8 *src;
+    u8 *dst;
+    f32 value;
+
+    table = 0;
+    if (arg1 == *(u32 *)(arg0 + 0x30)) {
+        return 0;
+    }
+    for (i = 0; i < 30; i++) {
+        dst = arg0 + (i * 0x30);
+        *(f32 *)(dst + 0x12d8) = *(f32 *)(dst + 0x12e8);
+        *(f32 *)(dst + 0x12dc) = *(f32 *)(dst + 0x12ec);
+        *(u16 *)(dst + 0x12f4) = *(u16 *)(dst + 0x12f8);
+        *(u16 *)(dst + 0x12fa) = *(u16 *)(dst + 0x12fe);
+        *(u8 *)(dst + 0x12f0) = *(u8 *)(dst + 0x12f2);
+    }
+    switch (arg1) {
+    case 0:
+        *(s32 *)(arg0 + 0x14) = 0x447;
+        table = D_005E5BF0;
+        *(s16 *)(arg0 + 0xc40) = 0x13;
+        break;
+    case 1:
+        table = D_005E5F40;
+        break;
+    case 2:
+        *(s32 *)(arg0 + 0x14) = 0x547;
+        table = D_005E6290;
+        *(s16 *)(arg0 + 0xc40) = 0x13;
+        break;
+    case 3:
+        *(s32 *)(arg0 + 0x14) = 0x447;
+        table = D_005E6290;
+        *(s16 *)(arg0 + 0xc40) = 0x13;
+        break;
+    case 4:
+        *(s32 *)(arg0 + 0x14) = 0x2dd;
+        table = D_005E65E0;
+        *(s16 *)(arg0 + 0x2c) = *(s16 *)(arg0 + 0x26);
+        *(s16 *)(arg0 + 0x26) = 0;
+        *(f32 *)(arg0 + 0x145c) = 34.0f * (f32)*(s16 *)(arg0 + 0x22);
+        *(s16 *)(arg0 + 0xc40) = 0;
+        break;
+    case 5:
+        *(s32 *)(arg0 + 0x14) = 0x2ed;
+        table = D_005E6C80;
+        *(f32 *)(arg0 + 0x145c) = 34.0f * (f32)*(s16 *)(arg0 + 0x22);
+        *(s16 *)(arg0 + 0xc40) = 0;
+        break;
+    case 6:
+        *(s32 *)(arg0 + 0x14) = 0x29d;
+        table = D_005E6930;
+        *(s16 *)(arg0 + 0xc40) = 0;
+        break;
+    case 7:
+        *(s32 *)(arg0 + 0x14) = 0x2ad;
+        table = D_005E6FD0;
+        *(s16 *)(arg0 + 0xc40) = 0;
+        break;
+    case 8:
+        *(s32 *)(arg0 + 0x14) = 0x547;
+        table = D_005E7320;
+        *(s16 *)(arg0 + 0xc40) = 0x14;
+        break;
+    case 9:
+        *(s32 *)(arg0 + 0x14) = 0x547;
+        table = D_005E7320;
+        *(s16 *)(arg0 + 0xc40) = 0x14;
+        break;
+    default:
+        func_0046d730(D_005E76C8, 0x4ab);
+        break;
+    }
+#pragma opt_common_subs on
+/* measured: opt_loop_invariants on hoists the table-loop constants and
+   stride calculations into retail's preheader (without it, nd is nonzero). */
+#pragma opt_loop_invariants on
+    if (table != 0) {
+        for (j = 0; j < 30; j++) {
+            src = table + (j * 0x1c);
+            dst = arg0 + (j * 0x30);
+            *(f32 *)(dst + 0x12e0) = *(f32 *)(src + 0);
+            *(f32 *)(dst + 0x12e4) = *(f32 *)(src + 4);
+            *(u8 *)(dst + 0x12f1) = *(u8 *)(src + 0x10);
+            value = *(f32 *)(src + 8);
+            *(u16 *)(dst + 0x12f6) = (u16)value;
+            value = *(f32 *)(src + 0xc);
+            *(u16 *)(dst + 0x12fc) = (u16)value;
+            *(s32 *)(dst + 0x1300) = *(s32 *)(src + 0x14);
+            *(s32 *)(dst + 0x1304) = *(s32 *)(src + 0x18);
+        }
+        *(u32 *)(arg0 + 0x30) = arg1;
+        *(s16 *)(arg0 + 0x1c) = 0;
+    }
+    return 1;
+}
+/* measured: closes opt_loop_invariants for func_0012ff60. */
+#pragma opt_loop_invariants off

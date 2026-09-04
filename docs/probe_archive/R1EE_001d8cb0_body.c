@@ -1,4 +1,8 @@
-/* object 312B, window 320B, normalized_diff 51; differing offsets 0x30,0x32,0x34,0x38-0x44,0x48-0x78,0x7C-0x84,0x88-0x94,0x98-0x10C; classification prologue/signature-correct but key-loop declaration/scheduling; retail saves s0/s1/s2 and f20, a0/a1 are incoming; ruled out structured/direct key-loop forms and count-local declaration orders. */
+/* Measured with `python tools/fndiff.py src/promoted/code1_001d.c func_001d8cb0`: object 312B, window 320B, normalized_diff 14 (reloc-masked).
+   Exact: frame, result initialization, no-key path, distance loop, epilogue, and all three helper-call relocations.
+   Residual offsets: 0x20, 0x24, 0x2C, 0x30, 0x3C-0x40, 0x50, 0x58, 0x68-0x74; these are key-loop register allocation differences after count hoisting.
+   `#pragma opt_loop_invariants on` is required for this nd14 floor; without it the same typed body measures nd21. This is NONMATCHING archive evidence only; production remains on the assembly fallback. */
+#pragma opt_loop_invariants on
 s32 func_001d8cb0(u8 *arg0, u8 *arg1)
 {
     extern void func_001958f0(u8 *arg0, f32 *arg1);
@@ -55,3 +59,4 @@ distance_test:
 return_one:
     return 1;
 }
+#pragma opt_loop_invariants off

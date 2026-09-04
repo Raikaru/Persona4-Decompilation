@@ -1594,6 +1594,10 @@ INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_00167560);
 
 
 
+/* measured: func_001679d0's best honest C is 772B at normalized_diff 184;
+   switch layout, local lifetimes, pointer splitting, and ready-test widths
+   did not close the register/control-flow scheduling residual. Archived in
+   docs/probe_archive/W47FldUnit_001679d0_body.c; restored assembly fallback. */
 // FUN_001679D0
 INCLUDE_ASM("asm/nonmatchings/k_fldUnit", func_001679d0);
 

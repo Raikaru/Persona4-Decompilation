@@ -33,13 +33,23 @@ extern u8 D_00642F04[];
 // FUN_00311EA0
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00311ea0);
 
-/* measured: corrected `typedef signed __int128 s128` aggregate-copy probe
-   generated the retail-shaped `lw $2; sq $2,0xA0` and `lq $2,0xA0` reload
-   (with a narrowing scalar cast), but the target did not close. Best probe
-   was 648B vs the 640B retail window, normalized_diff 97 (reloc-masked).
-   Tried scalar s128 storage, separate s64 threshold, explicit control-flow
-   labels, declaration ordering, and register parameter hints; remaining
-   register-allocation/control-flow layout is the floor. */
+/* measured: structure fully recovered (s128 aggregate-copy count reload,
+   threshold gate, 0x17-entry flag scan, four-entry callback loop, and
+   indexed result lookup), but no clean-C probe reaches the retail code.
+   Best probe uses typedef signed __int128 for the retail sq/lq count,
+   an s64 outer counter and threshold, and an indexed final return:
+   object 640B vs the 640B retail window, normalized_diff 76
+   (reloc-masked). The prior pointer-arithmetic return was nd77; the
+   earlier s32-counter body was 648B vs 640B, nd97.
+   Tried scalar s128 storage, threshold and outer-counter width/forms,
+   explicit gate labels and branch forms, declaration ordering, parameter
+   ABI widths, typed versus old-style helper declarations, key and
+   bottom-pointer lifetimes, and focused optimization pragmas. Remaining
+   residuals are real saved-register allocation and loop-layout differences:
+   MWCC maps arg2 to $s5 rather than retail $s3, spills arg3 instead of
+   retaining it in $fp, rotates threshold/key/status across $s7/$fp/$s6
+   rather than $s6/$s7/$s5, and uses $s3 for the outer counter rather than
+   retail $s2. Production intentionally retains INCLUDE_ASM. */
 // FUN_00312220
 INCLUDE_ASM("asm/nonmatchings/fclCombineMisc", func_00312220);
 

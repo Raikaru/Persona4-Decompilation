@@ -652,8 +652,76 @@ u8 *func_002b32d0(u8 *arg0, s32 arg1, u8 *arg2, u8 *arg3, u8 *arg4)
     func_00442830(arg0, sp70);
     return arg0;
 }
+/* measured: object 504B/window 512B, nd 0. Retail hoists the nine tag-byte and
+   case constants into $v1/$a1-$a3/$t0-$t2/$t5/$t6 ahead of the scan loop,
+   which needs opt_loop_invariants on (the unit default here is off); the SJIS
+   lead-byte test spelled `uc > 0x80` gives the `slti $at` form, and the four
+   match exits are `goto found` to a label in front of the single return so
+   the last byte compare branches straight to `jr ra`. The s64 second
+   parameter (file prototype) is narrowed once into an s32 `mode`. */
 // FUN_002B3520
-INCLUDE_ASM("asm/nonmatchings/code1_002b", func_002b3520);
+/* measured: opt_loop_invariants on hoists the tag constants out of the loop. */
+#pragma opt_loop_invariants on
+s32 func_002b3520(u8 *p, s64 arg1)
+{
+    s32 count;
+    s32 mode;
+    s8 c;
+    u8 uc;
+
+    count = 0;
+    mode = (s8)arg1;
+    for (;;) {
+        c = *(s8 *)p;
+        uc = c;
+        switch (mode) {
+        case 0:
+            if (uc > 0x80) {
+                p += 1;
+                count += 1;
+            } else if (c == '<' && *(s8 *)(p + 1) == 'P' && *(s8 *)(p + 2) == '1' && *(s8 *)(p + 3) == '>') {
+                goto found;
+            }
+            p += 1;
+            count += 1;
+            break;
+        case 1:
+            if (uc > 0x80) {
+                p += 1;
+                count += 1;
+            } else if (c == '<' && *(s8 *)(p + 1) == 'P' && *(s8 *)(p + 2) == '2' && *(s8 *)(p + 3) == '>') {
+                goto found;
+            }
+            p += 1;
+            count += 1;
+            break;
+        case 2:
+            if (uc > 0x80) {
+                p += 1;
+                count += 1;
+            } else if (c == '<' && *(s8 *)(p + 1) == 'R' && *(s8 *)(p + 2) == '1' && *(s8 *)(p + 3) == '>') {
+                goto found;
+            }
+            p += 1;
+            count += 1;
+            break;
+        case 3:
+            if (uc > 0x80) {
+                p += 1;
+                count += 1;
+            } else if (c == '<' && *(s8 *)(p + 1) == 'R' && *(s8 *)(p + 2) == '2' && *(s8 *)(p + 3) == '>') {
+                goto found;
+            }
+            p += 1;
+            count += 1;
+            break;
+        }
+    }
+found:
+    return count;
+}
+/* measured: closes the loop-invariant bracket; the unit default is off. */
+#pragma opt_loop_invariants off
 // FUN_002B3720
 s32 func_002b3720(u8 *arg0)
 {
