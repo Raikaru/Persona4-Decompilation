@@ -464,8 +464,49 @@ void func_0034f4a0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
                   arg5, arg6, arg7, arg_sp0, fparg3, arg_sp8);
     func_0046d280(temp_2);
 }
+/* On countdown expiry, choose a state or -1, then reset the countdown to 2..6.
+   Snapshot extent before RNG, but read the other fields after it as retail does.
+   measured: direct short decrement, staged remainder and distance <= half with
+   propagation disabled match all 336B, including signed-halving branches. */
+#pragma opt_propagation off
 // FUN_0034F5D0
-INCLUDE_ASM("asm/nonmatchings/code1_0034", func_0034f5d0);
+void func_0034f5d0(u8 *arg0)
+{
+    u32 remainder;
+    s32 extent;
+    u32 random;
+    s32 distance;
+    s32 half;
+    s32 span;
+    u32 choice;
+
+    if (--*(s16 *)(arg0 + 2) <= 0) {
+        extent = *(s32 *)(arg0 + 12);
+        random = func_003b7060();
+        remainder = random % (u32)(extent / 2 + 1);
+        distance = (s32)(extent - *(s32 *)(arg0 + 4) - remainder);
+        if (distance < 0) distance = 0;
+        half = *(s32 *)(arg0 + 8) / 2;
+        if (distance <= half) {
+            span = 20 - half * 2 - distance;
+            if (span > 0) {
+                choice = func_003b7060() % (u32)span;
+                if (choice < 9U) {
+                    *(s16 *)(arg0 + 0) = (s16)(choice % 3U);
+                } else {
+                    *(s16 *)(arg0 + 0) = -1;
+                }
+            } else {
+                *(s16 *)(arg0 + 0) = (s16)(func_003b7060() % 3U);
+            }
+        } else {
+            *(s16 *)(arg0 + 0) = -1;
+        }
+        *(s16 *)(arg0 + 2) = (s16)(func_003b7060() % 5U + 2);
+    }
+}
+/* measured: restore propagation after the exact countdown update. */
+#pragma opt_propagation on
 // FUN_0034F720
 f32 func_0034f720(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2) {
     if ((fparg0 < 0.0f) || !(fparg0 <= 1.0f)) {
