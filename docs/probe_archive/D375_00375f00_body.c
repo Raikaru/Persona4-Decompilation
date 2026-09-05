@@ -1,21 +1,31 @@
-/* Main 2026-09-03: the archived O1 body now measures nd8 in the live unit: retail keeps idx ($s0) and arg0
-   ($s1) saved yet addresses everything through p ($s2); its first store is `li a0,5; move v1,s2; lui/addu; sw a0`
-   and the second-call argument is `p + 0x1D70C` (b210 recomputes idx+arg0). Spelling all four uses through p,
-   through idx+arg0, via q = p copies, via inline store helpers (value-first / base-first / offset param),
-   at O1 / O2 / opt_propagation off: nd31-38. Open. */
-/* object 156B / window 160B / normalized_diff 20; differing offsets: 70, 72-86; declaration audit: no declarations corrected (func_00370410 and func_00370a80 are the only callees and remain pointer prototypes); levers probed: O1/O2, pointer/base expression order, arg0/arg1 aliases, pointer reuse, typed/union/struct/array locals, named stores, constant locals, callee integer argument casts, and all archived f00 source shapes. */
+/* IDA-backed retained floor: 156B / 160B, eight fndiff words including one zero-tail word.
+ * IDA: docs/ida_headstart/src/Battle/btlShuffleDraw.c:383-393; retail confirms
+ * motion helper -> state 5 -> rotation helper -> state 3, with no final flag OR.
+ * Typed 0xE8 records preserve the real 0x60 motion and 0x6C rotation subobjects.
+ * Native parent smoke: 576 cases, using helper hooks for ordering and adjacent bytes.
+ * Retail retains idx and parent but reuses their combined base for the stores;
+ * this candidate still recomputes that base. Production remains ASM.
+ */
+// FUN_00375F00
 #pragma optimization_level 1
 void func_00375f00(u8 *arg0, s32 arg1) {
-    u8 * arg0_p = arg0;
-    s32 arg1_p = arg1;
-    s32 idx;
-    u8 *p;
-
-    idx = arg1_p * 0xE8;
-    p = (u8 *)((u32)arg0_p + (u32)idx);
-    func_00370410(p + 0x1D6AC);
-    *(s32 *)(p + 0x1D6A4) = 5;
-    func_00370a80((u8 *)idx + (u32)arg0 + 0x1D70C);
-    *(s32 *)((u8 *)idx + (u32)arg0 + 0x1D6A8) = 3;
+typedef struct ShuffleMotion { u8 data[0x60]; } ShuffleMotion;
+typedef struct ShuffleRotation { u8 data[0x6c]; } ShuffleRotation;
+typedef struct ShuffleRecord {
+    u16 flags; u16 unknown02;
+    s32 motionState; s32 rotationState;
+    ShuffleMotion motion;
+    ShuffleRotation rotation;
+    u8 trackD8[8]; u8 trackE0[8];
+} ShuffleRecord;
+typedef struct ShuffleContext { u8 preceding[0x1d6a0]; ShuffleRecord records[]; } ShuffleContext;
+typedef char RecordSizeCheck[sizeof(ShuffleRecord)==0xe8 ? 1 : -1];
+ s32 idx=arg1*sizeof(ShuffleRecord);
+ ShuffleContext *p=(ShuffleContext *)((u32)arg0+(u32)idx);
+ func_00370410((u8 *)&p->records[0].motion);
+ p->records[0].motionState=5;
+ func_00370a80((u8 *)&((ShuffleContext *)((u8 *)idx+(u32)arg0))->records[0].rotation);
+ ((ShuffleContext *)((u8 *)idx+(u32)arg0))->records[0].rotationState=3;
 }
+
 #pragma optimization_level 2

@@ -202,7 +202,7 @@ extern void func_00353fe0(void);
 extern s32 func_00354030(void);
 extern void func_00355190(u8 *arg0, u16 arg1);
 extern void func_003671d0(void *arg0);
-extern void func_003672d0(void *arg0, s32 arg1);
+extern void func_003672d0(void *arg0, s16 pcId);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_00453760(void *arg0, s32 arg1);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);

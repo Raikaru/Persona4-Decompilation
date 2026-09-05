@@ -18,6 +18,15 @@ typedef union {
     PairF32 f;
 } PairBits;
 typedef struct PersonaWork PersonaWork;
+extern s16 func_00104f10(s16 index);
+extern u16 func_00105290(s16 pcId);
+extern s32 func_00105a50(s16 pcId);
+extern u8 *func_00109220(s32 personaId);
+extern u8 func_00109280(s32 personaId);
+extern u8 datPersonaGetLevel(s32 persona);
+extern u32 datPersonaGetNextExp(s32 persona);
+extern u32 func_00109440(PersonaWork *persona);
+extern PersonaWork *func_0010a900(u16 pcId);
 
 extern void func_003642e0(u8 *arg0, void *arg1);
 
@@ -494,9 +503,33 @@ void func_00367210(P4Pair arg0, f32 arg4, s32 arg1, s16 *arg2, s32 arg3)
         }
     }
 }
-/* measured: best archived candidate is in build/E367_003672D0_body.c; object 340B, window 336B, normalized_diff 102. */
 // FUN_003672D0
-INCLUDE_ASM("asm/nonmatchings/code1_0036", func_003672d0);
+// MATCH: 336B/336B. IDA-backed lookup lifetimes and canonical return contracts.
+void func_003672d0(void *work, s16 pcId)
+{
+    u8 *state = (u8 *)work + 4;
+    s32 personaId = (u16)func_00105290(pcId);
+    PersonaWork *persona = func_0010a900((u16)pcId);
+    *(s16 *)state = pcId;
+    *(u8 **)(state + 16) = func_00109220(personaId);
+    *(u8 *)(state + 20) = func_00109280(personaId);
+    *(u8 *)(state + 21) = datPersonaGetLevel((s32)persona);
+    if (pcId == 1) {
+        s16 i;
+        *(s32 *)(state + 12) = func_00105a50(pcId);
+        for (i = 0; i < 5; i++)
+            *(s16 *)(state + i * 2 + 2) = func_00104f10(i);
+    } else {
+        s32 remaining;
+        PersonaWork *other = func_0010a900((u16)pcId);
+        u32 next = func_00109440(other);
+        // Retail subtracts in 32 bits, then applies a signed lower clamp.
+        remaining = (s32)(next - datPersonaGetNextExp((s32)other));
+        if (remaining < 0)
+            remaining = 0;
+        *(s32 *)(state + 12) = remaining;
+    }
+}
 // FUN_00367420
 void func_00367420(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {

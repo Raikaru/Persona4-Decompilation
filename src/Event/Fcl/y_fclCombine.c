@@ -133,7 +133,7 @@ extern void func_002bb550(s8 arg0);
 extern s32 func_004553c0(void *arg0);
 extern void func_00144c90(s32, s32);
 extern void func_00144e10(s32);
-extern s32 func_00104f10(s32);
+extern s16 func_00104f10(s16);
 extern s32 func_0033e120(u8 *arg0, s32, s32);
 extern void func_001075d0(s32);
 extern s32 func_00144f60(void);
@@ -1241,7 +1241,7 @@ s32 func_00310bf0(u8 *arg0) {
                 p[0] = 9;
                 return 0;
             }
-            if (func_00106330(0x413) == 0 && func_00106330(0x96F) != 0 && (s16)func_00104f10(1) >= 3) {
+            if (func_00106330(0x413) == 0 && func_00106330(0x96F) != 0 && func_00104f10(1) >= 3) {
                 if (*(u32 *)(p + 0x1C) != 0) {
                     *(u32 *)(p + 0x1C) = 0;
                 }

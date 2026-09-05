@@ -3235,3 +3235,46 @@ Its 65,540-case native smoke covers packed lanes, optional callbacks,
 callback mutation, captured parent color/scale and next-pointer reloads.
 This proves host arithmetic and control behavior, **not** VU register
 effects or PS2 rounding identity. All three functions remain ASM.
+
+## IDA state and interpolation recovery: preserve the source objects
+
+`func_003672d0` is now MATCH at 336B/336B. The IDA body at
+`docs/ida_headstart/src/promoted/code1_0036.c:946-988` recovers the
+two distinct persona lookups and the signed 16-bit protagonist index.
+Its callees needed real contracts: `func_00104f10` returns the signed rank
+helper result, and `func_00109440` returns the unsigned next-level EXP.
+Both wrappers now return their existing calls; the event caller and
+state-update declarations use those same contracts. A 1,310-case native
+smoke exercises the actual wrappers, protagonist ranks, distinct lookup
+results, wrapping EXP subtraction, negative clamping and untouched bytes.
+The obsolete E367 and T36 floor archives are removed.
+
+`func_0035bd20` is also MATCH: 332B of exact code plus four bytes of retail
+zero padding. IDA (`docs/ida_headstart/src/promoted/code1_0035.c:2146-2172`)
+exposes three packed two-float values, the copied three-float normal and
+two in-place normalization calls, but omits the COP1 projection arithmetic.
+Read retail alongside it; the apparent constant return is not trustworthy.
+
+Pass the points and origin as existing `Float2` values. Copy the normal as
+a three-float aggregate. The private in-place weighted accumulator keeps
+the accumulator's source identity through both calls and emits the retail
+unit-weight multiply-adds. No register binding, assembly, pragma or
+mathematical reassociation is needed. Direct scalar accumulation measured
+53 differing words; the by-value weighted helper measured 37; the
+in-place helper closes every instruction. A 20,490-case host smoke checks
+normalized projection results, input ordering, the captured normal under
+helper mutation, negative results and the upper clamp. This is host
+normalization/rounding evidence; the PS2 instruction proof is the scoped
+verifier, which reports 71 MATCH and nine ASM for the translation unit.
+
+`func_00375f00` stays ASM. Its IDA-backed typed archive retains the 0xE8
+record stride, 0x60-byte motion and 0x6C-byte rotation objects. The helper
+calls precede the respective state stores of 5 and 3; no final flag OR
+belongs to this function. A 576-case native smoke with helper hooks checks
+that ordering and adjacent bytes. The floor remains 156B/160B with eight
+differing words, including one zero-tail word.
+
+After both promotions, `make build-progress progress lint-errors` reports
+6,081 first-party MATCH and 779 ASM, with both retail SHA-1 checks passing
+and zero lint findings. The source-linked total remains 1,555; matching
+these functions does not yet make their translation units C-linkable.

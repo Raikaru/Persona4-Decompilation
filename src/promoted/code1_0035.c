@@ -20,6 +20,7 @@ extern u8 D_0064B3D0[];
 extern s32 func_00355460(u8 *arg0);
 extern void func_003554b0(u8 *arg0);
 extern void func_00442de8(void *dst, const void *src, u32 size);
+extern f32 func_003e40b0(void *out, const void *in);
 
 extern void func_0046d280(s32 arg0);
 extern void func_00452080(s32 arg0);
@@ -51,6 +52,11 @@ typedef struct S64u
     s32 lo;
     s32 hi;
 } S64u;
+static inline void interpolation_accumulate(f32 *total, f32 weight, f32 projection)
+{
+    *total += weight * projection;
+}
+
 static inline u32 add_offset_first(u32 offset, u32 base)
 {
     return offset + base;
@@ -1552,11 +1558,33 @@ done:
     *(s32 *)(base + 0x2C) = 0;
 unchanged: ;
 }
-/* measured: skipped floor; retail uses COP1 accumulator chain
-   (mula.s/madda.s/madd.s) in both interpolation blocks. Body archived in
-   build/V035_0035bd20_body.c. */
-// FUN_0035BD20 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0035", func_0035bd20);
+// FUN_0035BD20
+// MATCH: 332B/336B; retail ends with four zero bytes.
+// IDA-backed Float2 values and in-place weighted COP1 accumulation.
+f32 func_0035bd20(Float2 first, Float2 second, Float2 origin)
+{
+    struct Vector3 { Float2 xy; f32 z; } normal, direction;
+    extern struct Vector3 D_0064CD30;
+    f32 total;
+    f32 projection;
+
+    normal = D_0064CD30;
+    total = 0.0f;
+    direction.xy.x = first.x - origin.x;
+    direction.xy.y = first.y - origin.y;
+    direction.z = 20.0f;
+    func_003e40b0(&direction, &direction);
+    projection = direction.xy.x * normal.xy.x + direction.xy.y * normal.xy.y + direction.z * normal.z;
+    interpolation_accumulate(&total, 1.0f, projection);
+    direction.xy.x = second.x - origin.x;
+    direction.xy.y = second.y - origin.y;
+    direction.z = 20.0f;
+    func_003e40b0(&direction, &direction);
+    projection = direction.xy.x * normal.xy.x + direction.xy.y * normal.xy.y + direction.z * normal.z;
+    interpolation_accumulate(&total, 1.0f, projection);
+    if (!(total <= 1.0f)) total = 1.0f;
+    return total;
+}
 // FUN_0035BE70
 s32 func_0035be70(u8 *arg0)
 {

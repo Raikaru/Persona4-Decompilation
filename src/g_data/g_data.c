@@ -385,9 +385,9 @@ s16 func_00104ea0(s16 arg0, s16 arg1)
 }
 
 // FUN_00104F10
-void func_00104f10(s16 arg0)
+s16 func_00104f10(s16 arg0)
 {
-    func_00104f50(arg0, D_007973F4[arg0]);
+    return func_00104f50(arg0, D_007973F4[arg0]);
 }
 
 // FUN_00104F50
@@ -1434,9 +1434,9 @@ u32 datPersonaGetNextExp(int persona)
 
 
 // FUN_00109440
-void func_00109440(PersonaWork* persona)
+u32 func_00109440(PersonaWork* persona)
 {
-    func_0010c750(persona, (u16)(persona->level + 1));
+    return func_0010c750(persona, (u16)(persona->level + 1));
 }
 
 
