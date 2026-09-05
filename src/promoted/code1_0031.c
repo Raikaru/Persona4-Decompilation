@@ -7,7 +7,9 @@ extern u8 *iGpffffb3d4;
 extern s16 D_006420A0[];
 extern u32 D_00642EF0[];
 extern u32 D_00642F00[];
-extern s32 func_0010ac10();
+extern u16 *func_0010ac10(s32 arg0);
+extern u8 *func_002e4870(s8 arg0);
+extern void func_002e55c0(s8 arg0, s32 arg1, s8 arg2);
 extern u8 *func_002e48a0();
 static inline s32 func_0031_ne(s32 value, s32 target)
 {
@@ -19,11 +21,24 @@ extern s32 func_00106330(s32 arg0);
 extern u8 func_00106600(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern u8 D_006432B0[];
-extern u8 func_002e78a0();
-extern u8 func_002e78e0();
-extern void func_002e7920();
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
+extern u8 func_002e78a0(void);
+extern u8 func_002e78e0(void);
+extern void func_002e7920(s32 *month, s32 *day);
+extern void func_00313d20(u8 *arg0, u8 month, u8 day, s8 mode);
+
+static inline s8 findDateEntry(u8 month, u8 day)
+{
+    s8 index = 0;
+    u8 *entry;
+
+    for (;;) {
+        index++;
+        entry = D_006432B0 + index * 0x1C;
+        if (*(s8 *)entry == -1 && *(s8 *)(entry + 1) == -1) return -1;
+        if (*(s8 *)entry == month && *(s8 *)(entry + 1) == day) return index;
+    }
+}
+
 // FUN_00311900
 void func_00311900(s64 arg0)
 {
@@ -227,8 +242,46 @@ s32 func_003136b0(u16 arg0)
 done:
     return result;
 }
-// FUN_00313800 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313800);
+/* measured: structured signed loops and declaration order give 452B/464B,
+   with only three zero-tail words under loop-invariant hoisting. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_00313800
+void func_00313800(s8 arg0)
+{
+    u8 *items;
+    s16 row;
+    s16 item;
+    s16 selected;
+    s32 column;
+    u8 *entry;
+    u8 *table;
+    s16 *value;
+
+    selected = 0;
+    row = 0;
+    table = (u8 *)D_00642F00 + arg0 * 8;
+    for (; row < 6; row++) {
+        entry = *(u8 **)(table - 0x10) + row * 0x20;
+        if (*(u16 *)entry != 0 && func_003136b0(*(u16 *)entry) == 1) {
+            func_002e55c0(0, *(s16 *)entry, 0);
+            items = entry + 4;
+            func_002e4870(0)[0x14 + selected] = 1;
+            item = 0;
+            column = selected + 1;
+            for (; item < arg0; item++) {
+                value = (s16 *)(items + item * 2 + 4);
+                func_002e55c0((s8)column, *value, 1);
+                func_002e4870((s8)column)[0x14 + item] = 0;
+                if (func_0010ac10(*(u16 *)value) != NULL) {
+                    func_002e4870((s8)column)[0x14 + item] = 1;
+                }
+            }
+            selected++;
+        }
+    }
+}
+#pragma pop
 // FUN_003139D0
 s32 func_003139d0(s64 arg0, s64 arg1)
 {
@@ -287,8 +340,33 @@ loop_test:
 done:
     return result;
 }
-// FUN_00313B50 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313b50);
+/* measured: shared inline lookup and loop-invariant hoisting give 464B/464B MATCH. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_00313B50
+void func_00313b50(u8 *arg0)
+{
+    s32 month;
+    s32 day;
+    u8 current_day;
+    u8 current_month;
+    u8 *work;
+
+    work = *(u8 **)(arg0 + 0x38);
+    current_day = func_002e78e0();
+    current_month = func_002e78a0();
+    *(s8 *)(work + 0x2D4) = findDateEntry(current_month, current_day);
+    func_00313d20(arg0, func_002e78a0(), func_002e78e0(), 0);
+    month = func_002e78a0();
+    day = func_002e78e0() + 1;
+    func_002e7920(&month, &day);
+    *(s8 *)(work + 0x2D5) = findDateEntry((u8)month, (u8)day);
+    func_00313d20(arg0, (u8)month, (u8)day, 1);
+    *(u8 *)(work + 0x2D2) = month;
+    *(u8 *)(work + 0x2D3) = day;
+    *(u8 *)(work + 0x2D6) = 0;
+}
+#pragma pop
 // FUN_00313D20 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00313d20);
 // FUN_00313FB0

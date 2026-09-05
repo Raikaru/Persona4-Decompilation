@@ -249,8 +249,12 @@ extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
 extern s32 func_00168ec0(void *arg0, void *arg1, void *arg2);
-extern s64 D_005EFB98;
-extern f32 D_005EFBA0;
+typedef union {
+    s64 bits;
+    Float2_0014 values;
+} NormalXY0014;
+extern NormalXY0014 D_005EFB98[];
+extern f32 D_005EFBA0[];
 static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
@@ -2681,7 +2685,8 @@ void func_0014b840(u8 *arg0)
 s32 func_0014bd90(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) == 1;
 }
-/* object 416B / window 416B / normalized_diff 8; differing offsets: 0x62, 0x64, 0x66-0x67, 0x6a-0x6b, 0x6e-0x6f; classification: global-load register coloring residual (retail first global load uses $v1, candidate uses $v0); corrected D_005EFB98/D_005EFBA0 to absolute array-addressing mode. */
+/* measured: the archive uses a complete normal vector and three triangle pointers;
+   416B/416B, four differing load/store words, no invented stack padding. */
 // FUN_0014BE50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014be50);
 // FUN_0014C540
