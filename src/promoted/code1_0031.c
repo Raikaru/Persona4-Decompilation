@@ -31,8 +31,77 @@ void func_00311900(s64 arg0)
 }
 // FUN_00311930 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00311930);
-// FUN_00311B90 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0031", func_00311b90);
+/* measured: b210 -O2 with loop-invariant hoisting gives 364B/368B,
+   normalized diff 0; the remaining retail word is zero tail padding.
+   Entries contain a signed 10-bit value and independent bit-14 category
+   and bit-15 required flags. Count/index and found/index declaration order
+   preserves the two retail register pairs; the shared constant 1 is hoisted. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_00311B90
+s32 func_00311b90(u16 *arg0, u16 *arg1, s32 arg2, s16 *arg3)
+{
+    typedef struct {
+        s16 value : 10;
+        s16 reserved : 4;
+        s16 category : 1;
+        s16 required : 1;
+    } SelectionEntry;
+    s32 result;
+    s16 count;
+    s16 i;
+    s32 value;
+    s16 j;
+    s16 found;
+    s32 bit;
+    s32 one;
+    u16 candidate;
+    u8 *base;
+    u8 *table;
+    SelectionEntry *entry;
+
+    if (*arg0 == 0) {
+        return 0;
+    }
+    count = 0;
+    result = 0;
+    base = (u8 *)arg0 + 4;
+    i = 0;
+    table = iGpffffb3d4;
+    one = 1;
+    for (; i < 8; i++) {
+        entry = (SelectionEntry *)(base + (i * 2) + 4);
+        value = entry->value;
+        if (value != 0) {
+            found = 0;
+            for (j = 0; j < arg2; j++) {
+                bit = (s32)((u32)one << j);
+                if ((result & bit) == 0) {
+                    if (entry->category != 0) {
+                        candidate = *(u8 *)(table
+                            + (*(u16 *)((u8 *)arg1 + (j * 2)) * 14) + 2);
+                    } else {
+                        candidate = *(u16 *)((u8 *)arg1 + (j * 2));
+                    }
+                    if ((candidate & 0xFFFF) == value) {
+                        result |= bit;
+                        count++;
+                        found = 1;
+                        break;
+                    }
+                }
+            }
+            if (entry->required != 0 && found == 0) {
+                return 0;
+            }
+        }
+    }
+    if (arg3 != 0) {
+        *arg3 = count;
+    }
+    return result;
+}
+#pragma pop
 // FUN_00311D00
 s64 func_00311d00(s32 arg0)
 {
