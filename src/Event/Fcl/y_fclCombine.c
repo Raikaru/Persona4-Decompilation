@@ -138,7 +138,7 @@ extern s32 func_0033e120(u8 *arg0, s32, s32);
 extern void func_001075d0(s32);
 extern s32 func_00144f60(void);
 extern u8 *func_001452b0(s32);
-extern void func_00479940(s32, s32, s32, s32, s32);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern u8 *func_00457120(void);
 extern f32 func_0014b4d0(void);
 extern void func_004577d0(u8 *arg0, f32 arg1);
@@ -1266,7 +1266,7 @@ s32 func_00310bf0(u8 *arg0) {
             q = func_001452b0(3);
             while (q != 0) {
                 if ((*(u16 *)q & 0x3FF) == 0x38) {
-                    func_00479940(*(u32 *)(q + 0x164), 0, 0xD, 0, 1);
+                    func_00479940((u8*)*(u32 *)(q + 0x164), 0, 0xD, 0, 1);
                 }
                 q = *(u8 **)(q + 0x138);
             }

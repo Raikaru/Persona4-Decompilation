@@ -38,7 +38,7 @@ extern void func_003e0870(void *arg0, void *arg1, s32 arg2, f32 arg3);
 extern void func_003e0c90(void *arg0, void *arg1, s32 arg2);
 extern s32 func_00349c50(u8 *arg0);
 extern u8 *func_00478140(s32, u16, s32);
-extern void func_00479940(u8 *, s32, s32, s32, s32);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s32 func_00106330(s32);
 extern s32 func_00348be0(u8 *);
 extern s32 func_00348c10(u8 *);

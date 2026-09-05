@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
-extern void func_00479940();
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s32 func_0016fd00();
 extern void func_003e0f40();
 extern void (*jtbl_008873EC[])(void *ptr);

@@ -36,7 +36,7 @@ extern void func_0046d740(const void *msg, const void *file, u32 line);
 extern u32 func_003b7060(void);
 extern u8 *func_00145270(s32 arg0);
 extern s32 func_00145540(s32 arg0, u8 arg1, u8 *arg2);
-extern void func_00479940(u8 *arg0, s32 arg1, s16 arg2, s32 arg3, s32 arg4);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047aa30(u8 *arg0, u8 *arg1);
 extern s32 func_0014c780(void);
 extern void func_0017b9a0(s32 arg0, f32 arg1);

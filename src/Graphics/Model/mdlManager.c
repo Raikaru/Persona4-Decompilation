@@ -264,7 +264,8 @@ extern void* func_003c0520();
 extern void* func_0047d200();
 extern void* func_0047dc30();
 extern void func_0047ea40();
-extern s32 func_00479d10(u8* a, u32 b, s16 c);
+extern s32 func_00479d10(u8* a, u32 b, s32 c);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047eb20();
 extern s32 func_0047ae90();
 extern void func_00475350();
@@ -1496,38 +1497,123 @@ void func_00475170(u8* arg0, f32 fparg0)
     }
 }
 
-/* measured: 4 attempts (nd 245/253/252/248). Working spellings: the
-   type==6/5 dispatch must be switch(t){case 5: case 6:} to reproduce retail's
-   beq/beq/b with the body out of line (|| range-optimizes, if/else-if
-   duplicates the 9a700 call); the u_long128 spA0 read must be *(s32*)&spA0
-   (typed alias, wave rule 3) to keep the sq/lq at 0xA0($sp) - (s32)spA0 keeps
-   it in a register; arg3 must be u16 (s16 emits a dsll32/dsra32 dance before
-   the andi 0xFFFF); arg4 needs the explicit double mask `arg4 & 0xFFFF & 1`;
-   the (s64)(s16)arg2 dance is right (m2c's (arg2<<0x30)>>0x30 FOLDS TO ZERO
-   under b210 with narrow args - do not use). Residual: arg2 gets spilled to
-   the stack slot 0xAE instead of retail's $s1 (saved-register pressure), the
-   val*8 chain is re-derived per loop iteration where retail hoists
-   sll $s7,$v1,3 before the loop, and a general saved-register rotation
-   (mine arg0:$s5/arg1:$s0/iter:$s3/list:$s4/t:$s1/obj:$s2/t30:$s7 vs retail
-   arg0:$s5/arg1:$s2/arg2:$s1/iter:$s0/list:$s6/obj:$s3/t+e2:$s4/t30:$fp).
-   Saved-register-rotation + LICM floor. */
+/* IDA 00475350, mdlManager.c:1542-1684: typed resources, animation schemes
+   and detach lifetimes reduce the old 245-word draft to 30 fully relocated
+   instruction differences (1220B/1232B, plus 12 zero-tail bytes).
+   The successful-loop animation/interpolator allocation still differs.
+   Retained in IDA_00475350_body.c; production remains ASM. */
 // FUN_00475350
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475350);
 
-/* measured: 4 attempts (nd 174/173/173/174, obj 780B vs window 752B: over).
-   Logic and call sequence fully transcribed and matching; retail saves 4
-   s-regs ($16-19), b210 hoists the elem+0x40/0x44 STORE addresses into saved
-   regs $s4/$s5 (addiu $s5,$s0,0x40; sw ($s5)) across the func_003d5e40/
-   003d5990 calls where retail folds 0x40($s0) per store - the recorded
-   Address-CSE-into-s-reg floor family (79e60/776c0/73710/735b0) - plus the
-   type==6||type==5 dispatch compiles to a range test (addiu -5/sltiu 2) in
-   the || form and to beq+bne with the work block inline in the goto/&&/switch
-   forms (retail: beq 6; beq 5; b skip with the body out of line), and the
-   (arg0+2)==1 branch inverts (retail branches to the out-of-line ==1 block;
-   b210 inlines it under a negated skip in every if/else and switch spelling).
-   Branch-placement + address-CSE floor. */
+/* IDA 00475820, mdlManager.c:1687-1775: primary and secondary interpolators
+   have separate lifetimes, including the mode-1 callback-only path.
+   Measured 744B/752B: instruction match, followed by 8 zero tail bytes. */
+#pragma push
+#pragma always_inline on
+typedef struct MdlAnimResourceView {
+    MdlAnimResourceEntry* entries;
+    u32 unknown04;
+    void* objects;
+    u16 count;
+    u16 unknown0e;
+} MdlAnimResourceView;
+
+typedef struct MdlAnimControlView {
+    u16 flags;
+    u8 mode;
+    u8 unknown03;
+    s16 index;
+    u8 unknown06[6];
+    f32 primaryTime;
+    f32 secondaryTime;
+    u16 ticks;
+    u16 unknown16;
+    MdlAnimResourceView* resource;
+} MdlAnimControlView;
+
+static inline void mdl_step_secondary(MdlAnimControlView* state, u32* it)
+{
+    if (state->mode != 1) {
+        RtAnimInterpolator* interp;
+        interp = (RtAnimInterpolator*)func_003d8130(*it, 1);
+        if (interp != NULL) {
+            if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
+                interp->keyFrameInterpolateCB == (void*)func_00474a90) {
+                func_003d5990(interp, func_00474ba0, state);
+                func_003d5e40((u8*)interp, state->secondaryTime);
+                interp->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
+                interp->keyFrameInterpolateCB = (void*)func_00474a90;
+            } else {
+                func_003d5990(interp, func_00474af0, state);
+                if (interp->keyFrameBlendCB != (RtAnimKeyFrameBlendCallBack)func_00474ad0 &&
+                    interp->keyFrameInterpolateCB != (void*)func_00474ae0) {
+                    func_003d5e40((u8*)interp, state->secondaryTime);
+                }
+            }
+            state->secondaryTime = interp->currentTime;
+        }
+        return;
+    }
+    {
+        RtAnimInterpolator* interp;
+        interp = (RtAnimInterpolator*)func_003d8130(*it, 1);
+        if (interp != NULL) {
+            if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
+                interp->keyFrameInterpolateCB == (void*)func_00474a90) {
+                func_003d5990(interp, func_00474ba0, state);
+            } else {
+                func_003d5990(interp, func_00474af0, state);
+            }
+        }
+    }
+}
+
+static inline void mdl_step_anim_object(MdlAnimControlView* state, u32* it)
+{
+    extern s32 func_003d7cf0(u32 object);
+    RtAnimInterpolator* interp;
+    switch (func_00399d80(*it)) {
+    case 5:
+    case 6:
+        break;
+    default:
+        return;
+    }
+    interp = (RtAnimInterpolator*)func_003d8130(*it, 0);
+    if (interp != NULL) {
+        if (interp->keyFrameBlendCB == (RtAnimKeyFrameBlendCallBack)func_00474a50 &&
+            interp->keyFrameInterpolateCB == (void*)func_00474a90) {
+            func_003d5e40((u8*)interp, state->primaryTime);
+            interp->keyFrameBlendCB = (RtAnimKeyFrameBlendCallBack)func_00474a50;
+            interp->keyFrameInterpolateCB = (void*)func_00474a90;
+        } else {
+            func_003d5e40((u8*)interp, state->primaryTime);
+        }
+        state->primaryTime = interp->currentTime;
+    }
+    mdl_step_secondary(state, it);
+    func_003d7cf0(*it);
+}
+
 // FUN_00475820
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475820);
+void func_00475820(void* arg0, void* arg1)
+{
+    MdlAnimControlView* state = (MdlAnimControlView*)arg0;
+    u32* it;
+    void* list;
+    if (state->resource != NULL && state->resource->objects != NULL) {
+        if (state->ticks != 0)
+            --state->ticks;
+        state->primaryTime = state->primaryTime + iGpffff8040;
+        state->secondaryTime = ((MdlAnimControlView*)arg1)->primaryTime;
+        list = state->resource->objects;
+        for (it = (u32*)func_003df890(list); it != (u32*)func_003df8a0(list); ++it) {
+            mdl_step_anim_object(state, it);
+        }
+    }
+}
+#pragma pop
+
 typedef struct MdlFrameSearch {
     void* frame;
     s32 id;
@@ -2165,7 +2251,6 @@ void func_00477ca0(u8* arg0)
     extern u8* func_00477660(void*, void*);
     extern s32 func_00462ae0(void*);
     extern u32 func_003971d0();
-    extern void func_00479940(void*, s32, s32, s32, s32);
     extern void func_0047da30(u32*);
     extern f32 fGpffff80cc;
     f32 values[3];
@@ -2624,16 +2709,93 @@ void func_00479910(void* param_1)
     func_003bff30(param_1, func_00479880, 0);
 }
 
-/* measured: saved-register coalescing + t-reg rotation: retail keeps raw
-   arg1 in $s5 and the u16 mask t20 in $s4 (both live across the 740c0 call)
-   while mwcc b210 coalesces t20 into arg1's $s4 with a self-mask (all arg1
-   uses are &0xFFFF so the coalesce is legal), and every following temp
-   rotates ($a0/$v1 etc.) — nd 151-157 across compound-&& and comma
-   spellings (the &&-inside-comma booleanization was fixed by moving
-   `elem = ...) != 0 && elem != D` to top level; the 8-word copy loop and
-   identity-mat blocks then match 1:1). Saved-register rotation floor. */
+/* IDA 00479940, mdlManager.c:2873-2957: validate raw arguments before
+   dispatching the base transform, layer animation and attached children.
+   Measured 752B/752B, fully relocated exact match. */
+#pragma push
+#pragma opt_common_subs off
+typedef struct MdlDispatchAnimEntry {
+    RwMatrix matrix;
+    void* animation;
+    u8 unknown[12];
+} MdlDispatchAnimEntry;
+
+typedef struct MdlDispatchAnimTable {
+    MdlDispatchAnimEntry* entries;
+    u32 unknown;
+    u16 count;
+} MdlDispatchAnimTable;
+
+static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s32 animation, s32 frame, s32 flags)
+{
+    u32 baseLayer;
+    u32 narrowFlags;
+    u8** blend;
+    s32 i;
+    void** child;
+    baseLayer = (u16)layer;
+    if (baseLayer == 0) {
+        {
+            MdlDispatchAnimTable* table;
+            MdlDispatchAnimEntry* entries;
+            void* clip;
+            s32 offset;
+            s32 index = (s16)animation;
+            if (index >= 0 && (table = *(MdlDispatchAnimTable**)(mdl + 0x120)) != 0 &&
+                index < table->count &&
+                (offset = index * 80, entries = table->entries,
+                 clip = *(void**)addOff((u32)entries + 64, offset)) != 0 && clip != D_00922BC0_abs) {
+                *(RwMatrix*)(mdl + 64) = *(RwMatrix*)((u8*)entries + offset);
+            } else {
+                RwMatrix* matrix = (RwMatrix*)(mdl + 64);
+                matrix->right.x = matrix->up.y = matrix->at.z = 1.0f;
+                matrix->up.x = 0.0f;
+                matrix->right.z = 0.0f;
+                matrix->right.y = 0.0f;
+                matrix->at.y = 0.0f;
+                matrix->at.x = 0.0f;
+                matrix->up.z = 0.0f;
+                matrix->pos.z = 0.0f;
+                matrix->pos.y = 0.0f;
+                matrix->pos.x = 0.0f;
+                matrix->flags |= 0x20003;
+            }
+        }
+        if (*(void**)(mdl + 0x234) && (blend = *(u8***)(mdl + 0x238)))
+            func_0047fe90(blend, 0.0f, 1.0f);
+        func_00475350(*(void**)(mdl + 0xdc), mdl + 0x23c, animation, frame, flags);
+    }
+    func_004740c0(mdl + 0xec + (u16)layer * 0xa4, animation, frame, flags);
+    if (*(void**)(mdl + 0x2d0) && !((narrowFlags = (u16)flags) & 0x40) && baseLayer == 0) {
+        if (narrowFlags & 0x100) {
+            *(u16*)(mdl + 0x2e0) &= ~0x20;
+            func_0047eb20(mdl + 0x2d0, animation, frame);
+        } else {
+            *(u16*)(mdl + 0x2e0) |= 0x20;
+            func_0047eb20(mdl + 0x2d0, animation, frame);
+        }
+    }
+    if (*(u32*)(mdl + 0xd8) & 0x10000) {
+        for (i = 0; (s64)(u16)i < 5; i = (u16)(i + 1)) {
+            u8* slot = mdl + (u16)i * 12;
+            if (*(u8*)(slot + 0x28c) & 1) {
+                child = (void**)(slot + 0x290);
+                if (*child && func_0047ae90(mdl, i))
+                    func_00479940(*child, 0, animation, frame, flags);
+            }
+        }
+    }
+}
+#pragma opt_common_subs on
 // FUN_00479940
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479940);
+s32 func_00479940(u8* mdl, u32 layer, s32 animation, s32 frame, s32 flags)
+{
+    if (func_00479d10(mdl, layer, animation))
+        mdl_dispatch_animation(mdl, layer, animation, frame, flags);
+    return 1;
+}
+#pragma pop
+
 // FUN_00479CA0
 s32 func_00479ca0(void* param_1, s32 param_2)
 {
@@ -2659,8 +2821,14 @@ s32 func_00479ca0(void* param_1, s32 param_2)
    reusing iVar4 for *obj (iVar4 = *(int*)(iVar4+0)) which routes the load into
    the $a3 mask reg exactly as retail does, with addOff folding index into the
    addu. The (u16)param_2 second check uses plain ints (no mask local). */
+/* The promoted s32 argument remains raw at callers; the old-style s16
+   parameter performs the retail signed-short conversion inside this callee. */
 // FUN_00479D10
-s32 func_00479d10(u8* param_1, u32 param_2, s16 param_3) {
+s32 func_00479d10(param_1, param_2, param_3)
+u8* param_1;
+u32 param_2;
+s16 param_3;
+{
     int result = 0;
     int iVar4;
     int iVar5;

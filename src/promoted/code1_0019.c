@@ -260,7 +260,7 @@ extern s32 func_00232830(s32 arg0, s32 arg1);
 extern u8 *func_0019e150(u8 *arg0, f32 *arg1, s32 arg2);
 extern s32 func_00242930(u8 *arg0);
 extern s32 func_00243e30(s32 arg0);
-extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047a120(void *arg0);
 extern void func_0047a150(void *arg0);
 extern u8 *func_00199ee0(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);

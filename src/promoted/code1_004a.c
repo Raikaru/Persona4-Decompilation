@@ -111,7 +111,7 @@ extern void func_004829c0(s32 arg0);
 extern s32 func_00482a70(s32 arg0);
 extern void func_0047a2a0(void *arg0);
 extern s32 func_00479ca0(void *arg0, s32 arg1);
-extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_0047a0e0(void *arg0, s32 arg1, f32 arg2);
 extern void func_00478eb0(void *arg0, void (*arg1)(void), void *arg2);
 extern void func_004abe60(void);

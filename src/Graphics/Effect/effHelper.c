@@ -10,7 +10,7 @@ u8 *func_00484490(u8 *obj);
 s32 func_004844d0(u8 *obj);
 u8 *func_004abc50(u8 *base, s32 size);
 s32 func_00479ca0(s32 res, s32 arg1);
-void func_00479940(s32 res, s32 a, s32 b, s32 c, s32 d);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 u32 func_0047a7c0(s32 res);
 u32 func_00484bb0(s32 arg);
 u32 func_00485c80(u32 arg);
@@ -89,9 +89,9 @@ EffHlpWork *func_004ad460(u8 *arg0)
     }
     if (func_00479ca0(work->res, 0) != 0) {
         if (work->data.mode != 0) {
-            func_00479940(work->res, 0, 0, 0, 0);
+            func_00479940((u8*)work->res, 0, 0, 0, 0);
         } else {
-            func_00479940(work->res, 0, 0, 0, 1);
+            func_00479940((u8*)work->res, 0, 0, 0, 1);
         }
     }
     work->count = func_0047a7c0(work->res);
@@ -167,9 +167,9 @@ void func_004ad880(EffHlpWork *work, EffHlpWork *src)
     func_004abbb0(work->res);
     if (func_00479ca0(work->res, 0) != 0) {
         if (work->data.mode != 0) {
-            func_00479940(work->res, 0, 0, 0, 0);
+            func_00479940((u8*)work->res, 0, 0, 0, 0);
         } else {
-            func_00479940(work->res, 0, 0, 0, 1);
+            func_00479940((u8*)work->res, 0, 0, 0, 1);
         }
     }
     work->count = func_0047a7c0(work->res);

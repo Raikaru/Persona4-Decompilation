@@ -96,7 +96,7 @@ extern s32 func_003e05d0(void *arg0);
 extern s32 func_00168ec0();
 extern s32 func_00479dd0(u32 arg0, u16 arg1, s16 arg2);
 extern void func_0047a0e0(u32 arg0, u16 arg1, f32 arg2);
-extern s32 func_00479940(u32 arg0, u16 arg1, s16 arg2, u16 arg3, u16 arg4);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_00479e60(u32 arg0, u16 arg1, f32 arg2);
 extern u8 *func_0047a250(u32 arg0);
 extern void func_004b14f0(u32 arg0, void *arg1);
@@ -629,7 +629,7 @@ u32 func_00269820(u16 *arg0, s32 arg1, s64 arg2, s64 arg3, s32 arg4, s32 arg5,
     }
     if (func_00479dd0(var_16, arg1, (s16)arg2) == 0) {
         func_0047a0e0(var_16, arg1, fparg0);
-        func_00479940(var_16, arg1, (s16)arg2, arg3 & 0xFFFF, var_17 & 0xFFFF);
+        func_00479940((u8*)var_16, (u16)arg1, (s16)arg2, (u16)arg3, var_17 & 0xFFFF);
         if (arg5 > 0) {
             func_00479e60(var_16, arg1, (f32)arg5);
         }
