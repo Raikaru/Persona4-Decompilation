@@ -1528,11 +1528,17 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475350);
    Branch-placement + address-CSE floor. */
 // FUN_00475820
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475820);
+typedef struct MdlFrameSearch {
+    void* frame;
+    s32 id;
+} MdlFrameSearch;
+
 // FUN_00475B10
 void* func_00475b10(void* object, void* data)
 {
-    if (*(s32*)((u8*)data + 4) == func_00397470(object)) {
-        *(void**)data = object;
+    MdlFrameSearch* search = (MdlFrameSearch*)data;
+    if (search->id == func_00397470(object)) {
+        search->frame = object;
         return NULL;
     }
 
@@ -1543,16 +1549,56 @@ void* func_00475b10(void* object, void* data)
 
 
 
-/* measured: retail places the x != func_00397470(obj) setup block OUT OF LINE
-   (bne -> setup; fall-through b -> join, +8B); mwcc b210 inlines it under a
-   negated skip (beq -> join), and the switch lever materializes the boolean
-   (xor/sltiu/beqz, nd 35) instead of a branch. Loop t-regs permute too
-   (count $t1<->$t0, i $v1<->$t1) with the second-path mask self-masking
-   (andi $v1,$v1) vs retail re-masking the counter. Tried: if/else forms,
-   empty-then, switch case 0/1, i-init order, s32 count (fixed the u16
-   re-mask). Branch-placement + t-coloring floor, best nd 35. */
+/* Keep the root fast path separate from recursive child traversal.
+   The inlined return paths preserve the retail branch layout. */
+static inline u8* mdl_find_frame(u8* frame, s32 id)
+{
+    MdlFrameSearch data;
+    if (id == func_00397470(frame))
+        return frame;
+    data.id = id;
+    data.frame = NULL;
+    func_003e9af0(frame, func_00475b10, &data);
+    return data.frame;
+}
+
+/* MATCH: 312B/320B, with two zero-tail words. IDA-backed frame lookup
+   lifetime and pointer-valued userdata preserve every retail instruction. */
 // FUN_00475B90
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475b90);
+int func_00475b90(void* buf, void* v, u32 idx, void* obj)
+{
+    s32 count;
+    u16 i;
+    u32 masked_idx;
+    void* entry;
+    u8* clump;
+    s32 field44;
+
+    count = (s32)*(u16*)v;
+    i = 0;
+    masked_idx = idx & 0xFFFF;
+    while ((s32)(u16)i < count) {
+        entry = (void*)((u8*)*(void**)((u8*)v + 4) + (u32)(u16)i * 0x50);
+        if (masked_idx == *(s32*)((u8*)entry + 0x40)) {
+            break;
+        }
+        i++;
+    }
+    if ((s32)(u16)i == count) {
+        return 0;
+    }
+
+    entry = (void*)((u8*)*(void**)((u8*)v + 4) + (u32)(u16)i * 0x50);
+    field44 = *(s32*)((u8*)entry + 0x44);
+    clump = *(u8**)((u8*)obj + 4);
+    clump = mdl_find_frame(clump, field44);
+    if (clump == 0) {
+        return 0;
+    }
+
+    func_003e05f0(buf, entry, func_003e9700(clump));
+    return 1;
+}
 
 // FUN_00475CD0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475cd0);
@@ -2969,15 +3015,95 @@ void func_0047a4d0(void* param_1, int param_2)
     func_003bff30(*(void**)((u8*)param_1 + 0xDC), func_0047a4a0, &param_2);
 }
 
-/* measured: same floor family as 00475B90: retail places the
-   v17 != func_00397470(v18) setup block OUT OF LINE (bne -> setup, b -> join,
-   +8B) while mwcc b210 inlines it under a negated skip (beq -> join, nd 84);
-   the loop's t-regs rotate (t/clump/count/j/idm permutation) and the u16
-   counter body-mask is CSE'd into the loop test (count as s32 + jm local
-   regress to nd 92); the 8-word copy loop wants n-- before the stores
-   (do {lw,lw,q+=8,n--,sw,sw,dst+=8} while(n>0) shape). Branch-placement floor. */
+typedef struct MdlMatrixEntry {
+    RwMatrix matrix;
+    s32 id;
+    s32 frameId;
+    u8 unknown[8];
+} MdlMatrixEntry;
+
+typedef struct MdlMatrixTable {
+    u16 count;
+    u16 unknown;
+    MdlMatrixEntry* entries;
+} MdlMatrixTable;
+
+#pragma push
+/* Retain the separate body, test and found-index masks from retail. */
+#pragma opt_common_subs off
+static inline s32 mdl_matrix_from_table(MdlMatrixTable* list, void* arg0,
+                                       s32 arg1, u8* dst)
+{
+    u8* container;
+    s32 count, key, bodyIndex, testIndex, foundIndex, value, result;
+    u16 index;
+    MdlMatrixEntry* entry;
+    u8* temp;
+
+    container = *(u8**)((u8*)arg0 + 0xDC);
+    count = list->count;
+    index = 0;
+    key = arg1 & 0xFFFF;
+    goto loop_test;
+loop_body:
+    bodyIndex = index & 0xFFFF;
+    entry = list->entries + bodyIndex;
+    if (key == entry->id) {
+        goto found;
+    }
+    index += 1;
+loop_test:
+    testIndex = index & 0xFFFF;
+    if (testIndex < count) {
+        goto loop_body;
+    }
+found:
+    if (testIndex == count) {
+        result = 0;
+    } else {
+        foundIndex = index & 0xFFFF;
+        entry = list->entries + foundIndex;
+        value = entry->frameId;
+        temp = *(u8**)(container + 4);
+        temp = mdl_find_frame(temp, value);
+        if (temp == 0) {
+            result = 0;
+        } else {
+            func_003e05f0(dst, &entry->matrix, func_003e9700(temp));
+            result = 1;
+        }
+    }
+    return result;
+}
+
+/* MATCH: 440B/448B, with two zero-tail words. The table helper retains
+   its shared return block; RwMatrix assignment emits the retail pair-copy. */
 // FUN_0047A510
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_0047a510);
+s32 func_0047a510(void* arg0, s32 arg1, void* arg2)
+{
+    MdlMatrixTable* list;
+    s32 result;
+    u8* dst;
+    u8* src;
+
+    dst = (u8*)arg2;
+    list = *(MdlMatrixTable**)((u8*)arg0 + 0x2C8);
+    if (list != 0) {
+        result = mdl_matrix_from_table(list, arg0, arg1, dst);
+    } else {
+        src = (u8*)func_00457f40(*(void**)((u8*)arg0 + 0xDC),
+                               (const char*)D_007131D8, arg1);
+        if (src == NULL) {
+            result = 0;
+        } else {
+            src = func_003e9700(src);
+            *(RwMatrix*)dst = *(RwMatrix*)src;
+            result = 1;
+        }
+    }
+    return result;
+}
+#pragma pop
 // FUN_0047A6D0
 s32 func_0047a6d0(void* arg0, s32 arg1, void* arg2)
 {
