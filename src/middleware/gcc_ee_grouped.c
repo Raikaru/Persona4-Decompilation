@@ -31,16 +31,6 @@
    moved, and the image and SLUS sha1s are unchanged.
 */
 
-/* GCC fp-bit.c GOFAST unsigned double-to-integer conversion, not game code.
-   Canonical ABI: u32 func_0044e830(f64), with a two-pointer unpacker at
-   0044ddf0. An ee-gcc 2.96 reconstruction is exact at 156B/160B (zero tail).
-   Both direct callers in the verifier report, 0044bb60 and 0044bcd8, remain
-   ASM; no C caller ABI changes are needed for this ownership correction.
-   Retain the retail assembly rather than import the GPL runtime source.
-   Provenance: gcc releases/gcc-2.95/gcc/config/fp-bit.c, float_to_usi. */
-
-// FUN_0044E830
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e830);
 /* tailjump signature; moved from code1_0044.c */
 // FUN_004460F0 NONMATCHING
 #ifdef NON_MATCHING

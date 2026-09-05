@@ -129,8 +129,14 @@ Use this six-step loop for every target:
 - Check runtime provenance before counting a compiler-floor closure as game
   progress. `func_0044e830` is GCC `fp-bit.c` GOFAST `float_to_usi`, not a
   memory initializer: ee-gcc 2.96 reproduces 156B/160B with only a zero tail.
-  Its existing assembly is reclassified under `src/middleware/`; no GPL
-  implementation is imported and no first-party match is claimed.
+  The matched C lives in the isolated `src/middleware/gcc_fp.c` ee-gcc unit,
+  retaining the upstream GPL notices and linking exceptions; its license is
+  alongside it in `COPYING.gcc-runtime`. This is a runtime match, not a
+  first-party match. Runtime classification does not remove it from overall
+  C-matching work. As with the other configured GCC units, the current
+  linker still uses extracted assembly; this increases compiler-verified
+  C matching, not C-linked coverage.
+  Reproduce with `python tools/verify.py src/middleware/gcc_fp.c`.
 - Independently check signedness, truncation and extension at calls and stores;
   aliasing and alignment assumptions; every cross-TU caller before making a
   helper static; and switch tables or other owned data. Record unresolved
