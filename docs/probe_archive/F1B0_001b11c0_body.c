@@ -16,6 +16,12 @@
  * It confirms the 16-bit filter and distinct scan lifetimes. Translating
  * its unsigned address scalars scores 32 words; adding its short-circuit
  * counting-loop form scores 39. Retain these typed pointer scans.
+ * Further IDA replay with the actual BtlAction aggregate from
+ * src/Battle/btlAction.c:28-44, a u16 key and u8 genus still measures five
+ * words at the same offsets. Narrow/signed key variants also tie; a 64-bit
+ * key scores 36, 64-bit index with IDA-style increment 44, both wide 50,
+ * and a complete IDA-wide scalar rendering 56. Inferred IDA scalar widths
+ * do not establish the original C types. Retain the five-word floor.
  */
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)

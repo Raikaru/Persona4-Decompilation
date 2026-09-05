@@ -3342,3 +3342,58 @@ worth retaining.
 including **6,082 first-party MATCH (88.7%)** and **778 first-party ASM**.
 Both retail SHA-1 checks pass; lint reports zero findings. C-linked
 functions remain 1,555: this model unit still contains assembly fallbacks.
+
+## Frame lookup and matrix copy: preserve real helper return paths
+
+The attachment repair's pointer-valued traversal API also closes
+`func_00475b90`: **312B of exact instructions plus eight zero-tail bytes**.
+Its complete IDA body is at
+`docs/ida_headstart/src/Graphics/Model/mdlManager.c:1778-1809`.
+The cohesive private `mdl_find_frame` helper returns the root immediately
+when its ID matches; otherwise it traverses children and returns the
+result. Inlining those distinct return paths preserves the retail
+`bne` into setup and unconditional branch around it. Flattened if/goto
+spellings had removed that branch and disturbed register allocation.
+
+The callback and helper share `MdlFrameSearch { void *frame; s32 id; }`.
+This retains the real eight-byte PS2 userdata layout without writing a
+pointer through an integer array. Existing public signatures remain
+unchanged; recursive frame lookup uses the same callback contract.
+
+`func_0047a510` is likewise MATCH: **440B plus eight zero-tail bytes**.
+Read IDA at the same path, lines 2960-3036. Its table has a 16-bit count
+and 0x50-byte entries: a 64-byte `RwMatrix`, an ID, a frame ID, and eight
+unknown bytes. The shared frame finder closes its search branch.
+The private table-path helper preserves the common return block,
+including two branch destinations that a flattened implementation had
+redirected straight to the epilogue. Scoped `opt_common_subs off` retains
+the distinct body/test/found-index masks.
+
+Use `RwMatrix` assignment for the fallback copy. Retail copies eight
+**pairs** of words, not eight words; the aggregate assignment emits that
+exact load/load/advance/decrement/store/store sequence. The no-table
+fallback passes the original unmasked lookup ID, unlike the table path's
+16-bit comparison.
+
+A freestanding **32-bit x86** smoke compiled the actual production
+callback, both helpers and both public functions without multilib libc:
+**1,580 cases, zero failures**. It checks matrix results, zero/missing
+table entries, masked IDs, root/direct/deep frame matches, failed search,
+unchanged output on failure, and all 64 fallback-copy bytes. Duplicate
+deep frame IDs deliberately exercise the callback's existing behavior:
+a match in a later subtree can replace an earlier deep match.
+This is a real 32-bit host consumer, not a PS2 rendering test.
+
+The model unit now verifies **113 MATCH, 13 ASM**. Superseded mdl/PMDL/
+CF_P27/CF_P29 drafts for these functions are removed. The PMDL
+`00477ca0` draft was also stale: production already used the exact
+16-bit for-loop and pointer-to-array entry view.
+
+The parallel `001b11c0` replay still has its five key/index register
+differences at 192B/192B. Actual `BtlAction` typing and narrower key/genus
+locals tie that floor; IDA-wide scalars regress. It remains ASM.
+
+Full verification after both promotions reports **7,714 MATCH**, including
+**6,084 first-party MATCH (88.7%)** and **776 first-party ASM**. Both retail
+SHA-1 checks pass and lint has zero findings. Source linkage remains
+1,555 functions across 172 eligible C objects.
