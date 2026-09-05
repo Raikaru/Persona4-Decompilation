@@ -129,7 +129,7 @@ make test       # unit tests for the tooling
 
 ```sh
 make verify             # score every // FUN_ marker (python tools/verify.py)
-make lint               # tools/decomp_lint.py: style, pragma and honesty rules
+make lint               # integrity errors plus advisory source diagnostics
 make progress           # regenerate the progress endpoints and this README's table
 make objdiff            # objdiff-cli report for the matching build
 ```
@@ -151,11 +151,12 @@ which source shape fixes it. The rules of the road:
   non-matching is committed as live C.
 - The `// FUN_` marker is the verifier's denominator: never delete or move
   one without moving the function.
-- Pragmas that steer the compiler need a `/* measured: ... */` note saying
-  what they fixed; the linter enforces it, and it fails on pragmas the
-  compiler would silently ignore.
-- No inline assembly for ordinary computation; the linter allows only the
-  privileged instructions C cannot express.
+- Document useful pragma measurements; compiler controls and `register` are
+  legitimate C. Lint checks push/pop nesting, while `pragma_audit.py` rejects
+  spellings the compiler would silently ignore.
+- No assembly transcription counted as recovered C. Hardware assembly and
+  pure compiler memory barriers are legitimate; ordinary computation in
+  assembly is an integrity error. A byte-match note alone cannot waive it.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to pick a target and what a
 finished function looks like, and the wiki for the long version.

@@ -11,8 +11,8 @@ usage:
     python tools/park_probe.py <file> --apply func_00247770=cse_off
 
 The file is always restored unless `--apply` names a function and a wrapper.  The
-wrappers all carry their own `measured` comment so a body kept this way passes
-decomp_lint as-is.
+wrappers carry `measured` comments documenting their optimization settings;
+these explain H003 advisories but never waive assembly integrity checks.
 """
 
 import argparse
@@ -27,8 +27,7 @@ MARKER_RE = re.compile(r"^\s*//\s*FUN_([0-9A-Fa-f]{8})\s+NONMATCHING\s*$")
 WRAPPERS = {
     # The body exactly as committed, so a note can record what it really measures.
     "plain": ("", ""),
-    # Every closing pragma needs its own `measured` comment within 3 lines
-    # above it or decomp_lint reports H003 against the restored baseline.
+    # Document both the changed setting and its restoration for scope review.
     "cse_off": (
         "/* measured: retail re-issues a value b210 would hoist into a saved\n"
         "   register; disabling common-subexpression sharing restores that. */\n"

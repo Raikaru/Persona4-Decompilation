@@ -4,10 +4,11 @@ These rules apply to authoritative source under `src/`. They do **not** apply
 to `src/generated/`, which is raw m2c candidate output (`M2C_CANDIDATE`
 markers) and is excluded from the authoritative build.
 
-The bar for a function is exact: it must compile with MWCCPS2 3.0.1 b210 at
-`-O2 -Iinclude` and reproduce retail byte-for-byte as reported by
-`python tools/verify.py`. Everything below exists to keep that exactness from
-turning the source into an unreadable, dishonest pile of steering hacks.
+The bar for a function is exact: it must reproduce retail under its configured
+compiler and flags, as reported by `python tools/verify.py`, and preserve the
+retail behavior and ABI. Most first-party units use MWCCPS2 b210 at `-O2`;
+the per-unit configuration is authoritative. Lint is an integrity check and
+review aid, not proof of semantic equivalence.
 
 ## Naming and types
 
@@ -28,95 +29,56 @@ turning the source into an unreadable, dishonest pile of steering hacks.
   float arguments and returns as `int`. Trust the disassembly (`mov.s`,
   `lwc1`, `swc1`, `cvt.*`) over the decompiler: declare float parameters and
   returns as `float`/`f32`.
-- **Typed `short`/`char` in prototypes is a deliberate tool.** Declaring a
-  callee as `int f(short)` or `void f(char)` forces per-call sign-extension,
-  which retail does; a bare cast in the caller gets CSE'd away. This is a
-  source-shaping lever (see `docs/matching.md`), not a license for sloppy
-  types.
+- **Keep callee prototypes consistent.** Narrow parameters are appropriate
+  only when supported by the callee's actual ABI. Do not introduce an
+  incompatible local declaration merely to force sign-extension or register
+  allocation; fix the definition and all callers together when evidence
+  establishes a different contract.
 
-## Banned constructs
+## Integrity checks and advisories
 
-The following are banned in new code. Each exists in the tree today as legacy
-debt (the current census: 193 `#pragma optimization_level 3`, 171
-`#pragma schedule off`, 3 `#pragma optimization_level 1`, 196 redundant
-`#pragma optimization_level 2`, 2 `#pragma opt_loop_invariants`, 4 `volatile`
-lines). Do not add new instances. When you touch a function that carries one,
-remove it if the function still matches, or convert it to a waiver (below) if
-it is genuinely load-bearing.
+`tools/decomp_lint.py` separates structural integrity from source heuristics:
 
-- `volatile` on non-hardware data. `config/target.json` records that the
-  representative retail functions are unscheduled; `volatile` is a compiler
-  steering hammer that hides real codegen questions.
-- Inline assembly for ordinary computation. (Hardware/ABI-required assembly
-  with documented provenance is a separate, acceptable category.)
-- Meaningless temporaries — pure register-shuffling locals whose only purpose
-  is to nudge allocation.
-- `if(1)` and `do {} while (0)` steering wrappers.
-- Per-function optimization pragmas: `#pragma optimization_level N`,
-  `#pragma schedule off`, `#pragma opt_loop_invariants`. `-O3` in particular
-  schedules branch and return delay slots unlike retail P4 functions.
-- Dead result stores — assignments to a local that is never read, or a
-  "volatile" sink, whose only effect is to keep code alive.
-- Duplicated code added to fill a window.
-- `register` on ordinary locals.
-- Unused locals added to grow a frame.
+- **Errors:** malformed/duplicate markers (M001), invalid pragma push/pop
+  nesting (P001), allocation-only empty assembly barriers (H002), and assembly
+  implementing ordinary computation instead of recovered C (H009). Missing
+  or unreadable requested inputs also fail the scan.
+- **Warnings:** unexplained `volatile` context (H001), optimization provenance
+  (H003), and assigned-but-unread locals (H007). These require review, not
+  automatic rejection. A literal hardware address is not the only legitimate
+  reason for `volatile`; symbolic MMIO and interrupt-shared state also exist.
+- `register` is valid C, not a prohibited construct. `optimization_level 2`
+  may restore a previous setting and is not diagnosed as redundant.
+- Optimization pragmas are valid compiler inputs. Record useful measurements
+  and prefer scoped push/pop when changing a setting for one function.
+  On/off directives set state; they are not arithmetic balancing pairs.
+  `tools/pragma_audit.py` separately checks compiler-recognized spellings.
+- Hardware assembly may contain bounded setup/teardown instructions, but one
+  privileged instruction does not justify an arbitrary assembly transcription.
+  A pure empty compiler memory barrier with no input/output operands and a
+  `memory` clobber is legitimate; document the ordering requirement it serves.
 
-## The waiver convention
+## Exceptions and measurements
 
-If a banned steering construct is **genuinely load-bearing** — removal
-demonstrably breaks the byte match and no honest source form reproduces retail
-— it may stay, but only with an annotation that:
+Measurements should record the compiler/profile, object/window sizes, and
+what changed. A nearby `measured` comment may explain an advisory, but matching
+bytes cannot waive H002/H009: copied assembly can match by construction.
 
-1. is placed **above the `// FUN_XXXXXXXX` marker** of the function it steers
-   (never inside the body, never below the marker);
-2. contains the word **`measured`** (any inflection is accepted; the existing
-   annotations use `measures` / `measuring`) recording the **measured cost of
-   removing** the construct: the verifier status and normalized diff before and
-   after, plus object/window sizes;
-3. states why the construct is needed, in one or two sentences.
-
-The measurement procedure: remove the construct, run the scoped verifier
-(`python tools/verify.py <file.c>`), record the resulting status and
-`normalized_diff`, restore the construct, re-verify `MATCH`, and write the
-annotation. A waiver that cannot point at a measured regression is a violation.
-
-### Worked example: `src/Battle/btlTarget.c`
-
-This file contains both a `volatile` and a `#pragma opt_loop_invariants`,
-each annotated with its measured removal cost.
-
-The `volatile` annotation directly above the marker:
+An exceptional integrity-rule waiver must name its rule and give a semantic
+reason in a real comment, for example:
 
 ```c
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d21e0 (verified MATCH there).
- * The `volatile` on `state` is load-bearing and carried over from the donor:
- * removing it measures MATCH nd0 -> nd6 (size 148/160) here, matching the
- * donor's own recorded W170 measurement of nd0 -> nd6. */
-// FUN_001EC630
-f32 func_001ec630(f32 value, volatile f32* state)
+/* lint: allow H009 -- hardware wrapper unavailable as a compiler intrinsic */
 ```
 
-This records the measured cost (removal turns `MATCH` into a 6-word
-normalized diff, `nd0 -> nd6`), the sizes (148-byte object in a 160-byte
-window), and the provenance (carried over from the verified P3 donor, whose
-own recorded measurement agrees).
+Use `:` or `--` between the code and its nonempty reason. Bare `lint: allow
+H009` is insufficient. Place the comment at the site or with the enclosing
+function's marker; it must not license neighboring functions. Text inside
+string literals is program data, never a waiver.
 
-The pragma annotation above the marker:
-
-```c
-/* Ported from the P3FES btlTarget donor at 002d1600 (verified MATCH there),
- * which wraps this function in the same pragma. It is load-bearing: without
- * it MWCC rematerializes the loop constant inside the loop (addiu/sllv with
- * swapped operands) instead of hoisting it, measuring nd 28 here. */
-#pragma opt_loop_invariants on
-// FUN_001EB440
-u16 func_001eb440(BtlTarget* target)
-```
-
-Here the measured cost is `nd 28` (removal produces 28 differing words), and
-the annotation explains the mechanism (the loop-invariant constant stops being
-hoisted into the preheader and is rematerialized inside the loop with swapped
-operand order).
+An unused assignment can still call a side-effecting function. When addressing
+H007, preserve the call or other observable effect rather than deleting the
+whole statement mechanically.
 
 ## Comments and provenance
 
@@ -124,11 +86,10 @@ operand order).
   files that carry it; it records the original retail translation unit the
   file was recovered from.
 - Ported functions record their donor: the P3 file/function and that it was
-  verified `MATCH` there, plus any steering carried over (as in the examples
-  above).
-- Waivers go above the marker (see above). Everything else about *why* a
-  function looks the way it does belongs in comments too — future readers
-  cannot see the disassembly you are staring at.
+  verified `MATCH` there, plus any compiler settings carried over.
+- Put exceptions at their site or with the enclosing marker. Explain why
+  unusual source is needed; future readers cannot see the disassembly you
+  are staring at.
 
 ## Formatting
 
@@ -150,6 +111,6 @@ operand order).
 - A truthful "this does not match yet, and here is the residual" is a good
   result. Parking a function as `NONMATCHING` with a documented floor is
   better than shipping a fake match.
-- Window filling — growing an object with pragmas, dead stores, or duplicated
-  code so the size looks right — is fraud, not decompilation. The banned list
-  above exists to make that impossible to do accidentally.
+- Do not fabricate side effects, duplicate code to fill a window, or count a
+  transcription of ordinary assembly as recovered C. Legitimate compiler
+  controls and `register` declarations are not inherently dishonest.
