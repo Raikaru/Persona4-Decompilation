@@ -3540,3 +3540,35 @@ mismatches**, with **6,087 first-party MATCH (88.7%)** and **773 first-party
 ASM**. Both retail SHA-1 checks pass. Linkage remains 1,555 functions in
 172 eligible C objects. Full lint reports **zero errors and 181 advisory
 warnings** across 333 first-party files.
+
+## Model callbacks: preserve both argument registers in C
+
+The retail wrappers `00479030` and `0047ddd0` preserve their incoming
+second argument when calling model setup and runtime color application.
+Their former one-argument C calls depended on that register surviving
+incidentally. The promoted source now declares and forwards both arguments:
+the model to `func_00478ec0`, and the requested RGBA bytes to
+`func_004b5f80`. Opaque declarations use the existing `MdlFlags78ec0`
+and `RuntimeWork` struct tags rather than introducing alternate layouts.
+
+A freestanding 32-bit host consumer using the actual callee bodies passes
+**1,280 cases**. Compiling the original wrappers against those callee
+contracts reproduces both missing-argument errors. This is a host
+semantic check, not a PS2 rendering test.
+
+The update and rendering reconstructions remain unpromoted. Update
+`00478a30` measures **1116B/1088B, 175 reloc-masked differing words** with
+scoped CSE disabled; separate phase counters alone did not improve the
+initial 239-word result. Rendering `00479100` measures
+**1852B/1920B, 409 words**; CSE-off worsened it to 1968B/436 words and was
+removed. The complete candidates and shared-layout replay requirements
+are retained in `docs/probe_archive/IDA_00478a30_body.c`,
+`docs/probe_archive/IDA_00479100_body.c`, and
+`docs/probe_archive/IDA_model_followthrough.json`. Neither candidate has
+been semantically smoke-tested or accepted as matching.
+
+After these callback corrections, `make build verify lint-errors` passes:
+both retail SHA-1 checks succeed, all **7,717 instruction matches** remain,
+and **6,087 first-party functions match with 773 ASM remaining**. The
+errors-only lint gate reports zero errors; this invocation does not
+report advisory warning counts.

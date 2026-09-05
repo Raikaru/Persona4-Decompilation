@@ -12,7 +12,8 @@ extern s32 iGpffffbb28;
 extern void *D_00922BE0[];
 extern void func_004b5800(u8 *arg0);
 extern void func_004b5f70(u8 *arg0);
-extern void func_004b5f80(u8 *arg0);
+struct RuntimeWork;
+extern void func_004b5f80(struct RuntimeWork* work, const u8* color);
 extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
@@ -21,7 +22,8 @@ extern void func_004704d0(u8 *arg0);
 
 extern void func_00478a30(u8 *arg0, s32 arg1);
 
-extern void func_00478ec0(u8 *arg0);
+struct MdlFlags78ec0;
+extern void func_00478ec0(void* context, struct MdlFlags78ec0* model);
 extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 
 extern s32 func_00479ca0(u8 *arg0, s32 arg1);
@@ -198,10 +200,11 @@ void func_00478e70(u8 *arg0)
 
 
 
+/* The draw callback's second argument supplies the model to color/setup. */
 // FUN_00479030
 void func_00479030(u8 *arg0, u8 *arg1)
 {
-    func_00478ec0(arg0);
+    func_00478ec0(arg0, (struct MdlFlags78ec0*)arg1);
     RpSkyRenderStateSet(2, *(s32 *)(arg1 + 0xE4));
     RpSkyRenderStateSet(3, *(s32 *)(arg1 + 0xE8));
 }
@@ -323,14 +326,15 @@ void func_0047dda0(u8 *arg0)
         func_004b5f70(temp_4);
     }
 }
+/* Retail forwards the requested color in a1 to the runtime color consumer. */
 // FUN_0047DDD0
-void func_0047ddd0(u8 *arg0)
+void func_0047ddd0(u8* attachment, const u8* color)
 {
-    u8 *temp_4;
+    struct RuntimeWork* work;
 
-    temp_4 = *(u8 **)(arg0 + 4);
-    if (temp_4 != NULL) {
-        func_004b5f80(temp_4);
+    work = *(struct RuntimeWork**)(attachment + 4);
+    if (work != NULL) {
+        func_004b5f80(work, color);
     }
 }
 // FUN_0047EA40
