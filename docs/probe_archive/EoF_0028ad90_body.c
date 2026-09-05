@@ -1,14 +1,17 @@
-// FUN_0028AD90 near-match archive (retail 592B; candidate 592B; 2 differing words)
-// Retail saved registers: arg0=$s2, arg1=$s1, var_16=$s0, temp_2=$s3.
-// Remaining words: retail inner-field load/branch uses $a1; candidate uses $v0 at offsets 452 and 464.
-// Tried explicit loop labels/gotos, duplicated outer load to preserve the retail branch stub,
-// direct and named inner conditions, pointer/type/declaration-order variants, and allowed
-// optimization pragmas. Best candidate body follows.
-// Main measured after revert: the retail branch-only block at the outer loop entry (0x28AF40: b inner_test)
-// is produced by iterating the inner loop over a coalesced copy `p = s0;` (six plain loop spellings never
-// emit it). That reproduces the structure; the $a1 vs $v0 pair did not move for any copy/type/declaration
-// variant in isolation - whole-function register pressure, still open.
+/* ABI-corrected reference candidate; NOT MATCHING.
+ * Measured: object 596B / retail 592B, 26 differing words after relocation
+ * masking. The extra move $a0,$s0 before the deallocator shifts the tail.
+ * The former two-word floor omitted the real child argument to
+ * func_00286c60, whose existing definition takes (u8 *, u8 *).
+ * Passing a dedicated child local closes those two words, but the old
+ * zero-argument cast of jtbl_008873EC also omitted the allocation pointer.
+ * Fixing both calls is mandatory even though retaining the invalid free
+ * cast can score zero. Do not install that false match or weaken prototypes.
+ * Pointer spelling, explicit allocation aliases, and propagation off leave
+ * the correct deallocator call at the same 596B / nd26 floor.
+ */
 
+// FUN_0028AD90
 void func_0028ad90(u8 *arg0, s32 arg1) {
     s32 temp_4;
     s32 temp_4_2;
@@ -18,7 +21,7 @@ void func_0028ad90(u8 *arg0, s32 arg1) {
     s32 *temp_2;
     s32 var_16;
     s32 *temp_16;
-    u32 temp_5;
+    u8 *child;
 
     func_0028f4f0();
     func_00293270();
@@ -77,13 +80,13 @@ loop_27_body:
     temp_16 = *(s32 **)(arg0 + 0x4C);
     goto loop_25_test;
 loop_25_body:
-    func_00286c60((u8 *)temp_16);
+    func_00286c60((u8 *)temp_16, child);
 loop_25_test:
-    if ((arg1 = *(s32 *)(temp_16 + 0x1A)) != 0) {
+    if ((child = *(u8 **)(temp_16 + 0x1A)) != 0) {
         goto loop_25_body;
     }
     func_00286e90((int)temp_16, (int)arg0);
-    ((void (*)(void))jtbl_008873EC[0])();
+    jtbl_008873EC[0](temp_16);
     func_002852a0(7, -0x98);
 loop_27_test:
     temp_16 = *(s32 **)(arg0 + 0x4C);
