@@ -7,6 +7,10 @@
  * The signed-halfword result preserves retail's -1 and 0..24 values.
  * Branches, short-circuit threshold order, 0x19 bound, 0xe0 stride and
  * 0x18 fallback are retained. Production remains INCLUDE_ASM.
+ * IDA replay: docs/ida_headstart/src/promoted/code1_001d.c:111-130.
+ * Native 32-bit consumer smoke: 9750 cases covering gate values 0/1/2,
+ * first-hit precedence, fallback, unsigned high-bit thresholds and all
+ * four helper output halfwords. IDA's apparent gate argument is spurious.
  * Tested: direct return, halfword induction, shared result, propagation off,
  * signed result, local-order swap, unsigned induction and wider scalar temps.
  * Reproduce: python tools/probe_variants.py src/promoted/code1_001d.c

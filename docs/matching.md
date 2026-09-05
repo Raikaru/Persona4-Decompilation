@@ -3216,3 +3216,22 @@ one zero-tail word. A 2,704-case native 32-bit smoke covers allocation
 failures, null constructor returns, constructor mutation, signed division
 boundaries, and untouched bytes. Size calculation uses the first two
 rectangle members, not its width/height members.
+
+The next compact IDA replay retained two measured floors:
+`func_001d15a0` is 212B/224B with nine index/result register differences
+and three zero-tail words; its eight-byte helper buffer passes 9,750
+native cases, including unsigned high-bit thresholds and gate values 0/1/2.
+`func_0048a460` remains 176B/176B with 15 instruction differences.
+A named aligned projection frame ties its prior score; 153 native cases
+with VU transfer hooks check transformed coordinates, negative depth,
+successive projections, positive-zero lanes and spill canaries.
+
+`func_004865c0` exposed invalid archive evidence: the old 51-word draft
+hard-coded stack offsets and ordinary instructions inside purported
+hardware-only assembly. It is removed. The retained source-only reference
+uses byte aggregates and signed float-to-integer conversion: 396B/288B,
+91 differing words, versus the historical scalar record of 860B/211.
+Its 65,540-case native smoke covers packed lanes, optional callbacks,
+callback mutation, captured parent color/scale and next-pointer reloads.
+This proves host arithmetic and control behavior, **not** VU register
+effects or PS2 rounding identity. All three functions remain ASM.
