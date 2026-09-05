@@ -145,6 +145,14 @@ Use this six-step loop for every target:
   retail call order. Its smoke covers all 65,536 byte pairs against four
   table layouts, plus 2,976 callback cases for rollover, refreshed dates,
   duplicate precedence, signed sentinel bytes and untouched state.
+  Consult the corresponding IDA body before further probes. For
+  `func_00313d20`, Hex-Rays distinguishes branch-local table/entry pointers
+  and a saved mode that the initial reconstruction merged. Its translation
+  improves the safe floor from 89 to 84 differing words (644B/656B), still
+  ASM. The archived counter now consistently uses the mode-times-two base,
+  rather than the mode-times-five flag base mistakenly reused by the old
+  body. A native smoke passes 40,960 cases covering both modes, signed
+  priorities, first-winner ties, priority-100 flags, counts and untouched bytes.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
   `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word
