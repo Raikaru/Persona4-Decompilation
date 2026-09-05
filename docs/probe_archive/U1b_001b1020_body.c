@@ -1,7 +1,19 @@
-/* func_001b1020 lane U1b draft (2026-09-03, lane killed mid-edit): does not compile as left (missing block brace);
-   shape: scan loop filling sp50[12] percentages, then bubble sort of the 0x29C pointer table by sp50. Untested. */
+/* Recovered from the interrupted U1b draft.
+ * MWCCPS2 b210: object 408B / window 416B / differing words 19.
+ * The scan, clamp and branch layout match; second-phase register allocation
+ * differs: one/bound use t2/t1 rather than retail a1/a0, shifting pair and
+ * score temporaries. The final 8 retail bytes are zero tail padding.
+ * Preserve unsigned count-1 (including the retail empty-list underflow),
+ * low-byte helper results, descending stable swaps and per-pass base reloads.
+ * Canonical helper declarations below agree with the owning datCalc unit.
+ * Scope, flag/score widths, register hints and opt_lifetimes did not improve
+ * 19 words. Automatic invariant hoisting without one/bound scored 43.
+ * This is a reproducible candidate, not an exact match; production stays ASM.
+ */
+extern u8 func_00232c70(u8 *, s32);
+extern u32 func_00231d70(u32);
 #pragma push
-/* measured: opt_propagation off preserves the retail one/bound locals and second-loop register coloring. */
+/* measured: opt_propagation off retains the scan and sort instruction layout. */
 #pragma opt_propagation off
 void func_001b1020(s32 arg0)
 {
@@ -26,7 +38,7 @@ void func_001b1020(s32 arg0)
                 val = (u32)(temp * (func_00231d70(0x15) + 0x5A)) / 100U;
                 if (val == 0) {
                     val = 1;
-                } else if (val >= 0x64U) {
+                } else if (val > 0x63U) {
                     val = 0x63;
                 }
                 sp50[i] = (u8)val;
@@ -38,8 +50,7 @@ void func_001b1020(s32 arg0)
     next_i:
         scan++;
     }
-        u32 bound;
-        s32 one;
+    {
         s32 swapped;
         u8 **ptr;
         u32 j;
@@ -49,6 +60,8 @@ void func_001b1020(s32 arg0)
         u8 *next;
         u8 left;
         u8 right;
+        s32 one;
+        u32 bound;
 
         one = 1;
         bound = i - 1;
@@ -61,8 +74,8 @@ void func_001b1020(s32 arg0)
                 p1 = *(ptr + 1);
                 if ((p0 != NULL) && (p1 != NULL)) {
                     cur = &sp50[j];
-                    next = cur + 1;
                     left = *cur;
+                    next = cur + 1;
                     right = *next;
                     if ((s32)left < (s32)right) {
                         *ptr = p1;
