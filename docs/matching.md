@@ -3189,3 +3189,30 @@ the COP1 chain) now reproduces retail's f1-f8 operand colouring (a zero-valued
 f32 local assigned first reserves f0; `+=` products give the `mtc1 zero /
 adda.s / madd.s` chain) but the w-product/dot register pair stays swapped
 across 120 shapes and a 41k-compile AST-permuter run.
+
+## IDA quaternion recovery: aggregates before register speculation
+
+`func_00480f20` in `src/Graphics/primitive.c` is now MATCH: 408B of
+instructions plus eight bytes of retail zero tail. The old JnF archive had
+all three cross-product signs reversed; a native reproduction produced
+z = -1 where inverse-input times output requires z = +1. IDA and retail
+assembly establish the corrected orientation.
+
+Use a shared four-float `PrimQuaternion` for the saved output and inverse,
+then conventional x/y/z/w norm and dot expressions. These recover the
+snapshot loads, inverse lifetimes and accumulator scheduling without
+pragmas or assembly. Retail skips inverse initialization for zero norm;
+the reconstruction preserves that undefined path rather than inventing
+a fallback. The consumer smoke covers 3,889 positive-norm cases, including
+noncommuting rotations, input/output aliasing, six scalar subtractions and
+untouched bytes. All 12 functions in the translation unit verify MATCH.
+The superseded, sign-inverted archive is removed.
+
+The IDA-backed window constructor `func_0046e850` remains ASM. Its archive
+now uses a signed integer rectangle and four-byte color aggregates, with
+the actual eight-argument constructor and fresh allocator-table lookup.
+The 444B/448B floor is four words: three argument-setup instructions and
+one zero-tail word. A 2,704-case native 32-bit smoke covers allocation
+failures, null constructor returns, constructor mutation, signed division
+boundaries, and untouched bytes. Size calculation uses the first two
+rectangle members, not its width/height members.

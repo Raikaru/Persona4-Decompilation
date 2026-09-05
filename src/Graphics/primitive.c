@@ -275,14 +275,16 @@ extern void RwMatrixMultiply(int dst, u8* a, float* b);                        /
 
 typedef struct
 {
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 w;
+} PrimQuaternion;
+
+typedef struct
+{
     u8 pad0[8];
-    struct
-    {
-        f32 x;
-        f32 y;
-        f32 z;
-        f32 w;
-    } quat;
+    PrimQuaternion quat;
     f32 values[6];
     f32 value30;
 } PrimInterpData;
@@ -728,8 +730,54 @@ s32 func_00480f00(void* arg0)
 {
     return *(const s32*)((const u8*)arg0 + 4) * 0x34;
 }
-// FUN_00480F20 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/primitive", func_00480f20);
+// FUN_00480F20
+// MATCH: 408B code plus 8B retail zero tail. IDA-backed quaternion snapshots.
+void func_00480f20(void *param_1, void *param_2)
+{
+    PrimInterpData *out = (PrimInterpData *)param_1;
+    const PrimInterpData *in = (const PrimInterpData *)param_2;
+    PrimQuaternion inverse;
+    f32 inputY;
+    f32 inputX;
+    f32 inputZ;
+    f32 inputW;
+    f32 norm;
+    f32 reciprocal;
+    PrimQuaternion saved;
+
+    saved = out->quat;
+    inputY = in->quat.y;
+    inputX = in->quat.x;
+    inputZ = in->quat.z;
+    inputW = in->quat.w;
+    norm = inputX * inputX + inputY * inputY + inputZ * inputZ + inputW * inputW;
+    // Retail leaves the inverse undefined for zero norm; no fallback is invented.
+    if (!(norm <= 0.0f)) {
+        reciprocal = 1.0f / norm;
+        inverse.w = inputW * reciprocal;
+        reciprocal = -reciprocal;
+        inverse.x = inputX * reciprocal;
+        inverse.y = inputY * reciprocal;
+        inverse.z = inputZ * reciprocal;
+    }
+    out->quat.w = inverse.w * saved.w -
+                  (inverse.x * saved.x + inverse.y * saved.y + inverse.z * saved.z);
+    out->quat.x = inverse.y * saved.z - inverse.z * saved.y;
+    out->quat.y = inverse.z * saved.x - inverse.x * saved.z;
+    out->quat.z = inverse.x * saved.y - inverse.y * saved.x;
+    out->quat.x = out->quat.x + saved.x * inverse.w;
+    out->quat.y = out->quat.y + saved.y * inverse.w;
+    out->quat.z = out->quat.z + saved.z * inverse.w;
+    out->quat.x = out->quat.x + inverse.x * saved.w;
+    out->quat.y = out->quat.y + inverse.y * saved.w;
+    out->quat.z = out->quat.z + inverse.z * saved.w;
+    out->values[0] -= in->values[0];
+    out->values[1] -= in->values[1];
+    out->values[2] -= in->values[2];
+    out->values[3] -= in->values[3];
+    out->values[4] -= in->values[4];
+    out->values[5] -= in->values[5];
+}
 // FUN_004810C0
 void func_004810c0(void *arg0, void *arg1, void *arg2)
 {
