@@ -206,6 +206,10 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   extra saved masked-index register. All-cast spelling differs by 55 words;
   the mixed spelling matches 228B plus 12 zero-tail bytes, with no pragma
   or ABI changes.
+  For `func_00279030`, pass `(u8)arg2` to the constructor and retain
+  `(u32)arg2 & 0xFF` at the later setter call. This removes a cached mask
+  across the call. Pair it with the integer-address load of `obj + 4` before
+  the unsigned index scale: the complete 448B body then matches.
 - **Preserve staged offsets while separating equivalent address forms.**
   In `func_002774d0`, test the slot through an integer address
   `i + (u32)manager + 0x10`, but reload it after the copy call through

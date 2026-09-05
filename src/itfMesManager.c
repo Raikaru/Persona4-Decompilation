@@ -1414,31 +1414,45 @@ s32 func_00279010(s32 arg0)
     return *(s16 *)(D_00881808[arg0].unk0 + 0x4E);
 }
 
-/* measured: retail colors the 5 saved int params into a descending chain
-   arg0=$s4..arg5=$s0 with the obj local above at $s5 (frame -0x80) and
-   schedules the slot base load BEFORE the sll; mwcc b210 -O2 colors only
-   arg0=$s3..arg3=$s0, then obj=$s4, arg5=$s5 (sll hoisted above the load),
-   and with the slot statement moved before obj the frame drops to -0x70
-   (arg5 loses its saved reg). Tried: inline expr, base local, arg5*8 first,
-   slot-before-obj order - nd 46 / 46 / 46 / 44 (obj 452B vs window 448B).
-   Saved-register-chain + scheduler floor, not source-drivable.
-   wave14 re-measure (6 attempts): (1) the func_00274570 float args need a
-   `(s32)` cast at the callsite - `func_00274570((s32)(16.0f*fparg0), ...)`
-   - or mwcc emits the guarded unsigned f32->u32 conversion path
-   (c.ole.s/bc1t/0x4f00 add/or) instead of retail's plain cvt.w.s/mfc1
-   (that alone was ~26 words). Signature verified against the callee's own
-   prologue: $f12-$f14 = 3 floats, $4-$9 = 6 ints (int-first s32..s8..s32
-   per m2c, but the file's float-first order is ABI-equivalent for the
-   matched callers 791f0/79350/79470). Residual is the pure saved-register
-   chain rotation (retail arg0=$s4..arg5=$s0/obj=$s5; mwcc rotates); best
-   nd 45 (slot-before-obj order + s32 casts). Not moved by local decl order
-   or opt_propagation off. */
-/* measured 2026-08-13: corrected all six callee declarations at this call site
-   (00272b00, 00272ba0, 00274570, 00274a20, 00279740, 0046d730) and added the
-   required integer/pointer casts. Candidate is 452B versus the 448B retail
-   window, normalized_diff 172; oversized, so this body remains archived. */
+/* Measured: 448B/448B MATCH. The integer-address load preserves base-before-
+   index evaluation; mixed byte cast/mask forms avoid call-crossing mask reuse.
+   The unsigned index shift preserves EE wrapping arithmetic. */
 // FUN_00279030
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279030);
+u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
+{
+    u8 *obj;
+    u8 *result;
+    u8 *entry;
+    u8 *slot;
+
+    obj = D_00881808[arg4].unk0;
+    if (obj == NULL)
+        func_0046d730(D_0063BE10, 0xBDD);
+    slot = (u8 *)(((u32)arg5 << 3) + (s32)*(s32 **)((u32)obj + 4) + 0x20);
+    if (slot == NULL)
+        func_0046d730(D_0063BE10, 0xBE0);
+    entry = *(u8 **)(slot + 4);
+    if (entry == NULL)
+        func_0046d730(D_0063BE10, 0xBE3);
+    result = (u8 *)func_00279740((s32)entry, 0);
+    if (result == NULL)
+        func_0046d730(D_0063BE10, 0xBE6);
+    result = (u8 *)func_00274570(
+        (s32)(16.0f * fparg0),
+        (s32)(8.0f * fparg1),
+        (u32)arg1 & 0xFF,
+        (u8)arg2,
+        0U,
+        0xFFU,
+        (u32)result,
+        0U
+    );
+    if (arg3 & 1)
+        func_00272b00(result, (u32)arg2 & 0xFF);
+    func_00272ba0(result, arg0);
+    func_00274a20(result, fparg2);
+    return result;
+}
 // FUN_002791F0
 s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
