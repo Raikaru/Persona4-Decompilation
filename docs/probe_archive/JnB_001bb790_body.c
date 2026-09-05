@@ -4,6 +4,10 @@
 // differing instruction offsets (retail-relative): 0x7c, 0x80, 0x84, 0x88, 0x8c, 0x90, 0x94, 0x98, 0x9c, 0xa0, 0xa4, 0xa8, 0xac, 0xb0, 0xb4, 0xb8, 0xbc, 0xc0, 0xc4, 0xc8, 0x114.
 // COP1 chain reproduced from plain C: madd.s emitted naturally, but the adda.s accumulator operands were f0,f1 rather than retail f1,f0; this is an ordinary register-colouring residual, not a COP1 expressiveness floor.
 // Ruled out: scalar global declarations (aggregate RwV3d copy was required for exact global load/store scheduling); loop integer-width permutations; while/for forms; pointer/struct aliases; declaration-order permutations; allowed pragma modes (opt_propagation, opt_common_subs, opt_loop_invariants, schedule, no_branch_likely, opt_rebuildconditionals, optimization_level, tailcall); accumulator parenthesization and literal/named-zero variants.
+// IDA replay: docs/ida_headstart/src/Battle/btlMain.c:898-936.
+// The output-object weighted-accumulation helper ties this floor: 21 instruction
+// differences plus two absent zero-tail words. Direct/local helpers measured
+// 24 words; unit-weight and by-value alternatives were worse. Production is ASM.
 extern RwV3d D_00881430;
 void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
 {
