@@ -1,31 +1,18 @@
-/* Main 2026-09-03: file-scope D_005EFB98/D_005EFBA0 must be array externs (absolute addressing) - the
-   scalar externs give gp-relative loads (nd82). `while (var_16 != NULL)` fixes the entry branch (nd13).
-   Loading both globals into locals under opt_propagation off gives retail's ld/lwc1/sd/swc1 order, but
-   then the early `return 0xFFFF` reuses $s1 (nd16); a `hdr = &stack.sp50` local takes a saved register
-   (nd103). Remaining: `addiu a2,sp,0x50` at the loop head before the header copy. */
-/* object 416B / window 416B / normalized_diff 14.
- * Differing word offsets (relocations masked): 0x44; 0x58,0x5C,0x60,
- * 0x6C,0x70,0x74,0x78,0x7C,0x80,0x84,0x88,0x8C,0x90.
- * Frame and object size are exact; code from offset 0x94 onward is exact.
- * Offset 0x44 is a separate control-flow defect: the initial status-check
- * branch targets the loop body instead of retail's loop-tail load. The
- * 0x58-0x90 residual is the first-call setup/global-load scheduling block
- * (0x64 and 0x68 within that interval match retail).
- * Shape measured here: global-first setup with an aligned Stack0014 local
- * struct and absolute-array global declarations D_005EFB98[]/D_005EFBA0[].
- * Ruled out: separate scalar locals (packed frame mismatch), top-tested loop
- * form (wrong control-flow layout), scalar GP-relative loads, and an explicit
- * call-address temporary (which perturbed the otherwise exact tail).
- */ 
+/* MWCCPS2: object 416B / retail window 416B / four differing words.
+ * Residual offsets 0x60, 0x64, 0x68, 0x6C: first pair load register and
+ * scheduling against the second constant load. Every other word matches.
+ * A complete normal union and three triangle pointers naturally occupy
+ * sp+0x50 and sp+0x60 in the 0x70 frame; no explicit padding is used.
+ * Top-tested iteration preserves an empty list. Both triangle calls,
+ * strict Y limits, selected ID and output pointer behavior are retained.
+ * Owning-unit NormalXY0014 and array globals provide the actual 8-byte XY
+ * and 4-byte Z accesses. A 16-byte whole-normal copy is rejected because
+ * it reads beyond those constant extents and changes retail access width.
+ * Reverse stores: 7 words; propagation off: 5; aggregate temporaries: 4.
+ */
 u16 func_0014be50(u8 *arg0, u8 **arg1) {
-    struct Stack0014 {
-        s64 sp50;
-        f32 sp58;
-        u32 pad5c;
-        u8 *sp60;
-        u8 *sp64;
-        u8 *sp68;
-    } stack;
+    u8 *triangle[3];
+    union { SVec3 vector; struct { NormalXY0014 xy; f32 z; } parts; } normal;
     f32 temp_f2;
     f32 temp_f2_2;
     f32 temp_f3;
@@ -38,14 +25,14 @@ u16 func_0014be50(u8 *arg0, u8 **arg1) {
     if (func_0014a200() == 1) {
         return 0xFFFFU;
     }
-    do {
-        stack.sp50 = D_005EFB98[0];
-        stack.sp58 = D_005EFBA0[0];
-        stack.sp60 = (u8 *)(var_16 + 0x15C);
-        stack.sp64 = (u8 *)(var_16 + 0x168);
-        stack.sp68 = (u8 *)(var_16 + 0x174);
-        if ((func_00168ec0(arg0, &stack.sp60, &stack.sp50) == 1) &&
-            (temp_f3 = *(f32 *)(stack.sp60 + 4),
+    while (var_16 != NULL) {
+        normal.parts.xy = D_005EFB98[0];
+        normal.parts.z = D_005EFBA0[0];
+        triangle[0] = (u8 *)(var_16 + 0x15C);
+        triangle[1] = (u8 *)(var_16 + 0x168);
+        triangle[2] = (u8 *)(var_16 + 0x174);
+        if ((func_00168ec0(arg0, &triangle[0], &normal.vector) == 1) &&
+            (temp_f3 = *(f32 *)(triangle[0] + 4),
              temp_f2 = *(f32 *)(arg0 + 4),
              (temp_f2 < (100.0f + temp_f3))) &&
             !(temp_f2 <= (temp_f3 - 100.0f))) {
@@ -53,11 +40,11 @@ u16 func_0014be50(u8 *arg0, u8 **arg1) {
             *arg1 = var_16;
             goto done_11;
         }
-        stack.sp60 = (u8 *)(var_16 + 0x168);
-        stack.sp64 = (u8 *)(var_16 + 0x174);
-        stack.sp68 = (u8 *)(var_16 + 0x180);
-        if ((func_00168ec0(arg0, &stack.sp60, &stack.sp50) == 1) &&
-            (temp_f3_2 = *(f32 *)(stack.sp60 + 4),
+        triangle[0] = (u8 *)(var_16 + 0x168);
+        triangle[1] = (u8 *)(var_16 + 0x174);
+        triangle[2] = (u8 *)(var_16 + 0x180);
+        if ((func_00168ec0(arg0, &triangle[0], &normal.vector) == 1) &&
+            (temp_f3_2 = *(f32 *)(triangle[0] + 4),
              temp_f2_2 = *(f32 *)(arg0 + 4),
              (temp_f2_2 < (100.0f + temp_f3_2))) &&
             !(temp_f2_2 <= (temp_f3_2 - 100.0f))) {
@@ -66,7 +53,7 @@ u16 func_0014be50(u8 *arg0, u8 **arg1) {
             goto done_11;
         }
         var_16 = *(u8 **)(var_16 + 0x138);
-    } while (var_16 != NULL);
+    }
 done_11:
     return var_17;
 }
