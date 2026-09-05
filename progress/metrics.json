@@ -5067,6 +5067,7 @@
       "00278a70",
       "00278b80",
       "00278c60",
+      "00278d50",
       "00278da0",
       "00278de0",
       "00278e00",
@@ -9274,23 +9275,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7699,
+    "count": 7700,
     "duplicate_rows": 0,
     "known_rows": 12721,
-    "matched_body_bytes": 1449320,
-    "percent": 58.762,
+    "matched_body_bytes": 1449396,
+    "percent": 58.77,
     "unique_known_addresses": 12721
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "build/resume_message_slot_linked.json",
+    "linked_report": "build/resume_decoder_linked.json",
     "raw_rows": 12721,
-    "verifier_report": "build/resume_message_slot_verify.json"
+    "verifier_report": "build/resume_decoder_verify.json"
   },
   "status_counts": {
-    "ASM": 5022,
-    "MATCH": 7699
+    "ASM": 5021,
+    "MATCH": 7700
   },
   "total": 13102
 }

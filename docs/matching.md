@@ -74,6 +74,7 @@ Use this six-step loop for every target:
 | --- | --- | --- |
 | Integer/float arguments land in the wrong registers or order | Independent ABI counters; [Types and the EE ABI](#types-and-the-ee-abi) | `func_0047f4d0`: pointer-first signature puts `$a0` before `$f12` |
 | A known helper leaves extra saves or a final scheduling residual | Static helper/caller cluster; [Types and the EE ABI](#types-and-the-ee-abi) | `sdkChkmem`: reuniting `func_0044e8d0`, `func_0044e920`, `func_0044e9e0`, and `func_0044ee70` removed the last store/move residual |
+| Private helper removes the spill, but argument setup still swaps a load and move | Stage arguments with scoped `opt_propagation off` | `func_00278d50`: private `func_00278c60` plus staged fixup pointer/size gives 76B matching instructions and a 4B zero tail; helper remains 240B MATCH |
 | Call-crossing spills or frame size are too small | Aggregate snapshots; [Types and the EE ABI](#types-and-the-ee-abi) | `func_0047f040`: two `Pair` snapshots produce retail's `0x20` frame (scalar locals produced `0x10`) |
 | Saved-register colors are wrong while the body shape is right | Declaration order; [Register allocation and caching](#register-allocation-and-caching) | `frFont func_002739e0`: declaration-order closure, object/window `724/736`, normalized diff `0` |
 | Loop bases or constants rematerialize in the body | `opt_loop_invariants on`; [Loops](#loops) | `func_00161bb0` nd `45 → 0`; `func_0045b430` nd `8 → 0` |
