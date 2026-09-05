@@ -1236,7 +1236,7 @@ void func_00278b80(u8 *arg0)
     }
 }
 // FUN_00278C60
-void func_00278c60(int *param_1, int param_2, u8 *param_3, int param_4)
+static void func_00278c60(int *param_1, int param_2, u8 *param_3, int param_4)
 {
   u8 bVar1;
   u8 *pbVar3;
@@ -1282,17 +1282,27 @@ check:
 
 
 
-/* measured floor: the best honest plain-C body (archived at
-   docs/probe_archive/W50MesManager_00278d50_body.c) is object 84B against
-   the retail 80B window, with verify normalized_diff 58 and fndiff
-   19 differing words after relocation masking. Residual word offsets are
-   0,4,8,12,16,20,24,28,32,36,44,52,56,60,64,68,72,76,80; verify first
-   differing byte offsets are 0,4,8,9,10,11,12,13,14,15,16,18,19,20,22,23.
-   Retail frame -0x10 keeps arg0 in $t3 across func_00278c60; the candidate
-   frame -0x20 spills arg0 in $s0. Probes A-P did not improve nd58; rejected
-   pointer-to-integer parameters and restrict syntax were not retained. */
+/* Private helper knowledge keeps arg0 in t3 across relocation. Staged
+   arguments with propagation off preserve the load/move order.
+   Measured: 76B of matching instructions and a 4B zero tail; helper 240B MATCH. */
 // FUN_00278D50
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00278d50);
+#pragma push
+#pragma opt_propagation off
+void func_00278d50(u8 *arg0)
+{
+    u8 *base;
+    u8 *fixups;
+    s32 size;
+
+    if (*(u8 *)(arg0 + 0x1C) == 0) {
+        base = arg0 + 0x20;
+        fixups = arg0 + *(s32 *)(arg0 + 0x10);
+        size = *(s32 *)(arg0 + 0x14);
+        func_00278c60((int *)base, (int)base, fixups, size);
+        *(u8 *)(arg0 + 0x1C) = 1;
+    }
+}
+#pragma pop
 // FUN_00278DA0
 s32 func_00278da0(u8 *arg0)
 {
