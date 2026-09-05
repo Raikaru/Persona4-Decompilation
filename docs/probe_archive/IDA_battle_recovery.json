@@ -1,0 +1,144 @@
+{
+  "scope": "Complete-IDA battle recovery, followed by parent compiler measurement; only the AI predicate was accepted.",
+  "ai": {
+    "source": "src/Battle/btlAICommand.c",
+    "target": "func_001db160",
+    "status": "MATCH",
+    "object_bytes": 508,
+    "retail_window_bytes": 512,
+    "verify_normalized_diff_bytes": 0,
+    "fndiff_differing_words": 1,
+    "fndiff_residual": "One absent zero-padding word, not a content mismatch.",
+    "implementation": "btlCommandUsable holds the existing algorithm once. A real exported func_001daf40 entry and func_001db160 both inline it. Marking only the public definition inline dropped its exported object symbol; the private helper plus public entry preserves both retail forms without fake references or export pragmas.",
+    "abi": "Keep the existing s32 input ABI instead of widening it from the IDA raw-register annotation. Correct this TU to the live pointer and s32 helper declarations, retain explicit signed-16 narrowing in the value query and func_001e64c0, and adapt sibling pointer loads.",
+    "retail_dispatch": [
+      {
+        "command": "0x3a",
+        "slot": "0x00609b08",
+        "function": "0x001daf40"
+      },
+      {
+        "command": "0x3e",
+        "slot": "0x00609b38",
+        "function": "0x001db160"
+      }
+    ],
+    "semantic_smoke": {
+      "cases": 602,
+      "result": "PASS",
+      "runtime": "Native host C with UBSan trap instrumentation. Real pointer members are aligned using a four-byte host work-base bias; non-PIE data addresses are asserted to fit signed 32 bits. This checks callback logic, not EE layout; the retail verifier checks EE instructions.",
+      "contracts": [
+        "signed query comparisons and unchanged full s32 input",
+        "zero and low16 counts, including 32768 and 65535",
+        "entry filtering and continuation after rejection",
+        "entry reload after value-query mutation",
+        "work-pointer snapshots versus per-call data-pointer reloads",
+        "returning diagnostic hook and post-hook work reload",
+        "bad-status, availability and cost short-circuit order",
+        "public usability callback and value-forwarding wrapper"
+      ],
+      "mutant": "Caching the entry before its value query fails case 0: availability receives command 1 instead of the reloaded command 0."
+    },
+    "unit_verification": {
+      "scanned": 263,
+      "MATCH": 257,
+      "ASM": 6,
+      "MISMATCH": 0,
+      "NO_SYMBOL": 0
+    },
+    "preserved_entries": [
+      {
+        "name": "func_001daf40",
+        "object_size": 248,
+        "window": 256,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "name": "func_001e64c0",
+        "object_size": 104,
+        "window": 112,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      },
+      {
+        "name": "func_001e6a50",
+        "object_size": 312,
+        "window": 320,
+        "normalized_diff": 0,
+        "status": "MATCH"
+      }
+    ],
+    "provenance": [
+      "docs/ida_headstart/src/Battle/btlAICommand.c:15-58",
+      "asm/nonmatchings/btlAICommand/func_001db160.s:1-144",
+      "src/Main/Battle/Data/datCalc.c:1716-1731",
+      "asm/nonmatchings/datCalc/func_0023d8e0.s:1-60"
+    ],
+    "measured_alternatives": [
+      {
+        "shape": "Expanded boolean usability expression",
+        "object_bytes": 472,
+        "fndiff_differing_words": 58
+      },
+      {
+        "shape": "Ordinary shared call without inlining",
+        "object_bytes": 312,
+        "fndiff_differing_words": 123
+      },
+      {
+        "shape": "Shared inlining with equality guards",
+        "object_bytes": 508,
+        "fndiff_differing_words": 3
+      },
+      {
+        "shape": "Explicit signed query values and direct rejection guards",
+        "object_bytes": 508,
+        "fndiff_differing_words": 1
+      },
+      {
+        "shape": "Propagation disabled around direct guards",
+        "object_bytes": 508,
+        "fndiff_differing_words": 1,
+        "disposition": "Unnecessary pragma not installed"
+      },
+      {
+        "shape": "CSE disabled around equality guards",
+        "object_bytes": 516,
+        "fndiff_differing_words": 82,
+        "disposition": "Oversized and rejected"
+      }
+    ]
+  },
+  "formation": {
+    "source": "src/Battle/btlFormation.c",
+    "target": "func_001d2e20",
+    "candidate": "docs/probe_archive/IDA_001d2e20_body.c",
+    "fndiff_differing_words": 93,
+    "status": "ASM retained; no semantic acceptance or production installation claimed",
+    "provenance": [
+      "docs/ida_headstart/src/Battle/btlFormation.c:402-440",
+      "asm/nonmatchings/btlFormation/func_001d2e20.s:1-122"
+    ],
+    "replay": "python tools/probe_variants.py src/Battle/btlFormation.c func_001d2e20 --candidate placement=docs/probe_archive/IDA_001d2e20_body.c",
+    "notes": "Typed work fields, genuine position/rotation arrays, two placement queries and the paired branch remain explicit. The live classifier limits the unpaired placement kind to 0..3."
+  },
+  "result_number": {
+    "source": "src/Battle/btlResultSimple.c",
+    "target": "func_0021ed10",
+    "candidate": "docs/probe_archive/IDA_0021ed10_body.c",
+    "fndiff_differing_words": 43,
+    "status": "ASM retained; does not improve the historical 39-word floor",
+    "provenance": [
+      "docs/ida_headstart/src/Battle/btlResultSimple.c:15-90",
+      "asm/nonmatchings/btlResultSimple/func_0021ed10.s:1-172"
+    ],
+    "replay": "python tools/probe_variants.py src/Battle/btlResultSimple.c func_0021ed10 --candidate number=docs/probe_archive/IDA_0021ed10_body.c",
+    "notes": [
+      "Uses existing BtlResultWork.field414 digit/dot handles and actual floats-first draw prototype.",
+      "Two genuine 64-byte character buffers, unsigned grouped division, signed character traversal, and the existing ungrouped percent-d formatter.",
+      "Member-first digit indexing did not change the 43-word score.",
+      "Ungrouped values above INT32_MAX retain the retail minus-sign assertion behavior; no unsigned-format fallback was added."
+    ]
+  }
+}
