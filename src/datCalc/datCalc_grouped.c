@@ -13,7 +13,7 @@ u32 datCalcGetBadStatus(int unit);
 u32 datCalcClearBadStatus(int unit, u32 badStatus);
 u32 datCalcChkBadStatus(int unit, u32 badStatus);
 void func_00233bb0(int object);
-u32 func_0023e130(void);
+u32 func_0023e130(u8 *unused);
 u32 datCalcIsDead(int unit, s32 hpDelta);
 
 /* Source unit: src/datCalc/datCalc_00231ed0.c (1 function markers) */
@@ -140,8 +140,9 @@ u32 datCalcIsSpecialItem(u16 itemId)
 
 /* Source unit: src/datCalc/datCalc_0023e130.c (1 function markers) */
 
+/* Retail callers pass the unit pointer even though the count is constant. */
 // FUN_0023E130
-u32 func_0023e130(void)
+u32 func_0023e130(u8 *unused)
 {
     return 8;
 }

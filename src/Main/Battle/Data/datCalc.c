@@ -1819,20 +1819,52 @@ s32 func_0023dfe0(void)
     return 0;
 }
 
-/* measured: loop-invariant hoisting fixed via opt_loop_invariants, but mwcc
-   allocates var_4/var_3/temp_8 to $t1/$t2/$a1 where retail uses $a0/$v1/$t0
-   (systematic rotation; probe batch of 4 spelling variants all nd 61). */
-/* measured 2026-08-03 (wave 14): re-tested with u16 return type + raw-value
-   switch (0xC0..0xC5) confirmed from the m2c draft (src/generated/code1_0023.c);
-   still nd 64-61. The loop-register rotation is robust: retail keeps the
-   func_0023e130 count in $s0/$t1 and the tbl pointer (func_0023e140 result) in
-   $2, bounds-compares i<count (constant in $a0) and n<0x10 (limit $a1, counter
-   $a2); mwcc b210 always rotates to counter $v1 / limit $a2 / rematerialized
-   constant, and splits the count into $s0 with the tbl in $a1. Tried goto-loop
-   form, s32/u16 vars, while-form, do-while: all 64. Register-rotation floor,
-   corroborated (recorded nd 61). */
 // FUN_0023DFF0
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_0023dff0);
+#pragma push
+/* measured: 320B/320B, nd 0. Unsigned remainders preserve distinct masks
+   through CSE; hoisting and selected-before-index match retail registers. */
+#pragma opt_loop_invariants on
+#pragma opt_common_subs on
+s32 func_0023dff0(u8 *arg0)
+{
+    u16 choices[16];
+    s32 count;
+    u16 *table;
+    u32 selected;
+    s32 index;
+    s32 valid;
+    u16 value;
+    u32 n;
+
+    count = func_0023e130(arg0) & 0xFFFF;
+    table = (u16 *)func_0023e140(arg0);
+    selected = 0;
+    index = 0;
+    while ((index & 0xFFFF) < (s32)((u32)count % 0x10000U) &&
+           (u32)(selected & 0xFFFF) < 16U) {
+        value = table[(u32)index % 0x10000U];
+        switch (value) {
+        case 0xC0: case 0xC1: case 0xC2: case 0xC3: case 0xC4: case 0xC5:
+            valid = 1;
+            break;
+        default:
+            valid = 0;
+            break;
+        }
+        if (valid) {
+            choices[(u32)selected % 0x10000U] = value;
+            selected = (selected + 1) & 0xFFFF;
+        }
+        index = (index + 1) & 0xFFFF;
+    }
+    n = (u32)selected % 0x10000U;
+    if (n == 0)
+        return 0;
+    if (n == 0)
+        func_0046d730(D_00635938, 0x17);
+    return choices[func_003b7060() % n];
+}
+#pragma pop
 
 
 // FUN_0023E140
@@ -2076,7 +2108,8 @@ s32 arg4;
         return 0;
     }
     if (arg0 != 0 && idx < 0x1B8 && ((*(u8 *)(base + offset) & 2))) {
-        if ((*(u16 *)arg0 & 4)) {            s32 partyOffset;
+        if ((*(u16 *)arg0 & 4)) {
+            s32 partyOffset;
             u8 *partyPtr;
 
             partyOffset = (s32)(*(u16 *)(arg0 + 2) * 0x3C);

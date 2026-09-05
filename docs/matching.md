@@ -2984,6 +2984,22 @@ closed them, all measured against b210 `-O2,p`:
   a two-word residual. Writing `random <= (s32)total` instead of
   `(s32)total >= random` selects `$at` rather than `$v0` for the branch and
   closes the full 288B window without changing the helper's `u32` ABI.
+- **Equivalent masks can survive different optimization passes.**
+  In `func_0023dff0`, unsigned `% 0x10000U` at the count, table-index,
+  choice-index, and final-count sites survives common-subexpression
+  elimination separately from `& 0xFFFF`, then lowers to the same `andi`.
+  This allows loop-invariant hoisting of the switch table and constant one
+  without losing retail's repeated masks. Keep the comparison's explicit
+  `s32` cast, and declare the `u32 selected` counter before `s32 index`.
+  The complete 320B body matches; all six retail jump-table entries were
+  checked and target the accepted-value block.
+- **A leaf reading no arguments does not prove a `(void)` prototype.**
+  Retail `func_001e9350` explicitly loads the unit pointer into `$a0`
+  immediately before calling the constant-eight helper `func_0023e130`.
+  Its C definition now retains that unused pointer parameter, consistently
+  with its callers. Do not delete real caller argument setup to fit an
+  under-specified leaf definition, or hide the mismatch with an old-style
+  declaration.
 - **Loop-counter vs count colouring.** Declaring `i` before `count` swaps
   their `$a2`/`$a3` colouring (`func_001b1280`). Declaration order is the
   lever, not assignment order.
