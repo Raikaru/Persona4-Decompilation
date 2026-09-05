@@ -300,6 +300,15 @@ def run_fndiff(
         sys.argv = ["fndiff.py", str(source), function]
         with redirect_stdout(output), redirect_stderr(errors):
             try:
+                # Candidate helpers can precede the target after marker
+                # normalization. Resolve its address from the owning source,
+                # not from the first declaration in the synthetic region.
+                marker = next(
+                    (item for item in fndiff.scan_markers(logical_source)
+                     if item["name"] == function), None
+                )
+                if marker is not None:
+                    sys.argv.extend(["--addr", f"{marker['addr']:08x}"])
                 fndiff.main()
             except SystemExit as error:
                 failure = str(error)

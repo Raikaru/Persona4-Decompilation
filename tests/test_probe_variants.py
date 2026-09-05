@@ -178,5 +178,49 @@ class IsolationTests(unittest.TestCase):
         self.assertFalse(scratch_paths[0].exists())
 
 
+class TargetIdentityTests(unittest.TestCase):
+    def test_helper_prefix_scores_named_target_at_owning_source_address(self) -> None:
+        import fndiff
+        from types import SimpleNamespace
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "owner.c"
+            original = ('// FUN_00246940\n'
+                        'INCLUDE_ASM("asm/unit", draw_color);\n')
+            source.write_text(original)
+            scratch = root / "candidate.c"
+            scratch.write_text(
+                "// FUN_00246940\n"
+                "static int helper(void) { return 2; }\n"
+                "int draw_color(void) { return helper() - 1; }\n"
+            )
+            body = bytes.fromhex("01000224")
+            target = {"elf": {"sha1": "fixture"}}
+            windows = {"program": "SLUS_217.82", "sha1": "fixture",
+                       "windows": {"00246940": 4}}
+            image = SimpleNamespace(bytes_at=lambda address, length:
+                                    {0x246940: body}.get(address, bytes(length)))
+            compiled = SimpleNamespace(function=lambda name:
+                                       ({"draw_color": body,
+                                         "helper": bytes.fromhex("02000224")}[name], []))
+
+            with patch.multiple(
+                fndiff,
+                REPO=root,
+                load_config=lambda: {"retail_elf": "fixture"},
+                _read_json=lambda path: target if path == fndiff.TARGET else windows,
+                RetailElf=lambda *args: image,
+                ObjectFile=lambda path: compiled,
+            ), patch.object(probe, "_compile_in_context", return_value=(True, "")):
+                score, diagnostics = probe.run_fndiff(
+                    scratch, "draw_color", context=source
+                )
+
+            self.assertEqual(score, 0, diagnostics)
+            self.assertEqual(source.read_text(), original)
+
+
 if __name__ == "__main__":
     unittest.main()

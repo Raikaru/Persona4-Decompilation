@@ -3572,3 +3572,72 @@ both retail SHA-1 checks succeed, all **7,717 instruction matches** remain,
 and **6,087 first-party functions match with 773 ASM remaining**. The
 errors-only lint gate reports zero errors; this invocation does not
 report advisory warning counts.
+
+## Helper-bearing probes: resolve identity from the owning source
+
+Probe normalization removes copied `FUN_` markers. When a candidate has
+declarations or private helpers before its target, scanning that synthetic
+region can associate the remaining marker with the wrong function.
+`run_fndiff` now resolves the requested symbol's retail address from the
+logical owning source, then passes that address to `fndiff` while compiling
+the isolated candidate with the owning translation unit's settings. This
+also supports recovered names without an address embedded in the symbol.
+
+The regression exercises real scoring with a named target behind a helper:
+the pre-fix runner fails with a missing-marker diagnostic; the repaired
+runner scores the intended function. All ten focused probe tests pass.
+The ordinary archive CLI now replays the complete helper-bearing
+`IDA_00476e90_body.c` candidate as **996B/976B, 72 differing words**.
+The ordinary variant CLI also scores the formation reconstruction without
+a custom marker-preserving driver. Neither measurement installs source.
+
+The full `make test` suite passes all 519 tooling tests.
+
+## AI command predicate: preserve both retail forms
+
+`func_001db160` is now **MATCH, 508B/512B, verify normalized_diff 0**.
+The last four bytes are zero tail padding. Complete IDA recovery first
+reached 58 differing words; replacing its expanded boolean expression with
+the existing usability check reached two content differences. Explicit
+signed query values and direct rejection guards close those comparisons.
+
+The implementation lives once in private inline `btlCommandUsable`.
+Both `func_001daf40` and the recovered predicate use it. Keeping the public
+entry is necessary: the retail dispatch table points command `0x3a` at
+`func_001daf40` and command `0x3e` at `func_001db160`. Marking only the public
+definition inline removed its emitted symbol. The shared implementation
+plus real callback entry preserves both retail forms without fake address
+references or export pragmas.
+
+The target retains its existing `s32` input ABI. Its signed-16-bit query
+values are not a reason to narrow that input. Correct helper declarations
+and typed pointer loads also preserve `func_001e64c0` and `func_001e6a50`;
+the value-forwarding wrapper keeps its explicit signed-16-bit conversion.
+The complete translation unit verifies **257 MATCH, 6 ASM**, with no
+mismatched or missing symbols.
+
+A native host smoke run with UBSan trap instrumentation passes **602
+cases**: signed query boundaries, count narrowing and unsigned iteration,
+post-query command mutation, work-pointer snapshots, data-pointer reloads,
+returning diagnostics, short-circuit gating, and both public wrappers.
+It uses aligned host pointer members and asserts that address-as-integer
+arguments fit 32 bits; this checks callback logic, not EE layout.
+Deliberately caching a command before its value query fails case zero:
+availability receives the stale command `1` instead of the reloaded `0`.
+
+The other battle recoveries remain assembly: formation `func_001d2e20`
+scores **93 differing words**, and result-number `func_0021ed10` scores
+**43**, not an improvement on its historical 39-word floor. Their complete
+fragments and the accepted AI evidence are retained in
+`docs/probe_archive/IDA_battle_recovery.json`; no unmatched candidate was
+installed.
+
+The integration gate `make build verify lint-errors` passes: **7718 MATCH**
+overall, **6088/6860 first-party MATCH**, **772 first-party ASM**, and no
+mismatches. Errors-only lint reports zero errors across 333 first-party
+files. The loadable-image SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; the rebuilt executable SHA1
+remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+Linked C coverage stays at 172 complete objects: the AI unit still has six
+assembly functions, so this is an instruction-match gain, not a claim that
+the new AI C body is already linked into the retail image.
