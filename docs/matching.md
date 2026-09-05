@@ -113,6 +113,23 @@ Use this six-step loop for every target:
   ID instead of calling a false `void* (void)` prototype. The original
   callback crashes in a 32-bit consumer smoke; the repaired one passes
   45 cases across plugin offsets, nested/missing matches and signed ID limits.
+- Audit missing C returns when retail preserves a callee result in `$v0`.
+  Field-task constructors `func_00166b40`, `func_00167420` and
+  `func_00167d90` now explicitly return the task created by `func_00451fc0`,
+  after initializing its work data. All three retain their instruction
+  matches; the complete `k_fldUnit.c` unit remains 34 MATCH / 8 ASM.
+  A 32-bit consumer smoke fails the original change-list handle check and
+  passes 288 cases after repair, covering returned handles, payloads, packed
+  IDs, unit flags, gates, allocation failure and task-creation failure.
+  A null constructor result still permits the retail work-data writes;
+  do not introduce an early return that skips those writes.
+  Their change-list caller `func_00134be0` is now 444B/448B MATCH with
+  scoped loop-invariant hoisting, `s16 party[4]`, four eight-byte change
+  records and the canonical `s16 func_00106cd0(s16,s16)` declaration.
+  Its 32-bit consumer smoke passes 4,608 cases covering membership, signed
+  before/after values, zeroed unused records, all three stat-query side
+  effects, task-creation failure and preservation of the old handle when
+  there are no changes. The retail-sized frame needs no invented padding.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
   `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word
