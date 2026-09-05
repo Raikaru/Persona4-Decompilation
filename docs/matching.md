@@ -3278,3 +3278,12 @@ After both promotions, `make build-progress progress lint-errors` reports
 6,081 first-party MATCH and 779 ASM, with both retail SHA-1 checks passing
 and zero lint findings. The source-linked total remains 1,555; matching
 these functions does not yet make their translation units C-linkable.
+
+Filter archive targets through the **current** verification report before
+probing. The old W49Code1b and LaneSingles `001b13c0` drafts were stale:
+the canonical grouped unit already measures 132B/144B with only zero tail.
+Its visible static three-argument removal helper preserves the real `a2`
+lifetime, and auto-inlining retains both the standalone body and its
+expansion in `001b1450`. Both obsolete drafts are removed. IDA replay of
+`00106f40` and `00484b30` leaves their six- and eight-word floors unchanged;
+the archives record the tested contracts and helper hypotheses.

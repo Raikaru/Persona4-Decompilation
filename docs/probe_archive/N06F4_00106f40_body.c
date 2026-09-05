@@ -10,6 +10,12 @@
  * inline output-parameter lifetimes, opt_lifetimes and propagation controls
  * likewise did not improve the mask-first six-word result.
  * Production remains ASM. Keep real call arguments and complete prototypes.
+ * IDA replay: docs/ida_headstart/src/cmmCommunity.c:15-50. Its omitted
+ * initial lookup operand is not an ABI: retail and the callee require arg0.
+ * Keep full arg0 at calls, mask only the 13 clear indices, preserve both
+ * ordered asserts, and read the u16 level only after the state setter.
+ * Private inline clear-phase helpers, taking either masked ID or full arg0,
+ * both measure 356B/368B and ten words. The retained six-word floor ties.
  */
 extern s32 func_001070e0(s32);
 extern s32 func_001077f0(s32);
