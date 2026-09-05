@@ -679,14 +679,12 @@ def eligible_c_objects(c, resolvable, boundaries, gp, cache, window_sizes=None,
     # them here made a cold build ~13,000 units instead of ~1,300 and dominated
     # the runtime. The candidate-promotion flow drives them separately through
     # build/m2c_verify_report.json, so they are opt-in here.
-    # config/gcc_units.txt lists five translation units retail built with
-    # ee-gcc rather than MWCCPS2. Building them needs an ee-gcc toolchain that
-    # is not part of this repo, so the build failed outright wherever it was
-    # absent -- including CI. They contain 66 matched functions and ZERO
-    # first-party ones: every address in them falls inside a vendor span, so
-    # they do not move the project's metric. They are therefore linked from
-    # their extracted retail assembly, which is byte-identical by construction,
-    # and the build no longer depends on a second compiler.
+    # config/gcc_units.txt lists units retail built with ee-gcc rather than
+    # MWCCPS2. Building them needs an ee-gcc toolchain that is not part of this
+    # repo, so the build failed outright wherever it was absent, including CI.
+    # They are compiler-runtime and vendor code, not first-party game code.
+    # Link their extracted retail assembly, which is byte-identical by
+    # construction, so the build does not depend on a second compiler.
     sources = sorted(p for p in (REPO / "src").rglob("*.c")
                      if (include_generated or not V.is_generated(p))
                      and not V.is_gcc_unit(p))
