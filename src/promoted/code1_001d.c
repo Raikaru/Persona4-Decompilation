@@ -194,7 +194,9 @@ void func_001d1540(u8 *arg0, s32 arg1, s32 arg2) {
         return;
     }
 }
-/* measured: declaration-corrected body archived in build/K1DA_001d15a0_body.c; object 240B exceeds retail window 224B, normalized_diff 185; differing offsets 0x0,0x4,0x8,0x9,0xA,0xB,0x10,0x12,0x13,0x14,0x16,0x17,0x18,0x1A,0x1B,0x1C. */
+/* Faithful probe: docs/probe_archive/K1DA_001d15a0_body.c, 212B/224B.
+   The helper requires four u16 counters (eight bytes), not separate locals.
+   Nine index/result register differences and three zero-tail words remain. */
 // FUN_001D15A0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d15a0);
 // FUN_001D1680
