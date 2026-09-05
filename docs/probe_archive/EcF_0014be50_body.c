@@ -9,6 +9,9 @@
  * and 4-byte Z accesses. A 16-byte whole-normal copy is rejected because
  * it reads beyond those constant extents and changes retail access width.
  * Reverse stores: 7 words; propagation off: 5; aggregate temporaries: 4.
+ * IDA agrees on traversal and strict Y limits, but omits the normal setup
+ * and third call argument; retain those from assembly rather than copying
+ * the incomplete call signature from Hex-Rays.
  */
 u16 func_0014be50(u8 *arg0, u8 **arg1) {
     u8 *triangle[3];
