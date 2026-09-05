@@ -796,11 +796,11 @@ void func_00484ae0(u8 *arg0, s32 arg1) {
     }
 }
 
-/* Measured honest-C floor: the zero-fill call, typed u_long128 zero stores,
-   and D_00713CE0 aggregate copy compile to object 116B for the 128B retail
-   window; normalized_diff 45 and 24 reloc-masked differing words at offsets
-   0x20-0x7C inclusive. Retail's four sqc2 vf0 stores are COP2 register side
-   effects with no honest C expression; the best body is archived at
+/* Measured hardware-only candidate: object 120B / window 128B, six differing
+   emitted words plus two zero tail words. Real sqc2 vf0 stores preserve
+   (0,0,0,1); the old zero-quad archive incorrectly cleared four W lanes.
+   Remaining differences are v1/v0 allocation for the 5.0 constant and
+   D_00713CE0 copy. Corrected candidate and bounded probe evidence:
    docs/probe_archive/W50Code48_00484b30_body.c. */
 // FUN_00484B30 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0048", func_00484b30);
