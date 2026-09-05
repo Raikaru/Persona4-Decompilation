@@ -1,48 +1,35 @@
 #!/usr/bin/env python3
 """Source-honesty linter for the Persona 4 decompilation tree.
 
-`verify.py` answers "do these bytes match retail?".  This answers the other
-half: "is this source an honest decompilation, and is the tree structurally
-sound?".  A function can be byte-perfect and still be a bad artifact -- built
-out of compiler-steering pragmas or `volatile` on ordinary data.  Those are
-exactly the defects this catches.
+`verify.py` answers "do these bytes match retail?". This checks structural
+integrity and flags source constructs that need review. Byte equality alone
+does not establish semantic fidelity; ordinary assembly transcription can
+match by construction. Compiler settings and volatile accesses are heuristics,
+not proof of dishonesty.
 
-The compiler baseline is MWCCPS2 3.0.1 b210 invoked with `-O2`.  Anything
-that steers codegen away from that baseline -- optimization_level 0/1/3,
-`schedule off`, `opt_common_subs off`, `opt_loop_invariants` -- must be paid
-for with a recorded measurement.  A redundant `#pragma optimization_level 2`
-(which is the baseline already) is a warning.
+The compiler baseline is MWCCPS2 3.0.1 b210 with `-O2`. H001 (unknown
+volatile context), H003 (nonbaseline optimization settings), and H007 (dead
+stores) are advisory warnings, not proof of dishonest source. H002 rejects
+allocation barriers but permits pure compiler memory barriers. H009 rejects
+ordinary assembly and unparsed templates; small hardware wrappers may carry
+bounded ordinary register plumbing. M001 validates function markers. P001
+checks only real pragma push/pop stacks, not on/off settings.
 
-Rules are grouped by prefix:
-
-  H  source honesty     constructs that steer codegen instead of expressing
-                        the program: `volatile` on non-hardware data, banned
-                        optimization pragmas, dead stores, `register` locals,
-                        inline asm that forces codegen for ordinary computation
-  M  marker hygiene     the `// FUN_xxxxxxxx` marker contract
-                        verify.py relies on
-  P  pragma balance     on/off brackets that never close within a file
-
-Severities are `error` (fails the run) and `warn`.
-
-WAIVERS.  A finding is waived by a comment within three lines above the site
-(marker lines are skipped when looking up) that either says `lint: allow CODE`
-or contains the word `measured`.  A comment in the six lines above the nearest
-enclosing `// FUN_xxxxxxxx` marker also waives every occurrence of the
-construct in that function: the measurement behind an annotation is always
-"removing this loses FUNCTION X", so one annotation covers the whole function.
-An unannotated instance of the same construct is a finding, which is the
-point: the rule is not "never use this", it is "never use this without paying
-for it in measurement".
+WAIVERS must occur in lexical comments. Nearby comments (up to three lines)
+or annotations immediately above a function marker (up to six lines) may
+waive advisory rules with `measured` or `lint: allow CODE`. Integrity rules
+require a rule-specific reason: `lint: allow H009 -- unsupported wrapper`
+(a colon also separates the reason). Generic measurements never waive H002
+or H009. Waivers cannot cross another function or marker. M001 and P001
+are structural checks and are not waived.
 
 The tree is split like verify.py splits it: first-party code is what this
 project wrote and polices; third-party middleware (RenderWare under `rw/`,
 CRI under `cri/`, the Sony SDK under `sce/`, and the C runtime files) is
 retail-tracked but nobody's to restyle.  By default only first-party sources
 are linted; `--include-third-party` scans everything and reports both
-populations separately in the summary.  The exit status is always driven by
-FIRST-PARTY `error` findings alone, so the tool can gate CI honestly no
-matter how much middleware noise is present.
+populations separately in the summary. First-party integrity errors and scan
+failures drive the exit status; third-party findings remain informational.
 
 Usage:
     python tools/decomp_lint.py                     # lint first-party src/ and include/
@@ -51,12 +38,13 @@ Usage:
     python tools/decomp_lint.py --errors-only       # errors only, exit 1 on any first-party error
     python tools/decomp_lint.py src/foo.c --json r.json
     python tools/decomp_lint.py --select H          # only honesty rules
-    python tools/decomp_lint.py --ignore H003W      # drop the noisy warning
+    python tools/decomp_lint.py --ignore H007       # omit dead-store advisories
     python tools/decomp_lint.py --list              # describe every rule
 
-Exit status is 1 if any first-party `error` finding survives filtering,
-else 0.  Third-party findings (visible with `--include-third-party`) never
-fail the run.  `src/generated/` is never linted.
+Exit status is 1 if any first-party `error` finding survives filtering or
+any requested input cannot be scanned, else 0. Scan errors are always printed
+and included in JSON `scan_errors`, regardless of rule/severity filtering.
+Third-party findings never fail the run. `src/generated/` is never linted.
 """
 
 import argparse
@@ -90,9 +78,9 @@ THIRD_PARTY_PREFIXES = _VERIFY.THIRD_PARTY_PREFIXES
 THIRD_PARTY_FILES = _VERIFY.THIRD_PARTY_FILES
 is_third_party = _VERIFY.is_third_party
 
-# PS2 hardware register windows.  `volatile` is legitimate here and nowhere
-# else: EE core/peripheral MMIO, VU memory, GS privileged registers,
-# scratchpad, and BIOS.
+# Known PS2 hardware windows: direct volatile pointer casts to these addresses
+# need no context warning. Other volatile uses may be legitimate too; H001 asks
+# for review rather than rejecting them.
 HARDWARE_RANGES = (
     (0x10000000, 0x10010000),   # EE peripherals: timers, DMAC, GIF, VIF, IPU
     (0x11000000, 0x11010000),   # VU0/VU1 micro and data memory
@@ -104,22 +92,20 @@ HARDWARE_RANGES = (
 
 RULES = {
     # ---- H: source honesty -------------------------------------------------
-    "H001": ("error", "`volatile` on non-hardware data (compiler-steering, not a device access)"),
-    "H002": ("error", "zero-instruction asm barrier: empty template emits nothing and exists only to perturb the optimizer"),
-    "H003": ("error", "banned optimization pragma (optimization_level 0/1/3, schedule off, opt_common_subs off, opt_loop_invariants)"),
-    "H003W": ("warn", "redundant `#pragma optimization_level 2` (that is the documented -O2 baseline)"),
+    "H001": ("warn", "`volatile` with no recognized hardware address; review context"),
+    "H002": ("error", "zero-instruction asm allocation barrier (pure memory barriers are allowed)"),
+    "H003": ("warn", "nonbaseline optimization pragma; review measured justification"),
     "H007": ("warn", "dead store: local is assigned once and never read"),
-    "H008": ("error", "`register` storage class on an ordinary local"),
     "H009": ("error", "inline asm emitting ordinary instructions (not syscall/privileged/COP2/VU0); use honest C"),
     # ---- M: marker hygiene -------------------------------------------------
     "M001": ("error", "marker hygiene: malformed FUN_ address or duplicate address in one file"),
     # ---- P: pragma balance -------------------------------------------------
-    "P001": ("error", "unbalanced pragma on/off pairs within a file"),
+    "P001": ("error", "pragma push/pop stack underflow or unclosed push"),
 }
 
 SEVERITY_ORDER = {"info": 0, "warn": 1, "error": 2}
 
-MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))(.*)$")
+MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))\b(.*)$")
 INCLUDE_ASM_RE = re.compile(r'^\s*INCLUDE_ASM\s*\(\s*"')
 # Any `// FUN_...` line, including ones whose address part is malformed.
 MARKER_LINE_RE = re.compile(r"^\s*//\s*FUN_([0-9a-fA-F]*)(.*)$")
@@ -128,72 +114,93 @@ IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 # --------------------------------------------------------------- source prep
 
-def sanitize(lines):
-    """Blank out comments and string/char literals, preserving line layout.
+def lexical_views(lines):
+    """Return code, comments, comment-free text, and genuine line comments.
 
-    Every rule below matches against the sanitized text so that a banned
-    construct quoted inside a comment or a string is not a finding.
+    C line splicing precedes comment recognition. Logical lines are placed at
+    their first physical line, with empty continuation slots, preserving all
+    later diagnostic line numbers.
     """
-    out_lines = []
+    logical = [""] * len(lines)
+    i = 0
+    while i < len(lines):
+        start = i
+        text = lines[i]
+        while text.endswith("\\") and i + 1 < len(lines):
+            i += 1
+            text = text[:-1] + lines[i]
+        logical[start] = text
+        i += 1
+    code, comments, text_view, line_comments = [], [], [], []
     state = "code"
-    for line in lines:
-        out = []
+    for line in logical:
+        c, notes, text = [], [], []
+        line_comment = ""
         i = 0
         while i < len(line):
             ch = line[i]
-            nxt = line[i + 1] if i + 1 < len(line) else ""
+            pair = line[i:i + 2]
             if state == "block":
-                if ch == "*" and nxt == "/":
-                    out.extend("  ")
-                    i += 2
+                size = 2 if pair == "*/" else 1
+                c.append(" " * size)
+                notes.append(line[i:i + size])
+                text.append(" " * size)
+                i += size
+                if pair == "*/":
                     state = "code"
-                else:
-                    out.append(" ")
-                    i += 1
-            elif state in ("str", "chr"):
-                quote = '"' if state == "str" else "'"
-                if ch == "\\":
-                    out.extend("  ")
-                    i += 2
-                    continue
-                out.append(" ")
+            elif state in ('"', "'"):
+                size = min(2, len(line) - i) if ch == "\\" else 1
+                c.append(" " * size)
+                notes.append(" " * size)
+                text.append(line[i:i + size])
+                i += size
+                if ch == state:
+                    state = "code"
+            elif pair == "//":
+                line_comment = " " * i + line[i:] if not line[:i].strip() else ""
+                c.append(" " * (len(line) - i))
+                notes.append(line[i:])
+                text.append(" " * (len(line) - i))
+                break
+            elif pair == "/*":
+                state = "block"
+                c.append("  ")
+                notes.append(pair)
+                text.append("  ")
+                i += 2
+            elif ch in ('"', "'"):
+                state = ch
+                c.append(" ")
+                notes.append(" ")
+                text.append(ch)
                 i += 1
-                if ch == quote:
-                    state = "code"
             else:
-                if ch == "/" and nxt == "*":
-                    out.extend("  ")
-                    i += 2
-                    state = "block"
-                elif ch == "/" and nxt == "/":
-                    out.extend(" " * (len(line) - i))
-                    break
-                elif ch == '"':
-                    out.append(" ")
-                    i += 1
-                    state = "str"
-                elif ch == "'":
-                    out.append(" ")
-                    i += 1
-                    state = "chr"
-                else:
-                    out.append(ch)
-                    i += 1
-        out_lines.append("".join(out))
-    return out_lines
+                c.append(ch)
+                notes.append(" ")
+                text.append(ch)
+                i += 1
+        code.append("".join(c))
+        comments.append("".join(notes))
+        text_view.append("".join(text))
+        line_comments.append(line_comment)
+    return code, comments, text_view, line_comments
+
+
+def sanitize(lines):
+    return lexical_views(lines)[0]
 
 
 class Source:
     """One .c/.h file, with the derived views every rule needs."""
 
     def __init__(self, path, raw):
-        self.path = path
+        self.path = Path(path).resolve()
         self.raw = raw
         text = raw.decode("utf-8", errors="replace")
         self.crlf = raw.count(b"\r\n")
         self.lf = raw.count(b"\n") - self.crlf
         self.lines = text.replace("\r\n", "\n").split("\n")
-        self.code = sanitize(self.lines)
+        self.code, self.comments, self.text, self.line_comments = lexical_views(self.lines)
 
     def rel(self):
         try:
@@ -220,34 +227,22 @@ class Finding:
 
 # ------------------------------------------------------------------- waivers
 
-# Codes are `H001`...`P001`; H003W carries an extra suffix letter.
-WAIVER_ALLOW_RE = re.compile(r"lint:\s*allow\s+([A-Z]\d{3}[A-Z]?)")
+ADVISORY_RULES = frozenset(("H001", "H003", "H007"))
+WAIVER_ALLOW_RE = re.compile(
+    r"\blint:\s*allow\s+([A-Z]\d{3})\b(?:\s*(?::|--)\s*([^\r\n]*))?")
+
+
+def _comment_waives(comment, code):
+    for match in WAIVER_ALLOW_RE.finditer(comment):
+        if match.group(1) == code:
+            reason = (match.group(2) or "").split("*/", 1)[0].strip()
+            if code in ADVISORY_RULES or reason:
+                return True
+    return code in ADVISORY_RULES and re.search(r"\bmeasured\b", comment) is not None
 
 
 def waived(src, idx, code):
-    """True if the site on line `idx` (0-based) carries a justification.
-
-    Three scopes are honoured:
-
-    * INLINE scope -- a comment on the site line itself, e.g.
-      `*(volatile /* measured: see FUN_001EC630 */ f32*)&x`.
-    * SITE scope -- a comment within three lines above the site.
-    * FUNCTION scope -- a comment in the six lines above the nearest
-      enclosing `// FUN_xxxxxxxx` marker.  The measurement behind an
-      annotation is always "removing this loses FUNCTION X", so one
-      annotation covers every occurrence of the construct in that function.
-
-    A justification is either an explicit `lint: allow CODE` or a comment
-    containing `measured`, the tree's convention for recording a retained
-    construct's measured removal cost.
-    """
-    line = src.lines[idx]
-    m = WAIVER_ALLOW_RE.search(line)
-    if m and m.group(1) == code and WAIVER_ALLOW_RE.search(src.code[idx]) is None:
-        return True
-    # `measured` counts only inside a comment: present in the raw line but
-    # blanked out of the sanitized view.
-    if "measured" in line and "measured" not in src.code[idx]:
+    if _comment_waives(src.comments[idx], code):
         return True
     if _scan_waiver(src, idx, code, 3):
         return True
@@ -256,44 +251,25 @@ def waived(src, idx, code):
 
 
 def _scan_waiver(src, idx, code, depth):
-    checked = 0
-    j = idx
-    while j > 0 and checked < depth:
-        j -= 1
-        line = src.lines[j]
-        stripped = line.strip()
-        if not stripped:
-            continue
-        if MARKER_RE.match(line):
-            continue  # annotations sit above the marker, the site below it
-        if INCLUDE_ASM_RE.search(line):
-            # Another function's whole body, onboarded as an assembly fallback.
-            # A run of these between an annotation and the marker it belongs to
-            # is not intervening code that should hide the annotation -- the two
-            # were adjacent before the stubs were inserted, and the measurement
-            # still describes the same construct. Skip without counting depth.
-            continue
-        m = WAIVER_ALLOW_RE.search(line)
-        if m:
-            return m.group(1) == code
-        # `measured` counts only inside a comment.  The sanitized view blanks
-        # comment text, so presence in `lines` but absence in `code` proves it.
-        if "measured" in line and "measured" not in src.code[j]:
+    for j in range(idx - 1, max(-1, idx - depth - 1), -1):
+        if MARKER_LINE_RE.match(src.line_comments[j]) or re.search(r"[{}]", src.code[j]):
+            break
+        if _comment_waives(src.comments[j], code):
             return True
-        checked += 1
-        is_comment = (stripped.startswith("/*") or stripped.startswith("//")
-                      or stripped.startswith("*") or stripped.endswith("*/")
-                      or not src.code[j].strip())
-        if not (is_comment or stripped.startswith("#")):
+        if src.code[j].strip():
             break
     return False
 
 
 def _enclosing_marker(src, idx):
-    """Index of the nearest `// FUN_` marker at or above `idx`, else None."""
-    for j in range(idx, max(-1, idx - 600), -1):
-        if MARKER_RE.match(src.lines[j]):
-            return j
+    # A completed top-level body or INCLUDE_ASM fallback terminates marker
+    # ownership, even if the following function has no marker.
+    ends = {end for _, end in iter_functions(src)}
+    for j in range(idx, -1, -1):
+        if j < idx and (j in ends or INCLUDE_ASM_RE.match(src.text[j])):
+            return None
+        if MARKER_LINE_RE.match(src.line_comments[j]):
+            return j if MARKER_RE.match(src.line_comments[j]) else None
     return None
 
 
@@ -301,7 +277,6 @@ def _enclosing_marker(src, idx):
 # Each rule is `def check_xxx(src) -> iterable[Finding]`.
 
 VOLATILE_RE = re.compile(r"\bvolatile\b")
-HEX_RE = re.compile(r"0[xX]([0-9a-fA-F]{6,8})")
 
 
 # Bit patterns that are overwhelmingly float constants rather than addresses.
@@ -328,7 +303,8 @@ def _physical(v):
 
 
 def _is_hardware_line(line):
-    for m in HEX_RE.finditer(line):
+    # A scalar constant elsewhere on the line is not evidence of MMIO.
+    for m in re.finditer(r"\([^();]*\bvolatile\b[^();]*\*[^();]*\)\s*(0[xX][0-9a-fA-F]+)\b", line):
         v = _physical(int(m.group(1), 16))
         for lo, hi in HARDWARE_RANGES:
             if lo <= v < hi:
@@ -337,48 +313,35 @@ def _is_hardware_line(line):
 
 
 def check_volatile(src):
-    for i, line in enumerate(src.code):
+    # Only the asm qualifier is exempt, not unrelated volatile data on the
+    # same line. Preserve newlines when the qualifier spans logical lines.
+    code = ASM_KEYWORD_RE.sub(
+        lambda m: re.sub(r"[^\n]", " ", m.group()), "\n".join(src.code))
+    for i, line in enumerate(code.split("\n")):
         if not VOLATILE_RE.search(line):
-            continue
-        # `asm`, `__asm`, `__asm__` are all inline-assembly spellings MWCC/GCC
-        # accept; none is the compiler-steering `volatile` this rule targets.
-        if re.search(r"\b_{0,2}asm_{0,2}\b", line):
             continue
         if _is_hardware_line(line):
             continue
         if waived(src, i, "H001"):
             continue
         yield Finding("H001", src.rel(), i + 1,
-                      "volatile on data with no hardware address in scope",
+                      "volatile context is not a recognized direct hardware access; review justification",
                       src.lines[i].strip())
 
 
-# Steering pragmas that deviate from the documented -O2 baseline.  Note that
-# opt_loop_invariants is banned in BOTH directions: `on` and `off` both
-# deviate from the default state, and retail builds were made with the
-# default.
 BANNED_PRAGMA_RE = re.compile(
-    r"#\s*pragma\s+(optimization_level\s+[013]\b"
-    r"|schedule\s+off\b"
-    r"|opt_common_subs\s+off\b"
+    r"^\s*#\s*pragma\s+(optimization_level\s+(?!2(?:\s|$))\S+"
+    r"|schedule\s+off\b|opt_common_subs\s+off\b"
     r"|opt_loop_invariants\s+(?:on|off)\b)")
-REDUNDANT_PRAGMA_RE = re.compile(r"#\s*pragma\s+optimization_level\s+2\b")
 
 
 def check_banned_pragma(src):
     for i, line in enumerate(src.code):
         m = BANNED_PRAGMA_RE.search(line)
-        if m:
-            if not waived(src, i, "H003"):
-                yield Finding("H003", src.rel(), i + 1,
-                              f"banned pragma `{m.group(1).strip()}` with no measured justification",
-                              src.lines[i].strip())
-            continue
-        if REDUNDANT_PRAGMA_RE.search(line):
-            if not waived(src, i, "H003W"):
-                yield Finding("H003W", src.rel(), i + 1,
-                              "redundant `#pragma optimization_level 2`; -O2 is already the baseline",
-                              src.lines[i].strip())
+        if m and not waived(src, i, "H003"):
+            yield Finding("H003", src.rel(), i + 1,
+                          f"nonbaseline pragma `{m.group(1).strip()}`; review justification",
+                          src.lines[i].strip())
 
 
 # ------------------------------------------------------- function extraction
@@ -467,19 +430,6 @@ def check_dead_store(src):
                           src.lines[idx].strip())
 
 
-REGISTER_RE = re.compile(r"(?:^|[{};])\s*register\s+[A-Za-z_]")
-
-
-def check_register_local(src):
-    for i, line in enumerate(src.code):
-        if not REGISTER_RE.search(line):
-            continue
-        if waived(src, i, "H008"):
-            continue
-        yield Finding("H008", src.rel(), i + 1,
-                      "`register` on an ordinary local is a codegen hint, not a decompilation",
-                      src.lines[i].strip())
-
 
 # ----------------------------------------------------------------- inline asm
 # Inline asm is permitted ONLY where there is genuinely no C expression for
@@ -491,13 +441,9 @@ def check_register_local(src):
 # H002 catches the zero-instruction barrier (`asm ("" : "+r"(x))`): it emits
 # nothing and exists only to perturb the optimizer.
 #
-# H009 catches statements whose template emits real instructions.  The
-# allowlist below is the hardware vocabulary with no C expression.  A
-# statement that contains ANY allowlisted instruction is treated as one
-# hardware idiom: its GPR plumbing -- an `addiu` computing an address fed to
-# `lqc2`/`sqc2`, a `pextuw` unwrapping a `qmfc2` result -- rides along with
-# the COP2 move.  Only statements made up SOLELY of ordinary mnemonics are
-# optimizer-steering and flagged.
+# Both assembly forms share instruction decoding and bounded hardware-plumbing
+# policy: ordinary instructions need hardware context, and beyond 16 ordinary
+# instructions their count must not exceed eight times the hardware count.
 
 ASM_KEYWORD_RE = re.compile(
     r"\b(?:__asm__|__asm|asm)\b(?:\s+(?:volatile|inline|goto))*\s*\(")
@@ -518,90 +464,88 @@ ASM_ALLOWED = frozenset({
 _ASM_ESCAPES = {"n": "\n", "t": "\t", "r": "\r", "\\": "\\", '"': '"'}
 
 
-def _asm_template(src, line_idx, col):
-    """Concatenated template of the asm statement whose opening paren sits at
-    (line_idx, col) in the raw text; None if the statement is malformed.
+def _inline_asm(src):
+    """Yield physical line, decoded template (or None), and operand suffix."""
+    code = "\n".join(src.code)
+    text = "\n".join(src.text)
+    for match in ASM_KEYWORD_RE.finditer(code):
+        start = match.end()
+        pos, depth, quote = start, 1, None
+        while pos < len(text) and depth:
+            ch = text[pos]
+            if quote:
+                if ch == "\\":
+                    pos += 2
+                    continue
+                if ch == quote:
+                    quote = None
+            elif ch in "\"'":
+                quote = ch
+            elif ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+            pos += 1
+        body = text[start:pos - 1] if depth == 0 else ""
+        cursor, parts = 0, []
+        while True:
+            literal = re.match(r'\s*"((?:\\.|[^"\\])*)"', body[cursor:], re.S)
+            if not literal:
+                break
+            parts.append(re.sub(r"\\(.)", lambda m: _ASM_ESCAPES.get(
+                m.group(1), "\\" + m.group(1)), literal.group(1), flags=re.S))
+            cursor += literal.end()
+        suffix = body[cursor:].strip()
+        template = "".join(parts) if parts and (not suffix or suffix.startswith(":")) else None
+        yield code.count("\n", 0, match.start()), template, suffix
 
-    The template is the run of adjacent C string literals before the first
-    `:` (operand separator) or `)` (close), so multi-line statements with
-    `\n\t` separators are scanned as one template, not line by line.
-    """
-    i = line_idx
-    line = src.lines[i]
-    # `col` points just past the opening `(` of the asm statement, i.e. at
-    # the first template character (or whitespace before it).
-    parts = []
-    while True:
-        n = len(line)
-        while col < n and line[col] in " \t":
-            col += 1
-        if col >= n:
-            i += 1
-            if i >= len(src.lines):
-                return None
-            line = src.lines[i]
-            col = 0
-            continue
-        ch = line[col]
-        if ch == '"':
-            col += 1
-            buf = []
-            while True:
-                if col >= n:
-                    return None          # unterminated string literal
-                c = line[col]
-                col += 1
-                if c == "\\":
-                    if col >= n:
-                        return None
-                    esc = line[col]
-                    col += 1
-                    buf.append(_ASM_ESCAPES.get(esc, "\\" + esc))
-                elif c == '"':
-                    break
-                else:
-                    buf.append(c)
-            parts.append("".join(buf))
-            continue
-        if ch in ":)":
-            return "".join(parts)
-        return None                      # template must be a string literal
+
 
 
 def _asm_mnemonics(template):
-    """Base mnemonics of the real instructions in an asm template.
-
-    Assembler directives (`.set`, `.word`, ...), `#` comments, labels, and
-    empty chunks are skipped; `add.s` -> `add`, `vsub.xyzw` -> `vsub`.
-    """
+    """Decode instruction chunks, including labels and encoded .word lists."""
     out = []
-    for chunk in re.split(r"[\n;]", template):
-        chunk = chunk.strip()
-        if not chunk or chunk[0] in ".#":
-            continue
-        tok = chunk.split(None, 1)[0]
-        if tok.endswith(":"):
-            continue                      # label, e.g. `1:`
-        out.append(tok.split(".", 1)[0])
+    for line in template.splitlines():
+        for chunk in line.split("#", 1)[0].split(";"):
+            chunk = chunk.strip()
+            while re.match(r"^[\w.$]+:", chunk):
+                chunk = chunk.split(":", 1)[1].strip()
+            if not chunk:
+                continue
+            fields = chunk.split(None, 1)
+            token = fields[0].lower()
+            if token == ".word":
+                for value in (fields[1] if len(fields) > 1 else "").split(","):
+                    try:
+                        word = int(value.strip(), 0)
+                    except ValueError:
+                        out.append("<unparsed>")
+                    else:
+                        out.append("<hardware>" if 0 <= word <= 0xFFFFFFFF
+                                   and _word_is_hardware(word) else ".word")
+            elif token in {".set", ".align", ".balign", ".globl", ".global",
+                           ".ent", ".end", ".type", ".size", ".text"}:
+                continue
+            else:
+                out.append(token.split(".", 1)[0] if not token.startswith(".") else token)
     return out
 
 
 def check_asm_barrier(src):
-    """H002: an asm statement whose template is empty or whitespace-only."""
-    for i, line in enumerate(src.code):
-        for m in ASM_KEYWORD_RE.finditer(line):
-            template = _asm_template(src, i, m.end())
-            if template is None or template.strip():
-                continue
-            if waived(src, i, "H002"):
-                continue
+    for i, template, suffix in _inline_asm(src):
+        if template is None or _asm_mnemonics(template):
+            continue
+        # No output/input operands and exactly the memory clobber: this is a
+        # compiler ordering primitive, not a register-allocation constraint.
+        if re.fullmatch(r':\s*:\s*:\s*"memory"\s*', suffix):
+            continue
+        if not waived(src, i, "H002"):
             yield Finding("H002", src.rel(), i + 1,
-                          "empty asm template emits no instructions; it exists only to perturb the optimizer",
+                          "zero-instruction asm allocation barrier; use a genuine memory barrier or explain the integrity exception",
                           src.lines[i].strip())
 
 
-ASM_FUNC_RE = re.compile(r"^\s*asm\s+[A-Za-z_][\w \*]*\b\w+\s*\(")
-WORD_DIRECTIVE_RE = re.compile(r"^\s*\.word\s+(0[xX][0-9A-Fa-f]+)")
+ASM_FUNC_RE = re.compile(r"\basm\s+[A-Za-z_][\w \*]*\b\w+\s*\([^;{}]*\)\s*\{")
 
 
 def _word_is_hardware(word):
@@ -622,101 +566,48 @@ def _word_is_hardware(word):
     return False
 
 
+def _asm_problem(template):
+    if template is None:
+        return "unparsed asm template; cannot establish source honesty"
+    instructions = _asm_mnemonics(template)
+    hardware = sum(base == "<hardware>" or base in ASM_ALLOWED or
+                   bool(re.fullmatch(
+                       r"v(?:abs|(?:add|sub|mul|madd|msub)a?[iqxyzw]?|"
+                       r"max[iqxyzw]?|mini[iqxyzw]?|move|mr32|ftoi[0-9]*|itof[0-9]*|clipw?|"
+                       r"opmula|opmsub|div|sqrt|rsqrt|waitq|nop|callmsr?|"
+                       r"iadd|iaddi|isub|iand|ior|ilw|isw|lqi|lqd|sqi|sqd|"
+                       r"mfir|mtir|rget|rinit|rnext|rxor)", base))
+                   for base in instructions)
+    ordinary = len(instructions) - hardware
+    if "<unparsed>" in instructions or any(base.startswith(".") and base != ".word"
+                                            for base in instructions):
+        return "unparsed assembly directive; cannot establish source honesty"
+    if ordinary and (not hardware or (ordinary > 16 and ordinary > 8 * hardware)):
+        return (f"asm emits {ordinary} ordinary instruction(s) against {hardware} "
+                "hardware instruction(s); use honest C rather than transcription")
+    return None
+
+
 def check_asm_function_body(src):
-    """H009 for MWCC's `asm void f(void) { ... }` whole-function form.
-
-    ASM_KEYWORD_RE only matches the statement form `asm (`, so a function
-    DEFINITION qualified with `asm` slipped past every asm rule.  That is the
-    most dangerous shape available: a body of `.word` literals copied from the
-    retail bytes matches byte-for-byte by construction, so it reads as a
-    genuine result to every other tool in the campaign.  m2c emits exactly
-    that form for functions it cannot lift, which is how one reached a
-    placeholder file.
-
-    The legitimate case is real: PS2 kernel syscall trampolines have no C
-    expression, and MWCC's assembler rejects the `syscall` mnemonic, so they
-    must be `.word` literals.  Those decode as hardware and stay allowed.
-
-    But presence alone must not exempt an arbitrarily large body.  A single
-    privileged op used to whitelist every instruction beside it, so a 136-line
-    transcription of `_start` -- 130 `.word`-encoded `padduw` register clears
-    around a handful of real `syscall`/`ei`/`sync.p` -- passed with zero
-    findings and scored MATCH by construction.  The exemption is therefore
-    proportional: a trampoline is a handful of instructions wrapped around its
-    privileged op, so a body that dwarfs its hardware content is a
-    transcription regardless of what it contains.  Genuine boot stubs are
-    floors and belong in `INCLUDE_ASM`, not in an `asm` body.
-    """
-    # A trampoline is small and mostly privileged.  Past both bounds the body
-    # is ordinary code wearing a hardware op as a badge.
-    BULK = 16          # below this, any hardware op still exempts
-    RATIO = 8          # above BULK, ordinary may exceed hardware by this much
-    for i, line in enumerate(src.code):
-        if not ASM_FUNC_RE.match(line):
-            continue
-        depth, ordinary, hardware = 0, 0, 0
-        for j in range(i, len(src.code)):
-            body = src.code[j]
-            m = WORD_DIRECTIVE_RE.match(body)
-            if m:
-                if _word_is_hardware(int(m.group(1), 16)):
-                    hardware += 1
-                else:
-                    ordinary += 1
-            else:
-                for base in _asm_mnemonics(body if j > i else ''):
-                    if base.startswith("v") or base in ASM_ALLOWED:
-                        hardware += 1
-                    else:
-                        ordinary += 1
-            depth += body.count("{") - body.count("}")
-            if depth <= 0 and j > i:
-                break
-        if not ordinary:
-            continue
-        bulk = ordinary > BULK and ordinary > RATIO * hardware
-        if hardware and not bulk:
-            continue
-        if waived(src, i, "H009"):
-            continue
-        if hardware:
-            why = (f"whole-function asm body of {ordinary} ordinary instruction(s) "
-                   f"against only {hardware} privileged op(s); a syscall trampoline "
-                   "is a handful of instructions around its privileged op, so this "
-                   "is a transcription that matches by construction")
-        else:
-            why = (f"whole-function asm body of {ordinary} ordinary instruction(s) "
-                   "with no privileged/COP2/VU0 op; this matches by construction, "
-                   "not by decompilation")
-        yield Finding("H009", src.rel(), i + 1, why, src.lines[i].strip())
+    code = "\n".join(src.code)
+    for match in ASM_FUNC_RE.finditer(code):
+        start, pos, depth = match.end(), match.end(), 1
+        while pos < len(code) and depth:
+            depth += (code[pos] == "{") - (code[pos] == "}")
+            pos += 1
+        i = code.count("\n", 0, match.start())
+        problem = _asm_problem(code[start:pos - 1] if depth == 0 else None)
+        if problem and not waived(src, i, "H009"):
+            yield Finding("H009", src.rel(), i + 1, problem, src.lines[i].strip())
 
 
 def check_asm_instructions(src):
-    """H009: inline asm emitting real instructions for ordinary computation."""
-    for i, line in enumerate(src.code):
-        for m in ASM_KEYWORD_RE.finditer(line):
-            template = _asm_template(src, i, m.end())
-            if template is None or not template.strip():
-                continue                  # H002 owns the empty case
-            mnemonics = _asm_mnemonics(template)
-            if not mnemonics:
-                continue                  # directives only: nothing to flag
-            ordinary = []
-            hardware = False
-            for base in mnemonics:
-                if base.startswith("v") or base in ASM_ALLOWED:
-                    hardware = True
-                else:
-                    ordinary.append(base)
-            if hardware or not ordinary:
-                continue
-            if waived(src, i, "H009"):
-                continue
-            yield Finding("H009", src.rel(), i + 1,
-                          "inline asm emits ordinary instructions ("
-                          + ", ".join(sorted(set(ordinary)))
-                          + ") with no privileged/COP2/VU0 op; use honest C",
-                          src.lines[i].strip())
+    for i, template, _ in _inline_asm(src):
+        if template is not None and not _asm_mnemonics(template):
+            continue  # H002 owns zero-instruction templates.
+        problem = _asm_problem(template)
+        if problem and not waived(src, i, "H009"):
+            yield Finding("H009", src.rel(), i + 1, problem, src.lines[i].strip())
 
 
 # ------------------------------------------------------------ marker hygiene
@@ -729,15 +620,15 @@ def check_markers(src):
     """
     markers = []          # (idx, addr)
     seen = defaultdict(list)
-    for i, line in enumerate(src.lines):
+    for i, line in enumerate(src.line_comments):
         m = MARKER_LINE_RE.match(line)
         if not m:
             continue
         hexpart = m.group(1)
-        if len(hexpart) != 8:
+        if not MARKER_RE.match(line):
             yield Finding("M001", src.rel(), i + 1,
                           f"malformed marker address `FUN_{hexpart}` "
-                          f"({len(hexpart)} hex digits, expected 8)",
+                          f"({len(hexpart)} hex digits; expected 8 followed by a token boundary)",
                           src.lines[i].strip())
             continue
         addr = hexpart.lower()
@@ -752,65 +643,29 @@ def check_markers(src):
 
 # ------------------------------------------------------------ pragma balance
 
-ONOFF_RE = re.compile(r"#\s*pragma\s+([A-Za-z_][A-Za-z0-9_]*)\s+(on|off)\b")
-PUSH_RE = re.compile(r"#\s*pragma\s+push\b")
-POP_RE = re.compile(r"#\s*pragma\s+pop\b")
-
-# Pragmas whose on/off is a genuine mode switch, not a bracket.
-ONOFF_EXEMPT = {"once"}
+PUSH_RE = re.compile(r"^\s*#\s*pragma\s+push\b")
+POP_RE = re.compile(r"^\s*#\s*pragma\s+pop\b")
 
 
 def check_pragma_balance(src):
-    """P001: on/off brackets that never close within the file.
-
-    `#pragma push` saves the whole pragma state and `#pragma pop` restores it,
-    so an `on`/`off` switched inside a push/pop bracket is NOT an imbalance --
-    the pop undoes it.  Only state that differs from the file's starting state
-    at EOF leaks into whatever includes or follows this translation unit.
-    """
-    push = pop = 0
-    first_unmatched_pop = None
+    """Track actual stack transitions; mode settings are not brackets."""
     stack = []
-    bal = defaultdict(int)      # +1 per `on`, -1 per `off`; zero == restored
-    firstline = {}
     for i, line in enumerate(src.code):
         if PUSH_RE.search(line):
-            push += 1
-            stack.append(dict(bal))
-            continue
-        if POP_RE.search(line):
-            pop += 1
+            stack.append(i + 1)
+        elif POP_RE.search(line):
             if stack:
-                bal = defaultdict(int, stack.pop())
-            elif first_unmatched_pop is None:
-                first_unmatched_pop = i + 1
-            continue
-        m = ONOFF_RE.search(line)
-        if not m:
-            continue
-        name, mode = m.group(1), m.group(2)
-        if name in ONOFF_EXEMPT:
-            continue
-        bal[name] += 1 if mode == "on" else -1
-        firstline.setdefault(name, i + 1)
-
-    if push != pop:
-        yield Finding("P001", src.rel(), first_unmatched_pop or 1,
-                      f"#pragma push/pop unbalanced: {push} push, {pop} pop")
-    for name, n in sorted(bal.items()):
-        if n == 0:
-            continue
-        left = "off" if n < 0 else "on"
-        yield Finding("P001", src.rel(), firstline[name],
-                      f"pragma `{name}` is left `{left}` at end of file "
-                      f"({abs(n)} unmatched on/off pair(s))")
+                stack.pop()
+            else:
+                yield Finding("P001", src.rel(), i + 1, "#pragma pop without a preceding push")
+    for line in stack:
+        yield Finding("P001", src.rel(), line, "#pragma push has no closing pop")
 
 
 CHECKS = (
     check_volatile,
     check_banned_pragma,
     check_dead_store,
-    check_register_local,
     check_asm_barrier,
     check_asm_instructions,
     check_asm_function_body,
@@ -819,58 +674,93 @@ CHECKS = (
 )
 
 
-def non_matching_lines(src):
-    """Line indices inside `#ifdef NON_MATCHING` reference blocks.
+def _reference_condition(directive, expression):
+    """Recognize only exact NON_MATCHING tests, not arbitrary preprocessing."""
+    expression = expression.strip()
+    if directive in ("ifdef", "ifndef") and expression == "NON_MATCHING":
+        return directive == "ifdef"
+    if directive in ("if", "elif"):
+        if re.fullmatch(r"(?:NON_MATCHING|defined\s*(?:NON_MATCHING|\(\s*NON_MATCHING\s*\)))", expression):
+            return True
+        if re.fullmatch(r"!\s*(?:NON_MATCHING|defined\s*(?:NON_MATCHING|\(\s*NON_MATCHING\s*\)))", expression):
+            return False
+    return None
 
-    A function that could not be matched keeps its near-miss C behind
-    `#ifdef NON_MATCHING`, with an `INCLUDE_ASM` fallback in the `#else` arm.
-    That C is NEVER compiled -- it is preserved so whoever finishes the function
-    does not have to start over. Linting it produces false positives by
-    construction: a faithful reconstruction reproduces stores retail makes even
-    where the reconstruction itself does not consume them, which reads as a dead
-    store. Style rules apply to code that ships, so skip these blocks.
-    """
-    skip, depth = set(), 0
-    for index, line in enumerate(src.lines):
-        stripped = line.strip()
-        if stripped.startswith("#ifdef NON_MATCHING") or (depth and stripped.startswith("#if")):
-            depth += 1
-        elif depth:
-            if stripped.startswith("#endif"):
-                depth -= 1
-            elif depth == 1 and stripped.startswith("#else"):
-                depth = 0          # the #else arm is the INCLUDE_ASM that DOES build
-                continue
-        if depth:
+
+def non_matching_lines(src):
+    """Exclude reference arms only, preserving nested branch ownership."""
+    skip, stack = set(), []
+    for index, line in enumerate(src.code):
+        match = re.match(r"^\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)", line)
+        if match:
+            directive, expression = match.groups()
+            if directive in ("if", "ifdef", "ifndef"):
+                reference = _reference_condition(directive, expression)
+                # Track whether an exact negative test makes its else the
+                # reference arm. Unknown branches remain lintable.
+                stack.append([reference is True, reference is False])
+            elif directive == "elif" and stack:
+                reference = _reference_condition("elif", expression)
+                stack[-1][0] = reference is True or stack[-1][1]
+                stack[-1][1] |= reference is False
+            elif directive == "else" and stack:
+                stack[-1][0] = stack[-1][1]
+            elif directive == "endif" and stack:
+                stack.pop()
+        if any(frame[0] for frame in stack):
             skip.add(index)
     return skip
 
 
 def lint_source(src):
-    out = []
+    # Filter all lexical views before aggregate checks: reference pragmas,
+    # declarations, comments and braces cannot affect compiled source.
     skip = non_matching_lines(src)
-    for check in CHECKS:
-        out.extend(f for f in check(src) if (f.line - 1) not in skip)
+    active = Source.__new__(Source)
+    active.__dict__ = src.__dict__.copy()
+    for name in ("code", "comments", "text", "line_comments"):
+        setattr(active, name, ["" if i in skip else line
+                               for i, line in enumerate(getattr(src, name))])
+    out = [finding for check in CHECKS for finding in check(active)]
     out.sort(key=lambda f: (f.line, f.code))
     return out
 
 
 # ----------------------------------------------------------------------- CLI
 
-def gather(paths, excludes):
+def gather(paths, excludes, scan_errors=None):
+    """Return normalized files; optionally collect unfilterable scan failures."""
+    import os
+
+    errors = scan_errors if scan_errors is not None else []
     files = []
-    for p in paths:
-        p = Path(p)
-        if p.is_dir():
-            files.extend(sorted(p.rglob("*.c")) + sorted(p.rglob("*.h")))
-        elif p.exists():
-            files.append(p)
-        else:
-            sys.stderr.write(f"decomp_lint: no such path: {p}\n")
-    out = []
-    for f in files:
+
+    def failure(path, message):
+        errors.append(dict(file=str(path), message=message))
+        sys.stderr.write(f"decomp_lint: {path}: {message}\n")
+
+    for requested in paths:
+        p = Path(requested)
         try:
-            rel = f.resolve().relative_to(ROOT).as_posix()
+            p = p.resolve()
+            p.stat()
+            if p.is_dir():
+                def onerror(exc):
+                    failure(exc.filename or p, str(exc))
+                for directory, _, names in os.walk(p, onerror=onerror):
+                    files.extend(Path(directory) / name for name in sorted(names)
+                                 if Path(name).suffix in (".c", ".h"))
+            elif p.is_file():
+                files.append(p)
+            else:
+                failure(p, "not a regular file or directory")
+        except OSError as exc:
+            failure(p, str(exc))
+    out = []
+    for f in sorted(set(files)):
+        f = f.resolve()
+        try:
+            rel = f.relative_to(ROOT).as_posix()
         except ValueError:
             rel = f.as_posix()
         if any(rel.startswith(x) or rel == x.rstrip("/") for x in excludes):
@@ -918,7 +808,8 @@ def main(argv=None):
             return False
         return True
 
-    files = gather(paths, excludes)
+    scan_errors = []
+    files = gather(paths, excludes, scan_errors)
     # Split by ownership, like verify.py: default mode reads only first-party
     # sources; third-party files are linted only when explicitly requested.
     first_srcs, third_srcs = [], []
@@ -926,6 +817,7 @@ def main(argv=None):
         try:
             src = Source(f, f.read_bytes())
         except OSError as exc:
+            scan_errors.append(dict(file=str(f), message=str(exc)))
             sys.stderr.write(f"decomp_lint: cannot read {f}: {exc}\n")
             continue
         (third_srcs if is_third_party(src.rel()) else first_srcs).append(src)
@@ -971,6 +863,7 @@ def main(argv=None):
     if args.json:
         Path(args.json).write_text(json.dumps(dict(
             files=len(files),
+            scan_errors=scan_errors,
             include_third_party=args.include_third_party,
             first_party_files=len(first_srcs),
             third_party_files=len(third_srcs),
@@ -986,9 +879,8 @@ def main(argv=None):
             findings=[f.as_dict() for f in all_findings]), indent=1))
         print(f"report: {args.json}")
 
-    # The exit status is driven by FIRST-PARTY errors only: middleware noise
-    # must never fail a run that gates CI on first-party honesty.
-    return 1 if fp_sev["error"] else 0
+    # Scan failures cannot be hidden by severity, rule or ownership filters.
+    return 1 if fp_sev["error"] or scan_errors else 0
 
 
 if __name__ == "__main__":
