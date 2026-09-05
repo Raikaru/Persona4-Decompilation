@@ -83,6 +83,13 @@ Use this six-step loop for every target:
   mutation set is unknown. In `nLine` `func_0034e0b0`, the alpha-last probe
   reached nd23 by moving the alpha field load across `func_00457120`; reject
   it and retain the semantically faithful nd35 body.
+- Reject omitted call arguments and incompatible empty-prototype casts even
+  at nd0. The `func_0028ad90` archive's apparent two-word register floor
+  omitted the child argument to the already-typed `func_00286c60`. Passing
+  that child could produce nd0 only while retaining a wrong zero-argument
+  cast of the deallocator. With both calls repaired, the faithful candidate
+  is 596B against retail's 592B window and stays ASM. Inspect callee bodies
+  before calling an argument-register difference an allocation floor.
 - Reject wrong GP addends and relocation-masked false matches: compare every
   GP-relative or `%hi`/`%lo` reference with the retail immediate, not the
   guessed symbol name, and use the full link when relocation ownership changes.
