@@ -1,65 +1,63 @@
-/* object 324B/window 336B, normalized_diff 179, differing offsets 24,28,32,36,64,68,72,76,84,88,92,96,100,112,116,120,124,128,132,136,140,144,148,152,156,160,164,168,172,176,180,184,188,192,196,200,204,208,212,216,220,224,228,236,240,244,248,252,256,260,264,268,280,284,288,292,296,300,304,308,312,316,320; deficit 3 instructions (object undersized); classification saved-register/parameter coloring plus loop-tail path; ruled out movz/movn, COP1 MAC, standalone MMI, framed tail-jump, EE-gcc sd/sq floor. Prologue retail saves s3/s2/s1/s0 frame -0x50; args are (u8*, s32, s32) with a3 unused. Candidate frame exact but colors arg0=$s0,arg1=$s2,arg2=$s1. */
+/* NOT MATCHING: object 332B / retail window 336B, normalized_diff 34 bytes.
+ * fndiff reports 32 words including one absent zero-tail word.
+ * Separate successor locals for the two release loops remove the fifth
+ * saved register. A structured scan preserves retail's backward equality
+ * branch. Control flow and frame now agree; saved-register coloring remains.
+ * Integer-node spelling, a valid node struct, O1, and disabling propagation,
+ * common subexpressions or loop invariants do not close this candidate.
+ */
 // FUN_0027A150
 u8 *func_0027a150(u8 *arg0, s32 arg1, s32 arg2)
 {
+    u8 *next;
+    s32 remaining;
     s32 tag;
-    s32 temp;
+    u8 *following;
+    u8 *tail;
     u8 *head;
-    u8 *link;
+    u8 *cursor;
+    s32 value;
+    u8 *current;
 
-    if (arg0 == NULL)
-        func_0046d730(D_0063BE10, 0xE3E);
-    arg1 = arg2 - arg1 - 1;
-    tag = *(s32 *)(arg0 + 8);
-phase1_test:
-    if (arg1 <= 0)
-        goto phase2_start;
-    temp = *(s32 *)(arg0 + 8);
-    if (tag != temp) {
-        arg1--;
-        tag = temp;
-        goto phase1_test;
-    }
-    link = *(u8 **)(arg0 + 0x24);
-    *(s32 *)(arg0 + 0x24) = 0;
-    *(s32 *)(arg0 + 0x28) = 0;
-    *(u8 **)(arg0 + 0x2C) = arg0;
-    func_00271b70((s32)arg0);
-    arg0 = link;
-    if (arg0 == NULL)
-        return NULL;
-    goto phase1_test;
-
-phase2_start:
-    head = arg0;
-phase2_walk:
-    link = arg0;
-    arg0 = *(u8 **)(arg0 + 0x24);
-    if (arg0 == NULL)
-        goto phase2_free;
-    if (tag == *(s32 *)(arg0 + 8))
-        goto phase2_walk;
-    goto phase2_free;
-
-phase2_free:
-    if (arg0 != NULL)
-        goto phase2_free_body;
+    current = arg0;
+    if (current == NULL) func_0046d730(D_0063BE10, 0xE3E);
+    remaining = arg2 - arg1 - 1;
+    tag = *(s32 *)(current + 8);
+    goto test;
+release:
+    next = *(u8 **)(current + 0x24);
+    *(u8 **)(current + 0x24) = NULL;
+    *(s32 *)(current + 0x28) = 0;
+    *(u8 **)(current + 0x2C) = current;
+    func_00271b70((s32)current);
+    current = next;
+    if (next == NULL) return NULL;
+compare:
+    value = *(s32 *)(current + 8);
+    if (tag == value) goto release;
+    remaining--;
+    tag = value;
+test:
+    if (remaining > 0) goto compare;
+    head = current;
+    do {
+        tail = current;
+        current = *(u8 **)(current + 0x24);
+    } while (current != NULL && tag == *(s32 *)(current + 8));
+    goto free_test;
+free_loop:
+    following = *(u8 **)(current + 0x24);
+    *(u8 **)(current + 0x24) = NULL;
+    *(s32 *)(current + 0x28) = 0;
+    *(u8 **)(current + 0x2C) = current;
+    func_00271b70((s32)current);
+    current = following;
+free_test:
+    if (current != NULL) goto free_loop;
     *(s32 *)(head + 0x28) = 0;
-    *(s32 *)(link + 0x24) = 0;
-    arg0 = head;
-phase2_link:
-    if (arg0 == NULL)
-        return head;
-    *(u8 **)(arg0 + 0x2C) = link;
-    arg0 = *(u8 **)(arg0 + 0x24);
-    goto phase2_link;
-
-phase2_free_body:
-    tag = *(s32 *)(arg0 + 0x24);
-    *(s32 *)(arg0 + 0x24) = 0;
-    *(s32 *)(arg0 + 0x28) = 0;
-    *(u8 **)(arg0 + 0x2C) = arg0;
-    func_00271b70((s32)arg0);
-    arg0 = (u8 *)tag;
-    goto phase2_free;
+    *(s32 *)(tail + 0x24) = 0;
+    for (cursor = head; cursor != NULL; cursor = *(u8 **)(cursor + 0x24)) {
+        *(u8 **)(cursor + 0x2C) = tail;
+    }
+    return head;
 }

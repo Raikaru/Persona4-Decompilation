@@ -1778,20 +1778,11 @@ u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s
     return result;
 }
 
-/* measured: retail colors arg0=$s3, arg1=$s1, arg2=$s0 (cur=$s3, count=$s1,
-   tag=$s2, next/last=$s0) with register reuse across the three free passes;
-   mwcc b210 -O2 always needs a 5th saved register ($s4) plus a stack
-   slot (obj 340B vs window 336B). Saved-register-rotation floor.
-   wave14 re-measure: lever 1 swept FIRST - signature confirmed correct
-   (u8* return, (u8*, s32, s32); the value flow is a linked-list free walk
-   returning the surviving head). Body fully reconstructed from retail:
-   first loop frees same-tag run while count>0 (returns NULL if the list
-   runs out), then a skip run, a free loop, and a 0x2C-relink pass.
-   All levers measured: lever 1 (correct signature) 80, lever 2 (Node
-   struct field access) compile error (self-ref tag), lever 4 (structured
-   while) 80, goto exact-retail-shape 72 - the goto form restructures the
-   loop head (bgtz placement) but the 5th saved register never goes away.
-   Not source-drivable; floor stands. */
+/* Measured candidate: docs/probe_archive/SITF_0027a150_body.c, 332B/336B,
+   normalized_diff 34 bytes; fndiff 32 words includes one zero-tail word.
+   Separate successor locals remove the fifth saved register, and a structured
+   scan fixes the backward equality branch. Frame/control flow now agree;
+   saved-register coloring remains. Retain ASM, not an impossibility claim. */
 // FUN_0027A150
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a150);
 // FUN_0027A2A0
