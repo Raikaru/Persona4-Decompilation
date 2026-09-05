@@ -1,8 +1,18 @@
-/* func_001b05d0 best nonmatching probe: object 488B, retail window 496B, normalized_diff 37. */
+/* func_001b05d0 best nonmatching probe: object 492B, retail window 496B, 37 differing words (relocation masked). */
 /* Retail saved registers: $s1=arg0, $s0=p=*(arg0+0x30). */
 /* Retail caller-saved loop registers: found=$v1, base=$v0, i=$a3; first-loop index=$a0, scaled offset=$a2, entry=$a0; second-loop entry=$a2. */
 /* Tried: direct C reconstruction; narrow/s32/u16 counter forms; split and compact scaled offsets; pointer and integer found/base; declaration permutations; while/goto loops; nested versus flat conditions; global/base cache forms; opt_propagation and opt_common_subs pragma scopes; comma and integer offset-first reload expressions. Best retained opt_common_subs off, cached base, s32 found/i/offset, and u16 conversions. */
+/* IDA: docs/ida_headstart/src/promoted/code1_001b.c:59-121 confirms the
+ * two narrow counters and first-table/fallback-table selection. Its direct
+ * if/else reconstruction scores 99 words, or 97 with common subexpressions
+ * off. The old archive omitted that setting and replayed at 89 words;
+ * the explicit scope below restores the measured 37-word floor.
+ * The TU's existing offset helper also gives 37 words; an isolated private
+ * inline context getter gives 96 words (496B/496B). Neither is retained.
+ */
 
+#pragma push
+#pragma opt_common_subs off
 void func_001b05d0(u8 *arg0)
 {
     u8 *p;
@@ -72,3 +82,4 @@ void func_001b05d0(u8 *arg0)
     func_001bc800(arg0);
     *(u16 *)(arg0 + 0x1A) |= 2;
 }
+#pragma pop
