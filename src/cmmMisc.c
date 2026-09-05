@@ -631,15 +631,37 @@ u16 func_00247cb0(s64 arg0) {
     }
     return var_16;
 }
-/* measured: best compliant reconstruction object_size=236 window=240
-   normalized_diff=164 (best helper-assisted probe nd48-49). Retail keeps
-   the raw loop counter, masked index, and table base in distinct saved
-   registers; MWCCPS2 CSEs the mask into an extra saved register. Tried
-   while/for/goto loop forms, u16 versus masked target, local declaration
-   order, and opt_common_subs off; all remained non-exact. Body archived in
-   build/KCMM_00247dd0_body.c. */
+/* Find the first enabled entry with the requested low-16 category.
+   measured: use a cast for the bounds check and a mask for the address and
+   category call, avoiding a cached masked counter across calls. Reuse the
+   existing address-order helper. Exact 228B instructions plus 12B zero tail;
+   retain the caller's s32 ABI and pass the index omitted by IDA explicitly. */
 // FUN_00247DD0
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00247dd0);
+s32 func_00247dd0(s32 arg0)
+{
+    s32 i;
+    u32 target;
+    u8 *base;
+    s32 offset;
+
+    i = 0;
+    target = (u16)arg0;
+    while (i < 31) {
+        base = D_00881480[0];
+        if ((u32)(u16)i >= *(u32 *)(base + 4)) {
+            func_0046d730(D_006359D0, 0x4C);
+        }
+        offset = (i & 0xFFFF) * 100;
+        if (*(u32 *)(cmmMiscAddOff(offset, (s32)base) + 12) & 4) {
+            if (target == (u16)func_002489c0(i & 0xFFFF) &&
+                func_001077f0((u16)i) != 0) {
+                return (u16)i;
+            }
+        }
+        i++;
+    }
+    return 0;
+}
 
 // FUN_00247EC0
 s32 func_00247ec0(s32 seed) {

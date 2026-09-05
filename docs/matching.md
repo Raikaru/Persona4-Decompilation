@@ -184,6 +184,12 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   literal sharing; narrowing the predicate signatures instead regressed a
   sibling and introduced cross-TU type conflicts. The ABI-preserving body
   matches 264B in a 272B window, with eight zero-tail bytes.
+  The same lever closes `func_00247dd0`: use a cast for the bounds check,
+  a mask for the record offset and category-call index, then cast again for
+  the eligibility call and return. This keeps the raw counter without an
+  extra saved masked-index register. All-cast spelling differs by 55 words;
+  the mixed spelling matches 228B plus 12 zero-tail bytes, with no pragma
+  or ABI changes.
 - **Try the equivalent comparison orientation before a register sweep.**
   With propagation disabled in `func_0034f5d0`, `distance <= half`
   closes twelve differing words left by `half >= distance`: the comparison
