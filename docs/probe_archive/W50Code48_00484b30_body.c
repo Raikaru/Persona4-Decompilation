@@ -10,6 +10,10 @@
  * Scalar types, aggregate/address lifetimes, grouped stores, precise memory
  * outputs with/without whole-memory clobbers and a typed record view did
  * not close the residual. No CPU asm, register bindings or padding used.
+ * IDA replay: docs/ida_headstart/src/promoted/code1_0048.c:125-152.
+ * A shared inline COP2 unit-store primitive with precise memory output ties
+ * at 120B/128B and eight words. The retail-proven memset pointer-return
+ * declaration also ties; neither change is installed to chase this floor.
  */
 #pragma push
 /* measured: propagation off preserves the retail aggregate-copy sequence. */
