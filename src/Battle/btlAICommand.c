@@ -622,8 +622,8 @@ INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
    The historical five-word comparison described FUN_001DC9A0, not this body.
    Ascending switch labels recover retail's descending comparison chain.
    Call setup/masking, copy-index allocation, constant materialization and
-   FP/sort/weight addressing still differ. Current-HP helper ABI is not fully
-   audited; the archive states that limitation and retains both parameters.
+   FP/sort/weight addressing still differ. The archive uses the canonical HP
+   getter contracts, including recovered datCalcGetHp, and both parameters.
    Keep the authoritative ASM; no near-match claim applies to this function. */
 // FUN_001DBF20
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);

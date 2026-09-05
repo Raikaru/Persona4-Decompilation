@@ -7,8 +7,8 @@
  * Residuals include first-call setup/masking, copy-index allocation,
  * constant materialization, FP record addressing, sorting and weight-base
  * hoisting; the epilogue starts 36B late and the object is 32B oversized.
- * The current-HP helper uses its production u32(u32) declaration with an
- * explicit low16 mask; its defining-source ABI remains unconfirmed.
+ * Current HP uses canonical u16 datCalcGetHp(s32), the recovered name for
+ * 00231ed0 in src/datCalc/datCalc_grouped.c; the measured score remains 242.
  * Count/object validity and nonzero maximum HP are retail preconditions,
  * not runtime-proven here. Do not promote this candidate on a low score.
  * Production keeps its two-argument signature and authoritative ASM.
@@ -23,7 +23,7 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
     extern u16 func_001d7f10(u8 *, u8 *, u16, u32);
     extern u32 func_00231d70(u32);
     extern u16 func_00231f80(struct DatUnit *);
-    extern u32 func_00231ed0(u32);
+    extern u16 datCalcGetHp(s32);
     extern u8 *iGpffffb3b8;
     extern u8 D_006095F0[];
     typedef struct { u8 *unit; f32 ratio; } Choice;
@@ -69,7 +69,7 @@ s32 func_001dbf20(u8 *arg0, u32 arg1) {
                 u8 **slot=(u8 **)(arg0+index*4+0x98);
                 u8 *unit=*slot;
                 u32 max=func_00231f80(*(struct DatUnit **)(*(u8 **)(unit+0x30)+0xa64));
-                u32 current=(func_00231ed0(*(u32 *)(*(u8 **)(unit+0x30)+0xa64))&0xffff);
+                u32 current=(datCalcGetHp(*(s32 *)(*(u8 **)(unit+0x30)+0xa64))&0xffff);
                 choices[index].unit=*slot;
                 choices[index].ratio=(f32)current/(f32)max;
                 i=(i+1)&0xffff;

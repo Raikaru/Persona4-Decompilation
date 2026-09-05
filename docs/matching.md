@@ -117,10 +117,20 @@ Use this six-step loop for every target:
 - Reject wrong GP addends and relocation-masked false matches: compare every
   GP-relative or `%hi`/`%lo` reference with the retail immediate, not the
   guessed symbol name, and use the full link when relocation ownership changes.
-- Reject ordinary-memory `volatile`, inline asm, and other forbidden
-  compiler-steering even when the score is zero; hardware `volatile` is valid
-  only when the retail access proves a device access. Verify the intended
-  target/function owner separately before installation.
+- Reject ordinary-memory `volatile` and ordinary-CPU inline asm used as
+  compiler steering, even when the score is zero. Genuine hardware accesses
+  may use the established hardware-only asm pattern, with accurate operands
+  and clobbers. Verify the intended target/function owner before installation.
+- Preserve hardware register values, not a guessed scalar substitute.
+  `sqc2 $vf0` stores `(0,0,0,1)`, not a zero quadword. The former
+  `func_00484b30` archive incorrectly cleared four W lanes; the corrected
+  four-COP2-store candidate is 120B/128B with six register-color differences
+  and two zero tail words. It remains ASM, not a promoted match.
+- Check runtime provenance before counting a compiler-floor closure as game
+  progress. `func_0044e830` is GCC `fp-bit.c` GOFAST `float_to_usi`, not a
+  memory initializer: ee-gcc 2.96 reproduces 156B/160B with only a zero tail.
+  Its existing assembly is reclassified under `src/middleware/`; no GPL
+  implementation is imported and no first-party match is claimed.
 - Independently check signedness, truncation and extension at calls and stores;
   aliasing and alignment assumptions; every cross-TU caller before making a
   helper static; and switch tables or other owned data. Record unresolved
