@@ -220,8 +220,9 @@ wiki's *Rules* page). As a contributor, that means your PR includes:
 - **A clean full run**: `python tools/verify.py` with no new unexpected
   statuses. Do not commit while any function you touched is `MISMATCH`,
   `SIZE_MISMATCH`, `NO_SYMBOL`, or `COMPILE_ERROR`.
-- **No banned constructs** per `docs/STYLE.md`, and a `measured`-annotated
-  waiver for any genuinely load-bearing steering construct.
+- **Clean integrity checks** per `docs/STYLE.md`. Review advisory warnings and
+  record useful compiler measurements; generic `measured` notes do not waive
+  H002/H009. Those exceptions require a rule-specific semantic reason.
 - **Marker and boundary hygiene**: correct `// FUN_` markers, no duplicate
   addresses, no markers without definitions. The reconciliation tools are
   documented in `README.md`; the integration gate validates markers and

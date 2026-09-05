@@ -10,9 +10,9 @@ covers 89 lines and five unmatched functions, all of which were being probed at
 -O3. Scoping -O2 back over one of them moved it from nd 38 to nd 17 with no
 source change at all.
 
-Nothing else in the gate can see this. decomp_lint checks that each pragma is
-justified and balanced within its file; pragma_audit checks that the spelling is
-one b210 recognises. Neither asks which functions a scope reaches.
+decomp_lint checks pragma push/pop structure and reports advisory provenance;
+pragma_audit checks that the spelling is one b210 recognises. Neither reports
+which functions a setting reaches; this tool supplies that context.
 
 Comment stripping is delegated to decomp_lint.Source, because floor notes in
 this tree quote pragmas at the start of a line inside `/* ... */` and a naive
@@ -105,9 +105,9 @@ def non_matching(src):
 def split_pairs(src):
     """Pragmas whose open and close land on opposite sides of a NON_MATCHING arm.
 
-    `#pragma schedule off` inside the reference arm with the matching `on` after
-    the `#endif` is balanced in the TEXT, so decomp_lint's P001 sees nothing -
-    but the build only ever reads the `on`, which then runs to end of file.
+    A setting inside the reference arm is not compiled, while a setting after
+    the #endif may affect the rest of the file. This is a scope-review
+    heuristic, not decomp_lint's structural push/pop check.
     """
     skip = non_matching(src)
     counts = {}

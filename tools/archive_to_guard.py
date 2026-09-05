@@ -144,11 +144,10 @@ def body_text(path: Path) -> tuple[str, str]:
       function's bracket. A seed does not need them: the permuter re-derives
       the pragma state it wants.
 
-    The note must be re-emitted above the marker because `decomp_lint`'s H003
-    waiver is FUNCTION-scoped -- it looks six lines above the nearest enclosing
-    `// FUN_` marker. Inserting a new marker makes it the nearest enclosing one
-    for every banned pragma below it, orphaning justifications that were valid
-    before. On this tree that alone turned a clean baseline into seven errors.
+    Keep the measurement note above the marker so decomp_lint can associate
+    H003 provenance with this function. Its marker annotation window is six
+    lines and does not extend into neighboring functions. These annotations
+    explain optimization advisories, not assembly integrity exceptions.
     """
     lines = path.read_text(errors="replace").splitlines()
     note, start, depth = [], 0, 0
@@ -277,9 +276,7 @@ def main() -> int:
             marker = lines[marker_line].rstrip()
             if not marker.endswith("NONMATCHING"):
                 marker += " NONMATCHING"
-            # The note goes ABOVE the marker: that is where decomp_lint's
-            # function-scoped waiver looks, and it keeps every banned pragma
-            # below this point justified as it was before the splice.
+            # Keep optimization provenance with the enclosing function marker.
             block = note.splitlines() if note else [
                 "/* measured: archived permuter seed; see the docs/probe_archive/ archive"
                 " header for its object/window/normalized_diff. */"]

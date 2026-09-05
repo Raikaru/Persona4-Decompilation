@@ -24,6 +24,13 @@ Rules of engagement:
   record with its measured result, then move on. Never claim that a floor is
   impossible.
 
+Current lint policy is defined in `docs/STYLE.md`: marker and assembly
+integrity, pragma stack structure, and scan failures are hard gates.
+Volatile-context, optimization-provenance, and dead-store checks are advisory;
+`register` and restoring optimization level 2 are not violations. A generic
+measurement note never waives assembly-integrity rules. Historical campaign
+notes below describe the policy in force when those experiments were run.
+
 ## Operating procedure
 
 Use this six-step loop for every target:
@@ -1252,10 +1259,10 @@ retail emits a real `mult`; `opt_rebuildconditionals off`,
 `opt_optimizecontrolflow off` and `conditional_move off` on the `beql` case that
 `no_branch_likely` did fix.
 
-A knob hit is a **proposal**, not a result. `tools/decomp_lint.py` requires the
-literal word `measured` within three lines of the pragma, and a pragma that
-changes codegen with no recorded reason is the "window fill" defect this campaign
-exists to avoid. Record what the pragma fixed and what the residual was.
+A knob hit is a **proposal**, not a result. Record what the pragma fixed and
+what the residual was. `tools/decomp_lint.py` treats optimization provenance
+as advisory: a valid compiler setting is not itself window filling. Semantic
+equivalence, scoped verification, and correct linkage remain mandatory.
 
 ### Second sweep: 60 additional knobs pulled from the b210 binary, zero closures
 
