@@ -9,6 +9,9 @@
  * Existing shdPackedLow supplies the low color byte. Register hints,
  * declaration initializers, direct arguments, unsigned mode and lifetimes
  * did not close the prologue. Disabling propagation scored 83 words.
+ * Separate alpha lifetime, draw-only alpha scope, a phase union and a
+ * placement snapshot retain nine words. Input and render snapshots give
+ * 21 and 32 respectively. Retain this simpler faithful candidate.
  */
 #pragma push
 #pragma opt_loop_invariants on

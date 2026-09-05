@@ -130,6 +130,21 @@ Use this six-step loop for every target:
   before/after values, zeroed unused records, all three stat-query side
   effects, task-creation failure and preservation of the old handle when
   there are no changes. The retail-sized frame needs no invented padding.
+- Recover distinct logical variables before tuning generated register names.
+  The old `func_00313800` archive reused the item limit for unrelated values
+  and omitted flag offsets. Separate signed row/item/selected counters,
+  canonical list-helper parameters and the pointer-returning availability
+  getter restore the behavior. Declaring row, item, then selected closes the
+  remaining saved-register rotation: 452B/464B MATCH with zero tail padding.
+  A 32-bit consumer smoke passes 40,960 cases across row filtering, compacted
+  output columns, signed IDs, availability flags and untouched bytes.
+  The neighboring date callback `func_00313b50` reaches 464B/464B MATCH by
+  sharing the two sentinel-table scans in a private inline helper and
+  hoisting loop invariants. Passing the date getters directly to the first
+  renderer call avoids an intermediate byte truncation while preserving
+  retail call order. Its smoke covers all 65,536 byte pairs against four
+  table layouts, plus 2,976 callback cases for rollover, refreshed dates,
+  duplicate precedence, signed sentinel bytes and untouched state.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
   `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word
