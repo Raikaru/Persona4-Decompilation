@@ -3441,8 +3441,9 @@ the conversion evidence (`00176d3c`/`00176d44` and `00269944`/`00269950`).
 Both regain their instruction matches without narrowing the shared API.
 A separate native caller smoke passes **11,952 cases** covering command
 branches, high/signed argument bits, scene guards, skip-current behavior,
-ordered animation effects and scene-flag preservation. Removing the
-caller conversions reproduces failure on case two.
+ordered animation effects and scene-flag preservation. This is post-fix
+smoke coverage; the instruction verifier establishes the caller regression
+and its repair.
 
 Two freestanding **32-bit x86** consumers compile the actual promoted
 source, with instrumented external animation operations:
@@ -3475,3 +3476,67 @@ and **zero mismatches**, including **6,086 first-party MATCH (88.7%)** and
 **774 first-party ASM**. Both retail SHA-1 checks pass; lint reports zero
 findings across 333 first-party files. Source linkage remains 1,555
 functions across 172 eligible C objects.
+
+## Model cloning: preserve storage stages and the hierarchy ABI
+
+The complete IDA body at `mdlManager.c:2448-2545` and the retail assembly
+recover `func_00478410`: **824 instruction bytes plus eight zero-tail bytes**.
+The old saved-register-count floor was not intrinsic to the compiler.
+Keeping a destination model base plus its layer stride preserves the
+resource/hierarchy lifetime. The private attachment-storage constructor
+starts with `sizeof(MdlCloneAttachmentTable)` and adds each of the two
+appended pointer arrays separately; collapsing those stages into one size
+expression changed both instruction selection and saved-register allocation.
+
+The final load/move pair exposed conflicting declarations of
+`func_003971d0`. Its retail body retains and returns the allocated hierarchy
+pointer (`00397280-0039728c`, `00397320`). The canonical contract is now
+`u32* func_003971d0(u8*, s32, s32, s32)`, consistent with the recovered
+four-argument implementation. Remove the signed integer declaration and
+the block-local unsigned integer workaround rather than introducing
+another function-pointer cast. The existing `func_00477ca0` retains its
+468-byte instruction match and twelve zero-tail bytes with this contract.
+
+The shared dispatch table gains its observed reference halfword at `0x0a`
+without changing its 12-byte target size. Existing dispatch and matrix
+views move before their new clone consumer; they are not duplicated.
+Attachment counts use a union for the source halfword and destination
+word views. Array pointers and loop bounds remain reloadable after clone
+callbacks. Both hierarchy branches read the **base destination hierarchy**,
+including the second layer; replacing that with the current layer changes
+observable behavior.
+
+A freestanding **32-bit x86** consumer extracts the actual production clone
+and private constructor unchanged. **1,540 cases pass**, covering missing
+and present clumps, independent layer paths, reference-count wrapping,
+attachment holes and count widths, callback-mutated arrays and bounds,
+resource setup ordering, standalone clone/update, final resource addresses,
+and conditional initial dispatch. A deliberate current-layer hierarchy
+mutation fails at **case 481, code 23**; restoring the production source
+passes all cases again. This is a host semantic check, not a PS2 rendering
+test.
+
+Two other complete IDA reconstructions remain compiler floors:
+
+- Layer animation `004740c0`: **1300B/1328B, 215 reloc-masked differing
+  words**. Member-first offsets and copy-before-seek branching improve the
+  earlier 293-word draft. CSE-off reaches the target size but worsens the
+  residual to 284 words.
+- Material colors `00476e90`: **996B/976B, 72 reloc-masked differing
+  words**. Ordinary unsigned-to-float casts reproduce the conversion CFG;
+  scoped CSE/propagation settings retain normalization loads and named
+  quantization constants. Accumulator-zero materialization and register
+  allocation remain different.
+
+Their source and replay requirements are retained in
+`docs/probe_archive/IDA_004740c0_body.c`,
+`docs/probe_archive/IDA_00476e90_body.c`, and
+`docs/probe_archive/IDA_model_followthrough.json`. These scores are not
+fully relocated acceptance proofs; neither floor was promoted or
+semantically smoke-tested.
+
+The complete build/progress pipeline reports **7,717 MATCH, zero
+mismatches**, with **6,087 first-party MATCH (88.7%)** and **773 first-party
+ASM**. Both retail SHA-1 checks pass. Linkage remains 1,555 functions in
+172 eligible C objects. Full lint reports **zero errors and 181 advisory
+warnings** across 333 first-party files.
