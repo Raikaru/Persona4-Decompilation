@@ -8,6 +8,8 @@
  * Canonical helper declarations below agree with the owning datCalc unit.
  * Scope, flag/score widths, register hints and opt_lifetimes did not improve
  * 19 words. Automatic invariant hoisting without one/bound scored 43.
+ * Paired pointer-value and paired byte-score structs also retain 19 words;
+ * neither changes the second-phase allocation. Keep the simpler scalar body.
  * This is a reproducible candidate, not an exact match; production stays ASM.
  */
 extern u8 func_00232c70(u8 *, s32);

@@ -46,7 +46,7 @@ extern void func_00131730(u8 *arg0);
 extern void func_00134560(u8 *arg0, s32 arg1);
 extern void func_00134a50(u8 *arg0);
 extern void func_001349f0(u8 *arg0);
-extern s32 func_00106cd0(s16 arg0, s16 arg1);
+extern s16 func_00106cd0(s16 arg0, s16 arg1);
 extern s32 func_00106600(s16 arg0);
 extern void func_00106620(s16 arg0, s32 arg1);
 extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
@@ -84,6 +84,8 @@ extern s32 func_00354010(void);
 extern void func_0013aa90(u8 *arg0);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
 extern s16 func_00353c10(s16 *arg0);
+extern s16 func_00353b50(s16 *arg0);
+extern s32 func_00167d90(u8 *arg0);
 extern s32 func_00354a50(s32 arg0, s32 arg1);
 extern s32 func_0046a770(void *arg0);
 extern s32 func_0046d200(void *arg0, u8 arg1);
@@ -417,8 +419,49 @@ s32 func_00134b60(u8 *arg0) {
     }
     return flag & func_0034c210();
 }
-// FUN_00134BE0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0013", func_00134be0);
+/* measured: loop-invariant hoisting gives 444B / 448B with only zero tail padding. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_00134BE0
+s32 func_00134be0(u8 *arg0) {
+    struct ChangeRecord {
+        s32 id;
+        s16 before;
+        s16 after;
+    };
+    s16 party[4];
+    struct ChangeRecord changes[4];
+    s16 member;
+    s32 count;
+    s16 id, stat, search;
+    s16 partyCount, value;
+    s16 *old;
+    struct ChangeRecord *change;
+
+    count = 0;
+    func_0043f9c8(changes, 0, sizeof(changes));
+    partyCount = func_00353b50(party);
+    for (member = 0; member < *(s16 *)(arg0 + 0x48); member++) {
+        id = *(s16 *)(arg0 + member * 2 + 0x38);
+        for (search = 0; search < partyCount && id != party[search]; search++) {}
+        if (search != partyCount) {
+            for (stat = 0; stat < 3; stat++) {
+                value = func_00106cd0(id, stat);
+                old = (s16 *)(arg0 + member * 6 + stat * 2 + 0xC48);
+                if (*old != value && stat == 0) {
+                    change = &changes[count];
+                    change->id = id;
+                    change->before = *old;
+                    change->after = value;
+                    count++;
+                }
+            }
+        }
+    }
+    if (count > 0) *(s32 *)(arg0 + 0x1594) = func_00167d90((u8 *)changes);
+    return count > 0;
+}
+#pragma pop
 // FUN_00134DA0
 s32 func_00134da0(s32 arg0) {
     s32 result;
