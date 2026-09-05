@@ -63,10 +63,6 @@ extern void func_0014def0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
                           f32 farg8);
 extern u16 D_008C024E[];
 extern s32 func_0029db50(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-static inline s32 code1_0018_get_b278(void)
-{
-    return iGpffffb278;
-}
 extern s32 func_00452490(s32 arg0);
 
 void func_0018e780(s32 arg0);
@@ -1039,6 +1035,11 @@ done:
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018c7e0);
 // FUN_0018CED0
 INCLUDE_ASM("asm/nonmatchings/code1_0018", func_0018ced0);
+/* MATCH: stage the s32 byte count without a conflicting callee prototype.
+   Unsigned elapsed subtraction preserves retail timer wrap. 332B/336B,
+   normalized_diff 0; only four zero-tail bytes are absent. */
+#pragma push
+#pragma opt_propagation off
 // FUN_0018DDE0
 s32 func_0018dde0(u8 *arg0)
 {
@@ -1059,14 +1060,11 @@ s32 func_0018dde0(u8 *arg0)
         *(s32 *)(work + 0) = *(s32 *)(work + 0) + 1;
         /* fallthrough */
     case 1:
-        if ((u32)(D_0076428C - *(s32 *)(work + 0xC)) > (u32)(*(s32 *)(work + 8))) {
-            /* measured: an s64 third parameter in a block-scope prototype makes
-               mwcc materialise iGpffffb278 into $a2 before the constant and $a1
-               (retail order); the callee reads a 32-bit value, lw sign-extends. */
-            {
-                extern s32 func_0029db50(s32, s32, s64, s32);
-                *(s32 *)(work + 0x10) = func_0029db50(0xF, iGpffffb27c, iGpffffb278, 0);
-            }
+        if (((u32)D_0076428C - (u32)*(s32 *)(work + 0xC)) > (u32)(*(s32 *)(work + 8))) {
+            s32 size;
+
+            size = iGpffffb278;
+            *(s32 *)(work + 0x10) = func_0029db50(0xF, iGpffffb27c, size, 0);
             *(s32 *)(work + 0) = 2;
             *(u32 *)(work + 8) = 0x384U;
             *(s32 *)(work + 0xC) = D_0076428C;
@@ -1084,6 +1082,7 @@ s32 func_0018dde0(u8 *arg0)
     }
     return 0;
 }
+#pragma pop
 // FUN_0018DF30
 void func_0018df30(u8 *arg0)
 {
