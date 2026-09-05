@@ -21,8 +21,9 @@
 # later vendor rows with callee-saved registers likewise use `sd` (no vendor
 # `sq` rows).  This enables a future split but does not list the mixed unit.
 #
-# Anything listed here is built by tools/eegcc_shim.py in both tools/verify.py
-# and tools/build.py.  Nothing else changes.
+# Explicit verify.py file requests compile these with tools/eegcc_shim.py.
+# Default verification and build.py exclude them to avoid requiring a second
+# toolchain; build.py links their extracted retail assembly instead.
 #
 # A unit is listed once ee-gcc is a net win for it.  Moving a file here costs
 # any existing C body that was written to MWCC's register allocation and does
@@ -47,3 +48,6 @@ src/promoted/code1_004f.c
 src/promoted/code1_0050.c
 src/promoted/code1_0052.c
 src/promoted/code2_0070.c
+
+# Isolated fp-bit runtime conversion; do not switch its mixed original unit.
+src/middleware/gcc_fp.c

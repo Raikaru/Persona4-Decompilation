@@ -32,8 +32,8 @@ version.
 | Loadable image | `0x838a00` bytes at `0x00100000`; SHA-1 `3d1d3d2b9d6ccb60836db239ab49674223025a78` |
 | Canonical function windows | 13,102; all mapped to C or owned retail assembly |
 | Byte-identical functions | 7,705 (58.808% of windows) |
-| Under test (a `// FUN_` marker scores them) | 12,721 (97.092% of windows) |
-| Not yet under test, supplied as retail bytes | 381 (2.908% of windows) |
+| Under test (a `// FUN_` marker scores them) | 12,720 (97.084% of windows) |
+| Not yet under test, supplied as retail bytes | 382 (2.916% of windows) |
 | In byte-exact linked C objects | 1,555 (11.868% of windows), with 253 assembly fallbacks still inside those objects |
 
 Byte-identical is not recovered: a matching function can still have an address for a name and raw field offsets. `tools/recovery_quality.py --worst 20` ranks the files needing work.
