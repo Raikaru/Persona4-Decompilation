@@ -1,8 +1,12 @@
-/* object 768B/window 768B, normalized_diff 30, differing offsets 102,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158; deficit 0 instructions (exact size); classification saved-register/register coloring plus narrow-load and call-argument ordering; ruled out movz/movn, COP1 MAC, standalone MMI, framed tail-jump, EE-gcc sd/sq floor. Retail prologue saves s3/s2/s1/s0 and frame -0x40; one u8* arg0. Candidate exact size; residuals include first 74570 argument lbu ordering, D_008817EC list walk layout, second lookup slot register reuse, and tail scheduling. */
+/* Candidate for func_00279780: object 768B/window 768B; fndiff 9 words.
+   Uses the canonical pointer-returning constructor prototype. Unsigned
+   index-first address arithmetic fixes both commutative ADDU residuals.
+   Remaining: four byte argument loads precede the two zero argument moves,
+   and the global address is materialized before the first argument move.
+   The list walk and both signed count checks already match. Retain ASM. */
 // FUN_00279780
 void func_00279780(u8 *arg0)
 {
-    s32 func_00274570();
     u8 *base;
     u8 *table;
     u8 *slot;
@@ -24,23 +28,13 @@ void func_00279780(u8 *arg0)
     if (index < 0 || index >= count)
         slot = NULL;
     else
-        slot = *(u8 **)(table + index * 4 + 0x1C);
+        slot = *(u8 **)(((u32)index << 2) + (s32)table + 0x1C);
     if (slot == NULL)
         func_0046d730(D_0063BE10, 0xC82);
     iGpffffb4b0 = 0x7B;
-    {
-        u8 p2;
-        u8 p3;
-        u8 p4;
-        u8 p5;
-
-        p2 = *(u8 *)(base + 0xA);
-        p3 = *(u8 *)(base + 0xB);
-        p4 = *(u8 *)(base + 0xC);
-        p5 = *(u8 *)(base + 0xD);
-        obj = (u8 *)func_00274570(
-            0, 0, p2, p3, p4, p5, (u32)slot, 0);
-    }
+    obj = func_00274570(
+        0, 0, *(u8 *)(base + 0xA), *(u8 *)(base + 0xB),
+        *(u8 *)(base + 0xC), *(u8 *)(base + 0xD), (u32)slot, 0);
     iGpffffb4b0 = 0;
     if (obj == NULL)
         func_0046d730(D_0063BE10, 0xCAA);
@@ -92,7 +86,7 @@ list_done:
         if (index < 0 || index >= count)
             value = 0;
         else
-            value = *(s32 *)(table + index * 4 + 0x1C);
+            value = *(s32 *)(((u32)index << 2) + (s32)table + 0x1C);
         func_002748e0(value, 1, 0);
     }
 }

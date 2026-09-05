@@ -53,7 +53,7 @@ void func_0027a6f0(s32 arg0);
 void func_0027b830(s32 arg0);
 void func_002851f0();
 s8 func_002748e0(int param_1, int param_2, int param_3);
-s32 func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
+u8 *func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8);
 u32 func_00279740(int param_1, int param_2);
 void func_0027a340(u8 *arg0, s32 arg1);
 void func_0027a4d0(int param_1, u32 param_2);
@@ -70,7 +70,7 @@ extern s32 iGpffffb444;
 int func_00278de0(int param_1, int param_2);
 s32 func_0027a520(int param_1);
 void func_002738a0(s32 arg0);
-s32 func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
+u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4, u32 param_5, u32 param_6, u32 param_7, u32 param_8, u32 param_9);
 void func_0043f810(void *arg0, void *arg1, u32 arg2);
 s32 func_00442948(const void *param_1);
 void func_00272b00(u8 *arg0, s32 arg1);
@@ -795,31 +795,13 @@ void func_00277b10(u8 *arg0, s32 arg1)
     }
 }
 
-/* measured: re-measured 2026-08-03: the recorded nd-10 body could not be
-   reconstructed; all rebuilt bodies measure nd 89-94 (obj 668B vs window
-   672B). Findings: (1) mwcc b210 spills the loop-bound s64/s128 local with
-   SQ/LQ at 0xA0 exactly like retail - the count local IS 64/128-bit in the
-   source; (2) the loop compare i < count compiles with a dsll32/dsra32
-   widening/narrowing pair retail lacks (no source spelling tried - s128,
-   s64, (s32) cast, alias read, goto form - removes it); (3) saved-register
-   rotation persists: retail i=$s2,obj=$s3,elem=$s5,bits=$s6 vs candidate
-   obj=$s2,i=$s3,bits=$s5,elem=$s6 (best decl order i-before-obj, nd 89;
-   4+ permutations measured); (4) retail re-loads base17+8 for the post-loop
-   OR where mwcc keeps the loop bits live. Tried: while/for/goto forms, s128/
-   s64/s128 counts, masked locals, named scaled offsets - rotation and compare
-   pair are stable. Saved-register-rotation + s128-compare floor.
-   wave14 (5 attempts, best nd 78 - beats the recorded 89-94): TWO prior
-   claims are now DISPROVEN. (1) the s128-compare widening pair IS removable:
-   writing the loop test as `(s32)var_18 < (s32)spA0` (cast BOTH sides) makes
-   mwcc emit retail's plain `lq $v0,0xA0($sp); slt $v0,$s2,$v0` with no
-   dsll32/dsra32; the sq/lq 0xA0 storage of the count stays (m2c's
-   `s128 spA0 = (s128)*(s16*)(t+0x1A)` is load-bearing). (2) the
-   saved-register rotation partly yields to DECLARATION ORDER: declaring
-   var_21 (element ptr) BEFORE var_22/var_23 fixes the loop regs (nd 86 ->
-   78); var_21 must be `s32*` incremented with `var_21++` (the m2c draft's
-   `+= 4` is +16 bytes - a decompilot artifact). Residual at 78: pure call-arg
-  /scheduling order around the func_0027b6e0/79ce0/738a0 chain and the
-   post-loop OR store (sw vs lh interleave). */
+/* Instruction-exact candidate: docs/probe_archive/BoA_00277be0_best_body.c,
+   664B/672B; fndiff differs only in two absent zero-tail words.
+   An s32 count still spills with SQ/LQ; declaring the second getter result
+   before the third reproduces the retail register/stack assignment.
+   Retain ASM pending semantic closure: the candidate's 1U << index requires
+   index < 32, but the signed table count has no proven bound. Retail SLLV
+   wraps the shift count; explicitly masking adds an instruction. */
 // FUN_00277BE0
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00277be0);
 // FUN_00277E80
@@ -1143,7 +1125,7 @@ s32 func_002787d0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (local == 0) {
         iGpffffb4b0 = 0x7B;
     }
-    res = func_002745c0(0, 0, 0, arg3 & 0xFF, 0, 0, 0xFF, r, 0);
+    res = (s32)func_002745c0(0, 0, 0, arg3 & 0xFF, 0, 0, 0xFF, r, 0);
     iGpffffb4b0 = local;
     final = func_0027a520(res);
     func_00271b70(res);
@@ -1437,7 +1419,7 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     result = (u8 *)func_00279740((s32)entry, 0);
     if (result == NULL)
         func_0046d730(D_0063BE10, 0xBE6);
-    result = (u8 *)func_00274570(
+    result = func_00274570(
         (s32)(16.0f * fparg0),
         (s32)(8.0f * fparg1),
         (u32)arg1 & 0xFF,
@@ -1550,29 +1532,12 @@ u32 func_00279740(int param_1,int param_2)
 
 
 
-/* measured: re-measured 2026-08-03: best body nd 66 (recorded nd 12 not
-   reproducible; it implied a walk layout this wave could not reach). Frame
-   -0x40, arg0=$s2/base17=$s1/slot=$s0 allocation matches retail. Residuals:
-   (1) the D_008817EC walk compiles test-at-top (bnez e; addiu a0,-1; b end;
-   body; b back) where retail is bottom-test (b test; body; test: bnez e;
-   addiu a0,-1 in the DELAY SLOT) - the -1-in-delay-slot shape requires mwcc
-   to fold `if (e==NULL) found=-1` into the loop-exit, which it only does
-   when found is NOT live across the loop; while/goto/ternary/do variants
-   all fail (goto nd 67, while nd 176 - found spills to $s3, frame -0x50),
-   ~32 words incl. the 4B shift cascade; (2) bltz before lh count (3 words),
-   (3) func_00274570 lbu args hoisted above a0/a1 moves (6 words), (4)
-   func_00279dd0 lui $a1 before move $a0 (3 words) - the recorded three
-   orders persist. Named s32 scaled local fixes the slot addu order (66 vs
-   67). Loop-layout/scheduler floor, not source-drivable.
-   wave14 re-measure: body transcribed from the m2c draft. KEY fix: the
-   `func_00274650(0x30)` result MUST be an `s32` local, NOT u8 - u8 adds a
-   narrowing andi to every bit-test (|0x8000000/&0x20 block), ~38 words;
-   s32 lands 107 -> 69. Best nd 69 (recorded 66): the same four residuals -
-   D_008817EC walk bottom-test shape (m2c goto form still emits test-at-top;
-   while spills found to $s3 frame -0x50), bltz-before-lh-count, 74570 lbu
-   arg order, 79dd0 lui order - plus a 1-word tail: the second-lookup slot
-   reuses the first lookup's $s0 (retail feeds func_002748e0 directly in
-   $a0); a separate slot2 local did not re-colour it in 4 attempts. */
+/* Measured candidate: docs/probe_archive/SITF_00279780_body.c, 768B/768B,
+   fndiff 9 words. The list walk and both signed count checks match.
+   Unsigned index-first address arithmetic fixes both ADDU operand orders.
+   Remaining: the four byte arguments load before the two zero arguments;
+   the global address precedes the first argument move at func_00279dd0.
+   Uses the canonical constructor ABI; retain ASM, not a scheduler claim. */
 // FUN_00279780
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
 // FUN_00279A80
@@ -1688,7 +1653,7 @@ void func_00279dd0(u8 *arg0, s32 arg1)
     global = iGpffffb4b0;
     if (global == 0)
         iGpffffb4b0 = 0x7B;
-    *(s32 *)(base + 0) = func_00274570(0, 0, 0, 2, 0, 0xFF, arg1, 0);
+    *(s32 *)(base + 0) = (s32)func_00274570(0, 0, 0, 2, 0, 0xFF, arg1, 0);
     iGpffffb4b0 = global;
     *(u16 *)(base + 4) = 0xFFFF;
 }
@@ -1697,16 +1662,13 @@ static inline s32 addOff7e90(s32 off, s32 base) { return off + base; }
 
 /* measured: func_00279e90 now matches exactly (object 316B, retail window
    320B, normalized_diff 0). The existing saved halfword/local and index-first
-   addOff7e90 helper preserve retail's frame and address calculation. A
-   block-scoped s32 declaration of func_00274570 makes this function's first
-   branch materialize arguments in retail order while leaving the file-scope
-   u32 prototype intact for func_0027a010; an explicit u32 cast on the second
-   branch's seventh argument preserves its load-before-argument-moves order. */
+   addOff7e90 helper preserve retail's frame and address calculation. The
+   first branch's unsigned handle load matches the canonical u32 constructor
+   parameter without a conflicting local prototype. The second branch's
+   explicit u32 cast preserves its load-before-argument-moves order. */
 // FUN_00279E90
 void func_00279e90(u8 *arg0, u8 *arg1)
 {
-    s32 func_00274570(s32 param_1, s32 param_2, s32 param_3, s32 param_4,
-                      s32 param_5, s32 param_6, s32 param_7, s32 param_8);
     s32 global;
     u8 *base;
     s32 X;
@@ -1729,16 +1691,16 @@ void func_00279e90(u8 *arg0, u8 *arg1)
     if (masked != 0xFFFF) {
         if (masked & 0x8000) {
             s32 off;
-            s32 p7;
+            u32 p7;
             off = (masked & 0x7FFF) << 2;
-            p7 = *(s32 *)(addOff7e90(off, (s32)arg0) + 0x94);
-            *(s32 *)base = func_00274570(0, 0, 0, 0, 0, 0xFF, p7, 0);
+            p7 = *(u32 *)(addOff7e90(off, (s32)arg0) + 0x94);
+            *(s32 *)base = (s32)func_00274570(0, 0, 0, 0, 0, 0xFF, p7, 0);
         } else {
             s32 ep;
             s32 v2;
             v2 = *(u16 *)(arg0 + 0x18);
             ep = *(s32 *)((*(s32 *)(*(s32 *)(arg0 + 4) + 0x18) << 3) + *(s32 *)(arg0 + 4) + 0x20);
-            *(s32 *)base = func_00274570(0, 0, 0, 0, 0, 0xFF,
+            *(s32 *)base = (s32)func_00274570(0, 0, 0, 0, 0, 0xFF,
                 (u32)*(s32 *)(ep + (v2 << 2)), 0);
         }
         func_0027a340((u8 *)*(s32 *)base, *(s32 *)(arg0 + 0xC));
@@ -1775,7 +1737,7 @@ u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s
         if (arg2 & 1) {
             arg2 >>= 1;
         } else {
-            result = (u8 *)func_00274570(arg3, arg4, (u8)arg7, 5, 0, 0xFF, *arg0, (u32)result);
+            result = func_00274570(arg3, arg4, (u8)arg7, 5, 0, 0xFF, *arg0, (u32)result);
             if (arg6 == 0)
                 arg4 += *(s16 *)(result + 0x12) * 8;
             else
