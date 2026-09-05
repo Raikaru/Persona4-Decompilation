@@ -10,40 +10,35 @@
  * The transform helper returns its destination; this routine ignores it.
  * Source-shape probes consuming that return did not improve the floor.
  * Production remains INCLUDE_ASM.
+ * IDA: docs/ida_headstart/src/Graphics/Model/mdlEffect.c:122-145.
+ * Named frame fields retain this score. Native consumer smoke: 153 cases
+ * with only VU transfers hooked; transformed XYZ, negative depth, sequential
+ * projections, positive-zero lanes and 16-byte spill canaries pass.
+ * This does not validate PS2 exceptional floating-point behavior.
  * Reproduce: python tools/probe_variants.py src/Graphics/Model/mdlEffect.c
  * func_0048a460 --candidate archive=docs/probe_archive/W49MdlEffect_0048a460_body.c
  */
 void func_0048a460(void)
 {
-    f32 raw[12] __attribute__((aligned(16)));
-    f32 temp_f0;
-    f32 temp_f1;
-    f32 temp_f2;
+    struct { f32 output[4]; f32 input[4]; struct { f32 x, y, z, w; } transformed; } frame __attribute__((aligned(16)));
 
     __asm__ volatile(
         "sqc2 $vf10, 0(%1) \n"
         : "=m"(*(f32 (*)[4])D_00713D10)
         : "r"(&D_00713D10)
         : "$vf10", "memory");
-    raw[4] = D_00713D10[0];
-    raw[5] = D_00713D14[0];
-    raw[6] = D_00713D18[0];
-    func_003e42a0(raw + 8, raw + 4,
+    frame.input[0] = D_00713D10[0];
+    frame.input[1] = D_00713D14[0];
+    frame.input[2] = D_00713D18[0];
+    func_003e42a0(&frame.transformed, frame.input,
                   mdlEffect_camera_matrix(func_00457120()));
-    temp_f0 = raw[10];
-    temp_f1 = raw[8];
-    temp_f2 = temp_f1 / temp_f0;
-    temp_f1 = 640.0f * temp_f2;
-    raw[0] = temp_f1;
-    temp_f1 = raw[9];
-    temp_f2 = temp_f1 / temp_f0;
-    temp_f1 = 448.0f * temp_f2;
-    raw[1] = temp_f1;
-    raw[2] = 0.0f;
-    raw[3] = 0.0f;
+    frame.output[0] = 640.0f * (frame.transformed.x / frame.transformed.z);
+    frame.output[1] = 448.0f * (frame.transformed.y / frame.transformed.z);
+    frame.output[2] = 0.0f;
+    frame.output[3] = 0.0f;
     __asm__ volatile(
         "lqc2 $vf10, 0(%0) \n"
         :
-        : "r"(raw), "m"(*(f32 (*)[4])raw)
+        : "r"(frame.output), "m"(*(f32 (*)[4])frame.output)
         : "$vf10", "memory");
 }
