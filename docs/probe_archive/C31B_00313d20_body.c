@@ -1,103 +1,83 @@
-/* object_size=640 window=656 normalized_diff=334; differing instruction offsets (first_diffs words): 26,30,33,37,38,42,50,101,105,110,113,114,118,120,130,144. Callees: func_00110a60 measured as s8 func_00110a60(s32,s32); declarations corrected block-scope. Levers ruled out: prior old-style s64 callee declaration, corrected s8 prototype, explicit sign-extension/goto loop shape from prior candidate; residual remained 334, so archive per high-residual stop. */
-void func_00313d20(u8 *arg0, u8 arg1, u8 arg2, s64 arg3)
+/*
+ * Safe floor: 644B / 656B, 84 differing words (relocation-masked).
+ * Reconstructed against docs/ida_headstart/src/promoted/code1_0031.c:211-292.
+ * Keeps IDA's separate branch-local table/entry pointers, priorities, and saved
+ * mode. The mode*2 counter base stays separate from the mode*5 flag base;
+ * the superseded archive incorrectly reused the latter for a counter write.
+ * IDA and Ghidra agree on signed-byte mode; func_00110a60 uses its measured
+ * s8(s32,s32) contract. No register annotations or artificial ABI changes.
+ * Native smoke: 40960 cases cover both modes, fallback/date rows, signed scores,
+ * first-winner ties, priority-100 flags, counters, calls, and untouched bytes.
+ * Residuals include GPR allocation, address grouping, and the retail second
+ * mode sign-extension. Production remains INCLUDE_ASM.
+ */
+#pragma push
+#pragma opt_loop_invariants on
+void func_00313d20(u8 *arg0, u8 month, u8 day, s8 mode)
 {
-    extern s8 func_00110a60(s32 arg0, s32 arg1);
+    extern s8 func_00110a60(s32 month, s32 day);
     extern u8 D_00643D00[];
-    u8 *temp_16;
-    s32 temp_4_5;
-    s32 temp_6;
-    s32 temp_19;
-    s64 temp_11;
-    s64 temp_4_2;
-    s64 var_18;
-    s64 var_17;
-    s64 var_4;
-    s64 var_6;
-    s64 var_8;
-    s8 temp_11_3;
-    s8 temp_4;
-    s8 temp_4_4;
-    u8 *temp_11_2;
-    u8 *temp_4_3;
-    u8 *temp_5;
-    u8 *temp_7;
-    u8 *temp_7_2;
-    u8 *temp_8;
+    s8 selected;
+    u8 *work;
+    s16 best;
+    s32 saved_mode;
+    s8 slot;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    var_18 = -1;
-    temp_19 = (s8)arg3;
-    temp_4 = *(s8 *)((u8 *)(temp_19 + temp_16) + 0x2D4);
-    if (temp_4 == -1) {
-        temp_7 = D_00643D00 +
-            ((s8)func_00110a60(arg1 & 0xFF, arg2 & 0xFF) * 0x14);
-        var_8 = 0;
-        temp_6 = temp_19 * 5;
-        temp_8 = (u8 *)(temp_16 + temp_6);
-        goto loop_6_check;
-loop_6_body:
-        temp_4_2 = (s64)(s16)var_8;
-        *(s8 *)(temp_8 + temp_4_2 + 0x2C4) = 0;
-        temp_4_3 = temp_7 + temp_4_2 * 4;
-        if (*(s8 *)temp_4_3 != 0) {
-            temp_4_4 = *(s8 *)(temp_4_3 + 1);
-            if ((s64)(s16)var_18 < (s64)temp_4_4) {
-                var_17 = (s64)(s8)var_8;
-                var_18 = (s64)(s16)temp_4_4;
+    work = *(u8 **)(arg0 + 0x38);
+    best = -1;
+    saved_mode = mode;
+    slot = *(s8 *)(mode + work + 0x2D4);
+    if (slot == -1) {
+        u32 *fallback;
+        s16 i;
+        u32 *entry;
+        s8 priority;
+        fallback = (u32 *)D_00643D00 + 5 * func_00110a60(month, day);
+        for (i = 0; i < 5; i++) {
+            work[5 * saved_mode + i + 0x2C4] = 0;
+            entry = fallback + i;
+            if (*(s8 *)entry != 0) {
+                priority = *((s8 *)entry + 1);
+                if (best < priority) {
+                    selected = i;
+                    best = priority;
+                }
             }
         }
-        var_8 = (s64)(s16)(var_8 + 1);
-loop_6_check:
-        if ((s16)var_8 < 5) {
-            goto loop_6_body;
-        }
-        if ((s64)(s16)var_18 != -1) {
-            *(s8 *)(temp_8 + (s64)(s8)var_17 + 0x2C4) = 1;
-        }
+        if (best != -1) *(selected + (5 * saved_mode + work) + 0x2C4) = 1;
     } else {
-        temp_6 = (temp_4 * 8 - temp_4) * 4;
-        temp_5 = (u8 *)D_006432B0 + temp_6;
-        temp_8 = (u8 *)(temp_19 * 2 + temp_16);
-        *(s16 *)(temp_8 + 0x2C0) = 0;
-        var_4 = 0;
-        goto loop_13_check;
-loop_13_body:
-        if (*(s8 *)(temp_5 + 2) != 0) {
-            *(s16 *)(temp_8 + 0x2C0) =
-                (s16)(*(s16 *)(temp_8 + 0x2C0) + 1);
+        u32 *date;
+        u8 *count_base;
+        s16 j;
+        s16 k;
+        s32 flag_offset;
+        u8 *flag;
+        u32 *entry;
+        s8 priority;
+        date = (u32 *)D_006432B0 + 7 * slot;
+        count_base = 2 * mode + work;
+        *(s16 *)(count_base + 0x2C0) = 0;
+        for (j = 0; j < 3; j++) {
+            if (*((s8 *)date + 2) != 0) ++*(s16 *)(count_base + 0x2C0);
         }
-        var_4 = (s64)(s16)(var_4 + 1);
-loop_13_check:
-        if ((s16)var_4 < 3) {
-            goto loop_13_body;
-        }
-        var_6 = 0;
-        temp_4_5 = (s32)((s8)arg3) * 5;
-        temp_8 = (u8 *)(temp_16 + temp_4_5);
-        goto loop_21_check;
-loop_21_body:
-        temp_11 = (s64)(s16)var_6;
-        temp_7_2 = temp_8 + temp_11;
-        *(s8 *)(temp_7_2 + 0x2C4) = 0;
-        temp_11_2 = temp_5 + temp_11 * 4;
-        if (*(s8 *)(temp_11_2 + 8) != 0) {
-            *(s16 *)(temp_8 + 0x2C0) =
-                (s16)(*(s16 *)(temp_8 + 0x2C0) + 1);
-            temp_11_3 = *(s8 *)(temp_11_2 + 9);
-            if (temp_11_3 == 0x64) {
-                *(s8 *)(temp_7_2 + 0x2C4) = 1;
-            } else if ((s64)(s16)var_18 < (s64)temp_11_3) {
-                var_17 = (s64)(s8)var_6;
-                var_18 = (s64)(s16)temp_11_3;
+        k = 0;
+        flag_offset = 5 * mode;
+        while (k < 5) {
+            flag = work + flag_offset + k + 0x2C4;
+            *flag = 0;
+            entry = date + k;
+            if (*((s8 *)entry + 8) != 0) {
+                ++*(s16 *)(count_base + 0x2C0);
+                priority = *((s8 *)entry + 9);
+                if (priority == 100) *flag = 1;
+                else if (best < priority) {
+                    selected = k;
+                    best = priority;
+                }
             }
+            ++k;
         }
-        var_6 = (s64)(s16)(var_6 + 1);
-loop_21_check:
-        if ((s16)var_6 < 5) {
-            goto loop_21_body;
-        }
-        if ((s64)(s16)var_18 != -1) {
-            *(s8 *)(temp_8 + (s64)(s8)var_17 + 0x2C4) = 1;
-        }
+        if (best != -1) *(selected + (flag_offset + work) + 0x2C4) = 1;
     }
 }
+#pragma pop

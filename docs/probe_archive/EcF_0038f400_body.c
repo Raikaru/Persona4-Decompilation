@@ -7,6 +7,8 @@
  * Named descriptor fields, bounded cursor scope, separate alignment
  * remainder, split region cursors and a table-byte extent all retain 17.
  * A pointer-typed runtime header gives 23; reusing size as cursor gives 98.
+ * IDA's inline alignment expressions and combined header/table extent also
+ * retain 17 words; no improvement over this floor.
  * Preserve the five-word header, low-halfword stored ID/count, full source
  * count, copy lengths and absence of an invented allocation-failure check.
  * These are bounded measurements, not proof that other safe forms cannot match.
