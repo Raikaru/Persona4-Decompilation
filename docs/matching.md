@@ -190,6 +190,22 @@ temporary probes or imply that instruction `MATCH` alone proves retail identity.
   extra saved masked-index register. All-cast spelling differs by 55 words;
   the mixed spelling matches 228B plus 12 zero-tail bytes, with no pragma
   or ABI changes.
+- **Preserve staged offsets while separating equivalent address forms.**
+  In `func_002774d0`, test the slot through an integer address
+  `i + (u32)manager + 0x10`, but reload it after the copy call through
+  `manager + i + 0x10`. This prevents whole-slot CSE. Also disable propagation
+  locally so `i *= 4` stays in its saved register instead of being repeated
+  at each use. Neither lever alone matches; together they produce 452B of
+  exact instructions plus 12 zero-tail bytes. Retain the post-call reload
+  and retail's diagnostic paths rather than replacing them with cached data
+  or new bounds checks.
+- **Use the allocation header's storage unit before sweeping registers.**
+  In `func_0026e010`, a `u32 *base` and `base + 1` represent the four-byte
+  header directly. Compared with `u8 *base` and `base + 4`, this closes eleven
+  register-rotation words without a pragma. Keep the pointer-value copy call
+  and the existing byte-stride helper: the ring has `count + 1` records and
+  returns the first record, not the allocation header. All 204 instruction
+  bytes match, followed by four zero-tail bytes.
 - **Try the equivalent comparison orientation before a register sweep.**
   With propagation disabled in `func_0034f5d0`, `distance <= half`
   closes twelve differing words left by `half >= distance`: the comparison

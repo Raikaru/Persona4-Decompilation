@@ -887,13 +887,36 @@ s32 func_0026df80(void)
                   (void (*)(void))func_0026dee0, NULL, 0);
     return temp_2;
 }
-/* measured: jtbl_008873E8 array addressing fixes the retail absolute
-   lui/lw. Local aliases, pointer-width casts, declaration-order, and goto
-   loop spellings all retain the 0x50 frame and nd 20 (object 204B/window
-   208B); the remaining register/scheduling rows are parked. Committed at
-   nd 20. */
+/* Allocate a header and count+1 linked records, including the wrap record.
+   measured: a u32 allocation base expresses the header as one word and
+   gives retail's saved-register assignment without pragmas. Keep the
+   pointer-value copy call and byte-stride helper. Exact 204B plus 4B zero tail. */
 // FUN_0026E010
-INCLUDE_ASM("asm/nonmatchings/code1_0026", func_0026e010);
+s32 func_0026e010(s32 size, s32 count)
+{
+    u8 *allocated;
+    u32 *base;
+    u32 *node;
+    u32 *next;
+    s32 i;
+
+    func_0044ea90(D_0063B5D8, 0x36);
+    allocated = jtbl_008873E8[0]((size + 8) * (count + 1) + 4, 0x40000);
+    base = (u32 *)allocated;
+    func_0043f810(base, &allocated, 4);
+    node = base + 1;
+    i = 0;
+    while (i < count) {
+        node[0] = i;
+        next = func_0026e010_add_offset(size, node);
+        node[1] = (u32)next;
+        node = next;
+        i++;
+    }
+    node[0] = count;
+    node[1] = (u32)(base + 1);
+    return (s32)(base + 1);
+}
 // FUN_0026E350
 s32 func_0026e350(void)
 {

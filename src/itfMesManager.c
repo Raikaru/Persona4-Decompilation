@@ -590,23 +590,66 @@ u32 func_00277450(void)
 
 
 
-/* measured: retail keeps the t=i*4 temp in $s2 (i's dead register, live
-   across the func_0043f810 jal) and re-derives row+t+0x10 per use (addu
-   $v0,$s2,$s1; lw $v0,0x10($v0)), while mwcc b210 -O2 CSEs the full slot
-   address into $s2 (extra addiu $s2,$v0,0x10; obj 452B vs window 464B, nd
-   17). Tried: for+if(i==4), for+if(i>=4), goto-found fallthrough, t local
-   with OR-guard `i >= 0 || i < 4` (m2c-exact) - all hit the same address-CSE.
-   wave14 re-measure, 6 attempts (55 / 27 / 27 / 18 / 17 / 32): lever 1
-   swept FIRST - signature s32 func(u8*) is CORRECT (callers use the return;
-   lever-1 not the issue). Structure now fully reconstructed: frame 0x180 via
-   the 0x130-byte copy target `s32 sp50[0x4C]` at sp+0x50; the slot-walk loop
-   uses goto-done (NOT break) so `i = -1` lands only on loop exhaustion;
-   the guard must be the m2c tautology `i >= 0 || i < 4` (bgez-to-body shape;
-   `&&` flips to bltz-skip, +9 words); `i *= 4` in the guard body. Best nd 17
-   = the extra addiu address-CSE, which lever-6 distinct-cast spellings made
-   WORSE (nd 32). CSE/allocator floor stands, not source-drivable. */
+/* Install the first free slot, retaining retail's diagnostic and copy ordering.
+   measured: integer-address testing and pointer-address reloading prevent
+   whole-slot CSE; propagation off keeps the scaled index across the copy call.
+   Neither lever alone matches. Exact 452B instructions plus 12B zero tail. */
+#pragma push
+#pragma opt_propagation off
 // FUN_002774D0
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_002774d0);
+s32 func_002774d0(u8 *arg0)
+{
+    s32 sp50[0x4C];
+    s32 result;
+    s32 i;
+    s32 found;
+    s32 *old_list;
+    u8 *manager;
+    u8 *obj;
+
+    if (func_00278da0(arg0) != 1)
+        func_0046d730(D_0063BE10, 0x525);
+    manager = (u8 *)func_00285170(DAT_008817EC_abs);
+    if (manager == NULL)
+        func_0046d730(D_0063BE10, 0x529);
+    result = *(s32 *)(manager + 8);
+    obj = func_002776a0(arg0);
+    if (manager == NULL || obj == NULL)
+        func_0046d730(D_0063BE10, 0x4F4);
+    i = 0;
+    goto slot_test;
+slot_loop:
+    if (*(s32 *)(manager + i * 4 + 0x10) == 0) {
+        *(u8 **)(manager + i * 4 + 0x10) = obj;
+        goto slot_done;
+    }
+    i++;
+slot_test:
+    if (i < 4)
+        goto slot_loop;
+    i = -1;
+slot_done:
+    if (i != 0)
+        func_0046d730(D_0063BE10, 0x530);
+    found = 0;
+    if (i >= 0 || i < 4) {
+        i *= 4;
+        if (*(s32 *)(i + (u32)manager + 0x10) != 0) {
+            old_list = *(s32 **)(manager + 0xC);
+            if (old_list != NULL) {
+                func_0043f810(sp50, old_list, 0x130);
+                found = 1;
+            }
+            *(s32 **)(manager + 0xC) = *(s32 **)(manager + i + 0x10);
+            if (found)
+                **(s32 **)(manager + 0xC) = sp50[0];
+        }
+    }
+    *(s32 *)DAT_008817E0_abs += 1;
+    func_00440b68(D_0063BE60, *(s32 *)(obj + 0x10));
+    return result;
+}
+#pragma pop
 // FUN_002776A0
 u8 *func_002776a0(u8 *arg0)
 {
