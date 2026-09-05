@@ -40,8 +40,8 @@ extern s32 func_00478140(u16, u16, s32);
 extern s32 func_00286350();
 extern s32 func_002909a0(void *arg0);
 extern void func_00279d40(s32 arg0);
-extern u8 *func_00279030(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                         s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
+extern u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0,
+                         s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 extern u8 *func_002736d0(u8 **arg0, s32 arg1);
 extern s32 func_002738d0(u8 *arg0);
 extern void func_00272a10(u8 *arg0, f32 fparg0, f32 fparg1);
@@ -192,7 +192,7 @@ void func_002987d0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1,
     u8 *spAC;
 
     func_00279d40(arg5);
-    spAC = (u8 *)func_00279030((arg0 << 8) | arg1, fparg0, fparg1, fparg2,
+    spAC = (u8 *)func_00279030(fparg0, fparg1, fparg2, (arg0 << 8) | arg1,
                                arg2, arg3, arg4, arg5, arg6);
     if (spAC != NULL) {
         p = (u8 *)func_002736d0(&spAC, arg7);
