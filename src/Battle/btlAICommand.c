@@ -8,10 +8,8 @@ typedef int (*code)();
 extern u32 func_001d94d0(int param_1, u32 param_2, u32 param_3, u32 param_4, u16 param_5, code *param_6);
 extern bool btlCond_MYWEAK(int param_1, short param_2);
 
-s32 func_001db360(u64 formation, u16 index, s32 enabled);
-/* definition (FUN_001DB580) is byte-verified; the extern's `int` first
-   parameter was a guessed prototype and clashed with the merged definition */
-extern void btlCond_MYNOMAL(u64 formation, u16 index);
+s32 func_001db360(u8 *formation, s32 index, s32 enabled);
+extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
 
 extern u64 func_0010f460();
 
@@ -48,7 +46,7 @@ extern u8 *func_0023e140(u8 *unit);
 extern u32 func_00243920(u32 arg0);
 extern u32 *func_001d9280();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
-extern s32 func_0010f420(u16 arg0, u16 arg1);
+extern u32 func_0010f420(u32 arg0, u32 arg1);
 extern void func_001d8bf0(u8 *arg0, u8 *arg1);
 extern u8 *D_0072449C;
 extern void *D_00609850[];
@@ -61,7 +59,7 @@ extern s32 func_001ef720(s32 arg0, s32 arg1);
 extern s32 func_001ef4d0(s32 arg0, s32 arg1);
 extern u32 func_00231ed0(u32 arg0);
 extern u32 func_002340c0();
-extern s32 func_00242800(u32 arg0, s32 arg1);
+extern s32 func_00242800(u8 *unit, s32 index);
 extern void func_001de640(u8 *a, u8 *b, u16 c);
 
 extern void *D_00609934[];
@@ -254,97 +252,29 @@ next:
     return 0;
 }
 
-/* measured: declaration-corrected candidate retained as an archive.  The
-   scoped build produced object 544B/window 544B with normalized_diff 318.
-   Corrected locally for this body: func_0010f420(u32,u32),
-   func_00233a90(u8 *,s32), func_0023d6e0(s16), func_0023e140(u8 *), and
-   func_00242800(u8 *,s32); the existing func_001f9ce0(u8 *,s32) call was
-   also restored.  Five further source-shape probes were not justified after
-   the residual remained in the hundreds; no sibling changed. */
+/* measured: the typed predicate remains a 544B/window 544B, 17-word floor
+   in docs/probe_archive/IDA_001db360_body.c. The retail implementation stays
+   in assembly; no instruction match or C promotion is claimed. */
 // FUN_001DB360 NONMATCHING
-
-#ifdef NON_MATCHING
-s32 func_001db360(u64 formation, u16 index, s32 enabled) {
-    extern s32 func_0010f420(u32 arg0, u32 arg1);
-    extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
-    extern s8 func_00233a90(u8 *arg0, s32 arg1);
-    extern s32 func_0023d6e0(s16 arg0);
-    extern u32 func_0023e130(u8 *arg0);
-    extern u8 *func_0023e140(u8 *arg0);
-    extern s32 func_00242800(u8 *arg0, s32 arg1);
-    s32 temp_16;
-    s32 temp_16_2;
-    s32 temp_2;
-    s32 var_8;
-    u16 temp_3;
-    u8 *temp_17;
-
-    temp_17 = *(u8 **)((u8 *)formation + 0x30);
-    if ((*(u8 *)(temp_17 + 0xA2) == 1) &&
-        (func_001f9ce0((u8 *)formation, (s16)index) == 0) &&
-        (func_0010f420(*(u16 *)(temp_17 + 0xA4), index) == 0)) {
-        return 1;
-    }
-    temp_16 = func_0023d6e0((s16)index);
-    if ((enabled == 1) && !(temp_16 & 0xE0001)) {
-        if (temp_16 & 2) {
-            if (func_00233a90(*(u8 **)(temp_17 + 0xA64), 0x10) > 0) {
-                return 0;
-            }
-            goto block_12;
-        }
-        if (!(temp_16 & 0x40) &&
-            (func_00233a90(*(u8 **)(temp_17 + 0xA64), 0x11) > 0)) {
-            return 0;
-        }
-        goto block_12;
-    }
-block_12:
-    if (temp_16 & 2) {
-        if (*(u8 *)(temp_17 + 0xA2) == 1) {
-            if (**(u16 **)(temp_17 + 0xA64) & 0x100) {
-                return 0;
-            }
-            goto block_24;
-        }
-        temp_16_2 = (s32)(func_0023e130(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF);
-        temp_2 = (s32)func_0023e140(*(u8 **)(temp_17 + 0xA64));
-        var_8 = 0;
-loop_23:
-        if ((var_8 & 0xFFFF) >= (temp_16_2 & 0xFFFF)) {
-            goto block_24;
-        }
-        temp_3 = *(u16 *)(temp_2 + ((var_8 & 0xFFFF) * 2));
-        if ((temp_3 != 0x1F8) && (temp_3 != 0x1F7) && (temp_3 != 0x1F6)) {
-            var_8 = (var_8 + 1) & 0xFFFF;
-            goto loop_23;
-        }
-        return 0;
-    }
-block_24:
-    return (func_00242800(*(u8 **)(temp_17 + 0xA64), (s16)index) & 0x07000000) == 0;
-}
-#else
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db360);
-#endif
 // FUN_001DB580
-void btlCond_MYNOMAL(u64 formation, u16 index)
+s32 btlCond_MYNOMAL(u8 *formation, s32 index)
 {
-    func_001db360(formation, index, 1);
+    return func_001db360(formation, index, 1);
 }
 
 
 
 // FUN_001DB5B0
-void func_001db5b0(u64 formation, u16 index)
+s32 func_001db5b0(u8 *formation, s32 index)
 {
-    func_001db360(formation, index, 0);
+    return func_001db360(formation, index, 0);
 }
 
 
 // FUN_001DB5E0
 s32 func_001db5e0(u8 *arg0, s16 arg1) {
-    return !(func_00242800(*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xA64), arg1) & 0x7000000);
+    return !(func_00242800(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), arg1) & 0x7000000);
 }
 
 #pragma opt_rebuildconditionals off
@@ -526,13 +456,21 @@ void func_001db990(u8 *arg0, u32 arg1) {
 }
 
 #pragma opt_rebuildconditionals on
+/* measured: propagation off retains index preparation before the enemy load
+   with the canonical u32 bitmap arguments; 156B/window 160B, normalized_diff 0. */
+#pragma push
+#pragma opt_propagation off
 // FUN_001DB9F0
 s32 func_001db9f0(u8 *arg0, s16 arg1) {
     u8 *p = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(p + 0xA2) == 1 && func_001f9ce0(arg0, arg1) == 0 && func_0010f420(*(u16 *)(p + 0xA4), (u16)arg1) == 0)
-        return 0;
-    return (func_00242800(*(u32 *)(p + 0xA64), arg1) & 0x7000000) != 0;
+    if (*(u8 *)(p + 0xA2) == 1 && func_001f9ce0(arg0, arg1) == 0) {
+        u32 index = (u16)arg1;
+        if (func_0010f420(*(u16 *)(p + 0xA4), index) == 0)
+            return 0;
+    }
+    return (func_00242800(*(u8 **)(p + 0xA64), arg1) & 0x7000000) != 0;
 }
+#pragma pop
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DBA90 (MATCH nd0 -> MISMATCH nd43) - measured W161. */

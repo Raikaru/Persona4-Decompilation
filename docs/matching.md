@@ -3641,3 +3641,41 @@ remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 Linked C coverage stays at 172 complete objects: the AI unit still has six
 assembly functions, so this is an instruction-match gain, not a claim that
 the new AI C body is already linked into the retail image.
+
+## AI skill callbacks: return the predicate result explicitly
+
+`btlCond_MYNOMAL` and `func_001db5b0` now return `s32` and accept
+`u8 *formation, s32 index`. Retail forwards both input registers and returns
+the result of `func_001db360`; the old `void(u64,u16)` declarations did not
+express that contract. Both callbacks remain **MATCH, 36B/48B**.
+
+The same recovery corrects this unit's bitmap query to the live
+`u32 func_0010f420(u32,u32)` contract and uses pointer loads for both sibling
+calls to `func_00242800`. With the correct bitmap declaration,
+`func_001db9f0` needs an explicit index preparation and scoped
+`opt_propagation off` to retain the retail argument order. It remains
+**MATCH, 156B/160B**; `func_001db5e0` remains **MATCH, 64B/64B**.
+The complete unit retains **257 MATCH, 6 ASM**.
+
+A native UBSan-instrumented consumer passes **6,144 cases**, using the
+actual C callbacks and sibling predicates with the archived reconstruction
+and controlled leaf helpers. It covers normal versus relaxed eligibility,
+enemy bitmap precedence, status signs, blocked unit flags, all three
+excluded skills, empty lists, final masks, and index upper bits. The
+original callback signatures fail to compile against that result-consuming
+interface. This checks C consumer semantics, not the live PS2 assembly.
+
+The reconstructed `func_001db360` remains assembly-backed. Its replayable
+archive improves the historical **19-word** floor to **17**, at
+**544B/544B**. An `s32` command removes redundant masks but leaves the final
+comparison inverted and the object eight bytes short; `u16` restores the
+size without matching those instructions. Neither shape is a match.
+`IDA_001db360_body.c` now replays through the normal probe CLI without
+private declaration patches; `IDA_battle_recovery.json` records the
+remaining offsets, alternatives, callback proof, and semantic limitations.
+
+The final `make build verify lint-errors` gate passes with **7,718 MATCH**
+overall and **6,088 first-party MATCH / 772 ASM**. Both retail SHA-1 values
+above are unchanged; errors-only lint reports zero errors across 333
+first-party files. This callback repair does not claim another C promotion
+or an increase in the 172 linked C objects.

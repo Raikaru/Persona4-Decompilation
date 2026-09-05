@@ -140,5 +140,59 @@
       "Member-first digit indexing did not change the 43-word score.",
       "Ungrouped values above INT32_MAX retain the retail minus-sign assertion behavior; no unsigned-format fallback was added."
     ]
+  },
+  "ai_skill": {
+    "source": "src/Battle/btlAICommand.c",
+    "target": "func_001db360",
+    "candidate": "docs/probe_archive/IDA_001db360_body.c",
+    "status": "ASM retained; typed candidate improves the archived 19-word floor to 17",
+    "object_bytes": 544,
+    "retail_window_bytes": 544,
+    "fndiff_differing_words": 17,
+    "differing_word_offsets": [364, 368, 372, 376, 380, 392, 404, 408, 416, 420, 424, 428, 432, 452, 456, 460, 464],
+    "replay": "python tools/probe_variants.py src/Battle/btlAICommand.c func_001db360 --candidate typed=docs/probe_archive/IDA_001db360_body.c",
+    "replay_exit_status": 1,
+    "replay_note": "The normal CLI reproduces 17 without context patches. Exit 1 means no candidate matched, not compilation failure.",
+    "provenance": [
+      "docs/ida_headstart/src/Battle/btlAICommand.c:61-107",
+      "asm/nonmatchings/btlAICommand/func_001db360.s:1-151"
+    ],
+    "residual": "The narrow command local adds two repeated masks and shifts temporary registers; the final comparison becomes bne rather than retail beq plus an unconditional branch. A wide-enough s32 command eliminates masks but leaves the branch inversion, yielding a 536-byte object with 37 differing words.",
+    "measured_alternatives": [
+      {"shape": "s32 command and explicitly staged bitmap index", "object_bytes": 536, "differing_words": 37},
+      {"shape": "u16 command and explicit checked loop", "object_bytes": 544, "differing_words": 17},
+      {"shape": "Signed or unsigned switch command", "object_bytes": 544, "differing_words": 21},
+      {"shape": "Explicit rejection labels or nested guards", "object_bytes": 536, "differing_words": 37},
+      {"shape": "Wide command with s32 keys", "object_bytes": 560, "differing_words": 49},
+      {"shape": "Scoped peephole disabled", "object_bytes": 580, "differing_words": 123}
+    ],
+    "callback_repair": {
+      "contract": "btlCond_MYNOMAL and func_001db5b0 return the predicate result and forward u8 *formation and s32 index, enabling or disabling the normal status gate respectively.",
+      "helper_contracts": "Use the live u32 func_0010f420(u32,u32) bitmap declaration and pointer-taking func_00242800. Migrate both sibling data loads. Stage the bitmap index in func_001db9f0 with scoped propagation disabled to retain its retail argument order.",
+      "preserved_entries": [
+        {"name": "btlCond_MYNOMAL", "object_size": 36, "window": 48, "normalized_diff": 0, "status": "MATCH"},
+        {"name": "func_001db5b0", "object_size": 36, "window": 48, "normalized_diff": 0, "status": "MATCH"},
+        {"name": "func_001db5e0", "object_size": 64, "window": 64, "normalized_diff": 0, "status": "MATCH"},
+        {"name": "func_001db9f0", "object_size": 156, "window": 160, "normalized_diff": 0, "status": "MATCH"}
+      ],
+      "unit_verification": {"scanned": 263, "MATCH": 257, "ASM": 6, "MISMATCH": 0, "NO_SYMBOL": 0},
+      "semantic_smoke": {
+        "cases": 6144,
+        "result": "PASS",
+        "runtime": "Native host C with UBSan trap instrumentation; real source wrappers and sibling predicates, archived reconstructed predicate, controlled leaf helpers, and aligned host pointer fields.",
+        "reproduction": "The original void(u64,u16) wrappers fail compilation when a caller requires the predicate result through s32 (*)(u8 *,s32). The repaired callbacks pass the same consumer.",
+        "contracts": [
+          "normal versus relaxed status eligibility",
+          "enemy bitmap early acceptance",
+          "positive, zero and negative status values",
+          "blocked unit flag and each excluded skill",
+          "empty and populated command lists",
+          "final attribute mask and unrelated bits",
+          "low16 index semantics with nonzero upper bits",
+          "both sibling attribute predicates"
+        ],
+        "limitation": "This exercises the reconstruction and C consumer semantics, not the live assembly predicate on PS2. It is not acceptance of the 17-word candidate."
+      }
+    }
   }
 }
