@@ -170,7 +170,7 @@ void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 s32 func_00161b10(u16 arg0, u16 arg1, u16 arg2);
 s32 func_0015a320(void);
 u8 *func_00161c80(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
-s32 func_00451fc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(void *), void (*arg6)(void *), s32 arg7);
+void *func_00451fc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(void *), void (*arg6)(void *), s32 arg7);
 
 
 
@@ -1252,6 +1252,7 @@ void func_00166b10(u8 *arg0)
 s32 func_00166b40(u8 *arg0, s32 arg1)
 {
     s32 r;
+    s32 task;
     if (func_0014a200() == 0 && func_0014a270() == 0) {
         return 0;
     }
@@ -1260,8 +1261,9 @@ s32 func_00166b40(u8 *arg0, s32 arg1)
     if (r == 0) {
         return 0;
     }
-    func_00451fc0(arg0, D_005F1590, 0xF, 0, 0, (void (*)(void *))func_001668e0, (void (*)(void *))func_00166b10, r);
+    task = (s32)func_00451fc0(arg0, D_005F1590, 0xF, 0, 0, (void (*)(void *))func_001668e0, (void (*)(void *))func_00166b10, r);
     *(s32 *)(r + 0xC) = arg1;
+    return task;
 }
 
 
@@ -1555,18 +1557,20 @@ void func_001673f0(u8 *arg0)
 s32 func_00167420(u8 *arg0, u8 *arg1)
 {
     s32 r;
+    s32 task;
     func_0044ea90(D_005F1500, 0xD36);
     r = ((s32 (*)(s32, s32, s32))DAT_008873F4[0])(1, 0x10, 0x40000);
     if (r == 0) {
         return 0;
     }
-    func_00451fc0(arg0, D_005F15C0, 0xF, 0, 0, (void (*)(void *))*(void **)(D_005F15B0 + (*(u16 *)(arg1 + 0x1C8) << 2)), (void (*)(void *))func_001673f0, r);
+    task = (s32)func_00451fc0(arg0, D_005F15C0, 0xF, 0, 0, (void (*)(void *))*(void **)(D_005F15B0 + (*(u16 *)(arg1 + 0x1C8) << 2)), (void (*)(void *))func_001673f0, r);
     *(u8 **)(r + 4) = arg1;
     *(s32 *)(r + 0xC) = 0x28;
     *(s32 *)(*(u32 *)(arg1 + 0x50) + 0xD8) |= 0x80;
     if (*(u8 *)(arg1 + 0x1CA) == 1) {
         *(s32 *)(*(u32 *)(arg1 + 0x50) + 0xD8) &= ~0x100;
     }
+    return task;
 }
 
 // FUN_00167530
@@ -1613,6 +1617,7 @@ void func_00167d60(u8 *arg0)
 s32 func_00167d90(u8 *arg0)
 {
     s32 r;
+    s32 task;
     u32 acc = 0;
     s32 i = 0;
     s32 j = 0;
@@ -1636,9 +1641,10 @@ s32 func_00167d90(u8 *arg0)
     if (r == 0) {
         return 0;
     }
-    func_00451fc0(NULL, D_005F15E0, 0xF, 0, 0, (void (*)(void *))func_001679d0, (void (*)(void *))func_00167d60, r);
+    task = (s32)func_00451fc0(NULL, D_005F15E0, 0xF, 0, 0, (void (*)(void *))func_001679d0, (void (*)(void *))func_00167d60, r);
     *(s32 *)(r + 4) = acc & 0xFF;
     *(s32 *)(r + 8) = (acc >> 8) & 0xFF;
     *(s32 *)(r + 0xC) = (acc >> 16) & 0xFF;
     *(s32 *)(r + 0x10) = (acc >> 24) & 0xFF;
+    return task;
 }

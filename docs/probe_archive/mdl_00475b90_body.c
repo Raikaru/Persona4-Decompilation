@@ -8,13 +8,14 @@
 // otherwise reproduce retail's stack and call sequence.
 // Levers tried: s32 count + u16 i (fixed loop u16 re-mask), u32 masked_idx,
 // s32 data[2] for the callback data[0]/data[1] pair, goto do_setup/no_setup
-// branch structure, block-scope extern s32 func_00397470(void* a) to call
-// the one-argument helper directly, #pragma opt_rebuildconditionals off,
-// #pragma opt_propagation off, s32-vs-void* comparison, goto label ordering.
+// branch structure, opt_rebuildconditionals off, opt_propagation off,
+// s32-vs-void* comparison, and goto label ordering. Replayed after the
+// frame-getter ABI repair: still 34 words. Uses the source unit's canonical
+// s32 func_00397470(u8*) declaration; the obsolete local prototype and
+// unbalanced trailing pragma pop are removed.
 // FUN_00475B90
 int func_00475b90(void* buf, void* v, u32 idx, void* obj)
 {
-    extern s32 func_00397470(void* a);
     s32 count;
     u16 i;
     u32 masked_idx;
@@ -58,5 +59,3 @@ no_setup:
     func_003e05f0(buf, entry, func_003e9700(clump));
     return 1;
 }
-/* measured: close opt_propagation off probe. */
-#pragma pop
