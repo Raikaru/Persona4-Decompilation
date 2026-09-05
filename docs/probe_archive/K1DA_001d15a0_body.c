@@ -1,11 +1,19 @@
-/* Corrected reference candidate; NOT MATCHING.
- * Measured: object 212B / retail window 224B, 15 differing emitted bytes
- * after relocation masking. fndiff counts 18 words including three absent
- * zero-tail words. Register allocation and comparison destinations remain.
- * The output helper writes eight bytes: separate scalar locals were not a
- * valid buffer. Keep stats[4], the masked loop index, and the real argument.
+/* Faithful threshold lookup recovery, MWCCPS2 b210: object 212B/window 224B.
+ * Standard archive replay: 12 differing words = nine t0/t1 index/result
+ * allocation differences plus three zero-tail words at +0xd4/+0xd8/+0xdc.
+ * func_001d1310 clears and writes EIGHT bytes, including counter +6;
+ * stats[4] is required. The old three independent halfwords were not a
+ * valid output buffer. func_0022ead0 is s32(void); no hidden argument.
+ * The signed-halfword result preserves retail's -1 and 0..24 values.
+ * Branches, short-circuit threshold order, 0x19 bound, 0xe0 stride and
+ * 0x18 fallback are retained. Production remains INCLUDE_ASM.
+ * Tested: direct return, halfword induction, shared result, propagation off,
+ * signed result, local-order swap, unsigned induction and wider scalar temps.
+ * Reproduce: python tools/probe_variants.py src/promoted/code1_001d.c
+ * func_001d15a0 --candidate archive=docs/probe_archive/K1DA_001d15a0_body.c
  */
-s64 func_001d15a0(void)
+extern s32 func_0022ead0(void);
+s16 func_001d15a0(void)
 {
     u16 stats[4];
     s32 index;
@@ -28,12 +36,12 @@ s64 func_001d15a0(void)
 loop:
     selected = (u16)index;
     entry = table + (s32)selected * 0xE0;
-    if (*(u16 *)(entry + 0xD8) >= a &&
-        *(u16 *)(entry + 0xDA) >= b &&
-        *(u16 *)(entry + 0xDC) >= c) {
-        result = selected;
-        goto done;
-    }
+    if (a > *(u16 *)(entry + 0xD8)) goto next;
+    if (b > *(u16 *)(entry + 0xDA)) goto next;
+    if (c > *(u16 *)(entry + 0xDC)) goto next;
+    result = selected;
+    goto done;
+next:
     index = (index + 1) & 0xFFFF;
 test:
     if ((u32)(index & 0xFFFF) < 0x19U) goto loop;

@@ -108,12 +108,17 @@ Use this six-step loop for every target:
   lookup remains 152B/160B MATCH with a complete prototype. A consumer smoke
   exercises 192 cases across record IDs, upper-bit masking, absent records
   and flag combinations. Assembly identity does not excuse missing C arguments.
+  The model callback `func_00475b10` likewise retains its instruction match
+  when it passes the frame to `s32 func_00397470(u8*)` and compares a signed
+  ID instead of calling a false `void* (void)` prototype. The original
+  callback crashes in a 32-bit consumer smoke; the repaired one passes
+  45 cases across plugin offsets, nested/missing matches and signed ID limits.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
-  `u16 stats[4]`. The corrected 212B candidate still differs in 15 emitted
-  bytes against the 224B retail window and remains ASM. Its `fndiff` count
-  is 18 words, including three absent zero-padding words; do not compare
-  that word count with `verify.py`'s byte-valued `normalized_diff`.
+  `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word
+  index/result register differences against the 224B retail window and stays
+  ASM. Its `fndiff` count is 12 words including three absent zero-padding
+  words; do not compare that with `verify.py`'s byte-valued `normalized_diff`.
 - Reject wrong GP addends and relocation-masked false matches: compare every
   GP-relative or `%hi`/`%lo` reference with the retail immediate, not the
   guessed symbol name, and use the full link when relocation ownership changes.
@@ -126,6 +131,12 @@ Use this six-step loop for every target:
   `func_00484b30` archive incorrectly cleared four W lanes; the corrected
   four-COP2-store candidate is 120B/128B with six register-color differences
   and two zero tail words. It remains ASM, not a promoted match.
+- An address left in `$v0` for a hardware transfer is not proof of a C return.
+  The observed callers of `func_0048a460` consume `$vf10`, not `$v0`.
+  Removing the archive's unsupported local-array pointer return gives an
+  honest `void` projection body at 176B/176B and 15 differing words, rather
+  than the misleading 11-word floor. Aligned storage and exact vector memory
+  operands describe the genuine COP2 transfers without escaping local storage.
 - Check runtime provenance before counting a compiler-floor closure as game
   progress. `func_0044e830` is GCC `fp-bit.c` GOFAST `float_to_usi`, not a
   memory initializer: ee-gcc 2.96 reproduces 156B/160B with only a zero tail.
