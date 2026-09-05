@@ -26,7 +26,7 @@ extern void func_004a30e0(u8 *, u8 *);
 extern void func_004a4450(u8 *, u8 *);
 extern s32 func_00484010(void *);
 extern u8 *func_003c2290(u8 *, s32);
-extern void func_0043f810(void *, void *, void *);
+extern void func_0043f810(void *, const void *, u32);
 extern char D_00713330[];
 extern char D_00714148[];
 extern u_long128 D_00713CE0;
@@ -318,13 +318,13 @@ void func_004a3010(u8 *arg0)
 }
 #pragma opt_loop_invariants off
 
-/* measured: retail coalesces the doubling `or` result into the FIRST
-   operand's register (`or $t3,$t3,$t2; mtc1 $t3,$f0`) while mwcc b210 always
-   coalesces it into the SECOND operand's (`or $t2,$t3,$t2; mtc1 $t2,$f0`),
-   at both doubling sites (4 words, nd 5). Tried: operand order swap (worse,
-   nd 9, order flips), named locals for the whole expr / first operand /
-   second operand / both operands, and a static inline `a|b` helper — all
-   emit the identical second-operand coalescing. Register-coalescing floor. */
+/* measured: the reconstructed XWND_004a30e0_body.c candidate is 764B/768B
+   at 10 differing words: nine replication-loop register differences and
+   one zero tail word. Native unsigned conversions, the four-byte color
+   aggregate, and scoped invariant hoisting reproduce both OR/mtc1 sites
+   exactly; the old unconditional coalescing-floor claim was false.
+   The historically reported nd5 body was not recoverable, so this is a
+   reproducible reconstruction, not a lower score than that lost body. */
 // FUN_004A30E0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/effPolygonWind", func_004a30e0);
 
@@ -865,7 +865,7 @@ void *func_004a5630(s32 arg0, void *arg1)
     *(u_long128 *)(p18 + 0x20) = *dst128;
     __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(p18) : "memory");
     __asm__ volatile("sqc2 vf0, 16(%0)" : : "r"(p18) : "memory");
-    func_0043f810(*(void **)(p18 + 0x40), arg1, (void *)temp_17);
+    func_0043f810(*(void **)(p18 + 0x40), arg1, (u32)temp_17);
     return p18;
 }
 #pragma opt_propagation on

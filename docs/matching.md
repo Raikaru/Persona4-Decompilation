@@ -3007,6 +3007,26 @@ closed them, all measured against b210 `-O2,p`:
   with its callers. Do not delete real caller argument setup to fit an
   under-specified leaf definition, or hide the mismatch with an old-style
   declaration.
+- **Wide shifts may extract narrow bitfields, not imply wide C locals.**
+  `func_00311b90` loads a signed halfword, then shifts left/right by 54 to
+  extract a signed ten-bit value. Its two byte-load/shift sequences test
+  different flags at bits 14 and 15. Both surviving archives instead used
+  the whole halfword and the same byte test twice; neither was a valid
+  compiler-floor reference. Native `s16` bitfields, `s32` comparisons and
+  shifts, and `s16` counters recover the instructions. Scoped
+  `opt_loop_invariants on` hoists the shared one; declaring count before
+  outer index and inner index before found flag resolves the two register
+  swaps. The 364B body matches the 368B window with four bytes of zero tail
+  padding. Retail callers supply list lengths two and three.
+- **Recover a reproducible candidate before declaring an unconditional floor.**
+  The old `func_004a30e0` note claimed b210 always coalesced two unsigned
+  conversion ORs into the wrong operand. Reconstructing the surviving XWND
+  archive with native casts, its existing four-byte color aggregate, and
+  loop-local invariant products makes both OR/mtc1 pairs exact. The retained
+  764B/768B candidate is still nonmatching: nine replication-loop register
+  differences plus one tail-padding word. Its copy helper uses the real
+  `(void *, const void *, u32)` argument types. The historical nd5 body was
+  unavailable; this corrects the coalescing claim, not that recorded score.
 - **Loop-counter vs count colouring.** Declaring `i` before `count` swaps
   their `$a2`/`$a3` colouring (`func_001b1280`). Declaration order is the
   lever, not assignment order.
