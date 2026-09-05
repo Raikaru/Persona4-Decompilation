@@ -165,6 +165,13 @@ Use this six-step loop for every target:
   native smoke checks those boundaries, eight accepted skills, optional
   actions, repeated quantity queries, ID-store visibility and untouched
   bytes. Neither candidate is promoted.
+  The cut-in `func_001f9cf0` IDA body confirms its case-local suffix pointer
+  and signed count. The retained body now uses the known four-word
+  pointer-first floor with canonical helpers and explicit string pointers.
+  A 3,136-case native smoke uses retail format strings and S/W, B/C/D tables
+  to check resource paths, the character-11 branch, call order, handle slots
+  and untouched bytes. Ordinary C `register` hints on either count-first
+  local leave that variant at eight words; production remains ASM.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
   `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word
