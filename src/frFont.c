@@ -40,7 +40,8 @@ extern void func_002715c0(void);
 extern void func_002713b0(int param_1, int param_2);
 extern s8 func_002746e0(void *param_1, int param_2);
 extern void func_002746b0(u32 param_1);
-extern void func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+extern u8 *func_002740b0(void *data);
+extern u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                          u32 param_5, u32 param_6, u32 param_7, u32 param_8,
                          u32 param_9);
 extern u32 D_00763840;
@@ -1666,9 +1667,6 @@ u16 func_00273940(u32 param_1)
 }
 
 
-// func_002745c0 is intentionally left undeclared (implicit old-style call,
-// as in the P3 donor): a typed u8 prototype makes mwcc emit andi
-// zero-extensions the retail never has.
 
 // FUN_00273970
 int func_00273970(int node)
@@ -1986,15 +1984,16 @@ return_point:
 INCLUDE_ASM("asm/nonmatchings/frFont", func_002740b0);
 
 
+/* Forward the allocated chain explicitly; callers consume the return value. */
 // FUN_00274570
-void func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+u8 *func_00274570(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                    u32 param_5, u32 param_6, u32 param_7, u32 param_8)
 {
-    func_002745c0(param_1, param_2, 0, param_3, param_4, param_5, param_6, param_7, param_8);
+    return func_002745c0(param_1, param_2, 0, param_3, param_4, param_5, param_6, param_7, param_8);
 }
 
 // FUN_002745C0
-void func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
+u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
                    u32 param_5, u32 param_6, u32 param_7, u32 param_8,
                    u32 param_9)
 {
@@ -2028,7 +2027,7 @@ void func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
     data.f1d = 1;
     data.f1e = 0x20;
     func_002746b0(0);
-    func_002740b0(&data);
+    return func_002740b0(&data);
 }
 
 

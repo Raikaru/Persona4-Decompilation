@@ -2948,13 +2948,19 @@ So: instruct lanes to leave a compiling draft IN PLACE (not revert) when they
 run out of time, and finish the small residuals centrally. The levers that
 closed them, all measured against b210 `-O2,p`:
 
-- **Argument materialisation order via a block-scope prototype.** A
-  `func(s32, s32, s64, s32)` redeclaration inside the caller makes mwcc load
-  the third argument (a GP-relative `lw`) before the constant first argument
-  and the second `lw`; the callee's real signature is all-s32 and reads only
-  the low word (`lw` sign-extends), so nothing changes at run time
-  (`func_0018dde0`). Same family as the f32-first reordering already used for
-  `func_002b8300` in `code1_002e.c`/`code1_0033.c` (`func_0033d550`).
+- **Match argument types without incompatible local prototypes.** A
+  block-scope declaration that disagrees with the callee is not a valid
+  scheduling lever, even if the emitted code happens to use the same low
+  word. In `func_00279e90`, an unsigned handle local and unsigned load match
+  the canonical `u32` argument and reproduce retail's late load without the
+  old signed redeclaration. Keep the other branch's explicit `u32` cast:
+  it preserves that branch's earlier load. The 316B body still matches.
+- **Return values must survive in C, not just in `$v0`.** The font
+  constructors `func_00274570` and `func_002745c0` used to be defined `void`
+  despite callers consuming the allocated chain. Declare their `u8 *`
+  result consistently and explicitly return the nested constructor result;
+  also declare the ASM leaf `func_002740b0` with its pointer return.
+  Both wrappers and all live consumers retain their instruction matches.
 - **Comparison operand side.** `(u32)(elapsed_a - elapsed_b) > (u32)limit`
   versus `limit < elapsed` picks which operand lands in `$v0`/`$v1` for the
   `sltu`; try both before anything else when the only residual is a swapped
