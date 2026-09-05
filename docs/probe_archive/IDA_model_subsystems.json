@@ -1,0 +1,42 @@
+{
+  "status": "Both candidates remain ASM in production; neither candidate is accepted or semantically smoke-tested.",
+  "measurement": "tools/probe_variants.py run_fndiff in an isolated copy, with the original source path as compiler context. Scores count relocation-masked differing words including absent retail tail words; not fully relocated acceptance.",
+  "candidates": [
+    {
+      "symbol": "func_0047df40",
+      "source": "src/Graphics/Model/mdlSE.c",
+      "body": "IDA_0047df40_body.c",
+      "ida": "docs/ida_headstart/src/Graphics/Model/mdlSE.c:15-69",
+      "assembly": "asm/nonmatchings/mdlSE/func_0047df40.s",
+      "object_bytes": 412,
+      "window_bytes": 432,
+      "differing_words": 78,
+      "refinements": [
+        {"old": "extern s32 func_00477c40(u16 arg0, u16 arg1, s32 arg2);", "new": "extern void* func_00477c40(u32 arg0, u32 arg1, u32 arg2);"},
+        {"old": "extern s32 iGpffffbb40;", "new": "extern u32 iGpffffbb40;"},
+        {"old": "extern u8 D_00922C10[];", "new": "typedef struct MdlSESlot { u32 stamp; u16 modelType; u16 modelId; } MdlSESlot;\nextern MdlSESlot D_00922C10[3];"}
+      ],
+      "integration": "Refine the existing table rather than allocate new storage. D_00922C14 and D_00922C16 are interior aliases at +4/+6; remove obsolete source declarations only during a verified cutover, preserving linker aliases. Synchronize live generation declarations before production changes. Retain s32(s32,s32) public ABI and local low-16-bit key conversion.",
+      "semantics": "First exact key or reusable resident slot wins; a nonmatching resident type below 12 is reusable when func_00477c40 returns NULL. Otherwise choose the last equal minimum unsigned stamp. Refresh generation modulo 2^32 and selected keys; return slot+3. Do not substitute wrap-aware chronological ordering.",
+      "evidence": "The actual func_00477c40 is a read-only leaf linked-list lookup, not a callback dispatcher. Its real pointer-return signature is in mdlManager.c:2187-2200. Repeated first-loop address arithmetic has no intervening mutation. CSE-off gives 424B/99 words; propagation-off leaves 412B/78 words unchanged. Neither ineffective pragma is retained. The typed reconstruction improves the historical 90-word floor but is not matching."
+    },
+    {
+      "symbol": "func_004800d0",
+      "source": "src/Graphics/Model/mdlMatAnim.c",
+      "body": "IDA_004800d0_body.c",
+      "ida": "docs/ida_headstart/src/Graphics/Model/mdlMatAnim.c:15-135",
+      "assembly": "asm/nonmatchings/mdlMatAnim/func_004800d0.s",
+      "object_bytes": 784,
+      "window_bytes": 864,
+      "differing_words": 202,
+      "integration": "Replace only the target ASM region with the complete candidate, preserving its explicit FUN marker below the typedef and prototypes. Existing node/list byte views are reused. The new header is the actual 20-byte serialized count/duration/stride/nameLength/unused-word layout. Explicit helper declarations match current definitions; do not replace them with unprototyped calls to hide u64 conversions.",
+      "semantics": "The node search compares table pointer identity, not material-list equality. Heap names are released after synchronous fill and before node search. New nodes retain the table, copy RGBA and surface defaults, prepend, then release the temporary reference. Duplicate channels skip payload bytes without replacing metadata or storage. Count-times-stride uses unsigned low-word multiplication.",
+      "uncertainties": [
+        "The four-tag domain 0xF0F00080..0xF0F00083 is inferred from the retail switch. The concrete caller at func_0047c660:0047CAD0-0047CAE0 loads an unchecked queued tag; upstream queue classification remains unproven.",
+        "Retail invalid-tag fallthrough uses an uninitialized saved register. The candidate uses channel indexing under the valid-tag precondition, not fake padding or a fabricated fallback. Its source shape differs and is not accepted.",
+        "Current func_00480800 and func_00480630 expose u64 clump/address carriers; candidate honors those explicit contracts. A pointer-ABI cutover requires all live callers and callbacks, not a local overload.",
+        "The ordinary allocator creates a fresh table and the inspected fill callbacks do not replace search[0], so the identity-found branch appears unreachable in ordinary allocation. It is retained rather than converted to content deduplication."
+      ]
+    }
+  ]
+}
