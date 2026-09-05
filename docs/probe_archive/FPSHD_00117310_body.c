@@ -12,6 +12,11 @@
  * Separate alpha lifetime, draw-only alpha scope, a phase union and a
  * placement snapshot retain nine words. Input and render snapshots give
  * 21 and 32 respectively. Retain this simpler faithful candidate.
+ * IDA-first replay confirms unsigned digit traversal, but Hex-Rays omits
+ * the mode-zero alignment branch, drawing floats and post-draw decrement.
+ * Assembly and the caller retain the packed position/color ABI above.
+ * A four-byte color aggregate still gives nine words; a local position
+ * aggregate gives 89 words (404B/400B). Keep this body unchanged.
  */
 #pragma push
 #pragma opt_loop_invariants on
