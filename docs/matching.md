@@ -100,6 +100,14 @@ Use this six-step loop for every target:
   cast of the deallocator. With both calls repaired, the faithful candidate
   is 596B against retail's 592B window and stays ASM. Inspect callee bodies
   before calling an argument-register difference an allocation floor.
+- Audit apparent register passthrough even in existing matches. Community
+  flag helpers `func_00107b70`, `func_00107c80` and `func_00107ea0` had
+  zero-argument definitions calling the old-style `func_001070e0()` declaration,
+  accidentally leaving the incoming identifier in `$a0`. Explicit `s32`
+  parameters and forwarding calls preserve all three 84B/96B matches; the
+  lookup remains 152B/160B MATCH with a complete prototype. A consumer smoke
+  exercises 192 cases across record IDs, upper-bit masking, absent records
+  and flag combinations. Assembly identity does not excuse missing C arguments.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
   `u16 stats[4]`. The corrected 212B candidate still differs in 15 emitted

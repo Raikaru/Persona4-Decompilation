@@ -617,14 +617,14 @@ s32 func_001dbb90(void) {
 // FUN_001DBBA0
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbba0);
 
-/* measured: no 128-bit slots here, but three stacked walls: (1) the leading
-   func_001d7f10 copy loop has retail's load-first test (lhu $3,0xd0; andi
-   $2,$a0,0xffff) while mwcc b210 masks first — the same load-sinking
-   residual as FUN_001DC9A0 (nd 5 there); (2) the descending beq chain on the
-   lbu 0x11 value (0x10/0xE/0xD/0xC/0xA/0x8/0x4/0x3) compiles as an if/else-if
-   chain in the wrong order per the switch-linear-chain skill; (3) the FP tail
-   with f32 locals needs the prototype fixed (the m2c (u8*) signature dropped
-   the second arg the callers pass). Not attempted past the copy loop. */
+/* measured: complete candidate in docs/probe_archive/QAIC_001dbf20_body.c:
+   object 1152B / window 1120B / differing words 242; not a compiler floor.
+   The historical five-word comparison described FUN_001DC9A0, not this body.
+   Ascending switch labels recover retail's descending comparison chain.
+   Call setup/masking, copy-index allocation, constant materialization and
+   FP/sort/weight addressing still differ. Current-HP helper ABI is not fully
+   audited; the archive states that limitation and retains both parameters.
+   Keep the authoritative ASM; no near-match claim applies to this function. */
 // FUN_001DBF20
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dbf20);
 

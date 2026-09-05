@@ -1,10 +1,27 @@
-/* object 356 bytes, retail window 368 bytes, normalized_diff 7; differing offsets 37,42,46,74,122,154,198. Best body retained after focused extent probes. Probed: m2c prelude expansion/removal; all local declaration orders and assignment orders; comma/separate initialization; local widths/signedness; pointer/result/field types; helper prototypes and call casts; loop/guard/goto shapes; optimization pragmas; volatile/qualifiers; local aliases and lifetimes; argument aliases/order; commutative arithmetic; parameter-vs-copy and live-range/recomputation probes; third-live-local pressure; corrected func_001077f0(s32) declaration (nd 10, restored empty declaration); declaration-reversed source (nd 10); id-first source (nd 6 but andi moved before jal); post-call mask recomputation and short-lived mask locals (nd 10); direct preassignment/raw aliases (nd 69/10). Retail saves s3,s2,s1,s0; e/id are exactly the two swapped values in s0/s1, with no unaccounted third live value. Residual remains saved-register swap: retail e=$s0/id=$s1, MWCC e=$s1/id=$s0. */
+/* MWCCPS2 b210: object 356B / window 368B / differing words 6.
+ * With explicit helper prototypes, the old call-first body scores 10 words,
+ * not its historical byte-valued normalized_diff 7. Mask-first preserves
+ * the retail saved registers but moves the pure andi before the lookup:
+ * three reported instruction differences and three absent zero tail words.
+ * The displaced jal is relocation-masked; this is not an exact match.
+ * Previous declaration/assignment orders, scalar widths, pointer/result
+ * types, CFG shapes, optimizer controls, aliases, recomputation and live-range
+ * variants did not close the floor. Typed aggregate field-order variants,
+ * inline output-parameter lifetimes, opt_lifetimes and propagation controls
+ * likewise did not improve the mask-first six-word result.
+ * Production remains ASM. Keep real call arguments and complete prototypes.
+ */
+extern s32 func_001070e0(s32);
+extern s32 func_001077f0(s32);
+extern s32 func_00107c80(s32);
+extern s32 func_00107ea0(s32);
 void func_00106f40(s32 arg0) {
     s32 e;
     s32 id;
     s32 j;
     s32 lvl;
-    id = (e = func_001070e0(arg0), arg0 & 0xFFFF);
+    id = arg0 & 0xFFFF;
+    e = func_001070e0(arg0);
     if (id <= 0) {
         func_0046d730(D_005E42C8, 0x48);
     }

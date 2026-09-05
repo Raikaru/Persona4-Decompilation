@@ -14,9 +14,9 @@ extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_0026bc10(u16 resourceId, u8 value);
 extern s32 func_001077f0();
 extern u16 func_00107ac0(s32 arg0);
-extern s32 func_00107c80();
-extern s32 func_00107ea0();
-extern s32 func_001070e0();
+extern s32 func_00107c80(s32 arg0);
+extern s32 func_00107ea0(s32 arg0);
+extern s32 func_001070e0(s32 arg0);
 extern void func_00108b60(s32 arg0, s32 arg1);
 extern s32 func_00108e10(void);
 extern f32 D_005E42D8[];
@@ -124,8 +124,7 @@ void func_001070b0(void)
 }
 
 // FUN_001070E0
-s32 func_001070e0(arg0)
-s32 arg0;
+s32 func_001070e0(s32 arg0)
 {
     s32 id = arg0 & 0xFFFF;
     s32 ptr;
@@ -555,9 +554,9 @@ ret:
 }
 
 // FUN_00107B70
-s32 func_00107b70(void)
+s32 func_00107b70(s32 arg0)
 {
-    s32 r = func_001070e0();
+    s32 r = func_001070e0(arg0);
     if (r == 0)
     {
         r = 0;
@@ -688,9 +687,9 @@ ret:
 }
 
 // FUN_00107C80
-s32 func_00107c80(void)
+s32 func_00107c80(s32 arg0)
 {
-    s32 r = func_001070e0();
+    s32 r = func_001070e0(arg0);
     if (r == 0)
     {
         r = 0;
@@ -707,9 +706,9 @@ s32 func_00107c80(void)
 }
 
 // FUN_00107EA0
-s32 func_00107ea0(void)
+s32 func_00107ea0(s32 arg0)
 {
-    s32 r = func_001070e0();
+    s32 r = func_001070e0(arg0);
     if (r == 0)
     {
         r = 0;
