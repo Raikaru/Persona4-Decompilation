@@ -31,6 +31,7 @@
         "Replace only the ASM marker with the complete body, including its private views/helpers and balanced pragma scope.",
         "Keep existing iGpffff8044, func_004578b0 and D_00713160 declarations from the translation unit."
       ],
+      "followthrough": "An automatic aggregate quantization initializer worsens this floor to 1048B/89 words. The scalar conversion/store order from include/rw/plcore/bacolor.h:112-131 leaves 996B/72 words unchanged. SDK literal normalization with CSE enabled gives 948B/194 words. All three experiments are rejected; the archived candidate remains unchanged.",
       "evidence": "Ordinary unsigned-to-float casts with CSE-off reproduce the retail single-negative-path conversion and per-channel normalization loads. Propagation-off retains the named 255.0f and 0.5f quantization constants. Repeated accumulator-zero materialization and FP/GPR allocation remain different. Quantizer-local CSE-on does not improve this result; the ineffective scope was removed."
     },
     {
