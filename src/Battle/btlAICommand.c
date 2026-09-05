@@ -1373,15 +1373,44 @@ u8 func_001de800(u8 *p) {
     return 0;
 }
 
-/* measured 2026-08-08: reconstructed weighted-node selector reached object
-   288B / window 288B but normalized_diff 39, so the body is discarded rather
-   than parked. Exact fndiff residual offsets are 48, 52, 56, 60, 64, 68, 72,
-   100, 104, 132, 136, 164, 172, 184, 192, 196, 200, 204, 208, 212, 228,
-   240, 244, 248; first differing row is offset 48 (`andi $v1,$a1,0xffff`
-   vs retail `move $a2,$zero`). A `<= 4` guard variant measured nd43. The
-   discarded body is archived in build/WCBattleUI_btlAICommand_prepark_validate.c. */
-// FUN_001DEA90 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001dea90);
+/* Measured: 288B/288B, nd 0. Separate loop locals preserve register
+   lifetimes; random-first comparison selects retail's $at branch.
+   The random helper takes the summed weights, not the record pointer. */
+// FUN_001DEA90
+u8 *func_001dea90(u8 *p, u32 index)
+{
+    u8 *node;
+    u8 *entry;
+    u32 i;
+    u32 sum;
+    u32 total;
+    u32 j;
+    s32 random;
+    s32 weight;
+
+    node = iGpffffb3d0 + *(u16 *)(*(u32 *)(p + 0x30) + 0xA4) * 164;
+    sum = 0;
+    i = 0;
+    node += (index & 0xffff) * 40;
+    while ((u16)i < 5) {
+        sum = (sum + *(u8 *)(node + (i & 0xffff) * 8 + 0x2c)) & 0xffff;
+        i = (i + 1) & 0xffff;
+    }
+    if ((sum & 0xffff) == 0)
+        return &iGpffffa2a8;
+    random = func_00231d70(sum & 0xffff) & 0xffff;
+    total = 0;
+    j = 0;
+    while ((u16)j < 5) {
+        entry = node + (j & 0xffff) * 8;
+        weight = entry[0x2c];
+        total = (total + weight) & 0xffff;
+        if (random <= (s32)total && weight > 0)
+            return entry + 0x2c;
+        j = (j + 1) & 0xffff;
+    }
+    return 0;
+}
 /* measured: MATCH. Two keys the earlier floor notes missed: (1) c is
    REASSIGNED from func_0029de20's return in the type==0 branch
    (`c = func_0029de20(v, buf);`), so c stays in scratch $v0 at the merge

@@ -2972,6 +2972,18 @@ closed them, all measured against b210 `-O2,p`:
   overflow. `func_0018dde0` retains its exact instructions with the casts
   before subtraction; overflow instrumentation confirms signed-boundary,
   counter-wrap, and strict-threshold behavior.
+- **Audit semantics before trusting an archived floor.** `func_00199d00`
+  omitted the retail `-1`/`>= 0x1B8` guard and narrowed the ID before passing
+  it to the predicate. Keep the full `s64` argument, narrow only the guard
+  and table index, and stage an unsigned offset under scoped
+  `opt_propagation off`. Removing redundant argument aliases restores the
+  saved-register assignment; the complete 336B body matches.
+  The old `func_001dea90` archives passed a record pointer where retail
+  passes the summed weights; one also read uninitialized locals. Rebuilding
+  the five-weight selector with separate locals for its two loops reaches
+  a two-word residual. Writing `random <= (s32)total` instead of
+  `(s32)total >= random` selects `$at` rather than `$v0` for the branch and
+  closes the full 288B window without changing the helper's `u32` ABI.
 - **Loop-counter vs count colouring.** Declaring `i` before `count` swaps
   their `$a2`/`$a3` colouring (`func_001b1280`). Declaration order is the
   lever, not assignment order.
