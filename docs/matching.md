@@ -172,6 +172,15 @@ Use this six-step loop for every target:
   to check resource paths, the character-11 branch, call order, handle slots
   and untouched bytes. Ordinary C `register` hints on either count-first
   local leave that variant at eight words; production remains ASM.
+  For `func_0016b080`, IDA and retail callers recover the output-normal
+  pointer rather than an `s64` input. The 460B/480B candidate improves the
+  corrected floor from 97 to 93 words and stays ASM. Its 13,440-case
+  32-bit smoke checks exact query results and short-circuiting, changed
+  global context, unsigned list keys, first-match/fallback precedence,
+  float grid boundaries, pointer identities, fraction bits and outputs.
+  Multiply signed grid coordinates by their strides instead of left
+  shifting negative values; this removes C undefined behavior without
+  changing the measured code.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
   `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word

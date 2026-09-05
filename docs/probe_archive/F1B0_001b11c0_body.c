@@ -12,6 +12,10 @@
  * This body preserves the retail 16-bit key and unsigned count-1 bound;
  * it does not add a non-retail empty-list guard or cache the global base
  * across pointer stores. Production keeps its INCLUDE_ASM fallback.
+ * IDA body: docs/ida_headstart/src/promoted/code1_001b.c:221-265.
+ * It confirms the 16-bit filter and distinct scan lifetimes. Translating
+ * its unsigned address scalars scores 32 words; adding its short-circuit
+ * counting-loop form scores 39. Retain these typed pointer scans.
  */
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)
