@@ -1781,14 +1781,12 @@ void func_0028aaf0(s32 arg0, u8 *arg1) {
     }
 }
 
-void func_00286c60();
-
-/* measured: retail keeps the inner while-loop's entry stub (b .L0028AF54 at
-   .L0028AF40, the outer back-edge targets it, two nops after the test lw).
-   mwcc b210 always folds the stub away by retargeting the outer back-edge
-   straight at the inner test (lw $v0 vs $a1), shifting every later branch.
-   Tried assignment-in-condition while, plain while + reload, for loops, and
-   single-statement bodies; all nd 35. Branch-to-branch layout floor. */
+/* measured: the archived candidate now passes both real unlink arguments
+   and the deallocator's allocation pointer. The old apparent nd2 floor
+   omitted the child; fixing only that call can score zero while leaving an
+   invalid zero-argument deallocator cast. Correcting both calls produces
+   596B / retail 592B (nd26): an extra argument move shifts the tail.
+   Keep ASM until the ABI-correct body matches; see EoF_0028ad90_body.c. */
 // FUN_0028AD90
 INCLUDE_ASM("asm/nonmatchings/evtMain", func_0028ad90);
 
