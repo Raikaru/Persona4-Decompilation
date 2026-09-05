@@ -1416,18 +1416,47 @@ join:
     }
     return 1;
 }
+/* Select an ordinary or special calendar record, then read column 0 or 1.
+   measured: the neighboring shared-NULL join/copy pattern retains retail's
+   branch trampolines; cmmMiscAddOff preserves the final address operand order.
+   Exact 328B instructions plus 8B zero tail; caller-facing s32 ABI unchanged. */
 // FUN_00249370
-INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_00249370);
-/* measured (wave 14 retest — nd 33 reproducible, no match): merged-OR form
-   `if ((A61==0) || (var_16 = temp_16_2 + func_001064f0(0x6D)*0x24,
-   arg1 < func_00110600(var_16[2],var_16[3]))) var_16 = NULL;` scores nd 33
-   (the `!(arg1<result)` combined form also nd 33-34; opt_rebuildconditionals
-   off is neutral). Residual: retail emits `sltu $v0; bnez $v0 -> .L49450`
-   (positive branch to the shared out-of-line NULL) while mwcc emits
-   `xori $v0,$v0,1; bnez` or inlined negated skips, and all branch targets
-   shift by 4; the `if (arg2!=0 && arg2!=1)` assert and final
-   `return *(s32*)(var_16+arg2*0x10+0xC)` match after the shift. Out-of-line
-   shared-NULL layout floor (same family as FUN_002492B0). */
+s32 func_00249370(s32 special, s32 date, s32 column)
+{
+    s32 month;
+    s32 day;
+    u8 *record;
+    u8 *selected;
+    s32 index;
+
+    if (special == 0) {
+        record = D_008814D0[0] + 8;
+        index = func_00249010(date);
+        if (index != -1) {
+            record += index * 36;
+        } else {
+            record = NULL;
+        }
+        selected = record;
+    } else {
+        record = D_008814D0[0] + 8;
+        func_001104d0(date, &month, &day);
+        if (func_00106330(0xA61) == 0) goto null_record;
+        record += func_001064f0(0x6D) * 36;
+        if ((u32)date < func_00110600(record[2], record[3])) goto null_record;
+        selected = record;
+        goto selected_record;
+null_record:
+        record = NULL;
+        selected = record;
+    }
+selected_record:
+    if (column != 0 && column != 1) {
+        func_0046d730(D_006359D0, 0x4A0);
+    }
+    if (selected == NULL) return 0;
+    return *(s32 *)(cmmMiscAddOff(column * 16, (s32)selected) + 12);
+}
 /* measured (wave 14 retest — nd 71, no match): draft-based reconstruction
    (u32 arg0 seed, s32 arg1; func_001104d0(arg0,&sp5C,&sp58) with the
    leftover-$4 seed; A61!=0 && var_18 = temp_17+func_001064f0(0x6D)*0x24 &&
