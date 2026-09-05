@@ -2955,16 +2955,23 @@ closed them, all measured against b210 `-O2,p`:
   the canonical `u32` argument and reproduce retail's late load without the
   old signed redeclaration. Keep the other branch's explicit `u32` cast:
   it preserves that branch's earlier load. The 316B body still matches.
+  In `func_0018dde0`, stage `iGpffffb278` in an `s32 size` local under
+  scoped `opt_propagation off`. This preserves the early third-argument
+  load while using the callee's four-`s32` prototype, replacing the old
+  incompatible `s64` redeclaration. The 332B body still matches.
 - **Return values must survive in C, not just in `$v0`.** The font
   constructors `func_00274570` and `func_002745c0` used to be defined `void`
   despite callers consuming the allocated chain. Declare their `u8 *`
   result consistently and explicitly return the nested constructor result;
   also declare the ASM leaf `func_002740b0` with its pointer return.
   Both wrappers and all live consumers retain their instruction matches.
-- **Comparison operand side.** `(u32)(elapsed_a - elapsed_b) > (u32)limit`
-  versus `limit < elapsed` picks which operand lands in `$v0`/`$v1` for the
-  `sltu`; try both before anything else when the only residual is a swapped
-  compare pair.
+- **Comparison operand side, with defined elapsed arithmetic.** Compute
+  elapsed time as `(u32)elapsed_a - (u32)elapsed_b`, then compare
+  `elapsed > (u32)limit` or `(u32)limit < elapsed` to select the `$v0`/`$v1`
+  order for `sltu`. Casting a signed subtraction afterward does not prevent
+  overflow. `func_0018dde0` retains its exact instructions with the casts
+  before subtraction; overflow instrumentation confirms signed-boundary,
+  counter-wrap, and strict-threshold behavior.
 - **Loop-counter vs count colouring.** Declaring `i` before `count` swaps
   their `$a2`/`$a3` colouring (`func_001b1280`). Declaration order is the
   lever, not assignment order.
