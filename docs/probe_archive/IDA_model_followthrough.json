@@ -1,0 +1,37 @@
+{
+  "status": "Rejected compiler floors; neither body is promoted or semantically smoke-tested",
+  "compiler_context": "src/Graphics/Model/mdlManager.c, configured MWCCPS2 build 210 flags, tools/probe_variants.py run_fndiff",
+  "score_definition": "Relocation-masked differing words, including missing retail tail words; not a fully relocated acceptance result",
+  "candidates": [
+    {
+      "symbol": "func_004740c0",
+      "body": "IDA_004740c0_body.c",
+      "ida": "docs/ida_headstart/src/Graphics/Model/mdlManager.c:1329-1434",
+      "assembly": "asm/nonmatchings/mdlManager/func_004740c0.s",
+      "object_bytes": 1300,
+      "window_bytes": 1328,
+      "differing_words": 215,
+      "requires": [
+        "Hoist the existing MdlDispatchAnimEntry/Table definitions before this body; never duplicate them.",
+        "Refine MdlDispatchAnimEntry.unknown[12] to u32 unknown44 at 0x44, u8* blendControl at 0x48, s32* startFrame at 0x4c; preserve the 80-byte entry size.",
+        "Use the existing rw/std/stddef.h shim for offsetof; this target compiler does not find a bare stddef.h.",
+        "Preserve the current pointer-return interpolator constructor and explicit callback contracts. MdlAnimControlView has incompatible offsets and must not be substituted."
+      ],
+      "evidence": "Member-first animation/startFrame/control offsets, signed-16-bit index strides and copy-before-seek branching improve the initial 293-word candidate to 215. CSE-off gives a 1328-byte object but worsens the residual to 284 words. Callback-driven table and hierarchy reloads remain explicit."
+    },
+    {
+      "symbol": "func_00476e90",
+      "body": "IDA_00476e90_body.c",
+      "ida": "docs/ida_headstart/src/Graphics/Model/mdlManager.c:2359-2398",
+      "assembly": "asm/nonmatchings/mdlManager/func_00476e90.s",
+      "object_bytes": 996,
+      "window_bytes": 976,
+      "differing_words": 72,
+      "requires": [
+        "Replace only the ASM marker with the complete body, including its private views/helpers and balanced pragma scope.",
+        "Keep existing iGpffff8044, func_004578b0 and D_00713160 declarations from the translation unit."
+      ],
+      "evidence": "Ordinary unsigned-to-float casts with CSE-off reproduce the retail single-negative-path conversion and per-channel normalization loads. Propagation-off retains the named 255.0f and 0.5f quantization constants. Repeated accumulator-zero materialization and FP/GPR allocation remain different. Quantizer-local CSE-on does not improve this result; the ineffective scope was removed."
+    }
+  ]
+}

@@ -257,7 +257,7 @@ extern s32 iGpffffbb28;
 extern f32 iGpffff80cc;
 extern void* func_004779b0();
 extern s32 func_00479ca0(void* a, s32 b);
-extern s32 func_003971d0();
+extern u32* func_003971d0(u8*, s32, s32, s32);
 extern s32 func_00462ae0();
 extern void func_0047da30();
 extern void* func_003c0520();
@@ -983,23 +983,11 @@ extern void func_00397c40_1(void* a);
 // FUN_00473B20
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
 extern void func_003d59a0(void* a, void* b);
-/* measured: nd 237 (object 1344B vs 1328B) after 1 attempt; registers,
-   chains, calls, 0x48-block re-derivations and tail all match (temp16:$s0,
-   temp20:$s4, obj:$s3, idx:$s2, a2:$s1; func_003d5790 5-arg/2-arg sites;
-   entry48 two-use first derivation keeps the addiu while the 5 re-derivation
-   stores fold 0x48 into the load, exactly like retail). Remaining: (1) the
-   u16 sign test at 0x74508 (lhu;bltz on the raw register): b210 emits
-   lhu;bltz;bltz with a duplicated negative path in every spelling — same
-   store-reload u16-sign-test floor as func_00473b20 (14 probe spellings);
-   (2) single-use X+C address bases fold into the load displacement (lw C)
-   where retail keeps addiu;addu;lw 0 — 5 sites (else-chain v1, p4C x2,
-   entry48, entry2); only the two-use base6 keeps its addiu; (3) the first
-   chain's v1 load: retail computes idx*0x50 before the base load, b210 loads
-   base first; (4) the 5840-1 address: retail loads base before the lh chain,
-   b210 interleaves. */
-/* Wave 7 ran out of turns partway through adapting this body and left it
-   uncompilable (a func_003d5840 call with the wrong arity). Reverted; the
-   previously measured nd 237 note for this function stands. */
+/* IDA-first candidate: 1300B / 1328B, 215 reloc-masked differing words.
+   Member-first offsets preserve animation/start-frame/control lifetimes;
+   callback arguments and pose-copy/seek branches are complete. Disabling CSE
+   reaches 1328B but worsens the residual to 284 words: size is not proof.
+   Retained in docs/probe_archive/IDA_004740c0_body.c; still ASM. */
 // FUN_004740C0
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004740c0);
 // FUN_004745F0
@@ -1776,24 +1764,12 @@ void* func_00476e10(void* param_1)
 
 
 
-/* measured (recipe A retest, 4 attempts nd 205/202/206/191): the per-site
-   recipe spelling `s32 v = *(u8*)(p+off); u32 c = v; if (v >= 0) { f = (f32)v; }
-   else { f = (f32)(s32)(c >> 1 | (c & 1)); f = f + f; }` fixes the recorded
-   3-way CFG - every site now emits retail's single lbu;bltz;mtc1;cvt.s.w
-   (srl/andi/or;add.s in the neg arm) byte-exactly, and the 0.5f+255.0f*x
-   adda/madd chains, the mask bnez->out-of-line mov.s f4=f20, and the tail
-   lbu x4/sb x4 all match. Residual nd 191: pure register allocation - (1)
-   the or-result lands in $v0 and the cvt result in $f0 (retail $v1/$f1) at
-   every site, cascading into the mul.s operand regs and the global lwc1
-   target; (2) saved-register rotation (mine $s0=param_2/$s1=param_1/$s2=
-   elem/$s3=count/$s4=obj/$s5=i vs retail $s0=elem/$s1=obj/$s2=i/$s3=param_2/
-   $s4=param_1/$s5=count), decl-order swaps did not move it; (3) the 0x8C-0x8F
-   byte block: retail spills each madd result byte to the stack (sb after each
-   mfc1) and lbu-reloads for the tail; mwcc keeps the bytes in GPRs even with
-   a byte-aliased u32 stack local (nd 191) - the t-byte sb order 0x8E/8D/8C/8F
-   matches. Andi-then-bltz ordering is not an issue here (lbu;bltz direct).
-   Recipe A conv-CFG floor lifted; residual is FP/GPR coloring + spill
-   placement. */
+/* IDA-first candidate: 996B / 976B, 72 reloc-masked differing words.
+   Ordinary unsigned-to-float casts reproduce the single-negative-path
+   conversion; CSE-off preserves normalization loads and propagation-off keeps
+   named quantization constants. Repeated accumulator-zero materialization
+   and FP/GPR allocation still differ. No padding or manual conversion CFG.
+   Retained in docs/probe_archive/IDA_00476e90_body.c; still ASM. */
 // FUN_00476E90
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00476e90);
 // FUN_00477260
@@ -2224,22 +2200,9 @@ void* func_00477c40(u32 param_1, u32 param_2, u32 param_3)
 }
 
 extern void func_0047b060(void* a);
-/* SUPERSEDED: measured: retry disproved the old daddiu floor: u8 var k with `k = 1;` DOES
-   emit daddiu $s1,$zero,1 (attempt 1), but only as a u8 loop counter, which
-   makes mwcc fold every (u16)k/&0xFFFF use to 0xFF or nothing (type-based
-   range fold). With an s32 counter the masks are right (test andi+slti, body
-   andi, increment addiu+andi all match retail) and all register/slot/switch
-   details match (entry:$s0, counter:$s1, obj:$s2; case 1/case 2 gives retail's
-   2-then-1 tests; sp[3] stores in order; iGpffff80cc/fGpffff809c GPREL), but
-   then the init propagates through k to plain addiu in every spelling
-   (k=1;i=k; i=(u8)k; i=(u8)1) and retail's BODY-top andi $v1,$s1 is CSE'd
-   with the loop-test mask (loop-test-CSE family, same as 47aa30; object lands
-   exactly 1 word short). Residual also: func_003971d0 args materialize
-   move-first vs retail's load-first (2 words). Best nd 76. */
-/* measured: MATCH (object 468B / window 480B / normalized_diff 0); u16
-   loop counter with a for-header increment and pointer-to-array entry view
-   reproduces the retail daddiu and loop masks; u32 old-style helper view
-   preserves func_003971d0 load-before-move argument materialization. */
+/* measured: MATCH (468B instructions plus 12 zero-tail bytes). The u16
+   loop counter preserves retail masks; the canonical hierarchy constructor
+   prototype preserves load-before-move argument materialization. */
 // FUN_00477CA0
 void func_00477ca0(u8* arg0)
 {
@@ -2250,7 +2213,6 @@ void func_00477ca0(u8* arg0)
     extern u8* func_00477510(void*);
     extern u8* func_00477660(void*, void*);
     extern s32 func_00462ae0(void*);
-    extern u32 func_003971d0();
     extern void func_0047da30(u32*);
     extern f32 fGpffff80cc;
     f32 values[3];
@@ -2477,15 +2439,167 @@ s32 func_004782b0(u8* param_1)
     return 1;
 }
 
-/* measured: register-allocation mismatch across the whole body: retail saves
-   $16-$23 (0x90 frame; slot1/res share $s0, size and j share $s2, cnt=$s6,
-   off=$s7) while mwcc b210 needs 9-11 saved regs (0xB0-0xC0 frame, extra
-   $fp) in every spelling tried (locals for slot0/primary/secondary -> 0xC0
-   nd 168; fully inlined pointer re-derivation + scoped slot1 + v4/r locals
-   for the 971d0 call -> 0xB0 nd 190). Also the func_003971d0 arg loads
-   materialize move-first vs retail's load-first. Saved-register-count floor. */
+typedef struct MdlDispatchAnimEntry {
+    RwMatrix matrix;
+    void* animation;
+    u8 unknown[12];
+} MdlDispatchAnimEntry;
+
+typedef struct MdlDispatchAnimTable {
+    MdlDispatchAnimEntry* entries;
+    u32 unknown;
+    u16 count;
+    u16 references;
+} MdlDispatchAnimTable;
+
+typedef struct MdlMatrixEntry {
+    RwMatrix matrix;
+    s32 id;
+    s32 frameId;
+    u8 unknown[8];
+} MdlMatrixEntry;
+
+typedef struct MdlMatrixTable {
+    u16 count;
+    u16 unknown;
+    MdlMatrixEntry* entries;
+} MdlMatrixTable;
+
+typedef struct MdlCloneAttachmentTable {
+    union {
+        u32 word;
+        struct {
+            u16 count;
+            u16 unknown02;
+        } halves;
+    } count;
+    u8 unknown04[0x10];
+    void** primary;                 /* 0x14 */
+    u8 unknown18[8];
+    void** secondary;               /* 0x20 */
+    u8 unknown24[0x10];
+} MdlCloneAttachmentTable;
+
+typedef struct MdlCloneHierarchyView {
+    u32 flags;
+} MdlCloneHierarchyView;
+
+typedef struct MdlCloneLayerView {
+    u16 flags;                     /* relative 0x00, model 0xec */
+    u8 unknown02[0x1e];
+    MdlCloneHierarchyView* hierarchy; /* relative 0x20, model 0x10c */
+    u8 unknown24[8];
+    RtAnimInterpolator* first;     /* relative 0x2c */
+    RtAnimInterpolator* second;    /* relative 0x30 */
+    MdlDispatchAnimTable* resource; /* relative 0x34, model 0x120 */
+    MdlCloneAttachmentTable* attachments; /* relative 0x38 */
+    u8 unknown3c[0x68];             /* next layer at 0xa4 */
+} MdlCloneLayerView;
+
+static inline MdlCloneAttachmentTable* mdl_clone_attachment_storage(u32 count)
+{
+    s32 size = sizeof(MdlCloneAttachmentTable);
+    MdlCloneAttachmentTable* copy;
+    size += count * sizeof(void*);
+    size += count * sizeof(void*);
+    func_0044ea90(D_00713138, 0x1d6);
+    copy = ((void* (*)(int, int))DAT_008873e8[0])(size, 0x40000);
+    func_0043f9c8(copy, 0, size);
+    copy->count.word = (u16)count;
+    copy->primary = (void**)(copy + 1);
+    copy->secondary = copy->primary + (u16)count;
+    return copy;
+}
+
+/* IDA mdlManager.c:2448-2545; 824B instructions plus eight zero-tail bytes.
+   Preserve the model-relative layer base, separately sized attachment arrays
+   and callback-visible table reloads. Counts originate in unsigned halfwords. */
 // FUN_00478410
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478410);
+void func_00478410(u8* source, u8* destination)
+{
+    u32 layer;
+
+    if (*(void**)(source + 0xdc) != 0) {
+        void* clump = func_003c0520(*(void**)(source + 0xdc));
+        *(void**)(destination + 0xdc) = clump;
+        *(s32*)(destination + 0xe0) = func_00462ae0(clump);
+    }
+    for (layer = 0; layer < 2; layer++) {
+        if (func_00479ca0(source, (u16)layer) != 0) {
+            MdlCloneLayerView* sourceLayer =
+                (MdlCloneLayerView*)(source + 0xec + layer * 0xa4);
+            MdlDispatchAnimTable* resource = sourceLayer->resource;
+            u8* destinationBase;
+
+            resource->references++;
+            destinationBase = destination + layer * 0xa4;
+            ((MdlCloneLayerView*)(destinationBase + 0xec))->resource = resource;
+            if ((sourceLayer->flags & 2) == 0) {
+                func_00473710(destinationBase + 0xec, *(u8**)(destination + 0xdc), 0);
+            } else {
+                ((MdlCloneLayerView*)(destinationBase + 0xec))->flags |= 2;
+                {
+                    MdlCloneHierarchyView* hierarchy =
+                        ((MdlCloneLayerView*)(destination + 0xec))->hierarchy;
+                    ((MdlCloneLayerView*)(destinationBase + 0xec))->hierarchy =
+                        (MdlCloneHierarchyView*)func_003971d0((u8*)hierarchy, 0, hierarchy->flags, -1);
+                }
+            }
+        }
+        {
+            MdlCloneAttachmentTable* original =
+                ((MdlCloneLayerView*)(source + 0xec + layer * 0xa4))->attachments;
+            if (original != 0) {
+                MdlCloneAttachmentTable* copy = mdl_clone_attachment_storage(original->count.halves.count);
+                u32 index;
+                for (index = 0; index < copy->count.word; index++) {
+                    void** primary = original->primary;
+                    if (primary[index] != 0) {
+                        void* cloned = func_0047d200(primary[index]);
+                        copy->primary[index] = cloned;
+                    }
+                    if (original->secondary[index] != 0) {
+                        void* cloned = func_0047dc30(original->secondary[index]);
+                        copy->secondary[index] = cloned;
+                    }
+                }
+                ((MdlCloneLayerView*)(destination + 0xec + layer * 0xa4))->attachments = copy;
+            }
+        }
+    }
+    {
+        MdlAnimEntryTable* resource = *(MdlAnimEntryTable**)(source + 0x234);
+        if (resource != 0) {
+            resource->unk_06++;
+            *(MdlAnimEntryTable**)(destination + 0x234) = resource;
+        }
+    }
+    {
+        MdlAnimResourceView* resource = ((MdlAnimControlView*)(source + 0x23c))->resource;
+        if (resource != 0) {
+            resource->unknown0e++;
+            ((MdlAnimControlView*)(destination + 0x23c))->resource = resource;
+            func_00474df0(destination + 0x23c, *(void**)(destination + 0xdc));
+            ((MdlAnimControlView*)(destination + 0x23c))->mode = 1;
+        }
+    }
+    {
+        MdlMatrixTable* resource = *(MdlMatrixTable**)(source + 0x2c8);
+        if (resource != 0) {
+            resource->unknown++;
+            *(MdlMatrixTable**)(destination + 0x2c8) = resource;
+        }
+    }
+    if (*(void**)(source + 0x2cc) != 0) {
+        void* copy = func_0047d200(*(void**)(source + 0x2cc));
+        *(void**)(destination + 0x2cc) = copy;
+        func_0047da30(copy);
+    }
+    if (*(void**)(source + 0x2d0) != 0)
+        func_0047ea40(destination + 0x2d0, source + 0x2d0);
+    if (func_00479ca0(destination, 0) != 0)
+        func_00479940(destination, 0, 0, 0, 1);
+}
 // FUN_00478750
 u32* func_00478750(u8* param_1)
 {
@@ -2714,17 +2828,6 @@ void func_00479910(void* param_1)
    Measured 752B/752B, fully relocated exact match. */
 #pragma push
 #pragma opt_common_subs off
-typedef struct MdlDispatchAnimEntry {
-    RwMatrix matrix;
-    void* animation;
-    u8 unknown[12];
-} MdlDispatchAnimEntry;
-
-typedef struct MdlDispatchAnimTable {
-    MdlDispatchAnimEntry* entries;
-    u32 unknown;
-    u16 count;
-} MdlDispatchAnimTable;
 
 static inline void mdl_dispatch_animation(u8* mdl, u32 layer, s32 animation, s32 frame, s32 flags)
 {
@@ -3183,18 +3286,6 @@ void func_0047a4d0(void* param_1, int param_2)
     func_003bff30(*(void**)((u8*)param_1 + 0xDC), func_0047a4a0, &param_2);
 }
 
-typedef struct MdlMatrixEntry {
-    RwMatrix matrix;
-    s32 id;
-    s32 frameId;
-    u8 unknown[8];
-} MdlMatrixEntry;
-
-typedef struct MdlMatrixTable {
-    u16 count;
-    u16 unknown;
-    MdlMatrixEntry* entries;
-} MdlMatrixTable;
 
 #pragma push
 /* Retain the separate body, test and found-index masks from retail. */
