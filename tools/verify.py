@@ -428,7 +428,9 @@ def scan_markers(cpath: Path) -> list[dict]:
                     ))
                     index = end + 1
                     continue
-        while cursor < len(lines) and cursor < index + 12:
+        # Archive notes can be arbitrarily long; stop at a definition or the
+        # next marker, not a fixed number of physical lines.
+        while cursor < len(lines):
             if MARKER_RE.match(lines[cursor]): break
             code = code_lines[cursor].strip()
             if not code.startswith("#"):
