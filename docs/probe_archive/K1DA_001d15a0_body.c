@@ -1,30 +1,43 @@
-/* object 240B, retail window 224B, normalized_diff 185; differing offsets 0x0,0x4,0x8,0x9,0xA,0xB,0x10,0x12,0x13,0x14,0x16,0x17,0x18,0x1A,0x1B,0x1C; object exceeds window, so reconstruction rather than polish. Corrected declarations: func_0022ead0(void), func_001d1310(u16 *), D_00607E50[]. Ruled out direct field accesses, loop spelling, and named locals within the 20-minute budget. */
-s64 func_001d15a0(void) {
-    u16 sp1A;
-    u16 sp1C;
-    u16 sp18;
-    s32 var_8;
-    s64 var_9;
-    u8 *temp_3;
+/* Corrected reference candidate; NOT MATCHING.
+ * Measured: object 212B / retail window 224B, 15 differing emitted bytes
+ * after relocation masking. fndiff counts 18 words including three absent
+ * zero-tail words. Register allocation and comparison destinations remain.
+ * The output helper writes eight bytes: separate scalar locals were not a
+ * valid buffer. Keep stats[4], the masked loop index, and the real argument.
+ */
+s64 func_001d15a0(void)
+{
+    u16 stats[4];
+    s32 index;
+    u16 selected;
+    u16 result;
+    s32 a;
+    s32 b;
+    s32 c;
+    u8 *table;
+    u8 *entry;
 
-    if (func_0022ead0() == 1) {
-        return -1;
+    if (func_0022ead0() == 1) return -1;
+    func_001d1310(stats);
+    index = 0;
+    a = stats[0];
+    b = stats[1];
+    c = stats[2];
+    table = D_00607E50;
+    goto test;
+loop:
+    selected = (u16)index;
+    entry = table + (s32)selected * 0xE0;
+    if (*(u16 *)(entry + 0xD8) >= a &&
+        *(u16 *)(entry + 0xDA) >= b &&
+        *(u16 *)(entry + 0xDC) >= c) {
+        result = selected;
+        goto done;
     }
-    func_001d1310(&sp18);
-    var_8 = 0;
-loop_8:
-    if ((u32)(var_8 & 0xFFFF) >= 0x19U) {
-        var_9 = 0x18;
-    } else {
-        var_9 = var_8 & 0xFFFF;
-        temp_3 = (u8 *)((s32)&D_00607E50 + (var_9 * 0xE0));
-        if (((s32)*(u16 *)(temp_3 + 0xD8) >= (s32)sp18) &&
-            ((s32)*(u16 *)(temp_3 + 0xDA) >= (s32)sp1A) &&
-            ((s32)*(u16 *)(temp_3 + 0xDC) >= (s32)sp1C)) {
-        } else {
-            var_8 = (var_8 + 1) & 0xFFFF;
-            goto loop_8;
-        }
-    }
-    return (s64)(var_9 << 0x30) >> 0x30;
+    index = (index + 1) & 0xFFFF;
+test:
+    if ((u32)(index & 0xFFFF) < 0x19U) goto loop;
+    result = 0x18;
+done:
+    return (s16)result;
 }

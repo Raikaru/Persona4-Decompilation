@@ -40,6 +40,25 @@ class MarkerScanTests(unittest.TestCase):
         self.assertFalse(markers[0].get("asm"))
         self.assertFalse(markers[0]["nonmatching"])
 
+    def test_long_notes_preserve_function_and_marker_ownership(self) -> None:
+        notes = "/*\n" + " * Measured decoy(void) { return 0; }\n" * 20 + " */\n"
+        markers = markers_for(
+            "// FUN_00100010\n"
+            + notes
+            + "#pragma push\n"
+            "#pragma opt_propagation off\n"
+            "void threshold(void)\n{\n}\n"
+            "#pragma pop\n"
+            "// FUN_00100020\n"
+            + notes
+            + "// FUN_00100030\n"
+            "void following(void)\n{\n}\n"
+        )
+        self.assertEqual(
+            [(marker["addr"], marker["name"]) for marker in markers],
+            [(0x00100010, "threshold"), (0x00100020, None), (0x00100030, "following")],
+        )
+
     def test_bare_include_asm_directly_under_the_marker(self) -> None:
         markers = markers_for(
             '// FUN_00100010\n'
