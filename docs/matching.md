@@ -153,6 +153,18 @@ Use this six-step loop for every target:
   rather than the mode-times-five flag base mistakenly reused by the old
   body. A native smoke passes 40,960 cases covering both modes, signed
   priorities, first-winner ties, priority-100 flags, counts and untouched bytes.
+  The same IDA-first pass improves `func_001130c0` from 54 to seven differing
+  words (440B/448B): five cached-color/alpha scheduling differences and two
+  zero-tail words. A real 76-byte text buffer plus four-byte color aggregate,
+  the by-value position ABI, and canonical variadic formatting preserve the
+  complete rendering contract; 1,920 native cases cover signed numbers,
+  reversed glyphs, cached colors and post-formatter width reads.
+  For `func_00207140`, natural unsigned skill/item loops and canonical helper
+  types give a 476B/480B floor of 35 differing words. The superseded signed
+  skill temporary incorrectly admitted IDs at or above 0x8000. Its 2,048-case
+  native smoke checks those boundaries, eight accepted skills, optional
+  actions, repeated quantity queries, ID-store visibility and untouched
+  bytes. Neither candidate is promoted.
 - Give output helpers a complete valid buffer, not adjacent scalar locals.
   `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
   `u16 stats[4]`. The corrected 212B candidate retains nine emitted-word
