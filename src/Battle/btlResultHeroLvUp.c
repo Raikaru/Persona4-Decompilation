@@ -46,7 +46,7 @@ extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern char iGpffffa5C8;
 void func_003671d0(void* work);
-void func_003672d0(void* work, s32 param);
+void func_003672d0(void* work, s16 pcId);
 s32 func_00354a50(u8* param, s32 mode);
 void func_00142d80(s32 param, s32 a, s32 b, s32 c);
 void func_00355300(s32 param, s32 mode);
