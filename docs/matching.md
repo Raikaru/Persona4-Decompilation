@@ -53,6 +53,8 @@ Use this six-step loop for every target:
    success, failure, or interruption, and there is no `--keep` mode. If the
    family yields no new evidence, stop and record a measured floor; do not
    call it impossible.
+   Archive notes and pragma brackets are preserved. Marker lookup stops at
+   the definition or next marker, not a fixed number of header lines.
 4. **Rank for payoff.** Prefer untried ordinary-C targets with a known matched
    analogue, sibling, or TU above hardware-only targets and floor families
    already exhausted by repeated measured probes.
@@ -90,6 +92,12 @@ Use this six-step loop for every target:
   cast of the deallocator. With both calls repaired, the faithful candidate
   is 596B against retail's 592B window and stays ASM. Inspect callee bodies
   before calling an argument-register difference an allocation floor.
+- Give output helpers a complete valid buffer, not adjacent scalar locals.
+  `func_001d1310` writes eight bytes; the `func_001d15a0` archive now supplies
+  `u16 stats[4]`. The corrected 212B candidate still differs in 15 emitted
+  bytes against the 224B retail window and remains ASM. Its `fndiff` count
+  is 18 words, including three absent zero-padding words; do not compare
+  that word count with `verify.py`'s byte-valued `normalized_diff`.
 - Reject wrong GP addends and relocation-masked false matches: compare every
   GP-relative or `%hi`/`%lo` reference with the retail immediate, not the
   guessed symbol name, and use the full link when relocation ownership changes.
