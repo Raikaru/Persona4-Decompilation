@@ -1,7 +1,20 @@
-/* measured: func_00117310 candidate object 388B / retail window 400B / normalized_diff 49 under the current translation unit. Residuals are fifth-argument/arg2/arg3 saved-register ordering in the prologue plus the mode preheader; reverted to INCLUDE_ASM because this is not byte-exact. */
+/* Recovered faithful number-rendering candidate; production remains ASM.
+ * MWCCPS2 b210: object 388B / window 400B / differing words 9.
+ * Six emitted prologue words rotate the mode argument save before the
+ * coordinate spill, float argument, color, number and id copies. Retail
+ * saves mode last. The remaining three words are absent zero tail padding.
+ * Scoped loop invariants fix the mode-loop preheader; all instructions
+ * from offset 0x40 through return match. Keep the actual s64 packed pair
+ * and full s32 mode ABI, unsigned division and the zero-number draw.
+ * Existing shdPackedLow supplies the low color byte. Register hints,
+ * declaration initializers, direct arguments, unsigned mode and lifetimes
+ * did not close the prologue. Disabling propagation scored 83 words.
+ */
+#pragma push
+#pragma opt_loop_invariants on
 void func_00117310(s64 arg0, f32 fparg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
 {
-    s64 sp70;
+    union { s64 bits; Vec2f xy; } sp70;
     s32 packed;
     f32 farg;
     f32 f;
@@ -13,27 +26,27 @@ void func_00117310(s64 arg0, f32 fparg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     u32 rem;
     f32 y;
 
-    sp70 = arg0;
+    sp70.bits = arg0;
     farg = fparg0;
     packed = arg1;
     n = arg2;
     id = arg3;
     mode = arg4;
-    y = *((f32 *)&sp70 + 1);
+    y = sp70.xy.y;
     if (id == 0) {
         func_0046d730(D_005E4868, 0x424);
     }
     if (mode != 0) {
-        f = *(f32 *)&sp70;
+        f = sp70.xy.x;
         rem = n;
         while (rem >= 10U) {
             f += 16.0f;
             rem = rem / 10U;
         }
     } else if (n < 10U) {
-        f = 8.0f + *(f32 *)&sp70;
+        f = 8.0f + sp70.xy.x;
     } else {
-        f = 16.0f + *(f32 *)&sp70;
+        f = 16.0f + sp70.xy.x;
     }
     b2 = *((u8 *)&packed + 2);
     b1 = *((u8 *)&packed + 1);
@@ -41,10 +54,10 @@ void func_00117310(s64 arg0, f32 fparg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     mode -= *((u8 *)&packed + 3);
     do {
         func_0046d4c0(0, id, (n % 10U) + 9,
-                      f, y, (u8)mode, *((u8 *)&packed), b1, b2,
+                      f, y, (u8)mode, shdPackedLow(&packed), b1, b2,
                       farg, 0);
         n = n / 10U;
         f -= 16.0f;
-        rem = n;
     } while (n != 0);
 }
+#pragma pop

@@ -641,6 +641,10 @@ void func_001171c0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3)
         rem = n;
     } while (n > 0);
 }
+/* measured: docs/probe_archive/FPSHD_00117310_body.c is 388B/400B with nine
+   differing words: six prologue argument-save rotations and three zero
+   tail words. Scoped loop invariants close the mode preheader; packed
+   coordinates, full-width mode and unsigned digit semantics are preserved. */
 // FUN_00117310
 INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117310);
 // FUN_001174A0

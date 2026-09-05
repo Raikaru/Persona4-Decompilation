@@ -611,9 +611,6 @@ INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e708);
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e7a8);
 // FUN_0044E7D8
 INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e7d8);
-/* measured: declaration-corrected body archived in build/K1DA_0044e830_body.c; object 204B exceeds retail window 160B, normalized_diff 167; differing offsets 0x0,0x4,0x6,0x8-0xC,0xE,0x10-0x14,0x16,0x1C. */
-// FUN_0044E830
-INCLUDE_ASM("asm/nonmatchings/code1_0044", func_0044e830);
 // FUN_0044F4D0
 s32 func_0044f4d0(void) {
     s32 temp;
