@@ -1,5 +1,5 @@
 {
-  "status": "Rejected compiler floors; neither body is promoted or semantically smoke-tested",
+  "status": "Rejected compiler floors; none of these bodies is promoted or semantically smoke-tested",
   "compiler_context": "src/Graphics/Model/mdlManager.c, configured MWCCPS2 build 210 flags, tools/probe_variants.py run_fndiff",
   "score_definition": "Relocation-masked differing words, including missing retail tail words; not a fully relocated acceptance result",
   "candidates": [
@@ -32,6 +32,36 @@
         "Keep existing iGpffff8044, func_004578b0 and D_00713160 declarations from the translation unit."
       ],
       "evidence": "Ordinary unsigned-to-float casts with CSE-off reproduce the retail single-negative-path conversion and per-channel normalization loads. Propagation-off retains the named 255.0f and 0.5f quantization constants. Repeated accumulator-zero materialization and FP/GPR allocation remain different. Quantizer-local CSE-on does not improve this result; the ineffective scope was removed."
+    },
+    {
+      "symbol": "func_00478a30",
+      "body": "IDA_00478a30_body.c",
+      "ida": "docs/ida_headstart/src/Graphics/Model/mdlManager.c:2548-2693",
+      "assembly": "asm/nonmatchings/mdlManager/func_00478a30.s",
+      "object_bytes": 1116,
+      "window_bytes": 1088,
+      "differing_words": 175,
+      "requires": [
+        "Refine the existing MdlCloneAttachmentTable, preserving its count union and 0x34-byte size; do not add a parallel view.",
+        "Use RwRGBA color at +0x04, RwV3d scale at +0x08, void** primary at +0x14, void* primaryDraw at +0x18, void* nextPrimary at +0x1c, void** secondary at +0x20, void* secondaryDraw at +0x24, void* nextSecondary at +0x28, u32 pendingSecondary at +0x2c, u16 delay at +0x30, u16 unknown32 at +0x32.",
+        "Replace only the target ASM marker, retaining existing helper declarations and the candidate's balanced pragma scope."
+      ],
+      "evidence": "Ordinary matrix assignments preserve all 64 bytes. Callback-visible attachment and child fields are reloaded. Separate phase counters alone leave the initial 1076B/239-word result unchanged. CSE-off avoids the function-wide cached matrix base and improves the residual to 175 words, but overshoots the target window by 28 bytes."
+    },
+    {
+      "symbol": "func_00479100",
+      "body": "IDA_00479100_body.c",
+      "ida": "docs/ida_headstart/src/Graphics/Model/mdlManager.c:2696-2870",
+      "assembly": "asm/nonmatchings/mdlManager/func_00479100.s",
+      "object_bytes": 1852,
+      "window_bytes": 1920,
+      "differing_words": 409,
+      "requires": [
+        "Apply the same existing MdlCloneAttachmentTable refinement recorded for func_00478a30.",
+        "Replace only the target ASM marker with the complete candidate, including its allocator-backed MdlRenderCommand view and helper declarations.",
+        "Keep the corrected two-argument func_00479030 -> func_00478ec0 and func_0047ddd0 -> func_004b5f80 callback contracts."
+      ],
+      "evidence": "The draw descriptor belongs to the allocator, not the stack. Independent predicate words and a real RGBA local model stack storage. Natural unsigned-to-float conversion and quantization remain nonvolatile. CSE-off worsens the result to 1968B/436 words and was removed. Neither result is an acceptance proof."
     }
   ]
 }
