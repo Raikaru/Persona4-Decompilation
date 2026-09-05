@@ -112,7 +112,7 @@ extern s32 func_0014c240(void *arg0, void *arg1, f32 fparg0, f32 fparg1);
 extern s32 func_0014a230(s32 arg0, s32 arg1);
 extern s32 func_0014a2a0(s32 arg0, s32 arg1);
 extern void func_00440b68();
-extern void func_00479940(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s32 func_00153a60(s32 arg0);
 extern s32 func_00147070(void);
 extern s32 func_001458b0(s32 arg0);
@@ -810,7 +810,7 @@ void func_00144c90(s32 arg0, s32 arg1) {
         var_16 = func_001452b0(0xA);
         goto loop_5_test;
 loop_5_body:
-        func_00479940(*(s32 *)(var_16 + 0x144), 0, 0, 0, 1);
+        func_00479940((u8*)*(s32 *)(var_16 + 0x144), 0, 0, 0, 1);
         *(s32 *)(var_16 + 0x28) = *(s32 *)(var_16 + 0x28) | 2;
         var_16 = *(u8 **)(var_16 + 0x138);
 loop_5_test:

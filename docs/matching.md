@@ -3397,3 +3397,81 @@ Full verification after both promotions reports **7,714 MATCH**, including
 **6,084 first-party MATCH (88.7%)** and **776 first-party ASM**. Both retail
 SHA-1 checks pass and lint has zero findings. Source linkage remains
 1,555 functions across 172 eligible C objects.
+
+## Animation stepping and dispatch: separate callbacks from validation
+
+The complete IDA bodies in
+`docs/ida_headstart/src/Graphics/Model/mdlManager.c` precede these recoveries:
+`00475820` at lines 1687-1775 and `00479940` at lines 2873-2957.
+
+`func_00475820` now matches **744 instruction bytes plus eight zero-tail
+bytes**. The existing `RtAnimInterpolator` layout replaces offset-only
+callback access. Private primary/object and secondary helpers retain
+separate interpolator lifetimes; the secondary mode-1 path registers a
+callback without seeking or copying back its time. Scoped forced inlining
+preserves those real helper paths without introducing runtime calls.
+Both null-sub callback comparisons remain conjunctive: either sentinel
+suppresses the ordinary secondary seek.
+
+`func_00479940` matches **all 752 bytes**. Its validated dispatch helper
+retains base-matrix preparation, layer dispatch, attached-animation flags
+and the five-child traversal. The matrix copy is a complete `RwMatrix`
+assignment; identity fallback preserves padding and ORs the existing flags.
+The layer remains a raw `u32` until each documented 16-bit use.
+
+The validator `func_00479d10` still matches **188 bytes plus four zero-tail
+bytes**. Its explicit prototype accepts `s32` animation, while its C89
+old-style definition declares the promoted parameter as `s16`. This
+performs signed-short conversion inside the callee, where retail does it,
+instead of inserting narrowing at dispatch's call site. No register
+parameters or incompatible function-pointer casts are needed.
+
+Live dispatch declarations use one contract:
+`s32 func_00479940(u8*, u32, s32, s32, s32)`.
+The caller migration preserves explicit masks already present in source
+and replaces integer-address arguments with explicit pointer casts.
+Generated reference archives are not live callers.
+
+The complete caller check exposed two conversions previously supplied by
+stale narrow prototypes. Command `00176c70` explicitly converts animation
+to `s16` and its converted frame to `u16`; scene `00269820` explicitly
+narrows the dispatch layer and frame to `u16`. The headstart export omits
+these already-matched bodies, so their complete retail assembly supplies
+the conversion evidence (`00176d3c`/`00176d44` and `00269944`/`00269950`).
+Both regain their instruction matches without narrowing the shared API.
+A separate native caller smoke passes **11,952 cases** covering command
+branches, high/signed argument bits, scene guards, skip-current behavior,
+ordered animation effects and scene-flag preservation. Removing the
+caller conversions reproduces failure on case two.
+
+Two freestanding **32-bit x86** consumers compile the actual promoted
+source, with instrumented external animation operations:
+
+- **11,340 stepping cases, zero failures**: absent resources/lists, object
+  types, zero/nonzero/maximal ticks, both interpolator slots, ordinary and
+  special callbacks, each null-sub sentinel, mode-1 behavior, callback
+  mutations during registration, restored callbacks after seeking, and
+  time propagation across successive objects.
+- **7,392 dispatch cases, zero failures**: actual validator execution,
+  missing/null/sentinel/valid clips, primary and alternate tables, index
+  boundaries and high argument bits, masked layers, matrix bytes and
+  padding, blending, attached flags and ordered child effects. Signed
+  negative-index cases use backing arrays with valid preceding entries;
+  they do not invent a bounds check absent from retail.
+
+These are host semantic checks, not PS2 rendering tests. Separate
+fully relocated comparison confirms all three instruction bodies and
+their zero tails.
+
+Setup (`00475350`, IDA lines 1542-1684) remains ASM. Its typed resource,
+scheme and detach reconstruction improves the historical 245-word draft
+to **30 fully relocated instruction differences**, at 1220B/1232B with
+12 zero-tail bytes. `docs/probe_archive/IDA_00475350_body.c` retains the
+candidate. The successful-loop animation/interpolator allocation still
+differs; it is not an accepted promotion.
+
+After the caller corrections, complete verification reports **7,716 MATCH**
+and **zero mismatches**, including **6,086 first-party MATCH (88.7%)** and
+**774 first-party ASM**. Both retail SHA-1 checks pass; lint reports zero
+findings across 333 first-party files. Source linkage remains 1,555
+functions across 172 eligible C objects.

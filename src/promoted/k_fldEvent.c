@@ -61,7 +61,7 @@ s16 func_00479c30(s32, s32);
 s32 func_0016fe80(s32);
 s32 func_0016ffd0(s32);
 s32 func_0016fd00(s32);
-void func_00479940(s32, s32, s16, s32, s32);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 void func_0016e540(s32, s32);
 void func_0016e560(s32, s32);
 void func_0017d100(u8 *);
@@ -757,7 +757,7 @@ s32 func_001747d0(u8 *arg0)
         if (*(s32 *)(h + 0xC) > -1) {
             v = (s16)func_00479c30(D_007EFA00[0], 0);
             if (v == func_0016fe80(1) || v == func_0016ffd0(1)) {
-                func_00479940(D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
+                func_00479940((u8*)D_007EFA00[0], 0, (s16)func_0016fd00(1), 4, 1);
             }
             if (*(s32 *)(func_00155280() + 4) != 0) {
                 func_0016e540(*(s32 *)(func_00155280() + 4), 2);
