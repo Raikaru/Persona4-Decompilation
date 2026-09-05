@@ -42,7 +42,9 @@ extern void func_00233bb0(u32 arg0);
 extern s32 func_001d8cb0(u32 arg0, u8 *arg1);
 extern u32 func_001d8bc0(u8 *arg0);
 extern void func_001d9740();
-extern short func_0023d8e0(u32 arg0, u16 arg1);
+extern s32 func_0023d8e0(u8 *unit, s32 command);
+extern u32 func_0023e130(u8 *unit);
+extern u8 *func_0023e140(u8 *unit);
 extern u32 func_00243920(u32 arg0);
 extern u32 *func_001d9280();
 extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
@@ -88,10 +90,10 @@ extern void func_001d7c60(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
 extern s32 func_001dd570(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_001dbf20(u8 *arg0, u32 arg1);
 extern char D_006095E0[];
-extern void func_0046d730(const char *file, s32 line);
-extern s32 func_00232710(u32 arg0, u32 arg1);
-extern s32 func_00232730(u32 arg0, u32 arg1);
-extern s32 func_0023ddc0(u32 arg0, u32 arg1);
+extern void func_0046d730(void *file, s32 line);
+extern u32 func_00232710(s32 unit, u32 mask);
+extern s32 func_00232730(u8 *unit, s32 command);
+extern s32 func_0023ddc0(u8 *unit, s32 command);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
 extern void func_001ebc00(u8 *a, u8 *b);
@@ -120,8 +122,8 @@ extern void func_001eb3b0(u8 *a);
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
-// FUN_001DAF40
-s32 func_001daf40(u8 *p, u32 arg1) {
+/* Shared by the exported callback and retail's inlined value query. */
+static inline s32 btlCommandUsable(u8 *p, u32 arg1) {
     s32 a;
 
     a = arg1 & 0xFFFF;
@@ -130,19 +132,24 @@ s32 func_001daf40(u8 *p, u32 arg1) {
     }
     p = *(u8 **)(p + 0x30);
     if (a < 0x1B8) {
-        if (func_00232710(*(u32 *)(p + 0xA64), 0x80008) != 0)
+        if (func_00232710((s32)*(u8 **)(p + 0xA64), 0x80008) != 0)
             return 0;
-        if (func_00232730(*(u32 *)(p + 0xA64), a) == 0)
+        if (func_00232730(*(u8 **)(p + 0xA64), a) == 0)
             return 0;
-        if (func_0023ddc0(*(u32 *)(p + 0xA64), a) == 0)
+        if (func_0023ddc0(*(u8 **)(p + 0xA64), a) == 0)
             goto ret1;
         return 0;
     }
-    if (func_00232730(*(u32 *)(p + 0xA64), a) != 0)
+    if (func_00232730(*(u8 **)(p + 0xA64), a) != 0)
         goto ret1;
     return 0;
 ret1:
     return 1;
+}
+
+// FUN_001DAF40
+s32 func_001daf40(u8 *p, u32 arg1) {
+    return btlCommandUsable(p, arg1);
 }
 
 // FUN_001DB040
@@ -208,80 +215,44 @@ void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
 
 
 
-/* measured: declaration-corrected candidate retained as an archive.  The
-   scoped build produced object 512B/window 512B with normalized_diff 268.
-   Corrected locally for this body: func_0023d8e0(u8 *,s32),
-   func_0023e130(u8 *), func_0023e140(u8 *), func_0046d730(void *,s32),
-   func_00232730(u8 *,s32), and func_0023ddc0(u8 *,s32).  Five further
-   source-shape probes were not justified after the residual remained in the
-   hundreds; no sibling changed. */
-// FUN_001DB160 NONMATCHING
-#ifdef NON_MATCHING
-s32 func_001db160(u8 *arg0, s32 arg1) {
-    extern s32 func_0023d8e0(u8 *arg0, s32 arg1);
-    extern u32 func_0023e130(u8 *arg0);
-    extern u8 *func_0023e140(u8 *arg0);
-    extern void func_0046d730(void *file, s32 line);
-    extern s32 func_00232730(u8 *arg0, s32 arg1);
-    extern s32 func_0023ddc0(u8 *arg0, s32 arg1);
-    s32 temp_16;
-    s32 temp_22;
-    s32 var_19;
-    s32 var_2;
-    u16 *temp_16_2;
-    u16 temp_18;
-    u16 temp_5;
-    u8 *temp_16_3;
-    u8 *temp_17;
+/* measured: shared usability inlining and explicit signed query guards give
+   508B/512B, verify nd0; the remaining four bytes are zero tail padding.
+   Keep the entry reload after the value query and the existing s32 input ABI. */
+// FUN_001DB160
+s32 func_001db160(u8 *action, s32 value)
+{
+    u8 *unit;
+    u16 count;
+    u16 *commands;
+    u16 index;
+    s32 limit;
+    u16 *entry;
+    s16 queried;
 
-    temp_17 = *(u8 **)(arg0 + 0x30);
-    if ((s16)func_0023d8e0(*(u8 **)(temp_17 + 0xA64), 0) == arg1) {
-        return 1;
-    }
-    temp_16 = (s32)(func_0023e130(*(u8 **)(temp_17 + 0xA64)) & 0xFFFF);
-    temp_22 = (s32)func_0023e140(*(u8 **)(temp_17 + 0xA64));
-    var_19 = 0;
-loop_21:
-    if ((var_19 & 0xFFFF) >= (temp_16 & 0xFFFF)) {
-        return 0;
-    }
-    temp_16_2 = (u16 *)(temp_22 + ((var_19 & 0xFFFF) * 2));
-    temp_5 = *temp_16_2;
-    if ((temp_5 != 0) && ((s32)temp_5 < 0x1B8) &&
-        ((s16)func_0023d8e0(*(u8 **)(temp_17 + 0xA64), temp_5) == arg1)) {
-        temp_18 = *temp_16_2;
-        if ((s32)temp_18 >= 0x240) {
-            func_0046d730(D_006095E0, 0x45F);
+    unit = *(u8 **)(action + 0x30);
+    queried = func_0023d8e0(*(u8 **)(unit + 0xA64), 0);
+    if (queried != value)
+        goto scan;
+    return 1;
+scan:
+    count = func_0023e130(*(u8 **)(unit + 0xA64));
+    commands = (u16 *)func_0023e140(*(u8 **)(unit + 0xA64));
+    index = 0;
+    limit = count;
+    while (index < limit) {
+        entry = &commands[index];
+        if (*entry != 0 && *entry < 0x1B8) {
+            queried = func_0023d8e0(*(u8 **)(unit + 0xA64), *entry);
+            if (queried != value)
+                goto next;
+            if (btlCommandUsable(action, *entry))
+                return 1;
         }
-        temp_16_3 = *(u8 **)(arg0 + 0x30);
-        if ((s32)temp_18 < 0x1B8) {
-            if (func_00232710((u32)*(u8 **)(temp_16_3 + 0xA64), 0x80008) != 0) {
-                var_2 = 0;
-            } else if (func_00232730(*(u8 **)(temp_16_3 + 0xA64), temp_18) == 0) {
-                var_2 = 0;
-            } else if (func_0023ddc0(*(u8 **)(temp_16_3 + 0xA64), temp_18) != 0) {
-                var_2 = 0;
-            } else {
-                goto block_17;
-            }
-        } else if (func_00232730(*(u8 **)(temp_16_3 + 0xA64), temp_18) == 0) {
-            var_2 = 0;
-        } else {
-block_17:
-            var_2 = 1;
-        }
-        if (var_2 != 0) {
-            return 1;
-        }
-        goto block_20;
+next:
+        ++index;
     }
-block_20:
-    var_19 = (var_19 + 1) & 0xFFFF;
-    goto loop_21;
+    return 0;
 }
-#else
-INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db160);
-#endif
 
 /* measured: declaration-corrected candidate retained as an archive.  The
    scoped build produced object 544B/window 544B with normalized_diff 318.
@@ -4669,7 +4640,7 @@ s32 func_001e6450(void) {
 s32 func_001e64c0(void) {
     u8 *p = func_0029d050();
     short r = (short)func_0029cc00(0);
-    func_0029cf50(func_0023d8e0(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), (u16)r));
+    func_0029cf50((s16)func_0023d8e0(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), (u16)r));
     return -1;
 }
 
@@ -4796,15 +4767,15 @@ s32 func_001e6a50(void) {
         func_0046d730(D_006095E0, 0x45F);
     q = *(u8 **)(q + 0x30);
     if (idx < 0x1B8) {
-        if (func_00232710(*(u32 *)(q + 0xA64), 0x80008) != 0)
+        if (func_00232710((s32)*(u8 **)(q + 0xA64), 0x80008) != 0)
             x = 0;
-        else if (func_00232730(*(u32 *)(q + 0xA64), idx) == 0)
+        else if (func_00232730(*(u8 **)(q + 0xA64), idx) == 0)
             x = 0;
-        else if (func_0023ddc0(*(u32 *)(q + 0xA64), idx) != 0)
+        else if (func_0023ddc0(*(u8 **)(q + 0xA64), idx) != 0)
             x = 0;
         else
             goto one;
-    } else if (func_00232730(*(u32 *)(q + 0xA64), idx) != 0)
+    } else if (func_00232730(*(u8 **)(q + 0xA64), idx) != 0)
         goto one;
     else
         x = 0;
