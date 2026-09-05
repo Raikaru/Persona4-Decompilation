@@ -472,6 +472,7 @@
       "00249180",
       "00249230",
       "002492b0",
+      "00249370",
       "00249670",
       "00249770",
       "00249960",
@@ -1566,9 +1567,9 @@
       "004bd3c0",
       "004bd450"
     ],
-    "asm_fallbacks_in_linked_objects": 255,
-    "count": 1553,
-    "percent": 11.853
+    "asm_fallbacks_in_linked_objects": 254,
+    "count": 1554,
+    "percent": 11.861
   },
   "matching": {
     "addresses": [
@@ -4639,6 +4640,7 @@
       "00249180",
       "00249230",
       "002492b0",
+      "00249370",
       "00249670",
       "00249770",
       "00249960",
@@ -9268,23 +9270,23 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7695,
+    "count": 7696,
     "duplicate_rows": 0,
     "known_rows": 12721,
-    "matched_body_bytes": 1448108,
-    "percent": 58.731,
+    "matched_body_bytes": 1448436,
+    "percent": 58.739,
     "unique_known_addresses": 12721
   },
   "schema_version": 1,
   "source": {
     "ignored_unknown_rows": 0,
-    "linked_report": "build/resume_latest_linked.json",
+    "linked_report": "build/resume_calendar_linked.json",
     "raw_rows": 12721,
-    "verifier_report": "build/resume_latest_verify.json"
+    "verifier_report": "build/resume_calendar_verify.json"
   },
   "status_counts": {
-    "ASM": 5026,
-    "MATCH": 7695
+    "ASM": 5025,
+    "MATCH": 7696
   },
   "total": 13102
 }
