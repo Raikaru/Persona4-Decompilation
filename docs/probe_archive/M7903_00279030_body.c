@@ -1,3 +1,8 @@
+/* Closed in src/itfMesManager.c: 448B/448B, normalized_diff 0.
+ * Mixed byte cast/mask forms prevent mask reuse across the construction call.
+ * The integer-address load restores base-before-index evaluation, and the
+ * unsigned index shift preserves EE wrapping. Every retail call is retained.
+ */
 u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5)
 {
     u8 *obj;
@@ -8,7 +13,7 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
     obj = D_00881808[arg4].unk0;
     if (obj == NULL)
         func_0046d730(D_0063BE10, 0xBDD);
-    slot = (u8 *)(*(s32 *)(obj + 4) + (arg5 << 3) + 0x20);
+    slot = (u8 *)(((u32)arg5 << 3) + (s32)*(s32 **)((u32)obj + 4) + 0x20);
     if (slot == NULL)
         func_0046d730(D_0063BE10, 0xBE0);
     entry = *(u8 **)(slot + 4);
@@ -21,7 +26,7 @@ u8 *func_00279030(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
         (s32)(16.0f * fparg0),
         (s32)(8.0f * fparg1),
         (u32)arg1 & 0xFF,
-        (u32)arg2 & 0xFF,
+        (u8)arg2,
         0U,
         0xFFU,
         (u32)result,
