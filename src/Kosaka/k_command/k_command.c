@@ -38,7 +38,7 @@ extern s32 func_004782b0(void* arg0);
 extern void* func_00478750(s32 arg0);
 extern void func_004787e0(u32 arg0);
 extern void func_00478e70(s32 arg0);
-extern void func_00479940(s32 a, s32 b, s16 c, u16 d, s32 e);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern void func_00479e60(s32 a, s32 b, f32 c);
 extern void func_0047a1c0(s32 a, void* b, s32 c);
 extern f32 func_0047a080(s32 arg0, s32 arg1);
@@ -92,6 +92,8 @@ u32 func_00176c20()
 
 
 
+/* Retail command operands narrow animation to s16 and converted frame to
+   u16 at each dispatch; these are caller conversions, not the shared ABI. */
 // FUN_00176C70
 s32 func_00176c70(void)
 {
@@ -110,11 +112,11 @@ s32 func_00176c70(void)
         {
             if (x != 0)
             {
-                func_00479940(*(s32*)(p + 0x164), 0, w, iv, 1);
+                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
             }
             else
             {
-                func_00479940(*(s32*)(p + 0x164), 0, w, iv, 0);
+                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
             }
             func_0047a0e0(*(s32*)(p + 0x164), 0, g);
         }
@@ -127,11 +129,11 @@ s32 func_00176c70(void)
         {
             if (x != 0)
             {
-                func_00479940(*(s32*)(p + 0x164), 0, w, iv, 1);
+                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 1);
             }
             else
             {
-                func_00479940(*(s32*)(p + 0x164), 0, w, iv, 0);
+                func_00479940((u8*)*(s32*)(p + 0x164), 0, (s16)w, (u16)iv, 0);
             }
             func_0047a0e0(*(s32*)(p + 0x164), 0, g);
         }
@@ -144,11 +146,11 @@ s32 func_00176c70(void)
         {
             if (x != 0)
             {
-                func_00479940(*(s32*)(p + 0x144), 0, w, iv, 1);
+                func_00479940((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 1);
             }
             else
             {
-                func_00479940(*(s32*)(p + 0x144), 0, w, iv, 0);
+                func_00479940((u8*)*(s32*)(p + 0x144), 0, (s16)w, (u16)iv, 0);
             }
             func_0047a0e0(*(s32*)(p + 0x144), 0, g);
         }
@@ -442,7 +444,7 @@ s32 func_00177b30(void)
             vec[2] = func_0014b6f0(p2);
             func_00146e60(flag & 0xFFFF, (u8*)(p2 + 0x30), vec);
             func_0047a1c0(v, p2, 0);
-            func_00479940(v, 0, 0, 8, 1);
+            func_00479940((u8*)v, 0, 0, 8, 1);
         }
         if (tmp == 1)
         {

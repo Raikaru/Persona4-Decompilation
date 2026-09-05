@@ -89,7 +89,7 @@ extern u8 D_005F5320[];
 extern u8 D_005F5330[];
 extern u8 *func_00457120(void);
 extern f32 fGpffff8218;
-extern void func_00479940(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 func_00479940(u8* model, u32 layer, s32 animation, s32 frame, s32 flags);
 extern s64 func_00479c30(s32 arg0, s32 arg1);
 extern u8 *func_0047a2f0(u32 arg0);
 extern f32 func_003e40b0(f32 *arg0, f32 *arg1);
