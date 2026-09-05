@@ -165,8 +165,7 @@ extern u8 LAB_00474a50_abs[];
 extern u8 LAB_00474a90;
 extern u8 LAB_00474a90_abs[];
 
-extern void* func_00397470(void);
-extern void* func_00397470_typed(void* a);
+extern s32 func_00397470(u8* frame);
 extern void func_003e05f0(void* a, void* b, void* c);
 
 extern void func_004585c0(u8* arg0);
@@ -1489,7 +1488,7 @@ INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00475820);
 // FUN_00475B10
 void* func_00475b10(void* object, void* data)
 {
-    if (*(void**)((u8*)data + 4) == (void*)func_00397470()) {
+    if (*(s32*)((u8*)data + 4) == func_00397470(object)) {
         *(void**)data = object;
         return NULL;
     }

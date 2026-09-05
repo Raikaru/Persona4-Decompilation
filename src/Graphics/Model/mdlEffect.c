@@ -878,14 +878,12 @@ void func_0048a340(f32 param_1)
         : "r"(raw + 0x10)
         : "$vf28", "$vf29", "$vf30", "memory");
 }
-/* Measured floor: this first-party 176B function has a best plain-C candidate
-   with object/window 176B and normalized_diff 11.  Retail assigns the
-   projection divisor to f0, dividend/product to f1, and quotient to f2;
-   MWCCPS2 3.0.1b210 consistently rotates those three FPRs.  Raw and typed
-   vector aggregates, arithmetic/lifetime/declaration variants, helper forms,
-   and optimization controls did not reach MATCH without compiler steering.
-   Restored to the authoritative COP2 transfer INCLUDE_ASM. */
-// FUN_0048A460 NONMATCHING
+/* Faithful C/hardware-transfer floor: docs/probe_archive/W49MdlEffect_0048a460_body.c.
+   Object/window 176B/176B, 15 differing words, no missing tail.
+   Callers consume vf10, not a stack-pointer return. The former 11-word
+   candidate escaped local storage and is not an accepted floor.
+   FPR allocation and v0/v1 transfer-address allocation remain unresolved. */
+// FUN_0048A460
 INCLUDE_ASM("asm/nonmatchings/mdlEffect", func_0048a460);
 // FUN_0048A510
 s32 func_0048a510(void)

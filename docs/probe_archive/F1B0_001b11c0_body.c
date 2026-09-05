@@ -5,6 +5,9 @@
  * 11 words; declaration-order rotation: 5 words. Reusing/narrowing the key,
  * signed/register induction variables and alternate key hoisting did not
  * close the residual; disabling propagation worsened it.
+ * Further bounded probes: block-scoped index 11 words; block-scoped key,
+ * for-loop induction, signed key/kind promotions and the canonical
+ * D_0076449C pointer base each retain five. No production change.
  * The former u8 filter silently discarded bits 8..15 and is not retained.
  * This body preserves the retail 16-bit key and unsigned count-1 bound;
  * it does not add a non-retail empty-list guard or cache the global base
