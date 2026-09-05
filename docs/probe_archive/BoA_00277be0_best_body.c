@@ -1,7 +1,12 @@
-/* Best attempted body for func_00277be0; normalized_diff 249, object 672B/window 672B.
-   Retail callee-saved assignment: arg0=$s4, arg1=$fp, obj=$s3, base=$s1,
-   handle/data=$s0, bits=$s6, elem=$s5, mask=$s7, index/result=$s2;
-   count is the stack s128 slot at 0xA0 and result2 is stack 0xBC. */
+/* Instruction-exact candidate for func_00277be0: object 664B/window 672B.
+   fndiff: two absent zero-tail words, no emitted instruction differences.
+   An s32 count reproduces SQ/LQ; declaring temp_23 before spBC reproduces
+   the second-result register and third-result spill at stack offset 0xBC.
+   NOT INSTALLED: 1U << var_18 is defined only for indices below 32. No
+   bound on the signed table count is proven; retail SLLV wraps modulo 32.
+   Explicit (var_18 & 31) adds an instruction (668B, fndiff 89 words).
+   Independent semantic review agrees on calls, stores, widths and control
+   flow, but its acceptance is conditional on this unresolved input bound. */
 // FUN_00277BE0
 void func_00277be0(s32 arg0, s32 arg1)
 {
@@ -10,19 +15,19 @@ void func_00277be0(s32 arg0, s32 arg1)
     s32 var_18;
     s32 *var_21;
     s32 temp_22;
-    s32 spBC;
+    s32 temp_23;
     s32 temp_21;
     u32 var_22;
     u8 *base;
     s32 temp_4_2;
     s32 temp_4_3;
     s32 temp_3_2;
-    s128 spA0;
+    s32 spA0;
     u32 temp_5;
     s32 temp_4;
     u32 var_23;
     u8 *temp_2;
-    s32 temp_23;
+    s32 spBC;
     u8 *temp_16;
     s32 temp_2_2;
 
@@ -41,7 +46,7 @@ void func_00277be0(s32 arg0, s32 arg1)
     }
     temp_16 = *(u8 **)(temp_2 + 4);
     var_22 = *(u32 *)(base + 8);
-    spA0 = (s128)*(s16 *)(temp_16 + 0x1A);
+    spA0 = (s32)*(s16 *)(temp_16 + 0x1A);
     var_21 = (s32 *)(temp_16 + 0x20);
     var_23 = 0;
     var_18 = 0;
@@ -89,4 +94,3 @@ void func_00277be0(s32 arg0, s32 arg1)
     *(s16 *)(base + 0xC) = 1;
     *(s32 *)base = arg1;
 }
-
