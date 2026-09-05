@@ -220,6 +220,7 @@ u8 *func_003d5790(s32 arg0, s32 arg1) {
     *(s32 *)(temp_2 + 0x44) = 0;
     *(s32 *)(temp_2 + 0x40) = 0;
     *(s32 *)(temp_2 + 0x48) = 0;
+    return temp_2;
 }
 /* measured: closes the schedule bracket; the unit default is off. */
 #pragma schedule off

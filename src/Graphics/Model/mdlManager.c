@@ -24,11 +24,11 @@ extern u8 D_007131C0[];
 extern s32 func_00457a90(void* a, u8* b);
 extern f32 func_004579a0(const RpMaterial* a, const char* b);
 
-extern u32 func_00397460(void);
+extern u32 func_00397460(s32 object);
 typedef void (*CallbackFn)(void);
-extern u8* func_003e9af0(u8* object, s32 (*callback)(u8*, s32), s32 data);
+extern void* func_003e9af0(void* object, void* (*callback)(void*, void*), void* data);
 
-extern void func_003b83d0(void);
+extern s32 func_003b83d0(s32 object, s32 hierarchy);
 
 extern void func_003e0c90(void);
 extern void func_003e0870(void);
@@ -40,6 +40,9 @@ extern int func_00475b90(void* buf, void* v, u32 idx, void* obj);
 extern void* func_00457f40(void* obj, const char* name, s32 idx);
 extern u8* func_003e9700(u8* a);
 extern void func_003d5840(void* a, void* b);
+extern u8* func_003d5790(s32 numNodes, s32 maxInterpKeyFrameSize);
+extern s32 func_003d5e40(u8* a, f32 b);
+extern void func_004633c0(void* clump, void* hierarchy);
 
 typedef struct RtAnimAnimation RtAnimAnimation;
 
@@ -392,28 +395,28 @@ loop20_check:
 /* measured: closes opt_common_subs off probe around func_00471010. */
 #pragma opt_common_subs on
 // FUN_004711E0
-u32 func_004711e0(void* param_1, u32* param_2)
+void* func_004711e0(void* param_1, void* param_2)
 {
     u32 value;
 
-    value = func_00397460();
+    value = func_00397460((s32)param_1);
     if (value != 0)
     {
         goto store_value;
     }
-    func_003e9af0(param_1, (s32 (*)(u8*, s32))func_004711e0, (s32)param_2);
-    return (u32)param_1;
+    func_003e9af0(param_1, func_004711e0, param_2);
+    return param_1;
 store_value:
-    *param_2 = value;
-    return 0;
+    *(u32*)param_2 = value;
+    return NULL;
 }
 
 
 
 // FUN_00471250
-void* func_00471250(void* param_1)
+void* func_00471250(void* param_1, void* hierarchy)
 {
-    func_003b83d0();
+    func_003b83d0((s32)param_1, (s32)hierarchy);
     return param_1;
 }
 
@@ -766,20 +769,62 @@ void func_004735b0(u8 *arg0)
     }
 }
 #pragma opt_propagation on
-/* measured: retail keeps arg0=$s0 and folds 0x20 into every reload
-   (lw $a0,0x20($s0) after each call); mwcc b210 materializes arg0+0x20 into an
-   s-reg (addiu $s0,$s2,0x20) and rotates the saved set (arg0 $s0->$s2,
-   arg2 $s2->$s1, p4 $s1->$s0), nd 57. Tried: u8* params (78), u8** loads
-   (78), s32 base locals (78), opt_propagation off (57). Address-CSE into
-   s-reg floor (same family as 79e60/776c0/73000 pre-fix; u8* typing did not
-   break it here). */
-/* Wave 14 re-test: m2c signature (u8*,u8*,s32) confirmed; clean transcription
-   nd 79, adding the arg1+4 hoist (retail keeps $s1=arg1+4 across calls) nd 59.
-   Frame still -0x50 vs retail -0x60 (one saved reg short: arg2 in $s1 vs
-   retail's $s2) and the arg0+0x20 address-CSE floor from the original note
-   persists. opt_propagation off + forward externs help compile, not match. */
+/* MATCH: 340B/352B; the remaining 12 bytes are zero tail padding.
+   IDA preserves a hierarchy snapshot separately from the escaped output slot.
+   Typed object fields and pointer-valued traversal data retain the retail
+   reloads, frame address lifetime, and argument evaluation order. */
 // FUN_00473710
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473710);
+void func_00473710(u8 *arg0, u8 *arg1, s32 arg2)
+{
+    typedef struct MdlHierarchyView {
+        u32 flags;
+        s32 numNodes;
+        u8 unknown08[0x18];
+        RtAnimInterpolator *interpolator;
+    } MdlHierarchyView;
+    typedef struct MdlAnimationSource {
+        u32 unknown00;
+        RtAnimAnimation *animation;
+    } MdlAnimationSource;
+    typedef struct MdlAttachState {
+        u16 flags;
+        u8 unknown02[0x1e];
+        MdlHierarchyView *hierarchy;
+        u8 unknown24[8];
+        RtAnimInterpolator *first;
+        RtAnimInterpolator *second;
+        MdlAnimationSource *source;
+    } MdlAttachState;
+    typedef struct MdlClumpView {
+        u8 header[4];
+        u8 *frame;
+    } MdlClumpView;
+    MdlAttachState *model = (MdlAttachState *)arg0;
+    MdlHierarchyView *selected;
+    u32 hierarchy = 0;
+    u8 **frame = &((MdlClumpView *)arg1)->frame;
+
+    func_003e9af0(*frame, func_004711e0, &hierarchy);
+    selected = (MdlHierarchyView *)hierarchy;
+    model->hierarchy = selected;
+    func_003bff30(arg1, func_00471250, selected);
+    if (arg2 != 0)
+        func_003bff30(arg1, func_00473250, *frame);
+    func_004633c0(arg1, model->hierarchy);
+    model->hierarchy->flags |= 0x3000;
+    if (model->source != 0 && model->source->animation != 0) {
+        model->first = (RtAnimInterpolator *)func_003d5790(
+            model->hierarchy->numNodes,
+            model->hierarchy->interpolator->maxInterpKeyFrameSize);
+        model->second = (RtAnimInterpolator *)func_003d5790(
+            model->hierarchy->numNodes,
+            model->hierarchy->interpolator->maxInterpKeyFrameSize);
+        func_003d5840(model->first, model->source->animation);
+        func_003d5840(model->second, model->source->animation);
+        func_003d5e40((u8 *)model->second, 0.0f);
+        model->flags |= 0x80;
+    }
+}
 extern s32 func_003d5bc0(void* a, f32 b);
 
 /* measured: probing opt_loop_invariants on for loop-constant placement. */
@@ -917,7 +962,6 @@ void func_00473870(u8 *arg0)
 #pragma pop
 
 extern void func_00473870(u8* a);
-extern s32 func_003d5e40(u8* a, f32 b);
 extern void func_003d5e90(void* a, void* b, void* c, f32 d);
 extern void func_00397c40_1(void* a);
 /* measured: nd 244 after 4 attempts; registers/decl-order/chains/calls all
@@ -937,7 +981,6 @@ extern void func_00397c40_1(void* a);
    chain2 loads the base before the sll chain, b210 emits chain-first. */
 // FUN_00473B20
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
-extern void* func_003d5790();
 extern void func_003d59a0(void* a, void* b);
 /* measured: nd 237 (object 1344B vs 1328B) after 1 attempt; registers,
    chains, calls, 0x48-block re-derivations and tail all match (temp16:$s0,
@@ -1493,7 +1536,7 @@ void* func_00475b10(void* object, void* data)
         return NULL;
     }
 
-    func_003e9af0(object, (s32 (*)(u8*, s32))func_00475b10, (s32)data);
+    func_003e9af0(object, func_00475b10, data);
     return object;
 }
 

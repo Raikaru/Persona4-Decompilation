@@ -3287,3 +3287,58 @@ lifetime, and auto-inlining retains both the standalone body and its
 expansion in `001b1450`. Both obsolete drafts are removed. IDA replay of
 `00106f40` and `00484b30` leaves their six- and eight-word floors unchanged;
 the archives record the tested contracts and helper hypotheses.
+
+## IDA model attachment: preserve snapshots and pointer contracts
+
+`func_00473710` is MATCH: 340B of exact instructions plus 12 bytes of
+retail zero tail. Read the complete IDA body at
+`docs/ida_headstart/src/Graphics/Model/mdlManager.c:1053-1085` alongside
+the retail assembly. Its separate `v7 = v9` snapshot matters: loading the
+escaped output slot again after storing the model's hierarchy emits an
+extra reload. Named hierarchy, model, animation-source and clump views
+also prevent the old raw-offset address-CSE register rotation.
+
+The remaining argument-order difference was a wrong API declaration.
+The canonical `RwFrameForAllChildren` in `src/renderware/core/baframe.c`
+takes pointer-valued userdata; `RwFrameCallBack` likewise returns a frame
+pointer and receives a data pointer. The model unit now uses its existing
+opaque-pointer callback convention consistently, without integer userdata
+or incompatible callback casts. Both recursive traversal callers migrate.
+The constructor declaration now has its real two integer arguments.
+
+Three incomplete C contracts were repaired without changing their retail
+instructions: the hierarchy getter receives its frame, the atomic callback
+receives and forwards both object and hierarchy, and `func_003d5790`
+returns the allocated interpolator. Before these repairs, an instrumented
+68-case native consumer reported 80 failures; afterward it reported none.
+The old constructor also triggered `-Wreturn-type`.
+
+An additional smoke extracted the promoted production attachment,
+callbacks and constructor: **2,304 cases, zero failures**. It exercises
+optional traversal, absent source/animation, distinct interpolator
+allocations, animation assignment, zero-time setup, flag preservation,
+and field reloads when helpers mutate the frame, hierarchy, source,
+second interpolator or flags. These are 64-bit host semantic checks with
+low-address fixtures, not a PS2 rendering run; retail instruction
+identity is checked separately. The superseded PMDL attachment archive
+is removed, as is the older YFNT shuffle draft superseded by D375.
+
+The spline replay (`001bb790`) still has 21 instruction differences and
+two absent zero-tail words. Its in-place output-object helper ties the
+existing JnB archive; it is not another promotion.
+
+Distance selection (`001d8cb0`) exposed unsafe archive evidence. Its old
+14-word draft compared an uninitialized best distance before checking
+the first-entry flag. The replacement guards that comparison, uses the
+actual three-float vectors and typed 12-pointer selection table, and
+measures **18 words**: 12 key-loop register differences, four guarded
+comparison/branch differences, and two zero-tail words. A 1,092-case
+native smoke checks key precedence, duplicate keys, absent actors,
+empty tables, nearest selection and first-on-tie behavior. Production
+remains ASM; a lower score obtained through undefined C is not a floor
+worth retaining.
+
+`make build-progress progress lint-errors` now reports **7,712 MATCH**,
+including **6,082 first-party MATCH (88.7%)** and **778 first-party ASM**.
+Both retail SHA-1 checks pass; lint reports zero findings. C-linked
+functions remain 1,555: this model unit still contains assembly fallbacks.
