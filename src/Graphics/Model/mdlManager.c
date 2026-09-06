@@ -23,6 +23,7 @@ extern u8 D_007131A0[];
 extern u8 D_007131C0[];
 extern s32 func_00457a90(void* a, u8* b);
 extern f32 func_004579a0(const RpMaterial* a, const char* b);
+extern s32 func_0047e6f0(void** owner);
 
 extern u32 func_00397460(s32 object);
 typedef void (*CallbackFn)(void);
@@ -2411,13 +2412,13 @@ s32 func_004782b0(u8* param_1)
         if (func_0047ce00() == 0) {
             return 0;
         }
-        if (func_0047e6f0(param_1 + 0x2D0) == 0) {
+        if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {
             return 0;
         }
         func_0047b060(param_1);
         func_00477ca0(param_1);
     } else {
-        if (func_0047e6f0(param_1 + 0x2D0) == 0) {
+        if (func_0047e6f0((void**)(param_1 + 0x2D0)) == 0) {
             return 0;
         }
         id2 = *(u16*)(param_1 + 0xD6);

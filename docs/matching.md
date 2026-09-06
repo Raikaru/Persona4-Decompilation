@@ -4011,5 +4011,38 @@ a local copy-context record improves **39 to 35 words** at the same
 **840B/848B** size. Explicit `register` on the owner parameter, grouping
 the three bank pointers, and sharing the current/node local each retain
 the plain unsigned draft's **41 words**. These are measured source-shape
-experiments only; the callback remains ASM and has not passed a runtime
-semantic oracle.
+experiments only; at that stage the callback remained ASM and had not
+passed a runtime semantic oracle.
+
+## Model sound callback: separate inline copy lifetimes
+
+`func_0047e6f0` is now production C in `src/Graphics/Model/mdlSE.c`:
+**840B emitted / 848B retail window, MATCH**. The two remaining standalone
+diff words are zero tail padding. A private inline `copyLoadedRequest`
+holds the shared request-to-allocation copy sequence once. Its local
+lifetimes reproduce the retail owner/node/size/source saved registers,
+closing the preceding 35-word aggregate floor without register forcing,
+new runtime calls, or changed load/reload boundaries.
+
+Bank sizes remain unsigned for the consumer, with corresponding signed
+output pointers supplied to the record extractor. Live callers now use
+the explicit `s32 (void **)` callback declaration instead of byte-pointer,
+unprototyped, or implicit declarations. The four affected units verify
+**299 MATCH / 22 ASM**, with no mismatches.
+
+A throwaway 32-bit UBSan consumer passes **384 scenarios / 481 calls**.
+It runs the accepted callback and the packed-record extractor, actual
+heap allocations and byte copies, with controlled readiness, release,
+diagnostic and bank-consumer leaves. Checks cover complete guarded node
+images, copied payloads, all three extracted bank records, inactive and
+already-complete flags, optional secondary requests, pending loads,
+bank setup/poll/completion transitions, and preservation of unrelated
+flag bits. This is not EE/in-game execution, allocation-failure coverage,
+or a callback-induced owner-mutation oracle.
+
+`make build-progress progress lint-errors` passes with **7,724 overall
+MATCH**, **6,094 first-party MATCH / 766 ASM**, **172 source-linked
+units**, both expected retail hashes and zero lint findings. The
+committed progress endpoints and README are regenerated and validated.
+Superseded callback drafts and the throwaway smoke are removed; the
+unmatched sound dispatcher drafts remain separate.

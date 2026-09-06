@@ -154,12 +154,105 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
 }
 
 
-/* measured: nd 128. All structure matches (frame 0x60, switch, case 1/2 bodies,
-   func_00455ea0/0045a570 arg grouping) but the saved-register allocation is
-   rotated: retail keeps arg0 in $s0, node in $s1, temp_18 in $s2, temp_19 in
-   $s3; mwcc b210 keeps node in $s0, temp_19 in $s1, temp_18 in $s2, arg0 in $s3.
-   Tried every declaration order (sp-locals first, temp_17 after temp_18/19,
-   *arg0 in place of temp_4 in the case bodies) -- arg0 stays in $s3. Saved-
-   register rotation floor. */
+/* measured: 840B/window 848B; only two zero-padding words remain.
+   Inlining the shared copy operation separates its local lifetimes from
+   the callback and reproduces the retail saved-register allocation.
+   Bank sizes stay unsigned for the consumer's argument-load ordering. */
+static inline void copyLoadedRequest(void **owner, s32 requestOffset)
+{
+    void *node;
+    void *request;
+    void *source;
+    void *memory;
+    u32 fileSize;
+
+    node = *owner;
+    request = *(void **)((u8 *)node + requestOffset);
+    fileSize = *(u32 *)((u8 *)request + 0x118);
+    source = *(void **)((u8 *)request + 0x110);
+    func_0044ea90(&D_007241D8, 0x49);
+    memory = jtbl_008873E8[0](fileSize, 0x40000);
+    *(void **)node = memory;
+    func_0043f810(memory, source, fileSize);
+}
+
 // FUN_0047E6F0
-INCLUDE_ASM("asm/nonmatchings/mdlSE", func_0047e6f0);
+s32 func_0047e6f0(void **owner)
+{
+    void *current;
+    void *request;
+    void *record0;
+    void *record1;
+    void *record2;
+    u32 size0;
+    u32 size1;
+    u32 size2;
+    u16 flags;
+    u16 mode;
+
+    current = *owner;
+    if (current == NULL) {
+        return 1;
+    }
+    flags = *(u16 *)((u8 *)current + 0x12);
+    if ((flags & 1) != 0) {
+        return 1;
+    }
+    if ((flags & 2) == 0) {
+        return 1;
+    }
+    mode = *(u16 *)((u8 *)current + 0xC);
+    switch (mode) {
+    case 1:
+        if (func_004553c0(*(void **)((u8 *)current + 0x14)) != 0) {
+            copyLoadedRequest(owner, 0x14);
+            request = *(void **)((u8 *)*owner + 0x14);
+            if (request != NULL) {
+                func_00454bd0(request);
+                *(void **)((u8 *)*owner + 0x14) = NULL;
+            }
+            *(u16 *)((u8 *)*owner + 0x12) |= 1;
+            *(u16 *)((u8 *)*owner + 0x12) &= 0xFFFD;
+            return 1;
+        }
+        break;
+    case 2:
+        request = *(void **)((u8 *)current + 0x18);
+        if (request != NULL) {
+            if (func_004553c0(request) == 0) {
+                return 0;
+            }
+            copyLoadedRequest(owner, 0x18);
+            func_00454bd0(*(void **)((u8 *)*owner + 0x18));
+            *(void **)((u8 *)*owner + 0x18) = NULL;
+        }
+        current = *owner;
+        if ((*(u16 *)((u8 *)current + 0x12) & 8) == 0) {
+            if (func_004553c0(*(void **)((u8 *)current + 0x14)) == 0) {
+                return 0;
+            }
+            record0 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 0, (s32 *)&size0);
+            record1 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 1, (s32 *)&size1);
+            record2 = (void *)func_00455ea0(*(void **)((u8 *)*owner + 0x14), 2, (s32 *)&size2);
+            func_0045a570(*(s16 *)((u8 *)*owner + 4), record0, size0, record1, size1, record2, size2);
+            *(u16 *)((u8 *)*owner + 0x12) |= 8;
+            break;
+        }
+        if (func_0045a890(*(s16 *)((u8 *)current + 4)) == 0) {
+            return 0;
+        }
+        request = *(void **)((u8 *)*owner + 0x14);
+        if (request != NULL) {
+            func_00454bd0(request);
+            *(void **)((u8 *)*owner + 0x14) = NULL;
+        }
+        *(u16 *)((u8 *)*owner + 0x12) |= 1;
+        *(u16 *)((u8 *)*owner + 0x12) &= 0xFFFD;
+        *(u16 *)((u8 *)*owner + 0x12) |= 4;
+        *(u16 *)((u8 *)*owner + 0x12) &= 0xFFF7;
+        return 1;
+    default:
+        return 1;
+    }
+    return 0;
+}
