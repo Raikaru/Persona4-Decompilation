@@ -6,7 +6,7 @@
 extern void func_00440b68(const char *fmt, const char *file, s32 line);
 extern void *func_00454a60(const char *path, s32 flags);
 extern void func_00456150(void *handle);
-extern u8 *func_00455ea0(void *handle, s32 index, void *out);
+extern u8 *func_00455ea0(u8 *handle, s32 index, s32 *out);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0046d700(const char *file, s32 line, char *fmt, s32 value);
 extern s32 func_001060b0(void);
@@ -87,7 +87,7 @@ static inline s32 cmmMiscOr(s32 left, s32 right) {
 
 // FUN_00246700
 void func_00246700(void) {
-    u32 sp3C;
+    s32 sp3C;
     s32 i;
     void *handle;
 
