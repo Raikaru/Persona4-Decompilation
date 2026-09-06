@@ -4,8 +4,9 @@
 Two pools, and the distinction matters because they fail for different
 reasons and respond to different work:
 
-  --pool fresh    first-party functions with no archived attempt at all.
-                  Cold reconstruction. Measured to work only at a retail
+  --pool fresh    first-party functions with no recognized archived C body.
+                  This is not proof of no prior attempt. Cold reconstruction
+                  was measured to work only at a retail
                   window of about 256 bytes or less: across two waves,
                   3 of 8 closed at <= 256 B and 0 of 12 closed above it.
                   Only a handful of these remain under the cliff.
@@ -56,6 +57,8 @@ from verify import is_third_party, is_vendor_address  # noqa: E402
 ND = re.compile(r"normalized[_ ]diff[ =]*(\d+)|\bnd[ =]+(\d+)", re.I)
 # "object 204 / window 208", "object_size 204/208", "obj 204B / 208B"
 OW = re.compile(r"obj(?:ect)?(?:[_ ]size)?[ =]*(\d+)\s*B?\s*/\s*(?:window\s*)?(\d+)", re.I)
+NAME_ADDR = re.compile(r"(?<![0-9a-fA-F])([0-9a-fA-F]{8})(?![0-9a-fA-F])")
+SYMBOL_ADDR = re.compile(r"\b(?:func_|FUN_)([0-9a-fA-F]{8})\b")
 
 
 def addr_of(row):
@@ -73,32 +76,40 @@ def archives():
     would otherwise be handed to a lane as "never attempted". A wave-4 lane
     burned most of its run rediscovering three such archives.
 
-    So the rule is: any `.c`/`.txt` under `build/` whose NAME encodes an
-    address, whose CONTENT looks like C. The content test is what keeps probe
-    drivers, disassembly dumps and scope reports out; matching on the name
-    alone overstates the attempted population badly.
+    So the rule is: any `.c`/`.txt` under `docs/probe_archive/` whose NAME
+    encodes an address, whose CONTENT looks like C. Hexadecimal prefixes
+    must not become part of the address; ambiguous or embedded names need
+    a unique matching func_/FUN_ symbol in the content. The content test
+    keeps probe drivers, disassembly dumps and scope reports out.
     """
     best = {}
     for path in glob.glob(os.path.join(REPO, "docs", "probe_archive", "*")):
         name = os.path.basename(path)
         if os.path.splitext(name)[1].lower() not in (".c", ".txt"):
             continue
-        m = re.search(r"([0-9a-fA-F]{8})", name)
-        if not m:
-            continue
         try:
-            text = open(path, errors="ignore").read()
+            with open(path, errors="ignore") as f:
+                text = f.read()
         except OSError:
             continue
         if "{" not in text or ";" not in text:
             continue
+        addresses = {a.lower() for a in NAME_ADDR.findall(name)}
+        if len(addresses) != 1:
+            # Hexadecimal lane prefixes and date/version tokens can obscure the
+            # address. Resolve those names only against symbols in the archive.
+            lower_name = name.lower()
+            addresses = {a.lower() for a in SYMBOL_ADDR.findall(text)
+                         if a.lower() in lower_name}
+        if len(addresses) != 1:
+            continue
+        addr = int(addresses.pop(), 16)
         nds = [int(g) for mm in ND.finditer(text) for g in mm.groups() if g]
         ow = OW.search(text)
         entry = (min(nds) if nds else None,
                  int(ow.group(1)) if ow else None,
                  int(ow.group(2)) if ow else None,
                  os.path.relpath(path, REPO).replace("\\", "/"))
-        addr = int(m.group(1), 16)
         prev = best.get(addr)
         # Prefer the record that actually carries a measurement, then the
         # lowest one; an archive with no nd still proves the function was
@@ -174,7 +185,8 @@ def main():
                     help="how many targets --measure actually compiles")
     args = ap.parse_args()
 
-    rows = json.load(open(os.path.join(REPO, args.report)))["results"]
+    with open(os.path.join(REPO, args.report)) as f:
+        rows = json.load(f)["results"]
     asm = [r for r in rows
            if r["status"] == "ASM"
            and not is_third_party(r["file"])
