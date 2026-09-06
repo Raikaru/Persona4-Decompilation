@@ -4201,3 +4201,34 @@ MATCH**, **6,098 first-party MATCH / 762 ASM**, **172 source-linked units**,
 both expected retail SHA-1s and zero lint findings. Progress endpoints and
 the README are regenerated and validated. Completed layer/dispatcher probes,
 the throwaway consumers and their target32 container are removed.
+
+### Renderer follow-through: distinguish allocation gains from size cancellation
+
+The saved `IDA_00479100_body.c` now replays at **1908B / 1920B,
+32 relocation-masked differing words**, down from 409. A separate
+modulated-alpha lifetime closes the arithmetic coloring through the first
+channel conversion; stack order and immediate draw/clump snapshots account
+for the earlier gains. CSE-off retains all eight normalization loads without
+making the global volatile. The stale volatile requirement in the owner
+comment is removed.
+
+This remains rejected. Three redundant accumulator-zero transfer/nop pairs
+add 24 bytes, while sharing the colored/uncolored draw call saves 24 bytes.
+Duplicating the retail-shaped draw branch instead yields **1932B / 1920B,
+180 words**. The apparent instruction-body size agreement is therefore
+cancellation, not a match. No renderer runtime acceptance is claimed.
+
+Material quantization remains at the saved **996B / 976B, 72 words**.
+Bottom-up/single-pass inlining, narrower helper policies, lifetime controls
+and combined quantization expressions do not remove its redundant zero
+seeds without other regressions. Integer-batched stores give 980B/67 words
+but change scheduling; an explicit shared zero-plus-bias expression adds
+arithmetic and gives 1020B/79. The model archive metadata records the rejected
+variants rather than promoting a lower score alone.
+
+Battle order `func_001b11c0` remains **192B / 192B, five words**. ANSI and
+K&R unsigned parameters, nested sort/count lifetimes, and selected allocator
+controls do not close the key/index register exchange. A matched nested
+sort in `func_001de370` supplies a real source convention, but transferring
+that convention does not improve this target. Production remains ASM for
+all three functions.
