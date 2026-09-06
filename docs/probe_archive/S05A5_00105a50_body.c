@@ -1,11 +1,16 @@
 // Best measured body for func_00105a50.
 // object/window: 576B/576B
-// normalized_diff: 34 words
+// Re-certified: 34 reloc-masked differing words, 78 normalized differing bytes.
 // differing offsets: 116,120,124,128,140,144,148,152,156,160,164,168,172,176,180,184,196,200,328,336,340,352,356,360,364,368,372,376,380,384,388,408,412,416
 // ruled-out: separate s32 i/j plus index locals (140 words); u8 i/j in while form (size 616B); function-scope PersonaWork pointer (size 608B); explicit rawArg local (size 608B); fused single-counter loops (46 words); Ghidra goto loops with s32 j only (101 words); signed i (107 words); s32 i (106 words).
+// Canonical datPersonaGetNextExp(int) calls retain the 576B/34-word floor.
+// Original DC table base with index+1 is also 576B/34 words; E0 = DC+4.
+// One u8 induction variable, directly or through a fully inlined table helper,
+// gives 544B/104 words (286 bytes): seven executable epilogue words and the
+// final delay-slot nop are absent, not zero-tail padding. Frame remains 0x40.
+// The two-counter loop's residual is register coloring, not table addressing.
 s32 func_00105a50(s16 arg0)
 {
-    extern s32 func_00109430();
     extern PersonaWork *func_0010a900(u16 pcId);
     extern void func_0046d730(const char *file, s32 line);
     s32 value;
@@ -20,7 +25,7 @@ s32 func_00105a50(s16 arg0)
         PersonaWork *persona = func_0010a900((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
-        value = func_00109430(persona);
+        value = datPersonaGetNextExp((int)persona);
     }
     index = 0;
     i = 0;
@@ -46,7 +51,7 @@ first_done:
         PersonaWork *persona = func_0010a900((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
-        value = func_00109430(persona);
+        value = datPersonaGetNextExp((int)persona);
     }
     index2 = 0;
     i = 0;
@@ -71,7 +76,7 @@ second_done:
         PersonaWork *persona = func_0010a900((u16)arg0);
         if (persona == 0)
             func_0046d730((const char *)D_005E4298, 0x1B8);
-        value = func_00109430(persona);
+        value = datPersonaGetNextExp((int)persona);
     }
     return value3 - value;
 }

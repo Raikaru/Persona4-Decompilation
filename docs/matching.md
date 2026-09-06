@@ -3800,3 +3800,67 @@ its five-argument archived declaration conflicts with the matched
 four-argument `btlUnitCreateMovePacket`. The `0032c480` draw-argument
 experiment likewise stops at incompatible archived declarations. Neither
 is permission to change shared APIs merely to replay a historical score.
+
+`00105a50` is re-certified with canonical `datPersonaGetNextExp(int)` calls
+at **576B/576B, 34 raw words / 78 normalized bytes**. The original
+`D_005DD6DC` table base with index-plus-one leaves the same floor as its
+four-byte-shifted `D_005DD6E0` view; signed-word reads address the same
+99-entry interval. A single byte induction variable, directly or through
+a fully inlined table helper, regresses to **544B, 104 words / 286 bytes**.
+Its missing eight words contain executable epilogue code and the final
+delay-slot nop, not ignorable tail padding. The original two-counter
+archive is retained; no table extent or shared API is changed.
+
+`0027a150` remains **332B/336B, 32 raw words / 34 normalized bytes**.
+Initializing `current` at its declaration or using mutable `arg0` is
+byte-identical. Disabling propagation for the initializer changes entry
+copy order but not coloring, leaving 32 words and 35 differing bytes.
+Initializing `remaining` from the incoming lower bound, alone or together
+with `current` under the same scoped control, also leaves 32 words.
+The floor still has 31 executable differences and one zero-tail word;
+the **0x50 frame and s0-s3 save set** already agree. These source levers
+are parked, with no production body or signature change.
+
+## Font metrics: native signed division and the real small table
+
+`func_00271d10` in `src/frFont.c` closes at **576B/576B**. Replaying the
+retained source gives **42 raw differing words**; replacing seven manual
+signed-rounding sequences with native `/ 32` and `/ 128` leaves one.
+Writing `-var_8` instead of `(-1 * var_8)` fixes that final multiply operand
+order. No arithmetic reassociation, optimizer pragma or helper is needed.
+
+The archive's scalar height declaration was not promotion-ready. Retail
+`0x00763808..0x0076380f` contains eight signed bytes:
+`32, 28, 26, 24, 22, 12, 32, 32`. The next halfword, `D_00763810`, is an
+independently updated flag object, not a ninth height. Both live units now
+declare `extern s8 D_00763808[8]` and index the array directly. Its actual
+eight-byte size naturally meets b210's default small-data threshold and
+retains GP displacement `-0x58e8`; incomplete or diagnostic nine-byte
+declarations instead produce **592B, 137 differing words**. No fake bound,
+section annotation, alias or compiler flag is introduced.
+
+The existing `func_00275a40` getter retains all seven emitted instructions,
+identical to its previous object and retail; its **28B/32B** window differs
+only by the retail alignment nop. The glyph slot's header address is read
+through its existing `u32` member before pointer conversion, rather than
+accessing that word through a pointer lvalue. Removing the unused local and
+using this typed load preserve the exact font instructions. Public
+signatures and the slot layout are unchanged.
+
+An independent retail-derived oracle passes **1,034,880 cases** against the
+final source in a real 32-bit UBSan process. It checks every output and
+untouched byte, both output canaries, and slot/header/metric/table
+immutability. Coverage includes all eight valid fonts, signed metric
+endpoints and rounding boundaries, both special glyphs, zero metrics,
+flag/header/limit rejection, positive and fallback sizes, unsigned byte
+reloads, modulo-byte stores, and independently enabled scale axes.
+The oracle uses 64-bit magnitude quotients, not the archived shift/bias
+implementation. This is bounded valid-resource arithmetic coverage, not a
+claim about overflow, invalid indices, concurrent mutation or running the
+retail game. The final run has no compiler or sanitizer diagnostics.
+
+`make build verify lint-errors` passes: **7,721 MATCH overall**,
+**6,091 first-party MATCH / 769 ASM**, zero lint errors across 333
+first-party files. Linked C object count remains **172**; both retail
+SHA-1s remain exact. The superseded font archive is removed; production
+source now holds the accepted body.

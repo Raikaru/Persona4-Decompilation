@@ -22,7 +22,7 @@ extern void func_00460ac0(void *param, void *work);
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 
 /* Font-height tables (P3FES frFontGetHeight ports). */
-extern s8 D_00763808;
+extern s8 D_00763808[8];
 extern s8 D_00764670;
 
 /* Cleanup callback registered by the 002755xx draw wrappers. */
@@ -391,7 +391,7 @@ void func_00275980(char *src, char *dst, int maxlen)
 // FUN_00275A40
 s8 func_00275a40(char param_1)
 {
-    return (&D_00763808)[param_1];
+    return D_00763808[param_1];
 }
 
 
