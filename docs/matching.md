@@ -3723,3 +3723,58 @@ overall, **6,090 first-party MATCH / 770 ASM**, and zero lint errors across
 333 first-party files. The 172 linked C objects retain both retail SHA-1s:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`, executable
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Further bounded low-floor probes
+
+The valid `00279780` message-initialization archive improves **9 to 3
+words**, still **768B/768B**. Named zero origins with scoped
+`opt_propagation off` restore the six constructor argument-order words.
+The remaining three words materialize `D_00881530` before moving the first
+argument at `func_00279dd0`; explicit context and context/address locals do
+not change that. The ordinary archive CLI replays at three and leaves
+production ASM unchanged. No helper or public ABI is modified.
+
+For `0047f850`, three target/count/dispatch iteration-state aggregate
+orders produce byte-identical **412B/416B, 13-word** output: twelve register
+differences and one zero-tail word. For `001d15a0`, a named entry stride,
+narrowed loop test, or both produce byte-identical **212B/224B, 12-word**
+output: nine register differences and three zero-tail words.
+
+The reported sound `0045c640` floor is not re-certified. Its old final-call
+fixed-five-argument cast is not established against `0043c518`'s
+variadic-looking register-save contract. That helper copies the fifth
+input register into its packet even at a call site preparing only four
+arguments. Resolving this contract is a prerequisite, not permission for
+another ABI-cleanup batch. No sound source or helper declaration changes.
+
+Named signed/unsigned/byte alpha maxima leave `001130c0` byte-identical at
+**7 words**. Named task-construction scalars regress `0046e850` from
+**4 to 7**; its parent move still sinks after the global address. Both
+original safe archives remain unchanged apart from measured notes.
+
+`0044f140` is re-certified as valid C at **596B/608B, 4 words**: one
+threaded branch and three zero-tail words. The old header pointer survives
+the void unlink helper in `$v0`; free consumes that pointer, not a return
+value. The archive now expresses the two calls separately, without an ABI
+change. Removing the empty `else` and disabling branch folding, peephole
+optimization or conditional rebuilding leave four words. An early-return
+tail with its own outer interrupt restore regresses to **616B, 77 words**.
+
+The `0029e550` script scan is re-certified at **608B/608B, 3 words**.
+Removing the overwritten pre-loop scan assignment changes no instructions.
+Reversed equality operands give four words; a literal slash gives six;
+a signed-byte slash grows to **616B, 103 words**. Its clear-call setup
+already matches; no speculative call-argument rewrite is needed.
+
+For `0014be50`, a named automatic normal-parts initializer followed by
+aggregate assignment regresses **416B/416B, 4 words** to **468B, 94 words**.
+It adds local zeroing and a local aggregate copy; it does not stage both
+global loads before the stores. The 8-byte XY and 4-byte Z extents remain
+unchanged.
+
+The scoped `optimization_level 1` floor for `00311930` is **596B/608B,
+8 raw words**: five FPU destination-register differences and three zero
+tail words. The archive's historical `normalized_diff=6` counts **bytes**,
+not words. Direct conversion of the table expression, an integer
+initializer and a const float initializer all leave the same residual.
+Neither conversion semantics nor table lookup order is changed.

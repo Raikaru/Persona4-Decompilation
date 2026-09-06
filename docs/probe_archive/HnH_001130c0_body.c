@@ -11,6 +11,8 @@
  * Plain alpha expression keeps the seven-word floor; moving it after the
  * cache assignments gives 15. Propagation-off and declaration/loop-invariant
  * variants did not close the scheduling residual. Production remains ASM.
+ * Named s32/u32/u8 alphaMaximum locals also give byte-identical seven-word
+ * output: five emitted differences at 0x6C-0x7C and two zero-tail words.
  * Native smoke: 1920 cases cover signed formatted values, alpha extremes,
  * reversed glyphs, cached colors, post-formatter width reads, and float order.
  */

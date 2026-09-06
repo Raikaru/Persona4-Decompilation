@@ -4,7 +4,14 @@
  *   loop scan pointer and loaded byte = $v1; next pointer = $v0;
  *   clear call length = $a2; call arguments are materialized left-to-right.
  * Requires #pragma opt_propagation off immediately before the function.
+ * Re-certified at 608B/608B: offsets 0x84, 0x90 and 0x94 retain the
+ * slash/scan register exchange. Removing the overwritten pre-loop scan
+ * assignment leaves the same 3 words. Reversed equality operands give
+ * 4 words; a literal slash gives 6; a signed-byte slash gives 103 and
+ * grows the object to 616B. The clear call setup already matches.
  */
+#pragma push
+#pragma opt_propagation off
 s32 func_0029e550(u8 *arg0)
 {
     ScrTaskData *task;
@@ -22,7 +29,6 @@ s32 func_0029e550(u8 *arg0)
         func_00442088(task->text, &D_007638D0, D_0063E5F0,
                       scrAddOff(func_00442948(D_0063E5F0), (u8 *)task) + 0x10);
         n = func_00442948(task->text) - 1;
-        scan = (u8 *)task + n;
         slash = 0x2F;
         while (n > 0) {
             scan = (u8 *)task + n;
@@ -82,3 +88,4 @@ s32 func_0029e550(u8 *arg0)
     }
     return 0;
 }
+#pragma pop
