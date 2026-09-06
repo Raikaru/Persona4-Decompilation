@@ -4471,3 +4471,57 @@ from source; source-linked objects remain at 172 and C-linked functions rise
 to 1,560. Both retail SHA-1 values remain exact:
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` for the loadable image and
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` for the complete executable.
+
+## Line setup: preserving aggregate and arithmetic lifetimes
+
+`func_0034c860` in `src/promoted/nLine.c` is now **MATCH**:
+**1,672B / 1,680B, normalized_diff 0**, with eight zero tail bytes.
+The complete retail instruction stream and IDA control flow establish the
+eighteen setup choices and the secondary geometry selector.
+
+The by-value `Vec2f` parameter removes the former address-hoisting spill
+floor. Its aggregate assignment also reproduces the two floating-point
+loads and stores into the owner's position fields. The existing `addF`
+inline helper keeps the repeated 448-unit height additions separate rather
+than caching their result in an extra saved floating-point register.
+
+One remaining expression lifetime matters in secondary mode 2. The compiler
+otherwise delays `(640.0f - extent) - position.x` until after two vertex
+callbacks. A private inline `subF` boundary, following the existing `addF`
+pattern, keeps that subtraction before the calls. The correctly typed
+aggregate/addition candidate has 187 differing words; this final boundary
+leaves only the two absent zero-padding words. Both helpers compile away
+into the retail scalar arithmetic. No register pinning, stack assembly,
+volatile storage, padding object, or optimization pragma is added.
+
+The `func_0034db60` declaration is floats-first to match its four setup-call
+sites. Other setup helpers retain their existing contracts. Focused
+verification of the owner and existing external consumer units reports
+**142 MATCH / 22 ASM, zero mismatches**.
+
+A throwaway smoke executes the installed renderer and arithmetic helpers
+under Clang ASan, UBSan, and float-cast-overflow checks:
+**4,255 scenarios / 7,420 vertices**. It covers all eighteen setup choices,
+secondary modes 0–4, invalid signed selectors, byte narrowing from wide and
+negative alpha carriers, signed timing boundaries, and negative-zero
+position storage. The oracle checks helper selection, direction, scale,
+vertex offsets, geometry, color, and callback order.
+
+Initializer mutations replace the owner/table selector, stored position,
+stored alpha, extents, depth, and camera scale. The original by-value
+position, alpha, and selected secondary mode remain captured. Easing
+mutations affect the later coordinate load; camera mutations preserve the
+already captured depth while changing the returned scale. Vertex mutations
+do not corrupt the remaining vertices' snapshots.
+
+Setup helpers, easing, camera access, and vertex output are modeled
+boundaries, not EE execution or an exceptional-floating-point emulator.
+The stale scalar-floor comment and temporary experiments are removed.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,733 MATCH overall; 6,103 first-party MATCH / 757 ASM**, and zero lint
+findings across 333 first-party files. The updated renderer is in the rebuilt
+source-linked `nLine.c` object. There are 172 source-linked objects and 1,561
+C-linked functions. Both retail hashes remain exact:
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` (loadable image) and
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` (complete executable).

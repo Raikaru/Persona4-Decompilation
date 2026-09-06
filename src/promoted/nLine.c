@@ -8,7 +8,10 @@ typedef struct {
     f32 y;
 } Vec2f;
 
+/* measured: inline arithmetic boundaries keep c860's height additions
+   separate and its remaining-width calculation before the callbacks. */
 static inline f32 addF(f32 a, f32 b) { return a + b; }
+static inline f32 subF(f32 a, f32 b) { return a - b; }
 
 
 extern void (*D_00887310[])(s32, void *, s32);
@@ -84,7 +87,7 @@ void func_0034d490(u8 *arg0, s32 arg1);
 void func_0034d690(u8 *arg0, s32 arg1);
 void func_0034d890(u8 *arg0, s32 arg1);
 void func_0034ddf0(u8 *arg0, s32 arg1);
-void func_0034db60(u8 *arg0, s32 arg1, f32 fparg0);
+void func_0034db60(u8 *arg0, f32 fparg0, s32 arg1);
 
 
 
@@ -570,22 +573,121 @@ void func_0034c820(u8 *arg0) {
 
 
 
+/* measured: Vec2f owns the argument spill; addF prevents height-sum caching,
+   and subF preserves the pre-callback width lifetime. The db60 declaration
+   is floats-first. Object 1672B/window 1680B, normalized_diff 0; eight zero
+   tail bytes. No stack/register assembly or optimization pragma is needed. */
 // FUN_0034C860
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034c860);
-/* measured: re-tested 4 spellings, best nd 329 (was 352). The jtbl switch
-   (17 cases) and the second switch's descending beq-chain (4,3,2,1,0 via
-   ascending case labels, empty cases 0/4, dsll32/dsra32 sign-extend) both
-   match retail structurally. Remaining b210 floors: (1) load-sinking — the
-   sp68-lo word `*((f32 *)&sp68 + 1)` gets its ADDRESS CSE'd across the 3
-   case bodies and hoisted into a saved $s0 (addiu $s0,$sp,0x7C + lwc1
-   ($s0) per body) instead of retail's plain lwc1 0x6C($sp) in each body —
-   that extra GPR cascades arg0 to $s3 and pushes the frame to 0x80 vs 0x70
-   (4 GPR + 6 FP vs 3+5); tried hoisted lo local before/after the switch,
-   byte-cast and mixed spellings — identical. (2) `lo + 448.0f` in calls
-   2+3 is CSE'd into a 6th saved FP where retail re-issues lui/mtc1/add.s.
-   (3) saved-FP rotation: retail allocates y/lo/delta/inv to $f20/$f23/
-   $f22/$f21 in case 1, mwcc permutes ($f20/$f24/$f23/$f22 + $f21 for the
-   448 sum). (4) int-args-before-float-moves call materialization. */
+void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2) {
+    s32 offset;
+    s16 kind;
+    s16 effect;
+    f32 width1;
+    f32 y1;
+    f32 z1;
+    f32 q1;
+    f32 x1;
+    f32 extent2;
+    f32 width2;
+    f32 y2;
+    f32 x2;
+    f32 z2;
+    f32 q2;
+    f32 right2;
+    f32 start;
+    f32 elapsed;
+    f32 width3;
+    f32 y3;
+    f32 x3;
+    f32 z3;
+    f32 q3;
+    f32 right3;
+    u8 alpha1;
+    u8 alpha2;
+    u8 alpha3;
+
+    offset = *(s32 *)(arg0 + 0x1680) * 0x10;
+    kind = *(s16 *)(D_007523CA + offset);
+    effect = *(s16 *)(D_007523CC + offset);
+    *(s16 *)(arg0 + 0x996) = effect;
+    *(Vec2f *)(arg0 + 0x99C) = arg1;
+    *(u8 *)(arg0 + 0x994) = arg2;
+    switch (kind) {
+    case 0: break;
+    case 1: func_0034d040(arg0); break;
+    case 2: func_0034d070(arg0, 1); break;
+    case 3: func_0034d280(arg0, 1); break;
+    case 4: func_0034d490(arg0, 1); break;
+    case 5: func_0034d690(arg0, 1); break;
+    case 6: func_0034d890(arg0, 1); break;
+    case 7: func_0034d070(arg0, 0); break;
+    case 8: func_0034d280(arg0, 0); break;
+    case 9: func_0034d490(arg0, 0); break;
+    case 10: func_0034d690(arg0, 0); break;
+    case 11: func_0034d890(arg0, 0); break;
+    case 12: func_0034ddf0(arg0, 1); break;
+    case 13: func_0034ddf0(arg0, 0); break;
+    case 14: func_0034db60(arg0, 0.5f, 1); break;
+    case 15: func_0034db60(arg0, 0.5f, 0); break;
+    case 16: func_0034db60(arg0, 1.0f, 1); break;
+    case 17: func_0034db60(arg0, 1.0f, 0); break;
+    default: func_0046d730(&iGpffffa950, 0x3A9); break;
+    }
+    switch ((s64)effect) {
+    case 0: break;
+    case 1:
+        width1 = *(f32 *)(arg0 + 8) - arg1.x;
+        y1 = arg1.y;
+        z1 = D_008872F8[0] - D_0088467C[0];
+        q1 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        alpha1 = arg2 & 0xFF;
+        func_0034f0d0(arg0 + 0x890, arg1.x, y1, z1, q1, 255, 255, 129, alpha1);
+        func_0034f0d0(arg0 + 0x8D0, arg1.x, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
+        x1 = arg1.x + width1;
+        func_0034f0d0(arg0 + 0x910, x1, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
+        func_0034f0d0(arg0 + 0x950, x1, y1, z1, q1, 255, 255, 129, alpha1);
+        break;
+    case 2:
+        extent2 = *(f32 *)(arg0 + 0x644);
+        width2 = subF(640.0f - extent2, arg1.x);
+        y2 = arg1.y;
+        x2 = extent2 + arg1.x;
+        z2 = D_008872F8[0] - D_0088467C[0];
+        q2 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        alpha2 = arg2 & 0xFF;
+        func_0034f0d0(arg0 + 0x890, x2, y2, z2, q2, 255, 255, 129, alpha2);
+        func_0034f0d0(arg0 + 0x8D0, x2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
+        right2 = x2 + width2;
+        func_0034f0d0(arg0 + 0x910, right2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
+        func_0034f0d0(arg0 + 0x950, right2, y2, z2, q2, 255, 255, 129, alpha2);
+        break;
+    case 3:
+        if (*(s32 *)(arg0 + 0x1690) == 0) {
+            start = *(f32 *)(arg0 + 0x4C);
+            elapsed = (f32)*(s16 *)(arg0 + 0x1684);
+            if (!(elapsed <= start)) {
+                width3 = 840.0f * func_0044b610((iGpffff8094 * (elapsed - start)) / (*(f32 *)(arg0 + 0x50) - start));
+            } else {
+                width3 = 840.0f;
+            }
+        } else {
+            width3 = 0.0f;
+        }
+        y3 = arg1.y;
+        x3 = arg1.x + (*(f32 *)(arg0 + 8) - width3);
+        z3 = D_008872F8[0] - D_0088467C[0];
+        q3 = 1.0f / *(f32 *)(func_00457120() + 0x80);
+        alpha3 = arg2 & 0xFF;
+        func_0034f0d0(arg0 + 0x890, x3, y3, z3, q3, 255, 255, 129, alpha3);
+        func_0034f0d0(arg0 + 0x8D0, x3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
+        right3 = x3 + (width3 - arg1.x);
+        func_0034f0d0(arg0 + 0x910, right3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
+        func_0034f0d0(arg0 + 0x950, right3, y3, z3, q3, 255, 255, 129, alpha3);
+        break;
+    case 4: break;
+    default: func_0046d730(&iGpffffa950, 0x3DF); break;
+    }
+}
 // FUN_0034CEF0
 void func_0034cef0(u8 *arg0) {
     void (**f)(s32, void *, s32);
