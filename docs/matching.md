@@ -4003,3 +4003,13 @@ For the pending model-sound callback `func_0047e6f0`, an explicit owner
 alias and a one-field owner record both retain the plain draft's
 **840B/848B, 45-word** comparison. They do not resolve the saved-register
 allocation and are not production candidates.
+
+Callback follow-through: unsigned bank-size locals, with corresponding
+signed pointers passed to the extractor, reproduce retail's interleaved
+pointer/size argument setup. The plain draft improves **45 to 41 words**;
+a local copy-context record improves **39 to 35 words** at the same
+**840B/848B** size. Explicit `register` on the owner parameter, grouping
+the three bank pointers, and sharing the current/node local each retain
+the plain unsigned draft's **41 words**. These are measured source-shape
+experiments only; the callback remains ASM and has not passed a runtime
+semantic oracle.
