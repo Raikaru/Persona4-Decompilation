@@ -495,9 +495,9 @@ void func_001163e0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 
 
 
-void func_00117310(s64, f32, s32, s32, s32, s32);
-/* measured: the float-second `(I64,f32,s32,s32,s32,s32)` declaration for
-   func_00117310 reproduces its `ld $a0; mov.s $f12; lw/lw/move/addiu`
+void func_00117310(Vec2f, f32, s32, u32, u32, s32);
+/* measured: (Vec2f,f32,s32,u32,u32,s32) plus an unsigned number-field
+   load preserves retail's `ld $a0; mov.s $f12; lw/lw/move/addiu`
    materialisation. This body uses the float-first func_00275020 declaration
    and the direct `iGpffff9c0c` spelling for retail `-0x63F4($gp)`.
    Object 524B / window 528B, MATCH (nd 0). */
@@ -505,7 +505,7 @@ void func_00117310(s64, f32, s32, s32, s32, s32);
 void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
 {
     u8 sp90[0x100];
-    f32 sp190[2];
+    Vec2f sp190;
     u8 sp19c[4];
     s32 alpha;
     s32 color;
@@ -525,16 +525,16 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
     if (id1 == 0) {
         func_0046d730(D_005E4868, 0x237);
     }
-    sp190[0] = 129.0f + *(f32 *)&arg0;
-    sp190[1] = 39.0f + high;
-    func_0046d4c0(0, id0, 0x39, sp190[0], sp190[1], (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
-    sp190[0] = 259.0f + *(f32 *)&arg0;
-    sp190[1] = 43.0f + high;
+    sp190.x = 129.0f + *(f32 *)&arg0;
+    sp190.y = 39.0f + high;
+    func_0046d4c0(0, id0, 0x39, sp190.x, sp190.y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    sp190.x = 259.0f + *(f32 *)&arg0;
+    sp190.y = 43.0f + high;
     sp19c[0] = 0x2D;
     sp19c[1] = 0x2D;
     sp19c[2] = 0x2D;
     sp19c[3] = arg1;
-    func_00117310(*(s64 *)sp190, fparg0, *(s32 *)sp19c, *(s32 *)(arg2 + 0x38), id1, 1);
+    func_00117310(sp190, fparg0, *(s32 *)sp19c, *(u32 *)(arg2 + 0x38), id1, 1);
     temp = (s32)func_00109220(*(u16 *)(arg2 + 2));
     func_00442088(&sp90[0], (void *)&iGpffff9c0c, temp);
     func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, &sp90[0], 0, -1);
@@ -641,12 +641,51 @@ void func_001171c0(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3)
         rem = n;
     } while (n > 0);
 }
-/* measured: docs/probe_archive/FPSHD_00117310_body.c is 388B/400B with nine
-   differing words: six prologue argument-save rotations and three zero
-   tail words. Scoped loop invariants close the mode preheader; packed
-   coordinates, full-width mode and unsigned digit semantics are preserved. */
+/* measured: Vec2f coordinates, direct packed-color parameter access and
+   unsigned number/resource locals reproduce retail's prologue. Scoped
+   loop invariants preserve digit-loop setup; 388B/400B, zero instruction
+   differences and twelve retail zero-tail bytes. */
 // FUN_00117310
-INCLUDE_ASM("asm/nonmatchings/shdPersona", func_00117310);
+#pragma push
+#pragma opt_loop_invariants on
+void func_00117310(Vec2f arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3, s32 arg4)
+{
+    f32 f;
+    u32 n = arg2;
+    u32 id = arg3;
+    u8 b2;
+    u8 b1;
+    u32 rem;
+    f32 y;
+    y = arg0.y;
+    if (id == 0) {
+        func_0046d730(D_005E4868, 0x424);
+    }
+    if (arg4 != 0) {
+        f = arg0.x;
+        rem = n;
+        while (rem >= 10U) {
+            f += 16.0f;
+            rem /= 10U;
+        }
+    } else if (n < 10U) {
+        f = 8.0f + arg0.x;
+    } else {
+        f = 16.0f + arg0.x;
+    }
+    b2 = *((u8 *)&arg1 + 2);
+    b1 = *((u8 *)&arg1 + 1);
+    arg4 = 0xFF;
+    arg4 -= *((u8 *)&arg1 + 3);
+    do {
+        func_0046d4c0(0, id, (n % 10U) + 9,
+                      f, y, (u8)arg4, *((u8 *)&arg1), b1, b2,
+                      fparg0, 0);
+        n /= 10U;
+        f -= 16.0f;
+    } while (n != 0);
+}
+#pragma pop
 // FUN_001174A0
 f32 func_001174a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 {
