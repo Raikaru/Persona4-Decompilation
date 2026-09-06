@@ -3038,18 +3038,14 @@ void func_00479080(void* param_1, void* param_2)
     }
 }
 
-/* measured: 4 attempts (nd 432/388/388/409). The lbu+bltz+u32-neg-path byte
-   conversion IS reproducible: (f32)(u32)*(u8*) emits lbu;bltz;mtc1;cvt.s.w
-   (neg: srl/andi/or/doubling) exactly like retail, and iGpffff8044 must be
-   declared volatile (plain f32: b210 CSEs the 8 loads into one hoisted
-   lwc1). madd chain matches from `255.0f * x + 0.5f` (adda.s/madd.s). The
-   sp6C[4] bytes must be one array (separate s8 locals get dead-store-ELIM'd,
-   killing the w1/w2 chains). Residual at best nd 409: pre-chain register
-   allocation (obj/obj2 in $a1 vs retail $v0; the flags&0x8000 test re-issued
-   in $s0 instead of one beqz into the shared block; sp64/sp68/sp6C[4] stack
-   slot order 0x74/0x6C/0x64 vs retail 0x64/0x68/0x6C) and the madd-chain FP
-   regs (mine f1/f0/f6/f4 + 255=$f4,0.5=$f3,0.0=$f2 vs retail f2/f1/f0/f5 +
-   $f5/$f4/$f3). FP-coloring + slot-order floor. */
+/* IDA follow-through: 1908B / 1920B, 32 relocation-masked differing words.
+   Separate command/alpha-product lifetimes, stack order and callback-local
+   draw/clump snapshots close the former 409-word allocation residual.
+   CSE-off preserves all eight normalization loads without volatile.
+   Three extra accumulator-zero transfer/nop pairs cancel the bytes saved
+   by sharing a draw-call branch; equal instruction-body size is not proof.
+   Complete rejected candidate: docs/probe_archive/IDA_00479100_body.c.
+   Production remains ASM pending exact accumulator and branch codegen. */
 // FUN_00479100
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00479100);
 

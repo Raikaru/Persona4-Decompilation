@@ -22,6 +22,13 @@
  * key scores 36, 64-bit index with IDA-style increment 44, both wide 50,
  * and a complete IDA-wide scalar rendering 56. Inferred IDA scalar widths
  * do not establish the original C types. Retain the five-word floor.
+ * Later replay: ANSI u16/u32 and K&R u16 parameters retain five words;
+ * K&R s16 gives 200B/33. Key/index pairs and their declaration reversals
+ * give 11; disabling dead assignments, lifetimes or pointer analysis ties
+ * five. Combined nested sort/iteration scopes, including an independently
+ * scoped count scan, also retain five. The analogous matched lifetime
+ * pattern is func_001de370 in src/Battle/btlAICommand.c; it does not close
+ * this residual. The void return contract agrees with the retail epilogue.
  */
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)

@@ -16,6 +16,7 @@
         "Keep existing iGpffff8044, func_004578b0 and D_00713160 declarations from the translation unit."
       ],
       "followthrough": "An automatic aggregate quantization initializer worsens this floor to 1048B/89 words. The scalar conversion/store order from include/rw/plcore/bacolor.h:112-131 leaves 996B/72 words unchanged. SDK literal normalization with CSE enabled gives 948B/194 words. Reviewer-guided in-place real/tinted storage gives 996B/73 words; declaring material before geometry gives 996B/74 words; combining them gives 996B/75 words. All are rejected. Retail has 972 instruction bytes plus one padding word: the CSE-off candidate adds three accumulator-zero mtc1/nop pairs, while CSE-on wrongly removes six normalization loads. The archived candidate remains unchanged.",
+      "later_probes": "Integer-batched quantization gives 980B/67 words but changes store scheduling and remains rejected. Explicit shared zero-plus-bias gives 1020B/79 words, adding arithmetic instead of preserving the compiler's hidden seed. Bottom-up and single-pass inlining, CSE-off lifetime/constant-pullout/scalar-live-range controls, comma-expression quantization, and optional quantizer inlining retain 996B/72 words. Restoring propagation outside the quantizer gives 1044B/114 words. No new runtime acceptance result or source promotion is claimed.",
       "evidence": "Ordinary unsigned-to-float casts with CSE-off reproduce the retail single-negative-path conversion and per-channel normalization loads. Propagation-off retains the named 255.0f and 0.5f quantization constants. Repeated accumulator-zero materialization and FP/GPR allocation remain different. Quantizer-local CSE-on does not improve this result; the ineffective scope was removed."
     },
     {
@@ -23,15 +24,15 @@
       "body": "IDA_00479100_body.c",
       "ida": "docs/ida_headstart/src/Graphics/Model/mdlManager.c:2696-2870",
       "assembly": "asm/nonmatchings/mdlManager/func_00479100.s",
-      "object_bytes": 1852,
+      "object_bytes": 1908,
       "window_bytes": 1920,
-      "differing_words": 409,
+      "differing_words": 32,
       "requires": [
         "Use the already refined MdlCloneAttachmentTable in src/Graphics/Model/mdlManager.c; preserve its count union and 0x34-byte layout rather than adding another view.",
-        "Replace only the target ASM marker with the complete candidate, including its allocator-backed MdlRenderCommand view and helper declarations.",
+        "Replace only the target ASM marker with the complete candidate, including its balanced CSE-off/propagation-off scope, allocator-backed MdlRenderCommand view and helper declarations.",
         "Keep the corrected two-argument func_00479030 -> func_00478ec0 and func_0047ddd0 -> func_004b5f80 callback contracts."
       ],
-      "evidence": "The draw descriptor belongs to the allocator, not the stack. Independent predicate words and a real RGBA local model stack storage. Natural unsigned-to-float conversion and quantization remain nonvolatile. CSE-off worsens the result to 1968B/436 words and was removed. Neither result is an acceptance proof."
+      "evidence": "Separate queued-command and modulated-alpha lifetimes, retail stack order, immediate draw/clump snapshots and explicit child index/pointer lifetimes reduce the original 1852B/409-word draft to 1908B/32 words. CSE-off preserves all eight inverse-255 loads without volatile. The score includes three missing zero-tail words, but the body is not an instruction match: three extra accumulator-zero mtc1/nop pairs offset 24 bytes saved by sharing the colored/uncolored draw call. Duplicating that branch gives 1932B/180 words with the separate alpha lifetime. Explicit zero-plus-bias adds arithmetic rather than sharing the implicit seed; a four-component quantization loop is also worse. No runtime semantic oracle or promotion is claimed."
     }
   ]
 }
