@@ -23,6 +23,9 @@
  * the initial depth-before-X load order, but not its FPR allocation.
  * Changing only the compiler binary to b119, retaining the owner's flags,
  * regresses to 204B/176B and 45 words. No compiler profile is changed.
+ * A private inline final-VF10 load with the same memory contract retains
+ * 15 words. A scalar quotient helper, in numerator-first and depth-first
+ * argument order, also retains 15; these helper boundaries are not kept.
  * Reproduce: python tools/probe_variants.py src/Graphics/Model/mdlEffect.c
  * func_0048a460 --candidate archive=docs/probe_archive/W49MdlEffect_0048a460_body.c
  */

@@ -1038,10 +1038,10 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
 /* measured: disabling common-subexpression elimination preserves retail's
    per-call corner recomputation. */
 #pragma opt_common_subs off
-/* Archived C body: build/VNLN_0034ddf0_body.c; object 688B; retail window
-   704B; normalized_diff 168. The body retains the plain `(f32)(u32)temp_2`
-   unsigned-byte-to-float cast and `(u8)temp_f2_2` float-to-unsigned-byte cast;
-   the residual is documented in the archive header. */
+/* Archived C body: docs/probe_archive/VNLN_0034ddf0_body.c; object 700B;
+   retail window 704B; six reloc-masked differing words. Remaining:
+   five alpha-conversion register assignments and one trailing word.
+   Native geometry and mutating-callback smoke evidence is in the archive. */
 // FUN_0034DDF0 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
 /* measured: closes ddf0 common-subexpression scope after its archived body. */
