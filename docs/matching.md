@@ -3556,16 +3556,15 @@ A freestanding 32-bit host consumer using the actual callee bodies passes
 contracts reproduces both missing-argument errors. This is a host
 semantic check, not a PS2 rendering test.
 
-The update and rendering reconstructions remain unpromoted. Update
-`00478a30` measures **1116B/1088B, 175 reloc-masked differing words** with
-scoped CSE disabled; separate phase counters alone did not improve the
-initial 239-word result. Rendering `00479100` measures
-**1852B/1920B, 409 words**; CSE-off worsened it to 1968B/436 words and was
-removed. The complete candidates and shared-layout replay requirements
-are retained in `docs/probe_archive/IDA_00478a30_body.c`,
-`docs/probe_archive/IDA_00479100_body.c`, and
-`docs/probe_archive/IDA_model_followthrough.json`. Neither candidate has
-been semantically smoke-tested or accepted as matching.
+The update reconstruction initially measured **1116B/1088B, 175
+reloc-masked differing words** with scoped CSE disabled; separate phase
+counters alone did not improve the initial 239-word result. It is now
+promoted; see “Recursive model update: cache within call boundaries” below.
+Rendering `00479100` remains **1852B/1920B, 409 words**; CSE-off worsened it
+to 1968B/436 words and was removed. Its complete candidate remains in
+`docs/probe_archive/IDA_00479100_body.c`, with replay requirements in
+`docs/probe_archive/IDA_model_followthrough.json`. Rendering has not been
+semantically smoke-tested or accepted as matching.
 
 After these callback corrections, `make build verify lint-errors` passes:
 both retail SHA-1 checks succeed, all **7,717 instruction matches** remain,
@@ -4091,3 +4090,47 @@ The byte-exact build and resumed `make progress lint-errors` gate pass:
 **7,725 overall MATCH**, **6,095 first-party MATCH / 765 ASM**, **172
 source-linked units**, both expected retail SHA-1s, and zero lint findings.
 Progress endpoints and the README are regenerated and validated.
+
+## Recursive model update: cache within call boundaries
+
+`func_00478a30` is now production C in `src/Graphics/Model/mdlManager.c`:
+**1080B emitted / 1088B retail window, MATCH**. The two standalone
+diff words are trailing zero padding. The existing attachment-table view
+now names its RGBA, scale, primary/secondary draw state and unsigned delay
+without changing its count union, offsets or 0x34-byte allocation size.
+Public function signatures and both ordinary 64-byte matrix assignments
+remain unchanged.
+
+The 175-word floor came from repeated field loads with CSE disabled, not
+missing callback behavior. Local draw snapshots serve a predicate and its
+immediate call. Fields are reloaded after callbacks: pending draw pointers
+before final assignment, primary draw between scale and matrix update,
+delay after secondary update, and child slots after eligibility and time
+setup. A signed local snapshots the unsigned 16-bit delay immediately
+before its positive test and decrement, preserving high-bit countdowns.
+
+This reaches four words at 1080B: two argument-order words and two padding
+words. Staging the full signed frame ID after the matrix getter, with
+scoped propagation disabled, closes the executable residual. CSE remains
+disabled to retain per-phase matrix addresses. An independent reviewer
+confirmed these load/reload boundaries and that no frame-copy API change
+was justified.
+
+The owner and promoted-caller units verify **153 MATCH / 11 ASM**.
+A throwaway 32-bit GCC/UBSan consumer passes **582 scenarios**, using the
+installed function and actual model, matrix, layer and attachment layouts.
+Controlled animation, draw, frame and sound leaves exercise callback-driven
+pointer replacement, scale application to the old draw versus matrix
+application to its replacement, delays 0/1/2/32768/65535, tick-zero behavior,
+all five child slots, eligibility and pre-recursion replacement, two levels
+of child recursion, and full guarded model images. Matrix checks preserve
+all 64 bytes, including flags/padding, and use noncommuting transforms.
+Frame IDs include -1, -2, 5 and 65537. The reviewer identified and checked
+the stronger scale, multiplication-order and signed-ID oracles. This is
+not EE/in-game execution or validation of the complete rendering engine.
+
+`make build-progress progress lint-errors` passes with **7,726 overall
+MATCH**, **6,096 first-party MATCH / 764 ASM**, **172 source-linked units**,
+both expected retail SHA-1s and zero lint findings. Progress endpoints and
+the README are regenerated and validated. The superseded recursive archive
+and throwaway probes are removed; remaining model floors stay unpromoted.
