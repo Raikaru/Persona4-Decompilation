@@ -4412,3 +4412,62 @@ the promoted owner still has fourteen ASM functions and is not wholly
 C-linked. The loadable image SHA-1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete executable remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Line rectangles: aggregate position instead of a packed scalar
+
+`func_0034c500` in `src/promoted/nLine.c` is now **MATCH**:
+**436B / 448B, normalized_diff 0**, with twelve zero tail bytes.
+The previous scalar-position archive reported normalized_diff 323.
+
+The position is a by-value two-float `Vec2f`, following the existing external
+callers' aggregate layout. This makes the compiler own the argument home at
+`sp+0x38`; no explicit stack access or extra assembly is needed. Three
+source details close the body:
+
+- The aggregate parameter restores the retail prologue and saved registers.
+- Capture X and Y before selecting the rectangle dimensions, rather than
+  delaying their loads until the packet-builder call.
+- Declare the byte color locals in blue/red/green order. Swapping red and
+  green leaves eight instruction-register differences.
+
+The aggregate-only probe has 63 differing words. Early coordinate loads
+reduce that to eleven; color-local order leaves only three absent zero
+padding words. Explicit packet alignment and propagation changes do not
+improve the result and are not retained.
+
+`func_0034c270` now receives `Vec2f` directly and reads its X/Y fields;
+`func_0034c4a0` clears a `Vec2f` through its byte representation. Both callers
+remain MATCH. Converting the former scalar argument through a temporary
+union instead adds a store and grows the caller's frame, so that bridge is
+not retained. The `func_0034c860` declaration accepts the same aggregate.
+
+Existing external declarations and their integer/floating-point ordering
+are intentionally unchanged: they already deliver the same position bits
+through the EE register-class ABI. This is not a cross-platform ABI
+canonicalization. Focused verification of `nLine.c`, `shdPersona.c`,
+`cmpConfig.c`, and `cmpSkill.c` reports **141 MATCH / 23 ASM, zero
+mismatches**.
+
+A throwaway native smoke extracts the five installed C bodies: the
+renderer, both local callers, rectangle construction, and command dispatch.
+Clang ASan, UBSan, and float-cast-overflow checks pass **526 scenarios /
+10,520 quads**. Coverage includes all byte alpha values with fractional
+truncation, signed palette indices, both dimension choices, optional setup
+ordering, nonzero aggregate positions, zero-position construction, and the
+caller's depth reset. Dispatch mutations change later coordinates,
+dimensions, palette bytes, mode, camera scale, and depth; subsequent draws
+observe those changes.
+
+Packet writing, camera access, and auxiliary setup are modeled boundaries.
+The smoke is not EE execution and does not establish exceptional-float or
+cross-TU native ABI behavior. Alpha inputs stay within the defined C
+float-to-byte conversion range. The superseded scalar archive is removed;
+no permanent test or new optimization pragma is added.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,732 MATCH overall; 6,102 first-party MATCH / 758 ASM**, and zero lint
+findings across 333 first-party files. The rebuilt `nLine.c` object is linked
+from source; source-linked objects remain at 172 and C-linked functions rise
+to 1,560. Both retail SHA-1 values remain exact:
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` for the loadable image and
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` for the complete executable.
