@@ -4608,3 +4608,28 @@ the declaration repair. Counts remain **7,734 MATCH overall; 6,104
 first-party MATCH / 756 ASM**, with 172 source-linked objects and 1,562
 C-linked functions. Both retail hashes remain exact, progress validates,
 and lint reports zero findings across 333 first-party files.
+
+## Archive discovery: do not parse lane prefixes as addresses
+
+`recon_pool.py` previously took the first eight hexadecimal characters in
+an archive filename. For `UnC001d7c60au_001d7c60_body.c`, that produced
+`C001d7c6` instead of `001d7c60`, incorrectly scheduling an archived function
+as fresh work.
+
+The parser now recognizes whole eight-digit hexadecimal runs. Ambiguous
+or embedded names are resolved against `func_`/`FUN_` symbols that also
+occur in the filename; unresolved names are not guessed. Legacy embedded
+names, uppercase addresses, `.c.txt` archives, and unambiguous partial
+bodies remain supported.
+
+The fresh-pool regression fails before the fix and passes afterward.
+The real CLI's first-party pool up to 4,096 bytes changes from 403 to 402:
+`func_001d7c60` is excluded, with no previously excluded function becoming
+fresh. All **520 Python tests** pass. Fresh means no recognized archived
+C body, not proof that a function has never been attempted.
+
+Archive scores remain historical claims. In this pass the purported
+four-word `func_0014efc0` floor replays at **836B / 848B, normalized_diff
+135** after restoring its archived data declarations. Measure the target
+body in its current owner before treating a filename or note as evidence
+of a nearly complete match.
