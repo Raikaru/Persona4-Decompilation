@@ -7,7 +7,7 @@ extern void func_0044ea90();
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007241D8;
-extern s32 func_00477c40(u16 arg0, u16 arg1, s32 arg2);
+extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
 extern s32 iGpffffbb40;
 extern u8 D_00922C10[];
 extern u8 D_00922C14[];
@@ -38,16 +38,70 @@ void *func_0047dea0(s16 arg0, s16 arg1, s16 arg2)
     return temp_2;
 }
 
-
-/* measured: retail recomputes the D_00922C10 + index*8 base twice in the first
-   loop (once for the == check, once for the func_00477c40 arg) and uses a
-   bottom-of-loop sltiu/bnez test; mwcc b210 CSEs the base into one register and
-   reuses it across the if/else, so the object is 24B short (408B vs 432B).
-   Tried hoisted masks, u32 params, integer-domain (u32)D_00922C10 cast, and
-   loop restructures -- all nd 90. CSE-of-base floor. */
+/* Measured: 420 instruction bytes plus 12 retail zero-tail bytes, nd 0.
+   CSE-off retains repeated slot addresses and index masks. Propagation-off
+   preserves the shared sentinel and distinct eviction-loop lifetimes. */
 // FUN_0047DF40
-INCLUDE_ASM("asm/nonmatchings/mdlSE", func_0047df40);
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
+s32 func_0047df40(s32 type, s32 id)
+{
+    s32 selectedSlot;
+    s32 scanIndex;
+    u32 slotType;
+    s32 slotIndex;
+    u32 minimumTick;
+    u8* slot;
+    s32 byteOffset;
+    u32 requestedType;
+    u32 requestedId;
 
+    selectedSlot = -1;
+    scanIndex = 0;
+    requestedType = type & 0xFFFF;
+    requestedId = id & 0xFFFF;
+    for (; (slotIndex = scanIndex & 0xFFFF) < 3U; scanIndex = (scanIndex + 1) & 0xFFFF)
+    {
+        slot = (u8*)D_00922C10 + (u16)scanIndex * 8;
+        slotType = *(u16*)(slot + 4);
+        if ((requestedType == slotType) && (requestedId == *(u16*)(slot + 6)))
+        {
+            selectedSlot = slotIndex;
+            break;
+        }
+        else if (((s32)slotType < 0xC) &&
+                 (func_00477c40(slotType, *(u16*)((u8*)D_00922C10 + (u16)scanIndex * 8 + 6), 0) == 0))
+        {
+            selectedSlot = slotIndex;
+            break;
+        }
+    }
+    /* All ones is both the unselected-slot sentinel and the initial unsigned minimum. */
+    minimumTick = 0xFFFFFFFFU;
+    if ((u32)selectedSlot == minimumTick)
+    {
+        u32 evictionSlot;
+        s32 evictionIndex = 0;
+        slot = (u8*)D_00922C10;
+        for (; (evictionSlot = evictionIndex & 0xFFFF) < 3; evictionIndex = (evictionIndex + 1) & 0xFFFF)
+        {
+            u32 tick = *(u32*)(slot + ((evictionIndex & 0xFFFF) * 8));
+            if (tick <= minimumTick)
+            {
+                minimumTick = tick;
+                selectedSlot = evictionSlot;
+            }
+        }
+    }
+    byteOffset = selectedSlot * 8;
+    iGpffffbb40 = (u32)iGpffffbb40 + 1;
+    *(s32*)((s32)D_00922C10 + byteOffset) = iGpffffbb40;
+    *(u16*)((s32)D_00922C14 + byteOffset) = type;
+    *(u16*)((s32)D_00922C16 + byteOffset) = id;
+    return selectedSlot + 3;
+}
+#pragma pop
 
 /* measured: nd 160. Modulo fixed (divu not __moddi3) and object size is right
    (840-844B vs 848B window), but the saved-register allocation is rotated:
