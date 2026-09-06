@@ -14,6 +14,12 @@
  * A shared inline COP2 unit-store primitive with precise memory output ties
  * at 120B/128B and eight words. The retail-proven memset pointer-return
  * declaration also ties; neither change is installed to chase this floor.
+ * Fresh typed quadword copies replay at 116B/128B and 20 words when the
+ * source address folds into lq. A named source pointer with propagation off
+ * restores this 120B/eight-word candidate. A C inline load helper, explicit
+ * void return, and dead-assignment controls do not close it. Changing only
+ * the compiler binary to b119, retaining the owner's flags, also gives
+ * 120B/eight words. No compiler profile or production body is changed.
  */
 #pragma push
 /* measured: propagation off preserves the retail aggregate-copy sequence. */

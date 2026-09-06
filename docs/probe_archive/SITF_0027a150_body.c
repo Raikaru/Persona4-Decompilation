@@ -10,6 +10,11 @@
  * still 32 words, now 35 normalized bytes. Frame remains 0x50 with s0-s3.
  * A parameter-derived remaining initializer, alone or with current and scoped
  * propagation off, also leaves 32 words. No register steering is retained.
+ * Further probes: reusing remaining/tag parameters gives 35-38 words,
+ * including scoped propagation-off variants. A separate retained-group
+ * cursor shrinks to 328B/50 words; splitting only the final release cursor
+ * and using unsigned tags retain 332B/32. O2, lifetime-off and dead-assignment
+ * controls retain 32; O3/O4 shrink to 288B/74. No variant is promoted.
  */
 // FUN_0027A150
 u8 *func_0027a150(u8 *arg0, s32 arg1, s32 arg2)
