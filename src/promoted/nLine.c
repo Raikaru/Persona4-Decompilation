@@ -42,11 +42,11 @@ extern u8 D_007523CA[];
 extern u8 D_007523CC[];
 extern u8 D_007523CE[];
 extern u8 D_007525D4[];
-/* gp - 0x4A5C = 0x00724694, GP-relative s16. */
+/* gp - 0x4A5C = 0x00764694, GP-relative s16. */
 extern s16 iGpffffb5a4;
-/* gp - 0x56B0 = 0x00723A40, GP-relative assert string. */
+/* gp - 0x56B0 = 0x00763A40, GP-relative assert string. */
 extern char iGpffffa950;
-/* gp - 0x56B8 = 0x00723A38, GP-relative name string. */
+/* gp - 0x56B8 = 0x00763A38, GP-relative name string. */
 extern char iGpffffa948;
 /* gp - 0x7F6C = 0x00761184, GP-relative f32. */
 extern f32 iGpffff8094;
@@ -64,7 +64,7 @@ void func_0034c820(u8 *arg0);
 void func_0034c860(u8 *arg0, Vec2f arg1, s32 arg2);
 void func_0034cef0(u8 *arg0);
 s16 func_0034e290(u8 *arg0, s32 arg1);
-s16 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
+s32 func_0034e360(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 void func_0034ee90(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2);
 void func_0034f0d0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7);
 u32 func_003b7060(void);
