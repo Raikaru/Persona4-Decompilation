@@ -4633,3 +4633,56 @@ four-word `func_0014efc0` floor replays at **836B / 848B, normalized_diff
 135** after restoring its archived data declarations. Measure the target
 body in its current owner before treating a filename or note as evidence
 of a nearly complete match.
+
+## Persona digits: aggregate coordinates and unsigned number fields
+
+`func_00117310` is now source C in `src/promoted/shdPersona.c`:
+**388B / 400B, zero differing instruction words**. The three raw fndiff
+differences are absent retail zero-tail words. `Vec2f` by value retains the
+packed `$a0` coordinates; the float-second parameter remains in `$f12`.
+Direct packed-color parameter access, unsigned number/resource locals and
+scoped loop invariants reproduce the retail prologue and digit-loop setup.
+
+The caller cutover matters independently. With the new `u32` number
+parameter, its former signed number-field load moves ahead of the packed
+coordinate setup, changing four instruction words. Reading the existing
+field at `persona + 0x38` as `u32` restores the retail argument order.
+`func_00116610` now uses a real `Vec2f` local and passes it directly:
+**524B / 528B, zero differing instruction words**. The remaining word is
+retail zero padding. Full owner verification reports **89 MATCH / 13 ASM,
+zero mismatches**. Independent review confirms the C and ASM caller ABI;
+the ASM caller is unchanged.
+
+A throwaway native smoke of the installed renderer passes **1,474,560
+scenarios / 6,021,120 sprites** under Clang ASan, UBSan and
+float-cast-overflow checks. A decimal-string oracle checks least-significant
+digit first, zero's single draw, unsigned values through `UINT32_MAX`,
+full-width nonzero modes, all alpha bytes, RGB order and inverse alpha.
+Finite-coordinate cases include signed zero and magnitudes where repeated
+16-unit additions round differently from a multiplied offset. Diagnostic
+and drawing callbacks mutate caller-owned inputs; emitted records retain
+the original by-value coordinates, number, resource, color and scale.
+Renderer and diagnostic helpers are modeled boundaries, not EE execution.
+
+The parallel `func_00311930` recovery remains ASM: **596B / 608B, five
+differing instruction words** at `0x70`, `0x74`, `0x88`, `0x8c`, `0x90`,
+plus three absent zero-tail words. Only float-to-byte conversion temporary
+registers differ. Its retained `C31B_00311930_body.c` archive now has the
+reviewed `(u16, u8 *, s8) -> s32` contract. A native smoke passes **42,735
+scenarios / 204,435 helper calls**, checking separate rank snapshots,
+assignment rather than accumulation, fractional truncation, division order,
+late multiplier lookup, narrow scaling flag and an input-only persona
+pointer. Semantic equivalence does not qualify this floor for promotion.
+
+The superseded `FPSHD_00117310_body.c` and `EcD_00117310_body.c` archives
+are removed; the installed shader body is the canonical reconstruction.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,735 MATCH overall; 6,105 first-party MATCH / 755 ASM**. Progress
+snapshots validate, and lint reports zero findings across 333 first-party
+files. Both retail hashes remain exact:
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` (loadable image) and
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` (complete executable).
+`shdPersona.c` remains outside the source-linked object set: this is an
+instruction-match promotion, not newly C-linked code. The linked totals
+remain **172 source objects / 1,562 C-linked functions**.

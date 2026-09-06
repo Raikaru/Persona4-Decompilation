@@ -8,10 +8,15 @@
  * Preserve both lookups, the u8 conversion, and the later unsigned
  * integer-to-float conversion. Reversed float declaration order also
  * failed previously. Retain ASM. */
+/* Independent retail review confirms low-u16 community ID, input-only
+ * persona pointer, low-s8 scaling flag and full s32 result. Correcting
+ * these parameter types preserves the five-word floor. Native semantic
+ * smoke: 42,735 scenarios / 204,435 helper calls, including independent
+ * rank snapshots, assignment-loop behavior and division before scaling. */
 /* saved-register audit: retail s7=arg2, s6=temp_17 (scaled delta), s5=arg0, s4=arg1, s3=temp_19 (byte count), s2=var_18 (accumulator), s1=var_17 (then var_3), s0=temp_16 (count); this list matches exactly under optimization_level 1. No opt_propagation-off three-part recipe is needed: no parameter-derived local is materialized. */
 #pragma push
 #pragma optimization_level 1
-s32 func_00311930(s32 arg0, u8 *arg1, s64 arg2)
+s32 func_00311930(u16 arg0, u8 *arg1, s8 arg2)
 {
     extern s32 func_00115890(u8 *arg0, s32 arg1);
     extern f32 D_007494D0[];
