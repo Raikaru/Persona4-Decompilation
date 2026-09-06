@@ -3911,16 +3911,39 @@ concurrent-mutation or retail-game execution coverage. The obsolete
 retail SHA-1s are retained; lint reports zero findings across 333
 first-party files.
 
-## Ratio conversion follow-through
+## Ratio conversion follow-through: paired group statistics
 
-`func_001f5bd0` remains archived. Removing five unsigned-tautology branches
-and using native unsigned casts reproduces the prior **708B/720B,
-12-word** result, whether casts use a shared word temporary or direct
-helper results. Combining the final ratio into one expression, with the
-same floating operation tree, fixes both multiply operand orders:
-**10 raw words, seven executable words / 12 executable bytes** remain.
-Those seven words only exchange the first two saved FPR results and their
-division operands; the other three words are zero tail padding.
-`FoA_001f5bd0_body.c` retains this smaller, better-measured source. No
-floating reassociation, helper contract change or production promotion
-is claimed for that residual.
+`func_001f5bd0` is now production C in `src/promoted/code1_001f.c`:
+**708B emitted / 720B retail window, MATCH**. Removing five
+unsigned-tautology branches and using native unsigned casts first
+reproduced the 12-word floor. Keeping the same floating operation tree
+in one expression fixed both multiply operand orders, leaving seven
+executable words that exchanged the first two saved FPR results and
+their division operands.
+
+Grouping the four statistics into two local `{ stat3, stat4 }` records
+closes that residual. Both records stay in FPRs; the retail 0x30 frame,
+save set, five unsigned-to-float conversions and final unsigned
+halfword conversion are unchanged. There is no floating reassociation,
+extra aggregate storage or helper ABI change. The remaining three raw
+words at `+0x2C4`, `+0x2C8` and `+0x2CC` are zero padding after the
+function end label. The superseded FoA and WS05 drafts were removed.
+
+A delegated independent oracle, tightened and rerun during integration,
+passed **309,307 cases** on a 32-bit ABI with SSE scalar floating point,
+contraction disabled and UBSan: 181,500 small-grid cases, 77,760 cases
+around unsigned conversion boundaries, 50,000 deterministic full-word
+samples, 15 flag-only cases and 32 flag-preservation cases. Mocks enforce
+the four stat-query tuples and `0x80000` mask, followed by exactly one
+RNG call with `0xF`; flag-only paths must call neither helper. The
+reference reads input words independently and converts through exact
+double precision. Halfword-backed storage, whole-buffer comparisons
+and surrounding canaries check output and untouched memory, including
+initially clear flags. The tested domain is indices 0–15, positive
+stat denominators and RNG returns 0–14; this is not EE/FCSR or in-game
+validation, nor a claim outside that domain.
+
+The full build/verify/lint gate passed with **7,723 overall MATCH**,
+**6,093 first-party MATCH / 767 ASM**, **172 source-linked units**,
+both expected retail hashes and zero lint findings. Publication
+reports and the README were regenerated and validated.
