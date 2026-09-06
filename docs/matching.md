@@ -4350,3 +4350,65 @@ findings across 333 first-party files. Both retail hashes remain exact.
 The source-linked object count stays at 172; this match does not yet make
 the entire `g_data.c` owner link-eligible. The superseded
 `EcC_00105010_body.c` archive and throwaway smoke/probe files are removed.
+
+## Packed-color propagation: VU bridges with C-owned state
+
+`func_004865c0` in `src/promoted/code1_0048.c` is now **MATCH**:
+**276B / 288B, normalized_diff 0**, with twelve bytes of zero tail padding.
+The prior scalar reference was 396B with 91 differing words.
+
+The recovery keeps the real VU operations instead of replacing them with
+scalar floating-point arithmetic. C owns the parent color store, the aligned
+parent-vector snapshot, all stack objects, linked-list traversal, callback
+lookup, and the post-callback next-pointer reload. The private normalization
+helper follows the existing packed-word VU bridge: `$2` is declared quadword
+scratch for unpacking and transfer to VF10; the floating-point transfer uses
+a compiler-assigned scratch operand.
+
+Two details close the hardware candidate:
+
+- The final packed-word store names the actual C local, `packedColor`, and
+  declares its memory output. No literal stack offset is encoded. Using the
+  generic memory operand in the instruction instead materializes an extra
+  address; naming the compiler-owned slot removes that instruction.
+- Reusing the existing quadword-scratch bridge, rather than inventing a
+  generic scalar-register convention for the unpack operation, closes the
+  remaining allocation differences. The generic candidate falls from 46 to
+  15 differing words after the slot change; the established bridge leaves
+  only the three absent zero-padding words.
+
+No additional optimization pragma is needed. The producer and active C
+consumers use the explicit `void func_004865c0(u8 *, s32)` contract; the
+void-pointer and unprototyped declarations in the two external consumer
+units are replaced. Focused verification reports **215 MATCH, 28 ASM, zero
+mismatches** across the owner and both external consumer units.
+
+A throwaway freestanding **32-bit native smoke passes 65,544 scenarios** with
+the installed C body and portable models only at its hardware boundaries.
+The 65,536 parent/child byte pairs are covered independently in every lane.
+With scale one-half, every multiplication is exactly representable as
+binary32, so the oracle uses integer arithmetic:
+`((255 * parent_byte * child_byte) / 4) & 255`.
+The asymmetric high-bit case `0x80030201` with child `0x04010101` produces
+`0x80BF7F3F`, covering truncation and low-byte wrapping.
+
+The remaining cases cover empty lists, null callbacks, unsigned descriptor
+indices through `0xFFFF`, preserved parent/scale snapshots despite callback
+mutations, clobbered modeled VU registers, link insertion/skipping/termination,
+and callback changes to future colors, descriptors, userdata, and table
+entries. Complete guarded object images are checked in the exhaustive pass.
+UBSan and float-cast-overflow traps are enabled.
+
+This is **not EE execution** or a general VU floating-point emulator.
+Instruction identity separately proves the retained hardware sequence.
+Two independent read-only reviews found no source-honesty or contract
+blockers. The superseded scalar archive is removed; no permanent test or
+ordinary-assembly fallback is added.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,731 MATCH overall; 6,101 first-party MATCH / 759 ASM**, and zero lint
+findings across 333 first-party files. Source-linked objects remain at 172;
+the promoted owner still has fourteen ASM functions and is not wholly
+C-linked. The loadable image SHA-1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; the complete executable remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
