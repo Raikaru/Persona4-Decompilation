@@ -308,7 +308,7 @@ extern void func_00200cb0(void);
 extern void func_001f8480(void);
 extern void func_00202be0(void);
 extern void func_0047d170();
-extern s32 func_0047e6f0();
+extern s32 func_0047e6f0(void **owner);
 extern void func_0019db40(u8 *arg0);
 extern void func_001fc1b0(s16 arg0);
 extern s32 func_002300f0();
@@ -2776,7 +2776,7 @@ s32 func_0019bf80(u8 *arg0) {
         *(s32 *)(arg0 + 0xC) = 1;
         goto block_6;
     }
-    if (func_0047e6f0(*(u8 **)(temp_3 + 0xA00) + 0x2D0) != 0) {
+    if (func_0047e6f0((void **)(*(u8 **)(temp_3 + 0xA00) + 0x2D0)) != 0) {
         return 1;
     }
 block_6:

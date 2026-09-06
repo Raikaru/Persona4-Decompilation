@@ -44,7 +44,7 @@ static inline s32 viewAddReverse(s32 base, s32 offset)
 }
 
 extern s32 func_004782b0(u8 *arg0);
-extern s32 func_0047e6f0(u8 *arg0);
+extern s32 func_0047e6f0(void **owner);
 extern s32 func_0047e0f0(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern void func_0045abd0(s16 arg0, s32 arg1, s16 arg2);
 extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -466,7 +466,7 @@ void func_0047ed60(u8 *arg0)
     s32 call_a1;
     s32 n;
 
-    func_0047e6f0(arg0);
+    func_0047e6f0((void **)arg0);
     temp_3 = *(u8 **)arg0;
     if (temp_3 != NULL && (*(u16 *)(temp_3 + 0x12) & 1) != 0) {
         var_16 = 1;
