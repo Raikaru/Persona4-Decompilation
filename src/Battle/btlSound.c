@@ -69,7 +69,7 @@ extern void* func_00454a60(const char* path, s32 flags);
 extern s32 func_004553c0(void* handle);
 extern void func_00454bd0(void* handle);
 extern void* func_00455ea0(void* handle, s32 index, void* out);
-extern void func_0045a570(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
+extern s32 func_0045a570(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
 extern s32 func_0045a890(s32 bank);
 
 extern u32 strlen(const char* text);

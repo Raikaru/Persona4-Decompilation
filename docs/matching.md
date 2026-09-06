@@ -3864,3 +3864,63 @@ retail game. The final run has no compiler or sanitizer diagnostics.
 first-party files. Linked C object count remains **172**; both retail
 SHA-1s remain exact. The superseded font archive is removed; production
 source now holds the accepted body.
+
+## Sound initializer: restore the return and pointer/size contracts
+
+`func_0045a570` in `src/sdkSnd.c` closes at **448B/448B**, with all 112
+instruction words matching. The archived seven-argument body omitted the
+slot argument to `func_0045a890`, whose actual definition is `u32 (s32)`,
+and discarded the initializer's constant success return.
+
+The accepted signature is `s32 (s32, void *, u32, void *, u32, void *, u32)`.
+Forwarding the raw slot word, narrowing only at table accesses, and returning
+`1` reproduces retail without new compiler controls. A correctly forwarded
+but void-returning control remains **448B with 28 differing words**. The
+return contract, not forced temporary allocation, closes that floor.
+Direct members of the existing `HsndSlotWork` match just as well as the
+offset macros and avoid pointer stores through signed-word lvalues.
+
+Both live C callers use the same recovered signature. Updating the
+`mdlSE` declaration alone initially reordered six outgoing argument loads,
+leaving **12 differing bytes** and tripping the **172-object linkage
+floor**. Its two three-element staging arrays now hold their actual types:
+`void *` data addresses and `u32` lengths. This restores the caller's
+**668B/672B** match; the omitted word is only zero tail padding. The header
+length and `(size + 0x3F) / 64 * 64` record advance stay signed. The battle
+sound caller retains its **456B/464B** match. No caller is demoted or given
+an incompatible declaration to preserve a score.
+
+The SDK unit's diagnostic declaration also agrees with its canonical
+`void (void *, s32)` definition; its three existing calls pass the file
+pointer directly. Focused verification of the three changed units reports
+**48 MATCH / 4 ASM across 52 functions**, with no mismatches.
+
+A throwaway 32-bit UBSan oracle passes **486,000 cases** using the live
+slot layout and readiness helper. It covers all six valid slots, eight
+signed initial states, three raw upper-word patterns, independent null
+and non-null payload pointers, and independent unsigned length endpoints.
+An independent byte-addressed store model checks the entire result,
+untouched padding, neighboring slots and both guards. It also checks raw
+slot forwarding, diagnostic arguments and pre-write timing, and the
+constant return. This is bounded initializer coverage, not invalid-slot,
+concurrent-mutation or retail-game execution coverage. The obsolete
+`S5A57` draft is removed; production holds the accepted body.
+
+`make build verify lint-errors` passes with **7,722 MATCH overall** and
+**6,092 first-party MATCH / 768 ASM**. All **172** linked C units and both
+retail SHA-1s are retained; lint reports zero findings across 333
+first-party files.
+
+## Ratio conversion follow-through
+
+`func_001f5bd0` remains archived. Removing five unsigned-tautology branches
+and using native unsigned casts reproduces the prior **708B/720B,
+12-word** result, whether casts use a shared word temporary or direct
+helper results. Combining the final ratio into one expression, with the
+same floating operation tree, fixes both multiply operand orders:
+**10 raw words, seven executable words / 12 executable bytes** remain.
+Those seven words only exchange the first two saved FPR results and their
+division operands; the other three words are zero tail padding.
+`FoA_001f5bd0_body.c` retains this smaller, better-measured source. No
+floating reassociation, helper contract change or production promotion
+is claimed for that residual.

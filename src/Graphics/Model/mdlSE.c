@@ -13,7 +13,7 @@ extern u8 D_00922C10[];
 extern u8 D_00922C14[];
 extern u8 D_00922C16[];
 extern void func_0043f810(void *dst, const void *src, u32 size);
-extern void func_0045a570(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
+extern s32 func_0045a570(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6);
 extern s32 func_004553c0(void *arg0);
 extern void func_00454bd0(void *arg0);
 extern s32 func_00455ea0(void *arg0, s32 arg1, s32 *arg2);
@@ -76,8 +76,8 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
     void ** arg0_p = arg0;
     s32 sp16C;
     u8 sp70[0x100];
-    s32 sp180[3];
-    s32 sp170[3];
+    void *sp180[3];
+    u32 sp170[3];
     void *temp_16;
     void *temp_2;
     void *temp_2_2;
@@ -137,7 +137,7 @@ void func_0047e450(void **arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4)
             while (var_16 < 3) {
                 func_0043f810(sp70, (void *)var_17, 0x100);
                 temp_4_4 = var_17 + 0x100;
-                sp180[var_16] = temp_4_4;
+                sp180[var_16] = (void *)temp_4_4;
                 sp16C = *(s32 *)(sp70 + 0xFC);
                 sp170[var_16] = sp16C;
                 var_17 = temp_4_4 + ((sp16C + 0x3F) / 64) * 64;
