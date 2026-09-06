@@ -1,15 +1,17 @@
 /*
  * func_001f5bd0 archive (FoA)
- * Best measured lane: FoA5bd0roleswap
- * Best measured result: object 708 bytes / retail window 720 bytes; 12 differing words.
+ * Best measured lane: native unsigned casts with the grouped ratio expression.
+ * Best measured result: object 708 bytes / retail window 720 bytes; 10 differing words.
  * Retail saved registers: $s0, $f20, $f21, $f22, $f23, $ra.
  *
- * Best measured body retained the canonical unsigned conversion idiom from
- * func_00249960, swapped floating result roles to obtain the retail f22/f23
- * assignment, and used a signed offset local plus comma-address expression for
- * the indexed global stores. Remaining differences were first/second FPR
- * assignment, two multiplication operand orders, and the first/second ratio
- * division operand order.
+ * Native casts alone reproduce the previous 12-word result: the five outer
+ * random_value >= 0 checks were unsigned tautologies, not the emitted sign
+ * tests. MWCC supplies the retail unsigned-to-float conversion branches.
+ * Combining the final ratio expression without changing its operation tree
+ * fixes both multiply operand orders. Seven executable words (12 bytes)
+ * remain: the first two results exchange f20/f21 and their division follows
+ * that coloring. The other three differing words are zero tail padding.
+ * The body remains archived; no floating-point reassociation or ABI change.
  *
  * Probes attempted: baseline natural C; u32 value/half; opt_propagation on;
  * switch entry CFG; FP multiplication order variants; direct/helper pointer
@@ -23,7 +25,6 @@ void func_001f5bd0(s32 arg0)
 {
     u32 mask;
     unsigned int random_value;
-    u32 bits;
     f32 fourth;
     f32 third;
     f32 first;
@@ -42,52 +43,15 @@ void func_001f5bd0(s32 arg0)
         goto done;
     }
 body:
-    random_value = func_001ef5f0(1, 3, 0x80000);
-    if (random_value >= 0) {
-        second = (f32)random_value;
-    } else {
-        bits = (u32)random_value;
-        second = (f32)((s32)((bits >> 1) | (bits & 1)));
-        second = second + second;
-    }
-    random_value = func_001ef5f0(2, 3, 0x80000);
-    if (random_value >= 0) {
-        first = (f32)random_value;
-    } else {
-        bits = (u32)random_value;
-        first = (f32)((s32)((bits >> 1) | (bits & 1)));
-        first = first + first;
-    }
-    random_value = func_001ef5f0(1, 4, 0x80000);
-    if (random_value >= 0) {
-        fourth = (f32)random_value;
-    } else {
-        bits = (u32)random_value;
-        fourth = (f32)((s32)((bits >> 1) | (bits & 1)));
-        fourth = fourth + fourth;
-    }
-    random_value = func_001ef5f0(2, 4, 0x80000);
-    if (random_value >= 0) {
-        third = (f32)random_value;
-    } else {
-        bits = (u32)random_value;
-        third = (f32)((s32)((bits >> 1) | (bits & 1)));
-        third = third + third;
-    }
+    second = (f32)(u32)func_001ef5f0(1, 3, 0x80000);
+    first = (f32)(u32)func_001ef5f0(2, 3, 0x80000);
+    fourth = (f32)(u32)func_001ef5f0(1, 4, 0x80000);
+    third = (f32)(u32)func_001ef5f0(2, 4, 0x80000);
 
     random_value = func_00231d70(0xF) + 5;
-    if (random_value >= 0) {
-        random_ratio = (f32)random_value;
-    } else {
-        bits = (u32)random_value;
-        random_ratio = (f32)((s32)((bits >> 1) | (bits & 1)));
-        random_ratio = random_ratio + random_ratio;
-    }
+    random_ratio = (f32)random_value;
     random_ratio /= 10.0f;
-    ratio = second / first;
-    ratio = ratio * (fourth / third);
-    ratio = 30.0f * ratio;
-    ratio = random_ratio * ratio;
+    ratio = random_ratio * (30.0f * ((second / first) * (fourth / third)));
     if (ratio > 50.0f) {
         ratio = 50.0f;
     } else if (ratio < 10.0f) {
