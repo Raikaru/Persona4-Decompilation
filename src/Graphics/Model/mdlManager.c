@@ -2474,11 +2474,17 @@ typedef struct MdlCloneAttachmentTable {
             u16 unknown02;
         } halves;
     } count;
-    u8 unknown04[0x10];
+    RwRGBA color;                  /* 0x04 */
+    RwV3d scale;                   /* 0x08 */
     void** primary;                 /* 0x14 */
-    u8 unknown18[8];
+    void* primaryDraw;             /* 0x18 */
+    void* nextPrimary;             /* 0x1c */
     void** secondary;               /* 0x20 */
-    u8 unknown24[0x10];
+    void* secondaryDraw;           /* 0x24 */
+    void* nextSecondary;           /* 0x28 */
+    u32 pendingSecondary;          /* 0x2c */
+    u16 delay;                     /* 0x30 */
+    u16 unknown32;                 /* 0x32 */
 } MdlCloneAttachmentTable;
 
 typedef struct MdlCloneHierarchyView {
@@ -2696,17 +2702,125 @@ extern void func_0047ed60(void* a);
 extern void func_0047a0e0(u8* a, s32 b, f32 c);
 extern void func_0047aa10(void* a, RwV3d* b);
 extern int func_0047a9d0(void* a);
-/* 00478A30 probe audit: the historical nd 16 figure was never committed
-   and is unverified. The valid best probe was archived in
-   build/WBMdl_78a30_counter.c (fndiff: object 1048B, window 1088B,
-   91 differing words); no normalized_diff was recorded for that probe.
-   The discarded address-local probe is archived in
-   build/WBMdl_78a30_probe_final.c. Ruled out: the historical nd 16 claim,
-   function-scope p290/p294 locals (frame grew to 0xC0), block-scoped
-   p290/p294 reconstruction (object 1060B with wrong prologue allocation),
-   and direct final-loop locals (wrong saved-register allocation). */
+/* Measured: 1080B/window 1088B, MATCH with two zero-padding words.
+   Cache predicate inputs only until their immediate call; reload every
+   callback-visible field afterward. CSE-off retains per-phase matrix
+   addresses; propagation-off preserves the post-getter frame-ID snapshot. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_00478A30
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00478a30);
+void func_00478a30(u8* mdl, s32 tick)
+{
+    RwMatrix matrix;
+    void* frame;
+    u8* previousLayer;
+    u32 animationLayer;
+    u32 switchLayer;
+    u32 updateLayer;
+    MdlCloneAttachmentTable* attachments;
+    u32 child;
+    void* draw;
+    s32 delay;
+
+    if ((*(u32*)(mdl + 0xD8) & 0x1000) != 0) {
+        frame = *(void**)((u8*)((Model*)mdl)->clump + 4);
+        RwMatrixMultiply(&matrix, &((Model*)mdl)->identityMat, mdl);
+        func_003e9cb0(frame, &matrix, 0);
+        func_0047aee0((Model*)mdl, &matrix);
+        previousLayer = 0;
+        if (func_0047a9d0(mdl) != 0) {
+            func_0047aa10(mdl, &((Model*)mdl)->scale);
+        }
+        for (animationLayer = 0; animationLayer < 2; animationLayer++) {
+            if (func_00479ca0(mdl, (u16)animationLayer) != 0) {
+                previousLayer = func_00473b20(mdl + animationLayer * 0xA4 + 0xEC,
+                                             previousLayer, tick);
+            }
+        }
+        *(u32*)(mdl + 0xD8) |= 0x80000;
+        func_00475820(mdl + 0x23C, mdl + 0xEC);
+        for (switchLayer = 0; switchLayer < 2; switchLayer++) {
+            attachments = ((MdlCloneLayerView*)(mdl + switchLayer * 0xA4 + 0xEC))->attachments;
+            if (attachments != 0) {
+                draw = attachments->primaryDraw;
+                if (attachments->nextPrimary != draw) {
+                    if (draw != 0) {
+                        func_0047dae0((u32)draw);
+                    }
+                    draw = attachments->nextPrimary;
+                    if (draw != 0) {
+                        func_0047da30(draw);
+                    }
+                    attachments->primaryDraw = attachments->nextPrimary;
+                }
+                if (attachments->pendingSecondary != 0) {
+                    draw = attachments->secondaryDraw;
+                    if (draw != 0) {
+                        func_0047de50((u32)draw);
+                    }
+                    draw = attachments->nextSecondary;
+                    if (draw != 0) {
+                        func_0047de00((u32)draw, mdl);
+                    }
+                    attachments->secondaryDraw = attachments->nextSecondary;
+                    attachments->pendingSecondary = 0;
+                }
+            }
+        }
+        if (tick != 0) {
+            draw = *(void**)(mdl + 0x2CC);
+            if (draw != 0) {
+                func_0047d900((u32)draw, &((Model*)mdl)->scale);
+                func_0047d540(*(u32*)(mdl + 0x2CC), mdl);
+            }
+            for (updateLayer = 0; updateLayer < 2; updateLayer++) {
+                attachments = ((MdlCloneLayerView*)(mdl + updateLayer * 0xA4 + 0xEC))->attachments;
+                if (attachments != 0) {
+                    draw = attachments->primaryDraw;
+                    if (draw != 0 && attachments->delay == 0) {
+                        func_0047d900((u32)draw, &attachments->scale);
+                        func_0047d540((u32)attachments->primaryDraw, mdl);
+                    }
+                    draw = attachments->secondaryDraw;
+                    if (draw != 0 && attachments->delay == 0) {
+                        func_0047dd40((u32)draw, mdl);
+                    }
+                    delay = attachments->delay;
+                    if (delay > 0) {
+                        attachments->delay = delay - 1;
+                    }
+                }
+            }
+        }
+        func_0047ed60(mdl + 0x2D0);
+        for (child = 0; child < 5; child++) {
+            u8* childBase = mdl + child * 0xC;
+            if ((*(u8*)(childBase + 0x28C) & 1) != 0) {
+                void** childSlot = (void**)(childBase + 0x290);
+                if (*childSlot != 0 && func_0047ae90(mdl, (u16)child) != 0) {
+                    ((Model*)*childSlot)->identityMat = ((Model*)mdl)->identityMat;
+                    if (tick != 0) {
+                        s32* frameId = (s32*)(childBase + 0x294);
+                        if (*frameId != -1) {
+                            void* childMatrix = func_0047a2f0(*childSlot);
+                            s32 childFrame = *frameId;
+                            func_0047a510(mdl, childFrame, childMatrix);
+                        } else {
+                            ((Model*)*childSlot)->mat = ((Model*)mdl)->mat;
+                        }
+                    }
+                    {
+                        void** updateSlot = (void**)(mdl + child * 0xC + 0x290);
+                        func_0047a0e0(*updateSlot, 0, *(f32*)(mdl + 0xF4));
+                        func_00478a30(*updateSlot, tick);
+                    }
+                }
+            }
+        }
+    }
+}
+#pragma pop
 
 // FUN_00478EA0
 void func_00478ea0(void* param_1, int param_2, int param_3)
