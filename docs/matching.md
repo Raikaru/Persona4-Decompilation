@@ -4555,10 +4555,10 @@ scale; the remaining vertices retain their captured values.
 The oracle also checks the retail distinction between the **480-unit
 vertex height** and the **448-unit `func_0034e360` height**. Both later helpers
 receive the original translation parameters, not reloaded owner positions.
-The signed 16-bit selection result is stored before `func_0034ee90`, and
+The returned vertex count is stored as 16 bits before `func_0034ee90`, and
 the owner state at `0x990` is left unchanged.
 
-Camera access, vertex output, selection, and transition helpers are modeled
+Camera access, vertex output, decoration, and transition helpers are modeled
 boundaries. This is not EE execution or exceptional-float emulation.
 The superseded floor archive and temporary smoke artifacts are removed.
 
@@ -4569,3 +4569,42 @@ and 1,562 C-linked functions. Progress snapshots validate, and lint reports
 zero findings across 333 first-party files. Both retail hashes remain exact:
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` (loadable image) and
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` (complete executable).
+
+## Decoration mesh: preserve the full return counter
+
+`func_0034e360` remains ASM. The measured typed reconstruction is retained
+in `docs/probe_archive/VNLN_0034e360_body.c`: **2,648B / 2,656B,
+normalized_diff 336**. This is not a padding-only floor. Scalar geometry
+scores 339; register hints do not improve either form.
+
+Retail moves its full vertex counter into the return register, without
+signed-short narrowing. The canonical declaration in `src/promoted/nLine.c`
+now returns `s32`; rectangle callers retain their explicit 16-bit store at
+`0x1670`. Owner verification remains **25 MATCH / 3 ASM, zero mismatches**.
+A native smoke of the installed translated caller checks nine signed
+32-bit boundary values, including negative values and values above 65535:
+the low 16 bits are stored before the transition callback.
+
+Decoration styles use 44-byte records: a signed count, five palette
+indices, and five floating-point distances. Styles 1–4 emit one initial
+triangle and four triangles per subsequent entry; style 5 traverses entries
+backwards and emits two triangles per entry.
+
+An independently indexed triangle-mesh oracle passes **16,800 scenarios /
+120,960 vertices** under Clang ASan, UBSan, and float-cast-overflow checks.
+It covers translated edges, empty edges, custom rectangles for style 5,
+nonpositive and positive counts, selected entries, and alpha boundaries.
+Mutating callbacks distinguish entry-level alpha and palette-pointer
+snapshots from per-vertex RGB reloads; they also check the capture timing
+of mode, selected entry, count, depth, and camera reciprocal.
+
+Custom-size styles 1–4 are deliberately excluded: retail leaves direction
+values unset on that path. The candidate neither invents initialization nor
+adds a guard. Camera, vertex, and diagnostic callbacks are modeled boundaries;
+this is not EE execution or exceptional-float emulation.
+
+Full acceptance: `make build-progress progress lint-errors` passes after
+the declaration repair. Counts remain **7,734 MATCH overall; 6,104
+first-party MATCH / 756 ASM**, with 172 source-linked objects and 1,562
+C-linked functions. Both retail hashes remain exact, progress validates,
+and lint reports zero findings across 333 first-party files.
