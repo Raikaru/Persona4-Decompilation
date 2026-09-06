@@ -1,5 +1,16 @@
-/* object_size=596 window=608 normalized_diff=6 under a function-scoped optimization_level 1 bracket; differing offsets: 112,116,136,140,144. Fresh no-pragma remeasurement is object_size=596/window=608 normalized_diff=48 because current declaration environment changes the saved-argument coloring. The optimization_level 1 probe restores the archived-sized body. Conversion sites retained: (u8)temp_f1 for float-to-unsigned-byte table value; (f32)(u32)temp_19 for unsigned-integer-to-float sample value. Callee declarations: func_00115890(u8 *,s32)->s32 block-scope; func_00107ac0(s32)->u16 file-scope. Newly rechecked: reversed float-local declaration order leaves all five residuals unchanged. Residual is confined to MWCCPS2 FPU destination-register choice (candidate cvt.w.s/mfc1 and sub.s/cvt.w.s/mfc1 use $f1 where retail uses $f0); do not preserve as live C. */
+/* Re-certified under scoped optimization_level 1: object 596B / window
+ * 608B, raw fndiff 8 words = five executable words and three zero-tail
+ * words. The historical normalized_diff=6 counts differing bytes, not
+ * words. Executable offsets: 0x70, 0x74, 0x88, 0x8C, 0x90; candidate
+ * cvt.w.s/mfc1 and sub.s/cvt.w.s/mfc1 use $f1 where retail uses $f0.
+ * Direct u8 conversion of the same table expression, a direct integer
+ * initializer, and a const float initializer all leave this unchanged.
+ * Preserve both lookups, the u8 conversion, and the later unsigned
+ * integer-to-float conversion. Reversed float declaration order also
+ * failed previously. Retain ASM. */
 /* saved-register audit: retail s7=arg2, s6=temp_17 (scaled delta), s5=arg0, s4=arg1, s3=temp_19 (byte count), s2=var_18 (accumulator), s1=var_17 (then var_3), s0=temp_16 (count); this list matches exactly under optimization_level 1. No opt_propagation-off three-part recipe is needed: no parameter-derived local is materialized. */
+#pragma push
+#pragma optimization_level 1
 s32 func_00311930(s32 arg0, u8 *arg1, s64 arg2)
 {
     extern s32 func_00115890(u8 *arg0, s32 arg1);
@@ -36,3 +47,4 @@ s32 func_00311930(s32 arg0, u8 *arg1, s64 arg2)
     }
     return (s32)((f32)var_18 * D_007494D0[func_00107ac0(arg0 & 0xFFFF)]);
 }
+#pragma pop

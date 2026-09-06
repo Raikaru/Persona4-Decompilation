@@ -1,9 +1,14 @@
-/* Candidate for func_00279780: object 768B/window 768B; fndiff 9 words.
-   Uses the canonical pointer-returning constructor prototype. Unsigned
-   index-first address arithmetic fixes both commutative ADDU residuals.
-   Remaining: four byte argument loads precede the two zero argument moves,
-   and the global address is materialized before the first argument move.
-   The list walk and both signed count checks already match. Retain ASM. */
+/* Candidate for func_00279780: object 768B/window 768B; fndiff 3 words.
+   Named zero origins with opt_propagation off fix all six constructor
+   argument-order differences from the prior nine-word body. Default
+   propagation leaves nine with either named origins or all byte arguments
+   staged. The only residual is at 0x1F0-0x1F8: the D_00881530 address is
+   materialized before the first argument move. Explicit context and
+   context/address locals both retain three words. The list walk and both
+   signed count checks match. Public and helper signatures unchanged.
+   Retain ASM; this body is not a match. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00279780
 void func_00279780(u8 *arg0)
 {
@@ -32,9 +37,13 @@ void func_00279780(u8 *arg0)
     if (slot == NULL)
         func_0046d730(D_0063BE10, 0xC82);
     iGpffffb4b0 = 0x7B;
-    obj = func_00274570(
-        0, 0, *(u8 *)(base + 0xA), *(u8 *)(base + 0xB),
-        *(u8 *)(base + 0xC), *(u8 *)(base + 0xD), (u32)slot, 0);
+    {
+        u32 originX = 0;
+        u32 originY = 0;
+        obj = func_00274570(
+            originX, originY, *(u8 *)(base + 0xA), *(u8 *)(base + 0xB),
+            *(u8 *)(base + 0xC), *(u8 *)(base + 0xD), (u32)slot, 0);
+    }
     iGpffffb4b0 = 0;
     if (obj == NULL)
         func_0046d730(D_0063BE10, 0xCAA);
@@ -90,3 +99,4 @@ list_done:
         func_002748e0(value, 1, 0);
     }
 }
+#pragma pop

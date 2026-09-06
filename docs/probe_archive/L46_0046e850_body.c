@@ -4,6 +4,9 @@
  * Signed integer rectangle and byte-color aggregates; size uses x/y,
  * not width/height. Native 32-bit consumer smoke: 2704 cases.
  * Types stay local so archive replay retains the target marker.
+ * Residual 0x7C-0x84: global name address before parent argument move.
+ * Named task kind/flags/parameter, with or without ordered parent/name
+ * preparation, regress to seven words; the parent move still sinks.
  */
 #pragma push
 #pragma opt_propagation off

@@ -1,4 +1,13 @@
-// FUN_0044F140 archive (wave Io lane IoH cut off mid-work; body is the live state at cutoff, status MISMATCH-nd1).
+/* Re-certified: object 596B / retail window 608B / fndiff 4 words:
+ * one executable branch difference and three zero-tail words.
+ * func_0044e9e0 returns void; retail preserves the old header in $v0
+ * across unlink and passes that same pointer to free, not a helper result.
+ * The branch at offset 0xD4 targets the common tail directly in the
+ * candidate; retail targets the intervening unconditional tail jump.
+ * Empty-else removal and opt_branch_folding/opt_peephole/
+ * opt_rebuildconditionals-off probes all retain 4 words. An early return
+ * with its own outer interrupt restore regresses to 616B / 77 words.
+ * Retain ASM; no helper ABI change is needed. */
 #pragma push
 /* measured: schedule probe for branch-chain layout. */
 #pragma schedule off
@@ -32,7 +41,6 @@ s32 func_0044f140(void *arg0, u32 arg1)
         var_16 = func_0044eaa0(temp_2, temp_16, 0x10, 0);
         if (temp_17 != 0) {
             func_0042ba70();
-        } else {
         }
         goto f140_common_tail;
     } else {
@@ -61,7 +69,8 @@ s32 func_0044f140(void *arg0, u32 arg1)
             func_0046d730(D_007104E0, 0x670);
         }
         temp_18 = *temp_3;
-        func_0043ed08(func_0044e9e0((void *)(u64)temp_18));
+        func_0044e9e0((u8 *)temp_18);
+        func_0043ed08(temp_18);
         if (temp_17_2 != 0) {
             func_0042ba70();
         }

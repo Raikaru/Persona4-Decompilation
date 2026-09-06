@@ -1,6 +1,6 @@
 /* lane W38c20 func_00205e00 archive.
- * best measured: object 488B/window 496B, normalized_diff 2 (fndiff) / 4 (lverify), nd2-ish.
- * Differing offsets: 0x58 (addiu vs daddiu 0x1B), 0x64 (addiu vs daddiu 0xFF).
+ * Replayed: object 488B/window 496B, fndiff 4 words: two emitted differences
+ * at 0x58/0x64 (addiu vs daddiu 0x1B/0xFF) plus two absent zero-tail words.
  * Levers tried: s32/s8/u8/u16/u64 var_16; (u8) casts; (s64) casts; 0x1BLL/0xFFLL;
  *   block-scope extern func_00201650 with u8 arg5-7/s32 arg8; changing func_00201650
  *   parameter types.  Residual: compiler insists on addiu for s32 destination while
@@ -9,6 +9,10 @@
  *   (nd 92) regardless of a block-scope u8-parameter prototype for func_00201650; u64 gives
  *   addiu + dsll32; init-then-if changes the frame (0x80 vs 0x70). The daddiu-into-s0-with-no-mask
  *   shape is not reached by any narrow-unsigned local spelling tried.
+ * Signed-width follow-up: s16 gives 496B/496B, nd92; s64 with ordinary
+ * or LL constants gives 500B/496B, nd85. A two-state shade enum keeps
+ * 488B but gives nd20: it still emits addiu and swaps shade/work registers.
+ * Public and helper signatures were retained; no improvement.
  */
 // FUN_00205E00 candidate
 void func_00205e00(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,

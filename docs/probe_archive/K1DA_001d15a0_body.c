@@ -13,6 +13,8 @@
  * four helper output halfwords. IDA's apparent gate argument is spurious.
  * Tested: direct return, halfword induction, shared result, propagation off,
  * signed result, local-order swap, unsigned induction and wider scalar temps.
+ * Named entry stride, narrowing only the loop test, and both together
+ * also reproduce the identical twelve-word baseline.
  * Reproduce: python tools/probe_variants.py src/promoted/code1_001d.c
  * func_001d15a0 --candidate archive=docs/probe_archive/K1DA_001d15a0_body.c
  */

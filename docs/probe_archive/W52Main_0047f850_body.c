@@ -4,7 +4,10 @@
  * target list/count/dispatch compile as $s2/$s1/$s0 while retail uses
  * $s1/$s0/$s2. Probed typed and raw table/list pointers, function- and
  * block-scoped locals, declaration permutations, paired pointer induction,
- * register storage, opt_lifetimes on/off, and opt_propagation off. */
+ * register storage, opt_lifetimes on/off, and opt_propagation off.
+ * Three iteration-state aggregate orders (targets/count/dispatch,
+ * count/dispatch/targets, dispatch/targets/count) also produce identical
+ * 412B/416B output: twelve emitted differences and one zero-tail word. */
 typedef struct Code47Dispatch {
     void *unused;
     u8 *(*blend)(u8 *left, f32 left_time, u8 *right, f32 right_time,
