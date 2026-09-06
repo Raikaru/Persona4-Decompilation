@@ -1265,8 +1265,84 @@ loop_00486400_check:
         goto loop_00486400_body;
     }
 }
-// FUN_004865C0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0048", func_004865c0);
+
+/* Packed-word to VU bridge. $2 is quadword scratch; C owns addresses and storage. */
+static inline void model_normalize_packed_color(const u32 *source, f32 scale)
+{
+    u32 scaleBits;
+    __asm__ volatile(
+        "lw $2, 0(%1)\n"
+        "pextlb $2, $zero, $2\n"
+        "pextlh $2, $zero, $2\n"
+        "qmtc2 $2, $vf10\n"
+        "vitof0.xyzw $vf10, $vf10\n"
+        "mfc1 %0, %2\n"
+        "nop\n"
+        "qmtc2 %0, $vf2\n"
+        "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+        : "=&r"(scaleBits)
+        : "r"(source), "f"(scale), "m"(*source)
+        : "$2", "$vf2", "$vf10", "memory");
+}
+
+// FUN_004865C0
+/* measured: 276B/288B, instruction-exact after relocation normalization; 12B zero tail.
+ * Only the packed-word/VU bridges are assembly; locals and traversal remain C. */
+void func_004865c0(u8 *arg0, s32 arg1)
+{
+    u32 baseColor;
+    u32 childColor;
+    u32 packedColor;
+    f32 parent[4] __attribute__((aligned(16)));
+    f32 scale;
+    const u32 *source;
+    u8 *node;
+    u8 *data;
+    void (*callback)(s32, u32);
+    u32 color;
+    u32 work;
+
+    *(s32 *)(arg0 + 0x64) = arg1;
+    baseColor = (u32)arg1;
+    source = &baseColor;
+    scale = fGpffff8044;
+    model_normalize_packed_color(source, scale);
+    __asm__ volatile("sqc2 $vf10, 0(%1)\n"
+        : "=m"(parent) : "r"(parent) : "memory");
+
+    node = *(u8 **)(arg0 + 0x8C);
+    if (node != NULL) {
+        while (node != NULL) {
+            childColor = *(u32 *)(node + 0x64);
+            source = &childColor;
+            model_normalize_packed_color(source, scale);
+            __asm__ volatile(
+                "lqc2 $vf11, 0(%0)\n"
+                "vmul.xyzw $vf10, $vf10, $vf11\n"
+                : : "r"(parent), "m"(parent)
+                : "$vf10", "$vf11", "memory");
+            work = 0x437F0000U; /* Binary32 255.0f, transferred to VF2.x. */
+            __asm__ volatile(
+                "qmtc2 %0, $vf2\n"
+                "vmulx.xyzw $vf10, $vf10, $vf2x\n"
+                "vftoi0.xyzw $vf10, $vf10\n"
+                "qmfc2 %0, $vf10\n"
+                "ppach %0, $zero, %0\n"
+                "ppacb %0, $zero, %0\n"
+                "sw %0, packedColor\n"
+                : "+r"(work), "=m"(packedColor)
+                : : "$vf2", "$vf10", "memory");
+            color = packedColor;
+            data = *(u8 **)(node + 0x90);
+            callback = *(void (**)(s32, u32))(
+                D_00713480 + *(u16 *)(data + 4) * 0x40 + 0x30);
+            if (callback != NULL) {
+                callback(*(s32 *)(data + 8), color);
+            }
+            node = *(u8 **)(node + 0xAC);
+        }
+    }
+}
 // FUN_00486780
 u8 *func_00486780(u8 *arg0, s32 arg1)
 {

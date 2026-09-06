@@ -119,7 +119,7 @@ void func_004b0fa0(void *object) {
 }
 
 
-extern void func_004865c0();
+extern void func_004865c0(u8 *arg0, s32 arg1);
 
 
 // FUN_004B0FD0

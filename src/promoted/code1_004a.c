@@ -1456,7 +1456,7 @@ u8 *arg0;
     extern void func_0048a980(f32 *arg0);
     extern void func_00486330(void *arg0, void *arg1);
     extern void func_00486400(void *arg0, f32 arg1);
-    extern void func_004865c0(void *arg0, s32 arg1);
+    extern void func_004865c0(u8 *arg0, s32 arg1);
     extern void func_00485630(void *arg0);
     extern f32 D_00761134;
     s32 sp13C;
