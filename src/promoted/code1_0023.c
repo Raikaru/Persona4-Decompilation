@@ -2,7 +2,8 @@
 #include "type.h"
 
 /* gp - 0x4C54 = 0x007690f0 - 0x4c54 = 0x0076449c */
-extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3ac;
+
 extern u8 *iGpffffa5f0;
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern u8 *func_00194470(s32 type, s32 workSize);
@@ -38,7 +39,7 @@ extern s32 func_0047d0e0(void);
 extern s32 func_0047d0b0(s32 arg0, s32 arg1, void *arg2);
 extern s32 func_00442948(const void *arg0);
 extern char D_006357C8[];
-extern s32 func_00477c40(s32 arg0, s32 arg1, s32 arg2);
+extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
 extern void func_0047aaa0(void *arg0, s32 arg1, s32 arg2, s32 arg3,
                            void *arg4, s32 arg5);
 extern void func_0047ac90(void *arg0, s32 arg1, s32 arg2, s32 arg3,
@@ -262,7 +263,6 @@ s32 func_00230c00(s32 arg0, s32 arg1, char *arg2)
 s32 func_00230d30(void *arg0)
 {
     extern s32 func_00106cd0(s16 arg0, s16 arg1);
-    extern s32 func_00477c40(s32 arg0, s32 arg1, s32 arg2);
     extern void func_0047aaa0(void *arg0, s32 arg1, void *arg2, void *arg3,
                                void *arg4, u32 arg5);
     extern void func_0047ac90(void *arg0, u32 arg1, void *arg2, void *arg3,

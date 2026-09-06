@@ -5,6 +5,9 @@
  * Native parent smoke: 576 cases, using helper hooks for ordering and adjacent bytes.
  * Retail retains idx and parent but reuses their combined base for the stores;
  * this candidate still recomputes that base. Production remains ASM.
+ * Later dead-assignment-off replay retains 156B/eight words. Reusing only
+ * the combined context for all later operations with that pragma shrinks
+ * to 128B/38 words; it does not preserve the retail parent/index lifetimes.
  */
 // FUN_00375F00
 #pragma optimization_level 1

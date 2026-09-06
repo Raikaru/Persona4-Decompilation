@@ -126,7 +126,7 @@ extern f32 fGpffffbb74;
 extern f32 fGpffffbb70;
 extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
-extern s32 func_00477c40(s32 arg0, u16 arg1, s32 arg2);
+extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
 extern u8 *func_00477f10(s32 arg0, u16 arg1, u8 *arg2, s32 arg3, s32 arg4);
 extern void func_00485fe0(s32 arg0);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -1164,16 +1164,21 @@ void func_004abbb0(u8 *arg0)
     *(s32 *)(arg0 + 0xD8) &= ~2;
     func_00478eb0(arg0, func_004abe60, arg0);
 }
+/* Measured: scoped propagation preserves constant-first model lookup arguments. */
+#pragma push
+#pragma opt_propagation off
 // FUN_004ABC50
 u8 *func_004abc50(u8 *arg0, s32 arg1)
 {
     u8 *temp_2;
+    u32 lookupType;
 
     goto loop_004abc50_check;
 loop_004abc50_body:
     iGpffffbb90 += 1;
 loop_004abc50_check:
-    if (func_00477c40(6, iGpffffbb90, 0) != 0) {
+    lookupType = 6;
+    if (func_00477c40(lookupType, iGpffffbb90, 0) != 0) {
         goto loop_004abc50_body;
     }
     temp_2 = func_00477f10(6, iGpffffbb90, arg0, arg1, 1);
@@ -1187,6 +1192,7 @@ loop_004abc50_check:
     iGpffffbb90 += 1;
     return temp_2;
 }
+#pragma pop
 // FUN_004ABD60
 void func_004abd60(void)
 {
