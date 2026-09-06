@@ -14,6 +14,8 @@
  *   - plain while-loop body below: obj 324 B, fndiff nd 5;
  *   - typed local generator and typed RuntimeVpadWork parameter: nd 6 and
  *     nd 5 respectively, with no change to the two loop words;
+ *   - local record pairing the two matrix pointers: obj 324 B, nd 5;
+ *     identical fndiff output to a fresh scalar-body replay;
  *   - explicit request temporary: obj 320 B, nd 61;
  *   - #pragma schedule off and #pragma opt_propagation off: unchanged nd 5;
  *   - #pragma schedule on: obj 288 B, nd 72;

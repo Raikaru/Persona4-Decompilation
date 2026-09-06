@@ -12,6 +12,11 @@
  * and S/W, B/C/D tables passes 3,136 cases: modes, counts, suffix flags,
  * the character-11 branch, call order, resource slots and untouched bytes.
  * Ordinary register hints on either count-first local still score 8.
+ * Fresh replay with canonical file-scope declarations retains four words;
+ * the adjacent loader calls need explicit byte-buffer/pointer-word casts.
+ * A count-first local count/suffix record still scores eight words.
+ * A branch-scoped runtime-initialized record grows to 736B/688B and 160
+ * words; reject it rather than introducing aggregate stack traffic.
  */
 void func_001f9cf0(u8 *arg0) {
     extern s16 func_001060b0(void);

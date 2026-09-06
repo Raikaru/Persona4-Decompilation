@@ -6,6 +6,12 @@
    argument fabrication. Independent semantic review accepted this archive.
    The historical nd5 body was unavailable; this replaces the surviving
    nd309-byte archive rather than claiming to improve that lost nd5 body. */
+/* Fresh replay: unsigned alpha, distinct row-size locals and inline row-size
+   expressions all produce the same 764B/768B, ten-word instruction diff.
+   Keep alpha unsigned: the old 255 << 24 fails UBSan on a valid solid row.
+   The unsigned body passes eight 32-bit SSE/UBSan raw-layout smoke cases:
+   segments 0/8, replicas 0/1/2/4, lock-replaced buffers, exact copy ranges,
+   whole color/coordinate images and canaries. No EE/FCSR claim. */
 #pragma push
 #pragma opt_loop_invariants on
 void func_004a30e0(u8 *arg0, u8 *arg1)
@@ -17,7 +23,7 @@ void func_004a30e0(u8 *arg0, u8 *arg1)
     u8 *temp_16;
     u32 var_9;
     u32 temp_23;
-    s32 var_10;
+    u32 var_10;
     s32 temp_4;
     s32 temp_5;
     u32 var_20;
