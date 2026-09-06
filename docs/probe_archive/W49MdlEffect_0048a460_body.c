@@ -15,6 +15,14 @@
  * with only VU transfers hooked; transformed XYZ, negative depth, sequential
  * projections, positive-zero lanes and 16-byte spill canaries pass.
  * This does not validate PS2 exceptional floating-point behavior.
+ * Further b210 probes retain 15 words: multiplication operand swaps, named
+ * depth/component/quotient/extent lifetimes, scoped CSE/propagation controls,
+ * an inline component helper, a pointer-return transform declaration,
+ * precise final read-only memory dependencies, array/address spellings,
+ * and an explicit void return. Staging depth with propagation off restores
+ * the initial depth-before-X load order, but not its FPR allocation.
+ * Changing only the compiler binary to b119, retaining the owner's flags,
+ * regresses to 204B/176B and 45 words. No compiler profile is changed.
  * Reproduce: python tools/probe_variants.py src/Graphics/Model/mdlEffect.c
  * func_0048a460 --candidate archive=docs/probe_archive/W49MdlEffect_0048a460_body.c
  */

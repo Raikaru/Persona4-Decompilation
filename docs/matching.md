@@ -4300,3 +4300,53 @@ C objects**. Both the loadable image SHA-1
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` and executable SHA-1
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
 Lint reports 333 first-party files and zero findings.
+
+## Game-data scaling: short values in word-sized carriers
+
+`g_data.c::func_00105010` is promoted at **396B / 400B,
+normalized_diff=0**. Its isolated comparator reports only the absent
+four-byte zero tail. The definition implements the existing caller contract,
+`s16 func_00105010(s16 category, f32 scale)`, rather than the old archive's
+register-width-derived `s64` signature.
+
+The main lever is separating storage width from narrowing points. `remaining`
+and `threshold` are `s32` carriers, with explicit signed-short conversion
+where retail wraps or compares them. This prevents redundant threshold
+extensions and prevents the subtraction from reusing the comparison's
+narrowed temporary. Separate short `baseProgress`, `partialProgress`, and
+`progress` stages under scoped propagation-off preserve the integer-chain
+order, intermediate truncations, and register lifetimes.
+
+That reaches two differing emitted words. Writing
+`threshold > (s16)remaining`, rather than the reversed less-than expression,
+selects retail's `$at` comparison/branch pair and closes both.
+The final floating multiplication by 100 and the earlier short truncations
+remain separate; algebraic cancellation would change rounding or wrapping.
+The canonical segment-size helper and existing script caller are unchanged.
+Focused verification reports **236 MATCH, six ASM, zero mismatches** across
+the owner, helper owner, and caller unit.
+
+A throwaway **32-bit native smoke passes 51,200 scenarios** using the
+installed scaling body, the real `func_00246a50` body, and its real address
+helper. An independent typed-table oracle rounds each floating stage to
+binary32. Cases cover all five categories, one through five lookups,
+threshold equality and adjacent values, signed-short subtraction and
+progress wrapping, five-step clamping, and positive/negative scaling.
+Query order and complete guarded input-table images are checked.
+UBSan and float-cast-overflow sanitization remain enabled.
+
+The smoke uses nonzero thresholds/scales and finite, in-range conversions.
+It is **not EE execution** and does not validate PS2 exceptional floating-point
+conversion behavior. No permanent test or input-special-case branch is added.
+
+Nearby rejected evidence remains in the existing cut-in, projection,
+initializer, and message-partition archives. Their production bodies remain
+ASM. The b119 comparison changes no compiler profile; it ties the initializer
+floor and regresses the projection.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,730 MATCH overall; 6,100 first-party MATCH / 760 ASM** and zero lint
+findings across 333 first-party files. Both retail hashes remain exact.
+The source-linked object count stays at 172; this match does not yet make
+the entire `g_data.c` owner link-eligible. The superseded
+`EcC_00105010_body.c` archive and throwaway smoke/probe files are removed.

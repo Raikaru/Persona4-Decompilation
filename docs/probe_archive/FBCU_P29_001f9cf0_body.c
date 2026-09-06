@@ -17,6 +17,12 @@
  * A count-first local count/suffix record still scores eight words.
  * A branch-scoped runtime-initialized record grows to 736B/688B and 160
  * words; reject it rather than introducing aggregate stack traffic.
+ * Further replay: case-local scopes for count, suffix, index, offset, both
+ * retained values, or all four locals preserve 4 words pointer-first / 8
+ * count-first. Sequencing the count load inside either a pointer or offset
+ * comma expression scores 8. A pointer-to-string suffix table retains 4/8.
+ * Narrowing count to s16 grows to 704B/110 words; s64 with explicit s32
+ * format arguments grows to 712B/111. None closes the four-word load order.
  */
 void func_001f9cf0(u8 *arg0) {
     extern s16 func_001060b0(void);
