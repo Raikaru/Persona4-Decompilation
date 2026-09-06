@@ -416,16 +416,45 @@ s16 func_00104f50(s16 arg0, s16 arg1)
     }
 }
 
-/* measured: retail colors the call-result local v5 into $a1 (the just-clobbered
-   arg2 slot) and emits the tail as [a-chain][b-chain][addu]; mwcc b210 always
-   colors v5 into $a0, reuses the slt's v17 extension for the subu, and
-   schedules the float division chain before the (i+1) chain. Tried: v17<v5 /
-   v5>v17 comparison forms, all local declaration orders, named s32 locals for
-   the tail subexpressions, explicit (s16)/(s32) casts, if/else-break
-   restructure, named arg temp, x-copy of v17 — all give the identical nd 31.
-   Register-coloring + scheduling floor. */
+/* Measured: 396B/400B, normalized_diff=0; four trailing zero bytes are padding.
+ * The s32 carriers retain explicit signed-short wrapping without reusing the
+ * comparison's narrowed temporary for subtraction. Scoped propagation preserves
+ * the short progress stages; greater-than selects retail's AT comparison. */
+#pragma push
+#pragma opt_propagation off
 // FUN_00105010
-INCLUDE_ASM("asm/nonmatchings/g_data", func_00105010);
+s16 func_00105010(s16 category, f32 scale)
+{
+    s32 remaining;
+    s32 threshold;
+    s32 level;
+    s16 baseProgress;
+    s16 partialProgress;
+    s16 progress;
+
+    remaining = D_007973F4[category];
+    threshold = 0;
+    level = 0;
+    while (level < 5)
+    {
+        threshold = (s16)func_00246a50(category, (s16)(level + 1));
+        if (threshold > (s16)remaining)
+        {
+            break;
+        }
+        remaining = (s16)(remaining - threshold);
+        level++;
+    }
+    if (level >= 5)
+    {
+        level = 4;
+    }
+    baseProgress = (s16)(100 * (level + 1));
+    partialProgress = (s16)(s32)((f32)(100 * (s16)remaining) / (f32)threshold);
+    progress = (s16)(baseProgress + partialProgress);
+    return (s16)(s32)(100.0f * ((f32)(100 * progress) / scale));
+}
+#pragma pop
 
 // FUN_001051A0
 void func_001051a0(s16 arg0, s16 arg1, s16 arg2)
