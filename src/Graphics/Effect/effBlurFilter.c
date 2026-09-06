@@ -1360,15 +1360,46 @@ void func_004aad30(u8 *arg0) {
     }
 }
 
-/* measured: retail keeps arg0/$s5, arg1/$s4, hoists 0x60 into $s1 (temp_4
-   via addu); mwcc b210 recompiled from equivalent C hoists the 0xFFFF mask
-   into $s1/$s4 instead and rotates the saved registers (arg0 -> $s2, size/
-   alloc swapped), nd 25 (14 rows). Tried 5 declaration orders, u16/u32 arg0,
-   fn-pointer and mask temps, both assert cast forms - identical result.
-   Saved-register rotation floor. */
-/* measured: archived candidate body in build/BLUR_004aaee0_body.c; object 372B/window 384B, normalized_diff 42. COP2 sqc2 is retained in the archive only; live source is restored to the bare retail include. */
-// FUN_004AAEE0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004aaee0);
+/* measured: 372B/window 384B; only three zero-padding words remain.
+   As in func_004ab420, the narrowed callback index and one-use header span
+   retain 0x60 in the saved constant register. This initializer receives
+   the copied-data pointer reloaded from the object, not initialData. */
+// FUN_004AAEE0
+u8 *func_004aaee0(u32 type, s32 initialData)
+{
+    s32 (*initialize)(u8 *);
+    s32 kind;
+    u8 *allocated;
+    s32 dataSize;
+    u8 *data;
+    u8 *object;
+    s32 headerBytes = 0x60;
+
+    kind = type & 0xFFFF;
+    dataSize = *(s32 *)(D_007143A4 + kind * 0x18);
+    if ((u32)dataSize + 0x60 >= 0x200U)
+        func_0046d730(D_00714450, 0x170);
+    func_0044ea90(D_00714450, 0x171);
+    allocated = (u8 *)(*jtbl_008873E8)(dataSize + 0x60, 0x40000);
+    object = allocated;
+    func_0043f9c8(object, 0, dataSize + 0x60);
+    if (object == (u8 *)0)
+        func_0046d730(D_00714380, 0x63B);
+    *(s32 *)(object + 0x18) = kind;
+    *(s32 *)(object + 0x10) = -1;
+    *(s32 *)(object + 0x14) = 0x3F800000;
+    *(s32 *)(object + 0x28) = 0;
+    __asm__ ("sqc2 vf0, 0(%0)" : : "r"(object) : "memory");
+    data = object + headerBytes;
+    *(u8 **)(object + 0x24) = data;
+    func_0043f810(data, (const void *)initialData, dataSize);
+    initialize = *(s32 (**)(u8 *))(D_00714390 + ((u16)type * 0x18));
+    if (initialize != (s32 (*)(u8 *))0)
+        *(s32 *)(object + 0x20) = initialize(*(u8 **)(object + 0x24));
+    *(s16 *)(object + 0x44) = 0x16;
+    *(u8 **)(object + 0x48) = object;
+    return object;
+}
 /* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
    body (separate obj/obj2 locals; rest of function byte-identical). The
    only residual is the pre-jal arg-materialisation order: retail emits
@@ -1501,21 +1532,48 @@ void func_004ab410(void *param_1, f32 param_2) {
     *(f32 *)((char *)param_1 + 0x14) = param_2;
 }
 
-/* measured: re-measured this wave at nd 6 (3 rows) — matches the recorded
-   floor exactly with a new best spelling. Two new insights got here from
-   nd 32: (1) writing the assert as `(u32)size + 0x60 >= 0x200U` (u32 add)
-   stops mwcc CSE-ing size+0x60 into a saved register across the two jals
-   (the CSE shifted the whole allocation); (2) declaring alloc BEFORE size
-   fixes the s2/s3 swap. Residual is one constant-cache choice: retail
-   hoists 0x60 into $s1 (used once as `addu $a0,$s3,$s1` at the data site,
-   immediates at the other 3 sites), mwcc b210 hoists 0xFFFF instead and
-   emits `and $v1,$s5,$s1` at the second mask (retail `andi $v1,$s5,0xffff`)
-   plus `addiu $a0,$s3,0x60` at the data site. Tried: u16/s32/u32 arg0,
-   `s32 off = 0x60` variable (4-site and 2-site, both nd 89 — register
-   pressure), modulo mask, decl orders — identical 3 rows. Constant-cache
-   floor, same family as func_004aaee0. */
-// FUN_004AB420 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/effBlurFilter", func_004ab420);
+/* measured: 372B/window 384B; only three zero-padding words remain.
+   Narrow the callback index with u16 and keep the one-use header span
+   named so b210 retains 0x60, not 0xFFFF, in the saved constant register.
+   The unsigned size assertion and allocation-before-size declaration
+   order preserve the remaining retail allocation and call sequence. */
+// FUN_004AB420
+u8 *func_004ab420(u32 type, s32 initialData)
+{
+    s32 (*initialize)(s32);
+    s32 kind;
+    u8 *allocated;
+    s32 dataSize;
+    u8 *data;
+    u8 *object;
+    s32 headerBytes = 0x60;
+
+    kind = type & 0xFFFF;
+    dataSize = *(s32 *)(D_00714474 + kind * 0x18);
+    if ((u32)dataSize + 0x60 >= 0x200U)
+        func_0046d730(D_00714450, 0x170);
+    func_0044ea90(D_00714450, 0x171);
+    allocated = (u8 *)(*jtbl_008873E8)(dataSize + 0x60, 0x40000);
+    object = allocated;
+    func_0043f9c8(object, 0, dataSize + 0x60);
+    if (object == (u8 *)0)
+        func_0046d730(D_00714380, 0x706);
+    *(s32 *)(object + 0x18) = kind;
+    *(s32 *)(object + 0x10) = -1;
+    *(s32 *)(object + 0x14) = 0x3F800000;
+    *(s32 *)(object + 0x28) = 0;
+    __asm__ ("sqc2 vf0, 0(%0)" : : "r"(object) : "memory");
+    data = object + headerBytes;
+    *(u8 **)(object + 0x24) = data;
+    func_0043f810(data, (const void *)initialData, dataSize);
+    initialize = *(s32 (**)(s32))(D_00714460 + ((u16)type * 0x18));
+    if (initialize != (s32 (*)(s32))0)
+        *(s32 *)(object + 0x20) = initialize(initialData);
+    *(s16 *)(object + 0x44) = 0x17;
+    *(u8 **)(object + 0x48) = object;
+    return object;
+}
+
 // FUN_004AB680
 void func_004ab680(void *param_1) {
     if (*(void **)((char *)param_1 + 0x20) != 0) {

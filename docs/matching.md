@@ -3679,3 +3679,47 @@ overall and **6,088 first-party MATCH / 772 ASM**. Both retail SHA-1 values
 above are unchanged; errors-only lint reports zero errors across 333
 first-party files. This callback repair does not claim another C promotion
 or an increase in the 172 linked C objects.
+
+## Blur allocators: narrow the lookup, name the header span
+
+`func_004ab420` and `func_004aaee0` are now **MATCH, 372B/384B**.
+All 93 executable words in each function match; the remaining three words
+are zero tail padding. The complete `effBlurFilter.c` unit verifies
+**53 MATCH, no ASM**.
+
+The `004ab420` six-word archive had only three executable differences:
+b210 retained `0xFFFF` rather than the retail header size `0x60` in its
+saved constant register. Keep the first `type & 0xFFFF`, narrow only the
+callback lookup with `(u16)type`, and name the one-use `headerBytes = 0x60`
+used to form the copied-data pointer. Together these produce the retail
+constant selection without register hints, volatile, or ordinary assembly.
+The unsigned size assertion and allocation-before-size declaration order
+remain important. Narrowing alone regresses to 90 words; disabling
+propagation with the named span leaves 22. The same winning source shape
+closes the sibling allocator without changing either public signature.
+
+Preserve the semantic difference: `004ab420` passes the original input to
+its initializer, while `004aaee0` reloads the copied-data pointer from
+object offset `0x24`. Both look up the initializer after copying.
+Separate 32-bit freestanding UBSan-instrumented consumers pass **480 cases
+each**, checking the complete allocation image and guards, masked type,
+size-assertion boundary, header, payload, callback ordering and results,
+and descriptor/callback mutation by controlled leaf helpers. The sibling
+also checks pointer reload after a controlled copy-helper mutation.
+Only the fixed COP2 VF0 store is adapted for the host; target instruction
+identity verifies the real `sqc2`. These smokes use valid allocations and
+returning size diagnostics; they do not claim allocation-failure coverage
+or execution of the retail game. Four superseded allocator drafts are
+removed; the accepted bodies now live in the owning source.
+
+Other concrete levers were measured and parked without adjacent ABI work:
+aggregate count/pointer pairing leaves cut-in `001f9cf0` at four words;
+typed controller pairs regress `004b5800` from five to six; community
+record/index aggregates leave `00106f40` at ten; separate wind phase spans
+leave `004a30e0` at ten. These counts include any missing zero tail words.
+
+The full `make build verify lint-errors` gate passes: **7,720 MATCH**
+overall, **6,090 first-party MATCH / 770 ASM**, and zero lint errors across
+333 first-party files. The 172 linked C objects retain both retail SHA-1s:
+loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`, executable
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
