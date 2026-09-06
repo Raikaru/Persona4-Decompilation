@@ -1046,9 +1046,30 @@ INCLUDE_ASM("asm/nonmatchings/nLine", func_0034db60);
 INCLUDE_ASM("asm/nonmatchings/nLine", func_0034ddf0);
 /* measured: closes ddf0 common-subexpression scope after its archived body. */
 #pragma opt_common_subs on
-// Archived C body: docs/probe_archive/W52NLine_0034e0b0_body.c; NONMATCHING floor nd35 (468B/480B); no current park body remains.
+/* measured: snapshot alpha before the camera callback, then narrow for the
+   vertex calls. addF keeps each translated corner addition separate. */
 // FUN_0034E0B0
-INCLUDE_ASM("asm/nonmatchings/nLine", func_0034e0b0);
+void func_0034e0b0(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2)
+{
+    u32 alpha;
+    u8 byte_alpha;
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 scale;
+    alpha = *(u8 *)(arg0 + 0x994);
+    y = fparg1 + *(f32 *)(arg0 + 0x9A0);
+    x = fparg0 + *(f32 *)(arg0 + 0x99C);
+    z = D_008872F8[0] - D_0088467C[0];
+    scale = 1.0f / *(f32 *)(func_00457120() + 0x80);
+    byte_alpha = (u8)alpha;
+    func_0034f0d0(arg0 + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    func_0034f0d0(arg0 + 0x6D0, x, addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    func_0034f0d0(arg0 + 0x710, addF(x, 640.0f), addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    func_0034f0d0(arg0 + 0x750, addF(x, 640.0f), y, z, scale, 0xFA, 0xE3, 0x27, byte_alpha);
+    *(s16 *)(arg0 + 0x1670) = func_0034e360(arg0, fparg0, fparg1, 640.0f, 448.0f);
+    func_0034ee90(arg0, fparg0, fparg1, fparg2);
+}
 
 // FUN_0034E290
 s16 func_0034e290(u8 *arg0, s32 arg1) {
