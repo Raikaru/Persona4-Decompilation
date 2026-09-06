@@ -1,16 +1,21 @@
 /*
- * Target: func_0048a980
- * Object/window: 592B / 592B
- * Best normalized_diff: 7 words
- * Differing offsets: +0x160, +0x168, +0x16C, +0x17C, +0x21C
- *
- * Ruled out:
- * - signed or wide index type for var_6 (retail daddiu at +0xEC requires u8)
- * - direct array subscripts for selected diagonal (breaks integer/address schedule)
- * - precomputed diagonal pointer setup (retail requires interleaved load schedule)
- * - unsplit and split sqrtf/multiply spellings (compiler retains f1 root colouring)
- * - ordered add helper did not change root FPR colouring; it did fix +0x1C/+0x20
+ * Re-certified: object 584B / retail window 592B; raw fndiff 7 words,
+ * comprising five executable FPR differences and two absent zero-tail
+ * words. Normalized comparison differs by five bytes.
+ * Executable offsets: 0x160, 0x168, 0x16C, 0x17C, 0x21C.
+ * The identity constant uses f3 rather than f1; sqrt uses f1 rather than
+ * f2. The 2.0f constant instructions already match.
+ * Root-local, root-literal and in-place-root forms are byte-identical.
+ * A literal or separately named identity constant also leaves seven words.
+ * Earlier index widths, diagonal-address forms and split/unsplit root
+ * multiplication did not close the floor. Preserve arithmetic association.
+ * Current TU supplies the plain-C multiply helper but not add; the
+ * necessary plain-C inline add is retained here for standalone replay.
  */
+static inline f32 code1_0048_add(f32 left, f32 right) {
+    return left + right;
+}
+
 void func_0048a980(f32 *arg0)
 {
     extern f32 sqrtf(f32 arg0);

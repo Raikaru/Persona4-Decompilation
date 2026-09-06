@@ -3778,3 +3778,25 @@ tail words. The archive's historical `normalized_diff=6` counts **bytes**,
 not words. Direct conversion of the table expression, an integer
 initializer and a const float initializer all leave the same residual.
 Neither conversion semantics nor table lookup order is changed.
+
+`00456530` improves **32 to 18 to 12 raw words**, at **348B/352B**.
+The candidate now uses existing helper declarations and a typed four-byte
+record-length object. Scoped `opt_propagation off` restores separator
+hoisting; expressing signed division as `/ 64` restores all six rounding
+words. Explicit unsigned bias addition and multiplication preserve the
+retail arithmetic without a signed-overflowing bias or negative left shift.
+Eleven loop-register words and one zero-tail word remain. Counter scopes,
+moving loop locals/constants and widening the character temporary do not
+improve the floor; byte separators regress to **356B, 46 words**.
+
+`0048a980` is re-certified at **584B/592B, 7 raw words**: five FPR
+differences and two zero-tail words, or five normalized differing bytes.
+Root-local, root-literal, in-place-root, literal-identity and named-identity
+forms do not improve it. The archive now includes its required plain-C
+inline add helper; the current unit already supplies multiply.
+
+The action-state experiment for `001b0020` stops before compilation:
+its five-argument archived declaration conflicts with the matched
+four-argument `btlUnitCreateMovePacket`. The `0032c480` draw-argument
+experiment likewise stops at incompatible archived declarations. Neither
+is permission to change shared APIs merely to replay a historical score.

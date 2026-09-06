@@ -1,3 +1,8 @@
+/* Not re-certified in the current unit: the archived func_00275820
+ * declaration changes the floating-parameter order and pointer types;
+ * func_00279350 also conflicts with the owning declaration's final type.
+ * The proposed final-call aggregate experiment is parked at this
+ * prerequisite rather than modifying shared draw APIs. */
 /* Main 2026-09-02: object 472B / window 480B / nd13 (4 words). The saved-register rotation
    (retail obj=$s1, colour=$s0, n reusing $s0) is NOT declaration/scope order: the colour is a
    CALL RESULT used directly as the first argument of func_00275820 and parked across the inner
