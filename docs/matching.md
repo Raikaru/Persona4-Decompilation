@@ -3726,13 +3726,14 @@ loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`, executable
 
 ## Further bounded low-floor probes
 
-The valid `00279780` message-initialization archive improves **9 to 3
+The `00279780` message-initialization candidate initially improved **9 to 3
 words**, still **768B/768B**. Named zero origins with scoped
-`opt_propagation off` restore the six constructor argument-order words.
-The remaining three words materialize `D_00881530` before moving the first
-argument at `func_00279dd0`; explicit context and context/address locals do
-not change that. The ordinary archive CLI replays at three and leaves
-production ASM unchanged. No helper or public ABI is modified.
+`opt_propagation off` restored the six constructor argument-order words.
+The remaining three words materialized `D_00881530` before moving the first
+argument at `func_00279dd0`; explicit context and context/address locals did
+not change that. This floor is now closed by the binding helper's verified
+text-pointer contract; see “Message initialization: preserve the text pointer”
+below. The superseded archive is removed.
 
 For `0047f850`, three target/count/dispatch iteration-state aggregate
 orders produce byte-identical **412B/416B, 13-word** output: twelve register
@@ -4046,3 +4047,47 @@ units**, both expected retail hashes and zero lint findings. The
 committed progress endpoints and README are regenerated and validated.
 Superseded callback drafts and the throwaway smoke are removed; the
 unmatched sound dispatcher drafts remain separate.
+
+## Message initialization: preserve the text pointer
+
+`func_00279780` is now production C in `src/itfMesManager.c`:
+**768B emitted / 768B retail window, exact MATCH**. The preceding
+three-word floor was a parameter-type problem, not a scheduling barrier.
+The binding helper is now `void func_00279dd0(u8 *, u8 *)`; its declaration,
+definition and initialization call agree. The conversion to the existing
+constructor's `u32` payload representation occurs inside that helper.
+
+The pointer interpretation is supported by the consumer: the binding value
+passes through `func_00274570` into field `+0x10` of `func_002745c0`'s
+descriptor. Retail `func_002740b0` loads that field at `0x002740CC` and
+immediately dereferences its first byte at `0x002740D0`. This is a text
+address, not an integer identifier. Generated reference declarations remain
+unchanged; they are not live callers.
+
+Using a pointer parameter restores the first-argument move before the
+global-address materialization. An unsigned integer parameter still leaves
+three words. Inline wrappers, grouped operands, named register locals and
+array-address expressions also retain that floor; disabling common
+subexpressions regresses to 168 words. The existing named zero origins and
+scoped `opt_propagation off` remain necessary for constructor argument order.
+No fixed-register assignments, assembly barriers or indirect-call casts
+are introduced.
+
+The affected message, font and promoted-caller units verify **195 MATCH /
+7 ASM**, with no mismatches, including the retyped binding helper.
+A throwaway 32-bit GCC/UBSan consumer passes **7,689 scenarios** using the
+accepted initializer, binding helper and actual font-flag getter. It uses
+native heap allocation and text copying, with controlled font, diagnostic,
+selection and setup leaves. Checks cover the complete guarded parent image,
+all queried flag combinations, preservation of unrelated bits, signed
+index/count boundaries, missing records, allocation failure, empty and
+missing list entries, first-match precedence, primary and secondary
+replacement, binding-state restoration, and a second lookup after controlled
+setup mutations. This is not EE/in-game execution or validation of the font
+renderer. Superseded message drafts and the throwaway consumer are removed
+after recording the evidence.
+
+The byte-exact build and resumed `make progress lint-errors` gate pass:
+**7,725 overall MATCH**, **6,095 first-party MATCH / 765 ASM**, **172
+source-linked units**, both expected retail SHA-1s, and zero lint findings.
+Progress endpoints and the README are regenerated and validated.
