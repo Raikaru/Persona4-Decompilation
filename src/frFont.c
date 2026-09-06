@@ -606,23 +606,121 @@ u32 func_00271bd0(int param_1)
 
 
 
-extern char D_00763808;
+/* Eight signed heights; the following halfword at 0x763810 is separate flags. */
+extern s8 D_00763808[8];
 
 
 
-/* measured: retail's signed x/32 divisions write the mult product into the
-   SECOND operand's register ($a2) and sra from it; mwcc b210 writes it into
-   the FIRST operand's register ($a1) at all six division sites (nd42; the
-   switch-case + empty-if + explicit-shift forms fixed everything else).
-   Tried operand-order swaps, no change. Re-tested wave 14 (fresh m2c body
-   with resolved globals D_007645A8/-0x4B48, D_007645A0/-0x4B50,
-   D_007645A4/-0x4B4C, D_00763808/-0x58E8): nd113 for both manual >>5/>>7
-   +correction and /32 /128 spelling - the whole-function register map
-   diverges from the start (retail lbu $a3 vs my $t0), not just the mult;
-   the recorded nd42 spelling was not reproduced. Mult register-alloc +
-   prologue-coloring floor. */
+/* measured: 576B/576B MATCH (b210). Native /32 and /128 restore the signed
+   rounding instruction sequence; unary negation fixes the final mult operand
+   order. The complete eight-byte table retains retail GP-relative access. */
 // FUN_00271D10
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00271d10);
+void func_00271d10(u8 *arg0, s32 arg1)
+{
+    FrFontSlot4 *temp_8;
+    s32 temp_3;
+    s32 temp_3_2;
+    s32 temp_5_2;
+    s32 temp_5_3;
+    s32 temp_5_4;
+    s32 temp_5_5;
+    s32 temp_5_6;
+    s32 temp_5_7;
+    s32 temp_5_8;
+    s32 temp_6_2;
+    s32 temp_6_3;
+    s32 var_5;
+    s32 temp_6_6;
+    s32 var_3;
+    s32 var_3_2;
+    s32 var_3_3;
+    s32 var_3_4;
+    s32 var_3_5;
+    s32 var_3_6;
+    s32 temp_6_5;
+    s32 var_5_2;
+    s32 var_8;
+    s8 temp_3_3;
+    s8 temp_5;
+    s32 temp_7_2;
+
+    temp_8 =
+        (FrFontSlot4 *)DAT_00881630_abs +
+        *(u8 *)(arg0 + 0x15);
+    temp_3 = D_007645A8;
+    if (temp_3 > 0) {
+        *(s8 *)(arg0 + 0x18) = (s8)temp_3;
+    } else {
+        *(s8 *)(arg0 + 0x18) =
+            D_00763808[*(u8 *)(arg0 + 0x15)];
+    }
+    *(s8 *)(arg0 + 0x19) =
+        D_00763808[*(u8 *)(arg0 + 0x15)];
+    temp_3_2 = D_007645A8;
+    if (temp_3_2 > 0) {
+        *(s32 *)(arg0 + 0xC) = temp_3_2;
+    } else {
+        *(s32 *)(arg0 + 0xC) =
+            D_00763808[*(u8 *)(arg0 + 0x15)];
+    }
+    if ((*(u8 *)(arg0 + 0x17) & 1) &&
+        *((u8 *)temp_8->f04 + 0x16) != 0) {
+        temp_7_2 = arg1 * 2;
+        if (temp_7_2 < *(s32 *)((u8 *)temp_8 + 8)) {
+            temp_6_2 = *(s32 *)((u8 *)temp_8 + 0x10);
+            temp_5 = *(s8 *)(temp_6_2 + 1 + temp_7_2);
+            if (temp_5 != 0) {
+                temp_3_3 = *(s8 *)(temp_6_2 + temp_7_2);
+                var_8 = temp_3_3 * 0x10;
+                var_3 = temp_5 - temp_3_3;
+                temp_6_3 = (temp_7_2 >> 1) + 0x20;
+                switch (temp_6_3) {
+                case 0x31:
+                case 0x21:
+                    var_8 -= 0x20;
+                    var_3 += 4;
+                    break;
+                default:
+                    break;
+                }
+                if (D_007645A8 > 0) {
+                    var_5 = -var_8 * D_007645A8;
+                    temp_6_5 = var_5 / 32;
+                    *(s32 *)(arg0 + 4) = temp_6_5;
+                    temp_5_2 = (var_3 + 1) * D_007645A8;
+                    var_3_2 = temp_5_2 / 32;
+                    *(s32 *)(arg0 + 0xC) = var_3_2;
+                } else {
+                    temp_6_6 =
+                        -var_8 * D_00763808[*(u8 *)(arg0 + 0x15)];
+                    var_5_2 = temp_6_6 / 32;
+                    *(s32 *)(arg0 + 4) = var_5_2;
+                    temp_5_3 =
+                        (var_3 + 1) * D_00763808[*(u8 *)(arg0 + 0x15)];
+                    var_3_3 = temp_5_3 / 32;
+                    *(s32 *)(arg0 + 0xC) = var_3_3;
+                }
+                temp_5_4 = D_007645A0;
+                if (temp_5_4 > 0) {
+                    temp_5_5 =
+                        (u8)*(s8 *)(arg0 + 0x18) * temp_5_4;
+                    var_3_4 = temp_5_5 / 128;
+                    *(s8 *)(arg0 + 0x18) = (s8)var_3_4;
+                    temp_5_6 = *(s32 *)(arg0 + 0xC) * D_007645A0;
+                    var_3_5 = temp_5_6 / 128;
+                    *(s32 *)(arg0 + 0xC) = var_3_5;
+                }
+                temp_5_7 = D_007645A4;
+                if (temp_5_7 > 0) {
+                    temp_5_8 =
+                        (u8)*(s8 *)(arg0 + 0x19) * temp_5_7;
+                    var_3_6 = temp_5_8 / 128;
+                    *(s8 *)(arg0 + 0x19) = (s8)var_3_6;
+                }
+            }
+        }
+    }
+}
 // FUN_00271F50
 extern char D_0063BC20[];
 extern u32 func_00276260(u32 param_1, int param_2);
