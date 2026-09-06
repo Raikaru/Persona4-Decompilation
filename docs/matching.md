@@ -3947,3 +3947,23 @@ The full build/verify/lint gate passed with **7,723 overall MATCH**,
 **6,093 first-party MATCH / 767 ASM**, **172 source-linked units**,
 both expected retail hashes and zero lint findings. Publication
 reports and the README were regenerated and validated.
+
+## Follow-through floor checks
+
+- `func_004b5800`: a local record holding both matrix pointers produces
+  the identical **324B/336B, five-word** diff as the retained scalar
+  body. The two loop-order words remain; production stays ASM.
+- `func_001f9cf0`: canonical whole-unit replay retains **688B/688B,
+  four words**. A count/suffix record remains at eight words. Runtime
+  aggregate initialization adds stack clearing/storage and grows to
+  **736B/688B, 160 words**; it is rejected.
+- `func_004a30e0`: separate byte-count locals and inline byte-count
+  expressions produce the identical **764B/768B, ten-word** diff.
+  The archive's alpha temporary is now unsigned: the original solid-row
+  `255 << 24` reproduces a UBSan signed-shift failure, while the unsigned
+  spelling emits identical retail-comparison instructions. Eight
+  32-bit SSE/UBSan raw-layout cases pass with segments 0/8 and replica
+  counts 0/1/2/4, checking lock-replaced buffers, exact copy ranges,
+  whole color/coordinate images and surrounding canaries. The harness
+  disables strict aliasing for the raw memory views; this is not
+  EE/FCSR or in-game validation. The function remains ASM.
