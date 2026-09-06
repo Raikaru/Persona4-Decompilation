@@ -4134,3 +4134,70 @@ MATCH**, **6,096 first-party MATCH / 764 ASM**, **172 source-linked units**,
 both expected retail SHA-1s and zero lint findings. Progress endpoints and
 the README are regenerated and validated. The superseded recursive archive
 and throwaway probes are removed; remaining model floors stay unpromoted.
+
+## Layer animation and sound dispatch: repair lifetimes and return contracts
+
+Both functions are now production C, with every relocated instruction
+matching retail:
+
+| Function | Owner | Emitted / window | Residual |
+| --- | --- | --- | --- |
+| `func_004740c0` | `src/Graphics/Model/mdlManager.c` | 1320B / 1328B | Eight zero-tail bytes |
+| `func_00459ad0` | `src/sdkSnd.c` | 2316B / 2320B | Four zero-tail bytes |
+
+For layer animation, member-first field bases and a signed promoted
+`entryCount` close the former 215-word draft. The existing 80-byte animation
+entry now names its control and start-frame pointers; the table remains
+12 bytes. Independent byte offsets retain the requested animation across
+callbacks and share the attachment-array stride. The existing `addOff`
+helper preserves index-first address additions, with the blend fraction
+loaded before its immediate destination calculation. CSE and propagation
+remain disabled only within this function. Raw control-field writes share
+the IEEE-754 representation of `1.0f`, without a synthetic FPU transfer.
+
+An independent semantic review found no target32 blockers. A throwaway
+32-bit GCC/UBSan consumer runs the installed source against a separately
+structured typed-array transition model: **4,096 scenarios pass**. It checks
+guarded layer/control/attachment images, interpolator state and ordered
+callback events; signed indices down to -32768 use valid biased backing
+arrays. Scenarios cover unsigned counts/ticks, null and sentinel clips,
+both lazy interpolators, table/entry/current-index/hierarchy/interpolator
+replacement during callbacks, pose-copy versus seek, missing start frames,
+shared old/new controls, flag gates, secondary suppression and original
+attachment ticks on the immediate-switch path.
+
+The sound review identified the decisive missing contract: the dispatcher
+returns **`s32` constant 1 on both exits**, not `void`. Retail sets and
+preserves `v0`; the void declaration makes the compiler keep its prior value
+live backward through paths without another call, shifting other registers.
+Correcting the definition and live forward declaration closes the final
+114 instruction differences. Filename helpers now use their authoritative
+`void *` handle and `const char *` path signatures. Generated decompiler
+references remain unchanged because they are not live callers.
+
+The dispatcher also retains a pre-destructor handle destination and a
+40-byte constructor-record view, with scoped dead-assignment elimination
+disabled. Destruction does not supply the explicit zero store's value.
+Re-enabling dead-assignment elimination after the return repair produces
+2308B/2320B with 406 relocation-masked differing words; the scoped pragma
+is still required.
+A throwaway 32-bit GCC/UBSan consumer passes **1,760 scenarios** against a
+separately structured channel/record oracle. It compares complete shared
+backing memory, constructor records, ordered helper calls, filenames and
+the success return. Coverage includes slots 0-4, all modes and signed
+out-of-switch values, special root-track settings, slot-2 handle reuse,
+nonzero destructor returns, zero constructor returns, callback changes to
+handles/modes/control fields, and final publication.
+
+Both consumers use the target's 32-bit pointer/layout and aliasing
+conventions, with controlled external leaves. They are not EE/in-game
+execution or validation of the full animation/audio middleware.
+The two complete owner units verify **145 MATCH / 8 ASM**, with no
+mismatches. The superseded layer draft is removed; the other model floors
+remain unpromoted.
+
+`make build-progress progress lint-errors` passes with **7,728 overall
+MATCH**, **6,098 first-party MATCH / 762 ASM**, **172 source-linked units**,
+both expected retail SHA-1s and zero lint findings. Progress endpoints and
+the README are regenerated and validated. Completed layer/dispatcher probes,
+the throwaway consumers and their target32 container are removed.

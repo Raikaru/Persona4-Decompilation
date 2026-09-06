@@ -10,6 +10,7 @@
    264/272 nd6; 00474BA0 316/320 nd153; 00475B90 304/320 nd147;
    00473710 332/352 nd202; 00477FB0 388/400 nd272. */
 #include "type.h"
+#include "rw/std/stddef.h"
 typedef struct RpMaterial RpMaterial;
 /* measured: index-first addu operand-order carrier (lever 3). Kept at top of
    file, OUTSIDE the opt_propagation pragma regions, so it inlines cleanly and
@@ -459,7 +460,7 @@ u32 func_00471280(RtAnimInterpolator* param_2, RtAnimInterpolator* param_3,
 
 
 /* measured: blocked by the same lhu+bltz u16 sign-test floor as func_00473b20/
-   004740c0/00479100 (retail: lhu;bltz on the raw register at 0x372BEC; b210
+   00479100 (retail: lhu;bltz on the raw register at 0x372BEC; b210
    double-emits with a duplicated negative path in all 14 probed spellings).
    Not transcribed: 7104B window with a guaranteed ~6-word mismatch at the
    sign test cascading through the frame. */
@@ -984,13 +985,159 @@ extern void func_00397c40_1(void* a);
 // FUN_00473B20
 INCLUDE_ASM("asm/nonmatchings/mdlManager", func_00473b20);
 extern void func_003d59a0(void* a, void* b);
-/* IDA-first candidate: 1300B / 1328B, 215 reloc-masked differing words.
-   Member-first offsets preserve animation/start-frame/control lifetimes;
-   callback arguments and pose-copy/seek branches are complete. Disabling CSE
-   reaches 1328B but worsens the residual to 284 words: size is not proof.
-   Retained in docs/probe_archive/IDA_004740c0_body.c; still ASM. */
+/* MATCH: 1320B instructions plus eight zero-tail bytes. Member-first
+   field bases, signed promoted counts and separate attachment offsets
+   preserve retail lifetimes. Reuse addOff for index-first address sums. */
+typedef struct MdlDispatchAnimEntry {
+    RwMatrix matrix;
+    void* animation;
+    u32 unknown44;
+    u8* blendControl;
+    s32* startFrame;
+} MdlDispatchAnimEntry;
+
+typedef struct MdlDispatchAnimTable {
+    MdlDispatchAnimEntry* entries;
+    u32 unknown;
+    u16 count;
+    u16 references;
+} MdlDispatchAnimTable;
+
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_004740C0
-INCLUDE_ASM("asm/nonmatchings/mdlManager", func_004740c0);
+void func_004740c0(u8* layer, s32 animation, s32 blendTicks, s32 flags)
+{
+    u32 narrowFlags;
+    s32 entryCount;
+    void* missingClip;
+    MdlDispatchAnimTable* table;
+    u8* animationFields;
+    s32 currentIndex;
+    s32 currentOffset;
+    s32 nextIndex;
+    s32 nextOffset;
+    void* clip;
+    u8* hierarchy;
+    RtAnimInterpolator* base;
+    s32* startFrame;
+    u8* control;
+    u8* fieldBase;
+
+    *(u16*)layer &= ~1u;
+    narrowFlags = (u16)flags;
+    *(u16*)layer |= narrowFlags & 1;
+    layer[2] = 0;
+    if ((u16)blendTicks > 0 &&
+        (currentIndex = *(s16*)(layer + 4)) != -1 &&
+        (table = *(MdlDispatchAnimTable**)(layer + 0x34)) != 0 &&
+        currentIndex < (entryCount = table->count) &&
+        (currentOffset = currentIndex * (s32)sizeof(MdlDispatchAnimEntry),
+         animationFields = (u8*)table->entries + offsetof(MdlDispatchAnimEntry, animation),
+         clip = *(void**)(animationFields + currentOffset)) != 0 &&
+        clip != (missingClip = D_00922BC0_abs) &&
+        table != 0 &&
+        (nextIndex = (s16)animation) < entryCount &&
+        (nextOffset = nextIndex * (s32)sizeof(MdlDispatchAnimEntry),
+         clip = *(void**)(animationFields + nextOffset)) != 0 &&
+        clip != missingClip) {
+        if (*(RtAnimInterpolator**)(layer + 0x24) == 0) {
+            hierarchy = *(u8**)(layer + 0x20);
+            base = *(RtAnimInterpolator**)(hierarchy + 0x20);
+            *(RtAnimInterpolator**)(layer + 0x24) = (RtAnimInterpolator*)
+                func_003d5790(*(s32*)(hierarchy + 4), base->maxInterpKeyFrameSize);
+        }
+        if (*(RtAnimInterpolator**)(layer + 0x28) == 0) {
+            hierarchy = *(u8**)(layer + 0x20);
+            base = *(RtAnimInterpolator**)(hierarchy + 0x20);
+            *(RtAnimInterpolator**)(layer + 0x28) = (RtAnimInterpolator*)
+                func_003d5790(*(s32*)(hierarchy + 4), base->maxInterpKeyFrameSize);
+        }
+        func_003d5840(*(RtAnimInterpolator**)(layer + 0x24),
+            (*(MdlDispatchAnimTable**)(layer + 0x34))->entries[*(s16*)(layer + 4)].animation);
+        func_003d5840(*(RtAnimInterpolator**)(layer + 0x28),
+            ((MdlDispatchAnimEntry*)(addOff((u32)nextOffset, (u32)(*(MdlDispatchAnimTable**)(layer + 0x34))->entries)))->animation);
+        table = *(MdlDispatchAnimTable**)(layer + 0x34);
+        if (table == 0 || table->unknown == 0) {
+            func_003d59a0(*(RtAnimInterpolator**)(layer + 0x24),
+                *(RtAnimInterpolator**)(*(u8**)(layer + 0x20) + 0x20));
+        } else {
+            func_003d5e40(*(u8**)(layer + 0x24), *(f32*)(layer + 0x0c));
+        }
+        fieldBase = (u8*)(*(MdlDispatchAnimTable**)(layer + 0x34))->entries + offsetof(MdlDispatchAnimEntry, startFrame);
+        startFrame = *(s32**)(fieldBase + nextOffset);
+        if (startFrame != 0) {
+            func_003d5e40(*(u8**)(layer + 0x28), iGpffff8040 * (f32)*startFrame);
+        }
+        *(s16*)(layer + 0x10) = *(s16*)(layer + 4);
+        *(f32*)(layer + 0x14) = *(f32*)(layer + 0x0c);
+        *(u16*)(layer + 0x18) = blendTicks;
+        *(f32*)(layer + 0x1c) = 0.0f;
+    } else {
+        table = *(MdlDispatchAnimTable**)(layer + 0x34);
+        if (table != 0 && (nextIndex = (s16)animation) < table->count &&
+            (nextOffset = nextIndex * (s32)sizeof(MdlDispatchAnimEntry),
+             animationFields = (u8*)table->entries + offsetof(MdlDispatchAnimEntry, animation),
+             clip = *(void**)(animationFields + nextOffset)) != 0 &&
+            clip != D_00922BC0_abs) {
+            func_003d5840(*(RtAnimInterpolator**)(*(u8**)(layer + 0x20) + 0x20), clip);
+            fieldBase = (u8*)(*(MdlDispatchAnimTable**)(layer + 0x34))->entries + offsetof(MdlDispatchAnimEntry, startFrame);
+            startFrame = *(s32**)(fieldBase + nextOffset);
+            if (startFrame == 0) {
+                func_003d5e40(*(u8**)(*(u8**)(layer + 0x20) + 0x20), 0.0f);
+            } else {
+                func_003d5e40(*(u8**)(*(u8**)(layer + 0x20) + 0x20),
+                    iGpffff8040 * (f32)*startFrame);
+            }
+            func_003d5990(*(RtAnimInterpolator**)(*(u8**)(layer + 0x20) + 0x20),
+                func_00473350, layer);
+        }
+        *(u16*)(layer + 0x18) = 0;
+        *(f32*)(layer + 0x1c) = 1.0f;
+    }
+    *(u16*)(layer + 0x54) &= ~0x800u;
+    if (*(u16*)(layer + 0x54) & 0x81e0) {
+        currentOffset = *(s16*)(layer + 4) * (s32)sizeof(MdlDispatchAnimEntry);
+        fieldBase = (u8*)(*(MdlDispatchAnimTable**)(layer + 0x34))->entries + offsetof(MdlDispatchAnimEntry, blendControl);
+        control = *(u8**)(fieldBase + currentOffset);
+        if (control != 0) {
+            u32 one;
+            *(f32*)(control + 0x34) = 0.0f;
+            one = 0x3f800000; /* IEEE-754 1.0f, shared by the raw control fields. */
+            *(u32*)((*(MdlDispatchAnimTable**)(layer + 0x34))->entries[*(s16*)(layer + 4)].blendControl + 0x38) = one;
+            *(u32*)((*(MdlDispatchAnimTable**)(layer + 0x34))->entries[*(s16*)(layer + 4)].blendControl + 0x2c) = one;
+            *(f32*)((*(MdlDispatchAnimTable**)(layer + 0x34))->entries[*(s16*)(layer + 4)].blendControl + 0x20) = 0.0f;
+            *(f32*)((*(MdlDispatchAnimTable**)(layer + 0x34))->entries[*(s16*)(layer + 4)].blendControl + 0x24) = 0.0f;
+            *(f32*)((*(MdlDispatchAnimTable**)(layer + 0x34))->entries[*(s16*)(layer + 4)].blendControl + 0x28) = 0.0f;
+        }
+        nextOffset = (s16)animation * (s32)sizeof(MdlDispatchAnimEntry);
+        fieldBase = (u8*)(*(MdlDispatchAnimTable**)(layer + 0x34))->entries + offsetof(MdlDispatchAnimEntry, blendControl);
+        control = *(u8**)(fieldBase + nextOffset);
+        if (control != 0) {
+            f32 fraction;
+            *(f32*)(control + 0x34) = (f32)(u32)*(u16*)(layer + 0x18);
+            fraction = *(f32*)(layer + 0x1c);
+            *(f32*)(((MdlDispatchAnimEntry*)(addOff((u32)nextOffset, (u32)(*(MdlDispatchAnimTable**)(layer + 0x34))->entries)))->blendControl + 0x38) = fraction;
+        }
+    }
+    control = *(u8**)(layer + 0x38);
+    if (control != 0) {
+        nextOffset = (s16)animation * (s32)sizeof(void*);
+        *(void**)(control + 0x1c) = *(void**)(*(u8**)(control + 0x14) + nextOffset);
+        if (narrowFlags & 0x20) {
+            clip = 0;
+        } else {
+            clip = *(void**)(*(u8**)(control + 0x20) + nextOffset);
+        }
+        *(void**)(control + 0x28) = clip;
+        *(s32*)(control + 0x2c) = 1;
+        *(u16*)(control + 0x30) = blendTicks;
+    }
+    *(f32*)(layer + 0x0c) = 0.0f;
+    *(s16*)(layer + 4) = animation;
+}
+#pragma pop
 // FUN_004745F0
 void func_004745f0(MdlAnimEntryTable* table)
 {
@@ -2440,18 +2587,6 @@ s32 func_004782b0(u8* param_1)
     return 1;
 }
 
-typedef struct MdlDispatchAnimEntry {
-    RwMatrix matrix;
-    void* animation;
-    u8 unknown[12];
-} MdlDispatchAnimEntry;
-
-typedef struct MdlDispatchAnimTable {
-    MdlDispatchAnimEntry* entries;
-    u32 unknown;
-    u16 count;
-    u16 references;
-} MdlDispatchAnimTable;
 
 typedef struct MdlMatrixEntry {
     RwMatrix matrix;

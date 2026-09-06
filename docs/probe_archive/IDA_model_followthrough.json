@@ -4,22 +4,6 @@
   "score_definition": "Relocation-masked differing words, including missing retail tail words; not a fully relocated acceptance result",
   "candidates": [
     {
-      "symbol": "func_004740c0",
-      "body": "IDA_004740c0_body.c",
-      "ida": "docs/ida_headstart/src/Graphics/Model/mdlManager.c:1329-1434",
-      "assembly": "asm/nonmatchings/mdlManager/func_004740c0.s",
-      "object_bytes": 1300,
-      "window_bytes": 1328,
-      "differing_words": 215,
-      "requires": [
-        "Hoist the existing MdlDispatchAnimEntry/Table definitions before this body; never duplicate them.",
-        "Refine MdlDispatchAnimEntry.unknown[12] to u32 unknown44 at 0x44, u8* blendControl at 0x48, s32* startFrame at 0x4c; preserve the 80-byte entry size.",
-        "Use the existing rw/std/stddef.h shim for offsetof; this target compiler does not find a bare stddef.h.",
-        "Preserve the current pointer-return interpolator constructor and explicit callback contracts. MdlAnimControlView has incompatible offsets and must not be substituted."
-      ],
-      "evidence": "Member-first animation/startFrame/control offsets, signed-16-bit index strides and copy-before-seek branching improve the initial 293-word candidate to 215. CSE-off gives a 1328-byte object but worsens the residual to 284 words. Callback-driven table and hierarchy reloads remain explicit."
-    },
-    {
       "symbol": "func_00476e90",
       "body": "IDA_00476e90_body.c",
       "ida": "docs/ida_headstart/src/Graphics/Model/mdlManager.c:2359-2398",

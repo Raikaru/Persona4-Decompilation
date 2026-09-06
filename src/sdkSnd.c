@@ -175,9 +175,9 @@ extern void func_00442830();
 extern void func_00454bd0(void *handle);
 extern void func_00452080(s32 handle);
 extern void func_00452570(void *parent, void *child);
-extern void func_00456370(s32, s32);
+extern void func_00456370(void*, const char*);
 extern void func_00456250();
-extern void func_004562e0(s32, s32);
+extern void func_004562e0(void*, const char*);
 extern s32 func_004c7ef8(s32);
 extern void func_004ccb50(void);
 extern void func_004d5440(s32);
@@ -185,7 +185,7 @@ extern void func_004d8c78(void);
 extern s32 func_004d8cc0(void *, s32, s32);
 extern s32 func_004d8cf0(s32);
 extern s32 func_004d8d10(void *);
-extern void func_004d8d30(s32, s32);
+extern void func_004d8d30(void*, const char*);
 extern void func_004d8d48(s32, s32, s32);
 extern void func_004d8d60(s32, s32, s32);
 extern void func_004d8d78(s32, s32, s32);
@@ -216,7 +216,7 @@ extern void func_0045c510(void);
 extern void func_0045c640(void);
 
 s32 func_004599d0(s32 arg0);
-void func_00459ad0(s32 arg0);
+s32 func_00459ad0(s32 arg0);
 extern s32 func_0045b030(void *arg0);
 extern void func_0045b120(void *arg0);
 
@@ -495,15 +495,235 @@ s32 func_00459a60(void)
 /* FUN_00459AD0                                                        */
 /* ================================================================== */
 
-/* measured: every case body, the dispatch table shape and the arg0==0
-   branch compile correctly (nd 448, obj 2216B vs window 2320B), but mwcc
-   b210 puts arg0 in $s0 where retail keeps it in $s1, cascading a saved
-   register rotation through the whole else-branch/switch (handle ptr,
-   switch-value ptr, A80 ptr all shift by one). Tried idx/idx28 locals,
-   inline SND_IDX/SLOT_IDX, SND_IDX in the ==0 branch; nd only moved 517
-   -> 448. Saved-register rotation floor. */
+/* MATCH: 2316B instructions plus one zero-tail word. Retail returns 1
+   on both exits; a void declaration incorrectly keeps v0 live backward
+   through call-free paths. Preserve the pre-destructor destination and
+   constructor-record address lifetimes with dead assignments disabled. */
+#pragma push
+#pragma opt_dead_assignments off
+typedef struct SndHandleRecord { s32 handle; u8 rest[0x130]; } SndHandleRecord;
+typedef struct SndCreateRecord { u32 words[10]; } SndCreateRecord;
 // FUN_00459AD0
-INCLUDE_ASM("asm/nonmatchings/sdkSnd", func_00459ad0);
+s32 func_00459ad0(s32 arg0)
+{
+    char path[0x100];
+    s32 handleValue;
+    s16 modeValue;
+
+    if (arg0 == 0)
+    {
+        func_004d8e38(CH_HANDLE(0), -0x3C);
+        func_00442088(path, &D_00764000,
+                     LD32(D_007118B4,
+                          LD16(D_008D2B98, SND_IDX(arg0)) * 0xC));
+        if (func_004d8dc0(CH_HANDLE(0)) != 0)
+        {
+            func_004d8da8(CH_HANDLE(0), 0);
+        }
+        if (LD16(D_008D2B98, 0) == 0x3D)
+        {
+            func_004d8ec8(CH_HANDLE(0), 1);
+            func_004d8eb0(CH_HANDLE(0), 1);
+            func_004d8f40(CH_HANDLE(0), 0xA);
+        }
+        else
+        {
+            func_004d8ec8(CH_HANDLE(0), 1);
+            func_004d8eb0(CH_HANDLE(0), 0x1E);
+            func_004d8f40(CH_HANDLE(0), 0x37);
+        }
+        func_004d8d30((void*)CH_HANDLE(0), path);
+        func_004d8e98(CH_HANDLE(0), 1);
+        D_008D2B90[arg0].f00 = 1;
+        LD16(D_008D2B9C, SND_IDX(arg0)) = 1;
+        return 1;
+    }
+
+    handleValue = CH_HANDLE(SND_IDX(arg0));
+    if (handleValue != 0 &&
+        (arg0 != 2 || LD16(D_008D2BA6, SND_IDX(arg0)) != 0 ||
+         LD16(D_008D2BA4, SND_IDX(arg0)) != 0))
+    {
+        s32* destination = &((SndHandleRecord*)D_008D2BA0)[arg0].handle;
+        func_004d8cf0(handleValue);
+        *destination = 0;
+    }
+
+    if (arg0 == 1)
+    {
+        D_008D2A74[SLOT_IDX(arg0)] = 2;
+    }
+    else
+    {
+        D_008D2A74[SLOT_IDX(arg0)] = 3;
+    }
+    LD32(D_008D2A78, SLOT_IDX(arg0)) = 0;
+    LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
+    LD32(D_008D2A7C, SLOT_IDX(arg0)) = 0;
+    LD32(D_008D2A60, SLOT_IDX(arg0)) = 2;
+    LD32(D_008D2A64, SLOT_IDX(arg0)) = 2;
+    LD32(D_008D2A68, SLOT_IDX(arg0)) = 0x5DC0;
+    if (arg0 == 1)
+    {
+        LD32(D_008D2A60, SLOT_IDX(arg0)) = 3;
+        LD32(D_008D2A64, SLOT_IDX(arg0)) = 1;
+    }
+
+    modeValue = LD16(D_008D2BA4, SND_IDX(arg0));
+    switch (modeValue)
+    {
+    case 6:
+        LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
+        LD32(D_008D2A70, SLOT_IDX(arg0)) = 1;
+        CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
+                                   D_008D2B50[arg0], D_008D2B30[arg0]);
+        func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
+        if (arg0 == 3)
+        {
+            func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x5A);
+        }
+        else
+        {
+            func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+        }
+        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
+        func_004d8d30((void*)CH_HANDLE(SND_IDX(arg0)),
+                     ((char *)&D_008D2B90[arg0] + 0x18));
+        func_004d8e98(CH_HANDLE(SND_IDX(arg0)), 1);
+        break;
+
+    case 0:
+    case 1:
+    case 5:
+        if (arg0 > 0)
+        {
+            if (modeValue == 0 || modeValue == 5)
+            {
+                LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
+            }
+            else
+            {
+                LD32(D_008D2A80, SLOT_IDX(arg0)) = 1;
+            }
+            LD32(D_008D2A70, SLOT_IDX(arg0)) = 1;
+            if (CH_HANDLE(SND_IDX(arg0)) == 0)
+            {
+                CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
+                                       D_008D2B50[arg0], D_008D2B30[arg0]);
+                if (LD32(D_008D2A80, SLOT_IDX(arg0)) != 0)
+                {
+                    func_004d8fb8(CH_HANDLE(SND_IDX(arg0)));
+                }
+                func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
+                if (arg0 == 3)
+                {
+                    func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x5A);
+                }
+                else
+                {
+                    func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+                }
+            }
+        }
+        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
+        if (LD16(D_008D2BA4, SND_IDX(arg0)) == 5)
+        {
+            func_004d8d48(CH_HANDLE(SND_IDX(arg0)), LD32(D_008D2CAC, SND_IDX(arg0)),
+                         LD16(D_008D2B98, SND_IDX(arg0)));
+        }
+        else if (arg0 != 0)
+        {
+            func_00456370((void*)CH_HANDLE(SND_IDX(arg0)),
+                         ((char *)&D_008D2B90[arg0] + 0x18));
+        }
+        else
+        {
+            func_004562e0((void*)CH_HANDLE(SND_IDX(arg0)),
+                         ((char *)&D_008D2B90[arg0] + 0x18));
+        }
+        func_004d8e98(CH_HANDLE(SND_IDX(arg0)), 1);
+        break;
+
+    case 2:
+    case 4:
+        if (arg0 > 0)
+        {
+            if (arg0 == 1)
+            {
+                D_008D2A74[SLOT_IDX(arg0)] = 2;
+            }
+            else
+            {
+                D_008D2A74[SLOT_IDX(arg0)] = 3;
+            }
+            LD32(D_008D2A64, SLOT_IDX(arg0)) = 1;
+            if (modeValue == 4)
+            {
+                LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
+                LD32(D_008D2A64, SLOT_IDX(arg0)) = 2;
+            }
+            else
+            {
+                LD32(D_008D2A80, SLOT_IDX(arg0)) = 1;
+            }
+            LD32(D_008D2A70, SLOT_IDX(arg0)) = 0;
+            CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
+                                   D_008D2B50[arg0], D_008D2B30[arg0]);
+            if (LD32(D_008D2A80, SLOT_IDX(arg0)) != 0)
+            {
+                func_004d8fb8(CH_HANDLE(SND_IDX(arg0)));
+            }
+            func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
+            if (arg0 == 3)
+            {
+                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x5A);
+            }
+            else
+            {
+                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+            }
+        }
+        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
+        func_004d8d60(CH_HANDLE(SND_IDX(arg0)), LD32(D_008D2CA8, SND_IDX(arg0)),
+                     LD32(D_008D2CB0, SND_IDX(arg0)));
+        break;
+
+    case 3:
+        if (arg0 > 0)
+        {
+            D_008D2A74[SLOT_IDX(arg0)] = 3;
+            LD32(D_008D2A64, SLOT_IDX(arg0)) = 2;
+            LD32(D_008D2A70, SLOT_IDX(arg0)) = 0;
+            CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
+                                   D_008D2B50[arg0], D_008D2B30[arg0]);
+            if (LD32(D_008D2A80, SLOT_IDX(arg0)) != 0)
+            {
+                func_004d8fb8(CH_HANDLE(SND_IDX(arg0)));
+            }
+            func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
+            if (arg0 == 3)
+            {
+                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x1E);
+            }
+            else
+            {
+                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+            }
+        }
+        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
+        func_004d8d78(CH_HANDLE(SND_IDX(arg0)), LD32(D_008D2CA8, SND_IDX(arg0)),
+                     LD32(D_008D2CAC, SND_IDX(arg0)));
+        break;
+    }
+    D_008D2B90[arg0].f00 = 1;
+    LD16(D_008D2B9C, SND_IDX(arg0)) = 1;
+    return 1;
+}
+#pragma pop
 
 // FUN_0045A3E0
 s32 func_0045a3e0(s16 arg0)
