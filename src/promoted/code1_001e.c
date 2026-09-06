@@ -130,7 +130,7 @@ extern void func_0022b870(void);
 extern void func_001debb0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_00452490(s32 arg0);
 extern u8 *func_00194470(s32 arg0, s32 arg1);
-extern s32 func_0022ced0(s32 arg0);
+extern u8 *func_0022ced0(s32 arg0);
 extern s32 func_0029de20(s32 arg0, s32 arg1);
 extern s32 func_001eba20(u8 *arg0);
 extern u8 *iGpffffb428;
@@ -1822,7 +1822,6 @@ s32 func_001eabc0(void) {
 #pragma opt_rebuildconditionals off
 s32 func_001eaca0(void) {
     extern u8 *func_001d3d50(s32 arg0);
-    extern u8 *func_0022ced0(s32 arg0);
     extern void func_001d3ea0(u8 *arg0, u8 *arg1);
     extern u8 *func_001d6240(u8 *arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4);
     extern void func_001d3e00(u8 *arg0);
@@ -2341,7 +2340,7 @@ u8 *func_001ebb00(s32 arg0, s32 arg1, s32 arg2) {
         *(s32 *)(temp_16 + 0xC) = (s32)iGpffffb42c;
         break;
     case 3:
-        *(s32 *)(temp_16 + 0xC) = func_0022ced0(0);
+        *(s32 *)(temp_16 + 0xC) = (s32)func_0022ced0(0);
         break;
     }
     *(s32 *)(temp_16 + 0x0) = arg0;

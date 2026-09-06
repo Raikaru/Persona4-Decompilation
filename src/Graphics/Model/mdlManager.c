@@ -2301,7 +2301,7 @@ void* func_00477f10(void* param_1, void* param_2, int param_3, int param_4, u32 
 void* func_00477fb0(void* arg0, void* arg1, void* arg2, u32 arg3)
 {
     extern s32 func_0047d0e0(void);
-    extern void* func_00455ea0(void*, s32, void*);
+    extern u8* func_00455ea0(u8*, s32, s32*);
     extern void* func_004779b0(void*, void*);
     extern void func_0047e450(void*, void*, void*, void*, u32);
     void* obj;
@@ -2334,7 +2334,7 @@ void* func_00477fb0(void* arg0, void* arg1, void* arg2, u32 arg3)
         func_004782b0(arg2);
         return arg2;
     }
-    retA = (u32)func_00455ea0(arg2, 0, &stack9c);
+    retA = (u32)func_00455ea0(arg2, 0, (s32*)&stack9c);
     retVal = stack9c;
     obj = func_004779b0(arg0, arg1);
     if ((arg3 & 1) != 0) {
@@ -2345,7 +2345,7 @@ void* func_00477fb0(void* arg0, void* arg1, void* arg2, u32 arg3)
     pair1.b = retVal;
     func_0047afd0(obj, &pair1);
     func_004782b0(obj);
-    retB = (u32)func_00455ea0(arg2, 1, &stack9c);
+    retB = (u32)func_00455ea0(arg2, 1, (s32*)&stack9c);
     func_0047e450((u8*)obj + 0x2D0, arg0, arg1, (void*)retB, stack9c);
     result = obj;
 done:

@@ -66,7 +66,7 @@ extern void func_001f7530(void);
 
 void func_002258b0(u8 *arg0, f32 arg1, f32 arg2);
 
-void func_00455ea0(s32 arg0, s32 arg1, s32 arg2);
+u8 *func_00455ea0(u8 *arg0, s32 arg1, s32 *arg2);
 
 
 
@@ -1652,7 +1652,7 @@ u8 *func_0022cdb0(s32 arg0)
 // FUN_0022CED0
 u8 *func_0022ced0(s32 arg0)
 {
-    func_00455ea0(*(s32 *)(DAT_0076449c + 0xB90), arg0 & 0xFFFF, 0);
+    return func_00455ea0(*(u8 **)(DAT_0076449c + 0xB90), arg0 & 0xFFFF, 0);
 }
 
 // FUN_0022CF00

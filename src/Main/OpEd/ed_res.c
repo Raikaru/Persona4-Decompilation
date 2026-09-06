@@ -16,7 +16,7 @@ extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0038f8d0(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern s32 func_004553c0(u8 *ptr);
-extern void *func_00455ea0(u32 resource, s32 index, s32 *size);
+extern u8 *func_00455ea0(u8 *resource, s32 index, s32 *size);
 extern void func_00454bd0(u8 *ptr);
 extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void func_0043f810(void *dst, const void *src, u32 size);
@@ -52,7 +52,7 @@ void func_0038f680(void)
     work = sOpTailC;
     if ((work[0] & 1) != 0 && func_004553c0((u8 *)(uintptr_t)work[2]) != 0) {
         for (i = 0; i < 2; i++) {
-            data = func_00455ea0((u32)(uintptr_t)work[2], i, &size);
+            data = func_00455ea0((u8 *)(uintptr_t)work[2], i, &size);
             switch (i) {
             case 0:
                 work[3] = (u32)func_0038f400((const u32 *)data);

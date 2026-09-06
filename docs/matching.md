@@ -3967,3 +3967,39 @@ reports and the README were regenerated and validated.
   whole color/coordinate images and surrounding canaries. The harness
   disables strict aliasing for the raw memory views; this is not
   EE/FCSR or in-game validation. The function remains ASM.
+
+## Record extraction: restore the pointer-return contract
+
+`func_00455ea0` in `src/Kernel/sdkCdvd.c` returns `u8 *` and accepts
+`(u8 *, s32, s32 *)`. Its live declarations now agree with that definition.
+`func_0022ced0` formerly called a void-declared extractor and fell off its
+non-void body. It now explicitly returns the selected record pointer;
+its cross-unit declaration also returns `u8 *`. The corrected wrapper
+retains **48B/48B, zero differing words**.
+
+Unsigned byte-count consumers retain unsigned storage and pass its
+corresponding signed type to the extractor. C permits this signed/unsigned
+aliasing. Changing the storage itself to signed perturbed
+`func_001f7e30` and `func_00477fb0`; keeping their unsigned arithmetic
+restored both matches without retaining an incompatible prototype.
+Generated, uncompiled reference listings are intentionally unchanged.
+
+The old wrapper reproduces `control reaches end of non-void function`
+under GCC's `-Werror=return-type`. A throwaway 32-bit UBSan smoke compiles
+the live wrapper and extractor, using native `memcpy` for the header-copy
+primitive. It exercises a 65,536-record image, zero-length payloads,
+lengths around 64-byte alignment boundaries, guarded size outputs,
+null size outputs, negative extractor indices, and wrapper indices with
+their upper 16 bits set. This is host-side record-selection coverage,
+not EE or in-game execution.
+
+The final smoke passes **115 extractor/wrapper calls**, including
+corresponding signed/unsigned output storage. `make build verify
+lint-errors` passes with **7,723 overall MATCH**, **6,093 first-party
+MATCH / 767 ASM**, **172 source-linked units**, both expected retail
+hashes and zero lint findings. No new function is promoted by this repair.
+
+For the pending model-sound callback `func_0047e6f0`, an explicit owner
+alias and a one-field owner record both retain the plain draft's
+**840B/848B, 45-word** comparison. They do not resolve the saved-register
+allocation and are not production candidates.
