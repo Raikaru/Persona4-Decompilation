@@ -1533,11 +1533,12 @@ u32 func_00279740(int param_1,int param_2)
 
 
 /* Measured candidate: docs/probe_archive/SITF_00279780_body.c, 768B/768B,
-   fndiff 9 words. The list walk and both signed count checks match.
-   Unsigned index-first address arithmetic fixes both ADDU operand orders.
-   Remaining: the four byte arguments load before the two zero arguments;
-   the global address precedes the first argument move at func_00279dd0.
-   Uses the canonical constructor ABI; retain ASM, not a scheduler claim. */
+   fndiff 3 words. Named zero origins with opt_propagation off fix the
+   constructor argument order. The list walk, signed count checks, and
+   unsigned index-first ADDU operands match. The remaining 0x1F0-0x1F8
+   residual materializes the global address before the first argument move
+   at func_00279dd0; explicit context/address locals do not improve it.
+   Canonical constructor ABI unchanged; retain ASM. */
 // FUN_00279780
 INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_00279780);
 // FUN_00279A80

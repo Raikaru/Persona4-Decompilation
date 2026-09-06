@@ -9,6 +9,11 @@
  * and 4-byte Z accesses. A 16-byte whole-normal copy is rejected because
  * it reads beyond those constant extents and changes retail access width.
  * Reverse stores: 7 words; propagation off: 5; aggregate temporaries: 4.
+ * Re-certified at 416B/416B, four executable words. A named automatic
+ * parts initializer followed by aggregate assignment gives 468B and
+ * 94 words, identical to the retained compound-parts experiment: a local
+ * zeroing loop and local 16-byte copy expand the frame, while the globals
+ * still load/store sequentially. No global declaration or extent changes.
  * IDA agrees on traversal and strict Y limits, but omits the normal setup
  * and third call argument; retain those from assembly rather than copying
  * the incomplete call signature from Hex-Rays.
