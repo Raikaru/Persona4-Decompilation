@@ -1,40 +1,77 @@
-// object_size 440, window 448, normalized_diff 254, differing offsets 33 38 46 50 57 61 62 63 65 66 69 70 73 80 81 82, instruction deficit 2; classification register allocation and declaration-order residual; ruled out movz/movn, COP1 accumulator, standalone MMI, framed tail-jump, sd-saved callee register, and size deficit after frame/prototype probes.
-u32 func_001d2e20(u8 *param_1)
+/* Rejected IDA-backed reconstruction: 440B / 448B, 92 relocation-masked
+ * differing words. Retail has 444 instruction bytes and one zero-tail word.
+ * Its retained mode copy and scalar register allocation remain different.
+ * IDA: docs/ida_headstart/src/Battle/btlFormation.c:402-440.
+ *
+ * Ascending case labels recover retail's 3,1,2,0 comparison order.
+ * The category helper's canonical return is s32, not the old archive's s64;
+ * its mode and the predicate's mode really are s64. The work view preserves
+ * the three pointers and signed halfword at 0xC. Snapshots precede callbacks;
+ * only the second unit reference is reloaded after the predicate.
+ *
+ * Source and retail confirm category results are bounded to 0..3 and the
+ * predicate cannot return true when the second reference was initially null.
+ * No runtime semantic acceptance or production promotion is claimed.
+ *
+ * Rejected probes: branch-group/label orders, if chains, promoted/raw mode
+ * lifetimes, snapshot order, canonical declarations, presence normalization,
+ * scoped propagation/lifetime/dead-assignment/CSE/level controls and register
+ * storage classes. The 448B presence64/level1/CSE-off variants score 87/88/89
+ * respectively but introduce other instructions; size agreement is not a
+ * match. Full output-helper types and the typed work view retain 440B/92.
+ */
+u32 func_001d2e20(u8* param_1)
 {
+    typedef struct FormationUnitRef
+    {
+        u8 prefix[0x30];
+        u8* unit;
+    } FormationUnitRef;
+    typedef struct FormationDispatchWork
+    {
+        u8* node;
+        FormationUnitRef* first;
+        FormationUnitRef* second;
+        s16 mode;
+    } FormationDispatchWork;
+    FormationDispatchWork* work = (FormationDispatchWork*)param_1;
     f32 output[4];
     f32 auxiliary[4];
     s16 mode;
     s32 has_unit;
-    s64 category;
-    u8 *unit;
-    u8 *node;
-    extern s64 func_00199d00();
-    extern s32 func_001f1210();
-    extern void func_001951f0();
+    s32 category;
+    u8* unit;
+    u8* node;
+    extern s32 func_00199d00(s32 unused, u8 * unit, s64 mode, s32 has_unit);
+    extern s32 func_001f1210(u8 * node, s64 mode, s32 has_unit);
+    extern void func_001951f0(u8 * node, u8 * unit, u8 * other, s32 category, f32 * position, f32 * rotation, s32 mode);
 
-    node = *(u8 **)(param_1 + 0);
-    unit = *(u8 **)(*(u8 **)(param_1 + 4) + 0x30);
-    mode = *(s16 *)(param_1 + 0xc);
-    has_unit = *(u32 *)(param_1 + 8) != 0;
-    category = (s16)func_00199d00(node, unit, (s64)mode, has_unit);
-    if (func_001f1210(node, (s64)mode, has_unit) == 0) {
-        switch ((s16)func_00199d00(node, unit, (s64)mode, has_unit)) {
-        case 3:
-        case 1:
-            func_001951f0(node, unit, NULL, category, &output, &auxiliary, 1);
-            break;
-        case 2:
+    node = work->node;
+    unit = work->first->unit;
+    mode = work->mode;
+    has_unit = work->second != 0;
+    category = (s16)func_00199d00((s32)node, unit, (s64)mode, has_unit);
+    if (func_001f1210(node, (s64)mode, has_unit) == 0)
+    {
+        switch ((s16)func_00199d00((s32)node, unit, (s64)mode, has_unit))
+        {
         case 0:
-            func_001951f0(node, unit, NULL, category, &output, &auxiliary, 0);
+        case 2:
+            func_001951f0(node, unit, NULL, category, output, auxiliary, 0);
+            break;
+        case 1:
+        case 3:
+            func_001951f0(node, unit, NULL, category, output, auxiliary, 1);
             break;
         }
-        func_00194f10(node, &auxiliary);
-        func_00194ee0(node, &output);
-    } else {
-        func_001951f0(node, unit, *(u8 **)(*(u8 **)(param_1 + 8) + 0x30),
-                      category, &output, &auxiliary, 2);
-        func_00194f10(node, &auxiliary);
-        func_00194ee0(node, &output);
+        func_00194f10(node, auxiliary);
+        func_00194ee0(node, output);
+    }
+    else
+    {
+        func_001951f0(node, unit, work->second->unit, category, output, auxiliary, 2);
+        func_00194f10(node, auxiliary);
+        func_00194ee0(node, output);
     }
     return 1;
 }

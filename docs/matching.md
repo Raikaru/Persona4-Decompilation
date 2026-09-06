@@ -4232,3 +4232,71 @@ controls do not close the key/index register exchange. A matched nested
 sort in `func_001de370` supplies a real source convention, but transferring
 that convention does not improve this target. Production remains ASM for
 all three functions.
+
+## Model sound cache: canonical lookup types and eviction lifetimes
+
+`mdlSE.c::func_0047df40` is promoted at **420B / 432B,
+normalized_diff=0**. The three words reported by the isolated comparator
+are the absent twelve zero-padding bytes; every emitted instruction matches.
+The superseded `LaneMdlSE_0047df40_body.c` archive is removed.
+
+The lookup producer already defines
+`void *func_00477c40(u32 type, u32 id, u32 flags)`. Active consumer
+declarations now use that contract rather than the narrower, integer-returning
+reconstruction. The battle-unit consumer also retains the returned address
+as a pointer and uses the clone producer's `u32 *func_00478750(u8 *)`
+contract. Generated reference drafts are intentionally unchanged.
+
+Four previously matched callers exposed constant/halfword-load scheduling
+changes after the prototype correction: `func_004abe80`, `func_004ac640`,
+`func_002915f0`, and `func_004abc50`. A named `u32` lookup type under scoped
+propagation-off preserves retail's constant-first argument materialization.
+The constructors assign that local on each condition evaluation; the existing
+loop shapes and lookup side effects remain intact. No incompatible call casts,
+old-signature wrappers, or global optimization changes are needed.
+The seven-file producer/consumer verification reports **343 MATCH, 19 ASM,
+zero mismatches**.
+
+The cache itself needs scoped CSE-off and propagation-off. CSE-off retains
+the repeated slot-base and mask calculations. A promoted `u32` slot type,
+a shared unsigned all-ones sentinel, and a distinct eviction index remove
+unwanted copies. Narrowing the eviction-slot and loaded-tick lifetimes,
+with the comparison written `tick <= minimumTick`, closes the remaining
+allocation differences. Named locals preserve the recovered policy:
+first qualifying slot during the initial scan, otherwise the last slot tied
+for the smallest unsigned timestamp. The clock retains defined unsigned wrap.
+
+A throwaway **32-bit native UBSan smoke** executes the installed cache body
+and the real linked-list lookup body against independent typed oracles:
+**78,848 cache scenarios and 1,536 lookup scenarios pass**. Coverage includes
+first-free precedence over later hits, duplicate keys, live/missing entries,
+invalid kinds, last-equal eviction ties, unsigned timestamp boundaries and wrap,
+key truncation, lookup flags, and complete guarded record/clock images.
+Lookup entry is instrumented to record calls, not replaced with a mock.
+Strict aliasing is disabled for the raw-layout views; undefined-behavior
+sanitization remains enabled. This is native x86 target32 evidence,
+**not EE execution or in-game validation**.
+
+### Retained compact-floor evidence
+
+Formation `func_001d2e20` remains ASM. The cleaned
+`SFRM_001d2e20_body.c` uses typed work/reference views and canonical helper
+contracts, but replays at **440B / 448B, 92 differing words**. Reordered
+switch labels recover comparison order without fixing the retained mode copy
+or register allocation. Presence-width and optimizer variants increase size
+or add instructions; none is promoted.
+
+Shuffle `func_00375f00` remains **156B / 160B, eight words** with dead
+assignments disabled. Reusing only the combined pointer instead produces
+128B/38 words and loses retail's retained parent/index state.
+Material `func_00476e90` remains at the saved **996B / 976B, 72 words**:
+scalar-component and helper-definition-only CSE boundaries produce
+948B/193 words and fail to retain all eight normalization loads.
+These rejected measurements are recorded in their existing archives.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,729 MATCH overall; 6,099 first-party MATCH / 761 ASM; 172 source-linked
+C objects**. Both the loadable image SHA-1
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` and executable SHA-1
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` remain exact.
+Lint reports 333 first-party files and zero findings.

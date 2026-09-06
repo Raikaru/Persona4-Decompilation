@@ -1,8 +1,8 @@
 #include "type.h"
 
 extern void func_004787e0(); /* old-style: retail jals with $a1 still holding the compared coordinate */
-extern s32 func_00477c40(u16 arg0, u16 arg1, s32 arg2);
-extern u8 *func_00478750(s32 arg0);
+extern void *func_00477c40(u32 arg0, u32 arg1, u32 arg2);
+extern u32 *func_00478750(u8 *arg0);
 extern void func_0047d110(u16 arg0, u16 arg1, void *arg2);
 extern void func_00440b68(void *arg0, u8 *arg1, s32 arg2);
 extern s32 func_00454a60(void *arg0, s32 arg1);
@@ -1020,7 +1020,7 @@ void func_0019acd0(u8 *arg0)
     u8 *obj;
     s32 flags;
     u16 coord;
-    s32 made;
+    u8 *made;
 
     p = *(u8 **)arg0;
     *(u16 *)(p + 0xA0) = *(u16 *)(p + 0xA0) + 1;
@@ -1039,7 +1039,7 @@ void func_0019acd0(u8 *arg0)
         }
         made = func_00477c40(*(u16 *)(arg0 + 4), *(u16 *)(arg0 + 6), 0);
         if (made != 0) {
-            *(u8 **)(p + 0xA00) = func_00478750(made);
+            *(u8 **)(p + 0xA00) = (u8 *)func_00478750(made);
             flags = *(s32 *)(p + 0x98) | 2;
             *(s32 *)(p + 0x98) = flags;
             *(s32 *)(p + 0x98) = flags | 1;
