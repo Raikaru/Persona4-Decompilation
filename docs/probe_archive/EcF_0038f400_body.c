@@ -9,6 +9,10 @@
  * A pointer-typed runtime header gives 23; reusing size as cursor gives 98.
  * IDA's inline alignment expressions and combined header/table extent also
  * retain 17 words; no improvement over this floor.
+ * Further probes: an inline alignment helper for cursor stages retains 17;
+ * using it for all four stages regresses to 24. A separate allocation
+ * result, byte-sized remainder, byte-pointer cursor, and typed allocation
+ * plus cursor all retain 17. No source promotion follows these ties.
  * Preserve the five-word header, low-halfword stored ID/count, full source
  * count, copy lengths and absence of an invented allocation-failure check.
  * These are bounded measurements, not proof that other safe forms cannot match.
