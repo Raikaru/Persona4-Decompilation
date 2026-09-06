@@ -15,6 +15,9 @@
  * output: five emitted differences at 0x6C-0x7C and two zero-tail words.
  * Native smoke: 1920 cases cover signed formatted values, alpha extremes,
  * reversed glyphs, cached colors, post-formatter width reads, and float order.
+ * Further bounded probes: a private inline alpha complement and grouping
+ * cached G/B values in a pair both retain seven words with the original
+ * assignment order, or 15 with alpha assigned after G/B. Neither is retained.
  */
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {
