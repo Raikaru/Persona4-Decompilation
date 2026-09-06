@@ -5,6 +5,11 @@
  * branch. Control flow and frame now agree; saved-register coloring remains.
  * Integer-node spelling, a valid node struct, O1, and disabling propagation,
  * common subexpressions or loop invariants do not close this candidate.
+ * Re-measured: declaration-initialized current and mutable arg0 are byte-identical.
+ * Current's initializer with propagation off changes only entry-copy order:
+ * still 32 words, now 35 normalized bytes. Frame remains 0x50 with s0-s3.
+ * A parameter-derived remaining initializer, alone or with current and scoped
+ * propagation off, also leaves 32 words. No register steering is retained.
  */
 // FUN_0027A150
 u8 *func_0027a150(u8 *arg0, s32 arg1, s32 arg2)
