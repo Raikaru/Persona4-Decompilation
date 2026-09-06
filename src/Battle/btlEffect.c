@@ -55,7 +55,7 @@ extern u32 func_00201f60(int param_1);
 extern void func_00440b68();
 extern u8* func_00454a60(u8* param, s32 mode);
 extern s32 func_004553c0(u8* ptr);
-extern void* func_00455ea0(void* handle, s32 index, void* out);
+extern u8* func_00455ea0(u8* handle, s32 index, s32* out);
 extern void func_00456150(void* handle);
 extern void func_0044ea90(void* msg, s32 id);
 extern void func_0043f810(void* dst, void* src, u32 size);
@@ -183,14 +183,14 @@ u32 func_001d7760(void)
   u32 firstIndex = 0;
   u32 firstValue = 0;
   u32 firstOffset = 0;
-  u32 auStack_4;
+  s32 auStack_4;
 
   if (*(int *)(D_0076449C + 0xDC4) == 0) {
     func_00440b68(&iGpffffa290, D_00609548, 0x4AB);
     *(u32 *)(D_0076449C + 0xDC4) = (u32)func_00454a60((u8 *)D_006095C0, 1);
   } else if (func_004553c0(*(u8 **)(D_0076449C + 0xDC4)) != 0) {
     for (firstIndex = 0; firstIndex < 0x30; firstIndex++) {
-      firstValue = (u32)func_00455ea0(*(void **)(D_0076449C + 0xDC4), firstIndex, (void *)&auStack_4);
+      firstValue = (u32)func_00455ea0(*(void **)(D_0076449C + 0xDC4), firstIndex, &auStack_4);
       firstOffset = firstIndex * 4;
       *(u32 *)(D_0076449C + firstOffset + 0xD04) = func_001d3d50(2);
       func_001d4490(*(u32 *)(D_0076449C + firstOffset + 0xD04), firstValue);

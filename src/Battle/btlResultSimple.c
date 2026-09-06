@@ -37,7 +37,7 @@ extern u8 *func_00454a60(u8 *param, s32 mode);
 void func_0046d730(const void *file, s32 line);
 s32 func_0046a770(u32 param);
 s32 func_004553c0(u8 *ptr);
-s32 func_00455ea0(s32 param, s32 a, s32 b);
+u8 *func_00455ea0(u8 *param, s32 a, s32 *b);
 s32 func_0046af60(u8 *arg0);
 s32 func_0046a750(s32 param);
 void func_0021fea0(u8 *work);
@@ -166,7 +166,7 @@ s32 func_0021f340(BtlResultWork *work)
             while (var_18 < 3) {
                 dest = (s32 *)(arg0 + var_18 * 4 + 0x400);
                 *dest = (s32)func_0046af60(
-                    (u8 *)func_00455ea0(*(s32 *)(arg0 + 0x4BC), var_18, 0));
+                    func_00455ea0(*(u8 **)(arg0 + 0x4BC), var_18, 0));
                 if (*dest == 0) {
                     func_0046d730(&D_00629610, 0x181);
                 }
@@ -260,7 +260,7 @@ s32 func_0021f520(u8 *arg0) {
     case 2:
         if ((D_008C024E[0] & 0x40) || (D_008C024C[0] & 0x10)) {
             if (*(s16 *)(sub + 0x6F8) > 0) {
-                func_002baac0(func_00455ea0(*(s32 *)(sub + 0x934), 0, 0));
+                func_002baac0((s32)func_00455ea0(*(u8 **)(sub + 0x934), 0, 0));
                 func_002bad10(0x17);
                 *(u32 *)(work + 0x38) = 3;
             } else {
@@ -325,11 +325,11 @@ s32 func_0021f790(u8 *arg0) {
             v = *(s32 *)(work->field570 + 0x60);
             if (v & 2) {
                 work->state = 4;
-                func_002baac0(func_00455ea0(*(s32 *)(work->field570 + 0x934), 0, 0));
+                func_002baac0((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0));
                 func_002bad10(2);
             } else if (v & 8) {
                 work->state = 4;
-                func_002baac0(func_00455ea0(*(s32 *)(work->field570 + 0x934), 0, 0));
+                func_002baac0((s32)func_00455ea0(*(u8 **)(work->field570 + 0x934), 0, 0));
                 func_002bad10(1);
             } else if (v & 0x10) {
                 work->flags &= 0xFFFE;
