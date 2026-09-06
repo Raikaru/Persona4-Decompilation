@@ -1,3 +1,8 @@
+/* Not re-certified: the current canonical btlUnitCreateMovePacket at
+ * 0x001973F0 takes (BtlUnit *, const RwV3d *, f32, u32) and returns
+ * BtlPacket *. This historical func_001973f0 declaration/call takes five
+ * arguments and is incompatible. Selection-state aggregate experiments
+ * were parked before compilation rather than changing the shared API. */
 /* object_size=564B; retail_window=576B; normalized_diff=25 words; differing_words=16; differing_offsets=0x148,0x180,0x1A4-0x1C0,0x1CC-0x1D4. Best legal plain-C body before restoration. Narrow unsigned action_id reproduces retail daddiu opcode; residual is action/source/table register coloring. Ruled out: signed/narrow mode variants, source-id width variants, declaration-order permutations, split action locals, source-pointer temporary, table-pointer forms, direct type guard, propagation pragma, integer unit alias, source pointer aliases, alternate helper declaration/call forms except retained interleaved float ABI declaration. */
 void func_001b0020(u8 *arg0)
 {
