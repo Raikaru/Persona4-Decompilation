@@ -4525,3 +4525,47 @@ source-linked `nLine.c` object. There are 172 source-linked objects and 1,561
 C-linked functions. Both retail hashes remain exact:
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` (loadable image) and
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` (complete executable).
+
+## Translated rectangles: capture alpha before narrowing
+
+`func_0034e0b0` in `src/promoted/nLine.c` is now **MATCH**:
+**468B / 480B, normalized_diff 0**, with twelve zero tail bytes.
+The faithful archived candidate had 35 reloc-masked differing words.
+
+The alpha read must remain before `func_00457120`; moving it after that
+callback changes observable behavior. Capture the byte in a `u32` local,
+then narrow it into a separate `u8` after the camera callback. This keeps
+the original read timing while reproducing the saved-register allocation
+and the later `andi`. The existing `addF` helper preserves each corner
+addition and its operand order. No new helper, optimization pragma,
+register binding, padding object, or assembly is needed.
+
+All 117 emitted instruction words agree with retail. The isolated fndiff
+reports only three absent zero-padding words; owner verification accepts
+the retail zero tail. The owner and existing external consumer units report
+**143 MATCH / 21 ASM, zero mismatches**. Signatures and callers are unchanged.
+
+A throwaway native smoke runs the installed arithmetic under Clang ASan,
+UBSan, and float-cast-overflow checks: **23,040 scenarios / 92,160 vertices**.
+It covers every alpha byte, negative and fractional translations, and
+negative, zero, fractional, and greater-than-one transition factors.
+Camera and vertex callbacks mutate position, alpha, depth, and camera
+scale; the remaining vertices retain their captured values.
+
+The oracle also checks the retail distinction between the **480-unit
+vertex height** and the **448-unit `func_0034e360` height**. Both later helpers
+receive the original translation parameters, not reloaded owner positions.
+The signed 16-bit selection result is stored before `func_0034ee90`, and
+the owner state at `0x990` is left unchanged.
+
+Camera access, vertex output, selection, and transition helpers are modeled
+boundaries. This is not EE execution or exceptional-float emulation.
+The superseded floor archive and temporary smoke artifacts are removed.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,734 MATCH overall; 6,104 first-party MATCH / 756 ASM**. The rebuilt
+`nLine.c` object is linked from source; there are 172 source-linked objects
+and 1,562 C-linked functions. Progress snapshots validate, and lint reports
+zero findings across 333 first-party files. Both retail hashes remain exact:
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` (loadable image) and
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` (complete executable).
