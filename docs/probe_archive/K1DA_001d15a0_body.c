@@ -19,6 +19,10 @@
  * to 35 words. Lifetime optimization off, a loop-local selected value
  * (including const), register storage hints for index/result, and a combined
  * short-circuit success condition all retain the twelve-word baseline.
+ * A complete 0xe0-byte record with named u16 limits at +0xd8/+0xda/+0xdc
+ * also retains the same nine emitted-word floor. A fresh 11,464-case native
+ * run covers nonmonotone tables, per-coordinate rejection, all first-hit
+ * positions and the fourth helper counter; no source promotion follows.
  * Reproduce: python tools/probe_variants.py src/promoted/code1_001d.c
  * func_001d15a0 --candidate archive=docs/probe_archive/K1DA_001d15a0_body.c
  */
