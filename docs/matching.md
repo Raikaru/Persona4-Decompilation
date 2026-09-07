@@ -6498,3 +6498,88 @@ The integrated `make build-progress progress lint-errors` gate passes:
 1,568 functions**, validated progress snapshots and zero lint findings
 across 337 first-party files. Both retail SHA-1 identities are unchanged.
 The recovery-quality typed count increases from 2,167 to **2,169**.
+
+## Memory-card task forwarding and enemy bitmap boundaries
+
+`mc.c` now declares `00452560` exactly like the existing SDK provider:
+`u32 func_00452560(void *task)`. The result is the packed address word
+at task offset `0x38`, not an implicit current-task lookup.
+`002a4b10`, `002a4cb0` and `002a6510` explicitly forward their task
+argument and decode the returned address. The teardown callback now
+accepts its previously implicit argument; its constructor binding remains
+unchanged. The SDK provider and unrelated task APIs are intentionally
+unchanged.
+
+The old update path fails a native instrumented getter assertion because
+the task argument was not supplied. The repaired actual update, teardown
+and dispatch bodies pass **1,412 ASan/UBSan cases** with two mapped owners:
+state transitions, readiness-query order, dispatch precedence, callback
+flag mutations and teardown handle reload/order. Native instrumentation
+exposes a C forwarding error; it is not evidence of a retail PS2 crash.
+
+`g_data.c`'s `0010f3d0` setter and `0010f420` query now use `1U` for
+their bitmap masks. Both old paths trigger UBSan for the valid bit-31
+position. Both reproductions pass after repair, along with **43,520
+ASan/UBSan cases** across all 2,720 bitmap bits, low-16-bit input aliases,
+initial bit patterns, repeated sets and neighboring-word preservation.
+The getter still returns the selected mask, not a normalized Boolean.
+
+Independent before/after object comparisons preserve function bytes and
+relative relocations for all **31 emitted `mc.c` functions** and all
+**137 emitted `g_data.c` functions**. No new MATCH is claimed from either
+repair.
+
+## Refreshed AI, rectangle, calendar and clamp residuals
+
+The retained candidates were replayed against the current retail image
+with every target relocation resolved. Executable differences below do
+not count omitted all-zero alignment:
+
+| Function | Emitted / window | Executable differing words | Zero tail | Relocations |
+| --- | ---: | ---: | ---: | ---: |
+| `001db360` | 544 / 544 | 10 | 0 | 8 |
+| `002a4d10` | 524 / 528 | 59 | 4 | 13 |
+| `00110a60` | 488 / 496 | 8 | 8 | 15 |
+| `0021de90` | 440 / 448 | 3 | 8 | 5 |
+
+`IDA_001db360_body.c` improves the old 17-word floor by promoting the
+loaded `u16` command normally to `s32` and continuing on a short-circuit
+nonmatch. Only rejection/increment block order remains. All 257 existing
+owner C functions preserve bytes and relocations. The candidate and the
+actual repaired bitmap provider pass **15,360 ASan/UBSan cases** covering
+bit 31, signed status results, bypass/enable precedence, command rejection
+and ordered helper queries. The retail count provider returns eight;
+the `u16 i < count` loop also cannot execute a wrapping increment for any
+representable `u16` count.
+
+`PoD_002a4d10_body.c` retains a reconstructed RGBA/four-`s32` rectangle
+animation with explicit task forwarding. Ordinary 16-byte aggregates
+produce `lq`/`sq`; no artificial alignment or 128-bit wrapper is needed.
+Both templates are `{0,0,640,0}`. The two colors are RGBA
+`{255,233,44,255}` and `{40,40,40,255}`, not floating-point values.
+The bounded O1 candidate preserves all 23 existing owner C functions and
+passes **1,470 ASan/UBSan cases** for clamp boundaries, color/geometry,
+easing-call order, callback-driven frame reloads, cached work ownership
+and reset transitions. Easing/drawing are controlled native fixtures,
+not a rendered PS2 frame. Scheduling and aggregate stack positions remain
+unmatched; the primitive's float-typed rectangle interface still requires
+a coordinated correction before promotion.
+
+The calendar and calculation candidates do not improve. Their archive
+headers now distinguish eight and three executable residual words from
+their respective eight-byte zero tails. Six new calendar join/accessor
+forms and two inline calculation boundaries do not close those residuals;
+all 46 and 94 existing owner C functions respectively preserve bytes and
+relocations. Calendar getter widths remain justified by their providers.
+The calculation requires valid tables, a nonzero divisor, safe signed
+arithmetic and finite representable intermediate conversions: its final
+clamp cannot rescue an earlier invalid float-to-int conversion.
+
+All four routines remain assembly-backed. Neither native source behavior
+nor a zero-tail discrepancy is treated as an instruction match.
+
+The integrated `make build-progress progress lint-errors` gate passes:
+**6,131 first-party MATCH / 729 ASM**, **172 C-linked objects /
+1,568 functions**, validated progress artifacts and zero lint findings
+across 337 first-party files. Both the loadable-image and whole-retail-file
+SHA-1 identities remain unchanged.
