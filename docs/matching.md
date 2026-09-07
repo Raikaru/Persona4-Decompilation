@@ -6320,3 +6320,56 @@ The integrated `make build-progress progress lint-errors` gate retains
 **6,131 first-party MATCH / 729 ASM**, **172 C-linked objects / 1,568
 functions**, validated progress snapshots and zero lint findings across
 336 first-party files. Both retail SHA-1 identities remain unchanged.
+
+## Defined curve and label arithmetic; action transition evidence
+
+These candidates remain ASM. The new evidence does not reduce their
+retained instruction residuals or count them as recovered C functions.
+
+`001bb790` now retains ordinary pointer arithmetic and the `RwV3d` seed
+copy: **296B/304B**, **59 differing bytes in 21 emitted words**, six
+relocations resolved and eight zero-tail bytes. All **22 owner C matches**
+are preserved. The seed copy loads all components before output writes;
+Y/Z products precede X accumulation. Cursor grouping, coefficient storage
+and zero-hoisting variants do not close the scheduling residual.
+**15,360 native UB-trap cases** cover valid ring indices, coefficient
+boundaries, partial output overlap, seed-object aliasing and whole-buffer
+preservation. This is C floating behavior, not an EE COP1 emulator.
+
+`001b05d0` retains **492B/496B**, **42 differing bytes in 36 emitted words**,
+nine resolved relocations and four zero-tail bytes. Its old 37-word
+fndiff score included the tail. Natural `u16` induction and pointer
+identity preserve all **104 owner C matches**. **16,896 native32 UB-trap
+cases** cover packet-count deferral without side effects, unattached
+actions without unit reads, genus branches, null/mismatching records,
+first-table/fallback precedence, pointer reloads and final flag updates.
+The real bad-status/death/final-flag operations run behind trace hooks;
+reset, camera and destruction are instrumented, not resource-lifetime or
+callback-table ABI verification.
+
+The clear mask `0xFFF7FFFF` retains death bit `0x80000`; it does not clear
+death. Promotion also requires reconciling existing owner declarations:
+`002326f0` is `u32(int,u32)`, not `void(s32,s32)`, and `002428f0` returns
+`u32`, not `s32`. Canonical-return probes retain the floor. Production
+declarations are intentionally unchanged with the ASM fallback retained.
+
+`00205e00` ties its prior **488B/496B, two-byte/two-word** floor: `addiu`
+versus retail `daddiu` at `+0x58/+0x64`. All seven relocations resolve,
+the zero tail is eight bytes, and all **115 owner C matches** survive.
+The archived signed `index + 63` traps at `INT_MAX` under UBSan; unsigned
+wrapping removes that undefined operation without changing the floor.
+
+The corrected candidate passes **115,200 native32 UB-trap cases** through
+the actual sprite, font-flag and message-submission providers. Instrumented
+packet, allocation, setter and queue backends expose coordinate rounding,
+scaled packet fields, low-byte opacity, arbitrary nonzero predicates,
+RGB/opacity reset state, late message-handle reload and font bit `0x40`
+clearing rather than restoration. Enabled messages use valid fixture
+handles/indices. Extreme sprite IDs establish producer arithmetic only,
+not texture-bank bounds or PS2 raster output.
+
+The integrated `make build-progress progress lint-errors` gate passes
+with unchanged **6,131 first-party MATCH / 729 ASM (89.4%)** and
+**172 C-linked objects / 1,568 functions**. Progress snapshots validate,
+all 336 first-party files are lint-clean, and both retail SHA-1 identities
+remain unchanged.
