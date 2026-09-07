@@ -48,9 +48,9 @@ extern u8 D_00794D50[];
 extern void func_002b1520(s32, u8 *);
 extern void func_002b2500(void);
 extern void func_0044ea90(void *msg, s32 id);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
-extern s32 func_00451fc0(s32, char *, s32, s32, s32,
+extern s32 func_00451fc0(s32, const void *, s32, s32, s32,
                          void (*)(u8 *), void (*)(u8 *), u8 *);
 extern void func_00460ac0(void *param, void *work);
 extern void func_00440b68();

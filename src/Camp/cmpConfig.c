@@ -13,7 +13,7 @@ s32 func_0035f0c0(u32* arg0, s32* arg1, u8* arg2);
 s32 func_0034c210(void);
 void func_0044ea90(void* file, s32 line);
 void func_0043f9c8(void* dest, s32 value, s32 size);
-s32 func_00451fc0(s32 arg0, u8* name, s32 prio, s32 a3, s32 a4,
+s32 func_00451fc0(s32 arg0, const void* name, s32 prio, s32 a3, s32 a4,
                   void (*init)(u8*), void (*close)(u8*), u8* work);
 void func_0034c260(s32 arg0);
 void* func_0046a770(char* arg0);

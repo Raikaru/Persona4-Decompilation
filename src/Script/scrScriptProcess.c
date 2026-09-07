@@ -186,8 +186,8 @@ void func_00454bd0(s32 handle);
 s32 func_00468170(void* arg0, void* arg1);
 void func_00442088(void* arg0, void* arg1, void* arg2, void* arg3);
 u32 func_00442948(void* arg0);
-s32 func_00451de0(void* data, s32 a, s32 b, s32 c, void* init, void* close, void* buf);
-s32 func_00451fc0(s32 arg0, char* arg1, s32 arg2, s32 arg3, s32 arg4, void (*init)(u8*), void (*close)(u8*), u8* arg7);
+s32 func_00451de0(const void* data, s32 a, s32 b, s32 c, void* init, void* close, void* buf);
+s32 func_00451fc0(s32 arg0, const void* arg1, s32 arg2, s32 arg3, s32 arg4, void (*init)(u8*), void (*close)(u8*), u8* arg7);
 /* Still an INCLUDE_ASM fallback below, so it has no C definition to declare it;
  * its address is taken at line 720. */
 extern s32 func_0029e550(u8* arg0);

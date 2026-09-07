@@ -54,7 +54,7 @@ typedef struct {
 static inline u8 *cmbAddPtrRev(u32 base, u32 index) { return (u8 *)(index + base); }
 
 void func_0044ea90(void *arg0, u32 arg1);
-s32 func_00451fc0(u8 *arg0, void *arg1, u32 arg2, u32 arg3, u32 arg4, void (*arg5)(u8 *), void (*arg6)(u8 *), void *arg7);
+s32 func_00451fc0(u8 *arg0, const void *arg1, u32 arg2, u32 arg3, u32 arg4, void (*arg5)(u8 *), void (*arg6)(u8 *), void *arg7);
 void func_00440b68(void *arg0, void *arg1, u32 arg2);
 u32 func_00454a60(u8 *arg0, u32 arg1);
 s32 func_00348330(u8 *arg0);

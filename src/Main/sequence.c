@@ -5,7 +5,7 @@
 
 extern void func_0046d730(u8 *file, s32 line);
 extern void func_0044ea90(u8 *file, s32 line);
-extern s32 func_00451de0(u8 *name, s32 prio, s32 a2, s32 a3,
+extern s32 func_00451de0(const void *name, s32 prio, s32 a2, s32 a3,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *work);
 extern void func_00102780(u8 *arg0);
 extern void func_0043f810(void *dst, const void *src, s32 size);

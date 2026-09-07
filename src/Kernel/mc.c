@@ -16,7 +16,7 @@ extern void func_002a6680(s32);
 extern void func_002aa2b0(void *arg0);
 extern void func_0044ea90(const void *file, u32 line);
 extern void func_0046d730(const void *file, u32 line);
-extern s32 func_00451fc0(u8 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4,
+extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
                         s32 (*arg5)(s32), s32 (*arg6)(s32), u8 *arg7);
 extern void func_003f6440(s32, s32);
 extern void func_00489f80(void);

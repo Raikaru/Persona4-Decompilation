@@ -178,7 +178,7 @@ s32 func_0010d6d0(s16);
 void func_00105780(s32);
 s32 func_00106b20(s16);
 void func_0044ea90(const void *, u32);
-s32 func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 s32 func_002e0100(void *);
 void func_0043f810(void *, s32, s32);
 s32 func_002b89a0(void *);

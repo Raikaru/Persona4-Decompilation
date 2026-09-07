@@ -65,7 +65,7 @@ extern u8 *D_00724C08;
 extern void func_0046d730(void *arg0, s32 arg1);
 extern u8 D_007130E8[];
 extern s32 D_00724130;
-extern void func_00451de0(u8 *name, s32 prio, s32 a2, s32 a3, void *entry, s32 a5, s32 a6);
+extern void func_00451de0(const void *name, s32 prio, s32 a2, s32 a3, void *entry, s32 a5, s32 a6);
 extern s32 func_004633f0(void);
 extern void func_00468ff0(void);
 extern void func_003f6440(s32 arg0, s32 arg1);
@@ -97,7 +97,7 @@ extern void func_00461560(u8 *arg0);
 extern void func_00461a40(u8 *arg0);
 extern void func_00461be0(u8 *arg0);
 extern u8 *func_0046a6f0(s32 arg0, s32 arg1);
-extern s32 func_00451fc0(s32 arg0, s32 name, s32 prio, s32 a3, s32 a4,
+extern s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
                          void (*init)(u8 *), void (*close)(u8 *), u8 *work);
 extern s32 func_00468fa0(u8 *arg0);
 extern void func_0046a020(u8 *arg0);
@@ -1453,7 +1453,7 @@ s32 func_0046a110(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = func_00451fc0(arg0, iGpffffb034, 0xC6, 0, 0,
+    result = func_00451fc0(arg0, (const void *)iGpffffb034, 0xC6, 0, 0,
                            (void (*)(u8 *))func_00468fa0,
                            (void (*)(u8 *))func_0046a020, work);
     if (result == 0) {
@@ -1480,7 +1480,7 @@ s32 func_0046a1f0(s32 arg0, s16 arg1, s32 arg2) {
     if (work == NULL) {
         return 0;
     }
-    result = func_00451fc0(arg0, iGpffffb034, 0xC6, 0, 0,
+    result = func_00451fc0(arg0, (const void *)iGpffffb034, 0xC6, 0, 0,
                            (void (*)(u8 *))func_00468fa0,
                            (void (*)(u8 *))func_0046a020, work);
     if (result == 0) {
@@ -1630,8 +1630,59 @@ void func_0046e7f0(u8 *arg0)
     tbl[0](*(u8 **)(work + 0x48));
     tbl[0](*(u8 **)(arg0 + 0x38));
 }
+/* Pointer-valued task name restores retail argument setup.
+ * MWCCPS2 b210 -O2: 444 executable bytes / 448-byte retail window.
+ * The buffer calculation uses rectangle x/y, not width/height. */
+#pragma push
+#pragma opt_propagation off
+extern s32 func_0046d750(u8 *);
+extern void func_0044ea90(void *, s32);
+extern u8 *(*D_008873F4[])(s32, s32, s32);
+extern u8 D_007130F8[], D_00713108[];
 // FUN_0046E850
-INCLUDE_ASM("asm/nonmatchings/code1_0046", func_0046e850);
+u8 *func_0046e850(u8 *parent, void *rect_arg, void *first_arg, void *second_arg)
+{
+    typedef struct WindowRect { s32 x, y, width, height; } WindowRect;
+    typedef struct WindowColor { u8 r, g, b, a; } WindowColor;
+    typedef struct WindowWork {
+        s32 state, enabled;
+        u8 reserved08[4];
+        WindowRect rect;
+        WindowColor first, second;
+        u8 reserved24[32];
+        s32 buffer_size;
+        u8 *buffer, *cursor;
+    } WindowWork;
+    WindowRect *rect = (WindowRect *)rect_arg;
+    WindowColor *first = (WindowColor *)first_arg;
+    WindowColor *second = (WindowColor *)second_arg;
+    s32 result;
+    WindowWork *work;
+    u8 *buffer;
+    s32 *size;
+    u8 *(**allocator)(s32, s32, s32);
+
+    func_0044ea90(D_007130F8, 379);
+    allocator = D_008873F4;
+    work = (WindowWork *)allocator[0](1, 0x560, 0x40000);
+    if (work == NULL) {
+        return NULL;
+    }
+    result = func_00451fc0((s32)parent, D_00713108, 0x101, 0, 0,
+        (void (*)(u8 *))func_0046d750, func_0046e7f0, (u8 *)work);
+    work->enabled = 1;
+    work->rect = *rect;
+    work->first = *first;
+    work->second = *second;
+    size = &work->buffer_size;
+    *size = (rect->x / 8) * (rect->y / 8) + 32;
+    func_0044ea90(D_007130F8, 396);
+    buffer = allocator[0](1, *size, 0x40000);
+    work->buffer = buffer;
+    work->cursor = buffer;
+    return (u8 *)result;
+}
+#pragma pop
 // FUN_0046EA10
 s32 func_0046ea10(u8 *arg0)
 {

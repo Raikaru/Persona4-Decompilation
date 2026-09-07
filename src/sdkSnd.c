@@ -167,7 +167,7 @@ extern void *(*D_008873F4[])(s32, s32, u32);
 extern void func_0043c0c0(s32, s32, s32, s32);
 extern void func_0043f9c8(void *, s32, s32);
 extern void func_0044ea90(char *file, s32 line);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close,
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close,
                         void *buf);
 extern void func_00440b68(s32 fmt, ...);
 extern s32 func_00442088(void *buf, void *fmt, ...);

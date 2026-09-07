@@ -34,7 +34,7 @@ extern void* iGpffffb9ec;
 extern void* iGpffffb9f8;
 extern KwlnTask* iGpffffba04;
 
-void* func_00451de0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6);
+void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6);
 void func_00452570(KwlnTask* a0, KwlnTask* a1);
 void func_00452600(KwlnTask* a0);
 s32 func_00452080(KwlnTask* a0);
@@ -686,14 +686,14 @@ s32 func_00451cf0(void)
     return 1;
 }
 // FUN_00451DE0
-void* func_00451de0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
+void* func_00451de0(const void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
 {
     KwlnTask* task;
     s8* dst;
-    s8* name;
+    const s8* name;
     s32 i;
 
-    name = (s8*)a0;
+    name = (const s8*)a0;
     if (name[0] == 0)
     {
         func_0046d730(D_00710568, 0x4A9);
@@ -748,7 +748,7 @@ void* func_00451de0(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6)
     return task;
 }
 // FUN_00451FC0
-void* func_00451fc0(void* a0, s32 a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7)
+void* func_00451fc0(void* a0, const void* a1, s32 a2, s32 a3, s32 a4, s32 a5, s32 a6, s32 a7)
 {
     void* result;
 

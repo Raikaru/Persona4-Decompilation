@@ -5591,3 +5591,68 @@ the masked comparison from **six to 41 differing bytes**.
 1,565 functions**. All 335 first-party files are lint-clean; progress
 snapshots validate. Both the loadable-image and complete-ELF SHA1 values
 remain unchanged from the preceding acceptance result.
+
+## Window creation and constructor contracts
+
+`func_0046e850` now matches in `src/promoted/code1_0046.c`: **444 executable
+bytes / 448-byte retail window**, fifteen exact relocations, and four
+zero-tail bytes. The previous three argument-setup differences came from
+declaring the task name as an integer. Passing `D_00713108` through the
+correct pointer domain restores the retail parent/name ordering; no
+instruction padding or register pinning is involved. All 58 neighboring
+bodies and relocation records are preserved. The unit is **47 MATCH /
+twelve ASM**, and `L46_0046e850_body.c` retains the exact source.
+
+The coordinated API correction makes explicit name parameters of
+`func_00451fc0` and `func_00451de0` **`const void *`** across live declarations
+and definitions. Unrelated parent, result, callback and work contracts are
+unchanged; old-style declarations remain old-style rather than inventing
+their other argument types. Integer-held name addresses use direct pointer
+casts. An unnecessary intermediate `uintptr_t` conversion moved two
+argument-setup instructions in each of `func_0046a110` and `func_0046a1f0`;
+removing that conversion restores both existing matches.
+
+The shared `SdkTask` prefix also had a genuine layout error: the name is
+**24 inline bytes at offset zero**, not a heap pointer at `0x18`. Offset
+`0x18` holds the signed-byte name accumulator. A freestanding native 32-bit
+consumer using the old header faults while reading a successfully created
+task's name. The corrected header passes **960 actual-source cases** covering
+signed bytes, name-length boundaries, allocation failure, delayed/immediate
+initialization and parent attachment. The retail copy-before-limit ordering,
+including the accumulator's low-byte overwrite at the 24-byte boundary, is
+preserved rather than silently replaced with a safer string-copy algorithm.
+
+Both formation constructors, `func_001d2d90` and `func_001d3000`, now explicitly
+return **`BtlPacket *`**. Retail caller `func_001a7720` immediately consumes
+each `$v0` packet. A typed consumer rejects the former `void` definitions;
+the corrected actual-source native32 consumer passes **1,024 cases**.
+Machine code remains exact at **104B / 112B window** and **144B / 144B**
+respectively. These are return-contract repairs, not new matching promotions.
+
+The recovered window body and its real destructor pass **8,192
+freestanding native32 cases**: both allocation failures, registration
+failure without invented early cleanup, input mutation during registration,
+buffer-size mutation during diagnostics, signed division around multiples
+of eight, buffer/cursor ownership and buffer-before-work release. External
+allocator/task effects are controlled hooks; the game renderer is not run.
+
+Two honest residuals remain archived:
+
+* `SFRM_001d2e20_body.c` uses a genuine **three-float position** and four-float
+  rotation. Its owner is the `0xb02` constructor's **16-byte work packet**,
+  not the adjacent constructor's twelve-byte payload. Replay retains
+  **440B / 448B window, 92 relocation-masked differing words**. The exact
+  archived body passes **10,752 native32 lifecycle cases**; the numerical
+  placement solver remains a recording boundary. Production stays ASM.
+* Typed-table replay of `func_001130c0` retains **440B / 448B window**:
+  five scheduling words plus two zero-tail words, with 46 neighbors intact.
+  Its **43,008-case** native consumer passes Clang ASan/UBSan. Eventual
+  promotion must migrate the caller's packed-s64 spelling to the existing
+  `Vec2f` aggregate contract; no approximate callee is installed.
+
+Final `make build-progress progress lint-errors` passes: **7,752 overall
+MATCH / 4,968 ASM**, **6,122 first-party MATCH / 738 ASM (89.2%)**, and
+**172 C-linked objects / 1,565 functions**. All 335 first-party files are
+lint-clean and progress snapshots validate. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
