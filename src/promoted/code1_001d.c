@@ -104,6 +104,7 @@ extern void func_001d7bb0(void);
 extern void *func_00194470();
 
 extern s32 func_001d7b30(u16 *arg0);
+extern s32 func_0022ead0(void);
 
 // FUN_001D01C0
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d01c0);
@@ -194,11 +195,47 @@ void func_001d1540(u8 *arg0, s32 arg1, s32 arg2) {
         return;
     }
 }
-/* Faithful probe: docs/probe_archive/K1DA_001d15a0_body.c, 212B/224B.
-   The helper requires four u16 counters (eight bytes), not separate locals.
-   Nine index/result register differences and three zero-tail words remain. */
+/* measured: 212B/224B, all four relocations resolved; twelve zero-tail bytes.
+   The four output counters are a complete helper buffer. A two-halfword
+   cursor keeps induction and explicitly narrowed selection in retail's
+   distinct registers without adding stack storage. */
 // FUN_001D15A0
-INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d15a0);
+s16 func_001d15a0(void)
+{
+    u16 counts[4];
+    struct {
+        u16 index;
+        u16 selected;
+    } cursor;
+    u16 result;
+    s32 first;
+    s32 second;
+    s32 third;
+    u8 *table;
+    u8 *entry;
+
+    if (func_0022ead0() == 1) {
+        return -1;
+    }
+    func_001d1310(counts);
+    cursor.index = 0;
+    first = counts[0];
+    second = counts[1];
+    third = counts[2];
+    table = D_00607E50;
+    for (; cursor.index < 0x19U; cursor.index++) {
+        cursor.selected = (u16)cursor.index;
+        entry = table + (s32)cursor.selected * 0xE0;
+        if (first > *(u16 *)(entry + 0xD8)) continue;
+        if (second > *(u16 *)(entry + 0xDA)) continue;
+        if (third > *(u16 *)(entry + 0xDC)) continue;
+        result = cursor.selected;
+        goto done;
+    }
+    result = 0x18;
+done:
+    return (s16)result;
+}
 // FUN_001D1680
 INCLUDE_ASM("asm/nonmatchings/code1_001d", func_001d1680);
 // FUN_001D1CC0

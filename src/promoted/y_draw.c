@@ -260,22 +260,48 @@ void func_002b6260(void) {
     func_003f6440(3, 0x7C003);
 }
 
-/* measured: retail materializes func_002b2a30's args constant-first (a0=0xFF before
-   the lbu a1-a3) and func_0025ecd0's 14 args in a scrambled order [2, 7-addr,
-   f12-f14, 0, 1, 3, 4, 5, 6, f15-f17] with the GPR block interleaved with FP; mwcc
-   b210 always emits the b2a30 constant last and its own GPR-then-FPR order (nd 46,
-   identical with inline args or a hoisted tab local). Same argument-evaluation-
-   order floor documented in y_fclCombineDraw/y_fclItemShopDraw/y_fclShopDraw
-   (func_0025ecd0/func_002b2a30 notes); also the first compare's two independent
-   lwc1 loads swap (global first, nd 2, same family as func_002b9e10). */
-/* measured 2026-08-03: re-attempted with corrected func_0025ecd0 extern
-   (verified from callee's own prologue - 7 ints in $4-$10, void* in $11, 6
-   floats in $f12-$f17; EE ABI so the void* is arg8, NOT last). nd 45 (vs
-   old 46) - the 14-arg materialization order + the first-compare load swap
-   remain the wall. func_002b6820 needed a forward extern (it's defined later
-   in the file). */
+/* measured: 536B/544B, all 19 relocations resolved; eight zero-tail bytes.
+   Canonical byte color/opacity contracts preserve draw argument order.
+   The neighboring 002b9e10 field/global staging preserves the first
+   comparison's load order under this bounded propagation pragma. */
+#pragma push
+#pragma opt_propagation off
 // FUN_002B6340
-INCLUDE_ASM("asm/nonmatchings/y_draw", func_002b6340);
+s32 func_002b6340(u8 *arg0) {
+    u8 *p;
+    u8 *q;
+    s32 color;
+    f32 a;
+    f32 g;
+    p = *(u8 **)(arg0 + 0x38);
+    func_0043f810(p + 0x10, func_002b89a0(p + 0x10), 0xF0);
+    if (p[0x6E] <= 0) return 0;
+    a = *(f32 *)(p + 0xA0);
+    g = iGpffff84f4;
+    if (a <= g) return 0;
+    if (*(f32 *)(p + 0xAC) <= g) return 0;
+    if (func_002b6820(arg0, 0) == 1) {
+        if (func_002b6820(arg0, 13) == 1) {
+            q = func_00460990();
+            *(void (**)(void))(q + 8) = func_002b6180;
+            *(s32 *)(q + 0x10) = 0;
+            func_00460ac0(D_00793E80 + *(s32 *)(p + 8) * 0x30, q);
+            color = func_002b2a30(255, p[0x85], p[0x86], p[0x87]);
+            func_0025ecd0(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
+                color, p[0x6E], *(s16 *)(p + 4), *(void **)(p + 0), 0,
+                *(s16 *)(p + 0xC), *(s16 *)(p + 0xE), *(f32 *)(p + 0xD0),
+                *(f32 *)(p + 0xA0), *(f32 *)(p + 0xAC), D_00793E80 + *(s32 *)(p + 8) * 0x30);
+        } else {
+            color = func_002b2a30(255, p[0x85], p[0x86], p[0x87]);
+            func_0025ecd0(*(f32 *)(p + 0x38), *(f32 *)(p + 0x3C), *(f32 *)(p + 0x14),
+                color, p[0x6E], *(s16 *)(p + 4), *(void **)(p + 0), 1,
+                *(s16 *)(p + 0xC), *(s16 *)(p + 0xE), *(f32 *)(p + 0xD0),
+                *(f32 *)(p + 0xA0), *(f32 *)(p + 0xAC), D_00793E80 + *(s32 *)(p + 8) * 0x30);
+        }
+    }
+    return 0;
+}
+#pragma pop
 // FUN_002B6560
 void func_002b6560(u8 *arg0) {
     u8 *p = *(u8 **)(arg0 + 0x38);

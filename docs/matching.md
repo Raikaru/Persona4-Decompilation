@@ -6179,3 +6179,43 @@ The integrated cohort passes `make build-progress progress lint-errors`:
 identities remain unchanged: loadable image
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`, executable
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Exact threshold selection and byte-contract drawing
+
+`func_001d15a0` is now C: **212B/224B**, four fully resolved relocations,
+zero executable differences and twelve zero-tail bytes. Grouping the
+induction index and selected index into a two-`u16` cursor closes all nine
+register differences without adding stack storage. Explicitly narrowing
+`cursor.index` remains necessary even though both fields are halfwords.
+Initializing the cursor before loading the three counters preserves retail
+ordering; a structured loop then matches. The helper still receives its
+complete four-halfword output buffer.
+
+All **86 existing owner MATCH** bodies remain intact. The actual selector
+passes **17,944 native cases** with address/undefined/function sanitizers:
+signed gate results, unsigned high-bit counters and thresholds, nonmonotone
+tables, first-hit precedence, all result positions and fallback. The fourth
+helper counter is written even though selection only consumes the first
+three. The historical scalar floor remains archived as such.
+
+`func_002b6340` is now C: **536B/544B**, all 19 relocations resolved, zero
+executable differences and eight zero-tail bytes. The canonical byte-color
+and float-first/u8-opacity drawing contracts already remove the old
+argument-order differences. Only two float loads remain in the current
+baseline. The neighboring `002b9e10` pattern—field local, global local,
+bounded `opt_propagation off`—puts those loads in retail order.
+
+All **51 existing owner C matches** remain intact. The production callback,
+actual color packer, actual sprite-packet constructor and queued state/render
+callbacks pass **442,370 native32 scenarios** under undefined-behavior traps.
+The fixture supplies frame data through a real byte copy, exercises every
+opacity byte, signed state results, scale rejection/equality, both draw
+modes, packet cleanup, signed offsets and callback-visible work mutations.
+NaN comparisons reach the state gate; those cases stop before the downstream
+float-to-integer scale conversion. This verifies packet/state behavior,
+not PS2 raster output.
+
+The integrated `make build-progress progress lint-errors` gate passes:
+**6,130 first-party MATCH / 730 ASM (89.4%)**, **172 C-linked objects /
+1,567 functions**, validated progress artifacts and zero lint findings.
+Both retail SHA-1 identities remain unchanged.
