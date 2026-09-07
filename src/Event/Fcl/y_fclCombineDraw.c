@@ -67,7 +67,7 @@ extern u8 *func_002e4870(s8 arg0);
 extern u8 *func_002e48a0(s8 arg0, s32 arg1);
 extern u8 *func_0034ae50(u8 *arg0, s64 arg1);
 extern void func_002ba970(u8 *, s16, u32);
-extern s32 func_002b2a30(s32, s32, s32, s32);
+extern s32 func_002b2a30(u8, u8, u8, u8);
 extern s32 func_0010b5b0(void);
 extern void func_0031e5b0(u8 *, s64, s32, s32, s32, s32, s32);
 extern void func_002b6b90(s16, s32, s32, s32, s32, s32);
@@ -108,7 +108,7 @@ extern void func_002b29e0(u8 *, f32, f32);
 extern u8 *func_002b81f0(u8 *);
 extern f32 func_0046b260(u8 *);
 extern void func_00314ef0(u8 *, s64, s64, s32, s64, s32);
-extern void func_0025ecd0(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, void *);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void func_0046b0d0(u8 *arg0);
 extern void func_003ef3a0(u8 *arg0);
 extern void func_002777f0(s32 arg0);
@@ -144,7 +144,7 @@ extern s32 func_0034a630(u8 *);
 extern u8 func_00109280(s32);
 extern void func_0011d1d0(u8 *, f32);
 extern s8 func_00331640(void);
-extern void func_00330e50(s32, s64, f32, s32, s32, s32, f32, f32, void *);
+extern void func_00330e50(s32, s64, f32, s32, u8, s32, f32, f32, void *);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern void func_002b82d0(u8 *, u32, u32, u32, u32, s16);
 extern u8 D_00795E60[];
@@ -1760,11 +1760,11 @@ void func_003307b0(u8 *arg0, s64 arg1, s32 arg2) {
     }
 }
 // FUN_00330E50
-void func_00330e50(s32 arg0, s64 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, void *arg5) {
+void func_00330e50(s32 arg0, s64 arg1, f32 fparg0, s32 arg2, u8 arg3, s32 arg4, f32 fparg1, f32 fparg2, void *arg5) {
     s64 *p;
 
     p = &arg1;
-    func_0025ecd0(*(f32 *)p, *((f32 *)p + 1), fparg0, arg2, arg3, (s16)arg0, func_00331560(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
+    func_0025ecd0(*(f32 *)p, *((f32 *)p + 1), fparg0, arg2, arg3, (s16)arg0, (void *)(u32)func_00331560(), arg4, 0, 0, 0.0f, fparg1, fparg2, arg5);
 }
 // FUN_00330F20
 s32 func_00330f20(u8 *arg0) {

@@ -43,9 +43,9 @@ extern void (*D_00887300[])(u32 state, u32 value);
 
 extern s32 func_002b52a0(u8 *arg0);
 extern void *func_002b2970(void *, f32, f32);
-extern s32 func_002b2a30(s32, s32, s32, s32);
+extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2a60(u8 *, s32, s32, s32, s32);
-extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_0046b260(u8 *arg0);
 extern f32 func_0046b2f0(u8 *arg0);
 extern u8 *func_0046d200(u32 arg0, u32 arg1);

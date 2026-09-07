@@ -65,7 +65,7 @@ extern u8 D_0064A470[];
 extern u8 D_0064A480[];
 extern s32 func_0033e1e0(u8 *arg0);
 extern void func_0033e4b0(u8 *arg0);
-extern s32 func_002b2a30(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 func_002b2a30(u8, u8, u8, u8);
 extern f32 func_002b2aa0(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
 extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern s16 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
@@ -88,11 +88,7 @@ extern s32 func_0014b450(void);
 extern void func_003e9cb0(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_00122720(void);
 extern s32 func_0033de90(u8 *arg0, s32 arg1);
-extern void func_0025ecd0(f32 fparg0, f32 fparg1,
-                           s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                           s32 arg4, s32 arg5, s32 arg6,
-                           f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5,
-                           void *arg7);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
 
 // FUN_00331560
@@ -580,8 +576,8 @@ void func_0033e4b0(u8 *arg0)
     color = func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF);
     x = *(f32 *)(work + 0x1C);
     y = *(f32 *)(work + 0x20);
-    func_0025ecd0(x, y, color, 0xFF, 1, *(s32 *)(work + 4),
-                  1, 0, 0, 104.0f, 0.0f, 1.0f, 1.0f, D_007955C0);
+    func_0025ecd0(x, y, 104.0f, color, 0xFF, 1, *(void **)(work + 4),
+                  1, 0, 0, 0.0f, 1.0f, 1.0f, D_007955C0);
 }
 // FUN_0033E540
 void func_0033e540(u8 *arg0, F2_0033 arg1, F2_0033 arg2, s16 arg3, s16 arg4)

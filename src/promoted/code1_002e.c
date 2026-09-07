@@ -18,10 +18,7 @@ extern u8 *iGpffffb590;
 extern u8 *func_002e1db0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00105ed0();
 extern s32 func_002e1230();
-extern void func_0025ecd0(f32 arg0, f32 arg1, f32 arg2,
-                           s32 arg3, s32 arg4, s32 arg5, s32 arg6,
-                           s32 arg7, s32 arg8, s32 arg9, f32 arg10,
-                           f32 arg11, f32 arg12, u8 *arg13);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern s32 func_0046a770(const void *arg0);
 extern u8 D_0063FB50[];
 extern u8 D_0063FAA0[];
@@ -274,28 +271,22 @@ void func_002e0a60(u8 *arg0, s32 arg1, f32 fparg0)
     *(s8 *)(temp_3_2 + 0x3B) = 0;
 }
 // FUN_002E0B20
-void func_002e0b20(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, s32 arg3,
+void func_002e0b20(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
-    func_0025ecd0(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF,
-                  func_0046a770(D_0063FB50), arg4, 0, 0, 0.0f, 1.0f, 1.0f,
-                  arg5);
+    func_0025ecd0(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)func_0046a770(D_0063FB50), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0BE0
-void func_002e0be0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, s32 arg3,
+void func_002e0be0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
-    func_0025ecd0(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF,
-                  func_0046a770(D_0063FAA0), arg4, 0, 0, 0.0f, 1.0f, 1.0f,
-                  arg5);
+    func_0025ecd0(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)func_0046a770(D_0063FAA0), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0CA0
-void func_002e0ca0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, s32 arg3,
+void func_002e0ca0(s32 arg0, f2 arg1, f32 fparg0, s32 arg2, u8 arg3,
                    s32 arg4, u8 *arg5)
 {
-    func_0025ecd0(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF,
-                  func_0046a770(D_0063FB90), arg4, 0, 0, 0.0f, 1.0f, 1.0f,
-                  arg5);
+    func_0025ecd0(arg1.x, arg1.y, fparg0, arg2, arg3, arg0 & 0xFFFF, (void *)(u32)func_0046a770(D_0063FB90), arg4, 0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
 // FUN_002E0D60
 s32 func_002e0d60(void)
@@ -700,7 +691,7 @@ s32 func_002e7ac0(u8 *arg0)
     void func_002e90d0(u8 *arg0);
     u8 *func_002b6150(s16 arg0);
     s16 func_002b6970(s16 arg0, s16 arg1);
-    s32 func_002b2a30(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+    s32 func_002b2a30(u8, u8, u8, u8);
     u32 func_0010d6d0(s16 arg0);
     int func_00275820(f32 x, f32 y, f32 scale, int color, int chr, int id,
                       u32 str, int flags, int unused, void *param, int out);

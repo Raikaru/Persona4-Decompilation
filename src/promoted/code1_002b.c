@@ -178,7 +178,7 @@ void func_002b29e0(u8 *arg0, f32 arg1, f32 arg2)
     *(struct Float2Int2 *)arg0 = val;
 }
 // FUN_002B2A30
-s32 func_002b2a30(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 func_002b2a30(u8 arg0, u8 arg1, u8 arg2, u8 arg3)
 {
     s32 result;
 

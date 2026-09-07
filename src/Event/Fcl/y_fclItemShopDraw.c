@@ -47,14 +47,14 @@ void func_0046d280(void *);
 s32 func_0033d390(void *, s32);
 void func_0033d320(void *, s32, s32);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
-s32 func_002b2a30(s32, s32, s32, s32);
+s32 func_002b2a30(u8, u8, u8, u8);
 s16 func_002b2cb0(s32, s32, s32, s32, s32);
 s16 func_002b2d00(s32, s32, s32, s32, s32);
 void func_0043f810(void *, s32, s32);
 s32 func_002b89a0(void *);
 void *func_00460990(void);
 void func_00460ac0(void *, void *);
-void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
+s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 
 /* measured: retail window 37392 bytes; no real C body was produced in this lane, so this function remains the bare assembly fallback. */
 // FUN_00332BB0

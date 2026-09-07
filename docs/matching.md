@@ -5943,3 +5943,61 @@ are lint-clean and progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. Native checks execute C rather
 than retail MIPS; their freestanding platform scaffolding is not retained.
+
+## Byte drawing contracts close shop rendering
+
+`func_002e0100` in `src/Event/Fcl/y_fclShopDraw.c` is now exact:
+**452B / 464B**, with only three omitted zero-tail words. The apparent
+argument-scheduling floor was a contract mismatch, not a backend limit.
+
+`func_002b2a30` takes four `u8` components. `func_0025ecd0` takes the existing
+float-first argument sequence with `u8` opacity, signed-short origins and
+pointer-valued resource/queue arguments. Its inversion is `255 - opacity`:
+retaining the redundant byte mask under the correct signature creates
+three operand-order differences. Removing it preserves the exact
+**588B / 592B** callee.
+
+The cutover migrates active declarations and callers together:
+
+- `func_0025ec90` uses float-first coordinates and byte opacity.
+- `func_0025f500` / `func_0025f540` retain byte opacity end to end; the latter
+  has signed-short origins. Their ordering context is a real pointer,
+  eliminating the old signed-64 carrier and pointer-punning load. A pointer
+  argument still produces the retail `sd` stack argument in the outer wrapper.
+- `func_002e0b20` / `func_002e0be0` / `func_002e0ca0` retain their two-float
+  aggregate and lexical float position, with byte opacity. Shop declarations
+  now agree instead of spelling that aggregate as an integer.
+- `func_00330e50` forwards byte opacity; resource fields in the field-map
+  callers are loaded as pointers rather than converted from integer locals.
+- The existing `func_002cacd0` digit renderer uses byte color locals with the
+  byte packer and wrapper. Its **536B / 544B** instructions remain exact.
+
+Scratch compilation preserved **all 516 existing MATCH bodies in fifteen
+owners** before integration. The already-canonical `cmmScript.c` declaration
+was intentionally unchanged. Historical generated candidates and unpromoted
+archives remain snapshots, not active ABI declarations; the canonical
+`FclShopDraw_002e0100_body.c` and `L25_0025ecd0_body.c` archives are updated.
+
+The actual C packer, draw callee, callbacks, sprite/resource wrappers,
+combination bridge, shop routine and digit renderer pass native32
+undefined-behavior/function-sanitized scenarios:
+
+- **66,161 packing cases**: byte truncation, signed/full-word inputs and
+  every first/second component byte.
+- **39,424 drawing pipeline cases**, including **16,384 shop cases**:
+  visibility equality, overlay order, post-preparation positions, all opacity
+  bytes, signed frames/origins, metadata and flat resource paths, packet
+  contents, queue identity, callback mode and zero-dimension cleanup.
+- **16,384 digit cases**: zero through `UINT32_MAX`, decimal grouping,
+  signed spacing, glyph/resource selection, all opacity bytes, rendered
+  coordinates and callback completion.
+
+These execute C with bounded geometry, not a PS2 display or COP1 emulator.
+No native-platform scaffolding is retained.
+
+`make build-progress progress lint-errors` passes at **7,758 overall
+MATCH / 4,962 ASM**, **6,128 first-party MATCH / 732 ASM (89.3%)**,
+and **172 C-linked objects / 1,566 functions**. All 335 first-party files
+are lint-clean and progress snapshots validate. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

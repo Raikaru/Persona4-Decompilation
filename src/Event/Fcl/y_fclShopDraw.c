@@ -187,8 +187,8 @@ void func_00460ac0(void *, void *);
 /* measured: the second parameter is u8 - a u8 lvalue passed to a u8 parameter is a
    plain load and materialises in slot order (li $a0 before lbu $a1); passed to an
    s32 parameter it counts as a conversion and is hoisted ahead of the constant. */
-s32 func_002b2a30(s32, u8, s32, s32);
-void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, void *);
+s32 func_002b2a30(u8, u8, u8, u8);
+s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 s8 func_002e0570(void *, s32);
 void *func_002e04e0(void *);
 void func_002e04f0(void *, s32, s32);
@@ -216,14 +216,14 @@ s32 func_002dff90(void *, s32, void *, void *, s8);
 u32 func_003b7060(void);
 void func_0043f9c8(void *, s32, s32);
 /* measured: floats first - retail materialises $f12-$f14 before $a0..$t1. */
-void func_0025ec90(f32, f32, f32, s32, s32, s32, s32, s32, void *);
+void func_0025ec90(f32, f32, f32, s32, u8, s32, void *, s32, void *);
 void func_002e0700(void *, s32, f32, f32, s32, s32, s32);
 void func_002e09e0(void *, s32, f32);
 void func_002e0690(void *, s32, s32, s32, f32, f32);
 void func_002e0660(void *, u8, u8, u8, s16, s64);
 s32 func_002e26f0(void *);
 void func_002e06d0(void *, f32, f32, f32, f32, s32, s32, s32);
-void func_002e0b20(s32, u64, s32, s32, s32, void *, f32);
+void func_002e0b20(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void *func_001067f0(s32);
 s16 func_00106cd0(s16, s16);
 u32 func_00106880(s16);
@@ -240,7 +240,7 @@ u8 func_00106600(s64);
 u16 func_001069d0(s64);
 s64 func_00106b80(s64);
 void func_002bc7f0(s32, s32, s32, s32, s32, s32, f32, f32, f32);
-void func_002e0ca0(s32, s64, s32, u8, s32, u8 *, f32);
+void func_002e0ca0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 void func_002e0a60(void *, s32, f32);
 void func_002e0080(void *, s8, Vec2f, void *);
 void func_002d8200(void *, s8);
@@ -255,7 +255,7 @@ void func_002b2f90(s32, s32, s32, s32, void *, void *);
 void func_002e2a10(s32, s32, s32, s32);
 void func_002e0970(void *, u32, u32, s32, s32, s32);
 void func_002e09b0(void *, s32, f32);
-void func_002e0be0(s32, u64, s32, s32, s32, void *, f32);
+void func_002e0be0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 u32 func_002e7a60(void);
 u32 func_00106a90(s16);
 s32 func_00110830(s32);
@@ -374,8 +374,8 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
    s32, s32, s32, s32, s32): fparg0 second so it homes to $f22 right after $a0; RGBA
    by value so the colour bytes are lbu from the $a1 home slot; arg5/arg6 are s32
    (dsll32 in place). Stack layout is first-use order high-to-low: 16-byte memset
-   target 0xD0, arg1 0xCC, arg0 0xC0, arg3 0xBE, arg7 0xB8. Levers: s32 colour
-   locals (u8 locals go through sq/lq spills), `arg4 = arg4_` copy before `count = 0`
+   target 0xD0, arg1 0xCC, arg0 0xC0, arg3 0xBE, arg7 0xB8. Byte colour locals
+   agree with the packer and wrapper contracts. `arg4 = arg4_` before `count = 0`
    so $t0 homes last, comma local declared last for $s7, count s32 with (s8) cast,
    the three `x -= arg2` branches spelled out. */
 // FUN_002CACD0
@@ -388,9 +388,9 @@ void func_002cacd0(u64 arg0, f32 fparg0, RGBA arg1, s32 arg2, s16 arg3, u32 arg4
     f32 x;
     f32 y;
     s32 base;
-    s32 a;
-    s32 b;
-    s32 g;
+    u8 a;
+    u8 b;
+    u8 g;
     s32 comma;
 
     arg4 = arg4_;
@@ -405,13 +405,13 @@ void func_002cacd0(u64 arg0, f32 fparg0, RGBA arg1, s32 arg2, s16 arg3, u32 arg4
     y = ((f32 *)&arg0)[1];
     comma = (s16)arg6;
     do {
-        func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, ((u8 *)&arg1)[0], g, b), a, base + arg4 % 10, arg7, 1, entry);
+        func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, ((u8 *)&arg1)[0], g, b), a, base + arg4 % 10, (void *)(u32)arg7, 1, entry);
         arg4 /= 10;
         count = (s8)(count + 1);
         if (count % 3 == 0) {
             if (arg4 != 0) {
                 x -= (f32)arg3;
-                func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, ((u8 *)&arg1)[0], g, b), a, comma, arg8, 1, entry);
+                func_0025ec90(x, y, fparg0, func_002b2a30(0xFF, ((u8 *)&arg1)[0], g, b), a, comma, (void *)(u32)arg8, 1, entry);
                 x -= (f32)arg2;
             } else {
                 x -= (f32)arg2;
@@ -675,12 +675,6 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002d5040);
    RGBA struct, explicit r/g/b/a temps). (3) work[7] if/switch: retail reloads
    lb 7($s1) per site; mwcc hoists addiu $s0,$s1,7. Global-address-hoist +
    scheduling floor. */
-/* lever-1 audit (this wave): func_002d6190 is void (void *arg0) -- confirmed
-   by generated-draft call sites (arg0 only). All color-helper externs checked
-   against m2c: func_002e0660 (void*,u8,u8,u8,s16,s64), func_002e0690
-   (void*,s32,s32,s32,f32,f32), func_002e0b20/func_002e0be0 (s32,u64,s32,s32,
-   s32,void*,f32), func_00275680 (11-arg) -- all match declarations. No
-   extern-width defect. */
 // FUN_002D6190
 void func_002d6190(void *arg0) {
     RGBA sp1FC;
@@ -1225,10 +1219,6 @@ INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002dd3b0);
    saves s0-s3 + f20-f22 vs retail s0-s1 + f20-f22, the frame stays 0x110 and
    every slot shifts 0x10; per-site the candidate is identical except
    lb ($s1) vs retail lb 8($s0). CSE-of-invariant-address floor. */
-/* lever-1 audit (this wave): func_002de5a0 is void (void *arg0). func_00275680
-   is 11-arg s32(...) and func_002e0b20 is (s32,u64,s32,s32,s32,void*,f32) --
-   both match m2c; func_00106cd0 is s16(s16,s16) matching the c16 sign-extension
-   pattern. No extern-width defect. */
 // FUN_002DE5A0
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002de5a0);
 
@@ -1401,18 +1391,51 @@ void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
                   func_0010d6d0(arg1), 8, 0, D_00795E60);
 }
 
-/* measured (lever 1, this wave): func_0025ecd0's true signature is
-   (s32 x7, f32 x6, void *) -- the pointer is the LAST arg in $11, verified
-   from its own prologue ($4-$10, $f12-$f17, $11). The old decl had void* in
-   position 8, scrambling arg evaluation order; fixed. Residual register floor:
-   retail keeps arg0=$s1/p=$s0 (frame 0x30) and recomputes p+4 per call; mwcc
-   CSEs p+4. Field-spelling `&p->field_4` for one call + (u8*)p+4 for the
-   other broke that CSE: nd 94 -> 65 (obj 444B vs window 464B). Remaining:
-   func_002b2a30 constant-first arg order (retail addiu $a0 first, mwcc lbu
-   first) and func_0025ecd0's arg-load order [3, 8, f12-f14, 1, 2, 4, 5, 6, 7,
-   f15-f17] vs mwcc's declaration order. Arg-scheduling floor. */
+/* measured: 452B/464B, only three zero-tail words. Canonical byte color and
+   opacity parameters preserve constant-first loads and the float-first draw
+   argument sequence. Distinct p+4 spellings preserve both retail addresses. */
 // FUN_002E0100
-INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002e0100);
+s32 func_002e0100(void *arg0) {
+    ShopWork *work = *(ShopWork **)((u8 *)arg0 + 0x38);
+
+    func_0043f810((u8 *)work + 4, func_002b89a0(&work->field_4), 0xF0);
+    if (func_002e0570(arg0, 0) == 1) {
+        if (func_002e0570(arg0, 0xD) == 1) {
+            void *t = func_00460990();
+            *(void (**)(void))((u8 *)t + 8) = func_002be3c0;
+            *(s32 *)((u8 *)t + 0x10) = 0;
+            func_00460ac0(&D_00793E80[work->field_FC * 0x30], t);
+            func_0025ecd0(
+                work->field_2C, work->field_30, work->field_8,
+                func_002b2a30(0xFF, work->field_79, work->field_7A, work->field_7B),
+                work->field_62,
+                work->field_F8,
+                (void *)work->field_F4,
+                0,
+                work->field_100,
+                work->field_102,
+                work->field_C4,
+                work->field_94,
+                work->field_A0,
+                &D_00793E80[work->field_FC * 0x30]);
+        } else {
+            func_0025ecd0(
+                work->field_2C, work->field_30, work->field_8,
+                func_002b2a30(0xFF, work->field_79, work->field_7A, work->field_7B),
+                work->field_62,
+                work->field_F8,
+                (void *)work->field_F4,
+                1,
+                work->field_100,
+                work->field_102,
+                work->field_C4,
+                work->field_94,
+                work->field_A0,
+                &D_00793E80[work->field_FC * 0x30]);
+        }
+    }
+    return 0;
+}
 // FUN_002E02D0
 void func_002e02d0(void *arg0) {
     jtbl_008873EC[0](*(void **)((u8 *)arg0 + 0x38));

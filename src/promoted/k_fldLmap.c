@@ -24,7 +24,7 @@ extern void func_00145080();
 extern void func_003f6440(s32 param, s32 value);
 extern u8 *func_00460990();
 extern void func_00460ac0(void *param, u8 *work);
-extern void func_0025ecd0(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32, f32, f32, f32, void *);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_003e40b0(f32 *param, f32 *out);
 extern u8 *func_0047a2f0(s32 param);
 extern void func_0047a180();
@@ -442,39 +442,11 @@ void func_00188200(u8 *arg0, u8 *arg1)
     x = -32.0f;
     x += *(f32 *)arg1;
     y = -7.0f + *(f32 *)(arg1 + 4);
-    func_0025ecd0(
-        (f32)(s32)x,
-        (f32)(s32)y,
-        *(f32 *)(arg1 + 8),
-        0xFFFFFF,
-        0xFF,
-        0,
-        *(s32 *)(arg0 + 0x24),
-        1,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)x, (f32)(s32)y, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, 0, *(void **)(arg0 + 0x24), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     x = -32.0f;
     x += *(f32 *)arg1;
     y = 224.0f + *(f32 *)(arg1 + 4);
-    func_0025ecd0(
-        (f32)(s32)x,
-        (f32)(s32)y,
-        *(f32 *)(arg1 + 8),
-        0xFFFFFF,
-        0xFF,
-        1,
-        *(s32 *)(arg0 + 0x24),
-        1,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)x, (f32)(s32)y, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, 1, *(void **)(arg0 + 0x24), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
 
@@ -499,7 +471,7 @@ void func_00188590(u8 *arg0, u8 *arg1, s32 arg2)
     func_00460ac0(D_00795E60, temp_2);
     temp_3 = arg2 * 0x18;
     temp_f14 = *(f32 *)(arg1 + 8);
-    func_0025ecd0((f32)(s32)(*(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B0 + temp_3)), (f32)(s32)(*(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20B4 + temp_3)), temp_f14, 0xFF0000, 2, arg2, *(s32 *)(arg0 + 0x34), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
+    func_0025ecd0((f32)(s32)(*(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B0 + temp_3)), (f32)(s32)(*(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20B4 + temp_3)), temp_f14, 0xFF0000, 2, arg2, *(void **)(arg0 + 0x34), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
 /* measured re-triage: corrected two-call body has the expected setup and
@@ -516,38 +488,10 @@ void func_00188690(u8 *arg0, u8 *arg1, s32 arg2)
     temp_16 = arg2 * 0x18;
     temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F20B8 + temp_16);
     temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20BC + temp_16);
-    func_0025ecd0(
-        (f32)(s32)temp_f2,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8),
-        0xFFFF81,
-        0xFF,
-        7,
-        *(s32 *)(arg0 + 0x34),
-        1,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xFFFF81, 0xFF, 7, *(void **)(arg0 + 0x34), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F20C0 + temp_16);
     temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F20C4 + temp_16);
-    func_0025ecd0(
-        (f32)(s32)temp_f2,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8),
-        0xEC7C00,
-        0xFF,
-        arg2 + 7,
-        *(s32 *)(arg0 + 0x28),
-        1,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xEC7C00, 0xFF, arg2 + 7, *(void **)(arg0 + 0x28), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
 /* measured re-triage: corrected two-call body has exact size, but MWCC b210
@@ -563,38 +507,10 @@ void func_001887f0(u8 *arg0, u8 *arg1, s32 arg2)
     temp_16 = arg2 * 0x10;
     temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F2130 + temp_16);
     temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F2134 + temp_16);
-    func_0025ecd0(
-        (f32)(s32)temp_f2,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8),
-        0x313131,
-        0xFF,
-        6,
-        *(s32 *)(arg0 + 0x34),
-        1,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0x313131, 0xFF, 6, *(void **)(arg0 + 0x34), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     temp_f2 = *(f32 *)arg1 + *(f32 *)((u8 *)D_005F2138 + temp_16);
     temp_f1 = *(f32 *)(arg1 + 4) + *(f32 *)((u8 *)D_005F213C + temp_16);
-    func_0025ecd0(
-        (f32)(s32)temp_f2,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8),
-        0xFFFFFF,
-        0xFF,
-        arg2 + 7,
-        *(s32 *)(arg0 + 0x28),
-        1,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, arg2 + 7, *(void **)(arg0 + 0x28), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
 
@@ -616,39 +532,11 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
     temp_f0 = -45.0f;
     temp_f0 += *(f32 *)arg1;
     temp_f1 = -5.0f + *(f32 *)(arg1 + 4);
-    func_0025ecd0(
-        (f32)(s32)temp_f0,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8) - 10.0f,
-        0xFF0000,
-        0xFF,
-        0,
-        *(s32 *)(arg0 + 0x2C),
-        0,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFF0000, 0xFF, 0, *(void **)(arg0 + 0x2C), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     temp_f0 = -45.0f;
     temp_f0 += *(f32 *)arg1;
     temp_f1 = 224.0f + *(f32 *)(arg1 + 4);
-    func_0025ecd0(
-        (f32)(s32)temp_f0,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8) - 10.0f,
-        0xFF0000,
-        0xFF,
-        1,
-        *(s32 *)(arg0 + 0x2C),
-        0,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFF0000, 0xFF, 1, *(void **)(arg0 + 0x2C), 0, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
     temp_2_2 = func_00460990();
     *(void (**)(void))(temp_2_2 + 8) = (void (*)(void))func_00188110;
     *(s32 *)(temp_2_2 + 0x10) = 0;
@@ -656,21 +544,7 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
     temp_f0 = 185.0f;
     temp_f0 += *(f32 *)arg1;
     temp_f1 = 0.0f;
-    func_0025ecd0(
-        (f32)(s32)temp_f0,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8) - 10.0f,
-        0xFFFFFF,
-        0,
-        7,
-        *(s32 *)(arg0 + 0x30),
-        0,
-        0,
-        0,
-        0,
-        iGpffff8538,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f0, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8) - 10.0f, 0xFFFFFF, 0, 7, *(void **)(arg0 + 0x30), 0, 0, 0, 0, iGpffff8538, 1.0f, D_00795E60);
     temp_16 = (arg2 ^ *(s32 *)(arg0 + 0x80)) != 0;
     temp_16 *= 4;
     temp_2 = (u8 *)(temp_16 + (s32)arg0);
@@ -681,21 +555,7 @@ void func_00188940(u8 *arg0, u8 *arg1, s32 arg2)
     temp_f1 -= 1.0f;
     temp_16 = arg2 * 4;
     temp_2 = (u8 *)(temp_16 + (s32)arg0);
-    func_0025ecd0(
-        (f32)(s32)temp_f0_2,
-        (f32)(s32)temp_f1,
-        *(f32 *)(arg1 + 8),
-        0xFFFFFF,
-        0xFF,
-        0,
-        *(s32 *)(temp_2 + 0x38),
-        1,
-        0,
-        0,
-        0.0f,
-        1.0f,
-        1.0f,
-        D_00795E60);
+    func_0025ecd0((f32)(s32)temp_f0_2, (f32)(s32)temp_f1, *(f32 *)(arg1 + 8), 0xFFFFFF, 0xFF, 0, *(void **)(temp_2 + 0x38), 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00795E60);
 }
 
 // FUN_00188BE0
