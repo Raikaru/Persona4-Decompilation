@@ -1,56 +1,81 @@
-/* object 480B / window 512B / normalized_diff 334 / first differing byte offsets [30,34,37,38,40,41,43,44,47,50,51,52,54,55,56,58] (115 differing words by fndiff); classification: automatic size-deficit archive after checking the existing file-scope callee declarations against available definitions; no banned compiler-floor signature; ruled out callee-prototype mismatch, and no additional source probes were justified after residual remained in the hundreds. */
-s64 func_002e1030(void *arg0)
-{
-    s16 *p;
-    s16 *q;
-    s32 i;
-    s32 j;
-    s64 found;
-    u8 *slot;
-    u8 *src;
-    s32 value;
+/* Unpromoted: b210 owner profile, 504B/512B, 51 differing words (49 after
+ * normalizing two omitted zero-tail words). Seventeen pre-call allocation/
+ * selection-use differences and an extra move a0,s1 at offset 352 displace
+ * the remaining instructions four bytes. Keep production ASM.
+ *
+ * Required scratch-owner contracts:
+ *   u8 *iGpffffb588;
+ *   void func_00104510(s16, s16, s16, s16);
+ *   void func_001047b0(s64, s32);
+ *   typedef struct NmlistNode NmlistNode;
+ *   typedef struct NmlistList NmlistList;
+ *   NmlistNode *func_002e2240(NmlistList *, NmlistList *, int *);
+ * Existing owner func_002e0dd0 list-call casts must use NmlistList * too.
+ * func_002e2240 removes/frees the node, not inserts it. No later node reads.
+ * Native32 smoke: 25,600 cases under undefined/function sanitizers, two-slot
+ * precedence, failure without writes/calls, descriptor sign boundaries,
+ * callback-mutated index/flags/global manager, removal and diagnostic order.
+ * Supersedes the old archive's doubled s16-pointer stride, wrong index reload,
+ * signed descriptor shift, and incorrectly ruled-out declaration mismatches.
+ */
+typedef struct FclBankSlot {
     s16 flags;
+    s16 unk02;
+    u32 descriptor;
+    s16 index;
+    u8 unk0a[10];
+} FclBankSlot;
 
-    p = (s16 *)(*(s32 *)(iGpffffb588 + 0x24) + 4);
-    i = 0;
-    while (i < 2) {
-        if (!(*p & 1)) {
-            found = (s16)i;
-            break;
-        }
-        p += 0x14;
-        i++;
+static inline s16 findUnusedBank(u8 *banks)
+{
+    s32 i;
+    FclBankSlot *slot = (FclBankSlot *)(banks + 4);
+    for (i = 0; i < 2; i++) {
+        if ((slot->flags & 1) == 0)
+            return i;
+        slot++;
     }
-    if (i >= 2) {
-        found = -1;
-        q = (s16 *)(*(s32 *)(iGpffffb588 + 0x24) + 4);
-        j = 0;
-        while (j < 2) {
-            flags = *q;
-            if ((flags & 1) && !(flags & 2) && !(flags & 8)) {
-                found = (s16)j;
-                break;
-            }
-            q += 0x14;
-            j++;
-        }
+    return -1;
+}
+
+static inline s16 findReusableBank(u8 *banks)
+{
+    s32 i;
+    FclBankSlot *slot = (FclBankSlot *)(banks + 4);
+    for (i = 0; i < 2; i++) {
+        s16 value = slot->flags;
+        if ((value & 1) && !(value & 2) && !(value & 8))
+            return i;
+        slot++;
     }
-    if (found == -1) {
+    return -1;
+}
+
+s16 func_002e1030(int *node)
+{
+    FclBankSlot *slot;
+    s16 selected;
+    u8 *banks;
+    u8 *payload;
+
+    banks = *(u8 **)(iGpffffb588 + 0x24);
+    selected = findUnusedBank(banks);
+    if (selected == -1)
+        selected = findReusableBank(banks);
+    if (selected == -1)
         return -1;
-    }
-    slot = (u8 *)(*(s32 *)(iGpffffb588 + 0x24) + (s32)found * 0x14);
-    src = *(u8 **)((u8 *)arg0 + 0x14);
-    *(s32 *)(slot + 8) = *(s32 *)(src + 4);
-    *(s16 *)(slot + 4) = *(s16 *)src;
-    *(s16 *)(slot + 0xC) = (s16)found;
-    value = *(s32 *)(slot + 8);
-    func_00104510(found, (s16)((value & 0xFFFF0000) >> 16), (s16)((value & 0xFF00) >> 8), (s16)(value & 0xFF));
-    func_001047b0(*(s16 *)(slot + 8), 1);
-    flags = (s16)(*(s16 *)(slot + 4) | 1);
-    *(s16 *)(slot + 4) = flags;
-    *(s16 *)(slot + 4) = (s16)(flags | 2);
-    func_002e2240((int *)iGpffffb588, (int *)(iGpffffb588 + 4), (int *)arg0);
-    func_00440b68((char *)(&iGpffffa890), D_0063FBB0, 0x19D);
-    func_002e0ea0((u8 *)D_0063FBC8, *(s16 *)(slot + 8));
-    return found;
+    payload = *(u8 **)((u8 *)node + 0x14);
+    slot = (FclBankSlot *)(banks + 4 + selected * 20);
+    slot->descriptor = *(u32 *)(payload + 4);
+    slot->flags = *(s16 *)payload;
+    slot->index = selected;
+    func_00104510(selected, (s16)((slot->descriptor & 0xFFFF0000U) >> 16),
+                 (s16)((slot->descriptor & 0xFF00) >> 8), (s16)(slot->descriptor & 0xFF));
+    func_001047b0(slot->index, 1);
+    slot->flags |= 1;
+    slot->flags |= 2;
+    func_002e2240((NmlistList *)iGpffffb588, (NmlistList *)(iGpffffb588 + 4), node);
+    func_00440b68(&iGpffffa890, D_0063FBB0, 0x19D);
+    func_002e0ea0((u8 *)D_0063FBC8, slot->index);
+    return selected;
 }

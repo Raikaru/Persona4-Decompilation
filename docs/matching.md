@@ -5909,3 +5909,37 @@ and **172 C-linked objects / 1,565 functions**. All 335 first-party
 files are lint-clean and progress snapshots validate. Loadable SHA1 is
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 is
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Exact packed status maintenance and bank acquisition evidence
+
+`func_00235110` in `src/Main/Battle/Data/datCalc.c` is now exact:
+**524B / 528B**, with one omitted zero-tail word and no differing emitted
+instructions. The owner verifies at **70 MATCH / ten ASM**. Its shared
+signed-byte level getter and per-branch setter address calculation preserve
+the retail merges without new pragmas. `IoD_00235110_body.c` now contains
+the installed source rather than the old truncated-shift reconstruction.
+
+The actual maintenance routine, status decoder and private level helpers
+pass **1,053,696 native32 cases** under undefined-behavior and function
+sanitizers. Cases cover every status/level nibble, both parities, inactive
+encodings `0` and `15`, negative nonzero statuses, unchanged neighboring
+bytes, exclusion of entries beyond the first sixteen, and repeated
+saturation at level `15`.
+
+`QFCL_002e1030_body.c` remains unpromoted at **504B / 512B**, **51 differing
+words**, or **49** after zero-tail normalization. The faithful candidate
+fixes the old doubled short-pointer stride, slot-index reload, signed
+descriptor shift and incorrectly dismissed API mismatches. Its **25,600
+native32 cases** pass the same sanitizers: unused-before-reusable priority,
+failure without writes/callbacks, signed descriptor halves, callback-mutated
+index/flags/manager, node removal and diagnostic ordering. Seventeen
+pre-call allocation/selection-use differences and an extra argument move
+still prevent exact matching. Production remains ASM.
+
+`make build-progress progress lint-errors` passes at **7,757 overall
+MATCH / 4,963 ASM**, **6,127 first-party MATCH / 733 ASM (89.3%)**,
+and **172 C-linked objects / 1,565 functions**. All 335 first-party files
+are lint-clean and progress snapshots validate. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`. Native checks execute C rather
+than retail MIPS; their freestanding platform scaffolding is not retained.

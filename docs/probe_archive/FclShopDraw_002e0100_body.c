@@ -19,6 +19,15 @@
  * Preserve the distinct &work->field_4 and byte-pointer spellings to avoid
  * sharing the two retail p+4 address calculations. No production body or
  * declaration is changed by this archive update.
+ *
+ * Further contract experiment: narrowing all four func_002b2a30 parameters
+ * and func_0025ecd0's opacity parameter to u8 produces 452B/464B with zero
+ * emitted differences here (three zero-tail words only). The packer remains
+ * exact under its narrow signature. The coherently redeclared draw callee
+ * initially has three emitted differences at offsets 168/172/176: allocation
+ * and evaluation order of 255 - (opacity & 255). Removing that redundant
+ * byte mask closes the callee too (588B/592B, only one zero-tail word).
+ * All declarations and callers still require migration before installation.
  */
 
 s32 func_002e0100(void *arg0) {
