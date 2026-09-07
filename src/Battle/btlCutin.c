@@ -7,7 +7,7 @@ extern void func_00485b20();
 extern u8 *func_00194470();
 extern s32 func_001fa370();
 extern void func_0043f810();
-extern void func_001f9cf0();
+extern void func_001f9cf0(u8 *arg0);
 extern s32 func_001f9fa0();
 extern s32 func_004553c0();
 extern s32 func_00484bb0();
@@ -91,7 +91,7 @@ s32 func_001f9fa0(void) {
 }
 
 // FUN_001FA110
-u8 *func_001fa110(s32 arg0) {
+u8 *func_001fa110(u8 *arg0) {
     u8 *p = func_00194470(0xC00, 0xA);
 
     *(u8 *)(p + 0x47) &= 0xEE;

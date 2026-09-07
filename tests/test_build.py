@@ -179,6 +179,52 @@ class SectionLayoutTests(unittest.TestCase):
         )
 
 
+class LiteralRelocationTests(unittest.TestCase):
+    def test_literal_immediate_does_not_hide_instruction_changes(self) -> None:
+        relocations = [{"offset": 0, "r_type": 8}]
+        retail = bytes.fromhex("248481c7")
+        self.assertEqual(
+            build.V.compare(bytes.fromhex("000081c7"), relocations, retail),
+            (0, []),
+        )
+        self.assertEqual(
+            build.V.compare(bytes.fromhex("000082cb"), relocations, retail),
+            (2, [2, 3]),
+        )
+
+    def test_literal_pool_requires_consistent_placement_and_exact_data(self) -> None:
+        pool = bytes.fromhex("0ad7233c0ad7a33c")
+        obj = mock.Mock(
+            data=pool,
+            sh=[{"idx": 1, "name": ".lit4", "type": 1, "size": 8,
+                 "offset": 0, "addralign": 4}],
+            symbols=[
+                {"name": "first", "shndx": 1, "value": 0},
+                {"name": "second", "shndx": 1, "value": 4},
+            ],
+        )
+        obj.function.return_value = (
+            bytes.fromhex("000081c7000082c7"),
+            [
+                {"offset": 0, "r_type": 8, "symbol": "first"},
+                {"offset": 4, "r_type": 8, "symbol": "second"},
+            ],
+        )
+        retail = mock.Mock()
+        memory = {0x100000: bytes.fromhex("00f181c704f182c7"), 0x4100: pool}
+        retail.bytes_at.side_effect = lambda address, size: memory[address][:size]
+        functions = [{"name": "load_literals", "addr": 0x100000}]
+        self.assertEqual(
+            build.plan_data_sections(obj, functions, retail, 0x5000, set()),
+            (True, {".lit4": (0x4100, 8)}),
+        )
+        obj.data = bytes([pool[0] ^ 1]) + pool[1:]
+        self.assertEqual(
+            build.plan_data_sections(obj, functions, retail, 0x5000, set()),
+            (False, {}),
+        )
+
+
 class MissingDefinitionTests(unittest.TestCase):
     def test_defines_only_referenced_unexported_known_symbols(self) -> None:
         definitions = {"already_defined": 0x1000}

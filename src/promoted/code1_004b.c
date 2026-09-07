@@ -28,7 +28,7 @@ extern s32 D_00922DAC[];
 extern void func_00492dd0(u8 *arg0);
 extern void func_00492e10(u8 *arg0);
 extern void func_00492e30(u8 *arg0);
-extern void func_00481440(void);
+extern void func_00481440(void *arg0);
 extern void func_00485870(void *arg0);
 extern void func_00485ae0(void *arg0);
 extern void func_004861f0(void *arg0, f32 *arg1);
@@ -208,7 +208,7 @@ void func_004b11b0(void)
 void func_004b11d0(void *arg0, void *arg1)
 {
     if (arg0 != NULL) {
-        func_00481440();
+        func_00481440(arg0);
     }
     func_00485870(arg1);
 }
@@ -216,7 +216,7 @@ void func_004b11d0(void *arg0, void *arg1)
 void func_004b1210(void *arg0, void *arg1)
 {
     if (arg0 != NULL) {
-        func_00481440();
+        func_00481440(arg0);
     }
     func_00485ae0(arg1);
 }
