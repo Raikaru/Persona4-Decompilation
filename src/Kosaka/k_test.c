@@ -9,7 +9,7 @@ extern u8 D_005F5718[];
 extern u8 D_00763098;
 
 extern void func_0044ea90(void *msg, s32 id);
-extern s32 func_00451fc0(s32 window, u8 *data, s32 a, s32 b, s32 c,
+extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
                          s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
 extern void func_004787e0(s32 handle);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);

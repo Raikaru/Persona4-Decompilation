@@ -11,7 +11,9 @@
  *
  * Source and retail confirm category results are bounded to 0..3 and the
  * predicate cannot return true when the second reference was initially null.
- * No runtime semantic acceptance or production promotion is claimed.
+ * Native32 lifecycle smoke passes 10752 cases with the real category/predicate
+ * and transform/count helpers. The numerical placement solver remains a
+ * recording boundary; no retail MIPS execution or promotion is claimed.
  *
  * Rejected probes: branch-group/label orders, if chains, promoted/raw mode
  * lifetimes, snapshot order, canonical declarations, presence normalization,
@@ -19,6 +21,10 @@
  * storage classes. The 448B presence64/level1/CSE-off variants score 87/88/89
  * respectively but introduce other instructions; size agreement is not a
  * match. Full output-helper types and the typed work view retain 440B/92.
+ * The owning constructor is func_001d3000: packet 0xb02 with 16-byte work,
+ * not adjacent func_001d2d90's 12-byte payload. Position is three floats;
+ * rotation is four. This genuine Vec3 retains 440B/92 masked words
+ * (100 fully resolved, zero-padded differing words), with 33 neighbors intact.
  */
 u32 func_001d2e20(u8* param_1)
 {
@@ -35,7 +41,7 @@ u32 func_001d2e20(u8* param_1)
         s16 mode;
     } FormationDispatchWork;
     FormationDispatchWork* work = (FormationDispatchWork*)param_1;
-    f32 output[4];
+    f32 output[3];
     f32 auxiliary[4];
     s16 mode;
     s32 has_unit;

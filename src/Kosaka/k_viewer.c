@@ -19,7 +19,7 @@ extern s32 D_00764494;
 
 extern void func_0015a630(void);
 extern void func_0044ea90(void *msg, s32 id);
-extern s32 func_00451fc0(s32 window, u8 *data, s32 a, s32 b, s32 c,
+extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
                          s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
 extern s32 func_00470250(u8 *window, s32 size, s32 align);
 extern void func_00470810(s32 buf, void *file, s32 flags);

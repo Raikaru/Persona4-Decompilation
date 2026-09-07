@@ -41,7 +41,7 @@ extern char D_007637A8;
 extern s32 D_00764578;
 extern s32 D_00764574;
 extern void func_00452080(s32 handle);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
 extern char D_00637348[];
 extern s32 func_00260020(void);

@@ -61,7 +61,7 @@ void func_00454bd0();
 void func_003ef3a0();
 void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32, s32, s32);
-s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 extern char D_005E4810[];
 extern char D_005E4EB0[];
 extern char D_005E4F50[];

@@ -170,7 +170,7 @@ void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 s32 func_00161b10(u16 arg0, u16 arg1, u16 arg2);
 s32 func_0015a320(void);
 u8 *func_00161c80(u16 arg0, u16 arg1, u16 arg2, s32 arg3);
-void *func_00451fc0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(void *), void (*arg6)(void *), s32 arg7);
+void *func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void (*arg5)(void *), void (*arg6)(void *), s32 arg7);
 
 
 

@@ -10,7 +10,7 @@ extern u8 D_005F1B28[];
 extern u8 D_005F1CF0[];
 extern f32 iGpffffba6c;
 extern void func_0044ea90(const void *file, s32 line);
-extern s32 func_00451fc0(s32 window, u8 *data, s32 a, s32 b, s32 c,
+extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
                          s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
 extern u8 *func_00457120(void);
 extern s32 func_0017d3c0(u8 *arg0);

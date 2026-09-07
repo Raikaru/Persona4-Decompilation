@@ -29,7 +29,7 @@ extern u8* func_00454a60(u8* param, s32 mode);
 extern void func_00456150(void* handle);
 extern s32 func_003ef740(u8* param, s32 mode);
 extern void func_00454bd0(u8* ptr);
-extern s32 func_00451de0(void* data, s32 a, s32 b, s32 c, void* init, void* close, void* buf);
+extern s32 func_00451de0(const void* data, s32 a, s32 b, s32 c, void* init, void* close, void* buf);
 extern void func_0043f9c8(void* dst, s32 value, u32 size);
 extern u8 D_00764210;
 extern s32 D_00764CA4;

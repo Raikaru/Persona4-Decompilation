@@ -6,7 +6,7 @@
 void func_0046d730(void* arg0, s32 arg1);
 void func_0046b0d0(void* ptr);
 void func_0044ea90(void* file, s32 line);
-s32 func_00451fc0(s32 arg0, u8* name, s32 prio, s32 a3, s32 a4,
+s32 func_00451fc0(s32 arg0, const void* name, s32 prio, s32 a3, s32 a4,
                   void (*init)(u8*), void (*close)(u8*), u8* work);
 void func_0043f9c8(void* dest, s32 value, s32 size);
 void func_00363540(u8* arg0, u8* arg1);

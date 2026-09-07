@@ -23,7 +23,7 @@ extern void func_0046d730(void *msg, s32 id);
 extern s32 func_00452490(s32 buf);
 extern s32 func_00452380(void *buf);
 extern void func_00452080(s32 handle);
-extern void func_00451de0(void *data, s32 a, s32 b, s32 c,
+extern void func_00451de0(const void *data, s32 a, s32 b, s32 c,
                           s32 (*init)(u8 *), void (*close)(u8 *), void *buf);
 
 extern s32 func_0018ef50(u8 *arg0);
