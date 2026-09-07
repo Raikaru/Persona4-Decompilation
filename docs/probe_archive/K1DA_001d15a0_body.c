@@ -1,3 +1,10 @@
+/* Historical scalar floor, superseded by the exact production implementation
+ * in src/promoted/code1_001d.c. A two-u16 cursor, explicit narrowing, and the
+ * existing initialization order close all nine register differences:
+ * 212B/224B, four fully resolved relocations, twelve zero-tail bytes.
+ * The production selector passes 17,944 native sanitizer cases.
+ * The measurements below describe this archived scalar candidate only.
+ */
 /* Faithful threshold lookup recovery, MWCCPS2 b210: object 212B/window 224B.
  * Standard archive replay: 12 differing words = nine t0/t1 index/result
  * allocation differences plus three zero-tail words at +0xd4/+0xd8/+0xdc.
@@ -6,7 +13,7 @@
  * valid output buffer. func_0022ead0 is s32(void); no hidden argument.
  * The signed-halfword result preserves retail's -1 and 0..24 values.
  * Branches, short-circuit threshold order, 0x19 bound, 0xe0 stride and
- * 0x18 fallback are retained. Production remains INCLUDE_ASM.
+ * 0x18 fallback are retained. This scalar candidate was not promoted.
  * IDA replay: docs/ida_headstart/src/promoted/code1_001d.c:111-130.
  * Native 32-bit consumer smoke: 9750 cases covering gate values 0/1/2,
  * first-hit precedence, fallback, unsigned high-bit thresholds and all
@@ -22,7 +29,7 @@
  * A complete 0xe0-byte record with named u16 limits at +0xd8/+0xda/+0xdc
  * also retains the same nine emitted-word floor. A fresh 11,464-case native
  * run covers nonmonotone tables, per-coordinate rejection, all first-hit
- * positions and the fourth helper counter; no source promotion follows.
+ * positions and the fourth helper counter; that scalar probe was not promoted.
  * Reproduce: python tools/probe_variants.py src/promoted/code1_001d.c
  * func_001d15a0 --candidate archive=docs/probe_archive/K1DA_001d15a0_body.c
  */
