@@ -2,6 +2,7 @@
 #include "type.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
+#include "ed_staff_internal.h"
 
 extern void func_00271b70(u32 resource);
 
@@ -21,9 +22,6 @@ extern s32 iGpffffa9ec;
 
 extern u32 func_0038ee10(void);
 extern u32 func_0038f950(void);
-extern u32 func_0038f5e0(const u32 *stream);
-extern u32 func_0038f5c0(const u32 *stream, u32 index);
-extern u32 func_0038f5f0(const u32 *stream);
 extern s32 func_00442948(const char *text);
 extern void func_00442de8(void *dst, const void *src, s32 size);
 extern void func_00272c60(s32 mode);
