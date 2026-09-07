@@ -600,7 +600,7 @@ u8 *func_0047ef70(u8 *arg0, f32 fparg0)
  * inline madd helper closes the final blend. Object 340B/window 352B,
  * normalized_diff 0 with three retail zero-tail words. */
 // FUN_0047F040
-f32 *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
+void *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
                    f32 fparg2)
 {
     s32 index;
@@ -679,7 +679,7 @@ f32 *func_0047f040(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
  * both evaluation order and FMA operand order. The object is 276B in a 288B
  * retail window with only three retail zero-tail words. */
 // FUN_0047F1A0
-f32 *func_0047f1a0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+void *func_0047f1a0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
 {
     s32 index;
     u8 *base;
@@ -789,8 +789,8 @@ typedef struct Code47Vec4 {
 } Code47Vec4;
 extern Code47Vec4 D_00922C40;
 // FUN_0047F4D0
-Code47Vec4 *func_0047f4d0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                          f32 fparg2)
+void *func_0047f4d0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
+                   f32 fparg2)
 {
     Code47Vec4 first;
     Code47Vec4 second;
@@ -811,7 +811,7 @@ Code47Vec4 *func_0047f4d0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
  * its borrowed output buffer, which the dispatcher passes to each apply
  * callback. */
 // FUN_0047F5B0
-f32 *func_0047f5b0(s32 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+void *func_0047f5b0(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
 {
     f32 *out;
     f32 second;
@@ -842,11 +842,11 @@ f32 *func_0047f5b0(s32 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
     return out;
 }
 // FUN_0047F710
-void func_0047f710(u8 *arg0, u8 *arg1)
+void func_0047f710(void *arg0, void *arg1)
 {
     u8 *dst;
 
-    dst = arg1 + 4;
+    dst = (u8 *)arg1 + 4;
     dst[0] = (u8)(255.0f * ((f32 *)arg0)[1]);
     dst[1] = (u8)(255.0f * ((f32 *)arg0)[2]);
     dst[2] = (u8)(255.0f * ((f32 *)arg0)[3]);
@@ -856,9 +856,71 @@ u8 *func_0047f830(void)
 {
     return D_00922C50;
 }
-/* measured: clean reconstruction reaches object 412B/window 416B,
- * normalized_diff 13. Every structural instruction matches; only the
- * target-list/count/dispatch saved-register cycle differs. See
- * docs/probe_archive/W52Main_0047f850_body.c. */
-// FUN_0047F850 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/code1_0047", func_0047f850);
+/* The callback rows share one C interface. Borrowed sample/blend buffers
+ * carry kind-specific values; apply callbacks interpret those values and
+ * their target objects. */
+typedef struct Code47Dispatch {
+    void *unused;
+    void *(*blend)(u8 *left, f32 left_time, u8 *right, f32 right_time,
+                   f32 ratio);
+    void *(*sample)(u8 *track, f32 time, u8 *defaults, f32 ratio);
+    void (*apply)(void *result, void *target);
+} Code47Dispatch;
+
+/* Read-only prefix of the shared target-list allocation. */
+typedef struct Code47Targets {
+    void **items;
+    u16 count;
+} Code47Targets;
+
+extern Code47Dispatch D_00713220[4];
+
+/* measured: direct table indexing with loop-invariant optimization matches
+ * all 412 executable bytes in the 416-byte retail window. The count is a
+ * snapshot; callback and item-array loads remain visible after callbacks. */
+#pragma push
+#pragma opt_loop_invariants on
+// FUN_0047F850
+void func_0047f850(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
+                   f32 fparg2)
+{
+    u32 count;
+    Code47Targets *targets;
+    u32 kind;
+
+    targets = *(Code47Targets **)(arg0 + 0x50);
+    count = targets->count;
+    for (kind = 0; kind < 4; kind++) {
+        s32 offset;
+        u8 *left;
+        u8 *right;
+
+        offset = kind * 0x10;
+        if (D_00713220[kind].apply == NULL) {
+            continue;
+        }
+        left = arg0 + offset;
+        if (*(s32 *)(left + 0xC) == 0) {
+            continue;
+        }
+        right = arg1 + offset;
+        if (*(s32 *)(right + 0xC) != 0) {
+            void *result;
+            u32 target;
+
+            result = D_00713220[kind].blend(left, fparg0, right, fparg1, fparg2);
+            for (target = 0; target < count; target++) {
+                D_00713220[kind].apply(result, targets->items[target]);
+            }
+        } else {
+            void *result;
+            u32 target;
+
+            result = D_00713220[kind].sample(left, fparg0, arg0 + 0x40, fparg2);
+            for (target = 0; target < count; target++) {
+                D_00713220[kind].apply(result, targets->items[target]);
+            }
+        }
+    }
+}
+#pragma pop

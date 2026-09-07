@@ -88,16 +88,16 @@ void func_0047de50(int param_1)
 
 
 // FUN_0047F2C0
-void func_0047f2c0(f32 *param_1,u32 param_2)
+void func_0047f2c0(void *param_1,void *param_2)
 {
   u32 uVar1;
   float fVar2;
   u8 rgba[4];
   u32 alpha;
 
-  uVar1 = func_004578b0_ptr(param_2,DAT_00713200_abs);
+  uVar1 = func_004578b0_ptr((u32)param_2,DAT_00713200_abs);
 
-  fVar2 = (1.0f - param_1[1]) * 255.0f;
+  fVar2 = (1.0f - ((f32 *)param_1)[1]) * 255.0f;
 
   alpha = mdlFileToU8(fVar2);
   rgba[2] = (u8)uVar1;
@@ -105,7 +105,7 @@ void func_0047f2c0(f32 *param_1,u32 param_2)
   rgba[0] = (u8)((u32)uVar1 >> 0x10);
   rgba[3] = (u8)alpha;
 
-  func_004586f0(param_2,rgba);
+  func_004586f0((u32)param_2,rgba);
   return;
 }
 
