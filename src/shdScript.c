@@ -17,7 +17,6 @@ extern u8 D_00636838[];
 extern u8 D_00636850[];
 extern s32 func_00145270(s32 arg0);
 extern void func_0026bc10(s32 arg0, s32 arg1);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s8 func_002bab80(u8 *arg0);
 extern void func_00442830(u8 *arg0, u8 *arg1);
 extern void func_002bbd80(s8 arg0, s32 arg1, u8 *arg2);

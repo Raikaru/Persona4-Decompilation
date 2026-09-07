@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/cutinDraw_00120bc0.c */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 extern char D_005E4FA0[];
 extern char D_005E4FB8[];
@@ -12,7 +13,6 @@ void func_00442088();
 s32 func_00454a60();
 s32 func_004553c0();
 s32 func_00455f70();
-void func_0045af60();
 s32 func_004b1130();
 void func_004b1190();
 void func_004b11d0();

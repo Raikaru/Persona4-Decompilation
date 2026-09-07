@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlResultHeroLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 typedef struct BtlResultWork BtlResultWork;
 struct BtlResultWork
@@ -40,7 +41,6 @@ void func_002bbd20(s32 param, void* text);
 s32 func_00353f50(s32 param);
 void func_00442088(void* dst, void* fmt, s32 value);
 u8* func_00455ea0(u8* param, s32 a, s32* b);
-void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 s32 func_00104c70(s32 param);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];

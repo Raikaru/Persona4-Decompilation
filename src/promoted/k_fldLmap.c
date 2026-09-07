@@ -53,7 +53,6 @@ extern s32 func_00452490(u8 *param);
 extern u8 *func_0029db50(s32 a, s32 b, s32 c, s32 d);
 extern void func_003e9cb0(s32 param, u8 *src, s32 mode);
 extern void func_004577d0(u8 *param, f32 value);
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_00189600(u8 *param, s32 a, s32 b, f32 value);
 void func_00187f50(void);
 void func_00188030(void);

@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 extern void (*iGpffffbb2c)();
 extern void (*iGpffffbb30)();
 extern void (*iGpffffbb34)();
@@ -47,8 +48,6 @@ extern s32 func_004782b0(u8 *arg0);
 extern s32 func_0047e6f0(void **owner);
 extern s32 func_0047e0f0(u8 *arg0, s16 arg1, s16 arg2, u16 arg3);
 extern void func_0045abd0(s16 arg0, s32 arg1, s16 arg2);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void func_0045aa90(s16 arg0, s16 arg1);
 extern s32 func_0045a890(s16 arg0);
 extern s32 func_0045af90(s16 arg0);
 extern s32 func_003e2e40(s32 arg0, s32 *arg1);

@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
@@ -18,7 +19,6 @@ extern s32 D_008815B0[];
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_00269a90(u32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 extern s32 func_0027bf10(s32 arg0);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 func_00107930(s64 arg0);
 extern u8 *func_00246c20(s32 arg0);
 extern s32 func_00108e10(void);

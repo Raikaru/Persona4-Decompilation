@@ -1,10 +1,10 @@
 /* Original translation unit cmpMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 void func_0044ea90(void *file, s32 line);
 void func_0046d730(void *arg0, s32 arg1);
-void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 void func_00460ac0(void *param, void *work);
 s32 func_0034bb20(s32 arg0);
 void func_0034c260(s32 arg0);

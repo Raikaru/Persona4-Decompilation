@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdWindow.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
 
@@ -19,7 +20,6 @@ extern u16 D_008C0276[];
 extern s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 extern s32 func_0025e170(s32);
 extern void func_0025e4a0(s32, s32);
-extern void func_0045af60(s32, s32, s32, s32);
 extern u8 *func_00460990(void);
 extern void func_00460ac0(void *, void *);
 extern u8 *func_00274570(u32, u32, u32, u32, u32, u32, u32, u32);

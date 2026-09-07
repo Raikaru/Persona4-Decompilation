@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 typedef signed __int128 s128;
 typedef struct P4Vec4_001EC2B0 {
     f32 x;
@@ -44,7 +45,6 @@ extern void func_00213b50(s32 arg0);
 extern s32 func_001eb860(void);
 extern void func_00212240();
 extern void func_00212210();
-extern void func_0045af60();
 extern s32 func_001ef9a0(void);
 extern s32 D_00724504;
 extern void func_001eb7f0(u8 *arg0);
@@ -2242,7 +2242,6 @@ done:
 void func_001eb8d0(void) {
     extern void func_002121b0();
     extern void func_00212210();
-    extern void func_0045af60();
     extern u16 D_008C024E[];
     s32 flags;
     s32 temp_5;

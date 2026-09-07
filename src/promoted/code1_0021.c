@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 
 extern s32 iGpffffa598;
@@ -30,7 +31,6 @@ extern s32 func_00106020(s32 arg0);
 extern u8 func_00106600(s16 arg0);
 extern void func_00106620(s32 arg0, s32 value);
 extern void func_00231ef0(u8 *arg0, u8 arg1);
-extern void func_0045af60(s32 bank, s32 channel, s32 cue, s32 variant);
 extern s32 func_00212180(s32);
 extern void func_00216c40(s32, s32);
 extern void func_001f7620(s16 channel, s32 fadeFrames);

@@ -1,9 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 extern s32 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00209d40(u8 *arg0, u8 *arg1);
 extern u16 func_00209dc0(u8 *arg0, u8 *arg1);
 extern void func_00209fa0(void);
@@ -1916,7 +1916,6 @@ u16 func_00209dc0(u8 *arg0, u8 *arg1)
                               s32 arg4);
     extern s64 func_00194590(u8 *arg0, u32 arg1);
     extern s32 func_00202e70(void);
-    extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
     s16 temp_16;
     u8 *temp_2;
     s32 temp_2_2;

@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 /* Force the offset operand into the first addu slot. */
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
@@ -79,8 +80,6 @@ extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 extern void func_002bd3c0(void);
 
 extern s32 func_0045ae10(s32 arg0, s64 arg1, u16 arg2);
-extern void func_0045aa90();
-extern void func_0045af60(s32 bank, s32 channel, s32 cue, s32 variant);
 extern void func_002bd3e0(void);
 extern void func_002bd410(void);
 extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
@@ -2914,7 +2913,7 @@ void func_001f7ad0(u8 *arg0)
     temp_6 = (u8 *)(offset + (u32)iGpffffb3ac);
     if ((*(s16 *)(temp_6 + 0xACC) != *(u16 *)(arg0 + 2)) ||
         (*(s16 *)(temp_6 + 0xACE) != *(u16 *)(arg0 + 4))) {
-        func_0045aa90(1, (s16)temp_7, temp_6, temp_7);
+        func_0045aa90(1, (s16)temp_7);
     }
 }
 // FUN_001F7B40

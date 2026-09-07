@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - y_fclCombineDraw.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 typedef struct {
     f32 x;
@@ -91,7 +92,6 @@ extern void func_0046d280(void);
 extern void func_002b68d0(s16, s16, s8);
 extern f32 D_007495C0[];
 extern f32 D_00749600[];
-extern void func_0045af60(s32, s32, s32, s32);
 extern s32 func_00110140(void);
 extern void func_002b6d60(s16);
 extern s32 func_002b2cb0(s32, s32, s32, s32, s8);

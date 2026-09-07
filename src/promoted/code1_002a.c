@@ -1,6 +1,7 @@
 /* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
 
 extern void (*jtbl_008873EC[])(u8 *);
@@ -82,7 +83,6 @@ extern s32 func_002e7510(s32 arg0);
 extern void func_00308f40(void);
 extern s32 func_003493b0(u8 *arg0);
 extern s32 func_00452490(s32 arg0);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 typedef struct P4_002aa450_Pair {
     s64 bits;
     f32 value;

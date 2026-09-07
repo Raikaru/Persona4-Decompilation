@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
 
 extern u8 *func_00452560(void);
@@ -54,7 +55,6 @@ extern s32 func_00453960(void *);
 extern void func_00453760(void *, s32);
 extern s32 func_00453dc0(void *);
 extern s32 func_00453d70(void *);
-extern void func_0045af60(s32, s32, s32, s32);
 extern void *memset(void *dst, s32 value, u32 size);
 extern char D_00796370[];
 extern void (*D_008873EC[])(void *);

@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - btlShuffleSeqShuffle4.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
 extern u32 func_003b7060();
@@ -9,7 +10,6 @@ extern s32 func_00378530(s32 a, s32 b);
 extern void func_003717e0(u8 *a, f32 *b);
 extern f32 func_003e41b0(f32 *a);
 extern f32 func_003e41e0(f32 *a, f32 *b);
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_00375dd0(u8 *ctx, s32 idx, f32 *a, f32 *b, f32 c, f32 d);
 extern void func_00376170(u8 *ctx, s32 a, s32 b, s32 c, s32 d, s32 *e, s32 *f);
 extern s32 func_0037d270(u8 *a, s64 b, s64 c);

@@ -1,3 +1,12 @@
+/* Historical pre-cutover probe, superseded by src/sdkSndcom.c.
+ * Its fixed-five function cast does not describe the variadic RPC provider;
+ * it is not an accepted current recipe. The production routine uses direct
+ * variadic calls and emits 552B/560B with 32 fully resolved relocations,
+ * zero executable differences and eight zero-tail bytes.
+ * Explicitly forwarding sdkSnd wrappers retain their exact 36B/48B bodies.
+ * The actual wrappers and stop/start routines pass 112,320 native32
+ * state-transition cases under undefined-behavior traps.
+ */
 void func_0045c640(s16 index, s16 stream, s16 arg2, s16 arg3)
 {
     s32 off;

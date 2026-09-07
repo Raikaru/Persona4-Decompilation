@@ -1,6 +1,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit shdPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 #include "sdktask.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
@@ -22,7 +23,6 @@ void func_0011fd10(s32);
 void func_00452080();
 void func_0011bc70();
 s32 func_00115020();
-void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 s32 func_001152b0();
 void func_00115cb0(Vec2f, f32, s32, s16 *);
 void func_00115e90(Vec2f, s32, s16 *, f32);

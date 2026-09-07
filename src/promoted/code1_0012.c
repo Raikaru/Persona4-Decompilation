@@ -1,6 +1,7 @@
 typedef signed __int128 s128;
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 extern f32 fGpffff9cA0;
 extern f32 fGpffff9cA4;
 extern s128 D_005E5740;
@@ -76,7 +77,6 @@ extern s32 func_00268990(s32 arg0);
 extern void func_00103b00(void);
 extern void func_0046a340(s32 arg0);
 extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(void *arg0);

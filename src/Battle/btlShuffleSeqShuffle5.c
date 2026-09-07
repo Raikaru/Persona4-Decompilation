@@ -69,7 +69,6 @@ extern void func_003799d0(u8 *ctx);
 extern void func_003798d0(u8 *ctx, s32 a);
 extern s32 func_00106330(s32 a);
 extern void func_00106390(s32 a, s32 b);
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_003717e0(u8 *a, f32 *b);
 extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
 extern void func_00375d50(u8 *ctx, s32 idx, f32 *a, f32 *b, f32 c, f32 d);

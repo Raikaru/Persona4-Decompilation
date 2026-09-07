@@ -2,6 +2,7 @@
 /* Original translation unit btlShuffleCalc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
 extern u32 D_0064E9C0[];
@@ -9,7 +10,6 @@ extern u8 *func_00457120(void);
 extern u8 *func_003e9700(s32 a0);
 extern void func_003e42a0(void *a0, void *a1, void *a2);
 extern void func_003e4180(void *a0);
-extern void func_0045af60(s32 a0, s32 a1, s32 a2, s32 a3);
 extern void func_00371160(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3, f32 fparg0);
 extern void func_003e40b0(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);

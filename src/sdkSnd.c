@@ -1,5 +1,6 @@
 #include "type.h"
 #include "include_asm.h"
+#include "sdk_snd_internal.h"
 
 /* ------------------------------------------------------------------ */
 /* sdkSnd: Sony SDK PS2 sound library (shared blob with P3 FES).      */
@@ -212,8 +213,6 @@ extern void func_0050b3f8(void *);
 
 extern u32 func_0045a890();
 extern void func_00459790(HsndSlotWork *slot);
-extern void func_0045c510(void);
-extern void func_0045c640(void);
 
 s32 func_004599d0(s32 arg0);
 s32 func_00459ad0(s32 arg0);
@@ -885,9 +884,9 @@ s32 func_0045a9a0(s16 arg0)
 /* ================================================================== */
 
 // FUN_0045AA90
-s32 func_0045aa90(void)
+s32 func_0045aa90(s16 index, s16 stream)
 {
-    func_0045c510();
+    func_0045c510(index, stream);
     return 1;
 }
 
@@ -1053,9 +1052,9 @@ s32 func_0045aeb0(s16 arg0, const char * arg1)
 /* ================================================================== */
 
 // FUN_0045AF60
-s32 func_0045af60(void)
+s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3)
 {
-    func_0045c640();
+    func_0045c640(index, stream, arg2, arg3);
     return 1;
 }
 

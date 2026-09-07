@@ -2,6 +2,7 @@
 /* Original translation unit btlShuffleDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 extern void func_003549d0();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 func_00354830();
@@ -54,7 +55,6 @@ extern s32 func_00106330(s32 arg0);
 extern void func_0036c900(void);
 extern void func_0036d990(u8 *arg0, u8 *arg1);
 extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
-extern void func_0045af60(s32 a0, s32 a1, s32 a2, s32 a3);
 extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
 extern void func_00373750(s32 arg0, s32 arg1, void *arg2);
 extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
