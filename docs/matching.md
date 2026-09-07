@@ -5697,3 +5697,42 @@ objects / 1,565 functions**. All 335 first-party files are lint-clean and
 progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Combination inventory finalization
+
+`func_0030f4f0` now matches in `src/Event/Fcl/y_fclCombine.c`: **348 executable
+bytes / 352-byte retail window**, with only four zero alignment bytes beyond
+the object body. The unit verifies at **24 MATCH / seventeen ASM**.
+
+The old archive's `s64` bound and separate `id2` cache obscured two independent
+levers. Actual halfword counters/bound plus scoped `opt_loop_invariants on`
+restore both loops' narrowing and reduce the raw residual from thirty to
+fourteen words. Removing `id2` and comparing `(u16)equippedId` directly lets
+the compiler generate the cached mask itself, closing the thirteen remaining
+saved-register differences. No widened object, pinned register or instruction
+padding is involved. `DcF_0030f4f0_body.c` retains the exact named source.
+
+The actual production body passes **81,920 freestanding native32 inventory
+cases with UBSan traps enabled**. These cover all signed-byte counts and the
+7-to-12 mapping; absent, first, last and duplicate identifiers; zero and
+high-bit IDs; signed selector/index arguments; ordered removals, insertion,
+equipment selection and finalization; and final inventory membership.
+Unsigned equipped ID `0xFFFF` remains distinct from signed material `-1`.
+
+Controlled getter mutations verify that the task's work pointer is captured
+before the getter, while the count is read after it. Controlled copy mutations
+verify that the cached count survives, but selector/index fields and search
+materials are reloaded. Record lookup and inventory helpers
+are native boundaries; this is not retail MIPS execution.
+
+Fresh sibling probes do not close their residuals: `func_0021de90` retains
+three upper-bound comparison words plus two zero-tail words at **440B /
+448B**; `func_002494c0` retains its single redundant argument copy, which
+shifts the remaining instructions. Neither approximate body is installed.
+
+`make build-progress progress lint-errors` passes: **7,754 overall MATCH /
+4,966 ASM**, **6,124 first-party MATCH / 736 ASM (89.3%)**, and **172 C-linked
+objects / 1,565 functions**. All 335 first-party files are lint-clean and
+progress snapshots validate. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
