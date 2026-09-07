@@ -2,11 +2,13 @@
    + dsll32/dsra32 for the s8 return. s8/s32 result locals, an s8 temp copy, s32 return type, (s8) casts on the
    call result, opt_propagation off: the load always lands in $s1 directly. Open. */
 // measured: object_size 488, window 496, normalized_diff 18; differing offsets 264,298,300,301,302,304,305,306,307,420,454,456,457,458,460,461; classification: near-miss register/codegen residual in signed-byte fallback load; ruled out corrected callee declarations (func_00110d30 one s32 arg, func_00110600 two s32 args, func_00123b10/func_00123b40 s16 returns, func_00123ae0 s8 return), s8/s16/s32/s64 result locals, direct/array/pointer load spellings, parameter reuse, declaration order, explicit sentinel casts, and optimization_level 1 (regressed 14 siblings); no compiler-floor instruction observed.
+/* The production owner now declares these getters consistently with their
+ * live definitions: s8 func_00123ae0 and s16 func_00123b10/func_00123b40.
+ * No block-scope prototype overrides are needed. The actual getters and
+ * existing func_00110960 consumer pass 307,200 native32 override cases;
+ * this unpromoted selector still has its ten-word fallback/return floor. */
 s8 func_00110a60(s32 arg0, s32 arg1)
 {
-    extern s8 func_00123ae0(void);
-    extern s16 func_00123b10(void);
-    extern s16 func_00123b40(void);
     s32 temp_16;
     s32 temp_16_2;
     s32 temp_16_3;
