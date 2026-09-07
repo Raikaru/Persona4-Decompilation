@@ -1,8 +1,8 @@
 /* MWCCPS2: object 416B / retail window 416B / four differing words.
  * Residual offsets 0x60, 0x64, 0x68, 0x6C: first pair load register and
  * scheduling against the second constant load. Every other word matches.
- * A complete normal union and three triangle pointers naturally occupy
- * sp+0x50 and sp+0x60 in the 0x70 frame; no explicit padding is used.
+ * An ordinary 12-byte normal and three typed triangle pointers naturally
+ * occupy sp+0x50 and sp+0x60 in the 0x70 frame; no explicit padding is used.
  * Top-tested iteration preserves an empty list. Both triangle calls,
  * strict Y limits, selected ID and output pointer behavior are retained.
  * Owning-unit NormalXY0014 and array globals provide the actual 8-byte XY
@@ -17,10 +17,18 @@
  * IDA agrees on traversal and strict Y limits, but omits the normal setup
  * and third call argument; retain those from assembly rather than copying
  * the incomplete call signature from Hex-Rays.
+ * Removing the inactive-member normal union preserves identical object
+ * bytes and relocation records, including all 114 existing owner C matches.
+ * All eight relocations resolve; the four differences remain executable
+ * copy-scheduling instructions, not alignment or unresolved addresses.
+ * Native caller smoke: 92,160 Clang ASan/UBSan cases cover empty/gated
+ * traversal, exact helper status, open height bounds and NaNs, full u16 IDs,
+ * output/next-link aliasing and mutable-helper reloads. Scripted helper
+ * outcomes exercise caller behavior, not the retail crossing algorithm.
  */
 u16 func_0014be50(u8 *arg0, u8 **arg1) {
-    u8 *triangle[3];
-    union { SVec3 vector; struct { NormalXY0014 xy; f32 z; } parts; } normal;
+    SVec3 *triangle[3];
+    struct { Float2_0014 xy; f32 z; } normal;
     f32 temp_f2;
     f32 temp_f2_2;
     f32 temp_f3;
@@ -34,13 +42,13 @@ u16 func_0014be50(u8 *arg0, u8 **arg1) {
         return 0xFFFFU;
     }
     while (var_16 != NULL) {
-        normal.parts.xy = D_005EFB98[0];
-        normal.parts.z = D_005EFBA0[0];
-        triangle[0] = (u8 *)(var_16 + 0x15C);
-        triangle[1] = (u8 *)(var_16 + 0x168);
-        triangle[2] = (u8 *)(var_16 + 0x174);
-        if ((func_00168ec0(arg0, &triangle[0], &normal.vector) == 1) &&
-            (temp_f3 = *(f32 *)(triangle[0] + 4),
+        normal.xy = D_005EFB98[0].values;
+        normal.z = D_005EFBA0[0];
+        triangle[0] = (SVec3 *)(var_16 + 0x15C);
+        triangle[1] = (SVec3 *)(var_16 + 0x168);
+        triangle[2] = (SVec3 *)(var_16 + 0x174);
+        if ((func_00168ec0(arg0, &triangle[0], &normal) == 1) &&
+            (temp_f3 = triangle[0]->y,
              temp_f2 = *(f32 *)(arg0 + 4),
              (temp_f2 < (100.0f + temp_f3))) &&
             !(temp_f2 <= (temp_f3 - 100.0f))) {
@@ -48,11 +56,11 @@ u16 func_0014be50(u8 *arg0, u8 **arg1) {
             *arg1 = var_16;
             goto done_11;
         }
-        triangle[0] = (u8 *)(var_16 + 0x168);
-        triangle[1] = (u8 *)(var_16 + 0x174);
-        triangle[2] = (u8 *)(var_16 + 0x180);
-        if ((func_00168ec0(arg0, &triangle[0], &normal.vector) == 1) &&
-            (temp_f3_2 = *(f32 *)(triangle[0] + 4),
+        triangle[0] = (SVec3 *)(var_16 + 0x168);
+        triangle[1] = (SVec3 *)(var_16 + 0x174);
+        triangle[2] = (SVec3 *)(var_16 + 0x180);
+        if ((func_00168ec0(arg0, &triangle[0], &normal) == 1) &&
+            (temp_f3_2 = triangle[0]->y,
              temp_f2_2 = *(f32 *)(arg0 + 4),
              (temp_f2_2 < (100.0f + temp_f3_2))) &&
             !(temp_f2_2 <= (temp_f3_2 - 100.0f))) {
