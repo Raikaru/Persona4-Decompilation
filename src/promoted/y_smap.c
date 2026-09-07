@@ -76,11 +76,11 @@ typedef struct YVec2f { f32 x, y; } YVec2f;
 typedef struct YRGBA { u8 a, b, c, d; } YRGBA;
 
 /* func_002afbc0 callees */
-extern s32 func_002b2a30(s32, s32, s32, s32);
+extern s32 func_002b2a30(u8, u8, u8, u8);
 extern void func_002b2bd0(f32 *, s32, f32, f32, f32, f32);
 extern s32 func_00106330(s32);
 extern u8 *func_00155280(void);
-extern void func_0025ecd0(s32, s32, s32, s32, s32, s32, s32, void *, f32, f32, f32, f32, f32, f32);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern void func_002b0b10(u8 *, YVec2f, u8, s32, s8, s32, f32, f32, f32, f32);
 extern u8 D_00794DB0[];
 extern u8 D_00794CF0[];

@@ -77,10 +77,7 @@ extern u8 *func_00460990(void);
 extern void func_00460ac0(u8 *arg0, u8 *arg1);
 extern void func_0025ec10(s32 arg0, u8 *arg1);
 extern void func_0025ec50(s32 arg0, u8 *arg1);
-extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
-                         s32 arg0, s32 arg1, s32 arg2, void *arg3,
-                         s32 arg4, s16 arg5, s16 arg6, f32 farg3,
-                         f32 farg4, f32 farg5, void *arg7);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2,
                   s32 arg0, s32 arg1, s32 arg2, void *arg3,
                   s32 arg4, s32 arg5, s32 arg6,
@@ -984,7 +981,7 @@ s32 func_0025ea20(f32 farg0, f32 farg1, f32 farg2,
 /* measured: plain `(u16)(4096.0f * farg4)` and `(u16)(4096.0f * farg5)` casts reproduce both compiler-generated float-to-unsigned conversion paths; MATCH object 588B/window 592B. Each retail site begins `lui 0x4580; mtc1; mul.s; lui 0x4F00; mtc1; c.ole.s`, then uses low `cvt.w.s; mfc1; andi` or high `sub.s; cvt.w.s; mfc1; lui 0x8000; or; andi` before `sh`. The `or` is after `mfc1`, and the 4096.0f `mul.s` is genuine scaling. */
 // FUN_0025ECD0
 s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
-                  s32 arg0, s32 arg1, s32 arg2, void *arg3,
+                  s32 arg0, u8 arg1, s32 arg2, void *arg3,
                   s32 arg4, s16 arg5, s16 arg6,
                   f32 farg3, f32 farg4, f32 farg5, void *arg7) {
     u8 *temp_16;
@@ -995,7 +992,7 @@ s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
     *(f32 *)(temp_2 + 8) = farg0;
     *(f32 *)(temp_2 + 0xC) = farg1;
     *(f32 *)(temp_2 + 0x24) = farg2;
-    *(s8 *)(temp_2 + 0x11) = (s8)(0xFF - (arg1 & 0xFF));
+    *(s8 *)(temp_2 + 0x11) = (s8)(0xFF - arg1);
     *(s8 *)(temp_2 + 0x28) = (s8)((u32)arg0 >> 0x10);
     *(s8 *)(temp_2 + 0x29) = (s8)((u32)arg0 >> 8);
     *(u8 *)(temp_2 + 0x2A) = arg0;
@@ -1038,12 +1035,11 @@ void func_0025ec50(s32 arg0, u8 *arg1) {
     func_0046d280(arg1);
 }
 // FUN_0025EC90
-void func_0025ec90(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                   void *arg5, f32 farg0, f32 farg1, f32 farg2) {
-    func_0025ecd0(farg0, farg1, farg2, arg0, arg1, arg2, (void *)arg3, arg4,
+void func_0025ec90(f32 farg0, f32 farg1, f32 farg2,
+                   s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, void *arg5) {
+    func_0025ecd0(farg0, farg1, farg2, arg0, arg1, arg2, arg3, arg4,
                   0, 0, 0.0f, 1.0f, 1.0f, arg5);
 }
-/* measured: plain C reproduces the complete 0x24C-byte body and 0xC0-byte frame; only the two float-to-u16 conversions retain the MWCCPS2 $v0/$v1 colouring floor (normalized_diff 10, object 588B versus 592B window). Parked because nd <= 25. Committed at nd 10. */
 // FUN_0025F960
 s32 func_0025f960(void) {
     s32 var_17;
