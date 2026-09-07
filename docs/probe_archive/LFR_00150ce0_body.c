@@ -1,4 +1,10 @@
-/* LFR archive: closest non-matching candidate; retained for reference only. */
+/* Historical LFR recovery, retained rather than discarded after promotion.
+ * func_00150ce0 now matches in src/Kosaka/Field/k_fldResource.c:
+ * 988B/992B, zero emitted instruction differences, 4B retail zero tail.
+ * This earlier scalar-local body is not safe helper storage: the chunk
+ * reader writes 20 bytes and both memory-stream descriptors occupy 8 bytes.
+ * Fresh replay of this historical body is 956B/992B, fndiff 219 words,
+ * not the old claimed four-word floor. Keep it as recovery history only. */
 #include "include_asm.h"
 /* Consolidated Persona 4 source units. */
 /* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */

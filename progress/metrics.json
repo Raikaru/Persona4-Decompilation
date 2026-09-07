@@ -2405,6 +2405,7 @@
       "00150890",
       "00150970",
       "00150c80",
+      "00150ce0",
       "001510c0",
       "00151580",
       "00151710",
@@ -9317,11 +9318,11 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7735,
+    "count": 7736,
     "duplicate_rows": 0,
     "known_rows": 12720,
-    "matched_body_bytes": 1470364,
-    "percent": 59.037,
+    "matched_body_bytes": 1471352,
+    "percent": 59.044,
     "unique_known_addresses": 12720
   },
   "schema_version": 1,
@@ -9332,8 +9333,8 @@
     "verifier_report": "build/verify_report.json"
   },
   "status_counts": {
-    "ASM": 4985,
-    "MATCH": 7735
+    "ASM": 4984,
+    "MATCH": 7736
   },
   "total": 13102
 }
