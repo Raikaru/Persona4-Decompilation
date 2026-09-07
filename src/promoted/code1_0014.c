@@ -2684,8 +2684,9 @@ void func_0014b840(u8 *arg0)
 s32 func_0014bd90(u8 *arg0) {
     return *(s32 *)(*(u8 **)(arg0 + 0x38)) == 1;
 }
-/* measured: the archive uses a complete normal vector and three triangle pointers;
-   416B/416B, four differing load/store words, no invented stack padding. */
+/* measured: an ordinary 12-byte normal and three typed triangle pointers retain
+   416B/416B, four executable copy-scheduling differences, eight resolved
+   relocations and all 114 owner C matches. No normal union or invented padding. */
 // FUN_0014BE50 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0014", func_0014be50);
 // FUN_0014C540

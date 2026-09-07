@@ -6373,3 +6373,39 @@ with unchanged **6,131 first-party MATCH / 729 ASM (89.4%)** and
 **172 C-linked objects / 1,568 functions**. Progress snapshots validate,
 all 336 first-party files are lint-clean, and both retail SHA-1 identities
 remain unchanged.
+
+## Ordinary triangle normal and renderer cache evidence
+
+The retained `0014be50` candidate now uses an ordinary **12-byte normal**
+and three `SVec3 *` triangle pointers instead of an inactive-member normal
+union. The split constants still supply exactly eight XY bytes and four
+Z bytes. Isolated MWCC replay retains **416B/416B**, all eight resolved
+relocations, and four executable differences at `+0x60..+0x6C`.
+The other 100 instructions and all 114 existing owner C matches are
+unchanged. Retail holds XY across the Z load; the compiler stores XY first.
+No fourth normal lane, explicit padding or object patch is introduced.
+Production remains ASM.
+
+The archived body passes **92,160 native Clang ASan/UBSan caller cases**:
+empty and gated lists; head capture before the gate; exact helper result
+`1`; first/second-triangle and linked-record precedence; strict height
+endpoints, adjacent floats, infinities and NaNs; full unsigned IDs,
+including successful ID `0xffff`; untouched failure output and output
+aliasing the next link. Instrumented mutable helpers also establish
+post-call point/triangle reloads and normal reuse within a record versus
+reinitialization at the next record. These are caller-contract checks with
+scripted helper outcomes, not execution of the retail triangle-crossing
+algorithm or the PS2 floating-point unit.
+
+For `001130c0`, three-field channel caches with alpha first, alpha last,
+or unsigned alpha all emit **440B/448B and 15 masked differing words**
+when G/B are assigned first. The aggregates do not constrain saved-register
+allocation as required. They are discarded; the existing five executable
+differences plus eight zero-tail bytes remain the better floor. Its
+previously documented native evidence and Vec2f caller-migration
+requirement are unchanged. No new MATCH is claimed for either routine.
+
+The integrated `make build-progress progress lint-errors` gate passes:
+**6,131 first-party MATCH / 729 ASM**, **172 C-linked objects /
+1,568 functions**, validated progress snapshots, and zero lint findings
+across 336 first-party files. Both retail SHA-1 identities are unchanged.
