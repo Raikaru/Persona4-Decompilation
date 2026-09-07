@@ -33,6 +33,8 @@
  * retain five words; a reused scan gives eight and a reused index nine.
  * Postincrement gives 196B/14 words; an inline predicate gives 208B/23.
  * None improves the retained body or changes production.
+ * Separate inline count and sort boundaries also retain 192B/five masked
+ * differing words. Neither improves the retained loop lifetimes.
  */
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)

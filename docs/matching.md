@@ -4935,3 +4935,78 @@ snapshots validate and all 333 first-party files remain lint-clean.
 Source-linked totals remain **172 objects / 1,562 functions**. The loadable
 SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1
 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+Published commit `302f1114` passes proprietary CI
+[34077512256](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34077512256):
+11,152 fallbacks regenerate exactly, both manual files remain unchanged,
+and the build reproduces both retail hashes and the 6,109/751 first-party count.
+
+The typed virtual-pad and initializer floors were also replayed in their
+current full owners with relocations applied. Virtual pad remains **324B /
+336B, two executable `lw`/`sll` differences**; a producer-backed request
+layout gives four differences, while an inline request-call boundary gives
+320B/62. The initializer remains **120B / 128B, six executable register
+differences**. A named quad snapshot ties; SDK byte-channel stores and an
+aggregate worsen the result, the latter introducing an unresolved anonymous
+literal rather than a legitimate retail match. Separate inline count/sort
+boundaries likewise leave battle order at **192B / 192B, five masked words**.
+These hypotheses are recorded in the existing archives without replacing
+their C bodies or promoting any of these three fallbacks.
+
+## Weighted combination choices and packed battle modifiers
+
+`func_00303de0` in `src/Event/Fcl/y_fclCombine.c` matches **740 executable
+bytes / 752B retail window**, with all eight relocations applied and twelve
+zero-tail bytes. Its real stack buffers are **five s32 weights and five s8
+IDs**. The IDA frame aliases are not additional array entries. A named
+compact-store pointer preserves the stack-base addition; `(s16)weights[k]`
+produces the retail signed halfword load without type punning.
+
+The selected row is snapshotted in the 32-bit integer address domain before
+the month/day/calendar calls. Selector `-1` therefore does not form a
+before-table C pointer. The selector is read again afterward, while a
+nonnegative-to-nonnegative change still uses the original row address.
+Weight-100 choices are appended immediately in encounter order; other
+nonzero-ID choices compact into the buffers. RNG is called only when that
+weighted count is nonzero. Total and modulo are unsigned; the roll and
+cumulative sum retain their signed-16 narrowing. The caller does not consume
+a return value, so the recovery does not reproduce IDA's incidental result.
+
+The unchanged source passes **1,363 real-i386 scenarios at each of -O0 and
+-O2**, with **28,102 assertions per run**. Checks cover complete weighted
+thresholds and modulo wraparound, guaranteed/mixed/empty rows, all five slots,
+signed IDs and weights, ignored upper word bytes, selector changes during
+each callback, count-reset timing, exact output order and untouched context,
+table bytes and canaries. A zero-total sample at selected-row index 66 was
+excluded from native execution; the bounded samples do not prove the table's
+declared extent or that row's runtime reachability. No host modulo-zero
+behavior or protective guard is invented. Owner: **23 MATCH / 18 ASM**.
+
+`func_00233570` in `src/Main/Battle/Data/datCalc.c` matches **784B / 784B**,
+including all fifteen relocations and with no tail gap. It retains the
+existing `s64(u8*, s32, s64)` contract and pure-C `PTDatCalcOffsetAdd`
+convention. The standalone signed-byte promotion at the getter branch
+merge closes the last eight register-coloring differences. Index and delta
+still use their effective unsigned/signed byte values; the result sign-extends
+the signed byte. The packed encoding maps 8..15 to -7..0, clamps updates to
+[-1,1], preserves the opposite nibbles and updates only the corresponding
+flag and auxiliary nibble. All five retail diagnostic sites remain.
+
+Its unchanged source passes **2,148,352 real-i386 cases**, covering every
+encoded nibble, the full byte-delta range, high-bit argument aliases, read-only
+queries, clamping and chained transitions. Whole-unit bytes and surrounding
+canaries are checked. Flag-only indices 16..23 still set their bit on zero
+delta. Index 24 logs 1142 before its defined-width continuation; masked
+indices 25..255 are not native-tested, including the signed/oversized-shift
+hazards at 31..255. Owner: **68 MATCH / 12 ASM**.
+
+Both recoveries pass independent source/retail review. These native consumer
+smokes do not claim full-game or MIPS execution. Exact C bodies are retained
+in `ComboWeights_00303de0_body.c` and `BattleNibble_00233570_body.c`.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,741 MATCH overall; 6,111 first-party MATCH / 749 ASM**. Progress
+snapshots validate and all 333 first-party files remain lint-clean.
+Source-linked totals remain **172 objects / 1,562 functions**. The loadable
+SHA1 is `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1
+is `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
