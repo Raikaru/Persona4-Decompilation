@@ -14,16 +14,16 @@ extern void func_0046d730(const char *file, s32 line);
 extern void func_0044ea90(const void *msg, s32 id);
 /* Defined below in this file; called at line 33, above its definition. */
 extern void func_0038f8d0(void);
-extern void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
 extern s32 func_004553c0(u8 *ptr);
 extern u8 *func_00455ea0(u8 *resource, s32 index, s32 *size);
 extern void func_00454bd0(u8 *ptr);
 extern u8 *func_00454a60(u8 *param, s32 mode);
-extern void func_0043f810(void *dst, const void *src, u32 size);
+extern void *func_0043f810(void *dst, const void *src, u32 size);
 extern void func_00271380(s32 slot, void *data);
 extern void func_00271820(s32 slot);
 extern u32 func_0038f400(const u32 *data);
-extern void func_0038f590(u32 value);
+extern void func_0038f590(u8 *allocation);
 
 // FUN_0038F620
 void func_0038f620(void)
@@ -108,7 +108,7 @@ void func_0038f8d0(void)
     if ((work[1] & 1) == 0) {
         func_0046d730(D_0064F250, 0x84);
     }
-    func_0038f590(work[3]);
+    func_0038f590((u8 *)(uintptr_t)work[3]);
     func_00271820(6);
 }
 

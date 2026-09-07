@@ -22,6 +22,13 @@
  * all alignment residues, exact payload bytes, untouched padding and
  * debug/allocate/copy/copy ordering. Valid descriptors and successful
  * low-address allocation only; this is not retail MIPS execution.
+ * Retail identifies ed_staff.c: the owner contains ending-staff text/control
+ * data. Allocation argument 0x40000 is rwMEMHINTDUR_GLOBAL, not alignment.
+ * A three-boundary layout record and inline region initializer tie this
+ * floor; publishing/aligning header boundaries in place regresses to 408B.
+ * All seven relocations resolve and all 77 existing owner C matches survive.
+ * The adjacent release wrapper now explicitly forwards its allocation;
+ * promotion here still requires the canonical pointer-return caller API.
  */
 typedef struct { u32 id, count, entries, strings, data; } EffectStateHeader;
 extern u8 D_0064F240[];

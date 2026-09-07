@@ -6409,3 +6409,51 @@ The integrated `make build-progress progress lint-errors` gate passes:
 **6,131 first-party MATCH / 729 ASM**, **172 C-linked objects /
 1,568 functions**, validated progress snapshots, and zero lint findings
 across 336 first-party files. Both retail SHA-1 identities are unchanged.
+
+## Explicit ending-resource ownership release
+
+The `0038f400` revisit identified a concrete contract defect in its adjacent
+release wrapper. `0038f590(void)` invoked an unprototyped callback without
+arguments. Its byte match depended on the incoming owner address surviving
+in `a0`, not on a C argument being forwarded.
+
+`0038f590(u8 *allocation)` now invokes the existing callback slot through
+RenderWare's `void (*)(void *)` signature and passes the allocation.
+`ed_res.c` declares the same wrapper signature and explicitly reconstructs
+the pointer from `work[3]`. Its ignored copy return is correctly declared
+`void *`; allocator parameter names now say `hint`, not `align`.
+Provider evidence identifies `0x40000` as `rwMEMHINTDUR_GLOBAL`.
+
+The original wrapper happens to pass a plain native call, but adding
+ordinary Clang function-entry instrumentation makes its ownership assertion
+fail: an undeclared argument is not preserved across instrumentation.
+The repaired wrapper passes the same instrumented reproduction.
+The actual release, direct teardown and outer teardown C bodies also pass
+**1,536 ASan/UBSan/function-sanitizer lifecycle cases** with instrumentation:
+loaded/unloaded flags, null owners, release-before-slot-cleanup order,
+owned mapping contents and deallocation, callback global rebinding,
+unchanged work records and outer global clearing. Allocation and slot
+backends are native fixtures; this does not execute the PS2 heap service.
+
+MWCC retains **40 executable bytes in the 48-byte retail window** for
+`0038f590`, with **two resolved relocations, zero executable differences
+and eight zero-tail bytes**. All **101 emitted functions** across both
+edited owners preserve their bytes; only the wrapper's two relocation
+symbol spellings change to the existing typed slot at the same address.
+The final callback-prototype cast separately preserves all 95 emitted
+functions and relocation records in its owner.
+
+Neither larger candidate is promoted. `001b1020` retains **408B/416B,
+17 resolved executable differences and eight zero-tail bytes**, preserving
+all ten owner C matches. Four new phase/transition forms reproduce the
+scalar candidate exactly and are discarded. `0038f400` retains
+**396B/400B, 16 resolved executable differences and four zero-tail bytes**,
+preserving all 77 owner C matches. Local layout and region-initializer
+forms tie; in-place boundary publication regresses. The retail debug name
+is `ed_staff.c`, and eventual promotion still needs a canonical
+pointer-return factory/accessor contract.
+
+The integrated `make build-progress progress lint-errors` gate passes:
+**6,131 first-party MATCH / 729 ASM**, **172 C-linked objects /
+1,568 functions**, validated progress snapshots and zero lint findings
+across 336 first-party files. Both retail SHA-1 identities are unchanged.
