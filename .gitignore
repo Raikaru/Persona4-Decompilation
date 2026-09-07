@@ -35,8 +35,8 @@ build/
 /assets/
 /asm/*.s
 /asm/*.o
-# asm/nonmatchings/ is HAND-AUTHORED INCLUDE_ASM fallback code, not splat output.
-# It must stay tracked or a fresh checkout cannot reproduce the build.
+# Retail disassembly stays tracked until clean-checkout regeneration is proven.
+# Hand-maintained exceptions remain tracked separately from generated outputs.
 !/asm/nonmatchings/
 /asm/data/
 /asm/chunks/

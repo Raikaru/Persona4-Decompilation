@@ -184,7 +184,10 @@ jobs:
       - name: Build Linux container
         run: docker build --tag p4-decomp-ci .
 
-      - name: Setup, build, and verify with mounted proprietary inputs
+      # --fresh guards local edits, removes only manifest-generated fallbacks,
+      # then proves their exact hashes from an independent scratch split.
+      # The following build and verifier consume those regenerated files.
+      - name: Setup, prove clean ASM regeneration, build, and verify
         run: |
           set -eu
           docker run --rm \
@@ -196,7 +199,15 @@ jobs:
             --env "P4_RETAIL_ELF=/opt/p4/$P4_PRIVATE_RETAIL_ELF_PATH" \
             --workdir /work \
             p4-decomp-ci \
-            sh -c 'python tools/build.py --setup-only && make split && python tools/build.py --progress-report build/linked_report.json && python tools/verify.py --json build/verify_report.json'
+            sh -ec '
+              test ! -e tools/build_config.local.json
+              test ! -e tools/verify_config.local.json
+              python tools/build.py --setup-only
+              make split
+              make regenerate-asm
+              python tools/build.py --progress-report build/linked_report.json
+              python tools/verify.py --json build/verify_report.json
+            '
 
       # The build runs as root inside the container; the report generator runs on
       # the host as the unprivileged runner user. Several build outputs are
