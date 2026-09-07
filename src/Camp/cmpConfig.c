@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - cmpConfig.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 typedef struct { f32 x, y; } Vec2f;
 
@@ -20,7 +21,6 @@ void* func_0046a770(char* arg0);
 s32 func_0046d200();
 s32 func_00106330(s32 arg0);
 void func_00113480(s32 a, s32 b, s32 c, s32 d);
-void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 void func_001437b0(void* arg0, s32 arg1, s32 arg2);
 void func_0034f8f0(void* arg0);
 void func_0034f1e0(void);

@@ -1,6 +1,7 @@
 /* Source unit: src/promoted/code1_0029.c */
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 typedef char *va_list;
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 #define va_end(ap) ((void)0)
@@ -32,7 +33,6 @@ extern void func_001228a0(s32 arg0, s32 arg1, s32 arg2);
 extern char D_0063CB30[];
 extern char D_0063D050[];
 extern void func_00452080(s32 arg0);
-extern s32 func_0045af60(s32 arg0, s32 arg1, s16 arg2, s16 arg3);
 extern void func_0045a9a0(s32 arg0, s32 arg1);
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
 void func_004b1590(s32 arg0, s16 arg1);
@@ -53,7 +53,6 @@ extern void func_0029e990(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 D_0063CB50[];
 extern void func_0029e9a0(s64 arg0, s64 arg1, s64 arg2, s64 arg3, s64 arg4);
 extern s32 func_00108e70(void);
-extern void func_0045aa90(s32 arg0, s32 arg1);
 extern void func_00123a10(void);
 extern u8 D_0063CFA0[];
 extern s32 func_00452380(void *path);

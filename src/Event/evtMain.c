@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit evtMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 extern u32 DAT_007645D8;
 void func_00285260(void);
@@ -108,7 +109,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 void func_00286d80(u32 *, u32 *);
 s32 func_002853f0(s32 arg0);
 extern void func_00457140(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void func_0045af60(int, int, int, int);
 extern u8 D_0063C5C0[];
 void func_00442088();
 s32 func_0028f770(s32 arg0);

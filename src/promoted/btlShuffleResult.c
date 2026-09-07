@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit btlShuffleResult.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 s32 func_00383720(u8 *arg0);
 extern void func_002bb4e0(u8 *arg0);
@@ -19,7 +20,6 @@ extern u8 D_0064EC70[];
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
                          s32 (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern s32 func_00382ea0(u8 *work, u8 *arg0, s32 arg1, u16 arg2, s32 arg3);
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern s32 func_00378530(s32 a, s32 b);
 extern void func_0036e000(u8 *arg0);
 extern void *func_0036e900(void *arg0);

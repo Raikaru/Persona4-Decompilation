@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - cmmCommunity.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
 extern s32 func_00452380(void *path);
@@ -10,7 +11,6 @@ extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern s8 func_00248760();
 extern s32 func_00247dd0(s32 arg0);
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_0026bc10(u16 resourceId, u8 value);
 extern s32 func_001077f0(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
@@ -1015,7 +1015,7 @@ u16 func_00108590(s32 arg0, s32 arg1, s32 arg2) {
         break;
     }
     temp_16 = var_4 * 4;
-    func_0045af60(0, 0, 4, *(s16 *)((u8 *)vals.durations + temp_16));
+    func_0045af60(0, 0, 4, *(u16 *)((u8 *)vals.durations + temp_16));
     if (arg2 != -1) {
         func_0026bc10(((arg2 & 0x3FF) | 0xC00) & 0xFFFF,
                       *(u8 *)((u8 *)vals.bytes + temp_16));

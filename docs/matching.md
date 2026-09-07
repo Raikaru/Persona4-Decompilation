@@ -6219,3 +6219,67 @@ The integrated `make build-progress progress lint-errors` gate passes:
 **6,130 first-party MATCH / 730 ASM (89.4%)**, **172 C-linked objects /
 1,567 functions**, validated progress artifacts and zero lint findings.
 Both retail SHA-1 identities remain unchanged.
+
+## Exact sound start routine and explicit argument forwarding
+
+`func_0045c640` is now C: **552B/560B**, all 32 relocations resolved,
+zero executable differences and eight zero-tail bytes. Bounded
+`opt_common_subs off` and `opt_propagation off` retain the separately
+evaluated pre-stop/post-stop addresses. A scalar `outputHandle`, loaded
+after stream activation, precedes both final halfword promotions. The
+switch cases `0` then `-0x12B` preserve retail comparison order. No
+aggregate scaffold, widened values or instruction barrier is needed.
+
+The RPC declarations are `s32 func_0043c518(s32 handle, ...)` and
+`s32 func_0043c5e8(s32 handle, ...)`. Both retail providers save all seven
+unnamed argument registers; their packet construction consumes different
+prefixes. Stop callers supply four arguments and the start caller supplies
+five. The old fixed-five function cast is removed. No fifth stop argument
+is invented: the assembly provider captures that register too, but its
+downstream significance is not established by this recovery.
+
+The existing `sdkSnd` wrappers declared themselves and their callees as
+`(void)`, making no-argument calls that happened to preserve incoming
+registers. They now explicitly forward two/four `s16` arguments through
+`sdk_snd_internal.h` and still return `1`. Both wrappers retain their exact
+**36B/48B** bodies; all 27 existing `sdkSnd` and six existing `sdkSndcom`
+matches remain intact. Compiling the old wrappers against the real
+contracts produces conflicting-type and too-few-argument errors.
+
+The caller migration covers 38 source files: 30 live callers include the
+shared header, while eight declaration-only entries need no replacement
+include. Four small source repairs preserve existing instructions:
+
+- `001f7ad0` drops two non-parameter register-liveness operands from the
+  two-argument stop call; both discarded expressions were plain locals.
+- `001f7cd0` reads the packet creator's three `u16` fields through an
+  unsigned-halfword view, narrowing at the sound API boundary.
+- `001f8070` reads its channel as `u16`, consistent with the same field's
+  unsigned increment/wrap.
+- `00108590` loads the duration halfword unsigned, then converts through
+  the canonical signed-halfword parameter.
+
+Focused caller comparisons preserve all **1,635 emitted C functions**
+across those files. Three compiler-private jump-table names renumber in
+`code1_001f`, but their locations, payloads and relocations are identical.
+The existing randomized `__FILE__` payload in `code1_0035` remains a
+scratch-compilation data difference, not an instruction regression.
+
+The actual repaired wrappers and actual stop/start state machines pass
+**112,320 native32 cases** under undefined-behavior traps. Coverage includes
+valid slot/stream combinations, state/status rejection, active/inactive
+streams, both accepted stop responses, error reporting, signed argument
+boundaries, callback-visible handle reloads, activation before dispatch,
+returned-handle storage and preservation of callback mutations and adjacent
+records. The native backend interprets only arguments actually supplied by
+each call. This is C state/ABI evidence, not execution of the PS2 RPC service
+or audible-output verification.
+
+A second native run routes **21,600** of those cases through the actual
+`001f7cd0` packet callback before the repaired wrapper and start routine.
+Unsigned stored argument boundaries retain the intended signed API values.
+
+The integrated `make build-progress progress lint-errors` gate passes:
+**6,131 first-party MATCH / 729 ASM (89.4%)**, **172 C-linked objects /
+1,568 functions**, validated progress artifacts and zero lint findings
+across 336 first-party files. Both retail SHA-1 identities remain unchanged.

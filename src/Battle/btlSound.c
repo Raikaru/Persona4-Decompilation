@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Battle/btlSound_001f7530.c */
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 typedef struct Battle Battle;
 struct Battle
@@ -34,9 +35,7 @@ extern BtlPacket* func_00194470(u32 type, u32 workSize);
 extern void func_001f7ad0(void* work);
 extern u32 func_001f7b40(void* work);
 
-extern void func_0045aa90(s16 bank, s16 cue);
 
-extern void func_0045af60(s32 bank, s32 channel, s32 cue, s32 variant);
 extern void func_001f7ca0(u16* work);
 extern u32 func_001f7cd0(s16* work);
 
@@ -139,7 +138,9 @@ void func_001f7ca0(u16* work)
 // FUN_001F7CD0
 u32 func_001f7cd0(s16* work)
 {
-    func_0045af60(0, work[0], work[1], work[2]);
+    u16* values = (u16*)work;
+
+    func_0045af60(0, values[0], values[1], values[2]);
     return 1;
 }
 
@@ -260,7 +261,7 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 u32 func_001f8070(u16* work)
 {
     u16 state;
-    s16 channel;
+    u16 channel;
     u8* global;
 
     state = *work;
@@ -273,7 +274,7 @@ u32 func_001f8070(u16* work)
         global = D_0076449C;
         if (*(s8*)(global + 0xaca) == -1)
         {
-            channel = *(s16*)(global + 0xac8);
+            channel = *(u16*)(global + 0xac8);
             func_0045af60(2, channel, 0, (s16)state);
             D_0076449C[0xaca] = 0;
             if ((*(u16*)(D_0076449C + 0xac8) += 1) >= 9)
