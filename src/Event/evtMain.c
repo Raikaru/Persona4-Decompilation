@@ -114,7 +114,7 @@ void func_00442088();
 s32 func_0028f770(s32 arg0);
 void func_0028f800();
 void func_0026d810();
-void func_0026d780(u16 arg0, s16 arg1);
+void func_0026d780(s32 arg0, s32 arg1);
 extern u32 DAT_00764B38;
 extern u8 DAT_00764B3C;
 extern u8 DAT_00764B40;

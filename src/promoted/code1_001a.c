@@ -72,7 +72,7 @@ s32 func_0023d8e0(u8 *arg0, s32 arg1);
 u8 *func_001fa9c0(void);
 s32 func_001db5e0(u8 *arg0, s64 arg1);
 u32 func_00193cd0(u32 arg0);
-u8 *func_001fa110(s16 *arg0);
+u8 *func_001fa110(u8 *arg0);
 u8 *func_00202850(void);
 void func_002182c0(u8 *arg0, u8 *arg1);
 u8 *func_00198300(u8 *arg0, u8 *arg1, s32 arg2);
@@ -793,7 +793,7 @@ void func_001a3f90(u8 *arg0)
             *(s16 *)(frame + 0) = 2;
             *(u16 *)(frame + 2) =
                 *(u16 *)(*(u8 **)(arg0 + 0x30) + 0xA4);
-            func_00194590(func_001fa110((s16 *)frame), 1);
+            func_00194590(func_001fa110(frame), 1);
             func_001a03b0((s64 *)arg0);
             func_00194590(func_00202850(), 1);
             func_00194590(func_001fa8f0(), 1);

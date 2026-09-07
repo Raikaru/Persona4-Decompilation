@@ -5341,24 +5341,12 @@ The selected owners and registration verify **133 functions: 28 MATCH /
 105 ASM**, including **27 first-party MATCH / one ASM**. No caller changes
 are required.
 
-The remaining `sdkUttmx.c` routine, `func_00463ea0`, stays ASM. Its
-**604 executable bytes / 608B window** copy through the 16KiB scratchpad
-using DMA9 followed by DMA8. Both channels require the retail sync/COP0
-condition-line waits; only DMA9 additionally polls CHCR. The four wait
-islands have no equivalent existing project API. Omitting them gives
-456B/110 fully resolved differing words and demonstrably returns with DMA8
-active and wrong output under delayed completion. CHCR-only polling gives
-512B/111, or 528B/132 without loop-invariant hoisting; it loses barriers and
-COP0 arbitration even where the model's copied bytes agree.
-
-The device experiment executes retail and three residuals **88 times**
-across eleven sizes and immediate/delayed completion, with separate stuck
-channel and address-wrap cases. Cache/RenderWare helpers and timing are
-models, not real EE hardware validation; zero-QWC semantics are explicitly
-assumed by the model. The real routine always programs the final pair,
-even for zero QWC, discards sub-quadword tail bytes, and adds no timeout or
-range/overlap/alignment checks. The historical `W53Uttmx_00463ea0_body.c`
-raw-wait archive is preserved, but is not an allowed C replacement.
+The first DMA reconstruction retained `func_00463ea0` as ASM because
+ordinary C cannot express its sync/COP0 condition-line waits. Omitting the
+waits or substituting CHCR-only polling is not equivalent: delayed-completion
+models expose active DMA8 on return, incorrect output or lost arbitration.
+The hardware-only replacement below closes this residual under the existing
+bounded-assembly policy; `W53Uttmx_00463ea0_body.c` remains historical evidence.
 
 Virtual-pad `func_004b5800` remains at 324B/5 masked words: two reordered
 load/shift instructions and three alignment words. Both integer-address
@@ -5372,5 +5360,92 @@ All 335 first-party files are lint-clean and progress snapshots validate.
 Source-linked totals are **172 objects / 1,565 functions**, one additional
 C-linked function. Both new durable archives reproduce their measured
 instruction streams.
+Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Scene transition, scratchpad DMA and draw-context ABI
+
+`func_0026d440` closes the scene updater at **824 executable bytes / 832B
+window**, with **28 fully resolved relocations** and eight zero alignment
+bytes. The two `R_MIPS_LITERAL` loads resolve to the `0.01f` constant at
+`0x761514`; the two-float initializer owns eight bytes at `0x7637e0`.
+The verifier masks only the literal relocation's 16-bit immediate, preserving
+opcode/register differences. Link planning now places and checks `.lit4` and
+`.lit8` data, including an interior literal symbol's section-relative offset.
+The smoke test rejects changed instruction fields and corrupted pool bytes.
+
+The adjacent getter and its consumer consistently use **`u32(float *)`**,
+not a byte-return declaration that adds caller-side masking. The event-side
+setter declaration now agrees with **`void(s32, s32)`**. These interface
+corrections preserve the affected retail instructions.
+Integrated native-i386 execution passes **294 amplitude/timing combinations
+at each of `-O0` and `-O2`**, plus delayed disable/clear transitions, helper
+cadence, signed indefinite timing, strict thresholds, clamps and callback
+ordering. Expiry disables first; the following disabled update clears the
+outputs. Host floating-point checks are not EE FPU or graphics validation.
+The measured source is preserved in `SceneManagerRecovery_0026d440_body.c`.
+
+`func_00463ea0` closes `src/Kernel/sdkUttmx.c` at **three MATCH / zero ASM**:
+**604 executable bytes / 608B window**, two exact call relocations and four
+zero alignment bytes. Address arithmetic and volatile DMAC MMIO remain C.
+Four bounded hardware-only wait islands retain `sync.l`, `sync.p`, COP0
+condition-line polling and explicit **memory clobbers**. This is the hardware
+operation exception in `STYLE.md`, not permission to reproduce ordinary
+compiler instructions with assembly.
+
+The retail seven-instruction wait loops are retained conservatively. The
+[R5900 short-loop discussion](https://www.spinics.net/lists/mips/msg71675.html)
+has revision and scheduling conditions; it does not establish five nops as
+a universal minimum. The integrated C, compiled-word and retail-word model
+passes **280 cases / 79,940 interpreted instructions**, including **1,540
+condition polls**, **550 delayed DMA9 polls** and **ten rejected mutations**.
+Only byte counts `0..15` issue a final zero-QWC pair; nonzero exact
+`0x400`-QWC multiples finish with a full pair. Sub-quadword tails are discarded.
+Physical hardware, cache preparation, concurrent DMA activity and high-address
+bus mapping remain outside this model. The measured body and its required
+loop-invariant pragma are in `DmaHardwareRecovery_00463ea0_body.c`.
+
+The renderer audit also fixes two real C ABI omissions:
+`func_004b11d0` and `func_004b1210` now pass their context explicitly to
+`func_00481440(void *)`. Retail's callee stores that incoming pointer.
+Both bridges remain exact; their containing unit verifies **68 MATCH /
+ten ASM**, including **67 first-party MATCH / two ASM**.
+The pre-fix native excerpt fails at both `-O0` and `-O2`; the integrated
+excerpt passes **32 cases per optimization**, checking context forwarding,
+null-context preservation and draw ordering.
+
+The related initializer `func_001fa110` and its caller now consistently use
+the **`u8 *` payload contract**; the callback declaration takes the same
+pointer type. The initializer remains exact and passes **256 native cases
+per optimization**, checking write extent, flags, registration and helper
+ordering. Its callback `func_001f9cf0` remains ASM: the readable reconstruction
+is **688B / four fully resolved differing words**, all at `+0x6c..+0x78`.
+Its **6,048 bounded machine cases** pass, but semantic agreement does not
+erase the load/address scheduling floor.
+
+Other completed investigations remain explicit residuals, not promotions:
+
+* `func_00202890`: preferred readable panel callback **696B / 310 masked
+  differing words**; best same-window candidate **720B / 229**, after
+  **52 hypotheses**. The callback receives the panel at envelope `+0x90`;
+  lifecycle checks and exact constructor/initializer companions do not
+  make this callback instruction-exact.
+* `func_00476e90`: material-color candidate **996B / 976B window**, with
+  **72 fully resolved differing words** across executable code, padding
+  and overflow. A return-by-value alternative worsens to **1008B / 81**.
+  Native checks cover **524,288 calls / 2,097,152 channel results**; the
+  accumulator seed and normalization/register schedule still differ.
+* `func_00479100`: model-rendering candidate **1908B / 1920B window**,
+  **30 fully resolved executable differences at `+0x48c..+0x500`**, and
+  **36 relocations**. Semantic checks cover **1,576 scenarios** plus
+  **131,072 byte/context executions / 1,570,952 checks**. The accumulator
+  and shared draw-path floor remains; only the independently exact bridge
+  ABI correction above is installed.
+
+Acceptance: **525 tests pass**; `make build-progress progress lint-errors`
+passes with **7,750 MATCH overall / 4,970 ASM**, including **6,120 first-party
+MATCH / 740 ASM (89.2%)**. All 335 first-party files are lint-clean and
+progress snapshots validate. **C-linked coverage remains 172 objects /
+1,565 functions**: these two source matches do not increase linked-C coverage.
 Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

@@ -41,15 +41,140 @@ s32 func_00463d60(u8 *name)
     }
     return ret;
 }
-/* measured: 604 executable bytes / 608B window. DMA9/8 copy through the
-   16KiB scratchpad requires four sync/COP0 condition-line wait islands.
-   Omitting waits gives 456B/110 fully resolved differing words and fails
-   delayed-DMA consumers; CHCR-only polling gives 512B/111 and loses the
-   barriers/arbitration. No existing equivalent wait API was found.
-   Retain ASM; W53Uttmx_00463ea0_body.c preserves the historical raw-wait
-   attempt, not a policy-eligible C replacement. */
+/* Copy complete quadwords through the 16KiB scratchpad, DMA9 then DMA8.
+   Volatile accesses are EE DMAC MMIO; BC0F reads its hardware condition line.
+   Each hardware-only wait retains both barriers and a memory clobber.
+   Keep retail's seven-instruction wait loops outside the R5900 short-loop
+   size class; this does not assert a minimum nop count for every EE revision.
+   measured: b210 -O2 with loop invariants, 604B/608B, both relocations exact;
+   the final four bytes are zero alignment padding. */
 // FUN_00463EA0
-INCLUDE_ASM("asm/nonmatchings/sdkUttmx", func_00463ea0);
+#pragma push
+#pragma opt_loop_invariants on
+void func_00463ea0(u32 destination, u32 source, u32 byte_count)
+{
+    extern void func_00421a60(s32 arg0);
+    extern void func_003f4370(void);
+    u32 dst;
+    u32 src;
+    u32 qwc;
+
+    dst = destination;
+    src = source;
+    qwc = byte_count >> 4;
+    func_00421a60(0);
+    func_003f4370();
+
+    while (qwc >= 0x401U) {
+        *(volatile u32 *)0x1000E020 = 0xFFFFFC00U;
+        *(volatile u32 *)0x1000E010 = 0x200;
+        *(volatile u32 *)0x1000D410 = src;
+        *(volatile u32 *)0x1000D420 = 0x400;
+        *(volatile u32 *)0x1000D480 = 0x70000000;
+        *(volatile u32 *)0x1000E020 |= 0x200;
+        *(volatile u32 *)0x1000D400 = 0x101;
+        src += 0x4000;
+
+        if ((*(volatile u32 *)0x1000D400 & 0x100) != 0) {
+            *(volatile u32 *)0x1000E020 = 0x200;
+            __asm__ volatile(
+                ".set noreorder\n"
+                "sync.l\n"
+                "sync.p\n"
+                "1:\n"
+                "nop\n"
+                "nop\n"
+                "nop\n"
+                "nop\n"
+                "nop\n"
+                "bc0f 1b\n"
+                "nop\n"
+                ".set reorder\n" : : : "memory");
+            while ((*(volatile u32 *)0x1000D400 & 0x100) != 0) {
+            }
+        }
+
+        *(volatile u32 *)0x1000E020 = 0xFFFFFC00U;
+        *(volatile u32 *)0x1000E010 = 0x100;
+        *(volatile u32 *)0x1000D010 = dst;
+        *(volatile u32 *)0x1000D020 = 0x400;
+        *(volatile u32 *)0x1000D080 = 0x70000000;
+        *(volatile u32 *)0x1000E020 |= 0x100;
+        *(volatile u32 *)0x1000D000 = 0x100;
+        dst += 0x4000;
+        qwc -= 0x400;
+
+        if ((*(volatile u32 *)0x1000D000 & 0x100) != 0) {
+            *(volatile u32 *)0x1000E020 = 0x100;
+            __asm__ volatile(
+                ".set noreorder\n"
+                "sync.l\n"
+                "sync.p\n"
+                "1:\n"
+                "nop\n"
+                "nop\n"
+                "nop\n"
+                "nop\n"
+                "nop\n"
+                "bc0f 1b\n"
+                "nop\n"
+                ".set reorder\n" : : : "memory");
+        }
+    }
+
+    *(volatile u32 *)0x1000E020 = 0xFFFFFC00U;
+    *(volatile u32 *)0x1000E010 = 0x200;
+    *(volatile u32 *)0x1000D410 = src;
+    *(volatile u32 *)0x1000D420 = qwc;
+    *(volatile u32 *)0x1000D480 = 0x70000000;
+    *(volatile u32 *)0x1000E020 |= 0x200;
+    *(volatile u32 *)0x1000D400 = 0x101;
+
+    if ((*(volatile u32 *)0x1000D400 & 0x100) != 0) {
+        *(volatile u32 *)0x1000E020 = 0x200;
+        __asm__ volatile(
+            ".set noreorder\n"
+            "sync.l\n"
+            "sync.p\n"
+            "1:\n"
+            "nop\n"
+            "nop\n"
+            "nop\n"
+            "nop\n"
+            "nop\n"
+            "bc0f 1b\n"
+            "nop\n"
+            ".set reorder\n" : : : "memory");
+        while ((*(volatile u32 *)0x1000D400 & 0x100) != 0) {
+        }
+    }
+
+    *(volatile u32 *)0x1000E020 = 0xFFFFFC00U;
+    *(volatile u32 *)0x1000E010 = 0x100;
+    *(volatile u32 *)0x1000D010 = dst;
+    *(volatile u32 *)0x1000D020 = qwc;
+    *(volatile u32 *)0x1000D080 = 0x70000000;
+    *(volatile u32 *)0x1000E020 |= 0x100;
+    *(volatile u32 *)0x1000D000 = 0x100;
+
+    if ((*(volatile u32 *)0x1000D000 & 0x100) != 0) {
+        *(volatile u32 *)0x1000E020 = 0x100;
+        __asm__ volatile(
+            ".set noreorder\n"
+            "sync.l\n"
+            "sync.p\n"
+            "1:\n"
+            "nop\n"
+            "nop\n"
+            "nop\n"
+            "nop\n"
+            "nop\n"
+            "bc0f 1b\n"
+            "nop\n"
+            ".set reorder\n" : : : "memory");
+    }
+}
+#pragma pop
 
 /* measured: plain-C reconstruction is 1240B against the 1248B retail window at
    verify normalized_diff 10. The header checks, format switch, allocation and

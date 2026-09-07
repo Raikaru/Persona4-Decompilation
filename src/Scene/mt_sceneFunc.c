@@ -111,7 +111,7 @@ extern s32 func_004577d0(void *arg0, f32 arg1);
 extern u8 *func_00457120(void);
 extern u8 *func_003e0f80(void);
 extern void func_003e0c90(void *dst, void *src, s32 mode);
-extern s32 func_0026d400(void *arg0);
+extern u32 func_0026d400(float *arg0);
 extern void func_003e9df0(void *arg0);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern void func_003e0f40(void *arg0);

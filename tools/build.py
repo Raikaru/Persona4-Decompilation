@@ -424,7 +424,7 @@ def load_window_sizes():
 
 # ---------------------------------------------------------------- C-object choice
 
-DATA_SECTIONS = (".rodata", ".data", ".sdata", ".sbss", ".bss")
+DATA_SECTIONS = (".rodata", ".data", ".sdata", ".sbss", ".bss", ".lit4", ".lit8")
 
 
 def _s16(x):
@@ -483,6 +483,9 @@ def recover_section_bases(obj, real, retail, gp):
                 pend[nm] = []
             elif t == 7:
                 votes[shndx][gp + (_s16(wr) - _s16(wc))] += 1
+            elif t == 8:
+                # The literal symbol may name an interior entry of its pool.
+                votes[shndx][gp + (_s16(wr) - _s16(wc)) - stval] += 1
     return {idx: c.most_common(1)[0][0] for idx, c in votes.items() if len(c) == 1}
 
 
