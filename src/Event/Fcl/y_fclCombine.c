@@ -1072,26 +1072,46 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030b7b0);
 // FUN_0030C3C0
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030c3c0);
 
-/* measured nd43 bank (not parked; nd is above the <=25 park threshold):
-   func_0030f4f0 candidate object 348B / retail window 352B. The final 4B
-   retail tail is post-jr alignment padding, so the candidate tail is aligned
-   through jr and its delay slot. Reapply from build/W8FclCombine_0030f4f0_nd43.c.
-   Winning recipe: no named n local; load bound from p+0x1A after the
-   func_0010b460 call; keep id = call & 0xFFFF and id2 = id & 0xFFFF as
-   distinct locals; use s16 i and s32 j counters, with j advanced as
-   (s16)(j + 1); arg1 is s16*. Retail saved map is
-   $s0=p,$s1=bound,$s2=id2,$s3=id,$s4=i,$s5=arg1; candidate map is
-   $s0=id2,$s1=p,$s2=id,$s3=bound,$s4=i,$s5=arg1. Both use frame 0x70,
-   six saved registers, and identical save offsets/order.
-   Ruled out: six declaration permutations of the exact-size raw-id body
-   (A-D,F: obj352 nd163; E: obj352 nd166); p-first declaration variants
-   (obj352 nd166; combined obj348 nd48); n-width probes s8 (obj356 nd244),
-   s16 (obj356 nd244 in the two-id spelling), s32 (obj308 nd175 and
-   obj340 nd191), and s64 (obj356 nd133); direct-bound width probes s16
-   (obj380 nd284) and s64 (obj356 nd133). The nd43 body is banked above
-   rather than left as a guarded park. */
+/* measured: MWCC b210 -O2, 348B / 352B window; executable bytes exact.
+ * Halfword counters/bound and loop-invariant motion recover the narrowing.
+ * Direct identifier comparisons let the compiler cache the masked key;
+ * an explicit second identifier local instead rotates three saved registers. */
 // FUN_0030F4F0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f4f0);
+#pragma push
+#pragma opt_loop_invariants on
+void func_0030f4f0(u8 *task, s16 *materials) {
+    s16 materialIndex;
+    s16 searchIndex;
+    s16 count;
+    s32 equippedId;
+    u8 *work;
+
+    work = *(u8 **)(task + 0x38);
+    equippedId = func_0010b460();
+    count = *(s8 *)(work + 0x1A);
+    if (count == 7) {
+        count = 0xC;
+    }
+    materialIndex = 0;
+    while (materialIndex < count) {
+        if ((u16)equippedId != materials[materialIndex]) {
+            func_0010ad80(materials[materialIndex] & 0xFFFF);
+        }
+        materialIndex++;
+    }
+    func_0010b190((u8 *)func_002e48a0(*(s8 *)(work + 0x2F9), *(s8 *)(work + 0x2FA)));
+    searchIndex = 0;
+    while (searchIndex < count) {
+        if ((u16)equippedId == materials[searchIndex]) {
+            func_0010b300(*(u16 *)(func_002e48a0(*(s8 *)(work + 0x2F9), *(s8 *)(work + 0x2FA)) + 1));
+            func_0010ad80(equippedId);
+            break;
+        }
+        searchIndex++;
+    }
+    func_0010b7f0();
+}
+#pragma pop
 // FUN_0030F650
 INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_0030f650);
 
