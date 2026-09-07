@@ -4853,3 +4853,85 @@ progress snapshots validate and all 333 first-party files remain lint-clean.
 Source-linked totals remain **172 objects / 1,562 functions**; the loadable
 SHA1 is `3d1d3d2b9d6ccb60836db239ab49674223025a78` and the complete ELF SHA1
 is `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The published comparator commit `ad5ffd9f` also passes proprietary CI
+[34075194170](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34075194170):
+11,152 exact fallback regenerations, both manual files unchanged, and the
+same retail hashes and 6,107/753 first-party count.
+
+## Relocated model and battle-order floor replay
+
+Neither model candidate is promoted. The material-color routine
+`func_00476e90` still emits **996B** against **972 executable retail bytes
+plus four zero-tail bytes**. Its 72 fully relocated differences comprise
+66 same-offset executable words, one retail padding slot and five words
+beyond the window. All actual relocation sites match, including the eight
+normalization loads. Four accumulator-zero seeds remain instead of retail's
+one. `QuantSeed_00476e90_body.c` preserves the current-owner `RwRGBA` version;
+the older private-view archive remains intact.
+
+The renderer `func_00479100` reproduces **1,908 executable bytes / 1,920B
+window**, but has **30 fully relocated executable differences**, at every
+word from `+0x48c` through `+0x500`, plus three missing zero-tail words.
+Its 32-word relocation-masked score is not an acceptance result: masking
+hides a candidate `jal func_0047d8a0` where retail has `lw` at `+0x4f4`.
+Duplicating the draw branch remains **1,932B / 180 masked words**.
+`IDA_model_followthrough.json` now distinguishes these resolved executable
+differences from padding. Neither floor has runtime semantic acceptance.
+
+The battle-order routine `func_001b11c0` retains its **192B / 192B,
+five-word register-coloring floor**. Parameter-key reuse and reversed filter
+comparison tie; scan/index reuse, postincrement and inline predicates are
+worse. The retained C body and production ASM fallback are unchanged.
+
+## Community flag rebuilding and indexed font insertion
+
+`func_00106f40` closes the last ASM fallback in `src/cmmCommunity.c`:
+**356 executable bytes / 368B retail window**, with all 16 relocations
+applied exactly and twelve zero-tail bytes. The inline clear helper owns
+the masked ID, its assertion and the 13-iteration loop. That source boundary
+produces retail's record/ID/index saved-register allocation without register
+pinning. The explicit `s32 func_001077f0(s32)` forward declaration agrees
+with its existing definition; the old prototype-regression note is stale.
+Owner verification is **39 MATCH / 0 ASM**.
+
+The unchanged recovery passes a real-i386 smoke with **7,680 scenarios /
+1,442,432 checks**. It includes the actual flag setter, independent predicate
+combinations, low-16 ID boundaries with nonzero/sign-bearing upper bits,
+null records, unsigned rank boundaries and rank mutation by the first enable
+callback. Final keyed flags, untouched neighbors, record canaries, the
+target's two zero-ID diagnostics and clearing before null return are checked.
+The rank load must remain after that callback. Lookup, predicates, diagnostic
+sink and flag storage are fixtures, not full engine integration.
+
+`func_002739e0` in `src/frFont.c` matches **724 executable bytes / 736B
+window**, with all 20 relocations applied exactly and twelve zero-tail bytes.
+It reuses the neighboring insertion routine's branch settings and the
+existing `FrFontNode`/`FrFontGlyph` layouts. The actual `s8 glyph[3]` array
+preserves two-byte glyphs and their terminator without an artificial stack
+aggregate. Unsigned left shift followed by target signed right shift retains
+the retail byte extraction without signed-left-shift undefined behavior.
+The legacy symbol `D_0076380C` resolves to **0x007637FC**, not its
+name-derived address. Owner verification is **54 MATCH / 3 ASM**.
+
+Its unchanged recovery passes **10 real-i386 consumer scenarios**: null/empty
+strings, ASCII-space substitution, mixed two-byte text, signed spacing,
+existing glyph widths, style changes, linking and allocation failure.
+Eight are ordinary fixture scenarios; two deliberately return an allocated
+empty node and establish behavior under that helper result, not reachability
+through the actual retail helper. A separate failed-glyph process reports
+diagnostic **1731**, then faults with **SIGSEGV**, preserving retail's lack
+of recovery. The null style-transition branch and diagnostic 1691 are not
+exercised; no artificial boundary injection was used. These are consumer
+smokes, not full font/resource integration or MIPS execution.
+
+Both recoveries pass independent source/retail review. Exact bodies are
+retained in `CommunityFlags_00106f40_body.c` and
+`FontString_002739e0_body.c`; historical C archives remain intact.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,739 MATCH overall; 6,109 first-party MATCH / 751 ASM**. Progress
+snapshots validate and all 333 first-party files remain lint-clean.
+Source-linked totals remain **172 objects / 1,562 functions**. The loadable
+SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1
+remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

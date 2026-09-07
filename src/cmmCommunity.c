@@ -12,7 +12,7 @@ extern s8 func_00248760();
 extern s32 func_00247dd0(s32 arg0);
 extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_0026bc10(u16 resourceId, u8 value);
-extern s32 func_001077f0();
+extern s32 func_001077f0(s32 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern s32 func_00107c80(s32 arg0);
 extern s32 func_00107ea0(s32 arg0);
@@ -103,20 +103,51 @@ end:
     func_00106390(id + ((b << 5) + 0x3FF), 1);
 }
 
-/* measured: retail keeps func_001070e0()'s result in $s0 and the arg0&0xFFFF
-   mask in $s1; mwcc b210 allocates the first-assigned local to $s1 and the
-   second to $s0, so return-first source gives the right instruction order
-   (jal;nop;move;andi) with the registers swapped, and mask-first source gives
-   the right registers with andi emitted before the jal. Tried all declaration
-   orders, inline-CSE mask, u16* result type (all nd 10), and mask-first source
-   order (best nd 6). Saved-register rotation floor. */
-/* measured: nd 7. Reconstructed this wave; the body is right and the residual
-   is entirely which of two values gets $s0 - retail keeps func_001070e0's
-   result there and the masked id in $s1, b210 the other way round. Probed four
-   declaration orders, both assignment orders (id-first is worse at nd 11) and
-   opt_common_subs off (nd 224). Committed at nd 7. */
-// FUN_00106F40 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/cmmCommunity", func_00106f40);
+/* measured: 356 executable bytes / 368B retail window, fully relocated exact.
+   The inline clear helper owns the masked ID and loop-index lifetimes;
+   its separate assertion preserves retail's record/ID saved-register order. */
+static inline void CommunityFlags_Clear(s32 community)
+{
+    s32 id = community & 0xFFFF;
+    s32 flag;
+    if (id <= 0) {
+        func_0046d730(D_005E42C8, 0x27);
+    }
+    for (flag = 0; flag < 13; flag++) {
+        func_00106390(id + ((flag << 5) + 0x3FF), 0);
+    }
+}
+
+// FUN_00106F40
+void func_00106f40(s32 arg0) {
+    u8 *record;
+    s32 id;
+    s32 rank;
+    record = (u8 *)func_001070e0(arg0);
+    id = arg0 & 0xFFFF;
+    if (id <= 0) {
+        func_0046d730(D_005E42C8, 0x48);
+    }
+    CommunityFlags_Clear(arg0);
+    if (record == NULL) {
+        return;
+    }
+    if (func_001077f0(arg0) != 0) {
+        func_00106db0(arg0, 0);
+        rank = *(u16 *)(record + 6);
+        if (rank == 0xA) {
+            func_00106db0(arg0, 1);
+        } else {
+            func_00106db0(arg0, rank + 3);
+        }
+    }
+    if (func_00107c80(arg0) != 0) {
+        func_00106db0(arg0, 2);
+    }
+    if (func_00107ea0(arg0) != 0) {
+        func_00106db0(arg0, 3);
+    }
+}
 // FUN_001070B0
 void func_001070b0(void)
 {
