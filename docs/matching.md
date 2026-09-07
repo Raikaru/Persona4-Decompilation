@@ -3739,6 +3739,9 @@ orders produce byte-identical **412B/416B, 13-word** output: twelve register
 differences and one zero-tail word. For `001d15a0`, a named entry stride,
 narrowed loop test, or both produce byte-identical **212B/224B, 12-word**
 output: nine register differences and three zero-tail words.
+The track-dispatch floor is subsequently closed by direct indexed callbacks
+and scoped loop-invariant optimization; see [Track dispatch and compatible
+callback contracts](#track-dispatch-and-compatible-callback-contracts).
 
 The reported sound `0045c640` floor is not re-certified. Its old final-call
 fixed-five-argument cast is not established against `0043c518`'s
@@ -5579,6 +5582,7 @@ dispatch `func_0047f850` retains twelve register-allocation words plus one
 zero-tail word; shuffle initialization `func_00375f00` retains seven differing
 emitted words, totaling twenty differing bytes, plus one zero-tail word.
 No approximate body replaces an assembly fallback.
+The subsequent track-dispatch recovery below supersedes that routine's floor.
 
 Reduced compiler controls also fail to close a floor: the existing explicit
 zero-addend multiply-add expression still emits **152B / four zero seeds**
@@ -5732,6 +5736,53 @@ shifts the remaining instructions. Neither approximate body is installed.
 
 `make build-progress progress lint-errors` passes: **7,754 overall MATCH /
 4,966 ASM**, **6,124 first-party MATCH / 736 ASM (89.3%)**, and **172 C-linked
+objects / 1,565 functions**. All 335 first-party files are lint-clean and
+progress snapshots validate. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Track dispatch and compatible callback contracts
+
+`func_0047f850` now matches in `src/promoted/code1_0047.c`: **412 executable
+bytes / 416-byte retail window**, with one zero alignment word beyond the
+object body. Direct table indexing under scoped `opt_loop_invariants on`
+closes the twelve saved-register differences; retaining an explicit dispatch
+pointer did not. `W52Main_0047f850_body.c` retains the exact source.
+
+The recovered target-list prefix contains a pointer array and a `u16` count.
+The dispatcher snapshots the list pointer and count once, but reloads its
+item array and the current apply callback after callbacks. It passes the
+borrowed sample/blend result directly to every target, including when a
+callback mutates that buffer. Zero targets still permit sampling; absent
+apply callbacks or left-track data skip the row.
+
+The live callback definitions now use compatible C function types:
+`func_0047f040`, `func_0047f1a0`, `func_0047f4d0` and `func_0047f5b0` return
+borrowed `void *` results with byte-pointer track/default arguments.
+`func_0047f4d0` also uses the dispatcher's interleaved pointer/float parameter
+order. `func_0047f2c0`, `func_0047f710` and the empty `func_0047f840` accept
+opaque result/target pointers. Their value interpretation remains local.
+All seven callbacks remain exact; the three affected units verify at
+**48 MATCH / one ASM**, including the newly recovered dispatcher.
+
+The actual dispatcher passes **262,160 freestanding native32 mutation
+scenarios** under Clang undefined-behavior and function-type sanitizers.
+Coverage includes all sixteen masks for left tracks, right tracks and apply
+callbacks; counts zero, one, three, seven and `65535`; count/list-pointer
+replacement; item-array replacement; apply-callback replacement; and
+borrowed-buffer mutation. An independent event digest checks callback order,
+selected targets and evolving buffer contents.
+
+The actual scalar/color samplers, blends and apply callbacks pass **25,920
+native32 consumer cases** under the same sanitizers: key counts one through
+four, interpolation and endpoint times, blend ratios, default colors, borrowed
+result identity and target color/alpha updates. The old callback definitions
+trap with the function-type sanitizer alone; the corrected definitions pass
+without function-pointer casts. Rendering hooks are checked native boundaries,
+not retail MIPS execution. Temporary harnesses are not permanent test load.
+
+`make build-progress progress lint-errors` passes: **7,755 overall MATCH /
+4,965 ASM**, **6,125 first-party MATCH / 735 ASM (89.3%)**, and **172 C-linked
 objects / 1,565 functions**. All 335 first-party files are lint-clean and
 progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
