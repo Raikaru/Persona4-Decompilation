@@ -807,9 +807,11 @@ Code47Vec4 *func_0047f4d0(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
  * roles; staging each addend after its normalized value prevents load
  * hoisting, and the reverse-order inline madd helper reproduces all three
  * accumulator operand orders. Object 348B/window 352B, normalized_diff 0;
- * the final retail word is zero tail padding. */
+ * the final retail word is zero tail padding. The sample callback returns
+ * its borrowed output buffer, which the dispatcher passes to each apply
+ * callback. */
 // FUN_0047F5B0
-void func_0047f5b0(s32 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+f32 *func_0047f5b0(s32 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
 {
     f32 *out;
     f32 second;
@@ -837,6 +839,7 @@ void func_0047f5b0(s32 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
     addend = out[3];
     difference -= addend;
     out[3] = code1_0047_madd_reverse(difference, fparg1, addend);
+    return out;
 }
 // FUN_0047F710
 void func_0047f710(u8 *arg0, u8 *arg1)
