@@ -5525,3 +5525,69 @@ snapshots validate. C-linked coverage remains **172 objects / 1,565
 functions**. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Sampled-color return contract and typed residual replay
+
+`func_0047f5b0` now explicitly returns its borrowed **`f32 *` work buffer**.
+The color row of `D_00713220` installs it in the sample slot; dispatch at
+`0x0047f958` consumes `$v0` and forwards that address to each apply callback.
+The previous `void` declaration omitted this contract even though its
+configured machine code happened to retain the pointer.
+
+A strict native 32-bit typed callback consumer rejects the old declaration.
+The corrected consumer passes **720 cases** using the real key sampler and
+blend body: one through four keys, first/interior/last/clamped times, RGB
+normalization, blending/extrapolation and returned-buffer identity. Times
+are at or after the first key; pre-first-key behavior and exceptional PS2
+floating-point behavior are not certified. No sampling guard is added.
+The target remains **348B / 352B window**, with every emitted byte and
+relocation identical to the frozen original. Its unit remains **36 MATCH /
+two ASM**; this is an ABI correction, not another matching promotion.
+
+The canonical source archives retain better source representations without
+claiming lower instruction floors:
+
+* `W49MdlEffect_0048a460_body.c` now uses genuine **12-byte XYZ locals** for
+  input and transformed coordinates. Only the four-lane COP2 output needs
+  explicit 16-byte alignment. Standard archive replay remains **176B /
+  fifteen differing words**, with all ten relocations exact. **1,010 native
+  affine projections** cover capture/getter/transform/restore ordering,
+  snapshot-before-getter mutation, negative depth, sequential projections,
+  positive-zero output lanes, alignment and spill canaries. Native hooks
+  do not execute COP2.
+* `EcF_0038f400_body.c` now returns an owned pointer and names the five-word
+  **`ed_staff` resource header**. Full unsigned counts still control
+  allocation and traversal; only stored ID/count values are narrowed.
+  Ordinary generic alignment code retains the mathematically unreachable
+  first correction branch. Standard archive replay remains **396B / 400B
+  window**, with **sixteen differing emitted words plus one zero-tail
+  word** and seven exact relocations. **216 native cases** cover counts
+  through 65,537, unsigned lengths, every alignment residue, exact payloads,
+  untouched padding and debug/allocate/copy/copy ordering. Valid descriptors
+  and successful low-address allocation only; not retail MIPS execution.
+* `K1DA_001d15a0_body.c` retains its existing **212B / 224B window** floor:
+  **nine register-allocation words plus three zero-tail words**. A complete
+  typed threshold record leaves that floor unchanged; **11,464 native
+  cases** cover first-hit precedence, independent threshold rejection,
+  nonmonotone tables and all four helper output counters. An older CSP
+  result reported 240B; the live archive already documented the nine-word
+  floor and remains authoritative.
+
+Other fresh structural probes likewise remain residuals: triangle selection
+`func_0014be50` retains four aggregate-copy scheduling words; typed track
+dispatch `func_0047f850` retains twelve register-allocation words plus one
+zero-tail word; shuffle initialization `func_00375f00` retains seven differing
+emitted words, totaling twenty differing bytes, plus one zero-tail word.
+No approximate body replaces an assembly fallback.
+
+Reduced compiler controls also fail to close a floor: the existing explicit
+zero-addend multiply-add expression still emits **152B / four zero seeds**
+with CSE and propagation disabled. A standard `memcpy` replacement in
+`func_00484b30` emits a library call even with intrinsics enabled and worsens
+the masked comparison from **six to 41 differing bytes**.
+
+`make build-progress progress lint-errors` passes: **7,751 overall MATCH /
+4,969 ASM**, **6,121 first-party MATCH / 739 ASM**, and **172 C-linked objects /
+1,565 functions**. All 335 first-party files are lint-clean; progress
+snapshots validate. Both the loadable-image and complete-ELF SHA1 values
+remain unchanged from the preceding acceptance result.
