@@ -1763,12 +1763,13 @@ void func_0010f390(void)
     }
 }
 
+/* Unsigned masks define bit 31 without changing either retail shift. */
 // FUN_0010F3D0
 void func_0010f3d0(u32 arg0, u32 arg1)
 {
     u32 bit = (arg1 & 0xffff) + (arg0 & 0xffff) * 8;
 
-    *(u32*)((u8*)D_0079BCD8 + (bit >> 5) * 4) |= 1 << (bit & 0x1f);
+    *(u32*)((u8*)D_0079BCD8 + (bit >> 5) * 4) |= 1U << (bit & 0x1f);
 }
 
 // FUN_0010F420
@@ -1777,7 +1778,7 @@ u32 func_0010f420(u32 arg0, u32 arg1)
     u32 bit = (arg1 & 0xffff) + (arg0 & 0xffff) * 8;
     u32* p = &D_0079BCD8[bit >> 5];
 
-    return *p & (1 << (bit & 0x1f));
+    return *p & (1U << (bit & 0x1f));
 }
 
 static inline u32 bitAndFirst(u32 a, u32 b)

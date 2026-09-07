@@ -252,9 +252,10 @@ next:
     return 0;
 }
 
-/* measured: the typed predicate remains a 544B/window 544B, 17-word floor
-   in docs/probe_archive/IDA_001db360_body.c. The retail implementation stays
-   in assembly; no instruction match or C promotion is claimed. */
+/* measured: promoted command values and short-circuit continuation reduce
+   docs/probe_archive/IDA_001db360_body.c to 544B/544B, ten fully relocated
+   executable differing words. Block ordering remains; 15,360 native
+   predicate/bitmap cases pass. Retail stays in assembly. */
 // FUN_001DB360 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/btlAICommand", func_001db360);
 // FUN_001DB580

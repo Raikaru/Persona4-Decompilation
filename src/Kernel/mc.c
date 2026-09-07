@@ -5,7 +5,8 @@
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
 
-extern u8 *func_00452560(void);
+/* The SDK getter requires the callback task and returns a packed address. */
+extern u32 func_00452560(void *task);
 extern void func_00454bd0(u8 *ptr);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
 extern void *func_00460990(void);
@@ -899,7 +900,7 @@ return_result:
 }
 // FUN_002A4B10
 s32 func_002a4b10(s32 arg0) {
-    u8 *w = func_00452560();
+    u8 *w = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
 
     switch (*(s16 *)(w + 0)) {
     case 0:
@@ -950,9 +951,10 @@ s32 func_002a4b10(s32 arg0) {
     return 0;
 }
 
+/* The teardown callback receives the task, not its work allocation. */
 // FUN_002A4CB0
-void func_002a4cb0(void) {
-    u8 *work = func_00452560();
+void func_002a4cb0(s32 arg0) {
+    u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     s32 p = *(s32 *)(work + 0x3A4);
     if (p != 0) {
         func_00454bd0((u8 *)p);
@@ -962,12 +964,12 @@ void func_002a4cb0(void) {
     func_002aa2b0(work);
 }
 
-/* measured: the historical nd 62 load-sinking result was from a body that was
-   never preserved behind this marker. A fresh reconstructed aggregate body
-   measured nd 304; reusing the local at the retail register-reuse point also
-   measured nd 304. A bracketed #pragma optimization_level 1 probe measured
-   nd 307, so O1 worsened the candidate. The fresh body was not retained; this
-   remains bare because the load-sinking residual is not byte-exact. */
+/* measured: the ordinary RGBA/four-s32 rectangle reconstruction in
+   docs/probe_archive/PoD_002a4d10_body.c emits 524B/528B under bounded O1,
+   with 59 fully relocated executable differing words and four zero-tail
+   bytes. It forwards the task explicitly and uses pointer color arguments;
+   1,470 native cases cover frame reloads, geometry and completion.
+   Scheduling/aggregate stack placement remain unmatched; keep ASM. */
 // FUN_002A4D10
 INCLUDE_ASM("asm/nonmatchings/mc", func_002a4d10);
 
@@ -1010,7 +1012,7 @@ INCLUDE_ASM("asm/nonmatchings/mc", func_002a5f00);
 
 // FUN_002A6510
 s32 func_002a6510(s32 arg0) {
-    u8 *work = func_00452560();
+    u8 *work = (u8 *)(uintptr_t)func_00452560((void *)(uintptr_t)(u32)arg0);
     s32 flags = *(u32 *)(work + 4);
 
     if (!(flags & 1)) {
