@@ -12,7 +12,7 @@ extern void func_00366380(s32 a0, s32 a1, s32 a2, s32 a3, s32 t0, s32 t1, s32 t2
 extern void func_0046a750(void *arg);
 extern s32 func_00455f70(char *str, void *out);
 extern s32 func_0046af60(void *arg);
-extern s32 func_00451fc0(void *a0, char *a1, s32 a2, s32 a3, s32 a4, void *a5, void *a6, void *a7);
+extern s32 func_00451fc0(void *a0, const void *a1, s32 a2, s32 a3, s32 a4, void *a5, void *a6, void *a7);
 extern s32 func_0025ef20(char *str);
 extern s32 func_00266b70(void);
 extern s32 func_0043f9c8(void *a0, s32 a1, s32 a2);

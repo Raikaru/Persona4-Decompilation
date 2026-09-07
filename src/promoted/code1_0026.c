@@ -5,7 +5,7 @@ extern s32 iGpffffa730;
 extern s32 func_00106330(s32 arg0);
 extern s32 func_00273970(u8 *arg0);
 extern void func_0026d810();
-extern s32 func_00451fc0(s32 arg0, void *arg1, s32 arg2, s32 arg3,
+extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
                          s32 arg4, void (*arg5)(void), void (*arg6)(void),
                          s32 arg7);
 extern u8 D_0063B5A0[];

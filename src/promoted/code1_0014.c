@@ -159,7 +159,7 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 extern void func_00148280(void);
 extern void func_0017ccc0(u8 *arg0);
-extern u8 *func_00451fc0(u8 *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
+extern u8 *func_00451fc0(u8 *a, const void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
 
 static inline u8 *p4_e740_add(s32 offset, u8 *base) {
     return (u8 *)(offset + (u32)base);
@@ -234,7 +234,7 @@ extern u8 iGpffff9de8;
 extern s32 func_0014e2a0(u8 *arg0);
 extern void func_0014e540(u8 *arg0);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
 extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];

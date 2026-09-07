@@ -17,7 +17,7 @@ s32 func_00106b20(s16);
 s32 func_00106b50(s16);
 u8 func_00110830(s32);
 void func_00110810(s32, u8);
-s32 func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 void func_0044ea90(const void *, u32);
 void func_0045aac0(s16, s32, s32);
 void func_00440b68();

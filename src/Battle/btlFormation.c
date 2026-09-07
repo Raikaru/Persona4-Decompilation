@@ -144,7 +144,7 @@ void func_001d1eb0(u32 param_1, u32 param_2, float param_3, u16 param_4)
 // FUN_001D1F30
 INCLUDE_ASM("asm/nonmatchings/btlFormation", func_001d1f30);
 // FUN_001D2D90
-void func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
+BtlPacket* func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
 {
     u32 *work;
     u32 packet;
@@ -155,6 +155,7 @@ void func_001d2d90(u32 param_1, u32 param_2, u32 param_3)
     work[0] = param_1;
     work[1] = param_2;
     work[2] = param_3;
+    return (BtlPacket*)packet;
 }
 
 
@@ -172,7 +173,7 @@ void func_001d2fe0(u32 *work)
     *(u16 *)(work[0] + 0xa0) = *(u16 *)(work[0] + 0xa0) - 1;
 }
 // FUN_001D3000
-void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
+BtlPacket* func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
 {
     u32 *work;
     u32 packet;
@@ -186,6 +187,7 @@ void func_001d3000(u32 param_1, u32 param_2, u32 param_3, u16 param_4)
     work[1] = param_2;
     work[2] = param_3;
     *(u16 *)(work + 3) = param_4;
+    return (BtlPacket*)packet;
 }
 
 

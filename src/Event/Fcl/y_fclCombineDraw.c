@@ -41,7 +41,7 @@ static inline void fclZero8(u8 *p)
 
 extern void func_0044ea90(const void *arg0, u32 arg1);
 extern void *func_0043f9c8(void *dest, s32 value, s32 size);
-extern void *func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+extern void *func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 extern u8 *func_00117780(s32, s32, s32, s32, s32);
 extern void func_00314010(u8 *arg0);
 extern void func_003142f0(u8 *arg0);
@@ -148,7 +148,7 @@ extern void func_00330e50(s32, s64, f32, s32, s32, s32, f32, f32, void *);
 extern f32 func_002b2aa0(s64, f32, f32, f32, f32);
 extern void func_002b82d0(u8 *, u32, u32, u32, u32, s16);
 extern u8 D_00795E60[];
-extern void *func_00451de0(void *, s32, s32, s32, void *, void *, void *);
+extern void *func_00451de0(const void *, s32, s32, s32, void *, void *, void *);
 extern void func_00440b68();
 extern u8 *func_00454a60(u8 *param, s32 mode);
 extern void func_003312e0(u8 *);

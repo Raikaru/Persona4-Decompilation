@@ -15,9 +15,9 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s8 arg4);
 extern void func_0044ea90(void *msg, s32 id);
 extern void func_00452080(s32 handle);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, s32 (*init)(u8 *),
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, s32 (*init)(u8 *),
                         void (*close)(u8 *), void *buf);
-extern s32 func_00451fc0(s32 arg0, void *data, s32 a, s32 b, s32 c,
+extern s32 func_00451fc0(s32 arg0, const void *data, s32 a, s32 b, s32 c,
                          s32 (*init)(u8 *), void (*close)(u8 *), u8 *buf);
 extern s32 func_002e23b0(u8 *arg0);
 extern s32 func_002e2410(u8 *arg0);

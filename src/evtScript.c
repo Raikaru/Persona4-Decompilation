@@ -19,7 +19,7 @@ extern u8 D_0063CFA0[];
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 extern u16 D_008C024E[];
 extern u8 D_00795E60[];
-extern s32 func_00451fc0(s32, u8 *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+extern s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 extern void *func_00460990(void);
 extern void func_00460ac0(void *param, void *work);
 extern s32 func_00452080(void *task);

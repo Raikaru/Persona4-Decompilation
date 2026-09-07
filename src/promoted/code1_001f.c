@@ -111,7 +111,7 @@ extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 extern s32 func_00452380(void *arg0);
-extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
+extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
 extern s32 func_001fbb50(u8 *arg0);
 

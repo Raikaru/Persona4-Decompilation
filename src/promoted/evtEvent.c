@@ -18,7 +18,7 @@ extern u8 D_0063C2C8[];
 extern u8 D_00748340[];
 extern u8 *(*D_008873F4[])(s32, s32, s32);
 extern void func_0044ea90(const void *file, s32 line);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 extern void func_0043f9c8(void *dest, s32 value, s32 size);
 extern s32 func_002862a0(s32, s32);
 extern void func_002863e0(u32, s32, s32, s32);

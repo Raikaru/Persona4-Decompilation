@@ -51,9 +51,9 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Window callbacks (defined below in this file / in this TU). */
-s32 func_00451fc0(s32 arg0, u8 *name, s32 prio, s32 a3, s32 a4,
+s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
                   void (*init)(u8 *), void (*close)(u8 *), u8 *work);
-s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 
 // FUN_0038EE40
 void func_0038ee40(void) {

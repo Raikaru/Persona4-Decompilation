@@ -11,7 +11,9 @@
  * stores in `func_00451de0` (asm/nonmatchings/sdkTask/func_00451de0.s) gives
  * the offsets below directly:
  *
- *     sw  $2,  0x18($21)    a heap copy of the name string
+ *     sb  $3,  0($2)       name bytes stored inline from offset 0
+ *     sw  $2,  0x18($21)   signed-byte name accumulator, not a pointer
+ *     sb  $0,  0x17($21)   final inline name byte forced to NUL
  *     sw  $19, 0x20($21)
  *     sh  $18, 0x2C($21)
  *     sh  $17, 0x2E($21)
@@ -30,8 +32,8 @@
  * real name has actual evidence behind it.
  */
 typedef struct SdkTask {
-    /* 0x00 */ u8 reserved_00[0x18];
-    /* 0x18 */ char *name;
+    /* 0x00 */ char name[0x18];
+    /* 0x18 */ s32 nameSum;
     /* 0x1C */ u8 reserved_1c[0x14];
     /* 0x30 */ void *slot30;
     /* 0x34 */ void *slot34;

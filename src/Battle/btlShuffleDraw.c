@@ -57,7 +57,7 @@ extern void func_0043f9c8(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_0045af60(s32 a0, s32 a1, s32 a2, s32 a3);
 extern void func_0036dc60(u8 *unit, f32 *src, f32 *dst, f32 scale);
 extern void func_00373750(s32 arg0, s32 arg1, void *arg2);
-extern s32 func_00451fc0(u8 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
+extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
 extern void func_003781d0(u8 *arg0, s32 arg1);
 extern void func_00378260(u8 *arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4);
 extern char D_0064EA60[];

@@ -12,7 +12,7 @@ extern u8 *func_00452380(void *path);
 extern void func_0044ea90(const void *msg, s32 id);
 extern void func_0046d730(const char *file, s32 line);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 extern void func_004b2a00(u8 *arg0);
 extern s32 func_004b2780(u8 *arg0);
 extern void func_004b2e00(u8 *arg0);

@@ -34,7 +34,7 @@ void func_00332bb0(u8 *arg0);
 extern void func_00332a80(void);
 extern s32 func_0033cc40();
 void func_0044ea90(const void *, u32);
-u8 *func_00451fc0(void *, u8 *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+u8 *func_00451fc0(void *, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 void func_002e29a0(void);
 void func_00454bd0(void *);
 void func_0046b0d0(void *);

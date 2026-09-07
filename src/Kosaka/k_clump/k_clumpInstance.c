@@ -53,7 +53,7 @@ extern u8 *func_00454a60(void *arg0, s32 arg1);
 extern void func_00456150(void *arg0);
 extern void func_00454bd0(void *arg0);
 extern void func_003c0700(void *arg0);
-extern s32 func_00451fc0(s32 arg0, const char *arg1, s32 arg2, s32 arg3,
+extern s32 func_00451fc0(s32 arg0, const void *arg1, s32 arg2, s32 arg3,
                          s32 arg4, s32 (*arg5)(u8 *), void (*arg6)(u8 *),
                          void *arg7);
 extern s32 func_00428618(s32 arg0);

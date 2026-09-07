@@ -31,7 +31,7 @@ extern void func_00278170(s32, s32);
 extern void func_002778c0(s32, s32, s32);
 extern void func_002818a0(s32, s32);
 extern u8 *func_002e1db0(s32, s32, s32, s32);
-extern s32 func_00451de0(void *, s32, s32, s32, void *, void *, void *);
+extern s32 func_00451de0(const void *, s32, s32, s32, void *, void *, void *);
 extern u8 D_0063F398[];
 extern u8 D_00882F30[];
 extern s32 func_002bce00(void);

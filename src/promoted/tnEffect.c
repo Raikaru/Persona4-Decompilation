@@ -55,7 +55,7 @@ void func_004bd130(s32 arg0, s32 arg1);
 void func_004abb60(void);
 void func_004a77b0(void);
 void func_004b3180(void *arg0);
-s32 func_00451de0(void *arg0, void *arg1, s32 arg2, s32 arg3,
+s32 func_00451de0(const void *arg0, void *arg1, s32 arg2, s32 arg3,
                   void *arg4, void *arg5, void *arg6);
 
 extern char D_00713270[];

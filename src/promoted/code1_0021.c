@@ -42,7 +42,7 @@ extern u8 D_006290C0[];
 extern u8 D_006290D0[];
 extern void func_0044ea90(const void *arg0, s32 arg1);
 extern void func_0043f810(void *dst, void *src, u32 size);
-extern s32 func_00451fc0(s32 arg0, void *data, s32 priority, s32 arg3,
+extern s32 func_00451fc0(s32 arg0, const void *data, s32 priority, s32 arg3,
                          s32 arg4, void *init, void *close, void *work);
 extern s32 func_0036e690(s32 arg0, void *arg1);
 extern s32 func_002215c0(s32 arg0);
@@ -71,7 +71,7 @@ extern s32 func_00221940(s32 arg0);
 extern void func_0036e870(s32 arg0);
 extern void func_00221770(s32 arg0);
 extern u8 D_006290E0[];
-extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
+extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
 extern void func_0021dc50(s32 arg0, s32 *arg1);
 extern void func_0021dd60(void);

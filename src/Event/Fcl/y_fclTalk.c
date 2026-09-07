@@ -9,7 +9,7 @@ extern char D_0064A018[];
 extern char D_0064A030[];
 extern char D_0064A050[];
 extern void func_0044ea90(const void *file, s32 line);
-extern s32 func_00451fc0(u8 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4,
+extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4,
                          void *arg5, void *arg6, u8 *arg7);
 extern s8 func_002bab80(void *);
 extern void func_002badc0(s8, s32);

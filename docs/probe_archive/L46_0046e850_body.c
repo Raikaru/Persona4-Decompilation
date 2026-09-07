@@ -1,12 +1,12 @@
-/* IDA-backed floor: 444B / 448B, 4 differing words (3 argument-setup
- * instructions plus one zero-tail word). Production remains ASM.
+/* MATCH: 444 executable bytes / 448-byte retail window; four zero-tail bytes.
+ * All fifteen relocations and 58 neighboring bodies/relocation records match.
  * IDA: docs/ida_headstart/src/promoted/code1_0046.c:2147-2212.
+ * The three argument-setup differences were an integer-typed task-name
+ * boundary: func_00451fc0 now accepts const void * for its name argument.
  * Signed integer rectangle and byte-color aggregates; size uses x/y,
- * not width/height. Native 32-bit consumer smoke: 2704 cases.
- * Types stay local so archive replay retains the target marker.
- * Residual 0x7C-0x84: global name address before parent argument move.
- * Named task kind/flags/parameter, with or without ordered parent/name
- * preparation, regress to seven words; the parent move still sinks.
+ * not width/height. Actual-source native32 lifecycle smoke: 8192 cases,
+ * including allocation/registration failures, callback mutation, size reload,
+ * signed division, shared buffer/cursor ownership, and ordered destruction.
  */
 #pragma push
 #pragma opt_propagation off
@@ -40,7 +40,7 @@ typedef struct WindowWork {
     allocator = D_008873F4;
     work = (WindowWork *)allocator[0](1, 0x560, 0x40000);
     if (work == NULL) return NULL;
-    result = func_00451fc0((s32)parent, (s32)D_00713108, 0x101, 0, 0,
+    result = func_00451fc0((s32)parent, D_00713108, 0x101, 0, 0,
         (void (*)(u8 *))func_0046d750, func_0046e7f0, (u8 *)work);
     work->enabled = 1;
     work->rect = *rect;

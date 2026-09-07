@@ -28,7 +28,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 extern void func_0043f9c8(void *dst, s32 value, s32 size);
 
-extern s32 func_00451fc0(u8 *arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
+extern s32 func_00451fc0(u8 *arg0, const void *arg1, s32 arg2, s32 arg3, s32 arg4, void *arg5, void *arg6, u8 *arg7);
 
 extern void func_0036d860(u8 *arg0, s32 arg1);
 

@@ -69,7 +69,7 @@ extern s32 iGpffffb43c;
 extern u8 D_005F65D0[];
 extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c,
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c,
                          void (*init)(void), void (*close)(void), void *buf);
 extern void func_0043f810(void *dst, void *src, s32 size);
 extern s32 func_002011c0(s32 arg0);
@@ -137,7 +137,7 @@ extern void func_001b60a0(void);
 extern void func_001f6100(void);
 extern s32 func_002774d0(u8 *arg0);
 extern s32 func_001939e0(void);
-extern s32 func_00451fc0(u8 *a, void *b, s32 c, s32 d, s32 e,
+extern s32 func_00451fc0(u8 *a, const void *b, s32 c, s32 d, s32 e,
                          void (*f)(u8 *), void (*g)(u8 *), void *h);
 extern s32 func_00193840(u8 *arg0, s32 arg1);
 extern void func_0010d480(void);

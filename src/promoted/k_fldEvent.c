@@ -17,7 +17,7 @@ typedef struct { f32 x, y, z; } FldEventVec3;
 extern FldEventVec3 D_005F1838;
 
 void func_0044ea90(const void *, u32);
-s32 func_00451fc0(s32, char *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
+s32 func_00451fc0(s32, const void *, s32, s32, s32, void (*)(u8 *), void (*)(u8 *), u8 *);
 void func_00182390(void);
 u8 *func_00145270(s32 arg0);
 void func_00174be0(s32, s32);

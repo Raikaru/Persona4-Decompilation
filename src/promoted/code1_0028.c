@@ -50,7 +50,7 @@ extern void func_0028b160(s32 *arg0, s32 arg1);
 extern u8 *func_0028afe0(void);
 extern void func_0028bfb0(u8 *arg0, s32 arg1, u8 **arg2, u8 **arg3);
 extern s32 func_00285dd0(s32 arg0);
-extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
+extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
 extern void func_0028ad90(u8 *arg0, s32 arg1);
 extern void func_002865e0(UnkStruct_002865E0 *arg0);

@@ -50,7 +50,7 @@ typedef struct RmdFadeWork
 extern void func_0044ea90(const void* file, u32 line);
 extern u8 *(*D_008873F4[])(s32, s32, s32);  /* RwCalloc slot */
 extern void (*jtbl_008873EC[])(void*);      /* RwFree slot */
-extern s32 func_00451fc0(s32 arg0, char* arg1, s32 arg2, s32 arg3, s32 arg4,
+extern s32 func_00451fc0(s32 arg0, const void* arg1, s32 arg2, s32 arg3, s32 arg4,
                          s32 (*init)(void*), void (*destroy)(void*), u8* work);
 extern u8 func_00452080(void* task);        /* kwlnTaskDestroyWithHierarchy */
 extern u8* func_0047a250(void* mdl);        /* mdlGetColor */

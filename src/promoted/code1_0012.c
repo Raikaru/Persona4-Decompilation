@@ -46,7 +46,7 @@ extern s32 iGpffffb1e8;
 extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
 extern void func_00103a60(void);
-extern void func_00451de0(void *list, s32 count, s32 a, s32 b,
+extern void func_00451de0(const void *list, s32 count, s32 a, s32 b,
                            void *init, void *close, void *buf);
 extern s32 func_00121af0(void);
 extern u8 *func_00460990(void);

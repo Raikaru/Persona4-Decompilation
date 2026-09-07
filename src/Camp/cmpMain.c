@@ -14,9 +14,9 @@ void func_00453670(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 s32 func_00453960(void *arg0);
 void func_0043f9c8(void *dst, s32 value, u32 size);
-s32 func_00451fc0(s32 arg0, u8 *name, s32 prio, s32 a3, s32 a4,
+s32 func_00451fc0(s32 arg0, const void *name, s32 prio, s32 a3, s32 a4,
                   void (*init)(u8 *), void (*close)(u8 *), u8 *work);
-s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 void func_00440b68();
 void func_0012d140(void);
 u8 *func_00454a60(u8 *param, s32 mode);

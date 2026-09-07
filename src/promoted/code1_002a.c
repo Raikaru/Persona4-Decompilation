@@ -14,14 +14,14 @@ extern s32 D_00763918;
 extern s32 D_00764634;
 extern u8 D_0063EE40[];
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern s32 func_00451fc0(void *a, void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
+extern s32 func_00451fc0(void *a, const void *b, s32 c, s32 d, s32 e, void *f, void *g, void *h);
 extern s32 func_002aa890(u8 *arg0);
 extern void func_002aa450(void);
 extern void func_0044ea90(void *arg0, s32 arg1);
 extern u8 D_0063EEC0[];
 extern u8 D_0063EED0[];
 extern u8 *(*D_008873F4[])(s32 arg0, s32 arg1, s32 arg2);
-extern s32 func_00451de0(void *data, s32 arg1, s32 arg2, s32 arg3,
+extern s32 func_00451de0(const void *data, s32 arg1, s32 arg2, s32 arg3,
                          void *init, void *close, void *buf);
 extern s32 func_002abf70(u8 *arg0);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);

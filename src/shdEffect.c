@@ -32,7 +32,7 @@ typedef struct ShdFarg
 } ShdFarg;
 
 extern void func_0044ea90(void *msg, s32 id);
-extern s32 func_00451fc0(s32 window, u8 *data, s32 a, s32 b, s32 c,
+extern s32 func_00451fc0(s32 window, const void *data, s32 a, s32 b, s32 c,
                          void *init, void *close, void *buf);
 extern s32 func_004ab420(s32 a, void *b);
 extern void *func_00452560(void);

@@ -18,6 +18,10 @@
  * Further bounded probes: a private inline alpha complement and grouping
  * cached G/B values in a pair both retain seven words with the original
  * assignment order, or 15 with alpha assigned after G/B. Neither is retained.
+ * Typed Color/f32 table replay likewise retains seven words and all 46
+ * neighbors. Its 43008-case native consumer passes Clang ASan/UBSan.
+ * Eventual promotion must migrate func_00112300's packed-s64 declaration
+ * and union actual argument to the existing Vec2f-by-value contract.
  */
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {

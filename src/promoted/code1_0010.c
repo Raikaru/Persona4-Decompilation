@@ -52,7 +52,7 @@ extern s32 func_002a2710(void);
 extern void func_002a2740(void);
 extern void func_00460a50(s32 arg0);
 extern void func_0044ea90(void *arg0, s32 arg1);
-extern s32 func_00451de0(void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
+extern s32 func_00451de0(const void *data, s32 a, s32 b, s32 c, void *init, void *close, void *buf);
 extern s32 iGpffff85b8;
 extern s32 iGpffffb194;
 extern s32 iGpffffb1a0;
