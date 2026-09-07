@@ -1781,13 +1781,13 @@ s32 func_0021de60(void)
 {
     return func_00452380(&D_006290E0) == 0;
 }
-/* measured: plain-C reconstruction reaches object size 440B against the
-   448B retail window at normalized_diff 16. The complete control flow,
-   conversion/clamp logic, and GP table accesses match; residuals are the
-   table-float load versus integer-to-float conversion scheduling (retail
-   loads the table value first) plus the eight-byte retail tail pad. Parked
-   because nd <= 25. Committed at nd 16. */
-/* measured: artifact replay produced object_size 456B against the 448B retail window, normalized_diff 303, and 108 differing words (reloc-masked). */
+/* measured: docs/probe_archive/EoDwrap_0021de90_body.c emits 440B/448B.
+   All five relocations resolve; three executable words differ because the
+   upper-bound compare uses v1 instead of retail's at. The remaining eight
+   bytes are zero alignment. Inline clamp/predicate boundaries tie this floor.
+   All 94 existing owner C functions preserve bytes and relocations.
+   Valid tables, nonzero divisor and representable intermediate conversions
+   remain source preconditions. No instruction match or promotion claimed. */
 // FUN_0021DE90 NONMATCHING
 INCLUDE_ASM("asm/nonmatchings/code1_0021", func_0021de90);
 // FUN_0021E050

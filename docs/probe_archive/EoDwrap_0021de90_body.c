@@ -1,8 +1,11 @@
 /*
  * func_0021de90 attempted-not-closed.
  * Best measured candidate: lane EoD33, object 440B / 448B window,
- * residual 5 words (retail uses $at for the upper-bound compare;
- * candidate uses $v1). Retail live-across-call saved registers: $s2, $s1, $s0;
+ * residual three executable words plus eight omitted zero-tail bytes:
+ * retail uses $at for the upper-bound compare; candidate uses $v1.
+ * All five relocations resolve; all 94 existing owner C functions retain
+ * bytes and relocations. Inline clamp/predicate boundaries tie this floor.
+ * Retail live-across-call saved registers: $s2, $s1, $s0;
  * $ra is saved in the standard frame. Retail upper-bound tail:
  *   lui $at,1; slt $at,$v0,$at; bnez $at,loc_21E020;
  *   nop; li $v0,0xFFFF; b loc_21E02C; nop;
@@ -13,6 +16,11 @@
  * layout. Other probes tried ternary/nested ternary, named limit/boolean
  * locals, equivalent bounds, loop layout, and permitted optimization pragmas;
  * none closed the final register difference without disturbing the match.
+ * Defined input domain requires valid table storage, nonzero divisor,
+ * safe signed arithmetic and finite, representable pre-clamp conversions.
+ * Discovered consumers mask levels to bytes but do not enforce all those
+ * conditions for arbitrary states. The final clamp cannot repair an earlier
+ * invalid float-to-int conversion.
  */
 #pragma push
 #pragma opt_propagation off

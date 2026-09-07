@@ -1,6 +1,9 @@
-/* Measured floor: 544B/window 544B, 17 differing words.
- * Retains the retail algorithm; not a matching implementation.
- * See IDA_battle_recovery.json for replay and residuals.
+/* Measured: 544B/window 544B, 10 fully relocated executable differing words.
+ * Promoted u16 command values and short-circuit continuation remove the
+ * previous 17-word floor's register/mask residuals. Block ordering remains.
+ * All 257 owner C functions preserve bytes/relocations. The actual bitmap
+ * provider and this predicate pass 15,360 ASan/UBSan consumer cases.
+ * KEEP_ASM; see docs/matching.md for current evidence.
  */
 #pragma push
 #pragma opt_common_subs off
@@ -22,7 +25,7 @@ s32 func_001db360(u8 *formation, s32 index, s32 enabled)
     u16 *commands;
     u16 i;
     s32 limit;
-    u16 command;
+    s32 command;
     s32 key1;
     s32 key2;
     s32 key3;
@@ -60,9 +63,11 @@ s32 func_001db360(u8 *formation, s32 index, s32 enabled)
             key3 = 0x1F6;
             while (i < limit) {
                 command = commands[i];
-                if (command == key1 || command == key2 || command == key3)
-                    return 0;
-                ++i;
+                if (command != key1 && command != key2 && command != key3) {
+                    ++i;
+                    continue;
+                }
+                return 0;
             }
         }
     }
