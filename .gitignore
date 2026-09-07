@@ -35,9 +35,11 @@ build/
 /assets/
 /asm/*.s
 /asm/*.o
-# Retail disassembly stays tracked until clean-checkout regeneration is proven.
-# Hand-maintained exceptions remain tracked separately from generated outputs.
-!/asm/nonmatchings/
+# Reproducible retail fallbacks: generated from config/generated_asm.json.
+# The two hand-maintained exceptions and assembler support stay tracked.
+/asm/nonmatchings/**/*.s
+!/asm/nonmatchings/btlVoiceCreatePacket.s
+!/asm/nonmatchings/cldDayChange/func_00266050.s
 /asm/data/
 /asm/chunks/
 /include/macro.inc
