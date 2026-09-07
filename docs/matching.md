@@ -5010,3 +5010,75 @@ snapshots validate and all 333 first-party files remain lint-clean.
 Source-linked totals remain **172 objects / 1,562 functions**. The loadable
 SHA1 is `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1
 is `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+Commit `b26c588c` also passed
+[CI 34079993775](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34079993775).
+The proprietary job regenerated 11,152 exact fallbacks, preserved both
+hand-maintained files, and reproduced both retail hashes above.
+
+## Filtered record selection and rotated quad drawing
+
+`func_00247900` in `src/cmmMisc.c` matches **796 executable bytes / 800B
+retail window**, including all twenty resolved relocations. The remaining
+word is unreachable alignment padding. Ordinary `s32` target and threshold
+lifetimes reproduce the two compiler-generated `sq/lq` spills; no artificial
+wide locals or stack padding are needed. The existing linker binds the
+static GP pointer to the runtime table slot at `0x007644C4`.
+
+Count mode (`index == -1`) scans IDs 1..255 without allocation. Eligibility
+compares a signed-byte target with an unsigned-byte category, excludes
+flags 8/16, and requires unsigned-halfword rank 10 for flag 64. The result
+includes all eligible records at or below the byte threshold plus the first
+ID at the nearest higher level. Indexed mode recursively counts, allocates,
+rescans, exchange-sorts by unsigned level, returns one ID, and frees the
+temporary list. Equal-level order is not stable. Allocation failure returns
+the count; indexes below -1 remain unchecked. Capacity diagnostics retain
+the retail unconditional write afterward rather than inventing a guard.
+
+The integrated source passes **29 real-i386 calls / 47,947 assertions at
+each of -O0 and -O2**. Twenty-six distinct scenarios cover filtering,
+threshold/rank narrowing, tie ordering, all fixture indexes, allocation
+failure and zero-size allocation, callback-visible table replacement and
+mutations, both capacity diagnostics, selected-ID loading before free, and
+table/surplus canaries. Surplus storage makes diagnostic continuation safe
+in the fixture; this is not proof of safe retail heap overflow. Negative
+indexes below -1, high-half addresses and exhaustive 255-record occupancy
+are not exercised. Owner: **56 MATCH / 1 ASM**.
+
+`func_00364c90` in `src/shdMisc.c` also matches **796 executable bytes /
+800B window**, with all twenty-one relocations resolved and one alignment
+word. Its position is a two-float value in `a0`; depth, width, height and
+angle use `f12`..`f15`, while color and mode use `a1`/`a2`. Real geometry
+snapshots `[-0.5,-0.5,+0.5,+0.5]`, scoped loop-invariant optimization and
+disabled propagation recover the load/store schedule and FP lifetimes.
+The existing four-by-sixteen-float vertex convention is reused.
+
+`include/shd_misc_internal.h` now supplies the shared `Vec2f` and drawing
+signature. Both promoted C callers pass that value directly rather than
+type-punning it through `s64`; their depth/color argument order is migrated.
+The unused legacy declaration in `btlPanelCursor.c` uses the same interface.
+All five affected owners verify together: **270 MATCH / 55 ASM**, with no
+caller regression. The drawing owner itself is **5 MATCH / 5 ASM**.
+
+The integrated drawing body passes **67 native x86-64 cases / 3,230
+assertions at each of -O0 and -O2**, with trapping undefined-behavior checks.
+Consumer callbacks inspect only initialized vertex fields and check full
+dimensions, vertex order, rotations, runtime depth/reciprocal snapshots,
+unsigned color channels, callback replacement and 64-bit state mutations.
+The mode/alpha gate clears bit `0x80` afterward, even if initially set; it
+does not restore the entry state. High bits and unrelated callback changes
+survive. The host fixture uses a float tolerance for XY and does not claim
+PS2 accumulator/libm equivalence or graphical acceptance. Its libc-based
+i386 build was unavailable because 32-bit headers were missing.
+
+Both bodies passed independent source/retail review. Durable C is retained
+in `RecordSelection_00247900_body.c` and `QuadDraw_00364c90_body.c`; these
+native consumers do not claim full-game or MIPS execution.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,743 MATCH overall; 6,113 first-party MATCH / 747 ASM**. All 334
+first-party files are lint-clean and progress snapshots validate.
+Source-linked totals increase to **172 objects / 1,564 functions**.
+Both retail identities remain exact: loadable SHA1
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`, complete ELF SHA1
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
