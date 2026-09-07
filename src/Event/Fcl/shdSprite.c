@@ -28,9 +28,9 @@ f32 func_0046d5f0(void *ptr, s32 index);
 void func_0046d730(const void *file, s32 line);
 
 void func_0025ea20(s32, s32, s32, void *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
-void func_0025ecd0(s32, s32, s32, void *, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 s32 func_0025f430(s32, s32, s32, s32, u8 *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
-s32 func_0025f540(s32, s32, s32, s32, u8 *, s32, s32, s32, s64, f32, f32, f32, f32, f32, f32);
+s32 func_0025f540(s32, u8, s32, s32, u8 *, s32, s16, s16, void *, f32, f32, f32, f32, f32, f32);
 u32 func_0025f6b0(f32, f32, f32, s32, u8, s32, s32, s16 *, shd_cb, s32);
 
 /* Allocator slot at 0x008873F4 (absolute, outside gp window). */
@@ -228,14 +228,14 @@ s32 func_0025f430(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7
 }
 
 // FUN_0025F500
-s32 func_0025f500(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s64 a6, f32 f0, f32 f1, f32 f2)
+s32 func_0025f500(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2)
 {
     func_0025f540(a0, a1, a2, a3, a4, a5, 0, 0, a6, f0, f1, f2, 0.0f, 1.0f, 1.0f);
     return 0;
 }
 
 // FUN_0025F540
-s32 func_0025f540(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7, s64 a8, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5)
+s32 func_0025f540(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, void *a8, f32 f0, f32 f1, f32 f2, f32 f3, f32 f4, f32 f5)
 {
     s32 temp_3;
     u8 *temp_6;
@@ -245,10 +245,10 @@ s32 func_0025f540(s32 a0, s32 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s32 a6, s32 a7
     if (temp_3 != 0) {
         temp_6 = (u8 *)(temp_3 + ((a2 & 0xFFFF) * 8));
         elem = *(u8 **)(*(u32 *)(a4 + 8) + (*(s8 *)temp_6 * 4));
-        func_0025ecd0(a0, a1, *(s16 *)(temp_6 + 2) + a3, elem, a5, a6, a7, *(s32 *)&a8, f0 + (f32)*(s16 *)(temp_6 + 4), f1 + (f32)*(s16 *)(temp_6 + 6), f2, f3, f4, f5);
+        func_0025ecd0(f0 + (f32)*(s16 *)(temp_6 + 4), f1 + (f32)*(s16 *)(temp_6 + 6), f2, a0, a1, *(s16 *)(temp_6 + 2) + a3, elem, a5, a6, a7, f3, f4, f5, a8);
     } else {
         elem = *(u8 **)(*(u32 *)(a4 + 8) + (((a2 >> 16) & 0xFFFF) * 4));
-        func_0025ecd0(a0, a1, (a2 & 0xFFFF) + a3, elem, a5, a6, a7, *(s32 *)&a8, f0, f1, f2, f3, f4, f5);
+        func_0025ecd0(f0, f1, f2, a0, a1, (a2 & 0xFFFF) + a3, elem, a5, a6, a7, f3, f4, f5, a8);
     }
     return 0;
 }

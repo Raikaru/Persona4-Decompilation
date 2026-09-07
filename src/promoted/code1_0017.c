@@ -81,10 +81,7 @@ void func_0017d240(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
 extern s32 func_0017cd60(u8 *arg0);
 extern void func_0044ea90(const void *msg, s32 id);
 extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c, void (*init)(u8 *), void (*close)(u8 *), u8 *buf);
-extern s32 func_0025ecd0(f32 farg0, f32 farg1, f32 farg2,
-                         s32 arg0, s32 arg1, s32 arg2, void *arg3,
-                         s32 arg4, s16 arg5, s16 arg6,
-                         f32 farg3, f32 farg4, f32 farg5, u8 *arg7);
+extern s32 func_0025ecd0(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern f32 func_0044b7b0(f32 arg0);
 extern f32 func_0044b610(f32 arg0);
 extern f32 iGpffff8304;

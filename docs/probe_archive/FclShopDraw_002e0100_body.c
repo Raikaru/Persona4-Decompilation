@@ -1,33 +1,24 @@
-/* Shop drawing candidate; production remains ASM.
- * MWCCPS2 b210 owner profile: 452B / 464B, 37 differing masked words
- * (34 emitted differences plus three omitted zero-tail words).
- * The old declaration-order candidate replays at 45 words. Using the actual
- * func_0025ecd0 definition fixes the float/short/pointer contract:
- *   s32 func_0025ecd0(f32,f32,f32,s32,s32,s32,void*,s32,s16,s16,
+/* Installed exact: MWCCPS2 b210 owner profile, 452B/464B, zero differing
+ * emitted words and three omitted zero-tail words.
+ * Canonical contracts:
+ *   s32 func_002b2a30(u8,u8,u8,u8);
+ *   s32 func_0025ecd0(f32,f32,f32,s32,u8,s32,void*,s32,s16,s16,
  *                     f32,f32,f32,void*);
- * The measured owner also declares func_002b2a30 as s32(s32,s32,s32,s32),
- * matching its definition. These declarations must replace the owning
- * declarations coherently; do not hide them with incompatible local ones.
- * A callee's separate EE integer/FP register files do not establish the
- * lexical order of the original C parameters.
+ * Byte channels remove the false argument-order floor. The draw callee's
+ * byte opacity inversion must be 255 - opacity, without the redundant mask.
+ * Its 588B/592B body remains exact, as do the migrated wrappers and callers.
+ * Keep the distinct &work->field_4 and byte-pointer spellings for the two
+ * retail p+4 calculations.
  *
- * Remaining differences: byte color arguments load before the constant
- * a0=255, and the byte opacity-to-word conversion loads a1 before the signed
- * frame/table/initial-float argument sequence. Both branches share this
- * residual. Eight-bit packed color/opacity field spellings also tie at 37
- * words and are not retained; the existing ShopWork layout is unchanged.
- * Preserve the distinct &work->field_4 and byte-pointer spellings to avoid
- * sharing the two retail p+4 address calculations. No production body or
- * declaration is changed by this archive update.
- *
- * Further contract experiment: narrowing all four func_002b2a30 parameters
- * and func_0025ecd0's opacity parameter to u8 produces 452B/464B with zero
- * emitted differences here (three zero-tail words only). The packer remains
- * exact under its narrow signature. The coherently redeclared draw callee
- * initially has three emitted differences at offsets 168/172/176: allocation
- * and evaluation order of 255 - (opacity & 255). Removing that redundant
- * byte mask closes the callee too (588B/592B, only one zero-tail word).
- * All declarations and callers still require migration before installation.
+ * Native32 actual-source cohort under undefined/function sanitizers:
+ * 66,161 packing cases; 39,424 drawing pipeline cases (including 16,384 shop
+ * cases); 16,384 digit drawing cases. Checks include visibility equality,
+ * overlay order, freshly prepared positions, every opacity byte, signed
+ * frame/origin boundaries, queue identity, packet contents, callback mode,
+ * cleanup on zero dimensions, decimal grouping and full unsigned values.
+ * Scratch compilation preserved all 516 existing MATCH bodies in 15 owners
+ * before production integration. No incompatible local prototypes remain
+ * in the active migrated callers.
  */
 
 s32 func_002e0100(void *arg0) {
