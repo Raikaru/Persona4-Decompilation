@@ -1087,12 +1087,13 @@ void func_001bac20(u16 *param_1, f32 *param_2, f32 *param_3, u16 param_4)
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001baff0);
 // FUN_001BB3D0
 INCLUDE_ASM("asm/nonmatchings/btlMain", func_001bb3d0);
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+/* Retained typed curve floor: 296B/304B, 21 emitted differing words,
+   six relocations resolved and eight zero-tail bytes. All 22 owner C
+   matches remain intact. Native UB-trap smoke: 15,360 ring/overlap cases.
+   See docs/probe_archive/JnB_001bb790_body.c; production remains ASM. */
 // FUN_001BB790 NONMATCHING
 #ifdef NON_MATCHING
-extern f32 D_00881430;
-extern f32 D_00881434;
-extern f32 D_00881438;
+extern RwV3d D_00881430;
 void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
 {
     f32 weights[4];
@@ -1100,9 +1101,10 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
     f32 f1;
     f32 f2;
     f32 f3;
+    f32 f4;
     f32 temp_f5;
-    u16 index;
-    s32 i;
+    u16 i;
+    s32 index;
     u8 *p;
 
     f3 = 1.0f - fparg0;
@@ -1116,21 +1118,21 @@ void func_001bb790(u8 *arg0, f32 *arg1, f32 fparg0)
     weights[2] = f2 * f0;
     weights[3] = fparg0 * f1;
     index = *(u16 *)(arg0 + 0x74);
-    arg1[0] = D_00881430;
-    arg1[1] = D_00881434;
-    arg1[2] = D_00881438;
+    *(RwV3d *)arg1 = D_00881430;
     i = 0;
-    while ((i & 0xFFFF) < 4) {
-        temp_f5 = weights[i & 0xFFFF];
-        p = (u8 *)((index & 0xFFFF) * 0x1C) + (u32)arg0;
-        arg1[0] += *(f32 *)(p + 4) * temp_f5;
-        arg1[1] += *(f32 *)(p + 8) * temp_f5;
-        arg1[2] += *(f32 *)(p + 0xC) * temp_f5;
-        index = (u16)((index + 1) & 0xFFFF);
-        if ((s32)index >= 4) {
+    while (i < 4) {
+        temp_f5 = weights[i];
+        p = arg0 + (u16)index * 0x1C;
+        f4 = *(f32 *)(p + 8) * temp_f5;
+        f3 = *(f32 *)(p + 0xC) * temp_f5;
+        arg1[0] = (arg1[0] + 0.0f) + *(f32 *)(p + 4) * temp_f5;
+        arg1[1] += f4;
+        arg1[2] += f3;
+        index = (u16)(index + 1);
+        if (index >= 4) {
             index = 0;
         }
-        i = (i + 1) & 0xFFFF;
+        i++;
     }
 }
 #else

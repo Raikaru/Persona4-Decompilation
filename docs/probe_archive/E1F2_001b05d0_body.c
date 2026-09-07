@@ -1,14 +1,22 @@
-/* func_001b05d0 best nonmatching probe: object 492B, retail window 496B, 37 differing words (relocation masked). */
-/* Retail saved registers: $s1=arg0, $s0=p=*(arg0+0x30). */
-/* Retail caller-saved loop registers: found=$v1, base=$v0, i=$a3; first-loop index=$a0, scaled offset=$a2, entry=$a0; second-loop entry=$a2. */
-/* Tried: direct C reconstruction; narrow/s32/u16 counter forms; split and compact scaled offsets; pointer and integer found/base; declaration permutations; while/goto loops; nested versus flat conditions; global/base cache forms; opt_propagation and opt_common_subs pragma scopes; comma and integer offset-first reload expressions. Best retained opt_common_subs off, cached base, s32 found/i/offset, and u16 conversions. */
-/* IDA: docs/ida_headstart/src/promoted/code1_001b.c:59-121 confirms the
- * two narrow counters and first-table/fallback-table selection. Its direct
- * if/else reconstruction scores 99 words, or 97 with common subexpressions
- * off. The old archive omitted that setting and replayed at 89 words;
- * the explicit scope below restores the measured 37-word floor.
- * The TU's existing offset helper also gives 37 words; an isolated private
- * inline context getter gives 96 words (496B/496B). Neither is retained.
+/* Current action transition floor: 492B/496B, 42 differing bytes in 36
+ * emitted words; nine relocations resolved and four zero-tail bytes.
+ * The former 37-word fndiff score included that tail, not another instruction.
+ * Natural u16 induction and pointer identity retain the same instruction floor.
+ * Retail scan allocation: found=v1, base=v0, i=a3; first scaled offset=a2,
+ * first entry=a0, second entry=a2. Production remains ASM.
+ * IDA: docs/ida_headstart/src/promoted/code1_001b.c:59-121.
+ * Uses the owner's existing unsigned offset-first helper and declarations.
+ * All 104 existing owner C matches and relocation lists remain intact.
+ *
+ * Native32 UB-trap smoke: 16,896 deferral, genus, table-precedence, pointer
+ * reload and final-flag cases. Real bad-status/death/final-flag operations
+ * run behind trace hooks; reset, camera and destruction are instrumented.
+ * No resource-destruction or callback-table ABI claim.
+ * 0xFFF7FFFF clears other bad-status bits, retaining death bit 0x80000.
+ *
+ * Before promotion, reconcile pre-existing owner/provider declarations:
+ * 002326f0 is u32(int,u32), not void(s32,s32); 002428f0 returns u32, not s32.
+ * Canonical-return probes retain this floor. No private prototype workaround.
  */
 
 #pragma push
@@ -18,8 +26,8 @@ void func_001b05d0(u8 *arg0)
     u8 *p;
     u8 *temp;
     u8 *base;
-    s32 found;
-    s32 i;
+    u8 *found;
+    u16 i;
     s32 offset;
     u8 status;
 
@@ -32,36 +40,36 @@ void func_001b05d0(u8 *arg0)
         switch (status) {
         case 0:
             if (*(u16 *)(arg0 + 0x18) & 0x20) {
-                found = 0;
+                found = NULL;
                 i = 0;
-                base = D_0076449C;
-                while ((u16)i < 4U) {
-                    offset = (u16)i * 4;
+                base = (u8 *)iGpffffb3ac;
+                while (i < 4U) {
+                    offset = i * 4;
                     temp = *(u8 **)(base + offset + 0xC74);
                     if (temp != NULL) {
-                        if (*(s32 *)(temp + 4) ==
-                            *(s32 *)(p + 0xA64)) {
-                            found = *(s32 *)(offset + (s32)base + 0xC74);
+                        if (*(DatUnit **)(temp + 4) ==
+                            *(DatUnit **)(p + 0xA64)) {
+                            found = *(u8 **)(func_001bf3a0_add(offset, base) + 0xC74);
                             break;
                         }
                     }
-                    i = (u16)(i + 1);
+                    i++;
                 }
-                if (found == 0) {
+                if (found == NULL) {
                     i = 0;
-                    while ((u16)i < 3U) {
-                        offset = (u16)i * 8;
+                    while (i < 3U) {
+                        offset = i * 8;
                         temp = *(u8 **)(base + offset + 0xC94);
                         if (temp != NULL &&
-                            *(s32 *)(temp + 4) == *(s32 *)(p + 0xA64)) {
-                            found = (s32)temp;
+                            *(DatUnit **)(temp + 4) == *(DatUnit **)(p + 0xA64)) {
+                            found = temp;
                             break;
                         }
-                        i = (u16)(i + 1);
+                        i++;
                     }
                 }
-                if (found != 0) {
-                    *(u16 *)((u8 *)found + 0xA) &= 0xFFFE;
+                if (found != NULL) {
+                    *(u16 *)(found + 0xA) &= 0xFFFE;
                 }
                 func_002326f0(*(s32 *)(p + 0xA64), 0xFFF7FFFF);
                 func_002339d0(*(s32 *)(p + 0xA64));
@@ -69,7 +77,7 @@ void func_001b05d0(u8 *arg0)
             break;
         case 1:
             if (func_002428f0(*(s32 *)(p + 0xA64), 0) != 0) {
-                func_002318c0(*(DatUnitEc **)(D_0076449C + 0xC68),
+                func_002318c0(*(DatUnitEc **)((u8 *)iGpffffb3ac + 0xC68),
                               *(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64));
             }
             break;
