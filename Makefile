@@ -2,7 +2,7 @@ PYTHON ?= python
 SPLAT_CONFIG := config/slus21782.yaml
 OBJDIFF_CLI ?= objdiff-cli
 
-.PHONY: all setup split reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects objdiff-report progress recovery progress-validate m2c-setup m2c clean distclean
+.PHONY: all setup split regenerate-asm reconcile m2c-bulk m2c-promote shared-p3 build verify check test lint lint-errors lint-full ctx objdiff objdiff-objects objdiff-report progress recovery progress-validate m2c-setup m2c clean distclean
 
 all: build verify
 
@@ -12,6 +12,11 @@ setup:
 
 split:
 	$(PYTHON) -m splat split $(SPLAT_CONFIG)
+
+# Fresh scratch split; refuses edited fallbacks and checks every manifest hash.
+# Only manifest-generated outputs are removed; retained manual ASM stays in place.
+regenerate-asm:
+	$(PYTHON) tools/regenerate_asm.py --fresh
 
 m2c-setup:
 	$(PYTHON) tools/setup_m2c.py
