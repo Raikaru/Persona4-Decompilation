@@ -335,6 +335,10 @@ void func_001b0590(u8 *arg0)
         }
     }
 }
+/* Retained action transition: 492B/496B, 36 emitted differing words,
+   nine relocations resolved, four zero-tail bytes; native32 16,896 cases.
+   See E1F2_001b05d0_body.c for scan lifetimes, death-bit semantics and
+   pre-existing provider declaration blockers. Keep production ASM. */
 // FUN_001B05D0
 INCLUDE_ASM("asm/nonmatchings/code1_001b", func_001b05d0);
 // FUN_001B07C0

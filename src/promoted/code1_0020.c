@@ -1480,6 +1480,10 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205950);
    floor in docs/probe_archive/UnA205c20v11_00205c20_body.c. */
 // FUN_00205C20
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205c20);
+/* Retained command-label floor: 488B/496B, two immediate-load opcode
+   differences, seven relocations resolved and eight zero-tail bytes.
+   W38c20_00205e00_body.c defines index wrapping and passes 115,200 native
+   packet/font/message-state cases. Keep ASM; this ties the prior floor. */
 // FUN_00205E00
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205e00);
 // FUN_00205FF0

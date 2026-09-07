@@ -1,53 +1,43 @@
-/* lane W38c20 func_00205e00 archive.
- * Replayed: object 488B/window 496B, fndiff 4 words: two emitted differences
- * at 0x58/0x64 (addiu vs daddiu 0x1B/0xFF) plus two absent zero-tail words.
- * Levers tried: s32/s8/u8/u16/u64 var_16; (u8) casts; (s64) casts; 0x1BLL/0xFFLL;
- *   block-scope extern func_00201650 with u8 arg5-7/s32 arg8; changing func_00201650
- *   parameter types.  Residual: compiler insists on addiu for s32 destination while
- *   retail uses daddiu, likely a source type fact not yet identified.
- * Main follow-up (11 compiles): u8/u16 var_16 gives addiu v0 + andi s0,v0,0xff at the join
- *   (nd 92) regardless of a block-scope u8-parameter prototype for func_00201650; u64 gives
- *   addiu + dsll32; init-then-if changes the frame (0x80 vs 0x70). The daddiu-into-s0-with-no-mask
- *   shape is not reached by any narrow-unsigned local spelling tried.
- * Signed-width follow-up: s16 gives 496B/496B, nd92; s64 with ordinary
- * or LL constants gives 500B/496B, nd85. A two-state shade enum keeps
- * 488B but gives nd20: it still emits addiu and swaps shade/work registers.
- * Public and helper signatures were retained; no improvement.
+/* Current command-label floor: 488B/496B, two differing bytes/words at
+ * +0x58/+0x64: addiu versus retail daddiu for 27/255. Seven relocations
+ * fully resolved; eight zero-tail bytes. This ties the prior instruction
+ * floor; it is not a new MATCH. All 115 owner C matches remain intact.
+ * Signed/narrow/wide colors, enum/reuse and statement-lifetime variants
+ * do not close the residual. No private callee declaration workaround.
+ *
+ * The index addition now wraps in the unsigned domain. The old body traps
+ * at INT_MAX+63 under UBSan; this body passes 115,200 native32 UB-trap cases
+ * with actual sprite, font-flag and message-submission providers. Packet
+ * emission, message allocation/setters and queue backends are instrumented.
+ * Covers coordinate rounding, low opacity bytes, nonzero predicates, packet
+ * reset state, late handle reload and clearing (not restoring) font bit 0x40.
+ * Enabled messages use valid fixture handles/indices. Boundary sprite IDs
+ * prove producer arithmetic, not valid texture-bank indexing or raster output.
+ * Production remains ASM.
  */
+extern s32 func_002791f0(f32 x, f32 y, f32 scale, s32 color, s32 mode,
+                           s32 style, s32 flags, s32 handle, s32 index);
 // FUN_00205E00 candidate
-void func_00205e00(u8 *arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                   s32 arg2, s32 arg3, s32 arg4)
+void func_00205e00(u8 *arg0, s32 index, f32 x, f32 y,
+                   s32 opacity, s32 selected, s32 draw_text)
 {
-    extern s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2,
-                              s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                              s32 arg4, s32 arg5);
-    f32 temp_f21;
-    s32 var_16;
-    u8 *temp_17;
+    u8 *work;
+    s32 color;
+    f32 line_y;
 
-    temp_17 = (u8 *)func_00452560(*(s32 *)(arg0 + 0x5B0));
-    if (arg3 != 0) {
-        var_16 = 0x1B;
-    } else {
-        var_16 = 0xFF;
-    }
-    temp_f21 = 8.0f + fparg1;
-    func_00201650(temp_17, 9, 0x3C,
-                  48.0f + fparg0, temp_f21,
-                  var_16, var_16, var_16, arg2);
-    func_00201650(temp_17, 9, 0x3C,
-                  270.0f + fparg0, temp_f21,
-                  var_16, var_16, var_16, arg2);
-    func_00201650(temp_17, 9, arg1 + 0x3F,
-                  71.0f + fparg0, fparg1,
-                  var_16, var_16, var_16, arg2);
-    if (arg4 != 0) {
+    work = func_00452560(*(s32 *)(arg0 + 0x5B0));
+    if (selected != 0) color = 0x1B;
+    else color = 0xFF;
+    line_y = 8.0f + y;
+    func_00201650(work, 9, 0x3C, 48.0f + x, line_y, color, color, color, opacity);
+    func_00201650(work, 9, 0x3C, 270.0f + x, line_y, color, color, color, opacity);
+    func_00201650(work, 9, (s32)((u32)index + 0x3FU), 71.0f + x, y,
+                  color, color, color, opacity);
+    if (draw_text != 0) {
         func_00272c60(0x40);
-        func_002791f0(
-            10.0f + ((2.0f + (42.0f + fparg0)) - 1.0f),
-            36.0f + fparg1, 0.0f,
-            (arg2 & 0xFF) | ~0xFF, 1, 0, 0,
-            *(s32 *)(temp_17 + 0x98), arg1);
+        func_002791f0(10.0f + (2.0f + (42.0f + x) - 1.0f), 36.0f + y, 0.0f,
+                      (s32)(0xFFFFFF00U | (u8)opacity), 1, 0, 0,
+                      *(s32 *)(work + 0x98), index);
         func_00272c80(0x40);
     }
 }
