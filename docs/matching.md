@@ -6001,3 +6001,65 @@ and **172 C-linked objects / 1,566 functions**. All 335 first-party files
 are lint-clean and progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Defined combination loop and honest residual contracts
+
+`func_0032b770` contained an unused expression that dereferenced `new_var`
+and read `f20`/`f21` before initialization. MWCC discarded its result, so
+the retail instruction match concealed undefined source behavior. Removing
+the expression preserves **all 36 existing MATCH bodies** in
+`y_fclCombineDraw.c`; the loop remains **596B/608B**, with only three
+zero-tail words omitted. Clang's `-Werror=uninitialized` rejects the old
+body at all three reads and accepts the corrected body. An actual-source
+undefined/function-sanitized consumer passes **216 cases / 798,744 rendered
+rows**, checking empty and maximum signed-halfword loop bounds, narrowed
+spacing, signed glyph indices, fresh record reads, coordinates, callback
+order, final positions and unchanged neighboring bytes.
+MemorySanitizer also reports `use-of-uninitialized-value` in the old
+function at runtime; the corrected body passes the same 216-case consumer
+under MemorySanitizer at `-O0`.
+
+`func_0032c480` is **not promoted**. A private typed task-work getter closes
+the final pointer-load scheduling gap: the isolated candidate emits exact
+**472B/480B** code under its signed-halfword list-index declaration, leaving
+two zero-tail words. But applying that declaration to the whole owner
+breaks the existing `0032b770` match: its loop grows to **604B/608B**.
+Keeping the existing word-index call contract instead leaves eight emitted
+differences in `0032c480`, four `move-a0`/`lh-a1` ordering pairs.
+Narrowed loop locals, propagation settings and record/selection helpers
+did not reconcile both functions. A conflicting local prototype is not an
+acceptable promotion. The isolated candidate and integration blocker now
+replace the obsolete archive.
+
+Further integration requires migrating the message queue pointer together
+with its float-preserving `002bc7f0` bridge, the model work-pointer getter,
+and the list getter's byte/halfword pointer consumers without changing
+their offsets. The combination candidate passes **125 native cases** under
+Clang undefined/function sanitizers and GCC undefined-behavior traps.
+Its pure color packer returns `0x000000FF` for `(0,0,0,255)`; the consumer no
+longer relies on a side-effectful color stub or unspecified argument order.
+Native pointer layouts are host-adapted; MWCC establishes retail offsets.
+
+`func_0010c750` also remains ASM: **556B/560B**, **20 differing emitted
+words** plus one zero-tail word, normalized diff 32. Its archive now uses
+the correct coefficient symbols, **`fGpffff8208` at `0x007612F8`** and
+**`fGpffff820c` at `0x007612FC`**, rather than the unrelated `8218/821c`
+data hidden by the old relocation-masked score. Typed element indexing
+retains the same residual without integer-address casts.
+
+The curve candidate passes **93,673 native consumer cases** under
+undefined/function sanitizers: low-halfword early returns before pointer
+access, level clamps, every growth byte and persona ID, scenario records,
+diagnostic continuation and unsigned result wrapping. Diagnostic cases
+use valid fixture backing rows. High-bit polynomial levels use zero
+coefficients to keep float-to-integer conversion in range; malformed
+levels under ordinary coefficients are not claimed safe. This is C
+behavior evidence, not an EE COP1 rounding or fused-operation emulator.
+
+The full `make build-progress progress lint-errors` gate passes with
+unchanged **7,758 overall MATCH / 4,962 ASM**, **6,128 first-party MATCH /
+732 ASM**, and **172 C-linked objects / 1,566 functions**. Progress
+snapshots validate; all 335 first-party files are lint-clean. Loadable SHA1
+remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1
+remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. Native smoke
+scaffolding is removed after the evidence is archived.
