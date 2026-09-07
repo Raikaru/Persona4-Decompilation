@@ -126,7 +126,7 @@ void func_00278b80(u8 *arg0);
 s32 func_00278da0(u8 *arg0);
 u8 *func_002776a0(u8 *arg0);
 extern u8 DAT_008817E0_abs[];
-void func_00271b70(s32 arg0);
+s32 func_00271b70(s32 arg0);
 void func_0027a630(void *arg0, s32 arg1);
 void func_0027a650(void *arg0, s32 arg1);
 void func_0027baa0(s32 arg0);
@@ -1844,13 +1844,64 @@ u8 *func_0027a010(u32 *arg0, s32 arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s
     return result;
 }
 
-/* Measured candidate: docs/probe_archive/SITF_0027a150_body.c, 332B/336B,
-   normalized_diff 34 bytes; fndiff 32 words includes one zero-tail word.
-   Separate successor locals remove the fifth saved register, and a structured
-   scan fixes the backward equality branch. Frame/control flow now agree;
-   saved-register coloring remains. Retain ASM, not an impossibility claim. */
+/* Detach one node before the release helper can consume its linked chain.
+   Keep the successor locally: release may retain the node while glyphs fade. */
+static inline void releaseMessageListNode(u8 **link)
+{
+    u8 *node = *link;
+    u8 *next = *(u8 **)(node + 0x24);
+
+    *(u8 **)(node + 0x24) = NULL;
+    *(u8 **)(node + 0x28) = NULL;
+    *(u8 **)(node + 0x2C) = node;
+    func_00271b70((s32)node);
+    *link = next;
+}
+
+/* measured: b210 -O2, 332 executable bytes / 336B window, all five
+   relocations exact. Local traversal ownership and head-before-tail
+   declarations close the saved-register floor; the final word is alignment. */
 // FUN_0027A150
-INCLUDE_ASM("asm/nonmatchings/itfMesManager", func_0027a150);
+u8 *func_0027a150(u8 *arg0, s32 arg1, s32 arg2)
+{
+    s32 remaining;
+    s32 tag;
+    u8 *head;
+    u8 *tail;
+    u8 *cursor;
+    s32 value;
+    u8 *current;
+
+    current = arg0;
+    if (current == NULL)
+        func_0046d730(D_0063BE10, 0xE3E);
+    remaining = arg2 - arg1 - 1;
+    tag = *(s32 *)(current + 8);
+    while (remaining > 0) {
+        while (tag == *(s32 *)(current + 8)) {
+            releaseMessageListNode(&current);
+            if (current == NULL)
+                return NULL;
+        }
+        value = *(s32 *)(current + 8);
+        remaining--;
+        tag = value;
+    }
+    head = current;
+    do {
+        tail = current;
+        current = *(u8 **)(current + 0x24);
+    } while (current != NULL && tag == *(s32 *)(current + 8));
+    while (current != NULL) {
+        releaseMessageListNode(&current);
+    }
+    *(s32 *)(head + 0x28) = 0;
+    *(s32 *)(tail + 0x24) = 0;
+    for (cursor = head; cursor != NULL; cursor = *(u8 **)(cursor + 0x24)) {
+        *(u8 **)(cursor + 0x2C) = tail;
+    }
+    return head;
+}
 // FUN_0027A2A0
 void func_0027a2a0(int param_1, int param_2)
 {
