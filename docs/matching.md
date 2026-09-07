@@ -6063,3 +6063,44 @@ snapshots validate; all 335 first-party files are lint-clean. Loadable SHA1
 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1
 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. Native smoke
 scaffolding is removed after the evidence is archived.
+
+## Tile opacity floor and calendar fallback boundaries
+
+The current-contract `00204b80` archive improves from eight differing
+emitted words to **one**, at **460B/464B**: entry `andi` versus retail's
+raw argument copy. An ordinary `s32 alpha = opacity` local replaces the
+older inline frame-update helper and extra common-subexpression pragma.
+Recompiling the installed archive preserves **all 115 existing MATCH
+bodies** in `code1_0020.c`.
+
+The inferred word-opacity API makes every target instruction exact, and
+the actual draw callee already owns low-byte truncation. But migrating
+both definition and live caller still changes three caller instructions:
+the alpha byte load moves before the pointer/FPR moves. Explicit masking,
+casts, locals, parameter order and scoped scheduling/propagation options
+do not reconcile it. No incompatible local prototype is installed; the
+target remains ASM. Promotion also requires registering the real
+`D_00764564` byte, not the misleading `iGpffffb474` battle-pointer alias.
+
+Native32 consumers execute the actual position, depth, color and mode
+helpers under undefined/function sanitizer traps. The byte contract passes
+**524,288 scenarios / 7,864,320 tile emissions**; the word contract passes
+**2,097,152 scenarios / 31,457,280 emissions**. Coverage includes every
+initial frame and opacity byte, positive/negative opacity high bits,
+callback counter mutation and wrap, the 3×5 grid at two scales, callback
+replacement and final resets.
+
+`00110a60` remains **488B/496B**, with eight differing emitted words and
+two zero-tail words. Its current signed getter contracts are already
+correct. Direct typed-record access keeps the same residual count but
+moves the field's `+2` from the load into relocation addends; a separate
+record pointer retains retail addends without improving the register
+floor. The verified fallback byte is **`0x005E3A04 + index * 6`**.
+The retained candidate and actual date/override getter bodies pass
+**2,682,750 native scenarios** under address/undefined/function sanitizers:
+all 365 valid dates, null overrides, signed boundaries, phase selection,
+sentinel fallback and short-circuit precedence. Invalid dates are outside
+this evidence; no guards or behavior are invented.
+
+These are archive/evidence changes only. Production matching and linking
+remain at the preceding verified totals. Native scaffolding is removed.
