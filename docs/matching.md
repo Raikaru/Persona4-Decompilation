@@ -5449,3 +5449,9 @@ progress snapshots validate. **C-linked coverage remains 172 objects /
 1,565 functions**: these two source matches do not increase linked-C coverage.
 Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+The literal-mask change also updates the pinned `tools/verify.py` input
+hash in `config/generated_asm.json`. With the exact regeneration dependency
+versions installed in an isolated environment, `regenerate_asm.py --check`
+reproduces **all 11,152 fallback files** and retains both hand-maintained
+files unchanged. No expected output hash or reconstruction recipe changes.
