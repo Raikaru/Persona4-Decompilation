@@ -1,68 +1,59 @@
-// FUN_00235110 archive (wave Io lane IoD cut off mid-work; body is the live state at cutoff, status MISMATCH-nd240).
-void func_00235110(u8 *arg0)
+/* Installed exact in datCalc.c: b210 owner profile, 524B/528B, zero differing
+ * emitted words; one omitted zero tail word. Shares P4CalcLevel with 00235320.
+ * Native32 actual-source smoke: 1,053,696 cases under undefined/function
+ * sanitizers, all status/level nibbles, both parities, surrounding-byte
+ * preservation, inactive encodings 0/15, and repeated saturation at 15.
+ */
+static inline s8 P4CalcLevel(u8 *unit, u8 index)
 {
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_18;
-    s8 temp_3;
-    s32 temp_3_2;
-    s32 temp_4;
-    s64 temp_18_2;
-    s64 temp_21;
-    s8 var_3;
-    s64 var_3_2;
-    u32 var_19;
-
-    var_19 = 0;
-    goto loop_check;
-loop_body:
-    temp_18 = var_19 & 0xFF;
-    if (temp_18 >= 0x18) {
-        func_0046d730(D_00635938, 0x4C1);
-    }
-    if (temp_18 < 0x10) {
-        temp_3 = func_002332a0(arg0, (u8)var_19);
-    } else {
-        temp_3 = (s8)((*(s32 *)(arg0 + 0x14) & (1 << temp_18)) != 0);
-    }
-    var_3 = temp_3;
-    if (temp_18 >= 0x18) {
+    u16 offset;
+    s32 level;
+    if ((s32)index >= 24)
         func_0046d730(D_00635938, 0x42A);
-    }
-    temp_4 = (u8)var_19;
-    temp_17 = temp_4 >> 1;
-    temp_3 = temp_17 & 0xFFFF;
-    temp_16 = temp_4 & 1;
-    if (temp_16 != 0) {
-        var_3_2 = (s64)((s64)((s32)*(u8 *)(arg0 + (temp_3 & 0xFFFF) + 0x24) >> 4) << 0x38) >> 0x38;
+    offset = index >> 1;
+    if (index & 1)
+        level = (s8)(*(u8 *)(unit + offset + 0x24) >> 4);
+    else
+        level = (s8)(*(u8 *)(unit + offset + 0x24) & 15);
+    return (s8)level;
+}
+
+static inline void P4CalcSetLevel(u8 *unit, u8 index, s8 level)
+{
+    u16 offset;
+    u8 *ptr;
+    if ((s32)index >= 24)
+        func_0046d730(D_00635938, 0x45E);
+    if (level < 0)
+        func_0046d730(D_00635938, 0x45F);
+    offset = index >> 1;
+    if (index & 1) {
+        ptr = unit + offset;
+        ptr[0x24] = (ptr[0x24] & 15) | ((level & 15) << 4);
     } else {
-        var_3_2 = (s64)((*(u8 *)(arg0 + (temp_3 & 0xFFFF) + 0x24) & 0xF) << 0x38) >> 0x38;
+        ptr = unit + offset;
+        ptr[0x24] = (ptr[0x24] & 240) | (level & 15);
     }
-    if (var_3 != 0) {
-        temp_21 = (s64)((s64)(var_3_2 << 0x38) >> 0x38);
-        if (temp_21 < 0xF) {
-            if (temp_18 >= 0x18) {
-                func_0046d730(D_00635938, 0x45E);
-            }
-            temp_18_2 = (s64)((temp_21 + 1) << 0x38) >> 0x38;
-            if (temp_18_2 < 0) {
-                func_0046d730(D_00635938, 0x45F);
-            }
-            temp_3_2 = temp_17 & 0xFFFF;
-            if (temp_16 != 0) {
-                *(u8 *)(arg0 + (temp_3_2 & 0xFFFF) + 0x24) =
-                    (*(u8 *)(arg0 + (temp_3_2 & 0xFFFF) + 0x24) & 0xF) |
-                    ((temp_18_2 & 0xF) * 0x10);
-            } else {
-                *(u8 *)(arg0 + (temp_3_2 & 0xFFFF) + 0x24) =
-                    (*(u8 *)(arg0 + (temp_3_2 & 0xFFFF) + 0x24) & 0xF0) |
-                    (temp_18_2 & 0xF);
-            }
+}
+
+void func_00235110(u8 *unit)
+{
+    s32 checked;
+    u32 index;
+    s8 active;
+    s8 level;
+    for (index = 0; index < 16; index++) {
+        checked = (u8)index;
+        if (checked >= 24)
+            func_0046d730(D_00635938, 0x4C1);
+        if (checked < 16)
+            active = func_002332a0(unit, index % 256U);
+        else {
+            u8 result = (*(u32 *)(unit + 0x14) & (1U << checked)) != 0;
+            active = result;
         }
-    }
-    var_19 += 1;
-loop_check:
-    if (var_19 < 0x10U) {
-        goto loop_body;
+        level = P4CalcLevel(unit, index);
+        if (active != 0 && level < 15)
+            P4CalcSetLevel(unit, index, level + 1);
     }
 }
