@@ -1577,15 +1577,13 @@ selected_record:
     if (selected == NULL) return 0;
     return *(s32 *)(cmmMiscAddOff(column * 16, (s32)selected) + 12);
 }
-/* measured (wave 14 retest — nd 71, no match): draft-based reconstruction
-   (u32 arg0 seed, s32 arg1; func_001104d0(arg0,&sp5C,&sp58) with the
-   leftover-$4 seed; A61!=0 && var_18 = temp_17+func_001064f0(0x6D)*0x24 &&
-   !(arg0 < func_00110600(...)) else NULL; arg1 0/1 assert; two u16-flag
-   blocks: func_00106600((s16)field4)&0xFF + field6 capped at 0x63 then
-   func_00106620(*(s16*)field4, v&0xFF), same for field8/fieldA) — the
-   shared-NULL + booleanization layout (xori vs bnez, branch targets shift)
-   and saved-reg merge (temp_17+var_18 into one reg) dominate; note's
-   earlier nd 94-95 with a different spelling. Out-of-line-if floor family. */
+/* measured: CommonRecordFinal_002494c0_body.c emits 432 executable bytes
+   versus retail 428 plus four alignment bytes. All 16 relocations resolve;
+   one extra daddu a0,s0,zero at +0x2C shifts the remainder (96 positional
+   executable differences, 86 masked words). Removing it only for analysis
+   leaves exact bytes. Shared-NULL flow and scoped CSE close the old floor,
+   but both tested inline optimization boundaries fail to remove this copy.
+   Retain ASM; the date/column ABI and callback-visible field reloads stand. */
 // FUN_002494C0
 INCLUDE_ASM("asm/nonmatchings/cmmMisc", func_002494c0);
 /* measured: nd 4 (obj 252B vs window 256B, so THREE real words) from 14.

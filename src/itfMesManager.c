@@ -1,6 +1,7 @@
 /* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 
 s32 func_0029d030(void);
 s32 func_0029cc00(s32 index);
@@ -1450,7 +1451,7 @@ s32 func_002791f0(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, s32 arg1, s32 ar
 
 // FUN_00279300
 void func_00279300(u8 *arg0, s32 arg1) {
-    func_00273170(arg1, 1, 0);
+    func_00273170((void *)arg1, 1, 0);
     func_00271b70(arg1);
 }
 

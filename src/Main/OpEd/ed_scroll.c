@@ -1,6 +1,7 @@
 /* Source unit: src/Main/OpEd/ed_scroll_0038e6d0.c */
 #include "type.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 
 extern void func_00271b70(u32 resource);
 
@@ -8,7 +9,6 @@ extern void func_00272950(u32 resource, s32 x, s32 y);
 extern void func_00274a20(u32 resource, f32 angle);
 
 extern void func_00272ba0(u32 resource, u32 color);
-extern void func_00273170(u32 resource, s32 visible, s32 flags);
 
 extern void func_0046d730(const char *file, s32 line);
 extern char D_0064F220[];
@@ -265,7 +265,7 @@ void func_0038e4b0(void)
             for (j = 0; j < (s32)record[0x21]; j++) {
                 u32 *handlePtr = (u32 *)((u8 *)record + j * 8 + 8);
                 func_00272ba0(*(u32 *)((u8 *)record + j * 8 + 8), packed);
-                func_00273170(*handlePtr, 1, 0);
+                func_00273170((void *)*handlePtr, 1, 0);
             }
         }
     }

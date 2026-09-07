@@ -2,6 +2,7 @@
 /* Original translation unit cmmRankUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 extern u8 *func_00460990();
 extern void func_00251d80();
 extern u8 D_007963D0[];
@@ -228,7 +229,6 @@ extern u8 *func_002736d0(u8 **arg0, s32 arg1);
 extern s32 func_002738d0(u8 *arg0);
 extern void func_00272a10(u8 *arg0, f32 fparg0, f32 fparg1);
 extern void func_00272ba0(u8 *arg0, s32 arg1);
-extern void func_00273170(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00271b70(u8 *arg0);
 extern u8 *func_001452b0(s32 arg0);
 extern s32 func_00268cb0(u8 *arg0);

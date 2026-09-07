@@ -5082,3 +5082,88 @@ Source-linked totals increase to **172 objects / 1,564 functions**.
 Both retail identities remain exact: loadable SHA1
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`, complete ELF SHA1
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+Commit `405c7eb5` passed
+[CI 34081495169](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34081495169).
+Its proprietary job regenerated all 11,152 exact fallbacks, retained the
+two hand-maintained files, and reproduced both retail identities.
+
+## Font pool allocation and render traversal
+
+`func_00270fb0` matches **860 executable bytes / 864B retail window**, with
+all **62 relocations** resolved and one unreachable alignment word.
+The existing `GslListNode` moves unchanged from function scope to file
+scope: six 32-bit data fields, previous pointer at `0x18`, next at `0x1C`,
+size `0x20`. It is not a `FrFontNode` or `FrFontGlyph`. Signed global
+accesses, disabled propagation and enabled loop invariants recover the
+bare-LUI schedule without caching mutable global values.
+
+The routine preserves signed width-times-height division toward zero,
+forward-then-reverse circular linking, fixed-point rectangles and optional
+per-entry auxiliary slices. A nonzero head and flag reject reinitialization;
+otherwise old allocations are not freed first. Auxiliary failure continues
+with zero entry pointers. Auxiliary size zero leaves the auxiliary global
+stale. Primary failure and the unsigned zero-count linking bound remain
+unsafe; no protective fallback or invented cleanup is added.
+
+The integrated source passes **19 safe native-i386 scenarios at each of
+-O0 and -O2**, plus two isolated hazard processes per optimization.
+The latter observe native SIGSEGV for primary-null allocation and zero
+count, not a claimed PS2 fault address or behavior. Across **42 executions**,
+the consumer checks 104 circular-node visits, 103,360 complete-buffer bytes,
+rectangle/auxiliary layout, guarded second calls, callback/global snapshots
+and mutation-visible count/head/allocator-slot loads. Wrapped-address cleanup,
+signed overflow, negative counts and negative auxiliary sizes are not
+certified by this fixture.
+
+`func_00273170` matches **824 executable bytes / 832B window**, with all
+**11 relocations** resolved and two alignment words. A normal `s32` spacing
+snapshot retains the signed-byte load across callbacks. Reversing the
+five long-lived local declarations closes the saved-register mirrors;
+staged raster inputs under disabled propagation close argument scheduling.
+The unsigned alpha comparison and unsigned fixed-point shift preserve the
+retail operations. Raster evidence identifies byte `0x14` as a palette
+index and bytes `0x18`/`0x19` as width/height.
+
+State setup precedes even the null-root return. Root `+0x2C` and node/glyph
+`+0x28` links are distinct from the existing node's `next` at `+0x24`.
+The callback table address is retained, but its function slot reloads on
+each call. Raster arguments see update-helper mutations; alpha reloads
+after drawing. Nonzero alpha advances the wrapping 16-bit counter, while
+alpha below 255 marks the whole traversal incomplete. Terminal-node wait
+codes, input callbacks, signed totals and the late global delay remain intact.
+
+The integrated body and real matched wait helper pass **831 native-i386
+scenarios / 3,156 checks at each of -O0 and -O2**. Coverage includes all
+256 spacing bytes, high-bit mode aliases, negative advance/coordinates,
+counter wrap, callback-swapped links and render slots, 504 wait combinations,
+late totals/delay mutations and valid decoy links at the wrong offsets.
+The raw-layout fixture disables strict aliasing and does not certify
+arbitrary signed arithmetic overflow or PS2 floating-point behavior.
+
+`include/fr_font_internal.h` provides both recovered interfaces. The six
+external render-caller translation units now use the owner's established
+C signature, replacing incompatible/implicit declarations; integer handles
+cross the pointer boundary explicitly. All seven affected owners verify:
+**197 MATCH / 16 ASM**, with the font owner now **56 MATCH / 1 ASM**.
+Independent review accepts the bodies. Exact C is preserved in
+`FontPoolRecovery_00270fb0_body.c` and `FontState_00273170_body.c`.
+These consumer experiments do not claim graphical or MIPS execution.
+
+The last common-record fallback, `func_002494c0`, also improves substantially
+without promotion. `CommonRecordFinal_002494c0_body.c` emits 432 executable
+bytes against retail's 428 plus four alignment bytes. All sixteen
+relocations resolve, but an extra `daddu a0,s0,zero` at `+0x2C` causes
+96 positional executable differences. Removing that instruction only for
+alignment analysis leaves exact bytes; this is not an exact candidate.
+The shared null join, strict cap comparison and disabled CSE close the old
+flow/address issues. A CSE-enabled inline date wrapper still scores
+432B/86 masked words; a CSE-disabled inline update body under an enabled
+outer function gives 416B/56. Both hypotheses are rejected, and ASM remains.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,745 MATCH overall; 6,115 first-party MATCH / 745 ASM**. All 335
+first-party files are lint-clean and progress snapshots validate.
+Source-linked totals remain **172 objects / 1,564 functions**.
+Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
