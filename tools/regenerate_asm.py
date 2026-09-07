@@ -228,7 +228,7 @@ def regenerate(root: Path, manifest: dict, retail_path: Path, *, check: bool, fr
     if fresh:
         for entry in manifest["generated"]:
             checked_path(root, entry["path"]).unlink(missing_ok=True)
-        print(f"Removed {len(manifest['generated'])} classified outputs before fresh generation", flush=True)
+        print(f"Cleared {len(manifest['generated'])} classified output paths before fresh generation", flush=True)
     with tempfile.TemporaryDirectory(prefix="p4-regenerate-asm-") as temporary:
         scratch = Path(temporary)
         (scratch / "config").mkdir()

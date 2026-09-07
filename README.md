@@ -166,14 +166,17 @@ the canonical function map, the extraction tools, and
 `config/generated_asm.json` with expected paths/hashes, recipes, corrections,
 and explicit retained exceptions.
 
-Generated retail disassembly is not hand-maintained assembly or recovered C.
-Assembler support and manifest-retained manual files stay tracked. C recovery
-probes under `docs/probe_archive/` also stay tracked: they preserve human work
-that cannot be recovered by disassembling the ELF. Do not blanket-delete or
-untrack either directory. Generated fallbacks may leave Git only after a clean
-checkout with those outputs absent reproduces every expected byte locally and
-the proprietary CI job builds and verifies the regenerated tree. Until both
-gates pass, keep the baseline fallback files tracked.
+The **11,152 reproducibly generated fallbacks are ignored**, but remain
+necessary locally for `INCLUDE_ASM`. Their untracking followed exact
+clean-checkout reproduction and a successful proprietary CI rebuild.
+Two hand-maintained files stay tracked: `btlVoiceCreatePacket.s` and
+`cldDayChange/func_00266050.s` under `asm/nonmatchings/`. New manual files
+must be explicitly retained in the manifest and Git, not hidden by the
+generated-file ignore rule. Assembler support stays tracked too.
+
+C recovery probes under `docs/probe_archive/` also stay tracked: disassembling
+the ELF cannot recover their hypotheses, measurements or human decisions.
+Do not blanket-delete or untrack either directory.
 
 The proprietary CI job runs setup, `make split`, and `make regenerate-asm`
 before its existing full build and verifier, with no local configuration files.

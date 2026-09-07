@@ -4688,3 +4688,53 @@ files. Both retail hashes remain exact:
 `shdPersona.c` remains outside the source-linked object set: this is an
 instruction-match promotion, not newly C-linked code. The linked totals
 remain **172 source objects / 1,562 C-linked functions**.
+
+## Retail assembly: prove regeneration before untracking
+
+The fallback audit covers all **11,154 tracked files / 62,635,980 bytes**,
+including historical and duplicate copies, not just current `INCLUDE_ASM`
+consumers. Every working file matched its Git blob at the start of the audit.
+An independent path/SHA-256 inventory agrees with every manifest entry.
+
+`tools/regenerate_asm.py` reconstructs **11,152 files** using the pinned
+Python dependencies, validated private retail ELF, fresh scratch split,
+tracked symbols and canonical windows. It does not read existing fallbacks,
+existing bulk splits or ignored local configurations as generator inputs.
+`config/generated_asm.json` retains expected hashes and reconstruction
+recipes rather than another copy of the disassembly.
+
+The recipes are 8,822 direct slices, 2,300 canonically named slices and 30
+retail-word syntheses using the existing extractor. Compact corrections
+preserve eight historical adjacent-nullsub spans, eighteen symbol-spelling
+sets, six glabel spellings and one retail-word repair. Unexplained output
+drift is a failure, not permission to replace the expected hash.
+
+Two hand-maintained files remain tracked and are never regenerated:
+
+- `asm/nonmatchings/btlVoiceCreatePacket.s`: explicit relocations.
+- `asm/nonmatchings/cldDayChange/func_00266050.s`: hand-carried jump table.
+
+Assembler support and C probe archives also remain tracked. Disassembling
+the ELF cannot recover C hypotheses, measurements or human decisions.
+
+A separate clean Git checkout of `f9911051` was stripped of every classified
+generated fallback before execution. It had only the two retained files,
+no private input copy, no previous split and no local build/verify config.
+Supplying only the retail ELF and pinned public Python environment recreated
+all **11,152 generated files**; all **11,154 final path/hash pairs** equalled
+the independent pre-cutover baseline, with no tracked-file drift.
+
+Real CLI refusal scenarios preserved the complete file snapshot when a
+generated file was edited, an unclassified handwritten file was present,
+or a retained manual file was missing. All **523 Python tests** pass.
+The proprietary CI path performs guarded fresh-output regeneration before
+building and verifying; its actual successful run is required before
+removing any generated file from Git.
+
+The pre-cutover proprietary CI run
+[`34070057851`](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34070057851)
+passed on `f9911051` while all fallbacks were still tracked. Its log records
+11,152 exact regenerated files, two retained files, both retail hashes
+unchanged, and **7,735 overall MATCH / 6,105 first-party MATCH / 755 ASM**.
+Only after this result are the manifest-generated paths removed from Git's
+index, with their local files preserved and the two manual exceptions kept.
