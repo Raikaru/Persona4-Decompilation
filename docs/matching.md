@@ -6104,3 +6104,78 @@ this evidence; no guards or behavior are invented.
 
 These are archive/evidence changes only. Production matching and linking
 remain at the preceding verified totals. Native scaffolding is removed.
+
+## Coherent font character contracts and defined text normalization
+
+`func_00105f00` now returns `s16`, matching the existing C consumer and
+the signed-halfword normalization in retail `00205c20`, `00209dc0` and
+`00209fa0`. It still reads signed-byte storage; the provider remains exact
+at **72B/80B**. Combining the old provider with its consumer declaration
+reproduces a C type conflict. The actual repaired provider passes
+**3,072 cases** under address/undefined/function sanitizers, covering every
+stored byte and both special-player and ordinary-table selection.
+
+The font family now shares declarations in `fr_font_internal.h`:
+
+- Creation is `u8 *(u8 *, s32 style, s8 character, s32 spacing, u8 *)`.
+  The inherited `s64` style introduced extensions absent from retail.
+- The draw helper's unused mode and all eight create/draw wrappers use a
+  signed-byte character. Its value reaches glyph byte `+0x14`.
+- `00274ed0` accepts the ninth word already passed by retail callers.
+  This variant ignores it; its result remains a signed word.
+- Live callers use the shared declarations. Obsolete declaration-only
+  entries and conflicting local prototypes are removed; existing word
+  handles and text buffers have explicit pointer conversions.
+
+Narrowing only one wrapper or only the creator is not a valid cutover.
+The coherent creator owner preserves **57/57 MATCH**, and the wrapper owner
+preserves **14/14**, with complete relocation resolution. Eleven creator
+calls explicitly sequence their character load; two dynamic-style calls
+load style first. Style locals are ordinary words rather than inherited
+`s64` temporaries. The remaining external callers retain their original
+instructions with byte character locals and, in `00113800`, a plain-char
+table read that keeps `lb` before the final `f14` move.
+
+`func_00273cc0` also contained an unconditional signed left shift of a
+negative encoded-text byte. Its normalization now shifts through `u64`,
+as the neighboring line processor already does. The old actual processor
+traps on the `0x80` encoded-text boundary under native32 UBSan; the repaired
+processor, actual creator and actual glyph constructor pass **57,344
+cases**, combining all character bytes with printable and multibyte text.
+The creator's separate boundary consumer verifies glyph codes, spacing,
+linked-list storage and append behavior.
+
+The actual `00274ed0` wrapper, draw/layout helper, creator and glyph
+constructor pass **9,216 native32 cases** under undefined-behavior traps.
+Coverage includes all character bytes, word style values with equal low
+bytes, finite positions/scales, horizontal alignment precedence, returned
+widths, packed colors, ignored ninth arguments and release/retain paths.
+This is native state/dispatch evidence, not PS2 raster verification.
+Clang reports the pre-existing `&result != 0` tautological check; no
+diagnostic is disabled. Removing that retail-preserving source shape
+shrinks the provider from 324B to 312B and loses its match.
+
+Two battle callbacks remain ASM:
+
+- `00205c20`: **468B/480B**, **113 masked differing bytes / 47 emitted
+  words**, or 49 words after resolving relocations, plus twelve zero-tail
+  bytes. Defined unsigned packing replaces the old signed high-byte shift.
+  The prior archive remeasures 480B/284 differing bytes under the current
+  owner. The new floor preserves all 115 existing owner MATCH bodies.
+  Its actual glyph-wrapper consumer passes **3,168 native32 cases**,
+  including word-opacity boundaries and observable persona/slot reloads.
+- `00207140`: **476B/480B**, **34 masked emitted word differences**, or
+  36 fully resolved words, plus four zero-tail bytes. Typed four-byte item
+  records tie the raw-address floor. The accepted ID precedes the second
+  quantity query, and only the quantity is stored afterwards, preserving
+  callback mutations to the ID and padding. **384 native cases / 98,304
+  first item queries** cover unsigned skill boundaries, flag rejection,
+  all eight accepted skills, all 256 accepted items and the complete work
+  buffer under address/undefined/function sanitizers.
+
+The integrated cohort passes `make build-progress progress lint-errors`:
+**172 C-linked objects / 1,566 functions**, **6,128 first-party MATCH /
+732 ASM**, validated progress artifacts and zero lint findings. Both retail
+identities remain unchanged: loadable image
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`, executable
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

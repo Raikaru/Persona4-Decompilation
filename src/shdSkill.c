@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "fr_font_internal.h"
 typedef struct {
     f32 x;
     f32 y;
@@ -21,13 +22,12 @@ s64 func_0023d8e0(u32 arg0, u16 arg1);
 extern char D_005E4800[];
 extern char D_005E47F0[];
 void *func_00243840(u16 arg0);
-void func_00275020(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
+
 void func_0046d4c0(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
 extern char D_005E5830[];
 extern char D_005E5850[];
 void func_002bc860(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
 s32 func_0046a770(const char *file);
-void func_00274ed0(s32 arg0, s32 arg1, s32 arg2, void *arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8);
 void func_001138c0(s64 arg0, u8 arg1, s16 *arg2, f32 arg3);
 
 // FUN_001138C0

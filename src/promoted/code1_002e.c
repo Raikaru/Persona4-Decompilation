@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "fr_font_internal.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
 typedef struct {
     f32 x;
@@ -682,7 +683,7 @@ void func_002e7a80(s32 arg0)
         if ((s16)func_002b6970(*(s16 *)(func_002b6150(105) + 0x10), 0) == 1) { \
             func_00275820(*(f32 *)(func_002b6150(105) + 0x38) + 52.0f, 41.0f, 88.0f, \
                           func_002b2a30(0xFF, 0xFF, 0xFF, 0xFF), 0, 1, \
-                          func_0010d6d0(1), 0, 0, D_00794E70, 24); \
+                          (const char *)func_0010d6d0(1), 0, 0, D_00794E70, 24); \
         } \
     } while (0)
 // FUN_002E7AC0
@@ -693,8 +694,7 @@ s32 func_002e7ac0(u8 *arg0)
     s16 func_002b6970(s16 arg0, s16 arg1);
     s32 func_002b2a30(u8, u8, u8, u8);
     u32 func_0010d6d0(s16 arg0);
-    int func_00275820(f32 x, f32 y, f32 scale, int color, int chr, int id,
-                      u32 str, int flags, int unused, void *param, int out);
+    
     void func_00314740(u8 *arg0, s8 arg1);
     void func_002ed430(u8 *arg0);
     void func_002f0f00(u8 *arg0);
