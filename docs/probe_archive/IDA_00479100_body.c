@@ -1,7 +1,9 @@
 /* Rejected follow-through: 1908B / 1920B, 32 relocation-masked differing
- * words. Size cancellation: extra accumulator-zero transfers offset a
- * shared rather than duplicated draw-call branch. Not an instruction
- * match or a semantic runtime acceptance result. */
+ * words. Fresh relocation-aware replay finds 30 executable differences at
+ * 0x48c..0x500 and three missing zero-tail words. Masking hides a jal/lw
+ * mismatch at 0x4f4. Extra accumulator-zero transfers offset a shared
+ * rather than duplicated draw-call branch. Not an instruction match or a
+ * semantic runtime acceptance result. */
 #pragma push
 #pragma opt_common_subs off
 #pragma opt_propagation off

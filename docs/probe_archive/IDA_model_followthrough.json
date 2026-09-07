@@ -1,7 +1,7 @@
 {
   "status": "Rejected compiler floors; none of these bodies is promoted or semantically smoke-tested",
   "compiler_context": "src/Graphics/Model/mdlManager.c, configured MWCCPS2 build 210 flags, tools/probe_variants.py run_fndiff",
-  "score_definition": "Relocation-masked differing words, including missing retail tail words; not a fully relocated acceptance result",
+  "score_definition": "differing_words is relocation-masked and includes missing retail tail words; fresh_relocated_evidence separately classifies resolved executable, padding and overflow differences",
   "candidates": [
     {
       "symbol": "func_00476e90",
@@ -18,6 +18,17 @@
       "followthrough": "An automatic aggregate quantization initializer worsens this floor to 1048B/89 words. The scalar conversion/store order from include/rw/plcore/bacolor.h:112-131 leaves 996B/72 words unchanged. SDK literal normalization with CSE enabled gives 948B/194 words. Reviewer-guided in-place real/tinted storage gives 996B/73 words; declaring material before geometry gives 996B/74 words; combining them gives 996B/75 words. All are rejected. Retail has 972 instruction bytes plus one padding word: the CSE-off candidate adds three accumulator-zero mtc1/nop pairs, while CSE-on wrongly removes six normalization loads. The archived candidate remains unchanged.",
       "later_probes": "Integer-batched quantization gives 980B/67 words but changes store scheduling and remains rejected. Explicit shared zero-plus-bias gives 1020B/79 words, adding arithmetic instead of preserving the compiler's hidden seed. Bottom-up and single-pass inlining, CSE-off lifetime/constant-pullout/scalar-live-range controls, comma-expression quantization, and optional quantizer inlining retain 996B/72 words. Restoring propagation outside the quantizer gives 1044B/114 words. No new runtime acceptance result or source promotion is claimed.",
       "normalization_boundary_probes": "A per-component inline normalization helper with CSE enabled gives 948B/193 words. Giving that helper a CSE-off definition while retaining CSE-on callers produces the same result: inline boundaries do not preserve the eight retail normalization loads. Both are rejected.",
+      "fresh_relocated_evidence": {
+        "body": "QuantSeed_00476e90_body.c",
+        "retail_executable_bytes": 972,
+        "retail_padding_bytes": 4,
+        "fully_relocated_differing_words": 72,
+        "same_offset_executable_differing_words": 66,
+        "different_retail_padding_slot_words": 1,
+        "words_beyond_window": 5,
+        "all_actual_relocations_match_retail_at_same_offsets": true,
+        "evidence": "Current-owner RwRGBA replaces the duplicate private byte-color view without changing 996B/72. All eight normalization loads match; four accumulator-zero seeds remain instead of retail's one. Fresh bounded optimization controls do not preserve all eight loads while reducing those seeds. No production or runtime semantic acceptance."
+      },
       "evidence": "Ordinary unsigned-to-float casts with CSE-off reproduce the retail single-negative-path conversion and per-channel normalization loads. Propagation-off retains the named 255.0f and 0.5f quantization constants. Repeated accumulator-zero materialization and FP/GPR allocation remain different. Quantizer-local CSE-on does not improve this result; the ineffective scope was removed."
     },
     {
@@ -33,6 +44,15 @@
         "Replace only the target ASM marker with the complete candidate, including its balanced CSE-off/propagation-off scope, allocator-backed MdlRenderCommand view and helper declarations.",
         "Keep the corrected two-argument func_00479030 -> func_00478ec0 and func_0047ddd0 -> func_004b5f80 callback contracts."
       ],
+      "fresh_relocated_evidence": {
+        "retail_executable_bytes": 1908,
+        "retail_padding_bytes": 12,
+        "fully_relocated_executable_differing_words": 30,
+        "first_executable_difference": "0x48c",
+        "last_executable_difference": "0x500",
+        "missing_zero_tail_words": 3,
+        "evidence": "Current full-owner replay reproduces 1908B/32 masked words, not the unsupported historical 182-word claim. Every executable offset from 0x48c through 0x500 differs after relocation. Masking hides the candidate jal func_0047d8a0 at 0x4f4 where retail has lw. The duplicated-draw replay remains 1932B/180 masked words. No production or runtime semantic acceptance."
+      },
       "evidence": "Separate queued-command and modulated-alpha lifetimes, retail stack order, immediate draw/clump snapshots and explicit child index/pointer lifetimes reduce the original 1852B/409-word draft to 1908B/32 words. CSE-off preserves all eight inverse-255 loads without volatile. The score includes three missing zero-tail words, but the body is not an instruction match: three extra accumulator-zero mtc1/nop pairs offset 24 bytes saved by sharing the colored/uncolored draw call. Duplicating that branch gives 1932B/180 words with the separate alpha lifetime. Explicit zero-plus-bias adds arithmetic rather than sharing the implicit seed; a four-component quantization loop is also worse. No runtime semantic oracle or promotion is claimed."
     }
   ]
