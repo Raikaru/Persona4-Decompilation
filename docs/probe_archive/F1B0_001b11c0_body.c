@@ -29,6 +29,10 @@
  * scoped count scan, also retain five. The analogous matched lifetime
  * pattern is func_001de370 in src/Battle/btlAICommand.c; it does not close
  * this residual. The void return contract agrees with the retail epilogue.
+ * Fresh bounded replay: parameter-key reuse and reversed filter comparison
+ * retain five words; a reused scan gives eight and a reused index nine.
+ * Postincrement gives 196B/14 words; an inline predicate gives 208B/23.
+ * None improves the retained body or changes production.
  */
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)
