@@ -359,19 +359,14 @@ void func_002caa00(void *arg0, s8 arg1) {
     *(s8 *)(*(u32 *)((u8 *)arg0 + 0x38)) = arg1;
 }
 
-/* measured (this wave): func_002caa10's true signature is 7 args
-   (s64, s32, u32, s64, void*, s32, f32) -- m2c-confirmed, matches its usage;
-   no lever-1 defect. Same digit-draw family as func_002cacd0 (10 saved regs,
-   frame 0xF0, color bytes in $s0/$s1/$s7, func_0025ec90/func_002b2a30 arg
-   shapes). Four variants compiled with the full body (s64 spB0/spC0 slots at
-   16-aligned offsets read via lq/sq, s16 arg3 sign-extension, s8 loop
-   counter) and every instruction family matches retail -- best nd 141. The
-   remaining deltas are stack-slot placement and saved-reg choice only: mwcc
-   b210 assigns stack slots in FIRST-USE order high-to-low (arg0's u64 slot
-   and the 0xDC color/arg1 struct must be ONE 0x20 struct starting at 0xD0,
-   with func_00442830's target at 0xE0 = &st.tail), and the loop counter wants
-   s32 with an (s8) truncation cast. Four-attempt budget exhausted;
-   layout+coloring floor. */
+/* Faithful recovery: docs/probe_archive/ShopDigits_002caa10_body.c.
+   Real caller ABI is (Vec2f, f32, RGBA, u32, s16, void *, s32): packed
+   coordinates/color, unsigned decimal division, and signed16 glyph base.
+   Object 696B/window 704B: 34 executable saved-GPR differences, plus 8B
+   zero tail. The frame and natural SQ/LQ spills match without dummy locals.
+   The GP string is space+NUL; text[16] models real strcpy storage, but its
+   exact original bound remains inferred. Keep ASM until the register
+   allocation residual closes. */
 // FUN_002CAA10
 INCLUDE_ASM("asm/nonmatchings/y_fclShopDraw", func_002caa10);
 
