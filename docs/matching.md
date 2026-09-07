@@ -5787,3 +5787,59 @@ objects / 1,565 functions**. All 335 first-party files are lint-clean and
 progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Signed calendar overrides and the draw ABI boundary
+
+`src/promoted/code1_0011.c` now declares `func_00123ae0` with its actual
+`s8` return and `func_00123b10` / `func_00123b40` with their actual `s16`
+returns, matching the definitions in `code1_0012.c`. The previous `s64`
+declarations conflict when combined with those definitions. Both production
+units still verify at **115 MATCH / fourteen ASM**; their instructions are
+unchanged.
+
+The actual getters and existing `func_00110960` consumer pass **307,200
+freestanding native32 cases** with undefined-behavior/function sanitizers.
+These cover null override state, matching and mismatching days/phases,
+signed halfword endpoints, all signed-byte values, the `-1` fallback sentinel
+and signed fallback results. The old declarations fail the combined
+declaration/definition compilation check; the corrected declarations compile
+and all consumer cases pass.
+
+`Q011_00110a60_body.c` no longer needs block-scope getter declarations.
+Its unpromoted selector remains **488B / 496B window, ten masked differing
+words**. Fresh byte-load helper boundaries and source-shaped return paths
+do not close the fallback-load/return sequence.
+
+`P020_00204b80_body.c` is replaced with a defined byte-contract candidate:
+**460B / 464B window, nine masked differing words**, including one zero-tail
+word. It corrects the old draft's initial depth (`50.0f`, not `72.0f`),
+counter address and negative-byte remainder handling. Real signed-short
+loop variables and an inline counter-update boundary preserve the second
+byte load while allowing CSE to share the white RGB arguments.
+
+Changing the candidate opacity parameter to a word closes all executable
+differences in the callee, but applying the same declaration to live caller
+`func_0020b3a0` reorders three instructions around its opacity load. Source
+staging, inline conversions and scoped caller controls do not close that
+integration boundary. The byte-contract candidate is retained; neither the
+callee nor its matched caller is changed in production.
+
+The recovered byte-contract draw body and actual position/depth/color helpers
+pass **262,144 native32 command-stream cases**: all initial counter and
+opacity bytes, fifteen draws in the 3x5 grid, counter wrap and callback
+mutations, opacity/color updates, state-callback replacement and final reset.
+Drawing and render-state hooks are native boundaries, not GPU or retail MIPS
+execution. The misleading `iGpffffb474` symbol is not reused for the counter:
+its recovered binding is the separate battle pointer at `0x0076449C`, while
+the counter is at `0x00764564`.
+
+Fresh bounded probes retain the existing shuffle-initializer eight-word,
+defined nearest-selection six-word and battle-order five-word residuals.
+No approximate body replaces those assembly fallbacks.
+
+`make build-progress progress lint-errors` passes unchanged at **7,755
+overall MATCH / 4,965 ASM**, **6,125 first-party MATCH / 735 ASM (89.3%)**,
+and **172 C-linked objects / 1,565 functions**. All 335 first-party files
+are lint-clean and progress snapshots validate. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
