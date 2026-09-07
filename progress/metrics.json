@@ -7666,6 +7666,7 @@
       "004562e0",
       "00456370",
       "00456400",
+      "00456530",
       "00456690",
       "004566c0",
       "00456840",
@@ -9337,11 +9338,11 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7752,
+    "count": 7753,
     "duplicate_rows": 0,
     "known_rows": 12720,
-    "matched_body_bytes": 1482556,
-    "percent": 59.167,
+    "matched_body_bytes": 1482904,
+    "percent": 59.174,
     "unique_known_addresses": 12720
   },
   "schema_version": 1,
@@ -9352,8 +9353,8 @@
     "verifier_report": "build/verify_report.json"
   },
   "status_counts": {
-    "ASM": 4968,
-    "MATCH": 7752
+    "ASM": 4967,
+    "MATCH": 7753
   },
   "total": 13102
 }

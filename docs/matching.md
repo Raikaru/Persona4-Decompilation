@@ -5656,3 +5656,44 @@ MATCH / 4,968 ASM**, **6,122 first-party MATCH / 738 ASM (89.2%)**, and
 lint-clean and progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Archive path normalization and defined nearest selection
+
+`func_00456530` now matches in `src/promoted/code1_0045.c`: **348 executable
+bytes / 352-byte retail window**. The raw diff counts only the final zero
+alignment word. Using literal separators with scoped
+`opt_loop_invariants on` and `opt_propagation off` closes the eleven
+remaining loop-register differences. Named path buffers and offsets replace
+the decompiler temporaries; shared helper declarations and the public
+three-argument contract are unchanged. The production unit is **52 MATCH /
+eight ASM**. `D456_00456530_body.c` retains the exact source.
+
+The actual recovered body and existing uppercase-path helper pass **3,082
+freestanding native32 cases with UBSan traps enabled**. Coverage includes
+empty and multiple entries, the exact `singleEntry == 1` stopping rule,
+64-byte payload alignment, case/slash conversion, high-bit path bytes,
+255-character paths, unchanged input storage and payload-pointer ownership.
+Six of those cases exercise additional size bit patterns through
+single-entry registration without dereferencing an oversized payload.
+The initial signed next-offset addition trapped at size `0x7fffffc0`;
+explicit unsigned wrapping removes the undefined overflow without changing
+the retail instructions. Registration is a checked external hook, not
+retail game execution.
+
+`R1EE_001d8cb0_body.c` improves from eighteen to **six relocation-masked
+differing words**, still **312B / 320B window**. The real action UID/unit
+prefix and natural `u16` key induction close all twelve key-loop differences.
+Four first-entry comparison/branch words and two zero-tail words remain.
+The first-entry guard still prevents reading an uninitialized best distance;
+the approximate body is not installed in production.
+
+Fresh virtual-pad pointer-domain probes do not improve its five-word floor.
+Typed curve snapshots and archive workspace variants also regress rather
+than establish matches; no approximate body replaces those fallbacks.
+
+`make build-progress progress lint-errors` passes: **7,753 overall MATCH /
+4,967 ASM**, **6,123 first-party MATCH / 737 ASM (89.3%)**, and **172 C-linked
+objects / 1,565 functions**. All 335 first-party files are lint-clean and
+progress snapshots validate. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
