@@ -78,10 +78,13 @@ When changing a fallback, make the change reproducible through an explicit
 generator recipe/correction, or retain the file as a documented manual exception
 if it cannot be regenerated. Do not merely change an expected hash to bless
 unexplained drift, overwrite someone else's edits, or hide a copy of the
-disassembly corpus in generator inputs. Keep the baseline fallbacks tracked
-until clean-checkout reproduction of every expected path/hash passes locally
-and proprietary CI builds and verifies the regenerated tree. CI performs the
-fresh-output check before compilation; a skipped job does not satisfy that gate.
+disassembly corpus in generator inputs. The audited generated files are now
+ignored; two explicitly retained manual files stay tracked. New manual
+exceptions must be added to both the manifest and Git (including an ignore
+exception where needed). Any further untracking still requires clean-checkout
+reproduction of every expected path/hash locally and a proprietary CI rebuild.
+CI performs fresh-output regeneration before compilation; a skipped job does
+not satisfy that gate.
 
 Hand-maintained assembly, assembler support, and manifest-retained exceptions
 remain tracked. So do C recovery probes in `docs/probe_archive/`: the private
