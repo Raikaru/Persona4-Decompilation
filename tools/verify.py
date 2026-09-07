@@ -38,7 +38,7 @@ R_MIPS_NAMES = {
     11: "R_MIPS_CALL16", 12: "R_MIPS_GPREL32",
 }
 # Relocated fields are linker-owned and therefore not a compiler-match signal.
-RELOC_MASK_SIZE = {2: 4, 4: 4, 5: 2, 6: 2, 7: 2}
+RELOC_MASK_SIZE = {2: 4, 4: 4, 5: 2, 6: 2, 7: 2, 8: 2}
 MARKER_RE = re.compile(r"^\s*//\s*(FUN_([0-9a-fA-F]{8}))", re.MULTILINE)
 NAME_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(")
 INCLUDE_MARKER_RE = re.compile(
