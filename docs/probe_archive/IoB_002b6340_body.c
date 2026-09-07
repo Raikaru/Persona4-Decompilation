@@ -1,3 +1,10 @@
+/* Historical cutoff only: its declarations and draw argument order predate
+ * the canonical byte-color/u8-opacity API. Do not use it as a current recipe.
+ * The exact production implementation is now in src/promoted/y_draw.c:
+ * 536B/544B, 19 fully resolved relocations, eight zero-tail bytes.
+ * The actual callback/color/packet/state pipeline passes 442,370 native32
+ * scenarios under undefined-behavior traps; this is not PS2 raster evidence.
+ */
 // FUN_002B6340 archive (wave Io lane IoB cut off mid-work; body is the live state at cutoff, status MISMATCH-nd132).
 extern f32 fGpffff84f4;
 /* measured: probe target local propagation ordering. */
