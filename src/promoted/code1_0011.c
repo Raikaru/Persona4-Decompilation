@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "fr_font_internal.h"
 extern u8 *func_001094d0(void);
 extern s32 func_00109510(s32 arg0, void *arg1, void *arg2);
 typedef struct {
@@ -52,7 +53,7 @@ extern void func_00452080(void);
 extern s32 func_0010f560(s16 arg0, u16 arg1);
 extern s32 func_0010f600(s16 arg0, u16 arg1);
 extern void *func_00243840(u16 arg0);
-extern void func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, void *arg6, s32 arg7, s32 arg8);
+
 extern void func_0046d3b0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
                           u8 arg2, u8 arg3, f32 z, s32 arg4);
 extern void func_0046d4c0(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
@@ -623,8 +624,7 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
     } xy;
     f32 temp_1;
     s32 temp_2;
-    void func_00275020(f32, f32, f32, s32, s8, s32, u8 *, s32, s32);
-    void func_00274ed0(f32, f32, f32, s32, s8, s32, void *, s32, s32);
+    
     s32 func_00106a90(s16);
     void func_00442088(void *, void *, s32);
     s32 func_0046a770(void *);
@@ -663,7 +663,7 @@ void func_00112300(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2)
             temp19 | ~0xFF,
             *(s8 *)(&iGpffff9bd8 + *(s16 *)(arg2 + 0x16)),
             1,
-            (u8 *)temp_2,
+            (const char *)temp_2,
             0,
             -1);
     }
@@ -958,20 +958,22 @@ void func_00113790(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4)
 }
 /* measured: declaring the f32 parameter immediately after the Vec2f aggregate
    reproduces retail's FP-first prologue save order. Probe object 184B/window
-   192B; the only two fndiff residual words are zero-padding tail bytes. */
+   192B; the only two fndiff residual words are zero-padding tail bytes.
+   The plain-char table read preserves lb before the final f14 move with
+   the shared signed-byte font API; an s8 read swaps those two words. */
 // FUN_00113800
 void func_00113800(Vec2f arg0, f32 arg4, u8 arg1, void *arg2, s32 arg3)
 {
     f32 scale;
     s32 color;
-    s8 index;
+    char index;
     void *temp;
 
     scale = arg4;
 
     temp = func_00243840(*(u16 *)((u8 *)arg2 + 0xA));
     color = -0x100 | (((arg1 & 0xFF) * 0xFF) / 255U);
-    index = *(s8 *)((s32)D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2));
+    index = *(char *)((s32)D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2));
     func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, index, 1, temp, 0, 0);
 }
 // FUN_00115830
@@ -1036,7 +1038,7 @@ void func_0011fdf0(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3)
         temp_2 = arg1 & 0xFF;
         func_00274ed0((f32)(s32)arg0.x, (f32)(s32)arg0.y, arg4,
                       temp_2 | -0x100, 0, 4,
-                      func_0010d620(*(s16 *)arg2), 0, 0);
+                      (const char *)func_0010d620(*(s16 *)arg2), 0, 0);
         return;
     }
     if (p4_0011_signext16(temp_17) == -1) {

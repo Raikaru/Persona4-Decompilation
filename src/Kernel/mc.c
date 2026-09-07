@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit mc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "fr_font_internal.h"
 
 extern u8 *func_00452560(void);
 extern void func_00454bd0(u8 *ptr);
@@ -126,7 +127,7 @@ extern u8 *D_0063EA68;
 extern s32 D_0063EA60[];
 extern void func_00442088(void *, void *, s32, ...);
 extern void func_0025f6b0(f32, f32, f32, s32, u8, void *, s32, void *, void *, s32);
-extern s32 func_00275020(f32, f32, f32, s32, s32, s32, void *, s32, s32);
+
 extern s16 D_0063EB30[];
 extern char iGpffffa824;
 extern void func_002a2e10(void);
@@ -1497,8 +1498,8 @@ void func_002a9100(f32 fparg0, f32 fparg1, f32 fparg2,
         func_00275020(
             5.0f + (temp_f23 + (f32)func_00275020(
                 temp_f23, temp_f24, fparg2, temp_19, 0, 0,
-                temp_17 + 0x1E, 1, -1)),
-            temp_f24, fparg2, temp_19, 0, 0, temp_17 + 0xC, 0, -1);
+                (const char *)(temp_17 + 0x1E), 1, -1)),
+            temp_f24, fparg2, temp_19, 0, 0, (const char *)(temp_17 + 0xC), 0, -1);
     }
     temp_16_2 = arg0 >> 8;
     func_0025f3f0(16.0f + fparg0, 53.0f + fparg1, fparg2,

@@ -58,9 +58,7 @@ extern s32 func_00109390(u8 *arg0);
 extern s32 func_00109220(s32 arg0);
 extern u16 func_00272c60(s16 arg0);
 extern u16 func_00272c80(u16 arg0);
-extern int func_00275020(f32 x, f32 y, f32 scale,
-                         int color, int chr, int id, const char *str,
-                         int flags, int charWidth);
+
 extern u32 func_001d8bc0(void *arg0);
 extern void func_0011b360(s32 arg0);
 extern void func_00201410(u8 *arg0, s32 arg1, s32 arg2, f32 fparg0, f32 fparg1);
@@ -1478,7 +1476,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_002055d0);
 /* measured: candidate object 760B/window 720B, normalized_diff 592; archived as build/E205_05950_archive_source.c. */
 // FUN_00205950
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205950);
-/* measured: candidate object 468B/window 480B, normalized_diff 132; archived as build/E205_05950_archive_source.c. */
+/* measured: 468B/480B, 113 masked differing bytes; defined unsigned-packing
+   floor in docs/probe_archive/UnA205c20v11_00205c20_body.c. */
 // FUN_00205C20
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205c20);
 // FUN_00205E00
@@ -1487,6 +1486,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205e00);
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00205ff0);
 // FUN_00206DD0
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00206dd0);
+/* measured: typed item records tie 476B/480B, 34 masked emitted word
+   differences; see docs/probe_archive/P020_00207140_body.c. */
 // FUN_00207140
 INCLUDE_ASM("asm/nonmatchings/code1_0020", func_00207140);
 // FUN_00207320

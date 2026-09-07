@@ -3,6 +3,7 @@
 #include "type.h"
 #include "sdktask.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 
 typedef struct {
     f32 x;
@@ -27,7 +28,7 @@ void func_00115cb0(Vec2f, f32, s32, s16 *);
 void func_00115e90(Vec2f, s32, s16 *, f32);
 extern char iGpffff9c0c;
 extern char iGpffff9c08;
-void func_00275020(f32, f32, f32, s32, s32, s32, u8 *, s32, s32);
+
 void *func_00109220(u16 arg0);
 void func_00116190(s64, f32, s32, u8 *, s32 *);
 void func_00116610(s64, f32, s32, u8 *, s32 *);
@@ -246,7 +247,7 @@ void func_00115c40(Vec2f arg0, s32 arg1, s16 *arg2, f32 farg3)
 // FUN_00115CB0
 void func_00115cb0(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
 {
-    s32 var_16;
+    s8 var_16;
     s32 temp_2;
     s32 color;
     u8 sp60[0x100];
@@ -264,7 +265,7 @@ void func_00115cb0(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
         func_00442088(&sp60[0], &iGpffff9c08, temp_2);
         break;
     }
-    func_00275020((f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3, color, var_16, 1, &sp60[0], 0, -1);
+    func_00275020((f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3, color, var_16, 1, (const char *)sp60, 0, -1);
 }
 
 
@@ -275,18 +276,18 @@ void func_00115cb0(Vec2f arg0, f32 farg3, s32 arg1, s16 *arg2)
 void *func_00109220(u16 arg0);
 /* measured: func_00115dc0 closes the 208B fp-colour member. Its final
    renderer declaration is interleaved as
-   `func_00274ed0(f32,f32,f32,s32,s32,s32,void*,s32,s32)`, preserving the
+   `func_00274ed0(f32,f32,f32,s32,s8,s32,const char*,s32,s32)`, preserving the
    six GP register assignments while making the f14 move precede them. Keep
    `scale = fparg0` before the colour expression; this source shape matches
    the helper call, mode switch, and final six-GP/three-float setup exactly.
    MATCH, object 208B / window 208B. */
-void func_00274ed0(f32, f32, f32, s32, s32, s32, void *, s32, s32);
+
 
 // FUN_00115DC0
 void func_00115dc0(Vec2f arg0, f32 fparg0, s32 arg1, s16 *arg2)
 {
     s32 color;
-    s32 var_16;
+    s8 var_16;
     s16 mode;
     s32 temp_2;
     f32 scale;
@@ -385,7 +386,7 @@ void func_00116190(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
         func_0046d4c0(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
         x = (f32)(s32)(114.0f + *(f32 *)&arg0);
         y = (f32)(s32)(2.0f + high);
-        func_00274ed0(x, y, fparg0, color | -0x100, 8, 1, func_0010d6d0(*(s16 *)arg2), 8, 0);
+        func_00274ed0(x, y, fparg0, color | -0x100, 8, 1, (const char *)func_0010d6d0(*(s16 *)arg2), 8, 0);
     }
 }
 
@@ -537,7 +538,7 @@ void func_00116610(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2, s32 *arg3)
     func_00117310(sp190, fparg0, *(s32 *)sp19c, *(u32 *)(arg2 + 0x38), id1, 1);
     temp = (s32)func_00109220(*(u16 *)(arg2 + 2));
     func_00442088(&sp90[0], (void *)&iGpffff9c0c, temp);
-    func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, &sp90[0], 0, -1);
+    func_00275020((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, (const char *)sp90, 0, -1);
 }
 
 

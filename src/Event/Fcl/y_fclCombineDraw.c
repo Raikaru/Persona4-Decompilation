@@ -137,7 +137,6 @@ extern s32 iGpffffb598;
 extern s32 iGpffffb440;
 extern u8 D_00796310[];
 extern u8 D_00796370[];
-extern int func_00275820(f32, f32, f32, int, int, int, const char *, int, int, void *, int);
 extern s32 func_00279350(f32, f32, f32, s32, s32, s32, s32, s32, s32, s32);
 extern void func_0034a640(s32, u16, s32);
 extern s32 func_0034a630(u8 *);

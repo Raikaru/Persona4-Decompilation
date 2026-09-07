@@ -10,8 +10,6 @@ extern char D_0063BC78[];
 /* Font lock / busy flag (s16 at gp-0x58E0). */
 extern s16 D_00763810;
 
-extern int func_002724d0(const char *param_1, int param_2, int param_3,
-                         int param_4, int param_5);
 extern void func_00272a10(int param_1, float param_2, float param_3);
 extern void func_00272ba0(u32 resource, u32 color);
 extern u32 func_00272cb0(int param_1);
@@ -56,7 +54,7 @@ void func_00274a20(int font, f32 scale)
 }
 
 // FUN_00274A90
-s32 func_00274a90(int font, f32 x, f32 y, f32 scale, s32 color, s32 mode,
+s32 func_00274a90(int font, f32 x, f32 y, f32 scale, s32 color, s8 mode,
                   s32 style, s32 flags)
 {
     s32 width = 0;
@@ -116,7 +114,7 @@ s32 func_00274a90(int font, f32 x, f32 y, f32 scale, s32 color, s32 mode,
 }
 
 // FUN_00274CD0
-int func_00274cd0(f32 x, f32 y, f32 scale, int color, int chr, int id,
+int func_00274cd0(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int *width_out)
 {
     int font;
@@ -125,7 +123,7 @@ int func_00274cd0(f32 x, f32 y, f32 scale, int color, int chr, int id,
     s32 width;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     width = 0;
     if ((flags & 0xb) != 0) {
@@ -162,15 +160,18 @@ int func_00274cd0(f32 x, f32 y, f32 scale, int color, int chr, int id,
 }
 
 // FUN_00274ED0
-int func_00274ed0(f32 x, f32 y, f32 scale, int color, int chr, int id,
-                  const char *str, int flags)
+int func_00274ed0(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
+                  const char *str, int flags, int arg8)
 {
     int font;
     s32 result;
     s32 tmp;
 
+    /* Retail callers pass this word; this font variant does not use it. */
+    (void)arg8;
+
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     tmp = func_00274a90(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
@@ -184,7 +185,7 @@ int func_00274ed0(f32 x, f32 y, f32 scale, int color, int chr, int id,
 }
 
 // FUN_00275020
-int func_00275020(f32 x, f32 y, f32 scale, int color, int chr, int id,
+int func_00275020(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int charWidth)
 {
     int font;
@@ -192,7 +193,7 @@ int func_00275020(f32 x, f32 y, f32 scale, int color, int chr, int id,
     s32 tmp;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -211,7 +212,7 @@ int func_00275020(f32 x, f32 y, f32 scale, int color, int chr, int id,
 }
 
 // FUN_002751A0
-int func_002751a0(f32 x, f32 y, f32 scale, int color, int chr, int id,
+int func_002751a0(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int out, int charWidth)
 {
     int font;
@@ -220,7 +221,7 @@ int func_002751a0(f32 x, f32 y, f32 scale, int color, int chr, int id,
 
     D_007645A0 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -240,7 +241,7 @@ int func_002751a0(f32 x, f32 y, f32 scale, int color, int chr, int id,
 }
 
 // FUN_00275330
-int func_00275330(f32 x, f32 y, f32 scale, int color, int chr, int id,
+int func_00275330(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int out, int charWidth)
 {
     int font;
@@ -249,7 +250,7 @@ int func_00275330(f32 x, f32 y, f32 scale, int color, int chr, int id,
 
     D_007645A8 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -278,7 +279,7 @@ void func_002754c0(s32 arg0, int font)
 }
 
 // FUN_00275520
-int func_00275520(f32 x, f32 y, f32 scale, int color, int chr, int id,
+int func_00275520(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int unused, void *param)
 {
     int font;
@@ -287,7 +288,7 @@ int func_00275520(f32 x, f32 y, f32 scale, int color, int chr, int id,
     s32 tmp;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     tmp = func_00274a90(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {
@@ -304,7 +305,7 @@ int func_00275520(f32 x, f32 y, f32 scale, int color, int chr, int id,
 }
 
 // FUN_00275680
-int func_00275680(f32 x, f32 y, f32 scale, int color, int chr, int id,
+int func_00275680(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int unused, void *param,
                   int charWidth)
 {
@@ -314,7 +315,7 @@ int func_00275680(f32 x, f32 y, f32 scale, int color, int chr, int id,
     s32 tmp;
 
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     if (font == 0) {
         func_0046d730(D_0063BAE8, 0x6C3);
@@ -336,7 +337,7 @@ int func_00275680(f32 x, f32 y, f32 scale, int color, int chr, int id,
 }
 
 // FUN_00275820
-int func_00275820(f32 x, f32 y, f32 scale, int color, int chr, int id,
+int func_00275820(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int unused, void *param, int out)
 {
     int font;
@@ -346,7 +347,7 @@ int func_00275820(f32 x, f32 y, f32 scale, int color, int chr, int id,
 
     D_007645A8 = out;
     D_00763810 = (s64)(s16)(D_00763810 | 1) & -3;
-    font = func_002724d0(str, id, chr, 0, 0);
+    font = (int)func_002724d0((u8 *)str, id, chr, 0, 0);
     D_00763810 = (s64)(s16)((s16)D_00763810 & -2) | 2;
     tmp = func_00274a90(font, x, y, scale, color, chr, id, flags);
     if (&result != 0) {

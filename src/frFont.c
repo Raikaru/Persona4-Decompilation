@@ -47,8 +47,6 @@ extern u8 *func_002745c0(u32 param_1, u32 param_2, u32 param_3, u32 param_4,
 extern u32 D_00763840;
 extern u32 D_00763848;
 extern u32 D_00763838;
-extern u8 *func_002724d0(u8 *param_1, s64 param_2, s32 param_3, s32 param_4,
-                        u8 *param_5);
 extern u32 DAT_008817A0_abs[];
 extern u32 DAT_00881510_abs[];
 extern u32 DAT_00881514_abs[];
@@ -1019,9 +1017,12 @@ extern u8 *func_00272170(u16 arg0, u8 arg1, u8 arg2, u8 arg3);
 /* Converted from INCLUDE_ASM. Retail keeps var16=$s0, var17=$s1,
    var18/i=$s2, arg4=$s3, arg0=$s4, result count=$s5, arg2=$s6,
    and arg3=$s7. The u8 helper arguments are materialized once in
-   preheader locals so b210 emits the retail andi sequence. */
+   preheader locals so b210 emits the retail andi sequence. Style is a word,
+   character a signed byte; the shared API preserves all 57 owner matches.
+   Callers explicitly sequence character loads, and dynamic style before
+   character, to retain the retail argument evaluation order. */
 // FUN_002724D0
-u8 *func_002724d0(u8 *arg0, s64 arg1, s32 arg2, s32 arg3, u8 *arg4) {
+u8 *func_002724d0(u8 *arg0, s32 arg1, s8 arg2, s32 arg3, u8 *arg4) {
     s32 temp2;
     u16 ch;
     u32 var21;
@@ -1966,6 +1967,7 @@ int func_00273970(int node)
 #pragma opt_rebuildconditionals off
 void func_002739e0(u8 index, u8 *context)
 {
+    s8 character;
     extern s32 func_00442948(const void *param_1);
     extern s8 iGpffffa748;
     extern s8 D_0076380C;
@@ -1977,7 +1979,7 @@ void func_002739e0(u8 index, u8 *context)
     s8 *clear;
     s32 remaining;
     s32 width;
-    s64 style;
+    s32 style;
     s8 spacing;
     s64 byte;
     s8 previous_style;
@@ -2023,7 +2025,7 @@ text_body:
                 }
             }
             style = *(s8 *)(context + 0xC);
-            if (style != (s64)previous_style) {
+            if (style != (s32)previous_style) {
                 /* A style transition needs an empty node before the next glyph. */
                 node = (FrFontNode *)*(u8 **)(context + 0x14);
                 if (node == NULL) {
@@ -2032,9 +2034,7 @@ text_body:
                 if (node->glyphs == NULL) {
                     goto apply_attribute;
                 }
-                new_node = func_002724d0((u8 *)&iGpffffa748, 0,
-                                       *(s8 *)(context + 0xD),
-                                       *(s8 *)(context + 0xE), NULL);
+                new_node = (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
                 if (new_node != NULL) {
                     goto link_new_node;
                 }
@@ -2048,9 +2048,7 @@ store_new_node:
                 *(u8 **)(context + 0x14) = (u8 *)node;
                 goto apply_attribute;
 create_first_node:
-                first_node = func_002724d0((u8 *)&iGpffffa748, 0,
-                                         *(s8 *)(context + 0xD),
-                                         *(s8 *)(context + 0xE), NULL);
+                first_node = (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
                 if (first_node != NULL) {
                     goto link_first_node;
                 }
@@ -2075,10 +2073,7 @@ apply_attribute:
                 previous_style = (s8)style;
             }
             *(u8 **)(context + 0x14) =
-                func_002724d0((u8 *)glyph, style,
-                              *(s8 *)(context + 0xD),
-                              *(s8 *)(context + 0xE),
-                              *(u8 **)(context + 0x14));
+                (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
             spacing = D_0076380C;
             glyph_node = *(u8 **)(context + 0x14);
             if (glyph_node == NULL) {
@@ -2119,6 +2114,7 @@ extern s32 func_00442948(const void *param_1);
 #pragma opt_rebuildconditionals off
 void func_00273cc0(u8 *arg0, u8 *arg1)
 {
+    s8 character;
     extern s32 func_00442948(const void *param_1);
     extern s8 iGpffffa748;
     struct FrFontNode3 {
@@ -2140,7 +2136,7 @@ void func_00273cc0(u8 *arg0, u8 *arg1)
     s8 *var_4;
     s32 var_3;
     s32 var_4_2;
-    s64 temp_17;
+    s32 temp_17;
     s8 temp_21_2;
     s64 temp_3;
     s8 var_16;
@@ -2175,13 +2171,13 @@ loop_body_30:
                 sp8.bytes[1] = -0xA;
             } else {
                 sp8.bytes[1] = 0;
-                if (((((s64)temp_3 << 56) >> 56) & 0xFF) >= 0x80) {
+                if ((((s64)((u64)temp_3 << 56) >> 56) & 0xFF) >= 0x80) {
                     var_18 += 1;
                     sp8.bytes[1] = *(s8 *)(arg0 + var_18);
                 }
             }
             temp_17 = *(s8 *)(arg1 + 0xC);
-            if (temp_17 != (s64)var_16) {
+            if (temp_17 != (s32)var_16) {
                 var_16_2 = (struct FrFontNode3 *)*(u8 **)(arg1 + 0x14);
                 if (var_16_2 == NULL) {
                     goto null_node_1;
@@ -2189,9 +2185,7 @@ loop_body_30:
                 if (var_16_2->flag_1C == 0) {
                     goto common_node_1;
                 }
-                temp_2 = func_002724d0((u8 *)&iGpffffa748, 0,
-                                       *(s8 *)(arg1 + 0xD),
-                                       *(s8 *)(arg1 + 0xE), NULL);
+                temp_2 = (character = *(s8 *)(arg1 + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
                 if (temp_2 != NULL) {
                     goto call_node_1;
                 }
@@ -2206,9 +2200,7 @@ store_node_1:
                 *(u8 **)(arg1 + 0x14) = (u8 *)var_16_2;
                 goto common_node_1;
 null_node_1:
-                temp_2_2 = func_002724d0((u8 *)&iGpffffa748, 0,
-                                         *(s8 *)(arg1 + 0xD),
-                                         *(s8 *)(arg1 + 0xE), NULL);
+                temp_2_2 = (character = *(s8 *)(arg1 + 0xD), func_002724d0((u8 *)&iGpffffa748, 0, character, *(s8 *)(arg1 + 0xE), NULL));
                 if (temp_2_2 != NULL) {
                     goto call_node_2;
                 }
@@ -2234,10 +2226,7 @@ common_node_1:
                 var_16 = (s8)temp_17;
             }
             *(u8 **)(arg1 + 0x14) =
-                func_002724d0((u8 *)sp8.bytes, temp_17,
-                              *(s8 *)(arg1 + 0xD),
-                              *(s8 *)(arg1 + 0xE),
-                              *(u8 **)(arg1 + 0x14));
+                (character = *(s8 *)(arg1 + 0xD), func_002724d0((u8 *)sp8.bytes, temp_17, character, *(s8 *)(arg1 + 0xE), *(u8 **)(arg1 + 0x14)));
             temp_21_2 = D_0076380C;
             temp_2_3 = *(u8 **)(arg1 + 0x14);
             if (temp_2_3 == NULL) {
@@ -2270,6 +2259,7 @@ loop_test_30:
 #pragma opt_common_subs on
 void func_00273f70(u8 *arg0)
 {
+    s8 character;
     extern u8 iGpffffa748;
     struct FrFontNode2 {
         u16 value_00;
@@ -2314,7 +2304,7 @@ void func_00273f70(u8 *arg0)
         goto done;
     }
     list = work->list_14;
-    result = (u8 *)func_002724d0(&iGpffffa748, 0, work->code_0D, work->code_0E, NULL);
+    result = (u8 *)(character = work->code_0D, func_002724d0(&iGpffffa748, 0, character, work->code_0E, NULL));
     if (result == NULL) {
         updated = list;
         goto call_after;
@@ -2376,6 +2366,8 @@ return_point:
 #pragma opt_rebuildconditionals off
 u8 *func_002740b0(void *data)
 {
+    s8 character;
+    s32 style;
     typedef int (*FrFontCommand)();
     typedef struct FrFontCommandGroup {
         FrFontCommand *handlers;
@@ -2446,7 +2438,7 @@ u8 *func_002740b0(void *data)
             }
             if (*(s8 *)(context + 0x1C) != 0) {
                 node = *(FrFontNode **)(context + 0x14);
-                allocated = func_002724d0(&iGpffffa748, 0, *(s8 *)(context + 0xD), *(s8 *)(context + 0xE), NULL);
+                allocated = (character = *(s8 *)(context + 0xD), func_002724d0(&iGpffffa748, 0, character, *(s8 *)(context + 0xE), NULL));
                 if (allocated != NULL) {
                     goto link_node;
                 }
@@ -2480,20 +2472,20 @@ store_node:
                     glyph[0] = code;
                     glyph[1] = 0;
                 }
-                *(u8 **)(context + 0x14) = func_002724d0((u8 *)glyph, *(s8 *)(context + 0xC), *(s8 *)(context + 0xD), *(s8 *)(context + 0xE), *(u8 **)(context + 0x14));
+                *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
             } else {
                 pair = (code << 8) | script->data[script->pos++];
                 if (pair < 0xC080) {
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    *(u8 **)(context + 0x14) = func_002724d0((u8 *)glyph, *(s8 *)(context + 0xC), *(s8 *)(context + 0xD), *(s8 *)(context + 0xE), *(u8 **)(context + 0x14));
+                    *(u8 **)(context + 0x14) = (style = *(s8 *)(context + 0xC), character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, style, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
                 } else {
                     pair -= 0x4000;
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    *(u8 **)(context + 0x14) = func_002724d0((u8 *)glyph, 8, *(s8 *)(context + 0xD), *(s8 *)(context + 0xE), *(u8 **)(context + 0x14));
+                    *(u8 **)(context + 0x14) = (character = *(s8 *)(context + 0xD), func_002724d0((u8 *)glyph, 8, character, *(s8 *)(context + 0xE), *(u8 **)(context + 0x14)));
                 }
             }
             spacing = (-D_00763808[*(u8 *)(context + 0xC)] * 2) / 32;

@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "fr_font_internal.h"
 typedef struct {
     f32 x;
     f32 y;
@@ -635,7 +636,7 @@ void func_003676f0(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 #pragma opt_common_subs off
 void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
 {
-    extern s32 func_00274ed0(f32 x, f32 y, f32 scale, s32 color, s32 chr, s32 id, s32 str, s32 flags, s32 arg8);
+    
     f32 scale;
     s32 color;
     s32 tex;
@@ -652,7 +653,7 @@ void func_00367b80(s64 arg0, f32 fparg0, s32 arg1, u8 *arg2)
         func_0046d730(D_0064E460, 0x176);
     }
     y = *((f32 *)&arg0 + 1);
-    func_00274ed0((f32)(s32)*(f32 *)&arg0, (f32)(s32)y, 0.0f, color, 6, 1, *(s32 *)(arg2 + 0x14), 0, 0);
+    func_00274ed0((f32)(s32)*(f32 *)&arg0, (f32)(s32)y, 0.0f, color, 6, 1, *(const char **)(arg2 + 0x14), 0, 0);
     value = *(u8 *)(arg2 + 0x18);
     if (value <= 0 || value >= 0x20) {
         func_0046d730(D_0064E460, 0x186);

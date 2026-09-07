@@ -823,7 +823,7 @@ s16 datGetPartyId(s32 idx)
 
 
 // FUN_00105F00
-s8 func_00105f00(s16 arg0)
+s16 func_00105f00(s16 arg0)
 {
     if (arg0 == 1)
     {
