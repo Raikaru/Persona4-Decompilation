@@ -2,6 +2,7 @@
 /* Original translation unit shdWindow.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -27,7 +28,6 @@ extern u8 *func_002736d0(u8 **, s32);
 extern s32 func_002738d0(u8 *);
 extern void func_00272a10(u8 *, f32, f32);
 extern void func_00272ba0(u8 *, s32);
-extern void func_00273170(u8 *, s32, s32);
 extern void func_00271b70(u8 *);
 extern f32 iGpffff8094;
 extern f32 func_0044b7b0(f32);
