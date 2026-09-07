@@ -2,6 +2,11 @@
  * v1/v0 color differences at +0x2c/+0x30/+0x38/+0x3c/+0x40/+0x44;
  * fndiff additionally counts two retail zero-tail words.
  * All five inspected callers discard the result: keep void(u8*).
+ * Fresh full-owner relocation-aware replay confirms those six words.
+ * A constructor-style named quad snapshot ties. SDK RGBA member stores give
+ * 132B and replace the retail word store with byte stores; an RGBA aggregate
+ * gives 152B and a new anonymous literal, whose placement is not invented.
+ * Historical unit-store helper probes were not repeated. No improvement.
  * Historical F480 archive remains preserved. No promotion. */
 #include "type.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
