@@ -1289,43 +1289,10 @@ INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032a960);
 // FUN_0032B000
 INCLUDE_ASM("asm/nonmatchings/y_fclCombineDraw", func_0032b000);
 
-/* measured: nd 5 (2-word load-sink swap + padding): retail loads the first
-   func_002e48a0 result's u16 at +2 IMMEDIATELY (lhu $s7, 2($v0) right after the
-   jal); mwcc b210 keeps the pointer in $s7 and sinks the lhu to the ac10 call
-   (lhu $t0, 2($s7)), regardless of spelling — inline, named u16 w, or named
-   pointer p1 (named locals rotate the allocation: nd 16/24). Load-sinking
-   floor. Everything else matches once the shape is right: func_0031ac10's
-   5th param is u16 (u8 truncates the read to lbu) and 8th param is s32 (an s8
-   extern adds a spurious dsll32/dsra32 on arg3) — both checked against the
-   ac10 prologue ($23 raw, $19 raw); func_003297f0's real signature is
-   (u8 *, s64, s32, f32, f32) with f12=(f32)0x1A1 + f13=220.0f (the checked-in
-   extern was wrong); func_002e48a0's 2nd param is s32 (s16 adds a normalize
-   at each call); the loop multiply is (s16)((s16)i * v1) — mult $s0,$s1 — NOT
-   a 0x99 constant (the 0x99 is only the ac10 10th arg; my first decode read
-   rs=0x02 but the true rs is 0x10); i=0 init precedes the v1/v2 (s16)
-   conversions; v1/v2 are s32 (s16 re-normalizes at the mult); the tail is the
-   same madd chain as func_0032c0c0 with the verified rule-2 spelling
-   (f21 = acc = the 0x124-load variable, f21 * f20). RE-MEASURED this wave
-   (nd 5 confirmed; inline spelling verified byte-perfect except the sink;
-   named-w probe gave nd 16/24 across 5 decl orders; FMA tail confirmed via
-   0.0f + rAA->3C + facc*fdiff). Re-measured this wave (nd 100 best of 3
-   transcriptions: M2C's s64 arg1/arg2 wrong — caller passes single regs
-   (addiu $5,2 / daddu $6,$16); the v1/v2 in-place sign-ext + w-immediate-load
-   sink resist spelling. Confirmed the load-sink floor. */
-/* measured: nd 16, object 596/window 608. The preserved C uses three packed s64
-   vector slots, s32 v1/v2/i with explicit s16/s8 casts, separate u16/u8 loads,
-   and the ordinary acc + base * delta tail. Reordering the f32 declarations to
-   f21 before f20 improves the prior nd21 body to nd16 and matches the entire
-   floating-point tail. Remaining fndiff rows are +0x34 move s2,a1 vs s1,a1;
-   +0x40 lw s1,38(a0) vs s2; +0x88/+0x8C dsll32/dsra32 s6,s2 vs s1,s1;
-   +0x90/+0x94 dsll32/dsra32 s7,s0 vs s6,s0; +0xCC lhu s2,2(v0) vs s7;
-   +0xF8 mult s0,s6 vs s0,s1; +0x110 move t0,s2 vs s7; +0x134 slt s0,s7
-   vs s0,s6; +0x1A0/+0x1A4 lh 11E/120(s1) vs (s2); +0x1B8 lwc1 f20,124(s1)
-   vs (s2). The three retail-only words at +0x254/+0x258/+0x25C are zero
-   tail padding. Raw-parameter-before-object, u32 pointer-cast, and declaration
-   order probes stayed at nd16 (normalizing before the field load was nd408);
-   no inline asm. Committed at nd 16. */
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
+/* measured: 596B/608B, exact emitted instructions and three zero-tail words.
+   The retail loop passes word-sized list indices; a narrowed call declaration
+   inserts two normalization instructions. Removing the unused expression that
+   read new_var/f20/f21 before initialization preserves every emitted word. */
 // FUN_0032B770
 void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 {
@@ -1352,7 +1319,6 @@ void func_0032b770(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
   f32 f20;
   new_var2 = (u8 **) (arg0 + 0x38);
   obj = *new_var2;
-  f20 = (*((f32 *) new_var)) + (f20 * f21);
   func_002b2970(&spC8, 156.0f, (float) ((float) 87.0f));
   func_0031e5b0(arg0, spC8, 0, arg3, 0, 1, 1);
   i = 0;
