@@ -37,7 +37,7 @@ version.
 | In byte-exact linked C objects | 1,568 (11.968% of windows), with 240 assembly fallbacks still inside those objects |
 | First-party matched, scored for recovery | 6,795 |
 | — NAMED (not a `func_<address>` placeholder) | 154 (2.266%) |
-| — TYPED (no raw-offset or `M2C_` access) | 2,167 (31.891%) |
+| — TYPED (no raw-offset or `M2C_` access) | 2,169 (31.921%) |
 | — DOCUMENTED (prose, or trivially self-evident) | 4,791 (70.508%) |
 | — still carrying decompiler local names | 1,987 (29.242%) |
 

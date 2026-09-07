@@ -6457,3 +6457,44 @@ The integrated `make build-progress progress lint-errors` gate passes:
 **6,131 first-party MATCH / 729 ASM**, **172 C-linked objects /
 1,568 functions**, validated progress snapshots and zero lint findings
 across 336 first-party files. Both retail SHA-1 identities are unchanged.
+
+## Canonical ending-staff accessor pointer contracts
+
+`include/ed_staff_internal.h` now owns the shared release and three
+accessor declarations, used by `op_fade_grouped.c`, `ed_scroll.c`,
+`ed_res.c` and `code1_0038.c`. `0038f5e0` and `0038f5f0` accept
+`const u32 *`, matching their scrolling callers, and read header words
+four and one directly. `0038f5c0` uses the caller's unsigned index type.
+Packed address/count fields and accessor return values remain `u32`;
+the resource layout is unchanged. The accessor migration requirement
+above is resolved; the unmatched factory still needs its pointer-return
+contract when promoted.
+
+The prior integer-parameter accessor fails through the actual native
+`0038ec50` consumer with an owner at `0x90000000`: it reconstructs
+`0xffffffff90000010` instead of reading the header at `0x90000010`.
+The pointer-parameter accessor passes the same reproduction. This exposes
+the incompatible C declarations on a 64-bit host, not an observed PS2
+runtime crash.
+
+The actual owner getter, three accessors and three control-stream
+consumers pass **6,284 UBSan cases** with low and high-bit 32-bit owner
+addresses, plus **6,284 ASan/UBSan cases** at low addresses. The high-bit
+mapping overlaps ASan's reserved shadow range, so that run uses UBSan
+only. Coverage includes text-entry lookup, full count-word reads,
+unsigned command/argument bytes, known-command advancement, unchanged
+unknown commands, work-record preservation and untouched resource headers.
+Native mappings and type adaptation are fixtures, not PS2 execution.
+
+All **119 object functions** across the four owners preserve bytes and
+relative relocations, including their existing assembly fallbacks.
+The three accessors separately retain exact executable code:
+`0038f5c0` is **24B/32B**, `0038f5e0` and `0038f5f0` are each
+**12B/16B**; all missing tail bytes are zero alignment. No new MATCH
+is claimed from this contract repair.
+
+The integrated `make build-progress progress lint-errors` gate passes:
+**6,131 first-party MATCH / 729 ASM**, **172 C-linked objects /
+1,568 functions**, validated progress snapshots and zero lint findings
+across 337 first-party files. Both retail SHA-1 identities are unchanged.
+The recovery-quality typed count increases from 2,167 to **2,169**.
