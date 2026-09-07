@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "ed_staff_internal.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
 extern void (*D_008873ec[])(s32);

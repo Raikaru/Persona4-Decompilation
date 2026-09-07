@@ -2,6 +2,7 @@
 /* Persona 4 USA decompilation - ed_res.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "ed_staff_internal.h"
 
 /* GP-owned work record shared with the adjacent opening/ending TU. */
 extern u32 *D_007246AC;
@@ -23,7 +24,6 @@ extern void *func_0043f810(void *dst, const void *src, u32 size);
 extern void func_00271380(s32 slot, void *data);
 extern void func_00271820(s32 slot);
 extern u32 func_0038f400(const u32 *data);
-extern void func_0038f590(u8 *allocation);
 
 // FUN_0038F620
 void func_0038f620(void)
