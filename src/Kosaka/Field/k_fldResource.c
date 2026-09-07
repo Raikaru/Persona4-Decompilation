@@ -253,8 +253,94 @@ s32 func_00150c80(u8 *arg0)
     return 1;
 }
 
+/* measured: 988B/992B, all emitted instructions match; 4B retail zero tail.
+   The stream descriptors and complete chunk header are real helper storage.
+   Keep resource snapshots on their retail side of the asynchronous callbacks. */
 // FUN_00150CE0
-INCLUDE_ASM("asm/nonmatchings/k_fldResource", func_00150ce0);
+void func_00150ce0(u8 *resource)
+{
+    s32 size;
+    s32 memory[2]; /* RwMemory: start, length. */
+    s32 chunkMemory[2];
+    u32 chunk[5]; /* RwChunkHeaderInfo, including the unsigned byte length. */
+    s32 data;
+    s32 callbackHandle;
+    s32 streamHandle;
+    s32 child;
+    u8 *destination;
+
+    data = func_00455f70(*(u8 **)(resource + 0xA44), &size);
+    memory[0] = data;
+    memory[1] = size;
+    if (data != 0) {
+        streamHandle = func_003e2f60(3, 1, &memory[0]);
+        if (streamHandle != 0) {
+            while (func_003df3c0(streamHandle, (s32 *)chunk) != 0) {
+                switch (chunk[0]) {
+                case 11:
+                    if (*(s32 *)(*(u8 **)(resource + 0xA44) +
+                                 *(s32 *)(*(u8 **)(resource + 0xA44) + 0x8C) * 4 + 0x90) == 0) {
+                        chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                    }
+                    chunkMemory[1] = memory[1];
+                    child = func_003e2f60(3, 1, &chunkMemory[0]);
+                    destination = *(u8 **)(resource + 0xA44);
+                    child = func_004667d0(1, 0, 0, 0, child, 0, 0, 0, 0, 0);
+                    *(s32 *)(destination + *(s32 *)(destination + 0x8C) * 4 + 0x90) = child;
+                    func_003e2ce0(streamHandle, chunk[1]);
+                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0x8C) =
+                        *(s32 *)(*(u8 **)(resource + 0xA44) + 0x8C) + 1;
+                    break;
+                case 16:
+                    chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                    chunkMemory[1] = memory[1];
+                    child = func_003e2f60(3, 1, &chunkMemory[0]);
+                    destination = *(u8 **)(resource + 0xA44);
+                    child = func_004667d0(2, 0, 0, 0, child, 0, 0, 0, 0, 0);
+                    *(s32 *)(destination + *(s32 *)(destination + 0xA0) * 4 + 0xA4) = child;
+                    func_003e2ce0(streamHandle, chunk[1]);
+                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0xA0) =
+                        *(s32 *)(*(u8 **)(resource + 0xA44) + 0xA0) + 1;
+                    break;
+                case 35:
+                    callbackHandle = func_003dc370((void *)streamHandle);
+                    func_003ef260(callbackHandle, func_00463100,
+                                  *(u8 **)(resource + 0xA44) + 0x128);
+                    func_003ef1b0(callbackHandle);
+                    break;
+                case 22:
+                    chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                    chunkMemory[1] = memory[1];
+                    child = func_004667d0(8, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
+                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0x84) = child;
+                    func_003e2ce0(streamHandle, chunk[1]);
+                    break;
+                case 12:
+                    chunkMemory[0] = memory[0] + *(s32 *)((u8 *)streamHandle + 0xC);
+                    chunkMemory[1] = memory[1];
+                    child = func_004667d0(0xB, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
+                    *(s32 *)(*(u8 **)(resource + 0xA44) + 0x124) = child;
+                    func_003e2ce0(streamHandle, chunk[1]);
+                    break;
+                default:
+                    func_003e2ce0(streamHandle, chunk[1]);
+                    break;
+                }
+            }
+            if (streamHandle != 0) {
+                func_003e2e40(streamHandle, 0);
+            }
+        } else {
+            if (*(u8 **)(resource + 0xA44) != NULL) {
+                func_00454bd0(*(u8 **)(*(u8 **)(resource + 0xA44) + 0x80));
+                jtbl_008873EC[0](*(u8 **)(resource + 0xA44));
+            }
+            if (resource != NULL) {
+                jtbl_008873EC[0](resource);
+            }
+        }
+    }
+}
 
 // FUN_001510C0
 s32 func_001510c0(u8 *arg0)
