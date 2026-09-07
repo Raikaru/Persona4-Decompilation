@@ -1,4 +1,7 @@
-/* Best probe for func_001b11c0: object 192B, retail window 192B, normalized_diff 22. */
+/* Historical probe, not the current floor. Fresh owner replay: 188B/192B,
+ * 34 differing words and four zero-tail bytes. Use F1B0_001b11c0_body.c:
+ * 192B/192B with five fully relocation-resolved differing words.
+ */
 void func_001b11c0(u32 arg0)
 {
     u32 count;

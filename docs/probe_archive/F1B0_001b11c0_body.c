@@ -1,40 +1,23 @@
-/* MWCCPS2 b210, -O2 -Iinclude; opt_loop_invariants on.
- * Object/window 192B/192B; five differing words, all register coloring:
- * key is t1 instead of t3 at 0x34/0x88; index is t3 instead of t1 at
- * 0x4C/0x9C/0xA4. Explicit bound: 26 words; compiler-hoisted fresh bound:
- * 11 words; declaration-order rotation: 5 words. Reusing/narrowing the key,
- * signed/register induction variables and alternate key hoisting did not
- * close the residual; disabling propagation worsened it.
- * Further bounded probes: block-scoped index 11 words; block-scoped key,
- * for-loop induction, signed key/kind promotions and the canonical
- * D_0076449C pointer base each retain five. No production change.
- * The former u8 filter silently discarded bits 8..15 and is not retained.
- * This body preserves the retail 16-bit key and unsigned count-1 bound;
- * it does not add a non-retail empty-list guard or cache the global base
- * across pointer stores. Production keeps its INCLUDE_ASM fallback.
- * IDA body: docs/ida_headstart/src/promoted/code1_001b.c:221-265.
- * It confirms the 16-bit filter and distinct scan lifetimes. Translating
- * its unsigned address scalars scores 32 words; adding its short-circuit
- * counting-loop form scores 39. Retain these typed pointer scans.
- * Further IDA replay with the actual BtlAction aggregate from
- * src/Battle/btlAction.c:28-44, a u16 key and u8 genus still measures five
- * words at the same offsets. Narrow/signed key variants also tie; a 64-bit
- * key scores 36, 64-bit index with IDA-style increment 44, both wide 50,
- * and a complete IDA-wide scalar rendering 56. Inferred IDA scalar widths
- * do not establish the original C types. Retain the five-word floor.
- * Later replay: ANSI u16/u32 and K&R u16 parameters retain five words;
- * K&R s16 gives 200B/33. Key/index pairs and their declaration reversals
- * give 11; disabling dead assignments, lifetimes or pointer analysis ties
- * five. Combined nested sort/iteration scopes, including an independently
- * scoped count scan, also retain five. The analogous matched lifetime
- * pattern is func_001de370 in src/Battle/btlAICommand.c; it does not close
- * this residual. The void return contract agrees with the retail epilogue.
- * Fresh bounded replay: parameter-key reuse and reversed filter comparison
- * retain five words; a reused scan gives eight and a reused index nine.
- * Postincrement gives 196B/14 words; an inline predicate gives 208B/23.
- * None improves the retained body or changes production.
- * Separate inline count and sort boundaries also retain 192B/five masked
- * differing words. Neither improves the retained loop lifetimes.
+/* Current b210 owner floor: 192B/192B, five differing bytes/words, both
+ * masked and fully relocation-resolved; no tail or unknown relocations.
+ * Key/index swap t1/t3 at +0x34,+0x4c,+0x88,+0x9c,+0xa4.
+ * Cursor/entry-state grouping and separate count/sort boundaries do not
+ * improve this floor. All ten existing owner C matches remain intact.
+ * IDA: docs/ida_headstart/src/promoted/code1_001b.c:221-265.
+ *
+ * Preserve the 16-bit key, exact predicate short circuit, unsigned count-1
+ * bound and fresh global base on each pass. Production remains ASM.
+ * Nonempty input is a retail precondition, not a recovered universal caller
+ * guarantee. Empty input underflows the bound; no synthetic guard is added.
+ * Two-genus input with a key selecting either genus is a stable partition.
+ * Arbitrary key/genus combinations are not a general sort: [0,1] with key
+ * 0x100 oscillates. Do not narrow the key to hide this behavior.
+ *
+ * Native32 UB-trap smoke: 262,080 cases across four genus pairs, high key
+ * bits, unique/duplicate pointers and every binary sequence of lengths 1..12.
+ * Checks exact stable ordering and untouched prefix/sentinel/suffix bytes.
+ * Singleton actions need no unit; a guard page after entry twelve proves
+ * the full-count scan does not read a thirteenth slot.
  */
 #pragma opt_loop_invariants on
 void func_001b11c0(s32 arg0)
