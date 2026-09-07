@@ -5455,3 +5455,73 @@ hash in `config/generated_asm.json`. With the exact regeneration dependency
 versions installed in an isolated environment, `regenerate_asm.py --check`
 reproduces **all 11,152 fallback files** and retains both hand-maintained
 files unchanged. No expected output hash or reconstruction recipe changes.
+
+Commit `bfeb9ac6` passed
+[CI 34094185276](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34094185276),
+including the corrected generator-provenance gate.
+
+## Message line-group trimming and retained compact floors
+
+`func_0027a150` is now **332 executable bytes / 336B window**, with **five
+fully resolved relocations**, zero instruction differences and one zero
+alignment word. A shared inline detach/release primitive owns the local
+traversal pointer, saves the successor before release and advances that
+local owner afterward. Declaring the retained endpoints in traversal order,
+head before tail, closes the last register swap. No new pragmas are needed.
+
+The public interface remains **`u8 *(u8 *, s32, s32)`**; the inline
+pointer-to-pointer interface is private and receives only `&current`.
+The message owner's release declaration now agrees with the existing
+**`s32 func_00271b70(s32)`** implementation. Its return is deliberately
+ignored: a fading detached node may remain alive, but traversal must use
+the saved successor, not that return value.
+
+The integrated compiled-C and retail-word consumers pass **98 bounded
+pairs**. An independent list oracle checks contiguous-group selection and
+prefix-before-suffix release order; callback-entry snapshots, poisoned
+caller-saved registers and released-node fields check ownership across
+release. Retained boundary links, per-node tail pointers, lower-64 saved
+registers and stack restoration agree. Coverage includes repeated
+nonadjacent tags, exhaustion, nonpositive skip counts and both extremes of
+the observed sign-extended-halfword argument domain.
+
+Only finite, non-null acyclic lists are executed. Release is intercepted,
+not executed; arbitrary retained-node mutations, upper EE register halves,
+null-path execution and full-`s32` subtraction overflow are not certified.
+The complete message owner verifies **84 MATCH / one ASM**. Its remaining
+fallback is the separate message-preparation shift-count problem.
+`MessageTrimRecovery_0027a150_body.c` preserves the integrated helper/body;
+the historical `SITF_0027a150_body.c` remains unchanged.
+
+Two compact investigations still do not justify promotion:
+
+* Battle-order `func_001b11c0` remains **192B / five fully resolved differing
+  words**, at `+0x34`, `+0x4c`, `+0x88`, `+0x9c`, `+0xa4`. Shared skip
+  continuation and distinct const unit-pointer lifetimes leave the key/index
+  register swap unchanged; a byte-sized changed predicate adds masking and
+  worsens to **196B / eleven words**. **11,815 bounded cases** cover stable
+  key-first partitioning, upper key bits and duplicate action identities.
+  Empty or mixed nonkey domains retain their observed fault/nontermination
+  hazards; no guard or byte-key truncation is introduced.
+* Common-record `func_002494c0` remains **432 executable bytes / 428 retail
+  bytes plus four zero alignment bytes**. Correct getter contracts, distinct
+  date lifetime and argument-preparation spelling leave the extra copy at
+  `+0x2c`; all sixteen relocations resolve, but **96 positional executable
+  words differ**. **534 native scenarios** produce 522 matching returns and
+  twelve observed null-path faults. The returning diagnostic does not turn
+  null paths into safe returns. Host faults are not PS2 fault claims.
+
+A separate minimal quantizer experiment rejects two explanations for the
+material/model floor. With CSE and propagation disabled, both b210 and b119
+emit **152B with four zero-register seeds**. Enabling CSE only in an inline
+callee still emits 152B/four seeds under the disabled caller; enabling it
+in the caller emits **128B/one seed**. This is a reduced compiler experiment,
+not a newly matching material or model renderer.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,751 MATCH overall / 4,969 ASM**, including **6,121 first-party MATCH /
+739 ASM (89.2%)**. All 335 first-party files are lint-clean; progress
+snapshots validate. C-linked coverage remains **172 objects / 1,565
+functions**. Loadable SHA1 remains
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
