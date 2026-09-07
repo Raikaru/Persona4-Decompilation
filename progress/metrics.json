@@ -1266,6 +1266,7 @@
       "0045c390",
       "0045c3d0",
       "0045c510",
+      "0045c640",
       "0045da40",
       "0045db40",
       "0045dfd0",
@@ -1580,9 +1581,9 @@
       "004bd3c0",
       "004bd450"
     ],
-    "asm_fallbacks_in_linked_objects": 241,
-    "count": 1567,
-    "percent": 11.96
+    "asm_fallbacks_in_linked_objects": 240,
+    "count": 1568,
+    "percent": 11.968
   },
   "matching": {
     "addresses": [
@@ -7760,6 +7761,7 @@
       "0045c390",
       "0045c3d0",
       "0045c510",
+      "0045c640",
       "0045c870",
       "0045ce40",
       "0045d6e0",
@@ -9347,11 +9349,11 @@
       "0052d970",
       "0052d980"
     ],
-    "count": 7760,
+    "count": 7761,
     "duplicate_rows": 0,
     "known_rows": 12720,
-    "matched_body_bytes": 1485892,
-    "percent": 59.228,
+    "matched_body_bytes": 1486444,
+    "percent": 59.235,
     "unique_known_addresses": 12720
   },
   "schema_version": 1,
@@ -9362,8 +9364,8 @@
     "verifier_report": "build/verify_report.json"
   },
   "status_counts": {
-    "ASM": 4960,
-    "MATCH": 7760
+    "ASM": 4959,
+    "MATCH": 7761
   },
   "total": 13102
 }

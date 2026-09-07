@@ -111,7 +111,6 @@ extern void func_004b13f0(s32 arg0, void* arg1);
 extern u16 D_008C024E[];
 extern u8 D_00635B50[];
 extern u8 D_00635B90[];
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 typedef struct {
     s64 q;
     f32 f;

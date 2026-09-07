@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 typedef struct
 {
     f32 first;
@@ -69,7 +70,6 @@ extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
 extern u16 D_008C024E[];
 extern void func_0018a000(s32 arg0, s32 arg1);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_002af3e0(s32 arg0, s32 arg1);
 extern void func_002afb70(s32 arg0, s32 arg1);
 extern s32 func_0012d000(s32 arg0, s32 arg1);

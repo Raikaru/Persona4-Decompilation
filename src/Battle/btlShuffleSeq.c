@@ -2,6 +2,7 @@
 
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 typedef struct Vec3f {
     f32 x, y, z;
@@ -63,7 +64,6 @@ extern void func_002baf40(s32 a);
 extern void func_002bb050(s32 a);
 extern void func_002bbf60(void);
 extern void func_002bad10(s32 a);
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern void func_00442830(char *dst, s32 value);
 extern char *func_002438b0(s32 a);
 extern void func_002bbd20(s32 a, char *b);

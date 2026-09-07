@@ -2,6 +2,7 @@
 /* Original translation unit sdkSndcom.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+#include "sdk_snd_internal.h"
 
 typedef struct HCdvd HCdvd;
 
@@ -36,6 +37,7 @@ extern u8 D_008E3FC4[];
 extern u8 D_008E3FC8[];
 extern u8 D_008E3FCC[];
 extern u8 D_008E3FD0[];
+extern u8 D_008E3FD4[];
 extern u8 D_008E3FD8[];
 extern u8 D_008E4090[];
 extern u8 D_008E4098[];
@@ -79,8 +81,8 @@ extern s32 func_00421b80();
 extern void func_0043c470();
 extern void func_0043c308();
 extern void func_00429d90();
-extern s32 func_0043c5e8();
-extern s32 func_0043c518();
+extern s32 func_0043c5e8(s32 handle, ...);
+extern s32 func_0043c518(s32 handle, ...);
 extern s32 func_00429d10();
 extern void func_0043c180();
 extern s32 func_0043c230();
@@ -241,12 +243,63 @@ void func_0045c510(s16 index, s16 stream)
     }
 }
 
-/* measured: retail func_0045c640 materializes the outputHandle load (lw $a0)
-   BEFORE the s16 argument sign-extensions (dsll32/dsra32 of $s6/$s7) at the
-   final func_0043c518 call; mwcc b210 always emits the extensions first,
-   then the (sunk) load, in every source form tried (inline load, hoisted
-   local, s32 promotion locals, explicit (s16) casts, #pragma schedule on
-   which additionally reordered the prologue). Argument-materialisation /
-   load-sinking floor, nd 15 (5 words). */
+/* measured: 552B/560B, all 32 relocations resolved; eight zero-tail bytes.
+   Preserve the separate pre-stop and post-stop address computations and
+   the output-handle load before the final halfword argument promotions. */
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 // FUN_0045C640
-INCLUDE_ASM("asm/nonmatchings/sdkSndcom", func_0045c640);
+void func_0045c640(s16 index, s16 stream, s16 arg2, s16 arg3)
+{
+    s32 slotOffset;
+    s32 state;
+    s32 status;
+    s32 *streamActive;
+    s32 *streamHandle;
+    s32 *handlePointer;
+    s32 result;
+    s32 streamOffset;
+    s32 outputHandle;
+    s32 active;
+    s32 ready;
+    s32 previousOffset;
+
+    slotOffset = index * 0x44;
+    state = *(s16 *)&D_008E4090[slotOffset];
+    ready = 1;
+    if (state == ready) {
+        status = *(s32 *)&D_008E40A8[slotOffset];
+        if (status != 0) {
+            previousOffset = stream * 0xC;
+            streamActive = (s32 *)&D_008E3FD0[previousOffset];
+            active = *streamActive;
+            if ((active != 0) && (state == ready) && (status != 0) && (active != 0)) {
+                streamHandle = (s32 *)&D_008E3FD8[previousOffset];
+                handlePointer = (s32 *)&D_008E40A0[slotOffset];
+                result = func_0043c5e8(*handlePointer, ready, 0xA, *streamHandle);
+                switch (result) {
+                case 0:
+                case -0x12B:
+                    func_0043c518(*handlePointer, 2, 0xA, *streamHandle);
+                    break;
+                default:
+                    func_00440b68(D_00712458, result);
+                    break;
+                }
+                *streamActive = 0;
+            }
+            streamOffset = stream * 0xC;
+            *(s16 *)&D_008E3FD4[streamOffset] = index;
+            *streamActive = 1;
+            outputHandle = *(s32 *)&D_008E40A0[slotOffset];
+            *(s32 *)&D_008E3FD8[streamOffset] = func_0043c518(
+                outputHandle, 0, 0xA, (s32)arg2, (s32)arg3);
+            return;
+        }
+        func_0046d740(D_00712470, D_00712408, 0x283);
+        return;
+    }
+    func_0046d740(D_00712470, D_00712408, 0x286);
+}
+#pragma pop

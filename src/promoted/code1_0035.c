@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 extern void func_0034f5d0(u8 *arg0);
 
@@ -124,7 +125,6 @@ extern void func_00149680(s32 arg0);
 extern void func_0015a560(void);
 extern void func_0034c260(s32 arg0);
 extern void func_0034bb10(void);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s64 func_00105ee0(s32 arg0);
 // FUN_00353B50
 s16 func_00353b50(s16 *arg0)

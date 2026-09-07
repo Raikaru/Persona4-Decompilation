@@ -115,7 +115,6 @@ extern void func_004538e0(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_00453960(void *arg0);
 extern void func_004598e0(s32 arg0);
 extern void func_0045aac0(s32 arg0, s32 arg1, s32 arg2);
-extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_001029a0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 extern void func_00122520(s32 arg0, s32 arg1);
 extern s32 func_00122720(void);

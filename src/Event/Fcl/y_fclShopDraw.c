@@ -260,7 +260,6 @@ void func_002e0be0(s32, Vec2f, f32, s32, u8, s32, u8 *);
 u32 func_002e7a60(void);
 u32 func_00106a90(s16);
 s32 func_00110830(s32);
-void func_0045af60(s32, s32, s32, s32);
 s8 func_002e29d0(void);
 f32 func_002b2aa0(s32, f32, f32, f32, f32);
 void func_002e2700(void *);

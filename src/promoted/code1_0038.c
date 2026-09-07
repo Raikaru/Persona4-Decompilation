@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 extern void (*jtbl_008873EC[])(u8 *arg0);
 
 extern void (*D_008873ec[])(s32);
@@ -11,7 +12,6 @@ s32 datGetFlag(u32 arg0);
 extern u8 *D_007246AC;
 void func_00389180(u8 *arg0);
 extern void func_0043f9c8(void *dst, s32 value, u32 size);
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 extern s32 func_0010b6f0(void);
 extern s32 func_0010b5b0(void);
 extern s32 func_0010ac10(u16 arg0);

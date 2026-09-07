@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_snd_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
 extern void func_0044ea90(const void *file, u32 line);
@@ -33,7 +34,6 @@ static inline u32 bseSlot(u32 offset, u32 base)
 {
     return offset + base;
 }
-extern void func_0045af60(s32 a, s32 b, s32 c, s32 d);
 
 // FUN_0038D6C0
 void func_0038d6c0(u8 *arg0) {
