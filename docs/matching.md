@@ -5167,3 +5167,93 @@ first-party files are lint-clean and progress snapshots validate.
 Source-linked totals remain **172 objects / 1,564 functions**.
 Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+Commit `1070f729` passed
+[CI 34083948886](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34083948886):
+all 11,152 exact fallbacks regenerated, the two hand-maintained files
+remained unchanged, both retail hashes matched, and first-party MATCH
+remained 6,115.
+
+## Final font parser and message residuals
+
+`func_002740b0` is fully relocated exact: **1,212 executable bytes /
+1,216B window**, **32 resolved relocations**, zero executable differences
+and one unreachable alignment NOP. This closes `src/frFont.c` at
+**57 MATCH / zero ASM**. The neighboring positive insertion-branch recipe
+(`no_branch_likely on`, `opt_rebuildconditionals off`), a natural `u32`
+byte temporary and the actual three-byte signed glyph buffer replace the
+old 217-word floor. The full `s32` pair retains the `0xC080` threshold and
+`0x4000` remapping; the historical M2C draft's `s8` narrowing was wrong.
+
+The retail descriptor table contains **six**, not eight, genuine groups,
+with counts **8 / 8 / 8 / 2 / 10 / 14**. The mask still reaches adjacent
+data for groups six and seven. Retail diagnoses `count < index`, not
+`count <= index`, and tests the entire low command byte, not the masked
+handler index. The diagnostic is a no-op; neither check prevents the
+following indirect call. No fabricated table entries or protective guards
+are added. Handler pointers reload after diagnostics; the cursor reloads
+after handlers and receives its command-length adjustment even when a
+handler stops parsing.
+
+Native i386 execution of the integrated source passes **166 scenarios /
+1,384 assertions at each of -O0 and -O2**. It covers all 44 real-valid
+handler indices using substitute callbacks, all sixteen command lengths,
+signed callback results, cursor/data/flag mutations, header and newline
+predicates, empty-node reuse, allocation/link interactions, mutable style
+and coordinate loads, glyph mapping, signed spacing, linked glyph width,
+unsigned duration and the returned current node. Guarded synthetic slots
+separately exercise invalid indices/groups without claiming retail reachability.
+
+Three isolated invalid-domain processes per optimization observe native
+SIGSEGV: a count-equality null callback, a synthetic invalid group-six
+descriptor, and failed allocation without an existing node. These are not
+PS2 fault claims. All helpers/handlers are observable substitutes; the
+link fixture verifies interaction and return consumption, not the actual
+helper's linked-chain topology. No MIPS/graphical execution or arbitrary
+signed-overflow equivalence is claimed. Independent full-body review
+accepts promotion. The direct caller already builds the correct 32-byte
+context and forwards the result, so its interface remains unchanged.
+The exact body is preserved in `FontParserRecovery_002740b0_body.c`.
+
+`func_00277be0` stays ASM despite **664 instruction-exact bytes / 672B**
+and **25 resolved relocations** using ordinary `s32` locals.
+`MessagePrepareRecovery_00277be0_body.c` preserves the readable candidate
+and explicitly marks its undefined `1U << index` domain. The inspected
+MSG loaders and six direct call sites establish no count bound.
+An executable-wide signature census finds seven embedded MSG assets with
+three kind-one records, all count two; this is not the full resource corpus.
+Downstream consumers continue beyond 32 entries with a shifted-to-zero
+mask, so mask width is not a valid count proof. A constructed count-33
+case demonstrates wrapping's observable effect without asserting shipped
+reachability. Preparation's old mask shifts only on its set-bit branch.
+UBSan trap-mode experiments reject unbounded indices 32/63/64/32766 and
+accept masked boundary cases. Defined masking and unsigned modulo emit
+668B/89 masked words; signed modulo gives 688B/92, masked O4 584B/151.
+Promotion still needs an authoritative reachability bound or a defined,
+allowed compiler expression with the retail instruction stream.
+
+`func_0027a150` also stays ASM: **332 executable bytes / 336B window**,
+five resolved relocations, **31 differing executable words / 34 bytes**.
+Fourteen declaration/lifetime variants leave the saved-register coloring
+floor intact. Reusing the existing `FrFontTreeNode` layout, with and without
+disabled propagation, retains 332B/32 masked words including alignment;
+reversing declarations gives 340B/80. Caller-grounded signed-halfword
+parameters add narrowing instructions: both narrow gives 348B/71, either
+alone 340B/67. No candidate improves the baseline.
+
+A bounded R5900 integer interpreter executes fourteen complete retained
+retail/relocated-candidate consumer pairs. Return pointers, prefix/suffix
+release order, adjacent versus repeated y-groups, retained links, callback
+entry snapshots and callback-clobbered released links agree. It does not
+execute the release helper itself. The sole observed direct caller passes
+two sign-extended halfwords, keeping subtraction in the checked signed
+range; full-`s32` overflow equivalence is not claimed. The existing
+`SITF_0027a150_body.c` archive remains preserved.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,746 MATCH overall; 6,116 first-party MATCH / 744 ASM (89.2%)**.
+All 335 first-party files are lint-clean and progress snapshots validate.
+Source-linked totals remain **172 objects / 1,564 functions**.
+Both new durable archives compile to their measured instruction scores.
+Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
