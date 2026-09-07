@@ -5843,3 +5843,69 @@ and **172 C-linked objects / 1,565 functions**. All 335 first-party files
 are lint-clean and progress snapshots validate. Loadable SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Exact status-level selection and defined scalar contracts
+
+`func_00235320` in `src/Main/Battle/Data/datCalc.c` is now exact:
+**504B / 512B window**, with only the two omitted zero-tail words in
+`fndiff`. The complete owner verifies at **69 MATCH / eleven ASM**.
+`RDCA_00235320_body.c` contains the installed source and recovery evidence.
+
+The closing levers are the real signed-byte threshold/status/level
+boundaries, a promoted local at the level getter's branch merge, the
+unsigned-byte boolean boundary in the expanded active getter, and the
+independently narrowed `index % 256U` argument. Scoped loop-invariant
+hoisting preserves the threshold comparison's lifetime. The existing
+`s64` public return remains unchanged; a successful index is narrowed to
+`s8` before widening to that return type.
+
+The selector, actual `func_002332a0` status decoder and actual returning
+diagnostic stub pass **1,114,112 native32 cases** with undefined-behavior
+and function sanitizers. Coverage includes every status/level nibble in
+both parities, negative nonzero statuses, inactive packed status `15`,
+thresholds `3` and `6`, earlier qualifying entries, index `15`, exclusion
+of an otherwise qualifying index `16`, signed `-1`, resource flag masks
+and IDs `0`, `0x14F`, `0x150`, `0xFFFF`. An extended in-bounds fixture
+table exercises the returning diagnostic paths; disabling resource lookup
+sets that table pointer to null.
+
+Field-selection research also exposed a real return-contract defect:
+`func_0014a270` was defined `void` and discarded the result of
+`func_0014a2a0`, while its consumers require the predicate result.
+It now returns that `s32` result. The old definition fails compilation
+with the consumer declaration; the corrected wrapper and actual predicate
+pass **262,144 native32 cases**, spanning every 16-bit mode and four
+secondary-field values. The owning unit remains **114 MATCH / twelve ASM**.
+
+`func_002b2a30` now shifts its high color byte in unsigned 32-bit arithmetic.
+The old signed expression traps under the shift sanitizer for alpha `255`.
+Changing the mask to `0xFFU` removes that undefined shift without changing
+the four `s32` parameters, return contract or retail instructions.
+The reproduction and **72,097 native32 packing cases** pass, including
+all alpha/red bytes and signed/full-word masking boundaries. Its owner
+remains **72 MATCH / three ASM**.
+
+The native checks execute the actual C functions, not retail MIPS code.
+No platform-specific smoke scaffolding is retained.
+
+Unpromoted evidence is also refreshed:
+
+- `LFF2_0016b080_body.c`: **476B / 480B, 72 differing words**, down from
+  93 after 35 bounded source-shape probes. Typed resource/list prefixes,
+  cached guards and lexical float placement improve the candidate.
+  Guard folding, FP constant rematerialization and fallback joins remain;
+  the declaration/caller migration and pointer-getter contracts must be
+  resolved before promotion. The previous 13,440-case smoke belongs to
+  the earlier raw-pointer spelling, not this new candidate.
+- `FclShopDraw_002e0100_body.c`: **452B / 464B, 37 differing words**, down
+  from 45 using the actual float-first draw signature and signed-short
+  origin parameters. The color and opacity byte-to-word argument loads
+  still materialize too early. Packed-field spellings tie and are not
+  retained. Production shop declarations and assembly remain unchanged.
+
+`make build-progress progress lint-errors` passes at **7,756 overall
+MATCH / 4,964 ASM**, **6,126 first-party MATCH / 734 ASM (89.3%)**,
+and **172 C-linked objects / 1,565 functions**. All 335 first-party
+files are lint-clean and progress snapshots validate. Loadable SHA1 is
+`3d1d3d2b9d6ccb60836db239ab49674223025a78`; complete ELF SHA1 is
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

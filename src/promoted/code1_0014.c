@@ -2444,11 +2444,11 @@ done_0014a230:
     return result;
 }
 // FUN_0014A270
-void func_0014a270(void) {
+s32 func_0014a270(void) {
     u8 *temp_2;
 
     temp_2 = iGpffff9db0;
-    func_0014a2a0(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
+    return func_0014a2a0(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
 }
 // FUN_0014A2A0
 s32 func_0014a2a0(s32 arg0, s32 arg1) {

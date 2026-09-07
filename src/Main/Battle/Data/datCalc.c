@@ -1263,12 +1263,58 @@ void func_00235020(u8 *arg0)
 // FUN_00235110
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235110);
 
-/* measured: plain-C 35320 reconstruction archived at
-   build/WCDatCalc_00235320_best_probe.c; its object was 508B against the
-   512B retail window but remained a MISMATCH, so the guarded experiment was
-   removed and the byte-exact ASM fallback restored. */
+static inline s8 P4CalcLevel(u8 *unit, u8 index)
+{
+    u16 offset;
+    /* Preserve the signed-byte getter conversion at the branch merge. */
+    s32 level;
+    if ((s32)index >= 24)
+        func_0046d730(D_00635938, 0x42A);
+    offset = index >> 1;
+    if (index & 1)
+        level = (s8)(*(u8 *)(unit + offset + 0x24) >> 4);
+    else
+        level = (s8)(*(u8 *)(unit + offset + 0x24) & 15);
+    return (s8)level;
+}
+
+#pragma push
+/* measured: b210 owner profile, 504B/512B, no differing emitted words;
+   hoist the signed threshold comparison out of the loop. */
+#pragma opt_loop_invariants on
 // FUN_00235320
-INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235320);
+s64 func_00235320(u8 *unit)
+{
+    s32 checked;
+    s8 threshold;
+    u32 index;
+    s8 active;
+    s8 level;
+    threshold = 3;
+    if (*(u16 *)unit & 4) {
+        if (*(u16 *)(unit + 2) >= 0x150)
+            func_0046d730(D_00635938, 0x6D8);
+        if (*(u16 *)(iGpffffb3c4 + *(u16 *)(unit + 2) * 0x3C) & 0x1000)
+            threshold *= 2;
+    }
+    for (index = 0; index < 16; index++) {
+        checked = (u8)index;
+        if (checked >= 24)
+            func_0046d730(D_00635938, 0x4C1);
+        if (checked < 16)
+            /* Keep the independently narrowed getter argument. */
+            active = func_002332a0(unit, index % 256U);
+        else {
+            u8 result = (*(u32 *)(unit + 0x14) & (1 << checked)) != 0;
+            active = result;
+        }
+        level = P4CalcLevel(unit, index);
+        if (active != 0 && level >= threshold)
+            return (s8)index;
+    }
+    return -1;
+}
+#pragma pop
 // FUN_00235520
 INCLUDE_ASM("asm/nonmatchings/datCalc", func_00235520);
 
