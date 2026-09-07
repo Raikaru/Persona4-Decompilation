@@ -18,6 +18,25 @@
  * at fndiff 10 or regressed. No inline asm, volatile/register steering, banned
  * pragma, alias, GP-symbol, or ABI lever was used. Production is bare INCLUDE_ASM.
  */
+/* Re-certified with the current signed override getters: 488B/496B,
+ * eighteen differing bytes across eight emitted words, plus two zero-tail
+ * words (ten relocation-masked fndiff words, not a raw-byte comparison).
+ * All nine call relocations and baseline data symbol/addend pairs match.
+ * The fallback is signed byte 0x005E3A04 + index*6: D_005E3A02 plus the
+ * instruction's +2 displacement. Direct typed-record access folds +2 into
+ * relocation addends and changes lb to displacement zero: the same residual
+ * count then hides an additional exactness defect. A separate entry pointer
+ * or branch-scoped field lifetime preserves addends but does not improve
+ * the eight remaining register/normalization/branch-target words.
+ *
+ * Native consumer with current date conversion and signed override getter
+ * bodies passes 2,682,750 scenarios under address/undefined/function
+ * sanitizers: all 365 valid dates, null/present override, date/phase
+ * short-circuit precedence, and signed-byte/halfword boundaries.
+ * Nonzero calendar flag selects phase 3, zero selects phase 4; override -1
+ * means fallback, but other negative bytes remain valid returned values.
+ * Valid month/day domain only; no invented invalid-date behavior or guards.
+ * Current s8 return and signed getter contracts remain unchanged. */
 s8 func_00110a60(s32 arg0, s32 arg1)
 {
     s32 loaded;
