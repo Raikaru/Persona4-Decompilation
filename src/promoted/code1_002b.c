@@ -185,7 +185,8 @@ s32 func_002b2a30(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     result = arg3 & 0xFF;
     result = p4_pack_or(result, (arg2 & 0xFF) << 8);
     result = p4_pack_or((arg1 & 0xFF) << 16, result);
-    result = p4_pack_or((arg0 & 0xFF) << 24, result);
+    /* The high byte must be shifted in unsigned 32-bit arithmetic. */
+    result = p4_pack_or((arg0 & 0xFFU) << 24, result);
     return result;
 }
 // FUN_002B2A60
