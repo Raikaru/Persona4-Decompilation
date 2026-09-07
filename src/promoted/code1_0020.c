@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "shd_misc_internal.h"
 extern s32 func_00247cb0(s16 arg0);
 extern u16 func_00107ac0(s32 arg0);
 extern void func_0045af60(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -32,10 +33,6 @@ extern u32 func_001067f0(s16 arg0);
 extern s32 func_001eb860(void);
 
 typedef struct {
-    f32 x;
-    f32 y;
-} Vec2f;
-typedef struct {
     u8 pad0[2];
     s16 field2;
     s16 field4;
@@ -53,8 +50,6 @@ static inline u8 *p4_002091f0_add(u32 offset, u8 *base)
 
 
 extern u8 *func_00452560();
-extern void func_00364c90(s64 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                          f32 fparg2, f32 fparg3, s32 arg2);
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 extern u8 *func_0010ace0(s16 arg0);
@@ -2593,11 +2588,11 @@ void func_0020f4d0(u8 *arg0, u8 *arg1, f32 fparg0, f32 fparg1)
         sp48.x = 86.0f + fparg0;
         sp48.y = 86.0f + fparg1;
         if (var_f20 == 1.0f) {
-            func_00364c90(*(s64 *)&sp48, 0x151515FF, 0.0f, 87.0f,
+            func_00364c90(sp48, 0.0f, 0x151515FF, 87.0f,
                           16.0f, fGpffff815c, 1);
         }
         temp_f1 = 2.0f - var_f20;
-        func_00364c90(*(s64 *)&sp48, 0xFF0F02FF, 0.0f,
+        func_00364c90(sp48, 0.0f, 0xFF0F02FF,
                       87.0f * temp_f1, 16.0f * temp_f1,
                       fGpffff83b0, 1);
     }

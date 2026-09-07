@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "shd_misc_internal.h"
 
 extern s32 iGpffffa598;
 extern u8 *iGpffffb3ac;
@@ -17,8 +18,6 @@ extern void memset(void *destination, s32 value, u32 size);
 extern u8 *func_00452560();
 extern f32 func_0044b610(f32 fparg0);
 extern f32 func_0044b7b0(f32 fparg0);
-extern void func_00364c90(s64 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                           f32 fparg2, f32 fparg3, s32 arg2);
 extern f32 fGpffff837c;
 extern f32 fGpffff8378;
 extern u8 *iGpffffb414;
@@ -1745,7 +1744,7 @@ void func_0021dc50(s32 arg0, s32 *arg1)
     f32 var_f20;
     f32 temp_f0;
     f32 temp_f1;
-    f32 sp38[2];
+    Vec2f sp38;
     f32 var_f1;
 
     func_00201350();
@@ -1753,13 +1752,13 @@ void func_0021dc50(s32 arg0, s32 *arg1)
     if (!(var_f20 <= 1.0f)) {
         var_f20 = 1.0f;
     }
-    sp38[0] = 0.0f;
-    sp38[1] = -500.0f;
-    sp38[0] = sp38[0] + var_f20 * (800.0f * func_0044b7b0(fGpffff837c));
+    sp38.x = 0.0f;
+    sp38.y = -500.0f;
+    sp38.x = sp38.x + var_f20 * (800.0f * func_0044b7b0(fGpffff837c));
     temp_f0 = func_0044b610(fGpffff837c);
     temp_f1 = 800.0f * temp_f0;
-    sp38[1] = sp38[1] + var_f20 * temp_f1;
-    func_00364c90(*(s64 *)sp38, 0xFF, 0.0f,
+    sp38.y = sp38.y + var_f20 * temp_f1;
+    func_00364c90(sp38, 0.0f, 0xFF,
                   1500.0f, 1000.0f, fGpffff8378, 0);
 }
 // FUN_0021DDA0
