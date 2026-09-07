@@ -41,6 +41,13 @@ s32 func_00463d60(u8 *name)
     }
     return ret;
 }
+/* measured: 604 executable bytes / 608B window. DMA9/8 copy through the
+   16KiB scratchpad requires four sync/COP0 condition-line wait islands.
+   Omitting waits gives 456B/110 fully resolved differing words and fails
+   delayed-DMA consumers; CHCR-only polling gives 512B/111 and loses the
+   barriers/arbitration. No existing equivalent wait API was found.
+   Retain ASM; W53Uttmx_00463ea0_body.c preserves the historical raw-wait
+   attempt, not a policy-eligible C replacement. */
 // FUN_00463EA0
 INCLUDE_ASM("asm/nonmatchings/sdkUttmx", func_00463ea0);
 
