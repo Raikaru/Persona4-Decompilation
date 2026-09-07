@@ -3,7 +3,7 @@
 
 /* gp-relative global at 0x0072467C (gp - 0x4A74): pointer to the active list. */
 static u8 *iGpffffb58c;
-/* gp-relative global at 0x007244C4 (gp - 0x4C2C). */
+/* gp-relative global at 0x007644C4 (gp - 0x4C2C). */
 static u8 *iGpffffb3d4;
 
 extern char D_0063FC48[];
@@ -710,17 +710,109 @@ s32 func_002e6230(u16 arg0, u16 *arg1) {
 // FUN_002E6280
 INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6280);
 
-/* Comparator reconstruction archived at
-   build/WBYList_y_list_6630_candidate.c. The port follows matched
-   func_002e68b0's 11-case selector ordering and repeated dispatch shape.
-   Tuned form measured normalized_diff 362, object 608B/window 640B
-   (fndiff differing words 142; verify first-diff rows 18,22,38,42,50,65,69,
-   70,74,78,81,85,86,90,101,105). An explicit s64 index-cast variant was
-   oversized at 704B (nd426); named offsets and alternative load/decl orders
-   were ruled out. Remaining residual is saved-register/addressing and switch
-   layout drift, so bare INCLUDE_ASM is retained. */
+/* measured: 640B/640B, exact instructions and all 44 jump-table entries.
+   Keep each signed index's byte offset across its repeated accessor pair.
+   The comparator's O1 scope preserves the retail selector and key lifetimes. */
 // FUN_002E6630
-INCLUDE_ASM("asm/nonmatchings/y_list", func_002e6630);
+#pragma optimization_level 1
+s32 func_002e6630(s16 *arg0, s16 *arg1) {
+    s16 ia = *arg0;
+    s16 ib = *arg1;
+    u8 *base = *(u8 **)(D_00882F70[0] + 0x38);
+    u8 *pa;
+    u8 *qa;
+    u8 *pb;
+    u8 *qb;
+    s32 offset_a;
+    s32 offset_b;
+    u8 *metadata;
+    u16 va;
+    s32 vb;
+    s32 va_mask;
+    switch (*(u32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        offset_a = (ia * 3) * 0x10;
+        pa = base + offset_a + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        offset_a = (ia * 3) * 0x10;
+        pa = base + offset_a + 0xA4;
+        break;
+    default:
+        offset_a = (ia * 3) * 0x10;
+        pa = base + offset_a + 0x14;
+        break;
+    }
+    switch (*(u32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        qa = base + offset_a + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        qa = base + offset_a + 0xA4;
+        break;
+    default:
+        qa = base + offset_a + 0x14;
+        break;
+    }
+    metadata = iGpffffb3d4 + 2;
+    va = pa[4] + 100 * metadata[14 * *(u16 *)(qa + 2)];
+    switch (*(u32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        offset_b = (ib * 3) * 0x10;
+        pb = base + offset_b + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        offset_b = (ib * 3) * 0x10;
+        pb = base + offset_b + 0xA4;
+        break;
+    default:
+        offset_b = (ib * 3) * 0x10;
+        pb = base + offset_b + 0x14;
+        break;
+    }
+    switch (*(u32 *)(base + 4)) {
+    case 0:
+    case 2:
+    case 7:
+    case 8:
+        qb = base + offset_b + 0x14;
+        break;
+    case 1:
+    case 5:
+    case 6:
+    case 10:
+        qb = base + offset_b + 0xA4;
+        break;
+    default:
+        qb = base + offset_b + 0x14;
+        break;
+    }
+    vb = (u16)(pb[4] + 100 * metadata[14 * *(u16 *)(qb + 2)]);
+    va_mask = va & 0xFFFF;
+    if (vb < va_mask) {
+        return 1;
+    }
+    return -(va_mask < vb);
+}
+#pragma optimization_level 2
 
 
 
