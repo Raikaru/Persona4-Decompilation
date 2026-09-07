@@ -11,6 +11,11 @@
  * Paired pointer-value and paired byte-score structs also retain 19 words;
  * neither changes the second-phase allocation. Keep the simpler scalar body.
  * This is a reproducible candidate, not an exact match; production stays ASM.
+ * Fully resolved replay separates 17 executable differences from the eight
+ * zero-tail bytes; all ten existing owner C matches are preserved.
+ * Inline whole-sort, inline collection, explicit traversal/convergence CFG
+ * and inline paired-swap transitions all reproduce the scalar body bytes.
+ * None is retained. Helpers already have canonical u8/u32 contracts.
  */
 extern u8 func_00232c70(u8 *, s32);
 extern u32 func_00231d70(u32);
