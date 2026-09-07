@@ -1,14 +1,30 @@
-/* func_0010c750 near-match archive
- * object/window: 556B/560B
- * normalized_diff: 32
- * differing offsets (fndiff): 52,56,64; 188,192,200,204; 380,384; 428;
- *   444,448; 488,492,496,500,504,508,512; 524 (fndiff differing-word count 21)
- * ruled out: natural polynomial association variants; cubic temporary variants;
- *   signed-conversion casts/temporary types/scopes; float declaration orders;
- *   comparison polarity/operand swaps; optimization pragmas; s64 parameter.
- * COP1 chain reproduced: yes (adda.s, msub.s, adda.s, madd.s and all 3 mul.s
- *   words match); residual is ordinary GPR/register coloring and table-load order.
+/* func_0010c750 near-match archive; production remains ASM.
+ * MWCCPS2 b210 -O2: 556B/560B, normalized_diff 32, twenty differing emitted
+ * words plus one omitted zero-tail word at +0x22C (21 raw fndiff words).
+ * Emitted differing offsets: 52,56,64; 188,192,200,204; 380,384; 428;
+ *   444,448; 488,492,496,500,504,508,512; 524.
+ *
+ * Corrected coefficients: fGpffff8208 at 0x007612F8 (GP displacement 0x8208,
+ * retail bytes e3a59b3c), fGpffff820c at 0x007612FC (0x820c, cdcc6c40).
+ * The previous 8218/821c symbols named different data despite a relocation-
+ * masked instruction score. fGpffff8150 at 0x00761240 remains correct.
+ * Typed element indexing removes integer-address casts without worsening
+ * the residual. Named pointer helpers gave 27 differing emitted words;
+ * direct typed indexing stays at twenty. Remaining differences concern
+ * conditional temporaries, clamp addiu/daddiu, conversion registers,
+ * commutative address addition, and final curve-table scheduling/coloring.
+ *
+ * Native C under undefined/function sanitizers: 93,673 cases passed. Covers
+ * low-halfword early return before pointer access; clamp boundaries; every
+ * growth byte and persona ID; all scenario records; diagnostic continuation;
+ * unsigned result wrapping. Diagnostic cases use valid fixture backing rows.
+ * High-bit polynomial levels use zero coefficients to keep float-to-s32 in
+ * range; malformed levels with ordinary coefficients are not claimed safe.
+ * This checks C behavior, not EE COP1 rounding/fused-operation equivalence.
  */
+extern f32 fGpffff8208;
+extern f32 fGpffff820c;
+
 u32 func_0010c750(u8 *arg0, s32 arg1)
 {
     u32 scenario;
@@ -46,25 +62,21 @@ u32 func_0010c750(u8 *arg0, s32 arg1)
                 levelF = levelF + levelF;
             }
             growthOff = (s32)*(u16 *)(arg0 + 2) * 0xE;
-            growthF = (f32)*(u8 *)(growthOff + (s32)iGpffffb3d4 + 3);
+            growthF = (f32)iGpffffb3d4[growthOff + 3];
             prod = fGpffff8150 * levelF;
             result = (s32)((0.0f + 10.0f) +
-                           ((fGpffff821c + 0.0f - fGpffff8218 * growthF) *
+                           ((fGpffff820c + 0.0f - fGpffff8208 * growthF) *
                             (prod * levelF * levelF)));
         } else {
             if ((*(u16 *)(arg0 + 2) < 0xC0) ||
                 (*(u16 *)(arg0 + 2) >= 0xD8)) {
                 func_0046d730(D_005E4318, 0x67B);
             }
-            scenarioLevel = *(u16 *)((u8 *)iGpffffb3e4 +
-                                     (s32)*(u16 *)(arg0 + 2) * 0x26E -
-                                     0x1D280);
+            scenarioLevel = ((u16 *)iGpffffb3e4)[(s32)*(u16 *)(arg0 + 2) * 311 - 59712];
             if ((scenarioLevel < 2) || (scenarioLevel >= 0xB)) {
                 func_0046d730(D_005E4318, 0x67D);
             }
-            result = *(s32 *)((u8 *)iGpffffb3e8 +
-                              (s32)scenarioLevel * 0x188 +
-                              ((arg1 & 0xFFFF) * 4) - 0x318);
+            result = ((s32 (*)[98])iGpffffb3e8)[scenarioLevel - 2][(arg1 & 0xFFFF) - 2];
         }
     }
     return (u32)result;
