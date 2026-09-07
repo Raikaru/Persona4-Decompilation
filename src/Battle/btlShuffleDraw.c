@@ -604,19 +604,33 @@ void func_00375ec0(u8 *arg0, s32 arg1) {
 }
 
 
-/* measured: archived near miss (object 156B / window 160B / normalized_diff 20). Retail offsets 0x44-0x54 are the literal-5 store sequence `li $a0,5; move $v1,$s2; lui $v0,2; addu $v0,$v1,$v0; sw $a0,-0x295c($v0)`, not one call's argument set; 0x60 is the second-call `addu $a0,$s2,$at`, and 0x70 is the final-store `move $a0,$s2`. Candidate emits `li $v1,5; lui $v0,2; addu $v0,$s2,$v0; sw $v1,...`, recomputes the base for the second call, and emits `addu $a0,$s0,$s1` for the final base. Probes newly ruled out: full named store/value/base staging and call-argument locals (either optimized back to nd20 or shrink to 128/152B), all declaration permutations tested, opt_propagation off, schedule off (leaked to siblings and reverted), plus prior p+ forms, integer-domain locals, duplicated bases, named constants/values, pointer staging, declaration-order swaps, and operand-order recomputation. */
+/* measured: typed pointer arithmetic improves the O1 candidate to 156B/160B,
+   four differing bytes in two emitted words, with four zero-tail bytes.
+   Both calls share the cached context; state stores independently derive
+   their views. At +0x48/+0x70 the compiler still adds parent/index instead
+   of copying the cached base. All 44 owner C matches remain intact.
+   Native actual-provider smoke: 180 cases under undefined-behavior traps.
+   Keep ASM until both base-copy words match. */
 // FUN_00375F00 NONMATCHING
 #ifdef NON_MATCHING
 #pragma optimization_level 1
+typedef struct ShuffleMotion { u8 data[0x60]; } ShuffleMotion;
+typedef struct ShuffleRotation { u8 data[0x6c]; } ShuffleRotation;
+typedef struct ShuffleRecord {
+    u16 flags; u16 unknown02;
+    s32 motionState; s32 rotationState;
+    ShuffleMotion motion;
+    ShuffleRotation rotation;
+    u8 trackD8[8]; u8 trackE0[8];
+} ShuffleRecord;
+typedef struct ShuffleContext { u8 preceding[0x1d6a0]; ShuffleRecord records[]; } ShuffleContext;
 void func_00375f00(u8 *arg0, s32 arg1) {
-    s32 idx;
-    u8 *p;
-    idx = arg1 * 0xE8;
-    p = (u8 *)((u32)arg0 + (u32)idx);
-    func_00370410(p + 0x1D6AC);
-    *(s32 *)(p + 0x1D6A4) = 5;
-    func_00370a80((u8 *)idx + (u32)arg0 + 0x1D70C);
-    *(s32 *)((u8 *)idx + (u32)arg0 + 0x1D6A8) = 3;
+    s32 idx = arg1 * sizeof(ShuffleRecord);
+    ShuffleContext *p = (ShuffleContext *)(arg0 + idx);
+    func_00370410((u8 *)&p->records[0].motion);
+    ((ShuffleContext *)(arg0 + idx))->records[0].motionState = 5;
+    func_00370a80((u8 *)&p->records[0].rotation);
+    ((ShuffleContext *)(arg0 + idx))->records[0].rotationState = 3;
 }
 #pragma optimization_level 2
 #else

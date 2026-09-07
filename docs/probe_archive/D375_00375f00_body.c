@@ -1,17 +1,18 @@
-/* IDA-backed retained floor: 156B / 160B, eight fndiff words including one zero-tail word.
- * IDA: docs/ida_headstart/src/Battle/btlShuffleDraw.c:383-393; retail confirms
- * motion helper -> state 5 -> rotation helper -> state 3, with no final flag OR.
- * Typed 0xE8 records preserve the real 0x60 motion and 0x6C rotation subobjects.
- * Native parent smoke: 576 cases, using helper hooks for ordering and adjacent bytes.
- * Retail retains idx and parent but reuses their combined base for the stores;
- * this candidate still recomputes that base. Production remains ASM.
- * Later dead-assignment-off replay retains 156B/eight words. Reusing only
- * the combined context for all later operations with that pragma shrinks
- * to 128B/38 words; it does not preserve the retail parent/index lifetimes.
+/* Current b210 owner floor: 156B/160B, four differing bytes in two emitted
+ * words; four retail zero-tail bytes. Both call relocations fully resolved.
+ * At +0x48/+0x70 retail copies the cached context from s2; the candidate
+ * recomputes it from parent/index. Production remains ASM.
+ * IDA: docs/ida_headstart/src/Battle/btlShuffleDraw.c:383-393.
+ * Motion helper -> state 5 -> rotation helper -> state 3; no final flag OR.
+ * Typed 0xE8 records preserve 0x60 motion and 0x6C rotation subobjects.
+ * Both calls share the cached context; state stores derive their own views.
+ * Native actual-provider smoke: 180 cases under Clang UB traps, covering
+ * provider mutations, inter-call state, all twelve records and adjacent bytes.
+ * All 44 existing owner C matches and their relocations remain intact.
+ * Requires valid aligned backing storage and an allocated record index.
  */
 // FUN_00375F00
 #pragma optimization_level 1
-void func_00375f00(u8 *arg0, s32 arg1) {
 typedef struct ShuffleMotion { u8 data[0x60]; } ShuffleMotion;
 typedef struct ShuffleRotation { u8 data[0x6c]; } ShuffleRotation;
 typedef struct ShuffleRecord {
@@ -22,13 +23,13 @@ typedef struct ShuffleRecord {
     u8 trackD8[8]; u8 trackE0[8];
 } ShuffleRecord;
 typedef struct ShuffleContext { u8 preceding[0x1d6a0]; ShuffleRecord records[]; } ShuffleContext;
-typedef char RecordSizeCheck[sizeof(ShuffleRecord)==0xe8 ? 1 : -1];
- s32 idx=arg1*sizeof(ShuffleRecord);
- ShuffleContext *p=(ShuffleContext *)((u32)arg0+(u32)idx);
- func_00370410((u8 *)&p->records[0].motion);
- p->records[0].motionState=5;
- func_00370a80((u8 *)&((ShuffleContext *)((u8 *)idx+(u32)arg0))->records[0].rotation);
- ((ShuffleContext *)((u8 *)idx+(u32)arg0))->records[0].rotationState=3;
+void func_00375f00(u8 *arg0, s32 arg1) {
+    s32 idx = arg1 * sizeof(ShuffleRecord);
+    ShuffleContext *p = (ShuffleContext *)(arg0 + idx);
+    func_00370410((u8 *)&p->records[0].motion);
+    ((ShuffleContext *)(arg0 + idx))->records[0].motionState = 5;
+    func_00370a80((u8 *)&p->records[0].rotation);
+    ((ShuffleContext *)(arg0 + idx))->records[0].rotationState = 3;
 }
 
 #pragma optimization_level 2
