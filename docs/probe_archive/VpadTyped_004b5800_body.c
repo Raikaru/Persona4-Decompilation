@@ -2,6 +2,11 @@
  * lw/sll schedule differences at +0x54/+0x58 and three zero-tail words.
  * Full-width IDs and void(u8*) are consumer-backed; no promotion.
  * Fresh request temporaries, typed table bases and accessor forms did not close it.
+ * Fresh full-owner replay applies all seven call relocations: the same two
+ * executable words differ. A producer-backed request layout adds two
+ * commuted-addu differences (four total). An inline request-call boundary
+ * gives 320B/62 executable differences, including the missing delay slot.
+ * None improves this body; the twelve retail tail bytes are separate.
  * Historical W47Vpad archive remains preserved. */
 #include "type.h"
 

@@ -483,31 +483,94 @@ void func_00303a20(u8 *arg0) {
     func_00303610(arg0, p[0x1A], buf);
 }
 
-/* wave 14: the else-branch table store fold (addiu 0x70 into sw vs retail's
-   separate addiu) is the SAME stack-table family that broke in func_00308e50
-   — but there the fix was the table INITIALIZER (individual stores), not the
-   load/store address form, and here the table is filled by genuine stores;
-   array spelling retains the fold (nd 132 unchanged). Residual remains the
-   saved-register rotation p=$s4,n=$s1,total=$s2,baseA=$s3 vs mine (all
-   orders) + the fold. opt_propagation off contraindicated (multi-store
-   loops per wave-14 rule). Best nd 132 unchanged. */
-/* measured (re-tested wave B): the global-base-hoist recipe WORKS here —
-   s8 *baseA = (s8 *)D_0063FCA0 + p[0x2D4]*0x1C and s8 *baseB = (s8 *)
-   D_006406F0 + (s8)func_00110a60(...)*0x14 reproduce retail's single
-   lui/addiu base registers. Best nd 132 (obj 732B vs window 752B):
-   for-loops give retail's pre-jump + bottom-condition shape; inline
-   (s16)var_x casts in BOTH condition and body give retail's double
-   dsll32/dsra32 per iteration (a body s32 temp gets CSE'd into one ext);
-   #pragma opt_loop_invariants on DOES hoist the 0x64 consts into both
-   preheaders (nd 147 -> 132; the earlier note's "makes no difference"
-   applied to a different source shape). Residual: saved-register rotation
-   (p=$s0,n=$s2,total=$s1,baseA=$s4 vs retail p=$s4,n=$s1,total=$s2,
-   baseA=$s3, all decl orders probed) + the else-branch table store folds
-   addiu $x,0x70 into sw where retail keeps the addiu (stack-table fold
-   family); the earlier note's 0x64-remat/r-re-ext claims are both
-   source-drivable after all. */
+/* measured: 740 executable bytes / 752B retail window, all eight relocations exact.
+   Five s32 weights and five s8 IDs reproduce the real stack buffers. A named
+   compact-store pointer and the s16 value cast preserve retail address lifetimes. */
 // FUN_00303DE0
-INCLUDE_ASM("asm/nonmatchings/y_fclCombine", func_00303de0);
+#pragma opt_loop_invariants on
+void func_00303de0(u8 *arg0)
+{
+    s32 weights[5];
+    s8 ids[5];
+    s8 *p;
+    u32 total;
+    s8 count;
+    s16 cumulative;
+    u32 selectedAddress;
+    s8 *calendar;
+    s32 month;
+    s16 i;
+    s16 j;
+    s16 k;
+    s32 roll;
+    s32 *entry;
+
+    p = *(s8 **)(arg0 + 0x38);
+    total = 0;
+    count = 0;
+    cumulative = 0;
+    /* Keep the pre-callback selector snapshot without forming a pointer
+       before the table when the selector is -1. */
+    selectedAddress = (u32)D_0063FCA0 + p[724] * 28;
+    month = func_002e78a0();
+    calendar = (s8 *)D_006406F0 + (s8)func_00110a60(month, func_002e78e0()) * 20;
+    p[735] = 0;
+    if (p[724] == -1) {
+        for (i = 0; i < 5; i++) {
+            s8 id;
+            s8 weight;
+            ids[i] = 0;
+            weights[i] = 0;
+            id = calendar[i * 4];
+            if (id != 0) {
+                weight = calendar[i * 4 + 1];
+                if (weight == 100) {
+                    p[p[735] + 730] = id;
+                    p[735]++;
+                } else {
+                    entry = weights + count;
+                    *entry = weight;
+                    total += weight;
+                    ids[count] = id;
+                    count++;
+                }
+            }
+        }
+    } else {
+        for (j = 0; j < 5; j++) {
+            s8 id;
+            s8 weight;
+            ids[j] = 0;
+            weights[j] = 0;
+            id = ((s8 *)selectedAddress)[j * 4 + 8];
+            if (id != 0) {
+                weight = ((s8 *)selectedAddress)[j * 4 + 9];
+                if (weight == 100) {
+                    p[p[735] + 730] = id;
+                    p[735]++;
+                } else {
+                    entry = weights + count;
+                    *entry = weight;
+                    total += weight;
+                    ids[count] = id;
+                    count++;
+                }
+            }
+        }
+    }
+    if (count > 0) {
+        roll = (s16)(func_003b7060() % total);
+        for (k = 0; k < count; k++) {
+            cumulative += (s16)weights[k];
+            if (roll < cumulative) {
+                p[p[735] + 730] = ids[k];
+                p[735]++;
+                return;
+            }
+        }
+    }
+}
+#pragma opt_loop_invariants reset
 /* measured: object 532B/window 544B, nd 0. The five-byte weight table copy is
    the tree's load / advance / decrement / store order through a named byte
    temporary. The random roll is an s32 holding the (s8) remainder (extended
