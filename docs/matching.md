@@ -4675,7 +4675,9 @@ late multiplier lookup, narrow scaling flag and an input-only persona
 pointer. Semantic equivalence does not qualify this floor for promotion.
 
 The superseded `FPSHD_00117310_body.c` and `EcD_00117310_body.c` archives
-are removed; the installed shader body is the canonical reconstruction.
+remain tracked as historical recovery work. Their hypotheses cannot be
+regenerated from the retail ELF; the installed shader body is the canonical
+production reconstruction.
 
 Full acceptance: `make build-progress progress lint-errors` passes with
 **7,735 MATCH overall; 6,105 first-party MATCH / 755 ASM**. Progress

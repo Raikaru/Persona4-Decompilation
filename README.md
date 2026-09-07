@@ -124,7 +124,8 @@ the compilers and the retail ELF at `/opt/p4`.
 
 ```sh
 make setup ISO="/path/to/Shin Megami Tensei - Persona 4 (USA).iso"
-make split      # extract the retail assembly for functions not yet matched
+make split           # create bulk retail disassembly and build assets
+make regenerate-asm  # regenerate all manifest-listed INCLUDE_ASM fallbacks
 make            # build the image and verify the retail hashes
 make test       # unit tests for the tooling
 ```
@@ -138,6 +139,46 @@ make lint               # integrity errors plus advisory source diagnostics
 make progress           # regenerate the progress endpoints and this README's table
 make objdiff            # objdiff-cli report for the matching build
 ```
+
+### Regenerating retail assembly
+
+`make split` alone does not regenerate `asm/nonmatchings/`. Run
+`make regenerate-asm` before compiling a fresh checkout. It invokes
+`python tools/regenerate_asm.py --fresh`: after refusing unexpected edits to
+existing generated files, it removes only the manifest-classified generated
+outputs, performs an independent split in scratch space, and checks every
+regenerated file against its expected SHA-256 before succeeding. Retained manual
+assembly is left in place. To check reproduction without changing output files:
+
+```sh
+P4_RETAIL_ELF="/path/to/SLUS_217.82" python tools/regenerate_asm.py --check
+```
+
+Regeneration needs the privately supplied, hash-validated USA retail ELF
+(`orig/SLUS_217.82`, `P4_RETAIL_ELF`, or `--retail PATH`) and Python dependencies
+pinned in `requirements-python.txt` (including splat64's MIPS extra,
+spimdisasm, and rabbitizer). Public R5900 binutils and the proprietary
+compilers are needed for the subsequent build/verification, not regeneration.
+The generator does not consume machine-local build/verify configurations,
+existing split outputs, or existing fallback assembly as generation inputs.
+Tracked inputs include `config/slus21782.yaml`, target and symbol metadata,
+the canonical function map, the extraction tools, and
+`config/generated_asm.json` with expected paths/hashes, recipes, corrections,
+and explicit retained exceptions.
+
+Generated retail disassembly is not hand-maintained assembly or recovered C.
+Assembler support and manifest-retained manual files stay tracked. C recovery
+probes under `docs/probe_archive/` also stay tracked: they preserve human work
+that cannot be recovered by disassembling the ELF. Do not blanket-delete or
+untrack either directory. Generated fallbacks may leave Git only after a clean
+checkout with those outputs absent reproduces every expected byte locally and
+the proprietary CI job builds and verifies the regenerated tree. Until both
+gates pass, keep the baseline fallback files tracked.
+
+The proprietary CI job runs setup, `make split`, and `make regenerate-asm`
+before its existing full build and verifier, with no local configuration files.
+It requires the private inputs and approval described in
+`.github/workflows/ci.yml`; a skipped proprietary job is not regeneration proof.
 
 ## Matching a function
 
@@ -175,11 +216,13 @@ src/            matching C, one file per original translation unit
   rw/ cri/ sce/ middleware tracked for the byte-exact image, not decompiled
   generated/    raw m2c candidates (M2C_CANDIDATE); never authoritative
 include/        project types and headers; include/rw/ is the RenderWare SDK
-config/         target identity, symbol addresses, per-unit compiler/flag lists
-asm/            assembler support; the split retail assembly is ignored
+config/         target, symbols, compiler/flag lists, generated-ASM manifest
+asm/            assembler support, retail split output, and fallback assembly
+  nonmatchings/ manifest-classified generated fallbacks and retained manual ASM
 tools/          setup, build, verify, lint, progress and analysis tools
 tests/          deterministic tests for the tooling
 docs/           matching playbook, style rules, compiler floors, probe archive
+  probe_archive/ tracked C recovery probes; not regenerable retail disassembly
 progress/       published progress endpoints (GitHub Pages)
 orig/ build/    extracted retail files and build output (ignored)
 ```
