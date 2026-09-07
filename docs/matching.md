@@ -4801,3 +4801,55 @@ validate and all 333 first-party files are lint-clean. The source-linked
 totals remain **172 objects / 1,562 functions**. Both retail SHA1s are unchanged:
 `3d1d3d2b9d6ccb60836db239ab49674223025a78` for the loadable image and
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c` for the complete executable.
+
+The published field-loader commit `95b0528a` also passes proprietary CI
+[`34073398344`](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34073398344):
+11,152 fallbacks regenerate exactly, both manual files remain unchanged,
+and the build reproduces both retail hashes and the 6,106/754 first-party count.
+
+## List comparator: signed indices and repeated selector lifetimes
+
+`func_002e6630` in `src/Yajima/y_list.c` matches **640B / 640B**, with no
+padding gap. All **44 entries in its four jump tables** also reproduce the
+retail function-relative destinations. The existing
+`s32(s16 *, s16 *)` comparator ABI needs no migration.
+
+Each signed 16-bit index has a 48-byte entry offset reused across its pair
+of selector dispatches. Types 0/2/7/8 use the array at `base+0x14`;
+1/5/6/10 use `base+0xA4`; the other cases and out-of-range selectors use
+the first array. The key is the unsigned value
+`entry[4] + 100 * metadata[14 * entry.u16_at_2 + 2]`, narrowed to 16 bits.
+Lower keys sort first and equal keys return zero. Scoped optimization level
+1 preserves the retail offset and key lifetimes; level 2 is restored afterward.
+
+The installed comparator passes **118,720 pair checks** and **28 real
+`qsort` batches / 615,668 qsort comparator calls** under Clang ASan/UBSan.
+The smoke covers all selector cases, signed-index boundaries, byte-valued
+key components, equal keys, changed metadata roots, ordering and permutation
+preservation. Owner verification is **30 MATCH / 7 ASM**. The exact C
+recovery is retained in `ListSort_002e6630_body.c`; the obsolete source note
+pointing at a missing build-only predecessor is removed.
+
+The parallel shop-digit recovery is preserved in
+`ShopDigits_002caa10_body.c`, but remains ASM: **696B / 704B**, with
+**34 executable saved-register differences** and eight zero-tail bytes.
+Its caller-backed ABI uses `Vec2f`, depth, value `RGBA`, an unsigned 32-bit
+number, a signed-16 base glyph, sprite and style. Digit and comma glyph
+offsets are not narrowed again after addition. Natural compiler spills
+already reproduce the retail SQ/LQ slots; artificial wide locals or a
+combined dummy stack structure are unnecessary.
+
+The actual copied GP string is space plus NUL. Its two-byte declaration
+reproduces GP-relative addressing; the destination's `text[16]` bound is
+inferred from real stack storage, not uniquely proven. First-use declaration
+order, direct initializers and short-width storage do not close the residual.
+Combining repeated width-subtraction branches changes the control-flow graph
+rather than fixing allocation. The source annotation now records these
+measured facts instead of its stale, incorrect parameter order.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,737 MATCH overall; 6,107 first-party MATCH / 753 ASM**. The committed
+progress snapshots validate and all 333 first-party files remain lint-clean.
+Source-linked totals remain **172 objects / 1,562 functions**; the loadable
+SHA1 is `3d1d3d2b9d6ccb60836db239ab49674223025a78` and the complete ELF SHA1
+is `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
