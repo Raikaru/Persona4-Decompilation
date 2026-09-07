@@ -1,6 +1,7 @@
 /* Source unit: src/frFontEx_00275a40.c */
 #include "type.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 
 extern void func_0046d730(const void *file, u32 line);
 extern char D_0063BAE8[];
@@ -13,7 +14,6 @@ extern int func_002724d0(const char *param_1, int param_2, int param_3,
                          int param_4, int param_5);
 extern void func_00272a10(int param_1, float param_2, float param_3);
 extern void func_00272ba0(u32 resource, u32 color);
-extern int func_00273170(int param_1, u32 param_2, u32 param_3);
 extern u32 func_00272cb0(int param_1);
 extern u32 func_00271bd0(int param_1);
 extern int func_002738d0(int node);
@@ -176,7 +176,7 @@ int func_00274ed0(f32 x, f32 y, f32 scale, int color, int chr, int id,
     if (&result != 0) {
         result = tmp;
     }
-    func_00273170(font, 1, 0);
+    func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
         func_00271bd0(font);
     }
@@ -203,7 +203,7 @@ int func_00275020(f32 x, f32 y, f32 scale, int color, int chr, int id,
     if (&result != 0) {
         result = tmp;
     }
-    func_00273170(font, 1, 0);
+    func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
         func_00271bd0(font);
     }
@@ -232,7 +232,7 @@ int func_002751a0(f32 x, f32 y, f32 scale, int color, int chr, int id,
         result = tmp;
     }
     D_007645A0 = 0;
-    func_00273170(font, 1, 0);
+    func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
         func_00271bd0(font);
     }
@@ -261,7 +261,7 @@ int func_00275330(f32 x, f32 y, f32 scale, int color, int chr, int id,
         result = tmp;
     }
     D_007645A8 = 0;
-    func_00273170(font, 1, 0);
+    func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
         func_00271bd0(font);
     }
@@ -271,7 +271,7 @@ int func_00275330(f32 x, f32 y, f32 scale, int color, int chr, int id,
 // FUN_002754C0
 void func_002754c0(s32 arg0, int font)
 {
-    func_00273170(font, 1, 0);
+    func_00273170((void *)font, 1, 0);
     if ((s8)func_00272cb0(font) == 0) {
         func_00271bd0(font);
     }

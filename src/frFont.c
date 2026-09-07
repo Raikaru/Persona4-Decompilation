@@ -1,5 +1,6 @@
 #include "type.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 
 extern void func_002716b0_typed(s32 arg0, u64 arg1, u8 *arg2);
 
@@ -17,7 +18,6 @@ extern s16 D_00763810;
 extern void func_00273140(void *param_1, u32 param_2);
 
 extern u32 D_00764598;
-extern int func_00273170(void *param_1, u32 param_2, u32 param_3);
 
 extern u32 D_007637F8;
 extern u32 D_00764594;
@@ -69,8 +69,6 @@ extern s32 D_008815B0[];
 extern s32 func_0026e010();
 extern void func_00275a60();
 extern void func_00271860(void);
-extern s32 func_00270fb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                        s32 arg5);
 
 extern u32 DAT_0088176C_abs[];
 extern u32 DAT_00881770_abs[];
@@ -107,6 +105,11 @@ extern char D_0063BBF0[];
 extern char D_0063BB40[];
 extern char D_0063BB80[];
 
+  typedef struct GslListNode {
+    int data[6];
+    struct GslListNode *prev;
+    struct GslListNode *next;
+  } GslListNode;
 typedef struct FrFontGlyph {
     u8 unknown_00[0xc];
     int advance;
@@ -154,24 +157,90 @@ extern u32 DAT_00881634_abs[];
 
 
 
-/* measured: recipe B retest 2026-08-03. The func_002715c0 dual-assignment
-   tab pattern ((void *(**) )DAT_008873ec_abs; ((code)tab[0])...) AND the
-   wave's u32-cast form (u32 b = (u32)jtbl_008873E8;
-   ((void *(*)(u32,u32))*(u32 *)b)()) BOTH hoist the vtable bases (E8 in
-   $22, EC in $s0 in the failure block) - the old EC-rematerialization claim
-   is stale; both forms measure nd122 with identical objects. Loop bodies
-   also color exactly as retail ($a2/$a3/$t0, load-first order) once the
-   value load is a named temp. Residual nd122: (1) the slot-link loops'
-   D_0088152C/D_00881528 bases - retail hoists a bare lui with the lo16
-   folded into each lw; a u32* pointer local materializes lui+addiu (2 extra
-   words per base) and the direct-global spelling rematerializes lui+lw per
-   iteration, (2) mwcc hoists the D_0088152C value load to the inner-loop
-   preheader where retail re-issues lw per iteration, (3) post-loop link
-   statements rotate registers ($a0/$a1 vs $v0/$v1). opt_loop_invariants
-   over-hoists (loads leave the loop, nd125). Base-hoist shape + load-CSE
-   scheduling floor. */
+/* measured: signed pool globals, preserved propagation boundaries and loop
+   invariants reproduce bare-LUI hoisting without hoisting mutable loads.
+   The existing 32-byte GslListNode layout gives all 860 executable bytes
+   and 62 resolved relocations; the final retail word is alignment padding. */
 // FUN_00270FB0
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
+#pragma push
+#pragma opt_propagation off
+#pragma opt_loop_invariants on
+s32 func_00270fb0(s32 arg0, s32 columns, s32 rows, s32 width, s32 height, s32 aux_size)
+{
+    u8 *aux = 0;
+    u32 i;
+    s32 j;
+    s32 x;
+    s32 y;
+    s32 index;
+    GslListNode *node;
+    void *(**alloc)(u32, u32);
+    s32 scaled_width, scaled_height, row_y;
+    void **tab;
+
+    if ((*(s32 *)DAT_0088152C_abs) != 0 && D_007645B0 != 0)
+        return 0;
+    DAT_00881518_abs[0] = width;
+    DAT_0088151C_abs[0] = height;
+    DAT_00881520_abs[0] = width * height / 2;
+    (*(s32 *)DAT_00881528_abs) = columns * rows;
+    DAT_00881524_abs[0] = columns * rows;
+    func_0044ea90(D_0063BAE8, 0x18C);
+    alloc = jtbl_008873E8;
+    (*(s32 *)DAT_0088152C_abs) = DAT_00881510_abs[0] = (u32)alloc[0]((*(s32 *)DAT_00881528_abs) * 32, 0x40000);
+    if ((*(s32 *)DAT_0088152C_abs) == 0)
+        func_0046d730(D_0063BAE8, 0x18E);
+    if (aux_size != 0) {
+        func_0044ea90(D_0063BAE8, 0x192);
+        aux = (u8 *)(DAT_00881514_abs[0] = (u32)alloc[0](aux_size * (*(s32 *)DAT_00881528_abs), 0x40000));
+        if (aux == 0)
+            func_0046d730(D_0063BAE8, 0x194);
+    }
+    for (i = 0; i < (u32)((*(s32 *)DAT_00881528_abs) - 1); i++) {
+        GslListNode *base = (GslListNode *)(*(s32 *)DAT_0088152C_abs);
+        base[i].next = &base[i + 1];
+    }
+    node = (GslListNode *)(*(s32 *)DAT_0088152C_abs);
+    (i + node)->next = node;
+    for (j = (*(s32 *)DAT_00881528_abs) - 1; j > 0; j--) {
+        GslListNode *base = (GslListNode *)(*(s32 *)DAT_0088152C_abs);
+        base[j].prev = &base[j - 1];
+    }
+    ((GslListNode *)(*(s32 *)DAT_0088152C_abs))->prev = &((GslListNode *)(*(s32 *)DAT_0088152C_abs))[(*(s32 *)DAT_00881528_abs) - 1];
+    index = 0;
+    y = 0;
+    scaled_width = width * 16;
+    scaled_height = height * 16;
+    for (; y < rows; y++) {
+        x = 0;
+        row_y = y * height * 16;
+        for (; x < columns; x++) {
+            node = &((GslListNode *)(*(s32 *)DAT_0088152C_abs))[index];
+            if (node == 0) {
+                if ((*(s32 *)DAT_0088152C_abs) != 0) {
+                    tab = (void **)DAT_008873ec_abs;
+                    ((code)tab[0])(DAT_00881510_abs[0]);
+                    ((code)tab[0])(DAT_00881514_abs[0]);
+                    (*(s32 *)DAT_0088152C_abs) = 0;
+                }
+                return 0;
+            }
+            node->data[0] = index;
+            node->data[1] = x * width * 16;
+            node->data[2] = row_y;
+            node->data[3] = node->data[1] + scaled_width;
+            node->data[4] = node->data[2] + scaled_height;
+            if (aux != 0)
+                node->data[5] = (u32)(aux + index * aux_size);
+            else
+                node->data[5] = 0;
+            index++;
+        }
+    }
+    D_007645B0 = 1;
+    return 1;
+}
+#pragma pop
 // Ported from P3FES FUN_003b4580 (verified MATCH there). The prior nd11
 // floor was the RETURN TYPE: retail leaves the incremented count live in $v0
 // at the jr, so every void spelling coloured the whole global-load chain
@@ -181,11 +250,6 @@ INCLUDE_ASM("asm/nonmatchings/frFont", func_00270fb0);
 // FUN_00271310
 s32 func_00271310(u8 *param_1)
 {
-  typedef struct GslListNode {
-    int data[6];
-    struct GslListNode *prev;
-    struct GslListNode *next;
-  } GslListNode;
   GslListNode *node = (GslListNode *)param_1;
   GslListNode *head;
   GslListNode *next;
@@ -1457,19 +1521,120 @@ extern code D_00887300_abs[];
 
 
 
-/* measured: recipe B retest 2026-08-03 - nd194..195 (recorded 131 not
-   reproducible this wave). Tried the wave's u32-cast vtable form
-   (u32 base = (u32)D_00887300; ((void (*)(s32,s32))*(u32 *)base)()) -
-   nd195, the void *(**) local - nd195, named prologue s8 local, m2c-draft
-   mirror, ternary arg1 test + s32 temp_23 - nd194. The hoist itself works in
-   all forms (8 vtable calls match); the residual is: mwcc hoists the
-   loop-invariant arg1-s8 test out of the inner loop where retail re-tests
-   per iteration, re-extends the s8 temp_23 at its use (lb + dsll32/dsra32
-   vs retail's single lb into $23), and saves 7 registers (frame 0x80) vs
-   retail's 8 (frame 0x90) - same saved-register rotation family as the
-   recorded note, plus an invariant-if hoist. */
+/* measured: ordinary s32 spacing preserves its signed-byte load across
+   callbacks, while named raster inputs and opt_propagation off preserve
+   argument load order. Reversed long-lived declaration order closes the
+   saved-register mirrors. All 824 executable bytes and 11 relocations
+   match; the remaining eight retail bytes are alignment padding. */
 // FUN_00273170
-INCLUDE_ASM("asm/nonmatchings/frFont", func_00273170);
+#pragma opt_propagation off
+s32 func_00273170(void *arg0, u32 arg1, u32 arg2)
+{
+    u8 *node;
+    u8 *glyph;
+    s32 total;
+    s32 x;
+    s32 complete;
+    s32 mode;
+    s32 y;
+    s32 spacing;
+    s32 offset;
+    u8 found;
+    u32 states;
+    u8 style;
+    s32 draw_x;
+    s32 draw_y;
+    u8 palette_index;
+    u8 width;
+    u8 height;
+    f32 scale;
+
+    node = (u8 *)arg0;
+    total = 0;
+    complete = 1;
+    if (!(D_00763810 & 0x40)) {
+        states = (u32)D_00887300_abs;
+        ((code)*(u32 *)states)(6, 1);
+        ((code)*(u32 *)states)(7, 2);
+        ((code)*(u32 *)states)(9, 2);
+        ((code)*(u32 *)states)(12, 1);
+        ((code)*(u32 *)states)(10, 5);
+        ((code)*(u32 *)states)(11, 6);
+        ((code)*(u32 *)states)(2, 4);
+        ((code)*(u32 *)states)(14, 0);
+        func_003f6440(2, 0x44);
+        func_003f6440(3, 0x5100D);
+    }
+    if (node == 0) {
+        return 0;
+    }
+    node = *(u8 **)(node + 0x2C);
+    mode = (s8)arg1;
+    while (node != 0) {
+        x = *(s32 *)(node + 4);
+        y = *(s32 *)(node + 8);
+        spacing = *(s8 *)(node + 3);
+        glyph = *(u8 **)(node + 0x1C);
+        while (glyph != 0) {
+            if (mode == 0) {
+                style = node[0];
+                offset = func_00272e10(node, glyph, style, node[2]);
+            } else {
+                offset = 0;
+            }
+            draw_x = offset + (x + *(s32 *)(glyph + 4));
+            draw_y = y + *(s32 *)(glyph + 8);
+            palette_index = glyph[0x14];
+            width = glyph[0x18];
+            height = glyph[0x19];
+            scale = *(f32 *)(node + 0x14);
+            func_00275d80(draw_x, draw_y, glyph, palette_index, width, height,
+                         *(s32 *)(glyph + 0x10), scale);
+            if (glyph[0x10] != 0) {
+                *(u16 *)(glyph + 2) += 1;
+            }
+            if (glyph[0x10] < 255U) {
+                complete = 0;
+            }
+            x += (s32)((u32)(*(s32 *)(glyph + 0xC) + spacing) << 4);
+            glyph = *(u8 **)(glyph + 0x28);
+        }
+        if (*(u8 **)(node + 0x28) == 0 && *(s32 *)(node + 0x40) == 0) {
+            found = 0;
+            if (func_00272d40(node) != 0) {
+                found = 1;
+                switch (*(s32 *)(node + 0x30)) {
+                case 0xF222:
+                case 0xF227:
+                    *(s32 *)(node + 0x3C) -= 1;
+                    break;
+                case 0xF223:
+                case 0xF226:
+                    if (*(s32 *)(node + 0x3C) == -1) {
+                        func_0045af90(1);
+                    } else {
+                        *(s32 *)(node + 0x3C) -= 1;
+                    }
+                    break;
+                }
+            }
+            if (found != 0) {
+                complete = 0;
+            }
+        }
+        total += *(s32 *)(node + 0x18);
+        node = *(u8 **)(node + 0x28);
+    }
+    if (D_0076459C > 0) {
+        D_0076459C -= 1;
+        return 0;
+    }
+    if ((s8)complete == 0) {
+        total = 0;
+    }
+    return total;
+}
+#pragma opt_propagation on
 /* measured: reconstructed from the matched func_00272d40 case logic. Reusing
    arg0 as the walking node and declaring flag before sum gives retail's
    node=$s2/flag=$s1/sum=$s0 prologue. Assigning the result pointer only after

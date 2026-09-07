@@ -2,6 +2,7 @@
 /* Original translation unit evtScript.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "include_asm.h"
+#include "fr_font_internal.h"
 extern void func_00106390();
 extern void (*jtbl_008873EC[])(void *ptr);
 
@@ -56,7 +57,6 @@ static inline u32 evtSlot(u32 offset, u32 base)
     return offset + base;
 }
 
-extern void func_00273170(u8 *arg0, s32 arg1, s32 arg2);
 extern void func_00271b70(u8 *arg0);
 extern f32 func_0044b7b0(f32 fparg0);
 extern f32 iGpffff8094;
