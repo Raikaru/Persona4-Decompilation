@@ -1,27 +1,50 @@
 /*
- * IDA-led safe floor: object 476B / retail window 480B / 35 differing words
- * (relocation-masked). Natural baseline was 49; declaration/address order
- * reduces it to 35. All instructions through the skill phase now match.
+ * IDA-led safe floor: object 476B / retail window 480B. There are 34
+ * relocation-masked emitted word differences (115 bytes), or 36 after
+ * resolving all relocations. fndiff reports 35 including the omitted
+ * four-byte zero tail. The first residual is +0x130, in the item phase.
  * IDA: docs/ida_headstart/src/promoted/code1_0020.c:1552-1608.
- * Canonical helper contracts replace the previous incompatible declarations.
- * Skills are unsigned: IDs >= 0x8000 must not pass the < 0x1B8 filter, as
- * they incorrectly did in the superseded signed-halfword reconstruction.
- * Retain both flag updates, the optional action before them, all 256 item
- * queries, and the second quantity query after each accepted ID store.
- * Remaining differences: byte-return mask, item-ID/address materialization
- * and resulting offsets. Do not widen the real u8 count-return ABI to match.
- * Native smoke: 2048 cases cover boundary skills, eight accepted skills,
- * disabled lists, flags/actions, query ordering, changing second quantities,
- * ID-store visibility, zero counts, and every untouched work-buffer byte.
- * Production remains INCLUDE_ASM.
+ * Typed item records tie the previous raw-address floor; retaining a live
+ * output-record pointer grows the body to 480B. All 115 existing MATCH
+ * bodies in the owner remain exact.
+ * Skills are unsigned: IDs >= 0x8000 must not pass the < 0x1B8 filter.
+ * Retain both flag stores, action-before-flags ordering, all 256 first item
+ * queries, and each accepted ID store before its second quantity query.
+ * The latter may mutate the ID, quantity, padding or other work bytes:
+ * write only the quantity afterwards, never a cached complete record.
+ * Remaining differences: the genuine u8 return mask and item ID/address
+ * scheduling. Do not widen the count-return ABI to remove its mask.
+ * Native typed-record consumer: 384 cases / 98,304 first item queries,
+ * Clang ASan/UBSan/function sanitizer. Covers all eight accepted skills,
+ * skill-flag rejection, all 256 accepted items, unsigned skill boundaries,
+ * disabled lists, actions, changing second quantities, observable callback
+ * mutations and every untouched byte of the 0x600-byte work buffer.
+ * The earlier raw-address version separately passed 2,048 cases.
+ * iGpffffb3b8 is 0x007644A8 (GP 0x007690F0, displacement -0x4C48).
+ * Production remains INCLUDE_ASM; typed layout is not a promotion.
  */
+extern u8 func_00106600(s16 id);
+extern u16 *func_0010a900(s32 id);
+extern u16 func_0010cf40(u8 *persona, s16 slot);
+extern s32 func_00232aa0(s32 id);
+extern u8 *iGpffffb3b8;
+
+typedef struct {
+    u16 id;
+    u8 quantity;
+    u8 reserved;
+} BattleListItem;
+
+typedef struct {
+    u8 prefix[0x194];
+    u16 skills[8];
+    u16 skillCount;
+    BattleListItem items[256];
+    u16 itemCount;
+} BattleListWork;
+
 void func_00207140(u16 *flags, u8 *work)
 {
-    extern u8 func_00106600(s16 id);
-    extern u16 *func_0010a900(s32 id);
-    extern u16 func_0010cf40(u8 *persona, s16 slot);
-    extern s32 func_00232aa0(s32 id);
-    extern u8 *iGpffffb3b8;
     u8 *action;
     u8 *unit;
     u8 *persona;
@@ -30,7 +53,6 @@ void func_00207140(u16 *flags, u8 *work)
     u16 skill;
     u16 itemCount;
     u16 itemSlot;
-    u8 *entry;
 
     if (func_00106330(0x3C) != 0) {
         action = *(u8 **)(*(u8 **)(work + 0x178) + 0x3F0);
@@ -57,9 +79,8 @@ void func_00207140(u16 *flags, u8 *work)
     for (itemSlot = 0; itemSlot < 0x100; itemSlot++) {
         if (func_00106600((s16)(itemSlot + 0x300)) != 0 &&
             func_00232aa0((u16)(itemSlot + 0x300)) != 0) {
-            entry = work + itemCount * 4;
-            *(u16 *)(entry + 0x1A6) = itemSlot + 0x300;
-            entry[0x1A8] = func_00106600((s16)(itemSlot + 0x300));
+            ((BattleListWork *)work)->items[itemCount].id = itemSlot + 0x300;
+            ((BattleListWork *)work)->items[itemCount].quantity = func_00106600((s16)(itemSlot + 0x300));
             itemCount++;
         }
     }

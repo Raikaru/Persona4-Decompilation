@@ -2,6 +2,7 @@
 /* Consolidated Persona 4 source units. */
 /* Original translation unit y_fclShopDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
+#include "fr_font_internal.h"
 
 typedef struct { f32 x, y; } Vec2f;
 typedef struct { u8 r, g, b, a; } RGBA;
@@ -210,7 +211,7 @@ void func_002badc0(s32, s16);
 void func_002bafc0(s32, s32);
 void func_002bb0a0(s32, s32);
 void func_002bbf60(void);
-s32 func_00275520(f32, f32, f32, void *, s32, s32, s32, s32, s32, void *);
+
 s32 func_002dfec0(void *, s32, void *, s8);
 s32 func_002dff90(void *, s32, void *, void *, s8);
 u32 func_003b7060(void);
@@ -1387,8 +1388,8 @@ s32 func_002dff90(void *arg0, s32 arg1, void *arg2, void *arg3, s8 arg4) {
 
 // FUN_002E0080
 void func_002e0080(void *arg0, s8 arg1, Vec2f arg2, void *arg3) {
-    func_00275520(77.0f + arg2.x, arg2.y, 1.0f, arg3, 0, 1,
-                  func_0010d6d0(arg1), 8, 0, D_00795E60);
+    func_00275520(77.0f + arg2.x, arg2.y, 1.0f, (s32)(u32)arg3, 0, 1,
+                  (const char *)func_0010d6d0(arg1), 8, 0, D_00795E60);
 }
 
 /* measured: 452B/464B, only three zero-tail words. Canonical byte color and

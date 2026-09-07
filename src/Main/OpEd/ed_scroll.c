@@ -28,7 +28,6 @@ extern s32 func_00442948(const char *text);
 extern void func_00442de8(void *dst, const void *src, s32 size);
 extern void func_00272c60(s32 mode);
 extern void func_00272c80(s32 mode);
-extern u32 func_002724d0(const char *text, s32 style, s32 mode, s32 a, s32 b);
 extern s32 func_002738d0(u32 handle);
 
 typedef struct EdColor {
@@ -389,7 +388,7 @@ void func_0038e810(u32 *work, char *text, s32 align)
                     break;
                 }
                 {
-                    u32 handle = func_002724d0(token, (s8)style, (s8)mode, 0, 0);
+                    u32 handle = (u32)func_002724d0((u8 *)token, (s8)style, (s8)mode, 0, NULL);
                     func_00274a20(handle, 0.0f);
                     *(u32 *)((u8 *)work + count * 8 + 8) = handle;
                     *(f32 *)((u8 *)work + 4 + count * 8) = width;

@@ -107,9 +107,7 @@ extern void func_00366380(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
                           s32 arg4, s32 arg5, s32 arg6, s32 arg7,
                           s32 arg8, u8 *arg9, f32 farg0, f32 farg1,
                           f32 farg2, f32 farg3);
-extern void func_00275680(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5, s32 arg6, s32 arg7,
-                          f32 farg0, f32 farg1, f32 farg2);
+
 extern u8 *func_00461390(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern f32 D_008872F8[];
 extern u8 D_00794C60[];

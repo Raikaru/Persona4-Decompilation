@@ -1,6 +1,7 @@
 /* Source unit: src/promoted/code1_002a.c */
 #include "include_asm.h"
 #include "type.h"
+#include "fr_font_internal.h"
 
 extern void (*jtbl_008873EC[])(u8 *);
 extern u16 *D_00764658;
@@ -72,9 +73,7 @@ extern u8 D_0063EEB0[];
 extern u16 D_008C024E[];
 extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
-extern s32 func_00274ed0(f32 arg0, f32 arg1, f32 arg2, s32 arg3,
-                         s32 arg4, s32 arg5, void *arg6, s32 arg7,
-                         s32 arg8);
+
 extern s32 func_002b2cb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_002b2d00(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_002bdb50(s32 arg0, s8 arg1);
