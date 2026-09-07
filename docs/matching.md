@@ -5257,3 +5257,120 @@ Source-linked totals remain **172 objects / 1,564 functions**.
 Both new durable archives compile to their measured instruction scores.
 Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+Commit `06dc3758` passed
+[CI 34085256707](https://github.com/Raikaru/Persona4-Decompilation/actions/runs/34085256707):
+all 11,152 exact fallbacks regenerated, both hand-maintained files stayed
+unchanged, both retail hashes matched, and first-party MATCH remained 6,116.
+
+## Checked reallocation and texture packet construction
+
+`func_0044f140` closes `src/Kernel/sdkChkmem.c` at **13 MATCH / zero ASM**:
+**596 executable bytes / 608B window**, **36 fully resolved relocations**
+and zero linked-byte differences. The remaining twelve bytes are alignment.
+Typed `ChkMemEntry` access and explicit result assignments at the two arm
+joins retain the retail branch chain. Independently removing only the two
+through-`u64` pointer casts from the historical W54 body also makes that
+draft exact in the current owner; its old register-coloring floor is stale.
+The same-TU unlink helper remains **static void**. Its actual code preserves
+physical `v0`; this does not justify a fictitious pointer-return interface.
+
+The integrated body passes **ten complete candidate-versus-retail bounded
+EE scenarios**: fresh allocation, disabled interrupts, shrink, safe growth,
+overreading growth, failed new/old allocation, callback-visible pool reload,
+zero request and wrapping allocation-size rounding. Checked allocation,
+list/unlink helpers and returning diagnostics execute as real machine code.
+Raw allocation/free/copy and privileged interrupt operations are explicit
+hooks. Returning paths also check saved registers and stack restoration.
+The matrix is not exhaustive over all classes, lists, alignments or nested
+restore outcomes, and its wrap case deliberately forces allocation failure.
+
+Two retail defects remain intact. Failed allocation is diagnosed and then
+reaches a **NULL-header write**, before copying, unlinking, freeing or
+restoring interrupts; the old allocation remains unchanged before that
+fault. Copy size is unsigned `min(request, old header total size)`, not
+payload capacity. An 80-byte old allocation with payload at `+32` and a
+request of 100 attempts an 80-byte copy from only 48 readable payload bytes.
+The copy hook reads the whole source before writing, so this proves the
+overread, not real partial-copy destination effects.
+
+The existing `s32(void *, u32)` registration and dispatch remain unchanged;
+RenderWare's third hint is ignored, as in retail. Independent review accepts
+promotion with these explicit target-ABI and execution limits. Exact C is
+preserved in `CheckedReallocRecovery_0044f140_body.c`.
+
+`func_00143cf0` closes `src/Kernel/h_malloc.c` at **10 MATCH / zero ASM**:
+**672 executable bytes**, **eleven resolved calls**, zero differences and
+no alignment tail. Despite the owner filename, this is DMA/GIF texture
+packet construction, not heap allocation. Ordinary stride locals, saved-Y
+lifetime, a final-column flag and separate sequential address additions
+replace the oversized historical reconstruction. No wide constructor
+locals, artificial padding or raw instructions are needed; the matched
+helpers' packed `u64` fields represent actual packet data.
+
+The numeric source-address local is **`u32`**, not `s32`. A signed local
+traps when ordinary positive stride advances cross the signed-address
+boundary, even with small otherwise-safe dimensions. The same-width
+unsigned form retains every retail byte while defining low-32-bit wrapping.
+Both signed negative controls trap under signed-integer-overflow UBSan at
+`-O0` and `-O2`; the integrated unsigned body passes **137 native-i386
+scenarios at each optimization**, including signed-address and unsigned-wrap
+boundaries. This is specifically signed-overflow instrumentation, not an
+all-undefined-behavior sanitizer claim.
+
+The consumer runs the real matched packed-helper bodies with call-order
+instrumentation. An independent serializer checks every byte of its 8,192-byte
+buffer, including untouched holes and trailing bounds. Coverage includes
+negative/zero widths, 15/16/17 and 63/64/65 boundaries, height 448, skip/gap
+segments, final-column EOP, both initial fill patterns and high/low source
+address masking. With `N = max(width >> 4, 0)`, the write extent is
+`0x48 + 0x60*N`, while `64 + 80*N` bytes are actually written: DMA-tag slots
+leave their upper eight bytes untouched.
+
+All eleven arguments and existing wrapper/helper declarations agree with
+retail. The existing `0x102` submission reaches the low-byte-two DMA-chain
+path; it is not discarded. Source is numeric and never dereferenced here.
+The caller's height clamp to 448 does **not** bound width or establish
+capacity for unsized `D_007D0F00`. Invalid/misaligned pointers, insufficient
+buffers and signed dimension/product/coordinate overflow remain outside
+the exercised domain. No MIPS, GS, DMA or graphical execution is claimed.
+Independent review accepts the unsigned variant; its exact C is preserved
+in `TexturePacketRecovery_00143cf0_body.c`.
+
+The selected owners and registration verify **133 functions: 28 MATCH /
+105 ASM**, including **27 first-party MATCH / one ASM**. No caller changes
+are required.
+
+The remaining `sdkUttmx.c` routine, `func_00463ea0`, stays ASM. Its
+**604 executable bytes / 608B window** copy through the 16KiB scratchpad
+using DMA9 followed by DMA8. Both channels require the retail sync/COP0
+condition-line waits; only DMA9 additionally polls CHCR. The four wait
+islands have no equivalent existing project API. Omitting them gives
+456B/110 fully resolved differing words and demonstrably returns with DMA8
+active and wrong output under delayed completion. CHCR-only polling gives
+512B/111, or 528B/132 without loop-invariant hoisting; it loses barriers and
+COP0 arbitration even where the model's copied bytes agree.
+
+The device experiment executes retail and three residuals **88 times**
+across eleven sizes and immediate/delayed completion, with separate stuck
+channel and address-wrap cases. Cache/RenderWare helpers and timing are
+models, not real EE hardware validation; zero-QWC semantics are explicitly
+assumed by the model. The real routine always programs the final pair,
+even for zero QWC, discards sub-quadword tail bytes, and adds no timeout or
+range/overlap/alignment checks. The historical `W53Uttmx_00463ea0_body.c`
+raw-wait archive is preserved, but is not an allowed C replacement.
+
+Virtual-pad `func_004b5800` remains at 324B/5 masked words: two reordered
+load/shift instructions and three alignment words. Both integer-address
+addition orders retain that score; unsigned offset spelling at either
+one call loses common reuse and gives 320B/61. These four new source
+hypotheses are rejected without changing its production fallback or archive.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,748 MATCH overall; 6,118 first-party MATCH / 742 ASM (89.2%)**.
+All 335 first-party files are lint-clean and progress snapshots validate.
+Source-linked totals are **172 objects / 1,565 functions**, one additional
+C-linked function. Both new durable archives reproduce their measured
+instruction streams.
+Loadable SHA1 remains `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
+complete ELF SHA1 remains `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.

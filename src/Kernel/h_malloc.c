@@ -64,9 +64,53 @@ void func_00143c90(u32 texture, void* packet, u32 source, s32 a3, s32 a4,
 
 
 
-/* measured: declaration-corrected candidate object 740B/window 672B, normalized_diff 461 bytes, differing words 132 (reloc-masked); oversized reconstruction, body archived as build/FHML_00143cf0_body.c. */
-// FUN_00143CF0 NONMATCHING
-INCLUDE_ASM("asm/nonmatchings/h_malloc", func_00143cf0);
+/* measured: ordinary stride locals, saved-Y lifetime and separate source
+   additions reproduce all 672 executable bytes and 11 relocations.
+   The numeric source address is u32 so address-boundary wrapping stays
+   defined. Packed u64 helper values are real DMA/GIF fields, not padding.
+   DMA tag slots intentionally leave their upper eight bytes untouched. */
+// FUN_00143CF0
+void func_00143cf0(u32 arg0, u8* arg1, u32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0, s32 arg_sp8, s32 arg_sp10)
+{
+    s32 columns = arg6 >> 4;
+    s32 rows = arg7 >> 4;
+    s32 width;
+    u8* packet;
+    s32 i;
+    s32 count;
+    u32 source;
+    s32 savedY;
+    s32 last;
+    s32 stride;
+    s32 gapStride;
+    savedY = arg5;
+    func_00143f90((u64*)arg1, 0, 0, 0, 1, 0, 3);
+    func_00144000((u32*)(arg1 + 0x10), 0xE, 1, 0, 0, 0, 0, 2);
+    width = ((arg6 + 63) / 64) * 64;
+    func_00144060((u32*)(arg1 + 0x20), arg0, width / 64, 0);
+    func_00144140((u32*)(arg1 + 0x30), 16, rows * 16);
+    packet = arg1 + 0x40;
+    source = arg2 + (arg_sp0 >> 4) * (arg3 * (rows + (arg_sp10 >> 4)));
+    source += arg3 * (arg_sp8 >> 4);
+    i = 0;
+    count = (rows * 1024) / 16;
+    stride = arg3 * rows;
+    gapStride = arg3 * (arg_sp10 >> 4);
+    while (i < columns) {
+        last = (i == columns - 1) ? 1 : 0;
+        func_00143f90((u64*)packet, 0, 0, 0, 1, 0, 4);
+        func_00144000((u32*)(packet + 0x10), 0xE, 1, 0, 0, 0, 0, 2);
+        func_001440d0((u32*)(packet + 0x20), 0, arg4 + i * 16, savedY);
+        func_001441a0((u32*)(packet + 0x30), 0);
+        func_00144000((u32*)(packet + 0x40), 0, 0, 2, 0, 0, last, count);
+        func_00143f90((u64*)(packet + 0x50), 0, source & 0x0fffffff, 0, 3, 0, count);
+        packet += 0x60;
+        source += stride;
+        source += gapStride;
+        i++;
+    }
+    func_00143f90((u64*)packet, 0, 0, 0, 7, 0, 0);
+}
 // FUN_00143F90
 void func_00143f90(u64* out, u32 a1, s32 a2, u32 a3, u32 a4, u32 a5,
                    u32 a6)
