@@ -6283,3 +6283,40 @@ The integrated `make build-progress progress lint-errors` gate passes:
 **6,131 first-party MATCH / 729 ASM (89.4%)**, **172 C-linked objects /
 1,568 functions**, validated progress artifacts and zero lint findings
 across 336 first-party files. Both retail SHA-1 identities remain unchanged.
+
+## Shuffle initializer floor and order-sort preconditions
+
+`func_00375f00` remains ASM, but its retained C candidate now uses ordinary
+typed pointer arithmetic rather than integer-punned pointers. Both calls
+share the cached context; state stores independently derive their views.
+The current owner improves from 20 to **four differing bytes in two emitted
+words**, **156B/160B** with four zero-tail bytes and both call relocations
+resolved. At `+0x48/+0x70`, base recomputation still replaces retail's cached
+base copies. All **44 existing owner C matches** remain intact.
+
+The initializer with the actual motion/rotation provider bodies passes
+**180 native cases under Clang undefined-behavior traps**. Coverage includes
+all twelve records, provider mutations, state 5 between calls, state 3
+after rotation, real subobject writes and untouched neighboring storage.
+The candidate and archive require valid aligned backing storage and an
+allocated record index; no range guard or final flag update is invented.
+
+`func_001b11c0` retains its **192B/192B, five-word register-allocation
+floor**, fully relocation-resolved, with all ten owner C matches preserved.
+Its native32 candidate passes **262,080 UB-trap cases**: every binary
+sequence of lengths 1–12 over four genus pairs, either selected genus,
+high key bits, unique/duplicate action pointers, stable ordering and
+untouched prefix/sentinel/suffix storage. Singleton actions may have a
+null unit; full twelve-entry lists terminate before a protected guard page.
+
+This is not a general-purpose sort. Nonempty input is a retail precondition,
+not a recovered universal caller guarantee: the unsigned `count - 1`
+underflows on empty input. Heterogeneous non-key genera can oscillate:
+`[0,1]` with key `0x100` alternates forever. Preserve the 16-bit key and
+predicate short circuit rather than adding a guard or narrowing away the
+boundary. Both production ASM fallbacks remain in place.
+
+The integrated `make build-progress progress lint-errors` gate retains
+**6,131 first-party MATCH / 729 ASM**, **172 C-linked objects / 1,568
+functions**, validated progress snapshots and zero lint findings across
+336 first-party files. Both retail SHA-1 identities remain unchanged.
