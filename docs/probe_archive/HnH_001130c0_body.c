@@ -22,6 +22,10 @@
  * neighbors. Its 43008-case native consumer passes Clang ASan/UBSan.
  * Eventual promotion must migrate func_00112300's packed-s64 declaration
  * and union actual argument to the existing Vec2f-by-value contract.
+ * Three-field channel caches (alpha first/last, signed/unsigned alpha)
+ * with G/B assigned first all emit 440B and 15 masked differing words.
+ * They change saved-register allocation rather than closing the five-word
+ * schedule. Keep the smaller original floor, not those aggregate variants.
  */
 void func_001130c0(Vec2f arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 arg3)
 {
