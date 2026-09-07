@@ -4738,3 +4738,66 @@ passed on `f9911051` while all fallbacks were still tracked. Its log records
 unchanged, and **7,735 overall MATCH / 6,105 first-party MATCH / 755 ASM**.
 Only after this result are the manifest-generated paths removed from Git's
 index, with their local files preserved and the two manual exceptions kept.
+
+## Field resource loader: complete stream descriptors and callback ordering
+
+`func_00150ce0` in `src/Kosaka/Field/k_fldResource.c` matches every emitted
+instruction: **988B / 992B**, with four bytes of retail zero tail. The
+historical `LFR_00150ce0_body.c` archive remains preserved. Its fresh replay
+is **956B / 992B, 219 fndiff words**, not its old four-word claim.
+
+The recovery closes three real source issues:
+
+- `func_003df3c0` writes the complete 20-byte `RwChunkHeaderInfo`, not one
+  scalar. Both memory-stream descriptors also require their actual two-word
+  storage. The definitions in `rwplcore.h` and `RwStreamReadChunkHeaderInfo`
+  corroborate this layout; the stream-open implementation copies both
+  descriptor words rather than retaining their stack address.
+- A `while` loop places the initial test and backedges correctly. The chunk
+  byte length is unsigned, as in RenderWare. Correcting that type closes
+  five repeated argument-setup pairs without register pinning.
+- Cases 11 and 16 explicitly open the child stream, snapshot the resource
+  destination, construct the queued task, then reload the destination's
+  index. Cases 22 and 12 explicitly load their destination after construction.
+  These statement boundaries preserve the retail ordering without relying
+  on the host compiler's assignment-operand evaluation order.
+
+The case-11 descriptor start is intentionally refreshed only when its
+existing entry is zero. A later nonzero entry can reuse the previous child
+descriptor; unconditional refresh or invented initialization is not equivalent.
+Case 35 invokes the texture callback before destroying its dictionary and
+does not perform the ordinary chunk skip. Only the outer stream is closed
+here; queued child streams are consumed by `sdkWrap.c` and closed later by
+`func_001510c0`.
+
+The installed body passes **1,127 consumer scenarios** at real 32-bit pointer
+width and the same **1,127 scenarios under Clang ASan/UBSan** with low-address
+64-bit host storage. Coverage includes all dispatch cases, unknown chunk
+types, full-width unsigned skip lengths, child-open and task-construction
+failures, no-data and outer-open failure paths, empty streams, retained
+case-11 descriptors, and resource/index mutations across helper calls.
+The failure cleanup also reloads the resource after closing its file.
+The owner verifies **16 MATCH / 5 ASM**, with no mismatches.
+
+Two parallel recoveries remain deliberately unpromoted:
+
+- `VpadTyped_004b5800_body.c`: **324B / 336B**; two executable `lw`/`sll`
+  schedule differences and twelve zero-tail bytes. Its paired matrix IDs
+  remain full-width: `func_0047a510` narrows only on one path, while its
+  alternate lookup uses all 32 bits. The live `void(u8 *)` boundary is kept.
+- `InitTyped_00484b30_body.c`: **120B / 128B**; six executable `v0`/`v1`
+  coloring differences and eight zero-tail bytes. All five inspected callers
+  discard the initializer result. A fabricated return is not a legitimate
+  allocation fix. The four VF0 stores remain genuine hardware bridges;
+  scalar defaults and the full quadword copy remain C.
+
+Both typed candidates were independently checked against retail helpers and
+callers, then remeasured with their owning translation-unit settings. Their
+historical `W47Vpad` and `F480` archives are retained alongside the new evidence.
+
+Full acceptance: `make build-progress progress lint-errors` passes with
+**7,736 MATCH overall; 6,106 first-party MATCH / 754 ASM**. Progress snapshots
+validate and all 333 first-party files are lint-clean. The source-linked
+totals remain **172 objects / 1,562 functions**. Both retail SHA1s are unchanged:
+`3d1d3d2b9d6ccb60836db239ab49674223025a78` for the loadable image and
+`4eeec0360cf2715535d9f7e52eb69d786fb0158c` for the complete executable.
