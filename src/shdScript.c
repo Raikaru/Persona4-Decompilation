@@ -6,7 +6,7 @@ extern s32 func_00452490();
 extern s32 func_00452380();
 extern u8 D_00636A30[];
 
-typedef int (*code)();
+typedef void (*code)(void *);
 extern code DAT_008873ec_abs[];
 extern void func_0044ea90(const void *msg, s32 id);
 extern u8 *(*D_008873F4[])(s32 kind, s32 size, s32 align);
@@ -15,24 +15,27 @@ extern s32 func_00451fc0(u8 *window, const void *data, s32 a, s32 b, s32 c,
 extern u8 *D_00636820[];
 extern u8 D_00636838[];
 extern u8 D_00636850[];
-extern s32 func_00145270(s32 arg0);
+typedef struct Resrc Resrc;
+extern Resrc *func_00145270(u16 arg0);
 extern void func_0026bc10(s32 arg0, s32 arg1);
-extern s8 func_002bab80(u8 *arg0);
+extern s64 func_002bab80(void *arg0);
 extern void func_00442830(u8 *arg0, u8 *arg1);
 extern void func_002bbd80(s8 arg0, s32 arg1, u8 *arg2);
-extern s32 func_00248f20(s16 arg0, s32 arg1);
+extern s32 func_00248f20(s32 arg0, s32 arg1);
 extern void func_0046d730(u8 *arg0, s32 arg1);
 extern void func_002badc0(s8 arg0, s32 arg1);
 extern s32 func_002bb680(s8 arg0);
 extern void func_002bb420(s8 arg0);
 extern s16 func_00104f10(s16 arg0);
-extern s16 func_00104ea0(s32 arg0, s16 arg1);
-extern void func_001051a0(s32 arg0, s16 arg1, s16 arg2);
-extern u8 *func_00246980(s16 arg0, s16 arg1);
-extern void func_00275980(u8 *arg0, u8 *arg1, s32 arg2);
+extern s16 func_00104ea0(s16 arg0, s16 arg1);
+extern void func_001051a0(s16 arg0, s16 arg1, s16 arg2);
+extern s32 func_00246980(s16 arg0, s16 arg1);
+extern void func_00275980(char *src, char *dst, s32 maxlen);
 extern void func_002bb550(s8 arg0);
 extern void func_002bbcf0(s8 arg0);
-extern s32 func_0025c790(void);
+extern s32 func_0025c790(u8 *task);
+extern u32 func_00452560(void *task);
+extern s32 func_0045af60(s16 index, s16 stream, s16 arg2, s16 arg3);
 extern s32 func_0029d020(void);
 extern s32 func_0029cc00(s32 which);
 extern void func_0029cf50(s32 arg0);
@@ -46,17 +49,94 @@ typedef struct {
 
 
 
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
+/* Retail MATCH: 996/1008 bytes, 45 resolved relocations; twelve zero tail
+   bytes. Promoted rank snapshots preserve the retail narrowing boundaries. */
 
 // FUN_0025C790
-INCLUDE_ASM("asm/nonmatchings/shdScript", func_0025c790);
-// FUN_0025CB80
-void func_0025cb80(void)
+s32 func_0025c790(u8 *task)
 {
-    s32 iVar1;
+    u8 name[32];
+    u8 old_name[32];
+    u8 new_name[32];
+    ShdScriptWork *work;
+    s32 message;
+    s32 old_rank;
+    s32 increment;
+    s32 index;
+    s32 previous_rank;
+    s32 value;
+    s32 new_rank;
 
-    iVar1 = func_00452560();
-    DAT_008873ec_abs[0](iVar1);
+    work = (ShdScriptWork *)func_00452560(task);
+    switch (work->state) {
+    case 0:
+        if (func_00145270(0x400) != 0)
+            func_0026bc10(0x400, 6);
+        else
+            func_0026bc10(0xC01, 6);
+        func_0045af60(0, 0, 4, 3);
+        work->slot = (s8)func_002bab80(D_00636850);
+        if (work->slot != -1) {
+            func_00442830(name, D_00636820[work->index]);
+            func_002bbd80((s8)work->slot, 0, name);
+            message = func_00248f20((s16)work->index, work->value);
+            if (message < 0 || message > 2)
+                func_0046d730(D_00636838, 0xD1);
+            func_002badc0((s8)work->slot, message);
+        } else {
+            return -1;
+        }
+        work->state = 1;
+        break;
+    case 1:
+        if (func_002bb680((s8)work->slot) == 0) {
+            func_002bb420((s8)work->slot);
+            old_rank = func_00104f10((s16)work->index);
+            increment = work->value;
+            index = work->index;
+            if (index >= 5)
+                func_0046d730(D_00636838, 0x90);
+            previous_rank = func_00104f10((s16)index);
+            value = (s32)((u32)increment + (u32)(s32)func_00104ea0(1, (s16)index));
+            if (value > 999)
+                value = 999;
+            func_001051a0(1, (s16)index, (s16)value);
+            if (previous_rank != func_00104f10((s16)index)) {
+                new_rank = func_00104f10((s16)work->index);
+                func_0045af60(1, 0, 3, 0);
+                func_00442830(name, D_00636820[work->index]);
+                func_002bbd80((s8)work->slot, 0, name);
+                func_00275980((char *)(u32)func_00246980((s16)work->index, (s16)old_rank), (char *)old_name, 32);
+                func_00275980((char *)(u32)func_00246980((s16)work->index, (s16)new_rank), (char *)new_name, 32);
+                func_002bbd80((s8)work->slot, 1, old_name);
+                func_002bbd80((s8)work->slot, 2, new_name);
+                func_002badc0((s8)work->slot, 3);
+                work->state = 2;
+            } else {
+                func_002bb550((s8)work->slot);
+                return -1;
+            }
+        }
+        break;
+    case 2:
+        if (func_002bb680((s8)work->slot) == 0) {
+            func_002bb420((s8)work->slot);
+            func_002bb550((s8)work->slot);
+            return -1;
+        }
+        break;
+    }
+    if (work->slot >= 0)
+        func_002bbcf0((s8)work->slot);
+    return 0;
+}
+// FUN_0025CB80
+void func_0025cb80(u8 *task)
+{
+    u32 work;
+
+    work = func_00452560(task);
+    DAT_008873ec_abs[0]((void *)work);
 }
 
 // FUN_0025CBC0
