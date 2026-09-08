@@ -576,7 +576,7 @@ void func_001d3d00(u32 param_1)
     work[0] = param_1;
 }
 // FUN_001D3D50
-void func_001d3d50(u32 param_1)
+s32 func_001d3d50(u32 param_1)
 {
     BtlFormationState *state;
 
@@ -595,6 +595,7 @@ void func_001d3d50(u32 param_1)
     }
     state->counter = 1;
     state->value = 0;
+    return (s32)state;
 }
 // FUN_001D3E00
 void func_001d3e00(u32 param_1)

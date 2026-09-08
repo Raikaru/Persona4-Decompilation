@@ -187,6 +187,11 @@ s32 func_001c0e50(u8 *arg0) {
     }
     return 5;
 }
+/* measured: first complete C reconstruction, 1876B / 1888B window;
+   48 relocations resolved, 312 executable word positions differ including
+   eight missing executable bytes. Ordinary C emits both retail COP1
+   accumulator pairs; the former ASM-only floor claim was false.
+   Reference: docs/probe_archive/P01C_001c1040_body.c. Production stays ASM. */
 // FUN_001C1040
 INCLUDE_ASM("asm/nonmatchings/code1_001c", func_001c1040);
 // FUN_001C17A0

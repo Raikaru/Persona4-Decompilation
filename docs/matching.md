@@ -6912,3 +6912,52 @@ objects / 1,570 functions**, validated progress artifacts, and zero lint
 findings across 338 first-party files. Both hashes remain unchanged:
 loadable image `3d1d3d2b9d6ccb60836db239ab49674223025a78`;
 retail file `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
+
+## Fresh formation followup and the first motion reconstruction
+
+`code1_0022.c::func_0022c430` matched on its first complete reconstruction,
+without a refinement: **1,876 executable bytes / 1,888-byte window**,
+**123 code relocations**, and the complete **22-entry, 88-byte switch
+table** with all 22 table relocations resolved. The twelve omitted bytes
+are genuine zero alignment. Every lookup/allocation/set/store sequence
+and its post-provider global reload is retained.
+
+The allocation provider `btlFormation.c::func_001d3d50` now explicitly
+returns its allocated formation address as `s32`, with the existing
+promoted `u32` mode input. It no longer declares a void operation while
+callers consume its preserved result register. The five existing compiled
+C consumers were located through both source discovery and actual
+relocations; their declarations were reconciled. All four affected
+owners pass focused verification, including the new dispatcher.
+
+A native non-PIE fixture passes **131,072 scenarios**: every `u16`
+selector in stable-global and allocator-rotating-global modes. It checks
+call order, distinct allocation handles, linked resources, destination
+slots, prior-store visibility, and unchanged state. Provider lookups and
+allocation are supplied by the fixture; every native address is asserted
+to fit losslessly in the target's 32-bit handle representation.
+An additional wasm32 fixture executes the **actual production allocator
+and setter** for **18 cases**, covering all mode branches, high input
+bits, prior memory contents, returned handles, and subsequent data
+attachment. Only heap allocation and diagnostic output are supplied.
+
+`code1_001c.c::func_001c1040` received its first complete C reconstruction.
+The old archive contained only an ASM baseline and explicitly recorded
+no source probing. Its blanket COP1 limitation was false: ordinary C
+emits both `adda.s`/`madd.s` and `adda.s`/`msub.s` pairs. The retail
+offsets are +0x564/+0x568 and +0x578/+0x57c.
+
+The closer full candidate is preserved in
+`docs/probe_archive/P01C_001c1040_body.c`: **1,876 / 1,888 bytes**,
+all **48 relocations resolved**, **899 overlap bytes / 312 executable
+word positions differing**, including eight missing executable bytes.
+The single aggregate-layout refinement was worse, at 1,908 bytes.
+Production remains ASM; no native-behavior claim is made for this
+nonmatching body. Its complete poses, bounds output pointers, conditional
+byte-state write, real extra normalization, and unordered float
+comparison behavior are retained. No compiler-floor sweep follows it.
+
+The complete gate passes at **6,135 first-party MATCH / 725 ASM**.
+C-linked coverage remains **172 objects / 1,570 functions**; progress
+artifacts validate, and all 338 first-party files have zero lint findings.
+The loadable-image and complete-retail SHA-1 hashes remain unchanged.
