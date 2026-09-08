@@ -1,5 +1,9 @@
 #include "include_asm.h"
 #include "type.h"
+
+typedef struct RwMatrix RwMatrix;
+typedef struct RwV3d RwV3d;
+
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct {
     u8 c0;
@@ -1448,7 +1452,7 @@ u8 *arg0;
     extern void func_0048a150(void *arg0, void *arg1);
     extern void func_0047a1c0(void *arg0, void *arg1, s32 arg2);
     extern void func_0047a1e0(void *arg0, void *arg1, s32 arg2);
-    extern void func_0047a180(void *arg0, f32 *arg1, s32 arg2);
+    extern RwMatrix *func_0047a180(RwMatrix *matrix, const RwV3d *translation, int combineOp);
     extern void func_00478e70(void *arg0);
     extern s32 func_0048abd0(void *arg0, void *arg1, u32 arg2, u32 arg3);
     extern f32 func_0048aff0(void *arg0, u32 arg1, u32 arg2);
@@ -1495,7 +1499,7 @@ u8 *arg0;
         vec[0] = *(f32 *)(arg0 + 0);
         vec[1] = *(f32 *)(arg0 + 4);
         vec[2] = *(f32 *)(arg0 + 8);
-        func_0047a180(*(void **)(arg0 + 0xA0), vec, 2);
+        func_0047a180((RwMatrix *)*(void **)(arg0 + 0xA0), (const RwV3d *)vec, 2);
         func_0047a0e0(*(void **)(arg0 + 0xA0), 0, *(f32 *)(arg0 + 0x94));
         func_00478e70(*(void **)(arg0 + 0xA0));
         if (*(s32 *)(arg0 + 0x9C) != 0) {
