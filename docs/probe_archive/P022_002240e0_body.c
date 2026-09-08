@@ -39,6 +39,10 @@
  * executable bytes instead of four. Current propagation-off and explicit
  * selection temporaries do not close the missing narrowing or register
  * allocation differences. The complete baseline below remains preferred.
+ * Fresh CSE-off recheck: 880/880 bytes but 371 normalized differences.
+ * It adds two unit-pointer reloads while still missing the conditional
+ * narrowing. Explicit unit snapshots return to 872/344; additionally
+ * staging selection with propagation off gives 872/346. No new floor.
  * Additional declarations assume the live owner's existing types/providers.
  */
 extern s32 func_00243d80(u8 *unitData);
