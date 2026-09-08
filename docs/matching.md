@@ -7208,3 +7208,88 @@ first-party files. Loadable-image SHA1 remains
 `3d1d3d2b9d6ccb60836db239ab49674223025a78`; retail ELF SHA1 remains
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`. The API corrections do not claim
 additional matching functions.
+
+## Fresh menu reconstruction and task/state argument contracts
+
+`func_002232a0` now has a complete ordinary-C candidate in
+`docs/probe_archive/P022_002232a0_body.c`, including all nine verified states,
+same-call fallthroughs, the eleven-word message aggregate and two-float
+position. Constructor and callback provenance establishes
+`0 <= index <= count <= 12`; the candidate does not invent an input for
+retail's incoming-`s2` path on corrupted `index > count` work.
+
+The owner-profile probe emits **1,020 / 1,040 bytes**, against **1,036
+executable bytes**. All **26 code relocations** and **nine jump-table
+relocations** resolve, but **788 overlap bytes / 256 executable word
+positions differ**, including **16 missing executable bytes**. All nine
+generated table targets differ. Production remains ASM; this is not a match
+or game-execution claim. The first input declaration also exposed a genuine
+addressing error: standalone halfword declarations selected GP-relative
+loads outside the signed-16 range. The candidate now uses the actual
+`D_008C0240[]` input block, as `sdkTask.c` does.
+
+`func_00224450` remains ASM for a different reason. Its complete branch map,
+provider contracts and exact data are recorded in
+`docs/probe_archive/P022_00224450_body.c`. For target mask 2, global flag
+`0x400`, effect class 0 and a second battle-id result other than `0x215`,
+retail consumes seven unwritten destination-pose floats. The setup helper
+writes camera state, not those stack bytes; the actual invoker supplies only
+the camera. Battle `0x203` sets flag `0x400`, so the override cannot be assumed
+to initialize the pose. No C object or matching score is claimed. A proven
+reachability restriction, or permission to repair the retail behavior, is
+needed before an honest ordinary-C replacement.
+
+The investigations did repair real live-source contracts:
+
+- `func_0011f580` forwards its child task to `func_00452080` and returns the
+  actual `s32` result.
+- `func_00353f50` forwards its mode to `func_002bb7c0(s32)`.
+- `func_001bc660` forwards its full-width state to `func_0022cdb0(s32)`;
+  only table indexing, comparisons and halfword stores narrow the state.
+  Keeping a `u16` public input added a pre-call mask and produced 404 bytes
+  in the 400-byte window. The real `s32` input restores the retail sequence.
+  All live camera callers now use the same state/action declaration.
+- Ten `code1_0022` task queries, exit requests and cleanup callbacks now
+  accept the task explicitly and use the real `u32 func_00452560(void*)`
+  provider. Parent constructors and result-dispatch callers are migrated;
+  `func_0021d4a0` also passes its existing task input to its own getter.
+  This is a scoped migration, not a claim that every legacy getter
+  declaration elsewhere has been converted.
+
+Fully resolved byte comparison, with no relocation masking:
+
+| Function | Object / retail-window bytes | Resolved relocations |
+| --- | ---: | ---: |
+| `func_0011f580` | 32 / 32 | 1 |
+| `func_00353f50` | 88 / 96 | 3 |
+| `func_001bc660` | 396 / 400 | 15 |
+| `func_002218e0` | 44 / 48 | 1 |
+| `func_00221940` | 48 / 48 | 1 |
+| `func_002231e0` | 96 / 96 | 2 |
+| `func_00223240` | 40 / 48 | 1 |
+| `func_002236c0` | 104 / 112 | 4 |
+| `func_00223830` | 96 / 96 | 2 |
+| `func_00223890` | 40 / 48 | 1 |
+| `func_00223ee0` | 88 / 96 | 4 |
+| `func_00224040` | 60 / 64 | 2 |
+| `func_00224080` | 40 / 48 | 1 |
+
+Every listed comparison has zero differing bytes and only zero retail tail
+bytes. These were already classified MATCH; fixing their C contracts does
+not increase the matching-function count.
+
+A throwaway wasm32 consumer rejects the pre-fix sources from `7449db63`
+against real provider signatures and compiles the corrected sources with
+`-Werror`. Runtime execution uses the live camera dispatcher, override
+selector, battle-id getter and task-data getter: six camera scenarios cover
+the three override tables, disabled and empty-entry fallback, full-width
+state input and reentry effects; five task queries and two exit transitions
+operate on independent work blocks. External service hooks trap if called;
+none executes. Persona release and result-mode wrappers receive compile
+and exact-byte proof, not a runtime-service claim. The smoke fixture is
+removed after execution.
+
+The final `make build-progress progress lint-errors` gate passes with
+**6,138 first-party MATCH / 722 ASM**, **172 C-linked objects / 1,570
+functions**, validated progress artifacts and zero findings across 338
+first-party files. Both retail hashes remain unchanged.

@@ -3,6 +3,8 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 
+typedef struct KwlnTask KwlnTask;
+
 extern s32 iGpffffa598;
 extern u8 *iGpffffb3ac;
 extern s32 iGpffffb470;
@@ -67,7 +69,7 @@ extern s32 func_00213a80(void);
 extern s32 func_00452380(void *arg0);
 extern u8 D_00626C80[];
 extern void func_0021b310();
-extern s32 func_00221940(s32 arg0);
+extern s32 func_00221940(KwlnTask *task);
 extern void func_0036e870(s32 arg0);
 extern void func_00221770(s32 arg0);
 extern u8 D_006290E0[];
@@ -1494,7 +1496,7 @@ s32 func_0021d470(void)
 s32 func_0021d4a0(s32 arg0)
 {
     extern s32 func_0036e8a0(s32 arg0);
-    extern s32 func_002218e0(s32 arg0);
+    extern s32 func_002218e0(KwlnTask *task);
     extern void func_0036e7e0(s32 arg0);
     extern void func_0021e110(u8 *arg0, u8 *arg1);
     extern s32 func_002216b0(s32 arg0);
@@ -1505,12 +1507,12 @@ s32 func_0021d4a0(s32 arg0)
     extern s32 func_002230e0(s32 arg0);
     extern s32 func_00223730(s32 arg0);
     extern s32 func_00223f40(s32 arg0);
-    extern s32 func_00223240(s32 arg0);
-    extern void func_002231e0(s32 arg0);
-    extern s32 func_00223890(s32 arg0);
-    extern void func_00223830(s32 arg0);
-    extern s32 func_00224080(s32 arg0);
-    extern void func_00224040(s32 arg0);
+    extern s32 func_00223240(KwlnTask *task);
+    extern void func_002231e0(KwlnTask *task);
+    extern s32 func_00223890(KwlnTask *task);
+    extern void func_00223830(KwlnTask *task);
+    extern s32 func_00224080(KwlnTask *task);
+    extern void func_00224040(KwlnTask *task);
     extern s32 func_0036e8d0(void);
     extern s32 func_00221910(void);
     extern s32 func_00223270(void);
@@ -1520,7 +1522,7 @@ s32 func_0021d4a0(s32 arg0)
     s32 flags;
     s32 ready;
 
-    work = func_00452560();
+    work = func_00452560((void *)arg0);
     switch (*(s32 *)(work + 4)) {
     case 1:
         *(s32 *)(work + 4) = 2;
@@ -1534,7 +1536,7 @@ s32 func_0021d4a0(s32 arg0)
                     func_0036e8a0(*(s32 *)(work + 0x938)) != 0) {
                     ready = 0;
                 }
-                if (func_002218e0(*(s32 *)(work + 0x93C)) != 0) {
+                if (func_002218e0(*(KwlnTask **)(work + 0x93C)) != 0) {
                     ready = 0;
                 }
                 if (ready != 0) {
@@ -1594,8 +1596,8 @@ s32 func_0021d4a0(s32 arg0)
         }
         break;
     case 6:
-        if (func_00223240(*(s32 *)(work + 0x940)) == 0) {
-            func_002231e0(*(s32 *)(work + 0x940));
+        if (func_00223240(*(KwlnTask **)(work + 0x940)) == 0) {
+            func_002231e0(*(KwlnTask **)(work + 0x940));
             *(s32 *)(work + 0x940) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 8) != 0) {
@@ -1613,8 +1615,8 @@ s32 func_0021d4a0(s32 arg0)
         }
         break;
     case 7:
-        if (func_00223890(*(s32 *)(work + 0x944)) == 0) {
-            func_00223830(*(s32 *)(work + 0x944));
+        if (func_00223890(*(KwlnTask **)(work + 0x944)) == 0) {
+            func_00223830(*(KwlnTask **)(work + 0x944));
             *(s32 *)(work + 0x944) = 0;
             flags = *(s32 *)(work + 0x60);
             if ((flags & 0x10) != 0) {
@@ -1627,8 +1629,8 @@ s32 func_0021d4a0(s32 arg0)
         }
         break;
     case 8:
-        if (func_00224080(*(s32 *)(work + 0x948)) == 0) {
-            func_00224040(*(s32 *)(work + 0x948));
+        if (func_00224080(*(KwlnTask **)(work + 0x948)) == 0) {
+            func_00224040(*(KwlnTask **)(work + 0x948));
             *(s32 *)(work + 0x948) = 0;
             *(s32 *)(work + 4) = 9;
         }
@@ -1709,7 +1711,7 @@ s32 func_0021db40(void)
     }
     temp = *(s32 *)(p + 0x93C);
     if (temp != 0) {
-        return func_00221940(temp);
+        return func_00221940((KwlnTask *)temp);
     }
     return 0;
 }
