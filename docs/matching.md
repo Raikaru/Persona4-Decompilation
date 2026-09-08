@@ -7753,3 +7753,72 @@ Loadable image SHA-1 is unchanged at
 `4eeec0360cf2715535d9f7e52eb69d786fb0158c`.
 The three reconstruction directories, compiler experiments and native
 smoke fixtures were removed after archiving the source and evidence.
+
+## Exact action preparation and camera roster blocker
+
+`func_0022b120` is complete ordinary C: **1860/1872 bytes**, all **67 code
+relocations resolved**, no differing bytes, and twelve zero alignment
+bytes after the return delay slot. The real script-name pointer closes
+argument materialization; declaring `wait1`, `wait0`, then `anchor` closes
+the remaining saved-register allocation differences without pragmas.
+
+All 23 packet publications retain their full-width action and predecessor
+identities, including reloads after synchronous publication callbacks.
+The rotate packet copies exactly one initialized 12-byte `RwV3d`.
+Both formation objects are populated before traversal publication and
+released in retail order; packet-held references retain their lifetime.
+The zero-work `func_002306d0` packet deliberately keeps its constructor's
+zero action identity. No synthetic input, local padding or hidden saved
+register is used.
+
+`func_001ebb00` now takes the actual `u8 *` script name in its active
+definition and both new callsites. The existing word-address resource
+resolver boundary is explicit. Its **252/256-byte** body remains MATCH;
+both affected owners verify at **204 MATCH / 15 ASM**, with no mismatches.
+The initializer/updater declarations also carry their real pointer and
+return types. Registration now uses the established three-word address
+API, not false no-argument callback types; that owner still verifies
+at **112 MATCH / 9 ASM** after this repair.
+The actual initializer registration and dispatcher supply only the action
+pointer and consume no result. This is compiler/retail-byte verification,
+not game execution. `P022_0022b120_body.c` archives the exact source and
+complete provider, publication and lifetime contracts.
+
+### Camera roster initializer: an admitted uninitialized-pose path
+
+`func_00224450` remains ASM. Its complete **1312-byte** audit distinguishes
+two superficially similar fallbacks:
+
+- Target mask `1`, classification `0`: branch at `0022482C` goes directly
+  to the epilogue at `0022494C`; no destination pose is consumed.
+- Target mask `2`, battle flag `0x400`, classification `0`: branch at
+  `0022466C` goes to `00224888`, then consumes the uninitialized second
+  pose unless encounter `0x215` overwrites it.
+
+`func_001bd560` initializes only `[sp+0x60, sp+0x7C)`.
+`func_001c8cf0` writes only `camera+0x100..0x107`. Neither supplies the
+28 bytes at `[sp+0x7C, sp+0x98)` later consumed by `func_001bab00` or
+`func_001bac20`. All three callback tables and the real packet dispatcher
+were audited; none supplies another pose or excludes this combination.
+Encounter `0x203` setup actually enables both the override table and
+flag `0x400`, without the `0x215` repair.
+
+This proves a dispatcher-admitted path, not a captured gameplay trace or
+an observed shipped skill record. Recovery still needs an independently
+proven runtime-data invariant excluding it; zeroing the pose, enlarging a
+provider output or inventing an early return would change retail behavior.
+`P022_00224450_body.c` records the complete branch, caller and extent audit,
+without a fake candidate definition.
+
+The `func_002240e0` current-contract recheck also remains ASM: **872/880
+bytes / 344 normalized differences**, including four uncovered executable
+bytes. Word-sized selectors omit eight executable bytes; propagation and
+selection-temporary variants do not close the floor. The complete preferred
+source and fresh measurements remain in `P022_002240e0_body.c`.
+
+The final `make build-progress progress lint-errors` gate passes:
+**6,151 first-party MATCH / 709 ASM**, **7,781 total MATCH / 4,939 ASM**,
+validated progress artifacts, and zero findings across 338 first-party
+files. C linking remains **172 objects / 1,570 functions**, with unchanged
+loadable and retail ELF hashes. Both completed recovery directories and
+their compiler probes were removed after archiving the evidence.

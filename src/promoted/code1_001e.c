@@ -125,9 +125,9 @@ extern s32 func_002428f0(s32 arg0, s32 arg1);
 extern s32 func_00106330(s32 arg0);
 extern s32 func_0019ef90(s32 arg0, s32 arg1);
 extern s32 func_001b0c80(s32 arg0);
-extern void func_001fae60(void (*arg0)(void), void (*arg1)(void), s32 arg2);
-extern void func_0022b120(void);
-extern void func_0022b870(void);
+extern void func_001fae60(s32 initialize, s32 update, s32 packet);
+extern void func_0022b120(u8 *action);
+extern s32 func_0022b870(u8 *action);
 extern void func_001debb0(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
 extern s32 func_00452490(s32 arg0);
 extern u8 *func_00194470(s32 arg0, s32 arg1);
@@ -1630,7 +1630,7 @@ body:
     temp_2_2 = func_001b0c80(temp_2);
     if (temp_2_2 == 0)
         goto done;
-    func_001fae60(func_0022b120, func_0022b870, temp_2_2);
+    func_001fae60((s32)func_0022b120, (s32)func_0022b870, temp_2_2);
 done:
     return 1;
 }
@@ -2322,7 +2322,7 @@ done:
     return result;
 }
 // FUN_001EBB00
-u8 *func_001ebb00(s32 arg0, s32 arg1, s32 arg2) {
+u8 *func_001ebb00(s32 arg0, s32 arg1, u8 *arg2) {
     s32 kind;
     u8 *temp_16;
     u8 *temp_2;
@@ -2344,7 +2344,7 @@ u8 *func_001ebb00(s32 arg0, s32 arg1, s32 arg2) {
         break;
     }
     *(s32 *)(temp_16 + 0x0) = arg0;
-    *(s32 *)(temp_16 + 0x4) = func_0029de20(*(s32 *)(temp_16 + 0xC), arg2);
+    *(s32 *)(temp_16 + 0x4) = func_0029de20(*(s32 *)(temp_16 + 0xC), (s32)arg2);
     *(s32 *)(temp_16 + 0x8) = 0;
     return temp_2;
 }
